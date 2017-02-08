@@ -613,13 +613,21 @@ function get_current_url_supercache_dir( $post_id = 0 ) {
 
 function wpsc_delete_files( $dir ) {
 	global $cache_path, $blog_cache_dir;
+	static $rp_cache_path = '';
+	static $protected = '';
+
+	// only do this once, this function will be called many times
+	if ( $rp_cache_path == '' ) {
+		$protected = array( $cache_path, $cache_path . $blog_cache_dir, get_supercache_dir() );
+		$protected = array_walk( array_walk( $protected, 'realpath' ), 'trailingslashit' );
+		$rp_cache_path = trailingslashit( realpath( $cache_path ) );
+	}
 
 	$dir = trailingslashit( realpath( $dir ) );
-	if ( substr( $dir, 0, strlen( $cache_path ) ) != $cache_path )
+	if ( substr( $dir, 0, strlen( $rp_cache_path ) ) != $rp_cache_path )
 		return false;
 
-	$protected = array( $cache_path, $cache_path . $blog_cache_dir, get_supercache_dir() );
-	if ( in_array( trailingslashit( $dir ), $protected ) )
+	if ( in_array( $dir, $protected ) )
 		return false;
 
 	if ( is_dir( $dir ) && $dh = @opendir( $dir ) ) {
