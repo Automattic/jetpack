@@ -293,6 +293,16 @@ EOT;
 
 		return $this->_options;
 	}
+	
+	public function get_option( $option_name ) {
+		$options = $this->get_options();
+		
+		if ( isset( $options[ $option_name ] ) ) {
+			return $options[ $option_name ];
+		}
+		
+		return false;
+	}
 
 	/**
 	 * Parses input and returns normalized options array.
@@ -1383,24 +1393,11 @@ EOT;
 	 * @return bool
 	 */
 	protected function _enabled_for_request() {
-		// Default to enabled
-		$enabled = true;
-
-		// Must have feature enabled
-		$options = $this->get_options();
-		if ( ! $options['enabled'] ) {
-			$enabled = false;
-		}
-
-		// Only run for frontend pages
-		if ( is_admin() ) {
-			$enabled = false;
-		}
-
-		// Only run for standalone posts
-		if ( ! is_single() ) {
-			$enabled = false;
-		}
+		$enabled = is_single() 
+			&&
+				! is_admin()
+			&&
+				( $this->_allow_feature_toggle() && $this->get_option( 'enabled' ) );
 
 		/**
 		 * Filter the Enabled value to allow related posts to be shown on pages as well.
