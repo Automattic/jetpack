@@ -112,6 +112,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Performance Improvements**
 
+* Development mode: improve performance by only calling `site_url()` once. #6130
 * Media Summary: improve performance with single page load caching. #5938
 
 **Enhancements**
