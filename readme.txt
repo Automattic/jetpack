@@ -114,6 +114,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Development mode: improve performance by only calling `site_url()` once. #6130
 * Media Summary: improve performance with single page load caching. #5938
+* Open Graph: Avoid slow queries on sites with thousands of images. #6297
 
 **Enhancements**
 
