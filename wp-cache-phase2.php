@@ -824,9 +824,21 @@ function prune_super_cache( $directory, $force = false, $rename = false ) {
 }
 
 function wp_cache_rebuild_or_delete( $file ) {
-	global $cache_rebuild_files;
-	if( strpos( $file, '?' ) !== false )
+	global $cache_rebuild_files, $cache_path;
+	static $rp_cache_path = '';
+
+	if ( $rp_cache_path == '' ) {
+		$rp_cache_path = trailingslashit( realpath( $cache_path ) );
+	}
+
+	if ( strpos( $file, '?' ) !== false )
 		$file = substr( $file, 0, strpos( $file, '?' ) );
+	$file = realpath( $file );
+	if ( substr( $file, 0, strlen( $rp_cache_path ) ) != $rp_cache_path ) {
+		wp_cache_debug( "rebuild_or_gc quitting because file is not in cache_path: $file" );
+		return false;
+	}
+
 	if( $cache_rebuild_files && substr( $file, -14 ) != '.needs-rebuild' ) {
 		if( @rename($file, $file . '.needs-rebuild') ) {
 			@touch( $file . '.needs-rebuild' );
