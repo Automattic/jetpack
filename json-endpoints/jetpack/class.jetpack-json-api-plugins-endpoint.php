@@ -131,6 +131,9 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 	}
 
 	protected function get_plugins() {
+		// Do the admin_init action in order to capture plugin action links.
+		// See get_plugin_action_links()
+		do_action( 'admin_init' );
 		$plugins = array();
 		/** This filter is documented in wp-admin/includes/class-wp-plugins-list-table.php */
 		$installed_plugins = apply_filters( 'all_plugins', get_plugins() );
@@ -194,8 +197,11 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 	 protected function get_plugin_action_links( $plugin_file ) {
 		 $formatted_action_links = array();
 
+		 $action_links = array();
 		 /** This filter is documented in src/wp-admin/includes/class-wp-plugins-list-table.php */
-		 $action_links = apply_filters( 'plugin_action_links', null, $plugin_file, null, 'all' );
+		 $action_links = apply_filters( 'plugin_action_links', $action_links, $plugin_file, null, 'all' );
+		 /** This filter is documented in src/wp-admin/includes/class-wp-plugins-list-table.php */
+		 $action_links = apply_filters( "plugin_action_links_{$plugin_file}", $action_links, $plugin_file, null, 'all' );
 		 if ( count( $action_links ) > 0 ) {
 			 $dom_doc = new DOMDocument;
 			 foreach( $action_links as $action_link ) {
