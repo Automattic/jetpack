@@ -1428,9 +1428,10 @@ jQuery(document).ready(function($) {
 			}
 
 			var valid = false;
+			var dataOrigFile = $( this ).attr( 'data-orig-file' ).split('?fit')[0];
 
 			// if link points to 'Media File' and flag is set allow it
-			if ( $( container ).attr( 'href' ) === $( this ).attr( 'data-orig-file' ) &&
+			if ( $( container ).attr( 'href' ) === dataOrigFile &&
 				1 === Number( jetpackCarouselStrings.single_image_gallery_media_file )
 			) {
 				valid = true;
