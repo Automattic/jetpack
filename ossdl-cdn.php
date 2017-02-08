@@ -4,7 +4,7 @@
 
 /* Set up some defaults */
 if ( get_option( 'ossdl_off_cdn_url' ) == false )
-	add_option('ossdl_off_cdn_url', get_home_url());
+	add_option('ossdl_off_cdn_url', get_home_url() );
 $ossdl_off_blog_url = apply_filters( 'ossdl_off_blog_url', get_home_url() );
 $ossdl_off_cdn_url = trim( get_option('ossdl_off_cdn_url') );
 if ( get_option( 'ossdl_off_include_dirs' ) == false )
