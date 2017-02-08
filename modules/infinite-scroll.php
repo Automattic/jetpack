@@ -96,7 +96,7 @@ class Jetpack_Infinite_Scroll_Extras {
 	 * @return html
 	 */
 	public function setting_google_analytics() {
-		echo '<label><input name="infinite_scroll_google_analytics" type="checkbox" value="1" ' . checked( true, (bool) get_option( $this->option_name_google_analytics, false ), false ) . ' /> ' . esc_html__( 'Track each Infinite Scroll post load as a page view in Google Analytics', 'jetpack' )  . '</label>';
+		echo '<label><input name="infinite_scroll_google_analytics" type="checkbox" value="1" ' . checked( true, (bool) get_option( $this->option_name_google_analytics, false ), false ) . ' /> ' . esc_html__( 'Track each scroll load (7 posts by default) as a page view in Google Analytics', 'jetpack' )  . '</label>';
 		echo '<p class="description">' . esc_html__( 'Check the box above to record each new set of posts loaded via Infinite Scroll as a page view in Google Analytics.', 'jetpack' ) . '</p>';
 	}
 

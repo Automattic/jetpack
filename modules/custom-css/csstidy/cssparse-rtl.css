@@ -1,5 +1,5 @@
 /* Do not modify this file directly.  It is concatenated from individual module CSS files. */
-@import url("cssparsed.css");
+@import url("modules/custom-css/csstidy/cssparsed.css");
 
 html, body {
 font:0.8em Verdana,Helvetica,sans-serif;
