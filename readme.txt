@@ -112,6 +112,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Performance Improvements**
 
+* Media Summary: improve performance with single page load caching. #5938
+
 **Enhancements**
 
 * Widgets: add a filter to The Display Posts Widget content, so the content can be customized. #5883
