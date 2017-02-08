@@ -121,6 +121,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Improved Compatibility**
 
+* Multisite: use Core functions to retrieve the list of sites for more accurate results. #3405
+
 **Bug Fixes**
 
 = 4.6 =
