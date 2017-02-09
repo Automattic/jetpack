@@ -138,23 +138,22 @@ if ( !function_exists( 'wp_cache_user_agent_is_rejected' ) ) {
 }
 
 function wp_cache_get_response_headers() {
-	if(function_exists('apache_response_headers')) {
+	$headers = array();
+	if ( function_exists( 'apache_response_headers' ) ) {
 		$headers = apache_response_headers();
-		if ( empty( $headers ) ) {
-			flush();
-			$headers = apache_response_headers();
-		}
-	} else if(function_exists('headers_list')) {
+	}
+	if ( empty( $headers ) && function_exists( 'headers_list' ) ) {
 		$headers = array();
-		foreach(headers_list() as $hdr) {
+		foreach( headers_list() as $hdr ) {
 			$header_parts = explode( ':', $hdr, 2 );
 			$header_name  = isset( $header_parts[0] ) ? trim( $header_parts[0] ) : '';
 			$header_value = isset( $header_parts[1] ) ? trim( $header_parts[1] ) : '';
 
 			$headers[$header_name] = $header_value;
 		}
-	} else
+	} else {
 		$headers = null;
+	}
 
 	return $headers;
 }
