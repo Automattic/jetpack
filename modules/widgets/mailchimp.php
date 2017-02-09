@@ -42,9 +42,9 @@ if ( ! class_exists( 'Jetpack_Mailchimp_Subscriber_Popup_Widget' ) ) {
 		 * @return void Echoes it's output
 		 **/
 		function widget( $args, $instance ) {
-			$instance = wp_parse_args( $instance, array( 'code' ) );
+			$instance = wp_parse_args( $instance, array( 'code' => '' ) );
 
-			if ( '' != $instance['code'] ) {
+			if ( has_shortcode( $instance['code'], 'mailchimp_subscriber_popup' ) ) {
 				echo do_shortcode( $instance['code'] );
 			}
 
@@ -63,7 +63,7 @@ if ( ! class_exists( 'Jetpack_Mailchimp_Subscriber_Popup_Widget' ) ) {
 		 */
 		function update( $new_instance, $old_instance ) {
 			$instance         = array();
-			$instance['code'] = wp_kses( $new_instance['code'], array() );
+			$instance['code'] = wp_kses_post( stripslashes( $new_instance['code'] ) );
 
 			return $instance;
 		}
@@ -77,7 +77,7 @@ if ( ! class_exists( 'Jetpack_Mailchimp_Subscriber_Popup_Widget' ) ) {
 		 * @return void
 		 */
 		function form( $instance ) {
-			$instance = wp_parse_args( $instance, array( 'code' ) );
+			$instance = wp_parse_args( $instance, array( 'code' => '' ) );
 			?>
 
 			<p>
