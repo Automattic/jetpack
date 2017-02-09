@@ -194,7 +194,7 @@ class Jetpack_Protect_Module {
 		$err_codes = $errors->get_error_codes();
 
 		if ( in_array( 'invalid_username', $err_codes, true ) || in_array( 'incorrect_password', $err_codes, true ) ) {
-			$error .= __( '<br>If you have forgotten your login information, do not keep guessing as you could be locked out; instead, use the password reset link.' );
+			$error .= '<br>' . esc_html__( 'If you have forgotten your login information, do not keep guessing as you could be locked out; instead, use the password reset link.', 'jetpack' );
 		}
 
 		return $error;
