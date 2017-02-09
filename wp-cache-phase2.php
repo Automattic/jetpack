@@ -78,8 +78,10 @@ function wpcache_do_rebuild( $dir ) {
 	global $do_rebuild_list, $cache_path, $blog_cache_dir;
 
 	$dir = trailingslashit( realpath( $dir ) );
-	$protected = array( $cache_path, $cache_path . $blog_cache_dir, get_supercache_dir() );
-	$protected = array_walk( array_walk( $protected, 'realpath' ), 'trailingslashit' );
+	$protected = array( $cache_path, $cache_path . "blogs/", get_supercache_dir() );
+	foreach( $protected as $id => $directory ) {
+		$protected[ $id ] = trailingslashit( realpath( $directory ) );
+	}
 	$rp_cache_path = trailingslashit( realpath( $cache_path ) );
 
 	if ( substr( $dir, 0, strlen( $rp_cache_path ) ) != $rp_cache_path )
@@ -844,11 +846,23 @@ function wp_cache_rebuild_or_delete( $file ) {
 
 	if ( strpos( $file, '?' ) !== false )
 		$file = substr( $file, 0, strpos( $file, '?' ) );
+
 	$file = realpath( $file );
+
 	if ( substr( $file, 0, strlen( $rp_cache_path ) ) != $rp_cache_path ) {
 		wp_cache_debug( "rebuild_or_gc quitting because file is not in cache_path: $file" );
 		return false;
 	}
+
+	if ( $protected == '' ) {
+		$protected = array( $cache_path . "index.html", get_supercache_dir() . "index.html", $cache_path . "blogs/index.html" );
+		foreach( $protected as $id => $directory ) {
+			$protected[ $id ] = trailingslashit( realpath( $directory ) );
+		}
+	}
+
+	if ( in_array( $file, $protected ) )
+		return false;
 
 	if( $cache_rebuild_files && substr( $file, -14 ) != '.needs-rebuild' ) {
 		if( @rename($file, $file . '.needs-rebuild') ) {
