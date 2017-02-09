@@ -1,36 +1,33 @@
 <?php
 
-if ( ! class_exists( 'Jetpack_Mailchimp_Subscriber_Popup_Widget' ) ) {
+if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 
 	//register MailChimp Subscriber Popup widget
-	function jetpack_mailchimp_widget_init() {
-		register_widget( 'Jetpack_Mailchimp_Subscriber_Popup_Widget' );
+	function jetpack_mailchimp_subscriber_popup_widget_init() {
+		register_widget( 'Jetpack_MailChimp_Subscriber_Popup_Widget' );
 	}
 
-	add_action( 'widgets_init', 'jetpack_mailchimp_widget_init' );
+	add_action( 'widgets_init', 'jetpack_mailchimp_subscriber_popup_widget_init' );
 
 	/**
-	 * Add a MailChimp Subscriber Popup embedcode
-	 *
-	 *
+	 * Add a MailChimp subscription form.
 	 */
-	class Jetpack_Mailchimp_Subscriber_Popup_Widget extends WP_Widget {
+	class Jetpack_MailChimp_Subscriber_Popup_Widget extends WP_Widget {
 
 		/**
 		 * Constructor
 		 */
 		function __construct() {
 			parent::__construct(
-				'widget_mailchimp',
+				'widget_mailchimp_subscriber_popup',
 				/** This filter is documented in modules/widgets/facebook-likebox.php */
 				apply_filters( 'jetpack_widget_name', __( 'MailChimp Subscriber Popup', 'jetpack' ) ),
 				array(
-					'classname'                   => 'widget_mailchimp',
+					'classname'                   => 'widget_mailchimp_subscriber_popup',
 					'description'                 => __( 'Allows displaying a popup subscription form to visitors.', 'jetpack' ),
 					'customize_selective_refresh' => true,
 				)
 			);
-			$this->alt_option_name = 'widget_mailchimp';
 		}
 
 		/**
@@ -44,12 +41,19 @@ if ( ! class_exists( 'Jetpack_Mailchimp_Subscriber_Popup_Widget' ) ) {
 		function widget( $args, $instance ) {
 			$instance = wp_parse_args( $instance, array( 'code' => '' ) );
 
-			if ( has_shortcode( $instance['code'], 'mailchimp_subscriber_popup' ) ) {
-				echo do_shortcode( $instance['code'] );
+			// Regular expresion that will match maichimp shortcode.
+			$regex = "(\[mailchimp_subscriber_popup[^\]]+\])";
+
+			// Check if the shortcode exists.
+			preg_match( $regex, $instance['code'], $matches );
+
+			// Process the shortcode only, if exists.
+			if ( ! empty( $matches[0] ) ) {
+				echo do_shortcode( $matches[0] );
 			}
 
 			/** This action is documented in modules/widgets/gravatar-profile.php */
-			do_action( 'jetpack_stats_extra', 'widget_view', 'mailchimp' );
+			do_action( 'jetpack_stats_extra', 'widget_view', 'mailchimp_subscriber_popup' );
 		}
 
 
@@ -82,7 +86,7 @@ if ( ! class_exists( 'Jetpack_Mailchimp_Subscriber_Popup_Widget' ) ) {
 
 			<p>
 				<label for="<?php echo esc_attr( $this->get_field_id( 'code' ) ); ?>"><?php esc_html_e( 'Code:', 'jetpack' ); ?></label>
-				<textarea class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'code' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'code' ) ); ?>"><?php echo esc_textarea( $instance['code'] ); ?></textarea>
+				<textarea class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'code' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'code' ) ); ?>" rows="3"><?php echo esc_textarea( $instance['code'] ); ?></textarea>
 			</p>
 
 			<?php
