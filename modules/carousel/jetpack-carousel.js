@@ -1128,7 +1128,7 @@ jQuery(document).ready(function($) {
 			var $ul = $( '<ul class=\'jp-carousel-image-exif\'></ul>' );
 
 			$.each( meta, function( key, val ) {
-				if ( 0 === parseFloat(val) || !val.length || -1 === $.inArray( key, [ 'camera', 'aperture', 'shutter_speed', 'focal_length' ] ) ) {
+				if ( 0 === parseFloat(val) || !val.length || -1 === $.inArray( key, $.makeArray( jetpackCarouselStrings.meta_data ) ) ) {
 					return;
 				}
 
