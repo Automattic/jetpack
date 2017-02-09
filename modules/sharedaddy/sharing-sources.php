@@ -515,7 +515,7 @@ class Share_Email extends Sharing_Source {
 				<input type="email" name="source_email" id="source_email" value="" />
 
 			<?php endif; ?>
-			<input type="text" id="jetpack-source_f_name" name="source_f_name" class="input" value="" size="25" autocomplete="off" title="This field is for validation and should not be changed" />
+			<input type="text" id="jetpack-source_f_name" name="source_f_name" class="input" value="" size="25" autocomplete="off" title="<?php esc_attr_e( 'This field is for validation and should not be changed', 'jetpack' ); ?>" />
 			<script>jQuery( document ).ready( function(){ document.getElementById('jetpack-source_f_name').value = '' });</script>
 			<?php
 				/**
