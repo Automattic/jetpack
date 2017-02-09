@@ -81,23 +81,6 @@ function wpcache_do_rebuild( $dir ) {
 
 	if ( isset( $do_rebuild_list[ $dir ] ) )
 		return false;
-<<<<<<< HEAD
-	$files_to_check = get_all_supercache_filenames( $dir );
-	foreach( $files_to_check as $cache_file ) {
-		$cache_file = $dir . $cache_file;
-		if( !@file_exists( $cache_file . '.needs-rebuild' ) )
-			continue;
-		$mtime = @filemtime($cache_file . '.needs-rebuild');
-		if( $mtime && (time() - $mtime) < 10 ) {
-			wp_cache_debug( "Rebuild file renamed to cache file temporarily: $cache_file", 3 );
-			@rename( $cache_file . '.needs-rebuild', $cache_file );
-			$do_rebuild_list[ $dir ] = 1;
-		}
-		// cleanup old files or if rename fails
-		if( @file_exists( $cache_file . '.needs-rebuild' ) ) {
-			wp_cache_debug( "Rebuild file deleted: {$cache_file}.needs-rebuild", 3 );
-			@unlink( $cache_file . '.needs-rebuild' );
-=======
 
 	$protected = array( $cache_path, $cache_path . "blogs/", get_supercache_dir() );
 	foreach( $protected as $id => $directory ) {
@@ -129,7 +112,6 @@ function wpcache_do_rebuild( $dir ) {
 					@unlink( $cache_file . '.needs-rebuild' );
 				}
 			}
->>>>>>> 3284d222cc5f231022c36a522780c6cac359e864
 		}
 	}
 }
@@ -156,21 +138,11 @@ if ( !function_exists( 'wp_cache_user_agent_is_rejected' ) ) {
 }
 
 function wp_cache_get_response_headers() {
-<<<<<<< HEAD
-	if(function_exists('apache_response_headers')) {
-		$headers = apache_response_headers();
-		if ( empty( $headers ) ) {
-			flush();
-			$headers = apache_response_headers();
-		}
-	} else if(function_exists('headers_list')) {
-=======
 	$headers = array();
 	if ( function_exists( 'apache_response_headers' ) ) {
 		$headers = apache_response_headers();
 	}
 	if ( empty( $headers ) && function_exists( 'headers_list' ) ) {
->>>>>>> 3284d222cc5f231022c36a522780c6cac359e864
 		$headers = array();
 		foreach( headers_list() as $hdr ) {
 			$header_parts = explode( ':', $hdr, 2 );
@@ -402,11 +374,7 @@ function wp_cache_append_tag( &$buffer ) {
 		$msg = "\n<!-- Live page served on $timestamp -->\n";
 	}
 
-<<<<<<< HEAD
-	if ( strpos( '<html', $buffer ) === false ) {
-=======
 	if ( strpos( $buffer, '<html' ) === false ) {
->>>>>>> 3284d222cc5f231022c36a522780c6cac359e864
 		wp_cache_debug( site_url( $_SERVER[ 'REQUEST_URI' ] ) . " - " . $msg );
 		return false;
 	}
@@ -423,11 +391,7 @@ function wp_cache_add_to_buffer( &$buffer, $text ) {
 	if ( $wp_super_cache_comments == 0 )
 		return false;
 
-<<<<<<< HEAD
-	if ( strpos( '<html', $buffer ) === false ) {
-=======
 	if ( strpos( $buffer, '<html' ) === false ) {
->>>>>>> 3284d222cc5f231022c36a522780c6cac359e864
 		wp_cache_debug( site_url( $_SERVER[ 'REQUEST_URI' ] ) . " - " . $text );
 		return false;
 	}
