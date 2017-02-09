@@ -248,9 +248,10 @@ class Jetpack_Sitemap_Buffer {
 			// Remove any attributes from key.
 			preg_match( '/^[^ ]+/', $key, $match );
 
-			$close_tag = sanitize_key( $match[0] );
+			// Only allow a-z, A-Z, colon, underscore, and hyphen.
+			$close_tag = preg_replace('/[^a-zA-Z:_-]/', '_', $match[0] );
 
-			if ( preg_match( '/^[-_a-z]+( [^<>]+)?$/', $key ) ) {
+			if ( preg_match( '/^[a-z][-_:a-zA-Z]+( [^<>]+)?$/', $key ) ) {
 				$open_tag = $key;
 			} else {
 				$open_tag = $close_tag;
@@ -263,7 +264,7 @@ class Jetpack_Sitemap_Buffer {
 			} elseif ( is_null( $value ) ) {
 				$string .= $depth . "<$open_tag />\n";
 			} else {
-				$string .= $depth . "<$open_tag>" . esc_html( $value ) . "</$close_tag>\n";
+				$string .= $depth . "<$open_tag>" . ent2ncr( $value ) . "</$close_tag>\n";
 			}
 		}
 
@@ -284,7 +285,8 @@ class Jetpack_Sitemap_Buffer {
 		$string = '';
 
 		foreach ( $array as $key => $value ) {
-			$string .= ' ' . sanitize_key( $key ) . '="' . esc_attr( $value ) . '"';
+			$key = preg_replace('/[^a-zA-Z:_-]/', '_', $key );
+			$string .= ' ' . $key . '="' . esc_attr( $value ) . '"';
 		}
 
 		return $string;
