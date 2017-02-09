@@ -986,16 +986,8 @@ class Jetpack_Likes {
 
 		$post = get_post();
 
-		// @todo: Remove this block when 4.5 is the minimum
-		global $wp_version;
-		$comment_popup = false;
-		if ( version_compare( $wp_version, '4.5-alpha', '<=' ) ) {
-			$comment_popup = is_comments_popup();
-		}
-		// End 4.5 conditional block.
-
 		// Never show on feeds or previews
-		if ( is_feed() || is_preview() || $comment_popup ) { // @todo: Remove $comment_popup when 4.5 is minimum.
+		if ( is_feed() || is_preview() ) {
 			$enabled = false;
 
 		// Not a feed or preview, so what is it?
