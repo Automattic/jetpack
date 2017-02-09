@@ -123,88 +123,84 @@ class Jetpack_Sitemap_Builder {
 		// Get the most recent state.
 		$state = Jetpack_Sitemap_State::check_out();
 
-		// Do nothing if the state is locked.
+		// Do nothing if the state was locked.
 		if ( false === $state ) {
 			return;
 		}
 
 		// Otherwise, branch on the sitemap-type key of $state.
-		if ( JP_PAGE_SITEMAP_TYPE === $state['sitemap-type'] ) {
-			// Page Sitemap.
-			$this->build_next_sitemap_of_type(
-				JP_PAGE_SITEMAP_TYPE,
-				array( $this, 'build_one_page_sitemap' ),
-				$state
-			);
-			return;
+		switch ( $state['sitemap-type'] ) {
+			case JP_PAGE_SITEMAP_TYPE:
+				$this->build_next_sitemap_of_type(
+					JP_PAGE_SITEMAP_TYPE,
+					array( $this, 'build_one_page_sitemap' ),
+					$state
+				);
+				break;
 
-		} elseif ( JP_PAGE_SITEMAP_INDEX_TYPE === $state['sitemap-type'] ) {
-			// Page Sitemap Indices.
-			$this->build_next_sitemap_index_of_type(
-				$state,
-				JP_PAGE_SITEMAP_INDEX_TYPE,
-				JP_IMAGE_SITEMAP_TYPE
-			);
-			return;
+			case JP_PAGE_SITEMAP_INDEX_TYPE:
+				$this->build_next_sitemap_index_of_type(
+					JP_PAGE_SITEMAP_INDEX_TYPE,
+					JP_IMAGE_SITEMAP_TYPE,
+					$state
+				);
+				break;
 
-		} elseif ( JP_IMAGE_SITEMAP_TYPE === $state['sitemap-type'] ) {
-			// Image Sitemaps.
-			$this->build_next_sitemap_of_type(
-				JP_IMAGE_SITEMAP_TYPE,
-				array( $this, 'build_one_image_sitemap' ),
-				$state
-			);
-			return;
+			case JP_IMAGE_SITEMAP_TYPE:
+				$this->build_next_sitemap_of_type(
+					JP_IMAGE_SITEMAP_TYPE,
+					array( $this, 'build_one_image_sitemap' ),
+					$state
+				);
+				break;
 
-		} elseif ( JP_IMAGE_SITEMAP_INDEX_TYPE === $state['sitemap-type'] ) {
-			// Image Sitemap Indices.
-			$this->build_next_sitemap_index_of_type(
-				$state,
-				JP_IMAGE_SITEMAP_INDEX_TYPE,
-				JP_VIDEO_SITEMAP_TYPE
-			);
-			return;
+			case JP_IMAGE_SITEMAP_INDEX_TYPE:
+				$this->build_next_sitemap_index_of_type(
+					JP_IMAGE_SITEMAP_INDEX_TYPE,
+					JP_VIDEO_SITEMAP_TYPE,
+					$state
+				);
+				break;
 
-		} elseif ( JP_VIDEO_SITEMAP_TYPE === $state['sitemap-type'] ) {
-			// Video Sitemaps.
-			$this->build_next_sitemap_of_type(
-				JP_VIDEO_SITEMAP_TYPE,
-				array( $this, 'build_one_video_sitemap' ),
-				$state
-			);
-			return;
+			case JP_VIDEO_SITEMAP_TYPE:
+				$this->build_next_sitemap_of_type(
+					JP_VIDEO_SITEMAP_TYPE,
+					array( $this, 'build_one_video_sitemap' ),
+					$state
+				);
+				break;
 
-		} elseif ( JP_VIDEO_SITEMAP_INDEX_TYPE === $state['sitemap-type'] ) {
-			// Video Sitemap Indices.
-			$this->build_next_sitemap_index_of_type(
-				$state,
-				JP_VIDEO_SITEMAP_INDEX_TYPE,
-				JP_MASTER_SITEMAP_TYPE
-			);
+			case JP_VIDEO_SITEMAP_INDEX_TYPE:
+				$this->build_next_sitemap_index_of_type(
+					JP_VIDEO_SITEMAP_INDEX_TYPE,
+					JP_MASTER_SITEMAP_TYPE,
+					$state
+				);
+				break;
 
-			return;
+			case JP_MASTER_SITEMAP_TYPE:
+				$this->build_master_sitemap( $state['max'] );
 
-		} elseif ( JP_MASTER_SITEMAP_TYPE === $state['sitemap-type'] ) {
-			// Master Sitemap.
-			$this->build_master_sitemap( $state['max'] );
+				// Reset the state and quit.
+				Jetpack_Sitemap_State::reset(
+					JP_PAGE_SITEMAP_TYPE
+				);
 
-			// Reset the state and quit.
-			Jetpack_Sitemap_State::reset(
-				JP_PAGE_SITEMAP_TYPE
-			);
+				if ( defined( 'WP_DEBUG' ) && ( true === WP_DEBUG ) ) {
+					$this->logger->report( '-- Finished.' );
+					$this->logger->time();
+				}
 
-			if ( defined( 'WP_DEBUG' ) && ( true === WP_DEBUG ) ) {
-				$this->logger->report( '-- Finished.' );
-				$this->logger->time();
-			}
+				die();
 
-			die();
+			default:
+				// Otherwise, reset the state.
+				Jetpack_Sitemap_State::reset(
+					JP_PAGE_SITEMAP_TYPE
+				);
+				die();
 		}
 
-		// Otherwise, reset the state.
-		Jetpack_Sitemap_State::reset(
-			JP_PAGE_SITEMAP_TYPE
-		);
 		return;
 	}
 
@@ -288,11 +284,11 @@ class Jetpack_Sitemap_Builder {
 	 *
 	 * @since 4.7.0
 	 *
-	 * @param array  $state      A sitemap state.
 	 * @param string $index_type The type of index being generated.
 	 * @param string $next_type  The next type to generate after this one.
+	 * @param array  $state      A sitemap state.
 	 */
-	private function build_next_sitemap_index_of_type( $state, $index_type, $next_type ) {
+	private function build_next_sitemap_index_of_type( $index_type, $next_type, $state ) {
 		$sitemap_type = jp_sitemap_child_type_of( $index_type );
 
 		// If only 0 or 1 sitemaps were built, advance to the next type and return.
@@ -381,7 +377,7 @@ class Jetpack_Sitemap_Builder {
 	/**
 	 * Builds the master sitemap index.
 	 *
-	 * @param array $max Array of sitemap types with max index and timestamps.
+	 * @param array $max Array of sitemap types with max index and datetime.
 	 *
 	 * @since 4.7.0
 	 */
@@ -884,7 +880,7 @@ FOOTER
 	 *
 	 * @param int    $number     The number of the current sitemap index.
 	 * @param int    $from_id    The greatest lower bound of the IDs of the sitemaps to be included.
-	 * @param string $timestamp  Timestamp of previous sitemap in 'YYYY-MM-DD hh:mm:ss' format.
+	 * @param string $datetime   Datetime of previous sitemap in 'YYYY-MM-DD hh:mm:ss' format.
 	 * @param string $index_type Sitemap index type.
 	 *
 	 * @return bool|array @args {
@@ -893,9 +889,12 @@ FOOTER
 	 *   @type string $last_modified The most recent timestamp to appear on the sitemap.
 	 * }
 	 */
-	private function build_one_sitemap_index( $number, $from_id, $timestamp, $index_type ) {
+	private function build_one_sitemap_index( $number, $from_id, $datetime, $index_type ) {
 		$last_sitemap_id   = $from_id;
 		$any_sitemaps_left = true;
+
+		// Check the datetime format.
+		$datetime = jp_sitemap_datetime( $datetime );
 
 		$sitemap_type = jp_sitemap_child_type_of( $index_type );
 
@@ -923,10 +922,8 @@ HEADER
 FOOTER
 			,
 			/* initial last_modified value */
-			$timestamp
+			$datetime
 		);
-
-		$new_timestamp = jp_sitemap_datetime( $timestamp );
 
 		// Add pointer to the previous sitemap index (unless we're at the first one).
 		if ( 1 !== $number ) {
@@ -938,7 +935,7 @@ FOOTER
 			$item_array = array(
 				'sitemap' => array(
 					'loc'     => $prev_index_url,
-					'lastmod' => $new_timestamp,
+					'lastmod' => $datetime,
 				),
 			);
 
@@ -1170,7 +1167,7 @@ FOOTER
 		$last_modified = $post->post_modified_gmt;
 
 		// Check for more recent comments.
-		// Note that 'Y-m-d h:i:s' timestamps sort lexicographically.
+		// Note that 'Y-m-d h:i:s' strings sort lexicographically.
 		if ( 0 < $post->comment_count ) {
 			$last_modified = max(
 				$last_modified,
