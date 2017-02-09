@@ -209,6 +209,9 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'holidaysnow'             => $holiday_snow,
 					'gmt_offset'              => get_option( 'gmt_offset' ),
 					'timezone_string'         => get_option( 'timezone_string' ),
+					'date_format'             => get_option( 'date_format' ),
+					'time_format'             => get_option( 'time_format' ),
+					'start_of_week'           => get_option( 'start_of_week' ),
 					'jetpack_testimonial'     => (bool) get_option( 'jetpack_testimonial', '0' ),
 					'jetpack_testimonial_posts_per_page' => (int) get_option( 'jetpack_testimonial_posts_per_page', '10' ),
 					'jetpack_portfolio'       => (bool) get_option( 'jetpack_portfolio', '0' ),
@@ -460,6 +463,23 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					// empty string
 					if ( update_option( $key, $value ) ) {
 						$updated[ $key ] = $value;
+					}
+					break;
+
+				case 'date_format':
+				case 'time_format':
+					// settings are stored as strings
+					if ( update_option( $key, sanitize_text_field( $value ) ) ) {
+						$updated[ $key ] = $value;
+					}
+					break;
+
+				case 'start_of_week':
+					// setting is stored as int in 0-6 range (days of week)
+					$coerce_value = (int) $value;
+					$limit_value  = ( $coerce_value >= 0 && $coerce_value <= 6 ) ? $coerce_value : 0;
+					if ( update_option( $key, $limit_value ) ) {
+						$updated[ $key ] = $limit_value;
 					}
 					break;
 
