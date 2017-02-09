@@ -135,18 +135,19 @@ class Jetpack_Sitemap_Buffer {
 		if ( is_null( $item ) ) {
 			return true;
 		} else {
-			mbstring_binary_safe_encoding(); // So we can safely use mb_strlen().
 
-			if ( 0 >= $this->item_capacity || 0 > $this->byte_capacity - mb_strlen( $item ) ) {
+			mbstring_binary_safe_encoding(); // So we can safely use strlen().
+			$item_size = strlen( $item ); // Size in bytes.
+			reset_mbstring_encoding();
+
+			if ( 0 >= $this->item_capacity || 0 > $this->byte_capacity - $item_size ) {
 				$this->is_full_flag = true;
-				reset_mbstring_encoding();
 				return false;
 			} else {
 				$this->is_empty_flag = false;
 				$this->item_capacity -= 1;
-				$this->byte_capacity -= mb_strlen( $item );
+				$this->byte_capacity -= $item_size;
 				$this->buffer .= $item;
-				reset_mbstring_encoding();
 				return true;
 			}
 		}
