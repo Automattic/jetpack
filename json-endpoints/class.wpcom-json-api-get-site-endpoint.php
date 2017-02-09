@@ -110,6 +110,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 	protected static $jetpack_response_option_additions = array( 
 		'publicize_permanently_disabled',
 		'ak_vp_bundle_enabled',
+		'is_automated_transfer',
 	);
 
 	private $site;
@@ -510,6 +511,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 	// apply any WPCOM-only response components to a Jetpack site response
 	public function decorate_jetpack_response( &$response ) {
 		$this->site = $this->get_platform()->get_site( $response->ID );
+		switch_to_blog( $this->site->get_id() );
 
 		// ensure the response is marked as being from Jetpack
 		$response->jetpack = true;
@@ -548,6 +550,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			}
 		}
 
+		restore_current_blog();
 		return $response; // possibly no need since it's modified in place
 	}
 }
