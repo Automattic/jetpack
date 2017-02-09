@@ -626,6 +626,53 @@ function get_current_url_supercache_dir( $post_id = 0 ) {
 	return $dir;
 }
 
+/*
+ * Delete (or rebuild) all the files in one directory.
+ * Checks if it is in the cache directory but doesn't allow files in the following directories to be deleted:
+ * wp-content/cache/
+ * wp-content/cache/blogs/
+ * wp-content/cache/supercache/
+ *
+ */
+function wpsc_rebuild_files( $dir ) {
+	return wpsc_delete_files( $dir, false );
+}
+
+function wpsc_delete_files( $dir, $delete = true ) {
+	global $cache_path, $blog_cache_dir;
+	static $rp_cache_path = '';
+	static $protected = '';
+
+	// only do this once, this function will be called many times
+	if ( $rp_cache_path == '' ) {
+		$protected = array( $cache_path, $cache_path . $blog_cache_dir, get_supercache_dir() );
+		$protected = array_walk( array_walk( $protected, 'realpath' ), 'trailingslashit' );
+		$rp_cache_path = trailingslashit( realpath( $cache_path ) );
+	}
+
+	$dir = trailingslashit( realpath( $dir ) );
+	if ( substr( $dir, 0, strlen( $rp_cache_path ) ) != $rp_cache_path )
+		return false;
+
+	if ( in_array( $dir, $protected ) )
+		return false;
+
+	if ( is_dir( $dir ) && $dh = @opendir( $dir ) ) {
+		while ( ( $file = readdir( $dh ) ) !== false ) {
+			if ( $file != '.' && $file != '..' && $file != '.htaccess' && is_file( $dir . $file ) )
+				if ( $delete )
+					@unlink( $dir . $file );
+				else
+					@wp_cache_rebuild_or_delete( $dir . $file );
+		}
+		closedir( $dh );
+
+		if ( $delete )
+			@rmdir( $dir );
+	}
+	return true;
+}
+
 function get_all_supercache_filenames( $dir = '' ) {
 	global $wp_cache_mobile_enabled, $cache_path;
 
