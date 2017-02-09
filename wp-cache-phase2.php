@@ -75,7 +75,7 @@ function wp_cache_phase2() {
 }
 
 function wpcache_do_rebuild( $dir ) {
-	global $do_rebuild_list, $cache_path, $blog_cache_dir;
+	global $do_rebuild_list, $cache_path;
 
 	$dir = trailingslashit( realpath( $dir ) );
 	$protected = array( $cache_path, $cache_path . "blogs/", get_supercache_dir() );

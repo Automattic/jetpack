@@ -639,7 +639,7 @@ function wpsc_rebuild_files( $dir ) {
 }
 
 function wpsc_delete_files( $dir, $delete = true ) {
-	global $cache_path, $blog_cache_dir;
+	global $cache_path;
 	static $rp_cache_path = '';
 	static $protected = '';
 
