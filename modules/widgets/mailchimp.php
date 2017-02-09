@@ -1,20 +1,20 @@
 <?php
 
-if ( ! class_exists( 'Jetpack_Mailchimp_Widget' ) ) {
+if ( ! class_exists( 'Jetpack_Mailchimp_Subscriber_Popup_Widget' ) ) {
 
-	//register Mailchimp widget
+	//register MailChimp Subscriber Popup widget
 	function jetpack_mailchimp_widget_init() {
-		register_widget( 'Jetpack_Mailchimp_Widget' );
+		register_widget( 'Jetpack_Mailchimp_Subscriber_Popup_Widget' );
 	}
 
 	add_action( 'widgets_init', 'jetpack_mailchimp_widget_init' );
 
 	/**
-	 * Add a Mailchimp embedcode
+	 * Add a MailChimp Subscriber Popup embedcode
 	 *
 	 *
 	 */
-	class Jetpack_Mailchimp_Widget extends WP_Widget {
+	class Jetpack_Mailchimp_Subscriber_Popup_Widget extends WP_Widget {
 
 		/**
 		 * Constructor
@@ -23,10 +23,10 @@ if ( ! class_exists( 'Jetpack_Mailchimp_Widget' ) ) {
 			parent::__construct(
 				'widget_mailchimp',
 				/** This filter is documented in modules/widgets/facebook-likebox.php */
-				apply_filters( 'jetpack_widget_name', __( 'Mailchimp', 'jetpack' ) ),
+				apply_filters( 'jetpack_widget_name', __( 'MailChimp Subscriber Popup', 'jetpack' ) ),
 				array(
 					'classname'                   => 'widget_mailchimp',
-					'description'                 => __( 'Display a Mailchimp subscribe form.', 'jetpack' ),
+					'description'                 => __( 'Allows displaying a popup subscription form to visitors.', 'jetpack' ),
 					'customize_selective_refresh' => true,
 				)
 			);
@@ -44,13 +44,9 @@ if ( ! class_exists( 'Jetpack_Mailchimp_Widget' ) ) {
 		function widget( $args, $instance ) {
 			$instance = wp_parse_args( $instance, array( 'code' ) );
 
-			echo $args['before_widget'];
-
 			if ( '' != $instance['code'] ) {
 				echo do_shortcode( $instance['code'] );
 			}
-
-			echo $args['after_widget'];
 
 			/** This action is documented in modules/widgets/gravatar-profile.php */
 			do_action( 'jetpack_stats_extra', 'widget_view', 'mailchimp' );
