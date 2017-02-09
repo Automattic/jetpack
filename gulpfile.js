@@ -6,6 +6,7 @@ var autoprefixer = require( 'gulp-autoprefixer' ),
 	del = require( 'del' ),
 	fs = require( 'fs' ),
 	gulp = require( 'gulp' ),
+	eslint = require( 'gulp-eslint' ),
 	gutil = require( 'gulp-util' ),
 	i18n_calypso = require( 'i18n-calypso/cli' ),
 	jshint = require( 'gulp-jshint' ),
@@ -436,6 +437,20 @@ gulp.task( 'php:unit', function() {
 		.on( 'error', function( err ) {
 			util.log( util.colors.red( err ) );
 		} );
+} );
+
+/**
+ * eslint
+ */
+gulp.task( 'eslint', function() {
+	return gulp.src( [
+		'_inc/client/**/*.js',
+		'_inc/client/**/*.jsx',
+		'!_inc/client/**/test/*.js'
+	] )
+		.pipe( eslint() )
+		.pipe( eslint.format() )
+		.pipe( eslint.failAfterError() );
 } );
 
 /*
