@@ -199,3 +199,30 @@ function wpcomsh_remove_dashboard_widgets() {
 	remove_meta_box( 'pressable_dashboard_widget', 'dashboard', 'normal' );
 }
 add_action( 'wp_dashboard_setup', 'wpcomsh_remove_dashboard_widgets' );
+
+
+/**
+ * Filter attachment URLs if the 'wpcom_attachment_subdomain' option is present.
+ * Local image files will be unaffected, as they will pass a file_exists check.
+ * Files stored remotely will be filtered to have the correct URL.
+ *
+ * Once the files have been transferred, the 'wpcom_attachment_subdomain' will
+ * be removed, preventing further stats.
+ *
+ * @param string $url The attachment URL
+ * @param int $post_id The post id
+ * @return string The filtered attachment URL
+ */
+function wpcomsh_get_attachment_url( $url, $post_id ) {
+	$attachment_subdomain = get_option( 'wpcom_attachment_subdomain' );
+	if ( $attachment_subdomain ) {
+		if ( $file = get_post_meta( $post_id, '_wp_attached_file', true ) ) {
+			$local_file = WP_CONTENT_DIR . '/uploads/' . $file;
+			if ( ! file_exists( $local_file ) ) {
+				return esc_url( 'https://' . $attachment_subdomain . '/' . $file );
+			}
+		}
+	}
+	return $url;
+}
+add_filter( 'wp_get_attachment_url', 'wpcomsh_get_attachment_url', 11, 2 );
