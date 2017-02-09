@@ -547,7 +547,9 @@ function sharing_add_footer() {
 		);
 		wp_localize_script( 'sharing-js', 'sharing_js_options', $sharing_js_options);
 	}
+}
 
+function sharing_add_footer_scripts_inline() {
 	$sharer = new Sharing_Service();
 	$enabled = $sharer->get_blog_services();
 	foreach ( array_merge( $enabled['visible'], $enabled['hidden'] ) AS $service ) {
@@ -773,7 +775,12 @@ function sharing_display( $text = '', $echo = false ) {
 				$ver = '20141212';
 			}
 			wp_register_script( 'sharing-js', plugin_dir_url( __FILE__ ).'sharing.js', array( 'jquery' ), $ver );
+
+			// Enqueue scripts for the footer
 			add_action( 'wp_footer', 'sharing_add_footer' );
+
+			// Print inline scripts that depend on jQuery
+			add_action( 'wp_footer', 'sharing_add_footer_scripts_inline', 25 );
 		}
 	}
 
