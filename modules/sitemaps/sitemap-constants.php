@@ -132,7 +132,7 @@ if ( ! defined( 'JP_VIDEO_SITEMAP_INDEX_TYPE' ) ) {
  */
 function jp_sitemap_filename( $type, $number ) {
 	if ( ! is_int( $number ) ) {
-		return esc_html( "error-not-int-$type-$number.xml" );
+		return "error-not-int-$type-$number.xml";
 	} elseif ( JP_MASTER_SITEMAP_TYPE === $type ) {
 		return 'sitemap.xml';
 	} elseif ( JP_PAGE_SITEMAP_TYPE === $type ) {
@@ -148,7 +148,7 @@ function jp_sitemap_filename( $type, $number ) {
 	} elseif ( JP_VIDEO_SITEMAP_INDEX_TYPE === $type ) {
 		return "video-sitemap-index-$number.xml";
 	} else {
-		return esc_html( "error-bad-type-$type-$number.xml" );
+		return "error-bad-type-$type-$number.xml";
 	}
 }
 
@@ -169,7 +169,7 @@ function jp_sitemap_index_type_of( $type ) {
 	} elseif ( JP_VIDEO_SITEMAP_TYPE === $type ) {
 		return JP_VIDEO_SITEMAP_INDEX_TYPE;
 	} else {
-		return esc_html( "error-bad-type-$type" );
+		return "error-bad-type-$type";
 	}
 }
 
@@ -190,7 +190,7 @@ function jp_sitemap_child_type_of( $type ) {
 	} elseif ( JP_VIDEO_SITEMAP_INDEX_TYPE === $type ) {
 		return JP_VIDEO_SITEMAP_TYPE;
 	} else {
-		return esc_html( "error-bad-type-$type" );
+		return "error-bad-type-$type";
 	}
 }
 
