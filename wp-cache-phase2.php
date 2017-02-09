@@ -657,16 +657,16 @@ function wp_cache_get_ob(&$buffer) {
 			$supercacheonly = false;
 			fclose($fr);
 			if ( filesize( $tmp_wpcache_filename ) == 0 ) {
-				wp_cache_debug( "Warning! The file $tmp_wpcache_filename was empty. Did not rename to {$blog_cache_dir}{$cache_filename}", 5 );
+				wp_cache_debug( "Warning! The file $tmp_wpcache_filename was empty. Did not rename to {$dir}/{$cache_filename}", 5 );
 				@unlink( $tmp_wpcache_filename );
 			} else {
-				if ( !@rename( $tmp_wpcache_filename, $blog_cache_dir . $cache_filename ) ) {
-					if ( false == is_dir( $blog_cache_dir ) )
-						@wp_mkdir_p( $blog_cache_dir );
-					@unlink( $blog_cache_dir . $cache_filename );
-					@rename( $tmp_wpcache_filename, $blog_cache_dir . $cache_filename );
+				if ( !@rename( $tmp_wpcache_filename, $dir . '/' . $cache_filename ) ) {
+					if ( false == is_dir( $dir ) )
+						@wp_mkdir_p( $dir );
+					@unlink( $dir . $cache_filename );
+					@rename( $tmp_wpcache_filename, $dir . '/' . $cache_filename );
 				}
-				wp_cache_debug( "Renamed temp wp-cache file to {$blog_cache_dir}$cache_filename", 5 );
+				wp_cache_debug( "Renamed temp wp-cache file to {$dir}/$cache_filename", 5 );
 				$added_cache = 1;
 			}
 		}
@@ -982,24 +982,26 @@ function wp_cache_shutdown_callback() {
 		}
 
 		$serial = '<?php die(); ?>' . json_encode( $wp_cache_meta );
+		$dir = get_current_url_supercache_dir();
+		if( @is_dir( $dir ) == false )
+			@wp_mkdir_p( $dir );
+
 		if( wp_cache_writers_entry() ) {
-			wp_cache_debug( "Writing meta file: {$blog_cache_dir}meta/{$meta_file}", 2 );
+			wp_cache_debug( "Writing meta file: {$dir}meta-{$meta_file}", 2 );
 			if ( false == $wp_cache_object_cache ) {
-				$tmp_meta_filename = $blog_cache_dir . 'meta/' . uniqid( mt_rand(), true ) . '.tmp';
-				$fr = @fopen( $tmp_meta_filename, 'w');
-				if( !$fr )
-					@wp_mkdir_p( $blog_cache_dir . 'meta' );
+				$tmp_meta_filename = $dir . uniqid( mt_rand(), true ) . '.tmp';
+				$final_meta_filename = $dir . "meta-" . $meta_file;
 				$fr = @fopen( $tmp_meta_filename, 'w');
 				if ( $fr ) {
 					fputs($fr, $serial);
 					fclose($fr);
 					@chmod( $tmp_meta_filename, 0666 & ~umask());
-					if( !@rename( $tmp_meta_filename, $blog_cache_dir . 'meta/' . $meta_file ) ) {
-						@unlink( $blog_cache_dir . 'meta/' . $meta_file );
-						@rename( $tmp_meta_filename, $blog_cache_dir . 'meta/' . $meta_file );
+					if( !@rename( $tmp_meta_filename, $final_meta_filename ) ) {
+						@unlink( $dir . $final_meta_filename );
+						@rename( $tmp_meta_filename, $final_meta_filename );
 					}
 				} else {
-					wp_cache_debug( "Problem writing meta file: {$blog_cache_dir}meta/{$meta_file}", 2 );
+					wp_cache_debug( "Problem writing meta file: {$final_meta_filename}" );
 				}
 			} elseif ( $cache_enabled ) {
 				$oc_key = get_oc_key() . ".meta";
@@ -1010,7 +1012,7 @@ function wp_cache_shutdown_callback() {
 			wp_cache_writers_exit();
 		}
 	} else {
-		wp_cache_debug( "Did not write meta file: $meta_file *$supercacheonly* *$wp_cache_not_logged_in* *$new_cache*", 2 );
+		wp_cache_debug( "Did not write meta file: meta-{$meta_file} *$supercacheonly* *$wp_cache_not_logged_in* *$new_cache*", 2 );
 	}
 	global $time_to_gc_cache;
 	if( isset( $time_to_gc_cache ) && $time_to_gc_cache == 1 ) {
