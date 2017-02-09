@@ -245,11 +245,16 @@ class Jetpack_Sitemap_Buffer {
 
 		foreach ( $array as $key => $value ) {
 
-			// Remove attribute from key.
+			// Remove any attributes from key.
 			preg_match( '/^[^ ]+/', $key, $match );
 
-			$open_tag  = esc_html( $key );
-			$close_tag = esc_html( $match[0] );
+			$close_tag = sanitize_key( $match[0] );
+
+			if ( preg_match( '/^[-_a-z]+( [^<>]+)?$/', $key ) ) {
+				$open_tag = $key;
+			} else {
+				$open_tag = $close_tag;
+			}
 
 			if ( is_array( $value ) ) {
 				$string .= $depth . "<$open_tag>\n";
@@ -280,7 +285,7 @@ class Jetpack_Sitemap_Buffer {
 		$string = '';
 
 		foreach ( $array as $key => $value ) {
-			$string .= $sep . ' ' . esc_html( $key ) . '="' . esc_attr( $value ) . '"';
+			$string .= $sep . ' ' . sanitize_key( $key ) . '="' . esc_attr( $value ) . '"';
 		}
 
 		return $string;
