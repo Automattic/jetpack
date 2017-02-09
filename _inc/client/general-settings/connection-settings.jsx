@@ -7,7 +7,6 @@ import { translate as __ } from 'i18n-calypso';
 import Card from 'components/card';
 import SectionHeader from 'components/section-header';
 import Gridicon from 'components/gridicon';
-import SiteIcon from 'components/my-sites-navigation/site-icon';
 
 /**
  * Internal dependencies
@@ -97,7 +96,7 @@ const ConnectionSettings = React.createClass( {
 								this.props.userCanDisconnectSite
 									? <div className="jp-connection-settings__actions">
 										{ maybeShowDisconnectBtn }
-									  </div>
+								</div>
 									: ''
 							}
 						</div>
@@ -117,7 +116,7 @@ const ConnectionSettings = React.createClass( {
 							<div className="jp-connection-settings__actions">
 								{ maybeShowLinkUnlinkBtn }
 							</div>
-						  </div>
+						</div>
 						: <div>
 							<div className="jp-connection-settings__info">
 								{
@@ -127,7 +126,7 @@ const ConnectionSettings = React.createClass( {
 							<div className="jp-connection-settings__actions">
 								{ maybeShowLinkUnlinkBtn }
 							</div>
-						  </div>
+						</div>
 				);
 			}
 		}

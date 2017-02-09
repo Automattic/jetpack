@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import analytics from 'lib/analytics';
 import React from 'react';
 import { translate as __ } from 'i18n-calypso';
 import FormToggle from 'components/form/form-toggle';
@@ -54,12 +53,14 @@ export const SSO = moduleSettingsForm(
 					module="sso"
 					header={ __( 'WordPress.com log in', { context: 'Settings header' } ) }>
 					<SettingsGroup hasChild disableInDevMode module={ this.props.getModule( 'sso' ) }>
-						<ModuleToggle slug="sso"
-									  compact
-									  disabled={ unavailableInDevMode }
-									  activated={ isSSOActive }
-									  toggling={ this.props.isSavingAnyOption( 'sso' ) }
-									  toggleModule={ this.props.toggleModuleNow }>
+						<ModuleToggle
+							slug="sso"
+							compact
+							disabled={ unavailableInDevMode }
+							activated={ isSSOActive }
+							toggling={ this.props.isSavingAnyOption( 'sso' ) }
+							toggleModule={ this.props.toggleModuleNow }
+						>
 						<span className="jp-form-toggle-explanation">
 							{
 								this.props.getModule( 'sso' ).description

@@ -26,7 +26,7 @@ export const FormFieldset = React.createClass( {
 								<Gridicon icon="help-outline" />
 								<span className="screen-reader-text">{ __( 'Learn More' ) }</span>
 							</Button>
-						  </div>
+					</div>
 						: ''
 				}
 				{ this.props.children }

@@ -57,12 +57,14 @@ export const RelatedPosts = moduleSettingsForm(
 					hideButton
 					module="related-posts">
 					<SettingsGroup hasChild disableInDevMode module={ this.props.getModule( 'related-posts' ) }>
-						<ModuleToggle slug="related-posts"
-									  compact
-									  disabled={ unavailableInDevMode }
-									  activated={ isRelatedPostsActive }
-									  toggling={ this.props.isSavingAnyOption( 'related-posts' ) }
-									  toggleModule={ this.props.toggleModuleNow }>
+						<ModuleToggle
+							slug="related-posts"
+							compact
+							disabled={ unavailableInDevMode }
+							activated={ isRelatedPostsActive }
+							toggling={ this.props.isSavingAnyOption( 'related-posts' ) }
+							toggleModule={ this.props.toggleModuleNow }
+						>
 						<span className="jp-form-toggle-explanation">
 							{
 								__( 'Show related content after posts' )

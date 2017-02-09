@@ -3,16 +3,14 @@
  */
 import React from 'react';
 import { translate as __ } from 'i18n-calypso';
-import get from 'lodash/get';
+import Card from 'components/card';
 
 /**
  * Internal dependencies
  */
-
 import {
 	FormFieldset,
 	FormLegend,
-	FormLabel,
 	FormButton
 } from 'components/forms';
 
@@ -85,11 +83,11 @@ export let RelatedPostsSettings = React.createClass( {
 				{
 					previews.map( ( preview, i ) => (
 						<span key={ `preview_${ i }` } className="jp-related-posts-preview__item" >
-  							{
+							{
 								show_thumbnails ? <img src={ preview.url } /> : ''
 							}
 							<span><a href="#/engagement"> { preview.text } </a></span>
-  						</span>
+						</span>
 					) )
 				}
 			</div>

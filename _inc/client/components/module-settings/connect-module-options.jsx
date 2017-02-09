@@ -8,7 +8,6 @@ import get from 'lodash/get';
  * Internal dependencies
  */
 import {
-	updateModuleOptions,
 	getModuleOption,
 	getModuleOptionValidValues
 } from 'state/modules';

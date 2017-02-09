@@ -20,9 +20,7 @@ import includes from 'lodash/includes';
 import { imagePath } from 'constants';
 import { isDevMode } from 'state/connection';
 import {
-	getInitialStateStatsData,
-	getSiteRawUrl,
-	getSiteAdminUrl
+	getInitialStateStatsData
 } from 'state/initial-state';
 import QueryStatsData from 'components/data/query-stats-data';
 import DashStatsBottom from './dash-stats-bottom';
@@ -155,7 +153,7 @@ const DashStats = React.createClass( {
 							__( '{{a}}Activate Site Stats{{/a}} to see detailed stats, likes, followers, subscribers, and more! {{a1}}Learn More{{/a1}}', {
 								components: {
 									a: <a href="javascript:void(0)" onClick={ this.props.activateStats } />,
-									a1: <a href="https://jetpack.com/support/wordpress-com-stats/" target="_blank" />
+									a1: <a href="https://jetpack.com/support/wordpress-com-stats/" target="_blank" rel="noopener noreferrer" />
 								}
 							} )
 						}

@@ -39,7 +39,7 @@ const DismissableNotices = React.createClass( {
 							{
 								__( 'Would you tell us why? Just {{a}}answering two simple questions{{/a}} would help us improve Jetpack.', {
 									components: {
-										a: <a href="https://jetpack.com/survey-disconnected/" target="_blank"/>
+										a: <a href="https://jetpack.com/survey-disconnected/" target="_blank" rel="noopener noreferrer" />
 									}
 								} )
 							}

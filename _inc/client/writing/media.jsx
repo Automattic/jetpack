@@ -71,12 +71,14 @@ export const Media = moduleSettingsForm(
 					{ ...this.props }
 					header={ __( 'Media' ) }>
 					<SettingsGroup hasChild disableInDevMode module={ photon }>
-						<ModuleToggle slug="photon"
-									  compact
-									  disabled={ this.props.isUnavailableInDevMode( 'photon' ) }
-									  activated={ this.props.getOptionValue( 'photon' ) }
-									  toggling={ this.props.isSavingAnyOption( 'photon' ) }
-									  toggleModule={ this.toggleModule }>
+						<ModuleToggle
+							slug="photon"
+							compact
+							disabled={ this.props.isUnavailableInDevMode( 'photon' ) }
+							activated={ this.props.getOptionValue( 'photon' ) }
+							toggling={ this.props.isSavingAnyOption( 'photon' ) }
+							toggleModule={ this.toggleModule }
+						>
 						<span className="jp-form-toggle-explanation">
 							{
 								photon.description
@@ -90,11 +92,13 @@ export const Media = moduleSettingsForm(
 						</span>
 					</SettingsGroup>
 					<SettingsGroup hasChild support={ carousel.learn_more_button }>
-						<ModuleToggle slug="carousel"
-									  compact
-									  activated={ isCarouselActive }
-									  toggling={ this.props.isSavingAnyOption( 'carousel' ) }
-									  toggleModule={ this.props.toggleModuleNow }>
+						<ModuleToggle
+							slug="carousel"
+							compact
+							activated={ isCarouselActive }
+							toggling={ this.props.isSavingAnyOption( 'carousel' ) }
+							toggleModule={ this.props.toggleModuleNow }
+						>
 								<span className="jp-form-toggle-explanation">
 									{
 										carousel.description

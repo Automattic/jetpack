@@ -10,7 +10,6 @@ import includes from 'lodash/includes';
 /**
  * Internal dependencies
  */
-import { imagePath } from 'constants';
 import {
 	fetchPluginsData,
 	isFetchingPluginsData,
@@ -216,7 +215,7 @@ const PlanBody = React.createClass( {
 										<Button
 											onClick={ this.props.activateModule.bind( null, 'seo-tools' ) }
 											className="is-primary"
-										    disabled={ this.props.isActivatingModule( 'seo-tools' ) }
+											disabled={ this.props.isActivatingModule( 'seo-tools' ) }
 										>
 											{ __( 'Activate SEO Tools' ) }
 										</Button>

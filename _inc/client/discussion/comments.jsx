@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import analytics from 'lib/analytics';
 import React from 'react';
 import { translate as __ } from 'i18n-calypso';
 import TextInput from 'components/text-input';
@@ -11,7 +10,6 @@ import TextInput from 'components/text-input';
  */
 import {
 	FormFieldset,
-	FormLegend,
 	FormLabel,
 	FormSelect
 } from 'components/forms';
@@ -34,12 +32,14 @@ export const Comments = moduleSettingsForm(
 					{ ...this.props }
 					module="comments">
 					<SettingsGroup hasChild disableInDevMode module={ comments }>
-						<ModuleToggle slug="comments"
-									  compact
-									  disabled={ commentsUnavailableInDevMode }
-									  activated={ this.props.getOptionValue( 'comments' ) }
-									  toggling={ this.props.isSavingAnyOption( 'comments' ) }
-									  toggleModule={ this.props.toggleModuleNow }>
+						<ModuleToggle
+							slug="comments"
+							compact
+							disabled={ commentsUnavailableInDevMode }
+							activated={ this.props.getOptionValue( 'comments' ) }
+							toggling={ this.props.isSavingAnyOption( 'comments' ) }
+							toggleModule={ this.props.toggleModuleNow }
+						>
 						<span className="jp-form-toggle-explanation">
 							{
 								comments.description
@@ -70,11 +70,13 @@ export const Comments = moduleSettingsForm(
 					</SettingsGroup>
 					<SettingsGroup>
 						<FormFieldset support={ gravatar.learn_more_button }>
-							<ModuleToggle slug="gravatar-hovercards"
-										  compact
-										  activated={ this.props.getOptionValue( 'gravatar-hovercards' ) }
-										  toggling={ this.props.isSavingAnyOption( 'gravatar-hovercards' ) }
-										  toggleModule={ this.props.toggleModuleNow }>
+							<ModuleToggle
+								slug="gravatar-hovercards"
+								compact
+								activated={ this.props.getOptionValue( 'gravatar-hovercards' ) }
+								toggling={ this.props.isSavingAnyOption( 'gravatar-hovercards' ) }
+								toggleModule={ this.props.toggleModuleNow }
+							>
 							<span className="jp-form-toggle-explanation">
 								{
 									gravatar.description
@@ -83,11 +85,13 @@ export const Comments = moduleSettingsForm(
 							</ModuleToggle>
 						</FormFieldset>
 						<FormFieldset support={ markdown.learn_more_button }>
-							<ModuleToggle slug="markdown"
-										  compact
-										  activated={ !!this.props.getOptionValue( 'wpcom_publish_comments_with_markdown', 'markdown' ) }
-										  toggling={ this.props.isSavingAnyOption( [ 'markdown', 'wpcom_publish_comments_with_markdown' ] ) }
-										  toggleModule={ m => this.props.updateFormStateModuleOption( m, 'wpcom_publish_comments_with_markdown' ) }>
+							<ModuleToggle
+								slug="markdown"
+								compact
+								activated={ !!this.props.getOptionValue( 'wpcom_publish_comments_with_markdown', 'markdown' ) }
+								toggling={ this.props.isSavingAnyOption( [ 'markdown', 'wpcom_publish_comments_with_markdown' ] ) }
+								toggleModule={ m => this.props.updateFormStateModuleOption( m, 'wpcom_publish_comments_with_markdown' ) }
+							>
 							<span className="jp-form-toggle-explanation">
 								{
 									__( 'Enable Markdown use for comments' )

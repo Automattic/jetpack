@@ -79,7 +79,7 @@ export const updateSetting = ( updatedOption ) => {
 };
 
 export const updateSettings = ( newOptionValues, type = '' ) => {
-	return ( dispatch, getState ) => {
+	return ( dispatch ) => {
 
 		let messages = {
 				progress: __( 'Updating settings…' ),

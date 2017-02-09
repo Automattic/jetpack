@@ -89,11 +89,13 @@ export const ThemeEnhancements = moduleSettingsForm(
 							let isItemActive = this.props.getOptionValue( item.module );
 							return (
 								<SettingsGroup hasChild key={ `theme_enhancement_${ item.module }` }  support={ item.learn_more_button }>
-									<ModuleToggle slug={ item.module }
-												  compact
-												  activated={ isItemActive }
-												  toggling={ this.props.isSavingAnyOption( item.module ) }
-												  toggleModule={ this.props.toggleModuleNow }>
+									<ModuleToggle
+										slug={ item.module }
+										compact
+										activated={ isItemActive }
+										toggling={ this.props.isSavingAnyOption( item.module ) }
+										toggleModule={ this.props.toggleModuleNow }
+									>
 									<span className="jp-form-toggle-explanation">
 									{
 										item.description

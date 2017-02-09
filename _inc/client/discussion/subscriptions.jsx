@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import analytics from 'lib/analytics';
 import React from 'react';
 import { translate as __ } from 'i18n-calypso';
 import FormToggle from 'components/form/form-toggle';
@@ -55,12 +54,13 @@ export const Subscriptions = moduleSettingsForm(
 					hideButton
 					module="subscriptions">
 					<SettingsGroup hasChild disableInDevMode module={ subscriptions }>
-						<ModuleToggle slug="subscriptions"
-									  compact
-									  disabled={ unavailableInDevMode }
-									  activated={ isSubscriptionsActive }
-									  toggling={ this.props.isSavingAnyOption( 'subscriptions' ) }
-									  toggleModule={ this.props.toggleModuleNow }>
+						<ModuleToggle
+							slug="subscriptions"
+							compact
+							disabled={ unavailableInDevMode }
+							activated={ isSubscriptionsActive }
+							toggling={ this.props.isSavingAnyOption( 'subscriptions' ) }
+							toggleModule={ this.props.toggleModuleNow }>
 						<span className="jp-form-toggle-explanation">
 							{
 								subscriptions.description

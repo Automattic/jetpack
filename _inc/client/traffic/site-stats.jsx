@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import analytics from 'lib/analytics';
 import React from 'react';
 import { translate as __ } from 'i18n-calypso';
 import FormToggle from 'components/form/form-toggle';
@@ -95,24 +94,28 @@ export const SiteStats = moduleSettingsForm(
 					module="stats">
 					<SettingsGroup disableInDevMode module={ stats }>
 						<FormFieldset>
-							<ModuleToggle slug="stats"
-										  compact
-										  disabled={ ! isStatsActive || unavailableInDevMode }
-										  activated={ !!this.props.getOptionValue( 'admin_bar' ) }
-										  toggling={ this.props.isSavingAnyOption( [ 'stats', 'admin_bar' ] ) }
-										  toggleModule={ m => this.props.updateFormStateModuleOption( m, 'admin_bar' ) }>
+							<ModuleToggle
+								slug="stats"
+								compact
+								disabled={ ! isStatsActive || unavailableInDevMode }
+								activated={ !!this.props.getOptionValue( 'admin_bar' ) }
+								toggling={ this.props.isSavingAnyOption( [ 'stats', 'admin_bar' ] ) }
+								toggleModule={ m => this.props.updateFormStateModuleOption( m, 'admin_bar' ) }
+							>
 								<span className="jp-form-toggle-explanation">
 									{
 										__( 'Put a chart showing 48 hours of views in the admin bar' )
 									}
 								</span>
 							</ModuleToggle>
-							<ModuleToggle slug="stats"
-										  compact
-										  disabled={ ! isStatsActive || unavailableInDevMode }
-										  activated={ !!this.props.getOptionValue( 'hide_smile' ) }
-										  toggling={ this.props.isSavingAnyOption( [ 'stats', 'hide_smile' ] ) }
-										  toggleModule={ m => this.props.updateFormStateModuleOption( m, 'hide_smile' ) }>
+							<ModuleToggle
+								slug="stats"
+								compact
+								disabled={ ! isStatsActive || unavailableInDevMode }
+								activated={ !!this.props.getOptionValue( 'hide_smile' ) }
+								toggling={ this.props.isSavingAnyOption( [ 'stats', 'hide_smile' ] ) }
+								toggleModule={ m => this.props.updateFormStateModuleOption( m, 'hide_smile' ) }
+							>
 								<span className="jp-form-toggle-explanation">
 									{
 										__( 'Hide the stats smiley face image (The image helps collect stats, but should work when hidden.)' )

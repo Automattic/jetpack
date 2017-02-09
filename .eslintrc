@@ -5,7 +5,8 @@
 		"browser": true,
 		"es6": true,
 		"mocha": true,
-		"node": true
+		"node": true,
+		"jquery": true
 	},
 	"ecmaFeatures": {
 		"jsx": true,
@@ -55,6 +56,7 @@
 		"react/jsx-curly-spacing": [ 1, "always" ],
 		"react/jsx-no-bind": 1,
 		"react/jsx-space-before-closing": 1,
+		"react/no-danger": 1,
 		"react/no-did-mount-set-state": 1,
 		"react/no-did-update-set-state": 1,
 		"react/no-is-mounted": 1,

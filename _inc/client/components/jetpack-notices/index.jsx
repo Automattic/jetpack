@@ -92,7 +92,7 @@ export const DevModeNotice = React.createClass( {
 				text = __( 'Some features are currently disabled because this site is in {{a}}Development Mode{{/a}} via the jetpack_development_mode filter.',
 					{
 						components: {
-							a: <a href="https://jetpack.com/support/development-mode/" target="_blank"/>,
+							a: <a href="https://jetpack.com/support/development-mode/" target="_blank" rel="noopener noreferrer" />,
 							br: <br />
 						}
 					}
@@ -101,7 +101,7 @@ export const DevModeNotice = React.createClass( {
 				text = __( 'Some features are currently disabled because this site is in {{a}}Development Mode{{/a}} via the JETPACK_DEV_DEBUG constant.',
 					{
 						components: {
-							a: <a href="https://jetpack.com/support/development-mode/" target="_blank"/>,
+							a: <a href="https://jetpack.com/support/development-mode/" target="_blank" rel="noopener noreferrer" />,
 							br: <br />
 						}
 					}
@@ -110,7 +110,7 @@ export const DevModeNotice = React.createClass( {
 				text = __( 'Some features are currently disabled because this site is in {{a}}Development Mode{{/a}} since the URL lacks a dot (e.g. http://localhost).',
 					{
 						components: {
-							a: <a href="https://jetpack.com/support/development-mode/" target="_blank"/>,
+							a: <a href="https://jetpack.com/support/development-mode/" target="_blank" rel="noopener noreferrer" />,
 							br: <br />
 						}
 					}
@@ -122,7 +122,6 @@ export const DevModeNotice = React.createClass( {
 					showDismiss={ false }
 					status="is-basic"
 					text={ text }
-					status="is-info"
 				>
 					<NoticeAction
 						href="https://jetpack.com/development-mode/">
