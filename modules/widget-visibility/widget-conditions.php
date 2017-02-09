@@ -180,10 +180,6 @@ class Jetpack_Widget_Conditions {
 				<div class="condition-top">
 					<?php printf( _x( '%s if:', 'placeholder: dropdown menu to select widget visibility; hide if or show if', 'jetpack' ), '<select name="conditions[action]"><option value="show" ' . selected( $conditions['action'], 'show', false ) . '>' . esc_html_x( 'Show', 'Used in the "%s if:" translation for the widget visibility dropdown', 'jetpack' ) . '</option><option value="hide" ' . selected( $conditions['action'], 'hide', false ) . '>' . esc_html_x( 'Hide', 'Used in the "%s if:" translation for the widget visibility dropdown', 'jetpack' ) . '</option></select>' ); ?>
 				</div><!-- .condition-top -->
-				<div class="condition-top">
-					<input type="checkbox" name="conditions[match_all]" value="1" <?php checked( $conditions['match_all'], '1' ); ?> />
-					<?php _e( 'Match all conditions', 'jetpack' ); ?>
-				</div><!-- .condition-top -->
 
 				<div class="conditions">
 					<?php
@@ -232,7 +228,7 @@ class Jetpack_Widget_Conditions {
 							<div class="condition-control">
 								<span class="condition-conjunction">
 									<?php
-									//	echo esc_html_x( 'or', 'Shown between widget visibility conditions.', 'jetpack' );
+										echo esc_html_x( 'or', 'Shown between widget visibility conditions.', 'jetpack' );
 									?>
 								</span>
 								<div class="actions alignright">
@@ -245,6 +241,12 @@ class Jetpack_Widget_Conditions {
 					}
 
 					?>
+				</div><!-- .conditions -->
+				<div class="conditions">
+					<div class="condition-top">
+						<input type="checkbox" name="conditions[match_all]" value="1" <?php checked( $conditions['match_all'], '1' ); ?> />
+						<?php esc_html_e( 'Match all conditions', 'jetpack' ); ?>
+					</div><!-- .condition-top -->
 				</div><!-- .conditions -->
 			</div><!-- .widget-conditional-inner -->
 		</div><!-- .widget-conditional -->
