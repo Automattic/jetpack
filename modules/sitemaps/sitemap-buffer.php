@@ -120,8 +120,9 @@ class Jetpack_Sitemap_Buffer {
 	}
 
 	/**
-	 * Append an item to the buffer, if there is room for it.
-	 * If not, we set is_full_flag to true. If $item is null,
+	 * Append an item to the buffer, if there is room for it,
+   * and set is_empty_flag to false. If there is no room,
+	 * we set is_full_flag to true. If $item is null,
 	 * don't do anything and report success.
 	 *
 	 * @since 4.7.0
@@ -210,7 +211,9 @@ class Jetpack_Sitemap_Buffer {
 	/**
 	 * Render an associative array as an XML string. Handles attributes.
 	 * This is needed because SimpleXMLElement only handles valid XML, but we want
-	 * to pass around (possibly invalid) fragments.
+	 * to pass around (possibly invalid) fragments. Note that 'null' values make
+	 * a tag self-closing; this is only sometimes correct (depending on the version
+   * of HTML); see the list of 'void tags'.
 	 *
 	 * Example:
 	 *
