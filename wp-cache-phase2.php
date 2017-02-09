@@ -930,15 +930,15 @@ function wp_cache_shutdown_callback() {
 		}
 
 		$serial = '<?php die(); ?>' . json_encode( $wp_cache_meta );
-		$dir = get_current_url_supercache_dir() . "meta/";
+		$dir = get_current_url_supercache_dir();
 		if( @is_dir( $dir ) == false )
 			@wp_mkdir_p( $dir );
 
 		if( wp_cache_writers_entry() ) {
-			wp_cache_debug( "Writing meta file: {$dir}{$meta_file}", 2 );
+			wp_cache_debug( "Writing meta file: {$dir}meta-{$meta_file}", 2 );
 			if ( false == $wp_cache_object_cache ) {
 				$tmp_meta_filename = $dir . uniqid( mt_rand(), true ) . '.tmp';
-				$final_meta_filename = $dir . $meta_file;
+				$final_meta_filename = $dir . "meta-" . $meta_file;
 				$fr = @fopen( $tmp_meta_filename, 'w');
 				if ( $fr ) {
 					fputs($fr, $serial);
@@ -960,7 +960,7 @@ function wp_cache_shutdown_callback() {
 			wp_cache_writers_exit();
 		}
 	} else {
-		wp_cache_debug( "Did not write meta file: $meta_file *$supercacheonly* *$wp_cache_not_logged_in* *$new_cache*", 2 );
+		wp_cache_debug( "Did not write meta file: meta-{$meta_file} *$supercacheonly* *$wp_cache_not_logged_in* *$new_cache*", 2 );
 	}
 	global $time_to_gc_cache;
 	if( isset( $time_to_gc_cache ) && $time_to_gc_cache == 1 ) {
