@@ -1,11 +1,9 @@
 <?php
 /**
  * Sitemaps (per the protocol) are essentially lists of XML fragments;
- * lists which are subject to size constraints. This class abstracts
- * the details of checking these constraints.
- *
- * This file defines the Jetpack_Sitemap_Buffer class, which provides
- * an API for building and filling sitemaps.
+ * lists which are subject to size constraints. The Jetpack_Sitemap_Buffer
+ * class abstracts the details of constructing these lists while
+ * maintaining the constraints.
  *
  * @since 4.7.0
  * @package Jetpack
@@ -20,7 +18,7 @@
  * 2. the concatenation of the strings must have bounded
  *      length (including some header and footer strings), and
  * 3. each item has a timestamp, and we need to keep track
- *      of the latest timestamp of the items in the list.
+ *      of the most recent timestamp of the items in the list.
  *
  * @since 4.7.0
  */
@@ -94,11 +92,11 @@ class Jetpack_Sitemap_Buffer {
 	 *
 	 * @since 4.7.0
 	 *
-	 * @param int    $item_limit The maximum size of the buffer in items. Default is 50000.
-	 * @param int    $byte_limit The maximum size of the buffer in bytes. Default is 10485760 (10MB).
+	 * @param int    $item_limit The maximum size of the buffer in items.
+	 * @param int    $byte_limit The maximum size of the buffer in bytes.
 	 * @param string $header The string to prepend to the entire buffer.
 	 * @param string $footer The string to append to the entire buffer.
-	 * @param string $time The initial timestamp of the buffer. Must be in 'YYYY-MM-DD hh:mm:ss' format.
+	 * @param string $time The initial datetime of the buffer. Must be in 'YYYY-MM-DD hh:mm:ss' format.
 	 */
 	public function __construct(
 		$item_limit,
