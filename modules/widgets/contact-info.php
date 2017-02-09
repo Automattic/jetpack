@@ -59,6 +59,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 				'address' => __( "3999 Mission Boulevard,\nSan Diego CA 92109", 'jetpack' ),
 				'phone'   => _x( '1-202-555-1212', 'Example of a phone number', 'jetpack' ),
 				'hours'   => __( "Lunch: 11am - 2pm \nDinner: M-Th 5pm - 11pm, Fri-Sat:5pm - 1am", 'jetpack' ),
+				'email'   => null,
 				'showmap' => 0,
 				'apikey'  => null,
 				'lat'     => null,
@@ -123,6 +124,13 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 				}
 			}
 
+			if ( is_email( $instance['email'] ) ) {
+				printf(
+					'<div class="confit-email"><a href="mailto:%1$s">%1$s</a></div>',
+					esc_html( $instance['email'] )
+				);
+			}
+
 			if ( '' != $instance['hours'] ) {
 				echo '<div class="confit-hours">' . str_replace( "\n", "<br/>", esc_html( $instance['hours'] ) ) . "</div>";
 			}
@@ -165,6 +173,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 			$instance['title']   = wp_kses( $new_instance['title'], array() );
 			$instance['address'] = wp_kses( $new_instance['address'], array() );
 			$instance['phone']   = wp_kses( $new_instance['phone'], array() );
+			$instance['email']   = wp_kses( $new_instance['email'], array() );
 			$instance['hours']   = wp_kses( $new_instance['hours'], array() );
 			$instance['apikey']  = wp_kses( isset( $new_instance['apikey'] ) ? $new_instance['apikey'] : $old_instance['apikey'], array() );
 			$instance['lat']     = isset( $old_instance['lat'] ) ? floatval( $old_instance['lat'] ) : 0;
@@ -272,6 +281,11 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 			<p>
 				<label for="<?php echo esc_attr( $this->get_field_id( 'phone' ) ); ?>"><?php esc_html_e( 'Phone:', 'jetpack' ); ?></label>
 				<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'phone' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'phone' ) ); ?>" type="text" value="<?php echo esc_attr( $instance['phone'] ); ?>" />
+			</p>
+
+			<p>
+				<label for="<?php echo esc_attr( $this->get_field_id( 'email' ) ); ?>"><?php esc_html_e( 'Email Address:', 'jetpack' ); ?></label>
+				<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'email' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'email' ) ); ?>" type="text" value="<?php echo esc_attr( $instance['email'] ); ?>" />
 			</p>
 
 			<p>

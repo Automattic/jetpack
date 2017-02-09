@@ -19,9 +19,6 @@ __( "Disconnecting Jetpack", "jetpack" ), // _inc/client/state/connection/action
 __( "Options failed to reset.", "jetpack" ), // _inc/client/state/dev-version/actions.js:35
 __( "Options reset.", "jetpack" ), // _inc/client/state/dev-version/actions.js:28
 __( "Resetting Jetpack options…", "jetpack" ), // _inc/client/state/dev-version/actions.js:22
-__( "Recommended features failed to activate. %(error)s", "jetpack" ), // _inc/client/state/jumpstart/actions.js:47
-__( "Recommended features active.", "jetpack" ), // _inc/client/state/jumpstart/actions.js:37
-__( "Activating recommended features…", "jetpack" ), // _inc/client/state/jumpstart/actions.js:29
 __( "Error regenerating %(slug)s address. %(error)s", "jetpack" ), // _inc/client/state/modules/actions.js:304
 __( "Regenerated %(slug)s address .", "jetpack" ), // _inc/client/state/modules/actions.js:286
 __( "Updating %(slug)s address…", "jetpack" ), // _inc/client/state/modules/actions.js:266
@@ -34,6 +31,9 @@ __( "Deactivating %(slug)s…", "jetpack" ), // _inc/client/state/modules/action
 __( "%(slug)s failed to activate. %(error)s", "jetpack" ), // _inc/client/state/modules/actions.js:127
 __( "%(slug)s has been activated.", "jetpack" ), // _inc/client/state/modules/actions.js:110
 __( "Activating %(slug)s…", "jetpack" ), // _inc/client/state/modules/actions.js:94
+__( "Recommended features failed to activate. %(error)s", "jetpack" ), // _inc/client/state/jumpstart/actions.js:47
+__( "Recommended features active.", "jetpack" ), // _inc/client/state/jumpstart/actions.js:37
+__( "Activating recommended features…", "jetpack" ), // _inc/client/state/jumpstart/actions.js:29
 __( "There are unsaved settings in this tab that will be lost if you leave it. Proceed?", "jetpack" ), // _inc/client/main.jsx:82
 __( "There are unsaved settings in this tab that will be lost if you leave it. Proceed?", "jetpack" ), // _inc/client/main.jsx:68
 __( "Show falling snow on my blog from Dec 1st until Jan 4th.", "jetpack" ), // _inc/client/appearance/index.jsx:113
@@ -146,17 +146,6 @@ __( "Manage your Jetpack connection.", "jetpack" ), // _inc/client/general-setti
 __( "Connection Settings", "jetpack" ), // _inc/client/general-settings/index.jsx:88
 __( "Learn More", "jetpack" ), // _inc/client/general-settings/index.jsx:79
 __( "Unavailable in Dev Mode", "jetpack" ), // _inc/client/general-settings/index.jsx:46
-__( "ACTIVE", "jetpack" ), // _inc/client/pro-status/index.jsx:183
-__( "ACTIVE", "jetpack" ), // _inc/client/pro-status/index.jsx:168
-__( "Upgrade", "jetpack" ), // _inc/client/pro-status/index.jsx:163
-__( "Upgrade", "jetpack" ), // _inc/client/pro-status/index.jsx:156
-__( "Set up", "jetpack" ), // _inc/client/pro-status/index.jsx:146
-__( "Upgrade", "jetpack" ), // _inc/client/pro-status/index.jsx:136
-__( "Upgrade", "jetpack" ), // _inc/client/pro-status/index.jsx:120
-__( "Upgrade", "jetpack" ), // _inc/client/pro-status/index.jsx:104
-__( "Invalid Key", "jetpack" ), // _inc/client/pro-status/index.jsx:86
-__( "Threats found!", "jetpack" ), // _inc/client/pro-status/index.jsx:71
-__( "Unavailable in Dev Mode", "jetpack" ), // _inc/client/pro-status/index.jsx:61
 __( "Compare Plans", "jetpack" ), // _inc/client/plans/plan-body.jsx:317
 __( "We support all Jetpack users, regardless of plan. But customers on a paid subscription enjoy priority support so that security issues are identified and fixed for you as soon as possible. ", "jetpack" ), // _inc/client/plans/plan-body.jsx:312
 __( "Enjoy priority support", "jetpack" ), // _inc/client/plans/plan-body.jsx:311
@@ -234,6 +223,17 @@ __( "For less than the price of a coffee a month you can rest easy knowing your 
 __( "How much is your website worth?", "jetpack" ), // _inc/client/plans/plan-header.jsx:29
 __( "The Personal Plan keeps your data, site, and hard work safe.", "jetpack" ), // _inc/client/plans/plan-header.jsx:25
 __( "Introducing our most affordable backups and security plan yet", "jetpack" ), // _inc/client/plans/plan-header.jsx:22
+__( "ACTIVE", "jetpack" ), // _inc/client/pro-status/index.jsx:183
+__( "ACTIVE", "jetpack" ), // _inc/client/pro-status/index.jsx:168
+__( "Upgrade", "jetpack" ), // _inc/client/pro-status/index.jsx:163
+__( "Upgrade", "jetpack" ), // _inc/client/pro-status/index.jsx:156
+__( "Set up", "jetpack" ), // _inc/client/pro-status/index.jsx:146
+__( "Upgrade", "jetpack" ), // _inc/client/pro-status/index.jsx:136
+__( "Upgrade", "jetpack" ), // _inc/client/pro-status/index.jsx:120
+__( "Upgrade", "jetpack" ), // _inc/client/pro-status/index.jsx:104
+__( "Invalid Key", "jetpack" ), // _inc/client/pro-status/index.jsx:86
+__( "Threats found!", "jetpack" ), // _inc/client/pro-status/index.jsx:71
+__( "Unavailable in Dev Mode", "jetpack" ), // _inc/client/pro-status/index.jsx:61
 __( "No Results Found.", "jetpack" ), // _inc/client/search/index.jsx:223
 __( "Learn More", "jetpack" ), // _inc/client/search/index.jsx:212
 __( "Upgrade", "jetpack" ), // _inc/client/search/index.jsx:178
@@ -288,8 +288,6 @@ __( "Paid", "jetpack" ), // _inc/client/components/dash-item/index.jsx:98
 __( "Active", "jetpack" ), // _inc/client/components/dash-item/index.jsx:87
 __( "Updates Needed", "jetpack" ), // _inc/client/components/dash-item/index.jsx:81
 _x( "Settings", "Noun. Displayed to screen readers.", "jetpack" ), // _inc/client/components/dash-section-header/index.jsx:43
-__( "Save Settings", "jetpack" ), // _inc/client/components/forms/index.jsx:146
-__( "Saving…", "jetpack" ), // _inc/client/components/forms/index.jsx:146
 _x( "Privacy", "Shorthand for Privacy Policy.", "jetpack" ), // _inc/client/components/footer/index.jsx:126
 __( "Automattic's Privacy Policy", "jetpack" ), // _inc/client/components/footer/index.jsx:124
 _x( "Terms", "Shorthand for Terms of Service.", "jetpack" ), // _inc/client/components/footer/index.jsx:117
@@ -301,6 +299,8 @@ __( "Test your site’s compatibility with Jetpack.", "jetpack" ), // _inc/clien
 _x( "Reset Options (dev versions only)", "Navigation item.", "jetpack" ), // _inc/client/components/footer/index.jsx:56
 __( "This will reset all Jetpack options, are you sure?", "jetpack" ), // _inc/client/components/footer/index.jsx:37
 __( "Do you really want to disconnect your site from WordPress.com?", "jetpack" ), // _inc/client/components/footer/index.jsx:30
+__( "Save Settings", "jetpack" ), // _inc/client/components/forms/index.jsx:146
+__( "Saving…", "jetpack" ), // _inc/client/components/forms/index.jsx:146
 __( "No account? Create one for free…", "jetpack" ), // _inc/client/components/jetpack-connect/index.jsx:222
 __( "Join the millions of users who rely on Jetpack to enhance and secure their sites. We're passionate about WordPress and here to make your life easier.", "jetpack" ), // _inc/client/components/jetpack-connect/index.jsx:214
 __( "Jetpack is supported by some of the most technical and passionate people in the community. They're located around the globe and ready to help you.", "jetpack" ), // _inc/client/components/jetpack-connect/index.jsx:199
@@ -421,7 +421,7 @@ __( "Show a promo for the WordPress mobile apps in the footer of the mobile them
 __( "Mobile Promos", "jetpack" ), // _inc/client/components/module-settings/index.jsx:440
 __( "Featured Images", "jetpack" ), // _inc/client/components/module-settings/index.jsx:433
 __( "Excerpts", "jetpack" ), // _inc/client/components/module-settings/index.jsx:426
-__( "Track each infinite Scroll post load as a page view in Google Analytics", "jetpack" ), // _inc/client/components/module-settings/index.jsx:408
+__( "Track each scroll load (7 posts by default) as a page view in Google Analytics", "jetpack" ), // _inc/client/components/module-settings/index.jsx:408
 __( "Scroll infinitely (Shows 7 posts on each load)", "jetpack" ), // _inc/client/components/module-settings/index.jsx:404
 __( "Background Color", "jetpack" ), // _inc/client/components/module-settings/index.jsx:379
 __( "Show photo metadata (Exif) in carousel, when available", "jetpack" ), // _inc/client/components/module-settings/index.jsx:376
@@ -459,20 +459,20 @@ __( "Big iPhone/iPad Update Now Available", "jetpack" ), // _inc/client/componen
 __( "Subscriber", "jetpack" ), // _inc/client/components/module-settings/index.jsx:58
 __( "To get started, click on Add Media in your post editor and upload a video; we’ll take care of the rest!", "jetpack" ), // _inc/client/components/module-settings/index.jsx:44
 __( "The easiest way to upload ad-free and unbranded videos to your site. You get stats on video playback and shares and the player is lightweight and responsive.", "jetpack" ), // _inc/client/components/module-settings/index.jsx:41
-__( "{{link}}Configure your %(module_slug)s Settings {{/link}}", "jetpack" ), // _inc/client/components/module-settings/modules-per-tab-page.jsx:192
-__( "{{link}}Configure your %(module_slug)s Settings {{/link}}", "jetpack" ), // _inc/client/components/module-settings/modules-per-tab-page.jsx:170
-__( "Real-time offsite backups with automated restores deliver peace-of-mind, so you can focus on writing great content and increasing traffic while we protect every aspect of your investment. Upgrade today.", "jetpack" ), // _inc/client/components/module-settings/modules-per-tab-page.jsx:163
-__( "Let search engines and visitors know that you are serious about your websites integrity by upgrading Jetpack. Our anti-spam tools will eliminate comment spam, protect your SEO, and make it easier for visitors to stay in touch.", "jetpack" ), // _inc/client/components/module-settings/modules-per-tab-page.jsx:161
-__( "This module has no configuration options", "jetpack" ), // _inc/client/components/module-settings/modules-per-tab-page.jsx:154
-__( "Configure Google Analytics settings.", "jetpack" ), // _inc/client/components/module-settings/modules-per-tab-page.jsx:141
-__( "Activate this module to use Google Analytics.", "jetpack" ), // _inc/client/components/module-settings/modules-per-tab-page.jsx:135
-__( "Configure your SEO settings.", "jetpack" ), // _inc/client/components/module-settings/modules-per-tab-page.jsx:111
-__( "Activate this module to use the advanced SEO tools.", "jetpack" ), // _inc/client/components/module-settings/modules-per-tab-page.jsx:105
-__( "Make sure your site is easily found on search engines with SEO tools for your content and social posts.", "jetpack" ), // _inc/client/components/module-settings/modules-per-tab-page.jsx:97
-__( "Configure your Security Scans", "jetpack" ), // _inc/client/components/module-settings/modules-per-tab-page.jsx:88
-__( "You can see the information about security scanning in the \"At a Glance\" section.", "jetpack" ), // _inc/client/components/module-settings/modules-per-tab-page.jsx:85
-__( "Upgrade Jetpack and our state-of-the-art security scanner will hunt out malicious files and report them immediately so that you're never unaware of what is happening on your website.", "jetpack" ), // _inc/client/components/module-settings/modules-per-tab-page.jsx:79
-__( "Search your content.", "jetpack" ), // _inc/client/components/module-settings/modules-per-tab-page.jsx:51
+__( "{{link}}Configure your %(module_slug)s Settings {{/link}}", "jetpack" ), // _inc/client/components/module-settings/modules-per-tab-page.jsx:200
+__( "{{link}}Configure your %(module_slug)s Settings {{/link}}", "jetpack" ), // _inc/client/components/module-settings/modules-per-tab-page.jsx:178
+__( "Real-time offsite backups with automated restores deliver peace-of-mind, so you can focus on writing great content and increasing traffic while we protect every aspect of your investment. Upgrade today.", "jetpack" ), // _inc/client/components/module-settings/modules-per-tab-page.jsx:171
+__( "Let search engines and visitors know that you are serious about your websites integrity by upgrading Jetpack. Our anti-spam tools will eliminate comment spam, protect your SEO, and make it easier for visitors to stay in touch.", "jetpack" ), // _inc/client/components/module-settings/modules-per-tab-page.jsx:169
+__( "This module has no configuration options", "jetpack" ), // _inc/client/components/module-settings/modules-per-tab-page.jsx:162
+__( "Configure Google Analytics settings.", "jetpack" ), // _inc/client/components/module-settings/modules-per-tab-page.jsx:149
+__( "Google Analytics is a free service that complements our {{a}}built-in stats{{/a}} with different insights into your traffic. WordPress.com stats and Google Analytics use different methods to identify and track activity on your site, so they will normally show slightly different totals for your visits, views, etc.", "jetpack" ), // _inc/client/components/module-settings/modules-per-tab-page.jsx:134
+__( "Configure your SEO settings.", "jetpack" ), // _inc/client/components/module-settings/modules-per-tab-page.jsx:110
+__( "Activate this module to use the advanced SEO tools.", "jetpack" ), // _inc/client/components/module-settings/modules-per-tab-page.jsx:104
+__( "Make sure your site is easily found on search engines with SEO tools for your content and social posts.", "jetpack" ), // _inc/client/components/module-settings/modules-per-tab-page.jsx:96
+__( "Configure your Security Scans", "jetpack" ), // _inc/client/components/module-settings/modules-per-tab-page.jsx:87
+__( "You can see the information about security scanning in the \"At a Glance\" section.", "jetpack" ), // _inc/client/components/module-settings/modules-per-tab-page.jsx:84
+__( "Upgrade Jetpack and our state-of-the-art security scanner will hunt out malicious files and report them immediately so that you're never unaware of what is happening on your website.", "jetpack" ), // _inc/client/components/module-settings/modules-per-tab-page.jsx:78
+__( "Search your content.", "jetpack" ), // _inc/client/components/module-settings/modules-per-tab-page.jsx:50
 _x( "Apps", "Navigation item.", "jetpack" ), // _inc/client/components/navigation/index.jsx:63
 _x( "At a Glance", "Navigation item.", "jetpack" ), // _inc/client/components/navigation/index.jsx:50
 _x( "Plans", "Navigation item.", "jetpack" ), // _inc/client/components/navigation/index.jsx:39

@@ -257,6 +257,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			'happinessGravIds' => jetpack_get_happiness_gravatar_ids(),
 			'getModules' => $modules,
 			'showJumpstart' => jetpack_show_jumpstart(),
+			'showHolidaySnow' => function_exists( 'jetpack_show_holiday_snow_option' ) ? jetpack_show_holiday_snow_option() : false,
 			'rawUrl' => Jetpack::build_raw_urls( get_home_url() ),
 			'adminUrl' => esc_url( admin_url() ),
 			'stats' => array(

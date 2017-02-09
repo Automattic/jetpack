@@ -23,6 +23,7 @@ import {
 	getModule as _getModule,
 	getModules
 } from 'state/modules';
+import { getShowHolidaySnow } from 'state/settings';
 import { ModuleToggle } from 'components/module-toggle';
 import { AllModuleSettings } from 'components/module-settings/modules-per-tab-page';
 import { isUnavailableInDevMode } from 'state/connection';
@@ -34,7 +35,8 @@ export const Page = ( props ) => {
 		toggleModule,
 		isModuleActivated,
 		isTogglingModule,
-		getModule
+		getModule,
+		showHolidaySnow
 	} = props,
 		isAdmin = props.userCanManageModules,
 		moduleList = Object.keys( props.moduleList );
@@ -90,29 +92,32 @@ export const Page = ( props ) => {
 		);
 	} );
 
+	let holidaySnowCard = showHolidaySnow ? (
+		<FoldableCard
+			header={ __( 'Holiday Snow' ) }
+			subheader={ __( 'Show falling snow in the holiday period.' ) }
+			clickableHeaderText={ true }
+			disabled={ ! isAdmin }
+			summary={ isAdmin ? <Settings slug="snow" /> : '' }
+			expandedSummary={ isAdmin ? <Settings slug="snow" /> : '' }
+			onOpen={ () => analytics.tracks.recordEvent( 'jetpack_wpa_settings_card_open',
+				{
+					card: 'holiday_snow',
+					path: props.route.path
+				}
+			) }
+		>
+			<span className="jp-form-setting-explanation">
+				{ __( 'Show falling snow on my blog from Dec 1st until Jan 4th.' ) }
+			</span>
+		</FoldableCard>
+	) : '';
+
 	return (
 		<div>
 			<QuerySite />
 			{ cards }
-
-			<FoldableCard
-				header={ __( 'Holiday Snow' ) }
-				subheader={ __( 'Show falling snow in the holiday period.' ) }
-				clickableHeaderText={ true }
-				disabled={ ! isAdmin }
-				summary={ isAdmin ? <Settings slug="snow" /> : '' }
-				expandedSummary={ isAdmin ? <Settings slug="snow" /> : '' }
-				onOpen={ () => analytics.tracks.recordEvent( 'jetpack_wpa_settings_card_open',
-					{
-						card: 'holiday_snow',
-						path: props.route.path
-					}
-				) }
-			>
-				<span className="jp-form-setting-explanation">
-					{ __( 'Show falling snow on my blog from Dec 1st until Jan 4th.' ) }
-				</span>
-			</FoldableCard>
+			{ holidaySnowCard }
 		</div>
 	);
 };
@@ -132,7 +137,8 @@ export default connect(
 			getModule: ( module_name ) => _getModule( state, module_name ),
 			isUnavailableInDevMode: ( module_name ) => isUnavailableInDevMode( state, module_name ),
 			userCanManageModules: userCanManageModules( state ),
-			moduleList: getModules( state )
+			moduleList: getModules( state ),
+			showHolidaySnow: getShowHolidaySnow( state )
 		};
 	},
 	( dispatch ) => {

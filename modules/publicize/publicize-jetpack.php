@@ -72,6 +72,7 @@ class Publicize extends Publicize_Base {
 			<div class="jetpack-wrap-container">
 				<div class="jetpack-text-container">
 					<p><?php printf(
+							/* translators: %s is the name of the blog */
 							esc_html( wptexturize( __( "To use Publicize, you'll need to link your %s account to your WordPress.com account using the link below.", 'jetpack' ) ) ),
 							'<strong>' . esc_html( $blog_name ) . '</strong>'
 						); ?></p>
@@ -541,10 +542,7 @@ class Publicize extends Publicize_Base {
 			?>
 
 			<?php if ( ! empty( $me['name'] ) ) : ?>
-				<p><?php printf(
-						esc_html__( 'Publicize to my %s:', 'jetpack' ),
-						'<strong>' . esc_html__( 'Facebook Wall', 'jetpack' ) . '</strong>'
-					); ?></p>
+				<p><?php esc_html_e( 'Publicize to my <strong>Facebook Wall</strong>:', 'jetpack' ); ?></p>
 				<table id="option-profile">
 					<tbody>
 					<tr>
@@ -564,10 +562,7 @@ class Publicize extends Publicize_Base {
 
 			<?php if ( $pages ) : ?>
 
-				<p><?php printf(
-						esc_html__( 'Publicize to my %s:', 'jetpack' ),
-						'<strong>' . esc_html__( 'Facebook Page', 'jetpack' ) . '</strong>'
-					); ?></p>
+				<p><?php esc_html_e( 'Publicize to my <strong>Facebook Page</strong>:', 'jetpack' ); ?></p>
 				<table id="option-fb-fanpage">
 					<tbody>
 
@@ -698,10 +693,7 @@ class Publicize extends Publicize_Base {
 			}
 			?>
 
-			<p><?php printf(
-					esc_html__( 'Publicize to my %s:', 'jetpack' ),
-					'<strong>' . esc_html__( 'Tumblr blog', 'jetpack' ) . '</strong>'
-				); ?></p>
+			<p><?php esc_html_e( 'Publicize to my <strong>Tumblr blog</strong>:', 'jetpack' ); ?></p>
 
 			<ul id="option-tumblr-blog">
 

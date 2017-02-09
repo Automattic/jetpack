@@ -52,7 +52,7 @@ class Jetpack_Sync_Actions {
 		if ( apply_filters( 'jetpack_sync_listener_should_load', true ) ) {
 			self::initialize_listener();
 		}
-		
+
 		add_action( 'init', array( __CLASS__, 'add_sender_shutdown' ), 90 );
 
 	}
@@ -210,8 +210,8 @@ class Jetpack_Sync_Actions {
 			$schedules[ self::DEFAULT_SYNC_CRON_INTERVAL_NAME ] = array(
 				'interval' => self::DEFAULT_SYNC_CRON_INTERVAL_VALUE,
 				'display' => sprintf(
-					esc_html__( 'Every %d minutes', 'jetpack' ),
-					self::DEFAULT_SYNC_CRON_INTERVAL_VALUE / 60
+					esc_html( _n( 'Every minute', 'Every %d minutes', intval( self::DEFAULT_SYNC_CRON_INTERVAL_VALUE / 60 ), 'jetpack' ) ),
+					intval( self::DEFAULT_SYNC_CRON_INTERVAL_VALUE / 60 )
 				)
 			);
 		}

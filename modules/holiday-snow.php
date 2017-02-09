@@ -108,6 +108,19 @@ function jetpack_holiday_snow_option_name() {
 	return apply_filters( 'jetpack_holiday_snow_option_name', 'jetpack_holiday_snow_enabled' );
 }
 
+function jetpack_show_holiday_snow_option() {
+	// Always show snow option if a custom snow season has been set.
+	if ( has_filter( 'jetpack_is_holiday_snow_season' ) ) {
+		return true;
+	}
+
+	$today            = time();
+	$first_option_day = mktime( 0, 0, 0, 11, 24 ); // Nov 24
+	$last_option_day  = mktime( 0, 0, 0, 1, 4 );   // Jan 4
+
+	return ( $today >= $first_option_day || $today < $last_option_day );
+}
+
 function jetpack_is_holiday_snow_season() {
 	$today          = time();
 	$first_snow_day = mktime( 0, 0, 0, 12, 1 );
