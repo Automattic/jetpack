@@ -210,16 +210,16 @@ class Jetpack_Sitemap_Buffer {
 	}
 
 	/**
-	 * Render an associative array as an XML string. Handles attributes.
-	 * This is needed because SimpleXMLElement only handles valid XML, but we want
-	 * to pass around (possibly invalid) fragments. Note that 'null' values make
-	 * a tag self-closing; this is only sometimes correct (depending on the version
-   * of HTML); see the list of 'void tags'.
+	 * Render an associative array as an XML string. This is needed because
+	 * SimpleXMLElement only handles valid XML, but we sometimes want to
+	 * pass around (possibly invalid) fragments. Note that 'null' values make
+	 * a tag self-closing; this is only sometimes correct (depending on the
+	 * version of HTML/XML); see the list of 'void tags'.
 	 *
 	 * Example:
 	 *
 	 * array(
-	 *   'html xmlns="foo"' => array(        |<html xmlns="foo">
+	 *   'html' => array(                    |<html xmlns="foo">
 	 *     'head' => array(                  |  <head>
 	 *       'title' => 'Woo!',              |    <title>Woo!</title>
 	 *     ),                                |  </head>
@@ -233,7 +233,7 @@ class Jetpack_Sitemap_Buffer {
 	 *
 	 * @access public
 	 * @since 3.9.0
-	 * @since 4.7.0 Rename, add $depth parameter, change return type, handle attributes.
+	 * @since 4.7.0 Rename, add $depth parameter, and change return type.
 	 *
 	 * @param array  $array A recursive associative array of tag/child relationships.
 	 * @param string $depth String to prepend to each line. For internal use only.
@@ -245,26 +245,17 @@ class Jetpack_Sitemap_Buffer {
 
 		foreach ( $array as $key => $value ) {
 
-			// Remove any attributes from key.
-			preg_match( '/^[^ ]+/', $key, $match );
-
 			// Only allow a-z, A-Z, colon, underscore, and hyphen.
-			$close_tag = preg_replace('/[^a-zA-Z:_-]/', '_', $match[0] );
-
-			if ( preg_match( '/^[a-z][-_:a-zA-Z]+( [^<>]+)?$/', $key ) ) {
-				$open_tag = $key;
-			} else {
-				$open_tag = $close_tag;
-			}
+			$tag = preg_replace('/[^a-zA-Z:_-]/', '_', $key );
 
 			if ( is_array( $value ) ) {
-				$string .= $depth . "<$open_tag>\n";
+				$string .= $depth . "<$tag>\n";
 				$string .= self::array_to_xml_string( $value, $depth . '  ' );
-				$string .= $depth . "</$close_tag>\n";
+				$string .= $depth . "</$tag>\n";
 			} elseif ( is_null( $value ) ) {
-				$string .= $depth . "<$open_tag />\n";
+				$string .= $depth . "<$tag />\n";
 			} else {
-				$string .= $depth . "<$open_tag>" . ent2ncr( $value ) . "</$close_tag>\n";
+				$string .= $depth . "<$tag>" . ent2ncr( $value ) . "</$tag>\n";
 			}
 		}
 
@@ -277,7 +268,7 @@ class Jetpack_Sitemap_Buffer {
 	 * @access public
 	 * @since 4.7.0
 	 *
-	 * @param array  $array Key/value array of attributes.
+	 * @param array $array Key/value array of attributes.
 	 *
 	 * @return string The rendered attribute string.
 	 */
