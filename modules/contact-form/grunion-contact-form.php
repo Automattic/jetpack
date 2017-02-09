@@ -175,14 +175,18 @@ class Grunion_Contact_Form_Plugin {
 			add_action( 'template_redirect', array( $this, 'process_form_submission' ) );
 		}
 
+		add_action( 'wp_enqueue_scripts', array( $this, 'register_styles' ) );
+	}
+
+	function register_styles() {
 		/* Can be dequeued by placing the following in wp-content/themes/yourtheme/functions.php
-		 *
-		 * 	function remove_grunion_style() {
-		 *		wp_deregister_style('grunion.css');
-		 *	}
-		 *	add_action('wp_print_styles', 'remove_grunion_style');
-		 */
-		if( is_rtl() ){
+				 *
+				 * 	function remove_grunion_style() {
+				 *		wp_deregister_style('grunion.css');
+				 *	}
+				 *	add_action('wp_print_styles', 'remove_grunion_style');
+				 */
+		if ( is_rtl() ) {
 			wp_register_style( 'grunion.css', GRUNION_PLUGIN_URL . 'css/rtl/grunion-rtl.css', array(), JETPACK__VERSION );
 		} else {
 			wp_register_style( 'grunion.css', GRUNION_PLUGIN_URL . 'css/grunion.css', array(), JETPACK__VERSION );
