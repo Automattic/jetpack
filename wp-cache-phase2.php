@@ -78,6 +78,10 @@ function wpcache_do_rebuild( $dir ) {
 	global $do_rebuild_list, $cache_path;
 
 	$dir = trailingslashit( realpath( $dir ) );
+
+	if ( isset( $do_rebuild_list[ $dir ] ) )
+		return false;
+
 	$protected = array( $cache_path, $cache_path . "blogs/", get_supercache_dir() );
 	foreach( $protected as $id => $directory ) {
 		$protected[ $id ] = trailingslashit( realpath( $directory ) );
@@ -88,9 +92,6 @@ function wpcache_do_rebuild( $dir ) {
 		return false;
 
 	if ( in_array( $dir, $protected ) )
-		return false;
-
-	if ( isset( $do_rebuild_list[ $dir ] ) )
 		return false;
 
 	if ( is_dir( $dir ) && $dh = @opendir( $dir ) ) {
