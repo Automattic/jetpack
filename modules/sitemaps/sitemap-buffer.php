@@ -277,15 +277,14 @@ class Jetpack_Sitemap_Buffer {
 	 * @since 4.7.0
 	 *
 	 * @param array  $array Key/value array of attributes.
-	 * @param string $sep An optional prefix string to prepend to each attribute.
 	 *
 	 * @return string The rendered attribute string.
 	 */
-	public static function array_to_xml_attr_string( $array, $sep = '' ) {
+	public static function array_to_xml_attr_string( $array ) {
 		$string = '';
 
 		foreach ( $array as $key => $value ) {
-			$string .= $sep . ' ' . sanitize_key( $key ) . '="' . esc_attr( $value ) . '"';
+			$string .= ' ' . sanitize_key( $key ) . '="' . esc_attr( $value ) . '"';
 		}
 
 		return $string;

@@ -534,8 +534,7 @@ FOOTER
 					'xsi:schemaLocation' => 'http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd',
 					'xmlns'              => 'http://www.sitemaps.org/schemas/sitemap/0.9',
 				)
-			),
-			"\n " // This argument pretty prints the namespaces one per line.
+			)
 		);
 
 		$buffer = new Jetpack_Sitemap_Buffer(
@@ -690,8 +689,7 @@ FOOTER
 					'xmlns'              => 'http://www.sitemaps.org/schemas/sitemap/0.9',
 					'xmlns:image'        => 'http://www.google.com/schemas/sitemap-image/1.1',
 				)
-			),
-			"\n " // This argument pretty prints the namespaces one per line.
+			)
 		);
 
 		$buffer = new Jetpack_Sitemap_Buffer(
@@ -807,8 +805,7 @@ FOOTER
 					'xmlns'              => 'http://www.sitemaps.org/schemas/sitemap/0.9',
 					'xmlns:video'        => 'http://www.google.com/schemas/sitemap-video/1.1',
 				)
-			),
-			"\n " // This argument pretty prints the namespaces one per line.
+			)
 		);
 
 		$buffer = new Jetpack_Sitemap_Buffer(
@@ -1083,8 +1080,7 @@ FOOTER
 						'xmlns'              => 'http://www.sitemaps.org/schemas/sitemap/0.9',
 						'xmlns:news'         => 'http://www.google.com/schemas/sitemap-news/0.9',
 					)
-				),
-				"\n " // This argument pretty prints the namespaces one per line.
+				)
 			);
 
 			$buffer = new Jetpack_Sitemap_Buffer(
