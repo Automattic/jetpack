@@ -385,9 +385,6 @@ class The_Neverending_Home_Page {
 			return;
 		}
 
-		// Add a class to the body.
-		add_filter( 'body_class', array( $this, 'body_class' ) );
-
 		// Add our scripts.
 		wp_enqueue_script( 'the-neverending-homepage' );
 
@@ -411,16 +408,21 @@ class The_Neverending_Home_Page {
 	}
 
 	/**
-	 * Adds an 'infinite-scroll' class to the body.
+	 * Returns classes to be added to <body>. If it's enabled, 'infinite-scroll'. If set to continuous scroll, adds 'neverending' too.
+	 *
+	 * @since 4.7.0 No longer added as a 'body_class' filter but passed to JS environment and added using JS.
+	 *
+	 * @return string
 	 */
-	function body_class( $classes ) {
+	function body_class() {
+		$classes = '';
 		// Do not add infinity-scroll class if disabled through the Reading page
 		$disabled = '' === get_option( self::$option_name_enabled ) ? true : false;
 		if ( ! $disabled || 'click' == self::get_settings()->type ) {
-			$classes[] = 'infinite-scroll';
+			$classes = 'infinite-scroll';
 
 			if ( 'scroll' == self::get_settings()->type )
-				$classes[] = 'neverending';
+				$classes .= ' neverending';
 		}
 
 		return $classes;
@@ -776,6 +778,7 @@ class The_Neverending_Home_Page {
 			),
 			'query_args'      => self::get_query_vars(),
 			'last_post_date'  => self::get_last_post_date(),
+			'body_class'	  => self::body_class(),
 		);
 
 		// Optional order param
