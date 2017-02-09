@@ -646,7 +646,7 @@ function wpsc_delete_files( $dir, $delete = true ) {
 		while ( ( $file = readdir( $dh ) ) !== false ) {
 			if ( $file != '.' && $file != '..' && $file != '.htaccess' && is_file( $dir . $file ) )
 				if ( $delete )
-					@unlink( $dir . $file )
+					@unlink( $dir . $file );
 				else
 					@wp_cache_rebuild_or_delete( $dir . $file );
 		}
