@@ -4,8 +4,8 @@
 
 /* Set up some defaults */
 if ( get_option( 'ossdl_off_cdn_url' ) == false )
-	add_option('ossdl_off_cdn_url', get_option('siteurl'));
-$ossdl_off_blog_url = get_option('siteurl');
+	add_option('ossdl_off_cdn_url', get_home_url() );
+$ossdl_off_blog_url = apply_filters( 'ossdl_off_blog_url', get_home_url() );
 $ossdl_off_cdn_url = trim( get_option('ossdl_off_cdn_url') );
 if ( get_option( 'ossdl_off_include_dirs' ) == false )
 	add_option('ossdl_off_include_dirs', 'wp-content,wp-includes');
@@ -147,15 +147,15 @@ function scossdl_off_options() {
 	$example_cnames .= ',' . str_replace( 'http://cdn.', 'http://cdn2.', $example_cdn_uri );
 	$example_cnames .= ',' . str_replace( 'http://cdn.', 'http://cdn3.', $example_cdn_uri );
 
-	$example_cdn_uri = get_option('ossdl_off_cdn_url') == get_option('siteurl') ? $example_cdn_uri : get_option('ossdl_off_cdn_url');
-	$example_cdn_uri .= '/wp-includes/js/prototype.js';
+	$example_cdn_uri = get_option('ossdl_off_cdn_url') == get_home_url() ? $example_cdn_uri : get_option('ossdl_off_cdn_url');
+	$example_cdn_uri .= '/wp-includes/js/jquery/jquery-migrate.js';
 	?>
-		<p><?php _e( 'Your website probably uses lots of static files. Image, Javascript and CSS files are usually static files that could just as easily be served from another site or CDN. Therefore, this plugin replaces any links in the <code>wp-content</code> and <code>wp-includes</code> directories (except for PHP files) on your site with the URL you provide below. That way you can either copy all the static content to a dedicated host or mirror the files to a CDN by <a href="http://knowledgelayer.softlayer.com/questions/365/How+does+Origin+Pull+work%3F" target="_blank">origin pull</a>.', 'wp-super-cache' ); ?></p>
+		<p><?php _e( 'Your website probably uses lots of static files. Image, Javascript and CSS files are usually static files that could just as easily be served from another site or CDN. Therefore, this plugin replaces any links in the <code>wp-content</code> and <code>wp-includes</code> directories (except for PHP files) on your site with the URL you provide below. That way you can either copy all the static content to a dedicated host or mirror the files to a CDN by <a href="https://knowledgelayer.softlayer.com/faq/how-does-origin-pull-work" target="_blank">origin pull</a>.', 'wp-super-cache' ); ?></p>
 		<p><?php printf( __( '<strong style="color: red">WARNING:</strong> Test some static urls e.g., %s  to ensure your CDN service is fully working before saving changes.', 'wp-super-cache' ), '<code>' . $example_cdn_uri . '</code>' ); ?></p>
 		<p><?php _e( 'You can define different CDN URLs for each site on a multsite network.', 'wp-super-cache' ); ?></p>
 		<p><form method="post" action="">
 		<?php wp_nonce_field('wp-cache'); ?>
-		<table class="form-table"><tbod>
+		<table class="form-table"><tbody>
 			<tr valign="top">
 				<td style='text-align: right'>
 					<input id='ossdlcdn' type="checkbox" name="ossdlcdn" value="1" <?php if ( $ossdlcdn ) echo "checked=1"; ?> />

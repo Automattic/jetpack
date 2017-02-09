@@ -8,8 +8,9 @@ function wpcache_broken_message() {
 	$doing_ajax =     defined( 'DOING_AJAX' ) && DOING_AJAX;
 	$xmlrpc_request = defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST;
 	$rest_request =   defined( 'REST_REQUEST' ) && REST_REQUEST;
+	$robots_request = strpos( $_SERVER[ 'REQUEST_URI' ], 'robots.txt' ) != false;
 
-	$skip_output = ( $doing_ajax || $xmlrpc_request || $rest_request );
+	$skip_output = ( $doing_ajax || $xmlrpc_request || $rest_request || $robots_request);
 	if ( false == strpos( $_SERVER[ 'REQUEST_URI' ], 'wp-admin' ) && !$skip_output ) {
 		echo "<!-- WP Super Cache is installed but broken. The constant WPCACHEHOME must be set in the file wp-config.php and point at the WP Super Cache plugin directory. -->";
 	}

@@ -130,7 +130,10 @@ function wp_cache_serve_cache_file() {
 	global $wp_cache_object_cache, $cache_compression, $wp_cache_slash_check, $wp_supercache_304, $wp_cache_home_path, $wp_cache_no_cache_for_get;
 	global $wp_cache_disable_utf8, $wp_cache_mfunc_enabled;
 
-	extract( wp_super_cache_init() );
+	if ( is_admin() ) {
+		wp_cache_debug( 'Not serving wp-admin requests.', 5 );
+		return false;
+	}
 
 	if ( wp_cache_user_agent_is_rejected() ) {
 		wp_cache_debug( "No wp-cache file served as user agent rejected.", 5 );
@@ -141,6 +144,8 @@ function wp_cache_serve_cache_file() {
 		wp_cache_debug( "Non empty GET request. Caching disabled on settings page. " . json_encode( $_GET ), 1 );
 		return false;
 	}
+
+	extract( wp_super_cache_init() );
 
 	if ( $wp_cache_object_cache && wp_cache_get_cookies_values() == '' ) {
 		if ( !empty( $_GET ) ) {
@@ -160,7 +165,15 @@ function wp_cache_serve_cache_file() {
 			wp_cache_debug( "Meta array from object cache corrupt. Ignoring cache.", 1 );
 			return true;
 		}
-	} elseif ( file_exists( $cache_file ) ) {
+	} elseif ( file_exists( $cache_file ) || file_exists( get_current_url_supercache_dir() . 'meta-' . $cache_filename ) ) {
+		if ( file_exists( get_current_url_supercache_dir() . 'meta-' . $cache_filename ) ) {
+			$cache_file = get_current_url_supercache_dir() . $cache_filename;
+			$meta_pathname = get_current_url_supercache_dir() . 'meta-' . $cache_filename;
+		} elseif ( !file_exists( $cache_file ) ) {
+			wp_cache_debug( "wp_cache_serve_cache_file: found cache file but then it disappeared!" );
+			return false;
+		}
+
 		wp_cache_debug( "wp-cache file exists: $cache_file", 5 );
 		if ( !( $meta = json_decode( wp_cache_get_legacy_cache( $meta_pathname ), true ) ) ) {
 			wp_cache_debug( "couldn't load wp-cache meta file", 5 );
@@ -172,7 +185,7 @@ function wp_cache_serve_cache_file() {
 			@unlink( $cache_file );
 			return true;
 		}
-	} else {
+	} else { // no $cache_file
 		// last chance, check if a supercache file exists. Just in case .htaccess rules don't work on this host
 		$filename = supercache_filename();
 		$file = get_current_url_supercache_dir() . $filename;
@@ -226,28 +239,31 @@ function wp_cache_serve_cache_file() {
 
 			header( "Vary: Accept-Encoding, Cookie" );
 			header( "Cache-Control: max-age=3, must-revalidate" );
-			header( "WP-Super-Cache: Served supercache file from PHP" );
 			$size = function_exists( 'mb_strlen' ) ? mb_strlen( $cachefiledata, '8bit' ) : strlen( $cachefiledata );
 			if ( $wp_cache_gzip_encoding ) {
+				header( "WP-Super-Cache: Served supercache gzip file from PHP" );
 				header( 'Content-Encoding: ' . $wp_cache_gzip_encoding );
 				header( 'Content-Length: ' . $size );
 			} elseif ( $wp_supercache_304 ) {
+				header( "WP-Super-Cache: Served supercache 304 file from PHP" );
 				header( 'Content-Length: ' . $size );
+			} else {
+				header( "WP-Super-Cache: Served supercache file from PHP" );
 			}
 
 			// don't try to match modified dates if using dynamic code.
 			if ( $wp_cache_mfunc_enabled == 0 && $wp_supercache_304 ) {
 				if ( function_exists( 'apache_request_headers' ) ) {
 					$request = apache_request_headers();
-					$remote_mod_time = ( isset ( $request[ 'If-Modified-Since' ] ) ) ? $request[ 'If-Modified-Since' ] : 0;
+					$remote_mod_time = ( isset ( $request[ 'If-Modified-Since' ] ) ) ? $request[ 'If-Modified-Since' ] : null;
 				} else {
 					if ( isset( $_SERVER[ 'HTTP_IF_MODIFIED_SINCE' ] ) )
 						$remote_mod_time = $_SERVER[ 'HTTP_IF_MODIFIED_SINCE' ];
 					else
-						$remote_mod_time = 0;
+						$remote_mod_time = null;
 				}
 				$local_mod_time = gmdate("D, d M Y H:i:s",filemtime( $file )).' GMT';
-				if ( $remote_mod_time != 0 && $remote_mod_time == $local_mod_time ) {
+				if ( !is_null($remote_mod_time) && $remote_mod_time == $local_mod_time ) {
 					header("HTTP/1.0 304 Not Modified");
 					exit();
 				}
@@ -618,11 +634,61 @@ function get_current_url_supercache_dir( $post_id = 0 ) {
 	return $dir;
 }
 
+/*
+ * Delete (or rebuild) all the files in one directory.
+ * Checks if it is in the cache directory but doesn't allow files in the following directories to be deleted:
+ * wp-content/cache/
+ * wp-content/cache/blogs/
+ * wp-content/cache/supercache/
+ *
+ */
+function wpsc_rebuild_files( $dir ) {
+	return wpsc_delete_files( $dir, false );
+}
+
+function wpsc_delete_files( $dir, $delete = true ) {
+	global $cache_path;
+	static $rp_cache_path = '';
+	static $protected = '';
+
+	// only do this once, this function will be called many times
+	if ( $rp_cache_path == '' ) {
+		$protected = array( $cache_path, $cache_path . "blogs/", get_supercache_dir() );
+		foreach( $protected as $id => $directory ) {
+			$protected[ $id ] = trailingslashit( realpath( $directory ) );
+		}
+		$rp_cache_path = trailingslashit( realpath( $cache_path ) );
+	}
+
+	$dir = trailingslashit( realpath( $dir ) );
+	if ( substr( $dir, 0, strlen( $rp_cache_path ) ) != $rp_cache_path )
+		return false;
+
+	if ( in_array( $dir, $protected ) )
+		return false;
+
+	if ( is_dir( $dir ) && $dh = @opendir( $dir ) ) {
+		while ( ( $file = readdir( $dh ) ) !== false ) {
+			if ( $file != '.' && $file != '..' && $file != '.htaccess' && is_file( $dir . $file ) )
+				if ( $delete )
+					@unlink( $dir . $file );
+				else
+					@wp_cache_rebuild_or_delete( $dir . $file );
+		}
+		closedir( $dh );
+
+		if ( $delete )
+			@rmdir( $dir );
+	}
+	return true;
+}
+
 function get_all_supercache_filenames( $dir = '' ) {
 	global $wp_cache_mobile_enabled, $cache_path;
 
 	$dir = realpath( $dir );
-	if ( substr( $dir, 0, strlen( $cache_path ) ) != $cache_path )
+	$rp_cache_path = realpath( $cache_path );
+	if ( substr( $dir, 0, strlen( $rp_cache_path ) ) != $rp_cache_path )
 		return array();
 
 	$filenames = array( 'index.html', 'index-https.html', 'index.html.php' );
@@ -723,10 +789,10 @@ function wp_cache_confirm_delete( $dir ) {
 	// don't allow cache_path, blog cache dir, blog meta dir, supercache.
 	$dir = realpath( $dir );
 	if ( 
-		$dir == $cache_path || 
-		$dir == $blog_cache_dir ||
-		$dir == $blog_cache_dir . "meta/" ||
-		$dir == $cache_path . "supercache"
+		$dir == realpath( $cache_path ) ||
+		$dir == realpath( $blog_cache_dir ) ||
+		$dir == realpath( $blog_cache_dir . "meta/" ) ||
+		$dir == realpath( $cache_path . "supercache" )
 	) {
 		return false;
 	} else {

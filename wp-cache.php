@@ -427,10 +427,7 @@ function admin_bar_delete_page() {
 			return false; // Directory not found. Probably not cached.
 		if ( false == wp_cache_confirm_delete( $path ) || substr( $path, 0, strlen( get_supercache_dir() ) ) != get_supercache_dir() )
 			die( "Could not delete directory" );
-		$files = get_all_supercache_filenames( $path );
-		foreach( $files as $cache_file )
-			prune_super_cache( $path . $cache_file, true );
-
+		wpsc_delete_files( $path );
 		wp_redirect( preg_replace( '/[ <>\'\"\r\n\t\(\)]/', '', $_GET[ 'path' ] ) );
 		die();
 	}
@@ -754,6 +751,7 @@ jQuery(document).ready(function(){
 #nav h2 {
 	border-bottom: 1px solid #ccc;
 	padding-bottom: 0;
+	height: 2em;
 }
 table.wpsc-settings-table {
 	clear: both;
@@ -2481,8 +2479,7 @@ function wp_cache_files() {
 			$supercacheuri = trailingslashit( realpath( $cache_path . 'supercache/' . $supercacheuri ) );
 			if ( wp_cache_confirm_delete( $supercacheuri ) ) {
 				printf( __( "Deleting supercache file: <strong>%s</strong><br />", 'wp-super-cache' ), $supercacheuri );
-				@unlink( $supercacheuri . 'index.html' );
-				@unlink( $supercacheuri . 'index.html.gz' );
+				wpsc_delete_files( $supercacheuri );
 				prune_super_cache( $supercacheuri . 'page', true );
 				@rmdir( $supercacheuri );
 			}
@@ -3250,7 +3247,7 @@ function wp_cron_preload_cache() {
 		$types = get_post_types( array( 'public' => true, 'publicly_queryable' => true ), 'names', 'or' );
 		$types = array_map( 'esc_sql', $types );
 		$types = "'" . implode( "','", $types ) . "'";
-		$posts = $wpdb->get_col( "SELECT ID FROM {$wpdb->posts} WHERE ( post_type IN ( $types ) ) AND post_status = 'publish' ORDER BY ID ASC LIMIT $c, 100" );
+		$posts = $wpdb->get_col( "SELECT ID FROM {$wpdb->posts} WHERE ( post_type IN ( $types ) ) AND post_status = 'publish' ORDER BY ID DESC LIMIT $c, 100" );
 		wp_cache_debug( "wp_cron_preload_cache: got 100 posts from position $c.", 5 );
 	} else {
 		wp_cache_debug( "wp_cron_preload_cache: no more posts to get. Limit ($wp_cache_preload_posts) reached.", 5 );
