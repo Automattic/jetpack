@@ -107,8 +107,8 @@ class Jetpack_Sitemap_Buffer {
 	) {
 		$this->item_capacity = max( 1, intval( $item_limit ) );
 
-		mbstring_binary_safe_encoding(); // So we can safely use mb_strlen().
-		$this->byte_capacity = $byte_limit - mb_strlen( $header ) - mb_strlen( $footer );
+		mbstring_binary_safe_encoding(); // So we can safely use strlen().
+		$this->byte_capacity = $byte_limit - strlen( $header ) - strlen( $footer );
 		reset_mbstring_encoding();
 
 		$this->footer_text = $footer;
