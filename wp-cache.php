@@ -3,7 +3,7 @@
 Plugin Name: WP Super Cache
 Plugin URI: https://wordpress.org/plugins/wp-super-cache/
 Description: Very fast caching plugin for WordPress.
-Version: 1.4.8
+Version: 1.4.9
 Author: Automattic
 Author URI: https://automattic.com/
 License: GPL2+
@@ -491,12 +491,13 @@ function wp_cache_manager_updates() {
 	}
 
 	if( isset( $_POST[ 'action' ] ) && $_POST[ 'action' ] == 'scupdates' ) {
-		if( isset( $_POST[ 'wp_cache_location' ] ) && $_POST[ 'wp_cache_location' ] != '' ) {
+		if( isset( $_POST[ 'wp_cache_location' ] ) && $_POST[ 'wp_cache_location' ] != '' &&
+		    ( !isset( $cache_path ) || $_POST[ 'wp_cache_location' ] != $cache_path ) ) {
 			$dir = realpath( trailingslashit( dirname( $_POST[ 'wp_cache_location' ] ) ) );
 			if ( $dir == false )
 				$dir = WP_CONTENT_DIR . '/cache/';
 			else
-				$dir = trailingslashit( $dir ) . wpsc_deep_replace( array( '..', '\\' ), basename( $_POST[ 'wp_cache_location' ] ) );
+				$dir = trailingslashit( $dir ) . trailingslashit(wpsc_deep_replace( array( '..', '\\' ), basename( $_POST[ 'wp_cache_location' ] ) ) );
 			$new_cache_path = $dir;
 		} else {
 			$new_cache_path = WP_CONTENT_DIR . '/cache/';
@@ -750,6 +751,7 @@ jQuery(document).ready(function(){
 #nav h2 {
 	border-bottom: 1px solid #ccc;
 	padding-bottom: 0;
+	height: 2em;
 }
 table.wpsc-settings-table {
 	clear: both;
@@ -1250,7 +1252,7 @@ table.wpsc-settings-table {
 			wp_nonce_field('wp-cache');
 			echo "</form>\n";
 
-			if ( ( defined( 'VHOST' ) || ( defined( 'WP_ALLOW_MULTISITE' ) && constant( 'WP_ALLOW_MULTISITE' ) == true ) ) && wpsupercache_site_admin() ) {
+			if ( ( defined( 'VHOST' ) || defined( 'SUBDOMAIN_INSTALL' ) || defined( 'SUNRISE' ) || ( defined( 'WP_ALLOW_MULTISITE' ) && constant( 'WP_ALLOW_MULTISITE' ) == true  ) ) && wpsupercache_site_admin() ) {
 				echo '<form name="wp_cache_content_delete" action="#listfiles" method="post">';
 				echo '<input type="hidden" name="wp_delete_all_cache" />';
 				echo '<div class="submit" style="float:left;margin-left:10px"><input id="deleteallpost" class="button-secondary" type="submit" ' . SUBMITDISABLED . 'value="' . __( 'Delete Cache On All Blogs', 'wp-super-cache' ) . '" /></div>';
@@ -2689,7 +2691,7 @@ function wp_cache_delete_buttons() {
 	echo '<div class="submit" style="float:left;margin-left:10px"><input id="deletepost" class="button-secondary" type="submit" ' . SUBMITDISABLED . 'value="' . __( 'Delete Cache', 'wp-super-cache' ) . '" /></div>';
 	wp_nonce_field('wp-cache');
 	echo "</form>\n";
-	if ( ( defined( 'VHOST' ) || ( defined( 'WP_ALLOW_MULTISITE' ) && constant( 'WP_ALLOW_MULTISITE' ) == true ) ) && wpsupercache_site_admin() ) {
+	if ( ( defined( 'VHOST' ) || defined( 'SUBDOMAIN_INSTALL' ) || defined( 'SUNRISE' ) || ( defined( 'WP_ALLOW_MULTISITE' ) && constant( 'WP_ALLOW_MULTISITE' ) == true ) ) && wpsupercache_site_admin() ) {
 		echo '<form name="wp_cache_content_delete" action="#listfiles" method="post">';
 		echo '<input type="hidden" name="wp_delete_all_cache" />';
 		echo '<div class="submit" style="float:left;margin-left:10px"><input id="deleteallpost" class="button-secondary" type="submit" ' . SUBMITDISABLED . 'value="' . __( 'Delete Cache On All Blogs', 'wp-super-cache' ) . '" /></div>';
@@ -2790,7 +2792,7 @@ function wp_cache_clean_legacy_files( $dir, $file_prefix ) {
 					@unlink( $dir . 'meta/' . str_replace( '.html', '.meta', $file ) );
 				} else {
 					$meta = json_decode( wp_cache_get_legacy_cache( $dir . 'meta/' . $file ), true );
-					if ( ( defined( 'VHOST' ) || ( defined( 'WP_ALLOW_MULTISITE' ) && constant( 'WP_ALLOW_MULTISITE' ) == true ) ) && $meta[ 'blog_id' ] != $wpdb->blogid )
+					if ( ( defined( 'VHOST' ) || defined( 'SUBDOMAIN_INSTALL' ) || defined( 'SUNRISE' ) || ( defined( 'WP_ALLOW_MULTISITE' ) && constant( 'WP_ALLOW_MULTISITE' ) == true ) ) && $meta[ 'blog_id' ] != $wpdb->blogid )
 						continue;
 					@unlink( $dir . $file);
 					@unlink( $dir . 'meta/' . $file);
@@ -3245,7 +3247,7 @@ function wp_cron_preload_cache() {
 		$types = get_post_types( array( 'public' => true, 'publicly_queryable' => true ), 'names', 'or' );
 		$types = array_map( 'esc_sql', $types );
 		$types = "'" . implode( "','", $types ) . "'";
-		$posts = $wpdb->get_col( "SELECT ID FROM {$wpdb->posts} WHERE ( post_type IN ( $types ) ) AND post_status = 'publish' ORDER BY ID ASC LIMIT $c, 100" );
+		$posts = $wpdb->get_col( "SELECT ID FROM {$wpdb->posts} WHERE ( post_type IN ( $types ) ) AND post_status = 'publish' ORDER BY ID DESC LIMIT $c, 100" );
 		wp_cache_debug( "wp_cron_preload_cache: got 100 posts from position $c.", 5 );
 	} else {
 		wp_cache_debug( "wp_cron_preload_cache: no more posts to get. Limit ($wp_cache_preload_posts) reached.", 5 );

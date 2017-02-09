@@ -1,8 +1,8 @@
 === WP Super Cache ===
 Contributors: donncha, automattic, kraftbj
 Tags: performance,caching,wp-cache,wp-super-cache,cache
-Tested up to: 4.7
-Stable tag: 1.4.8
+Tested up to: 4.7.2
+Stable tag: 1.4.9
 Requires at least: 3.0
 
 A very fast caching engine for WordPress that produces static html files.
@@ -59,17 +59,24 @@ The cache directory, usually wp-content/cache/ is only for temporary files. Do n
 == Upgrade Notice ==
 
 = 1.4.9 =
-Fixed XSS on the settings page, settings page updates, file locking fixes and PHP 7.1 fix.
+Fixed XSS on the settings page, settings page updates, file locking fixes and PHP 7.1 fix, caching fixes on static homepage blogs and more.
 
 == Changelog ==
 
 = 1.4.9 =
-* Fixed bug when by not running sem_remove after sem_release. See https://github.com/Automattic/wp-super-cache/issues/85
+* Fixed bug when not running sem_remove after sem_release. See https://github.com/Automattic/wp-super-cache/issues/85
 * Fixed a PHP error impacting PHP 7.1.
 * Fixed a bug where we cached PUT and DELETE requests. We're treating them like POST requests now.
+* Delete supercache cache files, even when supercache is disabled, because mod_rewrite rules might still be active.
 * Updated the settings page, moving things around. [#173](https://github.com/Automattic/wp-super-cache/pull/173)
 * Make file locking less attractive on the settings page and fixed the WPSC_DISABLE_LOCKING constant so it really disables file locking even if the user has enabled it already.
 * Added a WPSC_REMOVE_SEMAPHORE constant that must be defined if sem_remove() is to be used as it may cause problems.  [#174](https://github.com/Automattic/wp-super-cache/pull/174)
+* Added a "wpsc_delete_related_pages_on_edit" filter that on returning 0 will disable deletion of pages outside of page being edited. [#175](https://github.com/Automattic/wp-super-cache/pull/175)
+* Fixed plugin deleting all cached pages when a site had a static homepage. [#175](https://github.com/Automattic/wp-super-cache/pull/175)
+* Make sure $cache_path has a trailing slash [#177](https://github.com/Automattic/wp-super-cache/pull/77)
+* Remove flush() [#127](https://github.com/Automattic/wp-super-cache/pull/127) but also check if headers are empty and flush and get headers again. [#179](https://github.com/Automattic/wp-super-cache/pull/179)
+* Add fix for customizer [#161](https://github.com/Automattic/wp-super-cache/pull/161) and don't cache PUT AND DELETE requests [#178](https://github.com/Automattic/wp-super-cache/pull/178)
+* Check for superglobals before using them. [#131](https://github.com/Automattic/wp-super-cache/pull/131)
 
 = 1.4.8 =
 * Removed malware URL in a code comment. (harmless to operation of plugin but gets flagged by A/V software)

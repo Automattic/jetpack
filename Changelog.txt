@@ -1,3 +1,154 @@
+2017-02-03 17:17  donncha
+
+	* readme.txt, wp-cache.php: Bump version number to 1.4.9 and update
+	  changelog
+
+2017-02-03 17:11  donncha
+
+	* wp-cache-phase1.php, wp-cache-phase2.php, wp-cache.php: * Github
+	  merge:
+	  * Make sure $cache_path has a trailing slash
+	  (https://github.com/Automattic/wp-super-cache/pull/77)
+	  * Remove flush()
+	  (https://github.com/Automattic/wp-super-cache/pull/127) but also
+	  check if headers are empty and flush and get headers again.
+	  (https://github.com/Automattic/wp-super-cache/pull/179)
+	  * Add fix for customizer
+	  (https://github.com/Automattic/wp-super-cache/pull/161) and don't
+	  cache PUT AND DELETE requests
+	  (https://github.com/Automattic/wp-super-cache/pull/178)
+	  * Check for superglobals before using them.
+	  (https://github.com/Automattic/wp-super-cache/pull/131)
+
+2017-02-03 16:54  donncha
+
+	* plugins/multisite.php, wp-cache-base.php, wp-cache.php: Github
+	  merge: Need to check more than WP_ALLOW_MULTISITE to detect
+	  multisite installs.
+	  https://github.com/Automattic/wp-super-cache/issues/97
+
+2017-02-03 15:07  donncha
+
+	* wp-cache-phase1.php: Github merge:
+	  https://github.com/Automattic/wp-super-cache/pull/161 and also
+	  don't cache PUT and DELETE requests (caught earlier than before)
+
+2017-02-03 14:45  donncha
+
+	* plugins/jetpack.php: Remove extra ">", props @dd32
+	  https://github.com/Automattic/wp-super-cache/pull/168
+
+2017-02-03 14:37  donncha
+
+	* wp-super-cache.pot: Updated translation file
+
+2017-02-03 14:33  donncha
+
+	* wp-cache.php: github merge: some of the changes that were
+	  supposed to be checked in the previous merge didn't make it.
+
+2017-02-03 10:18  donncha
+
+	* readme.txt: * Bump the tested version.
+	  * Update the changelog
+
+2017-02-03 10:13  donncha
+
+	* Changelog.txt: Updated changelog
+
+2017-02-02 18:14  donncha
+
+	* readme.txt: Updated readme.txt changelog and docs
+
+2017-02-02 18:08  donncha
+
+	* ossdl-cdn.php, readme.txt, wp-cache-phase2.php, wp-cache.php:
+	  Sync with GITHUB:
+	  * Don't delete so many files on blogs with static homepages.
+	  https://github.com/Automattic/wp-super-cache/pull/175
+	  * Discourage use of file locking because semaphores cause
+	  problems and it's not needed.
+	  https://github.com/Automattic/wp-super-cache/pull/174
+	  * Reorganise the settings page in small ways
+	  https://github.com/Automattic/wp-super-cache/pull/173
+	  * Fixed XSS in settings page. Props @jaypatel
+	  https://github.com/Automattic/wp-super-cache/pull/172
+
+2017-01-11 16:58  kraftbj
+
+	* readme.txt, wp-cache-phase2.php: Github #138: Do not cache
+	  PUT/DELETE requests
+
+2016-12-09 15:38  kraftbj
+
+	* wp-cache-phase2.php: Check that header parts exist to avoid
+	  `Undefined Index` notices
+
+2016-12-09 15:37  kraftbj
+
+	* wp-cache-phase2.php: Update to Git master
+
+2016-12-09 10:25  donncha
+
+	* readme.txt: Bump the "tested up to" value
+
+2016-08-01 20:39  kraftbj
+
+	* readme.txt: Bump tested version to 4.6
+
+2016-05-09 14:56  kraftbj
+
+	* readme.txt: Bump tested version
+
+2016-03-07 15:24  kraftbj
+
+	* readme.txt: Update readme for previous commit
+
+2016-03-07 15:20  kraftbj
+
+	* wp-cache-phase2.php: Catch up SVN to GH
+
+2016-03-07 13:46  donncha
+
+	* readme.txt, wp-cache.php: Bumped version to 1.4.8 and updated
+	  changelog
+
+2016-03-07 13:39  donncha
+
+	* wp-super-cache.pot: Updated translation pot file
+
+2016-03-07 12:37  donncha
+
+	* wp-cache.php: Remove this link as Google is reporting it as
+	  malware. It's still available at
+	  https://web.archive.org/web/20150914095007/http://bytes.com/topic/php/answers/3917-seconds-converted-hh-mm-ss.
+	  Ref: https://github.com/Automattic/wp-super-cache/issues/106
+
+2015-12-16 18:14  kraftbj
+
+	* readme.txt, wp-cache.php: Update readme for 1.4.7
+
+2015-12-16 16:59  kraftbj
+
+	* wp-cache.php: Fix settings page layout breakage in 4.4.
+
+2015-12-02 15:50  kraftbj
+
+	* ossdl-cdn.php, wp-cache.php: Corrects typos. See
+	  https://github.com/Automattic/wp-super-cache/issues/81
+	  
+	  props https://github.com/christophherr
+
+2015-10-21 19:54  kraftbj
+
+	* wp-cache-phase1.php: Remove variable no longer defined after
+	  previous update.
+
+2015-10-09 18:06  donncha
+
+	* Changelog.txt, readme.txt, wp-cache.php: Bump version to 1.4.6
+	  and update changelog
+
 2015-10-08 17:14  donncha
 
 	* wp-cache.php: Don't check if .htaccess already created as the
