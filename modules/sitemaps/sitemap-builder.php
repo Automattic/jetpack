@@ -97,7 +97,7 @@ class Jetpack_Sitemap_Builder {
 	 * @since 4.7.0
 	 */
 	public function update_sitemap() {
-		if ( defined( 'WP_DEBUG' ) && ( true === WP_DEBUG ) ) {
+		if ( $this->logger ) {
 			$this->logger->report( '-- Updating...' );
 		}
 
@@ -105,7 +105,7 @@ class Jetpack_Sitemap_Builder {
 			$this->build_next_sitemap_file();
 		}
 
-		if ( defined( 'WP_DEBUG' ) && ( true === WP_DEBUG ) ) {
+		if ( $this->logger ) {
 			$this->logger->report( '-- ...done for now.' );
 			$this->logger->time();
 		}
@@ -186,7 +186,7 @@ class Jetpack_Sitemap_Builder {
 					JP_PAGE_SITEMAP_TYPE
 				);
 
-				if ( defined( 'WP_DEBUG' ) && ( true === WP_DEBUG ) ) {
+				if ( $this->logger ) {
 					$this->logger->report( '-- Finished.' );
 					$this->logger->time();
 				}
@@ -234,7 +234,7 @@ class Jetpack_Sitemap_Builder {
 				'last-modified' => '1970-01-01 00:00:00',
 			) );
 
-			if ( defined( 'WP_DEBUG' ) && ( true === WP_DEBUG ) ) {
+			if ( $this->logger ) {
 				$this->logger->report( "-- Cleaning Up $sitemap_type" );
 			}
 
@@ -267,7 +267,7 @@ class Jetpack_Sitemap_Builder {
 			'last-modified' => '1970-01-01 00:00:00',
 		) );
 
-		if ( defined( 'WP_DEBUG' ) && ( true === WP_DEBUG ) ) {
+		if ( $this->logger ) {
 			$this->logger->report( "-- Cleaning Up $sitemap_type" );
 		}
 
@@ -300,7 +300,7 @@ class Jetpack_Sitemap_Builder {
 				'last-modified' => '1970-01-01 00:00:00',
 			) );
 
-			if ( defined( 'WP_DEBUG' ) && ( true === WP_DEBUG ) ) {
+			if ( $this->logger ) {
 				$this->logger->report( "-- Cleaning Up: $index_type" );
 			}
 
@@ -329,7 +329,7 @@ class Jetpack_Sitemap_Builder {
 				'last-modified' => '1970-01-01 00:00:00',
 			) );
 
-			if ( defined( 'WP_DEBUG' ) && ( true === WP_DEBUG ) ) {
+			if ( $this->logger ) {
 				$this->logger->report( "-- Cleaning Up $index_type" );
 			}
 
@@ -362,7 +362,7 @@ class Jetpack_Sitemap_Builder {
 			'last-modified' => '1970-01-01 00:00:00',
 		) );
 
-		if ( defined( 'WP_DEBUG' ) && ( true === WP_DEBUG ) ) {
+		if ( $this->logger ) {
 			$this->logger->report( "-- Cleaning Up $index_type" );
 		}
 
@@ -385,7 +385,7 @@ class Jetpack_Sitemap_Builder {
 		$sitemap_index_xsl_url = $this->finder->construct_sitemap_url( 'sitemap-index.xsl' );
 		$jetpack_version = JETPACK__VERSION;
 
-		if ( defined( 'WP_DEBUG' ) && ( true === WP_DEBUG ) ) {
+		if ( $this->logger ) {
 			$this->logger->report( '-- Building Master Sitemap.' );
 		}
 
@@ -504,7 +504,7 @@ FOOTER
 		$last_post_id = $from_id;
 		$any_posts_left = true;
 
-		if ( defined( 'WP_DEBUG' ) && ( true === WP_DEBUG ) ) {
+		if ( $this->logger ) {
 			$debug_name = jp_sitemap_filename( JP_PAGE_SITEMAP_TYPE, $number );
 			$this->logger->report( "-- Building $debug_name" );
 		}
@@ -658,7 +658,7 @@ FOOTER
 		$last_post_id = $from_id;
 		$any_posts_left = true;
 
-		if ( defined( 'WP_DEBUG' ) && ( true === WP_DEBUG ) ) {
+		if ( $this->logger ) {
 			$debug_name = jp_sitemap_filename( JP_IMAGE_SITEMAP_TYPE, $number );
 			$this->logger->report( "-- Building $debug_name" );
 		}
@@ -774,7 +774,7 @@ FOOTER
 		$last_post_id = $from_id;
 		$any_posts_left = true;
 
-		if ( defined( 'WP_DEBUG' ) && ( true === WP_DEBUG ) ) {
+		if ( $this->logger ) {
 			$debug_name = jp_sitemap_filename( JP_VIDEO_SITEMAP_TYPE, $number );
 			$this->logger->report( "-- Building $debug_name" );
 		}
@@ -898,7 +898,7 @@ FOOTER
 
 		$sitemap_type = jp_sitemap_child_type_of( $index_type );
 
-		if ( defined( 'WP_DEBUG' ) && ( true === WP_DEBUG ) ) {
+		if ( $this->logger ) {
 			$index_debug_name = jp_sitemap_filename( $index_type, $number );
 			$this->logger->report( "-- Building $index_debug_name" );
 		}
@@ -1037,7 +1037,7 @@ FOOTER
 
 		if ( false === $the_stored_news_sitemap ) {
 
-			if ( defined( 'WP_DEBUG' ) && ( true === WP_DEBUG ) ) {
+			if ( $this->logger ) {
 				$this->logger->report( 'Beginning news sitemap generation.' );
 			}
 
@@ -1108,7 +1108,7 @@ FOOTER
 				}
 			}
 
-			if ( defined( 'WP_DEBUG' ) && ( true === WP_DEBUG ) ) {
+			if ( $this->logger ) {
 				$this->logger->time( 'End news sitemap generation.' );
 			}
 
