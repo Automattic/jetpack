@@ -190,7 +190,7 @@ function stats_build_view_data() {
 		// Store and reset the queried_object and queried_object_id
 		// Otherwise, redirect_canonical() will redirect to home_url( '/' ) for show_on_front = page sites where home_url() is not all lowercase.
 		// Repro:
-		// 1. Set home_url = https://example.com/
+		// 1. Set home_url = https://ExamPle.com/
 		// 2. Set show_on_front = page
 		// 3. Set page_on_front = something
 		// 4. Visit https://example.com/ !
@@ -418,8 +418,8 @@ function stats_reports_load() {
 		// Detect if JS is on.  If so, remove cookie so next page load is via JS.
 		add_action( 'admin_print_footer_scripts', 'stats_js_remove_stnojs_cookie' );
 	} else if ( ! isset( $_GET['noheader'] ) && empty( $_GET['nojs'] ) ) {
-			// Normal page load.  Load page content via JS.
-			add_action( 'admin_print_footer_scripts', 'stats_js_load_page_via_ajax' );
+		// Normal page load.  Load page content via JS.
+		add_action( 'admin_print_footer_scripts', 'stats_js_load_page_via_ajax' );
 	}
 }
 
@@ -680,12 +680,14 @@ function stats_convert_post_titles( $html ) {
 	$pattern = "<span class='post-(\d+)-link'>.*?</span>";
 	if ( !preg_match_all( "!$pattern!", $html, $matches ) )
 		return $html;
-	$posts = get_posts( array(
+	$posts = get_posts(
+		array(
 			'include' => implode( ',', $matches[1] ),
 			'post_type' => 'any',
 			'post_status' => 'any',
 			'numberposts' => -1,
-		));
+		)
+	);
 	foreach ( $posts as $post )
 		$stats_posts[$post->ID] = $post;
 	$html = preg_replace_callback( "!$pattern!", 'stats_convert_post_title', $html );
@@ -720,16 +722,20 @@ function stats_configuration_load() {
 		$options['hide_smile'] = isset( $_POST['hide_smile'] ) && $_POST['hide_smile'];
 
 		$options['roles'] = array( 'administrator' );
-		foreach ( get_editable_roles() as $role => $details )
-			if ( isset( $_POST["role_$role"] ) && $_POST["role_$role"] )
+		foreach ( get_editable_roles() as $role => $details ) {
+			if ( isset( $_POST["role_$role"] ) && $_POST["role_$role"] ) {
 				$options['roles'][] = $role;
+			}
+		}
 
-			$options['count_roles'] = array();
-		foreach ( get_editable_roles() as $role => $details )
-			if ( isset( $_POST["count_role_$role"] ) && $_POST["count_role_$role"] )
+		$options['count_roles'] = array();
+		foreach ( get_editable_roles() as $role => $details ) {
+			if ( isset( $_POST["count_role_$role"] ) && $_POST["count_role_$role"] ) {
 				$options['count_roles'][] = $role;
+			}
+		}
 
-			stats_set_options( $options );
+		stats_set_options( $options );
 		stats_update_blog();
 		Jetpack::state( 'message', 'module_configured' );
 		wp_safe_redirect( Jetpack::module_configuration_url( 'stats' ) );
@@ -768,16 +774,16 @@ function stats_configuration_screen() {
 	$options = stats_get_options();
 ?>
 	<div class="narrow">
-		<p><?php printf( esc_attr_e( 'Visit <a href="%s">Site Stats</a> to see your stats.', 'jetpack' ), esc_url( menu_page_url( 'stats', false ) ) ); ?></p>
+		<p><?php printf( __( 'Visit <a href="%s">Site Stats</a> to see your stats.', 'jetpack' ), esc_url( menu_page_url( 'stats', false ) ) ); ?></p>
 		<form method="post">
 		<input type='hidden' name='action' value='save_options' />
 		<?php wp_nonce_field( 'stats' ); ?>
 		<table id="menu" class="form-table">
-		<tr valign="top"><th scope="row"><label for="admin_bar"><?php esc_attr_e( 'Admin bar' , 'jetpack' ); ?></label></th>
-		<td><label><input type='checkbox'<?php checked( $options['admin_bar'] ); ?> name='admin_bar' id='admin_bar' /> <?php esc_attr_e( 'Put a chart showing 48 hours of views in the admin bar.', 'jetpack' ); ?></label></td></tr>
-		<tr valign="top"><th scope="row"><?php esc_attr_e( 'Registered users', 'jetpack' ); ?></th>
+		<tr valign="top"><th scope="row"><label for="admin_bar"><?php esc_html_e( 'Admin bar' , 'jetpack' ); ?></label></th>
+		<td><label><input type='checkbox'<?php checked( $options['admin_bar'] ); ?> name='admin_bar' id='admin_bar' /> <?php esc_html_e( 'Put a chart showing 48 hours of views in the admin bar.', 'jetpack' ); ?></label></td></tr>
+		<tr valign="top"><th scope="row"><?php esc_html_e( 'Registered users', 'jetpack' ); ?></th>
 		<td>
-			<?php esc_attr_e( "Count the page views of registered users who are logged in.", 'jetpack' ); ?><br/>
+			<?php esc_html_e( "Count the page views of registered users who are logged in.", 'jetpack' ); ?><br/>
 			<?php
 	$count_roles = stats_get_option( 'count_roles' );
 	foreach ( get_editable_roles() as $role => $details ) {
@@ -787,11 +793,11 @@ function stats_configuration_screen() {
 	}
 ?>
 		</td></tr>
-		<tr valign="top"><th scope="row"><?php esc_attr_e( 'Smiley' , 'jetpack' ); ?></th>
-		<td><label><input type='checkbox'<?php checked( isset( $options['hide_smile'] ) && $options['hide_smile'] ); ?> name='hide_smile' id='hide_smile' /> <?php esc_attr_e( 'Hide the stats smiley face image.', 'jetpack' ); ?></label><br /> <span class="description"><?php esc_attr_e( 'The image helps collect stats and <strong>makes the world a better place</strong> but should still work when hidden', 'jetpack' ); ?> <img class="stats-smiley" alt="<?php esc_attr_e( 'Smiley face', 'jetpack' ); ?>" src="<?php echo esc_url( plugins_url( 'images/stats-smiley.gif', dirname( __FILE__ ) ) ); ?>" width="6" height="5" /></span></td></tr>
-		<tr valign="top"><th scope="row"><?php esc_attr_e( 'Report visibility' , 'jetpack' ); ?></th>
+		<tr valign="top"><th scope="row"><?php esc_html_e( 'Smiley' , 'jetpack' ); ?></th>
+		<td><label><input type='checkbox'<?php checked( isset( $options['hide_smile'] ) && $options['hide_smile'] ); ?> name='hide_smile' id='hide_smile' /> <?php esc_html_e( 'Hide the stats smiley face image.', 'jetpack' ); ?></label><br /> <span class="description"><?php esc_html_e( 'The image helps collect stats and <strong>makes the world a better place</strong> but should still work when hidden', 'jetpack' ); ?> <img class="stats-smiley" alt="<?php esc_attr_e( 'Smiley face', 'jetpack' ); ?>" src="<?php echo esc_url( plugins_url( 'images/stats-smiley.gif', dirname( __FILE__ ) ) ); ?>" width="6" height="5" /></span></td></tr>
+		<tr valign="top"><th scope="row"><?php esc_html_e( 'Report visibility' , 'jetpack' ); ?></th>
 		<td>
-			<?php esc_attr_e( 'Select the roles that will be able to view stats reports.', 'jetpack' ); ?><br/>
+			<?php esc_html_e( 'Select the roles that will be able to view stats reports.', 'jetpack' ); ?><br/>
 			<?php
 	$stats_roles = stats_get_option( 'roles' );
 	foreach ( get_editable_roles() as $role => $details ) {
@@ -1046,7 +1052,7 @@ function stats_dashboard_widget_control() {
 	}
 ?>
 	<p>
-	<label for="chart"><?php esc_attr_e( 'Chart stats by' , 'jetpack' ); ?></label>
+	<label for="chart"><?php esc_html_e( 'Chart stats by' , 'jetpack' ); ?></label>
 	<select id="chart" name="chart">
 	<?php
 	foreach ( $periods as $val => $label ) {
@@ -1059,7 +1065,7 @@ function stats_dashboard_widget_control() {
 	</p>
 
 	<p>
-	<label for="top"><?php esc_attr_e( 'Show top posts over', 'jetpack' ); ?></label>
+	<label for="top"><?php esc_html_e( 'Show top posts over', 'jetpack' ); ?></label>
 	<select id="top" name="top">
 	<?php
 	foreach ( $intervals as $val => $label ) {
@@ -1072,7 +1078,7 @@ function stats_dashboard_widget_control() {
 	</p>
 
 	<p>
-	<label for="search"><?php esc_attr_e( 'Show top search terms over', 'jetpack' ); ?></label>
+	<label for="search"><?php esc_html_e( 'Show top search terms over', 'jetpack' ); ?></label>
 	<select id="search" name="search">
 	<?php
 	foreach ( $intervals as $val => $label ) {
@@ -1345,15 +1351,15 @@ function stats_dashboard_widget_content() {
 	}
 
 ?>
-<a class="button" href="admin.php?page=stats"><?php  esc_attr_e( 'View All', 'jetpack' ); ?></a>
+<a class="button" href="admin.php?page=stats"><?php  esc_html_e( 'View All', 'jetpack' ); ?></a>
 <div id="stats-info">
 	<div id="top-posts" class='stats-section'>
 		<div class="stats-section-inner">
-		<h3 class="heading"><?php  esc_attr_e( 'Top Posts' , 'jetpack' ); ?></h3>
+		<h3 class="heading"><?php  esc_html_e( 'Top Posts' , 'jetpack' ); ?></h3>
 		<?php
 	if ( empty( $top_posts ) ) {
 ?>
-			<p class="nothing"><?php  esc_attr_e( 'Sorry, nothing to report.', 'jetpack' ); ?></p>
+			<p class="nothing"><?php  esc_html_e( 'Sorry, nothing to report.', 'jetpack' ); ?></p>
 			<?php
 	} else {
 		foreach ( $top_posts as $post ) {
@@ -1373,11 +1379,11 @@ function stats_dashboard_widget_content() {
 	</div>
 	<div id="top-search" class='stats-section'>
 		<div class="stats-section-inner">
-		<h3 class="heading"><?php  esc_attr_e( 'Top Searches' , 'jetpack' ); ?></h3>
+		<h3 class="heading"><?php  esc_html_e( 'Top Searches' , 'jetpack' ); ?></h3>
 		<?php
 	if ( empty( $searches ) ) {
 ?>
-			<p class="nothing"><?php  esc_attr_e( 'Sorry, nothing to report.', 'jetpack' ); ?></p>
+			<p class="nothing"><?php  esc_html_e( 'Sorry, nothing to report.', 'jetpack' ); ?></p>
 			<?php
 	} else {
 ?>
@@ -1409,14 +1415,14 @@ function stats_print_wp_remote_error( $get, $url ) {
 	if ( $error !== $previous_error ) {
 ?>
 	<div class="wrap">
-	<p><?php esc_attr_e( 'We were unable to get your stats just now. Please reload this page to try again.', 'jetpack' ); ?></p>
+	<p><?php esc_html_e( 'We were unable to get your stats just now. Please reload this page to try again.', 'jetpack' ); ?></p>
 	</div>
 <?php
 		return;
 	}
 ?>
 	<div class="wrap">
-	<p><?php printf( esc_attr_e( 'We were unable to get your stats just now. Please reload this page to try again. If this error persists, please <a href="%1$s" target="_blank">contact support</a>. In your report please include the information below.', 'jetpack' ), 'https://support.wordpress.com/contact/?jetpack=needs-service' ); ?></p>
+	<p><?php printf( __( 'We were unable to get your stats just now. Please reload this page to try again. If this error persists, please <a href="%1$s" target="_blank">contact support</a>. In your report please include the information below.', 'jetpack' ), 'https://support.wordpress.com/contact/?jetpack=needs-service' ); ?></p>
 	<pre>
 	User Agent: "<?php echo esc_html( $_SERVER['HTTP_USER_AGENT'] ); ?>"
 	Page URL: "http<?php echo (is_ssl()?'s':'') . '://' . esc_html( $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] ); ?>"
