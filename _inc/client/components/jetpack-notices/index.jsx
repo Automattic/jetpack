@@ -87,6 +87,7 @@ export const DevModeNotice = React.createClass( {
 	render() {
 		if ( this.props.siteConnectionStatus === 'dev' ) {
 			const devMode = this.props.siteDevMode;
+			const text = __( 'Currently in {{a}}Development Mode{{/a}} (some features are disabled) because:',
 				{
 					components: {
 						a: <a href="https://jetpack.com/support/development-mode/" target="_blank"/>,
