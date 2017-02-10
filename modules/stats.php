@@ -52,6 +52,13 @@ function stats_load() {
 
 
 	add_filter( 'pre_option_db_version', 'stats_ignore_db_version' );
+
+	// Add an icon to see stats in WordPress.com for a particular post
+	add_action( 'admin_print_styles-edit.php', 'jetpack_stats_load_admin_css' );
+	add_filter( 'manage_posts_columns', 'jetpack_stats_post_table' );
+	add_filter( 'manage_pages_columns', 'jetpack_stats_post_table' );
+	add_action( 'manage_posts_custom_column', 'jetpack_stats_post_table_cell', 10, 2 );
+	add_action( 'manage_pages_custom_column', 'jetpack_stats_post_table_cell', 10, 2 );
 }
 
 /**
@@ -1342,4 +1349,70 @@ function stats_get_from_restapi( $args = array(), $resource = '' ) {
 	Jetpack_Options::update_option( 'restapi_stats_cache', $stats_cache, false );
 
 	return $data;
+}
+
+/**
+ * Load CSS needed for Stats column width in WP-Admin area.
+ *
+ * @since 4.7.0
+ */
+function jetpack_stats_load_admin_css() {
+	?>
+	<style type="text/css">
+		.fixed .column-stats {
+			width: 5em;
+		}
+	</style>
+	<?php
+}
+
+/**
+ * Set header for column that allows to go to WordPress.com to see an entry's stats.
+ *
+ * @param array $columns An array of column names.
+ *
+ * @since 4.7.0
+ *
+ * @return mixed
+ */
+function jetpack_stats_post_table( $columns ) { // Adds a stats link on the edit posts page
+	if ( ! current_user_can( 'view_stats' ) || ! Jetpack::is_user_connected() ) {
+		return $columns;
+	}
+	// Array-Fu to add before comments
+	$pos = array_search( 'comments', array_keys( $columns ) );
+	if ( ! is_int( $pos ) ) {
+		return $columns;
+	}
+	$chunks             = array_chunk( $columns, $pos, true );
+	$chunks[0]['stats'] = esc_html__( 'Stats', 'jetpack' );
+
+	return call_user_func_array( 'array_merge', $chunks );
+}
+
+/**
+ * Set content for cell with link to an entry's stats in WordPress.com.
+ *
+ * @param string $column  The name of the column to display.
+ * @param int    $post_id The current post ID.
+ *
+ * @since 4.7.0
+ *
+ * @return mixed
+ */
+function jetpack_stats_post_table_cell( $column, $post_id ) {
+	if ( 'stats' == $column ) {
+		if ( 'publish' != get_post_status( $post_id ) ) {
+			printf(
+				'<span aria-hidden="true">—</span><span class="screen-reader-text">%s</span>',
+				esc_html__( 'No stats', 'jetpack' )
+			);
+		} else {
+			printf(
+				'<a href="%s" title="%s" class="dashicons dashicons-chart-bar" target="_blank"></a>',
+				esc_url( "https://wordpress.com/stats/post/$post_id/" . Jetpack::build_raw_urls( get_home_url() ) ),
+				esc_html__( 'View stats for this post in WordPress.com', 'jetpack' )
+			);
+		}
+	}
 }
