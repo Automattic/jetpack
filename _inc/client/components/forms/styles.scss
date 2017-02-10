@@ -102,6 +102,10 @@
 		position: relative;
 		margin-bottom: 0;
 
+		.dops-card  {
+			padding-right: rem( 40px );
+		}
+
 		.form-toggle__switch {
 			float: left;
 			margin-top: 2px;
