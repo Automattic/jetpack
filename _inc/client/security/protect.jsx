@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import analytics from 'lib/analytics';
 import React from 'react';
 import { translate as __ } from 'i18n-calypso';
 import Button from 'components/button';
@@ -71,12 +70,14 @@ export const Protect = moduleSettingsForm(
 					module="protect"
 					header={ __( 'Prevent brute force login attacks', { context: 'Settings header' } ) } >
 					<SettingsGroup hasChild disableInDevMode module={ this.props.getModule( 'protect' ) }>
-						<ModuleToggle slug="protect"
-									  compact
-									  disabled={ unavailableInDevMode }
-									  activated={ isProtectActive }
-									  toggling={ this.props.isSavingAnyOption( 'protect' ) }
-									  toggleModule={ this.props.toggleModuleNow }>
+						<ModuleToggle
+							slug="protect"
+							compact
+							disabled={ unavailableInDevMode }
+							activated={ isProtectActive }
+							toggling={ this.props.isSavingAnyOption( 'protect' ) }
+							toggleModule={ this.props.toggleModuleNow }
+						>
 						<span className="jp-form-toggle-explanation">
 							{
 								this.props.getModule( 'protect' ).description

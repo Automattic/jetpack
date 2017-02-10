@@ -44,7 +44,7 @@ const JetpackStateNotices = React.createClass( {
 					'{{p}}A Jetpack connection is required for our free security and traffic features to work.{{/p}}',
 					{
 						components: {
-							a: <a href="https://jetpack.com/cancelled-connection/" target="_blank" />,
+							a: <a href="https://jetpack.com/cancelled-connection/" target="_blank" rel="noopener noreferrer" />,
 							p: <p/>
 						}
 					}
@@ -238,7 +238,7 @@ const JetpackStateNotices = React.createClass( {
 			<SimpleNotice
 				status={ status }
 				onDismissClick={ this.dismissJetpackStateNotice }
-			    text={ noticeText }
+				text={ noticeText }
 			>
 				{ action }
 			</SimpleNotice>

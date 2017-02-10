@@ -15,7 +15,7 @@ import StaticWarning from 'components/jetpack-notices/static-warning';
 window.staticHtml = Server.renderToStaticMarkup(
 		<div>
 			<Provider store={ store }>
-				  <StaticMain />
+				<StaticMain />
 			</Provider>
 		</div>
 	);

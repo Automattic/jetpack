@@ -107,7 +107,7 @@ const DashScan = React.createClass( {
 				return (
 					__( 'For automated, comprehensive scanning of security threats, please {{a}}install and activate{{/a}} VaultPress.', {
 						components: {
-							a: <a href='https://wordpress.com/plugins/vaultpress' target="_blank" />
+							a: <a href='https://wordpress.com/plugins/vaultpress' target="_blank" rel="noopener noreferrer" />
 						}
 					} )
 				);
@@ -115,7 +115,7 @@ const DashScan = React.createClass( {
 				return (
 					__( 'For automated, comprehensive scanning of security threats, please {{a}}upgrade your account{{/a}}.', {
 						components: {
-							a: <a href={ 'https://jetpack.com/redirect/?source=aag-scan&site=' + this.props.siteRawUrl } target="_blank" />
+							a: <a href={ 'https://jetpack.com/redirect/?source=aag-scan&site=' + this.props.siteRawUrl } target="_blank" rel="noopener noreferrer" />
 						}
 					} )
 				);

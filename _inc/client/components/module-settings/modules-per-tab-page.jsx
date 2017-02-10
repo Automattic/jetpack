@@ -9,10 +9,8 @@ import { connect } from 'react-redux';
  * Internal dependencies
  */
 import {
-	StatsSettings,
 	LikesSettings,
 	MonitorSettings,
-	SingleSignOnSettings,
 	VideoPressSettings,
 	WordAdsSettings
 } from 'components/module-settings/';

@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import analytics from 'lib/analytics';
 import React from 'react';
 import { translate as __ } from 'i18n-calypso';
 import FormToggle from 'components/form/form-toggle';
@@ -55,12 +54,13 @@ export const Subscriptions = moduleSettingsForm(
 					hideButton
 					module="subscriptions">
 					<SettingsGroup hasChild disableInDevMode module={ subscriptions }>
-						<ModuleToggle slug="subscriptions"
-									  compact
-									  disabled={ unavailableInDevMode }
-									  activated={ isSubscriptionsActive }
-									  toggling={ this.props.isSavingAnyOption( 'subscriptions' ) }
-									  toggleModule={ this.props.toggleModuleNow }>
+						<ModuleToggle
+							slug="subscriptions"
+							compact
+							disabled={ unavailableInDevMode }
+							activated={ isSubscriptionsActive }
+							toggling={ this.props.isSavingAnyOption( 'subscriptions' ) }
+							toggleModule={ this.props.toggleModuleNow }>
 						<span className="jp-form-toggle-explanation">
 							{
 								subscriptions.description
@@ -73,7 +73,7 @@ export const Subscriptions = moduleSettingsForm(
 									compact
 									checked={ this.state.stb_enabled }
 									disabled={ ! isSubscriptionsActive || unavailableInDevMode || this.props.isSavingAnyOption() }
-									onChange={ e => this.updateOptions( 'stb_enabled' ) }>
+									onChange={ () => this.updateOptions( 'stb_enabled' ) }>
 									<span className="jp-form-toggle-explanation">
 										{
 											__( 'Show a "follow blog" option in the comment form' )
@@ -84,7 +84,7 @@ export const Subscriptions = moduleSettingsForm(
 									compact
 									checked={ this.state.stc_enabled }
 									disabled={ ! isSubscriptionsActive || unavailableInDevMode || this.props.isSavingAnyOption() }
-									onChange={ e => this.updateOptions( 'stc_enabled' ) }>
+									onChange={ () => this.updateOptions( 'stc_enabled' ) }>
 									<span className="jp-form-toggle-explanation">
 										{
 											__( 'Show a "follow comments" option in the comment form' )

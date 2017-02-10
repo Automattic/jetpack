@@ -57,12 +57,14 @@ export const RelatedPosts = moduleSettingsForm(
 					hideButton
 					module="related-posts">
 					<SettingsGroup hasChild disableInDevMode module={ this.props.getModule( 'related-posts' ) }>
-						<ModuleToggle slug="related-posts"
-									  compact
-									  disabled={ unavailableInDevMode }
-									  activated={ isRelatedPostsActive }
-									  toggling={ this.props.isSavingAnyOption( 'related-posts' ) }
-									  toggleModule={ this.props.toggleModuleNow }>
+						<ModuleToggle
+							slug="related-posts"
+							compact
+							disabled={ unavailableInDevMode }
+							activated={ isRelatedPostsActive }
+							toggling={ this.props.isSavingAnyOption( 'related-posts' ) }
+							toggleModule={ this.props.toggleModuleNow }
+						>
 						<span className="jp-form-toggle-explanation">
 							{
 								__( 'Show related content after posts' )
@@ -73,7 +75,7 @@ export const RelatedPosts = moduleSettingsForm(
 							<FormToggle compact
 										checked={ this.state.show_headline }
 										disabled={ ! isRelatedPostsActive || unavailableInDevMode || this.props.isSavingAnyOption() }
-										onChange={ e => this.updateOptions( 'show_headline' ) }>
+										onChange={ () => this.updateOptions( 'show_headline' ) }>
 										<span className="jp-form-toggle-explanation">
 											{
 												__( 'Show a "Related" header to more clearly separate the related section from posts' )
@@ -83,7 +85,7 @@ export const RelatedPosts = moduleSettingsForm(
 							<FormToggle compact
 										checked={ this.state.show_thumbnails }
 										disabled={ ! isRelatedPostsActive || unavailableInDevMode || this.props.isSavingAnyOption() }
-										onChange={ e => this.updateOptions( 'show_thumbnails' ) }>
+										onChange={ () => this.updateOptions( 'show_thumbnails' ) }>
 										<span className="jp-form-toggle-explanation">
 											{
 												__( 'Use a large and visually striking layout' )

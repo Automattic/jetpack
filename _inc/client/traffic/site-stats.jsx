@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import analytics from 'lib/analytics';
 import React from 'react';
 import { translate as __ } from 'i18n-calypso';
 import FormToggle from 'components/form/form-toggle';
@@ -58,16 +57,14 @@ export const SiteStats = moduleSettingsForm(
 		 */
 		updateOptions( optionName, optionSet ) {
 			let value = this.props.getOptionValue( optionSet, 'stats' );
-			if ( ! this.state[ `${optionSet}_${optionName}` ] ) {
+			if ( ! this.state[ `${ optionSet }_${ optionName }` ] ) {
 				if ( ! includes( value, optionName ) ) {
 					value.push( optionName );
 				}
-			} else {
-				if ( includes( value, optionName ) ) {
-					value = filter( value, item => {
-						return item !== optionName;
-					} );
-				}
+			} else if ( includes( value, optionName ) ) {
+				value = filter( value, item => {
+					return item !== optionName;
+				} );
 			}
 
 			this.setState(
@@ -83,7 +80,7 @@ export const SiteStats = moduleSettingsForm(
 		},
 
 		render() {
-			let stats = this.props.getModule( 'stats' ),
+			const stats = this.props.getModule( 'stats' ),
 				isStatsActive = this.props.getOptionValue( 'stats' ),
 				unavailableInDevMode = this.props.isUnavailableInDevMode( 'stats' ),
 				siteRoles = this.props.getSiteRoles();
@@ -95,24 +92,28 @@ export const SiteStats = moduleSettingsForm(
 					module="stats">
 					<SettingsGroup disableInDevMode module={ stats }>
 						<FormFieldset>
-							<ModuleToggle slug="stats"
-										  compact
-										  disabled={ ! isStatsActive || unavailableInDevMode }
-										  activated={ !!this.props.getOptionValue( 'admin_bar' ) }
-										  toggling={ this.props.isSavingAnyOption( [ 'stats', 'admin_bar' ] ) }
-										  toggleModule={ m => this.props.updateFormStateModuleOption( m, 'admin_bar' ) }>
+							<ModuleToggle
+								slug="stats"
+								compact
+								disabled={ ! isStatsActive || unavailableInDevMode }
+								activated={ !!this.props.getOptionValue( 'admin_bar' ) }
+								toggling={ this.props.isSavingAnyOption( [ 'stats', 'admin_bar' ] ) }
+								toggleModule={ m => this.props.updateFormStateModuleOption( m, 'admin_bar' ) }
+							>
 								<span className="jp-form-toggle-explanation">
 									{
 										__( 'Put a chart showing 48 hours of views in the admin bar' )
 									}
 								</span>
 							</ModuleToggle>
-							<ModuleToggle slug="stats"
-										  compact
-										  disabled={ ! isStatsActive || unavailableInDevMode }
-										  activated={ !!this.props.getOptionValue( 'hide_smile' ) }
-										  toggling={ this.props.isSavingAnyOption( [ 'stats', 'hide_smile' ] ) }
-										  toggleModule={ m => this.props.updateFormStateModuleOption( m, 'hide_smile' ) }>
+							<ModuleToggle
+								slug="stats"
+								compact
+								disabled={ ! isStatsActive || unavailableInDevMode }
+								activated={ !! this.props.getOptionValue( 'hide_smile' ) }
+								toggling={ this.props.isSavingAnyOption( [ 'stats', 'hide_smile' ] ) }
+								toggleModule={ m => this.props.updateFormStateModuleOption( m, 'hide_smile' ) }
+							>
 								<span className="jp-form-toggle-explanation">
 									{
 										__( 'Hide the stats smiley face image (The image helps collect stats, but should work when hidden.)' )
@@ -130,8 +131,8 @@ export const SiteStats = moduleSettingsForm(
 												compact
 												checked={ this.state[ `count_roles_${key}` ] }
 												disabled={ ! isStatsActive || unavailableInDevMode || this.props.isSavingAnyOption( [ 'stats', 'count_roles' ] ) }
-												onChange={ e => this.updateOptions( key, 'count_roles' ) }
-												key={ `count_roles-${key}` }>
+												onChange={ () => this.updateOptions( key, 'count_roles' ) }
+												key={ `count_roles-${ key }` }>
 												<span className="jp-form-toggle-explanation">
 													{ siteRoles[ key ].name }
 												</span>
@@ -156,7 +157,7 @@ export const SiteStats = moduleSettingsForm(
 													compact
 													checked={ this.state[ `roles_${key}` ] }
 													disabled={ ! isStatsActive || unavailableInDevMode || this.props.isSavingAnyOption( [ 'stats', 'roles' ] ) }
-													onChange={ e => this.updateOptions( key, 'roles' ) }
+													onChange={ () => this.updateOptions( key, 'roles' ) }
 													key={ `roles-${key}` }>
 													<span className="jp-form-toggle-explanation">
 														{ siteRoles[ key ].name }

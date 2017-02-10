@@ -2,7 +2,6 @@
  * External dependencies
  */
 import React from 'react';
-import analytics from 'lib/analytics';
 import { translate as __ } from 'i18n-calypso';
 import Button from 'components/button';
 import FormToggle from 'components/form/form-toggle';
@@ -64,7 +63,7 @@ export const CustomContentTypes = moduleSettingsForm(
 						<FormToggle compact
 									checked={ this.state.testimonial }
 									disabled={ this.props.isSavingAnyOption() }
-									onChange={ e => this.updateCPTs( 'testimonial' ) }>
+									onChange={ () => this.updateCPTs( 'testimonial' ) }>
 							<span className="jp-form-toggle-explanation">
 								{
 									__( 'Enable Testimonial custom content type' )
@@ -86,7 +85,7 @@ export const CustomContentTypes = moduleSettingsForm(
 						<FormToggle compact
 									checked={ this.state.portfolio }
 									disabled={ this.props.isSavingAnyOption() }
-									onChange={ e => this.updateCPTs( 'portfolio' ) }>
+									onChange={ () => this.updateCPTs( 'portfolio' ) }>
 							<span className="jp-form-toggle-explanation">
 								{
 									__( 'Enable Portfolio custom content type' )

@@ -66,14 +66,14 @@ export const requests = ( state = initialRequestsState, action ) => {
 		case JETPACK_SETTING_UPDATE:
 		case JETPACK_SETTINGS_UPDATE:
 			return merge( {}, state, {
-				settingsSent: mapValues( action.updatedOptions, item => true )
+				settingsSent: mapValues( action.updatedOptions, () => true )
 			} );
 		case JETPACK_SETTING_UPDATE_FAIL:
 		case JETPACK_SETTING_UPDATE_SUCCESS:
 		case JETPACK_SETTINGS_UPDATE_FAIL:
 		case JETPACK_SETTINGS_UPDATE_SUCCESS:
 			return merge( {}, state, {
-				settingsSent: mapValues( action.updatedOptions, item => false )
+				settingsSent: mapValues( action.updatedOptions, () => false )
 			} );
 		default:
 			return state;

@@ -3,11 +3,7 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
-import Button from 'components/button';
-import Gridicon from 'components/gridicon';
 import { translate as __ } from 'i18n-calypso';
-import includes from 'lodash/includes';
-import analytics from 'lib/analytics';
 
 /**
  * Internal dependencies
@@ -26,8 +22,6 @@ import {
 import { userCanManageModules } from 'state/initial-state';
 
 export const GeneralSettings = ( props ) => {
-	let	isAdmin = props.userCanManageModules,
-		moduleList = Object.keys( props.moduleList );
 
 	return (
 		<div>
@@ -39,12 +33,6 @@ export const GeneralSettings = ( props ) => {
 		</div>
 	);
 };
-
-function renderLongDescription( module ) {
-	// Rationale behind returning an object and not just the string
-	// https://facebook.github.io/react/tips/dangerously-set-inner-html.html
-	return { __html: module.long_description };
-}
 
 export default connect(
 	( state ) => {

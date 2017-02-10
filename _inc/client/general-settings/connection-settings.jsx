@@ -7,7 +7,6 @@ import { translate as __ } from 'i18n-calypso';
 import Card from 'components/card';
 import SectionHeader from 'components/section-header';
 import Gridicon from 'components/gridicon';
-import SiteIcon from 'components/my-sites-navigation/site-icon';
 
 /**
  * Internal dependencies
@@ -40,41 +39,41 @@ const ConnectionSettings = React.createClass( {
 			? null
 			: <ConnectButton asLink connectUser={ true } from="connection-settings" />;
 
-		let cardContent = '';
-
-		if ( this.props.isDevMode ) {
-			if ( 'site' === this.props.type ) {
-				cardContent = (
-					<div className="jp-connection-settings__info">
-						{
-							this.props.siteIcon
-								? <img width="64" height="64" className="jp-connection-settings__site-icon" src={ this.props.siteIcon } />
-								: <Gridicon icon="globe" size={ 64 } />
-						}
-						<div className="jp-connection-settings__text">
+		const cardContent = () => {
+			if ( this.props.isDevMode ) {
+				if ( 'site' === this.props.type ) {
+					return (
+						<div className="jp-connection-settings__info">
 							{
-								__( 'Your site is in Development Mode, so it can not be connected to WordPress.com.' )
+								this.props.siteIcon
+									? <img width="64" height="64" className="jp-connection-settings__site-icon" src={ this.props.siteIcon } />
+									: <Gridicon icon="globe" size={ 64 } />
 							}
+							<div className="jp-connection-settings__text">
+								{
+									__( 'Your site is in Development Mode, so it can not be connected to WordPress.com.' )
+								}
+							</div>
 						</div>
-					</div>
-				);
-			} else {
-				// return nothing if this is an account connection card
-				cardContent = (
-					<div className="jp-connection-settings__info">
-						<img alt="gravatar" width="64" height="64" className="jp-connection-settings__gravatar" src={ this.props.userWpComAvatar } />
-						<div className="jp-connection-settings__text">
-							{
-								__( 'The site is in Development Mode, so you can not connect to WordPress.com.' )
-							}
+					);
+				} else {
+					// return nothing if this is an account connection card
+					return (
+						<div className="jp-connection-settings__info">
+							<img alt="gravatar" width="64" height="64" className="jp-connection-settings__gravatar" src={ this.props.userWpComAvatar } />
+							<div className="jp-connection-settings__text">
+								{
+									__( 'The site is in Development Mode, so you can not connect to WordPress.com.' )
+								}
+							</div>
 						</div>
-					</div>
-				);
+					);
+				}
 			}
-		} else {
+
 			if ( 'site' === this.props.type ) {
 				if ( true === this.props.siteConnectionStatus ) {
-					cardContent = (
+					return (
 						<div>
 							<div className="jp-connection-settings__info">
 								{
@@ -96,51 +95,53 @@ const ConnectionSettings = React.createClass( {
 							{
 								this.props.userCanDisconnectSite
 									? <div className="jp-connection-settings__actions">
-										{ maybeShowDisconnectBtn }
-									  </div>
+									{ maybeShowDisconnectBtn }
+								</div>
 									: ''
 							}
 						</div>
 					);
 				}
 			} else {
-				cardContent = (
+				return (
 					this.props.isLinked
 						? <div>
-							<div className="jp-connection-settings__info">
-								<img alt="gravatar" width="64" height="64" className="jp-connection-settings__gravatar" src={ this.props.userWpComAvatar } />
-								<div className="jp-connection-settings__text">
-									{ __( 'Connected as ' ) }<span className="jp-connection-settings__username">{ this.props.userWpComLogin }</span>
-									<div className="jp-connection-settings__email">{ this.props.userWpComEmail }</div>
-								</div>
+						<div className="jp-connection-settings__info">
+							<img alt="gravatar" width="64" height="64" className="jp-connection-settings__gravatar" src={ this.props.userWpComAvatar } />
+							<div className="jp-connection-settings__text">
+								{ __( 'Connected as ' ) }<span className="jp-connection-settings__username">{ this.props.userWpComLogin }</span>
+								<div className="jp-connection-settings__email">{ this.props.userWpComEmail }</div>
 							</div>
-							<div className="jp-connection-settings__actions">
-								{ maybeShowLinkUnlinkBtn }
-							</div>
-						  </div>
+						</div>
+						<div className="jp-connection-settings__actions">
+							{ maybeShowLinkUnlinkBtn }
+						</div>
+					</div>
 						: <div>
-							<div className="jp-connection-settings__info">
-								{
-									__( 'Link your account to WordPress.com to get the most out of Jetpack.' )
-								}
-							</div>
-							<div className="jp-connection-settings__actions">
-								{ maybeShowLinkUnlinkBtn }
-							</div>
-						  </div>
+						<div className="jp-connection-settings__info">
+							{
+								__( 'Link your account to WordPress.com to get the most out of Jetpack.' )
+							}
+						</div>
+						<div className="jp-connection-settings__actions">
+							{ maybeShowLinkUnlinkBtn }
+						</div>
+					</div>
 				);
 			}
-		}
 
-		return(
+			return '';
+		};
+
+		return (
 			<div className="jp-connection-type">
 				<QueryUserConnectionData />
 				<SectionHeader label={ 'site' === this.props.type ? __( 'Site Connection' ) : __( 'Account Connection' ) } />
 				<Card>
-					{ cardContent }
+					{ cardContent() }
 				</Card>
 			</div>
-		)
+		);
 	}
 } );
 

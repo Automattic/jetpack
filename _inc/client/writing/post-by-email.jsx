@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import analytics from 'lib/analytics';
 import React from 'react';
 import { translate as __ } from 'i18n-calypso';
 import Button from 'components/button';
@@ -48,12 +47,14 @@ export const PostByEmail = moduleSettingsForm(
 					module="post-by-email"
 					hideButton>
 					<SettingsGroup hasChild disableInDevMode module={ postByEmail }>
-						<ModuleToggle slug="post-by-email"
-									  compact
-									  disabled={ unavailableInDevMode }
-									  activated={ isPbeActive }
-									  toggling={ this.props.isSavingAnyOption( 'post-by-email' ) }
-									  toggleModule={ this.props.toggleModuleNow }>
+						<ModuleToggle
+							slug="post-by-email"
+							compact
+							disabled={ unavailableInDevMode }
+							activated={ isPbeActive }
+							toggling={ this.props.isSavingAnyOption( 'post-by-email' ) }
+							toggleModule={ this.props.toggleModuleNow }
+						>
 						<span className="jp-form-toggle-explanation">
 							{
 								this.props.getModule( 'post-by-email' ).description

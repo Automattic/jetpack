@@ -1,7 +1,6 @@
 /**
  * External dependencies
  */
-import analytics from 'lib/analytics';
 import React from 'react';
 import { translate as __ } from 'i18n-calypso';
 import FormToggle from 'components/form/form-toggle';
@@ -54,12 +53,14 @@ export const SSO = moduleSettingsForm(
 					module="sso"
 					header={ __( 'WordPress.com log in', { context: 'Settings header' } ) }>
 					<SettingsGroup hasChild disableInDevMode module={ this.props.getModule( 'sso' ) }>
-						<ModuleToggle slug="sso"
-									  compact
-									  disabled={ unavailableInDevMode }
-									  activated={ isSSOActive }
-									  toggling={ this.props.isSavingAnyOption( 'sso' ) }
-									  toggleModule={ this.props.toggleModuleNow }>
+						<ModuleToggle
+							slug="sso"
+							compact
+							disabled={ unavailableInDevMode }
+							activated={ isSSOActive }
+							toggling={ this.props.isSavingAnyOption( 'sso' ) }
+							toggleModule={ this.props.toggleModuleNow }
+						>
 						<span className="jp-form-toggle-explanation">
 							{
 								this.props.getModule( 'sso' ).description
@@ -71,7 +72,7 @@ export const SSO = moduleSettingsForm(
 								compact
 								checked={ this.state.jetpack_sso_match_by_email }
 								disabled={ ! isSSOActive || unavailableInDevMode || this.props.isSavingAnyOption() }
-								onChange={ e => this.updateOptions( 'jetpack_sso_match_by_email' ) }>
+								onChange={ () => this.updateOptions( 'jetpack_sso_match_by_email' ) }>
 								<span className="jp-form-toggle-explanation">
 									{
 										__( 'Match accounts using email addresses' )
@@ -82,7 +83,7 @@ export const SSO = moduleSettingsForm(
 								compact
 								checked={ this.state.jetpack_sso_require_two_step }
 								disabled={ ! isSSOActive || unavailableInDevMode || this.props.isSavingAnyOption() }
-								onChange={ e => this.updateOptions( 'jetpack_sso_require_two_step' ) }>
+								onChange={ () => this.updateOptions( 'jetpack_sso_require_two_step' ) }>
 								<span className="jp-form-toggle-explanation">
 									{
 										__( 'Require accounts to use WordPress.com Two-Step Authentication' )

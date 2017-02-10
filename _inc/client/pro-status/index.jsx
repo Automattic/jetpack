@@ -50,8 +50,7 @@ const ProStatus = React.createClass( {
 			'vaultpress/vaultpress.php' :
 			'akismet/akismet.php';
 
-		const hasPersonal = /jetpack_personal*/.test( sitePlan.product_slug ),
-			hasPremium = /jetpack_premium*/.test( sitePlan.product_slug ),
+		const hasPremium = /jetpack_premium*/.test( sitePlan.product_slug ),
 			hasBusiness = /jetpack_business*/.test( sitePlan.product_slug );
 
 		let getStatus = ( feature, active, installed ) => {

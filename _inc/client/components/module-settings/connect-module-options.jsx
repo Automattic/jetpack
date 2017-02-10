@@ -8,7 +8,6 @@ import get from 'lodash/get';
  * Internal dependencies
  */
 import {
-	updateModuleOptions,
 	getModuleOption,
 	getModuleOptionValidValues
 } from 'state/modules';
@@ -52,9 +51,9 @@ export function connectModuleOptions( Component ) {
 				currentIp: getCurrentIp( state ),
 				siteAdminUrl: getSiteAdminUrl( state ),
 				isCurrentUserLinked: isCurrentUserLinked( state )
-			}
+			};
 		},
-		( dispatch, ownProps ) => ( {
+		( dispatch ) => ( {
 			updateOptions: ( newOptions ) => {
 				return dispatch( updateSettings( newOptions ) );
 			},
