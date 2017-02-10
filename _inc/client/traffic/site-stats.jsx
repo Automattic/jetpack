@@ -124,7 +124,7 @@ export const SiteStats = moduleSettingsForm(
 						<InlineExpand label={ __( 'Advanced Options' ) }>
 							<div>
 								<FormFieldset>
-									<FormLegend>{ __( 'Registered Users: Count the page views of registered users who are logged in' ) }</FormLegend>
+									<FormLegend>{ __( 'Count logged in page views from' ) }</FormLegend>
 									{
 										Object.keys( siteRoles ).map( key => (
 											<FormToggle
@@ -141,7 +141,7 @@ export const SiteStats = moduleSettingsForm(
 									}
 								</FormFieldset>
 								<FormFieldset>
-									<FormLegend>{ __( 'Report Visibility: Select the roles that will be able to view stats reports' ) }</FormLegend>
+									<FormLegend>{ __( 'Allow stats reports to be viewed by' ) }</FormLegend>
 									<FormToggle
 										compact
 										checked={ true }
