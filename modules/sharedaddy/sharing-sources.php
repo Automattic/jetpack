@@ -426,10 +426,11 @@ class Share_Email extends Sharing_Source {
 			 */
 			if ( apply_filters( 'sharing_email_check', true, $post, $post_data ) ) {
 				$data = array(
-					'post'	 => $post,
-					'source' => $source_email,
-					'target' => $target_email,
-					'name'	 => $source_name,
+					'post'           => $post,
+					'source'         => $source_email,
+					'target'         => $target_email,
+					'name'           => $source_name,
+					'sharing_source' => $this,
 				);
 				// todo: implement an error message when email doesn't get sent.
 				/**
