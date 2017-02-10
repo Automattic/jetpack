@@ -28,6 +28,7 @@ SOURCE_FILES := $(shell git ls-files \
 MAKEFILE   = $(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST))
 BUILD_PATH = $(shell cd $(shell dirname $(MAKEFILE)); pwd)/build
 BUILD_FILE = $(NAME)-$(VERSION_STRING).zip
+WPCOMSH_ZIP_WITHOUT_HASH_FILE = wpcomsh.zip
 
 ## git related vars
 GIT_BRANCH = $(shell git rev-parse --abbrev-ref HEAD)
@@ -39,10 +40,10 @@ GIT_STATUS = $(shell git status -sb --untracked=no | wc -l | awk '{ if($$1 == 1)
 git.fetch:
 	@git fetch $(GIT_REMOTE_NAME)
 
-check: git.fetch
-ifneq ($(GIT_STATUS), clean)
-	$(error un-committed changes detected in working tree)
-endif
+#check: git.fetch
+#ifneq ($(GIT_STATUS), clean)
+#	$(error un-committed changes detected in working tree)
+#endif
 
 ifneq ($(strip $(shell git diff --exit-code --quiet $(GIT_REMOTE_FULL)..HEAD 2>/dev/null ; echo $$?)), 0)
 	$(error local branch not in sync with remote, need to git push/pull)
@@ -66,9 +67,22 @@ $(BUILD_PATH)/$(BUILD_FILE): $(BUILD_PATH)/$(NAME)
 	@echo "===== getting submodules ====="
 	git submodule update --init --recursive
 
-	@echo "===== creating '$(BUILD_PATH)/$(BUILD_FILE)' ====="
+	@echo "===== creating '$(BUILD_PATH)/$(WPCOMSH_ZIP_WITHOUT_HASH_FILE)' ====="
 	cd $(BUILD_PATH) && \
-		zip -r $(BUILD_PATH)/$(BUILD_FILE) $(NAME)/
+		zip -r $(BUILD_PATH)/$(WPCOMSH_ZIP_WITHOUT_HASH_FILE) $(NAME)/
+
+	$(eval MD5_HASH_FILE=md5-hash.txt)
+
+	@echo "===== generating md5 hash of '$(BUILD_PATH)/$(WPCOMSH_ZIP_WITHOUT_HASH_FILE)' ====="
+	cd $(BUILD_PATH) && \
+		echo `md5sum $(BUILD_PATH)/$(WPCOMSH_ZIP_WITHOUT_HASH_FILE) | awk '{ print $$1 }'` > $(MD5_HASH_FILE)
+
+	@echo "===== creating zip of '$(BUILD_PATH)/$(WPCOMSH_ZIP_WITHOUT_HASH_FILE)' and md5 hash file ====="
+	cd $(BUILD_PATH) && \
+		zip $(BUILD_PATH)/$(BUILD_FILE) $(WPCOMSH_ZIP_WITHOUT_HASH_FILE) $(MD5_HASH_FILE)
+
+	cd $(BUILD_PATH) && \
+		rm $(MD5_HASH_FILE) $(WPCOMSH_ZIP_WITHOUT_HASH_FILE)
 
 ## release
 release: export RELEASE_BUCKET := pressable-misc
