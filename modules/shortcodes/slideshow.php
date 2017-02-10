@@ -270,7 +270,7 @@ class Jetpack_Slideshow_Shortcode {
 	function enqueue_scripts() {
 
 		wp_enqueue_script( 'jquery-cycle', plugins_url( '/js/jquery.cycle.min.js', __FILE__ ), array( 'jquery' ), '20161231', true );
-		wp_enqueue_script( 'jetpack-slideshow', plugins_url( '/js/slideshow-shortcode.js', __FILE__ ), array( 'jquery-cycle' ), '20121214.1', true );
+		wp_enqueue_script( 'jetpack-slideshow', plugins_url( '/js/slideshow-shortcode.js', __FILE__ ), array( 'jquery-cycle' ), '20160119.1', true );
 		if ( is_rtl() ) {
 			wp_enqueue_style( 'jetpack-slideshow', plugins_url( '/css/rtl/slideshow-shortcode-rtl.css', __FILE__ ) );
 		} else {
@@ -286,15 +286,16 @@ class Jetpack_Slideshow_Shortcode {
 			 * @module shortcodes
 			 *
 			 * @since 2.1.0
+			 * @since 4.7.0 Added the `speed` option to the array of options.
 			 *
 			 * @param array $args
 			 * - string - spinner - URL of the spinner image.
+			 * - string - speed   - Speed of the slideshow. Defaults to 4000.
 			 */
-			apply_filters(
-				'jetpack_js_slideshow_settings', array(
-					'spinner' => plugins_url( '/img/slideshow-loader.gif', __FILE__ ),
-				)
-			)
+			apply_filters( 'jetpack_js_slideshow_settings', array(
+				'spinner' => plugins_url( '/img/slideshow-loader.gif', __FILE__ ),
+				'speed'   => '4000',
+			) )
 		);
 	}
 

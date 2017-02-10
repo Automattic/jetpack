@@ -4,7 +4,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
-import { includes } from 'lodash';
+import includes from 'lodash/includes';
 import Button from 'components/button';
 import SimpleNotice from 'components/notice';
 
