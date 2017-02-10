@@ -4,7 +4,9 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 
 	//register MailChimp Subscriber Popup widget
 	function jetpack_mailchimp_subscriber_popup_widget_init() {
-		register_widget( 'Jetpack_MailChimp_Subscriber_Popup_Widget' );
+		if ( class_exists( 'MailChimp_Subscriber_Popup' ) ) {
+			register_widget( 'Jetpack_MailChimp_Subscriber_Popup_Widget' );
+		}
 	}
 
 	add_action( 'widgets_init', 'jetpack_mailchimp_subscriber_popup_widget_init' );
@@ -85,7 +87,9 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 			?>
 
 			<p>
-				<label for="<?php echo esc_attr( $this->get_field_id( 'code' ) ); ?>"><?php esc_html_e( 'Code:', 'jetpack' ); ?></label>
+				<label for="<?php echo esc_attr( $this->get_field_id( 'code' ) ); ?>">
+					<?php printf( __( 'Code: <a href="%s" target="_blank">( ? )</a>', 'jetpack' ), 'https://en.support.wordpress.com/mailchimp/' ); ?>
+				</label>
 				<textarea class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'code' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'code' ) ); ?>" rows="3"><?php echo esc_textarea( $instance['code'] ); ?></textarea>
 			</p>
 
