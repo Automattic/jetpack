@@ -30,8 +30,6 @@ add_action( 'jetpack_modules_loaded', 'stats_load' );
  * @return void
  */
 function stats_load() {
-	global $wp_roles;
-
 	Jetpack::enable_module_configurable( __FILE__ );
 	Jetpack::module_configuration_load( __FILE__, 'stats_configuration_load' );
 	Jetpack::module_configuration_head( __FILE__, 'stats_configuration_head' );
@@ -47,7 +45,7 @@ function stats_load() {
 	add_action( 'jetpack_admin_menu', 'stats_admin_menu' );
 
 	// Map stats caps.
-	add_filter( 'map_meta_cap', 'stats_map_meta_caps', 10, 4 );
+	add_filter( 'map_meta_cap', 'stats_map_meta_caps', 10, 3 );
 
 	if ( isset( $_GET['oldwidget'] ) ) {
 		// Old one.
@@ -112,10 +110,9 @@ function stats_ignore_db_version( $version ) {
  * @param mixed $caps Caps.
  * @param mixed $cap Cap.
  * @param mixed $user_id User ID.
- * @param mixed $args Args.
  * @return array Possibly mapped capabilities for meta capability.
  */
-function stats_map_meta_caps( $caps, $cap, $user_id, $args ) {
+function stats_map_meta_caps( $caps, $cap, $user_id ) {
 	// Map view_stats to exists.
 	if ( 'view_stats' === $cap ) {
 		$user        = new WP_User( $user_id );
@@ -621,8 +618,9 @@ function stats_reports_page( $main_chart_only = false ) {
 		JetpackTracking::record_user_event( 'wpa_page_view', array( 'path' => 'old_stats' ) );
 	}
 
-	if ( isset( $_GET['noheader'] ) )
+	if ( isset( $_GET['noheader'] ) ) {
 		die;
+	}
 }
 
 /**
@@ -675,10 +673,11 @@ function stats_convert_chart_urls( $html ) {
  * @return string
  */
 function stats_convert_post_titles( $html ) {
-	global $wpdb, $stats_posts;
+	global $stats_posts;
 	$pattern = "<span class='post-(\d+)-link'>.*?</span>";
-	if ( !preg_match_all( "!$pattern!", $html, $matches ) )
+	if ( ! preg_match_all( "!$pattern!", $html, $matches ) ) {
 		return $html;
+	}
 	$posts = get_posts(
 		array(
 			'include' => implode( ',', $matches[1] ),
@@ -687,8 +686,9 @@ function stats_convert_post_titles( $html ) {
 			'numberposts' => -1,
 		)
 	);
-	foreach ( $posts as $post )
-		$stats_posts[$post->ID] = $post;
+	foreach ( $posts as $post ) {
+		$stats_posts[ $post->ID ] = $post;
+	}
 	$html = preg_replace_callback( "!$pattern!", 'stats_convert_post_title', $html );
 	return $html;
 }
@@ -911,7 +911,7 @@ function stats_update_blog() {
  * Stats Get Blog.
  *
  * @access public
- * @return void
+ * @return string
  */
 function stats_get_blog() {
 	$home = parse_url( trailingslashit( get_option( 'home' ) ) );
@@ -1281,10 +1281,12 @@ jQuery( function($) {
  * @return void
  */
 function stats_dashboard_widget_content() {
-	if ( ! isset( $_GET['width'] ) || ( ! $width  = (int) ( $_GET['width'] / 2 ) ) || $width < 250 )
-		$width  = 370;
-	if ( ! isset( $_GET['height'] ) || ( ! $height = (int) $_GET['height'] - 36 ) || $height < 230 )
+	if ( ! isset( $_GET['width'] ) || ( ! $width = (int) ( $_GET['width'] / 2 ) ) || $width < 250 ) {
+		$width = 370;
+	}
+	if ( ! isset( $_GET['height'] ) || ( ! $height = (int) $_GET['height'] - 36 ) || $height < 230 ) {
 		$height = 180;
+	}
 
 	$_width  = $width  - 5;
 	$_height = $height - ( $GLOBALS['is_winIE'] ? 16 : 5 ); // Hack!
@@ -1344,8 +1346,9 @@ function stats_dashboard_widget_content() {
 
 	$searches = array();
 	foreach ( $search_terms = stats_get_csv( 'searchterms', "days=$options[search]$csv_args[search]" ) as $search_term ) {
-		if ( 'encrypted_search_terms' === $search_term['searchterm'] )
+		if ( 'encrypted_search_terms' === $search_term['searchterm'] ) {
 			continue;
+		}
 		$searches[] = esc_html( $search_term['searchterm'] );
 	}
 
@@ -1362,8 +1365,9 @@ function stats_dashboard_widget_content() {
 			<?php
 	} else {
 		foreach ( $top_posts as $post ) {
-			if ( !get_post( $post['post_id'] ) )
+			if ( ! get_post( $post['post_id'] ) ) {
 				continue;
+			}
 ?>
 				<p><?php printf(
 				$printf,
