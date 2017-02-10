@@ -75,7 +75,7 @@ $(BUILD_PATH)/$(BUILD_FILE): $(BUILD_PATH)/$(NAME)
 
 	@echo "===== generating md5 hash of '$(BUILD_PATH)/$(WPCOMSH_ZIP_WITHOUT_HASH_FILE)' ====="
 	cd $(BUILD_PATH) && \
-		echo `md5sum $(BUILD_PATH)/$(WPCOMSH_ZIP_WITHOUT_HASH_FILE) | awk '{ print $$1 }'` > $(MD5_HASH_FILE)
+		printf `md5sum $(BUILD_PATH)/$(WPCOMSH_ZIP_WITHOUT_HASH_FILE) | awk '{ print $$1 }'` > $(MD5_HASH_FILE)
 
 	@echo "===== creating zip of '$(BUILD_PATH)/$(WPCOMSH_ZIP_WITHOUT_HASH_FILE)' and md5 hash file ====="
 	cd $(BUILD_PATH) && \
