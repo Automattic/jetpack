@@ -183,3 +183,12 @@ export function getSettingName( state, name ) {
 export function areThereUnsavedSettings( state ) {
 	return get( state.jetpack.settings, 'unsavedSettingsFlag' );
 }
+
+/**
+ * Returns whether or not the Holiday Snow setting should be displayed.
+ * @param  {Object}  state Global state tree
+ * @return {Boolean}       Whether the Holiday Snow setting should be displayed
+ */
+export function getShowHolidaySnow( state ) {
+	return state.jetpack.initialState.showHolidaySnow;
+}
