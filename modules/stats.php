@@ -30,8 +30,6 @@ add_action( 'jetpack_modules_loaded', 'stats_load' );
  * @return void
  */
 function stats_load() {
-	global $wp_roles;
-
 	Jetpack::enable_module_configurable( __FILE__ );
 	Jetpack::module_configuration_load( __FILE__, 'stats_configuration_load' );
 	Jetpack::module_configuration_head( __FILE__, 'stats_configuration_head' );
@@ -47,7 +45,7 @@ function stats_load() {
 	add_action( 'jetpack_admin_menu', 'stats_admin_menu' );
 
 	// Map stats caps.
-	add_filter( 'map_meta_cap', 'stats_map_meta_caps', 10, 4 );
+	add_filter( 'map_meta_cap', 'stats_map_meta_caps', 10, 3 );
 
 	if ( isset( $_GET['oldwidget'] ) ) {
 		// Old one.
@@ -91,7 +89,7 @@ function stats_enqueue_dashboard_head() {
  *
  * @access public
  * @param mixed $version Version.
- * @return $version Version.
+ * @return string $version.
  */
 function stats_ignore_db_version( $version ) {
 	if (
@@ -112,10 +110,9 @@ function stats_ignore_db_version( $version ) {
  * @param mixed $caps Caps.
  * @param mixed $cap Cap.
  * @param mixed $user_id User ID.
- * @param mixed $args Args.
  * @return array Possibly mapped capabilities for meta capability.
  */
-function stats_map_meta_caps( $caps, $cap, $user_id, $args ) {
+function stats_map_meta_caps( $caps, $cap, $user_id ) {
 	// Map view_stats to exists.
 	if ( 'view_stats' === $cap ) {
 		$user        = new WP_User( $user_id );
@@ -175,7 +172,7 @@ END;
  * Stats Build View Data.
  *
  * @access public
- * @return Array.
+ * @return array.
  */
 function stats_build_view_data() {
 	global $wp_the_query;
@@ -233,7 +230,7 @@ function stats_footer() {
  * Stats Get Options.
  *
  * @access public
- * @return Options.
+ * @return array.
  */
 function stats_get_options() {
 	$options = get_option( 'stats_options' );
@@ -250,7 +247,7 @@ function stats_get_options() {
  *
  * @access public
  * @param mixed $option Option.
- * @return Options|null.
+ * @return mixed|null.
  */
 function stats_get_option( $option ) {
 	$options = stats_get_options();
@@ -272,7 +269,7 @@ function stats_get_option( $option ) {
  * @access public
  * @param mixed $option Option.
  * @param mixed $value Value.
- * @return Options.
+ * @return bool.
  */
 function stats_set_option( $option, $value ) {
 	$options = stats_get_options();
@@ -287,7 +284,7 @@ function stats_set_option( $option, $value ) {
  *
  * @access public
  * @param mixed $options Options.
- * @return Update Options.
+ * @return bool
  */
 function stats_set_options( $options ) {
 	return update_option( 'stats_options', $options );
@@ -298,7 +295,7 @@ function stats_set_options( $options ) {
  *
  * @access public
  * @param mixed $options Options.
- * @return New Options.
+ * @return array|bool
  */
 function stats_upgrade_options( $options ) {
 	$defaults = array(
@@ -341,7 +338,7 @@ function stats_upgrade_options( $options ) {
  *
  * @access public
  * @param mixed $kvs KVS.
- * @return Array.
+ * @return array
  */
 function stats_array( $kvs ) {
 	/**
@@ -389,7 +386,7 @@ function stats_admin_menu() {
  * Stats Admin Path.
  *
  * @access public
- * @return Stats Admin Path.
+ * @return string
  */
 function stats_admin_path() {
 	return Jetpack::module_configuration_url( __FILE__ );
@@ -488,7 +485,6 @@ if ( -1 == document.location.href.indexOf( 'noheader' ) ) {
  *
  * @access public
  * @param bool $main_chart_only (default: false) Main Chart Only.
- * @return void
  */
 function stats_reports_page( $main_chart_only = false ) {
 
@@ -622,8 +618,9 @@ function stats_reports_page( $main_chart_only = false ) {
 		JetpackTracking::record_user_event( 'wpa_page_view', array( 'path' => 'old_stats' ) );
 	}
 
-	if ( isset( $_GET['noheader'] ) )
+	if ( isset( $_GET['noheader'] ) ) {
 		die;
+	}
 }
 
 /**
@@ -631,7 +628,7 @@ function stats_reports_page( $main_chart_only = false ) {
  *
  * @access public
  * @param mixed $html HTML.
- * @return void
+ * @return string
  */
 function stats_convert_admin_urls( $html ) {
 	return str_replace( 'index.php?page=stats', 'admin.php?page=stats', $html );
@@ -642,7 +639,7 @@ function stats_convert_admin_urls( $html ) {
  *
  * @access public
  * @param mixed $html HTML.
- * @return void
+ * @return string
  */
 function stats_convert_image_urls( $html ) {
 	$url = set_url_scheme( 'https://' . STATS_DASHBOARD_SERVER );
@@ -655,7 +652,7 @@ function stats_convert_image_urls( $html ) {
  *
  * @access public
  * @param mixed $html HTML.
- * @return void
+ * @return string
  */
 function stats_convert_chart_urls( $html ) {
 	$html = preg_replace_callback( '|https?://[-.a-z0-9]+/wp-includes/charts/([-.a-z0-9]+).php(\??)|',
@@ -673,13 +670,14 @@ function stats_convert_chart_urls( $html ) {
  *
  * @access public
  * @param mixed $html HTML.
- * @return void
+ * @return string
  */
 function stats_convert_post_titles( $html ) {
-	global $wpdb, $stats_posts;
+	global $stats_posts;
 	$pattern = "<span class='post-(\d+)-link'>.*?</span>";
-	if ( !preg_match_all( "!$pattern!", $html, $matches ) )
+	if ( ! preg_match_all( "!$pattern!", $html, $matches ) ) {
 		return $html;
+	}
 	$posts = get_posts(
 		array(
 			'include' => implode( ',', $matches[1] ),
@@ -688,8 +686,9 @@ function stats_convert_post_titles( $html ) {
 			'numberposts' => -1,
 		)
 	);
-	foreach ( $posts as $post )
-		$stats_posts[$post->ID] = $post;
+	foreach ( $posts as $post ) {
+		$stats_posts[ $post->ID ] = $post;
+	}
 	$html = preg_replace_callback( "!$pattern!", 'stats_convert_post_title', $html );
 	return $html;
 }
@@ -699,7 +698,7 @@ function stats_convert_post_titles( $html ) {
  *
  * @access public
  * @param mixed $matches Matches.
- * @return void
+ * @return string
  */
 function stats_convert_post_title( $matches ) {
 	global $stats_posts;
@@ -912,7 +911,7 @@ function stats_update_blog() {
  * Stats Get Blog.
  *
  * @access public
- * @return void
+ * @return string
  */
 function stats_get_blog() {
 	$home = parse_url( trailingslashit( get_option( 'home' ) ) );
@@ -941,7 +940,7 @@ function stats_get_blog() {
  *
  * @access public
  * @param mixed $value Value.
- * @return void
+ * @return string
  */
 function stats_esc_html_deep( $value ) {
 	if ( is_array( $value ) ) {
@@ -963,7 +962,7 @@ function stats_esc_html_deep( $value ) {
  *
  * @access public
  * @param mixed $methods Methods.
- * @return void
+ * @return array
  */
 function stats_xmlrpc_methods( $methods ) {
 	$my_methods = array(
@@ -993,7 +992,7 @@ function stats_register_dashboard_widget() {
  * Stats Dashboard Widget Options.
  *
  * @access public
- * @return void
+ * @return array
  */
 function stats_dashboard_widget_options() {
 	$defaults = array( 'chart' => 1, 'top' => 1, 'search' => 7 );
@@ -1282,10 +1281,12 @@ jQuery( function($) {
  * @return void
  */
 function stats_dashboard_widget_content() {
-	if ( ! isset( $_GET['width'] ) || ( ! $width  = (int) ( $_GET['width'] / 2 ) ) || $width < 250 )
-		$width  = 370;
-	if ( ! isset( $_GET['height'] ) || ( ! $height = (int) $_GET['height'] - 36 ) || $height < 230 )
+	if ( ! isset( $_GET['width'] ) || ( ! $width = (int) ( $_GET['width'] / 2 ) ) || $width < 250 ) {
+		$width = 370;
+	}
+	if ( ! isset( $_GET['height'] ) || ( ! $height = (int) $_GET['height'] - 36 ) || $height < 230 ) {
 		$height = 180;
+	}
 
 	$_width  = $width  - 5;
 	$_height = $height - ( $GLOBALS['is_winIE'] ? 16 : 5 ); // Hack!
@@ -1345,8 +1346,9 @@ function stats_dashboard_widget_content() {
 
 	$searches = array();
 	foreach ( $search_terms = stats_get_csv( 'searchterms', "days=$options[search]$csv_args[search]" ) as $search_term ) {
-		if ( 'encrypted_search_terms' === $search_term['searchterm'] )
+		if ( 'encrypted_search_terms' === $search_term['searchterm'] ) {
 			continue;
+		}
 		$searches[] = esc_html( $search_term['searchterm'] );
 	}
 
@@ -1363,8 +1365,9 @@ function stats_dashboard_widget_content() {
 			<?php
 	} else {
 		foreach ( $top_posts as $post ) {
-			if ( !get_post( $post['post_id'] ) )
+			if ( ! get_post( $post['post_id'] ) ) {
 				continue;
+			}
 ?>
 				<p><?php printf(
 				$printf,
@@ -1547,7 +1550,7 @@ function stats_get_csv( $table, $args = null ) {
  *
  * @access public
  * @param mixed $url URL.
- * @return Stats,
+ * @return array
  */
 function stats_get_remote_csv( $url ) {
 	$method = 'GET';
@@ -1568,7 +1571,7 @@ function stats_get_remote_csv( $url ) {
  *
  * @access public
  * @param mixed $csv CSV.
- * @return $data Data.
+ * @return array.
  */
 function stats_str_getcsv( $csv ) {
 	if ( function_exists( 'str_getcsv' ) ) {
