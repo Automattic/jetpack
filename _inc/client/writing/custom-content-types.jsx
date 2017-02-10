@@ -56,11 +56,6 @@ export const CustomContentTypes = moduleSettingsForm(
 					module="custom-content-types"
 					hideButton>
 					<SettingsGroup hasChild support={ module.learn_more_button }>
-						<p>
-							{
-								module.description
-							}
-						</p>
 						<FormToggle compact
 									checked={ this.state.testimonial }
 									disabled={ this.props.isSavingAnyOption() }
