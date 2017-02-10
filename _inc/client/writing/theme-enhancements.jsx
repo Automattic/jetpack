@@ -64,7 +64,7 @@ export const ThemeEnhancements = moduleSettingsForm(
 									},
 									{
 										key: 'infinite_scroll_google_analytics',
-										label: __( 'Track each infinite Scroll post load as a page view in Google Analytics' )
+										label: __( 'Track each scroll load (7 posts by default) as a page view in Google Analytics' )
 									}
 								]
 							},

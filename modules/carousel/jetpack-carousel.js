@@ -1128,7 +1128,7 @@ jQuery(document).ready(function($) {
 			var $ul = $( '<ul class=\'jp-carousel-image-exif\'></ul>' );
 
 			$.each( meta, function( key, val ) {
-				if ( 0 === parseFloat(val) || !val.length || -1 === $.inArray( key, [ 'camera', 'aperture', 'shutter_speed', 'focal_length' ] ) ) {
+				if ( 0 === parseFloat(val) || !val.length || -1 === $.inArray( key, $.makeArray( jetpackCarouselStrings.meta_data ) ) ) {
 					return;
 				}
 
@@ -1429,8 +1429,8 @@ jQuery(document).ready(function($) {
 
 			var valid = false;
 
-			// if link points to 'Media File' and flag is set allow it
-			if ( $( container ).attr( 'href' ) === $( this ).attr( 'data-orig-file' ) &&
+			// if link points to 'Media File' (ignoring GET parameters) and flag is set allow it
+			if ( $( container ).attr( 'href' ).split( '?' )[0] === $( this ).attr( 'data-orig-file' ).split( '?' )[0] &&
 				1 === Number( jetpackCarouselStrings.single_image_gallery_media_file )
 			) {
 				valid = true;

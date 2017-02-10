@@ -21,7 +21,7 @@ Traffic is the lifeblood of any website. Jetpack includes:
 * [paid] Advertising program that includes the best of AdSense, Facebook Ads, AOL, Amazon, Google AdX, and Yahoo
 
 = Security and Backup Services =
-Stop worrying about data loss, downtime, and hacking. Jetpack provides: 
+Stop worrying about data loss, downtime, and hacking. Jetpack provides:
 
 * [free] Brute force attack protection
 * [free] Downtime and uptime monitoring
@@ -53,7 +53,7 @@ We have an entire team of Happiness Engineers ready to help you. Ask your questi
 = Paid Services =
 Most of Jetpack's features and services are free. Jetpack also provides advanced security and backup services, video hosting, site monetization, priority support, and more SEO tools in three [simple and affordable plans](https://jetpack.com/pricing).
 
-= Get Started = 
+= Get Started =
 Installation is free, quick, and easy. Set up <a href="https://jetpack.com/install?from=wporg" rel="nofollow">the free plan</a> in minutes.
 
 == Installation ==
@@ -67,7 +67,7 @@ Alternatively, install Jetpack via the plugin directory, or upload the files man
 == Frequently Asked Questions ==
 
 = Is Jetpack Free? =
-Yes! Jetpack's core features are and always will be free. 
+Yes! Jetpack's core features are and always will be free.
 
 These include: [site stats](https://jetpack.com/features/traffic/site-stats), a [high-speed CDN](https://jetpack.com/features/writing/content-delivery-network/) for images, [related posts](https://jetpack.com/features/traffic/related-posts), [downtime monitoring](https://jetpack.com/features/security/downtime-monitoring), brute force [attack protection](https://jetpack.com/features/security/brute-force-attack-protection), [automated sharing](https://jetpack.com/features/traffic/automatic-publishing/) to social networks, [sidebar customization](https://jetpack.com/features/writing/sidebar-customization/), and many more.
 
@@ -102,6 +102,57 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 5. Traffic: SEO Tools for Google, Twitter, Facebook and more.
 
 == Changelog ==
+
+= 4.6 =
+
+* Release date: February 7, 2017
+* Release post: http://wp.me/p1moTy-40g
+
+**New Features and Improvements**
+
+* Enable Google Analytics without touching a line of code with this new Jetpack feature.
+
+**Performance Improvements**
+
+* We've updated all outbound links to use HTTPS to improve performance and security.
+* Photon now leverages a new WordPress core function to improve performance a bit.
+
+**Enhancements**
+
+* Keep an eye out for a note from WooCommerce on how your e-commerce store may benefit from our new USPS and CanadaPost shipping functionality.
+* We've added an error message if Publicize isn't functioning as it should be.
+* The Twitter Widget timeline now displays the tweet limit count as 20, prior to this it appeared to have no limit.
+
+**Slightly Less Exciting Enhancements:**
+
+* In an effort to help us better understand features that are being used, Twitter's timeline widget and Twitter's shortcodes now pass Jetpack's partner ID.
+* We've added new API endpoints allowing us to enable translation auto-updates and pull post rows and metadata for backups.
+* We're now retrieving all feature settings in the readable `/settings` endpoint.
+
+**Improved Compatibility**
+
+* We've eliminated some notices and warnings when using Jetpack on a server running PHP 7.1 or on servers where `print_r()` is disabled.
+* Photon now avoids PHP notices when your site is using plugins that do srcset CDN replacement.
+* When the sharing options appear to be incorrect due to site configuration issues we force it to retrieve the right options avoiding potential fatal errors.
+* We've added some shortcode CSS and widget class names prefixes to avoid conflicts with other plugins.
+
+**Bug Fixes**
+
+* Some sites were using illegal multibyte characters and failing to sync posts, this has been fixed.
+* IE11 was giving our admin layout a bit of a problem but we rectified that.
+* There were some PHP notices popping up when a site has no posts so we got rid of them.
+* The new Jetpack Ads feature will auto disable itself if your Jetpack plan doesn't support the feature.
+* We fixed a few PHP notices and warnings related to the Custom CSS feature.
+* The connection banner's "dismiss" icon was giving us a little trouble, but we got it fixed right up.
+* The Likes feature was showing a PHP notice when there was no $post object, this has been fixed.
+* We've brought back the Twitter Widget "noscrollbar" option.
+* We're now forcing only Photon URLs to HTTPS as your custom CDN URLs may use a different protocol.
+* If a Publicize connection is not shared with all users on the site, do not trigger Publicize for the other users.
+* Publicize was having trouble working with scheduled posts, this should be fixed now.
+* SSO may not have been displaying the login form when using JSON API authorization.  Sorry about that, we've fixed it.
+* We've eliminated some PHP notices that were showing with some Shortcodes.
+* There was a Top Posts Widget image size issue when using list layouts, but is no longer causing issues.
+* We fixed some notices and warnings when updating data from the WordPress.com central interface.
 
 = 4.5 =
 
