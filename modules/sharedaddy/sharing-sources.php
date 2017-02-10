@@ -430,6 +430,7 @@ class Share_Email extends Sharing_Source {
 					'source' => $source_email,
 					'target' => $target_email,
 					'name'	 => $source_name,
+					'share_url' => $this->get_share_url( $post->ID ),
 				);
 				// todo: implement an error message when email doesn't get sent.
 				/**
