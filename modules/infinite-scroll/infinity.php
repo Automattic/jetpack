@@ -776,6 +776,7 @@ class The_Neverending_Home_Page {
 			),
 			'query_args'      => self::get_query_vars(),
 			'last_post_date'  => self::get_last_post_date(),
+			'have_posts'      => self::wp_query()->have_posts(),
 		);
 
 		// Optional order param
