@@ -1255,7 +1255,7 @@ table.wpsc-settings-table {
 			if ( ( defined( 'VHOST' ) || defined( 'SUBDOMAIN_INSTALL' ) || defined( 'SUNRISE' ) || ( defined( 'WP_ALLOW_MULTISITE' ) && constant( 'WP_ALLOW_MULTISITE' ) == true  ) ) && wpsupercache_site_admin() ) {
 				echo '<form name="wp_cache_content_delete" action="#listfiles" method="post">';
 				echo '<input type="hidden" name="wp_delete_all_cache" />';
-				echo '<div class="submit" style="float:left;margin-left:10px"><input id="deleteallpost" class="button-secondary" type="submit" ' . SUBMITDISABLED . 'value="' . __( 'Delete Cache On All Blogs', 'wp-super-cache' ) . '" /></div>';
+				echo '<div class="submit"><input id="deleteallpost" class="button-secondary" type="submit" ' . SUBMITDISABLED . 'value="' . __( 'Delete Cache On All Blogs', 'wp-super-cache' ) . '" /></div>';
 				wp_nonce_field('wp-cache');
 				echo "</form><br />\n";
 			}
