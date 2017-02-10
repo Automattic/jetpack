@@ -40,10 +40,10 @@ GIT_STATUS = $(shell git status -sb --untracked=no | wc -l | awk '{ if($$1 == 1)
 git.fetch:
 	@git fetch $(GIT_REMOTE_NAME)
 
-#check: git.fetch
-#ifneq ($(GIT_STATUS), clean)
-#	$(error un-committed changes detected in working tree)
-#endif
+check: git.fetch
+ifneq ($(GIT_STATUS), clean)
+	$(error un-committed changes detected in working tree)
+endif
 
 ifneq ($(strip $(shell git diff --exit-code --quiet $(GIT_REMOTE_FULL)..HEAD 2>/dev/null ; echo $$?)), 0)
 	$(error local branch not in sync with remote, need to git push/pull)
