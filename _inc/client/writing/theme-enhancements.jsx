@@ -110,7 +110,7 @@ export const ThemeEnhancements = moduleSettingsForm(
 														compact
 														checked={ this.state[ chkbx.key ] }
 														disabled={ ! isItemActive }
-														onChange={ e => this.updateOptions( chkbx.key, item.module ) }
+														onChange={ () => this.updateOptions( chkbx.key, item.module ) }
 														key={ `${ item.module }_${ chkbx.key }`}>
 														<span className="jp-form-toggle-explanation">
 															{

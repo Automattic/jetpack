@@ -110,7 +110,7 @@ export const Media = moduleSettingsForm(
 								compact
 								checked={ this.state.carousel_display_exif }
 								disabled={ ! isCarouselActive || this.props.isSavingAnyOption() }
-								onChange={ e => this.updateOptions( 'carousel_display_exif' ) }>
+								onChange={ () => this.updateOptions( 'carousel_display_exif' ) }>
 									<span className="jp-form-toggle-explanation">
 										{
 											__( 'Show photo metadata (Exif) in carousel, when available' )

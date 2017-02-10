@@ -106,9 +106,6 @@ const DashStats = React.createClass( {
 		if ( this.props.isModuleActivated( 'stats' ) ) {
 			let statsErrors = this.statsErrors();
 			if ( statsErrors ) {
-				forEach( statsErrors, function( error ) {
-					console.log( error );
-				} );
 				return (
 					<div className="jp-at-a-glance__stats-inactive">
 						<span>

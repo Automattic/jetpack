@@ -2,7 +2,6 @@
  * External dependencies
  */
 import React from 'react';
-import analytics from 'lib/analytics';
 import { translate as __ } from 'i18n-calypso';
 import FormToggle from 'components/form/form-toggle';
 
@@ -73,7 +72,7 @@ export const Composing = moduleSettingsForm(
 					compact
 					checked={ this.state[ setting ] }
 					disabled={ ! this.props.getOptionValue( 'after-the-deadline' ) || this.props.isUnavailableInDevMode( 'after-the-deadline' ) || this.props.isSavingAnyOption( setting ) }
-					onChange={ e => this.updateOptions( setting ) }>
+					onChange={ () => this.updateOptions( setting ) }>
 					<span className="jp-form-toggle-explanation">
 						{ label }
 					</span>

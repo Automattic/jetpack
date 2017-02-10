@@ -51,9 +51,9 @@ export function connectModuleOptions( Component ) {
 				currentIp: getCurrentIp( state ),
 				siteAdminUrl: getSiteAdminUrl( state ),
 				isCurrentUserLinked: isCurrentUserLinked( state )
-			}
+			};
 		},
-		( dispatch, ownProps ) => ( {
+		( dispatch ) => ( {
 			updateOptions: ( newOptions ) => {
 				return dispatch( updateSettings( newOptions ) );
 			},

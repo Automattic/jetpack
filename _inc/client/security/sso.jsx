@@ -72,7 +72,7 @@ export const SSO = moduleSettingsForm(
 								compact
 								checked={ this.state.jetpack_sso_match_by_email }
 								disabled={ ! isSSOActive || unavailableInDevMode || this.props.isSavingAnyOption() }
-								onChange={ e => this.updateOptions( 'jetpack_sso_match_by_email' ) }>
+								onChange={ () => this.updateOptions( 'jetpack_sso_match_by_email' ) }>
 								<span className="jp-form-toggle-explanation">
 									{
 										__( 'Match accounts using email addresses' )
@@ -83,7 +83,7 @@ export const SSO = moduleSettingsForm(
 								compact
 								checked={ this.state.jetpack_sso_require_two_step }
 								disabled={ ! isSSOActive || unavailableInDevMode || this.props.isSavingAnyOption() }
-								onChange={ e => this.updateOptions( 'jetpack_sso_require_two_step' ) }>
+								onChange={ () => this.updateOptions( 'jetpack_sso_require_two_step' ) }>
 								<span className="jp-form-toggle-explanation">
 									{
 										__( 'Require accounts to use WordPress.com Two-Step Authentication' )

@@ -24,8 +24,7 @@ const DashAkismet = React.createClass( {
 		e.preventDefault();
 
 		this.props.activateModule( 'manage' )
-			.then( window.location = 'https://wordpress.com/plugins/akismet/' + this.props.siteRawUrl )
-			.catch( console.log( 'Error: unable to activate Manage' ) );
+			.then( window.location = 'https://wordpress.com/plugins/akismet/' + this.props.siteRawUrl );
 	},
 
 	getContent: function() {

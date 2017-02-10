@@ -19,6 +19,8 @@ import Main from 'main';
 // Initialize the accessibile focus to allow styling specifically for keyboard navigation
 accessibleFocus();
 
+const Initial_State = window.Initial_State;
+
 Initial_State.locale = JSON.parse( Initial_State.locale );
 
 if ( 'undefined' !== typeof Initial_State.locale[ '' ] ) {

@@ -73,7 +73,7 @@ export const Subscriptions = moduleSettingsForm(
 									compact
 									checked={ this.state.stb_enabled }
 									disabled={ ! isSubscriptionsActive || unavailableInDevMode || this.props.isSavingAnyOption() }
-									onChange={ e => this.updateOptions( 'stb_enabled' ) }>
+									onChange={ () => this.updateOptions( 'stb_enabled' ) }>
 									<span className="jp-form-toggle-explanation">
 										{
 											__( 'Show a "follow blog" option in the comment form' )
@@ -84,7 +84,7 @@ export const Subscriptions = moduleSettingsForm(
 									compact
 									checked={ this.state.stc_enabled }
 									disabled={ ! isSubscriptionsActive || unavailableInDevMode || this.props.isSavingAnyOption() }
-									onChange={ e => this.updateOptions( 'stc_enabled' ) }>
+									onChange={ () => this.updateOptions( 'stc_enabled' ) }>
 									<span className="jp-form-toggle-explanation">
 										{
 											__( 'Show a "follow comments" option in the comment form' )

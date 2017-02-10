@@ -39,18 +39,16 @@ const PlanBody = React.createClass( {
 							<h3 className="jp-landing__plan-features-title">{ __( 'Spam Protection' ) }</h3>
 							<p>{ __( 'State-of-the-art spam defense powered by Akismet.' ) }</p>
 							{
-								this.props.isFetchingPluginsData ? '' :
-									this.props.isPluginInstalled( 'akismet/akismet.php' )
-									&& this.props.isPluginActive( 'akismet/akismet.php' ) ? (
-										<Button href={ this.props.siteAdminUrl + 'admin.php?page=akismet-key-config' } className="is-primary">
-											{ __( 'View your spam stats' ) }
-										</Button>
-									)
-									: (
-										<Button href={ 'https://wordpress.com/plugins/setup/' + this.props.siteRawUrl + '?only=akismet' } className="is-primary">
-											{ __( 'Configure Akismet' ) }
-										</Button>
-									)
+								this.props.isPluginInstalled( 'akismet/akismet.php' ) && this.props.isPluginActive( 'akismet/akismet.php' ) ? (
+									<Button href={ this.props.siteAdminUrl + 'admin.php?page=akismet-key-config' } className="is-primary">
+										{ __( 'View your spam stats' ) }
+									</Button>
+								)
+								: (
+									<Button href={ 'https://wordpress.com/plugins/setup/' + this.props.siteRawUrl + '?only=akismet' } className="is-primary">
+										{ __( 'Configure Akismet' ) }
+									</Button>
+								)
 							}
 						</div>
 
@@ -60,9 +58,7 @@ const PlanBody = React.createClass( {
 								<h3 className="jp-landing__plan-features-title">{ __( 'Backups' ) }</h3>
 								<p>{ __( 'Daily backup of all your site data with unlimited space and one-click restores (powered by VaultPress).' ) }</p>
 								{
-									this.props.isFetchingPluginsData ? '' :
-									this.props.isPluginInstalled( 'vaultpress/vaultpress.php' )
-									&& this.props.isPluginActive( 'vaultpress/vaultpress.php' ) ? (
+									this.props.isPluginInstalled( 'vaultpress/vaultpress.php' ) && this.props.isPluginActive( 'vaultpress/vaultpress.php' ) ? (
 										<Button href="https://dashboard.vaultpress.com/" className="is-primary">
 											{ __( 'View your security dashboard' ) }
 										</Button>
@@ -83,9 +79,7 @@ const PlanBody = React.createClass( {
 								<h3 className="jp-landing__plan-features-title">{ __( 'Backups & Security Scanning' ) }</h3>
 								<p>{ __( 'Daily backup of all your site data with unlimited space, one-click restores, automated security scanning, and priority support (powered by VaultPress).' ) }</p>
 								{
-									this.props.isFetchingPluginsData ? '' :
-									this.props.isPluginInstalled( 'vaultpress/vaultpress.php' )
-									&& this.props.isPluginActive( 'vaultpress/vaultpress.php' ) ? (
+									this.props.isPluginInstalled( 'vaultpress/vaultpress.php' ) && this.props.isPluginActive( 'vaultpress/vaultpress.php' ) ? (
 										<Button href="https://dashboard.vaultpress.com/" className="is-primary">
 											{ __( 'View your security dashboard' ) }
 										</Button>
@@ -106,9 +100,7 @@ const PlanBody = React.createClass( {
 								<h3 className="jp-landing__plan-features-title">{ __( 'Backups & Security Scanning' ) }</h3>
 								<p>{ __( 'Real-time backup of all your site data with unlimited space, one-click restores, automated security scanning, one-click threat resolution, and priority support (powered by VaultPress).' ) }</p>
 								{
-									this.props.isFetchingPluginsData ? '' :
-									this.props.isPluginInstalled( 'vaultpress/vaultpress.php' )
-									&& this.props.isPluginActive( 'vaultpress/vaultpress.php' ) ? (
+									this.props.isPluginInstalled( 'vaultpress/vaultpress.php' ) && this.props.isPluginActive( 'vaultpress/vaultpress.php' ) ? (
 										<Button href="https://dashboard.vaultpress.com/" className="is-primary">
 											{ __( 'View your security dashboard' ) }
 										</Button>
@@ -205,7 +197,6 @@ const PlanBody = React.createClass( {
 								<h3 className="jp-landing__plan-features-title">{ __( 'SEO Tools' ) }</h3>
 								<p>{ __( 'Advanced SEO tools to help your site get found when people search for relevant content.' ) }</p>
 								{
-									this.props.isFetchingPluginsData ? '' :
 									this.props.isModuleActivated( 'seo-tools' ) ? (
 										<Button href={ 'https://wordpress.com/settings/seo/' + this.props.siteRawUrl } className="is-primary">
 											{ __( 'Configure Site SEO' ) }
@@ -231,7 +222,6 @@ const PlanBody = React.createClass( {
 								<h3 className="jp-landing__plan-features-title">{ __( 'Google Analytics' ) }</h3>
 								<p>{ __( 'Track website statistics with Google Analytics for a deeper understanding of your website visitors and customers.' ) }</p>
 								{
-									this.props.isFetchingPluginsData ? '' :
 									this.props.isModuleActivated( 'google-analytics' ) ? (
 										<Button href={ 'https://wordpress.com/settings/analytics/' + this.props.siteRawUrl } className="is-primary">
 											{ __( 'Configure Google Analytics' ) }

@@ -14,18 +14,18 @@ function jetpack_get_module_i18n( $key ) {
 		$modules = array(
 			'after-the-deadline' => array(
 				'name' => _x( 'Spelling and Grammar', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Check your spelling, style, and grammar.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Check your spelling, style, and grammar', 'Module Description', 'jetpack' ),
 			),
 
 			'carousel' => array(
 				'name' => _x( 'Carousel', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Display images and galleries in a gorgeous, full-screen browsing experience.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Display images and galleries in a gorgeous, full-screen browsing experience', 'Module Description', 'jetpack' ),
 				'recommended description' => _x( 'Brings your photos and images to life as full-size, easily navigable galleries.', 'Jumpstart Description', 'jetpack' ),
 			),
 
 			'comments' => array(
 				'name' => _x( 'Comments', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Allow comments with WordPress.com, Twitter, Facebook, or Google+.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Let readers use WordPress.com, Twitter, Facebook, or Google+ accounts to comment', 'Module Description', 'jetpack' ),
 			),
 
 			'contact-form' => array(
@@ -36,7 +36,7 @@ function jetpack_get_module_i18n( $key ) {
 
 			'custom-content-types' => array(
 				'name' => _x( 'Custom Content Types', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Organize and display different types of content on your site.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Display different types of content on your site with custom content types.', 'Module Description', 'jetpack' ),
 			),
 
 			'custom-css' => array(
@@ -56,13 +56,13 @@ function jetpack_get_module_i18n( $key ) {
 
 			'gravatar-hovercards' => array(
 				'name' => _x( 'Gravatar Hovercards', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Enable pop-up business cards over commenters’ Gravatars.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Enable pop-up business cards over commenters’ Gravatars', 'Module Description', 'jetpack' ),
 				'recommended description' => _x( 'Let commenters link their profiles to their Gravatar accounts, making it easy for your visitors to learn more about your community.', 'Jumpstart Description', 'jetpack' ),
 			),
 
 			'infinite-scroll' => array(
 				'name' => _x( 'Infinite Scroll', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Automatically load new content when a visitor scrolls.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Automatically load new content when a visitor scrolls', 'Module Description', 'jetpack' ),
 			),
 
 			'json-api' => array(
@@ -88,12 +88,12 @@ function jetpack_get_module_i18n( $key ) {
 
 			'markdown' => array(
 				'name' => _x( 'Markdown', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Write posts or pages in plain-text Markdown syntax.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Write posts or pages in plain-text Markdown syntax', 'Module Description', 'jetpack' ),
 			),
 
 			'minileven' => array(
 				'name' => _x( 'Mobile Theme', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Optimize your site for smartphones and tablets.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Optimize your site for smartphones and tablets', 'Module Description', 'jetpack' ),
 			),
 
 			'monitor' => array(
@@ -113,18 +113,18 @@ function jetpack_get_module_i18n( $key ) {
 
 			'photon' => array(
 				'name' => _x( 'Photon', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Speed up images and photos.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Speed up images and photos', 'Module Description', 'jetpack' ),
 				'recommended description' => _x( 'Mirrors and serves your images from our free and fast image CDN, improving your site’s performance with no additional load on your servers.', 'Jumpstart Description', 'jetpack' ),
 			),
 
 			'post-by-email' => array(
 				'name' => _x( 'Post by Email', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Publish posts by sending an email.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Publish posts by sending an email', 'Module Description', 'jetpack' ),
 			),
 
 			'protect' => array(
 				'name' => _x( 'Protect', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Prevent and block malicious login attempts.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Block suspicious-looking login activity from unknown IP addresses', 'Module Description', 'jetpack' ),
 			),
 
 			'publicize' => array(
@@ -167,7 +167,7 @@ function jetpack_get_module_i18n( $key ) {
 
 			'sso' => array(
 				'name' => _x( 'Single Sign On', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Secure user authentication with WordPress.com.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Allow users to log into this site using WordPress.com accounts', 'Module Description', 'jetpack' ),
 				'recommended description' => _x( 'Lets you log in to all your Jetpack-enabled sites with one click using your WordPress.com account.', 'Jumpstart Description', 'jetpack' ),
 			),
 
@@ -178,7 +178,7 @@ function jetpack_get_module_i18n( $key ) {
 
 			'subscriptions' => array(
 				'name' => _x( 'Subscriptions', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Notify your readers of new posts and comments by email.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Allow users to subscribe to your posts and comments and receive notifications via email', 'Module Description', 'jetpack' ),
 				'recommended description' => _x( 'Give visitors two easy subscription options — while commenting, or via a separate email subscription widget you can display.', 'Jumpstart Description', 'jetpack' ),
 			),
 
