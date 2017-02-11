@@ -12,7 +12,6 @@ import get from 'lodash/get';
  */
 import {
 	FormFieldset,
-	FormLegend,
 	FormLabel
 } from 'components/forms';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
@@ -112,33 +111,14 @@ export const VerificationServices = moduleSettingsForm(
 						</FormFieldset>
 					</SettingsGroup>
 					<SettingsGroup support={ sitemaps.learn_more_button }>
+						<span className="jp-form-label-wide">{ __( 'XML Sitemaps' ) }</span>
 						<FormFieldset>
-							<FormLegend>{ __( 'XML Sitemaps' ) }</FormLegend>
-							<div>
-								<p>{ __( 'Search engines will find the sitemaps at these locations:' ) }</p>
-								<ul>
-									{
-										[
-											{
-												id: 'sitemap',
-												label: __( 'Sitemaps' ),
-												url: sitemap_url
-											},
-											{
-												id: 'news_sitemap',
-												label: __( 'News Sitemaps' ),
-												url: news_sitemap_url
-											}
-										].map( item => (
-											<li key={ `xml_${ item.id }` }>
-												<strong>{ item.label }</strong>
-												<br />
-												<ExternalLink icon={ true } target="_blank" href={ item.url }>{ item.url }</ExternalLink>
-											</li>
-										) )
-									}
-								</ul>
-							</div>
+							<p>
+								<ExternalLink icon={ true } target="_blank" href={ sitemap_url }>{ sitemap_url }</ExternalLink>
+								<br />
+								<ExternalLink icon={ true } target="_blank" href={ news_sitemap_url }>{ news_sitemap_url }</ExternalLink>
+							</p>
+							<p className="jp-form-setting-explanation">{ __( 'Your sitemap is automatically sent to all major search engines for indexing.' ) }</p>
 						</FormFieldset>
 					</SettingsGroup>
 				</SettingsCard>
