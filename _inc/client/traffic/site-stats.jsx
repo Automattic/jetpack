@@ -121,6 +121,7 @@ export const SiteStats = moduleSettingsForm(
 								</span>
 							</ModuleToggle>
 						</FormFieldset>
+						<br />
 						<InlineExpand label={ __( 'Advanced Options' ) }>
 							<div>
 								<FormFieldset>
