@@ -111,6 +111,11 @@ class Jetpack_Sync_Defaults {
 		'jetpack_api_cache_enabled',
 	);
 
+	public static function get_options_whitelist() {
+		/** This filter is already documented in json-endpoints/jetpack/class.wpcom-json-api-get-option-endpoint.php */
+		return apply_filters( 'jetpack_options_whitelist', self::$default_options_whitelist );
+	}
+
 	static $default_constants_whitelist = array(
 		'EMPTY_TRASH_DAYS',
 		'WP_POST_REVISIONS',
@@ -128,8 +133,21 @@ class Jetpack_Sync_Defaults {
 		'DISABLE_WP_CRON',
 		'ALTERNATE_WP_CRON',
 		'WP_CRON_LOCK_TIMEOUT',
-		'PHP_VERSION'
+		'PHP_VERSION',
 	);
+
+	public static function get_constants_whitelist() {
+		/**
+		 * Filter the list of PHP constants that are manageable via the JSON API.
+		 *
+		 * @module sync
+		 *
+		 * @since 4.7
+		 *
+		 * @param array The default list of constants options.
+		 */
+		return apply_filters( 'jetpack_constants_whitelist', self::$default_constants_whitelist );
+	}
 
 	static $default_callable_whitelist = array(
 		'wp_max_upload_size'               => 'wp_max_upload_size',
@@ -246,6 +264,19 @@ class Jetpack_Sync_Defaults {
 		'vimeo_poster_image',
 		'advanced_seo_description', // Jetpack_SEO_Posts::DESCRIPTION_META_KEY
 	);
+
+	public static function get_post_meta_whitelist() {
+		/**
+		 * Filter the list of post meta data that are manageable via the JSON API.
+		 *
+		 * @module sync
+		 *
+		 * @since 4.7
+		 *
+		 * @param array The default list of meta data keys.
+		 */
+		return apply_filters( 'jetpack_post_meta_whitelist', self::$post_meta_whitelist );
+	}
 
 	static $comment_meta_whitelist = array(
 		'hc_avatar',

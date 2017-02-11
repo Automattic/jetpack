@@ -275,7 +275,10 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	function test_full_sync_sends_all_constants() {
 		define( 'TEST_SYNC_ALL_CONSTANTS', 'foo' );
 
-		Jetpack_Sync_Modules::get_module( "constants" )->set_constants_whitelist( array( 'TEST_SYNC_ALL_CONSTANTS' ) );
+		$helper = new Jetpack_Sync_Test_Helper();
+		$helper->array_override = array( 'TEST_SYNC_ALL_CONSTANTS' );
+		add_filter( 'jetpack_constants_whitelist', array( $helper, 'filter_override_array' ) );
+
 		$this->sender->do_sync();
 
 		// reset the storage, check value, and do full sync - storage should be set!

@@ -19,8 +19,9 @@ class WP_Test_Jetpack_Sync_Constants extends WP_Test_Jetpack_Sync_Base {
 	// Add tests for Syncing data on shutdown
 	// Add tests that prove that we know constants change
 	function test_white_listed_constant_is_synced() {
-
-		$this->constant_module->set_constants_whitelist( array( 'TEST_FOO' ) );
+		$helper = new Jetpack_Sync_Test_Helper();
+		$helper->array_override = array( 'TEST_FOO' );
+		add_filter( 'jetpack_constants_whitelist', array( $helper, 'filter_override_array' ) );
 
 		define( 'TEST_FOO', sprintf( "%.8f", microtime( true ) ) );
 		define( 'TEST_BAR', sprintf( "%.8f", microtime( true ) ) );
@@ -56,7 +57,10 @@ class WP_Test_Jetpack_Sync_Constants extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_white_listed_constant_doesnt_get_synced_twice() {
-		$this->constant_module->set_constants_whitelist( array( 'TEST_ABC' ) );
+		$helper = new Jetpack_Sync_Test_Helper();
+		$helper->array_override = array( 'TEST_ABC' );
+		add_filter( 'jetpack_constants_whitelist', array( $helper, 'filter_override_array' ) );
+
 		define( 'TEST_ABC', 'FOO' );
 		$this->sender->do_sync();
 
