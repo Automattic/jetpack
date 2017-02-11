@@ -10,8 +10,7 @@
 add_action( 'widgets_init', 'jetpack_blogs_i_follow_widget_init' );
 
 function jetpack_blogs_i_follow_widget_init() {
-	// TODO: Remove the temporary debug check
-	if ( Jetpack::is_active() || WP_DEBUG ) {
+	if ( Jetpack::is_active() ) {
 		register_widget( 'Jetpack_Widget_Blogs_I_Follow' );
 		add_filter( 'jetpack_populate_blog_subscriptions', array( 'Jetpack_Widget_Blogs_I_Follow', 'populate_blog_subscriptions' ), 10, 1 );
 	}
@@ -169,8 +168,7 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 	function get_subscriptions() {
 		$this->subscriptions[ $this->id ] = get_transient( $this->id . '-subscriptions' );
 
-		// TODO: Remove DEBUG
-		if ( WP_DEBUG || empty( $this->subscriptions[ $this->id ] ) ) {
+		if ( empty( $this->subscriptions[ $this->id ] ) ) {
 			delete_transient( $this->id . '-widget' );
 
 			$this->subscriptions[$this->id] = array();
@@ -251,7 +249,6 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 		$batched_blavatar_query = build_query( array( 'urls' => $blog_ids ) );
 		$response = wp_remote_get( 'https://public-api.wordpress.com/rest/v1.2/batch/?' . $batched_blavatar_query );
 		if ( is_wp_error( $response ) ) {
-			// TODO: Handle error appropriately
 			return NULL;
 		} else {
 			$response_body = wp_remote_retrieve_body( $response );
@@ -289,8 +286,7 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 		// make either queries or HTTP requests, so they are slow.
 		$output = get_transient( $this->id . '-widget' );
 
-		// TODO: Remove WP_DEBUG
-		if ( WP_DEBUG || empty( $output ) ) {
+		if ( empty( $output ) ) {
 
 			$output  = '';
 
@@ -497,7 +493,6 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 	 * @return void
 	 */
 	function enqueue_style() {
-		// TODO: Should this style instead be registered in a higher level file (widgets.php)?
 		// The common style may have been registered by another widget
 		if ( ! wp_style_is( 'widget-grid-and-list', 'registered' ) ) {
 			wp_register_style(
