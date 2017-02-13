@@ -40,12 +40,12 @@ class Jetpack_JITM {
 		}
 		add_action( 'current_screen', array( $this, 'prepare_jitms' ) );
 	}
-	
+
 	function get_emblem()
 	{
 		return '<div class="jp-emblem">' . Jetpack::get_jp_emblem() . '</div>';
 	}
-	
+
 	/**
 	 * Prepare actions according to screen and post type.
 	 *
@@ -458,8 +458,7 @@ class Jetpack_JITM {
 		}
 
 		// If plugin dir exists, means it's installed but not activated
-		$all_plugins = get_plugins();
-		$already_installed = isset( $all_plugins[ 'woocommerce-services/woocommerce-services.php' ] );
+		$already_installed = ( 0 === validate_plugin( 'woocommerce-services/woocommerce-services.php' ) );
 
 		$install_url = wp_nonce_url( add_query_arg( array( 'wc-services-action' => $already_installed ? 'activate' : 'install' ) ), 'wc-services-install' );
 
@@ -475,7 +474,7 @@ class Jetpack_JITM {
 				<?php echo esc_html( $message ); ?>
 			</p>
 			<p>
-				<a href="<?php echo esc_url( $install_url ); ?>" title="<?php esc_attr_e( 'Install WooCommerce Services', 'jetpack' ); ?>" data-module="wooservices" class="button button-jetpack show-after-enable">
+				<a href="<?php echo esc_url( $install_url ); ?>" title="<?php $already_installed ? esc_attr_e( 'Activate WooCommerce Services', 'jetpack' ) : esc_attr_e( 'Install WooCommerce Services', 'jetpack' ); ?>" data-module="wooservices" class="button button-jetpack show-after-enable">
 					<?php $already_installed ? esc_html_e( 'Activate WooCommerce Services', 'jetpack' ) : esc_html_e( 'Install WooCommerce Services', 'jetpack' ); ?>
 				</a>
 			</p>
