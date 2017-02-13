@@ -35,9 +35,9 @@ export const SEO = moduleSettingsForm(
 						</p>
 						{
 							! this.props.isUnavailableInDevMode( 'seo-tools' ) && (
-								<p>
+								<span>
 									<ExternalLink className="jp-module-settings__external-link" href={ this.props.configureUrl }>{ __( 'Configure your SEO settings' ) }</ExternalLink>
-								</p>
+								</span>
 							)
 						}
 					</SettingsGroup>

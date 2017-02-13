@@ -30,21 +30,12 @@
 	}
 }
 
-.jp-form-setting-explanation {
-	color: darken( $gray, 20% );
-	display: block;
-	margin: rem( 5px ) rem( 14px ) 0 0;
-	font-size: rem( 13px );
-	font-style: italic;
-	font-weight: 400;
-	word-break: break-word;
-
-	+ .dops-card {
-		margin-top: rem( 16px );
-	}
-}
-
 .jp-form-settings-group {
+	p {
+		font-size: rem( 15px );
+		margin-top: 0;
+		margin-bottom: rem( 24px );
+	}
 	.form-toggle__label {
 		display: block;
 		margin-top: 4px;
@@ -53,6 +44,19 @@
 	.form-toggle__switch {
 		float: left;
 		margin-top: 2px;
+	}
+	.jp-form-setting-explanation {
+		color: darken( $gray, 20% );
+		display: block;
+		margin: rem( 5px ) rem( 14px ) 0 0;
+		font-size: rem( 13px );
+		font-style: italic;
+		font-weight: 400;
+		word-break: break-word;
+
+		+ .dops-card {
+			margin-top: rem( 16px );
+		}
 	}
 }
 
@@ -77,7 +81,11 @@
 .jp-form-input-with-prefix {
 	display: inline-flex;
 	width: 100%;
-	margin-bottom: rem( 24px );
+	margin-top: rem( 24px );
+
+	&:first-of-type {
+		margin-top: 0;
+	}
 
 	span:first-child {
 		min-width: rem( 60px );

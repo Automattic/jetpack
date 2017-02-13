@@ -31,16 +31,11 @@ export const BackupsScan = moduleSettingsForm(
 								__( 'Your site is backed up and threat-free.' )
 							}
 						</p>
-						<p className="jp-form-setting-explanation">
-							{
-								__( 'You can see the information about your backups and security scanning in the "At a Glance" section.' )
-							}
-						</p>
 						{
 							! this.props.isUnavailableInDevMode( 'backups' ) && (
-								<p>
+								<span>
 									<ExternalLink className="jp-module-settings__external-link" href="https://dashboard.vaultpress.com/" >{ __( 'Configure your Security Scans' ) }</ExternalLink>
-								</p>
+								</span>
 							)
 						}
 					</SettingsGroup>
