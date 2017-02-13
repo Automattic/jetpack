@@ -27,15 +27,6 @@ const SupportCard = React.createClass( {
 		return (
 			<div className={ classes }>
 				<Card className="jp-support-card__happiness">
-					<div className="jp-support-card__happiness-engineer">
-						<img
-							src={ 'https://secure.gravatar.com/avatar/' + randomGravID }
-							alt={ __( 'Jetpack Happiness Engineer' ) }
-							className="jp-support-card__happiness-engineer-img"
-							width="72"
-							height="72"
-						/>
-					</div>
 					<div className="jp-support-card__happiness-contact">
 						<h4 className="jp-support-card__header">
 							{ __( 'Need help? The Jetpack team is here for you.' ) }
