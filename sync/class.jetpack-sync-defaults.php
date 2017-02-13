@@ -100,7 +100,6 @@ class Jetpack_Sync_Defaults {
 		'post_by_email_address',
 		'jetpack_protect_key',
 		'jetpack_protect_global_whitelist',
-		'sharing_services',
 		'jetpack_sso_require_two_step',
 		'jetpack_relatedposts',
 		'verification_services_codes',
