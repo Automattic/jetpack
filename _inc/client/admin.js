@@ -19,6 +19,8 @@ import Main from 'main';
 // Initialize the accessibile focus to allow styling specifically for keyboard navigation
 accessibleFocus();
 
+const Initial_State = window.Initial_State;
+
 Initial_State.locale = JSON.parse( Initial_State.locale );
 
 if ( 'undefined' !== typeof Initial_State.locale[ '' ] ) {
@@ -64,7 +66,9 @@ function render() {
 					<Route path='/settings' name={ i18n.translate( 'General', { context: 'Navigation item.' } ) } component={ Main } />
 					<Route path='/general' name={ i18n.translate( 'General', { context: 'Navigation item.' } ) } component={ Main } />
 					<Route path='/engagement' name={ i18n.translate( 'Engagement', { context: 'Navigation item.' } ) } component={ Main } />
+					<Route path='/discussion' name={ i18n.translate( 'Discussion', { context: 'Navigation item.' } ) } component={ Main } />
 					<Route path='/security' name={ i18n.translate( 'Security', { context: 'Navigation item.' } ) } component={ Main } />
+					<Route path='/traffic' name={ i18n.translate( 'Traffic', { context: 'Navigation item.' } ) } component={ Main } />
 					<Route path='/appearance' name={ i18n.translate( 'Appearance', { context: 'Navigation item.' } ) } component={ Main } />
 					<Route path='/writing' name={ i18n.translate( 'Writing', { context: 'Navigation item.' } ) } component={ Main } />
 					<Route path='/search' component={ Main } />
