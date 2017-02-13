@@ -79,11 +79,7 @@ function onBuild( done ) {
 }
 
 function getWebpackConfig() {
-	// clone and extend webpackConfig
-	var config = Object.create( require( './webpack.config.js' ) );
-	config.debug = true;
-
-	return config;
+	return Object.create( require( './webpack.config.js' ) );
 }
 
 function doSass( done ) {

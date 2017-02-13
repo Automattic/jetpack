@@ -46,7 +46,7 @@
     "eslint": "1.7.3",
     "eslint-loader": "^1.1.0",
     "eslint-plugin-react": "3.6.3",
-    "extract-text-webpack-plugin": "0.9.1",
+    "extract-text-webpack-plugin": "~2.0.0-rc.1",
     "glotpress-js": "0.0.6",
     "grunt-cli": "^1.2.0",
     "gulp": "^3.9.0",
@@ -95,7 +95,7 @@
     "redux-thunk": "^2.0.1",
     "sass-loader": "3.1.2",
     "style-loader": "0.13",
-    "webpack": "1.12.9",
+    "webpack": "~2.2.1",
     "whatwg-fetch": "^1.0.0"
   },
   "devDependencies": {
@@ -114,7 +114,7 @@
     "sinon": "^1.17.3",
     "sinon-chai": "^2.8.0",
     "sinon-qunit": "~2.0.0",
-    "webpack-dev-server": "1.14.0"
+    "webpack-dev-server": "~2.3.0"
   },
   "engines": {
     "node": ">=5.11.1"

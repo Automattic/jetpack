@@ -9,12 +9,17 @@ var ExtractTextPlugin = require( 'extract-text-webpack-plugin' );
 var IS_HOT_UPDATE = ( process.env.NODE_ENV !== 'production' );
 
 var jsLoader = IS_HOT_UPDATE ?
-	[ require.resolve( 'react-hot-loader' ), require.resolve( 'babel-loader' ), require.resolve( 'eslint-loader' ) ] :
-	[ require.resolve( 'babel-loader' ), require.resolve( "eslint-loader" ) ];
+	[ require.resolve( 'react-hot-loader' ), require.resolve( 'babel-loader' ) ] :
+	[ require.resolve( 'babel-loader' ) ];
 
-var cssLoader = IS_HOT_UPDATE ?
-	'style!css?sourceMap!autoprefixer!' :
-	ExtractTextPlugin.extract( 'css?sourceMap!autoprefixer!' );
+var cssLoader = IS_HOT_UPDATE
+	? [
+		'style-loader',
+		'css-loader?sourceMap!autoprefixer!'
+	]
+	: ExtractTextPlugin.extract( {
+		use: [ 'css-loader?sourceMap!autoprefixer!' ]
+	} );
 
 // This file is written in ES5 because it is run via Node.js and is not transpiled by babel. We want to support various versions of node, so it is best to not use any ES6 features even if newer versions support ES6 features out of the box.
 var webpackConfig = {
@@ -32,7 +37,25 @@ var webpackConfig = {
 	module: {
 
 		// Webpack loaders are applied when a resource is matches the test case
-		loaders: [
+		rules: [
+			{
+				test: /\.json/,
+				use: [ 'json-loader' ]
+			},
+			{
+				test: /\.html/,
+				use: [ 'html-loader' ]
+			},
+			{
+				test: /\.jsx?$/,
+				loader: 'eslint-loader',
+				enforce: 'pre',
+				exclude: /node_modules/,
+				options: {
+					configFile: '.eslintrc',
+					quiet: true,
+				}
+			},
 			{
 				test: /\.jsx?$/,
 				loaders: jsLoader,
@@ -46,43 +69,40 @@ var webpackConfig = {
 				]
 			},
 			{
-				test: /\.json$/,
-				loader: 'json-loader'
-			},
-			{
 				test: /\.css$/,
 				loader: cssLoader
 			},
 			{
-				test: /\.html$/,
-				loader: 'html-loader'
-			},
-			{
 				test: /\.scss$/,
-				loader: ExtractTextPlugin.extract( 'style-loader', 'css!sass' )
+				use: ExtractTextPlugin.extract( {
+					fallback: 'style-loader',
+					use: [
+						'css-loader',
+						'sass-loader'
+					],
+				} )
 			}
 		]
 	},
 	resolve: {
-		extensions: [ '', '.js', '.jsx' ],
+		extensions: [ '.js', '.jsx' ],
 		alias: {
 			"react": path.join(__dirname, "/node_modules/react")
 		},
-		root: [
+		modules: [
 			path.resolve( __dirname, '_inc/client' ),
-			fs.realpathSync( path.join(__dirname, 'node_modules/@automattic/dops-components/client') )
+			fs.realpathSync( path.join(__dirname, 'node_modules/@automattic/dops-components/client') ),
+			'node_modules'
 		]
 	},
 	resolveLoader: {
-		root: path.join( __dirname, 'node_modules' )
+		modules: [
+			path.join( __dirname, 'node_modules' )
+		]
 	},
 	node: {
 		fs: "empty",
 		process: true
-	},
-	eslint: {
-		configFile: path.join(__dirname, '.eslintrc'),
-		quiet: true
 	},
 	plugins: [
 		new webpack.DefinePlugin({
