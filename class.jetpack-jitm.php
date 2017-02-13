@@ -457,7 +457,11 @@ class Jetpack_JITM {
 				return;
 		}
 
-		$install_url = wp_nonce_url( add_query_arg( array( 'wc-services-action' => 'install' ) ), 'wc-services-install' );
+		// If plugin dir exists, means it's installed but not activated
+		$all_plugins = get_plugins();
+		$already_installed = isset( $all_plugins[ 'woocommerce-services/woocommerce-services.php' ] );
+
+		$install_url = wp_nonce_url( add_query_arg( array( 'wc-services-action' => $already_installed ? 'activate' : 'install' ) ), 'wc-services-install' );
 
 		?>
 		<div class="jp-jitm woo-jitm">
@@ -471,7 +475,9 @@ class Jetpack_JITM {
 				<?php echo esc_html( $message ); ?>
 			</p>
 			<p>
-				<a href="<?php echo esc_url( $install_url ); ?>" title="<?php esc_attr_e( 'Install WooCommerce Services', 'jetpack' ); ?>" data-module="wooservices" class="button button-jetpack show-after-enable"><?php esc_html_e( 'Install WooCommerce Services', 'jetpack' ); ?></a>
+				<a href="<?php echo esc_url( $install_url ); ?>" title="<?php esc_attr_e( 'Install WooCommerce Services', 'jetpack' ); ?>" data-module="wooservices" class="button button-jetpack show-after-enable">
+					<?php $already_installed ? esc_html_e( 'Activate WooCommerce Services', 'jetpack' ) : esc_html_e( 'Install WooCommerce Services', 'jetpack' ); ?>
+				</a>
 			</p>
 		</div>
 		<?php

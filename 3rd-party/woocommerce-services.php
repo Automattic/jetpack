@@ -34,26 +34,43 @@ class WC_Services_Installer {
 	 * Verify the intent to install WooCommerce Services, and kick off installation.
 	 */
 	public function try_install() {
-		if ( isset( $_GET['wc-services-action'] ) && ( 'install' === $_GET['wc-services-action'] ) ) {
-			check_admin_referer( 'wc-services-install' );
-
-			if ( ! current_user_can( 'install_plugins' ) ) {
-				return;
-			}
-
-			$result   = $this->install();
-			$redirect = wp_get_referer();
-
-			if ( false === $result ) {
-				$redirect = add_query_arg( 'wc-services-install-error', true, $redirect );
-			} else {
-				$this->jetpack->stat( 'jitm', 'wooservices-activated-' . JETPACK__VERSION );
-			}
-
-			wp_safe_redirect( $redirect );
-
-			exit;
+		if ( ! isset( $_GET['wc-services-action'] ) ) {
+			return;
 		}
+		check_admin_referer( 'wc-services-install' );
+
+		$result = false;
+
+		switch ( $_GET['wc-services-action'] ) {
+			case 'install':
+				if ( current_user_can( 'install_plugins' ) ) {
+					$this->jetpack->stat( 'jitm', 'wooservices-install-' . JETPACK__VERSION );
+					$result = $this->install();
+					if ( $result ) {
+						$result = $this->activate();
+					}
+				}
+				break;
+
+			case 'activate':
+				if ( current_user_can( 'activate_plugins' ) ) {
+					$this->jetpack->stat( 'jitm', 'wooservices-activate-' . JETPACK__VERSION );
+					$result = $this->activate();
+				}
+				break;
+		}
+
+		$redirect = wp_get_referer();
+
+		if ( $result ) {
+			$this->jetpack->stat( 'jitm', 'wooservices-activated-' . JETPACK__VERSION );
+		} else {
+			$redirect = add_query_arg( 'wc-services-install-error', true, $redirect );
+		}
+
+		wp_safe_redirect( $redirect );
+
+		exit;
 	}
 
 	/**
@@ -77,13 +94,11 @@ class WC_Services_Installer {
 	}
 
 	/**
-	 * Download, install, and activate the WooCommerce Services plugin.
+	 * Download and install the WooCommerce Services plugin.
 	 *
-	 * @return bool result of installation/activation
+	 * @return bool result of installation
 	 */
 	private function install() {
-		$this->jetpack->stat( 'jitm', 'wooservices-install-' . JETPACK__VERSION );
-
 		include_once( ABSPATH . '/wp-admin/includes/admin.php' );
 		include_once( ABSPATH . '/wp-admin/includes/plugin-install.php' );
 		include_once( ABSPATH . '/wp-admin/includes/plugin.php' );
@@ -99,10 +114,15 @@ class WC_Services_Installer {
 		$upgrader = new Plugin_Upgrader( new Automatic_Upgrader_Skin() );
 		$result   = $upgrader->install( $api->download_link );
 
-		if ( true !== $result ) {
-			return false;
-		}
+		return true === $result;
+	}
 
+	/**
+	 * Activate the WooCommerce Services plugin.
+	 *
+	 * @return bool result of activation
+	 */
+	private function activate() {
 		$result = activate_plugin( 'woocommerce-services/woocommerce-services.php' );
 
 		// activate_plugin() returns null on success
