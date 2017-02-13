@@ -9,7 +9,7 @@ const JetpackTagsInput = React.createClass( {
 	},
 
 	handleChange( tags ) {
-		this.setState( { tags } )
+		this.setState( { tags } );
 		if ( this.props.onChange ) {
 			this.props.onChange( {
 				target: {
@@ -21,10 +21,10 @@ const JetpackTagsInput = React.createClass( {
 	},
 
 	render() {
-		const props = this.props;
 		return (
 			<TagsInput
-				inputProps={ { placeholder: props.placeholder } }
+				disabled={ this.props.disabled }
+				inputProps={ { placeholder: this.props.placeholder } }
 				onChange={ this.handleChange }
 				value={ this.state.tags } />
 		);

@@ -92,6 +92,7 @@ const SupportCard = React.createClass( {
 											href="https://wordpress.org/support/view/plugin-reviews/jetpack"
 											title={ __( 'Leave a Jetpack review' ) }
 											target="_blank"
+											rel="noopener noreferrer"
 										/>
 									),
 									twitterLink: (
@@ -100,6 +101,7 @@ const SupportCard = React.createClass( {
 											href="http://twitter.com/jetpack"
 											title={ __( 'Follow Jetpack on Twitter' ) }
 											target="_blank"
+											rel="noopener noreferrer"
 										/>
 									),
 									facebookLink: (
@@ -108,6 +110,7 @@ const SupportCard = React.createClass( {
 											href="https://www.facebook.com/jetpackme"
 											title={ __( 'Like us on Facebook' ) }
 											target="_blank"
+											rel="noopener noreferrer"
 										/>
 									)
 								}

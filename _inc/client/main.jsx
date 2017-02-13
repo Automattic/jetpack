@@ -28,12 +28,14 @@ import {
 	userCanManageModules
 } from 'state/initial-state';
 import { areThereUnsavedModuleOptions, clearUnsavedOptionFlag } from 'state/modules';
+import { areThereUnsavedSettings, clearUnsavedSettingsFlag } from 'state/settings';
 
 import AtAGlance from 'at-a-glance/index.jsx';
 import Engagement from 'engagement/index.jsx';
+import Discussion from 'discussion';
 import Security from 'security/index.jsx';
+import Traffic from 'traffic';
 import Appearance from 'appearance/index.jsx';
-import GeneralSettings from 'general-settings/index.jsx';
 import Writing from 'writing/index.jsx';
 import Apps from 'apps/index.jsx';
 import Plans from 'plans/index.jsx';
@@ -66,7 +68,10 @@ const Main = React.createClass( {
 	 */
 	onBeforeUnload( e ) {
 		const dialogText = __( 'There are unsaved settings in this tab that will be lost if you leave it. Proceed?' );
-		if ( this.props.areThereUnsavedModuleOptions ) {
+		if (
+			this.props.areThereUnsavedModuleOptions
+			|| this.props.areThereUnsavedSettings
+		) {
 			e.returnValue = dialogText;
 			return dialogText;
 		}
@@ -78,10 +83,14 @@ const Main = React.createClass( {
  	 * Return true or false according to the history.listenBefore specification which is part of react-router
 	 */
 	routerWillLeave() {
-		if ( this.props.areThereUnsavedModuleOptions ) {
+		if (
+			this.props.areThereUnsavedModuleOptions
+			|| this.props.areThereUnsavedSettings
+		) {
 			const confirmLeave = confirm( __( 'There are unsaved settings in this tab that will be lost if you leave it. Proceed?' ) );
 			if ( confirmLeave ) {
 				this.props.clearUnsavedOptionFlag();
+				this.props.clearUnsavedSettingsFlag();
 			} else {
 				return false;
 			}
@@ -155,7 +164,8 @@ const Main = React.createClass( {
 		}
 
 		let pageComponent,
-			navComponent = <Navigation route={ this.props.route }/>;
+			navComponent = <Navigation route={ this.props.route }/>,
+			settingsNav = <NavigationSettings route={ this.props.route } siteRawUrl={ this.props.siteRawUrl } siteAdminUrl={ this.props.siteAdminUrl } />;
 		switch ( route ) {
 			case '/dashboard':
 				pageComponent = <AtAGlance siteRawUrl={ this.props.siteRawUrl } siteAdminUrl={ this.props.siteAdminUrl } />;
@@ -166,32 +176,33 @@ const Main = React.createClass( {
 			case '/plans':
 				pageComponent = <Plans siteRawUrl={ this.props.siteRawUrl } siteAdminUrl={ this.props.siteAdminUrl } />;
 				break;
-			case '/settings':
-				navComponent = <NavigationSettings route={ this.props.route } />;
-				pageComponent = <GeneralSettings route={ this.props.route } />;
-				break;
-			case '/general':
-				navComponent = <NavigationSettings route={ this.props.route } />;
-				pageComponent = <GeneralSettings route={ this.props.route } />;
-				break;
 			case '/engagement':
-				navComponent = <NavigationSettings route={ this.props.route } />;
+				navComponent = settingsNav;
 				pageComponent = <Engagement route={ this.props.route } />;
 				break;
+			case '/discussion':
+				navComponent = settingsNav;
+				pageComponent = <Discussion route={ this.props.route } siteRawUrl={ this.props.siteRawUrl } />;
+				break;
 			case '/security':
-				navComponent = <NavigationSettings route={ this.props.route } />;
+				navComponent = settingsNav;
 				pageComponent = <Security route={ this.props.route } siteAdminUrl={ this.props.siteAdminUrl } />;
 				break;
+			case '/traffic':
+				navComponent = settingsNav;
+				pageComponent = <Traffic route={ this.props.route } siteRawUrl={ this.props.siteRawUrl } siteAdminUrl={ this.props.siteAdminUrl } />;
+				break;
 			case '/appearance':
-				navComponent = <NavigationSettings route={ this.props.route } />;
+				navComponent = settingsNav;
 				pageComponent = <Appearance route={ this.props.route } />;
 				break;
+			case '/settings':
 			case '/writing':
-				navComponent = <NavigationSettings route={ this.props.route } />;
+				navComponent = settingsNav;
 				pageComponent = <Writing route={ this.props.route } siteAdminUrl={ this.props.siteAdminUrl } />;
 				break;
 			case '/search':
-				navComponent = <NavigationSettings route={ this.props.route } />;
+				navComponent = settingsNav;
 				pageComponent = <SearchPage siteAdminUrl={ this.props.siteAdminUrl } />;
 				break;
 
@@ -242,10 +253,11 @@ export default connect(
 			apiNonce: getApiNonce( state ),
 			tracksUserData: getTracksUserData( state ),
 			areThereUnsavedModuleOptions: areThereUnsavedModuleOptions( state ),
+			areThereUnsavedSettings: areThereUnsavedSettings( state ),
 			userCanManageModules: userCanManageModules( state )
 		};
 	},
-	dispatch => bindActionCreators( { setInitialState, clearUnsavedOptionFlag }, dispatch )
+	dispatch => bindActionCreators( { setInitialState, clearUnsavedOptionFlag, clearUnsavedSettingsFlag }, dispatch )
 )( withRouter( Main ) );
 
 /**
@@ -256,9 +268,9 @@ window.wpNavMenuClassChange = function() {
 	const settingRoutes = [
 		'#/settings',
 		'#/general',
-		'#/engagement',
+		'#/discussion',
 		'#/security',
-		'#/appearance',
+		'#/traffic',
 		'#/writing',
 		'#/search'
 	],

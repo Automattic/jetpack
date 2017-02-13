@@ -1,3 +1,5 @@
+.eslintrc
+.eslintignore
 .git
 .gitignore
 .sass-cache
