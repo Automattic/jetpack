@@ -865,7 +865,7 @@ class Jetpack {
 	 */
 	function devicepx() {
 		if ( Jetpack::is_active() ) {
-			wp_enqueue_script( 'devicepx', set_url_scheme( 'http://s0.wp.com/wp-content/js/devicepx-jetpack.js' ), array(), gmdate( 'oW' ), true );
+			wp_enqueue_script( 'devicepx', 'https://s0.wp.com/wp-content/js/devicepx-jetpack.js', array(), gmdate( 'oW' ), true );
 		}
 	}
 
@@ -1217,14 +1217,14 @@ class Jetpack {
 
 		// Set the default options
 		if ( ! $plan ) {
-			$plan = array( 
-				'product_slug' => 'jetpack_free', 
-				'supports' => array(), 
+			$plan = array(
+				'product_slug' => 'jetpack_free',
+				'supports' => array(),
 			);
 		}
 
 		// Define what paid modules are supported by personal plans
-		$personal_plans = array( 
+		$personal_plans = array(
 			'jetpack_personal',
 			'jetpack_personal_monthly',
 		);
@@ -1246,6 +1246,7 @@ class Jetpack {
 				'videopress',
 				'akismet',
 				'vaultpress',
+				'wordads',
 			);
 		}
 
@@ -1261,6 +1262,8 @@ class Jetpack {
 				'akismet',
 				'vaultpress',
 				'seo-tools',
+				'google-analytics',
+				'wordads',
 			);
 		}
 
@@ -1300,11 +1303,10 @@ class Jetpack {
 
 		if ( defined( 'JETPACK_DEV_DEBUG' ) ) {
 			$development_mode = JETPACK_DEV_DEBUG;
+		} elseif ( $site_url = site_url() ) {
+			$development_mode = false === strpos( $site_url, '.' );
 		}
 
-		elseif ( site_url() && false === strpos( site_url(), '.' ) ) {
-			$development_mode = true;
-		}
 		/**
 		 * Filters Jetpack's development mode.
 		 *
@@ -2292,7 +2294,7 @@ class Jetpack {
 	 */
 	public static function get_active_modules() {
 		$active = Jetpack_Options::get_option( 'active_modules' );
-		
+
 		if ( ! is_array( $active ) ) {
 			$active = array();
 		}
@@ -2527,7 +2529,6 @@ class Jetpack {
 		if ( 'protect' === $module ) {
 			include_once JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php';
 			if ( ! jetpack_protect_get_ip() ) {
-				error_log( 'hello' );
 				Jetpack::state( 'message', 'protect_misconfigured_ip' );
 				return false;
 			}
@@ -2750,6 +2751,7 @@ p {
 		// If the site is in an IDC because sync is not allowed,
 		// let's make sure to not disconnect the production site.
 		if ( ! self::validate_sync_error_idc_option() ) {
+			JetpackTracking::record_user_event( 'disconnect_site', array() );
 			Jetpack::load_xml_rpc_client();
 			$xml = new Jetpack_IXR_Client();
 			$xml->query( 'jetpack.deregister' );
@@ -4444,7 +4446,7 @@ p {
 	public function get_remote_query_timeout_limit() {
 	    $timeout = (int) ini_get( 'max_execution_time' );
 	    if ( ! $timeout ) // Ensure exec time set in php.ini
-		$timeout = 30;
+				$timeout = 30;
 	    return intval( $timeout / 2 );
 	}
 
@@ -4457,7 +4459,7 @@ p {
 	 * @return true or Jetpack_Error
 	 **/
 	public function validate_remote_register_response( $response ) {
-	    	if ( is_wp_error( $response ) ) {
+	  if ( is_wp_error( $response ) ) {
 			return new Jetpack_Error( 'register_http_request_failed', $response->get_error_message() );
 		}
 
@@ -4479,7 +4481,7 @@ p {
 			} else {
 				$error_description = isset( $json->error_description ) ? sprintf( __( 'Error Details: %s', 'jetpack' ), (string) $json->error_description ) : '';
 			}
-			
+
 			return new Jetpack_Error( (string) $json->error, $error_description, $code );
 		} elseif ( 200 != $code ) {
 			return new Jetpack_Error( 'wpcom_bad_response', sprintf( __( 'Error Details: %s', 'jetpack' ), $code ), $code );
@@ -4840,22 +4842,23 @@ p {
 		}
 
 		if (
-			false === $verified ||
-			! isset( $verified['type'] ) ||
-			'user' !== $verified['type'] ||
-			empty( $verified['user_id'] )
+			$verified &&
+			isset( $verified['type'] ) &&
+			'user' === $verified['type'] &&
+			! empty( $verified['user_id'] )
 		) {
-			$this->rest_authentication_status = new WP_Error(
-				'rest_invalid_signature',
-				__( 'The request is not signed correctly.', 'jetpack' ),
-				array( 'status' => 400 )
-			);
-			return null;
+			// Authentication successful.
+			$this->rest_authentication_status = true;
+			return $verified['user_id'];
 		}
 
-		// Authentication successful.
-		$this->rest_authentication_status = true;
-		return $verified['user_id'];
+		// Something else went wrong.  Probably a signature error.
+		$this->rest_authentication_status = new WP_Error(
+			'rest_invalid_signature',
+			__( 'The request is not signed correctly.', 'jetpack' ),
+			array( 'status' => 400 )
+		);
+		return null;
 	}
 
 	/**
@@ -5254,9 +5257,21 @@ p {
 		);
 	}
 
-	// Verifies the request by checking the signature
-	function verify_json_api_authorization_request() {
+
+	/**
+	 * Verifies the request by checking the signature
+	 *
+	 * @since 4.6.0 Method was updated to use `$_REQUEST` instead of `$_GET` and `$_POST`. Method also updated to allow
+	 * passing in an `$environment` argument that overrides `$_REQUEST`. This was useful for integrating with SSO.
+	 *
+	 * @param null|array $environment
+	 */
+	function verify_json_api_authorization_request( $environment = null ) {
 		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-signature.php';
+
+		$environment = is_null( $environment )
+			? $_REQUEST
+			: $environment;
 
 		$token = Jetpack_Data::get_access_token( JETPACK_MASTER_USER );
 		if ( ! $token || empty( $token->secret ) ) {
@@ -5267,8 +5282,17 @@ p {
 
 		$jetpack_signature = new Jetpack_Signature( $token->secret, (int) Jetpack_Options::get_option( 'time_diff' ) );
 
-		if ( isset( $_POST['jetpack_json_api_original_query'] ) ) {
-			$signature = $jetpack_signature->sign_request( $_GET['token'], $_GET['timestamp'], $_GET['nonce'], '', 'GET', $_POST['jetpack_json_api_original_query'], null, true );
+		if ( isset( $environment['jetpack_json_api_original_query'] ) ) {
+			$signature = $jetpack_signature->sign_request(
+				$environment['token'],
+				$environment['timestamp'],
+				$environment['nonce'],
+				'',
+				'GET',
+				$environment['jetpack_json_api_original_query'],
+				null,
+				true
+			);
 		} else {
 			$signature = $jetpack_signature->sign_current_request( array( 'body' => null, 'method' => 'GET' ) );
 		}
@@ -5277,11 +5301,11 @@ p {
 			wp_die( $die_error );
 		} else if ( is_wp_error( $signature ) ) {
 			wp_die( $die_error );
-		} else if ( ! hash_equals( $signature, $_GET['signature'] ) ) {
+		} else if ( ! hash_equals( $signature, $environment['signature'] ) ) {
 			if ( is_ssl() ) {
 				// If we signed an HTTP request on the Jetpack Servers, but got redirected to HTTPS by the local blog, check the HTTP signature as well
 				$signature = $jetpack_signature->sign_current_request( array( 'scheme' => 'http', 'body' => null, 'method' => 'GET' ) );
-				if ( ! $signature || is_wp_error( $signature ) || ! hash_equals( $signature, $_GET['signature'] ) ) {
+				if ( ! $signature || is_wp_error( $signature ) || ! hash_equals( $signature, $environment['signature'] ) ) {
 					wp_die( $die_error );
 				}
 			} else {
@@ -5289,8 +5313,8 @@ p {
 			}
 		}
 
-		$timestamp = (int) $_GET['timestamp'];
-		$nonce     = stripslashes( (string) $_GET['nonce'] );
+		$timestamp = (int) $environment['timestamp'];
+		$nonce     = stripslashes( (string) $environment['nonce'] );
 
 		if ( ! $this->add_nonce( $timestamp, $nonce ) ) {
 			// De-nonce the nonce, at least for 5 minutes.
@@ -5301,7 +5325,7 @@ p {
 			}
 		}
 
-		$data = json_decode( base64_decode( stripslashes( $_GET['data'] ) ) );
+		$data = json_decode( base64_decode( stripslashes( $environment['data'] ) ) );
 		$data_filters = array(
 			'state'        => 'opaque',
 			'client_id'    => 'int',

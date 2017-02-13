@@ -76,6 +76,18 @@ class Jetpack_JITM {
 			add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
 			add_action( 'admin_notices', array( $this, 'backups_updates_msg' ) );
 		}
+		elseif ( ! Jetpack::is_plugin_active( 'woocommerce-services/woocommerce-services.php' ) ) {
+			 $pages_to_display = array(
+				 'woocommerce_page_wc-settings', // WooCommerce > Settings
+				 'edit-shop_order', // WooCommerce > Orders
+				 'shop_order', // WooCommerce > Edit Order
+			 );
+
+			if ( in_array( $screen->id, $pages_to_display ) ) {
+				add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
+				add_action( 'admin_notices', array( $this, 'woocommerce_services_msg' ) );
+			}
+		}
 	}
 
 	/*
@@ -412,6 +424,60 @@ class Jetpack_JITM {
             </p>
         </div>
 		<?php
+	}
+
+	/**
+	 * Display message prompting user to install WooCommerce Services.
+	 *
+	 * @since 4.6
+	 */
+	function woocommerce_services_msg() {
+		if ( ! current_user_can( 'manage_woocommerce' ) || ! current_user_can( 'install_plugins' ) ) {
+			return;
+		}
+
+		if ( isset( self::$jetpack_hide_jitm['woocommerce_services'] ) ) {
+			return;
+		}
+
+		if ( ! function_exists( 'wc_get_base_location' ) ) {
+			return;
+		}
+
+		$base_location = wc_get_base_location();
+
+		switch ( $base_location['country'] ) {
+			case 'US':
+				$message = __( 'Try our new service for USPS shipping & label-printing.', 'jetpack' );
+				break;
+			case 'CA':
+				$message = __( 'Try our new Canada Post shipping service.', 'jetpack' );
+				break;
+			default:
+				return;
+		}
+
+		$install_url = wp_nonce_url( add_query_arg( array( 'wc-services-action' => 'install' ) ), 'wc-services-install' );
+
+		?>
+		<div class="jp-jitm woo-jitm">
+			<a href="#"  data-module="wooservices" class="dismiss"><span class="genericon genericon-close"></span></a>
+			<div class="jp-emblem">
+				<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0" y="0" viewBox="0 0 24 24" enable-background="new 0 0 24 24" xml:space="preserve">
+					<path d="M18,8h-2V7c0-1.105-0.895-2-2-2H4C2.895,5,2,5.895,2,7v10h2c0,1.657,1.343,3,3,3s3-1.343,3-3h4c0,1.657,1.343,3,3,3s3-1.343,3-3h2v-5L18,8z M7,18.5c-0.828,0-1.5-0.672-1.5-1.5s0.672-1.5,1.5-1.5s1.5,0.672,1.5,1.5S7.828,18.5,7,18.5z M4,14V7h10v7H4z M17,18.5c-0.828,0-1.5-0.672-1.5-1.5s0.672-1.5,1.5-1.5s1.5,0.672,1.5,1.5S17.828,18.5,17,18.5z" />
+				</svg>
+			</div>
+			<p class="msg">
+				<?php echo esc_html( $message ); ?>
+			</p>
+			<p>
+				<a href="<?php echo esc_url( $install_url ); ?>" title="<?php esc_attr_e( 'Install WooCommerce Services', 'jetpack' ); ?>" data-module="wooservices" class="button button-jetpack show-after-enable"><?php esc_html_e( 'Install WooCommerce Services', 'jetpack' ); ?></a>
+			</p>
+		</div>
+		<?php
+		//jitm is being viewed, track it
+		$jetpack = Jetpack::init();
+		$jetpack->stat( 'jitm', 'wooservices-viewed-' . JETPACK__VERSION );
 	}
 
 	/*

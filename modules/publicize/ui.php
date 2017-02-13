@@ -326,7 +326,7 @@ jQuery( function($) {
 		wpasTitle = $('#wpas-title').keyup( function() {
 		var length = wpasTitle.val().length;
 		wpasTitleCounter.text( length );
-		if ( wpasTwitterCheckbox && length > 140 ) {
+		if ( wpasTwitterCheckbox && length > 116 ) {
 			wpasTitleCounter.addClass( 'wpas-twitter-length-limit' );
 		} else {
 			wpasTitleCounter.removeClass( 'wpas-twitter-length-limit' );

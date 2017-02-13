@@ -300,12 +300,22 @@ class The_Neverending_Home_Page {
 	 * Is this guaranteed to be the last batch of posts?
 	 */
 	static function is_last_batch() {
-		$post_type = get_post_type();
-		$entries = wp_count_posts( empty( $post_type ) ? 'post' : $post_type )->publish;
-		if ( self::wp_query()->get( 'paged' ) && self::wp_query()->get( 'paged' ) > 1 ) {
-			$entries -= self::get_settings()->posts_per_page * self::wp_query()->get( 'paged' );
+		$entries = (int) self::wp_query()->found_posts;
+		$posts_per_page = self::get_settings()->posts_per_page;
+		$paged = self::wp_query()->get( 'paged' );
+
+		// Are there enough posts for more than the first page?
+		if ( $entries <= $posts_per_page ) {
+			return true;
 		}
-		return $entries <= self::get_settings()->posts_per_page;
+
+		// Calculate entries left after a certain number of pages
+		if ( $paged && $paged > 1 ) {
+			$entries -= $posts_per_page * $paged;
+		}
+
+		// Are there some entries left to display?
+		return $entries <= 0;
 	}
 
 	/**
@@ -352,7 +362,7 @@ class The_Neverending_Home_Page {
 			echo '<label>' . $notice . '</label>';
 		} else {
 			echo '<label><input name="infinite_scroll" type="checkbox" value="1" ' . checked( 1, '' !== get_option( self::$option_name_enabled ), false ) . ' /> ' . esc_html__( 'Check to load posts as you scroll. Uncheck to show clickable button to load posts', 'jetpack' ) . '</label>';
-			echo '<p class="description">' . sprintf( esc_html__( 'Shows %s posts on each load.', 'jetpack' ), number_format_i18n( self::get_settings()->posts_per_page ) ) . '</p>';
+			echo '<p class="description">' . esc_html( sprintf( _n( 'Shows %s post on each load.', 'Shows %s posts on each load.', self::get_settings()->posts_per_page, 'jetpack' ), number_format_i18n( self::get_settings()->posts_per_page ) ) ) . '</p>';
 		}
 	}
 
@@ -385,9 +395,6 @@ class The_Neverending_Home_Page {
 			return;
 		}
 
-		// Add a class to the body.
-		add_filter( 'body_class', array( $this, 'body_class' ) );
-
 		// Add our scripts.
 		wp_enqueue_script( 'the-neverending-homepage' );
 
@@ -411,16 +418,21 @@ class The_Neverending_Home_Page {
 	}
 
 	/**
-	 * Adds an 'infinite-scroll' class to the body.
+	 * Returns classes to be added to <body>. If it's enabled, 'infinite-scroll'. If set to continuous scroll, adds 'neverending' too.
+	 *
+	 * @since 4.7.0 No longer added as a 'body_class' filter but passed to JS environment and added using JS.
+	 *
+	 * @return string
 	 */
-	function body_class( $classes ) {
+	function body_class() {
+		$classes = '';
 		// Do not add infinity-scroll class if disabled through the Reading page
 		$disabled = '' === get_option( self::$option_name_enabled ) ? true : false;
 		if ( ! $disabled || 'click' == self::get_settings()->type ) {
-			$classes[] = 'infinite-scroll';
+			$classes = 'infinite-scroll';
 
 			if ( 'scroll' == self::get_settings()->type )
-				$classes[] = 'neverending';
+				$classes .= ' neverending';
 		}
 
 		return $classes;
@@ -742,6 +754,7 @@ class The_Neverending_Home_Page {
 				}
 
 				if ( isset( $cpt_text ) ) {
+					/* translators: %s is the name of a custom post type */
 					$click_handle_text = sprintf( __( 'Older %s', 'jetpack' ), $cpt_text );
 					unset( $cpt_text );
 				}
@@ -775,6 +788,7 @@ class The_Neverending_Home_Page {
 			),
 			'query_args'      => self::get_query_vars(),
 			'last_post_date'  => self::get_last_post_date(),
+			'body_class'	  => self::body_class(),
 		);
 
 		// Optional order param
@@ -1429,6 +1443,10 @@ class The_Neverending_Home_Page {
 		if ( 'scroll' != self::get_settings()->type || ! self::archive_supports_infinity() )
 			return;
 
+		if ( self::is_last_batch() ) {
+			return;
+		}
+
 		// Display a footer, either user-specified or a default
 		if ( false !== self::get_settings()->footer_callback && is_callable( self::get_settings()->footer_callback ) )
 			call_user_func( self::get_settings()->footer_callback, self::get_settings() );
@@ -1448,6 +1466,7 @@ class The_Neverending_Home_Page {
 			__( 'Proudly powered by WordPress', 'jetpack' )
 		);
 		$credits .= sprintf(
+			/* translators: %1$s is the name of a theme */
 			__( 'Theme: %1$s.', 'jetpack' ),
 			function_exists( 'wp_get_theme' ) ? wp_get_theme()->Name : get_current_theme()
 		);
@@ -1466,7 +1485,7 @@ class The_Neverending_Home_Page {
 		<div id="infinite-footer">
 			<div class="container">
 				<div class="blog-info">
-					<a id="infinity-blog-title" href="<?php echo home_url( '/' ); ?>" target="_blank" rel="home">
+					<a id="infinity-blog-title" href="<?php echo home_url( '/' ); ?>" rel="home">
 						<?php bloginfo( 'name' ); ?>
 					</a>
 				</div>

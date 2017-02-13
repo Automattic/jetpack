@@ -641,3 +641,18 @@ function jetpack_wordads_more_info() {
 }
 add_action( 'jetpack_module_more_info_wordads', 'jetpack_wordads_more_info' );
 // WordAds: STOP
+
+/**
+ * Google Analytics
+ */
+function jetpack_google_analytics_more_link() {
+	echo 'https://jetpack.com/support/google-analytics';
+}
+add_action( 'jetpack_learn_more_button_google-analytics', 'jetpack_google_analytics_more_link' );
+
+function jetpack_google_analytics_more_info() {
+	esc_html_e(
+		'Track website statistics with Google Analytics for a deeper understanding of your website visitors and customers.'
+		, 'jetpack' );
+}
+add_action( 'jetpack_module_more_info_google-analytics', 'jetpack_google_analytics_more_info' );

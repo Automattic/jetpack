@@ -4,6 +4,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
+import includes from 'lodash/includes';
 import Button from 'components/button';
 import SimpleNotice from 'components/notice';
 
@@ -115,6 +116,22 @@ const ProStatus = React.createClass( {
 						compact={ true }
 						primary={ true }
 						href={ 'https://jetpack.com/redirect/?source=upgrade-ads&site=' + this.props.siteRawUrl + '&feature=jetpack-ads' }
+					>
+						{ __( 'Upgrade' ) }
+					</Button>
+				);
+			}
+
+			if ( 'google-analytics' === feature && ! includes( [ 'jetpack_business', 'jetpack_business_monthly' ], sitePlan.product_slug ) ) {
+				if ( this.props.fetchingSiteData ) {
+					return '';
+				}
+
+				return (
+					<Button
+						compact={ true }
+						primary={ true }
+						href={ 'https://jetpack.com/redirect/?source=upgrade-google-analytics&site=' + this.props.siteRawUrl + '&feature=google-analytics' }
 					>
 						{ __( 'Upgrade' ) }
 					</Button>

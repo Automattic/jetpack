@@ -111,6 +111,22 @@ class Jetpack_Tweet {
 		// Twitter doesn't support maxheight so don't send it
 		$provider = remove_query_arg( 'maxheight', $provider );
 
+		/**
+		 * Filter the Twitter Partner ID.
+		 *
+		 * @module shortcodes
+		 *
+		 * @since 4.6.0
+		 *
+		 * @param string $partner_id Twitter partner ID.
+		 */
+		$partner = apply_filters( 'jetpack_twitter_partner_id', 'jetpack' );
+
+		// Add Twitter partner ID to track embeds from Jetpack
+		if ( ! empty( $partner ) ) {
+			$provider = add_query_arg( 'partner', $partner, $provider );
+		}
+
 		return $provider;
 	}
 

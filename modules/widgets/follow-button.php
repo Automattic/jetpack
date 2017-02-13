@@ -4,11 +4,11 @@
 //add_action( 'widgets_init', 'follow_button_register_widget' );
 function follow_button_register_widget() {
 	if ( Jetpack::is_active() ) {
-		register_widget( 'Follow_Button_Widget' );
+		register_widget( 'Jetpack_Follow_Button_Widget' );
 	}
 }
 
-class Follow_Button_Widget extends WP_Widget {
+class Jetpack_Follow_Button_Widget extends WP_Widget {
 
 	public function __construct() {
 		parent::__construct(
@@ -26,6 +26,21 @@ class Follow_Button_Widget extends WP_Widget {
 		$attributes = array();
 		$instance = wp_parse_args( (array) $instance, array( 'show_name' => 1, 'show_count' => 0 ) );
 
+		$wpcom_locale = get_locale();
+
+		if ( ! class_exists( 'GP_Locales' ) ) {
+			if ( defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' ) && file_exists( JETPACK__GLOTPRESS_LOCALES_PATH ) ) {
+				require JETPACK__GLOTPRESS_LOCALES_PATH;
+			}
+		}
+
+		if ( class_exists( 'GP_Locales' ) ) {
+			$wpcom_locale_object = GP_Locales::by_field( 'wp_locale', $wpcom_locale );
+			if ( $wpcom_locale_object instanceof GP_Locale ) {
+				$wpcom_locale = $wpcom_locale_object->slug;
+			}
+		}
+
 		if ( empty( $instance['show_name'] ) ) {
 			$attributes[] = 'data-show-blog-name="false"';
 		}
@@ -41,7 +56,7 @@ class Follow_Button_Widget extends WP_Widget {
 			class="wordpress-follow-button"
 			href="<?php echo esc_url( home_url() ); ?>"
 			data-blog="<?php echo esc_url( home_url() ); ?>"
-			data-lang="<?php echo get_locale(); ?>" <?php if ( ! empty( $attributes ) ) echo implode( ' ', $attributes ); ?>
+			data-lang="<?php echo esc_attr( $wpcom_locale ); ?>" <?php if ( ! empty( $attributes ) ) echo implode( ' ', $attributes ); ?>
 		>
 			<?php sprintf( __( 'Follow %s on WordPress.com', 'jetpack' ), get_bloginfo( 'name' ) ); ?>
 		</a>

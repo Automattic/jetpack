@@ -126,3 +126,12 @@ export function toggleSetting( state, name ) {
 export function getSettingName( state, name ) {
 	return get( state.jetpack.initialState.settingNames, [ name ] );
 }
+
+/**
+ * Returns whether or not the Holiday Snow setting should be displayed.
+ * @param  {Object}  state Global state tree
+ * @return {Boolean}       Whether the Holiday Snow setting should be displayed
+ */
+export function getShowHolidaySnow( state ) {
+	return state.jetpack.initialState.showHolidaySnow;
+}

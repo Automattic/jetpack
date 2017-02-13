@@ -31,7 +31,6 @@ import {
 	WordAdsSettings
 } from 'components/module-settings/';
 import ExternalLink from 'components/external-link';
-
 import {
 	getSiteAdminUrl,
 	getSiteRawUrl
@@ -128,6 +127,29 @@ const AllModuleSettingsComponent = React.createClass( {
 				return ( <SitemapsSettings module={ module } { ...this.props } /> );
 			case 'wordads':
 				return ( <WordAdsSettings module={ module } /> );
+			case 'google-analytics':
+				if ( 'inactive' === module.configure_url ) {
+					return (
+						<div>
+							{ __(
+								'Google Analytics is a free service that complements our {{a}}built-in stats{{/a}} with different insights into your traffic.' +
+								' WordPress.com stats and Google Analytics use different methods to identify and track activity on your site, so they will ' +
+								'normally show slightly different totals for your visits, views, etc.',
+								{
+									components: {
+										a: <a href={ 'https://wordpress.com/stats/day/' + this.props.siteRawUrl } />
+									}
+								}
+							) }
+						</div>
+					);
+				} else {
+					return (
+						<div>
+							<ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href={ module.configure_url }>{ __( 'Configure Google Analytics settings.' ) }</ExternalLink>
+						</div>
+					);
+				}
 			case 'gravatar-hovercards':
 			case 'contact-form':
 			case 'latex':

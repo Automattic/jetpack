@@ -1,6 +1,6 @@
 <?php
 
-class Upcoming_Events_Widget extends WP_Widget {
+class Jetpack_Upcoming_Events_Widget extends WP_Widget {
 	function __construct() {
 		parent::__construct(
 			'upcoming_events_widget',
@@ -153,7 +153,7 @@ class Upcoming_Events_Widget extends WP_Widget {
 }
 
 function upcoming_events_register_widgets() {
-	register_widget( 'Upcoming_Events_Widget' );
+	register_widget( 'Jetpack_Upcoming_Events_Widget' );
 }
 
 add_action( 'widgets_init', 'upcoming_events_register_widgets' );

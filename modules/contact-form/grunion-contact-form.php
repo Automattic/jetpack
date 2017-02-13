@@ -2044,7 +2044,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			'post_status'  => addslashes( $feedback_status ),
 			'post_parent'  => (int) $post->ID,
 			'post_title'   => addslashes( wp_kses( $feedback_title, array() ) ),
-			'post_content' => addslashes( wp_kses( $comment_content . "\n<!--more-->\n" . "AUTHOR: {$comment_author}\nAUTHOR EMAIL: {$comment_author_email}\nAUTHOR URL: {$comment_author_url}\nSUBJECT: {$subject}\nIP: {$comment_author_IP}\n" . print_r( $all_values, true ), array() ) ), // so that search will pick up this data
+			'post_content' => addslashes( wp_kses( $comment_content . "\n<!--more-->\n" . "AUTHOR: {$comment_author}\nAUTHOR EMAIL: {$comment_author_email}\nAUTHOR URL: {$comment_author_url}\nSUBJECT: {$subject}\nIP: {$comment_author_IP}\n" . @print_r( $all_values, true ), array() ) ), // so that search will pick up this data
 			'post_name'    => $feedback_id,
 		) );
 
@@ -2345,18 +2345,21 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 			case 'email' :
 				// Make sure the email address is valid
 				if ( ! is_email( $field_value ) ) {
+					/* translators: %s is the name of a form field */
 					$this->add_error( sprintf( __( '%s requires a valid email address', 'jetpack' ), $field_label ) );
 				}
 			break;
 			case 'checkbox-multiple' :
 				// Check that there is at least one option selected
 				if ( empty( $field_value ) ) {
+					/* translators: %s is the name of a form field */
 					$this->add_error( sprintf( __( '%s requires at least one selection', 'jetpack' ), $field_label ) );
 				}
 			break;
 			default :
 				// Just check for presence of any text
 				if ( ! strlen( trim( $field_value ) ) ) {
+					/* translators: %s is the name of a form field */
 					$this->add_error( sprintf( __( '%s is required', 'jetpack' ), $field_label ) );
 				}
 		}

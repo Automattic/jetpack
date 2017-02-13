@@ -49,6 +49,11 @@ function jetpack_get_module_i18n( $key ) {
 				'description' => _x( 'Increase reach and traffic.', 'Module Description', 'jetpack' ),
 			),
 
+			'google-analytics' => array(
+				'name' => _x( 'Google Analytics', 'Module Name', 'jetpack' ),
+				'description' => _x( 'Set up Google Analytics without touching a line of code.', 'Module Description', 'jetpack' ),
+			),
+
 			'gravatar-hovercards' => array(
 				'name' => _x( 'Gravatar Hovercards', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Enable pop-up business cards over commenters’ Gravatars.', 'Module Description', 'jetpack' ),
