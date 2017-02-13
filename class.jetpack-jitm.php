@@ -448,10 +448,10 @@ class Jetpack_JITM {
 
 		switch ( $base_location['country'] ) {
 			case 'US':
-				$message = __( 'Try our new service for USPS shipping & label-printing.', 'jetpack' );
+				$message = __( 'New free service: Show USPS shipping rates on your store! Added bonus: print shipping labels without leaving WooCommerce.', 'jetpack' );
 				break;
 			case 'CA':
-				$message = __( 'Try our new Canada Post shipping service.', 'jetpack' );
+				$message = __( 'New free service: Show Canada Post shipping rates on your store!', 'jetpack' );
 				break;
 			default:
 				return;
