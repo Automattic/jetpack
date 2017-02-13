@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Retrieving the version from jetpack.php file
-PHP_VERSION=`cat jetpack.php | grep '* Version' | cut -d ':' -f2`
+PHP_VERSION=`head -15 jetpack.php | grep '* Version' | cut -d ':' -f2`
 
 # Getting a github prefix
 CLOSEST_TAG=`git describe --tags --abbrev=0`
