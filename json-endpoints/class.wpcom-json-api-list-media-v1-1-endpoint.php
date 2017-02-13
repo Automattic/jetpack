@@ -40,7 +40,6 @@ class WPCOM_JSON_API_List_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint {
 			'post_type'      => 'attachment',
 			'post_status'    => 'inherit',
 			'post_parent'    => isset( $args['post_ID'] ) ? $args['post_ID'] : null,
-			'offset'         => isset( $args['offset'] ) ? $args['offset'] : null,
 			'posts_per_page' => $args['number'],
 			'post_mime_type' => isset( $args['mime_type'] ) ? $args['mime_type'] : null,
 			'order'          => isset( $args['order'] ) ? $args['order'] : 'DESC',

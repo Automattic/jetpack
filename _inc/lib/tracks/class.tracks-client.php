@@ -41,7 +41,7 @@
 require_once( dirname(__FILE__).'/class.tracks-client.php' );
 
 class Jetpack_Tracks_Client {
-	const PIXEL = 'http://pixel.wp.com/t.gif';
+	const PIXEL = 'https://pixel.wp.com/t.gif';
 	const BROWSER_TYPE = 'php-agent';
 	const USER_AGENT_SLUG = 'tracks-client';
 	const VERSION = '0.3';
@@ -164,5 +164,21 @@ class Jetpack_Tracks_Client {
 		}
 
 		return $anon_id;
+	}
+
+	/**
+	 * Gets the WordPress.com user's Tracks identity, if connected.
+	 *
+	 * @return array|bool
+	 */
+	static function get_connected_user_tracks_identity() {
+		if ( ! $user_data = Jetpack::get_connected_user_data() ) {
+			return false;
+		}
+
+		return array(
+			'userid' => $user_data['ID'],
+			'username' => $user_data['login'],
+		);
 	}
 }

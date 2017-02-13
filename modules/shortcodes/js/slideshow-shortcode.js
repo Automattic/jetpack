@@ -46,7 +46,7 @@ JetpackSlideshow.prototype.init = function() {
 		container.className = 'slideshow-slide';
 		container.setAttribute('itemprop','associatedMedia');
 		container.setAttribute('itemscope','');
-		container.setAttribute('itemtype','http://schema.org/ImageObject');
+		container.setAttribute('itemtype','https://schema.org/ImageObject');
 
 		// Hide loading image once first image has loaded.
 		if ( i === 0 ) {
@@ -96,6 +96,7 @@ JetpackSlideshow.prototype.finishInit_ = function() {
 			fx: this.transition,
 			prev: this.controls.prev,
 			next: this.controls.next,
+			timeout: jetpackSlideshowSettings.speed,
 			slideExpr: '.slideshow-slide',
 			onPrevNextEvent: function() {
 				return self.onCyclePrevNextClick_.apply( self, arguments );

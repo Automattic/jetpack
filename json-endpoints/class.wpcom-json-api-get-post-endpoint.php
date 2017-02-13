@@ -22,6 +22,10 @@ class WPCOM_JSON_API_Get_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 			return $return;
 		}
 
+		if ( ! $this->current_user_can_access_post_type( $return['type'], $args['context'] ) ) {
+			return new WP_Error( 'unknown_post', 'Unknown post', 404 );
+		}
+
 		/** This action is documented in json-endpoints/class.wpcom-json-api-site-settings-endpoint.php */
 		do_action( 'wpcom_json_api_objects', 'posts' );
 

@@ -86,11 +86,6 @@ class Presentations {
 	 * Constructor
 	 */
 	function __construct() {
-		// Bail without 3.0.
-		if ( ! function_exists( '__return_false' ) ) {
-			return;
-		}
-
 		$this->presentation_initialized   = false;
 		$this->scripts_and_style_included = false;
 

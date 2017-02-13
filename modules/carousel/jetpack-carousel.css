@@ -237,7 +237,7 @@ div.jp-carousel-buttons a:hover {
 	letter-spacing: 0 !important;
 	padding:0.35em 0 0;
 	position: absolute;
-	text-align: left;
+	text-align: right;
 	width: 90%;
 }
 
@@ -252,7 +252,7 @@ div.jp-carousel-buttons a:hover {
 	cursor: pointer;
 	background-color: black;
 	background-color: rgba(0,0,0,0.8);
-	display: block;
+	display: inline-block;
 	height: 22px;
 	font: 400 24px/1 "Helvetica Neue", sans-serif !important;
 	line-height: 22px;
@@ -552,7 +552,8 @@ div#carousel-reblog-box {
 
 .jp-carousel-image-meta li {
 	width: 48% !important;
-	float: left !important;
+	display: inline-block !important;
+	vertical-align: top !important;
 	margin: 0 2% 15px 0 !important;
 	color: #fff !important;
 	font-size:13px !important;

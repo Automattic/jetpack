@@ -105,6 +105,7 @@
 	left:0;
 	right:0;
 	display:block;
+	border-bottom: 0;
 }
 
 #jp-relatedposts .jp-relatedposts-items p {
@@ -168,6 +169,24 @@
 	margin-bottom: 1em;
 }
 
+/* List Layout */
+#jp-relatedposts .jp-relatedposts-list .jp-relatedposts-post {
+	clear: both;
+	width: 100%;
+}
+
+#jp-relatedposts .jp-relatedposts-list .jp-relatedposts-post img.jp-relatedposts-post-img {
+	float: left;
+	overflow: hidden;
+	max-width: 33%;
+	margin-right: 3%;
+}
+
+#jp-relatedposts .jp-relatedposts-list h4.jp-relatedposts-post-title {
+	display: inline-block;
+	max-width: 63%;
+}
+
 /*
  * Responsive
  */
@@ -193,5 +212,12 @@
 		width: 100%;
 		clear: both;
 		margin: 0 0 1em;
+	}
+
+	#jp-relatedposts .jp-relatedposts-list .jp-relatedposts-post img.jp-relatedposts-post-img,
+	#jp-relatedposts .jp-relatedposts-list h4.jp-relatedposts-post-title {
+		float: none;
+		max-width: 100%;
+		margin-right: 0;
 	}
 }

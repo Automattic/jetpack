@@ -23,7 +23,17 @@ class Publicize_UI {
 
 	function init() {
 		// Show only to users with the capability required to manage their Publicize connections.
-		if ( ! current_user_can( 'publish_posts' ) ) {
+		/**
+		 * Filter what user capability is required to use the publicize form on the edit post page. Useful if publish post capability has been removed from role.
+		 *
+		 * @module publicize
+		 *
+		 * @since 4.1.0
+		 *
+		 * @param string $capability User capability needed to use publicize
+		 */
+		$capability = apply_filters( 'jetpack_publicize_capability', 'publish_posts' );
+		if ( ! current_user_can( $capability ) ) {
 			return;
 		}
 
@@ -312,11 +322,11 @@ class Publicize_UI {
 <script type="text/javascript">
 jQuery( function($) {
 	var wpasTitleCounter    = $( '#wpas-title-counter' ),
-		wpasTwitterCheckbox = $( '.wpas-submit-twitter' ).size(),
+		wpasTwitterCheckbox = $( '.wpas-submit-twitter' ).length,
 		wpasTitle = $('#wpas-title').keyup( function() {
 		var length = wpasTitle.val().length;
 		wpasTitleCounter.text( length );
-		if ( wpasTwitterCheckbox && length > 140 ) {
+		if ( wpasTwitterCheckbox && length > 116 ) {
 			wpasTitleCounter.addClass( 'wpas-twitter-length-limit' );
 		} else {
 			wpasTitleCounter.removeClass( 'wpas-twitter-length-limit' );
@@ -338,7 +348,7 @@ jQuery( function($) {
 		$('#publicize-form').slideDown( 'fast', function() {
 			wpasTitle.focus();
 			if ( !wpasTitle.text() ) {
-				var url = $('#shortlink').size() ? $('#shortlink').val() : '';
+				var url = $('#shortlink').length ? $('#shortlink').val() : '';
 
 				var defaultMessage = $.trim( '<?php printf( $default_prefix, 'url' ); printf( $default_message, '$("#title").val()', 'url' ); printf( $default_suffix, 'url' ); ?>' );
 
@@ -702,7 +712,9 @@ jQuery( function($) {
 					<input type="hidden" name="wpas[0]" value="1" />
 
 				</div>
-				<div id="pub-connection-tests"></div>
+				<?php if ( ! $all_done ) : ?>
+					<div id="pub-connection-tests"></div>
+				<?php endif; ?>
 				<?php // #publicize-form
 
 				$publicize_form = ob_get_clean();

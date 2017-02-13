@@ -48,6 +48,9 @@ class Jetpack_RSS_Links_Widget extends WP_Widget {
 		if ( 'text' == $instance['format'] ) echo '</ul>';
 
 		echo "\n" . $after_widget;
+
+		/** This action is documented in modules/widgets/gravatar-profile.php */
+		do_action( 'jetpack_stats_extra', 'widget_view', 'rss-links' );
 	}
 
 	/**
@@ -108,7 +111,7 @@ class Jetpack_RSS_Links_Widget extends WP_Widget {
 			'image'      => __( 'Image Link', 'jetpack' ),
 			'text-image' => __( 'Text & Image Links', 'jetpack' )
 		);
-		echo '<p><label for="' . $this->get_field_id( 'format' ) . '">' . __( 'Format:', 'jetpack' ) . '
+		echo '<p><label for="' . $this->get_field_id( 'format' ) . '">' . _x( 'Format:', 'Noun', 'jetpack' ) . '
 		<select class="widefat" id="' . $this->get_field_id( 'format' ) . '" name="' . $this->get_field_name( 'format' ) . '" onchange="if ( this.value == \'text\' ) jQuery( \'#' . $this->get_field_id( 'image-settings' ) . '\' ).fadeOut(); else jQuery( \'#' . $this->get_field_id( 'image-settings' ) . '\' ).fadeIn();">';
 		foreach ( $formats as $format_option => $label ) {
 			echo '<option value="' . esc_attr( $format_option ) . '"';

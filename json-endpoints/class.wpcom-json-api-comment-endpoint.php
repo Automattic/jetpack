@@ -81,6 +81,8 @@ abstract class WPCOM_JSON_API_Comment_Endpoint extends WPCOM_JSON_API_Endpoint {
 				&&
 					isset( $this->api->token_details['user'] )
 				&&
+					isset( $this->api->token_details['user']['user_email'] )
+				&&
 					$this->api->token_details['user']['user_email'] === $comment->comment_author_email
 				&&
 					$this->api->token_details['user']['display_name'] === $comment->comment_author
@@ -121,7 +123,7 @@ abstract class WPCOM_JSON_API_Comment_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'ID'   => (int) $post->ID,
 					'title' => (string) get_the_title( $post->ID ),
 					'type' => (string) $post->post_type,
-					'link' => (string) $this->get_post_link( $this->api->get_blog_id_for_output(), $post->ID ),
+					'link' => (string) $this->links->get_post_link( $this->api->get_blog_id_for_output(), $post->ID ),
 				);
 				break;
 			case 'author' :
@@ -155,7 +157,7 @@ abstract class WPCOM_JSON_API_Comment_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$response[$key] = (object) array(
 						'ID'   => (int) $parent->comment_ID,
 						'type' => (string) ( $parent->comment_type ? $parent->comment_type : 'comment' ),
-						'link' => (string) $this->get_comment_link( $blog_id, $parent->comment_ID ),
+						'link' => (string) $this->links->get_comment_link( $blog_id, $parent->comment_ID ),
 					);
 				} else {
 					$response[$key] = false;
@@ -177,14 +179,12 @@ abstract class WPCOM_JSON_API_Comment_Endpoint extends WPCOM_JSON_API_Endpoint {
 			case 'meta' :
 				$response[$key] = (object) array(
 					'links' => (object) array(
-						'self'    => (string) $this->get_comment_link( $this->api->get_blog_id_for_output(), $comment->comment_ID ),
-						'help'    => (string) $this->get_comment_link( $this->api->get_blog_id_for_output(), $comment->comment_ID, 'help' ),
-						'site'    => (string) $this->get_site_link( $this->api->get_blog_id_for_output() ),
-						'post'    => (string) $this->get_post_link( $this->api->get_blog_id_for_output(), $comment->comment_post_ID ),
-						'replies' => (string) $this->get_comment_link( $this->api->get_blog_id_for_output(), $comment->comment_ID, 'replies/' ),
-//						'author'  => (string) $this->get_user_link( $comment->user_id ),
-//						'via'     => (string) $this->get_post_link( $ping_origin_blog_id, $ping_origin_post_id ), // Ping/trackbacks
-						'likes'   => (string) $this->get_comment_link( $this->api->get_blog_id_for_output(), $comment->comment_ID, 'likes/' ),
+						'self'    => (string) $this->links->get_comment_link( $this->api->get_blog_id_for_output(), $comment->comment_ID ),
+						'help'    => (string) $this->links->get_comment_link( $this->api->get_blog_id_for_output(), $comment->comment_ID, 'help' ),
+						'site'    => (string) $this->links->get_site_link( $this->api->get_blog_id_for_output() ),
+						'post'    => (string) $this->links->get_post_link( $this->api->get_blog_id_for_output(), $comment->comment_post_ID ),
+						'replies' => (string) $this->links->get_comment_link( $this->api->get_blog_id_for_output(), $comment->comment_ID, 'replies/' ),
+						'likes'   => (string) $this->links->get_comment_link( $this->api->get_blog_id_for_output(), $comment->comment_ID, 'likes/' ),
 					),
 				);
 				break;

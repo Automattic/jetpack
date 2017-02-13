@@ -11,11 +11,20 @@
 		/**
 		 * Utility get related posts JSON endpoint from URLs
 		 *
-		 * @param string URL (optional)
-		 * @return string endpoint URL
+		 * @param  {string} URL (optional)
+		 * @return {string} Endpoint URL
 		 */
 		getEndpointURL: function( URL ) {
-			var locationObject = document.location;
+			var locationObject,
+				is_customizer = 'undefined' !== typeof wp && wp.customize && wp.customize.settings && wp.customize.settings.url && wp.customize.settings.url.self;
+
+			// If we're in Customizer, write the correct URL.
+			if ( is_customizer ) {
+					locationObject = document.createElement( 'a' );
+					locationObject.href = wp.customize.settings.url.self;
+			} else {
+				locationObject = document.location;
+			}
 
 			if ( 'string' === typeof( URL ) && URL.match( /^https?:\/\// ) ) {
 				locationObject = document.createElement( 'a' );
@@ -25,6 +34,10 @@
 			var args = 'relatedposts=1';
 			if ( $( '#jp-relatedposts' ).data( 'exclude' ) ) {
 				args += '&relatedposts_exclude=' + $( '#jp-relatedposts' ).data( 'exclude' );
+			}
+
+			if ( is_customizer ) {
+				args += '&jetpackrpcustomize=1';
 			}
 
 			var pathname = locationObject.pathname;
@@ -63,7 +76,7 @@
 			];
 		},
 
-		generateMinimalHtml: function( posts ) {
+		generateMinimalHtml: function( posts, options ) {
 			var self = this;
 			var html = '';
 
@@ -77,14 +90,18 @@
 
 				html += '<p class="' + classes + '" data-post-id="' + post.id + '" data-post-format="' + post.format + '">';
 				html += '<span class="jp-relatedposts-post-title">' + anchor[0] + post.title + anchor[1] + '</span>';
-				html += '<span class="jp-relatedposts-post-date">' + post.date + '</span>';
-				html += '<span class="jp-relatedposts-post-context">' + post.context + '</span>';
+				if ( options.showDate ) {
+					html += '<span class="jp-relatedposts-post-date">' + post.date + '</span>';
+				}
+				if ( options.showContext ) {
+					html += '<span class="jp-relatedposts-post-context">' + post.context + '</span>';
+				}
 				html += '</p>';
 			} );
-			return '<div class="jp-relatedposts-items jp-relatedposts-items-minimal">' + html + '</div>';
+			return '<div class="jp-relatedposts-items jp-relatedposts-items-minimal jp-relatedposts-' + options.layout + ' ">' + html + '</div>';
 		},
 
-		generateVisualHtml: function( posts ) {
+		generateVisualHtml: function( posts, options ) {
 			var self = this;
 			var html = '';
 
@@ -111,11 +128,15 @@
 				}
 				html += '<' + related_posts_js_options.post_heading + ' class="jp-relatedposts-post-title">' + anchor[0] + post.title + anchor[1] + '</' + related_posts_js_options.post_heading + '>';
 				html += '<p class="jp-relatedposts-post-excerpt">' + $( '<p>' ).text( post.excerpt ).html() + '</p>';
-				html += '<p class="jp-relatedposts-post-date">' + post.date + '</p>';
-				html += '<p class="jp-relatedposts-post-context">' + post.context + '</p>';
+				if ( options.showDate ) {
+					html += '<p class="jp-relatedposts-post-date">' + post.date + '</p>';
+				}
+				if ( options.showContext ) {
+					html += '<p class="jp-relatedposts-post-context">' + post.context + '</p>';
+				}
 				html += '</div>';
 			} );
-			return '<div class="jp-relatedposts-items jp-relatedposts-items-visual">' + html + '</div>';
+			return '<div class="jp-relatedposts-items jp-relatedposts-items-visual jp-relatedposts-' + options.layout + ' ">' + html + '</div>';
 		},
 
 		/**
@@ -173,30 +194,66 @@
 		}
 	};
 
-	$( function() {
+	/**
+	 * Initialize Related Posts.
+	 */
+	function startRelatedPosts() {
 		jprp.cleanupTrackedUrl();
 
-		$.getJSON( jprp.getEndpointURL(), function( response ) {
-			if ( 0 === response.items.length || 0 === $( '#jp-relatedposts' ).length ) {
+		var endpointURL = jprp.getEndpointURL(),
+			$relatedPosts = $( '#jp-relatedposts' );
+
+		$.getJSON( endpointURL, function( response ) {
+			if ( 0 === response.items.length || 0 === $relatedPosts.length ) {
 				return;
 			}
 
 			jprp.response = response;
 
-			var html = '';
-			if ( !response.show_thumbnails ) {
-				html = jprp.generateMinimalHtml( response.items );
+			var html,
+				showThumbnails,
+				options = {};
+
+			if ( 'undefined' !== typeof wp && wp.customize ) {
+				showThumbnails = wp.customize.instance( 'jetpack_relatedposts[show_thumbnails]' ).get();
+				options.showDate = wp.customize.instance( 'jetpack_relatedposts[show_date]' ).get();
+				options.showContext = wp.customize.instance( 'jetpack_relatedposts[show_context]' ).get();
+				options.layout = wp.customize.instance( 'jetpack_relatedposts[layout]' ).get();
 			} else {
-				html = jprp.generateVisualHtml( response.items );
+				showThumbnails = response.show_thumbnails;
+				options.showDate = response.show_date;
+				options.showContext = response.show_context;
+				options.layout = response.layout;
 			}
 
-			$( '#jp-relatedposts' ).append( html );
+			html = ! showThumbnails ? jprp.generateMinimalHtml( response.items, options ) : jprp.generateVisualHtml( response.items, options );
+
+			$relatedPosts.append( html );
 			jprp.setVisualExcerptHeights();
-			$( '#jp-relatedposts' ).show();
+			if ( options.showDate ) {
+				$relatedPosts.find( '.jp-relatedposts-post-date' ).show();
+			}
+			$relatedPosts.show();
 
 			$( '#jp-relatedposts a.jp-relatedposts-post-a' ).click(function() {
 				this.href = jprp.getTrackedUrl( this );
 			});
 		} );
+	}
+
+	$( function() {
+		if ( 'undefined' !== typeof wp && wp.customize ) {
+			if ( wp.customize.selectiveRefresh ) {
+				wp.customize.selectiveRefresh.bind( 'partial-content-rendered', function( placement ) {
+					if ( 'jetpack_relatedposts' === placement.partial.id ) {
+						startRelatedPosts();
+					}
+				} );
+			}
+			wp.customize.bind( 'preview-ready', startRelatedPosts );
+		} else {
+			startRelatedPosts();
+		}
 	} );
+
 })(jQuery);

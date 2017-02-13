@@ -247,12 +247,6 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 
 			[ted id=981]
 
-			Audio:
-
-			[audio http://wpcom.files.wordpress.com/2007/01/mattmullenweg-interview.mp3 ]
-
-			[audio http://en.support.files.wordpress.com/2012/05/mattmullenweg-interview.m4a]
-
 			VideoPress:
 
 			[wpvideo 6nd4Jsq7 w=640]
@@ -384,7 +378,9 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 	/**
 	 * @author scotchfield
 	 * @covers Jetpack_Media_Meta_Extractor::extract
+	 * @todo This test is failing in 5.2 and 5.3 for unknown reasons. Figure it out.
 	 * @since 3.2
+	 * @requires PHP 5.4.0
 	 */
 	function test_extract_mentions() {
 		$post_id = $this->add_test_post();
@@ -401,13 +397,6 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 
 		$result = Jetpack_Media_Meta_Extractor::extract( get_current_blog_id(), $post_id, Jetpack_Media_Meta_Extractor::MENTIONS );
 
-		if ( version_compare( PHP_VERSION, '5.4.0' ) == -1 ) {
-			$this->markTestSkipped(
-				'This test is failing in PHP 5.2 and PHP 5.3 for unknown reasons. Skipping pending further verification.'
-				);
-			return;
-		}
-
 		$this->assertEquals( $expected, $result );
 	}
 
@@ -420,7 +409,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 		$post_id = $this->add_test_post();
 
 		$expected = array(
-			'has' => array( 'shortcode' => 10 ),
+			'has' => array( 'shortcode' => 8 ),
 			'shortcode' => array(
 				'youtube' => array(
 					'count' => 2,
@@ -438,13 +427,6 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 					'count' => 1,
 					'id' => array(
 						'981',
-					),
-				),
-				'audio' => array(
-					'count' => 2,
-					'id' => array(
-						'http://wpcom.files.wordpress.com/2007/01/mattmullenweg-interview.mp3',
-						'http://en.support.files.wordpress.com/2012/05/mattmullenweg-interview.m4a',
 					),
 				),
 				'wpvideo' => array(
@@ -465,7 +447,6 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 				'vimeo',
 				'video',
 				'ted',
-				'audio',
 				'wpvideo',
 				'gallery',
 			),
@@ -482,6 +463,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 	 * @since 3.2
 	 */
 	function test_extract_embeds() {
+		global $wp_version;
 		$post_id = $this->add_test_post();
 
 		$expected = array(
@@ -491,6 +473,12 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 				'vimeo.com/44633289',
 			) ),
 		);
+
+		// "Adapting" the test to work in WordPress 4.6
+		if ( version_compare( $wp_version, '4.7', '>=' ) ) {
+			$expected['has']['embed'] = 3;
+			$expected['embed']['url'][] = 'twitter.com/mremy';
+		}
 
 		$result = Jetpack_Media_Meta_Extractor::extract( get_current_blog_id(), $post_id, Jetpack_Media_Meta_Extractor::EMBEDS );
 

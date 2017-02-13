@@ -79,7 +79,7 @@ function jetpack_holiday_snow_script() {
 	 * @param str URL to the holiday snow JavaScript file.
 	 */
 	$snowstorm_url = apply_filters( 'jetpack_holiday_snow_js_url', plugins_url( 'holiday-snow/snowstorm.js', __FILE__ ) );
-	wp_enqueue_script( 'snowstorm', $snowstorm_url, array(), '1.43.20111201' );
+	wp_enqueue_script( 'snowstorm', $snowstorm_url, array(), '1.43.20111201', true );
 }
 
 function jetpack_maybe_holiday_snow() {
@@ -106,6 +106,19 @@ function jetpack_holiday_snow_option_name() {
 	 * @param str The holiday snow option name.
 	 */
 	return apply_filters( 'jetpack_holiday_snow_option_name', 'jetpack_holiday_snow_enabled' );
+}
+
+function jetpack_show_holiday_snow_option() {
+	// Always show snow option if a custom snow season has been set.
+	if ( has_filter( 'jetpack_is_holiday_snow_season' ) ) {
+		return true;
+	}
+
+	$today            = time();
+	$first_option_day = mktime( 0, 0, 0, 11, 24 ); // Nov 24
+	$last_option_day  = mktime( 0, 0, 0, 1, 4 );   // Jan 4
+
+	return ( $today >= $first_option_day || $today < $last_option_day );
 }
 
 function jetpack_is_holiday_snow_season() {

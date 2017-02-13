@@ -28,8 +28,9 @@
 // <iframe class="youtube-player" type="text/html" width="640" height="385" src="http://www.youtube.com/embed/VIDEO_ID" frameborder="0"></iframe>
 
 function youtube_embed_to_short_code( $content ) {
-	if ( false === strpos( $content, 'youtube.com' ) )
+	if ( ! is_string( $content ) || false === strpos( $content, 'youtube.com' ) ) {
 		return $content;
+	}
 
 	//older codes
 	$regexp = '!<object width="\d+" height="\d+"><param name="movie" value="https?://www\.youtube\.com/v/([^"]+)"></param>(?:<param name="\w+" value="[^"]*"></param>)*<embed src="https?://www\.youtube\.com/v/(.+)" type="application/x-shockwave-flash"(?: \w+="[^"]*")* width="\d+" height="\d+"></embed></object>!i';
@@ -104,7 +105,7 @@ add_filter( 'pre_kses', 'youtube_embed_to_short_code' );
  * @return string The content with embeds instead of URLs
  */
 function youtube_link( $content ) {
-	return preg_replace_callback( '!(?:\n|\A)https?://(?:www\.)?(?:youtube.com/(?:v/|playlist|watch[/\#?])|youtu\.be/)[^\s]+?(?:\n|\Z)!i', 'youtube_link_callback', $content );
+	return jetpack_preg_replace_callback_outside_tags( '!(?:\n|\A)https?://(?:www\.)?(?:youtube.com/(?:v/|playlist|watch[/\#?])|youtu\.be/)[^\s]+?(?:\n|\Z)!i', 'youtube_link_callback', $content, 'youtube.com/' );
 }
 
 /**
@@ -177,14 +178,17 @@ function youtube_id( $url ) {
 	$input_w = ( isset( $qargs['w'] ) && intval( $qargs['w'] ) ) ? intval( $qargs['w'] ) : 0;
 	$input_h = ( isset( $qargs['h'] ) && intval( $qargs['h'] ) ) ? intval( $qargs['h'] ) : 0;
 
-	$default_width = get_option('embed_size_w');
+	// If we have $content_width, use it.
+	if ( ! empty( $content_width ) ) {
+		$default_width = $content_width;
+	} else {
+		// Otherwise get default width from the old, now deprecated embed_size_w option.
+		$default_width = get_option('embed_size_w');
+	}
 
+	// If we don't know those 2 values use a hardcoded width.h
 	if ( empty( $default_width ) ) {
-		if ( ! empty( $content_width ) ) {
-			$default_width = $content_width;
-		} else {
-			$default_width = 640;
-		}
+		$default_width = 640;
 	}
 
 	if ( $input_w > 0 && $input_h > 0 ) {
@@ -363,12 +367,10 @@ add_action( 'init', 'wpcom_youtube_embed_crazy_url_init' );
  *
  * @param int get_option('embed_autourls') Option to automatically embed all plain text URLs.
  */
-if ( apply_filters( 'jetpack_comments_allow_oembed', get_option('embed_autourls') ) ) {
+if ( ! is_admin() && apply_filters( 'jetpack_comments_allow_oembed', true ) ) {
 	// We attach wp_kses_post to comment_text in default-filters.php with priority of 10 anyway, so the iframe gets filtered out.
-	if ( ! is_admin() ) {
-		// Higher priority because we need it before auto-link and autop get to it
-		add_filter( 'comment_text', 'youtube_link', 1 );
-	}
+	// Higher priority because we need it before auto-link and autop get to it
+	add_filter( 'comment_text', 'youtube_link', 1 );
 }
 
 /**

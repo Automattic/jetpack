@@ -12,7 +12,7 @@ class Jetpack_JSON_API_Plugins_Install_Endpoint extends Jetpack_JSON_API_Plugins
 	protected function install() {
 		foreach ( $this->plugins as $index => $slug ) {
 
-			$skin      = new Jetpack_Automatic_Plugin_Install_Skin();
+			$skin      = new Jetpack_Automatic_Install_Skin();
 			$upgrader  = new Plugin_Upgrader( $skin );
 			$zip_url   = self::generate_wordpress_org_plugin_download_link( $slug );
 
@@ -72,7 +72,8 @@ class Jetpack_JSON_API_Plugins_Install_Endpoint extends Jetpack_JSON_API_Plugins
 	}
 
 	protected static function get_plugin_id_by_slug( $slug ) {
-		$plugins = get_plugins();
+		/** This filter is documented in wp-admin/includes/class-wp-plugins-list-table.php */
+		$plugins = apply_filters( 'all_plugins', get_plugins() );
 		if ( ! is_array( $plugins ) ) {
 			return false;
 		}
@@ -97,7 +98,7 @@ class Jetpack_JSON_API_Plugins_Install_Endpoint extends Jetpack_JSON_API_Plugins
  * Allows us to capture that the site doesn't have proper file system access.
  * In order to update the plugin.
  */
-class Jetpack_Automatic_Plugin_Install_Skin extends Automatic_Upgrader_Skin {
+class Jetpack_Automatic_Install_Skin extends Automatic_Upgrader_Skin {
 	/**
 	 * Stores the last error key;
 	 **/

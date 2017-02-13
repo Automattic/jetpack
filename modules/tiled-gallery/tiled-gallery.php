@@ -20,7 +20,7 @@ class Jetpack_Tiled_Gallery {
 
 	public function tiles_enabled() {
 		// Check the setting status
-		return '' != get_option( 'tiled_galleries' );
+		return '' != Jetpack_Options::get_option_and_ensure_autoload( 'tiled_galleries', '' );
 	}
 
 	public function set_atts( $atts ) {
@@ -42,8 +42,10 @@ class Jetpack_Tiled_Gallery {
 		$this->float = is_rtl() ? 'right' : 'left';
 
 		// Default to rectangular is tiled galleries are checked
-		if ( $this->tiles_enabled() && ( ! $this->atts['type'] || 'default' == $this->atts['type'] ) )
-			$this->atts['type'] = 'rectangular';
+		if ( $this->tiles_enabled() && ( ! $this->atts['type'] || 'default' == $this->atts['type'] ) ) {
+			/** This filter is already documented in functions.gallery.php */
+			$this->atts['type'] = apply_filters( 'jetpack_default_gallery_type', 'rectangular' );
+		}
 
 		if ( !$this->atts['orderby'] ) {
 			$this->atts['orderby'] = sanitize_sql_orderby( $this->atts['orderby'] );

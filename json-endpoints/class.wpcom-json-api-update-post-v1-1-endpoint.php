@@ -36,15 +36,20 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			remove_action( 'save_post', array( $GLOBALS['publicize_ui']->publicize, 'async_publicize_post' ), 100, 2 );
 			add_action( 'rest_api_inserted_post', array( $GLOBALS['publicize_ui']->publicize, 'async_publicize_post' ) );
+
+			if ( $this->should_load_theme_functions( $post_id ) ) {
+				$this->load_theme_functions();
+			}
 		}
 
-		// 'future' is an alias for 'publish' for now
-		if ( 'future' === $input['status'] ) {
-			$input['status'] = 'publish';
-		}
 
 		if ( $new ) {
 			$input = $this->input( true );
+
+			// 'future' is an alias for 'publish' for now
+			if ( 'future' === $input['status'] ) {
+				$input['status'] = 'publish';
+			}
 
 			if ( 'revision' === $input['type'] ) {
 				if ( ! isset( $input['parent'] ) ) {
@@ -92,6 +97,15 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 
 			if ( !is_array( $input ) || !$input ) {
 				return new WP_Error( 'invalid_input', 'Invalid request input', 400 );
+			}
+
+			if ( isset( $input['status'] ) && 'trash' === $input['status'] && ! current_user_can( 'delete_post', $post_id ) ) {
+				return new WP_Error( 'unauthorized', 'User cannot delete post', 403 );
+			}
+
+			// 'future' is an alias for 'publish' for now
+			if ( isset( $input['status'] ) && 'future' === $input['status'] ) {
+				$input['status'] = 'publish';
 			}
 
 			$post = get_post( $post_id );
@@ -149,26 +163,50 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 			unset( $input['parent'] );
 		}
 
-		$tax_input = array();
+		$input['terms'] = isset( $input['terms'] ) ? (array) $input['terms'] : array();
 
-		foreach ( array( 'categories' => 'category', 'tags' => 'post_tag' ) as $key => $taxonomy ) {
-			if ( ! isset( $input[ $key ] ) ) {
+		// Convert comma-separated terms to array before attempting to
+		// merge with hardcoded taxonomies
+		foreach ( $input['terms'] as $taxonomy => $terms ) {
+			if ( is_string( $terms ) ) {
+				$input['terms'][ $taxonomy ] = explode( ',', $terms );
+			} else if ( ! is_array( $terms ) ) {
+				$input['terms'][ $taxonomy ] = array();
+			}
+		}
+
+		// For each hard-coded taxonomy, merge into terms object
+		foreach ( array( 'categories' => 'category', 'tags' => 'post_tag' ) as $taxonomy_key => $taxonomy ) {
+			if ( ! isset( $input[ $taxonomy_key ] ) ) {
 				continue;
 			}
 
-			$tax_input[ $taxonomy ] = array();
-
-			$is_hierarchical = is_taxonomy_hierarchical( $taxonomy );
-
-			if ( is_array( $input[$key] ) ) {
-				$terms = $input[$key];
-			} else {
-				$terms = explode( ',', $input[$key] );
+			if ( ! isset( $input['terms'][ $taxonomy ] ) ) {
+				$input['terms'][ $taxonomy ] = array();
 			}
+
+			$terms = $input[ $taxonomy_key ];
+			if ( is_string( $terms ) ) {
+				$terms = explode( ',', $terms );
+			} else if ( ! is_array( $terms ) ) {
+				continue;
+			}
+
+			$input['terms'][ $taxonomy ] = array_merge(
+				$input['terms'][ $taxonomy ],
+				$terms
+			);
+		}
+
+		$tax_input = array();
+
+		foreach ( $input['terms'] as $taxonomy => $terms ) {
+			$tax_input[ $taxonomy ] = array();
+			$is_hierarchical = is_taxonomy_hierarchical( $taxonomy );
 
 			foreach ( $terms as $term ) {
 				/**
-				 * `curl --data 'category[]=123'` should be interpreted as a category ID,
+				 * `curl --data 'terms[category][]=123'` should be interpreted as a category ID,
 				 * not a category whose name is '123'.
 				 *
 				 * Consequence: To add a category/tag whose name is '123', the client must
@@ -190,7 +228,7 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 					$tax = get_taxonomy( $taxonomy );
 
 					// see https://core.trac.wordpress.org/ticket/26409
-					if ( 'category' === $taxonomy && ! current_user_can( $tax->cap->edit_terms ) ) {
+					if ( $is_hierarchical && ! current_user_can( $tax->cap->edit_terms ) ) {
 						continue;
 					} else if ( ! current_user_can( $tax->cap->assign_terms ) ) {
 						continue;
@@ -201,10 +239,10 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 
 				if ( ! is_wp_error( $term_info ) ) {
 					if ( $is_hierarchical ) {
-						// Categories must be added by ID
+						// Hierarchical terms must be added by ID
 						$tax_input[$taxonomy][] = (int) $term_info['term_id'];
 					} else {
-						// Tags must be added by name
+						// Non-hierarchical terms must be added by name
 						if ( is_int( $term ) ) {
 							$term = get_term( $term, $taxonomy );
 							$tax_input[$taxonomy][] = $term->name;
@@ -216,11 +254,11 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 			}
 		}
 
-		if ( isset( $input['categories'] ) && empty( $tax_input['category'] ) && 'revision' !== $post_type->name ) {
+		if ( isset( $input['terms']['category'] ) && empty( $tax_input['category'] ) && 'revision' !== $post_type->name ) {
 			$tax_input['category'][] = get_option( 'default_category' );
 		}
 
-		unset( $input['tags'], $input['categories'] );
+		unset( $input['terms'], $input['tags'], $input['categories'] );
 
 		$insert = array();
 
@@ -527,6 +565,11 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 
 				$meta = (object) $meta;
 
+				// Custom meta description can only be set on sites that have a business subscription.
+				if ( Jetpack_SEO_Posts::DESCRIPTION_META_KEY == $meta->key && ! Jetpack_SEO_Utils::is_enabled_jetpack_seo() ) {
+					return new WP_Error( 'unauthorized', __( 'SEO tools are not enabled for this site.', 'jetpack' ), 403 );
+				}
+
 				$existing_meta_item = new stdClass;
 
 				if ( empty( $meta->operation ) )
@@ -573,7 +616,7 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 
 						if ( ! empty( $meta->id ) || ! empty( $meta->previous_value ) ) {
 							continue;
-						} elseif ( ! empty( $meta->key ) && ! empty( $meta->value ) && ( current_user_can( 'add_post_meta', $post_id, $unslashed_meta_key ) ) || $this->is_metadata_public( $meta->key ) ) {
+						} elseif ( ! empty( $meta->key ) && ! empty( $meta->value ) && ( current_user_can( 'add_post_meta', $post_id, $unslashed_meta_key ) ) || WPCOM_JSON_API_Metadata::is_public( $meta->key ) ) {
 							add_post_meta( $post_id, $meta->key, $meta->value );
 						}
 
@@ -582,11 +625,11 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 
 						if ( ! isset( $meta->value ) ) {
 							continue;
-						} elseif ( ! empty( $meta->id ) && ! empty( $existing_meta_item->meta_key ) && ( current_user_can( 'edit_post_meta', $post_id, $unslashed_existing_meta_key ) || $this->is_metadata_public( $meta->key ) ) ) {
+						} elseif ( ! empty( $meta->id ) && ! empty( $existing_meta_item->meta_key ) && ( current_user_can( 'edit_post_meta', $post_id, $unslashed_existing_meta_key ) || WPCOM_JSON_API_Metadata::is_public( $meta->key ) ) ) {
 							update_metadata_by_mid( 'post', $meta->id, $meta->value );
-						} elseif ( ! empty( $meta->key ) && ! empty( $meta->previous_value ) && ( current_user_can( 'edit_post_meta', $post_id, $unslashed_meta_key ) || $this->is_metadata_public( $meta->key ) ) ) {
+						} elseif ( ! empty( $meta->key ) && ! empty( $meta->previous_value ) && ( current_user_can( 'edit_post_meta', $post_id, $unslashed_meta_key ) || WPCOM_JSON_API_Metadata::is_public( $meta->key ) ) ) {
 							update_post_meta( $post_id, $meta->key,$meta->value, $meta->previous_value );
-						} elseif ( ! empty( $meta->key ) && ( current_user_can( 'edit_post_meta', $post_id, $unslashed_meta_key ) || $this->is_metadata_public( $meta->key ) ) ) {
+						} elseif ( ! empty( $meta->key ) && ( current_user_can( 'edit_post_meta', $post_id, $unslashed_meta_key ) || WPCOM_JSON_API_Metadata::is_public( $meta->key ) ) ) {
 							update_post_meta( $post_id, $meta->key, $meta->value );
 						}
 
@@ -617,7 +660,8 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 			$return['media_errors'] = $media_results['errors'];
 
 		if ( 'publish' !== $post->post_status ) {
-			$return['other_URLs'] = (object) $this->get_post_permalink_suggestions( $post_id, $input['title'] );
+			$sal_site = $this->get_sal_post_by( 'ID', $post_id, $args['context'] );
+			$return['other_URLs'] = (object) $sal_site->get_permalink_suggestions( $input['title'] );
 		}
 
 		/** This action is documented in json-endpoints/class.wpcom-json-api-site-settings-endpoint.php */
@@ -696,7 +740,7 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 			return $featured_image;
 		}
 
-		$featured_image_id = $this->handle_media_sideload( $featured_image, $post_id );
+		$featured_image_id = $this->handle_media_sideload( $featured_image, $post_id, 'image' );
 
 		if ( empty( $featured_image_id ) || ! is_int( $featured_image_id ) )
 			return false;
@@ -723,5 +767,16 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 			return new WP_Error( 'invalid_author', 'Invalid author provided' );
 
 		return $_user->ID;
+	}
+
+	protected function should_load_theme_functions( $post_id = null ) {
+		if ( empty( $post_id ) ) {
+			$input = $this->input( true );
+			$type = $input['type'];
+		} else {
+			$type = get_post_type( $post_id );
+		}
+
+		return ! empty( $type ) && ! in_array( $type, array( 'post', 'page', 'revision' ) );
 	}
 }

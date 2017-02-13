@@ -11,7 +11,7 @@
 <div class="wrap">
 	<h2><?php _e( 'Network Settings', 'jetpack' ); ?></h2>
 	<form action="edit.php?action=jetpack-network-settings" method="POST">
-		<h3><?php _e( 'Global', 'jetpack' ); ?></h3>
+		<h3><?php _ex( 'Global', 'Affects all sites in a Multisite network.', 'jetpack' ); ?></h3>
 		<p><?php _e( 'These settings affect all sites on the network.', 'jetpack' ); ?></p>
 		<?php wp_nonce_field( 'jetpack-network-settings' ); ?>
 		<table class="form-table">
@@ -37,7 +37,7 @@
 				<td>
 					<p><strong><?php printf( __( 'Your current IP: %s', 'jetpack' ), jetpack_protect_get_ip() ); ?></strong></p>
 					<textarea name="global-whitelist" style="width: 100%;" rows="8"><?php echo implode( PHP_EOL, $jetpack_protect_whitelist['global'] ); ?></textarea> <br />
-					<label for="global-whitelist"><?php _e('IPv4 and IPv6 are acceptable. <br />To specify a range, enter the low value and high value separated by a dash. Example: 12.12.12.1-12.12.12.100', 'jetpack' ); ?></label>
+					<label for="global-whitelist"><?php _e('IPv4 and IPv6 are acceptable. Enter multiple IPs on separate lines. <br />To specify a range, enter the low value and high value separated by a dash. Example: 12.12.12.1-12.12.12.100', 'jetpack' ); ?></label>
 				</td>
 			</tr>
 <?php /* Remove the toggles for 2.9, re-evaluate how they're done and added for a 3.0 release. They don't feel quite right yet.
@@ -50,7 +50,7 @@
 			</tr>
 /**/ ?>
 		</table>
-		
+
 <?php /* Remove the toggles for 2.9, re-evaluate how they're done and added for a 3.0 release. They don't feel quite right yet.
 		<?php
 			$display_modules = ( 1 == $this->get_option( 'manage_auto_activated_modules' ) )? 'block': 'none';

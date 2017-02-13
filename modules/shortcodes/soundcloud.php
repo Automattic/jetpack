@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: SoundCloud Shortcode
-Plugin URI: http://wordpress.org/extend/plugins/soundcloud-shortcode/
+Plugin URI: https://wordpress.org/extend/plugins/soundcloud-shortcode/
 Description: Converts SoundCloud WordPress shortcodes to a SoundCloud widget. Example: [soundcloud]http://soundcloud.com/forss/flickermood[/soundcloud]
 Version: 2.3
 Author: SoundCloud Inc., simplified for Jetpack by Automattic, Inc.
@@ -248,7 +248,7 @@ function soundcloud_flash_widget( $options ) {
  * @return string Parsed content.
  */
 function jetpack_soundcloud_embed_reversal( $content ) {
-	if ( false === stripos( $content, 'w.soundcloud.com/player' ) ) {
+	if ( ! is_string( $content ) || false === stripos( $content, 'w.soundcloud.com/player' ) ) {
 		return $content;
 	}
 

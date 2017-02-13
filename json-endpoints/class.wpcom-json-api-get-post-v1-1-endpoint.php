@@ -10,15 +10,26 @@ class WPCOM_JSON_API_Get_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_End
 
 		$args = $this->query_args();
 
-		if ( false === strpos( $path, '/posts/slug:' ) ) {
-			$get_by = 'ID';
-		} else {
-			$get_by = 'name';
+		if ( false !== strpos( $path, '/posts/slug:' ) ) {
+			$post_id = $this->get_platform()->get_site( $blog_id )->get_post_id_by_name( $post_id );
+			if ( is_wp_error( $post_id ) ) {
+				return $post_id;
+			}
 		}
 
-		$return = $this->get_post_by( $get_by, $post_id, $args['context'] );
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM &&
+				! in_array( get_post_type( $post_id ), array( false, 'post', 'page', 'revision' ) ) ) {
+			$this->load_theme_functions();
+		}
+
+		$return = $this->get_post_by( 'ID', $post_id, $args['context'] );
+
 		if ( !$return || is_wp_error( $return ) ) {
 			return $return;
+		}
+
+		if ( ! $this->current_user_can_access_post_type( $return['type'], $args['context'] ) ) {
+			return new WP_Error( 'unknown_post', 'Unknown post', 404 );
 		}
 
 		/** This action is documented in json-endpoints/class.wpcom-json-api-site-settings-endpoint.php */

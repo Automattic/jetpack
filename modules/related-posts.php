@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Related Posts
- * Module Description: Display similar content.
+ * Module Description: Increase page views by showing related content to your visitors.
  * Jumpstart Description: Keep visitors engaged on your blog by highlighting relevant and new content at the bottom of each published post.
  * First Introduced: 2.9
  * Sort Order: 29
@@ -9,7 +9,7 @@
  * Requires Connection: Yes
  * Auto Activate: No
  * Module Tags: Recommended
- * Feature: Recommended, Jumpstart, Traffic
+ * Feature: Engagement, Jumpstart
  * Additional Search Queries: related, related posts
  */
 class Jetpack_RelatedPosts_Module {
@@ -34,23 +34,9 @@ class Jetpack_RelatedPosts_Module {
 	 * Register actions and filters
 	 *
 	 * @uses add_action, add_filter
-	 * @return null
 	 */
 	private function __construct() {
 		add_action( 'jetpack_module_loaded_related-posts', array( $this, 'action_on_load' ) );
-		add_action( 'jetpack_activate_module_related-posts', array( $this, 'action_on_activate' ) );
-	}
-
-	/**
-	 * This action triggers when module is activated.
-	 *
-	 * @uses Jetpack::init, Jetpack_Sync::reindex_needed, Jetpack_Sync::reindex_trigger
-	 * @return null
-	 */
-	public function action_on_activate() {
-		if ( Jetpack::init()->sync->reindex_needed() ) {
-			Jetpack::init()->sync->reindex_trigger();
-		}
 	}
 
 	/**
@@ -67,9 +53,11 @@ class Jetpack_RelatedPosts_Module {
 			// Enable "Configure" button on module card
 			Jetpack::enable_module_configurable( __FILE__ );
 			Jetpack::module_configuration_load( __FILE__, array( $this, 'module_configuration_load' ) );
+		}
 
-			// Sync new posts
-			Jetpack_Sync::sync_posts( __FILE__ );
+		// Load Customizer controls.
+		if ( class_exists( 'WP_Customize_Manager' ) ) {
+			require_once 'related-posts/class.related-posts-customize.php';
 		}
 	}
 

@@ -80,6 +80,7 @@ function AtD_restore_if_proofreading() {
 	}
 }
 
+/* exported AtD_unbind_proofreader_listeners */
 function AtD_unbind_proofreader_listeners() {
 	jQuery('#save-post, #post-preview, #publish, #edButtonPreview').unbind('focus', AtD_restore_if_proofreading );
 	jQuery('#add_poll, #add_image, #add_video, #add_audio, #add_media').unbind('click', AtD_restore_if_proofreading );
@@ -110,7 +111,7 @@ function AtD_check(button) {
 		AtD_qtbutton = button;
 	}
 
-	if ( !jQuery('#content').size() ) {
+	if ( !jQuery('#content').length ) {
 		if ( 'undefined' !== typeof callback ) {
 			callback( 0 );
 		}

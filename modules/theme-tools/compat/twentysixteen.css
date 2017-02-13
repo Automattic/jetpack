@@ -188,7 +188,6 @@
 	margin-bottom: 0.875em
 }
 
-
 /**
  * Shortcodes
  */
@@ -474,6 +473,7 @@ iframe[src^="http://api.mixcloud.com/"] {
 	opacity: 0.2;
 	position: absolute;
 	top: 0;
+	left: 0;
 	width: 100%;
 }
 
@@ -498,10 +498,6 @@ iframe[src^="http://api.mixcloud.com/"] {
 
 .entry-content #jp-relatedposts h3.jp-relatedposts-headline em {
 	font-weight: 400;
-}
-
-.entry-content #jp-relatedposts .jp-relatedposts-headline em:after {
-	content: ":";
 }
 
 .jp-relatedposts-items:before,

@@ -9,7 +9,7 @@
  * Requires Connection: No
  * Auto Activate: Yes
  * Module Tags: Social, Appearance
- * Feature: Jumpstart
+ * Feature: Appearance, Jumpstart
  * Additional Search Queries: gravatar, hovercards
  */
 
@@ -81,7 +81,7 @@ jQuery( function($) {
 		}
 	} ).parents( 'tr' );
 	var ftr = tr.parents( 'table' ).find( 'tr:first' );
-	if ( ftr.size() && !ftr.find( '#gravatar_disable_hovercards' ).size() ) {
+	if ( ftr.length && !ftr.find( '#gravatar_disable_hovercards' ).length ) {
 		ftr.after( tr );
 	}
 } );
@@ -181,7 +181,7 @@ function grofiles_attach_cards() {
 	}
 
 	// Is the display of Gravatar Hovercards disabled?
-	if ( 'disabled' == get_option( 'gravatar_disable_hovercards' ) ) {
+	if ( 'disabled' == Jetpack_Options::get_option_and_ensure_autoload( 'gravatar_disable_hovercards', '0' ) ) {
 		return;
 	}
 

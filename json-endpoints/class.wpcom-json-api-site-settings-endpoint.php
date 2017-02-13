@@ -77,6 +77,23 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 	}
 
 	/**
+	 * Returns an option value as the result of the callable being applied to
+	 * it if a value is set, otherwise null.
+	 *
+	 * @param (string) $option_name Option name
+	 * @param (callable) $cast_callable Callable to invoke on option value
+	 * @return (int|null) Numeric option value or null
+	 */
+	protected function get_cast_option_value_or_null( $option_name, $cast_callable ) {
+		$option_value = get_option( $option_name, null );
+		if ( is_null( $option_value ) ) {
+			return $option_value;
+		}
+
+		return call_user_func( $cast_callable, $option_value );
+	}
+
+	/**
 	 * Collects the necessary information to return for a get settings response.
 	 *
 	 * @return (array)
@@ -136,15 +153,12 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					)
 				);
 
-				$eventbrite_api_token = (int) get_option( 'eventbrite_api_token' );
-				if ( 0 === $eventbrite_api_token ) {
-					$eventbrite_api_token = null;
-				}
-
 				$holiday_snow = false;
 				if ( function_exists( 'jetpack_holiday_snow_option_name' ) ) {
 					$holiday_snow = (bool) get_option( jetpack_holiday_snow_option_name() );
 				}
+
+				$api_cache = $is_jetpack ? (bool) get_option( 'jetpack_api_cache_enabled' ) : true;
 
 				$response[ $key ] = array(
 
@@ -158,8 +172,8 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'jetpack_sync_non_public_post_stati' => (bool) Jetpack_Options::get_option( 'sync_non_public_post_stati' ),
 					'jetpack_relatedposts_allowed' => (bool) $this->jetpack_relatedposts_supported(),
 					'jetpack_relatedposts_enabled' => (bool) $jetpack_relatedposts_options[ 'enabled' ],
-					'jetpack_relatedposts_show_headline' => (bool) $jetpack_relatedposts_options[ 'show_headline' ],
-					'jetpack_relatedposts_show_thumbnails' => (bool) $jetpack_relatedposts_options[ 'show_thumbnails' ],
+					'jetpack_relatedposts_show_headline' => (bool) isset( $jetpack_relatedposts_options[ 'show_headline' ] ) ? $jetpack_relatedposts_options[ 'show_headline' ] : false,
+					'jetpack_relatedposts_show_thumbnails' => (bool) isset( $jetpack_relatedposts_options[ 'show_thumbnails' ] ) ? $jetpack_relatedposts_options[ 'show_thumbnails' ] : false,
 					'default_category'        => (int) get_option('default_category'),
 					'post_categories'         => (array) $post_categories,
 					'default_post_format'     => get_option( 'default_post_format' ),
@@ -185,14 +199,27 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'moderation_keys'         => get_option( 'moderation_keys' ),
 					'blacklist_keys'          => get_option( 'blacklist_keys' ),
 					'lang_id'                 => get_option( 'lang_id' ),
-					'wga'                     => get_option( 'wga' ),
+					'wga'                     => $this->get_google_analytics(),
 					'disabled_likes'          => (bool) get_option( 'disabled_likes' ),
 					'disabled_reblogs'        => (bool) get_option( 'disabled_reblogs' ),
 					'jetpack_comment_likes_enabled' => (bool) get_option( 'jetpack_comment_likes_enabled', false ),
 					'twitter_via'             => (string) get_option( 'twitter_via' ),
 					'jetpack-twitter-cards-site-tag' => (string) get_option( 'jetpack-twitter-cards-site-tag' ),
-					'eventbrite_api_token'    => $eventbrite_api_token,
-					'holidaysnow'             => $holiday_snow
+					'eventbrite_api_token'    => $this->get_cast_option_value_or_null( 'eventbrite_api_token', 'intval' ),
+					'holidaysnow'             => $holiday_snow,
+					'gmt_offset'              => get_option( 'gmt_offset' ),
+					'timezone_string'         => get_option( 'timezone_string' ),
+					'date_format'             => get_option( 'date_format' ),
+					'time_format'             => get_option( 'time_format' ),
+					'start_of_week'           => get_option( 'start_of_week' ),
+					'jetpack_testimonial'     => (bool) get_option( 'jetpack_testimonial', '0' ),
+					'jetpack_testimonial_posts_per_page' => (int) get_option( 'jetpack_testimonial_posts_per_page', '10' ),
+					'jetpack_portfolio'       => (bool) get_option( 'jetpack_portfolio', '0' ),
+					'jetpack_portfolio_posts_per_page' => (int) get_option( 'jetpack_portfolio_posts_per_page', '10' ),
+					'site_icon'               => $this->get_cast_option_value_or_null( 'site_icon', 'intval' ),
+					Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION => get_option( Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION, '' ),
+					Jetpack_SEO_Titles::TITLE_FORMATS_OPTION => get_option( Jetpack_SEO_Titles::TITLE_FORMATS_OPTION, array() ),
+					'api_cache'               => $api_cache,
 				);
 
 				//allow future versions of this endpoint to support additional settings keys
@@ -242,6 +269,10 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 		return false;
 	}
 
+	protected function get_google_analytics () {
+		$option_name = defined( 'IS_WPCOM' ) && IS_WPCOM ? 'wga' : 'jetpack_wga';
+		return get_option( $option_name );
+	}
 
 	/**
 	 * Updates site settings for authorized users
@@ -328,12 +359,18 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					}
 					break;
 				case 'wga':
+				case 'jetpack_wga':
 					if ( ! isset( $value['code'] ) || ! preg_match( '/^$|^UA-[\d-]+$/i', $value['code'] ) ) {
 						return new WP_Error( 'invalid_code', 'Invalid UA ID' );
 					}
-					$wga = get_option( 'wga', array() );
+
+					$is_wpcom = defined( 'IS_WPCOM' ) && IS_WPCOM;
+					$option_name = $is_wpcom ? 'wga' : 'jetpack_wga';
+
+					$wga = get_option( $option_name, array() );
 					$wga['code'] = $value['code']; // maintain compatibility with wp-google-analytics
-					if ( update_option( 'wga', $wga ) ) {
+
+					if ( update_option( $option_name, $wga ) ) {
 						$updated[ $key ] = $value;
 					}
 
@@ -342,15 +379,27 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					/** This action is documented in modules/widgets/social-media-icons.php */
 					do_action( 'jetpack_bump_stats_extras', 'google-analytics', $enabled_or_disabled );
 
-					$business_plugins = WPCOM_Business_Plugins::instance();
-					$business_plugins->activate_plugin( 'wp-google-analytics' );
+					if ( $is_wpcom ) {
+						$business_plugins = WPCOM_Business_Plugins::instance();
+						$business_plugins->activate_plugin( 'wp-google-analytics' );
+					}
 					break;
-
+				case 'jetpack_testimonial':
+				case 'jetpack_portfolio':
 				case 'jetpack_comment_likes_enabled':
 					// settings are stored as 1|0
 					$coerce_value = (int) $value;
 					if ( update_option( $key, $coerce_value ) ) {
-						$updated[ $key ] = $value;
+						$updated[ $key ] = (bool) $value;
+					}
+					break;
+
+				case 'jetpack_testimonial_posts_per_page':
+				case 'jetpack_portfolio_posts_per_page':
+					// settings are stored as numeric
+					$coerce_value = (int) $value;
+					if ( update_option( $key, $coerce_value ) ) {
+						$updated[ $key ] = $coerce_value;
 					}
 					break;
 
@@ -388,6 +437,106 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					}
 					break;
 
+				case 'api_cache':
+					if ( empty( $value ) || WPCOM_JSON_API::is_falsy( $value ) ) {
+						if ( delete_option( 'jetpack_api_cache_enabled' ) ) {
+							$updated[ $key ] = false;
+						}
+					} else if ( update_option( 'jetpack_api_cache_enabled', true ) ) {
+						$updated[ $key ] = true;
+					}
+					break;
+
+				case 'timezone_string':
+					// Map UTC+- timezones to gmt_offsets and set timezone_string to empty
+					// https://github.com/WordPress/WordPress/blob/4.4.2/wp-admin/options.php#L175
+					if ( ! empty( $value ) && preg_match( '/^UTC[+-]/', $value ) ) {
+						$gmt_offset = preg_replace( '/UTC\+?/', '', $value );
+						if ( update_option( 'gmt_offset', $gmt_offset ) ) {
+							$updated[ 'gmt_offset' ] = $gmt_offset;
+						}
+
+						$value = '';
+					}
+
+					// Always set timezone_string either with the given value or with an
+					// empty string
+					if ( update_option( $key, $value ) ) {
+						$updated[ $key ] = $value;
+					}
+					break;
+
+				case 'date_format':
+				case 'time_format':
+					// settings are stored as strings
+					if ( update_option( $key, sanitize_text_field( $value ) ) ) {
+						$updated[ $key ] = $value;
+					}
+					break;
+
+				case 'start_of_week':
+					// setting is stored as int in 0-6 range (days of week)
+					$coerce_value = (int) $value;
+					$limit_value  = ( $coerce_value >= 0 && $coerce_value <= 6 ) ? $coerce_value : 0;
+					if ( update_option( $key, $limit_value ) ) {
+						$updated[ $key ] = $limit_value;
+					}
+					break;
+
+				case 'site_icon':
+					// settings are stored as deletable numeric (all empty
+					// values as delete intent), validated as media image
+					if ( empty( $value ) || WPCOM_JSON_API::is_falsy( $value ) ) {
+						if ( delete_option( $key ) ) {
+							$updated[ $key ] = null;
+						}
+					} else if ( is_numeric( $value ) ) {
+						$coerce_value = (int) $value;
+						if ( wp_attachment_is_image( $coerce_value ) && update_option( $key, $coerce_value ) ) {
+							$updated[ $key ] = $coerce_value;
+						}
+					}
+					break;
+
+				case Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION:
+					if ( ! Jetpack_SEO_Utils::is_enabled_jetpack_seo() && ! Jetpack_SEO_Utils::has_grandfathered_front_page_meta() ) {
+						return new WP_Error( 'unauthorized', __( 'SEO tools are not enabled for this site.', 'jetpack' ), 403 );
+					}
+
+					if ( ! is_string( $value ) ) {
+						return new WP_Error( 'invalid_input', __( 'Invalid SEO meta description value.', 'jetpack' ), 400 );
+					}
+
+					$new_description = Jetpack_SEO_Utils::update_front_page_meta_description( $value );
+
+					if ( ! empty( $new_description ) ) {
+						$updated[ $key ] = $new_description;
+					}
+					break;
+
+				case Jetpack_SEO_Titles::TITLE_FORMATS_OPTION:
+					if ( ! Jetpack_SEO_Utils::is_enabled_jetpack_seo() ) {
+						return new WP_Error( 'unauthorized', __( 'SEO tools are not enabled for this site.', 'jetpack' ), 403 );
+					}
+
+					if ( ! Jetpack_SEO_Titles::are_valid_title_formats( $value ) ) {
+						return new WP_Error( 'invalid_input', __( 'Invalid SEO title format.', 'jetpack' ), 400 );
+					}
+
+					$new_title_formats = Jetpack_SEO_Titles::update_title_formats( $value );
+
+					if ( ! empty( $new_title_formats ) ) {
+						$updated[ $key ] = $new_title_formats;
+					}
+					break;
+
+				case 'verification_services_codes':
+					$verification_codes = jetpack_verification_validate( $value );
+
+					if ( update_option( 'verification_services_codes', $verification_codes ) ) {
+						$updated[ $key ] = $verification_codes;
+					}
+					break;
 
 				default:
 					//allow future versions of this endpoint to support additional settings keys
@@ -410,7 +559,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					if ( update_option( $key, $value ) ) {
 						$updated[ $key ] = $value;
 					}
-
 			}
 		}
 
@@ -418,8 +566,8 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 			// track new jetpack_relatedposts options against old
 			$old_relatedposts_options = Jetpack_Options::get_option( 'relatedposts' );
 			if ( Jetpack_Options::update_option( 'relatedposts', $jetpack_relatedposts_options ) ) {
-				foreach( $jetpack_relatedposts_options as $key => $value ) {
-					if ( $value !== $old_relatedposts_options[ $key ] ) {
+				foreach ( $jetpack_relatedposts_options as $key => $value ) {
+					if ( isset( $old_relatedposts_options[ $key ] ) && $value !== $old_relatedposts_options[ $key ] ) {
 						$updated[ 'jetpack_relatedposts_' . $key ] = $value;
 					}
 				}

@@ -35,7 +35,10 @@ class Jetpack_Portfolio {
 		// Make sure the post types are loaded for imports
 		add_action( 'import_start',                                                    array( $this, 'register_post_types' ) );
 
-		$setting = get_option( self::OPTION_NAME, '0' );
+		// Add to REST API post type whitelist
+		add_filter( 'rest_api_allowed_post_types',                                     array( $this, 'allow_portfolio_rest_api_type' ) );
+
+		$setting = Jetpack_Options::get_option_and_ensure_autoload( self::OPTION_NAME, '0' );
 
 		// Bail early if Portfolio option is not set and the theme doesn't declare support
 		if ( empty( $setting ) && ! $this->site_supports_custom_post_type() ) {
@@ -57,6 +60,7 @@ class Jetpack_Portfolio {
 		add_filter( 'post_updated_messages',                                           array( $this, 'updated_messages'   ) );
 		add_filter( sprintf( 'manage_%s_posts_columns', self::CUSTOM_POST_TYPE),       array( $this, 'edit_admin_columns' ) );
 		add_filter( sprintf( 'manage_%s_posts_custom_column', self::CUSTOM_POST_TYPE), array( $this, 'image_column'       ), 10, 2 );
+		add_action( 'customize_register',                                              array( $this, 'customize_register' ) );
 
 		add_image_size( 'jetpack-portfolio-admin-thumb', 50, 50, true );
 		add_action( 'admin_enqueue_scripts',                                           array( $this, 'enqueue_admin_styles'  ) );
@@ -120,7 +124,7 @@ class Jetpack_Portfolio {
 	 */
 	function setting_html() {
 		if ( current_theme_supports( self::CUSTOM_POST_TYPE ) ) : ?>
-			<p><?php printf( __( 'Your theme supports <strong>%s</strong>', 'jetpack' ), self::CUSTOM_POST_TYPE ); ?></p>
+			<p><?php printf( /* translators: %s is the name of a custom post type such as "jetpack-portfolio" */ __( 'Your theme supports <strong>%s</strong>', 'jetpack' ), self::CUSTOM_POST_TYPE ); ?></p>
 		<?php else : ?>
 			<label for="<?php echo esc_attr( self::OPTION_NAME ); ?>">
 				<input name="<?php echo esc_attr( self::OPTION_NAME ); ?>" id="<?php echo esc_attr( self::OPTION_NAME ); ?>" <?php echo checked( get_option( self::OPTION_NAME, '0' ), true, false ); ?> type="checkbox" value="1" />
@@ -131,6 +135,7 @@ class Jetpack_Portfolio {
 		if ( get_option( self::OPTION_NAME, '0' ) || current_theme_supports( self::CUSTOM_POST_TYPE ) ) :
 			printf( '<p><label for="%1$s">%2$s</label></p>',
 				esc_attr( self::OPTION_READING_SETTING ),
+				/* translators: %1$s is replaced with an input field for numbers */
 				sprintf( __( 'Portfolio pages display at most %1$s projects', 'jetpack' ),
 					sprintf( '<input name="%1$s" id="%1$s" type="number" step="1" min="1" value="%2$s" class="small-text" />',
 						esc_attr( self::OPTION_READING_SETTING ),
@@ -287,6 +292,7 @@ class Jetpack_Portfolio {
 			'public'            => true,
 			'show_ui'           => true,
 			'show_in_nav_menus' => true,
+			'show_in_rest'      => true,
 			'show_admin_column' => true,
 			'query_var'         => true,
 			'rewrite'           => array( 'slug' => 'project-type' ),
@@ -316,6 +322,7 @@ class Jetpack_Portfolio {
 			'public'            => true,
 			'show_ui'           => true,
 			'show_in_nav_menus' => true,
+			'show_in_rest'      => true,
 			'show_admin_column' => true,
 			'query_var'         => true,
 			'rewrite'           => array( 'slug' => 'project-tag' ),
@@ -387,6 +394,68 @@ class Jetpack_Portfolio {
 	}
 
 	/**
+	 * Adds portfolio section to the Customizer.
+	 */
+	function customize_register( $wp_customize ) {
+		$options = get_theme_support( self::CUSTOM_POST_TYPE );
+
+		if ( ( ! isset( $options[0]['title'] ) || true !== $options[0]['title'] ) && ( ! isset( $options[0]['content'] ) || true !== $options[0]['content'] ) && ( ! isset( $options[0]['featured-image'] ) || true !== $options[0]['featured-image'] ) ) {
+			return;
+		}
+
+		$wp_customize->add_section( 'jetpack_portfolio', array(
+			'title'                    => esc_html__( 'Portfolio', 'jetpack' ),
+			'theme_supports'           => self::CUSTOM_POST_TYPE,
+			'priority'                 => 130,
+		) );
+
+		if ( isset( $options[0]['title'] ) && true === $options[0]['title'] ) {
+			$wp_customize->add_setting( 'jetpack_portfolio_title', array(
+				'default'              => esc_html__( 'Projects', 'jetpack' ),
+				'type'                 => 'option',
+				'sanitize_callback'    => 'sanitize_text_field',
+				'sanitize_js_callback' => 'sanitize_text_field',
+			) );
+
+			$wp_customize->add_control( 'jetpack_portfolio_title', array(
+				'section'              => 'jetpack_portfolio',
+				'label'                => esc_html__( 'Portfolio Archive Title', 'jetpack' ),
+				'type'                 => 'text',
+			) );
+		}
+
+		if ( isset( $options[0]['content'] ) && true === $options[0]['content'] ) {
+			$wp_customize->add_setting( 'jetpack_portfolio_content', array(
+				'default'              => '',
+				'type'                 => 'option',
+				'sanitize_callback'    => 'wp_kses_post',
+				'sanitize_js_callback' => 'wp_kses_post',
+			) );
+
+			$wp_customize->add_control( 'jetpack_portfolio_content', array(
+				'section'              => 'jetpack_portfolio',
+				'label'                => esc_html__( 'Portfolio Archive Content', 'jetpack' ),
+				'type'                 => 'textarea',
+			) );
+		}
+
+		if ( isset( $options[0]['featured-image'] ) && true === $options[0]['featured-image'] ) {
+			$wp_customize->add_setting( 'jetpack_portfolio_featured_image', array(
+				'default'              => '',
+				'type'                 => 'option',
+				'sanitize_callback'    => 'attachment_url_to_postid',
+				'sanitize_js_callback' => 'attachment_url_to_postid',
+				'theme_supports'       => 'post-thumbnails',
+			) );
+
+			$wp_customize->add_control( new WP_Customize_Image_Control( $wp_customize, 'jetpack_portfolio_featured_image', array(
+				'section'              => 'jetpack_portfolio',
+				'label'                => esc_html__( 'Portfolio Archive Featured Image', 'jetpack' ),
+			) ) );
+		}
+	}
+
+	/**
 	 * Follow CPT reading setting on CPT archive and taxonomy pages
 	 */
 	function query_reading_setting( $query ) {
@@ -402,6 +471,15 @@ class Jetpack_Portfolio {
 	 * Add CPT to Dotcom sitemap
 	 */
 	function add_to_sitemap( $post_types ) {
+		$post_types[] = self::CUSTOM_POST_TYPE;
+
+		return $post_types;
+	}
+
+	/**
+	 * Add to REST API post type whitelist
+	 */
+	function allow_portfolio_rest_api_type( $post_types ) {
 		$post_types[] = self::CUSTOM_POST_TYPE;
 
 		return $post_types;

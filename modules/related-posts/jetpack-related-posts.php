@@ -76,6 +76,11 @@ class Jetpack_RelatedPosts {
 		if ( ! class_exists( 'Jetpack_Media_Summary' ) ) {
 			jetpack_require_lib( 'class.media-summary' );
 		}
+
+		// Add Related Posts to the REST API Post response.
+		if ( function_exists( 'register_rest_field' ) ) {
+			add_action( 'rest_api_init',  array( $this, 'rest_register_related_posts' ) );
+		}
 	}
 
 	/**
@@ -105,7 +110,7 @@ class Jetpack_RelatedPosts {
 	}
 
 	/**
-	 * Load related posts assets if it's a elegiable frontend page or execute search and return JSON if it's an endpoint request.
+	 * Load related posts assets if it's a elegiable front end page or execute search and return JSON if it's an endpoint request.
 	 *
 	 * @global $_GET
 	 * @action wp
@@ -135,6 +140,28 @@ class Jetpack_RelatedPosts {
 			$this->_action_frontend_init_page();
 		}
 
+	}
+
+	/**
+	 * Render insertion point.
+	 *
+	 * @since 4.2.0
+	 *
+	 * @return string
+	 */
+	public function get_headline() {
+		$options = $this->get_options();
+
+		if ( $options['show_headline'] ) {
+			$headline = sprintf(
+				/** This filter is already documented in modules/sharedaddy/sharing-service.php */
+				apply_filters( 'jetpack_sharing_headline_html', '<h3 class="jp-relatedposts-headline"><em>%s</em></h3>', esc_html( $options['headline'] ), 'related-posts' ),
+				esc_html( $options['headline'] )
+			);
+		} else {
+			$headline = '';
+		}
+		return $headline;
 	}
 
 	/**
@@ -173,15 +200,9 @@ class Jetpack_RelatedPosts {
 	 * @returns string
 	 */
 	public function get_target_html() {
-		$options = $this->get_options();
-
-		if ( $options['show_headline'] ) {
-			$headline = sprintf(
-				'<h3 class="jp-relatedposts-headline"><em>%s</em></h3>',
-				esc_html__( 'Related', 'jetpack' )
-			);
-		} else {
-			$headline = '';
+		require_once JETPACK__PLUGIN_DIR . '/sync/class.jetpack-sync-settings.php';
+		if ( Jetpack_Sync_Settings::is_syncing() ) {
+			return '';
 		}
 
 		/**
@@ -193,7 +214,7 @@ class Jetpack_RelatedPosts {
 		 *
 		 * @param string $headline Related Posts heading.
 		 */
-		$headline = apply_filters( 'jetpack_relatedposts_filter_headline', $headline );
+		$headline = apply_filters( 'jetpack_relatedposts_filter_headline', $this->get_headline() );
 
 		if ( $this->_previous_post_id ) {
 			$exclude = "data-exclude='{$this->_previous_post_id}'";
@@ -214,6 +235,10 @@ EOT;
 	 * @returns string
 	 */
 	public function get_target_html_unsupported() {
+		require_once JETPACK__PLUGIN_DIR . '/sync/class.jetpack-sync-settings.php';
+		if ( Jetpack_Sync_Settings::is_syncing() ) {
+			return '';
+		}
 		return "\n\n<!-- Jetpack Related Posts is not supported in this context. -->\n\n";
 	}
 
@@ -231,7 +256,7 @@ EOT;
 	 */
 	public function get_options() {
 		if ( null === $this->_options ) {
-			$this->_options = Jetpack_Options::get_option( 'relatedposts' );
+			$this->_options = Jetpack_Options::get_option( 'relatedposts', array() );
 			if ( ! is_array( $this->_options ) )
 				$this->_options = array();
 			if ( ! isset( $this->_options['enabled'] ) )
@@ -240,6 +265,18 @@ EOT;
 				$this->_options['show_headline'] = true;
 			if ( ! isset( $this->_options['show_thumbnails'] ) )
 				$this->_options['show_thumbnails'] = false;
+			if ( ! isset( $this->_options['show_date'] ) ) {
+				$this->_options['show_date'] = true;
+			}
+			if ( ! isset( $this->_options['show_context'] ) ) {
+				$this->_options['show_context'] = true;
+			}
+			if ( ! isset( $this->_options['layout'] ) ) {
+				$this->_options['layout'] = 'grid';
+			}
+			if ( ! isset( $this->_options['headline'] ) ) {
+				$this->_options['headline'] = esc_html__( 'Related', 'jetpack' );
+			}
 			if ( empty( $this->_options['size'] ) || (int)$this->_options['size'] < 1 )
 				$this->_options['size'] = 3;
 
@@ -259,7 +296,7 @@ EOT;
 	}
 
 	/**
-	 * Parses input and returnes normalized options array.
+	 * Parses input and returns normalized options array.
 	 *
 	 * @param array $input
 	 * @uses self::get_options
@@ -275,6 +312,10 @@ EOT;
 			$current['enabled'] = true;
 			$current['show_headline'] = ( isset( $input['show_headline'] ) && '1' == $input['show_headline'] );
 			$current['show_thumbnails'] = ( isset( $input['show_thumbnails'] ) && '1' == $input['show_thumbnails'] );
+			$current['show_date'] = ( isset( $input['show_date'] ) && '1' == $input['show_date'] );
+			$current['show_context'] = ( isset( $input['show_context'] ) && '1' == $input['show_context'] );
+			$current['layout'] = isset( $input['layout'] ) && in_array( $input['layout'], array( 'grid', 'list' ), true ) ? $input['layout'] : 'grid';
+			$current['headline'] = isset( $input['headline'] ) ? $input['headline'] : esc_html__( 'Related', 'jetpack' );
 		} else {
 			$current['enabled'] = false;
 		}
@@ -304,6 +345,12 @@ EOT;
 	<li>
 		<label><input name="jetpack_relatedposts[show_thumbnails]" type="checkbox" value="1" %s /> %s</label>
 	</li>
+	<li>
+		<label><input name="jetpack_relatedposts[show_date]" type="checkbox" value="1" %s /> %s</label>
+	</li>
+	<li>
+		<label><input name="jetpack_relatedposts[show_context]" type="checkbox" value="1" %s /> %s</label>
+	</li>
 </ul>
 <div id='settings-reading-relatedposts-preview'>
 	%s
@@ -316,6 +363,10 @@ EOT;
 			esc_html__( 'Show a "Related" header to more clearly separate the related section from posts', 'jetpack' ),
 			checked( $options['show_thumbnails'], true, false ),
 			esc_html__( 'Use a large and visually striking layout', 'jetpack' ),
+			checked( $options['show_date'], true, false ),
+			esc_html__( 'Show entry date', 'jetpack' ),
+			checked( $options['show_context'], true, false ),
+			esc_html__( 'Show context (category or tag)', 'jetpack' ),
 			esc_html__( 'Preview:', 'jetpack' )
 		);
 
@@ -361,6 +412,11 @@ EOT;
 
 		// only dislay the Related Posts JavaScript on the Reading Settings Admin Page
 		$current_screen =  get_current_screen();
+
+		if ( is_null( $current_screen ) ) {
+			return;
+		}
+
 		if( 'options-reading' != $current_screen->id )
 			return;
 
@@ -374,7 +430,7 @@ EOT;
 <div class="jp-relatedposts-items jp-relatedposts-items-visual">
 	<div class="jp-relatedposts-post jp-relatedposts-post0 jp-relatedposts-post-thumbs" data-post-id="0" data-post-format="image">
 		<a $href_params>
-			<img class="jp-relatedposts-post-img" src="http://jetpackme.files.wordpress.com/2014/08/1-wpios-ipad-3-1-viewsite.png?w=350&amp;h=200&amp;crop=1" width="350" alt="Big iPhone/iPad Update Now Available" scale="0">
+			<img class="jp-relatedposts-post-img" src="https://jetpackme.files.wordpress.com/2014/08/1-wpios-ipad-3-1-viewsite.png?w=350&amp;h=200&amp;crop=1" width="350" alt="Big iPhone/iPad Update Now Available" scale="0">
 		</a>
 		<h4 class="jp-relatedposts-post-title">
 			<a $href_params>Big iPhone/iPad Update Now Available</a>
@@ -384,7 +440,7 @@ EOT;
 	</div>
 	<div class="jp-relatedposts-post jp-relatedposts-post1 jp-relatedposts-post-thumbs" data-post-id="0" data-post-format="image">
 		<a $href_params>
-			<img class="jp-relatedposts-post-img" src="http://jetpackme.files.wordpress.com/2014/08/wordpress-com-news-wordpress-for-android-ui-update2.jpg?w=350&amp;h=200&amp;crop=1" width="350" alt="The WordPress for Android App Gets a Big Facelift" scale="0">
+			<img class="jp-relatedposts-post-img" src="https://jetpackme.files.wordpress.com/2014/08/wordpress-com-news-wordpress-for-android-ui-update2.jpg?w=350&amp;h=200&amp;crop=1" width="350" alt="The WordPress for Android App Gets a Big Facelift" scale="0">
 		</a>
 		<h4 class="jp-relatedposts-post-title">
 			<a $href_params>The WordPress for Android App Gets a Big Facelift</a>
@@ -394,7 +450,7 @@ EOT;
 	</div>
 	<div class="jp-relatedposts-post jp-relatedposts-post2 jp-relatedposts-post-thumbs" data-post-id="0" data-post-format="image">
 		<a $href_params>
-			<img class="jp-relatedposts-post-img" src="http://jetpackme.files.wordpress.com/2014/08/videopresswedding.jpg?w=350&amp;h=200&amp;crop=1" width="350" alt="Upgrade Focus: VideoPress For Weddings" scale="0">
+			<img class="jp-relatedposts-post-img" src="https://jetpackme.files.wordpress.com/2014/08/videopresswedding.jpg?w=350&amp;h=200&amp;crop=1" width="350" alt="Upgrade Focus: VideoPress For Weddings" scale="0">
 		</a>
 		<h4 class="jp-relatedposts-post-title">
 			<a $href_params>Upgrade Focus: VideoPress For Weddings</a>
@@ -463,17 +519,26 @@ EOT;
 
 		var update_preview = function() {
 			var html = '';
-			if ( $( 'input[name="jetpack_relatedposts[show_headline]"]:checked' ).size() ) {
+			if ( $( 'input[name="jetpack_relatedposts[show_headline]"]:checked' ).length ) {
 				html += '$related_headline';
 			}
-			if ( $( 'input[name="jetpack_relatedposts[show_thumbnails]"]:checked' ).size() ) {
+			if ( $( 'input[name="jetpack_relatedposts[show_thumbnails]"]:checked' ).length ) {
 				html += '$related_with_images';
 			} else {
 				html += '$related_without_images';
 			}
-			$( '#settings-reading-relatedposts-preview .jp-relatedposts' )
-				.html( html )
-				.show();
+			$( '#settings-reading-relatedposts-preview .jp-relatedposts' ).html( html );
+			if ( $( 'input[name="jetpack_relatedposts[show_date]"]:checked' ).length ) {
+				$( '.jp-relatedposts-post-title' ).each( function() {
+					$( this ).after( $( '<span>August 8, 2005</span>' ) );
+				} );
+			}
+			if ( $( 'input[name="jetpack_relatedposts[show_context]"]:checked' ).length ) {
+				$( '.jp-relatedposts-post-context' ).show();
+			} else {
+				$( '.jp-relatedposts-post-context' ).hide();
+			}
+			$( '#settings-reading-relatedposts-preview .jp-relatedposts' ).show();
 		};
 
 		// Update on load
@@ -734,18 +799,140 @@ EOT;
 		header( 'Content-type: application/json; charset=utf-8' ); // JSON can only be UTF-8
 		send_nosniff_header();
 
-		$related_posts = $this->get_for_post_id(
-			get_the_ID(),
-			array(
-				'exclude_post_ids' => $excludes,
-			)
-		);
-
 		$options = $this->get_options();
+
+		if ( isset( $_GET['jetpackrpcustomize'] ) ) {
+
+			// If we're in the customizer, add dummy content.
+			$date_now = current_time( get_option( 'date_format' ) );
+			$related_posts = array(
+				array(
+					'id'       => - 1,
+					'url'      => 'https://jetpackme.files.wordpress.com/2014/08/1-wpios-ipad-3-1-viewsite.png?w=350&h=200&crop=1',
+					'url_meta' => array(
+						'origin'   => 0,
+						'position' => 0
+					),
+					'title'    => esc_html__( 'Big iPhone/iPad Update Now Available', 'jetpack' ),
+					'date'     => $date_now,
+					'format'   => false,
+					'excerpt'  => esc_html__( 'It is that time of the year when devices are shiny again.', 'jetpack' ),
+					'rel'      => 'nofollow',
+					'context'  => esc_html__( 'In "Mobile"', 'jetpack' ),
+					'img'      => array(
+						'src'    => 'https://jetpackme.files.wordpress.com/2014/08/1-wpios-ipad-3-1-viewsite.png?w=350&h=200&crop=1',
+						'width'  => 350,
+						'height' => 200
+					),
+					'classes'  => array()
+				),
+				array(
+					'id'       => - 1,
+					'url'      => 'https://jetpackme.files.wordpress.com/2014/08/wordpress-com-news-wordpress-for-android-ui-update2.jpg?w=350&h=200&crop=1',
+					'url_meta' => array(
+						'origin'   => 0,
+						'position' => 0
+					),
+					'title'    => esc_html__( 'The WordPress for Android App Gets a Big Facelift', 'jetpack' ),
+					'date'     => $date_now,
+					'format'   => false,
+					'excerpt'  => esc_html__( 'Writing is new again in Android with the new WordPress app.', 'jetpack' ),
+					'rel'      => 'nofollow',
+					'context'  => esc_html__( 'In "Mobile"', 'jetpack' ),
+					'img'      => array(
+						'src'    => 'https://jetpackme.files.wordpress.com/2014/08/wordpress-com-news-wordpress-for-android-ui-update2.jpg?w=350&h=200&crop=1',
+						'width'  => 350,
+						'height' => 200
+					),
+					'classes'  => array()
+				),
+				array(
+					'id'       => - 1,
+					'url'      => 'https://jetpackme.files.wordpress.com/2014/08/videopresswedding.jpg?w=350&h=200&crop=1',
+					'url_meta' => array(
+						'origin'   => 0,
+						'position' => 0
+					),
+					'title'    => esc_html__( 'Upgrade Focus, VideoPress for weddings', 'jetpack' ),
+					'date'     => $date_now,
+					'format'   => false,
+					'excerpt'  => esc_html__( 'Weddings are in the spotlight now with VideoPress for weddings.', 'jetpack' ),
+					'rel'      => 'nofollow',
+					'context'  => esc_html__( 'In "Mobile"', 'jetpack' ),
+					'img'      => array(
+						'src'    => 'https://jetpackme.files.wordpress.com/2014/08/videopresswedding.jpg?w=350&h=200&crop=1',
+						'width'  => 350,
+						'height' => 200
+					),
+					'classes'  => array()
+				),
+			);
+
+			for ( $total = 0; $total < $options['size'] - 3; $total++ ) {
+				$related_posts[] = $related_posts[ $total ];
+			}
+
+			$current_post = get_post();
+
+			// Exclude current post after filtering to make sure it's excluded and not lost during filtering.
+			$excluded_posts = array_merge(
+				/** This filter is already documented in modules/related-posts/jetpack-related-posts.php */
+				apply_filters( 'jetpack_relatedposts_filter_exclude_post_ids', array() ),
+				array( $current_post->ID )
+			);
+
+			// Fetch posts with featured image.
+			$with_post_thumbnails = get_posts( array(
+				'posts_per_page'   => $options['size'],
+				'post__not_in'     => $excluded_posts,
+				'post_type'        => $current_post->post_type,
+				'meta_key'         => '_thumbnail_id',
+				'suppress_filters' => false,
+			) );
+
+			// If we don't have enough, fetch posts without featured image.
+			if ( 0 < ( $more = $options['size'] - count( $with_post_thumbnails ) ) ) {
+				$no_post_thumbnails = get_posts( array(
+					'posts_per_page'  => $more,
+					'post__not_in'    => $excluded_posts,
+					'post_type'       => $current_post->post_type,
+					'meta_query' => array(
+						array(
+							'key'     => '_thumbnail_id',
+							'compare' => 'NOT EXISTS',
+						),
+					),
+					'suppress_filters' => false,
+				) );
+			} else {
+				$no_post_thumbnails = array();
+			}
+
+			foreach ( array_merge( $with_post_thumbnails, $no_post_thumbnails ) as $index => $real_post ) {
+				$related_posts[ $index ]['id']      = $real_post->ID;
+				$related_posts[ $index ]['url']     = esc_url( get_permalink( $real_post ) );
+				$related_posts[ $index ]['title']   = $this->_to_utf8( $this->_get_title( $real_post->post_title, $real_post->post_content ) );
+				$related_posts[ $index ]['date']    = get_the_date( '', $real_post );
+				$related_posts[ $index ]['excerpt'] = html_entity_decode( $this->_to_utf8( $this->_get_excerpt( $real_post->post_excerpt, $real_post->post_content ) ), ENT_QUOTES, 'UTF-8' );
+				$related_posts[ $index ]['img']     = $this->_generate_related_post_image_params( $real_post->ID );
+				$related_posts[ $index ]['context'] = $this->_generate_related_post_context( $real_post->ID );
+			}
+		} else {
+			$related_posts = $this->get_for_post_id(
+				get_the_ID(),
+				array(
+					'exclude_post_ids' => $excludes,
+				)
+			);
+		}
 
 		$response = array(
 			'version' => self::VERSION,
 			'show_thumbnails' => (bool) $options['show_thumbnails'],
+			'show_date' => (bool) $options['show_date'],
+			'show_context' => (bool) $options['show_context'],
+			'layout' => (string) $options['layout'],
+			'headline' => (string) $options['headline'],
 			'items' => array(),
 		);
 
@@ -1009,17 +1196,27 @@ EOT;
 		if ( !empty( $filters ) )
 			$body['filter'] = array( 'and' => $filters );
 
-		// Load all cached values
-		$cache = get_post_meta( $post_id, $cache_meta_key, true );
-		if ( empty( $cache ) )
-			$cache = array();
-
 		// Build cache key
 		$cache_key = md5( serialize( $body ) );
 
-		// Cache is valid! Return cached value.
-		if ( isset( $cache[ $cache_key ] ) && is_array( $cache[ $cache_key ] ) && $cache[ $cache_key ][ 'expires' ] > $now_ts ) {
-			return $cache[ $cache_key ][ 'payload' ];
+		// Load all cached values
+		if ( wp_using_ext_object_cache() ) {
+			$transient_name = "{$cache_meta_key}_{$cache_key}_{$post_id}";
+			$cache = get_transient( $transient_name );
+			if ( false !== $cache ) {
+				return $cache;
+			}
+		} else {
+			$cache = get_post_meta( $post_id, $cache_meta_key, true );
+
+			if ( empty( $cache ) )
+				$cache = array();
+
+
+			// Cache is valid! Return cached value.
+			if ( isset( $cache[ $cache_key ] ) && is_array( $cache[ $cache_key ] ) && $cache[ $cache_key ][ 'expires' ] > $now_ts ) {
+				return $cache[ $cache_key ][ 'payload' ];
+			}
 		}
 
 		$response = wp_remote_post(
@@ -1050,24 +1247,35 @@ EOT;
 			}
 		}
 
-		// Copy all valid cache values
-		$new_cache = array();
-		foreach ( $cache as $k => $v ) {
-			if ( is_array( $v ) && $v[ 'expires' ] > $now_ts ) {
-				$new_cache[ $k ] = $v;
-			}
-		}
-
-		// Set new cache value if valid
-		if ( ! empty( $related_posts ) ) {
-			$new_cache[ $cache_key ] = array(
-				'expires' => 12 * HOUR_IN_SECONDS + $now_ts,
-				'payload' => $related_posts,
-			);
+		// An empty array might indicate no related posts or that posts
+		// are not yet synced to WordPress.com, so we cache for only 1
+		// minute in this case
+		if ( empty( $related_posts ) ) {
+			$cache_ttl = 60;
+		} else {
+			$cache_ttl = 12 * HOUR_IN_SECONDS;
 		}
 
 		// Update cache
-		update_post_meta( $post_id, $cache_meta_key, $new_cache );
+		if ( wp_using_ext_object_cache() ) {
+			set_transient( $transient_name, $related_posts, $cache_ttl );
+		} else {
+			// Copy all valid cache values
+			$new_cache = array();
+			foreach ( $cache as $k => $v ) {
+				if ( is_array( $v ) && $v[ 'expires' ] > $now_ts ) {
+					$new_cache[ $k ] = $v;
+				}
+			}
+
+			// Set new cache value
+			$cache_expires = $cache_ttl + $now_ts;
+			$new_cache[ $cache_key ] = array(
+				'expires' => $cache_expires,
+				'payload' => $related_posts,
+			);
+			update_post_meta( $post_id, $cache_meta_key, $new_cache );
+		}
 
 		return $related_posts;
 	}
@@ -1227,8 +1435,9 @@ EOT;
 	 * @return null
 	 */
 	protected function _enqueue_assets( $script, $style ) {
+		$dependencies = is_customize_preview() ? array( 'customize-base' ) : array( 'jquery' );
 		if ( $script ) {
-			wp_enqueue_script( 'jetpack_related-posts', plugins_url( 'related-posts.js', __FILE__ ), array( 'jquery' ), self::VERSION );
+			wp_enqueue_script( 'jetpack_related-posts', plugins_url( 'related-posts.js', __FILE__ ), $dependencies, self::VERSION );
 			$related_posts_js_options = array(
 				/**
 				 * Filter each Related Post Heading structure.
@@ -1276,6 +1485,49 @@ EOT;
 			$this->_allow_feature_toggle = apply_filters( 'jetpack_relatedposts_filter_allow_feature_toggle', false );
 		}
 		return $this->_allow_feature_toggle;
+	}
+
+	/**
+	 * ===================================================
+	 * FUNCTIONS EXPOSING RELATED POSTS IN THE WP REST API
+	 * ===================================================
+	 */
+
+	/**
+	 * Add Related Posts to the REST API Post response.
+	 *
+	 * @since 4.4.0
+	 *
+	 * @action rest_api_init
+	 * @uses register_rest_field, self::rest_get_related_posts
+	 * @return null
+	 */
+	public function rest_register_related_posts() {
+		register_rest_field( 'post',
+			'jetpack-related-posts',
+			array(
+				'get_callback' => array( $this, 'rest_get_related_posts' ),
+				'update_callback' => null,
+				'schema'          => null,
+			)
+		);
+	}
+
+	/**
+	 * Build an array of Related Posts.
+	 *
+	 * @since 4.4.0
+	 *
+	 * @param array $object Details of current post.
+	 * @param string $field_name Name of field.
+	 * @param WP_REST_Request $request Current request
+	 *
+	 * @uses self::get_for_post_id
+	 *
+	 * @return array
+	 */
+	public function rest_get_related_posts( $object, $field_name, $request ) {
+		return $this->get_for_post_id( $object['id'], array() );
 	}
 }
 

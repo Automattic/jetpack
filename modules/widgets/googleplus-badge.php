@@ -76,6 +76,9 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 	}
 
 	function widget( $args, $instance ) {
+		/** This action is documented in modules/widgets/gravatar-profile.php */
+		do_action( 'jetpack_stats_extra', 'widget_view', 'googleplus-badge' );
+
 		if ( empty( $instance['href'] ) || ! $this->is_valid_googleplus_url( $instance['href'] ) ) {
 			if ( current_user_can( 'edit_theme_options' ) ) {
 				echo $args['before_widget'];
@@ -93,7 +96,10 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 		$title = apply_filters( 'widget_title', $instance['title'] );
 
 		echo $args['before_widget'];
-		echo $args['before_title'] . esc_html( $title ) . $args['after_title'];
+
+		if ( ! empty( $title ) ) {
+			echo $args['before_title'] . esc_html( $title ) . $args['after_title'];
+		}
 
 		switch( $instance['type'] ) {
 			case 'person':
@@ -125,9 +131,6 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 		}
 
 		echo $args['after_widget'];
-
-		/** This action is already documented in modules/widgets/gravatar-profile.php */
-		do_action( 'jetpack_stats_extra', 'widget', 'googleplus-badge' );
 	}
 
 	function update( $new_instance, $old_instance ) {

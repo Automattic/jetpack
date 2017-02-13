@@ -3,6 +3,17 @@
  * Template for form builder
  */
 
+/**
+ * Filter to modify the limit of 5 additional contact form fields.
+ *
+ * @module contact-form
+ *
+ * @since 3.2.0
+ *
+ * @param int 5 Maximum number of additional fields.
+ */
+$max_new_fields = apply_filters( 'grunion_max_new_fields', 5 );
+
 wp_register_script( 'grunion', GRUNION_PLUGIN_URL . 'js/grunion.js', array( 'jquery-ui-sortable', 'jquery-ui-draggable' ), JETPACK__VERSION );
 wp_localize_script( 'grunion', 'GrunionFB_i18n', array(
 	'nameLabel' => esc_attr( _x( 'Name', 'Label for HTML form "Name" field in contact form builder', 'jetpack' ) ),
@@ -20,16 +31,7 @@ wp_localize_script( 'grunion', 'GrunionFB_i18n', array(
 	'savedMessage' => esc_attr__( 'Saved successfully', 'jetpack' ),
 	'requiredLabel' => esc_attr( _x( '(required)', 'This HTML form field is marked as required by the user in contact form builder', 'jetpack' ) ),
 	'exitConfirmMessage' => esc_attr__( 'Are you sure you want to exit the form editor without saving?  Any changes you have made will be lost.', 'jetpack' ),
-	/**
-	 * Filter to modify the limit of 5 additional contact form fields.
-	 *
-	 * @module contact-form
-	 *
-	 * @since 3.2.0
-	 *
-	 * @param int 5 Maximum number of additional fields.
-	 */
-	'maxNewFields' => intval( apply_filters( 'grunion_max_new_fields', 5 ) ),
+	'maxNewFields' => intval( $max_new_fields ),
 ) );
 
 ?>

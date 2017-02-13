@@ -28,6 +28,10 @@
 				$body.removeClass('jp-frame-top-fixed');
 			}
 		});
+
+		$( 'table.jetpack-modules', jpBottomFrame ).addClass( 'with-transparency' );
+		$( '.manage-left', jpBottomFrame ).css( 'width', '' );
+		$( '.manage-right', jpBottomFrame ).show();
 	}
 
 	function initEvents() {

@@ -68,7 +68,7 @@ class Jetpack_Omnisearch {
 
 	function jetpack_admin_menu() {
 		remove_submenu_page( 'index.php', 'omnisearch' );
-		$this->slug = add_submenu_page( 'jetpack', __( 'Omnisearch', 'jetpack' ), __( 'Omnisearch', 'jetpack' ), 'edit_posts', 'omnisearch', array( $this, 'omnisearch_page' ) );
+		$this->slug = add_submenu_page( null, __( 'Omnisearch', 'jetpack' ), __( 'Omnisearch', 'jetpack' ), 'edit_posts', 'omnisearch', array( $this, 'omnisearch_page' ) );
 		add_action( "admin_print_styles-{$this->slug}", array( $this, 'admin_print_styles_jetpack' ) );
 	}
 
@@ -189,7 +189,7 @@ class Jetpack_Omnisearch {
 			'form_class'         => null,
 			'search_class'       => null,
 			'search_id'          => null,
-			'search_value'       => isset( $_REQUEST['s'] ) ? $_REQUEST['s'] : null,
+			'search_value'       => isset( $_REQUEST['s'] ) ? wp_unslash( $_REQUEST['s'] ) : null,
 			'search_placeholder' => __( 'Search Everything', 'jetpack' ),
 			'submit_class'       => 'button',
 			'submit_value'       => __( 'Search', 'jetpack' ),

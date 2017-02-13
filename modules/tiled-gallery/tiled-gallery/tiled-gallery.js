@@ -160,7 +160,7 @@
 			attachPlainResize( tiledGalleries );
 		}
 
-		if ( wp && wp.customize && wp.customizerHasPartialWidgetRefresh() ) {
+		if ( 'undefined' !== typeof wp && wp.customize && wp.customize.selectiveRefresh ) {
 			wp.customize.selectiveRefresh.bind( 'partial-content-rendered', function( placement ) {
 				if ( wp.isJetpackWidgetPlaced( placement, 'gallery' ) ) {
 					tiledGalleries.findAndSetupNewGalleries();

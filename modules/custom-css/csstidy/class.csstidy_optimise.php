@@ -47,7 +47,7 @@ class csstidy_optimise {
 	 * @access private
 	 * @version 1.0
 	 */
-	function csstidy_optimise(&$css) {
+	function __construct(&$css) {
 		$this->parser = & $css;
 		$this->css = & $css->css;
 		$this->sub_value = & $css->sub_value;

@@ -1,0 +1,62 @@
+.jp-form-fieldset {
+	clear: both;
+
+	+ .jp-form-fieldset {
+		margin-top: rem( 24px );
+	}
+}
+
+.jp-form-legend {
+	padding: 0;
+	margin-bottom: rem( 5px );
+	font-size: rem( 14px );
+	font-weight: 600;
+}
+
+.jp-form-label {
+	display: block;
+	font-size: rem( 14px );
+	line-height: 1.5;
+	margin-bottom: rem( 5px );
+}
+
+.jp-form-label input[type="radio"] + span {
+	font-weight: normal;
+}
+
+.jp-form-button {
+	margin-top: rem( 16px );
+
+	@include breakpoint( ">480px" ) {
+		position: absolute;
+			right: rem( 16px );
+			bottom: rem( 16px );
+	}
+}
+
+.jp-form-setting-explanation {
+	color: darken( $gray, 20% );
+	display: block;
+	margin: rem( 5px ) rem( 14px ) 0 0;
+	font-size: rem( 13px );
+	font-style: italic;
+	font-weight: 400;
+	word-break: break-word;
+
+	+ .dops-card {
+		margin-top: rem( 16px );
+	}
+}
+
+.jp-form-fieldset {
+
+	margin-bottom: 4em;
+
+	.jp-form-legend + .jp-form-setting-explanation {
+		margin-top: rem( 8px );
+	}
+
+	.jp-form-setting-explanation + .jp-form-label {
+		margin-top: rem( 16px );
+	}
+}

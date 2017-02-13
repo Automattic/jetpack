@@ -1,17 +1,6 @@
 <?php
-
 /**
- * Module Name: Site Icon
- * Module Description: Add a site icon to your site.
- * Sort Order: 22
- * First Introduced: 3.2
- * Requires Connection: No
- * Auto Activate: No
- * Module Tags: Other
- * Additional Search Queries: favicon, icon, site icon
+ * Deprecated. No longer needed. Site Icons are in Core. 
+ *
+ * @package Jetpack
  */
-
-include dirname( __FILE__ ) . '/site-icon/jetpack-site-icon.php';
-include dirname( __FILE__ ) . '/site-icon/site-icon-functions.php';
-
-Jetpack_Sync::sync_options( __FILE__, 'jetpack_site_icon_url' );

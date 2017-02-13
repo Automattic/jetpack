@@ -60,7 +60,16 @@ class WPCom_GHF_Markdown_Parser extends MarkdownExtra_Parser {
 	 */
 	public function __construct() {
 		$this->use_code_shortcode  = class_exists( 'SyntaxHighlighter' );
-		$this->preserve_shortcodes = function_exists( 'get_shortcode_regex' );
+		/**
+		 * Allow processing shortcode contents.
+		 *
+		 * @module markdown
+		 *
+		 * @since 4.4.0
+		 *
+		 * @param boolean $preserve_shortcodes Defaults to $this->preserve_shortcodes.
+		 */
+		$this->preserve_shortcodes = apply_filters( 'jetpack_markdown_preserve_shortcodes', $this->preserve_shortcodes ) && function_exists( 'get_shortcode_regex' );
 		$this->preserve_latex      = function_exists( 'latex_markup' );
 		$this->strip_paras         = function_exists( 'wpautop' );
 

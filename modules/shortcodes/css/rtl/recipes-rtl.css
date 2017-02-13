@@ -1,4 +1,4 @@
-/* This file was automatically generated on Feb 24 2014 16:44:25 */
+/* This file was automatically generated on Apr 19 2016 09:36:47 */
 
 .jetpack-recipe {
 	border: 1px solid #f2f2f2;
@@ -32,4 +32,7 @@
 	float: left;
 	padding-left: 0;
 	text-align: left;
+}
+.jetpack-recipe-notes {
+	font-style: italic;
 }

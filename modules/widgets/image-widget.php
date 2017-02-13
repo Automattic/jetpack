@@ -53,7 +53,6 @@ class Jetpack_Image_Widget extends WP_Widget {
 	* @param array $instance Saved values from database.
 	*/
 	public function widget( $args, $instance ) {
-
 		echo $args['before_widget'];
 
 		$instance = wp_parse_args( $instance, array(
@@ -70,7 +69,14 @@ class Jetpack_Image_Widget extends WP_Widget {
 
 		if ( '' != $instance['img_url'] ) {
 
-			$output = '<img src="' . esc_attr( $instance['img_url'] ) .'" ';
+			$image_url = Jetpack::is_module_active( 'photon' )
+				? jetpack_photon_url( $instance['img_url'], array(
+                                        'w' => $instance['img_width'],
+                                        'h' => $instance['img_height'],
+                                  ) )
+				: $instance['img_url'];
+
+			$output = '<img src="' . esc_url( $image_url ) . '" ';
 
 			if ( '' != $instance['alt_text'] ) {
 				$output .= 'alt="' . esc_attr( $instance['alt_text'] ) .'" ';
@@ -88,11 +94,11 @@ class Jetpack_Image_Widget extends WP_Widget {
 				$output .= 'height="' . esc_attr( $instance['img_height'] ) .'" ';
 			}
 			$output .= '/>';
-			if ( '' != $instance['link'] && ! empty( $instance['link_target_blank'] ) ) {
-				$output = '<a target="_blank" href="' . esc_attr( $instance['link'] ) . '">' . $output . '</a>';
-			}
-			if ( '' != $instance['link'] && empty( $instance['link_target_blank'] ) ) {
-				$output = '<a href="' . esc_attr( $instance['link'] ) . '">' . $output . '</a>';
+			if ( '' != $instance['link'] ) {
+				$target = ! empty( $instance['link_target_blank'] )
+					? 'target="_blank"'
+					: '';
+				$output = '<a ' . $target . ' href="' . esc_url( $instance['link'] ) . '">' . $output . '</a>';
 			}
 			if ( '' != $instance['caption'] ) {
 				/** This filter is documented in core/src/wp-includes/default-widgets.php */
@@ -104,9 +110,16 @@ class Jetpack_Image_Widget extends WP_Widget {
 				</figure>'; // wp_kses_post caption on update
 			}
 			echo '<div class="jetpack-image-container">' . do_shortcode( $output ) . '</div>';
+		} else {
+			if ( current_user_can( 'edit_theme_options' ) ) {
+				echo '<p>' . sprintf( __( 'Image missing or invalid URL. Please check the Image widget URL in your <a href="%s">widget settings</a>.', 'jetpack' ), admin_url( 'widgets.php' ) ) . '</p>';
+			}
 		}
 
 		echo "\n" . $args['after_widget'];
+
+		/** This action is documented in modules/widgets/gravatar-profile.php */
+		do_action( 'jetpack_stats_extra', 'widget_view', 'image' );
 	}
 
 	/**
@@ -135,21 +148,44 @@ class Jetpack_Image_Widget extends WP_Widget {
 		$instance = $old_instance;
 
 		$instance['title']             = strip_tags( $new_instance['title'] );
-		$instance['img_url']           = esc_url( $new_instance['img_url'], null, 'display' );
+		$instance['img_url']           = esc_url( trim( $new_instance['img_url'] ) );
 		$instance['alt_text']          = strip_tags( $new_instance['alt_text'] );
 		$instance['img_title']         = strip_tags( $new_instance['img_title'] );
 		$instance['caption']           = wp_kses( stripslashes($new_instance['caption'] ), $allowed_caption_html );
 		$instance['align']             = $new_instance['align'];
-		$instance['img_width']         = absint( $new_instance['img_width'] );
-		$instance['img_height']        = absint( $new_instance['img_height'] );
-		$instance['link']              = esc_url( $new_instance['link'], null, 'display' );
+		$instance['link']              = esc_url( trim( $new_instance['link'] ) );
 		$instance['link_target_blank'] = isset( $new_instance['link_target_blank'] ) ? (bool) $new_instance['link_target_blank'] : false;
+
+		$new_img_width  = absint( $new_instance['img_width'] );
+		$new_img_height = absint( $new_instance['img_height'] );
+
+		if ( ! empty( $instance['img_url'] ) && '' == $new_img_width && '' == $new_img_height ) {
+			// Download the url to a local temp file and then process it with getimagesize so we can optimize browser layout
+			$tmp_file = download_url( $instance['img_url'], 10 );
+			if ( ! is_wp_error( $tmp_file ) ) {
+				$size = getimagesize( $tmp_file );
+
+				$width = $size[0];
+				$instance['img_width'] = absint( $width );
+
+				$height = $size[1];
+				$instance['img_height'] = absint( $height );
+
+				unlink( $tmp_file );
+			} else {
+				$instance['img_width']  = $new_img_width;
+				$instance['img_height'] = $new_img_height;
+			}
+		} else {
+			$instance['img_width']  = $new_img_width;
+			$instance['img_height'] = $new_img_height;
+		}
 
 		return $instance;
 	}
 
 	/**
-	* Back-end widget form.
+	* Back end widget form.
 	*
 	* @see WP_Widget::form()
 	*
@@ -168,30 +204,6 @@ class Jetpack_Image_Widget extends WP_Widget {
 		$img_width         = esc_attr( $instance['img_width'] );
 		$img_height        = esc_attr( $instance['img_height'] );
 		$link_target_blank = checked( $instance['link_target_blank'], true, false );
-
-		if ( !empty( $instance['img_url'] ) ) {
-			// Download the url to a local temp file and then process it with getimagesize so we can optimize browser layout
-			$tmp_file = download_url( $instance['img_url'], 10 );
-			if ( ! is_wp_error( $tmp_file ) ) {
-				$size = getimagesize( $tmp_file );
-
-				if ( '' == $instance['img_width'] ) {
-					$width = $size[0];
-					$img_width = $width;
-				} else {
-					$img_width = absint( $instance['img_width'] );
-				}
-
-				if ( '' == $instance['img_height'] ) {
-					$height = $size[1];
-					$img_height = $height;
-				} else {
-					$img_height = absint( $instance['img_height'] );
-				}
-
-				unlink( $tmp_file );
-			}
-		}
 
 		$link = esc_url( $instance['link'], null, 'display' );
 
@@ -227,10 +239,10 @@ class Jetpack_Image_Widget extends WP_Widget {
 		}
 		echo '</select></label></p>';
 
-		echo '<p><label for="' .  $this->get_field_id( 'img_width' ) . '">' . esc_html__( 'Width:', 'jetpack' ) . '
+		echo '<p><label for="' .  $this->get_field_id( 'img_width' ) . '">' . esc_html__( 'Width in pixels:', 'jetpack' ) . '
 		<input size="3" id="' .  $this->get_field_id( 'img_width' ) . '" name="' . $this->get_field_name( 'img_width' ) . '" type="text" value="' .  $img_width . '" />
 		</label>
-		<label for="' . $this->get_field_id( 'img_height' ) . '">' . esc_html__( 'Height:', 'jetpack' ) . '
+		<label for="' . $this->get_field_id( 'img_height' ) . '">' . esc_html__( 'Height in pixels:', 'jetpack' ) . '
 		<input size="3" id="' . $this->get_field_id( 'img_height' ) . '" name="' . $this->get_field_name( 'img_height' ) . '" type="text" value="' . $img_height . '" />
 		</label><br />
 		<small>' . esc_html__( "If empty, we will attempt to determine the image size.", 'jetpack' ) . '</small></p>

@@ -19,13 +19,14 @@ class WPCOM_JSON_API_List_Users_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 		if ( $args['number'] < 1 ) {
 			$args['number'] = 20;
-		} elseif ( 100 < $args['number'] ) {
-			return new WP_Error( 'invalid_number',  'The NUMBER parameter must be less than or equal to 100.', 400 );
+		} elseif ( 1000 < $args['number'] ) {
+			return new WP_Error( 'invalid_number',  'The NUMBER parameter must be less than or equal to 1000.', 400 );
 		}
 
 		if ( $authors_only ) {
-			if ( empty( $args['type'] ) )
+			if ( empty( $args['type'] ) ) {
 				$args['type'] = 'post';
+			}
 
 			if ( ! $this->is_post_type_allowed( $args['type'] ) ) {
 				return new WP_Error( 'unknown_post_type', 'Unknown post type', 404 );
@@ -47,8 +48,9 @@ class WPCOM_JSON_API_List_Users_Endpoint extends WPCOM_JSON_API_Endpoint {
 			'fields'    => 'ID',
 		);
 
-		if ( $authors_only )
+		if ( $authors_only ) {
 			$query['who'] = 'authors';
+		}
 
 		if ( ! empty( $args['search'] ) ) {
 			$query['search'] = $args['search'];
@@ -72,7 +74,7 @@ class WPCOM_JSON_API_List_Users_Endpoint extends WPCOM_JSON_API_Endpoint {
 		foreach ( array_keys( $this->response_format ) as $key ) {
 			switch ( $key ) {
 				case 'found' :
-					$return[$key] = (int) $user_query->get_total();
+					$return[ $key ] = (int) $user_query->get_total();
 					break;
 				case 'users' :
 					$users = array();
@@ -89,7 +91,7 @@ class WPCOM_JSON_API_List_Users_Endpoint extends WPCOM_JSON_API_Endpoint {
 						}
 					}
 
-					$return[$key] = $users;
+					$return[ $key ] = $users;
 					break;
 			}
 		}

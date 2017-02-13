@@ -55,7 +55,7 @@ function AtD_display_options_form() {
 		AtD_print_option( 'onupdate', __('a post or page is updated', 'jetpack'), $options_check_when );
    ?></p>
 
-   <p style="font-weight: bold"><?php _e('English Options', 'jetpack'); ?></font>
+   <p style="font-weight: bold"><?php _e('English Options', 'jetpack'); ?></p>
 
    <p><?php _e('Enable proofreading for the following grammar and style rules when writing posts and pages:', 'jetpack'); ?></p>
 
@@ -83,7 +83,7 @@ function AtD_display_options_form() {
    <p><?php printf( __( '<a href="%s" target="_blank">Learn more</a> about these options.', 'jetpack' ), 'http://support.wordpress.com/proofreading/' );
 ?></p>
 
-   <p style="font-weight: bold"><?php _e( 'Language', 'jetpack' ); ?></font>
+   <p style="font-weight: bold"><?php _e( 'Language', 'jetpack' ); ?></p>
 
    <p><?php
 	_e( 'The proofreader supports English, French, German, Portuguese, and Spanish. Your user interface language (see above) is the default proofreading language.', 'jetpack' );

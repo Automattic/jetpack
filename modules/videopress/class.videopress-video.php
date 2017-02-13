@@ -79,6 +79,14 @@ class VideoPress_Video {
 	public $title;
 
 	/**
+	 * Video description
+	 *
+	 * @var string
+	 * @since 4.4
+	 */
+	public $description;
+
+	/**
 	 * Directionality of title text. ltr or rtl
 	 *
 	 * @var string
@@ -194,6 +202,9 @@ class VideoPress_Video {
 		if ( isset( $data->title ) && $data->title !== '' )
 			$this->title = trim( str_replace( '&nbsp;', ' ', $data->title ) );
 
+		if ( isset( $data->description ) && $data->description !== '' )
+			$this->description = trim( $data->description );
+
 		if ( isset( $data->text_direction ) && $data->text_direction === 'rtl' )
 			$this->text_direction = 'rtl';
 		else
@@ -254,7 +265,10 @@ class VideoPress_Video {
 		if ( empty( $expires_header ) || ! is_string( $expires_header ) )
 			return false;
 
-		if ( class_exists( 'DateTime' ) && class_exists( 'DateTimeZone' ) ) {
+		if (
+			class_exists( 'DateTimeZone' )
+			&& method_exists( 'DateTime', 'createFromFormat' )
+		) {
 			$expires_date = DateTime::createFromFormat( 'D, d M Y H:i:s T', $expires_header, new DateTimeZone( 'UTC' ) );
 			if ( $expires_date instanceOf DateTime )
 				return date_format( $expires_date, 'U' );

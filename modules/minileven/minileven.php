@@ -34,7 +34,7 @@ function jetpack_check_mobile() {
 		return false;
 	if ( jetpack_mobile_exclude() )
 		return false;
-	if ( 1 == get_option('wp_mobile_disable') )
+	if ( 1 == Jetpack_Options::get_option_and_ensure_autoload( 'wp_mobile_disable', '0' ) )
 		return false;
 	if ( isset($_COOKIE['akm_mobile']) && $_COOKIE['akm_mobile'] == 'true' )
 		return true;

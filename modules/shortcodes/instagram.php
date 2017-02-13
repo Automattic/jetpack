@@ -8,7 +8,7 @@
  * @return (string) the filtered or the original content
  **/
 function jetpack_instagram_embed_reversal( $content ) {
-	if ( false === stripos( $content, 'instagram.com' ) ) {
+	if ( ! is_string( $content ) || false === stripos( $content, 'instagram.com' ) ) {
 		return $content;
 	}
 
@@ -82,8 +82,10 @@ function jetpack_instagram_handler( $matches, $atts, $url ) {
 	), $atts );
 
 	$atts['width'] = absint( $atts['width'] );
-	if ( $atts['width'] > $max_width || $min_width > $atts['width'] ) {
+	if ( $atts['width'] > $max_width ) {
 		$atts['width'] = $max_width;
+	} elseif ( $atts['width'] < $min_width ) {
+		$atts['width'] = $min_width;
 	}
 
 	// remove the modal param from the URL

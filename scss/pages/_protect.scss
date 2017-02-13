@@ -1,5 +1,5 @@
 /* 'Pages' is a temporary location for these styles, until we can break them up into their proper atmoic locations */
- 
+
 // ==========================================================================
 // Jetpack Protect Config Page
 //==========================================================================
@@ -48,21 +48,12 @@
 	}
 } // .protect-status
 
-/* Whitelisting */
-#non-editable-whitelist {
-	margin-top: 15px;
-}
-
 .protect-whitelist {
 
 	textarea {
-		width: 100%; 
+		width: 100%;
 		min-height: 150px;
 	}
-}
-
-#editable-whitelist .whitelist-table {
-	width: 100%;
 }
 
 /* btns + inputs */
@@ -75,84 +66,12 @@
 
 	input.button-primary {
 		font-weight: bold;
-	}	
+	}
 }
 
 /* whitelist table */
 
-.whitelist-table {
-	border-top: 1px solid;
-	border-right: 1px solid;
-	border-color: #ddd;
-	background-color: #fff;
-
-	td, th {
-		padding: 10px;
-		margin: 0;
-		border-bottom: 1px solid;
-		border-left: 1px solid;
-		border-color: #ddd;
-		font-size: 14px;
-	}
-
-	th.heading {
-		font-weight: bold;
-		color: #5d6d74;
-		text-align: left;
-		background-color: #eee;
-	}
-
-	td.item-actions {
-		border-left: none;
-		text-align: right;
-	}
-
-	.toolbar {
-		padding: 0;
-	}
-
-	.add-btn {
-		text-align: center;
-		width: 10%;
-		border-left: 1px #ddd solid;
-	}
-} // whitelist-table
-
-.ip-address, .enter-ip {
-	width: 90%;
-	text-align: left;
-	vertical-align: middle;
-}
-
-.delete-ip-address {
-	text-align: center;
-	border: 0;
-	background: transparent;
-	color: #6f7476;
-	box-shadow: none;
-	font-size: 20px;
-	margin: 0;
-	padding: 0;
-	cursor: pointer;
-	border-radius: 2px;
-
-	&:hover {
-		background: #eee;
-	}
-}
-
-.toolbar div {
-	float: left;
-	padding: 10px;
-}
-
 @media only screen and (min-width : 1100px) {
-
-	#non-editable-whitelist {
-		width: 28%;
-		float: right;
-		margin-top: 0;
-	}
 
 	.protect-whitelist {
 		width: 65%;
@@ -161,101 +80,11 @@
 
 } /* end > 1065px */
 
-@media only screen and (max-width : 1130px) {
-
-	.enter-ip input[type="text"] {
-		max-width: 175px;
-	}
-
-} /* end < 1130px */
-
-@media only screen and (max-width : 1250px) and (min-width : 1065px), (max-width : 730px) and (min-width : 600px) {
-
-	.enter-ip {
-		width: 85%;
-	}
-
-	.add-btn {
-		width: 15%;
-	}
-
-} /* end < 1250px & > 1065px */
-
-@media only screen and (max-width : 782px) {
-
-	.add-btn {
-		text-align: right;
-	}
-
-	.add-btn .ip-add {
-		margin-top: 4px;
-		margin-bottom: 3px;
-	}
-
-} /* end < 782px */
-
-@media only screen and (max-width : 730px) {
-
-	.add-btn {
-		text-align: center;
-	}
-
-} /* end < 730px */
-
-@media only screen and (max-width : 665px) and (min-width : 600px) {
-
-	.enter-ip input[type="text"] {
-		max-width: 165px;
-	}
-
-} /* end < 665px & > 600px */
-
-@media only screen and (max-width : 600px) {
-
-	.toolbar div {
-		width: 100%;
-	}
-
-	.add-btn {
-		border-top: 1px #ddd solid;
-	}
-
-	.enter-ip {
-		text-align: center;
-	}
-
-	.enter-ip strong {
-		display: block;
-		margin-bottom: 5px;
-	}
-
-	.enter-ip input[type="text"] {
-		width: 100%;
-		max-width: 100%;
-	}
-
-	.add-btn input,
-	.enter-ip .button {
-		width: 50%;
-		margin: 0 auto;
-	}
-
-	.enter-ip .button {
-		margin-top: 10px;
-	}
-
-} /* end > 600px */
-
 @media only screen and (max-width : 400px) {
 
 	.protect-status strong {
 		font-size: 12px;
 		overflow: auto;
-	}
-
-	.add-btn input,
-	.enter-ip .button {
-		width: 100%;
 	}
 
 } /* end < 400px */

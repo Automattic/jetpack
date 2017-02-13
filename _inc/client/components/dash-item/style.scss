@@ -1,0 +1,112 @@
+.jp-dash-item {
+	.jp-dash-item__content a {
+		font-style: italic;
+	}
+	.dops-section-header__card-badge .dops-button {
+		background: none;
+		border-bottom-width: 1px;
+
+		&:hover {
+			background: $white;
+		}
+	}
+}
+
+.jp-dash-item__card {
+	margin: 0;
+}
+
+.jp-dash-item__count {
+	margin-top: 0;
+	margin-bottom: 0;
+	width: 100%;
+	color: $blue-medium;
+	font-weight: 500;
+	font-size: rem( 32px );
+
+	@include breakpoint( "<660px" ) {
+		font-size: rem( 23px );
+	}
+}
+
+.jp-dash-item__description {
+	margin: 0;
+	width: 100%;
+	font-size: rem( 14px );
+}
+
+.jp-dash-item .dops-section-header {
+	width: 100%;
+
+	.dops-button {
+		font-style: normal;
+	}
+
+	.dops-section-header__label {
+		color: darken( $gray, 20% );
+	}
+
+	&.is-working,
+	&.is-premium-inactive {
+		.dops-section-header__actions {
+			color: lighten( $gray, 20% );
+		}
+	}
+}
+
+.jp-dash-item {
+	.dops-section-header__actions {
+		.dops-notice {
+			margin-top: rem( 2px );
+			margin-right: rem( -10px );
+		}
+	}
+}
+.jp-dash-item__active-label {
+	display: inline-block;
+	padding: rem( 6px ) 0;
+	color: darken( $gray, 10% );
+	color: $gray;
+	font-size: rem( 12px );
+	font-weight: 400;
+	text-transform: uppercase;
+}
+
+// conditional styles for content when items are inactive
+.jp-dash-item__is-inactive {
+	.dops-card {
+		background-color: $gray-light;
+	}
+	.dops-section-header__label {
+		padding-right: rem( 8px );
+
+		&:before {
+			@include long-content-fade( $size: 8px, $color : $gray-light );
+		}
+	}
+	.jp-dash-item__description {
+		font-style: italic;
+		color: darken( $gray, 20% );
+	}
+}
+
+.jp-dash-item__disabled {
+	opacity: .5;
+	position: relative;
+
+	&::before {
+		content: "";
+		width: 100%;
+		height: 100%;
+		display: block;
+		position: absolute;
+		top: 0;
+		left: 0;
+		z-index: 1;
+	}
+}
+
+.jp-dash-item__recently-activated .jp-dash-item__description {
+	font-style: italic;
+	box-sizing: border-box;
+}

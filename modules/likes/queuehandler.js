@@ -1,4 +1,4 @@
-/* global pm, wpcom_reblog */
+/* global pm, wpcom_reblog, JSON */
 
 var jetpackLikesWidgetQueue = [];
 var jetpackLikesWidgetBatch = [];
@@ -57,8 +57,16 @@ function JetpackLikesBatchHandler() {
 	}
 }
 
-function JetpackLikesMessageListener( event ) {
+function JetpackLikesMessageListener( event, message ) {
+	var allowedOrigin, $container, $list, offset, rowLength, height, scrollbarWidth;
+
 	if ( 'undefined' === typeof event.event ) {
+		return;
+	}
+
+	// We only allow messages from one origin
+	allowedOrigin = window.location.protocol + '//widgets.wp.com';
+	if ( allowedOrigin !== message.origin ) {
 		return;
 	}
 
@@ -127,9 +135,8 @@ function JetpackLikesMessageListener( event ) {
 	}
 
 	if ( 'showOtherGravatars' === event.event ) {
-		var $container = jQuery( '#likes-other-gravatars' ),
-			$list = $container.find( 'ul' ),
-			offset, rowLength, height, scrollbarWidth;
+		$container = jQuery( '#likes-other-gravatars' );
+		$list = $container.find( 'ul' );
 
 		$container.hide();
 		$list.html( '' );
@@ -137,7 +144,36 @@ function JetpackLikesMessageListener( event ) {
 		$container.find( '.likes-text span' ).text( event.total );
 
 		jQuery.each( event.likers, function( i, liker ) {
-			$list.append( '<li class="' + liker.css_class + '"><a href="' + liker.profile_URL + '" class="wpl-liker" rel="nofollow" target="_parent"><img src="' + liker.avatar_URL + '" alt="' + liker.name + '" width="30" height="30" style="padding-right: 3px;" /></a></li>');
+			var element;
+
+			if ( 'http' !== liker.profile_URL.substr( 0, 4 ) ) {
+				// We only display gravatars with http or https schema
+				return;
+			}
+
+			element = jQuery( '<li><a><img /></a></li>' );
+			element.addClass( liker.css_class );
+
+			element.find( 'a' ).
+				attr({
+					href: liker.profile_URL,
+					rel: 'nofollow',
+					target: '_parent'
+				}).
+				addClass( 'wpl-liker' );
+
+			element.find( 'img' ).
+				attr({
+					src: liker.avatar_URL,
+					alt: liker.name
+				}).
+				css({
+					width: '30px',
+					height: '30px',
+					paddingRight: '3px'
+				});
+
+			$list.append( element );
 		} );
 
 		offset = jQuery( '[name=\'' + event.parent + '\']' ).offset();
@@ -166,7 +202,7 @@ function JetpackLikesMessageListener( event ) {
 	}
 }
 
-pm.bind( 'likesMessage', function(e) { JetpackLikesMessageListener(e); } );
+pm.bind( 'likesMessage', JetpackLikesMessageListener );
 
 jQuery( document ).click( function( e ) {
 	var $container = jQuery( '#likes-other-gravatars' );

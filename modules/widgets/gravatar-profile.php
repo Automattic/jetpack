@@ -37,6 +37,19 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 	}
 
 	function widget( $args, $instance ) {
+		/**
+		 * Fires when an item is displayed on the front end.
+		 *
+		 * Can be used to track stats about the number of displays for a specific item
+		 *
+		 * @module widgets, shortcodes
+		 *
+		 * @since 1.6.0
+		 *
+		 * @param string widget_view Item type (e.g. widget, or embed).
+		 * @param string grofile     Item description (e.g. grofile, goodreads).
+		 */
+		do_action( 'jetpack_stats_extra', 'widget_view', 'grofile' );
 
 		$instance = wp_parse_args( $instance, array(
 			'title' => '',
@@ -113,21 +126,6 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 			</a></p>
 
 			<?php
-
-			/**
-			 * Fires when an item is displayed on the frontend.
-			 *
-			 * Can be used to track stats about the number of displays for a specific item
-			 *
-			 * @module widgets, shortcodes
-			 *
-			 * @since 1.6.0
-			 *
-			 * @param string widget Item type (e.g. widget, or embed).
-			 * @param string grofile Item description (e.g. grofile, goodreads).
-			 */
-			do_action( 'jetpack_stats_extra', 'widget', 'grofile' );
-
 		} else {
 			if ( current_user_can( 'edit_theme_options' ) ) {
 				echo '<p>' . esc_html__( 'Error loading profile', 'jetpack' ) . '</p>';
@@ -218,7 +216,7 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 	/**
 	 * Enqueue CSS and JavaScript.
 	 *
-	 * @since 3.10
+	 * @since 4.0.0
 	 */
 	function enqueue_scripts() {
 		wp_enqueue_style(
@@ -230,7 +228,7 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 
 		wp_enqueue_style(
 			'gravatar-card-services',
-			is_ssl() ? 'https://secure.gravatar.com/css/services.css' : 'http://s.gravatar.com/css/services.css',
+			'https://secure.gravatar.com/css/services.css',
 			array(),
 			defined( 'GROFILES__CACHE_BUSTER' ) ? GROFILES__CACHE_BUSTER : gmdate( 'YW' )
 		);
@@ -297,7 +295,7 @@ class Jetpack_Gravatar_Profile_Widget extends WP_Widget {
 			</label>
 		</p>
 
-		<p><a href="<?php echo esc_url( $profile_url ); ?>" target="_blank" title="<?php esc_attr_e( 'Opens in new window', 'jetpack' ); ?>"><?php esc_html_e( 'Edit Your Profile', 'jetpack' )?></a> | <a href="http://gravatar.com" target="_blank" title="<?php esc_attr_e( 'Opens in new window', 'jetpack' ); ?>"><?php esc_html_e( "What's a Gravatar?", 'jetpack' ); ?></a></p>
+		<p><a href="<?php echo esc_url( $profile_url ); ?>" target="_blank" title="<?php esc_attr_e( 'Opens in new window', 'jetpack' ); ?>"><?php esc_html_e( 'Edit Your Profile', 'jetpack' )?></a> | <a href="https://gravatar.com" target="_blank" title="<?php esc_attr_e( 'Opens in new window', 'jetpack' ); ?>"><?php esc_html_e( "What's a Gravatar?", 'jetpack' ); ?></a></p>
 
 		<?php
 	}

@@ -1,4 +1,4 @@
-/* global Jetpack */
+/* global Jetpack, JSON */
 /**
  * Resizeable Iframes.
  *

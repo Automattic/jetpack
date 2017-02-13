@@ -42,7 +42,17 @@ abstract class Jetpack_Tiled_Gallery_Layout {
 			extract( $context );
 		}
 
-		require dirname( __FILE__ ) . "/templates/$name.php";
+		/**
+		 * Filters the Tiled Gallery template path
+		 *
+		 * @module tiled-gallery
+		 * @since 4.4.0
+		 *
+		 * @param string $path Template path.
+		 * @param string $path Template name.
+		 * @param array $context Context array passed to the template.
+		 */
+		require apply_filters( 'jetpack_tiled_gallery_template', dirname( __FILE__ ) . "/templates/$name.php", $name, $context ) ;
 	}
 
 	private function partial( $name, $context = null ) {
@@ -54,7 +64,17 @@ abstract class Jetpack_Tiled_Gallery_Layout {
 			extract( $context );
 		}
 
-		require dirname( __FILE__ ) . "/templates/partials/$name.php";
+		/**
+		 * Filters the Tiled Gallery partial path
+		 *
+		 * @module tiled-gallery
+		 * @since 4.4.0
+		 *
+		 * @param string $path Partial path.
+		 * @param string $path Partial name.
+		 * @param array $context Context array passed to the partial.
+		 */
+		require apply_filters( 'jetpack_tiled_gallery_partial', dirname( __FILE__ ) . "/templates/partials/$name.php", $name, $context ) ;
 	}
 
 	protected function get_container_extra_data() {

@@ -1,5 +1,3 @@
-<div class="clouds-sm"></div>
-
 <div class="page-content landing">
 	<?php Jetpack::init()->load_view( 'admin/network-activated-notice.php' ); ?>
 
@@ -106,6 +104,7 @@
 									<?php
 									$all_users = get_users();
 
+									$user_options = '';
 									foreach ( $all_users as $user ) {
 										if ( Jetpack::is_user_connected( $user->ID ) && $user->caps['administrator'] ) {
 											if ( $user->ID == Jetpack_Options::get_option( 'master_user' ) ) {

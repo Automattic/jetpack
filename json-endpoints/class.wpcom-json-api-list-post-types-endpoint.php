@@ -8,6 +8,9 @@ class WPCOM_JSON_API_List_Post_Types_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'description'  => 'description',
 		'map_meta_cap' => 'map_meta_cap',
 		'cap'          => 'capabilities',
+		'hierarchical' => 'hierarchical',
+		'show_ui'   => 'show_ui',
+		'publicly_queryable' => 'publicly_queryable',
 	);
 
 	// /sites/%s/post-types -> $blog_id
@@ -23,23 +26,27 @@ class WPCOM_JSON_API_List_Post_Types_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 		$args = $this->query_args();
 
-		// API localization occurs after the initial post types have been 
-		// registered, so re-register if localizing response
+		/**
+		 * Whether API responses should be returned in a custom locale.  False
+		 * for Jetpack; may be true for WP.com requests.
+		 *
+		 * @since 3.9.2
+		 */
 		if ( apply_filters( 'rest_api_localize_response', false ) ) {
+			// API localization occurs after the initial post types have been
+			// registered, so re-register if localizing response
 			create_initial_post_types();
 		}
 
-		$queryable_only = isset( $args['api_queryable'] ) && $args['api_queryable'];
-
 		// Get a list of available post types
-		$post_types = get_post_types( array( 'public' => true ) );
+		$post_types = get_post_types();
 		$formatted_post_type_objects = array();
 
 		// Retrieve post type object for each post type
 		foreach ( $post_types as $post_type ) {
 			// Skip non-queryable if filtering on queryable only
 			$is_queryable = $this->is_post_type_allowed( $post_type );
-			if ( $queryable_only && ! $is_queryable ) {
+			if ( ! $is_queryable ) {
 				continue;
 			}
 
