@@ -16,7 +16,6 @@ import Navigation from 'components/navigation';
 import NavigationSettings from 'components/navigation-settings';
 import AtAGlance from 'at-a-glance/index.jsx';
 import Engagement from 'engagement/index.jsx';
-import GeneralSettings from 'general-settings/index.jsx';
 import Writing from 'writing/index.jsx';
 import Apps from 'apps/index.jsx';
 import { getSiteConnectionStatus } from 'state/connection';
@@ -47,20 +46,13 @@ const NonAdminView = React.createClass( {
 			case '/apps':
 				pageComponent = <Apps { ...this.props } />;
 				break;
-			case '/settings':
-				navComponent = <NavigationSettings { ...this.props } />;
-				pageComponent = <GeneralSettings { ...this.props } />;
-				break;
-			case '/general':
-				navComponent = <NavigationSettings { ...this.props } />;
-				pageComponent = <GeneralSettings { ...this.props } />;
-				break;
 			case '/engagement':
 				if ( ! this.props.isSubscriber ) {
 					navComponent = <NavigationSettings { ...this.props } />;
 					pageComponent = <Engagement { ...this.props } />;
 				}
 				break;
+			case '/settings':
 			case '/writing':
 				if ( ! this.props.isSubscriber ) {
 					navComponent = <NavigationSettings { ...this.props } />;

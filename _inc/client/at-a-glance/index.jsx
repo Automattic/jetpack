@@ -18,6 +18,7 @@ import DashAkismet from './akismet';
 import DashBackups from './backups';
 import DashPluginUpdates from './plugins';
 import DashPhoton from './photon';
+import DashConnections from './connections';
 import { isModuleActivated as _isModuleActivated } from 'state/modules';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 import QuerySite from 'components/data/query-site';
@@ -49,10 +50,12 @@ const AtAGlance = React.createClass( {
 					}
 					externalLinkClick={ () => analytics.tracks.recordEvent( 'jetpack_wpa_aag_security_wpcom_click', {} ) }
 				/>,
-			performanceHeader =
-				<DashSectionHeader
-					label={ __( 'Performance' ) }
-				/>;
+			connections = (
+				<div>
+					<DashSectionHeader label={ __( 'Connections' ) } />
+					<DashConnections />
+				</div>
+			);
 
 		// If user can manage modules, we're in an admin view, otherwise it's a non-admin view.
 		if ( this.props.userCanManageModules ) {
@@ -92,14 +95,19 @@ const AtAGlance = React.createClass( {
 					</div>
 
 					{
-						// Performance
-						performanceHeader
+						<DashSectionHeader
+							label={ __( 'Performance' ) }
+						/>
 					}
 					<div className="jp-at-a-glance__item-grid">
 						<div className="jp-at-a-glance__left">
 							<DashPhoton />
 						</div>
 					</div>
+
+					{
+						connections
+					}
 				</div>
 			);
 		} else {
@@ -123,6 +131,9 @@ const AtAGlance = React.createClass( {
 							securityHeader
 						}
 						{ protect }
+						{
+							connections
+						}
 					</div>
 				);
 			}

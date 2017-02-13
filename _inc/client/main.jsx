@@ -36,7 +36,6 @@ import Discussion from 'discussion';
 import Security from 'security/index.jsx';
 import Traffic from 'traffic';
 import Appearance from 'appearance/index.jsx';
-import GeneralSettings from 'general-settings/index.jsx';
 import Writing from 'writing/index.jsx';
 import Apps from 'apps/index.jsx';
 import Plans from 'plans/index.jsx';
@@ -177,14 +176,6 @@ const Main = React.createClass( {
 			case '/plans':
 				pageComponent = <Plans siteRawUrl={ this.props.siteRawUrl } siteAdminUrl={ this.props.siteAdminUrl } />;
 				break;
-			case '/settings':
-				navComponent = settingsNav;
-				pageComponent = <GeneralSettings route={ this.props.route } />;
-				break;
-			case '/general':
-				navComponent = settingsNav;
-				pageComponent = <GeneralSettings route={ this.props.route } />;
-				break;
 			case '/engagement':
 				navComponent = settingsNav;
 				pageComponent = <Engagement route={ this.props.route } />;
@@ -205,6 +196,7 @@ const Main = React.createClass( {
 				navComponent = settingsNav;
 				pageComponent = <Appearance route={ this.props.route } />;
 				break;
+			case '/settings':
 			case '/writing':
 				navComponent = settingsNav;
 				pageComponent = <Writing route={ this.props.route } siteAdminUrl={ this.props.siteAdminUrl } />;
