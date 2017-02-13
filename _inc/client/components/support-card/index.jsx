@@ -5,6 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import sample from 'lodash/sample';
+import Button from 'components/button';
 import { translate as __ } from 'i18n-calypso';
 
 /**
@@ -34,37 +35,10 @@ const SupportCard = React.createClass( {
 						<p className="jp-support-card__description">
 							{ __( 'We offer free, full support to all of our Jetpack users. Our support team is always around to help you.' ) }
 						</p>
-						<p className="jp-support-card__description">
-							{ __(
-								'{{supportLink}}View our support page{{/supportLink}}{{hideOnMobile}},{{/hideOnMobile}} ' +
-								'{{forumLink}}check the forums for answers{{/forumLink}}{{hideOnMobile}}, or{{/hideOnMobile}} ' +
-								'{{contactLink}}contact us directly{{/contactLink}}{{hideOnMobile}}.{{/hideOnMobile}}', {
-									components: {
-										hideOnMobile: <span className="jp-hidden-on-mobile" />,
-										supportLink: (
-											<a
-												className="jp-support-card__link"
-												href="https://jetpack.com/support/"
-												title={ __( 'Go to Jetpack.com/support' ) }
-											/>
-										),
-										forumLink: (
-											<a
-												className="jp-support-card__link"
-												href="https://wordpress.org/support/plugin/jetpack"
-												title={ __( 'Go to the WordPress.org support forums' ) }
-											/>
-										),
-										contactLink: (
-											<a
-												className="jp-support-card__link"
-												href="https://jetpack.com/contact-support/"
-												title={ __( 'Contact Jetpack support staff directly' ) }
-											/>
-										)
-									}
-								}
-							) }
+						<p className="jp-support-card__buttons">
+							<Button href="https://jetpack.com/contact-support/">
+								{ __( 'Contact Support' ) }
+							</Button>
 						</p>
 					</div>
 				</Card>

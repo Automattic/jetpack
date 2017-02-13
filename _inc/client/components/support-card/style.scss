@@ -52,11 +52,7 @@
 	margin: 0 0 rem( 16px ) 0;
 }
 
-.jp-support-card__happiness-contact {
-
-	@include breakpoint( ">660px" ) {
-		flex-basis: 85%;
-		flex-shrink: 1;
-		flex-grow: 1;
-	}
+.jp-support-card__buttons {
+	padding: rem( 6px ) 0 0;
+	margin-bottom: 0;
 }
