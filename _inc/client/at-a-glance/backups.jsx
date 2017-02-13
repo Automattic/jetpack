@@ -54,7 +54,7 @@ const DashBackups = React.createClass( {
 							&nbsp;
 							{ __( '{{a}}View backup details{{/a}}.', {
 								components: {
-									a: <a href='https://dashboard.vaultpress.com' target="_blank" />
+									a: <a href='https://dashboard.vaultpress.com' target="_blank" rel="noopener noreferrer" />
 								}
 							} ) }
 						</p>
@@ -68,7 +68,7 @@ const DashBackups = React.createClass( {
 				return (
 					__( 'To automatically back up your entire site, please {{a}}install and activate{{/a}} VaultPress.', {
 						components: {
-							a: <a href='https://wordpress.com/plugins/vaultpress' target="_blank" />
+							a: <a href='https://wordpress.com/plugins/vaultpress' target="_blank" rel="noopener noreferrer" />
 						}
 					} )
 				);
@@ -76,7 +76,7 @@ const DashBackups = React.createClass( {
 				return (
 					__( 'To automatically back up your entire site, please {{a}}upgrade!{{/a}}.', {
 						components: {
-							a: <a href={ 'https://jetpack.com/redirect/?source=aag-backups&site=' + this.props.siteRawUrl } target="_blank" />
+							a: <a href={ 'https://jetpack.com/redirect/?source=aag-backups&site=' + this.props.siteRawUrl } target="_blank" rel="noopener noreferrer" />
 						}
 					} )
 				);

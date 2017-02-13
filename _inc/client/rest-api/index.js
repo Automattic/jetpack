@@ -123,6 +123,16 @@ function JetpackRestApiClient( root, nonce ) {
 			body: JSON.stringify( newOptionValues )
 		} )
 		.then( checkStatus ).then( response => response.json() ),
+		updateSettings: ( newOptionValues ) => fetch( `${ apiRoot }jetpack/v4/settings`, {
+			method: 'post',
+			credentials: 'same-origin',
+			headers: {
+				'X-WP-Nonce': apiNonce,
+				'Content-type': 'application/json'
+			},
+			body: JSON.stringify( newOptionValues )
+		} )
+			.then( checkStatus ).then( response => response.json() ),
 		getProtectCount: () => fetch( `${ apiRoot }jetpack/v4/module/protect/data`, {
 			credentials: 'same-origin',
 			headers: {
