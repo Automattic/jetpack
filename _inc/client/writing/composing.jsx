@@ -85,6 +85,7 @@ export const Composing = moduleSettingsForm(
 			return (
 				<div>
 					<FormFieldset>
+						<FormLegend> { __( 'Proofreading' ) } </FormLegend>
 						<span className="jp-form-setting-explanation">
 							{ __( 'Automatically proofread content when: ' ) }
 						</span>
