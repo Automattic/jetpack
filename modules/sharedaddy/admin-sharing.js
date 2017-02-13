@@ -402,7 +402,7 @@
 						$( '#new-service-form input[type=submit]' ).prop( 'disabled', false );
 					}
 					else {
-						document.location = document.location.href.replace( /&create_new_service=true/i, '' );
+						document.location.reload();
 					}
 				}
 			}

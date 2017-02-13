@@ -300,12 +300,22 @@ class The_Neverending_Home_Page {
 	 * Is this guaranteed to be the last batch of posts?
 	 */
 	static function is_last_batch() {
-		$post_type = get_post_type();
-		$entries = wp_count_posts( empty( $post_type ) ? 'post' : $post_type )->publish;
-		if ( self::wp_query()->get( 'paged' ) && self::wp_query()->get( 'paged' ) > 1 ) {
-			$entries -= self::get_settings()->posts_per_page * self::wp_query()->get( 'paged' );
+		$entries = (int) self::wp_query()->found_posts;
+		$posts_per_page = self::get_settings()->posts_per_page;
+		$paged = self::wp_query()->get( 'paged' );
+
+		// Are there enough posts for more than the first page?
+		if ( $entries <= $posts_per_page ) {
+			return true;
 		}
-		return $entries <= self::get_settings()->posts_per_page;
+
+		// Calculate entries left after a certain number of pages
+		if ( $paged && $paged > 1 ) {
+			$entries -= $posts_per_page * $paged;
+		}
+
+		// Are there some entries left to display?
+		return $entries <= 0;
 	}
 
 	/**
@@ -385,9 +395,6 @@ class The_Neverending_Home_Page {
 			return;
 		}
 
-		// Add a class to the body.
-		add_filter( 'body_class', array( $this, 'body_class' ) );
-
 		// Add our scripts.
 		wp_enqueue_script( 'the-neverending-homepage' );
 
@@ -411,16 +418,21 @@ class The_Neverending_Home_Page {
 	}
 
 	/**
-	 * Adds an 'infinite-scroll' class to the body.
+	 * Returns classes to be added to <body>. If it's enabled, 'infinite-scroll'. If set to continuous scroll, adds 'neverending' too.
+	 *
+	 * @since 4.7.0 No longer added as a 'body_class' filter but passed to JS environment and added using JS.
+	 *
+	 * @return string
 	 */
-	function body_class( $classes ) {
+	function body_class() {
+		$classes = '';
 		// Do not add infinity-scroll class if disabled through the Reading page
 		$disabled = '' === get_option( self::$option_name_enabled ) ? true : false;
 		if ( ! $disabled || 'click' == self::get_settings()->type ) {
-			$classes[] = 'infinite-scroll';
+			$classes = 'infinite-scroll';
 
 			if ( 'scroll' == self::get_settings()->type )
-				$classes[] = 'neverending';
+				$classes .= ' neverending';
 		}
 
 		return $classes;
@@ -776,6 +788,7 @@ class The_Neverending_Home_Page {
 			),
 			'query_args'      => self::get_query_vars(),
 			'last_post_date'  => self::get_last_post_date(),
+			'body_class'	  => self::body_class(),
 		);
 
 		// Optional order param
@@ -1429,6 +1442,10 @@ class The_Neverending_Home_Page {
 		// We only need the new footer for the 'scroll' type
 		if ( 'scroll' != self::get_settings()->type || ! self::archive_supports_infinity() )
 			return;
+
+		if ( self::is_last_batch() ) {
+			return;
+		}
 
 		// Display a footer, either user-specified or a default
 		if ( false !== self::get_settings()->footer_callback && is_callable( self::get_settings()->footer_callback ) )

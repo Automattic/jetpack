@@ -648,6 +648,8 @@ $( document ).ready( function() {
 	if ( 'object' != typeof infiniteScroll )
 		return;
 
+	$( document.body ).addClass( infiniteScroll.settings.body_class );
+
 	// Set ajaxurl (for brevity)
 	ajaxurl = infiniteScroll.settings.ajaxurl;
 
