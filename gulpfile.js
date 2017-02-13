@@ -161,13 +161,7 @@ gulp.task( 'sass:watch', function() {
 } );
 
 gulp.task( 'react:build', function( done ) {
-	var config = getWebpackConfig();
-
-	if ( 'production' === process.env.NODE_ENV ) {
-		config.debug = false;
-	}
-
-	webpack( config ).run( onBuild( done ) );
+	webpack( getWebpackConfig() ).run( onBuild( done ) );
 } );
 
 gulp.task( 'react:watch', function() {

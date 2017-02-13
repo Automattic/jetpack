@@ -3,23 +3,10 @@ require( 'es6-promise' ).polyfill();
 var path = require( 'path' );
 var webpack = require( 'webpack' );
 var fs = require('fs');
-var NODE_ENV = process.env.NODE_ENV || 'development';
 var ExtractTextPlugin = require( 'extract-text-webpack-plugin' );
 
+var NODE_ENV = ( process.env.NODE_ENV || 'development' );
 var IS_HOT_UPDATE = ( process.env.NODE_ENV !== 'production' );
-
-var jsLoader = IS_HOT_UPDATE ?
-	[ require.resolve( 'react-hot-loader' ), require.resolve( 'babel-loader' ) ] :
-	[ require.resolve( 'babel-loader' ) ];
-
-var cssLoader = IS_HOT_UPDATE
-	? [
-		'style-loader',
-		'css-loader?sourceMap!autoprefixer!'
-	]
-	: ExtractTextPlugin.extract( {
-		use: [ 'css-loader?sourceMap!autoprefixer!' ]
-	} );
 
 // This file is written in ES5 because it is run via Node.js and is not transpiled by babel. We want to support various versions of node, so it is best to not use any ES6 features even if newer versions support ES6 features out of the box.
 var webpackConfig = {
@@ -39,12 +26,8 @@ var webpackConfig = {
 		// Webpack loaders are applied when a resource is matches the test case
 		rules: [
 			{
-				test: /\.json/,
-				use: [ 'json-loader' ]
-			},
-			{
 				test: /\.html/,
-				use: [ 'html-loader' ]
+				loader: 'html-loader'
 			},
 			{
 				test: /\.jsx?$/,
@@ -53,12 +36,12 @@ var webpackConfig = {
 				exclude: /node_modules/,
 				options: {
 					configFile: '.eslintrc',
-					quiet: true,
+					failOnError: false,
 				}
 			},
 			{
 				test: /\.jsx?$/,
-				loaders: jsLoader,
+				loader: 'babel-loader',
 
 				// include both typical npm-linked locations and default module locations to handle both cases
 				include: [
@@ -70,17 +53,19 @@ var webpackConfig = {
 			},
 			{
 				test: /\.css$/,
-				loader: cssLoader
+				loader: ExtractTextPlugin.extract( {
+					use: [ 'css-loader?sourceMap!autoprefixer!' ]
+				} )
 			},
 			{
 				test: /\.scss$/,
-				use: ExtractTextPlugin.extract( {
-					fallback: 'style-loader',
-					use: [
-						'css-loader',
-						'sass-loader'
-					],
-				} )
+				use: [{
+					loader: "style-loader"
+				}, {
+					loader: "css-loader"
+				}, {
+					loader: "sass-loader"
+				}]
 			}
 		]
 	},
@@ -105,8 +90,11 @@ var webpackConfig = {
 		process: true
 	},
 	plugins: [
+		new webpack.LoaderOptionsPlugin({
+			minimize: true,
+			debug: false
+		}),
 		new webpack.DefinePlugin({
-
 			// NODE_ENV is used inside React to enable/disable features that should only
 			// be used in development
 			'process.env': {
@@ -122,15 +110,5 @@ var webpackConfig = {
 		jsdom: 'window'
 	}
 };
-
-if ( NODE_ENV === 'production' ) {
-
-	webpack.DefinePlugin( {
-		"process.env": {
-			// This has effect on the react lib size
-			"NODE_ENV": JSON.stringify(process.env.NODE_ENV) // TODO switch depending on actual environment
-		}
-	} );
-}
 
 module.exports = webpackConfig;
