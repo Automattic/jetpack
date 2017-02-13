@@ -63,7 +63,7 @@ export const Ads = moduleSettingsForm(
 							<small className="jp-form-setting-explanation">
 								{ __( 'By activating ads, you agree to the Automattic Ads {{link}}Terms of Service{{/link}}.', {
 									components: {
-										link: <a href="https://wordpress.com/automattic-ads-tos/" target="_blank" />
+										link: <a href="https://wordpress.com/automattic-ads-tos/" target="_blank" rel="noopener noreferrer" />
 									}
 								} ) }
 							</small>
