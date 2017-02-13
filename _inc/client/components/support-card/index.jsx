@@ -68,44 +68,6 @@ const SupportCard = React.createClass( {
 						</p>
 					</div>
 				</Card>
-				<Card className="jp-support-card__social">
-					<p className="jp-support-card__description">
-						{ __(
-							'{{hideOnMobile}}Enjoying Jetpack or have feedback?{{/hideOnMobile}} ' +
-							'{{reviewLink}}Leave us a review{{/reviewLink}}{{hideOnMobile}},{{/hideOnMobile}} ' +
-							'{{twitterLink}}follow us on Twitter{{/twitterLink}}{{hideOnMobile}}, and{{/hideOnMobile}} ' +
-							'{{facebookLink}}like us on Facebook{{/facebookLink}}{{hideOnMobile}}.{{/hideOnMobile}}', {
-								components: {
-									hideOnMobile: <span className="jp-hidden-on-mobile" />,
-									reviewLink: (
-										<a
-											className="jp-support-card__link"
-											href="https://wordpress.org/support/view/plugin-reviews/jetpack"
-											title={ __( 'Leave a Jetpack review' ) }
-											target="_blank"
-										/>
-									),
-									twitterLink: (
-										<a
-											className="jp-support-card__link"
-											href="http://twitter.com/jetpack"
-											title={ __( 'Follow Jetpack on Twitter' ) }
-											target="_blank"
-										/>
-									),
-									facebookLink: (
-										<a
-											className="jp-support-card__link"
-											href="https://www.facebook.com/jetpackme"
-											title={ __( 'Like us on Facebook' ) }
-											target="_blank"
-										/>
-									)
-								}
-							}
-						) }
-					</p>
-				</Card>
 			</div>
 		);
 	}
