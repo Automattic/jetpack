@@ -52,7 +52,7 @@ add_action( 'after_setup_theme', 'jetpack_social_menu_init', 99 );
  * Return the type of menu the theme is using.
  *
  * @uses get_theme_support()
- * @return $menu_type
+ * @return null|string $menu_type
  */
 function jetpack_social_menu_get_type() {
 	$options = get_theme_support( 'jetpack-social-menu' );
@@ -71,7 +71,12 @@ function jetpack_social_menu_get_type() {
  */
 function jetpack_social_menu_style() {
 	$menu_type = jetpack_social_menu_get_type();
-	$deps      = ( 'genericons' === $menu_type ) ? array( 'genericons' ) : null;
+
+	if ( ! $menu_type ) {
+		return;
+	}
+
+	$deps = ( 'genericons' === $menu_type ) ? array( 'genericons' ) : null;
 
 	if ( has_nav_menu( 'jetpack-social-menu' ) ) {
 		wp_enqueue_style( 'jetpack-social-menu', plugins_url( 'social-menu/social-menu-' . $menu_type . '.css', __FILE__ ), $deps, '1.0' );
