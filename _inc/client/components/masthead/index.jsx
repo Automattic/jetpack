@@ -4,6 +4,8 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
+import Button from 'components/button';
+import includes from 'lodash/includes';
 
 /**
  * Internal dependencies
@@ -15,7 +17,8 @@ export const Masthead = React.createClass( {
 	render: function() {
 		let devNotice = this.props.siteConnectionStatus === 'dev'
 			? <code>Dev Mode</code>
-			: '';
+			: '',
+			isDashboardView = includes( [ '/', '/dashboard', '/apps', '/plans' ], this.props.route.path );
 
 		return (
 			<div className="jp-masthead">
@@ -31,20 +34,22 @@ export const Masthead = React.createClass( {
 
 					<ul className="jp-masthead__links">
 						<li className="jp-masthead__link-li">
-							<a href="https://jetpack.com/support/" target="_blank" rel="noopener noreferrer" className="jp-masthead__link">
-								<span className="dashicons dashicons-editor-help" title={ __( 'Need Help?' ) } />
-								<span>
-									{ __( 'Need Help?' ) }
-								</span>
-							</a>
+							<Button
+								compact={ true }
+								href="#/dashboard"
+								primary={ isDashboardView }
+							>
+								{ __( 'Dashboard' ) }
+							</Button>
 						</li>
 						<li className="jp-masthead__link-li">
-							<a href={ 'http://surveys.jetpack.me/research-plugin?rel=' + this.props.currentVersion } target="_blank" rel="noopener noreferrer" className="jp-masthead__link">
-								<span className="dashicons dashicons-admin-comments" title={ __( 'Send us Feedback' ) } />
-								<span>
-									{ __( 'Send us Feedback' ) }
-								</span>
-							</a>
+							<Button
+								compact={ true }
+								href="#/settings"
+								primary={ ! isDashboardView }
+							>
+								{ __( 'Settings' ) }
+							</Button>
 						</li>
 					</ul>
 				</div>
