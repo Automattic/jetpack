@@ -127,7 +127,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'comment_whitelist'                    => 'pineapple',
 			'comment_max_links'                    => 99,
 			'moderation_keys'                      => 'pineapple',
-			'wga'                                  => 'pineapple',
+			'jetpack_wga'                          => 'pineapple',
 			'disabled_likes'                       => 'pineapple',
 			'disabled_reblogs'                     => 'pineapple',
 			'jetpack_comment_likes_enabled'        => 'pineapple',
@@ -201,7 +201,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 		do_action( 'init' );
 
 		$whitelist = $this->options_module->get_options_whitelist();
-		
+
 		$this->assertTrue( in_array( 'foo_option_bar', $whitelist ) );
 	}
 
@@ -215,7 +215,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 	}
 
 
-	
+
 	function add_option_on_89() {
 		add_filter( 'jetpack_options_whitelist', array( $this, 'add_jetpack_options_whitelist_filter' ) );
 	}

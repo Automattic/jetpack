@@ -41,6 +41,11 @@ class Jetpack_Custom_CSS_Data_Migration {
 		$preprocessors      = apply_filters( 'jetpack_custom_css_preprocessors', array() );
 		$core_css_post      = wp_get_custom_css_post();
 		$jetpack_css_post   = self::get_post();
+
+		if ( ! $jetpack_css_post ) {
+			return;
+		}
+
 		$revisions          = self::get_all_revisions();
 
 		// Migrate the settings from revision meta to theme mod.
@@ -50,7 +55,9 @@ class Jetpack_Custom_CSS_Data_Migration {
 		if ( empty( $revisions ) || ! is_array( $revisions ) ) {
 			if ( $jetpack_css_post instanceof WP_Post ) {
 				// Feed in the raw, if the current setting is Sass/LESS, it'll filter it inside.
+				kses_remove_filters();
 				wp_update_custom_css_post( $jetpack_css_post->post_content );
+				kses_init();
 				return 1;
 			}
 			return null;
@@ -79,11 +86,12 @@ class Jetpack_Custom_CSS_Data_Migration {
 				$css = call_user_func( $preprocessors[ $preprocessor ]['callback'], $pre );
 			}
 
-			// Do we need to remove any filters here for users without `unfiltered_html` ?
+			kses_remove_filters();
 			wp_update_custom_css_post( $css, array(
 				'stylesheet'   => $stylesheet,
 				'preprocessed' => $pre,
 			) );
+			kses_init();
 		}
 
 		// If we've migrated some CSS for the current theme and there was already something there in the Core dataset ...

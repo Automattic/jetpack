@@ -3,6 +3,7 @@
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-queue.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-modules.php';
+require_once dirname( __FILE__ ) . '/class.jetpack-sync-actions.php';
 
 /**
  * This class monitors actions and logs them to the queue to be sent

@@ -69,7 +69,14 @@ class Jetpack_Image_Widget extends WP_Widget {
 
 		if ( '' != $instance['img_url'] ) {
 
-			$output = '<img src="' . esc_attr( $instance['img_url'] ) .'" ';
+			$image_url = Jetpack::is_module_active( 'photon' )
+				? jetpack_photon_url( $instance['img_url'], array(
+                                        'w' => $instance['img_width'],
+                                        'h' => $instance['img_height'],
+                                  ) )
+				: $instance['img_url'];
+
+			$output = '<img src="' . esc_url( $image_url ) . '" ';
 
 			if ( '' != $instance['alt_text'] ) {
 				$output .= 'alt="' . esc_attr( $instance['alt_text'] ) .'" ';
@@ -87,11 +94,11 @@ class Jetpack_Image_Widget extends WP_Widget {
 				$output .= 'height="' . esc_attr( $instance['img_height'] ) .'" ';
 			}
 			$output .= '/>';
-			if ( '' != $instance['link'] && ! empty( $instance['link_target_blank'] ) ) {
-				$output = '<a target="_blank" href="' . esc_attr( $instance['link'] ) . '">' . $output . '</a>';
-			}
-			if ( '' != $instance['link'] && empty( $instance['link_target_blank'] ) ) {
-				$output = '<a href="' . esc_attr( $instance['link'] ) . '">' . $output . '</a>';
+			if ( '' != $instance['link'] ) {
+				$target = ! empty( $instance['link_target_blank'] )
+					? 'target="_blank"'
+					: '';
+				$output = '<a ' . $target . ' href="' . esc_url( $instance['link'] ) . '">' . $output . '</a>';
 			}
 			if ( '' != $instance['caption'] ) {
 				/** This filter is documented in core/src/wp-includes/default-widgets.php */
@@ -141,12 +148,12 @@ class Jetpack_Image_Widget extends WP_Widget {
 		$instance = $old_instance;
 
 		$instance['title']             = strip_tags( $new_instance['title'] );
-		$instance['img_url']           = esc_url( $new_instance['img_url'], null, 'display' );
+		$instance['img_url']           = esc_url( trim( $new_instance['img_url'] ) );
 		$instance['alt_text']          = strip_tags( $new_instance['alt_text'] );
 		$instance['img_title']         = strip_tags( $new_instance['img_title'] );
 		$instance['caption']           = wp_kses( stripslashes($new_instance['caption'] ), $allowed_caption_html );
 		$instance['align']             = $new_instance['align'];
-		$instance['link']              = esc_url( $new_instance['link'], null, 'display' );
+		$instance['link']              = esc_url( trim( $new_instance['link'] ) );
 		$instance['link_target_blank'] = isset( $new_instance['link_target_blank'] ) ? (bool) $new_instance['link_target_blank'] : false;
 
 		$new_img_width  = absint( $new_instance['img_width'] );
@@ -178,7 +185,7 @@ class Jetpack_Image_Widget extends WP_Widget {
 	}
 
 	/**
-	* Back-end widget form.
+	* Back end widget form.
 	*
 	* @see WP_Widget::form()
 	*

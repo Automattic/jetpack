@@ -11,9 +11,13 @@ import { createHashHistory } from 'history'
 /**
  * Internal dependencies
  */
+import accessibleFocus from 'lib/accessible-focus';
 import store from 'state/redux-store';
 import i18n from 'i18n-calypso';
 import Main from 'main';
+
+// Initialize the accessibile focus to allow styling specifically for keyboard navigation
+accessibleFocus();
 
 Initial_State.locale = JSON.parse( Initial_State.locale );
 
@@ -71,4 +75,3 @@ function render() {
 		container
 	);
 }
-

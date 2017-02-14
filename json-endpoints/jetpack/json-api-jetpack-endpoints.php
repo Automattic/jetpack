@@ -629,7 +629,7 @@ new Jetpack_JSON_API_Sync_Endpoint( array(
 		'users'    => '(string) Comma-delimited list of user IDs to sync',
 	),
 	'response_format' => array(
-		'started' => '(bool) Whether or not the synchronisation was started'
+		'scheduled' => '(bool) Whether or not the synchronisation was started'
 	),
 	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/example.wordpress.org/sync'
 ) );
@@ -1128,4 +1128,30 @@ new Jetpack_JSON_API_Cron_Unschedule_Endpoint( array(
 			'timestamp' => 1476385523
 		),
 	),
+) );
+
+//	BACKUPS
+require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-get-post-backup-endpoint.php' );
+
+// GET /sites/%s/posts/%d/backup
+new Jetpack_JSON_API_Get_Post_Backup_Endpoint( array(
+	'description'    => 'Fetch a backup of a post, along with all of its metadata',
+	'group'          => '__do_not_document',
+	'method'         => 'GET',
+	'path'           => '/sites/%s/posts/%d/backup',
+	'stat'           => 'posts:1:backup',
+	'path_labels'    => array(
+		'$site' => '(int|string) The site ID, The site domain',
+		'$post' => '(int) The post ID',
+	),
+	'response_format' => array(
+		'post' => '(array) Post table row',
+		'meta' => '(array) Associative array of key/value postmeta data',
+	),
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/posts/1/backup'
 ) );

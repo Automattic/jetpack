@@ -49,7 +49,7 @@ foreach ( $files as $file ) {
 					$tags[ $tag ][] = $relative_path;
 				}
 			} else {
-				$_file_contents .= "\t\t\t\t'{$field}' => _x( '{$string}', '{$regex}', 'jetpack' ),\r\n";
+				$_file_contents .= "\t\t\t\t'{$field}' => _x( '{$string}', '{$regex}', 'jetpack' ),\n";
 			}
 		}
 	}

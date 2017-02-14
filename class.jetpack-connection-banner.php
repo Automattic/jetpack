@@ -286,7 +286,7 @@ class Jetpack_Connection_Banner {
 						<p>
 							<?php
 							esc_html_e(
-								'Professional Plan customers get access to advanced SEO tools as well as unlimited surveys and polls.',
+								'Professional Plan customers get access to advanced SEO tools.',
 								'jetpack'
 							);
 							?>

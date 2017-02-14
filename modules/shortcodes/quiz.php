@@ -181,7 +181,7 @@ class Quiz_Shortcode {
 		}
 
 		$quiz = self::do_shortcode( $content );
-		return '<div class="quiz"' . $id . '>' . $quiz . '</div>';
+		return '<div class="jetpack-quiz quiz"' . $id . '>' . $quiz . '</div>';
 	}
 
 	/**
@@ -224,7 +224,7 @@ class Quiz_Shortcode {
 	 */
 	public static function question_shortcode( $atts, $content = null ) {
 		return isset( $atts['quiz_item'] )
-			? '<div class="question">' . self::do_shortcode( $content ) . '</div>'
+			? '<div class="jetpack-quiz-question question">' . self::do_shortcode( $content ) . '</div>'
 			: '';
 	}
 
@@ -244,7 +244,7 @@ class Quiz_Shortcode {
 		}
 
 		return isset( $atts['quiz_item'] )
-			? '<div class="answer" data-correct="1">' . self::do_shortcode( $content ) . '</div>'
+			? '<div class="jetpack-quiz-answer answer" data-correct="1">' . self::do_shortcode( $content ) . '</div>'
 			: '';
 	}
 
@@ -264,7 +264,7 @@ class Quiz_Shortcode {
 		}
 
 		return isset( $atts['quiz_item'] )
-			? '<div class="answer">' . self::do_shortcode( $content ) . '</div>'
+			? '<div class="jetpack-quiz-answer answer">' . self::do_shortcode( $content ) . '</div>'
 			: '';
 	}
 
@@ -284,7 +284,7 @@ class Quiz_Shortcode {
 		}
 
 		return isset( $atts['quiz_item'] )
-			? '<div class="explanation">' . self::do_shortcode( $content ) . '</div>'
+			? '<div class="jetpack-quiz-explanation explanation">' . self::do_shortcode( $content ) . '</div>'
 			: '';
 	}
 }

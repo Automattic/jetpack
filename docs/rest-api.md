@@ -47,33 +47,45 @@ All endpoints return and accept JSON. Make sure you add the proper `content-type
 
 Operations related to Jetpack's connection to WordPress.com
 
-#### GET /wp-json/jetpack/v4/connection-status
+#### GET /wp-json/jetpack/v4/connection
 
 Fetch Jetpack's current connection status.
 
-#### GET /wp-json/jetpack/v4/connect-url
+#### GET /wp-json/jetpack/v4/connection/url
 
 Fetch a fresh WordPress.com URL for connecting the Jetpack installation.
 
-#### GET /wp-json/jetpack/v4/user-connection-data
+#### GET /wp-json/jetpack/v4/connection/data
 
 Fetch the data of the current's user WordPress.com account.
 
-#### POST /wp-json/jetpack/v4/disconnect/site
+#### POST /wp-json/jetpack/v4/connection
 
 Disconnect the Jetpack installation from WordPress.com servers.
 
-**This endpoint does not take Body parameters**
+Accepts a JSON object in the body like:
 
-#### POST /wp-json/jetpack/v4/recheck-ssl
+```
+{
+	"isActive": false
+}
+```
 
-Check if the site has SSL enabled.
+#### POST /wp-json/jetpack/v4/connection/user
 
-**This endpoint does not take Body parameters**
+Unlink current user from the related WordPress.com account.
+
+Accepts a JSON object in the body like:
+
+```
+{
+	"linked": false
+}
+```
 
 ### Jetpack modules
 
-#### GET /wp-json/jetpack/v4/module/all
+#### GET /wp-json/jetpack/v4/module
 
 Get a list of all Jetpacks modules, its description, other properties and the module's options
 
@@ -182,17 +194,6 @@ Reset  Jetpack module options or Jetpack modules activation state to default val
 	* `"modules"`: the modules activation state will be reset to their defaults.
 
 	**This endpoint does not take Body parameters**
-
-
-### Users
-
-Operations related to the site's users linked to WordPress.com accounts.
-
-#### POST /wp-json/jetpack/v4/unlink
-
-Unlink current user from the related WordPress.com account.
-
-**This endpoint does not take Body parameters**
 
 ### Site information
 

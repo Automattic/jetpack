@@ -61,7 +61,7 @@ class Tonesque {
 			if ( empty( $data ) ) {
 				$response = wp_remote_get( $image_url );
 				if ( is_wp_error( $response ) ) {
-					return $response;
+					return false;
 				}
 				$data = wp_remote_retrieve_body( $response );
 			}

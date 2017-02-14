@@ -167,7 +167,7 @@ class Jetpack_Network {
 			return;
 		}
 
-		$sites = $this->wp_get_sites();
+		$sites = get_sites();
 
 		foreach ( $sites as $s ) {
 			switch_to_blog( $s->blog_id );
@@ -318,7 +318,7 @@ class Jetpack_Network {
 						/**
 						 * @todo Make state messages show on Jetpack NA pages
 						 **/
-						Jetpack::state( 'missing_site_id', 'Site ID must be provided to register a sub-site' );
+						Jetpack::state( 'missing_site_id', esc_html__( 'Site ID must be provided to register a sub-site.', 'jetpack' ) );
 						break;
 					}
 
@@ -339,7 +339,7 @@ class Jetpack_Network {
 					Jetpack::log( 'subsitedisconnect' );
 
 					if ( ! isset( $_GET['site_id'] ) || empty( $_GET['site_id'] ) ) {
-						Jetpack::state( 'missing_site_id', 'Site ID must be provided to disconnect a sub-site' );
+						Jetpack::state( 'missing_site_id', esc_html__( 'Site ID must be provided to disconnect a sub-site.', 'jetpack' ) );
 						break;
 					}
 
@@ -746,68 +746,6 @@ class Jetpack_Network {
 		return $options[ $name ];
 	}
 
-	/**
-	 * Return an array of sites on the specified network. If no network is specified,
-	 * return all sites, regardless of network.
-	 *
-	 * @todo REMOVE THIS FUNCTION! This function is moving to core. Use that one in favor of this. WordPress::wp_get_sites(). http://codex.wordpress.org/Function_Reference/wp_get_sites NOTE, This returns an array instead of stdClass. Be sure to update class.network-sites-list-table.php
-	 * @since 2.9
-	 * @deprecated 2.4.5
-	 *
-	 * @param array|string $args Optional. Specify the status of the sites to return.
-	 *
-	 * @return array An array of site data
-	 */
-	public function wp_get_sites( $args = array() ) {
-		global $wpdb;
-
-		if ( wp_is_large_network() ) {
-			return;
-		}
-
-		$defaults = array( 'network_id' => $wpdb->siteid );
-		$args     = wp_parse_args( $args, $defaults );
-		$query    = "SELECT * FROM $wpdb->blogs WHERE 1=1 ";
-
-		if ( isset( $args['network_id'] ) && ( is_array( $args['network_id'] ) || is_numeric( $args['network_id'] ) ) ) {
-			$network_ids = array_map( 'intval', (array) $args['network_id'] );
-			$network_ids = implode( ',', $network_ids );
-			$query .= "AND site_id IN ($network_ids) ";
-		}
-
-		if ( isset( $args['public'] ) ) {
-			$query .= $wpdb->prepare( "AND public = %d ", $args['public'] );
-		}
-
-		if ( isset( $args['archived'] ) ) {
-			$query .= $wpdb->prepare( "AND archived = %d ", $args['archived'] );
-		}
-
-		if ( isset( $args['mature'] ) ) {
-			$query .= $wpdb->prepare( "AND mature = %d ", $args['mature'] );
-		}
-
-		if ( isset( $args['spam'] ) ) {
-			$query .= $wpdb->prepare( "AND spam = %d ", $args['spam'] );
-		}
-
-		if ( isset( $args['deleted'] ) ) {
-			$query .= $wpdb->prepare( "AND deleted = %d ", $args['deleted'] );
-		}
-
-		if ( isset( $args['exclude_blogs'] ) ) {
-			$query .= "AND blog_id NOT IN (" . implode( ',', $args['exclude_blogs'] ) . ")";
-		}
-
-		$key = 'wp_get_sites:' . md5( $query );
-
-		if ( ! $site_results = wp_cache_get( $key, 'site-id-cache' ) ) {
-			$site_results = (array) $wpdb->get_results( $query );
-			wp_cache_set( $key, $site_results, 'site-id-cache' );
-		}
-
-		return $site_results;
-	}
 }
 
 // end class

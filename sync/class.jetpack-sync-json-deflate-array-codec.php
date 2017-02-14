@@ -23,7 +23,7 @@ class Jetpack_Sync_JSON_Deflate_Array_Codec implements iJetpack_Sync_Codec {
 
 	// @see https://gist.github.com/muhqu/820694
 	private function json_serialize( $any ) {
-		return json_encode( $this->json_wrap( $any ) );
+		return wp_json_encode( $this->json_wrap( $any ) );
 	}
 
 	private function json_unserialize( $str ) {

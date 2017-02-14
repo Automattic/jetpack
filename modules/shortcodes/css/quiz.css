@@ -1,4 +1,4 @@
-div.quiz {
+div.jetpack-quiz {
 	border: 1px solid #deede3;
 	background-color: #f3f3f3;
 	padding: 1em;
@@ -7,47 +7,47 @@ div.quiz {
 	border-radius: .2em;
 }
 
-div.quiz div.question {
+div.jetpack-quiz div.jetpack-quiz-question {
 	margin-bottom: .5em;
 	font-weight: bold;
 }
 
-div.quiz div.answer {
+div.jetpack-quiz div.jetpack-quiz-answer {
 	cursor: pointer;
 	margin-bottom: .5em;
 	padding: 1em 0 1em 1em;
 	border-bottom: 1px dotted #999;
 }
-div.quiz div.answer.last {
+div.jetpack-quiz div.jetpack-quiz-answer.last {
 	padding-bottom: 0;
 	margin-bottom: 0;
 	border-bottom: 0;
 }
 
-div.quiz div.answer.correct {
+div.jetpack-quiz div.jetpack-quiz-answer.correct {
 	color: green;
 }
 
-div.quiz div.answer.wrong {
+div.jetpack-quiz div.jetpack-quiz-answer.wrong {
 	color: red;
 }
 
-div.quiz div.answer div.explanation {
+div.jetpack-quiz div.jetpack-quiz-answer div.jetpack-quiz-explanation {
 	display: none;
 }
 
-div.quiz div.answer.correct div.explanation, div.quiz div.answer.wrong div.explanation {
+div.jetpack-quiz div.jetpack-quiz-answer.correct div.jetpack-quiz-explanation, div.jetpack-quiz div.jetpack-quiz-answer.wrong div.jetpack-quiz-explanation {
 	display: block;
 	color: black;
 	font-size: 90%;
 	margin-top: 1em;
 }
 
-div.quiz div.answer.correct div.explanation tt, div.quiz div.answer.wrong div.explanation tt {
+div.jetpack-quiz div.jetpack-quiz-answer.correct div.jetpack-quiz-explanation tt, div.jetpack-quiz div.jetpack-quiz-answer.wrong div.jetpack-quiz-explanation tt {
 	font-size: 85%;
 }
 
-div.quiz pre {
+div.jetpack-quiz pre {
 	font: 15px Monaco, Consolas, "Andale Mono", "DejaVu Sans Mono", monospace;
 	background: transparent;
 	margin: 0;

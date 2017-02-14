@@ -68,6 +68,7 @@ export const Engagement = ( props ) => {
 	let cards = [
 		[ 'seo-tools', getModule( 'seo-tools' ).name, getModule( 'seo-tools' ).description, getModule( 'seo-tools' ).learn_more_button ],
 		[ 'wordads', getModule( 'wordads' ).name, getModule( 'wordads' ).description, getModule( 'wordads' ).learn_more_button ],
+		[ 'google-analytics', getModule( 'google-analytics' ).name, getModule( 'google-analytics' ).description, getModule( 'google-analytics' ).learn_more_button ],
 		[ 'stats', getModule( 'stats' ).name, getModule( 'stats' ).description, getModule( 'stats' ).learn_more_button ],
 		[ 'sharedaddy', getModule( 'sharedaddy' ).name, getModule( 'sharedaddy' ).description, getModule( 'sharedaddy' ).learn_more_button ],
 		[ 'publicize', getModule( 'publicize' ).name, getModule( 'publicize' ).description, getModule( 'publicize' ).learn_more_button ],
@@ -100,7 +101,7 @@ export const Engagement = ( props ) => {
 			customClasses = unavailableInDevMode ? 'devmode-disabled' : '',
 			toggle = '',
 			adminAndNonAdmin = isAdmin || includes( nonAdminAvailable, element[0] ),
-			isPro = 'seo-tools' === element[0] || 'wordads' === element[0],
+			isPro = includes( [ 'seo-tools', 'wordads', 'google-analytics' ], element[0] ),
 			proProps = {
 				module: element[0],
 				configure_url: ''
@@ -127,6 +128,7 @@ export const Engagement = ( props ) => {
 			toggle = __( 'Unavailable in Dev Mode' );
 		} else if ( isAdmin ) {
 			if ( ( 'seo-tools' === element[0] && ! hasBusiness ) ||
+					( 'google-analytics' === element[0] && ! hasBusiness ) ||
 					( 'wordads' === element[0] && ! hasPremiumOrBusiness ) ) {
 				toggle = <ProStatus proFeature={ element[0] } />;
 			} else {
@@ -141,6 +143,10 @@ export const Engagement = ( props ) => {
 				if ( 'wordads' === element[0] && ! isModuleActive ) {
 					wordAdsSubHeader = <WordAdsSubHeaderTos subheader={ element[2] } />
 				}
+			}
+
+			if ( element[0] === 'google-analytics' && ! hasBusiness ) {
+				isModuleActive = false;
 			}
 
 			if ( isPro ) {
@@ -171,6 +177,12 @@ export const Engagement = ( props ) => {
 					? 'https://wordpress.com/settings/seo/' + props.siteRawUrl
 					: 'inactive';
 			}
+
+			moduleDescription = <AllModuleSettings module={ proProps } />;
+		} else if ( element[0] === 'google-analytics' ) {
+			proProps.configure_url = isModuleActive
+				? 'https://wordpress.com/settings/analytics/' + props.siteRawUrl
+				: 'inactive';
 
 			moduleDescription = <AllModuleSettings module={ proProps } />;
 		}

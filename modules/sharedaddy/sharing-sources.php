@@ -426,10 +426,11 @@ class Share_Email extends Sharing_Source {
 			 */
 			if ( apply_filters( 'sharing_email_check', true, $post, $post_data ) ) {
 				$data = array(
-					'post'	 => $post,
-					'source' => $source_email,
-					'target' => $target_email,
-					'name'	 => $source_name,
+					'post'           => $post,
+					'source'         => $source_email,
+					'target'         => $target_email,
+					'name'           => $source_name,
+					'sharing_source' => $this,
 				);
 				// todo: implement an error message when email doesn't get sent.
 				/**
@@ -514,7 +515,7 @@ class Share_Email extends Sharing_Source {
 				<input type="email" name="source_email" id="source_email" value="" />
 
 			<?php endif; ?>
-			<input type="text" id="jetpack-source_f_name" name="source_f_name" class="input" value="" size="25" autocomplete="off" />
+			<input type="text" id="jetpack-source_f_name" name="source_f_name" class="input" value="" size="25" autocomplete="off" title="<?php esc_attr_e( 'This field is for validation and should not be changed', 'jetpack' ); ?>" />
 			<script>jQuery( document ).ready( function(){ document.getElementById('jetpack-source_f_name').value = '' });</script>
 			<?php
 				/**

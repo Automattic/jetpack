@@ -77,7 +77,7 @@ class Jetpack_Blog_Stats_Widget extends WP_Widget {
 	}
 
 	/**
-	 * Back-end widget form.
+	 * Back end widget form.
 	 *
 	 * @see WP_Widget::form()
 	 *

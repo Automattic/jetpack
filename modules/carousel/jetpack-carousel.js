@@ -435,6 +435,42 @@ jQuery(document).ready(function($) {
 		}
 	};
 
+	var processSingleImageGallery = function() {
+		// process links that contain img tag with attribute data-attachment-id
+		$( 'a img[data-attachment-id]' ).each(function() {
+			var container = $( this ).parent();
+
+			// skip if image was already added to gallery by shortcode
+			if( container.parent( '.gallery-icon' ).length ) {
+				return;
+			}
+
+			var valid = false;
+
+			// if link points to 'Media File' (ignoring GET parameters) and flag is set allow it
+			if ( $( container ).attr( 'href' ).split( '?' )[0] === $( this ).attr( 'data-orig-file' ).split( '?' )[0] &&
+				1 === Number( jetpackCarouselStrings.single_image_gallery_media_file )
+			) {
+				valid = true;
+			}
+
+			// if link points to 'Attachment Page' allow it
+			if( $( container ).attr( 'href' ) === $( this ).attr( 'data-permalink' ) ) {
+				valid = true;
+			}
+
+			// links to 'Custom URL' or 'Media File' when flag not set are not valid
+			if( ! valid ) {
+				return;
+			}
+
+			// make this node a gallery recognizable by event listener above
+			$( container ).addClass( 'single-image-gallery' ) ;
+			// blog_id is needed to allow posting comments to correct blog
+			$( container ).data( 'carousel-extra', { blog_id: Number( jetpackCarouselStrings.blog_id ) } );
+		});
+	};
+
 	var methods = {
 		testForData: function(gallery) {
 			gallery = $( gallery ); // make sure we have it as a jQuery object.
@@ -1128,7 +1164,7 @@ jQuery(document).ready(function($) {
 			var $ul = $( '<ul class=\'jp-carousel-image-exif\'></ul>' );
 
 			$.each( meta, function( key, val ) {
-				if ( 0 === parseFloat(val) || !val.length || -1 === $.inArray( key, [ 'camera', 'aperture', 'shutter_speed', 'focal_length' ] ) ) {
+				if ( 0 === parseFloat(val) || !val.length || -1 === $.inArray( key, $.makeArray( jetpackCarouselStrings.meta_data ) ) ) {
 					return;
 				}
 
@@ -1418,39 +1454,10 @@ jQuery(document).ready(function($) {
 
 	// handle lightbox (single image gallery) for images linking to 'Attachment Page'
 	if ( 1 === Number( jetpackCarouselStrings.single_image_gallery ) ) {
-		// process links that contain img tag with attribute data-attachment-id
-		$( 'a img[data-attachment-id]' ).each(function() {
-			var container = $( this ).parent();
-
-			// skip if image was already added to gallery by shortcode
-			if( container.parent( '.gallery-icon' ).length ) {
-				return;
-			}
-
-			var valid = false;
-
-			// if link points to 'Media File' and flag is set allow it
-			if ( $( container ).attr( 'href' ) === $( this ).attr( 'data-orig-file' ) &&
-				1 === Number( jetpackCarouselStrings.single_image_gallery_media_file )
-			) {
-				valid = true;
-			}
-
-			// if link points to 'Attachment Page' allow it
-			if( $( container ).attr( 'href' ) === $( this ).attr( 'data-permalink' ) ) {
-				valid = true;
-			}
-
-			// links to 'Custom URL' or 'Media File' when flag not set are not valid
-			if( ! valid ) {
-				return;
-			}
-
-			// make this node a gallery recognizable by event listener above
-			$( container ).addClass( 'single-image-gallery' ) ;
-			// blog_id is needed to allow posting comments to correct blog
-			$( container ).data( 'carousel-extra', { blog_id: Number( jetpackCarouselStrings.blog_id ) } );
-		});
+		processSingleImageGallery();
+		$( document.body ).on( 'post-load', function() {
+			processSingleImageGallery();
+		} );
 	}
 
 	// Makes carousel work on page load and when back button leads to same URL with carousel hash (ie: no actual document.ready trigger)

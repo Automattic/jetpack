@@ -760,9 +760,9 @@ class Jetpack_Likes {
 	}
 
 	function post_likes( $content ) {
-		global $post;
+		$post_id = get_the_ID();
 
-		if ( ! $this->is_likes_visible() )
+		if ( ! is_numeric( $post_id ) || ! $this->is_likes_visible() )
 			return $content;
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -784,9 +784,9 @@ class Jetpack_Likes {
 		*/
 		$uniqid = uniqid();
 
-		$src = sprintf( '//widgets.wp.com/likes/#blog_id=%1$d&amp;post_id=%2$d&amp;origin=%3$s&amp;obj_id=%1$d-%2$d-%4$s', $blog_id, $post->ID, $domain, $uniqid );
-		$name = sprintf( 'like-post-frame-%1$d-%2$d-%3$s', $blog_id, $post->ID, $uniqid );
-		$wrapper = sprintf( 'like-post-wrapper-%1$d-%2$d-%3$s', $blog_id, $post->ID, $uniqid );
+		$src = sprintf( '//widgets.wp.com/likes/#blog_id=%1$d&amp;post_id=%2$d&amp;origin=%3$s&amp;obj_id=%1$d-%2$d-%4$s', $blog_id, $post_id, $domain, $uniqid );
+		$name = sprintf( 'like-post-frame-%1$d-%2$d-%3$s', $blog_id, $post_id, $uniqid );
+		$wrapper = sprintf( 'like-post-wrapper-%1$d-%2$d-%3$s', $blog_id, $post_id, $uniqid );
 		$headline = sprintf(
 			/** This filter is already documented in modules/sharedaddy/sharing-service.php */
 			apply_filters( 'jetpack_sharing_headline_html', '<h3 class="sd-title">%s</h3>', esc_html__( 'Like this:', 'jetpack' ), 'likes' ),
@@ -845,9 +845,11 @@ class Jetpack_Likes {
 	}
 
 	function admin_bar_likes() {
-		global $wp_admin_bar, $post;
+		global $wp_admin_bar;
 
-		if ( ! $this->is_admin_bar_button_visible() ) {
+		$post_id = get_the_ID();
+
+		if ( ! is_numeric( $post_id ) || ! $this->is_admin_bar_button_visible() ) {
 			return;
 		}
 
@@ -868,7 +870,7 @@ class Jetpack_Likes {
 		// make sure to include the scripts before the iframe otherwise weird things happen
 		add_action( 'wp_footer', array( $this, 'likes_master' ), 21 );
 
-		$src = sprintf( '%1$s://widgets.wp.com/likes/#blog_id=%2$d&amp;post_id=%3$d&amp;origin=%1$s://%4$s', $protocol, $blog_id, $post->ID, $domain );
+		$src = sprintf( '%1$s://widgets.wp.com/likes/#blog_id=%2$d&amp;post_id=%3$d&amp;origin=%1$s://%4$s', $protocol, $blog_id, $post_id, $domain );
 
 		$html = "<iframe class='admin-bar-likes-widget jetpack-likes-widget' scrolling='no' frameBorder='0' name='admin-bar-likes-widget' src='$src'></iframe>";
 
@@ -914,6 +916,7 @@ class Jetpack_Likes {
 			$likes_locale
 		);
 
+		/* translators: The value of %d is not available at the time of output */
 		$likersText = wp_kses( __( '<span>%d</span> bloggers like this:', 'jetpack' ), array( 'span' => array() ) );
 		?>
 		<iframe src='<?php echo $src; ?>' scrolling='no' id='likes-master' name='likes-master' style='display:none;'></iframe>
@@ -979,18 +982,12 @@ class Jetpack_Likes {
 			return false;
 		}
 
-		global $post, $wp_current_filter; // Used to apply 'sharing_show' filter
+		global $wp_current_filter; // Used to apply 'sharing_show' filter
 
-		// @todo: Remove this block when 4.5 is the minimum
-		global $wp_version;
-		$comment_popup = false;
-		if ( version_compare( $wp_version, '4.5-alpha', '<=' ) ) {
-			$comment_popup = is_comments_popup();
-		}
-		// End 4.5 conditional block.
+		$post = get_post();
 
 		// Never show on feeds or previews
-		if ( is_feed() || is_preview() || $comment_popup ) { // @todo: Remove $comment_popup when 4.5 is minimum.
+		if ( is_feed() || is_preview() ) {
 			$enabled = false;
 
 		// Not a feed or preview, so what is it?
@@ -1037,7 +1034,7 @@ class Jetpack_Likes {
 			}
 		}
 
-		if( is_object( $post ) ) {
+		if ( $post instanceof WP_Post ) {
 			// Check that the post is a public, published post.
 			if ( 'attachment' == $post->post_type ) {
 				$post_status = get_post_status( $post->post_parent );

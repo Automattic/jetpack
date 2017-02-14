@@ -321,7 +321,7 @@ HTML;
 		}
 
 		$header = 'top' == $spot ? 'wpcnt-header' : '';
-		$about = __( 'About these ads', 'jetpack' );
+		$about = __( 'Advertisements', 'jetpack' );
 		return <<<HTML
 		<div class="wpcnt $header">
 			<div class="wpa">

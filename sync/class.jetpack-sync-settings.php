@@ -162,7 +162,7 @@ class Jetpack_Sync_Settings {
 	}
 
 	static function is_syncing() {
-		return (bool) self::$is_syncing;
+		return (bool) self::$is_syncing || ( defined( 'REST_API_REQUEST' ) && REST_API_REQUEST );
 	}
 
 	static function set_is_syncing( $is_syncing ) {

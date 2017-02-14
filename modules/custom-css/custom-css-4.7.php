@@ -149,6 +149,11 @@ class Jetpack_Custom_CSS_Enhancements {
 	 * @return array $fields Modified array to include post_content_filtered.
 	 */
 	public static function _wp_post_revision_fields( $fields, $post ) {
+		// None of the fields in $post are required to be passed in this filter.
+		if ( ! isset( $post['post_type'], $post['ID'] ) ) {
+			return $fields;
+		}
+
 		// If we're passed in a revision, go get the main post instead.
 		if ( 'revision' === $post['post_type'] ) {
 			$main_post_id = wp_is_post_revision( $post['ID'] );
@@ -342,7 +347,7 @@ class Jetpack_Custom_CSS_Enhancements {
 		$content_help = __( 'Set a different content width for full size images.', 'jetpack' );
 		if ( ! empty( $GLOBALS['content_width'] ) ) {
 			$content_help .= sprintf(
-				__( ' The default content width for the <strong>%1$s</strong> theme is %2$d pixels.', 'jetpack' ),
+				_n( ' The default content width for the <strong>%1$s</strong> theme is %2$d pixel.', ' The default content width for the <strong>%1$s</strong> theme is %2$d pixels.', intval( $GLOBALS['content_width'] ), 'jetpack' ),
 				wp_get_theme()->Name,
 				intval( $GLOBALS['content_width'] )
 			);
