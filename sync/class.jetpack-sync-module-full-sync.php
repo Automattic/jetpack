@@ -239,7 +239,6 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 		);
 
 		$enqueue_status = $this->get_enqueue_status();
-		$module_config = $this->get_config();
 
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
 			$name = $module->name();

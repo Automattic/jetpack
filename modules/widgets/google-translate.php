@@ -12,7 +12,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-class Google_Translate_Widget extends WP_Widget {
+class Jetpack_Google_Translate_Widget extends WP_Widget {
 	static $instance = null;
 
 	/**
@@ -62,13 +62,17 @@ class Google_Translate_Widget extends WP_Widget {
 	public function widget( $args, $instance ) {
 		// We never should show more than 1 instance of this.
 		if ( null === self::$instance ) {
+			$instance = wp_parse_args( $instance, array(
+				'title' => $this->default_title,
+			) );
+
 			wp_localize_script( 'google-translate-init', '_wp_google_translate_widget', array( 'lang' => get_locale() ) );
 			wp_enqueue_script( 'google-translate-init' );
 			wp_enqueue_script( 'google-translate' );
 
 			$title = $instance['title'];
 
-			if ( false === $title ) {
+			if ( ! isset( $title ) ) {
 				$title = $this->default_title;
 			}
 
@@ -132,6 +136,6 @@ class Google_Translate_Widget extends WP_Widget {
  * Register the widget for use in Appearance -> Widgets.
  */
 function jetpack_google_translate_widget_init() {
-	register_widget( 'Google_Translate_Widget' );
+	register_widget( 'Jetpack_Google_Translate_Widget' );
 }
 add_action( 'widgets_init', 'jetpack_google_translate_widget_init' );

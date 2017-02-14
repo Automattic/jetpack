@@ -48,7 +48,7 @@ class Jetpack_Related_Posts_Customize {
 				'title' 	  => esc_html__( 'Related Posts', 'jetpack' ),
 				'description' => '',
 				'capability'  => 'edit_theme_options',
-				'priority' 	  => 89,
+				'priority' 	  => 200,
 			)
 		);
 
@@ -146,8 +146,24 @@ class Jetpack_Related_Posts_Customize {
 	 */
 	function get_options( $wp_customize ) {
 		$transport = isset( $wp_customize->selective_refresh ) ? 'postMessage' : 'refresh';
+
+		// Get the correct translated string for preview in WP 4.7 and later.
+		$switched_locale = function_exists( 'switch_to_locale' )
+			? switch_to_locale( get_user_locale() )
+			: false;
+		$headline = __( 'Related', 'jetpack' );
+		if ( $switched_locale ) {
+			restore_previous_locale();
+		}
+
 		return apply_filters(
 			'jetpack_related_posts_customize_options', array(
+				'enabled'       => array(
+					'control_type' => 'hidden',
+					'default'      => 1,
+					'setting_type' => 'option',
+					'transport'    => $transport,
+				),
 				'show_headline'       => array(
 					'label'        => esc_html__( 'Show a headline', 'jetpack' ),
 					'description'  => esc_html__( 'This helps to clearly separate the related posts from post content.', 'jetpack' ),
@@ -160,7 +176,7 @@ class Jetpack_Related_Posts_Customize {
 					'label'        => '',
 					'description'  => esc_html__( 'Enter text to use as headline.', 'jetpack' ),
 					'control_type' => 'text',
-					'default'      => esc_html__( 'Related', 'jetpack' ),
+					'default'      => esc_html( $headline ),
 					'setting_type' => 'option',
 					'transport'    => $transport,
 				),

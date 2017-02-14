@@ -34,6 +34,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 		}
 
 		if ( isset( $args[0] ) && 'full' !== $args[0] ) {
+			/* translators: %s is a command like "prompt" */
 			WP_CLI::error( sprintf( __( '%s is not a valid command.', 'jetpack' ), $args[0] ) );
 		}
 
@@ -115,6 +116,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		$action = isset( $args[0] ) ? $args[0] : 'prompt';
 		if ( ! in_array( $action, array( 'blog', 'user', 'prompt' ) ) ) {
+			/* translators: %s is a command like "prompt" */
 			WP_CLI::error( sprintf( __( '%s is not a valid command.', 'jetpack' ), $action ) );
 		}
 
@@ -148,9 +150,10 @@ class Jetpack_CLI extends WP_CLI_Command {
 			case 'user':
 				if ( Jetpack::unlink_user( $user->ID ) ) {
 					Jetpack::log( 'unlink', $user->ID );
-					WP_CLI::success( sprintf( __( '%s has been successfully disconnected.', 'jetpack' ), $action ) );
+					WP_CLI::success( __( 'User has been successfully disconnected.', 'jetpack' ) );
 				} else {
-					WP_CLI::error( sprintf( __( '%s could not be disconnected.  Are you sure they\'re connected currently?', 'jetpack' ), "{$user->login} <{$user->email}>" ) );
+					/* translators: %s is a username */
+					WP_CLI::error( sprintf( __( "User %s could not be disconnected. Are you sure they're connected currently?", 'jetpack' ), "{$user->login} <{$user->email}>" ) );
 				}
 				break;
 			case 'prompt':
@@ -183,6 +186,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 	public function reset( $args, $assoc_args ) {
 		$action = isset( $args[0] ) ? $args[0] : 'prompt';
 		if ( ! in_array( $action, array( 'options', 'modules' ) ) ) {
+			/* translators: %s is a command like "prompt" */
 			WP_CLI::error( sprintf( __( '%s is not a valid command.', 'jetpack' ), $action ) );
 		}
 
@@ -199,6 +203,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				foreach ( $options_to_reset['jp_options'] as $option_to_reset ) {
 					Jetpack_Options::delete_option( $option_to_reset );
 					usleep( 100000 );
+					/* translators: This is the result of an action. The option named %s was reset */
 					WP_CLI::success( sprintf( __( '%s option reset', 'jetpack' ), $option_to_reset ) );
 				}
 
@@ -208,6 +213,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				foreach ( $options_to_reset['wp_options'] as $option_to_reset ) {
 					delete_option( $option_to_reset );
 					usleep( 100000 );
+					/* translators: This is the result of an action. The option named %s was reset */
 					WP_CLI::success( sprintf( __( '%s option reset', 'jetpack' ), $option_to_reset ) );
 				}
 
@@ -261,6 +267,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 	public function module( $args, $assoc_args ) {
 		$action = isset( $args[0] ) ? $args[0] : 'list';
 		if ( ! in_array( $action, array( 'list', 'activate', 'deactivate', 'toggle' ) ) ) {
+			/* translators: %s is a command like "prompt" */
 			WP_CLI::error( sprintf( __( '%s is not a valid command.', 'jetpack' ), $action ) );
 		}
 		if ( in_array( $action, array( 'activate', 'deactivate', 'toggle' ) ) ) {
@@ -344,6 +351,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 	public function protect( $args, $assoc_args ) {
 		$action = isset( $args[0] ) ? $args[0] : 'prompt';
 		if ( ! in_array( $action, array( 'whitelist' ) ) ) {
+			/* translators: %s is a command like "prompt" */
 			WP_CLI::error( sprintf( __( '%s is not a valid command.', 'jetpack' ), $action ) );
 		}
 		// Check if module is active
@@ -373,7 +381,8 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 						// Is it already whitelisted?
 						if ( jetpack_protect_ip_address_is_in_range( $new_ip, $whitelisted->range_low, $whitelisted->range_high ) ) {
-							WP_CLI::error( sprintf( __( "%s has already been whitelisted", 'jetpack' ), $new_ip ) );
+							/* translators: %s is an IP address */
+							WP_CLI::error( sprintf( __( '%s has already been whitelisted', 'jetpack' ), $new_ip ) );
 							break;
 						}
 						$whitelist[] = $whitelisted->range_low . " - " . $whitelisted->range_high;
@@ -382,7 +391,8 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 						// Check if the IP is already whitelisted (single IP only)
 						if ( $new_ip == $whitelisted->ip_address ) {
-							WP_CLI::error( sprintf( __( "%s has already been whitelisted", 'jetpack' ), $new_ip ) );
+							/* translators: %s is an IP address */
+							WP_CLI::error( sprintf( __( '%s has already been whitelisted', 'jetpack' ), $new_ip ) );
 							break;
 						}
 						$whitelist[] = $whitelisted->ip_address;
@@ -429,6 +439,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 					WP_CLI::error( __( $result, 'jetpack' ) );
 				}
 
+				/* translators: %s is an IP address */
 				WP_CLI::success( sprintf( __( '%s has been whitelisted.', 'jetpack' ), $new_ip ) );
 				break;
 			case 'prompt':
@@ -474,6 +485,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 		$flagged = ! in_array( $args[1], $safe_to_modify );
 
 		if ( ! in_array( $action, array( 'list', 'get', 'delete', 'update' ) ) ) {
+			/* translators: %s is a command like "prompt" */
 			WP_CLI::error( sprintf( __( '%s is not a valid command.', 'jetpack' ), $action ) );
 		}
 
@@ -556,6 +568,190 @@ class Jetpack_CLI extends WP_CLI_Command {
 					str_pad( 'wp jetpack options update', 26 ) . "$option_text $value_text" . "\n" .
 					_x( "Type 'wp jetpack options' for more info.", "'wp jetpack options' is a command - do not translate.", 'jetpack' ) . "\n"
 				);
+				break;
+		}
+	}
+
+	/**
+	 * Get the status of or start a new Jetpack sync.
+	 *
+	 * ## OPTIONS
+	 *
+	 * status : Print the current sync status
+	 * start  : Start a full sync from this site to WordPress.com
+	 *
+	 * ## EXAMPLES
+	 *
+	 * wp jetpack sync status
+	 * wp jetpack sync start --modules=functions --sync_wait_time=5
+	 *
+	 * @synopsis <status|start> [--<field>=<value>]
+	 */
+	public function sync( $args, $assoc_args ) {
+		if ( ! Jetpack_Sync_Actions::sync_allowed() ) {
+			WP_CLI::error( __( 'Jetpack sync is not currently allowed for this site.', 'jetpack' ) );
+		}
+
+		$action = isset( $args[0] ) ? $args[0] : 'status';
+
+		switch ( $action ) {
+			case 'status':
+				$status = Jetpack_Sync_Actions::get_sync_status();
+				$collection = array();
+				foreach ( $status as $key => $item ) {
+					$collection[]  = array(
+						'option' => $key,
+						'value' => is_scalar( $item ) ? $item : json_encode( $item )
+					);
+				}
+
+				WP_CLI\Utils\format_items( 'table', $collection, array( 'option', 'value' ) );
+				break;
+			case 'start':
+				// Get the original settings so that we can restore them later
+				$original_settings = Jetpack_Sync_Settings::get_settings();
+
+				// Initialize sync settigns so we can sync as quickly as possible
+				$sync_settings = wp_parse_args(
+					array_intersect_key( $assoc_args, Jetpack_Sync_Settings::$valid_settings ),
+					array(
+						'sync_wait_time' => 0,
+						'enqueue_wait_time' => 0,
+						'queue_max_writes_sec' => 10000,
+						'max_queue_size_full_sync' => 100000
+					)
+				);
+				Jetpack_Sync_Settings::update_settings( $sync_settings );
+
+				// Convert comma-delimited string of modules to an array
+				if ( ! empty( $assoc_args['modules'] ) ) {
+					$modules = array_map( 'trim', explode( ',', $assoc_args['modules'] ) );
+
+					// Convert the array so that the keys are the module name and the value is true to indicate
+					// that we want to sync the module
+					$modules = array_map( '__return_true', array_flip( $modules ) );
+				}
+
+				foreach ( array( 'posts', 'comments', 'users' ) as $module_name ) {
+					if (
+						'users' === $module_name &&
+						isset( $assoc_args[ $module_name ] ) &&
+						'initial' === $assoc_args[ $module_name ]
+					) {
+						$modules[ 'users' ] = 'initial';
+					} elseif ( isset( $assoc_args[ $module_name ] ) ) {
+						$ids = explode( ',', $assoc_args[ $module_name ] );
+						if ( count( $ids ) > 0 ) {
+							$modules[ $module_name ] = $ids;
+						}
+					}
+				}
+
+				if ( empty( $modules ) ) {
+					$modules = null;
+				}
+
+				// Kick off a full sync
+				if ( Jetpack_Sync_Actions::do_full_sync( $modules ) ) {
+					if ( $modules ) {
+						WP_CLI::log( sprintf( __( 'Initialized a new full sync with modules: ', 'jetpack' ), join( ', ', $modules ) ) );
+					} else {
+						WP_CLI::log( __( 'Initialized a new full sync', 'jetpack' ) );
+					}
+				} else {
+
+					// Reset sync settings to original.
+					Jetpack_Sync_Settings::update_settings( $original_settings );
+
+					if ( $modules ) {
+						WP_CLI::error( sprintf( __( 'Could not start a new full sync with modules: %s', 'jetpack' ), join( ', ', $modules ) ) );
+					} else {
+						WP_CLI::error( __( 'Could not start a new full sync', 'jetpack' ) );
+					}
+				}
+
+				// Keep sending to WPCOM until there's nothing to send
+				$i = 1;
+				do {
+					$result = Jetpack_Sync_Actions::$sender->do_full_sync();
+					if ( $result ) {
+						if ( 1 == $i++ ) {
+							WP_CLI::log( __( 'Sent data to WordPress.com', 'jetpack' ) );
+						} else {
+							WP_CLI::log( __( 'Sent more data to WordPress.com', 'jetpack' ) );
+						}
+					}
+				} while ( $result );
+
+				// Reset sync settings to original.
+				Jetpack_Sync_Settings::update_settings( $original_settings );
+
+				WP_CLI::success( __( 'Finished syncing to WordPress.com', 'jetpack' ) );
+				break;
+		}
+	}
+
+	/**
+	 * List the contents of a specific Jetpack sync queue.
+	 *
+	 * ## OPTIONS
+	 *
+	 * peek : List the 100 front-most items on the queue.
+	 *
+	 * ## EXAMPLES
+	 *
+	 * wp jetpack sync_queue full_sync peek
+	 *
+	 * @synopsis <incremental|full_sync> <peek>
+	 */
+	public function sync_queue( $args, $assoc_args ) {
+		if ( ! Jetpack_Sync_Actions::sync_allowed() ) {
+			WP_CLI::error( __( 'Jetpack sync is not currently allowed for this site.', 'jetpack' ) );
+		}
+
+		$queue_name = isset( $args[0] ) ? $args[0] : 'sync';
+		$action = isset( $args[1] ) ? $args[1] : 'peek';
+
+		// We map the queue name that way we can support more friendly queue names in the commands, but still use
+		// the queue name that the code expects.
+		$queue_name_map = $allowed_queues = array(
+			'incremental' => 'sync',
+			'full'        => 'full_sync',
+		);
+		$mapped_queue_name = isset( $queue_name_map[ $queue_name ] ) ? $queue_name_map[ $queue_name ] : $queue_name;
+
+		switch( $action ) {
+			case 'peek':
+				require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-queue.php';
+				$queue = new Jetpack_Sync_Queue( $mapped_queue_name );
+				$items = $queue->peek( 100 );
+
+				if ( empty( $items ) ) {
+					/* translators: %s is the name of the queue, either 'incremental' or 'full' */
+					WP_CLI::log( sprintf( __( 'Nothing is in the queue: %s', 'jetpack' ), $queue_name  ) );
+				} else {
+					$collection = array();
+					foreach ( $items as $item ) {
+						$collection[] = array(
+							'action'          => $item[0],
+							'args'            => json_encode( $item[1] ),
+							'current_user_id' => $item[2],
+							'microtime'       => $item[3],
+							'importing'       => (string) $item[4],
+						);
+					}
+					WP_CLI\Utils\format_items(
+						'table',
+						$collection,
+						array(
+							'action',
+							'args',
+							'current_user_id',
+							'microtime',
+							'importing',
+						)
+					);
+				}
 				break;
 		}
 	}

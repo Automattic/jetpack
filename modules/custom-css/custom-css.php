@@ -1044,7 +1044,7 @@ class Jetpack_Custom_CSS {
 				<p>
 					<?php
 
-					printf(
+					printf( /* translators: %1$s is replaced with an input field for numbers. */
 						__( 'Limit width to %1$s pixels for full size images. (<a href="%2$s" target="_blank">More info</a>.)', 'jetpack' ),
 						'<input type="text" id="custom_content_width_visible" value="' . esc_attr( $custom_content_width ) . '" size="4" />',
 						/**
@@ -1070,7 +1070,7 @@ class Jetpack_Custom_CSS {
 						$current_theme = get_current_theme();
 
 					?>
-					<p><?php printf( __( 'The default content width for the %s theme is %d pixels.', 'jetpack' ), $current_theme, intval( $GLOBALS['content_width'] ) ); ?></p>
+					<p><?php printf( _n( 'The default content width for the %s theme is %d pixel.', 'The default content width for the %s theme is %d pixels.', intval( $GLOBALS['content_width'] ), 'jetpack' ), $current_theme, intval( $GLOBALS['content_width'] ) ); ?></p>
 					<?php
 				}
 

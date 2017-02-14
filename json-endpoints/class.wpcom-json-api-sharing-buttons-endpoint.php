@@ -139,7 +139,7 @@ abstract class WPCOM_JSON_API_Sharing_Button_Endpoint extends WPCOM_JSON_API_End
 		if ( $visibility_changed || $is_disabling ) {
 			// Remove from all other visibilities
 			foreach ( $blog_services as $service_visibility => $services ) {
-				if ( $service_visibility !== $button['visibility'] || $is_disabling ) {
+				if ( $is_disabling || $service_visibility !== $button['visibility']  ) {
 					unset( $blog_services[ $service_visibility ][ $service_id ] );
 				}
 			}

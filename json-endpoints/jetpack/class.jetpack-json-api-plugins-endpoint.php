@@ -118,7 +118,7 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		$plugin['autoupdate']      = $autoupdate;
 		
 		$autoupdate_translation = in_array( $plugin_file, Jetpack_Options::get_option( 'autoupdate_plugins_translations', array() ) );
-		$plugin['autoupdate_translation'] = $autoupdate || $autoupdate_translation;
+		$plugin['autoupdate_translation'] = $autoupdate || $autoupdate_translation || Jetpack_Options::get_option( 'autoupdate_translations', false );
 
 		$plugin['uninstallable']   = is_uninstallable_plugin( $plugin_file );
 

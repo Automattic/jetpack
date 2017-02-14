@@ -216,15 +216,15 @@ abstract class Jetpack_Admin_Page {
 				$active = Jetpack::get_active_modules();
 				switch ( $current->plan->product_slug ) {
 					case 'jetpack_free':
-						$to_deactivate = array( 'seo-tools', 'videopress' );
+						$to_deactivate = array( 'seo-tools', 'videopress', 'google-analytics', 'wordads' );
 						break;
 					case 'jetpack_personal':
 					case 'jetpack_personal_monthly':
-						$to_deactivate = array( 'seo-tools', 'videopress' );
+						$to_deactivate = array( 'seo-tools', 'videopress', 'google-analytics', 'wordads' );
 						break;
 					case 'jetpack_premium':
 					case 'jetpack_premium_monthly':
-						$to_deactivate = array( 'seo-tools' );
+						$to_deactivate = array( 'seo-tools', 'google-analytics' );
 						break;
 				}
 				$to_deactivate = array_intersect( $active, $to_deactivate );

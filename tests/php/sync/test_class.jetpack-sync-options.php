@@ -127,7 +127,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'comment_whitelist'                    => 'pineapple',
 			'comment_max_links'                    => 99,
 			'moderation_keys'                      => 'pineapple',
-			'wga'                                  => 'pineapple',
+			'jetpack_wga'                          => 'pineapple',
 			'disabled_likes'                       => 'pineapple',
 			'disabled_reblogs'                     => 'pineapple',
 			'jetpack_comment_likes_enabled'        => 'pineapple',
@@ -142,6 +142,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'jetpack_autoupdate_themes'            => 'pineapple',
 			'jetpack_autoupdate_themes_translations' => 'pineapple',
 			'jetpack_autoupdate_core'              => 'pineapple',
+			'jetpack_autoupdate_translations'      => 'pineapple',
 			'carousel_background_color'            => 'pineapple',
 			'carousel_display_exif'                => 'pineapple',
 			'jetpack_portfolio'                    => 'pineapple',
@@ -168,6 +169,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'uninstall_plugins'                    => 'banana',
 			'advanced_seo_front_page_description'  => 'banana', // Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION
 			'advanced_seo_title_formats'           => array( 'posts' => array( 'type' => 'string', 'value' => 'test' ) ), // Jetpack_SEO_Titles::TITLE_FORMATS_OPTION
+			'jetpack_api_cache_enabled'            => '1',
 		);
 
 		$theme_mod_key             = 'theme_mods_' . get_option( 'stylesheet' );
@@ -199,7 +201,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 		do_action( 'init' );
 
 		$whitelist = $this->options_module->get_options_whitelist();
-		
+
 		$this->assertTrue( in_array( 'foo_option_bar', $whitelist ) );
 	}
 
@@ -213,7 +215,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 	}
 
 
-	
+
 	function add_option_on_89() {
 		add_filter( 'jetpack_options_whitelist', array( $this, 'add_jetpack_options_whitelist_filter' ) );
 	}

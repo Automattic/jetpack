@@ -285,6 +285,7 @@ frontendcss = [
 	'modules/widgets/top-posts/style.css',
 	'modules/widgets/image-widget/style.css',
 	'modules/widgets/my-community/style.css',
+	'modules/widgets/authors/style.css',
 	'css/jetpack-idc-admin-bar.css',
 	'modules/wordads/css/style.css'
 ];

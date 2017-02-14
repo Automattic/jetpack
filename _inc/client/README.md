@@ -19,7 +19,7 @@ The data is being made available to the **Admin Page** by means of the WordPress
 
 Jetpack extends the Core API adding some specific methods for several jetpack-related actions exclusively, like activating or deactivating jetpack modules or updating any of the modules options.
 
-You may find additional reference for the Jetpack's HTTP API on the [rest-api.md](../../rest-api.md) file.
+You may find additional reference for the Jetpack's HTTP API on the [rest-api.md](../../docs/rest-api.md) file.
 
 ##### REST API Authentication
 

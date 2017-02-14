@@ -123,7 +123,7 @@ abstract class Jetpack_JSON_API_Themes_Endpoint extends Jetpack_JSON_API_Endpoin
 		$formatted_theme['autoupdate'] =  $autoupdate;
 
 		$autoupdate_translation = in_array( $id, Jetpack_Options::get_option( 'autoupdate_themes_translations', array() ) );
-		$formatted_theme['autoupdate_translation'] = $autoupdate || $autoupdate_translation;
+		$formatted_theme['autoupdate_translation'] = $autoupdate || $autoupdate_translation || Jetpack_Options::get_option( 'autoupdate_translations', false );
 
 		if ( isset( $this->log[ $id ] ) ) {
 			$formatted_theme['log'] = $this->log[ $id ];

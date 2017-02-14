@@ -20,7 +20,6 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 			'description' => __( 'Display a photo gallery or slideshow', 'jetpack' ),
 			'customize_selective_refresh' => true,
 		);
-		$control_ops 	= array( 'width' => 250 );
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_scripts' ) );
 
@@ -28,8 +27,7 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 			'gallery',
 			/** This filter is documented in modules/widgets/facebook-likebox.php */
 			apply_filters( 'jetpack_widget_name', __( 'Gallery', 'jetpack' ) ),
-			$widget_ops,
-			$control_ops
+			$widget_ops
 		);
 
 		if ( is_customize_preview() ) {

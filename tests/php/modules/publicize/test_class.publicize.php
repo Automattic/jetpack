@@ -4,6 +4,7 @@ require dirname( __FILE__ ) . '/../../../../modules/publicize.php';
 class WP_Test_Publicize extends WP_UnitTestCase {
 
 	private $fired_publicized_post = false;
+	private $in_publish_filter = false;
 	private $publicized_post_id = null;
 	private $post;
 
@@ -17,9 +18,10 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		$post_id = $this->factory->post->create( array( 'post_status' => 'draft' ) );
 		$this->post = get_post( $post_id );
 
-		Jetpack_Options::update_options( array( 'publicize_connections' => array( 'not_empty' ) ) );
+		Jetpack_Options::update_options( array( 'publicize_connections' => array( 'facebook' => array( 'id_number' => array( 'connection_data' => array( 'user_id' => 0 ) ) ) ) ) );
 
 		add_action( 'jetpack_publicize_post', array( $this, 'publicized_post' ), 10, 1 );
+		add_filter( 'jetpack_published_post_flags', array( $this, 'set_post_flags_check' ), 20, 2 );
 	}
 
 	public function test_fires_jetpack_publicize_post_on_save_as_published() {
@@ -73,13 +75,19 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 
 	function assertPublicized( $should_have_publicized, $post ) {
 		if ( $should_have_publicized ) {
-			$this->assertTrue( $this->fired_publicized_post );
-			$this->assertEquals( $post->ID, $this->publicized_post_id );	
+			$this->assertTrue( $this->fired_publicized_post, 'Not Fired on publicize post' );
+			$this->assertEquals( $post->ID, $this->publicized_post_id, 'Is not the same post ID' );
+			$this->assertTrue( $this->in_publish_filter, 'Not in filter' );
 		} else {
-			$this->assertFalse( $this->fired_publicized_post );
-			$this->assertNull( $this->publicized_post_id );
+			$this->assertFalse( $this->fired_publicized_post, 'Fired publicize post' );
+			$this->assertNull( $this->publicized_post_id, 'Not Null' );
+			$this->assertFalse( $this->in_publish_filter, 'in filter' );
 		}
-		
+	}
+
+	function set_post_flags_check( $flags, $post ) {
+		$this->in_publish_filter = $flags['publicize_post'];
+		return $flags;
 	}
 
 	function publicized_post( $post_id ) {
@@ -90,4 +98,42 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 	function prevent_publicize_post( $should_publicize, $post ) {
 		return false;
 	}
+
+	/**
+	 * Verifies two methods of making custom post types publicizeable,
+	 * as given in the Jetpack documentation.
+	 *
+	 * @see https://jetpack.com/support/publicize/
+	 *
+	 * @covers Publicize::post_type_is_publicizeable()
+	 * @since 4.6.0
+	 */
+	public function test_publicize_post_type_is_publicizeable_cpt() {
+		$publicize = publicize_init();
+
+		$this->assertFalse(
+			$publicize->post_type_is_publicizeable( 'unpub-post-type' )
+		);
+
+		// Method 1: Directly call add_post_type_support.
+		add_post_type_support( 'pub-post-type-1', 'publicize' );
+
+		$this->assertTrue(
+			$publicize->post_type_is_publicizeable( 'pub-post-type-1' )
+		);
+
+		// Method 2: Add support at registration time.
+		register_post_type(
+			'pub-post-type-2',
+			array(
+				'label'    => 'publicizeable-post-type-2',
+				'supports' => array( 'publicize' ),
+			)
+		);
+
+		$this->assertTrue(
+			$publicize->post_type_is_publicizeable( 'pub-post-type-2' )
+		);
+	}
+
 }

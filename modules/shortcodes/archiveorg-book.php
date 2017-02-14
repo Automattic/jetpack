@@ -1,18 +1,14 @@
 <?php
-/*
- * WARNING: This file is distributed verbatim in Jetpack.
- * There should be nothing WordPress.com specific in this file.
+/**
+ * Archive.org Shortcode
  *
- * @hide-in-jetpack
+ * Usage:
+ * [archiveorg-book goodytwoshoes00newyiala]
+ * [archiveorg-book http://www.archive.org/stream/goodytwoshoes00newyiala]
+ * [archiveorg id=goodytwoshoes00newyiala width=480 height=430]
+
+ *<iframe src='https://www.archive.org/stream/goodytwoshoes00newyiala?ui=embed#mode/1up' width='480px' height='430px' frameborder='0' ></iframe>
  */
-
-/*
-[archiveorg-book goodytwoshoes00newyiala]
-[archiveorg-book http://www.archive.org/stream/goodytwoshoes00newyiala]
-[archiveorg id=goodytwoshoes00newyiala width=480 height=430]
-
-<iframe src='https://www.archive.org/stream/goodytwoshoes00newyiala?ui=embed#mode/1up' width='480px' height='430px' frameborder='0' ></iframe>
-*/
 
 /**
  * Get ID of requested archive.org book embed.

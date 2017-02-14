@@ -10,6 +10,7 @@ import { connect } from 'react-redux';
  */
 import {
 	StatsSettings,
+	RelatedPostsSettings,
 	CommentsSettings,
 	LikesSettings,
 	SubscriptionsSettings,
@@ -30,7 +31,6 @@ import {
 	WordAdsSettings
 } from 'components/module-settings/';
 import ExternalLink from 'components/external-link';
-
 import {
 	getSiteAdminUrl,
 	getSiteRawUrl
@@ -113,6 +113,8 @@ const AllModuleSettingsComponent = React.createClass( {
 				}
 			case 'stats':
 				return ( <StatsSettings module={ module }  /> );
+			case 'related-posts':
+				return ( <RelatedPostsSettings module={ module } lastPostUrl={ this.props.lastPostUrl } /> );
 			case 'comments':
 				return ( <CommentsSettings module={ module }  /> );
 			case 'subscriptions':
@@ -125,6 +127,29 @@ const AllModuleSettingsComponent = React.createClass( {
 				return ( <SitemapsSettings module={ module } { ...this.props } /> );
 			case 'wordads':
 				return ( <WordAdsSettings module={ module } /> );
+			case 'google-analytics':
+				if ( 'inactive' === module.configure_url ) {
+					return (
+						<div>
+							{ __(
+								'Google Analytics is a free service that complements our {{a}}built-in stats{{/a}} with different insights into your traffic.' +
+								' WordPress.com stats and Google Analytics use different methods to identify and track activity on your site, so they will ' +
+								'normally show slightly different totals for your visits, views, etc.',
+								{
+									components: {
+										a: <a href={ 'https://wordpress.com/stats/day/' + this.props.siteRawUrl } />
+									}
+								}
+							) }
+						</div>
+					);
+				} else {
+					return (
+						<div>
+							<ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href={ module.configure_url }>{ __( 'Configure Google Analytics settings.' ) }</ExternalLink>
+						</div>
+					);
+				}
 			case 'gravatar-hovercards':
 			case 'contact-form':
 			case 'latex':
@@ -161,7 +186,6 @@ const AllModuleSettingsComponent = React.createClass( {
 						}
 					</div>
 				);
-			case 'related-posts':
 			case 'custom-css':
 			case 'widgets':
 			case 'publicize':
@@ -169,12 +193,6 @@ const AllModuleSettingsComponent = React.createClass( {
 			default:
 				if ( 'publicize' === module.module ) {
 					module.configure_url = this.props.adminUrl + 'options-general.php?page=sharing';
-				}
-				if ( 'related-posts' === module.module ) {
-					module.configure_url = this.props.adminUrl +
-						'customize.php?autofocus[section]=jetpack_relatedposts' +
-						'&return=' + encodeURIComponent( this.props.adminUrl + 'admin.php?page=jetpack#/engagement' ) +
-						'&url=' + encodeURIComponent( this.props.lastPostUrl );
 				}
 				return (
 					<div>

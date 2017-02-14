@@ -1,17 +1,13 @@
 <?php
-/*
- * WARNING: This file is distributed verbatim in Jetpack.
- * There should be nothing WordPress.com specific in this file.
+/**
+ * Archive.org book shortcode.
  *
- * @hide-in-jetpack
- */
+ * Usage:
+ * [archiveorg Experime1940]
+ * [archiveorg http://archive.org/details/Experime1940 poster=http://archive.org/images/map.png]
+ * [archiveorg id=Experime1940 width=640 height=480 autoplay=1]
 
-/*
-[archiveorg Experime1940]
-[archiveorg http://archive.org/details/Experime1940 poster=http://archive.org/images/map.png]
-[archiveorg id=Experime1940 width=640 height=480 autoplay=1]
-
-<iframe src="http://archive.org/embed/Experime1940&autoplay=1&poster=http://archive.org/images/map.png" width="640" height="480" frameborder="0" webkitallowfullscreen="true" mozallowfullscreen="true" allowfullscreen></iframe>
+ * <iframe src="http://archive.org/embed/Experime1940&autoplay=1&poster=http://archive.org/images/map.png" width="640" height="480" frameborder="0" webkitallowfullscreen="true" mozallowfullscreen="true" allowfullscreen></iframe>
 */
 
 /**

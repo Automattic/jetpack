@@ -95,7 +95,7 @@ export const DashItem = React.createClass( {
 					compact={ true }
 					href="#/plans"
 				>
-					{ __( 'Pro' ) }
+					{ __( 'Paid' ) }
 				</Button>
 			;
 

@@ -28,10 +28,10 @@ const PlanBody = React.createClass( {
 	render() {
 		let planCard = '';
 		switch ( this.props.plan ) {
-      		case 'jetpack_personal':
-      		case 'jetpack_personal_monthly':
-      		case 'jetpack_premium':
-      		case 'jetpack_premium_monthly':
+			case 'jetpack_personal':
+			case 'jetpack_personal_monthly':
+			case 'jetpack_premium':
+			case 'jetpack_premium_monthly':
 			case 'jetpack_business':
 			case 'jetpack_business_monthly':
 				planCard = (
@@ -125,18 +125,47 @@ const PlanBody = React.createClass( {
 					}
 
 					{
+						includes( [ 'jetpack_premium', 'jetpack_premium_monthly', 'jetpack_business', 'jetpack_business_monthly' ], this.props.plan ) ?
+							<div className="jp-landing__plan-features-card">
+								<h3 className="jp-landing__plan-features-title">{ __( 'Ads' ) }</h3>
+								<p>{ __( 'Earn income by allowing Jetpack to display high quality ads (powered by WordAds).' ) }</p>
+								{
+									this.props.isModuleActivated( 'wordads' ) ? (
+										<Button href={ 'https://wordpress.com/ads/earnings/' + this.props.siteRawUrl } className="is-primary">
+											{ __( 'View your earnings' ) }
+										</Button>
+									)
+										: (
+										<Button
+											onClick={ this.props.activateModule.bind( null, 'wordads' ) }
+											className="is-primary"
+											disabled={ this.props.isActivatingModule( 'wordads' ) }
+										>
+											{ __( 'Activate Ads' ) }
+										</Button>
+									)
+								}
+							</div>
+							: ''
+					}
+
+					{
 						includes( [ 'jetpack_premium', 'jetpack_premium_monthly' ], this.props.plan ) ?
 							<div className="jp-landing__plan-features-card">
 								<h3 className="jp-landing__plan-features-title">{ __( 'Video Hosting' ) }</h3>
-								<p>{ __( '13Gb of fast, optimised, and ad-free video hosting for your site (powered by VideoPress).' ) }</p>
+								<p>{ __( '13Gb of fast, optimized, and ad-free video hosting for your site (powered by VideoPress).' ) }</p>
 								{
 									this.props.isModuleActivated( 'videopress' ) ? (
-										<Button href={ this.props.siteAdminUrl + 'media-new.php' } className="is-primary">
+										<Button href={ this.props.siteAdminUrl + 'upload.php' } className="is-primary">
 											{ __( 'Upload Videos Now' ) }
 										</Button>
 									)
 										: (
-										<Button href={ this.props.siteAdminUrl + 'admin.php?page=jetpack#/writing' } className="is-primary">
+										<Button
+											onClick={ this.props.activateModule.bind( null, 'videopress' ) }
+											className="is-primary"
+											disabled={ this.props.isActivatingModule( 'videopress' ) }
+										>
 											{ __( 'Activate VideoPress' ) }
 										</Button>
 									)
@@ -149,15 +178,19 @@ const PlanBody = React.createClass( {
 						includes( [ 'jetpack_business', 'jetpack_business_monthly' ], this.props.plan ) ?
 							<div className="jp-landing__plan-features-card">
 								<h3 className="jp-landing__plan-features-title">{ __( 'Video Hosting' ) }</h3>
-								<p>{ __( 'Fast, optimised, ad-free, and unlimited video hosting for your site (powered by VideoPress).' ) }</p>
+								<p>{ __( 'Fast, optimized, ad-free, and unlimited video hosting for your site (powered by VideoPress).' ) }</p>
 								{
 									this.props.isModuleActivated( 'videopress' ) ? (
-										<Button href={ this.props.siteAdminUrl + 'media-new.php' } className="is-primary">
+										<Button href={ this.props.siteAdminUrl + 'upload.php' } className="is-primary">
 											{ __( 'Upload Videos Now' ) }
 										</Button>
 									)
 										: (
-										<Button href={ this.props.siteAdminUrl + 'admin.php?page=jetpack#/writing' } className="is-primary">
+										<Button
+											onClick={ this.props.activateModule.bind( null, 'videopress' ) }
+											className="is-primary"
+											disabled={ this.props.isActivatingModule( 'videopress' ) }
+										>
 											{ __( 'Activate VideoPress' ) }
 										</Button>
 									)
@@ -196,11 +229,25 @@ const PlanBody = React.createClass( {
 					{
 						includes( [ 'jetpack_business', 'jetpack_business_monthly' ], this.props.plan ) ?
 							<div className="jp-landing__plan-features-card">
-								<h3 className="jp-landing__plan-features-title">{ __( 'Surveys & Polls' ) }</h3>
-								<p>{ __( 'Unlimited surveys, unlimited responses. Use the survey editor to create surveys quickly and easily. Collect responses via your website, email or on your iPad or iPhone.' ) }</p>
-								<Button href="https://polldaddy.com/dashboard/" className="is-primary">
-									{ __( 'Create a new poll' ) }
-								</Button>
+								<h3 className="jp-landing__plan-features-title">{ __( 'Google Analytics' ) }</h3>
+								<p>{ __( 'Track website statistics with Google Analytics for a deeper understanding of your website visitors and customers.' ) }</p>
+								{
+									this.props.isFetchingPluginsData ? '' :
+									this.props.isModuleActivated( 'google-analytics' ) ? (
+										<Button href={ 'https://wordpress.com/settings/analytics/' + this.props.siteRawUrl } className="is-primary">
+											{ __( 'Configure Google Analytics' ) }
+										</Button>
+									)
+									: (
+										<Button
+											onClick={ this.props.activateModule.bind( null, 'google-analytics' ) }
+											className="is-primary"
+											disabled={ this.props.isActivatingModule( 'google-analytics' ) }
+										>
+											{ __( 'Activate Google Analytics' ) }
+										</Button>
+									)
+								}
 							</div>
 							: ''
 					}
@@ -213,10 +260,10 @@ const PlanBody = React.createClass( {
 								<p> &mdash; { __( 'Daily and on-demand security scanning' ) }</p>
 								<p> &mdash; { __( 'Real-time backups and one-click threat resolution' ) }</p>
 								<p> &mdash; { __( 'Unlimited and ad-free video hosting' ) }</p>
-								<p> &mdash; { __( 'Advanced polls and ratings' ) }</p>
 								<p> &mdash; { __( 'Advanced SEO tools' ) }</p>
+								<p> &mdash; { __( 'Income generation from ads' ) }</p>
 								<p>
-									<Button href={ 'https://wordpress.com/plans/' + this.props.siteRawUrl } className="is-primary">
+									<Button href={ 'https://jetpack.com/redirect/?source=plans-compare-personal&site=' + this.props.siteRawUrl } className="is-primary">
 										{ __( 'Compare Plans' ) }
 									</Button>
 								</p>
@@ -232,10 +279,10 @@ const PlanBody = React.createClass( {
 								<p> &mdash; { __( 'On-demand security scanning' ) }</p>
 								<p> &mdash; { __( 'Real-time backups' ) }</p>
 								<p> &mdash; { __( 'One-click threat resolution' ) }</p>
-								<p> &mdash; { __( 'Advanced polls and ratings' ) }</p>
 								<p> &mdash; { __( 'Advanced SEO tools' ) }</p>
+								<p> &mdash; { __( 'Income generation from ads' ) }</p>
 								<p>
-									<Button href={ 'https://wordpress.com/plans/' + this.props.siteRawUrl } className="is-primary">
+									<Button href={ 'https://jetpack.com/redirect/?source=plans-compare-premium&site=' + this.props.siteRawUrl } className="is-primary">
 										{ __( 'Compare Plans' ) }
 									</Button>
 								</p>
@@ -252,17 +299,24 @@ const PlanBody = React.createClass( {
 					<div className="jp-landing__plan-features">
 						<div className="jp-landing__plan-features-card">
 							<h3 className="jp-landing__plan-features-title">{ __( 'Maximum grade security' ) }</h3>
-							<p>{ __( 'Real-time backup with unlimited space, one-click restores, bulletproof spam monitoring, malware defense and brute-force login protection - all in one place and optimized for WordPress.' ) }</p>
+							<p>{ __( 'Real-time backup with unlimited space, one-click restores, bulletproof spam monitoring, malware defense, and brute-force login protection - all in one place and optimized for WordPress.' ) }</p>
+							<p>{ __( 'Bulletproof spam filtering protects your brand, your readers, and improves SEO. Malware scanning helps maintain peace of mind and keeps your backend safe from intruders.' ) }</p>
 						</div>
 						<div className="jp-landing__plan-features-card">
-							<h3 className="jp-landing__plan-features-title">{ __( 'Lock out the bad guys' ) }</h3>
-							<p>{ __( 'Bulletproof spam filtering protects your brand, your readers, and improves SEO. Brute force login protection helps maintain peace of mind and keeps your backend safe from intruders.' ) }</p>
+							<h3 className="jp-landing__plan-features-title">{ __( 'Premium traffic and monetization tools' ) }</h3>
+							<p>{ __( 'The Jetpack Premium plan now offers you the ability to generate income from your site by showing high-quality paid ads to your visitors. Professional plan customers also benefit from SEO tools to help optimize search engine traffic.' ) }</p>
 						</div>
 
 						<div className="jp-landing__plan-features-card">
 							<h3 className="jp-landing__plan-features-title">{ __( 'Enjoy priority support' ) }</h3>
-							<p>{ __( 'Need help? A Happiness Engineer can answer questions about your site, your account or how to do about anything.' ) }</p>
+							<p>{ __( 'We support all Jetpack users, regardless of plan. But customers on a paid subscription enjoy priority support so that security issues are identified and fixed for you as soon as possible. ' ) }</p>
 						</div>
+
+						<p>
+							<Button href={ 'https://jetpack.com/redirect/?source=plans-main-bottom&site=' + this.props.siteRawUrl } className="is-primary">
+								{ __( 'Compare Plans' ) }
+							</Button>
+						</p>
 					</div>
 				);
 				break;

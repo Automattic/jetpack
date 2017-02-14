@@ -27,7 +27,6 @@ import { AllModuleSettings } from 'components/module-settings/modules-per-tab-pa
 import { isUnavailableInDevMode } from 'state/connection';
 import { userCanManageModules as _userCanManageModules } from 'state/initial-state';
 import QuerySite from 'components/data/query-site';
-import ProStatus from 'pro-status';
 import {
 	getSitePlan,
 	isFetchingSiteData
@@ -103,7 +102,7 @@ export const Writing = ( props ) => {
 				toggle = <Button
 					compact={ true }
 					primary={ true }
-					href={ 'https://wordpress.com/plans/' + siteRawUrl }
+					href={ 'https://jetpack.com/redirect/?source=upgrade-videopress&site=' + siteRawUrl }
 				>
 					{ __( 'Upgrade' ) }
 				</Button>;
@@ -115,7 +114,7 @@ export const Writing = ( props ) => {
 					compact={ true }
 					href="#/plans"
 				>
-					{ __( 'Pro' ) }
+					{ __( 'Paid' ) }
 				</Button>
 			</span>;
 		}

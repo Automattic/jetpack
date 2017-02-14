@@ -167,6 +167,11 @@ function jetpack_protect_get_ip() {
 	} else {
 		$ip = $_SERVER['REMOTE_ADDR'];
 	}
+	
+	if ( ! $ip ) {
+		return false;
+	}
+	
 	$ips = explode( ',', $ip );
 	if ( ! isset( $segments ) || ! $segments ) {
 		$segments = 1;
@@ -193,6 +198,11 @@ function jetpack_protect_get_ip() {
  * @return $ip IP.
  */
 function jetpack_clean_ip( $ip ) {
+	
+	// Some misconfigured servers give back extra info, which comes after "unless"
+	$ips = explode( ' unless ', $ip );
+	$ip = $ips[0];
+	
 	$ip = trim( $ip );
 	// Check for IPv4 IP cast as IPv6.
 	if ( preg_match( '/^::ffff:(\d+\.\d+\.\d+\.\d+)$/', $ip, $matches ) ) {

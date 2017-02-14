@@ -38,7 +38,7 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 		public function cleanup_videos() {
 			$num_cleaned = videopress_cleanup_media_library();
 
-			WP_CLI::success( sprintf( __( 'Cleaned up a total of %d videos.', 'jetpack' ), $num_cleaned ) );
+			WP_CLI::success( sprintf( _n( 'Cleaned up %d video.', 'Cleaned up a total of %d videos.', $num_cleaned, 'jetpack' ), $num_cleaned ) );
 		}
 
 		/**
@@ -59,11 +59,8 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 			if ( count( $crons ) === 0 ) {
 				WP_CLI::success( __( 'Found no available cron jobs.', 'jetpack' ) );
 
-			} elseif ( count( $crons ) === 1 ) {
-				WP_CLI::success( __( 'Found 1 available cron job.', 'jetpack' ) );
-
 			} else {
-				WP_CLI::success( sprintf( __( 'Found %d available cron jobs.', 'jetpack' ), count( $crons ) ) );
+				WP_CLI::success( sprintf( _n( 'Found %d available cron job.', 'Found %d available cron jobs.', count( $crons ), 'jetpack' ), count( $crons ) ) );
 			}
 
 			foreach ( $crons as $cron_name => $cron ) {

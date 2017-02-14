@@ -1,12 +1,20 @@
 <?php
+/**
+ * Disable direct access/execution to/of the widget code.
+ */
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
-/*
+/**
  * Widget to display blog authors with avatars and recent posts.
  *
  * Configurable parameters include:
  * 1. Whether to display authors who haven't written any posts
  * 2. The number of posts to be displayed per author (defaults to 0)
  * 3. Avatar size
+ *
+ * @since 4.5.0
  */
 class Jetpack_Widget_Authors extends WP_Widget {
 	public function __construct() {
@@ -18,13 +26,26 @@ class Jetpack_Widget_Authors extends WP_Widget {
 				'classname' => 'widget_authors',
 				'description' => __( 'Display blogs authors with avatars and recent posts.', 'jetpack' ),
 				'customize_selective_refresh' => true,
-			),
-			array( 'width' => 300 )
+			)
 		);
+
+		if ( is_active_widget( false, false, $this->id_base ) || is_active_widget( false, false, 'monster' ) || is_customize_preview() ) {
+			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_style' ) );
+		}
 
 		add_action( 'publish_post', array( __CLASS__, 'flush_cache' ) );
 		add_action( 'deleted_post', array( __CLASS__, 'flush_cache' ) );
 		add_action( 'switch_theme', array( __CLASS__, 'flush_cache' ) );
+	}
+
+	/**
+	 * Enqueue stylesheet to adapt the widget to various themes.
+	 *
+	 * @since 4.5.0
+	 */
+	function enqueue_style() {
+		wp_register_style( 'jetpack-authors-widget', plugins_url( 'authors/style.css', __FILE__ ), array(), '20161228' );
+		wp_enqueue_style( 'jetpack-authors-widget' );
 	}
 
 	public static function flush_cache() {
@@ -33,8 +54,6 @@ class Jetpack_Widget_Authors extends WP_Widget {
 	}
 
 	public function widget( $args, $instance ) {
-		global $wpdb;
-
 		$cache_bucket = is_ssl() ? 'widget_authors_ssl' : 'widget_authors';
 
 		if ( '%BEG_OF_TITLE%' != $args['before_title'] ) {
@@ -166,7 +185,7 @@ class Jetpack_Widget_Authors extends WP_Widget {
 	}
 
 	public function form( $instance ) {
-		$instance = wp_parse_args( $instance, array( 'title' => '', 'all' => false, 'avatar_size' => 48, 'number' => 0 ) );
+		$instance = wp_parse_args( $instance, array( 'title' => '', 'all' => false, 'avatar_size' => 48, 'number' => 5 ) );
 
 		?>
 		<p>

@@ -56,7 +56,7 @@ class WPCOM_JSON_API_Update_Taxonomy_Endpoint extends WPCOM_JSON_API_Taxonomy_En
 
 		$data = wp_insert_term( addslashes( $input['name'] ), $taxonomy_type,
 			array(
-		  		'description' => addslashes( $input['description'] ),
+		  		'description' => isset( $input['description'] ) ? addslashes( $input['description'] ) : '',
 		  		'parent'      => $input['parent']
 			)
 		);

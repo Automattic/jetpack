@@ -552,7 +552,8 @@ div#carousel-reblog-box {
 
 .jp-carousel-image-meta li {
 	width: 48% !important;
-	float: left !important;
+	display: inline-block !important;
+	vertical-align: top !important;
 	margin: 0 2% 15px 0 !important;
 	color: #fff !important;
 	font-size:13px !important;

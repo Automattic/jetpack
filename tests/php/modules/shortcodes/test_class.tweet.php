@@ -53,4 +53,30 @@ class WP_Test_Jetpack_Shortcodes_Tweet extends WP_UnitTestCase {
 		$this->assertContains( 'data-lang="es"', $shortcode_content );
 	}
 
+	/**
+	 * Verify that rendering the shortcode with only the tweet ID produces a correct output.
+	 *
+	 * @since 4.5.0
+	 */
+	public function test_shortcodes_tweet_id_only() {
+		$content = "[tweet 759034293385502721]";
+
+		$shortcode_content = do_shortcode( $content );
+
+		$this->assertContains( '<blockquote class="twitter-tweet"', $shortcode_content );
+		$this->assertContains( '<a href="https://twitter.com/jetpack/status/759034293385502721">', $shortcode_content );
+	}
+
+	/**
+	 * Verify that rendering the shortcode contains Jetpack's partner ID
+	 *
+	 * @since 4.6.0
+	 */
+	public function test_shortcode_tweet_partner_id() {
+		$content = "[tweet 759034293385502721]";
+
+		$shortcode_content = do_shortcode( $content );
+
+		$this->assertContains( 'data-partner="jetpack"', $shortcode_content );
+	}
 }

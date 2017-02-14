@@ -22,13 +22,25 @@ import {
 	getVaultPressData as _getVaultPressData
 } from 'state/at-a-glance';
 import { isDevMode } from 'state/connection';
+import { isFetchingSiteData } from 'state/site';
 
 const DashScan = React.createClass( {
 	getContent: function() {
-		const labelName = __( 'Malware Scanning' ),
+		const labelName = __( 'Security Scanning' ),
 			hasSitePlan = false !== this.props.sitePlan,
 			vpData = this.props.vaultPressData,
-			inactiveOrUninstalled = this.props.isPluginInstalled( 'vaultpress/vaultpress.php' ) ? 'pro-inactive' : 'pro-uninstalled';
+			inactiveOrUninstalled = this.props.isPluginInstalled( 'vaultpress/vaultpress.php' ) ? 'pro-inactive' : 'pro-uninstalled',
+			scanEnabled = (
+				'undefined' !== typeof vpData.data
+				&&
+				'undefined' !== typeof vpData.data.features
+				&&
+				'undefined' !== typeof vpData.data.features.security
+				&&
+				vpData.data.features.security
+			),
+			hasPremium = /jetpack_premium*/.test( this.props.sitePlan.product_slug ),
+			hasBusiness = /jetpack_business*/.test( this.props.sitePlan.product_slug );
 
 		if ( this.props.isModuleActivated( 'vaultpress' ) ) {
 			if ( vpData === 'N/A' ) {
@@ -39,53 +51,59 @@ const DashScan = React.createClass( {
 				);
 			}
 
-			// Check for threats
-			const threats = this.props.scanThreats;
-			if ( threats !== 0 ) {
-				return (
-					<DashItem
-						label={ labelName }
-						module="scan"
-						status="is-error"
-						statusText={ __( 'Threats found' ) }
-						pro={ true } >
-						<h3>{
-							__(
-								'Uh oh, %(number)s threat found.', 'Uh oh, %(number)s threats found.',
-								{
-									count: threats,
-									args: {
-										number: numberFormat( threats )
-									}
-								} )
-						}</h3>
-						<p className="jp-dash-item__description">
-							{ __( '{{a}}View details at VaultPress.com{{/a}}', { components: { a: <a href="https://dashboard.vaultpress.com/" /> } } ) }
-							<br/>
-							{ __( '{{a}}Contact Support{{/a}}', { components: { a: <a href='https://jetpack.com/support' /> } } ) }
-						</p>
-					</DashItem>
-				);
-			}
+			if ( scanEnabled ) {
+				// Check for threats
+				const threats = this.props.scanThreats;
+				if ( threats !== 0 ) {
+					return (
+						<DashItem
+							label={ labelName }
+							module="scan"
+							status="is-error"
+							statusText={ __( 'Threats found' ) }
+							pro={ true } >
+							<h3>{
+								__(
+									'Uh oh, %(number)s threat found.', 'Uh oh, %(number)s threats found.',
+									{
+										count: threats,
+										args: {
+											number: numberFormat( threats )
+										}
+									} )
+							}</h3>
+							<p className="jp-dash-item__description">
+								{ __( '{{a}}View details at VaultPress.com{{/a}}', { components: { a: <a href="https://dashboard.vaultpress.com/" /> } } ) }
+								<br/>
+								{ __( '{{a}}Contact Support{{/a}}', { components: { a: <a href='https://jetpack.com/support' /> } } ) }
+							</p>
+						</DashItem>
+					);
+				}
 
-			// All good
-			if ( vpData.code === 'success' ) {
-				return (
-					<DashItem
-						label={ labelName }
-						module="scan"
-						status="is-working"
-						pro={ true } >
-						<p className="jp-dash-item__description">
-							{ __( "No threats found, you're good to go!" ) }
-						</p>
-					</DashItem>
-				);
+				// All good
+				if ( vpData.code === 'success' ) {
+					return (
+						<DashItem
+							label={ labelName }
+							module="scan"
+							status="is-working"
+							pro={ true } >
+							<p className="jp-dash-item__description">
+								{ __( "No threats found, you're good to go!" ) }
+							</p>
+						</DashItem>
+					);
+				}
 			}
 		}
 
 		const upgradeOrActivateText = () => {
-			if ( hasSitePlan ) {
+			if ( this.props.fetchingSiteData ) {
+				return __( 'Loading…' );
+			}
+
+			if ( hasPremium || hasBusiness || scanEnabled ) {
 				return (
 					__( 'For automated, comprehensive scanning of security threats, please {{a}}install and activate{{/a}} VaultPress.', {
 						components: {
@@ -97,7 +115,7 @@ const DashScan = React.createClass( {
 				return (
 					__( 'For automated, comprehensive scanning of security threats, please {{a}}upgrade your account{{/a}}.', {
 						components: {
-							a: <a href={ 'https://wordpress.com/plans/' + this.props.siteRawUrl } target="_blank" />
+							a: <a href={ 'https://jetpack.com/redirect/?source=aag-scan&site=' + this.props.siteRawUrl } target="_blank" />
 						}
 					} )
 				);
@@ -148,7 +166,8 @@ export default connect(
 			scanThreats: _getVaultPressScanThreatCount( state ),
 			sitePlan: getSitePlan( state ),
 			isDevMode: isDevMode( state ),
-			isPluginInstalled: ( plugin_slug ) => isPluginInstalled( state, plugin_slug )
+			isPluginInstalled: ( plugin_slug ) => isPluginInstalled( state, plugin_slug ),
+			fetchingSiteData: isFetchingSiteData( state )
 		};
 	},
 	( dispatch ) => {

@@ -15,10 +15,16 @@ class WordAds_Params {
 			'enable_header_ad' => (bool) get_option( 'enable_header_ad', false )
 		);
 
-		$this->url = ( is_ssl() ? 'https' : 'http' ) . '://' . $_SERVER['HTTP_HOST']  . $_SERVER['REQUEST_URI'];
+		$host = 'localhost';
+		if ( isset( $_SERVER['HTTP_HOST'] ) ) {
+			$host = $_SERVER['HTTP_HOST'];
+		}
+
+		$this->url = ( is_ssl() ? 'https' : 'http' ) . '://' . $host . $_SERVER['REQUEST_URI'];
 		if ( ! ( false === strpos( $this->url, '?' ) ) && ! isset( $_GET['p'] ) ) {
 			$this->url = substr( $this->url, 0, strpos( $this->url, '?' ) );
 		}
+
 		$this->cloudflare = self::is_cloudflare();
 		$this->blog_id = Jetpack::get_option( 'id', 0 );
 		$this->mobile_device = jetpack_is_mobile( 'any', true );
