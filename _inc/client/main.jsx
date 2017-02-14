@@ -171,7 +171,8 @@ const Main = React.createClass( {
 		}
 
 		let pageComponent,
-			navComponent = <Navigation route={ this.props.route }/>;
+			navComponent = <Navigation route={ this.props.route }/>,
+			settingsNav = <NavigationSettings route={ this.props.route } siteRawUrl={ this.props.siteRawUrl } siteAdminUrl={ this.props.siteAdminUrl } />;
 
 		switch ( route ) {
 			case '/dashboard':
@@ -191,7 +192,7 @@ const Main = React.createClass( {
 			case '/discussion':
 			case '/writing':
 			case '/search':
-				navComponent = <NavigationSettings route={ this.props.route } />;
+				navComponent = settingsNav;
 				pageComponent = <SearchableSettings
 					route={ this.props.route }
 					siteAdminUrl={ this.props.siteAdminUrl }
