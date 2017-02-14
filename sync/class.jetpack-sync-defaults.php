@@ -100,12 +100,10 @@ class Jetpack_Sync_Defaults {
 		'post_by_email_address',
 		'jetpack_protect_key',
 		'jetpack_protect_global_whitelist',
-		'sharing_services',
 		'jetpack_sso_require_two_step',
 		'jetpack_relatedposts',
 		'verification_services_codes',
 		'users_can_register',
-		'active_plugins',
 		'uninstall_plugins',
 		'advanced_seo_front_page_description', // Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION
 		'advanced_seo_title_formats', // Jetpack_SEO_Titles::TITLE_FORMATS_OPTION
