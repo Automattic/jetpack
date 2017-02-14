@@ -114,7 +114,7 @@ const ThemeEnhancements = moduleSettingsForm(
 									<ModuleToggle
 										slug={ item.module }
 										compact
-										pactivated={ isItemActive }
+										activated={ isItemActive }
 										toggling={ this.props.isSavingAnyOption( item.module ) }
 										toggleModule={ this.props.toggleModuleNow }
 									>
