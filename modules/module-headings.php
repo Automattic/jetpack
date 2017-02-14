@@ -35,7 +35,7 @@ function jetpack_get_module_i18n( $key ) {
 			),
 
 			'custom-content-types' => array(
-				'name' => _x( 'Custom Content Types', 'Module Name', 'jetpack' ),
+				'name' => _x( 'Custom content types', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Display different types of content on your site with custom content types.', 'Module Description', 'jetpack' ),
 			),
 
@@ -118,7 +118,7 @@ function jetpack_get_module_i18n( $key ) {
 			),
 
 			'post-by-email' => array(
-				'name' => _x( 'Post by Email', 'Module Name', 'jetpack' ),
+				'name' => _x( 'Post by email', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Publish posts by sending an email', 'Module Description', 'jetpack' ),
 			),
 
@@ -133,7 +133,7 @@ function jetpack_get_module_i18n( $key ) {
 			),
 
 			'related-posts' => array(
-				'name' => _x( 'Related Posts', 'Module Name', 'jetpack' ),
+				'name' => _x( 'Related posts', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Increase page views by showing related content to your visitors.', 'Module Description', 'jetpack' ),
 				'recommended description' => _x( 'Keep visitors engaged on your blog by highlighting relevant and new content at the bottom of each published post.', 'Jumpstart Description', 'jetpack' ),
 			),
@@ -193,7 +193,7 @@ function jetpack_get_module_i18n( $key ) {
 			),
 
 			'verification-tools' => array(
-				'name' => _x( 'Site Verification', 'Module Name', 'jetpack' ),
+				'name' => _x( 'Site verification', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Establish your site\'s authenticity with external services.', 'Module Description', 'jetpack' ),
 			),
 
