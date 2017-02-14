@@ -302,6 +302,11 @@ class The_Neverending_Home_Page {
 	static function is_last_batch() {
 		$entries = (int) self::wp_query()->found_posts;
 		$posts_per_page = self::get_settings()->posts_per_page;
+
+		// This is to cope with an issue in certain themes or setups where posts are returned but found_posts is 0.
+		if ( 0 == $entries ) {
+			return (bool) ( count( self::wp_query()->posts ) < $posts_per_page );
+		}
 		$paged = self::wp_query()->get( 'paged' );
 
 		// Are there enough posts for more than the first page?
