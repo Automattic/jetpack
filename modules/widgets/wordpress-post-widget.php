@@ -1063,7 +1063,7 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 
 		$instance          = array();
 		$instance['title'] = ( ! empty( $new_instance['title'] ) ) ? strip_tags( $new_instance['title'] ) : '';
-		$instance['url']   = ( ! empty( $new_instance['url'] ) ) ? strip_tags( $new_instance['url'] ) : '';
+		$instance['url']   = ( ! empty( $new_instance['url'] ) ) ? strip_tags( trim( $new_instance['url'] ) ) : '';
 		$instance['url']   = preg_replace( "!^https?://!is", "", $instance['url'] );
 		$instance['url']   = untrailingslashit( $instance['url'] );
 
