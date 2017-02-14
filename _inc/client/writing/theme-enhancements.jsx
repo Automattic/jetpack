@@ -61,7 +61,7 @@ const ThemeEnhancements = moduleSettingsForm(
 				! this.props.isModuleFound( 'infinite-scroll' )
 				&& ! this.props.isModuleFound( 'minileven' )
 			) {
-				return <span />;
+				return null;
 			}
 
 			return (
@@ -106,7 +106,7 @@ const ThemeEnhancements = moduleSettingsForm(
 							let isItemActive = this.props.getOptionValue( item.module );
 
 							if ( ! this.props.isModuleFound( item.module ) ) {
-								return <span />;
+								return null;
 							}
 
 							return (

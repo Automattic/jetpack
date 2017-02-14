@@ -40,7 +40,7 @@ export const Traffic = React.createClass( {
 		};
 
 		if ( ! this.props.searchTerm && ! this.props.active ) {
-			return <span />;
+			return null;
 		}
 
 		if (
@@ -51,7 +51,7 @@ export const Traffic = React.createClass( {
 			&& ! found.verification
 			&& ! found.sitemaps
 		) {
-			return <span />;
+			return null;
 		}
 
 		let seoSettings = (

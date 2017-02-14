@@ -34,11 +34,11 @@ export const Security = React.createClass( {
 		};
 
 		if ( ! this.props.searchTerm && ! this.props.active ) {
-			return <span />;
+			return null;
 		}
 
 		if ( ! found.sso && ! found.protect ) {
-			return <span />;
+			return null;
 		}
 
 		let backupSettings = (

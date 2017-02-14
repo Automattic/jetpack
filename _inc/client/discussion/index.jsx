@@ -32,7 +32,11 @@ export const Discussion = React.createClass( {
 		};
 
 		if ( ! this.props.searchTerm && ! this.props.active ) {
-			return <span />;
+			return null;
+		}
+
+		if ( ! found.comments && ! found.subscriptions ) {
+			return null;
 		}
 
 		let commentsSettings = (

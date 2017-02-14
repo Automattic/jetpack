@@ -69,7 +69,7 @@ const Media = moduleSettingsForm(
 				&& ! this.props.isModuleFound( 'carousel' )
 			) {
 				// Nothing to show here
-				return <span />;
+				return null;
 			}
 
 			let photon = this.props.module( 'photon' ),

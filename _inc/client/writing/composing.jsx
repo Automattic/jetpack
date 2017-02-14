@@ -163,7 +163,7 @@ const Composing = moduleSettingsForm(
 				! this.props.isModuleFound( 'markdown' )
 				&& ! this.props.isModuleFound( 'after-the-deadline' )
 			) {
-				return <span />;
+				return null;
 			}
 
 			let markdown = this.props.module( 'markdown' ),

@@ -52,7 +52,7 @@ const CustomContentTypes = moduleSettingsForm(
 
 		render() {
 			if ( ! this.props.isModuleFound( 'custom-content-types' ) ) {
-				return <span />;
+				return null;
 			}
 
 			let module = this.props.module( 'custom-content-types' );

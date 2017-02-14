@@ -2,12 +2,12 @@
  * External dependencies
  */
 import React from 'react';
+import { translate as __ } from 'i18n-calypso';
 
 /**
  * Internal dependencies
  */
 import Discussion from 'discussion';
-import Engagement from 'engagement/index.jsx';
 import Security from 'security/index.jsx';
 import Traffic from 'traffic';
 import Writing from 'writing/index.jsx';
@@ -22,11 +22,17 @@ export default React.createClass( {
 		};
 
 		return (
-			<div>
-				<Engagement
-					active={ ( '/engagement' === this.props.route.path ) }
-					{ ...commonProps }
-				/>
+			<div className="jp-settings-container">
+				<div className="jp-no-results">
+					{ __(
+						'No search results found for %(term)s',
+						{
+							args: {
+								term: commonProps.searchTerm
+							}
+						}
+					) }
+				</div>
 				<Discussion
 					siteRawUrl={ this.props.siteRawUrl }
 					active={ ( '/discussion' === this.props.route.path ) }

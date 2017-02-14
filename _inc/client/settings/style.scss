@@ -1,0 +1,13 @@
+.dops-search__input[type="search"] {
+	width: 100%;
+}
+
+.jp-settings-container .jp-no-results {
+	display: none;
+	font-size: rem( 14px );
+	line-height: 1.5;
+
+	&:last-of-type {
+		display: inherit;
+	}
+}

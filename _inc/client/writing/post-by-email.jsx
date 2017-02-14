@@ -46,7 +46,7 @@ const PostByEmail = moduleSettingsForm(
 				unavailableInDevMode = this.props.isUnavailableInDevMode( 'post-by-email' );
 
 			if ( ! this.props.isModuleFound( 'post-by-email' ) ) {
-				return <span />;
+				return null;
 			}
 
 			return (
