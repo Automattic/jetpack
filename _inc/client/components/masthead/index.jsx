@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import Button from 'components/button';
 import includes from 'lodash/includes';
+import ButtonGroup from 'components/button-group';
 
 /**
  * Internal dependencies
@@ -41,22 +42,22 @@ export const Masthead = React.createClass( {
 
 					<ul className="jp-masthead__links">
 						<li className="jp-masthead__link-li">
-							<Button
-								compact={ true }
-								href="#/dashboard"
-								primary={ isDashboardView && ! isStatic }
-							>
-								{ __( 'Dashboard' ) }
-							</Button>
-						</li>
-						<li className="jp-masthead__link-li">
-							<Button
-								compact={ true }
-								href="#/settings"
-								primary={ ! isDashboardView && ! isStatic }
-							>
-								{ __( 'Settings' ) }
-							</Button>
+							<ButtonGroup>
+								<Button
+									compact={ true }
+									href="#/dashboard"
+									primary={ isDashboardView && ! isStatic }
+								>
+									{ __( 'Dashboard' ) }
+								</Button>
+								<Button
+									compact={ true }
+									href="#/settings"
+									primary={ ! isDashboardView && ! isStatic }
+								>
+									{ __( 'Settings' ) }
+								</Button>
+							</ButtonGroup>
 						</li>
 					</ul>
 				</div>
