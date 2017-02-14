@@ -97,7 +97,7 @@ export const NavigationSettings = React.createClass( {
 									? 'https://wordpress.com/sharing/' + this.props.siteRawUrl
 									: this.props.siteAdminUrl + 'options-general.php?page=sharing'
 									}>
-								{ __( 'Sharing' ) }
+								{ __( 'Sharing', { context: 'Navigation item.' } ) }
 								{
 									true === this.props.siteConnectionStatus && (
 										<Gridicon icon="external" size={ 13 } />
