@@ -164,7 +164,6 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'jetpack_relatedposts'                 => 'pineapple',
 			'verification_services_codes'          => 'pineapple',
 			'users_can_register'                   => '1',
-			'active_plugins'                       => array( 'pineapple' ),
 			'uninstall_plugins'                    => 'banana',
 			'advanced_seo_front_page_description'  => 'banana', // Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION
 			'advanced_seo_title_formats'           => array( 'posts' => array( 'type' => 'string', 'value' => 'test' ) ), // Jetpack_SEO_Titles::TITLE_FORMATS_OPTION
