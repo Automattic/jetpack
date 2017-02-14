@@ -24,7 +24,7 @@ export const Antispam = moduleSettingsForm(
 			return (
 				<SettingsCard
 					{ ...this.props }
-					header={ __( 'Antispam', { context: 'Settings header' } ) }>
+					header={ __( 'Spam filtering', { context: 'Settings header' } ) }>
 					<SettingsGroup support="https://akismet.com/jetpack/">
 						<FormFieldset>
 							<ModuleSettingCheckbox
