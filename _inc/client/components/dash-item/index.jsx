@@ -87,6 +87,20 @@ export const DashItem = React.createClass( {
 					toggle = <span className="jp-dash-item__active-label">{ __( 'Active' ) }</span>
 				}
 			}
+
+			if ( 'scan' === this.props.module && 'is-error' === this.props.status ) {
+				toggle = (
+					<a href="https://dashboard.vaultpress.com/" >
+						<SimpleNotice
+							showDismiss={ false }
+							status={ this.props.status }
+							isCompact={ true }
+						>
+							{ this.props.statusText }
+						</SimpleNotice>
+					</a>
+				);
+			}
 		}
 
 		if ( this.props.pro && ! this.props.isDevMode ) {

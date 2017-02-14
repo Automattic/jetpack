@@ -61,7 +61,7 @@ const DashScan = React.createClass( {
 							module="scan"
 							status="is-error"
 							statusText={ __( 'Threats found' ) }
-							pro={ true } >
+						>
 							<h3>{
 								__(
 									'Uh oh, %(number)s threat found.', 'Uh oh, %(number)s threats found.',
