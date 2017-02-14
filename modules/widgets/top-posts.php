@@ -251,6 +251,8 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 				/** This filter is documented in modules/stats.php */
 				'gravatar_default' => apply_filters( 'jetpack_static_url', set_url_scheme( 'https://en.wordpress.com/i/logo/white-gray-80.png' ) ),
 				'avatar_size' => 40,
+				'width' => null,
+				'height' => null,
 			);
 			if ( 'grid' == $display ) {
 				$get_image_options['avatar_size'] = 200;
@@ -310,12 +312,31 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 		switch ( $display ) {
 		case 'list' :
 		case 'grid' :
+			// Keep the avatar_size as default dimensions for backward compatibility.
+			$width  = (int) $get_image_options['avatar_size'];
+			$height = (int) $get_image_options['avatar_size'];
+
+			// Check if the user has changed the width.
+			if ( ! empty( $get_image_options['width'] ) ) {
+				$width  = (int) $get_image_options['width'];
+			}
+
+			// Check if the user has changed the height.
+			if ( ! empty( $get_image_options['height'] ) ) {
+				$height = (int) $get_image_options['height'];
+			}
+
 			foreach ( $posts as &$post ) {
-				$image = Jetpack_PostImages::get_image( $post['post_id'], array( 'fallback_to_avatars' => true, 'avatar_size' => (int) $get_image_options['avatar_size'] ) );
+				$image = Jetpack_PostImages::get_image(
+					$post['post_id'],
+					array(
+						'fallback_to_avatars' => true,
+						'avatar_size'         => (int) $get_image_options['avatar_size']
+					)
+				);
 				$post['image'] = $image['src'];
 				if ( 'blavatar' != $image['from'] && 'gravatar' != $image['from'] ) {
-					$size = (int) $get_image_options['avatar_size'];
-					$post['image'] = jetpack_photon_url( $post['image'], array( 'resize' => "$size,$size" ) );
+					$post['image'] = jetpack_photon_url( $post['image'], array( 'resize' => "$width,$height" ) );
 				}
 			}
 
@@ -352,8 +373,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 
 						?>
 						<a href="<?php echo esc_url( $filtered_permalink ); ?>" title="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" class="bump-view" data-bump-view="tp">
-							<?php $size = (int) $get_image_options['avatar_size']; ?>
-							<img width="<?php echo absint( $size ); ?>" height="<?php echo absint( $size ); ?>" src="<?php echo esc_url( $post['image'] ); ?>" alt="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" data-pin-nopin="true" />
+							<img width="<?php echo absint( $width ); ?>" height="<?php echo absint( $height ); ?>" src="<?php echo esc_url( $post['image'] ); ?>" alt="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" data-pin-nopin="true" />
 						</a>
 						<?php
 						/**
@@ -384,8 +404,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 						$filtered_permalink = apply_filters( 'jetpack_top_posts_widget_permalink', $post['permalink'], $post );
 						?>
 						<a href="<?php echo esc_url( $filtered_permalink ); ?>" title="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" class="bump-view" data-bump-view="tp">
-							<?php $size = (int) $get_image_options['avatar_size']; ?>
-							<img width="<?php echo absint( $size ); ?>" height="<?php echo absint( $size ); ?>" src="<?php echo esc_url( $post['image'] ); ?>" class='widgets-list-layout-blavatar' alt="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" data-pin-nopin="true" />
+							<img width="<?php echo absint( $width ); ?>" height="<?php echo absint( $height ); ?>" src="<?php echo esc_url( $post['image'] ); ?>" class='widgets-list-layout-blavatar' alt="<?php echo esc_attr( wp_kses( $post['title'], array() ) ); ?>" data-pin-nopin="true" />
 						</a>
 						<div class="widgets-list-layout-links">
 							<a href="<?php echo esc_url( $filtered_permalink ); ?>" class="bump-view" data-bump-view="tp">
