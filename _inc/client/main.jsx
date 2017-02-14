@@ -182,7 +182,7 @@ const Main = React.createClass( {
 				pageComponent = <Apps siteRawUrl={ this.props.siteRawUrl } />;
 				break;
 			case '/plans':
-				pageComponent = <Plans siteRawUrl={ this.props.siteRawUrl } siteAdminUrl={ this } />;
+				pageComponent = <Plans siteRawUrl={ this.props.siteRawUrl } siteAdminUrl={ this.props.siteAdminUrl } />;
 				break;
 			case '/settings':
 			case '/general':
