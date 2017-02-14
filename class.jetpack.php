@@ -1219,7 +1219,8 @@ class Jetpack {
 		if ( ! $plan ) {
 			$plan = array(
 				'product_slug' => 'jetpack_free',
-				'supports' => array(),
+				'supports'     => array(),
+				'class'        => 'free',
 			);
 		}
 
@@ -1233,6 +1234,7 @@ class Jetpack {
 			$plan['supports'] = array(
 				'akismet',
 			);
+			$plan['class'] = 'personal';
 		}
 
 		// Define what paid modules are supported by premium plans
@@ -1248,6 +1250,7 @@ class Jetpack {
 				'vaultpress',
 				'wordads',
 			);
+			$plan['class'] = 'premium';
 		}
 
 		// Define what paid modules are supported by professional plans
@@ -1265,6 +1268,7 @@ class Jetpack {
 				'google-analytics',
 				'wordads',
 			);
+			$plan['class'] = 'business';
 		}
 
 		// Make sure we have an array here in the event database data is stale
