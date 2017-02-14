@@ -24,14 +24,17 @@ export default React.createClass( {
 		return (
 			<div className="jp-settings-container">
 				<div className="jp-no-results">
-					{ __(
-						'No search results found for %(term)s',
-						{
-							args: {
-								term: commonProps.searchTerm
+					{ false !== commonProps.searchTerm
+						? __(
+							'No search results found for %(term)s',
+							{
+								args: {
+									term: commonProps.searchTerm
+								}
 							}
-						}
-					) }
+						)
+						: __( 'Enter a search term to find settings or close search.' )
+					}
 				</div>
 				<Discussion
 					siteRawUrl={ this.props.siteRawUrl }
