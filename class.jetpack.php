@@ -4456,7 +4456,7 @@ p {
 	 * verifies it worked properly.
 	 *
 	 * @since 2.6
-	 * @return json object returned by server
+	 * @return string|Jetpack_Error A JSON object on success or Jetpack_Error on failures
 	 **/
 	public function validate_remote_register_response( $response ) {
 	  if ( is_wp_error( $response ) ) {
