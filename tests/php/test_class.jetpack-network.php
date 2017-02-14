@@ -111,7 +111,7 @@ class WP_Test_Jetpack_Network extends WP_UnitTestCase {
 	}
 
 	public function test_is_network_option() {
-		$network_options = Jetpack_Options::get_network_options();
+		$network_options = Jetpack_Options::get_option_names( 'network' );
 		foreach ( $network_options as $option_name ) {
 			$this->assertTrue( Jetpack_Options::is_network_option( $option_name ) );
 		}

@@ -62,6 +62,11 @@ class Jetpack_Options {
 				'user_token',                  // (string) The User Token of this site. (deprecated)
 				'user_tokens'                  // (array)  User Tokens for each user of this site who has connected to jetpack.wordpress.com.
 			);
+
+		case 'network' :
+			return array(
+				'file_data'                     // (array) List pf absolute paths to all Jetpack modules
+			);
 		}
 
 		return array(
@@ -133,17 +138,7 @@ class Jetpack_Options {
 		if ( ! is_multisite() ) {
 			return false;
 		}
-		return in_array( $option_name, self::get_network_options() );
-	}
-
-	/**
-	 * Return a list of options to be saved in wp_sitemeta table
-	 * in Network sites (wp_options otherwise)
-	 *
-	 * @return array
-	 */
-	public static function get_network_options() {
-		return array( 'file_data' );
+		return in_array( $option_name, self::get_option_names( 'network' ) );
 	}
 
 	/**
