@@ -15,6 +15,7 @@ import { translate as __ } from 'i18n-calypso';
 import Masthead from 'components/masthead';
 import Navigation from 'components/navigation';
 import NavigationSettings from 'components/navigation-settings';
+import SearchableSettings from 'settings/index.jsx';
 import JetpackConnect from 'components/jetpack-connect';
 import JumpStart from 'components/jumpstart';
 import { getJumpStartStatus, isJumpstarting } from 'state/jumpstart';
@@ -29,14 +30,9 @@ import {
 } from 'state/initial-state';
 import { areThereUnsavedModuleOptions, clearUnsavedOptionFlag } from 'state/modules';
 import { areThereUnsavedSettings, clearUnsavedSettingsFlag } from 'state/settings';
+import { getSearchTerm } from 'state/search';
 
 import AtAGlance from 'at-a-glance/index.jsx';
-import Engagement from 'engagement/index.jsx';
-import Discussion from 'discussion';
-import Security from 'security/index.jsx';
-import Traffic from 'traffic';
-import Appearance from 'appearance/index.jsx';
-import Writing from 'writing/index.jsx';
 import Apps from 'apps/index.jsx';
 import Plans from 'plans/index.jsx';
 import Footer from 'components/footer';
@@ -44,7 +40,6 @@ import SupportCard from 'components/support-card';
 import NonAdminView from 'components/non-admin-view';
 import JetpackNotices from 'components/jetpack-notices';
 import AdminNotices from 'components/admin-notices';
-import SearchPage from 'search/index.jsx';
 import analytics from 'lib/analytics';
 import restApi from 'rest-api';
 import { getTracksUserData } from 'state/initial-state';
@@ -108,9 +103,21 @@ const Main = React.createClass( {
 	},
 
 	shouldComponentUpdate: function( nextProps ) {
+
+		// A special case when user has just entered search mode and has not yet
+		// entered a search term
+		if (
+			nextProps.route.path !== this.props.route.path
+			&& '/search' === nextProps.route.path
+			&& ! nextProps.searchTerm
+		) {
+			return false;
+		}
+
 		return nextProps.siteConnectionStatus !== this.props.siteConnectionStatus ||
 			nextProps.jumpStartStatus !== this.props.jumpStartStatus ||
-			nextProps.route.path !== this.props.route.path;
+			nextProps.route.path !== this.props.route.path ||
+			nextProps.searchTerm !== this.props.searchTerm;
 	},
 
 	componentWillReceiveProps( nextProps ) {
@@ -166,6 +173,7 @@ const Main = React.createClass( {
 		let pageComponent,
 			navComponent = <Navigation route={ this.props.route }/>,
 			settingsNav = <NavigationSettings route={ this.props.route } siteRawUrl={ this.props.siteRawUrl } siteAdminUrl={ this.props.siteAdminUrl } />;
+
 		switch ( route ) {
 			case '/dashboard':
 				pageComponent = <AtAGlance siteRawUrl={ this.props.siteRawUrl } siteAdminUrl={ this.props.siteAdminUrl } />;
@@ -176,34 +184,20 @@ const Main = React.createClass( {
 			case '/plans':
 				pageComponent = <Plans siteRawUrl={ this.props.siteRawUrl } siteAdminUrl={ this.props.siteAdminUrl } />;
 				break;
-			case '/engagement':
-				navComponent = settingsNav;
-				pageComponent = <Engagement route={ this.props.route } />;
-				break;
-			case '/discussion':
-				navComponent = settingsNav;
-				pageComponent = <Discussion route={ this.props.route } siteRawUrl={ this.props.siteRawUrl } />;
-				break;
-			case '/security':
-				navComponent = settingsNav;
-				pageComponent = <Security route={ this.props.route } siteAdminUrl={ this.props.siteAdminUrl } />;
-				break;
-			case '/traffic':
-				navComponent = settingsNav;
-				pageComponent = <Traffic route={ this.props.route } siteRawUrl={ this.props.siteRawUrl } siteAdminUrl={ this.props.siteAdminUrl } />;
-				break;
-			case '/appearance':
-				navComponent = settingsNav;
-				pageComponent = <Appearance route={ this.props.route } />;
-				break;
 			case '/settings':
+			case '/general':
+			case '/engagement':
+			case '/security':
+			case '/traffic':
+			case '/discussion':
 			case '/writing':
-				navComponent = settingsNav;
-				pageComponent = <Writing route={ this.props.route } siteAdminUrl={ this.props.siteAdminUrl } />;
-				break;
 			case '/search':
 				navComponent = settingsNav;
-				pageComponent = <SearchPage siteAdminUrl={ this.props.siteAdminUrl } />;
+				pageComponent = <SearchableSettings
+					route={ this.props.route }
+					siteAdminUrl={ this.props.siteAdminUrl }
+					siteRawUrl={ this.props.siteRawUrl }
+					searchTerm={ this.props.searchTerm } />;
 				break;
 
 			default:
@@ -243,12 +237,13 @@ const Main = React.createClass( {
 
 export default connect(
 	state => {
-		return  {
+		return {
 			jumpStartStatus: getJumpStartStatus( state ),
 			isJumpstarting: isJumpstarting( state ),
 			siteConnectionStatus: getSiteConnectionStatus( state ),
 			siteRawUrl: getSiteRawUrl( state ),
 			siteAdminUrl: getSiteAdminUrl( state ),
+			searchTerm: getSearchTerm( state ),
 			apiRoot: getApiRootUrl( state ),
 			apiNonce: getApiNonce( state ),
 			tracksUserData: getTracksUserData( state ),

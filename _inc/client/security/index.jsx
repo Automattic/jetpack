@@ -10,6 +10,7 @@ import { connect } from 'react-redux';
 import { getModule } from 'state/modules';
 import { getSettings } from 'state/settings';
 import { isDevMode, isUnavailableInDevMode } from 'state/connection';
+import { isModuleFound as _isModuleFound } from 'state/search';
 import QuerySite from 'components/data/query-site';
 import { BackupsScan } from './backups-scan';
 import { Antispam } from './antispam';
@@ -26,21 +27,47 @@ export const Security = React.createClass( {
 			isDevMode: this.props.isDevMode,
 			isUnavailableInDevMode: this.props.isUnavailableInDevMode
 		};
+
+		let found = {
+			protect: this.props.isModuleFound( 'protect' ),
+			sso: this.props.isModuleFound( 'sso' )
+		};
+
+		if ( ! this.props.searchTerm && ! this.props.active ) {
+			return null;
+		}
+
+		if ( ! found.sso && ! found.protect ) {
+			return null;
+		}
+
+		let backupSettings = (
+			<BackupsScan
+				{ ...commonProps }
+			/>
+		);
+		let akismetSettings = (
+			<Antispam
+				{ ...commonProps }
+			/>
+		);
+		let protectSettings = (
+			<Protect
+				{ ...commonProps }
+			/>
+		);
+		let ssoSettings = (
+			<SSO
+				{ ...commonProps }
+			/>
+		);
 		return (
 			<div>
 				<QuerySite />
-				<BackupsScan
-					{ ...commonProps }
-				/>
-				<Antispam
-					{ ...commonProps }
-				/>
-				<Protect
-					{ ...commonProps }
-				/>
-				<SSO
-					{ ...commonProps }
-				/>
+				{ ( found.protect || found.sso ) && backupSettings }
+				{ ( found.protect || found.sso ) && akismetSettings }
+				{ found.protect && protectSettings }
+				{ found.sso && ssoSettings }
 			</div>
 		);
 	}
@@ -52,7 +79,8 @@ export default connect(
 			module: module_name => getModule( state, module_name ),
 			settings: getSettings( state ),
 			isDevMode: isDevMode( state ),
-			isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name )
+			isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name ),
+			isModuleFound: ( module_name ) => _isModuleFound( state, module_name ),
 		}
 	}
 )( Security );

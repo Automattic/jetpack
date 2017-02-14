@@ -2,6 +2,7 @@
  * External dependencies
  */
 import React from 'react';
+import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import Button from 'components/button';
 import FormToggle from 'components/form/form-toggle';
@@ -11,10 +12,12 @@ import FormToggle from 'components/form/form-toggle';
  */
 import { FormFieldset } from 'components/forms';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
+import { getModule } from 'state/modules';
+import { isModuleFound as _isModuleFound } from 'state/search';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 
-export const CustomContentTypes = moduleSettingsForm(
+const CustomContentTypes = moduleSettingsForm(
 	React.createClass( {
 
 		contentTypeConfigure( type, legend ) {
@@ -48,7 +51,11 @@ export const CustomContentTypes = moduleSettingsForm(
 		},
 
 		render() {
-			let module = this.props.getModule( 'custom-content-types' );
+			if ( ! this.props.isModuleFound( 'custom-content-types' ) ) {
+				return null;
+			}
+
+			let module = this.props.module( 'custom-content-types' );
 			return (
 				<SettingsCard
 					{ ...this.props }
@@ -68,7 +75,7 @@ export const CustomContentTypes = moduleSettingsForm(
 						<FormFieldset>
 							<p className="jp-form-setting-explanation">
 								{
-									__( "The Testimonial custom content type allows you to add, organize, and display your testimonials. If your theme doesn’t support it yet, you can display testimonials using the testimonial shortcode	( [testimonials] ) or you can view a full archive of your testimonials." )
+									__( 'The Testimonial custom content type allows you to add, organize, and display your testimonials. If your theme doesn’t support it yet, you can display testimonials using the testimonial shortcode	( [testimonials] ) or you can view a full archive of your testimonials.' )
 								}
 							</p>
 							<p>
@@ -90,7 +97,7 @@ export const CustomContentTypes = moduleSettingsForm(
 						<FormFieldset>
 							<p className="jp-form-setting-explanation">
 								{
-									__( "The Portfolio custom content type allows you to add, organize, and display your portfolios. If your theme doesn’t support it yet, you can display portfolios using the portfolio shortcode ( [portfolios] ) or you can view a full archive of your portfolios." )
+									__( 'The Portfolio custom content type allows you to add, organize, and display your portfolios. If your theme doesn’t support it yet, you can display portfolios using the portfolio shortcode ( [portfolios] ) or you can view a full archive of your portfolios.' )
 								}
 							</p>
 							<p>
@@ -105,3 +112,12 @@ export const CustomContentTypes = moduleSettingsForm(
 		}
 	} )
 );
+
+export default connect(
+	( state ) => {
+		return {
+			module: ( module_name ) => getModule( state, module_name ),
+			isModuleFound: ( module_name ) => _isModuleFound( state, module_name )
+		}
+	}
+)( CustomContentTypes );

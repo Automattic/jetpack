@@ -10,12 +10,13 @@ import { connect } from 'react-redux';
 import { getModule } from 'state/modules';
 import { getSettings } from 'state/settings';
 import { isDevMode, isUnavailableInDevMode } from 'state/connection';
+import { isModuleFound as _isModuleFound } from 'state/search';
 import QuerySite from 'components/data/query-site';
-import { Composing } from './composing';
-import { Media } from './media';
-import { CustomContentTypes } from './custom-content-types';
-import { ThemeEnhancements } from './theme-enhancements';
-import { PostByEmail } from './post-by-email';
+import Composing from './composing';
+import Media from './media';
+import CustomContentTypes from './custom-content-types';
+import ThemeEnhancements from './theme-enhancements';
+import PostByEmail from './post-by-email';
 
 export const Writing = React.createClass( {
 	displayName: 'WritingSettings',
@@ -27,19 +28,34 @@ export const Writing = React.createClass( {
 			isDevMode: this.props.isDevMode,
 			isUnavailableInDevMode: this.props.isUnavailableInDevMode
 		};
+
+		let found = [
+			'markdown',
+			'after-the-deadline',
+			'custom-content-types',
+			'photon',
+			'carousel',
+			'post-by-email',
+			'infinite-scroll',
+			'minileven'
+		].some( this.props.isModuleFound );
+
+		if ( ! this.props.searchTerm && ! this.props.active ) {
+			return null;
+		}
+
+		if ( ! found ) {
+			return null;
+		}
+
 		return (
 			<div>
 				<QuerySite />
-				<Composing
-					{ ...commonProps } />
-				<Media
-					{ ...commonProps } />
-				<CustomContentTypes
-					{ ...commonProps } />
-				<ThemeEnhancements
-					{ ...commonProps } />
-				<PostByEmail
-					{ ...commonProps } />
+				<Composing { ...commonProps } />
+				<Media { ...commonProps } />
+				<CustomContentTypes { ...commonProps } />
+				<ThemeEnhancements { ...commonProps } />
+				<PostByEmail { ...commonProps } />
 			</div>
 		);
 	}
@@ -51,7 +67,8 @@ export default connect(
 			module: module_name => getModule( state, module_name ),
 			settings: getSettings( state ),
 			isDevMode: isDevMode( state ),
-			isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name )
+			isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name ),
+			isModuleFound: ( module_name ) => _isModuleFound( state, module_name )
 		}
 	}
 )( Writing );
