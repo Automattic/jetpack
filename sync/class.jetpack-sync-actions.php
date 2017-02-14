@@ -52,7 +52,7 @@ class Jetpack_Sync_Actions {
 		if ( apply_filters( 'jetpack_sync_listener_should_load', true ) ) {
 			self::initialize_listener();
 		}
-		
+
 		add_action( 'init', array( __CLASS__, 'add_sender_shutdown' ), 90 );
 
 	}
@@ -138,11 +138,11 @@ class Jetpack_Sync_Actions {
 		$query_args['timeout'] = Jetpack_Sync_Settings::is_doing_cron() ? 30 : 15;
 
 		/**
-		 * Filters query parameters appended to the Sync request URL sent to WordPress.com
+		 * Filters query parameters appended to the Sync request URL sent to WordPress.com.
 		 *
 		 * @since 4.7.0
 		 *
-		 * @param array associative array of query parameters
+		 * @param array $query_args associative array of query parameters.
 		 */
 		$query_args = apply_filters( 'jetpack_sync_send_data_query_args', $query_args );
 
