@@ -159,10 +159,8 @@ class Jetpack_Options {
 			if ( self::is_network_option( $name ) ) {
 				return get_site_option( "jetpack_$name", $default );
 			}
-			else {
-				return get_option( "jetpack_$name", $default );
-			}
 
+			return get_option( "jetpack_$name", $default );
 		}
 
 		foreach ( array_keys( self::$grouped_options ) as $group ) {
@@ -191,18 +189,12 @@ class Jetpack_Options {
 		// check if the option name is a network option or not
 		$jetpack_name = preg_replace( '/^jetpack_/', '', $name, 1 );
 		$is_network_option = self::is_network_option( $jetpack_name );
-		if ( $is_network_option ) {
-			$value = get_site_option( $name );
-		}
-		else {
-			$value = get_option( $name );
-		}
+		$value = $is_network_option ? get_site_option( $name ) : get_option( $name );
 
 		if ( $value === false && $default !== false ) {
 			if ( $is_network_option ) {
 				update_site_option( $name, $default );
-			}
-			else {
+			} else {
 				update_option( $name, $default );
 			}
 			$value = $default;
@@ -221,9 +213,8 @@ class Jetpack_Options {
 		if ( self::is_network_option( $name ) ) {
 			return update_site_option( self::$grouped_options[ $group ], $options );
 		}
-		else {
-			return update_option( self::$grouped_options[ $group ], $options );
-		}
+
+		return update_option( self::$grouped_options[ $group ], $options );
 
 
 	}
@@ -251,9 +242,8 @@ class Jetpack_Options {
 			if ( self::is_network_option( $name ) ) {
 				return update_site_option( "jetpack_$name", $value );
 			}
-			else {
-				return update_option( "jetpack_$name", $value, $autoload );
-			}
+
+			return update_option( "jetpack_$name", $value, $autoload );
 
 		}
 
@@ -305,14 +295,9 @@ class Jetpack_Options {
 
 		foreach ( array_intersect( $names, self::get_option_names( 'non_compact' ) ) as $name ) {
 			if ( self::is_network_option( $name ) ) {
-				if ( ! delete_site_option( "jetpack_$name" ) ) {
-					$result = false;
-				}
-			}
-			else {
-				if ( ! delete_option( "jetpack_$name" ) ) {
-					$result = false;
-				}
+				$result = delete_site_option( "jetpack_$name" );
+			} else {
+				$result = delete_option( "jetpack_$name" );
 			}
 
 		}
@@ -329,8 +314,7 @@ class Jetpack_Options {
 	private static function get_grouped_option( $group, $name, $default ) {
 		if ( self::is_network_option( $name ) ) {
 			$options = get_site_option( self::$grouped_options[ $group ] );
-		}
-		else {
+		} else {
 			$options = get_option( self::$grouped_options[ $group ] );
 		}
 
@@ -345,8 +329,7 @@ class Jetpack_Options {
 		$is_network_option = self::is_network_option( self::$grouped_options[ $group ] );
 		if ( $is_network_option ) {
 			$options = get_site_option( self::$grouped_options[ $group ], array() );
-		}
-		else {
+		} else {
 			$options = get_option( self::$grouped_options[ $group ], array() );
 		}
 
@@ -359,8 +342,7 @@ class Jetpack_Options {
 
 			if ( $is_network_option ) {
 				return update_site_option( self::$grouped_options[ $group ], $options );
-			}
-			else {
+			} else {
 				return update_option( self::$grouped_options[ $group ], $options );
 			}
 
