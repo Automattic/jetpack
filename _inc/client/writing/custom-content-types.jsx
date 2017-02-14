@@ -4,7 +4,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
-import Button from 'components/button';
 import CompactFormToggle from 'components/form/form-toggle/compact';
 
 /**
@@ -19,17 +18,6 @@ import SettingsGroup from 'components/settings-group';
 
 const CustomContentTypes = moduleSettingsForm(
 	React.createClass( {
-
-		contentTypeConfigure( type, legend ) {
-			let disabledOrHref = this.props.getSettingCurrentValue( 'jetpack_' + type, 'custom-content-types' )
-				? { href: this.props.siteAdminUrl + 'edit.php?post_type=jetpack-' + type }
-				: { disabled: true };
-			return (
-				<Button compact	{ ...disabledOrHref }>
-					{ legend }
-				</Button>
-			);
-		},
 
 		getInitialState() {
 			return {
@@ -68,19 +56,20 @@ const CustomContentTypes = moduleSettingsForm(
 									onChange={ () => this.updateCPTs( 'testimonial' ) }>
 							<span className="jp-form-toggle-explanation">
 								{
-									__( 'Enable Testimonial custom content type' )
+									__( 'Testimonials' )
 								}
 							</span>
 						</CompactFormToggle>
 						<FormFieldset>
 							<p className="jp-form-setting-explanation">
 								{
-									__( 'The Testimonial custom content type allows you to add, organize, and display your testimonials. If your theme doesn’t support it yet, you can display testimonials using the testimonial shortcode	( [testimonials] ) or you can view a full archive of your testimonials.' )
-								}
-							</p>
-							<p>
-								{
-									this.contentTypeConfigure( 'testimonial', __( 'Configure Testimonials' ) )
+									__( "Add, organize, and display {{testimonialLink}}testimonials{{/testimonialLink}}. If your theme doesn’t support testimonials yet, you can display them using the shortcode	( [testimonials] ).",
+										{
+											components: {
+												testimonialLink: <a href={ this.props.siteAdminUrl + 'edit.php?post_type=jetpack-testimonial' } />
+											}
+										}
+									)
 								}
 							</p>
 						</FormFieldset>
@@ -90,19 +79,20 @@ const CustomContentTypes = moduleSettingsForm(
 									onChange={ () => this.updateCPTs( 'portfolio' ) }>
 							<span className="jp-form-toggle-explanation">
 								{
-									__( 'Enable Portfolio custom content type' )
+									__( 'Portfolios' )
 								}
 							</span>
 						</CompactFormToggle>
 						<FormFieldset>
 							<p className="jp-form-setting-explanation">
 								{
-									__( 'The Portfolio custom content type allows you to add, organize, and display your portfolios. If your theme doesn’t support it yet, you can display portfolios using the portfolio shortcode ( [portfolios] ) or you can view a full archive of your portfolios.' )
-								}
-							</p>
-							<p>
-								{
-									this.contentTypeConfigure( 'portfolio', __( 'Configure Portfolios' ) )
+									__( "Add, organize, and display {{portfolioLink}}portfolios{{/portfolioLink}}. If your theme doesn’t support portfolios yet, you can display them using the shortcode ( [portfolios] )",
+										{
+											components: {
+												portfolioLink: <a href={ this.props.siteAdminUrl + 'edit.php?post_type=jetpack-portfolio' } />
+											}
+										}
+									)
 								}
 							</p>
 						</FormFieldset>
