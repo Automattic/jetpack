@@ -21,6 +21,20 @@ import SettingsGroup from 'components/settings-group';
 export const Comments = moduleSettingsForm(
 	React.createClass( {
 
+		/**
+		 * If markdown module is inactive and this is toggling markdown for comments on, activate module.
+		 * If markdown for posts is off and this is toggling markdown for comments off, deactivate module.
+		 *
+		 * @param {string} module
+		 * @returns {*}
+		 */
+		updateFormStateByMarkdown( module ) {
+			if ( !! this.props.getSettingCurrentValue( 'wpcom_publish_posts_with_markdown', module ) ) {
+				return this.props.updateFormStateModuleOption( module, 'wpcom_publish_comments_with_markdown' );
+			}
+			return this.props.updateFormStateModuleOption( module, 'wpcom_publish_comments_with_markdown', true );
+		},
+
 		render() {
 			let comments = this.props.getModule( 'comments' ),
 				isCommentsActive = this.props.getOptionValue( 'comments' ),
@@ -88,9 +102,9 @@ export const Comments = moduleSettingsForm(
 							<ModuleToggle
 								slug="markdown"
 								compact
-								activated={ !!this.props.getOptionValue( 'wpcom_publish_comments_with_markdown', 'markdown' ) }
+								activated={ !! this.props.getOptionValue( 'wpcom_publish_comments_with_markdown', 'markdown' ) }
 								toggling={ this.props.isSavingAnyOption( [ 'markdown', 'wpcom_publish_comments_with_markdown' ] ) }
-								toggleModule={ m => this.props.updateFormStateModuleOption( m, 'wpcom_publish_comments_with_markdown' ) }
+								toggleModule={ this.updateFormStateByMarkdown }
 							>
 							<span className="jp-form-toggle-explanation">
 								{

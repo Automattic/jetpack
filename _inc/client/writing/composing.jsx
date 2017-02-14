@@ -157,6 +157,20 @@ const Composing = moduleSettingsForm(
 			);
 		},
 
+		/**
+		 * If markdown module is inactive and this is toggling markdown for posts on, activate module.
+		 * If markdown for comments is off and this is toggling markdown for posts off, deactivate module.
+		 *
+		 * @param {string} module
+		 * @returns {*}
+		 */
+		updateFormStateByMarkdown( module ) {
+			if ( !! this.props.getSettingCurrentValue( 'wpcom_publish_comments_with_markdown', module ) ) {
+				return this.props.updateFormStateModuleOption( module, 'wpcom_publish_posts_with_markdown' );
+			}
+			return this.props.updateFormStateModuleOption( module, 'wpcom_publish_posts_with_markdown', true );
+		},
+
 		render() {
 			// If we don't have any element to show, return early
 			if (
@@ -175,10 +189,9 @@ const Composing = moduleSettingsForm(
 						<ModuleToggle
 							slug="markdown"
 							compact
-							activated={ this.props.getOptionValue( 'markdown' ) }
-							toggling={ this.props.isSavingAnyOption( 'markdown' ) }
-							toggleModule={ this.props.toggleModuleNow }
-						>
+							activated={ !! this.props.getOptionValue( 'wpcom_publish_posts_with_markdown', 'markdown' ) }
+							toggling={ this.props.isSavingAnyOption( [ 'markdown', 'wpcom_publish_posts_with_markdown' ] ) }
+							toggleModule={ this.updateFormStateByMarkdown }>
 							<span className="jp-form-toggle-explanation">
 								{ markdown.description }
 							</span>
