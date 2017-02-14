@@ -14,11 +14,18 @@ import { getSiteConnectionStatus } from 'state/connection';
 import { getCurrentVersion } from 'state/initial-state';
 
 export const Masthead = React.createClass( {
+	getDefaultProps: function() {
+		return {
+			route: { path: '' }
+		};
+	},
+
 	render: function() {
 		let devNotice = this.props.siteConnectionStatus === 'dev'
 			? <code>Dev Mode</code>
 			: '',
-			isDashboardView = includes( [ '/', '/dashboard', '/apps', '/plans' ], this.props.route.path );
+			isDashboardView = includes( [ '/', '/dashboard', '/apps', '/plans' ], this.props.route.path ),
+			isStatic = '' === this.props.route.path;
 
 		return (
 			<div className="jp-masthead">
@@ -37,7 +44,7 @@ export const Masthead = React.createClass( {
 							<Button
 								compact={ true }
 								href="#/dashboard"
-								primary={ isDashboardView }
+								primary={ isDashboardView && ! isStatic }
 							>
 								{ __( 'Dashboard' ) }
 							</Button>
@@ -46,7 +53,7 @@ export const Masthead = React.createClass( {
 							<Button
 								compact={ true }
 								href="#/settings"
-								primary={ ! isDashboardView }
+								primary={ ! isDashboardView && ! isStatic }
 							>
 								{ __( 'Settings' ) }
 							</Button>
