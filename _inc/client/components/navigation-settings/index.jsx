@@ -35,7 +35,7 @@ export const NavigationSettings = React.createClass( {
 		if ( currentHash.indexOf( 'search' ) === -1 ) {
 			window.location.hash = 'search';
 		}
-		this.props.onSearchFocus( true );
+		this.props.onSearchFocus && this.props.onSearchFocus( true );
 	},
 
 	onSearch( term ) {
