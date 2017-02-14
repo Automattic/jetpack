@@ -98,6 +98,7 @@ export const GeneralSettings = ( props ) => {
 				<ConnectionSettings { ...props } />
 			</FoldableCard>
 			{ isModuleActivated( 'manage' ) ? '' : moduleCard( 'manage' ) }
+			{ moduleCard( 'masterbar' ) }
 			{ moduleCard( 'notes' ) }
 			{ moduleCard( 'json-api' ) }
 		</div>
