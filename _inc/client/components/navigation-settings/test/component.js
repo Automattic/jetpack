@@ -4,6 +4,7 @@
 import React from 'react';
 import { expect } from 'chai';
 import { shallow } from 'enzyme';
+import sinon from 'sinon';
 
 /**
  * Internal dependencies
@@ -40,6 +41,7 @@ describe( 'NavigationSettings', () => {
 			siteAdminUrl: 'https://example.org/wp-admin/'
 		};
 
+		window.location.hash = '#settings';
 		wrapper = shallow( <NavigationSettings { ...testProps } /> );
 	} );
 
@@ -98,7 +100,6 @@ describe( 'NavigationSettings', () => {
 			} );
 
 			wrapper = shallow( <NavigationSettings { ...testProps } /> );
-
 		} );
 
 		it( 'renders tabs with Discussion, Security, Traffic, Writing, Sharing', () => {
@@ -125,12 +126,35 @@ describe( 'NavigationSettings', () => {
 		} );
 
 		describe( 'when Search is opened', () => {
+			let instance;
+
 			before( () => {
-				wrapper.instance().openSearch();
+				instance = wrapper.instance();
+				instance.props = {
+					...instance.props,
+					searchForTerm: sinon.stub(),
+					onSearchFocus: sinon.stub()
+				};
+
+				instance.context.router = { goBack: sinon.stub() };
 			} );
 
-			it( 'changes hash to #search', () => {
-				expect( window.location.hash ).to.be.equal( '#search' );
+			it( 'does not change hash to #search', () => {
+				expect( window.location.hash ).to.be.equal( '#settings' );
+			} );
+
+			describe( 'and a search term is opened', () => {
+				it( 'changes hash to #search', () => {
+					instance.onSearch( 'search term' );
+					expect( window.location.hash ).to.be.equal( '#search' );
+				} );
+
+				describe( 'and a search term is deleted', () => {
+					it( 'changes hash back to #settings', () => {
+						instance.onSearch( '' );
+						expect( instance.context.router.goBack.calledOnce ).to.be.true;
+					} );
+				} );
 			} );
 
 		} );

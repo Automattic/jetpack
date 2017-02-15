@@ -31,14 +31,12 @@ import { isModuleActivated } from 'state/modules';
 
 export const NavigationSettings = React.createClass( {
 	openSearch: function() {
-		let currentHash = window.location.hash;
-		if ( currentHash.indexOf( 'search' ) === -1 ) {
-			window.location.hash = 'search';
-		}
 		this.props.onSearchFocus && this.props.onSearchFocus( true );
 	},
 
 	onSearch( term ) {
+		let currentHash = window.location.hash;
+
 		if ( term.length >= 3 ) {
 			analytics.tracks.recordEvent( 'jetpack_wpa_search_term', { term: term.toLowerCase() } );
 		}
@@ -50,6 +48,10 @@ export const NavigationSettings = React.createClass( {
 			// Calling close handler to show what was previously shown to the user
 			this.onClose();
 		} else {
+
+			if ( currentHash.indexOf( 'search' ) === -1 ) {
+				window.location.hash = 'search';
+			}
 
 			// Calling open handler in case the search was previously closed due to zero
 			// length search term

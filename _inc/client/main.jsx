@@ -103,17 +103,6 @@ const Main = React.createClass( {
 	},
 
 	shouldComponentUpdate: function( nextProps ) {
-
-		// A special case when user has just entered search mode and has not yet
-		// entered a search term
-		if (
-			nextProps.route.path !== this.props.route.path
-			&& '/search' === nextProps.route.path
-			&& ! nextProps.searchTerm
-		) {
-			return false;
-		}
-
 		// If user triggers Skip to main content or Skip to toolbar with keyboard navigation, stay in the same tab.
 		if ( includes( [ '/wpbody-content', '/wp-toolbar' ], nextProps.route.path ) ) {
 			return false;
