@@ -5,7 +5,7 @@ import React from 'react';
 import { translate as __ } from 'i18n-calypso';
 import ExternalLink from 'components/external-link';
 import Card from 'components/card';
-import FormToggle from 'components/form/form-toggle';
+import CompactFormToggle from 'components/form/form-toggle/compact';
 
 /**
  * Internal dependencies
@@ -59,7 +59,6 @@ export const RelatedPosts = moduleSettingsForm(
 					<SettingsGroup hasChild disableInDevMode module={ this.props.getModule( 'related-posts' ) }>
 						<ModuleToggle
 							slug="related-posts"
-							compact
 							disabled={ unavailableInDevMode }
 							activated={ isRelatedPostsActive }
 							toggling={ this.props.isSavingAnyOption( 'related-posts' ) }
@@ -72,7 +71,7 @@ export const RelatedPosts = moduleSettingsForm(
 						</span>
 						</ModuleToggle>
 						<FormFieldset>
-							<FormToggle compact
+							<CompactFormToggle
 										checked={ this.state.show_headline }
 										disabled={ ! isRelatedPostsActive || unavailableInDevMode || this.props.isSavingAnyOption() }
 										onChange={ () => this.updateOptions( 'show_headline' ) }>
@@ -81,8 +80,8 @@ export const RelatedPosts = moduleSettingsForm(
 												__( 'Show a "Related" header to more clearly separate the related section from posts' )
 											}
 										</span>
-							</FormToggle>
-							<FormToggle compact
+							</CompactFormToggle>
+							<CompactFormToggle
 										checked={ this.state.show_thumbnails }
 										disabled={ ! isRelatedPostsActive || unavailableInDevMode || this.props.isSavingAnyOption() }
 										onChange={ () => this.updateOptions( 'show_thumbnails' ) }>
@@ -91,7 +90,7 @@ export const RelatedPosts = moduleSettingsForm(
 												__( 'Use a large and visually striking layout' )
 											}
 										</span>
-							</FormToggle>
+							</CompactFormToggle>
 							{
 								__( '{{span}}You can now also configure related posts in the Customizer. {{ExternalLink}}Try it out!{{/ExternalLink}}{{/span}}', {
 									components: {

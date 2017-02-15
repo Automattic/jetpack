@@ -5,7 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import Button from 'components/button';
-import FormToggle from 'components/form/form-toggle';
+import CompactFormToggle from 'components/form/form-toggle/compact';
 
 /**
  * Internal dependencies
@@ -62,7 +62,7 @@ const CustomContentTypes = moduleSettingsForm(
 					module="custom-content-types"
 					hideButton>
 					<SettingsGroup hasChild support={ module.learn_more_button }>
-						<FormToggle compact
+						<CompactFormToggle
 									checked={ this.state.testimonial }
 									disabled={ this.props.isSavingAnyOption() }
 									onChange={ () => this.updateCPTs( 'testimonial' ) }>
@@ -71,7 +71,7 @@ const CustomContentTypes = moduleSettingsForm(
 									__( 'Enable Testimonial custom content type' )
 								}
 							</span>
-						</FormToggle>
+						</CompactFormToggle>
 						<FormFieldset>
 							<p className="jp-form-setting-explanation">
 								{
@@ -84,7 +84,7 @@ const CustomContentTypes = moduleSettingsForm(
 								}
 							</p>
 						</FormFieldset>
-						<FormToggle compact
+						<CompactFormToggle
 									checked={ this.state.portfolio }
 									disabled={ this.props.isSavingAnyOption() }
 									onChange={ () => this.updateCPTs( 'portfolio' ) }>
@@ -93,7 +93,7 @@ const CustomContentTypes = moduleSettingsForm(
 									__( 'Enable Portfolio custom content type' )
 								}
 							</span>
-						</FormToggle>
+						</CompactFormToggle>
 						<FormFieldset>
 							<p className="jp-form-setting-explanation">
 								{

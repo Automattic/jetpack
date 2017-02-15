@@ -3,7 +3,7 @@
  */
 import React from 'react';
 import { translate as __ } from 'i18n-calypso';
-import FormToggle from 'components/form/form-toggle';
+import CompactFormToggle from 'components/form/form-toggle/compact';
 import includes from 'lodash/includes';
 import filter from 'lodash/filter';
 
@@ -108,7 +108,6 @@ export const SiteStats = moduleSettingsForm(
 							</ModuleToggle>
 							<ModuleToggle
 								slug="stats"
-								compact
 								disabled={ ! isStatsActive || unavailableInDevMode }
 								activated={ !! this.props.getOptionValue( 'hide_smile' ) }
 								toggling={ this.props.isSavingAnyOption( [ 'stats', 'hide_smile' ] ) }
@@ -128,8 +127,7 @@ export const SiteStats = moduleSettingsForm(
 									<FormLegend>{ __( 'Count logged in page views from' ) }</FormLegend>
 									{
 										Object.keys( siteRoles ).map( key => (
-											<FormToggle
-												compact
+											<CompactFormToggle
 												checked={ this.state[ `count_roles_${key}` ] }
 												disabled={ ! isStatsActive || unavailableInDevMode || this.props.isSavingAnyOption( [ 'stats', 'count_roles' ] ) }
 												onChange={ () => this.updateOptions( key, 'count_roles' ) }
@@ -137,25 +135,23 @@ export const SiteStats = moduleSettingsForm(
 												<span className="jp-form-toggle-explanation">
 													{ siteRoles[ key ].name }
 												</span>
-											</FormToggle>
+											</CompactFormToggle>
 										) )
 									}
 								</FormFieldset>
 								<FormFieldset>
 									<FormLegend>{ __( 'Allow stats reports to be viewed by' ) }</FormLegend>
-									<FormToggle
-										compact
+									<CompactFormToggle
 										checked={ true }
 										disabled={ true }>
 										<span className="jp-form-toggle-explanation">
 											{ siteRoles.administrator.name }
 										</span>
-									</FormToggle>
+									</CompactFormToggle>
 									{
 										Object.keys( siteRoles ).map( key => (
 											( 'administrator' !== key ) && (
-												<FormToggle
-													compact
+												<CompactFormToggle
 													checked={ this.state[ `roles_${key}` ] }
 													disabled={ ! isStatsActive || unavailableInDevMode || this.props.isSavingAnyOption( [ 'stats', 'roles' ] ) }
 													onChange={ () => this.updateOptions( key, 'roles' ) }
@@ -163,7 +159,7 @@ export const SiteStats = moduleSettingsForm(
 													<span className="jp-form-toggle-explanation">
 														{ siteRoles[ key ].name }
 													</span>
-												</FormToggle>
+												</CompactFormToggle>
 											)
 										) )
 									}

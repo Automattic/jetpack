@@ -4,7 +4,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
-import FormToggle from 'components/form/form-toggle';
+import CompactFormToggle from 'components/form/form-toggle/compact';
 
 /**
  * Internal dependencies
@@ -113,7 +113,6 @@ const ThemeEnhancements = moduleSettingsForm(
 								<SettingsGroup hasChild key={ `theme_enhancement_${ item.module }` } support={ item.learn_more_button }>
 									<ModuleToggle
 										slug={ item.module }
-										compact
 										activated={ isItemActive }
 										toggling={ this.props.isSavingAnyOption( item.module ) }
 										toggleModule={ this.props.toggleModuleNow }
@@ -128,8 +127,7 @@ const ThemeEnhancements = moduleSettingsForm(
 										{
 											item.checkboxes.map( chkbx => {
 												return (
-													<FormToggle
-														compact
+													<CompactFormToggle
 														checked={ this.state[ chkbx.key ] }
 														disabled={ ! isItemActive }
 														onChange={ () => this.updateOptions( chkbx.key, item.module ) }
@@ -139,7 +137,7 @@ const ThemeEnhancements = moduleSettingsForm(
 																chkbx.label
 															}
 														</span>
-													</FormToggle>
+													</CompactFormToggle>
 												);
 											} )
 										}
