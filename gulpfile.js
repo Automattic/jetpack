@@ -79,11 +79,7 @@ function onBuild( done ) {
 }
 
 function getWebpackConfig() {
-	// clone and extend webpackConfig
-	var config = Object.create( require( './webpack.config.js' ) );
-	config.debug = true;
-
-	return config;
+	return Object.create( require( './webpack.config.js' ) );
 }
 
 function doSass( done ) {
@@ -165,13 +161,7 @@ gulp.task( 'sass:watch', function() {
 } );
 
 gulp.task( 'react:build', function( done ) {
-	var config = getWebpackConfig();
-
-	if ( 'production' === process.env.NODE_ENV ) {
-		config.debug = false;
-	}
-
-	webpack( config ).run( onBuild( done ) );
+	webpack( getWebpackConfig() ).run( onBuild( done ) );
 } );
 
 gulp.task( 'react:watch', function() {
