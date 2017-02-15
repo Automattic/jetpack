@@ -35,7 +35,7 @@ export const NavigationSettings = React.createClass( {
 	},
 
 	onSearch( term ) {
-		let currentHash = window.location.hash;
+		const currentHash = window.location.hash;
 
 		if ( term.length >= 3 ) {
 			analytics.tracks.recordEvent( 'jetpack_wpa_search_term', { term: term.toLowerCase() } );
@@ -48,7 +48,6 @@ export const NavigationSettings = React.createClass( {
 			// Calling close handler to show what was previously shown to the user
 			this.onClose();
 		} else {
-
 			if ( currentHash.indexOf( 'search' ) === -1 ) {
 				window.location.hash = 'search';
 			}
@@ -60,14 +59,14 @@ export const NavigationSettings = React.createClass( {
 	},
 
 	onClose: function() {
-		let currentHash = window.location.hash;
+		const currentHash = window.location.hash;
 		if ( currentHash.indexOf( 'search' ) > -1 ) {
 			this.context.router.goBack();
 		}
 	},
 
 	onBlur: function() {
-		let currentHash = window.location.hash;
+		const currentHash = window.location.hash;
 		this.props.onSearchFocus( false );
 
 		// If the user has navigated back a page, we discard the search term
@@ -157,13 +156,13 @@ export const NavigationSettings = React.createClass( {
 		}
 
 		return (
-			<div className='dops-navigation'>
+			<div className="dops-navigation">
 				<SectionNav selectedText={ this.props.route.name }>
 					{ navItems }
 					{ this.maybeShowSearch() }
 				</SectionNav>
 			</div>
-		)
+		);
 	}
 } );
 
