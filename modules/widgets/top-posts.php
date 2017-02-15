@@ -269,6 +269,8 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 			 * @type bool true Should we default to Gravatars when no image is found? Default is true.
 			 * @type string $gravatar_default Default Image URL if no Gravatar is found.
 			 * @type int $avatar_size Default Image size.
+			 * @type mixed $width Image width, not set by default and $avatar_size is used instead.
+			 * @type mixed $height Image height, not set by default and $avatar_size is used instead.
 			 * }
 			 */
 			$get_image_options = apply_filters( 'jetpack_top_posts_widget_image_options', $get_image_options );
@@ -331,7 +333,7 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 					$post['post_id'],
 					array(
 						'fallback_to_avatars' => true,
-						'avatar_size'         => (int) $get_image_options['avatar_size']
+						'avatar_size'         => (int) $get_image_options['avatar_size'],
 					)
 				);
 				$post['image'] = $image['src'];
