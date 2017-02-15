@@ -4,7 +4,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
-import FormToggle from 'components/form/form-toggle';
+import CompactFormToggle from 'components/form/form-toggle/compact';
 
 /**
  * Internal dependencies
@@ -80,7 +80,6 @@ const Media = moduleSettingsForm(
 				<SettingsGroup hasChild disableInDevMode module={ photon }>
 					<ModuleToggle
 						slug="photon"
-						compact
 						disabled={ this.props.isUnavailableInDevMode( 'photon' ) }
 						activated={ this.props.getOptionValue( 'photon' ) }
 						toggling={ this.props.isSavingAnyOption( 'photon' ) }
@@ -104,7 +103,6 @@ const Media = moduleSettingsForm(
 				<SettingsGroup hasChild support={ carousel.learn_more_button }>
 					<ModuleToggle
 						slug="carousel"
-						compact
 						activated={ isCarouselActive }
 						toggling={ this.props.isSavingAnyOption( 'carousel' ) }
 						toggleModule={ this.props.toggleModuleNow }
@@ -116,8 +114,7 @@ const Media = moduleSettingsForm(
 						</span>
 					</ModuleToggle>
 					<FormFieldset>
-						<FormToggle
-							compact
+						<CompactFormToggle
 							checked={ this.state.carousel_display_exif }
 							disabled={ ! isCarouselActive || this.props.isSavingAnyOption() }
 							onChange={ () => this.updateOptions( 'carousel_display_exif' ) }>
@@ -126,7 +123,7 @@ const Media = moduleSettingsForm(
 									__( 'Show photo metadata (Exif) in carousel, when available' )
 								}
 							</span>
-						</FormToggle>
+						</CompactFormToggle>
 						<FormLabel>
 							<FormLegend className="jp-form-label-wide">
 								{ __( 'Background color' ) }

@@ -4,7 +4,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
-import FormToggle from 'components/form/form-toggle';
+import CompactFormToggle from 'components/form/form-toggle/compact';
 
 /**
  * Internal dependencies
@@ -85,15 +85,14 @@ const Composing = moduleSettingsForm(
 		 */
 		getToggle( setting, label ) {
 			return(
-				<FormToggle
-					compact
+				<CompactFormToggle
 					checked={ this.state[ setting ] }
 					disabled={ ! this.props.getOptionValue( 'after-the-deadline' ) || this.props.isUnavailableInDevMode( 'after-the-deadline' ) || this.props.isSavingAnyOption( setting ) }
 					onChange={ () => this.updateOptions( setting ) }>
 					<span className="jp-form-toggle-explanation">
 						{ label }
 					</span>
-				</FormToggle>
+				</CompactFormToggle>
 			);
 		},
 
@@ -188,7 +187,6 @@ const Composing = moduleSettingsForm(
 					<FormFieldset>
 						<ModuleToggle
 							slug="markdown"
-							compact
 							activated={ !! this.props.getOptionValue( 'wpcom_publish_posts_with_markdown', 'markdown' ) }
 							toggling={ this.props.isSavingAnyOption( [ 'markdown', 'wpcom_publish_posts_with_markdown' ] ) }
 							toggleModule={ this.updateFormStateByMarkdown }>
@@ -203,7 +201,6 @@ const Composing = moduleSettingsForm(
 			let atdSettings = (
 				<SettingsGroup hasChild disableInDevMode module={ atd }>
 					<ModuleToggle slug="after-the-deadline"
-							compact
 							activated={ this.props.getOptionValue( 'after-the-deadline' ) }
 							toggling={ this.props.isSavingAnyOption( 'after-the-deadline' ) }
 							toggleModule={ this.props.toggleModuleNow }>

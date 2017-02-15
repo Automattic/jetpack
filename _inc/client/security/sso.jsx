@@ -3,7 +3,7 @@
  */
 import React from 'react';
 import { translate as __ } from 'i18n-calypso';
-import FormToggle from 'components/form/form-toggle';
+import CompactFormToggle from 'components/form/form-toggle/compact';
 
 /**
  * Internal dependencies
@@ -55,9 +55,8 @@ export const SSO = moduleSettingsForm(
 					<SettingsGroup hasChild disableInDevMode module={ this.props.getModule( 'sso' ) }>
 						<ModuleToggle
 							slug="sso"
-							compact
 							disabled={ unavailableInDevMode }
-							activated={ isSSOActive }
+							activated={ isSSOActive }F
 							toggling={ this.props.isSavingAnyOption( 'sso' ) }
 							toggleModule={ this.props.toggleModuleNow }
 						>
@@ -68,8 +67,7 @@ export const SSO = moduleSettingsForm(
 						</span>
 						</ModuleToggle>
 						<FormFieldset>
-							<FormToggle
-								compact
+							<CompactFormToggle
 								checked={ this.state.jetpack_sso_match_by_email }
 								disabled={ ! isSSOActive || unavailableInDevMode || this.props.isSavingAnyOption() }
 								onChange={ () => this.updateOptions( 'jetpack_sso_match_by_email' ) }>
@@ -78,9 +76,8 @@ export const SSO = moduleSettingsForm(
 										__( 'Match accounts using email addresses' )
 									}
 								</span>
-							</FormToggle>
-							<FormToggle
-								compact
+							</CompactFormToggle>
+							<CompactFormToggle
 								checked={ this.state.jetpack_sso_require_two_step }
 								disabled={ ! isSSOActive || unavailableInDevMode || this.props.isSavingAnyOption() }
 								onChange={ () => this.updateOptions( 'jetpack_sso_require_two_step' ) }>
@@ -89,7 +86,7 @@ export const SSO = moduleSettingsForm(
 										__( 'Require accounts to use WordPress.com Two-Step Authentication' )
 									}
 								</span>
-							</FormToggle>
+							</CompactFormToggle>
 						</FormFieldset>
 					</SettingsGroup>
 				</SettingsCard>

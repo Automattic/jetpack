@@ -4,7 +4,7 @@
 import React from 'react';
 import { translate as __ } from 'i18n-calypso';
 import ExternalLink from 'components/external-link';
-import FormToggle from 'components/form/form-toggle';
+import CompactFormToggle from 'components/form/form-toggle/compact';
 
 /**
  * Internal dependencies
@@ -71,7 +71,6 @@ export const Ads = moduleSettingsForm(
 
 						<ModuleToggle
 							slug="wordads"
-							compact
 							disabled={ unavailableInDevMode }
 							activated={ isAdsActive }
 							toggling={ this.props.isSavingAnyOption( 'wordads' ) }
@@ -81,15 +80,14 @@ export const Ads = moduleSettingsForm(
 							</span>
 						</ModuleToggle>
 						<FormFieldset>
-							<FormToggle
-								compact
+							<CompactFormToggle
 								checked={ this.state.enable_header_ad }
 								disabled={ ! isAdsActive || unavailableInDevMode || this.props.isSavingAnyOption() }
 								onChange={ () => this.updateOptions( 'enable_header_ad' ) }>
 								<span className="jp-form-toggle-explanation">
 									{ __( 'Display an additional ad at the top of each page' ) }
 								</span>
-							</FormToggle>
+							</CompactFormToggle>
 							{ ! unavailableInDevMode && (
 								<p>
 									<ExternalLink

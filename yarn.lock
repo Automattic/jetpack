@@ -11,7 +11,7 @@
 
 "@automattic/dops-components@automattic/dops-components":
   version "0.0.1"
-  resolved "https://codeload.github.com/automattic/dops-components/tar.gz/74651e2893a5910ff0da230b3183df429c2708ec"
+  resolved "https://codeload.github.com/automattic/dops-components/tar.gz/d7f705ac33c927485dd98ba2127baef27fd83e8b"
   dependencies:
     bounding-client-rect "^1.0.5"
     classnames "^2.1.3"
@@ -4042,11 +4042,11 @@ https-browserify@0.0.0:
     react "0.14.8 || ^15.1.0"
     xgettext-js "1.0.0"
 
-iconv-lite@0.4.13:
+iconv-lite@0.4.13, iconv-lite@^0.4.5:
   version "0.4.13"
   resolved "https://registry.yarnpkg.com/iconv-lite/-/iconv-lite-0.4.13.tgz#1f88aba4ab0b1508e8312acc39345f36e992e2f2"
 
-iconv-lite@0.4.15, iconv-lite@^0.4.5, iconv-lite@~0.4.13:
+iconv-lite@0.4.15, iconv-lite@~0.4.13:
   version "0.4.15"
   resolved "https://registry.yarnpkg.com/iconv-lite/-/iconv-lite-0.4.15.tgz#fe265a218ac6a57cfe854927e9d04c19825eddeb"
 
@@ -8013,13 +8013,13 @@ which-module@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/which-module/-/which-module-1.0.0.tgz#bba63ca861948994ff307736089e3b96026c2a4f"
 
-which@1, which@^1.2.12, which@^1.2.9, which@~1.2.10:
+which@1, which@^1.0.5, which@^1.2.12, which@^1.2.9, which@~1.2.10:
   version "1.2.12"
   resolved "https://registry.yarnpkg.com/which/-/which-1.2.12.tgz#de67b5e450269f194909ef23ece4ebe416fa1192"
   dependencies:
     isexe "^1.1.1"
 
-which@^1.0.5, which@~1.0.5:
+which@~1.0.5:
   version "1.0.9"
   resolved "https://registry.yarnpkg.com/which/-/which-1.0.9.tgz#460c1da0f810103d0321a9b633af9e575e64486f"
 

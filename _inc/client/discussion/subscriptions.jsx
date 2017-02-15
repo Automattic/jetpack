@@ -3,7 +3,7 @@
  */
 import React from 'react';
 import { translate as __ } from 'i18n-calypso';
-import FormToggle from 'components/form/form-toggle';
+import CompactFormToggle from 'components/form/form-toggle/compact';
 
 /**
  * Internal dependencies
@@ -56,7 +56,6 @@ export const Subscriptions = moduleSettingsForm(
 					<SettingsGroup hasChild disableInDevMode module={ subscriptions }>
 						<ModuleToggle
 							slug="subscriptions"
-							compact
 							disabled={ unavailableInDevMode }
 							activated={ isSubscriptionsActive }
 							toggling={ this.props.isSavingAnyOption( 'subscriptions' ) }
@@ -69,8 +68,7 @@ export const Subscriptions = moduleSettingsForm(
 						</ModuleToggle>
 						{
 							<FormFieldset>
-								<FormToggle
-									compact
+								<CompactFormToggle
 									checked={ this.state.stb_enabled }
 									disabled={ ! isSubscriptionsActive || unavailableInDevMode || this.props.isSavingAnyOption() }
 									onChange={ () => this.updateOptions( 'stb_enabled' ) }>
@@ -79,9 +77,8 @@ export const Subscriptions = moduleSettingsForm(
 											__( 'Show a "follow blog" option in the comment form' )
 										}
 									</span>
-								</FormToggle>
-								<FormToggle
-									compact
+								</CompactFormToggle>
+								<CompactFormToggle
 									checked={ this.state.stc_enabled }
 									disabled={ ! isSubscriptionsActive || unavailableInDevMode || this.props.isSavingAnyOption() }
 									onChange={ () => this.updateOptions( 'stc_enabled' ) }>
@@ -90,7 +87,7 @@ export const Subscriptions = moduleSettingsForm(
 											__( 'Show a "follow comments" option in the comment form' )
 										}
 									</span>
-								</FormToggle>
+								</CompactFormToggle>
 								{
 									( isSubscriptionsActive || ! unavailableInDevMode ) && (
 										<p>

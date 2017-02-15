@@ -3,7 +3,7 @@
  * External dependencies
  */
 import React from 'react';
-import FormToggle from 'components/form/form-toggle';
+import CompactFormToggle from 'components/form/form-toggle/compact';
 
 export const ModuleToggle = React.createClass( {
 	propTypes: {
@@ -25,15 +25,14 @@ export const ModuleToggle = React.createClass( {
 	},
 	render() {
 		return (
-			<FormToggle checked={ this.props.activated }
+			<CompactFormToggle checked={ this.props.activated }
 				toggling={ this.props.toggling }
 				className = { this.props.className }
 				disabled = { this.props.disabled }
 				id = { this.props.id }
-				compact = {	 this.props.compact }
 				onChange={ this.toggleModule }>
 				{ this.props.children }
-			</FormToggle>
+			</CompactFormToggle>
 		);
 	}
 } );
