@@ -167,7 +167,7 @@ class WPCOM_JSON_API {
 			 * @since 3.1.0
 			 */
 			do_action( 'wpcom_json_api_options' );
-			return $this->output( 200, '', 'plain/text' );
+			return $this->output( 200, '', 'text/plain' );
 		}
 
 		if ( is_wp_error( $initialization ) ) {
