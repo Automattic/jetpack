@@ -130,6 +130,31 @@
 	padding-bottom: 0;
 }
 
+/* Authors Widget */
+.widget_authors > ul > li > a {
+	margin-bottom: 1em;
+	display: inline-block;
+}
+
+.widget_authors ul {
+	list-style: none;
+	margin: 0;
+}
+
+.widget_authors li {
+	border-top: 1px solid #eaeaea;
+	border-top: 1px solid rgba(51, 51, 51, 0.1);
+	padding: 0.7667em 0;
+}
+
+.widget_authors li:first-child {
+	border-top: 0;
+	padding-top: 0;
+}
+
+.widget_authors li:last-child {
+	padding-bottom: 0;
+}
 
 /**
  * Shortcodes Embeds

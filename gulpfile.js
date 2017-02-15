@@ -273,6 +273,7 @@ frontendcss = [
 	'modules/sharedaddy/sharing.css',
 	'modules/shortcodes/css/slideshow-shortcode.css',
 	'modules/shortcodes/css/style.css', // TODO: Should be renamed to shortcode-presentations
+	'modules/shortcodes/css/quiz.css',
 	'modules/subscriptions/subscriptions.css',
 	'modules/theme-tools/responsive-videos/responsive-videos.css',
 	'modules/theme-tools/social-menu/social-menu.css',
@@ -284,7 +285,9 @@ frontendcss = [
 	'modules/widgets/top-posts/style.css',
 	'modules/widgets/image-widget/style.css',
 	'modules/widgets/my-community/style.css',
-	'css/jetpack-idc-admin-bar.css'
+	'modules/widgets/authors/style.css',
+	'css/jetpack-idc-admin-bar.css',
+	'modules/wordads/css/style.css'
 ];
 
 gulp.task( 'old-styles:watch', function() {
@@ -542,6 +545,28 @@ gulp.task( 'languages:build', [ 'languages:get' ], function( done ) {
 	} );
 } );
 
+gulp.task( 'php:module-headings', function( callback ) {
+	var process = spawn(
+		'php',
+		[
+			'tools/build-module-headings-translations.php'
+		]
+	);
+
+	process.stderr.on( 'data', function( data ) {
+		gutil.log( data.toString() );
+	} );
+	process.stdout.on( 'data', function( data ) {
+		gutil.log( data.toString() );
+	} );
+	process.on( 'exit', function( code ) {
+		if ( 0 !== code ) {
+			gutil.log( 'Failed building module headings translations: process exited with code ', code );
+		}
+		callback();
+	} );
+} );
+
 gulp.task( 'languages:cleanup', [ 'languages:build' ], function( done ) {
 	var language_packs = [];
 
@@ -594,7 +619,7 @@ gulp.task( 'languages:extract', function( done ) {
 // Default task
 gulp.task(
 	'default',
-	['react:build', 'old-styles', 'checkstrings', 'php:lint', 'js:hint']
+	['react:build', 'old-styles', 'checkstrings', 'php:lint', 'js:hint', 'php:module-headings']
 );
 gulp.task(
 	'watch',

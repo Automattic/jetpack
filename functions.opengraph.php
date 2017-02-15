@@ -261,22 +261,18 @@ function jetpack_og_tags() {
 }
 
 function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { // Facebook requires thumbnails to be a minimum of 200x200
-	$image = '';
+	$image = array();
 
 	if ( is_singular() && ! is_home() ) {
-		global $post;
-		$image = '';
-
-		// Grab obvious image if $post is an attachment page for an image
-		if ( is_attachment( $post->ID ) && 'image' == substr( $post->post_mime_type, 0, 5 ) ) {
-			$image = wp_get_attachment_url( $post->ID );
+		// Grab obvious image if post is an attachment page for an image
+		if ( is_attachment( get_the_ID() ) && 'image' == substr( get_post_mime_type(), 0, 5 ) ) {
+			$image['src'] = wp_get_attachment_url( get_the_ID() );
 		}
 
 		// Attempt to find something good for this post using our generalized PostImages code
-		if ( ! $image && class_exists( 'Jetpack_PostImages' ) ) {
-			$post_images = Jetpack_PostImages::get_images( $post->ID, array( 'width' => $width, 'height' => $height ) );
+		if ( empty( $image ) && class_exists( 'Jetpack_PostImages' ) ) {
+			$post_images = Jetpack_PostImages::get_images( get_the_ID(), array( 'width' => $width, 'height' => $height ) );
 			if ( $post_images && ! is_wp_error( $post_images ) ) {
-				$image = array();
 				foreach ( (array) $post_images as $post_image ) {
 					$image['src'] = $post_image['src'];
 					if ( isset( $post_image['src_width'], $post_image['src_height'] ) ) {
@@ -309,22 +305,29 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 		}
 	}
 
-	if ( empty( $image ) ) {
-		$image = array();
-	} else if ( ! is_array( $image ) ) {
-		$image = array(
-			'src' => $image
-		);
-	}
-
 	// First fall back, blavatar
 	if ( empty( $image ) && function_exists( 'blavatar_domain' ) ) {
 		$blavatar_domain = blavatar_domain( site_url() );
 		if ( blavatar_exists( $blavatar_domain ) ) {
 			$image_url = blavatar_url( $blavatar_domain, 'img', $width, false, true );
-			$image_size = getimagesize( $image_url );
-			$img_width = $image_size[0];
-			$img_height = $image_size[1];
+
+			$img_width  = '';
+			$img_height = '';
+			$cached_image_id = get_transient( 'jp_' . $image_url );
+			if ( false !== $cached_image_id ) {
+				$image_id = $cached_image_id;
+			} else {
+				$image_id = attachment_url_to_postid( $image_url );
+				set_transient( 'jp_' . $image_url, $image_id );
+			}
+			$image_size = wp_get_attachment_image_src( $image_id, $width >= 512
+				? 'full'
+				: array( $width, $width ) );
+			if ( isset( $image_size[1], $image_size[2] ) ) {
+				$img_width  = $image_size[1];
+				$img_height = $image_size[2];
+			}
+
 			if (_jetpack_og_get_image_validate_size($img_width, $img_height, $width, $height)) {
 				$image['src']    = $image_url;
 				$image['width']  = $width;
@@ -349,10 +352,28 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 
 	// Third fall back, Core Site Icon, if valid in size. Added in WP 4.3.
 	if ( empty( $image ) && ( function_exists( 'has_site_icon') && has_site_icon() ) ) {
-		$image_url = get_site_icon_url( max( $width, $height ) );
-		$image_size = getimagesize( $image_url );
-		$img_width = $image_size[0];
-		$img_height = $image_size[1];
+		$max_side = max( $width, $height );
+		$image_url = get_site_icon_url( $max_side );
+
+		$img_width  = '';
+		$img_height = '';
+		$cached_image_id = get_transient( 'jp_' . $image_url );
+
+		if ( false !== $cached_image_id ) {
+			$image_id = $cached_image_id;
+		} else {
+			$image_id = attachment_url_to_postid( $image_url );
+			set_transient( 'jp_' . $image_url, $image_id );
+		}
+
+		$image_size = wp_get_attachment_image_src( $image_id, $max_side >= 512
+			? 'full'
+			: array( $max_side, $max_side ) );
+		if ( isset( $image_size[1], $image_size[2] ) ) {
+			$img_width  = $image_size[1];
+			$img_height = $image_size[2];
+		}
+
 		if (_jetpack_og_get_image_validate_size($img_width, $img_height, $width, $height)) {
 			$image['src']     = $image_url;
 			$image['width']   = $width;

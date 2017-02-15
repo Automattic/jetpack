@@ -132,7 +132,7 @@ class Jetpack_SSO {
 	public function login_enqueue_scripts() {
 		global $action;
 
-		if ( ! in_array( $action, array( 'jetpack-sso', 'login' ) ) ) {
+		if ( ! Jetpack_SSO_Helpers::display_sso_form_for_action( $action ) ) {
 			return;
 		}
 
@@ -154,7 +154,7 @@ class Jetpack_SSO {
 	public function login_body_class( $classes ) {
 		global $action;
 
-		if ( ! in_array( $action, array( 'jetpack-sso', 'login' ) ) ) {
+		if ( ! Jetpack_SSO_Helpers::display_sso_form_for_action( $action ) ) {
 			return $classes;
 		}
 
@@ -325,7 +325,7 @@ class Jetpack_SSO {
 		// And now the exceptions
 		$action = isset( $_GET['loggedout'] ) ? 'loggedout' : $action;
 
-		if ( 'login' == $action ) {
+		if ( Jetpack_SSO_Helpers::display_sso_form_for_action( $action ) ) {
 			$wants_to_login = true;
 		}
 
@@ -358,36 +358,7 @@ class Jetpack_SSO {
 			}
 		}
 
-		/**
-		 * If the user is attempting to logout AND the auto-forward to WordPress.com
-		 * login is set then we need to ensure we do not auto-forward the user and get
-		 * them stuck in an infinite logout loop.
-		 */
-		if ( isset( $_GET['loggedout'] ) && Jetpack_SSO_Helpers::bypass_login_forward_wpcom() ) {
-			add_filter( 'jetpack_remove_login_form', '__return_true' );
-		}
-
-		/**
-		 * Check to see if the site admin wants to automagically forward the user
-		 * to the WordPress.com login page AND  that the request to wp-login.php
-		 * is not something other than login (Like logout!)
-		 */
-		if (
-			$this->wants_to_login()
-			&& Jetpack_SSO_Helpers::bypass_login_forward_wpcom()
-		) {
-			add_filter( 'allowed_redirect_hosts', array( 'Jetpack_SSO_Helpers', 'allowed_redirect_hosts' ) );
-			$this->maybe_save_cookie_redirect();
-			$reauth = ! empty( $_GET['force_reauth'] );
-			$sso_url = $this->get_sso_url_or_die( $reauth );
-			JetpackTracking::record_user_event( 'sso_login_redirect_bypass_success' );
-			wp_safe_redirect( $sso_url );
-			exit;
-		}
-
-		if ( 'login' === $action ) {
-			$this->display_sso_login_form();
-		} elseif ( 'jetpack-sso' === $action ) {
+		 if ( 'jetpack-sso' === $action ) {
 			if ( isset( $_GET['result'], $_GET['user_id'], $_GET['sso_nonce'] ) && 'success' == $_GET['result'] ) {
 				$this->handle_login();
 				$this->display_sso_login_form();
@@ -395,7 +366,6 @@ class Jetpack_SSO {
 				if ( Jetpack::is_staging_site() ) {
 					add_filter( 'login_message', array( 'Jetpack_SSO_Notices', 'sso_not_allowed_in_staging' ) );
 				} else {
-					$this->maybe_save_cookie_redirect();
 					// Is it wiser to just use wp_redirect than do this runaround to wp_safe_redirect?
 					add_filter( 'allowed_redirect_hosts', array( 'Jetpack_SSO_Helpers', 'allowed_redirect_hosts' ) );
 					$reauth = ! empty( $_GET['force_reauth'] );
@@ -405,6 +375,26 @@ class Jetpack_SSO {
 					exit;
 				}
 			}
+		} else if ( Jetpack_SSO_Helpers::display_sso_form_for_action( $action ) ) {
+
+			// Save cookies so we can handle redirects after SSO
+			$this->save_cookies();
+
+			/**
+			 * Check to see if the site admin wants to automagically forward the user
+			 * to the WordPress.com login page AND  that the request to wp-login.php
+			 * is not something other than login (Like logout!)
+			 */
+			if ( Jetpack_SSO_Helpers::bypass_login_forward_wpcom() && $this->wants_to_login() ) {
+				add_filter( 'allowed_redirect_hosts', array( 'Jetpack_SSO_Helpers', 'allowed_redirect_hosts' ) );
+				$reauth = ! empty( $_GET['force_reauth'] );
+				$sso_url = $this->get_sso_url_or_die( $reauth );
+				JetpackTracking::record_user_event( 'sso_login_redirect_bypass_success' );
+				wp_safe_redirect( $sso_url );
+				exit;
+			}
+
+			$this->display_sso_login_form();
 		}
 	}
 
@@ -432,17 +422,28 @@ class Jetpack_SSO {
 
 	/**
 	 * Conditionally save the redirect_to url as a cookie.
+	 *
+	 * @since 4.6.0 Renamed to save_cookies from maybe_save_redirect_cookies
 	 */
-	public static function maybe_save_cookie_redirect() {
+	public static function save_cookies() {
 		if ( headers_sent() ) {
 			return new WP_Error( 'headers_sent', __( 'Cannot deal with cookie redirects, as headers are already sent.', 'jetpack' ) );
 		}
+
+		setcookie(
+			'jetpack_sso_original_request',
+			esc_url_raw( set_url_scheme( $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] ) ),
+			time() + HOUR_IN_SECONDS,
+			COOKIEPATH,
+			COOKIE_DOMAIN,
+			false,
+			true
+		);
 
 		if ( ! empty( $_GET['redirect_to'] ) ) {
 			// If we have something to redirect to
 			$url = esc_url_raw( $_GET['redirect_to'] );
 			setcookie( 'jetpack_sso_redirect_to', $url, time() + HOUR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, false, true );
-
 		} elseif ( ! empty( $_COOKIE['jetpack_sso_redirect_to'] ) ) {
 			// Otherwise, if it's already set, purge it.
 			setcookie( 'jetpack_sso_redirect_to', ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
@@ -655,7 +656,8 @@ class Jetpack_SSO {
 		}
 
 		// If we've still got nothing, create the user.
-		if ( empty( $user ) && ( get_option( 'users_can_register' ) || Jetpack_SSO_Helpers::new_user_override() ) ) {
+		$new_user_override_role = false;
+		if ( empty( $user ) && ( get_option( 'users_can_register' ) || ( $new_user_override_role = Jetpack_SSO_Helpers::new_user_override( $user_data ) ) ) ) {
 			/**
 			 * If not matching by email we still need to verify the email does not exist
 			 * or this blows up
@@ -665,6 +667,11 @@ class Jetpack_SSO {
 			 * user, then we know that email is unused, so it's safe to add.
 			 */
 			if ( Jetpack_SSO_Helpers::match_by_email() || ! get_user_by( 'email', $user_data->email ) ) {
+				
+				if ( $new_user_override_role ) {
+					$user_data->role = $new_user_override_role;
+				}
+
 				$user = Jetpack_SSO_Helpers::generate_user( $user_data );
 				if ( ! $user ) {
 					JetpackTracking::record_user_event( 'sso_login_failed', array(
@@ -674,7 +681,7 @@ class Jetpack_SSO {
 					return;
 				}
 
-				$user_found_with = Jetpack_SSO_Helpers::new_user_override()
+				$user_found_with = $new_user_override_role
 					? 'user_created_new_user_override'
 					: 'user_created_users_can_register';
 			} else {
@@ -724,14 +731,22 @@ class Jetpack_SSO {
 				setcookie( 'jetpack_sso_redirect_to', ' ', time() - YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
 			}
 
+			$json_api_auth_environment = Jetpack_SSO_Helpers::get_json_api_auth_environment();
+
+			$is_json_api_auth = ! empty( $json_api_auth_environment );
 			$is_user_connected = Jetpack::is_user_connected( $user->ID );
 			JetpackTracking::record_user_event( 'sso_user_logged_in', array(
-				'user_found_with' => $user_found_with,
-				'user_connected'  => (bool) $is_user_connected,
-				'user_role'       => Jetpack::translate_current_user_to_role()
+				'user_found_with'  => $user_found_with,
+				'user_connected'   => (bool) $is_user_connected,
+				'user_role'        => Jetpack::translate_current_user_to_role(),
+				'is_json_api_auth' => (bool) $is_json_api_auth,
 			) );
 
-			if ( ! $is_user_connected ) {
+			if ( $is_json_api_auth ) {
+				Jetpack::init()->verify_json_api_authorization_request( $json_api_auth_environment );
+				Jetpack::init()->store_json_api_authorization_token( $user->user_login, $user );
+
+			} else if ( ! $is_user_connected ) {
 				$calypso_env = ! empty( $_GET['calypso_env'] )
 					? sanitize_key( $_GET['calypso_env'] )
 					: '';
@@ -750,6 +765,7 @@ class Jetpack_SSO {
 				exit;
 			}
 
+			add_filter( 'allowed_redirect_hosts', array( 'Jetpack_SSO_Helpers', 'allowed_redirect_hosts' ) );
 			wp_safe_redirect(
 				/** This filter is documented in core/src/wp-login.php */
 				apply_filters( 'login_redirect', $redirect_to, $_request_redirect_to, $user )

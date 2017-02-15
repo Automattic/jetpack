@@ -32,6 +32,10 @@ class Jetpack_Sync_Module_Comments extends Jetpack_Sync_Module {
 				add_action( $comment_action_name, $callable, 10, 2 );
 			}
 		}
+
+		// listen for meta changes
+		$this->init_listeners_for_meta_type( 'comment', $callable );
+		$this->init_meta_whitelist_handler( 'comment', array( $this, 'filter_meta' ) );
 	}
 
 	public function init_full_sync_listeners( $callable ) {
@@ -125,6 +129,15 @@ class Jetpack_Sync_Module_Comments extends Jetpack_Sync_Module {
 		return $comment;
 	}
 
+	// Comment Meta
+	function is_whitelisted_comment_meta( $meta_key ) {
+		return in_array( $meta_key, Jetpack_Sync_Settings::get_setting( 'comment_meta_whitelist' ) );
+	}
+
+	function filter_meta( $args ) {
+		return ( $this->is_whitelisted_comment_meta( $args[2] ) ? $args : false );
+	}
+
 	public function expand_comment_ids( $args ) {
 		$comment_ids = $args[0];
 		$comments    = get_comments( array(
@@ -134,7 +147,7 @@ class Jetpack_Sync_Module_Comments extends Jetpack_Sync_Module {
 
 		return array(
 			$comments,
-			$this->get_metadata( $comment_ids, 'comment' ),
+			$this->get_metadata( $comment_ids, 'comment', Jetpack_Sync_Settings::get_setting( 'comment_meta_whitelist' ) ),
 		);
 	}
 }

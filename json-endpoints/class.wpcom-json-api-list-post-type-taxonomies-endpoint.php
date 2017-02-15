@@ -1,10 +1,4 @@
 <?php
-/*
- * WARNING: This file is distributed verbatim in Jetpack.
- * There should be nothing WordPress.com specific in this file.
- *
- * @hide-in-jetpack
- */
 
 class WPCOM_JSON_API_List_Post_Type_Taxonomies_Endpoint extends WPCOM_JSON_API_Endpoint {
 	static $taxonomy_keys_to_include = array(

@@ -8,6 +8,11 @@
 			width: 100px;
 		}
 	}
+
+	&.is-expanded .dops-foldable-card__content {
+		position: relative;
+		padding: 16px 47px 16px 16px;
+	}
 }
 
 .dops-foldable-card__main {

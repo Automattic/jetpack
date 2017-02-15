@@ -6,6 +6,7 @@
 class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 	protected $post;
+	protected $test_already = false;
 
 	public function setUp() {
 		parent::setUp();
@@ -285,6 +286,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_sync_post_filtered_content_was_filtered() {
+		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 		add_shortcode( 'foo', array( $this, 'foo_shortcode' ) );
 		$this->post->post_content = "[foo]";
 
@@ -313,6 +315,8 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_sync_post_filtered_excerpt_was_filtered() {
+		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 1 ) );
+		
 		add_shortcode( 'foo', array( $this, 'foo_shortcode' ) );
 		$this->post->post_excerpt = "[foo]";
 
@@ -323,6 +327,29 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $post_on_server->post_excerpt, '[foo]' );
 		// The excerpt by default should not contain shortcodes so we do not expand them.
 		$this->assertEquals( trim( $post_on_server->post_excerpt_filtered ), '[foo]' );
+	}
+
+	function test_sync_post_filter_do_not_expand_jetpack_shortcodes() {
+		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 1 ) );
+
+		add_filter( 'jetpack_sync_do_not_expand_shortcodes', array( $this, 'do_not_expand_shortcode' ) );
+		add_shortcode( 'foo', array( $this, 'foo_shortcode' ) );
+
+		$this->post->post_content = "[foo]";
+
+		wp_update_post( $this->post );
+		$this->sender->do_sync();
+		
+		remove_filter( 'jetpack_sync_do_not_expand_shortcode', array( $this, 'do_not_expand_shortcode' ) );
+
+		$post_on_server = $this->server_replica_storage->get_post( $this->post->ID );
+		$this->assertEquals( $post_on_server->post_content, '[foo]' );
+		$this->assertEquals( trim( $post_on_server->post_content_filtered ), '<p>[foo]</p>' );
+	}
+
+	function do_not_expand_shortcode( $shortcodes ) {
+		$shortcodes[] = 'foo';
+		return $shortcodes;
 	}
 
 	function test_sync_changed_post_password() {
@@ -351,33 +378,6 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertEquals( $post->permalink, get_permalink( $this->post->ID ) );
 		$this->assertEquals( $post->shortlink, wp_get_shortlink( $this->post->ID ) );
-	}
-
-	function test_sync_post_includes_dont_email_post_to_subs() {
-		$post_id = $this->factory->post->create();
-		add_post_meta( $post_id, '_jetpack_dont_email_post_to_subs', true );
-
-		$this->sender->do_sync();
-
-		$post_on_server = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' )->args[1];
-
-		$this->assertEquals( true, $post_on_server->dont_email_post_to_subs );
-	}
-
-	function test_sync_post_includes_dont_email_post_to_subs_when_subscription_is_not_active() {
-		$active_modules = Jetpack::get_active_modules();
-		Jetpack_Options::update_option( 'active_modules', array() );
-		// Subscription is not an active module
-		$this->assertTrue( ! in_array( 'subscriptions', Jetpack::get_active_modules() ) );
-		$post_id = $this->factory->post->create();
-
-		$this->sender->do_sync();
-
-		$post_on_server = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' )->args[1];
-
-		$this->assertEquals( true, $post_on_server->dont_email_post_to_subs );
-
-		Jetpack_Options::update_option( 'active_modules', $active_modules );
 	}
 
 	function test_sync_post_includes_feature_image_meta_when_featured_image_set() {
@@ -414,7 +414,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		register_post_type( 'unregister_post_type', $args );
 		$post_id = $this->factory->post->create( array( 'post_type' => 'unregister_post_type' ) );
 		unregister_post_type( 'unregister_post_type' );
-		
+
 		$this->sender->do_sync();
 		$synced_post = $this->server_replica_storage->get_post( $post_id );
 
@@ -563,6 +563,8 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_remove_contact_form_shortcode_from_filtered_content() {
+		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 1 ) );
+
 		require_once JETPACK__PLUGIN_DIR . 'modules/contact-form/grunion-contact-form.php';
 
 		$this->post->post_content = '<p>This post has a contact form:[contact-form][contact-field label=\'Name\' type=\'name\' required=\'1\'/][/contact-form]</p>';
@@ -581,6 +583,9 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_remove_likes_from_filtered_content() {
+		// this only applies to rendered content, which is off by default
+		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 1 ) );
+
 		// initial sync sets the screen to 'sync', then `is_admin` returns `true`
 		set_current_screen( 'front' );
 
@@ -605,6 +610,9 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_remove_sharedaddy_from_filtered_content() {
+		// this only applies to rendered content, which is off by default
+		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 1 ) );
+
 		require_once JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php';
 		set_current_screen( 'front' );
 		add_filter( 'sharing_show', '__return_true' );
@@ -614,7 +622,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		wp_update_post( $this->post );
 
 		$this->assertContains( 'class="sharedaddy sd-sharing-enabled"', apply_filters( 'the_content', $this->post->post_content ) );
-		
+
 		$this->sender->do_sync();
 
 		$synced_post = $this->server_replica_storage->get_post( $this->post->ID );
@@ -631,6 +639,9 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_remove_related_posts_from_filtered_content() {
+		// this only applies to rendered content, which is off by default
+		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 1 ) );
+
 		require_once JETPACK__PLUGIN_DIR . 'modules/related-posts.php';
 		require_once JETPACK__PLUGIN_DIR . 'modules/related-posts/jetpack-related-posts.php';
 
@@ -645,12 +656,15 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertContains( '<div id=\'jp-relatedposts\'', apply_filters( 'the_content', $this->post->post_content ) );
 
 		$this->sender->do_sync();
-		
+
 		$synced_post = $this->server_replica_storage->get_post( $this->post->ID );
 		$this->assertEquals( "<p>hello</p>\n\n", $synced_post->post_content_filtered );
 	}
 
 	function test_remove_related_posts_shortcode_from_filtered_content() {
+		// this only applies to rendered content, which is off by default
+		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 1 ) );
+
 		require_once JETPACK__PLUGIN_DIR . 'modules/related-posts.php';
 		require_once JETPACK__PLUGIN_DIR . 'modules/related-posts/jetpack-related-posts.php';
 
@@ -670,6 +684,9 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_that_we_apply_the_right_filters_to_post_content_and_excerpt() {
+		// this only applies to rendered content, which is off by default
+		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 1 ) );
+
 		add_filter( 'the_content', array( $this, 'the_content_filter' ), 1000 );
 		add_filter( 'the_excerpt', array( $this, 'the_excerpt_filter' ), 1000 );
 
@@ -688,53 +705,13 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		add_filter( 'the_content', array( $this, 'the_content_filter' ) );
 		add_filter( 'the_excerpt', array( $this, 'the_excerpt_filter' ) );
 	}
-	
+
 	function the_content_filter( $content ) {
 		return 'the_content';
 	}
 
 	function the_excerpt_filter( $content ) {
 		return 'the_excerpt';
-	}
-	
-	function test_embed_is_disabled_on_the_content_filter_during_sync() {
-		global $wp_version;
-		$content =
-'Check out this cool video:
-
-http://www.youtube.com/watch?v=dQw4w9WgXcQ
-
-That was a cool video.';
-
-		if ( version_compare( $wp_version, '4.7-alpha', '<' ) ) {
-			$oembeded =
-			'<p>Check out this cool video:</p>
-<p><span class="embed-youtube" style="text-align:center; display: block;"><iframe class=\'youtube-player\' type=\'text/html\' width=\'660\' height=\'402\' src=\'http://www.youtube.com/embed/dQw4w9WgXcQ?version=3&#038;rel=1&#038;fs=1&#038;autohide=2&#038;showsearch=0&#038;showinfo=1&#038;iv_load_policy=1&#038;wmode=transparent\' allowfullscreen=\'true\' style=\'border:0;\'></iframe></span></p>
-<p>That was a cool video.</p>'. "\n";
-		} else {
-			$oembeded =
-			'<p>Check out this cool video:</p>
-<p><iframe width="660" height="371" src="https://www.youtube.com/embed/dQw4w9WgXcQ?feature=oembed" frameborder="0" allowfullscreen></iframe></p>
-<p>That was a cool video.</p>'. "\n";
-		}
-		
-		$filtered = '<p>Check out this cool video:</p>
-<p>http://www.youtube.com/watch?v=dQw4w9WgXcQ</p>
-<p>That was a cool video.</p>'. "\n";
-
-		$this->post->post_content = $content;
-
-		wp_update_post( $this->post );
-
-		$this->assertContains( $oembeded, apply_filters( 'the_content', $this->post->post_content ), '$oembeded is NOT the same as filtered $this->post->post_content' );
-		$this->sender->do_sync();
-		$synced_post = $this->server_replica_storage->get_post( $this->post->ID );
-
-		$this->assertEquals( $filtered, $synced_post->post_content_filtered, '$filtered is NOT the same as $synced_post->post_content_filtered' );
-		if ( version_compare( $wp_version, '4.6', '>=' ) ) {
-			// do we get the same result after the sync?
-			$this->assertContains( $oembeded, apply_filters( 'the_content', $filtered ), '$oembeded is NOT the same as filtered $filtered' );
-		}
 	}
 
 	function test_do_not_sync_non_public_post_types_filtered_post_content() {
@@ -755,9 +732,11 @@ That was a cool video.';
 	}
 
 	function test_embed_shortcode_is_disabled_on_the_content_filter_during_sync() {
+		// this only applies to rendered content, which is off by default
+		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 1 ) );
 
 		global $wp_version;
-		
+
 		$content =
 			'Check out this cool video:
 
@@ -765,17 +744,10 @@ That was a cool video.';
 
 That was a cool video.';
 
-		if ( version_compare( $wp_version, '4.7-alpha', '<' ) ) {
-			$oembeded =
-				'<p>Check out this cool video:</p>
-<p><span class="embed-youtube" style="text-align:center; display: block;"><iframe class=\'youtube-player\' type=\'text/html\' width=\'660\' height=\'402\' src=\'http://www.youtube.com/embed/dQw4w9WgXcQ?version=3&#038;rel=1&#038;fs=1&#038;autohide=2&#038;showsearch=0&#038;showinfo=1&#038;iv_load_policy=1&#038;wmode=transparent\' allowfullscreen=\'true\' style=\'border:0;\'></iframe></span></p>
+		$oembeded =
+			'<p>Check out this cool video:</p>
+<p><span class="embed-youtube" style="text-align:center; display: block;"><iframe class=\'youtube-player\' type=\'text/html\' #DIMENSIONS# src=\'http://www.youtube.com/embed/dQw4w9WgXcQ?version=3&#038;rel=1&#038;fs=1&#038;autohide=2&#038;showsearch=0&#038;showinfo=1&#038;iv_load_policy=1&#038;wmode=transparent\' allowfullscreen=\'true\' style=\'border:0;\'></iframe></span></p>
 <p>That was a cool video.</p>'. "\n";
-		} else {
-			$oembeded =
-				'<p>Check out this cool video:</p>
-<p><iframe width="200" height="113" src="https://www.youtube.com/embed/dQw4w9WgXcQ?feature=oembed" frameborder="0" allowfullscreen></iframe></p>
-<p>That was a cool video.</p>'. "\n";
-		}
 
 		$filtered = '<p>Check out this cool video:</p>
 <p>[embed width=&#8221;123&#8243; height=&#8221;456&#8243;]http://www.youtube.com/watch?v=dQw4w9WgXcQ[/embed]</p>
@@ -785,14 +757,39 @@ That was a cool video.';
 
 		wp_update_post( $this->post );
 
-		$this->assertContains( $oembeded, apply_filters( 'the_content', $this->post->post_content ), '$oembeded is NOT the same as filtered $this->post->post_content' );
+		$oembeded = explode( '#DIMENSIONS#', $oembeded );
+
+		$this->assertContains(
+			$oembeded[0],
+			apply_filters( 'the_content', $this->post->post_content ),
+			'$oembeded is NOT the same as filtered $this->post->post_content'
+		);
+		$this->assertContains(
+			$oembeded[1],
+			apply_filters( 'the_content', $this->post->post_content ),
+			'$oembeded is NOT the same as filtered $this->post->post_content'
+		);
+
 		$this->sender->do_sync();
 
 		$synced_post = $this->server_replica_storage->get_post( $this->post->ID );
-		$this->assertEquals( $filtered, $synced_post->post_content_filtered, '$filtered is NOT the same as $synced_post->post_content_filtered' );
+		$this->assertEquals(
+			$filtered,
+			$synced_post->post_content_filtered,
+			'$filtered is NOT the same as $synced_post->post_content_filtered'
+		);
 
 		// do we get the same result after the sync?
-		$this->assertContains( $oembeded, apply_filters( 'the_content', $filtered ), '$oembeded is NOT the same as filtered $filtered' );
+		$this->assertContains(
+			$oembeded[0],
+			apply_filters( 'the_content', $filtered ),
+			'$oembeded is NOT the same as filtered $filtered'
+		);
+		$this->assertContains(
+			$oembeded[1],
+			apply_filters( 'the_content', $filtered ),
+			'$oembeded is NOT the same as filtered $filtered'
+		);
 	}
 
 	function assertAttachmentSynced( $attachment_id ) {
@@ -803,5 +800,109 @@ That was a cool video.';
 
 	function foo_shortcode() {
 		return 'bar';
+	}
+
+	public function test_sync_jetpack_published_post() {
+		$post_id = $this->factory->post->create( array(  'post_status' => 'draft' ) );
+
+		$this->sender->do_sync();
+
+		$remote_post = $this->server_replica_storage->get_post( $post_id );
+		$this->assertEquals( 'draft', $remote_post->post_status );
+
+		wp_publish_post( $post_id );
+
+		$this->sender->do_sync();
+
+		$remote_post = $this->server_replica_storage->get_post( $post_id );
+		$this->assertEquals( 'publish', $remote_post->post_status );
+
+		$event = $this->server_event_storage->get_most_recent_event();
+
+		$this->assertEquals( 'jetpack_published_post', $event->action );
+		$this->assertEquals( $post_id, $event->args[0] );
+	}
+
+	public function test_sync_jetpack_update_post_to_draft_shouldnt_publish() {
+		$this->server_event_storage->reset();
+
+		wp_update_post( array(
+			'ID'          => $this->post->ID,
+			'post_status' => 'draft',
+		) );
+
+		$this->sender->do_sync();
+
+		$this->assertFalse( $this->server_event_storage->get_most_recent_event( 'jetpack_published_post' ) );
+	}
+
+	public function test_sync_jetpack_published_post_should_set_send_subscription_to_false() {
+		Jetpack_Options::update_option( 'active_modules', array( 'subscriptions' ) );
+		require_once JETPACK__PLUGIN_DIR . '/modules/subscriptions.php';
+ 		new Jetpack_Subscriptions; // call instead of Jetpack_Subscriptions::init() so that actions get reinitialized
+
+		$post_id = $this->factory->post->create( array(  'post_status' => 'draft' ) );
+
+		update_post_meta( $post_id, '_jetpack_dont_email_post_to_subs', 1 );
+
+		wp_publish_post( $post_id );
+
+		$this->sender->do_sync();
+
+		$post_flags = $this->server_event_storage->get_most_recent_event( 'jetpack_published_post' )->args[1];
+
+		$this->assertFalse( $post_flags['send_subscription'] );
+	}
+
+	public function test_sync_jetpack_published_post_should_set_set_send_subscription_to_true() {
+		$this->server_event_storage->reset();
+		Jetpack_Options::update_option( 'active_modules', array( 'subscriptions' ) );
+		require_once JETPACK__PLUGIN_DIR . '/modules/subscriptions.php';
+		new Jetpack_Subscriptions; // call instead of Jetpack_Subscriptions::init() so that actions get reinitialized
+
+		wp_update_post( array(
+			'ID'          => $this->post->ID,
+			'post_status' => 'draft',
+		) );
+
+		wp_publish_post( $this->post->ID );
+
+		wp_update_post( array(
+			'ID'          => $this->post->ID,
+			'post_content' => 'content',
+		) );
+
+		$this->sender->do_sync();
+
+		$events = $this->server_event_storage->get_all_events( 'jetpack_published_post' );
+		$this->assertEquals( count( $events ), 1 );
+
+		$post_flags = $events[0]->args[1];
+		$this->assertTrue( $post_flags['send_subscription'] );
+	}
+
+
+	public function test_sync_jetpack_publish_post_works_with_interjecting_plugins() {
+		$this->server_event_storage->reset();
+		$this->test_already = false;
+		add_action( 'wp_insert_post', array( $this, 'add_a_hello_post_type' ), 9 );
+		$post_id = $this->factory->post->create( array( 'post_type' => 'post' ) );
+		remove_action( 'wp_insert_post', array( $this, 'add_a_hello_post_type' ), 9 );
+
+		$this->sender->do_sync();
+		$events = $this->server_event_storage->get_all_events( 'jetpack_published_post' );
+
+		$this->assertEquals( 2, count( $events ) );
+
+		// The first event is the hello post type...
+		$this->assertEquals( $events[1]->args[0], $post_id );
+	}
+
+	function add_a_hello_post_type() {
+		if ( ! $this->test_already  ) {
+			$this->test_already = true;
+			$post_id = $this->factory->post->create( array( 'post_type' => 'hello' ) );
+			return;
+		}
 	}
 }

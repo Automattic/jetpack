@@ -1,7 +1,8 @@
 <?php
 
 class WP_Test_Jetpack_Constants extends WP_UnitTestCase {
-	function tearDown() {
+	public function tearDown() {
+		parent::tearDown();
 		Jetpack_Constants::$set_constants = array();
 	}
 

@@ -15,6 +15,9 @@
             <file>php/test_class.jetpack-xmlrpc-server.php</file>
             <file>php/test_class.jetpack-heartbeat.php</file>
         </testsuite>
+        <testsuite name="core-api">
+            <directory phpVersion="5.6.0" phpVersionOperator=">=" prefix="test_" suffix=".php">tests/php/core-api</directory>
+        </testsuite>
         <testsuite name="media">
             <file>php/test_class.jetpack-media-extractor.php</file>
             <file>php/test_class.jetpack-media-summary.php</file>
@@ -29,9 +32,7 @@
         <testsuite name="json-api">
             <file>php/test_class.json-api-jetpack-endpoints.php</file>
         </testsuite>
-        <testsuite name="contact-form">
-            <directory prefix="test_" suffix=".php">php/modules/contact-form</directory>
-        </testsuite>
+
         <testsuite name="infinite-scroll">
             <directory prefix="test_" suffix=".php">php/modules/infinite-scroll</directory>
         </testsuite>
@@ -53,11 +54,17 @@
         <testsuite name="sso">
             <directory prefix="test_" suffix=".php">php/modules/sso</directory>
         </testsuite>
+        <testsuite name="contact-form">
+            <directory prefix="test_" suffix=".php">php/modules/contact-form</directory>
+        </testsuite>
         <testsuite name="sync">
             <directory prefix="test_" suffix=".php">php/sync</directory>
         </testsuite>
         <testsuite name="uninstall">
             <directory prefix="test_" suffix=".php">php/uninstall</directory>
+        </testsuite>
+        <testsuite name="restapi">
+            <directory prefix="test_class.rest-api" suffix=".php">tests/php/_inc/lib</directory>
         </testsuite>
     </testsuites>
     <groups>

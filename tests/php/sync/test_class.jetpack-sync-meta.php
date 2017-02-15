@@ -141,7 +141,7 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 		foreach ( $white_listed_post_meta as $meta_key ) {
 			$this->assertOptionIsSynced( $meta_key, 'foo', 'post', $this->post_id );
 		}
-		$whitelist = $this->meta_module->get_post_meta_whitelist();
+		$whitelist = Jetpack_Sync_Settings::get_setting( 'post_meta_whitelist' );
 
 		$whitelist_and_option_keys_difference = array_diff( $whitelist, $white_listed_post_meta );
 		// Are we testing all the options
@@ -169,7 +169,7 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 		foreach ( $white_listed_comment_meta as $meta_key ) {
 			$this->assertOptionIsSynced( $meta_key, 'foo', 'comment', $comment_ids[0] );
 		}
-		$whitelist = $this->meta_module->get_comment_meta_whitelist();
+		$whitelist = Jetpack_Sync_Settings::get_setting( 'comment_meta_whitelist' );
 
 		$whitelist_and_option_keys_difference = array_diff( $whitelist, $white_listed_comment_meta );
 		// Are we testing all the options

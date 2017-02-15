@@ -2,11 +2,22 @@
 
 class Jetpack_Options {
 
+	/**
+	 * An array that maps a grouped option type to an option name.
+	 * @var array
+	 */
 	private static $grouped_options = array(
 		'compact' => 'jetpack_options',
 		'private' => 'jetpack_private_options'
 	);
 
+	/**
+	 * Returns an array of option names for a given type.
+	 *
+	 * @param string $type The type of option to return. Defaults to 'compact'.
+	 *
+	 * @return array
+	 */
 	public static function get_option_names( $type = 'compact' ) {
 		switch ( $type ) {
 		case 'non-compact' :
@@ -24,8 +35,11 @@ class Jetpack_Options {
 				'relatedposts',
 				'file_data',
 				'autoupdate_plugins',          // (array)  An array of plugin ids ( eg. jetpack/jetpack ) that should be autoupdated
+				'autoupdate_plugins_translations', // (array)  An array of plugin ids ( eg. jetpack/jetpack ) that should be autoupdated translation files.
 				'autoupdate_themes',           // (array)  An array of theme ids ( eg. twentyfourteen ) that should be autoupdated
+				'autoupdate_themes_translations', // (array)  An array of theme ids ( eg. twentyfourteen ) that should autoupdated translation files.
 				'autoupdate_core',             // (bool)   Whether or not to autoupdate core
+				'autoupdate_translations',     // (bool)   Whether or not to autoupdate all translations
 				'json_api_full_management',    // (bool)   Allow full management (eg. Activate, Upgrade plugins) of the site via the JSON API.
 				'sync_non_public_post_stati',  // (bool)   Allow synchronisation of posts and pages with non-public status.
 				'site_icon_url',               // (string) url to the full site icon
@@ -37,7 +51,6 @@ class Jetpack_Options {
 				'sync_error_idc',              // (bool|array) false or array containing the site's home and siteurl at time of IDC error
 				'safe_mode_confirmed',         // (bool) True if someone confirms that this site was correctly put into safe mode automatically after an identity crisis is discovered.
 				'migrate_for_idc',             // (bool) True if someone confirms that this site should migrate stats and subscribers from its previous URL
-				'connection_banner_ab',        // (int) 1 or 2, which will represent which connection banner to show.
 			);
 
 		case 'private' :
@@ -67,10 +80,19 @@ class Jetpack_Options {
 			'gplus_authors',                // (array)  The Google+ authorship information for connected users.
 			'last_heartbeat',               // (int)    The timestamp of the last heartbeat that fired.
 			'jumpstart',                    // (string) A flag for whether or not to show the Jump Start.  Accepts: new_connection, jumpstart_activated, jetpack_action_taken, jumpstart_dismissed.
-			'hide_jitm'                     // (array)  A list of just in time messages that we should not show because they have been dismissed by the user
+			'hide_jitm',                    // (array)  A list of just in time messages that we should not show because they have been dismissed by the user
+			'custom_css_4.7_migration',     // (bool)   Whether Custom CSS has scanned for and migrated any legacy CSS CPT entries to the new Core format.
 		);
 	}
 
+	/**
+	 * Is the option name valid?
+	 *
+	 * @param string      $name  The name of the option
+	 * @param string|null $group The name of the group that the option is in. Default to null, which will search non_compact.
+	 *
+	 * @return bool Is the option name valid?
+	 */
 	public static function is_valid( $name, $group = null ) {
 		if ( is_array( $name ) ) {
 			$compact_names = array();
@@ -105,6 +127,8 @@ class Jetpack_Options {
 	 *
 	 * @param string $name Option name
 	 * @param mixed $default (optional)
+	 *
+	 * @return mixed
 	 */
 	public static function get_option( $name, $default = false ) {
 		if ( self::is_valid( $name, 'non_compact' ) ) {
@@ -158,6 +182,8 @@ class Jetpack_Options {
 	 * @param string $name Option name
 	 * @param mixed $value Option value
 	 * @param string $autoload If not compact option, allows specifying whether to autoload or not.
+	 *
+	 * @return bool Was the option successfully updated?
 	 */
 	public static function update_option( $name, $value, $autoload = null ) {
 		/**
@@ -207,6 +233,8 @@ class Jetpack_Options {
 	 * Updates jetpack_options and/or deletes jetpack_$name as appropriate.
 	 *
 	 * @param string|array $names
+	 *
+	 * @return bool Was the option successfully deleted?
 	 */
 	public static function delete_option( $names ) {
 		$result = true;
@@ -214,7 +242,6 @@ class Jetpack_Options {
 
 		if ( ! self::is_valid( $names ) ) {
 			trigger_error( sprintf( 'Invalid Jetpack option names: %s', print_r( $names, 1 ) ), E_USER_WARNING );
-
 			return false;
 		}
 

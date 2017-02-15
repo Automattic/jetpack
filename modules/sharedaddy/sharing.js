@@ -357,7 +357,7 @@ var updateLinkedInCount = function( data ) {
 					$( '#sharing_email form a.sharing_cancel' ).show();
 
 					// Reset reCATPCHA if exists.
-					if ( 'object' === typeof grecaptcha && 'function' === typeof grecaptcha.reset ) {
+					if ( 'object' === typeof grecaptcha && 'function' === typeof grecaptcha.reset && window.___grecaptcha_cfg.count ) {
 						grecaptcha.reset();
 					}
 

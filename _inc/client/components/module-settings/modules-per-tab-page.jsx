@@ -3,6 +3,7 @@
  */
 import React from 'react';
 import { translate as __ } from 'i18n-calypso';
+import { connect } from 'react-redux';
 
 /**
  * Internal dependencies
@@ -26,11 +27,16 @@ import {
 	MarkdownSettings,
 	VerificationToolsSettings,
 	SitemapsSettings,
-	VideoPressSettings
+	VideoPressSettings,
+	WordAdsSettings
 } from 'components/module-settings/';
 import ExternalLink from 'components/external-link';
+import {
+	getSiteAdminUrl,
+	getSiteRawUrl
+} from 'state/initial-state';
 
-export const AllModuleSettings = React.createClass( {
+const AllModuleSettingsComponent = React.createClass( {
 	render() {
 		let { module } = this.props;
 		switch ( module.module ) {
@@ -63,6 +69,7 @@ export const AllModuleSettings = React.createClass( {
 			case 'protect':
 				return ( <ProtectSettings module={ module }  /> );
 			case 'monitor':
+				module.raw_url = this.props.siteRawUrl;
 				return ( <MonitorSettings module={ module }  /> );
 			case 'scan':
 				return '' === module.configure_url ? (
@@ -83,19 +90,31 @@ export const AllModuleSettings = React.createClass( {
 			case 'sso':
 				return ( <SingleSignOnSettings module={ module }  /> );
 			case 'seo-tools':
-				return '' === module.configure_url ? (
-					<div>
-						{ __( 'Your Jetpack plan doesn’t include SEO tools, you must upgrade to Jetpack Professional to use SEO tools.' ) }
-					</div>
-				) : (
-					<div>
-						<ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href={ module.configure_url }>{ __( 'Configure your SEO settings.' ) }</ExternalLink>
-					</div>
-				);
+				if ( '' === module.configure_url ) {
+					return (
+						<div>
+							{ __( 'Make sure your site is easily found on search engines with SEO tools for your content and social posts.' ) }
+						</div>
+					);
+				} else if ( 'checking' === module.configure_url ) {
+					return null;
+				} else if ( 'inactive' === module.configure_url ) {
+					return (
+						<div>
+							{ __( 'Activate this module to use the advanced SEO tools.' ) }
+						</div>
+					);
+				} else {
+					return (
+						<div>
+							<ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href={ module.configure_url }>{ __( 'Configure your SEO settings.' ) }</ExternalLink>
+						</div>
+					);
+				}
 			case 'stats':
 				return ( <StatsSettings module={ module }  /> );
 			case 'related-posts':
-				return ( <RelatedPostsSettings module={ module }  /> );
+				return ( <RelatedPostsSettings module={ module } lastPostUrl={ this.props.lastPostUrl } /> );
 			case 'comments':
 				return ( <CommentsSettings module={ module }  /> );
 			case 'subscriptions':
@@ -106,6 +125,31 @@ export const AllModuleSettings = React.createClass( {
 				return ( <VerificationToolsSettings module={ module }  /> );
 			case 'sitemaps':
 				return ( <SitemapsSettings module={ module } { ...this.props } /> );
+			case 'wordads':
+				return ( <WordAdsSettings module={ module } /> );
+			case 'google-analytics':
+				if ( 'inactive' === module.configure_url ) {
+					return (
+						<div>
+							{ __(
+								'Google Analytics is a free service that complements our {{a}}built-in stats{{/a}} with different insights into your traffic.' +
+								' WordPress.com stats and Google Analytics use different methods to identify and track activity on your site, so they will ' +
+								'normally show slightly different totals for your visits, views, etc.',
+								{
+									components: {
+										a: <a href={ 'https://wordpress.com/stats/day/' + this.props.siteRawUrl } />
+									}
+								}
+							) }
+						</div>
+					);
+				} else {
+					return (
+						<div>
+							<ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href={ module.configure_url }>{ __( 'Configure Google Analytics settings.' ) }</ExternalLink>
+						</div>
+					);
+				}
 			case 'gravatar-hovercards':
 			case 'contact-form':
 			case 'latex':
@@ -167,3 +211,12 @@ export const AllModuleSettings = React.createClass( {
 		}
 	}
 } );
+
+export const AllModuleSettings = connect(
+	( state ) => {
+		return {
+			adminUrl: getSiteAdminUrl( state ),
+			siteRawUrl: getSiteRawUrl( state )
+		};
+	}
+)( AllModuleSettingsComponent );

@@ -1,5 +1,138 @@
 == Changelog ==
 
+= 4.5 =
+
+* Release date: January 17, 2017
+* Release post: http://wp.me/p1moTy-3Kc
+
+This release introduces a brand-new module, Jetpack Ads, a brand-new VideoPress feature, and a lot of new shortcodes and widgets.
+
+**Exciting New Features and Improvements:**
+
+* Generate revenue from your site with an all-new WordAds feature, which when enabled displays high-quality ads for your visitors.
+* Today we are proud to release a fully redesigned VideoPress interface for easy uploading, management, and add-free playback of your fantastic videos now fully integrated with your Jetpack Premium or Professional plans.
+* Spice up your sidebar with new widgets that display blog stats, author info, "Follow my blog" buttons, and even an event countdown.
+* Embed your amazing 360° photos with the VR shortcode
+* Link your visitors to your Tumblr or Twitch pages using the new icons in the Social Media Icons Widget.
+
+**Enhancements**
+
+* Use the beautiful Jetpack carousel feature to display single images.
+* Turn on and update Related Posts right from the Customizer.
+* Customize the output of the Related Posts headline using a new filter.
+
+**Performance and Security Improvements:**
+
+* Your Custom CSS will now be served in a separate stylesheet when it is more than 2,000 characters.
+* Your Stats queries are now always being made over HTTPS.
+* Holiday Snow files now load in the footer, but rest assured the snow still falls from above.
+* We have improved Jetpack's synchronization process to support more plugins and use less resources.
+* The jQuery Cycle script used by slideshow galleries is now minified, resulting in faster loading times.
+
+**Slightly Less Exciting Enhancements:**
+
+* The JSON API now allows updating translations and alternative theme installation methods.
+* Public Custom Post Types are now automatically available via the WordPress.com REST API.
+* We've added a token-based authentication mechanism to the REST API in order for the site to be able to receive authenticated requests from WordPress.com.
+* Use `sync` commands in Jetpack's WP CLI.
+* You can now set the value for options directly in the Contact Form shortcode.
+* Updated some verbiage around IP Whitelisting on the Protect settings screen.
+* Custom sharing buttons got some new variables.
+* RIP blip.tv — we've removed your shortcode.
+* Improved Image and Display Posts Widget settings to provide more explanation and better error messages.
+* We've added a few new Content Options to the Customizer for supported themes.
+* Improved the Facebook Widget to avoid confusion when editing width and height settings.
+* Added and improved a few shortcodes.
+
+**Improved Compatibility:**
+
+* If your server is misconfigured and we can't get an IP address we're going to deactivate Protect and send you a notice so you're in the loop.
+* The WPML compatibility file wasn't loading at the right time, but we've fixed that.
+* We've improved compatibility with tools like Cavalcade to avoid stuck Cron jobs.
+* Some selected WooCommerce data (order items and order item meta) are now syncing to WordPress.com.
+
+**Bug Fixes**
+
+* You'll notice numerous design improvements to the Jetpack UI.
+* Accessibility is important to us so we've made some improvements there.
+* Missing attachments in the Carousel were causing an infinite loop, but we've corrected that.
+* Eliminated a PHP Notice when running the CLI `wp jetpack` command.
+* PHP warnings in the Restaurant Menu Post type have seen their last day with us.
+* Fixed a bug that displayed the wrong connected user for up to 24 hours after they disconnected.
+* Removed a deprecated function to prevent notices when using Infinite Scroll in the Customizer.
+* Long titles in Jetpack widgets weren't looking so great, so we cleaned them up.
+* Before now you weren't able to create a child category from WordPress.com. Now you can!
+* Rogue colons were showing up in the related posts area on sites with the Twenty Fourteen and Twenty Sixteen themes.
+* Fixed a ReCaptcha error on the Email sharing button.
+* Confirmed Instagram embeds actually load when using Infinite Scroll.
+* Site Icons now display on the WordPress.com site management interface.
+* Set a default time limit of 30 seconds when sending sync requests via Cron.
+* Synchronized supported shortcodes on a site.
+* Fixed an issue where empty categories weren't showing with the Widget Visibility feature dropdown.
+* Fixed various little bugs when working with multiple widgets in the Customizer and in the Widgets admin screen.
+* Added a Translate Widget default title in case you haven't defined one.
+* The Top Posts Widget now avoids layout issues when using the Grid layout while displaying a post without an image.
+
+= 4.4.2 =
+
+* Release date: December 6, 2016
+* Release post: http://wp.me/p1moTy-3JR
+
+This release improves Jetpack compatibility with WordPress 4.7.
+
+**Compatibility changes**
+
+* Custom CSS: Made the Custom CSS feature of Jetpack compatible with the CSS Customizer editor in WordPress 4.7.
+* Sync: improved compatibility with the wp-missed-schedule plugin.
+
+**Bug fixes**
+
+* Featured Content: made sure there is no infinite loop when removing the featured tag from the tag list.
+* Admin: made sure help tabs are not being hidden.
+* Admin: made At a Glance page work nicely when there is no backup data yet.
+* Sync: now making sure that needed classes are loaded, preventing errors.
+* Sync: cleared out unneeded scheduled jobs.
+
+= 4.4.1 =
+
+* Release date: November 22, 2016
+* Release post: http://wp.me/p1moTy-3JR
+
+**Bug Fixes**
+
+* Fixed an issue where some users with slower servers would get an error on
+the Jetpack dashboard when `WP_DEBUG` was enabled.
+* Fixed an issue where users on a Jetpack Professional plan who were paying
+monthly (as opposed to annually) wouldn’t be able to enable SEO Tools.
+
+= 4.4 =
+
+* Release date: November 21, 2016
+* Release post: http://wp.me/p5U9nj-2Ow
+
+**Enhancements**
+
+* Additional unit tests have been added to improve Jetpack's development process and stability.
+* Custom post types have been added to the WP REST API output.
+* Many of the screenshots throughout the plugin have been replaced by SVGs in order to make Jetpack smaller.
+* New endpoints have been added to allow the installation of plugin and theme zip files via the API.
+* Twelve new filters to make Jetpack more extensible!  See: http://wp.me/p5U9nj-2Ow.
+* New widget: "Google Translate" to allow users to translate your site into their own language.
+* New widget: "My Community" where you can see who recently interacted with your site.
+* One of the biggest issues facing Jetpack users for years now has been difficulties in moving sites from one domain name to another. This update makes strides towards improving that process.
+* Photon now uses HTTPS by default. Secure all the things!
+* There are now helpful hints throughout the admin interface to make Jetpack easier to use.
+* We now allow you to embed pins, boards and profiles from Pinterest.
+* We've added a new feature: SEO Tools, available to Jetpack Professional subscribers. You can read more about our plans here: https://jetpack.com/features/
+* We've made numerous improvements to the data sync process.
+
+**Bug Fixes:**
+
+* Fixed link to Akismet settings.
+* Improved compatibility between Infinite Scroll and WPML.
+* Move email notification settings back with the other email settings in the Discussion Settings.
+* Various minor performance/compatibility fixes.
+
 = 4.3.2 =
 
 * Release date: October 13, 2016
@@ -136,7 +269,7 @@ now required by Google if you want to display a map.
 **Security:**
 
 * We’re continuing our efforts to harden Jetpack security, by implementing the
-`hash_equals()` function to avoid timing attacks when comparing strings.  We
+`hash_equals()` function to avoid timing attacks when comparing strings. We
 also improved security on CSVs exported from your contact form.
 
 **Slightly Less Exciting Feature Improvements:**
@@ -944,7 +1077,7 @@ Release Date: April 23rd, 2015
 Release Post: http://wp.me/p1moTy-1jF
 
 Jetpack 3.5 introduces the ability to manage your site's menus directly from
-WordPress.com and several bug fixes and enhancements.  This upgrade is
+WordPress.com and several bug fixes and enhancements. This upgrade is
 recommended for all users.
 
 * Enhancement: General: Change security reporting to use a transient instead
@@ -1383,7 +1516,7 @@ Release Date: March 6, 2014
 * Bug Fix: After the Deadline: Fix a Javascript glitch that could prevent
 publishing of posts.
 * Bug Fix: SSO: Disable the implementation of an option that had been removed
-before release.  This would have only been an issue if a site administrator
+before release. This would have only been an issue if a site administrator
 had enabled the module during an early beta of 2.9.
 
 = 2.9 =
@@ -1722,8 +1855,8 @@ Release Post: http://wp.me/p1moTy-t9
 
 * Enhancement: Social Links: Retooling the class for better consistency and
 performance behind the scenes.
-* Enhancement: Omnisearch: Make it easier to search Custom Post Types.  No
-longer need to extend the class, if all you want is a basic display.  Just
+* Enhancement: Omnisearch: Make it easier to search Custom Post Types. No
+longer need to extend the class, if all you want is a basic display. Just
 call `new Jetpack_Omnisearch_Posts( 'cpt' );`
 * Enhancement: Sharing Buttons: LinkedIn: Use the official button's sharing
 link on the Jetpack implementation for a more consistent sharing experience
@@ -1734,7 +1867,7 @@ server can use SSL to connect to WPCOM servers.
 short URL rather than the full URL size.
 * Enhancement: Debug: More readable and understandable messages.
 * Enhancement: Likes: Including some MP6 styles.
-* Enhancement: Comments: Add new core classes to comment form.  See
+* Enhancement: Comments: Add new core classes to comment form. See
 http://core.trac.wordpress.org/changeset/24525
 * Bug Fix: Omnisearch: Don't load everything initially, run the providers off
 admin_init, and then issue an action for folks to hook into.
@@ -2350,7 +2483,7 @@ Release Post: http://wp.me/p1moTy-eq
 
 * Enhancement: CSS Editor: Customize your site's design without modifying your
 theme.
-* Enhancement: Comments: Submit the comment within the iframe.  No more full
+* Enhancement: Comments: Submit the comment within the iframe. No more full
 page load to jetpack.wordpress.com.
 * Enhancement: Sharing: Share counts for Twitter, Facebook, LinkedIn
 * Enhancement: Sharing: Improve styling
@@ -2495,7 +2628,7 @@ BuddyPress forum posts.
 Release Date: April 25, 2012
 Release Post: http://wp.me/p1moTy-bq
 
-* Enhancement: Add Contact Forms feature.  Formerly Grunion Contact Forms.
+* Enhancement: Add Contact Forms feature. Formerly Grunion Contact Forms.
 * Bug Fix: Tweak YouTube autoembedder to catch more YouTube URLs.
 * Bug Fix: Correctly load the Sharing CSS files.
 
@@ -2524,7 +2657,7 @@ off in Jetpack.
 * Bug Fix: Subscriptions: Sync data about categories/tags as well to improve
 subscription emails.
 * Bug Fix: Subscriptions: Better styling for the subscription success message.
-* Bug Fix: Shortcodes: Support for multiple Google Maps in one post.  Support
+* Bug Fix: Shortcodes: Support for multiple Google Maps in one post. Support
 for all Google Maps URLs.
 * Bug Fix: Shortcodes: Improved support for youtu.be URLs
 * Bug Fix: Shortcodes: Improved Vimeo embeds.
@@ -2594,7 +2727,7 @@ Release Date: July 6, 2011
 Release Post: http://wp.me/p1moTy-8B
 
 * Bug Fix: Note, store, and keep fresh the time difference between the Jetpack
-site's host and the Jetpack servers at WordPress.com.  Should fix all
+site's host and the Jetpack servers at WordPress.com. Should fix all
 "timestamp is too old" errors.
 * Bug Fix: Improve experience on hosts capable of making outgoing HTTPS
 requests but incapable of verifying SSL certificates. Fixes some
@@ -2603,13 +2736,13 @@ and "error:14090086:lib(20):func(144):reason(134)" errors.
 * Bug Fix: Better fallback when WordPress.com is experiencing problems.
 * Bug Fix: It's Jetpack, not JetPack :)
 * Bug Fix: Remove PHP Warnings/Notices.
-* Bug Fix: AtD: JS based XSS bug.  Props markjaquith.
+* Bug Fix: AtD: JS based XSS bug. Props markjaquith.
 * Bug Fix: AtD: Prevent stored configuration options from becoming corrupted.
 * Bug Fix: Stats: Prevent missing old stats for some blogs.
 * Bug Fix: Twitter Widget: Fix formatting of dates/times in PHP4.
 * Bug Fix: Twitter Widget: Cache the response from Twitter to prevent "Twitter
 did not respond. Please wait a few minutes and refresh this page." errors.
-* Enhancement: Slightly improved RTL experience.  Jetpack 1.2 should include a
+* Enhancement: Slightly improved RTL experience. Jetpack 1.2 should include a
 much better fix.
 * Enhancement: Sharedaddy: Improve localization for Facebook Like button.
 * Enhancement: Gravatar Hovercards: Improved experience for Windows browsers.
@@ -2622,17 +2755,17 @@ Release Post: http://wp.me/p1moTy-8i
 requests but incapable of verifying SSL certificates. Fixes most "Your Jetpack
 has a glitch. Connecting this site with WordPress.com is not possible. This
 usually means your site is not publicly accessible (localhost)." errors.
-* Bug Fix: Sharedaddy: Fatal error under PHP4.  Disable on PHP4 hosts.
-* Bug Fix: Stats: Fatal error under PHP4.  Rewrite to be PHP4 compatible.
+* Bug Fix: Sharedaddy: Fatal error under PHP4. Disable on PHP4 hosts.
+* Bug Fix: Stats: Fatal error under PHP4. Rewrite to be PHP4 compatible.
 * Bug Fix: Stats: Fatal error on some sites modifying/removing core WordPress
-user roles.  Add sanity check.
+user roles. Add sanity check.
 * Bug Fix: Stats: Replace debug output with error message in dashboard widget.
 * Bug Fix: Stats: Rework hook priorities so that stats views are always
 counted even if a plugin (such as Paginated Comments) bails early on
 template_redirect.
 * Bug Fix: Identify the module that connot be activated to fatal error during
 single module activation.
-* Bug Fix: `glob()` is not always available.  Use `opendir()`, `readdir()`,
+* Bug Fix: `glob()` is not always available. Use `opendir()`, `readdir()`,
 `closedir()`.
 * Bug Fix: Send permalink options to Stats Server for improved per post
 permalink calculation.

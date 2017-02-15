@@ -11,10 +11,11 @@ import {
 	fetchSiteData,
 	isFetchingSiteData
 } from 'state/site';
+import { isDevMode } from 'state/connection';
 
 export const QuerySite = React.createClass( {
 	componentDidMount() {
-		if ( ! this.props.isFetchingSiteData ) {
+		if ( ! ( this.props.isFetchingSiteData || this.props.isDevMode ) ) {
 			this.props.fetchSiteData();
 		}
 	},
@@ -27,7 +28,8 @@ export const QuerySite = React.createClass( {
 export default connect(
 	( state ) => {
 		return {
-			isFetchingSiteData: isFetchingSiteData( state )
+			isFetchingSiteData: isFetchingSiteData( state ),
+			isDevMode: isDevMode( state )
 		};
 	},
 	( dispatch ) => {

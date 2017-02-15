@@ -9,6 +9,7 @@
 	margin-left: 0;
 	margin-right: 10px;
 	margin-top: 10px;
+	overflow: hidden;
 	padding-bottom: 16px;
 	padding-top: 0;
 
@@ -60,7 +61,7 @@
 }
 
 .jp-idc-notice > div {
-	padding: 0 16px;
+	padding: 0 8px;
 }
 
 .jp-idc-notice__first-step {
@@ -82,7 +83,8 @@
 }
 
 .jp-idc-notice .jp-idc-notice__header {
-	padding: 8px 0;
+	padding-top: 8px;
+	padding-bottom: 8px;
 }
 
 .jp-idc-notice__header__emblem {

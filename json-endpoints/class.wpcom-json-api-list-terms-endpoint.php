@@ -1,10 +1,4 @@
 <?php
-/*
- * WARNING: This file is distributed verbatim in Jetpack.
- * There should be nothing WordPress.com specific in this file.
- *
- * @hide-in-jetpack
- */
 
 class WPCOM_JSON_API_List_Terms_Endpoint extends WPCOM_JSON_API_Endpoint {
 	// /sites/%s/taxonomies/%s/terms -> $blog_id, $taxonomy

@@ -137,7 +137,7 @@ class Jetpack_SEO_Titles {
 				return single_tag_title( '', false );
 
 			case 'date':
-				return trim( single_month_title( ' ', false ) );
+				return self::get_date_for_title();
 
 			default:
 				return '';
@@ -173,6 +173,31 @@ class Jetpack_SEO_Titles {
 		}
 
 		return false;
+	}
+
+	/**
+	 * Returns the value that should be used as a replacement for the date token,
+	 * depending on the archive path specified.
+	 *
+	 * @return string Token replacement for a given date, or empty string if no date is specified.
+	 */
+	public static function get_date_for_title() {
+		// If archive year, month, and day are specified.
+		if ( is_day() ) {
+			return get_the_date();
+		}
+
+		// If archive year, and month are specified.
+		if ( is_month() ) {
+			return trim( single_month_title( ' ', false ) );
+		}
+
+		// Only archive year is specified.
+		if ( is_year() ) {
+			return get_query_var( 'year' );
+		}
+
+		return '';
 	}
 
 	/**

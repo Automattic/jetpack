@@ -12,6 +12,7 @@ class WP_Test_Functions_OpenGraph extends Jetpack_Attachment_Test_Case {
 	 * @since 3.9.2
 	 */
 	public function setUp() {
+		parent::setUp();
 		$this->icon_id = self::_create_upload_object( dirname( __FILE__ ) . '/jetpack-icon.jpg' ); // 150 x 150
 		require_once JETPACK__PLUGIN_DIR . 'functions.opengraph.php';
 	}
@@ -20,6 +21,7 @@ class WP_Test_Functions_OpenGraph extends Jetpack_Attachment_Test_Case {
 	 * Include Open Graph functions after each test.
 	 */
 	public function tearDown() {
+		parent::tearDown();
 		wp_delete_attachment( $this->icon_id );
 	}
 

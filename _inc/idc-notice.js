@@ -17,7 +17,10 @@
 		erroredAction = false;
 
 	// Initialize Tracks and bump stats.
-	analytics.initialize( tracksUser.userid, tracksUser.username );
+	if ( 'undefined' !== typeof analytics ) {
+		analytics.initialize( tracksUser.userid, tracksUser.username );
+	}
+
 	if ( tracksEvent.isAdmin ) {
 		trackAndBumpMCStats( 'notice_view' );
 	} else {
@@ -26,7 +29,7 @@
 	clearConfirmationArgsFromUrl();
 
 	// If the user dismisses the notice, set a cookie for one week so we don't display it for that time.
-	notice.on( 'click.wp-dismiss-notice', function() {
+	notice.on( 'click', '.notice-dismiss', function() {
 		var secure = ( 'https:' === window.location.protocol );
 		wpCookies.set( 'jetpack_idc_dismiss_notice', '1', 7 * 24 * 60 * 60, false, false, secure );
 		trackAndBumpMCStats( 'non_admin_notice_dismiss', { 'page': tracksEvent.currentScreen } );
@@ -213,7 +216,7 @@
 			extraProps = {};
 		}
 
-		if ( eventName && eventName.length ) {
+		if ( eventName && eventName.length && 'undefined' !== typeof analytics && analytics.tracks && analytics.mc ) {
 			// Format for Tracks
 			eventName = eventName.replace( /-/g, '_' );
 			eventName = eventName.indexOf( 'jetpack_idc_' ) !== 0 ? 'jetpack_idc_' + eventName : eventName;

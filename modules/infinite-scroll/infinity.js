@@ -339,6 +339,8 @@ Scroller.prototype.refresh = function() {
 					if ( response.lastbatch ) {
 						if ( self.click_handle ) {
 							$( '#infinite-handle' ).remove();
+							// Update body classes
+							self.body.addClass( 'infinity-end' ).removeClass( 'infinity-success' );
 						} else {
 							self.body.trigger( 'infinite-scroll-posts-end' );
 						}
@@ -645,6 +647,8 @@ $( document ).ready( function() {
 	// Check for our variables
 	if ( 'object' != typeof infiniteScroll )
 		return;
+
+	$( document.body ).addClass( infiniteScroll.settings.body_class );
 
 	// Set ajaxurl (for brevity)
 	ajaxurl = infiniteScroll.settings.ajaxurl;

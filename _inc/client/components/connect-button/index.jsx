@@ -26,34 +26,32 @@ export const ConnectButton = React.createClass( {
 
 	propTypes: {
 		connectUser: React.PropTypes.bool,
-		from: React.PropTypes.string,
+		from: React.PropTypes.string
 	},
 
 	getDefaultProps() {
 		return {
 			connectUser: false,
-			from: '',
+			from: ''
 		};
 	},
 
 	renderUserButton: function() {
-		const fetchingUrl = this.props.fetchingConnectUrl( this.props );
-		const isUnlinking = this.props.isUnlinking( this.props );
 
 		// Already linked
-		if ( this.props.isLinked( this.props ) ) {
+		if ( this.props.isLinked ) {
 			return (
 				<div>
 					<Button
 						onClick={ this.props.unlinkUser }
-						disabled={ isUnlinking } >
+						disabled={ this.props.isUnlinking } >
 						{ __( 'Unlink me from WordPress.com' ) }
 					</Button>
 				</div>
 			);
 		}
 
-		let connectUrl = this.props.connectUrl( this.props );
+		let connectUrl = this.props.connectUrl;
 		if ( this.props.from ) {
 			connectUrl += `&from=${ this.props.from }`;
 			connectUrl += '&additional-user';
@@ -63,7 +61,7 @@ export const ConnectButton = React.createClass( {
 			<Button
 				className="is-primary jp-jetpack-connect__button"
 				href={ connectUrl }
-				disabled={ fetchingUrl } >
+				disabled={ this.props.fetchingConnectUrl } >
 				{ __( 'Link to WordPress.com' ) }
 			</Button>
 		);
@@ -76,24 +74,21 @@ export const ConnectButton = React.createClass( {
 	},
 
 	renderContent: function() {
-		const fetchingUrl = this.props.fetchingConnectUrl( this.props );
-		const disconnecting = this.props.isDisconnecting( this.props );
-
 		if ( this.props.connectUser ) {
 			return this.renderUserButton();
 		}
 
-		if ( this.props.isSiteConnected( this.props ) ) {
+		if ( this.props.isSiteConnected ) {
 			return (
 				<Button
 					onClick={ this.disconnectSite }
-					disabled={ disconnecting }>
+					disabled={ this.props.isDisconnecting }>
 					{ __( 'Disconnect Jetpack' ) }
 				</Button>
 			);
 		}
 
-		let connectUrl = this.props.connectUrl( this.props );
+		let connectUrl = this.props.connectUrl;
 		if ( this.props.from ) {
 			connectUrl += `&from=${ this.props.from }`;
 		}
@@ -102,7 +97,7 @@ export const ConnectButton = React.createClass( {
 			<Button
 				className="is-primary jp-jetpack-connect__button"
 				href={ connectUrl }
-				disabled={ fetchingUrl }>
+				disabled={ this.props.fetchingConnectUrl }>
 				{ __( 'Connect Jetpack' ) }
 			</Button>
 		);
@@ -121,12 +116,12 @@ export const ConnectButton = React.createClass( {
 export default connect(
 	state => {
 		return {
-			isSiteConnected: () => _getSiteConnectionStatus( state ),
-			isDisconnecting: () => _isDisconnectingSite( state ),
-			fetchingConnectUrl: () => _isFetchingConnectUrl( state ),
-			connectUrl: () => _getConnectUrl( state ),
-			isLinked: () => _isCurrentUserLinked( state ),
-			isUnlinking: () => _isUnlinkingUser( state )
+			isSiteConnected: _getSiteConnectionStatus( state ),
+			isDisconnecting: _isDisconnectingSite( state ),
+			fetchingConnectUrl: _isFetchingConnectUrl( state ),
+			connectUrl: _getConnectUrl( state ),
+			isLinked: _isCurrentUserLinked( state ),
+			isUnlinking: _isUnlinkingUser( state )
 		};
 	},
 	( dispatch ) => {

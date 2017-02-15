@@ -233,6 +233,7 @@
 .jp-at-a-glance__left,
 .jp-at-a-glance__right {
 	display: flex;
+	min-width: 0;
 
 	@include breakpoint( ">660px" ) {
 		flex-basis: 50%;
@@ -244,6 +245,7 @@
 
 	> div, // Sorry. not sure how to class this. Thanks, React.
 	.jp-dash-item {
+		min-width: 0; // weird fix for overflowing items
 		flex-grow: 1;
 		display: flex;
 		flex-direction: column;

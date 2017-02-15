@@ -18,6 +18,8 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	public function setUp() {
 		parent::setUp();
 
+		$this->resetCallableAndConstantTimeouts();
+
 		$this->callable_module = Jetpack_Sync_Modules::get_module( "functions" );
 		set_current_screen( 'post-user' ); // this only works in is_admin()
 	}
@@ -47,7 +49,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_sync_callable_whitelist() {
-		$this->setSyncClientDefaults();
+		// $this->setSyncClientDefaults();
 
 		$callables = array(
 			'wp_max_upload_size'               => wp_max_upload_size(),
@@ -76,6 +78,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			'hosting_provider'                 => Jetpack_Sync_Functions::get_hosting_provider(),
 			'locale'                           => get_locale(),
 			'site_icon_url'                    => Jetpack_Sync_Functions::site_icon_url(),
+			'shortcodes'                       => Jetpack_Sync_Functions::get_shortcodes(),
 		);
 
 		if ( is_multisite() ) {
@@ -134,9 +137,6 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_sync_always_sync_changes_to_modules_right_away() {
-		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
-		delete_option( Jetpack_Sync_Module_Callables::CALLABLES_CHECKSUM_OPTION_NAME );
-		$this->setSyncClientDefaults();
 		Jetpack::update_active_modules( array( 'stats' ) );
 
 		$this->sender->do_sync();
@@ -154,10 +154,6 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_sync_always_sync_changes_to_home_siteurl_right_away() {
-		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
-		delete_option( Jetpack_Sync_Module_Callables::CALLABLES_CHECKSUM_OPTION_NAME );
-		$this->setSyncClientDefaults();
-
 		$original_home_option    = get_option( 'home' );
 		$original_siteurl_option = get_option( 'siteurl' );
 
@@ -191,10 +187,6 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_sync_jetpack_sync_unlock_sync_callable_action_allows_syncing_siteurl_changes() {
-		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
-		delete_option( Jetpack_Sync_Module_Callables::CALLABLES_CHECKSUM_OPTION_NAME );
-		$this->setSyncClientDefaults();
-
 		$original_home_option    = get_option( 'home' );
 		$original_siteurl_option = get_option( 'siteurl' );
 
@@ -234,6 +226,44 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		unset( $_SERVER['HTTPS'] );
 		remove_filter( 'option_home',    array( $this, 'return_https_site_com_blog' ) );
 		remove_filter( 'option_siteurl', array( $this, 'return_https_site_com_blog' ) );
+	}
+
+	function test_home_site_urls_synced_while_migrate_for_idc_set() {
+		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
+		delete_option( Jetpack_Sync_Module_Callables::CALLABLES_CHECKSUM_OPTION_NAME );
+
+		$home_option    = get_option( 'home' );
+		$siteurl_option = get_option( 'siteurl' );
+		$main_network   = network_site_url();
+
+		// First, let's see if the original values get synced
+		$this->sender->do_sync();
+
+		$this->assertEquals( $home_option,  $this->server_replica_storage->get_callable( 'home_url' ) );
+		$this->assertEquals( $siteurl_option, $this->server_replica_storage->get_callable( 'site_url' ) );
+		$this->assertEquals( $main_network, $this->server_replica_storage->get_callable( 'main_network_site' ) );
+
+		// Second, let's make sure that values don't get synced again if the migrate_for_idc option is not set
+		$this->server_replica_storage->reset();
+		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
+		$this->sender->do_sync();
+
+		$this->assertEquals( null, $this->server_replica_storage->get_callable( 'home_url' ) );
+		$this->assertEquals( null, $this->server_replica_storage->get_callable( 'site_url' ) );
+		$this->assertEquals( null, $this->server_replica_storage->get_callable( 'main_network_site' ) );
+
+		// Third, let's test that values get syncd with the option set
+		Jetpack_Options::update_option( 'migrate_for_idc', true );
+
+		$this->server_replica_storage->reset();
+		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
+		$this->sender->do_sync();
+
+		$this->assertEquals( $home_option,  $this->server_replica_storage->get_callable( 'home_url' ) );
+		$this->assertEquals( $siteurl_option, $this->server_replica_storage->get_callable( 'site_url' ) );
+		$this->assertEquals( $main_network, $this->server_replica_storage->get_callable( 'main_network_site' ) );
+
+		Jetpack_Options::delete_option( 'migrate_for_idc' );
 	}
 
 	function test_scheme_switching_does_not_cause_sync() {
@@ -447,10 +477,108 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertContains( 'jetpack_site_icon', $this->server_replica_storage->get_callable( 'site_icon_url' ) );
 	}
+
+	function test_calling_taxonomies_do_not_modify_global() {
+		global $wp_taxonomies;
+		// adds taxonomies.
+		$test = new ABC_FOO_TEST_Taxonomy_Example();
+		$this->setSyncClientDefaults();
+		$sync_callable_taxonomies = Jetpack_Sync_Functions::get_taxonomies();
+
+		$this->assertNull( $sync_callable_taxonomies['example']->update_count_callback );
+		$this->assertNull( $sync_callable_taxonomies['example']->meta_box_cb );
+
+		$this->assertNotNull( $wp_taxonomies['example']->update_count_callback );
+		$this->assertNotNull( $wp_taxonomies['example']->meta_box_cb );
+
+	}
+
+	function test_sanitize_sync_taxonomies_method() {
+		
+		$sanitized = Jetpack_Sync_Functions::sanitize_taxonomy( (object) array( 'meta_box_cb' => 'post_tags_meta_box' ) );
+		$this->assertEquals( $sanitized->meta_box_cb, 'post_tags_meta_box' );
+
+		$sanitized = Jetpack_Sync_Functions::sanitize_taxonomy( (object) array( 'meta_box_cb' => 'post_categories_meta_box' ) );
+		$this->assertEquals( $sanitized->meta_box_cb, 'post_categories_meta_box' );
+
+		$sanitized = Jetpack_Sync_Functions::sanitize_taxonomy( (object) array( 'meta_box_cb' => 'banana' ) );
+		$this->assertEquals( $sanitized->meta_box_cb, null );
+
+		$sanitized = Jetpack_Sync_Functions::sanitize_taxonomy( (object) array( 'update_count_callback' => 'banana' ) );
+		$this->assertFalse( isset( $sanitized->update_count_callback ) );
+
+		$sanitized = Jetpack_Sync_Functions::sanitize_taxonomy( (object) array( 'rest_controller_class' => 'banana' ) );
+		$this->assertEquals( $sanitized->rest_controller_class, null );
+
+		$sanitized = Jetpack_Sync_Functions::sanitize_taxonomy( (object) array( 'rest_controller_class' => 'WP_REST_Terms_Controller' ) );
+
+		$this->assertEquals( $sanitized->rest_controller_class, 'WP_REST_Terms_Controller' );
+
+	}
 	
 	function add_www_subdomain_to_siteurl( $url ) {
 		$parsed_url = parse_url( $url );
 
 		return "{$parsed_url['scheme']}://www.{$parsed_url['host']}";
+	}
+
+	function test_taxonomies_objects_do_not_have_meta_box_callback() {
+
+		new ABC_FOO_TEST_Taxonomy_Example();
+		$taxonomies = Jetpack_Sync_Functions::get_taxonomies();
+		$taxonomy = $taxonomies['example'];
+
+		$this->assertInternalType( 'object', $taxonomy );
+		// Did we get rid of the expected attributes?
+		$this->assertNull( $taxonomy->update_count_callback, "example has the update_count_callback attribute, which should be removed since it is a callback" );
+		$this->assertNull( $taxonomy->meta_box_cb, "example has the meta_box_cb attribute, which should be removed since it is a callback" );
+		$this->assertNull( $taxonomy->rest_controller_class );
+		// Did we preserve the expected attributes?
+		$check_object_vars = array(
+			'labels',
+			'description',
+			'public',
+			'publicly_queryable',
+			'hierarchical',
+			'show_ui',
+			'show_in_menu',
+			'show_in_nav_menus',
+			'show_tagcloud',
+			'show_in_quick_edit',
+			'show_admin_column',
+			'rewrite',
+		);
+		foreach ( $check_object_vars as $test ) {
+			$this->assertObjectHasAttribute( $test, $taxonomy, "Taxonomy does not have expected {$test} attribute." );
+		}
+
+	}
+
+}
+
+/* Example Test Taxonomy */
+class ABC_FOO_TEST_Taxonomy_Example {
+	function __construct() {
+
+		register_taxonomy(
+			'example',
+			'posts',
+			array(
+				'meta_box_cb' => 'bob',
+				'update_count_callback' => array( $this, 'callback_update_count_callback_tags' ),
+				'rest_controller_class' => 'tom'
+			)
+		);
+	}
+	function callback_update_count_callback_tags() {
+		return 123;
+	}
+
+	// Prevent this class being used as part of a Serialization injection attack
+	public function __clone() {
+		wp_die( __( 'Cheatin’ uh?' ) );
+	}
+	public function __wakeup() {
+		wp_die( __( 'Cheatin’ uh?' ) );
 	}
 }

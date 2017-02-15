@@ -97,24 +97,15 @@ abstract class Jetpack_Sync_Module {
 		return array( $chunk_count, true );
 	}
 
-	protected function get_metadata( $ids, $meta_type ) {
+	protected function get_metadata( $ids, $meta_type, $meta_key_whitelist ) {
 		global $wpdb;
 		$table = _get_meta_table( $meta_type );
 		$id    = $meta_type . '_id';
 		if ( ! $table ) {
 			return array();
 		}
-		$private_meta_whitelist_sql = '';
-		$meta_module = Jetpack_Sync_Modules::get_module( "meta" );
-		
-		switch( $meta_type ) {
-			case 'post':
-				$private_meta_whitelist_sql = "'" . implode( "','", array_map( 'esc_sql', $meta_module->get_post_meta_whitelist() ) ) . "'";
-				break;
-			case 'comment':
-				$private_meta_whitelist_sql = "'" . implode( "','", array_map( 'esc_sql', $meta_module->get_comment_meta_whitelist() ) ) . "'";
-				break;
-		}
+
+		$private_meta_whitelist_sql = "'" . implode( "','", array_map( 'esc_sql', $meta_key_whitelist ) ) . "'";
 
 		return array_map( 
 			array( $this, 'unserialize_meta' ), 
@@ -123,6 +114,18 @@ abstract class Jetpack_Sync_Module {
 				" AND meta_key IN ( $private_meta_whitelist_sql ) "
 				, OBJECT )
 		);
+	}
+
+	public function init_listeners_for_meta_type( $meta_type, $callable ) {
+		add_action( "added_{$meta_type}_meta", $callable, 10, 4 );
+		add_action( "updated_{$meta_type}_meta", $callable, 10, 4 );
+		add_action( "deleted_{$meta_type}_meta", $callable, 10, 4 );
+	}
+
+	public function init_meta_whitelist_handler( $meta_type, $whitelist_handler ) {
+		add_filter( "jetpack_sync_before_enqueue_added_{$meta_type}_meta", $whitelist_handler );
+		add_filter( "jetpack_sync_before_enqueue_updated_{$meta_type}_meta", $whitelist_handler );
+		add_filter( "jetpack_sync_before_enqueue_deleted_{$meta_type}_meta", $whitelist_handler );
 	}
 
 	protected function get_term_relationships( $ids ) {

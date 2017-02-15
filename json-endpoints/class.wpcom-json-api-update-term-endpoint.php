@@ -1,10 +1,4 @@
 <?php
-/*
- * WARNING: This file is distributed verbatim in Jetpack.
- * There should be nothing WordPress.com specific in this file.
- *
- * @hide-in-jetpack
- */
 
 class WPCOM_JSON_API_Update_Term_Endpoint extends WPCOM_JSON_API_Taxonomy_Endpoint {
 	// /sites/%s/taxonomies/%s/terms/new            -> $blog_id, $taxonomy
@@ -69,7 +63,7 @@ class WPCOM_JSON_API_Update_Term_Endpoint extends WPCOM_JSON_API_Taxonomy_Endpoi
 		}
 
 		$data = wp_insert_term( addslashes( $input['name'] ), $taxonomy, array(
-	  		'description' => addslashes( $input['description'] ),
+	  		'description' => isset( $input['description'] ) ? addslashes( $input['description'] ) : '',
 	  		'parent'      => $input['parent']
 		) );
 
@@ -121,6 +115,10 @@ class WPCOM_JSON_API_Update_Term_Endpoint extends WPCOM_JSON_API_Taxonomy_Endpoi
 		}
 
 		$data = wp_update_term( $term->term_id, $taxonomy, $update );
+		if ( is_wp_error( $data ) ) {
+			return $data;
+		}
+
 		$term = get_term_by( 'id', $data['term_id'], $taxonomy );
 
 		$return = $this->get_taxonomy( $term->slug, $taxonomy, $args['context'] );

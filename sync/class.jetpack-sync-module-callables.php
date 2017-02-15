@@ -114,6 +114,19 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 	public function unlock_sync_callable() {
 		delete_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME );
 	}
+
+	public function should_send_callable( $callable_checksums, $name, $checksum ) {
+		$idc_override_callables = array(
+			'main_network_site',
+			'home_url',
+			'site_url',
+		);
+		if ( in_array( $name, $idc_override_callables ) && Jetpack_Options::get_option( 'migrate_for_idc' ) ) {
+			return true;
+		}
+
+		return ! $this->still_valid_checksum( $callable_checksums, $name, $checksum );
+	}
 	
 	public function maybe_sync_callables() {
 		if ( ! is_admin() || Jetpack_Sync_Settings::is_doing_cron() ) {
@@ -138,7 +151,7 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 		foreach ( $callables as $name => $value ) {
 			$checksum = $this->get_check_sum( $value );
 			// explicitly not using Identical comparison as get_option returns a string
-			if ( ! $this->still_valid_checksum( $callable_checksums, $name, $checksum ) && ! is_null( $value ) ) {
+			if ( ! is_null( $value ) && $this->should_send_callable( $callable_checksums, $name, $checksum ) ) {
 				/**
 				 * Tells the client to sync a callable (aka function) to the server
 				 *

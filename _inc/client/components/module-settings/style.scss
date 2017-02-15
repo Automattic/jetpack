@@ -11,19 +11,15 @@
 	}
 
 	.dops-button.is-compact.is-borderless,
-	.jp-module-settings__more-sep,
 	.jp-module-settings__more-text {
 		vertical-align: middle;
 	}
+}
 
-	.jp-module-settings__more-sep {
-		background: #ddd;
-		width: rem( 2px );
-		height: rem( 14px );
-		margin-left: rem( 10px );
-		margin-right: rem( 10px );
-		display: inline-block;
-	}
+.jp-module-settings__learn-more {
+	position: absolute;
+	top: 12px;
+	right: 17px;
 }
 
 // Connection Settings styles

@@ -119,6 +119,32 @@ abstract class Abstract_Jetpack_Site extends SAL_Site {
 		return $supported_formats;
 	}
 
+	function get_icon() {
+		$icon_id = get_option( 'site_icon' );
+		if ( empty( $icon_id ) ) {
+			$icon_id = Jetpack_Options::get_option( 'site_icon_id' );
+		}
+
+		if ( empty( $icon_id ) ) {
+			return null;
+		}
+
+		$icon = array_filter( array(
+			'img' => wp_get_attachment_image_url( $icon_id, 'full' ),
+			'ico' => wp_get_attachment_image_url( $icon_id, array( 16, 16 ) )
+		) );
+
+		if ( empty( $icon ) ) {
+			return null;
+		}
+
+		if ( current_user_can( 'edit_posts', $icon_id ) ) {
+			$icon['media_id'] = (int) $icon_id;
+		}
+
+		return $icon;
+	}
+
 	/**
 	 * Private methods
 	 **/

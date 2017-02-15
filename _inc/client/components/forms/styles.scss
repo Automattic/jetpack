@@ -37,7 +37,7 @@
 .jp-form-setting-explanation {
 	color: darken( $gray, 20% );
 	display: block;
-	margin: rem( 5px ) 0 0 0;
+	margin: rem( 5px ) rem( 14px ) 0 0;
 	font-size: rem( 13px );
 	font-style: italic;
 	font-weight: 400;
@@ -49,6 +49,8 @@
 }
 
 .jp-form-fieldset {
+
+	margin-bottom: 4em;
 
 	.jp-form-legend + .jp-form-setting-explanation {
 		margin-top: rem( 8px );

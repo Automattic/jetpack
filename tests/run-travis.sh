@@ -2,6 +2,15 @@
 
 if [ "$WP_TRAVISCI" == "phpunit" ]; then
 
+    echo "Testing on WordPress master..."
+    cd /tmp/wordpress-master/src/wp-content/plugins/$PLUGIN_SLUG
+    if $WP_TRAVISCI; then
+	# Everything is fine
+	:
+    else
+        exit 1
+    fi
+
     echo "Testing on WordPress stable..."
     cd /tmp/wordpress-latest/src/wp-content/plugins/$PLUGIN_SLUG
     if $WP_TRAVISCI; then
@@ -31,9 +40,9 @@ else
 
     gem install sass
     gem install compass
-    npm install -g yarn
-    yarn add gulp-cli
-    yarn
+    npm install -g npm
+    npm install -g gulp-cli
+    npm install
 
     if $WP_TRAVISCI; then
 	# Everything is fine

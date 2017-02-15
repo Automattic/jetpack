@@ -7,6 +7,9 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 	protected $encoded_data;
 
 	function test_add_post_fires_sync_data_action_with_codec_and_timestamp_on_do_sync() {
+		// some trivial action so that there's an item in the queue
+		$this->factory->post->create();
+
 		$start_test_timestamp   = microtime( true );
 		$this->action_ran       = false;
 		$this->action_codec     = null;

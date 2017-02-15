@@ -86,7 +86,11 @@ class Jetpack_Sync_Modules {
 	static function initialize_module( $module_name ) {
 		$module = new $module_name;
 		$module->set_defaults();
+		if ( method_exists( $module, 'set_late_default' ) ) {
+			add_action( 'init', array( $module, 'set_late_default' ), 90 );
+		}
 
 		return $module;
 	}
+
 }

@@ -13,7 +13,7 @@ defined( 'VIDEOPRESS_MIN_WIDTH' ) or define( 'VIDEOPRESS_MIN_WIDTH', 60 );
  * @return bool true if passes validation test
  */
 function videopress_is_valid_guid( $guid ) {
-	if ( ! empty( $guid ) && strlen( $guid ) === 8 && ctype_alnum( $guid ) ) {
+	if ( ! empty( $guid ) && is_string( $guid ) && strlen( $guid ) === 8 && ctype_alnum( $guid ) ) {
 		return true;
 	}
 	return false;
@@ -153,6 +153,46 @@ function videopress_download_poster_image( $url, $attachment_id ) {
 }
 
 /**
+ * Downloads and sets a file to the given attachment.
+ *
+ * @param string $url
+ * @param int $attachment_id
+ * @return bool|WP_Error
+ */
+function videopress_download_video( $url, $attachment_id ) {
+
+	if ( ! $attachment = get_post( $attachment_id ) )  {
+		return new WP_Error( 'invalid_attachment', __( 'Could not find video attachment', 'jetpack' ) );
+	}
+
+	$tmpfile   = download_url( $url );
+
+	$remote_file_path = parse_url( $url, PHP_URL_PATH );
+
+	$file_name =  pathinfo( $remote_file_path, PATHINFO_FILENAME ) . '.' . pathinfo( $remote_file_path, PATHINFO_EXTENSION );
+
+	$time = date( 'YYYY/MM', strtotime( $attachment->post_date ) );
+
+	if ( ! ( ( $uploads = wp_upload_dir( $time ) ) && false === $uploads['error'] ) ) {
+		return new WP_Error( 'video_save_failed', __( 'Could not save video', 'jetpack' ) );
+	}
+
+	$unique_filename = wp_unique_filename( $uploads['path'], $file_name );
+
+	$save_path = $uploads['path'] . DIRECTORY_SEPARATOR . $unique_filename;
+
+	if ( ! @ copy( $tmpfile, $save_path ) ) {
+		return new WP_Error( 'video_save_failed', __( 'Could not save video', 'jetpack' ) );
+	}
+
+	unlink( $tmpfile );
+
+	update_attached_file( $attachment_id, $save_path );
+
+	return true;
+}
+
+/**
  * Creates a local media library item of a remote VideoPress video.
  *
  * @param $guid
@@ -200,6 +240,9 @@ function create_local_media_library_for_videopress_guid( $guid, $parent_id = 0 )
  * @return int The number of items that were cleaned up.
  */
 function videopress_cleanup_media_library() {
+
+	// Disable this job for now.
+	return 0;
 	$query_args = array(
 		'post_type'      => 'attachment',
 		'post_status'    => 'inherit',
@@ -259,17 +302,17 @@ function videopress_get_transcoding_status( $post_id ) {
 	$meta = wp_get_attachment_metadata( $post_id );
 
 	// If this has not been processed by videopress, we can skip the rest.
-	if ( !$meta || ! isset( $meta['videopress'] ) ) {
+	if ( ! $meta || ! isset( $meta['file_statuses'] ) ) {
 		return false;
 	}
 
-	$info = (object) $meta['videopress'];
+	$info = (object) $meta['file_statuses'];
 
 	$status = array(
-		'std_mp4' => isset( $info->files_status['std']['mp4'] ) ? $info->files_status['std']['mp4'] : null,
-		'std_ogg' => isset( $info->files_status['std']['ogg'] ) ? $info->files_status['std']['ogg'] : null,
-		'dvd_mp4' => isset( $info->files_status['dvd']['mp4'] ) ? $info->files_status['dvd']['mp4'] : null,
-		'hd_mp4'  => isset( $info->files_status['hd']['mp4'] )  ? $info->files_status['hd']['mp4']  : null,
+		'std_mp4' => isset( $info->mp4 ) ? $info->mp4 : null,
+		'std_ogg' => isset( $info->ogg ) ? $info->ogg : null,
+		'dvd_mp4' => isset( $info->dvd ) ? $info->dvd : null,
+		'hd_mp4'  => isset( $info->hd )  ? $info->hd : null,
 	);
 
 	return $status;
@@ -283,6 +326,12 @@ function videopress_get_transcoding_status( $post_id ) {
  * @return string
  */
 function videopress_build_url( $guid ) {
+
+	// No guid, no videopress url.
+	if ( ! $guid ) {
+		return '';
+	}
+
 	return 'https://videopress.com/v/' . $guid;
 }
 
@@ -294,21 +343,62 @@ function videopress_build_url( $guid ) {
  * @param string $title
  * @return int|WP_Error
  */
-function videopress_create_new_media_item( $title ) {
+function videopress_create_new_media_item( $title, $guid = null ) {
 	$post = array(
 		'post_type'      => 'attachment',
 		'post_mime_type' => 'video/videopress',
 		'post_title'     => $title,
 		'post_content'   => '',
+		'guid'           => videopress_build_url( $guid ),
 	);
 
 	$media_id = wp_insert_post( $post );
 
-	add_post_meta( $media_id, 'videopress_status', 'new' );
+	add_post_meta( $media_id, 'videopress_status', 'initiated' );
+
+	add_post_meta( $media_id, 'videopress_guid', $guid );
 
 	return $media_id;
 }
 
+
+/**
+ * @param array $current_status
+ * @param array $new_meta
+ * @return array
+ */
+function videopress_merge_file_status( $current_status, $new_meta ) {
+	$new_statuses = array();
+
+	if ( isset( $new_meta['videopress']['files_status']['hd'] ) ) {
+		$new_statuses['hd'] = $new_meta['videopress']['files_status']['hd'];
+	}
+
+	if ( isset( $new_meta['videopress']['files_status']['dvd'] ) ) {
+		$new_statuses['dvd'] = $new_meta['videopress']['files_status']['dvd'];
+	}
+
+	if ( isset( $new_meta['videopress']['files_status']['std']['mp4'] ) ) {
+		$new_statuses['mp4'] = $new_meta['videopress']['files_status']['std']['mp4'];
+	}
+
+	if ( isset( $new_meta['videopress']['files_status']['std']['ogg'] ) ) {
+		$new_statuses['ogg'] = $new_meta['videopress']['files_status']['std']['ogg'];
+	}
+
+	foreach ( $new_statuses as $format => $status ) {
+		if ( ! isset( $current_status[ $format ] ) ) {
+			$current_status[ $format ] = $status;
+			continue;
+		}
+
+		if ( $current_status[ $format ] !== 'DONE' ) {
+			$current_status[ $format ] = $status;
+		}
+	}
+
+	return $current_status;
+}
 
 /**
  * Check to see if a video has completed processing.
@@ -326,25 +416,16 @@ function videopress_is_finished_processing( $post_id ) {
 
 	$meta = wp_get_attachment_metadata( $post->ID );
 
-	if ( ! isset( $meta['videopress'] ) || ! is_array( $meta['videopress'] ) ) {
+	if ( ! isset( $meta['file_statuses'] ) || ! is_array( $meta['file_statuses'] ) ) {
 		return false;
 	}
 
-	// These are explicitly declared to avoid doing unnecessary loops across two levels of arrays.
-	if ( isset( $meta['videopress']['files_status']['hd'] ) && $meta['videopress']['files_status']['hd'] != 'DONE' ) {
-		return false;
-	}
+	$check_statuses = array( 'hd', 'dvd', 'mp4', 'ogg' );
 
-	if ( isset( $meta['videopress']['files_status']['dvd'] ) && $meta['videopress']['files_status']['dvd'] != 'DONE' ) {
-		return false;
-	}
-
-	if ( isset( $meta['videopress']['files_status']['std']['mp4'] ) && $meta['videopress']['files_status']['std']['mp4'] != 'DONE' ) {
-		return false;
-	}
-
-	if ( isset( $meta['videopress']['files_status']['std']['ogg'] ) && $meta['videopress']['files_status']['std']['ogg'] != 'DONE' ) {
-		return false;
+	foreach ( $check_statuses as $status ) {
+		if ( ! isset( $meta['file_statuses'][ $status ] ) || $meta['file_statuses'][ $status ] != 'DONE' ) {
+			return false;
+		}
 	}
 
 	return true;
@@ -369,7 +450,11 @@ function videopress_update_meta_data( $post_id ) {
 
 	$info = (object) $meta['videopress'];
 
-	$result = wp_remote_get( videopress_make_video_get_path( $info->guid ) );
+	$args = array(
+		// 'sslverify' => false,
+	);
+
+	$result = wp_remote_get( videopress_make_video_get_path( $info->guid ), $args );
 
 	if ( is_wp_error( $result ) ) {
 		return false;
@@ -385,7 +470,51 @@ function videopress_update_meta_data( $post_id ) {
 	return true;
 }
 
+/**
+ * Check to see if this is a VideoPress post that hasn't had a guid set yet.
+ *
+ * @param int $post_id
+ * @return bool
+ */
+function videopress_is_attachment_without_guid( $post_id ) {
+	$post = get_post( $post_id );
 
+	if ( is_wp_error( $post ) ) {
+		return false;
+	}
+
+	if ( $post->post_mime_type !== 'video/videopress' ) {
+		return false;
+	}
+
+	$videopress_guid = get_post_meta( $post_id, 'videopress_guid', true );
+
+	if ( $videopress_guid ) {
+		return false;
+	}
+
+	return true;
+}
+
+/**
+ * Check to see if this is a VideoPress attachment.
+ *
+ * @param int $post_id
+ * @return bool
+ */
+function is_videopress_attachment( $post_id ) {
+	$post = get_post( $post_id );
+
+	if ( is_wp_error( $post ) ) {
+		return false;
+	}
+
+	if ( $post->post_mime_type !== 'video/videopress' ) {
+		return false;
+	}
+
+	return true;
+}
 
 /**
  * Get the video update path
@@ -413,8 +542,7 @@ function videopress_make_video_get_path( $guid ) {
  */
 function videopress_make_media_upload_path( $blog_id ) {
 	return sprintf(
-		'https://%s/rest/v1.1/sites/%s/videos/new',
-		JETPACK__WPCOM_JSON_API_HOST,
+		'https://public-api.wordpress.com/rest/v1.1/sites/%s/media/new',
 		$blog_id
 	);
 }

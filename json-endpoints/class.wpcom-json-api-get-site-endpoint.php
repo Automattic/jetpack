@@ -92,7 +92,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		Jetpack_SEO_Titles::TITLE_FORMATS_OPTION,
 	);
 
-	protected static $jetpack_response_field_additions = array( 
+	protected static $jetpack_response_field_additions = array(
 		'subscribers_count',
 	);
 
@@ -101,7 +101,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'plan',
 	);
 
-	protected static $jetpack_response_option_additions = array( 
+	protected static $jetpack_response_option_additions = array(
 		'publicize_permanently_disabled',
 		'ak_vp_bundle_enabled'
 	);
@@ -128,7 +128,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			return $blog_id;
 		}
 
-		// TODO: enable this when we can do so without being interfered with by 
+		// TODO: enable this when we can do so without being interfered with by
 		// other endpoints that might be wrapping this one.
 		// Uncomment and see failing test: test_jetpack_site_should_have_true_jetpack_property_via_site_meta
 		// $this->filter_fields_and_options();
@@ -243,7 +243,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 				$response[ $key ] = $this->site->is_following();
 				break;
 			case 'options':
-				// small optimisation - don't recalculate 
+				// small optimisation - don't recalculate
 				$all_options = apply_filters( 'sites_site_options_format', self::$site_options_format );
 
 				$options_response_keys = is_array( $this->options_to_include ) ?
@@ -268,16 +268,16 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			case 'jetpack' :
 				$response[ $key ] = $this->site->is_jetpack();
 				break;
-			case 'single_user_site' : 
+			case 'single_user_site' :
 				$response[ $key ] = $this->site->is_single_user_site();
 				break;
-			case 'is_vip' : 
+			case 'is_vip' :
 				$response[ $key ] = $this->site->is_vip();
 				break;
 			case 'is_multisite' :
 				$response[ $key ] = $this->site->is_multisite();
 				break;
-			case 'capabilities' : 
+			case 'capabilities' :
 				$response[ $key ] = $this->site->get_capabilities();
 				break;
 			case 'jetpack_modules':
@@ -303,7 +303,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		$site = $this->site;
 
 		$custom_front_page = $site->is_custom_front_page();
-		
+
 
 		foreach ( $options_response_keys as $key ) {
 			switch ( $key ) {
@@ -368,7 +368,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$options[ $key ] = $site->get_image_large_width();
 					break;
 				case 'image_large_height' :
-					$options[ $key ] = $site->get_image_large_height(); 
+					$options[ $key ] = $site->get_image_large_height();
 					break;
 				case 'permalink_structure' :
 					$options[ $key ] = $site->get_permalink_structure();
@@ -448,14 +448,21 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 	}
 
 	protected function build_meta_response( &$response ) {
+		$links = array(
+			'self'     => (string) $this->links->get_site_link( $this->site->blog_id ),
+			'help'     => (string) $this->links->get_site_link( $this->site->blog_id, 'help'      ),
+			'posts'    => (string) $this->links->get_site_link( $this->site->blog_id, 'posts/'    ),
+			'comments' => (string) $this->links->get_site_link( $this->site->blog_id, 'comments/' ),
+			'xmlrpc'   => (string) $this->site->get_xmlrpc_url(),
+		);
+
+		$icon = $this->site->get_icon();
+		if ( ! empty( $icon ) && ! empty( $icon['media_id'] ) ) {
+			$links['site_icon'] = (string) $this->links->get_site_link( $this->site->blog_id, 'media/' . $icon['media_id'] );
+		}
+
 		$response['meta'] = (object) array(
-			'links' => (object) array(
-				'self'     => (string) $this->links->get_site_link( $this->site->blog_id ),
-				'help'     => (string) $this->links->get_site_link( $this->site->blog_id, 'help'      ),
-				'posts'    => (string) $this->links->get_site_link( $this->site->blog_id, 'posts/'    ),
-				'comments' => (string) $this->links->get_site_link( $this->site->blog_id, 'comments/' ),
-				'xmlrpc'   => (string) $this->site->get_xmlrpc_url(),
-			),
+			'links' => (object) $links
 		);
 	}
 

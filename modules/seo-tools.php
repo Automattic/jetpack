@@ -1,8 +1,8 @@
 <?php
 /**
  * Module Name: SEO tools
- * Module Description: Adds tools to enhance your site's content for better results on search engines and social media.
- * Jumpstart Description: Adds tools to enhance your site's content for better results on search engines and social media.
+ * Module Description: Better results on search engines and social media.
+ * Jumpstart Description: Better results on search engines and social media.
  * Sort Order: 35
  * Recommendation Order: 15
  * First Introduced: 4.4

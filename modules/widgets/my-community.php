@@ -36,7 +36,7 @@ class Jetpack_My_Community_Widget extends WP_Widget {
 			/** This filter is documented in modules/widgets/facebook-likebox.php */
 			apply_filters( 'jetpack_widget_name', esc_html__( 'My Community', 'jetpack' ) ),
 			array(
-				'description' => esc_html__( 'A sampling of users from your blog.', 'jetpack' ),
+				'description' => esc_html__( "Display members of your site's community.", 'jetpack' ),
 				'customize_selective_refresh' => true,
 			)
 		);
@@ -57,7 +57,7 @@ class Jetpack_My_Community_Widget extends WP_Widget {
 	}
 
 	/**
-	 * Back-end widget form.
+	 * Back end widget form.
 	 *
 	 * @see WP_Widget::form()
 	 *
@@ -87,11 +87,11 @@ class Jetpack_My_Community_Widget extends WP_Widget {
 		</p>
 
 		<p>
-			<label><?php esc_html_e( 'Show how many users?', 'jetpack' ); ?></label>
+			<label><?php esc_html_e( 'Show a maximum of', 'jetpack' ); ?></label>
 		</p>
 		<ul>
-			<li><label><input id="<?php echo $this->get_field_id( 'number' ); ?>-few"  name="<?php echo $this->get_field_name( 'number' ); ?>" type="radio" value="10" <?php checked( '10', $number ); ?> /> <?php esc_html_e( 'A few', 'jetpack' ); ?></label></li>
-			<li><label><input id="<?php echo $this->get_field_id( 'number' ); ?>-lots" name="<?php echo $this->get_field_name( 'number' ); ?>" type="radio" value="50" <?php checked( '50', $number ); ?> /> <?php esc_html_e( 'Lots', 'jetpack' ); ?></label></li>
+			<li><label><input id="<?php echo $this->get_field_id( 'number' ); ?>-few"  name="<?php echo $this->get_field_name( 'number' ); ?>" type="radio" value="10" <?php checked( '10', $number ); ?> /> <?php esc_html_e( '10 community members', 'jetpack' ); ?></label></li>
+			<li><label><input id="<?php echo $this->get_field_id( 'number' ); ?>-lots" name="<?php echo $this->get_field_name( 'number' ); ?>" type="radio" value="50" <?php checked( '50', $number ); ?> /> <?php esc_html_e( '50 community members', 'jetpack' ); ?></label></li>
 		</ul>
 
 		<p>
@@ -229,7 +229,7 @@ class Jetpack_My_Community_Widget extends WP_Widget {
 			if ( current_user_can( 'edit_theme_options' ) ) {
 				$my_community = '<p>' . wp_kses( sprintf( __( 'There are no users to display in this <a href="%1$s">My Community widget</a>. <a href="%2$s">Want more traffic?</a>', 'jetpack' ),
 						admin_url( 'widgets.php' ),
-						'http://en.support.wordpress.com/getting-more-site-traffic/'
+						'https://jetpack.com/support/getting-more-views-and-traffic/'
 					), array( 'a' => array( 'href' => true ) ) ) . '</p>';
 			} else {
 				$my_community = '<p>' . esc_html__( "I'm just starting out; leave me a comment or a like :)", 'jetpack' ) . '</p>';

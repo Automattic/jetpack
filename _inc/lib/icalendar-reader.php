@@ -737,19 +737,19 @@ class iCalendarReader {
 		<table class="upcoming-events">
 			<thead>
 				<tr>
-					<th>Location</th>
-					<th>When</th>
-					<th>Summary</th>
-					<th>Description</th>
+					<th><?php esc_html_e( 'Location', 'jetpack' ); ?></th>
+					<th><?php esc_html_e( 'When', 'jetpack' ); ?></th>
+					<th><?php esc_html_e( 'Summary', 'jetpack' ); ?></th>
+					<th><?php esc_html_e( 'Description', 'jetpack' ); ?></th>
 				</tr>
 			</thead>
 			<tbody>
 			<?php foreach ( $events as $event ) : ?>
 				<tr>
-					<td><?php echo $this->escape( stripslashes( $event['LOCATION'] ) ); ?></td>
+					<td><?php echo empty( $event['LOCATION'] ) ? '&nbsp;' : $this->escape( stripslashes( $event['LOCATION'] ) ); ?></td>
 					<td><?php echo $this->formatted_date( $event ); ?></td>
-					<td><?php echo $this->escape( stripslashes( $event['SUMMARY'] ) ); ?></td>
-					<td><?php echo wp_trim_words( $this->escape( stripcslashes( $event['DESCRIPTION'] ) ) ); ?></td>
+					<td><?php echo empty( $event['SUMMARY'] ) ? '&nbsp;' : $this->escape( stripslashes( $event['SUMMARY'] ) ); ?></td>
+					<td><?php echo empty( $event['DESCRIPTION'] ) ? '&nbsp;' : wp_trim_words( $this->escape( stripcslashes( $event['DESCRIPTION'] ) ) ); ?></td>
 				</tr>
 			<?php endforeach; ?>
 			</tbody>

@@ -22,6 +22,7 @@ import {
 	getModule as _getModule,
 	getModules
 } from 'state/modules';
+import ProStatus from 'pro-status';
 import { ModuleToggle } from 'components/module-toggle';
 import { AllModuleSettings } from 'components/module-settings/modules-per-tab-page';
 import { isUnavailableInDevMode } from 'state/connection';
@@ -29,8 +30,12 @@ import {
 	getSiteAdminUrl,
 	getSiteRawUrl,
 	isSitePublic,
+	getLastPostUrl,
 	userCanManageModules as _userCanManageModules
 } from 'state/initial-state';
+import { getSitePlan } from 'state/site';
+import QuerySite from 'components/data/query-site';
+import ExternalLink from 'components/external-link';
 
 export const Engagement = ( props ) => {
 	let {
@@ -43,13 +48,13 @@ export const Engagement = ( props ) => {
 		sitemapsDesc = getModule( 'sitemaps' ).description,
 		moduleList = Object.keys( props.moduleList );
 
-	if ( ! props.isSitePublic() ) {
+	if ( ! props.isSitePublic ) {
 		sitemapsDesc = <span>
 			{ sitemapsDesc }
 			{ <p className="jp-form-setting-explanation">
 				{ __( 'Your site must be accessible by search engines for this feature to work properly. You can change this in {{a}}Reading Settings{{/a}}.', {
 					components: {
-						a: <a href={ props.getSiteAdminUrl() + 'options-reading.php#blog_public' } className="jetpack-js-stop-propagation" />
+						a: <a href={ props.siteAdminUrl + 'options-reading.php#blog_public' } className="jetpack-js-stop-propagation" />
 					}
 				} ) }
 			</p> }
@@ -61,6 +66,9 @@ export const Engagement = ( props ) => {
 	 * @type {Array}
 	 */
 	let cards = [
+		[ 'seo-tools', getModule( 'seo-tools' ).name, getModule( 'seo-tools' ).description, getModule( 'seo-tools' ).learn_more_button ],
+		[ 'wordads', getModule( 'wordads' ).name, getModule( 'wordads' ).description, getModule( 'wordads' ).learn_more_button ],
+		[ 'google-analytics', getModule( 'google-analytics' ).name, getModule( 'google-analytics' ).description, getModule( 'google-analytics' ).learn_more_button ],
 		[ 'stats', getModule( 'stats' ).name, getModule( 'stats' ).description, getModule( 'stats' ).learn_more_button ],
 		[ 'sharedaddy', getModule( 'sharedaddy' ).name, getModule( 'sharedaddy' ).description, getModule( 'sharedaddy' ).learn_more_button ],
 		[ 'publicize', getModule( 'publicize' ).name, getModule( 'publicize' ).description, getModule( 'publicize' ).learn_more_button ],
@@ -88,25 +96,103 @@ export const Engagement = ( props ) => {
 		if ( ! includes( moduleList, element[0] ) ) {
 			return null;
 		}
-		var unavailableInDevMode = props.isUnavailableInDevMode( element[0] ),
+
+		let unavailableInDevMode = props.isUnavailableInDevMode( element[0] ),
 			customClasses = unavailableInDevMode ? 'devmode-disabled' : '',
 			toggle = '',
 			adminAndNonAdmin = isAdmin || includes( nonAdminAvailable, element[0] ),
-			isModuleActive = isModuleActivated( element[0] );
+			isPro = includes( [ 'seo-tools', 'wordads', 'google-analytics' ], element[0] ),
+			proProps = {
+				module: element[0],
+				configure_url: ''
+			},
+			isModuleActive = isModuleActivated( element[0] ),
+			planLoaded = 'undefined' !== typeof props.sitePlan.product_slug,
+			hasBusiness = false,
+			hasPremiumOrBusiness = false,
+			wordAdsSubHeader = element[2];
+
+		hasBusiness =
+			planLoaded &&
+			( props.sitePlan.product_slug === 'jetpack_business' ||
+				props.sitePlan.product_slug === 'jetpack_business_monthly' );
+
+		hasPremiumOrBusiness =
+			planLoaded &&
+			( props.sitePlan.product_slug === 'jetpack_premium' ||
+				props.sitePlan.product_slug === 'jetpack_premium_monthly' ||
+				props.sitePlan.product_slug === 'jetpack_business' ||
+				props.sitePlan.product_slug === 'jetpack_business_monthly' );
+
 		if ( unavailableInDevMode ) {
 			toggle = __( 'Unavailable in Dev Mode' );
 		} else if ( isAdmin ) {
-			toggle = <ModuleToggle slug={ element[0] }
-						activated={ isModuleActivated( element[0] ) }
+			if ( ( 'seo-tools' === element[0] && ! hasBusiness ) ||
+					( 'google-analytics' === element[0] && ! hasBusiness ) ||
+					( 'wordads' === element[0] && ! hasPremiumOrBusiness ) ) {
+				toggle = <ProStatus proFeature={ element[0] } />;
+			} else {
+				toggle =
+					<ModuleToggle
+						slug={ element[0] }
+						activated={ isModuleActive }
 						toggling={ isTogglingModule( element[0] ) }
 						toggleModule={ toggleModule } />;
+
+				// Add text about TOS if inactive
+				if ( 'wordads' === element[0] && ! isModuleActive ) {
+					wordAdsSubHeader = <WordAdsSubHeaderTos subheader={ element[2] } />
+				}
+			}
+
+			if ( element[0] === 'google-analytics' && ! hasBusiness ) {
+				isModuleActive = false;
+			}
+
+			if ( isPro ) {
+				// Add a "pro" button next to the header title
+				element[1] =
+					<span>
+						{ element[1] }
+						<Button compact={ true } href="#/plans">
+							{ __( 'Paid' ) }
+						</Button>
+					</span>;
+			}
 		}
+
+		let lastPostUrl = 'related-posts' === element[0]
+			? { lastPostUrl: props.lastPostUrl }
+			: '';
+		let moduleDescription = isModuleActive ?
+			<AllModuleSettings module={ isPro ? proProps : getModule( element[ 0 ] ) } { ...lastPostUrl } /> :
+			// Render the long_description if module is deactivated
+			<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />;
+
+		if ( element[0] === 'seo-tools' ) {
+			if ( 'undefined' === typeof props.sitePlan.product_slug && ! unavailableInDevMode ) {
+				proProps.configure_url = 'checking';
+			} else if ( props.sitePlan.product_slug === 'jetpack_business' ) {
+				proProps.configure_url = isModuleActive
+					? 'https://wordpress.com/settings/seo/' + props.siteRawUrl
+					: 'inactive';
+			}
+
+			moduleDescription = <AllModuleSettings module={ proProps } />;
+		} else if ( element[0] === 'google-analytics' ) {
+			proProps.configure_url = isModuleActive
+				? 'https://wordpress.com/settings/analytics/' + props.siteRawUrl
+				: 'inactive';
+
+			moduleDescription = <AllModuleSettings module={ proProps } />;
+		}
+
 		return adminAndNonAdmin ? (
 			<FoldableCard
 				className={ customClasses }
 				key={ `module-card_${element[0]}` /* https://fb.me/react-warning-keys */ }
 				header={ element[1] }
-				subheader={ element[2] }
+				subheader={ 'wordads' === element[0] ? wordAdsSubHeader : element[2] }
 				summary={ toggle }
 				expandedSummary={ toggle }
 				clickableHeaderText={ true }
@@ -118,51 +204,85 @@ export const Engagement = ( props ) => {
 				) }
 			>
 				{
-					isModuleActive ?
-						<AllModuleSettings module={ getModule( element[0] ) } adminUrl={ props.getSiteAdminUrl() } /> :
-						// Render the long_description if module is deactivated
-						<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />
+					moduleDescription
 				}
-				<div className="jp-module-settings__read-more">
+				<div className="jp-module-settings__learn-more">
 					<Button borderless compact href={ element[3] }><Gridicon icon="help-outline" /><span className="screen-reader-text">{ __( 'Learn More' ) }</span></Button>
-					{
-						'stats' === element[0] && isModuleActive ? (
-							<span>
-								<span className="jp-module-settings__more-sep" />
-								<span className="jp-module-settings__more-text">{
-									__( 'View {{a}}All Stats{{/a}}', {
-										components: {
-											a: <a href={ props.getSiteAdminUrl() + 'admin.php?page=stats' } />
-										}
-									} )
-								}</span>
-							</span>
-						) : ''
-					}
-					{
-						'subscriptions' === element[0] && isModuleActive ? (
-							<span>
-								<span className="jp-module-settings__more-sep" />
-								<span className="jp-module-settings__more-text">{
-									__( 'View your {{a}}Email Followers{{/a}}', {
-										components: {
-											a: <a href={ 'https://wordpress.com/people/email-followers/' + props.getSiteRawUrl() } />
-										}
-									} )
-								}</span>
-							</span>
-						) : ''
-					}
 				</div>
+					{
+						'stats' === element[0] && isModuleActive
+							? <div className="jp-module-settings__read-more">
+								<span>
+									<span className="jp-module-settings__more-text">{
+										__( 'View {{a}}All Stats{{/a}}', {
+											components: {
+												a: <a href={ props.siteAdminUrl + 'admin.php?page=stats' } />
+											}
+										} )
+									}</span>
+								</span>
+							  </div>
+							: ''
+					}
+					{
+						'subscriptions' === element[0] && isModuleActive
+							? <div className="jp-module-settings__read-more">
+								<span>
+									<span className="jp-module-settings__more-text">{
+										__( 'View your {{a}}Email Followers{{/a}}', {
+											components: {
+												a: <a href={ 'https://wordpress.com/people/email-followers/' + props.siteRawUrl } />
+											}
+										} )
+									}</span>
+								</span>
+							  </div>
+							: ''
+					}
+					{
+						'wordads' === element[0] && isModuleActive
+							? <div className="jp-module-settings__read-more">
+								<span>
+									<ExternalLink
+										className="jp-module-settings__external-link"
+										icon={ true }
+										iconSize={ 16 }
+										href={`https://wordpress.com/ads/earnings/${window.location.hostname}`}>
+											{ __( 'View your earnings' ) }
+									</ExternalLink>
+								</span>
+							</div>
+							: ''
+					}
+
 			</FoldableCard>
 		) : false;
 	} );
 	return (
 		<div>
+			<QuerySite />
 			{ cards }
 		</div>
 	);
 };
+
+export const WordAdsSubHeaderTos = React.createClass( {
+	render() {
+		return (
+			<div>
+				{ this.props.subheader }
+				<br/>
+				<small>
+					{ __( 'By activating ads, you agree to the Automattic Ads {{link}}Terms of Service{{/link}}.', {
+						components: {
+							link: <a href="https://wordpress.com/automattic-ads-tos/" target="_blank" />
+						}
+					} ) }
+				</small>
+			</div>
+		)
+	}
+} );
 
 function renderLongDescription( module ) {
 	// Rationale behind returning an object and not just the string
@@ -177,11 +297,13 @@ export default connect(
 			isTogglingModule: ( module_name ) => isActivatingModule( state, module_name ) || isDeactivatingModule( state, module_name ),
 			getModule: ( module_name ) => _getModule( state, module_name ),
 			isUnavailableInDevMode: ( module_name ) => isUnavailableInDevMode( state, module_name ),
-			getSiteRawUrl: () => getSiteRawUrl( state ),
-			getSiteAdminUrl: () => getSiteAdminUrl( state ),
-			isSitePublic: () => isSitePublic( state ),
+			siteRawUrl: getSiteRawUrl( state ),
+			siteAdminUrl: getSiteAdminUrl( state ),
+			isSitePublic: isSitePublic( state ),
+			sitePlan: getSitePlan( state ),
 			userCanManageModules: _userCanManageModules( state ),
-			moduleList: getModules( state )
+			moduleList: getModules( state ),
+			lastPostUrl: getLastPostUrl( state )
 		};
 	},
 	( dispatch ) => {

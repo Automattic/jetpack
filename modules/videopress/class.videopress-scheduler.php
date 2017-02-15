@@ -22,10 +22,10 @@ class VideoPress_Scheduler {
 	 * @var array
 	 */
 	protected $crons = array(
-		'cleanup' => array(
-			'method' => self::CLEANUP_CRON_METHOD,
-			'interval' => 'minutes_30',
-		),
+//		'cleanup' => array(
+//			'method' => self::CLEANUP_CRON_METHOD,
+//			'interval' => 'minutes_30',
+//		),
 	);
 
 

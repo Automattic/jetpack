@@ -7,19 +7,6 @@ class Jetpack_Core_API_Module_Toggle_Endpoint
 	extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
 	/**
-	 * List of modules that require WPCOM public access.
-	 *
-	 * @since 4.3.0
-	 *
-	 * @var array
-	 */
-	private $modules_requiring_public = array(
-		'photon',
-		'enhanced-distribution',
-		'json-api',
-	);
-
-	/**
 	 * Check if the module requires the site to be publicly accessible from WPCOM.
 	 * If the site meets this requirement, the module is activated. Otherwise an error is returned.
 	 *
@@ -65,17 +52,6 @@ class Jetpack_Core_API_Module_Toggle_Endpoint
 				'not_found',
 				esc_html__( 'The requested Jetpack module was not found.', 'jetpack' ),
 				array( 'status' => 404 )
-			);
-		}
-
-		if (
-			in_array( $module_slug, $this->modules_requiring_public )
-			&& ! $this->is_site_public()
-		) {
-			return new WP_Error(
-				'rest_cannot_publish',
-				esc_html__( 'This module requires your site to be set to publicly accessible.', 'jetpack' ),
-				array( 'status' => 424 )
 			);
 		}
 
@@ -217,7 +193,7 @@ class Jetpack_Core_API_Module_List_Endpoint {
 
 		if (
 			! isset( $params['modules'] )
-			|| is_array( $params['modules'] )
+			|| ! is_array( $params['modules'] )
 		) {
 			return new WP_Error(
 				'not_found',
@@ -302,6 +278,7 @@ class Jetpack_Core_API_Module_List_Endpoint {
 
 /**
  * Class that manages updating of Jetpack module options and general Jetpack settings or retrieving module data.
+ * If no module is specified, all module settings are retrieved/updated.
  *
  * @since 4.3.0
  * @since 4.4.0 Renamed Jetpack_Core_API_Module_Endpoint from to Jetpack_Core_API_Data.
@@ -312,6 +289,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
 	/**
 	 * Process request by returning the module or updating it.
+	 * If no module is specified, settings for all modules are assumed.
 	 *
 	 * @since 4.3.0
 	 *
@@ -321,7 +299,11 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 	 */
 	public function process( $data ) {
 		if ( 'GET' === $data->get_method() ) {
-			return $this->get_module( $data );
+			if ( isset( $data['slug'] ) ) {
+				return $this->get_module( $data );
+			}
+
+			return $this->get_all_options( $data );
 		} else {
 			return $this->update_data( $data );
 		}
@@ -372,6 +354,41 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			esc_html__( 'The requested Jetpack module was not found.', 'jetpack' ),
 			array( 'status' => 404 )
 		);
+	}
+
+	/**
+	 * Get information about all Jetpack module settings.
+	 *
+	 * @since 4.6.0
+	 *
+	 * @param WP_REST_Request $data {
+	 *     Array of parameters received by request.
+	 * }
+	 *
+	 * @return array
+	 */
+	public function get_all_options( $data ) {
+		$response = array();
+
+		$modules = Jetpack::get_available_modules();
+		if ( is_array( $modules ) && ! empty( $modules ) ) {
+			foreach ( $modules as $module ) {
+				// Add all module options
+				$options = Jetpack_Core_Json_Api_Endpoints::prepare_options_for_response( $module );
+				foreach ( $options as $option_name => $option ) {
+					$response[ $option_name ] = $option['current_value'];
+				}
+
+				// Add the module activation state
+				$response[ $module ] = Jetpack::is_module_active( $module );
+			}
+		}
+
+		// Add the Holiday snow current value
+		$holiday_snow_option_name = Jetpack_Core_Json_Api_Endpoints::holiday_snow_option_name();
+		$response[ $holiday_snow_option_name ] = get_option( $holiday_snow_option_name ) === 'letitsnow';
+
+		return rest_ensure_response( $response );
 	}
 
 	/**
@@ -699,6 +716,14 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
 				case Jetpack_Core_Json_Api_Endpoints::holiday_snow_option_name():
 					$updated = get_option( $option ) != $value ? update_option( $option, (bool) $value ? 'letitsnow' : '' ) : true;
+					break;
+
+				case 'google_analytics_tracking_id':
+					$grouped_options = $grouped_options_current = (array) get_option( 'jetpack_wga' );
+					$grouped_options[ 'code' ] = $value;
+
+					// If option value was the same, consider it done.
+					$updated = $grouped_options_current != $grouped_options ? update_option( 'jetpack_wga', $grouped_options ) : true;
 					break;
 
 				case 'wp_mobile_featured_images':
@@ -1093,9 +1118,9 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 		}
 
 		$data = json_decode( base64_decode( $vaultpress->contact_service( 'plugin_data' ) ) );
-		if ( is_wp_error( $data ) ) {
+		if ( is_wp_error( $data ) || ! isset( $data->backups->last_backup ) ) {
 			return $data;
-		} else if ( ! $data->backups->last_backup ) {
+		} else if ( empty( $data->backups->last_backup ) ) {
 			return rest_ensure_response( array(
 				'code'    => 'success',
 				'message' => esc_html__( 'VaultPress is active and will back up your site soon.', 'jetpack' ),

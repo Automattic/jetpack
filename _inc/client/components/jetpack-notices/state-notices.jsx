@@ -16,6 +16,7 @@ import {
 	getJetpackStateNoticesMessageCode,
 	getJetpackStateNoticesErrorDescription
 } from 'state/jetpack-notices';
+import NoticeAction from 'components/notice/notice-action.jsx';
 
 const JetpackStateNotices = React.createClass( {
 	displayName: 'JetpackStateNotices',
@@ -160,8 +161,9 @@ const JetpackStateNotices = React.createClass( {
 	},
 
 	getMessageFromKey: function( key ) {
-		let message = '';
-		let status = 'is-info';
+		let message = '',
+			status = 'is-info',
+			action;
 		switch ( key ) {
 			// This is the message that is shown on first page load after a Jetpack plugin update.
 			case 'modules_activated' :
@@ -188,17 +190,29 @@ const JetpackStateNotices = React.createClass( {
 				message = __( "You're fueled up and ready to go." );
 				status = 'is-success';
 				break;
+			case 'protect_misconfigured_ip' :
+				message = __( "Your server is misconfigured, which means that Jetpack Protect is unable to effectively protect your site." );
+				status = 'is-info';
+				action = (
+					<NoticeAction
+						href="https://jetpack.com/support/security/troubleshooting-protect/"
+					>
+						{ __( 'Learn More' ) }
+					</NoticeAction>
+				);
+				break;
 
 			default:
 				message = key;
 		}
 
-		return [ message, status ];
+		return [ message, status, action ];
 	},
 
 	renderContent: function() {
-		let status = 'is-info';
-		let noticeText = '';
+		let status = 'is-info',
+			noticeText = '',
+			action;
 		const error = this.props.jetpackStateNoticesErrorCode,
 			message = this.props.jetpackStateNoticesMessageCode;
 
@@ -217,14 +231,16 @@ const JetpackStateNotices = React.createClass( {
 			const messageData = this.getMessageFromKey( message );
 			noticeText = messageData[0];
 			status = messageData[1];
+			action = messageData[2]
 		}
 
 		return (
 			<SimpleNotice
 				status={ status }
 				onDismissClick={ this.dismissJetpackStateNotice }
+			    text={ noticeText }
 			>
-				{ noticeText }
+				{ action }
 			</SimpleNotice>
 		);
 	},

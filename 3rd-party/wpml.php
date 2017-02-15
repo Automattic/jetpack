@@ -1,9 +1,28 @@
 <?php
+/**
+ * Only load these if WPML plugin is installed and active.
+ */
 
-// Only load these if WPML is active.
-if ( defined( 'ICL_SITEPRESS_VERSION' ) ) :
+/**
+ * Load routines only if WPML is loaded.
+ *
+ * @since 4.4.0
+ */
+function wpml_jetpack_init() {
+	add_action( 'jetpack_widget_get_top_posts', 'wpml_jetpack_widget_get_top_posts', 10, 3 );
+	add_filter( 'grunion_contact_form_field_html', 'grunion_contact_form_field_html_filter', 10, 3 );
+}
+add_action( 'wpml_loaded', 'wpml_jetpack_init' );
 
-add_action( 'jetpack_widget_get_top_posts', 'wpml_jetpack_widget_get_top_posts', 10, 3 );
+/**
+ * Filter the Top Posts and Pages by language.
+ *
+ * @param array  $posts    Array of the most popular posts.
+ * @param array  $post_ids Array of Post IDs.
+ * @param string $count    Number of Top Posts we want to display.
+ *
+ * @return array
+ */
 function wpml_jetpack_widget_get_top_posts( $posts, $post_ids, $count ) {
 	global $sitepress;
 
@@ -18,7 +37,15 @@ function wpml_jetpack_widget_get_top_posts( $posts, $post_ids, $count ) {
 	return $posts;
 }
 
-add_filter( 'grunion_contact_form_field_html', 'grunion_contact_form_field_html_filter', 10, 3 );
+/**
+ * Filter the HTML of the Contact Form and output the one requested by language.
+ *
+ * @param string   $r           Contact Form HTML output.
+ * @param string   $field_label Field label.
+ * @param int|null $id          Post ID.
+ *
+ * @return string
+ */
 function grunion_contact_form_field_html_filter( $r, $field_label, $id ){
 	global $sitepress;
 
@@ -31,5 +58,3 @@ function grunion_contact_form_field_html_filter( $r, $field_label, $id ){
 
 	return $r;
 }
-
-endif;

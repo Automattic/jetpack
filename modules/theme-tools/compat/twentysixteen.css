@@ -188,7 +188,6 @@
 	margin-bottom: 0.875em
 }
 
-
 /**
  * Shortcodes
  */
@@ -499,10 +498,6 @@ iframe[src^="http://api.mixcloud.com/"] {
 
 .entry-content #jp-relatedposts h3.jp-relatedposts-headline em {
 	font-weight: 400;
-}
-
-.entry-content #jp-relatedposts .jp-relatedposts-headline em:after {
-	content: ":";
 }
 
 .jp-relatedposts-items:before,
