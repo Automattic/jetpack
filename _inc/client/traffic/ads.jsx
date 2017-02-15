@@ -58,7 +58,7 @@ export const Ads = moduleSettingsForm(
 						module={ { module: 'wordads' } }
 						support="https://jetpack.com/support/ads/">
 						<p>
-							{ __( 'By default ads are shown at the end of every page, post, or the first article on your front page. You can also add them to the top of your site and to any widget area to increase your earnings!' ) }
+							{ __( 'Show ads on the first article on your home page or at the end of every page and post. Place additional ads at the top of your site and to any widget area to increase your earnings.' ) }
 							<br />
 							<small className="jp-form-setting-explanation">
 								{ __( 'By activating ads, you agree to the Automattic Ads {{link}}Terms of Service{{/link}}.', {
@@ -77,7 +77,7 @@ export const Ads = moduleSettingsForm(
 							toggling={ this.props.isSavingAnyOption( 'wordads' ) }
 							toggleModule={ this.props.toggleModuleNow }>
 							<span className="jp-form-toggle-explanation">
-								{ __( 'Enable ads and display an ad unit below each post' ) }
+								{ __( 'Enable ads and display an ad below each post' ) }
 							</span>
 						</ModuleToggle>
 						<FormFieldset>
@@ -87,7 +87,7 @@ export const Ads = moduleSettingsForm(
 								disabled={ ! isAdsActive || unavailableInDevMode || this.props.isSavingAnyOption() }
 								onChange={ () => this.updateOptions( 'enable_header_ad' ) }>
 								<span className="jp-form-toggle-explanation">
-									{ __( 'Display an additional ad unit at the top of each page' ) }
+									{ __( 'Display an additional ad at the top of each page' ) }
 								</span>
 							</FormToggle>
 							{ ! unavailableInDevMode && (
