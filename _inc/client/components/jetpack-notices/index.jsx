@@ -90,7 +90,7 @@ export const DevModeNotice = React.createClass( {
 			const text = __( 'Currently in {{a}}Development Mode{{/a}} (some features are disabled) because:',
 				{
 					components: {
-						a: <a href="https://jetpack.com/support/development-mode/" target="_blank"/>,
+						a: <a href="https://jetpack.com/support/development-mode/" target="_blank" rel="noopener noreferrer"/>
 					}
 				}
 			);
