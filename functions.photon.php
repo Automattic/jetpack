@@ -284,6 +284,6 @@ function jetpack_photon_support_text_widgets( $content ) {
     if ( class_exists( 'Jetpack_Photon' ) && Jetpack::is_module_active( 'photon' ) ) {
         return Jetpack_Photon::filter_the_content( $content );
     }
-
+	return $content;
 }
 add_filter( 'widget_text', 'jetpack_photon_support_text_widgets' );
