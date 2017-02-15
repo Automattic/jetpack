@@ -38,6 +38,12 @@ const CustomContentTypes = moduleSettingsForm(
 			} );
 		},
 
+		linkIfActiveCPT( type ) {
+			return this.props.getSettingCurrentValue( 'jetpack_' + type, 'custom-content-types' )
+				? <a href={ this.props.siteAdminUrl + 'edit.php?post_type=jetpack-' + type } />
+				: <span />;
+		},
+
 		render() {
 			if ( ! this.props.isModuleFound( 'custom-content-types' ) ) {
 				return null;
@@ -66,7 +72,7 @@ const CustomContentTypes = moduleSettingsForm(
 									__( "Add, organize, and display {{testimonialLink}}testimonials{{/testimonialLink}}. If your theme doesn’t support testimonials yet, you can display them using the shortcode	( [testimonials] ).",
 										{
 											components: {
-												testimonialLink: <a href={ this.props.siteAdminUrl + 'edit.php?post_type=jetpack-testimonial' } />
+												testimonialLink: this.linkIfActiveCPT( 'testimonial' )
 											}
 										}
 									)
@@ -89,7 +95,7 @@ const CustomContentTypes = moduleSettingsForm(
 									__( "Add, organize, and display {{portfolioLink}}portfolios{{/portfolioLink}}. If your theme doesn’t support portfolios yet, you can display them using the shortcode ( [portfolios] )",
 										{
 											components: {
-												portfolioLink: <a href={ this.props.siteAdminUrl + 'edit.php?post_type=jetpack-portfolio' } />
+												portfolioLink: this.linkIfActiveCPT( 'portfolio' )
 											}
 										}
 									)
