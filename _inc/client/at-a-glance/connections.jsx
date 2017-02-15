@@ -120,7 +120,22 @@ export const DashConnections = React.createClass( {
 							<div className="jp-connection-settings__info">
 								<img alt="gravatar" width="64" height="64" className="jp-connection-settings__gravatar" src={ this.props.userWpComAvatar } />
 								<div className="jp-connection-settings__text">
-									{ __( 'Connected as ' ) }<span className="jp-connection-settings__username">{ this.props.userWpComLogin }</span>
+									{
+										__(
+											'Connected as {{span}}%(username)s{{/span}}',
+											{
+												args: {
+													username: this.props.userWpComLogin,
+												},
+												components: {
+													span: <span
+														className="jp-connection-settings__username"
+														/>
+												},
+												comment: '%(username) is the WordPress user login name.'
+											}
+										)
+									}
 									<div className="jp-connection-settings__email">{ this.props.userWpComEmail }</div>
 								</div>
 							</div>
@@ -155,14 +170,20 @@ export const DashConnections = React.createClass( {
 				<div className="jp-at-a-glance__item-grid">
 					<div className="jp-at-a-glance__left">
 						<div className="jp-dash-item__interior">
-							<DashItem className="jp-connection-type" label={ __( 'Site Connection' ) }>
+							<DashItem
+								className="jp-connection-type"
+								label={ __( 'Site connection', { context: 'Dashboard widget header' } ) }
+							>
 								{ this.siteConnection() }
 							</DashItem>
 						</div>
 					</div>
 					<div className="jp-at-a-glance__right">
 						<div className="jp-dash-item__interior">
-							<DashItem className="jp-connection-type" label={ __( 'Account Connection' ) }>
+							<DashItem
+								className="jp-connection-type"
+								label={ __( 'Account connection', { context: 'Dashboard widget header' } ) }
+							>
 								{ this.userConnection() }
 							</DashItem>
 						</div>

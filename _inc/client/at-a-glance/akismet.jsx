@@ -98,7 +98,7 @@ const DashAkismet = React.createClass( {
 					module="akismet"
 					className="jp-dash-item__is-inactive"
 					status="is-warning"
-					statusText={ __( 'Invalid Key' ) }
+					statusText={ __( 'Invalid key' ) }
 					pro={ true }
 					siteAdminUrl={ this.props.siteAdminUrl }
 				>

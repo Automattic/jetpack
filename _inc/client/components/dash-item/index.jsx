@@ -78,7 +78,7 @@ export const DashItem = React.createClass( {
 								status={ this.props.status }
 								isCompact={ true }
 							>
-								{ __( 'Updates Needed' ) }
+								{ __( 'Updates needed', { context: 'Short warning message' } ) }
 							</SimpleNotice>
 						</a>
 					);
@@ -95,7 +95,7 @@ export const DashItem = React.createClass( {
 					compact={ true }
 					href="#/plans"
 				>
-					{ __( 'Paid' ) }
+					{ __( 'Paid', { context: 'Short label appearing near a paid feature configuration block.' } ) }
 				</Button>
 			;
 

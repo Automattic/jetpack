@@ -75,7 +75,7 @@ export const ConnectButton = React.createClass( {
 							className="jp-connection-settings__cancel"
 							onClick={ this.handleCloseModal }>
 							{
-								__( 'Cancel' )
+								__( 'Cancel', { context: 'A caption for a button to cancel disconnection.' } )
 							}
 						</Button>
 						<Button
@@ -84,7 +84,7 @@ export const ConnectButton = React.createClass( {
 							className="jp-connection-settings__disconnect"
 							onClick={ this.disconnectSite }>
 							{
-								__( 'Disconnect' )
+								__( 'Disconnect', { context: 'A caption for a button to disconnect.' } )
 							}
 						</Button>
 					</div>

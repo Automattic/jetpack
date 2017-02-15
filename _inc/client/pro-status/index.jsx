@@ -67,7 +67,7 @@ const ProStatus = React.createClass( {
 						status='is-error'
 						isCompact={ true }
 					>
-						{ __( 'Threats found!' ) }
+						{ __( 'Threats found!', { context: 'Short warning message about new threats found.' } ) }
 					</SimpleNotice>
 				);
 			}
@@ -82,7 +82,7 @@ const ProStatus = React.createClass( {
 								status='is-warning'
 								isCompact={ true }
 							>
-								{ __( 'Invalid Key' ) }
+								{ __( 'Invalid key', { context: 'Short warning message about an invalid key being used for Akismet.' } ) }
 							</SimpleNotice>
 						</a>
 					);
@@ -100,7 +100,7 @@ const ProStatus = React.createClass( {
 						primary={ true }
 						href={ 'https://jetpack.com/redirect/?source=upgrade-seo&site=' + this.props.siteRawUrl + '&feature=advanced-seo' }
 					>
-						{ __( 'Upgrade' ) }
+						{ __( 'Upgrade', { context: 'Caption for a button to purchase a paid feature.' } ) }
 					</Button>
 				);
 			}
@@ -116,7 +116,7 @@ const ProStatus = React.createClass( {
 						primary={ true }
 						href={ 'https://jetpack.com/redirect/?source=upgrade-ads&site=' + this.props.siteRawUrl + '&feature=jetpack-ads' }
 					>
-						{ __( 'Upgrade' ) }
+						{ __( 'Upgrade', { context: 'Caption for a button to purchase a paid feature.' } ) }
 					</Button>
 				);
 			}
@@ -132,7 +132,7 @@ const ProStatus = React.createClass( {
 						primary={ true }
 						href={ 'https://jetpack.com/redirect/?source=upgrade-google-analytics&site=' + this.props.siteRawUrl + '&feature=google-analytics' }
 					>
-						{ __( 'Upgrade' ) }
+						{ __( 'Upgrade', { context: 'Caption for a button to purchase a paid feature.' } ) }
 					</Button>
 				);
 			}
@@ -142,7 +142,7 @@ const ProStatus = React.createClass( {
 				if ( 'jetpack_free' !== sitePlan.product_slug ) {
 					btnVals = {
 						href: `https://wordpress.com/plugins/setup/${ this.props.siteRawUrl }?only=${ feature }`,
-						text: __( 'Set up' )
+						text: __( 'Set up', { context: 'Caption for a button to set up a feature.' } )
 					}
 
 					if ( 'scan' === feature && ! hasBusiness && ! hasPremium ) {
@@ -152,14 +152,14 @@ const ProStatus = React.createClass( {
 								primary={ true }
 								href={ 'https://jetpack.com/redirect/?source=upgrade&site=' + this.props.siteRawUrl }
 							>
-								{ __( 'Upgrade' ) }
+								{ __( 'Upgrade', { context: 'Caption for a button to purchase a paid feature.' } ) }
 							</Button>
 						);
 					}
 				} else {
 					btnVals = {
 						href: 'https://jetpack.com/redirect/?source=upgrade&site=' + this.props.siteRawUrl,
-						text: __( 'Upgrade' )
+						text: __( 'Upgrade', { context: 'Caption for a button to purchase a paid feature.' } )
 					}
 				}
 

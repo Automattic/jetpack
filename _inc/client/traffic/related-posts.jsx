@@ -102,7 +102,9 @@ export const RelatedPosts = moduleSettingsForm(
 									}
 								} )
 							}
-							<FormLabel className="jp-form-label-wide">{ __( 'Preview' ) }</FormLabel>
+							<FormLabel className="jp-form-label-wide">
+								{ __( 'Preview', { context: 'A header for a preview area in the configuration screen.' } ) }
+							</FormLabel>
 							<Card className="jp-related-posts-preview">
 								{
 									this.state.show_headline && (
