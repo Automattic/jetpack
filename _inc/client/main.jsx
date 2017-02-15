@@ -217,7 +217,7 @@ const Main = React.createClass( {
 	render: function() {
 		return (
 			<div>
-				<Masthead/>
+				<Masthead route={ this.props.route } />
 					<div className="jp-lower">
 						<AdminNotices />
 						<JetpackNotices />
