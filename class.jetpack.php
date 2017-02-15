@@ -4447,7 +4447,7 @@ p {
 	 * verifies it worked properly.
 	 *
 	 * @since 2.6
-	 * @return true or Jetpack_Error
+	 * @return string|Jetpack_Error A JSON object on success or Jetpack_Error on failures
 	 **/
 	public function validate_remote_register_response( $response ) {
 	  if ( is_wp_error( $response ) ) {
@@ -4457,37 +4457,37 @@ p {
 		$code   = wp_remote_retrieve_response_code( $response );
 		$entity = wp_remote_retrieve_body( $response );
 		if ( $entity )
-			$json = json_decode( $entity );
+			$registration_response = json_decode( $entity );
 		else
-			$json = false;
+			$registration_response = false;
 
 		$code_type = intval( $code / 100 );
 		if ( 5 == $code_type ) {
 			return new Jetpack_Error( 'wpcom_5??', sprintf( __( 'Error Details: %s', 'jetpack' ), $code ), $code );
 		} elseif ( 408 == $code ) {
 			return new Jetpack_Error( 'wpcom_408', sprintf( __( 'Error Details: %s', 'jetpack' ), $code ), $code );
-		} elseif ( ! empty( $json->error ) ) {
-			if ( 'xml_rpc-32700' == $json->error && ! function_exists( 'xml_parser_create' ) ) {
+		} elseif ( ! empty( $registration_response->error ) ) {
+			if ( 'xml_rpc-32700' == $registration_response->error && ! function_exists( 'xml_parser_create' ) ) {
 				$error_description = __( "PHP's XML extension is not available. Jetpack requires the XML extension to communicate with WordPress.com. Please contact your hosting provider to enable PHP's XML extension.", 'jetpack' );
 			} else {
-				$error_description = isset( $json->error_description ) ? sprintf( __( 'Error Details: %s', 'jetpack' ), (string) $json->error_description ) : '';
+				$error_description = isset( $registration_response->error_description ) ? sprintf( __( 'Error Details: %s', 'jetpack' ), (string) $registration_response->error_description ) : '';
 			}
 
-			return new Jetpack_Error( (string) $json->error, $error_description, $code );
+			return new Jetpack_Error( (string) $registration_response->error, $error_description, $code );
 		} elseif ( 200 != $code ) {
 			return new Jetpack_Error( 'wpcom_bad_response', sprintf( __( 'Error Details: %s', 'jetpack' ), $code ), $code );
 		}
 
 		// Jetpack ID error block
-		if ( empty( $json->jetpack_id ) ) {
+		if ( empty( $registration_response->jetpack_id ) ) {
 			return new Jetpack_Error( 'jetpack_id', sprintf( __( 'Error Details: Jetpack ID is empty. Do not publicly post this error message! %s', 'jetpack' ), $entity ), $entity );
-		} elseif ( ! is_scalar( $json->jetpack_id ) ) {
+		} elseif ( ! is_scalar( $registration_response->jetpack_id ) ) {
 			return new Jetpack_Error( 'jetpack_id', sprintf( __( 'Error Details: Jetpack ID is not a scalar. Do not publicly post this error message! %s', 'jetpack' ) , $entity ), $entity );
-		} elseif ( preg_match( '/[^0-9]/', $json->jetpack_id ) ) {
+		} elseif ( preg_match( '/[^0-9]/', $registration_response->jetpack_id ) ) {
 			return new Jetpack_Error( 'jetpack_id', sprintf( __( 'Error Details: Jetpack ID begins with a numeral. Do not publicly post this error message! %s', 'jetpack' ) , $entity ), $entity );
 		}
 
-	    return true;
+	    return $registration_response;
 	}
 	/**
 	 * @return bool|WP_Error
@@ -4533,35 +4533,28 @@ p {
 		);
 		$response = Jetpack_Client::_wp_remote_request( Jetpack::fix_url_for_bad_hosts( Jetpack::api_url( 'register' ) ), $args, true );
 
-
 		// Make sure the response is valid and does not contain any Jetpack errors
-		$valid_response = Jetpack::init()->validate_remote_register_response( $response );
-		if( is_wp_error( $valid_response ) || !$valid_response ) {
-		    return $valid_response;
+		$registration_details = Jetpack::init()->validate_remote_register_response( $response );
+		if ( is_wp_error( $registration_details ) ) {
+		    return $registration_details;
+		} elseif ( ! $registration_details ) {
+			return new Jetpack_Error( 'unknown_error', __( 'Unknown error registering your Jetpack site', 'jetpack' ), wp_remote_retrieve_response_code( $response ) );
 		}
 
-		// Grab the response values to work with
-		$code   = wp_remote_retrieve_response_code( $response );
-		$entity = wp_remote_retrieve_body( $response );
+		if ( empty( $registration_details->jetpack_secret ) || ! is_string( $registration_details->jetpack_secret ) ) {
+			return new Jetpack_Error( 'jetpack_secret', '', wp_remote_retrieve_response_code( $response ) );
+		}
 
-		if ( $entity )
-			$json = json_decode( $entity );
-		else
-			$json = false;
-
-		if ( empty( $json->jetpack_secret ) || ! is_string( $json->jetpack_secret ) )
-			return new Jetpack_Error( 'jetpack_secret', '', $code );
-
-		if ( isset( $json->jetpack_public ) ) {
-			$jetpack_public = (int) $json->jetpack_public;
+		if ( isset( $registration_details->jetpack_public ) ) {
+			$jetpack_public = (int) $registration_details->jetpack_public;
 		} else {
 			$jetpack_public = false;
 		}
 
 		Jetpack_Options::update_options(
 			array(
-				'id'         => (int)    $json->jetpack_id,
-				'blog_token' => (string) $json->jetpack_secret,
+				'id'         => (int)    $registration_details->jetpack_id,
+				'blog_token' => (string) $registration_details->jetpack_secret,
 				'public'     => $jetpack_public,
 			)
 		);

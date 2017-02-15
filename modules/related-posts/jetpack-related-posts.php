@@ -154,7 +154,8 @@ class Jetpack_RelatedPosts {
 
 		if ( $options['show_headline'] ) {
 			$headline = sprintf(
-				'<h3 class="jp-relatedposts-headline"><em>%s</em></h3>',
+				/** This filter is already documented in modules/sharedaddy/sharing-service.php */
+				apply_filters( 'jetpack_sharing_headline_html', '<h3 class="jp-relatedposts-headline"><em>%s</em></h3>', esc_html( $options['headline'] ), 'related-posts' ),
 				esc_html( $options['headline'] )
 			);
 		} else {
@@ -293,6 +294,16 @@ EOT;
 
 		return $this->_options;
 	}
+	
+	public function get_option( $option_name ) {
+		$options = $this->get_options();
+		
+		if ( isset( $options[ $option_name ] ) ) {
+			return $options[ $option_name ];
+		}
+		
+		return false;
+	}
 
 	/**
 	 * Parses input and returns normalized options array.
@@ -307,7 +318,17 @@ EOT;
 		if ( !is_array( $input ) )
 			$input = array();
 
-		if ( isset( $input['enabled'] ) && '1' == $input['enabled'] ) {
+		if (
+			! isset( $input['enabled'] )
+			|| isset( $input['show_date'] )
+			|| isset( $input['show_context'] )
+			|| isset( $input['layout'] )
+			|| isset( $input['headline'] )
+			) {
+			$input['enabled'] = '1';
+		}
+
+		if ( '1' == $input['enabled'] ) {
 			$current['enabled'] = true;
 			$current['show_headline'] = ( isset( $input['show_headline'] ) && '1' == $input['show_headline'] );
 			$current['show_thumbnails'] = ( isset( $input['show_thumbnails'] ) && '1' == $input['show_thumbnails'] );
@@ -1383,24 +1404,11 @@ EOT;
 	 * @return bool
 	 */
 	protected function _enabled_for_request() {
-		// Default to enabled
-		$enabled = true;
-
-		// Must have feature enabled
-		$options = $this->get_options();
-		if ( ! $options['enabled'] ) {
-			$enabled = false;
-		}
-
-		// Only run for frontend pages
-		if ( is_admin() ) {
-			$enabled = false;
-		}
-
-		// Only run for standalone posts
-		if ( ! is_single() ) {
-			$enabled = false;
-		}
+		$enabled = is_single() 
+			&&
+				! is_admin()
+			&&
+				( !$this->_allow_feature_toggle() || $this->get_option( 'enabled' ) );
 
 		/**
 		 * Filter the Enabled value to allow related posts to be shown on pages as well.

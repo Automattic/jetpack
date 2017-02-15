@@ -87,34 +87,40 @@ export const DevModeNotice = React.createClass( {
 	render() {
 		if ( this.props.siteConnectionStatus === 'dev' ) {
 			const devMode = this.props.siteDevMode;
-			let text;
+			const text = __( 'Currently in {{a}}Development Mode{{/a}} (some features are disabled) because:',
+				{
+					components: {
+						a: <a href="https://jetpack.com/support/development-mode/" target="_blank"/>,
+					}
+				}
+			);
+			const reasons = [];
 			if ( devMode.filter ) {
-				text = __( 'Some features are currently disabled because this site is in {{a}}Development Mode{{/a}} via the jetpack_development_mode filter.',
+				reasons.push( __( '{{li}}The jetpack_development_mode filter is active{{/li}}',
 					{
 						components: {
-							a: <a href="https://jetpack.com/support/development-mode/" target="_blank" rel="noopener noreferrer" />,
-							br: <br />
+							li: <li />,
 						}
 					}
-				);
-			} else if ( devMode.constant ) {
-				text = __( 'Some features are currently disabled because this site is in {{a}}Development Mode{{/a}} via the JETPACK_DEV_DEBUG constant.',
+				) );
+			}
+			if ( devMode.constant ) {
+				reasons.push( __( '{{li}}The JETPACK_DEV_DEBUG constant is defined{{/li}}',
 					{
 						components: {
-							a: <a href="https://jetpack.com/support/development-mode/" target="_blank" rel="noopener noreferrer" />,
-							br: <br />
+							li: <li />,
 						}
 					}
-				);
-			} else if ( devMode.url ) {
-				text = __( 'Some features are currently disabled because this site is in {{a}}Development Mode{{/a}} since the URL lacks a dot (e.g. http://localhost).',
+				) );
+			}
+			if ( devMode.url ) {
+				reasons.push( __( '{{li}}Your site URL lacks a dot (e.g. http://localhost){{/li}}',
 					{
 						components: {
-							a: <a href="https://jetpack.com/support/development-mode/" target="_blank" rel="noopener noreferrer" />,
-							br: <br />
+							li: <li />,
 						}
 					}
-				);
+				) );
 			}
 
 			return (
@@ -123,6 +129,7 @@ export const DevModeNotice = React.createClass( {
 					status="is-basic"
 					text={ text }
 				>
+					<ul>{ reasons }</ul>
 					<NoticeAction
 						href="https://jetpack.com/development-mode/">
 						{ __( 'Learn More' ) }
