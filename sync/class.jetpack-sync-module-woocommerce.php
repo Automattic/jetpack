@@ -4,7 +4,7 @@ require_once JETPACK__PLUGIN_DIR . '/sync/class.jetpack-sync-module.php';
 
 class Jetpack_Sync_Module_WooCommerce extends Jetpack_Sync_Module {
 
-	private $meta_whitelist = array( 
+	private $meta_whitelist = array(
 		'_product_id',
 		'_variation_id',
 		'_qty',
@@ -14,6 +14,7 @@ class Jetpack_Sync_Module_WooCommerce extends Jetpack_Sync_Module {
 		'_line_total',
 		'_line_tax',
 		'_line_tax_data',
+		'_visibility',
 	);
 
 	private $order_item_table_name;
@@ -68,7 +69,7 @@ class Jetpack_Sync_Module_WooCommerce extends Jetpack_Sync_Module {
 
 		$order_item_ids_sql = implode( ', ', array_map( 'intval', $order_item_ids ) );
 
-		$order_items = $wpdb->get_results( 
+		$order_items = $wpdb->get_results(
 			"SELECT * FROM $this->order_item_table_name WHERE order_item_id IN ( $order_item_ids_sql )"
 		);
 
