@@ -78,7 +78,7 @@ export const DashItem = React.createClass( {
 								status={ this.props.status }
 								isCompact={ true }
 							>
-								{ __( 'Updates Needed', { context: 'Short warning message' } ) }
+								{ __( 'Updates needed', { context: 'Short warning message' } ) }
 							</SimpleNotice>
 						</a>
 					);

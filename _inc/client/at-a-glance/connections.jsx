@@ -172,7 +172,7 @@ export const DashConnections = React.createClass( {
 						<div className="jp-dash-item__interior">
 							<DashItem
 								className="jp-connection-type"
-								label={ __( 'Site Connection', { context: 'Dashboard widget header' } ) }
+								label={ __( 'Site connection', { context: 'Dashboard widget header' } ) }
 							>
 								{ this.siteConnection() }
 							</DashItem>
@@ -182,7 +182,7 @@ export const DashConnections = React.createClass( {
 						<div className="jp-dash-item__interior">
 							<DashItem
 								className="jp-connection-type"
-								label={ __( 'Account Connection', { context: 'Dashboard widget header' } ) }
+								label={ __( 'Account connection', { context: 'Dashboard widget header' } ) }
 							>
 								{ this.userConnection() }
 							</DashItem>

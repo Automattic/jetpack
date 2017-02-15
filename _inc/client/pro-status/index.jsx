@@ -82,7 +82,7 @@ const ProStatus = React.createClass( {
 								status='is-warning'
 								isCompact={ true }
 							>
-								{ __( 'Invalid Key', { context: 'Short warning message about an invalid key being used for Akismet.' } ) }
+								{ __( 'Invalid key', { context: 'Short warning message about an invalid key being used for Akismet.' } ) }
 							</SimpleNotice>
 						</a>
 					);
