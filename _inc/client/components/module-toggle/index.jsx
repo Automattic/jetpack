@@ -32,7 +32,9 @@ export const ModuleToggle = React.createClass( {
 				id = { this.props.id }
 				compact = {	 this.props.compact }
 				onChange={ this.toggleModule }>
-				{ this.props.children }
+				<span onClick={ this.toggleModule }>
+					{ this.props.children }
+				</span>
 			</FormToggle>
 		);
 	}
