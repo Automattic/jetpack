@@ -2,7 +2,6 @@
  * External dependencies
  */
 import React from 'react';
-import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import CompactFormToggle from 'components/form/form-toggle/compact';
 
@@ -19,64 +18,55 @@ import { ModuleToggle } from 'components/module-toggle';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import { getModule } from 'state/modules';
-import { isModuleFound as _isModuleFound } from 'state/search';
 
-const Media = moduleSettingsForm(
-	React.createClass( {
+export const Media = React.createClass( {
+	/**
+	 * Get options for initial state.
+	 *
+	 * @returns {Object} {{carousel_display_exif: Boolean}}
+	 */
+	getInitialState() {
+		return {
+			carousel_display_exif: this.props.getOptionValue( 'carousel_display_exif', 'carousel' )
+		};
+	},
 
-		/**
-		 * Get options for initial state.
-		 *
-		 * @returns {Object} {{carousel_display_exif: Boolean}}
-		 */
-		getInitialState() {
-			return {
-				carousel_display_exif: this.props.getOptionValue( 'carousel_display_exif', 'carousel' )
-			};
-		},
+	/**
+	 * Update state so toggles are updated.
+	 *
+	 * @param {string} optionName option slug
+	 */
+	updateOptions( optionName ) {
+		this.setState(
+			{
+				[ optionName ]: ! this.state[ optionName ]
+			},
+			this.props.updateFormStateModuleOption( 'carousel', optionName )
+		);
+	},
 
-		/**
-		 * Update state so toggles are updated.
-		 *
-		 * @param {string} optionName option slug
-		 */
-		updateOptions( optionName ) {
-			this.setState(
-				{
-					[ optionName ]: ! this.state[ optionName ]
-				},
-				this.props.updateFormStateModuleOption( 'carousel', optionName )
-			);
-		},
-
-		toggleModule( name, value ) {
-			if ( 'photon' === name ) {
-				// Carousel depends on Photon. Deactivate it if Photon is deactivated.
-				if ( false === ! value ) {
-					this.props.updateOptions( { photon: false, 'tiled-gallery': false, tiled_galleries: false } );
-				} else {
-					this.props.updateOptions( { photon: true, 'tiled-gallery': true, tiled_galleries: true } );
-				}
+	toggleModule( name, value ) {
+		if ( 'photon' === name ) {
+			// Carousel depends on Photon. Deactivate it if Photon is deactivated.
+			if ( false === ! value ) {
+				this.props.updateOptions( { photon: false, 'tiled-gallery': false, tiled_galleries: false } );
 			} else {
-				this.props.updateFormStateOptionValue( name, !value );
+				this.props.updateOptions( { photon: true, 'tiled-gallery': true, tiled_galleries: true } );
 			}
-		},
+		} else {
+			this.props.updateFormStateOptionValue( name, ! value );
+		}
+	},
 
-		render() {
-			if (
-				! this.props.isModuleFound( 'photon' )
-				&& ! this.props.isModuleFound( 'carousel' )
-			) {
-				// Nothing to show here
-				return null;
-			}
+	render() {
+		const photon = this.props.module( 'photon' ),
+			carousel = this.props.module( 'carousel' ),
+			isCarouselActive = this.props.getOptionValue( 'carousel' );
 
-			let photon = this.props.module( 'photon' ),
-				carousel = this.props.module( 'carousel' ),
-				isCarouselActive = this.props.getOptionValue( 'carousel' );
-
-			let photonSettings = (
+		return (
+			<SettingsCard
+				{ ...this.props }
+				header={ __( 'Media' ) }>
 				<SettingsGroup hasChild disableInDevMode module={ photon }>
 					<ModuleToggle
 						slug="photon"
@@ -97,9 +87,6 @@ const Media = moduleSettingsForm(
 						}
 					</span>
 				</SettingsGroup>
-			);
-
-			let carouselSettings = (
 				<SettingsGroup hasChild support={ carousel.learn_more_button }>
 					<ModuleToggle
 						slug="carousel"
@@ -137,25 +124,9 @@ const Media = moduleSettingsForm(
 						</FormLabel>
 					</FormFieldset>
 				</SettingsGroup>
-			);
-
-			return (
-				<SettingsCard
-					{ ...this.props }
-					header={ __( 'Media' ) }>
-					{ this.props.isModuleFound( 'photon' ) && photonSettings }
-					{ this.props.isModuleFound( 'carousel' ) && carouselSettings }
-				</SettingsCard>
-			);
-		}
-	} )
-);
-
-export default connect(
-	( state ) => {
-		return {
-			module: ( module_name ) => getModule( state, module_name ),
-			isModuleFound: ( module_name ) => _isModuleFound( state, module_name )
-		}
+			</SettingsCard>
+		);
 	}
-)( Media );
+} );
+
+export default moduleSettingsForm( Media );

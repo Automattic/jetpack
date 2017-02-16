@@ -10,7 +10,7 @@ import { translate as __ } from 'i18n-calypso';
 import Discussion from 'discussion';
 import Security from 'security/index.jsx';
 import Traffic from 'traffic';
-import Writing from 'writing/index.jsx';
+import { Writing } from 'writing/index.jsx';
 
 export default React.createClass( {
 	displayName: 'SearchableSettings',
