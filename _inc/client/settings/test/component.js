@@ -9,10 +9,10 @@ import { shallow } from 'enzyme';
  * Internal dependencies
  */
 import SearchableSettings from '../index';
-import Writing from 'writing';
+import { Writing } from 'writing';
 import Traffic from 'traffic';
-import Discussion from 'discussion';
-import Security from 'security';
+import { Discussion } from 'discussion';
+import { Security } from 'security';
 
 describe( 'SearchableSettings', () => {
 	let testProps,
