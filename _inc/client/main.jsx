@@ -30,7 +30,7 @@ import {
 } from 'state/initial-state';
 import { areThereUnsavedModuleOptions, clearUnsavedOptionFlag } from 'state/modules';
 import { areThereUnsavedSettings, clearUnsavedSettingsFlag } from 'state/settings';
-import { getSearchTerm } from 'state/search';
+import { isModuleFound } from 'state/search';
 
 import AtAGlance from 'at-a-glance/index.jsx';
 import Apps from 'apps/index.jsx';
@@ -103,17 +103,6 @@ const Main = React.createClass( {
 	},
 
 	shouldComponentUpdate: function( nextProps ) {
-
-		// A special case when user has just entered search mode and has not yet
-		// entered a search term
-		if (
-			nextProps.route.path !== this.props.route.path
-			&& '/search' === nextProps.route.path
-			&& ! nextProps.searchTerm
-		) {
-			return false;
-		}
-
 		return nextProps.siteConnectionStatus !== this.props.siteConnectionStatus ||
 			nextProps.jumpStartStatus !== this.props.jumpStartStatus ||
 			nextProps.route.path !== this.props.route.path ||
@@ -197,7 +186,7 @@ const Main = React.createClass( {
 					route={ this.props.route }
 					siteAdminUrl={ this.props.siteAdminUrl }
 					siteRawUrl={ this.props.siteRawUrl }
-					searchTerm={ this.props.searchTerm } />;
+					isModuleFound={ this.props.isModuleFound } />;
 				break;
 
 			default:
@@ -243,7 +232,7 @@ export default connect(
 			siteConnectionStatus: getSiteConnectionStatus( state ),
 			siteRawUrl: getSiteRawUrl( state ),
 			siteAdminUrl: getSiteAdminUrl( state ),
-			searchTerm: getSearchTerm( state ),
+			isModuleFound: ( module ) => isModuleFound( state, module ),
 			apiRoot: getApiRootUrl( state ),
 			apiNonce: getApiNonce( state ),
 			tracksUserData: getTracksUserData( state ),

@@ -17,8 +17,7 @@ export default React.createClass( {
 
 	render() {
 		const commonProps = {
-			route: this.props.route,
-			searchTerm: this.props.searchTerm
+			route: this.props.route
 		};
 
 		const render = {
@@ -36,6 +35,36 @@ export default React.createClass( {
 				'/search' === this.props.route.path
 				|| '/security' === this.props.route.path
 		};
+
+		render.writing = render.writing && [
+			'markdown',
+			'after-the-deadline',
+			'carousel',
+			'photon',
+			'custom-content-types',
+			'infinite-scroll',
+			'minileven',
+			'post-by-email'
+		].some( this.props.isModuleFound );
+
+		render.discussion = render.discussion && [
+			'comments',
+			'subscriptions'
+		].some( this.props.isModuleFound );
+
+		render.security = render.security && [
+			'protect',
+			'sso'
+		].some( this.props.isModuleFound );
+
+		render.traffic = render.traffic && [
+			'seo-tools',
+			'sitemaps',
+			'wordads',
+			'stats',
+			'related-posts',
+			'verification-tools'
+		].some( this.props.isModuleFound );
 
 		return (
 			<div className="jp-settings-container">

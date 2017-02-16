@@ -24,7 +24,8 @@ describe( 'SearchableSettings', () => {
 				name: 'General',
 				path: '/settings'
 			},
-			searchTerm: false
+			searchTerm: false,
+			isModuleFound: () => true
 		};
 
 		wrapper = shallow( <SearchableSettings { ...testProps } /> );
@@ -141,6 +142,145 @@ describe( 'SearchableSettings', () => {
 		} );
 		it( 'renders the security tab', () => {
 			expect( wrapper.containsMatchingElement( <Security /> ) ).to.be.true;
+		} );
+	} );
+
+	
+	describe( 'when any of the writing tab modules are found', () => {
+		[
+			'markdown',
+			'after-the-deadline',
+			'carousel',
+			'photon',
+			'custom-content-types',
+			'infinite-scroll',
+			'minileven',
+			'post-by-email'
+		].map( ( slug ) => {
+			before( () => {
+				testProps = {
+					...testProps,
+					route: {
+						name: 'Search',
+						path: '/search'
+					},
+					isModuleFound: ( subject ) => slug === subject
+				};
+
+				wrapper = shallow( <SearchableSettings { ...testProps } /> );
+			} );
+
+			it( 'renders the writing tab', () => {
+				expect( wrapper.containsMatchingElement( <Writing /> ) ).to.be.true;
+			} );
+
+			it( 'does not render any other tabs', () => {
+				expect( wrapper.containsAnyMatchingElements( [
+					<Security />,
+					<Discussion />,
+					<Traffic />
+				] ) ).to.be.false;
+			} );
+		} );
+	} );
+
+	describe( 'when any of the discussion tab modules are found', () => {
+		[
+			'comments',
+			'subscriptions'
+		].map( ( slug ) => {
+			before( () => {
+				testProps = {
+					...testProps,
+					route: {
+						name: 'Search',
+						path: '/search'
+					},
+					isModuleFound: ( subject ) => slug === subject
+				};
+
+				wrapper = shallow( <SearchableSettings { ...testProps } /> );
+			} );
+
+			it( 'renders the discussion tab', () => {
+				expect( wrapper.containsMatchingElement( <Discussion /> ) ).to.be.true;
+			} );
+
+			it( 'does not render any other tabs', () => {
+				expect( wrapper.containsAnyMatchingElements( [
+					<Security />,
+					<Writing />,
+					<Traffic />
+				] ) ).to.be.false;
+			} );
+		} );
+	} );
+
+	describe( 'when any of the security tab modules are found', () => {
+		[
+			'protect',
+			'sso'
+		].map( ( slug ) => {
+			before( () => {
+				testProps = {
+					...testProps,
+					route: {
+						name: 'Search',
+						path: '/search'
+					},
+					isModuleFound: ( subject ) => slug === subject
+				};
+
+				wrapper = shallow( <SearchableSettings { ...testProps } /> );
+			} );
+
+			it( 'renders the security tab', () => {
+				expect( wrapper.containsMatchingElement( <Security /> ) ).to.be.true;
+			} );
+
+			it( 'does not render any other tabs', () => {
+				expect( wrapper.containsAnyMatchingElements( [
+					<Writing />,
+					<Discussion />,
+					<Traffic />
+				] ) ).to.be.false;
+			} );
+		} );
+	} );
+
+	describe( 'when any of the traffic tab modules are found', () => {
+		[
+			'seo-tools',
+			'sitemaps',
+			'wordads',
+			'stats',
+			'related-posts',
+			'verification-tools'
+		].map( ( slug ) => {
+			before( () => {
+				testProps = {
+					...testProps,
+					route: {
+						name: 'Search',
+						path: '/search'
+					},
+					isModuleFound: ( subject ) => slug === subject
+				};
+
+				wrapper = shallow( <SearchableSettings { ...testProps } /> );
+			} );
+
+			it( 'renders the traffic tab', () => {
+				expect( wrapper.containsMatchingElement( <Traffic /> ) ).to.be.true;
+			} );
+
+			it( 'does not render any other tabs', () => {
+				expect( wrapper.containsAnyMatchingElements( [
+					<Security />,
+					<Discussion />,
+					<Writing />
+				] ) ).to.be.false;
+			} );
 		} );
 	} );
 } );
