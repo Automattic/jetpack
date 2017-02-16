@@ -12,37 +12,41 @@ import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-sett
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 
-export const SEO = moduleSettingsForm(
-	React.createClass( {
-
-		render() {
-			return (
-				<SettingsCard
-					{ ...this.props }
-					header={ __( 'Search engine optimization', { context: 'Settings header' } ) }
-					hideButton>
-					<SettingsGroup disableInDevMode module={ { module: 'seo-tools' } } support="https://jetpack.com/support/seo-tools/">
-						<p>
-							{
-								__( "You can tweak these settings if you'd like more advanced control. Read more about what you can do to {{a}}optimize your site's SEO{{/a}}.",
-									{
-										components: {
-											a: <a href="https://jetpack.com/support/seo-tools/" />
-										}
-									}
-								)
-							}
-						</p>
+export const SEO = React.createClass( {
+	render() {
+		return (
+			<SettingsCard
+				isSavingAnyOption={ this.props.isSavingAnyOption }
+				isDirty={ this.props.isDirty }
+				header={ __( 'Search engine optimization', { context: 'Settings header' } ) }
+				hideButton>
+				<SettingsGroup disableInDevMode module={ { module: 'seo-tools' } } support="https://jetpack.com/support/seo-tools/">
+					<p>
 						{
-							! this.props.isUnavailableInDevMode( 'seo-tools' ) && (
-								<span>
-									<ExternalLink className="jp-module-settings__external-link" href={ this.props.configureUrl }>{ __( 'Configure your SEO settings' ) }</ExternalLink>
-								</span>
+							__( "You can tweak these settings if you'd like more advanced control. Read more about what you can do to {{a}}optimize your site's SEO{{/a}}.",
+								{
+									components: {
+										a: <a href="https://jetpack.com/support/seo-tools/" />
+									}
+								}
 							)
 						}
-					</SettingsGroup>
-				</SettingsCard>
-			);
-		}
-	} )
-);
+					</p>
+					{
+						! this.props.isUnavailableInDevMode( 'seo-tools' ) && (
+							<span>
+								<ExternalLink
+									className="jp-module-settings__external-link"
+									href={ this.props.configureUrl }>
+									{ __( 'Configure your SEO settings' ) }
+								</ExternalLink>
+							</span>
+						)
+					}
+				</SettingsGroup>
+			</SettingsCard>
+		);
+	}
+} );
+
+export default moduleSettingsForm( SEO );
