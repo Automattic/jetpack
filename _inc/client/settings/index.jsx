@@ -36,32 +36,36 @@ export default React.createClass( {
 						: __( 'Enter a search term to find settings or close search.' )
 					}
 				</div>
-				<Discussion
-					siteRawUrl={ this.props.siteRawUrl }
-					active={ ( '/discussion' === this.props.route.path ) }
-					{ ...commonProps }
-				/>
-				<Security
-					siteAdminUrl={ this.props.siteAdminUrl }
-					active={ ( '/security' === this.props.route.path ) }
-					{ ...commonProps }
-				/>
-				<Traffic
-					siteRawUrl={ this.props.siteRawUrl }
-					siteAdminUrl={ this.props.siteAdminUrl }
-					active={ ( '/traffic' === this.props.route.path ) }
-					{ ...commonProps }
-				/>
-				<Writing
-					siteAdminUrl={ this.props.siteAdminUrl }
-					active={ (
-						'/writing' === this.props.route.path
-						|| '/settings' === this.props.route.path
-					) }
-					{ ...commonProps }
-				/>
+				{
+					(
+						'/settings' === this.props.route.path
+						|| '/writing' === this.props.route.path
+					) &&
+					<Writing
+						siteAdminUrl={ this.props.siteAdminUrl }
+						{ ...commonProps }
+					/>
+				}
+				{ '/traffic' === this.props.route.path &&
+					<Traffic
+						siteRawUrl={ this.props.siteRawUrl }
+						siteAdminUrl={ this.props.siteAdminUrl }
+						{ ...commonProps }
+					/>
+				}
+				{ '/discussion' === this.props.route.path &&
+					<Discussion
+						siteRawUrl={ this.props.siteRawUrl }
+						{ ...commonProps }
+					/>
+				}
+				{ '/security' === this.props.route.path &&
+					<Security
+						siteAdminUrl={ this.props.siteAdminUrl }
+						{ ...commonProps }
+					/>
+				}
 			</div>
 		);
 	}
 } );
-
