@@ -267,6 +267,8 @@ var updateLinkedInCount = function( data ) {
 				} );
 				$more_sharing_buttons.data( 'timer', false );
 			} );
+		} else {
+			$( document.body ).addClass( 'jp-sharing-input-touch' );
 		}
 
 		$( document ).click(function() {
