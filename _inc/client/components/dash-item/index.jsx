@@ -25,7 +25,11 @@ import {
 	getModule as _getModule
 } from 'state/modules';
 import ProStatus from 'pro-status';
-import { userCanManageModules } from 'state/initial-state';
+import {
+	getSiteRawUrl,
+	getSiteAdminUrl,
+	userCanManageModules
+} from 'state/initial-state';
 
 export const DashItem = React.createClass( {
 	displayName: 'DashItem',
@@ -101,6 +105,27 @@ export const DashItem = React.createClass( {
 					</a>
 				);
 			}
+
+			if ( 'monitor' === this.props.module && ! this.props.isDevMode ) {
+				toggle = (
+					<div>
+						{
+							this.props.isModuleActivated( this.props.module ) && (
+								<Button
+									href={ 'https://wordpress.com/settings/security/' + this.props.siteRawUrl }
+									compact>
+									{
+										__( 'Settings' )
+									}
+								</Button>
+							)
+						}
+						{
+							toggle
+						}
+					</div>
+				);
+			}
 		}
 
 		if ( this.props.pro && ! this.props.isDevMode ) {
@@ -141,7 +166,9 @@ export default connect(
 			isTogglingModule: ( module_name ) => isActivatingModule( state, module_name ) || isDeactivatingModule( state, module_name ),
 			getModule: ( module_name ) => _getModule( state, module_name ),
 			isDevMode: isDevMode( state ),
-			userCanToggle: userCanManageModules( state )
+			userCanToggle: userCanManageModules( state ),
+			siteRawUrl: getSiteRawUrl( state ),
+			siteAdminUrl: getSiteAdminUrl( state )
 		};
 	},
 	( dispatch ) => {

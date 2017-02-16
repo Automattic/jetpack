@@ -26,7 +26,7 @@ describe( 'DashItem', () => {
 		isTogglingModule: () => true,
 		toggleModule: () => false,
 		siteAdminUrl: 'https://example.org/wp-admin/',
-		siteRawUrl: 'https://example.org/'
+		siteRawUrl: 'example.org'
 	};
 
 	const wrapper = shallow( <DashItem { ...testProps } /> );
@@ -122,6 +122,25 @@ describe( 'DashItem', () => {
 
 		it( 'if user can not toggle, it does not display a toggle', () => {
 			expect( wrapper.find( 'ModuleToggle' ) ).to.have.length( 0 );
+		} );
+
+	} );
+
+	describe( 'when site is connected and user can toggle, the Monitor dash item', () => {
+
+		testProps = Object.assign( testProps, {
+			userCanToggle: true
+		} );
+
+		const wrapper = shallow( <DashItem { ...testProps } /> );
+
+		it( 'has a toggle', () => {
+			expect( wrapper.find( 'ModuleToggle' ) ).to.have.length( 1 );
+		} );
+
+		it( 'and a link to Calypso settings', () => {
+			expect( wrapper.find( 'Button' ) ).to.have.length( 1 );
+			expect( wrapper.find( 'Button' ).props().href ).to.contain( 'https://wordpress.com/settings/security/' + testProps.siteRawUrl );
 		} );
 
 	} );
