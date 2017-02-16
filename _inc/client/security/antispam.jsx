@@ -13,28 +13,28 @@ import { ModuleSettingCheckbox } from 'components/module-settings/form-component
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 
-export const Antispam = moduleSettingsForm(
-	React.createClass( {
+export const Antispam = React.createClass( {
+	toggleModule( name, value ) {
+		this.props.updateFormStateOptionValue( name, ! value );
+	},
 
-		toggleModule( name, value ) {
-			this.props.updateFormStateOptionValue( name, !value );
-		},
+	render() {
+		return (
+			<SettingsCard
+				isSavingAnyOption={ this.props.isSavingAnyOption }
+				isDirty={ this.props.isDirty }
+				header={ __( 'Spam filtering', { context: 'Settings header' } ) }>
+				<SettingsGroup support="https://akismet.com/jetpack/">
+					<FormFieldset>
+						<ModuleSettingCheckbox
+							name={ 'akismet_show_user_comments_approved' }
+							{ ...this.props }
+							label={ __( 'Show the number of approved comments beside each comment author' ) } />
+					</FormFieldset>
+				</SettingsGroup>
+			</SettingsCard>
+		);
+	}
+} );
 
-		render() {
-			return (
-				<SettingsCard
-					{ ...this.props }
-					header={ __( 'Spam filtering', { context: 'Settings header' } ) }>
-					<SettingsGroup support="https://akismet.com/jetpack/">
-						<FormFieldset>
-							<ModuleSettingCheckbox
-								name={ 'akismet_show_user_comments_approved' }
-								{ ...this.props }
-								label={ __( 'Show the number of approved comments beside each comment author' ) } />
-						</FormFieldset>
-					</SettingsGroup>
-				</SettingsCard>
-			);
-		}
-	} )
-);
+export default moduleSettingsForm( Antispam );

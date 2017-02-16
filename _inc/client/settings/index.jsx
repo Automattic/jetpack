@@ -8,7 +8,7 @@ import { translate as __ } from 'i18n-calypso';
  * Internal dependencies
  */
 import { Discussion } from 'discussion';
-import Security from 'security/index.jsx';
+import { Security } from 'security/index.jsx';
 import Traffic from 'traffic';
 import { Writing } from 'writing/index.jsx';
 

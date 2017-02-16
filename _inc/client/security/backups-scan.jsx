@@ -12,35 +12,39 @@ import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-sett
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 
-export const BackupsScan = moduleSettingsForm(
-	React.createClass( {
+export const BackupsScan = React.createClass( {
+	toggleModule( name, value ) {
+		this.props.updateFormStateOptionValue( name, ! value );
+	},
 
-		toggleModule( name, value ) {
-			this.props.updateFormStateOptionValue( name, !value );
-		},
-
-		render() {
-			return (
-				<SettingsCard
-					{ ...this.props }
-					header={ __( 'Backups and security scanning', { context: 'Settings header' } ) }
-					hideButton>
-					<SettingsGroup disableInDevMode module={ { module: 'backups' } } support="https://vaultpress.com/jetpack/">
-						<p>
-							{
-								__( 'Your site is backed up and threat-free.' )
-							}
-						</p>
+	render() {
+		return (
+			<SettingsCard
+				isSavingAnyOption={ this.props.isSavingAnyOption }
+				isDirty={ this.props.isDirty }
+				header={ __( 'Backups and security scanning', { context: 'Settings header' } ) }
+				hideButton>
+				<SettingsGroup disableInDevMode module={ { module: 'backups' } } support="https://vaultpress.com/jetpack/">
+					<p>
 						{
-							! this.props.isUnavailableInDevMode( 'backups' ) && (
-								<span>
-									<ExternalLink className="jp-module-settings__external-link" href="https://dashboard.vaultpress.com/" >{ __( 'Configure your Security Scans' ) }</ExternalLink>
-								</span>
-							)
+							__( 'Your site is backed up and threat-free.' )
 						}
-					</SettingsGroup>
-				</SettingsCard>
-			);
-		}
-	} )
-);
+					</p>
+					{
+						! this.props.isUnavailableInDevMode( 'backups' ) && (
+							<span>
+								<ExternalLink
+									className="jp-module-settings__external-link"
+									href="https://dashboard.vaultpress.com/" >
+									{ __( 'Configure your Security Scans' ) }
+								</ExternalLink>
+							</span>
+						)
+					}
+				</SettingsGroup>
+			</SettingsCard>
+		);
+	}
+} );
+
+export default moduleSettingsForm( BackupsScan );
