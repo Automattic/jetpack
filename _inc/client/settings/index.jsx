@@ -16,9 +16,25 @@ export default React.createClass( {
 	displayName: 'SearchableSettings',
 
 	render() {
-		var commonProps = {
+		const commonProps = {
 			route: this.props.route,
 			searchTerm: this.props.searchTerm
+		};
+
+		const render = {
+			writing:
+				'/search' === this.props.route.path
+				|| '/settings' === this.props.route.path
+				|| '/writing' === this.props.route.path,
+			traffic:
+				'/search' === this.props.route.path
+				|| '/traffic' === this.props.route.path,
+			discussion:
+				'/search' === this.props.route.path
+				|| '/discussion' === this.props.route.path,
+			security:
+				'/search' === this.props.route.path
+				|| '/security' === this.props.route.path
 		};
 
 		return (
@@ -36,30 +52,26 @@ export default React.createClass( {
 						: __( 'Enter a search term to find settings or close search.' )
 					}
 				</div>
-				{
-					(
-						'/settings' === this.props.route.path
-						|| '/writing' === this.props.route.path
-					) &&
+				{ render.writing &&
 					<Writing
 						siteAdminUrl={ this.props.siteAdminUrl }
 						{ ...commonProps }
 					/>
 				}
-				{ '/traffic' === this.props.route.path &&
+				{ render.traffic &&
 					<Traffic
 						siteRawUrl={ this.props.siteRawUrl }
 						siteAdminUrl={ this.props.siteAdminUrl }
 						{ ...commonProps }
 					/>
 				}
-				{ '/discussion' === this.props.route.path &&
+				{ render.discussion &&
 					<Discussion
 						siteRawUrl={ this.props.siteRawUrl }
 						{ ...commonProps }
 					/>
 				}
-				{ '/security' === this.props.route.path &&
+				{ render.security &&
 					<Security
 						siteAdminUrl={ this.props.siteAdminUrl }
 						{ ...commonProps }

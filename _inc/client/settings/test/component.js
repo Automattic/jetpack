@@ -37,11 +37,11 @@ describe( 'SearchableSettings', () => {
 		} );
 
 		it( 'renders the writing tab', () => {
-			expect( wrapper.children().containsMatchingElement( <Writing /> ) ).to.be.true;
+			expect( wrapper.containsMatchingElement( <Writing /> ) ).to.be.true;
 		} );
 
 		it( 'does not render any other tabs', () => {
-			expect( wrapper.children().containsAnyMatchingElements( [
+			expect( wrapper.containsAnyMatchingElements( [
 				<Traffic />,
 				<Security />,
 				<Discussion />
@@ -56,11 +56,11 @@ describe( 'SearchableSettings', () => {
 		} );
 
 		it( 'renders the writing tab', () => {
-			expect( wrapper.children().containsMatchingElement( <Writing /> ) ).to.be.true;
+			expect( wrapper.containsMatchingElement( <Writing /> ) ).to.be.true;
 		} );
 
 		it( 'does not render any other tabs', () => {
-			expect( wrapper.children().containsAnyMatchingElements( [
+			expect( wrapper.containsAnyMatchingElements( [
 				<Traffic />,
 				<Security />,
 				<Discussion />
@@ -75,11 +75,11 @@ describe( 'SearchableSettings', () => {
 		} );
 
 		it( 'renders the traffic tab', () => {
-			expect( wrapper.children().containsMatchingElement( <Traffic /> ) ).to.be.true;
+			expect( wrapper.containsMatchingElement( <Traffic /> ) ).to.be.true;
 		} );
 
 		it( 'does not render any other tabs', () => {
-			expect( wrapper.children().containsAnyMatchingElements( [
+			expect( wrapper.containsAnyMatchingElements( [
 				<Writing />,
 				<Security />,
 				<Discussion />
@@ -94,11 +94,11 @@ describe( 'SearchableSettings', () => {
 		} );
 
 		it( 'renders the discussion tab', () => {
-			expect( wrapper.children().containsMatchingElement( <Discussion /> ) ).to.be.true;
+			expect( wrapper.containsMatchingElement( <Discussion /> ) ).to.be.true;
 		} );
 
 		it( 'does not render any other tabs', () => {
-			expect( wrapper.children().containsAnyMatchingElements( [
+			expect( wrapper.containsAnyMatchingElements( [
 				<Writing />,
 				<Security />,
 				<Traffic />
@@ -113,15 +113,34 @@ describe( 'SearchableSettings', () => {
 		} );
 
 		it( 'renders the security tab', () => {
-			expect( wrapper.children().containsMatchingElement( <Security /> ) ).to.be.true;
+			expect( wrapper.containsMatchingElement( <Security /> ) ).to.be.true;
 		} );
 
 		it( 'does not render any other tabs', () => {
-			expect( wrapper.children().containsAnyMatchingElements( [
+			expect( wrapper.containsAnyMatchingElements( [
 				<Writing />,
 				<Discussion />,
 				<Traffic />
 			] ) ).to.be.false;
+		} );
+	} );
+
+	describe( 'when navigation changes to search', () => {
+		before( () => {
+			testProps.route.path = '/search';
+			wrapper = shallow( <SearchableSettings { ...testProps } /> );
+		} );
+		it( 'renders the writing tab', () => {
+			expect( wrapper.containsMatchingElement( <Writing /> ) ).to.be.true;
+		} );
+		it( 'renders the traffic tab', () => {
+			expect( wrapper.containsMatchingElement( <Traffic /> ) ).to.be.true;
+		} );
+		it( 'renders the discussion tab', () => {
+			expect( wrapper.containsMatchingElement( <Discussion /> ) ).to.be.true;
+		} );
+		it( 'renders the security tab', () => {
+			expect( wrapper.containsMatchingElement( <Security /> ) ).to.be.true;
 		} );
 	} );
 } );
