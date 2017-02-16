@@ -6,8 +6,8 @@ import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import Card from 'components/card';
 import classNames from 'classnames';
-import Button from 'components/button';
-import Gridicon from 'components/gridicon';
+import InfoPopover from 'components/info-popover';
+import ExternalLink from 'components/external-link';
 
 /**
  * Internal dependencies
@@ -17,12 +17,11 @@ import { userCanManageModules, isSitePublic } from 'state/initial-state';
 import { getSitePlan } from 'state/site';
 
 export const SettingsGroup = props => {
-	let module = props.module,
-		support = props.support
-			? props.support
-			: false,
-		// Disable in Dev Mode
+	const module = props.module,
 		disableInDevMode = props.disableInDevMode && props.isUnavailableInDevMode( module.module );
+	let support = props.support
+			? props.support
+			: false;
 
 	if ( ! support && module && '' !== module.learn_more_button ) {
 		support = module.learn_more_button;
@@ -40,10 +39,15 @@ export const SettingsGroup = props => {
 				{
 					support && (
 						<div className="jp-module-settings__learn-more">
-							<Button borderless compact href={ support }>
-								<Gridicon icon="help-outline" />
-								<span className="screen-reader-text">{ __( 'Learn More' ) }</span>
-							</Button>
+							<InfoPopover screenReaderText={ __( 'Learn more' ) }>
+								<ExternalLink
+									icon={ true }
+									iconSize={ 14 }
+									href={ support }
+									target="_blank">
+									{ __( 'Learn more' ) }
+								</ExternalLink>
+							</InfoPopover>
 						</div>
 					)
 				}
