@@ -226,3 +226,9 @@ function wpcomsh_get_attachment_url( $url, $post_id ) {
 	return $url;
 }
 add_filter( 'wp_get_attachment_url', 'wpcomsh_get_attachment_url', 11, 2 );
+
+/**
+ * If a user is logged in to WordPress.com, log him in automatically to wp-login
+ */
+add_filter( 'jetpack_sso_bypass_login_forward_wpcom', '__return_true' );
+
