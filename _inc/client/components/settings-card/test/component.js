@@ -9,7 +9,7 @@ import sinon from 'sinon';
 /**
  * Internal dependencies
  */
-import SettingsCard from '../index';
+import { SettingsCard } from '../index';
 
 describe( 'SettingsCard', () => {
 
@@ -25,7 +25,10 @@ describe( 'SettingsCard', () => {
 		isSavingAnyOption: () => false,
 		isDirty: () => true,
 		header: '',
-		support: ''
+		support: '',
+		sitePlan: {
+			product_slug: 'jetpack_free'
+		}
 	};
 
 	const wrapper = shallow( <SettingsCard { ...testProps } /> );

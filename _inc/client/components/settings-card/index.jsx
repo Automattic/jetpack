@@ -25,7 +25,7 @@ import SectionHeader from 'components/section-header';
 import Banner from 'components/banner';
 import Button from 'components/button';
 
-const SettingsCard = props => {
+export const SettingsCard = props => {
 	let module = props.module
 			? props.getModule( props.module )
 			: false,
