@@ -47,13 +47,12 @@ class Jetpack_Sync_Queue {
 		// this basically tries to add the option until enough time has elapsed that
 		// it has a unique (microtime-based) option key
 		while ( ! $added ) {
-			$rows_added = $wpdb->query( $wpdb->prepare(
-				"INSERT INTO $wpdb->options (option_name, option_value, autoload) VALUES (%s, %s,%s)",
-				$this->get_next_data_row_option_name(),
-				serialize( $item ),
-				'no'
-			) );
-			$added      = ( 0 !== $rows_added );
+			$rows_added = $wpdb->insert( $wpdb->options, array(
+					'option_name'  => $this->get_next_data_row_option_name(),
+					'option_value' => serialize( $item ),
+					'autoload'     => 'no',
+				), '%s' );
+			$added      = (bool) $rows_added;
 		}
 	}
 
@@ -352,13 +351,11 @@ class Jetpack_Sync_Queue {
 		);
 
 		if ( ! $updated_num ) {
-			$updated_num = $wpdb->query(
-				$wpdb->prepare(
-					"INSERT INTO $wpdb->options ( option_name, option_value, autoload ) VALUES ( %s, %s, 'no' )", 
-					$this->get_lock_option_name(),
-					"$checkout_id:$expires"
-				)
-			);
+			$updated_num = $wpdb->insert( $wpdb->options, array(
+					'option_name'  => $this->get_lock_option_name()
+					'option_value' => "$checkout_id:$expires"
+					'autoload'     => 'no',
+				), '%s' );
 		}
 
 		return $updated_num;

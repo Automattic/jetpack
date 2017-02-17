@@ -4890,17 +4890,13 @@ p {
 			$wpdb->prepare( "SELECT * FROM `$wpdb->options` WHERE option_name = %s", "jetpack_nonce_{$timestamp}_{$nonce}" )
 		);
 
+		$return = false;
 		if ( is_null( $old_nonce ) ) {
-			$return = $wpdb->query(
-				$wpdb->prepare(
-					"INSERT INTO `$wpdb->options` (`option_name`, `option_value`, `autoload`) VALUES (%s, %s, %s)",
-					"jetpack_nonce_{$timestamp}_{$nonce}",
-					time(),
-					'no'
-				)
-			);
-		} else {
-			$return = false;
+			$return = $wpdb->insert( $wpdb->options, array(
+					'option_name'  => "jetpack_nonce_{$timestamp}_{$nonce}",
+					'option_value' => time(),
+					'autoload'     => 'no',
+				), array( '%s', '%d', '%s' ) );
 		}
 
 		$wpdb->show_errors( $show_errors );
