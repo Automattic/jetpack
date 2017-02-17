@@ -178,7 +178,9 @@ export const Composing = React.createClass( {
 				header={ __( 'Composing', { context: 'Settings header' } ) }
 				{ ...this.props }
 			>
-				<SettingsGroup support={ markdown.learn_more_button }>
+				<SettingsGroup
+					support={ markdown.learn_more_button }
+					module={ markdown }>
 					<FormFieldset>
 						<ModuleToggle
 							slug="markdown"
@@ -191,7 +193,10 @@ export const Composing = React.createClass( {
 						</ModuleToggle>
 					</FormFieldset>
 				</SettingsGroup>
-				<SettingsGroup hasChild disableInDevMode module={ atd }>
+				<SettingsGroup
+					hasChild
+					disableInDevMode
+					module={ atd }>
 					<ModuleToggle slug="after-the-deadline"
 						activated={ this.props.getOptionValue( 'after-the-deadline' ) }
 						toggling={ this.props.isSavingAnyOption( 'after-the-deadline' ) }

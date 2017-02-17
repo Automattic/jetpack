@@ -67,7 +67,10 @@ export const Media = React.createClass( {
 			<SettingsCard
 				{ ...this.props }
 				header={ __( 'Media' ) }>
-				<SettingsGroup hasChild disableInDevMode module={ photon }>
+				<SettingsGroup
+					hasChild
+					disableInDevMode
+					module={ photon }>
 					<ModuleToggle
 						slug="photon"
 						disabled={ this.props.isUnavailableInDevMode( 'photon' ) }
@@ -87,7 +90,10 @@ export const Media = React.createClass( {
 						}
 					</span>
 				</SettingsGroup>
-				<SettingsGroup hasChild support={ carousel.learn_more_button }>
+				<SettingsGroup
+					hasChild
+					support={ carousel.learn_more_button }
+					module={ carousel }>
 					<ModuleToggle
 						slug="carousel"
 						activated={ isCarouselActive }

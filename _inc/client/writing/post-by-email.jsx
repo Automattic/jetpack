@@ -45,7 +45,10 @@ export const PostByEmail = React.createClass( {
 				isSavingAnyOption={ this.props.isSavingAnyOption }
 				module={ postByEmail }
 				hideButton>
-				<SettingsGroup hasChild disableInDevMode module={ postByEmail }>
+				<SettingsGroup
+					hasChild
+					disableInDevMode
+					module={ postByEmail }>
 					<ModuleToggle
 						slug="post-by-email"
 						compact

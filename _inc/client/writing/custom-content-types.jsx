@@ -52,7 +52,10 @@ export const CustomContentTypes = React.createClass( {
 				{ ...this.props }
 				module="custom-content-types"
 				hideButton>
-				<SettingsGroup hasChild support={ module.learn_more_button }>
+				<SettingsGroup
+					hasChild
+					support={ module.learn_more_button }
+					module={ module }>
 					<CompactFormToggle
 						checked={ this.state.testimonial }
 						disabled={ this.props.isSavingAnyOption() }

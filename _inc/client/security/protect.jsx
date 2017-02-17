@@ -72,7 +72,10 @@ export const Protect = React.createClass( {
 				isSavingAnyOption={ this.props.isSavingAnyOption }
 				isDirty={ this.props.isDirty }
 				header={ __( 'Prevent brute force login attacks', { context: 'Settings header' } ) } >
-				<SettingsGroup hasChild disableInDevMode module={ protect }>
+				<SettingsGroup
+					hasChild
+					disableInDevMode
+					module={ protect }>
 					<ModuleToggle
 						slug="protect"
 						compact

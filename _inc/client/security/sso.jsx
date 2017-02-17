@@ -51,7 +51,10 @@ export const SSO = React.createClass( {
 				isDirty={ this.props.isDirty }
 				hideButton
 				header={ __( 'WordPress.com log in', { context: 'Settings header' } ) }>
-				<SettingsGroup hasChild disableInDevMode module={ sso }>
+				<SettingsGroup
+					hasChild
+					disableInDevMode
+					module={ sso }>
 					<ModuleToggle
 						slug="sso"
 						disabled={ unavailableInDevMode }

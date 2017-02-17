@@ -94,7 +94,11 @@ export const ThemeEnhancements = React.createClass( {
 						const isItemActive = this.props.getOptionValue( item.module );
 
 						return (
-							<SettingsGroup hasChild key={ `theme_enhancement_${ item.module }` } support={ item.learn_more_button }>
+							<SettingsGroup
+								hasChild
+								key={ `theme_enhancement_${ item.module }` }
+								support={ item.learn_more_button }
+								module={ item }>
 								<ModuleToggle
 									slug={ item.module }
 									activated={ isItemActive }

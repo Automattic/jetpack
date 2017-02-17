@@ -88,7 +88,9 @@ export const SiteStats = React.createClass( {
 				isDirty={ this.props.isDirty }
 				hideButton
 				header={ __( 'Site stats' ) }>
-				<SettingsGroup disableInDevMode module={ stats }>
+				<SettingsGroup
+					disableInDevMode
+					module={ stats }>
 					<FormFieldset>
 						<ModuleToggle
 							slug="stats"

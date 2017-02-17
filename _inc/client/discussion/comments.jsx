@@ -45,7 +45,10 @@ export const Comments = React.createClass( {
 				isSavingAnyOption={ this.props.isSavingAnyOption }
 				isDirty={ this.props.isDirty }
 				header={ comments.name }>
-				<SettingsGroup hasChild disableInDevMode module={ comments }>
+				<SettingsGroup
+					hasChild
+					disableInDevMode
+					module={ comments }>
 					<ModuleToggle
 						slug="comments"
 						compact
@@ -82,8 +85,11 @@ export const Comments = React.createClass( {
 						</FormLabel>
 					</FormFieldset>
 				</SettingsGroup>
-				<SettingsGroup>
-					<FormFieldset support={ gravatar.learn_more_button }>
+				<SettingsGroup
+					module={ { module: 'gravatar-hovercards' } }>
+					>
+					<FormFieldset
+						support={ gravatar.learn_more_button }>
 						<ModuleToggle
 							slug="gravatar-hovercards"
 							compact

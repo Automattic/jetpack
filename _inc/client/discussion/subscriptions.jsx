@@ -52,7 +52,10 @@ export const Subscriptions = React.createClass( {
 				isSavingAnyOption={ this.props.isSavingAnyOption }
 				isDirty={ this.props.isDirty }
 				hideButton>
-				<SettingsGroup hasChild disableInDevMode module={ subscriptions }>
+				<SettingsGroup
+					hasChild
+					disableInDevMode
+					module={ subscriptions }>
 					<ModuleToggle
 						slug="subscriptions"
 						disabled={ unavailableInDevMode }

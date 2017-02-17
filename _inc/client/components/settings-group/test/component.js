@@ -3,8 +3,7 @@
  */
 import React from 'react';
 import { expect } from 'chai';
-import { shallow } from 'enzyme';
-import sinon from 'sinon';
+import { shallow, render } from 'enzyme';
 
 /**
  * Internal dependencies
@@ -12,15 +11,37 @@ import sinon from 'sinon';
 import { SettingsGroup } from '../index';
 
 describe( 'SettingsGroup', () => {
+	let testProps,
+		settingsGroup;
 
-	let testProps = {
-		learn_more_button: 'https://jetpack.com/support/protect'
-	};
+	before( () => {
+		testProps = {
+			support: 'https://jetpack.com/support/protect',
+			module: { module: 'protect' },
+			isModuleFound: () => true
+		};
 
-	const settingsGroup = shallow( <SettingsGroup support={ testProps.learn_more_button } /> );
-
-	it( 'the learn more icon is linked to the correct URL', () => {
-		expect( settingsGroup.find( 'Button' ).get(0).props.href ).to.be.equal( 'https://jetpack.com/support/protect' );
+		settingsGroup = shallow( <SettingsGroup { ...testProps } /> );
 	} );
 
+	it( 'the learn more icon is linked to the correct URL', () => {
+		expect(
+			settingsGroup.find( 'Button' ).get(0).props.href
+		).to.be.equal( 'https://jetpack.com/support/protect' );
+	} );
+
+	describe( 'when the module is not found', () => {
+		before( () => {
+			testProps = {
+				...testProps,
+				isModuleFound: () => false
+			};
+
+			settingsGroup = render( <SettingsGroup { ...testProps } /> );
+		} );
+
+		it( 'returns null from the render method', () => {
+			expect( settingsGroup.html() ).to.equal( '<noscript></noscript>' );
+		} );
+	} );
 } );

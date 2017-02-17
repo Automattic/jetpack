@@ -57,7 +57,10 @@ export const RelatedPosts = React.createClass( {
 				isDirty={ this.props.isDirty }
 				hideButton
 				header={ related.name }>
-				<SettingsGroup hasChild disableInDevMode module={ related }>
+				<SettingsGroup
+					hasChild
+					disableInDevMode
+					module={ related }>
 					<ModuleToggle
 						slug="related-posts"
 						disabled={ unavailableInDevMode }

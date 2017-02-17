@@ -21,6 +21,7 @@ const SettingsCard = props => {
 	if ( '' === header && module ) {
 		header = module.name;
 	}
+	React.Children.map( props.children.map, console.log );
 
 	return (
 		<form className="jp-form-settings-card">

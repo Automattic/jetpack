@@ -20,7 +20,10 @@ export const SEO = React.createClass( {
 				isDirty={ this.props.isDirty }
 				header={ __( 'Search engine optimization', { context: 'Settings header' } ) }
 				hideButton>
-				<SettingsGroup disableInDevMode module={ { module: 'seo-tools' } } support="https://jetpack.com/support/seo-tools/">
+				<SettingsGroup
+					disableInDevMode
+					module={ { module: 'seo-tools' } }
+					support="https://jetpack.com/support/seo-tools/">
 					<p>
 						{
 							__( "You can tweak these settings if you'd like more advanced control. Read more about what you can do to {{a}}optimize your site's SEO{{/a}}.",

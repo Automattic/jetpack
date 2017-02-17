@@ -3,13 +3,19 @@
  */
 import React from 'react';
 import { expect } from 'chai';
-import { shallow } from 'enzyme';
+import { shallow, render } from 'enzyme';
 import sinon from 'sinon';
 
 /**
  * Internal dependencies
  */
 import SettingsCard from '../index';
+
+const DummyComponent = React.createClass( {
+	render() {
+		return null;
+	}
+} );
 
 describe( 'SettingsCard', () => {
 	let testProps,
@@ -122,4 +128,19 @@ describe( 'SettingsCard', () => {
 
 	} );
 
+	describe( 'When children return an empty object', () => {
+		let card;
+
+		before( () => {
+			card = render(
+				<SettingsCard { ...testProps }>
+					<DummyComponent />
+				</SettingsCard>
+			);
+		} );
+
+		it( 'should return an empty object itself', () => {
+			expect( card.html() ).to.equal( '<noscript></noscript>' );
+		} );
+	} );
 } );

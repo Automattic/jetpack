@@ -24,7 +24,9 @@ export const Antispam = React.createClass( {
 				isSavingAnyOption={ this.props.isSavingAnyOption }
 				isDirty={ this.props.isDirty }
 				header={ __( 'Spam filtering', { context: 'Settings header' } ) }>
-				<SettingsGroup support="https://akismet.com/jetpack/">
+				<SettingsGroup
+					support="https://akismet.com/jetpack/"
+					module={ { module: 'protect' } }>
 					<FormFieldset>
 						<ModuleSettingCheckbox
 							name={ 'akismet_show_user_comments_approved' }
