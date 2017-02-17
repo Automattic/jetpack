@@ -303,9 +303,9 @@ function jetpack_photon_banned_domains( $skip, $image_url, $args, $scheme ) {
  * @return string
  */
 function jetpack_photon_support_text_widgets( $content ) {
-    if ( class_exists( 'Jetpack_Photon' ) && Jetpack::is_module_active( 'photon' ) ) {
-        return Jetpack_Photon::filter_the_content( $content );
-    }
+	if ( class_exists( 'Jetpack_Photon' ) && Jetpack::is_module_active( 'photon' ) ) {
+		return Jetpack_Photon::filter_the_content( $content );
+	}
 	return $content;
 }
 add_filter( 'widget_text', 'jetpack_photon_support_text_widgets' );
