@@ -81,8 +81,7 @@ const Media = moduleSettingsForm(
 				<SettingsGroup
 					hasChild
 					disableInDevMode
-					module={ photon }
-					feature={ FEATURE_VIDEO_HOSTING_JETPACK }>
+					module={ photon }>
 					<ModuleToggle
 						slug="photon"
 						disabled={ this.props.isUnavailableInDevMode( 'photon' ) }
@@ -147,7 +146,8 @@ const Media = moduleSettingsForm(
 			return (
 				<SettingsCard
 					{ ...this.props }
-					header={ __( 'Media' ) }>
+					header={ __( 'Media' ) }
+					feature={ FEATURE_VIDEO_HOSTING_JETPACK }>
 					{ this.props.isModuleFound( 'photon' ) && photonSettings }
 					{ this.props.isModuleFound( 'carousel' ) && carouselSettings }
 				</SettingsCard>

@@ -11,13 +11,9 @@ import { translate as __ } from 'i18n-calypso';
 import {
 	PLAN_JETPACK_PREMIUM,
 	PLAN_JETPACK_BUSINESS,
-	FEATURE_GOOGLE_ANALYTICS_JETPACK,
 	FEATURE_SECURITY_SCANNING_JETPACK,
 	FEATURE_SEO_TOOLS_JETPACK,
-	FEATURE_SITE_BACKUPS_JETPACK,
-	FEATURE_SPAM_AKISMET_PLUS,
 	FEATURE_VIDEO_HOSTING_JETPACK,
-	FEATURE_WORDADS_JETPACK,
 	getPlanClass
 } from 'lib/plans/constants';
 import { getSiteRawUrl } from 'state/initial-state';
@@ -96,7 +92,7 @@ const SettingsCard = props => {
 							'is-premium-plan' !== planClass
 							? PLAN_JETPACK_PREMIUM
 							: PLAN_JETPACK_BUSINESS
-							 }
+						}
 						{ ...commonProps }
 					/>
 				);
@@ -125,7 +121,7 @@ const SettingsCard = props => {
 							'is-premium-plan' !== planClass
 							? PLAN_JETPACK_PREMIUM
 							: PLAN_JETPACK_BUSINESS
-							 }
+						}
 						{ ...commonProps }
 					/>
 				);
