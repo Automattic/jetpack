@@ -17,6 +17,7 @@ class A8C_WPCOM_Masterbar {
 	public function add_styles_and_scripts() {
 		wp_enqueue_style( 'a8c_wpcom_masterbar', plugins_url( 'masterbar.css', __FILE__ ) );
 		wp_enqueue_style( 'a8c_wpcom_masterbar_overrides', plugins_url( 'masterbar-overrides/masterbar.css', __FILE__ ) );
+		wp_enqueue_style( 'a8c_wpcom_masterbar_mobile', plugins_url( 'masterbar-mobile.css', __FILE__ ) );
 
 		wp_enqueue_script( 'wpcom-masterbar-js', plugins_url( 'masterbar-overrides/masterbar.js', __FILE__ ) );
 	}
@@ -86,9 +87,8 @@ class A8C_WPCOM_Masterbar {
 	public function add_notifications( $wp_admin_bar ) {
 		$wp_admin_bar->add_node( array(
 			'id'     => 'notes',
-			'title'  => '<span id="wpnt-notes-unread-count" class="wpnt-loading wpn-read">
-							<span class="noticon noticon-bell"></span>
-						</span>',
+			'title'  => '<span id="wpnt-notes-unread-count" class="wpnt-loading wpn-read"></span>
+						 <span class="noticon noticon-bell"></span>',
 			'meta'   => array(
 				'html'  => '<div id="wpnt-notes-panel2" style="display:none" lang="'. esc_attr( $this->locale ) . '" dir="' . ( is_rtl() ? 'rtl' : 'ltr' ) . '">' .
 				           '<div class="wpnt-notes-panel-header">' .
