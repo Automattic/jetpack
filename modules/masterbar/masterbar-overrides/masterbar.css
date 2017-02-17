@@ -1276,6 +1276,7 @@ div#wpadminbar .quicklinks > ul > li#wp-admin-bar-notes > a.ab-item span.noticon
     background-repeat: no-repeat;
     position: absolute;
     left: 0;
+    cursor: pointer;
 }
 
 #wp-admin-bar-notes.active .noticon-bell:before {
