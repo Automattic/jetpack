@@ -42,18 +42,9 @@ class Jetpack_Sync_Queue {
 	}
 
 	function add( $item ) {
-		global $wpdb;
-		$added = false;
 		// this basically tries to add the option until enough time has elapsed that
 		// it has a unique (microtime-based) option key
-		while ( ! $added ) {
-			$rows_added = $wpdb->insert( $wpdb->options, array(
-					'option_name'  => $this->get_next_data_row_option_name(),
-					'option_value' => serialize( $item ),
-					'autoload'     => 'no',
-				), '%s' );
-			$added      = (bool) $rows_added;
-		}
+		while ( ! add_option( $this->get_next_data_row_option_name(), serialize( $item ), '', 'no' ) );
 	}
 
 	// Attempts to insert all the items in a single SQL query. May be subject to query size limits!
