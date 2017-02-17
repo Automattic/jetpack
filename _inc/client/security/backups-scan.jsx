@@ -49,17 +49,17 @@ const BackupsScan = React.createClass( {
 
 		if ( this.props.isModuleActivated( 'vaultpress' ) ) {
 			if ( vpData === 'N/A' ) {
-				status = 'is-simple';
+				status = 'is-info';
 				text = __( 'Loading…' );
 				link = false;
 			} else if ( scanEnabled ) {
 				if ( 0 !== this.props.scanThreats ) {
-					status = 'is-working';
+					status = 'is-warning';
 					text = __( 'Threats found!', { context: 'A message about security threats found.' } );
 					link = 'https://dashboard.vaultpress.com/';
 					icon = 'notice';
 				} else if ( vpData.code === 'success' ) {
-					status = 'is-working';
+					status = 'is-success';
 					text = __( 'All clean!', { context: 'A message about no security threats found.' } );
 					link = false;
 					icon = 'checkmark';
@@ -70,16 +70,16 @@ const BackupsScan = React.createClass( {
 				icon = 'notice';
 			}
 		} else if ( hasPremium || hasBusiness ) {
-			status = 'pro-inactive';
+			status = 'is-warning';
 			text = __( 'Inactive', { context: 'A message about the security plugin not activated yet.' } );
 			link = 'https://wordpress.com/plugins/vaultpress';
 			icon = 'notice';
 		} else if ( this.props.fetchingSiteData ) {
-			status = 'is-simple';
+			status = 'is-info';
 			text = __( 'Loading…' );
 			link = false;
 		} else {
-			status = 'no-pro-uninstalled-or-inactive';
+			status = 'is-warning';
 			text = __( 'Upgrade', { context: 'Caption for a button to purchase a paid feature.' } );
 			link = 'https://jetpack.com/redirect/?source=security-scan&site=' + this.props.siteRawUrl;
 			icon = 'notice';

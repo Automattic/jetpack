@@ -43,6 +43,7 @@ export const Security = React.createClass( {
 
 		let backupSettings = (
 			<BackupsScan
+				siteRawUrl={ this.props.siteRawUrl }
 				{ ...commonProps }
 			/>
 		);
