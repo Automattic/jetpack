@@ -126,7 +126,7 @@ export const DevModeNotice = React.createClass( {
 			return (
 				<SimpleNotice
 					showDismiss={ false }
-					status="is-basic"
+					status="is-info"
 					text={ text }
 				>
 					<ul>{ reasons }</ul>
