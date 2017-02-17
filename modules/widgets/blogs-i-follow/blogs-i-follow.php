@@ -27,6 +27,8 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 	static $expiration     = 300;
 	static $avatar_size    = 200;
 	static $default_avatar = 'en.wordpress.com/i/logo/wpcom-gray-white.png';
+	static $subscriptions_transient_identifier = 'jetpack_blogs_i_follow_widget_subscriptions';
+	static $grid_html_transient_identifier = 'jetpack_blogs_i_follow_widget_grid_html';
 
 	/**
 	 * class constructor
@@ -64,7 +66,7 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 		$this->number = $instance['number'];
 		$this->display = $instance['display'];
 
-		$subscriptions = $this->get_subscriptions();
+		$this->subscriptions = self::get_subscriptions( $this->user_id, $this->number );
 
 		if ( $this->shouldnt_show( $subscriptions ) ) {
 			return;
@@ -77,11 +79,11 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 		if ( ! empty( $title ) )
 			echo $args['before_title'] . $title . $args['after_title'];
 
-		if ( ! empty( $subscriptions ) ) {
+		if ( ! empty( $this->subscriptions ) ) {
 			if ( 'grid' === $this->display ) {
-				echo $this->grid_view( $subscriptions );
+				echo $this->grid_view( $this->subscriptions );
 			} else {
-				echo $this->list_view( $subscriptions );
+				echo $this->list_view( $this->subscriptions );
 			}
 		} elseif ( current_user_can( 'edit_theme_options' ) ) {
 			echo $this->get_friendly_message();
@@ -165,15 +167,13 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 	 *
 	 * @return array the subscriptions
 	 */
-	function get_subscriptions() {
-		$this->subscriptions[ $this->id ] = get_transient( $this->id . '-subscriptions' );
+	public static function get_subscriptions( $user_id, $maximum_blogs ) {
+		$subscriptions = get_transient( self::$subscriptions_transient_identifier );
 
-		if ( empty( $this->subscriptions[ $this->id ] ) ) {
-			delete_transient( $this->id . '-widget' );
+		if ( empty( $subscriptions ) ) {
+			delete_transient( self::$grid_html_transient_identifier );
 
-			$this->subscriptions[$this->id] = array();
-			$this->subscriptions[$this->id]['user_id'] = $this->user_id;
-			$subscription_args = array( 'user_id' => $this->user_id, 'public_only' => true );
+			$subscription_args = array( 'user_id' => $user_id, 'public_only' => true );
 			// TODO: For WordPress.com, hook into this filter and use wpcom_subs_get_blogs
 			// and other related functions to populate the subscription data
 			/**
@@ -187,23 +187,23 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 			 * @return array The return value is an array of subscription arrays with information about each
 			 * followed blog
 			 */
-			$this->subscriptions[$this->id]['subscriptions'] = apply_filters( 'jetpack_populate_blog_subscriptions', null, $subscription_args );
+			$subscriptions = apply_filters( 'jetpack_populate_blog_subscriptions', null, $subscription_args );
 
-			if ( is_array( $this->subscriptions[$this->id]['subscriptions'] ) ) {
-				foreach ( $this->subscriptions[$this->id]['subscriptions'] as &$sub ) {
+			if ( is_array( $subscriptions ) ) {
+				foreach ( $subscriptions as &$sub ) {
 					if ( ! wp_startswith( $sub['blog_url'], 'http://' ) && ! wp_startswith( $sub['blog_url'], 'https://' ) ) {
 						$sub['blog_url'] = 'http://' . $sub['blog_url'];
 					}
 				}
 
-				if ( !empty( $this->subscriptions[$this->id]['subscriptions'] ) ) {
-					$this->subscriptions[$this->id]['subscriptions'] = array_slice( $this->subscriptions[$this->id]['subscriptions'], 0, $this->number );
-					set_transient( $this->id . '-subscriptions', $this->subscriptions[$this->id], self::$expiration );
+				if ( ! empty( $subscriptions ) ) {
+					$subscriptions = array_slice( $subscriptions, 0, $maximum_blogs );
+					set_transient( self::$subscriptions_transient_identifier, $subscriptions, self::$expiration );
 				}
 			}
 		}
 
-		return $this->subscriptions[$this->id]['subscriptions'];
+		return $subscriptions;
 	}
 
 	/**
@@ -284,7 +284,7 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 
 		// We are caching the HTML output because the blavatar functions
 		// make either queries or HTTP requests, so they are slow.
-		$output = get_transient( $this->id . '-widget' );
+		$output = get_transient( self::$grid_html_transient_identifier );
 
 		if ( empty( $output ) ) {
 
@@ -417,11 +417,11 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 		$instance['display'] = isset( $new_instance['display'] ) && 'grid' == $new_instance['display'] ? 'grid' : 'list';
 
 		// void the transients
-		delete_transient( $this->id . '-subscriptions' );
-		delete_transient( $this->id . '-widget' );
+		delete_transient( self::$subscriptions_transient_identifier );
+		delete_transient( self::$grid_html_transient_identifier );
 
 		// generate the first set of subscriptions
-		$this->get_subscriptions();
+		$this->subscriptions = self::get_subscriptions( $instance['user_id'], $instance['number'] );
 
 		return $instance;
 	}
