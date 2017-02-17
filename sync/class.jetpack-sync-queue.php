@@ -333,26 +333,8 @@ class Jetpack_Sync_Queue {
 	}
 
 	private function set_checkout_id( $checkout_id ) {
-		global $wpdb;
-
 		$expires = time() + Jetpack_Sync_Defaults::$default_sync_queue_lock_timeout;
-		$updated_num = $wpdb->query(
-			$wpdb->prepare(
-				"UPDATE $wpdb->options SET option_value = %s WHERE option_name = %s", 
-				"$checkout_id:$expires",
-				$this->get_lock_option_name()
-			)
-		);
-
-		if ( ! $updated_num ) {
-			$updated_num = $wpdb->insert( $wpdb->options, array(
-					'option_name'  => $this->get_lock_option_name(),
-					'option_value' => "$checkout_id:$expires",
-					'autoload'     => 'no',
-				), '%s' );
-		}
-
-		return $updated_num;
+		return update_option( $this->get_lock_option_name(), "$checkout_id:$expires", 'no' );
 	}
 
 	private function delete_checkout_id() {
