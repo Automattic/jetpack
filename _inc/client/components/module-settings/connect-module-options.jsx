@@ -8,6 +8,7 @@ import get from 'lodash/get';
  * Internal dependencies
  */
 import {
+	getModule,
 	getModuleOption,
 	getModuleOptionValidValues
 } from 'state/modules';
@@ -23,6 +24,7 @@ import {
 	getSiteRoles,
 	getAdminEmailAddress
 } from 'state/initial-state';
+import { isDevMode, isUnavailableInDevMode } from 'state/connection';
 
 import { isCurrentUserLinked } from 'state/connection';
 
@@ -37,6 +39,7 @@ export function connectModuleOptions( Component ) {
 	return connect(
 		( state, ownProps ) => {
 			return {
+				module: ( module_name ) => getModule( state, module_name ),
 				validValues: ( option_name, module_slug = '' ) => {
 					if ( 'string' === typeof get( ownProps, [ 'module', 'module' ] ) ) {
 						module_slug = ownProps.module.module;
@@ -50,7 +53,9 @@ export function connectModuleOptions( Component ) {
 				adminEmailAddress: getAdminEmailAddress( state ),
 				currentIp: getCurrentIp( state ),
 				siteAdminUrl: getSiteAdminUrl( state ),
-				isCurrentUserLinked: isCurrentUserLinked( state )
+				isCurrentUserLinked: isCurrentUserLinked( state ),
+				isDevMode: isDevMode( state ),
+				isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name ),
 			};
 		},
 		( dispatch ) => ( {

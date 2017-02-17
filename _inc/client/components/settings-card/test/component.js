@@ -3,7 +3,7 @@
  */
 import React from 'react';
 import { expect } from 'chai';
-import { shallow } from 'enzyme';
+import { shallow, render } from 'enzyme';
 import sinon from 'sinon';
 
 /**
@@ -11,24 +11,27 @@ import sinon from 'sinon';
  */
 import SettingsCard from '../index';
 
+const DummyComponent = React.createClass( {
+	render() {
+		return null;
+	}
+} );
+
 describe( 'SettingsCard', () => {
+	let testProps,
+		wrapper;
 
-	let testProps = {
-		module: 'comments',
-		hideButton: false,
-		getModule: () => (
-			{
-				name: 'Comments',
-				learn_more_button: 'https://jetpack.com/support/protect'
-			}
-		),
-		isSavingAnyOption: () => false,
-		isDirty: () => true,
-		header: '',
-		support: ''
-	};
+	before( () => {
+		testProps = {
+			hideButton: false,
+			isSavingAnyOption: () => false,
+			isDirty: () => true,
+			header: 'Comments',
+			support: ''
+		};
 
-	const wrapper = shallow( <SettingsCard { ...testProps } /> );
+		wrapper = shallow( <SettingsCard { ...testProps } /> );
+	} );
 
 	it( 'renders a heading', () => {
 		expect( wrapper.find( 'SectionHeader' ) ).to.have.length( 1 );
@@ -43,13 +46,14 @@ describe( 'SettingsCard', () => {
 	} );
 
 	describe( 'When a custom header or support URL are passed', () => {
+		before( () => {
+			Object.assign( testProps, {
+				header: 'A custom header',
+				support: 'https://jetpack.com/'
+			} );
 
-		Object.assign( testProps, {
-			header: 'A custom header',
-			support: 'https://jetpack.com/'
+			wrapper = shallow( <SettingsCard { ...testProps } /> );
 		} );
-
-		const wrapper = shallow( <SettingsCard { ...testProps } /> );
 
 		it( 'the header has priority over module.name', () => {
 			expect( wrapper.find( 'SectionHeader' ).props().label ).to.be.equal( 'A custom header' );
@@ -58,12 +62,13 @@ describe( 'SettingsCard', () => {
 	} );
 
 	describe( 'When a custom header or support URL are passed', () => {
+		before( () => {
+			Object.assign( testProps, {
+				isSavingAnyOption: () => true
+			} );
 
-		Object.assign( testProps, {
-			isSavingAnyOption: () => true
+			wrapper = shallow( <SettingsCard { ...testProps } /> );
 		} );
-
-		const wrapper = shallow( <SettingsCard { ...testProps } /> );
 
 		it( "when saving, it's disabled", () => {
 			expect( wrapper.find( 'Button' ).get(0).props.disabled ).to.be.true;
@@ -72,19 +77,20 @@ describe( 'SettingsCard', () => {
 	} );
 
 	describe( "If the support attribute and module doesn't have a support link", () => {
+		before( () => {
+			Object.assign( testProps, {
+				isSavingAnyOption: () => false,
+				support: '',
+				getModule: () => (
+					{
+						name: 'Comments',
+						learn_more_button: ''
+					}
+				)
+			} );
 
-		Object.assign( testProps, {
-			isSavingAnyOption: () => false,
-			support: '',
-			getModule: () => (
-				{
-					name: 'Comments',
-					learn_more_button: ''
-				}
-			)
+			wrapper = shallow( <SettingsCard { ...testProps } /> );
 		} );
-
-		const wrapper = shallow( <SettingsCard { ...testProps } /> );
 
 		it( 'the support icon is not rendered', () => {
 			expect( wrapper.find( 'Button' ) ).to.have.length( 1 );
@@ -93,20 +99,24 @@ describe( 'SettingsCard', () => {
 	} );
 
 	describe( 'When save button is clicked three times', () => {
+		let onSave,
+			wasSaving;
 
-		const onSave = sinon.spy();
-		const wasSaving = sinon.spy();
+		before( () => {
+			onSave = sinon.spy();
+			wasSaving = sinon.spy();
 
-		Object.assign( testProps, {
-			onSubmit: onSave,
-			isSavingAnyOption: wasSaving
+			Object.assign( testProps, {
+				onSubmit: onSave,
+				isSavingAnyOption: wasSaving
+			} );
+
+			const saveButton = shallow( <SettingsCard { ...testProps } /> ).find( 'SectionHeader' ).find( 'Button' );
+
+			saveButton.simulate( 'click' );
+			saveButton.simulate( 'click' );
+			saveButton.simulate( 'click' );
 		} );
-
-		const saveButton = shallow( <SettingsCard { ...testProps } /> ).find( 'SectionHeader' ).find( 'Button' );
-
-		saveButton.simulate( 'click' );
-		saveButton.simulate( 'click' );
-		saveButton.simulate( 'click' );
 
 		it( 'onSubmit() was triggered once', () => {
 			expect( onSave ).to.have.property( 'callCount', 3 );
@@ -118,4 +128,19 @@ describe( 'SettingsCard', () => {
 
 	} );
 
+	describe( 'When children return an empty object', () => {
+		let card;
+
+		before( () => {
+			card = render(
+				<SettingsCard { ...testProps }>
+					<DummyComponent />
+				</SettingsCard>
+			);
+		} );
+
+		it( 'should return an empty object itself', () => {
+			expect( card.html() ).to.equal( '<noscript></noscript>' );
+		} );
+	} );
 } );

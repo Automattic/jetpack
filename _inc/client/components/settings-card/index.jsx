@@ -11,17 +11,17 @@ import SectionHeader from 'components/section-header';
 import Button from 'components/button';
 
 const SettingsCard = props => {
-	let module = props.module
-			? props.getModule( props.module )
-			: false,
-		header = props.header
-			? props.header
-			: '',
+	const module = props.module || false,
 		isSaving = props.isSavingAnyOption();
+
+	let header = props.header
+			? props.header
+			: '';
 
 	if ( '' === header && module ) {
 		header = module.name;
 	}
+	React.Children.map( props.children.map, console.log );
 
 	return (
 		<form className="jp-form-settings-card">
