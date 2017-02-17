@@ -27,8 +27,8 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 	static $expiration     = 300;
 	static $avatar_size    = 200;
 	static $default_avatar = 'en.wordpress.com/i/logo/wpcom-gray-white.png';
-	static $subscriptions_transient_identifier = 'jetpack_blogs_i_follow_widget_subscriptions';
-	static $grid_html_transient_identifier = 'jetpack_blogs_i_follow_widget_grid_html';
+	static $subscriptions_option_identifier = 'jetpack_blogs_i_follow_widget_subscriptions';
+	static $grid_html_option_identifier = 'jetpack_blogs_i_follow_widget_grid_html';
 
 	/**
 	 * class constructor
@@ -168,11 +168,9 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 	 * @return array the subscriptions
 	 */
 	public static function get_subscriptions( $user_id, $maximum_blogs ) {
-		$subscriptions = get_transient( self::$subscriptions_transient_identifier );
+		$subscriptions = get_option( self::$subscriptions_option_identifier );
 
 		if ( empty( $subscriptions ) ) {
-			delete_transient( self::$grid_html_transient_identifier );
-
 			$subscription_args = array( 'user_id' => $user_id, 'public_only' => true );
 			// TODO: For WordPress.com, hook into this filter and use wpcom_subs_get_blogs
 			// and other related functions to populate the subscription data
@@ -198,7 +196,8 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 
 				if ( ! empty( $subscriptions ) ) {
 					$subscriptions = array_slice( $subscriptions, 0, $maximum_blogs );
-					set_transient( self::$subscriptions_transient_identifier, $subscriptions, self::$expiration );
+					update_option( self::$subscriptions_option_identifier, $subscriptions );
+					delete_option( self::$grid_html_option_identifier );
 				}
 			}
 		}
@@ -284,7 +283,7 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 
 		// We are caching the HTML output because the blavatar functions
 		// make either queries or HTTP requests, so they are slow.
-		$output = get_transient( self::$grid_html_transient_identifier );
+		$output = get_option( self::$grid_html_option_identifier );
 
 		if ( empty( $output ) ) {
 
@@ -334,7 +333,7 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 
 			$output .= "</div><div style='clear: both;'></div>";
 
-			set_transient( $this->id . '-widget', $output, self::$expiration );
+			update_option( $grid_html_option_identifier, $output );
 		}
 
 		return $output;
@@ -417,8 +416,8 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 		$instance['display'] = isset( $new_instance['display'] ) && 'grid' == $new_instance['display'] ? 'grid' : 'list';
 
 		// void the transients
-		delete_transient( self::$subscriptions_transient_identifier );
-		delete_transient( self::$grid_html_transient_identifier );
+		delete_option( self::$subscriptions_option_identifier );
+		delete_option( self::$grid_html_option_identifier );
 
 		// generate the first set of subscriptions
 		$this->subscriptions = self::get_subscriptions( $instance['user_id'], $instance['number'] );
