@@ -54,10 +54,9 @@ const BackupsScan = React.createClass( {
 				link = false;
 			} else if ( scanEnabled ) {
 				if ( 0 !== this.props.scanThreats ) {
-					status = 'is-warning';
+					status = 'is-error';
 					text = __( 'Threats found!', { context: 'A message about security threats found.' } );
 					link = 'https://dashboard.vaultpress.com/';
-					icon = 'notice';
 				} else if ( vpData.code === 'success' ) {
 					status = 'is-success';
 					text = __( 'All clean!', { context: 'A message about no security threats found.' } );
