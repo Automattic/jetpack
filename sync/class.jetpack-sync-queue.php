@@ -352,8 +352,8 @@ class Jetpack_Sync_Queue {
 
 		if ( ! $updated_num ) {
 			$updated_num = $wpdb->insert( $wpdb->options, array(
-					'option_name'  => $this->get_lock_option_name()
-					'option_value' => "$checkout_id:$expires"
+					'option_name'  => $this->get_lock_option_name(),
+					'option_value' => "$checkout_id:$expires",
 					'autoload'     => 'no',
 				), '%s' );
 		}
