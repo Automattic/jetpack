@@ -52,6 +52,7 @@ class Jetpack_Sync_Queue {
 		global $wpdb;
 		$base_option_name = $this->get_next_data_row_option_name();
 
+		// Building this manually as we can condense many into a single db query.
 		$query = "INSERT INTO $wpdb->options (option_name, option_value, autoload) VALUES ";
 
 		$rows = array();
@@ -105,6 +106,7 @@ class Jetpack_Sync_Queue {
 	function reset() {
 		global $wpdb;
 		$this->delete_checkout_id();
+		// Not using `$wpdb->delete()` as we need the LIKE comparator.
 		$wpdb->query( $wpdb->prepare(
 			"DELETE FROM $wpdb->options WHERE option_name LIKE %s", "jpsq_{$this->id}-%"
 		) );
@@ -113,6 +115,7 @@ class Jetpack_Sync_Queue {
 	function size() {
 		global $wpdb;
 
+		// Not using `$wpdb->delete()` as we need the LIKE comparator.
 		return (int) $wpdb->get_var( $wpdb->prepare(
 			"SELECT count(*) FROM $wpdb->options WHERE option_name LIKE %s", "jpsq_{$this->id}-%"
 		) );
