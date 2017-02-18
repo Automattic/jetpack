@@ -27,8 +27,6 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 	static $expiration     = 300;
 	static $avatar_size    = 200;
 	static $default_avatar = 'en.wordpress.com/i/logo/wpcom-gray-white.png';
-	static $subscriptions_option_identifier = 'jetpack_blogs_i_follow_widget_subscriptions';
-	static $grid_html_option_identifier = 'jetpack_blogs_i_follow_widget_grid_html';
 
 	/**
 	 * class constructor
@@ -63,10 +61,9 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 		$instance = $this->extend_default_options( $instance );
 
 		$this->user_id = $instance['user_id'];
-		$this->number = $instance['number'];
 		$this->display = $instance['display'];
 
-		$this->subscriptions = self::get_subscriptions( $this->user_id, $this->number );
+		$this->subscriptions = $this->get_subscriptions();
 
 		if ( $this->shouldnt_show( $subscriptions ) ) {
 			return;
@@ -167,9 +164,9 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 	 *
 	 * @return array the subscriptions
 	 */
-	public static function get_subscriptions( $user_id, $maximum_blogs ) {
-		$subscriptions = get_option( self::$subscriptions_option_identifier );
-
+	function get_subscriptions() {
+		$widget_data = get_option( 'widget_jp_blogs_i_follow' );
+		$subscriptions = $widget_data[ $this->number ]['subscriptions_cache'];
 		if ( empty( $subscriptions ) ) {
 			$subscription_args = array( 'user_id' => $user_id, 'public_only' => true );
 			// TODO: For WordPress.com, hook into this filter and use wpcom_subs_get_blogs
@@ -195,9 +192,11 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 				}
 
 				if ( ! empty( $subscriptions ) ) {
+					$maximum_blogs = $widget_data[ $this->number ]['number'];
 					$subscriptions = array_slice( $subscriptions, 0, $maximum_blogs );
-					update_option( self::$subscriptions_option_identifier, $subscriptions );
-					delete_option( self::$grid_html_option_identifier );
+					$widget_data[ $this->number ]['subscriptions_cache'] = $subscriptions;
+					$widget_data[ $this->number ]['grid_html_cache'] = false;
+					update_option( 'widget_jp_blogs_i_follow', $widget_data );
 				}
 			}
 		}
@@ -283,7 +282,8 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 
 		// We are caching the HTML output because the blavatar functions
 		// make either queries or HTTP requests, so they are slow.
-		$output = get_option( self::$grid_html_option_identifier );
+		$widget_data = get_option( 'widget_jp_blogs_i_follow' );
+		$output = $widget_data[ $this->number ]['grid_html_cache'];
 
 		if ( empty( $output ) ) {
 
@@ -332,8 +332,8 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 			}
 
 			$output .= "</div><div style='clear: both;'></div>";
-
-			update_option( $grid_html_option_identifier, $output );
+			$widget_data[ $this->number ]['grid_html_cache'] = $output;
+			update_option( 'widget_jp_blogs_i_follow', $widget_data );
 		}
 
 		return $output;
@@ -415,12 +415,11 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 
 		$instance['display'] = isset( $new_instance['display'] ) && 'grid' == $new_instance['display'] ? 'grid' : 'list';
 
-		// void the transients
-		delete_option( self::$subscriptions_option_identifier );
-		delete_option( self::$grid_html_option_identifier );
+		// Reset the caches
+		$instance['subscriptions_cache'] = false;
+		$instance['grid_html_cache'] = false;
 
-		// generate the first set of subscriptions
-		$this->subscriptions = self::get_subscriptions( $instance['user_id'], $instance['number'] );
+		// TODO: Activate cron to generate first set of subscriptions, or maybe update cache directly
 
 		return $instance;
 	}
