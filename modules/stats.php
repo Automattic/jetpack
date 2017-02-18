@@ -856,14 +856,14 @@ function stats_admin_bar_head() {
 
 <style type='text/css'>
 #wpadminbar .quicklinks li#wp-admin-bar-stats {
-	height: 28px;
+	height: 32px;
 }
 #wpadminbar .quicklinks li#wp-admin-bar-stats a {
-	height: 28px;
+	height: 32px;
 	padding: 0;
 }
 #wpadminbar .quicklinks li#wp-admin-bar-stats a div {
-	height: 28px;
+	height: 32px;
 	width: 95px;
 	overflow: hidden;
 	margin: 0 10px;
@@ -874,7 +874,7 @@ function stats_admin_bar_head() {
 }
 #wpadminbar .quicklinks li#wp-admin-bar-stats a img {
 	height: 24px;
-	padding: 2px 0;
+	padding: 4px 0;
 	max-width: none;
 	border: none;
 }
