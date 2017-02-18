@@ -17,6 +17,23 @@ function jetpack_blogs_i_follow_widget_init() {
 }
 
 /**
+ * Adds 10 minute running interval to the cron schedules
+ *
+ * @param array $schedules Existing cron schedules
+ * @return array The schedules with the 10 minute interval included
+ */
+function jetpack_blogs_i_follow_widget_cron_intervals( $schedules ) {
+	if ( ! isset( $schedules['minutes_10'] ) ) {
+		$schedules['minutes_10'] = array(
+			'interval' => 10 * MINUTE_IN_SECONDS,
+			'display'  => 'Every 10 minutes'
+		);
+	}
+	return $schedules;
+}
+add_filter( 'cron_schedules', 'jetpack_blogs_i_follow_widget_cron_intervals' );
+
+/**
  * Blogs I Follow Widget class
  * Displays blogs followed by the specified user
  */
