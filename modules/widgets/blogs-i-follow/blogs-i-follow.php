@@ -485,7 +485,7 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 	 */
 	function get_friendly_message() {
 		$message = sprintf(
-			__( 'You are not yet following any blogs. Try <a href="%1$s">finding your friends</a> or check out our <a href="%2$s">recommended blogs</a>.', 'jetpack' ),
+			__( 'Your subscriptions are being refreshed, or you are not yet following any blogs. Try <a href="%1$s">finding your friends</a> or check out our <a href="%2$s">recommended blogs</a>.', 'jetpack' ),
 			/**
 			 * Allow blog locales to be retrieved from WordPress.com or Jetpack
 			 *
@@ -529,7 +529,7 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 
 		// Reset the caches
 		$instance['grid_html_cache'] = false;
-		$instance['subscriptions_cache'] = self::retrieve_subscriptions( $instance['user_id'], $instance['number'] );
+		//$instance['subscriptions_cache'] = self::retrieve_subscriptions( $instance['user_id'], $instance['number'] );
 
 		// Ensure the cron to regularly update the subscriptions is activated
 		self::activate_cron();
