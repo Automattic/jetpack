@@ -483,12 +483,7 @@ class Jetpack {
 
 		// define a few REST endpoints for getting through the connection process
 		// without XMLRPC
-		add_action( 'rest_api_init', function () {
-			register_rest_route( 'jetpack/v1', '/verify_registration', array(
-				'methods' => 'POST',
-				'callback' => array( $this, 'rest_verify_registration' ),
-			) );
-		} );
+		add_action( 'rest_api_init', array( $this, 'rest_api_init' ) );
 
 		if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST && isset( $_GET['for'] ) && 'jetpack' == $_GET['for'] ) {
 			@ini_set( 'display_errors', false ); // Display errors can cause the XML to be not well formed.
@@ -608,6 +603,13 @@ class Jetpack {
 			add_action( 'wp_print_styles', array( $this, 'implode_frontend_css' ), -1 ); // Run first
 			add_action( 'wp_print_footer_scripts', array( $this, 'implode_frontend_css' ), -1 ); // Run first to trigger before `print_late_styles`
 		}
+	}
+
+	function rest_api_init() {
+		register_rest_route( 'jetpack/v1', '/verify_registration', array(
+			'methods' => 'POST',
+			'callback' => array( $this, 'rest_verify_registration' ),
+		) );
 	}
 
 	function rest_verify_registration( $request ) {
