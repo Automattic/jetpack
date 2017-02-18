@@ -57,6 +57,13 @@ add_action( 'jetpack_activate_module_widgets', 'Jetpack_Widget_Blogs_I_Follow::a
 add_action( 'activated_plugin', 'Jetpack_Widget_Blogs_I_Follow::activate_cron' );
 
 /**
+ * Deactivate the subscription update cron when the Extra Sidebar Widgets
+ * module is deactivated or when Jetpack is deactivated
+ */
+add_action( 'jetpack_deactivate_module_widgets', 'Jetpack_Widget_Blogs_I_Follow::deactivate_cron' );
+register_deactivation_hook( plugin_basename( JETPACK__PLUGIN_FILE ), 'Jetpack_Widget_Blogs_I_Follow::deactivate_cron' );
+
+/**
  * Blogs I Follow Widget class
  * Displays blogs followed by the specified user
  */
@@ -92,6 +99,11 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 		if ( ! wp_next_scheduled( self::$cron_name ) ) {
 			wp_schedule_event( time(), 'minutes_10', self::$cron_name );
 		}
+	}
+
+	public static function deactivate_cron() {
+		$next_scheduled_time = wp_next_scheduled( self::$cron_name );
+		wp_unschedule_event( $next_scheduled_time, self::$cron_name );
 	}
 
 	public static function should_cron_execute( $widget_data ) {
