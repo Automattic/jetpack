@@ -418,6 +418,7 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 	function update( $new_instance, $old_instance ) {
 		$instance = array();
 
+		$instance['id'] = $this->id;
 		$instance['title']  = wp_kses( $new_instance['title'], array() );
 		$instance['number'] = absint( $new_instance['number'] );
 
@@ -539,15 +540,20 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 	 * @return void
 	 */
 	function footer() {
-		if ( ! is_active_widget( false, false, $this->id_base ) && ! empty( $this->subscriptions ) )
+		$widget_data = get_option( 'widget_jp_blogs_i_follow' );
+		if ( ! is_active_widget( false, false, $this->id_base ) && ! empty( $widget_data ) )
 			return;
 
-		foreach ( $this->subscriptions as $widget_id => $sub ) {
-			if ( ! empty( $sub['subscriptions'] ) ) {
+		foreach ( $widget_data as $instance_data ) {
+			if ( ! isset( $instance_data['id'] ) ) {
+				continue;
+			}
+			$widget_id = $instance_data['id'];
+			if ( ! empty( $instance_data['subscriptions_cache'] && $instance_data['display'] === 'grid' ) ) {
 				$i = 0;
 				$output = '<div id="wpcom-follow-bubbles-' . $widget_id . '" class="wpcom-follow-bubbles">';
 
-				foreach ( $sub['subscriptions'] as $subscription ) {
+				foreach ( $instance_data['subscriptions_cache'] as $subscription ) {
 					$i++;
 					$description = isset( $subscription['description'] ) ? $subscription['description'] : null;
 					// TODO: For WordPress.com, $subscription['description'] will not be set. Hook into the filter
