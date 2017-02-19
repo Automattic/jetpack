@@ -37,7 +37,9 @@ add_filter( 'cron_schedules', 'jetpack_blogs_i_follow_widget_cron_intervals' );
  * Regularly update the subscription data via a cron task
  */
 function jetpack_blogs_i_follow_widget_update_subscriptions_if_needed() {
-	Jetpack_Widget_Blogs_I_Follow::update_subscription_cache_if_needed();
+	$widget = new Jetpack_Widget_Blogs_I_Follow;
+	$widget->update_subscription_cache_if_needed();
+	unset( $widget );
 }
 add_action( 'jetpack_blogs_i_follow_widget_cron_update', 'jetpack_blogs_i_follow_widget_update_subscriptions_if_needed' );
 
@@ -106,7 +108,7 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 		wp_unschedule_event( $next_scheduled_time, self::$cron_name );
 	}
 
-	public static function should_cron_execute( $widget_data ) {
+	public function should_cron_execute( $widget_data ) {
 		if ( false === $widget_data ) {
 			return false;
 		}
@@ -131,11 +133,11 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 		return true;
 	}
 
-	public static function update_subscription_cache_if_needed() {
+	public function update_subscription_cache_if_needed() {
 		// If there are no instances of this widget, there is nothing to update
 		$widget_data = get_option( 'widget_jp_blogs_i_follow' );
 
-		if ( ! self::should_cron_execute( $widget_data ) ) {
+		if ( ! $this->should_cron_execute( $widget_data ) ) {
 			return true;
 		}
 
@@ -144,7 +146,7 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 				continue;
 			}
 
-			$subscriptions = self::retrieve_subscriptions( $widget_instance['user_id'], $widget_instance['number'] );
+			$subscriptions = $this->retrieve_subscriptions( $widget_instance['user_id'], $widget_instance['number'] );
 			if ( ! empty( $subscriptions ) ) {
 				$widget_data[ $widget_number ]['subscriptions_cache'] = $subscriptions;
 				$widget_data[ $widget_number ]['grid_html_cache'] = false;
@@ -155,7 +157,7 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 		return true;
 	}
 
-	private static function retrieve_subscriptions( $user_id, $maximum_blogs ) {
+	public function retrieve_subscriptions( $user_id, $maximum_blogs ) {
 		$subscription_args = array( 'user_id' => $user_id, 'public_only' => true );
 		// TODO: For WordPress.com, hook into this filter and use wpcom_subs_get_blogs
 		// and other related functions to populate the subscription data
@@ -529,7 +531,7 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 
 		// Reset the caches
 		$instance['grid_html_cache'] = false;
-		//$instance['subscriptions_cache'] = self::retrieve_subscriptions( $instance['user_id'], $instance['number'] );
+		$instance['subscriptions_cache'] = $this->retrieve_subscriptions( $instance['user_id'], $instance['number'] );
 
 		// Ensure the cron to regularly update the subscriptions is activated
 		self::activate_cron();
