@@ -28,7 +28,6 @@ SOURCE_FILES := $(shell git ls-files \
 MAKEFILE   = $(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST))
 BUILD_PATH = $(shell cd $(shell dirname $(MAKEFILE)); pwd)/build
 BUILD_FILE = $(NAME)-$(VERSION_STRING).zip
-WPCOMSH_ZIP_WITHOUT_HASH_FILE = wpcomsh.zip
 
 ## git related vars
 GIT_BRANCH = $(shell git rev-parse --abbrev-ref HEAD)
@@ -50,7 +49,7 @@ ifneq ($(strip $(shell git diff --exit-code --quiet $(GIT_REMOTE_FULL)..HEAD 2>/
 endif
 
 ## build
-build: check $(BUILD_PATH)/$(BUILD_FILE)
+build: $(BUILD_PATH)/$(BUILD_FILE)
 
 $(BUILD_PATH):
 	@echo "===== creating '$(BUILD_PATH)' directory ====="
@@ -67,22 +66,9 @@ $(BUILD_PATH)/$(BUILD_FILE): $(BUILD_PATH)/$(NAME)
 	@echo "===== getting submodules ====="
 	git submodule update --init --recursive
 
-	@echo "===== creating '$(BUILD_PATH)/$(WPCOMSH_ZIP_WITHOUT_HASH_FILE)' ====="
+	@echo "===== creating '$(BUILD_PATH)/$(BUILD_FILE)' ====="
 	cd $(BUILD_PATH) && \
-		zip -r $(BUILD_PATH)/$(WPCOMSH_ZIP_WITHOUT_HASH_FILE) $(NAME)/
-
-	$(eval MD5_HASH_FILE=md5-hash.txt)
-
-	@echo "===== generating md5 hash of '$(BUILD_PATH)/$(WPCOMSH_ZIP_WITHOUT_HASH_FILE)' ====="
-	cd $(BUILD_PATH) && \
-		printf `md5sum $(BUILD_PATH)/$(WPCOMSH_ZIP_WITHOUT_HASH_FILE) | awk '{ print $$1 }'` > $(MD5_HASH_FILE)
-
-	@echo "===== creating zip of '$(BUILD_PATH)/$(WPCOMSH_ZIP_WITHOUT_HASH_FILE)' and md5 hash file ====="
-	cd $(BUILD_PATH) && \
-		zip $(BUILD_PATH)/$(BUILD_FILE) $(WPCOMSH_ZIP_WITHOUT_HASH_FILE) $(MD5_HASH_FILE)
-
-	cd $(BUILD_PATH) && \
-		rm $(MD5_HASH_FILE) $(WPCOMSH_ZIP_WITHOUT_HASH_FILE)
+    zip -r $(BUILD_PATH)/$(BUILD_FILE) $(NAME)/
 
 ## release
 release: export RELEASE_BUCKET := pressable-misc
