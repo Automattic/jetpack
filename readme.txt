@@ -145,6 +145,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Comments: fix W3C validation errors. #6316
 * Internationalization: improve translator comments to make translating new terms easier. #6307
 * Multisite: use Core functions to retrieve the list of sites for more accurate results. #3405
+* Widget Visibility: replace text labels with × and + icons to improve usability on smaller devices. #3406
 
 **Bug Fixes**
 

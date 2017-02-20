@@ -25,6 +25,8 @@ We've made a lot of improvements to the Widget Visibility module. It's now easie
 We would like you to run tests on sites where you had created visibility rules in the past. Update to Jetpack 4.7 Beta, and make sure the rules still exist.
 Once you've done so, create new widgets, apply different visibility rules for each one of them, and make sure the rules are respected on your site. Make sure to test rules on Tag and Category Archive Pages as well.
 
+We also replaced text labels ("Add" and "Delete") with `×` and `+` icons. Please test these new labels in as many browsers as possible.
+
 To get started, go to **Appearance > Customize > Widgets** or **Appearance > Widgets** in your dashboard!
 
 ### Final Notes
