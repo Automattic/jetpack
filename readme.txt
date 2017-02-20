@@ -155,6 +155,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Internationalization: improve translator comments to make translating new terms easier. #6307
 * Multisite: use Core functions to retrieve the list of sites for more accurate results. #3405
 * Synchronization process: remove options not needed on WordPress.com to save memory during the sync process. #6395
+* Synchronization process / WooCommerce: Add Product visibility to post meta whitelist, for better control of products displayed in Related Posts. #6419
 * Widget Visibility: replace text labels with × and + icons to improve usability on smaller devices. #3406
 
 **Bug Fixes**
