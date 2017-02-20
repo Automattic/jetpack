@@ -150,6 +150,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Accessibility: enable keyboard focus styling in the new admin interface. #6300
 * Accessibility: add missing label to one of the fields in the Email sharing dialog. #6332
 * Accessibility: add additional padding to sharing buttons on mobile to avoid usability issues. #5888
+* Accessibility: update the highlight of the stats range for easier spotting and to make it consistent with other areas of the dashboard. #6418
 * Comments: fix W3C validation errors. #6316
 * Internationalization: improve translator comments to make translating new terms easier. #6307
 * Multisite: use Core functions to retrieve the list of sites for more accurate results. #3405
