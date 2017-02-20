@@ -123,6 +123,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Contact Form: add a new "Export" page to highlight the Export functionality. #3637
 * Comments: add a filter to allow removing the Comment Form title. #6347
 * General: remove deprecated compatibility code for older versions of WordPress. #6337
+* General: cleanup Jetpack registration function. #6322
 * Holiday Snow: remove settings outside of Holiday Snow period. #6298
 * Infinite Scroll: update wording in settings to avoid any confusion. #6239
 * Infinite Scroll: the classes `infinite-scroll` and `neverending` are now applied using JS instead of PHP. #6346
