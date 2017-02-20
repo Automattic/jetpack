@@ -25,6 +25,16 @@ import {
 import QuerySitePlugins from 'components/data/query-site-plugins';
 
 const PlanBody = React.createClass( {
+	propTypes: {
+		plan: React.PropTypes.string
+	},
+
+	getDefaultProps: function() {
+		return {
+			plan: ''
+		};
+	},
+
 	render() {
 		let planCard = '';
 		switch ( this.props.plan ) {
