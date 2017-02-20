@@ -119,5 +119,5 @@ function slideshare_shortcode( $atts ) {
 	 *
 	 * @param string $player The iframe to return.
 	 */
-	return apply_filters( 'slideshare_shortcode', $player );
+	return apply_filters( 'jetpack_slideshare_shortcode', $player, $atts );
 }
