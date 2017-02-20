@@ -17,13 +17,13 @@
     "clean-client": "rm -rf _inc/build/*.js _inc/build/*.css _inc/build/*.map _inc/build/*.html",
     "distclean": "rm -rf node_modules && yarn cache clean",
     "build": "yarn && yarn build-client",
-    "build-client": "./node_modules/.bin/gulp",
-    "build-production": "yarn clean-client && yarn build-languages && ./node_modules/.bin/gulp languages:extract && NODE_ENV=production BABEL_ENV=production yarn build",
-    "build-languages": "./node_modules/.bin/gulp languages",
+    "build-client": "gulp",
+    "build-production": "yarn clean-client && yarn build-languages && gulp languages:extract && NODE_ENV=production BABEL_ENV=production yarn build",
+    "build-languages": "gulp languages",
     "lint": "eslint _inc/client -c .eslintrc",
     "test-client": "NODE_ENV=test NODE_PATH=tests:_inc/client:node_modules/@automattic/dops-components/client tests/runner.js",
-    "add-textdomain": "./node_modules/.bin/grunt addtextdomain",
-    "build-pot": "./node_modules/.bin/grunt makepot",
+    "add-textdomain": "grunt addtextdomain",
+    "build-pot": "grunt makepot",
     "test-gui": "NODE_ENV=test NODE_PATH=tests:_inc/client:node_modules/@automattic/dops-components/client tests/runner.js gui"
   },
   "dependencies": {
