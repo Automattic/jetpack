@@ -61,7 +61,7 @@ export const DashItem = React.createClass( {
 		);
 
 		if ( '' !== this.props.module ) {
-			toggle = ( includes( [ 'protect', 'monitor', 'photon', 'vaultpress', 'scan', 'backups', 'akismet' ], this.props.module ) && this.props.isDevMode ) ? '' : (
+			toggle = ( includes( [ 'protect', 'photon', 'vaultpress', 'scan', 'backups', 'akismet' ], this.props.module ) && this.props.isDevMode ) ? '' : (
 				<ModuleToggle
 					slug={ this.props.module }
 					activated={ this.props.isModuleActivated( this.props.module ) }
@@ -88,7 +88,7 @@ export const DashItem = React.createClass( {
 					);
 				}
 				if ( 'is-working' === this.props.status ) {
-					toggle = <span className="jp-dash-item__active-label">{ __( 'Active' ) }</span>
+					toggle = <span className="jp-dash-item__active-label">{ __( 'Active' ) }</span>;
 				}
 			}
 
@@ -106,24 +106,15 @@ export const DashItem = React.createClass( {
 				);
 			}
 
-			if ( 'monitor' === this.props.module && ! this.props.isDevMode ) {
-				toggle = (
-					<div>
+			if ( 'monitor' === this.props.module ) {
+				toggle = ! this.props.isDevMode && this.props.isModuleActivated( this.props.module ) && (
+					<Button
+						href={ 'https://wordpress.com/settings/security/' + this.props.siteRawUrl }
+						compact>
 						{
-							this.props.isModuleActivated( this.props.module ) && (
-								<Button
-									href={ 'https://wordpress.com/settings/security/' + this.props.siteRawUrl }
-									compact>
-									{
-										__( 'Settings' )
-									}
-								</Button>
-							)
+							__( 'Settings' )
 						}
-						{
-							toggle
-						}
-					</div>
+					</Button>
 				);
 			}
 		}
