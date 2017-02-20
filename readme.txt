@@ -145,6 +145,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Carousel: the `jp_carousel_load_for_images_linked_to_file` filter now works when Photon is activated as well. #6296
 * Carousel: ensure the Carousel view works when viewing image galleries loaded from infinite scroll. #6306
 * Debug Tools: make sure the right URL is used on sites where WordPress lives in a subdirectory. #6321
+* Infinite Scroll: do not display the Infinite Scroll footer when we're displaying the last page. #6312
 * Related Posts: add `jetpack_sharing_headline_html` filter back. It was removed in a previous release. #6325
 * Sharing: make sure the Site Icon is used on home page Open Graph Meta Tags. #6303
 * Sharing: avoid JavaScript errors when jQuery is enqueued in the footer. #6339

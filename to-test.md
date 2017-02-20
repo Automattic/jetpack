@@ -2,6 +2,11 @@
 
 In Jetpack 4.7, we focused on fixing bugs and making some important performance improvements.
 
+### Infinite Scroll
+
+We fixed multiple Infinite Scroll bugs. To test, try the following:
+
+- Scroll until no more items can be loaded via Infinite Scroll on your home page, and on archive pages such as tag pages. The footer should then be displayed properly.
 
 ### Sharing
 
