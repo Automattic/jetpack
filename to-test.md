@@ -2,6 +2,10 @@
 
 In Jetpack 4.7, we focused on fixing bugs and making some important performance improvements.
 
+### Carousel
+
+The Carousel module now allows you to display additional metadata in the meta box appearing below the pictures in the Carousel. To test this new feature, you can [check the instructions here](https://github.com/Automattic/jetpack/pull/6352).
+
 ### Infinite Scroll
 
 We fixed multiple Infinite Scroll bugs. To test, try the following:

@@ -120,6 +120,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
+* Carousel: display copyright EXIF information if it's available and allow to define custom EXIF information to display. #6352
 * Contact Form: add a new "Export" page to highlight the Export functionality. #3637
 * Comments: add a filter to allow removing the Comment Form title. #6347
 * General: remove deprecated compatibility code for older versions of WordPress. #6337
