@@ -134,6 +134,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Synchronization process: add filter to allow customizing sync timeout. #6317
 * Widgets: add a filter to The Display Posts Widget content, so the content can be customized. #5883
 * Widgets: add a new email field to the Contact Info Widget. #6275
+* Widgets: if Photon is available, use it to serve the image in the Image widget. #4220
 * WordPress.com REST API: add date and time format settings to the Settings endpoint. #6343
 
 **Improved Compatibility**
