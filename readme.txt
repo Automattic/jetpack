@@ -127,10 +127,11 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Infinite Scroll: the classes `infinite-scroll` and `neverending` are now applied using JS instead of PHP. #6346
 * Publicize: add Unit Tests to make sure Publicize doesn't break when making changes to the Publicize process. #6018
 * Sharing: allow filtering of the shared link in the Email Sharing button. #6342
+* Recipe shortcode: update the library powering the Print link. #6263
 * Slideshow shortcode: add filter to customize speed of the slideshow. #3297
+* Twitch.tv shortcode: update to use Twitch's new embedded player. #6338
 * Support: add more information to debug tools to help you get better help from our support team. #6171
 * Synchronization process: add filter to allow customizing sync timeout. #6317
-* Twitch.tv shortcode: update to use Twitch's new embedded player. #6338
 * Widgets: add a filter to The Display Posts Widget content, so the content can be customized. #5883
 * Widgets: add a new email field to the Contact Info Widget. #6275
 * WordPress.com REST API: add date and time format settings to the Settings endpoint. #6343

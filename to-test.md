@@ -14,6 +14,10 @@ This Beta includes some changes to the Email Sharing button. Try to add the butt
 
 You can also try to install and activate [this plugin](https://wordpress.org/plugins/jetpack-shortlinks-for-sharing-buttons/), and make sure it doesn't break the Email sharing button.
 
+### Shortcodes
+
+Do you use [the Recipe shortcode](https://en.support.wordpress.com/recipes/)? You'll want to make sure the Print link works well in all browsers.
+
 ### Widget Visibility
 
 We've made a lot of improvements to the Widget Visibility module. It's now easier and faster to manage visibility rules in your Widget settings.
