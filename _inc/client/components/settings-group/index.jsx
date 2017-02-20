@@ -18,14 +18,10 @@ import { getSitePlan } from 'state/site';
 
 export const SettingsGroup = props => {
 	const module = props.module,
-		disableInDevMode = props.disableInDevMode && props.isUnavailableInDevMode( module.module );
-	let support = props.support
-			? props.support
-			: false;
-
-	if ( ! support && module && '' !== module.learn_more_button ) {
-		support = module.learn_more_button;
-	}
+		disableInDevMode = props.disableInDevMode && props.isUnavailableInDevMode( module.module ),
+		support = ! props.support && module && '' !== module.learn_more_button
+			? module.learn_more_button
+			: props.support;
 
 	return (
 		<div className="jp-form-settings-group">
@@ -41,8 +37,7 @@ export const SettingsGroup = props => {
 						<div className="jp-module-settings__learn-more">
 							<InfoPopover screenReaderText={ __( 'Learn more' ) }>
 								<ExternalLink
-									icon={ true }
-									iconSize={ 14 }
+									icon={ false }
 									href={ support }
 									target="_blank">
 									{ __( 'Learn more' ) }
@@ -59,8 +54,16 @@ export const SettingsGroup = props => {
 	);
 };
 
+SettingsGroup.propTypes = {
+	support: React.PropTypes.string
+};
+
+SettingsGroup.defaultProps = {
+	support: ''
+};
+
 export default connect(
-	( state ) => {
+	state => {
 		return {
 			isDevMode: isDevMode( state ),
 			sitePlan: getSitePlan( state ),
