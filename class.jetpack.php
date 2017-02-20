@@ -5273,7 +5273,8 @@ p {
 			? $_REQUEST
 			: $environment;
 
-		$token = Jetpack_Data::get_access_token( JETPACK_MASTER_USER );
+		list( $envToken, $envVersion, $envUserId ) = explode( ':', $environment['token'] );
+		$token = Jetpack_Data::get_access_token( $envUserId );
 		if ( ! $token || empty( $token->secret ) ) {
 			wp_die( __( 'You must connect your Jetpack plugin to WordPress.com to use this feature.' , 'jetpack' ) );
 		}
