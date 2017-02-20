@@ -170,6 +170,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Sharing: avoid JavaScript errors when jQuery is enqueued in the footer. #6339
 * Sync: fix synchronization scheduling issues. #6281, #6292
 * Widgets: translate Follow Widget according to the site's language. #5941
+* Widgets: trim spaces in URLs for Image and Display Posts Widgets. #6375
 * Widget Visibility: fix issues with visibility on taxonomy pages. #6326
 * WordPress.com REST API: fix PHP errors when editing items via the WOrdPress.com interface. #6279
 
