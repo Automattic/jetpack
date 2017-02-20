@@ -170,6 +170,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Sharing: make sure the Site Icon is used on home page Open Graph Meta Tags. #6303
 * Sharing: avoid JavaScript errors when jQuery is enqueued in the footer. #6339
 * Sync: fix synchronization scheduling issues. #6281, #6292
+* Theme Tools: use core WordPress method to define content directory location for Tonesque. #6386
 * Widgets: translate Follow Widget according to the site's language. #5941
 * Widgets: trim spaces in URLs for Image and Display Posts Widgets. #6375
 * Widget Visibility: fix issues with visibility on taxonomy pages. #6326
