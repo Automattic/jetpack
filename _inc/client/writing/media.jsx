@@ -9,6 +9,7 @@ import CompactFormToggle from 'components/form/form-toggle/compact';
 /**
  * Internal dependencies
  */
+import { FEATURE_VIDEO_HOSTING_JETPACK } from 'lib/plans/constants';
 import {
 	FormFieldset,
 	FormLegend,
@@ -77,7 +78,10 @@ const Media = moduleSettingsForm(
 				isCarouselActive = this.props.getOptionValue( 'carousel' );
 
 			let photonSettings = (
-				<SettingsGroup hasChild disableInDevMode module={ photon }>
+				<SettingsGroup
+					hasChild
+					disableInDevMode
+					module={ photon }>
 					<ModuleToggle
 						slug="photon"
 						disabled={ this.props.isUnavailableInDevMode( 'photon' ) }
@@ -142,7 +146,8 @@ const Media = moduleSettingsForm(
 			return (
 				<SettingsCard
 					{ ...this.props }
-					header={ __( 'Media' ) }>
+					header={ __( 'Media' ) }
+					feature={ FEATURE_VIDEO_HOSTING_JETPACK }>
 					{ this.props.isModuleFound( 'photon' ) && photonSettings }
 					{ this.props.isModuleFound( 'carousel' ) && carouselSettings }
 				</SettingsCard>
