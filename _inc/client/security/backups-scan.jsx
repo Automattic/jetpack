@@ -35,9 +35,7 @@ const BackupsScan = React.createClass( {
 	},
 
 	getNotice() {
-		const hasSitePlan = false !== this.props.sitePlan,
-			vpData = this.props.vaultPressData,
-			inactiveOrUninstalled = this.props.isPluginInstalled( 'vaultpress/vaultpress.php' ) ? 'pro-inactive' : 'pro-uninstalled',
+		const vpData = this.props.vaultPressData,
 			scanEnabled = get( vpData, [ 'data', 'features', 'security' ], false ),
 			hasPremium = /jetpack_premium*/.test( this.props.sitePlan.product_slug ),
 			hasBusiness = /jetpack_business*/.test( this.props.sitePlan.product_slug );
