@@ -8,7 +8,7 @@ In Jetpack 4.7, we focused on fixing bugs and making some important performance 
 We've made a lot of improvements to the Widget Visibility module. It's now easier and faster to manage visibility rules in your Widget settings.
 
 We would like you to run tests on sites where you had created visibility rules in the past. Update to Jetpack 4.7 Beta, and make sure the rules still exist.
-Once you've done so, create new widgets, apply different visibility rules for each one of them, and make sure the rules are respected on your site.
+Once you've done so, create new widgets, apply different visibility rules for each one of them, and make sure the rules are respected on your site. Make sure to test rules on Tag and Category Archive Pages as well.
 
 To get started, go to **Appearance > Customize > Widgets** or **Appearance > Widgets** in your dashboard!
 
