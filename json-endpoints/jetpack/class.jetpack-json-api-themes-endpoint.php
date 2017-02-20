@@ -136,7 +136,7 @@ abstract class Jetpack_JSON_API_Themes_Endpoint extends Jetpack_JSON_API_Endpoin
 		 * @module json-api
 		 * @since 4.7
 		 * @param array $formatted_theme The theme info array
-		 * @returns array The filtered theme info array
+		 * @return array The filtered theme info array
 		 */
 		return apply_filters( 'jetpack_format_theme_details', $formatted_theme );
 	}
