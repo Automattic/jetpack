@@ -133,6 +133,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Publicize: add Unit Tests to make sure Publicize doesn't break when making changes to the Publicize process. #6018
 * Sharing: allow filtering of the shared link in the Email Sharing button. #6342
 * Recipe shortcode: update the library powering the Print link. #6263
+* Stats: add column in posts table with a link for each post to jump to its stats in WordPress.com. #6370
 * Slideshow shortcode: add filter to customize speed of the slideshow. #3297
 * Twitch.tv shortcode: update to use Twitch's new embedded player. #6338
 * Support: add more information to debug tools to help you get better help from our support team. #6171
