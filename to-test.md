@@ -8,6 +8,12 @@ We fixed multiple Infinite Scroll bugs. To test, try the following:
 
 - Scroll until no more items can be loaded via Infinite Scroll on your home page, and on archive pages such as tag pages. The footer should then be displayed properly.
 
+### Related Posts
+
+In the last release we've added a new "Related Posts" panel to the customizer (under **Appearance > Customize > Related Posts**). It's also possible to change options from **Jetpack > Settings**, **Settings > Reading**, and from WordPress.com (under **[Settings > General](https://wordpress.com/settings/general/)**).
+
+Please try to make changes to Related Posts options in all 4 interfaces, and make sure the Related Posts are always properly displayed, unless explicitly disabled.
+
 ### Sharing
 
 This Beta includes some changes to the Email Sharing button. Try to add the button to a test site, and make sure you can share posts via email.
