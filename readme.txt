@@ -124,7 +124,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Contact Form: add a new "Export" page to highlight the Export functionality. #3637
 * Comments: add a filter to allow removing the Comment Form title. #6347
 * Development Mode: update notice to include all possible options to activate Development mode. #6360
-* General: remove deprecated compatibility code for older versions of WordPress. #6337
+* General: remove deprecated compatibility code for older versions of WordPress. #6337, #6383
 * General: cleanup Jetpack registration function. #6322
 * General: update admin notice displayed to WooCommerce store owners. It now detects when WooCommerce Services is installed, but not active. #6382, #6369
 * Holiday Snow: remove settings outside of Holiday Snow period. #6298
