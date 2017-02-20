@@ -116,6 +116,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Media Summary: improve performance with single page load caching. #5938
 * Open Graph: Avoid slow queries on sites with thousands of images. #6297
 * Widgets: update the Top Posts Widget to retrieve posts via the WordPress.com REST API. #6335
+* Widget Visibility: Rewrite the way that the major/minor rules lists are generated to save bandwidth and memory. #6333
 
 **Enhancements**
 
