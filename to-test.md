@@ -3,6 +3,12 @@
 In Jetpack 4.7, we focused on fixing bugs and making some important performance improvements.
 
 
+### Sharing
+
+This Beta includes some changes to the Email Sharing button. Try to add the button to a test site, and make sure you can share posts via email.
+
+You can also try to install and activate [this plugin](https://wordpress.org/plugins/jetpack-shortlinks-for-sharing-buttons/), and make sure it doesn't break the Email sharing button.
+
 ### Widget Visibility
 
 We've made a lot of improvements to the Widget Visibility module. It's now easier and faster to manage visibility rules in your Widget settings.
