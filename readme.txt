@@ -161,6 +161,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Infinite Scroll: change the class of the body when reaching the last page. #6246
 * Related Posts: when the module is active, always display them unless they're disabled via a filter or the toggle in options. #6324
 * Related Posts: add `jetpack_sharing_headline_html` filter back. It was removed in a previous release. #6325
+* Sharing: custom sharing services are now rendered correctly when enabled. #6355
 * Sharing: make sure the Site Icon is used on home page Open Graph Meta Tags. #6303
 * Sharing: avoid JavaScript errors when jQuery is enqueued in the footer. #6339
 * Sync: fix synchronization scheduling issues. #6281, #6292

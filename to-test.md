@@ -24,6 +24,8 @@ This Beta includes some changes to the Email Sharing button. Try to add the butt
 
 You can also try to install and activate [this plugin](https://wordpress.org/plugins/jetpack-shortlinks-for-sharing-buttons/), and make sure it doesn't break the Email sharing button.
 
+We also fixed an issue with custom Sharing buttons. To test, go to **Settings > Sharing** and [follow the instructions here](https://jetpack.com/support/sharing/#custom) to create a custom sharing button. You can find some custom sharing service examples [here](https://ryanmarkel.com/3004/adding-specific-sharing-services-to-sharedaddy-or-jetpack/). Once you save your changes, make sure the buttons are displayed on your site.
+
 ### Shortcodes
 
 Do you use [the Recipe shortcode](https://en.support.wordpress.com/recipes/)? You'll want to make sure the Print link works well in all browsers.
