@@ -115,9 +115,10 @@ function slideshare_shortcode( $atts ) {
 	 * Filter the returned shortcode.
 	 *
 	 * @module shortcodes
-	 * @since 4.8.0
+	 * @since 4.7.0
 	 *
 	 * @param string $player The iframe to return.
+	 * @param array $atts The attributes specified in the shortcode.
 	 */
 	return apply_filters( 'jetpack_slideshare_shortcode', $player, $atts );
 }
