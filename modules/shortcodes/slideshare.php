@@ -114,6 +114,9 @@ function slideshare_shortcode( $atts ) {
 	/**
 	 * Filter the returned shortcode.
 	 *
+	 * @module shortcodes
+	 * @since 4.8.0
+	 *
 	 * @param string $player The iframe to return.
 	 */
 	return apply_filters( 'slideshare_shortcode', $player );
