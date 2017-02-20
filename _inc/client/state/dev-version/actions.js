@@ -12,6 +12,7 @@ import {
 	RESET_OPTIONS_FAIL,
 	RESET_OPTIONS_SUCCESS
 } from 'state/action-types';
+import { JETPACK_SITE_DATA_FETCH_RECEIVE } from 'state/action-types';
 import restApi from 'rest-api';
 
 export const resetOptions = ( options ) => {
@@ -35,4 +36,13 @@ export const resetOptions = ( options ) => {
 			dispatch( createNotice( 'is-error', __( 'Options failed to reset.' ), { id: 'reset-options' } ) );
 		} );
 	}
-}
+};
+
+export const switchMichaelsPlan = ( slug ) => {
+	return ( dispatch ) => {
+		dispatch( {
+			type: JETPACK_SITE_DATA_FETCH_RECEIVE,
+			siteData: { plan: { product_slug: slug } }
+		} );
+	}
+};

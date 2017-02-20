@@ -1,0 +1,12 @@
+.jp-dev-card {
+	background: pink;
+	padding: 10px;
+	position: fixed;
+	bottom: 10px;
+	right: 0;
+	z-index: 100;
+
+	span {
+		margin-right: 8px;
+	}
+}

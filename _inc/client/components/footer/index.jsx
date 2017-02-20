@@ -17,6 +17,7 @@ import {
 import { resetOptions } from 'state/dev-version';
 import { isInIdentityCrisis } from 'state/connection';
 import { getSiteAdminUrl } from 'state/initial-state';
+import DevCard from 'components/dev-card';
 
 export const Footer = React.createClass( {
 	displayName: 'Footer',
@@ -103,6 +104,7 @@ export const Footer = React.createClass( {
 					</li>
 					{ maybeShowDebug() }
 					{ maybeShowReset() }
+					<DevCard />
 				</ul>
 			</div>
 		);
