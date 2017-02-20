@@ -160,6 +160,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * General: fix PHP error when uninstalling the plugin. #6320
 * Infinite Scroll: do not display the Infinite Scroll footer when we're displaying the last page. #6312
 * Infinite Scroll: change the class of the body when reaching the last page. #6246
+* Publicize: the character counter for Twitter in the post editing screen now turns red when 116 characters are reached to reflect the amount left after inserting the link to the post. #6362
 * Related Posts: when the module is active, always display them unless they're disabled via a filter or the toggle in options. #6324
 * Related Posts: add `jetpack_sharing_headline_html` filter back. It was removed in a previous release. #6325
 * Sharing: custom sharing services are now rendered correctly when enabled. #6355
