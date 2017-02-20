@@ -132,6 +132,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Improved Compatibility**
 
 * Accessibility: enable keyboard focus styling in the new admin interface. #6300
+* Accessibility: add missing label to one of the fields in the Email sharing dialog. #6332
 * Internationalization: improve translator comments to make translating new terms easier. #6307
 * Multisite: use Core functions to retrieve the list of sites for more accurate results. #3405
 
