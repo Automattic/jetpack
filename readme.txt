@@ -157,6 +157,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Carousel: the `jp_carousel_load_for_images_linked_to_file` filter now works when Photon is activated as well. #6296
 * Carousel: ensure the Carousel view works when viewing image galleries loaded from infinite scroll. #6306
+* Contact Form: remove double slashes from file paths to avoid errors in specific server environments. #6384
 * Custom CSS: avoid stripping CSS when migrating from Jetpack's Custom CSS to Core's CSS editor. #5992
 * Debug Tools: make sure the right URL is used on sites where WordPress lives in a subdirectory. #6321
 * General: fix PHP error when uninstalling the plugin. #6320
