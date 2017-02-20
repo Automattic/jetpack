@@ -129,6 +129,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Twitch.tv shortcode: update to use Twitch's new embedded player. #6338
 * Widgets: add a filter to The Display Posts Widget content, so the content can be customized. #5883
 * Widgets: add a new email field to the Contact Info Widget. #6275
+* WordPress.com REST API: add date and time format settings to the Settings endpoint. #6343
 
 **Improved Compatibility**
 
