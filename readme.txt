@@ -126,6 +126,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Development Mode: update notice to include all possible options to activate Development mode. #6360
 * General: remove deprecated compatibility code for older versions of WordPress. #6337
 * General: cleanup Jetpack registration function. #6322
+* General: update admin notice displayed to WooCommerce store owners. It now detects when WooCommerce Services is installed, but not active. #6382, #6369
 * Holiday Snow: remove settings outside of Holiday Snow period. #6298
 * Infinite Scroll: update wording in settings to avoid any confusion. #6239
 * Infinite Scroll: the classes `infinite-scroll` and `neverending` are now applied using JS instead of PHP. #6346
