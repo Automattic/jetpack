@@ -1,0 +1,26 @@
+.jetpack-social-navigation ul {
+	display: block;
+	margin: 0 0 1.5em;
+	padding: 0;
+}
+
+.jetpack-social-navigation li {
+	display: inline-block;
+	margin: 0;
+	line-height: 1;
+}
+
+.jetpack-social-navigation a {
+	border: 0;
+	height: 1em;
+	text-decoration: none;
+	width: 1em;
+}
+
+.jetpack-social-navigation .icon {
+	color: inherit;
+	fill: currentColor;
+	height: 1em;
+	vertical-align: middle;
+	width: 1em;
+}
