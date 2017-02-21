@@ -11,6 +11,7 @@ import classNames from 'classnames';
 import { isDevVersion as _isDevVersion } from 'state/initial-state';
 import { switchPlanPreview } from 'state/dev-version';
 import { getSitePlan } from 'state/site';
+import { canDisplayDevCard, disableDevCard } from 'state/dev-version';
 import Card from 'components/card';
 
 export const DevCard = React.createClass( {
@@ -21,6 +22,10 @@ export const DevCard = React.createClass( {
 	},
 
 	render() {
+		if ( ! this.props.canDisplayDevCard ) {
+			return null;
+		}
+
 		const classes = classNames(
 			this.props.className,
 			'jp-dev-card'
@@ -28,6 +33,7 @@ export const DevCard = React.createClass( {
 
 		return (
 			<Card compact className={ classes }>
+				<a className="jp-dev-card__close" onClick={ this.props.disableDevCard }>x</a>
 				<div className="jp-dev-card__heading">Plan preview</div>
 				<div className="jp-dev-card__subheading">(Dev only)</div>
 				<ul>
@@ -93,13 +99,17 @@ export default connect(
 	state => {
 		return {
 			isDevVersion: _isDevVersion( state ),
-			sitePlan: getSitePlan( state )
+			sitePlan: getSitePlan( state ),
+			canDisplayDevCard: canDisplayDevCard( state )
 		}
 	},
 	( dispatch ) => {
 		return {
 			switchPlanPreview: ( slug ) => {
 				return dispatch( switchPlanPreview( slug ) );
+			},
+			disableDevCard: () => {
+				return dispatch( disableDevCard() );
 			}
 		};
 	}

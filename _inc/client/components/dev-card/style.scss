@@ -1,7 +1,7 @@
 .jp-dev-card.jp-dev-card {
 	position: fixed;
 	bottom: 10px;
-	right: 0;
+	right: 10px;
 	z-index: 100;
 	padding: 8px;
 	font-size: 12px;
@@ -23,4 +23,9 @@
 .jp-dev-card__subheading {
 	font-size: 11px;
 	color: darken( $gray, 10% );
+}
+
+.jp-dev-card__close {
+	float: right;
+	cursor: pointer;
 }

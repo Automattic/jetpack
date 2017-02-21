@@ -17,6 +17,10 @@ import {
 import { resetOptions } from 'state/dev-version';
 import { isInIdentityCrisis } from 'state/connection';
 import { getSiteAdminUrl } from 'state/initial-state';
+import {
+	canDisplayDevCard,
+	enableDevCard
+} from 'state/dev-version';
 import DevCard from 'components/dev-card';
 
 export const Footer = React.createClass( {
@@ -65,6 +69,27 @@ export const Footer = React.createClass( {
 			}
 		};
 
+		const maybeShowDevCardFooterLink = () => {
+			if ( this.props.isDevVersion ) {
+				return (
+					<li className="jp-footer__link-item">
+						<a
+							onClick={ this.props.enableDevCard }
+							className="jp-footer__link">
+							{ __( 'Plan preview (dev only)', { context: 'Navigation item.' } ) }
+						</a>
+					</li>
+				);
+			}
+			return '';
+		};
+
+		const maybeShowDevCard = () => {
+			if ( this.props.isDevVersion && this.props.displayDevCard ) {
+				return <DevCard />;
+			}
+		};
+
 		return (
 			<div className={ classes }>
 				<div className="jp-footer__a8c-attr-container">
@@ -104,7 +129,8 @@ export const Footer = React.createClass( {
 					</li>
 					{ maybeShowDebug() }
 					{ maybeShowReset() }
-					{ this.props.isDevVersion ? <DevCard /> : '' }
+					{ maybeShowDevCardFooterLink() }
+					{ maybeShowDevCard() }
 				</ul>
 			</div>
 		);
@@ -118,13 +144,20 @@ export default connect(
 			userCanManageOptions: userCanManageOptions( state ),
 			isDevVersion: _isDevVersion( state ),
 			siteAdminUrl: getSiteAdminUrl( state ),
-			isInIdentityCrisis: isInIdentityCrisis( state )
+			isInIdentityCrisis: isInIdentityCrisis( state ),
+			displayDevCard: canDisplayDevCard( state )
 		}
 	},
 	( dispatch ) => {
 		return {
 			resetOptions: () => {
 				return dispatch( resetOptions( 'options' ) );
+			},
+			enableDevCard: () => {
+				return dispatch( enableDevCard() );
+			},
+			disableDevCard: () => {
+				return dispatch( disableDevCard() );
 			}
 		};
 	}

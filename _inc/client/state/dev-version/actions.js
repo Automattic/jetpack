@@ -12,7 +12,11 @@ import {
 	RESET_OPTIONS_FAIL,
 	RESET_OPTIONS_SUCCESS
 } from 'state/action-types';
-import { JETPACK_SITE_DATA_FETCH_RECEIVE } from 'state/action-types';
+import {
+	JETPACK_SITE_DATA_FETCH_RECEIVE,
+	DEV_CARD_DISPLAY,
+	DEV_CARD_HIDE
+} from 'state/action-types';
 import restApi from 'rest-api';
 
 export const resetOptions = ( options ) => {
@@ -34,6 +38,22 @@ export const resetOptions = ( options ) => {
 			} );
 			dispatch( removeNotice( 'reset-options' ) );
 			dispatch( createNotice( 'is-error', __( 'Options failed to reset.' ), { id: 'reset-options' } ) );
+		} );
+	}
+};
+
+export const enableDevCard = () => {
+	return ( dispatch ) => {
+		dispatch( {
+			type: DEV_CARD_DISPLAY
+		} );
+	}
+};
+
+export const disableDevCard = () => {
+	return ( dispatch ) => {
+		dispatch( {
+			type: DEV_CARD_HIDE
 		} );
 	}
 };
