@@ -12,8 +12,8 @@ import NoticesList from 'components/global-notices';
  * Internal dependencies
  */
 import JetpackStateNotices from './state-notices';
-import { getSiteConnectionStatus, getSiteDevMode, isStaging, isInIdentityCrisis } from 'state/connection';
-import { isDevVersion } from 'state/initial-state';
+import { getSiteConnectionStatus, getSiteDevMode, isStaging, isInIdentityCrisis, isCurrentUserLinked } from 'state/connection';
+import { isDevVersion, userCanManageModules, getUsername } from 'state/initial-state';
 import DismissableNotices from './dismissable';
 import { getConnectUrl as _getConnectUrl } from 'state/connection';
 import QueryConnectUrl from 'components/data/query-connect-url';
@@ -159,15 +159,13 @@ export const UserUnlinked = React.createClass( {
 
 	render() {
 		if (
-			! window.Initial_State.userData.currentUser.isConnected &&
+			! this.props.isLinked &&
 			this.props.connectUrl &&
 			this.props.siteConnected
 		) {
-			let text;
-
-			text = __( 'You, %(userName)s, are not connected to WordPress.com.', {
+			const text = __( 'You, %(userName)s, are not connected to WordPress.com.', {
 				args: {
-					userName: window.Initial_State.userData.currentUser.username
+					userName: this.props.username
 				}
 			} );
 
@@ -215,7 +213,18 @@ const JetpackNotices = React.createClass( {
 				<DismissableNotices />
 				<UserUnlinked
 					connectUrl={ this.props.connectUrl }
-					siteConnected={ true === this.props.siteConnectionStatus } />
+					siteConnected={ true === this.props.siteConnectionStatus }
+					isLinked={ this.props.isLinked }
+					username={ this.props.username } />
+				{
+					( ! this.props.siteConnectionStatus && ! this.props.userCanManageModules ) && (
+						<SimpleNotice
+							showDismiss={ false }
+							status="is-warning"
+							text={ __( 'This site is not connected to WordPress.com. Please ask the site administrator to connect.' ) }
+						/>
+					)
+				}
 			</div>
 		);
 	}
@@ -226,11 +235,13 @@ export default connect(
 		return {
 			connectUrl: _getConnectUrl( state ),
 			siteConnectionStatus: getSiteConnectionStatus( state ),
+			userCanManageModules: userCanManageModules( state ),
+			username: getUsername( state ),
+			isLinked: isCurrentUserLinked( state ),
 			isDevVersion: isDevVersion( state ),
 			siteDevMode: getSiteDevMode( state ),
 			isStaging: isStaging( state ),
 			isInIdentityCrisis: isInIdentityCrisis( state )
-
 		};
 	}
 )( JetpackNotices );
