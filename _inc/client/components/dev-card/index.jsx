@@ -38,12 +38,12 @@ export const DevCard = React.createClass( {
                 /> Free
                 <input
                     type='radio'
-                    id='jetpack_business'
-                    value='jetpack_business'
-                    name='jetpack_business'
-                    checked={ /jetpack_business*/.test( this.props.sitePlan.product_slug ) }
+                    id='jetpack_personal'
+                    value='jetpack_personal'
+                    name='jetpack_personal'
+                    checked={ /jetpack_personal*/.test( this.props.sitePlan.product_slug ) }
                     onChange={ this.onChange }
-                /> Business
+                /> Personal
                 <input
                     type='radio'
                     id='jetpack_premium'
@@ -52,6 +52,14 @@ export const DevCard = React.createClass( {
                     checked={ /jetpack_premium*/.test( this.props.sitePlan.product_slug ) }
                     onChange={ this.onChange }
                 /> Premium
+                <input
+                    type='radio'
+                    id='jetpack_business'
+                    value='jetpack_business'
+                    name='jetpack_business'
+                    checked={ /jetpack_business*/.test( this.props.sitePlan.product_slug ) }
+                    onChange={ this.onChange }
+                /> Professional
             </div>
         );
     }
