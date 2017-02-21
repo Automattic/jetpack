@@ -81,7 +81,7 @@ class Jetpack_Beta_Autoupdate_Self {
 	}
 
 	public function overrule_transients() {
-		return ( defined( 'JETPACK_BETA_TESTER_FORCE_UPDATE' ) && JETPACK_BETA_TESTER_FORCE_UPDATE );
+		return ( defined( 'Jetpack_Beta_FORCE_UPDATE' ) && Jetpack_Beta_FORCE_UPDATE );
 	}
 
 	public function get_github_data() {
