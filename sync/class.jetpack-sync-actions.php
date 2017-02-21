@@ -228,11 +228,11 @@ class Jetpack_Sync_Actions {
 	}
 
 	static function do_cron_sync() {
-        self::do_cron_sync_by_type('sync');
+        self::do_cron_sync_by_type( 'sync' );
 	}
 
 	static function do_cron_full_sync() {
-        self::do_cron_sync_by_type('full_sync');
+        self::do_cron_sync_by_type( 'full_sync' );
 	}
 
     // try to send actions until we run out of things to send,
