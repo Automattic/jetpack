@@ -1,6 +1,6 @@
 <?php
 /**
- * Module Name: Masterbar
+ * Module Name: WordPress.com Toolbar
  * Module Description: An admin bar providing similar experience to the front-end navigation on WordPress.com.
  * Sort Order: 38
  * Recommendation Order: 16

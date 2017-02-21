@@ -92,7 +92,7 @@ function jetpack_get_module_i18n( $key ) {
 			),
 
 			'masterbar' => array(
-				'name' => _x( 'Masterbar', 'Module Name', 'jetpack' ),
+				'name' => _x( 'WordPress.com Toolbar', 'Module Name', 'jetpack' ),
 				'description' => _x( 'An admin bar providing similar experience to the front-end navigation on WordPress.com.', 'Module Description', 'jetpack' ),
 			),
 
