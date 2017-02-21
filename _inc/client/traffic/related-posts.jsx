@@ -53,9 +53,9 @@ export const RelatedPosts = moduleSettingsForm(
 				unavailableInDevMode = this.props.isUnavailableInDevMode( 'related-posts' );
 			return (
 				<SettingsCard
-					{ ...this.props }
+					isSavingAnyOption={ this.props.isSavingAnyOption }
 					hideButton
-					module="related-posts">
+					module={ this.props.getModule( 'related-posts' ) }>
 					<SettingsGroup hasChild disableInDevMode module={ this.props.getModule( 'related-posts' ) }>
 						<ModuleToggle
 							slug="related-posts"

@@ -228,7 +228,10 @@ const Composing = moduleSettingsForm(
 				);
 
 			return (
-				<SettingsCard header={ __( 'Composing', { context: 'Settings header' } ) } { ...this.props } module="composing">
+				<SettingsCard
+					module="composing"
+					isSavingAnyOption={ this.props.isSavingAnyOption }
+					header={ __( 'Composing', { context: 'Settings header' } ) }>
 					{ this.props.isModuleFound( 'markdown' ) && markdownSettings }
 					{ this.props.isModuleFound( 'after-the-deadline' ) && atdSettings }
 				</SettingsCard>

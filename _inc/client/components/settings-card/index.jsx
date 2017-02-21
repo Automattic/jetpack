@@ -175,7 +175,7 @@ SettingsCard.propTypes = {
 SettingsCard.defaultProps = {
 	module: null,
 	header: '',
-	feature: false,
+	feature: '',
 	notice: null,
 	hideButton: false,
 	isDirty: () => false,

@@ -50,9 +50,9 @@ export const Subscriptions = moduleSettingsForm(
 				unavailableInDevMode = this.props.isUnavailableInDevMode( 'subscriptions' );
 			return (
 				<SettingsCard
-					{ ...this.props }
+					isSavingAnyOption={ this.props.isSavingAnyOption }
 					hideButton
-					module="subscriptions">
+					module={ subscriptions }>
 					<SettingsGroup hasChild disableInDevMode module={ subscriptions }>
 						<ModuleToggle
 							slug="subscriptions"

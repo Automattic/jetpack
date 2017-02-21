@@ -28,8 +28,8 @@ export const VerificationServices = moduleSettingsForm(
 				news_sitemap_url = get( sitemaps, [ 'extra', 'news_sitemap_url' ], '' );
 			return (
 				<SettingsCard
-					{ ...this.props }
-					module="verification-tools">
+					isSavingAnyOption={ this.props.isSavingAnyOption }
+					module={ verification }>
 					<SettingsGroup support={ verification.learn_more_button }>
 						<p>
 							{ __(

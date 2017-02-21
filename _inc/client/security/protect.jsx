@@ -82,8 +82,7 @@ export const Protect = moduleSettingsForm(
 				);
 			return (
 				<SettingsCard
-					{ ...this.props }
-					module="protect"
+					isSavingAnyOption={ this.props.isSavingAnyOption }
 					header={ __( 'Prevent brute force login attacks', { context: 'Settings header' } ) } >
 					<FoldableCard
 						header={ toggle }

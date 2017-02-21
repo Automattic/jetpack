@@ -48,9 +48,8 @@ export const SSO = moduleSettingsForm(
 				unavailableInDevMode = this.props.isUnavailableInDevMode( 'sso' );
 			return (
 				<SettingsCard
-					{ ...this.props }
+					isSavingAnyOption={ this.props.isSavingAnyOption }
 					hideButton
-					module="sso"
 					header={ __( 'WordPress.com log in', { context: 'Settings header' } ) }>
 					<SettingsGroup hasChild disableInDevMode module={ this.props.getModule( 'sso' ) }>
 						<ModuleToggle

@@ -106,8 +106,8 @@ const BackupsScan = React.createClass( {
 	render() {
 		return (
 			<SettingsCard
+				isSavingAnyOption={ this.props.isSavingAnyOption }
 				feature={ FEATURE_SECURITY_SCANNING_JETPACK }
-				{ ...this.props }
 				header={ __( 'Backups and security scanning', { context: 'Settings header' } ) }
 				hideButton
 				notice={ this.getNotice() }>

@@ -43,8 +43,8 @@ export const Comments = moduleSettingsForm(
 				markdown = this.props.getModule( 'markdown' );
 			return (
 				<SettingsCard
-					{ ...this.props }
-					module="comments">
+					isSavingAnyOption={ this.props.isSavingAnyOption }
+					module={ comments }>
 					<SettingsGroup hasChild disableInDevMode module={ comments }>
 						<ModuleToggle
 							slug="comments"
