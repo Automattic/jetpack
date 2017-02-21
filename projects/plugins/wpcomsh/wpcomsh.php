@@ -232,3 +232,26 @@ add_filter( 'wp_get_attachment_url', 'wpcomsh_get_attachment_url', 11, 2 );
  */
 add_filter( 'jetpack_sso_bypass_login_forward_wpcom', '__return_true' );
 
+/**
+ * When a request is made to Jetpack Themes API, we need to distinguish between a WP.com theme
+ * and a WP.org theme in the response. This function adds/modifies the `theme_uri` field of a theme
+ * changing it to `https://wordpress.com/theme/{$theme_slug}` if a theme is a WP.com one.
+ *
+ * @param array $formatted_theme Array containing the Jetpack Themes API data to be sent to wpcom
+ *
+ * @return array The original or modified theme info array
+ */
+function wpcomsh_add_wpcom_suffix_to_theme_endpoint_response( $formatted_theme ) {
+	if ( ! array_key_exists( 'id', $formatted_theme ) ) {
+		return $formatted_theme;
+	}
+
+	$theme_slug = $formatted_theme['id'];
+
+	if ( wpcomsh_is_wpcom_theme( $theme_slug ) ) {
+		$formatted_theme['theme_uri'] = "https://wordpress.com/theme/{$theme_slug}";
+	}
+
+	return $formatted_theme;
+}
+add_filter( 'jetpack_format_theme_details', 'wpcomsh_add_wpcom_suffix_to_theme_endpoint_response' );
