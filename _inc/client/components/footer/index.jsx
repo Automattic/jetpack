@@ -104,7 +104,7 @@ export const Footer = React.createClass( {
 					</li>
 					{ maybeShowDebug() }
 					{ maybeShowReset() }
-					<DevCard />
+					{ this.props.isDevVersion ? <DevCard /> : '' }
 				</ul>
 			</div>
 		);
