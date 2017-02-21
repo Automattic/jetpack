@@ -144,6 +144,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Widgets: if Photon is available, use it to serve the image in the Image and the Text widgets. #4220, #6434
 * Widgets: allow non-square image sizes in the Top Posts Widget. #6403
 * WordPress.com REST API: add date and time format settings to the Settings endpoint. #6343
+* WordPress.com REST API: add a filter for theme info results. #6446
 
 **Improved Compatibility**
 
