@@ -9,31 +9,15 @@ import forOwn from 'lodash/forOwn';
 import isEmpty from 'lodash/isEmpty';
 import { translate as __ } from 'i18n-calypso';
 import Button from 'components/button';
-import Gridicon from 'components/gridicon';
 import SelectDropdown from 'components/select-dropdown';
 
-export const FormFieldset = React.createClass( {
-
-	displayName: 'FormFieldset',
-
-	render: function() {
-		return (
-			<fieldset { ...omit( this.props, 'className' ) } className={ classnames( this.props.className, 'jp-form-fieldset' ) } >
-				{
-					this.props.support
-						? <div className="jp-module-settings__learn-more">
-							<Button borderless compact href={ this.props.support }>
-								<Gridicon icon="help-outline" />
-								<span className="screen-reader-text">{ __( 'Learn More' ) }</span>
-							</Button>
-					</div>
-						: ''
-				}
-				{ this.props.children }
-			</fieldset>
-		);
-	}
-} );
+export const FormFieldset = props => {
+	return (
+		<fieldset { ...omit( props, 'className' ) } className={ classnames( props.className, 'jp-form-fieldset' ) } >
+			{ props.children }
+		</fieldset>
+	);
+};
 
 export const FormLabel = React.createClass( {
 

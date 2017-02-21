@@ -22,8 +22,11 @@
 	right: 17px;
 
 	.jp-form-fieldset & {
-		top: -12px;
-		right:-7px;
+		top: 4px;
+	}
+
+	.dops-info-popover {
+		white-space: nowrap;
 	}
 }
 

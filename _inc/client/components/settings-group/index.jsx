@@ -6,8 +6,8 @@ import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import Card from 'components/card';
 import classNames from 'classnames';
-import Button from 'components/button';
-import Gridicon from 'components/gridicon';
+import InfoPopover from 'components/info-popover';
+import ExternalLink from 'components/external-link';
 
 /**
  * Internal dependencies
@@ -17,16 +17,11 @@ import { userCanManageModules, isSitePublic } from 'state/initial-state';
 import { getSitePlan } from 'state/site';
 
 export const SettingsGroup = props => {
-	let module = props.module,
-		support = props.support
-			? props.support
-			: false,
-		// Disable in Dev Mode
-		disableInDevMode = props.disableInDevMode && props.isUnavailableInDevMode( module.module );
-
-	if ( ! support && module && '' !== module.learn_more_button ) {
-		support = module.learn_more_button;
-	}
+	const module = props.module,
+		disableInDevMode = props.disableInDevMode && props.isUnavailableInDevMode( module.module ),
+		support = ! props.support && module && '' !== module.learn_more_button
+			? module.learn_more_button
+			: props.support;
 
 	return (
 		<div className="jp-form-settings-group">
@@ -40,10 +35,14 @@ export const SettingsGroup = props => {
 				{
 					support && (
 						<div className="jp-module-settings__learn-more">
-							<Button borderless compact href={ support }>
-								<Gridicon icon="help-outline" />
-								<span className="screen-reader-text">{ __( 'Learn More' ) }</span>
-							</Button>
+							<InfoPopover screenReaderText={ __( 'Learn more' ) }>
+								<ExternalLink
+									icon={ false }
+									href={ support }
+									target="_blank">
+									{ __( 'Learn more' ) }
+								</ExternalLink>
+							</InfoPopover>
 						</div>
 					)
 				}
@@ -55,8 +54,16 @@ export const SettingsGroup = props => {
 	);
 };
 
+SettingsGroup.propTypes = {
+	support: React.PropTypes.string
+};
+
+SettingsGroup.defaultProps = {
+	support: ''
+};
+
 export default connect(
-	( state ) => {
+	state => {
 		return {
 			isDevMode: isDevMode( state ),
 			sitePlan: getSitePlan( state ),

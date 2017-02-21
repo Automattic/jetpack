@@ -83,34 +83,36 @@ export const Comments = moduleSettingsForm(
 						</FormFieldset>
 					</SettingsGroup>
 					<SettingsGroup>
-						<FormFieldset support={ gravatar.learn_more_button }>
+						<FormFieldset>
 							<ModuleToggle
 								slug="gravatar-hovercards"
 								compact
 								activated={ this.props.getOptionValue( 'gravatar-hovercards' ) }
 								toggling={ this.props.isSavingAnyOption( 'gravatar-hovercards' ) }
 								toggleModule={ this.props.toggleModuleNow }
-							>
-							<span className="jp-form-toggle-explanation">
-								{
-									gravatar.description
-								}
-							</span>
+								>
+								<span className="jp-form-toggle-explanation">
+									{
+										gravatar.description + ' '
+									}
+									<a href={ gravatar.learn_more_button }>{ __( 'Learn more about Gravatar' ) }</a>
+								</span>
 							</ModuleToggle>
 						</FormFieldset>
-						<FormFieldset support={ markdown.learn_more_button }>
+						<FormFieldset>
 							<ModuleToggle
 								slug="markdown"
 								compact
 								activated={ !! this.props.getOptionValue( 'wpcom_publish_comments_with_markdown', 'markdown' ) }
 								toggling={ this.props.isSavingAnyOption( [ 'markdown', 'wpcom_publish_comments_with_markdown' ] ) }
 								toggleModule={ this.updateFormStateByMarkdown }
-							>
-							<span className="jp-form-toggle-explanation">
-								{
-									__( 'Enable Markdown use for comments' )
-								}
-							</span>
+								>
+								<span className="jp-form-toggle-explanation">
+									{
+										__( 'Enable Markdown use for comments' ) + ' '
+									}
+									<a href={ markdown.learn_more_button }>{ __( 'Learn more about Markdown' ) }</a>
+								</span>
 							</ModuleToggle>
 						</FormFieldset>
 					</SettingsGroup>
