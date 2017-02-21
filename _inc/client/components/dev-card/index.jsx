@@ -9,7 +9,7 @@ import classNames from 'classnames';
  * Internal dependencies
  */
 import { isDevVersion as _isDevVersion } from 'state/initial-state';
-import { switchMichaelsPlan } from 'state/dev-version';
+import { switchPlanPreview } from 'state/dev-version';
 import { getSitePlan } from 'state/site';
 import Card from 'components/card';
 
@@ -17,7 +17,7 @@ export const DevCard = React.createClass( {
 	displayName: 'DevCard',
 
 	onChange( event ) {
-		this.props.switchMichaelsPlan( event.target.value );
+		this.props.switchPlanPreview( event.target.value );
 	},
 
 	render() {
@@ -98,8 +98,8 @@ export default connect(
 	},
 	( dispatch ) => {
 		return {
-			switchMichaelsPlan: ( slug ) => {
-				return dispatch( switchMichaelsPlan( slug ) );
+			switchPlanPreview: ( slug ) => {
+				return dispatch( switchPlanPreview( slug ) );
 			}
 		};
 	}

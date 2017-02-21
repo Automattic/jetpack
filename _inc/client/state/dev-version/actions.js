@@ -38,7 +38,7 @@ export const resetOptions = ( options ) => {
 	}
 };
 
-export const switchMichaelsPlan = ( slug ) => {
+export const switchPlanPreview = ( slug ) => {
 	return ( dispatch ) => {
 		dispatch( {
 			type: JETPACK_SITE_DATA_FETCH_RECEIVE,
