@@ -125,9 +125,11 @@ export default connect(
 	( dispatch ) => {
 		return {
 			toggleModule: ( module_name, activated ) => {
+				const shouldReloadAfter = ( module_name === 'masterbar' );
+
 				return ( activated )
-					? dispatch( deactivateModule( module_name ) )
-					: dispatch( activateModule( module_name ) );
+					? dispatch( deactivateModule( module_name, shouldReloadAfter ) )
+					: dispatch( activateModule( module_name, shouldReloadAfter ) );
 			},
 			disconnectSite: () => dispatch( disconnectSite )
 		};

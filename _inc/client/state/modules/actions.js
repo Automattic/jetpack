@@ -82,7 +82,7 @@ export const fetchModule = () => {
 	}
 }
 
-export const activateModule = ( slug ) => {
+export const activateModule = ( slug, reloadAfter = false ) => {
 	return ( dispatch, getState ) => {
 		dispatch( {
 			type: JETPACK_MODULE_ACTIVATE,
@@ -114,6 +114,9 @@ export const activateModule = ( slug ) => {
 				} ),
 				{ id: 'module-toggle', duration: 6000 }
 			) );
+			if ( reloadAfter ) {
+				window.location.reload();
+			}
 		} ).catch( error => {
 			dispatch( {
 				type: JETPACK_MODULE_ACTIVATE_FAIL,
@@ -136,7 +139,7 @@ export const activateModule = ( slug ) => {
 	}
 }
 
-export const deactivateModule = ( slug ) => {
+export const deactivateModule = ( slug, reloadAfter = false ) => {
 	return ( dispatch, getState ) => {
 		dispatch( {
 			type: JETPACK_MODULE_DEACTIVATE,
@@ -168,6 +171,9 @@ export const deactivateModule = ( slug ) => {
 				} ),
 				{ id: 'module-toggle', duration: 6000 }
 			) );
+			if ( reloadAfter ) {
+				window.location.reload();
+			}
 		} ).catch( error => {
 			dispatch( {
 				type: JETPACK_MODULE_DEACTIVATE_FAIL,
