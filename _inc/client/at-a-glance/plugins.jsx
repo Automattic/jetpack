@@ -57,8 +57,6 @@ const DashPluginUpdates = React.createClass( {
 					label={ labelName }
 					module="manage"
 					status="is-warning"
-					siteRawUrl={ this.props.siteRawUrl }
-					siteAdminUrl={ this.props.siteAdminUrl }
 				>
 					<h2 className="jp-dash-item__count">
 						{
