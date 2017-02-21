@@ -101,9 +101,9 @@ function wpcomsh_symlink_theme( $theme_slug, $theme_type ) {
 	$themes_source_path = '';
 
 	if ( WPCOMSH_PUB_THEME_TYPE === $theme_type ) {
-		$themes_source_path = WPCOMSH_PUB_THEMES_PATH;
+		$themes_source_path = WPCOMSH_PUB_THEMES_SYMLINK;
 	} elseif ( WPCOMSH_PREMIUM_THEME_TYPE === $theme_type ) {
-		$themes_source_path = WPCOMSH_PREMIUM_THEMES_PATH;
+		$themes_source_path = WPCOMSH_PREMIUM_THEMES_SYMLINK;
 	}
 
 	$abs_theme_path = $themes_source_path . '/' . wpcomsh_remove_theme_wpcom_suffix( $theme_slug );
@@ -118,8 +118,12 @@ function wpcomsh_symlink_theme( $theme_slug, $theme_type ) {
 	}
 
 	if ( ! symlink( $abs_theme_path, $abs_theme_symlink_path ) ) {
+		$theme_source_folder_path = WPCOMSH_PUB_THEME_TYPE === $theme_type
+			? WPCOMSH_PUB_THEMES_PATH
+			: WPCOMSH_PREMIUM_THEMES_PATH;
+
 		$error_message = "Can't symlink theme with slug: ${theme_slug}." .
-						 "Make sure it exists in the " . WPCOMSH_PREMIUM_THEMES_PATH . " directory.";
+						 "Make sure it exists in the " . $theme_source_folder_path . " directory.";
 
 		error_log( 'WPComSH: ' . $error_message );
 
