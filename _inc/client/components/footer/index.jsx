@@ -155,9 +155,6 @@ export default connect(
 			},
 			enableDevCard: () => {
 				return dispatch( enableDevCard() );
-			},
-			disableDevCard: () => {
-				return dispatch( disableDevCard() );
 			}
 		};
 	}
