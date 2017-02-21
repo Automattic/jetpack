@@ -94,8 +94,7 @@ function wpcomsh_map_caps( $required_caps, $cap ) {
 	switch ( $cap ) {
 		case 'edit_themes':
 			$theme = wp_get_theme();
-			if ( wpcomsh_is_maybe_wpcom_theme( $theme->get_stylesheet() )
-			     && wpcomsh_is_wpcom_premium_theme( $theme->get_stylesheet() )
+			if ( wpcomsh_is_wpcom_premium_theme( $theme->get_stylesheet() )
 			     && 'Automattic' !== $theme->get( 'Author' ) ) {
 				$required_caps[] = 'do_not_allow';
 			}
@@ -110,7 +109,7 @@ function wpcomsh_remove_theme_delete_button( $prepared_themes ) {
 	require_once( 'functions.php' );
 
 	foreach ( $prepared_themes as $theme_slug => $theme_data ) {
-		if ( wpcomsh_is_maybe_wpcom_theme( $theme_slug ) ) {
+		if ( wpcomsh_is_wpcom_theme( $theme_slug ) ) {
 			$prepared_themes[ $theme_slug ]['actions']['delete'] = '';
 		}
 	}
