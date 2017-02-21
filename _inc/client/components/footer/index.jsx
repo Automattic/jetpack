@@ -46,7 +46,7 @@ export const Footer = React.createClass( {
 						<a
 							onClick={ this.resetOnClick }
 							className="jp-footer__link">
-							{ __( 'Reset Options (dev versions only)', { context: 'Navigation item.' } ) }
+							{ __( 'Reset Options (dev only)', { context: 'Navigation item.' } ) }
 						</a>
 					</li>
 				);

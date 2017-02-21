@@ -29,11 +29,10 @@ export const reducer = combineReducers( {
 } );
 
 /**
- * Determines if the devCard should be displayed.  
+ * Determines if the DevCard should be displayed.
  * @param  {Object}  state Global state tree
  * @return {Boolean}
  */
 export function canDisplayDevCard( state ) {
-	console.log( state.jetpack.devCard );
 	return !!state.jetpack.devCard.display;
 }
