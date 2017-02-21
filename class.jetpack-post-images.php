@@ -380,8 +380,10 @@ class Jetpack_PostImages {
 	}
 
 	/**
-	 * @param    int $post_id The post ID to check
-	 * @param    int $size
+	 * Gets a post image from the author avatar.
+	 *
+	 * @param int    $post_id The post ID to check.
+	 * @param int    $size The size of the avatar to get.
 	 * @param string $default The default image to use.
 	 * @return Array containing details of the image, or empty array if none.
 	 */
@@ -395,34 +397,22 @@ class Jetpack_PostImages {
 				$url = $url[0];
 			}
 		} else {
-			$has_filter = has_filter( 'pre_option_show_avatars', '__return_true' );
-			if ( !$has_filter ) {
-				add_filter( 'pre_option_show_avatars', '__return_true' );
-			}
-			$avatar = get_avatar( $post->post_author, $size, $default );
-			if ( !$has_filter ) {
-				remove_filter( 'pre_option_show_avatars', '__return_true' );
-			}
-
-			if ( !$avatar ) {
-				return array();
-			}
-
-			if ( !preg_match( '/src=["\']([^"\']+)["\']/', $avatar, $matches ) ) {
-				return array();
-			}
-
-			$url = wp_specialchars_decode( $matches[1], ENT_QUOTES );
+			$url = get_avatar_url( $post->post_author, array(
+				'size' => $size,
+				'default' => $default,
+			) );
 		}
 
-		return array( array(
-			'type'       => 'image',
-			'from'       => 'gravatar',
-			'src'        => $url,
-			'src_width'  => $size,
-			'src_height' => $size,
-			'href'       => $permalink,
-		) );
+		return array(
+			array(
+				'type'       => 'image',
+				'from'       => 'gravatar',
+				'src'        => $url,
+				'src_width'  => $size,
+				'src_height' => $size,
+				'href'       => $permalink,
+			),
+		);
 	}
 
 	/**
