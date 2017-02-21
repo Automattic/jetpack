@@ -26,7 +26,7 @@ if ( ! defined( 'JP_SITEMAP_MAX_BYTES' ) ) {
  * @since 4.7.0
  */
 if ( ! defined( 'JP_SITEMAP_MAX_ITEMS' ) ) {
-	define( 'JP_SITEMAP_MAX_ITEMS', 10 );
+	define( 'JP_SITEMAP_MAX_ITEMS', 2000 );
 }
 
 /**
@@ -55,7 +55,7 @@ if ( ! defined( 'JP_SITEMAP_BATCH_SIZE' ) ) {
  * @since 4.7.0
  */
 if ( ! defined( 'JP_SITEMAP_UPDATE_SIZE' ) ) {
-	define( 'JP_SITEMAP_UPDATE_SIZE', 400 );
+	define( 'JP_SITEMAP_UPDATE_SIZE', 100 );
 }
 
 /**
@@ -64,7 +64,7 @@ if ( ! defined( 'JP_SITEMAP_UPDATE_SIZE' ) ) {
  * @since 4.7.0
  */
 if ( ! defined( 'JP_SITEMAP_INTERVAL' ) ) {
-	define( 'JP_SITEMAP_INTERVAL', 10 );
+	define( 'JP_SITEMAP_INTERVAL', 12 * HOUR_IN_SECONDS );
 }
 
 /**
@@ -73,7 +73,7 @@ if ( ! defined( 'JP_SITEMAP_INTERVAL' ) ) {
  * @since 4.7.0
  */
 if ( ! defined( 'JP_SITEMAP_LOCK_INTERVAL' ) ) {
-	define( 'JP_SITEMAP_LOCK_INTERVAL', 60 * 15 );
+	define( 'JP_SITEMAP_LOCK_INTERVAL', 15 * MINUTE_IN_SECONDS );
 }
 
 /**
