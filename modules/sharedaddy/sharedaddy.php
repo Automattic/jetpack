@@ -68,12 +68,12 @@ function sharing_email_send_post_content( $data ) {
 	$content  = sprintf( __( '%1$s (%2$s) thinks you may be interested in the following post:', 'jetpack' ), $data['name'], $data['source'] );
 	$content .= "\n\n";
 	$content .= $data['post']->post_title."\n";
-	
+
 	// Filtered share URL. Allows backwards compatibility.
-	if ( isset( $data['share_url'] ) && ! empty( $data['share_url'] ) ) {
+	if ( ! empty( $data['share_url'] ) ) {
 		$content .= $data['share_url'] . "\n";
 	} else {
-		$content .= get_permalink( $data['post']->ID )."\n";
+		$content .= get_permalink( $data['post']->ID ) . "\n";
 	}
 
 	return $content;

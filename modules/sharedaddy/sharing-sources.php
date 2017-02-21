@@ -151,7 +151,7 @@ abstract class Sharing_Source {
 		if ( ! empty( $query ) ) {
 			if ( false === stripos( $url, '?' ) ) {
 				$url .= '?' . $query;
-			} else { 
+			} else {
 				$url .= '&amp;' . $query;
 			}
 		}
@@ -376,7 +376,7 @@ class Share_Email extends Sharing_Source {
 
 		if ( 'official' == $this->button_style ) {
 			$this->smart = true;
-		} else { 
+		} else {
 			$this->smart = false;
 		}
 	}
@@ -426,10 +426,10 @@ class Share_Email extends Sharing_Source {
 			 */
 			if ( apply_filters( 'sharing_email_check', true, $post, $post_data ) ) {
 				$data = array(
-					'post'	 => $post,
-					'source' => $source_email,
-					'target' => $target_email,
-					'name'	 => $source_name,
+					'post'	    => $post,
+					'source'    => $source_email,
+					'target'    => $target_email,
+					'name'	    => $source_name,
 					'share_url' => $this->get_share_url( $post->ID ),
 				);
 				// todo: implement an error message when email doesn't get sent.
@@ -472,14 +472,14 @@ class Share_Email extends Sharing_Source {
 				}
 
 				die();
-			} else { 
+			} else {
 				$error = 2;	  // Email check failed
 			}
 		}
 
 		if ( $ajax ) {
 			echo $error;
-		} else { 
+		} else {
 			wp_safe_redirect( get_permalink( $post->ID ) . '?shared=email&msg=fail' );
 		}
 
@@ -564,7 +564,7 @@ class Share_Twitter extends Sharing_Source {
 
 		if ( 'official' == $this->button_style ) {
 			$this->smart = true;
-		} else { 
+		} else {
 			$this->smart = false;
 		}
 	}
@@ -759,7 +759,7 @@ class Share_Reddit extends Sharing_Source {
 
 		if ( 'official' == $this->button_style ) {
 			$this->smart = true;
-		} else { 
+		} else {
 			$this->smart = false;
 		}
 	}
@@ -771,7 +771,7 @@ class Share_Reddit extends Sharing_Source {
 	public function get_display( $post ) {
 		if ( $this->smart ) {
 			return '<div class="reddit_button"><iframe src="' . $this->http() . '://www.reddit.com/static/button/button1.html?newwindow=true&width=120&amp;url=' . rawurlencode( $this->get_share_url( $post->ID ) ) . '&amp;title=' . rawurlencode( $this->get_share_title( $post->ID ) ) . '" height="22" width="120" scrolling="no" frameborder="0"></iframe></div>';
-		} else { 
+		} else {
 			return $this->get_link( $this->get_process_request_url( $post->ID ), _x( 'Reddit', 'share to', 'jetpack' ), __( 'Click to share on Reddit', 'jetpack' ), 'share=reddit' );
 		}
 	}
@@ -796,7 +796,7 @@ class Share_LinkedIn extends Sharing_Source {
 
 		if ( 'official' == $this->button_style ) {
 			$this->smart = true;
-		} else { 
+		} else {
 			$this->smart = false;
 		}
 	}
@@ -878,7 +878,7 @@ class Share_Facebook extends Sharing_Source {
 
 		if ( 'official' == $this->button_style ) {
 			$this->smart = true;
-		} else { 
+		} else {
 			$this->smart = false;
 		}
 	}
@@ -1007,7 +1007,7 @@ class Share_Print extends Sharing_Source {
 
 		if ( 'official' == $this->button_style ) {
 			$this->smart = true;
-		} else { 
+		} else {
 			$this->smart = false;
 		}
 	}
@@ -1029,7 +1029,7 @@ class Share_PressThis extends Sharing_Source {
 
 		if ( 'official' == $this->button_style ) {
 			$this->smart = true;
-		} else { 
+		} else {
 			$this->smart = false;
 		}
 	}
@@ -1095,7 +1095,7 @@ class Share_GooglePlus1 extends Sharing_Source {
 
 		if ( 'official' == $this->button_style ) {
 			$this->smart = true;
-		} else { 
+		} else {
 			$this->smart = false;
 		}
 	}
@@ -1393,7 +1393,7 @@ class Share_Tumblr extends Sharing_Source {
 		parent::__construct( $id, $settings );
 		if ( 'official' == $this->button_style ) {
 			$this->smart = true;
-		} else { 
+		} else {
 			$this->smart = false;
 		}
 	}
@@ -1442,7 +1442,7 @@ class Share_Pinterest extends Sharing_Source {
 		parent::__construct( $id, $settings );
 		if ( 'official' == $this->button_style ) {
 			$this->smart = true;
-		} else { 
+		} else {
 			$this->smart = false;
 		}
 	}
@@ -1553,7 +1553,7 @@ class Share_Pinterest extends Sharing_Source {
 				var s = document.createElement("script");
 				s.type = "text/javascript";
 				s.async = true;
-				<?php if ( $jetpack_pinit_over ) { 
+				<?php if ( $jetpack_pinit_over ) {
 				echo "s.setAttribute('data-pin-hover', true);";
 				} ?>
 				s.src = window.location.protocol + "//assets.pinterest.com/js/pinit.js";
@@ -1595,7 +1595,7 @@ class Share_Pocket extends Sharing_Source {
 
 		if ( 'official' == $this->button_style ) {
 			$this->smart = true;
-		} else { 
+		} else {
 			$this->smart = false;
 		}
 	}
