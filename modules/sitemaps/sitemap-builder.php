@@ -94,6 +94,8 @@ class Jetpack_Sitemap_Builder {
 	/**
 	 * Update the sitemap.
 	 *
+	 * All we do here is call build_next_sitemap_file a bunch of times.
+	 *
 	 * @since 4.7.0
 	 */
 	public function update_sitemap() {
@@ -114,8 +116,8 @@ class Jetpack_Sitemap_Builder {
 	/**
 	 * Generate the next sitemap file.
 	 *
-	 * Reads the most recent state of the sitemap generation phase and
-	 * constructs the next file.
+	 * Reads the most recent state of the sitemap generation phase,
+	 * constructs the next file, and updates the state.
 	 *
 	 * @since 4.7.0
 	 */
