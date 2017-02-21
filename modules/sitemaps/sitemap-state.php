@@ -90,8 +90,17 @@ class Jetpack_Sitemap_State {
 		$state['max'][ $state['sitemap-type'] ]['number']  = $state['number'];
 		$state['max'][ $state['sitemap-type'] ]['lastmod'] = $state['last-modified'];
 
-		delete_transient( 'jetpack-sitemap-state-lock' );
 		update_option( 'jetpack-sitemap-state', $state );
+	}
+
+	/**
+	 * Unlock the sitemap state.
+	 *
+	 * @access public
+	 * @since 4.7.0
+	 */
+	public static function unlock() {
+		delete_transient( 'jetpack-sitemap-state-lock' );
 	}
 
 	/**

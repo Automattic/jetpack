@@ -120,7 +120,7 @@ class Jetpack_Sitemap_Builder {
 	 * @since 4.7.0
 	 */
 	private function build_next_sitemap_file() {
-		// Get the most recent state.
+		// Get the most recent state, and lock the state.
 		$state = Jetpack_Sitemap_State::check_out();
 
 		// Do nothing if the state was locked.
@@ -200,6 +200,9 @@ class Jetpack_Sitemap_Builder {
 				);
 				die();
 		}
+
+		// Unlock the state.
+		Jetpack_Sitemap_State::unlock();
 
 		return;
 	}
@@ -301,7 +304,7 @@ class Jetpack_Sitemap_Builder {
 			) );
 
 			if ( $this->logger ) {
-				$this->logger->report( "-- Cleaning Up: $index_type" );
+				$this->logger->report( "-- Cleaning Up $index_type" );
 			}
 
 			// There are no indices of this type.
