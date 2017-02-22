@@ -394,6 +394,7 @@ class Jetpack_Widget_Conditions {
 	 * @return array Settings to display or bool false to hide.
 	 */
 	public static function filter_widget( $instance ) {
+		global $wp_query;
 
 		if ( empty( $instance['conditions'] ) || empty( $instance['conditions']['rules'] ) )
 			return $instance;
@@ -447,7 +448,7 @@ class Jetpack_Widget_Conditions {
 								$condition_result = is_archive();
 							break;
 							case 'posts':
-								$condition_result = is_single();
+								$condition_result = $wp_query->is_posts_page;
 							break;
 							case 'home':
 								$condition_result = is_home();
@@ -464,7 +465,7 @@ class Jetpack_Widget_Conditions {
 									$condition_result = is_singular( substr( $rule['minor'], 10 ) );
 								} elseif ( $rule['minor'] == get_option( 'page_for_posts' ) ) {
 									// If $rule['minor'] is a page ID which is also the posts page
-									$condition_result = is_single();
+									$condition_result = $wp_query->is_posts_page;
 								} else {
 									// $rule['minor'] is a page ID
 									$condition_result = is_page() && ( $rule['minor'] == get_the_ID() );
