@@ -282,14 +282,29 @@ class Jetpack_Sync_Actions {
 	}
 
 	static function initialize_woocommerce() {
-		if ( class_exists( 'WooCommerce' ) ) {
-			add_filter( 'jetpack_sync_modules', array( 'Jetpack_Sync_Actions', 'add_woocommerce_sync_module' ) );
+		if ( false === class_exists( 'WooCommerce' ) ) {
+			return;
 		}
+		add_filter( 'jetpack_sync_modules', array( 'Jetpack_Sync_Actions', 'add_woocommerce_sync_module' ) );
 	}
 
 	static function add_woocommerce_sync_module( $sync_modules ) {
 		require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-woocommerce.php';
 		$sync_modules[] = 'Jetpack_Sync_Module_WooCommerce';
+		return $sync_modules;
+	}
+
+	static function initialize_wp_super_cache() {
+		//WPCACHEHOME looks like a reasonable constant to test for the plugin's presence as per https://github.com/Automattic/wp-super-cache/blob/master/wp-cache.php
+		if ( false === defined( 'WPCACHEHOME' ) ) {
+			return;
+		}
+		add_filter( 'jetpack_sync_modules', array( 'Jetpack_Sync_Actions', 'add_wp_super_cache_sync_module' ) );
+	}
+
+	static function add_wp_super_cache_sync_module( $sync_modules ) {
+		require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-wp-super-cache.php';
+		$sync_modules[] = 'Jetpack_Sync_Module_WPSuperCache';
 		return $sync_modules;
 	}
 
@@ -425,6 +440,9 @@ add_action( 'plugins_loaded', array( 'Jetpack_Sync_Actions', 'init' ), 90 );
 
 // Check for WooCommerce support
 add_action( 'plugins_loaded', array( 'Jetpack_Sync_Actions', 'initialize_woocommerce' ), 5 );
+
+// Check for WP Super Cache
+add_action( 'plugins_loaded', array( 'Jetpack_Sync_Actions', 'initialize_wp_super_cache' ), 5 );
 
 // We need to define this here so that it's hooked before `updating_jetpack_version` is called
 add_action( 'updating_jetpack_version', array( 'Jetpack_Sync_Actions', 'do_initial_sync' ), 10, 2 );
