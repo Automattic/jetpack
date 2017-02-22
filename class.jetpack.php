@@ -1113,6 +1113,26 @@ class Jetpack {
 	}
 
 	/**
+	 * Wrapper for core's get_avatar_url().  This one is deprecated.
+	 *
+	 * @deprecated 4.7 use get_avatar_url instead.
+	 * @param int|string|object $id_or_email A user ID,  email address, or comment object
+	 * @param int $size Size of the avatar image
+	 * @param string $default URL to a default image to use if no avatar is available
+	 * @param bool $force_display Whether to force it to return an avatar even if show_avatars is disabled
+	 *
+	 * @return array
+	 */
+	public static function get_avatar_url( $id_or_email, $size = 96, $default = '', $force_display = false ) {
+		_deprecated_function( __METHOD__, 'jetpack-4.7', 'get_avatar_url' );
+		return get_avatar_url( $id_or_email, array(
+			'size' => $size,
+			'default' => $default,
+			'force_default' => $force_display,
+		) );
+	}
+
+	/**
 	 * jetpack_updates is saved in the following schema:
 	 *
 	 * array (
