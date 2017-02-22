@@ -646,7 +646,7 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 				continue;
 			}
 			$widget_id = $instance_data['id'];
-			if ( ! empty( $instance_data['subscriptions_cache'] && $instance_data['display'] === 'grid' ) ) {
+			if ( ! empty( $instance_data['subscriptions_cache'] ) && $instance_data['display'] === 'grid' ) {
 				$i = 0;
 				$output = '<div id="wpcom-follow-bubbles-' . $widget_id . '" class="wpcom-follow-bubbles">';
 
