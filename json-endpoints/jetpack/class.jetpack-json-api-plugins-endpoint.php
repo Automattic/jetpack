@@ -198,6 +198,11 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 	 protected function get_plugin_action_links( $plugin_file ) {
 		 $formatted_action_links = array();
 
+		 // Some sites may have DOM disabled in PHP
+		 if ( ! class_exists( 'DOMDocument' ) ) {
+			 return $formatted_action_links;
+		 }
+
 		 $action_links = array();
 		 /** This filter is documented in src/wp-admin/includes/class-wp-plugins-list-table.php */
 		 $action_links = apply_filters( 'plugin_action_links', $action_links, $plugin_file, null, 'all' );
