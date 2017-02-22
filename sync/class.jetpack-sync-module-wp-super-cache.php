@@ -10,6 +10,10 @@ class Jetpack_Sync_Module_WP_Super_Cache extends Jetpack_Sync_Module {
 		'ADVANCEDCACHEPROBLEM',
 	);
 
+	static $wp_super_cache_callables = array(
+		'wp_super_cache_globals' => array( 'Jetpack_Sync_Module_WP_Super_Cache', 'get_wp_super_cache_globals' ),
+	);
+
 	public function name() {
 		return 'wp-super-cache';
 	}
@@ -36,7 +40,7 @@ class Jetpack_Sync_Module_WP_Super_Cache extends Jetpack_Sync_Module {
 		global $cache_jetpack;
 		global $cache_domain_mapping;
 
-		return array (
+		return array(
 			'wp_cache_mod_rewrite' => $wp_cache_mod_rewrite,
 			'cache_enabled' => $cache_enabled,
 			'super_cache_enabled' => $super_cache_enabled,
@@ -60,20 +64,24 @@ class Jetpack_Sync_Module_WP_Super_Cache extends Jetpack_Sync_Module {
 		);
 	}
 
-	/**
-	 * Using set_late_default to ensure constants module is already initialized, then add WP Super Cache constants to it for syncing via existing mechanism
-	 */
-	public function set_late_default() {
-		$constants_module = Jetpack_Sync_Modules::get_module( 'constants' );
-		$constants = array_merge( $constants_module->get_constants_whitelist(), self::$wp_super_cache_constants);
-		$constants_module->set_constants_whitelist( $constants );
+	public function init_listeners( $callable ) {
+		$this->sync_wp_super_cache();
+	}
 
-		$callables_module = Jetpack_Sync_Modules::get_module( 'functions' );
-		$callables = array_merge( $callables_module->get_callable_whitelist(),
-			array(
-				'wp_super_cache_globals' => array( 'Jetpack_Sync_Module_WP_Super_Cache', 'get_wp_super_cache_globals' ),
-			)
-		);
-		$callables_module->set_callable_whitelist( $callables );
+	public function init_full_sync_listeners( $callable ) {
+		$this->sync_wp_super_cache();
+	}
+
+	public function sync_wp_super_cache() {
+		add_filter( 'jetpack_sync_constants_whitelist', array( $this, 'add_wp_super_cache_constants_whitelist' ), 10 );
+		add_filter( 'jetpack_sync_callable_whitelist', array( $this, 'add_wp_super_cache_callable_whitelist' ), 10 );
+	}
+
+	public function add_wp_super_cache_constants_whitelist( $list ) {
+		return array_merge( $list, self::$wp_super_cache_constants );
+	}
+
+	public function add_wp_super_cache_callables_whitelist( $list ) {
+		return array_merge( $list, self::$wp_super_cache_callables );
 	}
 }
