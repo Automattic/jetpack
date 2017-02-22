@@ -81,6 +81,7 @@ export const NavigationSettings = React.createClass( {
 			return (
 				<Search
 					pinned={ true }
+					fitsContainer={ true }
 					placeholder={ __( 'Search for a Jetpack feature.' ) }
 					delaySearch={ true }
 					delayTimeout={ 500 }
