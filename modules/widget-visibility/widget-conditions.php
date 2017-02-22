@@ -169,8 +169,9 @@ class Jetpack_Widget_Conditions {
 		if ( empty( $conditions['rules'] ) )
 			$conditions['rules'][] = array( 'major' => '', 'minor' => '', 'has_children' => '' );
 
-		if ( ! isset( $conditions['match_all'] ) )
+		if ( empty( $conditions['match_all'] ) ) {
 			$conditions['match_all'] = false;
+		}
 
 		?>
 		<div class="widget-conditional <?php if ( empty( $_POST['widget-conditions-visible'] ) || $_POST['widget-conditions-visible'] == '0' ) { ?>widget-conditional-hide<?php } ?>">
