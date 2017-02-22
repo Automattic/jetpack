@@ -7,6 +7,7 @@ import { translate as __ } from 'i18n-calypso';
 import includes from 'lodash/includes';
 import Button from 'components/button';
 import SimpleNotice from 'components/notice';
+import NoticeAction from 'components/notice/notice-action';
 
 /**
  * Internal dependencies
@@ -64,10 +65,13 @@ const ProStatus = React.createClass( {
 				return(
 					<SimpleNotice
 						showDismiss={ false }
-						status='is-error'
+						status="is-error"
 						isCompact={ true }
 					>
 						{ __( 'Threats found!', { context: 'Short warning message about new threats found.' } ) }
+						<NoticeAction href="https://dashboard.vaultpress.com/">
+							{ __( 'FIX IT', { context: 'A caption for a small button to fix security issues.' } ) }
+						</NoticeAction>
 					</SimpleNotice>
 				);
 			}
