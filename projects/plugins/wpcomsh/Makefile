@@ -49,7 +49,7 @@ ifneq ($(strip $(shell git diff --exit-code --quiet $(GIT_REMOTE_FULL)..HEAD 2>/
 endif
 
 ## build
-build: $(BUILD_PATH)/$(BUILD_FILE)
+build: check $(BUILD_PATH)/$(BUILD_FILE)
 
 $(BUILD_PATH):
 	@echo "===== creating '$(BUILD_PATH)' directory ====="
