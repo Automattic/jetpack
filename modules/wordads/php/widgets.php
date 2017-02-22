@@ -64,7 +64,7 @@ HTML;
 		echo <<< HTML
 		<div class="wpcnt">
 			<div class="wpa">
-				<a class="wpa-about" href="https://en.wordpress.com/about-these-ads/" rel="nofollow">$about</a>
+				<span class="wpa-about">$about</span>
 				<div class="u {$instance['unit']}">
 					$snippet
 				</div>
