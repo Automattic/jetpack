@@ -79,7 +79,7 @@ function jetpack_social_menu_style() {
 	$deps = ( 'genericons' === $menu_type ) ? array( 'genericons' ) : null;
 
 	if ( has_nav_menu( 'jetpack-social-menu' ) ) {
-		wp_enqueue_style( 'jetpack-social-menu', plugins_url( 'social-menu/social-menu-' . $menu_type . '.css', __FILE__ ), $deps, '1.0' );
+		wp_enqueue_style( 'jetpack-social-menu', plugins_url( 'social-menu/social-menu.css', __FILE__ ), $deps, '1.0' );
 	}
 }
 
@@ -88,12 +88,13 @@ function jetpack_social_menu_style() {
  */
 function jetpack_social_menu() {
 	if ( has_nav_menu( 'jetpack-social-menu' ) ) :
+		$menu_type  = jetpack_social_menu_get_type();
 		$link_after = '</span>';
 
-		if ( 'svg' === jetpack_social_menu_get_type() ) {
+		if ( 'svg' === $menu_type ) {
 			$link_after .= jetpack_social_menu_get_svg( array( 'icon' => 'chain' ) );
 		} ?>
-		<nav class="jetpack-social-navigation" role="navigation" aria-label="<?php esc_html_e( 'Social Links Menu', 'jetpack' ); ?>">
+		<nav class="jetpack-social-navigation jetpack-social-navigation-<?php echo $menu_type; ?>" role="navigation" aria-label="<?php esc_html_e( 'Social Links Menu', 'jetpack' ); ?>">
 			<?php
 				wp_nav_menu( array(
 					'theme_location' => 'jetpack-social-menu',
