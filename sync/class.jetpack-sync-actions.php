@@ -235,34 +235,38 @@ class Jetpack_Sync_Actions {
 		self::do_cron_sync_by_type( 'full_sync' );
 	}
 
-    // try to send actions until we run out of things to send,
-    // or have to wait more than 15s before sending again,
-    // or we hit a lock or some other sending issue
-    static function do_cron_sync_by_type( $type ) {
-        if ( ! self::sync_allowed() || ( 'sync' !== $type && 'full_sync' !== $type ) ) {
-            return;
-        }
+	/**
+	 * Try to send actions until we run out of things to send,
+	 * or have to wait more than 15s before sending again,
+	 * or we hit a lock or some other sending issue
+	 *
+	 * @param string $type Sync type. Can be `sync` or `full_sync`.
+	 */
+	static function do_cron_sync_by_type( $type ) {
+		if ( ! self::sync_allowed() || ( 'sync' !== $type && 'full_sync' !== $type ) ) {
+			return;
+		}
 
-        self::initialize_sender();
+		self::initialize_sender();
 
-        $time_limit = Jetpack_Sync_Settings::get_setting( 'cron_sync_time_limit' );
-        $start_time = time();
+		$time_limit = Jetpack_Sync_Settings::get_setting( 'cron_sync_time_limit' );
+		$start_time = time();
 
-        do {
-            $next_sync_time = self::$sender->get_next_sync_time( $type );
+		do {
+			$next_sync_time = self::$sender->get_next_sync_time( $type );
 
-            if ( $next_sync_time ) {
-                $delay = $next_sync_time - time() + 1;
-                if ( $delay > 15 ) {
-                    break;
-                } elseif ( $delay > 0 ) {
-                    sleep( $delay );
-                }
-            }
+			if ( $next_sync_time ) {
+				$delay = $next_sync_time - time() + 1;
+				if ( $delay > 15 ) {
+					break;
+				} elseif ( $delay > 0 ) {
+					sleep( $delay );
+				}
+			}
 
-            $result = 'full_sync' === $type ? self::$sender->do_full_sync() : self::$sender->do_sync();
-        } while ( $result && ( $start_time + $time_limit ) > time() );
-    }
+			$result = 'full_sync' === $type ? self::$sender->do_full_sync() : self::$sender->do_sync();
+		} while ( $result && ( $start_time + $time_limit ) > time() );
+	}
 
 	static function initialize_listener() {
 		require_once dirname( __FILE__ ) . '/class.jetpack-sync-listener.php';
