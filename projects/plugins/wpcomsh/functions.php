@@ -1,4 +1,24 @@
 <?php
+/**
+ * Returns whether a theme is a WPCom one or not (ie installed/downloaded from wp.com) by checking if
+ * the theme slug ends in `-wpcom`.
+ *
+ * @param string $theme_slug Slug of a theme.
+ * @return bool              Whether the passed in theme ends in `-wpcom` suffix.
+ */
+function wpcomsh_has_theme_wpcom_suffix( $theme_slug ) {
+	return substr( $theme_slug, -6 ) === '-wpcom';
+}
+
+function wpcomsh_remove_theme_wpcom_suffix( $theme_slug_with_suffix ) {
+	if ( wpcomsh_has_theme_wpcom_suffix( $theme_slug_with_suffix ) ) {
+		return substr( $theme_slug_with_suffix, 0, -6 );
+	}
+
+	error_log( "WPComSH: wpcomsh_remove_theme_wpcom_suffix() called with a non-wpcom theme slug" );
+
+	return false;
+}
 
 /**
  * Returns whether a theme is a WPCom one or not (ie installed/downloaded from wp.com).
