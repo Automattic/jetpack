@@ -116,6 +116,7 @@ const Main = React.createClass( {
 
 		return nextProps.siteConnectionStatus !== this.props.siteConnectionStatus ||
 			nextProps.jumpStartStatus !== this.props.jumpStartStatus ||
+			nextProps.isLinked !== this.props.isLinked ||
 			nextProps.route.path !== this.props.route.path ||
 			nextProps.searchTerm !== this.props.searchTerm;
 	},
