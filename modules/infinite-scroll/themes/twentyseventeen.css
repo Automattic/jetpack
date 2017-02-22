@@ -62,7 +62,7 @@
 .colors-dark .site-main #infinite-handle span {
 	background: #f8f8f8;
 	border-radius: 2px;
-	color: #777;
+	color: #222;
 	font-family: "Libre Franklin", "Helvetica Neue", helvetica, arial, sans-serif;
 	font-size: inherit;
 	font-weight: 700;
@@ -113,13 +113,13 @@
 .infinite-scroll #navigation,
 .infinite-scroll.neverending .jetpack-mobile-link,
 .infinite-scroll.neverending .site-footer {
-    display: none;
+	display: none;
 }
 
 /* Shows the footer & mobile link again in case all posts have been loaded */
 .infinity-end.neverending .jetpack-mobile-link,
 .infinity-end.neverending .site-footer {
-    display: block;
+	display: block;
 }
 
 @media screen and (min-width: 44.375em) {
@@ -143,7 +143,7 @@
 	}
 }
 
-@media screen and (min-width: 48em) { 
+@media screen and (min-width: 48em) {
 	#infinite-footer .blog-info,
 	#infinite-footer .blog-credits {
 		line-height: 35px;
@@ -158,10 +158,10 @@
 	}
 
 	.blog:not(.has-sidebar) .infinite-loader {
-		float: right; 
+		float: right;
 		width: 58%;
 	}
-	
+
 	.site-main .infinite-loader .spinner {
 		margin-left: -17px;
 	}
