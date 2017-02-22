@@ -228,9 +228,7 @@ class Jetpack_Widget_Conditions {
 
 							<div class="condition-control">
 								<span class="condition-conjunction">
-									<?php
-										echo esc_html_x( 'or', 'Shown between widget visibility conditions.', 'jetpack' );
-									?>
+									<?php echo esc_html_x( 'or', 'Shown between widget visibility conditions.', 'jetpack' ); ?>
 								</span>
 								<div class="actions alignright">
 									<a href="#" class="delete-condition dashicons dashicons-no"><?php esc_html_e( 'Delete', 'jetpack' ); ?></a><a href="#" class="add-condition dashicons dashicons-plus"><?php esc_html_e( 'Add', 'jetpack' ); ?></a>
@@ -619,9 +617,9 @@ class Jetpack_Widget_Conditions {
 
 				// In case the match_all flag was set we quit on first failed condition
 				break;
-			} elseif(
+			} elseif (
 				(
-					! isset( $instance['conditions']['match_all'] )
+					empty( $instance['conditions']['match_all'] )
 					|| $instance['conditions']['match_all'] !== '1'
 				)
 				&& $condition_result
@@ -636,8 +634,7 @@ class Jetpack_Widget_Conditions {
 			(
 				'show' == $instance['conditions']['action']
 				&& ! $condition_result
-			)
-			|| (
+			) || (
 				'hide' == $instance['conditions']['action']
 				&& $condition_result
 			)
