@@ -711,7 +711,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$response = $this->create_and_get_request( 'settings', array( 'carousel_background_color' => 'black' ), 'POST' );
 		$this->assertResponseStatus( 200, $response );
 
-		// It should also save correctly with a multi-part POST body.
+		// It should also save correctly with a POST body that is not JSON encoded
 		$response = $this->create_and_get_request( 'settings', array(), 'POST', array( 'carousel_background_color' => 'black' ) );
 		$this->assertResponseStatus( 200, $response );
 	}
@@ -737,7 +737,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$response = $this->create_and_get_request( 'settings', array( 'show' => array( 'post', 'page' ) ), 'POST' );
 		$this->assertResponseStatus( 200, $response );
 		
-		// It should also work correctly with a multi-part POST body.
+		// It should also work correctly with a POST body that is not JSON encoded
 		$response = $this->create_and_get_request( 'settings', array(), 'POST',  array( 'show' => 'post' ) );
 		$this->assertResponseStatus( 400, $response );
 
