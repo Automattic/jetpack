@@ -19,6 +19,6 @@ class Jetpack_Sync_Module_WP_Super_Cache extends Jetpack_Sync_Module {
 	 */
 	public function set_late_default() {
 		$constants_module = Jetpack_Sync_Modules::get_module( 'constants' );
-		$constants_module->add_constants( self::WP_SUPER_CACHE_CONSTANTS );
+		$constants_module->add_constants( self::$wp_super_cache_constants);
 	}
 }
