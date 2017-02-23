@@ -2,8 +2,6 @@
 
 class Jetpack_Sync_Module_WP_Super_Cache extends Jetpack_Sync_Module {
 
-	static $wp_super_cache_globals = array();
-
 	static $wp_super_cache_constants = array(
 		'WPLOCKDOWN',
 		'WPSC_DISABLE_COMPRESSION',
@@ -16,7 +14,7 @@ class Jetpack_Sync_Module_WP_Super_Cache extends Jetpack_Sync_Module {
 		return 'wp-super-cache';
 	}
 
-	public function set_defaults() {
+	public function get_wp_super_cache_globals() {
 		global $wp_cache_mod_rewrite;
 		global $cache_enabled;
 		global $super_cache_enabled;
@@ -38,7 +36,7 @@ class Jetpack_Sync_Module_WP_Super_Cache extends Jetpack_Sync_Module {
 		global $cache_jetpack;
 		global $cache_domain_mapping;
 
-		self::$wp_super_cache_globals = array (
+		return array (
 			'wp_cache_mod_rewrite' => $wp_cache_mod_rewrite,
 			'cache_enabled' => $cache_enabled,
 			'super_cache_enabled' => $super_cache_enabled,
@@ -62,21 +60,20 @@ class Jetpack_Sync_Module_WP_Super_Cache extends Jetpack_Sync_Module {
 		);
 	}
 
-	public function init_listeners( $callable ) {
-		add_action( 'enqueue_wp_super_cache_globals', $callable, 10, 1 );
-		do_action( 'enqueue_wp_super_cache_globals', self::$wp_super_cache_globals );
-	}
-
-	public function init_full_sync_listeners( $callable ) {
-		add_action( 'enqueue_wp_super_cache_globals', $callable, 10, 1 );
-		do_action( 'enqueue_wp_super_cache_globals', self::$wp_super_cache_globals );
-	}
-
 	/**
 	 * Using set_late_default to ensure constants module is already initialized, then add WP Super Cache constants to it for syncing via existing mechanism
 	 */
 	public function set_late_default() {
 		$constants_module = Jetpack_Sync_Modules::get_module( 'constants' );
-		$constants_module->add_constants( self::$wp_super_cache_constants );
+		$constants = array_merge( $constants_module->get_constants_whitelist(), self::$wp_super_cache_constants);
+		$constants_module->set_constants_whitelist( $constants );
+
+		$callables_module = Jetpack_Sync_Modules::get_module( 'functions' );
+		$callables = array_merge( $callables_module->get_callable_whitelist(),
+			array(
+				'wp_super_cache_globals' => array( 'Jetpack_Sync_Module_WP_Super_Cache', 'get_wp_super_cache_globals' ),
+			)
+		);
+		$callables_module->set_callable_whitelist( $callables );
 	}
 }
