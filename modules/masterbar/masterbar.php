@@ -10,8 +10,8 @@ class A8C_WPCOM_Masterbar {
 	private $primary_site_slug;
 
 	function __construct() {
-		$this->locale    = $this->get_locale();
-		$this->user_id   = get_current_user_id();
+		$this->locale  = $this->get_locale();
+		$this->user_id = get_current_user_id();
 
 		if ( Jetpack::is_user_connected( $this->user_id ) ) {
 			$this->user_data = Jetpack::get_connected_user_data( $this->user_id );
@@ -72,7 +72,10 @@ class A8C_WPCOM_Masterbar {
 		$this->add_reader_submenu( $wp_admin_bar );
 
 		// Right part
-		$this->add_notifications( $wp_admin_bar );
+		if ( Jetpack::is_module_active( 'notes' ) ) {
+			$this->add_notifications( $wp_admin_bar );
+		}
+
 		$this->add_me_submenu( $wp_admin_bar );
 		$this->add_write_button( $wp_admin_bar );
 	}
@@ -445,17 +448,15 @@ class A8C_WPCOM_Masterbar {
 			// $class = 'has-blavatar';
 			// end stub
 
-			$blog_description = $this->primary_site_slug;
-
 			$blog_info = '<div class="ab-site-icon">' . $blavatar . '</div>';
 			$blog_info .= '<span class="ab-site-title">' . esc_html( $blog_name ) . '</span>';
-			$blog_info .= '<span class="ab-site-description">' . esc_html( $blog_description ) . '</span>';
+			$blog_info .= '<span class="ab-site-description">' . esc_html( $this->primary_site_slug ) . '</span>';
 
 			$wp_admin_bar->add_menu( array(
 				'parent' => 'blog',
 				'id'     => 'blog-info',
 				'title'  => $blog_info,
-				'href'   => esc_url( trailingslashit( get_home_url() ) ),
+				'href'   => esc_url( trailingslashit( $this->primary_site_slug ) ),
 				'meta'   => array(
 					'class' => $class,
 				),
