@@ -42,11 +42,11 @@ class WP_Test_Jetpack_Blogs_I_Follow extends WP_UnitTestCase {
 
  		$mock->expects( $this->exactly( 1 ) )
  		     ->method( 'should_cron_execute' )
- 		     ->willReturn( true );
+ 		     ->will( $this->returnValue( true ) );
 
 		$mock->expects( $this->exactly( 1 ) )
 		     ->method( 'retrieve_subscriptions' )
-		     ->willReturn( array() );
+		     ->will( $this->returnValue( array() ) );
 
 		$pre_widget_options = array(
 			array(
@@ -77,17 +77,17 @@ class WP_Test_Jetpack_Blogs_I_Follow extends WP_UnitTestCase {
 
 		$mock->expects( $this->exactly( 1 ) )
  		     ->method( 'should_cron_execute' )
- 		     ->willReturn( true );
+ 		     ->will( $this->returnValue( true ) );
 
 		$mock->expects( $this->exactly( 1 ) )
 		     ->method( 'retrieve_subscriptions' )
-		     ->willReturn( array(
+		     ->will( $this->returnValue( array(
 				'id' => 1,
 				'blog_id' => 1,
 				'blog_url' => 'https://subscription.test.wordpress.com/',
 				'feed_url' => 'https://feed.test.wordpress.com/',
 				'date_subscribed' => null
-			) );
+			) ) );
 
 		$pre_widget_options = array(
 			array(
