@@ -140,7 +140,7 @@ class Jetpack_Beta {
 	public function __construct() {
 
 		add_filter( 'auto_update_plugin', array( $this, 'auto_update_jetpack_beta' ), 10, 2 );
-		add_filter( 'pre_set_site_transient_update_plugins', array( $this, 'api_check' ) );
+		// add_filter( 'pre_set_site_transient_update_plugins', array( $this, 'api_check' ) );
 
 		if ( is_admin() ) {
 			require JPBETA__PLUGIN_DIR . 'jetpack-beta-admin.php';
