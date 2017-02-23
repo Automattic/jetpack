@@ -117,4 +117,11 @@ class Jetpack_Sync_Module_Constants extends Jetpack_Sync_Module {
 
 		return $args;
 	}
+
+	/**
+	 * @param $additional_constants Array of names of additional constants that should be synced
+	 */
+	public function add_constants( $additional_constants ) {
+		$this->constants_whitelist = array_merge( $this->constants_whitelist, $additional_constants );
+	}
 }
