@@ -31,6 +31,11 @@ class A8C_WPCOM_Masterbar {
 		wp_enqueue_style( 'a8c_wpcom_masterbar_overrides', plugins_url( 'masterbar-overrides/masterbar.css', __FILE__ ) );
 		wp_enqueue_style( 'a8c_wpcom_masterbar_mobile', plugins_url( 'masterbar-mobile.css', __FILE__ ) );
 
+		if ( ! Jetpack::is_module_active( 'notes ' ) ) {
+			// Masterbar is relying on some icons from noticons.css
+			wp_enqueue_style( 'noticons', $this->wpcom_static_url( '/i/noticons/noticons.css' ), array(), JETPACK_NOTES__CACHE_BUSTER );
+		}
+
 		wp_enqueue_script( 'wpcom-masterbar-js', plugins_url( 'masterbar-overrides/masterbar.js', __FILE__ ) );
 	}
 
@@ -40,6 +45,13 @@ class A8C_WPCOM_Masterbar {
 		$url = $url['host'] . untrailingslashit( $url['path'] );
 
 		return str_replace( '/', '::', $url );
+	}
+
+	function wpcom_static_url( $file ) {
+		$i   = hexdec( substr( md5( $file ), - 1 ) ) % 2;
+		$url = 'http://s' . $i . '.wp.com' . $file;
+
+		return set_url_scheme( $url );
 	}
 
 	public function replace_core_masterbar() {
