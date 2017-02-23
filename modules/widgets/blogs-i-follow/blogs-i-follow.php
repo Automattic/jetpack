@@ -97,17 +97,32 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 		$this->subscriptions = array();
 	}
 
+	/**
+		If it is not already scheduled, schedule the subscription cache update cron
+	 */
 	public static function activate_cron() {
 		if ( ! wp_next_scheduled( self::$cron_name ) ) {
 			wp_schedule_event( time(), 'minutes_10', self::$cron_name );
 		}
 	}
 
+	/**
+		Unschedule the subscription cache update cron
+	 */
 	public static function deactivate_cron() {
 		$next_scheduled_time = wp_next_scheduled( self::$cron_name );
 		wp_unschedule_event( $next_scheduled_time, self::$cron_name );
 	}
 
+	/**
+		Determine if the subscription cache update cron needs to execute
+
+		The cron should execute when there is an active Blogs I Follow widget instance.
+
+		@param array $widget_data The saved option data for this widget
+		@return bool The return value is true if the subscription cache update
+		cron should execute, and false if it should not execute.
+	 */
 	public function should_cron_execute( $widget_data ) {
 		if ( false === $widget_data ) {
 			return false;
@@ -133,6 +148,14 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 		return true;
 	}
 
+	/**
+		Updates the subscription cache if there is at least one active widget instance
+
+		The caches for all widget instances are periodically updated by this function.
+		When the cron invokes it, it updates the subscription cache for each of them.
+
+		@return bool The return value is always true
+	 */
 	public function update_subscription_cache_if_needed() {
 		// If there are no instances of this widget, there is nothing to update
 		$widget_data = get_option( 'widget_jp_blogs_i_follow' );
@@ -157,6 +180,16 @@ class Jetpack_Widget_Blogs_I_Follow extends WP_Widget {
 		return true;
 	}
 
+	/**
+		Retrieves subscription data for the user's blog subscriptions
+
+		@param int $user_id The user id whose subscriptions should be retrieved
+		@param int $maximum_blogs The maximum number of subscriptions to be returned
+		@return array The return value is an array of subscription data gathered from
+		either internal tables on WordPress.com or from REST API HTTP requests within
+		Jetpack. If there are no subscriptions or they couldn't be retrieved, the result
+		is an empty array.
+	 */
 	public function retrieve_subscriptions( $user_id, $maximum_blogs ) {
 		$subscription_args = array( 'user_id' => $user_id, 'public_only' => true );
 		// TODO: For WordPress.com, hook into this filter and use wpcom_subs_get_blogs
