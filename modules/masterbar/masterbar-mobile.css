@@ -243,7 +243,8 @@
     #wpadminbar li#wp-admin-bar-new-content,
     #wpadminbar li#wp-admin-bar-edit,
     #wpadminbar li#wp-admin-bar-comments,
-    #wpadminbar li#wp-admin-bar-my-account {
+    #wpadminbar li#wp-admin-bar-my-account,
+    #wpadminbar li#wp-admin-bar-notes {
         display: block;
     }
 
