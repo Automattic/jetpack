@@ -95,6 +95,22 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 
 	}
 
+	public function test_activate_and_deactivating_plugin_is_synced() {
+		activate_plugin( 'hello.php' );
+		$this->sender->do_sync();
+
+		$active_plugins = $this->server_replica_storage->get_option( 'active_plugins' );
+		$this->assertEquals( get_option( 'active_plugins' ), $active_plugins );
+		$this->assertTrue( in_array( 'hello.php', $active_plugins ) );
+
+		deactivate_plugins( 'hello.php' );
+		$this->sender->do_sync();
+
+		$active_plugins = $this->server_replica_storage->get_option( 'active_plugins' );
+		$this->assertEquals( get_option( 'active_plugins' ), $active_plugins );
+		$this->assertFalse( in_array( 'hello.php', $active_plugins ) );
+	}
+
 	function test_plugin_activation_action_is_synced() {
 		activate_plugin( 'hello.php' );
 		$this->sender->do_sync();
