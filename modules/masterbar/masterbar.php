@@ -250,8 +250,6 @@ class A8C_WPCOM_Masterbar {
 	}
 
 	public function add_me_submenu( $wp_admin_bar ) {
-		global $current_user, $current_blog;
-
 		$user_id = get_current_user_id();
 		if ( empty( $user_id ) ) {
 			return;
@@ -419,7 +417,7 @@ class A8C_WPCOM_Masterbar {
 			return;
 		}
 
-		$blog_post_page = 'https://wordpress.com/post/' . $this->primary_site_slug;
+		$blog_post_page = 'https://wordpress.com/post/' . esc_attr( $this->primary_site_slug );
 
 		$wp_admin_bar->add_menu( array(
 			'parent'    => 'top-secondary',
@@ -444,7 +442,7 @@ class A8C_WPCOM_Masterbar {
 		$wp_admin_bar->add_menu( array(
 			'id'    => 'blog',
 			'title' => __( 'My Sites' ),
-			'href'  => 'https://wordpress.com/stats/' . $this->primary_site_slug,
+			'href'  => 'https://wordpress.com/stats/' . esc_attr( $this->primary_site_slug ),
 			'meta'  => array(
 				'class' => 'my-sites',
 			),
@@ -543,12 +541,12 @@ class A8C_WPCOM_Masterbar {
 		// Blog Posts
 		$posts_title = $this->create_menu_item_pair(
 			array(
-				'url'   => 'https://wordpress.com/posts/' . $this->primary_site_slug,
+				'url'   => 'https://wordpress.com/posts/' . esc_attr( $this->primary_site_slug ),
 				'id'    => 'wp-admin-bar-edit-post',
 				'label' => __( 'Blog Posts' ),
 			),
 			array(
-				'url'   => 'https://wordpress.com/posts/' . $this->primary_site_slug,
+				'url'   => 'https://wordpress.com/post/' . esc_attr( $this->primary_site_slug ),
 				'id'    => 'wp-admin-bar-new-post',
 				'label' => _x( 'Add', 'admin bar menu new item label' ),
 			)
@@ -566,12 +564,12 @@ class A8C_WPCOM_Masterbar {
 		// Pages
 		$pages_title = $this->create_menu_item_pair(
 			array(
-				'url'   => 'https://wordpress.com/pages/' . $this->primary_site_slug,
+				'url'   => 'https://wordpress.com/pages/' . esc_attr( $this->primary_site_slug ),
 				'id'    => 'wp-admin-bar-edit-page',
 				'label' => __( 'Pages' ),
 			),
 			array(
-				'url'   => 'https://wordpress.com/page/' . $this->primary_site_slug,
+				'url'   => 'https://wordpress.com/page/' . esc_attr( $this->primary_site_slug ),
 				'id'    => 'wp-admin-bar-new-page',
 				'label' => _x( 'Add', 'admin bar menu new item label' ),
 			)
@@ -589,12 +587,12 @@ class A8C_WPCOM_Masterbar {
 		// Portfolio
 		$portfolios_title = $this->create_menu_item_pair(
 			array(
-				'url'   => 'https://wordpress.com/types/jetpack-portfolio/' . $this->primary_site_slug,
+				'url'   => 'https://wordpress.com/types/jetpack-portfolio/' . esc_attr( $this->primary_site_slug ),
 				'id'    => 'wp-admin-bar-edit-page',
 				'label' => __( 'Portfolio' ),
 			),
 			array(
-				'url'   => 'https://wordpress.com/edit/jetpack-portfolio' . $this->primary_site_slug,
+				'url'   => 'https://wordpress.com/edit/jetpack-portfolio/' . esc_attr( $this->primary_site_slug ),
 				'id'    => 'wp-admin-bar-new-page',
 				'label' => _x( 'Add', 'admin bar menu new item label' ),
 			)
@@ -707,7 +705,7 @@ class A8C_WPCOM_Masterbar {
 					'label' => __( 'People' ),
 				),
 				array(
-					'url'   => 'https://wordpress.com/people/new/' . esc_attr( $this->primary_site_slug ),
+					'url'   => '//' . esc_attr( $this->primary_site_slug ) . '/wp-admin/user-new.php',
 					'id'    => 'wp-admin-bar-people-add',
 					'label' => _x( 'Add', 'admin bar people item label' ),
 				)
@@ -719,18 +717,30 @@ class A8C_WPCOM_Masterbar {
 				'title'  => $people_title,
 				'href'   => false,
 				'meta'   => array(
-					'class' => 'mb-icon',
-					'class' => 'inline-action'
+					'class' => 'inline-action',
 				),
 			) );
+
+			$plugins_title = $this->create_menu_item_pair(
+				array(
+					'url'   => 'https://wordpress.com/plugins/' . esc_attr( $this->primary_site_slug ),
+					'id'    => 'wp-admin-bar-plugins',
+					'label' => __( 'Plugins' ),
+				),
+				array(
+					'url'   => 'https://wordpress.com/plugins/browse/' . esc_attr( $this->primary_site_slug ),
+					'id'    => 'wp-admin-bar-plugins-add',
+					'label' => _x( 'Add', 'Label for the button on the Masterbar to add a new plugin' ),
+				)
+			);
 
 			$wp_admin_bar->add_menu( array(
 				'parent' => 'configuration',
 				'id'     => 'plugins',
-				'title'  => __( 'Plugins' ),
-				'href'   => 'https://wordpress.com/plugins/' . esc_attr( $this->primary_site_slug ),
+				'title'  => $plugins_title,
+				'href'   => false,
 				'meta'   => array(
-					'class' => 'mb-icon',
+					'class' => 'inline-action',
 				),
 			) );
 
@@ -761,7 +771,7 @@ class A8C_WPCOM_Masterbar {
 				'parent' => 'configuration',
 				'id'     => 'blog-settings',
 				'title'  => __( 'Settings' ),
-				'href'   => 'https://wordpress.com/settings/general/' . $this->primary_site_slug,
+				'href'   => 'https://wordpress.com/settings/general/' . esc_attr( $this->primary_site_slug ),
 				'meta'   => array(
 					'class' => 'mb-icon',
 				),
@@ -771,7 +781,7 @@ class A8C_WPCOM_Masterbar {
 				'parent' => 'configuration',
 				'id'     => 'legacy-dashboard',
 				'title'  => __( 'WP Admin' ),
-				'href'   => 'https://' . $this->primary_site_slug . '/wp-admin/',
+				'href'   => '//' . esc_attr( $this->primary_site_slug ) . '/wp-admin/',
 				'meta'   => array(
 					'class' => 'mb-icon',
 				),
