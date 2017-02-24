@@ -35,15 +35,18 @@ class A8C_WPCOM_Masterbar {
 	}
 
 	public function add_styles_and_scripts() {
-		wp_enqueue_style( 'a8c_wpcom_masterbar', plugins_url( 'masterbar.css', __FILE__ ) );
-		wp_enqueue_style( 'a8c_wpcom_masterbar_overrides', plugins_url( 'masterbar-overrides/masterbar.css', __FILE__ ) );
+		wp_enqueue_style( 'a8c_wpcom_masterbar', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/wpcom-admin-bar.css' ) );
+		wp_enqueue_style( 'a8c_wpcom_masterbar_overrides', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/masterbar-overrides/masterbar.css' ) );
+
+		// Local overrides
+		wp_enqueue_style( 'a8c_wpcom_css_override', plugins_url( 'overrides.css', __FILE__ ) );
 
 		if ( ! Jetpack::is_module_active( 'notes ' ) ) {
 			// Masterbar is relying on some icons from noticons.css
 			wp_enqueue_style( 'noticons', $this->wpcom_static_url( '/i/noticons/noticons.css' ), array(), JETPACK_NOTES__CACHE_BUSTER );
 		}
 
-		wp_enqueue_script( 'wpcom-masterbar-js', plugins_url( 'masterbar-overrides/masterbar.js', __FILE__ ) );
+		wp_enqueue_script( 'a8c_wpcom_masterbar_overrides', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/masterbar-overrides/masterbar.js' ) );
 	}
 
 	public function get_site_slug() {
