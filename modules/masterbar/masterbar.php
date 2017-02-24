@@ -22,14 +22,19 @@ class A8C_WPCOM_Masterbar {
 
 		add_action( 'wp_before_admin_bar_render', array( $this, 'replace_core_masterbar' ), 99999 );
 
-		add_action( 'wp_enqueue_scripts', array( $this, 'add_styles_and_scripts' ) );
-		add_action( 'admin_enqueue_scripts', array( $this, 'add_styles_and_scripts' ) );
+
+		add_action( 'wp_head', array( $this, 'add_styles_and_scripts' ) );
+		add_action( 'admin_head', array( $this, 'add_styles_and_scripts' ) );
+
+		add_action( 'wp_enqueue_scripts', array( $this, 'remove_core_styles' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'remove_core_styles' ) );
+	}
+
+	public function remove_core_styles() {
+		wp_dequeue_style( 'admin-bar' );
 	}
 
 	public function add_styles_and_scripts() {
-		// Unset the core admin bar styles
-		wp_dequeue_style( 'admin-bar' );
-
 		wp_enqueue_style( 'a8c_wpcom_masterbar', plugins_url( 'masterbar.css', __FILE__ ) );
 		wp_enqueue_style( 'a8c_wpcom_masterbar_overrides', plugins_url( 'masterbar-overrides/masterbar.css', __FILE__ ) );
 
