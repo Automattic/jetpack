@@ -8,6 +8,7 @@ import includes from 'lodash/includes';
 import { createHistory } from 'history';
 import { withRouter } from 'react-router';
 import { translate as __ } from 'i18n-calypso';
+import { get } from 'lodash';
 
 /**
  * Internal dependencies
