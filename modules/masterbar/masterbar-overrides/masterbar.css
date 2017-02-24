@@ -1331,3 +1331,7 @@ div#wpadminbar .quicklinks > ul > li#wp-admin-bar-notes > a.ab-item span.noticon
         margin-left: -12px;
     }
 }
+
+.my-sites li {
+    min-height: unset !important;
+}
