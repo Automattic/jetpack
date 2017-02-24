@@ -588,19 +588,19 @@ class A8C_WPCOM_Masterbar {
 		$portfolios_title = $this->create_menu_item_pair(
 			array(
 				'url'   => 'https://wordpress.com/types/jetpack-portfolio/' . esc_attr( $this->primary_site_slug ),
-				'id'    => 'wp-admin-bar-edit-page',
+				'id'    => 'wp-admin-bar-edit-portfolio',
 				'label' => __( 'Portfolio' ),
 			),
 			array(
 				'url'   => 'https://wordpress.com/edit/jetpack-portfolio/' . esc_attr( $this->primary_site_slug ),
-				'id'    => 'wp-admin-bar-new-page',
+				'id'    => 'wp-admin-bar-new-portfolio',
 				'label' => _x( 'Add', 'admin bar menu new item label' ),
 			)
 		);
 
 		$wp_admin_bar->add_menu( array(
 			'parent' => 'publish',
-			'id'     => 'new-portfolio',
+			'id'     => 'new-jetpack-portfolio',
 			'title'  => $portfolios_title,
 			'meta'   => array(
 				'class' => 'inline-action',
