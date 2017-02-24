@@ -459,11 +459,11 @@ class A8C_WPCOM_Masterbar {
 			$blavatar = '';
 			$class    = 'current-site';
 
-			// TODO: Get blavatar for site here
-			// stub test
-			// $blavatar = "<img class=\"avatar\" src=\"https://secure.gravatar.com/blavatar/c89faee845bc10cfb6f41eb3df885e87?s=120\" alt=\"Current site avatar\" originals=\"120\" scale=\"2\">";
-			// $class = 'has-blavatar';
-			// end stub
+			if ( has_site_icon() ) {
+				$src = get_site_icon_url();
+				$blavatar = '<img class="avatar" src="'. esc_attr( $src ) . '" alt="Current site avatar">';
+				$class = 'has-blavatar';
+			}
 
 			$site_link = str_replace( '::', '/', $this->primary_site_slug );
 			$blog_info = '<div class="ab-site-icon">' . $blavatar . '</div>';
