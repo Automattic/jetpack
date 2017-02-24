@@ -19,7 +19,7 @@ import SearchableSettings from 'settings/index.jsx';
 import JetpackConnect from 'components/jetpack-connect';
 import JumpStart from 'components/jumpstart';
 import { getJumpStartStatus, isJumpstarting } from 'state/jumpstart';
-import { getSiteConnectionStatus } from 'state/connection';
+import { getSiteConnectionStatus, isCurrentUserLinked } from 'state/connection';
 import {
 	setInitialState,
 	getSiteRawUrl,
@@ -116,6 +116,7 @@ const Main = React.createClass( {
 
 		return nextProps.siteConnectionStatus !== this.props.siteConnectionStatus ||
 			nextProps.jumpStartStatus !== this.props.jumpStartStatus ||
+			nextProps.isLinked !== this.props.isLinked ||
 			nextProps.route.path !== this.props.route.path ||
 			nextProps.searchTerm !== this.props.searchTerm;
 	},
@@ -154,11 +155,14 @@ const Main = React.createClass( {
 		analytics.tracks.recordEvent( 'jetpack_wpa_page_view', { path: route } );
 
 		if ( ! this.props.userCanManageModules ) {
-			return <NonAdminView { ...this.props } />
+			if ( ! this.props.siteConnectionStatus ) {
+				return false;
+			}
+			return <NonAdminView { ...this.props } />;
 		}
 
 		if ( ! this.props.siteConnectionStatus ) {
-			return <JetpackConnect />
+			return <JetpackConnect />;
 		}
 
 		if ( this.props.jumpStartStatus ) {
@@ -166,7 +170,7 @@ const Main = React.createClass( {
 				const history = createHistory();
 				history.push( window.location.pathname + '?page=jetpack#/jumpstart' );
 			} else if ( '/jumpstart' === route ) {
-				return <JumpStart />
+				return <JumpStart />;
 			}
 		}
 
@@ -241,6 +245,7 @@ export default connect(
 			jumpStartStatus: getJumpStartStatus( state ),
 			isJumpstarting: isJumpstarting( state ),
 			siteConnectionStatus: getSiteConnectionStatus( state ),
+			isLinked: isCurrentUserLinked( state ),
 			siteRawUrl: getSiteRawUrl( state ),
 			siteAdminUrl: getSiteAdminUrl( state ),
 			searchTerm: getSearchTerm( state ),
