@@ -419,13 +419,23 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			}
 		}
 
-		// Get parameters to update the module.
-		$params = $this->parse_settings_request_body( $request );
+		// Get parameters to update the module. We can not simply use $request->get_params() because when we registered
+		// this route, we are adding the entire output of Jetpack_Core_Json_Api_Endpoints::get_updateable_data_list() to
+		// the current request object's params. We are interested in body of the actual request.
+		// This may be JSON:
+		$params = $request->get_json_params();
+		if ( ! is_array( $params ) ) {
+			// Or it may be standard POST key-value pairs:
+			$params = $request->get_body_params();
+		}
 
 		// Exit if no parameters were passed.
 		if ( ! is_array( $params ) ) {
 			return new WP_Error( 'missing_options', esc_html__( 'Missing options.', 'jetpack' ), array( 'status' => 404 ) );
 		}
+
+		$params = array_filter( $params, 'is_string' );
+		$params = array_diff_key( $params, array_flip( array( 'context', 'slug' ) ) );
 
 		// Get available module options.
 		$options = Jetpack_Core_Json_Api_Endpoints::get_updateable_data_list( 'any' === $request['slug']
@@ -834,27 +844,6 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			}
 			return current_user_can( 'jetpack_configure_modules' );
 		}
-	}
-
-	/**
-	 * Allows the `settings` and `module/<slug>` EDITABLE endpoints to accept both JSON encoded and non-JSON encode POST bodies.
-	 *
-	 * @param WP_REST_Request $request The request sent to the WP REST API.
-	 *
-	 * @return array|bool
-	 */
-	public function parse_settings_request_body( $request ) {
-		$params = $request->get_json_params();
-		if ( is_array( $params ) ) {
-			return $params;
-		}
-		$params = $request->get_body_params();
-		if ( ! is_array( $params ) ) {
-			return false;
-		}
-		$parsed = array_filter( $params, 'is_string' );
-		$parsed = array_diff_key( $parsed, array_flip( array( 'context', 'slug' ) ) );
-		return $parsed;
 	}
 }
 
