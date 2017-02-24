@@ -462,9 +462,10 @@ class A8C_WPCOM_Masterbar {
 			// $class = 'has-blavatar';
 			// end stub
 
+			$site_link = str_replace( '::', '/', $this->primary_site_slug );
 			$blog_info = '<div class="ab-site-icon">' . $blavatar . '</div>';
 			$blog_info .= '<span class="ab-site-title">' . esc_html( $blog_name ) . '</span>';
-			$blog_info .= '<span class="ab-site-description">' . esc_html( $this->primary_site_slug ) . '</span>';
+			$blog_info .= '<span class="ab-site-description">' . esc_html( $site_link ) . '</span>';
 
 			$wp_admin_bar->add_menu( array(
 				'parent' => 'blog',
