@@ -3,6 +3,11 @@
     background: #f3f6f8;
 }
 
+.toplevel_page_jetpack-beta #wpcontent,
+.jetpack_page_jetpack-beta #wpcontent {
+    padding-left: 0;
+}
+
 html {
     overflow: -moz-scrollbars-vertical;
     overflow-y: scroll;
@@ -12,20 +17,42 @@ html {
     background: #e9eff3;
 }
 
-.beta-container {
+.jetpack-beta-logo {
+    width: 10.375rem;
+    height: 1.8125rem;
+    fill: #72af3a;
+}
+.jetpack-beta__master-head {
+    background-color: #fff;
+    text-align: center;
+    box-shadow: 0 1px 0 rgba(200,215,225,0.5), 0 1px 2px #e9eff3;
+}
+.jetpack-beta__master-head a {
+    text-decoration: none;
+}
+
+.jetpack-beta__master-head span {
+    font-weight: 300;
+    display: inline-block;
+    font-size: 25px;
+    vertical-align: super;
+    color: 	#a8bece;
+    line-height: 25px;
+}
+.jetpack-beta__master-head .jetpack-beta-container {
+    padding: 11px 0 6px;
+}
+
+.jetpack-beta-container {
     margin: 0 auto;
     text-align: left;
     max-width: 45rem;
     padding: 1.5rem;
 }
 
-.beta-container img {
+.jetpack-beta-container img {
     width: 100%;
     height: auto;
-}
-
-.beta-container .wp-heading-inline {
-    font-weight: 300;
 }
 
 .to-test {
@@ -541,6 +568,7 @@ button.dops-foldable-card__action {
 .dops-foldable-card__header-text {
     font-size: 1.125rem;
     width: 100%;
+    color: #23282d;
 }
 
 .dops-foldable-card__header-text small {

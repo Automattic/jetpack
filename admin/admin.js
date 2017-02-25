@@ -14,7 +14,7 @@ jQuery(document).ready(function ($) {
     var section_index = []; //
     sections.each(function (index) {
         var element = $(this);
-        section_index[index] = {
+        section_index[ index ] = {
             header: element.find('.branch-card-header').text(),
             pr: element.data('pr'),
             element: element
