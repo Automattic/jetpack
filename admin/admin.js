@@ -42,7 +42,7 @@
             return;
         }
 
-        element.querySelector('.branch-card-header').innerHTML = hiliter(search_for, header_text);
+        element.querySelector('.branch-card-header').innerHTML = highlight_word(search_for, header_text);
         show( element );
     }
 
@@ -84,10 +84,10 @@
         return search.replace("/", " / ").replace(new RegExp("\\-", "g"), " ").replace(/  +/g, ' ').toLowerCase();
     }
 
-    function hiliter(word, phrase) {
-        var rgxp = new RegExp(word, 'g');
-        var repl = '<span class="highlight">' + word + '</span>';
-        return phrase.replace(rgxp, repl);
+    function highlight_word(word, phrase) {
+        var regExp = new RegExp(word, 'g');
+        var replace = '<span class="highlight">' + word + '</span>';
+        return phrase.replace(regExp, replace);
     }
 
     function hide_section() {
