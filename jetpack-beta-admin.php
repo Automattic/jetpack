@@ -114,7 +114,7 @@ class Jetpack_Beta_Admin {
 	}
 
 	function admin_scripts() {
-		wp_enqueue_script( 'jetpack-admin-js', plugins_url( 'admin/admin.js', JPBETA__PLUGIN_FILE ), array( 'jquery' ), JPBETA_VERSION );
+		wp_enqueue_script( 'jetpack-admin-js', plugins_url( 'admin/admin.js', JPBETA__PLUGIN_FILE ), array( ), JPBETA_VERSION, true );
 		wp_localize_script( 'jetpack-admin-js', 'JetpackBeta',
 			array(
 				'activating' => __( 'Activating...', 'jetpack-beta' ),

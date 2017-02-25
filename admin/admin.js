@@ -1,68 +1,83 @@
-/**
- * Created by enej on 14/02/2017.
- */
-jQuery(document).ready(function ($) {
-
-    var sections = $('#section-pr').find('.branch-card');
-
-    var search_close_link = $('#search-component-close');
-    var activate_links = $('.activate-branch');
-    var search_input = $('#search-component');
-
-    sections.hide();
+(function () {
+    // Elements
+    var sections = document.getElementById('section-pr').querySelectorAll('.branch-card');
+    var search_input = document.getElementById('search-component');
+    var search_close_link = document.getElementById('search-component-close');
+    var activate_links = document.querySelectorAll('.activate-branch');
 
     var section_index = []; //
-    sections.each(function (index) {
-        var element = $(this);
-        section_index[ index ] = {
-            header: element.find('.branch-card-header').text(),
-            pr: element.data('pr'),
+    var each = Array.prototype.forEach;
+
+    each.call(sections, function (element, index) {
+        hide( element );
+        element.querySelector('.activate-branch').setAttribute('data-index', index);
+        section_index[index] = {
+            header: element.querySelector('.branch-card-header').textContent,
+            pr: element.getAttribute('data-pr'),
             element: element
         }
     });
 
-    search_input.on("keyup", function (event) {
-        var search_for = pr_to_header(this.value);
+    // Search input
+    search_input.addEventListener("keyup", function (event) {
+        var search_for = pr_to_header(search_input.value);
 
         if (!search_for) {
-            search_close_link.hide();
-            sections.hide();
+            hide( search_close_link );
+            hide_section();
             return;
         }
 
-        search_close_link.show();
-        section_index.forEach(function (branch) {
-            var element = branch.element;
-            var header_text = ( parseInt(search_for) > 0 ) ? branch.pr.toString() : branch.header;
-
-            var found_position = header_text.indexOf(search_for);
-            if (-1 === found_position) {
-                element.hide();
-                return;
-            }
-
-            element.find('.branch-card-header').html(hiliter(search_for, header_text));
-            element.show();
-        });
-
+        show( search_close_link );
+        section_index.forEach(show_found_branches);
     });
 
-    search_close_link.on('click', function (event) {
-        sections.hide();
-        search_close_link.hide();
-        search_input.val('');
+    function show_found_branches(branch) {
+        var element = branch.element;
+        var header_text = ( parseInt(search_for) > 0 ) ? branch.pr.toString() : branch.header;
+
+        var found_position = header_text.indexOf(search_for);
+        if (-1 === found_position) {
+            hide( element );
+            return;
+        }
+
+        element.querySelector('.branch-card-header').innerHTML = hiliter(search_for, header_text);
+        show( element );
+    }
+
+    // Search close link
+    hide( search_close_link );
+    search_close_link.addEventListener('click', function (event) {
+        hide_section();
+        hide( search_close_link );
+        search_input.value = '';
         event.preventDefault();
-    }).hide();
-
-    activate_links.on('click', function () {
-        var link = $(this);
-        link.parent().text(JetpackBeta.activating);
-        link.closest('.branch-card').addClass( 'branch-card-active' );
-
-        activate_links.bind('click', function (e) {
-            e.preventDefault();
-        }).addClass('is-disabled');
     });
+
+    // Activate Links
+    each.call(activate_links, function (element, index) {
+        element.addEventListener('click', activate_link_click.bind( this, element ) );
+    });
+
+    function activate_link_click( element, event ) {
+        element.parentNode.textContent = JetpackBeta.activating;
+        var index = parseInt( element.getAttribute('data-index') );
+
+        sections = Array.prototype.filter.call( sections, function( element, i ) {
+            return (index === i ? false: true );
+        } );
+        disable_activete_branch_links();
+    }
+
+    function disable_activete_branch_links() {
+        each.call(activate_links, function (element, index) {
+            element.addEventListener('click', function (event) {
+                event.preventDefault();
+            });
+            element.classList.add('is-disabled');
+        })
+    }
 
     // Helper functions
     function pr_to_header(search) {
@@ -74,4 +89,16 @@ jQuery(document).ready(function ($) {
         var repl = '<span class="highlight">' + word + '</span>';
         return phrase.replace(rgxp, repl);
     }
-});
+
+    function hide_section() {
+        each.call( sections, hide );
+    }
+
+    function hide( element ) {
+        element.style.display = 'none';
+    }
+
+    function show( element ) {
+        element.style.diplay = 'block';
+    }
+})();
