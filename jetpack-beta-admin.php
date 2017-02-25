@@ -15,6 +15,7 @@ class Jetpack_Beta_Admin {
 		add_action( "load-$hook", array( $this, 'admin_page_load' ) );
 		add_action( "admin_print_styles-$hook", array( $this, 'admin_styles' ) );
 		add_action( "admin_print_scripts-$hook", array( $this, 'admin_scripts' ) );
+		add_filter( 'plugin_action_links_' . plugin_basename( 'jetpack-beta/jetpack-beta.php' ), array( $this, 'admin_plugin_settings_link' ) );
 	}
 
 	function get_page_hook() {
@@ -36,6 +37,16 @@ class Jetpack_Beta_Admin {
 			'jetpack-beta',
 			array( $this, 'render' )
 		);
+	}
+	
+	function settings_link() {
+		return admin_url( 'admin.php?page=jetpack-beta' );
+	}
+	
+	function admin_plugin_settings_link( $links ) {
+		$settings_link = '<a href="'. esc_url( $this->settings_link() ) . '">' . __('Settings', 'jetpack-beta' ) . '</a>';
+		array_unshift( $links, $settings_link );
+		return $links;
 	}
 
 	function admin_page_load() {
