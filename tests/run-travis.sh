@@ -40,6 +40,7 @@ else
 
     gem install sass
     gem install compass
+    rm -rf ~/.yarn
     curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 0.20.3
     yarn
 
