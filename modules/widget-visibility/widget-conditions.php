@@ -243,8 +243,14 @@ class Jetpack_Widget_Conditions {
 				</div><!-- .conditions -->
 				<div class="conditions">
 					<div class="condition-top">
-						<input type="checkbox" name="conditions[match_all]" value="1" <?php checked( $conditions['match_all'], '1' ); ?> />
-						<?php esc_html_e( 'Match all conditions', 'jetpack' ); ?>
+						<label>
+							<input
+								type="checkbox"
+								name="conditions[match_all]"
+								value="1"
+								<?php checked( $conditions['match_all'], '1' ); ?> />
+							<?php esc_html_e( 'Match all conditions', 'jetpack' ); ?>
+						</label>
 					</div><!-- .condition-top -->
 				</div><!-- .conditions -->
 			</div><!-- .widget-conditional-inner -->
