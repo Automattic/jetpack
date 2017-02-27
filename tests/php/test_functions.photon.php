@@ -109,6 +109,25 @@ class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 	}
 
 	/**
+	 * @author georgestephanis
+	 * @covers jetpack_photon_url()
+	 * @since 4.?.0
+	 * @group jetpack_photon_no_filter
+	 */
+	public function test_wpcom_files_to_photon_urls() {
+		$source = 'https://jetpackme.files.wordpress.com/2015/06/sec-11.png';
+
+		// This uses only the whitelisted attributes, so it should stay on jetpackme.files.wordpress.com
+		$url = jetpack_photon_url( $source, array( 'w' => 300 ) );
+		$this->assertEquals( add_query_arg( 'w', 300, $source ), $url );
+
+		// `filter` is not whitelisted, so this should remap to photon.
+		$url = jetpack_photon_url( $source, array( 'filter' => 'edgedetect' ) );
+		$expected = 'https://i1.wp.com/jetpackme.files.wordpress.com/2015/06/sec-11.png?filter=edgedetect&ssl=1';
+		$this->assertEquals( $expected, $url );
+	}
+
+	/**
 	 * @author aduth
 	 * @covers jetpack_photon_url
 	 * @since  4.5.0
