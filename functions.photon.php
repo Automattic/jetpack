@@ -91,7 +91,7 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 	}
 
 	/* Don't photon-ize WPCOM hosted images with only the following url args:
-	 *  `w`, `h`, `fit`, `crop`, `resize`
+	 *  `w`, `h`, `fit`, `crop`, `zoom`, `strip`, `resize`, `quality`
 	 * These args can just be added to the wpcom-version of the image, and save on latency.
 	 */
 	$is_wpcom_image_with_safe_args = false;
