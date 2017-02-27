@@ -122,8 +122,6 @@ add_filter( 'wp_prepare_themes_for_js', 'wpcomsh_remove_theme_delete_button' );
 function wpcomsh_jetpack_wpcom_theme_skip_download( $result, $theme_slug ) {
 	require_once( 'functions.php' );
 
-	$theme_slug = wpcomsh_remove_theme_wpcom_suffix( $theme_slug );
-
 	$theme_type = wpcomsh_get_wpcom_theme_type( $theme_slug );
 
 	// If we are dealing with a non WPCom theme, don't interfere.
