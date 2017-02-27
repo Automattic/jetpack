@@ -26,7 +26,6 @@ export const DevVersionNotice = React.createClass( {
 			return (
 				<SimpleNotice
 					showDismiss={ false }
-					status="is-basic"
 					text={ __( 'You are currently running a development version of Jetpack.' ) }
 				>
 					<NoticeAction
