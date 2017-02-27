@@ -434,8 +434,11 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			return new WP_Error( 'missing_options', esc_html__( 'Missing options.', 'jetpack' ), array( 'status' => 404 ) );
 		}
 
+		// If $params was set via `get_body_params()` there may be some additional variables in the request that can
+		// cause validation to fail. This method verifies that each param was in fact updated and will throw a `some_updated`
+		// error if unused variables are included in the request.
 		$params = array_filter( $params, 'is_string' );
-		$params = array_diff_key( $params, array_flip( array( 'context', 'slug' ) ) );
+		unset( $params['context'], $params['slug'] );
 
 		// Get available module options.
 		$options = Jetpack_Core_Json_Api_Endpoints::get_updateable_data_list( 'any' === $request['slug']
