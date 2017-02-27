@@ -115,7 +115,12 @@ export const SiteStats = moduleSettingsForm(
 							>
 								<span className="jp-form-toggle-explanation">
 									{
-										__( 'Hide the stats smiley face image (The image helps collect stats, but should work when hidden.)' )
+										__( 'Hide the stats smiley face image' )
+									}
+								</span>
+								<span className="jp-form-setting-explanation">
+									{
+										__( 'The image helps collect stats, but should work when hidden.' )
 									}
 								</span>
 							</ModuleToggle>
