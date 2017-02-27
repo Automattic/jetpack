@@ -90,6 +90,22 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 		$args = rawurlencode_deep( $args );
 	}
 
+	/* Don't photon-ize WPCOM hosted images with only the following url args:
+	 *  `w`, `h`, `fit`, `crop`, `resize`
+	 * These args can just be added to the wpcom-version of the image, and save on latency.
+	 */
+	$is_wpcom_image_with_safe_args = false;
+	$allowed_wpcom_keys = array(
+		'w'      => true,
+		'h'      => true,
+		'fit'    => true,
+		'crop'   => true,
+		'resize' => true,
+	);
+	if ( wp_endswith( '.files.wordpress.com', $image_url_parts['host'] ) && array_diff_key( $args, $allowed_wpcom_keys ) ) {
+		$is_wpcom_image_with_safe_args = true;
+	}
+
 	/** This filter is documented below. */
 	$custom_photon_url = apply_filters( 'jetpack_photon_domain', '', $image_url );
 	$custom_photon_url = esc_url( $custom_photon_url );
@@ -99,6 +115,7 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 	if (
 		in_array( $image_url_parts['host'], array( 'i0.wp.com', 'i1.wp.com', 'i2.wp.com' ) )
 		|| $image_url_parts['host'] === jetpack_photon_parse_url( $custom_photon_url, PHP_URL_HOST )
+		|| $is_wpcom_image_with_safe_args
 	) {
 		$photon_url = add_query_arg( $args, $image_url );
 		return jetpack_photon_url_scheme( $photon_url, $scheme );
