@@ -13,12 +13,15 @@ class A8C_WPCOM_Masterbar {
 		$this->locale  = $this->get_locale();
 		$this->user_id = get_current_user_id();
 
-		if ( Jetpack::is_user_connected( $this->user_id ) ) {
-			$this->user_data = Jetpack::get_connected_user_data( $this->user_id );
-			$this->user_login = $this->user_data['login'];
-			$this->display_name = $this->user_data['display_name'];
-			$this->primary_site_slug = $this->get_site_slug();
+		// Limit the masterbar to be shown only to connected Jetpack users.
+		if ( ! Jetpack::is_user_connected( $this->user_id ) ) {
+			return;
 		}
+
+		$this->user_data = Jetpack::get_connected_user_data( $this->user_id );
+		$this->user_login = $this->user_data['login'];
+		$this->display_name = $this->user_data['display_name'];
+		$this->primary_site_slug = $this->get_site_slug();
 
 		add_action( 'wp_before_admin_bar_render', array( $this, 'replace_core_masterbar' ), 99999 );
 
