@@ -79,7 +79,8 @@
 	}
 	.dops-section-header__label {
 		padding-right: rem( 8px );
-
+	}
+	.dops-section-header__label-text {
 		&:before {
 			@include long-content-fade( $size: 8px, $color : $gray-light );
 		}
