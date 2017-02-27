@@ -20,10 +20,6 @@ import Apps from 'apps/index.jsx';
 import { getSiteConnectionStatus } from 'state/connection';
 
 const NonAdminView = React.createClass( {
-	componentWillMount: function() {
-		this.props.setInitialState();
-	},
-
 	shouldComponentUpdate: function( nextProps ) {
 		return nextProps.siteConnectionStatus !== this.props.siteConnectionStatus ||
 			nextProps.route.path !== this.props.route.path;
@@ -76,7 +72,7 @@ NonAdminView.propTypes = {
 	userCanViewStats: React.PropTypes.bool.isRequired,
 	isSubscriber: React.PropTypes.bool.isRequired,
 	siteConnectionStatus: React.PropTypes.any.isRequired
-}
+};
 
 export default connect(
 	( state ) => {
