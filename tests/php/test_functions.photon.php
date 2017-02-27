@@ -123,8 +123,8 @@ class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 
 		// `filter` is not whitelisted, so this should remap to photon.
 		$url = jetpack_photon_url( $source, array( 'filter' => 'edgedetect' ) );
-		$expected = 'https://i1.wp.com/jetpackme.files.wordpress.com/2015/06/sec-11.png?filter=edgedetect&ssl=1';
-		$this->assertEquals( $expected, $url );
+		$suffix = '.wp.com/jetpackme.files.wordpress.com/2015/06/sec-11.png?filter=edgedetect&ssl=1';
+		$this->assertStringEndsWith( $suffix, $url );
 	}
 
 	/**
