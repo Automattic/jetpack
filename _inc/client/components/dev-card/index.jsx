@@ -8,10 +8,17 @@ import classNames from 'classnames';
 /**
  * Internal dependencies
  */
-import { isDevVersion as _isDevVersion } from 'state/initial-state';
-import { switchPlanPreview } from 'state/dev-version';
-import { getSitePlan } from 'state/site';
 import {
+	isDevVersion as _isDevVersion,
+	userCanViewStats,
+	userIsMaster,
+	userCanDisconnectSite,
+	userCanEditPosts
+} from 'state/initial-state';
+import { getSitePlan } from 'state/site';
+import { isCurrentUserLinked } from 'state/connection';
+import {
+	switchPlanPreview,
 	canDisplayDevCard,
 	disableDevCard,
 	switchUserPermission
@@ -25,8 +32,84 @@ export const DevCard = React.createClass( {
 		this.props.switchPlanPreview( event.target.value );
 	},
 
-	onUserChange( event ) {
-		this.props.switchUserRole( event.target.value );
+	onPermissionsChange( event ) {
+		this.props.switchUserPermissions( event.target.value );
+	},
+
+	maybeShowStatsToggle() {
+		if ( ! this.props.isAdmin ) {
+			return (
+				<div>
+					<hr/>
+					<ul>
+						<li>
+							<label>
+								<input
+									type='radio'
+									id='view_stats'
+									value='view_stats'
+									name='view_stats'
+									checked={ this.props.canViewStats }
+									onChange={ this.onPermissionsChange }
+								/>
+								Can view stats
+							</label>
+						</li>
+						<li>
+							<label>
+								<input
+									type='radio'
+									id='hide_stats'
+									value='hide_stats'
+									name='hide_stats'
+									checked={ ! this.props.canViewStats }
+									onChange={ this.onPermissionsChange }
+								/>
+								Can not view stats
+							</label>
+						</li>
+					</ul>
+				</div>
+			);
+		}
+	},
+
+	maybeShowIsLinkedToggle() {
+		if ( ! this.props.isMaster ) {
+			return (
+				<div>
+					<hr/>
+					<ul>
+						<li>
+							<label>
+								<input
+									type='radio'
+									id='is_linked'
+									value='is_linked'
+									name='is_linked'
+									checked={ this.props.isUserLinked }
+									onChange={ this.onPermissionsChange }
+								/>
+								Linked
+							</label>
+						</li>
+						<li>
+							<label>
+								<input
+									type='radio'
+									id='is_unlinked'
+									value='is_unlinked'
+									name='is_unlinked'
+									checked={ ! this.props.isUserLinked }
+									onChange={ this.onPermissionsChange }
+								/>
+								Unlinked
+							</label>
+						</li>
+					</ul>
+				</div>
+			);
+		}
 	},
 
 	render() {
@@ -104,13 +187,26 @@ export const DevCard = React.createClass( {
 						<label>
 							<input
 								type='radio'
-								id='admin'
-								value='admin'
-								name='admin'
-								checked={ false }
-								onChange={ this.onUserChange }
+								id='admin_master'
+								value='admin_master'
+								name='admin_master'
+								checked={ this.props.isMaster }
+								onChange={ this.onPermissionsChange }
 							/>
-							Admin
+							Admin (master)
+						</label>
+					</li>
+					<li>
+						<label>
+							<input
+								type='radio'
+								id='admin_secondary'
+								value='admin_secondary'
+								name='admin_secondary'
+								checked={ this.props.isAdmin && ! this.props.isMaster }
+								onChange={ this.onPermissionsChange }
+							/>
+							Admin (secondary)
 						</label>
 					</li>
 					<li>
@@ -120,13 +216,28 @@ export const DevCard = React.createClass( {
 								id='editor'
 								value='editor'
 								name='editor'
-								checked={ false }
-								onChange={ this.onUserChange }
+								checked={ this.props.canEditPosts && ! this.props.isAdmin }
+								onChange={ this.onPermissionsChange }
 							/>
 							Editor
 						</label>
 					</li>
+					<li>
+						<label>
+							<input
+								type='radio'
+								id='subscriber'
+								value='subscriber'
+								name='subscriber'
+								checked={ ! this.props.canEditPosts && ! this.props.isAdmin }
+								onChange={ this.onPermissionsChange }
+							/>
+							Subscriber
+						</label>
+					</li>
 				</ul>
+				{ this.maybeShowStatsToggle() }
+				{ this.maybeShowIsLinkedToggle() }
 			</Card>
 		);
 	}
@@ -137,7 +248,12 @@ export default connect(
 		return {
 			isDevVersion: _isDevVersion( state ),
 			sitePlan: getSitePlan( state ),
-			canDisplayDevCard: canDisplayDevCard( state )
+			canDisplayDevCard: canDisplayDevCard( state ),
+			isUserLinked: isCurrentUserLinked( state ),
+			canViewStats: userCanViewStats( state ),
+			isMaster: userIsMaster( state ),
+			isAdmin: userCanDisconnectSite( state ),
+			canEditPosts: userCanEditPosts( state )
 		}
 	},
 	( dispatch ) => {
@@ -145,7 +261,7 @@ export default connect(
 			switchPlanPreview: ( slug ) => {
 				return dispatch( switchPlanPreview( slug ) );
 			},
-			switchUserRole: ( slug ) => {
+			switchUserPermissions: ( slug ) => {
 				return dispatch( switchUserPermission( slug ) );
 			},
 			disableDevCard: () => {

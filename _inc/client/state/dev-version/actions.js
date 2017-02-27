@@ -14,7 +14,7 @@ import {
 	JETPACK_SITE_DATA_FETCH_RECEIVE,
 	DEV_CARD_DISPLAY,
 	DEV_CARD_HIDE,
-	JETPACK_SET_INITIAL_STATE
+	MOCK_SWITCH_USER_PERMISSIONS
 } from 'state/action-types';
 import restApi from 'rest-api';
 
@@ -66,34 +66,92 @@ export const switchPlanPreview = ( slug ) => {
 	}
 };
 
-const adminPerms = {
-	admin_page: true,
-	connect: true,
-	disconnect: true,
-	edit_posts: true,
-	manage_modules: true,
-	manage_options: true,
-	manage_plugins: true
+const adminMasterPerms = {
+	currentUser: {
+		isMaster: true,
+		permissions: {
+			admin_page: true,
+			connect: true,
+			disconnect: true,
+			edit_posts: true,
+			manage_modules: true,
+			manage_options: true,
+			manage_plugins: true
+		}
+	}
+};
+
+const adminSecondaryPerms = {
+	currentUser: {
+		isMaster: false,
+		permissions: {
+			admin_page: true,
+			connect: true,
+			disconnect: true,
+			edit_posts: true,
+			manage_modules: true,
+			manage_options: true,
+			manage_plugins: true
+		}
+	}
 };
 
 const editorAuthorContributorPerms = {
-	admin_page: true,
-	connect: false,
-	disconnect: false,
-	edit_posts: true,
-	manage_modules: false,
-	manage_options: false,
-	manage_plugins: false
+	currentUser: {
+		isMaster: false,
+		permissions: {
+			admin_page: true,
+			connect: false,
+			disconnect: false,
+			edit_posts: true,
+			manage_modules: false,
+			manage_options: false,
+			manage_plugins: false
+		}
+	}
 };
 
 const subscriberPerms = {
-	admin_page: true,
-	connect: false,
-	disconnect: false,
-	edit_posts: false,
-	manage_modules: false,
-	manage_options: false,
-	manage_plugins: false
+	currentUser: {
+		isMaster: false,
+		permissions: {
+			admin_page: true,
+			connect: false,
+			disconnect: false,
+			edit_posts: false,
+			manage_modules: false,
+			manage_options: false,
+			manage_plugins: false
+		}
+	}
+};
+
+const viewStats = {
+	currentUser: {
+		permissions: {
+			view_stats: true
+		}
+	}
+};
+
+const hideStats = {
+	currentUser: {
+		permissions: {
+			view_stats: false
+		}
+	}
+};
+
+const isLinked = {
+	currentUser: {
+		isConnected: true
+	}
+};
+
+const isUnlinked = {
+	currentUser: {
+		isConnected: false
+	}
 };
 
 export const switchUserPermission = ( slug ) => {
@@ -101,8 +159,11 @@ export const switchUserPermission = ( slug ) => {
 
 	return ( dispatch ) => {
 		switch ( slug ) {
-			case 'admin':
-				userPerms = adminPerms;
+			case 'admin_master':
+				userPerms = adminMasterPerms;
+				break;
+			case 'admin_secondary':
+				userPerms = adminSecondaryPerms;
 				break;
 			case 'editor':
 			case 'contributor':
@@ -112,11 +173,23 @@ export const switchUserPermission = ( slug ) => {
 			case 'subscriber':
 				userPerms = subscriberPerms;
 				break;
+			case 'view_stats':
+				userPerms = viewStats;
+				break;
+			case 'hide_stats':
+				userPerms = hideStats;
+				break;
+			case 'is_linked':
+				userPerms = isLinked;
+				break;
+			case 'is_unlinked':
+				userPerms = isUnlinked;
+				break;
 		}
 
 		dispatch( {
-			type: JETPACK_SET_INITIAL_STATE,
-			initialState: { userData: { currentUser: { permissions: userPerms } } }
+			type: MOCK_SWITCH_USER_PERMISSIONS,
+			initialState: userPerms
 		} );
 	}
 };
