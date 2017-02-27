@@ -174,7 +174,25 @@ class Jetpack_Widget_Conditions {
 		}
 
 		?>
-		<div class="widget-conditional <?php if ( empty( $_POST['widget-conditions-visible'] ) || $_POST['widget-conditions-visible'] == '0' ) { ?>widget-conditional-hide<?php } ?>">
+		<div
+			class="
+				widget-conditional
+				<?php
+					if (
+						empty( $_POST['widget-conditions-visible'] )
+						|| $_POST['widget-conditions-visible'] == '0'
+					) {
+						?>widget-conditional-hide<?php
+					}
+				?>
+				<?php
+					if ( ! empty( $conditions['match_all'] ) && $conditions['match_all'] ) {
+						?>intersection<?php
+					} else {
+						?>conjunction<?php
+					}
+				?>
+			">
 			<input type="hidden" name="widget-conditions-visible" value="<?php if ( isset( $_POST['widget-conditions-visible'] ) ) { echo esc_attr( $_POST['widget-conditions-visible'] ); } else { ?>0<?php } ?>" />
 			<?php if ( ! isset( $_POST['widget-conditions-visible'] ) ) { ?><a href="#" class="button display-options"><?php _e( 'Visibility', 'jetpack' ); ?></a><?php } ?>
 			<div class="widget-conditional-inner">
@@ -230,6 +248,9 @@ class Jetpack_Widget_Conditions {
 								<span class="condition-conjunction">
 									<?php echo esc_html_x( 'or', 'Shown between widget visibility conditions.', 'jetpack' ); ?>
 								</span>
+								<span class="condition-intersection">
+									<?php echo esc_html_x( 'and', 'Shown between widget visibility conditions.', 'jetpack' ); ?>
+								</span>
 								<div class="actions alignright">
 									<a href="#" class="delete-condition dashicons dashicons-no"><?php esc_html_e( 'Delete', 'jetpack' ); ?></a><a href="#" class="add-condition dashicons dashicons-plus"><?php esc_html_e( 'Add', 'jetpack' ); ?></a>
 								</div>
@@ -248,6 +269,7 @@ class Jetpack_Widget_Conditions {
 								type="checkbox"
 								name="conditions[match_all]"
 								value="1"
+								class="conditions-match-all"
 								<?php checked( $conditions['match_all'], '1' ); ?> />
 							<?php esc_html_e( 'Match all conditions', 'jetpack' ); ?>
 						</label>

@@ -137,6 +137,12 @@ jQuery( function( $ ) {
 		}
 	} );
 
+	widgets_shell.on( 'change.widgetconditions', 'input.conditions-match-all', function() {
+		$( this ).parents( '.widget-conditional' )
+			.toggleClass( 'conjunction' )
+			.toggleClass( 'intersection' );
+	} );
+
 	$( document ).on( 'change.widgetconditions', 'select.conditions-rule-major', function() {
 		var $conditionsRuleMajor = $( this ),
 			$conditionsRuleMinor = $conditionsRuleMajor.siblings( 'select.conditions-rule-minor:first' ),
