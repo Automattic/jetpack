@@ -96,11 +96,14 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 	 */
 	$is_wpcom_image_with_safe_args = false;
 	$allowed_wpcom_keys = array(
-		'w'      => true,
-		'h'      => true,
-		'fit'    => true,
-		'crop'   => true,
-		'resize' => true,
+		'w'       => true,
+		'h'       => true,
+		'fit'     => true,
+		'crop'    => true,
+		'zoom'    => true,
+		'strip'   => true,
+		'resize'  => true,
+		'quality' => true,
 	);
 	if ( wp_endswith( '.files.wordpress.com', strtolower( $image_url_parts['host'] ) ) && array_diff_key( $args, $allowed_wpcom_keys ) ) {
 		$is_wpcom_image_with_safe_args = true;
