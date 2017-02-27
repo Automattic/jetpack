@@ -1026,7 +1026,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 			// Carousel
 			'carousel_background_color' => array(
-				'description'       => esc_html__( 'Background color.', 'jetpack' ),
+				'description'       => esc_html__( 'Color scheme.', 'jetpack' ),
 				'type'              => 'string',
 				'default'           => 'black',
 				'enum'              => array(
@@ -1057,7 +1057,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'jp_group'          => 'comments',
 			),
 			'jetpack_comment_form_color_scheme' => array(
-				'description'       => esc_html__( "Color Scheme", 'jetpack' ),
+				'description'       => esc_html__( "Color scheme", 'jetpack' ),
 				'type'              => 'string',
 				'default'           => 'light',
 				'enum'              => array(

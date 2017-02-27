@@ -71,7 +71,7 @@ export const Comments = moduleSettingsForm(
 							</FormLabel>
 							<span className="jp-form-setting-explanation">{ __( 'A few catchy words to motivate your readers to comment.' ) }</span>
 							<FormLabel>
-								<span className="jp-form-label-wide">{ __( 'Color Scheme' ) }</span>
+								<span className="jp-form-label-wide">{ __( 'Color scheme' ) }</span>
 								<FormSelect
 									name={ 'jetpack_comment_form_color_scheme' }
 									value={ this.props.getOptionValue( 'jetpack_comment_form_color_scheme' ) }

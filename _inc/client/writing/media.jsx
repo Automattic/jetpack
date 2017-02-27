@@ -130,7 +130,7 @@ const Media = moduleSettingsForm(
 						</CompactFormToggle>
 						<FormLabel>
 							<FormLegend className="jp-form-label-wide">
-								{ __( 'Background color' ) }
+								{ __( 'Color scheme' ) }
 							</FormLegend>
 							<FormSelect
 								name={ 'carousel_background_color' }
