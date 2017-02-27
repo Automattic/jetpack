@@ -90,7 +90,7 @@ export const Protect = moduleSettingsForm(
 									<div>
 										<div className="jp-form-label-wide">
 											{
-												__( 'Your Current IP: %(ip)s', { args: { ip: this.props.currentIp } } )
+												__( 'Your current IP: %(ip)s', { args: { ip: this.props.currentIp } } )
 											}
 										</div>
 										{
