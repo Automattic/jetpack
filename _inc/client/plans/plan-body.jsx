@@ -24,6 +24,16 @@ import {
 import QuerySitePlugins from 'components/data/query-site-plugins';
 
 const PlanBody = React.createClass( {
+	propTypes: {
+		plan: React.PropTypes.string
+	},
+
+	getDefaultProps: function() {
+		return {
+			plan: ''
+		};
+	},
+
 	render() {
 		let planCard = '';
 		switch ( this.props.plan ) {
@@ -302,7 +312,9 @@ const PlanBody = React.createClass( {
 						</div>
 
 						<p>
-							<Button href={ 'https://jetpack.com/redirect/?source=plans-main-bottom&site=' + this.props.siteRawUrl } className="is-primary">
+							<Button href={ 'jetpack_free' === this.props.plans
+								? 'https://jetpack.com/redirect/?source=plans-main-bottom&site=' + this.props.siteRawUrl
+								: 'https://jetpack.com/redirect/?source=plans-main-bottom-dev-mode' } className="is-primary">
 								{ __( 'Compare Plans' ) }
 							</Button>
 						</p>

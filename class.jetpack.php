@@ -1113,6 +1113,26 @@ class Jetpack {
 	}
 
 	/**
+	 * Wrapper for core's get_avatar_url().  This one is deprecated.
+	 *
+	 * @deprecated 4.7 use get_avatar_url instead.
+	 * @param int|string|object $id_or_email A user ID,  email address, or comment object
+	 * @param int $size Size of the avatar image
+	 * @param string $default URL to a default image to use if no avatar is available
+	 * @param bool $force_display Whether to force it to return an avatar even if show_avatars is disabled
+	 *
+	 * @return array
+	 */
+	public static function get_avatar_url( $id_or_email, $size = 96, $default = '', $force_display = false ) {
+		_deprecated_function( __METHOD__, 'jetpack-4.7', 'get_avatar_url' );
+		return get_avatar_url( $id_or_email, array(
+			'size' => $size,
+			'default' => $default,
+			'force_default' => $force_display,
+		) );
+	}
+
+	/**
 	 * jetpack_updates is saved in the following schema:
 	 *
 	 * array (
@@ -1219,7 +1239,8 @@ class Jetpack {
 		if ( ! $plan ) {
 			$plan = array(
 				'product_slug' => 'jetpack_free',
-				'supports' => array(),
+				'supports'     => array(),
+				'class'        => 'free',
 			);
 		}
 
@@ -1233,6 +1254,7 @@ class Jetpack {
 			$plan['supports'] = array(
 				'akismet',
 			);
+			$plan['class'] = 'personal';
 		}
 
 		// Define what paid modules are supported by premium plans
@@ -1248,6 +1270,7 @@ class Jetpack {
 				'vaultpress',
 				'wordads',
 			);
+			$plan['class'] = 'premium';
 		}
 
 		// Define what paid modules are supported by professional plans
@@ -1265,6 +1288,7 @@ class Jetpack {
 				'google-analytics',
 				'wordads',
 			);
+			$plan['class'] = 'business';
 		}
 
 		// Make sure we have an array here in the event database data is stale
@@ -5363,45 +5387,6 @@ p {
 		 * @param string $content_width Content Width value.
 		 */
 		return apply_filters( 'jetpack_content_width', $content_width );
-	}
-
-	/**
-	 * Centralize the function here until it gets added to core.
-	 *
-	 * @param int|string|object $id_or_email A user ID,  email address, or comment object
-	 * @param int $size Size of the avatar image
-	 * @param string $default URL to a default image to use if no avatar is available
-	 * @param bool $force_display Whether to force it to return an avatar even if show_avatars is disabled
-	 *
-	 * @return array First element is the URL, second is the class.
-	 */
-	public static function get_avatar_url( $id_or_email, $size = 96, $default = '', $force_display = false ) {
-		// Don't bother adding the __return_true filter if it's already there.
-		$has_filter = has_filter( 'pre_option_show_avatars', '__return_true' );
-
-		if ( $force_display && ! $has_filter )
-			add_filter( 'pre_option_show_avatars', '__return_true' );
-
-		$avatar = get_avatar( $id_or_email, $size, $default );
-
-		if ( $force_display && ! $has_filter )
-			remove_filter( 'pre_option_show_avatars', '__return_true' );
-
-		// If no data, fail out.
-		if ( is_wp_error( $avatar ) || ! $avatar )
-			return array( null, null );
-
-		// Pull out the URL.  If it's not there, fail out.
-		if ( ! preg_match( '/src=["\']([^"\']+)["\']/', $avatar, $url_matches ) )
-			return array( null, null );
-		$url = wp_specialchars_decode( $url_matches[1], ENT_QUOTES );
-
-		// Pull out the class, but it's not a big deal if it's missing.
-		$class = '';
-		if ( preg_match( '/class=["\']([^"\']+)["\']/', $avatar, $class_matches ) )
-			$class = wp_specialchars_decode( $class_matches[1], ENT_QUOTES );
-
-		return array( $url, $class );
 	}
 
 	/**

@@ -497,7 +497,7 @@ abstract class SAL_Post {
 
 	protected function get_avatar_url( $email, $avatar_size = 96 ) {
 		$avatar_url = wpcom_get_avatar_url( $email, $avatar_size, '', true );
-		if ( !$avatar_url || is_wp_error( $avatar_url ) ) {
+		if ( ! $avatar_url || is_wp_error( $avatar_url ) ) {
 			return '';
 		}
 

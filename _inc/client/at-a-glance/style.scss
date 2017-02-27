@@ -210,9 +210,11 @@
 	color: $gray;
 	text-decoration: underline;
 
-	&.is-current {
-		font-weight: 600;
-		text-decoration: none;
+	&.is-current,
+	&:visited.is-current,
+	&:focus.is-current {
+		color: #23282d;
+		text-decoration:none;
 	}
 }
 
