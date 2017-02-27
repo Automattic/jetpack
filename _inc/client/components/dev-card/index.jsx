@@ -11,14 +11,22 @@ import classNames from 'classnames';
 import { isDevVersion as _isDevVersion } from 'state/initial-state';
 import { switchPlanPreview } from 'state/dev-version';
 import { getSitePlan } from 'state/site';
-import { canDisplayDevCard, disableDevCard } from 'state/dev-version';
+import {
+	canDisplayDevCard,
+	disableDevCard,
+	switchUserPermission
+} from 'state/dev-version';
 import Card from 'components/card';
 
 export const DevCard = React.createClass( {
 	displayName: 'DevCard',
 
-	onChange( event ) {
+	onPlanChange( event ) {
 		this.props.switchPlanPreview( event.target.value );
+	},
+
+	onUserChange( event ) {
+		this.props.switchUserRole( event.target.value );
 	},
 
 	render() {
@@ -45,7 +53,7 @@ export const DevCard = React.createClass( {
 								value='jetpack_free'
 								name='jetpack_free'
 								checked={ 'jetpack_free' === this.props.sitePlan.product_slug }
-								onChange={ this.onChange }
+								onChange={ this.onPlanChange }
 							/>
 							Free
 						</label>
@@ -58,7 +66,7 @@ export const DevCard = React.createClass( {
 								value='jetpack_personal'
 								name='jetpack_personal'
 								checked={ /jetpack_personal*/.test( this.props.sitePlan.product_slug ) }
-								onChange={ this.onChange }
+								onChange={ this.onPlanChange }
 							/>
 							Personal
 						</label>
@@ -71,7 +79,7 @@ export const DevCard = React.createClass( {
 								value='jetpack_premium'
 								name='jetpack_premium'
 								checked={ /jetpack_premium*/.test( this.props.sitePlan.product_slug ) }
-								onChange={ this.onChange }
+								onChange={ this.onPlanChange }
 							/>
 							Premium
 						</label>
@@ -84,9 +92,38 @@ export const DevCard = React.createClass( {
 								value='jetpack_business'
 								name='jetpack_business'
 								checked={ /jetpack_business*/.test( this.props.sitePlan.product_slug ) }
-								onChange={ this.onChange }
+								onChange={ this.onPlanChange }
 							/>
 							Pro
+						</label>
+					</li>
+				</ul>
+				<hr/>
+				<ul>
+					<li>
+						<label>
+							<input
+								type='radio'
+								id='admin'
+								value='admin'
+								name='admin'
+								checked={ false }
+								onChange={ this.onUserChange }
+							/>
+							Admin
+						</label>
+					</li>
+					<li>
+						<label>
+							<input
+								type='radio'
+								id='editor'
+								value='editor'
+								name='editor'
+								checked={ false }
+								onChange={ this.onUserChange }
+							/>
+							Editor
 						</label>
 					</li>
 				</ul>
@@ -107,6 +144,9 @@ export default connect(
 		return {
 			switchPlanPreview: ( slug ) => {
 				return dispatch( switchPlanPreview( slug ) );
+			},
+			switchUserRole: ( slug ) => {
+				return dispatch( switchUserPermission( slug ) );
 			},
 			disableDevCard: () => {
 				return dispatch( disableDevCard() );

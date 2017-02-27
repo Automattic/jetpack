@@ -10,12 +10,11 @@ import { translate as __ } from 'i18n-calypso';
 import {
 	RESET_OPTIONS,
 	RESET_OPTIONS_FAIL,
-	RESET_OPTIONS_SUCCESS
-} from 'state/action-types';
-import {
+	RESET_OPTIONS_SUCCESS,
 	JETPACK_SITE_DATA_FETCH_RECEIVE,
 	DEV_CARD_DISPLAY,
-	DEV_CARD_HIDE
+	DEV_CARD_HIDE,
+	JETPACK_SET_INITIAL_STATE
 } from 'state/action-types';
 import restApi from 'rest-api';
 
@@ -63,6 +62,61 @@ export const switchPlanPreview = ( slug ) => {
 		dispatch( {
 			type: JETPACK_SITE_DATA_FETCH_RECEIVE,
 			siteData: { plan: { product_slug: slug } }
+		} );
+	}
+};
+
+const adminPerms = {
+	admin_page: true,
+	connect: true,
+	disconnect: true,
+	edit_posts: true,
+	manage_modules: true,
+	manage_options: true,
+	manage_plugins: true
+};
+
+const editorAuthorContributorPerms = {
+	admin_page: true,
+	connect: false,
+	disconnect: false,
+	edit_posts: true,
+	manage_modules: false,
+	manage_options: false,
+	manage_plugins: false
+};
+
+const subscriberPerms = {
+	admin_page: true,
+	connect: false,
+	disconnect: false,
+	edit_posts: false,
+	manage_modules: false,
+	manage_options: false,
+	manage_plugins: false
+};
+
+export const switchUserPermission = ( slug ) => {
+	let userPerms = {};
+
+	return ( dispatch ) => {
+		switch ( slug ) {
+			case 'admin':
+				userPerms = adminPerms;
+				break;
+			case 'editor':
+			case 'contributor':
+			case 'author':
+				userPerms = editorAuthorContributorPerms;
+				break;
+			case 'subscriber':
+				userPerms = subscriberPerms;
+				break;
+		}
+
+		dispatch( {
+			type: JETPACK_SET_INITIAL_STATE,
+			initialState: { userData: { currentUser: { permissions: userPerms } } }
 		} );
 	}
 };
