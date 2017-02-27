@@ -125,8 +125,7 @@ export const DevCard = React.createClass( {
 		return (
 			<Card compact className={ classes }>
 				<a className="jp-dev-card__close" onClick={ this.props.disableDevCard }>x</a>
-				<div className="jp-dev-card__heading">Plan preview</div>
-				<div className="jp-dev-card__subheading">(Dev only)</div>
+				<div className="jp-dev-card__heading">Dev Tools</div>
 				<ul>
 					<li>
 						<label>
