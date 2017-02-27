@@ -56,7 +56,7 @@ function jetpack_get_module_i18n( $key ) {
 
 			'gravatar-hovercards' => array(
 				'name' => _x( 'Gravatar Hovercards', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Enable pop-up business cards over commenters’ Gravatars', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Enable pop-up business cards over commenters’ Gravatars.', 'Module Description', 'jetpack' ),
 				'recommended description' => _x( 'Let commenters link their profiles to their Gravatar accounts, making it easy for your visitors to learn more about your community.', 'Jumpstart Description', 'jetpack' ),
 			),
 

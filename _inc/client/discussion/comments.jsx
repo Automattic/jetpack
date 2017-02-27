@@ -95,7 +95,7 @@ export const Comments = moduleSettingsForm(
 									{
 										gravatar.description + ' '
 									}
-									<a href={ gravatar.learn_more_button }>{ __( 'Learn more about Gravatar' ) }</a>
+									<a href={ gravatar.learn_more_button }>{ __( 'Learn more' ) }</a>
 								</span>
 							</ModuleToggle>
 						</FormFieldset>
@@ -109,9 +109,9 @@ export const Comments = moduleSettingsForm(
 								>
 								<span className="jp-form-toggle-explanation">
 									{
-										__( 'Enable Markdown use for comments' ) + ' '
+										__( 'Enable Markdown use for comments.' ) + ' '
 									}
-									<a href={ markdown.learn_more_button }>{ __( 'Learn more about Markdown' ) }</a>
+									<a href={ markdown.learn_more_button }>{ __( 'Learn more' ) }</a>
 								</span>
 							</ModuleToggle>
 						</FormFieldset>
