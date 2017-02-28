@@ -176,6 +176,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Custom CSS: avoid stripping CSS when migrating from Jetpack's Custom CSS to Core's CSS editor. #5992
 * Debug Tools: make sure the right URL is used on sites where WordPress lives in a subdirectory. #6321
 * General: fix PHP error when uninstalling the plugin. #6320
+* General: fix call to incorrect WordPress function. #6499
 * Infinite Scroll: do not display the Infinite Scroll footer when we're displaying the last page. #6312
 * Infinite Scroll: change the class of the body when reaching the last page. #6246
 * Infinite Scroll: fix issue in certain themes where posts are returned but found_posts is 0. #6480
