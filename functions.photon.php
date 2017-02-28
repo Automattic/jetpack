@@ -118,7 +118,7 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 	if (
 		in_array( $image_url_parts['host'], array( 'i0.wp.com', 'i1.wp.com', 'i2.wp.com' ) )
 		|| $image_url_parts['host'] === jetpack_photon_parse_url( $custom_photon_url, PHP_URL_HOST )
-		|| $is_wpcom_image_with_safe_args
+		|| $is_wpcom_image_with_safe_args // Keep the domain for *.files.wordpress.com domains with whitelisted args.
 	) {
 		$photon_url = add_query_arg( $args, $image_url );
 		return jetpack_photon_url_scheme( $photon_url, $scheme );
