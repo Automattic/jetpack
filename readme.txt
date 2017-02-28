@@ -201,6 +201,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Widgets: trim spaces in URLs for Image and Display Posts Widgets. #6375
 * Widget Visibility: fix issues with visibility on taxonomy pages. #6326
 * WordPress.com REST API: fix PHP errors when editing items via the WordPress.com interface. #6279
+* WordPress.com REST API: avoid some authentication errors in specific scenarios when using third-party apps to interact with your WordPress site, via the WordPress.com REST API. #6451
 
 = 4.6 =
 
