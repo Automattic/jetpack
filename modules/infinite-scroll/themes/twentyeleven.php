@@ -8,24 +8,24 @@
 /**
  * Add theme support for infinity scroll
  */
-function twenty_eleven_infinite_scroll_init() {
+function jetpack_twenty_eleven_infinite_scroll_init() {
 	add_theme_support( 'infinite-scroll', array(
 		'container' => 'content',
 		'footer'    => 'page',
 	) );
 }
-add_action( 'init', 'twenty_eleven_infinite_scroll_init' );
+add_action( 'init', 'jetpack_twenty_eleven_infinite_scroll_init' );
 
 /**
  * Enqueue CSS stylesheet with theme styles for infinity.
  */
-function twenty_eleven_infinite_scroll_enqueue_styles() {
+function jetpack_twenty_eleven_infinite_scroll_enqueue_styles() {
 	if ( wp_script_is( 'the-neverending-homepage' ) ) {
 		// Add theme specific styles.
 		wp_enqueue_style( 'infinity-twentyeleven', plugins_url( 'twentyeleven.css', __FILE__ ), array( 'the-neverending-homepage' ), '20121002' );
 	}
 }
-add_action( 'wp_enqueue_scripts', 'twenty_eleven_infinite_scroll_enqueue_styles', 25 );
+add_action( 'wp_enqueue_scripts', 'jetpack_twenty_eleven_infinite_scroll_enqueue_styles', 25 );
 
 /**
  * Have we any footer widgets?
@@ -36,7 +36,7 @@ add_action( 'wp_enqueue_scripts', 'twenty_eleven_infinite_scroll_enqueue_styles'
  * @filter infinite_scroll_has_footer_widgets
  * @return bool
  */
-function twenty_eleven_has_footer_widgets( $has_widgets ) {
+function jetpack_twenty_eleven_has_footer_widgets( $has_widgets ) {
 	// Are any of the "Footer Area" sidebars active?
 	if ( is_active_sidebar( 'sidebar-3' ) || is_active_sidebar( 'sidebar-4' ) || is_active_sidebar( 'sidebar-5' ) )
 		return true;
@@ -47,4 +47,4 @@ function twenty_eleven_has_footer_widgets( $has_widgets ) {
 
 	return $has_widgets;
 }
-add_filter( 'infinite_scroll_has_footer_widgets', 'twenty_eleven_has_footer_widgets' );
+add_filter( 'infinite_scroll_has_footer_widgets', 'jetpack_twenty_eleven_has_footer_widgets' );
