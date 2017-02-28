@@ -153,6 +153,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * WordPress.com REST API: add date and time format settings to the Settings endpoint. #6343
 * WordPress.com REST API: add a filter for theme info results. #6446
 * WordPress.com REST API: allow Post backup method to be called with a site auth token. #6399
+* WordPress.com REST API: add new action links field to the plugins endpoint. #6267
 
 **Improved Compatibility**
 
