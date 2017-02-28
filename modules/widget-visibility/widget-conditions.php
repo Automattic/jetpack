@@ -18,6 +18,26 @@ class Jetpack_Widget_Conditions {
 			add_filter( 'sidebars_widgets', array( __CLASS__, 'sidebars_widgets' ) );
 			add_action( 'template_redirect', array( __CLASS__, 'template_redirect' ) );
 		}
+
+		/**
+		 * The widget_visibility_major_conditions filter accepts an array of existing conditions
+		 * and should add new conditions in this format:
+		 *
+		 * $existing_conditions['my_unique_key'] = array(
+		 *     'title' => 'User-facing label for this condition type',
+		 *     'callback' => callable that accepts two arguments: a major condition (e.g., 'my_unique_key')
+		 *                   and optional minor value (e.g., 'one_of_several_values')
+		 */
+		add_filter( 'widget_visibility_major_conditions', array( __CLASS__, 'major_conditions' ) );
+
+		/**
+		 * The widget_visibility_minor_conditions filter accepts two arguments: a major condition (e.g.,
+		 * 'my_unique_key') and an array of exisiting minor values. It should add new minor conditions in
+		 * this format:
+		 *
+		 * $existing_minor_conditions['a_unique_key'] = 'User-facing label for this condition type'
+		 */
+		add_filter( 'widget_visibility_minor_conditions', array( __CLASS__, 'minor_conditions' ), 10, 2 );
 	}
 
 	public static function widget_admin_setup() {
@@ -151,6 +171,285 @@ class Jetpack_Widget_Conditions {
 	}
 
 	/**
+	 * Register the major condition types that we'll support by default.
+	 */
+	public static function major_conditions( $major_conditions ) {
+		return array_merge( $major_conditions, array(
+			'category' => array(
+				'title' => __( 'Category', 'jetpack' ),
+				'callback' => array( __CLASS__, 'condition_callback' ),
+			),
+			'author' => array(
+				'title' => _x( 'Author', 'Noun, as in: "The author of this post is..."', 'jetpack' ),
+				'callback' => array( __CLASS__, 'condition_callback' ),
+			),
+			'tag' => array(
+				'title' => _x( 'Tag', 'Noun, as in: "This post has one tag."', 'jetpack' ),
+				'callback' => array( __CLASS__, 'condition_callback' ),
+			),
+			'date' => array(
+				'title' => _x( 'Date', 'Noun, as in: "This page is a date archive."', 'jetpack' ),
+				'callback' => array( __CLASS__, 'condition_callback' ),
+			),
+			'page' => array(
+				'title' => _x( 'Page', 'Example: The user is looking at a page, not a post.', 'jetpack' ),
+				'callback' => array( __CLASS__, 'condition_callback' ),
+			),
+			'taxonomy' => array(
+				'title' => _x( 'Taxonomy', 'Noun, as in: "This post has one taxonomy."', 'jetpack' ),
+				'callback' => array( __CLASS__, 'condition_callback' ),
+			),
+		) );
+	}
+
+	/**
+	 * Register the possible values for the major conditions that we support.
+	 *
+	 * This takes `$minor_conditions` as the first parameter as it's a filter
+	 * on that value.
+	 *
+	 * @param array $minor_conditions An associative array of possible values.
+	 * @param string $major_condition The condition for these values.
+	 * @return array
+	 */
+	public static function minor_conditions( $minor_conditions, $major_condition ) {
+		switch ( $major_condition ) {
+			case 'category':
+				$minor_conditions[''] = __( 'All category pages', 'jetpack' );
+
+				$categories = get_categories( array( 'number' => 1000, 'orderby' => 'count', 'order' => 'DESC' ) );
+				usort( $categories, array( __CLASS__, 'strcasecmp_name' ) );
+
+				foreach ( $categories as $category ) {
+					$minor_conditions[$category->term_id] = $category->name;
+				}
+			break;
+			case 'author':
+				$minor_conditions[''] = __( 'All author pages', 'jetpack' );
+
+				foreach ( get_users( array( 'orderby' => 'name', 'exclude_admin' => true ) ) as $author ) {
+					$minor_conditions[$author->ID] = $author->display_name;
+				}
+			break;
+			case 'tag':
+				$minor_conditions[''] = __( 'All tag pages', 'jetpack' );
+
+				$tags = get_tags( array( 'number' => 1000, 'orderby' => 'count', 'order' => 'DESC' ) );
+				usort( $tags, array( __CLASS__, 'strcasecmp_name' ) );
+
+				foreach ( $tags as $tag ) {
+					$minor_conditions[$tag->term_id] = $tag->name;
+				}
+			break;
+			case 'date':
+				$minor_conditions[''] = __( 'All date archives', 'jetpack' );
+				$minor_conditions['day'] = __( 'Daily archives', 'jetpack' );
+				$minor_conditions['month'] = __( 'Monthly archives', 'jetpack' );
+				$minor_conditions['year'] = __( 'Yearly archives', 'jetpack' );
+			break;
+			case 'page':
+				$minor_conditions['front'] = __( 'Front page', 'jetpack' );
+				$minor_conditions['posts'] = __( 'Posts page', 'jetpack' );
+				$minor_conditions['archive'] = __( 'Archive page', 'jetpack' );
+				$minor_conditions['404'] = __( '404 error page', 'jetpack' );
+				$minor_conditions['search'] = __( 'Search results', 'jetpack' );
+
+				$post_type_values = array();
+				$post_types = get_post_types( array( 'public' => true ), 'objects' );
+
+				foreach ( $post_types as $post_type ) {
+					$post_type_values[ 'post_type-' . $post_type->name ] = $post_type->labels->singular_name;
+				}
+
+				$minor_conditions[ __( 'Post type:', 'jetpack' ) ] = $post_type_values;
+
+				$static_pages = array();
+
+				$pages = get_pages( array( 'sort_order' => 'menu_order' ) );
+				$parent_depths = array();
+
+				foreach ( $pages as $page ) {
+					if ( isset( $parent_depths[ $page->post_parent ] ) ) {
+						$depth = $parent_depths[ $page->post_parent ] + 1;
+					}
+					else {
+						$depth = 0;
+					}
+
+					$parent_depths[ $page->ID ] = $depth;
+
+					$static_pages[ $page->ID ] = str_repeat( "&nbsp;", $depth * 2 ) . $page->post_title;
+				}
+
+				$minor_conditions[ __( 'Static page:', 'jetpack' ) ] = $static_pages;
+			break;
+			case 'taxonomy':
+				$minor_conditions[''] = __( 'All taxonomy pages', 'jetpack' );
+
+				$taxonomies = get_taxonomies( array( '_builtin' => false ), 'objects' );
+				usort( $taxonomies, array( __CLASS__, 'strcasecmp_name' ) );
+
+				foreach ( $taxonomies as $taxonomy ) {
+					$sub_taxonomies = array(
+						$taxonomy->name => sprintf( __( 'All %s pages', 'jetpack' ), $taxonomy->name ),
+					);
+
+					$terms = get_terms( array( $taxonomy->name ), array( 'number' => 1000, 'hide_empty' => false ) );
+					foreach ( $terms as $term ) {
+						$sub_taxonomies[ $taxonomy->name . '_tax_' . $term->term_id ] = $term->name;
+					}
+
+					$minor_conditions[ $taxonomy->labels->name . ':' ] = $sub_taxonomies;
+				}
+			break;
+		}
+
+		return $minor_conditions;
+	}
+
+	/**
+	 * The callback that does the actual filtering.
+	 *
+	 * @param string $major The "major" filter category.
+	 * @param string $minor The "minor" filter value.
+	 * @return boolean Whether this condition is met in the current context.
+	 */
+	public static function condition_callback( $major, $minor ) {
+		switch ( $major ) {
+			case 'date':
+				switch ( $minor ) {
+					case '':
+						return is_date();
+					break;
+					case 'month':
+						return is_month();
+					break;
+					case 'day':
+						return is_day();
+					break;
+					case 'year':
+						return is_year();
+					break;
+				}
+			break;
+			case 'page':
+				// Previously hardcoded post type options.
+				if ( 'post' == $minor )
+					$minor = 'post_type-post';
+				else if ( ! $minor )
+					$minor = 'post_type-page';
+
+				switch ( $minor ) {
+					case '404':
+						return is_404();
+					break;
+					case 'search':
+						return is_search();
+					break;
+					case 'archive':
+						return is_archive();
+					break;
+					case 'posts':
+						return $wp_query->is_posts_page;
+					break;
+					case 'home':
+						return is_home();
+					break;
+					case 'front':
+						if ( current_theme_supports( 'infinite-scroll' ) )
+							return is_front_page();
+						else {
+							return is_front_page() && !is_paged();
+						}
+					break;
+					default:
+						if ( substr( $minor, 0, 10 ) == 'post_type-' )
+							return is_singular( substr( $minor, 10 ) );
+						else {
+							// $minor is a page ID -- check if we're either looking at that particular page itself OR looking at the posts page, with the correct conditions
+							return ( is_page( $minor ) || ( get_option( 'show_on_front' ) == 'page' && $wp_query->is_posts_page && get_option( 'page_for_posts' ) == $minor ) );
+						}
+					break;
+				}
+			break;
+			case 'tag':
+				if ( ! $minor && is_tag() )
+					return true;
+				else if ( is_singular() && $minor && has_tag( $minor ) )
+					return true;
+				else {
+					$tag = get_tag( $minor );
+
+					if ( $tag && is_tag( $tag->slug ) )
+						return true;
+				}
+			break;
+			case 'category':
+				if ( ! $minor && is_category() )
+					return true;
+				else if ( is_category( $minor ) )
+					return true;
+				else if ( is_singular() && $minor && in_array( 'category', get_post_taxonomies() ) &&  has_category( $minor ) )
+					return true;
+			break;
+			case 'author':
+				if ( ! $minor && is_author() )
+					return true;
+				else if ( $minor && is_author( $minor ) )
+					return true;
+				else if ( is_singular() && $minor && $minor == $post->post_author )
+					return true;
+			break;
+			case 'taxonomy':
+				$term = explode( '_tax_', $minor ); // $term[0] = taxonomy name; $term[1] = term id
+				$terms = get_the_terms( $post->ID, $minor ); // Does post have terms in taxonomy?
+				if ( is_tax( $term[0], $term[1] ) )
+					return true;
+				else if ( is_singular() && $term[1] && has_term( $term[1], $term[0] ) )
+					return true;
+				else if ( is_singular() && $terms & !is_wp_error( $terms ) )
+					return true;
+			break;
+		}
+
+		return false;
+	}
+
+	/**
+	 * Provided a second level of granularity for widget conditions.
+	 */
+	public static function widget_conditions_options_echo( $major = '', $selected_value = '' ) {
+		if ( $major ) {
+			$minor_conditions = apply_filters( 'widget_visibility_minor_conditions', array(), $major );
+
+			foreach ( $minor_conditions as $key => $val ) {
+				self::do_widget_conditions_options_echo( $selected_value, $key, $val );
+			}
+		}
+	}
+
+	private static function do_widget_conditions_options_echo( $selected_value, $minor_key, $minor_value ) {
+		if ( is_array( $minor_value ) ) {
+			?>
+			<optgroup label="<?php echo esc_attr( $minor_key ); ?>">
+				<?php
+
+				foreach ( $minor_value as $grouped_minor_key => $grouped_minor_value ) {
+					self::do_widget_conditions_options_echo( $selected_value, $grouped_minor_key, $grouped_minor_value );
+				}
+
+				?>
+			</optgroup>
+			<?php
+		}
+		else {
+			?>
+			<option value="<?php echo esc_attr( $minor_key ); ?>" <?php selected( $minor_key, $selected_value ); ?>><?php echo esc_html( $minor_value ); ?></option>
+			<?php
+		}
+	}
+
+	/**
 	 * Add the widget conditions to each widget in the admin.
 	 *
 	 * @param $widget unused.
@@ -168,6 +467,8 @@ class Jetpack_Widget_Conditions {
 
 		if ( empty( $conditions['rules'] ) )
 			$conditions['rules'][] = array( 'major' => '', 'minor' => '', 'has_children' => '' );
+
+		$major_conditions = apply_filters( 'widget_visibility_major_conditions', array() );
 
 		?>
 		<div class="widget-conditional <?php if ( empty( $_POST['widget-conditions-visible'] ) || $_POST['widget-conditions-visible'] == '0' ) { ?>widget-conditional-hide<?php } ?>">
@@ -188,21 +489,9 @@ class Jetpack_Widget_Conditions {
 							<div class="selection alignleft">
 								<select class="conditions-rule-major" name="conditions[rules_major][]">
 									<option value="" <?php selected( "", $rule['major'] ); ?>><?php echo esc_html_x( '-- Select --', 'Used as the default option in a dropdown list', 'jetpack' ); ?></option>
-									<option value="category" <?php selected( "category", $rule['major'] ); ?>><?php esc_html_e( 'Category', 'jetpack' ); ?></option>
-									<option value="author" <?php selected( "author", $rule['major'] ); ?>><?php echo esc_html_x( 'Author', 'Noun, as in: "The author of this post is..."', 'jetpack' ); ?></option>
-
-									<?php if( ! ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) { // this doesn't work on .com because of caching ?>
-										<option value="loggedin" <?php selected( "loggedin", $rule['major'] ); ?>><?php echo esc_html_x( 'User', 'Noun', 'jetpack' ); ?></option>
-										<option value="role" <?php selected( "role", $rule['major'] ); ?>><?php echo esc_html_x( 'Role', 'Noun, as in: "The user role of that can access this widget is..."', 'jetpack' ); ?></option>
+									<?php foreach ( $major_conditions as $major_condition_key => $major_condition_meta ) { ?>
+										<option value="<?php echo esc_attr( $major_condition_key ); ?>" <?php selected( $major_condition_key, $rule['major'] ); ?>><?php echo esc_html( $major_condition_meta['title'] ); ?></option>
 									<?php } ?>
-
-									<option value="tag" <?php selected( "tag", $rule['major'] ); ?>><?php echo esc_html_x( 'Tag', 'Noun, as in: "This post has one tag."', 'jetpack' ); ?></option>
-									<option value="date" <?php selected( "date", $rule['major'] ); ?>><?php echo esc_html_x( 'Date', 'Noun, as in: "This page is a date archive."', 'jetpack' ); ?></option>
-									<option value="page" <?php selected( "page", $rule['major'] ); ?>><?php echo esc_html_x( 'Page', 'Example: The user is looking at a page, not a post.', 'jetpack' ); ?></option>
-									<option value="post_type" <?php selected( "post_type", $rule['major'] ); ?>><?php echo esc_html_x( 'Post Type', 'Example: the user is viewing a custom post type archive.', 'jetpack' ); ?></option>
-									<?php if ( get_taxonomies( array( '_builtin' => false ) ) ) : ?>
-										<option value="taxonomy" <?php selected( "taxonomy", $rule['major'] ); ?>><?php echo esc_html_x( 'Taxonomy', 'Noun, as in: "This post has one taxonomy."', 'jetpack' ); ?></option>
-									<?php endif; ?>
 								</select>
 
 								<?php _ex( 'is', 'Widget Visibility: {Rule Major [Page]} is {Rule Minor [Search results]}', 'jetpack' ); ?>
@@ -392,208 +681,10 @@ class Jetpack_Widget_Conditions {
 
 		$condition_result = false;
 
+		$major_conditions = apply_filters( 'widget_visibility_major_conditions', array() );
 		foreach ( $instance['conditions']['rules'] as $rule ) {
-			$condition_key = self::generate_condition_key( $rule );
-
-			if ( isset( $condition_result_cache[ $condition_key ] ) ) {
-				$condition_result = $condition_result_cache[ $condition_key ];
-			}
-			else {
-				switch ( $rule['major'] ) {
-					case 'date':
-						switch ( $rule['minor'] ) {
-							case '':
-								$condition_result = is_date();
-							break;
-							case 'month':
-								$condition_result = is_month();
-							break;
-							case 'day':
-								$condition_result = is_day();
-							break;
-							case 'year':
-								$condition_result = is_year();
-							break;
-						}
-					break;
-					case 'page':
-						// Previously hardcoded post type options.
-						if ( 'post' == $rule['minor'] )
-							$rule['minor'] = 'post_type-post';
-						else if ( ! $rule['minor'] )
-							$rule['minor'] = 'post_type-page';
-
-						switch ( $rule['minor'] ) {
-							case '404':
-								$condition_result = is_404();
-							break;
-							case 'search':
-								$condition_result = is_search();
-							break;
-							case 'archive':
-								$condition_result = is_archive();
-							break;
-							case 'posts':
-								$condition_result = $wp_query->is_posts_page;
-							break;
-							case 'home':
-								$condition_result = is_home();
-							break;
-							case 'front':
-								if ( current_theme_supports( 'infinite-scroll' ) )
-									$condition_result = is_front_page();
-								else {
-									$condition_result = is_front_page() && !is_paged();
-								}
-							break;
-							default:
-								if ( substr( $rule['minor'], 0, 10 ) == 'post_type-' ) {
-									$condition_result = is_singular( substr( $rule['minor'], 10 ) );
-								} elseif ( $rule['minor'] == get_option( 'page_for_posts' ) ) {
-									// If $rule['minor'] is a page ID which is also the posts page
-									$condition_result = $wp_query->is_posts_page;
-								} else {
-									// $rule['minor'] is a page ID
-									$condition_result = is_page() && ( $rule['minor'] == get_the_ID() );
-
-									// Check if $rule['minor'] is parent of page ID
-									if ( ! $condition_result && isset( $rule['has_children'] ) && $rule['has_children'] )
-										$condition_result = wp_get_post_parent_id( get_the_ID() ) == $rule['minor'];
-								}
-							break;
-						}
-					break;
-					case 'tag':
-						// All tag pages.
-						if( ! $rule['minor'] ) {
-							if ( is_tag() ) {
-								$condition_result = true;
-							} else if ( is_singular() ) {
-								if( in_array( 'post_tag', get_post_taxonomies() ) ) {
-									$condition_result = true;
-								}
-							}
-							break;
-						}
-
-						// All pages with the specified tag term.
-						if ( is_tag( $rule['minor'] ) ) {
-							$condition_result = true;
-						}
-						else if ( is_singular() && has_term( $rule['minor'], 'post_tag' ) ) {
-							$condition_result = true;
-						}
-					break;
-					case 'category':
-						// All category pages.
-						if( ! $rule['minor'] ) {
-							if ( is_category() ) {
-								$condition_result = true;
-							}
-							else if ( is_singular() ) {
-								if( in_array( 'category', get_post_taxonomies() ) ) {
-									$condition_result = true;
-								}
-							}
-							break;
-						}
-
-						// All pages with the specified category term.
-						if ( is_category( $rule['minor'] ) ) {
-							$condition_result = true;
-						}
-						else if ( is_singular() && has_term( $rule['minor'], 'category' ) ) {
-							$condition_result = true;
-						}
-					break;
-					case 'loggedin':
-						$condition_result = is_user_logged_in();
-						if ( 'loggedin' !== $rule['minor'] ) {
-							$condition_result = ! $condition_result;
-						}
-					break;
-					case 'author':
-						$post = get_post();
-						if ( ! $rule['minor'] && is_author() )
-							$condition_result = true;
-						else if ( $rule['minor'] && is_author( $rule['minor'] ) )
-							$condition_result = true;
-						else if ( is_singular() && $rule['minor'] && $rule['minor'] == $post->post_author )
-							$condition_result = true;
-					break;
-					case 'role':
-						if( is_user_logged_in() ) {
-							$current_user = wp_get_current_user();
-
-							$user_roles = $current_user->roles;
-
-							if( in_array( $rule['minor'], $user_roles ) ) {
-								$condition_result = true;
-							} else {
-								$condition_result = false;
-							}
-
-						} else {
-							$condition_result = false;
-						}
-					break;
-					case 'post_type':
-						if ( substr( $rule['minor'], 0, 10 ) == 'post_type-' ) {
-							$condition_result = is_singular( substr( $rule['minor'], 10 ) );
-						} elseif ( substr( $rule['minor'], 0, 18 ) == 'post_type_archive-' ) {
-							$condition_result = is_post_type_archive( substr( $rule['minor'], 18 ) );
-						}
-					break;
-					case 'taxonomy':
-						// All taxonomy pages.
-						if( ! $rule['minor'] ) {
-							if ( is_archive() ) {
-								if ( is_tag() || is_category() || is_tax() ) {
-									$condition_result = true;
-								}
-							}
-							else if ( is_singular() ) {
-								$post_taxonomies = get_post_taxonomies();
-								$condition_result = ! empty( $post_taxonomies );
-							}
-							break;
-						}
-
-						// Specified taxonomy page.
-						$term = explode( '_tax_', $rule['minor'] ); // $term[0] = taxonomy name; $term[1] = term id
-						if ( isset( $term[0] ) && isset( $term[1] ) ) {
-							$term[1] = self::maybe_get_split_term( $term[1], $term[0] );
-						}
-
-						// All pages of the specified taxonomy.
-						if ( ! isset( $term[1] ) || ! $term[1] ) {
-							if ( is_tax( $term[0] ) ) {
-								$condition_result = true;
-							}
-							else if ( is_singular() ) {
-								if( in_array( $term[0], get_post_taxonomies() ) ) {
-									$condition_result = true;
-								}
-							}
-							break;
-						}
-
-						// All pages with the specified taxonomy term.
-						if ( is_tax( $term[0], $term[1] ) ) {
-							$condition_result = true;
-						}
-						else if ( is_singular() && has_term( $term[1], $term[0] ) ) {
-							$condition_result = true;
-						}
-					break;
-				}
-
-				if ( $condition_result || self::$passed_template_redirect ) {
-					// Some of the conditions will return false when checked before the template_redirect
-					// action has been called, like is_page(). Only store positive lookup results, which
-					// won't be false positives, before template_redirect, and everything after.
-					$condition_result_cache[ $condition_key ] = $condition_result;
-				}
+			if ( isset( $major_conditions[ $rule['major'] ] ) ) {
+				$condition_result = call_user_func( $major_conditions[ $rule['major'] ]['callback'], $rule['major'], $rule['minor'] );
 			}
 
 			if ( $condition_result )
