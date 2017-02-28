@@ -155,7 +155,8 @@ class Jetpack_VideoPress {
 				'videopress-plupload',
 				plugins_url( 'js/videopress-plupload.js', __FILE__ ),
 				array(
-					'jquery'
+					'jquery',
+					'wp-plupload'
 				),
 				$this->version
 			);
