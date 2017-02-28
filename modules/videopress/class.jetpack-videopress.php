@@ -144,18 +144,12 @@ class Jetpack_VideoPress {
 		}
 
 		if ( $this->should_override_media_uploader() ) {
-			// We're going to replace the standard wp-plupload with our own ... messy, I know, but as of now the
-			// hooks in it are not good enough for us to be able to override / add in just the code we need.
-			// P.S. Please don't take this as an example of good behavior, this is a temporary fix until I
-			// can get a more permanent action / filter system added into the core wp-plupload.js to make this
-			// type of override unnecessary.
-			wp_dequeue_script( 'wp-plupload' );
-
 			wp_enqueue_script(
 				'videopress-plupload',
 				plugins_url( 'js/videopress-plupload.js', __FILE__ ),
 				array(
-					'jquery'
+					'jquery',
+					'wp-plupload'
 				),
 				$this->version
 			);
