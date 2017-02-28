@@ -184,6 +184,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Stats: change height of the Stats sparkline appearing in the admin bar. #6443
 * Sync: fix synchronization scheduling issues. #6281, #6292
 * Theme Tools: use core WordPress method to define content directory location for Tonesque. #6386
+* Theme Tools: make sure changes to Featured Image Content Options can be seen in the customizer. #6463
 * Widgets: translate Follow Widget according to the site's language. #5941
 * Widgets: trim spaces in URLs for Image and Display Posts Widgets. #6375
 * Widget Visibility: fix issues with visibility on taxonomy pages. #6326
