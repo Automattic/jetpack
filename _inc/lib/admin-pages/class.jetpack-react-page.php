@@ -52,9 +52,9 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		if ( Jetpack::is_development_mode() || Jetpack::is_active() ) {
 			global $submenu;
 			if ( current_user_can( 'jetpack_manage_modules' ) || Jetpack::is_module_active( 'protect' ) || current_user_can( 'view_stats' ) ) {
-				$submenu['jetpack'][] = array( __( 'Dashboard', 'jetpack' ), 'jetpack_admin_page', Jetpack::admin_url( 'page=jetpack#/dashboard' ) );
+				$submenu['jetpack'][] = array( __( 'Dashboard', 'jetpack' ), 'jetpack_admin_page', 'admin.php?page=jetpack#/dashboard' );
 			} elseif ( current_user_can( 'jetpack_admin_page' ) ) {
-				$submenu['jetpack'][] = array( __( 'Dashboard', 'jetpack' ), 'jetpack_admin_page', Jetpack::admin_url( 'page=jetpack#/apps' ) );
+				$submenu['jetpack'][] = array( __( 'Dashboard', 'jetpack' ), 'jetpack_admin_page', 'admin.php?page=jetpack#/apps' );
 			}
 		}
 	}
@@ -67,7 +67,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	function jetpack_add_settings_sub_nav_item() {
 		if ( ( Jetpack::is_development_mode() || Jetpack::is_active() ) && current_user_can( 'jetpack_admin_page' ) ) {
 			global $submenu;
-			$submenu['jetpack'][] = array( __( 'Settings', 'jetpack' ), 'jetpack_admin_page', Jetpack::admin_url( 'page=jetpack#/settings' ) );
+			$submenu['jetpack'][] = array( __( 'Settings', 'jetpack' ), 'jetpack_admin_page', 'admin.php?page=jetpack#/settings' );
 		}
 	}
 
