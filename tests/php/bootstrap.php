@@ -57,7 +57,7 @@ function _manually_install_woocommerce() {
 
 // If we are running the uninstall tests don't load jepack.
 if ( ! ( in_running_uninstall_group() ) ) {
-	tests_add_filter( 'plugins_loaded', '_manually_load_plugin' );
+	tests_add_filter( 'plugins_loaded', '_manually_load_plugin', 1 );
 	if ( "1" == getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
 		tests_add_filter( 'setup_theme', '_manually_install_woocommerce' );	
 	}
