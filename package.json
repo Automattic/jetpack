@@ -20,7 +20,7 @@
     "build-client": "gulp",
     "build-production": "yarn clean-client && gulp languages:extract && NODE_ENV=production BABEL_ENV=production yarn build",
     "build-languages": "gulp languages",
-    "lint": "eslint --ext .js --ext .jsx _inc/client -c .eslintrc",
+    "lint": "yarn build && eslint --ext .js --ext .jsx _inc/client -c .eslintrc",
     "test-client": "NODE_ENV=test NODE_PATH=tests:_inc/client:node_modules/@automattic/dops-components/client tests/runner.js",
     "add-textdomain": "grunt addtextdomain",
     "build-pot": "grunt makepot",
