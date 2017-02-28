@@ -590,19 +590,20 @@ abstract class WPCOM_JSON_API_Endpoint {
 			break;
 		case 'plugin' :
 			$docs = array(
-				'id'          => '(safehtml) The plugin\'s ID',
-				'slug'        => '(safehtml) The plugin\'s Slug',
-				'active'      => '(boolean)  The plugin status.',
-				'update'      => '(object)   The plugin update info.',
-				'name'        => '(safehtml) The name of the plugin.',
-				'plugin_url'  => '(url)      Link to the plugin\'s web site.',
-				'version'     => '(safehtml) The plugin version number.',
-				'description' => '(safehtml) Description of what the plugin does and/or notes from the author',
-				'author'      => '(safehtml) The plugin author\'s name',
-				'author_url'  => '(url)      The plugin author web site address',
-				'network'     => '(boolean)  Whether the plugin can only be activated network wide.',
-				'autoupdate'  => '(boolean)  Whether the plugin is auto updated',
-				'log'         => '(array:safehtml) An array of update log strings.',
+				'id'            => '(safehtml) The plugin\'s ID',
+				'slug'          => '(safehtml) The plugin\'s Slug',
+				'active'        => '(boolean)  The plugin status.',
+				'update'        => '(object)   The plugin update info.',
+				'name'          => '(safehtml) The name of the plugin.',
+				'plugin_url'    => '(url)      Link to the plugin\'s web site.',
+				'version'       => '(safehtml) The plugin version number.',
+				'description'   => '(safehtml) Description of what the plugin does and/or notes from the author',
+				'author'        => '(safehtml) The plugin author\'s name',
+				'author_url'    => '(url)      The plugin author web site address',
+				'network'       => '(boolean)  Whether the plugin can only be activated network wide.',
+				'autoupdate'    => '(boolean)  Whether the plugin is auto updated',
+				'log'           => '(array:safehtml) An array of update log strings.',
+        'action_links'  => '(array) An array of action links that the plugin uses.',
 			);
 			$return[$key] = (object) $this->cast_and_filter(
 				$value,
