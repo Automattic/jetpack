@@ -135,7 +135,9 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Sharing: allow filtering of the shared link in the Email Sharing button. #6342
 * Recipe shortcode: update the library powering the Print link. #6263
 * Stats: add column in posts table with a link for each post to jump to its stats in WordPress.com. #6370
+* Google+ Shortcode: clean up enqueuing of the Google+ js library. #6440
 * Slideshow shortcode: add filter to customize speed of the slideshow. #3297
+* SlideShare shortcode: add filter to customize the output of the shortcode. #6440
 * Twitch.tv shortcode: update to use Twitch's new embedded player. #6338
 * Support: add more information to debug tools to help you get better help from our support team. #6171
 * Synchronization process: add filter to allow customizing sync timeout. #6317
