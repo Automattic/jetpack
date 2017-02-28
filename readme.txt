@@ -105,7 +105,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 = 4.7 =
 
-* Release date:
+* Release date: March 7, 2017
 * Release post:
 
 **New Features and Improvements**
