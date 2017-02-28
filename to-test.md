@@ -30,6 +30,12 @@ We also fixed an issue with custom Sharing buttons. To test, go to **Settings > 
 
 Do you use [the Recipe shortcode](https://en.support.wordpress.com/recipes/)? You'll want to make sure the Print link works well in all browsers.
 
+We've also fixed a conflict with embeds of WordPress posts. To test this, try the following:
+
+1. Enable Jetpack's Shortcode Embeds module under Jetpack > Settings > Writing.
+2. Go to Posts > Add New, and paste the URL of a post published on another WordPress site on its own line.
+3. The URL should be converted into an embedded post preview in the Visual editor, as well as in your post when you publish it.
+
 ### Widget Visibility
 
 We've made a lot of improvements to the Widget Visibility module. It's now easier and faster to manage visibility rules in your Widget settings.

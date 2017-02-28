@@ -183,6 +183,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Sharing: custom sharing services are now rendered correctly when enabled. #6355
 * Sharing: make sure the Site Icon is used on home page Open Graph Meta Tags. #6303
 * Sharing: avoid JavaScript errors when jQuery is enqueued in the footer. #6339
+* Shortcodes: fix conflicts with WordPress Post embeds. #6474
 * Stats: change height of the Stats sparkline appearing in the admin bar. #6443
 * Sync: fix synchronization scheduling issues. #6281, #6292
 * Theme Tools: use core WordPress method to define content directory location for Tonesque. #6386
