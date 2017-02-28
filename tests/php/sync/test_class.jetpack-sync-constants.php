@@ -21,7 +21,7 @@ class WP_Test_Jetpack_Sync_Constants extends WP_Test_Jetpack_Sync_Base {
 	function test_white_listed_constant_is_synced() {
 		$helper = new Jetpack_Sync_Test_Helper();
 		$helper->array_override = array( 'TEST_FOO' );
-		add_filter( 'jetpack_constants_whitelist', array( $helper, 'filter_override_array' ) );
+		add_filter( 'jetpack_sync_constants_whitelist', array( $helper, 'filter_override_array' ) );
 
 		define( 'TEST_FOO', sprintf( "%.8f", microtime( true ) ) );
 		define( 'TEST_BAR', sprintf( "%.8f", microtime( true ) ) );
@@ -59,7 +59,7 @@ class WP_Test_Jetpack_Sync_Constants extends WP_Test_Jetpack_Sync_Base {
 	function test_white_listed_constant_doesnt_get_synced_twice() {
 		$helper = new Jetpack_Sync_Test_Helper();
 		$helper->array_override = array( 'TEST_ABC' );
-		add_filter( 'jetpack_constants_whitelist', array( $helper, 'filter_override_array' ) );
+		add_filter( 'jetpack_sync_constants_whitelist', array( $helper, 'filter_override_array' ) );
 
 		define( 'TEST_ABC', 'FOO' );
 		$this->sender->do_sync();

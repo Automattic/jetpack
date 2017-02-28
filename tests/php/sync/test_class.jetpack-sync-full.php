@@ -277,7 +277,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		$helper = new Jetpack_Sync_Test_Helper();
 		$helper->array_override = array( 'TEST_SYNC_ALL_CONSTANTS' );
-		add_filter( 'jetpack_constants_whitelist', array( $helper, 'filter_override_array' ) );
+		add_filter( 'jetpack_sync_constants_whitelist', array( $helper, 'filter_override_array' ) );
 
 		$this->sender->do_sync();
 

@@ -44,9 +44,9 @@ class Jetpack_Sync_Module_WooCommerce extends Jetpack_Sync_Module {
 		$this->init_listeners_for_meta_type( 'order_item', $callable );
 
 		// options, constants and post meta whitelists
-		add_filter( 'jetpack_options_whitelist', array( $this, 'add_woocommerce_options_whitelist' ), 10 );
-		add_filter( 'jetpack_constants_whitelist', array( $this, 'add_woocommerce_constants_whitelist' ), 10 );
-		add_filter( 'jetpack_post_meta_whitelist', array( $this, 'add_woocommerce_post_meta_whitelist' ), 10 );
+		add_filter( 'jetpack_sync_options_whitelist', array( $this, 'add_woocommerce_options_whitelist' ), 10 );
+		add_filter( 'jetpack_sync_constants_whitelist', array( $this, 'add_woocommerce_constants_whitelist' ), 10 );
+		add_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'add_woocommerce_post_meta_whitelist' ), 10 );
 	}
 
 	public function init_full_sync_listeners( $callable ) {
