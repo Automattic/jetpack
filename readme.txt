@@ -131,6 +131,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Infinite Scroll: update wording in settings to avoid any confusion. #6239
 * Infinite Scroll: the classes `infinite-scroll` and `neverending` are now applied using JS instead of PHP. #6346
 * Markdown: allow to independently toggle Markdown for posts. #6406
+* Protect: update the support link appearing when you're locked out of your site. #6468
 * Publicize: add Unit Tests to make sure Publicize doesn't break when making changes to the Publicize process. #6018
 * Sharing: allow filtering of the shared link in the Email Sharing button. #6342
 * Recipe shortcode: update the library powering the Print link. #6263
