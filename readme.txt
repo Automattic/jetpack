@@ -166,6 +166,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug Fixes**
 
+* Admin Page: fix the "Compare Plans" link appearing when Jetpack's Development mode is active. #6445
 * Carousel: the `jp_carousel_load_for_images_linked_to_file` filter now works when Photon is activated as well. #6296
 * Carousel: ensure the Carousel view works when viewing image galleries loaded from infinite scroll. #6306
 * Contact Form: remove double slashes from file paths to avoid errors in specific server environments. #6384
