@@ -205,13 +205,7 @@ class Jetpack_Options {
 		}
 		$options[ $name ] = $value;
 
-		if ( self::is_network_option( $name ) ) {
-			return update_site_option( self::$grouped_options[ $group ], $options );
-		}
-
 		return update_option( self::$grouped_options[ $group ], $options );
-
-
 	}
 
 	/**
@@ -307,12 +301,7 @@ class Jetpack_Options {
 	}
 
 	private static function get_grouped_option( $group, $name, $default ) {
-		if ( self::is_network_option( $name ) ) {
-			$options = get_site_option( self::$grouped_options[ $group ] );
-		} else {
-			$options = get_option( self::$grouped_options[ $group ] );
-		}
-
+		$options = get_option( self::$grouped_options[ $group ] );
 		if ( is_array( $options ) && isset( $options[ $name ] ) ) {
 			return $options[ $name ];
 		}
@@ -321,13 +310,7 @@ class Jetpack_Options {
 	}
 
 	private static function delete_grouped_option( $group, $names ) {
-		$is_network_option = self::is_network_option( self::$grouped_options[ $group ] );
-		if ( $is_network_option ) {
-			$options = get_site_option( self::$grouped_options[ $group ], array() );
-		} else {
-			$options = get_option( self::$grouped_options[ $group ], array() );
-		}
-
+		$options = get_option( self::$grouped_options[ $group ], array() );
 
 		$to_delete = array_intersect( $names, self::get_option_names( $group ), array_keys( $options ) );
 		if ( $to_delete ) {
@@ -335,12 +318,7 @@ class Jetpack_Options {
 				unset( $options[ $name ] );
 			}
 
-			if ( $is_network_option ) {
-				return update_site_option( self::$grouped_options[ $group ], $options );
-			} else {
-				return update_option( self::$grouped_options[ $group ], $options );
-			}
-
+			return update_option( self::$grouped_options[ $group ], $options );
 		}
 
 		return true;
