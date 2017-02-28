@@ -551,8 +551,8 @@ function videopress_make_media_upload_path( $blog_id ) {
  * This is a mock of the internal VideoPress method, which is meant to duplicate the functionality
  * of the WPCOM API, so that the Jetpack REST API returns the same data with no modifications.
  *
- * @param int $blog_id
- * @param int $post_id
+ * @param int $blog_id Blog ID.
+ * @param int $post_id Post ID.
  * @return bool|stdClass
  */
 function video_get_info_by_blogpostid( $blog_id, $post_id ) {
@@ -562,7 +562,7 @@ function video_get_info_by_blogpostid( $blog_id, $post_id ) {
 		return false;
 	}
 
-	if ( $post->post_mime_type !== 'video/videopress' ) {
+	if ( 'video/videopress' !== $post->post_mime_type ) {
 		return false;
 	}
 
