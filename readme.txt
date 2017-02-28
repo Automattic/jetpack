@@ -162,6 +162,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Accessibility: add additional padding to sharing buttons on mobile to avoid usability issues. #5888
 * Accessibility: update the highlight of the stats range for easier spotting and to make it consistent with other areas of the dashboard. #6418
 * Comments: fix W3C validation errors. #6316
+* Infinite Scroll: add support for the Twenty Seventeen Theme. #5940
 * Internationalization: improve translator comments to make translating new terms easier. #6307
 * Multisite: use Core functions to retrieve the list of sites for more accurate results. #3405
 * Synchronization process: remove options not needed on WordPress.com to save memory during the sync process. #6395
