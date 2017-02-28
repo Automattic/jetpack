@@ -546,3 +546,33 @@ function videopress_make_media_upload_path( $blog_id ) {
 		$blog_id
 	);
 }
+
+/**
+ * This is a mock of the internal VideoPress method, which is meant to duplicate the functionality
+ * of the WPCOM API, so that the Jetpack REST API returns the same data with no modifications.
+ *
+ * @param int $blog_id Blog ID.
+ * @param int $post_id Post ID.
+ * @return bool|stdClass
+ */
+function video_get_info_by_blogpostid( $blog_id, $post_id ) {
+	$post = get_post( $post_id );
+
+	if ( is_wp_error( $post ) ) {
+		return false;
+	}
+
+	if ( 'video/videopress' !== $post->post_mime_type ) {
+		return false;
+	}
+
+	$video_info = new stdClass();
+	$video_info->guid = get_post_meta( $post_id, 'videopress_guid', true );
+	$video_info->finish_date_gmt = '0000-00-00 00:00:00';
+
+	if ( videopress_is_finished_processing( $post_id ) ) {
+		$video_info->finish_date_gmt = date( 'Y-m-d H:i:s' );
+	}
+
+	return $video_info;
+}

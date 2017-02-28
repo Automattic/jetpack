@@ -617,7 +617,7 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 				return false;
 			}
 		}
-		
+
 		/**
 		 * If none of the above checks failed, then we definitely want to update widget data.
 		 */
@@ -828,7 +828,7 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 		 *
 		 * @module widgets
 		 *
-		 * @since 4.6.0
+		 * @since 4.7.0
 		 *
 		 * @param string $content Widget content.
 		 */

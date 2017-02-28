@@ -79,7 +79,17 @@
 .widget-conditional .condition-control .add-condition {
 	left: 0;
 }
-.widget-conditional .condition:last-child .condition-conjunction {
+
+.widget-conditional .condition:last-child .condition-conjunction,
+.widget-conditional .condition:last-child .condition-intersection {
+	display: none;
+}
+
+.widget-conditional.conjunction .condition-intersection {
+	display: none;
+}
+
+.widget-conditional.intersection .condition-conjunction {
 	display: none;
 }
 
