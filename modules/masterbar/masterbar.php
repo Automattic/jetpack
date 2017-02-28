@@ -1,5 +1,7 @@
 <?php
 
+require_once dirname( __FILE__ ) . '/rtl-admin-bar.php';
+
 class A8C_WPCOM_Masterbar {
 	private $locale;
 
@@ -8,6 +10,7 @@ class A8C_WPCOM_Masterbar {
 	private $user_login;
 	private $display_name;
 	private $primary_site_slug;
+	private $user_text_direction;
 
 	function __construct() {
 		$this->locale  = $this->get_locale();
@@ -22,24 +25,46 @@ class A8C_WPCOM_Masterbar {
 		$this->user_login = $this->user_data['login'];
 		$this->display_name = $this->user_data['display_name'];
 		$this->primary_site_slug = $this->get_site_slug();
+		$this->user_text_direction = $this->user_data['text_direction'];
+
+		if ( $this->is_rtl() ) {
+			// Extend core WP_Admin_Bar class in order to add rtl styles
+			add_filter( 'wp_admin_bar_class', function () {
+				return 'RTL_Admin_Bar';
+			} );
+		}
 
 		add_action( 'wp_before_admin_bar_render', array( $this, 'replace_core_masterbar' ), 99999 );
-
 
 		add_action( 'wp_head', array( $this, 'add_styles_and_scripts' ) );
 		add_action( 'admin_head', array( $this, 'add_styles_and_scripts' ) );
 
 		add_action( 'wp_enqueue_scripts', array( $this, 'remove_core_styles' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'remove_core_styles' ) );
+
+		if ( Jetpack::is_module_active( 'notes' ) && $this->is_rtl() ) {
+			// Make sure we enqueue RTL styles in Notifications module
+			add_action( 'enqueue_rtl_notification_styles', '__return_true' );
+		}
 	}
 
 	public function remove_core_styles() {
 		wp_dequeue_style( 'admin-bar' );
 	}
 
+	public function is_rtl() {
+		return $this->user_text_direction === 'rtl' ? true : false;
+	}
+
 	public function add_styles_and_scripts() {
-		wp_enqueue_style( 'a8c_wpcom_masterbar', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/wpcom-admin-bar.css' ) );
-		wp_enqueue_style( 'a8c_wpcom_masterbar_overrides', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/masterbar-overrides/masterbar.css' ) );
+
+		if ( $this->is_rtl() ) {
+			wp_enqueue_style( 'a8c-wpcom-masterbar-rtl', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/rtl/wpcom-admin-bar-rtl.css' ) );
+			wp_enqueue_style( 'a8c-wpcom-masterbar-overrides-rtl', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/masterbar-overrides/rtl/masterbar-rtl.css' ) );
+		} else {
+			wp_enqueue_style( 'a8c-wpcom-masterbar', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/wpcom-admin-bar.css' ) );
+			wp_enqueue_style( 'a8c-wpcom-masterbar-overrides', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/masterbar-overrides/masterbar.css' ) );
+		}
 
 		// Local overrides
 		wp_enqueue_style( 'a8c_wpcom_css_override', plugins_url( 'overrides.css', __FILE__ ) );
@@ -130,7 +155,7 @@ class A8C_WPCOM_Masterbar {
 			'title'  => '<span id="wpnt-notes-unread-count" class="wpnt-loading wpn-read"></span>
 						 <span class="noticon noticon-bell"></span>',
 			'meta'   => array(
-				'html'  => '<div id="wpnt-notes-panel2" style="display:none" lang="'. esc_attr( $this->locale ) . '" dir="' . ( is_rtl() ? 'rtl' : 'ltr' ) . '">' .
+				'html'  => '<div id="wpnt-notes-panel2" style="display:none" lang="'. esc_attr( $this->locale ) . '" dir="' . ( $this->is_rtl() ? 'rtl' : 'ltr' ) . '">' .
 				           '<div class="wpnt-notes-panel-header">' .
 				           '<span class="wpnt-notes-header">' .
 				           __( 'Notifications', 'jetpack' ) .
@@ -794,5 +819,4 @@ class A8C_WPCOM_Masterbar {
 			) );
 		}
 	}
-
 }

@@ -104,7 +104,9 @@ class Jetpack_Notifications {
 	}
 
 	function styles_and_scripts() {
-		if ( !is_rtl() ) {
+		$enqueue_rtl = apply_filters( 'enqueue_rtl_notification_styles', false );
+
+		if ( ! is_rtl() && ! $enqueue_rtl ) {
 			wp_enqueue_style( 'wpcom-notes-admin-bar', $this->wpcom_static_url( '/wp-content/mu-plugins/notes/admin-bar-v2.css' ), array(), JETPACK_NOTES__CACHE_BUSTER );
 		} else {
 			wp_enqueue_style( 'wpcom-notes-admin-bar', $this->wpcom_static_url( '/wp-content/mu-plugins/notes/rtl/admin-bar-v2-rtl.css' ), array(), JETPACK_NOTES__CACHE_BUSTER );
