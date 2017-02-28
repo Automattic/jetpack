@@ -40,15 +40,15 @@ export const DevCard = React.createClass( {
 		if ( ! this.props.isAdmin ) {
 			return (
 				<div>
-					<hr/>
+					<hr />
 					<ul>
 						<li>
 							<label>
 								<input
-									type='radio'
-									id='view_stats'
-									value='view_stats'
-									name='view_stats'
+									type="radio"
+									id="view_stats"
+									value="view_stats"
+									name="view_stats"
 									checked={ this.props.canViewStats }
 									onChange={ this.onPermissionsChange }
 								/>
@@ -58,10 +58,10 @@ export const DevCard = React.createClass( {
 						<li>
 							<label>
 								<input
-									type='radio'
-									id='hide_stats'
-									value='hide_stats'
-									name='hide_stats'
+									type="radio"
+									id="hide_stats"
+									value="hide_stats"
+									name="hide_stats"
 									checked={ ! this.props.canViewStats }
 									onChange={ this.onPermissionsChange }
 								/>
@@ -78,15 +78,15 @@ export const DevCard = React.createClass( {
 		if ( ! this.props.isMaster ) {
 			return (
 				<div>
-					<hr/>
+					<hr />
 					<ul>
 						<li>
 							<label>
 								<input
-									type='radio'
-									id='is_linked'
-									value='is_linked'
-									name='is_linked'
+									type="radio"
+									id="is_linked"
+									value="is_linked"
+									name="is_linked"
 									checked={ this.props.isUserLinked }
 									onChange={ this.onPermissionsChange }
 								/>
@@ -96,10 +96,10 @@ export const DevCard = React.createClass( {
 						<li>
 							<label>
 								<input
-									type='radio'
-									id='is_unlinked'
-									value='is_unlinked'
-									name='is_unlinked'
+									type="radio"
+									id="is_unlinked"
+									value="is_unlinked"
+									name="is_unlinked"
 									checked={ ! this.props.isUserLinked }
 									onChange={ this.onPermissionsChange }
 								/>
@@ -130,10 +130,10 @@ export const DevCard = React.createClass( {
 					<li>
 						<label>
 							<input
-								type='radio'
-								id='jetpack_free'
-								value='jetpack_free'
-								name='jetpack_free'
+								type="radio"
+								id="jetpack_free"
+								value="jetpack_free"
+								name="jetpack_free"
 								checked={ 'jetpack_free' === this.props.sitePlan.product_slug }
 								onChange={ this.onPlanChange }
 							/>
@@ -143,10 +143,10 @@ export const DevCard = React.createClass( {
 					<li>
 						<label>
 							<input
-								type='radio'
-								id='jetpack_personal'
-								value='jetpack_personal'
-								name='jetpack_personal'
+								type="radio"
+								id="jetpack_personal"
+								value="jetpack_personal"
+								name="jetpack_personal"
 								checked={ /jetpack_personal*/.test( this.props.sitePlan.product_slug ) }
 								onChange={ this.onPlanChange }
 							/>
@@ -156,10 +156,10 @@ export const DevCard = React.createClass( {
 					<li>
 						<label>
 							<input
-								type='radio'
-								id='jetpack_premium'
-								value='jetpack_premium'
-								name='jetpack_premium'
+								type="radio"
+								id="jetpack_premium"
+								value="jetpack_premium"
+								name="jetpack_premium"
 								checked={ /jetpack_premium*/.test( this.props.sitePlan.product_slug ) }
 								onChange={ this.onPlanChange }
 							/>
@@ -169,10 +169,10 @@ export const DevCard = React.createClass( {
 					<li>
 						<label>
 						<input
-								type='radio'
-								id='jetpack_business'
-								value='jetpack_business'
-								name='jetpack_business'
+								type="radio"
+								id="jetpack_business"
+								value="jetpack_business"
+								name="jetpack_business"
 								checked={ /jetpack_business*/.test( this.props.sitePlan.product_slug ) }
 								onChange={ this.onPlanChange }
 							/>
@@ -180,15 +180,15 @@ export const DevCard = React.createClass( {
 						</label>
 					</li>
 				</ul>
-				<hr/>
+				<hr />
 				<ul>
 					<li>
 						<label>
 							<input
-								type='radio'
-								id='admin_master'
-								value='admin_master'
-								name='admin_master'
+								type="radio"
+								id="admin_master"
+								value="admin_master"
+								name="admin_master"
 								checked={ this.props.isMaster }
 								onChange={ this.onPermissionsChange }
 							/>
@@ -198,10 +198,10 @@ export const DevCard = React.createClass( {
 					<li>
 						<label>
 							<input
-								type='radio'
-								id='admin_secondary'
-								value='admin_secondary'
-								name='admin_secondary'
+								type="radio"
+								id="admin_secondary"
+								value="admin_secondary"
+								name="admin_secondary"
 								checked={ this.props.isAdmin && ! this.props.isMaster }
 								onChange={ this.onPermissionsChange }
 							/>
@@ -211,10 +211,10 @@ export const DevCard = React.createClass( {
 					<li>
 						<label>
 							<input
-								type='radio'
-								id='editor'
-								value='editor'
-								name='editor'
+								type="radio"
+								id="editor"
+								value="editor"
+								name="editor"
 								checked={ this.props.canEditPosts && ! this.props.isAdmin }
 								onChange={ this.onPermissionsChange }
 							/>
@@ -224,10 +224,10 @@ export const DevCard = React.createClass( {
 					<li>
 						<label>
 							<input
-								type='radio'
-								id='subscriber'
-								value='subscriber'
-								name='subscriber'
+								type="radio"
+								id="subscriber"
+								value="subscriber"
+								name="subscriber"
 								checked={ ! this.props.canEditPosts && ! this.props.isAdmin }
 								onChange={ this.onPermissionsChange }
 							/>
@@ -253,7 +253,7 @@ export default connect(
 			isMaster: userIsMaster( state ),
 			isAdmin: userCanDisconnectSite( state ),
 			canEditPosts: userCanEditPosts( state )
-		}
+		};
 	},
 	( dispatch ) => {
 		return {
