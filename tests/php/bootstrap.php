@@ -50,15 +50,13 @@ function _manually_install_woocommerce() {
 
 	WC_Install::install();
 
-
-	if ( version_compare( $wp_version, '4.7.0!', '>=' ) ) {
+	// reload capabilities after install, see https://core.trac.wordpress.org/ticket/28374
+	if ( version_compare( $wp_version, '4.7.0' ) >= 0 ) {
 		$GLOBALS['wp_roles'] = new WP_Roles();
 	} else {
 		$GLOBALS['wp_roles']->reinit();
 	}
-	// reload capabilities after install, see https://core.trac.wordpress.org/ticket/28374
-	$GLOBALS['wp_roles']->reinit();
-
+	
 	echo "Installing WooCommerce..." . PHP_EOL;
 }
 
