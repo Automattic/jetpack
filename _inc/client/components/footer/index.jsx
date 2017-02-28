@@ -76,7 +76,7 @@ export const Footer = React.createClass( {
 						<a
 							onClick={ this.props.enableDevCard }
 							className="jp-footer__link">
-							{ __( 'Plan preview (dev only)', { context: 'Navigation item.' } ) }
+							{ __( 'Dev Tools', { context: 'Navigation item.' } ) }
 						</a>
 					</li>
 				);

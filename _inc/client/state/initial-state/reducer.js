@@ -2,17 +2,24 @@
  * External dependencies
  */
 import assign from 'lodash/assign';
+import merge from 'lodash/merge';
 import get from 'lodash/get';
 
 /**
  * Internal dependencies
  */
-import { JETPACK_SET_INITIAL_STATE } from 'state/action-types';
+import {
+	JETPACK_SET_INITIAL_STATE,
+	MOCK_SWITCH_USER_PERMISSIONS
+} from 'state/action-types';
 
 export const initialState = ( state = window.Initial_State, action ) => {
 	switch ( action.type ) {
 		case JETPACK_SET_INITIAL_STATE:
 			return assign( {}, state, action.initialState );
+
+		case MOCK_SWITCH_USER_PERMISSIONS:
+			return merge( {}, state, { userData: action.initialState } );
 
 		default:
 			return state;

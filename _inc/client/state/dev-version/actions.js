@@ -10,12 +10,11 @@ import { translate as __ } from 'i18n-calypso';
 import {
 	RESET_OPTIONS,
 	RESET_OPTIONS_FAIL,
-	RESET_OPTIONS_SUCCESS
-} from 'state/action-types';
-import {
+	RESET_OPTIONS_SUCCESS,
 	JETPACK_SITE_DATA_FETCH_RECEIVE,
 	DEV_CARD_DISPLAY,
-	DEV_CARD_HIDE
+	DEV_CARD_HIDE,
+	MOCK_SWITCH_USER_PERMISSIONS
 } from 'state/action-types';
 import restApi from 'rest-api';
 
@@ -63,6 +62,134 @@ export const switchPlanPreview = ( slug ) => {
 		dispatch( {
 			type: JETPACK_SITE_DATA_FETCH_RECEIVE,
 			siteData: { plan: { product_slug: slug } }
+		} );
+	}
+};
+
+const adminMasterPerms = {
+	currentUser: {
+		isMaster: true,
+		permissions: {
+			admin_page: true,
+			connect: true,
+			disconnect: true,
+			edit_posts: true,
+			manage_modules: true,
+			manage_options: true,
+			manage_plugins: true
+		}
+	}
+};
+
+const adminSecondaryPerms = {
+	currentUser: {
+		isMaster: false,
+		permissions: {
+			admin_page: true,
+			connect: true,
+			disconnect: true,
+			edit_posts: true,
+			manage_modules: true,
+			manage_options: true,
+			manage_plugins: true
+		}
+	}
+};
+
+const editorAuthorContributorPerms = {
+	currentUser: {
+		isMaster: false,
+		permissions: {
+			admin_page: true,
+			connect: false,
+			disconnect: false,
+			edit_posts: true,
+			manage_modules: false,
+			manage_options: false,
+			manage_plugins: false
+		}
+	}
+};
+
+const subscriberPerms = {
+	currentUser: {
+		isMaster: false,
+		permissions: {
+			admin_page: true,
+			connect: false,
+			disconnect: false,
+			edit_posts: false,
+			manage_modules: false,
+			manage_options: false,
+			manage_plugins: false
+		}
+	}
+};
+
+const viewStats = {
+	currentUser: {
+		permissions: {
+			view_stats: true
+		}
+	}
+};
+
+const hideStats = {
+	currentUser: {
+		permissions: {
+			view_stats: false
+		}
+	}
+};
+
+const isLinked = {
+	currentUser: {
+		isConnected: true
+	}
+};
+
+const isUnlinked = {
+	currentUser: {
+		isConnected: false
+	}
+};
+
+export const switchUserPermission = ( slug ) => {
+	let userPerms = {};
+
+	return ( dispatch ) => {
+		switch ( slug ) {
+			case 'admin_master':
+				userPerms = adminMasterPerms;
+				break;
+			case 'admin_secondary':
+				userPerms = adminSecondaryPerms;
+				break;
+			case 'editor':
+			case 'contributor':
+			case 'author':
+				userPerms = editorAuthorContributorPerms;
+				break;
+			case 'subscriber':
+				userPerms = subscriberPerms;
+				break;
+			case 'view_stats':
+				userPerms = viewStats;
+				break;
+			case 'hide_stats':
+				userPerms = hideStats;
+				break;
+			case 'is_linked':
+				userPerms = isLinked;
+				break;
+			case 'is_unlinked':
+				userPerms = isUnlinked;
+				break;
+		}
+
+		dispatch( {
+			type: MOCK_SWITCH_USER_PERMISSIONS,
+			initialState: userPerms
 		} );
 	}
 };
