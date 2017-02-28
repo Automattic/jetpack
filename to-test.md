@@ -46,6 +46,8 @@ Once you've done so, create new widgets, apply different visibility rules for ea
 
 We also replaced text labels ("Add" and "Delete") with `×` and `+` icons. Please test these new labels in as many browsers as possible.
 
+You can also test the new option to match all conditions specified for a widget. It allows you to specify multiple rules that all have to be met for the widget to be shown or hidden.
+
 To get started, go to **Appearance > Customize > Widgets** or **Appearance > Widgets** in your dashboard!
 
 ### Final Notes
