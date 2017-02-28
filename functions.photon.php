@@ -142,7 +142,7 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 		// However some source images are served via PHP so check the no-query-string extension.
 		// For future proofing, this is a blacklist of common issues rather than a whitelist.
 		$extension = pathinfo( $image_url_parts['path'], PATHINFO_EXTENSION );
-		if ( empty( $extension ) || in_array( $extension, array( 'php' ) ) )
+		if ( empty( $extension ) || in_array( $extension, array( 'php', 'ashx' ) ) )
 			return $image_url;
 	}
 
