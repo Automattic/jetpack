@@ -139,6 +139,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Twitch.tv shortcode: update to use Twitch's new embedded player. #6338
 * Support: add more information to debug tools to help you get better help from our support team. #6171
 * Synchronization process: add filter to allow customizing sync timeout. #6317
+* Theme Tools: add option to use SVGs in Social Menus. #6096
 * Widgets: add a filter to The Display Posts Widget content, so the content can be customized. #5883
 * Widgets: add a new email field to the Contact Info Widget. #6275
 * Widgets: if Photon is available, use it to serve the image in the Image and the Text widgets. #4220, #6434
