@@ -293,7 +293,7 @@ class WPCOM_Widget_Facebook_LikeBox extends WP_Widget {
 	 */
 	function guess_locale_from_lang( $lang ) {
 		_deprecated_function( __METHOD__, '4.0.0', 'Jetpack::guess_locale_from_lang()' );
-		Jetpack::$instance->get_locale_from_lang( $lang );
+		Jetpack::$instance->guess_locale_from_lang( $lang );
 	}
 
 	/**

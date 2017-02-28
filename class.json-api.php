@@ -587,35 +587,11 @@ class WPCOM_JSON_API {
 		return '';
 	}
 
-	function get_avatar_url( $email, $avatar_size = 96 ) {
-		add_filter( 'pre_option_show_avatars', '__return_true', 999 );
-		$_SERVER['HTTPS'] = 'off';
-
-		$avatar_img_element = get_avatar( $email, $avatar_size, '' );
-
-		if ( !$avatar_img_element || is_wp_error( $avatar_img_element ) ) {
-			$return = '';
-		} elseif ( !preg_match( '#src=([\'"])?(.*?)(?(1)\\1|\s)#', $avatar_img_element, $matches ) ) {
-			$return = '';
-		} else {
-			$return = esc_url_raw( htmlspecialchars_decode( $matches[2] ) );
-		}
-
-		remove_filter( 'pre_option_show_avatars', '__return_true', 999 );
-		if ( '--UNset--' === $this->_server_https ) {
-			unset( $_SERVER['HTTPS'] );
-		} else {
-			$_SERVER['HTTPS'] = $this->_server_https;
-		}
-
-		return $return;
-	}
-
 	/**
 	 * Traps `wp_die()` calls and outputs a JSON response instead.
 	 * The result is always output, never returned.
 	 *
-	 * @param string|null $error_code.  Call with string to start the trapping.  Call with null to stop.
+	 * @param string|null $error_code  Call with string to start the trapping.  Call with null to stop.
 	 */
 	function trap_wp_die( $error_code = null ) {
 		// Stop trapping
