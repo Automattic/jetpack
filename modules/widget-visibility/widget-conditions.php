@@ -169,8 +169,30 @@ class Jetpack_Widget_Conditions {
 		if ( empty( $conditions['rules'] ) )
 			$conditions['rules'][] = array( 'major' => '', 'minor' => '', 'has_children' => '' );
 
+		if ( empty( $conditions['match_all'] ) ) {
+			$conditions['match_all'] = false;
+		}
+
 		?>
-		<div class="widget-conditional <?php if ( empty( $_POST['widget-conditions-visible'] ) || $_POST['widget-conditions-visible'] == '0' ) { ?>widget-conditional-hide<?php } ?>">
+		<div
+			class="
+				widget-conditional
+				<?php
+					if (
+						empty( $_POST['widget-conditions-visible'] )
+						|| $_POST['widget-conditions-visible'] == '0'
+					) {
+						?>widget-conditional-hide<?php
+					}
+				?>
+				<?php
+					if ( ! empty( $conditions['match_all'] ) && $conditions['match_all'] ) {
+						?>intersection<?php
+					} else {
+						?>conjunction<?php
+					}
+				?>
+			">
 			<input type="hidden" name="widget-conditions-visible" value="<?php if ( isset( $_POST['widget-conditions-visible'] ) ) { echo esc_attr( $_POST['widget-conditions-visible'] ); } else { ?>0<?php } ?>" />
 			<?php if ( ! isset( $_POST['widget-conditions-visible'] ) ) { ?><a href="#" class="button display-options"><?php _e( 'Visibility', 'jetpack' ); ?></a><?php } ?>
 			<div class="widget-conditional-inner">
@@ -223,7 +245,12 @@ class Jetpack_Widget_Conditions {
 							</div>
 
 							<div class="condition-control">
-								<span class="condition-conjunction"><?php echo esc_html_x( 'or', 'Shown between widget visibility conditions.', 'jetpack' ); ?></span>
+								<span class="condition-conjunction">
+									<?php echo esc_html_x( 'or', 'Shown between widget visibility conditions.', 'jetpack' ); ?>
+								</span>
+								<span class="condition-intersection">
+									<?php echo esc_html_x( 'and', 'Shown between widget visibility conditions.', 'jetpack' ); ?>
+								</span>
 								<div class="actions alignright">
 									<a href="#" class="delete-condition dashicons dashicons-no"><?php esc_html_e( 'Delete', 'jetpack' ); ?></a><a href="#" class="add-condition dashicons dashicons-plus"><?php esc_html_e( 'Add', 'jetpack' ); ?></a>
 								</div>
@@ -234,6 +261,19 @@ class Jetpack_Widget_Conditions {
 					}
 
 					?>
+				</div><!-- .conditions -->
+				<div class="conditions">
+					<div class="condition-top">
+						<label>
+							<input
+								type="checkbox"
+								name="conditions[match_all]"
+								value="1"
+								class="conditions-match-all"
+								<?php checked( $conditions['match_all'], '1' ); ?> />
+							<?php esc_html_e( 'Match all conditions', 'jetpack' ); ?>
+						</label>
+					</div><!-- .condition-top -->
 				</div><!-- .conditions -->
 			</div><!-- .widget-conditional-inner -->
 		</div><!-- .widget-conditional -->
@@ -254,6 +294,7 @@ class Jetpack_Widget_Conditions {
 
 		$conditions = array();
 		$conditions['action'] = $_POST['conditions']['action'];
+		$conditions['match_all'] = ( isset( $_POST['conditions']['match_all'] ) ? '1' : '0' );
 		$conditions['rules'] = array();
 
 		foreach ( $_POST['conditions']['rules_major'] as $index => $major_rule ) {
@@ -393,6 +434,7 @@ class Jetpack_Widget_Conditions {
 		$condition_result = false;
 
 		foreach ( $instance['conditions']['rules'] as $rule ) {
+			$condition_result = false;
 			$condition_key = self::generate_condition_key( $rule );
 
 			if ( isset( $condition_result_cache[ $condition_key ] ) ) {
@@ -596,12 +638,38 @@ class Jetpack_Widget_Conditions {
 				}
 			}
 
-			if ( $condition_result )
+			if (
+				isset( $instance['conditions']['match_all'] )
+				&& $instance['conditions']['match_all'] == '1'
+				&& ! $condition_result
+			) {
+
+				// In case the match_all flag was set we quit on first failed condition
 				break;
+			} elseif (
+				(
+					empty( $instance['conditions']['match_all'] )
+					|| $instance['conditions']['match_all'] !== '1'
+				)
+				&& $condition_result
+			) {
+
+				// Only quit on first condition if the match_all flag was not set
+				break;
+			}
 		}
 
-		if ( ( 'show' == $instance['conditions']['action'] && ! $condition_result ) || ( 'hide' == $instance['conditions']['action'] && $condition_result ) )
+		if (
+			(
+				'show' == $instance['conditions']['action']
+				&& ! $condition_result
+			) || (
+				'hide' == $instance['conditions']['action']
+				&& $condition_result
+			)
+		) {
 			return false;
+		}
 
 		return $instance;
 	}
