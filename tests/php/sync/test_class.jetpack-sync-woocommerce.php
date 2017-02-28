@@ -105,7 +105,7 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 		$order->payment_complete( '12345' );
 		
 		// just for fun
-		$this->assertEquals( 'processing', $order->get_status() );
+		$this->assertEquals( 'completed', $order->get_status() );
 		$this->assertEquals( '12345', $order->get_transaction_id() );
 
 		$this->sender->do_sync();
