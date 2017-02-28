@@ -1140,6 +1140,7 @@ new Jetpack_JSON_API_Get_Post_Backup_Endpoint( array(
 	'method'         => 'GET',
 	'path'           => '/sites/%s/posts/%d/backup',
 	'stat'           => 'posts:1:backup',
+	'allow_jetpack_site_auth' => true,
 	'path_labels'    => array(
 		'$site' => '(int|string) The site ID, The site domain',
 		'$post' => '(int) The post ID',

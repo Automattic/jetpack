@@ -37,20 +37,14 @@ class WordAds_Sidebar_Widget extends WP_Widget {
 
 		$snippet = '';
 		if ( $wordads->option( 'wordads_house', true ) ) {
-			$ad_url = 'https://s0.wp.com/wp-content/blog-plugins/wordads/house/';
+			$unit = 'mrec';
 			if ( 'leaderboard' == $instance['unit'] && ! $this->params->mobile_device ) {
-				$ad_url .= 'leaderboard.png';
+				$unit = 'leaderboard';
 			} else if ( 'wideskyscraper' == $instance['unit'] ) {
-				$ad_url .= 'widesky.png';
-			} else {
-				$ad_url .= 'mrec.png';
+				$unit = 'widesky';
 			}
 
-			$snippet = <<<HTML
-			<a href="https://wordpress.com/create/" target="_blank">
-				<img src="$ad_url" alt="WordPress.com: Grow Your Business" width="$width" height="$height" />
-			</a>
-HTML;
+			$snippet = $wordads->get_house_ad( $unit );
 		} else {
 			$section_id = 0 === $wordads->params->blog_id ? WORDADS_API_TEST_ID : $wordads->params->blog_id . '3';
 			$data_tags = ( $wordads->params->cloudflare ) ? ' data-cfasync="false"' : '';
@@ -64,7 +58,7 @@ HTML;
 		echo <<< HTML
 		<div class="wpcnt">
 			<div class="wpa">
-				<a class="wpa-about" href="https://en.wordpress.com/about-these-ads/" rel="nofollow">$about</a>
+				<span class="wpa-about">$about</span>
 				<div class="u {$instance['unit']}">
 					$snippet
 				</div>
