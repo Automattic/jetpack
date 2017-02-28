@@ -8,7 +8,7 @@
  * Requires Connection: Yes
  * Auto Activate: No
  * Module Tags: General
- * Additional Search Queries: adminbar
+ * Additional Search Queries: adminbar, masterbar
  */
 
 include dirname( __FILE__ ) . '/masterbar/masterbar.php';

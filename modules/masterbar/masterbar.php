@@ -25,6 +25,7 @@ class A8C_WPCOM_Masterbar {
 		$this->user_login = $this->user_data['login'];
 		$this->display_name = $this->user_data['display_name'];
 		$this->primary_site_slug = $this->get_site_slug();
+		// We need to use user's setting here, instead of relying on current blog's text direction
 		$this->user_text_direction = $this->user_data['text_direction'];
 
 		if ( $this->is_rtl() ) {
@@ -43,7 +44,7 @@ class A8C_WPCOM_Masterbar {
 		add_action( 'admin_enqueue_scripts', array( $this, 'remove_core_styles' ) );
 
 		if ( Jetpack::is_module_active( 'notes' ) && $this->is_rtl() ) {
-			// Make sure we enqueue RTL styles in Notifications module
+			// Override Notification module to include RTL styles
 			add_action( 'enqueue_rtl_notification_styles', '__return_true' );
 		}
 	}
@@ -105,8 +106,6 @@ class A8C_WPCOM_Masterbar {
 
 	// Remove all existing toolbar entries from core Masterbar
 	public function clear_core_masterbar( $wp_admin_bar ) {
-		global $wp_admin_bar;
-
 		foreach ( $wp_admin_bar->get_nodes() as $node ) {
 			$wp_admin_bar->remove_node( $node->id );
 		}
@@ -173,14 +172,14 @@ class A8C_WPCOM_Masterbar {
 	public function add_reader_submenu( $wp_admin_bar ) {
 		$wp_admin_bar->add_menu( array(
 			'id'    => 'newdash',
-			'title' => __( 'Reader' ),
+			'title' => __( 'Reader', 'jetpack' ),
 			'href'  => 'https://wordpress.com/',
 		) );
 
 		$wp_admin_bar->add_menu( array(
 			'parent' => 'newdash',
 			'id'     => 'streams-header',
-			'title'  => __( 'Streams' ),
+			'title'  => __( 'Streams', 'jetpack' ),
 			'meta'   => array(
 				'class' => 'ab-submenu-header',
 			)
@@ -190,12 +189,12 @@ class A8C_WPCOM_Masterbar {
 			array(
 				'url'   => 'https://wordpress.com/',
 				'id'    => 'wp-admin-bar-followed-sites',
-				'label' => __( 'Followed Sites' ),
+				'label' => __( 'Followed Sites', 'jetpack' ),
 			),
 			array(
 				'url'   => 'https://wordpress.com/following/edit',
 				'id'    => 'wp-admin-bar-reader-followed-sites-manage',
-				'label' => __( 'Manage' ),
+				'label' => __( 'Manage', 'jetpack' ),
 			)
 		);
 
@@ -209,7 +208,7 @@ class A8C_WPCOM_Masterbar {
 		$wp_admin_bar->add_menu( array(
 			'parent' => 'newdash',
 			'id'     => 'discover-discover',
-			'title'  => __( 'Discover' ),
+			'title'  => __( 'Discover', 'jetpack' ),
 			'href'   => 'https://wordpress.com/discover',
 			'meta'   => array(
 				'class' => 'mb-icon-spacer',
@@ -219,7 +218,7 @@ class A8C_WPCOM_Masterbar {
 		$wp_admin_bar->add_menu( array(
 			'parent' => 'newdash',
 			'id'     => 'discover-search',
-			'title'  => __( 'Search' ),
+			'title'  => __( 'Search', 'jetpack' ),
 			'href'   => 'https://wordpress.com/read/search',
 			'meta'   => array(
 				'class' => 'mb-icon-spacer',
@@ -229,7 +228,7 @@ class A8C_WPCOM_Masterbar {
 		$wp_admin_bar->add_menu( array(
 			'parent' => 'newdash',
 			'id'     => 'discover-recommended-blogs',
-			'title'  => __( 'Recommendations' ),
+			'title'  => __( 'Recommendations', 'jetpack' ),
 			'href'   => 'https://wordpress.com/recommendations',
 			'meta'   => array(
 				'class' => 'mb-icon-spacer',
@@ -239,7 +238,7 @@ class A8C_WPCOM_Masterbar {
 		$wp_admin_bar->add_menu( array(
 			'parent' => 'newdash',
 			'id'     => 'my-activity-my-likes',
-			'title'  => __( 'My Likes' ),
+			'title'  => __( 'My Likes', 'jetpack' ),
 			'href'   => 'https://wordpress.com/activities/likes',
 			'meta'   => array(
 				'class' => 'mb-icon-spacer',
@@ -293,7 +292,7 @@ class A8C_WPCOM_Masterbar {
 		$wp_admin_bar->add_menu( array(
 			'id'     => 'my-account',
 			'parent' => 'top-secondary',
-			'title'  => $avatar . '<span class="ab-text">' . __( 'Me' ) . '</span>',
+			'title'  => $avatar . '<span class="ab-text">' . __( 'Me', 'jetpack' ) . '</span>',
 			'href'   => 'https://wordpress.com/me/',
 			'meta'   => array(
 				'class' => $class,
@@ -313,7 +312,7 @@ class A8C_WPCOM_Masterbar {
 		$user_info  = get_avatar( $user_id, 128, 'mm', '', array( 'force_display' => true ) );
 		$user_info .= '<span class="display-name">' . $this->display_name . '</span>';
 		$user_info .= '<a class="username" href="http://gravatar.com/' . $this->user_login . '">@' . $this->user_login . '</a>';
-		$user_info .= '<form action="' . $logout_url . '" method="post"><button class="ab-sign-out" type="submit">' . __( 'Sign Out' ) . '</button></form>';
+		$user_info .= '<form action="' . $logout_url . '" method="post"><button class="ab-sign-out" type="submit">' . __( 'Sign Out', 'jetpack' ) . '</button></form>';
 
 		$wp_admin_bar->add_menu( array(
 			'parent' => $id,
@@ -328,7 +327,7 @@ class A8C_WPCOM_Masterbar {
 		$wp_admin_bar->add_menu( array(
 			'parent' => $id,
 			'id'     => 'profile-header',
-			'title'  => __( 'Profile' ),
+			'title'  => __( 'Profile', 'jetpack' ),
 			'meta'   => array(
 				'class' => 'ab-submenu-header',
 			),
@@ -337,7 +336,7 @@ class A8C_WPCOM_Masterbar {
 		$wp_admin_bar->add_menu( array(
 			'parent' => $id,
 			'id'     => 'my-profile',
-			'title'  => __( 'My Profile' ),
+			'title'  => __( 'My Profile', 'jetpack' ),
 			'href'   => 'https://wordpress.com/me',
 			'meta'   => array(
 				'class' => 'mb-icon',
@@ -347,7 +346,7 @@ class A8C_WPCOM_Masterbar {
 		$wp_admin_bar->add_menu( array(
 			'parent' => $id,
 			'id'     => 'account-settings',
-			'title'  => __( 'Account Settings' ),
+			'title'  => __( 'Account Settings', 'jetpack' ),
 			'href'   => $settings_url,
 			'meta'   => array(
 				'class' => 'mb-icon',
@@ -357,7 +356,7 @@ class A8C_WPCOM_Masterbar {
 		$wp_admin_bar->add_menu( array(
 			'parent' => $id,
 			'id'     => 'billing',
-			'title'  => __( 'Manage Purchases' ),
+			'title'  => __( 'Manage Purchases', 'jetpack' ),
 			'href'   => 'https://wordpress.com/me/purchases',
 			'meta'   => array(
 				'class' => 'mb-icon',
@@ -367,7 +366,7 @@ class A8C_WPCOM_Masterbar {
 		$wp_admin_bar->add_menu( array(
 			'parent' => $id,
 			'id'     => 'security',
-			'title'  => __( 'Security' ),
+			'title'  => __( 'Security', 'jetpack' ),
 			'href'   => 'https://wordpress.com/me/security',
 			'meta'   => array(
 				'class' => 'mb-icon',
@@ -377,7 +376,7 @@ class A8C_WPCOM_Masterbar {
 		$wp_admin_bar->add_menu( array(
 			'parent' => $id,
 			'id'     => 'notifications',
-			'title'  => __( 'Notifications' ),
+			'title'  => __( 'Notifications', 'jetpack' ),
 			'href'   => 'https://wordpress.com/me/notifications',
 			'meta'   => array(
 				'class' => 'mb-icon',
@@ -387,7 +386,7 @@ class A8C_WPCOM_Masterbar {
 		$wp_admin_bar->add_menu( array(
 			'parent' => $id,
 			'id'     => 'special-header',
-			'title'  => __( 'Special' ),
+			'title'  => __( 'Special', 'jetpack' ),
 			'meta'   => array(
 				'class' => 'ab-submenu-header',
 			),
@@ -396,7 +395,7 @@ class A8C_WPCOM_Masterbar {
 		$wp_admin_bar->add_menu( array(
 			'parent' => $id,
 			'id'     => 'get-apps',
-			'title'  => __( 'Get Apps' ),
+			'title'  => __( 'Get Apps', 'jetpack' ),
 			'href'   => 'https://wordpress.com/me/get-apps',
 			'meta'   => array(
 				'class' => 'user-info-item',
@@ -409,7 +408,7 @@ class A8C_WPCOM_Masterbar {
 		$wp_admin_bar->add_menu( array(
 			'parent' => $id,
 			'id'     => 'next-steps',
-			'title'  => __( 'Next Steps' ),
+			'title'  => __( 'Next Steps', 'jetpack' ),
 			'href'   => 'https://wordpress.com/me/next',
 			'meta'   => array(
 				'class' => 'user-info-item',
@@ -422,7 +421,7 @@ class A8C_WPCOM_Masterbar {
 		$wp_admin_bar->add_menu( array(
 			'parent' => $id,
 			'id'     => 'help',
-			'title'  => __( 'Help' ),
+			'title'  => __( 'Help', 'jetpack' ),
 			'href'   => 'https://wordpress.com/help',
 			'meta'   => array(
 				'class' => 'user-info-item',
@@ -454,7 +453,7 @@ class A8C_WPCOM_Masterbar {
 			'parent'    => 'top-secondary',
 			'id' => 'ab-new-post',
 			'href' => $blog_post_page,
-			'title' => '<span>' . __( 'Write' ) . '</span>',
+			'title' => '<span>' . __( 'Write', 'jetpack' ) . '</span>',
 		) );
 	}
 
@@ -472,7 +471,7 @@ class A8C_WPCOM_Masterbar {
 
 		$wp_admin_bar->add_menu( array(
 			'id'    => 'blog',
-			'title' => __( 'My Sites' ),
+			'title' => __( 'My Sites', 'jetpack' ),
 			'href'  => 'https://wordpress.com/stats/' . esc_attr( $this->primary_site_slug ),
 			'meta'  => array(
 				'class' => 'my-sites',
@@ -482,7 +481,7 @@ class A8C_WPCOM_Masterbar {
 		$wp_admin_bar->add_menu( array(
 			'parent' => 'blog',
 			'id'     => 'switch-site',
-			'title'  => __( 'Switch Site' ),
+			'title'  => __( 'Switch Site', 'jetpack' ),
 			'href'   => 'https://wordpress.com/sites',
 		) );
 
@@ -517,7 +516,7 @@ class A8C_WPCOM_Masterbar {
 		$wp_admin_bar->add_menu( array(
 			'parent' => 'blog',
 			'id'     => 'blog-stats',
-			'title'  => __( 'Stats' ),
+			'title'  => __( 'Stats', 'jetpack' ),
 			'href'   => 'https://wordpress.com/stats/' . esc_attr( $this->primary_site_slug ),
 			'meta'   => array(
 				'class' => 'mb-icon',
@@ -527,7 +526,7 @@ class A8C_WPCOM_Masterbar {
 		// Add Calypso plans link and plan type indicator
 		if ( is_user_member_of_blog( $current_user->ID ) ) {
 			$plans_url = 'https://wordpress.com/plans/' . esc_attr( $this->primary_site_slug );
-			$label = __( 'Plan' );
+			$label = __( 'Plan', 'jetpack' );
 			$plan = Jetpack::get_active_plan();
 
 			$plan_title = $this->create_menu_item_pair(
@@ -563,7 +562,7 @@ class A8C_WPCOM_Masterbar {
 		$wp_admin_bar->add_menu( array(
 			'parent' => 'publish',
 			'id'     => 'publish-header',
-			'title'  => _x( 'Publish', 'admin bar menu group label' ),
+			'title'  => _x( 'Publish', 'admin bar menu group label', 'jetpack' ),
 			'meta'   => array(
 				'class' => 'ab-submenu-header',
 			),
@@ -574,12 +573,12 @@ class A8C_WPCOM_Masterbar {
 			array(
 				'url'   => 'https://wordpress.com/posts/' . esc_attr( $this->primary_site_slug ),
 				'id'    => 'wp-admin-bar-edit-post',
-				'label' => __( 'Blog Posts' ),
+				'label' => __( 'Blog Posts', 'jetpack' ),
 			),
 			array(
 				'url'   => 'https://wordpress.com/post/' . esc_attr( $this->primary_site_slug ),
 				'id'    => 'wp-admin-bar-new-post',
-				'label' => _x( 'Add', 'admin bar menu new item label' ),
+				'label' => _x( 'Add', 'admin bar menu new item label', 'jetpack' ),
 			)
 		);
 
@@ -597,12 +596,12 @@ class A8C_WPCOM_Masterbar {
 			array(
 				'url'   => 'https://wordpress.com/pages/' . esc_attr( $this->primary_site_slug ),
 				'id'    => 'wp-admin-bar-edit-page',
-				'label' => __( 'Pages' ),
+				'label' => __( 'Pages', 'jetpack' ),
 			),
 			array(
 				'url'   => 'https://wordpress.com/page/' . esc_attr( $this->primary_site_slug ),
 				'id'    => 'wp-admin-bar-new-page',
-				'label' => _x( 'Add', 'admin bar menu new item label' ),
+				'label' => _x( 'Add', 'admin bar menu new item label', 'jetpack' ),
 			)
 		);
 
@@ -620,12 +619,12 @@ class A8C_WPCOM_Masterbar {
 			array(
 				'url'   => 'https://wordpress.com/types/jetpack-portfolio/' . esc_attr( $this->primary_site_slug ),
 				'id'    => 'wp-admin-bar-edit-portfolio',
-				'label' => __( 'Portfolio' ),
+				'label' => __( 'Portfolio', 'jetpack' ),
 			),
 			array(
 				'url'   => 'https://wordpress.com/edit/jetpack-portfolio/' . esc_attr( $this->primary_site_slug ),
 				'id'    => 'wp-admin-bar-new-portfolio',
-				'label' => _x( 'Add', 'admin bar menu new item label' ),
+				'label' => _x( 'Add', 'admin bar menu new item label', 'jetpack' ),
 			)
 		);
 
@@ -649,7 +648,7 @@ class A8C_WPCOM_Masterbar {
 			$wp_admin_bar->add_menu( array(
 				'parent' => 'look-and-feel',
 				'id'     => 'look-and-feel-header',
-				'title'  => _x( 'Personalize', 'admin bar menu group label' ),
+				'title'  => _x( 'Personalize', 'admin bar menu group label', 'jetpack' ),
 				'meta'   => array(
 					'class' => 'ab-submenu-header',
 				),
@@ -670,12 +669,12 @@ class A8C_WPCOM_Masterbar {
 				array(
 					'url'   => 'https://wordpress.com/design/' . esc_attr( $this->primary_site_slug ),
 					'id'    => 'wp-admin-bar-themes',
-					'label' => __( 'Themes' ),
+					'label' => __( 'Themes', 'jetpack' ),
 				),
 				array(
 					'url'   => $customizer_url,
 					'id'    => 'wp-admin-bar-cmz',
-					'label' => _x( 'Customize', 'admin bar customize item label' ),
+					'label' => _x( 'Customize', 'admin bar customize item label', 'jetpack' ),
 				)
 			);
 			$meta = array( 'class' => 'mb-icon', 'class' => 'inline-action' );
@@ -693,7 +692,7 @@ class A8C_WPCOM_Masterbar {
 				$wp_admin_bar->add_menu( array(
 					'parent' => 'look-and-feel',
 					'id'     => 'menus',
-					'title'  => __( 'Menus' ),
+					'title'  => __( 'Menus', 'jetpack' ),
 					'href'   => 'https://wordpress.com/menus/' . esc_attr( $this->primary_site_slug ),
 					'meta' => array(
 						'class' => 'mb-icon',
@@ -713,7 +712,7 @@ class A8C_WPCOM_Masterbar {
 			$wp_admin_bar->add_menu( array(
 				'parent' => 'configuration',
 				'id'     => 'configuration-header',
-				'title'  => __( 'Configure', 'admin bar menu group label' ),
+				'title'  => __( 'Configure', 'admin bar menu group label', 'jetpack' ),
 				'meta'   => array(
 					'class' => 'ab-submenu-header',
 				),
@@ -722,7 +721,7 @@ class A8C_WPCOM_Masterbar {
 			$wp_admin_bar->add_menu( array(
 				'parent' => 'configuration',
 				'id'     => 'sharing',
-				'title'  => __( 'Sharing' ),
+				'title'  => __( 'Sharing', 'jetpack' ),
 				'href'   => 'https://wordpress.com/sharing/' . esc_attr( $this->primary_site_slug ),
 				'meta'   => array(
 					'class' => 'mb-icon',
@@ -733,12 +732,12 @@ class A8C_WPCOM_Masterbar {
 				array(
 					'url'   => 'https://wordpress.com/people/team/' . esc_attr( $this->primary_site_slug ),
 					'id'    => 'wp-admin-bar-people',
-					'label' => __( 'People' ),
+					'label' => __( 'People', 'jetpack' ),
 				),
 				array(
 					'url'   => '//' . esc_attr( $this->primary_site_slug ) . '/wp-admin/user-new.php',
 					'id'    => 'wp-admin-bar-people-add',
-					'label' => _x( 'Add', 'admin bar people item label' ),
+					'label' => _x( 'Add', 'admin bar people item label', 'jetpack' ),
 				)
 			);
 
@@ -756,12 +755,12 @@ class A8C_WPCOM_Masterbar {
 				array(
 					'url'   => 'https://wordpress.com/plugins/' . esc_attr( $this->primary_site_slug ),
 					'id'    => 'wp-admin-bar-plugins',
-					'label' => __( 'Plugins' ),
+					'label' => __( 'Plugins', 'jetpack' ),
 				),
 				array(
 					'url'   => 'https://wordpress.com/plugins/browse/' . esc_attr( $this->primary_site_slug ),
 					'id'    => 'wp-admin-bar-plugins-add',
-					'label' => _x( 'Add', 'Label for the button on the Masterbar to add a new plugin' ),
+					'label' => _x( 'Add', 'Label for the button on the Masterbar to add a new plugin', 'jetpack' ),
 				)
 			);
 
@@ -779,12 +778,12 @@ class A8C_WPCOM_Masterbar {
 				array(
 					'url'   => 'https://wordpress.com/domains/' . esc_attr( $this->primary_site_slug ),
 					'id'    => 'wp-admin-bar-domains',
-					'label' => __( 'Domains' ),
+					'label' => __( 'Domains', 'jetpack' ),
 				),
 				array(
 					'url'   => 'https://wordpress.com/domains/add/' . esc_attr( $this->primary_site_slug ),
 					'id'    => 'wp-admin-bar-domains-add',
-					'label' => _x( 'Add', 'Label for the button on the Masterbar to add a new domain' ),
+					'label' => _x( 'Add', 'Label for the button on the Masterbar to add a new domain', 'jetpack' ),
 				)
 			);
 
@@ -801,7 +800,7 @@ class A8C_WPCOM_Masterbar {
 			$wp_admin_bar->add_menu( array(
 				'parent' => 'configuration',
 				'id'     => 'blog-settings',
-				'title'  => __( 'Settings' ),
+				'title'  => __( 'Settings', 'jetpack' ),
 				'href'   => 'https://wordpress.com/settings/general/' . esc_attr( $this->primary_site_slug ),
 				'meta'   => array(
 					'class' => 'mb-icon',
@@ -811,7 +810,7 @@ class A8C_WPCOM_Masterbar {
 			$wp_admin_bar->add_menu( array(
 				'parent' => 'configuration',
 				'id'     => 'legacy-dashboard',
-				'title'  => __( 'WP Admin' ),
+				'title'  => __( 'WP Admin', 'jetpack' ),
 				'href'   => '//' . esc_attr( $this->primary_site_slug ) . '/wp-admin/',
 				'meta'   => array(
 					'class' => 'mb-icon',
