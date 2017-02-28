@@ -104,13 +104,13 @@ class Jetpack_Frame_Nonce_Preview {
 
 	/**
 	 * Handle validation for autosave preview request
-         *
+	 *
 	 * @since 4.7.0
-         *
+	 *
 	 */
 	public function handle_autosave_nonce_validation() {
 		if ( ! $this->is_frame_nonce_valid() ) {
-			wp_die( __( 'Sorry, you are not allowed to preview drafts.' ) );
+			wp_die( __( 'Sorry, you are not allowed to preview drafts.', 'jetpack' ) );
 		}
 		add_filter( 'the_preview', '_set_preview' );
 	}
