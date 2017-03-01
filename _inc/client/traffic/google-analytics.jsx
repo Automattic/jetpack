@@ -3,7 +3,7 @@
  */
 import React from 'react';
 import { translate as __ } from 'i18n-calypso';
-import ExternalLink from 'components/external-link';
+import Card from 'components/card';
 
 /**
  * Internal dependencies
@@ -36,14 +36,12 @@ export const GoogleAnalytics = moduleSettingsForm(
 								}
 							) }
 						</p>
-						{
-							! this.props.isUnavailableInDevMode( 'google-analytics' ) && (
-								<span>
-									<ExternalLink className="jp-module-settings__external-link" href={ this.props.configureUrl }>{ __( 'Configure Google Analytics settings.' ) }</ExternalLink>
-								</span>
-							)
-						}
 					</SettingsGroup>
+					{
+						! this.props.isUnavailableInDevMode( 'google-analytics' ) && (
+							<Card className="jp-settings-card__configure-link" href={ this.props.configureUrl }>{ __( 'Configure Google Analytics settings.' ) }</Card>
+						)
+					}
 				</SettingsCard>
 			);
 		}
