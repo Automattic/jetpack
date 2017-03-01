@@ -84,6 +84,45 @@ class iCalendarReader {
 		return $vcal['VEVENT'];
 	}
 
+	function apply_timezone_offset( $events ) {
+		if ( ! $events ) {
+			return $events;
+		}
+
+		// get timezone offset from the timezone name.
+		$timezone_name = get_option( 'timezone_string' );
+		if ( $timezone_name ) {
+			$timezone = new DateTimeZone( $timezone_name );
+			$offset = $timezone->getOffset( new DateTime( 'now', new DateTimeZone( 'UTC' ) ) );
+		} else {
+			// fallback - gmt_offset option
+			$offset = get_option( 'gmt_offset' ) * HOUR_IN_SECONDS;
+		}
+
+		// generate a DateInterval object from the timezone offset
+		$interval_string = sprintf( '%d minutes', $offset / MINUTE_IN_SECONDS );
+		$interval = date_interval_create_from_date_string( $interval_string );
+
+		$offsetted_events = array();
+
+		foreach ( $events as $event ) {
+			// Don't handle all-day events
+			if ( 8 < strlen( $event['DTSTART'] ) ) {
+				$start_time = new DateTime( $event['DTSTART'] );
+				$start_time->add( $interval );
+				$end_time = new DateTime( $event['DTEND'] );
+				$end_time->add( $interval );
+
+				$event['DTSTART'] = $start_time->format( 'YmdHis\Z' );
+				$event['DTEND'] = $end_time->format( 'YmdHis\Z' );
+			}
+
+			$offsetted_events[] = $event;
+		}
+
+		return $offsetted_events;
+	}
+
 	protected function filter_past_and_recurring_events( $events ) {
 		$upcoming = array();
 		$set_recurring_events = array();
@@ -710,6 +749,7 @@ class iCalendarReader {
 		) );
 
 		$events = $this->get_events( $url, $args['number'] );
+		$events = $this->apply_timezone_offset( $events );
 
 		if ( empty( $events ) )
 			return false;
