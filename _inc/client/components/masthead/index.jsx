@@ -39,9 +39,7 @@ export const Masthead = React.createClass( {
 						</a>
 						{ devNotice }
 					</div>
-
-					<ul className="jp-masthead__links">
-						<li className="jp-masthead__link-li">
+					<div className="jp-masthead__nav">
 							<ButtonGroup>
 								<Button
 									compact={ true }
@@ -58,8 +56,7 @@ export const Masthead = React.createClass( {
 									{ __( 'Settings' ) }
 								</Button>
 							</ButtonGroup>
-						</li>
-					</ul>
+					</div>
 				</div>
 			</div>
 		)
