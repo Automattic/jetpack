@@ -31,7 +31,7 @@ export const Traffic = React.createClass( {
 			isUnavailableInDevMode: this.props.isUnavailableInDevMode
 		};
 
-		let found = {
+		const found = {
 			seo: this.props.isModuleFound( 'seo-tools' ),
 			ads: this.props.isModuleFound( 'wordads' ),
 			stats: this.props.isModuleFound( 'stats' ),
@@ -57,24 +57,24 @@ export const Traffic = React.createClass( {
 			return null;
 		}
 
-		let seoSettings = (
+		const seoSettings = (
 			<SEO
 				{ ...commonProps }
 				configureUrl={ 'https://wordpress.com/settings/seo/' + this.props.siteRawUrl }
 			/>
 		);
-		let adSettings = (
+		const adSettings = (
 			<Ads
 				{ ...commonProps }
 				configureUrl={ 'https://wordpress.com/ads/earnings/' + this.props.siteRawUrl }
 			/>
 		);
-		let statsSettings = (
+		const statsSettings = (
 			<SiteStats
 				{ ...commonProps }
 			/>
 		);
-		let relatedPostsSettings = (
+		const relatedPostsSettings = (
 			<RelatedPosts
 				{ ...commonProps }
 				configureUrl={ this.props.siteAdminUrl +
@@ -83,7 +83,7 @@ export const Traffic = React.createClass( {
 					'&url=' + encodeURIComponent( this.props.lastPostUrl ) }
 			/>
 		);
-		let verificationSettings = (
+		const verificationSettings = (
 			<VerificationServices
 				{ ...commonProps }
 			/>
@@ -118,6 +118,6 @@ export default connect(
 			isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name ),
 			isModuleFound: ( module_name ) => _isModuleFound( state, module_name ),
 			lastPostUrl: getLastPostUrl( state )
-		}
+		};
 	}
 )( Traffic );
