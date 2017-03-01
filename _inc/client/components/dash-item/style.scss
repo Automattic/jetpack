@@ -43,13 +43,13 @@
 	}
 
 	.dops-section-header__label {
-		color: darken( $gray, 20% );
+		color: $gray-text-min;
 	}
 
 	&.is-working,
 	&.is-premium-inactive {
 		.dops-section-header__actions {
-			color: lighten( $gray, 20% );
+			color: $gray-text-min;
 		}
 	}
 }
