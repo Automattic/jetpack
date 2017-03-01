@@ -39,7 +39,7 @@ export const GoogleAnalytics = moduleSettingsForm(
 					</SettingsGroup>
 					{
 						! this.props.isUnavailableInDevMode( 'google-analytics' ) && (
-							<Card className="jp-settings-card__configure-link" href={ this.props.configureUrl }>{ __( 'Configure Google Analytics settings.' ) }</Card>
+							<Card compact className="jp-settings-card__configure-link" href={ this.props.configureUrl }>{ __( 'Configure Google Analytics settings.' ) }</Card>
 						)
 					}
 				</SettingsCard>
