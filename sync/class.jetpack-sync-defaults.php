@@ -169,6 +169,8 @@ class Jetpack_Sync_Defaults {
 		'bwg_gallery',
 		'bwg_album',
 		'idx_page',
+		'postman_sent_mail',
+		'rssmi_feed_item',
 	);
 
 	static $default_post_checksum_columns = array(

@@ -281,6 +281,7 @@ __( "Require accounts to use WordPress.com Two-Step Authentication", "jetpack" )
 __( "Match accounts using email addresses", "jetpack" ), // _inc/client/security/sso.jsx:78
 _x( "WordPress.com log in", "Settings header", "jetpack" ), // _inc/client/security/sso.jsx:54
 __( "In \"Upgrade\"", "jetpack" ), // _inc/client/traffic/related-posts.jsx:127
+__( "One-click threat resolution", "jetpack" ), // _inc/client/plans/plan-body.jsx:281
 __( "Upgrade Focus: VideoPress For Weddings", "jetpack" ), // _inc/client/traffic/related-posts.jsx:126
 __( "In \"Mobile\"", "jetpack" ), // _inc/client/traffic/related-posts.jsx:122
 __( "The WordPress for Android App Gets a Big Facelift", "jetpack" ), // _inc/client/traffic/related-posts.jsx:121
@@ -329,6 +330,7 @@ __( "English Options", "jetpack" ), // _inc/client/writing/composing.jsx:108
 __( "Use automatically detected language to proofread posts and pages", "jetpack" ), // _inc/client/writing/composing.jsx:103
 __( "The proofreader supports English, French, German, Portuguese and Spanish.", "jetpack" ), // _inc/client/writing/composing.jsx:98
 __( "Automatic Language Detection", "jetpack" ), // _inc/client/writing/composing.jsx:95
+__( "Image of WordPress login screen protected by Jetpack", "jetpack" ), // _inc/client/plans/plan-header.jsx:42
 __( "A post or page is updated", "jetpack" ), // _inc/client/writing/composing.jsx:92
 __( "A post or page is first published", "jetpack" ), // _inc/client/writing/composing.jsx:91
 __( "Automatically proofread content when: ", "jetpack" ), // _inc/client/writing/composing.jsx:89
