@@ -37,7 +37,7 @@ export const GoogleAnalytics = moduleSettingsForm(
 							) }
 						</p>
 						{
-							! this.props.isUnavailableInDevMode( 'seo-tools' ) && (
+							! this.props.isUnavailableInDevMode( 'google-analytics' ) && (
 								<span>
 									<ExternalLink className="jp-module-settings__external-link" href={ this.props.configureUrl }>{ __( 'Configure Google Analytics settings.' ) }</ExternalLink>
 								</span>

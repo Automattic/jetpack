@@ -14,6 +14,7 @@ import {
 	FEATURE_SECURITY_SCANNING_JETPACK,
 	FEATURE_SEO_TOOLS_JETPACK,
 	FEATURE_VIDEO_HOSTING_JETPACK,
+	FEATURE_GOOGLE_ANALYTICS_JETPACK,
 	getPlanClass
 } from 'lib/plans/constants';
 import { getSiteRawUrl } from 'state/initial-state';
@@ -98,6 +99,7 @@ export const SettingsCard = props => {
 				);
 
 			case FEATURE_SEO_TOOLS_JETPACK:
+			case FEATURE_GOOGLE_ANALYTICS_JETPACK:
 				if ( 'is-business-plan' === planClass ) {
 					return '';
 				}

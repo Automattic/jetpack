@@ -91,6 +91,7 @@ export const Traffic = React.createClass( {
 		const googleAnalyticsSettings = (
 			<GoogleAnalytics
 				{ ...commonProps }
+				configureUrl={ 'https://wordpress.com/settings/analytics/' + this.props.siteRawUrl }
 			/>
 		);
 
