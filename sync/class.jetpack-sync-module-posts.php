@@ -238,36 +238,30 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		}
 
 		if ( ! empty( $this->just_published ) && in_array( $post_ID, $this->just_published ) ) {
-			$published = array_reverse( array_unique( $this->just_published ) );
-			
-			// Pre 4.7 WP does not have run though send_published for every save_published call
-			// So lets clear out any just_published that we recorded 
-			foreach ( $published as $just_published_post_ID ) {
-				if ( $post_ID !== $just_published_post_ID ) {
-					$post = get_post( $just_published_post_ID );
-				}
 
-				/**
-				 * Filter that is used to add to the post flags ( meta data ) when a post gets published
-				 *
-				 * @since 4.4.0
-				 *
-				 * @param mixed array post flags that are added to the post
-				 * @param mixed $post WP_POST object
-				 */
-				$flags = apply_filters( 'jetpack_published_post_flags', array(), $post );
+			$post = get_post( $post_ID );
 
-				/**
-				 * Action that gets synced when a post type gets published.
-				 *
-				 * @since 4.4.0
-				 *
-				 * @param int post_id
-				 * @param mixed array post flags that are added to the post
-				 */
-				do_action( 'jetpack_published_post', $just_published_post_ID, $flags );
-			}
-			$this->just_published = array();
+			/**
+			 * Filter that is used to add to the post flags ( meta data ) when a post gets published
+			 *
+			 * @since 4.4.0
+			 *
+			 * @param mixed array post flags that are added to the post
+			 * @param mixed $post WP_POST object
+			 */
+			$flags = apply_filters( 'jetpack_published_post_flags', array(), $post );
+
+			/**
+			 * Action that gets synced when a post type gets published.
+			 *
+			 * @since 4.4.0
+			 *
+			 * @param int post_id
+			 * @param mixed array post flags that are added to the post
+			 */
+			do_action( 'jetpack_published_post', $post_ID, $flags );
+
+			$this->just_published = array_diff( $this->just_published, array( $post_ID ) );
 		}
 	}
 
