@@ -259,3 +259,12 @@ function wpcomsh_add_wpcom_suffix_to_theme_endpoint_response( $formatted_theme )
 	return $formatted_theme;
 }
 add_filter( 'jetpack_format_theme_details', 'wpcomsh_add_wpcom_suffix_to_theme_endpoint_response' );
+
+function wpcomsh_disable_bulk_plugin_deactivation( $actions ) {
+	if ( array_key_exists( 'deactivate-selected', $actions ) ) {
+		unset( $actions['deactivate-selected'] );
+	}
+
+	return $actions;
+}
+add_filter( 'bulk_actions-plugins', 'wpcomsh_disable_bulk_plugin_deactivation' );
