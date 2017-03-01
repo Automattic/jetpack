@@ -29,10 +29,10 @@
         }
 
         show( search_close_link );
-        section_index.forEach(show_found_branches);
+        section_index.forEach( show_found_branches.bind( this, search_for ) );
     });
 
-    function show_found_branches(branch) {
+    function show_found_branches(search_for, branch) {
         var element = branch.element;
         var header_text = ( parseInt(search_for) > 0 ) ? branch.pr.toString() : branch.header;
 
@@ -99,6 +99,6 @@
     }
 
     function show( element ) {
-        element.style.diplay = 'block';
+        element.style.display = '';
     }
 })();
