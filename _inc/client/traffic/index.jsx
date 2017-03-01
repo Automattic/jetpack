@@ -98,11 +98,11 @@ export const Traffic = React.createClass( {
 		return (
 			<div>
 				<QuerySite />
-				{ found.analytics && googleAnalyticsSettings }
 				{ found.seo && seoSettings }
 				{ found.ads && adSettings }
 				{ found.stats && statsSettings }
 				{ found.related && relatedPostsSettings }
+				{ found.analytics && googleAnalyticsSettings }
 				{ ( found.verification || found.sitemaps ) && verificationSettings }
 			</div>
 		);
