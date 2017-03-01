@@ -330,8 +330,9 @@ class VideoPress_Player {
 		if ( isset( $this->video->videos->ogv ) ) {
 			$ogg = $this->video->videos->ogv->url;
 			if ( ! empty( $ogg ) ) {
-				$html .= '<source src="' . esc_url($ogg) . '" type="video/ogg; codecs=&quot;' . esc_attr($this->video->videos->ogv->codecs) . '&quot;" />';
+				$html .= '<source src="' . esc_url( $ogg ) . '" type="video/ogg; codecs=&quot;' . esc_attr( $this->video->videos->ogv->codecs ) . '&quot;" />';
 			}
+
 			unset( $ogg );
 		}
 
