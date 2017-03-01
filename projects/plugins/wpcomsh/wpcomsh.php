@@ -46,10 +46,27 @@ function wpcomsh_register_plugins_action_links() {
 	if ( defined( 'JETPACK__PLUGIN_FILE' ) ) {
 		add_filter(
 			'plugin_action_links_' . plugin_basename( JETPACK__PLUGIN_FILE ),
-			'wpcomsh_hide_jetpack_plugin_links'
+			'wpcomsh_hide_plugin_deactivate_edit_links'
 		);
 	}
 
+	$vaultpress_plugin_file = WP_PLUGIN_DIR . '/vaultpress/vaultpress.php';
+
+	// If VaultPress is loaded, hide its "Deactivate" and "Edit" links on WP Admin Plugins page
+	if ( file_exists( $vaultpress_plugin_file ) ) {
+		add_filter(
+			'plugin_action_links_' . plugin_basename( $vaultpress_plugin_file ),
+			'wpcomsh_hide_plugin_deactivate_edit_links'
+		);
+	}
+
+	// If Akismet is loaded, hide its "Deactivate" and "Edit" links on WP Admin Plugins page
+	if ( defined( 'AKISMET__PLUGIN_DIR' ) ) {
+		add_filter(
+			'plugin_action_links_' . plugin_basename( AKISMET__PLUGIN_DIR . '/akismet.php' ),
+			'wpcomsh_hide_plugin_deactivate_edit_links'
+		);
+	}
 }
 add_action( 'admin_init', 'wpcomsh_register_plugins_action_links' );
 
@@ -57,7 +74,7 @@ function wpcomsh_hide_wpcomsh_plugin_links() {
 	return array();
 }
 
-function wpcomsh_hide_jetpack_plugin_links( $links ) {
+function wpcomsh_hide_plugin_deactivate_edit_links( $links ) {
 	unset( $links['deactivate'] );
 	unset( $links['edit'] );
 
