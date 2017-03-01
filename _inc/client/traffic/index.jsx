@@ -13,6 +13,7 @@ import { isDevMode, isUnavailableInDevMode } from 'state/connection';
 import { isModuleFound as _isModuleFound } from 'state/search';
 import QuerySite from 'components/data/query-site';
 import { SEO } from './seo';
+import { GoogleAnalytics } from './google-analytics';
 import { Ads } from './ads';
 import { SiteStats } from './site-stats';
 import { RelatedPosts } from './related-posts';
@@ -36,7 +37,8 @@ export const Traffic = React.createClass( {
 			stats: this.props.isModuleFound( 'stats' ),
 			related: this.props.isModuleFound( 'related-posts' ),
 			verification: this.props.isModuleFound( 'verification-tools' ),
-			sitemaps: this.props.isModuleFound( 'sitemaps' )
+			sitemaps: this.props.isModuleFound( 'sitemaps' ),
+			analytics: this.props.isModuleFound( 'google-analytics' )
 		};
 
 		if ( ! this.props.searchTerm && ! this.props.active ) {
@@ -44,12 +46,13 @@ export const Traffic = React.createClass( {
 		}
 
 		if (
-			! found.seo
-			&& ! found.ads
-			&& ! found.stats
-			&& ! found.related
-			&& ! found.verification
-			&& ! found.sitemaps
+			! found.seo &&
+			! found.ads &&
+			! found.stats &&
+			! found.related &&
+			! found.verification &&
+			! found.sitemaps &&
+			! found.analytics
 		) {
 			return null;
 		}
@@ -85,10 +88,16 @@ export const Traffic = React.createClass( {
 				{ ...commonProps }
 			/>
 		);
+		const googleAnalyticsSettings = (
+			<GoogleAnalytics
+				{ ...commonProps }
+			/>
+		);
 
 		return (
 			<div>
 				<QuerySite />
+				{ found.analytics && googleAnalyticsSettings }
 				{ found.seo && seoSettings }
 				{ found.ads && adSettings }
 				{ found.stats && statsSettings }
