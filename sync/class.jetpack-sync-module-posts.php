@@ -29,6 +29,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		add_action( 'transition_post_status', array( $this, 'save_published' ), 10, 3 );
 		add_filter( 'jetpack_sync_before_enqueue_wp_insert_post', array( $this, 'filter_blacklisted_post_types' ) );
 
+		add_action( 'shutdown', array( $this, 'send_published' ), 9 );
 		add_action( 'wp_insert_post', array( $this, 'send_published' ), 100 );
 		add_action( 'jetpack_sync_before_do_sync', array( $this, 'send_published' ) );
 
