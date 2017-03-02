@@ -2,7 +2,7 @@
  * Put all the styles in this file which are needed in wp-admin.
  */
 
-/************* JETPACK **************/
+/************* Jetpack **************/
 
 /* Connection block in "General" tab. */
 .dops-navigation + div > .dops-card.dops-foldable-card:first-child:not(.has-expanded-summary) {
@@ -18,3 +18,19 @@
 #jp-plugin-container .jp-footer > .jp-footer__links > .jp-footer__link-item:last-child {
 	display: none;
 }
+
+/************* Plugins Page **************/
+
+.wp-list-table tr[data-slug="akismet"] > *,
+.wp-list-table tr[data-slug="jetpack"] > *,
+.wp-list-table tr[data-slug="vaultpress"] > * {
+	-webkit-box-shadow: none;
+	box-shadow: none;
+}
+
+.wp-list-table #akismet-update,
+.wp-list-table #jetpack-update,
+.wp-list-table #vaultpress-update {
+	display: none;
+}
+
