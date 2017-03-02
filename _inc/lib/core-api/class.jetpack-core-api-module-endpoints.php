@@ -528,7 +528,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 				}
 
 				if (
-					'any' !== $data['slug']
+					'any' !== $request['slug']
 					&& ! Jetpack::is_module_active( $option_attrs['jp_group'] )
 				) {
 
