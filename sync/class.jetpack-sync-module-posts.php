@@ -80,8 +80,9 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 
 	/**
 	 * Process content before send
+	 * @param array, wp_insert_post arguments
+	 * @return array
 	 */
-
 	function expand_wp_insert_post( $args ) {
 		return array( $args[0], $this->filter_post_content_and_add_links( $args[1] ), $args[2] );
 	}
@@ -183,7 +184,6 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		/** This filter is already documented in core. wp-includes/post-template.php */
 		if ( Jetpack_Sync_Settings::get_setting( 'render_filtered_content' ) && $post_type->public  ) {
 			global $shortcode_tags;
-			$shortcodes_and_callbacks_to_remove = array();
 			/**
 			 * Filter prevents some shortcodes from expanding.
 			 *
@@ -192,7 +192,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 			 *
 			 * @since 4.5.0
 			 *
-			 * @param array of shortcode tags to remove.
+			 * @param array, of shortcode tags to remove.
 			 */
 			$shortcodes_to_remove = apply_filters( 'jetpack_sync_do_not_expand_shortcodes', array( 'gallery', 'slideshow' ) );
 			$removed_shortcode_callbacks = array();
@@ -267,7 +267,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 			 *
 			 * @since 4.4.0
 			 *
-			 * @param int post_id
+			 * @param int, post_id
 			 * @param mixed array post flags that are added to the post
 			 */
 
