@@ -875,7 +875,7 @@ That was a cool video.';
 		$this->sender->do_sync();
 
 		$events = $this->server_event_storage->get_all_events( 'jetpack_published_post' );
-		$this->assertEquals( count( $events ), 1 );
+		$this->assertEquals( 1, count( $events ) );
 
 		$post_flags = $events[0]->args[1];
 		$this->assertTrue( $post_flags['send_subscription'] );

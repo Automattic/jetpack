@@ -30,6 +30,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		add_filter( 'jetpack_sync_before_enqueue_wp_insert_post', array( $this, 'filter_blacklisted_post_types' ) );
 
 		add_action( 'shutdown', array( $this, 'send_published' ) );
+		add_action( 'jetpack_sync_before_do_sync', array( $this, 'send_published' ) );
 		add_action( 'jetpack_sync_send_published', array( $this, 'send_published' ) );
 
 		// listen for meta changes
@@ -234,7 +235,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 	}
 
 	public function send_published() {
-		if ( current_filter() === 'shutdown' ) {
+		if ( current_filter() !== 'jetpack_sync_send_published' ) {
 			/**
 			 * Allows us to test `send_published` without invoking 'shutdown'
 			 *
