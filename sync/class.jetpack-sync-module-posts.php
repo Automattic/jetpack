@@ -23,7 +23,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 
 	public function init_listeners( $callable ) {
 		add_action( 'wp_insert_post', $callable, 10, 3 );
-		add_action( 'wp_insert_post', array( $this, 'send_published'), 11, 3 );
+		add_action( 'shutdown', array( $this, 'send_published'), 3 );
 		add_action( 'deleted_post', $callable, 10 );
 		add_action( 'jetpack_publicize_post', $callable );
 		add_action( 'jetpack_published_post', $callable, 10, 2 );
@@ -231,20 +231,19 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		}
 	}
 
-	public function send_published( $post_ID, $post, $update ) {
-		// Post revisions cause race conditions where this send_published add the action before the actual post gets synced
-		if ( wp_is_post_autosave( $post ) || wp_is_post_revision( $post ) ) {
-			return;
-		}
-
-		if ( ! empty( $this->just_published ) && in_array( $post_ID, $this->just_published ) ) {
-			$published = array_reverse( array_unique( $this->just_published ) );
+	public function send_published() {
+		if ( ! empty( $this->just_published ) ) {
+			$published = array_unique( $this->just_published );
 			
 			// Pre 4.7 WP does not have run though send_published for every save_published call
 			// So lets clear out any just_published that we recorded 
 			foreach ( $published as $just_published_post_ID ) {
-				if ( $post_ID !== $just_published_post_ID ) {
-					$post = get_post( $just_published_post_ID );
+
+				$post = get_post( $just_published_post_ID );
+
+				// Post revisions cause race conditions where this send_published add the action before the actual post gets synced
+				if ( wp_is_post_autosave( $post ) || wp_is_post_revision( $post ) ) {
+					continue;
 				}
 
 				/**
@@ -267,7 +266,6 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 				 */
 				do_action( 'jetpack_published_post', $just_published_post_ID, $flags );
 			}
-			$this->just_published = array();
 		}
 	}
 
