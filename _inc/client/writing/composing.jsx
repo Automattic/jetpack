@@ -21,7 +21,6 @@ import { getModule } from 'state/modules';
 import TagsInput from 'components/tags-input';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import InlineExpand from 'components/inline-expand';
 
 const Composing = moduleSettingsForm(
 	React.createClass( {
@@ -85,7 +84,7 @@ const Composing = moduleSettingsForm(
 		 * @returns {object} React element object
 		 */
 		getToggle( setting, label ) {
-			return(
+			return (
 				<CompactFormToggle
 					checked={ this.state[ setting ] }
 					disabled={ ! this.props.getOptionValue( 'after-the-deadline' ) || this.props.isUnavailableInDevMode( 'after-the-deadline' ) || this.props.isSavingAnyOption( setting ) }
@@ -98,7 +97,7 @@ const Composing = moduleSettingsForm(
 		},
 
 		getAtdSettings() {
-			let ignoredPhrases = this.props.getOptionValue( 'ignored_phrases' );
+			const ignoredPhrases = this.props.getOptionValue( 'ignored_phrases' );
 			return (
 				<div>
 					<FormFieldset>
@@ -174,16 +173,16 @@ const Composing = moduleSettingsForm(
 		render() {
 			// If we don't have any element to show, return early
 			if (
-				! this.props.isModuleFound( 'markdown' )
-				&& ! this.props.isModuleFound( 'after-the-deadline' )
+				! this.props.isModuleFound( 'markdown' ) &&
+				! this.props.isModuleFound( 'after-the-deadline' )
 			) {
 				return null;
 			}
 
-			let markdown = this.props.module( 'markdown' ),
+			const markdown = this.props.module( 'markdown' ),
 				atd = this.props.module( 'after-the-deadline' );
 
-			let markdownSettings = (
+			const markdownSettings = (
 				<SettingsGroup support={ markdown.learn_more_button }>
 					<FormFieldset>
 						<ModuleToggle
@@ -199,7 +198,7 @@ const Composing = moduleSettingsForm(
 				</SettingsGroup>
 			);
 
-			let atdSettings = (
+			const atdSettings = (
 				<div>
 					<SettingsGroup hasChild disableInDevMode module={ atd }>
 						<ModuleToggle slug="after-the-deadline"
@@ -236,6 +235,6 @@ export default connect(
 		return {
 			module: ( module_name ) => getModule( state, module_name ),
 			isModuleFound: ( module_name ) => _isModuleFound( state, module_name )
-		}
+		};
 	}
 )( Composing );
