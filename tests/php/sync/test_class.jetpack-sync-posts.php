@@ -889,7 +889,9 @@ That was a cool video.';
 		$post_id = $this->factory->post->create( array( 'post_type' => 'post' ) );
 		remove_action( 'wp_insert_post', array( $this, 'add_a_hello_post_type' ), 9 );
 
+		do_action( 'jetpack_sync_send_published' );
 		$this->sender->do_sync();
+
 		$events = $this->server_event_storage->get_all_events( 'jetpack_published_post' );
 
 		$this->assertEquals( 2, count( $events ) );

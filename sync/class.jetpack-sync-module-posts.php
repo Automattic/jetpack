@@ -29,6 +29,9 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		add_action( 'transition_post_status', array( $this, 'save_published' ), 10, 3 );
 		add_filter( 'jetpack_sync_before_enqueue_wp_insert_post', array( $this, 'filter_blacklisted_post_types' ) );
 
+		add_action( 'shutdown', array( $this, 'send_published' ) );
+		add_action( 'jetpack_sync_send_published', array( $this, 'send_published' ) );
+
 		// listen for meta changes
 		$this->init_listeners_for_meta_type( 'post', $callable );
 		$this->init_meta_whitelist_handler( 'post', array( $this, 'filter_meta' ) );
@@ -226,14 +229,21 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 
 	public function save_published( $new_status, $old_status, $post ) {
 		if ( 'publish' === $new_status && 'publish' !== $old_status ) {
-			if ( empty( $this->just_published ) ) {
-				add_action( 'jetpack_sync_before_do_sync', array( $this, 'send_published'), 9 );
-			}
 			$this->just_published[] = $post->ID;
 		}
 	}
 
 	public function send_published() {
+		if ( current_filter() === 'shutdown' ) {
+			/**
+			 * Allows us to test `send_published` without invoking 'shutdown'
+			 *
+			 * @since 4.8
+			 *
+			 */
+			do_action( 'jetpack_sync_send_published' );
+			return;
+		}
 		while ( ! is_null( $post_ID = array_shift( $this->just_published ) ) ) {
 			$post = get_post( $post_ID );
 
