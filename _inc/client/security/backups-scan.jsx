@@ -27,8 +27,9 @@ export const BackupsScan = React.createClass( {
 				header={ __( 'Backups and security scanning', { context: 'Settings header' } ) }
 				hideButton
 				notice={
-					! this.props.isUnavailableInDevMode( 'backups' ) &&
-						<ProStatus proFeature={ 'scan' } forceNotice={ true } />
+					! this.props.isUnavailableInDevMode( 'backups' )
+						? <ProStatus proFeature={ 'scan' } forceNotice={ true } />
+						: null
 				}>
 				<SettingsGroup
 					disableInDevMode
