@@ -28,6 +28,7 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		$this->post->post_status = 'publish';
 
 		wp_insert_post( $this->post->to_array() );
+		$this->sender->do_sync();
 
 		$this->assertPublicized( true, $this->post );
 	}
