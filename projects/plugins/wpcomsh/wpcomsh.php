@@ -91,10 +91,7 @@ function wpcomsh_hide_plugin_deactivate_edit_links( $links ) {
 }
 
 function wpcomsh_show_auto_managed_notice( $file, $plugin_data ) {
-	/** @var WP_MS_Themes_List_Table $wp_list_table */
-	$wp_list_table = _get_list_table( 'WP_MS_Themes_List_Table' );
-	printf( '<tr class="plugin-update-tr active"><td colspan="%1$s" class="plugin-update colspanchange"><div class="notice inline notice-warning notice-alt"><p>%2$s</p></div></td></tr>',
-		esc_attr( $wp_list_table->get_column_count() ),
+	printf( '<tr class="plugin-update-tr active"><td colspan="3" class="plugin-update colspanchange"><div class="notice inline notice-warning notice-alt"><p>%1$s</p></div></td></tr>',
 		sprintf( __( '%1$s is automatically managed for you.' ), $plugin_data[ 'Name' ] )
  );
 }
