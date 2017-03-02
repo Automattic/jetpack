@@ -43,13 +43,15 @@ function wpcomsh_register_plugins_action_links() {
 
 	// If Jetpack is loaded, hide its "Deactivate" and "Edit" links on WP Admin Plugins page
 	if ( defined( 'JETPACK__PLUGIN_FILE' ) ) {
+		$jetpack_basename = plugin_basename( JETPACK__PLUGIN_FILE );
+
 		add_filter(
-			'plugin_action_links_' . plugin_basename( JETPACK__PLUGIN_FILE ),
+			'plugin_action_links_' . $jetpack_basename,
 			'wpcomsh_hide_plugin_deactivate_edit_links'
 		);
 		add_action(
-			'after_plugin_row_' . plugin_basename( JETPACK__PLUGIN_FILE ),
-			'wpcomsh_show_auto_managed_notice',
+			'after_plugin_row_' . $jetpack_basename,
+			'wpcomsh_show_plugin_auto_managed_notice',
 		10, 2 );
 	}
 
@@ -57,23 +59,32 @@ function wpcomsh_register_plugins_action_links() {
 
 	// If VaultPress is loaded, hide its "Deactivate" and "Edit" links on WP Admin Plugins page
 	if ( file_exists( $vaultpress_plugin_file ) ) {
+		$vaultpress_basename = plugin_basename( $vaultpress_plugin_file );
+
 		add_filter(
-			'plugin_action_links_' . plugin_basename( $vaultpress_plugin_file ),
+			'plugin_action_links_' . $vaultpress_basename,
 			'wpcomsh_hide_plugin_deactivate_edit_links'
 		);
 
 		add_action(
-			"after_plugin_row_" . plugin_basename( $vaultpress_plugin_file ),
-			"wpcomsh_show_auto_managed_notice",
+			"after_plugin_row_" . $vaultpress_basename,
+			"wpcomsh_show_plugin_auto_managed_notice",
 		10, 2 );
 	}
 
 	// If Akismet is loaded, hide its "Deactivate" and "Edit" links on WP Admin Plugins page
 	if ( defined( 'AKISMET__PLUGIN_DIR' ) ) {
+		$akismet_basename = plugin_basename( AKISMET__PLUGIN_DIR . '/akismet.php' );
+
 		add_filter(
-			'plugin_action_links_' . plugin_basename( AKISMET__PLUGIN_DIR . '/akismet.php' ),
+			'plugin_action_links_' . $akismet_basename,
 			'wpcomsh_hide_plugin_deactivate_edit_links'
 		);
+
+		add_action(
+			"after_plugin_row_" . $akismet_basename,
+			"wpcomsh_show_plugin_auto_managed_notice",
+			10, 2 );
 	}
 }
 
@@ -90,10 +101,23 @@ function wpcomsh_hide_plugin_deactivate_edit_links( $links ) {
 	return $links;
 }
 
-function wpcomsh_show_auto_managed_notice( $file, $plugin_data ) {
-	printf( '<tr class="plugin-update-tr active"><td colspan="3" class="plugin-update colspanchange"><div class="notice inline notice-warning notice-alt"><p>%1$s</p></div></td></tr>',
-		sprintf( __( '%1$s is automatically managed for you.' ), $plugin_data[ 'Name' ] )
- );
+function wpcomsh_show_plugin_auto_managed_notice( $file, $plugin_data ) {
+	$plugin_name = 'The plugin';
+
+	if ( array_key_exists( 'Name', $plugin_data ) ) {
+		$plugin_name = $plugin_data['Name'];
+	}
+
+	$message = sprintf( __( '%s is automatically managed for you.' ), $plugin_name );
+
+	echo
+		'<tr class="plugin-update-tr active">' .
+			'<td colspan="3" class="plugin-update colspanchange">' .
+				'<div class="notice inline notice-warning notice-alt">' .
+					"<p>{$message}</p>" .
+				'</div>' .
+			'</td>' .
+		'</tr>';
 }
 
 function wpcomsh_register_theme_hooks() {
