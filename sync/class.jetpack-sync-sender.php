@@ -77,6 +77,7 @@ class Jetpack_Sync_Sender {
 	}
 
 	public function do_sync() {
+		do_action( 'jetpack_sync_before_do_sync' );
 		return $this->do_sync_and_set_delays( $this->sync_queue );
 	}
 
