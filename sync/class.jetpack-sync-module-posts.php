@@ -21,6 +21,10 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 	public function set_defaults() {
 	}
 
+	public function reset() {
+		$this->just_published = array();
+	}
+
 	public function init_listeners( $callable ) {
 		add_action( 'wp_insert_post', $callable, 10, 3 );
 		add_action( 'deleted_post', $callable, 10 );
