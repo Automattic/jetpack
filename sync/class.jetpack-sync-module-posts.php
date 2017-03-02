@@ -22,20 +22,26 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 	}
 
 	public function init_listeners( $callable ) {
-		add_action( 'wp_insert_post', $callable, 10, 3 );
+		add_action( 'wp_insert_post', array( $this, 'add_wp_insert_post' ), 10, 3 );
 		add_action( 'deleted_post', $callable, 10 );
 		add_action( 'jetpack_publicize_post', $callable );
 		add_action( 'jetpack_published_post', $callable, 10, 2 );
 		add_action( 'transition_post_status', array( $this, 'save_published' ), 10, 3 );
 		add_filter( 'jetpack_sync_before_enqueue_wp_insert_post', array( $this, 'filter_blacklisted_post_types' ) );
-
-		add_action( 'shutdown', array( $this, 'send_published' ), 9 );
-		add_action( 'wp_insert_post', array( $this, 'send_published' ), 100 );
-		add_action( 'jetpack_sync_before_do_sync', array( $this, 'send_published' ) );
-
+		
 		// listen for meta changes
 		$this->init_listeners_for_meta_type( 'post', $callable );
 		$this->init_meta_whitelist_handler( 'post', array( $this, 'filter_meta' ) );
+	}
+
+	public function add_wp_insert_post( $post_ID, $post, $update ) {
+		require_once dirname( __FILE__ ) . '/class.jetpack-sync-listener.php';
+		$listener = Jetpack_Sync_Listener::get_instance();
+		$listener->action_handler( $post_ID, $post, $update );
+
+		if ( in_array( $post_ID, $this->just_published ) ) {
+			$this->send_published_post( $post_ID, $post );
+		}
 	}
 
 	public function init_full_sync_listeners( $callable ) {
@@ -244,25 +250,33 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 				continue;
 			}
 
-			/**
-			 * Filter that is used to add to the post flags ( meta data ) when a post gets published
-			 *
-			 * @since 4.4.0
-			 *
-			 * @param mixed array post flags that are added to the post
-			 * @param mixed $post WP_POST object
-			 */
-			$flags = apply_filters( 'jetpack_published_post_flags', array(), $post );
+			$this->send_published_post( $post_ID, $post );
+		}
+	}
 
-			/**
-			 * Action that gets synced when a post type gets published.
-			 *
-			 * @since 4.4.0
-			 *
-			 * @param int, post_id
-			 * @param mixed array post flags that are added to the post
-			 */
-			do_action( 'jetpack_published_post', $post_ID, $flags );
+	public function send_published_post( $post_ID, $post ) {
+		/**
+		 * Filter that is used to add to the post flags ( meta data ) when a post gets published
+		 *
+		 * @since 4.4.0
+		 *
+		 * @param mixed array post flags that are added to the post
+		 * @param mixed $post WP_POST object
+		 */
+		$flags = apply_filters( 'jetpack_published_post_flags', array(), $post );
+
+		/**
+		 * Action that gets synced when a post type gets published.
+		 *
+		 * @since 4.4.0
+		 *
+		 * @param int, post_id
+		 * @param mixed array post flags that are added to the post
+		 */
+		do_action( 'jetpack_published_post', $post_ID, $flags );
+
+		if ( ( $post_ID = array_search( 'strawberry', $this->just_published ) ) !== false) {
+			unset( $this->just_published[ $post_ID ] );
 		}
 	}
 
