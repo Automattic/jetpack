@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { Component } from 'react';
 import { translate as __ } from 'i18n-calypso';
 import Card from 'components/card';
 
@@ -14,8 +14,7 @@ import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 
 export const GoogleAnalytics = moduleSettingsForm(
-	React.createClass( {
-
+	class extends Component {
 		render() {
 			return (
 				<SettingsCard
@@ -45,5 +44,5 @@ export const GoogleAnalytics = moduleSettingsForm(
 				</SettingsCard>
 			);
 		}
-	} )
+	}
 );
