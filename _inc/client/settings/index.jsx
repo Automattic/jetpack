@@ -16,7 +16,7 @@ export default React.createClass( {
 	displayName: 'SearchableSettings',
 
 	render() {
-		var commonProps = {
+		const commonProps = {
 			route: this.props.route,
 			searchTerm: this.props.searchTerm
 		};
@@ -64,4 +64,3 @@ export default React.createClass( {
 		);
 	}
 } );
-

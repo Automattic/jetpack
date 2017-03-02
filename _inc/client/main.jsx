@@ -125,7 +125,7 @@ const Main = React.createClass( {
 	/**
 	 *
 	 * Takes care of redirection when
-	 *  - jumpstarting ( resseting options )
+	 * - jumpstarting ( resseting options )
 	 * - the jumpstart is complete
 	 * @param  {Object} nextProps The next props as received by componentWillReceiveProps
 	 */
@@ -144,6 +144,11 @@ const Main = React.createClass( {
 	},
 
 	renderMainContent: function( route ) {
+		if ( '/search' === route && false === this.props.searchTerm ) {
+			window.location.hash = 'settings';
+			const history = createHistory();
+			history.push( window.location.pathname + '?page=jetpack#/settings' );
+		}
 
 		// Track page views
 		analytics.tracks.recordEvent( 'jetpack_wpa_page_view', { path: route } );
