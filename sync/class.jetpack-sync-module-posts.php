@@ -270,7 +270,6 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 			 * @param int, post_id
 			 * @param mixed array post flags that are added to the post
 			 */
-
 			do_action( 'jetpack_published_post', $post_ID, $flags );
 		}
 	}
