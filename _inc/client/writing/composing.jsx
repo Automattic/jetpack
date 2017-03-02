@@ -5,6 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import CompactFormToggle from 'components/form/form-toggle/compact';
+import FoldableCard from 'components/foldable-card';
 
 /**
  * Internal dependencies
@@ -199,19 +200,25 @@ const Composing = moduleSettingsForm(
 			);
 
 			let atdSettings = (
-				<SettingsGroup hasChild disableInDevMode module={ atd }>
-					<ModuleToggle slug="after-the-deadline"
-							activated={ this.props.getOptionValue( 'after-the-deadline' ) }
-							toggling={ this.props.isSavingAnyOption( 'after-the-deadline' ) }
-							toggleModule={ this.props.toggleModuleNow }>
-						<span className="jp-form-toggle-explanation">
-							{ atd.description }
-						</span>
-					</ModuleToggle>
-					<FormFieldset>
-						<InlineExpand label={ __( 'Advanced Options' ) }>{ this.getAtdSettings() }</InlineExpand>
-					</FormFieldset>
-				</SettingsGroup>
+				<div>
+					<SettingsGroup hasChild disableInDevMode module={ atd }>
+						<ModuleToggle slug="after-the-deadline"
+								activated={ this.props.getOptionValue( 'after-the-deadline' ) }
+								toggling={ this.props.isSavingAnyOption( 'after-the-deadline' ) }
+								toggleModule={ this.props.toggleModuleNow }>
+							<span className="jp-form-toggle-explanation">
+								{ atd.description }
+							</span>
+						</ModuleToggle>
+					</SettingsGroup>
+					<FoldableCard
+						clickableHeader={ true }
+						subheader={ __( 'Advanced options' ) }
+						compact
+					>
+						{ this.getAtdSettings() }
+					</FoldableCard>
+				</div>
 			);
 
 			return (
