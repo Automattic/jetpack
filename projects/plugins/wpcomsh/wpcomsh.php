@@ -47,6 +47,10 @@ function wpcomsh_register_plugins_action_links() {
 			'plugin_action_links_' . plugin_basename( JETPACK__PLUGIN_FILE ),
 			'wpcomsh_hide_plugin_deactivate_edit_links'
 		);
+		add_action(
+			'after_plugin_row_' . plugin_basename( JETPACK__PLUGIN_FILE ),
+			'wpcomsh_show_auto_managed_notice',
+		10, 2 );
 	}
 
 	$vaultpress_plugin_file = WP_PLUGIN_DIR . '/vaultpress/vaultpress.php';
@@ -57,6 +61,11 @@ function wpcomsh_register_plugins_action_links() {
 			'plugin_action_links_' . plugin_basename( $vaultpress_plugin_file ),
 			'wpcomsh_hide_plugin_deactivate_edit_links'
 		);
+
+		add_action(
+			"after_plugin_row_" . plugin_basename( $vaultpress_plugin_file ),
+			"wpcomsh_show_auto_managed_notice",
+		10, 2 );
 	}
 
 	// If Akismet is loaded, hide its "Deactivate" and "Edit" links on WP Admin Plugins page
@@ -67,6 +76,7 @@ function wpcomsh_register_plugins_action_links() {
 		);
 	}
 }
+
 add_action( 'admin_init', 'wpcomsh_register_plugins_action_links' );
 
 function wpcomsh_hide_wpcomsh_plugin_links() {
@@ -78,6 +88,15 @@ function wpcomsh_hide_plugin_deactivate_edit_links( $links ) {
 	unset( $links['edit'] );
 
 	return $links;
+}
+
+function wpcomsh_show_auto_managed_notice( $file, $plugin_data ) {
+	/** @var WP_MS_Themes_List_Table $wp_list_table */
+	$wp_list_table = _get_list_table( 'WP_MS_Themes_List_Table' );
+	printf( '<tr class="plugin-auto-manage-tr active"><td colspan="%1$s" class="plugin-auto-manage colspanchange"><div class="auto-manage-message notice inline notice-warning notice-alt"><p>%2$s</p></div></td></tr>',
+		esc_attr( $wp_list_table->get_column_count() ),
+		sprintf( __( '%1$s is automatically managed for you' ), $plugin_data[ 'Name' ] )
+ );
 }
 
 function wpcomsh_register_theme_hooks() {
