@@ -9,7 +9,6 @@
 
 define( 'WPCOMSH__PLUGIN_FILE', __FILE__ );
 
-
 require_once( 'constants.php' );
 require_once( 'footer-credit/footer-credit.php' );
 
@@ -285,3 +284,11 @@ function wpcomsh_disable_bulk_plugin_deactivation( $actions ) {
 	return $actions;
 }
 add_filter( 'bulk_actions-plugins', 'wpcomsh_disable_bulk_plugin_deactivation' );
+
+function wpcomsh_admin_enqueue_style() {
+	wp_enqueue_style(
+		'wpcomsh-admin-style',
+		plugins_url( 'assets/admin-style.css', WPCOMSH__PLUGIN_FILE )
+	);
+}
+add_action( 'admin_enqueue_scripts', 'wpcomsh_admin_enqueue_style', 999 );

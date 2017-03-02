@@ -1,0 +1,20 @@
+/*
+ * Put all the styles in this file which are needed in wp-admin.
+ */
+
+/************* JETPACK **************/
+
+/* Connection block in "General" tab. */
+.dops-navigation + div > .dops-card.dops-foldable-card:first-child:not(.has-expanded-summary) {
+	display: none;
+}
+
+/* SSO block in "Security" tab */
+.dops-navigation + div > .dops-card.dops-foldable-card.has-expanded-summary[data-reactid*="module-card_sso"] {
+	display: none;
+}
+
+/* "Disconnect Jetpack" link in JP Footer */
+#jp-plugin-container .jp-footer > .jp-footer__links > .jp-footer__link-item:last-child {
+	display: none;
+}
