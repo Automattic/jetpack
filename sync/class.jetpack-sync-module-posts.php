@@ -29,7 +29,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		add_action( 'transition_post_status', array( $this, 'save_published' ), 10, 3 );
 		add_filter( 'jetpack_sync_before_enqueue_wp_insert_post', array( $this, 'filter_blacklisted_post_types' ) );
 
-		// add_action( 'shutdown', array( $this, 'send_published' ) );
+		add_action( 'shutdown', array( $this, 'send_published' ) );
 		add_action( 'jetpack_sync_before_do_sync', array( $this, 'send_published' ) );
 		add_action( 'jetpack_sync_send_published', array( $this, 'send_published' ) );
 
@@ -249,7 +249,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 			$post = get_post( $post_ID );
 
 			// Post revisions cause race conditions where this send_published add the action before the actual post gets synced
-			if ( wp_is_post_autosave( $post ) || wp_is_post_revision( $post ) || empty( $post ) || ! is_object( $post ) ) {
+			if ( wp_is_post_autosave( $post ) || wp_is_post_revision( $post ) ) {
 				continue;
 			}
 
