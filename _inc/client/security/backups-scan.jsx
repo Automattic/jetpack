@@ -26,7 +26,10 @@ export const BackupsScan = React.createClass( {
 				feature={ FEATURE_SECURITY_SCANNING_JETPACK }
 				header={ __( 'Backups and security scanning', { context: 'Settings header' } ) }
 				hideButton
-				notice={ <ProStatus proFeature={ 'scan' } /> }>
+				notice={
+					! this.props.isUnavailableInDevMode( 'backups' ) &&
+						<ProStatus proFeature={ 'scan' } forceNotice={ true } />
+				}>
 				<SettingsGroup
 					disableInDevMode
 					module={ { module: 'backups' } }
