@@ -24,6 +24,11 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		add_filter( 'jetpack_published_post_flags', array( $this, 'set_post_flags_check' ), 20, 2 );
 	}
 
+	public function tearDown()
+	{
+		do_action( 'shutdown_test' );
+	}
+
 	public function test_fires_jetpack_publicize_post_on_save_as_published() {
 		$this->post->post_status = 'publish';
 

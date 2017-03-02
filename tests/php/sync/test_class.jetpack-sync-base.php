@@ -52,6 +52,11 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 		$this->server_event_storage->init();
 	}
 
+	public function tearDown()
+	{
+		do_action( 'shutdown_test' );
+	}
+
 	public function setSyncClientDefaults() {
 		$this->sender->set_defaults();
 		Jetpack_Sync_Modules::set_defaults();

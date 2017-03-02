@@ -21,10 +21,6 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 	public function set_defaults() {
 	}
 
-	public function reset() {
-		$this->just_published = array();
-	}
-
 	public function init_listeners( $callable ) {
 		add_action( 'wp_insert_post', $callable, 10, 3 );
 		add_action( 'deleted_post', $callable, 10 );
@@ -34,6 +30,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		add_filter( 'jetpack_sync_before_enqueue_wp_insert_post', array( $this, 'filter_blacklisted_post_types' ) );
 
 		add_action( 'shutdown', array( $this, 'send_published' ) );
+		add_action( 'shutdown_test', array( $this, 'send_published' ) );
 		add_action( 'jetpack_sync_before_do_sync', array( $this, 'send_published' ) );
 		add_action( 'jetpack_sync_send_published', array( $this, 'send_published' ) );
 

@@ -11,9 +11,6 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	public function setUp() {
 		parent::setUp();
 
-		$post_sync_module = Jetpack_Sync_Modules::get_module( "posts" );
-		$post_sync_module->reset();
-
 		$user_id = $this->factory->user->create();
 
 		// create a post
