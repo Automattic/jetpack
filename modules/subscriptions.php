@@ -157,23 +157,6 @@ class Jetpack_Subscriptions {
 			$set_checkbox = isset( $_POST['_jetpack_dont_email_post_to_subs'] ) ? 1 : 0;
 			update_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', $set_checkbox );
 		}
-
-		// Only do things on publish
-		if ( 'publish' !== $new_status ) {
-			return;
-		}
-
-		/**
-		 * If we're updating the post, let's make sure the flag to not send to subscribers
-		 * is set to minimize the chances of sending posts multiple times.
-		 */
-		if ( 'publish' == $old_status ) {
-			update_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', 1 );
-		}
-
-		if ( ! $this->should_email_post_to_subscribers( $post ) ) {
-			update_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', 1 );
-		}
 	}
 
 	public function should_email_post_to_subscribers( $post ) {
