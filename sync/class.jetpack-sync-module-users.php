@@ -162,8 +162,24 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	function maybe_save_user_meta( $meta_id, $user_id, $meta_key, $value ) {
 		if ( $meta_key === 'locale' ) {
 			if ( current_filter() === 'deleted_user_meta' ) {
+				/**
+				 * Allow listeners to listen for user local delete changes
+				 *
+				 * @since 4.8
+				 *
+				 * @param int $user_id - The ID of the user whos locale is being deleted
+				 */
 				do_action( 'jetpack_sync_user_locale_delete', $user_id );
 			} else {
+				/**
+				 * Allow listeners to listen for user local changes
+				 *
+				 * @since 4.8
+				 *
+				 * @param int $user_id - The ID of the user whos locale is being changed
+				 * @param int $value - The value of the new locale
+				 *
+				 */
 				do_action( 'jetpack_sync_user_locale', $user_id, $value );
 			}
 		}
