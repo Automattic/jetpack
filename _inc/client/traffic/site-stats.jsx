@@ -4,6 +4,7 @@
 import React from 'react';
 import { translate as __ } from 'i18n-calypso';
 import CompactFormToggle from 'components/form/form-toggle/compact';
+import FoldableCard from 'components/foldable-card';
 import includes from 'lodash/includes';
 import filter from 'lodash/filter';
 
@@ -18,7 +19,6 @@ import { ModuleToggle } from 'components/module-toggle';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import InlineExpand from 'components/inline-expand';
 
 export const SiteStats = moduleSettingsForm(
 	React.createClass( {
@@ -125,53 +125,56 @@ export const SiteStats = moduleSettingsForm(
 								</span>
 							</ModuleToggle>
 						</FormFieldset>
-						<br />
-						<InlineExpand label={ __( 'Advanced Options' ) }>
-							<div>
-								<FormFieldset>
-									<FormLegend>{ __( 'Count logged in page views from' ) }</FormLegend>
-									{
-										Object.keys( siteRoles ).map( key => (
-											<CompactFormToggle
-												checked={ this.state[ `count_roles_${key}` ] }
-												disabled={ ! isStatsActive || unavailableInDevMode || this.props.isSavingAnyOption( [ 'stats', 'count_roles' ] ) }
-												onChange={ () => this.updateOptions( key, 'count_roles' ) }
-												key={ `count_roles-${ key }` }>
+					</SettingsGroup>
+					<FoldableCard
+						clickableHeader={ true }
+						subheader={ __( 'Advanced options' ) }
+						compact
+					>
+						<div>
+							<FormFieldset>
+								<FormLegend>{ __( 'Count logged in page views from' ) }</FormLegend>
+								{
+									Object.keys( siteRoles ).map( key => (
+										<CompactFormToggle
+											checked={ this.state[ `count_roles_${key}` ] }
+											disabled={ ! isStatsActive || unavailableInDevMode || this.props.isSavingAnyOption( [ 'stats', 'count_roles' ] ) }
+											onChange={ () => this.updateOptions( key, 'count_roles' ) }
+											key={ `count_roles-${ key }` }>
 												<span className="jp-form-toggle-explanation">
 													{ siteRoles[ key ].name }
 												</span>
-											</CompactFormToggle>
-										) )
-									}
-								</FormFieldset>
-								<FormFieldset>
-									<FormLegend>{ __( 'Allow stats reports to be viewed by' ) }</FormLegend>
-									<CompactFormToggle
-										checked={ true }
-										disabled={ true }>
+										</CompactFormToggle>
+									) )
+								}
+							</FormFieldset>
+							<FormFieldset>
+								<FormLegend>{ __( 'Allow stats reports to be viewed by' ) }</FormLegend>
+								<CompactFormToggle
+									checked={ true }
+									disabled={ true }>
 										<span className="jp-form-toggle-explanation">
 											{ siteRoles.administrator.name }
 										</span>
-									</CompactFormToggle>
-									{
-										Object.keys( siteRoles ).map( key => (
-											( 'administrator' !== key ) && (
-												<CompactFormToggle
-													checked={ this.state[ `roles_${key}` ] }
-													disabled={ ! isStatsActive || unavailableInDevMode || this.props.isSavingAnyOption( [ 'stats', 'roles' ] ) }
-													onChange={ () => this.updateOptions( key, 'roles' ) }
-													key={ `roles-${key}` }>
+								</CompactFormToggle>
+								{
+									Object.keys( siteRoles ).map( key => (
+										( 'administrator' !== key ) && (
+											<CompactFormToggle
+												checked={ this.state[ `roles_${key}` ] }
+												disabled={ ! isStatsActive || unavailableInDevMode || this.props.isSavingAnyOption( [ 'stats', 'roles' ] ) }
+												onChange={ () => this.updateOptions( key, 'roles' ) }
+												key={ `roles-${key}` }>
 													<span className="jp-form-toggle-explanation">
 														{ siteRoles[ key ].name }
 													</span>
-												</CompactFormToggle>
-											)
-										) )
-									}
-								</FormFieldset>
-							</div>
-						</InlineExpand>
-					</SettingsGroup>
+											</CompactFormToggle>
+										)
+									) )
+								}
+							</FormFieldset>
+						</div>
+					</FoldableCard>
 				</SettingsCard>
 			);
 		}
