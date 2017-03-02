@@ -39,26 +39,27 @@ export const Masthead = React.createClass( {
 						</a>
 						{ devNotice }
 					</div>
-
 					{
 						this.props.userCanEditPosts && (
 							<div className="jp-masthead__nav">
-								<ButtonGroup>
-									<Button
-										compact={ true }
-										href="#/dashboard"
-										primary={ isDashboardView && ! isStatic }
-									>
-										{ __( 'Dashboard' ) }
-									</Button>
-									<Button
-										compact={ true }
-										href="#/settings"
-										primary={ ! isDashboardView && ! isStatic }
-									>
-										{ __( 'Settings' ) }
-									</Button>
-								</ButtonGroup>
+								{ ( ! isStatic && this.props.siteConnectionStatus ) &&
+									<ButtonGroup>
+										<Button
+											compact={ true }
+											href="#/dashboard"
+											primary={ isDashboardView && ! isStatic }
+										>
+											{ __( 'Dashboard' ) }
+										</Button>
+										<Button
+											compact={ true }
+											href="#/settings"
+											primary={ ! isDashboardView && ! isStatic }
+										>
+											{ __( 'Settings' ) }
+										</Button>
+									</ButtonGroup>
+								}
 							</div>
 						)
 					}
