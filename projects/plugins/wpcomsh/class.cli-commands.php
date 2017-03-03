@@ -78,7 +78,7 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 		// now restore the original settings
 		Jetpack_Sync_Settings::reset_data();
 
-		echo 'Success: sync started';
+		WP_CLI::success( 'sync started' );
 	}
 
 	// Not a WP CLI command
