@@ -61,7 +61,7 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 		// Replace the original `send_data` function with a modified one.
 		add_filter(
 			'jetpack_sync_send_data',
-			array( 'WPCOMSH_CLI_Commands', 'atat_set_bigger_timeout_for_sync' ),
+			array( 'WPCOMSH_CLI_Commands', 'set_bigger_timeout_for_sync' ),
 			10,
 			4
 		);
@@ -83,7 +83,7 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 	//
 	// Similar to Jetpack_Sync_Actions::send_data but adds a greater `timeout` so
 	// Jetpack sync server allocates more CPU for sync requests.
-	static function atat_set_bigger_timeout_for_sync( $data, $codec_name, $sent_timestamp, $queue_id ) {
+	static function set_bigger_timeout_for_sync( $data, $codec_name, $sent_timestamp, $queue_id ) {
 		Jetpack::load_xml_rpc_client();
 
 		$query_args = array(
