@@ -27,10 +27,10 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		// Core < 4.7 doesn't deal with nested wp_insert_post calls very well
 		if ( version_compare( $wp_version, '4.7-alpha', '<' ) ) {
 			$this->action_handler = $callable;
-			add_action( 'wp_insert_post', array( $this, 'wp_insert_post' ),  0, 3 );
+			add_action( 'wp_insert_post', array( $this, 'wp_insert_post' ), 0, 3 );
 		} else {
-			add_action( 'wp_insert_post', $callable,  11, 3 );
-			add_action( 'wp_insert_post', array( $this, 'send_published' ),  12, 3 );
+			add_action( 'wp_insert_post', $callable, 11, 3 );
+			add_action( 'wp_insert_post', array( $this, 'send_published' ), 12, 3 );
 		}
 
 		add_action( 'deleted_post', $callable, 10 );
@@ -38,7 +38,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		add_action( 'jetpack_published_post', $callable, 10, 2 );
 		add_action( 'transition_post_status', array( $this, 'save_published' ), 10, 3 );
 		add_filter( 'jetpack_sync_before_enqueue_wp_insert_post', array( $this, 'filter_blacklisted_post_types' ) );
-		
+
 		// listen for meta changes
 		$this->init_listeners_for_meta_type( 'post', $callable );
 		$this->init_meta_whitelist_handler( 'post', array( $this, 'filter_meta' ) );
@@ -75,7 +75,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 
 		// config is a list of post IDs to sync
 		if ( is_array( $config ) ) {
-			$where_sql   .= ' AND ID IN (' . implode( ',', array_map( 'intval', $config ) ) . ')';
+			$where_sql .= ' AND ID IN (' . implode( ',', array_map( 'intval', $config ) ) . ')';
 		}
 
 		return $where_sql;
@@ -87,7 +87,9 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 
 	/**
 	 * Process content before send
-	 * @param array, wp_insert_post arguments
+	 *
+	 * @param array , wp_insert_post arguments
+	 *
 	 * @return array
 	 */
 	function expand_wp_insert_post( $args ) {
@@ -120,6 +122,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 
 	function is_post_type_allowed( $post_id ) {
 		$post = get_post( $post_id );
+
 		return ! in_array( $post->post_type, Jetpack_Sync_Settings::get_setting( 'post_types_blacklist' ) );
 	}
 
@@ -148,13 +151,13 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 
 		// return non existant post 
 		$post_type = get_post_type_object( $post->post_type );
-		if ( empty( $post_type) || ! is_object( $post_type ) ) {
+		if ( empty( $post_type ) || ! is_object( $post_type ) ) {
 			$non_existant_post                    = new stdClass();
 			$non_existant_post->ID                = $post->ID;
 			$non_existant_post->post_modified     = $post->post_modified;
 			$non_existant_post->post_modified_gmt = $post->post_modified_gmt;
 			$non_existant_post->post_status       = 'jetpack_sync_non_registered_post_type';
-			
+
 			return $non_existant_post;
 		}
 		/**
@@ -189,7 +192,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		}
 
 		/** This filter is already documented in core. wp-includes/post-template.php */
-		if ( Jetpack_Sync_Settings::get_setting( 'render_filtered_content' ) && $post_type->public  ) {
+		if ( Jetpack_Sync_Settings::get_setting( 'render_filtered_content' ) && $post_type->public ) {
 			global $shortcode_tags;
 			/**
 			 * Filter prevents some shortcodes from expanding.
@@ -199,24 +202,27 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 			 *
 			 * @since 4.5.0
 			 *
-			 * @param array, of shortcode tags to remove.
+			 * @param array , of shortcode tags to remove.
 			 */
-			$shortcodes_to_remove = apply_filters( 'jetpack_sync_do_not_expand_shortcodes', array( 'gallery', 'slideshow' ) );
+			$shortcodes_to_remove        = apply_filters( 'jetpack_sync_do_not_expand_shortcodes', array(
+				'gallery',
+				'slideshow'
+			) );
 			$removed_shortcode_callbacks = array();
 			foreach ( $shortcodes_to_remove as $shortcode ) {
-				if ( isset ( $shortcode_tags[ $shortcode ] )  ) {
-					$removed_shortcode_callbacks[ $shortcode ] =  $shortcode_tags[ $shortcode ];
+				if ( isset ( $shortcode_tags[ $shortcode ] ) ) {
+					$removed_shortcode_callbacks[ $shortcode ] = $shortcode_tags[ $shortcode ];
 				}
 			}
 
-			array_map( 'remove_shortcode' , array_keys( $removed_shortcode_callbacks ) );
+			array_map( 'remove_shortcode', array_keys( $removed_shortcode_callbacks ) );
 
-			$post->post_content_filtered   = apply_filters( 'the_content', $post->post_content );
-			$post->post_excerpt_filtered   = apply_filters( 'the_excerpt', $post->post_excerpt );
+			$post->post_content_filtered = apply_filters( 'the_content', $post->post_content );
+			$post->post_excerpt_filtered = apply_filters( 'the_excerpt', $post->post_excerpt );
 
 			foreach ( $removed_shortcode_callbacks as $shortcode => $callback ) {
-			add_shortcode( $shortcode, $callback );
-		}
+				add_shortcode( $shortcode, $callback );
+			}
 		}
 
 		$this->add_embed();
@@ -228,8 +234,8 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 			}
 		}
 
-		$post->permalink               = get_permalink( $post->ID );
-		$post->shortlink               = wp_get_shortlink( $post->ID );
+		$post->permalink = get_permalink( $post->ID );
+		$post->shortlink = wp_get_shortlink( $post->ID );
 
 		return $post;
 	}
@@ -268,7 +274,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		 *
 		 * @since 4.4.0
 		 *
-		 * @param int, post_id
+		 * @param int , post_id
 		 * @param mixed array post flags that are added to the post
 		 */
 		do_action( 'jetpack_published_post', $post_ID, $flags );
