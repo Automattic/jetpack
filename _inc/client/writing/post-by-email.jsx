@@ -41,9 +41,9 @@ const PostByEmail = moduleSettingsForm(
 		},
 
 		render() {
-			let postByEmail = this.props.getModule( 'post-by-email' ),
+			const postByEmail = this.props.getModule( 'post-by-email' ),
 				isPbeActive = this.props.getOptionValue( 'post-by-email' ),
-				unavailableInDevMode = this.props.isUnavailableInDevMode( 'post-by-email' );
+				disabledControls = this.props.isUnavailableInDevMode( 'post-by-email' ) || ! this.props.isLinked;
 
 			if ( ! this.props.isModuleFound( 'post-by-email' ) ) {
 				return null;
@@ -58,7 +58,7 @@ const PostByEmail = moduleSettingsForm(
 						<ModuleToggle
 							slug="post-by-email"
 							compact
-							disabled={ unavailableInDevMode }
+							disabled={ disabledControls }
 							activated={ isPbeActive }
 							toggling={ this.props.isSavingAnyOption( 'post-by-email' ) }
 							toggleModule={ this.props.toggleModuleNow }
@@ -74,14 +74,14 @@ const PostByEmail = moduleSettingsForm(
 								<FormLegend>{ __( 'Email Address' ) }</FormLegend>
 								<ClipboardButtonInput
 									value={ this.address() }
-									disabled={ ! isPbeActive || unavailableInDevMode }
+									disabled={ ! isPbeActive || disabledControls }
 									copy={ __( 'Copy', { context: 'verb' } ) }
 									copied={ __( 'Copied!' ) }
 									prompt={ __( 'Highlight and copy the following text to your clipboard:' ) }
 								/>
 							</FormLabel>
 							<Button
-								disabled={ ! isPbeActive || unavailableInDevMode }
+								disabled={ ! isPbeActive || disabledControls }
 								onClick={ this.regeneratePostByEmailAddress } >
 								{ __( 'Regenerate address' ) }
 							</Button>
@@ -98,6 +98,6 @@ export default connect(
 		return {
 			module: ( module_name ) => getModule( state, module_name ),
 			isModuleFound: ( module_name ) => _isModuleFound( state, module_name )
-		}
+		};
 	}
 )( PostByEmail );

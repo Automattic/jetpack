@@ -42,7 +42,8 @@ describe( 'NavigationSettings', () => {
 			siteConnectionStatus: true,
 			siteRawUrl: 'example.org',
 			siteAdminUrl: 'https://example.org/wp-admin/',
-			searchForTerm: () => {}
+			searchForTerm: () => {},
+			isLinked: true
 		};
 
 		options = {
@@ -96,17 +97,7 @@ describe( 'NavigationSettings', () => {
 			const publicizeProps = Object.assign( {}, testProps, {
 				userCanManageModules: false,
 				isSubscriber: false,
-				isContributor: false,
-				isModuleActivated: m => 'sharedaddy' === m
-			} );
-			expect( shallow( <NavigationSettings { ...publicizeProps } /> ).find( 'NavItem' ).children().nodes.filter( item => 'string' === typeof item ).every( item => [ 'Writing' ].includes( item ) ) ).to.be.true;
-		} );
-
-		it( 'do not show Sharing to contributors', () => {
-			const publicizeProps = Object.assign( {}, testProps, {
-				userCanManageModules: false,
-				isSubscriber: false,
-				isContributor: true,
+				userCanPublish: true,
 				isModuleActivated: m => 'sharedaddy' === m
 			} );
 			expect( shallow( <NavigationSettings { ...publicizeProps } /> ).find( 'NavItem' ).children().nodes.filter( item => 'string' === typeof item ).every( item => [ 'Writing' ].includes( item ) ) ).to.be.true;
@@ -119,6 +110,35 @@ describe( 'NavigationSettings', () => {
 
 		it( 'does not display Search', () => {
 			expect( wrapper.find( 'Search' ) ).to.have.length( 0 );
+		} );
+
+		it( 'do not show Sharing to contributors', () => {
+			const publicizeProps = Object.assign( {}, testProps, {
+				userCanManageModules: false,
+				isSubscriber: false,
+				isContributor: true,
+				isModuleActivated: m => 'sharedaddy' === m
+			} );
+			expect( shallow( <NavigationSettings { ...publicizeProps } /> ).find( 'NavItem' ).children().nodes.filter( item => 'string' === typeof item ).every( item => [ 'Writing' ].includes( item ) ) ).to.be.true;
+		} );
+
+		describe( 'if Publicize is active', () => {
+
+			let publicizeProps = Object.assign( {}, testProps, {
+				userCanManageModules: false,
+				isSubscriber: false,
+				userCanPublish: true,
+				isModuleActivated: m => 'publicize' === m
+			} );
+			it( 'show Sharing if user is linked', () => {
+				expect( shallow( <NavigationSettings { ...publicizeProps } /> ).find( 'NavItem' ).children().nodes.filter( item => 'string' === typeof item ).every( item => [ 'Writing', 'Sharing' ].includes( item ) ) ).to.be.true;
+			} );
+
+			it( 'do not show Sharing if user is unlinked', () => {
+				publicizeProps.isLinked = false;
+				expect( shallow( <NavigationSettings { ...publicizeProps } /> ).find( 'NavItem' ).children().nodes.filter( item => 'string' === typeof item ).every( item => [ 'Writing' ].includes( item ) ) ).to.be.true;
+			} );
+
 		} );
 
 	} );

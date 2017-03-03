@@ -58,7 +58,11 @@ describe( 'SettingsGroup', () => {
 
 	let testProps = {
 		learn_more_button: 'https://jetpack.com/support/protect',
-		userCanManageModules: true
+		isDevMode: false,
+		isSitePublic: true,
+		userCanManageModules: true,
+		isLinked: true,
+		isUnavailableInDevMode: () => false
 	};
 
 	const settingsGroup = shallow( <SettingsGroup support={ testProps.learn_more_button } hasChild /> );
@@ -78,6 +82,38 @@ describe( 'SettingsGroup', () => {
 
 	it( 'does not have a learn more icon if there is no link or module are passed', () => {
 		expect( shallow( <SettingsGroup /> ).find( 'InfoPopover' ) ).to.have.length( 0 );
+	} );
+
+	describe( 'has a fading layer', () => {
+
+		it( 'visible in in Dev Mode', () => {
+			const disabled = {
+				disableInDevMode: true,
+				isUnavailableInDevMode: () => true
+			};
+			expect( shallow( <SettingsGroup { ...disabled } /> ).find( '.jp-form-block-fade' ) ).to.have.length( 1 );
+		} );
+
+		it( 'visible in Post by Email when user is unlinked', () => {
+			const disabled = {
+				module: {
+					module: 'post-by-email'
+				},
+				isLinked: false
+			};
+			expect( shallow( <SettingsGroup { ...disabled } /> ).find( '.jp-form-block-fade' ) ).to.have.length( 1 );
+		} );
+
+		it( 'not visible in Post by Email when user is linked', () => {
+			const disabled = {
+				module: {
+					module: 'post-by-email'
+				},
+				isLinked: true
+			};
+			expect( shallow( <SettingsGroup { ...disabled } /> ).find( '.jp-form-block-fade' ) ).to.have.length( 0 );
+		} );
+
 	} );
 
 	describe( 'When user is not an admin', () => {

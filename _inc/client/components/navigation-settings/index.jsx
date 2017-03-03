@@ -8,6 +8,7 @@ import NavTabs from 'components/section-nav/tabs';
 import NavItem from 'components/section-nav/item';
 import Search from 'components/search';
 import { translate as __ } from 'i18n-calypso';
+import noop from 'lodash/noop';
 import injectTapEventPlugin from 'react-tap-event-plugin';
 injectTapEventPlugin();
 import Gridicon from 'components/gridicon';
@@ -23,9 +24,9 @@ import {
 import {
 	userCanManageModules as _userCanManageModules,
 	userIsSubscriber as _userIsSubscriber,
-	userIsContributor
+	userCanPublish
 } from 'state/initial-state';
-import { getSiteConnectionStatus } from 'state/connection';
+import { getSiteConnectionStatus, isCurrentUserLinked } from 'state/connection';
 import { isModuleActivated } from 'state/modules';
 
 export const NavigationSettings = React.createClass( {
@@ -84,9 +85,8 @@ export const NavigationSettings = React.createClass( {
 	},
 
 	render: function() {
-		let navItems;
-
-		const publicizeTab = (
+		let navItems,
+			publicizeTab = (
 			( this.props.isModuleActivated( 'publicize' ) || this.props.isModuleActivated( 'sharedaddy' ) ) && (
 				<NavItem
 					path={ true === this.props.siteConnectionStatus
@@ -134,6 +134,9 @@ export const NavigationSettings = React.createClass( {
 		} else if ( this.props.isSubscriber ) {
 			navItems = false;
 		} else {
+			if ( ! this.props.isModuleActivated( 'publicize' ) || ! this.props.userCanPublish || ! this.props.isLinked ) {
+				publicizeTab = '';
+			}
 			navItems = (
 				<NavTabs selectedText={ this.props.route.name }>
 					<NavItem
@@ -143,7 +146,7 @@ export const NavigationSettings = React.createClass( {
 					</NavItem>
 					{
 						// Give only Publicize to non admin users
-						this.props.isModuleActivated( 'publicize' ) && ! this.props.isContributor && publicizeTab
+						publicizeTab
 					}
 				</NavTabs>
 			);
@@ -164,12 +167,33 @@ NavigationSettings.contextTypes = {
 	router: React.PropTypes.object.isRequired
 };
 
+NavigationSettings.propTypes = {
+	userCanManageModules: React.PropTypes.bool.isRequired,
+	isSubscriber: React.PropTypes.bool.isRequired,
+	userCanPublish: React.PropTypes.bool.isRequired,
+	isLinked: React.PropTypes.bool.isRequired,
+	siteConnectionStatus: React.PropTypes.bool.isRequired,
+	isModuleActivated: React.PropTypes.func.isRequired,
+	searchHasFocus: React.PropTypes.bool.isRequired
+};
+
+NavigationSettings.defaultProps = {
+	userCanManageModules: false,
+	isSubscriber: false,
+	userCanPublish: false,
+	isLinked: false,
+	siteConnectionStatus: false,
+	isModuleActivated: noop,
+	searchHasFocus: false
+};
+
 export default connect(
 	( state ) => {
 		return {
 			userCanManageModules: _userCanManageModules( state ),
 			isSubscriber: _userIsSubscriber( state ),
-			isContributor: userIsContributor( state ),
+			userCanPublish: userCanPublish( state ),
+			isLinked: isCurrentUserLinked( state ),
 			siteConnectionStatus: getSiteConnectionStatus( state ),
 			isModuleActivated: module => isModuleActivated( state, module ),
 			searchTerm: getSearchTerm( state )
