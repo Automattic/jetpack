@@ -77,12 +77,6 @@ class Jetpack_Sync_Sender {
 	}
 
 	public function do_sync() {
-		/**
-		 * Allow listeners to hook actions before `do_sync`
-		 *
-		 * @since 4.8
-		 *
-		 */
 		return $this->do_sync_and_set_delays( $this->sync_queue );
 	}
 
