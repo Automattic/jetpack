@@ -49,14 +49,11 @@ class Jetpack_SSO_Helpers {
 	}
 
 	/**
-	 * Returns a boolean for whether users are allowed to register on the Jetpack site with SSO,
-	 * even though the site disallows normal registrations.
+	 * Returns an object if the user should be added to the site, even though the site disallows normal registrations.
 	 *
-	 * @return bool
+	 * @return object
 	 */
 	static function new_user_override( $user_data = null ) {
-		$new_user_override = defined( 'WPCC_NEW_USER_OVERRIDE' ) ? WPCC_NEW_USER_OVERRIDE : false;
-
 		/**
 		 * Allow users to register on your site with a WordPress.com account, even though you disallow normal registrations. 
 		 * If you return a string that corresponds to a user role, the user will be given that role.
@@ -66,20 +63,21 @@ class Jetpack_SSO_Helpers {
 		 * @since 2.6.0
 		 * @since 4.6   $user_data object is now passed to the jetpack_sso_new_user_override filter
 		 *
-		 * @param bool        $new_user_override Allow users to register on your site with a WordPress.com account. Default to false.
-		 * @param object|null $user_data         An object containing the user data returned from WordPress.com.
+		 * @param bool        false
+		 * @param object|null $user_data An object containing the user data returned from WordPress.com.
 		 */
-		$role = apply_filters( 'jetpack_sso_new_user_override', $new_user_override, $user_data );
+		$override = apply_filters( 'jetpack_sso_new_user_override', false, $user_data );
 
-		if ( $role ) {
-			if ( is_string( $role ) && get_role( $role ) ) {
-				return $role;
-			} else {
-				return get_option( 'default_role' );
-			}
+		// Handle legacy functionality of this method by returning the $user_data when the WPCC_NEW_USER_OVERRIDE constant
+		// or jetpack_sso_new_user_override filter are being used as previously expected.
+		if ( true === $override || (
+			Jetpack_Constants::is_defined( 'WPCC_NEW_USER_OVERRIDE' ) &&
+		    Jetpack_Constants::get_constant( 'WPCC_NEW_USER_OVERRIDE' )
+		) ) {
+			$override = $user_data;
 		}
 
-		return false;
+		return $override;
 	}
 
 	/**

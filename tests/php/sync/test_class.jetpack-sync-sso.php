@@ -33,15 +33,6 @@ class WP_Test_Jetpack_Sync_SSO extends WP_Test_Jetpack_Sync_Base {
 		remove_filter( 'jetpack_sso_match_by_email', '__return_true' );
 	}
 
-	function test_sync_sso_new_user_override_filter_true() {
-		add_filter( 'jetpack_sso_new_user_override', '__return_true' );
-		update_option( 'default_role', 'subscriber' );
-		$this->sender->do_sync();
-		$callableValue = $this->server_replica_storage->get_callable( 'sso_new_user_override' );
-		$this->assertEquals( 'subscriber', $callableValue );
-		remove_filter( 'jetpack_sso_new_user_override', '__return_true' );
-	}
-
 	function test_sync_sso_sso_bypass_default_login_form_filter_true() {
 		add_filter( 'jetpack_sso_bypass_login_forward_wpcom', '__return_true' );
 		$this->sender->do_sync();

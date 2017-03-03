@@ -75,32 +75,10 @@ class WP_Test_Jetpack_SSO_Helpers extends WP_UnitTestCase {
 		remove_filter( 'jetpack_sso_match_by_email', '__return_false' );
 	}
 
-	function test_sso_helpers_new_user_override_filter_true_returns_default_role() {
-		add_role( 'foo', 'Foo' );
-		update_option( 'default_role', 'foo' );
-		add_filter( 'jetpack_sso_new_user_override', '__return_true' );
-		$this->assertEquals( 'foo', Jetpack_SSO_Helpers::new_user_override() );
-		remove_filter( 'jetpack_sso_new_user_override', '__return_true' );
-	}
-
 	function test_sso_helpers_new_user_override_filter_false() {
 		add_filter( 'jetpack_sso_new_user_override', '__return_false' );
 		$this->assertFalse( Jetpack_SSO_Helpers::new_user_override() );
 		remove_filter( 'jetpack_sso_new_user_override', '__return_false' );
-	}
-
-	function test_sso_helpers_new_user_override_filter_rolename() {
-		add_filter( 'jetpack_sso_new_user_override', array( $this, 'return_administrator' ) );
-		$this->assertEquals( 'administrator', Jetpack_SSO_Helpers::new_user_override() );
-		remove_filter( 'jetpack_sso_new_user_override', array( $this, 'return_administrator' ) );
-	}
-
-	function test_sso_helpers_new_user_override_filter_bad_rolename_returns_default() {
-		add_role( 'foo', 'Foo' );
-		update_option( 'default_role', 'foo' );
-		add_filter( 'jetpack_sso_new_user_override', array( $this, 'return_foobarbaz' ) );
-		$this->assertEquals( 'foo', Jetpack_SSO_Helpers::new_user_override() );
-		remove_filter( 'jetpack_sso_new_user_override', array( $this, 'return_foobarbaz' ) );
 	}
 
 	function test_sso_helpers_sso_bypass_default_login_form_filter_true() {
@@ -265,6 +243,23 @@ class WP_Test_Jetpack_SSO_Helpers extends WP_UnitTestCase {
 			'token'  => 'my-token',
 			'jetpack_json_api_original_query' => $original_request,
 		) );
+	}
+
+	function test_new_user_override_returns_user_data_for_legacy() {
+		$user_data = (object) array(
+			'username' => 'testuser',
+			'email'    => 'test@test.com',
+		);
+
+		$this->assertFalse( Jetpack_SSO_Helpers::new_user_override( $user_data ) );
+
+		Jetpack_Constants::set_constant( 'WPCC_NEW_USER_OVERRIDE', true );
+		$this->assertSame( $user_data, Jetpack_SSO_Helpers::new_user_override( $user_data ) );
+		Jetpack_Constants::clear_constants();
+
+		add_filter( 'jetpack_sso_new_user_override', '__return_true' );
+		$this->assertSame( $user_data, Jetpack_SSO_Helpers::new_user_override( $user_data ) );
+		remove_filter( 'jetpack_sso_new_user_override', '__return_true' );
 	}
 
 	function __return_string_value() {
