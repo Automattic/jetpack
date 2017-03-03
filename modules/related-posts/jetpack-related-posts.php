@@ -76,6 +76,8 @@ class Jetpack_RelatedPosts {
 	}
 
 	protected function set_citations_enabled() {
+		//disable, some bugs causing query parsing errors
+		return;
 		if ( ! is_automattician() )
 			return;
 		$whitelist = array(
