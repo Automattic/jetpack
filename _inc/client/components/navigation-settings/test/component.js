@@ -13,15 +13,17 @@ import { NavigationSettings } from '../index';
 
 describe( 'NavigationSettings', () => {
 	let wrapper,
-		testProps;
+		testProps,
+		options;
 
 	before( () => {
 		// Mock the required context type
 		NavigationSettings.contextTypes = {
 			router: () => {
 				return {
-					goBack: () => {}
-				}
+					goBack: () => {},
+					listen: () => {}
+				};
 			}
 		};
 
@@ -33,16 +35,24 @@ describe( 'NavigationSettings', () => {
 				path: '/settings'
 			},
 			router: {
-				goBack: () => {}
+				goBack: () => {},
+				listen: () => {}
 			},
 			isModuleActivated: () => true,
 			siteConnectionStatus: true,
 			siteRawUrl: 'example.org',
-			siteAdminUrl: 'https://example.org/wp-admin/'
+			siteAdminUrl: 'https://example.org/wp-admin/',
+			searchForTerm: () => {}
+		};
+
+		options = {
+			context: {
+				router: NavigationSettings.contextTypes.router()
+			}
 		};
 
 		window.location.hash = '#settings';
-		wrapper = shallow( <NavigationSettings { ...testProps } /> );
+		wrapper = shallow( <NavigationSettings { ...testProps } />, options );
 	} );
 
 	describe( 'initially', () => {
@@ -75,7 +85,7 @@ describe( 'NavigationSettings', () => {
 				isSubscriber: false
 			} );
 
-			wrapper = shallow( <NavigationSettings { ...testProps } /> );
+			wrapper = shallow( <NavigationSettings { ...testProps } />, options );
 		} );
 
 		it( 'renders tabs with Writing', () => {
@@ -99,7 +109,7 @@ describe( 'NavigationSettings', () => {
 				isSubscriber: false
 			} );
 
-			wrapper = shallow( <NavigationSettings { ...testProps } /> );
+			wrapper = shallow( <NavigationSettings { ...testProps } />, options );
 		} );
 
 		it( 'renders tabs with Discussion, Security, Traffic, Writing, Sharing', () => {
@@ -130,13 +140,6 @@ describe( 'NavigationSettings', () => {
 
 			before( () => {
 				instance = wrapper.instance();
-				instance.props = {
-					...instance.props,
-					searchForTerm: sinon.stub(),
-					onSearchFocus: sinon.stub()
-				};
-
-				instance.context.router = { goBack: sinon.stub() };
 			} );
 
 			it( 'does not change hash to #search', () => {
@@ -144,15 +147,15 @@ describe( 'NavigationSettings', () => {
 			} );
 
 			describe( 'and a search term is opened', () => {
-				it( 'changes hash to #search', () => {
-					instance.onSearch( 'search term' );
-					expect( window.location.hash ).to.be.equal( '#search' );
+				it( 'adds a search term in a query string', () => {
+					instance.doSearch( 'search term' );
+					expect( window.location.hash ).to.be.equal( '#settings?term=search term' );
 				} );
 
 				describe( 'and a search term is deleted', () => {
 					it( 'changes hash back to #settings', () => {
-						instance.onSearch( '' );
-						expect( instance.context.router.goBack.calledOnce ).to.be.true;
+						instance.doSearch( '' );
+						expect( window.location.hash ).to.be.equal( '#settings' );
 					} );
 				} );
 			} );
@@ -166,7 +169,7 @@ describe( 'NavigationSettings', () => {
 					path: '/security'
 				}
 			} );
-			wrapper = shallow( <NavigationSettings { ...testProps } /> );
+			wrapper = shallow( <NavigationSettings { ...testProps } />, options );
 			expect( wrapper.find( 'SectionNav' ).props().selectedText ).to.be.equal( 'Security' );
 		} );
 	} );
@@ -178,7 +181,8 @@ describe( 'NavigationSettings', () => {
 				<NavigationSettings
 					{ ...testProps }
 					isModuleActivated={ m => 'publicize' === m }
-				/>
+				/>,
+				options
 			);
 			expect(
 				wrapper
@@ -204,7 +208,8 @@ describe( 'NavigationSettings', () => {
 				<NavigationSettings
 					{ ...testProps }
 					isModuleActivated={ m => 'sharing' === m }
-				/>
+				/>,
+				options
 			);
 			expect(
 				wrapper
@@ -230,7 +235,8 @@ describe( 'NavigationSettings', () => {
 				<NavigationSettings
 					{ ...testProps }
 					isModuleActivated={ () => false }
-				/>
+				/>,
+				options
 			);
 			expect(
 				wrapper
@@ -253,7 +259,7 @@ describe( 'NavigationSettings', () => {
 		describe( 'if site is connected', () => {
 
 			before( () => {
-				wrapper = shallow( <NavigationSettings { ...testProps } /> );
+				wrapper = shallow( <NavigationSettings { ...testProps } />, options );
 			} );
 
 			it( 'points to Calypso', () => {
@@ -268,7 +274,7 @@ describe( 'NavigationSettings', () => {
 		describe( 'if site is in dev mode', () => {
 
 			before( () => {
-				wrapper = shallow( <NavigationSettings { ...testProps } siteConnectionStatus={ false } /> );
+				wrapper = shallow( <NavigationSettings { ...testProps } siteConnectionStatus={ false } />, options );
 			} );
 
 			it( 'points to WP Admin', () => {
