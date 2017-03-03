@@ -4646,7 +4646,7 @@ p {
 		 * @param string $json->jetpack_secret Jetpack Blog Token.
 		 * @param int|bool $jetpack_public Is the site public.
 		 */
-		do_action( 'jetpack_site_registered', $json->jetpack_id, $json->jetpack_secret, $jetpack_public );
+		do_action( 'jetpack_site_registered', $registration_details->jetpack_id, $registration_details->jetpack_secret, $jetpack_public );
 
 		// Initialize Jump Start for the first and only time.
 		if ( ! Jetpack_Options::get_option( 'jumpstart' ) ) {
