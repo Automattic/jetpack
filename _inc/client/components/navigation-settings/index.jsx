@@ -8,11 +8,10 @@ import NavTabs from 'components/section-nav/tabs';
 import NavItem from 'components/section-nav/item';
 import Search from 'components/search';
 import { translate as __ } from 'i18n-calypso';
-import trim from 'lodash/trim';
-import analytics from 'lib/analytics';
 import injectTapEventPlugin from 'react-tap-event-plugin';
 injectTapEventPlugin();
 import Gridicon from 'components/gridicon';
+import UrlSearch from 'mixins/url-search';
 
 /**
  * Internal dependencies
@@ -30,53 +29,29 @@ import { getSiteConnectionStatus } from 'state/connection';
 import { isModuleActivated } from 'state/modules';
 
 export const NavigationSettings = React.createClass( {
-	openSearch: function() {
-		this.props.onSearchFocus && this.props.onSearchFocus( true );
+	mixins: [ UrlSearch ],
+
+	componentWillMount() {
+		this.context.router.listen( this.onRouteChange );
 	},
 
-	onSearch( term ) {
-		const currentHash = window.location.hash;
+	onRouteChange( newRoute ) {
+		const search = newRoute.search || '',
+			pairs = search.substr( 1 ).split( '&' ),
+			term = pairs.filter( item => {
+				return 0 === item.indexOf( 'term=' );
+			} );
 
-		if ( term.length >= 3 ) {
-			analytics.tracks.recordEvent( 'jetpack_wpa_search_term', { term: term.toLowerCase() } );
+		let keyword = false;
+
+		if ( term.length > 0 ) {
+			keyword = term[ 0 ].split( '=' )[ 1 ];
 		}
 
-		this.props.searchForTerm( trim( term || '' ).toLowerCase() );
-
-		if ( 0 === term.length ) {
-
-			// Calling close handler to show what was previously shown to the user
-			this.onClose();
-		} else {
-			if ( currentHash.indexOf( 'search' ) === -1 ) {
-				window.location.hash = 'search';
-			}
-
-			// Calling open handler in case the search was previously closed due to zero
-			// length search term
-			this.openSearch();
-		}
+		this.props.searchForTerm( keyword );
 	},
 
-	onClose: function() {
-		const currentHash = window.location.hash;
-		if ( currentHash.indexOf( 'search' ) > -1 ) {
-			this.context.router.goBack();
-		}
-	},
-
-	onBlur: function() {
-		const currentHash = window.location.hash;
-		this.props.onSearchFocus( false );
-
-		// If the user has navigated back a page, we discard the search term
-		// on blur
-		if ( currentHash.indexOf( 'search' ) === -1 ) {
-			this.props.searchForTerm( false );
-		}
-	},
-
-	maybeShowSearch: function() {
+	maybeShowSearch() {
 		if ( this.props.userCanManageModules ) {
 			return (
 				<Search
@@ -85,10 +60,7 @@ export const NavigationSettings = React.createClass( {
 					placeholder={ __( 'Search for a Jetpack feature.' ) }
 					delaySearch={ true }
 					delayTimeout={ 500 }
-					onSearchOpen={ this.openSearch }
-					onSearch={ this.onSearch }
-					onSearchClose={ this.onClose }
-					onBlur={ this.onBlur }
+					onSearch={ this.doSearch }
 					isOpen={
 						'/search' === this.props.route.path
 						|| this.props.searchHasFocus
@@ -96,6 +68,21 @@ export const NavigationSettings = React.createClass( {
 				/>
 			);
 		}
+	},
+
+	/**
+	 * The UrlSearch mixin callback to form a new location href string.
+	 *
+	 * @param {string} href the current location string
+	 * @param {string} keyword the new search keyword
+	 * @return {string} href the new location string
+	 */
+	buildUrl: function( href, keyword ) {
+		const splitUrl = href.split( '#' ),
+			splitHash = splitUrl[ 1 ].split( '?' );
+
+		this.props.searchForTerm( keyword );
+		return '#' + splitHash[ 0 ] + ( keyword ? '?term=' + keyword : '' );
 	},
 
 	render: function() {
@@ -185,6 +172,6 @@ export default connect(
 		return {
 			searchForTerm: ( term ) => dispatch( filterSearch( term ) ),
 			onSearchFocus: ( hasFocus ) => dispatch( focusSearch( hasFocus ) )
-		}
+		};
 	}
 )( NavigationSettings );
