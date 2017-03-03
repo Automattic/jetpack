@@ -14,6 +14,10 @@ define( 'WPCOMSH__PLUGIN_FILE', WPCOMSH__PLUGIN_DIR_PATH . '/wpcomsh.php' );
 require_once( 'constants.php' );
 require_once( 'footer-credit/footer-credit.php' );
 
+if ( defined( 'WP_CLI' ) && WP_CLI ) {
+	require_once WPCOMSH__PLUGIN_DIR_PATH . '/class.cli-commands.php';
+}
+
 function wpcomsh_remove_vaultpress_wpadmin_notices() {
 	if ( ! class_exists( 'VaultPress' ) ) {
 		return;
