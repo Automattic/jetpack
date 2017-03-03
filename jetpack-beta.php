@@ -54,6 +54,8 @@ define( 'JETPACK_DEV_PLUGIN_SLUG', 'jetpack-dev' );
 define( 'JETPACK_PLUGIN_FILE', 'jetpack/jetpack.php' );
 define( 'JETPACK_DEV_PLUGIN_FILE', 'jetpack-dev/jetpack.php' );
 
+define( 'JETPACK_BETA_REPORT_URL', 'https://github.com/Automattic/jetpack/issues/new' );
+
 require_once 'autoupdate-self.php';
 add_action( 'init', array( 'Jetpack_Beta_Autoupdate_Self', 'instance' ) );
 
@@ -61,6 +63,7 @@ class Jetpack_Beta {
 
 	protected static $_instance = null;
 	protected static $admin = null;
+	protected static $added_admin_bar = false;
 
 	/**
 	 * Main Instance
@@ -80,6 +83,7 @@ class Jetpack_Beta {
 
 		add_filter( 'auto_update_plugin', array( $this, 'auto_update_jetpack_beta' ), 10, 2 );
 		add_filter( 'pre_set_site_transient_update_plugins', array( $this, 'api_check' ) );
+		add_action( 'admin_bar_menu', array( $this, 'admin_bar_menu' ) );
 
 		if ( is_admin() ) {
 			require JPBETA__PLUGIN_DIR . 'jetpack-beta-admin.php';
@@ -138,6 +142,59 @@ class Jetpack_Beta {
 			$wp_filesystem->delete( $working_dir, true );
 		}
 	}
+
+	public function admin_bar_menu() {
+		global $wp_admin_bar;
+
+		if ( !is_object( $wp_admin_bar ) )
+			return;
+
+
+
+		self::$added_admin_bar = true;
+		// add a group node with a class "first-toolbar-group"
+		// add a parent item
+		$args = array(
+			'id'    => 'jetpack-beta_admin_bar',
+			'title' => 'Jetpack Beta',
+			'parent' => 'top-secondary',
+			'href'  => admin_url( 'admin.php?page=jetpack-beta')
+		);
+		$wp_admin_bar->add_node( $args );
+
+		// add a child item to our parent item
+		$args = array(
+			'id'     => 'jetpack-beta_report',
+			'title'  => 'Report Bug',
+			'href'   => JETPACK_BETA_REPORT_URL,
+			'parent' => 'jetpack-beta_admin_bar'
+		);
+		$wp_admin_bar->add_node( $args );
+
+		// add a child item to our parent item
+		$args = array(
+			'id'     => 'jetpack-beta_version',
+			'title'  => self::get_jetpack_plugin_version(),
+			'parent' => 'jetpack-beta_admin_bar'
+		);
+
+		$wp_admin_bar->add_node( $args );
+
+		// add a group node with a class "first-toolbar-group"
+		$args = array(
+			'id'     => 'first_group',
+			'parent' => 'jetpack-beta_admin_bar',
+			'meta'   => array( 'class' => 'first-toolbar-group' )
+		);
+		$wp_admin_bar->add_group( $args );
+
+		if ( self::get_plugin_slug() !== JETPACK_DEV_PLUGIN_SLUG ) {
+			return;
+		}
+		// Highlight the menu if you are running the BETA Versions..
+		echo "<style>#wpadminbar #wp-admin-bar-jetpack-beta_admin_bar { background: #72af3a;}</style>";
+	}
+
 	
 	public function api_check( $transient ) {
 		// Check if the transient contains the 'checked' information
@@ -239,6 +296,10 @@ class Jetpack_Beta {
 	}
 
 	static function get_jetpack_plugin_info() {
+		if( ! function_exists('get_plugin_data' ) ) {
+			require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+		}
+
 		return get_plugin_data( WP_PLUGIN_DIR . '/' . self::get_plugin_file() );
 	}
 

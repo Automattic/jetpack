@@ -44,7 +44,7 @@
 			</span>
 			<span class="dops-foldable-card__secondary" >
 				<span class="dops-foldable-card__summary">
-					<a type="button" href="https://github.com/Automattic/jetpack/issues/new" class="is-primary jp-form-button dops-button is-primary is-compact" >Report it!</a>
+					<a type="button" href="<?php echo esc_url( JETPACK_BETA_REPORT_URL ); ?>" class="is-primary jp-form-button dops-button is-primary is-compact" >Report it!</a>
 				</span>
 			</span>
 		</div>
