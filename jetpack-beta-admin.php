@@ -7,6 +7,7 @@ class Jetpack_Beta_Admin {
 
 	function __construct() {
 		add_action( 'admin_menu', array( $this, 'add_actions' ), 998 );
+		add_action( 'network_admin_menu', array( $this, 'add_actions' ), 998 );
 	}
 
 	function add_actions() {
@@ -19,6 +20,9 @@ class Jetpack_Beta_Admin {
 	}
 
 	function get_page_hook() {
+		if ( Jetpack_Beta::is_network_active() && ! is_network_admin() ) {
+			return;
+		}
 		if ( class_exists( 'Jetpack' ) ) {
 			return add_submenu_page(
 				'jetpack',
@@ -50,8 +54,6 @@ class Jetpack_Beta_Admin {
 	}
 
 	function admin_page_load() {
-		// Let set the defauls...
-
 		if ( ! isset( $_GET['_nonce'] ) ) {
 			return;
 		}
@@ -65,7 +67,7 @@ class Jetpack_Beta_Admin {
 			}
 			
 			update_option( 'jetpack_dev_currently_installed', array( $branch, $section ) );
-			wp_safe_redirect( admin_url( 'admin.php?page=jetpack-beta' ) );
+			wp_safe_redirect( Jetpack_Beta::admin_url() );
 		}
 	}
 
@@ -154,7 +156,6 @@ class Jetpack_Beta_Admin {
 		) );
 
 		return apply_filters( 'jetpack_beta_test_content', $rendered_html );
-
 	}
 
 	function show_branch( $header, $branch_key, $branch = null, $section = null, $is_last = false ) {
@@ -222,7 +223,7 @@ class Jetpack_Beta_Admin {
 			'section'         => $section,
 			'_nonce'          => wp_create_nonce( 'activate_branch' ),
 		);
-		$url   = admin_url( 'admin.php?' . build_query( $query ) );
+		$url   = Jetpack_Beta::admin_url( '?' . build_query( $query ) );
 
 		return '<a 
 				href="' . esc_url( $url ) . '" 

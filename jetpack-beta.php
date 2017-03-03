@@ -63,7 +63,6 @@ class Jetpack_Beta {
 
 	protected static $_instance = null;
 	protected static $admin = null;
-	protected static $added_admin_bar = false;
 
 	/**
 	 * Main Instance
@@ -143,22 +142,25 @@ class Jetpack_Beta {
 		}
 	}
 
+	static function admin_url( $query = '?page=jetpack-beta' ) {
+		return ( Jetpack_Beta::is_network_active() )
+			? network_admin_url( 'admin.php' . $query )
+			: admin_url( 'admin.php' . $query );
+	}
+
 	public function admin_bar_menu() {
 		global $wp_admin_bar;
 
-		if ( !is_object( $wp_admin_bar ) )
+		if ( ! is_object( $wp_admin_bar ) )
 			return;
 
-
-
-		self::$added_admin_bar = true;
 		// add a group node with a class "first-toolbar-group"
 		// add a parent item
 		$args = array(
 			'id'    => 'jetpack-beta_admin_bar',
 			'title' => 'Jetpack Beta',
 			'parent' => 'top-secondary',
-			'href'  => admin_url( 'admin.php?page=jetpack-beta')
+			'href'  => self::admin_url()
 		);
 		$wp_admin_bar->add_node( $args );
 
@@ -395,7 +397,30 @@ class Jetpack_Beta {
 
 	}
 
+	static function is_network_active() {
+		if ( ! is_multisite() ) {
+			return false;
+		}
+
+		if ( is_plugin_active_for_network( JETPACK_PLUGIN_FILE ) || is_plugin_active_for_network( JETPACK_DEV_PLUGIN_FILE ) ){
+			return true;
+		}
+
+		return false;
+	}
+	
+
 	static function replace_active_plugin( $current_plugin, $replace_with_plugin, $force_activate = false ) {
+		if ( self::is_network_active() ) {
+			$new_active_plugins = array();
+			$network_active_plugins = get_site_option( 'active_sitewide_plugins' );
+			foreach ( $network_active_plugins as $plugin => $date ) {
+				$key = ( $plugin === $current_plugin ? $replace_with_plugin : $plugin );
+				$new_active_plugins[ $key ] = $date;
+			}
+			update_site_option( 'active_sitewide_plugins', $new_active_plugins );
+			return;
+		}
 
 		$active_plugins     = (array) get_option( 'active_plugins', array() );
 		$new_active_plugins = array();
