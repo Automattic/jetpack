@@ -13,8 +13,52 @@ import { SettingsGroup } from '../index';
 
 describe( 'SettingsGroup', () => {
 
+	const allGroupsNonAdminCantAccess = [
+			'widget-visibility',
+			'minileven',
+			'contact-form',
+			'sitemaps',
+			'latex',
+			'carousel',
+			'tiled-gallery',
+			'custom-content-types',
+			'verification-tools',
+			'markdown',
+			'infinite-scroll',
+			'gravatar-hovercards',
+			'omnisearch',
+			'custom-css',
+			'sharedaddy',
+			'widgets',
+			'shortcodes',
+			'related-posts',
+			'videopress',
+			'monitor',
+			'sso',
+			'vaultpress',
+			'google-analytics',
+			'seo-tools',
+			'stats',
+			'wordads',
+			'manage',
+			'likes',
+			'shortlinks',
+			'notes',
+			'subscriptions',
+			'protect',
+			'enhanced-distribution',
+			'comments',
+			'json-api',
+			'photon'
+		],
+		allGroupsForNonAdmin = [
+			'after-the-deadline',
+			'post-by-email'
+		];
+
 	let testProps = {
-		learn_more_button: 'https://jetpack.com/support/protect'
+		learn_more_button: 'https://jetpack.com/support/protect',
+		userCanManageModules: true
 	};
 
 	const settingsGroup = shallow( <SettingsGroup support={ testProps.learn_more_button } hasChild /> );
@@ -35,4 +79,27 @@ describe( 'SettingsGroup', () => {
 	it( 'does not have a learn more icon if there is no link or module are passed', () => {
 		expect( shallow( <SettingsGroup /> ).find( 'InfoPopover' ) ).to.have.length( 0 );
 	} );
+
+	describe( 'When user is not an admin', () => {
+
+		Object.assign( testProps, {
+			userCanManageModules: false
+		} );
+
+		it( 'does not render groups that are not After the Deadline or Post by Email', () => {
+			allGroupsNonAdminCantAccess.forEach( item => {
+				testProps.module = item;
+				expect( shallow( <SettingsGroup module={ testProps } /> ).find( '.jp-form-settings-group' ) ).to.have.length( 0 );
+			} );
+		} );
+
+		it( 'renders After the Deadline and Post by Email groups', () => {
+			allGroupsForNonAdmin.forEach( item => {
+				testProps.module = item;
+				expect( shallow( <SettingsGroup module={ testProps } /> ).find( '.jp-form-settings-group' ) ).to.have.length( 1 );
+			} );
+		} );
+
+	} );
+
 } );
