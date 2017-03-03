@@ -886,18 +886,22 @@ That was a cool video.';
 		$this->server_event_storage->reset();
 		$this->test_already = false;
 		add_action( 'wp_insert_post', array( $this, 'add_a_hello_post_type' ), 9 );
-		$post_id = $this->factory->post->create( array( 'post_type' => 'post' ) );
+		$this->factory->post->create( array( 'post_type' => 'post' ) );
 		remove_action( 'wp_insert_post', array( $this, 'add_a_hello_post_type' ), 9 );
 
 		$this->sender->do_sync();
 
-		$events = $this->server_event_storage->get_all_events( 'jetpack_published_post' );
+		$events = $this->server_event_storage->get_all_events();
 
-		$this->assertEquals( 2, count( $events ) );
+		$events = array_slice( $events, -4);
 
-		global $wp_version;
-		// The first event is the hello post type...
-		$this->assertEquals( $events[ version_compare( $wp_version, '4.7', '<' ) ? 0 : 1 ]->args[0], $post_id );
+		$this->assertEquals( $events[0]->args[0], $events[1]->args[0] );
+		$this->assertEquals( $events[0]->action, 'wp_insert_post' );
+		$this->assertEquals( $events[1]->action, 'jetpack_published_post' );
+
+		$this->assertEquals( $events[2]->args[0], $events[3]->args[0] );
+		$this->assertEquals( $events[2]->action, 'wp_insert_post' );
+		$this->assertEquals( $events[3]->action, 'jetpack_published_post' );
 	}
 
 	function add_a_hello_post_type() {
