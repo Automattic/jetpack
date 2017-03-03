@@ -19,6 +19,11 @@
 	display: none;
 }
 
+/* Hide the "Plans" page in Jetpack Dashboard */
+.dops-navigation .dops-section-nav-tab__link[href="#/plans"] {
+	display: none;
+}
+
 /************* Plugins Page **************/
 
 .wp-list-table tr[data-slug="akismet"] > *,
