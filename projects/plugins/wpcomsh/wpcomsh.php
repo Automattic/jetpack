@@ -7,7 +7,9 @@
  * Author URI: http://automattic.com/
  */
 
-define( 'WPCOMSH__PLUGIN_FILE', __FILE__ );
+// Needed as Pressable has different path for wpcomsh than normally.
+define( 'WPCOMSH__PLUGIN_DIR_PATH', WP_CONTENT_DIR . '/mu-plugins/wpcomsh' );
+define( 'WPCOMSH__PLUGIN_FILE', WPCOMSH__PLUGIN_DIR_PATH . '/wpcomsh.php' );
 
 require_once( 'constants.php' );
 require_once( 'footer-credit/footer-credit.php' );
