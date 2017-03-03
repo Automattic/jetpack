@@ -23,15 +23,13 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 	}
 
 	public function init_listeners( $callable ) {
-		global $wp_version;
+		$this->action_handler = $callable;
+
 		// Core < 4.7 doesn't deal with nested wp_insert_post calls very well
-		if ( version_compare( $wp_version, '4.7-alpha', '<' ) ) {
-			$this->action_handler = $callable;
-			add_action( 'wp_insert_post', array( $this, 'wp_insert_post' ), 0, 3 );
-		} else {
-			add_action( 'wp_insert_post', $callable, 11, 3 );
-			add_action( 'wp_insert_post', array( $this, 'send_published' ), 12, 3 );
-		}
+		global $wp_version;
+		$priority = version_compare( $wp_version, '4.7-alpha', '<' ) ? 0 : 11;
+
+		add_action( 'wp_insert_post', array( $this, 'wp_insert_post' ), $priority, 3 );
 
 		add_action( 'deleted_post', $callable, 10 );
 		add_action( 'jetpack_publicize_post', $callable );
@@ -248,13 +246,19 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 
 	public function wp_insert_post( $post_ID, $post, $update ) {
 		call_user_func( $this->action_handler, $post_ID, $post, $update );
-		$this->send_published( $post_ID, $post, $update );
+		$this->send_published( $post_ID, $post );
 	}
 
-	public function send_published( $post_ID, $post, $update ) {
+	public function send_published( $post_ID, $post ) {
 		if ( ! in_array( $post_ID, $this->just_published ) ) {
 			return;
 		}
+
+		// Post revisions cause race conditions where this send_published add the action before the actual post gets synced
+		if ( wp_is_post_autosave( $post ) || wp_is_post_revision( $post ) ) {
+			return;
+		}
+
 		/**
 		 * Filter that is used to add to the post flags ( meta data ) when a post gets published
 		 *
