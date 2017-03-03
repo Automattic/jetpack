@@ -18,8 +18,7 @@ import UrlSearch from 'mixins/url-search';
  */
 import {
 	filterSearch,
-	focusSearch,
-	getSearchFocus as _getSearchFocus
+	getSearchTerm
 } from 'state/search';
 import {
 	userCanManageModules as _userCanManageModules,
@@ -61,10 +60,8 @@ export const NavigationSettings = React.createClass( {
 					delaySearch={ true }
 					delayTimeout={ 500 }
 					onSearch={ this.doSearch }
-					isOpen={
-						'/search' === this.props.route.path
-						|| this.props.searchHasFocus
-					}
+					isOpen={ false !== this.props.searchTerm }
+					initialValue={ this.props.searchTerm }
 				/>
 			);
 		}
@@ -165,13 +162,12 @@ export default connect(
 			isSubscriber: _userIsSubscriber( state ),
 			siteConnectionStatus: getSiteConnectionStatus( state ),
 			isModuleActivated: module => isModuleActivated( state, module ),
-			searchHasFocus: _getSearchFocus( state )
+			searchTerm: getSearchTerm( state )
 		};
 	},
 	( dispatch ) => {
 		return {
-			searchForTerm: ( term ) => dispatch( filterSearch( term ) ),
-			onSearchFocus: ( hasFocus ) => dispatch( focusSearch( hasFocus ) )
+			searchForTerm: ( term ) => dispatch( filterSearch( term ) )
 		};
 	}
 )( NavigationSettings );
