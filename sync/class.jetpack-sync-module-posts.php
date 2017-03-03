@@ -5,6 +5,7 @@ require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
 class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 
 	private $just_published = array();
+	private $action_handler;
 
 	public function name() {
 		return 'posts';
@@ -22,7 +23,8 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 	}
 
 	public function init_listeners( $callable ) {
-		add_action( 'wp_insert_post', array( $this, 'add_wp_insert_post' ), 10, 3 );
+		$this->action_handler = $callable;
+		add_action( 'wp_insert_post', array( $this, 'wp_insert_post' ), 10, 3 );
 		add_action( 'deleted_post', $callable, 10 );
 		add_action( 'jetpack_publicize_post', $callable );
 		add_action( 'jetpack_published_post', $callable, 10, 2 );
@@ -32,16 +34,6 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		// listen for meta changes
 		$this->init_listeners_for_meta_type( 'post', $callable );
 		$this->init_meta_whitelist_handler( 'post', array( $this, 'filter_meta' ) );
-	}
-
-	public function add_wp_insert_post( $post_ID, $post, $update ) {
-		require_once dirname( __FILE__ ) . '/class.jetpack-sync-listener.php';
-		$listener = Jetpack_Sync_Listener::get_instance();
-		$listener->action_handler( $post_ID, $post, $update );
-
-		if ( in_array( $post_ID, $this->just_published ) ) {
-			$this->send_published_post( $post_ID, $post );
-		}
 	}
 
 	public function init_full_sync_listeners( $callable ) {
@@ -234,27 +226,22 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		return $post;
 	}
 
+	public function wp_insert_post( $post_ID, $post, $update ) {
+		call_user_func( $this->action_handler, $post_ID, $post, $update );
+
+		if ( in_array( $post_ID, $this->just_published ) ) {
+			$this->send_published( $post_ID, $post );
+			$this->just_published = array_diff( $this->just_published, array( $post_ID ) );
+		}
+	}
+
 	public function save_published( $new_status, $old_status, $post ) {
 		if ( 'publish' === $new_status && 'publish' !== $old_status ) {
 			$this->just_published[] = $post->ID;
 		}
 	}
 
-	public function send_published() {
-
-		while ( ! is_null( $post_ID = array_shift( $this->just_published ) ) ) {
-			$post = get_post( $post_ID );
-
-			// Post revisions cause race conditions where this send_published add the action before the actual post gets synced
-			if ( wp_is_post_autosave( $post ) || wp_is_post_revision( $post ) || empty( $post ) ) {
-				continue;
-			}
-
-			$this->send_published_post( $post_ID, $post );
-		}
-	}
-
-	public function send_published_post( $post_ID, $post ) {
+	public function send_published( $post_ID, $post ) {
 		/**
 		 * Filter that is used to add to the post flags ( meta data ) when a post gets published
 		 *
@@ -274,10 +261,6 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		 * @param mixed array post flags that are added to the post
 		 */
 		do_action( 'jetpack_published_post', $post_ID, $flags );
-
-		if ( ( $post_ID = array_search( 'strawberry', $this->just_published ) ) !== false) {
-			unset( $this->just_published[ $post_ID ] );
-		}
 	}
 
 	public function expand_post_ids( $args ) {
