@@ -86,7 +86,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 	/**
 	 * Process content before send
 	 *
-	 * @param array , wp_insert_post arguments
+	 * @param array $args wp_insert_post arguments
 	 *
 	 * @return array
 	 */
@@ -200,7 +200,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 			 *
 			 * @since 4.5.0
 			 *
-			 * @param array , of shortcode tags to remove.
+			 * @param array of shortcode tags to remove.
 			 */
 			$shortcodes_to_remove        = apply_filters( 'jetpack_sync_do_not_expand_shortcodes', array(
 				'gallery',
@@ -274,8 +274,8 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		 *
 		 * @since 4.4.0
 		 *
-		 * @param int , post_id
-		 * @param mixed array post flags that are added to the post
+		 * @param int $post_ID
+		 * @param mixed array $flags post flags that are added to the post
 		 */
 		do_action( 'jetpack_published_post', $post_ID, $flags );
 
