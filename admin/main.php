@@ -15,7 +15,7 @@
 			</span>
 		</div>
 		<div class="dops-foldable-card__content">
-			<?php echo $this->get_jetpack_plugin_version(); ?>
+			<?php echo Jetpack_Beta::get_jetpack_plugin_version(); ?>
 		</div>
 	</div>
 	<?php

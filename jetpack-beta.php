@@ -36,7 +36,6 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Jetpack beta manages files inside jetpack-dev folder this folder should contain
  *
  */
-
 define( 'JPBETA__PLUGIN_FOLDER', plugins_url() . '/jetpack-beta/' );
 define( 'JPBETA__PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'JPBETA__PLUGIN_FILE', __FILE__ );
@@ -47,25 +46,20 @@ define( 'JPBETA_DEFAULT_BRANCH', 'rc_only' );
 define( 'JETPACK_BETA_MANIFEST_URL', 'https://betadownload.jetpack.me/jetpack-branches.json' );
 define( 'JETPACK_ORG_API_URL', 'https://api.wordpress.org/plugins/info/1.0/jetpack.json' );
 define( 'JETPACK_GITHUB_API_URL', 'https://api.github.com/repos/Automattic/Jetpack/' );
-define( 'JETPACK_DEV_PLUGIN_SLUG', 'jetpack-dev' );
+define( 'JETPACK_GITHUB_URL', 'https://github.com/Automattic/jetpack' );
+define( 'JETPACK_DEFAULT_URL', 'https://jetpack.com' );
 
-define( 'JETPACK_PLUGIN_FOLDER', plugins_url() . '/jetpack-dev/' );
+define( 'JETPACK_DEV_PLUGIN_SLUG', 'jetpack-dev' );
 
 define( 'JETPACK_PLUGIN_FILE', 'jetpack/jetpack.php' );
 define( 'JETPACK_DEV_PLUGIN_FILE', 'jetpack-dev/jetpack.php' );
 
-/**
- * Confirm Jetpack is at least installed before doing anything
- * Curiously, developers are discouraged from using WP_PLUGIN_DIR and not given a
- * function with which to get the plugin directory, so this is what we have to do
- */
 require_once 'autoupdate-self.php';
 add_action( 'init', array( 'Jetpack_Beta_Autoupdate_Self', 'instance' ) );
 
 class Jetpack_Beta {
 
 	protected static $_instance = null;
-
 	protected static $admin = null;
 
 	/**
@@ -73,6 +67,24 @@ class Jetpack_Beta {
 	 */
 	public static function instance() {
 		return self::$_instance = is_null( self::$_instance ) ? new self() : self::$_instance;
+	}
+
+	/**
+	 * Constructor
+	 */
+	public function __construct() {
+
+		if ( isset( $_GET['delete'] ) ) {
+			delete_site_transient( 'update_plugins' );
+		}
+
+		add_filter( 'auto_update_plugin', array( $this, 'auto_update_jetpack_beta' ), 10, 2 );
+		add_filter( 'pre_set_site_transient_update_plugins', array( $this, 'api_check' ) );
+
+		if ( is_admin() ) {
+			require JPBETA__PLUGIN_DIR . 'jetpack-beta-admin.php';
+			self::$admin = new Jetpack_Beta_Admin();
+		}
 	}
 
 	/**
@@ -93,7 +105,7 @@ class Jetpack_Beta {
 			return 'jetpack';
 		}
 
-		return 'jetpack-dev';
+		return JETPACK_DEV_PLUGIN_SLUG;
 	}
 
 	public static function set_default_options() {
@@ -126,6 +138,109 @@ class Jetpack_Beta {
 			$wp_filesystem->delete( $working_dir, true );
 		}
 	}
+	
+	public function api_check( $transient ) {
+		// Check if the transient contains the 'checked' information
+		// If not, just return its value without hacking it
+		if ( empty( $transient->checked ) ) {
+			return $transient;
+		}
+
+		// We are running the regular Jetpack version..
+		if ( self::get_plugin_slug() !== JETPACK_DEV_PLUGIN_SLUG ) {
+			return $transient;
+		}
+
+		// Lets always grab the latest jetab
+		delete_site_transient( 'jetpack_beta_manifest' );
+
+		// check the version and decide if it's new
+		$update = version_compare( self::get_new_jetpack_version(), self::get_jetpack_plugin_version(), '>' );
+		if ( $update ) {
+			$response              = new stdClass;
+			$response->plugin      = self::get_plugin_slug();
+			$response->new_version = self::get_new_jetpack_version();
+			$response->slug        = self::get_plugin_slug();
+			$response->url         = self::get_url();
+			$response->package     = self::get_install_url();
+			// If response is false, don't alter the transient
+			if ( false !== $response ) {
+				$transient->response[ self::get_plugin_file() ] = $response;
+			}
+		}
+		return $transient;
+	}
+
+	static function get_jetpack_plugin_version() {
+		$info = self::get_jetpack_plugin_info();
+		return $info['Version'];
+	}
+
+	static function get_new_jetpack_version() {
+		$manifest = self::get_beta_manifest();
+
+		list( $branch, $section ) = (array) get_option( 'jetpack_dev_currently_installed' );
+
+		if ( 'master' === $section && isset( $manifest->{$section}->version ) ) {
+			return $manifest->{$section}->version;
+		}
+
+		if ( isset( $manifest->{$section}->{$branch}->version ) ) {
+			return $manifest->{$section}->{$branch}->version;
+		}
+		return 0;
+	}
+
+	static function get_url( $branch = null, $section = null ) {
+		
+		if ( is_null ( $section ) ) {
+			list( $branch, $section ) = (array) get_option( 'jetpack_dev_currently_installed' );
+		}
+		
+		if ( 'master' === $section ) {
+			return JETPACK_GITHUB_URL . '/tree/master-build';
+		}
+
+		if ( 'rc' === $section ) {
+			return JETPACK_GITHUB_URL . '/tree/' . $section . '-build';
+		}
+
+		if ( 'pr' === $section ) {
+			$manifest = self::get_beta_manifest();
+			return isset( $manifest->{$section}->{$branch}->pr )
+				? JETPACK_GITHUB_URL  . '/pull/' . $manifest->{$section}->{$branch}->pr
+				: JETPACK_DEFAULT_URL;
+		}
+		return JETPACK_DEFAULT_URL;
+	}
+
+	static function get_install_url( $branch = null, $section = null ) {
+
+		if ( is_null( $section ) ) {
+			list( $branch, $section ) = (array) get_option( 'jetpack_dev_currently_installed' );
+		}
+
+		if ( 'stable' === $section ) {
+			$org_data = self::get_org_data();
+			return $org_data->download_link;
+		}
+
+		$manifest = Jetpack_Beta::get_beta_manifest();
+
+		if ( 'master' === $section && isset( $manifest->{$section}->download_url ) ) {
+			return $manifest->{$section}->download_url;
+		}
+
+		if ( isset( $manifest->{$section}->{$branch}->download_url ) ) {
+			return $manifest->{$section}->{$branch}->download_url;
+		}
+
+		return null;
+	}
+
+	static function get_jetpack_plugin_info() {
+		return get_plugin_data( WP_PLUGIN_DIR . '/' . self::get_plugin_file() );
+	}
 
 	/*
 	 * This needs to happen on shutdown. Other wise it doesn't work.
@@ -133,21 +248,7 @@ class Jetpack_Beta {
 	static function switch_active() {
 		self::replace_active_plugin( JETPACK_DEV_PLUGIN_FILE, JETPACK_PLUGIN_FILE );
 	}
-
-	/**
-	 * Constructor
-	 */
-	public function __construct() {
-
-		add_filter( 'auto_update_plugin', array( $this, 'auto_update_jetpack_beta' ), 10, 2 );
-		// add_filter( 'pre_set_site_transient_update_plugins', array( $this, 'api_check' ) );
-
-		if ( is_admin() ) {
-			require JPBETA__PLUGIN_DIR . 'jetpack-beta-admin.php';
-			self::$admin = new Jetpack_Beta_Admin();
-		}
-	}
-
+	
 	static function get_beta_manifest() {
 		return self::get_remote_data( JETPACK_BETA_MANIFEST_URL, 'manifest' );
 	}
@@ -156,9 +257,9 @@ class Jetpack_Beta {
 		return self::get_remote_data( JETPACK_ORG_API_URL, 'org_data' );
 	}
 
-	static function get_remote_data( $url, $transinet ) {
+	static function get_remote_data( $url, $transient ) {
 		$prefix = 'jetpack_beta_';
-		$cache  = get_site_transient( $prefix . $transinet );
+		$cache  = get_site_transient( $prefix . $transient );
 		if ( $cache ) {
 			return $cache;
 		}
@@ -170,7 +271,7 @@ class Jetpack_Beta {
 		}
 
 		$cache = json_decode( wp_remote_retrieve_body( $remote_manifest ) );
-		set_site_transient( $prefix . $transinet, $cache, MINUTE_IN_SECONDS * 15 );
+		set_site_transient( $prefix . $transient, $cache, MINUTE_IN_SECONDS * 15 );
 
 		return $cache;
 	}
@@ -191,7 +292,7 @@ class Jetpack_Beta {
 		}
 	}
 
-	static function proceed_to_install( $url, $plugin_folder = 'jetpack-dev', $section ) {
+	static function proceed_to_install( $url, $plugin_folder = JETPACK_DEV_PLUGIN_SLUG, $section ) {
 
 		if ( 'stable' === $section && file_exists( WP_PLUGIN_DIR . '/' . JETPACK_PLUGIN_FILE ) ) {
 			self::replace_active_plugin( JETPACK_DEV_PLUGIN_FILE, JETPACK_PLUGIN_FILE, true );

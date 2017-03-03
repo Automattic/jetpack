@@ -61,7 +61,7 @@ class Jetpack_Beta_Admin {
 			$section = esc_html( $_GET['section'] );
 
 			if ( get_option( 'jetpack_dev_currently_installed' ) !== array( $branch, $section ) ) {
-				Jetpack_Beta::proceed_to_install( $this->get_install_url( $branch, $section ), $this->get_folder( $section ), $section );
+				Jetpack_Beta::proceed_to_install( Jetpack_Beta::get_install_url( $branch, $section ), $this->get_folder( $section ), $section );
 			}
 			
 			update_option( 'jetpack_dev_currently_installed', array( $branch, $section ) );
@@ -74,41 +74,10 @@ class Jetpack_Beta_Admin {
 			return 'jetpack';
 		}
 
-		return 'jetpack-dev';
+		return JETPACK_DEV_PLUGIN_SLUG;
 	}
 
-	function get_jetpack_plugin_version() {
-		$info = $this->get_jetpack_plugin_info();
-
-		return $info['Version'];
-	}
-
-	function get_jetpack_plugin_info() {
-		return get_plugin_data( WP_PLUGIN_DIR . '/' . Jetpack_Beta::get_plugin_file() );
-	}
-
-	function get_install_url( $branch_string, $section ) {
-
-		if ( 'stable' === $section ) {
-			$org_data = Jetpack_Beta::get_org_data();
-
-			return $org_data->download_link;
-		}
-
-		$manifest = Jetpack_Beta::get_beta_manifest();
-
-		if ( 'master' === $section && isset( $manifest->{$section}->download_url ) ) {
-			return $manifest->{$section}->download_url;
-		}
-
-
-		if ( isset( $manifest->{$section}->{$branch_string}->download_url ) ) {
-			return $manifest->{$section}->{$branch_string}->download_url;
-		}
-
-		return null;
-	}
-
+	
 	function admin_styles() {
 		wp_enqueue_style( 'jetpack-beta-admin', plugins_url( "admin/admin.css", JPBETA__PLUGIN_FILE ), array(), JPBETA_VERSION . '-' . time() );
 	}
@@ -200,7 +169,7 @@ class Jetpack_Beta_Admin {
 		$pr         = '';
 		if ( isset( $branch->pr ) && is_int( $branch->pr ) ) {
 			$pr        = sprintf( 'data-pr="%s"', esc_attr( $branch->pr ) );
-			$more_info = sprintf( __( '<a href="https://github.com/Automattic/jetpack/pull/%s">more info</a> - ' ), $branch->pr );
+			$more_info = sprintf( __( '<a href="%s">more info</a> - ' ), Jetpack_Beta::get_url( $branch_key, $section ) );
 		}
 
 		$update_time = ( isset( $branch->update_date )
