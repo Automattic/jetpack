@@ -33,12 +33,16 @@ class VaultPress_IXR_SSL_Client extends IXR_Client {
 		$this->headers['User-Agent']     = $this->useragent;
 		$this->headers['Content-Length'] = $length;
 
+		$sslverify = true;
+		if ( defined( 'VAULTPRESS_NO_SSL' ) && VAULTPRESS_NO_SSL ) {
+			$sslverify = false;
+		}
 		if ( class_exists( 'WP_Http' ) ) {
 			$args = array(
 				'method' => 'POST',
 				'body' => $xml,
 				'headers' => $this->headers,
-				'sslverify' => false,
+				'sslverify' => $sslverify,
 				);
 			if ( $this->timeout )
 				$args['timeout'] = $this->timeout;
