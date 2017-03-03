@@ -12,6 +12,7 @@ require_once $sync_dir . 'class.jetpack-sync-wp-replicastore.php';
 require_once $sync_server_dir . 'class.jetpack-sync-test-replicastore.php';
 require_once $sync_server_dir . 'class.jetpack-sync-server-replicator.php';
 require_once $sync_server_dir . 'class.jetpack-sync-server-eventstore.php';
+require_once $sync_server_dir . 'class.jetpack-sync-test-helper.php';
 
 /*
  * Base class for Sync tests - establishes connection between local

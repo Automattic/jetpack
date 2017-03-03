@@ -42,6 +42,7 @@ function _manually_load_plugin() {
 }
 
 function _manually_install_woocommerce() {
+	global $wp_version;
 	// clean existing install first
 	define( 'WP_UNINSTALL_PLUGIN', true );
 	define( 'WC_REMOVE_ALL_DATA', true );
@@ -50,14 +51,18 @@ function _manually_install_woocommerce() {
 	WC_Install::install();
 
 	// reload capabilities after install, see https://core.trac.wordpress.org/ticket/28374
-	$GLOBALS['wp_roles']->reinit();
-
+	if ( version_compare( $wp_version, '4.7.0' ) >= 0 ) {
+		$GLOBALS['wp_roles'] = new WP_Roles();
+	} else {
+		$GLOBALS['wp_roles']->reinit();
+	}
+	
 	echo "Installing WooCommerce..." . PHP_EOL;
 }
 
 // If we are running the uninstall tests don't load jepack.
 if ( ! ( in_running_uninstall_group() ) ) {
-	tests_add_filter( 'plugins_loaded', '_manually_load_plugin' );
+	tests_add_filter( 'plugins_loaded', '_manually_load_plugin', 1 );
 	if ( "1" == getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
 		tests_add_filter( 'setup_theme', '_manually_install_woocommerce' );	
 	}
