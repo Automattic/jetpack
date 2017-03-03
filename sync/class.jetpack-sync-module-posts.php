@@ -5,7 +5,6 @@ require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
 class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 
 	private $just_published = array();
-	private $action_handler;
 
 	public function name() {
 		return 'posts';
@@ -23,9 +22,13 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 	}
 
 	public function init_listeners( $callable ) {
-		$this->action_handler = $callable;
 		global $wp_version;
-		add_action( 'wp_insert_post', array( $this, 'wp_insert_post' ), version_compare( $wp_version, '4.7', '<' ) ? 9 : 11, 3 );
+		// Core < 4.7 doesn't deal with nested wp_insert_post calls very well
+		if ( version_compare( $wp_version, '4.7', '<' ) ) {
+			add_action( 'wp_insert_post', array( $this, 'send_published' ),  9, 3 );
+		} else {
+			add_action( 'wp_insert_post', array( $this, 'send_published' ),  11, 3 );
+		}
 		add_action( 'deleted_post', $callable, 10 );
 		add_action( 'jetpack_publicize_post', $callable );
 		add_action( 'jetpack_published_post', $callable, 10, 2 );
@@ -227,22 +230,16 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		return $post;
 	}
 
-	public function wp_insert_post( $post_ID, $post, $update ) {
-		call_user_func( $this->action_handler, $post_ID, $post, $update );
-
-		if ( in_array( $post_ID, $this->just_published ) ) {
-			$this->send_published( $post_ID, $post );
-			$this->just_published = array_diff( $this->just_published, array( $post_ID ) );
-		}
-	}
-
 	public function save_published( $new_status, $old_status, $post ) {
 		if ( 'publish' === $new_status && 'publish' !== $old_status ) {
 			$this->just_published[] = $post->ID;
 		}
 	}
 
-	public function send_published( $post_ID, $post ) {
+	public function send_published( $post_ID, $post, $update ) {
+		if ( ! in_array( $post_ID, $this->just_published ) ) {
+			return;
+		}
 		/**
 		 * Filter that is used to add to the post flags ( meta data ) when a post gets published
 		 *
@@ -262,6 +259,8 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		 * @param mixed array post flags that are added to the post
 		 */
 		do_action( 'jetpack_published_post', $post_ID, $flags );
+
+		$this->just_published = array_diff( $this->just_published, array( $post_ID ) );
 	}
 
 	public function expand_post_ids( $args ) {
