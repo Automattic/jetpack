@@ -248,11 +248,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 
 	public function wp_insert_post( $post_ID, $post, $update ) {
 		call_user_func( $this->action_handler, $post_ID, $post, $update );
-
-		if ( in_array( $post_ID, $this->just_published ) ) {
-			$this->send_published( $post_ID, $post, $update );
-			$this->just_published = array_diff( $this->just_published, array( $post_ID ) );
-		}
+		$this->send_published( $post_ID, $post, $update );
 	}
 
 	public function send_published( $post_ID, $post, $update ) {
