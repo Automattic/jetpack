@@ -346,9 +346,8 @@ add_action( 'jetpack_learn_more_button_masterbar', 'jetpack_masterbar_more_link'
 
 function jetpack_masterbar_more_info() {
 	esc_html_e(
-		"Improves the experience for Jetpack authors when they've transferred their WordPress " .
-		"site from WordPress.com to a self-hosted plan by providing a similar experience to the " .
-		"front-end navigation on WordPress.com."
+		"Quickly access your Stats, Notifications, Posts and more on WordPress.com. " .
+		"The Toolbar is displayed for any user on the site that is connected to WordPress.com."
 		, 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_masterbar', 'jetpack_masterbar_more_info' );

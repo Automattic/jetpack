@@ -24,15 +24,13 @@ class A8C_WPCOM_Masterbar {
 		$this->user_data = Jetpack::get_connected_user_data( $this->user_id );
 		$this->user_login = $this->user_data['login'];
 		$this->display_name = $this->user_data['display_name'];
-		$this->primary_site_slug = $this->get_site_slug();
+		$this->primary_site_slug = Jetpack::build_raw_urls( get_home_url() );
 		// We need to use user's setting here, instead of relying on current blog's text direction
 		$this->user_text_direction = $this->user_data['text_direction'];
 
 		if ( $this->is_rtl() ) {
 			// Extend core WP_Admin_Bar class in order to add rtl styles
-			add_filter( 'wp_admin_bar_class', function () {
-				return 'RTL_Admin_Bar';
-			} );
+			add_filter( 'wp_admin_bar_class', array( $this, 'get_rtl_admin_bar_class' ) );
 		}
 
 		add_action( 'wp_before_admin_bar_render', array( $this, 'replace_core_masterbar' ), 99999 );
@@ -45,8 +43,12 @@ class A8C_WPCOM_Masterbar {
 
 		if ( Jetpack::is_module_active( 'notes' ) && $this->is_rtl() ) {
 			// Override Notification module to include RTL styles
-			add_action( 'enqueue_rtl_notification_styles', '__return_true' );
+			add_action( 'a8c_wpcom_masterbar_enqueue_rtl_notification_styles', '__return_true' );
 		}
+	}
+
+	public function get_rtl_admin_bar_class() {
+		return 'RTL_Admin_Bar';
 	}
 
 	public function remove_core_styles() {
@@ -78,19 +80,11 @@ class A8C_WPCOM_Masterbar {
 		wp_enqueue_script( 'a8c_wpcom_masterbar_overrides', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/masterbar-overrides/masterbar.js' ) );
 	}
 
-	public function get_site_slug() {
-		$url = get_site_url();
-		$url = parse_url( $url );
-		$url = $url['host'] . untrailingslashit( $url['path'] );
-
-		return str_replace( '/', '::', $url );
-	}
-
 	function wpcom_static_url( $file ) {
 		$i   = hexdec( substr( md5( $file ), - 1 ) ) % 2;
-		$url = 'http://s' . $i . '.wp.com' . $file;
+		$url = 'https://s' . $i . '.wp.com' . $file;
 
-		return set_url_scheme( $url );
+		return set_url_scheme( $url, 'https');
 	}
 
 	public function replace_core_masterbar() {
@@ -179,7 +173,11 @@ class A8C_WPCOM_Masterbar {
 		$wp_admin_bar->add_menu( array(
 			'parent' => 'newdash',
 			'id'     => 'streams-header',
-			'title'  => __( 'Streams', 'jetpack' ),
+			'title'  => _x(
+				'Streams',
+				'Title for Reader sub-menu that contains followed sites, likes, and recommendations',
+				'jetpack'
+			),
 			'meta'   => array(
 				'class' => 'ab-submenu-header',
 			)
@@ -386,7 +384,11 @@ class A8C_WPCOM_Masterbar {
 		$wp_admin_bar->add_menu( array(
 			'parent' => $id,
 			'id'     => 'special-header',
-			'title'  => __( 'Special', 'jetpack' ),
+			'title'  => _x(
+				'Special',
+				'Title for Me sub-menu that contains Get Apps, Next Steps, and Help options',
+				'jetpack'
+			),
 			'meta'   => array(
 				'class' => 'ab-submenu-header',
 			),
