@@ -895,8 +895,9 @@ That was a cool video.';
 
 		$this->assertEquals( 2, count( $events ) );
 
+		global $wp_version;
 		// The first event is the hello post type...
-		$this->assertEquals( $events[1]->args[0], $post_id );
+		$this->assertEquals( $events[ version_compare( $wp_version, '4.7', '<' ) ? 0 : 1 ]->args[0], $post_id );
 	}
 
 	function add_a_hello_post_type() {

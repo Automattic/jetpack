@@ -24,7 +24,8 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 
 	public function init_listeners( $callable ) {
 		$this->action_handler = $callable;
-		add_action( 'wp_insert_post', array( $this, 'wp_insert_post' ), 10, 3 );
+		global $wp_version;
+		add_action( 'wp_insert_post', array( $this, 'wp_insert_post' ), version_compare( $wp_version, '4.7', '<' ) ? 9 : 11, 3 );
 		add_action( 'deleted_post', $callable, 10 );
 		add_action( 'jetpack_publicize_post', $callable );
 		add_action( 'jetpack_published_post', $callable, 10, 2 );
