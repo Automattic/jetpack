@@ -400,7 +400,7 @@ function jetpack_current_user_data() {
 		'isMaster'    => $is_master_user,
 		'username'    => $current_user->user_login,
 		'wpcomUser'   => $dotcom_data,
-		'gravatar'    => get_avatar( $current_user->ID, 40 ),
+		'gravatar'    => get_avatar( $current_user->ID, 40, 'mm', '', array( 'force_display' => true ) ),
 		'permissions' => array(
 			'admin_page'         => current_user_can( 'jetpack_admin_page' ),
 			'connect'            => current_user_can( 'jetpack_connect' ),
