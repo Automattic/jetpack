@@ -121,7 +121,7 @@ class Jetpack_Sitemap_Buffer {
 
 	/**
 	 * Append an item to the buffer, if there is room for it,
-   * and set is_empty_flag to false. If there is no room,
+	 * and set is_empty_flag to false. If there is no room,
 	 * we set is_full_flag to true. If $item is null,
 	 * don't do anything and report success.
 	 *
@@ -246,7 +246,7 @@ class Jetpack_Sitemap_Buffer {
 		foreach ( $array as $key => $value ) {
 
 			// Only allow a-z, A-Z, colon, underscore, and hyphen.
-			$tag = preg_replace('/[^a-zA-Z:_-]/', '_', $key );
+			$tag = preg_replace( '/[^a-zA-Z:_-]/', '_', $key );
 
 			if ( is_array( $value ) ) {
 				$string .= $depth . "<$tag>\n";
@@ -276,7 +276,7 @@ class Jetpack_Sitemap_Buffer {
 		$string = '';
 
 		foreach ( $array as $key => $value ) {
-			$key = preg_replace('/[^a-zA-Z:_-]/', '_', $key );
+			$key = preg_replace( '/[^a-zA-Z:_-]/', '_', $key );
 			$string .= ' ' . $key . '="' . esc_attr( $value ) . '"';
 		}
 
