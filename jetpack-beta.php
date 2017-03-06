@@ -124,6 +124,10 @@ class Jetpack_Beta {
 		add_action( 'shutdown', array( __CLASS__, 'switch_active' ) );
 		delete_option( 'jetpack_dev_currently_installed' );
 
+		if ( is_multisite() ) {
+			return;
+		}
+
 		// Delete the jetpack dev plugin
 		$creds = request_filesystem_credentials( site_url() . '/wp-admin/', '', false, false, array() );
 		if ( ! WP_Filesystem( $creds ) ) {
