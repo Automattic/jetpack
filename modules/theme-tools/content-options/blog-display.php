@@ -59,10 +59,10 @@ function jetpack_blog_display_custom_excerpt( $content ) {
 
 		if ( count( $words ) > $excerpt_length ) {
 			array_pop( $words );
-			$text = implode( ' ', $words );
+			$text = implode( $sep, $words );
 			$text = $text . $excerpt_more;
 		} else {
-			$text = implode( ' ', $words );
+			$text = implode( $sep, $words );
 		}
 	} else {
 		$text = wp_kses_post( $post->post_excerpt );
