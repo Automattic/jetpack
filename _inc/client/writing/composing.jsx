@@ -198,22 +198,24 @@ const Composing = moduleSettingsForm(
 				</SettingsGroup>
 			);
 
+			const atdHeader = (
+				<ModuleToggle
+					slug="after-the-deadline"
+					activated={ this.props.getOptionValue( 'after-the-deadline' ) }
+					toggling={ this.props.isSavingAnyOption( 'after-the-deadline' ) }
+					toggleModule={ this.props.toggleModuleNow }
+				>
+					<span className="jp-form-toggle-explanation">
+						{ atd.description }
+					</span>
+				</ModuleToggle>
+			);
+
 			const atdSettings = (
 				<div>
-					<SettingsGroup hasChild disableInDevMode module={ atd }>
-						<ModuleToggle slug="after-the-deadline"
-								activated={ this.props.getOptionValue( 'after-the-deadline' ) }
-								toggling={ this.props.isSavingAnyOption( 'after-the-deadline' ) }
-								toggleModule={ this.props.toggleModuleNow }>
-							<span className="jp-form-toggle-explanation">
-								{ atd.description }
-							</span>
-						</ModuleToggle>
-					</SettingsGroup>
 					<FoldableCard
-						clickableHeader={ true }
-						subheader={ __( 'Advanced options' ) }
-						compact
+						className="jp-foldable-card__main-settings"
+						header={ atdHeader }
 					>
 						{ this.getAtdSettings() }
 					</FoldableCard>
