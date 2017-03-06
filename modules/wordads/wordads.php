@@ -101,9 +101,7 @@ class WordAds {
 	 * @since 4.5.0
 	 */
 	public static function is_infinite_scroll() {
-		return current_theme_supports( 'infinite-scroll' ) &&
-				class_exists( 'The_Neverending_Home_Page' ) &&
-				The_Neverending_Home_Page::got_infinity();
+		return class_exists( 'The_Neverending_Home_Page' ) && The_Neverending_Home_Page::got_infinity();
 	}
 
 	/**
