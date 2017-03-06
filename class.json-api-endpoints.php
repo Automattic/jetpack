@@ -1496,14 +1496,15 @@ abstract class WPCOM_JSON_API_Endpoint {
 	function copy_hooks( $from_hook, $to_hook, $base_paths ) {
 		global $wp_filter;
 		foreach ( $wp_filter as $hook => $actions ) {
-			if ( $from_hook <> $hook )
+			if ( $from_hook <> $hook ) {
 				continue;
-
-			if ( ! has_action( $hook ) )
+			}
+			if ( ! has_action( $hook ) ) {
 				continue;
+			}
 
 			foreach ( $actions as $priority => $callbacks ) {
-				foreach( $callbacks as $callback_key => $callback_data ) {
+				foreach ( $callbacks as $callback_key => $callback_data ) {
 					$callback = $callback_data['function'];
 					$reflection = $this->get_reflection( $callback ); // use reflection api to determine filename where function is defined
 					if ( false !== $reflection ) {
