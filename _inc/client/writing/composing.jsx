@@ -202,25 +202,32 @@ const Composing = moduleSettingsForm(
 				</SettingsGroup>
 			);
 
-			if ( this.props.userCanEditPosts ) {
+			if ( this.props.userCanManageModules || ( this.props.userCanEditPosts && this.props.getOptionValue( 'after-the-deadline' ) ) ) {
 				atdSettings = (
 					<div>
 						<FoldableCard
 							className={ classNames( 'jp-foldable-card__main-settings', { 'jp-foldable-settings-disable': unavailableInDevMode } ) }
 							header={
+						this.props.userCanManageModules
+							? (
 								<ModuleToggle
 									slug="after-the-deadline"
 									compact
 									disabled={ unavailableInDevMode }
 									activated={ this.props.getOptionValue( 'after-the-deadline' ) }
 									toggling={ this.props.isSavingAnyOption( 'after-the-deadline' ) }
-									toggleModule={ this.props.toggleModuleNow }
-								>
+									toggleModule={ this.props.toggleModuleNow }>
 									<span className="jp-form-toggle-explanation">
 										{ atd.description }
 									</span>
 								</ModuleToggle>
-							}
+							)
+							: (
+								<span className="jp-form-toggle-explanation">
+									{ atd.description }
+								</span>
+							)
+						}
 						>
 							{ this.getAtdSettings() }
 						</FoldableCard>

@@ -9,6 +9,7 @@ import { connect } from 'react-redux';
  */
 import { getModule } from 'state/modules';
 import { getSettings } from 'state/settings';
+import { userCanManageModules } from 'state/initial-state';
 import { isDevMode, isUnavailableInDevMode, isCurrentUserLinked } from 'state/connection';
 import { userCanEditPosts } from 'state/initial-state';
 import { isModuleFound as _isModuleFound } from 'state/search';
@@ -52,11 +53,11 @@ export const Writing = React.createClass( {
 		return (
 			<div>
 				<QuerySite />
-				<Composing { ...commonProps } userCanEditPosts={ this.props.userCanEditPosts } />
+				<Composing { ...commonProps } userCanManageModules={ this.props.userCanManageModules } userCanEditPosts={ this.props.userCanEditPosts } />
 				<Media { ...commonProps } />
 				<CustomContentTypes { ...commonProps } />
 				<ThemeEnhancements { ...commonProps } />
-				<PostByEmail { ...commonProps } isLinked={ this.props.isLinked } />
+				<PostByEmail { ...commonProps } isLinked={ this.props.isLinked } userCanManageModules={ this.props.userCanManageModules } />
 			</div>
 		);
 	}
@@ -69,9 +70,10 @@ export default connect(
 			settings: getSettings( state ),
 			isDevMode: isDevMode( state ),
 			isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name ),
-			isModuleFound: ( module_name ) => _isModuleFound( state, module_name ),
 			userCanEditPosts: userCanEditPosts( state ),
-			isLinked: isCurrentUserLinked( state )
+			isLinked: isCurrentUserLinked( state ),
+			userCanManageModules: userCanManageModules( state ),
+			isModuleFound: ( module_name ) => _isModuleFound( state, module_name )
 		};
 	}
 )( Writing );

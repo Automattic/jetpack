@@ -8,6 +8,7 @@ import Card from 'components/card';
 import classNames from 'classnames';
 import InfoPopover from 'components/info-popover';
 import ExternalLink from 'components/external-link';
+import includes from 'lodash/includes';
 import noop from 'lodash/noop';
 
 /**
@@ -21,7 +22,7 @@ export const SettingsGroup = props => {
 
 	// Non admin users only get Publicize, After the Deadline, and Post by Email settings. The UI doesn't have settings for Publicize.
 	// composing is not a module slug but it's used so the Composing card is rendered to show AtD.
-	if ( module.module && ! props.userCanManageModules && 'post-by-email' === module.module ) {
+	if ( module.module && ! props.userCanManageModules && ! includes( [ 'after-the-deadline', 'post-by-email' ], module.module ) ) {
 		return <span />;
 	}
 

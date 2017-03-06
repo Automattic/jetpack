@@ -55,20 +55,27 @@ const PostByEmail = moduleSettingsForm(
 					module="post-by-email"
 					hideButton>
 					<SettingsGroup hasChild disableInDevMode module={ postByEmail }>
-						<ModuleToggle
-							slug="post-by-email"
-							compact
-							disabled={ disabledControls }
-							activated={ isPbeActive }
-							toggling={ this.props.isSavingAnyOption( 'post-by-email' ) }
-							toggleModule={ this.props.toggleModuleNow }
-						>
-						<span className="jp-form-toggle-explanation">
-							{
-								this.props.module( 'post-by-email' ).description
-							}
-						</span>
-						</ModuleToggle>
+						{
+							this.props.userCanManageModules
+								? (
+									<ModuleToggle
+										slug="post-by-email"
+										compact
+										disabled={ disabledControls }
+										activated={ isPbeActive }
+										toggling={ this.props.isSavingAnyOption( 'post-by-email' ) }
+										toggleModule={ this.props.toggleModuleNow }>
+										<span className="jp-form-toggle-explanation">
+											{ this.props.module( 'post-by-email' ).description }
+										</span>
+									</ModuleToggle>
+								)
+								: (
+									<span className="jp-form-toggle-explanation">
+										{ this.props.module( 'post-by-email' ).description }
+									</span>
+								)
+						}
 						<FormFieldset>
 							<FormLabel>
 								<FormLegend>{ __( 'Email Address' ) }</FormLegend>
