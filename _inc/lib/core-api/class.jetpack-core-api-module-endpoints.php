@@ -437,8 +437,11 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 		// If $params was set via `get_body_params()` there may be some additional variables in the request that can
 		// cause validation to fail. This method verifies that each param was in fact updated and will throw a `some_updated`
 		// error if unused variables are included in the request.
-		$params = array_filter( $params, 'is_string' );
-		unset( $params['context'], $params['slug'] );
+		foreach ( array_keys( $params ) as $key ) {
+			if ( is_int( $key ) || 'slug' === $key || 'context' === $key ) {
+				unset( $params[ $key ] );
+			}
+		}
 
 		// Get available module options.
 		$options = Jetpack_Core_Json_Api_Endpoints::get_updateable_data_list( 'any' === $request['slug']
@@ -1189,3 +1192,15 @@ function jetpack_do_after_gravatar_hovercards_deactivation() {
 	update_option( 'gravatar_disable_hovercards', 'disabled' );
 }
 add_action( 'jetpack_deactivate_module_gravatar-hovercards', 'jetpack_do_after_gravatar_hovercards_deactivation' );
+
+/**
+ * Actions performed only when Markdown is activated through the endpoint call.
+ *
+ * @since 4.7.0
+ */
+function jetpack_do_after_markdown_activation() {
+
+	// When Markdown is activated, enable support for post editing automatically.
+	update_option( 'wpcom_publish_posts_with_markdown', true );
+}
+add_action( 'jetpack_activate_module_markdown', 'jetpack_do_after_markdown_activation' );
