@@ -326,10 +326,15 @@ class VideoPress_Player {
 				$html .= '<source src="' . esc_url( $mp4 ) . '" type="video/mp4; codecs=&quot;' . esc_attr( $this->video->videos->mp4->codecs ) . '&quot;" />';
 			unset( $mp4 );
 		}
-		$ogg = $this->video->videos->ogv->url;
-		if ( ! empty( $ogg ) )
-			$html .= '<source src="' . esc_url( $ogg ) . '" type="video/ogg; codecs=&quot;' . esc_attr( $this->video->videos->ogv->codecs ) . '&quot;" />';
-		unset( $ogg );
+
+		if ( isset( $this->video->videos->ogv ) ) {
+			$ogg = $this->video->videos->ogv->url;
+			if ( ! empty( $ogg ) ) {
+				$html .= '<source src="' . esc_url( $ogg ) . '" type="video/ogg; codecs=&quot;' . esc_attr( $this->video->videos->ogv->codecs ) . '&quot;" />';
+			}
+
+			unset( $ogg );
+		}
 
 		$html .= '<div><img alt="';
 		if ( isset( $this->video->title ) )

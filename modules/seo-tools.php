@@ -1,6 +1,6 @@
 <?php
 /**
- * Module Name: SEO tools
+ * Module Name: SEO Tools
  * Module Description: Better results on search engines and social media.
  * Jumpstart Description: Better results on search engines and social media.
  * Sort Order: 35
