@@ -45,7 +45,7 @@
 		margin-top: 2px;
 	}
 	.jp-form-setting-explanation {
-		color: darken( $gray, 20% );
+		color: $gray-text-min;
 		display: block;
 		margin: rem( 5px ) rem( 14px ) 0 0;
 		font-size: rem( 13px );
