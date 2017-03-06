@@ -32,6 +32,7 @@ class Jetpack_SSO {
 		add_action( 'jetpack_modules_loaded', array( $this, 'module_configure_button' ) );
 		add_action( 'login_form_logout',      array( $this, 'store_wpcom_profile_cookies_on_logout' ) );
 		add_action( 'jetpack_unlinked_user',  array( $this, 'delete_connection_for_user') );
+		add_action( 'wp_login',               array( 'Jetpack_SSO', 'clear_cookies_after_login' ) );
 
 		// Adding this action so that on login_init, the action won't be sanitized out of the $action global.
 		add_action( 'login_form_jetpack-sso', '__return_true' );
@@ -781,8 +782,6 @@ class Jetpack_SSO {
 				// Set that as the requested redirect to
 				$redirect_to = $_request_redirect_to = esc_url_raw( $_COOKIE['jetpack_sso_redirect_to'] );
 			}
-
-			self::clear_cookies_after_login();
 
 			$json_api_auth_environment = Jetpack_SSO_Helpers::get_json_api_auth_environment();
 
