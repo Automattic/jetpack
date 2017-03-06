@@ -18,7 +18,7 @@ class VaultPress {
 	var $option_name          = 'vaultpress';
 	var $auto_register_option = 'vaultpress_auto_register';
 	var $db_version           = 4;
-	var $plugin_version       = '1.8.6';
+	var $plugin_version       = '1.8.7';
 
 	function __construct() {
 		register_activation_hook( __FILE__, array( $this, 'activate' ) );
