@@ -542,7 +542,7 @@ class Publicize extends Publicize_Base {
 			?>
 
 			<?php if ( ! empty( $me['name'] ) ) : ?>
-				<p><?php esc_html_e( 'Publicize to my <strong>Facebook Wall</strong>:', 'jetpack' ); ?></p>
+				<p><?php _e( 'Publicize to my <strong>Facebook Wall</strong>:', 'jetpack' ); ?></p>
 				<table id="option-profile">
 					<tbody>
 					<tr>
@@ -562,7 +562,7 @@ class Publicize extends Publicize_Base {
 
 			<?php if ( $pages ) : ?>
 
-				<p><?php esc_html_e( 'Publicize to my <strong>Facebook Page</strong>:', 'jetpack' ); ?></p>
+				<p><?php _e( 'Publicize to my <strong>Facebook Page</strong>:', 'jetpack' ); ?></p>
 				<table id="option-fb-fanpage">
 					<tbody>
 
@@ -693,7 +693,7 @@ class Publicize extends Publicize_Base {
 			}
 			?>
 
-			<p><?php esc_html_e( 'Publicize to my <strong>Tumblr blog</strong>:', 'jetpack' ); ?></p>
+			<p><?php _e( 'Publicize to my <strong>Tumblr blog</strong>:', 'jetpack' ); ?></p>
 
 			<ul id="option-tumblr-blog">
 
