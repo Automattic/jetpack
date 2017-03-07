@@ -13,7 +13,7 @@ import {
 	JETPACK_SEARCH_TERM
 } from 'state/action-types';
 
-const searchTerm = ( state = false, action ) => {
+const searchTerm = ( state = '', action ) => {
 	switch ( action.type ) {
 		case JETPACK_SEARCH_TERM:
 			return action.term;

@@ -24,7 +24,7 @@ describe( 'Module found selector', () => {
 					}
 				},
 				search: {
-					searchTerm: false
+					searchTerm: ''
 				}
 			}
 		}

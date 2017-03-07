@@ -41,7 +41,7 @@ export const NavigationSettings = React.createClass( {
 				return 0 === item.indexOf( 'term=' );
 			} );
 
-		let keyword = false;
+		let keyword = '';
 
 		if ( term.length > 0 ) {
 			keyword = term[ 0 ].split( '=' )[ 1 ];
@@ -60,7 +60,7 @@ export const NavigationSettings = React.createClass( {
 					delaySearch={ true }
 					delayTimeout={ 500 }
 					onSearch={ this.doSearch }
-					isOpen={ false !== this.props.searchTerm }
+					isOpen={ !! this.props.searchTerm }
 					initialValue={ this.props.searchTerm }
 				/>
 			);

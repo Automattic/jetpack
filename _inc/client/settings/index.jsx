@@ -24,7 +24,7 @@ export default React.createClass( {
 		return (
 			<div className="jp-settings-container">
 				<div className="jp-no-results">
-					{ false !== commonProps.searchTerm
+					{ commonProps.searchTerm
 						? __(
 							'No search results found for %(term)s',
 							{
