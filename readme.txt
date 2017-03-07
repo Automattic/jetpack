@@ -105,9 +105,6 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 = 4.7 =
 
-* Release date: March 7, 2017
-* Release post:
-
 **New Features and Improvements**
 
 **Performance Improvements**
@@ -117,39 +114,27 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Open Graph: Avoid slow queries on sites with thousands of images. #6297
 * Widgets: update the Top Posts Widget to retrieve posts via the WordPress.com REST API. #6335
 * Widget Visibility: Rewrite the way that the major/minor rules lists are generated to save bandwidth and memory. #6333
+* Google+ Shortcode: clean up enqueuing of the Google+ js library. #6440
 
 **Enhancements**
 
+* Support: add more information to debug tools to help you get better help from our support team. #6171
 * Ads: update the display of some of the house ads as well as the ad notice. #6471
 * Carousel: display copyright EXIF information if it's available and allow to define custom EXIF information to display. #6352
 * Contact Form: add a new "Export" page to highlight the Export functionality. #3637
-* Comments: add a filter to allow removing the Comment Form title. #6347
-* Development Mode: update notice to include all possible options to activate Development mode. #6360
-* General: remove deprecated compatibility code for older versions of WordPress. #6337, #6383
-* General: cleanup Jetpack registration function. #6322
-* General: update admin notice displayed to WooCommerce store owners. It now detects when WooCommerce Services is installed, but not active. #6382, #6369
-* Holiday Snow: remove settings outside of Holiday Snow period. #6298
-* Infinite Scroll: update wording in settings to avoid any confusion. #6239
-* Infinite Scroll: the classes `infinite-scroll` and `neverending` are now applied using JS instead of PHP. #6346
 * Markdown: allow to independently toggle Markdown for posts. #6406
 * Photon: do not use Photon on images hosted on WordPress.com and already including resize parameters. #6497
-* Protect: update the support link appearing when you're locked out of your site. #6468
-* Publicize: add Unit Tests to make sure Publicize doesn't break when making changes to the Publicize process. #6018
 * Sharing: allow filtering of the shared link in the Email Sharing button. #6342
 * Recipe shortcode: update the library powering the Print link. #6263
 * Stats: add column in posts table with a link for each post to jump to its stats in WordPress.com. #6370
-* Google+ Shortcode: clean up enqueuing of the Google+ js library. #6440
 * Slideshow shortcode: add filter to customize speed of the slideshow. #3297
 * SlideShare shortcode: add filter to customize the output of the shortcode. #6440
 * Twitch.tv shortcode: update to use Twitch's new embedded player. #6338
-* Support: add more information to debug tools to help you get better help from our support team. #6171
-* Synchronization process: add filter to allow customizing sync timeout. #6317
 * Theme Tools: add option to use SVGs in Social Menus. #6096
 * VideoPress: add Video GUID to the media API endpoint. #6492
 * Widgets: add a filter to The Display Posts Widget content, so the content can be customized. #5883
 * Widgets: add a new email field to the Contact Info Widget. #6275
 * Widgets: if Photon is available, use it to serve the image in the Image and the Text widgets. #4220, #6434
-* Widgets: allow non-square image sizes in the Top Posts Widget. #6403
 * Widget Visibility: add ability to match ALL conditions. #6327
 * WordPress REST API: Use `register_rest_route()` consistently for registering JSON API endpoint routes. #6006
 * WordPress.com REST API: add date and time format settings to the Settings endpoint. #6343
@@ -157,6 +142,19 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * WordPress.com REST API: allow Post backup method to be called with a site auth token. #6399
 * WordPress.com REST API: add new action links field to the plugins endpoint. #6267
 * WordPress.com REST API: add new endpoints to edit media via the API. #5281
+
+**Slightly Less Exciting Enhancements:**
+* Comments: add a filter to allow removing the Comment Form title. #6347
+* Development Mode: update notice to include all possible options to activate Development mode. #6360
+* General: cleanup Jetpack registration function. #6322
+* General: update admin notice displayed to WooCommerce store owners. It now detects when WooCommerce Services is installed, but not active. #6382, #6369
+* Holiday Snow: remove settings outside of Holiday Snow period. #6298
+* Infinite Scroll: update wording in settings to avoid any confusion. #6239
+* Infinite Scroll: the classes `infinite-scroll` and `neverending` are now applied using JS instead of PHP. #6346
+* Protect: update the support link appearing when you're locked out of your site. #6468
+* Publicize: add Unit Tests to make sure Publicize doesn't break when making changes to the Publicize process. #6018
+* Synchronization process: add filter to allow customizing sync timeout. #6317
+* Widgets: allow non-square image sizes in the Top Posts Widget. #6403
 
 **Improved Compatibility**
 
@@ -173,6 +171,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Synchronization process: do not synchronize specific post meta data added by Postman or WP RSS Mutli Importer to avoid performance issues during the sync process. #6514
 * VideoPress: avoid conflicts with plugins adding the core Video upload library to the post editor. #6525
 * Widget Visibility: replace text labels with × and + icons to improve usability on smaller devices. #3406
+* General: remove deprecated compatibility code for older versions of WordPress. #6337, #6383
 
 **Bug Fixes**
 
