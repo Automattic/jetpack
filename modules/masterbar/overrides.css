@@ -24,11 +24,20 @@
 }
 
 /* Menu items in panels are inside `ab-empty-item` */
-.accessible-focus #wpadminbar li.menupop .ab-empty-item a.ab-item:focus {
+.accessible-focus #wpadminbar li.menupop .ab-empty-item a.ab-item:focus,
+.accessible-focus #wpadminbar li.menupop .ab-empty-item a.ab-secondary:focus,
+.accessible-focus #wpadminbar li.menupop .ab-empty-item a.username:focus {
 	-webkit-box-shadow: inset  2px  2px 0 #2e4354,
 						inset -2px -2px 0 #2e4354;
 	box-shadow: inset  2px  2px 0 #2e4354,
 				inset -2px -2px 0 #2e4354;
+}
+
+.accessible-focus #wpadminbar .quicklinks li#wp-admin-bar-my-account #wp-admin-bar-user-info .ab-sign-out:focus {
+	-webkit-box-shadow: inset  2px  2px 0 #2e4354,
+						inset -2px -2px 0 #2e4354 !important;
+	box-shadow: inset  2px  2px 0 #2e4354,
+				inset -2px -2px 0 #2e4354 !important;
 }
 
 .accessible-focus #wpadminbar:not(.mobile) .ab-top-menu > li > .ab-item:focus {
