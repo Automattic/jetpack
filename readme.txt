@@ -105,6 +105,9 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 = 4.7 =
 
+* Release date: March 6th, 2017
+* Release post: http://wp.me/p1moTy-46L
+
 **Performance Improvements**
 
 * Experience better performance with single page load caching of the media summary.
@@ -112,7 +115,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * The Top Posts widget now utilizes an endpoint from the WP.com REST API improving performance, and update flexibility.
 * Improve development mode performance by only calling `site_url()` once.
 * We rewrote the way major/minor rules lists are generated to save bandwidth, and memory for sites with lots of widgets.
-* We've removed sync options that weren't need to save memory during the sync process.
+* We've removed sync options that weren't needed to save memory during the sync process.
 
 **Accessibility**
 
@@ -139,7 +142,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * We've added a new email field to the Contact Info Widget.
 * The Image and the Text widgets now use Photon if it is enabled.
 * The WordPress.com REST API got several updates including using `register_rest_route()` consistently for registering, new date and time format settings, a filter for theme info results, new links and endpoints, and more.
-* We cleaned up the Google+ Shortcode js library and added a new filter.
+* We cleaned up the Google+ Shortcode JS library and added a new filter.
 
 **Slightly Less Exciting Enhancements:**
 
