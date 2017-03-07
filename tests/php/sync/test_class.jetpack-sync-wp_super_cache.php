@@ -4,10 +4,6 @@
  * Testing WP Super Cache Sync
  */
 class WP_Test_Jetpack_Sync_WP_Super_Cache extends WP_Test_Jetpack_Sync_Base {
-	protected $post;
-	protected $callable_module;
-	protected $full_sync;
-	static $woo_enabled;
 
 	public static function setUpBeforeClass() {
 		parent::setUpBeforeClass();
