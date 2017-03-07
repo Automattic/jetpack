@@ -416,7 +416,7 @@ function jetpack_master_user_data() {
  * @return array
  */
 function jetpack_current_user_data() {
-	global $current_user;
+	$current_user = wp_get_current_user();
 	$is_master_user = $current_user->ID == Jetpack_Options::get_option( 'master_user' );
 	$dotcom_data    = Jetpack::get_connected_user_data();
 	// Add connected user gravatar to the returned dotcom_data.
