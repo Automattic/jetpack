@@ -162,7 +162,10 @@ jQuery( function( $ ) {
 	$( document ).on( 'change.widgetconditions', 'select.conditions-rule-minor', function() {
 		var $conditionsRuleMinor = $( this ),
 			$conditionsRuleMajor = $conditionsRuleMinor.siblings( 'select.conditions-rule-major' ),
-			$conditionsRuleHasChildren = $conditionsRuleMinor.siblings( 'span.conditions-rule-has-children' );
+			$conditionsRuleHasChildren = $conditionsRuleMinor.siblings( 'span.conditions-rule-has-children' ),
+			$condition = $conditionsRuleMinor.closest( '.condition' );
+
+		$condition.data( 'rule-minor', $conditionsRuleMinor.val() );
 
 		if ( $conditionsRuleMajor.val() === 'page' ) {
 			if ( $conditionsRuleMinor.val() in widget_conditions_parent_pages ) {
