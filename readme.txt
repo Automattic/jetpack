@@ -105,105 +105,87 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 = 4.7 =
 
-**New Features and Improvements**
-
 **Performance Improvements**
 
-* Development mode: improve performance by only calling `site_url()` once. #6130
-* Media Summary: improve performance with single page load caching. #5938
-* Open Graph: Avoid slow queries on sites with thousands of images. #6297
-* Widgets: update the Top Posts Widget to retrieve posts via the WordPress.com REST API. #6335
-* Widget Visibility: Rewrite the way that the major/minor rules lists are generated to save bandwidth and memory. #6333
-* Google+ Shortcode: clean up enqueuing of the Google+ js library. #6440
+* Experience better performance with single page load caching of the media summary.
+* We made some improvements to avoid slow queries on sites with thousands of images.
+* The Top Posts widget now utilizes an endpoint from the WP.com REST API improving performance, and update flexibility.
+* Improve development mode performance by only calling `site_url()` once.
+* We rewrote the way major/minor rules lists are generated to save bandwidth, and memory for sites with lots of widgets.
+* We've removed sync options that weren't need to save memory during the sync process.
+
+**Accessibility**
+
+* We've improved the highlight of the stats range for a better visual experience and to make it consistent with other areas of the dashboard.
+* Added a missing label to one of the fields in the Email sharing dialog.
+* We've enabled keyboard focus styling in the new admin interface.
+* Increased padding to sharing buttons on mobile to avoid usability issues.
+* We've replaced text labels with icons to improve usability on smaller devices.
 
 **Enhancements**
 
-* Support: add more information to debug tools to help you get better help from our support team. #6171
-* Ads: update the display of some of the house ads as well as the ad notice. #6471
-* Carousel: display copyright EXIF information if it's available and allow to define custom EXIF information to display. #6352
-* Contact Form: add a new "Export" page to highlight the Export functionality. #3637
-* Markdown: allow to independently toggle Markdown for posts. #6406
-* Photon: do not use Photon on images hosted on WordPress.com and already including resize parameters. #6497
-* Sharing: allow filtering of the shared link in the Email Sharing button. #6342
-* Recipe shortcode: update the library powering the Print link. #6263
-* Stats: add column in posts table with a link for each post to jump to its stats in WordPress.com. #6370
-* Slideshow shortcode: add filter to customize speed of the slideshow. #3297
-* SlideShare shortcode: add filter to customize the output of the shortcode. #6440
-* Twitch.tv shortcode: update to use Twitch's new embedded player. #6338
-* Theme Tools: add option to use SVGs in Social Menus. #6096
-* VideoPress: add Video GUID to the media API endpoint. #6492
-* Widgets: add a filter to The Display Posts Widget content, so the content can be customized. #5883
-* Widgets: add a new email field to the Contact Info Widget. #6275
-* Widgets: if Photon is available, use it to serve the image in the Image and the Text widgets. #4220, #6434
-* Widget Visibility: add ability to match ALL conditions. #6327
-* WordPress REST API: Use `register_rest_route()` consistently for registering JSON API endpoint routes. #6006
-* WordPress.com REST API: add date and time format settings to the Settings endpoint. #6343
-* WordPress.com REST API: add a filter for theme info results. #6446
-* WordPress.com REST API: allow Post backup method to be called with a site auth token. #6399
-* WordPress.com REST API: add new action links field to the plugins endpoint. #6267
-* WordPress.com REST API: add new endpoints to edit media via the API. #5281
+* We've added more information to our debug tools to improve your support experience.
+* New HTML5 versions of our house ads are out.
+* Update and display custom copyright EXIF information in the Carousel.
+* We've highlighted the ability to export Contact Form feedback as it was being overlooked.
+* If you have images on WordPress.com we're going to skip using Photon when the images include resize parameters.
+* Use the Sharing filter to customize the emails sent from the Email Sharing button.
+* We've updated the library powering the Print link.
+* Quickly jump to post specific stats on WordPress.com with a new link.
+* Customize the speed and display of your slideshows with new Slideshow shortcode filters.
+* The Twitch.tv shortcode now uses Twitch's new embedded player.
+* Social Menus now come with the option to use SVG icons.
+* Customize the content of the Display Posts Widget with a new filter.
+* We've added a new email field to the Contact Info Widget.
+* The Image and the Text widgets now use Photon if it is enabled.
+* The WordPress.com REST API got several updates including using `register_rest_route()` consistently for registering, new date and time format settings, a filter for theme info results, new links and endpoints, and more.
+* We cleaned up the Google+ Shortcode js library and added a new filter.
 
 **Slightly Less Exciting Enhancements:**
-* Comments: add a filter to allow removing the Comment Form title. #6347
-* Development Mode: update notice to include all possible options to activate Development mode. #6360
-* General: cleanup Jetpack registration function. #6322
-* General: update admin notice displayed to WooCommerce store owners. It now detects when WooCommerce Services is installed, but not active. #6382, #6369
-* Holiday Snow: remove settings outside of Holiday Snow period. #6298
-* Infinite Scroll: update wording in settings to avoid any confusion. #6239
-* Infinite Scroll: the classes `infinite-scroll` and `neverending` are now applied using JS instead of PHP. #6346
-* Protect: update the support link appearing when you're locked out of your site. #6468
-* Publicize: add Unit Tests to make sure Publicize doesn't break when making changes to the Publicize process. #6018
-* Synchronization process: add filter to allow customizing sync timeout. #6317
-* Widgets: allow non-square image sizes in the Top Posts Widget. #6403
+
+* We've added a filter to allow you to remove the Comment Form title.
+* The Development Mode notice got an update to include all possible options to activate Development mode.
+* Jetpack registration function got an update and cleanup.
+* A notice displayed to WooCommerce store owners now detects when WooCommerce Services is installed, but not active.
+* We've removed the Holiday Snow settings until you need them.
+* Improved Infinite Scroll settings to reduce confusion.
+* The HTML classes `infinite-scroll` and `neverending` are now applied using JS instead of PHP.
+* We've updated the support link appearing when you're locked out of your site.
+* New Unit Tests were added to make sure Publicize doesn't break when making changes to the Publicize process.
+* We've added a sync filter to allow customizing timeout.
+* The Top Posts widget now supports non-square image sizes.
+* Added the Video GUID to the media API endpoint.
 
 **Improved Compatibility**
 
-* Accessibility: enable keyboard focus styling in the new admin interface. #6300
-* Accessibility: add missing label to one of the fields in the Email sharing dialog. #6332
-* Accessibility: add additional padding to sharing buttons on mobile to avoid usability issues. #5888
-* Accessibility: update the highlight of the stats range for easier spotting and to make it consistent with other areas of the dashboard. #6418
-* Comments: fix W3C validation errors. #6316
-* Infinite Scroll: add support for the Twenty Seventeen Theme. #5940
-* Internationalization: improve translator comments to make translating new terms easier. #6307
-* Multisite: use Core functions to retrieve the list of sites for more accurate results. #3405
-* Synchronization process: remove options not needed on WordPress.com to save memory during the sync process. #6395
-* Synchronization process / WooCommerce: Add Product visibility to post meta whitelist, for better control of products displayed in Related Posts. #6419
-* Synchronization process: do not synchronize specific post meta data added by Postman or WP RSS Mutli Importer to avoid performance issues during the sync process. #6514
-* VideoPress: avoid conflicts with plugins adding the core Video upload library to the post editor. #6525
-* Widget Visibility: replace text labels with × and + icons to improve usability on smaller devices. #3406
-* General: remove deprecated compatibility code for older versions of WordPress. #6337, #6383
+* Fixed some W3C validation errors in Comments.
+* Infinite Scroll now works beautifully with the Twenty Seventeen Theme.
+* Translate new terms easier with an improvement to the translator comments.
+* We switched to use Core functions to retrieve the list of sites in a multisite network for more accurate results.
+* We added Product visibility to post meta whitelist, for better control of products displayed in Related Posts.
+* We no longer sync specific post meta data added by Postman or WP RSS Mutli Importer to avoid performance issues during the sync process.
+* We're now avoiding conflicts with plugins adding the core Video upload library to the post editor.
+* Removed deprecated compatibility code for older versions of WordPress.
 
 **Bug Fixes**
 
-* Admin Page: fix the "Compare Plans" link appearing when Jetpack's Development mode is active. #6445
-* Carousel: the `jp_carousel_load_for_images_linked_to_file` filter now works when Photon is activated as well. #6296
-* Carousel: ensure the Carousel view works when viewing image galleries loaded from infinite scroll. #6306
-* Contact Form: remove double slashes from file paths to avoid errors in specific server environments. #6384
-* Custom CSS: avoid stripping CSS when migrating from Jetpack's Custom CSS to Core's CSS editor. #5992
-* Debug Tools: make sure the right URL is used on sites where WordPress lives in a subdirectory. #6321
-* General: fix PHP error when uninstalling the plugin. #6320
-* General: fix call to incorrect WordPress function. #6499
-* Infinite Scroll: do not display the Infinite Scroll footer when we're displaying the last page. #6312
-* Infinite Scroll: change the class of the body when reaching the last page. #6246
-* Infinite Scroll: fix issue in certain themes where posts are returned but found_posts is 0. #6480
-* Photon: do not use Photon for .ashx files. #6526
-* Publicize: the character counter for Twitter in the post editing screen now turns red when 116 characters are reached to reflect the amount left after inserting the link to the post. #6362
-* Related Posts: when the module is active, always display them unless they're disabled via a filter or the toggle in options. #6324
-* Related Posts: add `jetpack_sharing_headline_html` filter back. It was removed in a previous release. #6325
-* Sharing: custom sharing services are now rendered correctly when enabled. #6355
-* Sharing: make sure the Site Icon is used on home page Open Graph Meta Tags. #6303
-* Sharing: avoid JavaScript errors when jQuery is enqueued in the footer. #6339
-* Shortcodes: fix conflicts with WordPress Post embeds. #6474
-* Stats: change height of the Stats sparkline appearing in the admin bar. #6443
-* Sync: fix synchronization scheduling issues. #6281, #6292
-* Theme Tools: use core WordPress method to define content directory location for Tonesque. #6386
-* Theme Tools: make sure changes to Featured Image Content Options can be seen in the customizer. #6463
-* Widgets: translate Follow Widget according to the site's language. #5941
-* Widgets: trim spaces in URLs for Image and Display Posts Widgets. #6375
-* Widget Visibility: fix issues with visibility on taxonomy pages. #6326
-* WordPress.com REST API: fix PHP errors when editing items via the WordPress.com interface. #6279
-* WordPress.com REST API: avoid some authentication errors in specific scenarios when using third-party apps to interact with your WordPress site, via the WordPress.com REST API. #6451
-* WordPress.com REST API: avoid permission errors when trying to preview edited posts in the WordPress.com editor. #6530
+* The Carousel `jp_carousel_load_for_images_linked_to_file` filter wasn't working well with Photon this has been fixed.
+* Carousel is now working well when loaded from infinite scroll.
+* We removed double slashes from file paths in the Contact Form to avoid errors in specific server environments.
+* Fixed a problem where CSS was being stripped when migrating from Jetpack's Custom CSS to Core's CSS editor.
+* Debug Tools now reports the correct URL when WordPress lives in a subdirectory.
+* Found and fixed a PHP error when uninstalling Jetpack.
+* Infinite Scroll is now less buggy when displaying the last page, and is more compatible with certain themes that were returning posts when there were none left to show.
+* We're now skipping Photon for .ashx files.
+* The Twitter character counter in Publicize got a fix to display info correctly.
+* Related Posts now correctly displays unless they're disabled via a filter or the toggled in options, and we brought back the `jetpack_sharing_headline_html` filter back.
+* We've improved Sharing to render custom sharing services correctly, include Open Graph Meta Tags, and avoid JavaScript errors when jQuery is enqueued in the footer.
+* We had some Shortcode conflicts with WordPress Post embeds, but that's been fixed.
+* Synchronization scheduling issues have been resolved
+* The Follow Widget now translates according to the site's language.
+* We're now trimming spaces in URLs for Image and Display Posts Widgets.
+* Widget Visibility wasn't playing nice on taxonomy pages, this is no longer the case.
+* The WordPress.com REST API received a couple of fixes to remove PHP errors when editing via the WordPress.com interface, authentication errors when using third-party apps, and permission errors when trying to preview edited posts in the WordPress.com editor.
 
 = 4.6 =
 
