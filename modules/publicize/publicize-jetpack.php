@@ -464,7 +464,7 @@ class Publicize extends Publicize_Base {
 				 *
 				 * @param int The post ID
 				 */
-				do_action( 'jetpack_publicize_post', $post->ID );
+				do_action_deprecated( 'jetpack_publicize_post', $post->ID, '4.8.0', 'jetpack_published_post_flags' );
 			}
 			delete_post_meta( $post->ID, $this->PENDING );
 			update_post_meta( $post->ID, $this->POST_DONE . 'all', true );
