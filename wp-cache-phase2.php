@@ -957,6 +957,9 @@ function wp_cache_shutdown_callback() {
 				case 'rdf':
 					$value = "application/rdf+xml";
 					break;
+				case ( 'sitemap' || 'sitemap_n' ):
+					$value = "text/xml";
+					break;
 				case 'rss':
 				case 'rss2':
 				default:
