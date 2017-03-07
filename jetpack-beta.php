@@ -82,7 +82,16 @@ class Jetpack_Beta {
 
 		add_filter( 'auto_update_plugin', array( $this, 'auto_update_jetpack_beta' ), 10, 2 );
 		add_filter( 'pre_set_site_transient_update_plugins', array( $this, 'api_check' ) );
+		add_filter( 'upgrader_post_install', array( $this, 'upgrader_post_install' ), 10, 3 );
+
 		add_action( 'admin_bar_menu', array( $this, 'admin_bar_menu' ) );
+		add_action( 'activate_plugin', array( $this, 'prevent_duplicate_plugin_activation' ) );
+
+		add_filter( 'plugin_action_links_' . JETPACK_PLUGIN_FILE, array( $this, 'remove_activate' ) );
+		add_filter( 'plugin_action_links_' . JETPACK_DEV_PLUGIN_FILE, array( $this, 'remove_activate' ) );
+
+		add_filter( 'network_admin_plugin_action_links_' . JETPACK_PLUGIN_FILE, array( $this, 'remove_activate' ) );
+		add_filter( 'network_admin_plugin_action_links_' . JETPACK_DEV_PLUGIN_FILE, array( $this, 'remove_activate' ) );
 
 		if ( is_admin() ) {
 			require JPBETA__PLUGIN_DIR . 'jetpack-beta-admin.php';
@@ -105,11 +114,23 @@ class Jetpack_Beta {
 	public static function override_active_plugins( $active_plugins ) {
 		$new_active_plugins = array();
 		foreach( $active_plugins as $active_plugin ) {
-			if ( ! in_array( $active_plugin, array( JETPACK_PLUGIN_FILE, JETPACK_DEV_PLUGIN_FILE ) ) ) {
+			if ( ! self::is_jetpack_plugin( $active_plugin ) ) {
 			$new_active_plugins[] = $active_plugin;
 			}
 		}
 		return $new_active_plugins;
+	}
+
+	public static function is_jetpack_plugin( $plugin ) {
+		return in_array( $plugin, array( JETPACK_PLUGIN_FILE, JETPACK_DEV_PLUGIN_FILE ) );
+	}
+
+	public function remove_activate( $actions ) {
+
+		if ( self::is_network_active() || ( is_plugin_active( JETPACK_PLUGIN_FILE ) ||is_plugin_active( JETPACK_DEV_PLUGIN_FILE ) ) ) {
+			$actions['activate'] = __( 'Plugin Already Active', 'jetpack-beta' );
+		}
+		return $actions;
 	}
 	/**
 	 * Ran on activation to flush update cache
@@ -231,13 +252,14 @@ class Jetpack_Beta {
 		}
 
 		// We are running the regular Jetpack version..
+		// The Site will update to the latest Jetpack Beta Version when we first switch...
 		if ( self::get_plugin_slug() !== JETPACK_DEV_PLUGIN_SLUG ) {
 			return $transient;
 		}
 
 		// Lets always grab the latest jetab
 		delete_site_transient( 'jetpack_beta_manifest' );
-
+		
 		// check the version and decide if it's new
 		$update = version_compare( self::get_new_jetpack_version(), self::get_jetpack_plugin_version(), '>' );
 		if ( $update ) {
@@ -251,8 +273,33 @@ class Jetpack_Beta {
 			if ( false !== $response ) {
 				$transient->response[ self::get_plugin_file() ] = $response;
 			}
+			// unset the that it doesn't need an update...
+			unset( $transient->no_update[ JETPACK_DEV_PLUGIN_FILE ] );
 		}
+
 		return $transient;
+	}
+
+	/**
+	 * Moves the newly downloaded folder into jetpack-dev
+	 * @param $worked
+	 * @param $hook_extras
+	 * @param $result
+	 *
+	 * @return WP_Error
+	 */
+	public function upgrader_post_install( $worked, $hook_extras, $result ) {
+		global $wp_filesystem;
+		if ( $hook_extras['plugin'] !== JETPACK_DEV_PLUGIN_FILE ) {
+			return $worked;
+		}
+
+		if ( $wp_filesystem->move( $result['destination'], WP_PLUGIN_DIR . '/' . JETPACK_DEV_PLUGIN_SLUG . '/', true ) ) {
+			return $worked;
+		} else {
+			return new WP_Error();
+		}
+		return $worked;
 	}
 
 	static function get_jetpack_plugin_version() {
