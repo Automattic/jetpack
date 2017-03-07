@@ -155,10 +155,12 @@ class Jetpack_Beta {
 
 	public static function set_default_options() {
 		// $active_plugins = (array) get_option( 'active_plugins', array() );
+		$current_active = get_option( 'jetpack_dev_currently_installed' );
 
-		if ( file_exists( self::get_plugin_file() ) ) {
+		if ( file_exists( WP_PLUGIN_DIR . '/' . JETPACK_PLUGIN_FILE ) ) {
 			update_option( 'jetpack_dev_currently_installed', array( 'stable', 'stable' ) );
 		}
+
 	}
 
 	public static function deactivate() {
@@ -431,7 +433,6 @@ class Jetpack_Beta {
 
 		if ( 'stable' === $section && file_exists( WP_PLUGIN_DIR . '/' . JETPACK_PLUGIN_FILE ) ) {
 			self::replace_active_plugin( JETPACK_DEV_PLUGIN_FILE, JETPACK_PLUGIN_FILE, true );
-
 			return;
 		}
 
@@ -471,6 +472,10 @@ class Jetpack_Beta {
 
 	static function is_network_active() {
 		if ( ! is_multisite() ) {
+			return false;
+		}
+
+		if ( ! function_exists( 'is_plugin_active_for_network' ) ) {
 			return false;
 		}
 
