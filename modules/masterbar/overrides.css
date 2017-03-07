@@ -8,6 +8,11 @@
     content: none;
 }
 
+/* Overwrite a core style which breaks the overflow for .my-sites in Safari */
+#wpadminbar li.menupop.my-sites {
+	overflow: visible;
+}
+
 /* Add a focus style for menu items */
 .accessible-focus #wpadminbar li.menupop a.ab-item:focus,
 .accessible-focus #wpadminbar li#wp-admin-bar-notes.menupop .ab-item:focus,
