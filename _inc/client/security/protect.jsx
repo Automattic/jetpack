@@ -6,6 +6,8 @@ import { translate as __ } from 'i18n-calypso';
 import Button from 'components/button';
 import Textarea from 'components/textarea';
 import includes from 'lodash/includes';
+import FoldableCard from 'components/foldable-card';
+import classNames from 'classnames';
 
 /**
  * Internal dependencies
@@ -62,66 +64,71 @@ export const Protect = moduleSettingsForm(
 		},
 
 		render() {
-			let isProtectActive = this.props.getOptionValue( 'protect' ),
-				unavailableInDevMode = this.props.isUnavailableInDevMode( 'protect' );
+			const isProtectActive = this.props.getOptionValue( 'protect' ),
+				unavailableInDevMode = this.props.isUnavailableInDevMode( 'protect' ),
+				toggle = (
+					<ModuleToggle
+						slug="protect"
+						compact
+						disabled={ unavailableInDevMode }
+						activated={ isProtectActive }
+						toggling={ this.props.isSavingAnyOption( 'protect' ) }
+						toggleModule={ this.props.toggleModuleNow }
+					>
+						<span className="jp-form-toggle-explanation">
+							{ this.props.getModule( 'protect' ).description }
+						</span>
+					</ModuleToggle>
+				);
 			return (
 				<SettingsCard
 					{ ...this.props }
 					module="protect"
 					header={ __( 'Prevent brute force login attacks', { context: 'Settings header' } ) } >
-					<SettingsGroup hasChild disableInDevMode module={ this.props.getModule( 'protect' ) }>
-						<ModuleToggle
-							slug="protect"
-							compact
-							disabled={ unavailableInDevMode }
-							activated={ isProtectActive }
-							toggling={ this.props.isSavingAnyOption( 'protect' ) }
-							toggleModule={ this.props.toggleModuleNow }
-						>
-						<span className="jp-form-toggle-explanation">
-							{
-								this.props.getModule( 'protect' ).description
-							}
-						</span>
-						</ModuleToggle>
-						<FormFieldset>
-							{
-								this.props.currentIp && (
-									<div>
-										<div className="jp-form-label-wide">
+					<FoldableCard
+						header={ toggle }
+						className={ classNames( { 'jp-foldable-settings-disable': this.props.isUnavailableInDevMode( 'protect' ) } ) }
+					>
+						<SettingsGroup hasChild disableInDevMode module={ this.props.getModule( 'protect' ) }>
+							<FormFieldset>
+								{
+									this.props.currentIp && (
+										<div>
+											<div className="jp-form-label-wide">
+												{
+													__( 'Your current IP: %(ip)s', { args: { ip: this.props.currentIp } } )
+												}
+											</div>
 											{
-												__( 'Your current IP: %(ip)s', { args: { ip: this.props.currentIp } } )
+												<Button
+													disabled={ ! isProtectActive || unavailableInDevMode || this.currentIpIsWhitelisted() }
+													onClick={ this.addToWhitelist }
+													>{ __( 'Add to whitelist' ) }</Button>
 											}
 										</div>
-										{
-											<Button
-												disabled={ ! isProtectActive || unavailableInDevMode || this.currentIpIsWhitelisted() }
-												onClick={ this.addToWhitelist }
-												>{ __( 'Add to whitelist' ) }</Button>
-										}
-									</div>
-								)
-							}
-							<FormLabel>
-								<FormLegend>{ __( 'Whitelisted IP addresses' ) }</FormLegend>
-								<Textarea
-									disabled={ ! isProtectActive || unavailableInDevMode }
-									name={ 'jetpack_protect_global_whitelist' }
-									placeholder={ 'Example: 12.12.12.1-12.12.12.100' }
-									onChange={ this.updateText }
-									value={ this.state.whitelist } />
-							</FormLabel>
-							<span className="jp-form-setting-explanation">
-								{
-									__( 'You may whitelist an IP address or series of addresses preventing them from ever being blocked by Jetpack. IPv4 and IPv6 are acceptable. To specify a range, enter the low value and high value separated by a dash. Example: 12.12.12.1-12.12.12.100', {
-										components: {
-											br: <br />
-										}
-									} )
+									)
 								}
-							</span>
-						</FormFieldset>
-					</SettingsGroup>
+								<FormLabel>
+									<FormLegend>{ __( 'Whitelisted IP addresses' ) }</FormLegend>
+									<Textarea
+										disabled={ ! isProtectActive || unavailableInDevMode }
+										name={ 'jetpack_protect_global_whitelist' }
+										placeholder={ 'Example: 12.12.12.1-12.12.12.100' }
+										onChange={ this.updateText }
+										value={ this.state.whitelist } />
+								</FormLabel>
+								<span className="jp-form-setting-explanation">
+									{
+										__( 'You may whitelist an IP address or series of addresses preventing them from ever being blocked by Jetpack. IPv4 and IPv6 are acceptable. To specify a range, enter the low value and high value separated by a dash. Example: 12.12.12.1-12.12.12.100', {
+											components: {
+												br: <br />
+											}
+										} )
+									}
+								</span>
+							</FormFieldset>
+						</SettingsGroup>
+					</FoldableCard>
 				</SettingsCard>
 			)
 		}
