@@ -125,7 +125,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * We've added a new email field to the Contact Info Widget.
 * The Image and the Text widgets now use Photon if it is enabled.
 * The WordPress.com REST API got several updates including using `register_rest_route()` consistently for registering, new date and time format settings, a filter for theme info results, new links and endpoints, and more.
-* We cleaned up the Google+ Shortcode JS library and added a new filter.
+* We cleaned up the Google+ Shortcode JS library and added a way to filter the SlideShare shortcode.
 
 **Performance Improvements**
 
