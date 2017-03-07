@@ -13,6 +13,7 @@ import { isDevMode, isUnavailableInDevMode } from 'state/connection';
 import { isModuleFound as _isModuleFound } from 'state/search';
 import QuerySite from 'components/data/query-site';
 import { SEO } from './seo';
+import { GoogleAnalytics } from './google-analytics';
 import { Ads } from './ads';
 import { SiteStats } from './site-stats';
 import { RelatedPosts } from './related-posts';
@@ -30,13 +31,14 @@ export const Traffic = React.createClass( {
 			isUnavailableInDevMode: this.props.isUnavailableInDevMode
 		};
 
-		let found = {
+		const found = {
 			seo: this.props.isModuleFound( 'seo-tools' ),
 			ads: this.props.isModuleFound( 'wordads' ),
 			stats: this.props.isModuleFound( 'stats' ),
 			related: this.props.isModuleFound( 'related-posts' ),
 			verification: this.props.isModuleFound( 'verification-tools' ),
-			sitemaps: this.props.isModuleFound( 'sitemaps' )
+			sitemaps: this.props.isModuleFound( 'sitemaps' ),
+			analytics: this.props.isModuleFound( 'google-analytics' )
 		};
 
 		if ( ! this.props.searchTerm && ! this.props.active ) {
@@ -44,34 +46,35 @@ export const Traffic = React.createClass( {
 		}
 
 		if (
-			! found.seo
-			&& ! found.ads
-			&& ! found.stats
-			&& ! found.related
-			&& ! found.verification
-			&& ! found.sitemaps
+			! found.seo &&
+			! found.ads &&
+			! found.stats &&
+			! found.related &&
+			! found.verification &&
+			! found.sitemaps &&
+			! found.analytics
 		) {
 			return null;
 		}
 
-		let seoSettings = (
+		const seoSettings = (
 			<SEO
 				{ ...commonProps }
 				configureUrl={ 'https://wordpress.com/settings/seo/' + this.props.siteRawUrl }
 			/>
 		);
-		let adSettings = (
+		const adSettings = (
 			<Ads
 				{ ...commonProps }
 				configureUrl={ 'https://wordpress.com/ads/earnings/' + this.props.siteRawUrl }
 			/>
 		);
-		let statsSettings = (
+		const statsSettings = (
 			<SiteStats
 				{ ...commonProps }
 			/>
 		);
-		let relatedPostsSettings = (
+		const relatedPostsSettings = (
 			<RelatedPosts
 				{ ...commonProps }
 				configureUrl={ this.props.siteAdminUrl +
@@ -80,9 +83,15 @@ export const Traffic = React.createClass( {
 					'&url=' + encodeURIComponent( this.props.lastPostUrl ) }
 			/>
 		);
-		let verificationSettings = (
+		const verificationSettings = (
 			<VerificationServices
 				{ ...commonProps }
+			/>
+		);
+		const googleAnalyticsSettings = (
+			<GoogleAnalytics
+				{ ...commonProps }
+				configureUrl={ 'https://wordpress.com/settings/analytics/' + this.props.siteRawUrl }
 			/>
 		);
 
@@ -93,6 +102,7 @@ export const Traffic = React.createClass( {
 				{ found.ads && adSettings }
 				{ found.stats && statsSettings }
 				{ found.related && relatedPostsSettings }
+				{ found.analytics && googleAnalyticsSettings }
 				{ ( found.verification || found.sitemaps ) && verificationSettings }
 			</div>
 		);
@@ -108,6 +118,6 @@ export default connect(
 			isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name ),
 			isModuleFound: ( module_name ) => _isModuleFound( state, module_name ),
 			lastPostUrl: getLastPostUrl( state )
-		}
+		};
 	}
 )( Traffic );
