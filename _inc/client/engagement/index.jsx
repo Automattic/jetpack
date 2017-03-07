@@ -172,7 +172,10 @@ export const Engagement = ( props ) => {
 		if ( element[0] === 'seo-tools' ) {
 			if ( 'undefined' === typeof props.sitePlan.product_slug && ! unavailableInDevMode ) {
 				proProps.configure_url = 'checking';
-			} else if ( props.sitePlan.product_slug === 'jetpack_business' ) {
+			} else if (
+				props.sitePlan.product_slug === 'jetpack_business' ||
+				props.sitePlan.product_slug === 'jetpack_business_monthly'
+			) {
 				proProps.configure_url = isModuleActive
 					? 'https://wordpress.com/settings/seo/' + props.siteRawUrl
 					: 'inactive';
