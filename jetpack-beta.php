@@ -89,7 +89,28 @@ class Jetpack_Beta {
 			self::$admin = new Jetpack_Beta_Admin();
 		}
 	}
+	
+	public static function is_network_enabled() {
+			if ( Jetpack_Beta::is_network_active() ) {
+				add_filter( 'option_active_plugins', array( 'Jetpack_Beta','override_active_plugins' ) );
+			}
+	}
 
+	/**
+	 * @param $active_plugins
+	 * Make sure that you can't have Jetpack and Jetpack Dev plugins versions loaded
+	 * This filter is only applplied if Jetpack is network activated.
+	 * @return array
+	 */
+	public static function override_active_plugins( $active_plugins ) {
+		$new_active_plugins = array();
+		foreach( $active_plugins as $active_plugin ) {
+			if ( ! in_array( $active_plugin, array( JETPACK_PLUGIN_FILE, JETPACK_DEV_PLUGIN_FILE ) ) ) {
+			$new_active_plugins[] = $active_plugin;
+			}
+		}
+		return $new_active_plugins;
+	}
 	/**
 	 * Ran on activation to flush update cache
 	 */
@@ -445,6 +466,7 @@ register_deactivation_hook( __FILE__, array( 'Jetpack_Beta', 'deactivate' ) );
 
 add_action( 'init', array( 'Jetpack_Beta', 'instance' ) );
 
+add_action( 'muplugins_loaded', array( 'Jetpack_Beta', 'is_network_enabled' ) );
 
 
 
