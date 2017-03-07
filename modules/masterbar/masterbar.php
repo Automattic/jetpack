@@ -662,8 +662,7 @@ class A8C_WPCOM_Masterbar {
 			} else {
 				// On the frontend the `url` query arg will load that page in the Customizer and also return to it after closing
 				// non-home URLs won't work unless we undo domain mapping since the Customizer preview is unmapped to always have HTTPS
-				global $current_blog;
-				$current_page = 'https://' . $current_blog->domain . $_SERVER['REQUEST_URI'];
+				$current_page = '//' . $this->primary_site_slug . $_SERVER['REQUEST_URI'];
 				$customizer_url = add_query_arg( array( 'url' => urlencode( $current_page ) ), wp_customize_url() );
 			}
 
