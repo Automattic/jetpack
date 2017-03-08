@@ -200,7 +200,10 @@ jQuery( function( $ ) {
 			select = condition.find( '.conditions-rule-minor' ).html( '' ),
 			major = condition.data( 'rule-major' );
 
-		if ( ! major ) {
+		// Disable the select, if major rule is empty or if it's a `post_type`.
+		// "Post Type" rule has been removed in Jetpack 4.7, and
+		// because it breaks all other rules we should `return`.
+		if ( ! major || 'post_type' === major ) {
 			select.attr( 'disabled', 'disabled' );
 			return;
 		}
