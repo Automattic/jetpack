@@ -217,3 +217,34 @@ function wpcomsh_delete_symlinked_parent_theme( $stylesheet ) {
 
 	return wpcomsh_delete_symlinked_theme( $template );
 }
+
+/**
+ * Returns whether site administrator(s) can manage (install, update, activate, etc) plugins.
+ *
+ * Stub. TODO: check if site has Business plan to decide.
+ *
+ * @return bool
+ */
+function wpcomsh_can_manage_plugins() {
+	return false;
+}
+
+/**
+ * Returns whether site administrator(s) can manage (install, update, activate, etc) themes.
+ *
+ * Stub. TODO: check if site has Business plan to decide.
+ *
+ * @return bool
+ */
+function wpcomsh_can_manage_themes() {
+	return false;
+}
+
+/**
+ * Returns the slug of the site's plan.
+ *
+ * @return string
+ */
+function wpcomsh_get_site_plan_slug() {
+	return get_option( 'at_plan_slug', 'free' );
+}

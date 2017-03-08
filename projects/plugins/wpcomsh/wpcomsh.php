@@ -150,22 +150,57 @@ add_action( 'init', 'wpcomsh_register_theme_hooks' );
  * @param string $cap           Capability name.
  * @return array Primitive caps.
  */
-function wpcomsh_map_caps( $required_caps, $cap ) {
+function wpcomsh_map_caps( $required_caps, $cap, $user_id, $args ) {
 	require_once( 'functions.php' );
 
 	switch ( $cap ) {
+
+		// Disallow editing 3rd party WPCom premium themes.
 		case 'edit_themes':
+			if ( ! wpcomsh_can_manage_themes() ) {
+				$required_caps[] = 'do_not_allow';
+
+				break;
+			}
+
 			$theme = wp_get_theme();
 			if ( wpcomsh_is_wpcom_premium_theme( $theme->get_stylesheet() )
 			     && 'Automattic' !== $theme->get( 'Author' ) ) {
 				$required_caps[] = 'do_not_allow';
 			}
 			break;
+
+		case 'activate_plugins':
+		case 'install_plugins':
+		case 'edit_plugins':
+		case 'delete_plugins':
+		case 'upload_plugins':
+		case 'update_plugins':
+			if ( ! wpcomsh_can_manage_plugins() ) {
+				$required_caps[] = 'do_not_allow';
+			}
+
+			break;
+
+		case 'switch_themes':
+			// Allow installing and using WPCom pub themes even if site is on the free plan.
+			if ( WPCOMSH_PLAN_FREE === wpcomsh_get_site_plan_slug() ) {
+				break;
+			}
+
+		case 'update_themes':
+		case 'delete_themes':
+		case 'upload_themes':
+			if ( ! wpcomsh_can_manage_themes() ) {
+				$required_caps[] = 'do_not_allow';
+			}
+
+			break;
 	}
 
 	return $required_caps;
 }
-add_action( 'map_meta_cap', 'wpcomsh_map_caps', 10, 2 );
+add_action( 'map_meta_cap', 'wpcomsh_map_caps', 10, 4 );
 
 function wpcomsh_remove_theme_delete_button( $prepared_themes ) {
 	require_once( 'functions.php' );
@@ -361,3 +396,11 @@ function wpcomsh_add_masterbar() {
 }
 
 add_action( 'jetpack_modules_loaded', 'wpcomsh_add_masterbar', 1 );
+
+function wpcomsh_allow_custom_wp_options( $options ) {
+	// For storing the plan of the site.
+	$options[] = 'at_plan_slug';
+
+	return $options;
+}
+add_filter( 'jetpack_options_whitelist', 'wpcomsh_allow_custom_wp_options' );
