@@ -7,7 +7,7 @@ Description: Transform your standard image galleries into an immersive full-scre
 Version: 0.1
 Author: Automattic
 
-Released under the GPL v.2 license.
+Released under the GPL-2.0 or later
 
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
