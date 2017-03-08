@@ -180,7 +180,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		// simulate emptying the server storage
 		$this->server_replica_storage->reset();
 		$this->sender->reset_data();
-		
+
 		$this->full_sync->start();
 		$this->sender->do_full_sync();
 
