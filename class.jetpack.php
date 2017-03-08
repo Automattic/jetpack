@@ -2385,7 +2385,25 @@ class Jetpack {
 	 * Saves any generated PHP errors in ::state( 'php_errors', {errors} )
 	 */
 	public static function catch_errors_on_shutdown() {
-		Jetpack::state( 'php_errors', ob_get_clean() );
+		Jetpack::state( 'php_errors', self::alias_directories( ob_get_clean() ) );
+	}
+
+	/**
+	 * Rewrite any string to make paths easier to read.
+	 *
+	 * Rewrites ABSPATH (eg `/home/jetpack/wordpress/`) to ABSPATH, and if WP_CONTENT_DIR
+	 * is located outside of ABSPATH, rewrites that to WP_CONTENT_DIR.
+	 *
+	 * @param $string
+	 * @return mixed
+	 */
+	public static function alias_directories( $string ) {
+		// ABSPATH has a trailing slash.
+		$string = str_replace( ABSPATH, 'ABSPATH/', $string );
+		// WP_CONTENT_DIR does not have a trailing slash.
+		$string = str_replace( WP_CONTENT_DIR, 'WP_CONTENT_DIR', $string );
+
+		return $string;
 	}
 
 	public static function activate_default_modules( $min_version = false, $max_version = false, $other_modules = array(), $redirect = true ) {
