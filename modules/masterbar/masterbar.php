@@ -163,7 +163,7 @@ class A8C_WPCOM_Masterbar {
 		$wp_admin_bar->add_node( array(
 			'id'     => 'notes',
 			'title'  => '<span id="wpnt-notes-unread-count" class="wpnt-loading wpn-read"></span>
-						 <span class="screen-reader-text">Notifications</span>
+						 <span class="screen-reader-text">' . __( 'Notifications', 'jetpack' ) . '</span>
 						 <span class="noticon noticon-bell"></span>',
 			'meta'   => array(
 				'html'  => '<div id="wpnt-notes-panel2" style="display:none" lang="'. esc_attr( $this->locale ) . '" dir="' . ( $this->is_rtl() ? 'rtl' : 'ltr' ) . '">' .
