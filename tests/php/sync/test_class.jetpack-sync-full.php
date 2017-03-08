@@ -184,9 +184,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->full_sync->start();
 		$this->sender->do_full_sync();
 
-		$users = get_users();
 		// 10 + 1 = 1 users gets always created.
-
 		$this->assertEquals( 11, $this->server_replica_storage->user_count() );
 		$user = $this->server_replica_storage->get_user( $user_id );
 		$this->assertEquals( get_allowed_mime_types( $user_id ), $this->server_replica_storage->get_allowed_mime_types( $user_id ) );
@@ -672,7 +670,6 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		// reset the data before the full sync
 		$this->sender->reset_data();
-
 	}
 
 	function test_full_sync_status_should_be_not_started_after_reset() {
