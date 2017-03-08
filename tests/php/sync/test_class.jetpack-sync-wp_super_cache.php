@@ -5,6 +5,8 @@
  */
 class WP_Test_Jetpack_Sync_WP_Super_Cache extends WP_Test_Jetpack_Sync_Base {
 
+	static $wp_super_cache_enabled;
+
 	public static function setUpBeforeClass() {
 		parent::setUpBeforeClass();
 

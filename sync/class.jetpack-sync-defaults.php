@@ -119,21 +119,18 @@ class Jetpack_Sync_Defaults {
 	);
 
 	public static function get_options_whitelist() {
-		if ( ! self::$initialized_options_whitelist ) {
-			/** This filter is already documented in json-endpoints/jetpack/class.wpcom-json-api-get-option-endpoint.php */
-			$options_whitelist = apply_filters( 'jetpack_options_whitelist', self::$default_options_whitelist );
-			/**
-			 * Filter the list of WordPress options that are manageable via the JSON API.
-			 *
-			 * @module sync
-			 *
-			 * @since 4.7
-			 *
-			 * @param array The default list of options.
-			 */
-			self::$initialized_options_whitelist = apply_filters( 'jetpack_sync_options_whitelist', $options_whitelist );
-		}
-		return self::$initialized_options_whitelist;
+		/** This filter is already documented in json-endpoints/jetpack/class.wpcom-json-api-get-option-endpoint.php */
+		$options_whitelist = apply_filters( 'jetpack_options_whitelist', self::$default_options_whitelist );
+		/**
+		 * Filter the list of WordPress options that are manageable via the JSON API.
+		 *
+		 * @module sync
+		 *
+		 * @since 4.7
+		 *
+		 * @param array The default list of options.
+		 */
+		return apply_filters( 'jetpack_sync_options_whitelist', $options_whitelist );
 	}
 
 	static $default_constants_whitelist = array(
@@ -157,19 +154,7 @@ class Jetpack_Sync_Defaults {
 	);
 
 	public static function get_constants_whitelist() {
-		if ( ! self::$initialized_constants_whitelist ) {
-			/**
-			 * Filter the list of PHP constants that are manageable via the JSON API.
-			 *
-			 * @module sync
-			 *
-			 * @since 4.7
-			 *
-			 * @param array The default list of constants options.
-			 */
-			self::$initialized_constants_whitelist = apply_filters( 'jetpack_sync_constants_whitelist', self::$default_constants_whitelist );
-		}
-		return self::$initialized_constants_whitelist;
+		return apply_filters( 'jetpack_sync_constants_whitelist', self::$default_constants_whitelist );
 	}
 
 	static $default_callable_whitelist = array(

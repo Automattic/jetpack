@@ -12,6 +12,14 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 		return 'functions';
 	}
 
+	public function set_defaults() {
+		if ( is_multisite() ) {
+			$this->callable_whitelist = array_merge( Jetpack_Sync_Defaults::get_callable_whitelist(), Jetpack_Sync_Defaults::get_multisite_callable_whitelist() );
+		} else {
+			$this->callable_whitelist = Jetpack_Sync_Defaults::get_callable_whitelist();
+		}
+	}
+
 	public function init_listeners( $callable ) {
 		add_action( 'jetpack_sync_callable', $callable, 10, 2 );
 
@@ -61,13 +69,6 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 	}
 
 	function get_callable_whitelist() {
-		if ( ! $this->callable_whitelist ) {
-			if ( is_multisite() ) {
-				$this->callable_whitelist = array_merge( Jetpack_Sync_Defaults::get_callable_whitelist(), Jetpack_Sync_Defaults::get_multisite_callable_whitelist() );
-			} else {
-				$this->callable_whitelist = Jetpack_Sync_Defaults::get_callable_whitelist();
-			}
-		}
 		return $this->callable_whitelist;
 	}
 
