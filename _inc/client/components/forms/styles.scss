@@ -57,6 +57,9 @@
 			margin-top: rem( 16px );
 		}
 	}
+	.dops-foldable-card & {
+		padding-bottom: 16px;
+	}
 }
 
 .jp-form-toggle-explanation {
@@ -132,6 +135,11 @@
 	& > .jp-form-fieldset,
 	& > .jp-form-setting-explanation {
 		margin-left: rem( 36px );
+	}
+
+	.dops-foldable-card & > .jp-form-fieldset,
+	.dops-foldable-card & > .jp-form-setting-explanation {
+		margin-left: rem( 44px );
 	}
 }
 
