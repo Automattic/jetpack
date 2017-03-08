@@ -85,11 +85,10 @@ export const SiteStats = moduleSettingsForm(
 				unavailableInDevMode = this.props.isUnavailableInDevMode( 'stats' ),
 				siteRoles = this.props.getSiteRoles();
 			return (
-				<SettingsCard
-					{ ...this.props }
-					hideButton
-					header={ __( 'Site stats' ) }
-					module="stats">
+				<FoldableCard
+					clickableHeader={ true }
+					subheader={ __( 'Site stats options' ) }
+				>
 					<SettingsGroup disableInDevMode module={ stats }>
 						<FormFieldset>
 							<ModuleToggle
@@ -125,57 +124,49 @@ export const SiteStats = moduleSettingsForm(
 								</span>
 							</ModuleToggle>
 						</FormFieldset>
-					</SettingsGroup>
-					<FoldableCard
-						clickableHeader={ true }
-						subheader={ __( 'Advanced options' ) }
-						compact
-					>
-						<div>
-							<FormFieldset>
-								<FormLegend>{ __( 'Count logged in page views from' ) }</FormLegend>
-								{
-									Object.keys( siteRoles ).map( key => (
+						<FormFieldset>
+							<FormLegend>{ __( 'Count logged in page views from' ) }</FormLegend>
+							{
+								Object.keys( siteRoles ).map( key => (
+									<CompactFormToggle
+										checked={ this.state[ `count_roles_${key}` ] }
+										disabled={ ! isStatsActive || unavailableInDevMode || this.props.isSavingAnyOption( [ 'stats', 'count_roles' ] ) }
+										onChange={ () => this.updateOptions( key, 'count_roles' ) }
+										key={ `count_roles-${ key }` }>
+											<span className="jp-form-toggle-explanation">
+												{ siteRoles[ key ].name }
+											</span>
+									</CompactFormToggle>
+								) )
+							}
+						</FormFieldset>
+						<FormFieldset>
+							<FormLegend>{ __( 'Allow stats reports to be viewed by' ) }</FormLegend>
+							<CompactFormToggle
+								checked={ true }
+								disabled={ true }>
+									<span className="jp-form-toggle-explanation">
+										{ siteRoles.administrator.name }
+									</span>
+							</CompactFormToggle>
+							{
+								Object.keys( siteRoles ).map( key => (
+									( 'administrator' !== key ) && (
 										<CompactFormToggle
-											checked={ this.state[ `count_roles_${key}` ] }
-											disabled={ ! isStatsActive || unavailableInDevMode || this.props.isSavingAnyOption( [ 'stats', 'count_roles' ] ) }
-											onChange={ () => this.updateOptions( key, 'count_roles' ) }
-											key={ `count_roles-${ key }` }>
+											checked={ this.state[ `roles_${key}` ] }
+											disabled={ ! isStatsActive || unavailableInDevMode || this.props.isSavingAnyOption( [ 'stats', 'roles' ] ) }
+											onChange={ () => this.updateOptions( key, 'roles' ) }
+											key={ `roles-${key}` }>
 												<span className="jp-form-toggle-explanation">
 													{ siteRoles[ key ].name }
 												</span>
 										</CompactFormToggle>
-									) )
-								}
-							</FormFieldset>
-							<FormFieldset>
-								<FormLegend>{ __( 'Allow stats reports to be viewed by' ) }</FormLegend>
-								<CompactFormToggle
-									checked={ true }
-									disabled={ true }>
-										<span className="jp-form-toggle-explanation">
-											{ siteRoles.administrator.name }
-										</span>
-								</CompactFormToggle>
-								{
-									Object.keys( siteRoles ).map( key => (
-										( 'administrator' !== key ) && (
-											<CompactFormToggle
-												checked={ this.state[ `roles_${key}` ] }
-												disabled={ ! isStatsActive || unavailableInDevMode || this.props.isSavingAnyOption( [ 'stats', 'roles' ] ) }
-												onChange={ () => this.updateOptions( key, 'roles' ) }
-												key={ `roles-${key}` }>
-													<span className="jp-form-toggle-explanation">
-														{ siteRoles[ key ].name }
-													</span>
-											</CompactFormToggle>
-										)
-									) )
-								}
-							</FormFieldset>
-						</div>
-					</FoldableCard>
-				</SettingsCard>
+									)
+								) )
+							}
+						</FormFieldset>
+					</SettingsGroup>
+				</FoldableCard>
 			);
 		}
 	} )
