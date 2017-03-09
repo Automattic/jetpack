@@ -111,6 +111,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Bug Fixes**
 
 * SSO: Avoid token / nonce errors when trying to log in to your site via the Secure Sign On option. #6571
+* Widget Visibility: avoid empty widget visibility rules after updating to Jetpack 4.7. #6600
 
 = 4.7 =
 
