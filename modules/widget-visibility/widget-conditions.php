@@ -696,6 +696,78 @@ class Jetpack_Widget_Conditions {
 
 		return $term_id;
 	}
+
+	/**
+	 * Upgrade routine to go through all widgets and move the Post Type
+	 * setting to its newer location.
+	 *
+	 * @since 4.7.1
+	 *
+	 */
+	static function migrate_post_type_rules() {
+		global $wp_registered_widgets;
+
+		$sidebars_widgets = get_option( 'sidebars_widgets' );
+
+		// Going through all sidebars and through inactive and orphaned widgets
+		foreach ( $sidebars_widgets as $s => $sidebar ) {
+			if ( ! is_array( $sidebar ) ) {
+				continue;
+			}
+
+			foreach ( $sidebar as $w => $widget ) {
+				// $widget is the id of the widget
+				if ( empty( $wp_registered_widgets[$widget] ) ) {
+					continue;
+				}
+
+				$opts = $wp_registered_widgets[$widget];
+				$instances = get_option( $opts['callback'][0]->option_name );
+
+				// Going through each instance of the widget
+				foreach( $instances as $number => $instance ) {
+					if (
+						! is_array( $instance ) ||
+						empty( $instance['conditions'] ) ||
+						empty( $instance['conditions']['rules'] )
+					) {
+						continue;
+					}
+
+					// Going through all visibility rules
+					foreach( $instance['conditions']['rules'] as $index => $rule ) {
+
+						// We only need Post Type rules
+						if ( 'post_type' !== $rule['major'] ) {
+							continue;
+						}
+
+						$rule_type = false;
+
+						// Post type or type archive rule
+						if ( 0 === strpos( $rule['minor'], 'post_type_archive' ) ) {
+							$rule_type = 'post_type_archive';
+						} else if ( 0 === strpos( $rule['minor'], 'post_type' ) ) {
+							$rule_type = 'post_type';
+						}
+
+						if ( $rule_type ) {
+							$post_type = substr( $rule['minor'], strlen( $rule_type ) + 1 );
+							$rule['minor'] = $rule_type . '-' . $post_type;
+							$rule['major'] = 'page';
+
+							$instances[ $number ]['conditions']['rules'][ $index ] = $rule;
+						}
+					}
+				}
+
+				update_option( $opts['callback'][0]->option_name, $instances );
+			}
+		}
+
+		$sidebars_widgets = get_option( 'sidebars_widgets' );
+	}
+
 }
 
 add_action( 'init', array( 'Jetpack_Widget_Conditions', 'init' ) );
