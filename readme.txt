@@ -111,6 +111,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Enhancements**
 
 * Widgets: allow the use of full URLs in the Social Media Icons widget. #6508
+* Sync: synchronize the `sync_via_cron` setting as well. #6477
 
 **Performance Improvements**
 
