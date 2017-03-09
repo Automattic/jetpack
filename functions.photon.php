@@ -85,6 +85,7 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 	 */
 	$is_wpcom_image_with_safe_args = false;
 	$allowed_wpcom_keys = array(
+		'ssl'     => true, // Not really, but it's set early up above, and wpcom images should be ssl anyways.
 		'w'       => true,
 		'h'       => true,
 		'fit'     => true,
