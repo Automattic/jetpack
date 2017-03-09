@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import CompactFormToggle from 'components/form/form-toggle/compact';
 import FoldableCard from 'components/foldable-card';
+import classNames from 'classnames';
 
 /**
  * Internal dependencies
@@ -99,7 +100,7 @@ const Composing = moduleSettingsForm(
 		getAtdSettings() {
 			const ignoredPhrases = this.props.getOptionValue( 'ignored_phrases' );
 			return (
-				<div>
+				<SettingsGroup hasChild disableInDevMode module={ this.props.getModule( 'after-the-deadline' ) }>
 					<FormFieldset>
 						<FormLegend> { __( 'Proofreading' ) } </FormLegend>
 						<span className="jp-form-setting-explanation">
@@ -152,7 +153,7 @@ const Composing = moduleSettingsForm(
 							}
 							onChange={ this.props.onOptionChange } />
 					</FormFieldset>
-				</div>
+				</SettingsGroup>
 			);
 		},
 
@@ -180,7 +181,8 @@ const Composing = moduleSettingsForm(
 			}
 
 			const markdown = this.props.module( 'markdown' ),
-				atd = this.props.module( 'after-the-deadline' );
+				atd = this.props.module( 'after-the-deadline' ),
+				unavailableInDevMode = this.props.isUnavailableInDevMode( 'after-the-deadline' );
 
 			const markdownSettings = (
 				<SettingsGroup support={ markdown.learn_more_button }>
@@ -201,6 +203,8 @@ const Composing = moduleSettingsForm(
 			const atdHeader = (
 				<ModuleToggle
 					slug="after-the-deadline"
+					compact
+					disabled={ unavailableInDevMode }
 					activated={ this.props.getOptionValue( 'after-the-deadline' ) }
 					toggling={ this.props.isSavingAnyOption( 'after-the-deadline' ) }
 					toggleModule={ this.props.toggleModuleNow }
@@ -214,7 +218,7 @@ const Composing = moduleSettingsForm(
 			const atdSettings = (
 				<div>
 					<FoldableCard
-						className="jp-foldable-card__main-settings"
+						className={ classNames( 'jp-foldable-card__main-settings', { 'jp-foldable-settings-disable': unavailableInDevMode } ) }
 						header={ atdHeader }
 					>
 						{ this.getAtdSettings() }

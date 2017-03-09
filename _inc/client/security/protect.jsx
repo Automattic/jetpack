@@ -87,7 +87,7 @@ export const Protect = moduleSettingsForm(
 					header={ __( 'Prevent brute force login attacks', { context: 'Settings header' } ) } >
 					<FoldableCard
 						header={ toggle }
-						className={ classNames( { 'jp-foldable-settings-disable': this.props.isUnavailableInDevMode( 'protect' ) } ) }
+						className={ classNames( { 'jp-foldable-settings-disable': unavailableInDevMode } ) }
 					>
 						<SettingsGroup hasChild disableInDevMode module={ this.props.getModule( 'protect' ) }>
 							<FormFieldset>
