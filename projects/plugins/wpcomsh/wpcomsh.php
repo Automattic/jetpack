@@ -150,7 +150,7 @@ add_action( 'init', 'wpcomsh_register_theme_hooks' );
  * @param string $cap           Capability name.
  * @return array Primitive caps.
  */
-function wpcomsh_map_caps( $required_caps, $cap, $user_id, $args ) {
+function wpcomsh_map_caps( $required_caps, $cap ) {
 	require_once( 'functions.php' );
 
 	switch ( $cap ) {
@@ -170,6 +170,7 @@ function wpcomsh_map_caps( $required_caps, $cap, $user_id, $args ) {
 			}
 			break;
 
+		// Disallow managing plugins for WPCom free plan.
 		case 'activate_plugins':
 		case 'install_plugins':
 		case 'edit_plugins':
@@ -182,12 +183,9 @@ function wpcomsh_map_caps( $required_caps, $cap, $user_id, $args ) {
 
 			break;
 
+		// Disallow managing themes for WPCom free plan.
 		case 'switch_themes':
-			// Allow installing and using WPCom pub themes even if site is on the free plan.
-			if ( WPCOMSH_PLAN_FREE === wpcomsh_get_site_plan_slug() ) {
-				break;
-			}
-
+		case 'install_themes':
 		case 'update_themes':
 		case 'delete_themes':
 		case 'upload_themes':
@@ -200,7 +198,7 @@ function wpcomsh_map_caps( $required_caps, $cap, $user_id, $args ) {
 
 	return $required_caps;
 }
-add_action( 'map_meta_cap', 'wpcomsh_map_caps', 10, 4 );
+add_action( 'map_meta_cap', 'wpcomsh_map_caps', 10, 2 );
 
 function wpcomsh_remove_theme_delete_button( $prepared_themes ) {
 	require_once( 'functions.php' );

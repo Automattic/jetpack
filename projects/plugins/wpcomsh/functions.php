@@ -221,30 +221,50 @@ function wpcomsh_delete_symlinked_parent_theme( $stylesheet ) {
 /**
  * Returns whether site administrator(s) can manage (install, update, activate, etc) plugins.
  *
- * Stub. TODO: check if site has Business plan to decide.
- *
  * @return bool
  */
 function wpcomsh_can_manage_plugins() {
+	if ( WPCOMSH_PLAN_BUSINESS === wpcomsh_get_site_plan_slug() ) {
+		return true;
+	}
+
 	return false;
 }
 
 /**
  * Returns whether site administrator(s) can manage (install, update, activate, etc) themes.
  *
- * Stub. TODO: check if site has Business plan to decide.
- *
  * @return bool
  */
 function wpcomsh_can_manage_themes() {
+	if ( WPCOMSH_PLAN_BUSINESS === wpcomsh_get_site_plan_slug() ) {
+		return true;
+	}
+
 	return false;
+}
+
+/**
+ * Retrieves the list of AT options containing things like:
+ * - plan_slug
+ *
+ * @return array AT options or an empty array
+ */
+function wpcomsh_get_at_options() {
+	return get_option( 'at_options', array() );
 }
 
 /**
  * Returns the slug of the site's plan.
  *
- * @return string
+ * @return string Returns the slug of the site's plan or 'free' if not known.
  */
 function wpcomsh_get_site_plan_slug() {
-	return get_option( 'at_plan_slug', 'free' );
+	$at_options = wpcomsh_get_at_options();
+
+	if ( array_key_exists( 'plan_slug', $at_options ) ) {
+		return $at_options['plan_slug'];
+	}
+
+	return 'free';
 }
