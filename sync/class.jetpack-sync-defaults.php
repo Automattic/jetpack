@@ -6,12 +6,6 @@ require_once( JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-helpers.php' 
  */
 class Jetpack_Sync_Defaults {
 
-	static $initialized_options_whitelist;
-	static $initialized_constants_whitelist;
-	static $initialized_callable_whitelist;
-	static $initialized_multisite_callable_whitelist;
-	static $initialized_post_meta_whitelist;
-
 	static $default_options_whitelist = array(
 		'stylesheet',
 		'blogname',
