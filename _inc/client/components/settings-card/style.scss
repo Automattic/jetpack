@@ -3,46 +3,67 @@
 	margin-bottom: 0;
 }
 
-.jp-form-settings-card .dops-foldable-card {
-	.dops-foldable-card__header {
-		color: #444;
-		padding-left: rem( 24px );
-		padding-right: rem( 24px );
-	}
+.jp-form-settings-card {
+	margin-bottom: rem(24px);
 
-	.form-toggle__switch {
-		float: left;
-		margin-top: 2px;
+	.dops-foldable-card {
+		.dops-foldable-card__header {
+			color: #444;
+			padding-left: rem( 24px );
+			padding-right: rem( 24px );
+		}
+
+		.form-toggle__switch {
+			float: left;
+			margin-top: rem( 2px );
+		}
+
+		.dops-foldable-card__header-text {
+			font-size: rem( 14px );
+		}
+
+		&.is-expanded .dops-foldable-card__content {
+			padding-right: rem( 24px );
+		}
+
+		&.jp-foldable-settings-disable .dops-foldable-card__header {
+			color: #dadada;
+		}
+
+		.dops-foldable-card__main {
+			@include breakpoint( ">480px" ) {
+				max-width: 85%;
+			}
+		}
+
+		.dops-foldable-card__action {
+			right: rem( 10px );
+		}
+
+		.jp-module-settings__learn-more {
+			right: rem( 2px );
+		}
 	}
+}
+
+.jp-foldable-settings-standalone {
 
 	.dops-foldable-card__header-text {
 		font-size: rem( 14px );
 	}
 
-	&.is-expanded .dops-foldable-card__content {
+	.dops-foldable-card__header,
+	&.dops-card.is-expanded .dops-foldable-card__content {
+		padding-left: rem( 24px );
 		padding-right: rem( 24px );
-	}
-
-	&.jp-foldable-settings-disable .dops-foldable-card__header {
-		color: #dadada;
-	}
-
-	.dops-foldable-card__main {
-		@include breakpoint( ">480px" ) {
-			max-width: 85%;
-		}
-	}
-
-	.jp-form-settings-group .dops-card {
-		padding: 0;
-		box-shadow: none;
 	}
 
 	.dops-foldable-card__action {
 		right: rem( 10px );
 	}
 
-	.jp-module-settings__learn-more {
+	.jp-form-settings-group .jp-module-settings__learn-more {
 		right: 2px;
+		top: 0;
 	}
 }

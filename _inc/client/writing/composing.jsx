@@ -5,6 +5,8 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import CompactFormToggle from 'components/form/form-toggle/compact';
+import FoldableCard from 'components/foldable-card';
+import classNames from 'classnames';
 
 /**
  * Internal dependencies
@@ -20,7 +22,6 @@ import { getModule } from 'state/modules';
 import TagsInput from 'components/tags-input';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import InlineExpand from 'components/inline-expand';
 
 const Composing = moduleSettingsForm(
 	React.createClass( {
@@ -84,7 +85,7 @@ const Composing = moduleSettingsForm(
 		 * @returns {object} React element object
 		 */
 		getToggle( setting, label ) {
-			return(
+			return (
 				<CompactFormToggle
 					checked={ this.state[ setting ] }
 					disabled={ ! this.props.getOptionValue( 'after-the-deadline' ) || this.props.isUnavailableInDevMode( 'after-the-deadline' ) || this.props.isSavingAnyOption( setting ) }
@@ -97,9 +98,9 @@ const Composing = moduleSettingsForm(
 		},
 
 		getAtdSettings() {
-			let ignoredPhrases = this.props.getOptionValue( 'ignored_phrases' );
+			const ignoredPhrases = this.props.getOptionValue( 'ignored_phrases' );
 			return (
-				<div>
+				<SettingsGroup hasChild disableInDevMode module={ this.props.getModule( 'after-the-deadline' ) }>
 					<FormFieldset>
 						<FormLegend> { __( 'Proofreading' ) } </FormLegend>
 						<span className="jp-form-setting-explanation">
@@ -152,7 +153,7 @@ const Composing = moduleSettingsForm(
 							}
 							onChange={ this.props.onOptionChange } />
 					</FormFieldset>
-				</div>
+				</SettingsGroup>
 			);
 		},
 
@@ -173,16 +174,17 @@ const Composing = moduleSettingsForm(
 		render() {
 			// If we don't have any element to show, return early
 			if (
-				! this.props.isModuleFound( 'markdown' )
-				&& ! this.props.isModuleFound( 'after-the-deadline' )
+				! this.props.isModuleFound( 'markdown' ) &&
+				! this.props.isModuleFound( 'after-the-deadline' )
 			) {
 				return null;
 			}
 
-			let markdown = this.props.module( 'markdown' ),
-				atd = this.props.module( 'after-the-deadline' );
+			const markdown = this.props.module( 'markdown' ),
+				atd = this.props.module( 'after-the-deadline' ),
+				unavailableInDevMode = this.props.isUnavailableInDevMode( 'after-the-deadline' );
 
-			let markdownSettings = (
+			const markdownSettings = (
 				<SettingsGroup support={ markdown.learn_more_button }>
 					<FormFieldset>
 						<ModuleToggle
@@ -198,20 +200,30 @@ const Composing = moduleSettingsForm(
 				</SettingsGroup>
 			);
 
-			let atdSettings = (
-				<SettingsGroup hasChild disableInDevMode module={ atd }>
-					<ModuleToggle slug="after-the-deadline"
-							activated={ this.props.getOptionValue( 'after-the-deadline' ) }
-							toggling={ this.props.isSavingAnyOption( 'after-the-deadline' ) }
-							toggleModule={ this.props.toggleModuleNow }>
-						<span className="jp-form-toggle-explanation">
-							{ atd.description }
-						</span>
-					</ModuleToggle>
-					<FormFieldset>
-						<InlineExpand label={ __( 'Advanced Options' ) }>{ this.getAtdSettings() }</InlineExpand>
-					</FormFieldset>
-				</SettingsGroup>
+			const atdHeader = (
+				<ModuleToggle
+					slug="after-the-deadline"
+					compact
+					disabled={ unavailableInDevMode }
+					activated={ this.props.getOptionValue( 'after-the-deadline' ) }
+					toggling={ this.props.isSavingAnyOption( 'after-the-deadline' ) }
+					toggleModule={ this.props.toggleModuleNow }
+				>
+					<span className="jp-form-toggle-explanation">
+						{ atd.description }
+					</span>
+				</ModuleToggle>
+			);
+
+			const atdSettings = (
+				<div>
+					<FoldableCard
+						className={ classNames( 'jp-foldable-card__main-settings', { 'jp-foldable-settings-disable': unavailableInDevMode } ) }
+						header={ atdHeader }
+					>
+						{ this.getAtdSettings() }
+					</FoldableCard>
+				</div>
 			);
 
 			return (
@@ -229,6 +241,6 @@ export default connect(
 		return {
 			module: ( module_name ) => getModule( state, module_name ),
 			isModuleFound: ( module_name ) => _isModuleFound( state, module_name )
-		}
+		};
 	}
 )( Composing );
