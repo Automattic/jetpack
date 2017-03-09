@@ -103,6 +103,19 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
+= 4.8 =
+
+* Release date: April 4th, 2017
+* Release post:
+
+**Enhancements**
+
+**Performance Improvements**
+
+**Accessibility**
+
+**Bug Fixes**
+
 = 4.7.1 =
 
 * Release date: March 14th, 2017
@@ -450,12 +463,3 @@ This release improves Jetpack compatibility with WordPress 4.7.
 * Sync: To improve performance, add snapTW to the list of post meta data that won't be synchronized for each post.
 * Sync: do not schedule a full sync after each import.
 * Verification Tools: in the Settings card, use appropriate link for each service.
-
-
-= 4.3 =
-
-* Release date: September 6th, 2016
-
-**Exciting Performance and UI Improvements:**
-
-* We have launched the all new React powered interface, a year in the making, designed to give you better control of your favorite Jetpack features.
