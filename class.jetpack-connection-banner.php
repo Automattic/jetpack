@@ -463,14 +463,16 @@ class Jetpack_Connection_Banner {
 		<div class="jp-connect-full__container">
 			<div class="jp-connect-full__dismiss"></div>
 
-			<div class="jp-connect-full__logo-container">
-			logos
+			<div class="jp-connect-full__step-header">
+				<div class="jp-connect-full__step-header-logos">
+					logos
+				</div>
+				<h2 class="jp-connect-full__step-header-title"><?php esc_html_e( 'Connect Jetpack to WordPress.com', 'jetpack' ) ?></h2>
 			</div>
-			<h2><?php esc_html_e( 'Connect Jetpack to WordPress.com', 'jetpack' ) ?></h2>
 
 			<div class="jp-connect-full__card">
 				<div class="jp-connect-full__card-inner">
-					<p>
+					<p class="jp-connect-full__card-description">
 						<?php
 						esc_html_e(
 							'Get detailed visitor stats, state-of-the-art security services, image performance upgrades, traffic generation tools, and more. Connect to WordPress.com to get started!',
@@ -480,9 +482,25 @@ class Jetpack_Connection_Banner {
 					</p>
 				</div>
 				<div class="jp-connect-full__card-footer">
-				connect button
+				<p class="jp-connect-full__tos-blurb">
+					<?php
+						esc_html_e(
+							'By connecting your site you agree to our fascinating [link]Terms of Service[/link] and to [link]share details[/link] with WordPress.com',
+							'jetpack'
+						);
+						?>
+				</p>
+				<p class="jp-connect-full__button-container">
+					<a href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, 'jetpack' ) ); ?>" class="dops-button is-primary">
+						<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
+					</a>
+				</p>
 				</div>
 			</div>
+			<a class="jp-connect-full__help-button" href="https://jetpack.com/contact-support" target="_blank">
+				<svg class="gridicon gridicons-help-outline" height="18" width="18" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M12 4c4.41 0 8 3.59 8 8s-3.59 8-8 8-8-3.59-8-8 3.59-8 8-8m0-2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4 8c0-2.21-1.79-4-4-4s-4 1.79-4 4h2c0-1.103.897-2 2-2s2 .897 2 2-.897 2-2 2c-.552 0-1 .448-1 1v2h2v-1.14c1.722-.447 3-1.998 3-3.86zm-3 6h-2v2h2v-2z"></path></g></svg>
+				Get help connecting your site
+			</a>
 		</div>
 
 		<?php
