@@ -105,15 +105,15 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 = 4.7.1 =
 
-* Release date:
-* Release post:
+* Release date: March 9th, 2017
+* Release post: http://wp.me/p1moTy-48Y
 
 **Bug Fixes**
 
-* Markdown: always enable for posts whenever the module is active. #6608
-* SSO: Avoid token / nonce errors when trying to log in to your site via the Secure Sign On option. #6571
-* Widget Visibility: avoid empty widget visibility rules after updating to Jetpack 4.7. #6600
-* Widget Visibility: add missing CSS for widget visibility settings on sites using an RTL language. #6604
+* Markdown: always enable Markdown for posts whenever the module is active.
+* SSO: Avoid token or nonce errors when trying to log in to your site via the Secure Sign On option.
+* Widget Visibility: avoid empty widget visibility rules after updating to Jetpack 4.7.
+* Widget Visibility: add missing CSS for widget visibility settings on sites using an RTL language.
 
 = 4.7 =
 
