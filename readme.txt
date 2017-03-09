@@ -1,7 +1,7 @@
 === WP Super Cache ===
 Contributors: donncha, automattic, kraftbj
 Tags: performance,caching,wp-cache,wp-super-cache,cache
-Tested up to: 4.7.2
+Tested up to: 4.7.3
 Stable tag: 1.4.9
 Requires at least: 3.0
 
