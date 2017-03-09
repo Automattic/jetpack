@@ -461,8 +461,30 @@ class Jetpack_Connection_Banner {
 		</div>
 
 		<div class="jp-connect-full__container">
-					hey
+			<div class="jp-connect-full__dismiss"></div>
+
+			<div class="jp-connect-full__logo-container">
+			logos
+			</div>
+			<h2><?php esc_html_e( 'Connect Jetpack to WordPress.com', 'jetpack' ) ?></h2>
+
+			<div class="jp-connect-full__card">
+				<div class="jp-connect-full__card-inner">
+					<p>
+						<?php
+						esc_html_e(
+							'Get detailed visitor stats, state-of-the-art security services, image performance upgrades, traffic generation tools, and more. Connect to WordPress.com to get started!',
+							'jetpack'
+						);
+						?>
+					</p>
+				</div>
+				<div class="jp-connect-full__card-footer">
+				connect button
+				</div>
+			</div>
 		</div>
+
 		<?php
 	}
 
