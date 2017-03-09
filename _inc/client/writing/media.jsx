@@ -97,7 +97,7 @@ const Media = moduleSettingsForm(
 					</ModuleToggle>
 					<span className="jp-form-setting-explanation">
 						{
-							__( 'Enabling Photon is required to use Tiled Galleries.' )
+							__( 'Must be enabled to use tiled galleries.' )
 						}
 					</span>
 				</SettingsGroup>
