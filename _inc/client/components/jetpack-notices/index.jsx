@@ -98,7 +98,7 @@ export const DevModeNotice = React.createClass( {
 				reasons.push( __( '{{li}}The jetpack_development_mode filter is active{{/li}}',
 					{
 						components: {
-							li: <li />,
+							li: <li />
 						}
 					}
 				) );
@@ -107,7 +107,7 @@ export const DevModeNotice = React.createClass( {
 				reasons.push( __( '{{li}}The JETPACK_DEV_DEBUG constant is defined{{/li}}',
 					{
 						components: {
-							li: <li />,
+							li: <li />
 						}
 					}
 				) );
@@ -116,7 +116,7 @@ export const DevModeNotice = React.createClass( {
 				reasons.push( __( '{{li}}Your site URL lacks a dot (e.g. http://localhost){{/li}}',
 					{
 						components: {
-							li: <li />,
+							li: <li />
 						}
 					}
 				) );
