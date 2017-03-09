@@ -91,12 +91,16 @@ class Jetpack_Widget_Conditions {
 		$post_types = get_post_types( array( 'public' => true ), 'objects' );
 
 		$widget_conditions_post_types = array();
+		$widget_conditions_post_type_archives = array();
 
 		foreach ( $post_types as $post_type ) {
 			$widget_conditions_post_types[] = array( 'post_type-' . $post_type->name, $post_type->labels->singular_name );
+			$widget_conditions_post_type_archives[] = array( 'post_type_archive-' . $post_type->name, $post_type->labels->name );
 		}
 
 		$widget_conditions_data['page'][] = array( __( 'Post type:', 'jetpack' ), $widget_conditions_post_types );
+
+		$widget_conditions_data['page'][] = array( __( 'Post type Archives:', 'jetpack' ), $widget_conditions_post_type_archives );
 
 		$pages_dropdown = preg_replace( '/<\/?select[^>]*?>/i', '', wp_dropdown_pages( array( 'echo' => false ) ) );
 
@@ -490,6 +494,8 @@ class Jetpack_Widget_Conditions {
 							default:
 								if ( substr( $rule['minor'], 0, 10 ) == 'post_type-' ) {
 									$condition_result = is_singular( substr( $rule['minor'], 10 ) );
+								} elseif ( substr( $rule['minor'], 0, 18 ) == 'post_type_archive-' ) {
+									$condition_result = is_post_type_archive( substr( $rule['minor'], 18 ) );
 								} elseif ( $rule['minor'] == get_option( 'page_for_posts' ) ) {
 									// If $rule['minor'] is a page ID which is also the posts page
 									$condition_result = $wp_query->is_posts_page;
@@ -690,6 +696,76 @@ class Jetpack_Widget_Conditions {
 
 		return $term_id;
 	}
+
+	/**
+	 * Upgrade routine to go through all widgets and move the Post Type
+	 * setting to its newer location.
+	 *
+	 * @since 4.7.1
+	 *
+	 */
+	static function migrate_post_type_rules() {
+		global $wp_registered_widgets;
+
+		$sidebars_widgets = get_option( 'sidebars_widgets' );
+
+		// Going through all sidebars and through inactive and orphaned widgets
+		foreach ( $sidebars_widgets as $s => $sidebar ) {
+			if ( ! is_array( $sidebar ) ) {
+				continue;
+			}
+
+			foreach ( $sidebar as $w => $widget ) {
+				// $widget is the id of the widget
+				if ( empty( $wp_registered_widgets[ $widget ] ) ) {
+					continue;
+				}
+
+				$opts = $wp_registered_widgets[ $widget ];
+				$instances = get_option( $opts['callback'][0]->option_name );
+
+				// Going through each instance of the widget
+				foreach( $instances as $number => $instance ) {
+					if (
+						! is_array( $instance ) ||
+						empty( $instance['conditions'] ) ||
+						empty( $instance['conditions']['rules'] )
+					) {
+						continue;
+					}
+
+					// Going through all visibility rules
+					foreach( $instance['conditions']['rules'] as $index => $rule ) {
+
+						// We only need Post Type rules
+						if ( 'post_type' !== $rule['major'] ) {
+							continue;
+						}
+
+						$rule_type = false;
+
+						// Post type or type archive rule
+						if ( 0 === strpos( $rule['minor'], 'post_type_archive' ) ) {
+							$rule_type = 'post_type_archive';
+						} else if ( 0 === strpos( $rule['minor'], 'post_type' ) ) {
+							$rule_type = 'post_type';
+						}
+
+						if ( $rule_type ) {
+							$post_type = substr( $rule['minor'], strlen( $rule_type ) + 1 );
+							$rule['minor'] = $rule_type . '-' . $post_type;
+							$rule['major'] = 'page';
+
+							$instances[ $number ]['conditions']['rules'][ $index ] = $rule;
+						}
+					}
+				}
+
+				update_option( $opts['callback'][0]->option_name, $instances );
+			}
+		}
+	}
+
 }
 
 add_action( 'init', array( 'Jetpack_Widget_Conditions', 'init' ) );
