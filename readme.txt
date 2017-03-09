@@ -114,6 +114,10 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Accessibility**
 
+**Security**
+
+* Avoid path disclosure in PHP error messages via cookies. #6572
+
 **Bug Fixes**
 
 = 4.7.1 =
