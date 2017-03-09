@@ -15,7 +15,7 @@
 
 		.form-toggle__switch {
 			float: left;
-			margin-top: 2px;
+			margin-top: rem( 2px );
 		}
 
 		.dops-foldable-card__header-text {
@@ -41,7 +41,7 @@
 		}
 
 		.jp-module-settings__learn-more {
-			right: 2px;
+			right: rem( 2px );
 		}
 	}
 }
