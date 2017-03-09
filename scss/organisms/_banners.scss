@@ -30,6 +30,22 @@
 	padding: rem( 16px );
 }
 
+// Full Page Connection Banner
+// only show when Jetpack is disconnected
+.jetpack-disconnected {
+	.jp-connect-full__container {
+		box-sizing: border-box;
+		position: absolute;
+			top: 0;
+			right: 0;
+			bottom: 0;
+			left: 0;
+			z-index: 999; // to sit over other elements
+		background: rgba($gray-light, .95);
+	}
+}
+
+
 // Plugin List Connection Banners
 // Written in the style of React to stay consistent with the Jetpack interior
 
