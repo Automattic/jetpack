@@ -23,7 +23,16 @@ class WP_Test_Jetpack_Sync_WP_Super_Cache extends WP_Test_Jetpack_Sync_Base {
 			return;
 		}
 		parent::setUp();
-		$this->full_sync = Jetpack_Sync_Modules::get_module( 'full-sync' );
+		$this->resetCallableAndConstantTimeouts();
+		set_current_screen( 'post_user' );
+	}
+
+	function define_constants() {
+		foreach ( Jetpack_Sync_Module_WP_Super_Cache::$wp_super_cache_constants as $constant ) {
+			if ( false === defined( $constant ) ) {
+				define( $constant, $constant );
+			}
+		}
 	}
 
 	function test_module_is_enabled() {
@@ -31,16 +40,10 @@ class WP_Test_Jetpack_Sync_WP_Super_Cache extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_constants_are_synced() {
+		$this->define_constants();
 		$this->sender->do_sync();
-
-		//Confirm that constants that aren't synced return null
-		$this->assertEquals( null, $this->server_replica_storage->get_constant( 'WP_SUPER_CACHE_NON_EXISTENT_CONSTANT' ) );
-
-		$this->server_replica_storage->reset();
-		$this->sender->do_sync();
-
 		foreach ( Jetpack_Sync_Module_WP_Super_Cache::$wp_super_cache_constants as $constant ) {
-			$this->assertNotEquals( null, $this->server_replica_storage->get_constant( $constant ) );
+			$this->assertEquals( constant( $constant ), $this->server_replica_storage->get_constant( $constant ) );
 		}
 	}
 
