@@ -335,7 +335,7 @@ class Jetpack {
 			list( $version ) = explode( ':', Jetpack_Options::get_option( 'version' ) );
 			if ( JETPACK__VERSION != $version ) {
 
-				// Check which active modules actually exist and remove others from active_modules list
+				// check which active modules actually exist and remove others from active_modules list
 				$unfiltered_modules = Jetpack::get_active_modules();
 				$modules = array_filter( $unfiltered_modules, array( 'Jetpack', 'is_module' ) );
 				if ( array_diff( $unfiltered_modules, $modules ) ) {
@@ -351,13 +351,23 @@ class Jetpack {
 
 				Jetpack::maybe_set_version_option();
 
-				if ( class_exists( 'Jetpack_Widget_Conditions' ) ) { 
-					add_action(
-						'wp_loaded',
-						array( 'Jetpack_Widget_Conditions', 'migrate_post_type_rules' )
-					);
-				}
+				add_action(
+					'jetpack_modules_loaded',
+					array( __CLASS__, 'upgrade_on_module_load' )
+				);
 			}
+		}
+	}
+
+	/**
+	 * Runs upgrade routines that need to have modules loaded.
+	 */
+	static function upgrade_on_module_load() {
+		if ( class_exists( 'Jetpack_Widget_Conditions' ) ) {
+			add_action(
+				'wp_loaded',
+				array( 'Jetpack_Widget_Conditions', 'migrate_post_type_rules' )
+			);
 		}
 	}
 
