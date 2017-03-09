@@ -349,6 +349,11 @@ class Jetpack {
 					Jetpack_Options::delete_option( 'identity_crisis_whitelist' );
 				}
 
+				// Make sure Markdown for posts gets turned back on
+				if ( ! get_option( 'wpcom_publish_posts_with_markdown' ) ) {
+					update_option( 'wpcom_publish_posts_with_markdown', true );
+				}
+
 				Jetpack::maybe_set_version_option();
 			}
 		}
