@@ -717,11 +717,11 @@ class Jetpack_Widget_Conditions {
 
 			foreach ( $sidebar as $w => $widget ) {
 				// $widget is the id of the widget
-				if ( empty( $wp_registered_widgets[$widget] ) ) {
+				if ( empty( $wp_registered_widgets[ $widget ] ) ) {
 					continue;
 				}
 
-				$opts = $wp_registered_widgets[$widget];
+				$opts = $wp_registered_widgets[ $widget ];
 				$instances = get_option( $opts['callback'][0]->option_name );
 
 				// Going through each instance of the widget
@@ -764,8 +764,6 @@ class Jetpack_Widget_Conditions {
 				update_option( $opts['callback'][0]->option_name, $instances );
 			}
 		}
-
-		$sidebars_widgets = get_option( 'sidebars_widgets' );
 	}
 
 }
