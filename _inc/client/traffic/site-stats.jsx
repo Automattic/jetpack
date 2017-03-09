@@ -7,6 +7,7 @@ import CompactFormToggle from 'components/form/form-toggle/compact';
 import FoldableCard from 'components/foldable-card';
 import includes from 'lodash/includes';
 import filter from 'lodash/filter';
+import classNames from 'classnames';
 
 /**
  * Internal dependencies
@@ -17,7 +18,6 @@ import {
 } from 'components/forms';
 import { ModuleToggle } from 'components/module-toggle';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
-import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 
 export const SiteStats = moduleSettingsForm(
@@ -86,8 +86,8 @@ export const SiteStats = moduleSettingsForm(
 				siteRoles = this.props.getSiteRoles();
 			return (
 				<FoldableCard
-					clickableHeader={ true }
-					subheader={ __( 'Site stats options' ) }
+					header={ __( 'Site stats' ) }
+					className={ classNames( 'jp-foldable-settings-standalone', { 'jp-foldable-settings-disable': unavailableInDevMode } ) }
 				>
 					<SettingsGroup disableInDevMode module={ stats }>
 						<FormFieldset>
