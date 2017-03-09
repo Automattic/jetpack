@@ -155,14 +155,15 @@ function wpcomsh_map_caps( $required_caps, $cap ) {
 
 	switch ( $cap ) {
 
-		// Disallow editing 3rd party WPCom premium themes.
 		case 'edit_themes':
+			// Disallow managing themes for WPCom free plan.
 			if ( ! wpcomsh_can_manage_themes() ) {
 				$required_caps[] = 'do_not_allow';
 
 				break;
 			}
 
+			// Disallow editing 3rd party WPCom premium themes.
 			$theme = wp_get_theme();
 			if ( wpcomsh_is_wpcom_premium_theme( $theme->get_stylesheet() )
 			     && 'Automattic' !== $theme->get( 'Author' ) ) {
@@ -396,8 +397,8 @@ function wpcomsh_add_masterbar() {
 add_action( 'jetpack_modules_loaded', 'wpcomsh_add_masterbar', 1 );
 
 function wpcomsh_allow_custom_wp_options( $options ) {
-	// For storing the plan of the site.
-	$options[] = 'at_plan_slug';
+	// For storing AT options.
+	$options[] = 'at_options';
 
 	return $options;
 }
