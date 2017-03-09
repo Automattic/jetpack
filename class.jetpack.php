@@ -205,33 +205,33 @@ class Jetpack {
 	 */
 	private $open_graph_conflicting_plugins = array(
 		'2-click-socialmedia-buttons/2-click-socialmedia-buttons.php',
-		                                                         // 2 Click Social Media Buttons
+																 // 2 Click Social Media Buttons
 		'add-link-to-facebook/add-link-to-facebook.php',         // Add Link to Facebook
 		'add-meta-tags/add-meta-tags.php',                       // Add Meta Tags
 		'autodescription/autodescription.php',                   // The SEO Framework
 		'easy-facebook-share-thumbnails/esft.php',               // Easy Facebook Share Thumbnail
 		'heateor-open-graph-meta-tags/heateor-open-graph-meta-tags.php',
-		                                                         // Open Graph Meta Tags by Heateor
+																 // Open Graph Meta Tags by Heateor
 		'facebook/facebook.php',                                 // Facebook (official plugin)
 		'facebook-awd/AWD_facebook.php',                         // Facebook AWD All in one
 		'facebook-featured-image-and-open-graph-meta-tags/fb-featured-image.php',
-		                                                         // Facebook Featured Image & OG Meta Tags
+																 // Facebook Featured Image & OG Meta Tags
 		'facebook-meta-tags/facebook-metatags.php',              // Facebook Meta Tags
 		'wonderm00ns-simple-facebook-open-graph-tags/wonderm00n-open-graph.php',
-		                                                         // Facebook Open Graph Meta Tags for WordPress
+																 // Facebook Open Graph Meta Tags for WordPress
 		'facebook-revised-open-graph-meta-tag/index.php',        // Facebook Revised Open Graph Meta Tag
 		'facebook-thumb-fixer/_facebook-thumb-fixer.php',        // Facebook Thumb Fixer
 		'facebook-and-digg-thumbnail-generator/facebook-and-digg-thumbnail-generator.php',
-		                                                         // Fedmich's Facebook Open Graph Meta
+																 // Fedmich's Facebook Open Graph Meta
 		'header-footer/plugin.php',                              // Header and Footer
 		'network-publisher/networkpub.php',                      // Network Publisher
 		'nextgen-facebook/nextgen-facebook.php',                 // NextGEN Facebook OG
 		'social-networks-auto-poster-facebook-twitter-g/NextScripts_SNAP.php',
-		                                                         // NextScripts SNAP
+																 // NextScripts SNAP
 		'og-tags/og-tags.php',                                   // OG Tags
 		'opengraph/opengraph.php',                               // Open Graph
 		'open-graph-protocol-framework/open-graph-protocol-framework.php',
-		                                                         // Open Graph Protocol Framework
+																 // Open Graph Protocol Framework
 		'seo-facebook-comments/seofacebook.php',                 // SEO Facebook Comments
 		'seo-ultimate/seo-ultimate.php',                         // SEO Ultimate
 		'sexybookmarks/sexy-bookmarks.php',                      // Shareaholic
@@ -243,12 +243,12 @@ class Jetpack {
 		'socialize/socialize.php',                               // Socialize
 		'squirrly-seo/squirrly.php',                             // SEO by SQUIRRLY™
 		'only-tweet-like-share-and-google-1/tweet-like-plusone.php',
-		                                                         // Tweet, Like, Google +1 and Share
+																 // Tweet, Like, Google +1 and Share
 		'wordbooker/wordbooker.php',                             // Wordbooker
 		'wpsso/wpsso.php',                                       // WordPress Social Sharing Optimization
 		'wp-caregiver/wp-caregiver.php',                         // WP Caregiver
 		'wp-facebook-like-send-open-graph-meta/wp-facebook-like-send-open-graph-meta.php',
-		                                                         // WP Facebook Like Send & Open Graph Meta
+																 // WP Facebook Like Send & Open Graph Meta
 		'wp-facebook-open-graph-protocol/wp-facebook-ogp.php',   // WP Facebook Open Graph protocol
 		'wp-ogp/wp-ogp.php',                                     // WP-OGP
 		'zoltonorg-social-plugin/zosp.php',                      // Zolton.org Social Plugin
@@ -260,12 +260,12 @@ class Jetpack {
 	 */
 	private $twitter_cards_conflicting_plugins = array(
 	//	'twitter/twitter.php',                       // The official one handles this on its own.
-	//	                                             // https://github.com/twitter/wordpress/blob/master/src/Twitter/WordPress/Cards/Compatibility.php
+	//												 // https://github.com/twitter/wordpress/blob/master/src/Twitter/WordPress/Cards/Compatibility.php
 		'eewee-twitter-card/index.php',              // Eewee Twitter Card
 		'ig-twitter-cards/ig-twitter-cards.php',     // IG:Twitter Cards
 		'jm-twitter-cards/jm-twitter-cards.php',     // JM Twitter Cards
 		'kevinjohn-gallagher-pure-web-brilliants-social-graph-twitter-cards-extention/kevinjohn_gallagher___social_graph_twitter_output.php',
-		                                             // Pure Web Brilliant's Social Graph Twitter Cards Extension
+													 // Pure Web Brilliant's Social Graph Twitter Cards Extension
 		'twitter-cards/twitter-cards.php',           // Twitter Cards
 		'twitter-cards-meta/twitter-cards-meta.php', // Twitter Cards Meta
 		'wp-twitter-cards/twitter_cards.php',        // WP Twitter Cards
@@ -350,8 +350,87 @@ class Jetpack {
 				}
 
 				Jetpack::maybe_set_version_option();
+
+				add_action( 'wp_loaded', array( __CLASS__, 'migrate_widget_visibility' ) );
 			}
 		}
+	}
+
+	/**
+	 * Upgrade routine to go through all widgets and move the Post Type
+	 * setting to its newer location.
+	 *
+	 * @since 4.7.1
+	 *
+	 */
+	static function migrate_widget_visibility() {
+		global $wp_registered_widgets;
+
+		$sidebars_widgets = get_option( 'sidebars_widgets' );
+
+		// Going through all sidebars and through inactive and orphaned widgets
+		foreach ( $sidebars_widgets as $s => $sidebar ) {
+			if ( ! is_array( $sidebar ) ) {
+				continue;
+			}
+
+			foreach ( $sidebar as $w => $widget ) {
+				// $widget is the id of the widget
+				if ( empty( $wp_registered_widgets[$widget] ) ) {
+					continue;
+				}
+
+				$opts = $wp_registered_widgets[$widget];
+				$instances = get_option( $opts['callback'][0]->option_name );
+
+				// Going through each instance of the widget
+				foreach( $instances as $number => $instance ) {
+					if (
+						! is_array( $instance ) ||
+						empty( $instance['conditions'] ) ||
+						empty( $instance['conditions']['rules'] )
+					) {
+						continue;
+					}
+
+					// Going through all visibility rules
+					foreach( $instance['conditions']['rules'] as $index => $rule ) {
+
+						// We only need Post Type rules
+						if ( 'post_type' !== $rule['major'] ) {
+							continue;
+						}
+
+						$post_type = false;
+
+						// Post type archive rule
+						if ( 0 === strpos( $rule['minor'], 'post_type_archive' ) ) {
+							$post_type = substr(
+								$rule['minor'], strlen( 'post_type_archive' ) + 1
+							);
+						}
+
+						// Post type archive rule
+						if ( 0 === strpos( $rule['minor'], 'post_type' ) ) {
+							$post_type = substr(
+								$rule['minor'], strlen( 'post_type' ) + 1
+							);
+						}
+
+						if ( $post_type ) {
+							$rule['minor'] = 'post_type-' . $post_type;
+							$rule['major'] = 'page';
+
+							$instances[ $number ]['conditions']['rules'][ $index ] = $rule;
+						}
+					}
+				}
+
+				update_option( $opts['callback'][0]->option_name, $instances );
+			}
+		}
+
+		$sidebars_widgets = get_option( 'sidebars_widgets' );
 	}
 
 	static function activate_manage( ) {
@@ -1783,7 +1862,7 @@ class Jetpack {
 
 	/**
 	 * Allows plugins to submit security reports.
- 	 *
+	 *
 	 * @param string  $type         Report type (login_form, backup, file_scanning, spam)
 	 * @param string  $plugin_file  Plugin __FILE__, so that we can pull plugin data
 	 * @param array   $args         See definitions above
@@ -1800,7 +1879,7 @@ class Jetpack {
 
 	/**
 	 * Returns the requested option.  Looks in jetpack_options or jetpack_$name as appropriate.
- 	 *
+	 *
 	 * @param string $name    Option name
 	 * @param mixed  $default (optional)
 	 */
@@ -1830,7 +1909,7 @@ class Jetpack {
 
 	/**
 	 * Updates the single given option.  Updates jetpack_options or jetpack_$name as appropriate.
- 	 *
+	 *
 	 * @deprecated 3.4 use Jetpack_Options::update_option() instead.
 	 * @param string $name  Option name
 	 * @param mixed  $value Option value
@@ -1842,7 +1921,7 @@ class Jetpack {
 
 	/**
 	 * Updates the multiple given options.  Updates jetpack_options and/or jetpack_$name as appropriate.
- 	 *
+	 *
 	 * @deprecated 3.4 use Jetpack_Options::update_options() instead.
 	 * @param array $array array( option name => option value, ... )
 	 */
@@ -3247,7 +3326,7 @@ p {
 	 * If `$update_media_item` is true and `post_id` is defined
 	 * the attachment file of the media item (gotten through of the post_id)
 	 * will be updated instead of add a new one.
-	 * 
+	 *
 	 * @param  boolean $update_media_item - update media attachment
 	 * @return array - An array describing the uploadind files process
 	 */
@@ -3314,10 +3393,10 @@ p {
 
 				$media_array = $_FILES['media'];
 
-				$file_array['name'] = $media_array['name'][0]; 
-				$file_array['type'] = $media_array['type'][0]; 
-				$file_array['tmp_name'] = $media_array['tmp_name'][0]; 
-				$file_array['error'] = $media_array['error'][0]; 
+				$file_array['name'] = $media_array['name'][0];
+				$file_array['type'] = $media_array['type'][0];
+				$file_array['tmp_name'] = $media_array['tmp_name'][0];
+				$file_array['error'] = $media_array['error'][0];
 				$file_array['size'] = $media_array['size'][0];
 
 				$edited_media_item = Jetpack_Media::edit_media_file( $post_id, $file_array );
@@ -3605,8 +3684,8 @@ p {
 	 *			- which responds with access_token, token_type, scope
 	 *		- Jetpack_Client_Server::authorize() stores jetpack_options: user_token => access_token.$user_id
 	 *		- Jetpack::activate_default_modules()
-	 *     		- Deactivates deprecated plugins
-	 *     		- Activates all default modules
+	 *				- Deactivates deprecated plugins
+	 *				- Activates all default modules
 	 *		- Responds with either error, or 'connected' for new connection, or 'linked' for additional linked users
 	 * 7 - For a new connection, user selects a Jetpack plan on wordpress.com
 	 * 8 - User is redirected back to wp-admin/index.php?page=jetpack with state:message=authorized
@@ -4490,12 +4569,12 @@ p {
 					var data = { action: 'jetpack-recheck-ssl', 'ajax-nonce': '<?php echo $ajax_nonce; ?>' };
 					$.post( ajaxurl, data )
 					  .done( function( response ) {
-					  	if ( response.enabled ) {
-					  		$( '#jetpack-ssl-warning' ).hide();
-					  	} else {
-					  		this.html( <?php echo json_encode( __( 'Try again', 'jetpack' ) ); ?> );
-					  		$( '#jetpack-recheck-ssl-output' ).html( 'SSL Failed: ' + response.message );
-					  	}
+						if ( response.enabled ) {
+							$( '#jetpack-ssl-warning' ).hide();
+						} else {
+							this.html( <?php echo json_encode( __( 'Try again', 'jetpack' ) ); ?> );
+							$( '#jetpack-recheck-ssl-output' ).html( 'SSL Failed: ' + response.message );
+						}
 					  }.bind( $this ) );
 				} );
 			} );
@@ -4523,12 +4602,12 @@ p {
 	 * @return array
 	 */
 	public function generate_secrets( $action, $exp = 600 ) {
-	    $secret = wp_generate_password( 32, false ) // secret_1
-	    		. ':' . wp_generate_password( 32, false ) // secret_2
-	    		. ':' . ( time() + $exp ) // eol ( End of Life )
-	    		. ':' . get_current_user_id(); // ties the secrets to the current user
+		$secret = wp_generate_password( 32, false ) // secret_1
+				. ':' . wp_generate_password( 32, false ) // secret_2
+				. ':' . ( time() + $exp ) // eol ( End of Life )
+				. ':' . get_current_user_id(); // ties the secrets to the current user
 		Jetpack_Options::update_option( $action, $secret );
-	    return Jetpack_Options::get_option( $action );
+		return Jetpack_Options::get_option( $action );
 	}
 
 	/**
@@ -4540,10 +4619,10 @@ p {
 	 * @return int
 	 **/
 	public function get_remote_query_timeout_limit() {
-	    $timeout = (int) ini_get( 'max_execution_time' );
-	    if ( ! $timeout ) // Ensure exec time set in php.ini
+		$timeout = (int) ini_get( 'max_execution_time' );
+		if ( ! $timeout ) // Ensure exec time set in php.ini
 				$timeout = 30;
-	    return intval( $timeout / 2 );
+		return intval( $timeout / 2 );
 	}
 
 
@@ -4592,7 +4671,7 @@ p {
 			return new Jetpack_Error( 'jetpack_id', sprintf( __( 'Error Details: Jetpack ID begins with a numeral. Do not publicly post this error message! %s', 'jetpack' ) , $entity ), $entity );
 		}
 
-	    return $registration_response;
+		return $registration_response;
 	}
 	/**
 	 * @return bool|WP_Error
@@ -4641,7 +4720,7 @@ p {
 		// Make sure the response is valid and does not contain any Jetpack errors
 		$registration_details = Jetpack::init()->validate_remote_register_response( $response );
 		if ( is_wp_error( $registration_details ) ) {
-		    return $registration_details;
+			return $registration_details;
 		} elseif ( ! $registration_details ) {
 			return new Jetpack_Error( 'unknown_error', __( 'Unknown error registering your Jetpack site', 'jetpack' ), wp_remote_retrieve_response_code( $response ) );
 		}
