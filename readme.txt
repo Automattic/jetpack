@@ -118,6 +118,10 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Avoid path disclosure in PHP error messages via cookies. #6572
 
+**Improved Compatibility**
+
+* Publicize: make sure posts posted programmatically via plugins like WP Recipe Maker can be publicized. #6542
+
 **Bug Fixes**
 
 * Sync: remove deprecated `jetpack_publicize_post` action. #6567
