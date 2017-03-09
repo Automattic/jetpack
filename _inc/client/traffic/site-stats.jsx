@@ -87,6 +87,7 @@ export const SiteStats = moduleSettingsForm(
 			return (
 				<FoldableCard
 					header={ __( 'Site stats' ) }
+					clickableHeader={ true }
 					className={ classNames( 'jp-foldable-settings-standalone', { 'jp-foldable-settings-disable': unavailableInDevMode } ) }
 				>
 					<SettingsGroup disableInDevMode module={ stats }>
