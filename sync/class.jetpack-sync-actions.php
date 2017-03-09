@@ -295,7 +295,6 @@ class Jetpack_Sync_Actions {
 	}
 
 	static function initialize_wp_super_cache() {
-		//WPCACHEHOME looks like a reasonable constant to test for the plugin's presence as per https://github.com/Automattic/wp-super-cache/blob/master/wp-cache.php
 		if ( false === function_exists( 'wp_cache_is_enabled' ) ) {
 			return;
 		}

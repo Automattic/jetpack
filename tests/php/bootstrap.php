@@ -33,7 +33,7 @@ if ( "1" != getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
 
 if ( "1" != getenv( 'JETPACK_TEST_WP_SUPER_CACHE' ) ) {
 	echo "To run Jetpack WP Super Cache tests, prefix phpunit with JETPACK_TEST_WP_SUPER_CACHE=1" . PHP_EOL;
-} else {
+} else if ( false === function_exists( 'wp_cache_is_enabled' ) ) {
 	/**
 	 * "Mocking" function so that it exists and Jetpack_Sync_Actions will load Jetpack_Sync_Module_WP_Super_Cache
 	 */
