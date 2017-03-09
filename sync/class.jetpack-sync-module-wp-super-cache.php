@@ -18,7 +18,7 @@ class Jetpack_Sync_Module_WP_Super_Cache extends Jetpack_Sync_Module {
 		return 'wp-super-cache';
 	}
 
-	public function get_wp_super_cache_globals() {
+	public static function get_wp_super_cache_globals() {
 		global $wp_cache_mod_rewrite;
 		global $cache_enabled;
 		global $super_cache_enabled;
@@ -81,7 +81,7 @@ class Jetpack_Sync_Module_WP_Super_Cache extends Jetpack_Sync_Module {
 		return array_merge( $list, self::$wp_super_cache_constants );
 	}
 
-	public function add_wp_super_cache_callables_whitelist( $list ) {
+	public function add_wp_super_cache_callable_whitelist( $list ) {
 		return array_merge( $list, self::$wp_super_cache_callables );
 	}
 }

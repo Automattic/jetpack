@@ -119,18 +119,18 @@ class Jetpack_Sync_Defaults {
 	);
 
 	public static function get_options_whitelist() {
-		/** This filter is already documented in json-endpoints/jetpack/class.wpcom-json-api-get-option-endpoint.php */
-		$options_whitelist = apply_filters( 'jetpack_options_whitelist', self::$default_options_whitelist );
-		/**
-		 * Filter the list of WordPress options that are manageable via the JSON API.
-		 *
-		 * @module sync
-		 *
-		 * @since 4.7
-		 *
-		 * @param array The default list of options.
-		 */
-		return apply_filters( 'jetpack_sync_options_whitelist', $options_whitelist );
+			/** This filter is already documented in json-endpoints/jetpack/class.wpcom-json-api-get-option-endpoint.php */
+			$options_whitelist = apply_filters( 'jetpack_options_whitelist', self::$default_options_whitelist );
+			/**
+			 * Filter the list of WordPress options that are manageable via the JSON API.
+			 *
+			 * @module sync
+			 *
+			 * @since 4.7
+			 *
+			 * @param array The default list of options.
+			 */
+			return apply_filters( 'jetpack_sync_options_whitelist', $options_whitelist );
 	}
 
 	static $default_constants_whitelist = array(
@@ -154,7 +154,16 @@ class Jetpack_Sync_Defaults {
 	);
 
 	public static function get_constants_whitelist() {
-		return apply_filters( 'jetpack_sync_constants_whitelist', self::$default_constants_whitelist );
+			/**
+			 * Filter the list of PHP constants that are manageable via the JSON API.
+			 *
+			 * @module sync
+			 *
+			 * @since 4.7
+			 *
+			 * @param array The default list of constants options.
+			 */
+			return apply_filters( 'jetpack_sync_constants_whitelist', self::$default_constants_whitelist );
 	}
 
 	static $default_callable_whitelist = array(
@@ -188,7 +197,6 @@ class Jetpack_Sync_Defaults {
 	);
 
 	public static function get_callable_whitelist() {
-		if ( ! self::$initialized_callable_whitelist ) {
 			/**
 			 * Filter the list of callables that are manageable via the JSON API.
 			 *
@@ -198,9 +206,7 @@ class Jetpack_Sync_Defaults {
 			 *
 			 * @param array The default list of callables.
 			 */
-			self::$initialized_callable_whitelist = apply_filters( 'jetpack_sync_callable_whitelist', self::$default_callable_whitelist );
-		}
-		return self::$initialized_callable_whitelist;
+			return apply_filters( 'jetpack_sync_callable_whitelist', self::$default_callable_whitelist );
 	}
 
 	static $blacklisted_post_types = array(
@@ -250,7 +256,6 @@ class Jetpack_Sync_Defaults {
 	);
 
 	public static function get_multisite_callable_whitelist() {
-		if ( ! self::$initialized_multisite_callable_whitelist ) {
 			/**
 			 * Filter the list of multisite callables that are manageable via the JSON API.
 			 *
@@ -260,9 +265,7 @@ class Jetpack_Sync_Defaults {
 			 *
 			 * @param array The default list of multisite callables.
 			 */
-			self::$initialized_multisite_callable_whitelist = apply_filters( 'jetpack_sync_multisite_callable_whitelist', self::$default_multisite_callable_whitelist );
-		}
-		return self::$initialized_multisite_callable_whitelist;
+			return apply_filters( 'jetpack_sync_multisite_callable_whitelist', self::$default_multisite_callable_whitelist );
 	}
 
 	static $post_meta_whitelist = array(
@@ -306,7 +309,6 @@ class Jetpack_Sync_Defaults {
 	);
 
 	public static function get_post_meta_whitelist() {
-		if ( ! self::$initialized_post_meta_whitelist ) {
 			/**
 			 * Filter the list of post meta data that are manageable via the JSON API.
 			 *
@@ -316,9 +318,7 @@ class Jetpack_Sync_Defaults {
 			 *
 			 * @param array The default list of meta data keys.
 			 */
-			self::$initialized_post_meta_whitelist = apply_filters( 'jetpack_sync_post_meta_whitelist', self::$post_meta_whitelist );
-		}
-		return self::$initialized_post_meta_whitelist;
+			return apply_filters( 'jetpack_sync_post_meta_whitelist', self::$post_meta_whitelist );
 	}
 
 	static $comment_meta_whitelist = array(

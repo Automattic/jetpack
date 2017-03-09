@@ -304,7 +304,7 @@ class Jetpack_Sync_Actions {
 
 	static function add_wp_super_cache_sync_module( $sync_modules ) {
 		require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-wp-super-cache.php';
-		$sync_modules[] = 'Jetpack_Sync_Module_WPSuperCache';
+		$sync_modules[] = 'Jetpack_Sync_Module_WP_Super_Cache';
 		return $sync_modules;
 	}
 

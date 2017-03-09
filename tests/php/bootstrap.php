@@ -31,6 +31,17 @@ if ( "1" != getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
 	define( 'JETPACK_WOOCOMMERCE_INSTALL_DIR', dirname( __FILE__ ) . '/../../../woocommerce' );
 }
 
+if ( "1" != getenv( 'JETPACK_TEST_WP_SUPER_CACHE' ) ) {
+	echo "To run Jetpack WP Super Cache tests, prefix phpunit with JETPACK_TEST_WP_SUPER_CACHE=1" . PHP_EOL;
+} else {
+	/**
+	 * "Mocking" function so that it exists and Jetpack_Sync_Actions will load Jetpack_Sync_Module_WP_Super_Cache
+	 */
+	function wp_cache_is_enabled() {
+
+	}
+}
+
 require $test_root . '/includes/functions.php';
 
 // Activates this plugin in WordPress so it can be tested.
