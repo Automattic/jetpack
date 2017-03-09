@@ -459,6 +459,10 @@ class Jetpack_Connection_Banner {
 				</div>
 			</div>
 		</div>
+
+		<div class="jp-connect-full__container">
+					hey
+		</div>
 		<?php
 	}
 
