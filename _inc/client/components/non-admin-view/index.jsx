@@ -15,7 +15,7 @@ import { isModuleActivated as _isModuleActivated } from 'state/modules';
 import Navigation from 'components/navigation';
 import NavigationSettings from 'components/navigation-settings';
 import AtAGlance from 'at-a-glance/index.jsx';
-import Writing from 'writing/index.jsx';
+import SearchableSettings from 'settings/index.jsx';
 import Apps from 'apps/index.jsx';
 import { getSiteConnectionStatus } from 'state/connection';
 
@@ -45,7 +45,11 @@ const NonAdminView = React.createClass( {
 			case '/writing':
 				if ( ! this.props.isSubscriber ) {
 					navComponent = <NavigationSettings { ...this.props } />;
-					pageComponent = <Writing { ...this.props } />;
+					pageComponent = <SearchableSettings
+						route={ this.props.route }
+						siteAdminUrl={ this.props.siteAdminUrl }
+						siteRawUrl={ this.props.siteRawUrl }
+						searchTerm={ this.props.searchTerm } />;
 				}
 				break;
 		}

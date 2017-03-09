@@ -10,6 +10,7 @@ import { connect } from 'react-redux';
 import { getModule } from 'state/modules';
 import { getSettings } from 'state/settings';
 import { isDevMode, isUnavailableInDevMode } from 'state/connection';
+import { userCanEditPosts } from 'state/initial-state';
 import { isModuleFound as _isModuleFound } from 'state/search';
 import QuerySite from 'components/data/query-site';
 import Composing from './composing';
@@ -51,7 +52,7 @@ export const Writing = React.createClass( {
 		return (
 			<div>
 				<QuerySite />
-				<Composing { ...commonProps } />
+				<Composing { ...commonProps } userCanEditPosts={ this.props.userCanEditPosts } />
 				<Media { ...commonProps } />
 				<CustomContentTypes { ...commonProps } />
 				<ThemeEnhancements { ...commonProps } />
@@ -68,7 +69,8 @@ export default connect(
 			settings: getSettings( state ),
 			isDevMode: isDevMode( state ),
 			isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name ),
-			isModuleFound: ( module_name ) => _isModuleFound( state, module_name )
-		}
+			isModuleFound: ( module_name ) => _isModuleFound( state, module_name ),
+			userCanEditPosts: userCanEditPosts( state )
+		};
 	}
 )( Writing );

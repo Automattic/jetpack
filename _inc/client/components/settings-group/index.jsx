@@ -17,8 +17,15 @@ import { userCanManageModules, isSitePublic } from 'state/initial-state';
 import { getSitePlan } from 'state/site';
 
 export const SettingsGroup = props => {
-	const module = props.module,
-		disableInDevMode = props.disableInDevMode && props.isUnavailableInDevMode( module.module ),
+	const module = props.module;
+
+	// Non admin users only get Publicize, After the Deadline, and Post by Email settings. The UI doesn't have settings for Publicize.
+	// composing is not a module slug but it's used so the Composing card is rendered to show AtD.
+	if ( module.module && ! props.userCanManageModules && 'post-by-email' === module.module ) {
+		return <span />;
+	}
+
+	const disableInDevMode = props.disableInDevMode && props.isUnavailableInDevMode( module.module ),
 		support = ! props.support && module && '' !== module.learn_more_button
 			? module.learn_more_button
 			: props.support;
@@ -55,11 +62,13 @@ export const SettingsGroup = props => {
 };
 
 SettingsGroup.propTypes = {
-	support: React.PropTypes.string
+	support: React.PropTypes.string,
+	module: React.PropTypes.object
 };
 
 SettingsGroup.defaultProps = {
-	support: ''
+	support: '',
+	module: {}
 };
 
 export default connect(

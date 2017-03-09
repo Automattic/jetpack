@@ -22,7 +22,8 @@ import {
 } from 'state/search';
 import {
 	userCanManageModules as _userCanManageModules,
-	userIsSubscriber as _userIsSubscriber
+	userIsSubscriber as _userIsSubscriber,
+	userIsContributor
 } from 'state/initial-state';
 import { getSiteConnectionStatus } from 'state/connection';
 import { isModuleActivated } from 'state/modules';
@@ -85,6 +86,23 @@ export const NavigationSettings = React.createClass( {
 	render: function() {
 		let navItems;
 
+		const publicizeTab = (
+			( this.props.isModuleActivated( 'publicize' ) || this.props.isModuleActivated( 'sharedaddy' ) ) && (
+				<NavItem
+					path={ true === this.props.siteConnectionStatus
+										? 'https://wordpress.com/sharing/' + this.props.siteRawUrl
+										: this.props.siteAdminUrl + 'options-general.php?page=sharing'
+										}>
+					{ __( 'Sharing', { context: 'Navigation item.' } ) }
+					{
+						true === this.props.siteConnectionStatus && (
+							<Gridicon icon="external" size={ 13 } />
+						)
+					}
+				</NavItem>
+			)
+		);
+
 		if ( this.props.userCanManageModules ) {
 			navItems = (
 				<NavTabs selectedText={ this.props.route.name }>
@@ -109,20 +127,7 @@ export const NavigationSettings = React.createClass( {
 						{ __( 'Security', { context: 'Navigation item.' } ) }
 					</NavItem>
 					{
-						( this.props.isModuleActivated( 'publicize' ) || this.props.isModuleActivated( 'sharedaddy' ) ) && (
-							<NavItem
-								path={ true === this.props.siteConnectionStatus
-									? 'https://wordpress.com/sharing/' + this.props.siteRawUrl
-									: this.props.siteAdminUrl + 'options-general.php?page=sharing'
-									}>
-								{ __( 'Sharing', { context: 'Navigation item.' } ) }
-								{
-									true === this.props.siteConnectionStatus && (
-										<Gridicon icon="external" size={ 13 } />
-									)
-								}
-							</NavItem>
-						)
+						publicizeTab
 					}
 				</NavTabs>
 			);
@@ -136,6 +141,10 @@ export const NavigationSettings = React.createClass( {
 						selected={ this.props.route.path === '/writing' || this.props.route.path === '/settings' }>
 						{ __( 'Writing', { context: 'Navigation item.' } ) }
 					</NavItem>
+					{
+						// Give only Publicize to non admin users
+						this.props.isModuleActivated( 'publicize' ) && ! this.props.isContributor && publicizeTab
+					}
 				</NavTabs>
 			);
 		}
@@ -160,6 +169,7 @@ export default connect(
 		return {
 			userCanManageModules: _userCanManageModules( state ),
 			isSubscriber: _userIsSubscriber( state ),
+			isContributor: userIsContributor( state ),
 			siteConnectionStatus: getSiteConnectionStatus( state ),
 			isModuleActivated: module => isModuleActivated( state, module ),
 			searchTerm: getSearchTerm( state )
