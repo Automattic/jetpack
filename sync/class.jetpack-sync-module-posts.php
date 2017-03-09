@@ -32,7 +32,6 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		add_action( 'wp_insert_post', array( $this, 'wp_insert_post' ), $priority, 3 );
 
 		add_action( 'deleted_post', $callable, 10 );
-		add_action( 'jetpack_publicize_post', $callable );
 		add_action( 'jetpack_published_post', $callable, 10, 2 );
 		add_action( 'transition_post_status', array( $this, 'save_published' ), 10, 3 );
 		add_filter( 'jetpack_sync_before_enqueue_wp_insert_post', array( $this, 'filter_blacklisted_post_types' ) );

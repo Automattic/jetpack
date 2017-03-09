@@ -162,7 +162,10 @@ jQuery( function( $ ) {
 	$( document ).on( 'change.widgetconditions', 'select.conditions-rule-minor', function() {
 		var $conditionsRuleMinor = $( this ),
 			$conditionsRuleMajor = $conditionsRuleMinor.siblings( 'select.conditions-rule-major' ),
-			$conditionsRuleHasChildren = $conditionsRuleMinor.siblings( 'span.conditions-rule-has-children' );
+			$conditionsRuleHasChildren = $conditionsRuleMinor.siblings( 'span.conditions-rule-has-children' ),
+			$condition = $conditionsRuleMinor.closest( '.condition' );
+
+		$condition.data( 'rule-minor', $conditionsRuleMinor.val() );
 
 		if ( $conditionsRuleMajor.val() === 'page' ) {
 			if ( $conditionsRuleMinor.val() in widget_conditions_parent_pages ) {
@@ -197,7 +200,10 @@ jQuery( function( $ ) {
 			select = condition.find( '.conditions-rule-minor' ).html( '' ),
 			major = condition.data( 'rule-major' );
 
-		if ( ! major ) {
+		// Disable the select, if major rule is empty or if it's a `post_type`.
+		// "Post Type" rule has been removed in Jetpack 4.7, and
+		// because it breaks all other rules we should `return`.
+		if ( ! major || 'post_type' === major ) {
 			select.attr( 'disabled', 'disabled' );
 			return;
 		}
