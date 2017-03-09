@@ -91,12 +91,16 @@ class Jetpack_Widget_Conditions {
 		$post_types = get_post_types( array( 'public' => true ), 'objects' );
 
 		$widget_conditions_post_types = array();
+		$widget_conditions_post_type_archives = array();
 
 		foreach ( $post_types as $post_type ) {
 			$widget_conditions_post_types[] = array( 'post_type-' . $post_type->name, $post_type->labels->singular_name );
+			$widget_conditions_post_type_archives[] = array( 'post_type_archive-' . $post_type->name, $post_type->labels->name );
 		}
 
 		$widget_conditions_data['page'][] = array( __( 'Post type:', 'jetpack' ), $widget_conditions_post_types );
+
+		$widget_conditions_data['page'][] = array( __( 'Post type Archives:', 'jetpack' ), $widget_conditions_post_type_archives );
 
 		$pages_dropdown = preg_replace( '/<\/?select[^>]*?>/i', '', wp_dropdown_pages( array( 'echo' => false ) ) );
 
@@ -490,6 +494,8 @@ class Jetpack_Widget_Conditions {
 							default:
 								if ( substr( $rule['minor'], 0, 10 ) == 'post_type-' ) {
 									$condition_result = is_singular( substr( $rule['minor'], 10 ) );
+								} elseif ( substr( $rule['minor'], 0, 18 ) == 'post_type_archive-' ) {
+									$condition_result = is_post_type_archive( substr( $rule['minor'], 18 ) );
 								} elseif ( $rule['minor'] == get_option( 'page_for_posts' ) ) {
 									// If $rule['minor'] is a page ID which is also the posts page
 									$condition_result = $wp_query->is_posts_page;
