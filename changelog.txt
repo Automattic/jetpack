@@ -1,5 +1,91 @@
 == Changelog ==
 
+= 4.7 =
+
+* Release date: March 7th, 2017
+* Release post: http://wp.me/p1moTy-46L
+
+**Enhancements**
+
+* Quickly jump to post specific stats on WordPress.com with a new link.
+* We've added more information to our debug tools to improve your support experience.
+* New HTML5 versions of our house ads are out.
+* Display custom copyright EXIF information in the Carousel with this new filter.
+* We've highlighted the ability to export Contact Form feedback as it was being overlooked.
+* If you have images on WordPress.com we're going to skip using Photon when the images include resize parameters.
+* It is now possible to use the Sharing filter to customize the emails sent from the Email Sharing button.
+* We've updated the library powering the Print link in the Recipe shortcode.
+* Customize the speed and display of your slideshows with new Slideshow shortcode filters.
+* The Twitch.tv shortcode now uses Twitch's new embedded player.
+* Social Menus now come with the option to use SVG icons.
+* Customize the content of the Display Posts Widget with a new filter.
+* We've added a new email field to the Contact Info Widget.
+* The Image and the Text widgets now use Photon if it is enabled.
+* The WordPress.com REST API got several updates including using `register_rest_route()` consistently for registering, new date and time format settings, a filter for theme info results, new links and endpoints, and more.
+* We cleaned up the Google+ Shortcode JS library and added a way to filter the SlideShare shortcode.
+
+**Performance Improvements**
+
+* Experience better performance with single page load caching of the media summary.
+* We made some improvements to avoid slow queries on sites with thousands of images.
+* The Top Posts widget now utilizes an endpoint from the WP.com REST API improving performance.
+* Improve development mode performance by only calling `site_url()` once.
+* We rewrote the way major/minor rules lists are generated to save bandwidth, and memory for sites using Widget Visibility.
+* We've removed sync options that weren't needed to save memory during the sync process.
+
+**Accessibility**
+
+* We've improved the highlight of the stats range for a better visual experience and to make it consistent with other areas of the dashboard.
+* Added a missing label to one of the fields in the Email sharing dialog.
+* We've enabled keyboard focus styling in the new admin interface.
+* Increased padding to sharing buttons on mobile to avoid usability issues.
+* We've replaced Widget Visibility text labels with icons to improve usability on smaller devices.
+
+**Slightly Less Exciting Enhancements:**
+
+* We've added a filter to allow you to remove the Comment Form title.
+* The Development Mode notice got an update to include all possible options to activate Development mode.
+* Jetpack registration function got an update and cleanup.
+* A notice displayed to WooCommerce store owners now detects when WooCommerce Services is installed, but not active.
+* We've removed the Holiday Snow settings until you need them.
+* Improved Infinite Scroll settings to reduce confusion.
+* The HTML classes `infinite-scroll` and `neverending` are now applied using JS instead of PHP.
+* We've updated the support link appearing when you're locked out of your site.
+* New Unit Tests were added to make sure Publicize doesn't break when making changes to the Publicize process.
+* We've added a sync filter to allow customizing timeout.
+* The Top Posts widget now supports non-square image sizes.
+* Added the Video GUID to the media API endpoint.
+
+**Improved Compatibility**
+
+* Fixed some W3C validation errors in Comments.
+* Infinite Scroll now works beautifully with the Twenty Seventeen Theme.
+* Translate new terms easier with an improvement to the translator comments.
+* We switched to use Core functions to retrieve the list of sites in a multisite network for more accurate results.
+* We added Product visibility to post meta whitelist, for better control of products displayed in Related Posts.
+* We no longer sync specific post meta data added by Postman or WP RSS Mutli Importer to avoid performance issues during the sync process.
+* We're now avoiding conflicts with plugins adding the core Video upload library to the post editor.
+* Removed deprecated compatibility code for older versions of WordPress.
+* We had some Shortcode conflicts with WordPress Post embeds, but that's been fixed.
+
+**Bug Fixes**
+
+* The Carousel `jp_carousel_load_for_images_linked_to_file` filter wasn't working well with Photon, this has been fixed.
+* Carousel is now working well when loaded from infinite scroll.
+* We removed double slashes from file paths in the Contact Form to avoid errors in specific server environments.
+* Fixed a problem where CSS was being stripped when migrating from Jetpack's Custom CSS to Core's CSS editor.
+* Our Debug Tool is now reporting the correct URL when WordPress lives in a subdirectory.
+* Found and fixed a PHP error when uninstalling Jetpack.
+* Infinite Scroll is no longer buggy when displaying the last page, and is more compatible with certain themes that were returning posts when there were none left to show.
+* We're now skipping Photon for .ashx files.
+* The Twitter character counter in Publicize got a fix to display info correctly.
+* Related Posts are now displaying correctly for everyone, and we brought back the `jetpack_sharing_headline_html` filter.
+* We've improved Sharing to render custom sharing services correctly, include Open Graph Meta Tags, and avoid JavaScript errors when jQuery is enqueued in the footer.
+* Synchronization scheduling issues have been resolved.
+* We're now trimming spaces in URLs for Image and Display Posts Widgets.
+* Widget Visibility wasn't playing nice on taxonomy pages, this is no longer the case.
+* The WordPress.com REST API received a couple of fixes to remove PHP errors when editing via the WordPress.com interface, authentication errors when using third-party apps, and permission errors when trying to preview edited posts in the WordPress.com editor.
+
 = 4.6 =
 
 * Release date: February 7, 2017
