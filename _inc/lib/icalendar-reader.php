@@ -93,25 +93,31 @@ class iCalendarReader {
 		$timezone_name = get_option( 'timezone_string' );
 		if ( $timezone_name ) {
 			$timezone = new DateTimeZone( $timezone_name );
-			$offset = $timezone->getOffset( new DateTime( 'now', new DateTimeZone( 'UTC' ) ) );
 		} else {
-			// fallback - gmt_offset option
-			$offset = get_option( 'gmt_offset' ) * HOUR_IN_SECONDS;
+			// If the timezone isn't set then the GMT offset must be set.
+			// generate a DateInterval object from the timezone offset
+			$gmt_offset = get_option( 'gmt_offset' ) * HOUR_IN_MINUTES;
+			$timezone_offset_interval = date_interval_create_from_date_string( "{$gmt_offset} minutes" );
+			$timezone = new DateTimeZone( 'UTC' );
 		}
-
-		// generate a DateInterval object from the timezone offset
-		$interval_string = sprintf( '%d minutes', $offset / MINUTE_IN_SECONDS );
-		$interval = date_interval_create_from_date_string( $interval_string );
 
 		$offsetted_events = array();
 
 		foreach ( $events as $event ) {
 			// Don't handle all-day events
 			if ( 8 < strlen( $event['DTSTART'] ) ) {
-				$start_time = new DateTime( $event['DTSTART'] );
-				$start_time->add( $interval );
-				$end_time = new DateTime( $event['DTEND'] );
-				$end_time->add( $interval );
+				$start_time = preg_replace( '/Z$/', '', $event['DTSTART'] );
+				$start_time = new DateTime( $start_time, $this->timezone );
+				$start_time->setTimeZone( $timezone );
+
+				$end_time = preg_replace( '/Z$/', '', $event['DTEND'] );
+				$end_time = new DateTime( $end_time, $this->timezone );
+				$end_time->setTimeZone( $timezone );
+				
+				if ( $timezone_offset_interval ) {
+					$start_time->add( $timezone_offset_interval );
+					$end_time->add( $timezone_offset_interval );
+				}
 
 				$event['DTSTART'] = $start_time->format( 'YmdHis\Z' );
 				$event['DTEND'] = $end_time->format( 'YmdHis\Z' );
