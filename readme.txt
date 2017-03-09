@@ -113,6 +113,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Markdown: always enable Markdown for posts whenever the module is active.
 * SSO: Avoid token or nonce errors when trying to log in to your site via the Secure Sign On option.
 * Widget Visibility: avoid empty widget visibility rules after updating to Jetpack 4.7.
+* Widget Visibility: restore the option to make widgets appear on archive pages of different Custom Post Types.
+* Widget Visibility: migrate widget visibility settings to the new major Page rule for Custom Post Types.
 * Widget Visibility: add missing CSS for widget visibility settings on sites using an RTL language.
 
 = 4.7 =
