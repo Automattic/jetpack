@@ -110,6 +110,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug Fixes**
 
+* Markdown: always enable for posts whenever the module is active. #6608
 * SSO: Avoid token / nonce errors when trying to log in to your site via the Secure Sign On option. #6571
 * Widget Visibility: avoid empty widget visibility rules after updating to Jetpack 4.7. #6600
 * Widget Visibility: add missing CSS for widget visibility settings on sites using an RTL language. #6604
