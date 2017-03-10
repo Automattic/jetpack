@@ -257,7 +257,7 @@ function wpcomsh_get_at_options() {
 /**
  * Returns the slug of the site's plan.
  *
- * @return string Returns the slug of the site's plan or 'free' if not known.
+ * @return string Returns the slug of the site's plan or WPCOMSH_PLAN_BUSINESS if not known.
  */
 function wpcomsh_get_site_plan_slug() {
 	$at_options = wpcomsh_get_at_options();
@@ -266,5 +266,5 @@ function wpcomsh_get_site_plan_slug() {
 		return $at_options['plan_slug'];
 	}
 
-	return 'free';
+	return WPCOMSH_PLAN_BUSINESS;
 }
