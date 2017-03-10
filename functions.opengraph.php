@@ -354,27 +354,7 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 
 		$max_side = max( $width, $height );
 		$image_url = get_site_icon_url( $max_side );
-
-		// Build a hash of the Image URL. We'll use it later when building the transient.
-		if ( $image_url ) {
-			/**
-			 * Transient names are 45 chars max.
-			 * Let's generate a hash that's 41 chars max:
-			 * We will add 'jp_' in front of it later, so 45 chars minus those 3, and a one-off char just in case.
-			 */
-			$image_hash = substr( md5( $image_url ), 0, 41 );
-		}
-
-		// Look for data in our transient. If nothing, let's get an attachment ID.
-		$cached_image_id = get_transient( 'jp_' . $image_hash );
-		if ( ! is_int( $cached_image_id ) ) {
-			$image_id = get_option( 'site_icon' );
-			set_transient( 'jp_' . $image_hash, $image_id );
-		} else {
-			// We have data in the transient. Use it.
-			$image_id = $cached_image_id;
-		}
-
+		$image_id = get_option( 'site_icon' );
 		$image_size = wp_get_attachment_image_src( $image_id, $max_side >= 512
 			? 'full'
 			: array( $max_side, $max_side ) );
@@ -412,7 +392,7 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 * @param $width      int  Width of the image
 * @param $height     int  Height of the image
 * @param $req_width  int  Required width to pass validation
-* @param $req_height int  Required height to pass validation 
+* @param $req_height int  Required height to pass validation
 * @return bool - True if the image passed the required size validation
 */
 function _jetpack_og_get_image_validate_size($width, $height, $req_width, $req_height) {
