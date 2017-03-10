@@ -5,6 +5,7 @@ require_once( JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-helpers.php' 
  * Just some defaults that we share with the server
  */
 class Jetpack_Sync_Defaults {
+
 	static $default_options_whitelist = array(
 		'stylesheet',
 		'blogname',
@@ -119,7 +120,7 @@ class Jetpack_Sync_Defaults {
 		 *
 		 * @module sync
 		 *
-		 * @since 4.7
+		 * @since 4.8
 		 *
 		 * @param array The default list of options.
 		 */
@@ -152,7 +153,7 @@ class Jetpack_Sync_Defaults {
 		 *
 		 * @module sync
 		 *
-		 * @since 4.7
+		 * @since 4.8
 		 *
 		 * @param array The default list of constants options.
 		 */
@@ -188,6 +189,19 @@ class Jetpack_Sync_Defaults {
 		'locale'                           => 'get_locale',
 		'site_icon_url'                    => array( 'Jetpack_Sync_Functions', 'site_icon_url' ),
 	);
+
+	public static function get_callable_whitelist() {
+		/**
+		 * Filter the list of callables that are manageable via the JSON API.
+		 *
+		 * @module sync
+		 *
+		 * @since 4.8
+		 *
+		 * @param array The default list of callables.
+		 */
+		return apply_filters( 'jetpack_sync_callable_whitelist', self::$default_callable_whitelist );
+	}
 
 	static $blacklisted_post_types = array(
 		'ai1ec_event',
@@ -235,6 +249,19 @@ class Jetpack_Sync_Defaults {
 		'network_enable_administration_menus' => array( 'Jetpack', 'network_enable_administration_menus' ),
 	);
 
+	public static function get_multisite_callable_whitelist() {
+		/**
+		 * Filter the list of multisite callables that are manageable via the JSON API.
+		 *
+		 * @module sync
+		 *
+		 * @since 4.8
+		 *
+		 * @param array The default list of multisite callables.
+		 */
+		return apply_filters( 'jetpack_sync_multisite_callable_whitelist', self::$default_multisite_callable_whitelist );
+	}
+
 	static $post_meta_whitelist = array(
 		'_feedback_akismet_values',
 		'_feedback_email',
@@ -281,7 +308,7 @@ class Jetpack_Sync_Defaults {
 		 *
 		 * @module sync
 		 *
-		 * @since 4.7
+		 * @since 4.8
 		 *
 		 * @param array The default list of meta data keys.
 		 */
