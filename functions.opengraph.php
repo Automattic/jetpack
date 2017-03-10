@@ -346,25 +346,16 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 	}
 
 	// Third fall back, Core Site Icon, if valid in size. Added in WP 4.3.
-	if ( empty( $image ) && ( function_exists( 'has_site_icon') && has_site_icon() ) ) {
-		$img_width  = '';
-		$img_height = '';
-
-		$max_side = max( $width, $height );
-		$image_url = get_site_icon_url( $max_side );
+	if ( empty( $image ) && ( function_exists( 'has_site_icon' ) && has_site_icon() ) ) {
 		$image_id = get_option( 'site_icon' );
-		$image_size = wp_get_attachment_image_src( $image_id, $max_side >= 512
-			? 'full'
-			: array( $max_side, $max_side ) );
-		if ( isset( $image_size[1], $image_size[2] ) ) {
-			$img_width  = $image_size[1];
-			$img_height = $image_size[2];
-		}
-
-		if (_jetpack_og_get_image_validate_size($img_width, $img_height, $width, $height)) {
-			$image['src']     = $image_url;
-			$image['width']   = $width;
-			$image['height']  = $height;
+		$icon = wp_get_attachment_image_src( $image_id, 'full' );
+		if (
+			isset( $icon[0], $icon[1], $icon[2] )
+			&& ( _jetpack_og_get_image_validate_size( $icon[1], $icon[2], $width, $height ) )
+		) {
+			$image['src']     = $icon[0];
+			$image['width']   = $icon[1];
+			$image['height']  = $icon[2];
 		}
 	}
 
