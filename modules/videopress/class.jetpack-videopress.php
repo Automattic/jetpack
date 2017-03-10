@@ -175,7 +175,7 @@ class Jetpack_VideoPress {
 	/**
 	 * An override for the attachment url, which returns back the WPCOM VideoPress processed url.
 	 *
-	 * This is most a action proxy to the videopress_get_attachment_url() utility function.
+	 * This is an action proxy to the videopress_get_attachment_url() utility function.
 	 *
 	 * @param string $url
 	 * @param int $post_id
