@@ -1,5 +1,5 @@
 <?php
-
+require_once dirname( __FILE__ ) . '/../../../sync/class.jetpack-sync-module-wp-super-cache.php';
 /**
  * Testing WP Super Cache Sync
  */
