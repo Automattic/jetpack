@@ -333,15 +333,15 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 
 	// Second fall back, Site Logo.
 	if ( empty( $image ) && ( function_exists( 'jetpack_has_site_logo' ) && jetpack_has_site_logo() ) ) {
-		$image_dimensions    = jetpack_get_site_logo_dimensions();
-		if ( ! empty( $image_dimensions ) ) {
-			$img_width = $image_dimensions['width'];
-			$img_height = $image_dimensions['height'];
-			if (_jetpack_og_get_image_validate_size($img_width, $img_height, $width, $height)) {
-				$image['src']    = jetpack_get_site_logo( 'url' );
-				$image['width']  = $width;
-				$image['height'] = $height;
-			}
+		$image_id = jetpack_get_site_logo( 'id' );
+		$logo = wp_get_attachment_image_src( $image_id, 'full' );
+		if (
+			isset( $logo[0], $logo[1], $logo[2] )
+			&& ( _jetpack_og_get_image_validate_size( $logo[1], $logo[2], $width, $height ) )
+		) {
+			$image['src']     = $logo[0];
+			$image['width']   = $logo[1];
+			$image['height']  = $logo[2];
 		}
 	}
 
