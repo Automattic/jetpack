@@ -325,8 +325,8 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 
 			if ( _jetpack_og_get_image_validate_size( $img_width, $img_height, $width, $height ) ) {
 				$image['src']    = $image_url;
-				$image['width']  = $width;
-				$image['height'] = $height;
+				$image['width']  = $img_width;
+				$image['height'] = $img_height;
 			}
 		}
 	}
