@@ -69,6 +69,7 @@ before_script:
     - source ~/.nvm/nvm.sh && nvm install 5
     - export PLUGIN_SLUG=$(basename $(pwd))
     - source ~/.nvm/nvm.sh
+    - export PATH="$HOME/.composer/vendor/bin:$PATH" 
     - |
         if [[ ${TRAVIS_PHP_VERSION:0:2} == "7." ]]; then 
             composer global require "phpunit/phpunit=5.7.*" 
