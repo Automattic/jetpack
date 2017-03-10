@@ -40,7 +40,7 @@
 			top: 0;
 			right: 0;
 			bottom: 0;
-			left: -16px; // fill gap of wp-admin sidebar right margin
+			left: -20px; // fill gap of wp-admin sidebar right margin
 			z-index: 999; // to sit over other elements
 		background: rgba($gray-light, .95);
 		text-align: center;
@@ -48,7 +48,59 @@
 	}
 }
 
+// Planet svgs for decoration only
+.jp-connect-full__svg-jupiter {
+	position: absolute;
+		right: 0;
+		top: rem( 80px );
+		opacity: .90;
+
+		@include breakpoint(tablet) {
+			display: none;
+		};
+}
+
+.jp-connect-full__svg-stars {
+	position: absolute;
+		left: rem( 100px );
+		top: rem( 100px );
+		opacity: .90;
+
+		@include breakpoint(tablet) {
+			display: none;
+		};
+}
+
+// dismiss 
+.jp-connect-full__svg-dismiss {
+	position: absolute;
+		right: 0;
+		top: 0;
+	fill: $gray;
+	padding: rem( 16px );
+	height: rem( 24px );
+	width: rem( 24px );
+}
+
+.jp-connect-full__step-header-logos {
+	display: flex;
+	align-items: center;
+	flex-direction: row;
+	justify-content: center;
+
+	.jp-connect-full__svg-jetpack,
+	.jp-connect-full__svg-jetpack {
+		fill: $gray;
+	}
+
+	.jp-connect-full__svg-sync {
+		fill: $gray-dark;
+		margin: 0 rem( 16px );
+	}
+}
+
 .jp-connect-full__step-header-title {
+	padding: rem( 16px );
 	font-size: rem( 24px );
 	color: $gray-dark;
 	font-weight: 400;
@@ -89,7 +141,7 @@
 }
 
 .jp-connect-full__help-button {
-	display: block;
+	display: inline-block;
 	text-decoration: none;
 	color: $gray;
 	padding: rem( 16px );
