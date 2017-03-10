@@ -9,10 +9,6 @@ class WP_Test_Jetpack_Sync_WP_Super_Cache extends WP_Test_Jetpack_Sync_Base {
 
 	public static function setUpBeforeClass() {
 		parent::setUpBeforeClass();
-
-		if ( "1" != getenv( 'JETPACK_TEST_WP_SUPER_CACHE' ) ) {
-			return; 
-		} 
 		
 		self::$wp_super_cache_enabled = true;
 	}
