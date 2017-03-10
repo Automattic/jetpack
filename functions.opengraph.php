@@ -289,7 +289,7 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 		) );
 	}
 
-	// First fall back, blavatar
+	// First fall back, blavatar.
 	if ( empty( $image ) && function_exists( 'blavatar_domain' ) ) {
 		$blavatar_domain = blavatar_domain( site_url() );
 		if ( blavatar_exists( $blavatar_domain ) ) {
@@ -323,7 +323,7 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 				$img_height = $image_size[2];
 			}
 
-			if (_jetpack_og_get_image_validate_size($img_width, $img_height, $width, $height)) {
+			if ( _jetpack_og_get_image_validate_size( $img_width, $img_height, $width, $height ) ) {
 				$image['src']    = $image_url;
 				$image['width']  = $width;
 				$image['height'] = $height;
@@ -331,7 +331,7 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 		}
 	}
 
-	// Second fall back, Site Logo
+	// Second fall back, Site Logo.
 	if ( empty( $image ) && ( function_exists( 'jetpack_has_site_logo' ) && jetpack_has_site_logo() ) ) {
 		$image_dimensions    = jetpack_get_site_logo_dimensions();
 		if ( ! empty( $image_dimensions ) ) {
@@ -368,7 +368,7 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 		}
 	}
 
-	// Finally fall back, blank image
+	// Final fall back, blank image.
 	if ( empty( $image ) ) {
 		/**
 		 * Filter the default Open Graph Image tag, used when no Image can be found in a post.
@@ -385,22 +385,24 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 
 
 /**
-* Validate the width and height against required width and height
-*
-* @param $width      int  Width of the image
-* @param $height     int  Height of the image
-* @param $req_width  int  Required width to pass validation
-* @param $req_height int  Required height to pass validation
-* @return bool - True if the image passed the required size validation
-*/
-function _jetpack_og_get_image_validate_size($width, $height, $req_width, $req_height) {
-	if (!$width || !$height) {
+ * Validate the width and height against required width and height
+ *
+ * @param int $width      Width of the image.
+ * @param int $height     Height of the image.
+ * @param int $req_width  Required width to pass validation.
+ * @param int $req_height Required height to pass validation.
+ *
+ * @return bool - True if the image passed the required size validation
+ */
+function _jetpack_og_get_image_validate_size( $width, $height, $req_width, $req_height ) {
+	if ( ! $width || ! $height ) {
 		return false;
 	}
 
 	$valid_width = ( $width >= $req_width );
 	$valid_height = ( $height >= $req_height );
 	$is_image_acceptable = $valid_width && $valid_height;
+
 	return $is_image_acceptable;
 }
 
