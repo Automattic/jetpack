@@ -666,18 +666,22 @@ function video_get_post_by_guid( $guid ) {
  */
 function videopress_get_attachment_url( $post_id ) {
 
+	// We only handle VideoPress attachments.
 	if ( get_post_mime_type( $post_id ) !== 'video/videopress' ) {
 		return null;
 	}
 
 	$meta = wp_get_attachment_metadata( $post_id );
 
-	// If the video hasn't been transcoded to an HD mp4 yet, then don't continue, use the original url.
 	if ( ! isset( $meta['videopress']['files']['hd']['mp4'] ) ) {
+		// Use the original file as the url if it isn't transcoded yet.
+		if ( isset( $meta['original'] ) ) {
+			return $meta['original'];
+		}
+
+		// Otherwise, there isn't much we can do.
 		return null;
 	}
 
-	$filename = $meta['videopress']['files']['hd']['mp4'];
-
-	return $meta['videopress']['file_url_base']['https'] . $filename;
+	return $meta['videopress']['file_url_base']['https'] . $meta['videopress']['files']['hd']['mp4'];
 }
