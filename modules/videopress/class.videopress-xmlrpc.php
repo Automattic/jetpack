@@ -155,18 +155,25 @@ class VideoPress_XMLRPC {
 			return false;
 		}
 
+		// Switch to photon if needed.
+		$poster = str_replace(
+			'https://videos.files.wordpress.com',
+			'https://i0.wp.com/videos.files.wordpress.com',
+			$poster
+		);
+
+		$meta = wp_get_attachment_metadata( $post_id );
+		$meta['videopress']['poster'] = $poster;
+		wp_update_attachment_metadata( $post_id, $meta );
+
 		// Update the poster in the VideoPress info.
 		$thumbnail_id = videopress_download_poster_image( $poster, $post_id );
 
-		if ( !is_int( $thumbnail_id ) ) {
+		if ( ! is_int( $thumbnail_id ) ) {
 			return false;
 		}
 
 		update_post_meta( $post_id, '_thumbnail_id', $thumbnail_id );
-		$meta = wp_get_attachment_metadata( $post_id );
-
-		$meta['videopress']['poster'] = $poster;
-		wp_update_attachment_metadata( $post_id, $meta );
 
 		return true;
 	}
