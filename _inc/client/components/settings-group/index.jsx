@@ -15,7 +15,8 @@ import noop from 'lodash/noop';
  * Internal dependencies
  */
 import { isDevMode, isUnavailableInDevMode, isCurrentUserLinked } from 'state/connection';
-import { userCanManageModules, isSitePublic } from 'state/initial-state';
+import { userCanManageModules, isSitePublic, userCanEditPosts } from 'state/initial-state';
+import { isModuleActivated } from 'state/modules';
 
 export const SettingsGroup = props => {
 	const module = props.module;
@@ -32,7 +33,8 @@ export const SettingsGroup = props => {
 			: props.support;
 	let displayFadeBlock = disableInDevMode;
 
-	if ( 'post-by-email' === module.module && ! props.isLinked ) {
+	if ( ( 'post-by-email' === module.module && ! props.isLinked ) ||
+		( 'after-the-deadline' === module.module && ( ! props.userCanManageModules && props.userCanEditPosts && ! props.isModuleActivated( 'after-the-deadline' ) ) ) ) {
 		displayFadeBlock = true;
 	}
 
@@ -95,7 +97,9 @@ export default connect(
 			isDevMode: isDevMode( state ),
 			isSitePublic: isSitePublic( state ),
 			userCanManageModules: userCanManageModules( state ),
+			userCanEditPosts: userCanEditPosts( state ),
 			isLinked: isCurrentUserLinked( state ),
+			isModuleActivated: module => isModuleActivated( state, module ),
 			isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name )
 		};
 	}
