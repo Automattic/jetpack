@@ -183,7 +183,11 @@ class Jetpack_VideoPress {
 	 * @return string
 	 */
 	public function update_attachment_url_for_videopress( $url, $post_id ) {
-		return videopress_get_attachment_url( $post_id );
+		if ( $videopress_url = videopress_get_attachment_url( $post_id ) ) {
+			return $videopress_url;
+		}
+
+		return $url;
 	}
 
 	/**
