@@ -293,17 +293,30 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 	if ( empty( $image ) && function_exists( 'blavatar_domain' ) ) {
 		$blavatar_domain = blavatar_domain( site_url() );
 		if ( blavatar_exists( $blavatar_domain ) ) {
-			$image_url = blavatar_url( $blavatar_domain, 'img', $width, false, true );
-
 			$img_width  = '';
 			$img_height = '';
-			$cached_image_id = get_transient( 'jp_' . $image_url );
-			if ( false !== $cached_image_id ) {
-				$image_id = $cached_image_id;
-			} else {
-				$image_id = attachment_url_to_postid( $image_url );
-				set_transient( 'jp_' . $image_url, $image_id );
+
+			$image_url = blavatar_url( $blavatar_domain, 'img', $width, false, true );
+
+			// Build a hash of the Image URL. We'll use it later when building the transient.
+			if ( $image_url ) {
+				/**
+				 * Transient names are 45 chars max.
+				 * Let's generate a hash that's 41 chars max:
+				 * We will add 'jp_' in front of it later, so 45 chars minus those 3, and a one-off char just in in case.
+				 */
+				$image_hash = substr( md5( $image_url ), 0, 41 );
 			}
+
+			// Look for data in our transient. If nothing, let's get an attachment ID.
+			$cached_image_id = get_transient( 'jp_' . $image_hash );
+			if ( ! is_int( $cached_image_id ) ) {
+				$image_id = attachment_url_to_postid( $image_url );
+				set_transient( 'jp_' . $image_hash, $image_id );
+			} else {
+				$image_id = $cached_image_id;
+			}
+
 			$image_size = wp_get_attachment_image_src( $image_id, $width >= 512
 				? 'full'
 				: array( $width, $width ) );
@@ -336,18 +349,30 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 
 	// Third fall back, Core Site Icon, if valid in size. Added in WP 4.3.
 	if ( empty( $image ) && ( function_exists( 'has_site_icon') && has_site_icon() ) ) {
+		$img_width  = '';
+		$img_height = '';
+
 		$max_side = max( $width, $height );
 		$image_url = get_site_icon_url( $max_side );
 
-		$img_width  = '';
-		$img_height = '';
-		$cached_image_id = get_transient( 'jp_' . $image_url );
+		// Build a hash of the Image URL. We'll use it later when building the transient.
+		if ( $image_url ) {
+			/**
+			 * Transient names are 45 chars max.
+			 * Let's generate a hash that's 41 chars max:
+			 * We will add 'jp_' in front of it later, so 45 chars minus those 3, and a one-off char just in case.
+			 */
+			$image_hash = substr( md5( $image_url ), 0, 41 );
+		}
 
-		if ( false !== $cached_image_id ) {
-			$image_id = $cached_image_id;
+		// Look for data in our transient. If nothing, let's get an attachment ID.
+		$cached_image_id = get_transient( 'jp_' . $image_hash );
+		if ( ! is_int( $cached_image_id ) ) {
+			$image_id = get_option( 'site_icon' );
+			set_transient( 'jp_' . $image_hash, $image_id );
 		} else {
-			$image_id = attachment_url_to_postid( $image_url );
-			set_transient( 'jp_' . $image_url, $image_id );
+			// We have data in the transient. Use it.
+			$image_id = $cached_image_id;
 		}
 
 		$image_size = wp_get_attachment_image_src( $image_id, $max_side >= 512
