@@ -40,15 +40,19 @@
 			top: 0;
 			right: 0;
 			bottom: 0;
-			left: -20px; // fill gap of wp-admin sidebar right margin
+			left: 0;
 			z-index: 999; // to sit over other elements
 		background: rgba($gray-light, .95);
 		text-align: center;
 		padding: rem( 32px );
+
+		@include minbreakpoint(tablet) {
+			left: -20px; // fill gap of wp-admin sidebar right margin on large screens
+		};
 	}
 }
 
-// Planet svgs for decoration only
+// Planet + star svgs for decoration only
 .jp-connect-full__svg-jupiter {
 	position: absolute;
 		right: 0;
@@ -97,11 +101,16 @@
 		fill: $gray-dark;
 		margin: 0 rem( 16px );
 	}
+
+	@include breakpoint(phablet) {
+			padding-top: rem( 32px );
+	};
 }
 
 .jp-connect-full__step-header-title {
 	padding: rem( 16px );
 	font-size: rem( 24px );
+	line-height: 1.25;
 	color: $gray-dark;
 	font-weight: 400;
 }
