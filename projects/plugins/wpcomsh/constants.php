@@ -26,3 +26,7 @@ if (
 define( 'WPCOMSH_PUB_THEME_TYPE', 'wpcom_pub_theme_type' );
 define( 'WPCOMSH_PREMIUM_THEME_TYPE', 'wpcom_premium_theme_type' );
 define( 'WPCOMSH_NON_WPCOM_THEME', 'non_wpcom_theme' );
+
+define( 'WPCOMSH_PLAN_FREE', 'free' );
+define( 'WPCOMSH_PLAN_PREMIUM', 'premium' );
+define( 'WPCOMSH_PLAN_BUSINESS', 'business' );
