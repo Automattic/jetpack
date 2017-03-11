@@ -13,7 +13,7 @@ import NoticesList from 'components/global-notices';
  */
 import JetpackStateNotices from './state-notices';
 import { getSiteConnectionStatus, getSiteDevMode, isStaging, isInIdentityCrisis, isCurrentUserLinked } from 'state/connection';
-import { isDevVersion, userCanManageModules, getUsername } from 'state/initial-state';
+import { isDevVersion, userCanManageModules, getUsername, userIsSubscriber } from 'state/initial-state';
 import DismissableNotices from './dismissable';
 import { getConnectUrl as _getConnectUrl } from 'state/connection';
 import QueryConnectUrl from 'components/data/query-connect-url';
@@ -22,7 +22,7 @@ export const DevVersionNotice = React.createClass( {
 	displayName: 'DevVersionNotice',
 
 	render() {
-		if ( this.props.isDevVersion ) {
+		if ( this.props.isDevVersion && ! this.props.userIsSubscriber ) {
 			return (
 				<SimpleNotice
 					showDismiss={ false }
@@ -43,7 +43,8 @@ export const DevVersionNotice = React.createClass( {
 } );
 
 DevVersionNotice.propTypes = {
-	isDevVersion: React.PropTypes.bool.isRequired
+	isDevVersion: React.PropTypes.bool.isRequired,
+	userIsSubscriber: React.PropTypes.bool.isRequired
 };
 
 export const StagingSiteNotice = React.createClass( {
@@ -51,13 +52,12 @@ export const StagingSiteNotice = React.createClass( {
 
 	render() {
 		if ( this.props.isStaging && ! this.props.isInIdentityCrisis ) {
-			let stagingSiteSupportLink = 'https://jetpack.com/support/staging-sites/';
-
-			let props = {
-				text: 	__( 'You are running Jetpack on a staging server.' ),
-				status: 'is-basic',
-				showDismiss: false
-			};
+			const stagingSiteSupportLink = 'https://jetpack.com/support/staging-sites/',
+				props = {
+					text: 	__( 'You are running Jetpack on a staging server.' ),
+					status: 'is-basic',
+					showDismiss: false
+				};
 
 			return (
 				<SimpleNotice { ... props }>
@@ -85,15 +85,13 @@ export const DevModeNotice = React.createClass( {
 
 	render() {
 		if ( this.props.siteConnectionStatus === 'dev' ) {
-			const devMode = this.props.siteDevMode;
-			const text = __( 'Currently in {{a}}Development Mode{{/a}} (some features are disabled) because:',
-				{
+			const devMode = this.props.siteDevMode,
+				text = __( 'Currently in {{a}}Development Mode{{/a}} (some features are disabled) because:', {
 					components: {
-						a: <a href="https://jetpack.com/support/development-mode/" target="_blank" rel="noopener noreferrer"/>
+						a: <a href="https://jetpack.com/support/development-mode/" target="_blank" rel="noopener noreferrer" />
 					}
-				}
-			);
-			const reasons = [];
+				} ),
+				reasons = [];
 			if ( devMode.filter ) {
 				reasons.push( __( '{{li}}The jetpack_development_mode filter is active{{/li}}',
 					{
@@ -202,7 +200,7 @@ const JetpackNotices = React.createClass( {
 				<QueryConnectUrl />
 				<NoticesList />
 				<JetpackStateNotices />
-				<DevVersionNotice isDevVersion={ this.props.isDevVersion } />
+				<DevVersionNotice isDevVersion={ this.props.isDevVersion } userIsSubscriber={ this.props.userIsSubscriber } />
 				<DevModeNotice
 					siteConnectionStatus={ this.props.siteConnectionStatus }
 					siteDevMode={ this.props.siteDevMode } />
@@ -235,6 +233,7 @@ export default connect(
 			connectUrl: _getConnectUrl( state ),
 			siteConnectionStatus: getSiteConnectionStatus( state ),
 			userCanManageModules: userCanManageModules( state ),
+			userIsSubscriber: userIsSubscriber( state ),
 			username: getUsername( state ),
 			isLinked: isCurrentUserLinked( state ),
 			isDevVersion: isDevVersion( state ),
