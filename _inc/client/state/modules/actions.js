@@ -1,3 +1,4 @@
+/*global jQuery */
 /**
  * External dependencies
  */

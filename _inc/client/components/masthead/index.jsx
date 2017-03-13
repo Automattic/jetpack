@@ -31,7 +31,7 @@ export const Masthead = React.createClass( {
 
 					<ul className="jp-masthead__links">
 						<li className="jp-masthead__link-li">
-							<a href="https://jetpack.com/support/" target="_blank" className="jp-masthead__link">
+							<a href="https://jetpack.com/support/" target="_blank" rel="noopener noreferrer" className="jp-masthead__link">
 								<span className="dashicons dashicons-editor-help" title={ __( 'Need Help?' ) } />
 								<span>
 									{ __( 'Need Help?' ) }
@@ -39,7 +39,7 @@ export const Masthead = React.createClass( {
 							</a>
 						</li>
 						<li className="jp-masthead__link-li">
-							<a href={ 'http://surveys.jetpack.me/research-plugin?rel=' + this.props.currentVersion } target="_blank" className="jp-masthead__link">
+							<a href={ 'http://surveys.jetpack.me/research-plugin?rel=' + this.props.currentVersion } target="_blank" rel="noopener noreferrer" className="jp-masthead__link">
 								<span className="dashicons dashicons-admin-comments" title={ __( 'Send us Feedback' ) } />
 								<span>
 									{ __( 'Send us Feedback' ) }

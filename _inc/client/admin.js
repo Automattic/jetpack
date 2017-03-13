@@ -1,3 +1,4 @@
+/*global Initial_State */
 /**
  * External dependencies
  */

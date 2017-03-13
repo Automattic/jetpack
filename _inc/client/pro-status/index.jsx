@@ -50,6 +50,7 @@ const ProStatus = React.createClass( {
 			'vaultpress/vaultpress.php' :
 			'akismet/akismet.php';
 
+		// eslint-disable-next-line no-unused-vars
 		const hasPersonal = /jetpack_personal*/.test( sitePlan.product_slug ),
 			hasPremium = /jetpack_premium*/.test( sitePlan.product_slug ),
 			hasBusiness = /jetpack_business*/.test( sitePlan.product_slug );

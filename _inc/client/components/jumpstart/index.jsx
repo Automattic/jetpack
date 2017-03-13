@@ -27,7 +27,7 @@ const JumpStart = React.createClass( {
 
 	render: function() {
 		const trackLearnMore = () => analytics.tracks.recordEvent( 'jetpack_jumpstart_learn_more', {} );
-		let jumpstartModules = this.props.jumpstartFeatures.map( ( module ) => (
+		const jumpstartModules = this.props.jumpstartFeatures.map( ( module ) => (
 			<div
 				className="jp-jumpstart__feature-list-column"
 				key={ `module-card_${ module.name }` /* https://fb.me/react-warning-keys */ } >

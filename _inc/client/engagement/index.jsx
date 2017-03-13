@@ -224,7 +224,7 @@ export const Engagement = ( props ) => {
 										} )
 									}</span>
 								</span>
-							  </div>
+							</div>
 							: ''
 					}
 					{
@@ -239,7 +239,7 @@ export const Engagement = ( props ) => {
 										} )
 									}</span>
 								</span>
-							  </div>
+							</div>
 							: ''
 					}
 					{
@@ -278,7 +278,7 @@ export const WordAdsSubHeaderTos = React.createClass( {
 				<small>
 					{ __( 'By activating ads, you agree to the Automattic Ads {{link}}Terms of Service{{/link}}.', {
 						components: {
-							link: <a href="https://wordpress.com/automattic-ads-tos/" target="_blank" />
+							link: <a href="https://wordpress.com/automattic-ads-tos/" target="_blank" rel="noopener noreferrer" />
 						}
 					} ) }
 				</small>

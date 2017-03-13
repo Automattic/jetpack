@@ -77,11 +77,9 @@ const DashPluginUpdates = React.createClass( {
 								}
 							} )
 						}
-						{
-							this.props.isDevMode ? '' :
-							manageActive ?
-								__( '{{a}}Turn on plugin auto updates{{/a}}', { components: { a: <a href={ ctaLink } /> } } ) :
-								__( '{{a}}Activate Manage and turn on auto updates{{/a}}', { components: { a: <a onClick={ this.activateAndRedirect } href="javascript:void(0)" /> } } )
+						{ ( ! this.props.isDevMode && manageActive )
+								? __( '{{a}}Turn on plugin auto updates{{/a}}', { components: { a: <a href={ ctaLink } /> } } )
+								: __( '{{a}}Activate Manage and turn on auto updates{{/a}}', { components: { a: <a onClick={ this.activateAndRedirect } /> } } )
 						}
 					</p>
 				</DashItem>
@@ -140,6 +138,6 @@ export default connect(
 			activateManage: () => {
 				return dispatch( activateModule( 'manage' ) );
 			}
-		}
+		};
 	}
 )( DashPluginUpdates );

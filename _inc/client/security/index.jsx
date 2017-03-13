@@ -7,7 +7,6 @@ import FoldableCard from 'components/foldable-card';
 import Button from 'components/button';
 import Gridicon from 'components/gridicon';
 import { translate as __ } from 'i18n-calypso';
-import SimpleNotice from 'components/notice';
 import includes from 'lodash/includes';
 import analytics from 'lib/analytics';
 

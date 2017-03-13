@@ -46,6 +46,7 @@ module.exports = {
 		'react/jsx-curly-spacing': [ 1, 'always' ],
 		'react/jsx-no-bind': 1,
 		'react/jsx-space-before-closing': 0,
+		'react/no-danger': 0, // We use this often to display module info
 		'react/no-did-mount-set-state': 1,
 		'react/no-did-update-set-state': 1,
 		'react/no-is-mounted': 1,

@@ -52,10 +52,10 @@ export const StagingSiteNotice = React.createClass( {
 
 	render() {
 		if ( this.props.isStaging && ! this.props.isInIdentityCrisis ) {
-			let stagingSiteSupportLink = 'https://jetpack.com/support/staging-sites/';
+			const stagingSiteSupportLink = 'https://jetpack.com/support/staging-sites/';
 
-			let props = {
-				text: 	__( 'You are running Jetpack on a staging server.' ),
+			const props = {
+				text: __( 'You are running Jetpack on a staging server.' ),
 				status: 'is-basic',
 				showDismiss: false
 			};
@@ -90,7 +90,7 @@ export const DevModeNotice = React.createClass( {
 			const text = __( 'Currently in {{a}}Development Mode{{/a}} (some features are disabled) because:',
 				{
 					components: {
-						a: <a href="https://jetpack.com/support/development-mode/" target="_blank"/>,
+						a: <a href="https://jetpack.com/support/development-mode/" target="_blank" rel="noopener noreferrer" />,
 					}
 				}
 			);
@@ -159,9 +159,7 @@ export const UserUnlinked = React.createClass( {
 			this.props.connectUrl &&
 			this.props.siteConnected
 		) {
-			let text;
-
-			text = __( 'You, %(userName)s, are not connected to WordPress.com.', {
+			const text = __( 'You, %(userName)s, are not connected to WordPress.com.', {
 				args: {
 					userName: window.Initial_State.userData.currentUser.username
 				}

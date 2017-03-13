@@ -81,7 +81,7 @@ var webpackConfig = {
 		process: true
 	},
 	eslint: {
-		configFile: path.join(__dirname, '.eslintrc'),
+		configFile: path.join(__dirname, '.eslintrc.js'),
 		quiet: true
 	},
 	plugins: [
