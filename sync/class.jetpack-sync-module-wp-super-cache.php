@@ -2,6 +2,11 @@
 
 class Jetpack_Sync_Module_WP_Super_Cache extends Jetpack_Sync_Module {
 
+	public function __construct() {
+		add_filter( 'jetpack_sync_constants_whitelist', array( $this, 'add_wp_super_cache_constants_whitelist' ), 10 );
+		add_filter( 'jetpack_sync_callable_whitelist', array( $this, 'add_wp_super_cache_callable_whitelist' ), 10 );
+	}
+
 	static $wp_super_cache_constants = array(
 		'WPLOCKDOWN',
 		'WPSC_DISABLE_COMPRESSION',
@@ -62,19 +67,6 @@ class Jetpack_Sync_Module_WP_Super_Cache extends Jetpack_Sync_Module {
 			'cache_jetpack' => $cache_jetpack,
 			'cache_domain_mapping' => $cache_domain_mapping,
 		);
-	}
-
-	public function init_listeners( $callable ) {
-		$this->sync_wp_super_cache();
-	}
-
-	public function init_full_sync_listeners( $callable ) {
-		$this->sync_wp_super_cache();
-	}
-
-	public function sync_wp_super_cache() {
-		add_filter( 'jetpack_sync_constants_whitelist', array( $this, 'add_wp_super_cache_constants_whitelist' ), 10 );
-		add_filter( 'jetpack_sync_callable_whitelist', array( $this, 'add_wp_super_cache_callable_whitelist' ), 10 );
 	}
 
 	public function add_wp_super_cache_constants_whitelist( $list ) {
