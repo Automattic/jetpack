@@ -33,9 +33,9 @@ const DashPluginUpdates = React.createClass( {
 		const labelName = __( 'Plugin Updates' );
 		const pluginUpdates = this.props.pluginUpdates;
 		const manageActive = this.props.isModuleActivated( 'manage' );
-		const ctaLink = manageActive ?
-			'https://wordpress.com/plugins/' + this.props.siteRawUrl :
-			this.props.siteAdminUrl + 'plugins.php';
+		const ctaLink = manageActive
+			? 'https://wordpress.com/plugins/' + this.props.siteRawUrl
+			: this.props.siteAdminUrl + 'plugins.php';
 
 		if ( 'N/A' === pluginUpdates ) {
 			return (
@@ -71,7 +71,7 @@ const DashPluginUpdates = React.createClass( {
 					siteRawUrl={ this.props.siteRawUrl }
 					siteAdminUrl={ this.props.siteAdminUrl }
 				>
-					<h2 className="jp-dash-item__count">
+					<div className="jp-dash-item__count">
 						{
 							__( '%(number)s plugin', '%(number)s plugins', {
 								count: pluginUpdates.count,
@@ -80,7 +80,7 @@ const DashPluginUpdates = React.createClass( {
 								}
 							} )
 						}
-					</h2>
+					</div>
 					<p className="jp-dash-item__description">
 						{
 							__( 'Needs updating. ', 'Need updating. ', {
@@ -102,10 +102,13 @@ const DashPluginUpdates = React.createClass( {
 				module="manage"
 				status={ manageActive ? 'is-working' : 'is-inactive' } >
 				<p className="jp-dash-item__description">
-					{
-						manageActive ?
-							__( 'All plugins are up-to-date. Awesome work!' ) :
-							__( '{{a}}Activate Manage{{/a}} to turn on auto updates and manage your plugins from WordPress.com.', { components: { a: <a onClick={ this.props.activateManage } href="javascript:void(0)" /> } } )
+					{ manageActive
+						? __( 'All plugins are up-to-date. Awesome work!' )
+						: __( '{{a}}Activate Manage{{/a}} to turn on auto updates and manage your plugins from WordPress.com.', {
+							components: {
+								a: <a onClick={ this.props.activateManage } href="javascript:void(0)" />
+							}
+						} )
 					}
 				</p>
 			</DashItem>
