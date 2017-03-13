@@ -44,7 +44,7 @@ export let VideoPressSettings = React.createClass( {
 					{ __( 'To get started, click on Add Media in your post editor and upload a video; we’ll take care of the rest!' ) }
 				</p>
 			</div>
-		)
+		);
 	}
 } );
 
@@ -62,7 +62,7 @@ export let SharedaddySettings = React.createClass( {
 						disabled={ this.props.shouldSaveButtonBeDisabled() } />
 				</FormFieldset>
 			</form>
-		)
+		);
 	}
 } );
 
@@ -85,18 +85,17 @@ export let RelatedPostsSettings = React.createClass( {
 
 		return (
 			<div className="jp-related-posts-preview">
-				{
-					show_headline ?
-						<div className="jp-related-posts-preview__title">{ __( 'Related' ) }</div> :
-						''
+				{ show_headline
+					? <div className="jp-related-posts-preview__title">{ __( 'Related' ) }</div>
+					: ''
 				}
 				{
 					previews.map( ( preview, i ) => (
 						<span key={ `preview_${ i }` } className="jp-related-posts-preview__item" >
 							{
-								show_thumbnails ? <img src={ preview.url } /> : ''
+								show_thumbnails ? <img src={ preview.url } alt={ preview.text } /> : ''
 							}
-							<span><a href="#/engagement"> { preview.text } </a></span>
+							<span><a href="#/engagement">{ preview.text }</a></span>
 						</span>
 					) )
 				}
@@ -170,7 +169,7 @@ export let LikesSettings = React.createClass( {
 					}
 				</p>
 			</form>
-		)
+		);
 	}
 } );
 
@@ -187,7 +186,7 @@ export let CommentsSettings = React.createClass( {
 							name={ 'highlander_comment_form_prompt' }
 							value={ this.props.getOptionValue( 'highlander_comment_form_prompt' ) }
 							disabled={ this.props.isUpdating( 'highlander_comment_form_prompt' ) }
-							onChange={ this.props.onOptionChange} />
+							onChange={ this.props.onOptionChange } />
 					</FormLabel>
 					<span className="jp-form-setting-explanation">{ __( 'A few catchy words to motivate your readers to comment.' ) }</span>
 				</FormFieldset>
@@ -203,7 +202,7 @@ export let CommentsSettings = React.createClass( {
 						disabled={ this.props.shouldSaveButtonBeDisabled() } />
 				</FormFieldset>
 			</form>
-		)
+		);
 	}
 } );
 
@@ -216,7 +215,7 @@ export let SubscriptionsSettings = React.createClass( {
 				<FormLegend>{ __( 'Can readers subscribe to your posts, comments or both?' ) }</FormLegend>
 				<FormFieldset>
 					<ModuleSettingCheckbox
-						name={ "stb_enabled" }
+						name={ 'stb_enabled' }
 						{ ...this.props }
 						label={ __( 'Show a "follow blog" options in the comment form' ) } />
 					<ModuleSettingCheckbox
@@ -229,7 +228,7 @@ export let SubscriptionsSettings = React.createClass( {
 						disabled={ this.props.shouldSaveButtonBeDisabled() } />
 				</FormFieldset>
 			</form>
-		)
+		);
 	}
 } );
 
@@ -281,9 +280,9 @@ StatsSettings = moduleSettingsForm( StatsSettings );
 
 export let ProtectSettings = React.createClass( {
 	render() {
-		const maybeShowIp = this.props.currentIp ?
-			<p>{ __( 'Your Current IP: %(ip)s', { args: { ip: this.props.currentIp } } ) }</p> :
-			'';
+		const maybeShowIp = this.props.currentIp
+			? <p>{ __( 'Your Current IP: %(ip)s', { args: { ip: this.props.currentIp } } ) }</p>
+			: '';
 
 		return (
 			<form onSubmit={ this.props.onSubmit } >
@@ -310,7 +309,7 @@ export let ProtectSettings = React.createClass( {
 						disabled={ this.props.shouldSaveButtonBeDisabled() } />
 				</FormFieldset>
 			</form>
-		)
+		);
 	}
 } );
 
@@ -328,12 +327,12 @@ export let MonitorSettings = React.createClass( {
 
 					__( '{{link}}Configure your Monitor notification settings on WordPress.com{{/link}}', {
 						components: {
-							link: <ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href={  'https://wordpress.com/settings/security/' + this.props.module.raw_url } />,
+							link: <ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href={ 'https://wordpress.com/settings/security/' + this.props.module.raw_url } />,
 						}
 					} )
 				}
 			</span></span>
-		)
+		);
 	}
 } );
 
@@ -358,7 +357,7 @@ export let SingleSignOnSettings = React.createClass( {
 						disabled={ this.props.shouldSaveButtonBeDisabled() } />
 				</FormFieldset>
 			</form>
-		)
+		);
 	}
 } );
 
@@ -387,7 +386,7 @@ export let CarouselSettings = React.createClass( {
 						disabled={ this.props.shouldSaveButtonBeDisabled() } />
 				</FormFieldset>
 			</form>
-		)
+		);
 	}
 } );
 
@@ -412,7 +411,7 @@ export let InfiniteScrollSettings = React.createClass( {
 						disabled={ this.props.shouldSaveButtonBeDisabled() } />
 				</FormFieldset>
 			</form>
-		)
+		);
 	}
 } );
 
@@ -448,9 +447,9 @@ export let MinilevenSettings = React.createClass( {
 						disabled={ this.props.shouldSaveButtonBeDisabled() } />
 				</FormFieldset>
 			</form>
-		)
+		);
 	}
- } );
+} );
 
 MinilevenSettings = moduleSettingsForm( MinilevenSettings );
 
@@ -480,7 +479,7 @@ export let VerificationToolsSettings = React.createClass( {
 								placeholder={ 'Example: dBw5CvburAxi537Rp9qi5uG2174Vb6JwHwIRwPSLIK8' }
 								className="widefat code"
 								disabled={ this.props.isUpdating( 'google' ) }
-								onChange={ this.props.onOptionChange} />
+								onChange={ this.props.onOptionChange } />
 						</FormLabel>
 						<span className="jp-form-setting-explanation">
 							{ __( 'Meta key example:' ) }
@@ -497,7 +496,7 @@ export let VerificationToolsSettings = React.createClass( {
 								placeholder={ 'Example: 12C1203B5086AECE94EB3A3D9830B2E' }
 								className="widefat code"
 								disabled={ this.props.isUpdating( 'bing' ) }
-								onChange={ this.props.onOptionChange} />
+								onChange={ this.props.onOptionChange } />
 						</FormLabel>
 						<span className="jp-form-setting-explanation">
 							{ __( 'Meta key example:' ) }
@@ -514,7 +513,7 @@ export let VerificationToolsSettings = React.createClass( {
 								placeholder={ 'Example: f100679e6048d45e4a0b0b92dce1efce' }
 								className="widefat code"
 								disabled={ this.props.isUpdating( 'pinterest' ) }
-								onChange={ this.props.onOptionChange} />
+								onChange={ this.props.onOptionChange } />
 						</FormLabel>
 						<span className="jp-form-setting-explanation">
 							{ __( 'Meta key example:' ) }
@@ -531,7 +530,7 @@ export let VerificationToolsSettings = React.createClass( {
 								placeholder={ 'Example: 44d68e1216009f40' }
 								className="widefat code"
 								disabled={ this.props.isUpdating( 'yandex' ) }
-								onChange={ this.props.onOptionChange} />
+								onChange={ this.props.onOptionChange } />
 						</FormLabel>
 						<span className="jp-form-setting-explanation">
 							{ __( 'Meta key example:' ) }
@@ -545,7 +544,7 @@ export let VerificationToolsSettings = React.createClass( {
 						disabled={ this.props.shouldSaveButtonBeDisabled() } />
 				</FormFieldset>
 			</form>
-		)
+		);
 	}
 } );
 
@@ -566,7 +565,7 @@ export let TiledGallerySettings = React.createClass( {
 						disabled={ this.props.shouldSaveButtonBeDisabled() } />
 				</FormFieldset>
 			</form>
-		)
+		);
 	}
 } );
 
@@ -588,36 +587,37 @@ export let PostByEmailSettings = React.createClass( {
 	},
 	render() {
 		return (
-			this.props.isCurrentUserLinked ?
-				<form>
-					<FormFieldset>
-						<FormLabel>
-							<FormLegend>{ __( 'Email Address' ) }</FormLegend>
-							<ClipboardButtonInput
-								value={ this.address() }
-								copy={ __( 'Copy', { context: 'verb' } ) }
-								copied={ __( 'Copied!' ) }
-								prompt={ __( 'Highlight and copy the following text to your clipboard:' ) }
-							/>
-							<FormButton
-								onClick={ this.regeneratePostByEmailAddress } >
-								{ __( 'Regenerate address' ) }
-							</FormButton>
-						</FormLabel>
-					</FormFieldset>
-				</form>
-				:
-				<div>
-					{
+			this.props.isCurrentUserLinked
+				? (
+					<form>
+						<FormFieldset>
+							<FormLabel>
+								<FormLegend>{ __( 'Email Address' ) }</FormLegend>
+								<ClipboardButtonInput
+									value={ this.address() }
+									copy={ __( 'Copy', { context: 'verb' } ) }
+									copied={ __( 'Copied!' ) }
+									prompt={ __( 'Highlight and copy the following text to your clipboard:' ) }
+								/>
+								<FormButton
+									onClick={ this.regeneratePostByEmailAddress } >
+									{ __( 'Regenerate address' ) }
+								</FormButton>
+							</FormLabel>
+						</FormFieldset>
+					</form>
+				)
+				: (
+					<div>
 						<div className="jp-connection-settings">
 							<div className="jp-connection-settings__headline">{ __( 'Link your account to WordPress.com to start using this feature.' ) }</div>
 							<div className="jp-connection-settings__actions">
 								<ConnectButton connectUser={ true } from="post-by-email" />
 							</div>
 						</div>
-					}
-				</div>
-		)
+					</div>
+				)
+		);
 	}
 } );
 
@@ -629,20 +629,20 @@ PostByEmailSettings = moduleSettingsForm( PostByEmailSettings );
 
 export let CustomContentTypesSettings = React.createClass( {
 	render() {
-		let portfolioConfigure = () => {
-			return ! this.props.getOptionCurrentValue( this.props.module.module, 'jetpack_portfolio' ) ?
-				'' :
-				<Button
+		const portfolioConfigure = () => {
+			return ! this.props.getOptionCurrentValue( this.props.module.module, 'jetpack_portfolio' )
+				? ''
+				: <Button
 					disabled={ ! this.props.shouldSaveButtonBeDisabled() }
 					href={ this.props.siteAdminUrl + 'edit.php?post_type=jetpack-portfolio' }
 					compact={ true }
 				>{ __( 'Configure Portfolios' ) }</Button>;
 		};
 
-		let testimonialConfigure = () => {
-			return ! this.props.getOptionCurrentValue( this.props.module.module, 'jetpack_testimonial' ) ?
-				'' :
-				<Button
+		const testimonialConfigure = () => {
+			return ! this.props.getOptionCurrentValue( this.props.module.module, 'jetpack_testimonial' )
+				? ''
+				: <Button
 					disabled={ ! this.props.shouldSaveButtonBeDisabled() }
 					href={ this.props.siteAdminUrl + 'edit.php?post_type=jetpack-testimonial' }
 					compact={ true }
@@ -671,7 +671,7 @@ export let CustomContentTypesSettings = React.createClass( {
 						disabled={ this.props.shouldSaveButtonBeDisabled() } />
 				</FormFieldset>
 			</form>
-		)
+		);
 	}
 } );
 
@@ -758,9 +758,9 @@ export let AfterTheDeadlineSettings = React.createClass( {
 					<TagsInput
 						name="ignored_phrases"
 						placeholder={ __( 'Add a phrase' ) }
-						value={ this.props.getOptionValue( 'ignored_phrases' ) !== '' ?
-							this.props.getOptionValue( 'ignored_phrases' ).split( ',' ) :
-							[]
+						value={ this.props.getOptionValue( 'ignored_phrases' ) !== ''
+							? this.props.getOptionValue( 'ignored_phrases' ).split( ',' )
+							: []
 						}
 						onChange={ this.props.onOptionChange } />
 				</FormFieldset>
@@ -771,7 +771,7 @@ export let AfterTheDeadlineSettings = React.createClass( {
 						disabled={ this.props.shouldSaveButtonBeDisabled() } />
 				</FormFieldset>
 			</form>
-		)
+		);
 	}
 } );
 
@@ -792,7 +792,7 @@ export let MarkdownSettings = React.createClass( {
 						disabled={ this.props.shouldSaveButtonBeDisabled() } />
 				</FormFieldset>
 			</form>
-		)
+		);
 	}
 } );
 
@@ -800,8 +800,8 @@ MarkdownSettings = moduleSettingsForm( MarkdownSettings );
 
 export let SitemapsSettings = React.createClass( {
 	render() {
-		let sitemap_url = get( this.props, [ 'module', 'extra', 'sitemap_url' ], '' ),
-			news_sitemap_url = get( this.props, [ 'module', 'extra', 'news_sitemap_url' ], '' );
+		const sitemap_url = get( this.props, [ 'module', 'extra', 'sitemap_url' ], '' );
+		const news_sitemap_url = get( this.props, [ 'module', 'extra', 'news_sitemap_url' ], '' );
 		return (
 			<div>
 				<p>{ __( 'Search engines will find the sitemaps at these locations:' ) }</p>
@@ -826,7 +826,7 @@ export let SitemapsSettings = React.createClass( {
 					} )
 				}</p>
 			</div>
-		)
+		);
 	}
 } );
 

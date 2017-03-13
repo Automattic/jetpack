@@ -26,9 +26,9 @@ const PlanHeader = React.createClass( {
 						</p>
 						<div className="jp-landing-plans__header-img-container">
 							<div className="jp-landing-plans__header-col-left">
-								<h3 className="jp-landing-plans__header-subtitle">{ __( "How much is your website worth?" ) }</h3>
+								<h3 className="jp-landing-plans__header-subtitle">{ __( 'How much is your website worth?' ) }</h3>
 								<p className="jp-landing-plans__header-text">
-									{ __( "For less than the price of a coffee a month you can rest easy knowing your hard work (or livelihood) is backed up." ) }
+									{ __( 'For less than the price of a coffee a month you can rest easy knowing your hard work (or livelihood) is backed up.' ) }
 									<br /><br />
 									{ __( "Hackers, botnets and spammers attack websites indiscriminately. Their goal is to attack everywhere and often. Our goal is to help you prepare by blocking these threats, and in worst-case-scenarios we'll be here to help you restore your site to its former glory." ) }
 								</p>
@@ -43,14 +43,14 @@ const PlanHeader = React.createClass( {
 							</div>
 						</div>
 						<div className="jp-landing-plans__clouds jp-clouds-top">
-							<img src={ imagePath + '/white-clouds.svg' } />
+							<img src={ imagePath + '/white-clouds.svg' } alt="" />
 						</div>
 					</div>
 				);
 				planCard = (
 					<div className="jp-landing__plan-card">
-						<div className="jp-landing__plan-card-img">
-							<img src={ imagePath + '/plans/plan-jetpack-free.svg' } className="jp-landing__plan-icon" />
+						<div className="jp-landing__plan-card-img" role="presentation">
+							<img src={ imagePath + '/plans/plan-jetpack-free.svg' } className="jp-landing__plan-icon" alt="" />
 						</div>
 						<div className="jp-landing__plan-card-current">
 							<h3 className="jp-landing__plan-features-title">{ __( 'Your site is on the Free Jetpack Plan' ) }</h3>
@@ -64,8 +64,8 @@ const PlanHeader = React.createClass( {
 			case 'jetpack_personal_monthly':
 				planCard = (
 					<div className="jp-landing__plan-card">
-						<div className="jp-landing__plan-card-img">
-							<img src={ imagePath + '/plans/plan-jetpack-premium.svg' } className="jp-landing__plan-icon" />
+						<div className="jp-landing__plan-card-img" role="presentation">
+							<img src={ imagePath + '/plans/plan-jetpack-premium.svg' } className="jp-landing__plan-icon" alt="" />
 						</div>
 						<div className="jp-landing__plan-card-current">
 							<h3 className="jp-landing__plan-features-title">{ __( 'Your site is on the Jetpack Personal plan' ) }</h3>
@@ -73,14 +73,14 @@ const PlanHeader = React.createClass( {
 						</div>
 					</div>
 				);
-			break;
+				break;
 
 			case 'jetpack_premium':
 			case 'jetpack_premium_monthly':
 				planCard = (
 					<div className="jp-landing__plan-card">
-						<div className="jp-landing__plan-card-img">
-							<img src={ imagePath + '/plans/plan-jetpack-premium.svg' } className="jp-landing__plan-icon" />
+						<div className="jp-landing__plan-card-img" role="presentation">
+							<img src={ imagePath + '/plans/plan-jetpack-premium.svg' } className="jp-landing__plan-icon" alt="" />
 						</div>
 						<div className="jp-landing__plan-card-current">
 							<h3 className="jp-landing__plan-features-title">{ __( 'Your site is on the Jetpack Premium plan' ) }</h3>
@@ -94,8 +94,8 @@ const PlanHeader = React.createClass( {
 			case 'jetpack_business_monthly':
 				planCard = (
 					<div className="jp-landing__plan-card">
-						<div className="jp-landing__plan-card-img">
-							<img src={ imagePath + '/plans/plan-jetpack-pro.svg' } className="jp-landing__plan-icon" />
+						<div className="jp-landing__plan-card-img" role="presentation">
+							<img src={ imagePath + '/plans/plan-jetpack-pro.svg' } className="jp-landing__plan-icon" alt="" />
 						</div>
 						<div className="jp-landing__plan-card-current">
 							<h3 className="jp-landing__plan-features-title">{ __( 'Your site is on the Jetpack Professional plan' ) }</h3>
@@ -108,8 +108,8 @@ const PlanHeader = React.createClass( {
 			case 'dev':
 				planCard = (
 					<div className="jp-landing__plan-card">
-						<div className="jp-landing__plan-card-img">
-							<img src={ imagePath + '/plans/plan-jetpack-free.svg' } className="jp-landing__plan-icon" />
+						<div className="jp-landing__plan-card-img" role="presentation">
+							<img src={ imagePath + '/plans/plan-jetpack-free.svg' } className="jp-landing__plan-icon" alt="" />
 						</div>
 						<div className="jp-landing__plan-card-current">
 							<h3 className="jp-landing__plan-features-title">{ __( 'Your site is on Development Mode' ) }</h3>
