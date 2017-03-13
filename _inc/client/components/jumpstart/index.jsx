@@ -20,6 +20,7 @@ import {
 	isJumpstarting as _isJumpstarting
 } from 'state/jumpstart';
 import { getModulesByFeature as _getModulesByFeature } from 'state/modules';
+import onKeyDownCallback from 'utils/keydown-callback';
 
 const JumpStart = React.createClass( {
 
@@ -77,7 +78,10 @@ const JumpStart = React.createClass( {
 					</FoldableCard>
 				</Card>
 				<a
+					tabIndex="0"
+					role="button"
 					onClick={ this.props.jumpStartSkip }
+					onKeyDown={ onKeyDownCallback( this.props.jumpStartSkip ) }
 					className="jp-jumpstart__skip-step"
 					title={ __( 'Skip the Jetpack Jumpstart process' ) }>
 					{ __( 'Skip this step' ) }
