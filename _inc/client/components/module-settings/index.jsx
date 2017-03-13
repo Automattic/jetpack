@@ -339,7 +339,7 @@ export let MonitorSettings = React.createClass( {
 
 MonitorSettings = moduleSettingsForm( MonitorSettings );
 
-export let SingleSignOnSettings = React.createClass( {
+export let SecureSignOnSettings = React.createClass( {
 	render() {
 		return (
 			<form onSubmit={ this.props.onSubmit } >
@@ -362,7 +362,7 @@ export let SingleSignOnSettings = React.createClass( {
 	}
 } );
 
-SingleSignOnSettings = moduleSettingsForm( SingleSignOnSettings );
+SecureSignOnSettings = moduleSettingsForm( SecureSignOnSettings );
 
 export let CarouselSettings = React.createClass( {
 	render() {
