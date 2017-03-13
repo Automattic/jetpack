@@ -17,6 +17,9 @@ module.exports = {
 		'computed-property-spacing': [ 1, 'always' ],
 		'func-call-spacing': 1,
 		indent: [ 1, 'tab', { SwitchCase: 1 } ],
+		"jsx-a11y/label-has-for": [ 1, {
+			"components": [ "FormLabel" ],
+		} ],
 		'jsx-quotes': [ 1, 'prefer-double' ],
 		'key-spacing': 1,
 		'keyword-spacing': 1,
