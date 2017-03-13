@@ -39,6 +39,14 @@ export const Footer = React.createClass( {
 		}
 	},
 
+	onKeyDown( callback ) {
+		return ( event ) => {
+			if ( event.which === 13 || event.which === 32 ) {
+				callback( event );
+			}
+		};
+	},
+
 	render() {
 		const classes = classNames(
 			this.props.className,
@@ -51,8 +59,10 @@ export const Footer = React.createClass( {
 				return (
 					<li className="jp-footer__link-item">
 						<a
+							tabIndex="0"
 							role="button"
 							onClick={ this.resetOnClick }
+							onKeyDown={ this.onKeyDown( this.resetOnClick ) }
 							className="jp-footer__link">
 							{ __( 'Reset Options (dev versions only)', { context: 'Navigation item.' } ) }
 						</a>
@@ -82,7 +92,10 @@ export const Footer = React.createClass( {
 				return (
 					<li className="jp-footer__link-item">
 						<a
+							tabIndex="0"
+							role="button"
 							onClick={ this.disconnectSite }
+							onKeyDown={ this.onKeyDown( this.disconnectSite ) }
 							title={ __( 'Disconnect from WordPress.com' ) }
 							className="jp-footer__link">
 							{ __( 'Disconnect Jetpack' ) }
