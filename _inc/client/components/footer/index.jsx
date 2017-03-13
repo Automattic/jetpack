@@ -35,7 +35,7 @@ export const Footer = React.createClass( {
 
 	resetOnClick() {
 		if ( window.confirm( __( 'This will reset all Jetpack options, are you sure?' ) ) ) {
-			this.props.resetOptions()
+			this.props.resetOptions();
 		}
 	},
 

@@ -14,7 +14,7 @@ import { imagePath } from 'constants';
 import { userCanViewStats, userCanManagePlugins, userCanEditPosts } from 'state/initial-state';
 
 const Apps = ( props ) => {
-	let canViewStats = props.userCanViewStats;
+	const canViewStats = props.userCanViewStats;
 	return (
 		<div className="jp-landing__apps dops-card">
 			<div className="jp-landing-apps__header">
@@ -34,7 +34,9 @@ const Apps = ( props ) => {
 							href={ 'http://apps.wordpress.com' }
 							target="_blank"
 							className="is-primary"
-							onClick={ () => analytics.tracks.recordEvent( 'jetpack_wpa_apps_download_click', {} ) }
+							onClick={ function() {
+								analytics.tracks.recordEvent( 'jetpack_wpa_apps_download_click', {} );
+							} }
 						>
 							{ __( 'Download the Free Apps' ) }
 						</Button>
@@ -44,7 +46,7 @@ const Apps = ( props ) => {
 					</div>
 				</div>
 				<div className="jp-landing-apps__clouds jp-clouds-top">
-					<img src={ imagePath + '/white-clouds.svg' } />
+					<img src={ imagePath + '/white-clouds.svg' } alt="" />
 				</div>
 			</div>
 
@@ -56,7 +58,7 @@ const Apps = ( props ) => {
 					props.userCanManagePlugins
 					?	<div className="jp-landing-apps__feature">
 							<div className="jp-landing-apps__feature-col jp-landing-apps__feature-img">
-								
+
 								<svg width="300" height="200" viewBox="0 0 1005 700" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" aria-labelledby="wpcomPlugins" role="img"><title id="wpcomPlugins">{ __( 'Image of managing your sites plugins on your WordPress.com dashboard' ) }</title><defs><rect id="a" width="1005" height="700" rx="8"/><rect id="b" width="335" height="233" rx="8"/><path id="c" d="M40 19.9996V0H0v39.9992h40z"/><path id="e" d="M40 19.9996V0H0v39.9992h40z"/><path id="g" d="M40 19.9996V0H0v39.9992h40z"/><path id="i" d="M40 19.9996V0H0v39.9992h40z"/><path id="k" d="M40 19.9996V0H0v39.9992h40z"/></defs><g fill="none" fill-rule="evenodd"><g><rect fill="#F3F6F8" width="1005" height="700" rx="8"/><use fill="#F3F6F8" xlinkHref="#a"/></g><g><rect fill="#E9EFF3" width="1005" height="65" rx="8"/><path d="M27.5 31c-4.1425 0-7.5-3.3575-7.5-7.5s3.3575-7.5 7.5-7.5 7.5 3.3575 7.5 7.5-3.3575 7.5-7.5 7.5zm50 0c-4.1425 0-7.5-3.3575-7.5-7.5s3.3575-7.5 7.5-7.5 7.5 3.3575 7.5 7.5-3.3575 7.5-7.5 7.5zm-25 0c-4.1425 0-7.5-3.3575-7.5-7.5s3.3575-7.5 7.5-7.5 7.5 3.3575 7.5 7.5-3.3575 7.5-7.5 7.5z" fill="#4F748E"/></g><path fill="#0087BE" d="M0 47h1005v65H0"/><g><path fill="#FFF" d="M196 176h614v85H196z"/><g transform="translate(740 199)"><mask id="d" fill="#fff"><use xlinkHref="#c"/></mask><path d="M18 31.5352l-9.768-9.768 3.536-3.534L18 24.4652l17.316-17.316c-3.67-4.368-9.166-7.15-15.316-7.15-11.046 0-20 8.956-20 20 0 11.046 8.954 20 20 20s20-8.954 20-20c0-3.056-.706-5.942-1.932-8.532L18 31.5352z" fill="#4AB866" mask="url(#d)"/></g><path fill="#87A6BC" d="M211 191h55v55h-55z"/><path d="M244.5 213v-7.5c0-.828-.672-1.5-1.5-1.5s-1.5.672-1.5 1.5v7.5h-6v-7.5c0-.828-.672-1.5-1.5-1.5s-1.5.672-1.5 1.5v7.5H228v6c0 4.1865 2.4555 7.7895 6 9.4755V234h9v-5.5245c3.5445-1.686 6-5.289 6-9.4755v-6h-4.5z" fill="#FFF"/><path fill="#87A6BC" d="M286 197h225v18H286z"/><path fill="#A8BECE" d="M286 225h165v14H286z"/><g><path fill="#FFF" d="M196 271h614v85H196z"/><g transform="translate(740 294)"><mask id="f" fill="#fff"><use xlinkHref="#e"/></mask><path d="M18 31.5352l-9.768-9.768 3.536-3.534L18 24.4652l17.316-17.316c-3.67-4.368-9.166-7.15-15.316-7.15-11.046 0-20 8.956-20 20 0 11.046 8.954 20 20 20s20-8.954 20-20c0-3.056-.706-5.942-1.932-8.532L18 31.5352z" fill="#4AB866" mask="url(#f)"/></g><path fill="#87A6BC" d="M211 286h55v55h-55z"/><path d="M244.5 308v-7.5c0-.828-.672-1.5-1.5-1.5s-1.5.672-1.5 1.5v7.5h-6v-7.5c0-.828-.672-1.5-1.5-1.5s-1.5.672-1.5 1.5v7.5H228v6c0 4.1865 2.4555 7.7895 6 9.4755V329h9v-5.5245c3.5445-1.686 6-5.289 6-9.4755v-6h-4.5z" fill="#FFF"/><g><path fill="#87A6BC" d="M286 292h225v18H286z"/><path fill="#A8BECE" d="M286 320h165v14H286z"/></g></g><g><path fill="#FFF" d="M196 366h614v85H196z"/><g transform="translate(740 389)"><mask id="h" fill="#fff"><use xlinkHref="#g"/></mask><path d="M18 31.5352l-9.768-9.768 3.536-3.534L18 24.4652l17.316-17.316c-3.67-4.368-9.166-7.15-15.316-7.15-11.046 0-20 8.956-20 20 0 11.046 8.954 20 20 20s20-8.954 20-20c0-3.056-.706-5.942-1.932-8.532L18 31.5352z" fill="#4AB866" mask="url(#h)"/></g><path fill="#87A6BC" d="M211 381h55v55h-55z"/><path d="M244.5 403v-7.5c0-.828-.672-1.5-1.5-1.5s-1.5.672-1.5 1.5v7.5h-6v-7.5c0-.828-.672-1.5-1.5-1.5s-1.5.672-1.5 1.5v7.5H228v6c0 4.1865 2.4555 7.7895 6 9.4755V424h9v-5.5245c3.5445-1.686 6-5.289 6-9.4755v-6h-4.5z" fill="#FFF"/><g><path fill="#87A6BC" d="M286 387h225v18H286z"/><path fill="#A8BECE" d="M286 415h165v14H286z"/></g></g><g><path fill="#FFF" d="M196 461h614v85H196z"/><g transform="translate(740 484)"><mask id="j" fill="#fff"><use xlinkHref="#i"/></mask><path d="M18 31.5352l-9.768-9.768 3.536-3.534L18 24.4652l17.316-17.316c-3.67-4.368-9.166-7.15-15.316-7.15-11.046 0-20 8.956-20 20 0 11.046 8.954 20 20 20s20-8.954 20-20c0-3.056-.706-5.942-1.932-8.532L18 31.5352z" fill="#4AB866" mask="url(#j)"/></g><path fill="#87A6BC" d="M211 476h55v55h-55z"/><path d="M244.5 498v-7.5c0-.828-.672-1.5-1.5-1.5s-1.5.672-1.5 1.5v7.5h-6v-7.5c0-.828-.672-1.5-1.5-1.5s-1.5.672-1.5 1.5v7.5H228v6c0 4.1865 2.4555 7.7895 6 9.4755V519h9v-5.5245c3.5445-1.686 6-5.289 6-9.4755v-6h-4.5z" fill="#FFF"/><g><path fill="#87A6BC" d="M286 482h225v18H286z"/><path fill="#A8BECE" d="M286 510h165v14H286z"/></g></g><g><path fill="#FFF" d="M196 556h614v85H196z"/><g transform="translate(740 579)"><mask id="l" fill="#fff"><use xlinkHref="#k"/></mask><path d="M18 31.5352l-9.768-9.768 3.536-3.534L18 24.4652l17.316-17.316c-3.67-4.368-9.166-7.15-15.316-7.15-11.046 0-20 8.956-20 20 0 11.046 8.954 20 20 20s20-8.954 20-20c0-3.056-.706-5.942-1.932-8.532L18 31.5352z" fill="#4AB866" mask="url(#l)"/></g><path fill="#87A6BC" d="M211 571h55v55h-55z"/><path d="M244.5 593v-7.5c0-.828-.672-1.5-1.5-1.5s-1.5.672-1.5 1.5v7.5h-6v-7.5c0-.828-.672-1.5-1.5-1.5s-1.5.672-1.5 1.5v7.5H228v6c0 4.1865 2.4555 7.7895 6 9.4755V614h9v-5.5245c3.5445-1.686 6-5.289 6-9.4755v-6h-4.5z" fill="#FFF"/><g><path fill="#87A6BC" d="M286 577h225v18H286z"/><path fill="#A8BECE" d="M286 605h165v14H286z"/></g></g></g></g></svg>
 
 							</div>
@@ -145,7 +147,7 @@ const Apps = ( props ) => {
 
 			<div className="jp-landing-apps__footer">
 				<div className="jp-landing-apps__clouds jp-clouds-bottom">
-					<img src={ imagePath + '/white-clouds-reverse.svg' } />
+					<img src={ imagePath + '/white-clouds-reverse.svg' } alt="" />
 				</div>
 				<div className="jp-landing-apps__footer-top">
 					<h2 className="jp-landing-apps__title">
@@ -156,7 +158,7 @@ const Apps = ( props ) => {
 						{ __( 'Get WordPress apps for any screen.' ) }
 					</p>
 
-					<img src={ imagePath + '/apps/triple-devices.svg' } className="jp-landing-apps__devices" role="img" alt={ __( 'Example of three devices to use the WordPress apps. An iPhone, Android phone, and a apple laptop computer.' ) } />
+					<img src={ imagePath + '/apps/triple-devices.svg' } className="jp-landing-apps__devices" alt={ __( 'Example of three devices to use the WordPress apps. An iPhone, Android phone, and a apple laptop computer.' ) } />
 				</div>
 
 				<div className="jp-landing-apps__downloads">

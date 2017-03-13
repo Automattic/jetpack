@@ -54,7 +54,7 @@ const DashBackups = React.createClass( {
 							&nbsp;
 							{ __( '{{a}}View backup details{{/a}}.', {
 								components: {
-									a: <a href='https://dashboard.vaultpress.com' target="_blank" />
+									a: <a href="https://dashboard.vaultpress.com" target="_blank" rel="noopener noreferrer" />
 								}
 							} ) }
 						</p>

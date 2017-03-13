@@ -26,7 +26,7 @@ const DashPluginUpdates = React.createClass( {
 		e.preventDefault();
 		this.props.activateManage()
 			.then( window.location = 'https://wordpress.com/plugins/' + this.props.siteRawUrl )
-			.catch( console.log( 'Error activating Manage' ) );
+			.catch( console.log( 'Error activating Manage' ) ); // eslint-disable-line no-console
 	},
 
 	getContent: function() {

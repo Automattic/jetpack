@@ -25,7 +25,7 @@ const DashAkismet = React.createClass( {
 
 		this.props.activateModule( 'manage' )
 			.then( window.location = 'https://wordpress.com/plugins/akismet/' + this.props.siteRawUrl )
-			.catch( console.log( 'Error: unable to activate Manage' ) );
+			.catch( console.log( 'Error: unable to activate Manage' ) ); // eslint-disable-line no-console
 	},
 
 	getContent: function() {
@@ -61,7 +61,7 @@ const DashAkismet = React.createClass( {
 						{
 							__( 'For state-of-the-art spam defense, please {{a}}install Akismet{{/a}}.', {
 								components: {
-									a: <a href={ 'https://wordpress.com/plugins/akismet/' + this.props.siteRawUrl } target="_blank" />
+									a: <a href={ 'https://wordpress.com/plugins/akismet/' + this.props.siteRawUrl } target="_blank" rel="noopener noreferrer" />
 								}
 							} )
 						}
@@ -83,7 +83,7 @@ const DashAkismet = React.createClass( {
 						{
 							__( 'For state-of-the-art spam defense, please {{a}}activate Akismet{{/a}}.', {
 								components: {
-									a: <a href={ 'https://wordpress.com/plugins/akismet/' + this.props.siteRawUrl } target="_blank" />
+									a: <a href={ 'https://wordpress.com/plugins/akismet/' + this.props.siteRawUrl } target="_blank" rel="noopener noreferrer" />
 								}
 							} )
 						}
@@ -170,6 +170,6 @@ export default connect(
 			activateModule: ( slug ) => {
 				return dispatch( activateModule( slug ) );
 			}
-		}
+		};
 	}
 )( DashAkismet );
