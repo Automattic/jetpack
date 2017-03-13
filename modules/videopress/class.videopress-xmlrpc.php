@@ -155,12 +155,8 @@ class VideoPress_XMLRPC {
 			return false;
 		}
 
-		// Switch to photon if needed.
-		$poster = str_replace(
-			'https://videos.files.wordpress.com',
-			'https://i0.wp.com/videos.files.wordpress.com',
-			$poster
-		);
+		// We add ssl => 1 to make sure that the videos.files.wordpress.com domain is parsed as photon.
+		$poster = apply_filters( 'jetpack_photon_url', $poster, array( 'ssl' => 1 ), 'https' );
 
 		$meta = wp_get_attachment_metadata( $post_id );
 		$meta['videopress']['poster'] = $poster;
