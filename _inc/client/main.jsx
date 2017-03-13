@@ -114,6 +114,11 @@ const Main = React.createClass( {
 			return false;
 		}
 
+		// If user triggers Skip to main content or Skip to toolbar with keyboard navigation, stay in the same tab.
+		if ( includes( [ '/wpbody-content', '/wp-toolbar' ], nextProps.route.path ) ) {
+			return false;
+		}
+
 		return nextProps.siteConnectionStatus !== this.props.siteConnectionStatus ||
 			nextProps.jumpStartStatus !== this.props.jumpStartStatus ||
 			nextProps.isLinked !== this.props.isLinked ||
