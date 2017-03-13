@@ -50,6 +50,19 @@ const DashPluginUpdates = React.createClass( {
 		}
 
 		if ( 'updates-available' === pluginUpdates.code ) {
+			let actionLink;
+			if ( ! this.props.isDevMode ) {
+				if ( manageActive ) {
+					actionLink = __( '{{a}}Turn on plugin auto updates{{/a}}', {
+						components: { a: <a href={ ctaLink } /> }
+					} );
+				} else {
+					actionLink = __( '{{a}}Activate Manage and turn on auto updates{{/a}}', {
+						components: { a: <a onClick={ this.activateAndRedirect } href="javascript:void(0)" /> }
+					} );
+				}
+			}
+
 			return (
 				<DashItem
 					label={ labelName }
@@ -77,10 +90,7 @@ const DashPluginUpdates = React.createClass( {
 								}
 							} )
 						}
-						{ ( ! this.props.isDevMode && manageActive )
-								? __( '{{a}}Turn on plugin auto updates{{/a}}', { components: { a: <a href={ ctaLink } /> } } )
-								: __( '{{a}}Activate Manage and turn on auto updates{{/a}}', { components: { a: <a onClick={ this.activateAndRedirect } /> } } )
-						}
+						{ actionLink }
 					</p>
 				</DashItem>
 			);
