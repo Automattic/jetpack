@@ -12,15 +12,15 @@ import { Navigation } from '../index';
 
 describe( 'Navigation', () => {
 
-	let testProps = {
-			userCanManageModules: false,
-			userCanViewStats: false,
-			route: {
-				name: 'At a Glance',
-				path: '/dashboard'
-			},
-			isModuleActivated: module => false
-		};
+	const testProps = {
+		userCanManageModules: false,
+		userCanViewStats: false,
+		route: {
+			name: 'At a Glance',
+			path: '/dashboard'
+		},
+		isModuleActivated: () => false
+	};
 	const wrapper = shallow( <Navigation { ...testProps } /> );
 
 	it( 'renders a div with a className of "dops-navigation"', () => {
@@ -55,7 +55,7 @@ describe( 'Navigation', () => {
 
 	describe( "User can't view Stats or manage modules but Protect is active", () => {
 
-		testProps.isModuleActivated = module => true;
+		testProps.isModuleActivated = () => true;
 
 		const wrapperProtect = shallow( <Navigation { ...testProps } /> );
 
@@ -74,7 +74,7 @@ describe( 'Navigation', () => {
 		Object.assign( testProps, {
 			userCanManageModules: true,
 			userCanViewStats: false,
-			isModuleActivated: module => false
+			isModuleActivated: () => false
 		} );
 
 		const wrapperManage = shallow( <Navigation { ...testProps } /> );
