@@ -223,7 +223,6 @@ class Jetpack {
 		'facebook-thumb-fixer/_facebook-thumb-fixer.php',        // Facebook Thumb Fixer
 		'facebook-and-digg-thumbnail-generator/facebook-and-digg-thumbnail-generator.php',
 		                                                         // Fedmich's Facebook Open Graph Meta
-		'header-footer/plugin.php',                              // Header and Footer
 		'network-publisher/networkpub.php',                      // Network Publisher
 		'nextgen-facebook/nextgen-facebook.php',                 // NextGEN Facebook OG
 		'social-networks-auto-poster-facebook-twitter-g/NextScripts_SNAP.php',
@@ -354,12 +353,14 @@ class Jetpack {
 					update_option( 'wpcom_publish_posts_with_markdown', true );
 				}
 
-				Jetpack::maybe_set_version_option();
-
-				add_action(
-					'jetpack_modules_loaded',
-					array( __CLASS__, 'upgrade_on_module_load' )
-				);
+				if ( did_action( 'wp_loaded' ) ) {
+					self::upgrade_on_load();
+				} else {
+					add_action(
+						'wp_loaded',
+						array( __CLASS__, 'upgrade_on_load' )
+					);
+				}
 			}
 		}
 	}
@@ -367,12 +368,20 @@ class Jetpack {
 	/**
 	 * Runs upgrade routines that need to have modules loaded.
 	 */
-	static function upgrade_on_module_load() {
+	static function upgrade_on_load() {
+
+		// Not attempting any upgrades if jetpack_modules_loaded did not fire.
+		// This can happen in case Jetpack has been just upgraded and is
+		// being initialized late during the page load. In this case we wait
+		// until the next proper admin page load with Jetpack active.
+		if ( ! did_action( 'jetpack_modules_loaded' ) ) {
+			return;
+		}
+
+		Jetpack::maybe_set_version_option();
+
 		if ( class_exists( 'Jetpack_Widget_Conditions' ) ) {
-			add_action(
-				'wp_loaded',
-				array( 'Jetpack_Widget_Conditions', 'migrate_post_type_rules' )
-			);
+			Jetpack_Widget_Conditions::migrate_post_type_rules();
 		}
 	}
 

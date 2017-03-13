@@ -282,14 +282,28 @@ class Jetpack_Sync_Actions {
 	}
 
 	static function initialize_woocommerce() {
-		if ( class_exists( 'WooCommerce' ) ) {
-			add_filter( 'jetpack_sync_modules', array( 'Jetpack_Sync_Actions', 'add_woocommerce_sync_module' ) );
+		if ( false === class_exists( 'WooCommerce' ) ) {
+			return;
 		}
+		add_filter( 'jetpack_sync_modules', array( 'Jetpack_Sync_Actions', 'add_woocommerce_sync_module' ) );
 	}
 
 	static function add_woocommerce_sync_module( $sync_modules ) {
 		require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-woocommerce.php';
 		$sync_modules[] = 'Jetpack_Sync_Module_WooCommerce';
+		return $sync_modules;
+	}
+
+	static function initialize_wp_super_cache() {
+		if ( false === function_exists( 'wp_cache_is_enabled' ) ) {
+			return;
+		}
+		add_filter( 'jetpack_sync_modules', array( 'Jetpack_Sync_Actions', 'add_wp_super_cache_sync_module' ) );
+	}
+
+	static function add_wp_super_cache_sync_module( $sync_modules ) {
+		require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-wp-super-cache.php';
+		$sync_modules[] = 'Jetpack_Sync_Module_WP_Super_Cache';
 		return $sync_modules;
 	}
 
@@ -417,14 +431,19 @@ class Jetpack_Sync_Actions {
 	}
 }
 
+// Check for WooCommerce support
+add_action( 'plugins_loaded', array( 'Jetpack_Sync_Actions', 'initialize_woocommerce' ), 5 );
+
+// Check for WP Super Cache
+add_action( 'plugins_loaded', array( 'Jetpack_Sync_Actions', 'initialize_wp_super_cache' ), 5 );
+
 /*
  * Init after plugins loaded and before the `init` action. This helps with issues where plugins init
  * with a high priority or sites that use alternate cron.
  */
 add_action( 'plugins_loaded', array( 'Jetpack_Sync_Actions', 'init' ), 90 );
 
-// Check for WooCommerce support
-add_action( 'plugins_loaded', array( 'Jetpack_Sync_Actions', 'initialize_woocommerce' ), 5 );
+
 
 // We need to define this here so that it's hooked before `updating_jetpack_version` is called
 add_action( 'updating_jetpack_version', array( 'Jetpack_Sync_Actions', 'do_initial_sync' ), 10, 2 );
