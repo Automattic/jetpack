@@ -299,9 +299,9 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	/**
 	 * Returns an array of modules and settings both as first class members of the object.
 	 *
-	 * @param Array $modules the result of an API request to get all modules.
+	 * @param array $modules the result of an API request to get all modules.
 	 *
-	 * @return Array flattened settings with modules.
+	 * @return array flattened settings with modules.
 	 */
 	function get_flattened_settings( $modules ) {
 		$settings = array();
@@ -382,32 +382,6 @@ function jetpack_show_jumpstart() {
 	return true;
 }
 
-/*
- * Gather data about the master user.
- *
- * @since 4.1.0
- *
- * @return array
- */
-function jetpack_master_user_data() {
-	$masterID = Jetpack_Options::get_option( 'master_user' );
-	if ( ! get_user_by( 'id', $masterID ) ) {
-		return false;
-	}
-
-	$jetpack_user = get_userdata( $masterID );
-	$wpcom_user   = Jetpack::get_connected_user_data( $jetpack_user->ID );
-	$gravatar     = get_avatar( $jetpack_user->ID, 40 );
-
-	$master_user_data = array(
-		'jetpackUser' => $jetpack_user,
-		'wpcomUser'   => $wpcom_user,
-		'gravatar'    => $gravatar,
-	);
-
-	return $master_user_data;
-}
-
 /**
  * Gather data about the current user.
  *
@@ -416,11 +390,11 @@ function jetpack_master_user_data() {
  * @return array
  */
 function jetpack_current_user_data() {
-	global $current_user;
+	$current_user = wp_get_current_user();
 	$is_master_user = $current_user->ID == Jetpack_Options::get_option( 'master_user' );
 	$dotcom_data    = Jetpack::get_connected_user_data();
 	// Add connected user gravatar to the returned dotcom_data.
-	$dotcom_data['avatar'] = get_avatar_url( $dotcom_data['email'] );
+	$dotcom_data['avatar'] = get_avatar_url( $dotcom_data['email'], array( 'size' => 64, 'default' => 'mysteryman' ) );
 
 	$current_user_data = array(
 		'isConnected' => Jetpack::is_user_connected( $current_user->ID ),
