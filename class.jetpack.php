@@ -2312,7 +2312,7 @@ class Jetpack {
 			krsort( $file_data_option );
 			foreach ( $file_data_option as $version => $values ) {
 				$count++;
-				if( $count > 2 ) {
+				if( $count > 2 && JETPACK__VERSION != $version ) {
 					unset( $file_data_option[ $version ] );
 				}
 			}
