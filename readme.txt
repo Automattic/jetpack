@@ -110,6 +110,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug Fixes**
 
+* Carousel: avoid javascript errors that may cause issues with Slideshows or Tiled Galleries.
 * Markdown: always enable Markdown for posts whenever the module is active.
 * Sharing: make sure that sharing buttons open in a small pop-up instead of a separate window.
 * SSO: Avoid token or nonce errors when trying to log in to your site via the Secure Sign On option.
