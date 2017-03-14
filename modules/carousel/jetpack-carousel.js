@@ -445,7 +445,7 @@ jQuery(document).ready(function($) {
 				return;
 			}
 
-			// skip if the parent is not a link
+			// skip if the container is not a link
 			if ( 'undefined' === typeof( $( container ).attr( 'href' ) ) ) {
 				return;
 			}
