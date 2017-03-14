@@ -105,7 +105,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 = 4.7.1 =
 
-* Release date: March 9th, 2017
+* Release date: March 14th, 2017
 * Release post: http://wp.me/p1moTy-48Y
 
 **Bug Fixes**
