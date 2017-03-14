@@ -131,7 +131,7 @@ export const RelatedPosts = moduleSettingsForm(
 										<div key={ `preview_${ index }` } className="jp-related-posts-preview__item">
 											{
 												this.state.show_thumbnails && (
-													<img src={ `https://jetpackme.files.wordpress.com/2014/08/${ item.url }?w=350&h=200&crop=1` } />
+													<img src={ `https://jetpackme.files.wordpress.com/2014/08/${ item.url }?w=350&h=200&crop=1` } alt={ item.text } />
 												)
 											}
 											<h4 className="jp-related-posts-preview__post-title"><a href="#/traffic">{ item.text }</a></h4>

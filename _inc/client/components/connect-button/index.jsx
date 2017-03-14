@@ -23,6 +23,7 @@ import {
 	isUnlinkingUser as _isUnlinkingUser
 } from 'state/connection';
 import QueryConnectUrl from 'components/data/query-connect-url';
+import onKeyDownCallback from 'utils/onkeydown-callback';
 
 export const ConnectButton = React.createClass( {
 	displayName: 'ConnectButton',
@@ -100,6 +101,9 @@ export const ConnectButton = React.createClass( {
 			return (
 				<div>
 					<a
+						role="button"
+						tabIndex="0"
+						onKeyDown={ onKeyDownCallback( this.props.unlinkUser ) }
 						onClick={ this.props.unlinkUser }
 						disabled={ this.props.isUnlinking } >
 						{ __( 'Unlink me from WordPress.com' ) }
@@ -134,6 +138,9 @@ export const ConnectButton = React.createClass( {
 		if ( this.props.isSiteConnected ) {
 			return (
 				<a
+					role="button"
+					tabIndex="0"
+					onKeyDown={ onKeyDownCallback( this.handleOpenModal ) }
 					onClick={ this.handleOpenModal }
 					disabled={ this.props.isDisconnecting }>
 					{ __( 'Manage site connection' ) }

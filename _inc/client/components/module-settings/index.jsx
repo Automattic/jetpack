@@ -84,7 +84,7 @@ export let RelatedPostsSettings = React.createClass( {
 					previews.map( ( preview, i ) => (
 						<span key={ `preview_${ i }` } className="jp-related-posts-preview__item" >
 							{
-								show_thumbnails ? <img src={ preview.url } /> : ''
+								show_thumbnails ? <img src={ preview.url } alt={ preview.text } /> : ''
 							}
 							<span><a href="#/engagement"> { preview.text } </a></span>
 						</span>

@@ -43,7 +43,7 @@ export const DashConnections = React.createClass( {
 				<div className="jp-connection-settings__info">
 					{
 						this.props.siteIcon
-							? <img width="64" height="64" className="jp-connection-settings__site-icon" src={ this.props.siteIcon } />
+							? <img width="64" height="64" className="jp-connection-settings__site-icon" src={ this.props.siteIcon } alt="" />
 							: <Gridicon icon="globe" size={ 64 } />
 					}
 					<div className="jp-connection-settings__text">
@@ -59,7 +59,7 @@ export const DashConnections = React.createClass( {
 					<div className="jp-connection-settings__info">
 						{
 							this.props.siteIcon
-								? <img width="64" height="64" className="jp-connection-settings__site-icon" src={ this.props.siteIcon } />
+								? <img width="64" height="64" className="jp-connection-settings__site-icon" src={ this.props.siteIcon } alt="" />
 								: <Gridicon icon="globe" size={ 64 } />
 						}
 						<div className="jp-connection-settings__text">

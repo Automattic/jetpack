@@ -5,6 +5,11 @@ import React from 'react';
 import Gridicon from 'components/gridicon';
 import classNames from 'classnames';
 
+/**
+ * Internal dependencies
+ */
+import onKeyDownCallback from 'utils/onkeydown-callback';
+
 export const InlineExpand = React.createClass( {
 
 	propTypes: {
@@ -57,7 +62,12 @@ export const InlineExpand = React.createClass( {
 		return (
 			<div className={ classNames( 'jp-inline-expand', this.props.className, { 'is-expanded': this.state.expanded } ) }>
 				{
-					<a className="jp-inline-expand-action" onClick={ this.onClick }>
+					<a
+						className="jp-inline-expand-action"
+						role="button"
+						tabIndex="0"
+						onKeyDown={ onKeyDownCallback( this.onClick ) }
+						onClick={ this.onClick }>
 						{
 							this.props.label
 						}

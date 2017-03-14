@@ -59,7 +59,7 @@ export const ModuleSettingSelect = React.createClass( {
 	render() {
 		let validValues = this.props.validValues;
 		return (
-			<select name={ this.props.name } value={ this.props.value } onChange={ this.props.onOptionChange }>
+			<select name={ this.props.name } value={ this.props.value } onBlur={ this.props.onOptionChange }>
 				{
 					Object.keys( validValues ).map( key => {
 						return <option value={ key } key={ `option-${ this.props.option_name }-${key}` } >{ validValues[ key ] }</option>;
