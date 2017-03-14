@@ -114,6 +114,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Markdown: always enable Markdown for posts whenever the module is active.
 * Sharing: make sure that sharing buttons open in a small pop-up instead of a separate window.
 * SSO: Avoid token or nonce errors when trying to log in to your site via the Secure Sign On option.
+* VideoPress: add in the ability to get video thumbnails from the WordPress.com REST API.
 * Widget Visibility: avoid empty widget visibility rules after updating to Jetpack 4.7.
 * Widget Visibility: restore the option to make widgets appear on archive pages of different Custom Post Types.
 * Widget Visibility: migrate widget visibility settings to the new major Page rule for Custom Post Types.
