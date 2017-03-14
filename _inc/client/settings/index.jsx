@@ -16,7 +16,7 @@ export default React.createClass( {
 	displayName: 'SearchableSettings',
 
 	render() {
-		var commonProps = {
+		const commonProps = {
 			route: this.props.route,
 			searchTerm: this.props.searchTerm
 		};
@@ -24,7 +24,7 @@ export default React.createClass( {
 		return (
 			<div className="jp-settings-container">
 				<div className="jp-no-results">
-					{ false !== commonProps.searchTerm
+					{ commonProps.searchTerm
 						? __(
 							'No search results found for %(term)s',
 							{
@@ -64,4 +64,3 @@ export default React.createClass( {
 		);
 	}
 } );
-

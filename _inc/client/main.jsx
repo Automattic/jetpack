@@ -103,17 +103,6 @@ const Main = React.createClass( {
 	},
 
 	shouldComponentUpdate: function( nextProps ) {
-
-		// A special case when user has just entered search mode and has not yet
-		// entered a search term
-		if (
-			nextProps.route.path !== this.props.route.path
-			&& '/search' === nextProps.route.path
-			&& ! nextProps.searchTerm
-		) {
-			return false;
-		}
-
 		// If user triggers Skip to main content or Skip to toolbar with keyboard navigation, stay in the same tab.
 		if ( includes( [ '/wpbody-content', '/wp-toolbar' ], nextProps.route.path ) ) {
 			return false;
@@ -136,7 +125,7 @@ const Main = React.createClass( {
 	/**
 	 *
 	 * Takes care of redirection when
-	 *  - jumpstarting ( resseting options )
+	 * - jumpstarting ( resseting options )
 	 * - the jumpstart is complete
 	 * @param  {Object} nextProps The next props as received by componentWillReceiveProps
 	 */
@@ -155,7 +144,6 @@ const Main = React.createClass( {
 	},
 
 	renderMainContent: function( route ) {
-
 		// Track page views
 		analytics.tracks.recordEvent( 'jetpack_wpa_page_view', { path: route } );
 
@@ -200,7 +188,6 @@ const Main = React.createClass( {
 			case '/traffic':
 			case '/discussion':
 			case '/writing':
-			case '/search':
 				navComponent = settingsNav;
 				pageComponent = <SearchableSettings
 					route={ this.props.route }
@@ -276,8 +263,7 @@ window.wpNavMenuClassChange = function() {
 		'#/discussion',
 		'#/security',
 		'#/traffic',
-		'#/writing',
-		'#/search'
+		'#/writing'
 	],
 	dashboardRoutes = [
 		'#/',
