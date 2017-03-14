@@ -445,6 +445,11 @@ jQuery(document).ready(function($) {
 				return;
 			}
 
+			// skip if the container is not a link
+			if ( 'undefined' === typeof( $( container ).attr( 'href' ) ) ) {
+				return;
+			}
+
 			var valid = false;
 
 			// if link points to 'Media File' (ignoring GET parameters) and flag is set allow it
