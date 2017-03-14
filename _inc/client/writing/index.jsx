@@ -16,6 +16,7 @@ import { isDevMode, isUnavailableInDevMode, isCurrentUserLinked } from 'state/co
 import { userCanEditPosts } from 'state/initial-state';
 import { isModuleActivated } from 'state/modules';
 import { isModuleFound } from 'state/search';
+import { getConnectUrl } from 'state/connection';
 import QuerySite from 'components/data/query-site';
 import Composing from './composing';
 import Media from './media';
@@ -71,7 +72,10 @@ export const Writing = React.createClass( {
 				<ThemeEnhancements { ...commonProps } />
 				{
 					showPostByEmail && (
-						<PostByEmail { ...commonProps } isLinked={ this.props.isLinked } userCanManageModules={ this.props.userCanManageModules } />
+						<PostByEmail { ...commonProps }
+							connectUrl={ this.props.connectUrl }
+							isLinked={ this.props.isLinked }
+							userCanManageModules={ this.props.userCanManageModules } />
 					)
 				}
 				{
@@ -97,7 +101,8 @@ export default connect(
 			isModuleActivated: module_name => isModuleActivated( state, module_name ),
 			isLinked: isCurrentUserLinked( state ),
 			userCanManageModules: userCanManageModules( state ),
-			isModuleFound: module_name => isModuleFound( state, module_name )
+			isModuleFound: module_name => isModuleFound( state, module_name ),
+			connectUrl: getConnectUrl( state )
 		};
 	}
 )( Writing );

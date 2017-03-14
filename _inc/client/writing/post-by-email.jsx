@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import Button from 'components/button';
 import ClipboardButtonInput from 'components/clipboard-button-input';
+import Card from 'components/card';
 
 /**
  * Internal dependencies
@@ -94,6 +95,19 @@ const PostByEmail = moduleSettingsForm(
 							</Button>
 						</FormFieldset>
 					</SettingsGroup>
+					{
+						( ! this.props.isUnavailableInDevMode( 'post-by-email' ) && ! this.props.isLinked ) && (
+							<Card
+								compact
+								className="jp-settings-card__configure-link"
+								href={ `${ this.props.connectUrl }&from=unlinked-user-connect` }
+							>
+								{
+									__( 'Link your existing WordPress.com account to use Post by Email or create and link one for free.' )
+								}
+							</Card>
+						)
+					}
 				</SettingsCard>
 			);
 		}
