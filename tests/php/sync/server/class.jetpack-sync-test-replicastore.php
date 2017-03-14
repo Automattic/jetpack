@@ -21,6 +21,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 	private $terms;
 	private $object_terms;
 	private $users;
+	private $users_locale;
 	private $allowed_mime_types;
 	private $checksum_fields;
 
@@ -41,6 +42,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 		$this->terms           = array();
 		$this->object_terms    = array();
 		$this->users           = array();
+		$this->users_locale    = array();
 	}
 
 	function full_sync_start( $config ) {
@@ -507,6 +509,18 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 		return isset( $this->users[ $user_id ] ) ? $this->users[ $user_id ] : null;
 	}
 
+	function upsert_user_locale( $user_id, $user_locale ) {
+		$this->users_locale[ $user_id ] = $user_locale;
+	}
+
+	function delete_user_locale( $user_id ) {
+		unset( $this->users_locale[ $user_id ] );
+	}
+
+	function get_user_locale( $user_id ) {
+		return isset( $this->users_locale[ $user_id ] ) ? $this->users_locale[ $user_id ] : null;
+	}
+
 	function get_allowed_mime_types( $user_id ) {
 		return isset( $this->allowed_mime_types[ $user_id ] ) ? $this->allowed_mime_types[ $user_id ] : null;
 	}
@@ -520,6 +534,11 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 		if ( isset( $user->data->allowed_mime_types ) ) {
 			$this->allowed_mime_types[ $user->ID ] = $user->data->allowed_mime_types;
 			unset( $user->data->allowed_mime_types );
+		}
+
+		if ( isset( $user->data->locale ) ) {
+			$this->users_locale[ $user->ID ] = $user->data->locale;
+			unset( $user->data->locale );
 		}
 		$this->users[ $user->ID ] = $user;
 	}

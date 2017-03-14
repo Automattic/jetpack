@@ -70,7 +70,7 @@ class Jetpack_Sync_Settings {
 				$default_array_value = Jetpack_Sync_Defaults::$blacklisted_post_types;
 				break;
 			case 'post_meta_whitelist':
-				$default_array_value = Jetpack_Sync_Defaults::$post_meta_whitelist;
+				$default_array_value = Jetpack_Sync_Defaults::get_post_meta_whitelist();
 				break;
 			case 'comment_meta_whitelist':
 				$default_array_value = Jetpack_Sync_Defaults::$comment_meta_whitelist;

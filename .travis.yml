@@ -3,10 +3,6 @@
 # Tell Travis CI we're using PHP
 language: php
 
-# We need notifications for successful builds
-notifications:
-  webhooks: https://betadownload.jetpack.me/travis.php
-
 # Setup a global environemnt and overide as needed
 env:
   global:
@@ -72,6 +68,13 @@ before_script:
     - source ~/.nvm/nvm.sh && nvm install 5
     - export PLUGIN_SLUG=$(basename $(pwd))
     - source ~/.nvm/nvm.sh
+    - export PATH="$HOME/.composer/vendor/bin:$PATH" 
+    - |
+        if [[ ${TRAVIS_PHP_VERSION:0:2} == "7." ]]; then 
+            composer global require "phpunit/phpunit=5.7.*" 
+        elif [[ ${TRAVIS_PHP_VERSION:0:3} != "5.2" ]]; then 
+            composer global require "phpunit/phpunit=4.8.*" 
+        fi 
     - nvm install 6
     - nvm use 6
     - ./tests/prepare-wordpress.sh

@@ -707,21 +707,22 @@ new Jetpack_JSON_API_Sync_Histogram_Endpoint( array(
 ) );
 
 $sync_settings_response = array(
-	'dequeue_max_bytes'    => '(int|bool=false) Maximum bytes to read from queue in a single request',
-	'sync_wait_time'       => '(int|bool=false) Wait time between requests in seconds if sync threshold exceeded',
-	'sync_wait_threshold'  => '(int|bool=false) If a request to WPCOM exceeds this duration, wait sync_wait_time seconds before sending again',
-	'upload_max_bytes'     => '(int|bool=false) Maximum bytes to send in a single request',
-	'upload_max_rows'      => '(int|bool=false) Maximum rows to send in a single request',
-	'max_queue_size'       => '(int|bool=false) Maximum queue size that that the queue is allowed to expand to in DB rows to prevent the DB from filling up. Needs to also meet the max_queue_lag limit.',
-	'max_queue_lag'        => '(int|bool=false) Maximum queue lag in seconds used to prevent the DB from filling up. Needs to also meet the max_queue_size limit.',
-	'queue_max_writes_sec' => '(int|bool=false) Maximum writes per second to allow to the queue during full sync.',
-	'post_types_blacklist' => '(array|string|bool=false) List of post types to exclude from sync. Send "empty" to unset.',
-	'post_meta_whitelist'  => '(array|string|bool=false) List of post meta to be included in sync. Send "empty" to unset.',
-	'comment_meta_whitelist' => '(array|string|bool=false) List of comment meta to be included in sync. Send "empty" to unset.',
-	'disable'              => '(int|bool=false) Set to 1 or true to disable sync entirely.',
-	'render_filtered_content' => '(int|bool=true) Set to 1 or true to render filtered content.',
-	'max_enqueue_full_sync'   => '(int|bool=false) Maximum number of rows to enqueue during each full sync process',
-	'max_queue_size_full_sync'=> '(int|bool=false) Maximum queue size that full sync is allowed to use',
+	'dequeue_max_bytes'        => '(int|bool=false) Maximum bytes to read from queue in a single request',
+	'sync_wait_time'           => '(int|bool=false) Wait time between requests in seconds if sync threshold exceeded',
+	'sync_wait_threshold'      => '(int|bool=false) If a request to WPCOM exceeds this duration, wait sync_wait_time seconds before sending again',
+	'upload_max_bytes'         => '(int|bool=false) Maximum bytes to send in a single request',
+	'upload_max_rows'          => '(int|bool=false) Maximum rows to send in a single request',
+	'max_queue_size'           => '(int|bool=false) Maximum queue size that that the queue is allowed to expand to in DB rows to prevent the DB from filling up. Needs to also meet the max_queue_lag limit.',
+	'max_queue_lag'            => '(int|bool=false) Maximum queue lag in seconds used to prevent the DB from filling up. Needs to also meet the max_queue_size limit.',
+	'queue_max_writes_sec'     => '(int|bool=false) Maximum writes per second to allow to the queue during full sync.',
+	'post_types_blacklist'     => '(array|string|bool=false) List of post types to exclude from sync. Send "empty" to unset.',
+	'post_meta_whitelist'      => '(array|string|bool=false) List of post meta to be included in sync. Send "empty" to unset.',
+	'comment_meta_whitelist'   => '(array|string|bool=false) List of comment meta to be included in sync. Send "empty" to unset.',
+	'disable'                  => '(int|bool=false) Set to 1 or true to disable sync entirely.',
+	'render_filtered_content'  => '(int|bool=true) Set to 1 or true to render filtered content.',
+	'max_enqueue_full_sync'    => '(int|bool=false) Maximum number of rows to enqueue during each full sync process',
+	'max_queue_size_full_sync' => '(int|bool=false) Maximum queue size that full sync is allowed to use',
+	'sync_via_cron'            => '(int|bool=false) Set to 1 or true to avoid using cron for sync.',
 );
 
 // GET /sites/%s/sync/settings

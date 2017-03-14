@@ -3,7 +3,7 @@ require dirname( __FILE__ ) . '/../../../../modules/publicize.php';
 
 class WP_Test_Publicize extends WP_UnitTestCase {
 
-	private $fired_publicized_post = false;
+
 	private $in_publish_filter = false;
 	private $publicized_post_id = null;
 	private $post;
@@ -12,7 +12,6 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		parent::setUp();
 
 		$this->publicize = publicize_init();
-		$this->fired_publicized_post = false;
 		$this->publicized_post_id = null;
 
 		$post_id = $this->factory->post->create( array( 'post_status' => 'draft' ) );
@@ -20,7 +19,6 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 
 		Jetpack_Options::update_options( array( 'publicize_connections' => array( 'facebook' => array( 'id_number' => array( 'connection_data' => array( 'user_id' => 0 ) ) ) ) ) );
 
-		add_action( 'jetpack_publicize_post', array( $this, 'publicized_post' ), 10, 1 );
 		add_filter( 'jetpack_published_post_flags', array( $this, 'set_post_flags_check' ), 20, 2 );
 	}
 
@@ -28,7 +26,6 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		$this->post->post_status = 'publish';
 
 		wp_insert_post( $this->post->to_array() );
-
 		$this->assertPublicized( true, $this->post );
 	}
 
@@ -75,26 +72,22 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 
 	function assertPublicized( $should_have_publicized, $post ) {
 		if ( $should_have_publicized ) {
-			$this->assertTrue( $this->fired_publicized_post, 'Not Fired on publicize post' );
 			$this->assertEquals( $post->ID, $this->publicized_post_id, 'Is not the same post ID' );
 			$this->assertTrue( $this->in_publish_filter, 'Not in filter' );
 		} else {
-			$this->assertFalse( $this->fired_publicized_post, 'Fired publicize post' );
 			$this->assertNull( $this->publicized_post_id, 'Not Null' );
 			$this->assertFalse( $this->in_publish_filter, 'in filter' );
 		}
 	}
 
 	function set_post_flags_check( $flags, $post ) {
+		if ( $flags['publicize_post'] ) {
+			$this->publicized_post_id = $post->ID;
+		}
 		$this->in_publish_filter = $flags['publicize_post'];
 		return $flags;
 	}
-
-	function publicized_post( $post_id ) {
-		$this->fired_publicized_post = true;
-		$this->publicized_post_id = $post_id;
-	}
-
+	
 	function prevent_publicize_post( $should_publicize, $post ) {
 		return false;
 	}

@@ -9,12 +9,11 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEmpty( $this->sender->get_sync_queue()->get_all() );
 	}
 
-	function test_sends_publicize_action() {
+	function test_sends_publish_post_action() {
 		$post_id = $this->factory->post->create();
-		do_action( 'jetpack_publicize_post', $post_id );
 		$this->sender->do_sync();
-
-		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_publicize_post' );
+		$event = $this->server_event_storage->get_most_recent_event();
+		$this->assertEquals( 'jetpack_published_post', $event->action );
 		$this->assertEquals( $post_id, $event->args[0] );
 	}
 

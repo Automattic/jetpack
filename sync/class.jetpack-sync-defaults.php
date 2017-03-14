@@ -5,6 +5,7 @@ require_once( JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-helpers.php' 
  * Just some defaults that we share with the server
  */
 class Jetpack_Sync_Defaults {
+
 	static $default_options_whitelist = array(
 		'stylesheet',
 		'blogname',
@@ -111,6 +112,21 @@ class Jetpack_Sync_Defaults {
 		'jetpack_api_cache_enabled',
 	);
 
+	public static function get_options_whitelist() {
+		/** This filter is already documented in json-endpoints/jetpack/class.wpcom-json-api-get-option-endpoint.php */
+		$options_whitelist = apply_filters( 'jetpack_options_whitelist', self::$default_options_whitelist );
+		/**
+		 * Filter the list of WordPress options that are manageable via the JSON API.
+		 *
+		 * @module sync
+		 *
+		 * @since 4.8
+		 *
+		 * @param array The default list of options.
+		 */
+		return apply_filters( 'jetpack_sync_options_whitelist', $options_whitelist );
+	}
+
 	static $default_constants_whitelist = array(
 		'EMPTY_TRASH_DAYS',
 		'WP_POST_REVISIONS',
@@ -128,8 +144,21 @@ class Jetpack_Sync_Defaults {
 		'DISABLE_WP_CRON',
 		'ALTERNATE_WP_CRON',
 		'WP_CRON_LOCK_TIMEOUT',
-		'PHP_VERSION'
+		'PHP_VERSION',
 	);
+
+	public static function get_constants_whitelist() {
+		/**
+		 * Filter the list of PHP constants that are manageable via the JSON API.
+		 *
+		 * @module sync
+		 *
+		 * @since 4.8
+		 *
+		 * @param array The default list of constants options.
+		 */
+		return apply_filters( 'jetpack_sync_constants_whitelist', self::$default_constants_whitelist );
+	}
 
 	static $default_callable_whitelist = array(
 		'wp_max_upload_size'               => 'wp_max_upload_size',
@@ -160,6 +189,19 @@ class Jetpack_Sync_Defaults {
 		'locale'                           => 'get_locale',
 		'site_icon_url'                    => array( 'Jetpack_Sync_Functions', 'site_icon_url' ),
 	);
+
+	public static function get_callable_whitelist() {
+		/**
+		 * Filter the list of callables that are manageable via the JSON API.
+		 *
+		 * @module sync
+		 *
+		 * @since 4.8
+		 *
+		 * @param array The default list of callables.
+		 */
+		return apply_filters( 'jetpack_sync_callable_whitelist', self::$default_callable_whitelist );
+	}
 
 	static $blacklisted_post_types = array(
 		'ai1ec_event',
@@ -207,6 +249,19 @@ class Jetpack_Sync_Defaults {
 		'network_enable_administration_menus' => array( 'Jetpack', 'network_enable_administration_menus' ),
 	);
 
+	public static function get_multisite_callable_whitelist() {
+		/**
+		 * Filter the list of multisite callables that are manageable via the JSON API.
+		 *
+		 * @module sync
+		 *
+		 * @since 4.8
+		 *
+		 * @param array The default list of multisite callables.
+		 */
+		return apply_filters( 'jetpack_sync_multisite_callable_whitelist', self::$default_multisite_callable_whitelist );
+	}
+
 	static $post_meta_whitelist = array(
 		'_feedback_akismet_values',
 		'_feedback_email',
@@ -246,6 +301,19 @@ class Jetpack_Sync_Defaults {
 		'vimeo_poster_image',
 		'advanced_seo_description', // Jetpack_SEO_Posts::DESCRIPTION_META_KEY
 	);
+
+	public static function get_post_meta_whitelist() {
+		/**
+		 * Filter the list of post meta data that are manageable via the JSON API.
+		 *
+		 * @module sync
+		 *
+		 * @since 4.8
+		 *
+		 * @param array The default list of meta data keys.
+		 */
+		return apply_filters( 'jetpack_sync_post_meta_whitelist', self::$post_meta_whitelist );
+	}
 
 	static $comment_meta_whitelist = array(
 		'hc_avatar',
