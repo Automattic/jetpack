@@ -86,6 +86,10 @@ export function userIsSubscriber( state ) {
 	return ! get( state.jetpack.initialState.userData.currentUser.permissions, 'edit_posts', false );
 }
 
+export function userCanPublish( state ) {
+	return get( state.jetpack.initialState.userData.currentUser.permissions, 'publish_posts', false );
+}
+
 export function userCanManageModules( state ) {
 	return get( state.jetpack.initialState.userData.currentUser.permissions, 'manage_modules', false );
 }

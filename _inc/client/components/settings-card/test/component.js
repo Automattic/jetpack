@@ -28,8 +28,52 @@ describe( 'SettingsCard', () => {
 		support: '',
 		sitePlan: {
 			product_slug: 'jetpack_free'
-		}
+		},
+		userCanManageModules: true
 	};
+
+	const allCardsNonAdminCantAccess = [
+			'widget-visibility',
+			'minileven',
+			'contact-form',
+			'sitemaps',
+			'latex',
+			'carousel',
+			'tiled-gallery',
+			'custom-content-types',
+			'verification-tools',
+			'markdown',
+			'infinite-scroll',
+			'gravatar-hovercards',
+			'omnisearch',
+			'custom-css',
+			'sharedaddy',
+			'widgets',
+			'shortcodes',
+			'related-posts',
+			'videopress',
+			'monitor',
+			'sso',
+			'vaultpress',
+			'google-analytics',
+			'seo-tools',
+			'stats',
+			'wordads',
+			'manage',
+			'likes',
+			'shortlinks',
+			'notes',
+			'subscriptions',
+			'protect',
+			'enhanced-distribution',
+			'comments',
+			'json-api',
+			'photon'
+		],
+		allCardsForNonAdmin = [
+			'composing',
+			'post-by-email'
+		];
 
 	const wrapper = shallow( <SettingsCard { ...testProps } /> );
 
@@ -117,6 +161,26 @@ describe( 'SettingsCard', () => {
 
 		it( 'isSavingAnyOption() is called once', () => {
 			expect( wasSaving.calledOnce ).to.be.true;
+		} );
+
+	} );
+
+	describe( 'When user is not an admin', () => {
+
+		Object.assign( testProps, {
+			userCanManageModules: false
+		} );
+
+		it( 'does not render cards that are not Composing or Post by Email', () => {
+			allCardsNonAdminCantAccess.forEach( item => {
+				expect( shallow( <SettingsCard { ...testProps } module={ item } /> ).find( 'form' ) ).to.have.length( 0 );
+			} );
+		} );
+
+		it( 'renders Composing and Post by Email cards', () => {
+			allCardsForNonAdmin.forEach( item => {
+				expect( shallow( <SettingsCard { ...testProps } module={ item } /> ).find( 'form' ) ).to.have.length( 1 );
+			} );
 		} );
 
 	} );

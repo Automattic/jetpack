@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import Button from 'components/button';
 import ClipboardButtonInput from 'components/clipboard-button-input';
+import Card from 'components/card';
 
 /**
  * Internal dependencies
@@ -41,9 +42,9 @@ const PostByEmail = moduleSettingsForm(
 		},
 
 		render() {
-			let postByEmail = this.props.getModule( 'post-by-email' ),
+			const postByEmail = this.props.getModule( 'post-by-email' ),
 				isPbeActive = this.props.getOptionValue( 'post-by-email' ),
-				unavailableInDevMode = this.props.isUnavailableInDevMode( 'post-by-email' );
+				disabledControls = this.props.isUnavailableInDevMode( 'post-by-email' ) || ! this.props.isLinked;
 
 			if ( ! this.props.isModuleFound( 'post-by-email' ) ) {
 				return null;
@@ -55,38 +56,58 @@ const PostByEmail = moduleSettingsForm(
 					module="post-by-email"
 					hideButton>
 					<SettingsGroup hasChild disableInDevMode module={ postByEmail }>
-						<ModuleToggle
-							slug="post-by-email"
-							compact
-							disabled={ unavailableInDevMode }
-							activated={ isPbeActive }
-							toggling={ this.props.isSavingAnyOption( 'post-by-email' ) }
-							toggleModule={ this.props.toggleModuleNow }
-						>
-						<span className="jp-form-toggle-explanation">
-							{
-								this.props.module( 'post-by-email' ).description
-							}
-						</span>
-						</ModuleToggle>
+						{
+							this.props.userCanManageModules
+								? (
+									<ModuleToggle
+										slug="post-by-email"
+										compact
+										disabled={ disabledControls }
+										activated={ isPbeActive }
+										toggling={ this.props.isSavingAnyOption( 'post-by-email' ) }
+										toggleModule={ this.props.toggleModuleNow }>
+										<span className="jp-form-toggle-explanation">
+											{ this.props.module( 'post-by-email' ).description }
+										</span>
+									</ModuleToggle>
+								)
+								: (
+									<span className="jp-form-toggle-explanation">
+										{ this.props.module( 'post-by-email' ).description }
+									</span>
+								)
+						}
 						<FormFieldset>
 							<FormLabel>
 								<FormLegend>{ __( 'Email Address' ) }</FormLegend>
 								<ClipboardButtonInput
 									value={ this.address() }
-									disabled={ ! isPbeActive || unavailableInDevMode }
+									disabled={ ! isPbeActive || disabledControls }
 									copy={ __( 'Copy', { context: 'verb' } ) }
 									copied={ __( 'Copied!' ) }
 									prompt={ __( 'Highlight and copy the following text to your clipboard:' ) }
 								/>
 							</FormLabel>
 							<Button
-								disabled={ ! isPbeActive || unavailableInDevMode }
+								disabled={ ! isPbeActive || disabledControls }
 								onClick={ this.regeneratePostByEmailAddress } >
 								{ __( 'Regenerate address' ) }
 							</Button>
 						</FormFieldset>
 					</SettingsGroup>
+					{
+						( ! this.props.isUnavailableInDevMode( 'post-by-email' ) && ! this.props.isLinked ) && (
+							<Card
+								compact
+								className="jp-settings-card__configure-link"
+								href={ `${ this.props.connectUrl }&from=unlinked-user-connect` }
+							>
+								{
+									__( 'Link your existing WordPress.com account to use Post by Email or create and link one for free.' )
+								}
+							</Card>
+						)
+					}
 				</SettingsCard>
 			);
 		}
@@ -98,6 +119,6 @@ export default connect(
 		return {
 			module: ( module_name ) => getModule( state, module_name ),
 			isModuleFound: ( module_name ) => _isModuleFound( state, module_name )
-		}
+		};
 	}
 )( PostByEmail );

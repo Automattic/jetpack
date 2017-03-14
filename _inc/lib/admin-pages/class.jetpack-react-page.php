@@ -65,7 +65,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	 * @since 4.3.0
 	 */
 	function jetpack_add_settings_sub_nav_item() {
-		if ( ( Jetpack::is_development_mode() || Jetpack::is_active() ) && current_user_can( 'jetpack_admin_page' ) ) {
+		if ( ( Jetpack::is_development_mode() || Jetpack::is_active() ) && current_user_can( 'jetpack_admin_page' ) && current_user_can( 'edit_posts' ) ) {
 			global $submenu;
 			$submenu['jetpack'][] = array( __( 'Settings', 'jetpack' ), 'jetpack_admin_page', Jetpack::admin_url( 'page=jetpack#/settings' ) );
 		}
@@ -410,6 +410,7 @@ function jetpack_current_user_data() {
 			'network_admin'      => current_user_can( 'jetpack_network_admin_page' ),
 			'network_sites_page' => current_user_can( 'jetpack_network_sites_page' ),
 			'edit_posts'         => current_user_can( 'edit_posts' ),
+			'publish_posts'      => current_user_can( 'publish_posts' ),
 			'manage_options'     => current_user_can( 'manage_options' ),
 			'view_stats'		 => current_user_can( 'view_stats' ),
 			'manage_plugins'	 => current_user_can( 'install_plugins' )

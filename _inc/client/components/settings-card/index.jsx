@@ -4,6 +4,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
+import includes from 'lodash/includes';
 
 /**
  * Internal dependencies
@@ -17,7 +18,7 @@ import {
 	FEATURE_GOOGLE_ANALYTICS_JETPACK,
 	getPlanClass
 } from 'lib/plans/constants';
-import { getSiteRawUrl } from 'state/initial-state';
+import { getSiteRawUrl, userCanManageModules } from 'state/initial-state';
 import {
 	getSitePlan,
 	isFetchingSiteData
@@ -27,35 +28,42 @@ import Banner from 'components/banner';
 import Button from 'components/button';
 
 export const SettingsCard = props => {
-	let module = props.module
+	const module = props.module
 			? props.getModule( props.module )
-			: false,
-		header = props.header
-			? props.header
-			: '',
-		isSaving = props.isSavingAnyOption(),
+			: false;
+
+	// Non admin users only get Publicize, After the Deadline, and Post by Email settings. The UI doesn't have settings for Publicize.
+	// composing is not a module slug but it's used so the Composing card is rendered to show AtD.
+	if ( ! props.userCanManageModules && ! includes( [ 'composing', 'post-by-email' ], props.module ) ) {
+		return <span />;
+	}
+
+	const isSaving = props.isSavingAnyOption(),
 		feature = props.feature
 			? props.feature
 			: false,
 		siteRawUrl = props.siteRawUrl;
+	let header = props.header
+			? props.header
+			: '';
 
 	if ( '' === header && module ) {
 		header = module.name;
 	}
 
-	let getBanner = ( feature ) => {
-		let planClass = getPlanClass( props.sitePlan.product_slug );
+	const getBanner = () => {
+		const planClass = getPlanClass( props.sitePlan.product_slug ),
+			commonProps = {
+				feature: feature,
+				href: 'https://jetpack.com/redirect/?source=plans-compare-personal&site=' + siteRawUrl
+			};
 		let list;
-		let commonProps = {
-			feature: feature,
-			href: 'https://jetpack.com/redirect/?source=plans-compare-personal&site=' + siteRawUrl
-		};
 
-		switch( feature ) {
+		switch ( feature ) {
 			case FEATURE_VIDEO_HOSTING_JETPACK:
 				if (
-					'is-premium-plan' === planClass
-					|| 'is-business-plan' === planClass
+					'is-premium-plan' === planClass ||
+					'is-business-plan' === planClass
 				) {
 					return '';
 				}
@@ -74,9 +82,9 @@ export const SettingsCard = props => {
 					return '';
 				}
 
-				list =  [
+				list = [
 					__( 'Automatic backups of every single aspect of your site' ),
-					__( 'Comprehensive and automated scanning for any security vulnerabilites or threats' ),
+					__( 'Comprehensive and automated scanning for any security vulnerabilites or threats' )
 				];
 
 				if ( 'is-premium-plan' !== planClass ) {
@@ -104,9 +112,9 @@ export const SettingsCard = props => {
 					return '';
 				}
 
-				list =  [
+				list = [
 					__( 'SEO tools to optimize your site for search engines and social media sharing' ),
-					__( 'Google Analytics tracking settings to complement WordPress.com stats' ),
+					__( 'Google Analytics tracking settings to complement WordPress.com stats' )
 				];
 
 				if ( 'is-premium-plan' !== planClass ) {
@@ -165,6 +173,7 @@ export default connect(
 			sitePlan: getSitePlan( state ),
 			fetchingSiteData: isFetchingSiteData( state ),
 			siteRawUrl: getSiteRawUrl( state ),
+			userCanManageModules: userCanManageModules( state )
 		};
 	}
 )( SettingsCard );

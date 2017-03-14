@@ -858,6 +858,19 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			return current_user_can( 'jetpack_admin_page' );
 		} else {
 			$module = Jetpack_Core_Json_Api_Endpoints::get_module_requested();
+			if ( empty( $module ) ) {
+				$params = $request->get_json_params();
+				if ( ! is_array( $params ) ) {
+					$params = $request->get_body_params();
+				}
+				$options = Jetpack_Core_Json_Api_Endpoints::get_updateable_data_list( $params );
+				foreach ( $options as $option => $definition ) {
+					if ( in_array( $options[ $option ]['jp_group'], array( 'after-the-deadline', 'post-by-email' ) ) ) {
+						$module = $options[ $option ]['jp_group'];
+						break;
+					}
+				}
+			}
 			// User is trying to create, regenerate or delete its PbE || ATD settings.
 			if ( 'post-by-email' === $module || 'after-the-deadline' === $module ) {
 				return current_user_can( 'edit_posts' ) && current_user_can( 'jetpack_admin_page' );

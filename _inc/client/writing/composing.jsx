@@ -182,52 +182,53 @@ const Composing = moduleSettingsForm(
 
 			const markdown = this.props.module( 'markdown' ),
 				atd = this.props.module( 'after-the-deadline' ),
-				unavailableInDevMode = this.props.isUnavailableInDevMode( 'after-the-deadline' );
-
-			const markdownSettings = (
-				<SettingsGroup support={ markdown.learn_more_button }>
-					<FormFieldset>
-						<ModuleToggle
-							slug="markdown"
-							activated={ !! this.props.getOptionValue( 'wpcom_publish_posts_with_markdown', 'markdown' ) }
-							toggling={ this.props.isSavingAnyOption( [ 'markdown', 'wpcom_publish_posts_with_markdown' ] ) }
-							toggleModule={ this.updateFormStateByMarkdown }>
-							<span className="jp-form-toggle-explanation">
-								{ markdown.description }
-							</span>
-						</ModuleToggle>
-					</FormFieldset>
-				</SettingsGroup>
-			);
-
-			const atdHeader = (
-				<ModuleToggle
-					slug="after-the-deadline"
-					compact
-					disabled={ unavailableInDevMode }
-					activated={ this.props.getOptionValue( 'after-the-deadline' ) }
-					toggling={ this.props.isSavingAnyOption( 'after-the-deadline' ) }
-					toggleModule={ this.props.toggleModuleNow }
-				>
-					<span className="jp-form-toggle-explanation">
-						{ atd.description }
-					</span>
-				</ModuleToggle>
-			);
-
-			const atdSettings = (
-				<div>
+				unavailableInDevMode = this.props.isUnavailableInDevMode( 'after-the-deadline' ),
+				markdownSettings = (
+					<SettingsGroup module={ markdown }>
+						<FormFieldset>
+							<ModuleToggle
+								slug="markdown"
+								activated={ !! this.props.getOptionValue( 'wpcom_publish_posts_with_markdown', 'markdown' ) }
+								toggling={ this.props.isSavingAnyOption( [ 'markdown', 'wpcom_publish_posts_with_markdown' ] ) }
+								toggleModule={ this.updateFormStateByMarkdown }>
+								<span className="jp-form-toggle-explanation">
+									{ markdown.description }
+								</span>
+							</ModuleToggle>
+						</FormFieldset>
+					</SettingsGroup>
+				),
+				atdSettings = (
 					<FoldableCard
 						className={ classNames( 'jp-foldable-card__main-settings', { 'jp-foldable-settings-disable': unavailableInDevMode } ) }
-						header={ atdHeader }
+						header={
+					this.props.userCanManageModules
+						? (
+							<ModuleToggle
+								slug="after-the-deadline"
+								compact
+								disabled={ unavailableInDevMode }
+								activated={ this.props.getOptionValue( 'after-the-deadline' ) }
+								toggling={ this.props.isSavingAnyOption( 'after-the-deadline' ) }
+								toggleModule={ this.props.toggleModuleNow }>
+								<span className="jp-form-toggle-explanation">
+									{ atd.description }
+								</span>
+							</ModuleToggle>
+						)
+						: (
+							<span className="jp-form-toggle-explanation">
+								{ atd.description }
+							</span>
+						)
+					}
 					>
 						{ this.getAtdSettings() }
 					</FoldableCard>
-				</div>
-			);
+				);
 
 			return (
-				<SettingsCard header={ __( 'Composing', { context: 'Settings header' } ) } { ...this.props }>
+				<SettingsCard header={ __( 'Composing', { context: 'Settings header' } ) } { ...this.props } module="composing">
 					{ this.props.isModuleFound( 'markdown' ) && markdownSettings }
 					{ this.props.isModuleFound( 'after-the-deadline' ) && atdSettings }
 				</SettingsCard>

@@ -24,18 +24,18 @@ import QuerySitePlugins from 'components/data/query-site-plugins';
 import QuerySite from 'components/data/query-site';
 import {
 	userCanManageModules,
-	userCanViewStats
+	userCanViewStats,
+	userIsSubscriber
 } from 'state/initial-state';
 import { isDevMode } from 'state/connection';
 
 const AtAGlance = React.createClass( {
 	render() {
 		const urls = {
-			siteAdminUrl: this.props.siteAdminUrl,
-			siteRawUrl: this.props.siteRawUrl
-		};
-
-		let securityHeader =
+				siteAdminUrl: this.props.siteAdminUrl,
+				siteRawUrl: this.props.siteRawUrl
+			},
+			securityHeader =
 				<DashSectionHeader
 					label={ __( 'Security' ) }
 					settingsPath="#security"
@@ -123,7 +123,16 @@ const AtAGlance = React.createClass( {
 
 			let nonAdminAAG = '';
 			if ( '' !== stats || '' !== protect ) {
-				nonAdminAAG = (
+				nonAdminAAG = this.props.userIsSubscriber
+				? (
+					<div>
+						{ stats	}
+						{
+							connections
+						}
+					</div>
+				)
+				: (
 					<div>
 						{ stats	}
 						{
@@ -149,6 +158,7 @@ export default connect(
 			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
 			userCanManageModules: userCanManageModules( state ),
 			userCanViewStats: userCanViewStats( state ),
+			userIsSubscriber: userIsSubscriber( state ),
 			isDevMode: isDevMode( state )
 		};
 	}
