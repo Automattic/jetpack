@@ -2118,6 +2118,19 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		 */
 		$message = apply_filters( 'contact_form_message', $message );
 
+		// Add HTML tags after the `contact_form_message` filter to preserve back-compat
+		$message = str_replace( "\t", '', sprintf(
+			"<!doctype html>
+			<html xmlns=\"http://www.w3.org/1999/xhtml\">
+			<body>
+
+			%s
+
+			</body>
+			</html>",
+			$message
+		) );
+
 		update_post_meta( $post_id, '_feedback_email', $this->addslashes_deep( compact( 'to', 'message' ) ) );
 
 		/**
