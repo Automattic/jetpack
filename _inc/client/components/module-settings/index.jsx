@@ -180,14 +180,13 @@ export let CommentsSettings = React.createClass( {
 		return (
 			<form onSubmit={ this.props.onSubmit } >
 				<FormFieldset>
-					<FormLegend>{ __( 'Comments headline' ) }</FormLegend>
-					<FormLabel>
-						<TextInput
-							name={ 'highlander_comment_form_prompt' }
-							value={ this.props.getOptionValue( 'highlander_comment_form_prompt' ) }
-							disabled={ this.props.isUpdating( 'highlander_comment_form_prompt' ) }
-							onChange={ this.props.onOptionChange } />
-					</FormLabel>
+					<FormLabel className="jp-form-legend" htmlFor="highlander_comment_form_prompt">{ __( 'Comments headline' ) }</FormLabel>
+					<TextInput
+						id="highlander_comment_form_prompt"
+						name={ 'highlander_comment_form_prompt' }
+						value={ this.props.getOptionValue( 'highlander_comment_form_prompt' ) }
+						disabled={ this.props.isUpdating( 'highlander_comment_form_prompt' ) }
+						onChange={ this.props.onOptionChange } />
 					<span className="jp-form-setting-explanation">{ __( 'A few catchy words to motivate your readers to comment.' ) }</span>
 				</FormFieldset>
 				<FormFieldset>
@@ -287,17 +286,16 @@ export let ProtectSettings = React.createClass( {
 		return (
 			<form onSubmit={ this.props.onSubmit } >
 				<FormFieldset>
-					<FormLegend>{ __( 'Whitelist Management' ) }</FormLegend>
+					<FormLabel className="jp-form-legend" htmlFor="jetpack_protect_global_whitelist">{ __( 'Whitelist Management' ) }</FormLabel>
 					<p>{ __( 'Whitelisting an IP address prevents it from ever being blocked by Jetpack.' ) }</p>
 					<small>{ __( 'Make sure to add your most frequently used IP addresses as they can change between your home, office or other locations. Removing an IP address from the list below will remove it from your whitelist.' ) }</small>
 					{ maybeShowIp }
-					<FormLabel>
-						<Textarea
-							name={ 'jetpack_protect_global_whitelist' }
-							placeholder={ 'Example: 12.12.12.1-12.12.12.100' }
-							onChange={ this.props.onOptionChange }
-							value={ this.props.getOptionValue( 'jetpack_protect_global_whitelist' ).local } />
-					</FormLabel>
+					<Textarea
+						id="jetpack_protect_global_whitelist"
+						name={ 'jetpack_protect_global_whitelist' }
+						placeholder={ 'Example: 12.12.12.1-12.12.12.100' }
+						onChange={ this.props.onOptionChange }
+						value={ this.props.getOptionValue( 'jetpack_protect_global_whitelist' ).local } />
 					<span className="jp-form-setting-explanation">{ __( 'IPv4 and IPv6 are acceptable. Enter multiple IPs on separate lines. {{br/}} To specify a range, enter the low value and high value separated by a dash. Example: 12.12.12.1-12.12.12.100', {
 						components: {
 							br: <br/>
