@@ -2002,14 +2002,16 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		 * @param string|array $to Array of valid email addresses, or single email address.
 		 */
 		$to = (array) apply_filters( 'contact_form_to', $to );
+		$reply_to_addr = $to[0]; // get just the address part before the name part is added
+
 		foreach ( $to as $to_key => $to_value ) {
 			$to[ $to_key ] = Grunion_Contact_Form_Plugin::strip_tags( $to_value );
+			$to[ $to_key ] = self::add_name_to_address( $to_value );
 		}
 
 		$blog_url = parse_url( site_url() );
 		$from_email_addr = 'wordpress@' . $blog_url['host'];
 
-		$reply_to_addr = $to[0];
 		if ( ! empty( $comment_author_email ) ) {
 			$reply_to_addr = $comment_author_email;
 		}
@@ -2219,6 +2221,25 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		wp_safe_redirect( $redirect );
 		exit;
+	}
+
+	/**
+	 * Add a display name part to an email address
+	 *
+	 * SpamAssassin doesn't like addresses in HTML messages that are missing display names (e.g., `foo@bar.org`
+	 * instead of `"Foo Bar" <foo@bar.org>`.
+	 *
+	 * @param string $address
+	 *
+	 * @return string
+	 */
+	function add_name_to_address( $address ) {
+		// If it's just the address, without a display name
+		if ( is_email( $address ) ) {
+			$address = sprintf( '"%s" <%s>', $address, $address );
+		}
+
+		return $address;
 	}
 
 	/**
