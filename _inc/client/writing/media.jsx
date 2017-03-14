@@ -160,7 +160,7 @@ const Media = moduleSettingsForm(
 						disabled={ this.props.isUnavailableInDevMode( 'videopress' ) }
 						activated={ this.props.getOptionValue( 'videopress' ) }
 						toggling={ this.props.isSavingAnyOption( 'videopress' ) }
-						toggleModule={ this.toggleModule }
+						toggleModule={ this.props.toggleModuleNow }
 					>
 						<span className="jp-form-toggle-explanation">
 							{
