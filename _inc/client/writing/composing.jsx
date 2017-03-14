@@ -200,8 +200,7 @@ const Composing = moduleSettingsForm(
 				),
 				atdSettings = (
 					<FoldableCard
-						className={ classNames( 'jp-foldable-card__main-settings', {
-							'jp-foldable-settings-disable': unavailableInDevMode || ( ! this.props.userCanManageModules && this.props.userCanEditPosts && ! this.props.getOptionValue( 'after-the-deadline' ) ) } ) }
+						className={ classNames( 'jp-foldable-card__main-settings', { 'jp-foldable-settings-disable': unavailableInDevMode } ) }
 						header={
 					this.props.userCanManageModules
 						? (

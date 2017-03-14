@@ -3,6 +3,8 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
+import { translate as __ } from 'i18n-calypso';
+import Card from 'components/card';
 
 /**
  * Internal dependencies
@@ -12,7 +14,8 @@ import { getSettings } from 'state/settings';
 import { userCanManageModules } from 'state/initial-state';
 import { isDevMode, isUnavailableInDevMode, isCurrentUserLinked } from 'state/connection';
 import { userCanEditPosts } from 'state/initial-state';
-import { isModuleFound as _isModuleFound } from 'state/search';
+import { isModuleActivated } from 'state/modules';
+import { isModuleFound } from 'state/search';
 import QuerySite from 'components/data/query-site';
 import Composing from './composing';
 import Media from './media';
@@ -50,14 +53,34 @@ export const Writing = React.createClass( {
 			return null;
 		}
 
+		const showComposing = this.props.userCanManageModules ||
+				( this.props.userCanEditPosts && this.props.isModuleActivated( 'after-the-deadline' ) ),
+			showPostByEmail = this.props.userCanManageModules ||
+				( this.props.userCanEditPosts && this.props.isModuleActivated( 'post-by-email' ) );
+
 		return (
 			<div>
 				<QuerySite />
-				<Composing { ...commonProps } userCanManageModules={ this.props.userCanManageModules } userCanEditPosts={ this.props.userCanEditPosts } />
+				{
+					showComposing && (
+						<Composing { ...commonProps } userCanManageModules={ this.props.userCanManageModules } />
+					)
+				}
 				<Media { ...commonProps } />
 				<CustomContentTypes { ...commonProps } />
 				<ThemeEnhancements { ...commonProps } />
-				<PostByEmail { ...commonProps } isLinked={ this.props.isLinked } userCanManageModules={ this.props.userCanManageModules } />
+				{
+					showPostByEmail && (
+						<PostByEmail { ...commonProps } isLinked={ this.props.isLinked } userCanManageModules={ this.props.userCanManageModules } />
+					)
+				}
+				{
+					( ! showComposing && ! showPostByEmail ) && (
+						<Card>
+							{ __( 'Writing tools available to you will be shown here when an administrator enables them.' ) }
+						</Card>
+					)
+				}
 			</div>
 		);
 	}
@@ -71,9 +94,10 @@ export default connect(
 			isDevMode: isDevMode( state ),
 			isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name ),
 			userCanEditPosts: userCanEditPosts( state ),
+			isModuleActivated: module_name => isModuleActivated( state, module_name ),
 			isLinked: isCurrentUserLinked( state ),
 			userCanManageModules: userCanManageModules( state ),
-			isModuleFound: ( module_name ) => _isModuleFound( state, module_name )
+			isModuleFound: module_name => isModuleFound( state, module_name )
 		};
 	}
 )( Writing );
