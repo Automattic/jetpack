@@ -65,26 +65,26 @@ const Media = moduleSettingsForm(
 					this.props.updateOptions( { photon: true, 'tiled-gallery': true, tiled_galleries: true } );
 				}
 			} else {
-				this.props.updateFormStateOptionValue( name, !value );
+				this.props.updateFormStateOptionValue( name, ! value );
 			}
 		},
 
 		render() {
 			if (
-				! this.props.isModuleFound( 'photon' )
-				&& ! this.props.isModuleFound( 'carousel' )
+				! this.props.isModuleFound( 'photon' ) &&
+				! this.props.isModuleFound( 'carousel' )
 			) {
 				// Nothing to show here
 				return null;
 			}
 
-			let photon = this.props.module( 'photon' ),
+			const photon = this.props.module( 'photon' ),
 				carousel = this.props.module( 'carousel' ),
 				isCarouselActive = this.props.getOptionValue( 'carousel' ),
 				videoPress = this.props.module( 'videopress' ),
 				planClass = getPlanClass( this.props.sitePlan.product_slug );
 
-			let photonSettings = (
+			const photonSettings = (
 				<SettingsGroup
 					hasChild
 					disableInDevMode
@@ -110,7 +110,7 @@ const Media = moduleSettingsForm(
 				</SettingsGroup>
 			);
 
-			let carouselSettings = (
+			const carouselSettings = (
 				<SettingsGroup hasChild support={ carousel.learn_more_button }>
 					<ModuleToggle
 						slug="carousel"
@@ -144,7 +144,7 @@ const Media = moduleSettingsForm(
 								value={ this.props.getOptionValue( 'carousel_background_color' ) }
 								disabled={ ! isCarouselActive || this.props.isSavingAnyOption( 'carousel_background_color' ) }
 								{ ...this.props }
-								validValues={ this.props.validValues( 'carousel_background_color', 'carousel' ) }/>
+								validValues={ this.props.validValues( 'carousel_background_color', 'carousel' ) } />
 						</FormLabel>
 					</FormFieldset>
 				</SettingsGroup>
@@ -191,6 +191,6 @@ export default connect(
 			module: ( module_name ) => getModule( state, module_name ),
 			isModuleFound: ( module_name ) => _isModuleFound( state, module_name ),
 			sitePlan: getSitePlan( state )
-		}
+		};
 	}
 )( Media );
