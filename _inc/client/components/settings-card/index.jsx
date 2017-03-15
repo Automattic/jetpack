@@ -52,7 +52,8 @@ export const SettingsCard = props => {
 	}
 
 	const getBanner = () => {
-		const planClass = getPlanClass( props.sitePlan.product_slug );
+		const planClass = getPlanClass( props.sitePlan.product_slug ),
+			upgradeLabel = __( 'Upgrade', { context: 'A caption for a button to upgrade an existing paid feature to a higher tier.' } );
 
 		switch ( feature ) {
 			case FEATURE_VIDEO_HOSTING_JETPACK:
@@ -66,7 +67,7 @@ export const SettingsCard = props => {
 				return (
 					<Banner
 						title={ __( 'Host fast, high-quality, and ad-free video.' ) }
-						callToAction={ __( 'Activate', { context: 'A caption for a button to activate a paid feature.' } ) }
+						callToAction={ upgradeLabel }
 						plan={ PLAN_JETPACK_PREMIUM }
 						feature={ feature }
 						href={ 'https://jetpack.com/redirect/?source=settings-video-premium&site=' + siteRawUrl }
@@ -85,7 +86,7 @@ export const SettingsCard = props => {
 						<Banner
 							title={ __( 'Real-time site backups and automated threat resolution.' ) }
 							plan={ PLAN_JETPACK_BUSINESS }
-							callToAction={ __( 'Upgrade', { context: 'A caption for a button to upgrade an existing paid feature to a higher tier.' } ) }
+							callToAction={ upgradeLabel }
 							feature={ feature }
 							href={ 'https://jetpack.com/redirect/?source=settings-security-pro&site=' + siteRawUrl }
 						/>
@@ -94,7 +95,7 @@ export const SettingsCard = props => {
 
 				return (
 					<Banner
-						callToAction={ __( 'Activate', { context: 'A caption for a button to activate a paid feature.' } ) }
+						callToAction={ upgradeLabel }
 						title={ __( 'Protect against data loss, malware, and hacks.' ) }
 						plan={ PLAN_JETPACK_PREMIUM }
 						feature={ feature }
@@ -108,7 +109,7 @@ export const SettingsCard = props => {
 				}
 				return (
 					<Banner
-						callToAction={ __( 'Activate', { context: 'A caption for a button to activate a paid feature.' } ) }
+						callToAction={ upgradeLabel }
 						title={ __( 'Hassle-free Google Analytics installation.' ) }
 						plan={ PLAN_JETPACK_BUSINESS }
 						feature={ feature }
@@ -122,7 +123,7 @@ export const SettingsCard = props => {
 
 				return (
 					<Banner
-						callToAction={ __( 'Activate', { context: 'A caption for a button to activate a paid feature.' } ) }
+						callToAction={ upgradeLabel }
 						title={ __( 'SEO tools help your content get found and shared.' ) }
 						plan={ PLAN_JETPACK_BUSINESS }
 						feature={ feature }
