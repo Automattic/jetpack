@@ -39,7 +39,7 @@ describe( 'NavigationSettings', () => {
 				listen: () => {}
 			},
 			isModuleActivated: () => true,
-			siteConnectionStatus: true,
+			isSiteConnected: true,
 			siteRawUrl: 'example.org',
 			siteAdminUrl: 'https://example.org/wp-admin/',
 			searchForTerm: () => {},
@@ -319,7 +319,7 @@ describe( 'NavigationSettings', () => {
 		describe( 'if site is in dev mode', () => {
 
 			before( () => {
-				wrapper = shallow( <NavigationSettings { ...testProps } siteConnectionStatus={ false } />, options );
+				wrapper = shallow( <NavigationSettings { ...testProps } isSiteConnected={ false } />, options );
 			} );
 
 			it( 'points to WP Admin', () => {
