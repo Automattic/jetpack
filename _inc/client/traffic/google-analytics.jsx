@@ -19,7 +19,7 @@ export const GoogleAnalytics = moduleSettingsForm(
 			return (
 				<SettingsCard
 					{ ...this.props }
-					header={ __( 'Analytics Settings', { context: 'Settings header' } ) }
+					header={ __( 'Google Analytics', { context: 'Settings header' } ) }
 					feature={ FEATURE_GOOGLE_ANALYTICS_JETPACK }
 					hideButton>
 					<SettingsGroup disableInDevMode module={ { module: 'google-analytics' } } support="https://jetpack.com/support/google-analytics/">
@@ -36,7 +36,7 @@ export const GoogleAnalytics = moduleSettingsForm(
 					</SettingsGroup>
 					{
 						! this.props.isUnavailableInDevMode( 'google-analytics' ) && (
-							<Card compact className="jp-settings-card__configure-link" href={ this.props.configureUrl }>{ __( 'Configure Google Analytics settings.' ) }</Card>
+							<Card compact className="jp-settings-card__configure-link" href={ this.props.configureUrl }>{ __( 'Configure your Google Analytics settings' ) }</Card>
 						)
 					}
 				</SettingsCard>
