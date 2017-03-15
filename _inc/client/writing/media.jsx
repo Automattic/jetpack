@@ -5,11 +5,15 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import CompactFormToggle from 'components/form/form-toggle/compact';
+import includes from 'lodash/includes';
 
 /**
  * Internal dependencies
  */
-import { FEATURE_VIDEO_HOSTING_JETPACK } from 'lib/plans/constants';
+import {
+	FEATURE_VIDEO_HOSTING_JETPACK,
+	getPlanClass
+} from 'lib/plans/constants';
 import {
 	FormFieldset,
 	FormLegend,
@@ -22,6 +26,7 @@ import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import { getModule } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
+import { getSitePlan } from 'state/site';
 
 const Media = moduleSettingsForm(
 	React.createClass( {
@@ -60,24 +65,26 @@ const Media = moduleSettingsForm(
 					this.props.updateOptions( { photon: true, 'tiled-gallery': true, tiled_galleries: true } );
 				}
 			} else {
-				this.props.updateFormStateOptionValue( name, !value );
+				this.props.updateFormStateOptionValue( name, ! value );
 			}
 		},
 
 		render() {
 			if (
-				! this.props.isModuleFound( 'photon' )
-				&& ! this.props.isModuleFound( 'carousel' )
+				! this.props.isModuleFound( 'photon' ) &&
+				! this.props.isModuleFound( 'carousel' )
 			) {
 				// Nothing to show here
 				return null;
 			}
 
-			let photon = this.props.module( 'photon' ),
+			const photon = this.props.module( 'photon' ),
 				carousel = this.props.module( 'carousel' ),
-				isCarouselActive = this.props.getOptionValue( 'carousel' );
+				isCarouselActive = this.props.getOptionValue( 'carousel' ),
+				videoPress = this.props.module( 'videopress' ),
+				planClass = getPlanClass( this.props.sitePlan.product_slug );
 
-			let photonSettings = (
+			const photonSettings = (
 				<SettingsGroup
 					hasChild
 					disableInDevMode
@@ -103,7 +110,7 @@ const Media = moduleSettingsForm(
 				</SettingsGroup>
 			);
 
-			let carouselSettings = (
+			const carouselSettings = (
 				<SettingsGroup hasChild support={ carousel.learn_more_button }>
 					<ModuleToggle
 						slug="carousel"
@@ -137,9 +144,30 @@ const Media = moduleSettingsForm(
 								value={ this.props.getOptionValue( 'carousel_background_color' ) }
 								disabled={ ! isCarouselActive || this.props.isSavingAnyOption( 'carousel_background_color' ) }
 								{ ...this.props }
-								validValues={ this.props.validValues( 'carousel_background_color', 'carousel' ) }/>
+								validValues={ this.props.validValues( 'carousel_background_color', 'carousel' ) } />
 						</FormLabel>
 					</FormFieldset>
+				</SettingsGroup>
+			);
+
+			const videoPressSettings = includes( [ 'is-premium-plan', 'is-business-plan' ], planClass ) && (
+				<SettingsGroup
+					hasChild
+					disableInDevMode
+					module={ videoPress }>
+					<ModuleToggle
+						slug="videopress"
+						disabled={ this.props.isUnavailableInDevMode( 'videopress' ) }
+						activated={ this.props.getOptionValue( 'videopress' ) }
+						toggling={ this.props.isSavingAnyOption( 'videopress' ) }
+						toggleModule={ this.props.toggleModuleNow }
+					>
+						<span className="jp-form-toggle-explanation">
+							{
+								videoPress.description
+							}
+						</span>
+					</ModuleToggle>
 				</SettingsGroup>
 			);
 
@@ -150,6 +178,7 @@ const Media = moduleSettingsForm(
 					feature={ FEATURE_VIDEO_HOSTING_JETPACK }>
 					{ this.props.isModuleFound( 'photon' ) && photonSettings }
 					{ this.props.isModuleFound( 'carousel' ) && carouselSettings }
+					{ this.props.isModuleFound( 'videopress' ) && videoPressSettings }
 				</SettingsCard>
 			);
 		}
@@ -160,7 +189,8 @@ export default connect(
 	( state ) => {
 		return {
 			module: ( module_name ) => getModule( state, module_name ),
-			isModuleFound: ( module_name ) => _isModuleFound( state, module_name )
-		}
+			isModuleFound: ( module_name ) => _isModuleFound( state, module_name ),
+			sitePlan: getSitePlan( state )
+		};
 	}
 )( Media );
