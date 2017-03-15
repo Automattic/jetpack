@@ -26,7 +26,7 @@ import {
 	userIsSubscriber as _userIsSubscriber,
 	userCanPublish
 } from 'state/initial-state';
-import { getSiteConnectionStatus, isCurrentUserLinked } from 'state/connection';
+import { isSiteConnected, isCurrentUserLinked } from 'state/connection';
 import { isModuleActivated } from 'state/modules';
 
 export const NavigationSettings = React.createClass( {
@@ -89,13 +89,13 @@ export const NavigationSettings = React.createClass( {
 			publicizeTab = (
 			( this.props.isModuleActivated( 'publicize' ) || this.props.isModuleActivated( 'sharedaddy' ) ) && (
 				<NavItem
-					path={ true === this.props.siteConnectionStatus
+					path={ true === this.props.isSiteConnected
 										? 'https://wordpress.com/sharing/' + this.props.siteRawUrl
 										: this.props.siteAdminUrl + 'options-general.php?page=sharing'
 										}>
 					{ __( 'Sharing', { context: 'Navigation item.' } ) }
 					{
-						true === this.props.siteConnectionStatus && (
+						true === this.props.isSiteConnected && (
 							<Gridicon icon="external" size={ 13 } />
 						)
 					}
@@ -172,7 +172,7 @@ NavigationSettings.propTypes = {
 	isSubscriber: React.PropTypes.bool.isRequired,
 	userCanPublish: React.PropTypes.bool.isRequired,
 	isLinked: React.PropTypes.bool.isRequired,
-	siteConnectionStatus: React.PropTypes.bool.isRequired,
+	isSiteConnected: React.PropTypes.bool.isRequired,
 	isModuleActivated: React.PropTypes.func.isRequired,
 	searchHasFocus: React.PropTypes.bool.isRequired
 };
@@ -182,7 +182,7 @@ NavigationSettings.defaultProps = {
 	isSubscriber: false,
 	userCanPublish: false,
 	isLinked: false,
-	siteConnectionStatus: false,
+	isSiteConnected: false,
 	isModuleActivated: noop,
 	searchHasFocus: false
 };
@@ -194,7 +194,7 @@ export default connect(
 			isSubscriber: _userIsSubscriber( state ),
 			userCanPublish: userCanPublish( state ),
 			isLinked: isCurrentUserLinked( state ),
-			siteConnectionStatus: getSiteConnectionStatus( state ),
+			isSiteConnected: isSiteConnected( state ),
 			isModuleActivated: module => isModuleActivated( state, module ),
 			searchTerm: getSearchTerm( state )
 		};

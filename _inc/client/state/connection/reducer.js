@@ -130,6 +130,20 @@ export function getSiteConnectionStatus( state ) {
 }
 
 /**
+ * Checks if the site is connected to WordPress.com. Unlike getSiteConnectionStatus, this one returns only a boolean.
+ *
+ * @param  {Object}  state Global state tree
+ * @return {boolean} True if site is connected to WordPress.com. False if site is in Dev Mode or there's no connection data.
+ */
+export function isSiteConnected( state ) {
+	if ( ( 'object' !== typeof state.jetpack.connection.status.siteConnected ) ||
+		true === state.jetpack.connection.status.siteConnected.devMode.isActive ) {
+		return false;
+	}
+	return state.jetpack.connection.status.siteConnected.isActive;
+}
+
+/**
  * Returns an object with information about the Dev Mode.
  *
  * @param  {Object}      state Global state tree
