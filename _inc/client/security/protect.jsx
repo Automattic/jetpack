@@ -84,7 +84,7 @@ export const Protect = moduleSettingsForm(
 				<SettingsCard
 					{ ...this.props }
 					module="protect"
-					header={ __( 'Prevent brute force login attacks', { context: 'Settings header' } ) }
+					header={ __( 'Brute force attack blocking', { context: 'Settings header' } ) }
 					saveDisabled={ this.props.isSavingAnyOption( 'jetpack_protect_global_whitelist' ) }
 				>
 					<FoldableCard
