@@ -35,7 +35,7 @@ export const Protect = moduleSettingsForm(
 
 		currentIpIsWhitelisted() {
 			// get current whitelist in textarea from this.state.whitelist;
-			return !!includes( this.state.whitelist, this.props.currentIp );
+			return !! includes( this.state.whitelist, this.props.currentIp );
 		},
 
 		updateText( event ) {
@@ -52,7 +52,7 @@ export const Protect = moduleSettingsForm(
 		},
 
 		addToWhitelist() {
-			let newWhitelist = this.state.whitelist + ( 0 >= this.state.whitelist.length ? '' : '\n' ) + this.props.currentIp;
+			const newWhitelist = this.state.whitelist + ( 0 >= this.state.whitelist.length ? '' : '\n' ) + this.props.currentIp;
 
 			// Update form value manually
 			this.props.updateFormStateOptionValue( 'jetpack_protect_global_whitelist', newWhitelist );
@@ -132,7 +132,7 @@ export const Protect = moduleSettingsForm(
 						</SettingsGroup>
 					</FoldableCard>
 				</SettingsCard>
-			)
+			);
 		}
 	} )
 );

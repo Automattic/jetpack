@@ -124,7 +124,7 @@ function jetpack_get_module_i18n( $key ) {
 
 			'protect' => array(
 				'name' => _x( 'Protect', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Block suspicious-looking sign in activity from unknown IP addresses', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Block suspicious-looking sign in activity', 'Module Description', 'jetpack' ),
 			),
 
 			'publicize' => array(
