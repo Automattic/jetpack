@@ -515,15 +515,17 @@ class A8C_WPCOM_Masterbar {
 		}
 
 		// Stats
-		$wp_admin_bar->add_menu( array(
-			'parent' => 'blog',
-			'id'     => 'blog-stats',
-			'title'  => __( 'Stats', 'jetpack' ),
-			'href'   => 'https://wordpress.com/stats/' . esc_attr( $this->primary_site_slug ),
-			'meta'   => array(
-				'class' => 'mb-icon',
-			),
-		) );
+		if ( Jetpack::is_module_active( 'stats' ) ) {
+			$wp_admin_bar->add_menu( array(
+				'parent' => 'blog',
+				'id'     => 'blog-stats',
+				'title'  => __( 'Stats', 'jetpack' ),
+				'href'   => 'https://wordpress.com/stats/' . esc_attr( $this->primary_site_slug ),
+				'meta'   => array(
+					'class' => 'mb-icon',
+				),
+			) );
+		}
 
 		// Add Calypso plans link and plan type indicator
 		if ( is_user_member_of_blog( $current_user->ID ) ) {
@@ -719,15 +721,17 @@ class A8C_WPCOM_Masterbar {
 				),
 			) );
 
-			$wp_admin_bar->add_menu( array(
-				'parent' => 'configuration',
-				'id'     => 'sharing',
-				'title'  => __( 'Sharing', 'jetpack' ),
-				'href'   => 'https://wordpress.com/sharing/' . esc_attr( $this->primary_site_slug ),
-				'meta'   => array(
-					'class' => 'mb-icon',
-				),
-			) );
+			if ( Jetpack::is_module_active( 'publicize' ) || Jetpack::is_module_active( 'sharedaddy' ) ) {
+				$wp_admin_bar->add_menu( array(
+					'parent' => 'configuration',
+					'id'     => 'sharing',
+					'title'  => __( 'Sharing', 'jetpack' ),
+					'href'   => 'https://wordpress.com/sharing/' . esc_attr( $this->primary_site_slug ),
+					'meta'   => array(
+						'class' => 'mb-icon',
+					),
+				) );
+			}
 
 			$people_title = $this->create_menu_item_pair(
 				array(
