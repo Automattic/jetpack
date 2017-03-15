@@ -120,15 +120,9 @@ const Main = React.createClass( {
 		// status without reloading is possible only by disconnecting a live site not
 		// in development mode.
 		if ( prevProps.siteConnectionStatus !== this.props.siteConnectionStatus ) {
-			jQuery( '#toplevel_page_jetpack ul.wp-submenu li' )
-				.filter( function() {
-					const anchor = jQuery( this ).find( 'a' );
-					if ( ! anchor.length ) {
-						return false;
-					}
-					return -1 !== anchor.attr( 'href' ).indexOf( '#/settings' );
-				} )
-				.hide();
+			const $items = jQuery( '#toplevel_page_jetpack' ).find( 'ul.wp-submenu li' );
+			$items.find( 'a[href$="#/settings"]' ).hide();
+			$items.find( 'a[href$="admin.php?page=stats"]' ).hide();
 		}
 	},
 
