@@ -162,7 +162,7 @@ export const SettingsCard = props => {
 				}
 			</SectionHeader>
 			{ props.children }
-			{ getBanner( feature ) }
+			{ ! props.fetchingSiteData && getBanner( feature ) }
 		</form>
 	);
 };
