@@ -167,7 +167,7 @@ class A8C_WPCOM_Masterbar {
 		$wp_admin_bar->add_menu( array(
 			'id'    => 'newdash',
 			'title' => __( 'Reader', 'jetpack' ),
-			'href'  => 'https://wordpress.com/',
+			'href'  => '#',
 		) );
 
 		$wp_admin_bar->add_menu( array(
@@ -291,7 +291,7 @@ class A8C_WPCOM_Masterbar {
 			'id'     => 'my-account',
 			'parent' => 'top-secondary',
 			'title'  => $avatar . '<span class="ab-text">' . __( 'Me', 'jetpack' ) . '</span>',
-			'href'   => 'https://wordpress.com/me/',
+			'href'   => '#',
 			'meta'   => array(
 				'class' => $class,
 			),
@@ -474,7 +474,7 @@ class A8C_WPCOM_Masterbar {
 		$wp_admin_bar->add_menu( array(
 			'id'    => 'blog',
 			'title' => __( 'My Sites', 'jetpack' ),
-			'href'  => 'https://wordpress.com/stats/' . esc_attr( $this->primary_site_slug ),
+			'href'  => '#',
 			'meta'  => array(
 				'class' => 'my-sites',
 			),
