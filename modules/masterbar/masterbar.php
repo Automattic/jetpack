@@ -588,6 +588,15 @@ class A8C_WPCOM_Masterbar {
 			)
 		);
 
+		if ( ! current_user_can( 'edit_posts' ) ) {
+			$posts_title = $this->create_menu_item_anchor(
+				'ab-item ab-primary mb-icon',
+				'https://wordpress.com/posts/' . esc_attr( $this->primary_site_slug ),
+				__( 'Blog Posts', 'jetpack' ),
+				'wp-admin-bar-edit-post'
+			);
+		}
+
 		$wp_admin_bar->add_menu( array(
 			'parent' => 'publish',
 			'id'     => 'new-post',
@@ -611,6 +620,15 @@ class A8C_WPCOM_Masterbar {
 			)
 		);
 
+		if ( ! current_user_can( 'edit_pages' ) ) {
+			$pages_title = $this->create_menu_item_anchor(
+				'ab-item ab-primary mb-icon',
+				'https://wordpress.com/pages/' . esc_attr( $this->primary_site_slug ),
+				__( 'Pages', 'jetpack' ),
+				'wp-admin-bar-edit-page'
+			);
+		}
+
 		$wp_admin_bar->add_menu( array(
 			'parent' => 'publish',
 			'id'     => 'new-page',
@@ -633,6 +651,15 @@ class A8C_WPCOM_Masterbar {
 				'label' => _x( 'Add', 'admin bar menu new item label', 'jetpack' ),
 			)
 		);
+
+		if ( ! current_user_can( 'edit_pages' ) ) {
+			$portfolios_title = $this->create_menu_item_anchor(
+				'ab-item ab-primary mb-icon',
+				'https://wordpress.com/types/jetpack-portfolio/' . esc_attr( $this->primary_site_slug ),
+				__( 'Portfolio', 'jetpack' ),
+				'wp-admin-bar-edit-portfolio'
+			);
+		}
 
 		$wp_admin_bar->add_menu( array(
 			'parent' => 'publish',
