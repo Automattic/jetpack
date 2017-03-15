@@ -68,7 +68,7 @@ export const SettingsCard = props => {
 
 				return (
 					<Banner
-						title={ __( 'Host fast, high-quality, and ad-free video.' ) }
+						title={ __( 'Host fast, high-quality, ad-free video.' ) }
 						callToAction={ upgradeLabel }
 						plan={ PLAN_JETPACK_PREMIUM }
 						feature={ feature }
@@ -104,7 +104,7 @@ export const SettingsCard = props => {
 				) {
 					return (
 						<Banner
-							title={ __( 'Real-time site backups and automated threat resolution.' ) }
+							title={ __( 'Real-time site backups and automatic threat resolution.' ) }
 							plan={ PLAN_JETPACK_BUSINESS }
 							callToAction={ upgradeLabel }
 							feature={ feature }
@@ -116,7 +116,7 @@ export const SettingsCard = props => {
 				return (
 					<Banner
 						callToAction={ upgradeLabel }
-						title={ __( 'Protect against data loss, malware, and hacks.' ) }
+						title={ __( 'Protect against data loss, malware, and malicious attacks.' ) }
 						plan={ PLAN_JETPACK_PREMIUM }
 						feature={ feature }
 						href={ 'https://jetpack.com/redirect/?source=settings-security-premium&site=' + siteRawUrl }
@@ -130,7 +130,7 @@ export const SettingsCard = props => {
 				return (
 					<Banner
 						callToAction={ upgradeLabel }
-						title={ __( 'Hassle-free Google Analytics installation.' ) }
+						title={ __( 'Hassle-free Google Analytics integration.' ) }
 						plan={ PLAN_JETPACK_BUSINESS }
 						feature={ feature }
 						href={ 'https://jetpack.com/redirect/?source=settings-ga&site=' + siteRawUrl }
