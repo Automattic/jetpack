@@ -3,7 +3,7 @@
  */
 import React from 'react';
 import { translate as __ } from 'i18n-calypso';
-import ExternalLink from 'components/external-link';
+import Card from 'components/card';
 
 /**
  * Internal dependencies
@@ -24,25 +24,21 @@ export const SEO = moduleSettingsForm(
 					feature={ FEATURE_SEO_TOOLS_JETPACK }
 					hideButton>
 					<SettingsGroup disableInDevMode module={ { module: 'seo-tools' } } support="https://jetpack.com/support/seo-tools/">
-						<p>
-							{
-								__( "You can tweak these settings if you'd like more advanced control. Read more about what you can do to {{a}}optimize your site's SEO{{/a}}.",
-									{
-										components: {
-											a: <a href="https://jetpack.com/support/seo-tools/" />
-										}
-									}
-								)
-							}
-						</p>
 						{
-							! this.props.isUnavailableInDevMode( 'seo-tools' ) && (
-								<span>
-									<ExternalLink className="jp-module-settings__external-link" href={ this.props.configureUrl }>{ __( 'Configure your SEO settings' ) }</ExternalLink>
-								</span>
+							__( "You can tweak these settings if you'd like more advanced control. Read more about what you can do to {{a}}optimize your site's SEO{{/a}}.",
+								{
+									components: {
+										a: <a href="https://jetpack.com/support/seo-tools/" />
+									}
+								}
 							)
 						}
 					</SettingsGroup>
+					{
+						! this.props.isUnavailableInDevMode( 'seo-tools' ) && (
+							<Card compact className="jp-settings-card__configure-link" href={ this.props.configureUrl }>{ __( 'Configure your SEO settings' ) }</Card>
+						)
+					}
 				</SettingsCard>
 			);
 		}
