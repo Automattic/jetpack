@@ -42,6 +42,7 @@ export default React.createClass( {
 					{ ...commonProps }
 				/>
 				<Security
+					siteRawUrl={ this.props.siteRawUrl }
 					siteAdminUrl={ this.props.siteAdminUrl }
 					active={ ( '/security' === this.props.route.path ) }
 					{ ...commonProps }

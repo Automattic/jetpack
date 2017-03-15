@@ -14,14 +14,11 @@ import { SettingsCard } from '../index';
 describe( 'SettingsCard', () => {
 
 	let testProps = {
-		module: 'comments',
 		hideButton: false,
-		getModule: () => (
-			{
-				name: 'Comments',
-				learn_more_button: 'https://jetpack.com/support/protect'
-			}
-		),
+		module: {
+			name: 'Comments',
+			learn_more_button: 'https://jetpack.com/support/protect'
+		},
 		isSavingAnyOption: () => false,
 		isDirty: () => true,
 		header: '',

@@ -66,7 +66,7 @@ const ThemeEnhancements = moduleSettingsForm(
 
 			return (
 				<SettingsCard
-					{ ...this.props }
+					isSavingAnyOption={ this.props.isSavingAnyOption }
 					hideButton
 					header={ __( 'Theme enhancements' ) }>
 					{

@@ -23,7 +23,7 @@ export const Antispam = moduleSettingsForm(
 		render() {
 			return (
 				<SettingsCard
-					{ ...this.props }
+					isSavingAnyOption={ this.props.isSavingAnyOption }
 					header={ __( 'Spam filtering', { context: 'Settings header' } ) }>
 					<SettingsGroup support="https://akismet.com/jetpack/">
 						<FormFieldset>

@@ -48,9 +48,8 @@ export const Ads = moduleSettingsForm(
 			const unavailableInDevMode = this.props.isUnavailableInDevMode( 'wordads' );
 			return (
 				<SettingsCard
-					{ ...this.props }
+					isSavingAnyOption={ this.props.isSavingAnyOption }
 					header={ __( 'Ads', { context: 'Ads header' } ) }
-					module="wordads"
 					hideButton>
 					<SettingsGroup
 						disableInDevMode

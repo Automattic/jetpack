@@ -88,6 +88,7 @@ const Media = moduleSettingsForm(
 				<SettingsGroup
 					hasChild
 					disableInDevMode
+					isSavingAnyOption={ this.props.isSavingAnyOption }
 					module={ photon }>
 					<ModuleToggle
 						slug="photon"
@@ -173,7 +174,7 @@ const Media = moduleSettingsForm(
 
 			return (
 				<SettingsCard
-					{ ...this.props }
+					isSavingAnyOption={ this.props.isSavingAnyOption }
 					header={ __( 'Media' ) }
 					feature={ FEATURE_VIDEO_HOSTING_JETPACK }>
 					{ this.props.isModuleFound( 'photon' ) && photonSettings }

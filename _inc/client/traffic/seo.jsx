@@ -19,7 +19,7 @@ export const SEO = moduleSettingsForm(
 		render() {
 			return (
 				<SettingsCard
-					{ ...this.props }
+					isSavingAnyOption={ this.props.isSavingAnyOption }
 					header={ __( 'Search engine optimization', { context: 'Settings header' } ) }
 					feature={ FEATURE_SEO_TOOLS_JETPACK }
 					hideButton>

@@ -12,37 +12,44 @@ import ExternalLink from 'components/external-link';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import ProStatus from 'pro-status';
 
-export const BackupsScan = moduleSettingsForm(
-	React.createClass( {
+export const BackupsScan = React.createClass( {
+	toggleModule( name, value ) {
+		this.props.updateFormStateOptionValue( name, ! value );
+	},
 
-		toggleModule( name, value ) {
-			this.props.updateFormStateOptionValue( name, !value );
-		},
+	render() {
+		return (
+			<SettingsCard
+				isSavingAnyOption={ this.props.isSavingAnyOption }
+				feature={ FEATURE_SECURITY_SCANNING_JETPACK }
+				header={ __( 'Backups and security scanning', { context: 'Settings header' } ) }
+				hideButton
+				notice={
+					! this.props.isUnavailableInDevMode( 'backups' )
+						? <ProStatus proFeature={ 'scan' } forceNotice={ true } />
+						: null
+				}>
+				<SettingsGroup
+					disableInDevMode
+					module={ { module: 'backups' } }
+					support="https://vaultpress.com/jetpack/">
+					{
+						! this.props.isUnavailableInDevMode( 'backups' ) && (
+							<span>
+								<ExternalLink
+									className="jp-module-settings__external-link"
+									href="https://dashboard.vaultpress.com/" >
+									{ __( 'Configure your Security Scans' ) }
+								</ExternalLink>
+							</span>
+						)
+					}
+				</SettingsGroup>
+			</SettingsCard>
+		);
+	}
+} );
 
-		render() {
-			return (
-				<SettingsCard
-					feature={ FEATURE_SECURITY_SCANNING_JETPACK }
-					{ ...this.props }
-					header={ __( 'Backups and security scanning', { context: 'Settings header' } ) }
-					hideButton>
-					<SettingsGroup disableInDevMode module={ { module: 'backups' } } support="https://vaultpress.com/jetpack/">
-						<p>
-							{
-								__( 'Your site is backed up and threat-free.' )
-							}
-						</p>
-						{
-							! this.props.isUnavailableInDevMode( 'backups' ) && (
-								<span>
-									<ExternalLink className="jp-module-settings__external-link" href="https://dashboard.vaultpress.com/" >{ __( 'Configure your Security Scans' ) }</ExternalLink>
-								</span>
-							)
-						}
-					</SettingsGroup>
-				</SettingsCard>
-			);
-		}
-	} )
-);
+export default moduleSettingsForm( BackupsScan );

@@ -12,7 +12,7 @@ import { getSettings } from 'state/settings';
 import { isDevMode, isUnavailableInDevMode } from 'state/connection';
 import { isModuleFound as _isModuleFound } from 'state/search';
 import QuerySite from 'components/data/query-site';
-import { BackupsScan } from './backups-scan';
+import BackupsScan from './backups-scan';
 import { Antispam } from './antispam';
 import { Protect } from './protect';
 import { SSO } from './sso';
@@ -43,6 +43,7 @@ export const Security = React.createClass( {
 
 		let backupSettings = (
 			<BackupsScan
+				siteRawUrl={ this.props.siteRawUrl }
 				{ ...commonProps }
 			/>
 		);

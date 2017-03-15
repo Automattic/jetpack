@@ -28,9 +28,10 @@ import Banner from 'components/banner';
 import Button from 'components/button';
 
 export const SettingsCard = props => {
-	const module = props.module
-			? props.getModule( props.module )
-			: false;
+
+	let header = props.header;
+
+	const isSaving = props.isSavingAnyOption();
 
 	// Non admin users only get Publicize, After the Deadline, and Post by Email settings. The UI doesn't have settings for Publicize.
 	// composing is not a module slug but it's used so the Composing card is rendered to show AtD.
@@ -38,25 +39,13 @@ export const SettingsCard = props => {
 		return <span />;
 	}
 
-	const isSaving = props.isSavingAnyOption(),
-		feature = props.feature
-			? props.feature
-			: false,
-		siteRawUrl = props.siteRawUrl;
-	let header = props.header
-			? props.header
-			: '';
-
-	if ( '' === header && module ) {
-		header = module.name;
-	}
-
-	const getBanner = () => {
+	const getBanner = ( feature, siteRawUrl ) => {
 		const planClass = getPlanClass( props.sitePlan.product_slug ),
 			commonProps = {
 				feature: feature,
 				href: 'https://jetpack.com/redirect/?source=plans-compare-personal&site=' + siteRawUrl
 			};
+
 		let list;
 
 		switch ( feature ) {
@@ -141,9 +130,14 @@ export const SettingsCard = props => {
 		}
 	};
 
+	if ( ! header && props.module ) {
+		header = props.module.name;
+	}
+
 	return (
 		<form className="jp-form-settings-card">
 			<SectionHeader label={ header }>
+				{ props.notice }
 				{
 					! props.hideButton && (
 						<Button
@@ -162,9 +156,30 @@ export const SettingsCard = props => {
 				}
 			</SectionHeader>
 			{ props.children }
-			{ getBanner( feature ) }
+			{ getBanner( props.feature, props.siteRawUrl ) }
 		</form>
 	);
+};
+
+SettingsCard.propTypes = {
+	module: React.PropTypes.object,
+	header: React.PropTypes.string,
+	feature: React.PropTypes.string,
+	notice: React.PropTypes.element,
+	hideButton: React.PropTypes.bool,
+	isSavingAnyOption: React.PropTypes.func.isRequired,
+	isDirty: React.PropTypes.func,
+	onSubmit: React.PropTypes.func
+};
+
+SettingsCard.defaultProps = {
+	module: null,
+	header: '',
+	feature: '',
+	notice: null,
+	hideButton: false,
+	isDirty: () => false,
+	onSubmit: () => {}
 };
 
 export default connect(

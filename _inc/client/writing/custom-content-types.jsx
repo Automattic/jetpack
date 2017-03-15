@@ -52,8 +52,8 @@ const CustomContentTypes = moduleSettingsForm(
 			let module = this.props.module( 'custom-content-types' );
 			return (
 				<SettingsCard
-					{ ...this.props }
-					module="custom-content-types"
+					isSavingAnyOption={ this.props.isSavingAnyOption }
+					module={ module }
 					hideButton>
 					<SettingsGroup hasChild support={ module.learn_more_button }>
 						<CompactFormToggle
