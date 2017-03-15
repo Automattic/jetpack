@@ -38,7 +38,7 @@ export const SettingsCard = props => {
 		return <span />;
 	}
 
-	const isSaving = props.isSavingAnyOption(),
+	const isSaving = props.saveDisabled,
 		feature = props.feature
 			? props.feature
 			: false,
@@ -165,6 +165,14 @@ export const SettingsCard = props => {
 			{ getBanner( feature ) }
 		</form>
 	);
+};
+
+SettingsCard.propTypes = {
+	saveDisabled: React.PropTypes.bool
+};
+
+SettingsCard.defaultProps = {
+	saveDisabled: false
 };
 
 export default connect(

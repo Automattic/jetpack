@@ -175,7 +175,9 @@ const Media = moduleSettingsForm(
 				<SettingsCard
 					{ ...this.props }
 					header={ __( 'Media' ) }
-					feature={ FEATURE_VIDEO_HOSTING_JETPACK }>
+					feature={ FEATURE_VIDEO_HOSTING_JETPACK }
+					saveDisabled={ this.props.isSavingAnyOption( 'carousel_background_color' ) }
+				>
 					{ this.props.isModuleFound( 'photon' ) && photonSettings }
 					{ this.props.isModuleFound( 'carousel' ) && carouselSettings }
 					{ this.props.isModuleFound( 'videopress' ) && videoPressSettings }

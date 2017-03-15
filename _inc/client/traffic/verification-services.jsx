@@ -29,7 +29,9 @@ export const VerificationServices = moduleSettingsForm(
 			return (
 				<SettingsCard
 					{ ...this.props }
-					module="verification-tools">
+					module="verification-tools"
+					saveDisabled={ this.props.isSavingAnyOption( [ 'google', 'bing', 'pinterest', 'yandex' ] ) }
+				>
 					<SettingsGroup support={ verification.learn_more_button }>
 						<p>
 							{ __(
