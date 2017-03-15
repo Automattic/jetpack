@@ -58,7 +58,7 @@ const CustomContentTypes = moduleSettingsForm(
 					<SettingsGroup hasChild support={ module.learn_more_button }>
 						<CompactFormToggle
 									checked={ this.state.testimonial }
-									disabled={ this.props.isSavingAnyOption() }
+									disabled={ this.props.isSavingAnyOption( 'jetpack_testimonial' ) }
 									onChange={ () => this.updateCPTs( 'testimonial' ) }>
 							<span className="jp-form-toggle-explanation">
 								{
@@ -81,7 +81,7 @@ const CustomContentTypes = moduleSettingsForm(
 						</FormFieldset>
 						<CompactFormToggle
 									checked={ this.state.portfolio }
-									disabled={ this.props.isSavingAnyOption() }
+									disabled={ this.props.isSavingAnyOption( 'jetpack_portfolio' ) }
 									onChange={ () => this.updateCPTs( 'portfolio' ) }>
 							<span className="jp-form-toggle-explanation">
 								{

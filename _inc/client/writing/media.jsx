@@ -127,7 +127,7 @@ const Media = moduleSettingsForm(
 					<FormFieldset>
 						<CompactFormToggle
 							checked={ this.state.carousel_display_exif }
-							disabled={ ! isCarouselActive || this.props.isSavingAnyOption() }
+							disabled={ ! isCarouselActive || this.props.isSavingAnyOption( [ 'carousel', 'carousel_display_exif' ] ) }
 							onChange={ () => this.updateOptions( 'carousel_display_exif' ) }>
 							<span className="jp-form-toggle-explanation">
 								{
@@ -142,7 +142,7 @@ const Media = moduleSettingsForm(
 							<FormSelect
 								name={ 'carousel_background_color' }
 								value={ this.props.getOptionValue( 'carousel_background_color' ) }
-								disabled={ ! isCarouselActive || this.props.isSavingAnyOption( 'carousel_background_color' ) }
+								disabled={ ! isCarouselActive || this.props.isSavingAnyOption( [ 'carousel', 'carousel_background_color' ] ) }
 								{ ...this.props }
 								validValues={ this.props.validValues( 'carousel_background_color', 'carousel' ) } />
 						</FormLabel>
@@ -175,7 +175,9 @@ const Media = moduleSettingsForm(
 				<SettingsCard
 					{ ...this.props }
 					header={ __( 'Media' ) }
-					feature={ FEATURE_VIDEO_HOSTING_JETPACK }>
+					feature={ FEATURE_VIDEO_HOSTING_JETPACK }
+					saveDisabled={ this.props.isSavingAnyOption( 'carousel_background_color' ) }
+				>
 					{ this.props.isModuleFound( 'photon' ) && photonSettings }
 					{ this.props.isModuleFound( 'carousel' ) && carouselSettings }
 					{ this.props.isModuleFound( 'videopress' ) && videoPressSettings }

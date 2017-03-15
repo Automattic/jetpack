@@ -129,7 +129,7 @@ const ThemeEnhancements = moduleSettingsForm(
 												return (
 													<CompactFormToggle
 														checked={ this.state[ chkbx.key ] }
-														disabled={ ! isItemActive }
+														disabled={ ! isItemActive || this.props.isSavingAnyOption( [ item.module, chkbx.key ] ) }
 														onChange={ () => this.updateOptions( chkbx.key, item.module ) }
 														key={ `${ item.module }_${ chkbx.key }`}>
 														<span className="jp-form-toggle-explanation">

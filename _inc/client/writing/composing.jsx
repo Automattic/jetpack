@@ -88,7 +88,7 @@ const Composing = moduleSettingsForm(
 			return (
 				<CompactFormToggle
 					checked={ this.state[ setting ] }
-					disabled={ ! this.props.getOptionValue( 'after-the-deadline' ) || this.props.isUnavailableInDevMode( 'after-the-deadline' ) || this.props.isSavingAnyOption( setting ) }
+					disabled={ ! this.props.getOptionValue( 'after-the-deadline' ) || this.props.isUnavailableInDevMode( 'after-the-deadline' ) || this.props.isSavingAnyOption( [ 'after-the-deadline', setting ] ) }
 					onChange={ () => this.updateOptions( setting ) }>
 					<span className="jp-form-toggle-explanation">
 						{ label }
@@ -190,6 +190,7 @@ const Composing = moduleSettingsForm(
 								slug="markdown"
 								activated={ !! this.props.getOptionValue( 'wpcom_publish_posts_with_markdown', 'markdown' ) }
 								toggling={ this.props.isSavingAnyOption( [ 'markdown', 'wpcom_publish_posts_with_markdown' ] ) }
+								disabled={ this.props.isSavingAnyOption( [ 'markdown', 'wpcom_publish_posts_with_markdown' ] ) }
 								toggleModule={ this.updateFormStateByMarkdown }>
 								<span className="jp-form-toggle-explanation">
 									{ markdown.description }
@@ -228,7 +229,11 @@ const Composing = moduleSettingsForm(
 				);
 
 			return (
-				<SettingsCard header={ __( 'Composing', { context: 'Settings header' } ) } { ...this.props } module="composing">
+				<SettingsCard
+					header={ __( 'Composing', { context: 'Settings header' } ) } { ...this.props }
+					module="composing"
+					saveDisabled={ this.props.isSavingAnyOption( 'ignored_phrases' ) }
+				>
 					{ this.props.isModuleFound( 'markdown' ) && markdownSettings }
 					{ this.props.isModuleFound( 'after-the-deadline' ) && atdSettings }
 				</SettingsCard>

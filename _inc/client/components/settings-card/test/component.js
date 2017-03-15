@@ -104,10 +104,10 @@ describe( 'SettingsCard', () => {
 
 	} );
 
-	describe( 'When a custom header or support URL are passed', () => {
+	describe( 'When save is disabled', () => {
 
 		Object.assign( testProps, {
-			isSavingAnyOption: () => true
+			saveDisabled: true
 		} );
 
 		const wrapper = shallow( <SettingsCard { ...testProps } /> );
@@ -116,12 +116,16 @@ describe( 'SettingsCard', () => {
 			expect( wrapper.find( 'Button' ).get(0).props.disabled ).to.be.true;
 		} );
 
+		it( "when saving, button label is updated to Saving…", () => {
+			expect( wrapper.find( 'Button' ).get(0).props.children ).to.be.equal( 'Saving…' );
+		} );
+
 	} );
 
 	describe( "If the support attribute and module doesn't have a support link", () => {
 
 		Object.assign( testProps, {
-			isSavingAnyOption: () => false,
+			saveDisabled: false,
 			support: '',
 			getModule: () => (
 				{
@@ -142,11 +146,10 @@ describe( 'SettingsCard', () => {
 	describe( 'When save button is clicked three times', () => {
 
 		const onSave = sinon.spy();
-		const wasSaving = sinon.spy();
 
 		Object.assign( testProps, {
 			onSubmit: onSave,
-			isSavingAnyOption: wasSaving
+			saveDisabled: true
 		} );
 
 		const saveButton = shallow( <SettingsCard { ...testProps } /> ).find( 'SectionHeader' ).find( 'Button' );
@@ -155,12 +158,8 @@ describe( 'SettingsCard', () => {
 		saveButton.simulate( 'click' );
 		saveButton.simulate( 'click' );
 
-		it( 'onSubmit() was triggered once', () => {
-			expect( onSave ).to.have.property( 'callCount', 3 );
-		} );
-
-		it( 'isSavingAnyOption() is called once', () => {
-			expect( wasSaving.calledOnce ).to.be.true;
+		it( 'if save is disabled, do not call onSubmit', () => {
+			expect( onSave ).to.have.property( 'callCount', 0 );
 		} );
 
 	} );

@@ -84,7 +84,9 @@ export const Protect = moduleSettingsForm(
 				<SettingsCard
 					{ ...this.props }
 					module="protect"
-					header={ __( 'Prevent brute force login attacks', { context: 'Settings header' } ) } >
+					header={ __( 'Prevent brute force login attacks', { context: 'Settings header' } ) }
+					saveDisabled={ this.props.isSavingAnyOption( 'jetpack_protect_global_whitelist' ) }
+				>
 					<FoldableCard
 						header={ toggle }
 						className={ classNames( { 'jp-foldable-settings-disable': unavailableInDevMode } ) }
@@ -101,7 +103,7 @@ export const Protect = moduleSettingsForm(
 											</div>
 											{
 												<Button
-													disabled={ ! isProtectActive || unavailableInDevMode || this.currentIpIsWhitelisted() }
+													disabled={ ! isProtectActive || unavailableInDevMode || this.currentIpIsWhitelisted() || this.props.isSavingAnyOption( [ 'protect', 'jetpack_protect_global_whitelist' ] ) }
 													onClick={ this.addToWhitelist }
 													>{ __( 'Add to whitelist' ) }</Button>
 											}
@@ -111,7 +113,7 @@ export const Protect = moduleSettingsForm(
 								<FormLabel>
 									<FormLegend>{ __( 'Whitelisted IP addresses' ) }</FormLegend>
 									<Textarea
-										disabled={ ! isProtectActive || unavailableInDevMode }
+										disabled={ ! isProtectActive || unavailableInDevMode || this.props.isSavingAnyOption( [ 'protect', 'jetpack_protect_global_whitelist' ] ) }
 										name={ 'jetpack_protect_global_whitelist' }
 										placeholder={ 'Example: 12.12.12.1-12.12.12.100' }
 										onChange={ this.updateText }
