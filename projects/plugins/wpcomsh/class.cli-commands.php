@@ -16,6 +16,8 @@ if ( ! class_exists( 'WP_CLI' ) ) {
  * Class WPCOMSH_CLI_Commands
  */
 class WPCOMSH_CLI_Commands extends WP_CLI_Command {
+	const JETPACK_SYNC_RETRIES = 10;
+	const JETPACK_SYNC_RETRY_WAIT_TIME = 2; // in seconds
 
 	/**
 	 * Turns Jetpack Sync on (disabled by default), maxes out the sync speed/connection
@@ -66,19 +68,35 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 			4
 		);
 
-		// now loop til it's done
+		$retries = 0;
+		$total_sync_time = time();
+
 		do {
 			$result = Jetpack_Sync_Actions::$sender->do_full_sync();
 
-			// Pause before trying another sync so we don't overload the CPU.
-			sleep( 1 );
+			if ( ! $result || is_wp_error( $result ) ) {
+				WP_CLI::warning( 'Jetpack Sync attempt failed: ' . print_r( $result, true ) );
+			}
 
-		} while ( ! $result );
+			$retries++;
+
+			// Pause before trying another sync so we don't overload the CPU.
+			sleep( self::JETPACK_SYNC_RETRY_WAIT_TIME );
+
+		} while ( ! $result && $retries < self::JETPACK_SYNC_RETRIES );
+
+		$total_sync_time = time() - $total_sync_time;
+
+		if ( ! $result || is_wp_error( $result ) ) {
+			WP_CLI::error( 'Jetpack Sync failed to complete in ' . self::JETPACK_SYNC_RETRIES .
+			' retries and ' . $total_sync_time . ' seconds: ' . print_r( $result, true ) );
+		}
 
 		// now restore the original settings
 		Jetpack_Sync_Settings::reset_data();
 
-		WP_CLI::success( 'sync started' );
+		WP_CLI::success( "Jetpack Sync succeeded in {$retries} retries" .
+			" and {$total_sync_time} seconds." );
 	}
 
 	// Not a WP CLI command
