@@ -95,9 +95,12 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 		'resize'  => true,
 		'quality' => true,
 	);
+	// Disabled until we sort out some differences between WPCOM and Photon
+	/*
 	if ( wp_endswith( strtolower( $image_url_parts['host'] ), '.files.wordpress.com' ) && ! array_diff_key( $args, $allowed_wpcom_keys ) ) {
 		$is_wpcom_image_with_safe_args = true;
 	}
+	* /
 
 	/** This filter is documented below. */
 	$custom_photon_url = apply_filters( 'jetpack_photon_domain', '', $image_url );
