@@ -87,7 +87,10 @@ export const SettingsCard = props => {
 					__( 'Comprehensive and automated scanning for any security vulnerabilites or threats' )
 				];
 
-				if ( 'is-premium-plan' !== planClass ) {
+				if (
+					'is-premium-plan' !== planClass &&
+					'is-personal-plan' !== planClass
+				) {
 					list.unshift(
 						__( 'State-of-the-art spam defence powered by Akismet' )
 					);
