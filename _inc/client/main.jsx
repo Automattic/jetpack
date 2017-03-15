@@ -197,6 +197,9 @@ const Main = React.createClass( {
 				break;
 
 			default:
+				// If no route found, kick them to the dashboard and do some url/history trickery
+				const history = createHistory();
+				history.replace( window.location.pathname + '?page=jetpack#/dashboard' );
 				pageComponent = <AtAGlance siteRawUrl={ this.props.siteRawUrl } siteAdminUrl={ this.props.siteAdminUrl } />;
 		}
 

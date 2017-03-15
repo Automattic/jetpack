@@ -70,7 +70,7 @@ function render() {
 					<Route path='/writing' name={ i18n.translate( 'Writing', { context: 'Navigation item.' } ) } component={ Main } />
 					<Route path='/wpbody-content' component={ Main } />
 					<Route path='/wp-toolbar' component={ Main } />
-					<Route path="*" />
+					<Route path="*" component={ Main } />
 				</Router>
 			</Provider>
 		</div>,
