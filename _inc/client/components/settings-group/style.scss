@@ -32,7 +32,13 @@
 		padding-bottom: 16px;
 	}
 	.dops-card  {
-		padding-right: rem( 40px );
+		padding-right: rem( 48px );
+	}
+
+	@include breakpoint( "<480px" ) {
+		.jp-module-settings__learn-more {
+			right: rem( 16px );
+		}
 	}
 
 	.form-toggle__switch {
