@@ -53,11 +53,7 @@ export const SettingsCard = props => {
 
 	const getBanner = () => {
 		const planClass = getPlanClass( props.sitePlan.product_slug ),
-			commonProps = {
-				feature: feature,
-				href: 'https://jetpack.com/redirect/?source=plans-compare-personal&site=' + siteRawUrl
-			};
-		let list;
+			upgradeLabel = __( 'Upgrade', { context: 'A caption for a button to upgrade an existing paid feature to a higher tier.' } );
 
 		switch ( feature ) {
 			case FEATURE_VIDEO_HOSTING_JETPACK:
@@ -70,10 +66,11 @@ export const SettingsCard = props => {
 
 				return (
 					<Banner
-						title={ __( 'Add premium video' ) }
-						description={ __( 'Upgrade to the Premium plan to easily upload videos to your website and display them using a fast, unbranded, customizable player.' ) }
+						title={ __( 'Host fast, high-quality, and ad-free video.' ) }
+						callToAction={ upgradeLabel }
 						plan={ PLAN_JETPACK_PREMIUM }
-						{ ...commonProps }
+						feature={ feature }
+						href={ 'https://jetpack.com/redirect/?source=settings-video-premium&site=' + siteRawUrl }
 					/>
 				);
 
@@ -82,63 +79,97 @@ export const SettingsCard = props => {
 					return '';
 				}
 
-				list = [
-					__( 'Automatic backups of every single aspect of your site' ),
-					__( 'Comprehensive and automated scanning for any security vulnerabilites or threats' )
-				];
-
-				if ( 'is-premium-plan' !== planClass ) {
-					list.unshift(
-						__( 'State-of-the-art spam defence powered by Akismet' )
+				if (
+					'is-premium-plan' === planClass
+				) {
+					return (
+						<Banner
+							title={ __( 'Real-time site backups and automated threat resolution.' ) }
+							plan={ PLAN_JETPACK_BUSINESS }
+							callToAction={ upgradeLabel }
+							feature={ feature }
+							href={ 'https://jetpack.com/redirect/?source=settings-security-pro&site=' + siteRawUrl }
+						/>
 					);
 				}
 
 				return (
 					<Banner
-						title={ __( 'Upgrade to further protect your site' ) }
-						list={ list }
-						plan={
-							'is-premium-plan' !== planClass
-							? PLAN_JETPACK_PREMIUM
-							: PLAN_JETPACK_BUSINESS
-						}
-						{ ...commonProps }
+						callToAction={ upgradeLabel }
+						title={ __( 'Protect against data loss, malware, and hacks.' ) }
+						plan={ PLAN_JETPACK_PREMIUM }
+						feature={ feature }
+						href={ 'https://jetpack.com/redirect/?source=settings-security-premium&site=' + siteRawUrl }
 					/>
 				);
 
-			case FEATURE_SEO_TOOLS_JETPACK:
 			case FEATURE_GOOGLE_ANALYTICS_JETPACK:
 				if ( 'is-business-plan' === planClass ) {
 					return '';
 				}
-
-				list = [
-					__( 'SEO tools to optimize your site for search engines and social media sharing' ),
-					__( 'Google Analytics tracking settings to complement WordPress.com stats' )
-				];
-
-				if ( 'is-premium-plan' !== planClass ) {
-					list.unshift(
-						__( 'Enable advertisements on your site to earn money from impressions' )
-					);
+				return (
+					<Banner
+						callToAction={ upgradeLabel }
+						title={ __( 'Hassle-free Google Analytics installation.' ) }
+						plan={ PLAN_JETPACK_BUSINESS }
+						feature={ feature }
+						href={ 'https://jetpack.com/redirect/?source=settings-ga&site=' + siteRawUrl }
+					/>
+				);
+			case FEATURE_SEO_TOOLS_JETPACK:
+				if ( 'is-business-plan' === planClass ) {
+					return '';
 				}
 
 				return (
 					<Banner
-						title={ __( 'Upgrade to monetize your site and unlock more tools' ) }
-						list={ list }
-						plan={
-							'is-premium-plan' !== planClass
-							? PLAN_JETPACK_PREMIUM
-							: PLAN_JETPACK_BUSINESS
-						}
-						{ ...commonProps }
+						callToAction={ upgradeLabel }
+						title={ __( 'SEO tools help your content get found and shared.' ) }
+						plan={ PLAN_JETPACK_BUSINESS }
+						feature={ feature }
+						href={ 'https://jetpack.com/redirect/?source=settings-seo&site=' + siteRawUrl }
 					/>
 				);
 
 			default:
 				return '';
 		}
+	};
+
+	const showChildren = () => {
+		if ( props.fetchingSiteData ) {
+			return true;
+		}
+
+		const planClass = getPlanClass( props.sitePlan.product_slug );
+
+		switch ( feature ) {
+			case FEATURE_SECURITY_SCANNING_JETPACK:
+				if (
+					'is-free-plan' === planClass ||
+					'is-personal-plan' === planClass
+				) {
+					return false;
+				}
+
+				break;
+
+			case FEATURE_GOOGLE_ANALYTICS_JETPACK:
+				if ( 'is-business-plan' !== planClass ) {
+					return false;
+				}
+
+				break;
+
+			case FEATURE_SEO_TOOLS_JETPACK:
+				if ( 'is-business-plan' !== planClass ) {
+					return false;
+				}
+
+				break;
+		}
+
+		return true;
 	};
 
 	return (
@@ -161,8 +192,8 @@ export const SettingsCard = props => {
 					)
 				}
 			</SectionHeader>
-			{ props.children }
-			{ getBanner( feature ) }
+			{ showChildren() && props.children }
+			{ ! props.fetchingSiteData && getBanner( feature ) }
 		</form>
 	);
 };
