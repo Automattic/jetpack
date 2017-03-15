@@ -102,11 +102,13 @@ const Media = moduleSettingsForm(
 							}
 						</span>
 					</ModuleToggle>
-					<span className="jp-form-setting-explanation">
-						{
-							__( 'Must be enabled to use tiled galleries.' )
-						}
-					</span>
+					<FormFieldset>
+						<span className="jp-form-setting-explanation">
+							{
+								__( 'Must be enabled to use tiled galleries.' )
+							}
+						</span>
+					</FormFieldset>
 				</SettingsGroup>
 			);
 
