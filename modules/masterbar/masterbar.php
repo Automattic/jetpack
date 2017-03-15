@@ -8,6 +8,7 @@ class A8C_WPCOM_Masterbar {
 	private $user_id;
 	private $user_data;
 	private $user_login;
+	private $user_email;
 	private $display_name;
 	private $primary_site_slug;
 	private $user_text_direction;
@@ -23,6 +24,7 @@ class A8C_WPCOM_Masterbar {
 
 		$this->user_data = Jetpack::get_connected_user_data( $this->user_id );
 		$this->user_login = $this->user_data['login'];
+		$this->user_email = $this->user_data['email'];
 		$this->display_name = $this->user_data['display_name'];
 		$this->primary_site_slug = Jetpack::build_raw_urls( get_home_url() );
 		// We need to use user's setting here, instead of relying on current blog's text direction
@@ -282,8 +284,8 @@ class A8C_WPCOM_Masterbar {
 		if ( empty( $user_id ) ) {
 			return;
 		}
-
-		$avatar = get_avatar( $user_id, 32, 'mm', '', array( 'force_display' => true ) );
+		
+		$avatar = get_avatar( $this->user_email, 32, 'mm', '', array( 'force_display' => true ) );
 		$class  = empty( $avatar ) ? '' : 'with-avatar';
 
 		// Add the 'Me' menu
@@ -307,7 +309,7 @@ class A8C_WPCOM_Masterbar {
 
 		$logout_url = wp_logout_url();
 
-		$user_info  = get_avatar( $user_id, 128, 'mm', '', array( 'force_display' => true ) );
+		$user_info  = get_avatar( $this->user_email, 128, 'mm', '', array( 'force_display' => true ) );
 		$user_info .= '<span class="display-name">' . $this->display_name . '</span>';
 		$user_info .= '<a class="username" href="http://gravatar.com/' . $this->user_login . '">@' . $this->user_login . '</a>';
 		$user_info .= '<form action="' . $logout_url . '" method="post"><button class="ab-sign-out" type="submit">' . __( 'Sign Out', 'jetpack' ) . '</button></form>';
