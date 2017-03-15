@@ -117,7 +117,6 @@ export const Protect = moduleSettingsForm(
 										name={ 'jetpack_protect_global_whitelist' }
 										placeholder={ 'Example: 12.12.12.1-12.12.12.100' }
 										onChange={ this.updateText }
-										disabled={ this.props.isSavingAnyOption( [ 'protect', 'jetpack_protect_global_whitelist' ] ) }
 										value={ this.state.whitelist } />
 								</FormLabel>
 								<span className="jp-form-setting-explanation">
