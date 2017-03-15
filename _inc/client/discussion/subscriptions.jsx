@@ -70,7 +70,7 @@ export const Subscriptions = moduleSettingsForm(
 							<FormFieldset>
 								<CompactFormToggle
 									checked={ this.state.stb_enabled }
-									disabled={ ! isSubscriptionsActive || unavailableInDevMode || this.props.isSavingAnyOption() }
+									disabled={ ! isSubscriptionsActive || unavailableInDevMode || this.props.isSavingAnyOption( [ 'subscriptions', 'stb_enabled' ] ) }
 									onChange={ () => this.updateOptions( 'stb_enabled' ) }>
 									<span className="jp-form-toggle-explanation">
 										{
@@ -80,7 +80,7 @@ export const Subscriptions = moduleSettingsForm(
 								</CompactFormToggle>
 								<CompactFormToggle
 									checked={ this.state.stc_enabled }
-									disabled={ ! isSubscriptionsActive || unavailableInDevMode || this.props.isSavingAnyOption() }
+									disabled={ ! isSubscriptionsActive || unavailableInDevMode || this.props.isSavingAnyOption( [ 'subscriptions', 'stc_enabled' ] ) }
 									onChange={ () => this.updateOptions( 'stc_enabled' ) }>
 									<span className="jp-form-toggle-explanation">
 										{

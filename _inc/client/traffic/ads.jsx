@@ -82,7 +82,7 @@ export const Ads = moduleSettingsForm(
 						<FormFieldset>
 							<CompactFormToggle
 								checked={ this.state.enable_header_ad }
-								disabled={ ! isAdsActive || unavailableInDevMode || this.props.isSavingAnyOption() }
+								disabled={ ! isAdsActive || unavailableInDevMode || this.props.isSavingAnyOption( [ 'wordads', 'enable_header_ad' ] ) }
 								onChange={ () => this.updateOptions( 'enable_header_ad' ) }>
 								<span className="jp-form-toggle-explanation">
 									{ __( 'Display an additional ad at the top of each page' ) }

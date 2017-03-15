@@ -73,7 +73,7 @@ export const RelatedPosts = moduleSettingsForm(
 						<FormFieldset>
 							<CompactFormToggle
 										checked={ this.state.show_headline }
-										disabled={ ! isRelatedPostsActive || unavailableInDevMode || this.props.isSavingAnyOption() }
+										disabled={ ! isRelatedPostsActive || unavailableInDevMode || this.props.isSavingAnyOption( [ 'related-posts', 'show_headline' ] ) }
 										onChange={ () => this.updateOptions( 'show_headline' ) }>
 										<span className="jp-form-toggle-explanation">
 											{
@@ -83,7 +83,7 @@ export const RelatedPosts = moduleSettingsForm(
 							</CompactFormToggle>
 							<CompactFormToggle
 										checked={ this.state.show_thumbnails }
-										disabled={ ! isRelatedPostsActive || unavailableInDevMode || this.props.isSavingAnyOption() }
+										disabled={ ! isRelatedPostsActive || unavailableInDevMode || this.props.isSavingAnyOption( [ 'related-posts', 'show_thumbnails' ] ) }
 										onChange={ () => this.updateOptions( 'show_thumbnails' ) }>
 										<span className="jp-form-toggle-explanation">
 											{

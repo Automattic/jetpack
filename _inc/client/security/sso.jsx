@@ -69,7 +69,7 @@ export const SSO = moduleSettingsForm(
 						<FormFieldset>
 							<CompactFormToggle
 								checked={ this.state.jetpack_sso_match_by_email }
-								disabled={ ! isSSOActive || unavailableInDevMode || this.props.isSavingAnyOption() }
+								disabled={ ! isSSOActive || unavailableInDevMode || this.props.isSavingAnyOption( [ 'sso', 'jetpack_sso_match_by_email' ] ) }
 								onChange={ () => this.updateOptions( 'jetpack_sso_match_by_email' ) }>
 								<span className="jp-form-toggle-explanation">
 									{
@@ -79,7 +79,7 @@ export const SSO = moduleSettingsForm(
 							</CompactFormToggle>
 							<CompactFormToggle
 								checked={ this.state.jetpack_sso_require_two_step }
-								disabled={ ! isSSOActive || unavailableInDevMode || this.props.isSavingAnyOption() }
+								disabled={ ! isSSOActive || unavailableInDevMode || this.props.isSavingAnyOption( [ 'sso', 'jetpack_sso_require_two_step' ] ) }
 								onChange={ () => this.updateOptions( 'jetpack_sso_require_two_step' ) }>
 								<span className="jp-form-toggle-explanation">
 									{
