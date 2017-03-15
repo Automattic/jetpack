@@ -4,12 +4,12 @@
 import React from 'react';
 import { translate as __ } from 'i18n-calypso';
 import CompactFormToggle from 'components/form/form-toggle/compact';
+import Card from 'components/card';
 
 /**
  * Internal dependencies
  */
 import { FormFieldset } from 'components/forms';
-import ExternalLink from 'components/external-link';
 import { ModuleToggle } from 'components/module-toggle';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 import SettingsCard from 'components/settings-card';
@@ -88,16 +88,14 @@ export const Subscriptions = moduleSettingsForm(
 										}
 									</span>
 								</CompactFormToggle>
-								{
-									( isSubscriptionsActive || ! unavailableInDevMode ) && (
-										<p>
-											<ExternalLink className="jp-module-settings__external-link" href={ 'https://wordpress.com/people/email-followers/' + this.props.siteRawUrl }>{ __( 'View your Email Followers' ) }</ExternalLink>
-										</p>
-									)
-								}
 							</FormFieldset>
 						}
 					</SettingsGroup>
+					{
+						! unavailableInDevMode && isSubscriptionsActive && (
+							<Card compact className="jp-settings-card__configure-link" href={ 'https://wordpress.com/people/email-followers/' + this.props.siteRawUrl }>{ __( 'View your Email Followers' ) }</Card>
+						)
+					}
 				</SettingsCard>
 			);
 		}

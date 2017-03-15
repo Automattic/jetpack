@@ -3,7 +3,7 @@
  */
 import React from 'react';
 import { translate as __ } from 'i18n-calypso';
-import ExternalLink from 'components/external-link';
+import Card from 'components/card';
 import CompactFormToggle from 'components/form/form-toggle/compact';
 
 /**
@@ -88,17 +88,13 @@ export const Ads = moduleSettingsForm(
 									{ __( 'Display an additional ad at the top of each page' ) }
 								</span>
 							</CompactFormToggle>
-							{ ! unavailableInDevMode && (
-								<p>
-									<ExternalLink
-										className="jp-module-settings__external-link"
-										href={ this.props.configureUrl }>
-										{ __( 'View your earnings' ) }
-									</ExternalLink>
-								</p>
-							) }
 						</FormFieldset>
 					</SettingsGroup>
+					{
+						! unavailableInDevMode && isAdsActive && (
+							<Card compact className="jp-settings-card__configure-link" href={ this.props.configureUrl }>{ __( 'View your earnings' ) }</Card>
+						)
+					}
 				</SettingsCard>
 			);
 		}
