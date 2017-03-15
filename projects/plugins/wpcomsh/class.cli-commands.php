@@ -76,13 +76,12 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 
 			if ( ! $result || is_wp_error( $result ) ) {
 				WP_CLI::warning( 'Jetpack Sync attempt failed: ' . print_r( $result, true ) );
+
+				$retries++;
+
+				// Pause before trying another sync so we don't overload the CPU.
+				sleep( self::JETPACK_SYNC_RETRY_WAIT_TIME );
 			}
-
-			$retries++;
-
-			// Pause before trying another sync so we don't overload the CPU.
-			sleep( self::JETPACK_SYNC_RETRY_WAIT_TIME );
-
 		} while ( ! $result && $retries < self::JETPACK_SYNC_RETRIES );
 
 		$total_sync_time = time() - $total_sync_time;
