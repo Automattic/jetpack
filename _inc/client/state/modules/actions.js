@@ -88,16 +88,6 @@ export const activateModule = ( slug ) => {
 			type: JETPACK_MODULE_ACTIVATE,
 			module: slug
 		} );
-		dispatch( removeNotice( 'module-toggle' ) );
-		dispatch( createNotice(
-			'is-info',
-			__( 'Activating %(slug)s…', {
-				args: {
-					slug: getModule( getState(), slug ).name
-				}
-			} ),
-			{ id: 'module-toggle' }
-		) );
 		return restApi.activateModule( slug ).then( () => {
 			dispatch( {
 				type: JETPACK_MODULE_ACTIVATE_SUCCESS,
@@ -112,7 +102,7 @@ export const activateModule = ( slug ) => {
 						slug: getModule( getState(), slug ).name
 					}
 				} ),
-				{ id: 'module-toggle', duration: 6000 }
+				{ id: 'module-toggle', duration: 3000 }
 			) );
 		} ).catch( error => {
 			dispatch( {
@@ -142,16 +132,6 @@ export const deactivateModule = ( slug ) => {
 			type: JETPACK_MODULE_DEACTIVATE,
 			module: slug
 		} );
-		dispatch( removeNotice( 'module-toggle' ) );
-		dispatch( createNotice(
-			'is-info',
-			__( 'Deactivating %(slug)s…', {
-				args: {
-					slug: getModule( getState(), slug ).name
-				}
-			} ),
-			{ id: 'module-toggle' }
-		) );
 		return restApi.deactivateModule( slug ).then( () => {
 			dispatch( {
 				type: JETPACK_MODULE_DEACTIVATE_SUCCESS,
@@ -166,7 +146,7 @@ export const deactivateModule = ( slug ) => {
 						slug: getModule( getState(), slug ).name
 					}
 				} ),
-				{ id: 'module-toggle', duration: 6000 }
+				{ id: 'module-toggle', duration: 3000 }
 			) );
 		} ).catch( error => {
 			dispatch( {
