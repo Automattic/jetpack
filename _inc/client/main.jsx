@@ -162,11 +162,19 @@ const Main = React.createClass( {
 			if ( ! this.props.siteConnectionStatus ) {
 				return false;
 			}
-			return <NonAdminView { ...this.props } />;
+			return (
+				<div aria-live="assertive">
+					<NonAdminView { ...this.props } />
+				</div>
+			);
 		}
 
 		if ( ! this.props.siteConnectionStatus ) {
-			return <JetpackConnect />;
+			return (
+				<div aria-live="assertive">
+					<JetpackConnect />
+				</div>
+			);
 		}
 
 		if ( this.props.jumpStartStatus ) {
@@ -174,7 +182,11 @@ const Main = React.createClass( {
 				const history = createHistory();
 				history.push( window.location.pathname + '?page=jetpack#/jumpstart' );
 			} else if ( '/jumpstart' === route ) {
-				return <JumpStart />;
+				return (
+					<div aria-live="assertive">
+						<JumpStart />
+					</div>
+				);
 			}
 		}
 
@@ -217,7 +229,7 @@ const Main = React.createClass( {
 		window.wpNavMenuClassChange();
 
 		return (
-			<div>
+			<div aria-live="assertive">
 				{ navComponent }
 				{ pageComponent }
 			</div>

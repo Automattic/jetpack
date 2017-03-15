@@ -196,7 +196,7 @@ const JetpackNotices = React.createClass( {
 
 	render() {
 		return (
-			<div>
+			<div aria-live="polite">
 				<QueryConnectUrl />
 				<NoticesList />
 				<JetpackStateNotices />
