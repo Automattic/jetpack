@@ -135,6 +135,42 @@ export const SettingsCard = props => {
 		}
 	};
 
+	const showChildren = () => {
+		if ( props.fetchingSiteData ) {
+			return true;
+		}
+
+		const planClass = getPlanClass( props.sitePlan.product_slug );
+
+		switch ( feature ) {
+			case FEATURE_SECURITY_SCANNING_JETPACK:
+				if (
+					'is-free-plan' === planClass ||
+					'is-personal-plan' === planClass
+				) {
+					return false;
+				}
+
+				break;
+
+			case FEATURE_GOOGLE_ANALYTICS_JETPACK:
+				if ( 'is-business-plan' !== planClass ) {
+					return false;
+				}
+
+				break;
+
+			case FEATURE_SEO_TOOLS_JETPACK:
+				if ( 'is-business-plan' !== planClass ) {
+					return false;
+				}
+
+				break;
+		}
+
+		return true;
+	};
+
 	return (
 		<form className="jp-form-settings-card">
 			<SectionHeader label={ header }>
@@ -155,7 +191,7 @@ export const SettingsCard = props => {
 					)
 				}
 			</SectionHeader>
-			{ props.children }
+			{ showChildren() && props.children }
 			{ ! props.fetchingSiteData && getBanner( feature ) }
 		</form>
 	);
