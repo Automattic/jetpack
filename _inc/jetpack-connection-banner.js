@@ -46,4 +46,10 @@
 	fullScreenDismiss.on( 'click', function() {
 		$( '.jp-connect-full__container' ).hide();
 	} );
+
+	$( document ).keyup( function( e ) {
+		if ( 27 === e.keyCode ) {
+			$( fullScreenDismiss ).click();
+		}
+	} );
 } )( jQuery );
