@@ -21,8 +21,10 @@ import {
 	switchPlanPreview,
 	canDisplayDevCard,
 	disableDevCard,
-	switchUserPermission
+	switchUserPermission,
+	switchThreats
 } from 'state/dev-version';
+import { getVaultPressScanThreatCount } from 'state/at-a-glance';
 import Card from 'components/card';
 
 export const DevCard = React.createClass( {
@@ -34,6 +36,10 @@ export const DevCard = React.createClass( {
 
 	onPermissionsChange( event ) {
 		this.props.switchUserPermissions( event.target.value );
+	},
+
+	onThreatsChange( event ) {
+		this.props.switchThreats( event.target.value );
 	},
 
 	maybeShowStatsToggle() {
@@ -235,6 +241,35 @@ export const DevCard = React.createClass( {
 						</label>
 					</li>
 				</ul>
+				<hr />
+				<ul>
+					<li>
+						<label>
+							<input
+								type="radio"
+								id="nothreats"
+								value={ 0 }
+								name="nothreats"
+								checked={ 0 === this.props.getVaultPressScanThreatCount() }
+								onChange={ this.onThreatsChange }
+							/>
+							No threats
+						</label>
+					</li>
+					<li>
+						<label>
+							<input
+								type="radio"
+								id="threats"
+								value={ 17 }
+								name="threats"
+								checked={ 0 !== this.props.getVaultPressScanThreatCount() }
+								onChange={ this.onThreatsChange }
+							/>
+							Threats
+						</label>
+					</li>
+				</ul>
 				{ this.maybeShowStatsToggle() }
 				{ this.maybeShowIsLinkedToggle() }
 			</Card>
@@ -252,7 +287,8 @@ export default connect(
 			canViewStats: userCanViewStats( state ),
 			isMaster: userIsMaster( state ),
 			isAdmin: userCanDisconnectSite( state ),
-			canEditPosts: userCanEditPosts( state )
+			canEditPosts: userCanEditPosts( state ),
+			getVaultPressScanThreatCount: () => getVaultPressScanThreatCount( state )
 		};
 	},
 	( dispatch ) => {
@@ -262,6 +298,9 @@ export default connect(
 			},
 			switchUserPermissions: ( slug ) => {
 				return dispatch( switchUserPermission( slug ) );
+			},
+			switchThreats: count => {
+				return dispatch( switchThreats( parseInt( count ) ) );
 			},
 			disableDevCard: () => {
 				return dispatch( disableDevCard() );

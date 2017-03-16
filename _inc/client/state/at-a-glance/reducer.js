@@ -24,7 +24,8 @@ import {
 	DASHBOARD_PROTECT_COUNT_FETCH_SUCCESS,
 	PLUGIN_UPDATES_FETCH,
 	PLUGIN_UPDATES_FETCH_FAIL,
-	PLUGIN_UPDATES_FETCH_SUCCESS
+	PLUGIN_UPDATES_FETCH_SUCCESS,
+	MOCK_SWITCH_THREATS
 } from 'state/action-types';
 
 const requests = ( state = {}, action ) => {
@@ -104,6 +105,19 @@ const vaultPressData = ( state = 'N/A', action ) => {
 	switch ( action.type ) {
 		case VAULTPRESS_SITE_DATA_FETCH_SUCCESS:
 			return action.vaultPressData;
+
+		case MOCK_SWITCH_THREATS:
+			return assign( {}, 'N/A' === state ? {} : state, {
+				data: {
+					active: true,
+					features: {
+						security: true
+					},
+					security: {
+						notice_count: action.mockCount
+					}
+				}
+			} );
 
 		default:
 			return state;

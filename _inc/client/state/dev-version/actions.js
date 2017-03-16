@@ -14,7 +14,8 @@ import {
 	JETPACK_SITE_DATA_FETCH_RECEIVE,
 	DEV_CARD_DISPLAY,
 	DEV_CARD_HIDE,
-	MOCK_SWITCH_USER_PERMISSIONS
+	MOCK_SWITCH_USER_PERMISSIONS,
+	MOCK_SWITCH_THREATS
 } from 'state/action-types';
 import restApi from 'rest-api';
 
@@ -192,4 +193,14 @@ export const switchUserPermission = ( slug ) => {
 			initialState: userPerms
 		} );
 	}
+};
+
+export const switchThreats = count => {
+
+	return ( dispatch ) => {
+		dispatch( {
+			type: MOCK_SWITCH_THREATS,
+			mockCount: count
+		} );
+	};
 };
