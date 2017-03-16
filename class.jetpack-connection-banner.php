@@ -513,7 +513,13 @@ class Jetpack_Connection_Banner {
 				</div>
 				<div class="jp-connect-full__card-footer">
 					<p class="jp-connect-full__tos-blurb">
-						<?php esc_html_e('By connecting your site you agree to our fascinating', 'jetpack' ); ?> <a href="https://wordpress.com/tos" target="_blank" class="jp-connect-full__tos-a">Terms of Service</a> <?php esc_html_e( 'and to', 'jetpack' ); ?> <a href="https://jetpack.com/support/what-data-does-jetpack-sync/" target="_blank" class="jp-connect-full__tos-a">share details</a> <?php esc_html_e( 'with WordPress.com', 'jetpack' ); ?>
+						<?php
+						printf(
+							__( 'By connecting your site you agree to our fascinating <a href="%s" target="_blank" class="jp-connect-full__tos-a">Terms of Service</a> and to <a href="%s" target="_blank" class="jp-connect-full__tos-a">share details</a> with WordPress.com', 'jetpack' ),
+							esc_url( 'https://wordpress.com/tos' ),
+							esc_url( 'https://jetpack.com/support/what-data-does-jetpack-sync' )
+						);
+						?>
 					</p>
 					<p class="jp-connect-full__button-container">
 						<a href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, 'full-screen-prompt' ) ); ?>" class="dops-button is-primary">
