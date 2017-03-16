@@ -80,12 +80,12 @@ class Jetpack_Sync_Modules {
 		 */
 		$modules = apply_filters( 'jetpack_sync_modules', self::$default_sync_modules );
 
-		$modules = array_map( array( 'Jetpack_Sync_Modules', 'initialize_module' ), $modules );
+		$modules = array_map( array( 'Jetpack_Sync_Modules', 'load_module' ), $modules );
 
 		return array_map( array( 'Jetpack_Sync_Modules', 'set_module_defaults' ), $modules );
 	}
 
-	static function initialize_module( $module_name ) {
+	static function load_module( $module_name ) {
 		return new $module_name;
 	}
 
