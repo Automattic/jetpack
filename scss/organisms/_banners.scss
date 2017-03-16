@@ -84,6 +84,10 @@
 	padding: rem( 16px );
 	height: rem( 24px );
 	width: rem( 24px );
+
+	@include breakpoint(phablet) {
+		top: rem( 50px );
+	};
 }
 
 .jp-connect-full__step-header-logos {
