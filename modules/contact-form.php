@@ -14,3 +14,7 @@
  */
 
 include dirname( __FILE__ ) . '/contact-form/grunion-contact-form.php';
+
+if ( is_admin() ) {
+	require_once dirname( __FILE__ ) . '/contact-form/grunion-editor-view.php';
+}
