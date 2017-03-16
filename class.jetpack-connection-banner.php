@@ -516,8 +516,8 @@ class Jetpack_Connection_Banner {
 						<?php
 						printf(
 							__( 'By connecting your site you agree to our fascinating <a href="%s" target="_blank" class="jp-connect-full__tos-a">Terms of Service</a> and to <a href="%s" target="_blank" class="jp-connect-full__tos-a">share details</a> with WordPress.com', 'jetpack' ),
-							esc_url( 'https://wordpress.com/tos' ),
-							esc_url( 'https://jetpack.com/support/what-data-does-jetpack-sync' )
+							'https://wordpress.com/tos',
+							'https://jetpack.com/support/what-data-does-jetpack-sync'
 						);
 						?>
 					</p>

@@ -4,6 +4,7 @@
 	var nav = $( '.jp-wpcom-connect__vertical-nav-container' ),
 		contentContainer = $( '.jp-wpcom-connect__content-container' ),
 		nextFeatureButtons = $( '.jp-banner__button-container .next-feature' ),
+		fullScreenContainer = $( '.jp-connect-full__container' ),
 		fullScreenDismiss = $( '.jp-connect-full__dismiss' );
 
 	nav.on( 'click', '.vertical-menu__feature-item:not( .vertical-menu__feature-item-is-selected )', function() {
@@ -44,7 +45,10 @@
 	 * Full-screen connection prompt
 	 */
 	fullScreenDismiss.on( 'click', function() {
-		$( '.jp-connect-full__container' ).hide();
+		$( fullScreenContainer ).hide();
+
+		// Re-enable scrolling
+		$( 'body' ).css( 'overflow', 'visible' );
 	} );
 
 	$( document ).keyup( function( e ) {
@@ -52,4 +56,9 @@
 			$( fullScreenDismiss ).click();
 		}
 	} );
+
+	// Prevent scrolling if full-page prompt is showing
+	if ( $( fullScreenContainer ).is( ':visible' ) ) {
+		$( 'body' ).css( 'overflow', 'hidden' );
+	}
 } )( jQuery );
