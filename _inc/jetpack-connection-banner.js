@@ -3,7 +3,8 @@
 ( function( $ ) {
 	var nav = $( '.jp-wpcom-connect__vertical-nav-container' ),
 		contentContainer = $( '.jp-wpcom-connect__content-container' ),
-		nextFeatureButtons = $( '.jp-banner__button-container .next-feature' );
+		nextFeatureButtons = $( '.jp-banner__button-container .next-feature' ),
+		fullScreenDismiss = $( '.jp-connect-full__dismiss' );
 
 	nav.on( 'click', '.vertical-menu__feature-item:not( .vertical-menu__feature-item-is-selected )', function() {
 		transitionSlideToIndex( $( this ).index() );
@@ -38,4 +39,11 @@
 			.eq( index )
 			.addClass( 'jp__slide-is-active' );
 	}
-})( jQuery );
+
+	/**
+	 * Full-screen connection prompt
+	 */
+	fullScreenDismiss.on( 'click', function() {
+		$( '.jp-connect-full__container' ).hide();
+	} );
+} )( jQuery );

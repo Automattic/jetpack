@@ -2760,7 +2760,7 @@ p {
 			Jetpack::state( 'network_nag', true );
 
 		// For firing one-off events (notices) immediately after activation
-		set_transient( 'activated_jetpack', true, .15 * MINUTE_IN_SECONDS );
+		set_transient( 'activated_jetpack', true, .1 * MINUTE_IN_SECONDS );
 
 		Jetpack::plugin_initialize();
 	}

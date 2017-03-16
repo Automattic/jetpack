@@ -516,7 +516,7 @@ class Jetpack_Connection_Banner {
 						<?php esc_html_e('By connecting your site you agree to our fascinating', 'jetpack' ); ?> <a href="https://wordpress.com/tos" target="_blank" class="jp-connect-full__tos-a">Terms of Service</a> <?php esc_html_e( 'and to', 'jetpack' ); ?> <a href="https://jetpack.com/support/what-data-does-jetpack-sync/" target="_blank" class="jp-connect-full__tos-a">share details</a> <?php esc_html_e( 'with WordPress.com', 'jetpack' ); ?>
 					</p>
 					<p class="jp-connect-full__button-container">
-						<a href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, 'jetpack' ) ); ?>" class="dops-button is-primary">
+						<a href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, 'full-screen-prompt' ) ); ?>" class="dops-button is-primary">
 							<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
 						</a>
 					</p>
