@@ -559,5 +559,3 @@ class Jetpack_Connection_Banner {
 		<?php
 	}
 }
-
-register_activation_hook( __FILE__, array( 'Jetpack_Connection_Banner', 'error_log' ) );
