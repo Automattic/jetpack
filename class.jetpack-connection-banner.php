@@ -24,7 +24,7 @@ class Jetpack_Connection_Banner {
 		add_action( 'current_screen', array( $this, 'maybe_initialize_hooks' ) );
 		add_action( 'updating_jetpack_version', array( $this, 'cleanup_on_upgrade' ), 10, 2 );
 	}
-
+	
 	function cleanup_on_upgrade( $new_version = null, $old_version = null ) {
 		if ( version_compare( $old_version, '4.4', '>=' ) && version_compare( $old_version, '4.5', '<' ) ) {
 			// We don't use `Jetpack_Options` here since the option is no longer in that class.
@@ -54,12 +54,19 @@ class Jetpack_Connection_Banner {
 		}
 
 		add_action( 'admin_notices', array( $this, 'render_banner' ) );
+
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_banner_scripts' ) );
 
 		add_action( 'admin_print_styles', array( Jetpack::init(), 'admin_banner_styles' ) );
 
 		if ( Jetpack::state( 'network_nag' ) ) {
 			add_action( 'network_admin_notices', array( $this, 'network_connect_notice' ) );
+		}
+
+		// Only fires immediately after plugin activation
+		if ( get_transient( 'activated_jetpack' ) ) {
+			add_action( 'admin_notices', array( $this, 'render_connect_prompt_full_screen' ) );
+			delete_transient( 'activated_jetpack' );
 		}
 	}
 
@@ -459,7 +466,14 @@ class Jetpack_Connection_Banner {
 				</div>
 			</div>
 		</div>
+		<?php
+	}
 
+	/**
+	 * Renders the full-screen connection prompt.  Only shown once and on plugin activation.
+	 */
+	function render_connect_prompt_full_screen() {
+		?>
 		<div class="jp-connect-full__container">
 
 			<?php // planet + star svgs for decoration ?>
@@ -498,14 +512,14 @@ class Jetpack_Connection_Banner {
 					</p>
 				</div>
 				<div class="jp-connect-full__card-footer">
-				<p class="jp-connect-full__tos-blurb">
-					<?php esc_html_e('By connecting your site you agree to our fascinating', 'jetpack' ); ?> <a href="https://wordpress.com/tos" target="_blank" class="jp-connect-full__tos-a">Terms of Service</a> <?php esc_html_e( 'and to', 'jetpack' ); ?> <a href="https://jetpack.com/support/what-data-does-jetpack-sync/" target="_blank" class="jp-connect-full__tos-a">share details</a> <?php esc_html_e( 'with WordPress.com', 'jetpack' ); ?>
-				</p>
-				<p class="jp-connect-full__button-container">
-					<a href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, 'jetpack' ) ); ?>" class="dops-button is-primary">
-						<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
-					</a>
-				</p>
+					<p class="jp-connect-full__tos-blurb">
+						<?php esc_html_e('By connecting your site you agree to our fascinating', 'jetpack' ); ?> <a href="https://wordpress.com/tos" target="_blank" class="jp-connect-full__tos-a">Terms of Service</a> <?php esc_html_e( 'and to', 'jetpack' ); ?> <a href="https://jetpack.com/support/what-data-does-jetpack-sync/" target="_blank" class="jp-connect-full__tos-a">share details</a> <?php esc_html_e( 'with WordPress.com', 'jetpack' ); ?>
+					</p>
+					<p class="jp-connect-full__button-container">
+						<a href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, 'jetpack' ) ); ?>" class="dops-button is-primary">
+							<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
+						</a>
+					</p>
 				</div>
 			</div>
 			<a class="jp-connect-full__help-button" href="https://jetpack.com/contact-support" target="_blank">
@@ -513,7 +527,6 @@ class Jetpack_Connection_Banner {
 				<?php esc_html_e( 'Get help connecting your site', 'jetpack' ); ?>
 			</a>
 		</div>
-
 		<?php
 	}
 
@@ -540,3 +553,5 @@ class Jetpack_Connection_Banner {
 		<?php
 	}
 }
+
+register_activation_hook( __FILE__, array( 'Jetpack_Connection_Banner', 'error_log' ) );
