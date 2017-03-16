@@ -493,14 +493,14 @@ class Featured_Content {
 			'priority'       => 20,
 		) );
 		$wp_customize->add_control( 'featured-content[hide-tag]', array(
-			'label'          => __( 'Hide tag from displaying in post meta and tag clouds.', 'jetpack' ),
+			'label'          => __( 'Hide tag from displaying in post details and tag clouds.', 'jetpack' ),
 			'section'        => 'featured_content',
 			'theme_supports' => 'featured-content',
 			'type'           => 'checkbox',
 			'priority'       => 30,
 		) );
 		$wp_customize->add_control( 'featured-content[show-all]', array(
-			'label'          => __( 'Display tag content in all listings.', 'jetpack' ),
+			'label'          => __( 'Display tagged posts outside the Featured Content area.', 'jetpack' ),
 			'section'        => 'featured_content',
 			'theme_supports' => 'featured-content',
 			'type'           => 'checkbox',
