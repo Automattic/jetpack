@@ -7,6 +7,7 @@ import { translate as __ } from 'i18n-calypso';
 import includes from 'lodash/includes';
 import Button from 'components/button';
 import SimpleNotice from 'components/notice';
+import NoticeAction from 'components/notice/notice-action';
 
 /**
  * Internal dependencies
@@ -44,32 +45,84 @@ const ProStatus = React.createClass( {
 		}
 	},
 
+	getScanActions( type ) {
+		let status = '',
+			message = false,
+			action = false,
+			actionUrl = '';
+		switch ( type ) {
+			case 'threats':
+				status = 'is-error';
+				if ( this.props.isCompact ) {
+					action = __( 'FIX THREATS', { context: 'A caption for a small button to fix security issues.' } );
+				} else {
+					message = __( 'Threats found!', { context: 'Short warning message about new threats found.' } );
+					action = __( 'FIX', { context: 'A caption for a small button to fix security issues.' } );
+				}
+				actionUrl = 'https://dashboard.vaultpress.com/';
+				break;
+			case 'free':
+			case 'personal':
+				status = 'is-warning';
+				if ( ! this.props.isCompact ) {
+					message = __( 'No scanning', { context: 'Short warning message about site having no security scan.' } );
+				}
+				action = __( 'Upgrade', { context: 'Caption for a button to purchase a paid feature.' } );
+				actionUrl = 'https://jetpack.com/redirect/?source=upgrade&site=' + this.props.siteRawUrl;
+				break;
+			case 'secure':
+				status = 'is-success';
+				message = __( 'Secure', { context: 'Short message informing user that the site is secure.' } );
+				break;
+		}
+		return (
+			<SimpleNotice
+				showDismiss={ false }
+				status={ status }
+				isCompact={ true }
+			>
+				{
+					message
+				}
+				{
+					action && <NoticeAction href={ actionUrl }>{ action }</NoticeAction>
+				}
+			</SimpleNotice>
+		);
+	},
+
 	render() {
-		let sitePlan = this.props.sitePlan(),
-			pluginSlug = 'scan' === this.props.proFeature || 'backups' === this.props.proFeature || 'vaultpress' === this.props.proFeature ?
-			'vaultpress/vaultpress.php' :
-			'akismet/akismet.php';
+		const sitePlan = this.props.sitePlan(),
+			pluginSlug = 'scan' === this.props.proFeature || 'backups' === this.props.proFeature || 'vaultpress' === this.props.proFeature
+				? 'vaultpress/vaultpress.php'
+				: 'akismet/akismet.php';
 
 		const hasPremium = /jetpack_premium*/.test( sitePlan.product_slug ),
-			hasBusiness = /jetpack_business*/.test( sitePlan.product_slug );
+			hasBusiness = /jetpack_business*/.test( sitePlan.product_slug ),
+			hasPersonal = /jetpack_personal*/.test( sitePlan.product_slug ),
+			hasFree = /jetpack_free*/.test( sitePlan.product_slug );
 
-		let getStatus = ( feature, active, installed ) => {
-			let vpData = this.props.getVaultPressData();
-
+		const getStatus = ( feature, active, installed ) => {
 			if ( this.props.isDevMode ) {
-				return __( 'Unavailable in Dev Mode' );
+				return '';
 			}
-
-			if ( 'N/A' !== vpData && 'scan' === feature && 0 !== this.props.getScanThreats() ) {
-				return(
-					<SimpleNotice
-						showDismiss={ false }
-						status='is-error'
-						isCompact={ true }
-					>
-						{ __( 'Threats found!', { context: 'Short warning message about new threats found.' } ) }
-					</SimpleNotice>
-				);
+			if ( 'scan' === feature ) {
+				if ( hasFree || hasPersonal ) {
+					if ( this.props.isCompact ) {
+						return this.getScanActions( 'free' );
+					}
+					return '';
+				}
+				const vpData = this.props.getVaultPressData();
+				if ( 'N/A' !== vpData ) {
+					const threatsCount = this.props.getScanThreats();
+					if ( 0 !== threatsCount ) {
+						return this.getScanActions( 'threats' );
+					}
+					if ( 0 === threatsCount ) {
+						return this.getScanActions( 'secure' );
+					}
+				}
 			}
 
 			if ( 'akismet' === feature ) {
