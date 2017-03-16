@@ -50,9 +50,17 @@ class A8C_WPCOM_Masterbar {
 	}
 
 	public function isAutomatedTransferSite() {
-		// Rely on presence of wpcomsh plugin to determine if current site has undergone AT.
-		// We need this to conditionally display some menu items for AT sites.
-		return defined( 'WPCOMSH__PLUGIN_FILE' );
+		$at_options = get_option( 'at_options', array() );
+
+		if ( ! empty( $at_options ) ) {
+			return true;
+		}
+		// As fallback, check for presence of wpcomsh plugin to determine if a current site has undergone AT.
+		if ( defined( 'WPCOMSH__PLUGIN_FILE' ) ) {
+			return true;
+		}
+
+		return false;
 	}
 
 	public function get_rtl_admin_bar_class() {
