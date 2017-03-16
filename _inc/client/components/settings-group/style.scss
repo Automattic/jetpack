@@ -35,9 +35,17 @@
 		padding-right: rem( 48px );
 	}
 
-	@include breakpoint( "<480px" ) {
-		.jp-module-settings__learn-more {
+	.jp-module-settings__learn-more {
+		@include breakpoint( "<480px" ) {
 			right: rem( 16px );
+			top: rem( 20px );
+		}
+		& + p {
+			margin-top: 2px;
+		}
+		& + span {
+			margin-top: 2px;
+			display: inline-block;
 		}
 	}
 

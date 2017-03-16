@@ -10,8 +10,9 @@
 	.dops-foldable-card {
 		.dops-foldable-card__header {
 			color: #444;
-			padding-left: rem( 24px );
-			padding-right: rem( 24px );
+			@include  breakpoint( ">480px" ) {
+				padding-left: rem( 24px );
+			}
 		}
 
 		.form-toggle__switch {
@@ -21,10 +22,6 @@
 
 		.dops-foldable-card__header-text {
 			font-size: rem( 14px );
-		}
-
-		&.is-expanded .dops-foldable-card__content {
-			padding-right: rem( 24px );
 		}
 
 		&.jp-foldable-settings-disable .dops-foldable-card__header {
@@ -39,10 +36,22 @@
 
 		.dops-foldable-card__action {
 			right: rem( 10px );
+			@include breakpoint( "<480px" ) {
+				right: rem( 1px );
+			}
 		}
 
 		.jp-module-settings__learn-more {
-			right: rem( 2px );
+			right: rem( -21px );
+			top: rem( 7px );
+			@include breakpoint( "<480px" ) {
+				right: rem( -30px );
+			}
+		}
+
+		.jp-form-legend:first-child,
+		.jp-form-label-wide:first-child {
+			padding-top: rem( 7px );
 		}
 	}
 }
