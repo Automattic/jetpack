@@ -748,6 +748,22 @@ class The_Neverending_Home_Page {
 		// Could be empty (posts) or an array of multiple post types.
 		// In the latter two cases cases, the default text is used, leaving the `infinite_scroll_js_settings` filter for further customization.
 		$post_type = self::wp_query()->get( 'post_type' );
+
+		// If it's a taxonomy, try to change the button text.
+		if ( is_tax() ) {
+			// Get current taxonomy slug.
+			$taxonomy_slug = self::wp_query()->get( 'taxonomy' );
+
+			// Get taxonomy settings.
+			$taxonomy = get_taxonomy( $taxonomy_slug );
+
+			// Check if the taxonomy is attached to one post type only and use its plural name.
+			// If not, use "Posts" without confusing the users.
+			if ( count( $taxonomy->object_type ) < 2 ) {
+				$post_type = $taxonomy->object_type[0];
+			}
+		}
+
 		if ( is_string( $post_type ) && ! empty( $post_type ) ) {
 			$post_type = get_post_type_object( $post_type );
 
