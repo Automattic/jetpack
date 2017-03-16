@@ -49,6 +49,12 @@ class A8C_WPCOM_Masterbar {
 		}
 	}
 
+	public function isAutomatedTransferSite() {
+		// Rely on presence of wpcomsh plugin to determine if current site has undergone AT.
+		// We need this to conditionally display some menu items for AT sites.
+		return defined( 'WPCOMSH__PLUGIN_FILE' );
+	}
+
 	public function get_rtl_admin_bar_class() {
 		return 'RTL_Admin_Bar';
 	}
@@ -422,11 +428,17 @@ class A8C_WPCOM_Masterbar {
 			),
 		) );
 
+		$help_link = 'https://jetpack.com/support/';
+
+		if ( $this->isAutomatedTransferSite() ) {
+			$help_link = 'https://wordpress.com/help';
+		}
+
 		$wp_admin_bar->add_menu( array(
 			'parent' => $id,
 			'id'     => 'help',
 			'title'  => __( 'Help', 'jetpack' ),
-			'href'   => 'https://wordpress.com/help',
+			'href'   => $help_link,
 			'meta'   => array(
 				'class' => 'user-info-item',
 			),
@@ -434,7 +446,6 @@ class A8C_WPCOM_Masterbar {
 				'class' => 'mb-icon',
 			),
 		) );
-
 	}
 
 	public function add_write_button( $wp_admin_bar ) {
@@ -808,18 +819,20 @@ class A8C_WPCOM_Masterbar {
 				),
 			) );
 
-			$domain_title = $this->create_menu_item_pair(
-				array(
-					'url'   => 'https://wordpress.com/domains/' . esc_attr( $this->primary_site_slug ),
-					'id'    => 'wp-admin-bar-domains',
-					'label' => __( 'Domains', 'jetpack' ),
-				),
-				array(
-					'url'   => 'https://wordpress.com/domains/add/' . esc_attr( $this->primary_site_slug ),
-					'id'    => 'wp-admin-bar-domains-add',
-					'label' => _x( 'Add', 'Label for the button on the Masterbar to add a new domain', 'jetpack' ),
-				)
-			);
+			if ( $this->isAutomatedTransferSite() ) {
+				$domain_title = $this->create_menu_item_pair(
+					array(
+						'url'   => 'https://wordpress.com/domains/' . esc_attr( $this->primary_site_slug ),
+						'id'    => 'wp-admin-bar-domains',
+						'label' => __( 'Domains', 'jetpack' ),
+					),
+					array(
+						'url'   => 'https://wordpress.com/domains/add/' . esc_attr( $this->primary_site_slug ),
+						'id'    => 'wp-admin-bar-domains-add',
+						'label' => _x( 'Add', 'Label for the button on the Masterbar to add a new domain', 'jetpack' ),
+					)
+				);
+			}
 
 			$wp_admin_bar->add_menu( array(
 				'parent' => 'configuration',
@@ -841,15 +854,17 @@ class A8C_WPCOM_Masterbar {
 				),
 			) );
 
-			$wp_admin_bar->add_menu( array(
-				'parent' => 'configuration',
-				'id'     => 'legacy-dashboard',
-				'title'  => __( 'WP Admin', 'jetpack' ),
-				'href'   => '//' . esc_attr( $this->primary_site_slug ) . '/wp-admin/',
-				'meta'   => array(
-					'class' => 'mb-icon',
-				),
-			) );
+			if ( $this->isAutomatedTransferSite() ) {
+				$wp_admin_bar->add_menu( array(
+					'parent' => 'configuration',
+					'id'     => 'legacy-dashboard',
+					'title'  => __( 'WP Admin', 'jetpack' ),
+					'href'   => '//' . esc_attr( $this->primary_site_slug ) . '/wp-admin/',
+					'meta'   => array(
+						'class' => 'mb-icon',
+					),
+				) );
+			}
 		}
 	}
 }
