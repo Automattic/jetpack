@@ -18,8 +18,8 @@
 
 .jp-module-settings__learn-more {
 	position: absolute;
-	top: 12px;
-	right: 17px;
+	top: rem( 27px );
+	right: rem( 25px );
 	z-index: 1;
 
 	.jp-form-fieldset & {

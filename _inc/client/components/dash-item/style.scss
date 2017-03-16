@@ -10,6 +10,16 @@
 			background: $white;
 		}
 	}
+	.dops-section-header__actions {
+		.form-toggle__label {
+			position: relative;
+			top: 6px;
+			right: 0;
+		}
+		.form-toggle__label-content {
+			margin: 0;
+		}
+	}
 }
 
 .jp-dash-item__card {
@@ -54,7 +64,6 @@
 	.dops-section-header__actions {
 		.dops-notice {
 			margin-top: rem( 2px );
-			margin-right: rem( -10px );
 		}
 	}
 }

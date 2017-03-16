@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Protect
- * Module Description: Block suspicious-looking sign in activity from unknown IP addresses
+ * Module Description: Block suspicious-looking sign in activity
  * Sort Order: 1
  * Recommendation Order: 4
  * First Introduced: 3.4

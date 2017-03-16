@@ -18,7 +18,7 @@
 	.jp-form-setting-explanation {
 		color: $gray-text-min;
 		display: block;
-		margin: rem( 5px ) rem( 14px ) 0 0;
+		margin: rem( 5px ) rem( 14px ) rem( 5px ) 0;
 		font-size: rem( 13px );
 		font-style: italic;
 		font-weight: 400;
@@ -32,7 +32,21 @@
 		padding-bottom: 16px;
 	}
 	.dops-card  {
-		padding-right: rem( 40px );
+		padding-right: rem( 48px );
+	}
+
+	.jp-module-settings__learn-more {
+		@include breakpoint( "<480px" ) {
+			right: rem( 16px );
+			top: rem( 20px );
+		}
+		& + p {
+			margin-top: 2px;
+		}
+		& + span {
+			margin-top: 2px;
+			display: inline-block;
+		}
 	}
 
 	.form-toggle__switch {
