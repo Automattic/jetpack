@@ -5,6 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import includes from 'lodash/includes';
+import ProStatus from 'pro-status';
 
 /**
  * Internal dependencies
@@ -18,7 +19,7 @@ import {
 	FEATURE_GOOGLE_ANALYTICS_JETPACK,
 	getPlanClass
 } from 'lib/plans/constants';
-import { getSiteRawUrl, userCanManageModules } from 'state/initial-state';
+import { getSiteRawUrl, getSiteAdminUrl, userCanManageModules } from 'state/initial-state';
 import {
 	getSitePlan,
 	isFetchingSiteData
@@ -191,6 +192,9 @@ export const SettingsCard = props => {
 						</Button>
 					)
 				}
+				{
+					props.action && <ProStatus proFeature={ props.action } siteAdminUrl={ props.siteAdminUrl } isCompact={ false } />
+				}
 			</SectionHeader>
 			{ showChildren() && props.children }
 			{ ! props.fetchingSiteData && getBanner( feature ) }
@@ -199,10 +203,12 @@ export const SettingsCard = props => {
 };
 
 SettingsCard.propTypes = {
+	action: React.PropTypes.string,
 	saveDisabled: React.PropTypes.bool
 };
 
 SettingsCard.defaultProps = {
+	action: '',
 	saveDisabled: false
 };
 
@@ -212,6 +218,7 @@ export default connect(
 			sitePlan: getSitePlan( state ),
 			fetchingSiteData: isFetchingSiteData( state ),
 			siteRawUrl: getSiteRawUrl( state ),
+			siteAdminUrl: getSiteAdminUrl( state ),
 			userCanManageModules: userCanManageModules( state )
 		};
 	}
