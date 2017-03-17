@@ -2347,7 +2347,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool
 	 */
 	private static function core_is_plugin_active( $plugin ) {
-		if ( ! function_exists( 'get_plugins' ) ) {
+		if ( ! function_exists( 'is_plugin_active' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 

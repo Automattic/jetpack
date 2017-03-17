@@ -403,6 +403,11 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			}
 		}
 
+		if ( ! function_exists( 'is_plugin_active' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+		$response['akismet'] = is_plugin_active( 'akismet/akismet.php' );
+
 		return rest_ensure_response( $response );
 	}
 
