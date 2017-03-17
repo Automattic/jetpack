@@ -428,7 +428,7 @@ __( "Show photo metadata (Exif) in carousel, when available", "jetpack" ), // _i
 __( "Mobile Promos", "jetpack" ), // _inc/client/components/module-settings/index.jsx:372
 __( "Require Two-Step Authentication", "jetpack" ), // _inc/client/components/module-settings/index.jsx:354
 __( "Match By Email", "jetpack" ), // _inc/client/components/module-settings/index.jsx:350
-__( "{{link}}Configure your Monitor notificaton settings on WordPress.com{{/link}}", "jetpack" ), // _inc/client/components/module-settings/index.jsx:329
+__( "{{link}}Configure your Monitor notification settings on WordPress.com{{/link}}", "jetpack" ), // _inc/client/components/module-settings/index.jsx:329
 __( "IPv4 and IPv6 are acceptable. Enter multiple IPs on separate lines. {{br/}} To specify a range, enter the low value and high value separated by a dash. Example: 12.12.12.1-12.12.12.100", "jetpack" ), // _inc/client/components/module-settings/index.jsx:302
 __( "Make sure to add your most frequently used IP addresses as they can change between your home, office or other locations. Removing an IP address from the list below will remove it from your whitelist.", "jetpack" ), // _inc/client/components/module-settings/index.jsx:293
 __( "Whitelisting an IP address prevents it from ever being blocked by Jetpack.", "jetpack" ), // _inc/client/components/module-settings/index.jsx:292

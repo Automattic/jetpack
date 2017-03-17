@@ -85,8 +85,7 @@ class Jetpack_Sync_Module_Options extends Jetpack_Sync_Module {
 	}
 
 	function update_options_whitelist() {
-		/** This filter is already documented in json-endpoints/jetpack/class.wpcom-json-api-get-option-endpoint.php */
-		$this->options_whitelist = apply_filters( 'jetpack_options_whitelist', Jetpack_Sync_Defaults::$default_options_whitelist );
+		$this->options_whitelist = Jetpack_Sync_Defaults::get_options_whitelist();
 	}
 
 	function set_options_whitelist( $options ) {

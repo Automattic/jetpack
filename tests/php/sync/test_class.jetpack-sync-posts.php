@@ -875,7 +875,7 @@ That was a cool video.';
 		$this->sender->do_sync();
 
 		$events = $this->server_event_storage->get_all_events( 'jetpack_published_post' );
-		$this->assertEquals( count( $events ), 1 );
+		$this->assertEquals( 1, count( $events ) );
 
 		$post_flags = $events[0]->args[1];
 		$this->assertTrue( $post_flags['send_subscription'] );
@@ -886,22 +886,28 @@ That was a cool video.';
 		$this->server_event_storage->reset();
 		$this->test_already = false;
 		add_action( 'wp_insert_post', array( $this, 'add_a_hello_post_type' ), 9 );
-		$post_id = $this->factory->post->create( array( 'post_type' => 'post' ) );
+		$this->factory->post->create( array( 'post_type' => 'post' ) );
 		remove_action( 'wp_insert_post', array( $this, 'add_a_hello_post_type' ), 9 );
 
 		$this->sender->do_sync();
-		$events = $this->server_event_storage->get_all_events( 'jetpack_published_post' );
 
-		$this->assertEquals( 2, count( $events ) );
+		$events = $this->server_event_storage->get_all_events();
 
-		// The first event is the hello post type...
-		$this->assertEquals( $events[1]->args[0], $post_id );
+		$events = array_slice( $events, -4);
+
+		$this->assertEquals( $events[0]->args[0], $events[1]->args[0] );
+		$this->assertEquals( $events[0]->action, 'wp_insert_post' );
+		$this->assertEquals( $events[1]->action, 'jetpack_published_post' );
+
+		$this->assertEquals( $events[2]->args[0], $events[3]->args[0] );
+		$this->assertEquals( $events[2]->action, 'wp_insert_post' );
+		$this->assertEquals( $events[3]->action, 'jetpack_published_post' );
 	}
 
 	function add_a_hello_post_type() {
 		if ( ! $this->test_already  ) {
 			$this->test_already = true;
-			$post_id = $this->factory->post->create( array( 'post_type' => 'hello' ) );
+			$this->factory->post->create( array( 'post_type' => 'hello' ) );
 			return;
 		}
 	}
