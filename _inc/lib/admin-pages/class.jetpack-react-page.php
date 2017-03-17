@@ -304,17 +304,9 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	 * @return array flattened settings with modules.
 	 */
 	function get_flattened_settings( $modules ) {
-		$settings = array();
-
-		foreach ( $modules as $slug => $data ) {
-			$settings[ $slug ] = $data['activated'] ? true : false;
-
-			foreach ( $data['options'] as $name => $option ) {
-				$settings[ $name ] = $option['current_value'];
-			}
-		}
-
-		return $settings;
+		$core_api_endpoint = new Jetpack_Core_API_Data();
+		$settings = $core_api_endpoint->get_all_options();
+		return $settings->data;
 	}
 }
 
