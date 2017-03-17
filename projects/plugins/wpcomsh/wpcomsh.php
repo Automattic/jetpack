@@ -403,3 +403,35 @@ function wpcomsh_allow_custom_wp_options( $options ) {
 	return $options;
 }
 add_filter( 'jetpack_options_whitelist', 'wpcomsh_allow_custom_wp_options' );
+
+
+/**
+ * Load a WordPress.com theme compat file, if it exists.
+ */
+function wpcomsh_load_theme_compat_file() {
+	if ( ( ! defined( 'WP_INSTALLING' ) || 'wp-activate.php' === $GLOBALS['pagenow'] ) ) {
+		// Many wpcom.php files call $themecolors directly. Ease the pain.
+		global $themecolors;
+
+		$template_path   = get_template_directory();
+		$stylesheet_path = get_stylesheet_directory();
+		$file            = '/inc/wpcom.php';
+
+		// Look also in /includes as alternate location, since premium theme partners may use that convention.
+		if ( ! file_exists( $template_path . $file ) && ! file_exists( $stylesheet_path . $file ) ) {
+			$file = '/includes/wpcom.php';
+		}
+
+		// Include 'em. Child themes first, just like core.
+		if ( $template_path !== $stylesheet_path && file_exists( $stylesheet_path . $file ) ) {
+			include_once( $stylesheet_path . $file );
+		}
+
+		if ( file_exists( $template_path . $file ) ) {
+			include_once( $template_path . $file );
+		}
+	}
+}
+
+// Hook early so that after_setup_theme can still be used at default priority.
+add_action( 'after_setup_theme', 'wpcomsh_load_theme_compat_file', 0 );
