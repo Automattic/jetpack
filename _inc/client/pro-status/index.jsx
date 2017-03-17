@@ -42,7 +42,7 @@ const ProStatus = React.createClass( {
 		return {
 			isCompact: true,
 			proFeature: ''
-		}
+		};
 	},
 
 	getScanActions( type ) {
@@ -93,6 +93,7 @@ const ProStatus = React.createClass( {
 
 	render() {
 		const sitePlan = this.props.sitePlan(),
+			vpData = this.props.getVaultPressData(),
 			pluginSlug = 'scan' === this.props.proFeature || 'backups' === this.props.proFeature || 'vaultpress' === this.props.proFeature
 				? 'vaultpress/vaultpress.php'
 				: 'akismet/akismet.php';
@@ -100,15 +101,27 @@ const ProStatus = React.createClass( {
 		const hasPremium = /jetpack_premium*/.test( sitePlan.product_slug ),
 			hasBusiness = /jetpack_business*/.test( sitePlan.product_slug ),
 			hasPersonal = /jetpack_personal*/.test( sitePlan.product_slug ),
-			hasFree = /jetpack_free*/.test( sitePlan.product_slug );
-
+			hasFree = /jetpack_free*/.test( sitePlan.product_slug ),
+			hasBackups = (
+				'undefined' !== typeof vpData.data &&
+				'undefined' !== typeof vpData.data.features &&
+				'undefined' !== typeof vpData.data.features.backups &&
+				vpData.data.features.backups
+			),
+			hasScan = (
+				'undefined' !== typeof vpData.data &&
+				'undefined' !== typeof vpData.data.features &&
+				'undefined' !== typeof vpData.data.features.security &&
+				vpData.data.features.security
+			);
+		
 		const getStatus = ( feature, active, installed ) => {
 			if ( this.props.isDevMode ) {
 				return '';
 			}
 
 			if ( 'backups' === feature ) {
-				if ( hasFree ) {
+				if ( hasFree && ! hasBackups ) {
 					if ( this.props.isCompact ) {
 						return this.getScanActions( 'free' );
 					}
@@ -116,13 +129,12 @@ const ProStatus = React.createClass( {
 			}
 
 			if ( 'scan' === feature ) {
-				if ( hasFree || hasPersonal ) {
+				if ( ( hasFree || hasPersonal ) && ! hasScan ) {
 					if ( this.props.isCompact ) {
 						return this.getScanActions( 'free' );
 					}
 					return '';
 				}
-				const vpData = this.props.getVaultPressData();
 				if ( 'N/A' !== vpData ) {
 					const threatsCount = this.props.getScanThreats();
 					if ( 0 !== threatsCount ) {

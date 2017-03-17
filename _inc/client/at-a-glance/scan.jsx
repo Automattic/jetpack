@@ -31,12 +31,9 @@ const DashScan = React.createClass( {
 			vpData = this.props.vaultPressData,
 			inactiveOrUninstalled = this.props.isPluginInstalled( 'vaultpress/vaultpress.php' ) ? 'pro-inactive' : 'pro-uninstalled',
 			scanEnabled = (
-				'undefined' !== typeof vpData.data
-				&&
-				'undefined' !== typeof vpData.data.features
-				&&
-				'undefined' !== typeof vpData.data.features.security
-				&&
+				'undefined' !== typeof vpData.data &&
+				'undefined' !== typeof vpData.data.features &&
+				'undefined' !== typeof vpData.data.features.security &&
 				vpData.data.features.security
 			),
 			hasPremium = /jetpack_premium*/.test( this.props.sitePlan.product_slug ),
