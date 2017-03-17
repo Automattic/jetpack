@@ -10,13 +10,14 @@ $(foreach bin,$(REQUIRED_BINS),\
 ## handle version info from git tags
 ifeq ($(shell git describe --tags > /dev/null 2>&1 ; echo $$?), 0)
 	VERSION := $(shell git describe --tags --long --always \
-		| sed 's/v\([0-9]*\)\.\([0-9]*\)-\?.*-\([0-9]*\)-\(.*\)/\1 \2 \3 \4/g')
+		| sed 's/v\([0-9]*\)\.\([0-9]*\)\.\([0-9]*\)-\?.*-\([0-9]*\)-\(.*\)/\1 \2 \3 \4 \5/g')
 	VERSION_MAJOR := $(word 1, $(VERSION))
 	VERSION_MINOR := $(word 2, $(VERSION))
-	VERSION_REVISION := $(word 3, $(VERSION))
-	VERSION_HASH := $(word 4, $(VERSION))
+	VERSION_POINT := $(word 3, $(VERSION))
+	VERSION_REVISION := $(word 4, $(VERSION))
+	VERSION_HASH := $(word 5, $(VERSION))
 	VERSION_STRING := \
-		$(VERSION_MAJOR).$(VERSION_MINOR)
+		$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_POINT)
 endif
 
 ## get files to include in the build
