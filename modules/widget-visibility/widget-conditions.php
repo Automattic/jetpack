@@ -91,12 +91,16 @@ class Jetpack_Widget_Conditions {
 		$post_types = get_post_types( array( 'public' => true ), 'objects' );
 
 		$widget_conditions_post_types = array();
+		$widget_conditions_post_type_archives = array();
 
 		foreach ( $post_types as $post_type ) {
 			$widget_conditions_post_types[] = array( 'post_type-' . $post_type->name, $post_type->labels->singular_name );
+			$widget_conditions_post_type_archives[] = array( 'post_type_archive-' . $post_type->name, $post_type->labels->name );
 		}
 
 		$widget_conditions_data['page'][] = array( __( 'Post type:', 'jetpack' ), $widget_conditions_post_types );
+
+		$widget_conditions_data['page'][] = array( __( 'Post type Archives:', 'jetpack' ), $widget_conditions_post_type_archives );
 
 		$pages_dropdown = preg_replace( '/<\/?select[^>]*?>/i', '', wp_dropdown_pages( array( 'echo' => false ) ) );
 
@@ -169,8 +173,30 @@ class Jetpack_Widget_Conditions {
 		if ( empty( $conditions['rules'] ) )
 			$conditions['rules'][] = array( 'major' => '', 'minor' => '', 'has_children' => '' );
 
+		if ( empty( $conditions['match_all'] ) ) {
+			$conditions['match_all'] = false;
+		}
+
 		?>
-		<div class="widget-conditional <?php if ( empty( $_POST['widget-conditions-visible'] ) || $_POST['widget-conditions-visible'] == '0' ) { ?>widget-conditional-hide<?php } ?>">
+		<div
+			class="
+				widget-conditional
+				<?php
+					if (
+						empty( $_POST['widget-conditions-visible'] )
+						|| $_POST['widget-conditions-visible'] == '0'
+					) {
+						?>widget-conditional-hide<?php
+					}
+				?>
+				<?php
+					if ( ! empty( $conditions['match_all'] ) && $conditions['match_all'] ) {
+						?>intersection<?php
+					} else {
+						?>conjunction<?php
+					}
+				?>
+			">
 			<input type="hidden" name="widget-conditions-visible" value="<?php if ( isset( $_POST['widget-conditions-visible'] ) ) { echo esc_attr( $_POST['widget-conditions-visible'] ); } else { ?>0<?php } ?>" />
 			<?php if ( ! isset( $_POST['widget-conditions-visible'] ) ) { ?><a href="#" class="button display-options"><?php _e( 'Visibility', 'jetpack' ); ?></a><?php } ?>
 			<div class="widget-conditional-inner">
@@ -199,7 +225,6 @@ class Jetpack_Widget_Conditions {
 									<option value="tag" <?php selected( "tag", $rule['major'] ); ?>><?php echo esc_html_x( 'Tag', 'Noun, as in: "This post has one tag."', 'jetpack' ); ?></option>
 									<option value="date" <?php selected( "date", $rule['major'] ); ?>><?php echo esc_html_x( 'Date', 'Noun, as in: "This page is a date archive."', 'jetpack' ); ?></option>
 									<option value="page" <?php selected( "page", $rule['major'] ); ?>><?php echo esc_html_x( 'Page', 'Example: The user is looking at a page, not a post.', 'jetpack' ); ?></option>
-									<option value="post_type" <?php selected( "post_type", $rule['major'] ); ?>><?php echo esc_html_x( 'Post Type', 'Example: the user is viewing a custom post type archive.', 'jetpack' ); ?></option>
 									<?php if ( get_taxonomies( array( '_builtin' => false ) ) ) : ?>
 										<option value="taxonomy" <?php selected( "taxonomy", $rule['major'] ); ?>><?php echo esc_html_x( 'Taxonomy', 'Noun, as in: "This post has one taxonomy."', 'jetpack' ); ?></option>
 									<?php endif; ?>
@@ -223,7 +248,12 @@ class Jetpack_Widget_Conditions {
 							</div>
 
 							<div class="condition-control">
-								<span class="condition-conjunction"><?php echo esc_html_x( 'or', 'Shown between widget visibility conditions.', 'jetpack' ); ?></span>
+								<span class="condition-conjunction">
+									<?php echo esc_html_x( 'or', 'Shown between widget visibility conditions.', 'jetpack' ); ?>
+								</span>
+								<span class="condition-intersection">
+									<?php echo esc_html_x( 'and', 'Shown between widget visibility conditions.', 'jetpack' ); ?>
+								</span>
 								<div class="actions alignright">
 									<a href="#" class="delete-condition dashicons dashicons-no"><?php esc_html_e( 'Delete', 'jetpack' ); ?></a><a href="#" class="add-condition dashicons dashicons-plus"><?php esc_html_e( 'Add', 'jetpack' ); ?></a>
 								</div>
@@ -234,6 +264,19 @@ class Jetpack_Widget_Conditions {
 					}
 
 					?>
+				</div><!-- .conditions -->
+				<div class="conditions">
+					<div class="condition-top">
+						<label>
+							<input
+								type="checkbox"
+								name="conditions[match_all]"
+								value="1"
+								class="conditions-match-all"
+								<?php checked( $conditions['match_all'], '1' ); ?> />
+							<?php esc_html_e( 'Match all conditions', 'jetpack' ); ?>
+						</label>
+					</div><!-- .condition-top -->
 				</div><!-- .conditions -->
 			</div><!-- .widget-conditional-inner -->
 		</div><!-- .widget-conditional -->
@@ -254,6 +297,7 @@ class Jetpack_Widget_Conditions {
 
 		$conditions = array();
 		$conditions['action'] = $_POST['conditions']['action'];
+		$conditions['match_all'] = ( isset( $_POST['conditions']['match_all'] ) ? '1' : '0' );
 		$conditions['rules'] = array();
 
 		foreach ( $_POST['conditions']['rules_major'] as $index => $major_rule ) {
@@ -393,6 +437,7 @@ class Jetpack_Widget_Conditions {
 		$condition_result = false;
 
 		foreach ( $instance['conditions']['rules'] as $rule ) {
+			$condition_result = false;
 			$condition_key = self::generate_condition_key( $rule );
 
 			if ( isset( $condition_result_cache[ $condition_key ] ) ) {
@@ -449,6 +494,8 @@ class Jetpack_Widget_Conditions {
 							default:
 								if ( substr( $rule['minor'], 0, 10 ) == 'post_type-' ) {
 									$condition_result = is_singular( substr( $rule['minor'], 10 ) );
+								} elseif ( substr( $rule['minor'], 0, 18 ) == 'post_type_archive-' ) {
+									$condition_result = is_post_type_archive( substr( $rule['minor'], 18 ) );
 								} elseif ( $rule['minor'] == get_option( 'page_for_posts' ) ) {
 									// If $rule['minor'] is a page ID which is also the posts page
 									$condition_result = $wp_query->is_posts_page;
@@ -596,12 +643,38 @@ class Jetpack_Widget_Conditions {
 				}
 			}
 
-			if ( $condition_result )
+			if (
+				isset( $instance['conditions']['match_all'] )
+				&& $instance['conditions']['match_all'] == '1'
+				&& ! $condition_result
+			) {
+
+				// In case the match_all flag was set we quit on first failed condition
 				break;
+			} elseif (
+				(
+					empty( $instance['conditions']['match_all'] )
+					|| $instance['conditions']['match_all'] !== '1'
+				)
+				&& $condition_result
+			) {
+
+				// Only quit on first condition if the match_all flag was not set
+				break;
+			}
 		}
 
-		if ( ( 'show' == $instance['conditions']['action'] && ! $condition_result ) || ( 'hide' == $instance['conditions']['action'] && $condition_result ) )
+		if (
+			(
+				'show' == $instance['conditions']['action']
+				&& ! $condition_result
+			) || (
+				'hide' == $instance['conditions']['action']
+				&& $condition_result
+			)
+		) {
 			return false;
+		}
 
 		return $instance;
 	}
@@ -623,6 +696,76 @@ class Jetpack_Widget_Conditions {
 
 		return $term_id;
 	}
+
+	/**
+	 * Upgrade routine to go through all widgets and move the Post Type
+	 * setting to its newer location.
+	 *
+	 * @since 4.7.1
+	 *
+	 */
+	static function migrate_post_type_rules() {
+		global $wp_registered_widgets;
+
+		$sidebars_widgets = get_option( 'sidebars_widgets' );
+
+		// Going through all sidebars and through inactive and orphaned widgets
+		foreach ( $sidebars_widgets as $s => $sidebar ) {
+			if ( ! is_array( $sidebar ) ) {
+				continue;
+			}
+
+			foreach ( $sidebar as $w => $widget ) {
+				// $widget is the id of the widget
+				if ( empty( $wp_registered_widgets[ $widget ] ) ) {
+					continue;
+				}
+
+				$opts = $wp_registered_widgets[ $widget ];
+				$instances = get_option( $opts['callback'][0]->option_name );
+
+				// Going through each instance of the widget
+				foreach( $instances as $number => $instance ) {
+					if (
+						! is_array( $instance ) ||
+						empty( $instance['conditions'] ) ||
+						empty( $instance['conditions']['rules'] )
+					) {
+						continue;
+					}
+
+					// Going through all visibility rules
+					foreach( $instance['conditions']['rules'] as $index => $rule ) {
+
+						// We only need Post Type rules
+						if ( 'post_type' !== $rule['major'] ) {
+							continue;
+						}
+
+						$rule_type = false;
+
+						// Post type or type archive rule
+						if ( 0 === strpos( $rule['minor'], 'post_type_archive' ) ) {
+							$rule_type = 'post_type_archive';
+						} else if ( 0 === strpos( $rule['minor'], 'post_type' ) ) {
+							$rule_type = 'post_type';
+						}
+
+						if ( $rule_type ) {
+							$post_type = substr( $rule['minor'], strlen( $rule_type ) + 1 );
+							$rule['minor'] = $rule_type . '-' . $post_type;
+							$rule['major'] = 'page';
+
+							$instances[ $number ]['conditions']['rules'][ $index ] = $rule;
+						}
+					}
+				}
+
+				update_option( $opts['callback'][0]->option_name, $instances );
+			}
+		}
+	}
+
 }
 
 add_action( 'init', array( 'Jetpack_Widget_Conditions', 'init' ) );

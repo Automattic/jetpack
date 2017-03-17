@@ -584,6 +584,18 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 		$this->invalid_call();
 	}
 
+	public function upsert_user_locale( $user_id, $local ) {
+		$this->invalid_call();
+	}
+
+	public function delete_user_locale( $user_id ) {
+		$this->invalid_call();
+	}
+	
+	public function get_user_locale( $user_id ) {
+		return jetpack_get_user_locale( $user_id );
+	}
+
 	public function get_allowed_mime_types( $user_id ) {
 
 	}

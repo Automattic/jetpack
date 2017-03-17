@@ -65,7 +65,7 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 		$this->services = array(
 			'facebook'   => array( 'Facebook', 'https://www.facebook.com/%s/' ),
 			'twitter'    => array( 'Twitter', 'https://twitter.com/%s/' ),
-			'instagram'  => array( 'Instagram', 'https://instagram.com/%s/' ),
+			'instagram'  => array( 'Instagram', 'https://www.instagram.com/%s/' ),
 			'pinterest'  => array( 'Pinterest', 'https://www.pinterest.com/%s/' ),
 			'linkedin'   => array( 'LinkedIn', 'https://www.linkedin.com/in/%s/' ),
 			'github'     => array( 'GitHub', 'https://github.com/%s/' ),
@@ -137,8 +137,24 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 				continue;
 			}
 			$index += 10;
+			$predefined_url = false;
+
+			/** Check if full URL entered in configuration, use it instead of tinkering **/
 			if (
-				'googleplus' === $service
+				in_array(
+					parse_url( $username, PHP_URL_SCHEME ),
+					array( 'http', 'https' )
+				)
+			) {
+				$predefined_url = $username;
+
+				// In case of a predefined link we only display the service name
+				// for screen readers
+				$alt_text = '%2$s';
+			}
+
+
+			if ( 'googleplus' === $service
 				&& ! is_numeric( $username )
 				&& substr( $username, 0, 1 ) !== '+'
 			) {
@@ -149,9 +165,14 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 			} else if ( 'youtube' === $service ) {
 				$link_username = 'user/' . $username;
 			}
+
+			if ( ! $predefined_url ) {
+				$predefined_url = sprintf( $url, $link_username );
+			}
 			/**
 			 * Fires for each profile link in the social icons widget. Can be used
-			 * to change the links for certain social networks if needed.
+			 * to change the links for certain social networks if needed. All URLs
+			 * will be passed through `esc_attr` on output.
 			 *
 			 * @module widgets
 			 *
@@ -160,12 +181,17 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 			 * @param string $url the currently processed URL
 			 * @param string $service the lowercase service slug, e.g. 'facebook', 'youtube', etc.
 			 */
-			$link = apply_filters( 'jetpack_social_media_icons_widget_profile_link', esc_url( sprintf( $url, $link_username ) ), $service );
-			$html[ $index ] =
-				'<a href="' . $link
-				. '" class="genericon genericon-' . $service . '" target="_blank"><span class="screen-reader-text">'
-				. sprintf( $alt_text, esc_html( $username ), $service_name )
-				. '</span></a>';
+			$link = apply_filters(
+				'jetpack_social_media_icons_widget_profile_link',
+				$predefined_url,
+				$service
+			);
+			$html[ $index ] = sprintf(
+				'<a href="%1$s" class="genericon genericon-%2$s" target="_blank"><span class="screen-reader-text">%3$s</span></a>',
+				esc_attr( $link ),
+				esc_attr( $service ),
+				sprintf( $alt_text, esc_html( $username ), $service_name )
+			);
 		}
 		/**
 		 * Fires at the end of the list of Social Media accounts.

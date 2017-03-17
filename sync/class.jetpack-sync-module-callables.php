@@ -14,9 +14,9 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 
 	public function set_defaults() {
 		if ( is_multisite() ) {
-			$this->callable_whitelist = array_merge( Jetpack_Sync_Defaults::$default_callable_whitelist, Jetpack_Sync_Defaults::$default_multisite_callable_whitelist );
+			$this->callable_whitelist = array_merge( Jetpack_Sync_Defaults::get_callable_whitelist(), Jetpack_Sync_Defaults::get_multisite_callable_whitelist() );
 		} else {
-			$this->callable_whitelist = Jetpack_Sync_Defaults::$default_callable_whitelist;
+			$this->callable_whitelist = Jetpack_Sync_Defaults::get_callable_whitelist();
 		}
 	}
 
@@ -77,8 +77,8 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 		$current_user_id = get_current_user_id();
 		wp_set_current_user( Jetpack_Options::get_option( 'master_user' ) );
 		$callables = array_combine(
-			array_keys( $this->callable_whitelist ),
-			array_map( array( $this, 'get_callable' ), array_values( $this->callable_whitelist ) )
+			array_keys( $this->get_callable_whitelist() ),
+			array_map( array( $this, 'get_callable' ), array_values( $this->get_callable_whitelist() ) )
 		);
 		wp_set_current_user( $current_user_id );
 

@@ -25,6 +25,12 @@ class Jetpack_Frame_Nonce_Preview {
 		if ( isset( $_GET['frame-nonce'] ) && ! is_admin() ) {
 			add_filter( 'pre_get_posts', array( $this, 'maybe_display_post' ) );
 		}
+
+		// autosave previews are validated differently
+		if ( isset( $_GET[ 'frame-nonce' ] ) && isset( $_GET[ 'preview_id' ] ) && isset( $_GET[ 'preview_nonce' ] ) ) {
+			remove_action( 'init', '_show_post_preview' );
+			add_action( 'init', array( $this, 'handle_autosave_nonce_validation' ) );
+		}
 	}
 
 	/**
@@ -94,6 +100,19 @@ class Jetpack_Frame_Nonce_Preview {
 		add_filter( 'pings_open', '__return_false' );
 
 		return $posts;
+	}
+
+	/**
+	 * Handle validation for autosave preview request
+	 *
+	 * @since 4.7.0
+	 *
+	 */
+	public function handle_autosave_nonce_validation() {
+		if ( ! $this->is_frame_nonce_valid() ) {
+			wp_die( __( 'Sorry, you are not allowed to preview drafts.', 'jetpack' ) );
+		}
+		add_filter( 'the_preview', '_set_preview' );
 	}
 }
 

@@ -20,6 +20,11 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 
 		$woo_tests_dir = dirname( __FILE__ ) . '/../../../../woocommerce/tests';
 
+		if( ! file_exists( $woo_tests_dir ) ) {
+			error_log('PLEASE RUN THE GIT VERSION OF WooCommerce that has the tests folder. Found at github.com/WooCommerce/woocommerce' );
+			self::$woo_enabled = false;
+		}
+
 		// This is taken from WooCommerce's bootstrap.php file
 
 		// factories
@@ -100,7 +105,7 @@ class WP_Test_Jetpack_Sync_WooCommerce extends WP_Test_Jetpack_Sync_Base {
 		$order->payment_complete( '12345' );
 		
 		// just for fun
-		$this->assertEquals( 'processing', $order->get_status() );
+		$this->assertEquals( 'completed', $order->get_status() );
 		$this->assertEquals( '12345', $order->get_transaction_id() );
 
 		$this->sender->do_sync();

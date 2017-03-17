@@ -326,7 +326,7 @@ export let MonitorSettings = React.createClass( {
 			<span className="jp-form-setting-explanation"><span>
 				{
 
-					__( '{{link}}Configure your Monitor notificaton settings on WordPress.com{{/link}}', {
+					__( '{{link}}Configure your Monitor notification settings on WordPress.com{{/link}}', {
 						components: {
 							link: <ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href={  'https://wordpress.com/settings/security/' + this.props.module.raw_url } />,
 						}

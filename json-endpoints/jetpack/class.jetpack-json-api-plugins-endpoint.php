@@ -29,6 +29,7 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		'next_autoupdate' => '(string) Y-m-d H:i:s for next scheduled update event',
 		'log'             => '(array:safehtml) An array of update log strings.',
 		'uninstallable'   => '(boolean) Whether the plugin is unistallable.',
+		'action_links'    => '(array) An array of action links that the plugin uses.',
 	);
 
 	protected function result() {
@@ -69,7 +70,7 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 			$this->bulk = false;
 			$this->plugins[] = urldecode( $plugin );
 		}
-		
+
 		if ( is_wp_error( $error = $this->validate_plugins() ) ) {
 			return $error;
 		};
@@ -113,10 +114,11 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		$plugin['network']         = $plugin_data['Network'];
 		$plugin['update']          = $this->get_plugin_updates( $plugin_file );
 		$plugin['next_autoupdate'] = date( 'Y-m-d H:i:s', wp_next_scheduled( 'wp_maybe_auto_update' ) );
+		$plugin['action_links']    = $this->get_plugin_action_links( $plugin_file );
 
 		$autoupdate = in_array( $plugin_file, Jetpack_Options::get_option( 'autoupdate_plugins', array() ) );
 		$plugin['autoupdate']      = $autoupdate;
-		
+
 		$autoupdate_translation = in_array( $plugin_file, Jetpack_Options::get_option( 'autoupdate_plugins_translations', array() ) );
 		$plugin['autoupdate_translation'] = $autoupdate || $autoupdate_translation || Jetpack_Options::get_option( 'autoupdate_translations', false );
 
@@ -129,6 +131,10 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 	}
 
 	protected function get_plugins() {
+		// Do the admin_init action in order to capture plugin action links.
+		// See get_plugin_action_links()
+		/** This action is documented in wp-admin/admin.php */
+		do_action( 'admin_init' );
 		$plugins = array();
 		/** This filter is documented in wp-admin/includes/class-wp-plugins-list-table.php */
 		$installed_plugins = apply_filters( 'all_plugins', get_plugins() );
@@ -183,4 +189,49 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		}
 		return null;
 	}
+
+	/**
+	 * Get custom action link tags that the plugin is using
+	 * Ref: https://codex.wordpress.org/Plugin_API/Filter_Reference/plugin_action_links_(plugin_file_name)
+	 * @return array of plugin action links (key: link name value: url)
+	 */
+	 protected function get_plugin_action_links( $plugin_file ) {
+		 $formatted_action_links = array();
+
+		 // Some sites may have DOM disabled in PHP
+		 if ( ! class_exists( 'DOMDocument' ) ) {
+			 return $formatted_action_links;
+		 }
+
+		 $action_links = array();
+		 /** This filter is documented in src/wp-admin/includes/class-wp-plugins-list-table.php */
+		 $action_links = apply_filters( 'plugin_action_links', $action_links, $plugin_file, null, 'all' );
+		 /** This filter is documented in src/wp-admin/includes/class-wp-plugins-list-table.php */
+		 $action_links = apply_filters( "plugin_action_links_{$plugin_file}", $action_links, $plugin_file, null, 'all' );
+		 if ( count( $action_links ) > 0 ) {
+			 $dom_doc = new DOMDocument;
+			 foreach( $action_links as $action_link ) {
+				 $dom_doc->loadHTML( $action_link );
+				 $link_elements = $dom_doc->getElementsByTagName( 'a' );
+				 if ( $link_elements->length == 0 ) {
+					 continue;
+				 }
+
+				 $link_element = $link_elements->item( 0 );
+				 if ( $link_element->hasAttribute( 'href' ) && $link_element->nodeValue ) {
+					 $link_url = trim( $link_element->getAttribute( 'href' ) );
+
+					 // Add the full admin path to the url if the plugin did not provide it
+					 $link_url_scheme = wp_parse_url( $link_url, PHP_URL_SCHEME );
+					 if ( empty( $link_url_scheme ) ) {
+						 $link_url = admin_url( $link_url );
+					 }
+
+					 $formatted_action_links[ $link_element->nodeValue ] = $link_url;
+				 }
+			 }
+		 }
+
+		 return $formatted_action_links;
+	 }
 }
