@@ -1600,6 +1600,14 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'jp_group'          => 'settings',
 			),
 
+			'wordpress_api_key' => array(
+				'description'       => '',
+				'type'              => 'string',
+				'default'           => '',
+				'validate_callback' => __CLASS__ . '::validate_alphanum',
+				'jp_group'          => 'settings',
+			),
+
 		);
 
 		// Add modules to list so they can be toggled

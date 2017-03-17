@@ -749,6 +749,45 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					$updated = get_option( $option ) != $value ? update_option( $option, (bool) $value ? '1' : '0' ) : true;
 					break;
 
+				case 'wordpress_api_key':
+
+					if ( ! file_exists( WP_PLUGIN_DIR . '/akismet/class.akismet.php' ) ) {
+						$error = esc_html__( 'Please install Akismet.', 'jetpack' );
+						$updated = false;
+						break;
+					}
+
+					if ( ! defined( 'AKISMET_VERSION' ) ) {
+						$error = esc_html__( 'Please activate Akismet.', 'jetpack' );
+						$updated = false;
+						break;
+					}
+
+					require_once WP_PLUGIN_DIR . '/akismet/class.akismet.php';
+					require_once WP_PLUGIN_DIR . '/akismet/class.akismet-admin.php';
+
+					if ( class_exists( 'Akismet_Admin' ) && method_exists( 'Akismet_Admin', 'save_key' ) ) {
+						if ( Akismet::verify_key( $value ) === 'valid' ) {
+							$akismet_user = Akismet_Admin::get_akismet_user( $value );
+							if ( $akismet_user ) {
+								if ( in_array( $akismet_user->status, array( 'active', 'active-dunning', 'no-sub' ) ) ) {
+									$updated = get_option( $option ) != $value ? update_option( $option, $value ) : true;
+									break;
+								} else {
+									$error = esc_html__( "Akismet user status doesn't allow to update the key", 'jetpack' );
+								}
+							} else {
+								$error = esc_html__( 'Invalid Akismet user', 'jetpack' );
+							}
+						} else {
+							$error = esc_html__( 'Invalid Akismet key', 'jetpack' );
+						}
+					} else {
+						$error = esc_html__( 'Akismet is not installed or active', 'jetpack' );
+					}
+					$updated = false;
+					break;
+
 				case 'google_analytics_tracking_id':
 					$grouped_options = $grouped_options_current = (array) get_option( 'jetpack_wga' );
 					$grouped_options[ 'code' ] = $value;
