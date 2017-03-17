@@ -11,7 +11,9 @@ import { getModule } from 'state/modules';
 import { getSettings } from 'state/settings';
 import { isDevMode, isUnavailableInDevMode } from 'state/connection';
 import { isModuleFound as _isModuleFound } from 'state/search';
+import { isPluginActive } from 'state/site/plugins';
 import QuerySite from 'components/data/query-site';
+import QuerySitePlugins from 'components/data/query-site-plugins';
 import { BackupsScan } from './backups-scan';
 import { Antispam } from './antispam';
 import { Protect } from './protect';
@@ -28,7 +30,7 @@ export const Security = React.createClass( {
 			isUnavailableInDevMode: this.props.isUnavailableInDevMode
 		};
 
-		let found = {
+		const found = {
 			protect: this.props.isModuleFound( 'protect' ),
 			sso: this.props.isModuleFound( 'sso' )
 		};
@@ -41,22 +43,22 @@ export const Security = React.createClass( {
 			return null;
 		}
 
-		let backupSettings = (
+		const backupSettings = (
 			<BackupsScan
 				{ ...commonProps }
 			/>
 		);
-		let akismetSettings = (
+		const akismetSettings = this.props.isPluginActive( 'akismet/akismet.php' ) && (
 			<Antispam
 				{ ...commonProps }
 			/>
 		);
-		let protectSettings = (
+		const protectSettings = (
 			<Protect
 				{ ...commonProps }
 			/>
 		);
-		let ssoSettings = (
+		const ssoSettings = (
 			<SSO
 				{ ...commonProps }
 			/>
@@ -64,6 +66,7 @@ export const Security = React.createClass( {
 		return (
 			<div>
 				<QuerySite />
+				<QuerySitePlugins />
 				{ ( found.protect || found.sso ) && backupSettings }
 				{ ( found.protect || found.sso ) && akismetSettings }
 				{ found.protect && protectSettings }
@@ -81,6 +84,7 @@ export default connect(
 			isDevMode: isDevMode( state ),
 			isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name ),
 			isModuleFound: ( module_name ) => _isModuleFound( state, module_name ),
-		}
+			isPluginActive: ( plugin_slug ) => isPluginActive( state, plugin_slug )
+		};
 	}
 )( Security );
