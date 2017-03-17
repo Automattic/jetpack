@@ -13,11 +13,13 @@
 }
 
 .jp-form-label-wide {
+	padding: rem( 8px ) 0;
 	display: block;
 }
 
 .jp-form-label input[type="radio"] + span {
 	font-weight: normal;
+	margin-left: 8px;
 }
 
 .jp-form-button {
