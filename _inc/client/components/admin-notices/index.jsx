@@ -39,7 +39,7 @@ const AdminNotices = React.createClass( {
 	},
 
 	render() {
-		return ( <div ref="adminNotices"></div> )
+		return ( <div ref="adminNotices" aria-live="polite"></div> )
 	}
 } );
 
