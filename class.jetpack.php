@@ -5363,8 +5363,20 @@ p {
 		return $domains;
 	}
 
+	static function is_redirect_encoded( $redirect_url ) {
+		return wp_startswith( $redirect_url, 'https%3A%2F%2F' );
+	}
+
+	static function remove_double_encoding( $str ) {
+		return urldecode( $str );
+	}
+
 	// Add the Access Code details to the public-api.wordpress.com redirect
 	function add_token_to_login_redirect_json_api_authorization( $redirect_to, $original_redirect_to, $user ) {
+		if ( Jetpack::is_redirect_encoded( $redirect_to ) ) {
+			$redirect_to = urldecode( $redirect_to );
+		}
+
 		return add_query_arg(
 			urlencode_deep(
 				array(
@@ -5388,6 +5400,14 @@ p {
 	 */
 	function verify_json_api_authorization_request( $environment = null ) {
 		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-signature.php';
+
+		// Host has encoded the request URL, probably as a result of a bad http => https redirect
+		if ( Jetpack::is_redirect_encoded( $_GET['redirect_to'] ) ) {
+			// Remove the extra encoding in both the GET params and the REQUEST_URI (which is used to calculate the signature)
+			$_GET = array_map( array( 'Jetpack', 'remove_double_encoding' ), $_GET );
+			$_REQUEST = array_map( array( 'Jetpack', 'remove_double_encoding' ), $_REQUEST );
+			$_SERVER['REQUEST_URI'] = Jetpack::remove_double_encoding( $_SERVER['REQUEST_URI'] );
+		}
 
 		$environment = is_null( $environment )
 			? $_REQUEST

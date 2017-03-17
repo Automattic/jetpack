@@ -430,9 +430,19 @@ class Jetpack_SSO {
 			return new WP_Error( 'headers_sent', __( 'Cannot deal with cookie redirects, as headers are already sent.', 'jetpack' ) );
 		}
 
+		$redirect_url = false;
+		$original_request = set_url_scheme( $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] );
+
+		// Check if host has encoded the request probably as a result of a bad http => https redirect
+		if ( ! empty( $_GET['redirect_to'] ) && Jetpack::is_redirect_encoded( $_GET['redirect_to'] ) ) {
+			// Remove the encoding before storing
+			$redirect_url = Jetpack::remove_double_encoding( $_GET['redirect_to'] );
+			$original_request = Jetpack::remove_double_encoding( $original_request );
+		}
+
 		setcookie(
 			'jetpack_sso_original_request',
-			esc_url_raw( set_url_scheme( $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] ) ),
+			esc_url_raw( $original_request ),
 			time() + HOUR_IN_SECONDS,
 			COOKIEPATH,
 			COOKIE_DOMAIN,
@@ -440,9 +450,9 @@ class Jetpack_SSO {
 			true
 		);
 
-		if ( ! empty( $_GET['redirect_to'] ) ) {
+		if ( $redirect_url ) {
 			// If we have something to redirect to
-			$url = esc_url_raw( $_GET['redirect_to'] );
+			$url = esc_url_raw( $redirect_url );
 			setcookie( 'jetpack_sso_redirect_to', $url, time() + HOUR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN, false, true );
 		} elseif ( ! empty( $_COOKIE['jetpack_sso_redirect_to'] ) ) {
 			// Otherwise, if it's already set, purge it.
