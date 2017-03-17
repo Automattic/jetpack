@@ -106,6 +106,15 @@ const ProStatus = React.createClass( {
 			if ( this.props.isDevMode ) {
 				return '';
 			}
+
+			if ( 'backups' === feature ) {
+				if ( hasFree ) {
+					if ( this.props.isCompact ) {
+						return this.getScanActions( 'free' );
+					}
+				}
+			}
+
 			if ( 'scan' === feature ) {
 				if ( hasFree || hasPersonal ) {
 					if ( this.props.isCompact ) {

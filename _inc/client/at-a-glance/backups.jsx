@@ -25,7 +25,7 @@ import { isDevMode } from 'state/connection';
 const DashBackups = React.createClass( {
 	getContent: function() {
 		const labelName = __( 'Backups' ),
-			hasSitePlan = false !== this.props.sitePlan,
+			hasSitePlan = false !== this.props.sitePlan && 'jetpack_free' !== this.props.sitePlan.product_slug,
 			inactiveOrUninstalled = this.props.isPluginInstalled( 'vaultpress/vaultpress.php' ) ? 'pro-inactive' : 'pro-uninstalled';
 
 		if ( this.props.isModuleActivated( 'vaultpress' ) ) {
@@ -74,7 +74,7 @@ const DashBackups = React.createClass( {
 				);
 			} else {
 				return (
-					__( 'To automatically back up your entire site, please {{a}}upgrade!{{/a}}.', {
+					__( 'To automatically back up your entire site, please {{a}}upgrade your account.{{/a}}.', {
 						components: {
 							a: <a href={ 'https://jetpack.com/redirect/?source=aag-backups&site=' + this.props.siteRawUrl } target="_blank" rel="noopener noreferrer" />
 						}
