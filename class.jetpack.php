@@ -2793,8 +2793,10 @@ p {
 		if ( ! $old_version ) { // For new sites
 			// Setting up jetpack manage
 			Jetpack::activate_manage();
-			Jetpack::activate_markdown();
 		}
+
+		Jetpack::activate_markdown();
+
 	}
 
 	/**
