@@ -348,7 +348,7 @@ function wpcomsh_add_wpcom_suffix_to_theme_endpoint_response( $formatted_theme )
 
 	$theme_slug = $formatted_theme['id'];
 
-	if ( wpcomsh_is_wpcom_theme( $theme_slug ) ) {
+	if ( wpcomsh_is_theme_symlinked( $theme_slug ) ) {
 		$formatted_theme['theme_uri'] = "https://wordpress.com/theme/{$theme_slug}";
 	}
 
