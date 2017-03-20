@@ -389,12 +389,17 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					break;
 
 				case 'wordpress_api_key':
-					if ( ! class_exists( 'Akismet' ) ) {
-						if ( file_exists( WP_PLUGIN_DIR . '/akismet/class.akismet.php' ) ) {
-							require_once WP_PLUGIN_DIR . '/akismet/class.akismet.php';
+					// When field is clear, return empty. Otherwise it would return "false".
+					if ( '' === get_option( 'wordpress_api_key', '' ) ) {
+						$response[ $setting ] = '';
+					} else {
+						if ( ! class_exists( 'Akismet' ) ) {
+							if ( file_exists( WP_PLUGIN_DIR . '/akismet/class.akismet.php' ) ) {
+								require_once WP_PLUGIN_DIR . '/akismet/class.akismet.php';
+							}
 						}
+						$response[ $setting ] = class_exists( 'Akismet' ) ? Akismet::get_api_key() : '';
 					}
-					$response[ $setting ] = class_exists( 'Akismet' ) ? Akismet::get_api_key() : '';
 					break;
 
 				default:
@@ -783,6 +788,12 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					if ( ! defined( 'AKISMET_VERSION' ) ) {
 						$error = esc_html__( 'Please activate Akismet.', 'jetpack' );
 						$updated = false;
+						break;
+					}
+
+					// Allow to clear the API key field
+					if ( '' === $value ) {
+						$updated = get_option( $option ) != $value ? update_option( $option, $value ) : true;
 						break;
 					}
 
