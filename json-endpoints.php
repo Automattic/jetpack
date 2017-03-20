@@ -90,6 +90,7 @@ require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-site-homepage-e
 
 // Publicize
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-publicize-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-publicize-scheduled-actions-endpoint.php' );
 
 // **********
 // v1.2
@@ -3370,7 +3371,9 @@ new WPCOM_JSON_API_Publicize_Endpoint( array(
 
 	'request_format'  => array(
 		'message'  => '(string) The custom message that gets publicized',
-		'skipped_connections' => '(array) List of publicize account ids that we don\'t want publicize to'
+		'skipped_connections' => '(array) List of publicize account ids that we don\'t want publicize to',
+		'connections' => '(array) List of publicize account ids that we want to publicize to',
+		'share_date' => '(int) Time for the message to publish',
 	),
 
 	'response_format' => array(
@@ -3384,6 +3387,89 @@ new WPCOM_JSON_API_Publicize_Endpoint( array(
 		),
 		'body' => array(
 			'message'   => 'Hello World',
+			'share_date'		=> '1490045140',
+		)
+	)
+ ) );
+
+new WPCOM_JSON_API_List_Publicize_Scheduled_Actions_Endpoint( array(
+	'description' => 'List scheduled and published publicize actions for a post.',
+	'group'       => '__do_not_document',
+	'stat'        => 'publicize:list_actions',
+	'min_version' => '1',
+	'method'      => 'GET',
+	'force'       => 'wpcom',
+	'path'        => '/sites/%s/post/%d/publicize/actions',
+	'path_labels' => array(
+		'$site' => '(int|string) Site ID or domain',
+		'$post_id' => '(int) Post ID',
+	),
+
+	'response_format' => array(
+		'items' => '(array) Actions',
+	),
+
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/post/1/publicize/actions/',
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		)
+	)
+ ) );
+
+new WPCOM_JSON_API_Edit_Publicize_Scheduled_Action_Endpoint( array(
+	'description' => 'Edit scheduled publicize action for a post.',
+	'group'       => '__do_not_document',
+	'stat'        => 'publicize:edit_action',
+	'min_version' => '1',
+	'method'      => 'POST',
+	'force'       => 'wpcom',
+	'path'        => '/sites/%s/post/%d/publicize/action/%s/edit',
+	'path_labels' => array(
+		'$site' => '(int|string) Site ID or domain',
+		'$post_id' => '(int) Post ID',
+		'$id' => '(string) Publicize action ID',
+	),
+	'request_format'  => array(
+		'message'  => '(string) The custom message that gets publicized',
+		'share_date' => '(int) Time for the message to publish',
+	),
+	'response_format' => array(
+		'id' => '(string) ID of new publicize action',
+	),
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/post/1/publicize/action/15505463_1489962162_58cf04b27b662/edit/',
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+		'body' => array(
+			'message'   => 'Hello World',
+			'share_date'		=> '1490045140',
+		)
+	)
+ ) );
+new WPCOM_JSON_API_Delete_Publicize_Scheduled_Action_Endpoint( array(
+	'description' => 'Delete scheduled publicize action for a post.',
+	'group'       => '__do_not_document',
+	'stat'        => 'publicize:delete_action',
+	'min_version' => '1',
+	'method'      => 'POST',
+	'force'       => 'wpcom',
+	'path'        => '/sites/%s/post/%d/publicize/action/%s/delete',
+	'path_labels' => array(
+		'$site' => '(int|string) Site ID or domain',
+		'$post_id' => '(int) Post ID',
+		'$id' => '(string) Publicize action ID',
+	),
+
+	'response_format' => array(
+		'success' => '(bool) Action was succesfully deleted?',
+	),
+
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/post/1/publicize/action/15505463_1489962162_58cf04b27b662/delete/',
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
 		)
 	)
  ) );
