@@ -302,7 +302,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 				return $this->get_module( $request );
 			}
 
-			return $this->get_all_options( $request );
+			return $this->get_all_options();
 		} else {
 			return $this->update_data( $request );
 		}
@@ -356,15 +356,13 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 	}
 
 	/**
-	 * Get information about all Jetpack module settings.
+	 * Get information about all Jetpack module options and settings.
 	 *
 	 * @since 4.6.0
 	 *
-	 * @param WP_REST_Request $request The request sent to the WP REST API.
-	 *
-	 * @return array
+	 * @return WP_REST_Response $response
 	 */
-	public function get_all_options( $request ) {
+	public function get_all_options() {
 		$response = array();
 
 		$modules = Jetpack::get_available_modules();
@@ -381,9 +379,34 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			}
 		}
 
-		// Add the Holiday snow current value
+		$settings = Jetpack_Core_Json_Api_Endpoints::get_updateable_data_list( 'settings' );
 		$holiday_snow_option_name = Jetpack_Core_Json_Api_Endpoints::holiday_snow_option_name();
-		$response[ $holiday_snow_option_name ] = get_option( $holiday_snow_option_name ) === 'letitsnow';
+
+		foreach ( $settings as $setting => $properties ) {
+			switch ( $setting ) {
+				case $holiday_snow_option_name:
+					$response[ $setting ] = get_option( $holiday_snow_option_name ) === 'letitsnow';
+					break;
+
+				case 'wordpress_api_key':
+					if ( ! class_exists( 'Akismet' ) ) {
+						if ( file_exists( WP_PLUGIN_DIR . '/akismet/class.akismet.php' ) ) {
+							require_once WP_PLUGIN_DIR . '/akismet/class.akismet.php';
+						}
+					}
+					$response[ $setting ] = class_exists( 'Akismet' ) ? Akismet::get_api_key() : '';
+					break;
+
+				default:
+					$response[ $setting ] = Jetpack_Core_Json_Api_Endpoints::cast_value( get_option( $setting ), $settings[ $setting ] );
+					break;
+			}
+		}
+
+		if ( ! function_exists( 'is_plugin_active' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+		$response['akismet'] = is_plugin_active( 'akismet/akismet.php' );
 
 		return rest_ensure_response( $response );
 	}
@@ -747,6 +770,45 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
 					// Save Akismet option '1' or '0' like it's done in akismet/class.akismet-admin.php
 					$updated = get_option( $option ) != $value ? update_option( $option, (bool) $value ? '1' : '0' ) : true;
+					break;
+
+				case 'wordpress_api_key':
+
+					if ( ! file_exists( WP_PLUGIN_DIR . '/akismet/class.akismet.php' ) ) {
+						$error = esc_html__( 'Please install Akismet.', 'jetpack' );
+						$updated = false;
+						break;
+					}
+
+					if ( ! defined( 'AKISMET_VERSION' ) ) {
+						$error = esc_html__( 'Please activate Akismet.', 'jetpack' );
+						$updated = false;
+						break;
+					}
+
+					require_once WP_PLUGIN_DIR . '/akismet/class.akismet.php';
+					require_once WP_PLUGIN_DIR . '/akismet/class.akismet-admin.php';
+
+					if ( class_exists( 'Akismet_Admin' ) && method_exists( 'Akismet_Admin', 'save_key' ) ) {
+						if ( Akismet::verify_key( $value ) === 'valid' ) {
+							$akismet_user = Akismet_Admin::get_akismet_user( $value );
+							if ( $akismet_user ) {
+								if ( in_array( $akismet_user->status, array( 'active', 'active-dunning', 'no-sub' ) ) ) {
+									$updated = get_option( $option ) != $value ? update_option( $option, $value ) : true;
+									break;
+								} else {
+									$error = esc_html__( "Akismet user status doesn't allow to update the key", 'jetpack' );
+								}
+							} else {
+								$error = esc_html__( 'Invalid Akismet user', 'jetpack' );
+							}
+						} else {
+							$error = esc_html__( 'Invalid Akismet key', 'jetpack' );
+						}
+					} else {
+						$error = esc_html__( 'Akismet is not installed or active', 'jetpack' );
+					}
+					$updated = false;
 					break;
 
 				case 'google_analytics_tracking_id':
