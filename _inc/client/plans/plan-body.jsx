@@ -208,7 +208,7 @@ const PlanBody = React.createClass( {
 								<p>{ __( 'Advanced SEO tools to help your site get found when people search for relevant content.' ) }</p>
 								{
 									this.props.isModuleActivated( 'seo-tools' ) ? (
-										<Button href={ 'https://wordpress.com/settings/seo/' + this.props.siteRawUrl } className="is-primary">
+										<Button href={ 'https://wordpress.com/settings/traffic/' + this.props.siteRawUrl } className="is-primary">
 											{ __( 'Configure Site SEO' ) }
 										</Button>
 									)
@@ -233,7 +233,7 @@ const PlanBody = React.createClass( {
 								<p>{ __( 'Track website statistics with Google Analytics for a deeper understanding of your website visitors and customers.' ) }</p>
 								{
 									this.props.isModuleActivated( 'google-analytics' ) ? (
-										<Button href={ 'https://wordpress.com/settings/analytics/' + this.props.siteRawUrl } className="is-primary">
+										<Button href={ 'https://wordpress.com/settings/traffic/' + this.props.siteRawUrl } className="is-primary">
 											{ __( 'Configure Google Analytics' ) }
 										</Button>
 									)
