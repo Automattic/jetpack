@@ -12,12 +12,14 @@ import { getSettings } from 'state/settings';
 import { isDevMode, isUnavailableInDevMode } from 'state/connection';
 import { isModuleFound as _isModuleFound } from 'state/search';
 import { isPluginActive } from 'state/site/plugins';
+import { getAkismetData } from 'state/at-a-glance';
 import QuerySite from 'components/data/query-site';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 import { BackupsScan } from './backups-scan';
 import { Antispam } from './antispam';
 import { Protect } from './protect';
 import { SSO } from './sso';
+import QueryAkismetData from 'components/data/query-akismet-data';
 
 export const Security = React.createClass( {
 	displayName: 'SecuritySettings',
@@ -48,11 +50,19 @@ export const Security = React.createClass( {
 				{ ...commonProps }
 			/>
 		);
-		const akismetSettings = this.props.isPluginActive( 'akismet/akismet.php' ) && (
-			<Antispam
-				{ ...commonProps }
-			/>
-		);
+
+		let akismetSettings = '';
+		if ( this.props.isPluginActive( 'akismet/akismet.php' ) ) {
+			akismetSettings = (
+				<div>
+					<QueryAkismetData />
+					<Antispam
+						{ ...commonProps }
+						akismetData={ this.props.akismetData }
+					/>
+				</div>
+			);
+		}
 		const protectSettings = (
 			<Protect
 				{ ...commonProps }
@@ -84,7 +94,8 @@ export default connect(
 			isDevMode: isDevMode( state ),
 			isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name ),
 			isModuleFound: ( module_name ) => _isModuleFound( state, module_name ),
-			isPluginActive: ( plugin_slug ) => isPluginActive( state, plugin_slug )
+			isPluginActive: ( plugin_slug ) => isPluginActive( state, plugin_slug ),
+			akismetData: getAkismetData( state )
 		};
 	}
 )( Security );

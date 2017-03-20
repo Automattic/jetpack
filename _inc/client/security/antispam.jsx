@@ -5,6 +5,7 @@ import React from 'react';
 import { translate as __ } from 'i18n-calypso';
 import TextInput from 'components/text-input';
 import FoldableCard from 'components/foldable-card';
+import FormInputValidation from 'components/form-input-validation';
 
 /**
  * Internal dependencies
@@ -17,11 +18,48 @@ import SettingsGroup from 'components/settings-group';
 export const Antispam = moduleSettingsForm(
 	React.createClass( {
 
-		toggleModule( name, value ) {
-			this.props.updateFormStateOptionValue( name, ! value );
-		},
-
 		render() {
+			let textInput = (
+					<TextInput
+						name={ 'wordpress_api_key' }
+						value={ this.props.getOptionValue( 'wordpress_api_key' ) }
+						disabled={ this.props.isSavingAnyOption( 'wordpress_api_key' ) }
+						onChange={ this.props.onOptionChange }
+						/>
+				),
+				akismetStatus = '';
+
+			if ( 'N/A' !== this.props.akismetData ) {
+				if ( 'invalid_key' === this.props.akismetData ) {
+					akismetStatus = <FormInputValidation isError text={
+						__( "There's a problem with your Antispam API key. {{a}}Learn more{{/a}}.", {
+							components: {
+								a: <a href={ 'https://docs.akismet.com/getting-started/api-key/' } />
+							}
+						} ) } />;
+					textInput = (
+						<TextInput
+							name={ 'wordpress_api_key' }
+							value={ this.props.getOptionValue( 'wordpress_api_key' ) }
+							disabled={ this.props.isSavingAnyOption( 'wordpress_api_key' ) }
+							onChange={ this.props.onOptionChange }
+							isError
+							/>
+					);
+				} else {
+					akismetStatus = <FormInputValidation text={ __( 'Your Akismet key is valid & working' ) } />;
+					textInput = (
+						<TextInput
+							name={ 'wordpress_api_key' }
+							value={ this.props.getOptionValue( 'wordpress_api_key' ) }
+							disabled={ this.props.isSavingAnyOption( 'wordpress_api_key' ) }
+							onChange={ this.props.onOptionChange }
+							isValid
+							/>
+					);
+				}
+			}
+
 			return (
 				<SettingsCard
 					{ ...this.props }
@@ -33,11 +71,12 @@ export const Antispam = moduleSettingsForm(
 							<FormFieldset>
 								<FormLabel>
 									<span className="jp-form-label-wide">{ __( 'Your API key' ) }</span>
-									<TextInput
-										name={ 'wordpress_api_key' }
-										value={ this.props.getOptionValue( 'wordpress_api_key' ) }
-										disabled={ this.props.isSavingAnyOption( 'wordpress_api_key' ) }
-										onChange={ this.props.onOptionChange } />
+									{
+										textInput
+									}
+									{
+										akismetStatus
+									}
 								</FormLabel>
 								<p className="jp-form-setting-explanation" >
 									{
