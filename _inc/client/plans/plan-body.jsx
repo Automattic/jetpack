@@ -218,7 +218,7 @@ const PlanBody = React.createClass( {
 								{
 									this.props.isFetchingPluginsData ? '' :
 									this.props.isModuleActivated( 'seo-tools' ) ? (
-										<Button href={ 'https://wordpress.com/settings/seo/' + this.props.siteRawUrl } className="is-primary">
+										<Button href={ 'https://wordpress.com/settings/traffic/' + this.props.siteRawUrl } className="is-primary">
 											{ __( 'Configure Site SEO' ) }
 										</Button>
 									)
@@ -244,7 +244,7 @@ const PlanBody = React.createClass( {
 								{
 									this.props.isFetchingPluginsData ? '' :
 									this.props.isModuleActivated( 'google-analytics' ) ? (
-										<Button href={ 'https://wordpress.com/settings/analytics/' + this.props.siteRawUrl } className="is-primary">
+										<Button href={ 'https://wordpress.com/settings/traffic/' + this.props.siteRawUrl } className="is-primary">
 											{ __( 'Configure Google Analytics' ) }
 										</Button>
 									)
