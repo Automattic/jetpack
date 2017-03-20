@@ -177,14 +177,14 @@ export const Engagement = ( props ) => {
 				props.sitePlan.product_slug === 'jetpack_business_monthly'
 			) {
 				proProps.configure_url = isModuleActive
-					? 'https://wordpress.com/settings/seo/' + props.siteRawUrl
+					? 'https://wordpress.com/settings/traffic/' + props.siteRawUrl
 					: 'inactive';
 			}
 
 			moduleDescription = <AllModuleSettings module={ proProps } />;
 		} else if ( element[0] === 'google-analytics' ) {
 			proProps.configure_url = isModuleActive
-				? 'https://wordpress.com/settings/analytics/' + props.siteRawUrl
+				? 'https://wordpress.com/settings/traffic/' + props.siteRawUrl
 				: 'inactive';
 
 			moduleDescription = <AllModuleSettings module={ proProps } />;
