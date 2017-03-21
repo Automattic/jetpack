@@ -61,13 +61,15 @@ export const Antispam = moduleSettingsForm(
 				disabled: this.props.isSavingAnyOption( 'wordpress_api_key' ),
 				onChange: this.updateText
 			};
-			let akismetStatus = '';
+			let akismetStatus = '',
+				explanation = false;
 
 			if ( null === this.props.isAkismetKeyValid() ) {
 				textProps.value = __( 'Fetching key…' );
 				textProps.disabled = true;
 			} else if ( '' === this.state.apiKey ) {
 				textProps.value = '';
+				explanation = true;
 			} else if ( ! this.state.delayKeyCheck && ! this.props.isCheckingAkismetKey() ) {
 				if ( false === this.props.isAkismetKeyValid() ) {
 					akismetStatus = <FormInputValidation isError text={
@@ -76,7 +78,7 @@ export const Antispam = moduleSettingsForm(
 									a: <a href={ 'https://docs.akismet.com/getting-started/api-key/' } />
 								}
 							} ) } />;
-					textProps.isError = true;
+					textProps.isError = explanation = true;
 				} else {
 					akismetStatus = <FormInputValidation text={ __( 'Your Antispam key is valid & working' ) } />;
 					textProps.isValid = true;
@@ -107,15 +109,19 @@ export const Antispam = moduleSettingsForm(
 										akismetStatus
 									}
 								</FormLabel>
-								<p className="jp-form-setting-explanation" >
-									{
-										__( "If you don't already have an API key, then {{a}}get your API key here{{/a}}, and you'll be guided through the process of getting one in a new window.", {
-											components: {
-												a: <a href={ 'https://akismet.com/wordpress/' } />
+								{
+									explanation && (
+										<p className="jp-form-setting-explanation" >
+											{
+												__( "If you don't already have an API key, then {{a}}get your API key here{{/a}}, and you'll be guided through the process of getting one in a new window.", {
+													components: {
+														a: <a href={ 'https://akismet.com/wordpress/' } />
+													}
+												} )
 											}
-										} )
-									}
-								</p>
+										</p>
+									)
+								}
 							</FormFieldset>
 						</SettingsGroup>
 					</FoldableCard>
