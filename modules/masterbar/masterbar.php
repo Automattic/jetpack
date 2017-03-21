@@ -93,6 +93,7 @@ class A8C_WPCOM_Masterbar {
 			wp_enqueue_style( 'noticons', $this->wpcom_static_url( '/i/noticons/noticons.css' ), array(), JETPACK_NOTES__CACHE_BUSTER );
 		}
 
+		wp_enqueue_script( 'jetpack-accessible-focus', plugins_url( '_inc/accessible-focus.js', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
 		wp_enqueue_script( 'a8c_wpcom_masterbar_overrides', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/masterbar-overrides/masterbar.js' ) );
 	}
 
@@ -162,6 +163,7 @@ class A8C_WPCOM_Masterbar {
 		$wp_admin_bar->add_node( array(
 			'id'     => 'notes',
 			'title'  => '<span id="wpnt-notes-unread-count" class="wpnt-loading wpn-read"></span>
+						 <span class="screen-reader-text">' . __( 'Notifications', 'jetpack' ) . '</span>
 						 <span class="noticon noticon-bell"></span>',
 			'meta'   => array(
 				'html'  => '<div id="wpnt-notes-panel2" style="display:none" lang="'. esc_attr( $this->locale ) . '" dir="' . ( $this->is_rtl() ? 'rtl' : 'ltr' ) . '">' .
@@ -181,6 +183,7 @@ class A8C_WPCOM_Masterbar {
 
 	public function add_reader_submenu( $wp_admin_bar ) {
 		$wp_admin_bar->add_menu( array(
+			'parent' => 'root-default',
 			'id'    => 'newdash',
 			'title' => __( 'Reader', 'jetpack' ),
 			'href'  => '#',
@@ -276,11 +279,10 @@ class A8C_WPCOM_Masterbar {
 	}
 
 	public function wpcom_adminbar_add_secondary_groups( $wp_admin_bar ) {
-		$class = 'ab-top-secondary';
 		$wp_admin_bar->add_group( array(
-			'id'     => 'top-secondary',
+			'id'     => 'root-default',
 			'meta'   => array(
-				'class' => $class,
+				'class' => 'ab-top-menu',
 			),
 		) );
 
@@ -289,6 +291,13 @@ class A8C_WPCOM_Masterbar {
 			'id'     => 'blog-secondary',
 			'meta'   => array(
 				'class' => 'ab-sub-secondary',
+			),
+		) );
+
+		$wp_admin_bar->add_group( array(
+			'id'     => 'top-secondary',
+			'meta'   => array(
+				'class' => 'ab-top-secondary',
 			),
 		) );
 	}
@@ -493,6 +502,7 @@ class A8C_WPCOM_Masterbar {
 		}
 
 		$wp_admin_bar->add_menu( array(
+			'parent' => 'root-default',
 			'id'    => 'blog',
 			'title' => __( 'My Sites', 'jetpack' ),
 			'href'  => '#',
