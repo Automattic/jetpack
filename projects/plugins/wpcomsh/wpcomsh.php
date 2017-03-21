@@ -441,7 +441,7 @@ add_action( 'after_setup_theme', 'wpcomsh_load_theme_compat_file', 0 );
  */
 function wpcomsh_symlinked_plugins_url( $url, $path, $plugin ) {
 	$url = preg_replace(
-		'#((?<!/)/[^/]+)*/wp-content/plugins/wordpress/plugins/wpcomsh/#',
+		'#((?<!/)/[^/]+)*/wp-content/plugins/wordpress/plugins/wpcomsh/([^/]+)/#',
 		'/wp-content/mu-plugins/wpcomsh/',
 		$url
 	);
