@@ -408,6 +408,8 @@ class Jetpack_Photon {
 			/**
 			 * Provide plugins a way of running Photon for images in the WordPress Dashboard (wp-admin).
 			 *
+			 * Note: enabling this will result in Photon URLs added to your post content, which could make migrations across domains (and off Photon) a bit more challenging.
+			 *
 			 * @module photon
 			 *
 			 * @since 4.8.0
