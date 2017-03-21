@@ -110,6 +110,11 @@ class WP_Test_Jetpack_Network extends WP_UnitTestCase {
 		$this->assertContains( 'network-admin', $classes );
 	}
 
+	/**
+	 * @author igmoweb
+	 * @covers Jetpack_Options::is_network_option
+	 * @since 4.8
+	 */
 	public function test_is_network_option() {
 		$network_options = Jetpack_Options::get_option_names( 'network' );
 		foreach ( $network_options as $option_name ) {
@@ -119,6 +124,11 @@ class WP_Test_Jetpack_Network extends WP_UnitTestCase {
 	}
 
 
+	/**
+	 * @author igmoweb
+	 * @covers Jetpack_Options::update_option
+	 * @since 4.8
+	 */
 	public function test_update_file_data_network_options() {
 		$value = array( 'just', 'a', 'sample' );
 		Jetpack_Options::update_option( 'file_data', $value );
@@ -132,7 +142,11 @@ class WP_Test_Jetpack_Network extends WP_UnitTestCase {
 		$this->assertFalse( get_option('jetpack_file_data' ) );
 	}
 
-
+	/**
+	 * @author igmoweb
+	 * @covers Jetpack_Options::get_option_and_ensure_autoload
+	 * @since 4.8
+	 */
 	public function test_delete_file_data_network_options() {
 		$value = array( 'just', 'a', 'sample' );
 		Jetpack_Options::update_option( 'file_data', $value );
@@ -140,6 +154,11 @@ class WP_Test_Jetpack_Network extends WP_UnitTestCase {
 		$this->assertFalse( Jetpack_Options::get_option( 'file_data' ) );
 	}
 
+	/**
+	 * @author igmoweb
+	 * @covers Jetpack_Options::delete_option
+	 * @since 4.8
+	 */
 	public function test_get_network_option_and_ensure_autoload() {
 		$default = array( 'just', 'a', 'sample' );
 		$value = Jetpack_Options::get_option_and_ensure_autoload( 'jetpack_file_data', $default );

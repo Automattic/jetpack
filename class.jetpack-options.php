@@ -65,7 +65,7 @@ class Jetpack_Options {
 
 		case 'network' :
 			return array(
-				'file_data'                     // (array) List pf absolute paths to all Jetpack modules
+				'file_data'                     // (array) List of absolute paths to all Jetpack modules
 			);
 		}
 
@@ -130,7 +130,7 @@ class Jetpack_Options {
 	/**
 	 * Checks if an option must be saved for the whole network in WP Multisite
 	 *
-	 * @param string $option_name Option name. It must come _without_ jetpack_% prefix. The method will prefix the option name.
+	 * @param string $option_name Option name. It must come _without_ `jetpack_%` prefix. The method will prefix the option name.
 	 *
 	 * @return bool
 	 */
@@ -144,7 +144,7 @@ class Jetpack_Options {
 	/**
 	 * Returns the requested option.  Looks in jetpack_options or jetpack_$name as appropriate.
 	 *
-	 * @param string $name Option name. It must come _without_ jetpack_% prefix. The method will prefix the option name.
+	 * @param string $name Option name. It must come _without_ `jetpack_%` prefix. The method will prefix the option name.
 	 * @param mixed $default (optional)
 	 *
 	 * @return mixed
@@ -211,7 +211,7 @@ class Jetpack_Options {
 	/**
 	 * Updates the single given option.  Updates jetpack_options or jetpack_$name as appropriate.
 	 *
-	 * @param string $name Option name. It must come _without_ jetpack_% prefix. The method will prefix the option name.
+	 * @param string $name Option name. It must come _without_ `jetpack_%` prefix. The method will prefix the option name.
 	 * @param mixed $value Option value
 	 * @param string $autoload If not compact option, allows specifying whether to autoload or not.
 	 *
@@ -269,7 +269,7 @@ class Jetpack_Options {
 	 * Deletes the given option.  May be passed multiple option names as an array.
 	 * Updates jetpack_options and/or deletes jetpack_$name as appropriate.
 	 *
-	 * @param string|array $names Option names. They must come _without_ jetpack_% prefix. The method will prefix the option names.
+	 * @param string|array $names Option names. They must come _without_ `jetpack_%` prefix. The method will prefix the option names.
 	 *
 	 * @return bool Was the option successfully deleted?
 	 */
