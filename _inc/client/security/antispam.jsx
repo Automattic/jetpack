@@ -28,12 +28,12 @@ export const Antispam = moduleSettingsForm(
 				};
 			let akismetStatus = '';
 
-			if ( 'N/A' === this.props.akismetData ) {
+			if ( null === this.props.isAkismetKeyValid ) {
 				textProps.value = __( 'Fetching key…' );
 				textProps.disabled = true;
 			} else if ( '' === apiKey ) {
 				textProps.value = '';
-			} else if ( 'invalid_key' === this.props.akismetData ) {
+			} else if ( false === this.props.isAkismetKeyValid ) {
 				akismetStatus = <FormInputValidation isError text={
 						__( "There's a problem with your Antispam API key. {{a}}Learn more{{/a}}.", {
 							components: {

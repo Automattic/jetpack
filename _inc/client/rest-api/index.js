@@ -164,6 +164,13 @@ function JetpackRestApiClient( root, nonce ) {
 			}
 		} )
 		.then( checkStatus ).then( response => response.json() ),
+		checkAkismetKey: () => fetch( `${ apiRoot }jetpack/v4/module/akismet/key/check`, {
+			credentials: 'same-origin',
+			headers: {
+				'X-WP-Nonce': apiNonce
+			}
+		} )
+		.then( checkStatus ).then( response => response.json() ),
 		fetchStatsData: ( range ) => fetch(
 			statsDataUrl( range ),
 			{
@@ -229,14 +236,14 @@ function JetpackRestApiClient( root, nonce ) {
 			}
 		} )
 		.then( checkStatus ).then( response => response.json() )
-	}
+	};
 
 	function statsDataUrl( range ) {
 		let url = `${ apiRoot }jetpack/v4/module/stats/data`;
 		if ( url.indexOf( '?' ) !== -1 ) {
-			url = url + `&range=${ encodeURIComponent( range ) }`
+			url = url + `&range=${ encodeURIComponent( range ) }`;
 		} else {
-			url = url + `?range=${ encodeURIComponent( range ) }`
+			url = url + `?range=${ encodeURIComponent( range ) }`;
 		}
 		return url;
 	}
