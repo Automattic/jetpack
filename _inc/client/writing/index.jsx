@@ -33,7 +33,8 @@ export const Writing = React.createClass( {
 			settings: this.props.settings,
 			getModule: this.props.module,
 			isDevMode: this.props.isDevMode,
-			isUnavailableInDevMode: this.props.isUnavailableInDevMode
+			isUnavailableInDevMode: this.props.isUnavailableInDevMode,
+			isLinked: this.props.isLinked
 		};
 
 		const found = [

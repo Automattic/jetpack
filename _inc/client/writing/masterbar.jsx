@@ -3,6 +3,7 @@
  */
 import React, { Component } from 'react';
 import { translate as __ } from 'i18n-calypso';
+import Card from 'components/card';
 
 /**
  * Internal dependencies
@@ -21,7 +22,7 @@ export const Masterbar = moduleSettingsForm(
 			return (
 				<SettingsCard
 					{ ...this.props }
-					header={ __( 'WordPress.com Toolbar', { context: 'Settings header' } ) }
+					header={ __( 'WordPress.com toolbar', { context: 'Settings header' } ) }
 					module="masterbar"
 					hideButton>
 					<SettingsGroup disableInDevMode module={ { module: 'masterbar' } } support="https://jetpack.com/support/masterbar/">
@@ -31,9 +32,22 @@ export const Masterbar = moduleSettingsForm(
 							activated={ isActive }
 							toggling={ this.props.isSavingAnyOption( 'masterbar' ) }
 							toggleModule={ this.props.toggleModuleNow }>
-							{ __( 'Replaces the admin bar with a useful toolbar to quickly manage your site via WordPress.com.' ) }
+							{ __( 'Replace the admin bar with a useful toolbar to quickly manage your site via WordPress.com' ) }
 						</ModuleToggle>
 					</SettingsGroup>
+					{
+						( ! this.props.isUnavailableInDevMode( 'masterbar' ) && ! this.props.isLinked ) && (
+							<Card
+								compact
+								className="jp-settings-card__configure-link"
+								href={ `${ this.props.connectUrl }&from=unlinked-user-connect-masterbar` }
+							>
+								{
+									__( 'Link your existing WordPress.com account to use this feature.' )
+								}
+							</Card>
+						)
+					}
 				</SettingsCard>
 			);
 		}
