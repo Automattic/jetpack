@@ -17,7 +17,8 @@ export const Masterbar = moduleSettingsForm(
 	class extends Component {
 		render() {
 			const isActive = this.props.getOptionValue( 'masterbar' ),
-				unavailableInDevMode = this.props.isUnavailableInDevMode( 'masterbar' );
+				unavailableInDevMode = this.props.isUnavailableInDevMode( 'masterbar' ),
+				isLinked = this.props.isLinked;
 
 			return (
 				<SettingsCard
@@ -28,7 +29,7 @@ export const Masterbar = moduleSettingsForm(
 					<SettingsGroup disableInDevMode module={ { module: 'masterbar' } } support="https://jetpack.com/support/masterbar/">
 						<ModuleToggle
 							slug="masterbar"
-							disabled={ unavailableInDevMode }
+							disabled={ unavailableInDevMode || ! isLinked }
 							activated={ isActive }
 							toggling={ this.props.isSavingAnyOption( 'masterbar' ) }
 							toggleModule={ this.props.toggleModuleNow }>
@@ -43,7 +44,7 @@ export const Masterbar = moduleSettingsForm(
 								href={ `${ this.props.connectUrl }&from=unlinked-user-connect-masterbar` }
 							>
 								{
-									__( 'Link your existing WordPress.com account to use this feature.' )
+									__( 'Link your account to WordPress.com to use this feature.' )
 								}
 							</Card>
 						)
