@@ -109,17 +109,25 @@ export const fetchAkismetData = () => {
 	};
 };
 
-export const checkAkismetKey = () => {
+export const checkAkismetKey = ( apiKey = '' ) => {
 	return ( dispatch ) => {
 		dispatch( {
 			type: AKISMET_KEY_CHECK_FETCH
 		} );
-		return restApi.checkAkismetKey().then( isAkismetKeyValid => {
-			dispatch( {
-				type: AKISMET_KEY_CHECK_FETCH_SUCCESS,
-				akismet: isAkismetKeyValid
+		const response = '' === apiKey
+			? restApi.checkAkismetKey().then( isAkismetKeyValid => {
+				dispatch( {
+					type: AKISMET_KEY_CHECK_FETCH_SUCCESS,
+					akismet: isAkismetKeyValid
+				} );
+			} )
+			: restApi.checkAkismetKeyTyped( apiKey ).then( isAkismetKeyValid => {
+				dispatch( {
+					type: AKISMET_KEY_CHECK_FETCH_SUCCESS,
+					akismet: isAkismetKeyValid
+				} );
 			} );
-		} ).catch( error => {
+		return response.catch( error => {
 			dispatch( {
 				type: AKISMET_KEY_CHECK_FETCH_FAIL,
 				error: error

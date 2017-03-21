@@ -171,6 +171,16 @@ function JetpackRestApiClient( root, nonce ) {
 			}
 		} )
 		.then( checkStatus ).then( response => response.json() ),
+		checkAkismetKeyTyped: apiKey => fetch( `${ apiRoot }jetpack/v4/module/akismet/key/check`, {
+			method: 'post',
+			credentials: 'same-origin',
+			headers: {
+				'X-WP-Nonce': apiNonce,
+				'Content-type': 'application/json'
+			},
+			body: JSON.stringify( { api_key: apiKey } )
+		} )
+		.then( checkStatus ).then( response => response.json() ),
 		fetchStatsData: ( range ) => fetch(
 			statsDataUrl( range ),
 			{
