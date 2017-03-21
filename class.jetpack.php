@@ -5364,7 +5364,7 @@ p {
 	}
 
 	static function is_redirect_encoded( $redirect_url ) {
-		return wp_startswith( $redirect_url, 'https%3A%2F%2F' );
+		return preg_match( '/https?%3A%2F%2F/i', $redirect_url ) > 0;
 	}
 
 	static function remove_double_encoding( $str ) {
