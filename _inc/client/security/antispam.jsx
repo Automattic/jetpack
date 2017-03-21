@@ -19,45 +19,31 @@ export const Antispam = moduleSettingsForm(
 	React.createClass( {
 
 		render() {
-			let textInput = (
-					<TextInput
-						name={ 'wordpress_api_key' }
-						value={ this.props.getOptionValue( 'wordpress_api_key' ) }
-						disabled={ this.props.isSavingAnyOption( 'wordpress_api_key' ) }
-						onChange={ this.props.onOptionChange }
-						/>
-				),
-				akismetStatus = '';
+			const apiKey = this.props.getOptionValue( 'wordpress_api_key' ),
+				textProps = {
+					name: 'wordpress_api_key',
+					value: apiKey,
+					disabled: this.props.isSavingAnyOption( 'wordpress_api_key' ),
+					onChange: this.props.onOptionChange
+				};
+			let akismetStatus = '';
 
-			if ( 'N/A' !== this.props.akismetData ) {
-				if ( 'invalid_key' === this.props.akismetData ) {
-					akismetStatus = <FormInputValidation isError text={
+			if ( 'N/A' === this.props.akismetData ) {
+				textProps.value = __( 'Fetching key…' );
+				textProps.disabled = true;
+			} else if ( '' === apiKey ) {
+				textProps.value = '';
+			} else if ( 'invalid_key' === this.props.akismetData ) {
+				akismetStatus = <FormInputValidation isError text={
 						__( "There's a problem with your Antispam API key. {{a}}Learn more{{/a}}.", {
 							components: {
 								a: <a href={ 'https://docs.akismet.com/getting-started/api-key/' } />
 							}
 						} ) } />;
-					textInput = (
-						<TextInput
-							name={ 'wordpress_api_key' }
-							value={ this.props.getOptionValue( 'wordpress_api_key' ) }
-							disabled={ this.props.isSavingAnyOption( 'wordpress_api_key' ) }
-							onChange={ this.props.onOptionChange }
-							isError
-							/>
-					);
-				} else {
-					akismetStatus = <FormInputValidation text={ __( 'Your Akismet key is valid & working' ) } />;
-					textInput = (
-						<TextInput
-							name={ 'wordpress_api_key' }
-							value={ this.props.getOptionValue( 'wordpress_api_key' ) }
-							disabled={ this.props.isSavingAnyOption( 'wordpress_api_key' ) }
-							onChange={ this.props.onOptionChange }
-							isValid
-							/>
-					);
-				}
+				textProps.isError = true;
+			} else {
+				akismetStatus = <FormInputValidation text={ __( 'Your Akismet key is valid & working' ) } />;
+				textProps.isValid = true;
 			}
 
 			return (
@@ -71,9 +57,9 @@ export const Antispam = moduleSettingsForm(
 							<FormFieldset>
 								<FormLabel>
 									<span className="jp-form-label-wide">{ __( 'Your API key' ) }</span>
-									{
-										textInput
-									}
+									<TextInput
+										{ ...textProps }
+									/>
 									{
 										akismetStatus
 									}
