@@ -7,11 +7,16 @@ const AdminNotices = React.createClass( {
 		let $vpNotice = jQuery( '.vp-notice' );
 		if ( $vpNotice.length > 0 ) {
 			$vpNotice.each( function () {
+				if ( jQuery( this ).children( '.vp-message' ).children( 'p' ).html().includes( 'VP08' ) ) {
+					jQuery( this ).children( '.vp-message' ).children( 'p' ).html( 'Your VaultPress subscription is no longer active. Please confirm the status of your account. <a href="https://dashboard.vaultpress.com/account/">View account</a>' );
+				}
+
 				let $notice = jQuery( this ).addClass( 'dops-notice is-warning' ).removeClass( 'wrap vp-notice' );
 				$notice.find( 'a' ).addClass( 'dops-notice__action' ).appendTo( $notice );
 				$notice.find( '.vp-message' ).removeClass( 'vp-message' ).addClass( 'dops-notice__text' );
 				$notice.find( 'h3' ).replaceWith( function () { return jQuery( '<strong />', { html: this.innerHTML } ); } );
 				$notice.find( 'p' ).replaceWith( function () { return jQuery( '<div/>', { html: this.innerHTML } ); } );
+
 				$notice.prependTo( $adminNotices ).wrapInner( '<div class="dops-notice__content">' ).show();
 			} );
 		}
