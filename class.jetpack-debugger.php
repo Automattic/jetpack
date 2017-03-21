@@ -294,6 +294,29 @@ class Jetpack_Debugger {
 							$subject_line
 						);
 					?>
+					<div id="category_div" class="formbox">
+						<label class="h" for="category"><?php esc_html_e( 'What do you need help with?', 'jetpack' ); ?></label>
+						<select name="category" id="category">
+						<?php
+						/**
+						 * Set up an array of ticket categories.
+						 * (reasons why a user would contact us.)
+						 */
+						$categories = array(
+							'Connection' => esc_html__( "I'm having trouble connecting Jetpack to WordPress.com", 'jetpack' ),
+							'Billing'    => esc_html__( 'I have a billing or plans question', 'jetpack' ),
+							'Backups'    => esc_html__( 'I need help with backing up or restoring my site', 'jetpack' ),
+							'Security'   => esc_html__( 'I have security concerns / my site is hacked', 'jetpack' ),
+							'Priority'   => esc_html__( "My site is down / I can't access my site", 'jetpack' ),
+							'Other'      => esc_html__( 'Something Else' ),
+						);
+
+						foreach ( $categories as $value => $label ) { ?>
+							<option value="<?php echo esc_attr( $value ); ?>" <?php selected( $value ); ?>><?php echo esc_html( $label ); ?></option>
+						<?php } ?>
+						</select>
+					</div>
+
 					<div class="formbox">
 						<label for="message" class="h"><?php esc_html_e( 'Please describe the problem you are having.', 'jetpack' ); ?></label>
 						<textarea name="message" cols="40" rows="7" id="did"></textarea>
