@@ -819,10 +819,6 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					$updated = $grouped_options_current != $grouped_options ? update_option( 'jetpack_wga', $grouped_options ) : true;
 					break;
 
-				case 'wp_mobile_featured_images':
-				case 'wp_mobile_excerpt':
-					$value = ( 'enabled' === $value ) ? '1' : '0';
-				// break intentionally omitted
 				default:
 					// If option value was the same, consider it done.
 					$updated = get_option( $option ) != $value ? update_option( $option, $value ) : true;
