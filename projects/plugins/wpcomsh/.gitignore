@@ -1,4 +1,5 @@
 .idea
+.env
 .DS_Store
 /private-constants.php
 build/
