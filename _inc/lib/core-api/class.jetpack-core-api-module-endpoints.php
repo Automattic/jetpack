@@ -973,6 +973,23 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 	}
 
 	/**
+	 * Decide against which service to check the key.
+	 *
+	 * @since 4.8.0
+	 *
+	 * @param WP_REST_Request $request
+	 *
+	 * @return bool
+	 */
+	public function key_check( $request ) {
+		switch( $request['service'] ) {
+			case 'akismet':
+				return $this->check_akismet_key();
+		}
+		return false;
+	}
+
+	/**
 	 * Get number of blocked intrusion attempts.
 	 *
 	 * @since 4.3.0
@@ -1004,6 +1021,28 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 		} else {
 			return $status->get_error_code();
 		}
+	}
+
+	/**
+	 * Verify the Akismet API key.
+	 *
+	 * @since 4.8.0
+	 *
+	 * @return bool True if key is valid, false otherwise.
+	 */
+	public function check_akismet_key() {
+		$akismet_status = $this->akismet_is_active_and_registered();
+		if ( is_wp_error( $akismet_status ) ) {
+			return rest_ensure_response( array(
+				'validKey'          => false,
+				'invalidKeyCode'    => $akismet_status->get_error_code(),
+				'invalidKeyMessage' => $akismet_status->get_error_message(),
+			) );
+		}
+		$key_status = Akismet::check_key_status( Akismet::get_api_key() );
+		return rest_ensure_response( array(
+			'validKey' => isset( $key_status[1] ) && 'valid' === $key_status[1]
+		) );
 	}
 
 	/**

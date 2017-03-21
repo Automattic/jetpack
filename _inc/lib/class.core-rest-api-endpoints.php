@@ -202,6 +202,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 			)
 		) );
 
+		// Check if the API key for a specific service is valid or not
+		register_rest_route( 'jetpack/v4', '/module/(?P<service>[a-z\-]+)/key/check', array(
+			'methods' => WP_REST_Server::READABLE,
+			'callback' => array( $module_data_endpoint, 'key_check' ),
+			'permission_callback' => array( $module_data_endpoint, 'can_request' ),
+		) );
+
 		// Update any Jetpack module option or setting
 		register_rest_route( 'jetpack/v4', '/settings', array(
 			'methods' => WP_REST_Server::EDITABLE,
