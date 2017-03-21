@@ -12,14 +12,13 @@ import { getSettings } from 'state/settings';
 import { isDevMode, isUnavailableInDevMode } from 'state/connection';
 import { isModuleFound as _isModuleFound } from 'state/search';
 import { isPluginActive } from 'state/site/plugins';
-import { isAkismetKeyValid } from 'state/at-a-glance';
 import QuerySite from 'components/data/query-site';
 import QuerySitePlugins from 'components/data/query-site-plugins';
+import QueryAkismetKeyCheck from 'components/data/query-akismet-key-check';
 import { BackupsScan } from './backups-scan';
-import { Antispam } from './antispam';
+import Antispam from './antispam';
 import { Protect } from './protect';
 import { SSO } from './sso';
-import QueryAkismetKeyCheck from 'components/data/query-akismet-key-check';
 
 export const Security = React.createClass( {
 	displayName: 'SecuritySettings',
@@ -55,11 +54,10 @@ export const Security = React.createClass( {
 		if ( this.props.isPluginActive( 'akismet/akismet.php' ) ) {
 			akismetSettings = (
 				<div>
-					<QueryAkismetKeyCheck />
 					<Antispam
 						{ ...commonProps }
-						isAkismetKeyValid={ this.props.isAkismetKeyValid }
 					/>
+					<QueryAkismetKeyCheck />
 				</div>
 			);
 		}
@@ -94,8 +92,7 @@ export default connect(
 			isDevMode: isDevMode( state ),
 			isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name ),
 			isModuleFound: ( module_name ) => _isModuleFound( state, module_name ),
-			isPluginActive: ( plugin_slug ) => isPluginActive( state, plugin_slug ),
-			isAkismetKeyValid: isAkismetKeyValid( state )
+			isPluginActive: ( plugin_slug ) => isPluginActive( state, plugin_slug )
 		};
 	}
 )( Security );
