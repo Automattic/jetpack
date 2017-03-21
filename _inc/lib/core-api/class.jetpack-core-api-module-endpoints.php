@@ -984,6 +984,10 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 	public function key_check( $request ) {
 		switch( $request['service'] ) {
 			case 'akismet':
+				$params = $request->get_json_params();
+				if ( isset( $params['api_key'] ) && ! empty( $params['api_key'] ) ) {
+					return $this->check_akismet_key( $params['api_key'] );
+				}
 				return $this->check_akismet_key();
 		}
 		return false;
@@ -1028,9 +1032,11 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 	 *
 	 * @since 4.8.0
 	 *
+	 * @param string $apiKey Optional API key to check.
+	 *
 	 * @return bool True if key is valid, false otherwise.
 	 */
-	public function check_akismet_key() {
+	public function check_akismet_key( $api_key = '' ) {
 		$akismet_status = $this->akismet_is_active_and_registered();
 		if ( is_wp_error( $akismet_status ) ) {
 			return rest_ensure_response( array(
@@ -1039,7 +1045,7 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 				'invalidKeyMessage' => $akismet_status->get_error_message(),
 			) );
 		}
-		$key_status = Akismet::check_key_status( Akismet::get_api_key() );
+		$key_status = Akismet::check_key_status( empty( $api_key ) ? Akismet::get_api_key() : $api_key );
 		return rest_ensure_response( array(
 			'validKey' => isset( $key_status[1] ) && 'valid' === $key_status[1]
 		) );

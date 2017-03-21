@@ -209,6 +209,19 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'permission_callback' => array( $module_data_endpoint, 'can_request' ),
 		) );
 
+		register_rest_route( 'jetpack/v4', '/module/(?P<service>[a-z\-]+)/key/check', array(
+			'methods' => WP_REST_Server::EDITABLE,
+			'callback' => array( $module_data_endpoint, 'key_check' ),
+			'permission_callback' => array( $module_data_endpoint, 'can_request' ),
+			'args' => array(
+				'api_key' => array(
+					'default'           => '',
+					'type'              => 'string',
+					'validate_callback' => __CLASS__ . '::validate_alphanum',
+				),
+			)
+		) );
+
 		// Update any Jetpack module option or setting
 		register_rest_route( 'jetpack/v4', '/settings', array(
 			'methods' => WP_REST_Server::EDITABLE,
