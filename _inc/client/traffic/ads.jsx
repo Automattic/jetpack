@@ -9,6 +9,7 @@ import CompactFormToggle from 'components/form/form-toggle/compact';
 /**
  * Internal dependencies
  */
+import { FEATURE_WORDADS_JETPACK } from 'lib/plans/constants';
 import { FormFieldset } from 'components/forms';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 import { ModuleToggle } from 'components/module-toggle';
@@ -50,7 +51,7 @@ export const Ads = moduleSettingsForm(
 				<SettingsCard
 					{ ...this.props }
 					header={ __( 'Ads', { context: 'Ads header' } ) }
-					module="wordads"
+					feature={ FEATURE_WORDADS_JETPACK }
 					hideButton>
 					<SettingsGroup
 						disableInDevMode
