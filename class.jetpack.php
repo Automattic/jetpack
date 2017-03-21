@@ -5366,6 +5366,10 @@ p {
 		return $domains;
 	}
 
+	static function is_redirect_encoded( $redirect_url ) {
+		return preg_match( '/https?%3A%2F%2F/i', $redirect_url ) > 0;
+	}
+
 	// Add the Access Code details to the public-api.wordpress.com redirect
 	function add_token_to_login_redirect_json_api_authorization( $redirect_to, $original_redirect_to, $user ) {
 		return add_query_arg(
@@ -5403,6 +5407,15 @@ p {
 		}
 
 		$die_error = __( 'Someone may be trying to trick you into giving them access to your site.  Or it could be you just encountered a bug :).  Either way, please close this window.', 'jetpack' );
+
+		// Host has encoded the request URL, probably as a result of a bad http => https redirect
+		if ( Jetpack::is_redirect_encoded( $_GET['redirect_to'] ) ) {
+			$die_error = sprintf(
+				/* translators: %s is a URL */
+				__( 'Your site is incorrectly double-encoding redirects from http to https. This is preventing Jetpack from authenticating your connection. Please visit our <a href="%s">support page</a> for details about how to resolve this.', 'jetpack' ),
+				'https://jetpack.com/support/double-encoding/'
+			);
+		}
 
 		$jetpack_signature = new Jetpack_Signature( $token->secret, (int) Jetpack_Options::get_option( 'time_diff' ) );
 
