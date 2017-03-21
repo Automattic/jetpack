@@ -368,7 +368,7 @@ add_filter( 'bulk_actions-plugins', 'wpcomsh_disable_bulk_plugin_deactivation' )
 function wpcomsh_admin_enqueue_style() {
 	wp_enqueue_style(
 		'wpcomsh-admin-style',
-		plugins_url( 'assets/admin-style.css', WPCOMSH__PLUGIN_FILE )
+		plugins_url( 'assets/admin-style.css', __FILE__ )
 	);
 }
 add_action( 'admin_enqueue_scripts', 'wpcomsh_admin_enqueue_style', 999 );
@@ -435,3 +435,17 @@ function wpcomsh_load_theme_compat_file() {
 
 // Hook early so that after_setup_theme can still be used at default priority.
 add_action( 'after_setup_theme', 'wpcomsh_load_theme_compat_file', 0 );
+
+/**
+ * Filter plugins_url for when __FILE__ is outside of WP_CONTENT_DIR
+ */
+function wpcomsh_symlinked_plugins_url( $url, $path, $plugin ) {
+	$url = preg_replace(
+		'#((?<!/)/[^/]+)*/wp-content/plugins/wordpress/plugins/wpcomsh/#',
+		'/wp-content/mu-plugins/wpcomsh/',
+		$url
+	);
+	return $url;
+}
+
+add_filter( 'plugins_url', 'wpcomsh_symlinked_plugins_url', 0, 3 );

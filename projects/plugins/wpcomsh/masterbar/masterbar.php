@@ -70,7 +70,7 @@ class A8C_WPCOM_Masterbar {
 		}
 
 		// Local overrides
-		wp_enqueue_style( 'a8c_wpcom_css_override', plugins_url( 'masterbar/overrides.css', WPCOMSH__PLUGIN_FILE ) );
+		wp_enqueue_style( 'a8c_wpcom_css_override', plugins_url( 'masterbar/overrides.css', __FILE__ ) );
 
 		if ( ! Jetpack::is_module_active( 'notes ' ) ) {
 			// Masterbar is relying on some icons from noticons.css
