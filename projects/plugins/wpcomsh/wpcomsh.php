@@ -14,6 +14,7 @@ define( 'WPCOMSH__PLUGIN_FILE', WPCOMSH__PLUGIN_DIR_PATH . '/wpcomsh.php' );
 require_once( 'constants.php' );
 require_once( 'footer-credit/footer-credit.php' );
 require_once( 'colors/colors.php' );
+require_once( 'custom-fonts/custom-fonts.php' );
 
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once WPCOMSH__PLUGIN_DIR_PATH . '/class.cli-commands.php';
