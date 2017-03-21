@@ -308,7 +308,8 @@ class Jetpack_Debugger {
 							'Backups'    => esc_html__( 'I need help with backing up or restoring my site', 'jetpack' ),
 							'Security'   => esc_html__( 'I have security concerns / my site is hacked', 'jetpack' ),
 							'Priority'   => esc_html__( "My site is down / I can't access my site", 'jetpack' ),
-							'Other'      => esc_html__( 'Something Else' ),
+							/* translators: Last item in a list of reasons to contact Jetpack support. */
+							'Other'      => esc_html__( 'Something Else', 'jetpack' ),
 						);
 
 						foreach ( $categories as $value => $label ) { ?>
