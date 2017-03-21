@@ -157,6 +157,7 @@ const AllModuleSettingsComponent = React.createClass( {
 			case 'shortcodes':
 			case 'photon':
 			case 'widget-visibility':
+			case 'masterbar':
 			case 'notifications':
 			case 'enhanced-distribution':
 				return <span className="jp-form-setting-explanation">{ __( 'This module has no configuration options' ) } </span>;
