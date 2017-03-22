@@ -10,6 +10,7 @@ import FormInputValidation from 'components/form-input-validation';
 import Gridicon from 'components/gridicon';
 import debounce from 'lodash/debounce';
 import assign from 'lodash/assign';
+import isEmpty from 'lodash/isEmpty';
 import { isAkismetKeyValid, checkAkismetKey, isCheckingAkismetKey } from 'state/at-a-glance';
 
 /**
@@ -26,9 +27,12 @@ export const Antispam = moduleSettingsForm(
 		getInitialState() {
 			return {
 				apiKey: this.props.getOptionValue( 'wordpress_api_key' ),
-				delayKeyCheck: false
+				delayKeyCheck: false,
+				currentEvent: {}
 			};
 		},
+
+		keyChanged: false,
 
 		componentWillMount() {
 			this.debouncedCheckApiKeyTyped = debounce( this.checkApiKeyTyped, 500 );
@@ -38,20 +42,29 @@ export const Antispam = moduleSettingsForm(
 			if ( 0 < event.currentTarget.value.length ) {
 				this.props.checkAkismetKey( event.currentTarget.value );
 			}
+			this.keyChanged = true;
 			this.setState( {
 				delayKeyCheck: false
 			} );
-			this.props.onOptionChange( event );
 		},
 
 		updateText( event ) {
+			const currentEvent = assign( {}, event );
 			this.setState(
 				{
-					apiKey: event.currentTarget.value,
-					delayKeyCheck: true
+					apiKey: currentEvent.currentTarget.value,
+					delayKeyCheck: true,
+					currentEvent: currentEvent
 				},
-				this.debouncedCheckApiKeyTyped( assign( {}, event ) )
+				this.debouncedCheckApiKeyTyped( currentEvent )
 			);
+		},
+
+		componentDidUpdate() {
+			if ( ! this.props.isCheckingAkismetKey && this.props.isAkismetKeyValid && this.keyChanged && ! isEmpty( this.state.currentEvent ) ) {
+				this.keyChanged = false;
+				this.props.onOptionChange( this.state.currentEvent );
+			}
 		},
 
 		render() {
@@ -64,14 +77,14 @@ export const Antispam = moduleSettingsForm(
 			let akismetStatus = '',
 				explanation = false;
 
-			if ( null === this.props.isAkismetKeyValid() ) {
+			if ( null === this.props.isAkismetKeyValid ) {
 				textProps.value = __( 'Fetching key…' );
 				textProps.disabled = true;
 			} else if ( '' === this.state.apiKey ) {
 				textProps.value = '';
 				explanation = true;
-			} else if ( ! this.state.delayKeyCheck && ! this.props.isCheckingAkismetKey() ) {
-				if ( false === this.props.isAkismetKeyValid() ) {
+			} else if ( ! this.state.delayKeyCheck && ! this.props.isCheckingAkismetKey ) {
+				if ( false === this.props.isAkismetKeyValid ) {
 					akismetStatus = <FormInputValidation isError text={
 							__( "There's a problem with your Antispam API key. {{a}}Learn more{{/a}}.", {
 								components: {
@@ -80,10 +93,10 @@ export const Antispam = moduleSettingsForm(
 							} ) } />;
 					textProps.isError = explanation = true;
 				} else {
-					akismetStatus = <FormInputValidation text={ __( 'Your Antispam key is valid & working' ) } />;
+					akismetStatus = <FormInputValidation text={ __( 'Your Antispam key is valid.' ) } />;
 					textProps.isValid = true;
 				}
-			} else if ( this.props.isCheckingAkismetKey() ) {
+			} else if ( this.props.isCheckingAkismetKey ) {
 				akismetStatus = (
 					<div className="form-input-validation is-warning">
 						<span><Gridicon size={ 24 } icon="sync" />{ __( 'Checking key…' ) }</span>
@@ -134,8 +147,8 @@ export const Antispam = moduleSettingsForm(
 export default connect(
 	state => {
 		return {
-			isAkismetKeyValid: () => isAkismetKeyValid( state ),
-			isCheckingAkismetKey: () => isCheckingAkismetKey( state )
+			isAkismetKeyValid: isAkismetKeyValid( state ),
+			isCheckingAkismetKey: isCheckingAkismetKey( state )
 		};
 	},
 	dispatch => {
