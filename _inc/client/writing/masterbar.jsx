@@ -18,10 +18,7 @@ export const Masterbar = moduleSettingsForm(
 		render() {
 			const isActive = this.props.getOptionValue( 'masterbar' ),
 				unavailableInDevMode = this.props.isUnavailableInDevMode( 'masterbar' ),
-				isLinked = this.props.isLinked,
-				toggleHeader = isActive
-					? __( 'Disable the WordPress.com toolbar' )
-					: __( 'Enable the WordPress.com toolbar' );
+				isLinked = this.props.isLinked;
 
 			return (
 				<SettingsCard
@@ -36,7 +33,7 @@ export const Masterbar = moduleSettingsForm(
 							activated={ isActive }
 							toggling={ this.props.isSavingAnyOption( 'masterbar' ) }
 							toggleModule={ this.props.toggleModuleNow }>
-							{ toggleHeader }
+							{ __( 'Enable the WordPress.com toolbar' ) }
 							<span className="jp-form-setting-explanation">
 							{
 								__( 'The WordPress.com toolbar replaces the default admin bar and offers quick links to' +
@@ -54,7 +51,7 @@ export const Masterbar = moduleSettingsForm(
 								href={ `${ this.props.connectUrl }&from=unlinked-user-connect-masterbar` }
 							>
 								{
-									__( 'Connect your user account to WordPress.com to use this feature.' )
+									__( 'Connect your user account to WordPress.com to use this feature' )
 								}
 							</Card>
 						)
