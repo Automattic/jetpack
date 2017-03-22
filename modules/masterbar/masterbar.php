@@ -850,17 +850,17 @@ class A8C_WPCOM_Masterbar {
 						'label' => _x( 'Add', 'Label for the button on the Masterbar to add a new domain', 'jetpack' ),
 					)
 				);
+				$wp_admin_bar->add_menu( array(
+					'parent' => 'configuration',
+					'id'     => 'domains',
+					'title'  => $domain_title,
+					'href'   => false,
+					'meta'   => array(
+						'class' => 'inline-action',
+					),
+				) );
 			}
 
-			$wp_admin_bar->add_menu( array(
-				'parent' => 'configuration',
-				'id'     => 'domains',
-				'title'  => $domain_title,
-				'href'   => false,
-				'meta'   => array(
-					'class' => 'inline-action',
-				),
-			) );
 
 			$wp_admin_bar->add_menu( array(
 				'parent' => 'configuration',
