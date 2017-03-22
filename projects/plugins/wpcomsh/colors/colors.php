@@ -103,7 +103,7 @@ class Colors_Manager {
 		if ( self::theme_has_set_colors() ) {
 			self::override_themecolors();
 			add_filter( 'body_class', array( __CLASS__, 'body_class' ) );
-			add_action( 'wp_head', array( __CLASS__, 'print_theme_css' ), 20 );
+			add_action( 'wp_head', array( __CLASS__, 'print_theme_css' ) );
 		}
 	}
 
