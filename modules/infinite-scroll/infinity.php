@@ -300,6 +300,20 @@ class The_Neverending_Home_Page {
 	 * Is this guaranteed to be the last batch of posts?
 	 */
 	static function is_last_batch() {
+		/**
+		 * Override whether or not this is the last batch for a request
+		 *
+		 * @module infinite-scroll
+		 *
+		 * @since 4.8
+		 *
+		 * @param bool|null Bool if value should be overridden, null to determine from query
+		 */
+		$override = apply_filters( 'infinite_scroll_is_last_batch', null, self::wp_query(), self::get_settings() );
+		if ( is_bool( $override ) ) {
+			return $override;
+		}
+
 		$entries = (int) self::wp_query()->found_posts;
 		$posts_per_page = self::get_settings()->posts_per_page;
 
