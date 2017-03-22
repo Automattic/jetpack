@@ -4,120 +4,111 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
-import sample from 'lodash/sample';
+import sampleSize from 'lodash/sampleSize';
 import { translate as __ } from 'i18n-calypso';
+import Card from 'components/card';
+import Button from 'components/button';
 
 /**
  * Internal dependencies
  */
-import Card from 'components/card';
+import {
+	PLAN_JETPACK_PERSONAL
+} from 'lib/plans/constants';
+import { getSiteRawUrl } from 'state/initial-state';
+import {
+	getSitePlan,
+	isFetchingSiteData
+} from 'state/site';
 import { getHappinessGravatarIds } from 'state/initial-state';
+import Banner from 'components/banner';
 
 const SupportCard = React.createClass( {
 	displayName: 'SupportCard',
 
 	render() {
 		const classes = classNames(
-			this.props.className,
-			'jp-support-card'
-		);
-
-		const randomGravID = sample( this.props.happinessGravatarIds );
+				this.props.className,
+				'jp-support-card'
+			),
+			gravIds = sampleSize( this.props.happinessGravatarIds, 3 ),
+			noPrioritySupport = 'undefined' === typeof this.props.sitePlan.product_slug || 'jetpack_free' === this.props.sitePlan.product_slug;
 
 		return (
 			<div className={ classes }>
 				<Card className="jp-support-card__happiness">
-					<div className="jp-support-card__happiness-engineer">
-						<img
-							src={ 'https://secure.gravatar.com/avatar/' + randomGravID }
-							alt={ __( 'Jetpack Happiness Engineer' ) }
-							className="jp-support-card__happiness-engineer-img"
-							width="72"
-							height="72"
-						/>
-					</div>
 					<div className="jp-support-card__happiness-contact">
-						<h4 className="jp-support-card__header">
-							{ __( 'Need help? The Jetpack team is here for you.' ) }
-						</h4>
+						<h3 className="jp-support-card__header">
+							{ __( "We're here to help." ) }
+						</h3>
 						<p className="jp-support-card__description">
-							{ __( 'We offer free, full support to all of our Jetpack users. Our support team is always around to help you.' ) }
+							{
+								noPrioritySupport
+									? __( 'Utilize your free Jetpack support whenever you need.' )
+									: __( 'Utilize your priority-speed Jetpack support whenever you need it thanks to your paid plan.' )
+							}
 						</p>
 						<p className="jp-support-card__description">
-							{ __(
-								'{{supportLink}}View our support page{{/supportLink}}{{hideOnMobile}},{{/hideOnMobile}} ' +
-								'{{forumLink}}check the forums for answers{{/forumLink}}{{hideOnMobile}}, or{{/hideOnMobile}} ' +
-								'{{contactLink}}contact us directly{{/contactLink}}{{hideOnMobile}}.{{/hideOnMobile}}', {
-									components: {
-										hideOnMobile: <span className="jp-hidden-on-mobile" />,
-										supportLink: (
-											<a
-												className="jp-support-card__link"
-												href="https://jetpack.com/support/"
-												title={ __( 'Go to Jetpack.com/support' ) }
-											/>
-										),
-										forumLink: (
-											<a
-												className="jp-support-card__link"
-												href="https://wordpress.org/support/plugin/jetpack"
-												title={ __( 'Go to the WordPress.org support forums' ) }
-											/>
-										),
-										contactLink: (
-											<a
-												className="jp-support-card__link"
-												href="https://jetpack.com/contact-support/"
-												title={ __( 'Contact Jetpack support staff directly' ) }
-											/>
-										)
-									}
-								}
-							) }
+							<Button
+								href="https://jetpack.com/contact-support/">
+								{ __( 'Ask a question' ) }
+							</Button>
+							<Button
+								href="https://jetpack.com/support/">
+								{ __( 'Search our support site' ) }
+							</Button>
 						</p>
 					</div>
+					<div className="jp-support-card__happiness-engineer">
+						<ul>
+							<li>
+								<img
+									src={ 'https://secure.gravatar.com/avatar/' + gravIds[ 0 ].avatar }
+									alt={ __( 'Jetpack Happiness Engineer' ) }
+									className="jp-support-card__happiness-engineer-img"
+									width="72"
+									height="72"
+								/>
+								<div>
+									<em className="jp-support-card__happiness-engineer-name">{ gravIds[ 0 ].name }</em>
+								</div>
+							</li>
+							<li>
+								<img
+									src={ 'https://secure.gravatar.com/avatar/' + gravIds[ 1 ].avatar }
+									alt={ __( 'Jetpack Happiness Engineer' ) }
+									className="jp-support-card__happiness-engineer-img"
+									width="72"
+									height="72"
+								/>
+								<div>
+									<em className="jp-support-card__happiness-engineer-name">{ gravIds[ 1 ].name }</em>
+								</div>
+							</li>
+							<li>
+								<img
+									src={ 'https://secure.gravatar.com/avatar/' + gravIds[ 2 ].avatar }
+									alt={ __( 'Jetpack Happiness Engineer' ) }
+									className="jp-support-card__happiness-engineer-img"
+									width="72"
+									height="72"
+								/>
+								<div>
+									<em className="jp-support-card__happiness-engineer-name">{ gravIds[ 2 ].name }</em>
+								</div>
+							</li>
+						</ul>
+					</div>
 				</Card>
-				<Card className="jp-support-card__social">
-					<p className="jp-support-card__description">
-						{ __(
-							'{{hideOnMobile}}Enjoying Jetpack or have feedback?{{/hideOnMobile}} ' +
-							'{{reviewLink}}Leave us a review{{/reviewLink}}{{hideOnMobile}},{{/hideOnMobile}} ' +
-							'{{twitterLink}}follow us on Twitter{{/twitterLink}}{{hideOnMobile}}, and{{/hideOnMobile}} ' +
-							'{{facebookLink}}like us on Facebook{{/facebookLink}}{{hideOnMobile}}.{{/hideOnMobile}}', {
-								components: {
-									hideOnMobile: <span className="jp-hidden-on-mobile" />,
-									reviewLink: (
-										<a
-											className="jp-support-card__link"
-											href="https://wordpress.org/support/view/plugin-reviews/jetpack"
-											title={ __( 'Leave a Jetpack review' ) }
-											target="_blank"
-											rel="noopener noreferrer"
-										/>
-									),
-									twitterLink: (
-										<a
-											className="jp-support-card__link"
-											href="http://twitter.com/jetpack"
-											title={ __( 'Follow Jetpack on Twitter' ) }
-											target="_blank"
-											rel="noopener noreferrer"
-										/>
-									),
-									facebookLink: (
-										<a
-											className="jp-support-card__link"
-											href="https://www.facebook.com/jetpackme"
-											title={ __( 'Like us on Facebook' ) }
-											target="_blank"
-											rel="noopener noreferrer"
-										/>
-									)
-								}
-							}
-						) }
-					</p>
-				</Card>
+				{
+					( ! this.props.fetchingSiteData && noPrioritySupport ) && (
+						<Banner
+							title={ __( 'Need help quicker? Upgrade for priority support' ) }
+							plan={ PLAN_JETPACK_PERSONAL }
+							href={ 'https://jetpack.com/redirect/?source=support&site=' + this.props.siteRawUrl }
+						/>
+					)
+				}
 			</div>
 		);
 	}
@@ -131,7 +122,10 @@ SupportCard.propTypes = {
 export default connect(
 	state => {
 		return {
+			sitePlan: getSitePlan( state ),
+			siteRawUrl: getSiteRawUrl( state ),
+			fetchingSiteData: isFetchingSiteData( state ),
 			happinessGravatarIds: getHappinessGravatarIds( state )
-		}
+		};
 	}
 )( SupportCard );
