@@ -15,6 +15,7 @@ import {
 	FormLabel
 } from 'components/forms';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
+import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 
@@ -113,15 +114,26 @@ export const VerificationServices = moduleSettingsForm(
 						</FormFieldset>
 					</SettingsGroup>
 					<SettingsGroup support={ sitemaps.learn_more_button }>
-						<span className="jp-form-label-wide">{ __( 'XML Sitemaps' ) }</span>
-						<FormFieldset>
-							<p>
-								<ExternalLink icon={ true } target="_blank" href={ sitemap_url }>{ sitemap_url }</ExternalLink>
-								<br />
-								<ExternalLink icon={ true } target="_blank" href={ news_sitemap_url }>{ news_sitemap_url }</ExternalLink>
-							</p>
-							<p className="jp-form-setting-explanation">{ __( 'Your sitemap is automatically sent to all major search engines for indexing.' ) }</p>
-						</FormFieldset>
+						<ModuleToggle
+							slug="sitemaps"
+							compact
+							activated={ this.props.getOptionValue( 'sitemaps' ) }
+							toggling={ this.props.isSavingAnyOption( 'sitemaps' ) }
+							toggleModule={ this.props.toggleModuleNow }>
+							{ __( 'Generate XML sitemaps' ) }
+						</ModuleToggle>
+						{
+							this.props.getOptionValue( 'sitemaps' ) && (
+								<FormFieldset>
+									<p>
+										<ExternalLink icon={ true } target="_blank" href={ sitemap_url }>{ sitemap_url }</ExternalLink>
+										<br />
+										<ExternalLink icon={ true } target="_blank" href={ news_sitemap_url }>{ news_sitemap_url }</ExternalLink>
+									</p>
+									<p className="jp-form-setting-explanation">{ __( 'Your sitemap is automatically sent to all major search engines for indexing.' ) }</p>
+								</FormFieldset>
+							)
+						}
 					</SettingsGroup>
 				</SettingsCard>
 			);
