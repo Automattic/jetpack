@@ -206,13 +206,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 		register_rest_route( 'jetpack/v4', '/module/(?P<service>[a-z\-]+)/key/check', array(
 			'methods' => WP_REST_Server::READABLE,
 			'callback' => array( $module_data_endpoint, 'key_check' ),
-			'permission_callback' => array( $module_data_endpoint, 'can_request' ),
+			'permission_callback' => __CLASS__ . '::update_settings_permission_check',
 		) );
 
 		register_rest_route( 'jetpack/v4', '/module/(?P<service>[a-z\-]+)/key/check', array(
 			'methods' => WP_REST_Server::EDITABLE,
 			'callback' => array( $module_data_endpoint, 'key_check' ),
-			'permission_callback' => array( $module_data_endpoint, 'can_request' ),
+			'permission_callback' => __CLASS__ . '::update_settings_permission_check',
 			'args' => array(
 				'api_key' => array(
 					'default'           => '',
