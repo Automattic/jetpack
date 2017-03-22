@@ -3393,13 +3393,13 @@ new WPCOM_JSON_API_Publicize_Endpoint( array(
  ) );
 
 new WPCOM_JSON_API_List_Publicize_Scheduled_Actions_Endpoint( array(
-	'description' => 'List scheduled and published publicize actions for a post.',
+	'description' => 'List scheduled  publicize actions for a post.',
 	'group'       => '__do_not_document',
-	'stat'        => 'publicize:list_actions',
+	'stat'        => 'publicize:list_scheduled',
 	'min_version' => '1',
 	'method'      => 'GET',
 	'force'       => 'wpcom',
-	'path'        => '/sites/%s/post/%d/publicize/actions',
+	'path'        => '/sites/%s/post/%d/publicize/scheduled',
 	'path_labels' => array(
 		'$site' => '(int|string) Site ID or domain',
 		'$post_id' => '(int) Post ID',
@@ -3409,7 +3409,32 @@ new WPCOM_JSON_API_List_Publicize_Scheduled_Actions_Endpoint( array(
 		'items' => '(array) Actions',
 	),
 
-	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/post/1/publicize/actions/',
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/post/1/publicize/scheduled',
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		)
+	)
+ ) );
+
+new WPCOM_JSON_API_List_Publicize_Published_Actions_Endpoint( array(
+	'description' => 'List scheduled and published publicize actions for a post.',
+	'group'       => '__do_not_document',
+	'stat'        => 'publicize:list_published',
+	'min_version' => '1',
+	'method'      => 'GET',
+	'force'       => 'wpcom',
+	'path'        => '/sites/%s/post/%d/publicize/published',
+	'path_labels' => array(
+		'$site' => '(int|string) Site ID or domain',
+		'$post_id' => '(int) Post ID',
+	),
+
+	'response_format' => array(
+		'items' => '(array) Actions',
+	),
+
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/post/1/publicize/published',
 	'example_request_data' => array(
 		'headers' => array(
 			'authorization' => 'Bearer YOUR_API_TOKEN'
