@@ -26,12 +26,17 @@ import Banner from 'components/banner';
 const SupportCard = React.createClass( {
 	displayName: 'SupportCard',
 
+	getInitialState() {
+		return {
+			gravIds: sampleSize( this.props.happinessGravatarIds, 3 )
+		};
+	},
+
 	render() {
 		const classes = classNames(
 				this.props.className,
 				'jp-support-card'
 			),
-			gravIds = sampleSize( this.props.happinessGravatarIds, 3 ),
 			noPrioritySupport = 'undefined' === typeof this.props.sitePlan.product_slug || 'jetpack_free' === this.props.sitePlan.product_slug;
 
 		return (
@@ -63,38 +68,38 @@ const SupportCard = React.createClass( {
 						<ul>
 							<li>
 								<img
-									src={ 'https://secure.gravatar.com/avatar/' + gravIds[ 0 ].avatar }
+									src={ 'https://secure.gravatar.com/avatar/' + this.state.gravIds[ 0 ].avatar }
 									alt={ __( 'Jetpack Happiness Engineer' ) }
 									className="jp-support-card__happiness-engineer-img"
 									width="72"
 									height="72"
 								/>
 								<div>
-									<em className="jp-support-card__happiness-engineer-name">{ gravIds[ 0 ].name }</em>
+									<em className="jp-support-card__happiness-engineer-name">{ this.state.gravIds[ 0 ].name }</em>
 								</div>
 							</li>
 							<li>
 								<img
-									src={ 'https://secure.gravatar.com/avatar/' + gravIds[ 1 ].avatar }
+									src={ 'https://secure.gravatar.com/avatar/' + this.state.gravIds[ 1 ].avatar }
 									alt={ __( 'Jetpack Happiness Engineer' ) }
 									className="jp-support-card__happiness-engineer-img"
 									width="72"
 									height="72"
 								/>
 								<div>
-									<em className="jp-support-card__happiness-engineer-name">{ gravIds[ 1 ].name }</em>
+									<em className="jp-support-card__happiness-engineer-name">{ this.state.gravIds[ 1 ].name }</em>
 								</div>
 							</li>
 							<li>
 								<img
-									src={ 'https://secure.gravatar.com/avatar/' + gravIds[ 2 ].avatar }
+									src={ 'https://secure.gravatar.com/avatar/' + this.state.gravIds[ 2 ].avatar }
 									alt={ __( 'Jetpack Happiness Engineer' ) }
 									className="jp-support-card__happiness-engineer-img"
 									width="72"
 									height="72"
 								/>
 								<div>
-									<em className="jp-support-card__happiness-engineer-name">{ gravIds[ 2 ].name }</em>
+									<em className="jp-support-card__happiness-engineer-name">{ this.state.gravIds[ 2 ].name }</em>
 								</div>
 							</li>
 						</ul>
