@@ -307,7 +307,9 @@ class The_Neverending_Home_Page {
 		 *
 		 * @since 4.8
 		 *
-		 * @param bool|null Bool if value should be overridden, null to determine from query
+		 * @param bool|null null                 Bool if value should be overridden, null to determine from query
+		 * @param object    self::wp_query()     WP_Query object for current request
+		 * @param object    self::get_settings() Infinite Scroll settings
 		 */
 		$override = apply_filters( 'infinite_scroll_is_last_batch', null, self::wp_query(), self::get_settings() );
 		if ( is_bool( $override ) ) {
