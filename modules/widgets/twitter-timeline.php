@@ -68,6 +68,16 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 	}
 
 	/**
+	 * Enqueue script to improve admin UI
+	 */
+	public function admin_scripts( $hook ) {
+		// This is still 'widgets.php' when managing widgets via the Customizer.
+		if ( 'widgets.php' === $hook ) {
+			wp_enqueue_script( 'twitter-timeline-admin', plugins_url( 'twitter-timeline-admin.js', __FILE__ ) );
+		}
+	}
+
+	/**
 	 * Front-end display of widget.
 	 *
 	 * @see WP_Widget::widget()
