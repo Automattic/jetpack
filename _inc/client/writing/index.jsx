@@ -23,6 +23,7 @@ import Media from './media';
 import CustomContentTypes from './custom-content-types';
 import ThemeEnhancements from './theme-enhancements';
 import PostByEmail from './post-by-email';
+import { Masterbar } from './masterbar';
 
 export const Writing = React.createClass( {
 	displayName: 'WritingSettings',
@@ -32,10 +33,12 @@ export const Writing = React.createClass( {
 			settings: this.props.settings,
 			getModule: this.props.module,
 			isDevMode: this.props.isDevMode,
-			isUnavailableInDevMode: this.props.isUnavailableInDevMode
+			isUnavailableInDevMode: this.props.isUnavailableInDevMode,
+			isLinked: this.props.isLinked
 		};
 
 		const found = [
+			'masterbar',
 			'markdown',
 			'after-the-deadline',
 			'custom-content-types',
@@ -62,6 +65,7 @@ export const Writing = React.createClass( {
 		return (
 			<div>
 				<QuerySite />
+				<Masterbar { ...commonProps } />
 				{
 					showComposing && (
 						<Composing { ...commonProps } userCanManageModules={ this.props.userCanManageModules } />

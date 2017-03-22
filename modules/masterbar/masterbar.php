@@ -49,7 +49,7 @@ class A8C_WPCOM_Masterbar {
 		}
 	}
 
-	public function isAutomatedTransferSite() {
+	public function is_automated_transfer_site() {
 		$at_options = get_option( 'at_options', array() );
 
 		if ( ! empty( $at_options ) ) {
@@ -90,7 +90,7 @@ class A8C_WPCOM_Masterbar {
 
 		if ( ! Jetpack::is_module_active( 'notes ' ) ) {
 			// Masterbar is relying on some icons from noticons.css
-			wp_enqueue_style( 'noticons', $this->wpcom_static_url( '/i/noticons/noticons.css' ), array(), JETPACK_NOTES__CACHE_BUSTER );
+			wp_enqueue_style( 'noticons', $this->wpcom_static_url( '/i/noticons/noticons.css' ), array(), JETPACK__VERSION . '-' . gmdate( 'oW' ) );
 		}
 
 		wp_enqueue_script( 'jetpack-accessible-focus', plugins_url( '_inc/accessible-focus.js', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
@@ -447,7 +447,7 @@ class A8C_WPCOM_Masterbar {
 
 		$help_link = 'https://jetpack.com/support/';
 
-		if ( $this->isAutomatedTransferSite() ) {
+		if ( $this->is_automated_transfer_site() ) {
 			$help_link = 'https://wordpress.com/help';
 		}
 
@@ -837,7 +837,7 @@ class A8C_WPCOM_Masterbar {
 				),
 			) );
 
-			if ( $this->isAutomatedTransferSite() ) {
+			if ( $this->is_automated_transfer_site() ) {
 				$domain_title = $this->create_menu_item_pair(
 					array(
 						'url'   => 'https://wordpress.com/domains/' . esc_attr( $this->primary_site_slug ),
@@ -850,17 +850,17 @@ class A8C_WPCOM_Masterbar {
 						'label' => _x( 'Add', 'Label for the button on the Masterbar to add a new domain', 'jetpack' ),
 					)
 				);
+				$wp_admin_bar->add_menu( array(
+					'parent' => 'configuration',
+					'id'     => 'domains',
+					'title'  => $domain_title,
+					'href'   => false,
+					'meta'   => array(
+						'class' => 'inline-action',
+					),
+				) );
 			}
 
-			$wp_admin_bar->add_menu( array(
-				'parent' => 'configuration',
-				'id'     => 'domains',
-				'title'  => $domain_title,
-				'href'   => false,
-				'meta'   => array(
-					'class' => 'inline-action',
-				),
-			) );
 
 			$wp_admin_bar->add_menu( array(
 				'parent' => 'configuration',
@@ -872,7 +872,7 @@ class A8C_WPCOM_Masterbar {
 				),
 			) );
 
-			if ( $this->isAutomatedTransferSite() ) {
+			if ( $this->is_automated_transfer_site() ) {
 				$wp_admin_bar->add_menu( array(
 					'parent' => 'configuration',
 					'id'     => 'legacy-dashboard',

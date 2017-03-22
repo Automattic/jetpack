@@ -20,7 +20,10 @@ import {
 	JETPACK_SETTINGS_SET_UNSAVED_FLAG,
 	JETPACK_SETTINGS_CLEAR_UNSAVED_FLAG
 } from 'state/action-types';
-import { maybeHideNavMenuItem } from 'state/modules';
+import {
+	maybeHideNavMenuItem,
+	maybeReloadAfterAction
+} from 'state/modules';
 import restApi from 'rest-api';
 
 export const setUnsavedSettingsFlag = () => {
@@ -79,6 +82,7 @@ export const updateSetting = ( updatedOption ) => {
 };
 
 export const updateSettings = ( newOptionValues, type = '' ) => {
+
 	return ( dispatch ) => {
 
 		let messages = {
@@ -101,6 +105,13 @@ export const updateSettings = ( newOptionValues, type = '' ) => {
 			newOptionValues = { post_by_email_address: 'regenerate' };
 		}
 
+		// Adapt message for masterbar toggle, since it needs to reload.
+		if ( 'object' === typeof newOptionValues && 'masterbar' in newOptionValues ) {
+			messages = {
+				success: __( 'Updated settings. Refreshing page…' )
+			};
+		}
+
 		dispatch( {
 			type: JETPACK_SETTINGS_UPDATE,
 			updatedOptions: newOptionValues
@@ -113,6 +124,7 @@ export const updateSettings = ( newOptionValues, type = '' ) => {
 				success: success
 			} );
 			maybeHideNavMenuItem( newOptionValues );
+			maybeReloadAfterAction( newOptionValues );
 
 			dispatch( removeNotice( `module-setting-update` ) );
 			dispatch( createNotice(

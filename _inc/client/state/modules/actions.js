@@ -322,3 +322,9 @@ export function maybeHideNavMenuItem( module, values ) {
 			return false;
 	}
 }
+
+export function maybeReloadAfterAction( module ) {
+	if ( 'masterbar' in module ) {
+		window.location.reload();
+	}
+}
