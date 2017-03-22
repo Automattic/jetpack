@@ -4,3 +4,6 @@
 [submodule "custom-fonts"]
 	path = custom-fonts
 	url = git@github.com:Automattic/custom-fonts.git
+[submodule "custom-fonts-typekit"]
+	path = custom-fonts-typekit
+	url = git@github.com:Automattic/custom-fonts-typekit.git
