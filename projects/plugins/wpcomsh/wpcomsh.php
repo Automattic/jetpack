@@ -11,6 +11,9 @@
 define( 'WPCOMSH__PLUGIN_DIR_PATH', WP_CONTENT_DIR . '/mu-plugins/wpcomsh' );
 define( 'WPCOMSH__PLUGIN_FILE', WPCOMSH__PLUGIN_DIR_PATH . '/wpcomsh.php' );
 
+// If true, Typekit fonts will be available in addition to Google fonts
+add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
+
 require_once( 'constants.php' );
 require_once( 'footer-credit/footer-credit.php' );
 require_once( 'colors/colors.php' );
