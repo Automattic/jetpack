@@ -207,12 +207,14 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'methods' => WP_REST_Server::READABLE,
 			'callback' => array( $module_data_endpoint, 'key_check' ),
 			'permission_callback' => __CLASS__ . '::update_settings_permission_check',
+			'sanitize_callback' => 'sanitize_text_field',
 		) );
 
 		register_rest_route( 'jetpack/v4', '/module/(?P<service>[a-z\-]+)/key/check', array(
 			'methods' => WP_REST_Server::EDITABLE,
 			'callback' => array( $module_data_endpoint, 'key_check' ),
 			'permission_callback' => __CLASS__ . '::update_settings_permission_check',
+			'sanitize_callback' => 'sanitize_text_field',
 			'args' => array(
 				'api_key' => array(
 					'default'           => '',

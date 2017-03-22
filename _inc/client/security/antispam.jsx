@@ -11,6 +11,7 @@ import Gridicon from 'components/gridicon';
 import debounce from 'lodash/debounce';
 import assign from 'lodash/assign';
 import isEmpty from 'lodash/isEmpty';
+import trim from 'lodash/trim';
 import { isAkismetKeyValid, checkAkismetKey, isCheckingAkismetKey } from 'state/at-a-glance';
 
 /**
@@ -50,6 +51,7 @@ export const Antispam = moduleSettingsForm(
 
 		updateText( event ) {
 			const currentEvent = assign( {}, event );
+			currentEvent.currentTarget.value = trim( currentEvent.currentTarget.value );
 			this.setState(
 				{
 					apiKey: currentEvent.currentTarget.value,
@@ -113,7 +115,9 @@ export const Antispam = moduleSettingsForm(
 			return (
 				<SettingsCard
 					{ ...this.props }
-					header={ __( 'Spam filtering', { context: 'Settings header' } ) }>
+					header={ __( 'Spam filtering', { context: 'Settings header' } ) }
+					saveDisabled={ this.props.isSavingAnyOption( 'wordpress_api_key' ) }
+				>
 					<FoldableCard
 						header={ foldableHeader }
 					>
