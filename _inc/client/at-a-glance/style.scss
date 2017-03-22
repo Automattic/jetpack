@@ -345,19 +345,57 @@
 	font-weight: 400;
 }
 
-.jp-connection-settings__cancel {
-	margin-right: 1em;
+.jp-connection-settings__modal.dops-modal {
+	max-width: 450px;
 }
 
 .jp-connection-settings__modal-body {
+	color: $blue-dark-text;
 	margin: 0;
+	text-align: center;
+	padding: rem( 24px ) rem( 32px );
+	font-size: rem( 14px );
+
+	h2 {
+		color: $blue-dark-text;
+		font-size: rem( 32px );
+		font-weight: 400;
+		margin: rem( 32px ) 0 rem( 24px );
+	}
+	h4 {
+		color: $blue-text;
+		font-size: rem( 18px );
+		font-weight: 400;
+		margin: rem( 16px ) 0 0;
+	}
+	p {
+		font-size: rem( 14px );
+	}
+	ul {
+		margin: rem( 24px ) 0;
+	}
+
+	li {
+		border-bottom: 1px solid #ccc;
+		text-align: left;
+		margin: 0;
+		display: block;
+		padding: rem( 16px ) rem( 8px ) rem( 16px ) rem( 44px );
+		position: relative;
+	}
+	li:first-child {
+		border-top: 1px solid #ccc;
+	}
+
+	.gridicon {
+		color: #00aadc;
+		vertical-align: text-bottom;
+		position: absolute;
+		left: rem( 16px );
+		top: rem( 16px );
+	}
 }
 
-.jp-connection-settings__modal-actions {
-	text-align: right;
-	margin-top: 1em;
-}
-
-.jp-connection-settings__cancel, .jp-connection-settings__disconnect {
-	vertical-align: middle;
+.jp-connection-settings__modal-cancel {
+	margin-right: 1em;
 }
