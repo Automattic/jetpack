@@ -105,6 +105,13 @@ export const updateSettings = ( newOptionValues, type = '' ) => {
 			newOptionValues = { post_by_email_address: 'regenerate' };
 		}
 
+		// Adapt message for masterbar toggle, since it needs to reload.
+		if ( 'object' === typeof newOptionValues && 'masterbar' in newOptionValues ) {
+			messages = {
+				success: __( 'Updated settings. Refreshing page…' )
+			};
+		}
+
 		dispatch( {
 			type: JETPACK_SETTINGS_UPDATE,
 			updatedOptions: newOptionValues
