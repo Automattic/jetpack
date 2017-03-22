@@ -61,7 +61,7 @@ export const Antispam = moduleSettingsForm(
 		},
 
 		componentDidUpdate() {
-			if ( ! this.props.isCheckingAkismetKey && this.props.isAkismetKeyValid && this.keyChanged && ! isEmpty( this.state.currentEvent ) ) {
+			if ( '' !== this.state.apiKey && ! this.props.isCheckingAkismetKey && this.props.isAkismetKeyValid && this.keyChanged && ! isEmpty( this.state.currentEvent ) ) {
 				this.keyChanged = false;
 				this.props.onOptionChange( this.state.currentEvent );
 			}
@@ -75,14 +75,16 @@ export const Antispam = moduleSettingsForm(
 				onChange: this.updateText
 			};
 			let akismetStatus = '',
-				explanation = false;
+				foldableHeader = __( 'Checking your spam protection…' ),
+				explanation = true;
 
 			if ( null === this.props.isAkismetKeyValid ) {
 				textProps.value = __( 'Fetching key…' );
 				textProps.disabled = true;
+				explanation = false;
 			} else if ( '' === this.state.apiKey ) {
 				textProps.value = '';
-				explanation = true;
+				foldableHeader = __( 'Your site needs an Antispam key.' );
 			} else if ( ! this.state.delayKeyCheck && ! this.props.isCheckingAkismetKey ) {
 				if ( false === this.props.isAkismetKeyValid ) {
 					akismetStatus = <FormInputValidation isError text={
@@ -91,10 +93,13 @@ export const Antispam = moduleSettingsForm(
 									a: <a href={ 'https://docs.akismet.com/getting-started/api-key/' } />
 								}
 							} ) } />;
-					textProps.isError = explanation = true;
+					textProps.isError = true;
+					foldableHeader = __( 'Your site is not protected from spam.' );
 				} else {
 					akismetStatus = <FormInputValidation text={ __( 'Your Antispam key is valid.' ) } />;
 					textProps.isValid = true;
+					foldableHeader = __( 'Your site is protected from spam.' );
+					explanation = false;
 				}
 			} else if ( this.props.isCheckingAkismetKey ) {
 				akismetStatus = (
@@ -102,6 +107,7 @@ export const Antispam = moduleSettingsForm(
 						<span><Gridicon size={ 24 } icon="sync" />{ __( 'Checking key…' ) }</span>
 					</div>
 				);
+				explanation = false;
 			}
 
 			return (
@@ -109,7 +115,7 @@ export const Antispam = moduleSettingsForm(
 					{ ...this.props }
 					header={ __( 'Spam filtering', { context: 'Settings header' } ) }>
 					<FoldableCard
-						header={ __( 'Your site is protected from spam' ) }
+						header={ foldableHeader }
 					>
 						<SettingsGroup support="https://akismet.com/jetpack/">
 							<FormFieldset>
@@ -126,7 +132,7 @@ export const Antispam = moduleSettingsForm(
 									explanation && (
 										<p className="jp-form-setting-explanation" >
 											{
-												__( "If you don't already have an API key, then {{a}}get your API key here{{/a}}, and you'll be guided through the process of getting one in a new window.", {
+												__( "If you don't already have an API key, then {{a}}get your API key here{{/a}}, and you'll be guided through the process of getting one.", {
 													components: {
 														a: <a href={ 'https://akismet.com/wordpress/' } />
 													}
