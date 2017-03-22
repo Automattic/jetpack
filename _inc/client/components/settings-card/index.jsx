@@ -17,6 +17,7 @@ import {
 	FEATURE_SEO_TOOLS_JETPACK,
 	FEATURE_VIDEO_HOSTING_JETPACK,
 	FEATURE_GOOGLE_ANALYTICS_JETPACK,
+	FEATURE_WORDADS_JETPACK,
 	getPlanClass
 } from 'lib/plans/constants';
 import { getSiteRawUrl, getSiteAdminUrl, userCanManageModules } from 'state/initial-state';
@@ -72,6 +73,24 @@ export const SettingsCard = props => {
 						plan={ PLAN_JETPACK_PREMIUM }
 						feature={ feature }
 						href={ 'https://jetpack.com/redirect/?source=settings-video-premium&site=' + siteRawUrl }
+					/>
+				);
+
+			case FEATURE_WORDADS_JETPACK:
+				if (
+					'is-premium-plan' === planClass ||
+					'is-business-plan' === planClass
+				) {
+					return '';
+				}
+
+				return (
+					<Banner
+						title={ __( 'Generate income with high-quality ads.' ) }
+						callToAction={ upgradeLabel }
+						plan={ PLAN_JETPACK_PREMIUM }
+						feature={ feature }
+						href={ 'https://jetpack.com/redirect/?source=settings-ads&site=' + siteRawUrl }
 					/>
 				);
 
@@ -149,6 +168,16 @@ export const SettingsCard = props => {
 				if (
 					'is-free-plan' === planClass ||
 					'is-personal-plan' === planClass
+				) {
+					return false;
+				}
+
+				break;
+
+			case FEATURE_WORDADS_JETPACK:
+				if (
+					'is-premium-plan' !== planClass &&
+					'is-business-plan' !== planClass
 				) {
 					return false;
 				}
