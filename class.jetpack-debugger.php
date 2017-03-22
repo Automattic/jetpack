@@ -296,7 +296,7 @@ class Jetpack_Debugger {
 					?>
 					<div id="category_div" class="formbox">
 						<label class="h" for="category"><?php esc_html_e( 'What do you need help with?', 'jetpack' ); ?></label>
-						<select name="category" id="category">
+						<ul>
 						<?php
 						/**
 						 * Set up an array of ticket categories.
@@ -313,9 +313,18 @@ class Jetpack_Debugger {
 						);
 
 						foreach ( $categories as $value => $label ) { ?>
-							<option value="<?php echo esc_attr( $value ); ?>" <?php selected( $value ); ?>><?php echo esc_html( $label ); ?></option>
+							<li><label for="<?php echo esc_attr( $value ); ?>">
+								<input
+									id="<?php echo esc_attr( $value ); ?>"
+									name="category"
+									type="radio"
+									value="<?php echo esc_attr( $value ); ?>"
+									<?php checked( esc_attr( $value ), 'Other' ); ?>
+								/>
+								<?php echo esc_html( $label ); ?>
+							</label></li>
 						<?php } ?>
-						</select>
+						</ul>
 					</div>
 
 					<div class="formbox">
@@ -487,6 +496,10 @@ class Jetpack_Debugger {
 
 			#debug_info_div, #toggle_debug_info, #debug_info_div p {
 				font-size: 12px;
+			}
+
+			#category_div ul li {
+				list-style-type: none;
 			}
 
 		</style>
