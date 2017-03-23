@@ -1,12 +1,14 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import includes from 'lodash/includes';
 import isEmpty from 'lodash/isEmpty';
-import ProStatus from 'pro-status';
+import Banner from 'components/banner';
+import Button from 'components/button';
+import analytics from 'lib/analytics';
 
 /**
  * Internal dependencies
@@ -23,6 +25,7 @@ import {
 	FEATURE_SPAM_AKISMET_PLUS,
 	getPlanClass
 } from 'lib/plans/constants';
+
 import { getSiteRawUrl, getSiteAdminUrl, userCanManageModules } from 'state/initial-state';
 import { isAkismetKeyValid, isCheckingAkismetKey } from 'state/at-a-glance';
 import {
@@ -30,10 +33,16 @@ import {
 	isFetchingSiteData
 } from 'state/site';
 import SectionHeader from 'components/section-header';
-import Banner from 'components/banner';
-import Button from 'components/button';
+import ProStatus from 'pro-status';
 
 export const SettingsCard = props => {
+	const trackBannerClick = ( feature ) => {
+		analytics.tracks.recordJetpackClick( {
+			target: 'upgrade-banner',
+			feature: feature
+		} );
+	};
+
 	const module = props.module
 			? props.getModule( props.module )
 			: false;
@@ -76,6 +85,7 @@ export const SettingsCard = props => {
 						callToAction={ upgradeLabel }
 						plan={ PLAN_JETPACK_PREMIUM }
 						feature={ feature }
+						onClick={ () => trackBannerClick( feature ) }
 						href={ 'https://jetpack.com/redirect/?source=settings-video-premium&site=' + siteRawUrl }
 					/>
 				);
@@ -94,6 +104,7 @@ export const SettingsCard = props => {
 						callToAction={ upgradeLabel }
 						plan={ PLAN_JETPACK_PREMIUM }
 						feature={ feature }
+						onClick={ () => trackBannerClick( feature ) }
 						href={ 'https://jetpack.com/redirect/?source=settings-ads&site=' + siteRawUrl }
 					/>
 				);
@@ -110,6 +121,7 @@ export const SettingsCard = props => {
 							plan={ PLAN_JETPACK_BUSINESS }
 							callToAction={ upgradeLabel }
 							feature={ feature }
+							onClick={ () => trackBannerClick( feature ) }
 							href={ 'https://jetpack.com/redirect/?source=settings-security-pro&site=' + siteRawUrl }
 						/>
 					);
@@ -121,6 +133,7 @@ export const SettingsCard = props => {
 						title={ __( 'Protect against data loss, malware, and malicious attacks.' ) }
 						plan={ PLAN_JETPACK_PREMIUM }
 						feature={ feature }
+						onClick={ () => trackBannerClick( feature ) }
 						href={ 'https://jetpack.com/redirect/?source=settings-security-premium&site=' + siteRawUrl }
 					/>
 				);
@@ -135,6 +148,7 @@ export const SettingsCard = props => {
 						title={ __( 'Integrate easily with Google Analytics.' ) }
 						plan={ PLAN_JETPACK_BUSINESS }
 						feature={ feature }
+						onClick={ () => trackBannerClick( feature ) }
 						href={ 'https://jetpack.com/redirect/?source=settings-ga&site=' + siteRawUrl }
 					/>
 				);
@@ -149,6 +163,7 @@ export const SettingsCard = props => {
 						title={ __( 'Help your content get found and shared with SEO tools.' ) }
 						plan={ PLAN_JETPACK_BUSINESS }
 						feature={ feature }
+						onClick={ () => trackBannerClick( feature ) }
 						href={ 'https://jetpack.com/redirect/?source=settings-seo&site=' + siteRawUrl }
 					/>
 				);

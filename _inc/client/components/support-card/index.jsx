@@ -7,6 +7,7 @@ import classNames from 'classnames';
 import { translate as __ } from 'i18n-calypso';
 import Card from 'components/card';
 import Button from 'components/button';
+import analytics from 'lib/analytics';
 
 /**
  * Internal dependencies
@@ -23,6 +24,13 @@ import Banner from 'components/banner';
 
 const SupportCard = React.createClass( {
 	displayName: 'SupportCard',
+
+	trackBannerClick() {
+		analytics.tracks.recordJetpackClick( {
+			target: 'banner-click',
+			feature: 'support'
+		} );
+	},
 
 	render() {
 		if ( 'undefined' === typeof this.props.sitePlan.product_slug && this.props.isFetchingSiteData ) {
@@ -67,6 +75,7 @@ const SupportCard = React.createClass( {
 							title={ __( 'Get a faster resolution to your support questions.' ) }
 							plan={ PLAN_JETPACK_PERSONAL }
 							callToAction={ __( 'Upgrade' ) }
+							onClick={ this.trackBannerClick }
 							href={ 'https://jetpack.com/redirect/?source=support&site=' + this.props.siteRawUrl }
 						/>
 					)
