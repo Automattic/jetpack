@@ -138,7 +138,7 @@ export const SettingsCard = props => {
 				return (
 					<Banner
 						callToAction={ activateLabel }
-						title={ __( 'Integrate hassle-free Google Analytics.' ) }
+						title={ __( 'Integrate easily with Google Analytics.' ) }
 						plan={ PLAN_JETPACK_BUSINESS }
 						feature={ feature }
 						href={ 'https://jetpack.com/redirect/?source=settings-ga&site=' + siteRawUrl }
