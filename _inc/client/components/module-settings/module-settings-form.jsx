@@ -67,6 +67,7 @@ export function ModuleSettingsForm( InnerComponent ) {
 		 * @param {Boolean} deactivate
 		 */
 		updateFormStateModuleOption( module, moduleOption, deactivate = false ) {
+			this.trackSettingsToggle( module, moduleOption, ! this.getOptionValue( moduleOption ) );
 
 			// If the module is active, check if we're going to update the option or update and deactivate.
 			if ( this.getOptionValue( module ) ) {
@@ -78,7 +79,6 @@ export function ModuleSettingsForm( InnerComponent ) {
 						[ moduleOption ]: ! this.getOptionValue( moduleOption )
 					} );
 				} else {
-
 					// We pass the value to set.
 					this.props.updateOptions( {
 						[ moduleOption ]: ! this.getOptionValue( moduleOption )
@@ -160,6 +160,20 @@ export function ModuleSettingsForm( InnerComponent ) {
 			analytics.tracks.recordEvent(
 				'jetpack_wpa_settings_form_submit',
 				options
+			);
+		},
+		/**
+		 * Tracks settings toggles
+		 * @param options
+		 */
+		trackSettingsToggle( module, setting, activated ) {
+			analytics.tracks.recordEvent(
+				'jetpack_wpa_settings_toggle',
+				{
+					module: module,
+					setting: setting,
+					activated: activated
+				}
 			);
 		},
 		render() {
