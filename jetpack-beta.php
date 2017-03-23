@@ -224,7 +224,7 @@ class Jetpack_Beta {
 		// add a child item to our parent item
 		$args = array(
 			'id'     => 'jetpack-beta_version',
-			'title'  => self::get_jetpack_plugin_version(),
+			'title'  => self::get_jetpack_plugin_pretty_version(),
 			'parent' => 'jetpack-beta_admin_bar'
 		);
 
@@ -307,6 +307,27 @@ class Jetpack_Beta {
 	static function get_jetpack_plugin_version() {
 		$info = self::get_jetpack_plugin_info();
 		return $info['Version'];
+	}
+
+	static function get_jetpack_plugin_pretty_version() {
+
+		list( $branch, $section ) = (array) get_option( 'jetpack_dev_currently_installed' );
+
+
+		if ( 'master' === $section ) {
+			return '';
+		}
+
+		if ( 'rc' === $section ) {
+			return JETPACK_GITHUB_URL . '/tree/' . $section . '-build';
+		}
+
+		if ( 'pr' === $section ) {
+			$branch = str_replace( '-', ' ', $branch );
+			return 'PR: ' . str_replace( '_', ' / ', $branch );
+		}
+
+		return self::get_jetpack_plugin_version;
 	}
 
 	static function get_new_jetpack_version() {
