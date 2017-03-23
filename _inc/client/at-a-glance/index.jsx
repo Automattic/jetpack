@@ -48,7 +48,7 @@ const AtAGlance = React.createClass( {
 						? ''
 						: 'https://wordpress.com/settings/security/' + this.props.siteRawUrl
 					}
-					externalLinkClick={ () => analytics.tracks.recordEvent( 'jetpack_wpa_aag_security_wpcom_click', {} ) }
+					externalLinkClick={ () => analytics.tracks.recordJetpackClick( 'aag_manage_security_wpcom' ) }
 				/>,
 			connections = (
 				<div>

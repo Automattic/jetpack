@@ -5,7 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
 import { translate as __ } from 'i18n-calypso';
-import JetpackDisconnectDialog from 'components/jetpack-disconnect-dialog';
+import analytics from 'lib/analytics';
 
 /**
  * Internal dependencies
@@ -23,6 +23,7 @@ import {
 import { getSiteRawUrl } from 'state/initial-state';
 import QueryConnectUrl from 'components/data/query-connect-url';
 import onKeyDownCallback from 'utils/onkeydown-callback';
+import JetpackDisconnectDialog from 'components/jetpack-disconnect-dialog';
 
 export const ConnectButton = React.createClass( {
 	displayName: 'ConnectButton',
@@ -48,6 +49,7 @@ export const ConnectButton = React.createClass( {
 	},
 
 	handleOpenModal( e ) {
+		analytics.tracks.recordJetpackClick( 'manage_site_connection' );
 		e.preventDefault();
 		this.toggleVisibility();
 	},
