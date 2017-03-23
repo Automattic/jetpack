@@ -405,6 +405,7 @@ add_action( 'jetpack_modules_loaded', 'wpcomsh_add_masterbar', 1 );
 function wpcomsh_allow_custom_wp_options( $options ) {
 	// For storing AT options.
 	$options[] = 'at_options';
+	$options[] = 'jetpack_fonts';
 
 	return $options;
 }
