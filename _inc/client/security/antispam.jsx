@@ -63,7 +63,7 @@ export const Antispam = moduleSettingsForm(
 		},
 
 		componentDidUpdate() {
-			if ( '' !== this.state.apiKey && ! this.props.isCheckingAkismetKey && this.props.isAkismetKeyValid && this.keyChanged && ! isEmpty( this.state.currentEvent ) ) {
+			if ( ! this.props.isCheckingAkismetKey && this.props.isAkismetKeyValid && this.keyChanged && ! isEmpty( this.state.currentEvent ) ) {
 				this.keyChanged = false;
 				this.props.onOptionChange( this.state.currentEvent );
 			}
