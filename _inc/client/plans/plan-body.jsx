@@ -25,6 +25,16 @@ import {
 import QuerySitePlugins from 'components/data/query-site-plugins';
 
 const PlanBody = React.createClass( {
+	propTypes: {
+		plan: React.PropTypes.string
+	},
+
+	getDefaultProps: function() {
+		return {
+			plan: ''
+		};
+	},
+
 	render() {
 		let planCard = '';
 		switch ( this.props.plan ) {
@@ -208,7 +218,7 @@ const PlanBody = React.createClass( {
 								{
 									this.props.isFetchingPluginsData ? '' :
 									this.props.isModuleActivated( 'seo-tools' ) ? (
-										<Button href={ 'https://wordpress.com/settings/seo/' + this.props.siteRawUrl } className="is-primary">
+										<Button href={ 'https://wordpress.com/settings/traffic/' + this.props.siteRawUrl } className="is-primary">
 											{ __( 'Configure Site SEO' ) }
 										</Button>
 									)
@@ -234,7 +244,7 @@ const PlanBody = React.createClass( {
 								{
 									this.props.isFetchingPluginsData ? '' :
 									this.props.isModuleActivated( 'google-analytics' ) ? (
-										<Button href={ 'https://wordpress.com/settings/analytics/' + this.props.siteRawUrl } className="is-primary">
+										<Button href={ 'https://wordpress.com/settings/traffic/' + this.props.siteRawUrl } className="is-primary">
 											{ __( 'Configure Google Analytics' ) }
 										</Button>
 									)
@@ -313,7 +323,9 @@ const PlanBody = React.createClass( {
 						</div>
 
 						<p>
-							<Button href={ 'https://jetpack.com/redirect/?source=plans-main-bottom&site=' + this.props.siteRawUrl } className="is-primary">
+							<Button href={ 'jetpack_free' === this.props.plans
+								? 'https://jetpack.com/redirect/?source=plans-main-bottom&site=' + this.props.siteRawUrl
+								: 'https://jetpack.com/redirect/?source=plans-main-bottom-dev-mode' } className="is-primary">
 								{ __( 'Compare Plans' ) }
 							</Button>
 						</p>

@@ -111,5 +111,15 @@ function slideshare_shortcode( $atts ) {
 
 	$player .= ' allowfullscreen webkitallowfullscreen mozallowfullscreen></iframe>';
 
-	return $player;
+	/**
+	 * Filter the returned SlideShare shortcode.
+	 *
+	 * @module shortcodes
+	 *
+	 * @since 4.7.0
+	 *
+	 * @param string $player The iframe to return.
+	 * @param array  $atts   The attributes specified in the shortcode.
+	 */
+	return apply_filters( 'jetpack_slideshare_shortcode', $player, $atts );
 }

@@ -88,6 +88,9 @@ class Jetpack_Sync_Functions {
 		if ( function_exists( 'is_wpe' ) || function_exists( 'is_wpe_snapshot' ) ) {
 			return 'wpe';
 		}
+		if ( defined( 'VIP_GO_ENV' ) && false !== VIP_GO_ENV ) {
+			return 'vip-go';
+		}
 		return 'unknown';
 	}
 

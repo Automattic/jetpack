@@ -300,7 +300,7 @@ class Jetpack_XMLRPC_Server {
 		error_log( "VERIFY: $verify" );
 		*/
 
-		$jetpack_token = Jetpack_Data::get_access_token( JETPACK_MASTER_USER );
+		$jetpack_token = Jetpack_Data::get_access_token( $user_id );
 
 		$api_user_code = get_user_meta( $user_id, "jetpack_json_api_$client_id", true );
 		if ( !$api_user_code ) {
@@ -326,7 +326,7 @@ class Jetpack_XMLRPC_Server {
 	* @return boolean
 	*/
 	function disconnect_blog() {
-		
+
 		// For tracking
 		if ( ! empty( $this->user->ID ) ) {
 			wp_set_current_user( $this->user->ID );

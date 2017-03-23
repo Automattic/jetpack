@@ -101,9 +101,7 @@ class WordAds {
 	 * @since 4.5.0
 	 */
 	public static function is_infinite_scroll() {
-		return current_theme_supports( 'infinite-scroll' ) &&
-				class_exists( 'The_Neverending_Home_Page' ) &&
-				The_Neverending_Home_Page::got_infinity();
+		return class_exists( 'The_Neverending_Home_Page' ) && The_Neverending_Home_Page::got_infinity();
 	}
 
 	/**
@@ -302,22 +300,8 @@ HTML;
 			</script>
 HTML;
 		} else if ( 'house' == $type ) {
-			$width = 300;
-			$height = 250;
-			$ad_url = 'https://s0.wp.com/wp-content/blog-plugins/wordads/house/';
-			if ( 'top' == $spot && ! $this->params->mobile_device ) {
-				$width = 728;
-				$height = 90;
-				$ad_url .= 'leaderboard.png';
-			} else {
-				$ad_url .= 'mrec.png';
-			}
-
-			$snippet = <<<HTML
-			<a href="https://wordpress.com/create/" target="_blank">
-				<img src="$ad_url" alt="WordPress.com: Grow Your Business" width="$width" height="$height" />
-			</a>
-HTML;
+			$leaderboard = 'top' == $spot && ! $this->params->mobile_device;
+			$snippet = $this->get_house_ad( $leaderboard ? 'leaderboard' : 'mrec' );
 		}
 
 		$header = 'top' == $spot ? 'wpcnt-header' : '';
@@ -325,7 +309,7 @@ HTML;
 		return <<<HTML
 		<div class="wpcnt $header">
 			<div class="wpa">
-				<a class="wpa-about" href="https://en.wordpress.com/about-these-ads/" rel="nofollow">$about</a>
+				<span class="wpa-about">$about</span>
 				<div class="u $spot">
 					$snippet
 				</div>
@@ -342,6 +326,41 @@ HTML;
 	 */
 	public function should_bail() {
 		return ! $this->option( 'wordads_approved' );
+	}
+
+	/**
+	 * Returns markup for HTML5 house ad base on unit
+	 * @param  string $unit mrec, widesky, or leaderboard
+	 * @return string       markup for HTML5 house ad
+	 *
+	 * @since 4.7.0
+	 */
+	public function get_house_ad( $unit = 'mrec' ) {
+		if ( ! in_array( $unit, array( 'mrec', 'widesky', 'leaderboard' ) ) ) {
+			$unit = 'mrec';
+		}
+
+		$width  = 300;
+		$height = 250;
+		if ( 'widesky' == $unit ) {
+			$width  = 160;
+			$height = 600;
+		} else if ( 'leaderboard' == $unit ) {
+			$width  = 728;
+			$height = 90;
+		}
+
+		return <<<HTML
+		<iframe
+			src="https://s0.wp.com/wp-content/blog-plugins/wordads/house/html5/$unit/index.html"
+			width="$width"
+			height="$height"
+			frameborder="0"
+			scrolling="no"
+			marginheight="0"
+			marginwidth="0">
+		</iframe>
+HTML;
 	}
 
 	/**

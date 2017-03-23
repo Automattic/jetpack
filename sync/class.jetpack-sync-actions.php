@@ -137,6 +137,15 @@ class Jetpack_Sync_Actions {
 
 		$query_args['timeout'] = Jetpack_Sync_Settings::is_doing_cron() ? 30 : 15;
 
+		/**
+		 * Filters query parameters appended to the Sync request URL sent to WordPress.com.
+		 *
+		 * @since 4.7.0
+		 *
+		 * @param array $query_args associative array of query parameters.
+		 */
+		$query_args = apply_filters( 'jetpack_sync_send_data_query_args', $query_args );
+
 		$url = add_query_arg( $query_args, Jetpack::xmlrpc_api_url() );
 
 		$rpc = new Jetpack_IXR_Client( array(
@@ -218,37 +227,23 @@ class Jetpack_Sync_Actions {
 		return $schedules;
 	}
 
-	// try to send actions until we run out of things to send,
-	// or have to wait more than 15s before sending again,
-	// or we hit a lock or some other sending issue
 	static function do_cron_sync() {
-		if ( ! self::sync_allowed() ) {
-			return;
-		}
-
-		self::initialize_sender();
-
-		$time_limit = Jetpack_Sync_Settings::get_setting( 'cron_sync_time_limit' );
-		$start_time = time();
-
-		do {
-			$next_sync_time = self::$sender->get_next_sync_time( 'sync' );
-
-			if ( $next_sync_time ) {
-				$delay = $next_sync_time - time() + 1;
-				if ( $delay > 15 ) {
-					break;
-				} elseif ( $delay > 0 ) {
-					sleep( $delay );
-				}
-			}
-
-			$result = self::$sender->do_sync();
-		} while ( $result && ( $start_time + $time_limit ) > time() );
+		self::do_cron_sync_by_type( 'sync' );
 	}
 
 	static function do_cron_full_sync() {
-		if ( ! self::sync_allowed() ) {
+		self::do_cron_sync_by_type( 'full_sync' );
+	}
+
+	/**
+	 * Try to send actions until we run out of things to send,
+	 * or have to wait more than 15s before sending again,
+	 * or we hit a lock or some other sending issue
+	 *
+	 * @param string $type Sync type. Can be `sync` or `full_sync`.
+	 */
+	static function do_cron_sync_by_type( $type ) {
+		if ( ! self::sync_allowed() || ( 'sync' !== $type && 'full_sync' !== $type ) ) {
 			return;
 		}
 
@@ -258,7 +253,7 @@ class Jetpack_Sync_Actions {
 		$start_time = time();
 
 		do {
-			$next_sync_time = self::$sender->get_next_sync_time( 'full_sync' );
+			$next_sync_time = self::$sender->get_next_sync_time( $type );
 
 			if ( $next_sync_time ) {
 				$delay = $next_sync_time - time() + 1;
@@ -269,7 +264,7 @@ class Jetpack_Sync_Actions {
 				}
 			}
 
-			$result = self::$sender->do_full_sync();
+			$result = 'full_sync' === $type ? self::$sender->do_full_sync() : self::$sender->do_sync();
 		} while ( $result && ( $start_time + $time_limit ) > time() );
 	}
 
@@ -287,14 +282,28 @@ class Jetpack_Sync_Actions {
 	}
 
 	static function initialize_woocommerce() {
-		if ( class_exists( 'WooCommerce' ) ) {
-			add_filter( 'jetpack_sync_modules', array( 'Jetpack_Sync_Actions', 'add_woocommerce_sync_module' ) );
+		if ( false === class_exists( 'WooCommerce' ) ) {
+			return;
 		}
+		add_filter( 'jetpack_sync_modules', array( 'Jetpack_Sync_Actions', 'add_woocommerce_sync_module' ) );
 	}
 
 	static function add_woocommerce_sync_module( $sync_modules ) {
 		require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-woocommerce.php';
 		$sync_modules[] = 'Jetpack_Sync_Module_WooCommerce';
+		return $sync_modules;
+	}
+
+	static function initialize_wp_super_cache() {
+		if ( false === function_exists( 'wp_cache_is_enabled' ) ) {
+			return;
+		}
+		add_filter( 'jetpack_sync_modules', array( 'Jetpack_Sync_Actions', 'add_wp_super_cache_sync_module' ) );
+	}
+
+	static function add_wp_super_cache_sync_module( $sync_modules ) {
+		require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-wp-super-cache.php';
+		$sync_modules[] = 'Jetpack_Sync_Module_WP_Super_Cache';
 		return $sync_modules;
 	}
 
@@ -422,14 +431,19 @@ class Jetpack_Sync_Actions {
 	}
 }
 
+// Check for WooCommerce support
+add_action( 'plugins_loaded', array( 'Jetpack_Sync_Actions', 'initialize_woocommerce' ), 5 );
+
+// Check for WP Super Cache
+add_action( 'plugins_loaded', array( 'Jetpack_Sync_Actions', 'initialize_wp_super_cache' ), 5 );
+
 /*
  * Init after plugins loaded and before the `init` action. This helps with issues where plugins init
  * with a high priority or sites that use alternate cron.
  */
 add_action( 'plugins_loaded', array( 'Jetpack_Sync_Actions', 'init' ), 90 );
 
-// Check for WooCommerce support
-add_action( 'plugins_loaded', array( 'Jetpack_Sync_Actions', 'initialize_woocommerce' ), 5 );
+
 
 // We need to define this here so that it's hooked before `updating_jetpack_version` is called
 add_action( 'updating_jetpack_version', array( 'Jetpack_Sync_Actions', 'do_initial_sync' ), 10, 2 );

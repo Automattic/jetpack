@@ -81,6 +81,10 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			'shortcodes'                       => Jetpack_Sync_Functions::get_shortcodes(),
 		);
 
+		if ( function_exists( 'wp_cache_is_enabled' ) ) {
+			$callables['wp_super_cache_globals'] = Jetpack_Sync_Module_WP_Super_Cache::get_wp_super_cache_globals();
+		}
+
 		if ( is_multisite() ) {
 			$callables['network_name']                        = Jetpack::network_name();
 			$callables['network_allow_new_registrations']     = Jetpack::network_allow_new_registrations();

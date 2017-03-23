@@ -91,6 +91,11 @@ function jetpack_get_module_i18n( $key ) {
 				'description' => _x( 'Write posts or pages in plain-text Markdown syntax.', 'Module Description', 'jetpack' ),
 			),
 
+			'masterbar' => array(
+				'name' => _x( 'WordPress.com Toolbar', 'Module Name', 'jetpack' ),
+				'description' => _x( 'Replaces the admin bar with a useful toolbar to quickly manage your site via WordPress.com.', 'Module Description', 'jetpack' ),
+			),
+
 			'minileven' => array(
 				'name' => _x( 'Mobile Theme', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Optimize your site for smartphones and tablets.', 'Module Description', 'jetpack' ),
@@ -139,7 +144,7 @@ function jetpack_get_module_i18n( $key ) {
 			),
 
 			'seo-tools' => array(
-				'name' => _x( 'SEO tools', 'Module Name', 'jetpack' ),
+				'name' => _x( 'SEO Tools', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Better results on search engines and social media.', 'Module Description', 'jetpack' ),
 				'recommended description' => _x( 'Better results on search engines and social media.', 'Jumpstart Description', 'jetpack' ),
 			),
@@ -303,6 +308,10 @@ function jetpack_get_module_i18n_tag( $key ) {
 			//  - modules/sitemaps.php
 			//  - modules/stats.php
 			'Recommended' =>_x( 'Recommended', 'Module Tag', 'jetpack' ),
+
+			// Modules with `General` tag:
+			//  - modules/masterbar.php
+			'General' =>_x( 'General', 'Module Tag', 'jetpack' ),
 
 			// Modules with `Mobile` tag:
 			//  - modules/minileven.php

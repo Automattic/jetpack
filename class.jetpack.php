@@ -22,6 +22,8 @@ jetpack_do_activate (bool)
 	Flag for "activating" the plugin on sites where the activation hook never fired (auto-installs)
 */
 
+require_once( JETPACK__PLUGIN_DIR . '_inc/lib/class.media.php' );
+
 class Jetpack {
 	public $xmlrpc_server = null;
 
@@ -221,7 +223,6 @@ class Jetpack {
 		'facebook-thumb-fixer/_facebook-thumb-fixer.php',        // Facebook Thumb Fixer
 		'facebook-and-digg-thumbnail-generator/facebook-and-digg-thumbnail-generator.php',
 		                                                         // Fedmich's Facebook Open Graph Meta
-		'header-footer/plugin.php',                              // Header and Footer
 		'network-publisher/networkpub.php',                      // Network Publisher
 		'nextgen-facebook/nextgen-facebook.php',                 // NextGEN Facebook OG
 		'social-networks-auto-poster-facebook-twitter-g/NextScripts_SNAP.php',
@@ -333,7 +334,7 @@ class Jetpack {
 			list( $version ) = explode( ':', Jetpack_Options::get_option( 'version' ) );
 			if ( JETPACK__VERSION != $version ) {
 
-				// Check which active modules actually exist and remove others from active_modules list
+				// check which active modules actually exist and remove others from active_modules list
 				$unfiltered_modules = Jetpack::get_active_modules();
 				$modules = array_filter( $unfiltered_modules, array( 'Jetpack', 'is_module' ) );
 				if ( array_diff( $unfiltered_modules, $modules ) ) {
@@ -347,8 +348,40 @@ class Jetpack {
 					Jetpack_Options::delete_option( 'identity_crisis_whitelist' );
 				}
 
-				Jetpack::maybe_set_version_option();
+				// Make sure Markdown for posts gets turned back on
+				if ( ! get_option( 'wpcom_publish_posts_with_markdown' ) ) {
+					update_option( 'wpcom_publish_posts_with_markdown', true );
+				}
+
+				if ( did_action( 'wp_loaded' ) ) {
+					self::upgrade_on_load();
+				} else {
+					add_action(
+						'wp_loaded',
+						array( __CLASS__, 'upgrade_on_load' )
+					);
+				}
 			}
+		}
+	}
+
+	/**
+	 * Runs upgrade routines that need to have modules loaded.
+	 */
+	static function upgrade_on_load() {
+
+		// Not attempting any upgrades if jetpack_modules_loaded did not fire.
+		// This can happen in case Jetpack has been just upgraded and is
+		// being initialized late during the page load. In this case we wait
+		// until the next proper admin page load with Jetpack active.
+		if ( ! did_action( 'jetpack_modules_loaded' ) ) {
+			return;
+		}
+
+		Jetpack::maybe_set_version_option();
+
+		if ( class_exists( 'Jetpack_Widget_Conditions' ) ) {
+			Jetpack_Widget_Conditions::migrate_post_type_rules();
 		}
 	}
 
@@ -428,7 +461,6 @@ class Jetpack {
 		 */
 		add_action( 'init', array( $this, 'deprecated_hooks' ) );
 
-
 		/*
 		 * Load things that should only be in Network Admin.
 		 *
@@ -474,7 +506,13 @@ class Jetpack {
 
 			// Now that no one can authenticate, and we're whitelisting all XML-RPC methods, force enable_xmlrpc on.
 			add_filter( 'pre_option_enable_xmlrpc', '__return_true' );
-		} elseif ( is_admin() && isset( $_POST['action'] ) && 'jetpack_upload_file' == $_POST['action'] ) {
+		} elseif (
+			is_admin() &&
+			isset( $_POST['action'] ) && (
+				'jetpack_upload_file' == $_POST['action'] ||
+				'jetpack_update_file' == $_POST['action']
+			)
+		) {
 			$this->require_jetpack_authentication();
 			$this->add_remote_request_handlers();
 		} else {
@@ -1113,6 +1151,26 @@ class Jetpack {
 	}
 
 	/**
+	 * Wrapper for core's get_avatar_url().  This one is deprecated.
+	 *
+	 * @deprecated 4.7 use get_avatar_url instead.
+	 * @param int|string|object $id_or_email A user ID,  email address, or comment object
+	 * @param int $size Size of the avatar image
+	 * @param string $default URL to a default image to use if no avatar is available
+	 * @param bool $force_display Whether to force it to return an avatar even if show_avatars is disabled
+	 *
+	 * @return array
+	 */
+	public static function get_avatar_url( $id_or_email, $size = 96, $default = '', $force_display = false ) {
+		_deprecated_function( __METHOD__, 'jetpack-4.7', 'get_avatar_url' );
+		return get_avatar_url( $id_or_email, array(
+			'size' => $size,
+			'default' => $default,
+			'force_default' => $force_display,
+		) );
+	}
+
+	/**
 	 * jetpack_updates is saved in the following schema:
 	 *
 	 * array (
@@ -1219,7 +1277,8 @@ class Jetpack {
 		if ( ! $plan ) {
 			$plan = array(
 				'product_slug' => 'jetpack_free',
-				'supports' => array(),
+				'supports'     => array(),
+				'class'        => 'free',
 			);
 		}
 
@@ -1233,6 +1292,7 @@ class Jetpack {
 			$plan['supports'] = array(
 				'akismet',
 			);
+			$plan['class'] = 'personal';
 		}
 
 		// Define what paid modules are supported by premium plans
@@ -1248,6 +1308,7 @@ class Jetpack {
 				'vaultpress',
 				'wordads',
 			);
+			$plan['class'] = 'premium';
 		}
 
 		// Define what paid modules are supported by professional plans
@@ -1265,6 +1326,7 @@ class Jetpack {
 				'google-analytics',
 				'wordads',
 			);
+			$plan['class'] = 'business';
 		}
 
 		// Make sure we have an array here in the event database data is stale
@@ -2354,7 +2416,25 @@ class Jetpack {
 	 * Saves any generated PHP errors in ::state( 'php_errors', {errors} )
 	 */
 	public static function catch_errors_on_shutdown() {
-		Jetpack::state( 'php_errors', ob_get_clean() );
+		Jetpack::state( 'php_errors', self::alias_directories( ob_get_clean() ) );
+	}
+
+	/**
+	 * Rewrite any string to make paths easier to read.
+	 *
+	 * Rewrites ABSPATH (eg `/home/jetpack/wordpress/`) to ABSPATH, and if WP_CONTENT_DIR
+	 * is located outside of ABSPATH, rewrites that to WP_CONTENT_DIR.
+	 *
+	 * @param $string
+	 * @return mixed
+	 */
+	public static function alias_directories( $string ) {
+		// ABSPATH has a trailing slash.
+		$string = str_replace( ABSPATH, 'ABSPATH/', $string );
+		// WP_CONTENT_DIR does not have a trailing slash.
+		$string = str_replace( WP_CONTENT_DIR, 'WP_CONTENT_DIR', $string );
+
+		return $string;
 	}
 
 	public static function activate_default_modules( $min_version = false, $max_version = false, $other_modules = array(), $redirect = true ) {
@@ -2687,6 +2767,9 @@ p {
 
 		if ( $network_wide )
 			Jetpack::state( 'network_nag', true );
+
+		// For firing one-off events (notices) immediately after activation
+		set_transient( 'activated_jetpack', true, .1 * MINUTE_IN_SECONDS );
 
 		Jetpack::plugin_initialize();
 	}
@@ -3149,12 +3232,19 @@ p {
 
 	function add_remote_request_handlers() {
 		add_action( 'wp_ajax_nopriv_jetpack_upload_file', array( $this, 'remote_request_handlers' ) );
+		add_action( 'wp_ajax_nopriv_jetpack_update_file', array( $this, 'remote_request_handlers' ) );
 	}
 
 	function remote_request_handlers() {
+		$action = current_filter();
+
 		switch ( current_filter() ) {
 		case 'wp_ajax_nopriv_jetpack_upload_file' :
 			$response = $this->upload_handler();
+			break;
+
+		case 'wp_ajax_nopriv_jetpack_update_file' :
+			$response = $this->upload_handler( true );
 			break;
 		default :
 			$response = new Jetpack_Error( 'unknown_handler', 'Unknown Handler', 400 );
@@ -3186,7 +3276,16 @@ p {
 		die( json_encode( (object) $response ) );
 	}
 
-	function upload_handler() {
+	/**
+	 * Uploads a file gotten from the global $_FILES.
+	 * If `$update_media_item` is true and `post_id` is defined
+	 * the attachment file of the media item (gotten through of the post_id)
+	 * will be updated instead of add a new one.
+	 * 
+	 * @param  boolean $update_media_item - update media attachment
+	 * @return array - An array describing the uploadind files process
+	 */
+	function upload_handler( $update_media_item = false ) {
 		if ( 'POST' !== strtoupper( $_SERVER['REQUEST_METHOD'] ) ) {
 			return new Jetpack_Error( 405, get_status_header_desc( 405 ), 405 );
 		}
@@ -3241,6 +3340,37 @@ p {
 			if ( ! current_user_can( 'edit_post', $post_id ) ) {
 				$post_id = 0;
 			}
+
+			if ( $update_media_item ) {
+				if ( ! isset( $post_id ) || $post_id === 0 ) {
+					return new Jetpack_Error( 'invalid_input', 'Media ID must be defined.', 400 );
+				}
+
+				$media_array = $_FILES['media'];
+
+				$file_array['name'] = $media_array['name'][0]; 
+				$file_array['type'] = $media_array['type'][0]; 
+				$file_array['tmp_name'] = $media_array['tmp_name'][0]; 
+				$file_array['error'] = $media_array['error'][0]; 
+				$file_array['size'] = $media_array['size'][0];
+
+				$edited_media_item = Jetpack_Media::edit_media_file( $post_id, $file_array );
+
+				if ( is_wp_error( $edited_media_item ) ) {
+					return $edited_media_item;
+				}
+
+				$response = (object) array(
+					'id'   => (string) $post_id,
+					'file' => (string) $edited_media_item->post_title,
+					'url'  => (string) wp_get_attachment_url( $post_id ),
+					'type' => (string) $edited_media_item->post_mime_type,
+					'meta' => (array) wp_get_attachment_metadata( $post_id ),
+				);
+
+				return (array) array( $response );
+			}
+
 			$attachment_id = media_handle_upload(
 				'.jetpack.upload.',
 				$post_id,
@@ -4456,7 +4586,7 @@ p {
 	 * verifies it worked properly.
 	 *
 	 * @since 2.6
-	 * @return true or Jetpack_Error
+	 * @return string|Jetpack_Error A JSON object on success or Jetpack_Error on failures
 	 **/
 	public function validate_remote_register_response( $response ) {
 	  if ( is_wp_error( $response ) ) {
@@ -4466,37 +4596,37 @@ p {
 		$code   = wp_remote_retrieve_response_code( $response );
 		$entity = wp_remote_retrieve_body( $response );
 		if ( $entity )
-			$json = json_decode( $entity );
+			$registration_response = json_decode( $entity );
 		else
-			$json = false;
+			$registration_response = false;
 
 		$code_type = intval( $code / 100 );
 		if ( 5 == $code_type ) {
 			return new Jetpack_Error( 'wpcom_5??', sprintf( __( 'Error Details: %s', 'jetpack' ), $code ), $code );
 		} elseif ( 408 == $code ) {
 			return new Jetpack_Error( 'wpcom_408', sprintf( __( 'Error Details: %s', 'jetpack' ), $code ), $code );
-		} elseif ( ! empty( $json->error ) ) {
-			if ( 'xml_rpc-32700' == $json->error && ! function_exists( 'xml_parser_create' ) ) {
+		} elseif ( ! empty( $registration_response->error ) ) {
+			if ( 'xml_rpc-32700' == $registration_response->error && ! function_exists( 'xml_parser_create' ) ) {
 				$error_description = __( "PHP's XML extension is not available. Jetpack requires the XML extension to communicate with WordPress.com. Please contact your hosting provider to enable PHP's XML extension.", 'jetpack' );
 			} else {
-				$error_description = isset( $json->error_description ) ? sprintf( __( 'Error Details: %s', 'jetpack' ), (string) $json->error_description ) : '';
+				$error_description = isset( $registration_response->error_description ) ? sprintf( __( 'Error Details: %s', 'jetpack' ), (string) $registration_response->error_description ) : '';
 			}
 
-			return new Jetpack_Error( (string) $json->error, $error_description, $code );
+			return new Jetpack_Error( (string) $registration_response->error, $error_description, $code );
 		} elseif ( 200 != $code ) {
 			return new Jetpack_Error( 'wpcom_bad_response', sprintf( __( 'Error Details: %s', 'jetpack' ), $code ), $code );
 		}
 
 		// Jetpack ID error block
-		if ( empty( $json->jetpack_id ) ) {
+		if ( empty( $registration_response->jetpack_id ) ) {
 			return new Jetpack_Error( 'jetpack_id', sprintf( __( 'Error Details: Jetpack ID is empty. Do not publicly post this error message! %s', 'jetpack' ), $entity ), $entity );
-		} elseif ( ! is_scalar( $json->jetpack_id ) ) {
+		} elseif ( ! is_scalar( $registration_response->jetpack_id ) ) {
 			return new Jetpack_Error( 'jetpack_id', sprintf( __( 'Error Details: Jetpack ID is not a scalar. Do not publicly post this error message! %s', 'jetpack' ) , $entity ), $entity );
-		} elseif ( preg_match( '/[^0-9]/', $json->jetpack_id ) ) {
+		} elseif ( preg_match( '/[^0-9]/', $registration_response->jetpack_id ) ) {
 			return new Jetpack_Error( 'jetpack_id', sprintf( __( 'Error Details: Jetpack ID begins with a numeral. Do not publicly post this error message! %s', 'jetpack' ) , $entity ), $entity );
 		}
 
-	    return true;
+	    return $registration_response;
 	}
 	/**
 	 * @return bool|WP_Error
@@ -4542,35 +4672,28 @@ p {
 		);
 		$response = Jetpack_Client::_wp_remote_request( Jetpack::fix_url_for_bad_hosts( Jetpack::api_url( 'register' ) ), $args, true );
 
-
 		// Make sure the response is valid and does not contain any Jetpack errors
-		$valid_response = Jetpack::init()->validate_remote_register_response( $response );
-		if( is_wp_error( $valid_response ) || !$valid_response ) {
-		    return $valid_response;
+		$registration_details = Jetpack::init()->validate_remote_register_response( $response );
+		if ( is_wp_error( $registration_details ) ) {
+		    return $registration_details;
+		} elseif ( ! $registration_details ) {
+			return new Jetpack_Error( 'unknown_error', __( 'Unknown error registering your Jetpack site', 'jetpack' ), wp_remote_retrieve_response_code( $response ) );
 		}
 
-		// Grab the response values to work with
-		$code   = wp_remote_retrieve_response_code( $response );
-		$entity = wp_remote_retrieve_body( $response );
+		if ( empty( $registration_details->jetpack_secret ) || ! is_string( $registration_details->jetpack_secret ) ) {
+			return new Jetpack_Error( 'jetpack_secret', '', wp_remote_retrieve_response_code( $response ) );
+		}
 
-		if ( $entity )
-			$json = json_decode( $entity );
-		else
-			$json = false;
-
-		if ( empty( $json->jetpack_secret ) || ! is_string( $json->jetpack_secret ) )
-			return new Jetpack_Error( 'jetpack_secret', '', $code );
-
-		if ( isset( $json->jetpack_public ) ) {
-			$jetpack_public = (int) $json->jetpack_public;
+		if ( isset( $registration_details->jetpack_public ) ) {
+			$jetpack_public = (int) $registration_details->jetpack_public;
 		} else {
 			$jetpack_public = false;
 		}
 
 		Jetpack_Options::update_options(
 			array(
-				'id'         => (int)    $json->jetpack_id,
-				'blog_token' => (string) $json->jetpack_secret,
+				'id'         => (int)    $registration_details->jetpack_id,
+				'blog_token' => (string) $registration_details->jetpack_secret,
 				'public'     => $jetpack_public,
 			)
 		);
@@ -4584,7 +4707,7 @@ p {
 		 * @param string $json->jetpack_secret Jetpack Blog Token.
 		 * @param int|bool $jetpack_public Is the site public.
 		 */
-		do_action( 'jetpack_site_registered', $json->jetpack_id, $json->jetpack_secret, $jetpack_public );
+		do_action( 'jetpack_site_registered', $registration_details->jetpack_id, $registration_details->jetpack_secret, $jetpack_public );
 
 		// Initialize Jump Start for the first and only time.
 		if ( ! Jetpack_Options::get_option( 'jumpstart' ) ) {
@@ -5273,7 +5396,8 @@ p {
 			? $_REQUEST
 			: $environment;
 
-		$token = Jetpack_Data::get_access_token( JETPACK_MASTER_USER );
+		list( $envToken, $envVersion, $envUserId ) = explode( ':', $environment['token'] );
+		$token = Jetpack_Data::get_access_token( $envUserId );
 		if ( ! $token || empty( $token->secret ) ) {
 			wp_die( __( 'You must connect your Jetpack plugin to WordPress.com to use this feature.' , 'jetpack' ) );
 		}
@@ -5379,45 +5503,6 @@ p {
 		 * @param string $content_width Content Width value.
 		 */
 		return apply_filters( 'jetpack_content_width', $content_width );
-	}
-
-	/**
-	 * Centralize the function here until it gets added to core.
-	 *
-	 * @param int|string|object $id_or_email A user ID,  email address, or comment object
-	 * @param int $size Size of the avatar image
-	 * @param string $default URL to a default image to use if no avatar is available
-	 * @param bool $force_display Whether to force it to return an avatar even if show_avatars is disabled
-	 *
-	 * @return array First element is the URL, second is the class.
-	 */
-	public static function get_avatar_url( $id_or_email, $size = 96, $default = '', $force_display = false ) {
-		// Don't bother adding the __return_true filter if it's already there.
-		$has_filter = has_filter( 'pre_option_show_avatars', '__return_true' );
-
-		if ( $force_display && ! $has_filter )
-			add_filter( 'pre_option_show_avatars', '__return_true' );
-
-		$avatar = get_avatar( $id_or_email, $size, $default );
-
-		if ( $force_display && ! $has_filter )
-			remove_filter( 'pre_option_show_avatars', '__return_true' );
-
-		// If no data, fail out.
-		if ( is_wp_error( $avatar ) || ! $avatar )
-			return array( null, null );
-
-		// Pull out the URL.  If it's not there, fail out.
-		if ( ! preg_match( '/src=["\']([^"\']+)["\']/', $avatar, $url_matches ) )
-			return array( null, null );
-		$url = wp_specialchars_decode( $url_matches[1], ENT_QUOTES );
-
-		// Pull out the class, but it's not a big deal if it's missing.
-		$class = '';
-		if ( preg_match( '/class=["\']([^"\']+)["\']/', $avatar, $class_matches ) )
-			$class = wp_specialchars_decode( $class_matches[1], ENT_QUOTES );
-
-		return array( $url, $class );
 	}
 
 	/**

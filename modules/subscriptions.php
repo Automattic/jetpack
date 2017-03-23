@@ -120,10 +120,11 @@ class Jetpack_Subscriptions {
 
 		global $post;
 		$disable_subscribe_value = get_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', true );
-		// Nonce it
-		wp_nonce_field( 'disable_subscribe', 'disable_subscribe_nonce' );
 		// only show checkbox if post hasn't been published and is a 'post' post type.
-		if ( get_post_status( $post->ID ) !== 'publish' && get_post_type( $post->ID ) == 'post' ) : ?>
+		if ( get_post_status( $post->ID ) !== 'publish' && get_post_type( $post->ID ) == 'post' ) :
+			// Nonce it
+			wp_nonce_field( 'disable_subscribe', 'disable_subscribe_nonce' );
+			?>
 			<div class="misc-pub-section">
 				<label for="_jetpack_dont_email_post_to_subs"><?php _e( 'Jetpack Subscriptions:', 'jetpack' ); ?></label><br>
 				<input type="checkbox" name="_jetpack_dont_email_post_to_subs" id="jetpack-per-post-subscribe" value="1" <?php checked( $disable_subscribe_value, 1, true ); ?> />
@@ -156,23 +157,6 @@ class Jetpack_Subscriptions {
 		if ( ! empty( $_POST['disable_subscribe_nonce'] ) && wp_verify_nonce( $_POST['disable_subscribe_nonce'], 'disable_subscribe' ) ) {
 			$set_checkbox = isset( $_POST['_jetpack_dont_email_post_to_subs'] ) ? 1 : 0;
 			update_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', $set_checkbox );
-		}
-
-		// Only do things on publish
-		if ( 'publish' !== $new_status ) {
-			return;
-		}
-
-		/**
-		 * If we're updating the post, let's make sure the flag to not send to subscribers
-		 * is set to minimize the chances of sending posts multiple times.
-		 */
-		if ( 'publish' == $old_status ) {
-			update_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', 1 );
-		}
-
-		if ( ! $this->should_email_post_to_subscribers( $post ) ) {
-			update_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', 1 );
 		}
 	}
 
@@ -546,10 +530,10 @@ class Jetpack_Subscriptions {
 			case 'invalid_email':
 				$result = $error;
 				break;
-			case 'active':
 			case 'blocked_email':
 				$result = 'opted_out';
 				break;
+			case 'active':
 			case 'pending':
 				$result = 'already';
 				break;
