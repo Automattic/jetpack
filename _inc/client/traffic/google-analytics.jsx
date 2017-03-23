@@ -4,6 +4,7 @@
 import React, { Component } from 'react';
 import { translate as __ } from 'i18n-calypso';
 import Card from 'components/card';
+import analytics from 'lib/analytics';
 
 /**
  * Internal dependencies
@@ -15,6 +16,10 @@ import SettingsGroup from 'components/settings-group';
 
 export const GoogleAnalytics = moduleSettingsForm(
 	class extends Component {
+		trackConfigureClick() {
+			analytics.tracks.recordJetpackClick( 'configure-ga' );
+		}
+
 		render() {
 			return (
 				<SettingsCard
@@ -36,7 +41,7 @@ export const GoogleAnalytics = moduleSettingsForm(
 					</SettingsGroup>
 					{
 						! this.props.isUnavailableInDevMode( 'google-analytics' ) && (
-							<Card compact className="jp-settings-card__configure-link" href={ this.props.configureUrl }>{ __( 'Configure your Google Analytics settings' ) }</Card>
+							<Card compact className="jp-settings-card__configure-link" onClick={ this.trackConfigureClick } href={ this.props.configureUrl }>{ __( 'Configure your Google Analytics settings' ) }</Card>
 						)
 					}
 				</SettingsCard>

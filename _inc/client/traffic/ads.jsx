@@ -5,6 +5,7 @@ import React from 'react';
 import { translate as __ } from 'i18n-calypso';
 import Card from 'components/card';
 import CompactFormToggle from 'components/form/form-toggle/compact';
+import analytics from 'lib/analytics';
 
 /**
  * Internal dependencies
@@ -42,6 +43,10 @@ export const Ads = moduleSettingsForm(
 				},
 				this.props.updateFormStateModuleOption( 'wordads', optionName )
 			);
+		},
+
+		trackConfigureClick() {
+			analytics.tracks.recordJetpackClick( 'view-earnings' );
 		},
 
 		render() {
@@ -93,7 +98,7 @@ export const Ads = moduleSettingsForm(
 					</SettingsGroup>
 					{
 						! unavailableInDevMode && isAdsActive && (
-							<Card compact className="jp-settings-card__configure-link" href={ this.props.configureUrl }>{ __( 'View your earnings' ) }</Card>
+							<Card compact className="jp-settings-card__configure-link" onClick={ this.trackConfigureClick } href={ this.props.configureUrl }>{ __( 'View your earnings' ) }</Card>
 						)
 					}
 				</SettingsCard>

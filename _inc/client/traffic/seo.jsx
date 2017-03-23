@@ -4,6 +4,7 @@
 import React from 'react';
 import { translate as __ } from 'i18n-calypso';
 import Card from 'components/card';
+import analytics from 'lib/analytics';
 
 /**
  * Internal dependencies
@@ -15,6 +16,9 @@ import SettingsGroup from 'components/settings-group';
 
 export const SEO = moduleSettingsForm(
 	React.createClass( {
+		trackConfigureClick() {
+			analytics.tracks.recordJetpackClick( 'configure-seo' );
+		},
 
 		render() {
 			return (
@@ -38,7 +42,7 @@ export const SEO = moduleSettingsForm(
 					</SettingsGroup>
 					{
 						! this.props.isUnavailableInDevMode( 'seo-tools' ) && (
-							<Card compact className="jp-settings-card__configure-link" href={ this.props.configureUrl }>{ __( 'Configure your SEO settings' ) }</Card>
+							<Card compact className="jp-settings-card__configure-link" onClick={ this.trackConfigureClick } href={ this.props.configureUrl }>{ __( 'Configure your SEO settings' ) }</Card>
 						)
 					}
 				</SettingsCard>

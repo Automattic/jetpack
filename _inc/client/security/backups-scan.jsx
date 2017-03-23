@@ -4,6 +4,7 @@
 import React from 'react';
 import { translate as __ } from 'i18n-calypso';
 import Card from 'components/card';
+import analytics from 'lib/analytics';
 
 /**
  * Internal dependencies
@@ -17,7 +18,11 @@ export const BackupsScan = moduleSettingsForm(
 	React.createClass( {
 
 		toggleModule( name, value ) {
-			this.props.updateFormStateOptionValue( name, !value );
+			this.props.updateFormStateOptionValue( name, ! value );
+		},
+
+		trackConfigureClick() {
+			analytics.tracks.recordJetpackClick( 'configure-scan' );
 		},
 
 		render() {
@@ -35,7 +40,7 @@ export const BackupsScan = moduleSettingsForm(
 					</SettingsGroup>
 					{
 						! this.props.isUnavailableInDevMode( 'backups' ) && (
-							<Card compact className="jp-settings-card__configure-link" href="https://dashboard.vaultpress.com/">{ __( 'Configure your Security Scans' ) }</Card>
+							<Card compact className="jp-settings-card__configure-link" onClick={ this.trackConfigureClick } href="https://dashboard.vaultpress.com/">{ __( 'Configure your Security Scans' ) }</Card>
 						)
 					}
 				</SettingsCard>
