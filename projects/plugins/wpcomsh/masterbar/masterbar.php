@@ -35,8 +35,8 @@ class A8C_WPCOM_Masterbar {
 
 		add_action( 'wp_before_admin_bar_render', array( $this, 'replace_core_masterbar' ), 99999 );
 
-		add_action( 'wp_head', array( $this, 'add_styles_and_scripts' ) );
-		add_action( 'admin_head', array( $this, 'add_styles_and_scripts' ) );
+		add_action( 'wp_enqueue_scripts', array( $this, 'add_styles_and_scripts' ) );
+		add_action( 'admin_enqueue_scripts', array( $this, 'add_styles_and_scripts' ) );
 
 		add_action( 'wp_enqueue_scripts', array( $this, 'remove_core_styles' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'remove_core_styles' ) );
