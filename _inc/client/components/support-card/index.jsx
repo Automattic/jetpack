@@ -32,6 +32,14 @@ const SupportCard = React.createClass( {
 		} );
 	},
 
+	trackAskQuestionClick() {
+		analytics.tracks.recordJetpackClick( 'support-ask' );
+	},
+
+	trackSearchClick() {
+		analytics.tracks.recordJetpackClick( 'support-search' );
+	},
+
 	render() {
 		if ( 'undefined' === typeof this.props.sitePlan.product_slug && this.props.isFetchingSiteData ) {
 			return <div />;
@@ -59,10 +67,12 @@ const SupportCard = React.createClass( {
 						</p>
 						<p className="jp-support-card__description">
 							<Button
+								onClick={ this.trackAskQuestionClick }
 								href="https://jetpack.com/contact-support/">
 								{ __( 'Ask a question' ) }
 							</Button>
 							<Button
+								onClick={ this.trackSearchClick }
 								href="https://jetpack.com/support/">
 								{ __( 'Search our support site' ) }
 							</Button>
