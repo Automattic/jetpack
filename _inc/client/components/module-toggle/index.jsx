@@ -4,6 +4,7 @@
  */
 import React from 'react';
 import CompactFormToggle from 'components/form/form-toggle/compact';
+import analytics from 'lib/analytics';
 
 export const ModuleToggle = React.createClass( {
 	propTypes: {
@@ -14,15 +15,29 @@ export const ModuleToggle = React.createClass( {
 		compact: React.PropTypes.bool,
 		id: React.PropTypes.string
 	},
+
 	getDefaultProps: function() {
 		return {
 			activated: false,
 			disabled: false
 		};
 	},
+
 	toggleModule() {
+		this.trackModuleToggle( this.props.slug, this.props.activated  );
 		return this.props.toggleModule( this.props.slug, this.props.activated );
 	},
+
+	trackModuleToggle( slug, activated ) {
+		analytics.tracks.recordEvent(
+			'jetpack_wpa_module_toggle',
+			{
+				module: slug,
+				toggled: activated ? 'off' : 'on'
+			}
+		);
+	},
+
 	render() {
 		return (
 			<CompactFormToggle checked={ this.props.activated }
