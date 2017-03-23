@@ -396,8 +396,12 @@ class Jetpack_Beta {
 		if( ! function_exists('get_plugin_data' ) ) {
 			require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 		}
+		$plugin_file_path = WP_PLUGIN_DIR . '/' . self::get_plugin_file();
+		if ( file_exists( $plugin_file_path ) ) {
+			return get_plugin_data( WP_PLUGIN_DIR . '/' . self::get_plugin_file() );
+		}
 
-		return get_plugin_data( WP_PLUGIN_DIR . '/' . self::get_plugin_file() );
+		return null;
 	}
 
 	/*
