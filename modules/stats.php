@@ -848,8 +848,9 @@ function stats_configuration_screen() {
 	foreach ( get_editable_roles() as $role => $details ) {
 ?>
 				<label><input type='checkbox' <?php if ( 'administrator' === $role ) echo "disabled='disabled' "; ?>name='role_<?php echo $role; ?>'<?php checked( 'administrator' === $role || in_array( $role, $stats_roles ) ); ?> /> <?php echo translate_user_role( $details['name'] ); ?></label><br/>
+
 		</td><tr valign="top"><th scope="row"><?php _e( 'Do Not Track' , 'jetpack' ); ?></th>
-		<td><label><input type='checkbox'<?php checked( isset( $options['do_not_track'] ) && $options['do_not_track'] ); ?> name='do_not_track' id='do_not_track' /> <?php _e( 'Respect DNT header from user.', 'jetpack' ); ?></label><br /> <span class="description"><?php _e( 'Don\'t include tracking code when user doesn\'t want to be tracked.', 'jetpack' ); ?></span></td></tr>
+		<td><label><input type='checkbox'<?php checked( isset( $options['do_not_track'] ) && $options['do_not_track'] ); ?> name='do_not_track' id='do_not_track' /> <?php _e( 'Respect DNT header from user.', 'jetpack' ); ?></label><br /> <span class="description"><?php _e( 'Do not count visitors who have DNT enabled', 'jetpack' ); ?></span></td></tr>
 				<?php
 	}
 ?>
