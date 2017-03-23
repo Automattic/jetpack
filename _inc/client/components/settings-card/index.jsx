@@ -5,6 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import includes from 'lodash/includes';
+import isEmpty from 'lodash/isEmpty';
 import ProStatus from 'pro-status';
 
 /**
@@ -13,14 +14,17 @@ import ProStatus from 'pro-status';
 import {
 	PLAN_JETPACK_PREMIUM,
 	PLAN_JETPACK_BUSINESS,
+	PLAN_JETPACK_PERSONAL,
 	FEATURE_SECURITY_SCANNING_JETPACK,
 	FEATURE_SEO_TOOLS_JETPACK,
 	FEATURE_VIDEO_HOSTING_JETPACK,
 	FEATURE_GOOGLE_ANALYTICS_JETPACK,
 	FEATURE_WORDADS_JETPACK,
+	FEATURE_SPAM_AKISMET_PLUS,
 	getPlanClass
 } from 'lib/plans/constants';
 import { getSiteRawUrl, getSiteAdminUrl, userCanManageModules } from 'state/initial-state';
+import { isAkismetKeyValid, isCheckingAkismetKey } from 'state/at-a-glance';
 import {
 	getSitePlan,
 	isFetchingSiteData
@@ -159,6 +163,22 @@ export const SettingsCard = props => {
 					/>
 				);
 
+			case FEATURE_SPAM_AKISMET_PLUS:
+				if ( props.isCheckingAkismetKey || props.isAkismetKeyValid ||
+					includes( [ 'is-personal-plan', 'is-premium-plan', 'is-business-plan' ], planClass ) ) {
+					return '';
+				}
+
+				return (
+					<Banner
+						callToAction={ activateLabel }
+						title={ __( 'Protect your site from spam.' ) }
+						plan={ PLAN_JETPACK_PERSONAL }
+						feature={ feature }
+						href={ 'https://jetpack.com/redirect/?source=settings-spam&site=' + siteRawUrl }
+					/>
+				);
+
 			default:
 				return '';
 		}
@@ -201,6 +221,13 @@ export const SettingsCard = props => {
 
 			case FEATURE_SEO_TOOLS_JETPACK:
 				if ( 'is-business-plan' !== planClass ) {
+					return false;
+				}
+
+				break;
+
+			case FEATURE_SPAM_AKISMET_PLUS:
+				if ( ( includes( [ 'is-free-plan' ], planClass ) || isEmpty( planClass ) ) && ! props.isAkismetKeyValid && ! props.isCheckingAkismetKey ) {
 					return false;
 				}
 
@@ -256,7 +283,9 @@ export default connect(
 			fetchingSiteData: isFetchingSiteData( state ),
 			siteRawUrl: getSiteRawUrl( state ),
 			siteAdminUrl: getSiteAdminUrl( state ),
-			userCanManageModules: userCanManageModules( state )
+			userCanManageModules: userCanManageModules( state ),
+			isAkismetKeyValid: isAkismetKeyValid( state ),
+			isCheckingAkismetKey: isCheckingAkismetKey( state )
 		};
 	}
 )( SettingsCard );
