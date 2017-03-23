@@ -3,6 +3,7 @@
  */
 import React from 'react';
 import get from 'lodash/get';
+import analytics from 'lib/analytics';
 
 /**
  * Internal dependencies
@@ -109,6 +110,10 @@ export function ModuleSettingsForm( InnerComponent ) {
 			event.preventDefault();
 			this.props.updateOptions( this.state.options )
 				.then( () => {
+
+					// Track it
+					this.trackFormSubmission( this.state.options );
+
 					this.setState( { options: {} } );
 				} )
 				.then( () => {
@@ -145,6 +150,17 @@ export function ModuleSettingsForm( InnerComponent ) {
 		 */
 		isSavingAnyOption( settings = '' ) {
 			return this.props.isUpdating( settings );
+		},
+
+		/**
+		 * Tracks form submissions
+		 * @param options
+		 */
+		trackFormSubmission( options ) {
+			analytics.tracks.recordEvent(
+				'jetpack_wpa_settings_form_submit',
+				options
+			);
 		},
 		render() {
 			return (
