@@ -33,6 +33,10 @@ const SupportCard = React.createClass( {
 	},
 
 	render() {
+		if ( 'undefined' === typeof this.props.sitePlan.product_slug && this.props.isFetchingSiteData ) {
+			return <div />;
+		}
+
 		const classes = classNames(
 				this.props.className,
 				'jp-support-card'
@@ -106,7 +110,7 @@ const SupportCard = React.createClass( {
 					</div>
 				</Card>
 				{
-					( ! this.props.fetchingSiteData && noPrioritySupport ) && (
+					noPrioritySupport && (
 						<Banner
 							title={ __( 'Need help quicker? Upgrade for priority support' ) }
 							plan={ PLAN_JETPACK_PERSONAL }
@@ -129,7 +133,7 @@ export default connect(
 		return {
 			sitePlan: getSitePlan( state ),
 			siteRawUrl: getSiteRawUrl( state ),
-			fetchingSiteData: isFetchingSiteData( state ),
+			isFetchingSiteData: isFetchingSiteData( state ),
 			happinessGravatarIds: getHappinessGravatarIds( state )
 		};
 	}
