@@ -389,12 +389,17 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					break;
 
 				case 'wordpress_api_key':
-					if ( ! class_exists( 'Akismet' ) ) {
-						if ( file_exists( WP_PLUGIN_DIR . '/akismet/class.akismet.php' ) ) {
-							require_once WP_PLUGIN_DIR . '/akismet/class.akismet.php';
+					// When field is clear, return empty. Otherwise it would return "false".
+					if ( '' === get_option( 'wordpress_api_key', '' ) ) {
+						$response[ $setting ] = '';
+					} else {
+						if ( ! class_exists( 'Akismet' ) ) {
+							if ( file_exists( WP_PLUGIN_DIR . '/akismet/class.akismet.php' ) ) {
+								require_once WP_PLUGIN_DIR . '/akismet/class.akismet.php';
+							}
 						}
+						$response[ $setting ] = class_exists( 'Akismet' ) ? Akismet::get_api_key() : '';
 					}
-					$response[ $setting ] = class_exists( 'Akismet' ) ? Akismet::get_api_key() : '';
 					break;
 
 				default:
@@ -786,6 +791,12 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 						break;
 					}
 
+					// Allow to clear the API key field
+					if ( '' === $value ) {
+						$updated = get_option( $option ) != $value ? update_option( $option, $value ) : true;
+						break;
+					}
+
 					require_once WP_PLUGIN_DIR . '/akismet/class.akismet.php';
 					require_once WP_PLUGIN_DIR . '/akismet/class.akismet-admin.php';
 
@@ -958,6 +969,27 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 	}
 
 	/**
+	 * Decide against which service to check the key.
+	 *
+	 * @since 4.8.0
+	 *
+	 * @param WP_REST_Request $request
+	 *
+	 * @return bool
+	 */
+	public function key_check( $request ) {
+		switch( $request['service'] ) {
+			case 'akismet':
+				$params = $request->get_json_params();
+				if ( isset( $params['api_key'] ) && ! empty( $params['api_key'] ) ) {
+					return $this->check_akismet_key( $params['api_key'] );
+				}
+				return $this->check_akismet_key();
+		}
+		return false;
+	}
+
+	/**
 	 * Get number of blocked intrusion attempts.
 	 *
 	 * @since 4.3.0
@@ -992,6 +1024,59 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 	}
 
 	/**
+	 * Verify the Akismet API key.
+	 *
+	 * @since 4.8.0
+	 *
+	 * @param string $api_key Optional API key to check.
+	 *
+	 * @return array Information about the key. 'validKey' is true if key is valid, false otherwise.
+	 */
+	public function check_akismet_key( $api_key = '' ) {
+		$akismet_status = $this->akismet_class_exists();
+		if ( is_wp_error( $akismet_status ) ) {
+			return rest_ensure_response( array(
+				'validKey'          => false,
+				'invalidKeyCode'    => $akismet_status->get_error_code(),
+				'invalidKeyMessage' => $akismet_status->get_error_message(),
+			) );
+		}
+
+		$key_status = Akismet::check_key_status( empty( $api_key ) ? Akismet::get_api_key() : $api_key );
+
+		if ( ! $key_status || 'invalid' === $key_status || 'failed' === $key_status ) {
+			return rest_ensure_response( array(
+				'validKey'          => false,
+				'invalidKeyCode'    => 'invalid_key',
+				'invalidKeyMessage' => esc_html__( 'Invalid Akismet key. Please contact support.', 'jetpack' ),
+			) );
+		}
+
+		return rest_ensure_response( array(
+			'validKey' => isset( $key_status[1] ) && 'valid' === $key_status[1]
+		) );
+	}
+
+	/**
+	 * Check if Akismet class file exists and if class is loaded.
+	 *
+	 * @since 4.8.0
+	 *
+	 * @return bool|WP_Error Returns true if class file exists and class is loaded, WP_Error otherwise.
+	 */
+	private function akismet_class_exists() {
+		if ( ! file_exists( WP_PLUGIN_DIR . '/akismet/class.akismet.php' ) ) {
+			return new WP_Error( 'not_installed', esc_html__( 'Please install Akismet.', 'jetpack' ), array( 'status' => 400 ) );
+		}
+
+		if ( ! class_exists( 'Akismet' ) ) {
+			return new WP_Error( 'not_active', esc_html__( 'Please activate Akismet.', 'jetpack' ), array( 'status' => 400 ) );
+		}
+
+		return true;
+	}
+
+	/**
 	 * Is Akismet registered and active?
 	 *
 	 * @since 4.3.0
@@ -999,12 +1084,8 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 	 * @return bool|WP_Error True if Akismet is active and registered. Otherwise, a WP_Error instance with the corresponding error.
 	 */
 	private function akismet_is_active_and_registered() {
-		if ( ! file_exists( WP_PLUGIN_DIR . '/akismet/class.akismet.php' ) ) {
-			return new WP_Error( 'not_installed', esc_html__( 'Please install Akismet.', 'jetpack' ), array( 'status' => 400 ) );
-		}
-
-		if ( ! class_exists( 'Akismet' ) ) {
-			return new WP_Error( 'not_active', esc_html__( 'Please activate Akismet.', 'jetpack' ), array( 'status' => 400 ) );
+		if ( is_wp_error( $akismet_exists = $this->akismet_class_exists() ) ) {
+			return $akismet_exists;
 		}
 
 		// What about if Akismet is put in a sub-directory or maybe in mu-plugins?
