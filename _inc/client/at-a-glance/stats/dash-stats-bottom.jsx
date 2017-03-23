@@ -22,7 +22,7 @@ const DashStatsBottom = React.createClass( {
 				views_today: '-',
 				views_best_day: '-',
 				views_best_day_total: '-'
-			}
+			};
 		}
 		return [
 			{
@@ -40,7 +40,7 @@ const DashStatsBottom = React.createClass( {
 	},
 
 	render: function() {
-		const s = this.statsBottom()[0];
+		const s = this.statsBottom()[ 0 ];
 		return (
 		<div>
 			<div className="jp-at-a-glance__stats-summary">
@@ -96,7 +96,7 @@ const DashStatsBottom = React.createClass( {
 						components: {
 							button:
 								<Button
-									onClick={ () => analytics.tracks.recordEvent( 'jetpack_wpa_aag_view_old_stats_click', {} ) }
+									onClick={ () => analytics.tracks.recordJetpackClick( 'view_detailed_stats' ) }
 									href={ this.props.siteAdminUrl + 'admin.php?page=stats' }
 								/>
 						}
@@ -105,7 +105,7 @@ const DashStatsBottom = React.createClass( {
 						components: {
 							button:
 								<Button
-									onClick={ () => analytics.tracks.recordEvent( 'jetpack_wpa_aag_stats_wpcom_click', {} ) }
+									onClick={ () => analytics.tracks.recordJetpackClick( 'view_wpcom_stats' ) }
 									className="is-primary"
 									href={ 'https://wordpress.com/stats/insights/' + this.props.siteRawUrl }
 								/>

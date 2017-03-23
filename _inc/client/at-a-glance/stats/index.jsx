@@ -41,7 +41,7 @@ import {
 const DashStats = React.createClass( {
 	barClick: function( bar ) {
 		if ( bar.data.link ) {
-			analytics.tracks.recordEvent( 'jetpack_wpa_aag_stats_bar_click', {} );
+			analytics.tracks.recordJetpackClick( 'stats_bar' );
 			window.open(
 				bar.data.link,
 				'_blank'
@@ -197,7 +197,10 @@ const DashStats = React.createClass( {
 	},
 
 	handleSwitchStatsView: function( view ) {
-		analytics.tracks.recordEvent( 'jetpack_wpa_aag_stats_switch_view', { view: view } );
+		analytics.tracks.recordJetpackClick( {
+			target: 'stats_switch_view',
+			view: view
+		} );
 		this.props.switchView( view );
 		this.props.fetchStatsData( view );
 	},
