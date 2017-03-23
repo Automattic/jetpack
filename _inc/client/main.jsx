@@ -178,7 +178,8 @@ const Main = React.createClass( {
 		}
 
 		if ( this.props.jumpStartStatus ) {
-			if ( '/' === route ) {
+			if ( includes( [ '/', '/dashboard' ], route ) ) {
+				window.location.hash = 'jumpstart';
 				const history = createHistory();
 				history.push( window.location.pathname + '?page=jetpack#/jumpstart' );
 			} else if ( '/jumpstart' === route ) {
