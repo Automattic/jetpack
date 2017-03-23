@@ -191,6 +191,13 @@ class Colors_Manager {
 		return $classes;
 	}
 
+	static function get_colors() {
+		$opts = get_theme_mod( 'colors_manager', array( 'colors' => false ) );
+		$colors = ( $opts[ 'colors' ] ) ? $opts[ 'colors' ] : self::$default_colors;
+		unset( $colors[ 'undefined' ] );
+		return $colors;
+	}
+
 	public static function get_default_colors() {
 		return self::$default_colors;
 	}
@@ -306,6 +313,101 @@ class Colors_Manager {
 		return $css;
 	}
 
+	static function css_rule( $rule, $color ) {
+		$css = '';
+
+		if ( isset( $rule[2] ) ) {
+			// we'll need it in either case
+			require_once( __DIR__ . '/class.color.php' );
+
+			try {
+				$working_color = new Jetpack_Color( $color );
+			} catch ( RangeException $e) {
+				$message .= 'rule: ' . print_r( $rule, 1 ) . "\n";
+				$message .= 'call: $working_color = new Jetpack_Color( ' . $color . ' );' . "\n";
+				self::exception_mailer( $message );
+				return '';
+			}
+
+			$number = ( float ) $rule[2];
+			// ensure contrast or darken/lighten
+			if ( is_string( $rule[2] ) ) {
+				$first_char = substr( $rule[2], 0, 1 );
+				// darken/lighten
+				if ( '+' === $first_char || '-' === $first_char ) {
+					$modify = 10 * $number;
+					$color = $working_color->incrementLightness( $modify )->toString();
+				}
+				else {
+					// hex bg for contrast
+					if ( '#' === $first_char ) {
+						try {
+							$bg_color = new Jetpack_Color( $rule[2] );
+						} catch ( RangeException $e ) {
+							$message = 'function: ' . __FUNCTION__ . "\n";
+							$message .= 'call: $bg_color = new Jetpack_Color( ' . $rule[2] . ' );' . "\n";
+							self::exception_mailer( $message );
+							return '';
+						}
+					}
+					// set color bg for contrast
+					else if ( isset( self::$colors[ $rule[2] ] ) ) {
+						$set_colors = self::get_colors();
+						try {
+							$bg_color = new Jetpack_Color( $set_colors[ $rule[2] ] );
+						} catch ( RangeException $e ) {
+							$message = 'function: ' . __FUNCTION__ . "\n";
+							$message .= 'call: $bg_color = new Jetpack_Color( '. $set_colors[ $rule[2] ] . ' );' . "\n";
+							self::exception_mailer( $message );
+							return '';
+						}
+					}
+
+					// we have a bg color to contrast
+					if ( isset( $bg_color ) && is_a( $bg_color, 'Jetpack_Color' ) ) {
+						// default contrast of 5, can be overridden with 4th arg.
+						$contrast = ( isset( $rule[3] ) ) ? $rule[3] : 5;
+						$color = $working_color->getReadableContrastingColor( $bg_color, $contrast )->toString();
+					}
+				}
+			}
+			// alpha
+			else if ( $rule[2] < 1 ) {
+				unset( $rule[2] );
+				// back compat for non-rgba browsers
+				$css .= self::css_rule( $rule, $color );
+				$color = $working_color->toCSS( 'rgba', $number );
+			}
+		}
+		$css .= "{$rule[0]} { {$rule[1]}: {$color};}\n";
+		return $css;
+	}
+
+	static function get_extra_css( $only_callback = false ) {
+		$css = '';
+		$extra_cb = get_theme_support( 'custom_colors_extra_css' );
+
+		if ( is_array( $extra_cb ) && is_callable( $extra_cb[0] ) ) {
+			ob_start();
+			$css = call_user_func( $extra_cb[0] );
+			$css .= ob_get_clean();
+		}
+
+		if ( $only_callback )
+			return $css;
+
+		foreach ( self::$extra_colors as $extra ) {
+			if ( ! isset( $extra['rules'] ) || is_array( $extra['rules'] ) )
+				continue;
+			$color = $extra['color'];
+			foreach ( $extra['rules'] as $rule ) {
+				$css .= self::css_rule( $rule, $color );
+			}
+		}
+
+		return $css;
+	}
+
 	/**
 	 * Function for making theme annotations.
 	 * @param string $category The color category. One of bg, txt, link, fg1, fg2
@@ -394,6 +496,10 @@ class Colors_Manager {
 			'fg1' => __( 'Accent #1' ),
 			'fg2' => __( 'Accent #2' )
 		);
+	}
+
+	private static function exception_mailer( $message = 'Needs a message' ) {
+		// Do nothing on automated trasfer websites.
 	}
 }
 
