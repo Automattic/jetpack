@@ -112,8 +112,9 @@ const SupportCard = React.createClass( {
 				{
 					noPrioritySupport && (
 						<Banner
-							title={ __( 'Need help quicker? Upgrade for priority support' ) }
+							title={ __( 'Get a faster resolution to your support questions.' ) }
 							plan={ PLAN_JETPACK_PERSONAL }
+							callToAction={ __( 'Activate' ) }
 							href={ 'https://jetpack.com/redirect/?source=support&site=' + this.props.siteRawUrl }
 						/>
 					)

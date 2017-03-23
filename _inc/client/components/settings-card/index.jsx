@@ -55,21 +55,31 @@ export const SettingsCard = props => {
 
 	const getBanner = () => {
 		const planClass = getPlanClass( props.sitePlan.product_slug ),
-			upgradeLabel = __( 'Upgrade', { context: 'A caption for a button to upgrade an existing paid feature to a higher tier.' } );
+			upgradeLabel = __( 'Upgrade', { context: 'A caption for a button to upgrade an existing paid feature to a higher tier.' } ),
+			activateLabel = __( 'Activate', { context: 'A caption for a button to activate a paid feature.' } );
 
 		switch ( feature ) {
 			case FEATURE_VIDEO_HOSTING_JETPACK:
-				if (
-					'is-premium-plan' === planClass ||
-					'is-business-plan' === planClass
-				) {
+				if ( 'is-business-plan' === planClass ) {
 					return '';
+				}
+
+				if ( 'is-premium-plan' === planClass ) {
+					return (
+						<Banner
+							title={ __( "Get more space. You're close to your limit." ) }
+							callToAction={ upgradeLabel }
+							plan={ PLAN_JETPACK_BUSINESS }
+							feature={ feature }
+							href={ 'https://jetpack.com/redirect/?source=settings-video-pro&site=' + siteRawUrl }
+						/>
+					);
 				}
 
 				return (
 					<Banner
 						title={ __( 'Host fast, high-quality, ad-free video.' ) }
-						callToAction={ upgradeLabel }
+						callToAction={ activateLabel }
 						plan={ PLAN_JETPACK_PREMIUM }
 						feature={ feature }
 						href={ 'https://jetpack.com/redirect/?source=settings-video-premium&site=' + siteRawUrl }
@@ -87,7 +97,7 @@ export const SettingsCard = props => {
 				return (
 					<Banner
 						title={ __( 'Generate income with high-quality ads.' ) }
-						callToAction={ upgradeLabel }
+						callToAction={ activateLabel }
 						plan={ PLAN_JETPACK_PREMIUM }
 						feature={ feature }
 						href={ 'https://jetpack.com/redirect/?source=settings-ads&site=' + siteRawUrl }
@@ -99,9 +109,7 @@ export const SettingsCard = props => {
 					return '';
 				}
 
-				if (
-					'is-premium-plan' === planClass
-				) {
+				if ( 'is-premium-plan' === planClass ) {
 					return (
 						<Banner
 							title={ __( 'Real-time site backups and automatic threat resolution.' ) }
@@ -115,7 +123,7 @@ export const SettingsCard = props => {
 
 				return (
 					<Banner
-						callToAction={ upgradeLabel }
+						callToAction={ activateLabel }
 						title={ __( 'Protect against data loss, malware, and malicious attacks.' ) }
 						plan={ PLAN_JETPACK_PREMIUM }
 						feature={ feature }
@@ -129,8 +137,8 @@ export const SettingsCard = props => {
 				}
 				return (
 					<Banner
-						callToAction={ upgradeLabel }
-						title={ __( 'Hassle-free Google Analytics integration.' ) }
+						callToAction={ activateLabel }
+						title={ __( 'Integrate hassle-free Google Analytics.' ) }
 						plan={ PLAN_JETPACK_BUSINESS }
 						feature={ feature }
 						href={ 'https://jetpack.com/redirect/?source=settings-ga&site=' + siteRawUrl }
@@ -143,8 +151,8 @@ export const SettingsCard = props => {
 
 				return (
 					<Banner
-						callToAction={ upgradeLabel }
-						title={ __( 'SEO tools help your content get found and shared.' ) }
+						callToAction={ activateLabel }
+						title={ __( 'Help your content get found and shared with SEO tools.' ) }
 						plan={ PLAN_JETPACK_BUSINESS }
 						feature={ feature }
 						href={ 'https://jetpack.com/redirect/?source=settings-seo&site=' + siteRawUrl }
