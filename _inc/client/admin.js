@@ -68,6 +68,7 @@ function render() {
 					<Route path='/security' name={ i18n.translate( 'Security', { context: 'Navigation item.' } ) } component={ Main } />
 					<Route path='/traffic' name={ i18n.translate( 'Traffic', { context: 'Navigation item.' } ) } component={ Main } />
 					<Route path='/writing' name={ i18n.translate( 'Writing', { context: 'Navigation item.' } ) } component={ Main } />
+					<Route path='/sharing' name={ i18n.translate( 'Sharing', { context: 'Navigation item.' } ) } component={ Main } />
 					<Route path='/wpbody-content' component={ Main } />
 					<Route path='/wp-toolbar' component={ Main } />
 					<Route path="*" component={ Main } />

@@ -31,7 +31,6 @@ import {
 import { areThereUnsavedModuleOptions, clearUnsavedOptionFlag } from 'state/modules';
 import { areThereUnsavedSettings, clearUnsavedSettingsFlag } from 'state/settings';
 import { getSearchTerm } from 'state/search';
-
 import AtAGlance from 'at-a-glance/index.jsx';
 import Apps from 'apps/index.jsx';
 import Plans from 'plans/index.jsx';
@@ -212,6 +211,7 @@ const Main = React.createClass( {
 			case '/traffic':
 			case '/discussion':
 			case '/writing':
+			case '/sharing':
 				navComponent = settingsNav;
 				pageComponent = <SearchableSettings
 					route={ this.props.route }
