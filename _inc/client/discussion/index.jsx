@@ -9,11 +9,12 @@ import { connect } from 'react-redux';
  */
 import { getModule } from 'state/modules';
 import { getSettings } from 'state/settings';
-import { isDevMode, isUnavailableInDevMode } from 'state/connection';
+import { isDevMode, isUnavailableInDevMode, isCurrentUserLinked } from 'state/connection';
 import { isModuleFound as _isModuleFound } from 'state/search';
 import QuerySite from 'components/data/query-site';
 import { Comments } from './comments';
 import { Subscriptions } from './subscriptions';
+import { getConnectUrl } from 'state/connection';
 
 export const Discussion = React.createClass( {
 	displayName: 'DiscussionSettings',
@@ -47,6 +48,8 @@ export const Discussion = React.createClass( {
 		let subscriptionsSettings = (
 			<Subscriptions
 				{ ...commonProps }
+				isLinked={ this.props.isLinked }
+				connectUrl={ this.props.connectUrl }
 				siteRawUrl={ this.props.siteRawUrl }
 			/>
 		);
@@ -69,6 +72,8 @@ export default connect(
 			isDevMode: isDevMode( state ),
 			isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name ),
 			isModuleFound: ( module_name ) => _isModuleFound( state, module_name ),
-		}
+			connectUrl: getConnectUrl( state ),
+			isLinked: isCurrentUserLinked( state )
+		};
 	}
 )( Discussion );

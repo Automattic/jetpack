@@ -45,9 +45,20 @@ export const Subscriptions = moduleSettingsForm(
 		},
 
 		render() {
-			let subscriptions = this.props.getModule( 'subscriptions' ),
+			const subscriptions = this.props.getModule( 'subscriptions' ),
 				isSubscriptionsActive = this.props.getOptionValue( 'subscriptions' ),
 				unavailableInDevMode = this.props.isUnavailableInDevMode( 'subscriptions' );
+
+			const getSubClickableCard = () => {
+				if ( unavailableInDevMode || ! isSubscriptionsActive ) {
+					return '';
+				}
+
+				return this.props.isLinked
+					? <Card compact className="jp-settings-card__configure-link" href={ 'https://wordpress.com/people/email-followers/' + this.props.siteRawUrl }>{ __( 'View your Email Followers' ) }</Card>
+					: <Card compact className="jp-settings-card__configure-link" href={ `${ this.props.connectUrl }&from=unlinked-user-connect-masterbar` }>{ __( 'Connect your user account to WordPress.com to view your email followers' ) } </Card>;
+			};
+
 			return (
 				<SettingsCard
 					{ ...this.props }
@@ -92,9 +103,7 @@ export const Subscriptions = moduleSettingsForm(
 						}
 					</SettingsGroup>
 					{
-						! unavailableInDevMode && isSubscriptionsActive && (
-							<Card compact className="jp-settings-card__configure-link" href={ 'https://wordpress.com/people/email-followers/' + this.props.siteRawUrl }>{ __( 'View your Email Followers' ) }</Card>
-						)
+						getSubClickableCard()
 					}
 				</SettingsCard>
 			);
