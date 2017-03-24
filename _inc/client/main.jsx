@@ -3,7 +3,6 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import includes from 'lodash/includes';
 import { createHistory } from 'history';
 import { withRouter } from 'react-router';
@@ -28,7 +27,6 @@ import {
 	getApiRootUrl,
 	userCanManageModules
 } from 'state/initial-state';
-import { areThereUnsavedModuleOptions, clearUnsavedOptionFlag } from 'state/modules';
 import { areThereUnsavedSettings, clearUnsavedSettingsFlag } from 'state/settings';
 import { getSearchTerm } from 'state/search';
 
@@ -61,14 +59,13 @@ const Main = React.createClass( {
 	 * Returns a string if there are unsaved module settings thus showing a confirm dialog to the user
 	 * according to the `beforeunload` event handling specification
 	 */
-	onBeforeUnload( e ) {
-		const dialogText = __( 'There are unsaved settings in this tab that will be lost if you leave it. Proceed?' );
-		if (
-			this.props.areThereUnsavedModuleOptions
-			|| this.props.areThereUnsavedSettings
-		) {
-			e.returnValue = dialogText;
-			return dialogText;
+	onBeforeUnload() {
+		if ( this.props.areThereUnsavedSettings ) {
+			if ( confirm( __( 'There are unsaved settings in this tab that will be lost if you leave it. Proceed?' ) ) ) {
+				this.props.clearUnsavedSettingsFlag();
+			} else {
+				return false;
+			}
 		}
 	},
 
@@ -78,14 +75,9 @@ const Main = React.createClass( {
  	 * Return true or false according to the history.listenBefore specification which is part of react-router
 	 */
 	routerWillLeave() {
-		if (
-			this.props.areThereUnsavedModuleOptions
-			|| this.props.areThereUnsavedSettings
-		) {
-			const confirmLeave = confirm( __( 'There are unsaved settings in this tab that will be lost if you leave it. Proceed?' ) );
-			if ( confirmLeave ) {
-				this.props.clearUnsavedOptionFlag();
-				this.props.clearUnsavedSettingsFlag();
+		if ( this.props.areThereUnsavedSettings ) {
+			if ( confirm( __( 'router There are unsaved settings in this tab that will be lost if you leave it. Proceed?' ) ) ) {
+				window.setTimeout( this.props.clearUnsavedSettingsFlag, 10 );
 			} else {
 				return false;
 			}
@@ -271,12 +263,18 @@ export default connect(
 			apiRoot: getApiRootUrl( state ),
 			apiNonce: getApiNonce( state ),
 			tracksUserData: getTracksUserData( state ),
-			areThereUnsavedModuleOptions: areThereUnsavedModuleOptions( state ),
 			areThereUnsavedSettings: areThereUnsavedSettings( state ),
 			userCanManageModules: userCanManageModules( state )
 		};
 	},
-	dispatch => bindActionCreators( { setInitialState, clearUnsavedOptionFlag, clearUnsavedSettingsFlag }, dispatch )
+	( dispatch ) => ( {
+		setInitialState: () => {
+			return dispatch( setInitialState() );
+		},
+		clearUnsavedSettingsFlag: () => {
+			return dispatch( clearUnsavedSettingsFlag() );
+		}
+	} )
 )( withRouter( Main ) );
 
 /**

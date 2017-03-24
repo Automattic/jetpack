@@ -89,7 +89,7 @@ export const unsavedSettingsFlag = ( state = false, action ) => {
 		default:
 			return state;
 	}
-}
+};
 
 export const reducer = combineReducers( {
 	items,
@@ -181,5 +181,5 @@ export function getSettingName( state, name ) {
  * @return {Boolean}  Whether there are unsaved settings
  */
 export function areThereUnsavedSettings( state ) {
-	return get( state.jetpack.settings, 'unsavedSettingsFlag' );
+	return get( state.jetpack.settings, 'unsavedSettingsFlag', false );
 }
