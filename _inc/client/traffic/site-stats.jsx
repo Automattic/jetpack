@@ -5,9 +5,12 @@ import React from 'react';
 import { translate as __ } from 'i18n-calypso';
 import CompactFormToggle from 'components/form/form-toggle/compact';
 import FoldableCard from 'components/foldable-card';
+import Button from 'components/button';
+import Card from 'components/card';
 import includes from 'lodash/includes';
 import filter from 'lodash/filter';
 import classNames from 'classnames';
+import { imagePath } from 'constants';
 
 /**
  * Internal dependencies
@@ -80,11 +83,57 @@ export const SiteStats = moduleSettingsForm(
 			);
 		},
 
+		/**
+		 * Activate Stats.
+		 */
+		activateStats() {
+			this.props.updateOptions( {
+				stats: true
+			} );
+		},
+
 		render() {
 			const stats = this.props.getModule( 'stats' ),
 				isStatsActive = this.props.getOptionValue( 'stats' ),
 				unavailableInDevMode = this.props.isUnavailableInDevMode( 'stats' ),
 				siteRoles = this.props.getSiteRoles();
+
+			if ( ! isStatsActive ) {
+				return (
+					<Card className={ 'jp-at-a-glance__stats-card ' + ( this.props.isDevMode ? 'is-inactive' : '' ) }>
+						<div className="jp-at-a-glance__stats-inactive">
+							<div className="jp-at-a-glance__stats-inactive-icon">
+								<img src={ imagePath + 'stats.svg' } width="60" height="60" alt={ __( 'Jetpack Stats Icon' ) } className="jp-at-a-glance__stats-icon" />
+							</div>
+							<div className="jp-at-a-glance__stats-inactive-text">
+								{
+									this.props.isDevMode
+										? __( 'Unavailable in Dev Mode' )
+										: __( '{{a}}Activate Site Stats{{/a}} to see detailed stats, likes, followers, subscribers, and more! {{a1}}Learn More{{/a1}}', {
+											components: {
+												a: <a href="javascript:void(0)" onClick={ this.activateStats } />,
+												a1: <a href="https://jetpack.com/support/wordpress-com-stats/" target="_blank" rel="noopener noreferrer" />
+											}
+										} )
+								}
+							</div>
+							{
+								! this.props.isDevMode && (
+									<div className="jp-at-a-glance__stats-inactive-button">
+										<Button
+											onClick={ this.activateStats }
+											primary={ true }
+										>
+											{ __( 'Activate Site Stats' ) }
+										</Button>
+									</div>
+								)
+							}
+						</div>
+					</Card>
+				);
+			}
+
 			return (
 				<SettingsCard
 					{ ...this.props }
