@@ -21,9 +21,7 @@ import {
 	JETPACK_MODULE_DEACTIVATE_SUCCESS,
 	JETPACK_MODULE_UPDATE_OPTIONS,
 	JETPACK_MODULE_UPDATE_OPTIONS_FAIL,
-	JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS,
-	JETPACK_MODULES_SET_UNSAVED_OPTION_FLAG,
-	JETPACK_MODULES_CLEAR_UNSAVED_OPTION_FLAG
+	JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS
 } from 'state/action-types';
 
 export const items = ( state = {}, action ) => {
@@ -117,21 +115,9 @@ export const requests = ( state = initialRequestsState, action ) => {
 	}
 };
 
-export const unsavedOptionsFlag = ( state = false, action ) => {
-	switch ( action.type ) {
-		case JETPACK_MODULES_SET_UNSAVED_OPTION_FLAG:
-			return true;
-		case JETPACK_MODULES_CLEAR_UNSAVED_OPTION_FLAG:
-			return false;
-		default:
-			return state;
-	}
-}
-
 export const reducer = combineReducers( {
 	items,
-	requests,
-	unsavedOptionsFlag
+	requests
 } );
 
 /**
@@ -251,8 +237,4 @@ export function getModulesThatRequireConnection( state ) {
  */
 export function isModuleActivated( state, name ) {
 	return get( state.jetpack.modules.items, [ name, 'activated' ], false ) ? true : false;
-}
-
-export function areThereUnsavedModuleOptions( state ) {
-	return get( state.jetpack.modules, 'unsavedOptionsFlag' );
 }

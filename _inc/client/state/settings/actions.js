@@ -30,13 +30,13 @@ export const setUnsavedSettingsFlag = () => {
 	return ( {
 		type: JETPACK_SETTINGS_SET_UNSAVED_FLAG
 	} );
-}
+};
 
 export const clearUnsavedSettingsFlag = () => {
 	return ( {
 		type: JETPACK_SETTINGS_CLEAR_UNSAVED_FLAG
 	} );
-}
+};
 
 export const fetchSettings = () => {
 	return ( dispatch ) => {
@@ -55,7 +55,7 @@ export const fetchSettings = () => {
 				error: error
 			} );
 		} );
-	}
+	};
 };
 
 export const updateSetting = ( updatedOption ) => {
@@ -78,13 +78,11 @@ export const updateSetting = ( updatedOption ) => {
 				updatedOption
 			} );
 		} );
-	}
+	};
 };
 
 export const updateSettings = ( newOptionValues, type = '' ) => {
-
 	return ( dispatch ) => {
-
 		let messages = {
 				success: __( 'Updated settings.' ),
 				error: error => __( 'Error updating settings. %(error)s', { args: { error: error } } )
@@ -126,11 +124,11 @@ export const updateSettings = ( newOptionValues, type = '' ) => {
 			maybeHideNavMenuItem( newOptionValues );
 			maybeReloadAfterAction( newOptionValues );
 
-			dispatch( removeNotice( `module-setting-update` ) );
+			dispatch( removeNotice( 'module-setting-update' ) );
 			dispatch( createNotice(
 				'is-success',
 				messages.success,
-				{ id: `module-setting-update`, duration: 2000 }
+				{ id: 'module-setting-update', duration: 2000 }
 			) );
 		} ).catch( error => {
 			dispatch( {
@@ -140,11 +138,11 @@ export const updateSettings = ( newOptionValues, type = '' ) => {
 				updatedOptions: newOptionValues
 			} );
 
-			dispatch( removeNotice( `module-setting-update` ) );
+			dispatch( removeNotice( 'module-setting-update' ) );
 			dispatch( createNotice(
 				'is-error',
 				messages.error( error ),
-				{ id: `module-setting-update` }
+				{ id: 'module-setting-update' }
 			) );
 		} );
 	};
