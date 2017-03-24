@@ -7,6 +7,10 @@
 	margin-bottom: rem(24px);
 	font-size: rem( 14px );
 
+	& + .jp-at-a-glance__stats-card {
+		margin-bottom: rem(24px);
+	}
+
 	.dops-foldable-card {
 		.dops-foldable-card__header {
 			color: #444;
