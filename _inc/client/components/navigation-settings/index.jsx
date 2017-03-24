@@ -12,6 +12,7 @@ import noop from 'lodash/noop';
 import injectTapEventPlugin from 'react-tap-event-plugin';
 injectTapEventPlugin();
 import UrlSearch from 'mixins/url-search';
+import analytics from 'lib/analytics';
 
 /**
  * Internal dependencies
@@ -55,6 +56,7 @@ export const NavigationSettings = React.createClass( {
 		if ( this.props.userCanManageModules ) {
 			return (
 				<Search
+					onClick={ () => this.trackNavClick( 'search' ) }
 					pinned={ true }
 					fitsContainer={ true }
 					placeholder={ __( 'Search for a Jetpack feature.' ) }
@@ -66,6 +68,13 @@ export const NavigationSettings = React.createClass( {
 				/>
 			);
 		}
+	},
+
+	trackNavClick( target ) {
+		analytics.tracks.recordJetpackClick( {
+			target: 'nav_item',
+			path: target
+		} );
 	},
 
 	/**
@@ -91,6 +100,7 @@ export const NavigationSettings = React.createClass( {
 				<NavTabs selectedText={ this.props.route.name }>
 					<NavItem
 						path="#writing"
+						onClick={ () => this.trackNavClick( 'writing' ) }
 						selected={ this.props.route.path === '/writing' || this.props.route.path === '/settings' }>
 						{ __( 'Writing', { context: 'Navigation item.' } ) }
 					</NavItem>
@@ -101,16 +111,19 @@ export const NavigationSettings = React.createClass( {
 					</NavItem>
 					<NavItem
 						path="#discussion"
+						onClick={ () => this.trackNavClick( 'discussion' ) }
 						selected={ this.props.route.path === '/discussion' }>
 						{ __( 'Discussion', { context: 'Navigation item.' } ) }
 					</NavItem>
 					<NavItem
 						path="#traffic"
+						onClick={ () => this.trackNavClick( 'traffic' ) }
 						selected={ this.props.route.path === '/traffic' }>
 						{ __( 'Traffic', { context: 'Navigation item.' } ) }
 					</NavItem>
 					<NavItem
 						path="#security"
+						onClick={ () => this.trackNavClick( 'security' ) }
 						selected={ this.props.route.path === '/security' }>
 						{ __( 'Security', { context: 'Navigation item.' } ) }
 					</NavItem>
