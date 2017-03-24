@@ -48,7 +48,7 @@ export const Masterbar = moduleSettingsForm(
 							<Card
 								compact
 								className="jp-settings-card__configure-link"
-								href={ `${ this.props.connectUrl }&from=unlinked-user-connect-masterbar` }
+								href={ `${ this.props.connectUrl }&from=unlinked-user-masterbar` }
 							>
 								{
 									__( 'Connect your user account to WordPress.com to use this feature' )
