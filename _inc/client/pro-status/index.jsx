@@ -14,7 +14,7 @@ import NoticeAction from 'components/notice/notice-action';
 import { getSiteRawUrl, getSiteAdminUrl } from 'state/initial-state';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 import QueryVaultPressData from 'components/data/query-vaultpress-data';
-import QueryAkismetData from 'components/data/query-akismet-data';
+import QueryAkismetKeyCheck from 'components/data/query-akismet-key-check';
 import { isDevMode } from 'state/connection';
 import {
 	isFetchingPluginsData,
@@ -30,6 +30,7 @@ import {
 	getSitePlan,
 	isFetchingSiteData
 } from 'state/site';
+import { isAkismetKeyValid } from 'state/at-a-glance';
 
 const ProStatus = React.createClass( {
 	propTypes: {
@@ -151,15 +152,14 @@ const ProStatus = React.createClass( {
 			}
 
 			if ( 'akismet' === feature ) {
-				if ( hasFree ) {
+				if ( hasFree && ! ( active && installed ) ) {
 					if ( this.props.isCompact ) {
 						return this.getProActions( 'free' );
 					}
 					return '';
 				}
 
-				const akismetData = this.props.getAkismetData();
-				if ( 'invalid_key' === akismetData ) {
+				if ( ! this.props.isAkismetKeyValid && ! this.props.fetchingSiteData ) {
 					return this.getProActions( 'invalid_key' );
 				}
 			}
@@ -188,7 +188,7 @@ const ProStatus = React.createClass( {
 		return (
 			<div>
 				<QuerySitePlugins />
-				<QueryAkismetData />
+				<QueryAkismetKeyCheck />
 				<QueryVaultPressData />
 				{ getStatus(
 					this.props.proFeature,
@@ -213,7 +213,8 @@ export default connect(
 			pluginActive: ( plugin_slug ) => isPluginActive( state, plugin_slug ),
 			pluginInstalled: ( plugin_slug ) => isPluginInstalled( state, plugin_slug ),
 			isDevMode: isDevMode( state ),
-			fetchingSiteData: isFetchingSiteData( state )
+			fetchingSiteData: isFetchingSiteData( state ),
+			isAkismetKeyValid: isAkismetKeyValid( state )
 		};
 	}
 )( ProStatus );
