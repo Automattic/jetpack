@@ -64,26 +64,17 @@ export const SettingsCard = props => {
 
 		switch ( feature ) {
 			case FEATURE_VIDEO_HOSTING_JETPACK:
-				if ( 'is-business-plan' === planClass ) {
+				if ( 
+					'is-premium-plan' === planClass ||
+					'is-business-plan' === planClass 
+				) {
 					return '';
-				}
-
-				if ( 'is-premium-plan' === planClass ) {
-					return (
-						<Banner
-							title={ __( "Get more space. You're close to your limit." ) }
-							callToAction={ upgradeLabel }
-							plan={ PLAN_JETPACK_BUSINESS }
-							feature={ feature }
-							href={ 'https://jetpack.com/redirect/?source=settings-video-pro&site=' + siteRawUrl }
-						/>
-					);
 				}
 
 				return (
 					<Banner
 						title={ __( 'Host fast, high-quality, ad-free video.' ) }
-						callToAction={ activateLabel }
+						callToAction={ upgradeLabel }
 						plan={ PLAN_JETPACK_PREMIUM }
 						feature={ feature }
 						href={ 'https://jetpack.com/redirect/?source=settings-video-premium&site=' + siteRawUrl }
