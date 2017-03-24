@@ -13,8 +13,8 @@ import { DashItem } from '../index';
 describe( 'DashItem', () => {
 
 	let testProps = {
-		label: 'Monitor',
-		module: 'monitor',
+		label: 'Protect',
+		module: 'protect',
 		status: '',
 		statusText: '',
 		disabled: true,
@@ -26,14 +26,14 @@ describe( 'DashItem', () => {
 		isTogglingModule: () => true,
 		toggleModule: () => false,
 		siteAdminUrl: 'https://example.org/wp-admin/',
-		siteRawUrl: 'https://example.org/'
+		siteRawUrl: 'example.org'
 	};
 
 	const wrapper = shallow( <DashItem { ...testProps } /> );
 
 	it( 'has the right label for header', () => {
 		expect( wrapper.find( 'SectionHeader' ) ).to.have.length( 1 );
-		expect( wrapper.find( 'SectionHeader' ).props().label ).to.be.equal( 'Monitor' );
+		expect( wrapper.find( 'SectionHeader' ).props().label ).to.be.equal( 'Protect' );
 	} );
 
 	it( 'the card body is built and has its href property correctly set', () => {
@@ -70,7 +70,7 @@ describe( 'DashItem', () => {
 		} );
 
 		it( 'the badge references the module', () => {
-			expect( proStatus.props().proFeature ).to.be.equal( 'monitor' );
+			expect( proStatus.props().proFeature ).to.be.equal( 'protect' );
 		} );
 
 		it( 'the admin URL is correct', () => {
@@ -107,7 +107,7 @@ describe( 'DashItem', () => {
 		} );
 
 		it( 'the toggle references the module this card belongs to', () => {
-			expect( wrapper.find( 'ModuleToggle' ).props().slug ).to.be.equal( 'monitor' );
+			expect( wrapper.find( 'ModuleToggle' ).props().slug ).to.be.equal( 'protect' );
 		} );
 
 	} );
@@ -122,6 +122,20 @@ describe( 'DashItem', () => {
 
 		it( 'if user can not toggle, it does not display a toggle', () => {
 			expect( wrapper.find( 'ModuleToggle' ) ).to.have.length( 0 );
+		} );
+
+	} );
+
+	describe( 'when site is connected and user can toggle, the Monitor dash item', () => {
+
+		testProps = Object.assign( testProps, {
+			userCanToggle: true
+		} );
+
+		const wrapper = shallow( <DashItem { ...testProps } /> );
+
+		it( 'has a toggle', () => {
+			expect( wrapper.find( 'ModuleToggle' ) ).to.have.length( 1 );
 		} );
 
 	} );
@@ -146,29 +160,65 @@ describe( 'DashItem', () => {
 
 	describe( 'if this is the DashItem for Manage module', () => {
 
-		testProps = Object.assign( testProps, {
-			module: 'manage',
+		let manageProps = {
 			label: 'Manage',
+			module: 'manage',
 			status: 'is-warning',
-			userCanToggle: true
-		} );
+			pro: false,
+			isDevMode: false,
+			userCanToggle: true,
+			isModuleActivated: () => true,
+			isTogglingModule: () => true,
+			toggleModule: () => false,
+			siteAdminUrl: 'https://example.org/wp-admin/',
+			siteRawUrl: 'example.org'
+		};
 
-		const wrapper = shallow( <DashItem { ...testProps } /> );
+		const wrapper = shallow( <DashItem { ...manageProps } /> );
 
 		it( "shows a warning badge when status is 'is-warning'", () => {
 			expect( wrapper.find( 'SimpleNotice' ) ).to.have.length( 1 );
 		} );
 
-		it( 'when Manage is deactivated, the warning badge is linked to Plugins screen in WordPress.com', () => {
-			expect( wrapper.find( 'SectionHeader' ).find( 'a' ).props().href ).to.be.equal( 'https://wordpress.com/plugins/' + testProps.siteRawUrl );
+		it( 'when it is activated, the warning badge is linked to Plugins screen in WordPress.com', () => {
+			expect( wrapper.find( 'SectionHeader' ).find( 'a' ).props().href ).to.be.equal( 'https://wordpress.com/plugins/' + manageProps.siteRawUrl );
 		} );
 
 		it( 'when Manage is deactivated, the warning badge is linked to Plugins screen in WP Admin', () => {
-			expect( shallow( <DashItem { ...testProps } isModuleActivated={ () => false } /> ).find( 'SectionHeader' ).find( 'a' ).props().href ).to.be.equal( testProps.siteAdminUrl + 'plugins.php' );
+			expect( shallow( <DashItem { ...manageProps } isModuleActivated={ () => false } /> ).find( 'SectionHeader' ).find( 'a' ).props().href ).to.be.equal( manageProps.siteAdminUrl + 'plugins.php' );
 		} );
 
 		it( "when status is 'is-working', the warning badge has an 'active' label", () => {
-			expect( shallow( <DashItem { ...testProps } status="is-working" /> ).find( 'SectionHeader' ).find( '.jp-dash-item__active-label' ) ).to.have.length( 1 );
+			expect( shallow( <DashItem { ...manageProps } status="is-working" /> ).find( 'SectionHeader' ).find( '.jp-dash-item__active-label' ) ).to.have.length( 1 );
+		} );
+
+	} );
+
+	describe( 'if this is the DashItem for Monitor module', () => {
+
+		const monitorProps = {
+			module: 'monitor',
+			label: 'Monitor',
+			status: '',
+			pro: false,
+			isDevMode: false,
+			userCanToggle: true,
+			isModuleActivated: () => true,
+			isTogglingModule: () => true,
+			toggleModule: () => false,
+			siteAdminUrl: 'https://example.org/wp-admin/',
+			siteRawUrl: 'example.org'
+		};
+
+		const wrapper = shallow( <DashItem { ...monitorProps } /> );
+
+		it( 'shows a button to configure settings in wpcom', () => {
+			expect( wrapper.find( 'Button' ) ).to.have.length( 1 );
+		} );
+
+		it( 'has a link to Calypso settings', () => {
+			expect( wrapper.find( 'Button' ) ).to.have.length( 1 );
+			expect( wrapper.find( 'Button' ).props().href ).to.contain( 'https://wordpress.com/settings/security/' + monitorProps.siteRawUrl );
 		} );
 
 	} );

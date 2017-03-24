@@ -11,7 +11,8 @@
 
 	&.is-expanded .dops-foldable-card__content {
 		position: relative;
-		padding: 16px 47px 16px 16px;
+		padding-right: rem( 47px );
+		padding-left: rem( 24px );
 	}
 }
 
@@ -41,7 +42,6 @@
 
 	@include breakpoint( "<480px" ) {
 		font-size: rem( 14px );
-		line-height: 1.8;
 	}
 
 	.dops-button {

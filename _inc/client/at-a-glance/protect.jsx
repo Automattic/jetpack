@@ -62,7 +62,7 @@ const DashProtect = React.createClass( {
 			>
 				<p className="jp-dash-item__description">{
 					this.props.isDevMode ? __( 'Unavailable in Dev Mode' ) :
-					__( '{{a}}Activate Protect{{/a}} to keep your site protected from malicious login attempts.', {
+					__( '{{a}}Activate Protect{{/a}} to keep your site protected from malicious sign in attempts.', {
 						components: {
 							a: <a href="javascript:void(0)" onClick={ this.props.activateProtect } />
 						}

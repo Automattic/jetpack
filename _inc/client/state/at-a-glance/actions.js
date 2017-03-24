@@ -10,6 +10,9 @@ import {
 	AKISMET_DATA_FETCH,
 	AKISMET_DATA_FETCH_FAIL,
 	AKISMET_DATA_FETCH_SUCCESS,
+	AKISMET_KEY_CHECK_FETCH,
+	AKISMET_KEY_CHECK_FETCH_FAIL,
+	AKISMET_KEY_CHECK_FETCH_SUCCESS,
 	VAULTPRESS_SITE_DATA_FETCH,
 	VAULTPRESS_SITE_DATA_FETCH_FAIL,
 	VAULTPRESS_SITE_DATA_FETCH_SUCCESS,
@@ -27,7 +30,7 @@ export const statsSwitchTab = ( tab ) => {
 			type: STATS_SWITCH_TAB,
 			activeStatsTab: tab
 		} );
-	}
+	};
 };
 
 export const fetchStatsData = ( range ) => {
@@ -46,8 +49,8 @@ export const fetchStatsData = ( range ) => {
 				error: error
 			} );
 		} );
-	}
-}
+	};
+};
 
 export const fetchProtectCount = () => {
 	return ( dispatch ) => {
@@ -65,8 +68,8 @@ export const fetchProtectCount = () => {
 				error: error
 			} );
 		} );
-	}
-}
+	};
+};
 
 export const fetchVaultPressData = () => {
 	return ( dispatch ) => {
@@ -84,8 +87,8 @@ export const fetchVaultPressData = () => {
 				error: error
 			} );
 		} );
-	}
-}
+	};
+};
 
 export const fetchAkismetData = () => {
 	return ( dispatch ) => {
@@ -103,8 +106,35 @@ export const fetchAkismetData = () => {
 				error: error
 			} );
 		} );
-	}
-}
+	};
+};
+
+export const checkAkismetKey = ( apiKey = '' ) => {
+	return ( dispatch ) => {
+		dispatch( {
+			type: AKISMET_KEY_CHECK_FETCH
+		} );
+		const response = '' === apiKey
+			? restApi.checkAkismetKey().then( isAkismetKeyValid => {
+				dispatch( {
+					type: AKISMET_KEY_CHECK_FETCH_SUCCESS,
+					akismet: isAkismetKeyValid
+				} );
+			} )
+			: restApi.checkAkismetKeyTyped( apiKey ).then( isAkismetKeyValid => {
+				dispatch( {
+					type: AKISMET_KEY_CHECK_FETCH_SUCCESS,
+					akismet: isAkismetKeyValid
+				} );
+			} );
+		return response.catch( error => {
+			dispatch( {
+				type: AKISMET_KEY_CHECK_FETCH_FAIL,
+				error: error
+			} );
+		} );
+	};
+};
 
 export const fetchPluginUpdates = () => {
 	return ( dispatch ) => {
@@ -122,5 +152,5 @@ export const fetchPluginUpdates = () => {
 				error: error
 			} );
 		} );
-	}
-}
+	};
+};

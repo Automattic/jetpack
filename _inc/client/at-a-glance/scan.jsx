@@ -31,12 +31,9 @@ const DashScan = React.createClass( {
 			vpData = this.props.vaultPressData,
 			inactiveOrUninstalled = this.props.isPluginInstalled( 'vaultpress/vaultpress.php' ) ? 'pro-inactive' : 'pro-uninstalled',
 			scanEnabled = (
-				'undefined' !== typeof vpData.data
-				&&
-				'undefined' !== typeof vpData.data.features
-				&&
-				'undefined' !== typeof vpData.data.features.security
-				&&
+				'undefined' !== typeof vpData.data &&
+				'undefined' !== typeof vpData.data.features &&
+				'undefined' !== typeof vpData.data.features.security &&
 				vpData.data.features.security
 			),
 			hasPremium = /jetpack_premium*/.test( this.props.sitePlan.product_slug ),
@@ -61,7 +58,7 @@ const DashScan = React.createClass( {
 							module="scan"
 							status="is-error"
 							statusText={ __( 'Threats found' ) }
-							pro={ true } >
+						>
 							<h3>{
 								__(
 									'Uh oh, %(number)s threat found.', 'Uh oh, %(number)s threats found.',
@@ -107,7 +104,7 @@ const DashScan = React.createClass( {
 				return (
 					__( 'For automated, comprehensive scanning of security threats, please {{a}}install and activate{{/a}} VaultPress.', {
 						components: {
-							a: <a href='https://wordpress.com/plugins/vaultpress' target="_blank" />
+							a: <a href='https://wordpress.com/plugins/vaultpress' target="_blank" rel="noopener noreferrer" />
 						}
 					} )
 				);
@@ -115,7 +112,7 @@ const DashScan = React.createClass( {
 				return (
 					__( 'For automated, comprehensive scanning of security threats, please {{a}}upgrade your account{{/a}}.', {
 						components: {
-							a: <a href={ 'https://jetpack.com/redirect/?source=aag-scan&site=' + this.props.siteRawUrl } target="_blank" />
+							a: <a href={ 'https://jetpack.com/redirect/?source=aag-scan&site=' + this.props.siteRawUrl } target="_blank" rel="noopener noreferrer" />
 						}
 					} )
 				);

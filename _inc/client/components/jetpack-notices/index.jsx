@@ -12,8 +12,8 @@ import NoticesList from 'components/global-notices';
  * Internal dependencies
  */
 import JetpackStateNotices from './state-notices';
-import { getSiteConnectionStatus, getSiteDevMode, isStaging, isInIdentityCrisis } from 'state/connection';
-import { isDevVersion } from 'state/initial-state';
+import { getSiteConnectionStatus, getSiteDevMode, isStaging, isInIdentityCrisis, isCurrentUserLinked } from 'state/connection';
+import { isDevVersion, userCanManageModules, getUsername, userIsSubscriber } from 'state/initial-state';
 import DismissableNotices from './dismissable';
 import { getConnectUrl as _getConnectUrl } from 'state/connection';
 import QueryConnectUrl from 'components/data/query-connect-url';
@@ -22,11 +22,10 @@ export const DevVersionNotice = React.createClass( {
 	displayName: 'DevVersionNotice',
 
 	render() {
-		if ( this.props.isDevVersion ) {
+		if ( this.props.isDevVersion && ! this.props.userIsSubscriber ) {
 			return (
 				<SimpleNotice
 					showDismiss={ false }
-					status="is-basic"
 					text={ __( 'You are currently running a development version of Jetpack.' ) }
 				>
 					<NoticeAction
@@ -44,7 +43,8 @@ export const DevVersionNotice = React.createClass( {
 } );
 
 DevVersionNotice.propTypes = {
-	isDevVersion: React.PropTypes.bool.isRequired
+	isDevVersion: React.PropTypes.bool.isRequired,
+	userIsSubscriber: React.PropTypes.bool.isRequired
 };
 
 export const StagingSiteNotice = React.createClass( {
@@ -52,13 +52,12 @@ export const StagingSiteNotice = React.createClass( {
 
 	render() {
 		if ( this.props.isStaging && ! this.props.isInIdentityCrisis ) {
-			let stagingSiteSupportLink = 'https://jetpack.com/support/staging-sites/';
-
-			let props = {
-				text: 	__( 'You are running Jetpack on a staging server.' ),
-				status: 'is-basic',
-				showDismiss: false
-			};
+			const stagingSiteSupportLink = 'https://jetpack.com/support/staging-sites/',
+				props = {
+					text: 	__( 'You are running Jetpack on a staging server.' ),
+					status: 'is-basic',
+					showDismiss: false
+				};
 
 			return (
 				<SimpleNotice { ... props }>
@@ -86,20 +85,18 @@ export const DevModeNotice = React.createClass( {
 
 	render() {
 		if ( this.props.siteConnectionStatus === 'dev' ) {
-			const devMode = this.props.siteDevMode;
-			const text = __( 'Currently in {{a}}Development Mode{{/a}} (some features are disabled) because:',
-				{
+			const devMode = this.props.siteDevMode,
+				text = __( 'Currently in {{a}}Development Mode{{/a}} (some features are disabled) because:', {
 					components: {
-						a: <a href="https://jetpack.com/support/development-mode/" target="_blank"/>,
+						a: <a href="https://jetpack.com/support/development-mode/" target="_blank" rel="noopener noreferrer" />
 					}
-				}
-			);
-			const reasons = [];
+				} ),
+				reasons = [];
 			if ( devMode.filter ) {
 				reasons.push( __( '{{li}}The jetpack_development_mode filter is active{{/li}}',
 					{
 						components: {
-							li: <li />,
+							li: <li />
 						}
 					}
 				) );
@@ -108,7 +105,7 @@ export const DevModeNotice = React.createClass( {
 				reasons.push( __( '{{li}}The JETPACK_DEV_DEBUG constant is defined{{/li}}',
 					{
 						components: {
-							li: <li />,
+							li: <li />
 						}
 					}
 				) );
@@ -117,7 +114,7 @@ export const DevModeNotice = React.createClass( {
 				reasons.push( __( '{{li}}Your site URL lacks a dot (e.g. http://localhost){{/li}}',
 					{
 						components: {
-							li: <li />,
+							li: <li />
 						}
 					}
 				) );
@@ -126,10 +123,14 @@ export const DevModeNotice = React.createClass( {
 			return (
 				<SimpleNotice
 					showDismiss={ false }
-					status="is-basic"
+					status="is-info"
+					text={ text }
 				>
-					{ text }
 					<ul>{ reasons }</ul>
+					<NoticeAction
+						href="https://jetpack.com/development-mode/">
+						{ __( 'Learn More' ) }
+					</NoticeAction>
 				</SimpleNotice>
 			);
 		}
@@ -155,15 +156,13 @@ export const UserUnlinked = React.createClass( {
 
 	render() {
 		if (
-			! window.Initial_State.userData.currentUser.isConnected &&
+			! this.props.isLinked &&
 			this.props.connectUrl &&
 			this.props.siteConnected
 		) {
-			let text;
-
-			text = __( 'You, %(userName)s, are not connected to WordPress.com.', {
+			const text = __( 'You, %(userName)s, are not connected to WordPress.com.', {
 				args: {
-					userName: window.Initial_State.userData.currentUser.username
+					userName: this.props.username
 				}
 			} );
 
@@ -197,11 +196,11 @@ const JetpackNotices = React.createClass( {
 
 	render() {
 		return (
-			<div>
+			<div aria-live="polite">
 				<QueryConnectUrl />
 				<NoticesList />
 				<JetpackStateNotices />
-				<DevVersionNotice isDevVersion={ this.props.isDevVersion } />
+				<DevVersionNotice isDevVersion={ this.props.isDevVersion } userIsSubscriber={ this.props.userIsSubscriber } />
 				<DevModeNotice
 					siteConnectionStatus={ this.props.siteConnectionStatus }
 					siteDevMode={ this.props.siteDevMode } />
@@ -211,7 +210,18 @@ const JetpackNotices = React.createClass( {
 				<DismissableNotices />
 				<UserUnlinked
 					connectUrl={ this.props.connectUrl }
-					siteConnected={ true === this.props.siteConnectionStatus } />
+					siteConnected={ true === this.props.siteConnectionStatus }
+					isLinked={ this.props.isLinked }
+					username={ this.props.username } />
+				{
+					( ! this.props.siteConnectionStatus && ! this.props.userCanManageModules ) && (
+						<SimpleNotice
+							showDismiss={ false }
+							status="is-warning"
+							text={ __( 'This site is not connected to WordPress.com. Please ask the site administrator to connect.' ) }
+						/>
+					)
+				}
 			</div>
 		);
 	}
@@ -222,11 +232,14 @@ export default connect(
 		return {
 			connectUrl: _getConnectUrl( state ),
 			siteConnectionStatus: getSiteConnectionStatus( state ),
+			userCanManageModules: userCanManageModules( state ),
+			userIsSubscriber: userIsSubscriber( state ),
+			username: getUsername( state ),
+			isLinked: isCurrentUserLinked( state ),
 			isDevVersion: isDevVersion( state ),
 			siteDevMode: getSiteDevMode( state ),
 			isStaging: isStaging( state ),
 			isInIdentityCrisis: isInIdentityCrisis( state )
-
 		};
 	}
 )( JetpackNotices );

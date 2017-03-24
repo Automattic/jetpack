@@ -10,6 +10,16 @@
 			background: $white;
 		}
 	}
+	.dops-section-header__actions {
+		.form-toggle__label {
+			position: relative;
+			top: 6px;
+			right: 0;
+		}
+		.form-toggle__label-content {
+			margin: 0;
+		}
+	}
 }
 
 .jp-dash-item__card {
@@ -42,14 +52,10 @@
 		font-style: normal;
 	}
 
-	.dops-section-header__label {
-		color: darken( $gray, 20% );
-	}
-
 	&.is-working,
 	&.is-premium-inactive {
 		.dops-section-header__actions {
-			color: lighten( $gray, 20% );
+			color: $gray-text-min;
 		}
 	}
 }
@@ -58,7 +64,6 @@
 	.dops-section-header__actions {
 		.dops-notice {
 			margin-top: rem( 2px );
-			margin-right: rem( -10px );
 		}
 	}
 }

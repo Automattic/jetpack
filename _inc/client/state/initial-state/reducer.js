@@ -2,32 +2,29 @@
  * External dependencies
  */
 import assign from 'lodash/assign';
+import merge from 'lodash/merge';
 import get from 'lodash/get';
 
 /**
  * Internal dependencies
  */
-import { JETPACK_SET_INITIAL_STATE } from 'state/action-types';
+import {
+	JETPACK_SET_INITIAL_STATE,
+	MOCK_SWITCH_USER_PERMISSIONS
+} from 'state/action-types';
 
 export const initialState = ( state = window.Initial_State, action ) => {
 	switch ( action.type ) {
 		case JETPACK_SET_INITIAL_STATE:
 			return assign( {}, state, action.initialState );
 
+		case MOCK_SWITCH_USER_PERMISSIONS:
+			return merge( {}, state, { userData: action.initialState } );
+
 		default:
 			return state;
 	}
 };
-
-/**
- * Returns an array of HE gravatar ID's
- *
- * @param  {Object}  state  Global state tree
- * @return {array}          array of IDs
- */
-export function getHappinessGravatarIds( state ) {
-	return state.jetpack.initialState.happinessGravIds;
-}
 
 /**
  * Returns bool if current version is Dev version
@@ -77,6 +74,10 @@ export function isSitePublic( state ) {
 
 export function userIsSubscriber( state ) {
 	return ! get( state.jetpack.initialState.userData.currentUser.permissions, 'edit_posts', false );
+}
+
+export function userCanPublish( state ) {
+	return get( state.jetpack.initialState.userData.currentUser.permissions, 'publish_posts', false );
 }
 
 export function userCanManageModules( state ) {
@@ -135,6 +136,28 @@ export function getUsername( state ) {
 
 export function userCanViewStats( state ) {
 	return get( state.jetpack.initialState.userData.currentUser.permissions, 'view_stats', false );
+}
+
+/**
+ * Returns the site icon as an image URL.
+ *
+ * @param {object} state Global state tree
+ *
+ * @return string
+ */
+export function getSiteIcon( state ) {
+	return get( state.jetpack.initialState.siteData, [ 'icon' ] );
+}
+
+/**
+ * Check whether the site is accessible by search engines or not. It's true by default in an initial WP installation.
+ *
+ * @param {object} state Global state tree
+ *
+ * @return {boolean} False if site is set to discourage search engines from indexing it. True otherwise.
+ */
+export function isSiteVisibleToSearchEngines( state ) {
+	return get( state.jetpack.initialState.siteData, [ 'siteVisibleToSearchEngines' ], true );
 }
 
 export function getApiNonce( state ) {

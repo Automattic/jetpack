@@ -16,6 +16,9 @@ import {
 	AKISMET_DATA_FETCH,
 	AKISMET_DATA_FETCH_FAIL,
 	AKISMET_DATA_FETCH_SUCCESS,
+	AKISMET_KEY_CHECK_FETCH,
+	AKISMET_KEY_CHECK_FETCH_FAIL,
+	AKISMET_KEY_CHECK_FETCH_SUCCESS,
 	VAULTPRESS_SITE_DATA_FETCH,
 	VAULTPRESS_SITE_DATA_FETCH_FAIL,
 	VAULTPRESS_SITE_DATA_FETCH_SUCCESS,
@@ -24,7 +27,8 @@ import {
 	DASHBOARD_PROTECT_COUNT_FETCH_SUCCESS,
 	PLUGIN_UPDATES_FETCH,
 	PLUGIN_UPDATES_FETCH_FAIL,
-	PLUGIN_UPDATES_FETCH_SUCCESS
+	PLUGIN_UPDATES_FETCH_SUCCESS,
+	MOCK_SWITCH_THREATS
 } from 'state/action-types';
 
 const requests = ( state = {}, action ) => {
@@ -33,6 +37,8 @@ const requests = ( state = {}, action ) => {
 			return assign( {}, state, { fetchingStatsData: true } );
 		case AKISMET_DATA_FETCH:
 			return assign( {}, state, { fetchingAkismetData: true } );
+		case AKISMET_KEY_CHECK_FETCH:
+			return assign( {}, state, { checkingAkismetKey: true } );
 		case VAULTPRESS_SITE_DATA_FETCH:
 			return assign( {}, state, { fetchingVaultPressData: true } );
 		case DASHBOARD_PROTECT_COUNT_FETCH:
@@ -44,6 +50,8 @@ const requests = ( state = {}, action ) => {
 		case STATS_DATA_FETCH_SUCCESS:
 		case AKISMET_DATA_FETCH_FAIL:
 		case AKISMET_DATA_FETCH_SUCCESS:
+		case AKISMET_KEY_CHECK_FETCH_FAIL:
+		case AKISMET_KEY_CHECK_FETCH_SUCCESS:
 		case VAULTPRESS_SITE_DATA_FETCH_FAIL:
 		case VAULTPRESS_SITE_DATA_FETCH_SUCCESS:
 		case DASHBOARD_PROTECT_COUNT_FETCH_FAIL:
@@ -53,6 +61,7 @@ const requests = ( state = {}, action ) => {
 			return assign( {}, state, {
 				fetchingStatsData: false,
 				fetchingAkismetData: false,
+				checkingAkismetKey: false,
 				fetchingVaultPressData: false,
 				fetchingProtectData: false,
 				fetchingPluginUpdates: false
@@ -90,6 +99,15 @@ const akismetData = ( state = 'N/A', action ) => {
 	}
 };
 
+const akismet = ( state = { validKey: null, invalidKeyCode: '', invalidKeyMessage: '' }, action ) => {
+	switch ( action.type ) {
+		case AKISMET_KEY_CHECK_FETCH_SUCCESS:
+			return assign( {}, state, action.akismet );
+		default:
+			return state;
+	}
+};
+
 const protectCount = ( state = 'N/A', action ) => {
 	switch ( action.type ) {
 		case DASHBOARD_PROTECT_COUNT_FETCH_SUCCESS:
@@ -104,6 +122,19 @@ const vaultPressData = ( state = 'N/A', action ) => {
 	switch ( action.type ) {
 		case VAULTPRESS_SITE_DATA_FETCH_SUCCESS:
 			return action.vaultPressData;
+
+		case MOCK_SWITCH_THREATS:
+			return assign( {}, 'N/A' === state ? {} : state, {
+				data: {
+					active: true,
+					features: {
+						security: true
+					},
+					security: {
+						notice_count: action.mockCount
+					}
+				}
+			} );
 
 		default:
 			return state;
@@ -127,6 +158,7 @@ export const dashboard = combineReducers( {
 	vaultPressData,
 	statsData,
 	akismetData,
+	akismet,
 	pluginUpdates
 } );
 
@@ -178,6 +210,26 @@ export function isFetchingAkismetData( state ) {
  */
 export function getAkismetData( state ) {
 	return state.jetpack.dashboard.akismetData;
+}
+
+/**
+ * Returns true if currently checking Akismet API key for validity.
+ *
+ * @param  {Object}  state  Global state tree
+ * @return {Boolean}        Whether Akismet API key is being checked.
+ */
+export function isCheckingAkismetKey( state ) {
+	return !! state.jetpack.dashboard.requests.checkingAkismetKey;
+}
+
+/**
+ * Checks if the Akismet key is valid.
+ *
+ * @param  {Object}  state  Global state tree
+ * @return {boolean} True if Akismet API key is valid.
+ */
+export function isAkismetKeyValid( state ) {
+	return get( state.jetpack.dashboard, [ 'akismet', 'validKey' ], false );
 }
 
 /**

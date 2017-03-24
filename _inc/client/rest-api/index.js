@@ -123,6 +123,16 @@ function JetpackRestApiClient( root, nonce ) {
 			body: JSON.stringify( newOptionValues )
 		} )
 		.then( checkStatus ).then( response => response.json() ),
+		updateSettings: ( newOptionValues ) => fetch( `${ apiRoot }jetpack/v4/settings`, {
+			method: 'post',
+			credentials: 'same-origin',
+			headers: {
+				'X-WP-Nonce': apiNonce,
+				'Content-type': 'application/json'
+			},
+			body: JSON.stringify( newOptionValues )
+		} )
+			.then( checkStatus ).then( response => response.json() ),
 		getProtectCount: () => fetch( `${ apiRoot }jetpack/v4/module/protect/data`, {
 			credentials: 'same-origin',
 			headers: {
@@ -152,6 +162,23 @@ function JetpackRestApiClient( root, nonce ) {
 			headers: {
 				'X-WP-Nonce': apiNonce
 			}
+		} )
+		.then( checkStatus ).then( response => response.json() ),
+		checkAkismetKey: () => fetch( `${ apiRoot }jetpack/v4/module/akismet/key/check`, {
+			credentials: 'same-origin',
+			headers: {
+				'X-WP-Nonce': apiNonce
+			}
+		} )
+		.then( checkStatus ).then( response => response.json() ),
+		checkAkismetKeyTyped: apiKey => fetch( `${ apiRoot }jetpack/v4/module/akismet/key/check`, {
+			method: 'post',
+			credentials: 'same-origin',
+			headers: {
+				'X-WP-Nonce': apiNonce,
+				'Content-type': 'application/json'
+			},
+			body: JSON.stringify( { api_key: apiKey } )
 		} )
 		.then( checkStatus ).then( response => response.json() ),
 		fetchStatsData: ( range ) => fetch(
@@ -219,14 +246,14 @@ function JetpackRestApiClient( root, nonce ) {
 			}
 		} )
 		.then( checkStatus ).then( response => response.json() )
-	}
+	};
 
 	function statsDataUrl( range ) {
 		let url = `${ apiRoot }jetpack/v4/module/stats/data`;
 		if ( url.indexOf( '?' ) !== -1 ) {
-			url = url + `&range=${ encodeURIComponent( range ) }`
+			url = url + `&range=${ encodeURIComponent( range ) }`;
 		} else {
-			url = url + `?range=${ encodeURIComponent( range ) }`
+			url = url + `?range=${ encodeURIComponent( range ) }`;
 		}
 		return url;
 	}

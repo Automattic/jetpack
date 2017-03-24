@@ -1,34 +1,31 @@
 /**
  * External dependencies
  */
-var React = require( 'react' ),
-	classnames = require( 'classnames' );
+import React from 'react';
 import classNames from 'classnames';
 import omit from 'lodash/omit';
+import forOwn from 'lodash/forOwn';
 import isEmpty from 'lodash/isEmpty';
 import { translate as __ } from 'i18n-calypso';
 import Button from 'components/button';
+import SelectDropdown from 'components/select-dropdown';
 
-export const FormFieldset = React.createClass( {
-
-	displayName: 'FormFieldset',
-
-	render: function() {
-		return (
-			<fieldset { ...omit( this.props, 'className' ) } className={ classnames( this.props.className, 'jp-form-fieldset' ) } >
-				{ this.props.children }
-			</fieldset>
-		);
-	}
-} );
+export const FormFieldset = props => {
+	return (
+		<fieldset { ...omit( props, 'className' ) } className={ classNames( props.className, 'jp-form-fieldset' ) } >
+			{ props.children }
+		</fieldset>
+	);
+};
 
 export const FormLabel = React.createClass( {
 
 	displayName: 'FormLabel',
 
 	render: function() {
+		const { className, htmlFor, ...otherProps } = this.props;
 		return (
-			<label { ...omit( this.props, 'className' ) } className={ classnames( this.props.className, 'jp-form-label' ) } >
+			<label { ...otherProps } htmlFor={ htmlFor } className={ classNames( className, 'jp-form-label' ) } >
 				{ this.props.children }
 			</label>
 		);
@@ -41,7 +38,7 @@ export const FormLegend = React.createClass( {
 
 	render: function() {
 		return (
-			<legend { ...omit( this.props, 'className' ) } className={ classnames( this.props.className, 'jp-form-legend' ) } >
+			<legend { ...omit( this.props, 'className' ) } className={ classNames( this.props.className, 'jp-form-legend' ) } >
 				{ this.props.children }
 			</legend>
 		);
@@ -56,7 +53,7 @@ export const FormCheckbox = React.createClass( {
 		var otherProps = omit( this.props, [ 'className', 'type' ] );
 
 		return (
-			<input { ...otherProps } type="checkbox" className={ classnames( this.props.className, 'jp-form-checkbox' ) } />
+			<input { ...otherProps } type="checkbox" className={ classNames( this.props.className, 'jp-form-checkbox' ) } />
 		);
 	}
 } );
@@ -107,7 +104,7 @@ export const FormTextarea = React.createClass( {
 
 	render: function() {
 		return (
-			<textarea { ...omit( this.props, 'className' ) } className={ classnames( this.props.className, 'jp-form-textarea' ) } >
+			<textarea { ...omit( this.props, 'className' ) } className={ classNames( this.props.className, 'jp-form-textarea' ) } >
 				{ this.props.children }
 			</textarea>
 		);
@@ -125,7 +122,7 @@ export const FormRadio = React.createClass( {
 			<input
 				{ ...otherProps }
 				type="radio"
-				className={ classnames( this.props.className, 'jp-form-radio' ) } />
+				className={ classNames( this.props.className, 'jp-form-radio' ) } />
 		);
 	}
 } );
@@ -155,9 +152,33 @@ export const FormButton = React.createClass( {
 			<Button
 				{ ...omit( this.props, 'className' ) }
 				primary={ this.props.isPrimary }
-				className={ classnames( this.props.className, buttonClasses ) }>
+				className={ classNames( this.props.className, buttonClasses ) }>
 				{ isEmpty( this.props.children ) ? this.getDefaultButtonAction() : this.props.children }
 			</Button>
 		);
+	}
+} );
+
+export const FormSelect = React.createClass( {
+	handleOnSelect: function( option ) {
+		this.props.onOptionChange( {
+			target: {
+				type: 'select',
+				name: this.props.name,
+				value: option.value
+			}
+		} );
+	},
+
+	render() {
+		let validValues = [];
+		forOwn( this.props.validValues, ( label, value ) => {
+			validValues.push( { label: label, value: value } );
+		} );
+		return <SelectDropdown
+			options={ validValues }
+			onSelect={ this.handleOnSelect }
+			disabled={ this.props.disabled }
+			initialSelected={ this.props.value } />;
 	}
 } );
