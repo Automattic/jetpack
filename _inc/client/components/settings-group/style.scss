@@ -7,6 +7,9 @@
 		margin-top: 0;
 		margin-bottom: rem( 24px );
 	}
+	fieldset p:last-child {
+		margin-bottom: 8px;
+	}
 	.form-toggle__label {
 		margin-top: rem( 4px );
 		margin-bottom: rem( 4px );
