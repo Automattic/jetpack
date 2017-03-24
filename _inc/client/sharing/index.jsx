@@ -11,7 +11,7 @@ import { getModule } from 'state/modules';
 import { getSettings } from 'state/settings';
 import { isDevMode, isUnavailableInDevMode, isCurrentUserLinked, getConnectUrl } from 'state/connection';
 import { isModuleFound as _isModuleFound } from 'state/search';
-import { getSiteRawUrl, siteAdminUrl } from 'state/initial-state';
+import { getSiteRawUrl, getSiteAdminUrl } from 'state/initial-state';
 import QuerySite from 'components/data/query-site';
 import { Publicize } from './publicize';
 import { ShareButtons } from './share-buttons';
@@ -89,7 +89,7 @@ export default connect(
 			isLinked: isCurrentUserLinked( state ),
 			connectUrl: getConnectUrl( state ),
 			siteRawUrl: getSiteRawUrl( state ),
-			siteAdminUrl: siteAdminUrl( state )
+			siteAdminUrl: getSiteAdminUrl( state )
 		};
 	}
 )( Sharing );
