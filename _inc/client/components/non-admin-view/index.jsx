@@ -43,6 +43,7 @@ const NonAdminView = React.createClass( {
 				break;
 			case '/settings':
 			case '/writing':
+			case '/sharing':
 				if ( ! this.props.isSubscriber ) {
 					navComponent = <NavigationSettings { ...this.props } />;
 					pageComponent = <SearchableSettings

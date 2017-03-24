@@ -11,7 +11,6 @@ import { translate as __ } from 'i18n-calypso';
 import noop from 'lodash/noop';
 import injectTapEventPlugin from 'react-tap-event-plugin';
 injectTapEventPlugin();
-import Gridicon from 'components/gridicon';
 import UrlSearch from 'mixins/url-search';
 
 /**
@@ -85,23 +84,7 @@ export const NavigationSettings = React.createClass( {
 	},
 
 	render: function() {
-		let navItems,
-			publicizeTab = (
-			( this.props.isModuleActivated( 'publicize' ) || this.props.isModuleActivated( 'sharedaddy' ) ) && (
-				<NavItem
-					path={ true === this.props.isSiteConnected
-										? 'https://wordpress.com/sharing/' + this.props.siteRawUrl
-										: this.props.siteAdminUrl + 'options-general.php?page=sharing'
-										}>
-					{ __( 'Sharing', { context: 'Navigation item.' } ) }
-					{
-						true === this.props.isSiteConnected && (
-							<Gridicon icon="external" size={ 13 } />
-						)
-					}
-				</NavItem>
-			)
-		);
+		let navItems, sharingTab;
 
 		if ( this.props.userCanManageModules ) {
 			navItems = (
@@ -110,6 +93,11 @@ export const NavigationSettings = React.createClass( {
 						path="#writing"
 						selected={ this.props.route.path === '/writing' || this.props.route.path === '/settings' }>
 						{ __( 'Writing', { context: 'Navigation item.' } ) }
+					</NavItem>
+					<NavItem
+						path="#sharing"
+						selected={ this.props.route.path === '/sharing' }>
+						{ __( 'Sharing', { context: 'Navigation item.' } ) }
 					</NavItem>
 					<NavItem
 						path="#discussion"
@@ -126,16 +114,21 @@ export const NavigationSettings = React.createClass( {
 						selected={ this.props.route.path === '/security' }>
 						{ __( 'Security', { context: 'Navigation item.' } ) }
 					</NavItem>
-					{
-						publicizeTab
-					}
 				</NavTabs>
 			);
 		} else if ( this.props.isSubscriber ) {
 			navItems = false;
 		} else {
-			if ( ! this.props.isModuleActivated( 'publicize' ) || ! this.props.userCanPublish || ! this.props.isLinked ) {
-				publicizeTab = '';
+			if ( ! this.props.isModuleActivated( 'publicize' ) || ! this.props.userCanPublish ) {
+				sharingTab = '';
+			} else {
+				sharingTab = (
+					<NavItem
+						path="#sharing"
+						selected={ this.props.route.path === '/sharing' }>
+						{ __( 'Sharing', { context: 'Navigation item.' } ) }
+					</NavItem>
+				);
 			}
 			navItems = (
 				<NavTabs selectedText={ this.props.route.name }>
@@ -146,7 +139,7 @@ export const NavigationSettings = React.createClass( {
 					</NavItem>
 					{
 						// Give only Publicize to non admin users
-						publicizeTab
+						sharingTab
 					}
 				</NavTabs>
 			);

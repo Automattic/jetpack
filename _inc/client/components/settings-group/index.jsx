@@ -21,9 +21,9 @@ import { isModuleActivated } from 'state/modules';
 export const SettingsGroup = props => {
 	const module = props.module;
 
-	// Non admin users only get Publicize, After the Deadline, and Post by Email settings. The UI doesn't have settings for Publicize.
+	// Non admin users only get Publicize, After the Deadline, and Post by Email settings.
 	// composing is not a module slug but it's used so the Composing card is rendered to show AtD.
-	if ( module.module && ! props.userCanManageModules && ! includes( [ 'after-the-deadline', 'post-by-email' ], module.module ) ) {
+	if ( module.module && ! props.userCanManageModules && ! includes( [ 'after-the-deadline', 'post-by-email', 'publicize' ], module.module ) ) {
 		return <span />;
 	}
 
