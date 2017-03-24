@@ -17,7 +17,8 @@ import { GoogleAnalytics } from './google-analytics';
 import { Ads } from './ads';
 import { SiteStats } from './site-stats';
 import { RelatedPosts } from './related-posts';
-import VerificationServices from './verification-services';
+import { VerificationServices } from './verification-services';
+import Sitemaps from './sitemaps';
 import { getLastPostUrl } from 'state/initial-state';
 
 export const Traffic = React.createClass( {
@@ -83,15 +84,23 @@ export const Traffic = React.createClass( {
 					'&url=' + encodeURIComponent( this.props.lastPostUrl ) }
 			/>
 		);
-		const verificationSettings = (
-			<VerificationServices
-				{ ...commonProps }
-			/>
-		);
+
 		const googleAnalyticsSettings = (
 			<GoogleAnalytics
 				{ ...commonProps }
 				configureUrl={ 'https://wordpress.com/settings/analytics/' + this.props.siteRawUrl }
+			/>
+		);
+
+		const sitemaps = (
+			<Sitemaps
+				{ ...commonProps }
+			/>
+		);
+
+		const verificationSettings = (
+			<VerificationServices
+				{ ...commonProps }
 			/>
 		);
 
@@ -103,7 +112,8 @@ export const Traffic = React.createClass( {
 				{ found.stats && statsSettings }
 				{ found.related && relatedPostsSettings }
 				{ found.analytics && googleAnalyticsSettings }
-				{ ( found.verification || found.sitemaps ) && verificationSettings }
+				{ found.verification && verificationSettings }
+				{ found.sitemaps && sitemaps }
 			</div>
 		);
 	}
