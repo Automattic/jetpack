@@ -24,15 +24,17 @@ export const SEO = moduleSettingsForm(
 					feature={ FEATURE_SEO_TOOLS_JETPACK }
 					hideButton>
 					<SettingsGroup disableInDevMode module={ { module: 'seo-tools' } } support="https://jetpack.com/support/seo-tools/">
-						{
-							__( "You can tweak these settings if you'd like more advanced control. Read more about what you can do to {{a}}optimize your site's SEO{{/a}}.",
-								{
-									components: {
-										a: <a href="https://jetpack.com/support/seo-tools/" />
+						<span>
+							{
+								__( "You can tweak these settings if you'd like more advanced control. Read more about what you can do to {{a}}optimize your site's SEO{{/a}}.",
+									{
+										components: {
+											a: <a href="https://jetpack.com/support/seo-tools/" />
+										}
 									}
-								}
-							)
-						}
+								)
+							}
+						</span>
 					</SettingsGroup>
 					{
 						! this.props.isUnavailableInDevMode( 'seo-tools' ) && (
