@@ -101,7 +101,7 @@ export const SettingsCard = props => {
 				return (
 					<Banner
 						title={ __( 'Generate income with high-quality ads.' ) }
-						callToAction={ activateLabel }
+						callToAction={ upgradeLabel }
 						plan={ PLAN_JETPACK_PREMIUM }
 						feature={ feature }
 						href={ 'https://jetpack.com/redirect/?source=settings-ads&site=' + siteRawUrl }
@@ -127,7 +127,7 @@ export const SettingsCard = props => {
 
 				return (
 					<Banner
-						callToAction={ activateLabel }
+						callToAction={ upgradeLabel }
 						title={ __( 'Protect against data loss, malware, and malicious attacks.' ) }
 						plan={ PLAN_JETPACK_PREMIUM }
 						feature={ feature }
@@ -141,7 +141,7 @@ export const SettingsCard = props => {
 				}
 				return (
 					<Banner
-						callToAction={ activateLabel }
+						callToAction={ upgradeLabel }
 						title={ __( 'Integrate easily with Google Analytics.' ) }
 						plan={ PLAN_JETPACK_BUSINESS }
 						feature={ feature }
@@ -155,7 +155,7 @@ export const SettingsCard = props => {
 
 				return (
 					<Banner
-						callToAction={ activateLabel }
+						callToAction={ upgradeLabel }
 						title={ __( 'Help your content get found and shared with SEO tools.' ) }
 						plan={ PLAN_JETPACK_BUSINESS }
 						feature={ feature }
@@ -171,7 +171,7 @@ export const SettingsCard = props => {
 
 				return (
 					<Banner
-						callToAction={ activateLabel }
+						callToAction={ upgradeLabel }
 						title={ __( 'Protect your site from spam.' ) }
 						plan={ PLAN_JETPACK_PERSONAL }
 						feature={ feature }
