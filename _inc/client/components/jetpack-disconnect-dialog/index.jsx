@@ -20,7 +20,6 @@ import {
 	isDisconnectingSite,
 } from 'state/connection';
 import { getSiteRawUrl } from 'state/initial-state';
-import QuerySite from 'components/data/query-site';
 
 export const JetpackDisconnectDialog = React.createClass( {
 	propTypes: {
@@ -122,7 +121,6 @@ export const JetpackDisconnectDialog = React.createClass( {
 				className="jp-connection-settings__modal"
 				onRequestClose={ this.props.toggleModal }
 				>
-				<QuerySite />
 				<Card className="jp-connection-settings__modal-body">
 					<h2>
 						{
