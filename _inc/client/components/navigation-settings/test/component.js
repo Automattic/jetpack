@@ -137,12 +137,6 @@ describe( 'NavigationSettings', () => {
 			it( 'show Sharing if user is linked', () => {
 				expect( shallow( <NavigationSettings { ...publicizeProps } />, options ).find( 'NavItem' ).children().nodes.filter( item => 'string' === typeof item ).every( item => [ 'Writing', 'Sharing' ].includes( item ) ) ).to.be.true;
 			} );
-
-			it( 'do not show Sharing if user is unlinked', () => {
-				publicizeProps.isLinked = false;
-				expect( shallow( <NavigationSettings { ...publicizeProps } />, options ).find( 'NavItem' ).children().nodes.filter( item => 'string' === typeof item ).every( item => [ 'Writing' ].includes( item ) ) ).to.be.true;
-			} );
-
 		} );
 
 	} );
@@ -216,119 +210,6 @@ describe( 'NavigationSettings', () => {
 			} );
 			wrapper = shallow( <NavigationSettings { ...testProps } />, options );
 			expect( wrapper.find( 'SectionNav' ).props().selectedText ).to.be.equal( 'Security' );
-		} );
-	} );
-
-	describe( 'the Sharing link', () => {
-
-		it( 'is rendered if Publicize is active', () => {
-			wrapper = shallow(
-				<NavigationSettings
-					{ ...testProps }
-					isModuleActivated={ m => 'publicize' === m }
-				/>,
-				options
-			);
-			expect(
-				wrapper
-					.find( 'NavItem' )
-					.children()
-					.nodes
-					.filter( item => 'string' === typeof item )
-					.every(
-						item => [
-							'General',
-							'Writing',
-							'Discussion',
-							'Traffic',
-							'Security',
-							'Sharing'
-						].includes( item )
-					)
-			).to.be.true;
-		} );
-
-		it( 'is rendered if Sharing is active', () => {
-			wrapper = shallow(
-				<NavigationSettings
-					{ ...testProps }
-					isModuleActivated={ m => 'sharedaddy' === m }
-				/>,
-				options
-			);
-			expect(
-				wrapper
-					.find( 'NavItem' )
-					.children()
-					.nodes
-					.filter( item => 'string' === typeof item )
-					.every(
-						item => [
-							'General',
-							'Writing',
-							'Discussion',
-							'Traffic',
-							'Security',
-							'Sharing'
-						].includes( item )
-					)
-			).to.be.true;
-		} );
-
-		it( 'is not rendered if Publicize and Sharing are inactive', () => {
-			const wrapper = shallow(
-				<NavigationSettings
-					{ ...testProps }
-					isModuleActivated={ () => false }
-				/>,
-				options
-			);
-			expect(
-				wrapper
-					.find( 'NavItem' )
-					.children()
-					.nodes
-					.filter( item => 'string' === typeof item )
-					.every(
-						item => [
-							'General',
-							'Writing',
-							'Discussion',
-							'Traffic',
-							'Security'
-						].includes( item )
-					)
-			).to.be.true;
-		} );
-
-		describe( 'if site is connected', () => {
-
-			before( () => {
-				wrapper = shallow( <NavigationSettings { ...testProps } />, options );
-			} );
-
-			it( 'points to Calypso', () => {
-				expect( wrapper.find( 'NavItem' ).nodes.pop().props.path ).to.be.equal( 'https://wordpress.com/sharing/example.org' );
-			} );
-
-			it( 'has an "external" icon', () => {
-				expect( wrapper.find( 'NavItem' ).children().find( 'Gridicon' ) ).to.have.length( 1 );
-			} );
-		} );
-
-		describe( 'if site is in dev mode', () => {
-
-			before( () => {
-				wrapper = shallow( <NavigationSettings { ...testProps } isSiteConnected={ false } />, options );
-			} );
-
-			it( 'points to WP Admin', () => {
-				expect( wrapper.find( 'NavItem' ).nodes.pop().props.path ).to.be.equal( 'https://example.org/wp-admin/options-general.php?page=sharing' );
-			} );
-
-			it( 'does not have an icon', () => {
-				expect( wrapper.find( 'NavItem' ).children().find( 'Gridicon' ) ).to.have.length( 0 );
-			} );
 		} );
 	} );
 } );
