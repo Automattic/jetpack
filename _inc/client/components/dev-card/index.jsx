@@ -26,6 +26,7 @@ import {
 } from 'state/dev-version';
 import { getVaultPressScanThreatCount } from 'state/at-a-glance';
 import Card from 'components/card';
+import onKeyDownCallback from 'utils/onkeydown-callback';
 
 export const DevCard = React.createClass( {
 	displayName: 'DevCard',
@@ -49,7 +50,7 @@ export const DevCard = React.createClass( {
 					<hr />
 					<ul>
 						<li>
-							<label>
+							<label htmlFor="view_stats">
 								<input
 									type="radio"
 									id="view_stats"
@@ -62,7 +63,7 @@ export const DevCard = React.createClass( {
 							</label>
 						</li>
 						<li>
-							<label>
+							<label htmlFor="hide_stats">
 								<input
 									type="radio"
 									id="hide_stats"
@@ -87,7 +88,7 @@ export const DevCard = React.createClass( {
 					<hr />
 					<ul>
 						<li>
-							<label>
+							<label htmlFor="is_linked">
 								<input
 									type="radio"
 									id="is_linked"
@@ -100,7 +101,7 @@ export const DevCard = React.createClass( {
 							</label>
 						</li>
 						<li>
-							<label>
+							<label htmlFor="is_unlinked">
 								<input
 									type="radio"
 									id="is_unlinked"
@@ -130,11 +131,16 @@ export const DevCard = React.createClass( {
 
 		return (
 			<Card compact className={ classes }>
-				<a className="jp-dev-card__close" onClick={ this.props.disableDevCard }>x</a>
+				<a
+					className="jp-dev-card__close"
+					role="button"
+					tabIndex="0"
+					onKeyDown={ onKeyDownCallback( this.props.disableDevCard ) }
+					onClick={ this.props.disableDevCard }>x</a>
 				<div className="jp-dev-card__heading">Dev Tools</div>
 				<ul>
 					<li>
-						<label>
+						<label htmlFor="jetpack_free">
 							<input
 								type="radio"
 								id="jetpack_free"
@@ -147,7 +153,7 @@ export const DevCard = React.createClass( {
 						</label>
 					</li>
 					<li>
-						<label>
+						<label htmlFor="jetpack_personal">
 							<input
 								type="radio"
 								id="jetpack_personal"
@@ -160,7 +166,7 @@ export const DevCard = React.createClass( {
 						</label>
 					</li>
 					<li>
-						<label>
+						<label htmlFor="jetpack_premium">
 							<input
 								type="radio"
 								id="jetpack_premium"
@@ -173,7 +179,7 @@ export const DevCard = React.createClass( {
 						</label>
 					</li>
 					<li>
-						<label>
+						<label htmlFor="jetpack_business">
 						<input
 								type="radio"
 								id="jetpack_business"
@@ -189,7 +195,7 @@ export const DevCard = React.createClass( {
 				<hr />
 				<ul>
 					<li>
-						<label>
+						<label htmlFor="admin_master">
 							<input
 								type="radio"
 								id="admin_master"
@@ -202,7 +208,7 @@ export const DevCard = React.createClass( {
 						</label>
 					</li>
 					<li>
-						<label>
+						<label htmlFor="admin_secondary">
 							<input
 								type="radio"
 								id="admin_secondary"
@@ -215,7 +221,7 @@ export const DevCard = React.createClass( {
 						</label>
 					</li>
 					<li>
-						<label>
+						<label htmlFor="editor">
 							<input
 								type="radio"
 								id="editor"
@@ -228,7 +234,7 @@ export const DevCard = React.createClass( {
 						</label>
 					</li>
 					<li>
-						<label>
+						<label htmlFor="subscriber">
 							<input
 								type="radio"
 								id="subscriber"
@@ -244,7 +250,7 @@ export const DevCard = React.createClass( {
 				<hr />
 				<ul>
 					<li>
-						<label>
+						<label htmlFor="nothreats">
 							<input
 								type="radio"
 								id="nothreats"
@@ -257,7 +263,7 @@ export const DevCard = React.createClass( {
 						</label>
 					</li>
 					<li>
-						<label>
+						<label htmlFor="threats">
 							<input
 								type="radio"
 								id="threats"
