@@ -17,7 +17,7 @@ import { GoogleAnalytics } from './google-analytics';
 import { Ads } from './ads';
 import { SiteStats } from './site-stats';
 import { RelatedPosts } from './related-posts';
-import { VerificationServices } from './verification-services';
+import VerificationServices from './verification-services';
 import { getLastPostUrl } from 'state/initial-state';
 
 export const Traffic = React.createClass( {

@@ -2,6 +2,7 @@
  * External dependencies
  */
 import React from 'react';
+import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import TextInput from 'components/text-input';
 import ExternalLink from 'components/external-link';
@@ -18,6 +19,7 @@ import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-sett
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import { getSiteAdminUrl, isSiteVisibleToSearchEngines } from 'state/initial-state';
 
 export const VerificationServices = moduleSettingsForm(
 	React.createClass( {
@@ -123,16 +125,28 @@ export const VerificationServices = moduleSettingsForm(
 							{ __( 'Generate XML sitemaps' ) }
 						</ModuleToggle>
 						{
-							this.props.getOptionValue( 'sitemaps' ) && (
-								<FormFieldset>
-									<p>
-										<ExternalLink icon={ true } target="_blank" href={ sitemap_url }>{ sitemap_url }</ExternalLink>
-										<br />
-										<ExternalLink icon={ true } target="_blank" href={ news_sitemap_url }>{ news_sitemap_url }</ExternalLink>
+							this.props.isSiteVisibleToSearchEngines
+								? this.props.getOptionValue( 'sitemaps' ) && (
+									<FormFieldset>
+										<p>
+											<ExternalLink icon={ true } target="_blank" href={ sitemap_url }>{ sitemap_url }</ExternalLink>
+											<br />
+											<ExternalLink icon={ true } target="_blank" href={ news_sitemap_url }>{ news_sitemap_url }</ExternalLink>
+										</p>
+										<p className="jp-form-setting-explanation">{ __( 'Your sitemap is automatically sent to all major search engines for indexing.' ) }</p>
+									</FormFieldset>
+								)
+								: (
+									<p className="jp-form-setting-explanation">
+										{
+											__( 'Your site is not currently accessible to search engines. You might have "Search Engine Visibility" disabled in your {{a}}Reading Settings{{/a}}.', {
+												components: {
+													a: <a href={ this.props.siteAdminUrl + 'options-reading.php' } />
+												}
+											} )
+										}
 									</p>
-									<p className="jp-form-setting-explanation">{ __( 'Your sitemap is automatically sent to all major search engines for indexing.' ) }</p>
-								</FormFieldset>
-							)
+								)
 						}
 					</SettingsGroup>
 				</SettingsCard>
@@ -140,3 +154,12 @@ export const VerificationServices = moduleSettingsForm(
 		}
 	} )
 );
+
+export default connect(
+	state => {
+		return {
+			isSiteVisibleToSearchEngines: isSiteVisibleToSearchEngines( state ),
+			siteAdminUrl: getSiteAdminUrl( state )
+		};
+	}
+)( VerificationServices );

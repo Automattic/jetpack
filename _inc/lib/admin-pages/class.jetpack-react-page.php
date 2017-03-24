@@ -282,6 +282,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				'icon' => has_site_icon()
 					? apply_filters( 'jetpack_photon_url', get_site_icon_url(), array( 'w' => 64 ) )
 					: '',
+				'siteVisibleToSearchEngines' => '1' == get_option( 'blog_public' ),
 			),
 			'locale' => $this->get_i18n_data(),
 			'localeSlug' => $localeSlug,

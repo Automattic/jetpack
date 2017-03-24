@@ -149,12 +149,25 @@ export function userCanViewStats( state ) {
 }
 
 /**
- * Returns the site icon as an image URL
+ * Returns the site icon as an image URL.
  *
- * @param state
+ * @param {object} state Global state tree
+ *
+ * @return string
  */
 export function getSiteIcon( state ) {
 	return get( state.jetpack.initialState.siteData, [ 'icon' ] );
+}
+
+/**
+ * Check whether the site is accessible by search engines or not. It's true by default in an initial WP installation.
+ *
+ * @param {object} state Global state tree
+ *
+ * @return {boolean} False if site is set to discourage search engines from indexing it. True otherwise.
+ */
+export function isSiteVisibleToSearchEngines( state ) {
+	return get( state.jetpack.initialState.siteData, [ 'siteVisibleToSearchEngines' ], true );
 }
 
 export function getApiNonce( state ) {
