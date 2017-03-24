@@ -58,6 +58,8 @@ function stats_load() {
 
 	add_filter( 'pre_option_db_version', 'stats_ignore_db_version' );
 
+	add_filter( 'jetpack_honor_dnt_header_for_stats', 'stats_honor_dnt_header_for_stats' );
+
 	// Add an icon to see stats in WordPress.com for a particular post
 	add_action( 'admin_print_styles-edit.php', 'jetpack_stats_load_admin_css' );
 	add_filter( 'manage_posts_columns', 'jetpack_stats_post_table' );
@@ -88,6 +90,42 @@ function stats_merged_widget_admin_init() {
  */
 function stats_enqueue_dashboard_head() {
 	add_action( 'admin_head', 'stats_dashboard_head' );
+}
+
+/**
+ * Checks do_not_track config.
+ *
+ * @return true if config honors DNT, false if not.
+ */
+function stats_honor_dnt_header_for_stats() {
+	$options = stats_get_options();
+
+	if ( true === $options['do_not_track'] ) {
+		return true;
+	}
+
+	return false;
+}
+
+function is_dnt_enabled() {
+	/**
+	 * Filter the option which decides honor DNT or not.
+	 *
+	 * @module stats
+	 *
+	 * @return true if config honors DNT and client doesn't want to tracked, false if not.
+	 */
+	if ( false === apply_filters( 'jetpack_honor_dnt_header_for_stats', false ) ) {
+		return false;
+	}
+
+	foreach ( $_SERVER as $name => $value ) {
+		if ( 'http_dnt' == strtolower( $name ) && 1 == $value ) {
+			return true;
+		}
+	}
+
+	return false;
 }
 
 /**
@@ -144,7 +182,7 @@ function stats_map_meta_caps( $caps, $cap, $user_id ) {
 function stats_template_redirect() {
 	global $current_user, $stats_footer;
 
-	if ( is_feed() || is_robots() || is_trackback() || is_preview() ) {
+	if ( is_feed() || is_robots() || is_trackback() || is_preview() || is_dnt_enabled() ) {
 		return;
 	}
 
@@ -310,7 +348,7 @@ function stats_upgrade_options( $options ) {
 		'roles'        => array( 'administrator' ),
 		'count_roles'  => array(),
 		'blog_id'      => Jetpack_Options::get_option( 'id' ),
-		'do_not_track' => true, // @todo
+		'do_not_track' => false, // Default to not honor DNT
 		'hide_smile'   => true,
 	);
 
@@ -726,6 +764,7 @@ function stats_configuration_load() {
 		$options = stats_get_options();
 		$options['admin_bar']  = isset( $_POST['admin_bar']  ) && $_POST['admin_bar'];
 		$options['hide_smile'] = isset( $_POST['hide_smile'] ) && $_POST['hide_smile'];
+		$options['do_not_track'] = isset( $_POST['do_not_track'] ) && $_POST['do_not_track'];
 
 		$options['roles'] = array( 'administrator' );
 		foreach ( get_editable_roles() as $role => $details ) {
@@ -809,6 +848,9 @@ function stats_configuration_screen() {
 	foreach ( get_editable_roles() as $role => $details ) {
 ?>
 				<label><input type='checkbox' <?php if ( 'administrator' === $role ) echo "disabled='disabled' "; ?>name='role_<?php echo $role; ?>'<?php checked( 'administrator' === $role || in_array( $role, $stats_roles ) ); ?> /> <?php echo translate_user_role( $details['name'] ); ?></label><br/>
+
+		</td><tr valign="top"><th scope="row"><?php _e( 'Do Not Track' , 'jetpack' ); ?></th>
+		<td><label><input type='checkbox'<?php checked( isset( $options['do_not_track'] ) && $options['do_not_track'] ); ?> name='do_not_track' id='do_not_track' /> <?php _e( 'Respect DNT header from user.', 'jetpack' ); ?></label><br /> <span class="description"><?php _e( 'Do not count visitors who have DNT enabled', 'jetpack' ); ?></span></td></tr>
 				<?php
 	}
 ?>
