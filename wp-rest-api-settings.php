@@ -39,8 +39,10 @@ class WP_Super_cache_Route extends WP_REST_Controller {
 	}
 
 	function update_all_settings( $parameters ) {
-		global $cache_path;
-		$error = array();
+		global $wp_cache_make_known_anon, $cache_path, $wp_cache_object_cache, $_wp_using_ext_object_cache, $cache_compression, $wp_cache_mod_rewrite;
+
+
+		$errors = array();
 
 		if ( isset( $parameters[ 'wp_cache_location' ] ) && $parameters[ 'wp_cache_location' ] != '' &&
 		    ( !isset( $cache_path ) || $parameters[ 'wp_cache_location' ] != $cache_path ) ) {
@@ -119,6 +121,7 @@ class WP_Super_cache_Route extends WP_REST_Controller {
 			wp_cache_setting( 'wp_cache_object_cache', $wp_cache_object_cache );
 		}
 
+		$new_cache_compression = 0;
 		if ( defined( 'WPSC_DISABLE_COMPRESSION' ) ) {
 			$cache_compression = 0;
 			wp_cache_setting( 'cache_compression', $cache_compression );
@@ -127,7 +130,6 @@ class WP_Super_cache_Route extends WP_REST_Controller {
 				if ( 1 == $parameters[ 'cache_compression' ] ) {
 					$new_cache_compression = 1;
 				} else {
-					$new_cache_compression = 0;
 				}
 			}
 			if ( 1 == ini_get( 'zlib.output_compression' ) || "on" == strtolower( ini_get( 'zlib.output_compression' ) ) ) {
