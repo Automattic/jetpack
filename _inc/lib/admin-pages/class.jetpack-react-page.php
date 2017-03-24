@@ -139,7 +139,10 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		if ( false === $static_html ) {
 
 			// If we still have nothing, display an error
-			esc_html_e( 'Error fetching static.html.', 'jetpack' );
+			echo '<p>';
+			esc_html_e( 'Error fetching static.html. Try running: ', 'jetpack' );
+			echo '<code>yarn distclean && yarn build</code>';
+			echo '</p>';
 		} else {
 
 			// We got the static.html so let's display it
