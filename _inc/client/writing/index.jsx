@@ -65,7 +65,7 @@ export const Writing = React.createClass( {
 		return (
 			<div>
 				<QuerySite />
-				<Masterbar { ...commonProps } />
+				<Masterbar connectUrl={ this.props.connectUrl } { ...commonProps } />
 				{
 					showComposing && (
 						<Composing { ...commonProps } userCanManageModules={ this.props.userCanManageModules } />
