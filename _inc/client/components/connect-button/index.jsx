@@ -5,9 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
 import { translate as __ } from 'i18n-calypso';
-import Card from 'components/card';
-import SectionHeader from 'components/section-header';
-import Modal from 'components/modal';
+import JetpackDisconnectDialog from 'components/jetpack-disconnect-dialog';
 
 /**
  * Internal dependencies
@@ -22,6 +20,7 @@ import {
 	isCurrentUserLinked as _isCurrentUserLinked,
 	isUnlinkingUser as _isUnlinkingUser
 } from 'state/connection';
+import { getSiteRawUrl } from 'state/initial-state';
 import QueryConnectUrl from 'components/data/query-connect-url';
 
 export const ConnectButton = React.createClass( {
@@ -49,52 +48,19 @@ export const ConnectButton = React.createClass( {
 
 	handleOpenModal( e ) {
 		e.preventDefault();
-		this.setState( { showModal: true } );
-	},
-
-	handleCloseModal() {
-		this.setState( { showModal: false } );
+		this.toggleVisibility();
 	},
 
 	disconnectSite() {
-		this.handleCloseModal();
+		this.toggleVisibility();
 		this.props.disconnectSite();
 	},
 
-	getModal() {
-		return this.state.showModal && (
-			<Modal title={ __( 'Manage Site Connection' ) } onRequestClose={ this.handleCloseModal } initialFocus="">
-				<SectionHeader label={ __( 'Manage Site Connection' ) } />
-				<Card className="jp-connection-settings__modal-body">
-					{
-						__( 'Disconnecting Jetpack means that most features will be disabled, including all security services, content delivery, related posts, promotion and SEO tools, and all features in paid plans.' )
-					}
-					<div className="jp-connection-settings__modal-actions">
-						<Button
-							borderless
-							className="jp-connection-settings__cancel"
-							onClick={ this.handleCloseModal }>
-							{
-								__( 'Cancel', { context: 'A caption for a button to cancel disconnection.' } )
-							}
-						</Button>
-						<Button
-							scary
-							primary
-							className="jp-connection-settings__disconnect"
-							onClick={ this.disconnectSite }>
-							{
-								__( 'Disconnect', { context: 'A caption for a button to disconnect.' } )
-							}
-						</Button>
-					</div>
-				</Card>
-			</Modal>
-		);
+	toggleVisibility() {
+		this.setState( { showModal: ! this.state.showModal } );
 	},
 
 	renderUserButton: function() {
-
 		// Already linked
 		if ( this.props.isLinked ) {
 			return (
@@ -114,7 +80,7 @@ export const ConnectButton = React.createClass( {
 			connectUrl += '&additional-user';
 		}
 
-		let buttonProps = {
+		const buttonProps = {
 				className: 'is-primary jp-jetpack-connect__button',
 				href: connectUrl,
 				disabled: this.props.fetchingConnectUrl
@@ -146,7 +112,7 @@ export const ConnectButton = React.createClass( {
 			connectUrl += `&from=${ this.props.from }`;
 		}
 
-		let buttonProps = {
+		const buttonProps = {
 				className: 'is-primary jp-jetpack-connect__button',
 				href: connectUrl,
 				disabled: this.props.fetchingConnectUrl
@@ -163,7 +129,11 @@ export const ConnectButton = React.createClass( {
 			<div>
 				<QueryConnectUrl />
 				{ this.renderContent() }
-				{ this.getModal() }
+				<JetpackDisconnectDialog
+					show={ this.state.showModal }
+					toggleModal={ this.toggleVisibility }
+					disconnectSite={ this.disconnectSite }
+				/>
 			</div>
 		);
 	}
@@ -172,6 +142,7 @@ export const ConnectButton = React.createClass( {
 export default connect(
 	state => {
 		return {
+			siteRawUrl: getSiteRawUrl( state ),
 			isSiteConnected: _getSiteConnectionStatus( state ),
 			isDisconnecting: _isDisconnectingSite( state ),
 			fetchingConnectUrl: _isFetchingConnectUrl( state ),
