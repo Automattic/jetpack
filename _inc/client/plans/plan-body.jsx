@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 import Button from 'components/button';
 import { translate as __ } from 'i18n-calypso';
 import includes from 'lodash/includes';
+import analytics from 'lib/analytics';
 
 /**
  * Internal dependencies
@@ -34,6 +35,34 @@ const PlanBody = React.createClass( {
 		};
 	},
 
+	trackPlansClick( target ) {
+		analytics.tracks.recordJetpackClick( {
+			page: 'plans',
+			target: target,
+			plan: this.props.plan
+		} );
+	},
+
+	activateAds() {
+		this.props.activateModule( 'wordads' );
+		this.trackPlansClick( 'activate_wordads' );
+	},
+
+	activateVideoPress() {
+		this.props.activateModule( 'videopress' );
+		this.trackPlansClick( 'activate_videopress' );
+	},
+
+	activateSeo() {
+		this.props.activateModule( 'seo-tools' );
+		this.trackPlansClick( 'activate_seo' );
+	},
+
+	activateGoogleAnalytics() {
+		this.props.activateModule( 'google-analytics' );
+		this.trackPlansClick( 'activate_ga' );
+	},
+
 	render() {
 		let planCard = '';
 		switch ( this.props.plan ) {
@@ -50,12 +79,12 @@ const PlanBody = React.createClass( {
 							<p>{ __( 'State-of-the-art spam defense powered by Akismet.' ) }</p>
 							{
 								this.props.isPluginInstalled( 'akismet/akismet.php' ) && this.props.isPluginActive( 'akismet/akismet.php' ) ? (
-									<Button href={ this.props.siteAdminUrl + 'admin.php?page=akismet-key-config' } className="is-primary">
+									<Button onClick={ () => this.trackPlansClick( 'view_spam_stats' ) } href={ this.props.siteAdminUrl + 'admin.php?page=akismet-key-config' } className="is-primary">
 										{ __( 'View your spam stats' ) }
 									</Button>
 								)
 								: (
-									<Button href={ 'https://wordpress.com/plugins/setup/' + this.props.siteRawUrl + '?only=akismet' } className="is-primary">
+									<Button onClick={ () => this.trackPlansClick( 'configure_akismet' ) } href={ 'https://wordpress.com/plugins/setup/' + this.props.siteRawUrl + '?only=akismet' } className="is-primary">
 										{ __( 'Configure Akismet' ) }
 									</Button>
 								)
@@ -69,12 +98,12 @@ const PlanBody = React.createClass( {
 								<p>{ __( 'Daily backup of all your site data with unlimited space and one-click restores (powered by VaultPress).' ) }</p>
 								{
 									this.props.isPluginInstalled( 'vaultpress/vaultpress.php' ) && this.props.isPluginActive( 'vaultpress/vaultpress.php' ) ? (
-										<Button href="https://dashboard.vaultpress.com/" className="is-primary">
+										<Button onClick={ () => this.trackPlansClick( 'view_security_dash' ) } href="https://dashboard.vaultpress.com/" className="is-primary">
 											{ __( 'View your security dashboard' ) }
 										</Button>
 									)
 									: (
-										<Button href={ 'https://wordpress.com/plugins/setup/' + this.props.siteRawUrl + '?only=vaultpress' } className="is-primary">
+										<Button onClick={ () => this.trackPlansClick( 'configure_vault' ) } href={ 'https://wordpress.com/plugins/setup/' + this.props.siteRawUrl + '?only=vaultpress' } className="is-primary">
 											{ __( 'Configure VaultPress' ) }
 										</Button>
 									)
@@ -90,12 +119,12 @@ const PlanBody = React.createClass( {
 								<p>{ __( 'Daily backup of all your site data with unlimited space, one-click restores, automated security scanning, and priority support (powered by VaultPress).' ) }</p>
 								{
 									this.props.isPluginInstalled( 'vaultpress/vaultpress.php' ) && this.props.isPluginActive( 'vaultpress/vaultpress.php' ) ? (
-										<Button href="https://dashboard.vaultpress.com/" className="is-primary">
+										<Button onClick={ () => this.trackPlansClick( 'view_security_dash' ) } href="https://dashboard.vaultpress.com/" className="is-primary">
 											{ __( 'View your security dashboard' ) }
 										</Button>
 									)
 									: (
-										<Button href={ 'https://wordpress.com/plugins/setup/' + this.props.siteRawUrl + '?only=vaultpress' } className="is-primary">
+										<Button onClick={ () => this.trackPlansClick( 'configure_vault' ) } href={ 'https://wordpress.com/plugins/setup/' + this.props.siteRawUrl + '?only=vaultpress' } className="is-primary">
 											{ __( 'Configure VaultPress' ) }
 										</Button>
 									)
@@ -111,12 +140,12 @@ const PlanBody = React.createClass( {
 								<p>{ __( 'Real-time backup of all your site data with unlimited space, one-click restores, automated security scanning, one-click threat resolution, and priority support (powered by VaultPress).' ) }</p>
 								{
 									this.props.isPluginInstalled( 'vaultpress/vaultpress.php' ) && this.props.isPluginActive( 'vaultpress/vaultpress.php' ) ? (
-										<Button href="https://dashboard.vaultpress.com/" className="is-primary">
+										<Button onClick={ () => this.trackPlansClick( 'view_security_dash' ) } href="https://dashboard.vaultpress.com/" className="is-primary">
 											{ __( 'View your security dashboard' ) }
 										</Button>
 									)
 									: (
-										<Button href={ 'https://wordpress.com/plugins/setup/' + this.props.siteRawUrl + '?only=vaultpress' } className="is-primary">
+										<Button onClick={ () => this.trackPlansClick( 'configure_vault' ) } href={ 'https://wordpress.com/plugins/setup/' + this.props.siteRawUrl + '?only=vaultpress' } className="is-primary">
 											{ __( 'Configure VaultPress' ) }
 										</Button>
 									)
@@ -132,13 +161,13 @@ const PlanBody = React.createClass( {
 								<p>{ __( 'Earn income by allowing Jetpack to display high quality ads (powered by WordAds).' ) }</p>
 								{
 									this.props.isModuleActivated( 'wordads' ) ? (
-										<Button href={ 'https://wordpress.com/ads/earnings/' + this.props.siteRawUrl } className="is-primary">
+										<Button onClick={ () => this.trackPlansClick( 'view_earnings' ) } href={ 'https://wordpress.com/ads/earnings/' + this.props.siteRawUrl } className="is-primary">
 											{ __( 'View your earnings' ) }
 										</Button>
 									)
 										: (
 										<Button
-											onClick={ this.props.activateModule.bind( null, 'wordads' ) }
+											onClick={ this.activateAds }
 											className="is-primary"
 											disabled={ this.props.isActivatingModule( 'wordads' ) }
 										>
@@ -157,13 +186,13 @@ const PlanBody = React.createClass( {
 								<p>{ __( '13Gb of fast, optimized, and ad-free video hosting for your site (powered by VideoPress).' ) }</p>
 								{
 									this.props.isModuleActivated( 'videopress' ) ? (
-										<Button href={ this.props.siteAdminUrl + 'upload.php' } className="is-primary">
+										<Button onClick={ () => this.trackPlansClick( 'upload_videos' ) } href={ this.props.siteAdminUrl + 'upload.php' } className="is-primary">
 											{ __( 'Upload Videos Now' ) }
 										</Button>
 									)
 										: (
 										<Button
-											onClick={ this.props.activateModule.bind( null, 'videopress' ) }
+											onClick={ this.activateVideoPress }
 											className="is-primary"
 											disabled={ this.props.isActivatingModule( 'videopress' ) }
 										>
@@ -182,13 +211,13 @@ const PlanBody = React.createClass( {
 								<p>{ __( 'Fast, optimized, ad-free, and unlimited video hosting for your site (powered by VideoPress).' ) }</p>
 								{
 									this.props.isModuleActivated( 'videopress' ) ? (
-										<Button href={ this.props.siteAdminUrl + 'upload.php' } className="is-primary">
+										<Button onClick={ () => this.trackPlansClick( 'upload_videos' ) } href={ this.props.siteAdminUrl + 'upload.php' } className="is-primary">
 											{ __( 'Upload Videos Now' ) }
 										</Button>
 									)
 										: (
 										<Button
-											onClick={ this.props.activateModule.bind( null, 'videopress' ) }
+											onClick={ this.activateVideoPress }
 											className="is-primary"
 											disabled={ this.props.isActivatingModule( 'videopress' ) }
 										>
@@ -208,13 +237,13 @@ const PlanBody = React.createClass( {
 								<p>{ __( 'Advanced SEO tools to help your site get found when people search for relevant content.' ) }</p>
 								{
 									this.props.isModuleActivated( 'seo-tools' ) ? (
-										<Button href={ 'https://wordpress.com/settings/traffic/' + this.props.siteRawUrl } className="is-primary">
+										<Button onClick={ () => this.trackPlansClick( 'configure_seo' ) } href={ 'https://wordpress.com/settings/traffic/' + this.props.siteRawUrl } className="is-primary">
 											{ __( 'Configure Site SEO' ) }
 										</Button>
 									)
 									: (
 										<Button
-											onClick={ this.props.activateModule.bind( null, 'seo-tools' ) }
+											onClick={ this.activateSeo }
 											className="is-primary"
 											disabled={ this.props.isActivatingModule( 'seo-tools' ) }
 										>
@@ -233,13 +262,13 @@ const PlanBody = React.createClass( {
 								<p>{ __( 'Track website statistics with Google Analytics for a deeper understanding of your website visitors and customers.' ) }</p>
 								{
 									this.props.isModuleActivated( 'google-analytics' ) ? (
-										<Button href={ 'https://wordpress.com/settings/traffic/' + this.props.siteRawUrl } className="is-primary">
+										<Button onClick={ () => this.trackPlansClick( 'configure_ga' ) } href={ 'https://wordpress.com/settings/traffic/' + this.props.siteRawUrl } className="is-primary">
 											{ __( 'Configure Google Analytics' ) }
 										</Button>
 									)
 									: (
 										<Button
-											onClick={ this.props.activateModule.bind( null, 'google-analytics' ) }
+											onClick={ this.activateGoogleAnalytics }
 											className="is-primary"
 											disabled={ this.props.isActivatingModule( 'google-analytics' ) }
 										>
@@ -262,7 +291,7 @@ const PlanBody = React.createClass( {
 								<p> &mdash; { __( 'Advanced SEO tools' ) }</p>
 								<p> &mdash; { __( 'Income generation from ads' ) }</p>
 								<p>
-									<Button href={ 'https://jetpack.com/redirect/?source=plans-compare-personal&site=' + this.props.siteRawUrl } className="is-primary">
+									<Button onClick={ () => this.trackPlansClick( 'compare_plans' ) } href={ 'https://jetpack.com/redirect/?source=plans-compare-personal&site=' + this.props.siteRawUrl } className="is-primary">
 										{ __( 'Compare Plans' ) }
 									</Button>
 								</p>
@@ -281,7 +310,7 @@ const PlanBody = React.createClass( {
 								<p> &mdash; { __( 'Advanced SEO tools' ) }</p>
 								<p> &mdash; { __( 'Income generation from ads' ) }</p>
 								<p>
-									<Button href={ 'https://jetpack.com/redirect/?source=plans-compare-premium&site=' + this.props.siteRawUrl } className="is-primary">
+									<Button onClick={ () => this.trackPlansClick( 'compare_plans' ) } href={ 'https://jetpack.com/redirect/?source=plans-compare-premium&site=' + this.props.siteRawUrl } className="is-primary">
 										{ __( 'Compare Plans' ) }
 									</Button>
 								</p>
@@ -312,7 +341,7 @@ const PlanBody = React.createClass( {
 						</div>
 
 						<p>
-							<Button href={ 'jetpack_free' === this.props.plans
+							<Button onClick={ () => this.trackPlansClick( 'compare_plans' ) } href={ 'jetpack_free' === this.props.plans
 								? 'https://jetpack.com/redirect/?source=plans-main-bottom&site=' + this.props.siteRawUrl
 								: 'https://jetpack.com/redirect/?source=plans-main-bottom-dev-mode' } className="is-primary">
 								{ __( 'Compare Plans' ) }
