@@ -5,6 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import CompactFormToggle from 'components/form/form-toggle/compact';
+import includes from 'lodash/includes';
 
 /**
  * Internal dependencies
@@ -33,9 +34,9 @@ const ThemeEnhancements = moduleSettingsForm(
 		getInitialState() {
 			return {
 				infinite_mode: this.getInfiniteMode(),
-				wp_mobile_excerpt: this.props.getOptionValue( 'wp_mobile_excerpt', 'minileven' ),
-				wp_mobile_featured_images: this.props.getOptionValue( 'wp_mobile_featured_images', 'minileven' ),
-				wp_mobile_app_promos: this.props.getOptionValue( 'wp_mobile_app_promos', 'minileven' )
+				wp_mobile_excerpt: this.props.getOptionValue( 'wp_mobile_excerpt' ),
+				wp_mobile_featured_images: this.props.getOptionValue( 'wp_mobile_featured_images' ),
+				wp_mobile_app_promos: this.props.getOptionValue( 'wp_mobile_app_promos' )
 			};
 		},
 
@@ -82,19 +83,27 @@ const ThemeEnhancements = moduleSettingsForm(
 			}
 		},
 
+		translateBooleanValue( optionName ) {
+			return includes( [ 'enabled', '1' ], this.state[ optionName ] ) || true === this.state[ optionName ];
+		},
+
 		/**
 		 * Update state so toggles are updated.
 		 *
 		 * @param {string} optionName option slug
-		 * @param {string} module module slug
 		 */
-		updateOptions( optionName, module ) {
+		updateOptions( optionName ) {
+			const booleanValue = this.translateBooleanValue( optionName );
 			this.setState(
 				{
-					[ optionName ]: ! this.state[ optionName ]
-				},
-				this.props.updateFormStateModuleOption( module, optionName )
+					[ optionName ]: ! booleanValue
+				}
 			);
+			this.props.updateOptions( {
+				[ optionName ]: booleanValue
+					? 'disabled'
+					: 'enabled'
+			} );
 		},
 
 		render() {
@@ -205,9 +214,9 @@ const ThemeEnhancements = moduleSettingsForm(
 											item.checkboxes.map( chkbx => {
 												return (
 													<CompactFormToggle
-														checked={ this.state[ chkbx.key ] }
+														checked={ this.translateBooleanValue( chkbx.key ) }
 														disabled={ ! isItemActive || this.props.isSavingAnyOption( [ item.module, chkbx.key ] ) }
-														onChange={ () => this.updateOptions( chkbx.key, item.module ) }
+														onChange={ () => this.updateOptions( chkbx.key ) }
 														key={ `${ item.module }_${ chkbx.key }` }>
 														<span className="jp-form-toggle-explanation">
 															{

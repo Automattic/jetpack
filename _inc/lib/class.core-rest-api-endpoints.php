@@ -1188,23 +1188,23 @@ class Jetpack_Core_Json_Api_Endpoints {
 			// Mobile Theme
 			'wp_mobile_excerpt' => array(
 				'description'       => esc_html__( 'Excerpts', 'jetpack' ),
-				'type'              => 'boolean',
-				'default'           => 0,
-				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'type'              => 'string',
+				'default'           => 'enabled',
+				'validate_callback' => __CLASS__ . '::validate_enabled',
 				'jp_group'          => 'minileven',
 			),
 			'wp_mobile_featured_images' => array(
 				'description'       => esc_html__( 'Featured Images', 'jetpack' ),
-				'type'              => 'boolean',
-				'default'           => 0,
-				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'type'              => 'string',
+				'default'           => 'enabled',
+				'validate_callback' => __CLASS__ . '::validate_enabled',
 				'jp_group'          => 'minileven',
 			),
 			'wp_mobile_app_promos' => array(
 				'description'       => esc_html__( 'Show a promo for the WordPress mobile apps in the footer of the mobile theme.', 'jetpack' ),
-				'type'              => 'boolean',
-				'default'           => 0,
-				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'type'              => 'string',
+				'default'           => 'enabled',
+				'validate_callback' => __CLASS__ . '::validate_enabled',
 				'jp_group'          => 'minileven',
 			),
 
@@ -1688,6 +1688,24 @@ class Jetpack_Core_Json_Api_Endpoints {
 	public static function validate_boolean( $value, $request, $param ) {
 		if ( ! is_bool( $value ) && ! ( ( ctype_digit( $value ) || is_numeric( $value ) ) && in_array( $value, array( 0, 1 ) ) ) ) {
 			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be true, false, 0 or 1.', 'jetpack' ), $param ) );
+		}
+		return true;
+	}
+
+	/**
+	 * Validates that the parameter is either 'enabled' or 'disabled'.
+	 *
+	 * @since 4.3.0
+	 *
+	 * @param string|bool $value Value to check.
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 * @param string $param Name of the parameter passed to endpoint holding $value.
+	 *
+	 * @return bool
+	 */
+	public static function validate_enabled( $value, $request, $param ) {
+		if ( ! in_array( $value, array( 'enabled', 'disabled' ), true ) ) {
+			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be enabled or disabled.', 'jetpack' ), $param ) );
 		}
 		return true;
 	}
