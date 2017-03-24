@@ -53,7 +53,6 @@
 			margin-bottom: rem( 16px );
 		}
 	}
-
 }
 
 .jp-support-card__social {
@@ -74,58 +73,7 @@
 	margin: 0;
 }
 
-.jp-support-card__happiness-engineer {
-
-	ul {
-		display: flex;
-		margin-bottom: 0;
-		text-align: right;
-
-		@include breakpoint( "<660px" ) {
-			display: block;
-		}
-	}
-	li {
-		margin-left: rem( 16px );
-		display: none;
-		@include breakpoint( "<660px" ) {
-			&:first-child {
-				display: inline-block;
-			}
-		}
-		@include breakpoint( ">660px" ) {
-			display: inline-block;
-		}
-	}
-	img + div {
-		text-align: center;
-	}
-
-	flex-shrink: 1;
-	flex-grow: 1;
-	flex-basis: 40%;
-
-	@include breakpoint( "<660px" ) {
-		flex-basis: 20%;
-	}
-}
-
-.jp-support-card__happiness-engineer-img {
-	width: rem( 72px );
-	height: rem( 72px );
-	border-radius: 50%;
-}
-
-.jp-support-card__happiness-engineer-name {
-	color: $blue-heading;
-}
-
 .jp-support-card__happiness-contact {
 	flex-shrink: 1;
 	flex-grow: 1;
-	flex-basis: 60%;
-
-	@include breakpoint( "<660px" ) {
-		flex-basis: 80%;
-	}
 }

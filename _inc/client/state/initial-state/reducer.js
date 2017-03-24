@@ -27,16 +27,6 @@ export const initialState = ( state = window.Initial_State, action ) => {
 };
 
 /**
- * Returns an array of HE gravatar ID's
- *
- * @param  {Object}  state  Global state tree
- * @return {array}          array of IDs
- */
-export function getHappinessGravatarIds( state ) {
-	return state.jetpack.initialState.happinessGravIds;
-}
-
-/**
  * Returns bool if current version is Dev version
  * Which means -alpha, -beta, etc...
  *
