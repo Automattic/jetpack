@@ -36,7 +36,7 @@ export const Masterbar = moduleSettingsForm(
 							{ __( 'Enable the WordPress.com toolbar' ) }
 							<span className="jp-form-setting-explanation">
 							{
-								__( 'The WordPress.com toolbar replaces the default admin bar and offers quick links to' +
+								__( 'The WordPress.com toolbar replaces the default admin bar and offers quick links to ' +
 									'the Reader, all your sites, your WordPress.com profile, and notifications. ' +
 									'Centralize your WordPress experience with a single global toolbar.' )
 							}
