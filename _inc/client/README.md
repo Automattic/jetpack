@@ -96,7 +96,6 @@ Action types dispatched during the UI lifecycle are listed in `state/action-type
 * **getApiRootUrl( state )**
 * **getConnectUrl( state )**
 * **getCurrentVersion( state )**
-* **getHappinessGravatarIds( state )**
 * **getInitialStateStatsData( state )**
 * **getJetpackNotices( state )**
 * **getJetpackStateNoticesErrorCode( state )**

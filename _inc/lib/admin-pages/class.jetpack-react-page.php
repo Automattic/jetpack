@@ -254,7 +254,6 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			'dismissedNotices' => $this->get_dismissed_jetpack_notices(),
 			'isDevVersion' => Jetpack::is_development_version(),
 			'currentVersion' => JETPACK__VERSION,
-			'happinessGravIds' => jetpack_get_happiness_gravatar_ids(),
 			'getModules' => $modules,
 			'showJumpstart' => jetpack_show_jumpstart(),
 			'showHolidaySnow' => function_exists( 'jetpack_show_holiday_snow_option' ) ? jetpack_show_holiday_snow_option() : false,
@@ -309,94 +308,6 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		$settings = $core_api_endpoint->get_all_options();
 		return $settings->data;
 	}
-}
-
-/*
- * List of happiness Gravatar IDs
- *
- * @todo move to functions.global.php when available
- * @since 4.1.0
- * @return array
- */
-function jetpack_get_happiness_gravatar_ids() {
-	return array(
-		array(
-			'avatar' => '623f42e878dbd146ddb30ebfafa1375b',
-			'name'   => 'Chase',
-		),
-		array(
-			'avatar' => '561be467af56cefa58e02782b7ac7510',
-			'name'   => 'Carolyn',
-		),
-		array(
-			'avatar' => 'd8ad409290a6ae7b60f128a0b9a0c1c5',
-			'name'   => 'Jeremy',
-		),
-		array(
-			'avatar' => '790618302648bd80fa8a55497dfd8ac8',
-			'name'   => 'Jennifer',
-		),
-		array(
-			'avatar' => '6e238edcb0664c975ccb9e8e80abb307',
-			'name'   => 'Brandon',
-		),
-		array(
-			'avatar' => '4e6c84eeab0a1338838a9a1e84629c1a',
-			'name'   => 'Nancy',
-		),
-		array(
-			'avatar' => '9d4b77080c699629e846d3637b3a661c',
-			'name'   => 'Richard',
-		),
-		array(
-			'avatar' => '4626de7797aada973c1fb22dfe0e5109',
-			'name'   => 'Ryan',
-		),
-		array(
-			'avatar' => '190cf13c9cd358521085af13615382d5',
-			'name'   => 'James',
-		),
-		array(
-			'avatar' => 'f7006d10e9f7dd7bea89a001a2a2fd59',
-			'name'   => 'Jacob',
-		),
-		array(
-			'avatar' => '16acbc88e7aa65104ed289d736cb9698',
-			'name'   => 'Davor',
-		),
-		array(
-			'avatar' => '4d5ad4219c6f676ea1e7d40d2e8860e8',
-			'name'   => 'Lamda',
-		),
-		array(
-			'avatar' => 'e301f7d01b09e7578fdfc1b1ec1bc08d',
-			'name'   => 'Diana',
-		),
-		array(
-			'avatar' => '42f4c73f5337486e199f6e3b3910f168',
-			'name'   => 'Rachel',
-		),
-		array(
-			'avatar' => 'e7b26de48e76498cff880abca1eed8da',
-			'name'   => 'Stefan',
-		),
-		array(
-			'avatar' => '764fb02aaae2ff64c0625c763d82b74e',
-			'name'   => 'Stef',
-		),
-		array(
-			'avatar' => '4988305772319fb9bc8fce0a7acb3aa1',
-			'name'   => 'Dan',
-		),
-		array(
-			'avatar' => '5d8695c4b81592f1255721d2644627ca',
-			'name'   => 'Jon',
-		),
-		array(
-			'avatar' => '0e2249a7de3404bc6d5207a45e911187',
-			'name'   => 'Anne',
-		),
-	);
 }
 
 /*

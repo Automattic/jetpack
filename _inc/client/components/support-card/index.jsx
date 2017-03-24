@@ -4,7 +4,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
-import sampleSize from 'lodash/sampleSize';
 import { translate as __ } from 'i18n-calypso';
 import Card from 'components/card';
 import Button from 'components/button';
@@ -20,17 +19,10 @@ import {
 	getSitePlan,
 	isFetchingSiteData
 } from 'state/site';
-import { getHappinessGravatarIds } from 'state/initial-state';
 import Banner from 'components/banner';
 
 const SupportCard = React.createClass( {
 	displayName: 'SupportCard',
-
-	getInitialState() {
-		return {
-			gravIds: sampleSize( this.props.happinessGravatarIds, 3 )
-		};
-	},
 
 	render() {
 		if ( 'undefined' === typeof this.props.sitePlan.product_slug && this.props.isFetchingSiteData ) {
@@ -68,46 +60,6 @@ const SupportCard = React.createClass( {
 							</Button>
 						</p>
 					</div>
-					<div className="jp-support-card__happiness-engineer">
-						<ul>
-							<li>
-								<img
-									src={ 'https://secure.gravatar.com/avatar/' + this.state.gravIds[ 0 ].avatar }
-									alt={ __( 'Jetpack Happiness Engineer' ) }
-									className="jp-support-card__happiness-engineer-img"
-									width="72"
-									height="72"
-								/>
-								<div>
-									<em className="jp-support-card__happiness-engineer-name">{ this.state.gravIds[ 0 ].name }</em>
-								</div>
-							</li>
-							<li>
-								<img
-									src={ 'https://secure.gravatar.com/avatar/' + this.state.gravIds[ 1 ].avatar }
-									alt={ __( 'Jetpack Happiness Engineer' ) }
-									className="jp-support-card__happiness-engineer-img"
-									width="72"
-									height="72"
-								/>
-								<div>
-									<em className="jp-support-card__happiness-engineer-name">{ this.state.gravIds[ 1 ].name }</em>
-								</div>
-							</li>
-							<li>
-								<img
-									src={ 'https://secure.gravatar.com/avatar/' + this.state.gravIds[ 2 ].avatar }
-									alt={ __( 'Jetpack Happiness Engineer' ) }
-									className="jp-support-card__happiness-engineer-img"
-									width="72"
-									height="72"
-								/>
-								<div>
-									<em className="jp-support-card__happiness-engineer-name">{ this.state.gravIds[ 2 ].name }</em>
-								</div>
-							</li>
-						</ul>
-					</div>
 				</Card>
 				{
 					noPrioritySupport && (
@@ -125,8 +77,7 @@ const SupportCard = React.createClass( {
 } );
 
 SupportCard.propTypes = {
-	className: React.PropTypes.string,
-	happinessGravatarIds: React.PropTypes.array.isRequired
+	className: React.PropTypes.string
 };
 
 export default connect(
@@ -134,8 +85,7 @@ export default connect(
 		return {
 			sitePlan: getSitePlan( state ),
 			siteRawUrl: getSiteRawUrl( state ),
-			isFetchingSiteData: isFetchingSiteData( state ),
-			happinessGravatarIds: getHappinessGravatarIds( state )
+			isFetchingSiteData: isFetchingSiteData( state )
 		};
 	}
 )( SupportCard );
