@@ -13,6 +13,7 @@ import assign from 'lodash/assign';
 import isEmpty from 'lodash/isEmpty';
 import trim from 'lodash/trim';
 import { isAkismetKeyValid, checkAkismetKey, isCheckingAkismetKey } from 'state/at-a-glance';
+import { FEATURE_SPAM_AKISMET_PLUS } from 'lib/plans/constants';
 
 /**
  * Internal dependencies
@@ -117,6 +118,7 @@ export const Antispam = moduleSettingsForm(
 					{ ...this.props }
 					header={ __( 'Spam filtering', { context: 'Settings header' } ) }
 					saveDisabled={ this.props.isSavingAnyOption( 'wordpress_api_key' ) }
+					feature={ FEATURE_SPAM_AKISMET_PLUS }
 				>
 					<FoldableCard
 						header={ foldableHeader }

@@ -5,6 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import includes from 'lodash/includes';
+import isEmpty from 'lodash/isEmpty';
 import ProStatus from 'pro-status';
 
 /**
@@ -13,14 +14,17 @@ import ProStatus from 'pro-status';
 import {
 	PLAN_JETPACK_PREMIUM,
 	PLAN_JETPACK_BUSINESS,
+	PLAN_JETPACK_PERSONAL,
 	FEATURE_SECURITY_SCANNING_JETPACK,
 	FEATURE_SEO_TOOLS_JETPACK,
 	FEATURE_VIDEO_HOSTING_JETPACK,
 	FEATURE_GOOGLE_ANALYTICS_JETPACK,
 	FEATURE_WORDADS_JETPACK,
+	FEATURE_SPAM_AKISMET_PLUS,
 	getPlanClass
 } from 'lib/plans/constants';
 import { getSiteRawUrl, getSiteAdminUrl, userCanManageModules } from 'state/initial-state';
+import { isAkismetKeyValid, isCheckingAkismetKey } from 'state/at-a-glance';
 import {
 	getSitePlan,
 	isFetchingSiteData
@@ -55,21 +59,31 @@ export const SettingsCard = props => {
 
 	const getBanner = () => {
 		const planClass = getPlanClass( props.sitePlan.product_slug ),
-			upgradeLabel = __( 'Upgrade', { context: 'A caption for a button to upgrade an existing paid feature to a higher tier.' } );
+			upgradeLabel = __( 'Upgrade', { context: 'A caption for a button to upgrade an existing paid feature to a higher tier.' } ),
+			activateLabel = __( 'Activate', { context: 'A caption for a button to activate a paid feature.' } );
 
 		switch ( feature ) {
 			case FEATURE_VIDEO_HOSTING_JETPACK:
-				if (
-					'is-premium-plan' === planClass ||
-					'is-business-plan' === planClass
-				) {
+				if ( 'is-business-plan' === planClass ) {
 					return '';
+				}
+
+				if ( 'is-premium-plan' === planClass ) {
+					return (
+						<Banner
+							title={ __( "Get more space. You're close to your limit." ) }
+							callToAction={ upgradeLabel }
+							plan={ PLAN_JETPACK_BUSINESS }
+							feature={ feature }
+							href={ 'https://jetpack.com/redirect/?source=settings-video-pro&site=' + siteRawUrl }
+						/>
+					);
 				}
 
 				return (
 					<Banner
-						title={ __( 'Host fast, high-quality, and ad-free video.' ) }
-						callToAction={ upgradeLabel }
+						title={ __( 'Host fast, high-quality, ad-free video.' ) }
+						callToAction={ activateLabel }
 						plan={ PLAN_JETPACK_PREMIUM }
 						feature={ feature }
 						href={ 'https://jetpack.com/redirect/?source=settings-video-premium&site=' + siteRawUrl }
@@ -87,7 +101,7 @@ export const SettingsCard = props => {
 				return (
 					<Banner
 						title={ __( 'Generate income with high-quality ads.' ) }
-						callToAction={ upgradeLabel }
+						callToAction={ activateLabel }
 						plan={ PLAN_JETPACK_PREMIUM }
 						feature={ feature }
 						href={ 'https://jetpack.com/redirect/?source=settings-ads&site=' + siteRawUrl }
@@ -99,12 +113,10 @@ export const SettingsCard = props => {
 					return '';
 				}
 
-				if (
-					'is-premium-plan' === planClass
-				) {
+				if ( 'is-premium-plan' === planClass ) {
 					return (
 						<Banner
-							title={ __( 'Real-time site backups and automated threat resolution.' ) }
+							title={ __( 'Real-time site backups and automatic threat resolution.' ) }
 							plan={ PLAN_JETPACK_BUSINESS }
 							callToAction={ upgradeLabel }
 							feature={ feature }
@@ -115,8 +127,8 @@ export const SettingsCard = props => {
 
 				return (
 					<Banner
-						callToAction={ upgradeLabel }
-						title={ __( 'Protect against data loss, malware, and hacks.' ) }
+						callToAction={ activateLabel }
+						title={ __( 'Protect against data loss, malware, and malicious attacks.' ) }
 						plan={ PLAN_JETPACK_PREMIUM }
 						feature={ feature }
 						href={ 'https://jetpack.com/redirect/?source=settings-security-premium&site=' + siteRawUrl }
@@ -129,8 +141,8 @@ export const SettingsCard = props => {
 				}
 				return (
 					<Banner
-						callToAction={ upgradeLabel }
-						title={ __( 'Hassle-free Google Analytics installation.' ) }
+						callToAction={ activateLabel }
+						title={ __( 'Integrate easily with Google Analytics.' ) }
 						plan={ PLAN_JETPACK_BUSINESS }
 						feature={ feature }
 						href={ 'https://jetpack.com/redirect/?source=settings-ga&site=' + siteRawUrl }
@@ -143,11 +155,27 @@ export const SettingsCard = props => {
 
 				return (
 					<Banner
-						callToAction={ upgradeLabel }
-						title={ __( 'SEO tools help your content get found and shared.' ) }
+						callToAction={ activateLabel }
+						title={ __( 'Help your content get found and shared with SEO tools.' ) }
 						plan={ PLAN_JETPACK_BUSINESS }
 						feature={ feature }
 						href={ 'https://jetpack.com/redirect/?source=settings-seo&site=' + siteRawUrl }
+					/>
+				);
+
+			case FEATURE_SPAM_AKISMET_PLUS:
+				if ( props.isCheckingAkismetKey || props.isAkismetKeyValid ||
+					includes( [ 'is-personal-plan', 'is-premium-plan', 'is-business-plan' ], planClass ) ) {
+					return '';
+				}
+
+				return (
+					<Banner
+						callToAction={ activateLabel }
+						title={ __( 'Protect your site from spam.' ) }
+						plan={ PLAN_JETPACK_PERSONAL }
+						feature={ feature }
+						href={ 'https://jetpack.com/redirect/?source=settings-spam&site=' + siteRawUrl }
 					/>
 				);
 
@@ -193,6 +221,13 @@ export const SettingsCard = props => {
 
 			case FEATURE_SEO_TOOLS_JETPACK:
 				if ( 'is-business-plan' !== planClass ) {
+					return false;
+				}
+
+				break;
+
+			case FEATURE_SPAM_AKISMET_PLUS:
+				if ( ( includes( [ 'is-free-plan' ], planClass ) || isEmpty( planClass ) ) && ! props.isAkismetKeyValid && ! props.isCheckingAkismetKey ) {
 					return false;
 				}
 
@@ -248,7 +283,9 @@ export default connect(
 			fetchingSiteData: isFetchingSiteData( state ),
 			siteRawUrl: getSiteRawUrl( state ),
 			siteAdminUrl: getSiteAdminUrl( state ),
-			userCanManageModules: userCanManageModules( state )
+			userCanManageModules: userCanManageModules( state ),
+			isAkismetKeyValid: isAkismetKeyValid( state ),
+			isCheckingAkismetKey: isCheckingAkismetKey( state )
 		};
 	}
 )( SettingsCard );
