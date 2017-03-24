@@ -4,7 +4,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
-import includes from 'lodash/includes';
 import Button from 'components/button';
 import SimpleNotice from 'components/notice';
 import NoticeAction from 'components/notice/notice-action';
@@ -12,10 +11,10 @@ import NoticeAction from 'components/notice/notice-action';
 /**
  * Internal dependencies
  */
-import { getSiteRawUrl } from 'state/initial-state';
+import { getSiteRawUrl, getSiteAdminUrl } from 'state/initial-state';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 import QueryVaultPressData from 'components/data/query-vaultpress-data';
-import QueryAkismetData from 'components/data/query-akismet-data';
+import QueryAkismetKeyCheck from 'components/data/query-akismet-key-check';
 import { isDevMode } from 'state/connection';
 import {
 	isFetchingPluginsData,
@@ -31,6 +30,7 @@ import {
 	getSitePlan,
 	isFetchingSiteData
 } from 'state/site';
+import { isAkismetKeyValid } from 'state/at-a-glance';
 
 const ProStatus = React.createClass( {
 	propTypes: {
@@ -45,7 +45,7 @@ const ProStatus = React.createClass( {
 		};
 	},
 
-	getScanActions( type ) {
+	getProActions( type ) {
 		let status = '',
 			message = false,
 			action = false,
@@ -74,6 +74,13 @@ const ProStatus = React.createClass( {
 				status = 'is-success';
 				message = __( 'Secure', { context: 'Short message informing user that the site is secure.' } );
 				break;
+			case 'invalid_key':
+				status = 'is-warning';
+				action = __( 'Invalid key', { context: 'Short warning message about an invalid key being used for Akismet.' } );
+				actionUrl = this.props.siteAdminUrl + 'admin.php?page=akismet-key-config';
+				break;
+			case 'active':
+				return <span className="jp-dash-item__active-label">{ __( 'ACTIVE' ) }</span>;
 		}
 		return (
 			<SimpleNotice
@@ -98,9 +105,7 @@ const ProStatus = React.createClass( {
 				? 'vaultpress/vaultpress.php'
 				: 'akismet/akismet.php';
 
-		const hasPremium = /jetpack_premium*/.test( sitePlan.product_slug ),
-			hasBusiness = /jetpack_business*/.test( sitePlan.product_slug ),
-			hasPersonal = /jetpack_personal*/.test( sitePlan.product_slug ),
+		const hasPersonal = /jetpack_personal*/.test( sitePlan.product_slug ),
 			hasFree = /jetpack_free*/.test( sitePlan.product_slug ),
 			hasBackups = (
 				'undefined' !== typeof vpData.data &&
@@ -114,7 +119,7 @@ const ProStatus = React.createClass( {
 				'undefined' !== typeof vpData.data.features.security &&
 				vpData.data.features.security
 			);
-		
+
 		const getStatus = ( feature, active, installed ) => {
 			if ( this.props.isDevMode ) {
 				return '';
@@ -123,7 +128,7 @@ const ProStatus = React.createClass( {
 			if ( 'backups' === feature ) {
 				if ( hasFree && ! hasBackups ) {
 					if ( this.props.isCompact ) {
-						return this.getScanActions( 'free' );
+						return this.getProActions( 'free' );
 					}
 				}
 			}
@@ -131,136 +136,59 @@ const ProStatus = React.createClass( {
 			if ( 'scan' === feature ) {
 				if ( ( hasFree || hasPersonal ) && ! hasScan ) {
 					if ( this.props.isCompact ) {
-						return this.getScanActions( 'free' );
+						return this.getProActions( 'free' );
 					}
 					return '';
 				}
 				if ( 'N/A' !== vpData ) {
 					const threatsCount = this.props.getScanThreats();
 					if ( 0 !== threatsCount ) {
-						return this.getScanActions( 'threats' );
+						return this.getProActions( 'threats' );
 					}
 					if ( 0 === threatsCount ) {
-						return this.getScanActions( 'secure' );
+						return this.getProActions( 'secure' );
 					}
 				}
 			}
 
 			if ( 'akismet' === feature ) {
-				const akismetData = this.props.getAkismetData();
-				if ( 'invalid_key' === akismetData ) {
+				if ( hasFree && ! ( active && installed ) ) {
+					if ( this.props.isCompact ) {
+						return this.getProActions( 'free' );
+					}
+					return '';
+				}
+
+				if ( ! this.props.isAkismetKeyValid && ! this.props.fetchingSiteData ) {
+					return this.getProActions( 'invalid_key' );
+				}
+			}
+
+			if ( sitePlan.product_slug ) {
+				if ( ! hasFree ) {
+					if ( active && installed ) {
+						return this.getProActions( 'active' );
+					}
+
 					return (
-						<a href={ this.props.siteAdminUrl + 'admin.php?page=akismet-key-config' } >
-							<SimpleNotice
-								showDismiss={ false }
-								status='is-warning'
-								isCompact={ true }
-							>
-								{ __( 'Invalid key', { context: 'Short warning message about an invalid key being used for Akismet.' } ) }
-							</SimpleNotice>
-						</a>
+						<Button
+							compact={ true }
+							primary={ true }
+							href={ `https://wordpress.com/plugins/setup/${ this.props.siteRawUrl }?only=${ feature }` }
+						>
+							{ __( 'Set up', { context: 'Caption for a button to set up a feature.' } ) }
+						</Button>
 					);
 				}
 			}
 
-			if ( 'seo-tools' === feature ) {
-				if ( this.props.fetchingSiteData ) {
-					return '';
-				}
-
-				return (
-					<Button
-						compact={ true }
-						primary={ true }
-						href={ 'https://jetpack.com/redirect/?source=upgrade-seo&site=' + this.props.siteRawUrl + '&feature=advanced-seo' }
-					>
-						{ __( 'Upgrade', { context: 'Caption for a button to purchase a paid feature.' } ) }
-					</Button>
-				);
-			}
-
-			if ( 'wordads' === feature ) {
-				if ( this.props.fetchingSiteData ) {
-					return '';
-				}
-
-				return (
-					<Button
-						compact={ true }
-						primary={ true }
-						href={ 'https://jetpack.com/redirect/?source=upgrade-ads&site=' + this.props.siteRawUrl + '&feature=jetpack-ads' }
-					>
-						{ __( 'Upgrade', { context: 'Caption for a button to purchase a paid feature.' } ) }
-					</Button>
-				);
-			}
-
-			if ( 'google-analytics' === feature && ! includes( [ 'jetpack_business', 'jetpack_business_monthly' ], sitePlan.product_slug ) ) {
-				if ( this.props.fetchingSiteData ) {
-					return '';
-				}
-
-				return (
-					<Button
-						compact={ true }
-						primary={ true }
-						href={ 'https://jetpack.com/redirect/?source=upgrade-google-analytics&site=' + this.props.siteRawUrl + '&feature=google-analytics' }
-					>
-						{ __( 'Upgrade', { context: 'Caption for a button to purchase a paid feature.' } ) }
-					</Button>
-				);
-			}
-
-			if ( sitePlan.product_slug ) {
-				let btnVals = {};
-				if ( 'jetpack_free' !== sitePlan.product_slug ) {
-					btnVals = {
-						href: `https://wordpress.com/plugins/setup/${ this.props.siteRawUrl }?only=${ feature }`,
-						text: __( 'Set up', { context: 'Caption for a button to set up a feature.' } )
-					}
-
-					if ( 'scan' === feature && ! hasBusiness && ! hasPremium ) {
-						return (
-							<Button
-								compact={ true }
-								primary={ true }
-								href={ 'https://jetpack.com/redirect/?source=upgrade&site=' + this.props.siteRawUrl }
-							>
-								{ __( 'Upgrade', { context: 'Caption for a button to purchase a paid feature.' } ) }
-							</Button>
-						);
-					}
-				} else {
-					btnVals = {
-						href: 'https://jetpack.com/redirect/?source=upgrade&site=' + this.props.siteRawUrl,
-						text: __( 'Upgrade', { context: 'Caption for a button to purchase a paid feature.' } )
-					}
-				}
-
-				if ( active && installed ) {
-					return <span className="jp-dash-item__active-label">{ __( 'ACTIVE' ) }</span>;
-				}
-
-				return (
-					<Button
-						compact={ true }
-						primary={ true }
-						href={ btnVals.href }
-					>
-						{ btnVals.text }
-					</Button>
-				);
-			}
-
-			return active && installed && sitePlan.product_slug ?
-				<span className="jp-dash-item__active-label">{ __( 'ACTIVE' ) }</span>
-				: '';
+			return '';
 		};
 
-		return(
+		return (
 			<div>
 				<QuerySitePlugins />
-				<QueryAkismetData />
+				<QueryAkismetKeyCheck />
 				<QueryVaultPressData />
 				{ getStatus(
 					this.props.proFeature,
@@ -268,7 +196,7 @@ const ProStatus = React.createClass( {
 					this.props.pluginInstalled( pluginSlug )
 				) }
 			</div>
-		)
+		);
 	}
 } );
 
@@ -276,6 +204,7 @@ export default connect(
 	( state ) => {
 		return {
 			siteRawUrl: getSiteRawUrl( state ),
+			siteAdminUrl: getSiteAdminUrl( state ),
 			getScanThreats: () => _getVaultPressScanThreatCount( state ),
 			getVaultPressData: () => _getVaultPressData( state ),
 			getAkismetData: () => _getAkismetData( state ),
@@ -284,7 +213,8 @@ export default connect(
 			pluginActive: ( plugin_slug ) => isPluginActive( state, plugin_slug ),
 			pluginInstalled: ( plugin_slug ) => isPluginInstalled( state, plugin_slug ),
 			isDevMode: isDevMode( state ),
-			fetchingSiteData: isFetchingSiteData( state )
+			fetchingSiteData: isFetchingSiteData( state ),
+			isAkismetKeyValid: isAkismetKeyValid( state )
 		};
 	}
 )( ProStatus );
