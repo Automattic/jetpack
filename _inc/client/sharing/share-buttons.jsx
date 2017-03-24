@@ -13,20 +13,22 @@ import SettingsGroup from 'components/settings-group';
 
 export class ShareButtons extends Component {
 	render() {
-		const unavailableInDevMode = this.props.isUnavailableInDevMode( 'sharing' ),
-			isLinked = this.props.isLinked,
+		const isLinked = this.props.isLinked,
 			connectUrl = this.props.connectUrl,
 			siteRawUrl = this.props.siteRawUrl,
-			siteAdminUrl = this.props.siteAdminUrl;
+			siteAdminUrl = this.props.siteAdminUrl,
+			isDevMode = this.props.isDevMode;
 
 		const configCard = () => {
-			const settingsLink = unavailableInDevMode
-				? siteAdminUrl + 'wp-admin/options-general.php?page=sharing'
-				: 'https://wordpress.com/sharing/' + siteRawUrl;
+			if ( isDevMode ) {
+				return <Card compact className="jp-settings-card__configure-link" href={ siteAdminUrl + 'options-general.php?page=sharing' }>{ __( 'Configure your sharing buttons' ) }</Card>;
+			}
 
-			return isLinked
-				? <Card compact className="jp-settings-card__configure-link" href={ settingsLink }>{ __( 'Configure your sharing buttons' ) }</Card>
-				: <Card compact className="jp-settings-card__configure-link" href={ `${ connectUrl }&from=unlinked-user-connect-sharing` }>{ __( 'Connect your user account to WordPress.com to use this feature' ) }</Card>;
+			if ( isLinked ) {
+				return <Card compact className="jp-settings-card__configure-link" href={ 'https://wordpress.com/sharing/' + siteRawUrl }>{ __( 'Configure your sharing buttons' ) }</Card>;
+			}
+
+			return <Card compact className="jp-settings-card__configure-link" href={ `${ connectUrl }&from=unlinked-user-connect-sharing` }>{ __( 'Connect your user account to WordPress.com to use this feature' ) }</Card>;
 		};
 
 		return (
