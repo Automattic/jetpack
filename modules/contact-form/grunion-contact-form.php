@@ -273,10 +273,17 @@ class Grunion_Contact_Form_Plugin {
 			$widget = isset( $GLOBALS['wp_registered_widgets'][ $this->current_widget_id ] ) ? $GLOBALS['wp_registered_widgets'][ $this->current_widget_id ] : false;
 
 			if ( $sidebar && $widget && isset( $widget['callback'] ) ) {
+				// prevent PHP notices by populating widget args
+				$widget_args = array(
+					'before_widget' => '',
+					'after_widget' => '',
+					'before_title' => '',
+					'after_title' => '',
+				);
 				// This is lamer - no API for outputting a given widget by ID
 				ob_start();
 				// Process the widget to populate Grunion_Contact_Form::$last
-				call_user_func( $widget['callback'], array(), $widget['params'][0] );
+				call_user_func( $widget['callback'], $widget_args, $widget['params'][0] );
 				ob_end_clean();
 			}
 		} else {
