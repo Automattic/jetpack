@@ -198,7 +198,7 @@ class Jetpack_Debugger {
 		?>
 		<div class="wrap">
 			<h2><?php esc_html_e( 'Jetpack Debugging Center', 'jetpack' ); ?></h2>
-			<?php if ( $can_disconnect ) : ?>
+			<?php if ( isset( $can_disconnect ) && $can_disconnect ) : ?>
 				<div id="message" class="updated notice notice-success is-dismissible"><p><?php esc_html_e( 'This site was successfully disconnected.', 'jetpack' ) ?> <a href="<?php echo esc_url( Jetpack::admin_url() ); ?>"><?php esc_html_e( 'Go to connection screen.', 'jetpack' ); ?></a></p>
 					<button type="button" class="notice-dismiss"><span class="screen-reader-text"><?php esc_html_e( 'Dismiss this notice.', 'jetpack' ); ?></span></button></div>
 			<?php else: ?>
