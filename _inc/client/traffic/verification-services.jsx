@@ -139,9 +139,9 @@ export const VerificationServices = moduleSettingsForm(
 								: (
 									<p className="jp-form-setting-explanation">
 										{
-											__( 'Your site must be accessible by search engines for this feature to work properly. You can change this in {{a}}Reading Settings{{/a}}.', {
+											__( 'Your site is not currently accessible to search engines. You might have "Search Engine Visibility" disabled in your {{a}}Reading Settings{{/a}}.', {
 												components: {
-													a: <a href={ this.props.siteAdminUrl + 'options-reading.php#blog_public' } />
+													a: <a href={ this.props.siteAdminUrl + 'options-reading.php' } />
 												}
 											} )
 										}
