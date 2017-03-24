@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Spelling and Grammar
- * Module Description: Check your spelling, style, and grammar.
+ * Module Description: Check your spelling, style, and grammar
  * Sort Order: 6
  * First Introduced: 1.1
  * Requires Connection: Yes

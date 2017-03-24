@@ -335,6 +335,23 @@ function jetpack_custom_css_more_info() { ?>
 }
 add_action( 'jetpack_module_more_info_custom-css', 'jetpack_custom_css_more_info' );
 
+
+/**
+ * Masterbar
+ */
+function jetpack_masterbar_more_link() {
+	echo 'https://jetpack.com/support/masterbar/';
+}
+add_action( 'jetpack_learn_more_button_masterbar', 'jetpack_masterbar_more_link' );
+
+function jetpack_masterbar_more_info() {
+	esc_html_e(
+		"Quickly access your Stats, Notifications, Posts and more on WordPress.com. " .
+		"The Toolbar is displayed for any user on the site that is connected to WordPress.com."
+		, 'jetpack' );
+}
+add_action( 'jetpack_module_more_info_masterbar', 'jetpack_masterbar_more_info' );
+
 /**
  * Mobile Theme
  */
@@ -549,7 +566,7 @@ add_action( 'jetpack_module_more_info_markdown', 'jetpack_markdown_more_info' );
  * Site Verification Tools
  */
 function jetpack_verification_tools_more_link() {
-	echo 'https://support.wordpress.com/webmaster-tools/';
+	echo 'https://jetpack.com/support/site-verification-tools/';
 }
 add_action( 'jetpack_learn_more_button_verification-tools', 'jetpack_verification_tools_more_link' );
 

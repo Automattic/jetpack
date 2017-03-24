@@ -213,6 +213,8 @@ class Jetpack_Sync_Defaults {
 		'idx_page',
 		'postman_sent_mail',
 		'rssmi_feed_item',
+		'rssap-feed',
+		'wp_automatic',
 	);
 
 	static $default_post_checksum_columns = array(
