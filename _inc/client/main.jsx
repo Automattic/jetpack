@@ -290,7 +290,8 @@ window.wpNavMenuClassChange = function() {
 		'#/discussion',
 		'#/security',
 		'#/traffic',
-		'#/writing'
+		'#/writing',
+		'#/sharing'
 	],
 	dashboardRoutes = [
 		'#/',

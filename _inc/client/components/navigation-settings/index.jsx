@@ -84,7 +84,7 @@ export const NavigationSettings = React.createClass( {
 	},
 
 	render: function() {
-		let navItems;
+		let navItems, sharingTab;
 
 		if ( this.props.userCanManageModules ) {
 			navItems = (
@@ -93,6 +93,11 @@ export const NavigationSettings = React.createClass( {
 						path="#writing"
 						selected={ this.props.route.path === '/writing' || this.props.route.path === '/settings' }>
 						{ __( 'Writing', { context: 'Navigation item.' } ) }
+					</NavItem>
+					<NavItem
+						path="#sharing"
+						selected={ this.props.route.path === '/sharing' }>
+						{ __( 'Sharing', { context: 'Navigation item.' } ) }
 					</NavItem>
 					<NavItem
 						path="#discussion"
@@ -109,18 +114,21 @@ export const NavigationSettings = React.createClass( {
 						selected={ this.props.route.path === '/security' }>
 						{ __( 'Security', { context: 'Navigation item.' } ) }
 					</NavItem>
-					<NavItem
-						path="#sharing"
-						selected={ this.props.route.path === '/sharing' }>
-						{ __( 'Sharing', { context: 'Navigation item.' } ) }
-					</NavItem>
 				</NavTabs>
 			);
 		} else if ( this.props.isSubscriber ) {
 			navItems = false;
 		} else {
-			if ( ! this.props.isModuleActivated( 'publicize' ) || ! this.props.userCanPublish || ! this.props.isLinked ) {
-				publicizeTab = '';
+			if ( ! this.props.isModuleActivated( 'publicize' ) || ! this.props.userCanPublish ) {
+				sharingTab = '';
+			} else {
+				sharingTab = (
+					<NavItem
+						path="#sharing"
+						selected={ this.props.route.path === '/sharing' }>
+						{ __( 'Sharing', { context: 'Navigation item.' } ) }
+					</NavItem>
+				);
 			}
 			navItems = (
 				<NavTabs selectedText={ this.props.route.name }>
@@ -131,7 +139,7 @@ export const NavigationSettings = React.createClass( {
 					</NavItem>
 					{
 						// Give only Publicize to non admin users
-						publicizeTab
+						sharingTab
 					}
 				</NavTabs>
 			);
