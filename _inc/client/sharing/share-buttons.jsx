@@ -16,15 +16,16 @@ export class ShareButtons extends Component {
 		const unavailableInDevMode = this.props.isUnavailableInDevMode( 'sharing' ),
 			isLinked = this.props.isLinked,
 			connectUrl = this.props.connectUrl,
-			siteRawUrl = this.props.siteRawUrl;
+			siteRawUrl = this.props.siteRawUrl,
+			siteAdminUrl = this.props.siteAdminUrl;
 
 		const configCard = () => {
-			if ( unavailableInDevMode ) {
-				return '';
-			}
+			const settingsLink = unavailableInDevMode
+				? siteAdminUrl + 'wp-admin/options-general.php?page=sharing'
+				: 'https://wordpress.com/sharing/' + siteRawUrl;
 
 			return isLinked
-				? <Card compact className="jp-settings-card__configure-link" href={ 'https://wordpress.com/sharing/' + siteRawUrl }>{ __( 'Configure your sharing buttons' ) }</Card>
+				? <Card compact className="jp-settings-card__configure-link" href={ settingsLink }>{ __( 'Configure your sharing buttons' ) }</Card>
 				: <Card compact className="jp-settings-card__configure-link" href={ `${ connectUrl }&from=unlinked-user-connect-sharing` }>{ __( 'Connect your user account to WordPress.com to use this feature' ) }</Card>;
 		};
 

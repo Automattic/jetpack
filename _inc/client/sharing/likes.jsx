@@ -3,7 +3,6 @@
  */
 import React, { Component } from 'react';
 import { translate as __ } from 'i18n-calypso';
-import Card from 'components/card';
 
 /**
  * Internal dependencies
