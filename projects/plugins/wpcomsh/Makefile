@@ -21,9 +21,7 @@ ifeq ($(shell git describe --tags > /dev/null 2>&1 ; echo $$?), 0)
 endif
 
 ## get files to include in the build
-SOURCE_FILES := $(shell git ls-files \
-	--cached --recurse-submodules --no-empty-directory '*.php' '*.js' '*.css' '*.txt' 2>/dev/null \
-		|| find . -type f '(' -name "*.php" -or -name "*.js" -or -name "*.css" -or -name "*.txt" ')' )
+SOURCE_FILES := $(shell git ls-files --cached --recurse-submodules --no-empty-directory | grep -vE "^(\.git|Makefile|\.md)$$")
 
 ## set paths from the location of the makefile
 MAKEFILE   = $(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST))
