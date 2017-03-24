@@ -4,7 +4,7 @@
 if( !defined('WP_CONTENT_DIR') )
 	define( 'WP_CONTENT_DIR', ABSPATH . 'wp-content' );
 
-if( !include( WP_CONTENT_DIR . '/wp-cache-config.php' ) )
+if( !@include( WP_CONTENT_DIR . '/wp-cache-config.php' ) )
 	return false;
 
 if( !defined( 'WPCACHEHOME' ) )
