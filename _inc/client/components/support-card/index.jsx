@@ -66,7 +66,7 @@ const SupportCard = React.createClass( {
 						<Banner
 							title={ __( 'Get a faster resolution to your support questions.' ) }
 							plan={ PLAN_JETPACK_PERSONAL }
-							callToAction={ __( 'Activate' ) }
+							callToAction={ __( 'Upgrade' ) }
 							href={ 'https://jetpack.com/redirect/?source=support&site=' + this.props.siteRawUrl }
 						/>
 					)
