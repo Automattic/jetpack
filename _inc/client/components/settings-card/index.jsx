@@ -59,8 +59,7 @@ export const SettingsCard = props => {
 
 	const getBanner = () => {
 		const planClass = getPlanClass( props.sitePlan.product_slug ),
-			upgradeLabel = __( 'Upgrade', { context: 'A caption for a button to upgrade an existing paid feature to a higher tier.' } ),
-			activateLabel = __( 'Activate', { context: 'A caption for a button to activate a paid feature.' } );
+			upgradeLabel = __( 'Upgrade', { context: 'A caption for a button to upgrade an existing paid feature to a higher tier.' } );
 
 		switch ( feature ) {
 			case FEATURE_VIDEO_HOSTING_JETPACK:
