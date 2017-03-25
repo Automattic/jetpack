@@ -160,11 +160,7 @@ export const UserUnlinked = React.createClass( {
 			this.props.connectUrl &&
 			this.props.siteConnected
 		) {
-			const text = __( 'You, %(userName)s, are not connected to WordPress.com.', {
-				args: {
-					userName: this.props.username
-				}
-			} );
+			const text = __( 'You are not connected to WordPress.com.' );
 
 			return (
 				<SimpleNotice
