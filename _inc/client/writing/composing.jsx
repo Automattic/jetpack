@@ -157,16 +157,48 @@ const Composing = moduleSettingsForm(
 			);
 		},
 
+		/**
+		 * If markdown module is inactive and this is toggling markdown for posts on, activate module.
+		 * If markdown for comments is off and this is toggling markdown for posts off, deactivate module.
+		 *
+		 * @param {string} module
+		 * @returns {*}
+		 */
+		updateFormStateByMarkdown( module ) {
+			if ( !! this.props.getSettingCurrentValue( 'wpcom_publish_comments_with_markdown', module ) ) {
+				return this.props.updateFormStateModuleOption( module, 'wpcom_publish_posts_with_markdown' );
+			}
+			return this.props.updateFormStateModuleOption( module, 'wpcom_publish_posts_with_markdown', true );
+		},
+
 		render() {
 			// If we don't have any element to show, return early
 			if (
+				! this.props.isModuleFound( 'markdown' ) &&
 				! this.props.isModuleFound( 'after-the-deadline' )
 			) {
 				return null;
 			}
 
-			const atd = this.props.module( 'after-the-deadline' ),
+			const markdown = this.props.module( 'markdown' ),
+				atd = this.props.module( 'after-the-deadline' ),
 				unavailableInDevMode = this.props.isUnavailableInDevMode( 'after-the-deadline' ),
+				markdownSettings = (
+					<SettingsGroup module={ markdown }>
+						<FormFieldset>
+							<ModuleToggle
+								slug="markdown"
+								activated={ !! this.props.getOptionValue( 'wpcom_publish_posts_with_markdown', 'markdown' ) }
+								toggling={ this.props.isSavingAnyOption( [ 'markdown', 'wpcom_publish_posts_with_markdown' ] ) }
+								disabled={ this.props.isSavingAnyOption( [ 'markdown', 'wpcom_publish_posts_with_markdown' ] ) }
+								toggleModule={ this.updateFormStateByMarkdown }>
+								<span className="jp-form-toggle-explanation">
+									{ markdown.description }
+								</span>
+							</ModuleToggle>
+						</FormFieldset>
+					</SettingsGroup>
+				),
 				atdSettings = (
 					<FoldableCard
 						className={ classNames( 'jp-foldable-card__main-settings', { 'jp-foldable-settings-disable': unavailableInDevMode } ) }
@@ -202,6 +234,7 @@ const Composing = moduleSettingsForm(
 					module="composing"
 					saveDisabled={ this.props.isSavingAnyOption( 'ignored_phrases' ) }
 				>
+					{ this.props.isModuleFound( 'markdown' ) && markdownSettings }
 					{ this.props.isModuleFound( 'after-the-deadline' ) && atdSettings }
 				</SettingsCard>
 			);

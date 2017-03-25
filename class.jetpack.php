@@ -393,18 +393,6 @@ class Jetpack {
 		}
 	}
 
-	/**
-	 * Markdown is now a default, always-on feature of Jetpack
-	 * Since: 4.8
-	 */
-	static function activate_markdown( ) {
-		if ( did_action( 'init' ) || current_filter() == 'init' ) {
-			self::activate_module( 'markdown', false, false );
-		} else if ( !  has_action( 'init' , array( __CLASS__, 'activate_markdown' ) ) ) {
-			add_action( 'init', array( __CLASS__, 'activate_markdown' ) );
-		}
-	}
-
 	static function update_active_modules( $modules ) {
 		$current_modules = Jetpack_Options::get_option( 'active_modules', array() );
 
@@ -2794,9 +2782,7 @@ p {
 			// Setting up jetpack manage
 			Jetpack::activate_manage();
 		}
-
-		Jetpack::activate_markdown();
-
+		
 	}
 
 	/**
