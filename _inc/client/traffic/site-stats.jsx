@@ -61,10 +61,12 @@ export const SiteStats = moduleSettingsForm(
 		 * @param {string} optionSet
 		 */
 		updateOptions( optionName, optionSet ) {
-			let value = this.props.getOptionValue( optionSet, 'stats' );
+			let value = this.props.getOptionValue( optionSet, 'stats' ),
+				toggled = false;
 			if ( ! this.state[ `${ optionSet }_${ optionName }` ] ) {
 				if ( ! includes( value, optionName ) ) {
 					value.push( optionName );
+					toggled = true;
 				}
 			} else if ( includes( value, optionName ) ) {
 				value = filter( value, item => {
@@ -80,6 +82,16 @@ export const SiteStats = moduleSettingsForm(
 					this.props.updateOptions( {
 						[ optionSet ]: value
 					} );
+				}
+			);
+
+			analytics.tracks.recordEvent(
+				'jetpack_wpa_settings_toggle',
+				{
+					module: 'stats',
+					setting: optionSet,
+					role: optionName,
+					toggled: toggled ? 'on' : 'off'
 				}
 			);
 		},
