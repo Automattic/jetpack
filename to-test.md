@@ -2,11 +2,15 @@
 
 Jetpack 4.8 introduces a refreshed admin interface, a new WordPress.com Toolbar for your Jetpack site, and several other improvements.
 
-### Admin Interface
+### Test Jetpack's new look!
 
-We've redesigned Jetpack's Admin interface to make it easier to navigate the list of Jetpack options and create a unified experience with the WordPress.com dashboard.
+We just made some wild changes to Jetpack and we want your feedback! We dramatically overhauled Jetpack's Admin interface to make it easier to navigate the list of Jetpack options and to create a unified experience with the WordPress.com dashboard.
 
-To test this, go to the Jetpack menu in your dashboard, and navigate through Jetpack settings. You'll want to play with as many settings as possible:
+We now make more decisions to help new Jetpack users navigate through all the things Jetpack can do, and we now display less settings and options. The language of all those options has been rethought and is clearer than ever. The toggles make things feel much faster removing the need for save buttons on most of the sections. We've also improved upgrade notices for Jetpack plans. All in all, the design of the settings screen is closer than ever before to WordPress.com settings, which we have been working on in tandem.
+
+It is going to be a pretty big change for everyone, and we want your feedback! If you have any remarks, [let us know](https://jetpack.com/contact-support/beta-group/).
+
+Here are some specific things you could try to get familiar with the settings screen:
 
 - Try interacting with the menu before you connect your site to a WordPress.com account.
 - Try accessing the menu from a different local account, that is not linked to WordPress.com.
@@ -17,8 +21,6 @@ To test this, go to the Jetpack menu in your dashboard, and navigate through Jet
 - Are there any options that seem confusing?
 - Try clicking on links providing more information, and make sure none of the links are broken.
 - Try navigating the new admin interface using only your keyboard.
-
-We are interested in any feedback you have for us about this new interface! If you have any remarks, [let us know](https://jetpack.com/contact-support/beta-group/)!
 
 ### WordPress.com Toolbar
 
