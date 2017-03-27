@@ -106,7 +106,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 = 4.8 =
 
 * Release date: April 4th, 2017
-* Release post:
+* Release post: http://wp.me/p1moTy-4gA
 
 **Enhancements**
 
