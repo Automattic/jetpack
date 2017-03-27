@@ -14,7 +14,7 @@ import { FormFieldset, FormLabel, FormLegend } from 'components/forms';
 import { ModuleToggle } from 'components/module-toggle';
 import { getModule } from 'state/modules';
 import { currentThemeSupports } from 'state/initial-state';
-import { isModuleFound as _isModuleFound } from 'state/search';
+import { isModuleFound } from 'state/search';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
@@ -108,144 +108,152 @@ const ThemeEnhancements = moduleSettingsForm(
 		},
 
 		render() {
-			if ( ! this.props.isModuleFound( 'infinite-scroll' ) && ! this.props.isModuleFound( 'minileven' ) ) {
+			const foundInfiniteScroll = this.props.isModuleFound( 'infinite-scroll' ),
+				foundMinileven = this.props.isModuleFound( 'minileven' );
+
+			if ( ! foundInfiniteScroll && ! foundMinileven ) {
 				return null;
 			}
 
 			return (
 				<SettingsCard
 					{ ...this.props }
-					hideButton={ ! this.props.isInfiniteScrollSupported }
-					header={ __( 'Theme enhancements' ) }>
+					header={ __( 'Theme enhancements' ) }
+					hideButton={ ! foundInfiniteScroll || ! this.props.isInfiniteScrollSupported }
+					>
 					{
-						[ {
-							...this.props.getModule( 'infinite-scroll' ),
-							radios: [
-								{
-									key: 'infinite_default',
-									label: __( 'Load more posts using the default theme behavior' )
-								},
-								{
-									key: 'infinite_button',
-									label: __( 'Load more posts in page with a button' )
-								},
-								{
-									key: 'infinite_scroll',
-									label: __( 'Load more posts as the reader scrolls down' )
-								}
-							]
-						} ].map( item => {
-							if ( ! this.props.isModuleFound( item.module ) ) {
-								return null;
-							}
-
-							return (
-								<SettingsGroup hasChild module={ { module: item.module } } key={ `theme_enhancement_${ item.module }` } support={ item.learn_more_button }>
-									<FormLegend className="jp-form-label-wide">
-										{
-											item.name
-										}
-									</FormLegend>
+						foundInfiniteScroll && (
+							[ {
+								...this.props.getModule( 'infinite-scroll' ),
+								radios: [
 									{
-										this.props.isInfiniteScrollSupported
-										? item.radios.map( radio => {
-											return (
-												<FormLabel key={ `${ item.module }_${ radio.key }` }>
-													<input
-														type="radio"
-														name="infinite_mode"
-														value={ radio.key }
-														checked={ radio.key === this.state.infinite_mode }
-														disabled={ this.props.isSavingAnyOption( [ item.module, radio.key ] ) }
-														onChange={ () => this.updateInfiniteMode( radio.key ) }
-													/>
-													<span className="jp-form-toggle-explanation">
-														{
-															radio.label
-														}
-													</span>
-												</FormLabel>
-											);
-										} )
-										: (
-											<span>
-												{
-													__( 'Theme support required.' ) + ' '
-												}
-												<a onClick={ this.trackLearnMoreIS } href={ item.learn_more_button + '#theme' } title={ __( 'Learn more about adding support for Infinite Scroll to your theme.' ) }>
-													{
-														__( 'Learn more' )
-													}
-												</a>
-											</span>
-										)
+										key: 'infinite_default',
+										label: __( 'Load more posts using the default theme behavior' )
+									},
+									{
+										key: 'infinite_button',
+										label: __( 'Load more posts in page with a button' )
+									},
+									{
+										key: 'infinite_scroll',
+										label: __( 'Load more posts as the reader scrolls down' )
 									}
-								</SettingsGroup>
-							);
-						} )
+								]
+							} ].map( item => {
+								if ( ! this.props.isModuleFound( item.module ) ) {
+									return null;
+								}
+
+								return (
+									<SettingsGroup hasChild module={ { module: item.module } } key={ `theme_enhancement_${ item.module }` } support={ item.learn_more_button }>
+										<FormLegend className="jp-form-label-wide">
+											{
+												item.name
+											}
+										</FormLegend>
+										{
+											this.props.isInfiniteScrollSupported
+											? item.radios.map( radio => {
+												return (
+													<FormLabel key={ `${ item.module }_${ radio.key }` }>
+														<input
+															type="radio"
+															name="infinite_mode"
+															value={ radio.key }
+															checked={ radio.key === this.state.infinite_mode }
+															disabled={ this.props.isSavingAnyOption( [ item.module, radio.key ] ) }
+															onChange={ () => this.updateInfiniteMode( radio.key ) }
+														/>
+														<span className="jp-form-toggle-explanation">
+															{
+																radio.label
+															}
+														</span>
+													</FormLabel>
+												);
+											} )
+											: (
+												<span>
+													{
+														__( 'Theme support required.' ) + ' '
+													}
+													<a onClick={ this.trackLearnMoreIS } href={ item.learn_more_button + '#theme' } title={ __( 'Learn more about adding support for Infinite Scroll to your theme.' ) }>
+														{
+															__( 'Learn more' )
+														}
+													</a>
+												</span>
+											)
+										}
+									</SettingsGroup>
+								);
+							} )
+						)
 					}
 					{
-						[ {
-							...this.props.getModule( 'minileven' ),
-							checkboxes: [
-								{
-									key: 'wp_mobile_excerpt',
-									label: __( 'Use excerpts instead of full posts on front page and archive pages' )
-								},
-								{
-									key: 'wp_mobile_featured_images',
-									label: __( 'Show featured images' )
-								},
-								{
-									key: 'wp_mobile_app_promos',
-									label: __( 'Show an ad for the WordPress mobile apps in the footer of the mobile theme' )
-								}
-							]
-						} ].map( item => {
-							const isItemActive = this.props.getOptionValue( item.module );
-
-							if ( ! this.props.isModuleFound( item.module ) ) {
-								return null;
-							}
-
-							return (
-								<SettingsGroup hasChild module={ { module: item.module } } key={ `theme_enhancement_${ item.module }` } support={ item.learn_more_button }>
+						foundMinileven && (
+							[ {
+								...this.props.getModule( 'minileven' ),
+								checkboxes: [
 									{
-										<ModuleToggle
-											slug={ item.module }
-											activated={ isItemActive }
-											toggling={ this.props.isSavingAnyOption( item.module ) }
-											toggleModule={ this.props.toggleModuleNow }
-										>
+										key: 'wp_mobile_excerpt',
+										label: __( 'Use excerpts instead of full posts on front page and archive pages' )
+									},
+									{
+										key: 'wp_mobile_featured_images',
+										label: __( 'Show featured images' )
+									},
+									{
+										key: 'wp_mobile_app_promos',
+										label: __( 'Show an ad for the WordPress mobile apps in the footer of the mobile theme' )
+									}
+								]
+							} ].map( item => {
+								const isItemActive = this.props.getOptionValue( item.module );
+
+								if ( ! this.props.isModuleFound( item.module ) ) {
+									return null;
+								}
+
+								return (
+									<SettingsGroup hasChild module={ { module: item.module } } key={ `theme_enhancement_${ item.module }` } support={ item.learn_more_button }>
+										{
+											<ModuleToggle
+												slug={ item.module }
+												activated={ isItemActive }
+												toggling={ this.props.isSavingAnyOption( item.module ) }
+												toggleModule={ this.props.toggleModuleNow }
+											>
 											<span className="jp-form-toggle-explanation">
 												{
 													item.description
 												}
 											</span>
-										</ModuleToggle>
-									}
-									<FormFieldset>
-										{
-											item.checkboxes.map( chkbx => {
-												return (
-													<CompactFormToggle
-														checked={ this.state[ chkbx.key ] }
-														disabled={ ! isItemActive || this.props.isSavingAnyOption( [ item.module, chkbx.key ] ) }
-														onChange={ () => this.updateOptions( chkbx.key, item.module ) }
-														key={ `${ item.module }_${ chkbx.key }` }>
+											</ModuleToggle>
+										}
+										<FormFieldset>
+											{
+												item.checkboxes.map( chkbx => {
+													return (
+														<CompactFormToggle
+															checked={ this.state[ chkbx.key ] }
+															disabled={ ! isItemActive || this.props.isSavingAnyOption( [ item.module, chkbx.key ] ) }
+															onChange={ () => this.updateOptions( chkbx.key, item.module ) }
+															key={ `${ item.module }_${ chkbx.key }` }>
 														<span className="jp-form-toggle-explanation">
 															{
 																chkbx.label
 															}
 														</span>
-													</CompactFormToggle>
-												);
-											} )
-										}
-									</FormFieldset>
-								</SettingsGroup>
-							);
-						} )
+														</CompactFormToggle>
+													);
+												} )
+											}
+										</FormFieldset>
+									</SettingsGroup>
+								);
+							} )
+						)
 					}
 				</SettingsCard>
 			);
@@ -257,8 +265,8 @@ export default connect(
 	( state ) => {
 		return {
 			module: ( module_name ) => getModule( state, module_name ),
-			isModuleFound: ( module_name ) => _isModuleFound( state, module_name ),
-			isInfiniteScrollSupported: currentThemeSupports( state, 'infinite-scroll' )
+			isInfiniteScrollSupported: currentThemeSupports( state, 'infinite-scroll' ),
+			isModuleFound: ( module_name ) => isModuleFound( state, module_name )
 		};
 	}
 )( ThemeEnhancements );
