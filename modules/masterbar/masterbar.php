@@ -678,7 +678,7 @@ class A8C_WPCOM_Masterbar {
 				array(
 					'url'   => 'https://wordpress.com/edit/jetpack-testimonial/' . esc_attr( $this->primary_site_slug ),
 					'id'    => 'wp-admin-bar-new-testimonial',
-					'label' => _x( 'Add', 'admin bar menu new item label', 'jetpack' ),
+					'label' => _x( 'Add', 'Button label for adding a new item via the toolbar menu', 'jetpack' ),
 				)
 			);
 
@@ -712,7 +712,7 @@ class A8C_WPCOM_Masterbar {
 				array(
 					'url'   => 'https://wordpress.com/edit/jetpack-portfolio/' . esc_attr( $this->primary_site_slug ),
 					'id'    => 'wp-admin-bar-new-portfolio',
-					'label' => _x( 'Add', 'admin bar menu new item label', 'jetpack' ),
+					'label' => _x( 'Add', 'Button label for adding a new item via the toolbar menu', 'jetpack' ),
 				)
 			);
 
