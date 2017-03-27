@@ -7,6 +7,7 @@ import { translate as __ } from 'i18n-calypso';
 import Button from 'components/button';
 import ClipboardButtonInput from 'components/clipboard-button-input';
 import Card from 'components/card';
+import analytics from 'lib/analytics';
 
 /**
  * Internal dependencies
@@ -27,6 +28,7 @@ const PostByEmail = moduleSettingsForm(
 	React.createClass( {
 
 		regeneratePostByEmailAddress( event ) {
+			analytics.tracks.recordJetpackClick( 'pbe-regenerage-email' );
 			event.preventDefault();
 			this.props.regeneratePostByEmailAddress();
 		},
@@ -100,10 +102,10 @@ const PostByEmail = moduleSettingsForm(
 							<Card
 								compact
 								className="jp-settings-card__configure-link"
-								href={ `${ this.props.connectUrl }&from=unlinked-user-connect` }
+								href={ `${ this.props.connectUrl }&from=unlinked-user-pbe` }
 							>
 								{
-									__( 'Link your existing WordPress.com account to use Post by Email or create and link one for free.' )
+									__( 'Connect your user account to WordPress.com to use this feature' )
 								}
 							</Card>
 						)

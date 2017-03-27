@@ -37,6 +37,7 @@ import SupportCard from 'components/support-card';
 import NonAdminView from 'components/non-admin-view';
 import JetpackNotices from 'components/jetpack-notices';
 import AdminNotices from 'components/admin-notices';
+import Tracker from 'components/tracker';
 import analytics from 'lib/analytics';
 import restApi from 'rest-api';
 import { getTracksUserData } from 'state/initial-state';
@@ -240,10 +241,11 @@ const Main = React.createClass( {
 						{
 							this.props.jumpStartStatus || '/apps' === this.props.route.path ?
 							null :
-							<SupportCard />
+							<SupportCard path={ this.props.route.path } />
 						}
 					</div>
-				<Footer siteAdminUrl={ this.props.siteAdminUrl } />
+					<Footer siteAdminUrl={ this.props.siteAdminUrl } />
+				<Tracker analytics={ analytics } />
 			</div>
 		);
 	}

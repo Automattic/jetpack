@@ -114,7 +114,7 @@ const DashStatsBottom = React.createClass( {
 						components: {
 							button:
 								<Button
-									onClick={ () => analytics.tracks.recordEvent( 'jetpack_wpa_aag_view_old_stats_click', {} ) }
+									onClick={ () => analytics.tracks.recordJetpackClick( 'view_detailed_stats' ) }
 									href={ this.props.siteAdminUrl + 'admin.php?page=stats' }
 								/>
 						}
@@ -125,7 +125,7 @@ const DashStatsBottom = React.createClass( {
 								components: {
 									button:
 										<Button
-											onClick={ () => analytics.tracks.recordEvent( 'jetpack_wpa_aag_stats_wpcom_click', {} ) }
+											onClick={ () => analytics.tracks.recordJetpackClick( 'view_wpcom_stats' ) }
 											className="is-primary"
 											href={ 'https://wordpress.com/stats/insights/' + this.props.siteRawUrl }
 										/>

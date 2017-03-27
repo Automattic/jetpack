@@ -3,13 +3,13 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
-import DashSectionHeader from 'components/dash-section-header';
 import { translate as __ } from 'i18n-calypso';
 import analytics from 'lib/analytics';
 
 /**
  * Internal dependencies
  */
+import DashSectionHeader from 'components/dash-section-header';
 import DashStats from './stats';
 import DashProtect from './protect';
 import DashMonitor from './monitor';
@@ -48,7 +48,7 @@ const AtAGlance = React.createClass( {
 						? ''
 						: 'https://wordpress.com/settings/security/' + this.props.siteRawUrl
 					}
-					externalLinkClick={ () => analytics.tracks.recordEvent( 'jetpack_wpa_aag_security_wpcom_click', {} ) }
+					externalLinkClick={ () => analytics.tracks.recordJetpackClick( 'aag_manage_security_wpcom' ) }
 				/>,
 			connections = (
 				<div>

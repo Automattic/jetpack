@@ -5,6 +5,7 @@ import React from 'react';
 import classNames from 'classnames';
 import Gridicon from 'components/gridicon';
 import { translate as __ } from 'i18n-calypso';
+import analytics from 'lib/analytics';
 
 export const DashSectionHeader = React.createClass( {
 	displayName: 'DashSectionHeader',
@@ -26,6 +27,14 @@ export const DashSectionHeader = React.createClass( {
 		};
 	},
 
+	trackCogClick() {
+		analytics.tracks.recordJetpackClick( {
+			target: 'settings-cog',
+			group: 'security',
+			page: 'aag'
+		} );
+	},
+
 	render() {
 		let settingsIcon;
 		let externalLink;
@@ -42,7 +51,7 @@ export const DashSectionHeader = React.createClass( {
 					<span className="screen-reader-text">
 						{ __( 'Settings', { context: 'Noun. Displayed to screen readers.' } ) }
 					</span>
-					<Gridicon icon="cog" size={ 16 } />
+					<Gridicon onClick={ this.trackCogClick } icon="cog" size={ 16 } />
 				</a>
 			);
 		}

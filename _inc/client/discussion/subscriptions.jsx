@@ -5,6 +5,7 @@ import React from 'react';
 import { translate as __ } from 'i18n-calypso';
 import CompactFormToggle from 'components/form/form-toggle/compact';
 import Card from 'components/card';
+import analytics from 'lib/analytics';
 
 /**
  * Internal dependencies
@@ -44,6 +45,10 @@ export const Subscriptions = moduleSettingsForm(
 			);
 		},
 
+		trackConfigureClick() {
+			analytics.tracks.recordJetpackClick( 'view-followers' );
+		},
+
 		render() {
 			const subscriptions = this.props.getModule( 'subscriptions' ),
 				isSubscriptionsActive = this.props.getOptionValue( 'subscriptions' ),
@@ -55,7 +60,7 @@ export const Subscriptions = moduleSettingsForm(
 				}
 
 				return this.props.isLinked
-					? <Card compact className="jp-settings-card__configure-link" href={ 'https://wordpress.com/people/email-followers/' + this.props.siteRawUrl }>{ __( 'View your Email Followers' ) }</Card>
+					? <Card compact className="jp-settings-card__configure-link" onClick={ this.trackConfigureClick } href={ 'https://wordpress.com/people/email-followers/' + this.props.siteRawUrl }>{ __( 'View your Email Followers' ) }</Card>
 					: <Card compact className="jp-settings-card__configure-link" href={ `${ this.props.connectUrl }&from=unlinked-user-connect-masterbar` }>{ __( 'Connect your user account to WordPress.com to view your email followers' ) } </Card>;
 			};
 

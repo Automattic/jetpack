@@ -7,6 +7,7 @@ import { translate as __ } from 'i18n-calypso';
 import Button from 'components/button';
 import SimpleNotice from 'components/notice';
 import NoticeAction from 'components/notice/notice-action';
+import analytics from 'lib/analytics';
 
 /**
  * Internal dependencies
@@ -45,7 +46,15 @@ const ProStatus = React.createClass( {
 		};
 	},
 
-	getProActions( type ) {
+	trackProStatusClick: function( type, feature ) {
+		analytics.tracks.recordJetpackClick( {
+			target: 'pro-status',
+			type: type,
+			feature: feature
+		} );
+	},
+
+	getProActions( type, feature ) {
 		let status = '',
 			message = false,
 			action = false,
@@ -54,7 +63,7 @@ const ProStatus = React.createClass( {
 			case 'threats':
 				status = 'is-error';
 				if ( this.props.isCompact ) {
-					action = __( 'FIX THREATS', { context: 'A caption for a small button to fix security issues.' } );
+					action = __( 'Threats', { context: 'A caption for a small button to fix security issues.' } );
 				} else {
 					message = __( 'Threats found!', { context: 'Short warning message about new threats found.' } );
 					action = __( 'FIX', { context: 'A caption for a small button to fix security issues.' } );
@@ -63,6 +72,7 @@ const ProStatus = React.createClass( {
 				break;
 			case 'free':
 			case 'personal':
+				type = 'upgrade';
 				status = 'is-warning';
 				if ( ! this.props.isCompact ) {
 					message = __( 'No scanning', { context: 'Short warning message about site having no security scan.' } );
@@ -92,7 +102,7 @@ const ProStatus = React.createClass( {
 					message
 				}
 				{
-					action && <NoticeAction href={ actionUrl }>{ action }</NoticeAction>
+					action && <NoticeAction onClick={ () => this.trackProStatusClick( type, feature ) } href={ actionUrl }>{ action }</NoticeAction>
 				}
 			</SimpleNotice>
 		);
@@ -128,7 +138,7 @@ const ProStatus = React.createClass( {
 			if ( 'backups' === feature ) {
 				if ( hasFree && ! hasBackups ) {
 					if ( this.props.isCompact ) {
-						return this.getProActions( 'free' );
+						return this.getProActions( 'free', 'backups' );
 					}
 				}
 			}
@@ -136,17 +146,17 @@ const ProStatus = React.createClass( {
 			if ( 'scan' === feature ) {
 				if ( ( hasFree || hasPersonal ) && ! hasScan ) {
 					if ( this.props.isCompact ) {
-						return this.getProActions( 'free' );
+						return this.getProActions( 'free', 'scan' );
 					}
 					return '';
 				}
 				if ( 'N/A' !== vpData ) {
 					const threatsCount = this.props.getScanThreats();
 					if ( 0 !== threatsCount ) {
-						return this.getProActions( 'threats' );
+						return this.getProActions( 'threats', 'scan' );
 					}
 					if ( 0 === threatsCount ) {
-						return this.getProActions( 'secure' );
+						return this.getProActions( 'secure', 'scan' );
 					}
 				}
 			}
@@ -154,13 +164,13 @@ const ProStatus = React.createClass( {
 			if ( 'akismet' === feature ) {
 				if ( hasFree && ! ( active && installed ) ) {
 					if ( this.props.isCompact ) {
-						return this.getProActions( 'free' );
+						return this.getProActions( 'free', 'anti-spam' );
 					}
 					return '';
 				}
 
 				if ( ! this.props.isAkismetKeyValid && ! this.props.fetchingSiteData ) {
-					return this.getProActions( 'invalid_key' );
+					return this.getProActions( 'invalid_key', 'anti-spam' );
 				}
 			}
 
@@ -172,6 +182,7 @@ const ProStatus = React.createClass( {
 
 					return (
 						<Button
+							onClick={ () => this.trackProStatusClick( 'set_up', feature ) }
 							compact={ true }
 							primary={ true }
 							href={ `https://wordpress.com/plugins/setup/${ this.props.siteRawUrl }?only=${ feature }` }

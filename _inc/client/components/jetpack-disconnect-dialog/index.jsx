@@ -10,6 +10,7 @@ import Gridicon from 'components/gridicon';
 import Modal from 'components/modal';
 import { getPlanClass } from 'lib/plans/constants';
 import noop from 'lodash/noop';
+import analytics from 'lib/analytics';
 
 /**
  * Internal dependencies
@@ -115,6 +116,24 @@ export const JetpackDisconnectDialog = React.createClass( {
 		}
 	},
 
+	closeModal() {
+		analytics.tracks.recordJetpackClick( {
+			target: 'manage_site_connection',
+			button: 'stay-connected'
+		} );
+
+		this.props.toggleModal();
+	},
+
+	disconnectSiteTrack() {
+		analytics.tracks.recordJetpackClick( {
+			target: 'manage_site_connection',
+			button: 'disconnect-site'
+		} );
+
+		this.props.disconnectSite();
+	},
+
 	render() {
 		return this.props.show && (
 			<Modal
@@ -149,15 +168,15 @@ export const JetpackDisconnectDialog = React.createClass( {
 					<div className="jp-connection-settings__modal-actions">
 						<Button
 							className="jp-connection-settings__modal-cancel"
-							onClick={ this.props.toggleModal }>
+							onClick={ this.closeModal }>
 							{
 								__( 'Stay connected', { context: 'A caption for a button to cancel disconnection.' } )
 							}
 						</Button>
 						<Button
+							onClick={ this.disconnectSiteTrack }
 							scary
-							primary
-							onClick={ this.props.disconnectSite }>
+							primary>
 							{
 								__( 'Disconnect', { context: 'A caption for a button to disconnect.' } )
 							}

@@ -3,6 +3,7 @@
  */
 import React from 'react';
 import get from 'lodash/get';
+import analytics from 'lib/analytics';
 
 /**
  * Internal dependencies
@@ -66,6 +67,7 @@ export function ModuleSettingsForm( InnerComponent ) {
 		 * @param {Boolean} deactivate
 		 */
 		updateFormStateModuleOption( module, moduleOption, deactivate = false ) {
+			this.trackSettingsToggle( module, moduleOption, ! this.getOptionValue( moduleOption ) );
 
 			// If the module is active, check if we're going to update the option or update and deactivate.
 			if ( this.getOptionValue( module ) ) {
@@ -77,7 +79,6 @@ export function ModuleSettingsForm( InnerComponent ) {
 						[ moduleOption ]: ! this.getOptionValue( moduleOption )
 					} );
 				} else {
-
 					// We pass the value to set.
 					this.props.updateOptions( {
 						[ moduleOption ]: ! this.getOptionValue( moduleOption )
@@ -109,6 +110,10 @@ export function ModuleSettingsForm( InnerComponent ) {
 			event.preventDefault();
 			this.props.updateOptions( this.state.options )
 				.then( () => {
+
+					// Track it
+					this.trackFormSubmission( this.state.options );
+
 					this.setState( { options: {} } );
 				} )
 				.then( () => {
@@ -145,6 +150,31 @@ export function ModuleSettingsForm( InnerComponent ) {
 		 */
 		isSavingAnyOption( settings = '' ) {
 			return this.props.isUpdating( settings );
+		},
+
+		/**
+		 * Tracks form submissions
+		 * @param options
+		 */
+		trackFormSubmission( options ) {
+			analytics.tracks.recordEvent(
+				'jetpack_wpa_settings_form_submit',
+				options
+			);
+		},
+		/**
+		 * Tracks settings toggles
+		 * @param options
+		 */
+		trackSettingsToggle( module, setting, activated ) {
+			analytics.tracks.recordEvent(
+				'jetpack_wpa_settings_toggle',
+				{
+					module: module,
+					setting: setting,
+					toggled: activated ? 'on' : 'off'
+				}
+			);
 		},
 		render() {
 			return (

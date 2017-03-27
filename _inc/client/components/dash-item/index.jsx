@@ -8,6 +8,7 @@ import SimpleNotice from 'components/notice';
 import { translate as __ } from 'i18n-calypso';
 import Button from 'components/button';
 import includes from 'lodash/includes';
+import analytics from 'lib/analytics';
 
 /**
  * Internal dependencies
@@ -51,6 +52,21 @@ export const DashItem = React.createClass( {
 		};
 	},
 
+	trackMonitorSettingsClick() {
+		analytics.tracks.recordJetpackClick( {
+			target: 'monitor-settings',
+			page: 'aag'
+		} );
+	},
+
+	trackPaidBtnClick( feature ) {
+		analytics.tracks.recordJetpackClick( {
+			target: 'paid-button',
+			feature: feature,
+			page: 'aag'
+		} );
+	},
+
 	render() {
 		let toggle, proButton = '';
 
@@ -92,23 +108,10 @@ export const DashItem = React.createClass( {
 				}
 			}
 
-			if ( 'scan' === this.props.module && 'is-error' === this.props.status ) {
-				toggle = (
-					<a href="https://dashboard.vaultpress.com/" >
-						<SimpleNotice
-							showDismiss={ false }
-							status={ this.props.status }
-							isCompact={ true }
-						>
-							{ this.props.statusText }
-						</SimpleNotice>
-					</a>
-				);
-			}
-
 			if ( 'monitor' === this.props.module ) {
 				toggle = ! this.props.isDevMode && this.props.isModuleActivated( this.props.module ) && (
 					<Button
+						onClick={ this.trackMonitorSettingsClick }
 						href={ 'https://wordpress.com/settings/security/' + this.props.siteRawUrl }
 						compact>
 						{
@@ -122,6 +125,7 @@ export const DashItem = React.createClass( {
 		if ( this.props.pro && ! this.props.isDevMode ) {
 			proButton =
 				<Button
+					onClick={ () => this.trackPaidBtnClick( this.props.module ) }
 					compact={ true }
 					href="#/plans"
 				>

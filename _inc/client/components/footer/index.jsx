@@ -5,6 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 import { translate as __ } from 'i18n-calypso';
+import analytics from 'lib/analytics';
 
 /**
  * Internal dependencies
@@ -29,8 +30,36 @@ export const Footer = React.createClass( {
 
 	resetOnClick() {
 		if ( window.confirm( __( 'This will reset all Jetpack options, are you sure?' ) ) ) {
-			this.props.resetOptions()
+			this.props.resetOptions();
 		}
+	},
+
+	trackVersionClick() {
+		analytics.tracks.recordJetpackClick( {
+			target: 'footer_link',
+			link: 'version'
+		} );
+	},
+
+	trackTermsClick() {
+		analytics.tracks.recordJetpackClick( {
+			target: 'footer_link',
+			link: 'terms'
+		} );
+	},
+
+	trackPrivacyClick() {
+		analytics.tracks.recordJetpackClick( {
+			target: 'footer_link',
+			link: 'privacy'
+		} );
+	},
+
+	trackDebugClick() {
+		analytics.tracks.recordJetpackClick( {
+			target: 'footer_link',
+			link: 'debug'
+		} );
 	},
 
 	render() {
@@ -63,6 +92,7 @@ export const Footer = React.createClass( {
 				return (
 					<li className="jp-footer__link-item">
 						<a
+							onClick={ this.trackDebugClick }
 							href={ this.props.siteAdminUrl + 'admin.php?page=jetpack-debugger' }
 							title={ __( 'Test your site’s compatibility with Jetpack.' ) }
 							className="jp-footer__link">
@@ -111,12 +141,20 @@ export const Footer = React.createClass( {
 				</div>
 				<ul className="jp-footer__links">
 					<li className="jp-footer__link-item">
-						<a href="https://jetpack.com" target="_blank" rel="noopener noreferrer" className="jp-footer__link" title={ version } >
+						<a
+							onClick={ this.trackVersionClick }
+							href="https://jetpack.com"
+							target="_blank"
+							rel="noopener noreferrer"
+							className="jp-footer__link"
+							title={ version }
+						>
 							{ version }
 						</a>
 					</li>
 					<li className="jp-footer__link-item">
 						<a
+							onClick={ this.trackTermsClick }
 							href="https://wordpress.com/tos/"
 							target="_blank"
 							rel="noopener noreferrer"
@@ -127,6 +165,7 @@ export const Footer = React.createClass( {
 					</li>
 					<li className="jp-footer__link-item">
 						<a
+							onClick={ this.trackPrivacyClick }
 							href="https://automattic.com/privacy/"
 							target="_blank"
 							rel="noopener noreferrer"

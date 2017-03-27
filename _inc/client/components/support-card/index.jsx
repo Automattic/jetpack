@@ -7,6 +7,7 @@ import classNames from 'classnames';
 import { translate as __ } from 'i18n-calypso';
 import Card from 'components/card';
 import Button from 'components/button';
+import analytics from 'lib/analytics';
 
 /**
  * Internal dependencies
@@ -23,6 +24,30 @@ import JetpackBanner from 'components/jetpack-banner';
 
 const SupportCard = React.createClass( {
 	displayName: 'SupportCard',
+
+	trackBannerClick() {
+		analytics.tracks.recordJetpackClick( {
+			target: 'banner-click',
+			feature: 'support',
+			page: this.props.path
+		} );
+	},
+
+	trackAskQuestionClick() {
+		analytics.tracks.recordJetpackClick( {
+			target: 'support-card',
+			button: 'support-ask',
+			page: this.props.path
+		} );
+	},
+
+	trackSearchClick() {
+		analytics.tracks.recordJetpackClick( {
+			target: 'support-card',
+			button: 'support-search',
+			page: this.props.path
+		} );
+	},
 
 	render() {
 		if ( 'undefined' === typeof this.props.sitePlan.product_slug && this.props.isFetchingSiteData ) {
@@ -51,10 +76,12 @@ const SupportCard = React.createClass( {
 						</p>
 						<p className="jp-support-card__description">
 							<Button
+								onClick={ this.trackAskQuestionClick }
 								href="https://jetpack.com/contact-support/">
 								{ __( 'Ask a question' ) }
 							</Button>
 							<Button
+								onClick={ this.trackSearchClick }
 								href="https://jetpack.com/support/">
 								{ __( 'Search our support site' ) }
 							</Button>
@@ -67,6 +94,7 @@ const SupportCard = React.createClass( {
 							title={ __( 'Get a faster resolution to your support questions.' ) }
 							plan={ PLAN_JETPACK_PERSONAL }
 							callToAction={ __( 'Upgrade' ) }
+							onClick={ this.trackBannerClick }
 							href={ 'https://jetpack.com/redirect/?source=support&site=' + this.props.siteRawUrl }
 						/>
 					)

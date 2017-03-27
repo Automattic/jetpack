@@ -11,6 +11,7 @@ import includes from 'lodash/includes';
 import filter from 'lodash/filter';
 import classNames from 'classnames';
 import { imagePath } from 'constants';
+import analytics from 'lib/analytics';
 
 /**
  * Internal dependencies
@@ -60,10 +61,12 @@ export const SiteStats = moduleSettingsForm(
 		 * @param {string} optionSet
 		 */
 		updateOptions( optionName, optionSet ) {
-			let value = this.props.getOptionValue( optionSet, 'stats' );
+			let value = this.props.getOptionValue( optionSet, 'stats' ),
+				toggled = false;
 			if ( ! this.state[ `${ optionSet }_${ optionName }` ] ) {
 				if ( ! includes( value, optionName ) ) {
 					value.push( optionName );
+					toggled = true;
 				}
 			} else if ( includes( value, optionName ) ) {
 				value = filter( value, item => {
@@ -81,6 +84,16 @@ export const SiteStats = moduleSettingsForm(
 					} );
 				}
 			);
+
+			analytics.tracks.recordEvent(
+				'jetpack_wpa_settings_toggle',
+				{
+					module: 'stats',
+					setting: optionSet,
+					role: optionName,
+					toggled: toggled ? 'on' : 'off'
+				}
+			);
 		},
 
 		/**
@@ -89,6 +102,13 @@ export const SiteStats = moduleSettingsForm(
 		activateStats() {
 			this.props.updateOptions( {
 				stats: true
+			} );
+		},
+
+		trackOpenCard() {
+			analytics.tracks.recordJetpackClick( {
+				target: 'foldable-settings-open',
+				feature: 'stats'
 			} );
 		},
 
@@ -141,6 +161,7 @@ export const SiteStats = moduleSettingsForm(
 					hideButton
 				>
 					<FoldableCard
+						onOpen={ this.trackOpenCard }
 						header={ __( 'Collecting valuable traffic stats and insights' ) }
 						clickableHeader={ true }
 						className={ classNames( 'jp-foldable-settings-standalone', { 'jp-foldable-settings-disable': unavailableInDevMode } ) }

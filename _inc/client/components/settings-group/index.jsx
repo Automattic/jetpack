@@ -10,6 +10,7 @@ import InfoPopover from 'components/info-popover';
 import ExternalLink from 'components/external-link';
 import includes from 'lodash/includes';
 import noop from 'lodash/noop';
+import analytics from 'lib/analytics';
 
 /**
  * Internal dependencies
@@ -38,6 +39,20 @@ export const SettingsGroup = props => {
 		displayFadeBlock = true;
 	}
 
+	const trackInfoClick = () => {
+		analytics.tracks.recordJetpackClick( {
+			target: 'info-icon',
+			feature: module.module
+		} );
+	};
+
+	const trackLearnMoreClick = () => {
+		analytics.tracks.recordJetpackClick( {
+			target: 'learn-more',
+			feature: module.module
+		} );
+	};
+
 	return (
 		<div className="jp-form-settings-group">
 			<Card className={ classNames( {
@@ -50,8 +65,12 @@ export const SettingsGroup = props => {
 				{
 					support && (
 						<div className="jp-module-settings__learn-more">
-							<InfoPopover screenReaderText={ __( 'Learn more' ) }>
+							<InfoPopover
+								onClick={ trackInfoClick }
+								screenReaderText={ __( 'Learn more' ) }
+							>
 								<ExternalLink
+									onClick={ trackLearnMoreClick }
 									icon={ false }
 									href={ support }
 									target="_blank">
