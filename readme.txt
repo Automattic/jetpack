@@ -140,6 +140,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Subscriptions: show the correct notification in the subscription form when the email is already subscribed. #6603
 * Sync: remove deprecated `jetpack_publicize_post` action. #6567
 * VideoPress: avoid PHP Notices when fetching information about a video. #6527
+* Widgets: update Instagram base URL to use www in the Social Media Icons Widget. #6635
 
 = 4.7.1 =
 
