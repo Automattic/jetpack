@@ -164,7 +164,15 @@ class WP_Super_cache_Route extends WP_REST_Controller {
 				$_POST[ 'action' ] = 'expirytime';
 			}
 		}
-		if ( isset( $_POST[ 'action' ] ) && $_POST[ 'action' ] == 'expirytime' )
+
+		if ( isset( $_POST[ 'action' ] ) && $_POST[ 'action' ] == 'expirytime' ) {
+			foreach( $time_settings as $time_setting ) {
+				global ${$time_setting};
+				if ( false == isset( $_POST[ $time_setting ] ) || $$time_setting == $_POST[ $time_setting ] )
+					$_POST[ $time_setting ] = $$time_setting; // fill in the potentially missing fields before updating GC settings.
+			}
+			if ( isset( $parameters[ 'cache_gc_email_me' ] ) && $parameters[ 'cache_gc_email_me' ] == 0 )
+				unset( $_POST[ 'cache_gc_email_me' ] );
 			wp_cache_time_update();
 
 		if ( isset( $parameters[ 'wp_cache_pages' ] ) ) {
@@ -196,7 +204,7 @@ class WP_Super_cache_Route extends WP_REST_Controller {
 	}
 
 	function toggle_easy_caching( $enabled = true ) {
-		global $cache_path, $wp_cache_shutdown_gc, $cache_schedule_type, $cache_time_interval, $cache_max_time;
+		global $cache_path, $wp_cache_shutdown_gc;
 		if ( $enabled ) {
 			$settings = array( 'wp_cache_mobile_enabled' => 1,
 				'wp_cache_status' => 1,
@@ -210,9 +218,13 @@ class WP_Super_cache_Route extends WP_REST_Controller {
 					$cache_schedule_type = 'interval';
 					$cache_time_interval = 600;
 					$cache_max_time = 1800;
+					$cache_schedule_interval = 'hourly';
+					$cache_gc_email_me = 0;
 					wp_cache_setting( 'cache_schedule_type', $cache_schedule_type );
 					wp_cache_setting( 'cache_time_interval', $cache_time_interval );
 					wp_cache_setting( 'cache_max_time', $cache_max_time );
+					wp_cache_setting( 'cache_schedule_interval', $cache_schedule_interval );
+					wp_cache_setting( 'cache_gc_email_me', $cache_gc_email_me );
 				}
 				wp_schedule_single_event( time() + 600, 'wp_cache_gc' );
 			}
@@ -233,7 +245,7 @@ class WP_Super_cache_Route extends WP_REST_Controller {
 
 		if ( $cache_path != WP_CONTENT_DIR . '/cache/' )
 			$parameters[ 'wp_cache_location' ] = $cache_path;
-		$advanced_settings = array( 'wp_super_cache_late_init', 'wp_cache_disable_utf8', 'wp_cache_no_cache_for_get', 'wp_supercache_304', 'wp_cache_mfunc_enabled', 'wp_cache_mobile_enabled', 'wp_cache_front_page_checks', 'wp_supercache_cache_list', 'wp_cache_hello_world', 'wp_cache_clear_on_post_edit', 'wp_cache_not_logged_in', 'wp_cache_make_known_anon','wp_cache_object_cache', 'wp_cache_refresh_single_only', 'cache_compression', 'wp_cache_mutex_disabled', 'cache_gc_email_me' );
+		$advanced_settings = array( 'wp_super_cache_late_init', 'wp_cache_disable_utf8', 'wp_cache_no_cache_for_get', 'wp_supercache_304', 'wp_cache_mfunc_enabled', 'wp_cache_mobile_enabled', 'wp_cache_front_page_checks', 'wp_supercache_cache_list', 'wp_cache_hello_world', 'wp_cache_clear_on_post_edit', 'wp_cache_not_logged_in', 'wp_cache_make_known_anon','wp_cache_object_cache', 'wp_cache_refresh_single_only', 'cache_compression', 'wp_cache_mutex_disabled' );
 		foreach( $advanced_settings as $setting ) {
 			global ${$setting};
 			if ( isset( $$setting ) && $$setting == 1 ) {
