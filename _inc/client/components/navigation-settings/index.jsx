@@ -13,6 +13,7 @@ import injectTapEventPlugin from 'react-tap-event-plugin';
 injectTapEventPlugin();
 import UrlSearch from 'mixins/url-search';
 import analytics from 'lib/analytics';
+import intersection from 'lodash/intersection';
 
 /**
  * Internal dependencies
@@ -27,13 +28,17 @@ import {
 	userCanPublish
 } from 'state/initial-state';
 import { isSiteConnected, isCurrentUserLinked } from 'state/connection';
-import { isModuleActivated } from 'state/modules';
+import { isModuleActivated, getModules } from 'state/modules';
+import { isPluginActive } from 'state/site/plugins';
+import QuerySitePlugins from 'components/data/query-site-plugins';
 
 export const NavigationSettings = React.createClass( {
 	mixins: [ UrlSearch ],
+	moduleList: [],
 
 	componentWillMount() {
 		this.context.router.listen( this.onRouteChange );
+		this.moduleList = Object.keys( this.props.moduleList );
 	},
 
 	onRouteChange( newRoute ) {
@@ -92,41 +97,106 @@ export const NavigationSettings = React.createClass( {
 		return '#' + splitHash[ 0 ] + ( keyword ? '?term=' + keyword : '' );
 	},
 
+	/**
+	 * Check that the module list includes at least one of these modules.
+	 *
+	 * @param  {array}   modules Modules that are probably included in the module list.
+	 *
+	 * @return {boolean}         True if at least one of the modules is included in the list.
+	 */
+	hasAnyOfThese( modules = [] ) {
+		return 0 < intersection( this.moduleList, modules ).length;
+	},
+
 	render: function() {
 		let navItems, sharingTab;
-
 		if ( this.props.userCanManageModules ) {
 			navItems = (
 				<NavTabs selectedText={ this.props.route.name }>
-					<NavItem
-						path="#writing"
-						onClick={ () => this.trackNavClick( 'writing' ) }
-						selected={ this.props.route.path === '/writing' || this.props.route.path === '/settings' }>
-						{ __( 'Writing', { context: 'Navigation item.' } ) }
-					</NavItem>
-					<NavItem
-						path="#sharing"
-						selected={ this.props.route.path === '/sharing' }>
-						{ __( 'Sharing', { context: 'Navigation item.' } ) }
-					</NavItem>
-					<NavItem
-						path="#discussion"
-						onClick={ () => this.trackNavClick( 'discussion' ) }
-						selected={ this.props.route.path === '/discussion' }>
-						{ __( 'Discussion', { context: 'Navigation item.' } ) }
-					</NavItem>
-					<NavItem
-						path="#traffic"
-						onClick={ () => this.trackNavClick( 'traffic' ) }
-						selected={ this.props.route.path === '/traffic' }>
-						{ __( 'Traffic', { context: 'Navigation item.' } ) }
-					</NavItem>
-					<NavItem
-						path="#security"
-						onClick={ () => this.trackNavClick( 'security' ) }
-						selected={ this.props.route.path === '/security' }>
-						{ __( 'Security', { context: 'Navigation item.' } ) }
-					</NavItem>
+					{
+						this.hasAnyOfThese( [
+							'masterbar',
+							'markdown',
+							'after-the-deadline',
+							'custom-content-types',
+							'photon',
+							'carousel',
+							'post-by-email',
+							'infinite-scroll',
+							'minileven'
+						] ) && (
+							<NavItem
+								path="#writing"
+								onClick={ () => this.trackNavClick( 'writing' ) }
+								selected={ this.props.route.path === '/writing' || this.props.route.path === '/settings' }>
+								{ __( 'Writing', { context: 'Navigation item.' } ) }
+							</NavItem>
+						)
+					}
+					{
+						this.hasAnyOfThese( [
+							'publicize',
+							'sharedaddy',
+							'likes'
+						] ) && (
+							<NavItem
+								path="#sharing"
+								onClick={ () => this.trackNavClick( 'sharing' ) }
+								selected={ this.props.route.path === '/sharing' }>
+								{ __( 'Sharing', { context: 'Navigation item.' } ) }
+							</NavItem>
+						)
+					}
+					{
+						this.hasAnyOfThese( [
+							'comments',
+							'gravatar-hovercards',
+							'markdown',
+							'subscriptions'
+						] ) && (
+							<NavItem
+								path="#discussion"
+								onClick={ () => this.trackNavClick( 'discussion' ) }
+								selected={ this.props.route.path === '/discussion' }>
+								{ __( 'Discussion', { context: 'Navigation item.' } ) }
+							</NavItem>
+						)
+					}
+					{
+						this.hasAnyOfThese( [
+							'seo-tools',
+							'wordads',
+							'stats',
+							'related-posts',
+							'verification-tools',
+							'sitemaps',
+							'google-analytics'
+						] ) && (
+							<NavItem
+								path="#traffic"
+								onClick={ () => this.trackNavClick( 'traffic' ) }
+								selected={ this.props.route.path === '/traffic' }>
+								{ __( 'Traffic', { context: 'Navigation item.' } ) }
+							</NavItem>
+						)
+					}
+					{
+						( this.hasAnyOfThese( [
+							'protect',
+							'sso',
+							'vaultpress'
+						] ) || (
+							this.props.isPluginActive( 'akismet/akismet.php' ) ||
+							this.props.isPluginActive( 'vaultpress/vaultpress.php' )
+						) ) && (
+							<NavItem
+								path="#security"
+								onClick={ () => this.trackNavClick( 'security' ) }
+								selected={ this.props.route.path === '/security' }>
+								{ __( 'Security', { context: 'Navigation item.' } ) }
+							</NavItem>
+						)
+					}
 				</NavTabs>
 			);
 		} else if ( this.props.isSubscriber ) {
@@ -135,9 +205,12 @@ export const NavigationSettings = React.createClass( {
 			if ( ! this.props.isModuleActivated( 'publicize' ) || ! this.props.userCanPublish ) {
 				sharingTab = '';
 			} else {
-				sharingTab = (
+				sharingTab = this.hasAnyOfThese( [
+					'publicize'
+				] ) && (
 					<NavItem
 						path="#sharing"
+						onClick={ () => this.trackNavClick( 'sharing' ) }
 						selected={ this.props.route.path === '/sharing' }>
 						{ __( 'Sharing', { context: 'Navigation item.' } ) }
 					</NavItem>
@@ -145,11 +218,19 @@ export const NavigationSettings = React.createClass( {
 			}
 			navItems = (
 				<NavTabs selectedText={ this.props.route.name }>
-					<NavItem
-						path="#writing"
-						selected={ this.props.route.path === '/writing' || this.props.route.path === '/settings' }>
-						{ __( 'Writing', { context: 'Navigation item.' } ) }
-					</NavItem>
+					{
+						this.hasAnyOfThese( [
+							'after-the-deadline',
+							'post-by-email'
+						] ) && (
+							<NavItem
+								path="#writing"
+								onClick={ () => this.trackNavClick( 'writing' ) }
+								selected={ this.props.route.path === '/writing' || this.props.route.path === '/settings' }>
+								{ __( 'Writing', { context: 'Navigation item.' } ) }
+							</NavItem>
+						)
+					}
 					{
 						// Give only Publicize to non admin users
 						sharingTab
@@ -160,6 +241,7 @@ export const NavigationSettings = React.createClass( {
 
 		return (
 			<div className="dops-navigation">
+				<QuerySitePlugins />
 				<SectionNav selectedText={ this.props.route.name }>
 					{ navItems }
 					{ this.maybeShowSearch() }
@@ -202,6 +284,8 @@ export default connect(
 			isLinked: isCurrentUserLinked( state ),
 			isSiteConnected: isSiteConnected( state ),
 			isModuleActivated: module => isModuleActivated( state, module ),
+			moduleList: getModules( state ),
+			isPluginActive: plugin_slug => isPluginActive( state, plugin_slug ),
 			searchTerm: getSearchTerm( state )
 		};
 	},
