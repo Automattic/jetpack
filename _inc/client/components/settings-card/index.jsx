@@ -30,7 +30,7 @@ import {
 	isFetchingSiteData
 } from 'state/site';
 import SectionHeader from 'components/section-header';
-import Banner from 'components/banner';
+import JetpackBanner from 'components/jetpack-banner';
 import Button from 'components/button';
 
 export const SettingsCard = props => {
@@ -71,7 +71,7 @@ export const SettingsCard = props => {
 				}
 
 				return (
-					<Banner
+					<JetpackBanner
 						title={ __( 'Host fast, high-quality, ad-free video.' ) }
 						callToAction={ upgradeLabel }
 						plan={ PLAN_JETPACK_PREMIUM }
@@ -89,7 +89,7 @@ export const SettingsCard = props => {
 				}
 
 				return (
-					<Banner
+					<JetpackBanner
 						title={ __( 'Generate income with high-quality ads.' ) }
 						callToAction={ upgradeLabel }
 						plan={ PLAN_JETPACK_PREMIUM }
@@ -105,7 +105,7 @@ export const SettingsCard = props => {
 
 				if ( 'is-premium-plan' === planClass ) {
 					return (
-						<Banner
+						<JetpackBanner
 							title={ __( 'Real-time site backups and automatic threat resolution.' ) }
 							plan={ PLAN_JETPACK_BUSINESS }
 							callToAction={ upgradeLabel }
@@ -116,7 +116,7 @@ export const SettingsCard = props => {
 				}
 
 				return (
-					<Banner
+					<JetpackBanner
 						callToAction={ upgradeLabel }
 						title={ __( 'Protect against data loss, malware, and malicious attacks.' ) }
 						plan={ PLAN_JETPACK_PREMIUM }
@@ -130,7 +130,7 @@ export const SettingsCard = props => {
 					return '';
 				}
 				return (
-					<Banner
+					<JetpackBanner
 						callToAction={ upgradeLabel }
 						title={ __( 'Integrate easily with Google Analytics.' ) }
 						plan={ PLAN_JETPACK_BUSINESS }
@@ -144,7 +144,7 @@ export const SettingsCard = props => {
 				}
 
 				return (
-					<Banner
+					<JetpackBanner
 						callToAction={ upgradeLabel }
 						title={ __( 'Help your content get found and shared with SEO tools.' ) }
 						plan={ PLAN_JETPACK_BUSINESS }
@@ -160,7 +160,7 @@ export const SettingsCard = props => {
 				}
 
 				return (
-					<Banner
+					<JetpackBanner
 						callToAction={ upgradeLabel }
 						title={ __( 'Protect your site from spam.' ) }
 						plan={ PLAN_JETPACK_PERSONAL }
