@@ -96,13 +96,19 @@
 			if ( false === to ) {
 				$( postDetails.date ).css( {
 					'clip': 'rect(1px, 1px, 1px, 1px)',
-					'position': 'absolute'
+					'height': '1px',
+					'overflow': 'hidden',
+					'position': 'absolute',
+					'width': '1px'
 				} );
 				$( 'body' ).addClass( 'date-hidden' );
 			} else {
 				$( postDetails.date ).css( {
 					'clip': 'auto',
-					'position': 'relative'
+					'height': 'auto',
+					'overflow': 'auto',
+					'position': 'relative',
+					'width': 'auto'
 				} );
 				$( 'body' ).removeClass( 'date-hidden' );
 			}
@@ -115,13 +121,19 @@
 			if ( false === to ) {
 				$( postDetails.categories ).css( {
 					'clip': 'rect(1px, 1px, 1px, 1px)',
-					'position': 'absolute'
+					'height': '1px',
+					'overflow': 'hidden',
+					'position': 'absolute',
+					'width': '1px'
 				} );
 				$( 'body' ).addClass( 'categories-hidden' );
 			} else {
 				$( postDetails.categories ).css( {
 					'clip': 'auto',
-					'position': 'relative'
+					'height': 'auto',
+					'overflow': 'auto',
+					'position': 'relative',
+					'width': 'auto'
 				} );
 				$( 'body' ).removeClass( 'categories-hidden' );
 			}
@@ -134,13 +146,19 @@
 			if ( false === to ) {
 				$( postDetails.tags ).css( {
 					'clip': 'rect(1px, 1px, 1px, 1px)',
-					'position': 'absolute'
+					'height': '1px',
+					'overflow': 'hidden',
+					'position': 'absolute',
+					'width': '1px'
 				} );
 				$( 'body' ).addClass( 'tags-hidden' );
 			} else {
 				$( postDetails.tags ).css( {
 					'clip': 'auto',
-					'position': 'relative'
+					'height': 'auto',
+					'overflow': 'auto',
+					'position': 'relative',
+					'width': 'auto'
 				} );
 				$( 'body' ).removeClass( 'tags-hidden' );
 			}
@@ -153,13 +171,19 @@
 			if ( false === to ) {
 				$( postDetails.author ).css( {
 					'clip': 'rect(1px, 1px, 1px, 1px)',
-					'position': 'absolute'
+					'height': '1px',
+					'overflow': 'hidden',
+					'position': 'absolute',
+					'width': '1px'
 				} );
 				$( 'body' ).addClass( 'author-hidden' );
 			} else {
 				$( postDetails.author ).css( {
 					'clip': 'auto',
-					'position': 'relative'
+					'height': 'auto',
+					'overflow': 'auto',
+					'position': 'relative',
+					'width': 'auto'
 				} );
 				$( 'body' ).removeClass( 'author-hidden' );
 			}

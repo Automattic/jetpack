@@ -39,7 +39,7 @@ function jetpack_post_details_enqueue_scripts() {
 	$elements = implode( ', ', $elements );
 
 	// Hide the classes with CSS.
-	$css = $elements . ' { position: absolute; clip: rect(1px, 1px, 1px, 1px); }';
+	$css = $elements . ' { clip: rect(1px, 1px, 1px, 1px); height: 1px; position: absolute; overflow: hidden; width: 1px; }';
 
 	// Add the CSS to the stylesheet.
 	wp_add_inline_style( $post_details['stylesheet'], $css );
