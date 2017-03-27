@@ -3,13 +3,13 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
-import DashSectionHeader from 'components/dash-section-header';
 import { translate as __ } from 'i18n-calypso';
 import analytics from 'lib/analytics';
 
 /**
  * Internal dependencies
  */
+import DashSectionHeader from 'components/dash-section-header';
 import DashStats from './stats';
 import DashProtect from './protect';
 import DashMonitor from './monitor';
