@@ -506,7 +506,7 @@ class A8C_WPCOM_Masterbar {
 		$wp_admin_bar->add_menu( array(
 			'parent' => 'root-default',
 			'id'    => 'blog',
-			'title' => ( $this->user_site_count > 1 ? __( 'My Sites', 'jetpack' ) : __( 'My Site', 'jetpack' ) ),
+			'title' => _n( 'My Site', 'My Sites', $this->user_site_count, 'jetpack' ),
 			'href'  => '#',
 			'meta'  => array(
 				'class' => 'my-sites',
@@ -523,7 +523,7 @@ class A8C_WPCOM_Masterbar {
 		} else {
 			$wp_admin_bar->add_menu( array(
 				'parent' => 'blog',
-			    'id'     => 'new-site',
+				'id'     => 'new-site',
 				'title'  => __( '+ Add New WordPress', 'jetpack' ),
 				'href'   => 'https://wordpress.com/start?ref=admin-bar-logged-in',
 			) );
