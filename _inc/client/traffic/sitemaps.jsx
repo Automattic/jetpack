@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import ExternalLink from 'components/external-link';
 import get from 'lodash/get';
+import analytics from 'lib/analytics';
 
 /**
  * Internal dependencies
@@ -21,6 +22,13 @@ import { getSiteAdminUrl, isSiteVisibleToSearchEngines } from 'state/initial-sta
 
 export const Sitemaps = moduleSettingsForm(
 	React.createClass( {
+		trackSitemapUrl() {
+			analytics.tracks.recordJetpackClick( 'sitemap-url-link' );
+		},
+
+		trackSitemapNewsUrl() {
+			analytics.tracks.recordJetpackClick( 'sitemap-news-url-link' );
+		},
 
 		render() {
 			const sitemaps = this.props.getModule( 'sitemaps' ),
@@ -48,9 +56,9 @@ export const Sitemaps = moduleSettingsForm(
 									<FormFieldset>
 										<p className="jp-form-setting-explanation">{ __( 'Your sitemap is automatically sent to all major search engines for indexing.' ) }</p>
 										<p>
-											<ExternalLink icon={ true } target="_blank" href={ sitemap_url }>{ sitemap_url }</ExternalLink>
+											<ExternalLink onClick={ this.trackSitemapUrl } icon={ true } target="_blank" href={ sitemap_url }>{ sitemap_url }</ExternalLink>
 											<br />
-											<ExternalLink icon={ true } target="_blank" href={ news_sitemap_url }>{ news_sitemap_url }</ExternalLink>
+											<ExternalLink onClick={ this.trackSitemapNewsUrl } icon={ true } target="_blank" href={ news_sitemap_url }>{ news_sitemap_url }</ExternalLink>
 										</p>
 									</FormFieldset>
 								)
