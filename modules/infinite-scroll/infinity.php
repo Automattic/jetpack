@@ -1478,7 +1478,7 @@ class The_Neverending_Home_Page {
 	/**
 	 * Render default IS footer
 	 *
-	 * @uses __, wp_get_theme, get_current_theme, apply_filters, home_url, esc_attr, get_bloginfo, bloginfo
+	 * @uses __, wp_get_theme, apply_filters, home_url, esc_attr, get_bloginfo, bloginfo
 	 * @return string
 	 */
 	private function default_footer() {
@@ -1489,7 +1489,7 @@ class The_Neverending_Home_Page {
 		$credits .= sprintf(
 			/* translators: %1$s is the name of a theme */
 			__( 'Theme: %1$s.', 'jetpack' ),
-			function_exists( 'wp_get_theme' ) ? wp_get_theme()->Name : get_current_theme()
+			wp_get_theme()->Name
 		);
 		/**
 		 * Filter Infinite Scroll's credit text.
