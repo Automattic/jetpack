@@ -111,6 +111,9 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Enhancements**
 
 * WordPress.com Toolbar: add a new Admin bar providing quick access to the WordPress.com site management interface, right from your self-hosted site's dashboard. #6413
+
+
+* Infinite Scroll: change button text on taxonomy page. #6584
 * Widgets: allow the use of full URLs in the Social Media Icons widget. #6508
 * Sync: synchronize the `sync_via_cron` setting as well. #6477
 * WordPress.com REST API: return plan data from WordPress.com directly. #6249
