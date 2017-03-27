@@ -185,10 +185,7 @@ export const NavigationSettings = React.createClass( {
 							'protect',
 							'sso',
 							'vaultpress'
-						] ) || (
-							this.props.isPluginActive( 'akismet/akismet.php' ) ||
-							this.props.isPluginActive( 'vaultpress/vaultpress.php' )
-						) ) && (
+						] ) || this.props.isPluginActive( 'akismet/akismet.php' ) ) && (
 							<NavItem
 								path="#security"
 								onClick={ () => this.trackNavClick( 'security' ) }

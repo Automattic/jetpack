@@ -13,7 +13,6 @@ import { isDevMode, isUnavailableInDevMode } from 'state/connection';
 import { isModuleFound as _isModuleFound } from 'state/search';
 import { isPluginActive } from 'state/site/plugins';
 import QuerySite from 'components/data/query-site';
-import QuerySitePlugins from 'components/data/query-site-plugins';
 import QueryAkismetKeyCheck from 'components/data/query-akismet-key-check';
 import { BackupsScan } from './backups-scan';
 import Antispam from './antispam';
@@ -31,54 +30,58 @@ export const Security = React.createClass( {
 			isUnavailableInDevMode: this.props.isUnavailableInDevMode
 		};
 
-		const found = {
-			protect: this.props.isModuleFound( 'protect' ),
-			sso: this.props.isModuleFound( 'sso' )
-		};
+		const foundProtect = this.props.isModuleFound( 'protect' ),
+			foundSso = this.props.isModuleFound( 'sso' ),
+			foundAkismet = this.props.isPluginActive( 'akismet/akismet.php' ),
+			foundBackups = this.props.isPluginActive( 'vaultpress/vaultpress.php' );
 
 		if ( ! this.props.searchTerm && ! this.props.active ) {
 			return null;
 		}
 
-		if ( ! found.sso && ! found.protect ) {
+		if (
+			! foundSso &&
+			! foundProtect &&
+			! foundAkismet &&
+			! foundBackups
+		) {
 			return null;
 		}
 
-		const backupSettings = (
-			<BackupsScan
-				{ ...commonProps }
-			/>
-		);
-
-		let akismetSettings = '';
-		if ( this.props.isPluginActive( 'akismet/akismet.php' ) ) {
-			akismetSettings = (
-				<div>
-					<Antispam
-						{ ...commonProps }
-					/>
-					<QueryAkismetKeyCheck />
-				</div>
-			);
-		}
-		const protectSettings = (
-			<Protect
-				{ ...commonProps }
-			/>
-		);
-		const ssoSettings = (
-			<SSO
-				{ ...commonProps }
-			/>
-		);
 		return (
 			<div>
 				<QuerySite />
-				<QuerySitePlugins />
-				{ ( found.protect || found.sso ) && backupSettings }
-				{ ( found.protect || found.sso ) && akismetSettings }
-				{ found.protect && protectSettings }
-				{ found.sso && ssoSettings }
+				{
+					foundBackups && (
+						<BackupsScan
+							{ ...commonProps }
+						/>
+					)
+				}
+				{
+					foundAkismet && (
+						<div>
+							<Antispam
+								{ ...commonProps }
+							/>
+							<QueryAkismetKeyCheck />
+						</div>
+					)
+				}
+				{
+					foundProtect && (
+						<Protect
+							{ ...commonProps }
+						/>
+					)
+				}
+				{
+					foundSso && (
+						<SSO
+							{ ...commonProps }
+						/>
+					)
+				}
 			</div>
 		);
 	}
