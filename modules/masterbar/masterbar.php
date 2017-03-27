@@ -26,7 +26,13 @@ class A8C_WPCOM_Masterbar {
 		$this->user_login = $this->user_data['login'];
 		$this->user_email = $this->user_data['email'];
 		$this->display_name = $this->user_data['display_name'];
+
+		// Used to build menu links that point directly to Calypso.
 		$this->primary_site_slug = Jetpack::build_raw_urls( get_home_url() );
+
+		// Used for display purposes and for building WP Admin links.
+		$this->primary_site_url = str_replace( '::', '/', $this->primary_site_slug );
+
 		// We need to use user's setting here, instead of relying on current blog's text direction
 		$this->user_text_direction = $this->user_data['text_direction'];
 
@@ -528,10 +534,9 @@ class A8C_WPCOM_Masterbar {
 				$class = 'has-blavatar';
 			}
 
-			$site_link = str_replace( '::', '/', $this->primary_site_slug );
 			$blog_info = '<div class="ab-site-icon">' . $blavatar . '</div>';
 			$blog_info .= '<span class="ab-site-title">' . esc_html( $blog_name ) . '</span>';
-			$blog_info .= '<span class="ab-site-description">' . esc_html( $site_link ) . '</span>';
+			$blog_info .= '<span class="ab-site-description">' . esc_html( $this->primary_site_url ) . '</span>';
 
 			$wp_admin_bar->add_menu( array(
 				'parent' => 'blog',
@@ -798,7 +803,7 @@ class A8C_WPCOM_Masterbar {
 					'label' => __( 'People', 'jetpack' ),
 				),
 				array(
-					'url'   => '//' . esc_attr( $this->primary_site_slug ) . '/wp-admin/user-new.php',
+					'url'   => '//' . esc_attr( $this->primary_site_url ) . '/wp-admin/user-new.php',
 					'id'    => 'wp-admin-bar-people-add',
 					'label' => _x( 'Add', 'admin bar people item label', 'jetpack' ),
 				)
@@ -877,7 +882,7 @@ class A8C_WPCOM_Masterbar {
 					'parent' => 'configuration',
 					'id'     => 'legacy-dashboard',
 					'title'  => __( 'WP Admin', 'jetpack' ),
-					'href'   => '//' . esc_attr( $this->primary_site_slug ) . '/wp-admin/',
+					'href'   => '//' . esc_attr( $this->primary_site_url ) . '/wp-admin/',
 					'meta'   => array(
 						'class' => 'mb-icon',
 					),
