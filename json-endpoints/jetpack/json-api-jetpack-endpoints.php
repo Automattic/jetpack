@@ -1211,3 +1211,27 @@ new Jetpack_JSON_API_Get_Post_Backup_Endpoint( array(
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/posts/1/backup'
 ) );
 
+// GET /sites/%s/users/%d/backup
+require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-get-user-backup-endpoint.php' );
+new Jetpack_JSON_API_Get_User_Backup_Endpoint( array(
+	'description'    => 'Fetch a backup of a user, along with all of its metadata',
+	'group'          => '__do_not_document',
+	'method'         => 'GET',
+	'path'           => '/sites/%s/users/%d/backup',
+	'stat'           => 'users:1:backup',
+	'allow_jetpack_site_auth' => true,
+	'path_labels'    => array(
+		'$site' => '(int|string) The site ID, The site domain',
+		'$user' => '(int) The user ID',
+	),
+	'response_format' => array(
+		'user' => '(array) User table row',
+		'meta' => '(array) Associative array of key/value usermeta data',
+	),
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/users/1/backup'
+) );
