@@ -172,7 +172,7 @@ export function ModuleSettingsForm( InnerComponent ) {
 				{
 					module: module,
 					setting: setting,
-					activated: activated
+					toggled: activated ? 'on' : 'off'
 				}
 			);
 		},
