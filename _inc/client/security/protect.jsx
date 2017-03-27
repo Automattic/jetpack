@@ -8,6 +8,7 @@ import Textarea from 'components/textarea';
 import includes from 'lodash/includes';
 import FoldableCard from 'components/foldable-card';
 import classNames from 'classnames';
+import analytics from 'lib/analytics';
 
 /**
  * Internal dependencies
@@ -63,6 +64,13 @@ export const Protect = moduleSettingsForm(
 			} );
 		},
 
+		trackOpenCard() {
+			analytics.tracks.recordJetpackClick( {
+				target: 'foldable-settings-open',
+				feature: 'protect'
+			} );
+		},
+
 		render() {
 			const isProtectActive = this.props.getOptionValue( 'protect' ),
 				unavailableInDevMode = this.props.isUnavailableInDevMode( 'protect' ),
@@ -88,6 +96,7 @@ export const Protect = moduleSettingsForm(
 					saveDisabled={ this.props.isSavingAnyOption( 'jetpack_protect_global_whitelist' ) }
 				>
 					<FoldableCard
+						onOpen={ this.trackOpenCard }
 						header={ toggle }
 						className={ classNames( { 'jp-foldable-settings-disable': unavailableInDevMode } ) }
 					>

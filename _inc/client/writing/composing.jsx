@@ -7,6 +7,7 @@ import { translate as __ } from 'i18n-calypso';
 import CompactFormToggle from 'components/form/form-toggle/compact';
 import FoldableCard from 'components/foldable-card';
 import classNames from 'classnames';
+import analytics from 'lib/analytics';
 
 /**
  * Internal dependencies
@@ -171,6 +172,13 @@ const Composing = moduleSettingsForm(
 			return this.props.updateFormStateModuleOption( module, 'wpcom_publish_posts_with_markdown', true );
 		},
 
+		trackOpenCard() {
+			analytics.tracks.recordJetpackClick( {
+				target: 'foldable-settings-open',
+				feature: 'atd'
+			} );
+		},
+
 		render() {
 			// If we don't have any element to show, return early
 			if (
@@ -201,6 +209,7 @@ const Composing = moduleSettingsForm(
 				),
 				atdSettings = (
 					<FoldableCard
+						onOpen={ this.trackOpenCard }
 						className={ classNames( 'jp-foldable-card__main-settings', { 'jp-foldable-settings-disable': unavailableInDevMode } ) }
 						header={
 					this.props.userCanManageModules

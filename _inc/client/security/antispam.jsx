@@ -14,6 +14,7 @@ import isEmpty from 'lodash/isEmpty';
 import trim from 'lodash/trim';
 import { isAkismetKeyValid, checkAkismetKey, isCheckingAkismetKey } from 'state/at-a-glance';
 import { FEATURE_SPAM_AKISMET_PLUS } from 'lib/plans/constants';
+import analytics from 'lib/analytics';
 
 /**
  * Internal dependencies
@@ -70,6 +71,13 @@ export const Antispam = moduleSettingsForm(
 			}
 		},
 
+		trackOpenCard() {
+			analytics.tracks.recordJetpackClick( {
+				target: 'foldable-settings-open',
+				feature: 'anti-spam'
+			} );
+		},
+
 		render() {
 			const textProps = {
 				name: 'wordpress_api_key',
@@ -121,6 +129,7 @@ export const Antispam = moduleSettingsForm(
 					feature={ FEATURE_SPAM_AKISMET_PLUS }
 				>
 					<FoldableCard
+						onOpen={ this.trackOpenCard }
 						header={ foldableHeader }
 					>
 						<SettingsGroup support="https://akismet.com/jetpack/">

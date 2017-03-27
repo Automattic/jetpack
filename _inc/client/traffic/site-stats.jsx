@@ -11,6 +11,7 @@ import includes from 'lodash/includes';
 import filter from 'lodash/filter';
 import classNames from 'classnames';
 import { imagePath } from 'constants';
+import analytics from 'lib/analytics';
 
 /**
  * Internal dependencies
@@ -92,6 +93,13 @@ export const SiteStats = moduleSettingsForm(
 			} );
 		},
 
+		trackOpenCard() {
+			analytics.tracks.recordJetpackClick( {
+				target: 'foldable-settings-open',
+				feature: 'stats'
+			} );
+		},
+
 		render() {
 			const stats = this.props.getModule( 'stats' ),
 				isStatsActive = this.props.getOptionValue( 'stats' ),
@@ -141,6 +149,7 @@ export const SiteStats = moduleSettingsForm(
 					hideButton
 				>
 					<FoldableCard
+						onOpen={ this.trackOpenCard }
 						header={ __( 'Collecting valuable traffic stats and insights' ) }
 						clickableHeader={ true }
 						className={ classNames( 'jp-foldable-settings-standalone', { 'jp-foldable-settings-disable': unavailableInDevMode } ) }
