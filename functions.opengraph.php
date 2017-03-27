@@ -302,10 +302,9 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 			if ( $image_url ) {
 				/**
 				 * Transient names are 45 chars max.
-				 * Let's generate a hash that's 41 chars max:
-				 * We will add 'jp_' in front of it later, so 45 chars minus those 3, and a one-off char just in in case.
+				 * Let's generate a hash that's never more than 40 chars long.
 				 */
-				$image_hash = substr( md5( $image_url ), 0, 41 );
+				$image_hash = sha1( $image_url );
 			}
 
 			// Look for data in our transient. If nothing, let's get an attachment ID.
