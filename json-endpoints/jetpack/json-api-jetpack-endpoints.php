@@ -1134,9 +1134,34 @@ new Jetpack_JSON_API_Cron_Unschedule_Endpoint( array(
 ) );
 
 //	BACKUPS
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-get-post-backup-endpoint.php' );
+
+// GET /sites/%s/comments/%d/backup
+require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-get-comment-backup-endpoint.php' );
+new Jetpack_JSON_API_Get_Comment_Backup_Endpoint( array(
+	'description'    => 'Fetch a backup of a comment, along with all of its metadata',
+	'group'          => '__do_not_document',
+	'method'         => 'GET',
+	'path'           => '/sites/%s/comments/%d/backup',
+	'stat'           => 'comments:1:backup',
+	'allow_jetpack_site_auth' => true,
+	'path_labels'    => array(
+		'$site' => '(int|string) The site ID, The site domain',
+		'$post' => '(int) The comment ID',
+	),
+	'response_format' => array(
+		'comment' => '(array) Comment table row',
+		'meta'    => '(array) Associative array of key/value commentmeta data',
+	),
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/comments/1/backup'
+) );
 
 // GET /sites/%s/posts/%d/backup
+require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-get-post-backup-endpoint.php' );
 new Jetpack_JSON_API_Get_Post_Backup_Endpoint( array(
 	'description'    => 'Fetch a backup of a post, along with all of its metadata',
 	'group'          => '__do_not_document',
@@ -1159,3 +1184,4 @@ new Jetpack_JSON_API_Get_Post_Backup_Endpoint( array(
 	),
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/posts/1/backup'
 ) );
+
