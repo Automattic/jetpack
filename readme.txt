@@ -135,6 +135,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug Fixes**
 
+* Subscriptions: show the correct notification in the subscription form when the email is already subscribed. #6603
 * Sync: remove deprecated `jetpack_publicize_post` action. #6567
 * VideoPress: avoid PHP Notices when fetching information about a video. #6527
 
