@@ -4,6 +4,7 @@
 import React from 'react';
 import Button from 'components/button';
 import { translate as __ } from 'i18n-calypso';
+import analytics from 'lib/analytics';
 
 /**
  * Internal dependencies
@@ -11,6 +12,14 @@ import { translate as __ } from 'i18n-calypso';
 import { imagePath } from 'constants';
 
 const PlanHeader = React.createClass( {
+	trackLearnMore() {
+		analytics.tracks.recordJetpackClick( {
+			target: 'learn-more',
+			plan: 'free',
+			page: 'plans'
+		} );
+	},
+
 	render() {
 		let starrySky = '',
 			planCard = '';
