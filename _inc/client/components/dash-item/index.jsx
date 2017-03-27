@@ -59,6 +59,14 @@ export const DashItem = React.createClass( {
 		} );
 	},
 
+	trackPaidBtnClick( feature ) {
+		analytics.tracks.recordJetpackClick( {
+			target: 'paid-button',
+			feature: feature,
+			page: 'aag'
+		} );
+	},
+
 	render() {
 		let toggle, proButton = '';
 
@@ -117,6 +125,7 @@ export const DashItem = React.createClass( {
 		if ( this.props.pro && ! this.props.isDevMode ) {
 			proButton =
 				<Button
+					onClick={ () => this.trackPaidBtnClick( this.props.module ) }
 					compact={ true }
 					href="#/plans"
 				>
