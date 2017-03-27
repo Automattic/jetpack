@@ -43,12 +43,14 @@ export const SettingsCard = props => {
 			: false,
 		vpData = props.vaultPressData,
 		backupsEnabled = (
+			'undefined' !== typeof vpData &&
 			'undefined' !== typeof vpData.data &&
 			'undefined' !== typeof vpData.data.features &&
-			'undefined' !== typeof vpData.data.features.security &&
+			'undefined' !== typeof vpData.data.features.backups &&
 			vpData.data.features.backups
 		),
 		scanEnabled = (
+			'undefined' !== typeof vpData &&
 			'undefined' !== typeof vpData.data &&
 			'undefined' !== typeof vpData.data.features &&
 			'undefined' !== typeof vpData.data.features.security &&
