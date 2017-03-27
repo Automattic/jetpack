@@ -7,6 +7,7 @@ import { translate as __ } from 'i18n-calypso';
 import includes from 'lodash/includes';
 import isEmpty from 'lodash/isEmpty';
 import ProStatus from 'pro-status';
+import get from 'lodash/get';
 
 /**
  * Internal dependencies
@@ -24,7 +25,11 @@ import {
 	getPlanClass
 } from 'lib/plans/constants';
 import { getSiteRawUrl, getSiteAdminUrl, userCanManageModules } from 'state/initial-state';
-import { isAkismetKeyValid, isCheckingAkismetKey } from 'state/at-a-glance';
+import {
+	isAkismetKeyValid,
+	isCheckingAkismetKey,
+	getVaultPressData
+} from 'state/at-a-glance';
 import {
 	getSitePlan,
 	isFetchingSiteData
@@ -36,7 +41,10 @@ import Button from 'components/button';
 export const SettingsCard = props => {
 	const module = props.module
 			? props.getModule( props.module )
-			: false;
+			: false,
+		vpData = props.vaultPressData,
+		backupsEnabled = get( vpData, [ 'data', 'features', 'backups' ], false ),
+		scanEnabled = get( vpData, [ 'data', 'features', 'security' ], false );
 
 	// Non admin users only get Publicize, After the Deadline, and Post by Email settings.
 	// composing is not a module slug but it's used so the Composing card is rendered to show AtD.
@@ -99,7 +107,7 @@ export const SettingsCard = props => {
 				);
 
 			case FEATURE_SECURITY_SCANNING_JETPACK:
-				if ( 'is-business-plan' === planClass ) {
+				if ( backupsEnabled || 'is-business-plan' === planClass ) {
 					return '';
 				}
 
@@ -183,10 +191,7 @@ export const SettingsCard = props => {
 
 		switch ( feature ) {
 			case FEATURE_SECURITY_SCANNING_JETPACK:
-				if (
-					'is-free-plan' === planClass ||
-					'is-personal-plan' === planClass
-				) {
+				if ( ( 'is-free-plan' === planClass || 'is-personal-plan' === planClass ) && ! scanEnabled ) {
 					return false;
 				}
 
@@ -275,7 +280,8 @@ export default connect(
 			siteAdminUrl: getSiteAdminUrl( state ),
 			userCanManageModules: userCanManageModules( state ),
 			isAkismetKeyValid: isAkismetKeyValid( state ),
-			isCheckingAkismetKey: isCheckingAkismetKey( state )
+			isCheckingAkismetKey: isCheckingAkismetKey( state ),
+			vaultPressData: getVaultPressData( state )
 		};
 	}
 )( SettingsCard );
