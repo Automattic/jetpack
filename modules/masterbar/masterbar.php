@@ -553,12 +553,11 @@ class A8C_WPCOM_Masterbar {
 				'parent' => 'blog',
 				'id'     => 'blog-info',
 				'title'  => $blog_info,
-				'href'   => esc_url( trailingslashit( $this->primary_site_slug ) ),
+				'href'   => esc_url( trailingslashit( $this->primary_site_url ) ),
 				'meta'   => array(
 					'class' => $class,
 				),
 			) );
-
 		}
 
 		// Stats
