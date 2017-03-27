@@ -62,6 +62,11 @@ export const Protect = moduleSettingsForm(
 			this.setState( {
 				whitelist: newWhitelist
 			} );
+
+			analytics.tracks.recordJetpackClick( {
+				target: 'add-to-whitelist',
+				feature: 'protect'
+			} );
 		},
 
 		trackOpenCard() {
