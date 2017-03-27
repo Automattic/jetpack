@@ -216,14 +216,17 @@ abstract class Jetpack_Admin_Page {
 				$active = Jetpack::get_active_modules();
 				switch ( $current->plan->product_slug ) {
 					case 'jetpack_free':
+					case 'free_plan':
 						$to_deactivate = array( 'seo-tools', 'videopress', 'google-analytics', 'wordads' );
 						break;
 					case 'jetpack_personal':
 					case 'jetpack_personal_monthly':
+					case 'personal-bundle':
 						$to_deactivate = array( 'seo-tools', 'videopress', 'google-analytics', 'wordads' );
 						break;
 					case 'jetpack_premium':
 					case 'jetpack_premium_monthly':
+					case 'value_bundle':
 						$to_deactivate = array( 'seo-tools', 'google-analytics' );
 						break;
 				}

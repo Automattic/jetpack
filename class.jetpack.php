@@ -1301,7 +1301,7 @@ class Jetpack {
 		$premium_plans = array(
 			'jetpack_premium',
 			'jetpack_premium_monthly',
-			'value-bundle',
+			'value_bundle',
 		);
 
 		if ( in_array( $plan['product_slug'], $premium_plans ) ) {
