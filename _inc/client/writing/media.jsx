@@ -113,7 +113,7 @@ const Media = moduleSettingsForm(
 			);
 
 			const carouselSettings = (
-				<SettingsGroup hasChild support={ carousel.learn_more_button }>
+				<SettingsGroup module={ { module: 'carousel' } } hasChild support={ carousel.learn_more_button }>
 					<ModuleToggle
 						slug="carousel"
 						activated={ isCarouselActive }
