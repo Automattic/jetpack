@@ -18,13 +18,12 @@ import includes from 'lodash/includes';
  * Internal dependencies
  */
 import { imagePath } from 'constants';
-import { isDevMode } from 'state/connection';
+import { isDevMode, isCurrentUserLinked, getConnectUrl } from 'state/connection';
 import {
 	getInitialStateStatsData
 } from 'state/initial-state';
 import QueryStatsData from 'components/data/query-stats-data';
 import DashStatsBottom from './dash-stats-bottom';
-
 import {
 	getStatsData,
 	statsSwitchTab,
@@ -134,6 +133,7 @@ const DashStats = React.createClass( {
 							statsData={ this.props.statsData }
 							siteRawUrl={ this.props.siteRawUrl }
 							siteAdminUrl={ this.props.siteAdminUrl }
+							connectUrl={ this.props.connectUrl }
 						/>
 					</div>
 				</div>
@@ -174,7 +174,7 @@ const DashStats = React.createClass( {
 
 	maybeShowStatsTabs: function() {
 		if ( this.props.isModuleActivated( 'stats' ) && ! this.statsErrors() ) {
-			return(
+			return (
 				<ul className="jp-at-a-glance__stats-views">
 					<li tabIndex="0" className="jp-at-a-glance__stats-view">
 						<a href="javascript:void(0)" onClick={ this.handleSwitchStatsView.bind( this, 'day' ) }
@@ -244,6 +244,8 @@ export default connect(
 			isFetchingModules: () => _isFetchingModulesList( state ),
 			activeTab: () => _getActiveStatsTab( state ),
 			isDevMode: isDevMode( state ),
+			isLinked: isCurrentUserLinked( state ),
+			connectUrl: getConnectUrl( state ),
 			statsData: getStatsData( state ) !== 'N/A' ? getStatsData( state ) : getInitialStateStatsData( state )
 		};
 	},
