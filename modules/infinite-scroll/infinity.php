@@ -305,7 +305,7 @@ class The_Neverending_Home_Page {
 		 *
 		 * @module infinite-scroll
 		 *
-		 * @since 4.8
+		 * @since 4.8.0
 		 *
 		 * @param bool|null null                 Bool if value should be overridden, null to determine from query
 		 * @param object    self::wp_query()     WP_Query object for current request
