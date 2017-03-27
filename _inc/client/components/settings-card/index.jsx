@@ -7,6 +7,7 @@ import { translate as __ } from 'i18n-calypso';
 import includes from 'lodash/includes';
 import isEmpty from 'lodash/isEmpty';
 import ProStatus from 'pro-status';
+import get from 'lodash/get';
 
 /**
  * Internal dependencies
@@ -27,7 +28,7 @@ import { getSiteRawUrl, getSiteAdminUrl, userCanManageModules } from 'state/init
 import {
 	isAkismetKeyValid,
 	isCheckingAkismetKey,
-	getVaultPressData as _getVaultPressData
+	getVaultPressData
 } from 'state/at-a-glance';
 import {
 	getSitePlan,
@@ -42,20 +43,8 @@ export const SettingsCard = props => {
 			? props.getModule( props.module )
 			: false,
 		vpData = props.vaultPressData,
-		backupsEnabled = (
-			'undefined' !== typeof vpData &&
-			'undefined' !== typeof vpData.data &&
-			'undefined' !== typeof vpData.data.features &&
-			'undefined' !== typeof vpData.data.features.backups &&
-			vpData.data.features.backups
-		),
-		scanEnabled = (
-			'undefined' !== typeof vpData &&
-			'undefined' !== typeof vpData.data &&
-			'undefined' !== typeof vpData.data.features &&
-			'undefined' !== typeof vpData.data.features.security &&
-			vpData.data.features.security
-		);
+		backupsEnabled = get( vpData, [ 'data', 'features', 'backups' ], false ),
+		scanEnabled = get( vpData, [ 'data', 'features', 'security' ], false );
 
 	// Non admin users only get Publicize, After the Deadline, and Post by Email settings.
 	// composing is not a module slug but it's used so the Composing card is rendered to show AtD.
@@ -292,7 +281,7 @@ export default connect(
 			userCanManageModules: userCanManageModules( state ),
 			isAkismetKeyValid: isAkismetKeyValid( state ),
 			isCheckingAkismetKey: isCheckingAkismetKey( state ),
-			vaultPressData: _getVaultPressData( state )
+			vaultPressData: getVaultPressData( state )
 		};
 	}
 )( SettingsCard );
