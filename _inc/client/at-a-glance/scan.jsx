@@ -56,8 +56,7 @@ const DashScan = React.createClass( {
 						<DashItem
 							label={ labelName }
 							module="scan"
-							status="is-error"
-							statusText={ __( 'Threats found' ) }
+							pro={ true }
 						>
 							<h3>{
 								__(

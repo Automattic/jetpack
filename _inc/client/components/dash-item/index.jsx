@@ -92,20 +92,6 @@ export const DashItem = React.createClass( {
 				}
 			}
 
-			if ( 'scan' === this.props.module && 'is-error' === this.props.status ) {
-				toggle = (
-					<a href="https://dashboard.vaultpress.com/" >
-						<SimpleNotice
-							showDismiss={ false }
-							status={ this.props.status }
-							isCompact={ true }
-						>
-							{ this.props.statusText }
-						</SimpleNotice>
-					</a>
-				);
-			}
-
 			if ( 'monitor' === this.props.module ) {
 				toggle = ! this.props.isDevMode && this.props.isModuleActivated( this.props.module ) && (
 					<Button
