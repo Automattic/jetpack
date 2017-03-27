@@ -186,3 +186,14 @@ export function getCurrentIp( state ) {
 export function getLastPostUrl( state ) {
 	return get( state.jetpack.initialState, 'lastPostUrl' );
 }
+
+/**
+ * Check if promotions like banners are visible or hidden.
+ *
+ * @param {object} state Global state tree
+ *
+ * @return {boolean} True if promotions are active, false otherwise.
+ */
+export function arePromotionsActive( state ) {
+	return get( state.jetpack.initialState.siteData, 'showPromotions', true );
+}
