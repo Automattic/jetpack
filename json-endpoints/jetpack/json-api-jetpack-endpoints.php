@@ -1211,6 +1211,30 @@ new Jetpack_JSON_API_Get_Post_Backup_Endpoint( array(
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/posts/1/backup'
 ) );
 
+// GET /sites/%s/terms/%d/backup
+require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-get-term-backup-endpoint.php' );
+new Jetpack_JSON_API_Get_Term_Backup_Endpoint( array(
+	'description'    => 'Fetch a backup of a term, along with all of its metadata',
+	'group'          => '__do_not_document',
+	'method'         => 'GET',
+	'path'           => '/sites/%s/terms/%d/backup',
+	'stat'           => 'terms:1:backup',
+	'allow_jetpack_site_auth' => true,
+	'path_labels'    => array(
+		'$site' => '(int|string) The site ID, The site domain',
+		'$term' => '(int) The term ID',
+	),
+	'response_format' => array(
+		'term' => '(array) Term table row',
+	),
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/terms/1/backup'
+) );
+
 // GET /sites/%s/users/%d/backup
 require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-get-user-backup-endpoint.php' );
 new Jetpack_JSON_API_Get_User_Backup_Endpoint( array(
