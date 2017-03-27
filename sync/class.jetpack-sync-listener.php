@@ -202,7 +202,8 @@ class Jetpack_Sync_Listener {
 			$args,
 			get_current_user_id(),
 			microtime( true ),
-			Jetpack_Sync_Settings::is_importing()
+			Jetpack_Sync_Settings::is_importing(),
+			$this->get_actor(),
 		) );
 
 		// since we've added some items, let's try to load the sender so we can send them as quickly as possible
@@ -212,6 +213,23 @@ class Jetpack_Sync_Listener {
 				Jetpack_Sync_Actions::add_sender_shutdown();
 			}
 		}
+	}
+	function get_actor() {
+		$current_user = wp_get_current_user();
+		$actor = array();
+		if ( $current_user ) {
+			$actor[ 'display_name' ] = $current_user->display_name;
+			$actor[ 'user_email' ] = $current_user->user_email;
+		}
+
+		if ( isset( $_SERVER['REMOTE_ADDR'] ) ) {
+			$actor[ 'ip' ] = $_SERVER['REMOTE_ADDR'];
+		}
+
+		$actor[ 'is_cron' ] = defined( 'DOING_CRON' ) ? DOING_CRON : false;
+		$actor[ 'is_wp_admin'] = is_admin();
+		$actor[ 'is_rest'] = defined( 'REST_API_REQUEST' )? REST_API_REQUEST : false;
+		return $actor;
 	}
 
 	function set_defaults() {
