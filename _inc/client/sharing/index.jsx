@@ -31,48 +31,46 @@ class Sharing extends Component {
 			siteAdminUrl: this.props.siteAdminUrl
 		};
 
-		const found = {
-			publicize: this.props.isModuleFound( 'publicize' ),
-			sharing: this.props.isModuleFound( 'sharedaddy' ),
-			likes: this.props.isModuleFound( 'likes' )
-		};
+		const foundPublicize = this.props.isModuleFound( 'publicize' ),
+			foundSharing = this.props.isModuleFound( 'sharedaddy' ),
+			foundLikes = this.props.isModuleFound( 'likes' );
 
 		if ( ! this.props.searchTerm && ! this.props.active ) {
 			return null;
 		}
 
 		if (
-			! found.publicize &&
-			! found.sharing &&
-			! found.likes
+			! foundPublicize &&
+			! foundSharing &&
+			! foundLikes
 		) {
 			return null;
 		}
 
-		const publicizeSettings = (
-			<Publicize
-				{ ...commonProps }
-			/>
-		);
-
-		const sharingSettings = (
-			<ShareButtons
-				{ ...commonProps }
-			/>
-		);
-
-		const likesSettings = (
-			<Likes
-				{ ...commonProps }
-			/>
-		);
-
 		return (
 			<div>
 				<QuerySite />
-				{ found.publicize && publicizeSettings }
-				{ found.sharing && sharingSettings }
-				{ found.likes && likesSettings }
+				{
+					foundPublicize && (
+						<Publicize
+							{ ...commonProps }
+						/>
+					)
+				}
+				{
+					foundSharing && (
+						<ShareButtons
+							{ ...commonProps }
+						/>
+					)
+				}
+				{
+					foundLikes && (
+						<Likes
+							{ ...commonProps }
+						/>
+					)
+				}
 			</div>
 		);
 	}
