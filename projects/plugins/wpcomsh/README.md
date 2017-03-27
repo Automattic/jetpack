@@ -1,101 +1,125 @@
 # WordPress.com Site Helper
 
-This plugin is like Jetpack but for sites transferred from WPCom to Pressable with Automated Transfer (AT).
- It handles everything from installing (symlinking) WPCom themes to disabling wp-admin/ Appearance -> Editor for
- third-party WPCom premium themes.
+With the help of this mu-plugin, a Pressable site is transformed into a WP.com site. It lives in `wp-content/mu-plugins/wpcomsh` and is loaded with `wp-content/mu-plugins/wpcomsh-loader.php`.
 
-## Installing/deleting WPCom themes (both pub (free) and premium)
+## Development
 
-This plugin manages the installation/deletion of WPCom themes by hooking into the Jetpack theme installation/deletion endpoints and symlinking/unsymlinking the particular theme.
+To work on wpcomsh, you need a WP.org site and ideally the Jetpack plugin installed and connected to WP.com. Clone the [wpcomsh git repo](https://github.com/Automattic/wpcomsh/) into `wp-content/mu-plugins` of that site. Then, either copy or symlink the `wp-content/mu-plugins/wpcomsh-loader.php` file to `wp-content/mu-plugins`. It acts as a "loader" for wpcomsh and we need this because plugin folders put into `mu-plugins` are not automatically loaded like plugin in `wp-content/plugins`.
 
-## Disabling Theme Editor
+If you want to add some new code to wpcomsh, create a new git branch, push to it and then create a Pull Request (PR) against the `master` branch on [wpcomsh GitHub](https://github.com/Automattic/wpcomsh/). After that, send the link to that PR to the Automated Transfer Slack channels for review.
 
-Business users are entitled for all the WPCom premium themes free of charge. After moving their sites to Pressable
- with AT, they can still select and use a WPCom premium theme. However, "due to our agreement with our third-party
- theme sellers on dotcom, we are allowed to host, but not distribute non-a8c premium themes." 
- ([link](http://wp.me/p58i-4kZ)).
+When working on wpcomsh, follow the [WP.org coding standards](https://codex.wordpress.org/WordPress_Coding_Standards) and make sure to add enough logging (either by returning `WP_Error` and/or by using `error_log`) where needed.
 
-This MU plugin disables theme editing (wp-admin -> Appearance -> Editor ) for such themes.
+## Testing
 
-![selection_237](https://cloud.githubusercontent.com/assets/4988512/20633850/19a79450-b34b-11e6-9cd8-337ce120cc8a.png)
+There are two stages of testing wpcomsh:
 
-## Remove the WPCom theme "Delete" button
+The first one is to set up a WP.org site and test on it (more instructions in the [Development section](#Development)). However, it's the best if you also install the Jetpack plugin and connect it to WP.com on the WP.org site as that's how AT sites communicate with WP.com -- many things can be tested only with connected Jetpack. We recommend either using your .wpsandbox.me site (PCYsg-5Q0-p2) or use [Vagrant](https://github.com/Varying-Vagrant-Vagrants/VVV) to set up the WP.org site locally on your machine and share it with world (so WP.com can connect to it).
 
-This plugin removes the "Delete" button of all the WPCom themes (both pub and premium) as these themes require special mechanism for deletion. They can be deleted only through Calypso.
+The second stage of testing your changes to wpcomsh is to [get it deployed](#Deployment) on the AT staging server (currently Pressable `web12`) and test on a transferred site which was pointed to this staging server. If you don't have any, you can use [@lamosty's ones](https://mc.a8c.com/secret-store/?secret_id=2977).
 
-![selection_236](https://cloud.githubusercontent.com/assets/4988512/20633839/0595383c-b34b-11e6-9d13-135e0d751bae.png)
+Only after you've tested your changes to wpcomsh on the AT staging server you can deploy it on the prod server.
 
-## Installation and testing instructions
+## Deployment
 
-### Requirements
+At the moment, deployment is a manual step. To deploy wpcomsh on both the staging server (ie `web12`) and the prod server, ping @seanosh in the Automated Transfer Slack channel. When wpcomsh is being deployed, its [Makefile](Makefile) is run first. Review the Makefile after merging your Pull Request to make sure it doesn't need changes (it happened to us once that some things were not working on Pressable while working locally as the added files were unintentionally excluded from the Makefile and so not deployed on Pressable).
 
-1. Self-hosted WordPress site with the Jetpack plugin connected to your WP.com account;
-2. The Jetpack plugin needs to be checked out from the Jetpack git repo and be on the `add/theme-install-hooks` branch (until it gets merged to `master`). [The PR link is here](https://github.com/Automattic/jetpack/pull/5704);
-2. WPCom pub and premium themes (not needed for our testing, though)
+## Troubleshooting
 
-### Installation
+When something doesn't work as it should, the first thing to do is [enable error logging in WP](https://codex.wordpress.org/Debugging_in_WordPress) or look into the global PHP error log. It's advisable to install and connect Jetpack when working on wpcomsh. Use [MGS](https://mc.a8c.com/mgs/) to search through Slack channels as that's where most of the development work/chats take place. You can also use PCYsg-5mr-p2 (for example, with PhPStorm). If you still can't figure out the problem, drop a message in the Automated Transfer Slack channel and/or ping [wpcomsh devs](https://github.com/Automattic/wpcomsh/graphs/contributors) directly.
 
-Clone this repository into `wp-content/plugins` of your self-hosted Jetpack site and activate it.
+## Features
 
-Now, make two folders named `wpcom-premium-themes` and `wpcom-pub-themes` somewhere on your filesystem (e.g. `/home/<your-user-name>/`) and put two different themes into these folders (e.g. put twentyfifteen to the premium themes folder and twentyfourteen to the pub themes folder) so you know which theme is where.
+If you add a feature to wpcomsh, please add it to the following list:
 
-Rename the directory names of the two themes so they have the `-wpcom` suffix (e.g. `twentyfifteen-wpcom`). `-wpcom` suffix indicates that the theme is a WPCom one.
+### WP.com Footer Credit
 
-Open the `constants.php` file located in the main folder of this plugin and edit or add the `WPCOM_PUB_THEMES_PATH` and `WPCOM_PREMIUM_THEMES_PATH` to point to your newly created directories.
+- Replaces any footer credit in our themes with "POWERED BY WORDPRESS.COM."
+- Allows for customization of that message
 
-At this moment, the plugin is ready for testing.
+### Removal of VaultPress wp-admin notices
 
-### Testing WPCom theme installation
+Removal of activation notice, connection notice and error notices. Users should not have to manage VaultPress, report its issues, etc -- that’s why we are hiding those notices.
 
-#### Theme installation
+### Hiding plugins links on wp-admin/plugins page
 
-1. Open the [WPCom API Dev Console](https://developer.wordpress.com/docs/api/console/);
-2. Make a `POST` request to the following endpoint on your self-hosted connected site: `/sites/<your-site>/themes/<your-wpcom-pub-theme>/install` (e.g. `/sites/lamosty.wpsandbox.me/themes/edin-wpcom/install`);
-3. The theme should be installed (symlinked) and the endpoint should return info about the newly installed theme;
-4. Repeat the 2. point but change the theme slug to your WPCom premium theme slug;
-5. Repeat the 3. point;
+We don’t allow users to deactivate and edit Akismet, Jetpack, VaultPress so that’s why we hide these links.
 
-#### Theme deletion
+We also hide the bulk plugins deactivation on the wp-admin/plugins page for all the plugins as it was not easily possible to do it only for the aforementioned plugins.
 
-1. Open the [WPCom API Dev Console](https://developer.wordpress.com/docs/api/console/);
-2. Make a `POST` request to the following endpoint on your self-hosted connected site: `/sites/<your-site>/themes/<your-wpcom-pub-theme>/delete` (e.g. `/sites/lamosty.wpsandbox.me/themes/edin-wpcom/delete`);
-3. The theme should be deleted (unsymlinked) and the endpoint should return info about the deleted theme;
-4. Repeat the 2. point but change the theme slug to your WPCom premium theme slug;
-5. Repeat the 3. point.
+### Showing that a plugin is auto-managed
 
-After making any request to the self-hosted site, check the theme origin (source) folder, whether it is intact, whether no files have been deleted from it (in case of the delete endpoint). Also, check whether the theme was symlinked correctly by going to the `wp-content/themes` directory and writing the `ls -la` command.
+We show a similar message to the update one under Akismet, Jetpack and VaultPress telling users that those plugins are auto-managed for them (an explanation why they can’t deactivate or edit them).
 
-### Testing removal of the "Delete" button on WPCom themes
+### Symlinking WP.com pub (free) and premium themes
 
-1. Install any of the WPCom themes through the install endpoint;
-2. Navigate to `https://<your-testing-site>/wp-admin/themes.php`;
-3. Open the installed WPCom theme and verify that the "Delete" button is not present in the bottom right-hand corner of your screen.
+We keep the WP.com pub and premium themes checked out on Pressable. When users try to install WP.com themes from within Calypso (not possible from wp-admin), wpcomsh hooks into  Jetpack themes API and symlinks the WP.com themes from the directory where we keep them on Pressable to user’s `wp-admin/themes` folder.
 
-### Testing disabling themes editor if the active theme is a third-party WPCom premium one
+When a user tries to delete a WP.com theme (only available from Calypso), wpcomsh hooks into Jetpack themes API and unsymlinks the WP.com theme.
 
-1. Install any of the premium WPCom themes through the install endpoint;
-2. Activate the installed WPCom theme;
-3. Make sure that the theme's Author is not Automattic (in the theme's `style.css` file)
-4. Navigate to `https://<your-testing-site>/wp-admin/themes.php` and verify that the "Editor" menu item is missing from the "Appearance" menu list;
-5. Navigate to `https://<your-testing-site>/wp-admin/theme-editor.php` and verify that you are presented with an error that "you are not allowed to view this page";
-6. Edit the theme's Author (in the theme's `style.css` file) to `Automattic`;
-7. Verify that you can navigate to the theme Editor (it is allowed to view the source code of WPCom premium themes made by Automattic);
+If a WP.com theme is a child theme of another WP.com theme, wpcomsh symlinks both the parent and the child themes. Analogously, if users try to delete a child WP.com theme, wpcomsh unsymlinks both the child and the parent themes. However, if only the parent theme is removed/unsymlinked, wpcomsh doesn’t unsymlink the child theme, making it potentially broken (as the parent theme is removed).
 
-The WPCom themes will be read-only on the filesystem. If a theme is read-only, the theme Editor doesn't show the "Save" button so the theme's source code can be viewed only. You can verify this by giving your WPCom theme read-execute permissions with this command (`chmod -R 555 <your-wpcom-theme-dir>`) and then navigating to the theme's Editor.
+### Removal of the “delete” button from WP.com themes in wp-admin
 
-If you have any questions regarding the testing/installation instructions, don't hesitate to contact me directly on Slack: @lamosty.
+### Removal of Theme Editor access from 3-rd party WP.com premium themes in wp-admin
 
-## Contributing
+If a user installs a premium WP.com theme created by a third-party shop (ie not Automattic), we remove access to the Theme Editor as we are prohibited to share the source code of this kind of themes. Both access to wp-admin/theme-editor.php page and the “Editor” link under wp-admin -> Appearance are removed.
 
-Open a Pull Request and tag me (@lamosty) for a review. If you need to make a new plugin Release, you can run the following command which will create a new `.zip` file of the plugin in the `releases/` sub-folder.
+### Disabling ability to manage plugins/themes after canceling the Business plan subscription
 
-```
-make build VERSION=<your-release-version>
-```
+When a user cancels their Business plan in Calypso, an async job called `at_business_plan_cancellation_flow` is run. This job does various things, such as deactivating all the plugins except Akismet, Jetpack and VaultPress on the transferred site, switching to a WP.com pub theme (which was previously installed on the site) and setting the option `plan_slug` to `free` on the transferred site (options related to Automated Transfer are stored under `at_options` array).
 
-For example: `make build VERSION=1.1`. However, at the moment, you need to edit the plugin version specified in `wpcomsh.php` manually.
+Setting `plan_slug` to `free`, in turn, adds the `do_not_allow` capability to the list of required capabilities for the following capabilities (for all users -- globally):
 
-## References and links
+- `activate_plugins`
+- `install_plugins`
+- `edit_plugins`
+- `delete_plugins`
+- `upload_plugins`
+- `update_plugins`
+- `switch_themes`
+- `install_themes`
+- `update_themes`
+- `delete_themes`
+- `upload_themes`
+- `edit_themes`
 
-- 18-gh-Automattic/automated-transfer-api-contracts
+### Removal of Pressable wp-admin Dashboard widget
+
+Pressable adds a custom widget to wp-admin’s Dashboard. However, as AT users are still WP.com ones, we need to hide any mention of Pressable from them so wpcomsh removes this custom widget from wp-admin’s Dashboard.
+### Points attachment URLs to WP.com
+
+TODO: needs Jennifer’s clarification.
+
+After transferring a site from WP.com to Pressable, the media files (such as images) are not immediately moved there and stay on WP.com servers. That’s why we need to point the attachment URLs to WP.com temporarily. A job to move media files is queued shortly after the transfer process finishes.
+
+### Bypassing Jetpack Single Sign On login form
+
+By default, transferred sites have the Jetpack Single Sing On enabled as it’s the only way for WP.com users to log into the site’s wp-admin. However, we want it to be seamless (like on WP.com) without users having to click on the “Log in with WP.com account” button.
+
+That’s why we bypass this login form with wpcomsh entirely and log the user automatically to wp-admin (or redirect to WP.com if the user is not logged in to WP.com).
+
+### Theme_uri of a WP.com theme always wordpress.com
+
+To distinguish between WP.com themes installed by symlinking and themes uploaded manually, the `theme_uri` of the WP.com symlinked themes is always `wordpress.com` (for example, in Jetpack themes API response).
+
+### Add assets/admin-style.css
+
+All the wp-admin custom styles for transferred sites are in `assets/admin-style.css`. If you need to add some more, please add them to that file.
+
+### WP.com masterbar (temporary until Jetpack 4.8 release)
+
+We added the WP.com masterbar to Jetpack so transferred sites can look the same as WP.com ones. However, it will be added to the Jetpack 4.8 release which is not ready yet. In the meanwhile, we add it through wpcomsh.
+
+### Custom colors and fonts (+ Typekit fonts)
+
+On WP.com, we provide custom colors and fonts in a site's Customizer. In order to get them supported on an AT site, wpcomsh imports the `colors`, `custom-fonts` and `custom-fonts-typekit` codebases.
+
+### Cli commands
+
+wpcomsh includes [WP CLI](http://wp-cli.org/) commands. They are located in the `class.cli-commands.php` file. At the moment, they are:
+
+- `wp wpcomsh do_jetpack_sync`: enables Jetpack Sync (disabled by default after transferring a site), sets the sync variables to maximum (for faster sync) and loops while the sync is not finished (or 10 tries).
+
+To write a new WP CLI command, define a public method on the `WPCOMSH_CLI_Commands` class. If a method should not be used as a WP CLI command, add a doc block saying "Not a WP CLI command".
 
