@@ -169,7 +169,7 @@ export const SearchResults = ( {
 		}
 
 		if ( 'videopress' === element[0] ) {
-			if ( ! sitePlan || 'jetpack_free' === sitePlan.product_slug || /jetpack_personal*/.test( sitePlan.product_slug ) ) {
+			if ( ! sitePlan || 'jetpack_free' === sitePlan.product_slug || 'free_plan' === sitePlan.product_slug || /jetpack_personal*/.test( sitePlan.product_slug ) ) {
 				toggle = <Button
 					compact={ true }
 					primary={ true }

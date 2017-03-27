@@ -39,8 +39,8 @@ const DashScan = React.createClass( {
 				&&
 				vpData.data.features.security
 			),
-			hasPremium = /jetpack_premium*/.test( this.props.sitePlan.product_slug ),
-			hasBusiness = /jetpack_business*/.test( this.props.sitePlan.product_slug );
+			hasPremium = /jetpack_premium*/.test( this.props.sitePlan.product_slug ) || 'value_bundle' === this.props.sitePlan.product_slug,
+			hasBusiness = /jetpack_business*/.test( this.props.sitePlan.product_slug ) || 'business-bundle' === this.props.sitePlan.product_slug;
 
 		if ( this.props.isModuleActivated( 'vaultpress' ) ) {
 			if ( vpData === 'N/A' ) {
