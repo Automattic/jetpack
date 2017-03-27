@@ -1160,6 +1160,32 @@ new Jetpack_JSON_API_Get_Comment_Backup_Endpoint( array(
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/comments/1/backup'
 ) );
 
+// GET /sites/%s/options/backup
+require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-get-option-backup-endpoint.php' );
+new Jetpack_JSON_API_Get_Option_Backup_Endpoint( array(
+	'description'    => 'Fetch a backup of an option',
+	'group'          => '__do_not_document',
+	'method'         => 'GET',
+	'path'           => '/sites/%s/options/backup',
+	'stat'           => 'options:backup',
+	'allow_jetpack_site_auth' => true,
+	'path_labels'    => array(
+		'$site' => '(int|string) The site ID, The site domain',
+	),
+	'query_parameters' => array(
+		'name' => '(string|array) One or more option names to include in the backup',
+	),
+	'response_format' => array(
+		'options' => '(array) Associative array of option_name => option_value entries',
+	),
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		)
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/options/backup'
+) );
+
 // GET /sites/%s/posts/%d/backup
 require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-get-post-backup-endpoint.php' );
 new Jetpack_JSON_API_Get_Post_Backup_Endpoint( array(
