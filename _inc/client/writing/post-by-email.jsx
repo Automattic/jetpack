@@ -7,6 +7,7 @@ import { translate as __ } from 'i18n-calypso';
 import Button from 'components/button';
 import ClipboardButtonInput from 'components/clipboard-button-input';
 import Card from 'components/card';
+import analytics from 'lib/analytics';
 
 /**
  * Internal dependencies
@@ -27,6 +28,7 @@ const PostByEmail = moduleSettingsForm(
 	React.createClass( {
 
 		regeneratePostByEmailAddress( event ) {
+			analytics.tracks.recordJetpackClick( 'pbe-regenerage-email' );
 			event.preventDefault();
 			this.props.regeneratePostByEmailAddress();
 		},
