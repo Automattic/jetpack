@@ -6,7 +6,7 @@ class Jetpack_JSON_API_Get_Option_Backup_Endpoint extends Jetpack_JSON_API_Endpo
 	protected $needed_capabilities = array();
 	protected $option_names;
 
-	function validate_input() {
+	function validate_input( $object ) {
 		$query_args = $this->query_args();		
 
 		if ( empty( $query_args['name'] ) ) {
