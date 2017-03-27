@@ -8,6 +8,7 @@ import SimpleNotice from 'components/notice';
 import { translate as __ } from 'i18n-calypso';
 import Button from 'components/button';
 import includes from 'lodash/includes';
+import analytics from 'lib/analytics';
 
 /**
  * Internal dependencies
@@ -49,6 +50,13 @@ export const DashItem = React.createClass( {
 			module: '',
 			pro: false
 		};
+	},
+
+	trackMonitorSettingsClick() {
+		analytics.tracks.recordJetpackClick( {
+			target: 'monitor-settings',
+			page: 'aag'
+		} );
 	},
 
 	render() {
@@ -95,6 +103,7 @@ export const DashItem = React.createClass( {
 			if ( 'monitor' === this.props.module ) {
 				toggle = ! this.props.isDevMode && this.props.isModuleActivated( this.props.module ) && (
 					<Button
+						onClick={ this.trackMonitorSettingsClick }
 						href={ 'https://wordpress.com/settings/security/' + this.props.siteRawUrl }
 						compact>
 						{
