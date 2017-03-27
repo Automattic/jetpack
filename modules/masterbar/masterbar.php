@@ -667,37 +667,73 @@ class A8C_WPCOM_Masterbar {
 			),
 		) );
 
-		// Portfolio
-		$portfolios_title = $this->create_menu_item_pair(
-			array(
-				'url'   => 'https://wordpress.com/types/jetpack-portfolio/' . esc_attr( $this->primary_site_slug ),
-				'id'    => 'wp-admin-bar-edit-portfolio',
-				'label' => __( 'Portfolio', 'jetpack' ),
-			),
-			array(
-				'url'   => 'https://wordpress.com/edit/jetpack-portfolio/' . esc_attr( $this->primary_site_slug ),
-				'id'    => 'wp-admin-bar-new-portfolio',
-				'label' => _x( 'Add', 'admin bar menu new item label', 'jetpack' ),
-			)
-		);
-
-		if ( ! current_user_can( 'edit_pages' ) ) {
-			$portfolios_title = $this->create_menu_item_anchor(
-				'ab-item ab-primary mb-icon',
-				'https://wordpress.com/types/jetpack-portfolio/' . esc_attr( $this->primary_site_slug ),
-				__( 'Portfolio', 'jetpack' ),
-				'wp-admin-bar-edit-portfolio'
+		// Testimonials
+		if ( Jetpack::is_module_active( 'custom-content-types' ) && get_option( 'jetpack_testimonial' ) ) {
+			$testimonials_title = $this->create_menu_item_pair(
+				array(
+					'url'   => 'https://wordpress.com/types/jetpack-testimonial/' . esc_attr( $this->primary_site_slug ),
+					'id'    => 'wp-admin-bar-edit-testimonial',
+					'label' => __( 'Testimonials', 'jetpack' ),
+				),
+				array(
+					'url'   => 'https://wordpress.com/edit/jetpack-testimonial/' . esc_attr( $this->primary_site_slug ),
+					'id'    => 'wp-admin-bar-new-testimonial',
+					'label' => _x( 'Add', 'admin bar menu new item label', 'jetpack' ),
+				)
 			);
+
+			if ( ! current_user_can( 'edit_pages' ) ) {
+				$testimonials_title = $this->create_menu_item_anchor(
+					'ab-item ab-primary mb-icon',
+					'https://wordpress.com/types/jetpack-testimonial/' . esc_attr( $this->primary_site_slug ),
+					__( 'Testimonials', 'jetpack' ),
+					'wp-admin-bar-edit-testimonial'
+				);
+			}
+
+			$wp_admin_bar->add_menu( array(
+				'parent' => 'publish',
+				'id'     => 'new-jetpack-testimonial',
+				'title'  => $testimonials_title,
+				'meta'   => array(
+					'class' => 'inline-action',
+				),
+			) );
 		}
 
-		$wp_admin_bar->add_menu( array(
-			'parent' => 'publish',
-			'id'     => 'new-jetpack-portfolio',
-			'title'  => $portfolios_title,
-			'meta'   => array(
-				'class' => 'inline-action',
-			),
-		) );
+		// Portfolio
+		if ( Jetpack::is_module_active( 'custom-content-types' ) && get_option( 'jetpack_portfolio' ) ) {
+			$portfolios_title = $this->create_menu_item_pair(
+				array(
+					'url'   => 'https://wordpress.com/types/jetpack-portfolio/' . esc_attr( $this->primary_site_slug ),
+					'id'    => 'wp-admin-bar-edit-portfolio',
+					'label' => __( 'Portfolio', 'jetpack' ),
+				),
+				array(
+					'url'   => 'https://wordpress.com/edit/jetpack-portfolio/' . esc_attr( $this->primary_site_slug ),
+					'id'    => 'wp-admin-bar-new-portfolio',
+					'label' => _x( 'Add', 'admin bar menu new item label', 'jetpack' ),
+				)
+			);
+
+			if ( ! current_user_can( 'edit_pages' ) ) {
+				$portfolios_title = $this->create_menu_item_anchor(
+					'ab-item ab-primary mb-icon',
+					'https://wordpress.com/types/jetpack-portfolio/' . esc_attr( $this->primary_site_slug ),
+					__( 'Portfolio', 'jetpack' ),
+					'wp-admin-bar-edit-portfolio'
+				);
+			}
+
+			$wp_admin_bar->add_menu( array(
+				'parent' => 'publish',
+				'id'     => 'new-jetpack-portfolio',
+				'title'  => $portfolios_title,
+				'meta'   => array(
+					'class' => 'inline-action',
+				),
+			) );
+		}
 
 		if ( current_user_can( 'edit_theme_options' ) ) {
 			// Look and Feel group
