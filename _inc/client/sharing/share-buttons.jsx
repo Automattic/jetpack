@@ -25,7 +25,7 @@ export class ShareButtons extends Component {
 			}
 
 			if ( isLinked ) {
-				return <Card compact className="jp-settings-card__configure-link" href={ 'https://wordpress.com/sharing/' + siteRawUrl }>{ __( 'Configure your sharing buttons' ) }</Card>;
+				return <Card compact className="jp-settings-card__configure-link" href={ 'https://wordpress.com/sharing/buttons/' + siteRawUrl }>{ __( 'Configure your sharing buttons' ) }</Card>;
 			}
 
 			return <Card compact className="jp-settings-card__configure-link" href={ `${ connectUrl }&from=unlinked-user-connect-sharing` }>{ __( 'Connect your user account to WordPress.com to use this feature' ) }</Card>;

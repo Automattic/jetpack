@@ -6,9 +6,9 @@ import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import includes from 'lodash/includes';
 import isEmpty from 'lodash/isEmpty';
-import Banner from 'components/banner';
 import Button from 'components/button';
 import analytics from 'lib/analytics';
+import get from 'lodash/get';
 
 /**
  * Internal dependencies
@@ -27,13 +27,18 @@ import {
 } from 'lib/plans/constants';
 
 import { getSiteRawUrl, getSiteAdminUrl, userCanManageModules } from 'state/initial-state';
-import { isAkismetKeyValid, isCheckingAkismetKey } from 'state/at-a-glance';
+import {
+	isAkismetKeyValid,
+	isCheckingAkismetKey,
+	getVaultPressData
+} from 'state/at-a-glance';
 import {
 	getSitePlan,
 	isFetchingSiteData
 } from 'state/site';
 import SectionHeader from 'components/section-header';
 import ProStatus from 'pro-status';
+import JetpackBanner from 'components/jetpack-banner';
 
 export const SettingsCard = props => {
 	const trackBannerClick = ( feature ) => {
@@ -45,7 +50,10 @@ export const SettingsCard = props => {
 
 	const module = props.module
 			? props.getModule( props.module )
-			: false;
+			: false,
+		vpData = props.vaultPressData,
+		backupsEnabled = get( vpData, [ 'data', 'features', 'backups' ], false ),
+		scanEnabled = get( vpData, [ 'data', 'features', 'security' ], false );
 
 	// Non admin users only get Publicize, After the Deadline, and Post by Email settings.
 	// composing is not a module slug but it's used so the Composing card is rendered to show AtD.
@@ -80,7 +88,7 @@ export const SettingsCard = props => {
 				}
 
 				return (
-					<Banner
+					<JetpackBanner
 						title={ __( 'Host fast, high-quality, ad-free video.' ) }
 						callToAction={ upgradeLabel }
 						plan={ PLAN_JETPACK_PREMIUM }
@@ -99,7 +107,7 @@ export const SettingsCard = props => {
 				}
 
 				return (
-					<Banner
+					<JetpackBanner
 						title={ __( 'Generate income with high-quality ads.' ) }
 						callToAction={ upgradeLabel }
 						plan={ PLAN_JETPACK_PREMIUM }
@@ -110,13 +118,13 @@ export const SettingsCard = props => {
 				);
 
 			case FEATURE_SECURITY_SCANNING_JETPACK:
-				if ( 'is-business-plan' === planClass ) {
+				if ( backupsEnabled || 'is-business-plan' === planClass ) {
 					return '';
 				}
 
 				if ( 'is-premium-plan' === planClass ) {
 					return (
-						<Banner
+						<JetpackBanner
 							title={ __( 'Real-time site backups and automatic threat resolution.' ) }
 							plan={ PLAN_JETPACK_BUSINESS }
 							callToAction={ upgradeLabel }
@@ -128,7 +136,7 @@ export const SettingsCard = props => {
 				}
 
 				return (
-					<Banner
+					<JetpackBanner
 						callToAction={ upgradeLabel }
 						title={ __( 'Protect against data loss, malware, and malicious attacks.' ) }
 						plan={ PLAN_JETPACK_PREMIUM }
@@ -143,7 +151,7 @@ export const SettingsCard = props => {
 					return '';
 				}
 				return (
-					<Banner
+					<JetpackBanner
 						callToAction={ upgradeLabel }
 						title={ __( 'Integrate easily with Google Analytics.' ) }
 						plan={ PLAN_JETPACK_BUSINESS }
@@ -158,7 +166,7 @@ export const SettingsCard = props => {
 				}
 
 				return (
-					<Banner
+					<JetpackBanner
 						callToAction={ upgradeLabel }
 						title={ __( 'Help your content get found and shared with SEO tools.' ) }
 						plan={ PLAN_JETPACK_BUSINESS }
@@ -175,7 +183,7 @@ export const SettingsCard = props => {
 				}
 
 				return (
-					<Banner
+					<JetpackBanner
 						callToAction={ upgradeLabel }
 						title={ __( 'Protect your site from spam.' ) }
 						plan={ PLAN_JETPACK_PERSONAL }
@@ -198,10 +206,7 @@ export const SettingsCard = props => {
 
 		switch ( feature ) {
 			case FEATURE_SECURITY_SCANNING_JETPACK:
-				if (
-					'is-free-plan' === planClass ||
-					'is-personal-plan' === planClass
-				) {
+				if ( ( 'is-free-plan' === planClass || 'is-personal-plan' === planClass ) && ! scanEnabled ) {
 					return false;
 				}
 
@@ -290,7 +295,8 @@ export default connect(
 			siteAdminUrl: getSiteAdminUrl( state ),
 			userCanManageModules: userCanManageModules( state ),
 			isAkismetKeyValid: isAkismetKeyValid( state ),
-			isCheckingAkismetKey: isCheckingAkismetKey( state )
+			isCheckingAkismetKey: isCheckingAkismetKey( state ),
+			vaultPressData: getVaultPressData( state )
 		};
 	}
 )( SettingsCard );

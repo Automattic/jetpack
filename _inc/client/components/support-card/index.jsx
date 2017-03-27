@@ -20,7 +20,7 @@ import {
 	getSitePlan,
 	isFetchingSiteData
 } from 'state/site';
-import Banner from 'components/banner';
+import JetpackBanner from 'components/jetpack-banner';
 
 const SupportCard = React.createClass( {
 	displayName: 'SupportCard',
@@ -81,7 +81,7 @@ const SupportCard = React.createClass( {
 				</Card>
 				{
 					noPrioritySupport && (
-						<Banner
+						<JetpackBanner
 							title={ __( 'Get a faster resolution to your support questions.' ) }
 							plan={ PLAN_JETPACK_PERSONAL }
 							callToAction={ __( 'Upgrade' ) }

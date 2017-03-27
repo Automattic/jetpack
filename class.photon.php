@@ -403,17 +403,18 @@ class Jetpack_Photon {
 	 * @return string|bool
 	 */
 	public function filter_image_downsize( $image, $attachment_id, $size ) {
-		// Don't foul up the admin side of things, and provide plugins a way of preventing Photon from being applied to images.
-		if (
-			is_admin() ||
+		// Don't foul up the admin side of things, unless a plugin wants to.
+		if ( is_admin() &&
 			/**
-			 * Provide plugins a way of preventing Photon from being applied to images retrieved from WordPress Core.
+			 * Provide plugins a way of running Photon for images in the WordPress Dashboard (wp-admin).
+			 *
+			 * Note: enabling this will result in Photon URLs added to your post content, which could make migrations across domains (and off Photon) a bit more challenging.
 			 *
 			 * @module photon
 			 *
-			 * @since 2.0.0
+			 * @since 4.8.0
 			 *
-			 * @param bool false Stop Photon from being applied to the image. Default to false.
+			 * @param bool false Stop Photon from being run on the Dashboard. Default to false.
 			 * @param array $args {
 			 * 	 Array of image details.
 			 *
@@ -422,9 +423,30 @@ class Jetpack_Photon {
 			 * 	 @type $size Image size. Can be a string (name of the image size, e.g. full) or an integer.
 			 * }
 			 */
-			apply_filters( 'jetpack_photon_override_image_downsize', false, compact( 'image', 'attachment_id', 'size' ) )
-		)
+			false === apply_filters( 'jetpack_photon_admin_allow_image_downsize', false, compact( 'image', 'attachment_id', 'size' ) )
+		) {
 			return $image;
+		}
+
+		/**
+		 * Provide plugins a way of preventing Photon from being applied to images retrieved from WordPress Core.
+		 *
+		 * @module photon
+		 *
+		 * @since 2.0.0
+		 *
+		 * @param bool false Stop Photon from being applied to the image. Default to false.
+		 * @param array $args {
+		 * 	 Array of image details.
+		 *
+		 * 	 @type $image Image URL.
+		 * 	 @type $attachment_id Attachment ID of the image.
+		 * 	 @type $size Image size. Can be a string (name of the image size, e.g. full) or an integer.
+		 * }
+		 */
+		if ( apply_filters( 'jetpack_photon_override_image_downsize', false, compact( 'image', 'attachment_id', 'size' ) ) ) {
+			return $image;
+		}
 
 		// Get the image URL and proceed with Photon-ification if successful
 		$image_url = wp_get_attachment_url( $attachment_id );

@@ -285,6 +285,14 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 					? apply_filters( 'jetpack_photon_url', get_site_icon_url(), array( 'w' => 64 ) )
 					: '',
 				'siteVisibleToSearchEngines' => '1' == get_option( 'blog_public' ),
+				/**
+				 * Whether promotions are visible or not.
+				 *
+				 * @since 4.8.0
+				 *
+				 * @param bool $are_promotions_active Status of promotions visibility. True by default.
+				 */
+				'showPromotions' => apply_filters( 'jetpack_show_promotions', true ),
 			),
 			'locale' => $this->get_i18n_data(),
 			'localeSlug' => $localeSlug,
@@ -365,7 +373,7 @@ function jetpack_current_user_data() {
 		'isMaster'    => $is_master_user,
 		'username'    => $current_user->user_login,
 		'wpcomUser'   => $dotcom_data,
-		'gravatar'    => get_avatar( $current_user->ID, 40 ),
+		'gravatar'    => get_avatar( $current_user->ID, 40, 'mm', '', array( 'force_display' => true ) ),
 		'permissions' => array(
 			'admin_page'         => current_user_can( 'jetpack_admin_page' ),
 			'connect'            => current_user_can( 'jetpack_connect' ),
