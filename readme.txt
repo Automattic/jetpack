@@ -128,6 +128,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Publicize: make sure posts posted programmatically via plugins like WP Recipe Maker can be publicized. #6542
 * Sync: Better support for WooCommerce data sync and backup. #6478
 * Sync: synchronize user's chosen language if it is different from the site language. #6053
+* Sync: support WP Super Cache globals and constants for a better interaction with WP Super Cache from WordPress.com. #6482
 
 **Bug Fixes**
 
