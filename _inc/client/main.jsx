@@ -241,7 +241,7 @@ const Main = React.createClass( {
 						{
 							this.props.jumpStartStatus || '/apps' === this.props.route.path ?
 							null :
-							<SupportCard />
+							<SupportCard path={ this.props.route.path } />
 						}
 					</div>
 					<Footer siteAdminUrl={ this.props.siteAdminUrl } />

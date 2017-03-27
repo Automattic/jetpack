@@ -28,16 +28,25 @@ const SupportCard = React.createClass( {
 	trackBannerClick() {
 		analytics.tracks.recordJetpackClick( {
 			target: 'banner-click',
-			feature: 'support'
+			feature: 'support',
+			page: this.props.path
 		} );
 	},
 
 	trackAskQuestionClick() {
-		analytics.tracks.recordJetpackClick( 'support-ask' );
+		analytics.tracks.recordJetpackClick( {
+			target: 'support-card',
+			button: 'support-ask',
+			page: this.props.path
+		} );
 	},
 
 	trackSearchClick() {
-		analytics.tracks.recordJetpackClick( 'support-search' );
+		analytics.tracks.recordJetpackClick( {
+			target: 'support-card',
+			button: 'support-search',
+			page: this.props.path
+		} );
 	},
 
 	render() {
