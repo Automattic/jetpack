@@ -135,6 +135,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Sync: synchronize user's chosen language if it is different from the site language. #6053
 * Sync: support WP Super Cache globals and constants for a better interaction with WP Super Cache from WordPress.com. #6482
 * Sync: allow editing synchronization settings from the WordPress.com REST API to allow support to help troubleshoot sync issues. #6639
+* Sync: stop syncing post types from the WordPress Automatic Plugin and RSS AutoPilot to avoid synchronization issues. #6711
 
 **Bug Fixes**
 
