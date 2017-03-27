@@ -1,54 +1,14 @@
-## 4.7
+## 4.8
 
-In Jetpack 4.7, we focused on fixing bugs and making some important performance improvements.
+Jetpack 4.8 introduces a refreshed admin interface, a new WordPress.com Toolbar for your Jetpack site, and several other improvements.
 
-### Carousel
+### WordPress.com Toolbar
 
-The Carousel module now allows you to display additional metadata in the meta box appearing below the pictures in the Carousel. To test this new feature, you can [check the instructions here](https://github.com/Automattic/jetpack/pull/6352).
+The WordPress.com toolbar replaces the default admin bar and offers quick links to the Reader, all your sites, your WordPress.com profile, and notifications. Centralize your WordPress experience with a single global toolbar.
 
-### Infinite Scroll
+To test this new feature, go to Jetpack > Settings, enable the WordPress.com Toolbar option, and check the toolbar appearing at the top of your site. You'll want to make sure all links are relevant to your account and your site, and work.
 
-We made multiple changes to the Infinite Scroll module in this release. To test, try the following:
-
-- Scroll until no more items can be loaded via Infinite Scroll on your home page, and on archive pages such as tag pages. The footer should then be displayed properly.
-- Switch to the Twenty Seventeen theme, and make sure you can use Infinite Scroll.
-
-### Related Posts
-
-In the last release we've added a new "Related Posts" panel to the customizer (under **Appearance > Customize > Related Posts**). It's also possible to change options from **Jetpack > Settings**, **Settings > Reading**, and from WordPress.com (under **[Settings > General](https://wordpress.com/settings/general/)**).
-
-Please try to make changes to Related Posts options in all 4 interfaces, and make sure the Related Posts are always properly displayed, unless explicitly disabled.
-
-### Sharing
-
-This Beta includes some changes to the Email Sharing button. Try to add the button to a test site, and make sure you can share posts via email.
-
-You can also try to install and activate [this plugin](https://wordpress.org/plugins/jetpack-shortlinks-for-sharing-buttons/), and make sure it doesn't break the Email sharing button.
-
-We also fixed an issue with custom Sharing buttons. To test, go to **Settings > Sharing** and [follow the instructions here](https://jetpack.com/support/sharing/#custom) to create a custom sharing button. You can find some custom sharing service examples [here](https://ryanmarkel.com/3004/adding-specific-sharing-services-to-sharedaddy-or-jetpack/). Once you save your changes, make sure the buttons are displayed on your site.
-
-### Shortcodes
-
-Do you use [the Recipe shortcode](https://en.support.wordpress.com/recipes/)? You'll want to make sure the Print link works well in all browsers.
-
-We've also fixed a conflict with embeds of WordPress posts. To test this, try the following:
-
-1. Enable Jetpack's Shortcode Embeds module under Jetpack > Settings > Writing.
-2. Go to Posts > Add New, and paste the URL of a post published on another WordPress site on its own line.
-3. The URL should be converted into an embedded post preview in the Visual editor, as well as in your post when you publish it.
-
-### Widget Visibility
-
-We've made a lot of improvements to the Widget Visibility module. It's now easier and faster to manage visibility rules in your Widget settings.
-
-We would like you to run tests on sites where you had created visibility rules in the past. Update to Jetpack 4.7 Beta, and make sure the rules still exist.
-Once you've done so, create new widgets, apply different visibility rules for each one of them, and make sure the rules are respected on your site. Make sure to test rules on Tag and Category Archive Pages as well.
-
-We also replaced text labels ("Add" and "Delete") with `×` and `+` icons. Please test these new labels in as many browsers as possible.
-
-You can also test the new option to match all conditions specified for a widget. It allows you to specify multiple rules that all have to be met for the widget to be shown or hidden.
-
-To get started, go to **Appearance > Customize > Widgets** or **Appearance > Widgets** in your dashboard!
+We would also recommend testing using different accounts on your site, and different roles.
 
 ### Final Notes
 
