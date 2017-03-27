@@ -682,6 +682,7 @@ function wp_cache_manager() {
 	global $wp_cache_cron_check, $wp_cache_debug, $wp_cache_not_logged_in, $wp_cache_make_known_anon, $wp_supercache_cache_list, $cache_page_secret, $cache_home_path;
 	global $wp_super_cache_front_page_check, $wp_cache_object_cache, $_wp_using_ext_object_cache, $wp_cache_refresh_single_only, $wp_cache_mobile_prefixes;
 	global $wpmu_version, $cache_max_time, $wp_cache_mod_rewrite, $wp_supercache_304, $wp_super_cache_late_init, $wp_cache_front_page_checks, $wp_cache_disable_utf8, $wp_cache_mfunc_enabled;
+	global $wp_super_cache_comments;
 
 	if ( !wpsupercache_site_admin() )
 		return false;
@@ -1167,62 +1168,43 @@ table.wpsc-settings-table {
 					$url = trailingslashit( get_bloginfo( 'url' ) );
 					if ( isset( $_POST[ 'httponly' ] ) )
 						$url = str_replace( 'https://', 'http://', $url );
-					// Prime the cache
-					echo "<p>" . sprintf(  __( 'Fetching %s to prime cache: ', 'wp-super-cache' ), $url );
-					$page = wp_remote_get( $url, array('timeout' => 60, 'blocking' => true ) );
-					echo '<span style="color: #0a0; font-weight: bold;">' . __( 'OK', 'wp-super-cache' ) . '</strong></p>';
-					sleep( 1 );
-					// Get the first copy
-					echo "<p>" . sprintf(  __( 'Fetching first copy of %s: ', 'wp-super-cache' ), $url );
-					$page = wp_remote_get( $url, array('timeout' => 60, 'blocking' => true ) );
-					if ( !is_wp_error( $page ) ) {
-						$fp = fopen( $cache_path . "1.html", "w" );
-						fwrite( $fp, $page[ 'body' ] );
-						fclose( $fp );
-						echo '<span style="color: #0a0; font-weight: bold;">' . __( 'OK', 'wp-super-cache' ) . "</span> (<a href='" . WP_CONTENT_URL . "/cache/1.html'>1.html</a>)</p>";
-						sleep( 1 );
-					} else {
-						echo '<span style="color: #a00; font-weight: bold;">' . __( 'FAILED', 'wp-super-cache' ) . "</span></p>";
-					}
-					// Get the second copy
-					echo "<p>" . sprintf(  __( 'Fetching second copy of %s: ', 'wp-super-cache' ), $url );
-					$page2 = wp_remote_get( $url, array('timeout' => 60, 'blocking' => true ) );
-					if ( !is_wp_error( $page2 ) ) {
-						$fp = fopen( $cache_path . "2.html", "w" );
-						fwrite( $fp, $page2[ 'body' ] );
-						fclose( $fp );
-						echo '<span style="color: #0a0; font-weight: bold;">' . __( 'OK', 'wp-super-cache' ) . "</span> (<a href='" . WP_CONTENT_URL . "/cache/2.html'>2.html</a>)</p>";
-					} else {
-						echo '<span style="color: #a00; font-weight: bold;">' . __( 'FAILED', 'wp-super-cache' ) . "</span></p>";
-					}
-
-					if ( is_wp_error( $page ) || is_wp_error( $page2 ) || $page[ 'response' ][ 'code' ] != 200 || $page2[ 'response' ][ 'code' ] != 200 ) {
-						echo '<p><span style="color: #a00; font-weight: bold;">' . __( 'One or more page requests failed:', 'wp-super-cache' ) . '</span></p>';
-						$error = false;
-						if ( is_wp_error( $page ) ) {
-							$error = $page;
-						} elseif ( is_wp_error( $page2 ) ) {
-							$error = $page2;
-						}
-						if ( $error ) {
+					$test_messages = array( __( 'Fetching %s to prime cache: ', 'wp-super-cache' ), __( 'Fetching first copy of %s: ', 'wp-super-cache' ), __( 'Fetching second copy of %s: ', 'wp-super-cache' ) );
+					$c = 0;
+					$cache_test_error = false;
+					$page = array();
+					foreach( $test_messages as $message ) {
+						echo "<p>" . sprintf( $message, $url );
+						$page[ $c ] = wp_remote_get( $url, array('timeout' => 60, 'blocking' => true ) );
+						if ( !is_wp_error( $page[ $c ] ) ) {
+							$fp = fopen( $cache_path . $c . ".html", "w" );
+							fwrite( $fp, $page[ $c ][ 'body' ] );
+							fclose( $fp );
+							echo '<span style="color: #0a0; font-weight: bold;">' . __( 'OK', 'wp-super-cache' ) . "</span> (<a href='" . WP_CONTENT_URL . "/cache/" . $c . ".html'>" . $c . ".html</a>)</p>";
+							sleep( 1 );
+						} else {
+							$cache_test_error = true;
+							echo '<span style="color: #a00; font-weight: bold;">' . __( 'FAILED', 'wp-super-cache' ) . "</span></p>";
 							$errors = '';
 							$messages = '';
-							foreach ( $error->get_error_codes() as $code ) {
-								$severity = $error->get_error_data($code);
-								foreach ( $error->get_error_messages( $code ) as $err ) {
-									$errors .= '	' . $err . "<br />\n";
+							foreach ( $page[ $c ]->get_error_codes() as $code ) {
+								$severity = $page[ $c ]->get_error_data( $code );
+								foreach ( $page[ $c ]->get_error_messages( $code ) as $err ) {
+									$errors .= $severity . ': ' . $err . "<br />\n";
 								}
 							}
-							if ( !empty($err) )
-								echo '<div class="updated fade">' . $errors . "</div>\n";
-						} else {
-							echo '<ul><li>' . sprintf( __( 'Page %d: %d (%s)', 'wp-super-cache' ), 1, $page[ 'response' ][ 'code' ], $page[ 'response' ][ 'message' ] ) . '</li>';
-							echo '<li>' . sprintf( __( 'Page %d: %d (%s)', 'wp-super-cache' ), 2, $page2[ 'response' ][ 'code' ], $page2[ 'response' ][ 'message' ] ) . '</li></ul>';
+							if ( '' != $errors )
+								echo "<p>" . sprintf( __( '<strong>Errors:</strong> %s', 'wp-super-cache' ), $errors ) . "</p>";
 						}
+						$c ++;
 					}
 
-					if ( ( !is_wp_error( $page ) && !is_wp_error( $page2 ) ) && preg_match( '/(Cached page generated by WP-Super-Cache on) ([0-9]*-[0-9]*-[0-9]* [0-9]*:[0-9]*:[0-9]*)/', $page[ 'body' ], $matches1 ) &&
-							preg_match( '/(Cached page generated by WP-Super-Cache on) ([0-9]*-[0-9]*-[0-9]* [0-9]*:[0-9]*:[0-9]*)/', $page2[ 'body' ], $matches2 ) && $matches1[2] == $matches2[2] ) {
+					if ( false == $cache_test_error ) {
+						echo '<ul><li>' . sprintf( __( 'Page %d: %d (%s)', 'wp-super-cache' ), 1, $page[ 1 ][ 'response' ][ 'code' ], $page[ 1 ][ 'response' ][ 'message' ] ) . '</li>';
+						echo '<li>' . sprintf( __( 'Page %d: %d (%s)', 'wp-super-cache' ), 2, $page[ 2 ][ 'response' ][ 'code' ], $page[ 2 ][ 'response' ][ 'message' ] ) . '</li></ul>';
+					}
+
+					if ( false == $cache_test_error && preg_match( '/(Cached page generated by WP-Super-Cache on) ([0-9]*-[0-9]*-[0-9]* [0-9]*:[0-9]*:[0-9]*)/', $page[ 1 ][ 'body' ], $matches1 ) &&
+							preg_match( '/(Cached page generated by WP-Super-Cache on) ([0-9]*-[0-9]*-[0-9]* [0-9]*:[0-9]*:[0-9]*)/', $page[ 2 ][ 'body' ], $matches2 ) && $matches1[2] == $matches2[2] ) {
 						echo '<p>' . sprintf( __( 'Page 1: %s', 'wp-super-cache' ), $matches1[ 2 ] ) . '</p>';
 						echo '<p>' . sprintf( __( 'Page 2: %s', 'wp-super-cache' ), $matches2[ 2 ] ) . '</p>';
 						echo '<p><span style="color: #0a0; font-weight: bold;">' . __( 'The timestamps on both pages match!', 'wp-super-cache' ) . '</span></p>';
@@ -1233,14 +1215,18 @@ table.wpsc-settings-table {
 						echo '<li>' . __( 'Enable logging on the Debug page here. That should help you track down the problem.', 'wp-super-cache' ) . '</li>';
 						echo '<li>' . __( 'You should check Page 1 and Page 2 above for errors. Your local server configuration may not allow your website to access itself.', 'wp-super-cache' ) . '</li>';
 						echo "</ol>";
-
 					}
 				}
 				echo '<form name="cache_tester" action="" method="post">';
 				echo '<input type="hidden" name="action" value="test" />';
 				if ( isset( $_SERVER['HTTPS' ] ) && 'on' == strtolower( $_SERVER['HTTPS' ] ) )
 					echo "<input type='checkbox' name='httponly' checked='checked' value='1' /> " . __( 'Send non-secure (non https) request for homepage', 'wp-super-cache' );
-				echo '<div class="submit"><input class="button-secondary" type="submit" name="test" value="' . __( 'Test Cache', 'wp-super-cache' ) . '" /></div>';
+                if ( isset( $wp_super_cache_comments ) && $wp_super_cache_comments == 0 ) {
+                    echo "<p>" . __( '<strong>Warning!</strong> Cache comments are currently disabled. Please go to the Debug page and enable Cache Status Messages there. You should clear the cache before testing.', 'wp-super-cache' ) . "</p>";
+                    echo '<div class="submit"><input disabled style="color: #aaa" class="button-secondary" type="submit" name="test" value="' . __( 'Test Cache', 'wp-super-cache' ) . '" /></div>';
+                } else {
+                    echo '<div class="submit"><input class="button-secondary" type="submit" name="test" value="' . __( 'Test Cache', 'wp-super-cache' ) . '" /></div>';
+                }
 				wp_nonce_field('wp-cache');
 				echo '</form>';
 			}
