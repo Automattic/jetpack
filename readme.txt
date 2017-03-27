@@ -110,6 +110,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
+* Admin Interface: continued improvements to the admin interface to make it easier to navigate the list of Jetpack options and create a unified experience with the WordPress.com dashboard. #5461
 * WordPress.com Toolbar: add a new Admin bar providing quick access to the WordPress.com site management interface, right from your self-hosted site's dashboard. #6413
 
 * Admin Page: change wording in Stats dashboard to avoid confusion. #6710
