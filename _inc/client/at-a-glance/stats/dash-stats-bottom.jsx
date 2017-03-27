@@ -4,6 +4,7 @@
 import React from 'react';
 import Button from 'components/button';
 import analytics from 'lib/analytics';
+import Card from 'components/card';
 
 /**
  * Internal dependencies
@@ -11,6 +12,22 @@ import analytics from 'lib/analytics';
 import { numberFormat, moment, translate as __ } from 'i18n-calypso';
 
 const DashStatsBottom = React.createClass( {
+	propTypes: {
+		siteRawUrl: React.PropTypes.string.isRequired,
+		siteAdminUrl: React.PropTypes.string.isRequired,
+		statsData: React.PropTypes.object.isRequired,
+		isLinked: React.PropTypes.bool.isRequired
+	},
+
+	getDefaultProps: function() {
+		return {
+			siteRawUrl: '',
+			siteAdminUrl: '',
+			statsData: {},
+			isLinked: false
+		};
+	},
+
 	statsBottom: function() {
 		let generalStats;
 		if ( 'object' === typeof this.props.statsData.general ) {
@@ -52,8 +69,9 @@ const DashStatsBottom = React.createClass( {
 					<p className="jp-at-a-glance__stat-details">{ __( 'Best overall day', { comment: 'Referring to a number of page views' } ) }</p>
 					<h3 className="jp-at-a-glance__stat-number">
 						{
-							'-' === s.bestDay.count ? '-' :
-							__( '%(number)s View', '%(number)s Views',
+							'-' === s.bestDay.count
+							? '-'
+							: __( '%(number)s View', '%(number)s Views',
 								{
 									count: s.bestDay.count,
 									args: {
@@ -92,7 +110,7 @@ const DashStatsBottom = React.createClass( {
 				<div className="jp-at-a-glance__stats-cta-description">
 				</div>
 				<div className="jp-at-a-glance__stats-cta-buttons">
-					{ __( '{{button}}View Detailed Stats{{/button}}', {
+					{ __( '{{button}}View detailed stats{{/button}}', {
 						components: {
 							button:
 								<Button
@@ -101,18 +119,35 @@ const DashStatsBottom = React.createClass( {
 								/>
 						}
 					} ) }
-					{ __( '{{button}}View More Stats on WordPress.com {{/button}}', {
-						components: {
-							button:
-								<Button
-									onClick={ () => analytics.tracks.recordJetpackClick( 'view_wpcom_stats' ) }
-									className="is-primary"
-									href={ 'https://wordpress.com/stats/insights/' + this.props.siteRawUrl }
-								/>
-						}
-					} ) }
+					{
+						this.props.isLinked && (
+							__( '{{button}}View more stats on WordPress.com {{/button}}', {
+								components: {
+									button:
+										<Button
+											onClick={ () => analytics.tracks.recordJetpackClick( 'view_wpcom_stats' ) }
+											className="is-primary"
+											href={ 'https://wordpress.com/stats/insights/' + this.props.siteRawUrl }
+										/>
+								}
+							} )
+						)
+					}
 				</div>
 			</div>
+			{
+				! this.props.isLinked && (
+					<Card
+						compact
+						className="jp-settings-card__configure-link"
+						href={ `${ this.props.connectUrl }&from=unlinked-user-connect` }
+					>
+						{
+							__( 'Connect your account to WordPress.com to view more stats' )
+						}
+					</Card>
+				)
+			}
 		</div>
 		);
 	}

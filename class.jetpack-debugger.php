@@ -292,7 +292,19 @@ class Jetpack_Debugger {
 				<hr />
 				<?php if ( Jetpack::is_active() ) : ?>
 					<div id="connected-user-details">
-						<p><?php printf( /* translators: %s is an e-mail address */ __( 'The primary connection is owned by <strong>%s</strong>\'s WordPress.com account.', 'jetpack' ), esc_html( Jetpack::get_master_user_email() ) ); ?></p>
+						<h3><?php esc_html_e( 'More details about your Jetpack settings', 'jetpack' ); ?></h3>
+						<p><?php printf(
+							/* translators: %s is an e-mail address */
+							__( 'The primary connection is owned by <strong>%s</strong>\'s WordPress.com account.', 'jetpack' ),
+							esc_html( Jetpack::get_master_user_email() )
+						); ?></p>
+						<?php if ( current_user_can( 'jetpack_manage_modules' ) ) {
+							printf(
+								'<p><a href="%1$s">%2$s</a></p>',
+								Jetpack::admin_url( 'page=jetpack_modules' ),
+								esc_html__( 'Access the full list of Jetpack modules available on your site.', 'jetpack' )
+							);
+						} ?>
 					</div>
 				<?php else : ?>
 					<div id="dev-mode-details">
@@ -364,6 +376,7 @@ class Jetpack_Debugger {
 				</form>
 			<?php endif; ?>
 		</div> <!-- contact-message, hidden by default. -->
+		<hr />
 		<div id="toggle_debug_info"><a href="#"><?php _e( 'View Advanced Debug Results', 'jetpack' ); ?></a></div>
 			<div id="debug_info_div" style="display:none">
 			<h4><?php esc_html_e( 'Debug Info', 'jetpack' ); ?></h4>
