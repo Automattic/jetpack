@@ -3,6 +3,14 @@
 require_once dirname( __FILE__ ) . '/rtl-admin-bar.php';
 
 class A8C_WPCOM_Masterbar {
+	/**
+	 * Use for testing changes made to remotely enqueued scripts and styles on your sandbox.
+	 * If not set it will default to loading the ones from WordPress.com.
+	 *
+	 * @var string $sandbox_url
+	 */
+	private $sandbox_url = '';
+
 	private $locale;
 
 	private $user_id;
@@ -98,6 +106,11 @@ class A8C_WPCOM_Masterbar {
 	}
 
 	function wpcom_static_url( $file ) {
+		if ( ! empty( $this->sandbox_url ) ) {
+			// For testing undeployed changes to remotely enqueued scripts and styles.
+			return set_url_scheme( $this->sandbox_url . $file, 'https');
+		}
+
 		$i   = hexdec( substr( md5( $file ), - 1 ) ) % 2;
 		$url = 'https://s' . $i . '.wp.com' . $file;
 
