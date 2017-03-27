@@ -14,6 +14,20 @@ class A8C_WPCOM_Masterbar {
 	private $user_text_direction;
 
 	function __construct() {
+		/**
+		 * Allows plugin and theme authors that want to insert new items into the core admin bar
+		 * to disable the WordPress.com Toolbar, that would otherwise remove their additions.
+		 *
+		 * @module masterbar
+		 *
+		 * @since 4.8.0
+		 *
+		 * @param bool true Should WordPress.com Toolbar be disabled. Defaults to false.
+		 */
+		if ( apply_filters( 'a8c_wpcom_masterbar_disable', false ) ) {
+			return;
+		}
+
 		$this->locale  = $this->get_locale();
 		$this->user_id = get_current_user_id();
 
