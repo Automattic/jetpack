@@ -29,7 +29,8 @@ export const ModuleToggle = React.createClass( {
 	},
 
 	trackModuleToggle( slug, activated ) {
-		analytics.tracks.recordEvent(
+		// The stats check is a hack around the fact that we're using <ModuleToggle for the settings there...
+		'stats' !== slug && analytics.tracks.recordEvent(
 			'jetpack_wpa_module_toggle',
 			{
 				module: slug,
