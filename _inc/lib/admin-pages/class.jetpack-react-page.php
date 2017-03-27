@@ -237,6 +237,17 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			? get_permalink( $last_post[0]->ID )
 			: get_home_url();
 
+		// Get information about current theme.
+		$current_theme = wp_get_theme();
+
+		// Get all themes that Infinite Scroll provides support for natively.
+		$inf_scr_support_themes = array();
+		foreach ( Jetpack::glob_php( JETPACK__PLUGIN_DIR . 'modules/infinite-scroll/themes/*.php' ) as $path ) {
+			if ( is_readable( $path ) ) {
+				$inf_scr_support_themes[] = basename( $path, '.php' );
+			}
+		}
+
 		// Add objects to be passed to the initial state of the app
 		wp_localize_script( 'react-plugin', 'Initial_State', array(
 			'WP_API_root' => esc_url_raw( rest_url() ),
@@ -293,6 +304,13 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				 * @param bool $are_promotions_active Status of promotions visibility. True by default.
 				 */
 				'showPromotions' => apply_filters( 'jetpack_show_promotions', true ),
+			),
+			'themeData' => array(
+				'name'      => $current_theme->get( 'Name' ),
+				'hasUpdate' => (bool) get_theme_update_available( $current_theme ),
+				'support'   => array(
+					'infinite-scroll' => current_theme_supports( 'infinite-scroll' ) || in_array( $current_theme->get_stylesheet(), $inf_scr_support_themes ),
+				),
 			),
 			'locale' => $this->get_i18n_data(),
 			'localeSlug' => $localeSlug,
