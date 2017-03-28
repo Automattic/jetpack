@@ -20,11 +20,32 @@ class Jetpack_JSON_API_Get_Comment_Backup_Endpoint extends Jetpack_JSON_API_Endp
 		$comment = get_comment( $this->comment_id );
 		if ( empty( $comment ) ) {
 			return new WP_Error( 404, __( 'Comment not found', 'jetpack' ) );
-		}			
-		
+		}
+
+		$allowed_keys = array(
+			'comment_ID',
+			'comment_post_ID',
+			'comment_author',
+			'comment_author_email',
+			'comment_author_url',
+			'comment_author_IP',
+			'comment_date',
+			'comment_date_gmt',
+			'comment_content',
+			'comment_karma',
+			'comment_approved',
+			'comment_agent',
+			'comment_type',
+			'comment_parent',
+			'user_id',
+		);
+
+		$comment = array_intersect_key( $comment->to_array(), array_flip( $allowed_keys ) );
+		$comment_meta = get_comment_meta( $comment->comment_ID );
+
 		return array(
-			'comment' => $comment->to_array(),
-			'meta'    => get_comment_meta( $comment->comment_ID ),
+			'comment' => $comment,
+			'meta'    => is_array( $comment_meta ) ? $comment_meta : array(),
 		);
 	}
 
