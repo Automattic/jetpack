@@ -120,6 +120,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Infinite Scroll: change button text on taxonomy page. #6584
 * Infinite Scroll: add a new filter to short-circuit the `is_last_batch()` method. #6731
 * Internationalization: remove custom Slovakian language files and rely on WordPress.org's language packs instead. Kudos to the Slovakian translation team! #6777
+* Open Graph: make sure transients are used to save image IDs. #6632
 * Photon: add new filter to allow running Photon in wp-admin as well. #6702
 * Widgets: allow the use of full URLs in the Social Media Icons widget. #6508
 * Widgets: allow links to open in a new window when adding custom links in the Milestone widget. #6778
@@ -159,6 +160,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Admin Page: always use relative links for submenu items to account for servers with specific restrictions. #6529
 * Contact Form: avoid PHP notices when using the form in a Text widget. #6606
 * Content Options: Fix single characters word count excerpt issue on sites with multibyte languages. #6566
+* Open Graph: make sure Site Icons are used as fallback Open Graph Image tags. #6632
 * Protect: remove port number when server returns a port alongside each stored IP address. #6755
 * Subscriptions: show the correct notification in the subscription form when the email is already subscribed. #6603
 * Sync: remove deprecated `jetpack_publicize_post` action. #6567
