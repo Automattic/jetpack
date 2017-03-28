@@ -5,6 +5,7 @@ import React from 'react';
 import Button from 'components/button';
 import { translate as __ } from 'i18n-calypso';
 import analytics from 'lib/analytics';
+import { getPlanClass } from 'lib/plans/constants';
 
 /**
  * Internal dependencies
@@ -23,8 +24,11 @@ const PlanHeader = React.createClass( {
 	render() {
 		let starrySky = '',
 			planCard = '';
-		switch ( this.props.plan ) {
-			case 'jetpack_free':
+		const planClass = 'dev' !== this.props.plan
+			? getPlanClass( this.props.plan )
+			: 'dev';
+		switch ( planClass ) {
+			case 'is-free-plan':
 				starrySky = (
 					<div className="jp-landing-plans__header">
 						<h2 className="jp-landing-plans__header-title">
@@ -69,8 +73,7 @@ const PlanHeader = React.createClass( {
 				);
 				break;
 
-			case 'jetpack_personal':
-			case 'jetpack_personal_monthly':
+			case 'is-personal-plan':
 				planCard = (
 					<div className="jp-landing__plan-card">
 						<div className="jp-landing__plan-card-img">
@@ -82,10 +85,9 @@ const PlanHeader = React.createClass( {
 						</div>
 					</div>
 				);
-			break;
+				break;
 
-			case 'jetpack_premium':
-			case 'jetpack_premium_monthly':
+			case 'is-premium-plan':
 				planCard = (
 					<div className="jp-landing__plan-card">
 						<div className="jp-landing__plan-card-img">
@@ -99,8 +101,7 @@ const PlanHeader = React.createClass( {
 				);
 				break;
 
-			case 'jetpack_business':
-			case 'jetpack_business_monthly':
+			case 'is-business-plan':
 				planCard = (
 					<div className="jp-landing__plan-card">
 						<div className="jp-landing__plan-card-img">
