@@ -51,7 +51,13 @@ class Jetpack_Widget_Conditions {
 		$widget_conditions_data['author'] = array();
 		$widget_conditions_data['author'][] = array( '', __( 'All author pages', 'jetpack' ) );
 
-		$authors = get_users( array( 'orderby' => 'name', 'exclude_admin' => true ) );
+		// Only users with publish caps
+		$authors = get_users(
+			array(
+				'orderby' => 'name',
+				'who'     => 'authors',
+			)
+		);
 
 		foreach ( $authors as $author ) {
 			$widget_conditions_data['author'][] = array( (string) $author->ID, $author->display_name );
