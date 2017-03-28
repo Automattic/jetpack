@@ -119,6 +119,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Infinite Scroll: change button text on taxonomy page. #6584
 * Infinite Scroll: add a new filter to short-circuit the `is_last_batch()` method. #6731
 * Internationalization: remove custom Slovakian language files and rely on WordPress.org's language packs instead. Kudos to the Slovakian translation team! #6777
+* Photon: add new filter to allow running Photon in wp-admin as well. #6702
 * Widgets: allow the use of full URLs in the Social Media Icons widget. #6508
 * Widgets: allow links to open in a new window when adding custom links in the Milestone widget. #6778
 * Sync: synchronize the `sync_via_cron` setting as well. #6477
