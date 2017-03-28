@@ -246,7 +246,7 @@ class Jetpack_Sync_Listener {
 		$actor['is_wp_admin'] = is_admin();
 		$actor['is_rest'] = defined( 'REST_API_REQUEST' ) ? REST_API_REQUEST : false;
 		$actor['is_xmlrpc'] = defined( 'XMLRPC_REQUEST' ) ? XMLRPC_REQUEST : false;
-		$actor['is_wp_rest'] = defined( 'REST_API_VERSION' ) ? REST_API_VERSION : false;
+		$actor['is_wp_rest'] = defined( 'REST_REQUEST' ) ? REST_REQUEST : false;
 		$actor['is_ajax'] = defined( 'DOING_AJAX' ) ? DOING_AJAX : false;
 
 		return $actor;

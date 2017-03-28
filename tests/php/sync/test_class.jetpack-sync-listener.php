@@ -93,6 +93,9 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 			'is_cron'      => defined( 'DOING_CRON' ) ? DOING_CRON : false,
 			'is_wp_admin'  => is_admin(),
 			'is_rest'      => defined( 'REST_API_REQUEST' )? REST_API_REQUEST : false,
+			'is_xmlrpc'    => defined( 'XMLRPC_REQUEST' ) ? XMLRPC_REQUEST : false,
+			'is_wp_rest'   => defined( 'REST_REQUEST' )? REST_REQUEST : false,
+			'is_ajax'      => defined( 'DOING_AJAX' ) ? DOING_AJAX : false,
 		);
 
 		$all = $queue->get_all();
