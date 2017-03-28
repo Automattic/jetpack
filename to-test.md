@@ -30,6 +30,19 @@ To test this new feature, go to Jetpack > Settings, enable the WordPress.com Too
 
 We would also recommend testing using different accounts on your site, and different roles.
 
+### Sitemaps
+
+We've completely refactored the Sitemaps module to improve performance and to work on sites with a very large amount of posts (more than 1,000). It'd be great if you could test the module on your own test sites, like so:
+
+1. Create some posts (see [FakerPress](https://wordpress.org/plugins/fakerpress/)). Make sure some of them have a recent (<=2 day old) timestamp.
+2. Activate the sitemaps module.
+3. Under Settings > Permalinks, set permalinks to anything but the default numerical permalinks.
+4. Go to `example.com/news-sitemap.xml`.
+5. Go to `example.com/sitemap.xml`.
+6. Under Settings > Permalinks, set permalinks to "plain".
+7. Go to `example.com/?jetpack-sitemap=sitemap.xml` and `example.com/?jetpack-sitemap=news-sitemap.xml`
+8. Add some images and videos to the media library and repeat steps 3--7.
+
 ### Widgets
 
 We've added a new [MailChimp Subscriber Popup Widget](https://en.support.wordpress.com/mailchimp/). To test it, try the following:
