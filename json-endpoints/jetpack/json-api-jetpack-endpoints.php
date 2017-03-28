@@ -1226,6 +1226,7 @@ new Jetpack_JSON_API_Get_Term_Backup_Endpoint( array(
 	),
 	'response_format' => array(
 		'term' => '(array) Term table row',
+		'meta' => '(array) Metadata associated with the term',
 	),
 	'example_request_data' => array(
 		'headers' => array(
