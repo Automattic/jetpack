@@ -162,6 +162,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Content Options: Fix single characters word count excerpt issue on sites with multibyte languages. #6566
 * Open Graph: make sure Site Icons are used as fallback Open Graph Image tags. #6632
 * Protect: remove port number when server returns a port alongside each stored IP address. #6755
+* Related Posts: ensure that more than 1,024 posts can be excluded from Related Posts thanks to filters. #6707
 * Subscriptions: show the correct notification in the subscription form when the email is already subscribed. #6603
 * Sharing: avoid syntax errors due to unexpected characters in the from name when using the Email sharing button. #6769
 * Sync: remove deprecated `jetpack_publicize_post` action. #6567
