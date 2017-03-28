@@ -133,6 +133,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Accessibility**
 
+* Content Options: Improve post details clipping. #6582
+
 **Security**
 
 * Avoid path disclosure in PHP error messages via cookies. #6572
