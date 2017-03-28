@@ -5,6 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import CompactFormToggle from 'components/form/form-toggle/compact';
+import analytics from 'lib/analytics';
 
 /**
  * Internal dependencies
@@ -98,6 +99,14 @@ const ThemeEnhancements = moduleSettingsForm(
 			);
 		},
 
+		trackLearnMoreIS() {
+			analytics.tracks.recordJetpackClick( {
+				target: 'learn-more',
+				feature: 'infinite-scroll',
+				extra: 'not-supported-link'
+			} );
+		},
+
 		render() {
 			if ( ! this.props.isModuleFound( 'infinite-scroll' ) && ! this.props.isModuleFound( 'minileven' ) ) {
 				return null;
@@ -163,7 +172,7 @@ const ThemeEnhancements = moduleSettingsForm(
 												{
 													__( 'Theme support required.' ) + ' '
 												}
-												<a href={ item.learn_more_button + '#theme' } title={ __( 'Learn more about adding support for Infinite Scroll to your theme.' ) }>
+												<a onClick={ this.trackLearnMoreIS } href={ item.learn_more_button + '#theme' } title={ __( 'Learn more about adding support for Infinite Scroll to your theme.' ) }>
 													{
 														__( 'Learn more' )
 													}
