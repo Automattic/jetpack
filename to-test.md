@@ -30,6 +30,18 @@ To test this new feature, go to Jetpack > Settings, enable the WordPress.com Too
 
 We would also recommend testing using different accounts on your site, and different roles.
 
+### Widgets
+
+We've added a new [MailChimp Subscriber Popup Widget](https://en.support.wordpress.com/mailchimp/). To test it, try the following:
+
+1. Go to Appearance > Widgets.
+2. Find "MailChimp Subscriber Popup" and add the widget to any sidebar.
+3. Add the following embed code in "Code" field:
+```html
+<script type="text/javascript" src="//s3.amazonaws.com/downloads.mailchimp.com/js/signup-forms/popup/embed.js" data-dojo-config="usePlainJson: true, isDebug: false"></script><script type="text/javascript">require(["mojo/signup-forms/Loader"], function(L) { L.start({"baseUrl":"mc.us11.list-manage.com","uuid":"1ca7856462585a934b8674c71","lid":"2d24f1898b"}) })</script>
+```
+4. Open the front-end and you should see the popup.
+
 ### Final Notes
 
 During your tests, we encourage you to open your browser's Development Tools and keep the Console open, checking for any errors in the Console and the Network tabs.

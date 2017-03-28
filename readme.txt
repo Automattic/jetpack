@@ -126,6 +126,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Sync: synchronize the `sync_via_cron` setting as well. #6477
 * WordPress.com REST API: return plan data from WordPress.com directly. #6249
 * Widgets: extract timezone offset method from Upcoming Events Widget so it can be used by other features as well. #6721
+* Widgets: add MailChimp Subscribe Popup widget. #6344
 
 **Performance Improvements**
 
