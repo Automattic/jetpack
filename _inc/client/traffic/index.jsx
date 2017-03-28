@@ -60,10 +60,9 @@ export const Traffic = React.createClass( {
 			<div>
 				<QuerySite />
 				{
-					foundSeo && (
-						<SEO
+					foundStats && (
+						<SiteStats
 							{ ...commonProps }
-							configureUrl={ 'https://wordpress.com/settings/seo/' + this.props.siteRawUrl }
 						/>
 					)
 				}
@@ -72,13 +71,6 @@ export const Traffic = React.createClass( {
 						<Ads
 							{ ...commonProps }
 							configureUrl={ 'https://wordpress.com/ads/earnings/' + this.props.siteRawUrl }
-						/>
-					)
-				}
-				{
-					foundStats && (
-						<SiteStats
-							{ ...commonProps }
 						/>
 					)
 				}
@@ -94,6 +86,14 @@ export const Traffic = React.createClass( {
 					)
 				}
 				{
+					foundSeo && (
+						<SEO
+							{ ...commonProps }
+							configureUrl={ 'https://wordpress.com/settings/seo/' + this.props.siteRawUrl }
+						/>
+					)
+				}
+				{
 					foundAnalytics && (
 						<GoogleAnalytics
 							{ ...commonProps }
@@ -102,15 +102,15 @@ export const Traffic = React.createClass( {
 					)
 				}
 				{
-					foundVerification && (
-						<VerificationServices
+					foundSitemaps && (
+						<Sitemaps
 							{ ...commonProps }
 						/>
 					)
 				}
 				{
-					foundSitemaps && (
-						<Sitemaps
+					foundVerification && (
+						<VerificationServices
 							{ ...commonProps }
 						/>
 					)
