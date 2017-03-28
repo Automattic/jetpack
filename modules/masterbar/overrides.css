@@ -1,0 +1,77 @@
+/* Remove min-height from menu elements that was causing them to render incorrectly */
+.my-sites li {
+    min-height: unset !important;
+}
+
+/* Remove icon that appeared before plugins Add link */
+#wpadminbar ul li#wp-admin-bar-plugins a:before {
+    content: none;
+}
+
+/* Overwrite a core style which breaks the overflow for .my-sites in Safari */
+#wpadminbar li.menupop.my-sites {
+	overflow: visible;
+}
+
+/* Add a focus style for menu items */
+.accessible-focus #wpadminbar li.menupop a.ab-item:focus,
+.accessible-focus #wpadminbar li#wp-admin-bar-notes.menupop .ab-item:focus,
+.accessible-focus #wpadminbar ul li#wp-admin-bar-ab-new-post a:focus {
+	-webkit-box-shadow: inset  2px  2px 0 #668eaa,
+	                    inset -2px -2px 0 #668eaa;
+	box-shadow: inset  2px  2px 0 #668eaa,
+	            inset -2px -2px 0 #668eaa;
+}
+
+/* Menu items in panels are inside `ab-empty-item` */
+.accessible-focus #wpadminbar li.menupop .ab-empty-item a.ab-item:focus,
+.accessible-focus #wpadminbar li.menupop .ab-empty-item a.ab-secondary:focus,
+.accessible-focus #wpadminbar li.menupop .ab-empty-item a.username:focus {
+	-webkit-box-shadow: inset  2px  2px 0 #2e4354,
+						inset -2px -2px 0 #2e4354;
+	box-shadow: inset  2px  2px 0 #2e4354,
+				inset -2px -2px 0 #2e4354;
+}
+
+.accessible-focus #wpadminbar .quicklinks li#wp-admin-bar-my-account #wp-admin-bar-user-info .ab-sign-out:focus {
+	-webkit-box-shadow: inset  2px  2px 0 #2e4354,
+						inset -2px -2px 0 #2e4354 !important;
+	box-shadow: inset  2px  2px 0 #2e4354,
+				inset -2px -2px 0 #2e4354 !important;
+}
+
+.accessible-focus #wpadminbar:not(.mobile) .ab-top-menu > li > .ab-item:focus {
+	background: transparent;
+}
+
+/* Hide the panels initially */
+#wpadminbar li#wp-admin-bar-blog.menupop > .ab-sub-wrapper, /* My Sites */
+#wpadminbar li#wp-admin-bar-newdash.menupop > .ab-sub-wrapper, /* Reader */
+#wpadminbar li#wp-admin-bar-my-account.menupop > .ab-sub-wrapper, /* Me */
+#wpadminbar li#wp-admin-bar-notes.menupop > #wpnt-notes-panel2 { /* Notifications */
+	display: none !important;
+}
+
+/* Show the panels when the item is active */
+#wpadminbar li#wp-admin-bar-blog.menupop.ab-active > .ab-sub-wrapper, /* My Sites */
+#wpadminbar li#wp-admin-bar-newdash.menupop.ab-active > .ab-sub-wrapper, /* Reader */
+#wpadminbar li#wp-admin-bar-my-account.menupop.ab-active > .ab-sub-wrapper, /* Me */
+#wpadminbar li#wp-admin-bar-notes.menupop.wpnt-show > #wpnt-notes-panel2 { /* Notifications */
+	display: block !important;
+}
+
+/* Change notification icon the match the one on WP.com */
+#wp-admin-bar-notes .noticon-bell:before {
+    content: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0Ij48cmVjdCB4PSIwIiBmaWxsPSJub25lIiB3aWR0aD0iMjQiIGhlaWdodD0iMjQiLz48Zz48cGF0aCBmaWxsPSIjZmZmZmZmIiBkPSJNNi4xNCAxNC45N2wyLjgyOCAyLjgyN2MtLjM2Mi4zNjItLjg2Mi41ODYtMS40MTQuNTg2LTEuMTA1IDAtMi0uODk1LTItMiAwLS41NTIuMjI0LTEuMDUyLjU4Ni0xLjQxNHptOC44NjcgNS4zMjRMMTQuMyAyMSAzIDkuN2wuNzA2LS43MDcgMS4xMDIuMTU3Yy43NTQuMTA4IDEuNjktLjEyMiAyLjA3Ny0uNTFsMy44ODUtMy44ODRjMi4zNC0yLjM0IDYuMTM1LTIuMzQgOC40NzUgMHMyLjM0IDYuMTM1IDAgOC40NzVsLTMuODg1IDMuODg2Yy0uMzg4LjM4OC0uNjE4IDEuMzIzLS41MSAyLjA3N2wuMTU3IDEuMXoiLz48L2c+PC9zdmc+") !important;
+}
+#wp-admin-bar-notes.active .noticon-bell:before {
+    content: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCIgd2lkdGg9IjI0IiBoZWlnaHQ9IjI0Ij48cmVjdCB4PSIwIiBmaWxsPSJub25lIiB3aWR0aD0iMjQiIGhlaWdodD0iMjQiLz48Zz48cGF0aCBmaWxsPSIjMjMyODJkIiBkPSJNNi4xNCAxNC45N2wyLjgyOCAyLjgyN2MtLjM2Mi4zNjItLjg2Mi41ODYtMS40MTQuNTg2LTEuMTA1IDAtMi0uODk1LTItMiAwLS41NTIuMjI0LTEuMDUyLjU4Ni0xLjQxNHptOC44NjcgNS4zMjRMMTQuMyAyMSAzIDkuN2wuNzA2LS43MDcgMS4xMDIuMTU3Yy43NTQuMTA4IDEuNjktLjEyMiAyLjA3Ny0uNTFsMy44ODUtMy44ODRjMi4zNC0yLjM0IDYuMTM1LTIuMzQgOC40NzUgMHMyLjM0IDYuMTM1IDAgOC40NzVsLTMuODg1IDMuODg2Yy0uMzg4LjM4OC0uNjE4IDEuMzIzLS41MSAyLjA3N2wuMTU3IDEuMXoiLz48L2c+PC9zdmc+") !important;
+}
+
+/* Fix changing height issue on hover in pop-up menus */
+#wpadminbar .quicklinks .menupop ul li .ab-item {
+	height: auto !important;
+}
+#wpadminbar .menupop .ab-submenu .ab-submenu-header > .ab-empty-item {
+	line-height: 1 !important;
+}

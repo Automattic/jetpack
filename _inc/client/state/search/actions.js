@@ -11,5 +11,5 @@ export const filterSearch = ( term ) => {
 			type: JETPACK_SEARCH_TERM,
 			term: term
 		} );
-	}
+	};
 };

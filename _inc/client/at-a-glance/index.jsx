@@ -3,13 +3,13 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
-import DashSectionHeader from 'components/dash-section-header';
 import { translate as __ } from 'i18n-calypso';
 import analytics from 'lib/analytics';
 
 /**
  * Internal dependencies
  */
+import DashSectionHeader from 'components/dash-section-header';
 import DashStats from './stats';
 import DashProtect from './protect';
 import DashMonitor from './monitor';
@@ -18,23 +18,24 @@ import DashAkismet from './akismet';
 import DashBackups from './backups';
 import DashPluginUpdates from './plugins';
 import DashPhoton from './photon';
+import DashConnections from './connections';
 import { isModuleActivated as _isModuleActivated } from 'state/modules';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 import QuerySite from 'components/data/query-site';
 import {
 	userCanManageModules,
-	userCanViewStats
+	userCanViewStats,
+	userIsSubscriber
 } from 'state/initial-state';
 import { isDevMode } from 'state/connection';
 
 const AtAGlance = React.createClass( {
 	render() {
 		const urls = {
-			siteAdminUrl: this.props.siteAdminUrl,
-			siteRawUrl: this.props.siteRawUrl
-		};
-
-		let securityHeader =
+				siteAdminUrl: this.props.siteAdminUrl,
+				siteRawUrl: this.props.siteRawUrl
+			},
+			securityHeader =
 				<DashSectionHeader
 					label={ __( 'Security' ) }
 					settingsPath="#security"
@@ -47,12 +48,14 @@ const AtAGlance = React.createClass( {
 						? ''
 						: 'https://wordpress.com/settings/security/' + this.props.siteRawUrl
 					}
-					externalLinkClick={ () => analytics.tracks.recordEvent( 'jetpack_wpa_aag_security_wpcom_click', {} ) }
+					externalLinkClick={ () => analytics.tracks.recordJetpackClick( 'aag_manage_security_wpcom' ) }
 				/>,
-			performanceHeader =
-				<DashSectionHeader
-					label={ __( 'Performance' ) }
-				/>;
+			connections = (
+				<div>
+					<DashSectionHeader label={ __( 'Connections' ) } />
+					<DashConnections />
+				</div>
+			);
 
 		// If user can manage modules, we're in an admin view, otherwise it's a non-admin view.
 		if ( this.props.userCanManageModules ) {
@@ -92,14 +95,19 @@ const AtAGlance = React.createClass( {
 					</div>
 
 					{
-						// Performance
-						performanceHeader
+						<DashSectionHeader
+							label={ __( 'Performance' ) }
+						/>
 					}
 					<div className="jp-at-a-glance__item-grid">
 						<div className="jp-at-a-glance__left">
 							<DashPhoton />
 						</div>
 					</div>
+
+					{
+						connections
+					}
 				</div>
 			);
 		} else {
@@ -115,7 +123,16 @@ const AtAGlance = React.createClass( {
 
 			let nonAdminAAG = '';
 			if ( '' !== stats || '' !== protect ) {
-				nonAdminAAG = (
+				nonAdminAAG = this.props.userIsSubscriber
+				? (
+					<div>
+						{ stats	}
+						{
+							connections
+						}
+					</div>
+				)
+				: (
 					<div>
 						{ stats	}
 						{
@@ -123,6 +140,9 @@ const AtAGlance = React.createClass( {
 							securityHeader
 						}
 						{ protect }
+						{
+							connections
+						}
 					</div>
 				);
 			}
@@ -138,6 +158,7 @@ export default connect(
 			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
 			userCanManageModules: userCanManageModules( state ),
 			userCanViewStats: userCanViewStats( state ),
+			userIsSubscriber: userIsSubscriber( state ),
 			isDevMode: isDevMode( state )
 		};
 	}

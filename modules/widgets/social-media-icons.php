@@ -2,7 +2,7 @@
 /*
 Plugin Name: Social Media Icons Widget
 Description: A simple widget that displays social media icons
-Author: Chris Rudzki
+Author: Automattic Inc.
 */
 
 
@@ -65,7 +65,7 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 		$this->services = array(
 			'facebook'   => array( 'Facebook', 'https://www.facebook.com/%s/' ),
 			'twitter'    => array( 'Twitter', 'https://twitter.com/%s/' ),
-			'instagram'  => array( 'Instagram', 'https://instagram.com/%s/' ),
+			'instagram'  => array( 'Instagram', 'https://www.instagram.com/%s/' ),
 			'pinterest'  => array( 'Pinterest', 'https://www.pinterest.com/%s/' ),
 			'linkedin'   => array( 'LinkedIn', 'https://www.linkedin.com/in/%s/' ),
 			'github'     => array( 'GitHub', 'https://github.com/%s/' ),

@@ -1,8 +1,8 @@
 <?php
 
 /**
- * Module Name: Custom Content Types
- * Module Description: Organize and display different types of content on your site.
+ * Module Name: Custom content types
+ * Module Description: Display different types of content on your site with custom content types.
  * First Introduced: 3.1
  * Requires Connection: No
  * Auto Activate: Yes

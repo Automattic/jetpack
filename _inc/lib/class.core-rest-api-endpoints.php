@@ -202,6 +202,28 @@ class Jetpack_Core_Json_Api_Endpoints {
 			)
 		) );
 
+		// Check if the API key for a specific service is valid or not
+		register_rest_route( 'jetpack/v4', '/module/(?P<service>[a-z\-]+)/key/check', array(
+			'methods' => WP_REST_Server::READABLE,
+			'callback' => array( $module_data_endpoint, 'key_check' ),
+			'permission_callback' => __CLASS__ . '::update_settings_permission_check',
+			'sanitize_callback' => 'sanitize_text_field',
+		) );
+
+		register_rest_route( 'jetpack/v4', '/module/(?P<service>[a-z\-]+)/key/check', array(
+			'methods' => WP_REST_Server::EDITABLE,
+			'callback' => array( $module_data_endpoint, 'key_check' ),
+			'permission_callback' => __CLASS__ . '::update_settings_permission_check',
+			'sanitize_callback' => 'sanitize_text_field',
+			'args' => array(
+				'api_key' => array(
+					'default'           => '',
+					'type'              => 'string',
+					'validate_callback' => __CLASS__ . '::validate_alphanum',
+				),
+			)
+		) );
+
 		// Update any Jetpack module option or setting
 		register_rest_route( 'jetpack/v4', '/settings', array(
 			'methods' => WP_REST_Server::EDITABLE,
@@ -1003,7 +1025,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 			// Carousel
 			'carousel_background_color' => array(
-				'description'       => esc_html__( 'Background color.', 'jetpack' ),
+				'description'       => esc_html__( 'Color scheme.', 'jetpack' ),
 				'type'              => 'string',
 				'default'           => 'black',
 				'enum'              => array(
@@ -1034,7 +1056,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'jp_group'          => 'comments',
 			),
 			'jetpack_comment_form_color_scheme' => array(
-				'description'       => esc_html__( "Color Scheme", 'jetpack' ),
+				'description'       => esc_html__( "Color scheme", 'jetpack' ),
 				'type'              => 'string',
 				'default'           => 'light',
 				'enum'              => array(
@@ -1166,32 +1188,16 @@ class Jetpack_Core_Json_Api_Endpoints {
 			// Mobile Theme
 			'wp_mobile_excerpt' => array(
 				'description'       => esc_html__( 'Excerpts', 'jetpack' ),
-				'type'              => 'string',
-				'default'           => 'disabled',
-				'enum'              => array(
-					'enabled',
-					'disabled',
-				),
-				'enum_labels' => array(
-					'enabled'  => esc_html__( 'Enable excerpts on front page and on archive pages', 'jetpack' ),
-					'disabled' => esc_html__( 'Show full posts on front page and on archive pages', 'jetpack' ),
-				),
-				'validate_callback' => __CLASS__ . '::validate_list_item',
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'minileven',
 			),
 			'wp_mobile_featured_images' => array(
 				'description'       => esc_html__( 'Featured Images', 'jetpack' ),
-				'type'              => 'string',
-				'default'           => 'disabled',
-				'enum'              => array(
-					'enabled',
-					'disabled',
-				),
-				'enum_labels' => array(
-					'enabled'  => esc_html__( 'Display featured images', 'jetpack' ),
-					'disabled' => esc_html__( 'Hide all featured images', 'jetpack' ),
-				),
-				'validate_callback' => __CLASS__ . '::validate_list_item',
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'minileven',
 			),
 			'wp_mobile_app_promos' => array(
@@ -1492,28 +1498,28 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'description'       => esc_html__( 'Google Search Console', 'jetpack' ),
 				'type'              => 'string',
 				'default'           => '',
-				'validate_callback' => __CLASS__ . '::validate_alphanum',
+				'validate_callback' => __CLASS__ . '::validate_verification_service',
 				'jp_group'          => 'verification-tools',
 			),
 			'bing' => array(
 				'description'       => esc_html__( 'Bing Webmaster Center', 'jetpack' ),
 				'type'              => 'string',
 				'default'           => '',
-				'validate_callback' => __CLASS__ . '::validate_alphanum',
+				'validate_callback' => __CLASS__ . '::validate_verification_service',
 				'jp_group'          => 'verification-tools',
 			),
 			'pinterest' => array(
 				'description'       => esc_html__( 'Pinterest Site Verification', 'jetpack' ),
 				'type'              => 'string',
 				'default'           => '',
-				'validate_callback' => __CLASS__ . '::validate_alphanum',
+				'validate_callback' => __CLASS__ . '::validate_verification_service',
 				'jp_group'          => 'verification-tools',
 			),
 			'yandex' => array(
-				'description'        => esc_html__( 'Yandex Site Verification', 'jetpack' ),
-				'type'               => 'string',
-				'default'            => '',
-				'validate_callback'  => __CLASS__ . '::validate_alphanum',
+				'description'       => esc_html__( 'Yandex Site Verification', 'jetpack' ),
+				'type'              => 'string',
+				'default'           => '',
+				'validate_callback' => __CLASS__ . '::validate_verification_service',
 				'jp_group'          => 'verification-tools',
 			),
 			'enable_header_ad' => array(
@@ -1604,6 +1610,23 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'type'              => 'boolean',
 				'default'           => 0,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'settings',
+			),
+
+			// Akismet - Not a module, but a plugin. The options can be passed and handled differently.
+			'akismet_show_user_comments_approved' => array(
+				'description'       => '',
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'settings',
+			),
+
+			'wordpress_api_key' => array(
+				'description'       => '',
+				'type'              => 'string',
+				'default'           => '',
+				'validate_callback' => __CLASS__ . '::validate_alphanum',
 				'jp_group'          => 'settings',
 			),
 
@@ -1755,8 +1778,26 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool
 	 */
 	public static function validate_alphanum( $value = '', $request, $param ) {
-		if ( ! empty( $value ) && ( ! is_string( $value ) || ! preg_match( '/[a-z0-9]+/i', $value ) ) ) {
+		if ( ! empty( $value ) && ( ! is_string( $value ) || ! preg_match( '/^[a-z0-9]+$/i', $value ) ) ) {
 			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be an alphanumeric string.', 'jetpack' ), $param ) );
+		}
+		return true;
+	}
+
+	/**
+	 * Validates that the parameter is a tag or id for a verification service, or an empty string (to be able to clear the field).
+	 *
+	 * @since 4.6.0
+	 *
+	 * @param string $value Value to check.
+	 * @param WP_REST_Request $request
+	 * @param string $param Name of the parameter passed to endpoint holding $value.
+	 *
+	 * @return bool
+	 */
+	public static function validate_verification_service( $value = '', $request, $param ) {
+		if ( ! empty( $value ) && ! ( is_string( $value ) && ( preg_match( '/^[a-z0-9_-]+$/i', $value ) || preg_match( '#^<meta name="([a-z0-9_\-.:]+)?" content="([a-z0-9_-]+)?" />$#i', $value ) ) ) ) {
+			return new WP_Error( 'invalid_param', sprintf( esc_html__( '%s must be an alphanumeric string or a verification tag.', 'jetpack' ), $param ) );
 		}
 		return true;
 	}
@@ -2002,17 +2043,21 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return array
 	 */
 	public static function prepare_modules_for_response( $modules = '', $slug = null ) {
-		if ( get_option( 'permalink_structure' ) ) {
-			$sitemap_url = home_url( '/sitemap.xml' );
-			$news_sitemap_url = home_url( '/news-sitemap.xml' );
+		global $wp_rewrite;
+
+		/** This filter is documented in modules/sitemaps/sitemaps.php */
+		$location = apply_filters( 'jetpack_sitemap_location', '' );
+
+		if ( $wp_rewrite->using_index_permalinks() ) {
+			$sitemap_url = home_url( '/index.php' . $location . '/sitemap.xml' );
+			$news_sitemap_url = home_url( '/index.php' . $location . '/news-sitemap.xml' );
+		} else if ( $wp_rewrite->using_permalinks() ) {
+			$sitemap_url = home_url( $location . '/sitemap.xml' );
+			$news_sitemap_url = home_url( $location . '/news-sitemap.xml' );
 		} else {
-			$sitemap_url = home_url( '/?jetpack-sitemap=true' );
-			$news_sitemap_url = home_url( '/?jetpack-news-sitemap=true' );
+			$sitemap_url = home_url( $location . '/?jetpack-sitemap=sitemap.xml' );
+			$news_sitemap_url = home_url( $location . '/?jetpack-sitemap=news-sitemap.xml' );
 		}
-		/** This filter is documented in modules/sitemaps/sitemaps.php */
-		$sitemap_url = apply_filters( 'jetpack_sitemap_location', $sitemap_url );
-		/** This filter is documented in modules/sitemaps/sitemaps.php */
-		$news_sitemap_url = apply_filters( 'jetpack_news_sitemap_location', $news_sitemap_url );
 
 		if ( is_null( $slug ) && isset( $modules['sitemaps'] ) ) {
 			// Is a list of modules
@@ -2120,16 +2165,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 				$options['guess_lang']['current_value'] = self::cast_value( isset( $atd_options['true'] ), $options[ 'guess_lang' ] );
 				$options['ignored_phrases']['current_value'] = AtD_get_setting( get_current_user_id(), 'AtD_ignored_phrases' );
 				unset( $options['unignore_phrase'] );
-				break;
-
-			case 'minileven':
-				$options['wp_mobile_excerpt']['current_value'] =
-					1 === intval( $options['wp_mobile_excerpt']['current_value'] ) ?
-					'enabled' : 'disabled';
-
-				$options['wp_mobile_featured_images']['current_value'] =
-					1 === intval( $options['wp_mobile_featured_images']['current_value'] ) ?
-					'enabled' : 'disabled';
 				break;
 
 			case 'stats':
@@ -2338,7 +2373,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return bool
 	 */
 	private static function core_is_plugin_active( $plugin ) {
-		if ( ! function_exists( 'get_plugins' ) ) {
+		if ( ! function_exists( 'is_plugin_active' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 

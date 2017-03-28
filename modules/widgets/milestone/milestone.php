@@ -287,7 +287,7 @@ class Milestone_Widget extends WP_Widget {
 		) );
 
 		$allowed_tags = array(
-			'a'      => array( 'title' => array(), 'href' => array() ),
+			'a'      => array( 'title' => array(), 'href' => array(), 'target' => array() ),
 			'em'     => array( 'title' => array() ),
 			'strong' => array( 'title' => array() ),
 		);

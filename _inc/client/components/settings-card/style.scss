@@ -1,0 +1,91 @@
+.jp-settings-card__configure-link {
+	display: flex;
+	margin-bottom: 0;
+}
+
+.jp-form-settings-card {
+	margin-bottom: rem(24px);
+	font-size: rem( 14px );
+
+	& + .jp-at-a-glance__stats-card {
+		margin-bottom: rem(24px);
+	}
+
+	.dops-foldable-card {
+		.dops-foldable-card__header {
+			color: #444;
+			@include  breakpoint( ">480px" ) {
+				padding-left: rem( 24px );
+			}
+		}
+
+		.form-toggle__switch {
+			float: left;
+			margin-top: rem( 2px );
+		}
+
+		.dops-foldable-card__header-text {
+			font-size: rem( 14px );
+		}
+
+		&.jp-foldable-settings-disable .dops-foldable-card__header {
+			color: #dadada;
+		}
+
+		.dops-foldable-card__main {
+			@include breakpoint( ">480px" ) {
+				max-width: 85%;
+			}
+		}
+
+		.dops-foldable-card__action {
+			right: rem( 10px );
+			@include breakpoint( "<480px" ) {
+				right: rem( 1px );
+			}
+		}
+
+		.jp-module-settings__learn-more {
+			right: rem( -21px );
+			top: rem( 7px );
+			@include breakpoint( "<480px" ) {
+				right: rem( -30px );
+			}
+		}
+
+		.jp-form-legend:first-child,
+		.jp-form-label-wide:first-child {
+			padding-top: rem( 7px );
+		}
+	}
+}
+
+.jp-foldable-settings-standalone {
+
+	.dops-foldable-card__header-text {
+		font-size: rem( 14px );
+	}
+
+	@include breakpoint( ">480px" ) {
+		.dops-foldable-card__header,
+		&.dops-card.is-expanded .dops-foldable-card__content {
+			padding-left: rem( 24px );
+			padding-right: rem( 24px );
+		}
+
+		.dops-foldable-card__action {
+			right: rem( 10px );
+		}
+		.jp-form-settings-group .jp-module-settings__learn-more {
+			right: rem( 2px );
+			top: 0;
+		}
+	}
+
+	@include breakpoint( "<480px" ) {
+		.jp-form-settings-group .jp-module-settings__learn-more {
+			right: rem( -31px );
+			top: rem( 6px );
+		}
+	}
+}

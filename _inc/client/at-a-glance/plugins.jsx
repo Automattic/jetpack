@@ -25,8 +25,7 @@ const DashPluginUpdates = React.createClass( {
 	activateAndRedirect: function( e ) {
 		e.preventDefault();
 		this.props.activateManage()
-			.then( window.location = 'https://wordpress.com/plugins/' + this.props.siteRawUrl )
-			.catch( console.log( 'Error activating Manage' ) );
+			.then( window.location = 'https://wordpress.com/plugins/' + this.props.siteRawUrl );
 	},
 
 	getContent: function() {
@@ -50,13 +49,14 @@ const DashPluginUpdates = React.createClass( {
 		}
 
 		if ( 'updates-available' === pluginUpdates.code ) {
+			const manageDashText = manageActive
+				? __( '{{a}}Turn on plugin auto updates{{/a}}', { components: { a: <a href={ ctaLink } /> } } )
+				: __( '{{a}}Activate Manage and turn on auto updates{{/a}}', { components: { a: <a onClick={ this.activateAndRedirect } href="javascript:void(0)" /> } } );
 			return (
 				<DashItem
 					label={ labelName }
 					module="manage"
 					status="is-warning"
-					siteRawUrl={ this.props.siteRawUrl }
-					siteAdminUrl={ this.props.siteAdminUrl }
 				>
 					<h2 className="jp-dash-item__count">
 						{
@@ -78,10 +78,7 @@ const DashPluginUpdates = React.createClass( {
 							} )
 						}
 						{
-							this.props.isDevMode ? '' :
-							manageActive ?
-								__( '{{a}}Turn on plugin auto updates{{/a}}', { components: { a: <a href={ ctaLink } /> } } ) :
-								__( '{{a}}Activate Manage and turn on auto updates{{/a}}', { components: { a: <a onClick={ this.activateAndRedirect } href="javascript:void(0)" /> } } )
+							this.props.isDevMode ? '' : manageDashText
 						}
 					</p>
 				</DashItem>
@@ -95,9 +92,9 @@ const DashPluginUpdates = React.createClass( {
 				status={ manageActive ? 'is-working' : 'is-inactive' } >
 				<p className="jp-dash-item__description">
 					{
-						manageActive ?
-							__( 'All plugins are up-to-date. Awesome work!' ) :
-							__( '{{a}}Activate Manage{{/a}} to turn on auto updates and manage your plugins from WordPress.com.', { components: { a: <a onClick={ this.props.activateManage } href="javascript:void(0)" /> } } )
+						manageActive
+							? __( 'All plugins are up-to-date. Awesome work!' )
+							: __( '{{a}}Activate Manage{{/a}} to turn on auto updates and manage your plugins from WordPress.com.', { components: { a: <a onClick={ this.props.activateManage } href="javascript:void(0)" /> } } )
 					}
 				</p>
 			</DashItem>
@@ -140,6 +137,6 @@ export default connect(
 			activateManage: () => {
 				return dispatch( activateModule( 'manage' ) );
 			}
-		}
+		};
 	}
 )( DashPluginUpdates );

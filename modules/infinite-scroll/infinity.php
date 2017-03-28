@@ -300,6 +300,22 @@ class The_Neverending_Home_Page {
 	 * Is this guaranteed to be the last batch of posts?
 	 */
 	static function is_last_batch() {
+		/**
+		 * Override whether or not this is the last batch for a request
+		 *
+		 * @module infinite-scroll
+		 *
+		 * @since 4.8.0
+		 *
+		 * @param bool|null null                 Bool if value should be overridden, null to determine from query
+		 * @param object    self::wp_query()     WP_Query object for current request
+		 * @param object    self::get_settings() Infinite Scroll settings
+		 */
+		$override = apply_filters( 'infinite_scroll_is_last_batch', null, self::wp_query(), self::get_settings() );
+		if ( is_bool( $override ) ) {
+			return $override;
+		}
+
 		$entries = (int) self::wp_query()->found_posts;
 		$posts_per_page = self::get_settings()->posts_per_page;
 
@@ -748,6 +764,22 @@ class The_Neverending_Home_Page {
 		// Could be empty (posts) or an array of multiple post types.
 		// In the latter two cases cases, the default text is used, leaving the `infinite_scroll_js_settings` filter for further customization.
 		$post_type = self::wp_query()->get( 'post_type' );
+
+		// If it's a taxonomy, try to change the button text.
+		if ( is_tax() ) {
+			// Get current taxonomy slug.
+			$taxonomy_slug = self::wp_query()->get( 'taxonomy' );
+
+			// Get taxonomy settings.
+			$taxonomy = get_taxonomy( $taxonomy_slug );
+
+			// Check if the taxonomy is attached to one post type only and use its plural name.
+			// If not, use "Posts" without confusing the users.
+			if ( count( $taxonomy->object_type ) < 2 ) {
+				$post_type = $taxonomy->object_type[0];
+			}
+		}
+
 		if ( is_string( $post_type ) && ! empty( $post_type ) ) {
 			$post_type = get_post_type_object( $post_type );
 
@@ -1462,7 +1494,7 @@ class The_Neverending_Home_Page {
 	/**
 	 * Render default IS footer
 	 *
-	 * @uses __, wp_get_theme, get_current_theme, apply_filters, home_url, esc_attr, get_bloginfo, bloginfo
+	 * @uses __, wp_get_theme, apply_filters, home_url, esc_attr, get_bloginfo, bloginfo
 	 * @return string
 	 */
 	private function default_footer() {
@@ -1473,7 +1505,7 @@ class The_Neverending_Home_Page {
 		$credits .= sprintf(
 			/* translators: %1$s is the name of a theme */
 			__( 'Theme: %1$s.', 'jetpack' ),
-			function_exists( 'wp_get_theme' ) ? wp_get_theme()->Name : get_current_theme()
+			wp_get_theme()->Name
 		);
 		/**
 		 * Filter Infinite Scroll's credit text.

@@ -24,7 +24,10 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 
 		// If static.html isn't there, there's nothing else we can do.
 		if ( false === $static_html ) {
-			esc_html_e( 'Error fetching static.html.', 'jetpack' );
+			echo '<p>';
+			esc_html_e( 'Error fetching static.html. Try running: ', 'jetpack' );
+			echo '<code>yarn distclean && yarn build</code>';
+			echo '</p>';
 			return;
 		}
 

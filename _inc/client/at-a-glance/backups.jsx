@@ -25,7 +25,7 @@ import { isDevMode } from 'state/connection';
 const DashBackups = React.createClass( {
 	getContent: function() {
 		const labelName = __( 'Backups' ),
-			hasSitePlan = false !== this.props.sitePlan,
+			hasSitePlan = false !== this.props.sitePlan && 'jetpack_free' !== this.props.sitePlan.product_slug,
 			inactiveOrUninstalled = this.props.isPluginInstalled( 'vaultpress/vaultpress.php' ) ? 'pro-inactive' : 'pro-uninstalled';
 
 		if ( this.props.isModuleActivated( 'vaultpress' ) ) {
@@ -54,7 +54,7 @@ const DashBackups = React.createClass( {
 							&nbsp;
 							{ __( '{{a}}View backup details{{/a}}.', {
 								components: {
-									a: <a href='https://dashboard.vaultpress.com' target="_blank" />
+									a: <a href='https://dashboard.vaultpress.com' target="_blank" rel="noopener noreferrer" />
 								}
 							} ) }
 						</p>
@@ -68,15 +68,15 @@ const DashBackups = React.createClass( {
 				return (
 					__( 'To automatically back up your entire site, please {{a}}install and activate{{/a}} VaultPress.', {
 						components: {
-							a: <a href='https://wordpress.com/plugins/vaultpress' target="_blank" />
+							a: <a href='https://wordpress.com/plugins/vaultpress' target="_blank" rel="noopener noreferrer" />
 						}
 					} )
 				);
 			} else {
 				return (
-					__( 'To automatically back up your entire site, please {{a}}upgrade!{{/a}}.', {
+					__( 'To automatically back up your entire site, please {{a}}upgrade your account.{{/a}}.', {
 						components: {
-							a: <a href={ 'https://jetpack.com/redirect/?source=aag-backups&site=' + this.props.siteRawUrl } target="_blank" />
+							a: <a href={ 'https://jetpack.com/redirect/?source=aag-backups&site=' + this.props.siteRawUrl } target="_blank" rel="noopener noreferrer" />
 						}
 					} )
 				);

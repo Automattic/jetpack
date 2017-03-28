@@ -40,9 +40,9 @@ else
 
     gem install sass
     gem install compass
-    npm install -g npm
-    npm install -g gulp-cli
-    npm install
+    rm -rf ~/.yarn
+    curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 0.20.3
+    yarn
 
     if $WP_TRAVISCI; then
 	# Everything is fine

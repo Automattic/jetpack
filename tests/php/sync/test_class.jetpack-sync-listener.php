@@ -77,6 +77,34 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 		remove_action( 'my_action', array( $this->listener, 'action_handler' ) );
 	}
 
+	function test_does_listener_add_actor_to_queue() {
+		$user_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
+		wp_set_current_user( $user_id );
+		$this->listener->get_sync_queue()->reset();
+		$queue = $this->listener->get_sync_queue();
+		$queue->reset(); // remove any actions that already got queued
+
+		$this->factory->post->create();
+		$current_user =  wp_get_current_user();
+		$example_actor = array(
+			'display_name' => $current_user->display_name,
+			'user_email'   => $current_user->user_email,
+			'ip'           => $_SERVER['REMOTE_ADDR'],
+			'is_cron'      => defined( 'DOING_CRON' ) ? DOING_CRON : false,
+			'is_wp_admin'  => is_admin(),
+			'is_rest'      => defined( 'REST_API_REQUEST' )? REST_API_REQUEST : false,
+			'is_xmlrpc'    => defined( 'XMLRPC_REQUEST' ) ? XMLRPC_REQUEST : false,
+			'is_wp_rest'   => defined( 'REST_REQUEST' )? REST_REQUEST : false,
+			'is_ajax'      => defined( 'DOING_AJAX' ) ? DOING_AJAX : false,
+		);
+
+		$all = $queue->get_all();
+		foreach( $all as $queue_item ) {
+			list( $current_filter, $args, $current_user_id, $microtime, $is_importing, $actor ) = $queue_item->value;
+			$this->assertEquals( $actor, $example_actor );
+		}
+	}
+
 	function test_does_set_silent_flag_true_while_importing() {
 		Jetpack_Sync_Settings::set_importing( true );
 

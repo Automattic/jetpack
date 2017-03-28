@@ -3,186 +3,118 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
-import FoldableCard from 'components/foldable-card';
-import Button from 'components/button';
-import Gridicon from 'components/gridicon';
 import { translate as __ } from 'i18n-calypso';
-import includes from 'lodash/includes';
-import analytics from 'lib/analytics';
+import Card from 'components/card';
 
 /**
  * Internal dependencies
  */
-import {
-	isModuleActivated as _isModuleActivated,
-	activateModule,
-	deactivateModule,
-	isActivatingModule,
-	isDeactivatingModule,
-	getModule as _getModule,
-	getModules
-} from 'state/modules';
-import { ModuleToggle } from 'components/module-toggle';
-import { AllModuleSettings } from 'components/module-settings/modules-per-tab-page';
-import { isUnavailableInDevMode } from 'state/connection';
-import { userCanManageModules as _userCanManageModules } from 'state/initial-state';
+import { getModule } from 'state/modules';
+import { getSettings } from 'state/settings';
+import { userCanManageModules } from 'state/initial-state';
+import { isDevMode, isUnavailableInDevMode, isCurrentUserLinked } from 'state/connection';
+import { userCanEditPosts } from 'state/initial-state';
+import { isModuleActivated } from 'state/modules';
+import { isModuleFound } from 'state/search';
+import { getConnectUrl } from 'state/connection';
 import QuerySite from 'components/data/query-site';
-import {
-	getSitePlan,
-	isFetchingSiteData
-} from 'state/site';
-import { getSiteRawUrl } from 'state/initial-state';
+import Composing from './composing';
+import Media from './media';
+import CustomContentTypes from './custom-content-types';
+import ThemeEnhancements from './theme-enhancements';
+import PostByEmail from './post-by-email';
+import { Masterbar } from './masterbar';
 
-export const Writing = ( props ) => {
-	let {
-		toggleModule,
-		isModuleActivated,
-		isTogglingModule,
-		getModule,
-		userCanManageModules,
-		sitePlan,
-		fetchingSiteData,
-		siteRawUrl
-	} = props,
-		isAdmin = userCanManageModules,
-		moduleList = Object.keys( props.moduleList );
-	/**
-	 * Array of modules that directly map to a card for rendering
-	 * @type {Array}
-	 */
-	let cards = [
-		[ 'shortlinks', getModule( 'shortlinks' ).name, getModule( 'shortlinks' ).description, getModule( 'shortlinks' ).learn_more_button ],
-		[ 'shortcodes', getModule( 'shortcodes' ).name, getModule( 'shortcodes' ).description, getModule( 'shortcodes' ).learn_more_button ],
-		[ 'videopress', getModule( 'videopress' ).name, getModule( 'videopress' ).description, getModule( 'videopress' ).learn_more_button ],
-		[ 'contact-form', getModule( 'contact-form' ).name, getModule( 'contact-form' ).description, getModule( 'contact-form' ).learn_more_button ],
-		[ 'after-the-deadline', getModule( 'after-the-deadline' ).name, getModule( 'after-the-deadline' ).description, getModule( 'after-the-deadline' ).learn_more_button ],
-		[ 'markdown', getModule( 'markdown' ).name, getModule( 'markdown' ).description, getModule( 'markdown' ).learn_more_button ],
-		[ 'post-by-email', getModule( 'post-by-email' ).name, getModule( 'post-by-email' ).description, getModule( 'post-by-email' ).learn_more_button ],
-		[ 'latex', getModule( 'latex' ).name, getModule( 'latex' ).description, getModule( 'latex' ).learn_more_button ],
-		[ 'custom-content-types', getModule( 'custom-content-types' ).name, getModule( 'custom-content-types' ).description, getModule( 'custom-content-types' ).learn_more_button ]
-		],
-		nonAdminAvailable = [ 'after-the-deadline', 'post-by-email' ];
-	// Put modules available to non-admin user at the top of the list.
-	if ( ! isAdmin ) {
-		let cardsCopy = cards.slice();
-		cardsCopy.reverse().forEach( ( element ) => {
-			if ( includes( nonAdminAvailable, element[0] ) ) {
-				cards.unshift( element );
-			}
-		} );
-		cards = cards.filter( ( element, index ) => cards.indexOf( element ) === index );
-	}
-	cards = cards.map( ( element, i ) => {
-		if ( ! includes( moduleList, element[0] ) ) {
+export const Writing = React.createClass( {
+	displayName: 'WritingSettings',
+
+	render() {
+		const commonProps = {
+			settings: this.props.settings,
+			getModule: this.props.module,
+			isDevMode: this.props.isDevMode,
+			isUnavailableInDevMode: this.props.isUnavailableInDevMode,
+			isLinked: this.props.isLinked
+		};
+
+		const found = [
+			'masterbar',
+			'markdown',
+			'after-the-deadline',
+			'custom-content-types',
+			'photon',
+			'carousel',
+			'post-by-email',
+			'infinite-scroll',
+			'minileven'
+		].some( this.props.isModuleFound );
+
+		if ( ! this.props.searchTerm && ! this.props.active ) {
 			return null;
 		}
-		var unavailableInDevMode = props.isUnavailableInDevMode( element[0] ),
-			customClasses = unavailableInDevMode ? 'devmode-disabled' : '',
-			toggle = '',
-			adminAndNonAdmin = isAdmin || includes( nonAdminAvailable, element[0] );
-		if ( unavailableInDevMode ) {
-			toggle = __( 'Unavailable in Dev Mode' );
-		} else if ( isAdmin ) {
-			toggle = <ModuleToggle slug={ element[0] }
-				activated={ isModuleActivated( element[0] ) }
-				toggling={ isTogglingModule( element[0] ) }
-				toggleModule={ toggleModule } />;
+
+		if ( ! found ) {
+			return null;
 		}
 
-		if ( 1 === element.length ) {
-			return ( <h1 key={ `section-header-${ i }` /* https://fb.me/react-warning-keys */ } >{ element[0] }</h1> );
-		}
+		const showComposing = this.props.userCanManageModules ||
+				( this.props.userCanEditPosts && this.props.isModuleActivated( 'after-the-deadline' ) ),
+			showPostByEmail = this.props.userCanManageModules ||
+				( this.props.userCanEditPosts && this.props.isModuleActivated( 'post-by-email' ) );
 
-		var isVideoPress = 'videopress' === element[0];
-
-		if ( isVideoPress ) {
-			if ( fetchingSiteData ) {
-				toggle = '';
-			} else if ( ! sitePlan || 'jetpack_free' === sitePlan.product_slug || /jetpack_personal*/.test( sitePlan.product_slug ) ) {
-				toggle = <Button
-					compact={ true }
-					primary={ true }
-					href={ 'https://jetpack.com/redirect/?source=upgrade-videopress&site=' + siteRawUrl }
-				>
-					{ __( 'Upgrade' ) }
-				</Button>;
-			}
-
-			element[1] = <span>
-				{ element[1] }
-				<Button
-					compact={ true }
-					href="#/plans"
-				>
-					{ __( 'Paid' ) }
-				</Button>
-			</span>;
-		}
-
-		return adminAndNonAdmin ? (
-			<FoldableCard
-				className={ customClasses }
-				key={ `module-card_${element[0]}` /* https://fb.me/react-warning-keys */ }
-				header={ element[1] }
-				subheader={ element[2] }
-				summary={ toggle }
-				expandedSummary={ toggle }
-				clickableHeaderText={ true }
-				onOpen={ () => analytics.tracks.recordEvent( 'jetpack_wpa_settings_card_open',
-					{
-						card: element[0],
-						path: props.route.path
-					}
-				) }
-			>
-				{ isModuleActivated( element[0] ) || 'scan' === element[0] ?
-					<AllModuleSettings module={ getModule( element[0] ) } /> :
-					// Render the long_description if module is deactivated
-					<div dangerouslySetInnerHTML={ renderLongDescription( getModule( element[0] ) ) } />
+		return (
+			<div>
+				<QuerySite />
+				{
+					this.props.isModuleFound( 'masterbar' ) && (
+						<Masterbar connectUrl={ this.props.connectUrl } { ...commonProps } />
+					)
 				}
-				<div className="jp-module-settings__learn-more">
-					<Button borderless compact href={ element[3] }><Gridicon icon="help-outline" /><span className="screen-reader-text">{ __( 'Learn More' ) }</span></Button>
-				</div>
-			</FoldableCard>
-		) : false;
-	} );
-
-	return (
-		<div>
-			<QuerySite />
-			{ cards }
-		</div>
-	);
-};
-
-function renderLongDescription( module ) {
-	// Rationale behind returning an object and not just the string
-	// https://facebook.github.io/react/tips/dangerously-set-inner-html.html
-	return { __html: module.long_description };
-}
+				{
+					showComposing && (
+						<Composing { ...commonProps } userCanManageModules={ this.props.userCanManageModules } />
+					)
+				}
+				<Media { ...commonProps } />
+				{
+					this.props.isModuleFound( 'custom-content-types' ) && (
+						<CustomContentTypes { ...commonProps } />
+					)
+				}
+				<ThemeEnhancements { ...commonProps } />
+				{
+					( this.props.isModuleFound( 'post-by-email' ) && showPostByEmail ) && (
+						<PostByEmail { ...commonProps }
+							connectUrl={ this.props.connectUrl }
+							isLinked={ this.props.isLinked }
+							userCanManageModules={ this.props.userCanManageModules } />
+					)
+				}
+				{
+					( ! showComposing && ! showPostByEmail ) && (
+						<Card>
+							{ __( 'Writing tools available to you will be shown here when an administrator enables them.' ) }
+						</Card>
+					)
+				}
+			</div>
+		);
+	}
+} );
 
 export default connect(
 	( state ) => {
 		return {
-			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
-			isTogglingModule: ( module_name ) =>
-			isActivatingModule( state, module_name ) || isDeactivatingModule( state, module_name ),
-			getModule: ( module_name ) => _getModule( state, module_name ),
-			isUnavailableInDevMode: ( module_name ) => isUnavailableInDevMode( state, module_name ),
-			userCanManageModules: _userCanManageModules( state ),
-			moduleList: getModules( state ),
-			sitePlan: getSitePlan( state ),
-			fetchingSiteData: isFetchingSiteData( state ),
-			siteRawUrl: getSiteRawUrl( state )
-		};
-	},
-	( dispatch ) => {
-		return {
-			toggleModule: ( module_name, activated ) => {
-				return ( activated )
-					? dispatch( deactivateModule( module_name ) )
-					: dispatch( activateModule( module_name ) );
-			}
+			module: module_name => getModule( state, module_name ),
+			settings: getSettings( state ),
+			isDevMode: isDevMode( state ),
+			isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name ),
+			userCanEditPosts: userCanEditPosts( state ),
+			isModuleActivated: module_name => isModuleActivated( state, module_name ),
+			isLinked: isCurrentUserLinked( state ),
+			userCanManageModules: userCanManageModules( state ),
+			isModuleFound: module_name => isModuleFound( state, module_name ),
+			connectUrl: getConnectUrl( state )
 		};
 	}
 )( Writing );

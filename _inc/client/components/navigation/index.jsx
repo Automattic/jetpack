@@ -8,6 +8,7 @@ import NavTabs from 'components/section-nav/tabs';
 import NavItem from 'components/section-nav/item';
 import { translate as __ } from 'i18n-calypso';
 import injectTapEventPlugin from 'react-tap-event-plugin';
+import analytics from 'lib/analytics';
 injectTapEventPlugin();
 
 /**
@@ -18,6 +19,13 @@ import { userCanManageModules as _userCanManageModules } from 'state/initial-sta
 import { userCanViewStats as _userCanViewStats } from 'state/initial-state';
 
 export const Navigation = React.createClass( {
+	trackNavClick( target ) {
+		analytics.tracks.recordJetpackClick( {
+			target: 'nav_item',
+			path: target
+		} );
+	},
+
 	render: function() {
 		let navTabs;
 		if ( this.props.userCanManageModules ) {
@@ -25,16 +33,19 @@ export const Navigation = React.createClass( {
 				<NavTabs selectedText={ this.props.route.name }>
 					<NavItem
 						path="#/dashboard"
+						onClick={ () => this.trackNavClick( 'dashboard' ) }
 						selected={ ( this.props.route.path === '/dashboard' ) || ( this.props.route.path === '/' ) }>
 						{ __( 'At a Glance', { context: 'Navigation item.' } ) }
 					</NavItem>
 					<NavItem
 						path="#/apps"
+						onClick={ () => this.trackNavClick( 'apps' ) }
 						selected={ this.props.route.path === '/apps' }>
 						{ __( 'Apps', { context: 'Navigation item.' } ) }
 					</NavItem>
 					<NavItem
 						path="#/plans"
+						onClick={ () => this.trackNavClick( 'plans' ) }
 						selected={ this.props.route.path === '/plans' }>
 						{ __( 'Plans', { context: 'Navigation item.' } ) }
 					</NavItem>

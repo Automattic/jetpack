@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Subscriptions
- * Module Description: Notify your readers of new posts and comments by email.
+ * Module Description: Allow users to subscribe to your posts and comments and receive notifications via email
  * Jumpstart Description: Give visitors two easy subscription options — while commenting, or via a separate email subscription widget you can display.
  * Sort Order: 9
  * Recommendation Order: 8
@@ -530,10 +530,10 @@ class Jetpack_Subscriptions {
 			case 'invalid_email':
 				$result = $error;
 				break;
-			case 'active':
 			case 'blocked_email':
 				$result = 'opted_out';
 				break;
+			case 'active':
 			case 'pending':
 				$result = 'already';
 				break;

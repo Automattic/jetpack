@@ -8,10 +8,7 @@ env:
   global:
     - WP_TRAVISCI=phpunit
 
-cache:
-  directories:
-    - ~/.yarn
-    - ~/.nvm
+cache: yarn
 
 # Next we define our matrix of additional build configurations to test against.
 # The versions listed above will automatically create our first configuration,
@@ -28,9 +25,11 @@ cache:
 matrix:
   include:
   - php: "5.6"
-    env: WP_TRAVISCI="npm run test-client"
+    env: WP_TRAVISCI="yarn lint"
   - php: "5.6"
-    env: WP_TRAVISCI="npm run test-gui"
+    env: WP_TRAVISCI="yarn test-client"
+  - php: "5.6"
+    env: WP_TRAVISCI="yarn test-gui"
   - php: "5.2"
   - php: "5.3"
   - php: "5.5"

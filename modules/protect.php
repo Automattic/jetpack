@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Protect
- * Module Description: Prevent and block malicious login attempts.
+ * Module Description: Block suspicious-looking sign in activity
  * Sort Order: 1
  * Recommendation Order: 4
  * First Introduced: 3.4
@@ -433,9 +433,9 @@ class Jetpack_Protect_Module {
 			ob_end_clean();
 			return true;
 		}
-		
+
 		/**
-		 * Short-circuit check_login_ability. 
+		 * Short-circuit check_login_ability.
 		 *
 		 * If there is an alternate way to validate the current IP such as
 		 * a hard-coded list of IP addresses, we can short-circuit the rest
@@ -450,7 +450,7 @@ class Jetpack_Protect_Module {
 		if ( apply_filters( 'jpp_allow_login', false, $ip ) ) {
 			return true;
 		}
-		
+
 		$headers         = $this->get_headers();
 		$header_hash     = md5( json_encode( $headers ) );
 		$transient_name  = 'jpp_li_' . $header_hash;

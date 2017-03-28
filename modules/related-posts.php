@@ -1,6 +1,6 @@
 <?php
 /**
- * Module Name: Related Posts
+ * Module Name: Related posts
  * Module Description: Increase page views by showing related content to your visitors.
  * Jumpstart Description: Keep visitors engaged on your blog by highlighting relevant and new content at the bottom of each published post.
  * First Introduced: 2.9

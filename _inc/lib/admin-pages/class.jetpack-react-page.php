@@ -52,9 +52,9 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		if ( Jetpack::is_development_mode() || Jetpack::is_active() ) {
 			global $submenu;
 			if ( current_user_can( 'jetpack_manage_modules' ) || Jetpack::is_module_active( 'protect' ) || current_user_can( 'view_stats' ) ) {
-				$submenu['jetpack'][] = array( __( 'Dashboard', 'jetpack' ), 'jetpack_admin_page', Jetpack::admin_url( 'page=jetpack#/dashboard' ) );
+				$submenu['jetpack'][] = array( __( 'Dashboard', 'jetpack' ), 'jetpack_admin_page', 'admin.php?page=jetpack#/dashboard' );
 			} elseif ( current_user_can( 'jetpack_admin_page' ) ) {
-				$submenu['jetpack'][] = array( __( 'Dashboard', 'jetpack' ), 'jetpack_admin_page', Jetpack::admin_url( 'page=jetpack#/apps' ) );
+				$submenu['jetpack'][] = array( __( 'Dashboard', 'jetpack' ), 'jetpack_admin_page', 'admin.php?page=jetpack#/apps' );
 			}
 		}
 	}
@@ -65,9 +65,9 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	 * @since 4.3.0
 	 */
 	function jetpack_add_settings_sub_nav_item() {
-		if ( ( Jetpack::is_development_mode() || Jetpack::is_active() ) && current_user_can( 'jetpack_admin_page' ) ) {
+		if ( ( Jetpack::is_development_mode() || Jetpack::is_active() ) && current_user_can( 'jetpack_admin_page' ) && current_user_can( 'edit_posts' ) ) {
 			global $submenu;
-			$submenu['jetpack'][] = array( __( 'Settings', 'jetpack' ), 'jetpack_admin_page', Jetpack::admin_url( 'page=jetpack#/settings' ) );
+			$submenu['jetpack'][] = array( __( 'Settings', 'jetpack' ), 'jetpack_admin_page', 'admin.php?page=jetpack#/settings' );
 		}
 	}
 
@@ -139,7 +139,10 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 		if ( false === $static_html ) {
 
 			// If we still have nothing, display an error
-			esc_html_e( 'Error fetching static.html.', 'jetpack' );
+			echo '<p>';
+			esc_html_e( 'Error fetching static.html. Try running: ', 'jetpack' );
+			echo '<code>yarn distclean && yarn build</code>';
+			echo '</p>';
 		} else {
 
 			// We got the static.html so let's display it
@@ -234,6 +237,17 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			? get_permalink( $last_post[0]->ID )
 			: get_home_url();
 
+		// Get information about current theme.
+		$current_theme = wp_get_theme();
+
+		// Get all themes that Infinite Scroll provides support for natively.
+		$inf_scr_support_themes = array();
+		foreach ( Jetpack::glob_php( JETPACK__PLUGIN_DIR . 'modules/infinite-scroll/themes/*.php' ) as $path ) {
+			if ( is_readable( $path ) ) {
+				$inf_scr_support_themes[] = basename( $path, '.php' );
+			}
+		}
+
 		// Add objects to be passed to the initial state of the app
 		wp_localize_script( 'react-plugin', 'Initial_State', array(
 			'WP_API_root' => esc_url_raw( rest_url() ),
@@ -254,7 +268,6 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			'dismissedNotices' => $this->get_dismissed_jetpack_notices(),
 			'isDevVersion' => Jetpack::is_development_version(),
 			'currentVersion' => JETPACK__VERSION,
-			'happinessGravIds' => jetpack_get_happiness_gravatar_ids(),
 			'getModules' => $modules,
 			'showJumpstart' => jetpack_show_jumpstart(),
 			'showHolidaySnow' => function_exists( 'jetpack_show_holiday_snow_option' ) ? jetpack_show_holiday_snow_option() : false,
@@ -270,12 +283,34 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				),
 				'roles' => $stats_roles,
 			),
+			'settings' => $this->get_flattened_settings( $modules ),
 			'settingNames' => array(
 				'jetpack_holiday_snow_enabled' => function_exists( 'jetpack_holiday_snow_option_name' ) ? jetpack_holiday_snow_option_name() : false,
 			),
 			'userData' => array(
 //				'othersLinked' => Jetpack::get_other_linked_admins(),
 				'currentUser'  => jetpack_current_user_data(),
+			),
+			'siteData' => array(
+				'icon' => has_site_icon()
+					? apply_filters( 'jetpack_photon_url', get_site_icon_url(), array( 'w' => 64 ) )
+					: '',
+				'siteVisibleToSearchEngines' => '1' == get_option( 'blog_public' ),
+				/**
+				 * Whether promotions are visible or not.
+				 *
+				 * @since 4.8.0
+				 *
+				 * @param bool $are_promotions_active Status of promotions visibility. True by default.
+				 */
+				'showPromotions' => apply_filters( 'jetpack_show_promotions', true ),
+			),
+			'themeData' => array(
+				'name'      => $current_theme->get( 'Name' ),
+				'hasUpdate' => (bool) get_theme_update_available( $current_theme ),
+				'support'   => array(
+					'infinite-scroll' => current_theme_supports( 'infinite-scroll' ) || in_array( $current_theme->get_stylesheet(), $inf_scr_support_themes ),
+				),
 			),
 			'locale' => $this->get_i18n_data(),
 			'localeSlug' => $localeSlug,
@@ -289,37 +324,19 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			'lastPostUrl' => esc_url( $last_post ),
 		) );
 	}
-}
 
-/*
- * List of happiness Gravatar IDs
- *
- * @todo move to functions.global.php when available
- * @since 4.1.0
- * @return array
- */
-function jetpack_get_happiness_gravatar_ids() {
-	return array(
-		'623f42e878dbd146ddb30ebfafa1375b',
-		'561be467af56cefa58e02782b7ac7510',
-		'd8ad409290a6ae7b60f128a0b9a0c1c5',
-		'790618302648bd80fa8a55497dfd8ac8',
-		'6e238edcb0664c975ccb9e8e80abb307',
-		'4e6c84eeab0a1338838a9a1e84629c1a',
-		'9d4b77080c699629e846d3637b3a661c',
-		'4626de7797aada973c1fb22dfe0e5109',
-		'190cf13c9cd358521085af13615382d5',
-		'f7006d10e9f7dd7bea89a001a2a2fd59',
-		'16acbc88e7aa65104ed289d736cb9698',
-		'4d5ad4219c6f676ea1e7d40d2e8860e8',
-		'e301f7d01b09e7578fdfc1b1ec1bc08d',
-		'42f4c73f5337486e199f6e3b3910f168',
-		'e7b26de48e76498cff880abca1eed8da',
-		'764fb02aaae2ff64c0625c763d82b74e',
-		'4988305772319fb9bc8fce0a7acb3aa1',
-		'5d8695c4b81592f1255721d2644627ca',
-		'0e2249a7de3404bc6d5207a45e911187',
-	);
+	/**
+	 * Returns an array of modules and settings both as first class members of the object.
+	 *
+	 * @param array $modules the result of an API request to get all modules.
+	 *
+	 * @return array flattened settings with modules.
+	 */
+	function get_flattened_settings( $modules ) {
+		$core_api_endpoint = new Jetpack_Core_API_Data();
+		$settings = $core_api_endpoint->get_all_options();
+		return $settings->data;
+	}
 }
 
 /*
@@ -355,32 +372,6 @@ function jetpack_show_jumpstart() {
 	return true;
 }
 
-/*
- * Gather data about the master user.
- *
- * @since 4.1.0
- *
- * @return array
- */
-function jetpack_master_user_data() {
-	$masterID = Jetpack_Options::get_option( 'master_user' );
-	if ( ! get_user_by( 'id', $masterID ) ) {
-		return false;
-	}
-
-	$jetpack_user = get_userdata( $masterID );
-	$wpcom_user   = Jetpack::get_connected_user_data( $jetpack_user->ID );
-	$gravatar     = get_avatar( $jetpack_user->ID, 40 );
-
-	$master_user_data = array(
-		'jetpackUser' => $jetpack_user,
-		'wpcomUser'   => $wpcom_user,
-		'gravatar'    => $gravatar,
-	);
-
-	return $master_user_data;
-}
-
 /**
  * Gather data about the current user.
  *
@@ -389,18 +380,18 @@ function jetpack_master_user_data() {
  * @return array
  */
 function jetpack_current_user_data() {
-	global $current_user;
+	$current_user = wp_get_current_user();
 	$is_master_user = $current_user->ID == Jetpack_Options::get_option( 'master_user' );
 	$dotcom_data    = Jetpack::get_connected_user_data();
 	// Add connected user gravatar to the returned dotcom_data.
-	$dotcom_data['avatar'] = get_avatar_url( $dotcom_data['email'] );
+	$dotcom_data['avatar'] = get_avatar_url( $dotcom_data['email'], array( 'size' => 64, 'default' => 'mysteryman' ) );
 
 	$current_user_data = array(
 		'isConnected' => Jetpack::is_user_connected( $current_user->ID ),
 		'isMaster'    => $is_master_user,
 		'username'    => $current_user->user_login,
 		'wpcomUser'   => $dotcom_data,
-		'gravatar'    => get_avatar( $current_user->ID, 40 ),
+		'gravatar'    => get_avatar( $current_user->ID, 40, 'mm', '', array( 'force_display' => true ) ),
 		'permissions' => array(
 			'admin_page'         => current_user_can( 'jetpack_admin_page' ),
 			'connect'            => current_user_can( 'jetpack_connect' ),
@@ -409,6 +400,7 @@ function jetpack_current_user_data() {
 			'network_admin'      => current_user_can( 'jetpack_network_admin_page' ),
 			'network_sites_page' => current_user_can( 'jetpack_network_sites_page' ),
 			'edit_posts'         => current_user_can( 'edit_posts' ),
+			'publish_posts'      => current_user_can( 'publish_posts' ),
 			'manage_options'     => current_user_can( 'manage_options' ),
 			'view_stats'		 => current_user_can( 'view_stats' ),
 			'manage_plugins'	 => current_user_can( 'install_plugins' )

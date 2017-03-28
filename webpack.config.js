@@ -60,6 +60,10 @@ var webpackConfig = {
 			{
 				test: /\.scss$/,
 				loader: ExtractTextPlugin.extract( 'style-loader', 'css!sass' )
+			},
+			{
+				test: /\.svg/,
+				loader: 'url-loader'
 			}
 		]
 	},

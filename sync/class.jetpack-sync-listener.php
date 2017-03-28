@@ -197,13 +197,34 @@ class Jetpack_Sync_Listener {
 			ignore_user_abort( true );
 		}
 
-		$queue->add( array(
-			$current_filter,
-			$args,
-			get_current_user_id(),
-			microtime( true ),
-			Jetpack_Sync_Settings::is_importing()
-		) );
+		if (
+			'sync' === $queue->id ||
+			in_array(
+				$current_filter,
+				array(
+					'jetpack_full_sync_start',
+					'jetpack_full_sync_end',
+					'jetpack_full_sync_cancel'
+				)
+			)
+		) {
+			$queue->add( array(
+				$current_filter,
+				$args,
+				get_current_user_id(),
+				microtime( true ),
+				Jetpack_Sync_Settings::is_importing(),
+				$this->get_actor(),
+			) );
+		} else {
+			$queue->add( array(
+				$current_filter,
+				$args,
+				get_current_user_id(),
+				microtime( true ),
+				Jetpack_Sync_Settings::is_importing()
+			) );
+		}
 
 		// since we've added some items, let's try to load the sender so we can send them as quickly as possible
 		if ( ! Jetpack_Sync_Actions::$sender ) {
@@ -212,6 +233,27 @@ class Jetpack_Sync_Listener {
 				Jetpack_Sync_Actions::add_sender_shutdown();
 			}
 		}
+	}
+	function get_actor() {
+		$current_user = wp_get_current_user();
+		$actor = array();
+		if ( $current_user ) {
+			$actor[ 'display_name' ] = $current_user->display_name;
+			$actor[ 'user_email' ] = $current_user->user_email;
+		}
+
+		if ( isset( $_SERVER['REMOTE_ADDR'] ) ) {
+			$actor[ 'ip' ] = $_SERVER['REMOTE_ADDR'];
+		}
+
+		$actor['is_cron'] = defined( 'DOING_CRON' ) ? DOING_CRON : false;
+		$actor['is_wp_admin'] = is_admin();
+		$actor['is_rest'] = defined( 'REST_API_REQUEST' ) ? REST_API_REQUEST : false;
+		$actor['is_xmlrpc'] = defined( 'XMLRPC_REQUEST' ) ? XMLRPC_REQUEST : false;
+		$actor['is_wp_rest'] = defined( 'REST_REQUEST' ) ? REST_REQUEST : false;
+		$actor['is_ajax'] = defined( 'DOING_AJAX' ) ? DOING_AJAX : false;
+
+		return $actor;
 	}
 
 	function set_defaults() {

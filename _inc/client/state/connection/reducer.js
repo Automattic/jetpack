@@ -3,6 +3,7 @@
  */
 import { combineReducers } from 'redux';
 import assign from 'lodash/assign';
+import merge from 'lodash/merge';
 import get from 'lodash/get';
 import includes from 'lodash/includes';
 
@@ -22,7 +23,8 @@ import {
 	DISCONNECT_SITE_SUCCESS,
 	UNLINK_USER,
 	UNLINK_USER_FAIL,
-	UNLINK_USER_SUCCESS
+	UNLINK_USER_SUCCESS,
+	MOCK_SWITCH_USER_PERMISSIONS
 } from 'state/action-types';
 import { getModulesThatRequireConnection } from 'state/modules';
 
@@ -56,6 +58,9 @@ export const user = ( state = window.Initial_State.userData, action ) => {
 		case UNLINK_USER_SUCCESS:
 			let currentUser = assign( {}, state.currentUser, { isConnected: false } );
 			return assign( {}, state, { currentUser } );
+
+		case MOCK_SWITCH_USER_PERMISSIONS:
+			return merge( {}, state, action.initialState );
 
 		default:
 			return state;
@@ -120,6 +125,20 @@ export function getSiteConnectionStatus( state ) {
 	}
 	if ( state.jetpack.connection.status.siteConnected.devMode.isActive ) {
 		return 'dev';
+	}
+	return state.jetpack.connection.status.siteConnected.isActive;
+}
+
+/**
+ * Checks if the site is connected to WordPress.com. Unlike getSiteConnectionStatus, this one returns only a boolean.
+ *
+ * @param  {Object}  state Global state tree
+ * @return {boolean} True if site is connected to WordPress.com. False if site is in Dev Mode or there's no connection data.
+ */
+export function isSiteConnected( state ) {
+	if ( ( 'object' !== typeof state.jetpack.connection.status.siteConnected ) ||
+		true === state.jetpack.connection.status.siteConnected.devMode.isActive ) {
+		return false;
 	}
 	return state.jetpack.connection.status.siteConnected.isActive;
 }

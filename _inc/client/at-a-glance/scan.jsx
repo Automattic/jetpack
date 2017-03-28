@@ -5,6 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import DashItem from 'components/dash-item';
 import { numberFormat, translate as __ } from 'i18n-calypso';
+import { getPlanClass } from 'lib/plans/constants';
 
 /**
  * Internal dependencies
@@ -26,21 +27,19 @@ import { isFetchingSiteData } from 'state/site';
 
 const DashScan = React.createClass( {
 	getContent: function() {
-		const labelName = __( 'Security Scanning' ),
+		const planClass = getPlanClass( this.props.sitePlan.product_slug ),
+			labelName = __( 'Security Scanning' ),
 			hasSitePlan = false !== this.props.sitePlan,
 			vpData = this.props.vaultPressData,
 			inactiveOrUninstalled = this.props.isPluginInstalled( 'vaultpress/vaultpress.php' ) ? 'pro-inactive' : 'pro-uninstalled',
 			scanEnabled = (
-				'undefined' !== typeof vpData.data
-				&&
-				'undefined' !== typeof vpData.data.features
-				&&
-				'undefined' !== typeof vpData.data.features.security
-				&&
+				'undefined' !== typeof vpData.data &&
+				'undefined' !== typeof vpData.data.features &&
+				'undefined' !== typeof vpData.data.features.security &&
 				vpData.data.features.security
 			),
-			hasPremium = /jetpack_premium*/.test( this.props.sitePlan.product_slug ),
-			hasBusiness = /jetpack_business*/.test( this.props.sitePlan.product_slug );
+			hasPremium = 'is-premium-plan' === planClass,
+			hasBusiness = 'is-business-plan' === planClass;
 
 		if ( this.props.isModuleActivated( 'vaultpress' ) ) {
 			if ( vpData === 'N/A' ) {
@@ -59,9 +58,8 @@ const DashScan = React.createClass( {
 						<DashItem
 							label={ labelName }
 							module="scan"
-							status="is-error"
-							statusText={ __( 'Threats found' ) }
-							pro={ true } >
+							pro={ true }
+						>
 							<h3>{
 								__(
 									'Uh oh, %(number)s threat found.', 'Uh oh, %(number)s threats found.',
@@ -107,7 +105,7 @@ const DashScan = React.createClass( {
 				return (
 					__( 'For automated, comprehensive scanning of security threats, please {{a}}install and activate{{/a}} VaultPress.', {
 						components: {
-							a: <a href='https://wordpress.com/plugins/vaultpress' target="_blank" />
+							a: <a href='https://wordpress.com/plugins/vaultpress' target="_blank" rel="noopener noreferrer" />
 						}
 					} )
 				);
@@ -115,7 +113,7 @@ const DashScan = React.createClass( {
 				return (
 					__( 'For automated, comprehensive scanning of security threats, please {{a}}upgrade your account{{/a}}.', {
 						components: {
-							a: <a href={ 'https://jetpack.com/redirect/?source=aag-scan&site=' + this.props.siteRawUrl } target="_blank" />
+							a: <a href={ 'https://jetpack.com/redirect/?source=aag-scan&site=' + this.props.siteRawUrl } target="_blank" rel="noopener noreferrer" />
 						}
 					} )
 				);

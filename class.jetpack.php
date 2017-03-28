@@ -1286,6 +1286,7 @@ class Jetpack {
 		$personal_plans = array(
 			'jetpack_personal',
 			'jetpack_personal_monthly',
+			'personal-bundle',
 		);
 
 		if ( in_array( $plan['product_slug'], $personal_plans ) ) {
@@ -1299,6 +1300,7 @@ class Jetpack {
 		$premium_plans = array(
 			'jetpack_premium',
 			'jetpack_premium_monthly',
+			'value_bundle',
 		);
 
 		if ( in_array( $plan['product_slug'], $premium_plans ) ) {
@@ -1315,6 +1317,7 @@ class Jetpack {
 		$business_plans = array(
 			'jetpack_business',
 			'jetpack_business_monthly',
+			'business-bundle',
 		);
 
 		if ( in_array( $plan['product_slug'], $business_plans ) ) {
@@ -2310,12 +2313,29 @@ class Jetpack {
 		$data = get_file_data( $file, $headers );
 
 		// Strip out any old Jetpack versions that are cluttering the option.
-		$file_data_option = array_intersect_key( (array) $file_data_option, array( JETPACK__VERSION => null ) );
+		//
+		// We maintain the data for the current version of Jetpack plus the previous version
+		// to prevent repeated DB hits on large sites hosted with multiple web servers
+		// on a single database (since all web servers might not be updated simultaneously)
+		
 		$file_data_option[ JETPACK__VERSION ][ $key ] = $data;
+		
+		if ( count( $file_data_option ) > 2 ) {
+			$count = 0;
+			krsort( $file_data_option );
+			foreach ( $file_data_option as $version => $values ) {
+				$count++;
+				if ( $count > 2 && JETPACK__VERSION != $version ) {
+					unset( $file_data_option[ $version ] );
+				}
+			}
+		}
+		
 		Jetpack_Options::update_option( 'file_data', $file_data_option );
 
 		return $data;
 	}
+	
 
 	/**
 	 * Return translated module tag.
@@ -2767,6 +2787,9 @@ p {
 
 		if ( $network_wide )
 			Jetpack::state( 'network_nag', true );
+
+		// For firing one-off events (notices) immediately after activation
+		set_transient( 'activated_jetpack', true, .1 * MINUTE_IN_SECONDS );
 
 		Jetpack::plugin_initialize();
 	}
@@ -4264,15 +4287,6 @@ p {
 				}
 				break;
 		}
-	}
-
-	function debugger_page() {
-		nocache_headers();
-		if ( ! current_user_can( 'manage_options' ) ) {
-			die( '-1' );
-		}
-		Jetpack_Debugger::jetpack_debug_display_handler();
-		exit;
 	}
 
 	public static function admin_screen_configure_module( $module_id ) {

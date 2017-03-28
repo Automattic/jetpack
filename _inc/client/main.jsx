@@ -3,7 +3,6 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import includes from 'lodash/includes';
 import { createHistory } from 'history';
 import { withRouter } from 'react-router';
@@ -15,10 +14,11 @@ import { translate as __ } from 'i18n-calypso';
 import Masthead from 'components/masthead';
 import Navigation from 'components/navigation';
 import NavigationSettings from 'components/navigation-settings';
+import SearchableSettings from 'settings/index.jsx';
 import JetpackConnect from 'components/jetpack-connect';
 import JumpStart from 'components/jumpstart';
 import { getJumpStartStatus, isJumpstarting } from 'state/jumpstart';
-import { getSiteConnectionStatus } from 'state/connection';
+import { getSiteConnectionStatus, isCurrentUserLinked } from 'state/connection';
 import {
 	setInitialState,
 	getSiteRawUrl,
@@ -27,14 +27,9 @@ import {
 	getApiRootUrl,
 	userCanManageModules
 } from 'state/initial-state';
-import { areThereUnsavedModuleOptions, clearUnsavedOptionFlag } from 'state/modules';
-
+import { areThereUnsavedSettings, clearUnsavedSettingsFlag } from 'state/settings';
+import { getSearchTerm } from 'state/search';
 import AtAGlance from 'at-a-glance/index.jsx';
-import Engagement from 'engagement/index.jsx';
-import Security from 'security/index.jsx';
-import Appearance from 'appearance/index.jsx';
-import GeneralSettings from 'general-settings/index.jsx';
-import Writing from 'writing/index.jsx';
 import Apps from 'apps/index.jsx';
 import Plans from 'plans/index.jsx';
 import Footer from 'components/footer';
@@ -42,7 +37,7 @@ import SupportCard from 'components/support-card';
 import NonAdminView from 'components/non-admin-view';
 import JetpackNotices from 'components/jetpack-notices';
 import AdminNotices from 'components/admin-notices';
-import SearchPage from 'search/index.jsx';
+import Tracker from 'components/tracker';
 import analytics from 'lib/analytics';
 import restApi from 'rest-api';
 import { getTracksUserData } from 'state/initial-state';
@@ -64,11 +59,13 @@ const Main = React.createClass( {
 	 * Returns a string if there are unsaved module settings thus showing a confirm dialog to the user
 	 * according to the `beforeunload` event handling specification
 	 */
-	onBeforeUnload( e ) {
-		const dialogText = __( 'There are unsaved settings in this tab that will be lost if you leave it. Proceed?' );
-		if ( this.props.areThereUnsavedModuleOptions ) {
-			e.returnValue = dialogText;
-			return dialogText;
+	onBeforeUnload() {
+		if ( this.props.areThereUnsavedSettings ) {
+			if ( confirm( __( 'There are unsaved settings in this tab that will be lost if you leave it. Proceed?' ) ) ) {
+				this.props.clearUnsavedSettingsFlag();
+			} else {
+				return false;
+			}
 		}
 	},
 
@@ -78,10 +75,9 @@ const Main = React.createClass( {
  	 * Return true or false according to the history.listenBefore specification which is part of react-router
 	 */
 	routerWillLeave() {
-		if ( this.props.areThereUnsavedModuleOptions ) {
-			const confirmLeave = confirm( __( 'There are unsaved settings in this tab that will be lost if you leave it. Proceed?' ) );
-			if ( confirmLeave ) {
-				this.props.clearUnsavedOptionFlag();
+		if ( this.props.areThereUnsavedSettings ) {
+			if ( confirm( __( 'router There are unsaved settings in this tab that will be lost if you leave it. Proceed?' ) ) ) {
+				window.setTimeout( this.props.clearUnsavedSettingsFlag, 10 );
 			} else {
 				return false;
 			}
@@ -99,9 +95,27 @@ const Main = React.createClass( {
 	},
 
 	shouldComponentUpdate: function( nextProps ) {
+		// If user triggers Skip to main content or Skip to toolbar with keyboard navigation, stay in the same tab.
+		if ( includes( [ '/wpbody-content', '/wp-toolbar' ], nextProps.route.path ) ) {
+			return false;
+		}
+
 		return nextProps.siteConnectionStatus !== this.props.siteConnectionStatus ||
 			nextProps.jumpStartStatus !== this.props.jumpStartStatus ||
-			nextProps.route.path !== this.props.route.path;
+			nextProps.isLinked !== this.props.isLinked ||
+			nextProps.route.path !== this.props.route.path ||
+			nextProps.searchTerm !== this.props.searchTerm;
+	},
+
+	componentDidUpdate( prevProps ) {
+		// Not taking into account development mode here because changing the connection
+		// status without reloading is possible only by disconnecting a live site not
+		// in development mode.
+		if ( prevProps.siteConnectionStatus !== this.props.siteConnectionStatus ) {
+			const $items = jQuery( '#toplevel_page_jetpack' ).find( 'ul.wp-submenu li' );
+			$items.find( 'a[href$="#/settings"]' ).hide();
+			$items.find( 'a[href$="admin.php?page=stats"]' ).hide();
+		}
 	},
 
 	componentWillReceiveProps( nextProps ) {
@@ -114,7 +128,7 @@ const Main = React.createClass( {
 	/**
 	 *
 	 * Takes care of redirection when
-	 *  - jumpstarting ( resseting options )
+	 * - jumpstarting ( resseting options )
 	 * - the jumpstart is complete
 	 * @param  {Object} nextProps The next props as received by componentWillReceiveProps
 	 */
@@ -133,29 +147,46 @@ const Main = React.createClass( {
 	},
 
 	renderMainContent: function( route ) {
-
 		// Track page views
 		analytics.tracks.recordEvent( 'jetpack_wpa_page_view', { path: route } );
 
 		if ( ! this.props.userCanManageModules ) {
-			return <NonAdminView { ...this.props } />
+			if ( ! this.props.siteConnectionStatus ) {
+				return false;
+			}
+			return (
+				<div aria-live="assertive">
+					<NonAdminView { ...this.props } />
+				</div>
+			);
 		}
 
 		if ( ! this.props.siteConnectionStatus ) {
-			return <JetpackConnect />
+			return (
+				<div aria-live="assertive">
+					<JetpackConnect />
+				</div>
+			);
 		}
 
 		if ( this.props.jumpStartStatus ) {
-			if ( '/' === route ) {
+			if ( includes( [ '/', '/dashboard' ], route ) ) {
+				window.location.hash = 'jumpstart';
 				const history = createHistory();
 				history.push( window.location.pathname + '?page=jetpack#/jumpstart' );
 			} else if ( '/jumpstart' === route ) {
-				return <JumpStart />
+				return (
+					<div aria-live="assertive">
+						<JumpStart />
+					</div>
+				);
 			}
 		}
 
 		let pageComponent,
-			navComponent = <Navigation route={ this.props.route }/>;
+			navComponent = <Navigation route={ this.props.route }/>,
+			settingsNav = <NavigationSettings route={ this.props.route } siteRawUrl={ this.props.siteRawUrl } siteAdminUrl={ this.props.siteAdminUrl } />;
+
 		switch ( route ) {
 			case '/dashboard':
 				pageComponent = <AtAGlance siteRawUrl={ this.props.siteRawUrl } siteAdminUrl={ this.props.siteAdminUrl } />;
@@ -167,42 +198,32 @@ const Main = React.createClass( {
 				pageComponent = <Plans siteRawUrl={ this.props.siteRawUrl } siteAdminUrl={ this.props.siteAdminUrl } />;
 				break;
 			case '/settings':
-				navComponent = <NavigationSettings route={ this.props.route } />;
-				pageComponent = <GeneralSettings route={ this.props.route } />;
-				break;
 			case '/general':
-				navComponent = <NavigationSettings route={ this.props.route } />;
-				pageComponent = <GeneralSettings route={ this.props.route } />;
-				break;
 			case '/engagement':
-				navComponent = <NavigationSettings route={ this.props.route } />;
-				pageComponent = <Engagement route={ this.props.route } />;
-				break;
 			case '/security':
-				navComponent = <NavigationSettings route={ this.props.route } />;
-				pageComponent = <Security route={ this.props.route } siteAdminUrl={ this.props.siteAdminUrl } />;
-				break;
-			case '/appearance':
-				navComponent = <NavigationSettings route={ this.props.route } />;
-				pageComponent = <Appearance route={ this.props.route } />;
-				break;
+			case '/traffic':
+			case '/discussion':
 			case '/writing':
-				navComponent = <NavigationSettings route={ this.props.route } />;
-				pageComponent = <Writing route={ this.props.route } siteAdminUrl={ this.props.siteAdminUrl } />;
-				break;
-			case '/search':
-				navComponent = <NavigationSettings route={ this.props.route } />;
-				pageComponent = <SearchPage siteAdminUrl={ this.props.siteAdminUrl } />;
+			case '/sharing':
+				navComponent = settingsNav;
+				pageComponent = <SearchableSettings
+					route={ this.props.route }
+					siteAdminUrl={ this.props.siteAdminUrl }
+					siteRawUrl={ this.props.siteRawUrl }
+					searchTerm={ this.props.searchTerm } />;
 				break;
 
 			default:
+				// If no route found, kick them to the dashboard and do some url/history trickery
+				const history = createHistory();
+				history.replace( window.location.pathname + '?page=jetpack#/dashboard' );
 				pageComponent = <AtAGlance siteRawUrl={ this.props.siteRawUrl } siteAdminUrl={ this.props.siteAdminUrl } />;
 		}
 
 		window.wpNavMenuClassChange();
 
 		return (
-			<div>
+			<div aria-live="assertive">
 				{ navComponent }
 				{ pageComponent }
 			</div>
@@ -212,7 +233,7 @@ const Main = React.createClass( {
 	render: function() {
 		return (
 			<div>
-				<Masthead/>
+				<Masthead route={ this.props.route } />
 					<div className="jp-lower">
 						<AdminNotices />
 						<JetpackNotices />
@@ -220,10 +241,11 @@ const Main = React.createClass( {
 						{
 							this.props.jumpStartStatus || '/apps' === this.props.route.path ?
 							null :
-							<SupportCard />
+							<SupportCard path={ this.props.route.path } />
 						}
 					</div>
-				<Footer siteAdminUrl={ this.props.siteAdminUrl } />
+					<Footer siteAdminUrl={ this.props.siteAdminUrl } />
+				<Tracker analytics={ analytics } />
 			</div>
 		);
 	}
@@ -232,20 +254,29 @@ const Main = React.createClass( {
 
 export default connect(
 	state => {
-		return  {
+		return {
 			jumpStartStatus: getJumpStartStatus( state ),
 			isJumpstarting: isJumpstarting( state ),
 			siteConnectionStatus: getSiteConnectionStatus( state ),
+			isLinked: isCurrentUserLinked( state ),
 			siteRawUrl: getSiteRawUrl( state ),
 			siteAdminUrl: getSiteAdminUrl( state ),
+			searchTerm: getSearchTerm( state ),
 			apiRoot: getApiRootUrl( state ),
 			apiNonce: getApiNonce( state ),
 			tracksUserData: getTracksUserData( state ),
-			areThereUnsavedModuleOptions: areThereUnsavedModuleOptions( state ),
+			areThereUnsavedSettings: areThereUnsavedSettings( state ),
 			userCanManageModules: userCanManageModules( state )
 		};
 	},
-	dispatch => bindActionCreators( { setInitialState, clearUnsavedOptionFlag }, dispatch )
+	( dispatch ) => ( {
+		setInitialState: () => {
+			return dispatch( setInitialState() );
+		},
+		clearUnsavedSettingsFlag: () => {
+			return dispatch( clearUnsavedSettingsFlag() );
+		}
+	} )
 )( withRouter( Main ) );
 
 /**
@@ -256,11 +287,11 @@ window.wpNavMenuClassChange = function() {
 	const settingRoutes = [
 		'#/settings',
 		'#/general',
-		'#/engagement',
+		'#/discussion',
 		'#/security',
-		'#/appearance',
+		'#/traffic',
 		'#/writing',
-		'#/search'
+		'#/sharing'
 	],
 	dashboardRoutes = [
 		'#/',

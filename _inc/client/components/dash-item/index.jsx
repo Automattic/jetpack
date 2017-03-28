@@ -8,6 +8,7 @@ import SimpleNotice from 'components/notice';
 import { translate as __ } from 'i18n-calypso';
 import Button from 'components/button';
 import includes from 'lodash/includes';
+import analytics from 'lib/analytics';
 
 /**
  * Internal dependencies
@@ -25,7 +26,11 @@ import {
 	getModule as _getModule
 } from 'state/modules';
 import ProStatus from 'pro-status';
-import { userCanManageModules } from 'state/initial-state';
+import {
+	getSiteRawUrl,
+	getSiteAdminUrl,
+	userCanManageModules
+} from 'state/initial-state';
 
 export const DashItem = React.createClass( {
 	displayName: 'DashItem',
@@ -47,6 +52,21 @@ export const DashItem = React.createClass( {
 		};
 	},
 
+	trackMonitorSettingsClick() {
+		analytics.tracks.recordJetpackClick( {
+			target: 'monitor-settings',
+			page: 'aag'
+		} );
+	},
+
+	trackPaidBtnClick( feature ) {
+		analytics.tracks.recordJetpackClick( {
+			target: 'paid-button',
+			feature: feature,
+			page: 'aag'
+		} );
+	},
+
 	render() {
 		let toggle, proButton = '';
 
@@ -57,7 +77,7 @@ export const DashItem = React.createClass( {
 		);
 
 		if ( '' !== this.props.module ) {
-			toggle = ( includes( [ 'protect', 'monitor', 'photon', 'vaultpress', 'scan', 'backups', 'akismet' ], this.props.module ) && this.props.isDevMode ) ? '' : (
+			toggle = ( includes( [ 'protect', 'photon', 'vaultpress', 'scan', 'backups', 'akismet' ], this.props.module ) && this.props.isDevMode ) ? '' : (
 				<ModuleToggle
 					slug={ this.props.module }
 					activated={ this.props.isModuleActivated( this.props.module ) }
@@ -78,24 +98,38 @@ export const DashItem = React.createClass( {
 								status={ this.props.status }
 								isCompact={ true }
 							>
-								{ __( 'Updates Needed' ) }
+								{ __( 'Updates needed', { context: 'Short warning message' } ) }
 							</SimpleNotice>
 						</a>
 					);
 				}
 				if ( 'is-working' === this.props.status ) {
-					toggle = <span className="jp-dash-item__active-label">{ __( 'Active' ) }</span>
+					toggle = <span className="jp-dash-item__active-label">{ __( 'Active' ) }</span>;
 				}
+			}
+
+			if ( 'monitor' === this.props.module ) {
+				toggle = ! this.props.isDevMode && this.props.isModuleActivated( this.props.module ) && (
+					<Button
+						onClick={ this.trackMonitorSettingsClick }
+						href={ 'https://wordpress.com/settings/security/' + this.props.siteRawUrl }
+						compact>
+						{
+							__( 'Settings' )
+						}
+					</Button>
+				);
 			}
 		}
 
 		if ( this.props.pro && ! this.props.isDevMode ) {
 			proButton =
 				<Button
+					onClick={ () => this.trackPaidBtnClick( this.props.module ) }
 					compact={ true }
 					href="#/plans"
 				>
-					{ __( 'Paid' ) }
+					{ __( 'Paid', { context: 'Short label appearing near a paid feature configuration block.' } ) }
 				</Button>
 			;
 
@@ -127,7 +161,9 @@ export default connect(
 			isTogglingModule: ( module_name ) => isActivatingModule( state, module_name ) || isDeactivatingModule( state, module_name ),
 			getModule: ( module_name ) => _getModule( state, module_name ),
 			isDevMode: isDevMode( state ),
-			userCanToggle: userCanManageModules( state )
+			userCanToggle: userCanManageModules( state ),
+			siteRawUrl: getSiteRawUrl( state ),
+			siteAdminUrl: getSiteAdminUrl( state )
 		};
 	},
 	( dispatch ) => {

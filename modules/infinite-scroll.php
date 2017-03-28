@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Infinite Scroll
- * Module Description: Automatically load new content when a visitor scrolls.
+ * Module Description: Automatically load new content when a visitor scrolls
  * Sort Order: 26
  * First Introduced: 2.0
  * Requires Connection: No
@@ -116,12 +116,12 @@ class Jetpack_Infinite_Scroll_Extras {
 	 *
 	 * As released in Jetpack 2.0, a child theme's parent wasn't checked for in the plugin's bundled support, hence the convoluted way the parent is checked for now.
 	 *
-	 * @uses is_admin, wp_get_theme, get_theme, get_current_theme, apply_filters
+	 * @uses is_admin, wp_get_theme, apply_filters
 	 * @action setup_theme
 	 * @return null
 	 */
 	function action_after_setup_theme() {
-		$theme = function_exists( 'wp_get_theme' ) ? wp_get_theme() : get_theme( get_current_theme() );
+		$theme = wp_get_theme();
 
 		if ( ! is_a( $theme, 'WP_Theme' ) && ! is_array( $theme ) )
 			return;

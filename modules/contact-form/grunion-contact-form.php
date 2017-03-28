@@ -273,10 +273,17 @@ class Grunion_Contact_Form_Plugin {
 			$widget = isset( $GLOBALS['wp_registered_widgets'][ $this->current_widget_id ] ) ? $GLOBALS['wp_registered_widgets'][ $this->current_widget_id ] : false;
 
 			if ( $sidebar && $widget && isset( $widget['callback'] ) ) {
+				// prevent PHP notices by populating widget args
+				$widget_args = array(
+					'before_widget' => '',
+					'after_widget' => '',
+					'before_title' => '',
+					'after_title' => '',
+				);
 				// This is lamer - no API for outputting a given widget by ID
 				ob_start();
 				// Process the widget to populate Grunion_Contact_Form::$last
-				call_user_func( $widget['callback'], array(), $widget['params'][0] );
+				call_user_func( $widget['callback'], $widget_args, $widget['params'][0] );
 				ob_end_clean();
 			}
 		} else {
@@ -2007,9 +2014,16 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$reply_to_addr = $comment_author_email;
 		}
 
+		/*
+		 * Build the message headers
+		 *
+		 * We don't need to specify a Content-Type header, because PHPMailer will automatically generate the
+		 * proper content-type for each part of the message once it detects that an AltBody is added.
+		 *
+		 * wp_mail() automatically sets the Charset to the site's charset, so we don't need to do that either.
+		 */
 		$headers = 'From: "' . $comment_author . '" <' . $from_email_addr . ">\r\n" .
-					'Reply-To: "' . $comment_author . '" <' . $reply_to_addr . ">\r\n" .
-					'Content-Type: text/html; charset="' . get_option( 'blog_charset' ) . '"';
+					'Reply-To: "' . $comment_author . '" <' . $reply_to_addr . ">\r\n";
 
 		// Build feedback reference
 		$feedback_time  = current_time( 'mysql' );
@@ -2152,6 +2166,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			wp_schedule_event( time() + 250, 'daily', 'grunion_scheduled_delete' );
 		}
 
+		add_action( 'phpmailer_init', __CLASS__ . '::add_plain_text_alternative' );
 		if (
 			$is_spam !== true &&
 			/**
@@ -2182,6 +2197,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		) { // don't send spam by default.  Filterable.
 			wp_mail( $to, "{$spam}{$subject}", $message, $headers );
 		}
+		remove_action( 'phpmailer_init', __CLASS__ . '::add_plain_text_alternative' );
 
 		if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
 			return self::success_message( $post_id, $this );
@@ -2213,6 +2229,18 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		wp_safe_redirect( $redirect );
 		exit;
+	}
+
+	/**
+	 * Add a plain-text alternative part to an outbound email
+	 *
+	 * This makes the message more accessible to mail clients that aren't HTML-aware, and decreases the likelihood
+	 * that the message will be flagged as spam.
+	 *
+	 * @param PHPMailer $phpmailer
+	 */
+	static function add_plain_text_alternative( $phpmailer ) {
+		$phpmailer->AltBody = strip_tags( $phpmailer->Body );
 	}
 
 	function addslashes_deep( $value ) {

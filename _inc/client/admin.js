@@ -19,6 +19,8 @@ import Main from 'main';
 // Initialize the accessibile focus to allow styling specifically for keyboard navigation
 accessibleFocus();
 
+const Initial_State = window.Initial_State;
+
 Initial_State.locale = JSON.parse( Initial_State.locale );
 
 if ( 'undefined' !== typeof Initial_State.locale[ '' ] ) {
@@ -61,14 +63,15 @@ function render() {
 					<Route path='/dashboard' name={ i18n.translate( 'At A Glance' ) } component={ Main } />
 					<Route path='/apps' name={ i18n.translate( 'Apps', { context: 'Navigation item.' } ) } component={ Main } />
 					<Route path='/plans' name={ i18n.translate( 'Plans', { context: 'Navigation item.' } ) } component={ Main } />
-					<Route path='/settings' name={ i18n.translate( 'General', { context: 'Navigation item.' } ) } component={ Main } />
-					<Route path='/general' name={ i18n.translate( 'General', { context: 'Navigation item.' } ) } component={ Main } />
-					<Route path='/engagement' name={ i18n.translate( 'Engagement', { context: 'Navigation item.' } ) } component={ Main } />
+					<Route path='/settings' name={ i18n.translate( 'Settings', { context: 'Navigation item.' } ) } component={ Main } />
+					<Route path='/discussion' name={ i18n.translate( 'Discussion', { context: 'Navigation item.' } ) } component={ Main } />
 					<Route path='/security' name={ i18n.translate( 'Security', { context: 'Navigation item.' } ) } component={ Main } />
-					<Route path='/appearance' name={ i18n.translate( 'Appearance', { context: 'Navigation item.' } ) } component={ Main } />
+					<Route path='/traffic' name={ i18n.translate( 'Traffic', { context: 'Navigation item.' } ) } component={ Main } />
 					<Route path='/writing' name={ i18n.translate( 'Writing', { context: 'Navigation item.' } ) } component={ Main } />
-					<Route path='/search' component={ Main } />
-					<Route path="*" />
+					<Route path='/sharing' name={ i18n.translate( 'Sharing', { context: 'Navigation item.' } ) } component={ Main } />
+					<Route path='/wpbody-content' component={ Main } />
+					<Route path='/wp-toolbar' component={ Main } />
+					<Route path="*" component={ Main } />
 				</Router>
 			</Provider>
 		</div>,

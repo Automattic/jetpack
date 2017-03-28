@@ -3,9 +3,9 @@
  */
 import React from 'react';
 import { connect } from 'react-redux';
-import DashItem from 'components/dash-item';
 import { translate as __ } from 'i18n-calypso';
 import includes from 'lodash/includes';
+import analytics from 'lib/analytics';
 
 /**
  * Internal dependencies
@@ -16,8 +16,21 @@ import {
 	getModules
 } from 'state/modules';
 import { isDevMode } from 'state/connection';
+import DashItem from 'components/dash-item';
 
 const DashMonitor = React.createClass( {
+	activateAndTrack() {
+		analytics.tracks.recordEvent(
+			'jetpack_wpa_module_toggle',
+			{
+				module: 'monitor',
+				toggled: 'on'
+			}
+		);
+
+		this.props.activateMonitor();
+	},
+
 	getContent: function() {
 		const labelName = __( 'Downtime Monitoring' );
 
@@ -44,7 +57,7 @@ const DashMonitor = React.createClass( {
 						this.props.isDevMode ? __( 'Unavailable in Dev Mode.' ) :
 						__( '{{a}}Activate Monitor{{/a}} to receive notifications if your site goes down.', {
 							components: {
-								a: <a href="javascript:void(0)" onClick={ this.props.activateMonitor } />
+								a: <a href="javascript:void(0)" onClick={ this.activateAndTrack } />
 							}
 						} )
 					}

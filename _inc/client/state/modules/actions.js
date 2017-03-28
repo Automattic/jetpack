@@ -23,24 +23,10 @@ import {
 	JETPACK_MODULE_DEACTIVATE_SUCCESS,
 	JETPACK_MODULE_UPDATE_OPTIONS,
 	JETPACK_MODULE_UPDATE_OPTIONS_FAIL,
-	JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS,
-	JETPACK_MODULES_SET_UNSAVED_OPTION_FLAG,
-	JETPACK_MODULES_CLEAR_UNSAVED_OPTION_FLAG
+	JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS
 } from 'state/action-types';
 import { getModule } from 'state/modules/reducer';
 import restApi from 'rest-api';
-
-export const setUnsavedOptionFlag = () => {
-	return ( {
-		type: JETPACK_MODULES_SET_UNSAVED_OPTION_FLAG
-	} );
-}
-
-export const clearUnsavedOptionFlag = () => {
-	return ( {
-		type: JETPACK_MODULES_CLEAR_UNSAVED_OPTION_FLAG
-	} );
-}
 
 export const fetchModules = () => {
 	return ( dispatch ) => {
@@ -82,22 +68,12 @@ export const fetchModule = () => {
 	}
 }
 
-export const activateModule = ( slug ) => {
+export const activateModule = ( slug, reloadAfter = false ) => {
 	return ( dispatch, getState ) => {
 		dispatch( {
 			type: JETPACK_MODULE_ACTIVATE,
 			module: slug
 		} );
-		dispatch( removeNotice( 'module-toggle' ) );
-		dispatch( createNotice(
-			'is-info',
-			__( 'Activating %(slug)s…', {
-				args: {
-					slug: getModule( getState(), slug ).name
-				}
-			} ),
-			{ id: 'module-toggle' }
-		) );
 		return restApi.activateModule( slug ).then( () => {
 			dispatch( {
 				type: JETPACK_MODULE_ACTIVATE_SUCCESS,
@@ -112,8 +88,11 @@ export const activateModule = ( slug ) => {
 						slug: getModule( getState(), slug ).name
 					}
 				} ),
-				{ id: 'module-toggle', duration: 6000 }
+				{ id: 'module-toggle', duration: 3000 }
 			) );
+			if ( reloadAfter ) {
+				window.location.reload();
+			}
 		} ).catch( error => {
 			dispatch( {
 				type: JETPACK_MODULE_ACTIVATE_FAIL,
@@ -136,22 +115,12 @@ export const activateModule = ( slug ) => {
 	}
 }
 
-export const deactivateModule = ( slug ) => {
+export const deactivateModule = ( slug, reloadAfter = false ) => {
 	return ( dispatch, getState ) => {
 		dispatch( {
 			type: JETPACK_MODULE_DEACTIVATE,
 			module: slug
 		} );
-		dispatch( removeNotice( 'module-toggle' ) );
-		dispatch( createNotice(
-			'is-info',
-			__( 'Deactivating %(slug)s…', {
-				args: {
-					slug: getModule( getState(), slug ).name
-				}
-			} ),
-			{ id: 'module-toggle' }
-		) );
 		return restApi.deactivateModule( slug ).then( () => {
 			dispatch( {
 				type: JETPACK_MODULE_DEACTIVATE_SUCCESS,
@@ -166,8 +135,11 @@ export const deactivateModule = ( slug ) => {
 						slug: getModule( getState(), slug ).name
 					}
 				} ),
-				{ id: 'module-toggle', duration: 6000 }
+				{ id: 'module-toggle', duration: 3000 }
 			) );
+			if ( reloadAfter ) {
+				window.location.reload();
+			}
 		} ).catch( error => {
 			dispatch( {
 				type: JETPACK_MODULE_DEACTIVATE_FAIL,
@@ -190,7 +162,9 @@ export const deactivateModule = ( slug ) => {
 	}
 }
 
-export const updateModuleOptions = ( slug, newOptionValues ) => {
+export const updateModuleOptions = ( module, newOptionValues ) => {
+	let slug = module.module;
+
 	return ( dispatch, getState ) => {
 		dispatch( {
 			type: JETPACK_MODULE_UPDATE_OPTIONS,
@@ -332,5 +306,11 @@ export function maybeHideNavMenuItem( module, values ) {
 			break;
 		default :
 			return false;
+	}
+}
+
+export function maybeReloadAfterAction( module ) {
+	if ( 'masterbar' in module ) {
+		window.location.reload();
 	}
 }

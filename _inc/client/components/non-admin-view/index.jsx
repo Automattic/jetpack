@@ -15,17 +15,11 @@ import { isModuleActivated as _isModuleActivated } from 'state/modules';
 import Navigation from 'components/navigation';
 import NavigationSettings from 'components/navigation-settings';
 import AtAGlance from 'at-a-glance/index.jsx';
-import Engagement from 'engagement/index.jsx';
-import GeneralSettings from 'general-settings/index.jsx';
-import Writing from 'writing/index.jsx';
+import SearchableSettings from 'settings/index.jsx';
 import Apps from 'apps/index.jsx';
 import { getSiteConnectionStatus } from 'state/connection';
 
 const NonAdminView = React.createClass( {
-	componentWillMount: function() {
-		this.props.setInitialState();
-	},
-
 	shouldComponentUpdate: function( nextProps ) {
 		return nextProps.siteConnectionStatus !== this.props.siteConnectionStatus ||
 			nextProps.route.path !== this.props.route.path;
@@ -48,23 +42,15 @@ const NonAdminView = React.createClass( {
 				pageComponent = <Apps { ...this.props } />;
 				break;
 			case '/settings':
-				navComponent = <NavigationSettings { ...this.props } />;
-				pageComponent = <GeneralSettings { ...this.props } />;
-				break;
-			case '/general':
-				navComponent = <NavigationSettings { ...this.props } />;
-				pageComponent = <GeneralSettings { ...this.props } />;
-				break;
-			case '/engagement':
-				if ( ! this.props.isSubscriber ) {
-					navComponent = <NavigationSettings { ...this.props } />;
-					pageComponent = <Engagement { ...this.props } />;
-				}
-				break;
 			case '/writing':
+			case '/sharing':
 				if ( ! this.props.isSubscriber ) {
 					navComponent = <NavigationSettings { ...this.props } />;
-					pageComponent = <Writing { ...this.props } />;
+					pageComponent = <SearchableSettings
+						route={ this.props.route }
+						siteAdminUrl={ this.props.siteAdminUrl }
+						siteRawUrl={ this.props.siteRawUrl }
+						searchTerm={ this.props.searchTerm } />;
 				}
 				break;
 		}
@@ -91,7 +77,7 @@ NonAdminView.propTypes = {
 	userCanViewStats: React.PropTypes.bool.isRequired,
 	isSubscriber: React.PropTypes.bool.isRequired,
 	siteConnectionStatus: React.PropTypes.any.isRequired
-}
+};
 
 export default connect(
 	( state ) => {

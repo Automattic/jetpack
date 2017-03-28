@@ -3,7 +3,7 @@
 /*
 Plugin Name: Gallery
 Description: Gallery widget
-Author: Automattic, Inc.
+Author: Automattic Inc.
 Version: 1.0
 Author URI: http://automattic.com
 */

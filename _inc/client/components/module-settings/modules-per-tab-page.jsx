@@ -9,24 +9,8 @@ import { connect } from 'react-redux';
  * Internal dependencies
  */
 import {
-	StatsSettings,
-	RelatedPostsSettings,
-	CommentsSettings,
 	LikesSettings,
-	SubscriptionsSettings,
-	ProtectSettings,
 	MonitorSettings,
-	SingleSignOnSettings,
-	MinilevenSettings,
-	CarouselSettings,
-	InfiniteScrollSettings,
-	TiledGallerySettings,
-	PostByEmailSettings,
-	CustomContentTypesSettings,
-	AfterTheDeadlineSettings,
-	MarkdownSettings,
-	VerificationToolsSettings,
-	SitemapsSettings,
 	VideoPressSettings,
 	WordAdsSettings
 } from 'components/module-settings/';
@@ -50,24 +34,6 @@ const AllModuleSettingsComponent = React.createClass( {
 						<ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href='/wp-admin/admin.php?page=omnisearch'>{ __( 'Search your content.' ) }</ExternalLink>
 					</div>
 				);
-			case 'post-by-email':
-				return ( <PostByEmailSettings module={ module }  /> );
-			case 'custom-content-types':
-				return ( <CustomContentTypesSettings module={ module }  /> );
-			case 'after-the-deadline':
-				return ( <AfterTheDeadlineSettings module={ module }  /> );
-			case 'markdown':
-				return ( <MarkdownSettings module={ module }  /> );
-			case 'tiled-gallery':
-				return ( <TiledGallerySettings module={ module }  /> );
-			case 'minileven':
-				return ( <MinilevenSettings module={ module }  /> );
-			case 'carousel':
-				return ( <CarouselSettings module={ module }  /> );
-			case 'infinite-scroll':
-				return ( <InfiniteScrollSettings module={ module }  /> );
-			case 'protect':
-				return ( <ProtectSettings module={ module }  /> );
 			case 'monitor':
 				module.raw_url = this.props.siteRawUrl;
 				return ( <MonitorSettings module={ module }  /> );
@@ -87,8 +53,6 @@ const AllModuleSettingsComponent = React.createClass( {
 						<ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href={ module.configure_url }>{ __( 'Configure your Security Scans' ) }</ExternalLink>
 					</div>
 				);
-			case 'sso':
-				return ( <SingleSignOnSettings module={ module }  /> );
 			case 'seo-tools':
 				if ( '' === module.configure_url ) {
 					return (
@@ -111,20 +75,8 @@ const AllModuleSettingsComponent = React.createClass( {
 						</div>
 					);
 				}
-			case 'stats':
-				return ( <StatsSettings module={ module }  /> );
-			case 'related-posts':
-				return ( <RelatedPostsSettings module={ module } lastPostUrl={ this.props.lastPostUrl } /> );
-			case 'comments':
-				return ( <CommentsSettings module={ module }  /> );
-			case 'subscriptions':
-				return ( <SubscriptionsSettings module={ module } { ...this.props } /> );
 			case 'likes':
 				return ( <LikesSettings module={ module }  /> );
-			case 'verification-tools':
-				return ( <VerificationToolsSettings module={ module }  /> );
-			case 'sitemaps':
-				return ( <SitemapsSettings module={ module } { ...this.props } /> );
 			case 'wordads':
 				return ( <WordAdsSettings module={ module } /> );
 			case 'google-analytics':
@@ -155,8 +107,8 @@ const AllModuleSettingsComponent = React.createClass( {
 			case 'latex':
 			case 'shortlinks':
 			case 'shortcodes':
-			case 'photon':
 			case 'widget-visibility':
+			case 'masterbar':
 			case 'notifications':
 			case 'enhanced-distribution':
 				return <span className="jp-form-setting-explanation">{ __( 'This module has no configuration options' ) } </span>;
