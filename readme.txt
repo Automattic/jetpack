@@ -163,6 +163,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Open Graph: make sure Site Icons are used as fallback Open Graph Image tags. #6632
 * Protect: remove port number when server returns a port alongside each stored IP address. #6755
 * Subscriptions: show the correct notification in the subscription form when the email is already subscribed. #6603
+* Sharing: avoid syntax errors due to unexpected characters in the from name when using the Email sharing button. #6769
 * Sync: remove deprecated `jetpack_publicize_post` action. #6567
 * Sync: make sure it is possible to retrieve synchronization options from the WordPress.com REST API. #6789
 * VideoPress: avoid PHP Notices when fetching information about a video. #6527
