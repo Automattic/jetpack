@@ -8,7 +8,7 @@ class Jetpack_JSON_API_Get_Comment_Backup_Endpoint extends Jetpack_JSON_API_Endp
 
 	function validate_input( $comment_id ) {
 		if ( empty( $comment_id ) || ! is_numeric( $comment_id ) ) {
-			return new WP_Error( 400, __( 'You must specify a Comment ID', 'jetpack' ) );
+			return new WP_Error( 'comment_id_not_specified', __( 'You must specify a Comment ID', 'jetpack' ), 400 );
 		}
 
 		$this->comment_id = intval( $comment_id );
@@ -19,7 +19,7 @@ class Jetpack_JSON_API_Get_Comment_Backup_Endpoint extends Jetpack_JSON_API_Endp
 	protected function result() {
 		$comment = get_comment( $this->comment_id );
 		if ( empty( $comment ) ) {
-			return new WP_Error( 404, __( 'Comment not found', 'jetpack' ) );
+			return new WP_Error( 'comment_not_found', __( 'Comment not found', 'jetpack' ), 404 );
 		}
 
 		$allowed_keys = array(

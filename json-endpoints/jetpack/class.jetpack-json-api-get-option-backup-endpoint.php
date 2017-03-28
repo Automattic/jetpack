@@ -10,7 +10,7 @@ class Jetpack_JSON_API_Get_Option_Backup_Endpoint extends Jetpack_JSON_API_Endpo
 		$query_args = $this->query_args();		
 
 		if ( empty( $query_args['name'] ) ) {
-			return new WP_Error( 400, __( 'You must specify an option name', 'jetpack' ) );
+			return new WP_Error( 'option_name_not_specified', __( 'You must specify an option name', 'jetpack' ), 400 );
 		}
 
 		if ( is_array( $query_args['name'] ) ) {
