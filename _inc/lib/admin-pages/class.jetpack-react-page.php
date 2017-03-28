@@ -242,7 +242,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 
 		// Get all themes that Infinite Scroll provides support for natively.
 		$inf_scr_support_themes = array();
-		foreach ( Jetpack::glob_php( JETPACK__PLUGIN_DIR . 'modules/infinite-scroll/themes/*.php' ) as $path ) {
+		foreach ( Jetpack::glob_php( JETPACK__PLUGIN_DIR . 'modules/infinite-scroll/themes' ) as $path ) {
 			if ( is_readable( $path ) ) {
 				$inf_scr_support_themes[] = basename( $path, '.php' );
 			}
