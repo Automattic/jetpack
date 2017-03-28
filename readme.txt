@@ -116,6 +116,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Admin Page: change wording in Stats dashboard to avoid confusion. #6710
 * Featured Content: change wording in options to avoid confusion. #6684
 * Infinite Scroll: change button text on taxonomy page. #6584
+* Internationalization: remove custom Slovakian language files and rely on WordPress.org's language packs instead. Kudos to the Slovakian translation team! #6777
 * Widgets: allow the use of full URLs in the Social Media Icons widget. #6508
 * Widgets: allow links to open in a new window when adding custom links in the Milestone widget. #6778
 * Sync: synchronize the `sync_via_cron` setting as well. #6477
