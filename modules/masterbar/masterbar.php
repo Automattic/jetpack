@@ -63,6 +63,13 @@ class A8C_WPCOM_Masterbar {
 			// Override Notification module to include RTL styles
 			add_action( 'a8c_wpcom_masterbar_enqueue_rtl_notification_styles', '__return_true' );
 		}
+
+		add_filter( 'allowed_redirect_hosts', array( $this, 'allow_wpcom_redirect' ) );
+	}
+
+	public function allow_wpcom_redirect( $allowed ) {
+		$allowed[] = 'wordpress.com';
+		return $allowed;
 	}
 
 	public function is_automated_transfer_site() {
@@ -351,7 +358,7 @@ class A8C_WPCOM_Masterbar {
 
 		$settings_url = 'https://wordpress.com/me/account';
 
-		$logout_url = wp_logout_url();
+		$logout_url = wp_logout_url( 'https://wordpress.com/wp-login.php?action=logout' );
 
 		$user_info  = get_avatar( $this->user_email, 128, 'mm', '', array( 'force_display' => true ) );
 		$user_info .= '<span class="display-name">' . $this->display_name . '</span>';
