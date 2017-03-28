@@ -32,10 +32,13 @@ function sharing_email_send_post( $data ) {
 				'<\r\n' .
 			']/';
 
-		$needs_encoding = preg_match( $name_needs_encoding_regex, $s_name ) ||      // If it contains any blacklisted chars,
-				! function_exists( 'mb_convert_encoding' ) ||           // Or if we can't use `mb_convert_encoding` encode everything,
-				mb_convert_encoding( $data['name'], 'ASCII' ) !== $s_name // Or if it's not already ASCII
-			);
+		$needs_encoding =
+			// If it contains any blacklisted chars,
+			preg_match( $name_needs_encoding_regex, $s_name ) ||
+			// Or if we can't use `mb_convert_encoding`
+			! function_exists( 'mb_convert_encoding' ) ||
+			// Or if it's not already ASCII
+			mb_convert_encoding( $data['name'], 'ASCII' ) !== $s_name;
 
 		if ( $needs_encoding ) {
 			$data['name'] = sprintf( '=?UTF-8?B?%s?=', base64_encode( $data['name'] ) );
