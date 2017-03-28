@@ -105,7 +105,6 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 		}
 	}
 
-
 	function test_does_set_silent_flag_true_while_importing() {
 		Jetpack_Sync_Settings::set_importing( true );
 
