@@ -176,8 +176,11 @@ class WP_Super_cache_Route extends WP_REST_Controller {
 				}
 			}
 		}
-		$settings = array(	'wp_super_cache_late_init', 'wp_cache_disable_utf8', 'wp_cache_no_cache_for_get', 'wp_supercache_304', 'wp_cache_mfunc_enabled', 'wp_cache_mobile_enabled', 'wp_cache_front_page_checks', 'wp_supercache_cache_list',
-							'wp_cache_hello_world', 'wp_cache_clear_on_post_edit', 'cache_rebuild_files', 'wp_cache_refresh_single_only', 'wp_cache_mutex_disabled',
+		$settings = array(	'wp_super_cache_late_init', 'wp_cache_disable_utf8',
+			'wp_cache_no_cache_for_get', 'wp_supercache_304', 'wp_cache_mfunc_enabled',
+			'wp_cache_mobile_enabled', 'wp_cache_front_page_checks', 'wp_supercache_cache_list',
+			'wp_cache_hello_world', 'wp_cache_clear_on_post_edit', 'cache_rebuild_files',
+			'wp_cache_refresh_single_only', 'wp_cache_mutex_disabled',
 		);
 		foreach( $settings as $key ) {
 			if ( isset( $parameters[ $key ] ) ) {
@@ -231,6 +234,26 @@ class WP_Super_cache_Route extends WP_REST_Controller {
 		if ( isset( $parameters[ 'wp_rejected_user_agent' ] ) ) {
 			$_POST[ 'wp_rejected_user_agent' ] = $parameters[ 'wp_rejected_user_agent' ];
 			wp_cache_update_rejected_ua();
+		}
+
+		$update_cdn = false;
+		$cdn_settings = array( 'ossdlcdn', 'ossdl_off_cdn_url', 'ossdl_off_include_dirs', 'ossdl_off_exclude', 'ossdl_cname', 'ossdl_https' );
+		foreach( $cdn_settings as $key ) {
+			if ( isset( $parameters[ $key ] ) ) {
+				$_POST[ $key ] = $parameters[ $key ];
+				$update_cdn = true;
+			}
+		}
+		if ( $update_cdn ) {
+			reset( $cdn_settings );
+			foreach( $cdn_settings as $key ) {
+				if ( $key != 'ossdlcdn' && $key != 'ossdl_https' && false == isset( $_POST[ $key ] ) )
+					$_POST[ $key ] = '';
+			}
+			$_POST[ 'action' ] = 'update_ossdl_off';
+			if ( $_POST[ 'ossdlcdn' ] == 0 )
+				unset( $_POST[ 'ossdlcdn' ] );
+			scossdl_off_update();
 		}
 
 		return $errors;
