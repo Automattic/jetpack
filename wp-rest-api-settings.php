@@ -32,10 +32,26 @@ class WP_Super_cache_Route extends WP_REST_Controller {
 				),
 			),
 		) );
+		register_rest_route( $namespace, '/' . $base . '/delete', array(
+			'methods'         => WP_REST_Server::CREATABLE,
+			'callback'        => array( $this, 'delete_cache' ),
+		) );
 		register_rest_route( $namespace, '/' . $base . '/schema', array(
 			'methods'         => WP_REST_Server::READABLE,
 			'callback'        => array( $this, 'get_public_item_schema' ),
 		) );
+	}
+
+	function delete_cache( $request ) {
+		global $file_prefix;
+		$parameters = $request->get_json_params();
+
+		if ( false == isset( $parameters[ 'id' ] ) ) {
+			wp_cache_clean_cache( $file_prefix );
+		} else {
+			wpsc_delete_post_cache( $parameters[ 'id' ] );
+		}
+		return rest_ensure_response( array( 'Cache Cleared' => true ) );
 	}
 
 	function update_all_settings( $parameters ) {

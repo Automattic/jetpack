@@ -2787,6 +2787,8 @@ function wp_cache_clean_cache( $file_prefix, $all = false ) {
 		prune_super_cache( $cache_path, true );
 		return true;
 	}
+	if ( $supercachedir == '' )
+		$supercachedir = get_supercache_dir();
 
 	if (function_exists ('prune_super_cache')) {
 		if( is_dir( $supercachedir ) ) {
@@ -2802,6 +2804,19 @@ function wp_cache_clean_cache( $file_prefix, $all = false ) {
 	wp_cache_clean_legacy_files( $blog_cache_dir, $file_prefix );
 	wp_cache_clean_legacy_files( $cache_path, $file_prefix );
 
+}
+
+function wpsc_delete_post_cache( $id ) {
+	$permalink = get_permalink( $id );
+	$permalink = str_replace( get_option( 'home' ), '', $permalink );
+	if ( $permalink != '' ) {
+		$supercachedir = get_supercache_dir();
+		wpsc_delete_files( $supercachedir . $permalink );
+		prune_super_cache( $supercachedir . $permalink . '/page', true );
+		return true;
+	} else {
+		return false;
+	}
 }
 
 function wp_cache_clean_legacy_files( $dir, $file_prefix ) {
