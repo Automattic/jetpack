@@ -153,6 +153,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Bug Fixes**
 
 * Admin Page: make sure Gravatar is always displayed in Settings. #6555
+* Admin Page: always use relative links for submenu items to account for servers with specific restrictions. #6529
 * Contact Form: avoid PHP notices when using the form in a Text widget. #6606
 * Content Options: Fix single characters word count excerpt issue on sites with multibyte languages. #6566
 * Protect: remove port number when server returns a port alongside each stored IP address. #6755
