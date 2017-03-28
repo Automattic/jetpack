@@ -359,7 +359,7 @@ class Jetpack_PostImages {
 		foreach ( $image_tags as $image_tag ) {
 			$img_src = $image_tag->getAttribute( 'src' );
 
-			if ( ! isset( $img_src ) || empty( $img_src ) ) {
+			if ( empty( $img_src ) ) {
 				continue;
 			}
 
