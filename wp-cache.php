@@ -2806,13 +2806,24 @@ function wp_cache_clean_cache( $file_prefix, $all = false ) {
 
 }
 
-function wpsc_delete_post_cache( $id ) {
-	$permalink = get_permalink( $id );
-	$permalink = str_replace( get_option( 'home' ), '', $permalink );
-	if ( $permalink != '' ) {
+function wpsc_delete_url_cache( $url ) {
+	$dir = str_replace( get_option( 'home' ), '', $url );
+	if ( $dir != '' ) {
 		$supercachedir = get_supercache_dir();
-		wpsc_delete_files( $supercachedir . $permalink );
-		prune_super_cache( $supercachedir . $permalink . '/page', true );
+		wpsc_delete_files( $supercachedir . $dir );
+		prune_super_cache( $supercachedir . $dir . '/page', true );
+		return true;
+	} else {
+		return false;
+	}
+}
+
+function wpsc_delete_post_cache( $id ) {
+	$post = get_post( $id );
+	wpsc_delete_url_cache( get_author_posts_url( $post->post_author ) );
+	$permalink = get_permalink( $id );
+	if ( $permalink != '' ) {
+		wpsc_delete_url_cache( $permalink );
 		return true;
 	} else {
 		return false;
