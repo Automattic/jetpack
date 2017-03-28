@@ -12,6 +12,7 @@ class A8C_WPCOM_Masterbar {
 	private $display_name;
 	private $primary_site_slug;
 	private $user_text_direction;
+	private $user_site_count;
 
 	function __construct() {
 		$this->locale  = $this->get_locale();
@@ -26,6 +27,7 @@ class A8C_WPCOM_Masterbar {
 		$this->user_login = $this->user_data['login'];
 		$this->user_email = $this->user_data['email'];
 		$this->display_name = $this->user_data['display_name'];
+		$this->user_site_count = $this->user_data['site_count'];
 		$this->primary_site_slug = Jetpack::build_raw_urls( get_home_url() );
 		// We need to use user's setting here, instead of relying on current blog's text direction
 		$this->user_text_direction = $this->user_data['text_direction'];
@@ -504,19 +506,28 @@ class A8C_WPCOM_Masterbar {
 		$wp_admin_bar->add_menu( array(
 			'parent' => 'root-default',
 			'id'    => 'blog',
-			'title' => __( 'My Sites', 'jetpack' ),
+			'title' => _n( 'My Site', 'My Sites', $this->user_site_count, 'jetpack' ),
 			'href'  => '#',
 			'meta'  => array(
 				'class' => 'my-sites',
 			),
 		) );
 
-		$wp_admin_bar->add_menu( array(
-			'parent' => 'blog',
-			'id'     => 'switch-site',
-			'title'  => __( 'Switch Site', 'jetpack' ),
-			'href'   => 'https://wordpress.com/sites',
-		) );
+		if ( $this->user_site_count > 1 ) {
+			$wp_admin_bar->add_menu( array(
+				'parent' => 'blog',
+				'id'     => 'switch-site',
+				'title'  => __( 'Switch Site', 'jetpack' ),
+				'href'   => 'https://wordpress.com/sites',
+			) );
+		} else {
+			$wp_admin_bar->add_menu( array(
+				'parent' => 'blog',
+				'id'     => 'new-site',
+				'title'  => __( '+ Add New WordPress', 'jetpack' ),
+				'href'   => 'https://wordpress.com/start?ref=admin-bar-logged-in',
+			) );
+		}
 
 		if ( is_user_member_of_blog( $current_user->ID ) ) {
 			$blavatar = '';
