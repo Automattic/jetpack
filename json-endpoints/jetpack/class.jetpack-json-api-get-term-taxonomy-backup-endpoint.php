@@ -10,7 +10,7 @@ class Jetpack_JSON_API_Get_Term_Taxonomy_Backup_Endpoint extends Jetpack_JSON_AP
 		$query_args = $this->query_args();		
 
 		if ( empty( $query_args['name'] ) ) {
-			return new WP_Error( 400, __( 'You must specify a taxonomy name', 'jetpack' ) );
+			return new WP_Error( 'taxonomy_name_not_specified', __( 'You must specify a taxonomy name', 'jetpack' ), 400 );
 		}
 
 		$this->taxonomy_name = $query_args['name'];
@@ -22,7 +22,7 @@ class Jetpack_JSON_API_Get_Term_Taxonomy_Backup_Endpoint extends Jetpack_JSON_AP
 		$taxonomy = get_taxonomy( $this->taxonomy_name );
 
 		if ( empty( $taxonomy ) ) {
-			return new WP_Error( 404, __( 'Taxonomy not found', 'jetpack' ) );
+			return new WP_Error( 'taxonomy_not_found', __( 'Taxonomy not found', 'jetpack' ), 404 );
 		}
 
 		return array( 'taxonomy' => $taxonomy );
