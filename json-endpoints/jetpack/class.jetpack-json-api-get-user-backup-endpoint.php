@@ -8,7 +8,7 @@ class Jetpack_JSON_API_Get_User_Backup_Endpoint extends Jetpack_JSON_API_Endpoin
 
 	function validate_input( $user_id ) {
 		if ( empty( $user_id ) || ! is_numeric( $user_id ) ) {
-			return new WP_Error( 'user_id_not_specified', __( 'You must specify a User ID', 'jetpack' ) );
+			return new WP_Error( 400, __( 'You must specify a User ID', 'jetpack' ) );
 		}
 
 		$this->user_id = intval( $user_id );
@@ -19,7 +19,7 @@ class Jetpack_JSON_API_Get_User_Backup_Endpoint extends Jetpack_JSON_API_Endpoin
 	protected function result() {
 		$user = get_user_by( 'id', $this->user_id );
 		if ( empty( $user ) ) {
-			return new WP_Error( 'user_not_found', __( 'User not found', 'jetpack' ) );
+			return new WP_Error( 404, __( 'User not found', 'jetpack' ) );
 		}
 
 		return array(
