@@ -24,6 +24,7 @@ class Jetpack_JSON_API_Get_Term_Backup_Endpoint extends Jetpack_JSON_API_Endpoin
 
 		return array(
 			'term' => (array)$term,
+			'meta' => get_term_meta( $this->term_id ),
 		);
 	}
 
