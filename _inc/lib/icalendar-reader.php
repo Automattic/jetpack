@@ -84,6 +84,51 @@ class iCalendarReader {
 		return $vcal['VEVENT'];
 	}
 
+	function apply_timezone_offset( $events ) {
+		if ( ! $events ) {
+			return $events;
+		}
+
+		// get timezone offset from the timezone name.
+		$timezone_name = get_option( 'timezone_string' );
+		if ( $timezone_name ) {
+			$timezone = new DateTimeZone( $timezone_name );
+		} else {
+			// If the timezone isn't set then the GMT offset must be set.
+			// generate a DateInterval object from the timezone offset
+			$gmt_offset = get_option( 'gmt_offset' ) * HOUR_IN_MINUTES;
+			$timezone_offset_interval = date_interval_create_from_date_string( "{$gmt_offset} minutes" );
+			$timezone = new DateTimeZone( 'UTC' );
+		}
+
+		$offsetted_events = array();
+
+		foreach ( $events as $event ) {
+			// Don't handle all-day events
+			if ( 8 < strlen( $event['DTSTART'] ) ) {
+				$start_time = preg_replace( '/Z$/', '', $event['DTSTART'] );
+				$start_time = new DateTime( $start_time, $this->timezone );
+				$start_time->setTimeZone( $timezone );
+
+				$end_time = preg_replace( '/Z$/', '', $event['DTEND'] );
+				$end_time = new DateTime( $end_time, $this->timezone );
+				$end_time->setTimeZone( $timezone );
+				
+				if ( $timezone_offset_interval ) {
+					$start_time->add( $timezone_offset_interval );
+					$end_time->add( $timezone_offset_interval );
+				}
+
+				$event['DTSTART'] = $start_time->format( 'YmdHis\Z' );
+				$event['DTEND'] = $end_time->format( 'YmdHis\Z' );
+			}
+
+			$offsetted_events[] = $event;
+		}
+
+		return $offsetted_events;
+	}
+
 	protected function filter_past_and_recurring_events( $events ) {
 		$upcoming = array();
 		$set_recurring_events = array();
@@ -710,6 +755,7 @@ class iCalendarReader {
 		) );
 
 		$events = $this->get_events( $url, $args['number'] );
+		$events = $this->apply_timezone_offset( $events );
 
 		if ( empty( $events ) )
 			return false;
