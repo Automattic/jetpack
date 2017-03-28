@@ -132,6 +132,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Improved Compatibility**
 
+* General: remove deprecated functions, `get_theme` & `get_current_theme`. #6775
 * Publicize: make sure posts posted programmatically via plugins like WP Recipe Maker can be publicized. #6542
 * Publicize: remove the "Head, Footer and Post Injections" plugin from the list of conflicting plugins. #6611
 * Sync: better support for WooCommerce data sync and backup. #6478
