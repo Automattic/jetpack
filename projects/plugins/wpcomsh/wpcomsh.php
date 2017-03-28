@@ -406,6 +406,8 @@ function wpcomsh_allow_custom_wp_options( $options ) {
 	// For storing AT options.
 	$options[] = 'at_options';
 	$options[] = 'jetpack_fonts';
+	$options[] = 'site_logo';
+	$options[] = 'footercredit';
 
 	return $options;
 }
