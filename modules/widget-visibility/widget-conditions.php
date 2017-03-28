@@ -55,9 +55,7 @@ class Jetpack_Widget_Conditions {
 		$authors = get_users(
 			array(
 				'orderby' => 'name',
-				'meta_key'     => 'wp_user_level',
-				'meta_value'   => '1',
-				'meta_compare' => '>',
+				'who'     => 'authors'
 			)
 		);
 
