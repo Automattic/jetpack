@@ -2237,17 +2237,21 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			return $body;
 		}
 
-		$html_message = str_replace( "\t", '', sprintf(
-			"<!doctype html>
-			<html xmlns=\"http://www.w3.org/1999/xhtml\">
-			<body>
+		$html_message = sprintf(
+			// The tabs are just here so that the raw code is correctly formatted for developers
+			// They're removed so that they don't effect the final message sent to users
+			str_replace( "\t", '',
+				"<!doctype html>
+				<html xmlns=\"http://www.w3.org/1999/xhtml\">
+				<body>
 
-			%s
+				%s
 
-			</body>
-			</html>",
+				</body>
+				</html>"
+			),
 			$body
-		) );
+		);
 
 		return $html_message;
 	}
