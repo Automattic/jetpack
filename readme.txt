@@ -114,6 +114,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * WordPress.com Toolbar: add a new Admin bar providing quick access to the WordPress.com site management interface, right from your self-hosted site's dashboard. #6413
 
 * Admin Page: change wording in Stats dashboard to avoid confusion. #6710
+* Debug: include more information in the built-in contact form to help prioritizing your requests for support. #6705
 * Featured Content: change wording in options to avoid confusion. #6684
 * Infinite Scroll: change button text on taxonomy page. #6584
 * Infinite Scroll: add a new filter to short-circuit the `is_last_batch()` method. #6731
