@@ -1235,32 +1235,6 @@ new Jetpack_JSON_API_Get_Term_Backup_Endpoint( array(
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/terms/1/backup'
 ) );
 
-// GET /sites/%s/term-taxonomies/backup
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-get-term-taxonomy-backup-endpoint.php' );
-new Jetpack_JSON_API_Get_Term_Taxonomy_Backup_Endpoint( array(
-	'description'    => 'Fetch details of a term taxonomy by name',
-	'group'          => '__do_not_document',
-	'method'         => 'GET',
-	'path'           => '/sites/%s/term-taxonomies/backup',
-	'stat'           => 'term-taxonomy:backup',
-	'allow_jetpack_site_auth' => true,
-	'path_labels'    => array(
-		'$site' => '(int|string) The site ID, The site domain',
-	),
-	'query_parameters' => array(
-		'name' => '(string) The name of a term taxonomy',
-	),
-	'response_format' => array(
-		'taxonomy' => '(array) Term taxonomy metadata',
-	),
-	'example_request_data' => array(
-		'headers' => array(
-			'authorization' => 'Bearer YOUR_API_TOKEN'
-		)
-	),
-	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/term-taxonomies/backup'
-) );
-
 // GET /sites/%s/users/%d/backup
 require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-get-user-backup-endpoint.php' );
 new Jetpack_JSON_API_Get_User_Backup_Endpoint( array(
