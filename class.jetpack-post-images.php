@@ -368,14 +368,14 @@ class Jetpack_PostImages {
 				continue;
 			}
 
-			$meta['width']  = $image_tag->getAttribute( 'width' );
-			$meta['height'] = $image_tag->getAttribute( 'height' );
+			$meta['width']  = (int) $image_tag->getAttribute( 'width' );
+			$meta['height'] = (int) $image_tag->getAttribute( 'height' );
 
 			// Must be larger than 200x200 (or user-specified).
-			if ( ! isset( $meta['width'] ) || $meta['width'] < $width ) {
+			if ( ! empty( $meta['width'] ) || $meta['width'] < $width ) {
 				continue;
 			}
-			if ( ! isset( $meta['height'] ) || $meta['height'] < $height ) {
+			if ( ! empty( $meta['height'] ) || $meta['height'] < $height ) {
 				continue;
 			}
 
