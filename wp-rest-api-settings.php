@@ -46,10 +46,12 @@ class WP_Super_cache_Route extends WP_REST_Controller {
 		global $file_prefix;
 		$parameters = $request->get_json_params();
 
-		if ( false == isset( $parameters[ 'id' ] ) ) {
-			wp_cache_clean_cache( $file_prefix );
-		} else {
+		if ( isset( $parameters[ 'id' ] ) ) {
 			wpsc_delete_post_cache( $parameters[ 'id' ] );
+		} elseif ( isset( $parameters[ 'deleteall' ] ) ) {
+			wp_cache_clean_cache( $file_prefix, true );
+		} else {
+			wp_cache_clean_cache( $file_prefix );
 		}
 		return rest_ensure_response( array( 'Cache Cleared' => true ) );
 	}
