@@ -153,6 +153,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Bug Fixes**
 
 * Contact Form: avoid PHP notices when using the form in a Text widget. #6606
+* Content Options: Fix single characters word count excerpt issue on sites with multibyte languages. #6566
 * Protect: remove port number when server returns a port alongside each stored IP address. #6755
 * Subscriptions: show the correct notification in the subscription form when the email is already subscribed. #6603
 * Sync: remove deprecated `jetpack_publicize_post` action. #6567
