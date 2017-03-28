@@ -48,9 +48,11 @@ class Jetpack_Photon {
 		if ( ! function_exists( 'jetpack_photon_url' ) )
 			return;
 
-		// Images in post content and galleries
+		// Images in post content, galleries, and bbPress forums.
 		add_filter( 'the_content', array( __CLASS__, 'filter_the_content' ), 999999 );
 		add_filter( 'get_post_galleries', array( __CLASS__, 'filter_the_galleries' ), 999999 );
+		add_filter( 'bbp_get_topic_content', array( __CLASS__, 'filter_the_content' ), 999999 );
+		add_filter( 'bbp_get_reply_content', array( __CLASS__, 'filter_the_content' ), 999999 );
 
 		// Core image retrieval
 		add_filter( 'image_downsize', array( $this, 'filter_image_downsize' ), 10, 3 );
