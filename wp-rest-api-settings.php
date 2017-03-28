@@ -33,8 +33,19 @@ class WP_Super_cache_Route extends WP_REST_Controller {
 			),
 		) );
 		register_rest_route( $namespace, '/' . $base . '/delete', array(
-			'methods'         => WP_REST_Server::CREATABLE,
-			'callback'        => array( $this, 'delete_cache' ),
+			'methods'             => WP_REST_Server::DELETABLE,
+			'callback'            => array( $this, 'delete_cache' ),
+			'permission_callback' => array( $this, 'update_item_permissions_check' ),
+		) );
+		register_rest_route( $namespace, '/' . $base . '/delete/(?P<id>\d+)', array(
+			'methods'             => WP_REST_Server::DELETABLE,
+			'callback'            => array( $this, 'delete_cache' ),
+			'permission_callback' => array( $this, 'update_item_permissions_check' ),
+		) );
+		register_rest_route( $namespace, '/' . $base . '/deleteall', array(
+			'methods'             => WP_REST_Server::DELETABLE,
+			'callback'            => array( $this, 'delete_all_cache' ),
+			'permission_callback' => array( $this, 'update_item_permissions_check' ),
 		) );
 		register_rest_route( $namespace, '/' . $base . '/schema', array(
 			'methods'         => WP_REST_Server::READABLE,
@@ -44,15 +55,18 @@ class WP_Super_cache_Route extends WP_REST_Controller {
 
 	function delete_cache( $request ) {
 		global $file_prefix;
-		$parameters = $request->get_json_params();
 
-		if ( isset( $parameters[ 'id' ] ) ) {
-			wpsc_delete_post_cache( $parameters[ 'id' ] );
-		} elseif ( isset( $parameters[ 'deleteall' ] ) ) {
-			wp_cache_clean_cache( $file_prefix, true );
+		if ( isset( $request[ 'id' ] ) ) {
+			wpsc_delete_post_cache( $request[ 'id' ] );
 		} else {
 			wp_cache_clean_cache( $file_prefix );
 		}
+		return rest_ensure_response( array( 'Cache Cleared' => true ) );
+	}
+
+	function delete_all_cache( $request ) {
+		global $file_prefix;
+		wp_cache_clean_cache( $file_prefix, true );
 		return rest_ensure_response( array( 'Cache Cleared' => true ) );
 	}
 
