@@ -520,14 +520,16 @@ gulp.task( 'languages:build', [ 'languages:get' ], function( done ) {
 	} );
 
 	rl.on( 'line', function( line ) {
-		var brace_index = line.indexOf( '(' );
+		var brace_index = line.indexOf( '__(' );
 
 		// Skipping lines that do not call translation functions
 		if ( -1 === brace_index ) {
 			return;
 		}
 
-		line = line.slice( brace_index + 1, line.lastIndexOf( ')' ) );
+		line = line
+			.slice( brace_index + 3, line.lastIndexOf( ')' ) )
+			.replace( /[\b\f\n\r\t]/g, ' ' );
 
 		// Making the line look like a JSON array to parse it as such later
 		line = [ '[', line.trim(), ']' ].join( '' );
