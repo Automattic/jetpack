@@ -65,12 +65,12 @@ const SupportCard = React.createClass( {
 				<Card className="jp-support-card__happiness">
 					<div className="jp-support-card__happiness-contact">
 						<h3 className="jp-support-card__header">
-							{ __( "We're here to help." ) }
+							{ __( "We're here to help" ) }
 						</h3>
 						<p className="jp-support-card__description">
 							{
 								noPrioritySupport
-									? __( 'Utilize your free Jetpack support whenever you need.' )
+									? __( 'Jetpack comes with free, basic support for all users.' )
 									: __( 'Utilize your priority-speed Jetpack support whenever you need it thanks to your paid plan.' )
 							}
 						</p>
