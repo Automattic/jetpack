@@ -51,7 +51,7 @@ class Jetpack_Widget_Conditions {
 		$widget_conditions_data['author'] = array();
 		$widget_conditions_data['author'][] = array( '', __( 'All author pages', 'jetpack' ) );
 
-		// Only users with publish caps (user level 2 minimum)
+		// Only users with publish caps
 		$authors = get_users(
 			array(
 				'orderby' => 'name',
