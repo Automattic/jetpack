@@ -55,7 +55,7 @@ class Jetpack_Widget_Conditions {
 		$authors = get_users(
 			array(
 				'orderby' => 'name',
-				'who'     => 'authors'
+				'who'     => 'authors',
 			)
 		);
 
