@@ -130,7 +130,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Performance Improvements**
 
-* Update process: retain hashes for current and current-1 versions to avoid excessive database load during update on large sites which have multiple web servers accessing a single database. #6637
+* Update process: retain hashes for current and current-1 versions to mitigate database load during update on large sites which have multiple web servers. #6637
 * Multisite: store the `jetpack_file_data` option in the `wp_sitemeta` table in multisite networks, to save disk storage on very large multisite networks. #5763
 * Sitemaps: improve performance and support sites with a very large amount of posts. #5503
 
