@@ -197,13 +197,17 @@ class Jetpack_Sync_Listener {
 			ignore_user_abort( true );
 		}
 
-		if ( 'sync' === $queue->id
-		     || in_array( $current_filter, array(
+		if (
+			'sync' === $queue->id ||
+			in_array(
+				$current_filter,
+				array(
 					'jetpack_full_sync_start',
 					'jetpack_full_sync_end',
 					'jetpack_full_sync_cancel'
-			 ) )
-			) {
+				)
+			)
+		) {
 			$queue->add( array(
 				$current_filter,
 				$args,
