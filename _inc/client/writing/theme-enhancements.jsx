@@ -5,6 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import CompactFormToggle from 'components/form/form-toggle/compact';
+import analytics from 'lib/analytics';
 
 /**
  * Internal dependencies
@@ -12,6 +13,7 @@ import CompactFormToggle from 'components/form/form-toggle/compact';
 import { FormFieldset, FormLabel, FormLegend } from 'components/forms';
 import { ModuleToggle } from 'components/module-toggle';
 import { getModule } from 'state/modules';
+import { currentThemeSupports } from 'state/initial-state';
 import { isModuleFound as _isModuleFound } from 'state/search';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 import SettingsCard from 'components/settings-card';
@@ -42,7 +44,7 @@ const ThemeEnhancements = moduleSettingsForm(
 		/**
 		 * Translate Infinite Scroll module and option status into our three values for the options.
 		 *
-		 * @returns {string}
+		 * @returns {string} Check the Infinite Scroll and its mode and translate into a string.
 		 */
 		getInfiniteMode() {
 			if ( ! this.props.getOptionValue( 'infinite-scroll' ) ) {
@@ -57,7 +59,7 @@ const ThemeEnhancements = moduleSettingsForm(
 		/**
 		 * Update the state for infinite scroll options and prepare options to submit
 		 *
-		 * @param {string} radio
+		 * @param {string} radio Update options to save when Infinite Scroll options change.
 		 */
 		updateInfiniteMode( radio ) {
 			this.setState(
@@ -97,6 +99,14 @@ const ThemeEnhancements = moduleSettingsForm(
 			);
 		},
 
+		trackLearnMoreIS() {
+			analytics.tracks.recordJetpackClick( {
+				target: 'learn-more',
+				feature: 'infinite-scroll',
+				extra: 'not-supported-link'
+			} );
+		},
+
 		render() {
 			if ( ! this.props.isModuleFound( 'infinite-scroll' ) && ! this.props.isModuleFound( 'minileven' ) ) {
 				return null;
@@ -105,6 +115,7 @@ const ThemeEnhancements = moduleSettingsForm(
 			return (
 				<SettingsCard
 					{ ...this.props }
+					hideButton={ ! this.props.isInfiniteScrollSupported }
 					header={ __( 'Theme enhancements' ) }>
 					{
 						[ {
@@ -136,7 +147,8 @@ const ThemeEnhancements = moduleSettingsForm(
 										}
 									</FormLegend>
 									{
-										item.radios.map( radio => {
+										this.props.isInfiniteScrollSupported
+										? item.radios.map( radio => {
 											return (
 												<FormLabel key={ `${ item.module }_${ radio.key }` }>
 													<input
@@ -155,6 +167,18 @@ const ThemeEnhancements = moduleSettingsForm(
 												</FormLabel>
 											);
 										} )
+										: (
+											<span>
+												{
+													__( 'Theme support required.' ) + ' '
+												}
+												<a onClick={ this.trackLearnMoreIS } href={ item.learn_more_button + '#theme' } title={ __( 'Learn more about adding support for Infinite Scroll to your theme.' ) }>
+													{
+														__( 'Learn more' )
+													}
+												</a>
+											</span>
+										)
 									}
 								</SettingsGroup>
 							);
@@ -233,7 +257,8 @@ export default connect(
 	( state ) => {
 		return {
 			module: ( module_name ) => getModule( state, module_name ),
-			isModuleFound: ( module_name ) => _isModuleFound( state, module_name )
+			isModuleFound: ( module_name ) => _isModuleFound( state, module_name ),
+			isInfiniteScrollSupported: currentThemeSupports( state, 'infinite-scroll' )
 		};
 	}
 )( ThemeEnhancements );

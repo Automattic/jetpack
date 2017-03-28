@@ -197,3 +197,15 @@ export function getLastPostUrl( state ) {
 export function arePromotionsActive( state ) {
 	return get( state.jetpack.initialState.siteData, 'showPromotions', true );
 }
+
+/**
+ * Check that theme supports a certain feature
+ *
+ * @param {Object} state   Global state tree.
+ * @param {string} feature Feature to check if current theme supports. Can be 'infinite-scroll'.
+ *
+ * @return {boolean} URL to last published post.
+ */
+export function currentThemeSupports( state, feature ) {
+	return get( state.jetpack.initialState.themeData, [ 'support', feature ], false );
+}
