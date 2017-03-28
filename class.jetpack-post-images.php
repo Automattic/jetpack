@@ -363,7 +363,8 @@ class Jetpack_PostImages {
 				continue;
 			}
 
-			if ( stristr( $img_src, '/smilies/' ) ) {
+			// Do not grab smiley images that were automatically created by WP when entering text smilies.
+			if ( stripos( $img_src, '/smilies/' ) ) {
 				continue;
 			}
 
