@@ -125,6 +125,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Widgets: allow the use of full URLs in the Social Media Icons widget. #6508
 * Widgets: allow links to open in a new window when adding custom links in the Milestone widget. #6778
 * Sync: synchronize the `sync_via_cron` setting as well. #6477
+* VideoPress: ensure VideoPress videos can be used as header video in themes that support it, like Twenty Seventeen. #6590
 * WordPress.com REST API: return plan data from WordPress.com directly. #6249
 * Widgets: extract timezone offset method from Upcoming Events Widget so it can be used by other features as well. #6721
 * Widgets: add MailChimp Subscribe Popup widget. #6344
