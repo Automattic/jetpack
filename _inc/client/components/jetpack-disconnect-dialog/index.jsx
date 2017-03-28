@@ -150,7 +150,7 @@ export const JetpackDisconnectDialog = React.createClass( {
 						{
 							__( 'By disconnecting %(siteName)s from WordPress.com you will no longer have access to the following:', {
 								args: {
-									siteName: this.props.siteRawUrl
+									siteName: this.props.siteRawUrl.replace( '::', '/' )
 								}
 							} )
 						}
