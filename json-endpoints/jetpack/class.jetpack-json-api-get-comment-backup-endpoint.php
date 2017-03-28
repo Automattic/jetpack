@@ -3,7 +3,7 @@
 class Jetpack_JSON_API_Get_Comment_Backup_Endpoint extends Jetpack_JSON_API_Endpoint {
 	// /sites/%s/comments/%d/backup      -> $blog_id, $comment_id
 
-	protected $needed_capabilities = array();
+	protected $needed_capabilities = array(); // This endpoint is only accessible using a site token
 	protected $comment_id;
 
 	function validate_input( $comment_id ) {

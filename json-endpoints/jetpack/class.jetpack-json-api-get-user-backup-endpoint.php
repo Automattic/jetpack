@@ -3,7 +3,7 @@
 class Jetpack_JSON_API_Get_User_Backup_Endpoint extends Jetpack_JSON_API_Endpoint {
 	// /sites/%s/users/%d/backup      -> $blog_id, $user_id
 
-	protected $needed_capabilities = array();
+	protected $needed_capabilities = array(); // This endpoint is only accessible using a site token
 	protected $user_id;
 
 	function validate_input( $user_id ) {

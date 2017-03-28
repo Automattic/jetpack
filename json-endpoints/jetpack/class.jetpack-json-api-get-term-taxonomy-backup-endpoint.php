@@ -3,7 +3,7 @@
 class Jetpack_JSON_API_Get_Term_Taxonomy_Backup_Endpoint extends Jetpack_JSON_API_Endpoint {
 	// /sites/%s/term-taxonomies/backup      -> $blog_id
 
-	protected $needed_capabilities = array();
+	protected $needed_capabilities = array(); // This endpoint is only accessible using a site token
 	protected $taxonomy_name;
 
 	function validate_input( $object ) {
