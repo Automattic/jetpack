@@ -123,10 +123,11 @@ if ( false == isset( $ossdlcdn ) )
 if ( $ossdlcdn == 1 )
 	add_action('init', 'do_scossdl_off_ob_start');
 
-function scossdl_off_options() {
-	global $ossdlcdn, $wp_cache_config_file;
+$valid_nonce = isset($_REQUEST['_wpnonce']) ? wp_verify_nonce($_REQUEST['_wpnonce'], 'wp-cache') : false;
 
-	$valid_nonce = isset($_REQUEST['_wpnonce']) ? wp_verify_nonce($_REQUEST['_wpnonce'], 'wp-cache') : false;
+function scossdl_off_update() {
+	global $ossdlcdn, $wp_cache_config_file, $valid_nonce;
+
 	if ( $valid_nonce && isset($_POST['action']) && ( $_POST['action'] == 'update_ossdl_off' )){
 		update_option('ossdl_off_cdn_url', $_POST['ossdl_off_cdn_url']);
 		update_option('ossdl_off_include_dirs', $_POST['ossdl_off_include_dirs'] == '' ? 'wp-content,wp-includes' : $_POST['ossdl_off_include_dirs']);
@@ -142,6 +143,13 @@ function scossdl_off_options() {
 		}
 		wp_cache_replace_line('^ *\$ossdlcdn', "\$ossdlcdn = $ossdlcdn;", $wp_cache_config_file);
 	}
+}
+
+function scossdl_off_options() {
+	global $ossdlcdn, $wp_cache_config_file, $valid_nonce;
+
+	scossdl_off_update();
+
 	$example_cdn_uri = str_replace( 'http://', 'http://cdn.', str_replace( 'www.', '', get_option( 'siteurl' ) ) );
 	$example_cnames  = str_replace( 'http://cdn.', 'http://cdn1.', $example_cdn_uri );
 	$example_cnames .= ',' . str_replace( 'http://cdn.', 'http://cdn2.', $example_cdn_uri );
