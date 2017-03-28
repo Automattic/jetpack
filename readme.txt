@@ -166,6 +166,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * VideoPress: avoid PHP Notices when fetching information about a video. #6527
 * Widgets: update Instagram base URL to use www in the Social Media Icons Widget. #6635
 * Widgets: escape all values entered in Facebook Page Plugin Widget settings. #6721
+* Widget Visibility: avoid memory issues on sites with a lot of registered users. #6699
 
 = 4.7.1 =
 
