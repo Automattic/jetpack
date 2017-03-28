@@ -133,6 +133,7 @@ const DashStats = React.createClass( {
 							statsData={ this.props.statsData }
 							siteRawUrl={ this.props.siteRawUrl }
 							siteAdminUrl={ this.props.siteAdminUrl }
+							isLinked={ this.props.isLinked }
 							connectUrl={ this.props.connectUrl }
 						/>
 					</div>
