@@ -22,6 +22,29 @@ function sharing_email_send_post( $data ) {
 	/** This filter is documented in core/src/wp-includes/pluggable.php */
 	$from_email = apply_filters( 'wp_mail_from', 'wordpress@' . $sitename );
 
+	if ( ! empty( $data['name'] ) ) {
+		$s_name = (string) $data['name'];
+		$name_needs_encoding_regex =
+			'/[' .
+				// SpamAssasin's list of characters which "need MIME" encoding
+				'\x00-\x08\x0b\x0c\x0e-\x1f\x7f-\xff' .
+				// Our list of "unsafe" characters
+				'<\r\n' .
+			']/';
+
+		$needs_encoding =
+			// If it contains any blacklisted chars,
+			preg_match( $name_needs_encoding_regex, $s_name ) ||
+			// Or if we can't use `mb_convert_encoding`
+			! function_exists( 'mb_convert_encoding' ) ||
+			// Or if it's not already ASCII
+			mb_convert_encoding( $data['name'], 'ASCII' ) !== $s_name;
+
+		if ( $needs_encoding ) {
+			$data['name'] = sprintf( '=?UTF-8?B?%s?=', base64_encode( $data['name'] ) );
+		}
+	}
+
 	$headers[] = sprintf( 'From: %1$s <%2$s>', $data['name'], $from_email );
 	$headers[] = sprintf( 'Reply-To: %1$s <%2$s>', $data['name'], $data['source'] );
 
