@@ -5,8 +5,8 @@ import React from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
 import { translate as __ } from 'i18n-calypso';
-import includes from 'lodash/includes';
 import analytics from 'lib/analytics';
+import { getPlanClass } from 'lib/plans/constants';
 
 /**
  * Internal dependencies
@@ -65,13 +65,13 @@ const PlanBody = React.createClass( {
 
 	render() {
 		let planCard = '';
-		switch ( this.props.plan ) {
-			case 'jetpack_personal':
-			case 'jetpack_personal_monthly':
-			case 'jetpack_premium':
-			case 'jetpack_premium_monthly':
-			case 'jetpack_business':
-			case 'jetpack_business_monthly':
+		const planClass = 'dev' !== this.props.plan
+			? getPlanClass( this.props.plan )
+			: 'dev';
+		switch ( planClass ) {
+			case 'is-personal-plan':
+			case 'is-premium-plan':
+			case 'is-business-plan':
 				planCard = (
 					<div className="jp-landing__plan-features">
 						<div className="jp-landing__plan-features-card">
@@ -92,7 +92,7 @@ const PlanBody = React.createClass( {
 						</div>
 
 					{
-						includes( [ 'jetpack_personal', 'jetpack_personal_monthly' ], this.props.plan ) ?
+						'is-personal-plan' === planClass && (
 							<div className="jp-landing__plan-features-card">
 								<h3 className="jp-landing__plan-features-title">{ __( 'Backups' ) }</h3>
 								<p>{ __( 'Daily backup of all your site data with unlimited space and one-click restores (powered by VaultPress).' ) }</p>
@@ -109,11 +109,11 @@ const PlanBody = React.createClass( {
 									)
 								}
 							</div>
-						: ''
+						)
 					}
 
 					{
-						includes( [ 'jetpack_premium', 'jetpack_premium_monthly' ], this.props.plan ) ?
+						'is-premium-plan' === planClass && (
 							<div className="jp-landing__plan-features-card">
 								<h3 className="jp-landing__plan-features-title">{ __( 'Backups & Security Scanning' ) }</h3>
 								<p>{ __( 'Daily backup of all your site data with unlimited space, one-click restores, automated security scanning, and priority support (powered by VaultPress).' ) }</p>
@@ -130,11 +130,11 @@ const PlanBody = React.createClass( {
 									)
 								}
 							</div>
-						: ''
+						)
 					}
 
 					{
-						includes( [ 'jetpack_business', 'jetpack_business_monthly' ], this.props.plan ) ?
+						'is-business-plan' === planClass && (
 							<div className="jp-landing__plan-features-card">
 								<h3 className="jp-landing__plan-features-title">{ __( 'Backups & Security Scanning' ) }</h3>
 								<p>{ __( 'Real-time backup of all your site data with unlimited space, one-click restores, automated security scanning, one-click threat resolution, and priority support (powered by VaultPress).' ) }</p>
@@ -151,11 +151,11 @@ const PlanBody = React.createClass( {
 									)
 								}
 							</div>
-						: ''
+						)
 					}
 
 					{
-						includes( [ 'jetpack_premium', 'jetpack_premium_monthly', 'jetpack_business', 'jetpack_business_monthly' ], this.props.plan ) ?
+						( 'is-business-plan' === planClass || 'is-premium-plan' === planClass ) && (
 							<div className="jp-landing__plan-features-card">
 								<h3 className="jp-landing__plan-features-title">{ __( 'Ads' ) }</h3>
 								<p>{ __( 'Earn income by allowing Jetpack to display high quality ads (powered by WordAds).' ) }</p>
@@ -176,11 +176,11 @@ const PlanBody = React.createClass( {
 									)
 								}
 							</div>
-							: ''
+						)
 					}
 
 					{
-						includes( [ 'jetpack_premium', 'jetpack_premium_monthly' ], this.props.plan ) ?
+						'is-personal-plan' === planClass && (
 							<div className="jp-landing__plan-features-card">
 								<h3 className="jp-landing__plan-features-title">{ __( 'Video Hosting' ) }</h3>
 								<p>{ __( '13Gb of fast, optimized, and ad-free video hosting for your site (powered by VideoPress).' ) }</p>
@@ -201,11 +201,11 @@ const PlanBody = React.createClass( {
 									)
 								}
 							</div>
-							: ''
+						)
 					}
 
 					{
-						includes( [ 'jetpack_business', 'jetpack_business_monthly' ], this.props.plan ) ?
+						'is-business-plan' === planClass && (
 							<div className="jp-landing__plan-features-card">
 								<h3 className="jp-landing__plan-features-title">{ __( 'Video Hosting' ) }</h3>
 								<p>{ __( 'Fast, optimized, ad-free, and unlimited video hosting for your site (powered by VideoPress).' ) }</p>
@@ -226,12 +226,11 @@ const PlanBody = React.createClass( {
 									)
 								}
 							</div>
-							: ''
+						)
 					}
 
 					{
-						includes( [ 'jetpack_business', 'jetpack_business_monthly' ], this.props.plan ) ?
-
+						'is-business-plan' === planClass && (
 							<div className="jp-landing__plan-features-card">
 								<h3 className="jp-landing__plan-features-title">{ __( 'SEO Tools' ) }</h3>
 								<p>{ __( 'Advanced SEO tools to help your site get found when people search for relevant content.' ) }</p>
@@ -252,11 +251,11 @@ const PlanBody = React.createClass( {
 									)
 								}
 							</div>
-						: ''
+						)
 					}
 
 					{
-						includes( [ 'jetpack_business', 'jetpack_business_monthly' ], this.props.plan ) ?
+						'is-business-plan' === planClass && (
 							<div className="jp-landing__plan-features-card">
 								<h3 className="jp-landing__plan-features-title">{ __( 'Google Analytics' ) }</h3>
 								<p>{ __( 'Track website statistics with Google Analytics for a deeper understanding of your website visitors and customers.' ) }</p>
@@ -277,11 +276,11 @@ const PlanBody = React.createClass( {
 									)
 								}
 							</div>
-							: ''
+						)
 					}
 
 					{
-						includes( [ 'jetpack_personal', 'jetpack_personal_monthly' ], this.props.plan ) ?
+						'is-personal-plan' === planClass && (
 							<div className="jp-landing__plan-features-card">
 								<h3 className="jp-landing__plan-features-title">{ __( 'Need more? Running a business site?' ) }</h3>
 								<p>{ __( 'If your site is important to you, consider protecting and improving it with some of our advanced features: ' ) }</p>
@@ -296,11 +295,11 @@ const PlanBody = React.createClass( {
 									</Button>
 								</p>
 							</div>
-						: ''
+						)
 					}
 
 					{
-						includes( [ 'jetpack_premium', 'jetpack_premium_monthly' ], this.props.plan ) ?
+						'is-premium-plan' === planClass && (
 							<div className="jp-landing__plan-features-card">
 								<h3 className="jp-landing__plan-features-title">{ __( 'Need more? Running a business site?' ) }</h3>
 								<p>{ __( 'If your site is important to you, consider protecting and improving it with some of our advanced features: ' ) }</p>
@@ -315,13 +314,13 @@ const PlanBody = React.createClass( {
 									</Button>
 								</p>
 							</div>
-						: ''
+						)
 					}
 				</div>
 			);
-			break;
+				break;
 
-			case 'jetpack_free':
+			case 'is-free-plan':
 			case 'dev':
 				planCard = (
 					<div className="jp-landing__plan-features">

@@ -5,6 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import DashItem from 'components/dash-item';
 import { numberFormat, translate as __ } from 'i18n-calypso';
+import { getPlanClass } from 'lib/plans/constants';
 
 /**
  * Internal dependencies
@@ -26,7 +27,8 @@ import { isFetchingSiteData } from 'state/site';
 
 const DashScan = React.createClass( {
 	getContent: function() {
-		const labelName = __( 'Security Scanning' ),
+		const planClass = getPlanClass( this.props.sitePlan.product_slug ),
+			labelName = __( 'Security Scanning' ),
 			hasSitePlan = false !== this.props.sitePlan,
 			vpData = this.props.vaultPressData,
 			inactiveOrUninstalled = this.props.isPluginInstalled( 'vaultpress/vaultpress.php' ) ? 'pro-inactive' : 'pro-uninstalled',
@@ -36,8 +38,8 @@ const DashScan = React.createClass( {
 				'undefined' !== typeof vpData.data.features.security &&
 				vpData.data.features.security
 			),
-			hasPremium = /jetpack_premium*/.test( this.props.sitePlan.product_slug ),
-			hasBusiness = /jetpack_business*/.test( this.props.sitePlan.product_slug );
+			hasPremium = 'is-premium-plan' === planClass,
+			hasBusiness = 'is-business-plan' === planClass;
 
 		if ( this.props.isModuleActivated( 'vaultpress' ) ) {
 			if ( vpData === 'N/A' ) {

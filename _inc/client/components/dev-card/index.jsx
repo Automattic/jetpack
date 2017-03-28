@@ -4,6 +4,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
+import { getPlanClass } from 'lib/plans/constants';
 
 /**
  * Internal dependencies
@@ -129,6 +130,8 @@ export const DevCard = React.createClass( {
 			'jp-dev-card'
 		);
 
+		const planClass = getPlanClass( this.props.sitePlan.product_slug );
+
 		return (
 			<Card compact className={ classes }>
 				<a
@@ -146,7 +149,7 @@ export const DevCard = React.createClass( {
 								id="jetpack_free"
 								value="jetpack_free"
 								name="jetpack_free"
-								checked={ 'jetpack_free' === this.props.sitePlan.product_slug }
+								checked={ 'is-free-plan' === planClass }
 								onChange={ this.onPlanChange }
 							/>
 							Free
@@ -159,7 +162,7 @@ export const DevCard = React.createClass( {
 								id="jetpack_personal"
 								value="jetpack_personal"
 								name="jetpack_personal"
-								checked={ /jetpack_personal*/.test( this.props.sitePlan.product_slug ) }
+								checked={ 'is-personal-plan' === planClass }
 								onChange={ this.onPlanChange }
 							/>
 							Personal
@@ -172,7 +175,7 @@ export const DevCard = React.createClass( {
 								id="jetpack_premium"
 								value="jetpack_premium"
 								name="jetpack_premium"
-								checked={ /jetpack_premium*/.test( this.props.sitePlan.product_slug ) }
+								checked={ 'is-premium-plan' === planClass }
 								onChange={ this.onPlanChange }
 							/>
 							Premium
@@ -185,7 +188,7 @@ export const DevCard = React.createClass( {
 								id="jetpack_business"
 								value="jetpack_business"
 								name="jetpack_business"
-								checked={ /jetpack_business*/.test( this.props.sitePlan.product_slug ) }
+								checked={ 'is-business-plan' === planClass }
 								onChange={ this.onPlanChange }
 							/>
 							Pro
