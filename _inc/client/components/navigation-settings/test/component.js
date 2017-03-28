@@ -44,7 +44,7 @@ describe( 'NavigationSettings', () => {
 			siteAdminUrl: 'https://example.org/wp-admin/',
 			searchForTerm: () => {},
 			isLinked: true,
-			moduleList: { 'omnisearch': true, 'minileven': true, 'contact-form': true, 'sitemaps': true, 'latex': true, 'carousel': true, 'tiled-gallery': true, 'custom-content-types': true, 'verification-tools': true, 'markdown': true, 'infinite-scroll': true, 'gravatar-hovercards': true, 'widget-visibility': true, 'shortcodes': true, 'custom-css': true, 'sharedaddy': true, 'widgets': true, 'notes': true, 'sso': true, 'related-posts': true, 'monitor': true, 'vaultpress': true, 'stats': true, 'masterbar': true, 'google-analytics': true, 'seo-tools': true, 'wordads': true, 'videopress': true, 'subscriptions': true, 'comments': true, 'json-api': true, 'manage': true, 'post-by-email': true, 'after-the-deadline': true, 'enhanced-distribution': true, 'photon': true, 'publicize': true, 'likes': true, 'shortlinks': true },
+			moduleList: { minileven: true, sitemaps: true, carousel: true, 'custom-content-types': true, 'verification-tools': true, markdown: true, 'infinite-scroll': true, 'gravatar-hovercards': true, sharedaddy: true, sso: true, 'related-posts': true, monitor: true, vaultpress: true, stats: true, masterbar: true, 'google-analytics': true, 'seo-tools': true, wordads: true, videopress: true, subscriptions: true, comments: true, 'post-by-email': true, 'after-the-deadline': true, photon: true, publicize: true, likes: true },
 			isPluginActive: () => true
 		};
 
@@ -52,7 +52,7 @@ describe( 'NavigationSettings', () => {
 			context: {
 				router: NavigationSettings.contextTypes.router()
 			},
-			moduleList: [ 'omnisearch', 'minileven', 'contact-form', 'sitemaps', 'latex', 'carousel', 'tiled-gallery', 'custom-content-types', 'verification-tools', 'markdown', 'infinite-scroll', 'gravatar-hovercards', 'widget-visibility', 'shortcodes', 'custom-css', 'sharedaddy', 'widgets', 'notes', 'sso', 'related-posts', 'monitor', 'vaultpress', 'stats', 'masterbar', 'google-analytics', 'seo-tools', 'wordads', 'videopress', 'subscriptions', 'comments', 'json-api', 'manage', 'post-by-email', 'after-the-deadline', 'enhanced-distribution', 'photon', 'publicize', 'likes', 'shortlinks' ]
+			moduleList: []
 		};
 
 		window.location.hash = '#settings';
