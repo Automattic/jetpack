@@ -339,6 +339,39 @@ class Jetpack_Debugger {
 							$subject_line
 						);
 					?>
+					<div id="category_div" class="formbox">
+						<label class="h" for="category"><?php esc_html_e( 'What do you need help with?', 'jetpack' ); ?></label>
+						<ul>
+						<?php
+						/**
+						 * Set up an array of ticket categories.
+						 * (reasons why a user would contact us.)
+						 */
+						$categories = array(
+							'Connection' => esc_html__( "I'm having trouble connecting Jetpack to WordPress.com", 'jetpack' ),
+							'Billing'    => esc_html__( 'I have a billing or plans question', 'jetpack' ),
+							'Backups'    => esc_html__( 'I need help with backing up or restoring my site', 'jetpack' ),
+							'Security'   => esc_html__( 'I have security concerns / my site is hacked', 'jetpack' ),
+							'Priority'   => esc_html__( "My site is down / I can't access my site", 'jetpack' ),
+							/* translators: Last item in a list of reasons to contact Jetpack support. */
+							'Other'      => esc_html__( 'Something Else', 'jetpack' ),
+						);
+
+						foreach ( $categories as $value => $label ) { ?>
+							<li><label for="<?php echo esc_attr( $value ); ?>">
+								<input
+									id="<?php echo esc_attr( $value ); ?>"
+									name="category"
+									type="radio"
+									value="<?php echo esc_attr( $value ); ?>"
+									<?php checked( esc_attr( $value ), 'Other' ); ?>
+								/>
+								<?php echo esc_html( $label ); ?>
+							</label></li>
+						<?php } ?>
+						</ul>
+					</div>
+
 					<div class="formbox">
 						<label for="message" class="h"><?php esc_html_e( 'Please describe the problem you are having.', 'jetpack' ); ?></label>
 						<textarea name="message" cols="40" rows="7" id="did"></textarea>
@@ -509,6 +542,10 @@ class Jetpack_Debugger {
 
 			#debug_info_div, #toggle_debug_info, #debug_info_div p {
 				font-size: 12px;
+			}
+
+			#category_div ul li {
+				list-style-type: none;
 			}
 
 		</style>
