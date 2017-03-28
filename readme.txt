@@ -117,6 +117,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Featured Content: change wording in options to avoid confusion. #6684
 * Infinite Scroll: change button text on taxonomy page. #6584
 * Widgets: allow the use of full URLs in the Social Media Icons widget. #6508
+* Widgets: allow links to open in a new window when adding custom links in the Milestone widget. #6778
 * Sync: synchronize the `sync_via_cron` setting as well. #6477
 * WordPress.com REST API: return plan data from WordPress.com directly. #6249
 
