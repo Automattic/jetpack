@@ -2132,18 +2132,8 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		 */
 		$message = apply_filters( 'contact_form_message', $message );
 
-		// Add HTML tags after the `contact_form_message` filter to preserve back-compat
-		$message = str_replace( "\t", '', sprintf(
-			"<!doctype html>
-			<html xmlns=\"http://www.w3.org/1999/xhtml\">
-			<body>
-
-			%s
-
-			</body>
-			</html>",
-			$message
-		) );
+		// This is called after `contact_form_message`, in order to preserve back-compat
+		$message = self::wrap_message_in_html_tags( $message );
 
 		update_post_meta( $post_id, '_feedback_email', $this->addslashes_deep( compact( 'to', 'message' ) ) );
 
@@ -2229,6 +2219,37 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		wp_safe_redirect( $redirect );
 		exit;
+	}
+
+	/**
+	 * Wrap a message body with the appropriate in HTML tags
+	 *
+	 * This helps to ensure correct parsing by clients, and also helps avoid triggering spam filtering rules
+	 *
+	 * @param string $body
+	 *
+	 * @return string
+	 */
+	static function wrap_message_in_html_tags( $body ) {
+		// Don't do anything if the message was already wrapped in HTML tags
+		// That could have be done by a plugin via filters
+		if ( false !== strpos( $body, '<html' ) ) {
+			return $body;
+		}
+
+		$html_message = str_replace( "\t", '', sprintf(
+			"<!doctype html>
+			<html xmlns=\"http://www.w3.org/1999/xhtml\">
+			<body>
+
+			%s
+
+			</body>
+			</html>",
+			$body
+		) );
+
+		return $html_message;
 	}
 
 	/**
