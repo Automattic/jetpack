@@ -45,15 +45,19 @@ export function getSearchTerm( state ) {
  * @return {Boolean}       Whether the module should be in the search results
  */
 export function isModuleFound( state, module ) {
-	let result = get( state, [ 'jetpack', 'modules', 'items' ], {} );
-
-	result = find( result, [ 'module', module ] );
+	const result = find( get( state.jetpack, [ 'modules', 'items' ], {} ), [ 'module', module ] );
 
 	if ( 'undefined' === typeof result ) {
 		return false;
 	}
 
-	let text = [
+	const currentSearchTerm = get( state.jetpack, [ 'search', 'searchTerm' ], false );
+
+	if ( ! currentSearchTerm ) {
+		return true;
+	}
+
+	return [
 		result.module,
 		result.name,
 		result.description,
@@ -63,13 +67,5 @@ export function isModuleFound( state, module ) {
 		result.additional_search_queries,
 		result.short_description,
 		result.feature ? result.feature.toString() : ''
-	].join( ' ' );
-
-	let searchTerm = get( state, [ 'jetpack', 'search', 'searchTerm' ], false );
-
-	if ( ! searchTerm ) {
-		return true;
-	}
-
-	return text.toLowerCase().indexOf( searchTerm.toLowerCase() ) > -1;
+	].join( ' ' ).toLowerCase().indexOf( currentSearchTerm.toLowerCase() ) > -1;
 }

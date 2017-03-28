@@ -180,11 +180,10 @@ const Composing = moduleSettingsForm(
 		},
 
 		render() {
-			// If we don't have any element to show, return early
-			if (
-				! this.props.isModuleFound( 'markdown' ) &&
-				! this.props.isModuleFound( 'after-the-deadline' )
-			) {
+			const foundAtD = this.props.isModuleFound( 'after-the-deadline' ),
+				foundMarkdown = this.props.isModuleFound( 'markdown' );
+
+			if ( ! foundMarkdown && ! foundAtD ) {
 				return null;
 			}
 
@@ -239,12 +238,14 @@ const Composing = moduleSettingsForm(
 
 			return (
 				<SettingsCard
-					header={ __( 'Composing', { context: 'Settings header' } ) } { ...this.props }
+					{ ...this.props }
+					header={ __( 'Composing', { context: 'Settings header' } ) }
+					hideButton={ ! foundAtD }
 					module="composing"
 					saveDisabled={ this.props.isSavingAnyOption( 'ignored_phrases' ) }
 				>
-					{ this.props.isModuleFound( 'markdown' ) && markdownSettings }
-					{ this.props.isModuleFound( 'after-the-deadline' ) && atdSettings }
+					{ foundMarkdown && markdownSettings }
+					{ foundAtD && atdSettings }
 				</SettingsCard>
 			);
 		}

@@ -27,38 +27,36 @@ export const Discussion = React.createClass( {
 			isUnavailableInDevMode: this.props.isUnavailableInDevMode
 		};
 
-		let found = {
-			comments: this.props.isModuleFound( 'comments' ),
-			subscriptions: this.props.isModuleFound( 'subscriptions' )
-		};
+		const foundComments = this.props.isModuleFound( 'comments' ),
+			foundMarkdown = this.props.isModuleFound( 'markdown' ),
+			foundGravatar = this.props.isModuleFound( 'gravatar-hovercards' ),
+			foundSubscriptions = this.props.isModuleFound( 'subscriptions' );
 
 		if ( ! this.props.searchTerm && ! this.props.active ) {
 			return null;
 		}
 
-		if ( ! found.comments && ! found.subscriptions ) {
+		if ( ! foundComments && ! foundSubscriptions && ! foundMarkdown && ! foundGravatar ) {
 			return null;
 		}
-
-		let commentsSettings = (
-			<Comments
-				{ ...commonProps }
-			/>
-		);
-		let subscriptionsSettings = (
-			<Subscriptions
-				{ ...commonProps }
-				isLinked={ this.props.isLinked }
-				connectUrl={ this.props.connectUrl }
-				siteRawUrl={ this.props.siteRawUrl }
-			/>
-		);
 
 		return (
 			<div>
 				<QuerySite />
-				{ found.comments && commentsSettings }
-				{ found.subscriptions && subscriptionsSettings }
+				<Comments
+					{ ...commonProps }
+					isModuleFound={ this.props.isModuleFound }
+				/>
+				{
+					foundSubscriptions && (
+						<Subscriptions
+							{ ...commonProps }
+							isLinked={ this.props.isLinked }
+							connectUrl={ this.props.connectUrl }
+							siteRawUrl={ this.props.siteRawUrl }
+						/>
+					)
+				}
 			</div>
 		);
 	}

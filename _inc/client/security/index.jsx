@@ -10,10 +10,9 @@ import { connect } from 'react-redux';
 import { getModule } from 'state/modules';
 import { getSettings } from 'state/settings';
 import { isDevMode, isUnavailableInDevMode } from 'state/connection';
-import { isModuleFound as _isModuleFound } from 'state/search';
-import { isPluginActive } from 'state/site/plugins';
+import { isModuleFound } from 'state/search';
+import { isPluginActive, isPluginInstalled } from 'state/site/plugins';
 import QuerySite from 'components/data/query-site';
-import QuerySitePlugins from 'components/data/query-site-plugins';
 import QueryAkismetKeyCheck from 'components/data/query-akismet-key-check';
 import { BackupsScan } from './backups-scan';
 import Antispam from './antispam';
@@ -23,6 +22,31 @@ import { SSO } from './sso';
 export const Security = React.createClass( {
 	displayName: 'SecuritySettings',
 
+	/**
+	 * Check if Akismet plugin is being searched and matched.
+	 *
+	 * @returns {boolean} False if the plugin is inactive or if the search doesn't match it. True otherwise.
+	 */
+	isAkismetFound() {
+		if ( ! this.props.isPluginActive( 'akismet/akismet.php' ) ) {
+			return false;
+		}
+
+		if ( this.props.searchTerm ) {
+			const akismetData = this.props.isPluginInstalled( 'akismet/akismet.php' );
+			return [
+				'akismet',
+				'antispam',
+				'spam',
+				'comments',
+				akismetData.Description,
+				akismetData.PluginURI
+			].join( ' ' ).toLowerCase().indexOf( this.props.searchTerm.toLowerCase() ) > -1;
+		}
+
+		return true;
+	},
+
 	render() {
 		const commonProps = {
 			settings: this.props.settings,
@@ -31,54 +55,58 @@ export const Security = React.createClass( {
 			isUnavailableInDevMode: this.props.isUnavailableInDevMode
 		};
 
-		const found = {
-			protect: this.props.isModuleFound( 'protect' ),
-			sso: this.props.isModuleFound( 'sso' )
-		};
+		const foundProtect = this.props.isModuleFound( 'protect' ),
+			foundSso = this.props.isModuleFound( 'sso' ),
+			foundAkismet = this.isAkismetFound(),
+			foundBackups = this.props.isModuleFound( 'vaultpress' );
 
 		if ( ! this.props.searchTerm && ! this.props.active ) {
 			return null;
 		}
 
-		if ( ! found.sso && ! found.protect ) {
+		if (
+			! foundSso &&
+			! foundProtect &&
+			! foundAkismet &&
+			! foundBackups
+		) {
 			return null;
 		}
 
-		const backupSettings = (
-			<BackupsScan
-				{ ...commonProps }
-			/>
-		);
-
-		let akismetSettings = '';
-		if ( this.props.isPluginActive( 'akismet/akismet.php' ) ) {
-			akismetSettings = (
-				<div>
-					<Antispam
-						{ ...commonProps }
-					/>
-					<QueryAkismetKeyCheck />
-				</div>
-			);
-		}
-		const protectSettings = (
-			<Protect
-				{ ...commonProps }
-			/>
-		);
-		const ssoSettings = (
-			<SSO
-				{ ...commonProps }
-			/>
-		);
 		return (
 			<div>
 				<QuerySite />
-				<QuerySitePlugins />
-				{ ( found.protect || found.sso ) && backupSettings }
-				{ ( found.protect || found.sso ) && akismetSettings }
-				{ found.protect && protectSettings }
-				{ found.sso && ssoSettings }
+				{
+					foundBackups && (
+						<BackupsScan
+							{ ...commonProps }
+						/>
+					)
+				}
+				{
+					foundAkismet && (
+						<div>
+							<Antispam
+								{ ...commonProps }
+							/>
+							<QueryAkismetKeyCheck />
+						</div>
+					)
+				}
+				{
+					foundProtect && (
+						<Protect
+							{ ...commonProps }
+						/>
+					)
+				}
+				{
+					foundSso && (
+						<SSO
+							{ ...commonProps }
+						/>
+					)
+				}
 			</div>
 		);
 	}
@@ -91,8 +119,9 @@ export default connect(
 			settings: getSettings( state ),
 			isDevMode: isDevMode( state ),
 			isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name ),
-			isModuleFound: ( module_name ) => _isModuleFound( state, module_name ),
-			isPluginActive: ( plugin_slug ) => isPluginActive( state, plugin_slug )
+			isModuleFound: ( module_name ) => isModuleFound( state, module_name ),
+			isPluginActive: ( plugin_slug ) => isPluginActive( state, plugin_slug ),
+			isPluginInstalled: ( plugin_slug ) => isPluginInstalled( state, plugin_slug )
 		};
 	}
 )( Security );

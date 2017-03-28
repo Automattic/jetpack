@@ -43,13 +43,16 @@ describe( 'NavigationSettings', () => {
 			siteRawUrl: 'example.org',
 			siteAdminUrl: 'https://example.org/wp-admin/',
 			searchForTerm: () => {},
-			isLinked: true
+			isLinked: true,
+			moduleList: { minileven: true, sitemaps: true, carousel: true, 'custom-content-types': true, 'verification-tools': true, markdown: true, 'infinite-scroll': true, 'gravatar-hovercards': true, sharedaddy: true, sso: true, 'related-posts': true, monitor: true, vaultpress: true, stats: true, masterbar: true, 'google-analytics': true, 'seo-tools': true, wordads: true, videopress: true, subscriptions: true, comments: true, 'post-by-email': true, 'after-the-deadline': true, photon: true, publicize: true, likes: true },
+			isPluginActive: () => true
 		};
 
 		options = {
 			context: {
 				router: NavigationSettings.contextTypes.router()
-			}
+			},
+			moduleList: []
 		};
 
 		window.location.hash = '#settings';
@@ -123,19 +126,20 @@ describe( 'NavigationSettings', () => {
 		} );
 
 		describe( 'if Publicize is active', () => {
-
-			let publicizeProps = Object.assign( {}, testProps, {
-				userCanManageModules: false,
-				isSubscriber: false,
-				userCanPublish: true,
-				route: {
-					name: 'General',
-					path: '/settings'
-				},
-				isModuleActivated: m => 'publicize' === m
-			} );
-			it( 'show Sharing if user is linked', () => {
-				expect( shallow( <NavigationSettings { ...publicizeProps } />, options ).find( 'NavItem' ).children().nodes.filter( item => 'string' === typeof item ).every( item => [ 'Writing', 'Sharing' ].includes( item ) ) ).to.be.true;
+			before( () => {
+				let publicizeProps = Object.assign( {}, testProps, {
+					userCanManageModules: false,
+					isSubscriber: false,
+					userCanPublish: true,
+					route: {
+						name: 'General',
+						path: '/settings'
+					},
+					isModuleActivated: m => 'publicize' === m
+				} );
+				it( 'show Sharing if user is linked', () => {
+					expect( shallow( <NavigationSettings { ...publicizeProps } />, options ).find( 'NavItem' ).children().nodes.filter( item => 'string' === typeof item ).every( item => [ 'Writing', 'Sharing' ].includes( item ) ) ).to.be.true;
+				} );
 			} );
 		} );
 

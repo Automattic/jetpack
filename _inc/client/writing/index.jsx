@@ -65,17 +65,25 @@ export const Writing = React.createClass( {
 		return (
 			<div>
 				<QuerySite />
-				<Masterbar connectUrl={ this.props.connectUrl } { ...commonProps } />
+				{
+					this.props.isModuleFound( 'masterbar' ) && (
+						<Masterbar connectUrl={ this.props.connectUrl } { ...commonProps } />
+					)
+				}
 				{
 					showComposing && (
 						<Composing { ...commonProps } userCanManageModules={ this.props.userCanManageModules } />
 					)
 				}
 				<Media { ...commonProps } />
-				<CustomContentTypes { ...commonProps } />
+				{
+					this.props.isModuleFound( 'custom-content-types' ) && (
+						<CustomContentTypes { ...commonProps } />
+					)
+				}
 				<ThemeEnhancements { ...commonProps } />
 				{
-					showPostByEmail && (
+					( this.props.isModuleFound( 'post-by-email' ) && showPostByEmail ) && (
 						<PostByEmail { ...commonProps }
 							connectUrl={ this.props.connectUrl }
 							isLinked={ this.props.isLinked }

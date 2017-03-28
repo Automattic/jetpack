@@ -70,11 +70,11 @@ const Media = moduleSettingsForm(
 		},
 
 		render() {
-			if (
-				! this.props.isModuleFound( 'photon' ) &&
-				! this.props.isModuleFound( 'carousel' )
-			) {
-				// Nothing to show here
+			const foundPhoton = this.props.isModuleFound( 'photon' ),
+				foundCarousel = this.props.isModuleFound( 'carousel' ),
+				foundVideoPress = this.props.isModuleFound( 'videopress' );
+
+			if ( ! foundCarousel && ! foundPhoton && ! foundVideoPress ) {
 				return null;
 			}
 
@@ -177,12 +177,13 @@ const Media = moduleSettingsForm(
 				<SettingsCard
 					{ ...this.props }
 					header={ __( 'Media' ) }
+					hideButton={ ! foundCarousel }
 					feature={ FEATURE_VIDEO_HOSTING_JETPACK }
 					saveDisabled={ this.props.isSavingAnyOption( 'carousel_background_color' ) }
 				>
-					{ this.props.isModuleFound( 'photon' ) && photonSettings }
-					{ this.props.isModuleFound( 'carousel' ) && carouselSettings }
-					{ this.props.isModuleFound( 'videopress' ) && videoPressSettings }
+					{ foundPhoton && photonSettings }
+					{ foundCarousel && carouselSettings }
+					{ foundVideoPress && videoPressSettings }
 				</SettingsCard>
 			);
 		}
