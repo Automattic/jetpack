@@ -293,17 +293,28 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 	if ( empty( $image ) && function_exists( 'blavatar_domain' ) ) {
 		$blavatar_domain = blavatar_domain( site_url() );
 		if ( blavatar_exists( $blavatar_domain ) ) {
-			$image_url = blavatar_url( $blavatar_domain, 'img', $width, false, true );
-
 			$img_width  = '';
 			$img_height = '';
-			$cached_image_id = get_transient( 'jp_' . $image_url );
-			if ( false !== $cached_image_id ) {
-				$image_id = $cached_image_id;
-			} else {
+
+			$image_url = blavatar_url( $blavatar_domain, 'img', $width, false, true );
+
+			/**
+			 * Build a hash of the Image URL. We'll use it later when building the transient.
+			 *
+			 * Transient names are 45 chars max.
+			 * Let's generate a hash that's never more than 40 chars long.
+			 */
+			$image_hash = sha1( $image_url );
+
+			// Look for data in our transient. If nothing, let's get an attachment ID.
+			$cached_image_id = get_transient( 'jp_' . $image_hash );
+			if ( ! is_int( $cached_image_id ) ) {
 				$image_id = attachment_url_to_postid( $image_url );
-				set_transient( 'jp_' . $image_url, $image_id );
+				set_transient( 'jp_' . $image_hash, $image_id );
+			} else {
+				$image_id = $cached_image_id;
 			}
+
 			$image_size = wp_get_attachment_image_src( $image_id, $width >= 512
 				? 'full'
 				: array( $width, $width ) );
@@ -336,20 +347,12 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 
 	// Third fall back, Core Site Icon, if valid in size. Added in WP 4.3.
 	if ( empty( $image ) && ( function_exists( 'has_site_icon') && has_site_icon() ) ) {
-		$max_side = max( $width, $height );
-		$image_url = get_site_icon_url( $max_side );
-
 		$img_width  = '';
 		$img_height = '';
-		$cached_image_id = get_transient( 'jp_' . $image_url );
 
-		if ( false !== $cached_image_id ) {
-			$image_id = $cached_image_id;
-		} else {
-			$image_id = attachment_url_to_postid( $image_url );
-			set_transient( 'jp_' . $image_url, $image_id );
-		}
-
+		$max_side = max( $width, $height );
+		$image_url = get_site_icon_url( $max_side );
+		$image_id = get_option( 'site_icon' );
 		$image_size = wp_get_attachment_image_src( $image_id, $max_side >= 512
 			? 'full'
 			: array( $max_side, $max_side ) );
@@ -387,7 +390,7 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 * @param $width      int  Width of the image
 * @param $height     int  Height of the image
 * @param $req_width  int  Required width to pass validation
-* @param $req_height int  Required height to pass validation 
+* @param $req_height int  Required height to pass validation
 * @return bool - True if the image passed the required size validation
 */
 function _jetpack_og_get_image_validate_size($width, $height, $req_width, $req_height) {
