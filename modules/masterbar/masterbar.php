@@ -427,10 +427,7 @@ class A8C_WPCOM_Masterbar {
 			'title'  => __( 'Get Apps', 'jetpack' ),
 			'href'   => 'https://wordpress.com/me/get-apps',
 			'meta'   => array(
-				'class' => 'user-info-item',
-			),
-			'meta'   => array(
-				'class' => 'mb-icon',
+				'class' => 'mb-icon user-info-item',
 			),
 		) );
 
@@ -440,10 +437,7 @@ class A8C_WPCOM_Masterbar {
 			'title'  => __( 'Next Steps', 'jetpack' ),
 			'href'   => 'https://wordpress.com/me/next',
 			'meta'   => array(
-				'class' => 'user-info-item',
-			),
-			'meta'   => array(
-				'class' => 'mb-icon',
+				'class' => 'mb-icon user-info-item',
 			),
 		) );
 
@@ -459,10 +453,7 @@ class A8C_WPCOM_Masterbar {
 			'title'  => __( 'Help', 'jetpack' ),
 			'href'   => $help_link,
 			'meta'   => array(
-				'class' => 'user-info-item',
-			),
-			'meta'   => array(
-				'class' => 'mb-icon',
+				'class' => 'mb-icon user-info-item',
 			),
 		) );
 	}
