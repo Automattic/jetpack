@@ -1,6 +1,6 @@
 {
 	"parser": "babel-eslint",
-	"extends": "wpcalypso/react",
+	"extends": "wpcalypso/react-a11y",
 	"env": {
 		"browser": true,
 		"es6": true,
