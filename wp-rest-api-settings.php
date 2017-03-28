@@ -190,6 +190,7 @@ class WP_Super_cache_Route extends WP_REST_Controller {
 			if ( isset( $parameters[ 'cache_gc_email_me' ] ) && $parameters[ 'cache_gc_email_me' ] == 0 )
 				unset( $_POST[ 'cache_gc_email_me' ] );
 			wp_cache_time_update();
+		}
 
 		if ( isset( $parameters[ 'wp_cache_pages' ] ) ) {
 			$_POST[ 'wp_edit_rejected_pages' ] = 1;
