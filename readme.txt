@@ -143,6 +143,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Contact Form: avoid PHP notices when using the form in a Text widget. #6606
 * Subscriptions: show the correct notification in the subscription form when the email is already subscribed. #6603
 * Sync: remove deprecated `jetpack_publicize_post` action. #6567
+* Sync: make sure it is possible to retrieve synchronization options from the WordPress.com REST API. #6789
 * VideoPress: avoid PHP Notices when fetching information about a video. #6527
 * Widgets: update Instagram base URL to use www in the Social Media Icons Widget. #6635
 
