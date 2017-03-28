@@ -3,6 +3,14 @@
 require_once dirname( __FILE__ ) . '/rtl-admin-bar.php';
 
 class A8C_WPCOM_Masterbar {
+	/**
+	 * Use for testing changes made to remotely enqueued scripts and styles on your sandbox.
+	 * If not set it will default to loading the ones from WordPress.com.
+	 *
+	 * @var string $sandbox_url
+	 */
+	private $sandbox_url = '';
+
 	private $locale;
 
 	private $user_id;
@@ -12,6 +20,7 @@ class A8C_WPCOM_Masterbar {
 	private $display_name;
 	private $primary_site_slug;
 	private $user_text_direction;
+	private $user_site_count;
 
 	function __construct() {
 		$this->locale  = $this->get_locale();
@@ -26,7 +35,14 @@ class A8C_WPCOM_Masterbar {
 		$this->user_login = $this->user_data['login'];
 		$this->user_email = $this->user_data['email'];
 		$this->display_name = $this->user_data['display_name'];
+		$this->user_site_count = $this->user_data['site_count'];
+
+		// Used to build menu links that point directly to Calypso.
 		$this->primary_site_slug = Jetpack::build_raw_urls( get_home_url() );
+
+		// Used for display purposes and for building WP Admin links.
+		$this->primary_site_url = str_replace( '::', '/', $this->primary_site_slug );
+
 		// We need to use user's setting here, instead of relying on current blog's text direction
 		$this->user_text_direction = $this->user_data['text_direction'];
 
@@ -98,6 +114,11 @@ class A8C_WPCOM_Masterbar {
 	}
 
 	function wpcom_static_url( $file ) {
+		if ( ! empty( $this->sandbox_url ) ) {
+			// For testing undeployed changes to remotely enqueued scripts and styles.
+			return set_url_scheme( $this->sandbox_url . $file, 'https');
+		}
+
 		$i   = hexdec( substr( md5( $file ), - 1 ) ) % 2;
 		$url = 'https://s' . $i . '.wp.com' . $file;
 
@@ -425,10 +446,7 @@ class A8C_WPCOM_Masterbar {
 			'title'  => __( 'Get Apps', 'jetpack' ),
 			'href'   => 'https://wordpress.com/me/get-apps',
 			'meta'   => array(
-				'class' => 'user-info-item',
-			),
-			'meta'   => array(
-				'class' => 'mb-icon',
+				'class' => 'mb-icon user-info-item',
 			),
 		) );
 
@@ -438,10 +456,7 @@ class A8C_WPCOM_Masterbar {
 			'title'  => __( 'Next Steps', 'jetpack' ),
 			'href'   => 'https://wordpress.com/me/next',
 			'meta'   => array(
-				'class' => 'user-info-item',
-			),
-			'meta'   => array(
-				'class' => 'mb-icon',
+				'class' => 'mb-icon user-info-item',
 			),
 		) );
 
@@ -457,10 +472,7 @@ class A8C_WPCOM_Masterbar {
 			'title'  => __( 'Help', 'jetpack' ),
 			'href'   => $help_link,
 			'meta'   => array(
-				'class' => 'user-info-item',
-			),
-			'meta'   => array(
-				'class' => 'mb-icon',
+				'class' => 'mb-icon user-info-item',
 			),
 		) );
 	}
@@ -504,19 +516,28 @@ class A8C_WPCOM_Masterbar {
 		$wp_admin_bar->add_menu( array(
 			'parent' => 'root-default',
 			'id'    => 'blog',
-			'title' => __( 'My Sites', 'jetpack' ),
+			'title' => _n( 'My Site', 'My Sites', $this->user_site_count, 'jetpack' ),
 			'href'  => '#',
 			'meta'  => array(
 				'class' => 'my-sites',
 			),
 		) );
 
-		$wp_admin_bar->add_menu( array(
-			'parent' => 'blog',
-			'id'     => 'switch-site',
-			'title'  => __( 'Switch Site', 'jetpack' ),
-			'href'   => 'https://wordpress.com/sites',
-		) );
+		if ( $this->user_site_count > 1 ) {
+			$wp_admin_bar->add_menu( array(
+				'parent' => 'blog',
+				'id'     => 'switch-site',
+				'title'  => __( 'Switch Site', 'jetpack' ),
+				'href'   => 'https://wordpress.com/sites',
+			) );
+		} else {
+			$wp_admin_bar->add_menu( array(
+				'parent' => 'blog',
+				'id'     => 'new-site',
+				'title'  => __( '+ Add New WordPress', 'jetpack' ),
+				'href'   => 'https://wordpress.com/start?ref=admin-bar-logged-in',
+			) );
+		}
 
 		if ( is_user_member_of_blog( $current_user->ID ) ) {
 			$blavatar = '';
@@ -528,21 +549,19 @@ class A8C_WPCOM_Masterbar {
 				$class = 'has-blavatar';
 			}
 
-			$site_link = str_replace( '::', '/', $this->primary_site_slug );
 			$blog_info = '<div class="ab-site-icon">' . $blavatar . '</div>';
 			$blog_info .= '<span class="ab-site-title">' . esc_html( $blog_name ) . '</span>';
-			$blog_info .= '<span class="ab-site-description">' . esc_html( $site_link ) . '</span>';
+			$blog_info .= '<span class="ab-site-description">' . esc_html( $this->primary_site_url ) . '</span>';
 
 			$wp_admin_bar->add_menu( array(
 				'parent' => 'blog',
 				'id'     => 'blog-info',
 				'title'  => $blog_info,
-				'href'   => esc_url( trailingslashit( $this->primary_site_slug ) ),
+				'href'   => esc_url( trailingslashit( $this->primary_site_url ) ),
 				'meta'   => array(
 					'class' => $class,
 				),
 			) );
-
 		}
 
 		// Stats
@@ -667,37 +686,73 @@ class A8C_WPCOM_Masterbar {
 			),
 		) );
 
-		// Portfolio
-		$portfolios_title = $this->create_menu_item_pair(
-			array(
-				'url'   => 'https://wordpress.com/types/jetpack-portfolio/' . esc_attr( $this->primary_site_slug ),
-				'id'    => 'wp-admin-bar-edit-portfolio',
-				'label' => __( 'Portfolio', 'jetpack' ),
-			),
-			array(
-				'url'   => 'https://wordpress.com/edit/jetpack-portfolio/' . esc_attr( $this->primary_site_slug ),
-				'id'    => 'wp-admin-bar-new-portfolio',
-				'label' => _x( 'Add', 'admin bar menu new item label', 'jetpack' ),
-			)
-		);
-
-		if ( ! current_user_can( 'edit_pages' ) ) {
-			$portfolios_title = $this->create_menu_item_anchor(
-				'ab-item ab-primary mb-icon',
-				'https://wordpress.com/types/jetpack-portfolio/' . esc_attr( $this->primary_site_slug ),
-				__( 'Portfolio', 'jetpack' ),
-				'wp-admin-bar-edit-portfolio'
+		// Testimonials
+		if ( Jetpack::is_module_active( 'custom-content-types' ) && get_option( 'jetpack_testimonial' ) ) {
+			$testimonials_title = $this->create_menu_item_pair(
+				array(
+					'url'   => 'https://wordpress.com/types/jetpack-testimonial/' . esc_attr( $this->primary_site_slug ),
+					'id'    => 'wp-admin-bar-edit-testimonial',
+					'label' => __( 'Testimonials', 'jetpack' ),
+				),
+				array(
+					'url'   => 'https://wordpress.com/edit/jetpack-testimonial/' . esc_attr( $this->primary_site_slug ),
+					'id'    => 'wp-admin-bar-new-testimonial',
+					'label' => _x( 'Add', 'Button label for adding a new item via the toolbar menu', 'jetpack' ),
+				)
 			);
+
+			if ( ! current_user_can( 'edit_pages' ) ) {
+				$testimonials_title = $this->create_menu_item_anchor(
+					'ab-item ab-primary mb-icon',
+					'https://wordpress.com/types/jetpack-testimonial/' . esc_attr( $this->primary_site_slug ),
+					__( 'Testimonials', 'jetpack' ),
+					'wp-admin-bar-edit-testimonial'
+				);
+			}
+
+			$wp_admin_bar->add_menu( array(
+				'parent' => 'publish',
+				'id'     => 'new-jetpack-testimonial',
+				'title'  => $testimonials_title,
+				'meta'   => array(
+					'class' => 'inline-action',
+				),
+			) );
 		}
 
-		$wp_admin_bar->add_menu( array(
-			'parent' => 'publish',
-			'id'     => 'new-jetpack-portfolio',
-			'title'  => $portfolios_title,
-			'meta'   => array(
-				'class' => 'inline-action',
-			),
-		) );
+		// Portfolio
+		if ( Jetpack::is_module_active( 'custom-content-types' ) && get_option( 'jetpack_portfolio' ) ) {
+			$portfolios_title = $this->create_menu_item_pair(
+				array(
+					'url'   => 'https://wordpress.com/types/jetpack-portfolio/' . esc_attr( $this->primary_site_slug ),
+					'id'    => 'wp-admin-bar-edit-portfolio',
+					'label' => __( 'Portfolio', 'jetpack' ),
+				),
+				array(
+					'url'   => 'https://wordpress.com/edit/jetpack-portfolio/' . esc_attr( $this->primary_site_slug ),
+					'id'    => 'wp-admin-bar-new-portfolio',
+					'label' => _x( 'Add', 'Button label for adding a new item via the toolbar menu', 'jetpack' ),
+				)
+			);
+
+			if ( ! current_user_can( 'edit_pages' ) ) {
+				$portfolios_title = $this->create_menu_item_anchor(
+					'ab-item ab-primary mb-icon',
+					'https://wordpress.com/types/jetpack-portfolio/' . esc_attr( $this->primary_site_slug ),
+					__( 'Portfolio', 'jetpack' ),
+					'wp-admin-bar-edit-portfolio'
+				);
+			}
+
+			$wp_admin_bar->add_menu( array(
+				'parent' => 'publish',
+				'id'     => 'new-jetpack-portfolio',
+				'title'  => $portfolios_title,
+				'meta'   => array(
+					'class' => 'inline-action',
+				),
+			) );
+		}
 
 		if ( current_user_can( 'edit_theme_options' ) ) {
 			// Look and Feel group
@@ -798,7 +853,7 @@ class A8C_WPCOM_Masterbar {
 					'label' => __( 'People', 'jetpack' ),
 				),
 				array(
-					'url'   => '//' . esc_attr( $this->primary_site_slug ) . '/wp-admin/user-new.php',
+					'url'   => '//' . esc_attr( $this->primary_site_url ) . '/wp-admin/user-new.php',
 					'id'    => 'wp-admin-bar-people-add',
 					'label' => _x( 'Add', 'admin bar people item label', 'jetpack' ),
 				)
@@ -877,7 +932,7 @@ class A8C_WPCOM_Masterbar {
 					'parent' => 'configuration',
 					'id'     => 'legacy-dashboard',
 					'title'  => __( 'WP Admin', 'jetpack' ),
-					'href'   => '//' . esc_attr( $this->primary_site_slug ) . '/wp-admin/',
+					'href'   => '//' . esc_attr( $this->primary_site_url ) . '/wp-admin/',
 					'meta'   => array(
 						'class' => 'mb-icon',
 					),

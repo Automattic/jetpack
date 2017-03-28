@@ -300,6 +300,22 @@ class The_Neverending_Home_Page {
 	 * Is this guaranteed to be the last batch of posts?
 	 */
 	static function is_last_batch() {
+		/**
+		 * Override whether or not this is the last batch for a request
+		 *
+		 * @module infinite-scroll
+		 *
+		 * @since 4.8.0
+		 *
+		 * @param bool|null null                 Bool if value should be overridden, null to determine from query
+		 * @param object    self::wp_query()     WP_Query object for current request
+		 * @param object    self::get_settings() Infinite Scroll settings
+		 */
+		$override = apply_filters( 'infinite_scroll_is_last_batch', null, self::wp_query(), self::get_settings() );
+		if ( is_bool( $override ) ) {
+			return $override;
+		}
+
 		$entries = (int) self::wp_query()->found_posts;
 		$posts_per_page = self::get_settings()->posts_per_page;
 
@@ -1478,7 +1494,7 @@ class The_Neverending_Home_Page {
 	/**
 	 * Render default IS footer
 	 *
-	 * @uses __, wp_get_theme, get_current_theme, apply_filters, home_url, esc_attr, get_bloginfo, bloginfo
+	 * @uses __, wp_get_theme, apply_filters, home_url, esc_attr, get_bloginfo, bloginfo
 	 * @return string
 	 */
 	private function default_footer() {
@@ -1489,7 +1505,7 @@ class The_Neverending_Home_Page {
 		$credits .= sprintf(
 			/* translators: %1$s is the name of a theme */
 			__( 'Theme: %1$s.', 'jetpack' ),
-			function_exists( 'wp_get_theme' ) ? wp_get_theme()->Name : get_current_theme()
+			wp_get_theme()->Name
 		);
 		/**
 		 * Filter Infinite Scroll's credit text.

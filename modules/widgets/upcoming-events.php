@@ -112,43 +112,13 @@ class Jetpack_Upcoming_Events_Widget extends WP_Widget {
 		do_action( 'jetpack_stats_extra', 'widget_view', 'grofile' );
 	}
 
+	// Left this function here for backward compatibility
+	// just incase a site using jetpack is also using this function
 	function apply_timezone_offset( $events ) {
-		if ( ! $events ) {
-			return $events;
-		}
+		jetpack_require_lib( 'icalendar-reader' );
 
-		// get timezone offset from the timezone name.
-		$timezone_name = get_option( 'timezone_string' );
-		if ( $timezone_name ) {
-			$timezone = new DateTimeZone( $timezone_name );
-			$offset = $timezone->getOffset( new DateTime( 'now', new DateTimeZone( 'UTC' ) ) );
-		} else {
-			// fallback - gmt_offset option
-			$offset = get_option( 'gmt_offset' ) * 3600;
-		}
-
-		// generate a DateInterval object from the timezone offset
-		$interval_string = sprintf( '%d minutes', $offset / 60 );
-		$interval = date_interval_create_from_date_string( $interval_string );
-
-		$offsetted_events = array();
-
-		foreach ( $events as $event ) {
-			// Don't handle all-day events
-			if ( 8 < strlen( $event['DTSTART'] ) ) {
-				$start_time = new DateTime( $event['DTSTART'] );
-				$start_time->add( $interval );
-				$end_time = new DateTime( $event['DTEND'] );
-				$end_time->add( $interval );
-
-				$event['DTSTART'] = $start_time->format( 'YmdHis\Z' );
-				$event['DTEND'] = $end_time->format( 'YmdHis\Z' );
-			}
-
-			$offsetted_events[] = $event;
-		}
-
-		return $offsetted_events;
+		$ical = new iCalendarReader();
+		return $ical->apply_timezone_offset( $events );
 	}
 }
 
