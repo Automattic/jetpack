@@ -51,8 +51,10 @@ const ProStatus = React.createClass( {
 			'akismet/akismet.php';
 
 		const hasPersonal = /jetpack_personal*/.test( sitePlan.product_slug ),
-			hasPremium = /jetpack_premium*/.test( sitePlan.product_slug ),
-			hasBusiness = /jetpack_business*/.test( sitePlan.product_slug );
+			hasPremium = /jetpack_premium*/.test( sitePlan.product_slug ) || 'value_bundle' === sitePlan.product_slug,
+			hasBusiness = /jetpack_business*/.test( sitePlan.product_slug ) || 'business-bundle' === sitePlan.product_slug;
+
+		console.log( sitePlan.product_slug );
 
 		let getStatus = ( feature, active, installed ) => {
 			let vpData = this.props.getVaultPressData();
@@ -140,7 +142,7 @@ const ProStatus = React.createClass( {
 
 			if ( sitePlan.product_slug ) {
 				let btnVals = {};
-				if ( 'jetpack_free' !== sitePlan.product_slug ) {
+				if ( 'jetpack_free' !== sitePlan.product_slug && 'free_plan' !== sitePlan.product_slug ) {
 					btnVals = {
 						href: `https://wordpress.com/plugins/setup/${ this.props.siteRawUrl }?only=${ feature }`,
 						text: __( 'Set up' )

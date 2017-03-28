@@ -16,6 +16,7 @@ const PlanHeader = React.createClass( {
 			planCard = '';
 		switch ( this.props.plan ) {
 			case 'jetpack_free':
+			case 'free_plan':
 				starrySky = (
 					<div className="jp-landing-plans__header">
 						<h2 className="jp-landing-plans__header-title">
@@ -62,6 +63,7 @@ const PlanHeader = React.createClass( {
 
 			case 'jetpack_personal':
 			case 'jetpack_personal_monthly':
+			case 'personal-bundle':
 				planCard = (
 					<div className="jp-landing__plan-card">
 						<div className="jp-landing__plan-card-img">
@@ -77,6 +79,7 @@ const PlanHeader = React.createClass( {
 
 			case 'jetpack_premium':
 			case 'jetpack_premium_monthly':
+			case 'value_bundle':
 				planCard = (
 					<div className="jp-landing__plan-card">
 						<div className="jp-landing__plan-card-img">
@@ -92,6 +95,7 @@ const PlanHeader = React.createClass( {
 
 			case 'jetpack_business':
 			case 'jetpack_business_monthly':
+			case 'business-bundle':
 				planCard = (
 					<div className="jp-landing__plan-card">
 						<div className="jp-landing__plan-card-img">

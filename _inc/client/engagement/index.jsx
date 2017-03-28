@@ -115,14 +115,17 @@ export const Engagement = ( props ) => {
 		hasBusiness =
 			planLoaded &&
 			( props.sitePlan.product_slug === 'jetpack_business' ||
-				props.sitePlan.product_slug === 'jetpack_business_monthly' );
+				props.sitePlan.product_slug === 'jetpack_business_monthly' ||
+				props.sitePlan.product_slug === 'business-bundle' );
 
 		hasPremiumOrBusiness =
 			planLoaded &&
 			( props.sitePlan.product_slug === 'jetpack_premium' ||
 				props.sitePlan.product_slug === 'jetpack_premium_monthly' ||
 				props.sitePlan.product_slug === 'jetpack_business' ||
-				props.sitePlan.product_slug === 'jetpack_business_monthly' );
+				props.sitePlan.product_slug === 'jetpack_business_monthly' ||
+				props.sitePlan.product_slug === 'business-bundle' ||
+				props.sitePlan.product_slug === 'value_bundle' );
 
 		if ( unavailableInDevMode ) {
 			toggle = __( 'Unavailable in Dev Mode' );

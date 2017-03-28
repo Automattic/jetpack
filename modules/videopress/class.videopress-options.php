@@ -6,7 +6,7 @@ class VideoPress_Options {
 	public static $option_name = 'videopress';
 
 	/** @var array */
-	public static $jetpack_plans_with_videopress = array( 'jetpack_premium', 'jetpack_business' );
+	public static $jetpack_plans_with_videopress = array( 'jetpack_premium', 'jetpack_business', 'value_bundle', 'business-bundle' );
 
 	/** @var array */
 	protected static $options = array();

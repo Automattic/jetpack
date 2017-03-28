@@ -1287,6 +1287,7 @@ class Jetpack {
 		$personal_plans = array(
 			'jetpack_personal',
 			'jetpack_personal_monthly',
+			'personal-bundle',
 		);
 
 		if ( in_array( $plan['product_slug'], $personal_plans ) ) {
@@ -1300,6 +1301,7 @@ class Jetpack {
 		$premium_plans = array(
 			'jetpack_premium',
 			'jetpack_premium_monthly',
+			'value_bundle',
 		);
 
 		if ( in_array( $plan['product_slug'], $premium_plans ) ) {
@@ -1316,6 +1318,7 @@ class Jetpack {
 		$business_plans = array(
 			'jetpack_business',
 			'jetpack_business_monthly',
+			'business-bundle',
 		);
 
 		if ( in_array( $plan['product_slug'], $business_plans ) ) {
