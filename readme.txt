@@ -122,6 +122,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Widgets: allow links to open in a new window when adding custom links in the Milestone widget. #6778
 * Sync: synchronize the `sync_via_cron` setting as well. #6477
 * WordPress.com REST API: return plan data from WordPress.com directly. #6249
+* Widgets: extract timezone offset method from Upcoming Events Widget so it can be used by other features as well. #6721
 
 **Performance Improvements**
 
@@ -151,6 +152,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Sync: make sure it is possible to retrieve synchronization options from the WordPress.com REST API. #6789
 * VideoPress: avoid PHP Notices when fetching information about a video. #6527
 * Widgets: update Instagram base URL to use www in the Social Media Icons Widget. #6635
+* Widgets: escape all values entered in Facebook Page Plugin Widget settings. #6721
 
 = 4.7.1 =
 
