@@ -298,14 +298,13 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 
 			$image_url = blavatar_url( $blavatar_domain, 'img', $width, false, true );
 
-			// Build a hash of the Image URL. We'll use it later when building the transient.
-			if ( $image_url ) {
-				/**
-				 * Transient names are 45 chars max.
-				 * Let's generate a hash that's never more than 40 chars long.
-				 */
-				$image_hash = sha1( $image_url );
-			}
+			/**
+			 * Build a hash of the Image URL. We'll use it later when building the transient.
+			 *
+			 * Transient names are 45 chars max.
+			 * Let's generate a hash that's never more than 40 chars long.
+			 */
+			$image_hash = sha1( $image_url );
 
 			// Look for data in our transient. If nothing, let's get an attachment ID.
 			$cached_image_id = get_transient( 'jp_' . $image_hash );
