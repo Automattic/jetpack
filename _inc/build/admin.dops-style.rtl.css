@@ -1854,6 +1854,18 @@ a.dops-notice__action {
 .dops-popover__hr {
   margin: 8px 0;
   background: #e9eff3; }
+.dops-info-popover-button {
+  background: transparent;
+  border: none;
+  color: #668eaa;
+  padding: 0; }
+  .dops-info-popover-button:hover {
+    color: #2e4453; }
+  .dops-info-popover-button:focus {
+    box-shadow: none; }
+  .dops-accessible-focus .dops-info-popover-button:focus {
+    outline: thin dotted; }
+
 .dops-info-popover .gridicon {
   cursor: pointer;
   color: #b8cad7; }

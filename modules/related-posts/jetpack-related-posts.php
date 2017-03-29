@@ -294,14 +294,14 @@ EOT;
 
 		return $this->_options;
 	}
-	
+
 	public function get_option( $option_name ) {
 		$options = $this->get_options();
-		
+
 		if ( isset( $options[ $option_name ] ) ) {
 			return $options[ $option_name ];
 		}
-		
+
 		return false;
 	}
 
@@ -770,10 +770,11 @@ EOT;
 		if ( !empty( $args['exclude_post_ids'] ) && is_array( $args['exclude_post_ids'] ) ) {
 			foreach ( $args['exclude_post_ids'] as $exclude_post_id) {
 				$exclude_post_id = (int)$exclude_post_id;
-
+				$excluded_post_ids = array();
 				if ( $exclude_post_id > 0 )
-					$filters[] = array( 'not' => array( 'term' => array( 'post_id' => $exclude_post_id ) ) );
+					$excluded_post_ids[] = $exclude_post_id;
 			}
+			$filters[] = array( 'not' => array( 'terms' => array( 'post_id' => $excluded_post_ids ) ) );
 		}
 
 		return $filters;
@@ -1404,7 +1405,7 @@ EOT;
 	 * @return bool
 	 */
 	protected function _enabled_for_request() {
-		$enabled = is_single() 
+		$enabled = is_single()
 			&&
 				! is_admin()
 			&&

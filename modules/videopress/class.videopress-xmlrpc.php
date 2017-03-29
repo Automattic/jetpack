@@ -133,12 +133,6 @@ class VideoPress_XMLRPC {
 		// update the meta to tell us that we're processing or complete
 		update_post_meta( $id, 'videopress_status', videopress_is_finished_processing( $id ) ? 'complete' : 'processing' );
 
-		// Get the attached file and if there isn't one, then let's update it with the one from the server.
-		$file = get_attached_file( $id );
-		if ( ! $file && is_string( $info['original'] ) ) {
-			videopress_download_video( $info['original'], $id );
-		}
-
 		return true;
 	}
 
