@@ -2586,7 +2586,11 @@ function wp_cache_files() {
 
 	// Supercache files
 	$now = time();
-	$sizes = array( 'expired' => 0, 'expired_list' => array(), 'cached' => 0, 'cached_list' => array(), 'ts' => 0 );
+	$sizes = array( 'supercache', 'wpcache' );
+	$sizes[ 'supercache' ][ 'expired' ] = 0;
+	$sizes[ 'supercache' ][ 'cached' ] = 0;
+	$sizes[ 'wpcache' ][ 'expired' ] = 0;
+	$sizes[ 'wpcache' ][ 'cached' ] = 0;
 
 	if (is_dir($supercachedir)) {
 		if( $dh = opendir( $supercachedir ) ) {
@@ -2600,16 +2604,21 @@ function wp_cache_files() {
 	} else {
 		$filem = @filemtime( $supercachedir );
 		if ( false == $wp_cache_preload_on && is_file( $supercachedir ) && $cache_max_time > 0 && $filem + $cache_max_time <= $now ) {
-			$sizes[ 'expired' ] ++;
+			if ( strpos( $directory, '/' . $file_prefix ) === true ) {
+				$cache_type = 'wpcache';
+			} else {
+				$cache_type = 'supercache';
+			}
+			$sizes[ $cache_type ][ 'expired' ] ++;
 			if ( $valid_nonce && isset( $_GET[ 'listfiles' ] ) )
-				$sizes[ 'expired_list' ][ str_replace( $cache_path . 'supercache/' , '', $supercachedir ) ] = $now - $filem;
+				$sizes[ $cache_type ][ 'expired_list' ][ str_replace( $cache_path . 'supercache/' , '', $supercachedir ) ] = $now - $filem;
 		} else {
 			if ( $valid_nonce && isset( $_GET[ 'listfiles' ] ) && $filem )
-				$sizes[ 'cached_list' ][ str_replace( $cache_path . 'supercache/' , '', $supercachedir ) ] = $now - $filem;
+				$sizes[ $cache_type ][ 'cached_list' ][ str_replace( $cache_path . 'supercache/' , '', $supercachedir ) ] = $now - $filem;
 		}
 	}
 	$sizes[ 'ts' ] = time();
-	$cache_stats = array( 'generated' => time(), 'supercache' => $sizes, 'wpcache' => array( 'cached' => $count, 'expired' => $expired, 'fsize' => $wp_cache_fsize ) );
+	$cache_stats = array( 'generated' => time(), 'supercache' => $sizes[ 'supercache' ], 'wpcache' => $sizes[ 'wpcache' ] );
 	update_option( 'supercache_stats', $cache_stats );
 	} else {
 		echo "<p>" . __( 'Cache stats are not automatically generated. You must click the link below to regenerate the stats on this page.', 'wp-super-cache' ) . "</p>";
@@ -2758,7 +2767,7 @@ function delete_cache_dashboard() {
 add_action( 'dashmenu', 'delete_cache_dashboard' );
 
 function wpsc_dirsize($directory, $sizes) {
-	global $cache_max_time, $cache_path, $valid_nonce, $wp_cache_preload_on;
+	global $cache_max_time, $cache_path, $valid_nonce, $wp_cache_preload_on, $file_prefix;
 	$now = time();
 
 	if (is_dir($directory)) {
@@ -2771,21 +2780,26 @@ function wpsc_dirsize($directory, $sizes) {
 			closedir($dh);
 		}
 	} else {
-		if(is_file($directory) ) {
+		if ( is_file( $directory ) && strpos( $directory, 'meta-' . $file_prefix ) === false ) {
+			if ( strpos( $directory, '/' . $file_prefix ) !== false ) {
+				$cache_type = 'wpcache';
+			} else {
+				$cache_type = 'supercache';
+			}
 			$filem = filemtime( $directory );
 			if ( $wp_cache_preload_on == false && $cache_max_time > 0 && $filem + $cache_max_time <= $now ) {
-				$sizes[ 'expired' ]+=1;
-				if ( $valid_nonce && $_GET[ 'listfiles' ] )
-					$sizes[ 'expired_list' ][ $now - $filem ][ str_replace( $cache_path . 'supercache/' , '', str_replace( 'index.html', '', str_replace( 'index.html.gz', '', $directory ) ) ) ] = 1;
+				$sizes[ $cache_type ][ 'expired' ]+=1;
+				if ( $valid_nonce && isset( $_GET[ 'listfiles' ] ) )
+					$sizes[ $cache_type ][ 'expired_list' ][ $now - $filem ][ str_replace( $cache_path . 'supercache/' , '', str_replace( 'index.html', '', str_replace( 'index.html.gz', '', $directory ) ) ) ] = 1;
 			} else {
-				$sizes[ 'cached' ]+=1;
+				$sizes[ $cache_type ][ 'cached' ]+=1;
 				if ( $valid_nonce && array_key_exists('listfiles', $_GET) && $_GET[ 'listfiles' ] )
-					$sizes[ 'cached_list' ][ $now - $filem ][ str_replace( $cache_path . 'supercache/' , '', str_replace( 'index.html', '', str_replace( 'index.html.gz', '', $directory ) ) ) ] = 1;
+					$sizes[ $cache_type ][ 'cached_list' ][ $now - $filem ][ str_replace( $cache_path . 'supercache/' , '', str_replace( 'index.html', '', str_replace( 'index.html.gz', '', $directory ) ) ) ] = 1;
 			}
 			if ( ! isset( $sizes[ 'fsize' ] ) )
-				$sizes[ 'fsize' ] = @filesize( $directory );
+				$sizes[ $cache_type ][ 'fsize' ] = @filesize( $directory );
 			else
-				$sizes[ 'fsize' ] += @filesize( $directory );
+				$sizes[ $cache_typee ][ 'fsize' ] += @filesize( $directory );
 		}
 	}
 	return $sizes;
