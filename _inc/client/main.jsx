@@ -34,6 +34,7 @@ import Apps from 'apps/index.jsx';
 import Plans from 'plans/index.jsx';
 import Footer from 'components/footer';
 import SupportCard from 'components/support-card';
+import AppsCard from 'components/apps-card';
 import NonAdminView from 'components/non-admin-view';
 import JetpackNotices from 'components/jetpack-notices';
 import AdminNotices from 'components/admin-notices';
@@ -243,6 +244,7 @@ const Main = React.createClass( {
 							null :
 							<SupportCard path={ this.props.route.path } />
 						}
+						<AppsCard />
 					</div>
 					<Footer siteAdminUrl={ this.props.siteAdminUrl } />
 				<Tracker analytics={ analytics } />
