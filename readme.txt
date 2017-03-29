@@ -121,6 +121,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Infinite Scroll: change button text on taxonomy page. #6584
 * Infinite Scroll: add a new filter to short-circuit the `is_last_batch()` method. #6731
 * Internationalization: remove custom Slovakian language files and rely on WordPress.org's language packs instead. Kudos to the Slovakian translation team! #6777
+* oEmbed: add Apple/iCloud Keynote provider. #6790
 * Open Graph: make sure transients are used to save image IDs. #6632
 * Photon: add new filter to allow running Photon in wp-admin as well. #6702
 * Widgets: allow the use of full URLs in the Social Media Icons widget. #6508
