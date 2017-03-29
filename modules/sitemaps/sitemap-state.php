@@ -3,7 +3,7 @@
  * Abstract sitemap generation state class.
  *
  * @package Jetpack
- * @since 4.7.0
+ * @since 4.8.0
  * @author Automattic
  */
 
@@ -23,7 +23,7 @@ if ( defined( 'WP_DEBUG' ) && ( true === WP_DEBUG ) ) {
  * builder times out before unlocking the state, the lock will expire
  * before the builder tries again.
  *
- * @since 4.7.0
+ * @since 4.8.0
  */
 class Jetpack_Sitemap_State {
 
@@ -31,7 +31,7 @@ class Jetpack_Sitemap_State {
 	 * Initial state for the sitemap generator.
 	 *
 	 * @access public
-	 * @since 4.7.0
+	 * @since 4.8.0
 	 *
 	 * @param string $type The initial sitemap type.
 	 *
@@ -59,7 +59,7 @@ class Jetpack_Sitemap_State {
 	 * @param string $type The initial sitemap type.
 	 *
 	 * @access public
-	 * @since 4.7.0
+	 * @since 4.8.0
 	 */
 	public static function reset( $type ) {
 		delete_transient( 'jetpack-sitemap-state-lock' );
@@ -73,7 +73,7 @@ class Jetpack_Sitemap_State {
 	 * Store a sitemap state, and unlock it.
 	 *
 	 * @access public
-	 * @since 4.7.0
+	 * @since 4.8.0
 	 *
 	 * @param array $state {
 	 *     @type string sitemap-type  The type of sitemap to be generated.
@@ -97,7 +97,7 @@ class Jetpack_Sitemap_State {
 	 * Unlock the sitemap state.
 	 *
 	 * @access public
-	 * @since 4.7.0
+	 * @since 4.8.0
 	 */
 	public static function unlock() {
 		delete_transient( 'jetpack-sitemap-state-lock' );
@@ -107,7 +107,7 @@ class Jetpack_Sitemap_State {
 	 * Read the stored sitemap state. Returns false if the state is locked.
 	 *
 	 * @access public
-	 * @since 4.7.0
+	 * @since 4.8.0
 	 *
 	 * @return bool|array $args {
 	 *     @type string sitemap-type  The type of sitemap to be generated.
@@ -133,7 +133,7 @@ class Jetpack_Sitemap_State {
 	 * Delete the stored state and lock.
 	 *
 	 * @access public
-	 * @since 4.7.0
+	 * @since 4.8.0
 	 */
 	public static function delete() {
 		delete_transient( 'jetpack-sitemap-state-lock' );

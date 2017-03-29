@@ -1,7 +1,7 @@
 === Jetpack by WordPress.com ===
 Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, blobaugh, cainm, cena, cfinke, chaselivingston, chellycat, csonnek, danielbachhuber, davoraltman, daniloercoli, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, eliorivero, enej, eoigal, erania-pinnera, ethitter, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jacobshere, jblz, jeherve, jenhooks, jenia, jgs, jkudish, jmdodd, Joen, johnjamesjacoby, jshreve, koke, kraftbj, lamdayap, lancewillett, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, michael-arestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, scarstocea, sdquirk, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Jetpack, WordPress.com, backup, security, related posts, CDN, speed, anti-spam, social sharing, SEO, video, stats
-Stable tag: 4.7
+Stable tag: 4.7.1
 Requires at least: 4.6
 Tested up to: 4.7
 
@@ -102,6 +102,76 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 5. Traffic: SEO Tools for Google, Twitter, Facebook and more.
 
 == Changelog ==
+
+= 4.8 =
+
+* Release date: April 4th, 2017
+* Release post: http://wp.me/p1moTy-4gA
+
+**Enhancements**
+
+* Admin Interface: continued improvements to the admin interface to make it easier to navigate the list of Jetpack options and create a unified experience with the WordPress.com dashboard. #5461
+* WordPress.com Toolbar: add a new Admin bar providing quick access to the WordPress.com site management interface, right from your self-hosted site's dashboard. #6413
+
+* Admin Page: change wording in Stats dashboard to avoid confusion. #6710
+* Contact Form: add a plain-text alternative to outbound messages. #6671
+* Debug: include more information in the built-in contact form to help prioritizing your requests for support. #6705
+* Featured Content: change wording in options to avoid confusion. #6684
+* Infinite Scroll: change button text on taxonomy page. #6584
+* Infinite Scroll: add a new filter to short-circuit the `is_last_batch()` method. #6731
+* Internationalization: remove custom Slovakian language files and rely on WordPress.org's language packs instead. Kudos to the Slovakian translation team! #6777
+* Open Graph: make sure transients are used to save image IDs. #6632
+* Photon: add new filter to allow running Photon in wp-admin as well. #6702
+* Widgets: allow the use of full URLs in the Social Media Icons widget. #6508
+* Widgets: allow links to open in a new window when adding custom links in the Milestone widget. #6778
+* Sync: synchronize the `sync_via_cron` setting as well. #6477
+* VideoPress: ensure VideoPress videos can be used as header video in themes that support it, like Twenty Seventeen. #6590
+* WordPress.com REST API: return plan data from WordPress.com directly. #6249
+* Widgets: extract timezone offset method from Upcoming Events Widget so it can be used by other features as well. #6721
+* Widgets: add MailChimp Subscribe Popup widget. #6344
+
+**Performance Improvements**
+
+* Update process: retain hashes for current and current-1 versions to mitigate database load during update on large sites which have multiple web servers. #6637
+* Multisite: store the `jetpack_file_data` option in the `wp_sitemeta` table in multisite networks, to save disk storage on very large multisite networks. #5763
+* Sitemaps: improve performance and support sites with a very large amount of posts. #5503
+
+**Accessibility**
+
+* Content Options: Improve post details clipping. #6582
+
+**Security**
+
+* Avoid path disclosure in PHP error messages via cookies. #6572
+
+**Improved Compatibility**
+
+* General: remove deprecated functions, `get_theme` & `get_current_theme`. #6775
+* Publicize: make sure posts posted programmatically via plugins like WP Recipe Maker can be publicized. #6542
+* Publicize: remove the "Head, Footer and Post Injections" plugin from the list of conflicting plugins. #6611
+* Sync: better support for WooCommerce data sync and backup. #6478
+* Sync: synchronize user's chosen language if it is different from the site language. #6053
+* Sync: support WP Super Cache globals and constants for a better interaction with WP Super Cache from WordPress.com. #6482
+* Sync: allow editing synchronization settings from the WordPress.com REST API to allow support to help troubleshoot sync issues. #6639
+* Sync: stop syncing post types from the WordPress Automatic Plugin and RSS AutoPilot to avoid synchronization issues. #6711
+
+**Bug Fixes**
+
+* Admin Page: make sure Gravatar is always displayed in Settings. #6555
+* Admin Page: always use relative links for submenu items to account for servers with specific restrictions. #6529
+* Contact Form: avoid PHP notices when using the form in a Text widget. #6606
+* Content Options: Fix single characters word count excerpt issue on sites with multibyte languages. #6566
+* Open Graph: make sure Site Icons are used as fallback Open Graph Image tags. #6632
+* Protect: remove port number when server returns a port alongside each stored IP address. #6755
+* Related Posts: ensure that more than 1,024 posts can be excluded from Related Posts thanks to filters. #6707
+* Subscriptions: show the correct notification in the subscription form when the email is already subscribed. #6603
+* Sharing: avoid syntax errors due to unexpected characters in the from name when using the Email sharing button. #6769
+* Sync: remove deprecated `jetpack_publicize_post` action. #6567
+* Sync: make sure it is possible to retrieve synchronization options from the WordPress.com REST API. #6789
+* VideoPress: avoid PHP Notices when fetching information about a video. #6527
+* Widgets: update Instagram base URL to use www in the Social Media Icons Widget. #6635
+* Widgets: escape all values entered in Facebook Page Plugin Widget settings. #6721
+* Widget Visibility: avoid memory issues on sites with a lot of registered users. #6699
 
 = 4.7.1 =
 
@@ -422,40 +492,3 @@ This release improves Jetpack compatibility with WordPress 4.7.
 * We weren't building CPT links correctly resulting in bad navigation, which is now fixed.
 * We removed the form legend for default Tiled Gallery settings as it doesn't relate.
 * With shortcodes we now return early from processing them if no string is passed, as they are required.
-
-
-= 4.3.1 =
-
-* Release date: September 8, 2016
-
-**Support Enhancements**
-
-* We're now syncing data about hosts so that we can provide better support when needed.
-* Minor update to inline docs to match version numbers.
-
-**Bug Fixes:**
-
-* Admin Page: fix error when Admin Page resources could not be fetched with `wp_remote_get` due to unique host configurations.
-* Admin Page: fix error when Post By Email could not be enabled when the browser's dev console was enabled.
-* Admin Page: make sure all translated strings are encoded properly.
-* Admin Page: only use POST requests for updating the state of Jetpack, to avoid issues on servers not allowing PUT requests.
-* Admin Page: search icon no longer overlaps the global notices.
-* Admin Page: make sure that non-admins can also modify Spellchecking settings.
-* General: Improve random number generation for compatibility with more hosts.
-* General: Add deprecated PHP file (class.jetpack-landing-page.php) back as an empty file, to avoid generating fatal errors on sites with aggressive caching.
-* General: Ensure concatenated CSS is generated for RTL languages.
-* Security: Ensure that all options are included on the security tab.
-* Stats: fix display for sites with pretty permalinks disabled.
-* Subscriptions: ensure that no email is sent when updating a published post.
-* Sync: To improve performance, add snapTW to the list of post meta data that won't be synchronized for each post.
-* Sync: do not schedule a full sync after each import.
-* Verification Tools: in the Settings card, use appropriate link for each service.
-
-
-= 4.3 =
-
-* Release date: September 6th, 2016
-
-**Exciting Performance and UI Improvements:**
-
-* We have launched the all new React powered interface, a year in the making, designed to give you better control of your favorite Jetpack features.

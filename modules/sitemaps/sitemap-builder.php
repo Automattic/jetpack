@@ -3,7 +3,7 @@
  * Build the sitemap tree.
  *
  * @package Jetpack
- * @since 4.7.0
+ * @since 4.8.0
  * @author Automattic
  */
 
@@ -23,7 +23,7 @@ if ( defined( 'WP_DEBUG' ) && ( true === WP_DEBUG ) ) {
  * Jetpack_Sitemap_Stylist.) Other than the constructor, there are
  * only two public functions: build_all_sitemaps and news_sitemap_xml.
  *
- * @since 4.7.0
+ * @since 4.8.0
  */
 class Jetpack_Sitemap_Builder {
 
@@ -31,7 +31,7 @@ class Jetpack_Sitemap_Builder {
 	 * Librarian object for storing and retrieving sitemap data.
 	 *
 	 * @access private
-	 * @since 4.7.0
+	 * @since 4.8.0
 	 * @var $librarian Jetpack_Sitemap_Librarian
 	 */
 	private $librarian;
@@ -40,7 +40,7 @@ class Jetpack_Sitemap_Builder {
 	 * Logger object for reporting debug messages.
 	 *
 	 * @access private
-	 * @since 4.7.0
+	 * @since 4.8.0
 	 * @var $logger Jetpack_Sitemap_Logger
 	 */
 	private $logger;
@@ -49,7 +49,7 @@ class Jetpack_Sitemap_Builder {
 	 * Finder object for dealing with sitemap URIs.
 	 *
 	 * @access private
-	 * @since 4.7.0
+	 * @since 4.8.0
 	 * @var $finder Jetpack_Sitemap_Finder
 	 */
 	private $finder;
@@ -58,7 +58,7 @@ class Jetpack_Sitemap_Builder {
 	 * Construct a new Jetpack_Sitemap_Builder object.
 	 *
 	 * @access public
-	 * @since 4.7.0
+	 * @since 4.8.0
 	 */
 	public function __construct() {
 		$this->librarian = new Jetpack_Sitemap_Librarian();
@@ -80,7 +80,7 @@ class Jetpack_Sitemap_Builder {
 			 * The result of this filter is cached in an option, 'jetpack_sitemap_post_types',
 			 * so this filter only has to be applied once per generation.
 			 *
-			 * @since 4.7.0
+			 * @since 4.8.0
 			 */
 			apply_filters(
 				'jetpack_sitemap_post_types',
@@ -96,7 +96,7 @@ class Jetpack_Sitemap_Builder {
 	 *
 	 * All we do here is call build_next_sitemap_file a bunch of times.
 	 *
-	 * @since 4.7.0
+	 * @since 4.8.0
 	 */
 	public function update_sitemap() {
 		if ( $this->logger ) {
@@ -119,7 +119,7 @@ class Jetpack_Sitemap_Builder {
 	 * Reads the most recent state of the sitemap generation phase,
 	 * constructs the next file, and updates the state.
 	 *
-	 * @since 4.7.0
+	 * @since 4.8.0
 	 */
 	private function build_next_sitemap_file() {
 		// Get the most recent state, and lock the state.
@@ -212,7 +212,7 @@ class Jetpack_Sitemap_Builder {
 	/**
 	 * Build the next sitemap of a given type and update the sitemap state.
 	 *
-	 * @since 4.7.0
+	 * @since 4.8.0
 	 *
 	 * @param string   $sitemap_type The type of the sitemap being generated.
 	 * @param callback $build_one    A callback which builds a single sitemap file.
@@ -287,7 +287,7 @@ class Jetpack_Sitemap_Builder {
 	/**
 	 * Build the next sitemap index of a given type and update the state.
 	 *
-	 * @since 4.7.0
+	 * @since 4.8.0
 	 *
 	 * @param string $index_type The type of index being generated.
 	 * @param string $next_type  The next type to generate after this one.
@@ -384,7 +384,7 @@ class Jetpack_Sitemap_Builder {
 	 *
 	 * @param array $max Array of sitemap types with max index and datetime.
 	 *
-	 * @since 4.7.0
+	 * @since 4.8.0
 	 */
 	private function build_master_sitemap( $max ) {
 		$sitemap_index_xsl_url = $this->finder->construct_sitemap_url( 'sitemap-index.xsl' );
@@ -494,7 +494,7 @@ FOOTER
 	 * Side effect: Create/update a sitemap row.
 	 *
 	 * @access private
-	 * @since 4.7.0
+	 * @since 4.8.0
 	 *
 	 * @param int $number The number of the current sitemap.
 	 * @param int $from_id The greatest lower bound of the IDs of the posts to be included.
@@ -648,7 +648,7 @@ FOOTER
 	 * Side effect: Create/update an image sitemap row.
 	 *
 	 * @access private
-	 * @since 4.7.0
+	 * @since 4.8.0
 	 *
 	 * @param int $number The number of the current sitemap.
 	 * @param int $from_id The greatest lower bound of the IDs of the posts to be included.
@@ -678,7 +678,7 @@ FOOTER
 			 *
 			 * @module sitemaps
 			 *
-			 * @since 4.7.0
+			 * @since 4.8.0
 			 *
 			 * @param array $namespaces Associative array with namespaces and namespace URIs.
 			 */
@@ -764,7 +764,7 @@ FOOTER
 	 * Side effect: Create/update an video sitemap row.
 	 *
 	 * @access private
-	 * @since 4.7.0
+	 * @since 4.8.0
 	 *
 	 * @param int $number The number of the current sitemap.
 	 * @param int $from_id The greatest lower bound of the IDs of the posts to be included.
@@ -794,7 +794,7 @@ FOOTER
 			 *
 			 * @module sitemaps
 			 *
-			 * @since 4.7.0
+			 * @since 4.8.0
 			 *
 			 * @param array $namespaces Associative array with namespaces and namespace URIs.
 			 */
@@ -881,7 +881,7 @@ FOOTER
 	 * Side effect: Create/update a sitemap index row.
 	 *
 	 * @access private
-	 * @since 4.7.0
+	 * @since 4.8.0
 	 *
 	 * @param int    $number     The number of the current sitemap index.
 	 * @param int    $from_id    The greatest lower bound of the IDs of the sitemaps to be included.
@@ -1006,7 +1006,7 @@ FOOTER
 	 * @link http://www.sitemaps.org/protocol.html#sitemapIndex_sitemap
 	 *
 	 * @access private
-	 * @since 4.7.0
+	 * @since 4.8.0
 	 *
 	 * @param array $row The sitemap data to be processed.
 	 *
@@ -1033,7 +1033,7 @@ FOOTER
 	 * function is cached in the transient 'jetpack_news_sitemap_xml'.
 	 *
 	 * @access public
-	 * @since 4.7.0
+	 * @since 4.8.0
 	 *
 	 * @return string The news sitemap xml.
 	 */
@@ -1070,7 +1070,7 @@ FOOTER
 				 *
 				 * @module sitemaps
 				 *
-				 * @since 4.7.0
+				 * @since 4.8.0
 				 *
 				 * @param array $namespaces Associative array with namespaces and namespace URIs.
 				 */
@@ -1134,7 +1134,7 @@ FOOTER
 	 *
 	 * @link http://www.sitemaps.org/protocol.html#urldef
 	 * @access private
-	 * @since 4.7.0
+	 * @since 4.8.0
 	 *
 	 * @param WP_Post $post The post to be processed.
 	 *
@@ -1211,7 +1211,7 @@ FOOTER
 	 * @link http://www.sitemaps.org/protocol.html#urldef
 	 *
 	 * @access private
-	 * @since 4.7.0
+	 * @since 4.8.0
 	 *
 	 * @param WP_Post $post The image post to be processed.
 	 *
@@ -1224,7 +1224,7 @@ FOOTER
 		 *
 		 * @module sitemaps
 		 *
-		 * @since 4.7.0
+		 * @since 4.8.0
 		 *
 		 * @param bool    $skip Current boolean. False by default, so no post is skipped.
 		 * @param WP_POST $post Current post object.
@@ -1269,7 +1269,7 @@ FOOTER
 		 *
 		 * @module sitemaps
 		 *
-		 * @since 4.7.0
+		 * @since 4.8.0
 		 *
 		 * @param array $item_array Data to build parent and children nodes for current post.
 		 * @param int   $post_id Current image post ID.
@@ -1293,7 +1293,7 @@ FOOTER
 	 * @link https://developers.google.com/webmasters/videosearch/sitemaps
 	 *
 	 * @access private
-	 * @since 4.7.0
+	 * @since 4.8.0
 	 *
 	 * @param WP_Post $post The video post to be processed.
 	 *
@@ -1306,7 +1306,7 @@ FOOTER
 		 *
 		 * @module sitemaps
 		 *
-		 * @since 4.7.0
+		 * @since 4.8.0
 		 *
 		 * @param bool    $skip Current boolean. False by default, so no post is skipped.
 		 * @param WP_POST $post Current post object.
@@ -1345,7 +1345,7 @@ FOOTER
 		 *
 		 * @module sitemaps
 		 *
-		 * @since 4.7.0
+		 * @since 4.8.0
 		 *
 		 * @param array $item_array Data to build parent and children nodes for current post.
 		 * @param int   $post_id Current video post ID.
@@ -1368,7 +1368,7 @@ FOOTER
 	 * @link http://www.sitemaps.org/protocol.html#urldef
 	 *
 	 * @access private
-	 * @since 4.7.0
+	 * @since 4.8.0
 	 *
 	 * @param WP_Post $post The post to be processed.
 	 *
