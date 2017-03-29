@@ -2099,7 +2099,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		array_push(
 			$message,
-			"", // Empty line left intentionally
+			"<br />",
 			'<hr />',
 			__( 'Time:', 'jetpack' ) . ' ' . $time . '<br />',
 			__( 'IP Address:', 'jetpack' ) . ' ' . $comment_author_IP . '<br />',
@@ -2109,18 +2109,18 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		if ( is_user_logged_in() ) {
 			array_push(
 				$message,
-				'',
 				sprintf(
-					__( 'Sent by a verified %s user.', 'jetpack' ),
+					'<p>' . __( 'Sent by a verified %s user.', 'jetpack' ) . '</p>',
 					isset( $GLOBALS['current_site']->site_name ) && $GLOBALS['current_site']->site_name ?
 						$GLOBALS['current_site']->site_name : '"' . get_option( 'blogname' ) . '"'
 				)
 			);
 		} else {
-			array_push( $message, __( 'Sent by an unverified visitor to your site.', 'jetpack' ) );
+			array_push( $message, '<p>' . __( 'Sent by an unverified visitor to your site.', 'jetpack' ) . '</p>' );
 		}
 
-		$message = join( $message, "\n" );
+		$message = join( $message, '' );
+
 		/**
 		 * Filters the message sent via email after a successfull form submission.
 		 *
@@ -2131,6 +2131,9 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		 * @param string $message Feedback email message.
 		 */
 		$message = apply_filters( 'contact_form_message', $message );
+
+		// This is called after `contact_form_message`, in order to preserve back-compat
+		$message = self::wrap_message_in_html_tags( $message );
 
 		update_post_meta( $post_id, '_feedback_email', $this->addslashes_deep( compact( 'to', 'message' ) ) );
 
@@ -2219,6 +2222,41 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	}
 
 	/**
+	 * Wrap a message body with the appropriate in HTML tags
+	 *
+	 * This helps to ensure correct parsing by clients, and also helps avoid triggering spam filtering rules
+	 *
+	 * @param string $body
+	 *
+	 * @return string
+	 */
+	static function wrap_message_in_html_tags( $body ) {
+		// Don't do anything if the message was already wrapped in HTML tags
+		// That could have be done by a plugin via filters
+		if ( false !== strpos( $body, '<html' ) ) {
+			return $body;
+		}
+
+		$html_message = sprintf(
+			// The tabs are just here so that the raw code is correctly formatted for developers
+			// They're removed so that they don't affect the final message sent to users
+			str_replace( "\t", '',
+				"<!doctype html>
+				<html xmlns=\"http://www.w3.org/1999/xhtml\">
+				<body>
+
+				%s
+
+				</body>
+				</html>"
+			),
+			$body
+		);
+
+		return $html_message;
+	}
+
+	/**
 	 * Add a plain-text alternative part to an outbound email
 	 *
 	 * This makes the message more accessible to mail clients that aren't HTML-aware, and decreases the likelihood
@@ -2227,7 +2265,17 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	 * @param PHPMailer $phpmailer
 	 */
 	static function add_plain_text_alternative( $phpmailer ) {
-		$phpmailer->AltBody = strip_tags( $phpmailer->Body );
+		// Add an extra break so that the extra space above the <p> is preserved after the <p> is stripped out
+		$alt_body = str_replace( '<p>', '<p><br />', $phpmailer->Body );
+
+		// Convert <br> to \n breaks, to preserve the space between lines that we want to keep
+		$alt_body = str_replace( array( '<br>', '<br />' ), "\n", $alt_body );
+
+		// Convert <hr> to an plain-text equivalent, to preserve the integrity of the message
+		$alt_body = str_replace( array( "<hr>", "<hr />" ), "----\n", $alt_body );
+
+		// Trim the plain text message to remove the \n breaks that were after <doctype>, <html>, and <body>
+		$phpmailer->AltBody = trim( strip_tags( $alt_body ) );
 	}
 
 	function addslashes_deep( $value ) {

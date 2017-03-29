@@ -3,7 +3,7 @@
  * Sitemap-related constants.
  *
  * @package Jetpack
- * @since 4.7.0
+ * @since 4.8.0
  * @author Automattic
  */
 
@@ -12,7 +12,7 @@
  * Per the spec, max value is 10485760 (10MB).
  *
  * @link http://www.sitemaps.org/
- * @since 4.7.0
+ * @since 4.8.0
  */
 if ( ! defined( 'JP_SITEMAP_MAX_BYTES' ) ) {
 	define( 'JP_SITEMAP_MAX_BYTES', 10485760 );
@@ -23,7 +23,7 @@ if ( ! defined( 'JP_SITEMAP_MAX_BYTES' ) ) {
  * Per the spec, max value is 50000.
  *
  * @link http://www.sitemaps.org/
- * @since 4.7.0
+ * @since 4.8.0
  */
 if ( ! defined( 'JP_SITEMAP_MAX_ITEMS' ) ) {
 	define( 'JP_SITEMAP_MAX_ITEMS', 2000 );
@@ -34,7 +34,7 @@ if ( ! defined( 'JP_SITEMAP_MAX_ITEMS' ) ) {
  * Per the spec, max value is 1000.
  *
  * @link https://support.google.com/news/publisher/answer/74288?hl=en
- * @since 4.7.0
+ * @since 4.8.0
  */
 if ( ! defined( 'JP_NEWS_SITEMAP_MAX_ITEMS' ) ) {
 	define( 'JP_NEWS_SITEMAP_MAX_ITEMS', 1000 );
@@ -43,7 +43,7 @@ if ( ! defined( 'JP_NEWS_SITEMAP_MAX_ITEMS' ) ) {
 /**
  * Batch size for database queries.
  *
- * @since 4.7.0
+ * @since 4.8.0
  */
 if ( ! defined( 'JP_SITEMAP_BATCH_SIZE' ) ) {
 	define( 'JP_SITEMAP_BATCH_SIZE', 1000 );
@@ -52,7 +52,7 @@ if ( ! defined( 'JP_SITEMAP_BATCH_SIZE' ) ) {
 /**
  * Number of sitemap files to update on each run.
  *
- * @since 4.7.0
+ * @since 4.8.0
  */
 if ( ! defined( 'JP_SITEMAP_UPDATE_SIZE' ) ) {
 	define( 'JP_SITEMAP_UPDATE_SIZE', 100 );
@@ -61,7 +61,7 @@ if ( ! defined( 'JP_SITEMAP_UPDATE_SIZE' ) ) {
 /**
  * Number of seconds between sitemap updates.
  *
- * @since 4.7.0
+ * @since 4.8.0
  */
 if ( ! defined( 'JP_SITEMAP_INTERVAL' ) ) {
 	define( 'JP_SITEMAP_INTERVAL', 12 * HOUR_IN_SECONDS );
@@ -70,7 +70,7 @@ if ( ! defined( 'JP_SITEMAP_INTERVAL' ) ) {
 /**
  * Number of seconds to lock the sitemap state.
  *
- * @since 4.7.0
+ * @since 4.8.0
  */
 if ( ! defined( 'JP_SITEMAP_LOCK_INTERVAL' ) ) {
 	define( 'JP_SITEMAP_LOCK_INTERVAL', 15 * MINUTE_IN_SECONDS );
@@ -79,7 +79,7 @@ if ( ! defined( 'JP_SITEMAP_LOCK_INTERVAL' ) ) {
 /**
  * Cache lifetime of news sitemap (in seconds).
  *
- * @since 4.7.0
+ * @since 4.8.0
  */
 if ( ! defined( 'JP_NEWS_SITEMAP_INTERVAL' ) ) {
 	define( 'JP_NEWS_SITEMAP_INTERVAL', 12 * HOUR_IN_SECONDS );
@@ -123,7 +123,7 @@ if ( ! defined( 'JP_VIDEO_SITEMAP_INDEX_TYPE' ) ) {
  * The name (with extension) of a sitemap file of the given
  * type and number.
  *
- * @since 4.7.0
+ * @since 4.8.0
  *
  * @param string $type The sitemap type.
  * @param string $number The sitemap number.
@@ -155,7 +155,7 @@ function jp_sitemap_filename( $type, $number ) {
 /**
  * The index type corresponding to a sitemap type.
  *
- * @since 4.7.0
+ * @since 4.8.0
  *
  * @param string $type The sitemap type.
  *
@@ -176,7 +176,7 @@ function jp_sitemap_index_type_of( $type ) {
 /**
  * The sitemap type corresponding to an index type.
  *
- * @since 4.7.0
+ * @since 4.8.0
  *
  * @param string $type The index type.
  *
@@ -199,7 +199,7 @@ function jp_sitemap_child_type_of( $type ) {
  * Note that the input is assumed to be in UTC (a.k.a. GMT).
  *
  * @link https://www.w3.org/TR/NOTE-datetime
- * @since 4.7.0
+ * @since 4.8.0
  *
  * @param string $datetime The timestamp to convert.
  *
