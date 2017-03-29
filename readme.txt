@@ -115,6 +115,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Admin Page: change wording in Stats dashboard to avoid confusion. #6710
 * Contact Form: add a plain-text alternative to outbound messages. #6671
+* Contact Form: wrap mail messages in HTML tags to avoid spam filters. #6658
 * Debug: include more information in the built-in contact form to help prioritizing your requests for support. #6705
 * Featured Content: change wording in options to avoid confusion. #6684
 * Infinite Scroll: change button text on taxonomy page. #6584
