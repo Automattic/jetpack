@@ -33,6 +33,10 @@ const SupportCard = React.createClass( {
 		} );
 	},
 
+	shouldComponentUpdate( nextProps ) {
+		return nextProps.sitePlan.product_slug !== this.props.sitePlan.product_slug;
+	},
+
 	trackAskQuestionClick() {
 		analytics.tracks.recordJetpackClick( {
 			target: 'support-card',
