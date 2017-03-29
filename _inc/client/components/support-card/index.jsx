@@ -75,7 +75,7 @@ const SupportCard = React.createClass( {
 							{
 								noPrioritySupport
 									? __( 'Jetpack comes with free, basic support for all users.' )
-									: __( 'Utilize your priority-speed Jetpack support whenever you need it thanks to your paid plan.' )
+									: __( 'Your paid plan gives you access to prioritized Jetpack support.' )
 							}
 						</p>
 						<p className="jp-support-card__description">
