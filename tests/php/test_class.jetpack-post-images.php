@@ -8,7 +8,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	 * @since 2.7
 	 */
 	public function test_from_html_single_quotes() {
-		$s = '<imgANYTHINGATALLHEREsrc="bob.jpg"MOREANYTHINGHERE/>';
+		$s = '<img ANYTHINGATALLHERE src="bob.jpg" MOREANYTHINGHERE />';
 
 		$result = Jetpack_PostImages::from_html( $s );
 
@@ -22,7 +22,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	 * @since 2.7
 	 */
 	public function test_from_html_double_quotes() {
-		$s = "<imgANYTHINGATALLHEREsrc='bob.jpg'MOREANYTHINGHERE/>";
+		$s = "<img ANYTHINGATALLHERE src='bob.jpg' MOREANYTHINGHERE />";
 
 		$result = Jetpack_PostImages::from_html( $s );
 
