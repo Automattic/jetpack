@@ -2589,8 +2589,10 @@ function wp_cache_files() {
 	$sizes = array( 'supercache', 'wpcache' );
 	$sizes[ 'supercache' ][ 'expired' ] = 0;
 	$sizes[ 'supercache' ][ 'cached' ] = 0;
+	$sizes[ 'supercache' ][ 'fsize' ] = 0;
 	$sizes[ 'wpcache' ][ 'expired' ] = 0;
 	$sizes[ 'wpcache' ][ 'cached' ] = 0;
+	$sizes[ 'wpcache' ][ 'fsize' ] = 0;
 
 	if (is_dir($supercachedir)) {
 		if( $dh = opendir( $supercachedir ) ) {
