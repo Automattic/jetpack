@@ -6,6 +6,8 @@ With the help of this mu-plugin, a Pressable site is transformed into a WP.com s
 
 To work on wpcomsh, you need a WP.org site and ideally the Jetpack plugin installed and connected to WP.com. Clone the [wpcomsh git repo](https://github.com/Automattic/wpcomsh/) into `wp-content/mu-plugins` of that site. Then, either copy or symlink the `wp-content/mu-plugins/wpcomsh-loader.php` file to `wp-content/mu-plugins`. It acts as a "loader" for wpcomsh and we need this because plugin folders put into `mu-plugins` are not automatically loaded like plugin in `wp-content/plugins`.
 
+Note: if you decide to download the zip of wpcomsh from the GitHub repo, it won't work as that zip doesn't contain all the git submodules which wpcomsh depends on.
+
 If you want to add some new code to wpcomsh, create a new git branch, push to it and then create a Pull Request (PR) against the `master` branch on [wpcomsh GitHub](https://github.com/Automattic/wpcomsh/). After that, send the link to that PR to the Automated Transfer Slack channels for review.
 
 When working on wpcomsh, follow the [WP.org coding standards](https://codex.wordpress.org/WordPress_Coding_Standards) and make sure to add enough logging (either by returning `WP_Error` and/or by using `error_log`) where needed.
