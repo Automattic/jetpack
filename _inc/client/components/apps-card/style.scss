@@ -1,0 +1,60 @@
+.jp-apps-card {
+	margin-top: rem( 54px );
+	margin-bottom: 0;
+}
+
+.jp-apps-card__content {
+	margin-bottom: 0;
+
+	&.dops-card {
+		padding: 0;
+	}
+}
+
+.jp-apps-card__top {
+	padding: rem( 40px ) 0 0;
+	background: $gray-dark;
+
+	svg {
+		position: relative;
+		display: block;
+		max-width: 40%;
+		margin: 0 auto rem( -42px );
+		z-index: 3;
+	}
+}
+
+.jp-apps-card__clouds {
+	position: relative;
+	overflow: hidden;
+	padding-top: rem( 44px );
+	z-index: 2;
+
+	img {
+		position: absolute;
+		bottom: -1px;
+		left: -2%;
+		right: -2%;
+		width: 104%;
+		height: auto;
+	}
+}
+
+.jp-apps-card__description {
+	max-width: 80%;
+	margin: 0 auto;
+	padding: rem( 24px );
+	font-size: rem( 14px );
+	line-height: 1.65;
+	color: $blue-text;
+	text-align: center;
+
+	.dops-button {
+		margin: 8px 0;
+	}
+}
+
+.jp-apps-card__header {
+	margin-top: 0;
+	font-weight: 500;
+}
