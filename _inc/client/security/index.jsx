@@ -14,7 +14,7 @@ import { isModuleFound } from 'state/search';
 import { isPluginActive, isPluginInstalled } from 'state/site/plugins';
 import QuerySite from 'components/data/query-site';
 import QueryAkismetKeyCheck from 'components/data/query-akismet-key-check';
-import { BackupsScan } from './backups-scan';
+import BackupsScan from './backups-scan';
 import Antispam from './antispam';
 import { Protect } from './protect';
 import { SSO } from './sso';
