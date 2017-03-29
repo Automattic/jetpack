@@ -38,12 +38,6 @@ export const Navigation = React.createClass( {
 						{ __( 'At a Glance', { context: 'Navigation item.' } ) }
 					</NavItem>
 					<NavItem
-						path="#/apps"
-						onClick={ () => this.trackNavClick( 'apps' ) }
-						selected={ this.props.route.path === '/apps' }>
-						{ __( 'Apps', { context: 'Navigation item.' } ) }
-					</NavItem>
-					<NavItem
 						path="#/plans"
 						onClick={ () => this.trackNavClick( 'plans' ) }
 						selected={ this.props.route.path === '/plans' }>
@@ -58,11 +52,6 @@ export const Navigation = React.createClass( {
 						path="#/dashboard"
 						selected={ ( this.props.route.path === '/dashboard' ) || ( this.props.route.path === '/' ) }>
 						{ __( 'At a Glance', { context: 'Navigation item.' } ) }
-					</NavItem>
-					<NavItem
-						path="#/apps"
-						selected={ this.props.route.path === '/apps' }>
-						{ __( 'Apps', { context: 'Navigation item.' } ) }
 					</NavItem>
 				</NavTabs>
 			);

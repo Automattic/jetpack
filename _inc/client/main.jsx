@@ -30,7 +30,6 @@ import {
 import { areThereUnsavedSettings, clearUnsavedSettingsFlag } from 'state/settings';
 import { getSearchTerm } from 'state/search';
 import AtAGlance from 'at-a-glance/index.jsx';
-import Apps from 'apps/index.jsx';
 import Plans from 'plans/index.jsx';
 import Footer from 'components/footer';
 import SupportCard from 'components/support-card';
@@ -192,9 +191,6 @@ const Main = React.createClass( {
 			case '/dashboard':
 				pageComponent = <AtAGlance siteRawUrl={ this.props.siteRawUrl } siteAdminUrl={ this.props.siteAdminUrl } />;
 				break;
-			case '/apps':
-				pageComponent = <Apps siteRawUrl={ this.props.siteRawUrl } />;
-				break;
 			case '/plans':
 				pageComponent = <Plans siteRawUrl={ this.props.siteRawUrl } siteAdminUrl={ this.props.siteAdminUrl } />;
 				break;
@@ -240,7 +236,7 @@ const Main = React.createClass( {
 						<JetpackNotices />
 						{ this.renderMainContent( this.props.route.path ) }
 						{
-							this.props.jumpStartStatus || '/apps' === this.props.route.path ?
+							this.props.jumpStartStatus ?
 							null :
 							<SupportCard path={ this.props.route.path } />
 						}
@@ -298,7 +294,6 @@ window.wpNavMenuClassChange = function() {
 	dashboardRoutes = [
 		'#/',
 		'#/dashboard',
-		'#/apps',
 		'#/plans'
 	];
 

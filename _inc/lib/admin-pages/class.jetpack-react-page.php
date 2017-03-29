@@ -42,7 +42,6 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 
 	/**
 	 * Add Jetpack Dashboard sub-link and point it to AAG if the user can view stats, manage modules or if Protect is active.
-	 * Otherwise and only if user is allowed to see the Jetpack Admin, the Dashboard sub-link is added but pointed to Apps tab.
 	 *
 	 * Works in Dev Mode or when user is connected.
 	 *
