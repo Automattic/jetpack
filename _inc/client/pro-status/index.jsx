@@ -8,6 +8,7 @@ import Button from 'components/button';
 import SimpleNotice from 'components/notice';
 import NoticeAction from 'components/notice/notice-action';
 import analytics from 'lib/analytics';
+import get from 'lodash/get';
 
 /**
  * Internal dependencies
@@ -108,6 +109,26 @@ const ProStatus = React.createClass( {
 		);
 	},
 
+	/**
+	 * Return a button to Set Up a feature.
+	 *
+	 * @param {string} feature Slug of the feature to set up.
+	 *
+	 * @return {component} A Button component.
+	 */
+	getSetUpButton( feature ) {
+		return (
+			<Button
+				onClick={ () => this.trackProStatusClick( 'set_up', feature ) }
+				compact={ true }
+				primary={ true }
+				href={ `https://wordpress.com/plugins/setup/${ this.props.siteRawUrl }?only=${ feature }` }
+			>
+				{ __( 'Set up', { context: 'Caption for a button to set up a feature.' } ) }
+			</Button>
+		);
+	},
+
 	render() {
 		const sitePlan = this.props.sitePlan(),
 			vpData = this.props.getVaultPressData(),
@@ -117,18 +138,8 @@ const ProStatus = React.createClass( {
 
 		const hasPersonal = /jetpack_personal*/.test( sitePlan.product_slug ),
 			hasFree = /jetpack_free*/.test( sitePlan.product_slug ),
-			hasBackups = (
-				'undefined' !== typeof vpData.data &&
-				'undefined' !== typeof vpData.data.features &&
-				'undefined' !== typeof vpData.data.features.backups &&
-				vpData.data.features.backups
-			),
-			hasScan = (
-				'undefined' !== typeof vpData.data &&
-				'undefined' !== typeof vpData.data.features &&
-				'undefined' !== typeof vpData.data.features.security &&
-				vpData.data.features.security
-			);
+			hasBackups = get( vpData, [ 'data', 'features', 'backups' ], false ),
+			hasScan = get( vpData, [ 'data', 'features', 'security' ], false );
 
 		const getStatus = ( feature, active, installed ) => {
 			if ( this.props.isDevMode ) {
@@ -147,6 +158,9 @@ const ProStatus = React.createClass( {
 				if ( ( hasFree || hasPersonal ) && ! hasScan ) {
 					if ( this.props.isCompact ) {
 						return this.getProActions( 'free', 'scan' );
+					} else if ( hasPersonal && ! hasBackups ) {
+						// Personal plans doesn't have scan but it does have backups.
+						return this.getSetUpButton( 'backups' );
 					}
 					return '';
 				}
@@ -180,16 +194,7 @@ const ProStatus = React.createClass( {
 						return this.getProActions( 'active' );
 					}
 
-					return (
-						<Button
-							onClick={ () => this.trackProStatusClick( 'set_up', feature ) }
-							compact={ true }
-							primary={ true }
-							href={ `https://wordpress.com/plugins/setup/${ this.props.siteRawUrl }?only=${ feature }` }
-						>
-							{ __( 'Set up', { context: 'Caption for a button to set up a feature.' } ) }
-						</Button>
-					);
+					return this.getSetUpButton( feature );
 				}
 			}
 
