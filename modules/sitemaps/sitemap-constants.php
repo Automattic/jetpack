@@ -15,7 +15,7 @@
  * @since 4.8.0
  */
 if ( ! defined( 'JP_SITEMAP_MAX_BYTES' ) ) {
-	define( 'JP_SITEMAP_MAX_BYTES', 10485760 );
+	define( 'JP_SITEMAP_MAX_BYTES', 1048576 );
 }
 
 /**
