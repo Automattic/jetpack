@@ -74,7 +74,7 @@ const DashBackups = React.createClass( {
 				);
 			} else {
 				return (
-					__( 'To automatically back up your entire site, please {{a}}upgrade your account.{{/a}}.', {
+					__( 'To automatically back up your entire site, please {{a}}upgrade your account{{/a}}.', {
 						components: {
 							a: <a href={ 'https://jetpack.com/redirect/?source=aag-backups&site=' + this.props.siteRawUrl } target="_blank" rel="noopener noreferrer" />
 						}
