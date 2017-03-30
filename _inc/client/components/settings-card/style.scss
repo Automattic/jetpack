@@ -58,6 +58,13 @@
 			padding-top: rem( 7px );
 		}
 	}
+
+	.dops-foldable-card__header {
+		@include breakpoint ( '>480px' ) {
+			padding-top: rem( 28px );
+			padding-bottom: rem( 28px );
+		}
+	}
 }
 
 .jp-foldable-settings-standalone {
