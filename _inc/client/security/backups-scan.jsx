@@ -33,7 +33,7 @@ export const BackupsScan = moduleSettingsForm(
 					header={ __( 'Backups and security scanning', { context: 'Settings header' } ) }
 					action="scan"
 					hideButton>
-					<SettingsGroup disableInDevMode module={ { module: 'backups' } } support="https://vaultpress.com/jetpack/">
+					<SettingsGroup disableInDevMode module={ { module: 'backups' } } support="https://help.vaultpress.com/get-to-know/">
 						{
 							__( 'Your site is backed up and threat-free.' )
 						}
