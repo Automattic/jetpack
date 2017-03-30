@@ -340,7 +340,7 @@ const PlanBody = React.createClass( {
 						</div>
 
 						<p>
-							<Button onClick={ () => this.trackPlansClick( 'compare_plans' ) } href={ 'jetpack_free' === this.props.plans
+							<Button onClick={ () => this.trackPlansClick( 'compare_plans' ) } href={ 'is-free-plan' === planClass
 								? 'https://jetpack.com/redirect/?source=plans-main-bottom&site=' + this.props.siteRawUrl
 								: 'https://jetpack.com/redirect/?source=plans-main-bottom-dev-mode' } className="is-primary">
 								{ __( 'Compare Plans' ) }
