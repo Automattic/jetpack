@@ -206,9 +206,6 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
 		}
 
-		$localeSlug = explode( '_', jetpack_get_user_locale() );
-		$localeSlug = $localeSlug[0];
-
 		// Collecting roles that can view site stats
 		$stats_roles = array();
 		$enabled_roles = function_exists( 'stats_get_option' ) ? stats_get_option( 'roles' ) : array( 'administrator' );
@@ -313,7 +310,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				),
 			),
 			'locale' => $this->get_i18n_data(),
-			'localeSlug' => $localeSlug,
+			'localeSlug' => jetpack_get_user_locale(),
 			'jetpackStateNotices' => array(
 				'messageCode' => Jetpack::state( 'message' ),
 				'errorCode' => Jetpack::state( 'error' ),
