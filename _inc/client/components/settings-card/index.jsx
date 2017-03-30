@@ -206,7 +206,7 @@ export const SettingsCard = props => {
 
 		switch ( feature ) {
 			case FEATURE_SECURITY_SCANNING_JETPACK:
-				if ( ( 'is-free-plan' === planClass || 'is-personal-plan' === planClass ) && ! scanEnabled ) {
+				if ( ( 'is-free-plan' === planClass ) && ! scanEnabled ) {
 					return false;
 				}
 
