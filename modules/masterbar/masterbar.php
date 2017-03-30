@@ -915,8 +915,7 @@ class A8C_WPCOM_Masterbar {
 					),
 				) );
 			}
-
-
+			
 			$wp_admin_bar->add_menu( array(
 				'parent' => 'configuration',
 				'id'     => 'blog-settings',
@@ -927,17 +926,15 @@ class A8C_WPCOM_Masterbar {
 				),
 			) );
 
-			if ( $this->is_automated_transfer_site() ) {
-				$wp_admin_bar->add_menu( array(
-					'parent' => 'configuration',
-					'id'     => 'legacy-dashboard',
-					'title'  => __( 'WP Admin', 'jetpack' ),
-					'href'   => '//' . esc_attr( $this->primary_site_url ) . '/wp-admin/',
-					'meta'   => array(
-						'class' => 'mb-icon',
-					),
-				) );
-			}
+			$wp_admin_bar->add_menu( array(
+				'parent' => 'configuration',
+				'id'     => 'legacy-dashboard',
+				'title'  => __( 'WP Admin', 'jetpack' ),
+				'href'   => '//' . esc_attr( $this->primary_site_url ) . '/wp-admin/',
+				'meta'   => array(
+					'class' => 'mb-icon',
+				),
+			) );
 		}
 	}
 }
