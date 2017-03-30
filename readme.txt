@@ -163,6 +163,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Admin Page: always use relative links for submenu items to account for servers with specific restrictions. #6529
 * Contact Form: avoid PHP notices when using the form in a Text widget. #6606
 * Content Options: Fix single characters word count excerpt issue on sites with multibyte languages. #6566
+* Internationalization: fix administrator area translations for several languages. #6805
+* Internationalization: add proper support for Formal/Informal translation versions for languages that support them.
 * Open Graph: make sure Site Icons are used as fallback Open Graph Image tags. #6632
 * Protect: remove port number when server returns a port alongside each stored IP address. #6755
 * Related Posts: ensure that more than 1,024 posts can be excluded from Related Posts thanks to filters. #6707
