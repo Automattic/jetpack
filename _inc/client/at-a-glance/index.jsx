@@ -35,7 +35,7 @@ const AtAGlance = React.createClass( {
 				siteAdminUrl: this.props.siteAdminUrl,
 				siteRawUrl: this.props.siteRawUrl
 			},
-			securityHeader =
+			securityHeader = this.props.isModuleActivated( 'protect' ) &&
 				<DashSectionHeader
 					label={ __( 'Security' ) }
 					settingsPath="#security"
@@ -121,31 +121,24 @@ const AtAGlance = React.createClass( {
 				protect = <DashProtect />;
 			}
 
-			let nonAdminAAG = '';
-			if ( '' !== stats || '' !== protect ) {
-				nonAdminAAG = this.props.userIsSubscriber
+			const nonAdminAAG = this.props.userIsSubscriber
 				? (
-					<div>
-						{ stats	}
-						{
-							connections
-						}
-					</div>
-				)
+				<div>
+					{ stats	}
+					{ connections }
+				</div>
+			)
 				: (
-					<div>
-						{ stats	}
-						{
-							// Site Security
-							securityHeader
-						}
-						{ protect }
-						{
-							connections
-						}
-					</div>
-				);
-			}
+				<div>
+					{ stats	}
+					{
+						// Site Security
+						securityHeader
+					}
+					{ protect }
+					{ connections }
+				</div>
+			);
 
 			return nonAdminAAG;
 		}

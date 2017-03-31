@@ -31,12 +31,7 @@ const NonAdminView = React.createClass( {
 		switch ( route ) {
 			case '/dashboard':
 			default:
-				if ( this.props.userCanViewStats || this.props.isModuleActivated( 'protect' ) ) {
-					pageComponent = <AtAGlance { ...this.props } />;
-				} else {
-					// If routing took us to Dashboard but user can't view anything, fallback to Apps
-					pageComponent = <Apps { ...this.props } />;
-				}
+				pageComponent = <AtAGlance { ...this.props } />;
 				break;
 			case '/apps':
 				pageComponent = <Apps { ...this.props } />;
