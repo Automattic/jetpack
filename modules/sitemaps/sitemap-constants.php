@@ -9,13 +9,13 @@
 
 /**
  * Maximum size (in bytes) of a sitemap xml file.
- * Per the spec, max value is 10485760 (10MB).
+ * Max is 1048576 - 1 Bytes so it's strictly < 1MB
  *
  * @link http://www.sitemaps.org/
  * @since 4.8.0
  */
 if ( ! defined( 'JP_SITEMAP_MAX_BYTES' ) ) {
-	define( 'JP_SITEMAP_MAX_BYTES', 10485760 );
+	define( 'JP_SITEMAP_MAX_BYTES', 1048575 );
 }
 
 /**
