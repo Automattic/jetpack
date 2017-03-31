@@ -5410,6 +5410,8 @@ p {
 
 		// Host has encoded the request URL, probably as a result of a bad http => https redirect
 		if ( Jetpack::is_redirect_encoded( $_GET['redirect_to'] ) ) {
+			JetpackTracking::record_user_event( 'error_double_encode' );
+
 			$die_error = sprintf(
 				/* translators: %s is a URL */
 				__( 'Your site is incorrectly double-encoding redirects from http to https. This is preventing Jetpack from authenticating your connection. Please visit our <a href="%s">support page</a> for details about how to resolve this.', 'jetpack' ),
