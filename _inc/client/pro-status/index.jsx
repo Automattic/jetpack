@@ -24,9 +24,10 @@ import {
 	isPluginInstalled
 } from 'state/site/plugins';
 import {
-	getVaultPressScanThreatCount as _getVaultPressScanThreatCount,
-	getVaultPressData as _getVaultPressData,
-	getAkismetData as _getAkismetData
+	getVaultPressScanThreatCount,
+	getVaultPressData,
+	isFetchingVaultPressData,
+	getAkismetData
 } from 'state/at-a-glance';
 import {
 	getSitePlan,
@@ -155,6 +156,9 @@ const ProStatus = React.createClass( {
 			}
 
 			if ( 'scan' === feature ) {
+				if ( this.props.fetchingSiteData || this.props.isFetchingVaultPressData ) {
+					return '';
+				}
 				if ( ( hasFree || hasPersonal ) && ! hasScan ) {
 					if ( this.props.isCompact ) {
 						return this.getProActions( 'free', 'scan' );
@@ -221,9 +225,10 @@ export default connect(
 		return {
 			siteRawUrl: getSiteRawUrl( state ),
 			siteAdminUrl: getSiteAdminUrl( state ),
-			getScanThreats: () => _getVaultPressScanThreatCount( state ),
-			getVaultPressData: () => _getVaultPressData( state ),
-			getAkismetData: () => _getAkismetData( state ),
+			getScanThreats: () => getVaultPressScanThreatCount( state ),
+			getVaultPressData: () => getVaultPressData( state ),
+			getAkismetData: () => getAkismetData( state ),
+			isFetchingVaultPressData: isFetchingVaultPressData( state ),
 			sitePlan: () => getSitePlan( state ),
 			fetchingPluginsData: isFetchingPluginsData( state ),
 			pluginActive: ( plugin_slug ) => isPluginActive( state, plugin_slug ),
