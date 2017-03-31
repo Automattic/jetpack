@@ -34,7 +34,12 @@ class WP_Super_cache_Route extends WP_REST_Controller {
 		) );
 		register_rest_route( $namespace, '/' . $base . '/stats', array(
 			'methods'             => WP_REST_Server::READABLE,
-			'callback'            => array( $this, 'cache_stats' ),
+			'callback'            => array( $this, 'get_cache_stats' ),
+			'permission_callback' => array( $this, 'get_item_permissions_check' ),
+		) );
+		register_rest_route( $namespace, '/' . $base . '/list', array(
+			'methods'             => WP_REST_Server::READABLE,
+			'callback'            => array( $this, 'get_cache_list' ),
 			'permission_callback' => array( $this, 'get_item_permissions_check' ),
 		) );
 		register_rest_route( $namespace, '/' . $base . '/delete', array(
@@ -58,7 +63,15 @@ class WP_Super_cache_Route extends WP_REST_Controller {
 		) );
 	}
 
-	function cache_stats( $request ) {
+	function get_cache_list( $request ) {
+		global $valid_nonce;
+		$valid_nonce = true;
+		$_GET[ 'listfiles' ] = 1;
+		$sizes = wpsc_generate_sizes_array();
+		$supercachedir = get_supercache_dir();
+		return rest_ensure_response( wpsc_dirsize( $supercachedir, $sizes ) );
+	}
+	function get_cache_stats( $request ) {
 		$sizes[ 'supercache' ][ 'expired' ] = 0;
 		$sizes[ 'supercache' ][ 'cached' ] = 0;
 		$sizes[ 'supercache' ][ 'fsize' ] = 0;

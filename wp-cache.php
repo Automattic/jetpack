@@ -2460,6 +2460,22 @@ function wp_cache_check_global_config() {
 	return true;
 }
 
+function wpsc_generate_sizes_array() {
+	$sizes = array();
+	$cache_types  = apply_filters( 'wpsc_cache_types', array( 'supercache', 'wpcache' ) );
+	$cache_states = apply_filters( 'wpsc_cache_state', array( 'expired', 'cached' ) );
+	foreach( $cache_types as $type ) {
+		reset( $cache_states );
+		foreach( $cache_states as $state ) {
+			$sizes[ $type ][ $state ] = 0;
+		}
+		$sizes[ $type ][ 'fsize' ] = 0;
+		$sizes[ $type ][ 'cached_list' ] = array();
+		$sizes[ $type ][ 'expired_list' ] = array();
+	}
+	return $sizes;
+}
+
 function wp_cache_files() {
 	global $cache_path, $file_prefix, $cache_max_time, $valid_nonce, $supercachedir, $cache_enabled, $super_cache_enabled, $blog_cache_dir, $cache_compression;
 	global $wp_cache_object_cache, $wp_cache_preload_on;
@@ -2570,20 +2586,8 @@ function wp_cache_files() {
 		$wp_cache_fsize = '0KB';
 	}
 
-	// Supercache files
+	$sizes = wpsc_generate_sizes_array();
 	$now = time();
-	$sizes = array();
-	$cache_types  = apply_filters( 'wpsc_cache_types', array( 'supercache', 'wpcache' ) );
-	$cache_states = apply_filters( 'wpsc_cache_state', array( 'expired', 'cached', 'fsize' ) );
-	foreach( $cache_types as $type ) {
-		reset( $cache_states );
-		foreach( $cache_states as $state ) {
-			$sizes[ $type ][ $state ] = 0;
-		}
-		$sizes[ $type ][ 'cached_list' ] = array();
-		$sizes[ $type ][ 'expired_list' ] = array();
-	}
-
 	if (is_dir($supercachedir)) {
 		if( $dh = opendir( $supercachedir ) ) {
 			while( ( $entry = readdir( $dh ) ) !== false ) {
@@ -2647,16 +2651,18 @@ function wp_cache_files() {
 		if ( $valid_nonce && array_key_exists('listfiles', $_GET) && $_GET[ 'listfiles' ] ) {
 			echo "<div style='padding: 10px; border: 1px solid #333; height: 400px; width: 90%; overflow: auto'>";
 			$cache_description = array( 'supercache' => __( 'Super Cached Files', 'wp-super-cache' ), 'wpcache' => __( 'Full Cache Files', 'wp-super-cache' ) );
-			foreach( $cache_types as $type ) {
+			foreach( $sizes as $type => $details ) {
+				if ( is_array( $details ) == false )
+					continue;
 				foreach( array( 'cached_list' => 'Fresh', 'expired_list' => 'Stale' ) as $list => $description ) {
-					if ( is_array( $sizes[ $type ][ $list ] ) & !empty( $sizes[ $type ][ $list ] ) ) {
+					if ( is_array( $details[ $list ] ) & !empty( $details[ $list ] ) ) {
 						echo "<h4>" . sprintf( __( '%s %s Files', 'wp-super-cache' ), $description, $cache_description[ $type ] ) . "</h4>";
 						echo "<table class='widefat'><tr><th>#</th><th>" . __( 'URI', 'wp-super-cache' ) . "</th><th>" . __( 'Age', 'wp-super-cache' ) . "</th><th>" . __( 'Delete', 'wp-super-cache' ) . "</th></tr>";
 						$c = 1;
 						$flip = 1;
 
-						ksort( $sizes[ $type ][ $list ] );
-						foreach( $sizes[ $type ][ $list ] as $age => $d ) {
+						ksort( $details[ $list ] );
+						foreach( $details[ $list ] as $age => $d ) {
 							foreach( $d as $uri => $n ) {
 								$bg = $flip ? 'style="background: #EAEAEA;"' : '';
 								if ( $type == 'wpcache' ) {
