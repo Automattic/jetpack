@@ -43,7 +43,7 @@ class Jetpack_Sitemap_Builder {
 	 * @since 4.8.0
 	 * @var $logger Jetpack_Sitemap_Logger
 	 */
-	private $logger;
+	private $logger = false;
 
 	/**
 	 * Finder object for dealing with sitemap URIs.
@@ -55,16 +55,28 @@ class Jetpack_Sitemap_Builder {
 	private $finder;
 
 	/**
+	 * Flag to know if this module is being activated.
+	 *
+	 * @access private
+	 * @since 4.8.0
+	 * @var bool $is_activation
+	 */
+	private $is_activation;
+
+	/**
 	 * Construct a new Jetpack_Sitemap_Builder object.
 	 *
 	 * @access public
-	 * @since 4.8.0
+	 * @since  4.8.0
+	 *
+	 * @param bool $is_activation True if this is this module is being activated.
 	 */
-	public function __construct() {
+	public function __construct( $is_activation = false ) {
+		$this->is_activation = $is_activation;
 		$this->librarian = new Jetpack_Sitemap_Librarian();
 		$this->finder = new Jetpack_Sitemap_Finder();
 
-		if ( defined( 'WP_DEBUG' ) && ( true === WP_DEBUG ) ) {
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG && ! $this->is_activation ) {
 			$this->logger = new Jetpack_Sitemap_Logger();
 		}
 
@@ -193,14 +205,20 @@ class Jetpack_Sitemap_Builder {
 					$this->logger->time();
 				}
 
-				die();
+				if ( ! $this->is_activation ) {
+					die();
+				}
+				break;
 
 			default:
 				// Otherwise, reset the state.
 				Jetpack_Sitemap_State::reset(
 					JP_PAGE_SITEMAP_TYPE
 				);
-				die();
+
+				if ( ! $this->is_activation ) {
+					die();
+				}
 		}
 
 		// Unlock the state.

@@ -38,7 +38,7 @@ require_once dirname( __FILE__ ) . '/sitemap-librarian.php';
 require_once dirname( __FILE__ ) . '/sitemap-finder.php';
 require_once dirname( __FILE__ ) . '/sitemap-builder.php';
 
-if ( defined( 'WP_DEBUG' ) && ( true === WP_DEBUG ) ) {
+if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 	require_once dirname( __FILE__ ) . '/sitemap-logger.php';
 }
 
