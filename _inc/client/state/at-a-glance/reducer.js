@@ -48,24 +48,22 @@ const requests = ( state = {}, action ) => {
 
 		case STATS_DATA_FETCH_FAIL:
 		case STATS_DATA_FETCH_SUCCESS:
+			return assign( {}, state, { fetchingStatsData: false } );
 		case AKISMET_DATA_FETCH_FAIL:
 		case AKISMET_DATA_FETCH_SUCCESS:
+			return assign( {}, state, { fetchingAkismetData: false } );
 		case AKISMET_KEY_CHECK_FETCH_FAIL:
 		case AKISMET_KEY_CHECK_FETCH_SUCCESS:
-		case VAULTPRESS_SITE_DATA_FETCH_FAIL:
-		case VAULTPRESS_SITE_DATA_FETCH_SUCCESS:
+			return assign( {}, state, { checkingAkismetKey: false } );
 		case DASHBOARD_PROTECT_COUNT_FETCH_FAIL:
 		case DASHBOARD_PROTECT_COUNT_FETCH_SUCCESS:
+			return assign( {}, state, { fetchingProtectData: false } );
 		case PLUGIN_UPDATES_FETCH_FAIL:
 		case PLUGIN_UPDATES_FETCH_SUCCESS:
-			return assign( {}, state, {
-				fetchingStatsData: false,
-				fetchingAkismetData: false,
-				checkingAkismetKey: false,
-				fetchingVaultPressData: false,
-				fetchingProtectData: false,
-				fetchingPluginUpdates: false
-			} );
+			return assign( {}, state, { fetchingPluginUpdates: false } );
+		case VAULTPRESS_SITE_DATA_FETCH_FAIL:
+		case VAULTPRESS_SITE_DATA_FETCH_SUCCESS:
+			return assign( {}, state, { fetchingVaultPressData: false } );
 
 		default:
 			return state;

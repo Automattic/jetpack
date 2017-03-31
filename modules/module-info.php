@@ -13,13 +13,7 @@
  *  VaultPress (stub)
  */
 function vaultpress_jetpack_load_more_link() {
-	if ( function_exists( 'is_multisite' ) && is_multisite() ) {
-		$vaultpress_url = 'http://vaultpress.com/jetpack-ms/';
-	} else {
-		$vaultpress_url = 'http://vaultpress.com/jetpack/';
-	}
-
-	echo $vaultpress_url;
+	echo 'https://help.vaultpress.com/get-to-know/';
 }
 add_filter( 'jetpack_learn_more_button_vaultpress', 'vaultpress_jetpack_load_more_link' );
 
