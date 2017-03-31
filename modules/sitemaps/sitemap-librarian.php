@@ -171,7 +171,7 @@ class Jetpack_Sitemap_Librarian {
 	 */
 	public function delete_all_stored_sitemap_data() {
 		$this->delete_sitemap_data(
-			jp_sitemap_filename( MASTER_SITEMAP_TYPE ),
+			jp_sitemap_filename( JP_MASTER_SITEMAP_TYPE ),
 			JP_MASTER_SITEMAP_TYPE
 		);
 
