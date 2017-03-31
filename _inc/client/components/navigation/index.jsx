@@ -52,22 +52,13 @@ export const Navigation = React.createClass( {
 				</NavTabs>
 			);
 		} else {
-			let dashboard = '';
-			if ( this.props.userCanViewStats || this.props.isModuleActivated( 'protect' ) ) {
-				dashboard = (
+			navTabs = (
+				<NavTabs selectedText={ this.props.route.name }>
 					<NavItem
 						path="#/dashboard"
 						selected={ ( this.props.route.path === '/dashboard' ) || ( this.props.route.path === '/' ) }>
 						{ __( 'At a Glance', { context: 'Navigation item.' } ) }
 					</NavItem>
-				);
-			} else if ( ( this.props.route.path === '/dashboard' ) || ( this.props.route.path === '/' ) ) {
-				this.props.route.path = '/apps';
-				this.props.route.name = 'Apps';
-			}
-			navTabs = (
-				<NavTabs selectedText={ this.props.route.name }>
-					{ dashboard }
 					<NavItem
 						path="#/apps"
 						selected={ this.props.route.path === '/apps' }>

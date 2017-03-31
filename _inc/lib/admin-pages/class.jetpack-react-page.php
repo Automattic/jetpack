@@ -51,10 +51,8 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	function jetpack_add_dashboard_sub_nav_item() {
 		if ( Jetpack::is_development_mode() || Jetpack::is_active() ) {
 			global $submenu;
-			if ( current_user_can( 'jetpack_manage_modules' ) || Jetpack::is_module_active( 'protect' ) || current_user_can( 'view_stats' ) ) {
+			if ( current_user_can( 'jetpack_admin_page' ) ) {
 				$submenu['jetpack'][] = array( __( 'Dashboard', 'jetpack' ), 'jetpack_admin_page', 'admin.php?page=jetpack#/dashboard' );
-			} elseif ( current_user_can( 'jetpack_admin_page' ) ) {
-				$submenu['jetpack'][] = array( __( 'Dashboard', 'jetpack' ), 'jetpack_admin_page', 'admin.php?page=jetpack#/apps' );
 			}
 		}
 	}
