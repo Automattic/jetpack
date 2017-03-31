@@ -328,7 +328,7 @@ class A8C_WPCOM_Masterbar {
 		if ( empty( $user_id ) ) {
 			return;
 		}
-		
+
 		$avatar = get_avatar( $this->user_email, 32, 'mm', '', array( 'force_display' => true ) );
 		$class  = empty( $avatar ) ? '' : 'with-avatar';
 
@@ -853,7 +853,7 @@ class A8C_WPCOM_Masterbar {
 					'label' => __( 'People', 'jetpack' ),
 				),
 				array(
-					'url'   => '//' . esc_attr( $this->primary_site_url ) . '/wp-admin/user-new.php',
+					'url'   => admin_url( 'user-new.php' ),
 					'id'    => 'wp-admin-bar-people-add',
 					'label' => _x( 'Add', 'admin bar people item label', 'jetpack' ),
 				)
@@ -915,7 +915,7 @@ class A8C_WPCOM_Masterbar {
 					),
 				) );
 			}
-			
+
 			$wp_admin_bar->add_menu( array(
 				'parent' => 'configuration',
 				'id'     => 'blog-settings',
@@ -926,15 +926,17 @@ class A8C_WPCOM_Masterbar {
 				),
 			) );
 
-			$wp_admin_bar->add_menu( array(
-				'parent' => 'configuration',
-				'id'     => 'legacy-dashboard',
-				'title'  => __( 'WP Admin', 'jetpack' ),
-				'href'   => '//' . esc_attr( $this->primary_site_url ) . '/wp-admin/',
-				'meta'   => array(
-					'class' => 'mb-icon',
-				),
-			) );
+			if ( ! is_admin() ) {
+				$wp_admin_bar->add_menu( array(
+					'parent' => 'configuration',
+					'id'     => 'legacy-dashboard',
+					'title'  => __( 'WP Admin', 'jetpack' ),
+					'href'   => admin_url(),
+					'meta'   => array(
+						'class' => 'mb-icon',
+					),
+				) );
+			}
 		}
 	}
 }
