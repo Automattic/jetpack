@@ -939,7 +939,7 @@ class A8C_WPCOM_Masterbar {
 				$wp_admin_bar->add_menu( array(
 					'parent' => 'configuration',
 					'id'     => 'legacy-dashboard',
-					'title'  => __( 'WP Admin', 'jetpack' ),
+					'title'  => __( 'Dashboard', 'jetpack' ),
 					'href'   => admin_url(),
 					'meta'   => array(
 						'class' => 'mb-icon',
