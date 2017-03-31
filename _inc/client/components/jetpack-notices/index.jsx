@@ -86,12 +86,8 @@ export const DevModeNotice = React.createClass( {
 	render() {
 		if ( this.props.siteConnectionStatus === 'dev' ) {
 			const devMode = this.props.siteDevMode,
-				text = __( 'Currently in {{a}}Development Mode{{/a}} (some features are disabled) because:', {
-					components: {
-						a: <a href="https://jetpack.com/support/development-mode/" target="_blank" rel="noopener noreferrer" />
-					}
-				} ),
 				reasons = [];
+
 			if ( devMode.filter ) {
 				reasons.push( __( '{{li}}The jetpack_development_mode filter is active{{/li}}',
 					{
@@ -120,13 +116,19 @@ export const DevModeNotice = React.createClass( {
 				) );
 			}
 
+			const text = __( 'Currently in {{a}}Development Mode{{/a}} (some features are disabled) because: {{reasons/}}', {
+				components: {
+					a: <a href="https://jetpack.com/support/development-mode/" target="_blank" rel="noopener noreferrer" />,
+					reasons: <ul>{ reasons }</ul>
+				}
+			} );
+
 			return (
 				<SimpleNotice
 					showDismiss={ false }
 					status="is-info"
 					text={ text }
 				>
-					<ul>{ reasons }</ul>
 					<NoticeAction
 						href="https://jetpack.com/development-mode/">
 						{ __( 'Learn More' ) }
