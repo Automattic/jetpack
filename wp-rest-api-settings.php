@@ -69,7 +69,26 @@ class WP_Super_cache_Route extends WP_REST_Controller {
 		$_GET[ 'listfiles' ] = 1;
 		$sizes = wpsc_generate_sizes_array();
 		$supercachedir = get_supercache_dir();
-		return rest_ensure_response( wpsc_dirsize( $supercachedir, $sizes ) );
+		$list = wpsc_dirsize( $supercachedir, $sizes );
+		$return_list = array();
+		foreach( $list as $type => $file_list ) {
+			foreach ( $file_list as $state => $value ) {
+				if ( is_array( $value ) ) {
+					foreach( $value as $filenames ) {
+						foreach( $filenames as $filename => $t ) {
+							if ( $type == 'wpcache' ) {
+								$filename = dirname( $filename );
+							}
+							if ( false == isset( $return_list[ $type ][ $state ] ) || false == in_array( $filename, $return_list[ $type ][ $state ] ) )
+								$return_list[ $type ][ $state ][] = $filename;
+						}
+					}
+				}
+			}
+			$list[ $type ] = $return_list[ $type ];
+			unset( $return_list[ $type ] );
+		}
+		return rest_ensure_response( $list );
 	}
 	function get_cache_stats( $request ) {
 		$sizes[ 'supercache' ][ 'expired' ] = 0;
