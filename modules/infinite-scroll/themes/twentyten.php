@@ -13,12 +13,7 @@ function jetpack_twentyten_infinite_scroll_init() {
 		'container'      => 'content',
 		'render'         => 'jetpack_twentyten_infinite_scroll_render',
 		'footer'         => 'wrapper',
-		'footer_widgets' => array(
-			'first-footer-widget-area',
-			'second-footer-widget-area',
-			'third-footer-widget-area',
-			'fourth-footer-widget-area',
-		),
+		'footer_widgets' => jetpack_twentyten_has_footer_widgets(),
 	) );
 }
 add_action( 'init', 'jetpack_twentyten_infinite_scroll_init' );
@@ -43,3 +38,18 @@ function jetpack_twentyten_infinite_scroll_enqueue_styles() {
 	}
 }
 add_action( 'wp_enqueue_scripts', 'jetpack_twentyten_infinite_scroll_enqueue_styles', 25 );
+
+/**
+ * Do we have footer widgets?
+ */
+function jetpack_twentyten_has_footer_widgets() {
+	if ( is_active_sidebar( 'first-footer-widget-area' ) ||
+		is_active_sidebar( 'second-footer-widget-area' ) ||
+		is_active_sidebar( 'third-footer-widget-area'  ) ||
+		is_active_sidebar( 'fourth-footer-widget-area' ) ) {
+
+		return true;
+	}
+
+	return false;
+}
