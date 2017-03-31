@@ -24,7 +24,7 @@ class Jetpack_Connection_Banner {
 		add_action( 'current_screen', array( $this, 'maybe_initialize_hooks' ) );
 		add_action( 'updating_jetpack_version', array( $this, 'cleanup_on_upgrade' ), 10, 2 );
 	}
-	
+
 	function cleanup_on_upgrade( $new_version = null, $old_version = null ) {
 		if ( version_compare( $old_version, '4.4', '>=' ) && version_compare( $old_version, '4.5', '<' ) ) {
 			// We don't use `Jetpack_Options` here since the option is no longer in that class.
@@ -298,7 +298,7 @@ class Jetpack_Connection_Banner {
 							);
 							?>
 						</p>
-									
+
 						<p class="jp-banner__button-container">
 							<a href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, 'banner-44-slide-2' ) ); ?>" class="dops-button is-primary">
 								<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
@@ -376,7 +376,7 @@ class Jetpack_Connection_Banner {
 						<p>
 							<?php
 							esc_html_e(
-								'Use of our CDN is unlimited and scales with your site for free. You can also use it for your theme images and files to further speed up your site.',
+								'Use of our CDN is unlimited and scales with your site for free. You can also use it for your theme images to further speed up your site.',
 								'jetpack'
 							);
 							?>
