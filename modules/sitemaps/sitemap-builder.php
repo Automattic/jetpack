@@ -963,7 +963,7 @@ FOOTER
 			// Otherwise, loop through each post in the batch.
 			foreach ( $posts as $post ) {
 				// Generate the sitemap XML for the post.
-				$current_item = $this->sitemap_row_to_index_item( $post );
+				$current_item = $this->sitemap_row_to_index_item( (array) $post );
 
 				// Try adding this item to the buffer.
 				if ( true === $buffer->try_to_add_item( $current_item['xml'] ) ) {
