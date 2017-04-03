@@ -52,6 +52,11 @@ class WP_Super_cache_Route extends WP_REST_Controller {
 			'callback'            => array( $this, 'delete_cache' ),
 			'permission_callback' => array( $this, 'update_item_permissions_check' ),
 		) );
+		register_rest_route( $namespace, '/' . $base . '/deleteurl/', array(
+			'methods'             => WP_REST_Server::DELETABLE,
+			'callback'            => array( $this, 'delete_url_cache' ),
+			'permission_callback' => array( $this, 'update_item_permissions_check' ),
+		) );
 		register_rest_route( $namespace, '/' . $base . '/deleteall', array(
 			'methods'             => WP_REST_Server::DELETABLE,
 			'callback'            => array( $this, 'delete_all_cache' ),
@@ -61,6 +66,20 @@ class WP_Super_cache_Route extends WP_REST_Controller {
 			'methods'         => WP_REST_Server::READABLE,
 			'callback'        => array( $this, 'get_public_item_schema' ),
 		) );
+	}
+
+	function delete_url_cache( $request ) {
+		if ( false == isset( $request[ 'url' ] ) ) {
+			return rest_ensure_response( array( 'error' => 'missing url' ) );
+		}
+
+		global $cache_path;
+
+		$directory = $cache_path . 'supercache/' . $request[ 'url' ];
+		$return = wpsc_delete_files( $directory );
+		prune_super_cache( $directory . '/page', true );
+
+		return rest_ensure_response( array( 'deleted' => (bool)$return, 'url' => $request[ 'url' ], 'directory' => $directory ) );
 	}
 
 	function get_cache_list( $request ) {
@@ -90,6 +109,7 @@ class WP_Super_cache_Route extends WP_REST_Controller {
 		}
 		return rest_ensure_response( $list );
 	}
+
 	function get_cache_stats( $request ) {
 		$sizes[ 'supercache' ][ 'expired' ] = 0;
 		$sizes[ 'supercache' ][ 'cached' ] = 0;
@@ -100,6 +120,7 @@ class WP_Super_cache_Route extends WP_REST_Controller {
 		$supercachedir = get_supercache_dir();
 		return rest_ensure_response( wpsc_dirsize( $supercachedir, $sizes ) );
 	}
+
 	function delete_cache( $request ) {
 		global $file_prefix;
 
