@@ -47,6 +47,40 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( "foo bar baz", $remote_comment->comment_content );
 	}
 
+	public function test_unapprove_comment() {
+
+		$this->assertEquals( 1, $this->server_replica_storage->comment_count( 'approve' ) );
+
+		$this->comment->comment_approved = 0;
+
+		wp_update_comment( (array) $this->comment );
+
+		$this->sender->do_sync();
+
+		$this->assertEquals( 0, $this->server_replica_storage->comment_count( 'approve' ) );
+
+		$remote_comment = $this->server_replica_storage->get_comment( $this->comment->comment_ID );
+
+		$this->assertEquals( 0, $remote_comment->comment_approved );
+
+		$event = $this->server_event_storage->get_most_recent_event( 'comment_unapproved_' );
+
+		$this->assertTrue( (bool) $event );
+
+		//Make sure we don't get the same event about the comment changing state
+
+		$this->server_event_storage->reset();
+
+		wp_update_comment( (array) $this->comment );
+
+		$this->sender->do_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'comment_unapproved_' );
+
+		$this->assertTrue( (bool) $event );
+
+	}
+
 	public function test_trash_comment_trashes_data() {
 		$this->assertEquals( 1, $this->server_replica_storage->comment_count( 'approve' ) );
 		wp_delete_comment( $this->comment->comment_ID );
@@ -75,6 +109,13 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertEquals( 0, $this->server_replica_storage->comment_count( 'approve' ) );
 		$this->assertEquals( 1, $this->server_replica_storage->comment_count( 'trash' ) );
+
+		//Test that you don't get an event back when you try to trash the same comment again
+		$this->server_event_storage->reset();
+		wp_trash_comment( $this->comment->comment_ID );
+		$this->sender->do_sync();
+		$event = $this->server_event_storage->get_most_recent_event( 'trashed_comment' );
+		$this->assertFalse( $event );
 	}
 
 	public function test_wp_untrash_comment() {

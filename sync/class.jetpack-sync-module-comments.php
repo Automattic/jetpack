@@ -23,6 +23,21 @@ class Jetpack_Sync_Module_Comments extends Jetpack_Sync_Module {
 		add_action( 'trashed_post_comments', $callable, 10, 2 );
 		add_action( 'untrash_post_comments', $callable );
 
+		//Comment state transitions for tracking in Activity Log
+		$comment_state_transitions = [
+			'comment_approved_to_unapproved',
+			'comment_approved_to_trash',
+			'comment_approved_to_delete',
+			'comment_approved_to_trash',
+			'comment_approved_to_trash',
+			'comment_trash_to_approved',
+			'comment_approved_to_spam',
+			'comment_approved_to_delete',
+		];
+		foreach ( $comment_state_transitions as $state ) {
+			add_action( $state, $callable );
+		}
+
 		// even though it's messy, we implement these hooks because
 		// the edit_comment hook doesn't include the data
 		// so this saves us a DB read for every comment event
