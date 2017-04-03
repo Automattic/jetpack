@@ -3,6 +3,7 @@
  */
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 import { translate as __ } from 'i18n-calypso';
+import some from 'lodash/some';
 
 /**
  * Internal dependencies
@@ -103,8 +104,12 @@ export const updateSettings = ( newOptionValues, type = '' ) => {
 			newOptionValues = { post_by_email_address: 'regenerate' };
 		}
 
+		// Changes to these options affect WordPress.com Toolbar appearance,
+		// and we need to reload the page for them to take effect.
+		const reloadForOptionValues = [ 'masterbar', 'jetpack_testimonial', 'jetpack_portfolio' ];
+
 		// Adapt message for masterbar toggle, since it needs to reload.
-		if ( 'object' === typeof newOptionValues && 'masterbar' in newOptionValues ) {
+		if ( 'object' === typeof newOptionValues && some( reloadForOptionValues, ( optionValue ) => optionValue in newOptionValues ) ) {
 			messages = {
 				success: __( 'Updated settings. Refreshing page…' )
 			};

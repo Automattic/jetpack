@@ -27,6 +27,7 @@ import {
 } from 'state/action-types';
 import { getModule } from 'state/modules/reducer';
 import restApi from 'rest-api';
+import some from 'lodash/some';
 
 export const fetchModules = () => {
 	return ( dispatch ) => {
@@ -309,8 +310,10 @@ export function maybeHideNavMenuItem( module, values ) {
 	}
 }
 
-export function maybeReloadAfterAction( module ) {
-	if ( 'masterbar' in module ) {
+export function maybeReloadAfterAction( newOptionValue ) {
+	const reloadForOptionValues = [ 'masterbar', 'jetpack_testimonial', 'jetpack_portfolio'	];
+
+	if ( some( reloadForOptionValues, ( optionValue ) => optionValue in newOptionValue ) ) {
 		window.location.reload();
 	}
 }
