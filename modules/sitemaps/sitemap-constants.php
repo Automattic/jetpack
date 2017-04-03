@@ -9,7 +9,7 @@
 
 /**
  * Maximum size (in bytes) of a sitemap xml file.
- * Max is 716800 = 700kb
+ * Max is 716800 = 700kb to avoid potential failures for default memcached limits (1MB)
  *
  * @link http://www.sitemaps.org/
  * @since 4.8.0
