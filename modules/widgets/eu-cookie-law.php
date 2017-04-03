@@ -157,7 +157,7 @@ class Jetpack_EU_Cookie_Law_Widget extends WP_Widget {
 // or the user has not given their consent to accept cookies
 if ( is_admin() || empty( $_COOKIE[ Jetpack_EU_Cookie_Law_Widget::$cookie_name ] ) ) {
 	add_action( 'widgets_init', 'jetpack_register_eu_cookie_law_widget' );
-	//add_action( 'init', array( 'Jetpack_EU_Cookie_Law_Widget', 'add_consent_cookie' ) );
+	add_action( 'init', array( 'Jetpack_EU_Cookie_Law_Widget', 'add_consent_cookie' ) );
 }
 function jetpack_register_eu_cookie_law_widget() {
 	register_widget( 'Jetpack_EU_Cookie_Law_Widget' );
