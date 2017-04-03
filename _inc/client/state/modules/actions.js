@@ -46,8 +46,8 @@ export const fetchModules = () => {
 				error: error
 			} );
 		} );
-	}
-}
+	};
+};
 
 export const fetchModule = () => {
 	return ( dispatch ) => {
@@ -66,8 +66,8 @@ export const fetchModule = () => {
 				error: error
 			} );
 		} );
-	}
-}
+	};
+};
 
 export const activateModule = ( slug, reloadAfter = false ) => {
 	return ( dispatch, getState ) => {
@@ -75,6 +75,16 @@ export const activateModule = ( slug, reloadAfter = false ) => {
 			type: JETPACK_MODULE_ACTIVATE,
 			module: slug
 		} );
+		dispatch( removeNotice( 'module-toggle' ) );
+		dispatch( createNotice(
+			'is-info',
+			__( 'Activating %(slug)s…', {
+				args: {
+					slug: getModule( getState(), slug ).name
+				}
+			} ),
+			{ id: 'module-toggle' }
+		) );
 		return restApi.activateModule( slug ).then( () => {
 			dispatch( {
 				type: JETPACK_MODULE_ACTIVATE_SUCCESS,
@@ -113,8 +123,8 @@ export const activateModule = ( slug, reloadAfter = false ) => {
 				{ id: 'module-toggle' }
 			) );
 		} );
-	}
-}
+	};
+};
 
 export const deactivateModule = ( slug, reloadAfter = false ) => {
 	return ( dispatch, getState ) => {
@@ -122,6 +132,16 @@ export const deactivateModule = ( slug, reloadAfter = false ) => {
 			type: JETPACK_MODULE_DEACTIVATE,
 			module: slug
 		} );
+		dispatch( removeNotice( 'module-toggle' ) );
+		dispatch( createNotice(
+			'is-info',
+			__( 'Deactivating %(slug)s…', {
+				args: {
+					slug: getModule( getState(), slug ).name
+				}
+			} ),
+			{ id: 'module-toggle' }
+		) );
 		return restApi.deactivateModule( slug ).then( () => {
 			dispatch( {
 				type: JETPACK_MODULE_DEACTIVATE_SUCCESS,
@@ -160,11 +180,11 @@ export const deactivateModule = ( slug, reloadAfter = false ) => {
 				{ id: 'module-toggle' }
 			) );
 		} );
-	}
-}
+	};
+};
 
 export const updateModuleOptions = ( module, newOptionValues ) => {
-	let slug = module.module;
+	const slug = module.module;
 
 	return ( dispatch, getState ) => {
 		dispatch( {
@@ -220,8 +240,8 @@ export const updateModuleOptions = ( module, newOptionValues ) => {
 				{ id: `module-setting-${ slug }` }
 			) );
 		} );
-	}
-}
+	};
+};
 
 export const regeneratePostByEmailAddress = () => {
 	const slug = 'post-by-email';
@@ -285,8 +305,8 @@ export const regeneratePostByEmailAddress = () => {
 				{ id: `module-setting-${ slug }` }
 			) );
 		} );
-	}
-}
+	};
+};
 
 export function maybeHideNavMenuItem( module, values ) {
 	switch ( module ) {

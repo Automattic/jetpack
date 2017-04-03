@@ -85,6 +85,7 @@ export const updateSetting = ( updatedOption ) => {
 export const updateSettings = ( newOptionValues, type = '' ) => {
 	return ( dispatch ) => {
 		let messages = {
+				progress: __( 'Updating settings…' ),
 				success: __( 'Updated settings.' ),
 				error: error => __( 'Error updating settings. %(error)s', { args: { error: error } } )
 			},
@@ -93,6 +94,7 @@ export const updateSettings = ( newOptionValues, type = '' ) => {
 		// Adapt messages and data when regenerating Post by Email address
 		if ( 'regeneratePbE' === type ) {
 			messages = {
+				progress: __( 'Updating Post by Email address…' ),
 				success: __( 'Regenerated Post by Email address.' ),
 				error: error => __( 'Error regenerating Post by Email address. %(error)s', { args: { error: error } } )
 			};
@@ -110,10 +112,16 @@ export const updateSettings = ( newOptionValues, type = '' ) => {
 
 		// Adapt message for masterbar toggle, since it needs to reload.
 		if ( 'object' === typeof newOptionValues && some( reloadForOptionValues, ( optionValue ) => optionValue in newOptionValues ) ) {
-			messages = {
-				success: __( 'Updated settings. Refreshing page…' )
-			};
+			messages.success = __( 'Updated settings. Refreshing page…' );
 		}
+
+		dispatch( removeNotice( 'module-setting-update' ) );
+		dispatch( removeNotice( 'module-setting-update-success' ) );
+		dispatch( createNotice(
+			'is-info',
+			messages.progress,
+			{ id: 'module-setting-update' }
+		) );
 
 		dispatch( {
 			type: JETPACK_SETTINGS_UPDATE,
@@ -130,10 +138,11 @@ export const updateSettings = ( newOptionValues, type = '' ) => {
 			maybeReloadAfterAction( newOptionValues );
 
 			dispatch( removeNotice( 'module-setting-update' ) );
+			dispatch( removeNotice( 'module-setting-update-success' ) );
 			dispatch( createNotice(
 				'is-success',
 				messages.success,
-				{ id: 'module-setting-update', duration: 2000 }
+				{ id: 'module-setting-update-success', duration: 2000 }
 			) );
 		} ).catch( error => {
 			dispatch( {
