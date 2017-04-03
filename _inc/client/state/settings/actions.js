@@ -112,9 +112,7 @@ export const updateSettings = ( newOptionValues, type = '' ) => {
 
 		// Adapt message for masterbar toggle, since it needs to reload.
 		if ( 'object' === typeof newOptionValues && some( reloadForOptionValues, ( optionValue ) => optionValue in newOptionValues ) ) {
-			messages = {
-				success: __( 'Updated settings. Refreshing page…' )
-			};
+			messages.success = __( 'Updated settings. Refreshing page…' );
 		}
 
 		dispatch( removeNotice( 'module-setting-update' ) );
