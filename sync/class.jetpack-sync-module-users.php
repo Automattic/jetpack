@@ -2,7 +2,7 @@
 
 class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	const MAX_INITIAL_SYNC_USERS = 100;
-	
+
 	function name() {
 		return 'users';
 	}
@@ -42,6 +42,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		add_action( 'wp_login', $callable, 10, 2 );
 		add_action( 'wp_login_failed', $callable, 10, 2 );
 		add_action( 'wp_logout', $callable, 10, 0 );
+		add_action( 'wp_masterbar_logout', $callable, 10, 0 );
 	}
 
 	public function init_full_sync_listeners( $callable ) {
@@ -76,7 +77,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 
 	public function add_to_user( $user ) {
 		$user->allowed_mime_types = get_allowed_mime_types( $user );
-		
+
 		if ( function_exists( 'get_user_locale' ) ) {
 
 			// Only set the user locale if it is different from the site local
@@ -91,7 +92,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		list( $user ) = $args;
 
 		if ( $user ) {
-			return array( $this->add_to_user( $user ) );	
+			return array( $this->add_to_user( $user ) );
 		}
 
 		return false;
@@ -165,7 +166,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 				/**
 				 * Allow listeners to listen for user local delete changes
 				 *
-				 * @since 4.8
+				 * @since 4.8.0
 				 *
 				 * @param int $user_id - The ID of the user whos locale is being deleted
 				 */
@@ -174,11 +175,10 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 				/**
 				 * Allow listeners to listen for user local changes
 				 *
-				 * @since 4.8
+				 * @since 4.8.0
 				 *
 				 * @param int $user_id - The ID of the user whos locale is being changed
 				 * @param int $value - The value of the new locale
-				 *
 				 */
 				do_action( 'jetpack_sync_user_locale', $user_id, $value );
 			}
@@ -219,7 +219,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		global $wpdb;
 
 		$query = "SELECT count(*) FROM $wpdb->usermeta";
-		
+
 		if ( $where_sql = $this->get_where_sql( $config ) ) {
 			$query .= ' WHERE ' . $where_sql;
 		}
@@ -233,7 +233,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		global $wpdb;
 
 		$query = "meta_key = '{$wpdb->prefix}capabilities'";
-		
+
 		// config is a list of user IDs to sync
 		if ( is_array( $config ) ) {
 			$query .= ' AND user_id IN (' . implode( ',', array_map( 'intval', $config ) ) . ')';

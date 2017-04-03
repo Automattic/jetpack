@@ -2,6 +2,8 @@
 class Jetpack_RelatedPosts {
 	const VERSION = '20150408';
 	const SHORTCODE = 'jetpack-related-posts';
+	private static $instance = null;
+	private static $instance_raw = null;
 
 	/**
 	 * Creates and returns a static instance of Jetpack_RelatedPosts.
@@ -9,20 +11,18 @@ class Jetpack_RelatedPosts {
 	 * @return Jetpack_RelatedPosts
 	 */
 	public static function init() {
-		static $instance = NULL;
-
-		if ( ! $instance ) {
+		if ( ! self::$instance ) {
 			if ( class_exists('WPCOM_RelatedPosts') && method_exists( 'WPCOM_RelatedPosts', 'init' ) ) {
-				$instance = WPCOM_RelatedPosts::init();
+				self::$instance = WPCOM_RelatedPosts::init();
 			} else {
-				$instance = new Jetpack_RelatedPosts(
+				self::$instance = new Jetpack_RelatedPosts(
 					get_current_blog_id(),
 					Jetpack_Options::get_option( 'id' )
 				);
 			}
 		}
 
-		return $instance;
+		return self::$instance;
 	}
 
 	/**
@@ -31,20 +31,18 @@ class Jetpack_RelatedPosts {
 	 * @return Jetpack_RelatedPosts
 	 */
 	public static function init_raw() {
-		static $instance = NULL;
-
-		if ( ! $instance ) {
+		if ( ! self::$instance_raw ) {
 			if ( class_exists('WPCOM_RelatedPosts') && method_exists( 'WPCOM_RelatedPosts', 'init_raw' ) ) {
-				$instance = WPCOM_RelatedPosts::init_raw();
+				self::$instance_raw = WPCOM_RelatedPosts::init_raw();
 			} else {
-				$instance = new Jetpack_RelatedPosts_Raw(
+				self::$instance_raw = new Jetpack_RelatedPosts_Raw(
 					get_current_blog_id(),
 					Jetpack_Options::get_option( 'id' )
 				);
 			}
 		}
 
-		return $instance;
+		return self::$instance_raw;
 	}
 
 	protected $_blog_id_local;

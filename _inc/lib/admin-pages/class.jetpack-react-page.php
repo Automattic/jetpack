@@ -51,10 +51,8 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 	function jetpack_add_dashboard_sub_nav_item() {
 		if ( Jetpack::is_development_mode() || Jetpack::is_active() ) {
 			global $submenu;
-			if ( current_user_can( 'jetpack_manage_modules' ) || Jetpack::is_module_active( 'protect' ) || current_user_can( 'view_stats' ) ) {
+			if ( current_user_can( 'jetpack_admin_page' ) ) {
 				$submenu['jetpack'][] = array( __( 'Dashboard', 'jetpack' ), 'jetpack_admin_page', 'admin.php?page=jetpack#/dashboard' );
-			} elseif ( current_user_can( 'jetpack_admin_page' ) ) {
-				$submenu['jetpack'][] = array( __( 'Dashboard', 'jetpack' ), 'jetpack_admin_page', 'admin.php?page=jetpack#/apps' );
 			}
 		}
 	}
@@ -206,9 +204,6 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
 		}
 
-		$localeSlug = explode( '_', jetpack_get_user_locale() );
-		$localeSlug = $localeSlug[0];
-
 		// Collecting roles that can view site stats
 		$stats_roles = array();
 		$enabled_roles = function_exists( 'stats_get_option' ) ? stats_get_option( 'roles' ) : array( 'administrator' );
@@ -313,7 +308,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				),
 			),
 			'locale' => $this->get_i18n_data(),
-			'localeSlug' => $localeSlug,
+			'localeSlug' => join( '-', explode( '_', jetpack_get_user_locale() ) ),
 			'jetpackStateNotices' => array(
 				'messageCode' => Jetpack::state( 'message' ),
 				'errorCode' => Jetpack::state( 'error' ),

@@ -13,6 +13,16 @@ function jetpack_bbpress_compat() {
 		add_action( 'bbp_template_after_single_forum', 'jetpack_sharing_bbpress' );
 		add_action( 'bbp_template_after_single_topic', 'jetpack_sharing_bbpress' );
 	}
+
+	/**
+	 * Use Photon for all images in Topics and replies.
+	 *
+	 * @since 4.9.0
+	 */
+	if ( class_exists( 'Jetpack_Photon' ) && Jetpack::is_module_active( 'photon' ) ) {
+		add_filter( 'bbp_get_topic_content', array( 'Jetpack_Photon', 'filter_the_content' ), 999999 );
+		add_filter( 'bbp_get_reply_content', array( 'Jetpack_Photon', 'filter_the_content' ), 999999 );
+	}
 }
 
 /**

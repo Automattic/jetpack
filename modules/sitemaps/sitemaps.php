@@ -27,7 +27,7 @@
  *
  * @package Jetpack
  * @since 3.9.0
- * @since 4.7.0 Remove 1000 post limit.
+ * @since 4.8.0 Remove 1000 post limit.
  * @author Automattic
  */
 
@@ -38,34 +38,34 @@ require_once dirname( __FILE__ ) . '/sitemap-librarian.php';
 require_once dirname( __FILE__ ) . '/sitemap-finder.php';
 require_once dirname( __FILE__ ) . '/sitemap-builder.php';
 
-if ( defined( 'WP_DEBUG' ) && ( true === WP_DEBUG ) ) {
+if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 	require_once dirname( __FILE__ ) . '/sitemap-logger.php';
 }
 
 /**
  * Governs the generation, storage, and serving of sitemaps.
  *
- * @since 4.7.0
+ * @since 4.8.0
  */
 class Jetpack_Sitemap_Manager {
 
 	/**
 	 * @see Jetpack_Sitemap_Librarian
-	 * @since 4.7.0
+	 * @since 4.8.0
 	 * @var Jetpack_Sitemap_Librarian $librarian Librarian object for storing and retrieving sitemap data.
 	 */
 	private $librarian;
 
 	/**
 	 * @see Jetpack_Sitemap_Logger
-	 * @since 4.7.0
+	 * @since 4.8.0
 	 * @var Jetpack_Sitemap_Logger $logger Logger object for reporting debug messages.
 	 */
 	private $logger;
 
 	/**
 	 * @see Jetpack_Sitemap_Finder
-	 * @since 4.7.0
+	 * @since 4.8.0
 	 * @var Jetpack_Sitemap_Finder $finder Finder object for dealing with sitemap URIs.
 	 */
 	private $finder;
@@ -74,7 +74,7 @@ class Jetpack_Sitemap_Manager {
 	 * Construct a new Jetpack_Sitemap_Manager.
 	 *
 	 * @access public
-	 * @since 4.7.0
+	 * @since 4.8.0
 	 */
 	public function __construct() {
 		$this->librarian = new Jetpack_Sitemap_Librarian();
@@ -129,7 +129,7 @@ class Jetpack_Sitemap_Manager {
 	 * Echo a raw string of given content-type.
 	 *
 	 * @access private
-	 * @since 4.7.0
+	 * @since 4.8.0
 	 *
 	 * @param string $the_content_type The content type to be served.
 	 * @param string $the_content The string to be echoed.
@@ -139,6 +139,13 @@ class Jetpack_Sitemap_Manager {
 
 		if ( '' === $the_content ) {
 			http_response_code( 404 );
+			wp_die(
+				esc_html__( "No sitemap found. Maybe it's being generated. Please try again later.", 'jetpack' ),
+				esc_html__( 'Sitemaps', 'jetpack' ),
+				array(
+					'response' => 404,
+				)
+			);
 		}
 
 		echo $the_content;
@@ -150,7 +157,7 @@ class Jetpack_Sitemap_Manager {
 	 * Callback to intercept sitemap url requests and serve sitemap files.
 	 *
 	 * @access public
-	 * @since 4.7.0
+	 * @since 4.8.0
 	 */
 	public function callback_action_catch_sitemap_urls() {
 		// Regular expressions for sitemap URL routing.
@@ -329,7 +336,7 @@ class Jetpack_Sitemap_Manager {
 	 * Callback for adding sitemap-interval to the list of schedules.
 	 *
 	 * @access public
-	 * @since 4.7.0
+	 * @since 4.8.0
 	 *
 	 * @param array $schedules The array of WP_Cron schedules.
 	 *
@@ -348,7 +355,7 @@ class Jetpack_Sitemap_Manager {
 	 * Should only be called once, in the constructor.
 	 *
 	 * @access private
-	 * @since 4.7.0
+	 * @since 4.8.0
 	 */
 	private function schedule_sitemap_generation() {
 		// Add cron schedule.
@@ -376,7 +383,7 @@ class Jetpack_Sitemap_Manager {
 	 * Callback to add sitemap to robots.txt.
 	 *
 	 * @access public
-	 * @since 4.7.0
+	 * @since 4.8.0
 	 */
 	public function callback_action_do_robotstxt() {
 
@@ -417,7 +424,7 @@ class Jetpack_Sitemap_Manager {
 	 * Callback to delete the news sitemap cache.
 	 *
 	 * @access public
-	 * @since 4.7.0
+	 * @since 4.8.0
 	 */
 	public function callback_action_flush_news_sitemap_cache() {
 		delete_transient( 'jetpack_news_sitemap_xml' );
@@ -427,7 +434,7 @@ class Jetpack_Sitemap_Manager {
 	 * Callback to set the sitemap location.
 	 *
 	 * @access public
-	 * @since 4.7.0
+	 * @since 4.8.0
 	 */
 	public function callback_action_filter_sitemap_location() {
 		update_option(
@@ -461,7 +468,7 @@ class Jetpack_Sitemap_Manager {
 			 * @link https://tools.ietf.org/html/rfc3986#section-3.3 RFC 3986
 			 * @link http://www.sitemaps.org/ The sitemap protocol
 			 *
-			 * @since 4.7.0
+			 * @since 4.8.0
 			 */
 			apply_filters(
 				'jetpack_sitemap_location',

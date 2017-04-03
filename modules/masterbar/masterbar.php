@@ -63,6 +63,8 @@ class A8C_WPCOM_Masterbar {
 			// Override Notification module to include RTL styles
 			add_action( 'a8c_wpcom_masterbar_enqueue_rtl_notification_styles', '__return_true' );
 		}
+
+		add_action( 'wp_logout', array( $this, 'maybe_logout_user_from_wpcom' ) );
 	}
 
 	public function is_automated_transfer_site() {
@@ -77,6 +79,12 @@ class A8C_WPCOM_Masterbar {
 		}
 
 		return false;
+	}
+
+	public function maybe_logout_user_from_wpcom() {
+		if ( isset( $_GET['context'] ) && 'masterbar' === $_GET['context'] ) {
+			do_action( 'wp_masterbar_logout' );
+		}
 	}
 
 	public function get_rtl_admin_bar_class() {
@@ -328,7 +336,7 @@ class A8C_WPCOM_Masterbar {
 		if ( empty( $user_id ) ) {
 			return;
 		}
-		
+
 		$avatar = get_avatar( $this->user_email, 32, 'mm', '', array( 'force_display' => true ) );
 		$class  = empty( $avatar ) ? '' : 'with-avatar';
 
@@ -352,6 +360,7 @@ class A8C_WPCOM_Masterbar {
 		$settings_url = 'https://wordpress.com/me/account';
 
 		$logout_url = wp_logout_url();
+		$logout_url = add_query_arg( 'context', 'masterbar', $logout_url );
 
 		$user_info  = get_avatar( $this->user_email, 128, 'mm', '', array( 'force_display' => true ) );
 		$user_info .= '<span class="display-name">' . $this->display_name . '</span>';
@@ -853,7 +862,7 @@ class A8C_WPCOM_Masterbar {
 					'label' => __( 'People', 'jetpack' ),
 				),
 				array(
-					'url'   => '//' . esc_attr( $this->primary_site_url ) . '/wp-admin/user-new.php',
+					'url'   => admin_url( 'user-new.php' ),
 					'id'    => 'wp-admin-bar-people-add',
 					'label' => _x( 'Add', 'admin bar people item label', 'jetpack' ),
 				)
@@ -916,7 +925,6 @@ class A8C_WPCOM_Masterbar {
 				) );
 			}
 
-
 			$wp_admin_bar->add_menu( array(
 				'parent' => 'configuration',
 				'id'     => 'blog-settings',
@@ -927,12 +935,12 @@ class A8C_WPCOM_Masterbar {
 				),
 			) );
 
-			if ( $this->is_automated_transfer_site() ) {
+			if ( ! is_admin() ) {
 				$wp_admin_bar->add_menu( array(
 					'parent' => 'configuration',
 					'id'     => 'legacy-dashboard',
-					'title'  => __( 'WP Admin', 'jetpack' ),
-					'href'   => '//' . esc_attr( $this->primary_site_url ) . '/wp-admin/',
+					'title'  => __( 'Dashboard', 'jetpack' ),
+					'href'   => admin_url(),
 					'meta'   => array(
 						'class' => 'mb-icon',
 					),
