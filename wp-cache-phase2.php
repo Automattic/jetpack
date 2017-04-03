@@ -755,6 +755,15 @@ function wp_cache_phase2_clean_cache($file_prefix) {
 function prune_super_cache( $directory, $force = false, $rename = false ) {
 	global $cache_max_time, $cache_path, $cache_rebuild_files, $blog_cache_dir;
 	static $log = 0;
+	static $rp_cache_path = '';
+
+	$rp_cache_path = trailingslashit( realpath( $cache_path ) );
+
+	$directory = trailingslashit( realpath( $directory ) );
+	if ( substr( $directory, 0, strlen( $rp_cache_path ) ) != $rp_cache_path ) {
+		wp_cache_debug( "prune_super_cache: exiting as directory is not in cache path: $directory" );
+		return false;
+	}
 
 	if ( false == @file_exists( $directory ) ) {
 		wp_cache_debug( "prune_super_cache: exiting as file/dir does not exist: $directory" );
