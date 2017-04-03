@@ -13,7 +13,7 @@ require_once dirname( __FILE__ ) . '/sitemap-librarian.php';
 require_once dirname( __FILE__ ) . '/sitemap-finder.php';
 require_once dirname( __FILE__ ) . '/sitemap-state.php';
 
-if ( defined( 'WP_DEBUG' ) && ( true === WP_DEBUG ) ) {
+if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 	require_once dirname( __FILE__ ) . '/sitemap-logger.php';
 }
 
@@ -55,28 +55,16 @@ class Jetpack_Sitemap_Builder {
 	private $finder;
 
 	/**
-	 * Flag to know if this module is being activated.
-	 *
-	 * @access private
-	 * @since 4.8.0
-	 * @var bool $is_activation
-	 */
-	private $is_activation;
-
-	/**
 	 * Construct a new Jetpack_Sitemap_Builder object.
 	 *
 	 * @access public
-	 * @since  4.8.0
-	 *
-	 * @param bool $is_activation True if this is this module is being activated.
+	 * @since 4.8.0
 	 */
-	public function __construct( $is_activation = false ) {
-		$this->is_activation = $is_activation;
+	public function __construct() {
 		$this->librarian = new Jetpack_Sitemap_Librarian();
 		$this->finder = new Jetpack_Sitemap_Finder();
 
-		if ( defined( 'WP_DEBUG' ) && WP_DEBUG && ! $this->is_activation ) {
+		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
 			$this->logger = new Jetpack_Sitemap_Logger();
 		}
 
@@ -205,20 +193,14 @@ class Jetpack_Sitemap_Builder {
 					$this->logger->time();
 				}
 
-				if ( ! $this->is_activation ) {
-					die();
-				}
-				break;
+				die();
 
 			default:
 				// Otherwise, reset the state.
 				Jetpack_Sitemap_State::reset(
 					JP_PAGE_SITEMAP_TYPE
 				);
-
-				if ( ! $this->is_activation ) {
-					die();
-				}
+				die();
 		}
 
 		// Unlock the state.

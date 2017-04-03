@@ -10,11 +10,25 @@
  * Additional Search Queries: sitemap, traffic, search, site map, seo
  */
 
+/**
+ * Disable direct access and execution.
+ */
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 if ( '1' == get_option( 'blog_public' ) ) {
 	include_once 'sitemaps/sitemaps.php';
 }
 
-function jetpack_sitemap_generate_on_activate() {
+add_action( 'jetpack_activate_module_sitemaps', 'jetpack_sitemap_on_activate' );
+
+/**
+ * Run when Sitemaps module is activated.
+ *
+ * @since 4.8.0
+ */
+function jetpack_sitemap_on_activate() {
 	require_once dirname( __FILE__ ) . '/sitemaps/sitemap-constants.php';
 	require_once dirname( __FILE__ ) . '/sitemaps/sitemap-buffer.php';
 	require_once dirname( __FILE__ ) . '/sitemaps/sitemap-stylist.php';
@@ -23,8 +37,10 @@ function jetpack_sitemap_generate_on_activate() {
 	require_once dirname( __FILE__ ) . '/sitemaps/sitemap-builder.php';
 
 	wp_clear_scheduled_hook( 'jp_sitemap_cron_hook' );
-	// Tell build that it's true we're activating this module.
-	$sitemap_builder = new Jetpack_Sitemap_Builder( true );
-	$sitemap_builder->update_sitemap();
+	wp_clear_scheduled_hook( 'jetpack_sitemap_generate_on_activate' );
+
+	$sitemap_builder = new Jetpack_Sitemap_Builder();
+	add_action( 'jetpack_sitemap_generate_on_activate', array( $sitemap_builder, 'update_sitemap' ) );
+
+	wp_schedule_single_event( time(), 'jetpack_sitemap_generate_on_activate' );
 }
-add_action( 'jetpack_activate_module_sitemaps', 'jetpack_sitemap_generate_on_activate' );
