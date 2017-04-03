@@ -124,6 +124,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * oEmbed: add Apple/iCloud Keynote provider. #6790
 * Open Graph: make sure transients are used to save image IDs. #6632
 * Photon: add new filter to allow running Photon in wp-admin as well. #6702
+* Photon: use Photon for all images in bbPress topics and replies. #6802
 * Widgets: allow the use of full URLs in the Social Media Icons widget. #6508
 * Widgets: allow links to open in a new window when adding custom links in the Milestone widget. #6778
 * Sync: synchronize the `sync_via_cron` setting as well. #6477
