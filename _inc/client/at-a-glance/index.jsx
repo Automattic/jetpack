@@ -35,8 +35,7 @@ const AtAGlance = React.createClass( {
 				siteAdminUrl: this.props.siteAdminUrl,
 				siteRawUrl: this.props.siteRawUrl
 			},
-			securityHeader = this.props.isModuleActivated( 'protect' ) &&
-				<DashSectionHeader
+			securityHeader = <DashSectionHeader
 					label={ __( 'Security' ) }
 					settingsPath="#security"
 					externalLink={
@@ -133,7 +132,7 @@ const AtAGlance = React.createClass( {
 					{ stats	}
 					{
 						// Site Security
-						securityHeader
+						this.props.isModuleActivated( 'protect' ) && securityHeader
 					}
 					{ protect }
 					{ connections }
