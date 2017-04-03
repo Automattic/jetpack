@@ -54,7 +54,7 @@ export const NavigationSettings = React.createClass( {
 			keyword = term[ 0 ].split( '=' )[ 1 ];
 		}
 
-		this.props.searchForTerm( keyword );
+		this.props.searchForTerm( decodeURIComponent( keyword ) );
 	},
 
 	maybeShowSearch() {
