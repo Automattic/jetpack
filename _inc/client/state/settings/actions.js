@@ -116,6 +116,7 @@ export const updateSettings = ( newOptionValues, type = '' ) => {
 		}
 
 		dispatch( removeNotice( 'module-setting-update' ) );
+		dispatch( removeNotice( 'module-setting-update-success' ) );
 		dispatch( createNotice(
 			'is-info',
 			messages.progress,
@@ -137,10 +138,11 @@ export const updateSettings = ( newOptionValues, type = '' ) => {
 			maybeReloadAfterAction( newOptionValues );
 
 			dispatch( removeNotice( 'module-setting-update' ) );
+			dispatch( removeNotice( 'module-setting-update-success' ) );
 			dispatch( createNotice(
 				'is-success',
 				messages.success,
-				{ id: 'module-setting-update', duration: 2000 }
+				{ id: 'module-setting-update-success', duration: 2000 }
 			) );
 		} ).catch( error => {
 			dispatch( {
