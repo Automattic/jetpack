@@ -757,7 +757,9 @@ function prune_super_cache( $directory, $force = false, $rename = false ) {
 	static $log = 0;
 	static $rp_cache_path = '';
 
-	$rp_cache_path = trailingslashit( realpath( $cache_path ) );
+	if ( $rp_cache_path == '' ) {
+		$rp_cache_path = trailingslashit( realpath( $cache_path ) );
+	}
 
 	$directory = trailingslashit( realpath( $directory ) );
 	if ( substr( $directory, 0, strlen( $rp_cache_path ) ) != $rp_cache_path ) {
