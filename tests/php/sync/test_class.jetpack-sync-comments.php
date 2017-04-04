@@ -63,9 +63,13 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertEquals( 0, $remote_comment->comment_approved );
 
-		$event = $this->server_event_storage->get_most_recent_event( 'comment_unapproved_' );
+		$comment_unapproved_event = $this->server_event_storage->get_most_recent_event( 'comment_unapproved_' );
 
-		$this->assertTrue( (bool) $event );
+		$this->assertTrue( (bool) $comment_unapproved_event );
+
+		$comment_approved_to_unapproved_event = $this->server_event_storage->get_most_recent_event( 'comment_approved_to_unapproved' );
+
+		$this->assertTrue( (bool) $comment_approved_to_unapproved_event );
 
 		//Make sure we don't get the same event about the comment changing state
 
@@ -75,10 +79,13 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 
 		$this->sender->do_sync();
 
-		$event = $this->server_event_storage->get_most_recent_event( 'comment_unapproved_' );
+		$comment_unapproved_event = $this->server_event_storage->get_most_recent_event( 'comment_unapproved_' );
 
-		$this->assertTrue( (bool) $event );
+		$this->assertTrue( (bool) $comment_unapproved_event );
 
+		$comment_approved_to_unapproved_event = $this->server_event_storage->get_most_recent_event( 'comment_approved_to_unapproved' );
+
+		$this->assertFalse( (bool) $comment_approved_to_unapproved_event );
 	}
 
 	public function test_trash_comment_trashes_data() {
