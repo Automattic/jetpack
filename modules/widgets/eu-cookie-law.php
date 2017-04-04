@@ -16,6 +16,7 @@ class Jetpack_EU_Cookie_Law_Widget extends WP_Widget {
 	function __construct() {
 		parent::__construct(
 			'eu_cookie_law_widget',
+			/** This filter is documented in modules/widgets/facebook-likebox.php */
 			apply_filters( 'jetpack_widget_name', esc_html__( 'EU Cookie Law Banner', 'jetpack' ) ),
 			array(
 				'description' => esc_html__( 'Display a banner for compliance with the EU Cookie Law.', 'jetpack' ),
@@ -45,6 +46,7 @@ class Jetpack_EU_Cookie_Law_Widget extends WP_Widget {
 	public function widget( $args, $instance ) {
 		$this->instance = wp_parse_args( $instance, $this->defaults );
 
+		/** This action is already documented in modules/widgets/gravatar-profile.php */
 		do_action( 'jetpack_stats_extra', 'widget_view', 'eu_cookie_law' );
 
 		add_action( 'wp_footer', array( $this, 'footer' ) );
