@@ -46,7 +46,7 @@ export const JetpackDisconnectDialog = React.createClass( {
 						icon: 'history'
 					},
 					{
-						text: __( 'Priority WordPress and security support' ),
+						text: __( 'Priority support' ),
 						icon: 'chat'
 					},
 					{
@@ -66,7 +66,7 @@ export const JetpackDisconnectDialog = React.createClass( {
 						icon: 'spam'
 					},
 					{
-						text: __( 'Priority WordPress and security support' ),
+						text: __( 'Priority support' ),
 						icon: 'chat'
 					},
 					{
@@ -86,7 +86,7 @@ export const JetpackDisconnectDialog = React.createClass( {
 						icon: 'spam'
 					},
 					{
-						text: __( 'Priority WordPress and security support' ),
+						text: __( 'Priority support' ),
 						icon: 'chat'
 					},
 					{
