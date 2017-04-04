@@ -448,7 +448,7 @@ class WP_Super_cache_Route extends WP_REST_Controller {
 			$value = $$name;
 			$settings[ $name ] = $value;
 		}
-		return new WP_REST_Response( $this->prepare_item_for_response( $settings, $request ), 200 );
+		return $this->prepare_item_for_response( $settings, $request );
 	}
 
 	/**
