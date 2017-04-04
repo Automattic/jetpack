@@ -15,7 +15,10 @@ import analytics from 'lib/analytics';
 import {
 	PLAN_JETPACK_PERSONAL
 } from 'lib/plans/constants';
-import { getSiteRawUrl } from 'state/initial-state';
+import {
+	getSiteRawUrl,
+	isAutomatedTransfer
+} from 'state/initial-state';
 import {
 	getSitePlan,
 	isFetchingSiteData
@@ -81,12 +84,20 @@ const SupportCard = React.createClass( {
 						<p className="jp-support-card__description">
 							<Button
 								onClick={ this.trackAskQuestionClick }
-								href="https://jetpack.com/contact-support/">
+								href={ this.props.isAutomatedTransfer
+									? 'https://wordpress.com/help/contact/'
+									: 'https://jetpack.com/contact-support/'
+								}
+							>
 								{ __( 'Ask a question' ) }
 							</Button>
 							<Button
 								onClick={ this.trackSearchClick }
-								href="https://jetpack.com/support/">
+								href={ this.props.isAutomatedTransfer
+									? 'https://wordpress.com/help/'
+									: 'https://jetpack.com/support/'
+								}
+							>
 								{ __( 'Search our support site' ) }
 							</Button>
 						</p>
@@ -117,7 +128,8 @@ export default connect(
 		return {
 			sitePlan: getSitePlan( state ),
 			siteRawUrl: getSiteRawUrl( state ),
-			isFetchingSiteData: isFetchingSiteData( state )
+			isFetchingSiteData: isFetchingSiteData( state ),
+			isAutomatedTransfer: isAutomatedTransfer( state )
 		};
 	}
 )( SupportCard );
