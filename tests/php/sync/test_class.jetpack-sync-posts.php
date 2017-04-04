@@ -60,7 +60,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		wp_delete_post( $this->post->ID );
 		$this->sender->do_sync();
 		
-		// Since the post status is not changing here we don't exect the post be trashed again.
+		// Since the post status is not changing here we don't expect the post to be trashed again.
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_trashed_post' );
 		$this->assertFalse( (bool) $event );
 	}
