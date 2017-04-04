@@ -482,3 +482,41 @@ class Jetpack_Sitemap_Manager {
 } // End Jetpack_Sitemap_Manager class.
 
 new Jetpack_Sitemap_Manager();
+
+/**
+ * Absolute URL of the current blog's sitemap.
+ *
+ * @module sitemaps
+ *
+ * @since  3.9.0
+ * @since  4.8.1 Code uses method found in Jetpack_Sitemap_Finder::construct_sitemap_url in 4.8.0.
+ *                It has been moved here to avoid fatal errors with other plugins that were expecting to find this function.
+ *
+ * @param string $filename Sitemap file name. Defaults to 'sitemap.xml', the initial sitemaps page.
+ *
+ * @return string Sitemap URL.
+ */
+function jetpack_sitemap_uri( $filename = 'sitemap.xml' ) {
+	global $wp_rewrite;
+
+	$location = Jetpack_Options::get_option_and_ensure_autoload( 'jetpack_sitemap_location', '' );
+
+	if ( $wp_rewrite->using_index_permalinks() ) {
+		$sitemap_url = home_url( '/index.php' . $location . '/' . $filename );
+	} elseif ( $wp_rewrite->using_permalinks() ) {
+		$sitemap_url = home_url( $location . '/' . $filename );
+	} else {
+		$sitemap_url = home_url( $location . '/?jetpack-sitemap=' . $filename );
+	}
+
+	/**
+	 * Filter sitemap URL relative to home URL.
+	 *
+	 * @module sitemaps
+	 *
+	 * @since 3.9.0
+	 *
+	 * @param string $sitemap_url Sitemap URL.
+	 */
+	return apply_filters( 'jetpack_sitemap_location', $sitemap_url );
+}
