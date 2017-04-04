@@ -56,8 +56,7 @@ export const ShareButtons = moduleSettingsForm(
 							toggling={ this.props.isSavingAnyOption( 'sharedaddy' ) }
 							toggleModule={ this.props.toggleModuleNow }>
 							{
-								__( 'Sharing buttons can be added to your posts so that your users can share your content to their social ' +
-									'networks and show their support.' )
+								__( 'Add sharing buttons to your posts' )
 							}
 							</ModuleToggle>
 					</SettingsGroup>

@@ -69,8 +69,7 @@ export const Publicize = moduleSettingsForm(
 							toggling={ this.props.isSavingAnyOption( 'publicize' ) }
 							toggleModule={ this.props.toggleModuleNow }>
 							{
-								__( 'Publicize lets you connect your site to various social networking services.  Once connected to a ' +
-									'service, you can share your posts with that service automatically.' )
+								__( 'Automatically share your posts to social networks' )
 							}
 							</ModuleToggle>
 					</SettingsGroup>
