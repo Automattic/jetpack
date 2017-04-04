@@ -51,10 +51,10 @@ Create a connection with your readers and keep them coming back to your site wit
 We have an entire team of Happiness Engineers ready to help you. Ask your questions in the support forum, or [contact us directly](https://jetpack.com/contact-support).
 
 = Paid Services =
-Most of Jetpack's features and services are free. Jetpack also provides advanced security and backup services, video hosting, site monetization, priority support, and more SEO tools in three [simple and affordable plans](https://jetpack.com/pricing).
+Most of Jetpack's features and services are free. Jetpack also provides advanced security and backup services, video hosting, site monetization, priority support, and more SEO tools in three [simple and affordable plans](https://jetpack.com/pricing?from=wporg).
 
 = Get Started =
-Installation is free, quick, and easy. Set up <a href="https://jetpack.com/install?from=wporg" rel="nofollow">the free plan</a> in minutes.
+Installation is free, quick, and easy. Set up <a href="https://jetpack.com/install?from=wporg">the free plan</a> in minutes.
 
 == Installation ==
 
@@ -74,7 +74,7 @@ These include: [site stats](https://jetpack.com/features/traffic/site-stats), a 
 = Should I purchase a paid plan? =
 Jetpack's paid services include automated backups, security scanning, spam filtering, video hosting, site monetization, SEO tools, and priority support.
 
-If you're interested in learning more about the extra layers of protection and advanced tools available, learn more about our [paid plans](https://jetpack.com/pricing).
+If you're interested in learning more about the extra layers of protection and advanced tools available, learn more about our [paid plans](https://jetpack.com/pricing?from=wporg).
 
 = Why do I need a WordPress.com account? =
 
@@ -108,76 +108,70 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Release date: April 4th, 2017
 * Release post: http://wp.me/p1moTy-4gA
 
-**Enhancements**
+**Major Enhancements**
 
-* Admin Interface: continued improvements to the admin interface to make it easier to navigate the list of Jetpack options and create a unified experience with the WordPress.com dashboard. #5461
-* WordPress.com Toolbar: add a new Admin bar providing quick access to the WordPress.com site management interface, right from your self-hosted site's dashboard. #6413
+* Easier to navigate Jetpack's feature settings in your dashboard and WordPress.com.
+* New WordPress.com Toolbar provides quick access to site management, stats, and other services.
+* New MailChimp Subscribe Popup widget.
+* Sitemaps is faster and now supports sites with a very large amount of posts.
+* Contact Form now has a plain-text alternative and better avoids spam filters.
+* Debug form includes extra information to better prioritize your support requests.
+* Photon now also works in wp-admin and supports bbPress topics and replies.
 
-* Admin Page: change wording in Stats dashboard to avoid confusion. #6710
-* Contact Form: add a plain-text alternative to outbound messages. #6671
-* Contact Form: wrap mail messages in HTML tags to avoid spam filters. #6658
-* Debug: include more information in the built-in contact form to help prioritizing your requests for support. #6705
-* Featured Content: change wording in options to avoid confusion. #6684
-* Infinite Scroll: change button text on taxonomy page. #6584
-* Infinite Scroll: add a new filter to short-circuit the `is_last_batch()` method. #6731
-* Internationalization: remove custom Slovakian language files and rely on WordPress.org's language packs instead. Kudos to the Slovakian translation team! #6777
-* Internationalization: update custom language packs for multiple languages. #6816
-* oEmbed: add Apple/iCloud Keynote provider. #6790
-* Open Graph: make sure transients are used to save image IDs. #6632
-* Photon: add new filter to allow running Photon in wp-admin as well. #6702
-* Photon: use Photon for all images in bbPress topics and replies. #6802
-* Widgets: allow the use of full URLs in the Social Media Icons widget. #6508
-* Widgets: allow links to open in a new window when adding custom links in the Milestone widget. #6778
-* Sync: synchronize the `sync_via_cron` setting as well. #6477
-* VideoPress: ensure VideoPress videos can be used as header video in themes that support it, like Twenty Seventeen. #6590
-* WordPress.com REST API: return plan data from WordPress.com directly. #6249
-* Widgets: extract timezone offset method from Upcoming Events Widget so it can be used by other features as well. #6721
-* Widgets: add MailChimp Subscribe Popup widget. #6344
+**Slightly Less Exciting Enhancements:**
+
+* Improved previously confusing wording in Stats dashboard, and Featured Content options.
+* Added Apple/iCloud Keynote provider to oEmbed.
+* Changed Infinite Scroll button text on taxonomy page and added a new filter to short-circuit the `is_last_batch()` method.
+* Open Graph now uses transients to save image IDs.
+* You can now use full URLs in the Social Media Icons widget.
+* Milestone widget now allows custom links to open in a new window.
+* VideoPress videos can be used as headers in themes that support it, like Twenty Seventeen.
+* Extracted the timezone offset method from the Upcoming Events widget so it can be used by other features.
 
 **Performance Improvements**
 
-* Update process: retain hashes for current and current-1 versions to mitigate database load during update on large sites which have multiple web servers. #6637
-* Multisite: store the `jetpack_file_data` option in the `wp_sitemeta` table in multisite networks, to save disk storage on very large multisite networks. #5763
-* Sitemaps: improve performance and support sites with a very large amount of posts. #5503
+* Database load is reduced during updates on large sites with multiple servers by retaining hashes for current and current-1 versions.
+* Disk storage is reduced on large multisite networks by storing the `jetpack_file_data` option in the `wp_sitemeta` table.
+* Jetpack plan data now uses the WordPress.com REST API.
+* Slovakian language files now rely on WordPress.org's language packs.
 
-**Accessibility**
+**Accessibility Improvements**
 
-* Content Options: Improve post details clipping. #6582
+* Improved post details clipping for better screen reader support.
+* Updated custom language packs for multiple languages.
 
-**Security**
+**Security Improvements**
 
-* Avoid path disclosure in PHP error messages via cookies. #6572
+* We now avoid path disclosure via cookies in PHP error messages.
 
-**Improved Compatibility**
+**Compatibility Improvements**
 
-* General: remove deprecated functions, `get_theme` & `get_current_theme`. #6775
-* Publicize: make sure posts posted programmatically via plugins like WP Recipe Maker can be publicized. #6542
-* Publicize: remove the "Head, Footer and Post Injections" plugin from the list of conflicting plugins. #6611
-* Sync: better support for WooCommerce data sync and backup. #6478
-* Sync: synchronize user's chosen language if it is different from the site language. #6053
-* Sync: support WP Super Cache globals and constants for a better interaction with WP Super Cache from WordPress.com. #6482
-* Sync: allow editing synchronization settings from the WordPress.com REST API to allow support to help troubleshoot sync issues. #6639
-* Sync: stop syncing post types from the WordPress Automatic Plugin and RSS AutoPilot to avoid synchronization issues. #6711
+* Removed deprecated functions `get_theme` and `get_current_theme`.
+* Publicize now works with third-party plugins like WP Recipe Maker and no longer conflicts with the "Head, Footer and Post Injections" plugin.
+* Better support for WooCommerce data sync and backup.
+* We now also sync the `sync_via_cron` setting, the user's chosen language, and WP Super Cache's globals and constants.
+* We no longer sync post types from the WordPress Automatic Plugin and RSS AutoPilot to avoid synchronization issues.
+* Sync settings can now be edited from the WordPress.com REST API to better troubleshoot sync issues.
 
 **Bug Fixes**
 
-* Admin Page: make sure Gravatar is always displayed in Settings. #6555
-* Admin Page: always use relative links for submenu items to account for servers with specific restrictions. #6529
-* Contact Form: avoid PHP notices when using the form in a Text widget. #6606
-* Content Options: Fix single characters word count excerpt issue on sites with multibyte languages. #6566
-* Internationalization: fix administrator area translations for several languages. #6805
-* Internationalization: add proper support for Formal/Informal translation versions for languages that support them.
-* Open Graph: make sure Site Icons are used as fallback Open Graph Image tags. #6632
-* Protect: remove port number when server returns a port alongside each stored IP address. #6755
-* Related Posts: ensure that more than 1,024 posts can be excluded from Related Posts thanks to filters. #6707
-* Subscriptions: show the correct notification in the subscription form when the email is already subscribed. #6603
-* Sharing: avoid syntax errors due to unexpected characters in the from name when using the Email sharing button. #6769
-* Sync: remove deprecated `jetpack_publicize_post` action. #6567
-* Sync: make sure it is possible to retrieve synchronization options from the WordPress.com REST API. #6789
-* VideoPress: avoid PHP Notices when fetching information about a video. #6527
-* Widgets: update Instagram base URL to use www in the Social Media Icons Widget. #6635
-* Widgets: escape all values entered in Facebook Page Plugin Widget settings. #6721
-* Widget Visibility: avoid memory issues on sites with a lot of registered users. #6699
+* Gravatar is always displayed in Settings.
+* Submenu items always use relative links.
+* Contact Form avoids PHP notices when using the form in a Text widget.
+* Content Options now correctly displays single characters word count on sites with multibyte languages.
+* Administrator area translations fixed for several languages.
+* Added proper support for Formal/Informal translation versions for languages that support them.
+* Site Icons are always used as fallback Open Graph Image tags.
+* Protect removes port number when server returns a port alongside a stored IP address.
+* Filters ensure that more than 1,024 posts can be excluded from Related Posts.
+* When the email is already subscribed we now show the correct notification in the subscription form.
+* When using the Email sharing button, we now avoid syntax errors due to unexpected characters in the from name.
+* Remove deprecated `jetpack_publicize_post` action.
+* VideoPress now avoids PHP Notices when fetching video information.
+* Instagram base URL now uses `www` in the Social Media Icons widget.
+* All values entered in Facebook Page Plugin widget settings are now escaped.
+* Widget Visibility now avoids memory issues on sites with a lot of registered users.
 
 = 4.7.1 =
 
