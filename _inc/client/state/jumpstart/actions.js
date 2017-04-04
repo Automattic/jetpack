@@ -34,7 +34,7 @@ export const jumpStartActivate = () => {
 			} );
 			analytics.tracks.recordEvent( 'jetpack_wpa_jumpstart_submit', {} );
 			dispatch( removeNotice( 'jumpstart-activate' ) );
-			dispatch( createNotice( 'is-success', __( 'Recommended features active.' ), { id: 'jumpstart-activate' } ) );
+			dispatch( createNotice( 'is-success', __( 'Recommended features active.' ), { id: 'jumpstart-activate', duration: 2000 } ) );
 			dispatch( fetchModules() );
 		} ).catch( error => {
 			dispatch( {
@@ -52,8 +52,8 @@ export const jumpStartActivate = () => {
 				{ id: 'jumpstart-activate' }
 			) );
 		} );
-	}
-}
+	};
+};
 
 const history = createHistory();
 
@@ -75,5 +75,5 @@ export const jumpStartSkip = () => {
 				error: error
 			} );
 		} );
-	}
-}
+	};
+};

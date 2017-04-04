@@ -30,7 +30,7 @@ export const resetOptions = ( options ) => {
 				type: RESET_OPTIONS_SUCCESS
 			} );
 			dispatch( removeNotice( 'reset-options' ) );
-			dispatch( createNotice( 'is-success', __( 'Options reset.' ), { id: 'reset-options' } ) );
+			dispatch( createNotice( 'is-success', __( 'Options reset.' ), { id: 'reset-options', duration: 2000 } ) );
 		} ).catch( error => {
 			dispatch( {
 				type: RESET_OPTIONS_FAIL,
@@ -39,7 +39,7 @@ export const resetOptions = ( options ) => {
 			dispatch( removeNotice( 'reset-options' ) );
 			dispatch( createNotice( 'is-error', __( 'Options failed to reset.' ), { id: 'reset-options' } ) );
 		} );
-	}
+	};
 };
 
 export const enableDevCard = () => {
@@ -47,7 +47,7 @@ export const enableDevCard = () => {
 		dispatch( {
 			type: DEV_CARD_DISPLAY
 		} );
-	}
+	};
 };
 
 export const disableDevCard = () => {
@@ -55,7 +55,7 @@ export const disableDevCard = () => {
 		dispatch( {
 			type: DEV_CARD_HIDE
 		} );
-	}
+	};
 };
 
 export const switchPlanPreview = ( slug ) => {
@@ -64,7 +64,7 @@ export const switchPlanPreview = ( slug ) => {
 			type: JETPACK_SITE_DATA_FETCH_RECEIVE,
 			siteData: { plan: { product_slug: slug } }
 		} );
-	}
+	};
 };
 
 const adminMasterPerms = {
@@ -192,11 +192,10 @@ export const switchUserPermission = ( slug ) => {
 			type: MOCK_SWITCH_USER_PERMISSIONS,
 			initialState: userPerms
 		} );
-	}
+	};
 };
 
 export const switchThreats = count => {
-
 	return ( dispatch ) => {
 		dispatch( {
 			type: MOCK_SWITCH_THREATS,
