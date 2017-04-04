@@ -16,17 +16,17 @@
 		?>
 		<br />
 		<?php
-		_e( 'To find out more, as well as how to remove or block these, see here:', 'jetpack' );
-		echo ' ';
+		esc_html_e( 'To find out more, as well as how to remove or block these, see here:', 'jetpack' );
 	} else {
-		echo esc_html( $instance['customtext'] ), ' ';
+		echo esc_html( $instance['customtext'] );
 	} ?>
 
-	<a href="<?php echo esc_attr(
-		'default' === $instance['policy-url'] || empty( $instance['custom-policy-url'] )
+	<a href="<?php
+		$policy_link_text = 'default' === $instance['policy-url'] || empty( $instance['custom-policy-url'] )
 			? $defaults['default-policy-url']
-			: $instance['custom-policy-url']
-	); ?>" >
+			: $instance['custom-policy-url'];
+		echo esc_url( $policy_link_text );
+	?>" >
 		<?php echo esc_html( $instance['policy-link-text'] ); ?>
 	</a>
 </div>

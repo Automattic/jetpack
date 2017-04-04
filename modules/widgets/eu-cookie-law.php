@@ -32,9 +32,9 @@ class Jetpack_EU_Cookie_Law_Widget extends WP_Widget {
 			'policy-url'         => 'default',
 			'default-policy-url' => 'https://en.support.wordpress.com/cookies',
 			'custom-policy-url'  => '',
-			'policy-link-text'   => __( 'Our Cookie Policy', 'jetpack' ),
-			'button'             => __( 'Close and accept', 'jetpack' ),
-			'default-text'       => __( 'Privacy & Cookies: This site uses cookies from WordPress.com and selected partners. ', 'jetpack' ),
+			'policy-link-text'   => esc_html__( 'Our Cookie Policy', 'jetpack' ),
+			'button'             => esc_html__( 'Close and accept', 'jetpack' ),
+			'default-text'       => esc_html__( 'Privacy & Cookies: This site uses cookies from WordPress.com and selected partners.', 'jetpack' ),
 		);
 
 		if ( is_active_widget( false, false, $this->id_base ) || is_customize_preview() ) {
