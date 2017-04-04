@@ -47,8 +47,6 @@ class Jetpack_EU_Cookie_Law_Widget extends WP_Widget {
 
 		do_action( 'jetpack_stats_extra', 'widget_view', 'eu_cookie_law' );
 
-		echo 'CIAO';
-
 		add_action( 'wp_footer', array( $this, 'footer' ) );
 	}
 
