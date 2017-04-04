@@ -187,8 +187,11 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 		
 		// Test that the first event is add_attachment
-		$attachment_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_add_attachment' );
-		$this->assertEquals( 'add_attachment', $attachment_event->args[2] );
+		$update_attachment_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_update_attachment' );
+		$add_attachment_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_add_attachment' );
+		$this->assertTrue( (bool) $add_attachment_event );
+		$this->assertFalse( (bool) $update_attachment_event );
+
 		$this->server_event_storage->reset();
 		
 
@@ -214,8 +217,10 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertEquals( $attachment, $remote_attachment );
 
-		$attachment_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_add_attachment' );
-		$this->assertEquals( 'edit_attachment', $attachment_event->args[2] );
+		$update_attachment_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_update_attachment' );
+		$add_attachment_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_add_attachment' );
+		$this->assertTrue( (bool) $update_attachment_event );
+		$this->assertFalse( (bool) $add_attachment_event );
 	}
 
 	public function test_sync_attachment_delete_is_synced() {

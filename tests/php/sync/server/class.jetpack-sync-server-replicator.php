@@ -33,6 +33,7 @@ class Jetpack_Sync_Server_Replicator {
 				list( $post_id, $post, $post_before ) = $args;
 				$this->store->upsert_post( $post, $silent );
 				break;
+			case 'jetpack_sync_save_update_attachment':
 			case 'jetpack_sync_save_add_attachment':
 				list( $attachment_id, $attachment ) = $args;
 				$this->store->upsert_post( $attachment, $silent );
