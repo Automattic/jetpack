@@ -190,6 +190,7 @@ function jetpack_get_module_i18n( $key ) {
 			'tiled-gallery' => array(
 				'name' => _x( 'Tiled Galleries', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Display image galleries in a variety of elegant arrangements.', 'Module Description', 'jetpack' ),
+				'recommended description' => _x( 'Display image galleries in a variety of elegant arrangements.', 'Jumpstart Description', 'jetpack' ),
 			),
 
 			'vaultpress' => array(
