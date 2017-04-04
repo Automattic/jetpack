@@ -113,15 +113,15 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Easier to navigate Jetpack's feature settings in your dashboard and WordPress.com.
 * New WordPress.com Toolbar provides quick access to site management, stats, and other services.
 * New MailChimp Subscribe Popup widget.
-* Sitemaps is faster and now supports sites with a very large amount of posts.
+* Sitemaps are faster and now support sites with a very large amount of posts.
 * Contact Form now has a plain-text alternative and better avoids spam filters.
 * Debug form includes extra information to better prioritize your support requests.
-* Photon now also works in wp-admin and supports bbPress topics and replies.
+* Photon can now be used within the dashboard, and supports bbPress topics and replies.
 
-**Slightly Less Exciting Enhancements:**
+**Slightly Less Exciting Enhancements**
 
 * Improved previously confusing wording in Stats dashboard, and Featured Content options.
-* Added Apple/iCloud Keynote provider to oEmbed.
+* You can now embed Apple Keynotes straight from icloud.com in your posts and pages.
 * Changed Infinite Scroll button text on taxonomy page and added a new filter to short-circuit the `is_last_batch()` method.
 * Open Graph now uses transients to save image IDs.
 * You can now use full URLs in the Social Media Icons widget.
@@ -148,7 +148,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Compatibility Improvements**
 
 * Removed deprecated functions `get_theme` and `get_current_theme`.
-* Publicize now works with third-party plugins like WP Recipe Maker and no longer conflicts with the "Head, Footer and Post Injections" plugin.
+* Publicize now works with third-party plugins like WP Recipe Maker.
+* Open Graph Meta Tags are now enabled when you use the "Head, Footer and Post Injections" plugin.
 * Better support for WooCommerce data sync and backup.
 * We now also sync the `sync_via_cron` setting, the user's chosen language, and WP Super Cache's globals and constants.
 * We no longer sync post types from the WordPress Automatic Plugin and RSS AutoPilot to avoid synchronization issues.
