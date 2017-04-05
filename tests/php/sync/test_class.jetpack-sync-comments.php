@@ -54,17 +54,17 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 		wp_update_comment( (array) $this->comment );
 		$this->sender->do_sync();
 
-		$event = $this->server_event_storage->get_most_recent_event( 'modify_comment_contents' );
+		$event = $this->server_event_storage->get_most_recent_event( 'modified_comment_contents' );
 		$this->assertTrue( (bool) $event );
 
 		$this->server_event_storage->reset();
 
-		//Confirm that 'modify_comment_contents' action is not set after unapproving comment
+		//Confirm that 'modified_comment_contents' action is not set after unapproving comment
 		$this->comment->comment_approved = 0;
 		wp_update_comment( (array) $this->comment );
 		$this->sender->do_sync();
 
-		$event = $this->server_event_storage->get_most_recent_event( 'modify_comment_contents' );
+		$event = $this->server_event_storage->get_most_recent_event( 'modified_comment_contents' );
 		$this->assertFalse( (bool) $event );
 	}
 
