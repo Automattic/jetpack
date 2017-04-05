@@ -94,7 +94,7 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 
 	public function test_modify_comment_author_email() {
 		$comment = clone $this->comment;
-		$comment->comment_author_email = "michael.turk@automattic.com";
+		$comment->comment_author_email = "i_prefer_to_remain_anonymous_thanks@example.com";;
 		$expected_variable = array(
 			'comment_author_email' => array(
 				$comment->comment_author_email,
@@ -106,7 +106,7 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 
 	public function test_modify_comment_multiple_attributes() {
 		$comment = clone $this->comment;
-		$comment->comment_author_email = "michael.turk@automattic.com";
+		$comment->comment_author_email = "i_prefer_to_remain_anonymous_thanks@example.com";
 		$comment->comment_author_url = "http://jollycoder.xyz";
 		$comment->comment_author = "jollycoder";
 		$expected_variable = array(
