@@ -125,7 +125,13 @@ class Jetpack_RelatedPosts {
 		if ( isset( $_GET['relatedposts'] ) ) {
 			$excludes = array();
 			if ( isset( $_GET['relatedposts_exclude'] ) ) {
-				$excludes = explode( ',', $_GET['relatedposts_exclude'] );
+				if ( is_string( $_GET['relatedposts_exclude'] ) ) {
+					$excludes = explode( ',', $_GET['relatedposts_exclude'] );
+				} elseif ( is_array( $_GET['relatedposts_exclude'] ) ) {
+					$excludes = array_values( $_GET['relatedposts_exclude'] );
+				}
+
+				$excludes = array_unique( array_filter( array_map( 'absint', $excludes ) ) );
 			}
 
 			$this->_action_frontend_init_ajax( $excludes );
