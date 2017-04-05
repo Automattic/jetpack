@@ -33,7 +33,10 @@ import {
 	getSitePlan,
 	isFetchingSiteData
 } from 'state/site';
-import { isAkismetKeyValid } from 'state/at-a-glance';
+import {
+	isAkismetKeyValid,
+	isFetchingAkismetData
+} from 'state/at-a-glance';
 
 const ProStatus = React.createClass( {
 	propTypes: {
@@ -187,7 +190,7 @@ const ProStatus = React.createClass( {
 					return '';
 				}
 
-				if ( ! this.props.isAkismetKeyValid && ! this.props.fetchingSiteData ) {
+				if ( ! this.props.isAkismetKeyValid && ! this.props.fetchingAkismetData && active && installed ) {
 					return this.getProActions( 'invalid_key', 'anti-spam' );
 				}
 			}
@@ -235,7 +238,8 @@ export default connect(
 			pluginInstalled: ( plugin_slug ) => isPluginInstalled( state, plugin_slug ),
 			isDevMode: isDevMode( state ),
 			fetchingSiteData: isFetchingSiteData( state ),
-			isAkismetKeyValid: isAkismetKeyValid( state )
+			isAkismetKeyValid: isAkismetKeyValid( state ),
+			fetchingAkismetData: isFetchingAkismetData( state )
 		};
 	}
 )( ProStatus );
