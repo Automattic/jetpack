@@ -142,7 +142,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	 * @since JetpackComments (1.4)
 	 * @param string $avatar Current avatar URL
 	 * @param string $comment Comment for the avatar
-	 * @param int $size Not used
+	 * @param int $size Size of the avatar
 	 * @param string $default Not used
 	 * @return string New avatar
 	 */
@@ -161,7 +161,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		}
 
 		// Return the FB or Twitter avatar
-		return preg_replace( '#src=([\'"])[^\'"]+\\1#', 'src=\\1' . esc_url( $foreign_avatar ) . '\\1', $avatar );
+		return preg_replace( '#src=([\'"])[^\'"]+\\1#', 'src=\\1' . esc_url( $this->photon_avatar( $foreign_avatar, $size ) ) . '\\1', $avatar );
 	}
 
 	/** Output Methods ********************************************************/

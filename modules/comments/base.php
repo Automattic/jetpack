@@ -277,4 +277,18 @@ class Highlander_Comments_Base {
 			setcookie( 'comment_author_url_'   . COOKIEHASH, esc_url($comment->comment_author_url), time() + $comment_cookie_lifetime, COOKIEPATH, COOKIE_DOMAIN );
 		}
 	}
+
+	/**
+ 	 * Get an avatar from Photon
+ 	 *
+ 	 * @since JetpackComments (1.4)
+ 	 * @param string $url
+ 	 * @param int $size
+ 	 * @return string
+ 	 */
+	protected function photon_avatar( $url, $size ) {
+		$size = (int) $size;
+
+		return jetpack_photon_url( $url, array( 'resize' => "$size,$size" ) );
+	}
 }
