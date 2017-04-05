@@ -10,7 +10,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		add_action( 'jetpack_sync_current_theme_support', $callable );
 
 		// Sidebar updates.
-		add_action( "update_option_sidebars_widgets", array( $this, 'sync_sidebar_widgets_actions' ), 10, 2 );
+		add_action( 'update_option_sidebars_widgets', array( $this, 'sync_sidebar_widgets_actions' ), 10, 2 );
 		add_action( 'jetpack_widget_added', $callable, 10, 2 );
 		add_action( 'jetpack_widget_removed', $callable, 10, 2 );
 		add_action( 'jetpack_widget_moved_to_inactive', $callable );
@@ -86,7 +86,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 				foreach( $added_widgets as $added_widget ) {
 					$moved_to_sidebar[] = $added_widget;
 					/**
-					 * Helps Sync log that a widget got add
+					 * Helps Sync log that a widget got added
 					 *
 					 * @since 4.9.0
 					 *
@@ -103,7 +103,6 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 					// lets check if we didn't move the widget to in_active_widgets
 
 					if ( isset( $new_value['wp_inactive_widgets'] ) && ! in_array( $removed_widget, $new_value['wp_inactive_widgets'] ) ) {
-						echo "remove....";
 						/**
 						 * Helps Sync log that a widgte got removed
 						 *
