@@ -24,7 +24,7 @@ class Jetpack_Sync_Module_Comments extends Jetpack_Sync_Module {
 		add_action( 'untrash_post_comments', $callable );
 		add_action( 'comment_approved_to_unapproved', $callable );
 		add_action( 'comment_unapproved_to_approved', $callable );
-		add_action( 'wp_update_comment_data', array( $this, 'handle_comment_contents_modification' ), 10, 3 );
+		add_filter( 'wp_update_comment_data', array( $this, 'handle_comment_contents_modification' ), 10, 3 );
 
 		// even though it's messy, we implement these hooks because
 		// the edit_comment hook doesn't include the data
