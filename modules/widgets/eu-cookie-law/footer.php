@@ -12,7 +12,7 @@
 	</form>
 
 	<?php if ( 'default' == $instance['text'] || empty( $instance['customtext'] ) ) {
-		echo $defaults['default-text'];
+		echo $instance['default-text'];
 		?>
 		<br />
 		<?php
@@ -23,7 +23,7 @@
 
 	<a href="<?php
 		$policy_link_text = 'default' === $instance['policy-url'] || empty( $instance['custom-policy-url'] )
-			? $defaults['default-policy-url']
+			? $instance['default-policy-url']
 			: $instance['custom-policy-url'];
 		echo esc_url( $policy_link_text );
 	?>" >
