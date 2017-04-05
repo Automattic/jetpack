@@ -114,7 +114,6 @@ class Jetpack {
 			'Contact Form Plugin'                  => 'contact-form-plugin/contact_form.php',
 			'Easy Contact Forms'                   => 'easy-contact-forms/easy-contact-forms.php',
 			'Fast Secure Contact Form'             => 'si-contact-form/si-contact-form.php',
-			'Ninja Forms'                          => 'ninja-forms/ninja-forms.php',
 		),
 		'minileven'         => array(
 			'WPtouch'                              => 'wptouch/wptouch.php',
@@ -2319,9 +2318,9 @@ class Jetpack {
 		// We maintain the data for the current version of Jetpack plus the previous version
 		// to prevent repeated DB hits on large sites hosted with multiple web servers
 		// on a single database (since all web servers might not be updated simultaneously)
-
+		
 		$file_data_option[ JETPACK__VERSION ][ $key ] = $data;
-
+		
 		if ( count( $file_data_option ) > 2 ) {
 			$count = 0;
 			krsort( $file_data_option );
@@ -2332,12 +2331,12 @@ class Jetpack {
 				}
 			}
 		}
-
+		
 		Jetpack_Options::update_option( 'file_data', $file_data_option );
 
 		return $data;
 	}
-
+	
 
 	/**
 	 * Return translated module tag.
@@ -3303,7 +3302,7 @@ p {
 	 * If `$update_media_item` is true and `post_id` is defined
 	 * the attachment file of the media item (gotten through of the post_id)
 	 * will be updated instead of add a new one.
-	 *
+	 * 
 	 * @param  boolean $update_media_item - update media attachment
 	 * @return array - An array describing the uploadind files process
 	 */
@@ -3370,10 +3369,10 @@ p {
 
 				$media_array = $_FILES['media'];
 
-				$file_array['name'] = $media_array['name'][0];
-				$file_array['type'] = $media_array['type'][0];
-				$file_array['tmp_name'] = $media_array['tmp_name'][0];
-				$file_array['error'] = $media_array['error'][0];
+				$file_array['name'] = $media_array['name'][0]; 
+				$file_array['type'] = $media_array['type'][0]; 
+				$file_array['tmp_name'] = $media_array['tmp_name'][0]; 
+				$file_array['error'] = $media_array['error'][0]; 
 				$file_array['size'] = $media_array['size'][0];
 
 				$edited_media_item = Jetpack_Media::edit_media_file( $post_id, $file_array );
