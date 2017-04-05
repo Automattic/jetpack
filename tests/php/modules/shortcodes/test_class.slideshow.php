@@ -2,6 +2,29 @@
 
 class WP_Test_Jetpack_Shortcodes_Slideshow extends WP_UnitTestCase {
 
+	protected function setUp() {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			switch_to_blog( 104104364 ); // test.wordpress.com
+			$this->IDs = '161,162';
+			return;
+		}
+
+		// Otherwise, create the two images we're going to be using ourselves!
+		$a1 = self::factory()->attachment->create_object( array(
+			'file'           => 'image1.jpg',
+			'post_mime_type' => 'image/jpeg',
+			'post_type'      => 'attachment',
+		) );
+
+		$a2 = self::factory()->attachment->create_object( array(
+			'file'           => 'image2.jpg',
+			'post_mime_type' => 'image/jpeg',
+			'post_type'      => 'attachment',
+		) );
+
+		$this->IDs = "{$a1},{$a2}";
+	}
+
 	/**
 	 * @author scotchfield
 	 * @covers Jetpack_Slideshow_Shortcode::shortcode_callback
@@ -25,9 +48,7 @@ class WP_Test_Jetpack_Shortcodes_Slideshow extends WP_UnitTestCase {
 	}
 
 	public function test_shortcodes_slideshow_no_js() {
-		switch_to_blog( 104104364 ); // test.wordpress.com
-
-		$content = '[gallery type="slideshow" ids="161,162"]';
+		$content = '[gallery type="slideshow" ids="' . $this->IDs . '"]';
 
 		$shortcode_content = do_shortcode( $content );
 
@@ -35,9 +56,7 @@ class WP_Test_Jetpack_Shortcodes_Slideshow extends WP_UnitTestCase {
 	}
 
 	public function test_shortcodes_slideshow_html() {
-		switch_to_blog( 104104364 ); // test.wordpress.com
-
-		$content = '[gallery type="slideshow" ids="161,162"]';
+		$content = '[gallery type="slideshow" ids="' . $this->IDs . '"]';
 
 		$shortcode_content = do_shortcode( $content );
 
@@ -45,9 +64,7 @@ class WP_Test_Jetpack_Shortcodes_Slideshow extends WP_UnitTestCase {
 	}
 
 	public function test_shortcodes_slideshow_autostart_off() {
-		switch_to_blog( 104104364 ); // test.wordpress.com
-
-		$content = '[gallery type="slideshow" ids="161,162" autostart="false"]';
+		$content = '[gallery type="slideshow" ids="' . $this->IDs . '" autostart="false"]';
 
 		$shortcode_content = do_shortcode( $content );
 
@@ -55,9 +72,7 @@ class WP_Test_Jetpack_Shortcodes_Slideshow extends WP_UnitTestCase {
 	}
 
 	public function test_shortcodes_slideshow_autostart_on() {
-		switch_to_blog( 104104364 ); // test.wordpress.com
-
-		$content = '[gallery type="slideshow" ids="161,162" autostart="true"]';
+		$content = '[gallery type="slideshow" ids="' . $this->IDs . '" autostart="true"]';
 
 		$shortcode_content = do_shortcode( $content );
 
