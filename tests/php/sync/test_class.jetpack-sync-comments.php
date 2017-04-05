@@ -45,6 +45,10 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 		$remote_comment = $this->server_replica_storage->get_comment( $this->comment->comment_ID );
 
 		$this->assertEquals( "foo bar baz", $remote_comment->comment_content );
+
+		$event = $this->server_event_storage->get_most_recent_event( 'edit_comment' );
+		$this->assertTrue( (bool) $event );
+
 	}
 
 	public function test_unapprove_comment() {
