@@ -180,7 +180,7 @@ const PlanBody = React.createClass( {
 					}
 
 					{
-						'is-personal-plan' === planClass && (
+						'is-premium-plan' === planClass && (
 							<div className="jp-landing__plan-features-card">
 								<h3 className="jp-landing__plan-features-title">{ __( 'Video Hosting' ) }</h3>
 								<p>{ __( '13Gb of fast, optimized, and ad-free video hosting for your site (powered by VideoPress).' ) }</p>
