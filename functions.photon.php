@@ -247,13 +247,6 @@ function jetpack_photon_parse_wpcom_query_args( $args, $image_url ) {
 	return $args;
 }
 
-
-/**
- * Facebook
- */
-add_filter( 'jetpack_photon_add_query_string_to_domain', 'jetpack_photon_allow_facebook_graph_domain', 10, 2 );
-add_filter( 'jetpack_photon_any_extension_for_domain',   'jetpack_photon_allow_facebook_graph_domain', 10, 2 );
-
 function jetpack_photon_url_scheme( $url, $scheme ) {
 	if ( ! in_array( $scheme, array( 'http', 'https', 'network_path' ) ) ) {
 		if ( preg_match( '#^(https?:)?//#', $url ) ) {
@@ -270,15 +263,6 @@ function jetpack_photon_url_scheme( $url, $scheme ) {
 	}
 
 	return preg_replace( '#^([a-z:]+)?//#i', $scheme_slashes, $url );
-}
-
-function jetpack_photon_allow_facebook_graph_domain( $allow = false, $domain ) {
-	switch ( $domain ) {
-	case 'graph.facebook.com' :
-		return true;
-	}
-
-	return $allow;
 }
 
 /**
@@ -305,6 +289,8 @@ function jetpack_photon_banned_domains( $skip, $image_url, $args, $scheme ) {
 		'http://chart.googleapis.com/',
 		'https://chart.googleapis.com/',
 		'http://chart.apis.google.com/',
+		'http://graph.facebook.com/',
+		'https://graph.facebook.com/',
 	);
 
 	foreach ( $banned_domains as $banned_domain ) {
@@ -318,7 +304,7 @@ function jetpack_photon_banned_domains( $skip, $image_url, $args, $scheme ) {
 
 /**
  * Jetpack Photon - Support Text Widgets.
- * 
+ *
  * @access public
  * @param string $content Content from text widget.
  * @return string
