@@ -110,8 +110,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug Fixes**
 
-* Sitemaps: Fixed incompatibility with PHP versions lower than 5.4.
-* Sitemaps: Fixed an incompatibility with other plugins that were relying on a function removed in the prior release.
+* An incompatibility with PHP versions lower than 5.4 was introduced in the last release, causing a fatal error and we've immediately fixed this.
+* Sitemaps: Some plugins were relying on a function that was removed in the last release, which has been fixed.
 * General: Clicking on the info icon in the settings area will no longer jump to the top of the page.
 * General: The Anti-spam card will always display the correct status in the Jetpack dashboard.
 
