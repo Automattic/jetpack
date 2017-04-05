@@ -77,7 +77,7 @@ function soundcloud_shortcode( $atts, $content = null ) {
 					'auto_play'     => soundcloud_get_option( 'auto_play' ),
 					'show_comments' => soundcloud_get_option( 'show_comments' ),
 					'color'         => soundcloud_get_option( 'color' ),
-					'visual'        => ( $shortcode_options['visual'] ? 'true' : 'false' ), // A8C: See above comment; always test visual from parameters
+					'visual'        => 'false', // A8C: Merged with params below at $options assignment
 				)
 			),
 		)
