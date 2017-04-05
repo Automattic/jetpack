@@ -458,3 +458,19 @@ function wpcomsh_symlinked_plugins_url( $url, $path, $plugin ) {
 }
 
 add_filter( 'plugins_url', 'wpcomsh_symlinked_plugins_url', 0, 3 );
+
+function wpcomsh_activate_masterbar_module() {
+	if ( ! defined( 'JETPACK__VERSION' ) ) {
+		return;
+	}
+
+	// Masterbar was introduced in Jetpack 4.8
+	if ( version_compare( JETPACK__VERSION, '4.8', '<' ) ) {
+		return;
+	}
+
+	if ( ! Jetpack::is_module_active( 'masterbar' ) ) {
+		Jetpack::activate_module( 'masterbar', false, false );
+	}
+}
+add_action( 'init', 'wpcomsh_activate_masterbar_module', 0, 0 );
