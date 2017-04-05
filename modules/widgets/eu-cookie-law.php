@@ -39,7 +39,7 @@ class Jetpack_EU_Cookie_Law_Widget extends WP_Widget {
 		);
 
 		if ( is_active_widget( false, false, $this->id_base ) || is_customize_preview() ) {
-			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_style' ) );
+			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend_scripts' ) );
 		}
 	}
 
@@ -56,8 +56,6 @@ class Jetpack_EU_Cookie_Law_Widget extends WP_Widget {
 		$blog_url = get_bloginfo( 'url' );
 		$instance = $this->instance;
 		$defaults = $this->defaults;
-		$cookie_name = self::$cookie_name;
-		$cookie_validity = self::$cookie_validity;
 
 		require( dirname( __FILE__ ) . '/eu-cookie-law/footer.php' );
 	}
@@ -148,8 +146,9 @@ class Jetpack_EU_Cookie_Law_Widget extends WP_Widget {
 		wp_safe_redirect( $_POST['redirect_url'] );
 	}
 
-	function enqueue_style() {
+	function enqueue_frontend_scripts() {
 		wp_enqueue_style( 'eu-cookie-law-style', plugins_url( 'eu-cookie-law/style.css', __FILE__ ), array(), '20170403' );
+		wp_enqueue_script( 'eu-cookie-law-script', plugins_url( 'eu-cookie-law/eu-cookie-law.js', __FILE__ ), array( 'jquery' ), '20170404' );
 	}
 }
 
