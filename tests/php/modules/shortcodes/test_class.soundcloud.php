@@ -3,12 +3,19 @@
 class WP_Test_Jetpack_Shortcodes_Soundcloud extends WP_UnitTestCase {
 
 	/**
-	 * Shortcode.
+	 * @author scotchfield
+	 * @covers ::soundcloud_shortcode
+	 * @since 3.2
 	 */
 	public function test_shortcodes_soundcloud_exists() {
 		$this->assertEquals( shortcode_exists( 'soundcloud' ), true );
 	}
 
+	/**
+	 * @author scotchfield
+	 * @covers ::soundcloud_shortcode
+	 * @since 3.2
+	 */
 	public function test_shortcodes_soundcloud() {
 		$content = '[soundcloud]';
 

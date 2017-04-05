@@ -3,12 +3,19 @@
 class WP_Test_Jetpack_Shortcodes_Flickr extends WP_UnitTestCase {
 
 	/**
-	 * [flickr] shortcode.
+	 * @author scotchfield
+	 * @covers ::flickr_shortcode_handler
+	 * @since 3.2
 	 */
 	public function test_shortcodes_flickr_exists() {
 		$this->assertEquals( shortcode_exists( 'flickr' ), true );
 	}
 
+	/**
+	 * @author scotchfield
+	 * @covers ::flickr_shortcode_handler
+	 * @since 3.2
+	 */
 	public function test_shortcodes_flickr() {
 		$content = '[flickr]';
 
@@ -17,6 +24,11 @@ class WP_Test_Jetpack_Shortcodes_Flickr extends WP_UnitTestCase {
 		$this->assertNotEquals( $content, $shortcode_content );
 	}
 
+	/**
+	 * @author scotchfield
+	 * @covers ::flickr_shortcode_handler
+	 * @since 3.2
+	 */
 	public function test_shortcodes_flickr_video_http() {
 		$user     = 'chaddles';
 		$video_id = '2402990826';
@@ -27,6 +39,11 @@ class WP_Test_Jetpack_Shortcodes_Flickr extends WP_UnitTestCase {
 		$this->assertContains( $video_id, $shortcode_content );
 	}
 
+	/**
+	 * @author scotchfield
+	 * @covers ::flickr_shortcode_handler
+	 * @since 3.2
+	 */
 	public function test_shortcodes_flickr_video_id() {
 		$video_id = '2402990826';
 		$content  = '[flickr video=' . $video_id . ']';
@@ -36,6 +53,11 @@ class WP_Test_Jetpack_Shortcodes_Flickr extends WP_UnitTestCase {
 		$this->assertContains( $video_id, $shortcode_content );
 	}
 
+	/**
+	 * @author scotchfield
+	 * @covers ::flickr_shortcode_handler
+	 * @since 3.2
+	 */
 	public function test_shortcodes_flickr_video_id_show_info() {
 		$video_id = '2402990826';
 		$content  = '[flickr video=' . $video_id . ' show_info=no]';
@@ -46,6 +68,11 @@ class WP_Test_Jetpack_Shortcodes_Flickr extends WP_UnitTestCase {
 		$this->assertContains( 'flickr_show_info_box=false', $shortcode_content );
 	}
 
+	/**
+	 * @author scotchfield
+	 * @covers ::flickr_shortcode_handler
+	 * @since 3.2
+	 */
 	public function test_shortcodes_flickr_video_id_width_height() {
 		$video_id = '2402990826';
 		$width    = 200;
@@ -59,6 +86,11 @@ class WP_Test_Jetpack_Shortcodes_Flickr extends WP_UnitTestCase {
 		$this->assertContains( 'height="' . $height . '"', $shortcode_content );
 	}
 
+	/**
+	 * @author scotchfield
+	 * @covers ::flickr_shortcode_handler
+	 * @since 3.2
+	 */
 	public function test_shortcodes_flickr_video_id_show_info_secret() {
 		$video_id = '2402990826';
 		$secret   = '846d9c1be9';

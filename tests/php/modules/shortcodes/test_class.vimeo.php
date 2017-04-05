@@ -2,10 +2,20 @@
 
 class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 
+	/**
+	 * @author scotchfield
+	 * @covers ::vimeo_shortcode
+	 * @since 3.2
+	 */
 	public function test_shortcodes_vimeo_exists() {
 		$this->assertEquals( shortcode_exists( 'vimeo' ), true );
 	}
 
+	/**
+	 * @author scotchfield
+	 * @covers ::vimeo_shortcode
+	 * @since 3.2
+	 */
 	public function test_shortcodes_vimeo() {
 		$content = '[vimeo]';
 
@@ -14,6 +24,11 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 		$this->assertNotEquals( $content, $shortcode_content );
 	}
 
+	/**
+	 * @author scotchfield
+	 * @covers ::vimeo_shortcode
+	 * @since 3.2
+	 */
 	public function test_shortcodes_vimeo_id() {
 		$video_id = '141358';
 		$content  = '[vimeo ' . $video_id . ']';
@@ -23,6 +38,11 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 		$this->assertContains( 'vimeo.com/video/' . $video_id, $shortcode_content );
 	}
 
+	/**
+	 * @author scotchfield
+	 * @covers ::vimeo_shortcode
+	 * @since 3.2
+	 */
 	public function test_shortcodes_vimeo_url() {
 		$video_id = '141358';
 		$url      = 'http://vimeo.com/' . $video_id;
@@ -33,6 +53,11 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 		$this->assertContains( 'vimeo.com/video/' . $video_id, $shortcode_content );
 	}
 
+	/**
+	 * @author scotchfield
+	 * @covers ::vimeo_shortcode
+	 * @since 3.2
+	 */
 	public function test_shortcodes_vimeo_w_h() {
 		$video_id = '141358';
 		$width    = '350';
@@ -46,6 +71,11 @@ class WP_Test_Jetpack_Shortcodes_Vimeo extends WP_UnitTestCase {
 		$this->assertContains( 'height="' . $height . '"', $shortcode_content );
 	}
 
+	/**
+	 * @author scotchfield
+	 * @covers ::vimeo_shortcode
+	 * @since 3.2
+	 */
 	public function test_shortcodes_vimeo_width_height() {
 		$video_id = '141358';
 		$width    = '350';
