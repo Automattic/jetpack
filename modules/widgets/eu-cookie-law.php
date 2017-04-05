@@ -70,13 +70,6 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 		);
 
 		/**
-		 * Saved values from database.
-		 *
-		 * @var array
-		 */
-		public $instance;
-
-		/**
 		 * Constructor.
 		 */
 		function __construct() {
@@ -134,18 +127,10 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 		 * @param array $instance Saved values from database.
 		 */
 		public function widget( $args, $instance ) {
-			$this->instance = wp_parse_args( $instance, $this->defaults() );
+			$instance = wp_parse_args( $instance, $this->defaults() );
+			require( dirname( __FILE__ ) . '/eu-cookie-law/widget.php' );
 			/** This action is already documented in modules/widgets/gravatar-profile.php */
 			do_action( 'jetpack_stats_extra', 'widget_view', 'eu_cookie_law' );
-			add_action( 'wp_footer', array( $this, 'footer' ) );
-		}
-
-		/**
-		 * Display the widget in wp_footer.
-		 */
-		public function footer() {
-			$instance = $this->instance;
-			require( dirname( __FILE__ ) . '/eu-cookie-law/footer.php' );
 		}
 
 		/**
