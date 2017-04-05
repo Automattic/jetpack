@@ -350,52 +350,63 @@
 }
 
 .jp-connection-settings__modal-body {
-	color: $blue-dark-text;
 	margin: 0;
-	text-align: center;
 	padding: rem( 24px ) rem( 32px );
 	font-size: rem( 14px );
+	color: $blue-dark-text;
+	text-align: center;
 
 	h2 {
-		color: $blue-dark-text;
-		font-size: rem( 32px );
-		font-weight: 400;
 		margin: rem( 32px ) 0 rem( 24px );
+		font-size: rem( 32px );
+		font-weight: 300;
+		color: $blue-dark-text;
 	}
+
 	h4 {
-		color: $blue-text;
-		font-size: rem( 18px );
+		margin: rem( 16px ) rem( 24px ) 0;
+		font-size: rem( 16px );
 		font-weight: 400;
-		margin: rem( 16px ) 0 0;
+		line-height: 1.5em;
+		color: $blue-heading;
 	}
+
 	p {
 		font-size: rem( 14px );
 	}
+
 	ul {
-		margin: rem( 24px ) 0;
+		margin: rem( 24px ) 0 rem( 36px );
+		color: $blue-text;
 	}
 
 	li {
-		border-bottom: 1px solid #ccc;
-		text-align: left;
-		margin: 0;
-		display: block;
-		padding: rem( 16px ) rem( 8px ) rem( 16px ) rem( 44px );
 		position: relative;
-	}
-	li:first-child {
-		border-top: 1px solid #ccc;
+		display: block;
+		margin: 0;
+		padding: rem( 16px ) rem( 8px ) rem( 16px ) rem( 44px );
+		border-bottom: 1px solid lighten( $gray, 25% );
+		text-align: left;
+
+		&:first-of-type {
+			border-top: 1px solid lighten( $gray, 25% );
+		}
 	}
 
 	.gridicon {
-		color: #00aadc;
-		vertical-align: text-bottom;
 		position: absolute;
 		left: rem( 16px );
 		top: rem( 16px );
+		vertical-align: text-bottom;
+		color: $blue-text;
 	}
 }
 
 .jp-connection-settings__modal-cancel {
 	margin-right: 1em;
+}
+
+.jp-connection-settings__modal-more a {
+	color: $blue-wordpress;
+	text-decoration: underline;
 }
