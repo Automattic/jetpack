@@ -80,7 +80,7 @@
 	</ul>
 	<textarea
 		class="widefat"
-		name="<?php echo esc_attr( $this->get_field_name( 'text' ) ); ?>"
+		name="<?php echo esc_attr( $this->get_field_name( 'customtext' ) ); ?>"
 		placeholder="<?php echo esc_attr( $instance['default-text'] ); ?>"
 	><?php echo esc_html( $instance['customtext'] ); ?></textarea>
 </p>
