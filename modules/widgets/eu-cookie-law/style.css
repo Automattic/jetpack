@@ -1,15 +1,19 @@
-#eu-cookie-law {
-	background-color: #fff;
-	border: 1px solid #dedede;
+.widget_eu_cookie_law_widget {
 	bottom: 1em;
-	color: #2e4467;
-	font-size: 12px;
 	left: 1em;
-	line-height: 1.5;
-	padding: 6px 6px 6px 15px;
+	padding: 0;
 	position: fixed;
 	right: 1em;
 	z-index: 50001;
+}
+
+#eu-cookie-law {
+	background-color: #fff;
+	border: 1px solid #dedede;
+	color: #2e4467;
+	font-size: 12px;
+	line-height: 1.5;
+	padding: 6px 6px 6px 15px;
 }
 
 #eu-cookie-law a,
