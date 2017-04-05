@@ -42,18 +42,16 @@ class Jetpack_Sync_Module_Comments extends Jetpack_Sync_Module {
 	}
 
 	/**
-	 * Filters the comment data immediately before it is updated in the database.
-	 *
-	 * Note: data being passed to the filter is already unslashed.
-	 *
-	 * @since 4.7.0
-	 *
 	 * @param array $data       The new, processed comment data.
 	 * @param array $comment    The old, unslashed comment data.
 	 * @param array $commentarr The new, raw comment data.
 	 */
-	public function handle_comment_contents_modification( $new_comment_data, $old_comment_data, $new_raw ) {
+	public function handle_comment_contents_modification( $data, $comment, $commentarr ) {
+
+		error_log(print_r($data, true));
 		error_log ("Hello!" );
+		return $data;
+
 	}
 
 	public function init_full_sync_listeners( $callable ) {
