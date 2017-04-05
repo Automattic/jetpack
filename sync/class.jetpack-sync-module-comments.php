@@ -24,9 +24,9 @@ class Jetpack_Sync_Module_Comments extends Jetpack_Sync_Module {
 		add_action( 'untrash_post_comments', $callable );
 		add_action( 'comment_approved_to_unapproved', $callable );
 		add_action( 'comment_unapproved_to_approved', $callable );
-		add_action( 'modified_comment_contents', $callable );
+		add_action( 'jetpack_modified_comment_contents', $callable );
 
-		add_filter( 'wp_update_comment_data', array( $this, 'handle_comment_contents_modification' ), 10, 2 );
+		add_filter( 'wp_update_comment_data', array( $this, 'handle_comment_contents_modification' ), 10, 3 );
 
 		// even though it's messy, we implement these hooks because
 		// the edit_comment hook doesn't include the data
@@ -43,21 +43,28 @@ class Jetpack_Sync_Module_Comments extends Jetpack_Sync_Module {
 		$this->init_meta_whitelist_handler( 'comment', array( $this, 'filter_meta' ) );
 	}
 
-	/**
-	 * @param array $data       The new, processed comment data.
-	 * @param array $comment    The old, unslashed comment data.
-	 */
-	public function handle_comment_contents_modification( $data, $comment ) {
-
-		if ( $data['comment_content'] != $comment['comment_content'] ) {
-			$action_args = array(
-				$data['comment_ID'],
-				$data,
-				$comment['comment_content'],
-			);
-			do_action( 'modified_comment_contents', $action_args );
+	public function handle_comment_contents_modification( $new_comment, $old_comment, $new_comment_with_slashes ) {
+		$content_fields = array(
+			'comment_author',
+			'comment_author_email',
+			'comment_author_url',
+			'comment_content',
+		);
+		$changes = array();
+		foreach ( $content_fields as $field ) {
+			if ( $new_comment_with_slashes[$field] != $old_comment[$field] ) {
+				$changes[$field] = array( $new_comment[$field], $old_comment[$field] );
+			}
 		}
-		return $data;
+
+		if ( ! empty( $changes ) ) {
+			$action_args = array(
+				$new_comment['comment_ID'],
+				$changes,
+			);
+			do_action( 'jetpack_modified_comment_contents', $action_args );
+		}
+		return $new_comment;
 	}
 
 	public function init_full_sync_listeners( $callable ) {
