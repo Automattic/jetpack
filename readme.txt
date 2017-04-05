@@ -103,6 +103,18 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
+= 4.8.1 =
+
+* Release date: April 5th, 2017
+* Release post: http://wp.me/p1moTy-4N5
+
+**Bug Fixes**
+
+* Sitemaps: Fixed incompatibility with PHP versions lower than 5.4.
+* Sitemaps: Fixed an incompatibility with other plugins that were relying on a function removed in the prior release.
+* General: Clicking on the info icon in the settings area will no longer jump to the top of the page.
+* General: The Anti-spam card will always display the correct status in the Jetpack dashboard.
+
 = 4.8 =
 
 * Release date: April 4th, 2017
