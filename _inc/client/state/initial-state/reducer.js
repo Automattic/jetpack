@@ -199,6 +199,17 @@ export function arePromotionsActive( state ) {
 }
 
 /**
+ * Check if the site is an Automated Transfer site.
+ *
+ * @param {Object} state   Global state tree.
+ *
+ * @return {boolean} True if this is an AT site, false otherwise.
+ */
+export function isAutomatedTransfer( state ) {
+	return get( state.jetpack.initialState.siteData, 'isAutomatedTransfer', false );
+}
+
+/**
  * Check that theme supports a certain feature
  *
  * @param {Object} state   Global state tree.
