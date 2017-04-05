@@ -140,7 +140,7 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_modified_comment_contents' );
 		$this->assertTrue( (bool) $event );
-		$this->assertEquals( $expected, $event->args[0] );
+		$this->assertEquals( $expected, $event->args );
 
 		$this->server_event_storage->reset();
 
