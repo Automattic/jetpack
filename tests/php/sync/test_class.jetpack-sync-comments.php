@@ -45,10 +45,27 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 		$remote_comment = $this->server_replica_storage->get_comment( $this->comment->comment_ID );
 
 		$this->assertEquals( "foo bar baz", $remote_comment->comment_content );
+	}
 
-		$event = $this->server_event_storage->get_most_recent_event( 'edit_comment' );
+	public function test_modify_comment_contents() {
+
+		//Confirm that 'modify_comment' action is set after changing comment contents
+		$this->comment->comment_content = "foo bar baz";
+		wp_update_comment( (array) $this->comment );
+		$this->sender->do_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'modify_comment_contents' );
 		$this->assertTrue( (bool) $event );
 
+		$this->server_event_storage->reset();
+
+		//Confirm that 'modify_comment_contents' action is not set after unapproving comment
+		$this->comment->comment_approved = 0;
+		wp_update_comment( (array) $this->comment );
+		$this->sender->do_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'modify_comment_contents' );
+		$this->assertFalse( (bool) $event );
 	}
 
 	public function test_unapprove_comment() {

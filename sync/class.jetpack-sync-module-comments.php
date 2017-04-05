@@ -24,7 +24,7 @@ class Jetpack_Sync_Module_Comments extends Jetpack_Sync_Module {
 		add_action( 'untrash_post_comments', $callable );
 		add_action( 'comment_approved_to_unapproved', $callable );
 		add_action( 'comment_unapproved_to_approved', $callable );
-		add_action( 'edit_comment', $callable, 10, 2 );
+		add_action( 'wp_update_comment_data', array( $this, 'handle_comment_contents_modification' ), 10, 3 );
 
 		// even though it's messy, we implement these hooks because
 		// the edit_comment hook doesn't include the data
@@ -39,6 +39,21 @@ class Jetpack_Sync_Module_Comments extends Jetpack_Sync_Module {
 		// listen for meta changes
 		$this->init_listeners_for_meta_type( 'comment', $callable );
 		$this->init_meta_whitelist_handler( 'comment', array( $this, 'filter_meta' ) );
+	}
+
+	/**
+	 * Filters the comment data immediately before it is updated in the database.
+	 *
+	 * Note: data being passed to the filter is already unslashed.
+	 *
+	 * @since 4.7.0
+	 *
+	 * @param array $data       The new, processed comment data.
+	 * @param array $comment    The old, unslashed comment data.
+	 * @param array $commentarr The new, raw comment data.
+	 */
+	public function handle_comment_contents_modification( $new_comment_data, $old_comment_data, $new_raw ) {
+		error_log ("Hello!" );
 	}
 
 	public function init_full_sync_listeners( $callable ) {
