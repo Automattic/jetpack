@@ -32,7 +32,11 @@ class WP_Super_Cache_Rest_Get_Cache extends WP_REST_Controller {
 					}
 				}
 			}
-			$list[ $type ] = $return_list[ $type ];
+
+			if ( isset ( $return_list[ $type ] ) ) {
+				$list[ $type ] = $return_list[ $type ];
+			}
+
 			unset( $return_list[ $type ] );
 		}
 

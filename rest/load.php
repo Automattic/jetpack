@@ -6,6 +6,7 @@ require_once __DIR__ . '/class.wp-super-cache-rest-get-stats.php';
 require_once __DIR__ . '/class.wp-super-cache-rest-get-cache.php';
 require_once __DIR__ . '/class.wp-super-cache-rest-delete-cache.php';
 require_once __DIR__ . '/class.wp-super-cache-rest-preload.php';
+require_once __DIR__ . '/class.wp-super-cache-rest-test-cache.php';
 
 class WP_Super_Cache_Router {
 	/**
@@ -24,8 +25,9 @@ class WP_Super_Cache_Router {
 		$get_settings    = new WP_Super_Cache_Rest_Get_Settings();
 		$update_settings = new WP_Super_Cache_Rest_Update_Settings();
 		$get_stats       = new WP_Super_Cache_Rest_Get_Stats();
-		$get_cache 	  	 = new WP_Super_Cache_Rest_Get_Cache();
-		$delete_cache    = new WP_Super_Cache_Rest_Delete_Cache();
+		$get_cache       = new WP_Super_Cache_Rest_Get_Cache();
+		$test_cache 	 = new WP_Super_Cache_Rest_Test_Cache();
+		$delete_cache 	 = new WP_Super_Cache_Rest_Delete_Cache();
 		$preload_cache   = new WP_Super_Cache_Rest_Preload();
 
 		register_rest_route( $namespace, '/settings', array(
@@ -69,6 +71,12 @@ class WP_Super_Cache_Router {
 			'methods'             => WP_REST_Server::CREATABLE,
 			'callback'            => array( $preload_cache, 'do_preload_cache' ),
 			'permission_callback' => array( __CLASS__ . '::update_item_permissions_check' ),
+		) );
+
+		register_rest_route( $namespace, '/cache/test', array(
+			'methods'             => WP_REST_Server::CREATABLE,
+			'callback'        	  => array( $test_cache, 'callback' ),
+			'permission_callback' => __CLASS__ . '::create_item_permissions_check',
 		) );
 	}
 
