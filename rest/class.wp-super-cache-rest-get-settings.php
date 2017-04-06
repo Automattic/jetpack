@@ -55,6 +55,7 @@ class WP_Super_Cache_Rest_Get_Settings extends WP_REST_Controller {
 			$settings[ $name ] = $value;
 		}
 
+		$settings['submit_enabled'] = $this->is_submit_enabled();
 		$settings['preload_enabled'] = $this->is_preload_enabled();
 
 		return $this->prepare_item_for_response( $settings, $request );
@@ -92,6 +93,14 @@ class WP_Super_Cache_Rest_Get_Settings extends WP_REST_Controller {
 		if ( $value == 0 || $value == 1 ) {
 			$value = (bool) $value;
 		}
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function is_submit_enabled() {
+		global $wp_cache_config_file;
+		return ! is_writeable_ACLSafe( $wp_cache_config_file );
 	}
 
 	/**
