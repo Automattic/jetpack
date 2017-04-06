@@ -21,9 +21,9 @@ class WP_Super_Cache_Router {
 		$version = '1';
 		$namespace = 'wp-super-cache/v' . $version;
 
-		$get_settings 	 = new WP_Super_Cache_Rest_Get_Settings();
+		$get_settings    = new WP_Super_Cache_Rest_Get_Settings();
 		$update_settings = new WP_Super_Cache_Rest_Update_Settings();
-		$get_stats 		 = new WP_Super_Cache_Rest_Get_Stats();
+		$get_stats       = new WP_Super_Cache_Rest_Get_Stats();
 		$get_cache 	  	 = new WP_Super_Cache_Rest_Get_Cache();
 		$delete_cache    = new WP_Super_Cache_Rest_Delete_Cache();
 		$preload_cache   = new WP_Super_Cache_Rest_Preload();
