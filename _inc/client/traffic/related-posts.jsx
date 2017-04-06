@@ -25,11 +25,11 @@ export const RelatedPosts = moduleSettingsForm(
 		/**
 		 * Get options for initial state.
 		 *
-		 * @returns {{show_headline: Boolean, show_thumbnails: Boolean}}
+		 * @returns {{show_headline: Boolean, show_thumbnails: Boolean}} Initial state object.
 		 */
 		getInitialState() {
 			return {
-				show_headline:   this.props.getOptionValue( 'show_headline', 'related-posts' ),
+				show_headline: this.props.getOptionValue( 'show_headline', 'related-posts' ),
 				show_thumbnails: this.props.getOptionValue( 'show_thumbnails', 'related-posts' )
 			};
 		},
@@ -37,7 +37,7 @@ export const RelatedPosts = moduleSettingsForm(
 		/**
 		 * Update state so preview is updated instantly and toggle options.
 		 *
-		 * @param {string} optionName
+		 * @param {string} optionName Slug of option to update.
 		 */
 		updateOptions( optionName ) {
 			this.setState(
@@ -49,7 +49,7 @@ export const RelatedPosts = moduleSettingsForm(
 		},
 
 		render() {
-			let isRelatedPostsActive = this.props.getOptionValue( 'related-posts' ),
+			const isRelatedPostsActive = this.props.getOptionValue( 'related-posts' ),
 				unavailableInDevMode = this.props.isUnavailableInDevMode( 'related-posts' );
 			return (
 				<SettingsCard
@@ -113,19 +113,25 @@ export const RelatedPosts = moduleSettingsForm(
 								{
 									[
 										{
-											url : '1-wpios-ipad-3-1-viewsite.png',
+											url: '1-wpios-ipad-3-1-viewsite.png',
 											text: __( 'Big iPhone/iPad Update Now Available' ),
-											context: __( 'In "Mobile"' )
+											context: __( 'In "Mobile"', {
+												comment: 'It refers to the category where a post was found. Used in an example preview.'
+											} )
 										},
 										{
-											url : 'wordpress-com-news-wordpress-for-android-ui-update2.jpg',
+											url: 'wordpress-com-news-wordpress-for-android-ui-update2.jpg',
 											text: __( 'The WordPress for Android App Gets a Big Facelift' ),
-											context: __( 'In "Mobile"' )
+											context: __( 'In "Mobile"', {
+												comment: 'It refers to the category where a post was found. Used in an example preview.'
+											} )
 										},
 										{
-											url : 'videopresswedding.jpg',
+											url: 'videopresswedding.jpg',
 											text: __( 'Upgrade Focus: VideoPress For Weddings' ),
-											context: __( 'In "Upgrade"' )
+											context: __( 'In "Upgrade"', {
+												comment: 'It refers to the category where a post was found. Used in an example preview.'
+											} )
 										}
 									].map( ( item, index ) => (
 										<div key={ `preview_${ index }` } className="jp-related-posts-preview__item">
@@ -135,7 +141,7 @@ export const RelatedPosts = moduleSettingsForm(
 												)
 											}
 											<h4 className="jp-related-posts-preview__post-title"><a href="#/traffic">{ item.text }</a></h4>
-											<p  className="jp-related-posts-preview__post-context">
+											<p className="jp-related-posts-preview__post-context">
 												{ item.context }
 											</p>
 										</div>

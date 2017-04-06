@@ -76,7 +76,7 @@ const Main = React.createClass( {
 	 */
 	routerWillLeave() {
 		if ( this.props.areThereUnsavedSettings ) {
-			if ( confirm( __( 'router There are unsaved settings in this tab that will be lost if you leave it. Proceed?' ) ) ) {
+			if ( confirm( __( 'There are unsaved settings in this tab that will be lost if you leave it. Proceed?' ) ) ) {
 				window.setTimeout( this.props.clearUnsavedSettingsFlag, 10 );
 			} else {
 				return false;
