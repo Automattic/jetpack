@@ -4,9 +4,10 @@ require_once __DIR__ . '/class.wp-super-cache-rest-get-settings.php';
 require_once __DIR__ . '/class.wp-super-cache-rest-update-settings.php';
 require_once __DIR__ . '/class.wp-super-cache-rest-get-stats.php';
 require_once __DIR__ . '/class.wp-super-cache-rest-get-cache.php';
+require_once __DIR__ . '/class.wp-super-cache-rest-get-notices.php';
+require_once __DIR__ . '/class.wp-super-cache-rest-test-cache.php';
 require_once __DIR__ . '/class.wp-super-cache-rest-delete-cache.php';
 require_once __DIR__ . '/class.wp-super-cache-rest-preload.php';
-require_once __DIR__ . '/class.wp-super-cache-rest-test-cache.php';
 
 class WP_Super_Cache_Router {
 	/**
@@ -29,6 +30,7 @@ class WP_Super_Cache_Router {
 		$test_cache 	 = new WP_Super_Cache_Rest_Test_Cache();
 		$delete_cache 	 = new WP_Super_Cache_Rest_Delete_Cache();
 		$preload_cache   = new WP_Super_Cache_Rest_Preload();
+		$get_notices 	 = new WP_Super_Cache_Rest_Get_Notices();
 
 		register_rest_route( $namespace, '/settings', array(
 			array(
@@ -43,6 +45,12 @@ class WP_Super_Cache_Router {
 				'permission_callback' => __CLASS__ . '::update_item_permissions_check',
 				'args'           	  => array(),
 			),
+		) );
+
+		register_rest_route( $namespace, '/notices', array(
+			'methods'             => WP_REST_Server::READABLE,
+			'callback'        	  => array( $get_notices, 'callback' ),
+			'permission_callback' => __CLASS__ . '::get_item_permissions_check',
 		) );
 
 		register_rest_route( $namespace, '/stats', array(
