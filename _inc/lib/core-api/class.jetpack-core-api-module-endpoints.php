@@ -45,9 +45,19 @@ class Jetpack_Core_API_Module_Toggle_Endpoint
 	 * @return bool|WP_Error True if module was activated. Otherwise, a WP_Error instance with the corresponding error.
 	 */
 	public function activate_module( $request ) {
-		$module_slug = is_array( $request ) && isset( $request['slug'] )
-			? $request['slug']
-			: $request;
+		$module_slug = '';
+
+		if (
+			(
+				is_array( $request )
+				|| is_object( $request )
+			)
+			&& isset( $request['slug'] )
+		) {
+			$module_slug = $request['slug'];
+		} else {
+			$module_slug = $request;
+		}
 
 		if ( ! Jetpack::is_module( $module_slug ) ) {
 			return new WP_Error(
@@ -87,9 +97,19 @@ class Jetpack_Core_API_Module_Toggle_Endpoint
 	 * @return bool|WP_Error True if module was activated. Otherwise, a WP_Error instance with the corresponding error.
 	 */
 	public function deactivate_module( $request ) {
-		$module_slug = is_array( $request ) && isset( $request['slug'] )
-			? $request['slug']
-			: $request;
+		$module_slug = '';
+
+		if (
+			(
+				is_array( $request )
+				|| is_object( $request )
+			)
+			&& isset( $request['slug'] )
+		) {
+			$module_slug = $request['slug'];
+		} else {
+			$module_slug = $request;
+		}
 
 		if ( ! Jetpack::is_module( $module_slug ) ) {
 			return new WP_Error(
