@@ -216,6 +216,29 @@ class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 			scossdl_off_update();
 		}
 
+		$update_preload = false;
+		$preload_settings = array( 'wp_cache_preload_interval' , 'wp_cache_preload_on', 'wp_cache_preload_taxonomies', 'wp_cache_preload_email_me', 'wp_cache_preload_email_volume', 'wp_cache_preload_posts', 'wp_cache_preload_on' );
+
+		foreach( $preload_settings as $key ) {
+			if ( isset( $parameters[ $key ] ) ) {
+				$_POST[ $key ] = $parameters[ $key ];
+				$update_preload = true;
+			}
+		}
+		if ( $update_preload ) {
+			$_POST[ 'action' ] = 'preload';
+			reset( $preload_settings );
+			foreach( $preload_settings as $key ) {
+				if ( false == isset( $parameters[ $key ] ) ) {
+					global ${$key};
+					$_POST[ $key ] = $$key;
+				} elseif( $parameters[ $key ] == 0 ) {
+					unset( $_POST[ $key ] );
+				}
+			}
+			wpsc_preload_settings();
+		}
+
 		return $errors;
 	}
 
