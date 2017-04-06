@@ -65,7 +65,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 	}
 
 	function sync_add_widgets_to_sidebar( $new_widgets, $old_widgets, $sidebar ) {
-
+		$added_widgets = array_diff( $new_widgets, $old_widgets );
 		if ( empty( $added_widgets ) ) {
 			return array();
 		}
@@ -150,20 +150,16 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 			if ( in_array( $sidebar, array( 'array_version', 'wp_inactive_widgets' ) ) ) {
 				continue;
 			}
-
 			$old_widgets = $old_value[ $sidebar ];
 
-			$moved_to_sidebar = array_merge(
-				$moved_to_sidebar,
-				$this->sync_add_widgets_to_sidebar( $new_widgets, $old_widgets, $sidebar )
-			);
+			$moved_to_inactive_recently = $this->sync_remove_widgets_from_sidebar( $new_widgets, $old_widgets, $sidebar, $new_value['wp_inactive_widgets'] );
+			$moved_to_inactive = array_merge( $moved_to_inactive, $moved_to_inactive_recently );
 
-			$moved_to_inactive = array_merge(
-				$moved_to_inactive,
-				$this->sync_remove_widgets_from_sidebar( $new_widgets, $old_widgets, $sidebar, $new_value['wp_inactive_widgets'] )
-			);
 
-			$this->sync_widgets_reordered( $new_widgets, $old_widgets );
+			$moved_to_sidebar_recently = $this->sync_add_widgets_to_sidebar( $new_widgets, $old_widgets, $sidebar );
+			$moved_to_sidebar = array_merge( $moved_to_sidebar, $moved_to_sidebar_recently );
+
+			$this->sync_widgets_reordered( $new_widgets, $old_widgets, $sidebar );
 
 		}
 
