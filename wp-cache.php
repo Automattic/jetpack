@@ -63,7 +63,7 @@ if( !defined( 'WP_CACHE' ) || ( defined( 'WP_CACHE' ) && constant( 'WP_CACHE' ) 
 }
 
 include(WPCACHEHOME . 'wp-cache-base.php');
-include( WPCACHEHOME . 'wp-rest-api-settings.php' );
+include( WPCACHEHOME . 'rest/load.php' );
 
 function wp_super_cache_text_domain() {
 	load_plugin_textdomain( 'wp-super-cache', WPCACHEHOME . 'languages', basename( dirname( __FILE__ ) ) . '/languages' );
@@ -762,6 +762,7 @@ table.wpsc-settings-table {
 	echo '<a name="top"></a>';
 	echo '<div class="wrap">';
 	echo '<h2>' . __( 'WP Super Cache Settings', 'wp-super-cache' ) . '</h2>';
+	echo '<p>' . wp_create_nonce( 'wp_rest' ) . '</p>';
 
 	// set a default
 	if ( $cache_enabled == false && isset( $wp_cache_mod_rewrite ) == false ) {
