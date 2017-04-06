@@ -115,11 +115,12 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 	}
 
 	function sync_widgets_reordered( $new_widgets, $old_widgets, $sidebar ) {
-		if ( ! empty( array_diff( $old_widgets, $new_widgets ) ) ) {
+		$added_widgets = array_diff( $new_widgets, $old_widgets );
+		if ( ! empty( $added_widgets ) ) {
 			return;
 		}
-
-		if ( ! empty( array_diff( $new_widgets, $old_widgets ) ) ) {
+		$removed_widgets = array_diff( $old_widgets, $new_widgets );
+		if ( ! empty( $removed_widgets ) ) {
 			return;
 		}
 
