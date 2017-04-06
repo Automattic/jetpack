@@ -11,7 +11,7 @@ class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 	public function callback( $request ) {
 		$parameters = $request->get_json_params();
 
-		if ( isset( $parameters[ 'easy' ] ) {
+		if ( isset( $parameters[ 'easy' ] ) ) {
 			$errors = $this->toggle_easy_caching( $parameters[ 'easy' ] );
 
 		} else {
