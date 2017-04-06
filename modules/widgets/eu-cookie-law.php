@@ -11,7 +11,7 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 	/**
 	 * EU Cookie Law Widget
 	 *
-	 * Display the EU Cookie Law banner in wp_footer.
+	 * Display the EU Cookie Law banner in the bottom part of the screen.
 	 */
 	class Jetpack_EU_Cookie_Law_Widget extends WP_Widget {
 		/**
