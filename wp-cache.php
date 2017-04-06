@@ -763,7 +763,6 @@ table.wpsc-settings-table {
 	echo '<a name="top"></a>';
 	echo '<div class="wrap">';
 	echo '<h2>' . __( 'WP Super Cache Settings', 'wp-super-cache' ) . '</h2>';
-	echo '<p>' . wp_create_nonce( 'wp_rest' ) . '</p>';
 
 	// set a default
 	if ( $cache_enabled == false && isset( $wp_cache_mod_rewrite ) == false ) {
