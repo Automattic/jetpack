@@ -47,6 +47,141 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( "foo bar baz", $remote_comment->comment_content );
 	}
 
+	public function test_unapprove_comment_does_not_trigger_content_modified_event() {
+		$this->comment->comment_approved = 0;
+		wp_update_comment( (array) $this->comment );
+		$this->sender->do_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_modified_comment_contents' );
+		$this->assertFalse( (bool) $event );
+	}
+
+	public function test_modify_comment_content() {
+		global $wp_version;
+		if ( version_compare( $wp_version, 4.7, '<' ) ) {
+			$this->markTestSkipped( 'WP 4.7 and up supports required wp_update_comment_data filter' );
+			return;
+		}
+
+		$comment = clone $this->comment;
+		$comment->comment_content = "Heeeeeeere's Johnny!";
+		$expected_variable = array(
+			'comment_content' => array(
+				$comment->comment_content,
+				$this->comment->comment_content,
+			),
+		);
+		$this->modify_comment_helper( $comment, $expected_variable );
+	}
+
+	public function test_modify_comment_author() {
+		global $wp_version;
+		if ( version_compare( $wp_version, 4.7, '<' ) ) {
+			$this->markTestSkipped( 'WP 4.7 and up supports required wp_update_comment_data filter' );
+			return;
+		}
+
+		$comment = clone $this->comment;
+		$comment->comment_author = "jollycoder";
+		$expected_variable = array(
+			'comment_author' => array(
+				$comment->comment_author,
+				$this->comment->comment_author,
+			),
+		);
+		$this->modify_comment_helper( $comment, $expected_variable );
+	}
+
+	public function test_modify_comment_author_url() {
+		global $wp_version;
+		if ( version_compare( $wp_version, 4.7, '<' ) ) {
+			$this->markTestSkipped( 'WP 4.7 and up supports required wp_update_comment_data filter' );
+			return;
+		}
+
+		$comment = clone $this->comment;
+		$comment->comment_author_url = "http://jollycoder.xyz";
+		$expected_variable = array(
+			'comment_author_url' => array(
+				$comment->comment_author_url,
+				$this->comment->comment_author_url,
+			),
+		);
+		$this->modify_comment_helper( $comment, $expected_variable );
+	}
+
+	public function test_modify_comment_author_email() {
+		global $wp_version;
+		if ( version_compare( $wp_version, 4.7, '<' ) ) {
+			$this->markTestSkipped( 'WP 4.7 and up supports required wp_update_comment_data filter' );
+			return;
+		}
+
+		$comment = clone $this->comment;
+		$comment->comment_author_email = "i_prefer_to_remain_anonymous_thanks@example.com";;
+		$expected_variable = array(
+			'comment_author_email' => array(
+				$comment->comment_author_email,
+				$this->comment->comment_author_email,
+			),
+		);
+		$this->modify_comment_helper( $comment, $expected_variable );
+	}
+
+	public function test_modify_comment_multiple_attributes() {
+		global $wp_version;
+		if ( version_compare( $wp_version, 4.7, '<' ) ) {
+			$this->markTestSkipped( 'WP 4.7 and up supports required wp_update_comment_data filter' );
+			return;
+		}
+
+		$comment = clone $this->comment;
+		$comment->comment_author_email = "i_prefer_to_remain_anonymous_thanks@example.com";
+		$comment->comment_author_url = "http://jollycoder.xyz";
+		$comment->comment_author = "jollycoder";
+		$expected_variable = array(
+			'comment_author_email' => array(
+				$comment->comment_author_email,
+				$this->comment->comment_author_email,
+			),
+			'comment_author_url' => array(
+				$comment->comment_author_url,
+				$this->comment->comment_author_url,
+			),
+			'comment_author' => array(
+				$comment->comment_author,
+				$this->comment->comment_author,
+			),
+		);
+		$this->modify_comment_helper( $comment, $expected_variable );
+	}
+
+	/*
+	 * Updates comment, checks that event args match expected, checks event is not duplicated
+	 */
+	private function modify_comment_helper( $comment, $expected_variable ) {
+		$expected = array(
+			$comment->comment_ID,
+			$expected_variable,
+		);
+
+		wp_update_comment( (array) $comment );
+		$this->sender->do_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_modified_comment_contents' );
+		$this->assertTrue( (bool) $event );
+		$this->assertEquals( $expected, $event->args );
+
+		$this->server_event_storage->reset();
+
+		//Confirm that 'modified_comment_contents' action is not set after updating comment with same data
+		wp_update_comment( (array) $comment );
+		$this->sender->do_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_modified_comment_contents' );
+		$this->assertFalse( (bool) $event );
+	}
+
 	public function test_unapprove_comment() {
 
 		$this->assertEquals( 1, $this->server_replica_storage->comment_count( 'approve' ) );
