@@ -47,8 +47,9 @@ class WP_Super_Cache_Rest_Get_Settings extends WP_REST_Controller {
 	public function callback( $request ) {
 		$settings = array();
 
-		$settings['is_submit_enabled'] = $this->is_submit_enabled();
-		$settings['is_preload_enabled'] = $this->is_preload_enabled();
+		$settings[ 'is_submit_enabled' ]        = $this->is_submit_enabled();
+		$settings[ 'is_preload_enabled' ]       = $this->is_preload_enabled();
+		$settings[ 'minimum_preload_interval' ] = $this->minimum_preload_interval();
 
 		foreach ( self::$settings_map as $var => $name ) {
 			global ${$var};
@@ -105,5 +106,20 @@ class WP_Super_Cache_Rest_Get_Settings extends WP_REST_Controller {
 	 */
 	protected function is_preload_enabled() {
 		return false === defined( 'DISABLESUPERCACHEPRELOADING' );
+	}
+
+	/**
+	 * @return int
+	 */
+	protected function minimum_preload_interval() {
+		global $wpdb;
+		$count = $wpdb->get_var( "SELECT count(ID) FROM {$wpdb->posts} WHERE post_status = 'publish'" );
+		if ( $count > 1000 ) {
+			$min_refresh_interval = 720;
+		} else {
+			$min_refresh_interval = 30;
+		}
+
+		return $min_refresh_interval;
 	}
 }
