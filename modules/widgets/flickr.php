@@ -58,6 +58,58 @@ if ( ! class_exists( 'Jetpack_Flickr_Widget' ) ) {
 		}
 
 		/**
+		 * Front-end display of the widget.
+		 *
+		 * @param array $args     Widget arguments.
+		 * @param array $instance Saved values from database.
+		 */
+		public function widget( $args, $instance ) {
+			require( ABSPATH . WPINC . '/rss.php' );
+
+			$instance = wp_parse_args( $instance, $this->defaults() );
+
+			$image_size_string = 'small' == $instance['flickr_image_size']
+				? '_m.jpg'
+				: '_t.jpg';
+
+			$rss_url = ( ! isset( $instance['flickr_rss_url'] ) || empty( $instance['flickr_rss_url'] ) )
+				? 'https://api.flickr.com/services/feeds/photos_interesting.gne?format=rss_200'
+				: htmlspecialchars_decode( $instance['flickr_rss_url'] );
+
+			// We want to use the HTTPS version so the URLs in the API response are also HTTPS and we avoid mixed-content warnings.
+			$rss_url = preg_replace( '!^http://api.flickr.com/!i', 'https://api.flickr.com/', $rss_url );
+
+			$rss = fetch_rss( $rss_url );
+
+			$photos = array();
+			if ( is_array( $rss->items ) ) {
+				$items = array_slice( $rss->items, 0, $instance['items'] );
+				foreach( $items as $key => $photo ) {
+					if ( isset( $photo['media:thumbnail'] ) ) {
+						$src = str_replace( '_s.jpg', $image_size_string, $photo['media:thumbnail']['url'] );
+					} else {
+						// Sometimes the image URL is in the description.
+						$src = preg_match( '/src="(.*?)"/i', $photo['description'], $p );
+						$src = str_replace( '_m.jpg', $image_size_string, $p[1] );
+					}
+					array_push( $photos, array(
+						'href'  => esc_url( $photochannel['link'], array( 'http', 'https' ) ),
+						'src'   => esc_url( $src, array( 'http', 'https' ) ),
+						'title' => esc_attr( $photo['title'] ),
+					) );
+				}
+				$flickr_home = esc_url( $rss->channel['link'], array( 'http', 'https' ) );
+			}
+
+			echo $args['before_widget'];
+			echo $args['before_title'] . esc_html( $instance['title'] ) . $args['after_title'];
+			require( dirname( __FILE__ ) . '/flickr/widget.php' );
+			echo $args['after_widget'];
+			/** This action is already documented in modules/widgets/gravatar-profile.php */
+			do_action( 'jetpack_stats_extra', 'widget_view', 'flickr' );
+		}
+
+		/**
 		 * Back-end widget form.
 		 *
 		 * @param array $instance Previously saved values from database.
