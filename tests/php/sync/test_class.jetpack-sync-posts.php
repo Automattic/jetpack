@@ -172,7 +172,6 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		$meta_thumbnail_id = $this->server_replica_storage->get_metadata( 'post', $this->post->ID, '_thumbnail_id', true );
 		$this->assertEquals( get_post_meta( $this->post->ID, '_thumbnail_id', true ), $meta_thumbnail_id );
-
 	}
 
 	public function test_sync_attachment_update_is_synced() {
@@ -195,7 +194,17 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		// Insert the attachment.
 		$attach_id = wp_insert_attachment( $attachment, $filename, $this->post->ID );
+		
 		$this->sender->do_sync();
+		
+		// Test that the first event is add_attachment
+		$update_attachment_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_update_attachment' );
+		$add_attachment_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_add_attachment' );
+		$this->assertTrue( (bool) $add_attachment_event );
+		$this->assertFalse( (bool) $update_attachment_event );
+
+		$this->server_event_storage->reset();
+		
 
 		$this->assertAttachmentSynced( $attach_id );
 
@@ -219,6 +228,10 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		$this->assertEquals( $attachment, $remote_attachment );
 
+		$update_attachment_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_update_attachment' );
+		$add_attachment_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_add_attachment' );
+		$this->assertTrue( (bool) $update_attachment_event );
+		$this->assertFalse( (bool) $add_attachment_event );
 	}
 
 	public function test_sync_attachment_delete_is_synced() {
