@@ -39,7 +39,13 @@ class WP_Super_Cache_Rest_Get_Settings extends WP_REST_Controller {
 			'cache_max_time',
 			'cache_time_interval',
 			'wp_cache_shutdown_gc',
-			'wp_cache_pages'
+			'wp_cache_pages',
+			'wp_cache_preload_interval',
+			'wp_cache_preload_posts',
+			'wp_cache_preload_on',
+			'wp_cache_preload_taxonomies',
+			'wp_cache_preload_email_me',
+			'wp_cache_preload_email_volume',
 		);
 
 		$settings = array();
@@ -48,6 +54,8 @@ class WP_Super_Cache_Rest_Get_Settings extends WP_REST_Controller {
 			$value = $$name;
 			$settings[ $name ] = $value;
 		}
+
+		$settings['preload_enabled'] = $this->is_preload_enabled();
 
 		return $this->prepare_item_for_response( $settings, $request );
 	}
@@ -84,5 +92,12 @@ class WP_Super_Cache_Rest_Get_Settings extends WP_REST_Controller {
 		if ( $value == 0 || $value == 1 ) {
 			$value = (bool) $value;
 		}
+	}
+
+	/**
+	 * @return bool
+	 */
+	protected function is_preload_enabled() {
+		return false === defined( 'DISABLESUPERCACHEPRELOADING' );
 	}
 }
