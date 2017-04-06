@@ -34,7 +34,9 @@ class Jetpack_Core_API_Module_Toggle_Endpoint
 	 *
 	 * @since 4.3.0
 	 *
-	 * @param string|WP_REST_Request $request {
+	 * @param string|WP_REST_Request $request It's a WP_REST_Request when called from endpoint /module/<slug>/*
+	 *                                        and a string when called from Jetpack_Core_API_Data->update_data.
+	 * {
 	 *     Array of parameters received by request.
 	 *
 	 *     @type string $slug Module slug.
@@ -43,9 +45,19 @@ class Jetpack_Core_API_Module_Toggle_Endpoint
 	 * @return bool|WP_Error True if module was activated. Otherwise, a WP_Error instance with the corresponding error.
 	 */
 	public function activate_module( $request ) {
-		$module_slug = isset( $request['slug'] )
-			? $request['slug']
-			: $request;
+		$module_slug = '';
+
+		if (
+			(
+				is_array( $request )
+				|| is_object( $request )
+			)
+			&& isset( $request['slug'] )
+		) {
+			$module_slug = $request['slug'];
+		} else {
+			$module_slug = $request;
+		}
 
 		if ( ! Jetpack::is_module( $module_slug ) ) {
 			return new WP_Error(
@@ -74,7 +86,9 @@ class Jetpack_Core_API_Module_Toggle_Endpoint
 	 *
 	 * @since 4.3.0
 	 *
-	 * @param string|WP_REST_Request $request {
+	 * @param string|WP_REST_Request $request It's a WP_REST_Request when called from endpoint /module/<slug>/*
+	 *                                        and a string when called from Jetpack_Core_API_Data->update_data.
+	 * {
 	 *     Array of parameters received by request.
 	 *
 	 *     @type string $slug Module slug.
@@ -83,9 +97,19 @@ class Jetpack_Core_API_Module_Toggle_Endpoint
 	 * @return bool|WP_Error True if module was activated. Otherwise, a WP_Error instance with the corresponding error.
 	 */
 	public function deactivate_module( $request ) {
-		$module_slug = isset( $request['slug'] )
-			? $request['slug']
-			: $request;
+		$module_slug = '';
+
+		if (
+			(
+				is_array( $request )
+				|| is_object( $request )
+			)
+			&& isset( $request['slug'] )
+		) {
+			$module_slug = $request['slug'];
+		} else {
+			$module_slug = $request;
+		}
 
 		if ( ! Jetpack::is_module( $module_slug ) ) {
 			return new WP_Error(
