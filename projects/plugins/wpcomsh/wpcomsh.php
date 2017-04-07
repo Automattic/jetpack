@@ -17,6 +17,7 @@ add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
 require_once( 'constants.php' );
 require_once( 'footer-credit/footer-credit.php' );
 require_once( 'colors/colors.php' );
+require_once( 'storefront/storefront.php' );
 require_once( 'custom-fonts/custom-fonts.php' );
 require_once( 'custom-fonts-typekit/custom-fonts-typekit.php' );
 
