@@ -2277,7 +2277,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		switch ( $module ) {
 			case 'monitor':
 				// Load the class to use the method. If class can't be found, do nothing.
-				if ( ! class_exists( 'Jetpack_Monitor' ) && ! @include( Jetpack::get_module_path( $module ) ) ) {
+				if ( ! class_exists( 'Jetpack_Monitor' ) && ! include_once( Jetpack::get_module_path( $module ) ) ) {
 					return false;
 				}
 				$value = Jetpack_Monitor::user_receives_notifications( false );
@@ -2285,7 +2285,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 			case 'post-by-email':
 				// Load the class to use the method. If class can't be found, do nothing.
-				if ( ! class_exists( 'Jetpack_Post_By_Email' ) && ! @include( Jetpack::get_module_path( $module ) ) ) {
+				if ( ! class_exists( 'Jetpack_Post_By_Email' ) && ! include_once( Jetpack::get_module_path( $module ) ) ) {
 					return false;
 				}
 				$post_by_email = new Jetpack_Post_By_Email();
