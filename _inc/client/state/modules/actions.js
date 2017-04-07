@@ -99,7 +99,7 @@ export const activateModule = ( slug, reloadAfter = false ) => {
 						slug: getModule( getState(), slug ).name
 					}
 				} ),
-				{ id: 'module-toggle', duration: 3000 }
+				{ id: 'module-toggle', duration: 2000 }
 			) );
 			if ( reloadAfter ) {
 				window.location.reload();
@@ -156,7 +156,7 @@ export const deactivateModule = ( slug, reloadAfter = false ) => {
 						slug: getModule( getState(), slug ).name
 					}
 				} ),
-				{ id: 'module-toggle', duration: 3000 }
+				{ id: 'module-toggle', duration: 2000 }
 			) );
 			if ( reloadAfter ) {
 				window.location.reload();
@@ -218,7 +218,7 @@ export const updateModuleOptions = ( module, newOptionValues ) => {
 						slug: getModule( getState(), slug ).name
 					}
 				} ),
-				{ id: `module-setting-${ slug }` }
+				{ id: `module-setting-${ slug }`, duration: 2000 }
 			) );
 		} ).catch( error => {
 			dispatch( {
@@ -283,7 +283,7 @@ export const regeneratePostByEmailAddress = () => {
 						slug: getModule( getState(), slug ).name
 					}
 				} ),
-				{ id: `module-setting-${ slug }` }
+				{ id: `module-setting-${ slug }`, duration: 2000 }
 			) );
 		} ).catch( error => {
 			dispatch( {
