@@ -18,7 +18,7 @@ if ( ! class_exists( 'Jetpack_Flickr_Widget' ) ) {
 		 */
 		function __construct() {
 			parent::__construct(
-				'flickr_widget',
+				'flickr',
 				/** This filter is documented in modules/widgets/facebook-likebox.php */
 				apply_filters( 'jetpack_widget_name', esc_html__( 'Flickr', 'jetpack' ) ),
 				array(
@@ -29,16 +29,15 @@ if ( ! class_exists( 'Jetpack_Flickr_Widget' ) ) {
 			);
 
 			if ( is_active_widget( false, false, $this->id_base ) || is_customize_preview() ) {
-				add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend_scripts' ) );
+				add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_style' ) );
 			}
 		}
 
 		/**
-		 * Enqueue scripts and styles.
+		 * Enqueue style.
 		 */
-		function enqueue_frontend_scripts() {
+		function enqueue_style() {
 			wp_enqueue_style( 'flickr-widget-style', plugins_url( 'flickr/style.css', __FILE__ ), array(), '20170405' );
-			wp_enqueue_script( 'flickr-widget-script', plugins_url( 'flickr/flickr.js', __FILE__ ), array( 'jquery' ), '20170405', true );
 		}
 
 		/**
