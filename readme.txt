@@ -103,6 +103,17 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
+= 4.8.2 =
+
+* Release date: April 7th, 2017
+* Release post: http://wp.me/p1moTy-4P0
+
+**Bug Fixes**
+
+* We fixed a bug that prevented activating/deactivating of some features in PHP versions below 5.4.
+* Removed an unused function that was also incompatible with PHP versions below 5.4.
+* Fixed a bug that was causing a blank Jetpack admin area by being more defensive when including files.
+
 = 4.8.1 =
 
 * Release date: April 5th, 2017
@@ -110,8 +121,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug Fixes**
 
-* Sitemaps: Fixed incompatibility with PHP versions lower than 5.4.
-* Sitemaps: Fixed an incompatibility with other plugins that were relying on a function removed in the prior release.
+* An incompatibility with PHP versions lower than 5.4 was introduced in the last release, causing a fatal error and we've immediately fixed this.
+* Sitemaps: Some plugins were relying on a function that was removed in the last release, which has been fixed.
 * General: Clicking on the info icon in the settings area will no longer jump to the top of the page.
 * General: The Anti-spam card will always display the correct status in the Jetpack dashboard.
 
