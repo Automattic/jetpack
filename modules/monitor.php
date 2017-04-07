@@ -66,7 +66,7 @@ class Jetpack_Monitor {
 						</th>
 						<td>
 							<label for="receive_jetpack_monitor_notification">
-									<input type="checkbox" name="receive_jetpack_monitor_notification" id="receive_jetpack_monitor_notification" value="receive_jetpack_monitor_notification"<?php checked( $this->user_receives_notifications() ); ?> />
+									<input type="checkbox" name="receive_jetpack_monitor_notification" id="receive_jetpack_monitor_notification" value="receive_jetpack_monitor_notification"<?php checked( self::user_receives_notifications() ); ?> />
 								<span><?php _e( 'Receive Monitor Email Notifications.' , 'jetpack'); ?></span>
 							</label>
 							<p class="description"><?php printf( __( 'Emails will be sent to %s (<a href="%s">Edit</a>)', 'jetpack' ), $user_email, 'https://wordpress.com/settings/account/'); ?></p>
@@ -121,7 +121,7 @@ class Jetpack_Monitor {
 	 *
 	 * @return boolean|WP_Error
 	 */
-	public function user_receives_notifications( $die_on_error = true ) {
+	static function user_receives_notifications( $die_on_error = true ) {
 		Jetpack::load_xml_rpc_client();
 		$xml = new Jetpack_IXR_Client( array(
 			'user_id' => get_current_user_id()

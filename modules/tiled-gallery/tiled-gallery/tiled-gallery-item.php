@@ -21,7 +21,13 @@ abstract class Jetpack_Tiled_Gallery_Item {
 		$this->orig_file = wp_get_attachment_url( $this->image->ID );
 		$this->link = $needs_attachment_link ? get_attachment_link( $this->image->ID ) : $this->orig_file;
 
-		$this->img_src = jetpack_photon_url( $this->orig_file, array( 'resize' => sprintf( '%d,%d', $this->image->width, $this->image->height ) ) );
+		// If h and w are the same, there's a reasonably good chance the image will need cropping to avoid being stretched.
+		$crop = $this->image->height == $this->image->width ? true : false;
+		$this->img_src = jetpack_photon_url( $this->orig_file, array(
+			'w'    => $this->image->width,
+			'h'    => $this->image->height,
+			'crop' => $crop
+		) );
 	}
 
 	public function fuzzy_image_meta() {

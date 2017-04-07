@@ -5,6 +5,7 @@ require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
 class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 
 	private $just_published = array();
+	private $just_trashed = array();
 	private $action_handler;
 
 	public function name() {
@@ -33,6 +34,8 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 
 		add_action( 'deleted_post', $callable, 10 );
 		add_action( 'jetpack_published_post', $callable, 10, 2 );
+		add_action( 'jetpack_trashed_post', $callable, 10, 2 );
+
 		add_action( 'transition_post_status', array( $this, 'save_published' ), 10, 3 );
 		add_filter( 'jetpack_sync_before_enqueue_wp_insert_post', array( $this, 'filter_blacklisted_post_types' ) );
 
@@ -241,11 +244,16 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		if ( 'publish' === $new_status && 'publish' !== $old_status ) {
 			$this->just_published[] = $post->ID;
 		}
+
+		if ( 'trash' === $new_status && 'trash' !== $old_status ) {
+			$this->just_trashed[] = $post->ID;
+		}
 	}
 
 	public function wp_insert_post( $post_ID, $post, $update ) {
 		call_user_func( $this->action_handler, $post_ID, $post, $update );
 		$this->send_published( $post_ID, $post );
+		$this->send_trashed( $post_ID, $post );
 	}
 
 	public function send_published( $post_ID, $post ) {
@@ -279,6 +287,28 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		do_action( 'jetpack_published_post', $post_ID, $flags );
 
 		$this->just_published = array_diff( $this->just_published, array( $post_ID ) );
+	}
+
+	public function send_trashed( $post_ID, $post ) {
+		if ( ! in_array( $post_ID, $this->just_trashed ) ) {
+			return;
+		}
+
+		// Post revisions cause race conditions where this send_published add the action before the actual post gets synced
+		if ( wp_is_post_autosave( $post ) || wp_is_post_revision( $post ) ) {
+			return;
+		}
+
+		/**
+		 * Action that gets synced when a post type gets trashed.
+		 *
+		 * @since 4.9.0
+		 *
+		 * @param int $post_ID
+		 */
+		do_action( 'jetpack_trashed_post', $post_ID );
+
+		$this->just_trashed = array_diff( $this->just_trashed, array( $post_ID ) );
 	}
 
 	public function expand_post_ids( $args ) {

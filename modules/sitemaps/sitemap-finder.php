@@ -22,26 +22,14 @@ class Jetpack_Sitemap_Finder {
 	 *
 	 * @access public
 	 * @since 4.8.0
+	 * @since 4.8.1 Call jetpack_sitemap_uri()
 	 *
 	 * @param string $filename The filename of the sitemap.
 	 *
 	 * @return string Complete URI of the given sitemap file.
 	 */
 	public function construct_sitemap_url( $filename ) {
-		global $wp_rewrite;
-
-		$location = Jetpack_Options::get_option_and_ensure_autoload(
-			'jetpack_sitemap_location',
-			''
-		);
-
-		if ( $wp_rewrite->using_index_permalinks() ) {
-			return home_url( '/index.php' . $location . '/' . $filename );
-		} elseif ( $wp_rewrite->using_permalinks() ) {
-			return home_url( $location . '/' . $filename );
-		} else {
-			return home_url( $location . '/?jetpack-sitemap=' . $filename );
-		}
+		return jetpack_sitemap_uri( $filename );
 	}
 
 	/**

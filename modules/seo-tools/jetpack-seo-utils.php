@@ -28,7 +28,7 @@ class Jetpack_SEO_Utils {
 				$site_id = get_current_blog_id();
 			}
 
-			return has_blog_sticker( 'unlimited-premium-themes', $site_id );
+			return has_blog_sticker( 'business-plan', $site_id );
 		}
 
 		// For all Jetpack sites
