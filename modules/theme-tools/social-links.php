@@ -122,7 +122,7 @@ class Social_Links {
 			'priority' => 35,
 		) );
 
-		foreach ( $this->services as $service ) {
+		foreach ( array_keys( $this->publicize->get_services() ) as $service ) {
 			$choices = $this->get_customize_select( $service );
 
 			if ( empty( $choices ) ) {
@@ -202,6 +202,10 @@ class Social_Links {
 		$choices = array(
 			'' => __( '&mdash; Select &mdash;', 'jetpack' )
 		);
+
+		if ( isset( $this->links[ $service ] ) ) {
+			$choices[ $this->links[ $service ] ] = $this->links[ $service ];
+		}
 
 		$connected_services = $this->publicize->get_services( 'connected' );
 		if ( isset( $connected_services[ $service ] ) ) {
