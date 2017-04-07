@@ -1606,7 +1606,7 @@ class Jetpack {
 				continue;
 			}
 
-			if ( ! @include( Jetpack::get_module_path( $module ) ) ) {
+			if ( ! include_once( Jetpack::get_module_path( $module ) ) ) {
 				unset( $modules[ $index ] );
 				self::update_active_modules( array_values( $modules ) );
 				continue;

@@ -1,7 +1,7 @@
 === Jetpack by WordPress.com ===
 Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, blobaugh, cainm, cena, cfinke, chaselivingston, chellycat, csonnek, danielbachhuber, davoraltman, daniloercoli, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, eliorivero, enej, eoigal, erania-pinnera, ethitter, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jacobshere, jblz, jeherve, jenhooks, jenia, jgs, jkudish, jmdodd, Joen, johnjamesjacoby, jshreve, koke, kraftbj, lamdayap, lancewillett, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, michael-arestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, scarstocea, sdquirk, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Jetpack, WordPress.com, backup, security, related posts, CDN, speed, anti-spam, social sharing, SEO, video, stats
-Stable tag: 4.7.1
+Stable tag: 4.8.1
 Requires at least: 4.6
 Tested up to: 4.7
 
@@ -102,6 +102,17 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 5. Traffic: SEO Tools for Google, Twitter, Facebook and more.
 
 == Changelog ==
+
+= 4.8.2 =
+
+* Release date: April 7th, 2017
+* Release post: http://wp.me/p1moTy-4P0
+
+**Bug Fixes**
+
+* Fixed a bug that prevented activating/deactivating of some features in PHP versions below 5.4.
+* Removed an unused function that was also incompatible with PHP versions below 5.4.
+* Fixed a bug that was causing a blank Jetpack admin area.
 
 = 4.8.1 =
 
