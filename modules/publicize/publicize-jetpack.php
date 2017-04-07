@@ -453,7 +453,7 @@ class Publicize extends Publicize_Base {
 	 * connections.
 	 */
 	function save_publicized( $post_ID, $post = null, $update = null ) {
-		if( is_null( $post ) ) {
+		if ( is_null( $post ) ) {
 			return;
 		}
 		// Only do this when a post transitions to being published
