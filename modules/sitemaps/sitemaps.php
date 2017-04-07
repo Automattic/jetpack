@@ -138,7 +138,6 @@ class Jetpack_Sitemap_Manager {
 		header( 'Content-Type: ' . $the_content_type . '; charset=UTF-8' );
 
 		if ( '' === $the_content ) {
-			http_response_code( 404 );
 			wp_die(
 				esc_html__( "No sitemap found. Maybe it's being generated. Please try again later.", 'jetpack' ),
 				esc_html__( 'Sitemaps', 'jetpack' ),
