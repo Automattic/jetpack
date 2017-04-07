@@ -61,7 +61,7 @@ class Jetpack_Sync_Module_Comments extends Jetpack_Sync_Module {
 			 * Signals to the sync listener that this comment's contents were modified and a sync action
 			 * reflecting the change(s) to the content should be sent
 			 *
-			 * @since 4.8.2
+			 * @since 4.9.0
 			 *
 			 * @param int $new_comment['comment_ID'] ID of comment whose content was modified
 			 * @param mixed $changes Array of changed comment fields with before and after values
@@ -101,7 +101,7 @@ class Jetpack_Sync_Module_Comments extends Jetpack_Sync_Module {
 		global $wpdb;
 
 		$query = "SELECT count(*) FROM $wpdb->comments";
-		
+
 		if ( $where_sql = $this->get_where_sql( $config ) ) {
 			$query .= ' WHERE ' . $where_sql;
 		}
@@ -114,7 +114,7 @@ class Jetpack_Sync_Module_Comments extends Jetpack_Sync_Module {
 	private function get_where_sql( $config ) {
 		if ( is_array( $config ) ) {
 			return 'comment_ID IN (' . implode( ',', array_map( 'intval', $config ) ) . ')';
-		} 
+		}
 
 		return null;
 	}

@@ -112,6 +112,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Slightly Less Exciting Enhancements**
 
+* Sync: record comment content modifications to make sure comments are always up to date on WordPress.com. #6929
+
 **Performance Improvements**
 
 **Accessibility Improvements**
