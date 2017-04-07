@@ -10,11 +10,3 @@
 #flickr_badge_uber_wrapper {
 	width: auto;
 }
-
-#flickr_badge_uber_wrapper a,
-#flickr_badge_uber_wrapper a:hover,
-#flickr_badge_uber_wrapper a:active,
-#flickr_badge_uber_wrapper a:visited {
-	color: #3993ff;
-	text-decoration: none;
-}
