@@ -1,7 +1,5 @@
 <?php
-if  ( ! class_exists( 'Jetpack' ) ) {
-	require_once dirname( __FILE__ ) . '/../../jetpack.php';
-}
+
 // Extend with a public constructor so that can be mocked in tests
 class MockJetpack extends Jetpack {
 	public function __construct() {
