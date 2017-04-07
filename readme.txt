@@ -110,9 +110,9 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug Fixes**
 
-* We fixed a bug that prevented activating/deactivating of some features in PHP versions below 5.4.
+* Fixed a bug that prevented activating/deactivating of some features in PHP versions below 5.4.
 * Removed an unused function that was also incompatible with PHP versions below 5.4.
-* Fixed a bug that was causing a blank Jetpack admin area by being more defensive when including files.
+* Fixed a bug that was causing a blank Jetpack admin area.
 
 = 4.8.1 =
 
