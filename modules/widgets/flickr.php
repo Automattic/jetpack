@@ -117,46 +117,46 @@ if ( ! class_exists( 'Jetpack_Flickr_Widget' ) ) {
 			$instance = wp_parse_args( $instance, $this->defaults() );
 			require( dirname( __FILE__ ) . '/flickr/form.php' );
 		}
-	}
 
-	/**
-	 * Sanitize widget form values as they are saved.
-	 *
-	 * @param  array $new_instance Values just sent to be saved.
-	 * @param  array $old_instance Previously saved values from database.
-	 * @return array Updated safe values to be saved.
-	 */
-	/*public function update( $new_instance, $old_instance ) {
-		$instance = array();
-		$defaults = $this->defaults();
+		/**
+		 * Sanitize widget form values as they are saved.
+		 *
+		 * @param  array $new_instance Values just sent to be saved.
+		 * @param  array $old_instance Previously saved values from database.
+		 * @return array Updated safe values to be saved.
+		 */
+		public function update( $new_instance, $old_instance ) {
+			$instance = array();
+			$defaults = $this->defaults();
 
-		if ( isset( $new_instance['title'] ) ) {
-			$instance['title'] = wp_kses( $new_instance['title'], array() );
-		}
-
-		if ( isset( $new_instance['items'] ) ) {
-			$instance['items'] = intval( $new_instance['items'] );
-		}
-
-		if (
-			isset( $new_instance['flickr_image_size'] ) &&
-			in_array( $new_instance['flickr_image_size'], array( 'thumbnail', 'small' ) )
-		) {
-			$instance['flickr_image_size'] = $new_instance['flickr_image_size'];
-		} else {
-			$instance['flickr_image_size'] = 'thumbnail';
-		}
-
-		if ( isset( $new_instance['flickr_rss_url'] ) ) {
-			$instance['flickr_rss_url'] = esc_url( $new_instance['flickr_rss_url'], array( 'http', 'https' ) );
-
-			if ( strlen( $instance['flickr_rss_url'] ) < 10 ) {
-				$instance['flickr_rss_url'] = '';
+			if ( isset( $new_instance['title'] ) ) {
+				$instance['title'] = wp_kses( $new_instance['title'], array() );
 			}
-		}
 
-		return $instance;
-	}*/
+			if ( isset( $new_instance['items'] ) ) {
+				$instance['items'] = intval( $new_instance['items'] );
+			}
+
+			if (
+				isset( $new_instance['flickr_image_size'] ) &&
+				in_array( $new_instance['flickr_image_size'], array( 'thumbnail', 'small' ) )
+			) {
+				$instance['flickr_image_size'] = $new_instance['flickr_image_size'];
+			} else {
+				$instance['flickr_image_size'] = 'thumbnail';
+			}
+
+			if ( isset( $new_instance['flickr_rss_url'] ) ) {
+				$instance['flickr_rss_url'] = esc_url( $new_instance['flickr_rss_url'], array( 'http', 'https' ) );
+
+				if ( strlen( $instance['flickr_rss_url'] ) < 10 ) {
+					$instance['flickr_rss_url'] = '';
+				}
+			}
+
+			return $instance;
+		}
+	}
 
 	// Register Jetpack_Flickr_Widget widget.
 	function jetpack_register_flickr_widget() {
