@@ -2276,7 +2276,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		// If the module is inactive, load the class to use the method.
 		if ( ! did_action( 'jetpack_module_loaded_' . $module ) ) {
 			// Class can't be found so do nothing.
-			if ( ! @include( Jetpack::get_module_path( $module ) ) ) {
+			if ( ! @include_once( Jetpack::get_module_path( $module ) ) ) {
 				return false;
 			}
 		}
