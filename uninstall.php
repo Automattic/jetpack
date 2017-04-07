@@ -11,7 +11,10 @@ if (
 	exit;
 }
 
-define( 'JETPACK__PLUGIN_DIR', plugin_dir_path( __FILE__ )  );
+if ( ! defined( 'JETPACK__PLUGIN_DIR' ) ) {
+	define( 'JETPACK__PLUGIN_DIR', plugin_dir_path( __FILE__ )  );
+}
+
 
 // Delete all compact options
 delete_option( 'jetpack_options'        );
