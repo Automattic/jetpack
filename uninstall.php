@@ -27,6 +27,11 @@ delete_option( 'jetpack_was_activated'  );
 delete_option( 'jetpack_auto_installed' );
 delete_transient( 'jetpack_register'    );
 
+// Do not initialize any listeners.
+// Since all the files will be deleted.
+// No need to try to sync anything.
+add_filter( 'jetpack_sync_modules', '__return_empty_array', 100 );
+
 // Jetpack Sync
 require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-sender.php';
 Jetpack_Sync_Sender::get_instance()->uninstall();
