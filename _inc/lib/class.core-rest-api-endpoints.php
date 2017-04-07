@@ -2273,22 +2273,21 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return false;
 		}
 
-		// If the module is inactive, load the class to use the method.
-		if ( ! did_action( 'jetpack_module_loaded_' . $module ) ) {
-			// Class can't be found so do nothing.
-			if ( ! @include( Jetpack::get_module_path( $module ) ) ) {
-				return false;
-			}
-		}
-
 		// Do what is necessary for each module.
 		switch ( $module ) {
 			case 'monitor':
-				$monitor = new Jetpack_Monitor();
-				$value = $monitor->user_receives_notifications( false );
+				// Load the class to use the method. If class can't be found, do nothing.
+				if ( ! class_exists( 'Jetpack_Monitor' ) && ! include_once( Jetpack::get_module_path( $module ) ) ) {
+					return false;
+				}
+				$value = Jetpack_Monitor::user_receives_notifications( false );
 				break;
 
 			case 'post-by-email':
+				// Load the class to use the method. If class can't be found, do nothing.
+				if ( ! class_exists( 'Jetpack_Post_By_Email' ) && ! include_once( Jetpack::get_module_path( $module ) ) ) {
+					return false;
+				}
 				$post_by_email = new Jetpack_Post_By_Email();
 				$value = $post_by_email->get_post_by_email_address();
 				if ( $value === null ) {
