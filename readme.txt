@@ -126,6 +126,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 = 4.8.2 =
 
 * Release date: April 7th, 2017
+* Release post: http://wp.me/p1moTy-4P0
 
 **Bug Fixes**
 
