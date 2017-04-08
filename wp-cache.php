@@ -3170,6 +3170,10 @@ function wp_cron_preload_cache() {
 
 	update_option( 'preload_cache_counter', array( 'c' => ( $c + 100 ), 't' => time() ) );
 
+	if ( $wp_cache_preload_email_volume == 'none' && $wp_cache_preload_email_me == 1 ) {
+		$wp_cache_preload_email_me = 0;
+		wp_cache_setting( 'wp_cache_preload_email_me', 0 );
+	}
 	if ( $wp_cache_preload_email_me && $c == 0 )
 		wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Cache Preload Started', 'wp-super-cache' ), home_url(), '' ), ' ' );
 
@@ -3507,14 +3511,17 @@ function wpsc_preload_settings( $min_refresh_interval = 'NA' ) {
 	}
 	wp_cache_setting( 'wp_cache_preload_posts', $wp_cache_preload_posts );
 
-	wp_cache_setting( 'wp_cache_preload_email_me', 1 ); // not used any more
-
 	if ( isset( $_POST[ 'wp_cache_preload_email_volume' ] ) && in_array( $_POST[ 'wp_cache_preload_email_volume' ], array( 'none', 'less', 'medium', 'many' ) ) ) {
 		$wp_cache_preload_email_volume = $_POST[ 'wp_cache_preload_email_volume' ];
 	} else {
 		$wp_cache_preload_email_volume = 'none';
 	}
 	wp_cache_setting( 'wp_cache_preload_email_volume', $wp_cache_preload_email_volume );
+
+	if ( $wp_cache_preload_email_volume == 'none' )
+		$wp_cache_setting( 'wp_cache_preload_email_me', 0 );
+	else
+		$wp_cache_setting( 'wp_cache_preload_email_me', 1 );
 
 	if ( isset( $_POST[ 'wp_cache_preload_taxonomies' ] ) ) {
 		$wp_cache_preload_taxonomies = 1;
