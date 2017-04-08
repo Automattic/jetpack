@@ -73,7 +73,7 @@ class WP_Super_Cache_Rest_Get_Settings extends WP_REST_Controller {
 			if ( is_array( $value ) ) {
 				array_walk( $value, array( $this, 'make_array_bool' ) );
 
-			} elseif ( ( $value == 0 || $value == 1 ) && $key != 'preload_interval' )
+			} elseif ( ( $value == 0 || $value == 1 ) && $key != 'preload_interval' ) {
 				$value = (bool)$value;
 			}
 
