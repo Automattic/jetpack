@@ -34,7 +34,6 @@ class WP_Super_Cache_Rest_Get_Settings extends WP_REST_Controller {
 		'wp_cache_preload_posts'        => 'preload_posts',
 		'wp_cache_preload_on'           => 'preload_on',
 		'wp_cache_preload_taxonomies'   => 'preload_taxonomies',
-		'wp_cache_preload_email_me'     => 'preload_email_me',
 		'wp_cache_preload_email_volume' => 'preload_email_volume',
 	);
 
