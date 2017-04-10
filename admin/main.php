@@ -5,20 +5,22 @@
 	</div>
 </div>
 <div class="jetpack-beta-container" >
+	<?php if ( Jetpack_Beta::get_option() ) {?>
 	<div class="dops-foldable-card is-expanded has-expanded-summary dops-card is-compact">
 		<div class="dops-foldable-card__header has-border">
 			<span class="dops-foldable-card__main">
 				<div class="dops-foldable-card__header-text">
 					<div class="dops-foldable-card__header-text">Currently Running </div>
-
 				</div>
 			</span>
 		</div>
 		<div class="dops-foldable-card__content">
-			<?php echo Jetpack_Beta::get_jetpack_plugin_version(); ?>
+			<p><?php echo Jetpack_Beta::get_jetpack_plugin_pretty_version(); ?> | <?php echo Jetpack_Beta::get_jetpack_plugin_version(); ?></p>
 		</div>
 	</div>
-	<?php
+	<?php } else {
+		Jetpack_Beta_Admin::start_notice();
+	}
 	if ( $to_test = $this->to_test_content() ) { ?>
 		<div class="dops-foldable-card is-expanded has-expanded-summary dops-card is-compact">
 			<div class="dops-foldable-card__header has-border">

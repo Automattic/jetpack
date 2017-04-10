@@ -8,6 +8,7 @@ class Jetpack_Beta_Admin {
 	function __construct() {
 		add_action( 'admin_menu', array( $this, 'add_actions' ), 998 );
 		add_action( 'network_admin_menu', array( $this, 'add_actions' ), 998 );
+		add_action( 'admin_notices', array( $this, 'render_banner' ) );
 	}
 
 	function add_actions() {
@@ -79,6 +80,20 @@ class Jetpack_Beta_Admin {
 		return JETPACK_DEV_PLUGIN_SLUG;
 	}
 
+	function render_banner() {
+
+		global $current_screen;
+
+		if ( 'plugins' !== $current_screen->base ) {
+			return;
+		}
+
+		if ( Jetpack_Beta::get_option() ) {
+			return;
+		}
+
+		self::start_notice();
+	}
 	
 	function admin_styles() {
 		wp_enqueue_style( 'jetpack-beta-admin', plugins_url( "admin/admin.css", JPBETA__PLUGIN_FILE ), array(), JPBETA_VERSION . '-' . time() );
@@ -124,6 +139,7 @@ class Jetpack_Beta_Admin {
 			return null;
 		}
 		$github_info = Jetpack_Beta::get_remote_data( JETPACK_GITHUB_API_URL . 'pulls/' . $pr, 'github_' . $pr );
+
 		return $this->render_markdown( $github_info->body );
 	}
 
@@ -157,8 +173,49 @@ class Jetpack_Beta_Admin {
 		return $rendered_html;
 	}
 
-	function show_branch( $header, $branch_key, $branch = null, $section = null, $is_last = false ) {
+	function start_notice() {
+		global $current_screen;
 
+		$is_notice = ( 'plugins' === $current_screen->base ? true : false );
+		?>
+		<style>
+
+			#jetpack-beta-start {
+				background: #FFF;
+				padding: 20px;
+				margin-top:20px;
+				box-shadow: 0 0 0 1px rgba(200, 215, 225, 0.5), 0 1px 2px #e9eff3;
+				position: relative;
+
+			}
+			#jetpack-beta-start.updated {
+				border-left: 3px solid #8CC258;
+			}
+			#jetpack-beta-start h1 {
+				font-weight: 400;
+				margin: 0;
+				font-size: 20px;
+			}
+			#jetpack-beta-start p {
+				margin-bottom:1em;
+			}
+		</style>
+		<div id="jetpack-beta-start" class="dops-card <?php echo ( $is_notice ? 'updated' : '' ); ?> ">
+			<h1>Welcome to Jetpack Beta Tester</h1>
+			<p>It works a bit differently. Jetpack Beta Tester helps you run 2 different version of Jetpack on your site.
+				A <em>stable</em> and a <em>development</em> version (a version that still needs more testing)</p>
+			<p>When you activate a version, Jetpack Beta Tester will install and activate it on your behalf and keep it up to date.
+			When you are done testing it will should be easy to switch back to the stable version. Just deactivate the Jetpack beta plugin or select the <em>Latest Stable</em>.</p>
+
+			<?php if ( $is_notice ) { ?>
+			<a href="<?php echo esc_url( admin_url( 'admin.php?page=jetpack-beta' ) ); ?>">Lets get started and choose a version to test!</a>
+			<?php } ?>
+
+		</div>
+		<?php
+	}
+
+	function show_branch( $header, $branch_key, $branch = null, $section = null, $is_last = false ) {
 		if ( ! is_object( $branch ) ) {
 			$manifest = Jetpack_Beta::get_beta_manifest();
 			$branch   = $manifest->{$section};
