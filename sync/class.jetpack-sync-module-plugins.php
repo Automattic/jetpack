@@ -30,9 +30,10 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 			$plugin_data = array();
 		}
 
-		return array( $args[0],
+		return array(
+			$args[0],
 			$args[1],
-			$plugin_data
+			$plugin_data,
 		);
 	}
 }
