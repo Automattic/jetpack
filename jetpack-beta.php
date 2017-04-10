@@ -139,7 +139,7 @@ class Jetpack_Beta {
 
 	public function remove_activate( $actions ) {
 
-		if ( self::is_network_active() || ( is_plugin_active( JETPACK_PLUGIN_FILE ) ||is_plugin_active( JETPACK_DEV_PLUGIN_FILE ) ) ) {
+		if ( self::is_network_active() || ( is_plugin_active( JETPACK_PLUGIN_FILE ) || is_plugin_active( JETPACK_DEV_PLUGIN_FILE ) ) ) {
 			$actions['activate'] = __( 'Plugin Already Active', 'jetpack-beta' );
 		}
 		return $actions;
@@ -204,8 +204,11 @@ class Jetpack_Beta {
 		if ( ! is_object( $wp_admin_bar ) )
 			return;
 
-		// add a group node with a class "first-toolbar-group"
-		// add a parent item
+		// Nothing got activated yet.
+		if ( ! self::get_option() ) {
+			return;
+		}
+
 		$args = array(
 			'id'    => 'jetpack-beta_admin_bar',
 			'title' => 'Jetpack Beta',
@@ -240,11 +243,11 @@ class Jetpack_Beta {
 		);
 		$wp_admin_bar->add_group( $args );
 
-		if ( self::get_plugin_slug() !== JETPACK_DEV_PLUGIN_SLUG ) {
-			return;
+		if ( self::get_plugin_slug() === JETPACK_DEV_PLUGIN_SLUG ) {
+			// Highlight the menu if you are running the BETA Versions..
+			echo "<style>#wpadminbar #wp-admin-bar-jetpack-beta_admin_bar { background: #72af3a; }</style>";
 		}
-		// Highlight the menu if you are running the BETA Versions..
-		echo "<style>#wpadminbar #wp-admin-bar-jetpack-beta_admin_bar { background: #72af3a; }</style>";
+
 	}
 
 	
