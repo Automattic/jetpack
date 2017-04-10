@@ -62,11 +62,11 @@ class Jetpack_Beta_Admin {
 			$branch  = esc_html( $_GET['activate-branch'] );
 			$section = esc_html( $_GET['section'] );
 
-			if ( Jetpack_Beta::get_option() !== array( $branch, $section ) ) {
+			if ( Jetpack_Beta::get_branch_and_section() !== array( $branch, $section ) ) {
 				Jetpack_Beta::proceed_to_install( Jetpack_Beta::get_install_url( $branch, $section ), $this->get_folder( $section ), $section );
 			}
 			
-			update_option( 'jetpack_dev_currently_installed', array( $branch, $section ) );
+			update_option( Jetpack_Beta::$option, array( $branch, $section ) );
 			wp_safe_redirect( Jetpack_Beta::admin_url() );
 		}
 	}
@@ -95,13 +95,7 @@ class Jetpack_Beta_Admin {
 	}
 
 	function to_test_content() {
-		$currently_installed = Jetpack_Beta::get_option();
-		if ( empty( $currently_installed ) ) {
-			return;
-		}
-
-		list( $branch, $section ) = $currently_installed;
-
+		list( $branch, $section ) = Jetpack_Beta::get_branch_and_section();
 		switch ( $section ) {
 			case 'pr':
 				return $this->to_test_pr_content( $branch );
@@ -184,7 +178,7 @@ class Jetpack_Beta_Admin {
 		);
 
 		$branch_class    = 'branch-card';
-		$current_version = Jetpack_Beta::get_option();
+		$current_version = Jetpack_Beta::get_branch_and_section();
 		if ( isset( $current_version[0], $current_version[1] ) ) {
 			list( $current_branch, $current_section ) = $current_version;
 			if ( $current_branch === $branch_key && $current_section === $section ) {

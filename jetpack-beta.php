@@ -149,7 +149,7 @@ class Jetpack_Beta {
 	}
 
 	public static function get_plugin_slug() {
-		$installed = get_option( 'jetpack_dev_currently_installed', array() );
+		$installed = self::get_branch_and_section();
 		if ( empty( $installed ) || $installed[1] === 'stable' ) {
 			return 'jetpack';
 		}
@@ -160,7 +160,7 @@ class Jetpack_Beta {
 	public static function deactivate() {
 		// Set the
 		add_action( 'shutdown', array( __CLASS__, 'switch_active' ) );
-		delete_option( 'jetpack_dev_currently_installed' );
+		delete_option( self::$option );
 
 		if ( is_multisite() ) {
 			return;
@@ -307,16 +307,34 @@ class Jetpack_Beta {
 		return $info['Version'];
 	}
 	static function get_option() {
-		return (array) get_option( self::$option );
+		return get_option( self::$option );
 	}
 
+	static function get_branch_and_section() {
+		$option = (array) self::get_option();
+		if ( false === $option[0] ) {
+			// see if the jetpack is plugin enabled
+			if ( is_plugin_active( JETPACK_PLUGIN_FILE ) ) {
+				return array( 'stable', 'stable' );
+			}
+			return array( false, false );
+		}
+		return $option;
+	}
 	static function get_jetpack_plugin_pretty_version() {
 
-		list( $branch, $section ) = self::get_option();
+		list( $branch, $section ) = self::get_branch_and_section();
 
+		if ( ! $section  ) {
+			return '';
+		}
 
 		if ( 'master' === $section ) {
-			return '';
+			return 'Bleeding Edge';
+		}
+
+		if ( 'stable' === $section ) {
+			return 'Latest Stable';
 		}
 
 		if ( 'rc' === $section ) {
@@ -334,7 +352,7 @@ class Jetpack_Beta {
 	static function get_new_jetpack_version() {
 		$manifest = self::get_beta_manifest();
 
-		list( $branch, $section ) = self::get_option();
+		list( $branch, $section ) = self::get_branch_and_section();
 
 		if ( 'master' === $section && isset( $manifest->{$section}->version ) ) {
 			return $manifest->{$section}->version;
@@ -349,7 +367,7 @@ class Jetpack_Beta {
 	static function get_url( $branch = null, $section = null ) {
 		
 		if ( is_null ( $section ) ) {
-			list( $branch, $section ) = self::get_option();
+			list( $branch, $section ) = self::get_branch_and_section();
 		}
 		
 		if ( 'master' === $section ) {
@@ -372,7 +390,7 @@ class Jetpack_Beta {
 	static function get_install_url( $branch = null, $section = null ) {
 
 		if ( is_null( $section ) ) {
-			list( $branch, $section ) = self::get_option();
+			list( $branch, $section ) = self::get_branch_and_section();
 		}
 
 		if ( 'stable' === $section ) {
