@@ -9,7 +9,6 @@
  * Author URI: https://jetpack.com/
  * License: GPLv2 or later
  *
- * Based on WooCommerce Beta Tester plugin by Mike Jolley
  */
 
 /*
@@ -112,7 +111,7 @@ class Jetpack_Beta {
 	/**
 	 * @param $active_plugins
 	 * Make sure that you can't have Jetpack and Jetpack Dev plugins versions loaded
-	 * This filter is only applplied if Jetpack is network activated.
+	 * This filter is only applied if Jetpack is network activated.
 	 * @return array
 	 */
 	public static function override_active_plugins( $active_plugins ) {
@@ -317,6 +316,7 @@ class Jetpack_Beta {
 		$info = self::get_jetpack_plugin_info();
 		return $info['Version'];
 	}
+
 	static function get_option() {
 		return get_option( self::$option );
 	}
@@ -347,6 +347,7 @@ class Jetpack_Beta {
 		if ( 'stable' === $section ) {
 			return 'Latest Stable';
 		}
+
 
 		if ( 'rc' === $section ) {
 			return JETPACK_GITHUB_URL . '/tree/' . $section . '-build';
@@ -423,7 +424,7 @@ class Jetpack_Beta {
 	}
 
 	static function get_jetpack_plugin_info() {
-		if( ! function_exists('get_plugin_data' ) ) {
+		if( ! function_exists( 'get_plugin_data' ) ) {
 			require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 		}
 		$plugin_file_path = WP_PLUGIN_DIR . '/' . self::get_plugin_file();
@@ -572,7 +573,6 @@ register_activation_hook( __FILE__, array( 'Jetpack_Beta', 'activate' ) );
 register_deactivation_hook( __FILE__, array( 'Jetpack_Beta', 'deactivate' ) );
 
 add_action( 'init', array( 'Jetpack_Beta', 'instance' ) );
-
 add_action( 'muplugins_loaded', array( 'Jetpack_Beta', 'is_network_enabled' ) );
 
 
