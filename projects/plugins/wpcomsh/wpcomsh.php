@@ -379,29 +379,6 @@ function wpcomsh_admin_enqueue_style() {
 }
 add_action( 'admin_enqueue_scripts', 'wpcomsh_admin_enqueue_style', 999 );
 
-function wpcomsh_add_masterbar() {
-	if ( ! defined( 'JETPACK__VERSION' ) ) {
-		return;
-	}
-
-	if ( version_compare( JETPACK__VERSION, '4.8', '>=' ) ) {
-		return;
-	}
-
-	require_once dirname( __FILE__ ) . '/masterbar/masterbar.php';
-	Jetpack::dns_prefetch( array(
-		'//s0.wp.com',
-		'//s1.wp.com',
-		'//s2.wp.com',
-		'//0.gravatar.com',
-		'//1.gravatar.com',
-		'//2.gravatar.com',
-	) );
-	new A8C_WPCOM_Masterbar;
-}
-
-add_action( 'jetpack_modules_loaded', 'wpcomsh_add_masterbar', 1 );
-
 function wpcomsh_allow_custom_wp_options( $options ) {
 	// For storing AT options.
 	$options[] = 'at_options';

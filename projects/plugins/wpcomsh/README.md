@@ -109,10 +109,6 @@ To distinguish between WP.com themes installed by symlinking and themes uploaded
 
 All the wp-admin custom styles for transferred sites are in `assets/admin-style.css`. If you need to add some more, please add them to that file.
 
-### WP.com masterbar (temporary until Jetpack 4.8 release)
-
-We added the WP.com masterbar to Jetpack so transferred sites can look the same as WP.com ones. However, it will be added to the Jetpack 4.8 release which is not ready yet. In the meanwhile, we add it through wpcomsh.
-
 ### Custom colors and fonts (+ Typekit fonts)
 
 On WP.com, we provide custom colors and fonts in a site's Customizer. In order to get them supported on an AT site, wpcomsh imports the `colors`, `custom-fonts` and `custom-fonts-typekit` codebases.
