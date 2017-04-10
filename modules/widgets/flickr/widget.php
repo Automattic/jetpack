@@ -11,14 +11,8 @@
 			<table border="0" cellpadding="0" cellspacing="10" id="flickr_badge_wrapper">
 				<tr>
 					<td align="center">
-						<?php foreach ( $photos as $key => $photo ) { ?>
-							<a href="<?php echo esc_url( $photo['href'], array( 'http', 'https' ) ); ?>"><img
-									alt="<?php echo esc_attr( $photo['title'] ); ?>"
-									border="0"
-									src="<?php echo esc_url( $photo['src'], array( 'http', 'https' ) ); ?>"
-									title="<?php echo esc_attr( $photo['title'] ); ?>"
-								/></a><br /><br />
-						<?php } ?>
+						<?php echo $photos; ?>
+
 						<?php if ( isset( $flickr_home ) ) { ?>
 							<a href="<?php echo esc_url( $flickr_home, array( 'http', 'https' ) ); ?>">
 								<?php esc_html_e( 'More Photos', 'jetpack' ); ?>
