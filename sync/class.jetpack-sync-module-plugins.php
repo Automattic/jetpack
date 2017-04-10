@@ -20,6 +20,10 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 
 	public function expand_plugin_data( $args ) {
 		$plugin_data = get_plugin_data( WP_PLUGIN_DIR . DIRECTORY_SEPARATOR . $args[0] );
-		return array( $args[0], $args[1], $plugin_data );
+		return array( $args[0], $args[1], array(
+			'Name' => $plugin_data['Name'],
+			'Version' => $plugin_data['Version'],
+			)
+		);
 	}
 }
