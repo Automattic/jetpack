@@ -99,12 +99,25 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 		activate_plugin( 'hello.php' );
 		$this->sender->do_sync();
 
+		$activated_plugin = $this->server_event_storage->get_most_recent_event( 'activated_plugin' );
+		$this->assertEquals( 'hello.php', $activated_plugin->args[0] );
+		$this->assertFalse( $activated_plugin->args[1] );
+		$this->assertEquals( 'Hello Dolly', $activated_plugin->args[2]['Name'] );
+		$this->assertTrue( is_numeric( $activated_plugin->args[2]['Version'] ) );
+		
+
 		$active_plugins = $this->server_replica_storage->get_option( 'active_plugins' );
 		$this->assertEquals( get_option( 'active_plugins' ), $active_plugins );
 		$this->assertTrue( in_array( 'hello.php', $active_plugins ) );
 
 		deactivate_plugins( 'hello.php' );
 		$this->sender->do_sync();
+
+		$deactivated_plugin = $this->server_event_storage->get_most_recent_event( 'deactivated_plugin' );
+		$this->assertEquals( 'hello.php', $deactivated_plugin->args[0] );
+		$this->assertFalse( $deactivated_plugin->args[1] );
+		$this->assertEquals( 'Hello Dolly', $deactivated_plugin->args[2]['Name'] );
+		$this->assertTrue( is_numeric( $deactivated_plugin->args[2]['Version'] ) );
 
 		$active_plugins = $this->server_replica_storage->get_option( 'active_plugins' );
 		$this->assertEquals( get_option( 'active_plugins' ), $active_plugins );
