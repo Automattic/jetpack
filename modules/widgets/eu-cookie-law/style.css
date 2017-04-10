@@ -1,6 +1,7 @@
-.widget_eu_cookie_law_widget {
+.widget_eu_cookie_law_widget.widget {
 	bottom: 1em;
 	left: 1em;
+	margin: 0;
 	padding: 0;
 	position: fixed;
 	right: 1em;
@@ -42,7 +43,7 @@
 #eu-cookie-law input,
 #eu-cookie-law input:hover,
 #eu-cookie-law input:focus {
-	background-color: #f3f3f3;
+	background: #f3f3f3;
 	border: 1px solid #dedede;
 	border-radius: 4px;
 	-moz-border-radius: 3px;
@@ -64,7 +65,7 @@
 #eu-cookie-law.negative input,
 #eu-cookie-law.negative input:hover,
 #eu-cookie-law.negative input:focus {
-	background-color: #282828;
+	background: #282828;
 	border-color: #535353;
 	color: #fff;
 }
