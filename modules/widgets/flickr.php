@@ -86,12 +86,12 @@ if ( ! class_exists( 'Jetpack_Flickr_Widget' ) ) {
 						$src = str_replace( '_m.jpg', $image_size_string, $p[1] );
 					}
 					array_push( $photos, array(
-						'href'  => esc_url( $photo->get_permalink(), array( 'http', 'https' ) ),
-						'src'   => esc_url( $src, array( 'http', 'https' ) ),
-						'title' => esc_attr( $photo->get_title() ),
+						'href'  => $photo->get_permalink(),
+						'src'   => $src,
+						'title' => $photo->get_title(),
 					) );
 				}
-				$flickr_home = esc_url( $rss->get_link(), array( 'http', 'https' ) );
+				$flickr_home = $rss->get_link();
 			}
 
 			echo $args['before_widget'];

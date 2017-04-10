@@ -12,15 +12,15 @@
 				<tr>
 					<td align="center">
 						<?php foreach ( $photos as $key => $photo ) { ?>
-							<a href="<?php echo $photo['href']; ?>"><img
-									alt="<?php echo $photo['title']; ?>"
+							<a href="<?php echo esc_url( $photo['href'], array( 'http', 'https' ) ); ?>"><img
+									alt="<?php echo esc_attr( $photo['title'] ); ?>"
 									border="0"
-									src="<?php echo $photo['src']; ?>"
-									title="<?php echo $photo['title']; ?>"
+									src="<?php echo esc_url( $photo['src'], array( 'http', 'https' ) ); ?>"
+									title="<?php echo esc_attr( $photo['title'] ); ?>"
 								/></a><br /><br />
 						<?php } ?>
 						<?php if ( isset( $flickr_home ) ) { ?>
-							<a href="<?php echo $flickr_home; ?>">
+							<a href="<?php echo esc_url( $flickr_home, array( 'http', 'https' ) ); ?>">
 								<?php esc_html_e( 'More Photos', 'jetpack' ); ?>
 							</a>
 						<?php } ?>
