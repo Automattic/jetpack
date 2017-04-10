@@ -105,7 +105,6 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 'Hello Dolly', $activated_plugin->args[2]['Name'] );
 		$this->assertTrue( is_numeric( $activated_plugin->args[2]['Version'] ) );
 		
-
 		$active_plugins = $this->server_replica_storage->get_option( 'active_plugins' );
 		$this->assertEquals( get_option( 'active_plugins' ), $active_plugins );
 		$this->assertTrue( in_array( 'hello.php', $active_plugins ) );
