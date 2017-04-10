@@ -155,7 +155,12 @@ class Jetpack_Beta_Admin {
 			'unslash' => false
 		) );
 
-		return apply_filters( 'jetpack_beta_test_content', $rendered_html );
+		$rendered_html = apply_filters( 'jetpack_beta_test_content', $rendered_html );
+
+		// Lets convert #hash numbers into links to issues.
+		$rendered_html = preg_replace('/\#([0-9]+)/', '<a href="https://github.com/Automattic/jetpack/issues/$1">#$1</a>', $rendered_html );
+
+		return $rendered_html;
 	}
 
 	function show_branch( $header, $branch_key, $branch = null, $section = null, $is_last = false ) {
