@@ -19,11 +19,20 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 	}
 
 	public function expand_plugin_data( $args ) {
-		$plugin_data = get_plugin_data( WP_PLUGIN_DIR . DIRECTORY_SEPARATOR . $args[0] );
-		return array( $args[0], $args[1], array(
-			'Name' => $plugin_data['Name'],
-			'Version' => $plugin_data['Version'],
-			)
+		$plugin_path = WP_PLUGIN_DIR . DIRECTORY_SEPARATOR . $args[0];
+		if ( file_exists( $plugin_path ) ) {
+			$all_plugin_data = get_plugin_data( $plugin_path );
+			$plugin_data = array(
+				'Name' => $all_plugin_data['Name'],
+				'Version' => $all_plugin_data['Version'],
+			);
+		} else {
+			$plugin_data = array();
+		}
+
+		return array( $args[0],
+			$args[1],
+			$plugin_data
 		);
 	}
 }
