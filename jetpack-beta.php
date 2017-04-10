@@ -45,6 +45,7 @@ define( 'JPBETA_DEFAULT_BRANCH', 'rc_only' );
 
 define( 'JETPACK_BETA_MANIFEST_URL', 'https://betadownload.jetpack.me/jetpack-branches.json' );
 define( 'JETPACK_ORG_API_URL', 'https://api.wordpress.org/plugins/info/1.0/jetpack.json' );
+define( 'JETPACK_RC_API_URL', 'https://betadownload.jetpack.me/rc/rc.json' );
 define( 'JETPACK_GITHUB_API_URL', 'https://api.github.com/repos/Automattic/Jetpack/' );
 define( 'JETPACK_GITHUB_URL', 'https://github.com/Automattic/jetpack' );
 define( 'JETPACK_DEFAULT_URL', 'https://jetpack.com' );
@@ -56,6 +57,7 @@ define( 'JETPACK_DEV_PLUGIN_FILE', 'jetpack-dev/jetpack.php' );
 
 define( 'JETPACK_BETA_REPORT_URL', 'https://github.com/Automattic/jetpack/issues/new' );
 
+
 require_once 'autoupdate-self.php';
 add_action( 'init', array( 'Jetpack_Beta_Autoupdate_Self', 'instance' ) );
 
@@ -63,6 +65,8 @@ class Jetpack_Beta {
 
 	protected static $_instance = null;
 	protected static $admin = null;
+
+	static $option = 'jetpack_dev_currently_installed';
 
 	/**
 	 * Main Instance
@@ -137,7 +141,7 @@ class Jetpack_Beta {
 	 */
 	public static function activate() {
 		delete_site_transient( 'update_plugins' );
-		self::set_default_options();
+
 	}
 
 	public static function get_plugin_file() {
@@ -151,16 +155,6 @@ class Jetpack_Beta {
 		}
 
 		return JETPACK_DEV_PLUGIN_SLUG;
-	}
-
-	public static function set_default_options() {
-		// $active_plugins = (array) get_option( 'active_plugins', array() );
-		$current_active = get_option( 'jetpack_dev_currently_installed' );
-
-		if ( file_exists( WP_PLUGIN_DIR . '/' . JETPACK_PLUGIN_FILE ) ) {
-			update_option( 'jetpack_dev_currently_installed', array( 'stable', 'stable' ) );
-		}
-
 	}
 
 	public static function deactivate() {
@@ -312,10 +306,13 @@ class Jetpack_Beta {
 		$info = self::get_jetpack_plugin_info();
 		return $info['Version'];
 	}
+	static function get_option() {
+		return (array) get_option( self::$option );
+	}
 
 	static function get_jetpack_plugin_pretty_version() {
 
-		list( $branch, $section ) = (array) get_option( 'jetpack_dev_currently_installed' );
+		list( $branch, $section ) = self::get_option();
 
 
 		if ( 'master' === $section ) {
@@ -337,7 +334,7 @@ class Jetpack_Beta {
 	static function get_new_jetpack_version() {
 		$manifest = self::get_beta_manifest();
 
-		list( $branch, $section ) = (array) get_option( 'jetpack_dev_currently_installed' );
+		list( $branch, $section ) = self::get_option();
 
 		if ( 'master' === $section && isset( $manifest->{$section}->version ) ) {
 			return $manifest->{$section}->version;
@@ -352,7 +349,7 @@ class Jetpack_Beta {
 	static function get_url( $branch = null, $section = null ) {
 		
 		if ( is_null ( $section ) ) {
-			list( $branch, $section ) = (array) get_option( 'jetpack_dev_currently_installed' );
+			list( $branch, $section ) = self::get_option();
 		}
 		
 		if ( 'master' === $section ) {
@@ -375,7 +372,7 @@ class Jetpack_Beta {
 	static function get_install_url( $branch = null, $section = null ) {
 
 		if ( is_null( $section ) ) {
-			list( $branch, $section ) = (array) get_option( 'jetpack_dev_currently_installed' );
+			list( $branch, $section ) = self::get_option();
 		}
 
 		if ( 'stable' === $section ) {
