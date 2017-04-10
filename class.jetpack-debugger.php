@@ -298,15 +298,17 @@ class Jetpack_Debugger {
 							__( 'The primary connection is owned by <strong>%s</strong>\'s WordPress.com account.', 'jetpack' ),
 							esc_html( Jetpack::get_master_user_email() )
 						); ?></p>
-						<?php if ( current_user_can( 'jetpack_manage_modules' ) ) {
-							printf(
-								'<p><a href="%1$s">%2$s</a></p>',
-								Jetpack::admin_url( 'page=jetpack_modules' ),
-								esc_html__( 'Access the full list of Jetpack modules available on your site.', 'jetpack' )
-							);
-						} ?>
 					</div>
-				<?php else : ?>
+				<?php elseif (
+					current_user_can( 'jetpack_manage_modules' )
+					&& Jetpack::is_development_mode()
+				) :
+					printf(
+						'<p><a href="%1$s">%2$s</a></p>',
+						Jetpack::admin_url( 'page=jetpack_modules' ),
+						esc_html__( 'Access the full list of Jetpack modules available on your site.', 'jetpack' )
+					);
+				else : ?>
 					<div id="dev-mode-details">
 						<p><?php printf(
 							__( 'Would you like to use Jetpack on your local development site? You can do so thanks to <a href="%s">Jetpack\'s development mode</a>.', 'jetpack' ),
