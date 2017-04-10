@@ -12,7 +12,7 @@
 
 <p>
 	<label>
-		<?php esc_html_e( 'Flickr RSS URL:', 'jetpack' ); ?>*
+		<?php esc_html_e( 'Flickr RSS URL:', 'jetpack' ); ?>
 	</label>
 	<input
 		class="widefat"
@@ -20,6 +20,19 @@
 		type="text"
 		value="<?php echo esc_attr( $instance['flickr_rss_url'] ); ?>"
 	/>
+</p>
+<p>
+	<small>
+		<?php esc_html_e( 'To find your Flickr RSS feed, go to your photostream, open the "More" menu and click on "Edit". Scroll down until you see the RSS icon or the Latest link. Right click on either and copy the URL. Paste into the box above.', 'jetpack' ); ?>
+	</small>
+</p>
+<p>
+	<small>
+		<?php printf(
+			__( 'Leave the Flickr RSS URL blank to display <a href="%s">interesting</a> Flickr photos.', 'jetpack' ),
+			'http://www.flickr.com/explore/interesting'
+		); ?>
+	</small>
 </p>
 
 <p>
@@ -64,18 +77,4 @@
 		<?php }
 		?>
 	</select>
-</p>
-
-<p>
-	<small>*
-		<?php esc_html_e( 'To find your Flickr RSS feed, go to your photostream and click the "Edit" tab at the top. Scroll down to the bottom of the page until you see the RSS icon or the Latest link. Right click on either and copy the URL. Paste into the box above.', 'jetpack' ); ?>
-	</small>
-</p>
-<p>
-	<small>
-		<?php printf(
-			__( 'Leave the Flickr RSS URL blank to display <a href="%s">interesting</a> Flickr photos.', 'jetpack' ),
-			'http://www.flickr.com/explore/interesting'
-		); ?>
-	</small>
 </p>
