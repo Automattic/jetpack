@@ -2428,6 +2428,44 @@ function wp_cache_format_fsize( $fsize ) {
 	return $fsize;
 }
 
+function wp_cache_regenerate_cache_file_stats() {
+	global $supercachedir, $file_prefix, $wp_cache_preload_on, $cache_max_time;
+
+	if ( $supercachedir == '' )
+		$supercachedir = get_supercache_dir();
+
+	$sizes = wpsc_generate_sizes_array();
+	$now = time();
+	if (is_dir( $supercachedir ) ) {
+		if ( $dh = opendir( $supercachedir ) ) {
+			while ( ( $entry = readdir( $dh ) ) !== false ) {
+				if ( $entry != '.' && $entry != '..' ) {
+					$sizes = wpsc_dirsize( trailingslashit( $supercachedir ) . $entry, $sizes );
+				}
+			}
+			closedir( $dh );
+		}
+	} else {
+		$filem = @filemtime( $supercachedir );
+		if ( false == $wp_cache_preload_on && is_file( $supercachedir ) && $cache_max_time > 0 && $filem + $cache_max_time <= $now ) {
+			if ( strpos( $directory, '/' . $file_prefix ) === true ) {
+				$cache_type = 'wpcache';
+			} else {
+				$cache_type = 'supercache';
+			}
+			$sizes[ $cache_type ][ 'expired' ] ++;
+			if ( $valid_nonce && isset( $_GET[ 'listfiles' ] ) )
+				$sizes[ $cache_type ][ 'expired_list' ][ str_replace( $cache_path . 'supercache/' , '', $supercachedir ) ] = $now - $filem;
+		} else {
+			if ( $valid_nonce && isset( $_GET[ 'listfiles' ] ) && $filem )
+				$sizes[ $cache_type ][ 'cached_list' ][ str_replace( $cache_path . 'supercache/' , '', $supercachedir ) ] = $now - $filem;
+		}
+	}
+	$cache_stats = array( 'generated' => time(), 'supercache' => $sizes[ 'supercache' ], 'wpcache' => $sizes[ 'wpcache' ] );
+	update_option( 'supercache_stats', $cache_stats );
+	return $cache_stats;
+}
+
 function wp_cache_files() {
 	global $cache_path, $file_prefix, $cache_max_time, $valid_nonce, $supercachedir, $cache_enabled, $super_cache_enabled, $blog_cache_dir, $cache_compression;
 	global $wp_cache_object_cache, $wp_cache_preload_on;
@@ -2537,37 +2575,7 @@ function wp_cache_files() {
 	} else {
 		$wp_cache_fsize = '0KB';
 	}
-
-	$sizes = wpsc_generate_sizes_array();
-	$now = time();
-	if (is_dir($supercachedir)) {
-		if( $dh = opendir( $supercachedir ) ) {
-			while( ( $entry = readdir( $dh ) ) !== false ) {
-				if ($entry != '.' && $entry != '..') {
-					$sizes = wpsc_dirsize( trailingslashit( $supercachedir ) . $entry, $sizes );
-				}
-			}
-			closedir($dh);
-		}
-	} else {
-		$filem = @filemtime( $supercachedir );
-		if ( false == $wp_cache_preload_on && is_file( $supercachedir ) && $cache_max_time > 0 && $filem + $cache_max_time <= $now ) {
-			if ( strpos( $directory, '/' . $file_prefix ) === true ) {
-				$cache_type = 'wpcache';
-			} else {
-				$cache_type = 'supercache';
-			}
-			$sizes[ $cache_type ][ 'expired' ] ++;
-			if ( $valid_nonce && isset( $_GET[ 'listfiles' ] ) )
-				$sizes[ $cache_type ][ 'expired_list' ][ str_replace( $cache_path . 'supercache/' , '', $supercachedir ) ] = $now - $filem;
-		} else {
-			if ( $valid_nonce && isset( $_GET[ 'listfiles' ] ) && $filem )
-				$sizes[ $cache_type ][ 'cached_list' ][ str_replace( $cache_path . 'supercache/' , '', $supercachedir ) ] = $now - $filem;
-		}
-	}
-	$sizes[ 'ts' ] = time();
-	$cache_stats = array( 'generated' => time(), 'supercache' => $sizes[ 'supercache' ], 'wpcache' => $sizes[ 'wpcache' ] );
-	update_option( 'supercache_stats', $cache_stats );
+	$cache_stats = wp_cache_regenerate_cache_file_stats();
 	} else {
 		echo "<p>" . __( 'Cache stats are not automatically generated. You must click the link below to regenerate the stats on this page.', 'wp-super-cache' ) . "</p>";
 		echo "<a href='" . wp_nonce_url( add_query_arg( array( 'page' => 'wpsupercache', 'tab' => 'contents', 'action' => 'regenerate_cache_stats' ) ), 'wp-cache' ) . "'>" . __( 'Regenerate cache stats', 'wp-super-cache' ) . "</a>";
@@ -2590,15 +2598,15 @@ function wp_cache_files() {
 		$fsize = wp_cache_format_fsize( $fsize );
 		echo "<p><strong>" . __( 'WP-Super-Cache', 'wp-super-cache' ) . " ({$fsize})</strong></p>";
 		echo "<ul><li>" . sprintf( __( '%s Cached Pages', 'wp-super-cache' ), intval( $cache_stats[ 'supercache' ][ 'cached' ] / $divisor ) ) . "</li>";
-		if (isset($now) && isset($sizes))
-			$age = intval(($now - $sizes['ts'])/60);
+		if ( isset( $now ) && isset( $cache_stats ) )
+			$age = intval( ( $now - $cache_stats['generated'] ) / 60 );
 		else
 			$age = 0;
 		echo "<li>" . sprintf( __( '%s Expired Pages', 'wp-super-cache' ), intval( $cache_stats[ 'supercache' ][ 'expired' ] / $divisor ) ) . "</li></ul>";
 		if ( $valid_nonce && array_key_exists('listfiles', $_GET) && $_GET[ 'listfiles' ] ) {
 			echo "<div style='padding: 10px; border: 1px solid #333; height: 400px; width: 90%; overflow: auto'>";
 			$cache_description = array( 'supercache' => __( 'Super Cached Files', 'wp-super-cache' ), 'wpcache' => __( 'Full Cache Files', 'wp-super-cache' ) );
-			foreach( $sizes as $type => $details ) {
+			foreach( $cache_stats as $type => $details ) {
 				if ( is_array( $details ) == false )
 					continue;
 				foreach( array( 'cached_list' => 'Fresh', 'expired_list' => 'Stale' ) as $list => $description ) {

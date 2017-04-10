@@ -35,6 +35,12 @@ class WP_Super_Cache_Rest_Get_Settings extends WP_REST_Controller {
 		'wp_cache_preload_on'           => 'preload_on',
 		'wp_cache_preload_taxonomies'   => 'preload_taxonomies',
 		'wp_cache_preload_email_volume' => 'preload_email_volume',
+		'ossdl_cname'                   => 'ossdl_cname',
+		'ossdl_https'                   => 'ossdl_https',
+		'ossdl_off_cdn_url'             => 'ossdl_off_cdn_url',
+		'ossdl_off_exclude'             => 'ossdl_off_exclude',
+		'ossdl_off_include_dirs'        => 'ossdl_off_include_dirs',
+		'ossdlcdn'                      => 'ossdlcdn',
 	);
 
 	/**
@@ -49,6 +55,10 @@ class WP_Super_Cache_Rest_Get_Settings extends WP_REST_Controller {
 		$settings[ 'is_submit_enabled' ]        = $this->is_submit_enabled();
 		$settings[ 'is_preload_enabled' ]       = $this->is_preload_enabled();
 		$settings[ 'minimum_preload_interval' ] = $this->minimum_preload_interval();
+		$settings[ 'cache_stats' ]              = get_option( 'supercache_stats' );
+
+		if ( false == is_array( $settings[ 'cache_stats' ] ) )
+			$settings[ 'cache_stats' ] = wp_cache_regenerate_cache_file_stats();
 
 		foreach ( self::$settings_map as $var => $name ) {
 			global ${$var};
@@ -69,10 +79,10 @@ class WP_Super_Cache_Rest_Get_Settings extends WP_REST_Controller {
 		$settings = array();
 
 		foreach( $item as $key => $value ) {
-			if ( is_array( $value ) ) {
+			if ( is_array( $value ) && $key != 'cache_stats' ) {
 				array_walk( $value, array( $this, 'make_array_bool' ) );
 
-			} elseif ( ( $value == 0 || $value == 1 ) && $key != 'preload_interval' ) {
+			} elseif ( ( $value === 0 || $value === 1 ) && $key != 'preload_interval' ) {
 				$value = (bool)$value;
 			}
 
