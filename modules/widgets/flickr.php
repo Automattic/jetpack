@@ -63,13 +63,9 @@ if ( ! class_exists( 'Jetpack_Flickr_Widget' ) ) {
 		 * @param array $instance Saved values from database.
 		 */
 		public function widget( $args, $instance ) {
-			require( ABSPATH . WPINC . '/rss.php' );
-
 			$instance = wp_parse_args( $instance, $this->defaults() );
 
-			$image_size_string = 'small' == $instance['flickr_image_size']
-				? '_m.jpg'
-				: '_t.jpg';
+			$image_size_string = 'small' == $instance['flickr_image_size'] ? '_m.jpg' : '_t.jpg';
 
 			$rss_url = ( ! isset( $instance['flickr_rss_url'] ) || empty( $instance['flickr_rss_url'] ) )
 				? 'https://api.flickr.com/services/feeds/photos_interesting.gne?format=rss_200'
@@ -78,26 +74,24 @@ if ( ! class_exists( 'Jetpack_Flickr_Widget' ) ) {
 			// We want to use the HTTPS version so the URLs in the API response are also HTTPS and we avoid mixed-content warnings.
 			$rss_url = preg_replace( '!^http://api.flickr.com/!i', 'https://api.flickr.com/', $rss_url );
 
-			$rss = fetch_rss( $rss_url );
+			$rss = fetch_feed( $rss_url );
 
 			$photos = array();
-			if ( is_array( $rss->items ) ) {
-				$items = array_slice( $rss->items, 0, $instance['items'] );
-				foreach( $items as $key => $photo ) {
-					if ( isset( $photo['media:thumbnail'] ) ) {
-						$src = str_replace( '_s.jpg', $image_size_string, $photo['media:thumbnail']['url'] );
+			if ( ! is_wp_error( $rss ) ) {
+				foreach ( $rss->get_items( 0, $instance['items'] ) as $photo ) {
+					if ( $enclosure = $photo->get_enclosure() ) {
+						$src = str_replace( '_s.jpg', $image_size_string, $enclosure->get_thumbnail() );
 					} else {
-						// Sometimes the image URL is in the description.
-						$src = preg_match( '/src="(.*?)"/i', $photo['description'], $p );
+						$src = preg_match( '/src="(.*?)"/i', $photo->get_description(), $p );
 						$src = str_replace( '_m.jpg', $image_size_string, $p[1] );
 					}
 					array_push( $photos, array(
-						'href'  => esc_url( $photochannel['link'], array( 'http', 'https' ) ),
+						'href'  => esc_url( $photo->get_permalink(), array( 'http', 'https' ) ),
 						'src'   => esc_url( $src, array( 'http', 'https' ) ),
-						'title' => esc_attr( $photo['title'] ),
+						'title' => esc_attr( $photo->get_title() ),
 					) );
 				}
-				$flickr_home = esc_url( $rss->channel['link'], array( 'http', 'https' ) );
+				$flickr_home = esc_url( $rss->get_link(), array( 'http', 'https' ) );
 			}
 
 			echo $args['before_widget'];
