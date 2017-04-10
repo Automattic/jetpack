@@ -18,7 +18,7 @@ class WP_Super_Cache_Rest_Get_Settings extends WP_REST_Controller {
 		'wp_cache_refresh_single_only'  => 'refresh_current_only_on_comments',
 		'cache_compression'             => 'cache_compression',
 		'wp_cache_mod_rewrite'          => 'cache_mod_rewrite',
-		'wp_supercache_304'             => '304_headers_enabled',
+		'wp_supercache_304'             => 'use_304_headers',
 		'wp_super_cache_late_init'      => 'cache_late_init',
 		'wp_cache_front_page_checks'    => 'front_page_checks',
 		'cache_page_secret'             => 'cache_page_secret',
