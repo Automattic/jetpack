@@ -242,7 +242,7 @@ class Jetpack_Beta {
 			return;
 		}
 		// Highlight the menu if you are running the BETA Versions..
-		echo "<style>#wpadminbar #wp-admin-bar-jetpack-beta_admin_bar { background: #72af3a;}</style>";
+		echo "<style>#wpadminbar #wp-admin-bar-jetpack-beta_admin_bar { background: #72af3a; }</style>";
 	}
 
 	
@@ -263,8 +263,6 @@ class Jetpack_Beta {
 		delete_site_transient( 'jetpack_beta_manifest' );
 		
 		// check the version and decide if it's new
-		$update = version_compare( self::get_new_jetpack_version(), self::get_jetpack_plugin_version(), '>' );
-		if ( $update ) {
 			$response              = new stdClass;
 			$response->plugin      = self::get_plugin_slug();
 			$response->new_version = self::get_new_jetpack_version();
@@ -327,7 +325,6 @@ class Jetpack_Beta {
 			return 'PR: ' . str_replace( '_', ' / ', $branch );
 		}
 
-		return self::get_jetpack_plugin_version;
 	}
 
 	static function get_new_jetpack_version() {
