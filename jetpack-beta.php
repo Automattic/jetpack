@@ -89,7 +89,7 @@ class Jetpack_Beta {
 		add_filter( 'upgrader_post_install', array( $this, 'upgrader_post_install' ), 10, 3 );
 
 		add_action( 'admin_bar_menu', array( $this, 'admin_bar_menu' ) );
-		add_action( 'activate_plugin', array( $this, 'prevent_duplicate_plugin_activation' ) );
+		add_action( 'deactivate_plugin', array( $this, 'plugin_deactivated' ) , 10, 2 );
 
 		add_filter( 'plugin_action_links_' . JETPACK_PLUGIN_FILE, array( $this, 'remove_activate' ) );
 		add_filter( 'plugin_action_links_' . JETPACK_DEV_PLUGIN_FILE, array( $this, 'remove_activate' ) );
@@ -123,6 +123,14 @@ class Jetpack_Beta {
 			}
 		}
 		return $new_active_plugins;
+	}
+
+	public function plugin_deactivated( $plugin, $network_wide ) {
+		if ( ! Jetpack_Beta::is_jetpack_plugin( $plugin ) ) {
+			return;
+		}
+
+		delete_option( Jetpack_Beta::$option );
 	}
 
 	public static function is_jetpack_plugin( $plugin ) {
