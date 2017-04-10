@@ -2417,6 +2417,17 @@ function wpsc_generate_sizes_array() {
 	return $sizes;
 }
 
+function wp_cache_format_fsize( $fsize ) {
+	if ( $fsize > 1024 ) {
+		$fsize = number_format( $fsize / 1024, 2 ) . "MB";
+	} elseif ( $fsize != 0 ) {
+		$fsize = number_format( $fsize, 2 ) . "KB";
+	} else {
+		$fsize = "0KB";
+	}
+	return $fsize;
+}
+
 function wp_cache_files() {
 	global $cache_path, $file_prefix, $cache_max_time, $valid_nonce, $supercachedir, $cache_enabled, $super_cache_enabled, $blog_cache_dir, $cache_compression;
 	global $wp_cache_object_cache, $wp_cache_preload_on;
@@ -2567,7 +2578,8 @@ function wp_cache_files() {
 	}// regerate stats cache
 
 	if ( is_array( $cache_stats ) ) {
-		echo "<p><strong>" . __( 'WP-Cache', 'wp-super-cache' ) . " ({$cache_stats[ 'wpcache' ][ 'fsize' ]})</strong></p>";
+		$fsize = wp_cache_format_fsize( $cache_stats[ 'wpcache' ][ 'fsize' ] / 1024 );
+		echo "<p><strong>" . __( 'WP-Cache', 'wp-super-cache' ) . " ({$fsize})</strong></p>";
 		echo "<ul><li>" . sprintf( __( '%s Cached Pages', 'wp-super-cache' ), $cache_stats[ 'wpcache' ][ 'cached' ] ) . "</li>";
 		echo "<li>" . sprintf( __( '%s Expired Pages', 'wp-super-cache' ),    $cache_stats[ 'wpcache' ][ 'expired' ] ) . "</li></ul>";
 		$divisor = $cache_compression == 1 ? 2 : 1;
@@ -2575,13 +2587,7 @@ function wp_cache_files() {
 			$fsize = $cache_stats[ 'supercache' ][ 'fsize' ] / 1024;
 		else
 			$fsize = 0;
-		if( $fsize > 1024 ) {
-			$fsize = number_format( $fsize / 1024, 2 ) . "MB";
-		} elseif( $fsize != 0 ) {
-			$fsize = number_format( $fsize, 2 ) . "KB";
-		} else {
-			$fsize = "0KB";
-		}
+		$fsize = wp_cache_format_fsize( $fsize );
 		echo "<p><strong>" . __( 'WP-Super-Cache', 'wp-super-cache' ) . " ({$fsize})</strong></p>";
 		echo "<ul><li>" . sprintf( __( '%s Cached Pages', 'wp-super-cache' ), intval( $cache_stats[ 'supercache' ][ 'cached' ] / $divisor ) ) . "</li>";
 		if (isset($now) && isset($sizes))
