@@ -21,11 +21,21 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 	}
 
 	public function sync_deleted_plugin_info( $plugin_path ) {
-		$all_plugin_data = get_plugin_data( WP_PLUGIN_DIR . DIRECTORY_SEPARATOR . $plugin_path );
-		$data = array (
-			'name' => $all_plugin_data['Name'],
-			'version' => $all_plugin_data['Version'],
-		);
+		$full_plugin_path = WP_PLUGIN_DIR . DIRECTORY_SEPARATOR . $plugin_path;
+
+		//Checking for file existence because some sync plugin module tests simulate plugin installation and deletion without putting file on disk
+		if ( file_exists( $full_plugin_path ) ) {
+			$all_plugin_data = get_plugin_data( $full_plugin_path );
+			$data = array(
+				'name' => $all_plugin_data['Name'],
+				'version' => $all_plugin_data['Version'],
+			);
+		} else {
+			$data = array(
+				'name' => $plugin_path,
+				'version' => 'unknown',
+			);
+		}
 
 		/**
 		 * Syncs information about a plugin whose deletion was attempted

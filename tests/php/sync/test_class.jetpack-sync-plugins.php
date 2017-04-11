@@ -140,7 +140,7 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 		do_action( 'delete_plugin', 'hello.php');
 		$this->sender->do_sync();
 
-		$delete_plugin = $this->server_event_storage->get_most_recent_event( 'jetpack_deleted_plugin' );
+		$delete_plugin = $this->server_event_storage->get_most_recent_event( 'jetpack_delete_plugin' );
 		$this->assertTrue( isset( $delete_plugin->args ) );
 		$this->assertEquals( 'hello.php', $delete_plugin->args[0] );
 		$this->assertEquals( 'Hello Dolly', $delete_plugin->args[1]['name'] );
