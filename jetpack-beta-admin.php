@@ -218,6 +218,9 @@ class Jetpack_Beta_Admin {
 	function show_branch( $header, $branch_key, $branch = null, $section = null, $is_last = false ) {
 		if ( ! is_object( $branch ) ) {
 			$manifest = Jetpack_Beta::get_beta_manifest();
+			if ( empty( $manifest->{$section} ) ) {
+				return;
+			}
 			$branch   = $manifest->{$section};
 		}
 
@@ -298,7 +301,9 @@ class Jetpack_Beta_Admin {
 
 		$manifest = Jetpack_Beta::get_beta_manifest();
 		$count    = 0;
-
+		if ( empty( $manifest->{$section} ) ) {
+			return;
+		}
 		$branches  = (array) $manifest->{$section};
 		$count_all = count( $branches );
 
@@ -323,6 +328,9 @@ class Jetpack_Beta_Admin {
 	}
 
 	function render_search() { ?>
+		if ( empty( $manifest->pr ) ) {
+			return;
+		}
 		<div class="dops-navigation">
 			<div class="dops-section-nav has-pinned-items">
 				<div class="dops-section-nav__panel">
