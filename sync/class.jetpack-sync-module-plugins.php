@@ -30,9 +30,7 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 			$plugin_data['Version'] = $all_plugin_data['Version'];
 		} else {
 			$slug = Jetpack_Autoupdate::get_plugin_slug( $plugin_path );
-			$api = plugins_api( 'plugin_information', array( 'slug' => $slug ) );
-			print_r($api);
-
+			$plugin_data = plugins_api( 'plugin_information', array( 'slug' => $slug ) );
 		}
 
 
