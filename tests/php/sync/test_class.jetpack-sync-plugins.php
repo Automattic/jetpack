@@ -39,7 +39,6 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 		$deleted_plugin = $this->server_event_storage->get_most_recent_event( 'deleted_plugin' );
 		$this->assertEquals( 'WP Super Cache', $deleted_plugin->args[2]['name'] );
 		$this->assertTrue( (bool) $deleted_plugin->args[2]['version'] );
-
 	}
 
 	public function test_autoupdate_enabled_and_disabled_is_synced() {
