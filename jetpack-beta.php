@@ -64,7 +64,8 @@ class Jetpack_Beta {
 
 	protected static $_instance = null;
 
-	static $option = 'jetpack_dev_currently_installed';
+	static $option = 'jetpack_beta_active';
+	static $option_dev_installed = 'jetpack_beta_dev_currently_installed';
 
 	/**
 	 * Main Instance
@@ -88,19 +89,22 @@ class Jetpack_Beta {
 
 		add_action( 'admin_bar_menu', array( $this, 'admin_bar_menu' ) );
 		add_action( 'deactivate_plugin', array( $this, 'plugin_deactivated' ) , 10, 2 );
+		add_action( 'deleted_plugin', array( $this, 'deleted_plugin' ), 10, 2 );
 
-		add_filter( 'plugin_action_links_' . JETPACK_PLUGIN_FILE, array( $this, 'remove_activate' ) );
-		add_filter( 'plugin_action_links_' . JETPACK_DEV_PLUGIN_FILE, array( $this, 'remove_activate' ) );
+		add_filter( 'plugin_action_links_' . JETPACK_PLUGIN_FILE, array( $this, 'remove_activate_stable' ) );
+		add_filter( 'plugin_action_links_' . JETPACK_DEV_PLUGIN_FILE, array( $this, 'remove_activate_dev' ) );
 
-		add_filter( 'network_admin_plugin_action_links_' . JETPACK_PLUGIN_FILE, array( $this, 'remove_activate' ) );
-		add_filter( 'network_admin_plugin_action_links_' . JETPACK_DEV_PLUGIN_FILE, array( $this, 'remove_activate' ) );
+		add_filter( 'network_admin_plugin_action_links_' . JETPACK_PLUGIN_FILE, array( $this, 'remove_activate_stable' ) );
+		add_filter( 'network_admin_plugin_action_links_' . JETPACK_DEV_PLUGIN_FILE, array( $this, 'remove_activate_dev' ) );
+
+		add_filter( 'all_plugins', array( $this, 'update_all_plugins' ) );
 
 		if ( is_admin() ) {
 			require JPBETA__PLUGIN_DIR . 'jetpack-beta-admin.php';
 			Jetpack_Beta_Admin::init();
 		}
 	}
-	
+
 	public static function is_network_enabled() {
 			if ( Jetpack_Beta::is_network_active() ) {
 				add_filter( 'option_active_plugins', array( 'Jetpack_Beta','override_active_plugins' ) );
@@ -135,12 +139,31 @@ class Jetpack_Beta {
 		return in_array( $plugin, array( JETPACK_PLUGIN_FILE, JETPACK_DEV_PLUGIN_FILE ) );
 	}
 
-	public function remove_activate( $actions ) {
-
-		if ( self::is_network_active() || ( is_plugin_active( JETPACK_PLUGIN_FILE ) || is_plugin_active( JETPACK_DEV_PLUGIN_FILE ) ) ) {
+	public function remove_activate_dev( $actions ) {
+		if ( is_plugin_active( JETPACK_PLUGIN_FILE ) || self::is_network_active() ) {
 			$actions['activate'] = __( 'Plugin Already Active', 'jetpack-beta' );
 		}
 		return $actions;
+	}
+
+	public function remove_activate_stable( $actions ) {
+		if ( is_plugin_active( JETPACK_DEV_PLUGIN_FILE ) || self::is_network_active() ) {
+			$actions['activate'] = __( 'Plugin Already Active', 'jetpack-beta' );
+		}
+		return $actions;
+	}
+
+	public function update_all_plugins( $plugins ) {
+		foreach ( $plugins as $plugin_file => $plugin ) {
+			if ( JETPACK_DEV_PLUGIN_FILE === $plugin_file ) {
+				$plugins[ $plugin_file ] = $this->update_jetpack_dev( $plugin );
+			}
+		}
+		return $plugins;
+	}
+	public function update_jetpack_dev( $plugin ) {
+		$plugin['Name'] = $plugin['Name'] . ' | ' . Jetpack_Beta::get_jetpack_plugin_pretty_version( true );
+		return $plugin;
 	}
 	/**
 	 * Ran on activation to flush update cache
@@ -302,7 +325,7 @@ class Jetpack_Beta {
 			return $worked;
 		}
 
-		if ( $wp_filesystem->move( $result['destination'], WP_PLUGIN_DIR . '/' . JETPACK_DEV_PLUGIN_SLUG . '/', true ) ) {
+		if ( $wp_filesystem->move( $result['destination'], WP_PLUGIN_DIR . '/' , true ) ) {
 			return $worked;
 		} else {
 			return new WP_Error();
@@ -319,6 +342,10 @@ class Jetpack_Beta {
 		return get_option( self::$option );
 	}
 
+	static function get_dev_installed() {
+		return get_option( self::$option_dev_installed );
+	}
+
 	static function get_branch_and_section() {
 		$option = (array) self::get_option();
 		if ( false === $option[0] ) {
@@ -328,11 +355,24 @@ class Jetpack_Beta {
 			}
 			return array( false, false );
 		}
+		// branch and section
 		return $option;
 	}
-	static function get_jetpack_plugin_pretty_version() {
 
-		list( $branch, $section ) = self::get_branch_and_section();
+	static function get_branch_and_section_dev() {
+		$option = (array) self::get_dev_installed();
+		if ( false !== $option[0] ) {
+			return $option;
+		}
+		return self::get_branch_and_section();
+	}
+
+	static function get_jetpack_plugin_pretty_version( $is_dev_version = false ) {
+		if( $is_dev_version ) {
+			list( $branch, $section ) = self::get_branch_and_section_dev();
+		} else {
+			list( $branch, $section ) = self::get_branch_and_section();
+		}
 
 		if ( ! $section  ) {
 			return '';
@@ -345,7 +385,6 @@ class Jetpack_Beta {
 		if ( 'stable' === $section ) {
 			return 'Latest Stable';
 		}
-
 
 		if ( 'rc' === $section ) {
 			return JETPACK_GITHUB_URL . '/tree/' . $section . '-build';
@@ -483,12 +522,34 @@ class Jetpack_Beta {
 		}
 	}
 
-	static function proceed_to_install( $url, $plugin_folder = JETPACK_DEV_PLUGIN_SLUG, $section ) {
+	static function install_and_activate( $branch, $section ) {
 
 		if ( 'stable' === $section && file_exists( WP_PLUGIN_DIR . '/' . JETPACK_PLUGIN_FILE ) ) {
 			self::replace_active_plugin( JETPACK_DEV_PLUGIN_FILE, JETPACK_PLUGIN_FILE, true );
+			self::update_option( $branch, $section );
 			return;
 		}
+
+		if ( self::get_branch_and_section_dev() === array( $branch, $section )
+		     && file_exists( WP_PLUGIN_DIR . '/' . JETPACK_DEV_PLUGIN_FILE ) ) {
+			self::replace_active_plugin( JETPACK_PLUGIN_FILE, JETPACK_DEV_PLUGIN_FILE, true );
+			self::update_option( $branch, $section );
+			return;
+		}
+
+		self::proceed_to_install( self::get_install_url( $branch, $section ), self::get_plugin_slug( $section ), $section );
+		self::update_option( $branch, $section );
+		return;
+	}
+
+	static function update_option( $branch, $section ) {
+		if ( 'stable' !== $section ) {
+			update_option( self::$option_dev_installed, array( $branch, $section ) );
+		}
+		update_option( self::$option, array( $branch, $section) );
+	}
+
+	static function proceed_to_install( $url, $plugin_folder = JETPACK_DEV_PLUGIN_SLUG, $section ) {
 
 		$temp_path = download_url( $url );
 
@@ -507,7 +568,7 @@ class Jetpack_Beta {
 		if ( 'stable' === $section ) {
 			$plugin_path = WP_PLUGIN_DIR;
 		} else {
-			$plugin_path = str_replace( ABSPATH, $wp_filesystem->abspath(), WP_PLUGIN_DIR . '/' . $plugin_folder );
+			$plugin_path = str_replace( ABSPATH, $wp_filesystem->abspath(), WP_PLUGIN_DIR  );
 		}
 
 		$result = unzip_file( $temp_path, $plugin_path );
@@ -539,7 +600,6 @@ class Jetpack_Beta {
 
 		return false;
 	}
-	
 
 	static function replace_active_plugin( $current_plugin, $replace_with_plugin, $force_activate = false ) {
 		if ( self::is_network_active() ) {

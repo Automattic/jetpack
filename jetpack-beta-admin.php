@@ -63,11 +63,7 @@ class Jetpack_Beta_Admin {
 			$branch  = esc_html( $_GET['activate-branch'] );
 			$section = esc_html( $_GET['section'] );
 
-			if ( Jetpack_Beta::get_branch_and_section() !== array( $branch, $section ) ) {
-				Jetpack_Beta::proceed_to_install( Jetpack_Beta::get_install_url( $branch, $section ), Jetpack_Beta::get_plugin_slug( $section ), $section );
-			}
-			
-			update_option( Jetpack_Beta::$option, array( $branch, $section ) );
+			Jetpack_Beta::install_and_activate( $branch, $section );
 			wp_safe_redirect( Jetpack_Beta::admin_url() );
 		}
 	}
