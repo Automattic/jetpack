@@ -5,22 +5,22 @@
  */
 class Jetpack_Beta_Admin {
 
-	function __construct() {
-		add_action( 'admin_menu', array( $this, 'add_actions' ), 998 );
-		add_action( 'network_admin_menu', array( $this, 'add_actions' ), 998 );
-		add_action( 'admin_notices', array( $this, 'render_banner' ) );
+	static function init() {
+		add_action( 'admin_menu', array( __CLASS__, 'add_actions' ), 998 );
+		add_action( 'network_admin_menu', array( __CLASS__, 'add_actions' ), 998 );
+		add_action( 'admin_notices', array( __CLASS__, 'render_banner' ) );
 	}
 
-	function add_actions() {
-		$hook = $this->get_page_hook();
+	static function add_actions() {
+		$hook = self::get_page_hook();
 		// Attach hooks common to all Jetpack admin pages based on the created
-		add_action( "load-$hook", array( $this, 'admin_page_load' ) );
-		add_action( "admin_print_styles-$hook", array( $this, 'admin_styles' ) );
-		add_action( "admin_print_scripts-$hook", array( $this, 'admin_scripts' ) );
-		add_filter( 'plugin_action_links_' . plugin_basename( 'jetpack-beta/jetpack-beta.php' ), array( $this, 'admin_plugin_settings_link' ) );
+		add_action( "load-$hook", array( __CLASS__, 'admin_page_load' ) );
+		add_action( "admin_print_styles-$hook", array( __CLASS__, 'admin_styles' ) );
+		add_action( "admin_print_scripts-$hook", array( __CLASS__, 'admin_scripts' ) );
+		add_filter( 'plugin_action_links_' . plugin_basename( 'jetpack-beta/jetpack-beta.php' ), array( __CLASS__, 'admin_plugin_settings_link' ) );
 	}
 
-	function get_page_hook() {
+	static function get_page_hook() {
 		if ( Jetpack_Beta::is_network_active() && ! is_network_admin() ) {
 			return;
 		}
@@ -31,7 +31,7 @@ class Jetpack_Beta_Admin {
 				'Jetpack Beta',
 				'update_plugins',
 				'jetpack-beta',
-				array( $this, 'render' )
+				array( __CLASS__, 'render' )
 			);
 		}
 
@@ -40,21 +40,21 @@ class Jetpack_Beta_Admin {
 			'Jetpack Beta',
 			'update_plugins',
 			'jetpack-beta',
-			array( $this, 'render' )
+			array( __CLASS__, 'render' )
 		);
 	}
 	
-	function settings_link() {
+	static function settings_link() {
 		return admin_url( 'admin.php?page=jetpack-beta' );
 	}
 	
-	function admin_plugin_settings_link( $links ) {
-		$settings_link = '<a href="'. esc_url( $this->settings_link() ) . '">' . __('Settings', 'jetpack-beta' ) . '</a>';
+	static function admin_plugin_settings_link( $links ) {
+		$settings_link = '<a href="'. esc_url( self::settings_link() ) . '">' . __( 'Settings', 'jetpack-beta' ) . '</a>';
 		array_unshift( $links, $settings_link );
 		return $links;
 	}
 
-	function admin_page_load() {
+	static function admin_page_load() {
 		if ( ! isset( $_GET['_nonce'] ) ) {
 			return;
 		}
@@ -64,7 +64,7 @@ class Jetpack_Beta_Admin {
 			$section = esc_html( $_GET['section'] );
 
 			if ( Jetpack_Beta::get_branch_and_section() !== array( $branch, $section ) ) {
-				Jetpack_Beta::proceed_to_install( Jetpack_Beta::get_install_url( $branch, $section ), $this->get_folder( $section ), $section );
+				Jetpack_Beta::proceed_to_install( Jetpack_Beta::get_install_url( $branch, $section ), Jetpack_Beta::get_plugin_slug( $section ), $section );
 			}
 			
 			update_option( Jetpack_Beta::$option, array( $branch, $section ) );
@@ -72,16 +72,7 @@ class Jetpack_Beta_Admin {
 		}
 	}
 
-	function get_folder( $section ) {
-		if ( 'stable' === $section ) {
-			return 'jetpack';
-		}
-
-		return JETPACK_DEV_PLUGIN_SLUG;
-	}
-
-	function render_banner() {
-
+	static function render_banner() {
 		global $current_screen;
 
 		if ( 'plugins' !== $current_screen->base ) {
@@ -95,11 +86,11 @@ class Jetpack_Beta_Admin {
 		self::start_notice();
 	}
 	
-	function admin_styles() {
+	static function admin_styles() {
 		wp_enqueue_style( 'jetpack-beta-admin', plugins_url( "admin/admin.css", JPBETA__PLUGIN_FILE ), array(), JPBETA_VERSION . '-' . time() );
 	}
 
-	function admin_scripts() {
+	static function admin_scripts() {
 		wp_enqueue_script( 'jetpack-admin-js', plugins_url( 'admin/admin.js', JPBETA__PLUGIN_FILE ), array( ), JPBETA_VERSION, true );
 		wp_localize_script( 'jetpack-admin-js', 'JetpackBeta',
 			array(
@@ -109,29 +100,30 @@ class Jetpack_Beta_Admin {
 		);
 	}
 
-	function to_test_content() {
+	static function to_test_content() {
 		list( $branch, $section ) = Jetpack_Beta::get_branch_and_section();
 		switch ( $section ) {
 			case 'pr':
-				return $this->to_test_pr_content( $branch );
+				return self::to_test_pr_content( $branch );
 				break;
 			case 'master':
 			case 'rc':
-				return $this->to_test_file_content();
+				return self::to_test_file_content();
 				break;
 		}
+		return null;
 	}
 
-	function to_test_file_content() {
+	static function to_test_file_content() {
 		$test_file = WP_PLUGIN_DIR . '/' . Jetpack_Beta::get_plugin_slug() . '/to-test.md';
 		if ( ! file_exists( $test_file ) ) {
 			return;
 		}
 		$content = file_get_contents( $test_file );
-		return $this->render_markdown( $content );
+		return self::render_markdown( $content );
 	}
 
-	function to_test_pr_content( $branch_key ) {
+	static function to_test_pr_content( $branch_key ) {
 		$manifest = Jetpack_Beta::get_beta_manifest();
 		$pr =  isset( $manifest->pr->{$branch_key}->pr ) ? $manifest->pr->{$branch_key}->pr : null;
 
@@ -140,10 +132,10 @@ class Jetpack_Beta_Admin {
 		}
 		$github_info = Jetpack_Beta::get_remote_data( JETPACK_GITHUB_API_URL . 'pulls/' . $pr, 'github_' . $pr );
 
-		return $this->render_markdown( $github_info->body );
+		return self::render_markdown( $github_info->body );
 	}
 
-	function render_markdown( $content ) {
+	static function render_markdown( $content ) {
 
 		add_filter( 'jetpack_beta_test_content', 'wptexturize' );
 		add_filter( 'jetpack_beta_test_content', 'convert_smilies' );
@@ -173,14 +165,13 @@ class Jetpack_Beta_Admin {
 		return $rendered_html;
 	}
 
-	function start_notice() {
+	static function start_notice() {
 		global $current_screen;
 
 		$is_notice = ( 'plugins' === $current_screen->base ? true : false );
 		?>
-		<style>
-
-			#jetpack-beta-start {
+		<style type="text/css">
+			#jetpack-beta-tester__start {
 				background: #FFF;
 				padding: 20px;
 				margin-top:20px;
@@ -188,19 +179,19 @@ class Jetpack_Beta_Admin {
 				position: relative;
 
 			}
-			#jetpack-beta-start.updated {
+			#jetpack-beta-tester__start.updated {
 				border-left: 3px solid #8CC258;
 			}
-			#jetpack-beta-start h1 {
+			#jetpack-beta-tester__start h1 {
 				font-weight: 400;
 				margin: 0;
 				font-size: 20px;
 			}
-			#jetpack-beta-start p {
+			#jetpack-beta-tester__start p {
 				margin-bottom:1em;
 			}
 		</style>
-		<div id="jetpack-beta-start" class="dops-card <?php echo ( $is_notice ? 'updated' : '' ); ?> ">
+		<div id="jetpack-beta-tester__start" class="dops-card <?php echo ( $is_notice ? 'updated' : '' ); ?> ">
 			<h1>Welcome to Jetpack Beta Tester</h1>
 			<p>It works a bit differently. Jetpack Beta Tester helps you run 2 different version of Jetpack on your site.
 				A <em>stable</em> and a <em>development</em> version (a version that still needs more testing)</p>
@@ -215,7 +206,7 @@ class Jetpack_Beta_Admin {
 		<?php
 	}
 
-	function show_branch( $header, $branch_key, $branch = null, $section = null, $is_last = false ) {
+	static function show_branch( $header, $branch_key, $branch = null, $section = null, $is_last = false ) {
 		if ( ! is_object( $branch ) ) {
 			$manifest = Jetpack_Beta::get_beta_manifest();
 			if ( empty( $manifest->{$section} ) ) {
@@ -238,41 +229,37 @@ class Jetpack_Beta_Admin {
 		);
 
 		$branch_class    = 'branch-card';
-		$current_version = Jetpack_Beta::get_branch_and_section();
-		if ( isset( $current_version[0], $current_version[1] ) ) {
-			list( $current_branch, $current_section ) = $current_version;
-			if ( $current_branch === $branch_key && $current_section === $section ) {
-				$action       = __( 'Active', 'jetpack-beta' );
-				$branch_class = 'branch-card-active';
-			} else {
-				$action = $this->activate_button( $branch_key, $section );
-			}
+		list( $current_branch, $current_section ) = Jetpack_Beta::get_branch_and_section();
+		if ( $current_branch === $branch_key && $current_section === $section ) {
+			$action       = __( 'Active', 'jetpack-beta' );
+			$branch_class = 'branch-card-active';
 		} else {
-			$action = $this->activate_button( $branch_key, $section );
+			$action = self::activate_button( $branch_key, $section );
 		}
+
 		$header = str_replace( '-', ' ', $header );
 		$header = str_replace( '_', ' / ', $header );
 		?>
 		<div <?php echo $pr; ?> " class="dops-foldable-card <?php echo esc_attr( $branch_class ); ?> has-expanded-summary dops-card <?php echo $is_compact; ?>">
 			<div class="dops-foldable-card__header has-border" data-reactid=".0.0.1.2.1.1:$module-card_markdown.1:0">
-					<span class="dops-foldable-card__main" data-reactid=".0.0.1.2.1.1:$module-card_markdown.1:0.0">
-						<div class="dops-foldable-card__header-text">
-							<div class="dops-foldable-card__header-text branch-card-header"><?php echo $header; ?></div>
-							<div class="dops-foldable-card__subheader"><?php echo $more_info;
-								echo $update_time; ?></div>
-						</div>
+				<span class="dops-foldable-card__main" data-reactid=".0.0.1.2.1.1:$module-card_markdown.1:0.0">
+					<div class="dops-foldable-card__header-text">
+						<div class="dops-foldable-card__header-text branch-card-header"><?php echo esc_html( $header ); ?></div>
+						<div class="dops-foldable-card__subheader"><?php echo $more_info;
+							echo $update_time; ?></div>
+					</div>
+				</span>
+				<span class="dops-foldable-card__secondary">
+					<span class="dops-foldable-card__summary">
+						<?php echo $action; ?>
 					</span>
-					<span class="dops-foldable-card__secondary">
-						<span class="dops-foldable-card__summary">
-							<?php echo $action; ?>
-						</span>
-					</span>
+				</span>
 			</div>
 		</div>
 		<?php
 	}
 
-	function activate_button( $branch, $section ) {
+	static function activate_button( $branch, $section ) {
 		if ( is_object( $section ) ) {
 			$section = 'master';
 		}
@@ -289,11 +276,11 @@ class Jetpack_Beta_Admin {
 				class="is-primary jp-form-button activate-branch dops-button is-compact" >' . __( 'Activate', 'jetpack-beta' ) . '</a>';
 	}
 
-	function header( $title ) {
+	static function header( $title ) {
 		echo '<header><h2 class="jp-jetpack-connect__container-subtitle">' . $title . '</h2></header>';
 	}
 
-	function show_branches( $section, $title = null ) {
+	static function show_branches( $section, $title = null ) {
 		if ( $title ) {
 			$title .= ': ';
 		}
@@ -310,27 +297,35 @@ class Jetpack_Beta_Admin {
 		foreach ( $branches as $branch_name => $branch ) {
 			$count ++;
 			$is_last = $count_all === $count ? true : false;
-			$this->show_branch( $title . $branch_name, $branch_name, $branch, $section, $is_last );
+			self::show_branch( $title . $branch_name, $branch_name, $branch, $section, $is_last );
 		}
 		echo '</div>';
 	}
 
-	function stable_branch() {
+	static function show_stable_branch() {
 		$org_data = Jetpack_Beta::get_org_data();
 
-		$this->show_branch( __( 'Latest Stable' ), 'stable', (object) array( 'branch'      => 'stable',
-		                                                           'update_date' => $org_data->last_updated
-		), 'stable' );
+		self::show_branch(
+			__( 'Latest Stable' ),
+			'stable',
+			(object) array(
+				'branch' => 'stable',
+		        'update_date' => $org_data->last_updated
+			),
+			'stable'
+		);
 	}
 
-	function render() {
+	static function render() {
 		require_once JPBETA__PLUGIN_DIR . 'admin/main.php';
 	}
 
-	function render_search() { ?>
+	static function show_search_prs() {
+		$manifest = Jetpack_Beta::get_beta_manifest();
 		if ( empty( $manifest->pr ) ) {
 			return;
 		}
+		?>
 		<div class="dops-navigation">
 			<div class="dops-section-nav has-pinned-items">
 				<div class="dops-section-nav__panel">

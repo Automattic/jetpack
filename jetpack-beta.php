@@ -63,7 +63,6 @@ add_action( 'init', array( 'Jetpack_Beta_Autoupdate_Self', 'instance' ) );
 class Jetpack_Beta {
 
 	protected static $_instance = null;
-	protected static $admin = null;
 
 	static $option = 'jetpack_dev_currently_installed';
 
@@ -98,7 +97,7 @@ class Jetpack_Beta {
 
 		if ( is_admin() ) {
 			require JPBETA__PLUGIN_DIR . 'jetpack-beta-admin.php';
-			self::$admin = new Jetpack_Beta_Admin();
+			Jetpack_Beta_Admin::init();
 		}
 	}
 	
@@ -160,7 +159,6 @@ class Jetpack_Beta {
 		if ( empty( $installed ) || $installed[1] === 'stable' ) {
 			return 'jetpack';
 		}
-
 		return JETPACK_DEV_PLUGIN_SLUG;
 	}
 
