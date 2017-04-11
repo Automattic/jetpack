@@ -78,7 +78,6 @@ class Jetpack_Beta {
 	 * Constructor
 	 */
 	public function __construct() {
-
 		if ( isset( $_GET['delete'] ) ) {
 			delete_site_transient( 'update_plugins' );
 		}
@@ -186,7 +185,6 @@ class Jetpack_Beta {
 	}
 
 	public static function deactivate() {
-		// Set the
 		add_action( 'shutdown', array( __CLASS__, 'switch_active' ) );
 		delete_option( self::$option );
 
@@ -416,7 +414,6 @@ class Jetpack_Beta {
 	}
 
 	static function get_url( $branch = null, $section = null ) {
-		
 		if ( is_null ( $section ) ) {
 			list( $branch, $section ) = self::get_branch_and_section();
 		}
@@ -439,7 +436,6 @@ class Jetpack_Beta {
 	}
 
 	static function get_install_url( $branch = null, $section = null ) {
-
 		if ( is_null( $section ) ) {
 			list( $branch, $section ) = self::get_branch_and_section();
 		}

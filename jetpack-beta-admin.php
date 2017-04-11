@@ -132,7 +132,6 @@ class Jetpack_Beta_Admin {
 	}
 
 	static function render_markdown( $content ) {
-
 		add_filter( 'jetpack_beta_test_content', 'wptexturize' );
 		add_filter( 'jetpack_beta_test_content', 'convert_smilies' );
 		add_filter( 'jetpack_beta_test_content', 'convert_chars' );
