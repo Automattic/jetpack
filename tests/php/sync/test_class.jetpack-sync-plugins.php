@@ -35,10 +35,6 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 		$plugins = $this->server_replica_storage->get_callable( 'get_plugins' );
 		$this->assertEquals( get_plugins(), $plugins );
 		$this->assertFalse( isset( $plugins['wp-super-cache/wp-cache.php'] ) );
-
-		$deleted_plugin = $this->server_event_storage->get_most_recent_event( 'deleted_plugin' );
-		$this->assertEquals( 'WP Super Cache', $deleted_plugin->args[2]['name'] );
-		$this->assertTrue( (bool) $deleted_plugin->args[2]['version'] );
 	}
 
 	public function test_autoupdate_enabled_and_disabled_is_synced() {
@@ -138,6 +134,18 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 		$this->assertFalse( $deactivated_plugin->args[1] );
 		$this->assertEquals( 'Hello Dolly', $deactivated_plugin->args[2]['name'] );
 		$this->assertTrue( (bool) $deactivated_plugin->args[2]['version'] );
+	}
+
+	function test_plugin_jetpack_delete_plugin_is_synced() {
+		do_action( 'delete_plugin', 'hello.php');
+		$this->sender->do_sync();
+
+		$delete_plugin = $this->server_event_storage->get_most_recent_event( 'jetpack_deleted_plugin' );
+		$this->assertTrue( isset( $delete_plugin->args ) );
+		$this->assertEquals( 'hello.php', $delete_plugin->args[0] );
+		$this->assertEquals( 'Hello Dolly', $delete_plugin->args[1]['name'] );
+		$this->assertTrue( (bool) $delete_plugin->args[1]['version'] );
+
 	}
 
 	function test_all_plugins_filter_is_respected() {
