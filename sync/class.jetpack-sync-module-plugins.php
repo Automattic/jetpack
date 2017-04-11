@@ -26,14 +26,18 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 		$all_plugins = get_plugins();
 		if ( isset( $all_plugins[$plugin_path] ) ) {
 			$all_plugin_data = $all_plugins[$plugin_path];
-			$plugin_data['Name'] = $all_plugin_data['Name'];
-			$plugin_data['Version'] = $all_plugin_data['Version'];
+			$plugin_data['name'] = $all_plugin_data['Name'];
+			$plugin_data['version'] = $all_plugin_data['Version'];
 		} else {
+			require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
 			$slug = Jetpack_Autoupdate::get_plugin_slug( $plugin_path );
-			$plugin_data = plugins_api( 'plugin_information', array( 'slug' => $slug ) );
+			$all_plugin_data = plugins_api( 'plugin_information', array( 'slug' => $slug ) );
+			if ( ! is_wp_error( $all_plugin_data ) ) {
+				$plugin_data['name'] = $all_plugin_data['name'];
+				$plugin_data['version'] = $all_plugin_data['version'];
+			}
 		}
-
-
+		
 		return array(
 			$args[0],
 			$args[1],
