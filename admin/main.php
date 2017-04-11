@@ -51,29 +51,6 @@
 			</span>
 		</div>
 	</div>
-<!--	<div class="dops-foldable-card is-expanded has-expanded-summary dops-card">-->
-<!--		<div class="dops-foldable-card__header has-border">-->
-<!--			<span class="dops-foldable-card__main">-->
-<!--				<div class="dops-foldable-card__header-text">-->
-<!--					<div class="dops-foldable-card__header-text">Any Feedback?</div>-->
-<!--				</div>-->
-<!--			</span>-->
-<!--		</div>-->
-<!--		<div class="dops-foldable-card__content">-->
-<!--			<form >-->
-<!--				<fieldset class="jp-form-fieldset">-->
-<!--					<legend class="jp-form-legend" >-->
-<!--						<span>--><?php //_e( 'Please help make Jetpack better', 'jetpack-beta' ); ?><!--</span>-->
-<!--					</legend>-->
-<!--					<label class="jp-form-label">-->
-<!--						<textarea name="feedback" placeholder="--><?php //__( 'Your Report' ); ?><!--" rows="10" cols="50" id="feedback" class="large-text code"></textarea>-->
-<!--					</label>-->
-<!--					<input type="submit" class="is-primary jp-jetpack-connect__button dops-button" value="--><?php //_e( 'Send Feedback' ); ?><!--" />-->
-<!--				</fieldset>-->
-<!---->
-<!--			</form>-->
-<!--		</div>-->
-<!--	</div>-->
 	<?php
 
 	Jetpack_Beta_Admin::show_stable_branch();
@@ -81,6 +58,5 @@
 	Jetpack_Beta_Admin::show_branches( 'rc',  __( 'RC', 'jetpack-beta' ) );
 	Jetpack_Beta_Admin::show_search_prs();
 	Jetpack_Beta_Admin::show_branches( 'pr' );
-
 	?>
 </div>
