@@ -52,7 +52,6 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 		$plugin_path = $args[0];
 		$plugin_data = array();
 
-		//Try to get plugin data from cache (if it isn't cached, get_plugins() tries to get it from disk)
 		$all_plugins = get_plugins();
 		if ( isset( $all_plugins[$plugin_path] ) ) {
 			$all_plugin_data = $all_plugins[$plugin_path];
