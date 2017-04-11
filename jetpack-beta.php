@@ -363,8 +363,8 @@ class Jetpack_Beta {
 
 	static function get_branch_and_section_dev() {
 		$option = (array) self::get_dev_installed();
-		if ( false !== $option[0] ) {
-			return $option;
+		if ( false !== $option[0] && isset( $option[1] )) {
+			return array( $option[0], $option[1] );
 		}
 		return self::get_branch_and_section();
 	}
@@ -389,12 +389,12 @@ class Jetpack_Beta {
 		}
 
 		if ( 'rc' === $section ) {
-			return JETPACK_GITHUB_URL . '/tree/' . $section . '-build';
+			return 'Release Candidate';
 		}
 
 		if ( 'pr' === $section ) {
 			$branch = str_replace( '-', ' ', $branch );
-			return 'PR: ' . str_replace( '_', ' / ', $branch );
+			return 'Feature Branch: ' . str_replace( '_', ' / ', $branch );
 		}
 
 		return self::get_jetpack_plugin_version();
@@ -546,9 +546,30 @@ class Jetpack_Beta {
 
 	static function update_option( $branch, $section ) {
 		if ( 'stable' !== $section ) {
-			update_option( self::$option_dev_installed, array( $branch, $section ) );
+			update_option( self::$option_dev_installed, array( $branch, $section, self::get_manifest_data( $branch, $section ) ) );
 		}
 		update_option( self::$option, array( $branch, $section) );
+	}
+
+	static function get_manifest_data( $branch, $section ) {
+		$installed = get_option( self::$option_dev_installed );
+		$current_manifest_data = isset( $installed[2] ) ? $installed[2] : false;
+
+		$manifest_data = self::get_beta_manifest();
+
+		if ( ! isset( $manifest_data->{$section} ) ) {
+			return $current_manifest_data;
+		}
+
+		if ( 'master' === $section ) {
+			return $manifest_data->{$section};
+		}
+
+		if ( isset( $manifest_data->{$section}->{$branch} ) ) {
+			return $manifest_data->{$section}->{$branch};
+		}
+
+		return $current_manifest_data;
 	}
 
 	static function proceed_to_install( $url, $plugin_folder = JETPACK_DEV_PLUGIN_SLUG, $section ) {
