@@ -32,12 +32,12 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 			require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
 			$slug = Jetpack_Autoupdate::get_plugin_slug( $plugin_path );
 			$all_plugin_data = plugins_api( 'plugin_information', array( 'slug' => $slug ) );
-			if ( ! is_wp_error( $all_plugin_data ) ) {
+			if ( is_array( $all_plugin_data ) ) {
 				$plugin_data['name'] = $all_plugin_data['name'];
 				$plugin_data['version'] = $all_plugin_data['version'];
 			}
 		}
-		
+
 		return array(
 			$args[0],
 			$args[1],
