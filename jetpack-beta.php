@@ -210,6 +210,8 @@ class Jetpack_Beta {
 		if ( $wp_filesystem->is_dir( $working_dir ) ) {
 			$wp_filesystem->delete( $working_dir, true );
 		}
+		// Since we are removing this dev plugin we should also clean up this data.
+		delete_option( self::$option_dev_installed );
 	}
 
 	static function admin_url( $query = '?page=jetpack-beta' ) {
