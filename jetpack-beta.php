@@ -239,15 +239,6 @@ class Jetpack_Beta {
 
 		// add a child item to our parent item
 		$args = array(
-			'id'     => 'jetpack-beta_report',
-			'title'  => 'Report Bug',
-			'href'   => JETPACK_BETA_REPORT_URL,
-			'parent' => 'jetpack-beta_admin_bar'
-		);
-		$wp_admin_bar->add_node( $args );
-
-		// add a child item to our parent item
-		$args = array(
 			'id'     => 'jetpack-beta_version',
 			'title'  => self::get_jetpack_plugin_pretty_version(),
 			'parent' => 'jetpack-beta_admin_bar'
@@ -255,21 +246,20 @@ class Jetpack_Beta {
 
 		$wp_admin_bar->add_node( $args );
 
-		// add a group node with a class "first-toolbar-group"
-		$args = array(
-			'id'     => 'first_group',
-			'parent' => 'jetpack-beta_admin_bar',
-			'meta'   => array( 'class' => 'first-toolbar-group' )
-		);
-		$wp_admin_bar->add_group( $args );
-
 		if ( self::get_plugin_slug() === JETPACK_DEV_PLUGIN_SLUG ) {
 			// Highlight the menu if you are running the BETA Versions..
 			echo "<style>#wpadminbar #wp-admin-bar-jetpack-beta_admin_bar { background: #72af3a; }</style>";
 		}
 
-	}
+		$args = array(
+			'id'     => 'jetpack-beta_report',
+			'title'  => 'Report Bug',
+			'href'   => JETPACK_BETA_REPORT_URL,
+			'parent' => 'jetpack-beta_admin_bar'
+		);
+		$wp_admin_bar->add_node( $args );
 
+	}
 	
 	public function api_check( $transient ) {
 		// Check if the transient contains the 'checked' information
@@ -521,7 +511,6 @@ class Jetpack_Beta {
 	}
 
 	static function install_and_activate( $branch, $section ) {
-
 		if ( 'stable' === $section && file_exists( WP_PLUGIN_DIR . '/' . JETPACK_PLUGIN_FILE ) ) {
 			self::replace_active_plugin( JETPACK_DEV_PLUGIN_FILE, JETPACK_PLUGIN_FILE, true );
 			self::update_option( $branch, $section );
@@ -569,7 +558,6 @@ class Jetpack_Beta {
 	}
 
 	static function proceed_to_install( $url, $plugin_folder = JETPACK_DEV_PLUGIN_SLUG, $section ) {
-
 		$temp_path = download_url( $url );
 
 		if ( is_wp_error( $temp_path ) ) {
