@@ -83,7 +83,7 @@ class Jetpack_Beta {
 		}
 
 		add_filter( 'auto_update_plugin', array( $this, 'auto_update_jetpack_beta' ), 10, 2 );
-		add_filter( 'pre_set_site_transient_update_plugins', array( $this, 'api_check' ) );
+		add_filter( 'pre_set_site_transient_update_plugins', array( $this, 'maybe_plugins_update_transient' ) );
 		add_filter( 'upgrader_post_install', array( $this, 'upgrader_post_install' ), 10, 3 );
 
 		add_action( 'admin_bar_menu', array( $this, 'admin_bar_menu' ) );
@@ -160,12 +160,13 @@ class Jetpack_Beta {
 		}
 		return $plugins;
 	}
+
 	public function update_jetpack_dev( $plugin ) {
 		$plugin['Name'] = $plugin['Name'] . ' | ' . Jetpack_Beta::get_jetpack_plugin_pretty_version( true );
 		return $plugin;
 	}
 	/**
-	 * Ran on activation to flush update cache
+	 * Run on activation to flush update cache
 	 */
 	public static function activate() {
 		delete_site_transient( 'update_plugins' );
@@ -261,44 +262,49 @@ class Jetpack_Beta {
 
 	}
 	
-	public function api_check( $transient ) {
+	public function maybe_plugins_update_transient( $transient ) {
 		// Check if the transient contains the 'checked' information
 		// If not, just return its value without hacking it
 		if ( empty( $transient->checked ) ) {
+			$transient->no_update[ JETPACK_DEV_PLUGIN_FILE ] = self::get_jepack_dev_update_response();
 			return $transient;
 		}
-
-		// We are running the regular Jetpack version..
-		// The Site will update to the latest Jetpack Beta Version when we first switch...
-		if ( self::get_plugin_slug() !== JETPACK_DEV_PLUGIN_SLUG ) {
-			return $transient;
-		}
-
-		// Lets always grab the latest jetab
-		delete_site_transient( 'jetpack_beta_manifest' );
 		
-		// check the version and decide if it's new
+		// Do not try to update things that do not exist
+		if ( ! file_exists(  WP_PLUGIN_DIR . '/' . JETPACK_DEV_PLUGIN_FILE ) ) {
+			return $transient;
+		}
 
-		if ( self::should_update() ) {
-			$response              = new stdClass;
-			$response->plugin      = self::get_plugin_slug();
-			$response->new_version = self::get_new_jetpack_version();
-			$response->slug        = self::get_plugin_slug();
-			$response->url         = self::get_url();
-			$response->package     = self::get_install_url();
+		// Lets always grab the latest
+		delete_site_transient( 'jetpack_beta_manifest' );
+		// check if there is a new version
+		if ( self::should_update_dev_version() ) {
 			// If response is false, don't alter the transient
-			if ( false !== $response ) {
-				$transient->response[ self::get_plugin_file() ] = $response;
-			}
+			$transient->response[ JETPACK_DEV_PLUGIN_FILE ] = self::get_jepack_dev_update_response();
 			// unset the that it doesn't need an update...
 			unset( $transient->no_update[ JETPACK_DEV_PLUGIN_FILE ] );
+		} else {
+			unset( $transient->response[ JETPACK_DEV_PLUGIN_FILE ] );
+			$transient->no_update[ JETPACK_DEV_PLUGIN_FILE ] = self::get_jepack_dev_update_response();
 		}
 
 		return $transient;
 	}
 
-	function should_update( ) {
-		return version_compare( self::get_new_jetpack_version(), self::get_jetpack_plugin_version(), '>' );
+	function should_update_dev_version() {
+		$should = version_compare( self::get_new_jetpack_version( true ), self::get_jetpack_plugin_version( true ), '>' );
+		return $should;
+	}
+
+	function get_jepack_dev_update_response() {
+		$response               = new stdClass;
+		$response->id           = JETPACK_DEV_PLUGIN_SLUG;
+		$response->plugin       = JETPACK_DEV_PLUGIN_SLUG;
+		$response->new_version  = self::get_new_jetpack_version( true );
+		$response->slug         = JETPACK_DEV_PLUGIN_SLUG;
+		$response->url          = self::get_url_dev();
+		$response->package      = self::get_install_url_dev();
+		return $response;
 	}
 
 	/**
@@ -323,9 +329,14 @@ class Jetpack_Beta {
 		return $worked;
 	}
 
-	static function get_jetpack_plugin_version() {
-		$info = self::get_jetpack_plugin_info();
-		return $info['Version'];
+	static function get_jetpack_plugin_version( $is_dev_version = false ) {
+		if ( $is_dev_version ) {
+			$info = self::get_jetpack_plugin_info_dev();
+		} else {
+			$info = self::get_jetpack_plugin_info();
+		}
+
+		return isset( $info['Version'] ) ? $info['Version'] : 0 ;
 	}
 
 	static function get_option() {
@@ -354,7 +365,10 @@ class Jetpack_Beta {
 		if ( false !== $option[0] && isset( $option[1] )) {
 			return array( $option[0], $option[1] );
 		}
-		return self::get_branch_and_section();
+		if ( is_plugin_active( JETPACK_DEV_PLUGIN_FILE ) ) {
+			return array( 'stable', 'stable' );
+		}
+		return array();
 	}
 
 	static function get_jetpack_plugin_pretty_version( $is_dev_version = false ) {
@@ -388,10 +402,13 @@ class Jetpack_Beta {
 		return self::get_jetpack_plugin_version();
 	}
 
-	static function get_new_jetpack_version() {
+	static function get_new_jetpack_version( $is_dev_version = false ) {
 		$manifest = self::get_beta_manifest();
-
-		list( $branch, $section ) = self::get_branch_and_section();
+		if ( $is_dev_version ) {
+			list( $branch, $section ) = self::get_branch_and_section_dev();
+		} else {
+			list( $branch, $section ) = self::get_branch_and_section();
+		}
 
 		if ( 'master' === $section && isset( $manifest->{$section}->version ) ) {
 			return $manifest->{$section}->version;
@@ -401,6 +418,11 @@ class Jetpack_Beta {
 			return $manifest->{$section}->{$branch}->version;
 		}
 		return 0;
+	}
+
+	static function get_url_dev() {
+		list( $branch, $section ) = self::get_branch_and_section_dev();
+		return self::get_url( $branch, $section );
 	}
 
 	static function get_url( $branch = null, $section = null ) {
@@ -425,6 +447,11 @@ class Jetpack_Beta {
 		return JETPACK_DEFAULT_URL;
 	}
 
+	static function get_install_url_dev() {
+		list( $branch, $section ) = self::get_branch_and_section_dev();
+		return self::get_install_url( $branch, $section );
+	}
+
 	static function get_install_url( $branch = null, $section = null ) {
 		if ( is_null( $section ) ) {
 			list( $branch, $section ) = self::get_branch_and_section();
@@ -443,6 +470,18 @@ class Jetpack_Beta {
 
 		if ( isset( $manifest->{$section}->{$branch}->download_url ) ) {
 			return $manifest->{$section}->{$branch}->download_url;
+		}
+
+		return null;
+	}
+
+	static function get_jetpack_plugin_info_dev() {
+		if( ! function_exists( 'get_plugin_data' ) ) {
+			require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+		}
+		$plugin_file_path = WP_PLUGIN_DIR . DIRECTORY_SEPARATOR . JETPACK_DEV_PLUGIN_FILE;
+		if ( file_exists( $plugin_file_path ) ) {
+			return get_plugin_data( WP_PLUGIN_DIR . DIRECTORY_SEPARATOR . JETPACK_DEV_PLUGIN_FILE );
 		}
 
 		return null;
