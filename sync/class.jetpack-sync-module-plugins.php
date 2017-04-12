@@ -2,16 +2,20 @@
 
 class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 
+	private $action_handler;
+	private $plugin_info = array();
+
 	public function name() {
 		return 'plugins';
 	}
 
 	public function init_listeners( $callable ) {
-		add_action( 'deleted_plugin', $callable, 10, 2 );
+		$this->action_handler = $callable;
+
+		add_action( 'deleted_plugin',  array( $this, 'deleted_plugin' ), 10, 2 );
 		add_action( 'activated_plugin', $callable, 10, 2 );
 		add_action( 'deactivated_plugin', $callable, 10, 2 );
-		add_action( 'delete_plugin', array( $this, 'sync_deleted_plugin_info') );
-		add_action( 'jetpack_delete_plugin', $callable, 10, 2);
+		add_action( 'delete_plugin',  array( $this, 'delete_plugin') );
 	}
 
 	public function init_before_send() {
@@ -20,7 +24,7 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 		//Note that we don't simply 'expand_plugin_data' on the 'delete_plugin' action here because the plugin file is deleted when that action finishes
 	}
 
-	public function sync_deleted_plugin_info( $plugin_path ) {
+	public function delete_plugin( $plugin_path ) {
 		$full_plugin_path = WP_PLUGIN_DIR . DIRECTORY_SEPARATOR . $plugin_path;
 
 		//Checking for file existence because some sync plugin module tests simulate plugin installation and deletion without putting file on disk
@@ -37,15 +41,12 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 			);
 		}
 
-		/**
-		 * Syncs information about a plugin whose deletion was attempted
-		 *
-		 * @since 4.8.3
-		 *
-		 * @param string $plugin_path Path of plugin whose deletion was attempted (deletion verified in deleted_plugin sync action)
-		 * @param mixed $data Array of plugin information fields (name, version, etc.)
-		 */
-		do_action( 'jetpack_delete_plugin', $plugin_path, $data );
+		$this->plugin_info[$plugin_path] = $data;
+	}
+
+	public function deleted_plugin( $plugin_path, $is_deleted ) {
+		call_user_func( $this->action_handler, $plugin_path, $is_deleted, $this->plugin_info[$plugin_path] );
+		unset( $this->plugin_info[$plugin_path] );
 	}
 
 	public function expand_plugin_data( $args ) {
