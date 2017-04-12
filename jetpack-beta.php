@@ -452,9 +452,9 @@ class Jetpack_Beta {
 		if( ! function_exists( 'get_plugin_data' ) ) {
 			require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 		}
-		$plugin_file_path = WP_PLUGIN_DIR . '/' . self::get_plugin_file();
+		$plugin_file_path = WP_PLUGIN_DIR . DIRECTORY_SEPARATOR . self::get_plugin_file();
 		if ( file_exists( $plugin_file_path ) ) {
-			return get_plugin_data( WP_PLUGIN_DIR . '/' . self::get_plugin_file() );
+			return get_plugin_data( WP_PLUGIN_DIR . DIRECTORY_SEPARATOR . self::get_plugin_file() );
 		}
 
 		return null;
@@ -511,7 +511,7 @@ class Jetpack_Beta {
 	}
 
 	static function install_and_activate( $branch, $section ) {
-		if ( 'stable' === $section && file_exists( WP_PLUGIN_DIR . '/' . JETPACK_PLUGIN_FILE ) ) {
+		if ( 'stable' === $section && file_exists( WP_PLUGIN_DIR . DIRECTORY_SEPARATOR . JETPACK_PLUGIN_FILE ) ) {
 			self::replace_active_plugin( JETPACK_DEV_PLUGIN_FILE, JETPACK_PLUGIN_FILE, true );
 			self::update_option( $branch, $section );
 			return;
