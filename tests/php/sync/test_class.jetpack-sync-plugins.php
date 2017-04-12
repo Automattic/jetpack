@@ -35,7 +35,6 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 		$plugins = $this->server_replica_storage->get_callable( 'get_plugins' );
 		$this->assertEquals( get_plugins(), $plugins );
 		$this->assertFalse( isset( $plugins['wp-super-cache/wp-cache.php'] ) );
-
 	}
 
 	public function test_autoupdate_enabled_and_disabled_is_synced() {
@@ -120,6 +119,8 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( isset( $activated_plugin->args ) );
 		$this->assertEquals( 'hello.php', $activated_plugin->args[0] );
 		$this->assertFalse( $activated_plugin->args[1] );
+		$this->assertEquals( 'Hello Dolly', $activated_plugin->args[2]['name'] );
+		$this->assertTrue( (bool) $activated_plugin->args[2]['version'] );
 	}
 
 	function test_plugin_deactivation_action_is_synced() {
@@ -131,6 +132,22 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( isset( $deactivated_plugin->args ) );
 		$this->assertEquals( 'hello.php', $deactivated_plugin->args[0] );
 		$this->assertFalse( $deactivated_plugin->args[1] );
+		$this->assertEquals( 'Hello Dolly', $deactivated_plugin->args[2]['name'] );
+		$this->assertTrue( (bool) $deactivated_plugin->args[2]['version'] );
+	}
+
+	function test_plugin_deletion_is_synced() {
+		do_action( 'delete_plugin', 'hello.php' );
+		do_action( 'deleted_plugin', 'hello.php', true );
+		$this->sender->do_sync();
+
+		$delete_plugin = $this->server_event_storage->get_most_recent_event( 'deleted_plugin' );
+		$this->assertTrue( isset( $delete_plugin->args ) );
+		$this->assertEquals( 'hello.php', $delete_plugin->args[0] );
+		$this->assertTrue( $delete_plugin->args[1] );
+		$this->assertEquals( 'Hello Dolly', $delete_plugin->args[2]['name'] );
+		$this->assertTrue( (bool) $delete_plugin->args[2]['version'] );
+
 	}
 
 	function test_all_plugins_filter_is_respected() {
