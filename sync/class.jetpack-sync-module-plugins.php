@@ -41,12 +41,12 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 			);
 		}
 
-		$this->plugin_info[$plugin_path] = $data;
+		$this->plugin_info[ $plugin_path ] = $data;
 	}
 
 	public function deleted_plugin( $plugin_path, $is_deleted ) {
-		call_user_func( $this->action_handler, $plugin_path, $is_deleted, $this->plugin_info[$plugin_path] );
-		unset( $this->plugin_info[$plugin_path] );
+		call_user_func( $this->action_handler, $plugin_path, $is_deleted, $this->plugin_info[ $plugin_path ] );
+		unset( $this->plugin_info[ $plugin_path ] );
 	}
 
 	public function expand_plugin_data( $args ) {
@@ -54,8 +54,8 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 		$plugin_data = array();
 
 		$all_plugins = get_plugins();
-		if ( isset( $all_plugins[$plugin_path] ) ) {
-			$all_plugin_data = $all_plugins[$plugin_path];
+		if ( isset( $all_plugins[ $plugin_path ] ) ) {
+			$all_plugin_data = $all_plugins[ $plugin_path ];
 			$plugin_data['name'] = $all_plugin_data['Name'];
 			$plugin_data['version'] = $all_plugin_data['Version'];
 		}
