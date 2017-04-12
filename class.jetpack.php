@@ -4112,16 +4112,32 @@ p {
 	 * @param bool|string $redirect If true, will redirect back to Jetpack wp-admin landing page after connection.
 	 *                              If string, will be a custom redirect.
 	 * @param bool|string $from If not false, adds 'from=$from' param to the connect URL.
+	 * @param bool $register If true, will generate a register URL regardless of the existing token, since 4.9.0
 	 *
 	 * @return string Connect URL
 	 */
-	function build_connect_url( $raw = false, $redirect = false, $from = false ) {
-		if ( ! Jetpack_Options::get_option( 'blog_token' ) || ! Jetpack_Options::get_option( 'id' ) ) {
+	function build_connect_url( $raw = false, $redirect = false, $from = false, $register = false ) {
+		$site_id = Jetpack_Options::get_option( 'id' );
+		$token = Jetpack_Options::get_option( 'blog_token' );
+
+		if ( $register || ! $token || ! $site_id ) {
 			$url = Jetpack::nonce_url_no_esc( Jetpack::admin_url( 'action=register' ), 'jetpack-register' );
 			if( is_network_admin() ) {
 				$url = add_query_arg( 'is_multisite', network_admin_url( 'admin.php?page=jetpack-settings' ), $url );
 			}
 		} else {
+
+			// Checking existing token
+			$response = Jetpack_Client::wpcom_json_api_request_as_blog(
+				sprintf( '/sites/%d', $site_id ) .'?force=wpcom',
+				'1.1'
+			);
+
+			if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+				// Generating a register URL instead to refresh the existing token
+				return $this->build_connect_url( $raw, $redirect, $from, true );
+			}
+
 			if ( defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' ) && include_once JETPACK__GLOTPRESS_LOCALES_PATH ) {
 				$gp_locale = GP_Locales::by_field( 'wp_locale', get_locale() );
 			}
@@ -4192,6 +4208,7 @@ p {
 		if ( $from ) {
 			$url = add_query_arg( 'from', $from, $url );
 		}
+
 
 		if ( isset( $_GET['calypso_env'] ) ) {
 			$url = add_query_arg( 'calypso_env', sanitize_key( $_GET['calypso_env'] ), $url );
