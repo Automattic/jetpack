@@ -7,3 +7,7 @@
 [submodule "custom-fonts-typekit"]
 	path = custom-fonts-typekit
 	url = git@github.com:Automattic/custom-fonts-typekit.git
+[submodule "custom-colors"]
+	path = custom-colors
+	url = git@github.com:Automattic/custom-colors.git
+	branch = remove/custom-design-dep
