@@ -187,7 +187,7 @@ class Jetpack_Beta_Autoupdate_Self {
 		}
 
 		if ( $item->slug === $this->config['slug'] ) {
-			return true; // Always update plugins in this array
+			return true;
 		} else {
 			return $update; // Else, use the normal API response to decide whether to update or not
 		}
