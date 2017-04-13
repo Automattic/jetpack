@@ -90,6 +90,20 @@ body.highlander-dark h3.sd-title:before {
 	padding: 1px 8px 0px 5px;
 }
 
+body.rtl .sd-social-icon .sd-content ul li a.sd-button,
+body.rtl .sd-social-text .sd-content ul li a.sd-button,
+body.rtl .sd-content ul li a.sd-button,
+body.rtl .sd-content ul li .option a.share-ustom,	/* Ugh. */
+body.rtl .sd-content ul li.preview-item div.option.option-smart-off a,
+body.rtl .sd-content ul li.advanced a.share-more,
+body.rtl .sd-social-icon-text .sd-content ul li a.sd-button,
+body.rtl .sd-social-official .sd-content>ul>li>a.sd-button,
+body.rtl #sharing_email .sharing_send,
+body.rtl .sd-social-official .sd-content>ul>li .digg_button >a {
+  padding: 1px 5px 0px 8px
+}
+
+
 .sd-social-text .sd-content ul li a.sd-button span,
 .sd-content ul li a.sd-button>span,
 .sd-content ul li .option a.share-ustom span,	/* Ugh. */
@@ -193,6 +207,13 @@ body.highlander-dark h3.sd-title:before {
 .sd-content ul li.preview-item a.sd-button span {
 	margin-left: 3px;
 }
+
+body.rtl .sd-social-icon-text .sd-content ul li a span,
+body.rtl .sd-social-official .sd-content ul li a.sd-button span,
+body.rtl .sd-content ul li.preview-item a.sd-button span {
+	margin-right: 3px;
+}
+
 .sd-content ul li.preview-item.no-icon a.sd-button span {
 	margin-left: 0;
 }
