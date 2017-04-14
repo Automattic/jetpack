@@ -81,7 +81,6 @@ class Jetpack_Beta {
 		if ( isset( $_GET['delete'] ) ) {
 			delete_site_transient( 'update_plugins' );
 		}
-
 		add_filter( 'auto_update_plugin', array( $this, 'auto_update_jetpack_beta' ), 10, 2 );
 		add_filter( 'pre_set_site_transient_update_plugins', array( $this, 'maybe_plugins_update_transient' ) );
 		add_filter( 'upgrader_post_install', array( $this, 'upgrader_post_install' ), 10, 3 );
@@ -172,10 +171,16 @@ class Jetpack_Beta {
 	}
 
 	public function update_all_plugins( $plugins ) {
-		foreach ( $plugins as $plugin_file => $plugin ) {
-			if ( JETPACK_DEV_PLUGIN_FILE === $plugin_file ) {
-				$plugins[ $plugin_file ] = $this->update_jetpack_dev( $plugin );
-			}
+		// WP.com requests away show regular plugin
+		if ( defined( 'REST_API_REQUEST' ) && REST_API_REQUEST ) {
+			unset( $plugins[ JETPACK_DEV_PLUGIN_FILE ] );
+			return $plugins;
+		}
+
+		if ( is_plugin_active( JETPACK_DEV_PLUGIN_FILE ) ) {
+			unset( $plugins[ JETPACK_PLUGIN_FILE ] );
+		} else {
+			unset( $plugins[ JETPACK_DEV_PLUGIN_FILE ] );
 		}
 		return $plugins;
 	}
