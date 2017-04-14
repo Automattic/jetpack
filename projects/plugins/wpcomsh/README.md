@@ -22,6 +22,8 @@ The second stage of testing your changes to wpcomsh is to [get it deployed](#dep
 
 Only after you've tested your changes to wpcomsh on the AT staging server you can deploy it on the prod server.
 
+Note: if you use your `.wpsandbox.me` for testing wpcomsh, use ssh key forwarding so you have all your local ssh keys on the wpsandbox and can clone the wpcomsh GitHub repo. Either run ssh as `ssh -A` or add `ForwardAgent yes` into your `.ssh/config` file. p1490809471078673-slack-C2PDURDSL.
+
 ## Deployment
 
 At the moment, deployment is a manual step. To deploy wpcomsh on both the staging server (ie `web12`) and the prod server, ping @seanosh in the Automated Transfer Slack channel. When wpcomsh is being deployed, its [Makefile](Makefile) is run first. Review the Makefile after merging your Pull Request to make sure it doesn't need changes (it happened to us once that some things were not working on Pressable while working locally as the added files were unintentionally excluded from the Makefile and so not deployed on Pressable).
