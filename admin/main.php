@@ -5,6 +5,7 @@
 	</div>
 </div>
 <div class="jetpack-beta-container" >
+	<?php Jetpack_Beta_Admin::show_needed_updates(); ?>
 	<?php if ( Jetpack_Beta::get_option() ) {?>
 	<div class="dops-foldable-card is-expanded has-expanded-summary dops-card is-compact">
 		<div class="dops-foldable-card__header has-border">
@@ -53,10 +54,13 @@
 	</div>
 	<?php
 
-	Jetpack_Beta_Admin::show_stable_branch();
-	Jetpack_Beta_Admin::show_branch( __( 'Bleeding Edge' ), 'master', null, 'master' );
-	Jetpack_Beta_Admin::show_branches( 'rc',  __( 'RC', 'jetpack-beta' ) );
-	Jetpack_Beta_Admin::show_search_prs();
-	Jetpack_Beta_Admin::show_branches( 'pr' );
+
+	echo '<div class="jetpack-beta__wrap">';
+		Jetpack_Beta_Admin::show_stable_branch();
+		Jetpack_Beta_Admin::show_branch( __( 'Bleeding Edge' ), 'master', null, 'master' );
+		Jetpack_Beta_Admin::show_branches( 'rc',  __( 'RC', 'jetpack-beta' ) );
+		Jetpack_Beta_Admin::show_search_prs();
+		Jetpack_Beta_Admin::show_branches( 'pr' );
+	echo '</div>';
 	?>
 </div>
