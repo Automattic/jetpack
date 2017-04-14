@@ -99,6 +99,8 @@ class Jetpack_Beta {
 
 		add_filter( 'all_plugins', array( $this, 'update_all_plugins' ) );
 
+		add_filter( 'plugins_api', array( $this, 'get_plugin_info' ), 10, 3 );
+
 		if ( is_admin() ) {
 			require JPBETA__PLUGIN_DIR . 'jetpack-beta-admin.php';
 			Jetpack_Beta_Admin::init();
@@ -188,6 +190,36 @@ class Jetpack_Beta {
 	public function update_jetpack_dev( $plugin ) {
 		$plugin['Name'] = $plugin['Name'] . ' | ' . Jetpack_Beta::get_jetpack_plugin_pretty_version( true );
 		return $plugin;
+	}
+
+	public function get_plugin_info( $false, $action, $response ) {
+		
+		// Check if this call API is for the right plugin
+		if ( ! isset( $response->slug ) || $response->slug != JETPACK_DEV_PLUGIN_SLUG ) {
+			return false;
+		}
+		$update_date =  null;
+		$download_zip = null;
+		$dev_data = self::get_dev_installed();
+		if ( isset( $dev_data[2] ) ) {
+			$update_date = $dev_data[2]->update_date;
+			$download_zip = $dev_data[2]->download_url;
+		}
+		// Update tags
+		$response->slug          = JETPACK_DEV_PLUGIN_SLUG;
+		$response->plugin        = JETPACK_DEV_PLUGIN_SLUG;
+		$response->name          = 'Jetpack | '. self::get_jetpack_plugin_pretty_version( true );
+		$response->plugin_name   = 'Jetpack | '. self::get_jetpack_plugin_pretty_version( true );
+		$response->version       = self::get_jetpack_plugin_version( true );
+		$response->author        = 'Automattic';
+		$response->homepage      = 'https://jetpack.com/contact-support/beta-group/';
+		$response->downloaded    = false;
+		$response->last_updated  = $update_date;
+		$response->sections      = array( 'description' => Jetpack_Beta_Admin::to_test_content());
+ 		$response->download_link = $download_zip;
+		return $response;
+
+
 	}
 	/**
 	 * Run on activation to flush update cache
