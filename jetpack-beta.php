@@ -582,7 +582,8 @@ class Jetpack_Beta {
 	}
 
 	static function install_and_activate( $branch, $section ) {
-		if ( 'stable' === $section && file_exists( WP_PLUGIN_DIR . DIRECTORY_SEPARATOR . JETPACK_PLUGIN_FILE ) ) {
+		if ( 'stable' === $section &&
+		     file_exists( WP_PLUGIN_DIR . DIRECTORY_SEPARATOR . JETPACK_PLUGIN_FILE ) ) {
 			self::replace_active_plugin( JETPACK_DEV_PLUGIN_FILE, JETPACK_PLUGIN_FILE, true );
 			self::update_option( $branch, $section );
 			return;
@@ -595,13 +596,21 @@ class Jetpack_Beta {
 			return;
 		}
 
-		self::proceed_to_install_and_activate( self::get_install_url( $branch, $section ), self::get_plugin_slug( $section ), $section );
+		self::proceed_to_install_and_activate(
+			self::get_install_url( $branch, $section ),
+			self::get_plugin_slug( $section ),
+			$section
+		);
 		self::update_option( $branch, $section );
 		return;
 	}
 
 	static function update_plugin( $branch, $section ) {
-		self::proceed_to_install( self::get_install_url( $branch, $section ), self::get_plugin_slug( $section ), $section );
+		self::proceed_to_install(
+			self::get_install_url( $branch, $section ),
+			self::get_plugin_slug( $section ),
+			$section
+		);
 
 		if ( $section !== 'stable' ) {
 			update_option( self::$option_dev_installed, array( $branch, $section, self::get_manifest_data( $branch, $section ) ) );
@@ -658,7 +667,7 @@ class Jetpack_Beta {
 		/* initialize the API */
 		if ( ! WP_Filesystem( $creds ) ) {
 			/* any problems and we exit */
-			wp_die( "Jetpack Beta: No File System access" );
+			wp_die( __( 'Jetpack Beta: No File System access', 'jetpack-beta' ) );
 		}
 
 		global $wp_filesystem;

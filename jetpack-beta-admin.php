@@ -43,6 +43,10 @@ class Jetpack_Beta_Admin {
 			array( __CLASS__, 'render' )
 		);
 	}
+
+	static function render() {
+		require_once JPBETA__PLUGIN_DIR . 'admin/main.php';
+	}
 	
 	static function settings_link() {
 		return admin_url( 'admin.php?page=jetpack-beta' );
@@ -198,14 +202,15 @@ class Jetpack_Beta_Admin {
 			}
 		</style>
 		<div id="jetpack-beta-tester__start" class="dops-card <?php echo ( $is_notice ? 'updated' : '' ); ?> ">
-			<h1>Welcome to Jetpack Beta Tester</h1>
-			<p>It works a bit differently. Jetpack Beta Tester helps you run 2 different version of Jetpack on your site.
-				A <em>stable</em> and a <em>development</em> version (a version that still needs more testing).</p>
-			<p>When you activate a version, Jetpack Beta Tester will install and activate it on your behalf and keep it up to date.
-			When you are done testing it will should be easy to switch back to the stable version. Just deactivate the Jetpack beta plugin or select the <em>Latest Stable</em>.</p>
+			<h1><?php _e( 'Welcome to Jetpack Beta Tester', 'jetpack-beta' ); ?></h1>
+			<p><?php _e( 'It works a bit differently. Jetpack Beta Tester helps you run 2 different version of Jetpack on your site.
+				A <em>stable</em> and a <em>development</em> version (a version that still needs more testing).', 'jetpack-beta' ); ?></p>
+			<p><?php _e( 'When you activate a version, Jetpack Beta Tester will install and activate it on your behalf and keep it up to date.
+			When you are done testing it will should be easy to switch back to the stable version. Just deactivate the Jetpack beta plugin or 
+			select the <em>Latest Stable</em>.', 'jetpack-beta' ); ?></p>
 
 			<?php if ( $is_notice ) { ?>
-			<a href="<?php echo esc_url( admin_url( 'admin.php?page=jetpack-beta' ) ); ?>">Lets get started and choose a version to test!</a>
+			<a href="<?php echo esc_url( admin_url( 'admin.php?page=jetpack-beta' ) ); ?>"><?php _e( 'Lets get started and choose a version to test!', 'jetpack-beta' ); ?></a>
 			<?php } ?>
 
 		</div>
@@ -226,11 +231,11 @@ class Jetpack_Beta_Admin {
 		$pr         = '';
 		if ( isset( $branch->pr ) && is_int( $branch->pr ) ) {
 			$pr        = sprintf( 'data-pr="%s"', esc_attr( $branch->pr ) );
-			$more_info = sprintf( __( '<a href="%s">more info</a> - ' ), Jetpack_Beta::get_url( $branch_key, $section ) );
+			$more_info = sprintf( __( '<a href="%s">more info</a> - ', 'jetpack-beta' ), Jetpack_Beta::get_url( $branch_key, $section ) );
 		}
 
 		$update_time = ( isset( $branch->update_date )
-			? sprintf( __( 'last updated %s ago' ), human_time_diff( strtotime( $branch->update_date ) ) )
+			? sprintf( __( 'last updated %s ago', 'jetpack-beta' ), human_time_diff( strtotime( $branch->update_date ) ) )
 			: ''
 		);
 
@@ -251,8 +256,12 @@ class Jetpack_Beta_Admin {
 				<span class="dops-foldable-card__main">
 					<div class="dops-foldable-card__header-text">
 						<div class="dops-foldable-card__header-text branch-card-header"><?php echo esc_html( $header ); ?></div>
-						<div class="dops-foldable-card__subheader"><?php echo $more_info;
-							echo $update_time; ?></div>
+						<div class="dops-foldable-card__subheader">
+						<?php
+							echo $more_info;
+							echo $update_time;
+						?>
+						</div>
 					</div>
 				</span>
 				<span class="dops-foldable-card__secondary">
@@ -282,7 +291,7 @@ class Jetpack_Beta_Admin {
 	}
 
 	static function header( $title ) {
-		echo '<header><h2 class="jp-jetpack-connect__container-subtitle">' . $title . '</h2></header>';
+		echo '<header><h2 class="jp-jetpack-connect__container-subtitle">' . esc_html( $title ) . '</h2></header>';
 	}
 
 	static function show_branches( $section, $title = null ) {
@@ -311,7 +320,7 @@ class Jetpack_Beta_Admin {
 		$org_data = Jetpack_Beta::get_org_data();
 
 		self::show_branch(
-			__( 'Latest Stable' ),
+			__( 'Latest Stable', 'jetpack-beta' ),
 			'stable',
 			(object) array(
 				'branch' => 'stable',
@@ -321,9 +330,7 @@ class Jetpack_Beta_Admin {
 		);
 	}
 
-	static function render() {
-		require_once JPBETA__PLUGIN_DIR . 'admin/main.php';
-	}
+
 
 	static function show_search_prs() {
 		$manifest = Jetpack_Beta::get_beta_manifest();
@@ -335,7 +342,7 @@ class Jetpack_Beta_Admin {
 			<div class="dops-section-nav has-pinned-items">
 				<div class="dops-section-nav__panel">
 					<div class="is-pinned is-open dops-search" role="search">
-						<div aria-controls="search-component" aria-label="Open Search" tabindex="-1">
+						<div aria-controls="search-component" aria-label="<?php esc_attr_e( 'Open Search', 'jetpack-beta' ); ?>" tabindex="-1">
 							<svg class="gridicon gridicons-search dops-search-open__icon" height="24"
 							     viewbox="0 0 24 24" width="24">
 								<g>
@@ -344,8 +351,8 @@ class Jetpack_Beta_Admin {
 							</svg>
 						</div>
 						<input aria-hidden="false" class="dops-search__input" id="search-component"
-						       placeholder="Search for a Jetpack Feature Branches" role="search" type="search" value="">
-						<span aria-controls="search-component" id="search-component-close" aria-label="Close Search"
+						       placeholder="<?php esc_attr_e( 'Search for a Jetpack Feature Branches', 'jetpack-beta' ); ?>" role="search" type="search" value="">
+						<span aria-controls="search-component" id="search-component-close" aria-label="<?php esc_attr_e( 'Close Search','jetpack-beta'); ?>"
 						      tabindex="0">
 							<svg class="gridicon gridicons-cross dops-search-close__icon" height="24"
 							     viewbox="0 0 24 24" width="24">
@@ -377,76 +384,52 @@ class Jetpack_Beta_Admin {
 		<div class="jetpack-beta__wrap jetpack-beta__update-needed">
 			<h2><?php esc_html_e( 'Some updates are required', 'jetpack-beta' ); ?></h2>
 		<?php
+
 		if ( $should_update_stable_version ) {
-			?>
-			<div class="dops-foldable-card has-expanded-summary dops-card is-compact">
-				<div class="dops-foldable-card__header has-border">
-					<span class="dops-foldable-card__main">
-						<div class="dops-foldable-card__header-text">
-							<div
-								class="dops-foldable-card__header-text branch-card-header"><?php _e( 'Latest Stable', 'jetpack-beta' ) ?></div>
-							<div
-								class="dops-foldable-card__subheader"><?php _e( 'Needs an update', 'jetpack-beta' ) ?></div>
-						</div>
-					</span>
-					<span class="dops-foldable-card__secondary">
-						<span class="dops-foldable-card__summary">
-							<a
-								href="<?php echo esc_url( self::update_action_url( 'stable', 'stable' ) ); ?>"
-								class="is-primary jp-form-button activate-branch dops-button is-compact"><?php _e( 'Update', 'jetpack-beta' ); ?></a>
-						</span>
-					</span>
-				</div>
-			</div>
-			<?php
+			self::update_card(
+				__( 'Latest Stable', 'jetpack-beta' ),
+				__( 'Needs an update', 'jetpack-beta' ),
+				self::update_action_url( 'stable', 'stable' )
+			);
 		}
 		// Jetpack Dev Folder not up to date?
 		if ( $should_update_dev_version ) {
 			list( $dev_branch, $dev_section ) = Jetpack_Beta::get_branch_and_section_dev();
-			?>
-			<div class="dops-foldable-card has-expanded-summary dops-card is-compact">
-				<div class="dops-foldable-card__header has-border" >
-					<span class="dops-foldable-card__main" >
-						<div class="dops-foldable-card__header-text">
-							<div
-								class="dops-foldable-card__header-text branch-card-header"><?php echo esc_html( Jetpack_Beta::get_jetpack_plugin_pretty_version( true ) ); ?></div>
-							<div
-								class="dops-foldable-card__subheader"><?php _e( 'Is not running the latest version', 'jetpack-beta' ) ?></div>
-						</div>
-					</span>
-					<span class="dops-foldable-card__secondary">
-						<span class="dops-foldable-card__summary">
-							<a
-								href="<?php echo esc_url( self::update_action_url( $dev_branch, $dev_section ) ); ?>"
-								class="is-primary jp-form-button activate-branch dops-button is-compact"><?php _e( 'Update', 'jetpack-beta' ); ?></a>
-						</span>
-					</span>
-				</div>
-			</div>
-			<?php
+			self::update_card(
+				Jetpack_Beta::get_jetpack_plugin_pretty_version( true ),
+				__( 'Is not running the latest version', 'jetpack-beta' ),
+				self::update_action_url( $dev_branch, $dev_section )
+			);
 		}
 
-		if ( $should_update_dev_to_master ) { // Jetpack Dev branch merged?
-		?>
-			<div class="dops-foldable-card has-expanded-summary dops-card is-compact">
-				<div class="dops-foldable-card__header has-border" >
+		if ( $should_update_dev_to_master ) {
+			self::update_card(
+				__( 'Feature Branch was merged', 'jetpack-beta' ),
+				__( 'Update to the feature branch.', 'jetpack-beta' ),
+				self::update_action_url( 'master', 'master' )
+			);
+		} ?>
+		</div>
+		<?php
+	}
+
+	static function update_card( $header, $sub_header, $url ) { ?>
+		<div class="dops-foldable-card has-expanded-summary dops-card is-compact">
+			<div class="dops-foldable-card__header has-border" >
 					<span class="dops-foldable-card__main">
 						<div class="dops-foldable-card__header-text">
-							<div class="dops-foldable-card__header-text branch-card-header"><?php _e( 'Feature Branch was merged', 'jetpack-beta' ) ?></div>
-							<div class="dops-foldable-card__subheader"><?php _e( 'Update to the feature branch.', 'jetpack-beta' ) ?></div>
+							<div class="dops-foldable-card__header-text branch-card-header"><?php echo esc_html( $header ); ?></div>
+							<div class="dops-foldable-card__subheader"><?php echo esc_html( $sub_header ); ?></div>
 						</div>
 					</span>
 					<span class="dops-foldable-card__secondary">
 						<span class="dops-foldable-card__summary">
 							<a
-								href="<?php echo esc_url( self::update_action_url( 'master', 'master' ) ); ?>"
+								href="<?php echo esc_url( $url ); ?>"
 								class="is-primary jp-form-button activate-branch dops-button is-compact"><?php _e( 'Update', 'jetpack-beta' ); ?></a>
 						</span>
 					</span>
-				</div>
 			</div>
-			<?php
-		} ?>
 		</div>
 		<?php
 	}
