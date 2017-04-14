@@ -27,6 +27,7 @@ html {
     background-color: #fff;
     text-align: center;
     box-shadow: 0 1px 0 rgba(200,215,225,0.5), 0 1px 2px #e9eff3;
+    padding:0 1.25rem;
 }
 
 .jetpack-beta__master-head a {
@@ -353,6 +354,64 @@ html {
     }
 }
 
+/**
+ * Toggle
+ */
+.form-toggle__label {
+    text-decoration: none;
+    color: #124964;
+}
+.form-toggle__label:focus {
+    -webkit-box-shadow: none;
+    box-shadow: none;
+}
+.form-toggle-explanation {
+    text-transform: uppercase;
+    color: #87a6bc;
+    font-size: 11px;
+    line-height: 20px;
+    vertical-align: top;
+}
+.form-toggle__switch {
+    margin-top: 2px;
+    border-radius: 8px;
+    width: 24px;
+    height: 16px;
+    background: #a8bece;
+    display: inline-block;
+}
+
+.form-toggle__switch:after {
+    left: 2px;
+    top: 2px;
+    border-radius: 50%;
+    background: white;
+    -webkit-transition: all .2s ease;
+    transition: all .2s ease;
+    width: 12px;
+    height: 12px;
+    position: relative;
+    display: block;
+    content: "";
+}
+.form-toggle__label:active .form-toggle__switch,
+.form-toggle__label.is-active .form-toggle__switch {
+    background: #00aadc;
+}
+.form-toggle__label:active .form-toggle__switch:after,
+.form-toggle__label.is-active .form-toggle__switch:after {
+    left: 10px;
+}
+
+.form-toggle__label.is-active:active .form-toggle__switch {
+    background: #a8bece;
+}
+.form-toggle__label.is-active:active .form-toggle__switch:after {
+    left: 2px;
+}
+
+
+
 .dops-foldable-card.dops-card {
     position: relative;
     transition: margin .15s linear;
@@ -450,13 +509,8 @@ button.dops-foldable-card__action {
     align-items: center;
     width: 100%;
     margin-right: 5px;
-}
-
-@media (max-width: 480px) {
-    .dops-foldable-card__main {
-        -ms-flex: 1 1;
-        flex: 1 1;
-    }
+    -ms-flex: 1 1;
+    flex: 1 1;
 }
 
 .dops-foldable-card__secondary {

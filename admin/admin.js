@@ -4,10 +4,13 @@
     var search_input = document.getElementById('search-component');
     var search_close_link = document.getElementById('search-component-close');
     var activate_links = document.querySelectorAll('.activate-branch');
+    var toggle_links = document.querySelectorAll('.form-toggle__label');
+
 
     var section_index = []; //
     var each = Array.prototype.forEach;
     var clicked_activate = false;
+    var clicked_toggle = false;
 
     each.call(sections, function (element, index) {
         hide( element );
@@ -88,6 +91,20 @@
             element.removeEventListener( 'click', activate_link_click.bind( this, element ) );
             element.classList.add('is-disabled');
         })
+    }
+
+    // Toggle Links
+    each.call( toggle_links, function( element, index ) {
+        element.addEventListener('click', toggle_link_click.bind( this, element ) );
+
+
+    } );
+    function toggle_link_click( element, event ) {
+        if ( clicked_toggle ) {
+            return;
+        }
+        clicked_toggle = true;
+        element.classList.toggle('is-active');
     }
 
     // Helper functions

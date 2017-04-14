@@ -17,6 +17,9 @@
 					<div class="dops-foldable-card__header-text">Currently Running </div>
 				</div>
 			</span>
+			<span class="dops-foldable-card__secondary">
+					<?php Jetpack_Beta_Admin::show_toggle_autoupdates(); ?>
+			</span>
 		</div>
 		<div class="dops-foldable-card__content">
 			<p><?php echo Jetpack_Beta::get_jetpack_plugin_pretty_version(); ?>

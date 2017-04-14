@@ -80,6 +80,15 @@ class Jetpack_Beta_Admin {
 			wp_safe_redirect( Jetpack_Beta::admin_url() );
 		}
 
+		// Toggle autoupdates
+		if ( wp_verify_nonce( $_GET['_nonce'], 'enable_autoupdates' ) && isset( $_GET['_action'] ) && 'toggle_enable_autoupdates' ==  $_GET['_action'] ) {
+
+			$autoupdate = (bool) get_option( 'jp_beta_autoupdate' );
+
+			update_option( 'jp_beta_autoupdate', ! $autoupdate );
+			wp_safe_redirect( Jetpack_Beta::admin_url() );
+		}
+
 	}
 
 	static function render_banner() {
@@ -330,8 +339,6 @@ class Jetpack_Beta_Admin {
 		);
 	}
 
-
-
 	static function show_search_prs() {
 		$manifest = Jetpack_Beta::get_beta_manifest();
 		if ( empty( $manifest->pr ) ) {
@@ -368,8 +375,26 @@ class Jetpack_Beta_Admin {
 		<?php
 	}
 
-	static function show_needed_updates() {
+	static function show_toggle_autoupdates() {
+		$autoupdate = (bool) get_option( 'jp_beta_autoupdate' );
 
+		$query = array(
+			'page'          => 'jetpack-beta',
+			'_action'       => 'toggle_enable_autoupdates',
+			'_nonce'        => wp_create_nonce( 'enable_autoupdates' ),
+		);
+
+		?>
+		<a href="<?php echo esc_url( Jetpack_Beta::admin_url( '?' . build_query( $query ) ) ); ?>" class="form-toggle__label <?php echo ( $autoupdate ? 'is-active' : '' ); ?>"  >
+			<span class="form-toggle-explanation" ><?php _e( 'Autoupdates', 'jetpack-beta' ); ?></span>
+			<span class="form-toggle__switch"  tabindex="0" ></span>
+			<span class="form-toggle__label-content" >
+			</span>
+		</a>
+		<?php
+	}
+
+	static function show_needed_updates() {
 		// Jetpack Stable not up to date?
 		$should_update_stable_version = Jetpack_Beta::should_update_stable_version();
 		$should_update_dev_version = Jetpack_Beta::should_update_dev_version();
@@ -416,19 +441,19 @@ class Jetpack_Beta_Admin {
 	static function update_card( $header, $sub_header, $url ) { ?>
 		<div class="dops-foldable-card has-expanded-summary dops-card is-compact">
 			<div class="dops-foldable-card__header has-border" >
-					<span class="dops-foldable-card__main">
-						<div class="dops-foldable-card__header-text">
-							<div class="dops-foldable-card__header-text branch-card-header"><?php echo esc_html( $header ); ?></div>
-							<div class="dops-foldable-card__subheader"><?php echo esc_html( $sub_header ); ?></div>
-						</div>
+				<span class="dops-foldable-card__main">
+					<div class="dops-foldable-card__header-text">
+						<div class="dops-foldable-card__header-text branch-card-header"><?php echo esc_html( $header ); ?></div>
+						<div class="dops-foldable-card__subheader"><?php echo esc_html( $sub_header ); ?></div>
+					</div>
+				</span>
+				<span class="dops-foldable-card__secondary">
+					<span class="dops-foldable-card__summary">
+						<a
+							href="<?php echo esc_url( $url ); ?>"
+							class="is-primary jp-form-button activate-branch dops-button is-compact"><?php _e( 'Update', 'jetpack-beta' ); ?></a>
 					</span>
-					<span class="dops-foldable-card__secondary">
-						<span class="dops-foldable-card__summary">
-							<a
-								href="<?php echo esc_url( $url ); ?>"
-								class="is-primary jp-form-button activate-branch dops-button is-compact"><?php _e( 'Update', 'jetpack-beta' ); ?></a>
-						</span>
-					</span>
+				</span>
 			</div>
 		</div>
 		<?php
