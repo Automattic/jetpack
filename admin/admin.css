@@ -22,13 +22,28 @@ html {
     height: 1.8125rem;
     fill: #72af3a;
 }
+
 .jetpack-beta__master-head {
     background-color: #fff;
     text-align: center;
     box-shadow: 0 1px 0 rgba(200,215,225,0.5), 0 1px 2px #e9eff3;
 }
+
 .jetpack-beta__master-head a {
     text-decoration: none;
+}
+
+.jetpack-beta__wrap {
+    margin-bottom: 32px;
+
+}
+.jetpack-beta__wrap h2{
+    font-weight: 400;
+    margin-bottom: 8px;
+}
+
+.jetpack-beta__update-needed .dops-card {
+    border-left: 3px solid #f0b849;
 }
 
 .jetpack-beta__master-head span {
@@ -327,92 +342,6 @@ html {
 
 .dops-button.is-primary.is-compact {
     color: white;
-}
-
-.dops-button.is-scary {
-    color: #d94f4f;
-}
-
-.dops-button.is-scary:hover, .dops-button.is-scary:focus {
-    border-color: #d94f4f;
-}
-
-.dops-button.is-scary:focus {
-    box-shadow: 0 0 0 2px #eba3a3;
-}
-
-.dops-button.is-scary[disabled], .dops-button.is-scary:disabled {
-    color: #f4cdcd;
-    border-color: #e9eff3;
-}
-
-.dops-button.is-primary.is-scary {
-    background: #d94f4f;
-    border-color: #a02222;
-    color: white;
-}
-
-.dops-button.is-primary.is-scary:hover, .dops-button.is-primary.is-scary:focus {
-    border-color: #4c1010;
-}
-
-.dops-button.is-primary.is-scary[disabled], .dops-button.is-primary.is-scary:disabled {
-    background: #eba3a3;
-    border-color: #e48484;
-}
-
-.dops-button.is-borderless {
-    border: none;
-    color: #668eaa;
-    padding-left: 0;
-    padding-right: 0;
-}
-
-.dops-button.is-borderless:hover {
-    color: #2e4453;
-}
-
-.dops-button.is-borderless:focus {
-    box-shadow: none;
-}
-
-.dops-button.is-borderless .gridicon {
-    width: 24px;
-    height: 24px;
-    top: 6px;
-}
-
-.dops-button.is-borderless[disabled], .dops-button.is-borderless:disabled {
-    color: #e9eff3;
-    background: white;
-    cursor: default;
-}
-
-.dops-button.is-borderless[disabled]:active, .dops-button.is-borderless:disabled:active {
-    border-width: 0;
-}
-
-.dops-button.is-borderless.is-scary {
-    color: #d94f4f;
-}
-
-.dops-button.is-borderless.is-scary:hover, .dops-button.is-borderless.is-scary:focus {
-    color: #a02222;
-}
-
-.dops-button.is-borderless.is-scary[disabled] {
-    color: #f4cdcd;
-}
-
-.dops-button.is-borderless.is-compact {
-    background: transparent;
-    border-radius: 0;
-}
-
-.dops-button.is-borderless.is-compact .gridicon {
-    width: 18px;
-    height: 18px;
-    top: 5px;
 }
 
 @keyframes appear {
