@@ -77,7 +77,7 @@ class Jetpack_Beta_Admin {
 		}
 
 	}
-	
+
 	static function render_banner() {
 		global $current_screen;
 
@@ -100,9 +100,10 @@ class Jetpack_Beta_Admin {
 		wp_enqueue_script( 'jetpack-admin-js', plugins_url( 'admin/admin.js', JPBETA__PLUGIN_FILE ), array( ), JPBETA_VERSION, true );
 		wp_localize_script( 'jetpack-admin-js', 'JetpackBeta',
 			array(
+				'activate' => __( 'Activate', 'jetpack-beta' ),
 				'activating' => __( 'Activating...', 'jetpack-beta' ),
-				'updating'   => __( 'Updating...', 'jetpack-beta' ),
-				'leaving'    => __( 'Don\'t go Plugin is still installing!', 'jetpack-beta' ),
+				'updating' => __( 'Updating...', 'jetpack-beta' ),
+				'leaving' => __( 'Don\'t go Plugin is still installing!', 'jetpack-beta' ),
 			)
 		);
 	}
@@ -199,7 +200,7 @@ class Jetpack_Beta_Admin {
 		<div id="jetpack-beta-tester__start" class="dops-card <?php echo ( $is_notice ? 'updated' : '' ); ?> ">
 			<h1>Welcome to Jetpack Beta Tester</h1>
 			<p>It works a bit differently. Jetpack Beta Tester helps you run 2 different version of Jetpack on your site.
-				A <em>stable</em> and a <em>development</em> version (a version that still needs more testing)</p>
+				A <em>stable</em> and a <em>development</em> version (a version that still needs more testing).</p>
 			<p>When you activate a version, Jetpack Beta Tester will install and activate it on your behalf and keep it up to date.
 			When you are done testing it will should be easy to switch back to the stable version. Just deactivate the Jetpack beta plugin or select the <em>Latest Stable</em>.</p>
 

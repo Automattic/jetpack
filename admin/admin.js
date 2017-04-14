@@ -7,6 +7,7 @@
 
     var section_index = []; //
     var each = Array.prototype.forEach;
+    var clicked_activate = false;
 
     each.call(sections, function (element, index) {
         hide( element );
@@ -61,20 +62,30 @@
     });
 
     function activate_link_click( element, event ) {
-        element.parentNode.textContent = JetpackBeta.activating;
+        if ( clicked_activate ) {
+           return;
+        }
+        if ( element.textContent == JetpackBeta.activate ) {
+            element.parentNode.textContent = JetpackBeta.activating;
+        } else {
+            element.parentNode.textContent = JetpackBeta.updating;
+        }
+
         var index = parseInt( element.getAttribute('data-index') );
 
         sections = Array.prototype.filter.call( sections, function( element, i ) {
             return (index === i ? false: true );
         } );
         disable_activete_branch_links();
+        clicked_activate = true;
     }
 
     function disable_activete_branch_links() {
         each.call(activate_links, function (element, index) {
             element.addEventListener('click', function (event) {
                 event.preventDefault();
-            });
+            } );
+            element.removeEventListener( 'click', activate_link_click.bind( this, element ) );
             element.classList.add('is-disabled');
         })
     }
