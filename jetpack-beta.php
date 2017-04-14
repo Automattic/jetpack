@@ -277,12 +277,22 @@ class Jetpack_Beta {
 
 		$args = array(
 			'id'     => 'jetpack-beta_report',
-			'title'  => 'Report Bug',
+			'title'  => __( 'Report Bug', 'jetpack-beta' ),
 			'href'   => JETPACK_BETA_REPORT_URL,
 			'parent' => 'jetpack-beta_admin_bar'
 		);
 		$wp_admin_bar->add_node( $args );
 
+		list( $branch, $section ) = self::get_branch_and_section();
+		if( 'pr' === $section ) {
+			$args = array(
+				'id'     => 'jetpack-beta_report_more_info',
+				'title'  => __( 'More Info ', 'jetpack-beta' ),
+				'href'   => self::get_url( $branch, $section),
+				'parent' => 'jetpack-beta_admin_bar'
+			);
+			$wp_admin_bar->add_node( $args );
+		}
 	}
 	
 	public function maybe_plugins_update_transient( $transient ) {
