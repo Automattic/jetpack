@@ -264,7 +264,7 @@ class Jetpack_Beta {
 		// add a child item to our parent item
 		$args = array(
 			'id'     => 'jetpack-beta_version',
-			'title'  => __( 'Running: ', 'jetpack-beta' ) . self::get_jetpack_plugin_pretty_version(),
+			'title'  => sprintf( __( 'Running %s', 'jetpack-beta' ), self::get_jetpack_plugin_pretty_version() ),
 			'parent' => 'jetpack-beta_admin_bar'
 		);
 
