@@ -119,7 +119,7 @@ body div div.slideshow-controls a:hover {
 	margin: 0 5px !important;
 	padding: 0 !important;
 	display: inline-block !important;
-	*display: inline;
+	/* display: inline; */
 	zoom: 1;
 	height: 32px !important;
 	width: 32px !important;
