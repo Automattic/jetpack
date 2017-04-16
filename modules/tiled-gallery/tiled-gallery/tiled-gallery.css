@@ -80,11 +80,17 @@
 	opacity: 0;
 }
 
+/* =Square Layout
+-------------------------------------------------------------- */
+
+.widget-gallery-square .tiled-gallery.type- .tiled-gallery-item {
+	margin: 1px;
+}
 
 /* =Circles Layout
 -------------------------------------------------------------- */
 
-.tiled-gallery.type-circle .tiled-gallery-item img {
+.tiled-gallery.type-circle .tiled-gallery-item {
 	border-radius: 50% !important; /* Ensure that circles are displayed in themes that add border-radius to all images as a default */
 }
 .tiled-gallery.type-circle .tiled-gallery-caption {
