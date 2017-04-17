@@ -10,21 +10,25 @@ if (
 	! defined( 'WPCOMSH_PUB_THEMES_PATH' ) ||
 	! defined( 'WPCOMSH_PREMIUM_THEMES_PATH' ) ||
 	! defined( 'WPCOMSH_STOREFRONT_THEMES_PATH' ) ||
+	! defined( 'WPCOMSH_STOREFRONT_PATH' ) ||
 
 	// Paths to the location of WP.com pub/premium and storefront themes.
 	// Used for symlinking the themes to wp-content/themes dir.
 	! defined( 'WPCOMSH_PUB_THEMES_SYMLINK' ) ||
 	! defined( 'WPCOMSH_PREMIUM_THEMES_SYMLINK' ) ||
-	! defined( 'WPCOMSH_STOREFRONT_THEMES_SYMLINK' )
+	! defined( 'WPCOMSH_STOREFRONT_THEMES_SYMLINK' ) ||
+	! defined( 'WPCOMSH_STOREFRONT_SYMLINK' )
 ) {
 	// This won't work. Just a fallback so functions in this plugin return false instead of warning/error.
 	define( 'WPCOMSH_PUB_THEMES_PATH', $current_dir );
 	define( 'WPCOMSH_PREMIUM_THEMES_PATH', $current_dir );
 	define( 'WPCOMSH_STOREFRONT_THEMES_PATH', $current_dir );
+	define( 'WPCOMSH_STOREFRONT_PATH', $current_dir );
 
 	define( 'WPCOMSH_PUB_THEMES_SYMLINK', $current_dir );
 	define( 'WPCOMSH_PREMIUM_THEMES_SYMLINK', $current_dir );
 	define( 'WPCOMSH_STOREFRONT_THEMES_SYMLINK', $current_dir );
+	define( 'WPCOMSH_STOREFRONT_SYMLINK', $current_dir );
 }
 
 define( 'WPCOMSH_PUB_THEME_TYPE', 'wpcom_pub_theme_type' );
