@@ -198,6 +198,10 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 			}
 		}
 
+		$theme = wp_get_theme();
+		$theme_support['name'] = $theme->name;
+		$theme_support['version'] =  $theme->version;
+
 		return $theme_support;
 	}
 }
