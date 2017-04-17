@@ -29,21 +29,7 @@
 	<?php } else {
 		Jetpack_Beta_Admin::start_notice();
 	}
-	if ( $to_test = Jetpack_Beta_Admin::to_test_content() ) { ?>
-		<div class="dops-foldable-card is-expanded has-expanded-summary dops-card is-compact">
-			<div class="dops-foldable-card__header has-border">
-				<span class="dops-foldable-card__main">
-					<div class="dops-foldable-card__header-text">
-						<div class="dops-foldable-card__header-text"><?php _e( 'To Test', 'jetpack-beta' ); ?></div>
-					</div>
-				</span>
-			</div>
-			<div class="dops-foldable-card__content">
-				<?php echo $to_test ; ?>
-			</div>
-		</div>
-	<?php } ?>
-
+	?>
 	<div class="dops-foldable-card has-expanded-summary dops-card">
 		<div class="dops-foldable-card__header has-border">
 			<span class="dops-foldable-card__main">
@@ -62,8 +48,6 @@
 		</div>
 	</div>
 	<?php
-
-
 	echo '<div class="jetpack-beta__wrap">';
 		Jetpack_Beta_Admin::show_stable_branch();
 	
@@ -72,5 +56,19 @@
 		Jetpack_Beta_Admin::show_search_prs();
 		Jetpack_Beta_Admin::show_branches( 'pr' );
 	echo '</div>';
-	?>
+
+	if ( $to_test = Jetpack_Beta_Admin::to_test_content() ) { ?>
+	<div class="dops-foldable-card is-expanded has-expanded-summary dops-card is-compact">
+		<div class="dops-foldable-card__header has-border">
+				<span class="dops-foldable-card__main">
+					<div class="dops-foldable-card__header-text">
+						<div class="dops-foldable-card__header-text"><?php _e( 'To Test', 'jetpack-beta' ); ?></div>
+					</div>
+				</span>
+		</div>
+		<div class="dops-foldable-card__content">
+			<?php echo $to_test ; ?>
+		</div>
+	</div>
+	<?php } ?>
 </div>

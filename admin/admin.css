@@ -574,6 +574,7 @@ button.dops-foldable-card__action {
 
 .dops-foldable-card__content pre code {
     display: block;
+    overflow: auto;
 }
 
 .dops-foldable-card.is-expanded .dops-foldable-card__content {

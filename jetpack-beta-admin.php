@@ -157,6 +157,7 @@ class Jetpack_Beta_Admin {
 	}
 
 	static function render_markdown( $content ) {
+
 		add_filter( 'jetpack_beta_test_content', 'wptexturize' );
 		add_filter( 'jetpack_beta_test_content', 'convert_smilies' );
 		add_filter( 'jetpack_beta_test_content', 'convert_chars' );
@@ -177,10 +178,11 @@ class Jetpack_Beta_Admin {
 			'unslash' => false
 		) );
 
-		$rendered_html = apply_filters( 'jetpack_beta_test_content', $rendered_html );
-
 		// Lets convert #hash numbers into links to issues.
 		$rendered_html = preg_replace('/\#([0-9]+)/', '<a href="https://github.com/Automattic/jetpack/issues/$1">#$1</a>', $rendered_html );
+
+		$rendered_html = apply_filters( 'jetpack_beta_test_content', $rendered_html );
+
 
 		return $rendered_html;
 	}
