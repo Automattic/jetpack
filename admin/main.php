@@ -66,8 +66,9 @@
 
 	echo '<div class="jetpack-beta__wrap">';
 		Jetpack_Beta_Admin::show_stable_branch();
+	
+		Jetpack_Beta_Admin::show_branch( __( 'Release Candidate' ), 'rc', null, 'rc' );
 		Jetpack_Beta_Admin::show_branch( __( 'Bleeding Edge' ), 'master', null, 'master' );
-		Jetpack_Beta_Admin::show_branches( 'rc',  __( 'RC', 'jetpack-beta' ) );
 		Jetpack_Beta_Admin::show_search_prs();
 		Jetpack_Beta_Admin::show_branches( 'pr' );
 	echo '</div>';

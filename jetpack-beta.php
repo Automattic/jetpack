@@ -193,7 +193,7 @@ class Jetpack_Beta {
 	}
 
 	public function get_plugin_info( $false, $action, $response ) {
-		
+
 		// Check if this call API is for the right plugin
 		if ( ! isset( $response->slug ) || $response->slug != JETPACK_DEV_PLUGIN_SLUG ) {
 			return false;
@@ -492,6 +492,10 @@ class Jetpack_Beta {
 			return $manifest->{$section}->version;
 		}
 
+		if ( 'rc' === $section && isset( $manifest->{$section}->version ) ) {
+			return $manifest->{$section}->version;
+		}
+
 		if ( isset( $manifest->{$section}->{$branch}->version ) ) {
 			return $manifest->{$section}->{$branch}->version;
 		}
@@ -543,6 +547,10 @@ class Jetpack_Beta {
 		$manifest = Jetpack_Beta::get_beta_manifest();
 
 		if ( 'master' === $section && isset( $manifest->{$section}->download_url ) ) {
+			return $manifest->{$section}->download_url;
+		}
+
+		if ( 'rc' === $section && isset( $manifest->{$section}->download_url ) ) {
 			return $manifest->{$section}->download_url;
 		}
 
@@ -686,6 +694,10 @@ class Jetpack_Beta {
 			return $manifest_data->{$section};
 		}
 
+		if ( 'rc' === $section ) {
+			return $manifest_data->{$section};
+		}
+
 		if ( isset( $manifest_data->{$section}->{$branch} ) ) {
 			return $manifest_data->{$section}->{$branch};
 		}
@@ -798,7 +810,7 @@ class Jetpack_Beta {
 	static function should_update_dev_to_master() {
 		list( $branch, $section ) = self::get_branch_and_section_dev();
 
-		if ( false === $branch || 'master' === $section ) {
+		if ( false === $branch || 'master' === $section || 'rc' === $section ) {
 			return false;
 		}
 		$manifest = self::get_beta_manifest();

@@ -284,8 +284,12 @@ class Jetpack_Beta_Admin {
 	}
 
 	static function activate_button( $branch, $section ) {
-		if ( is_object( $section ) ) {
+		if ( is_object( $section ) && $branch === 'master' ) {
 			$section = 'master';
+		}
+
+		if ( is_object( $section ) && $branch === 'rc' ) {
+			$section = 'rc';
 		}
 		$query = array(
 			'page'            => 'jetpack-beta',
