@@ -16,10 +16,10 @@ add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
 
 require_once( 'constants.php' );
 require_once( 'footer-credit/footer-credit.php' );
-require_once( 'colors/colors.php' );
 require_once( 'storefront/storefront.php' );
 require_once( 'custom-fonts/custom-fonts.php' );
 require_once( 'custom-fonts-typekit/custom-fonts-typekit.php' );
+require_once( 'custom-colors/colors.php' );
 
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once WPCOMSH__PLUGIN_DIR_PATH . '/class.cli-commands.php';
@@ -380,29 +380,6 @@ function wpcomsh_admin_enqueue_style() {
 }
 add_action( 'admin_enqueue_scripts', 'wpcomsh_admin_enqueue_style', 999 );
 
-function wpcomsh_add_masterbar() {
-	if ( ! defined( 'JETPACK__VERSION' ) ) {
-		return;
-	}
-
-	if ( version_compare( JETPACK__VERSION, '4.8', '>=' ) ) {
-		return;
-	}
-
-	require_once dirname( __FILE__ ) . '/masterbar/masterbar.php';
-	Jetpack::dns_prefetch( array(
-		'//s0.wp.com',
-		'//s1.wp.com',
-		'//s2.wp.com',
-		'//0.gravatar.com',
-		'//1.gravatar.com',
-		'//2.gravatar.com',
-	) );
-	new A8C_WPCOM_Masterbar;
-}
-
-add_action( 'jetpack_modules_loaded', 'wpcomsh_add_masterbar', 1 );
-
 function wpcomsh_allow_custom_wp_options( $options ) {
 	// For storing AT options.
 	$options[] = 'at_options';
@@ -459,3 +436,19 @@ function wpcomsh_symlinked_plugins_url( $url, $path, $plugin ) {
 }
 
 add_filter( 'plugins_url', 'wpcomsh_symlinked_plugins_url', 0, 3 );
+
+function wpcomsh_activate_masterbar_module() {
+	if ( ! defined( 'JETPACK__VERSION' ) ) {
+		return;
+	}
+
+	// Masterbar was introduced in Jetpack 4.8
+	if ( version_compare( JETPACK__VERSION, '4.8', '<' ) ) {
+		return;
+	}
+
+	if ( ! Jetpack::is_module_active( 'masterbar' ) ) {
+		Jetpack::activate_module( 'masterbar', false, false );
+	}
+}
+add_action( 'init', 'wpcomsh_activate_masterbar_module', 0, 0 );

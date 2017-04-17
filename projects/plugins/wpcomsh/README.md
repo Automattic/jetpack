@@ -22,6 +22,8 @@ The second stage of testing your changes to wpcomsh is to [get it deployed](#dep
 
 Only after you've tested your changes to wpcomsh on the AT staging server you can deploy it on the prod server.
 
+Note: if you use your `.wpsandbox.me` for testing wpcomsh, use ssh key forwarding so you have all your local ssh keys on the wpsandbox and can clone the wpcomsh GitHub repo. Either run ssh as `ssh -A` or add `ForwardAgent yes` into your `.ssh/config` file. p1490809471078673-slack-C2PDURDSL.
+
 ## Deployment
 
 At the moment, deployment is a manual step. To deploy wpcomsh on both the staging server (ie `web12`) and the prod server, ping @seanosh in the Automated Transfer Slack channel. When wpcomsh is being deployed, its [Makefile](Makefile) is run first. Review the Makefile after merging your Pull Request to make sure it doesn't need changes (it happened to us once that some things were not working on Pressable while working locally as the added files were unintentionally excluded from the Makefile and so not deployed on Pressable).
@@ -108,10 +110,6 @@ To distinguish between WP.com themes installed by symlinking and themes uploaded
 ### Add assets/admin-style.css
 
 All the wp-admin custom styles for transferred sites are in `assets/admin-style.css`. If you need to add some more, please add them to that file.
-
-### WP.com masterbar (temporary until Jetpack 4.8 release)
-
-We added the WP.com masterbar to Jetpack so transferred sites can look the same as WP.com ones. However, it will be added to the Jetpack 4.8 release which is not ready yet. In the meanwhile, we add it through wpcomsh.
 
 ### Custom colors and fonts (+ Typekit fonts)
 
