@@ -2448,17 +2448,21 @@ function wp_cache_regenerate_cache_file_stats() {
 		}
 	} else {
 		$filem = @filemtime( $supercachedir );
-		if ( false == $wp_cache_preload_on && is_file( $supercachedir ) && $cache_max_time > 0 && $filem + $cache_max_time <= $now ) {
-			if ( strpos( $directory, '/' . $file_prefix ) === true ) {
-				$cache_type = 'wpcache';
-			} else {
-				$cache_type = 'supercache';
-			}
+		if ( strpos( $directory, '/' . $file_prefix ) === true ) {
+			$cache_type = 'wpcache';
+		} else {
+			$cache_type = 'supercache';
+		}
+		$keep_fresh = false;
+		if ( $cache_type == 'supercache' && $wp_cache_preload_on )
+			$keep_fresh = true;
+		if ( false == $keep_fresh && is_file( $supercachedir ) && $cache_max_time > 0 && $filem + $cache_max_time <= $now ) {
 			$sizes[ $cache_type ][ 'expired' ] ++;
-			if ( $valid_nonce && isset( $_GET[ 'listfiles' ] ) )
+			if ( isset( $_GET[ 'listfiles' ] ) )
 				$sizes[ $cache_type ][ 'expired_list' ][ str_replace( $cache_path . 'supercache/' , '', $supercachedir ) ] = $now - $filem;
 		} else {
-			if ( $valid_nonce && isset( $_GET[ 'listfiles' ] ) && $filem )
+			$sizes[ $cache_type ][ 'cached' ] ++;
+			if ( isset( $_GET[ 'listfiles' ] ) && $filem )
 				$sizes[ $cache_type ][ 'cached_list' ][ str_replace( $cache_path . 'supercache/' , '', $supercachedir ) ] = $now - $filem;
 		}
 	}
@@ -2703,8 +2707,11 @@ function wpsc_dirsize($directory, $sizes) {
 			} else {
 				$cache_type = 'supercache';
 			}
+			$keep_fresh = false;
+			if ( $cache_type == 'supercache' && $wp_cache_preload_on )
+				$keep_fresh = true;
 			$filem = filemtime( $directory );
-			if ( $wp_cache_preload_on == false && $cache_max_time > 0 && $filem + $cache_max_time <= $now ) {
+			if ( $keep_fresh == false && $cache_max_time > 0 && $filem + $cache_max_time <= $now ) {
 				$sizes[ $cache_type ][ 'expired' ]+=1;
 				if ( $valid_nonce && isset( $_GET[ 'listfiles' ] ) )
 					$sizes[ $cache_type ][ 'expired_list' ][ $now - $filem ][ str_replace( $cache_path . 'supercache/' , '', str_replace( 'index.html', '', str_replace( 'index.html.gz', '', $directory ) ) ) ] = 1;
