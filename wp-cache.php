@@ -2642,6 +2642,8 @@ function wp_cache_files() {
 		}
 		if ( $cache_max_time > 0 )
 			echo "<p>" . sprintf( __( 'Expired files are files older than %s seconds. They are still used by the plugin and are deleted periodically.', 'wp-super-cache' ), $cache_max_time ) . "</p>";
+		if ( $wp_cache_preload_on )
+			echo "<p>" . __( 'Preload mode is enabled. Supercache files will never be expired.', 'wp-super-cache' ) . "</p>";
 	} // cache_stats
 	wp_cache_delete_buttons();
 
