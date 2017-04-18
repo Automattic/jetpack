@@ -17,7 +17,7 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 		add_action( 'deactivated_plugin', $callable, 10, 2 );
 		add_action( 'delete_plugin',  array( $this, 'delete_plugin') );
 		add_action( 'upgrader_process_complete', array( $this, 'install_plugin') );
-		add_action( 'jetpack_installed_plugin', $callable );
+		add_action( 'jetpack_installed_plugin', $callable, 10, 2 );
 	}
 
 	public function init_before_send() {
@@ -28,9 +28,21 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 
 	public function install_plugin( $upgrader ) {
 		if ( 'Plugin_Upgrader' === get_class( $upgrader ) ) {
-			error_log(print_r($upgrader->plugin_info(), true) );
-		}
+			$plugin_path = $upgrader->plugin_info();
+			$plugins = get_plugins();
+			$plugin_info = $plugins[ $plugin_path ];
 
+			/**
+			 * Signals to the sync listener that a plugin was installed and a sync action
+			 * reflecting the installation and the plugin info should be sent
+			 *
+			 * @since 4.8.3
+			 *
+			 * @param string $plugin_path Path of plugin installed
+			 * @param mixed $plugin_info Array of info describing plugin installed
+			 */
+			do_action( 'jetpack_installed_plugin', $plugin_path, $plugin_info );
+		}
 	}
 
 	public function delete_plugin( $plugin_path ) {
