@@ -1271,10 +1271,10 @@ table.wpsc-settings-table {
 	</ul>
 	<h3><?php _e( 'Need Help?', 'wp-super-cache' ); ?></h3>
 	<ol>
-	<li><?php _e( 'Use the Debug tab for diagnostics.', 'wp-super-cache' ); ?></li>
-	<li><?php printf( __( 'Read the <a href="%1$s">plugin homepage</a>, including the <a href="%2$s">FAQ</a>.', 'wp-super-cache' ), 'http://wordpress.org/plugins/wp-super-cache/', 'http://wordpress.org/plugins/wp-super-cache/#faq' ); ?></li>
-	<li><?php printf( __( 'Visit the <a href="%1$s">support forum</a>.', 'wp-super-cache' ), 'https://wordpress.org/support/plugin/wp-super-cache' ); ?></li>
-	<li><?php printf( __( 'The <a href="%1$s">development version</a> has new fixes but it may be unstable. (<a href="%2$s">changelog</a>)', 'wp-super-cache' ), 'https://odd.blog/y/2o', 'https://plugins.trac.wordpress.org/log/wp-super-cache/' ); ?></li>
+	<li><?php printf( __( 'Use the <a href="%1$s">Debug tab</a> for diagnostics.', 'wp-super-cache' ), admin_url( 'options-general.php?page=wpsupercache&tab=debug' ) ); ?></li>
+	<li><?php printf( __( 'Check out the <a href="%1$s">support forum</a> and <a href="%2$s">FAQ</a>.', 'wp-super-cache' ), 'https://wordpress.org/support/plugin/wp-super-cache', 'http://wordpress.org/plugins/wp-super-cache/#faq' ); ?></li>
+	<li><?php printf( __( 'Visit the <a href="%1$s">plugin homepage</a>.', 'wp-super-cache' ), 'http://wordpress.org/plugins/wp-super-cache/' ); ?></li>
+	<li><?php printf( __( 'Try out the <a href="%1$s">development version</a> for the latest fixes (<a href="%2$s">changelog</a>).', 'wp-super-cache' ), 'https://odd.blog/y/2o', 'https://plugins.trac.wordpress.org/log/wp-super-cache/' ); ?></li>
 	</ol>
 	<h3><?php _e( 'Rate This Plugin', 'wp-super-cache' ); ?></h3>
 	<p><?php printf( __( 'Please <a href="%s">rate us</a> and give feedback.', 'wp-super-cache' ), 'https://wordpress.org/support/plugin/wp-super-cache/reviews?rate=5#new-post' ); ?></p>
