@@ -14,7 +14,6 @@ class WP_Super_Cache_Rest_Get_Settings extends WP_REST_Controller {
 		'wp_cache_not_logged_in'        => 'dont_cache_logged_in',
 		'wp_cache_make_known_anon'      => 'make_known_anon',
 		'cache_path'                    => 'cache_path',
-		'wp_cache_object_cache'         => 'use_object_cache',
 		'wp_cache_refresh_single_only'  => 'refresh_current_only_on_comments',
 		'cache_compression'             => 'cache_compression',
 		'wp_cache_mod_rewrite'          => 'cache_mod_rewrite',
