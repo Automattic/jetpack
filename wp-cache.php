@@ -3535,9 +3535,9 @@ function wpsc_preload_settings( $min_refresh_interval = 'NA' ) {
 	wp_cache_setting( 'wp_cache_preload_email_volume', $wp_cache_preload_email_volume );
 
 	if ( $wp_cache_preload_email_volume == 'none' )
-		$wp_cache_setting( 'wp_cache_preload_email_me', 0 );
+		wp_cache_setting( 'wp_cache_preload_email_me', 0 );
 	else
-		$wp_cache_setting( 'wp_cache_preload_email_me', 1 );
+		wp_cache_setting( 'wp_cache_preload_email_me', 1 );
 
 	if ( isset( $_POST[ 'wp_cache_preload_taxonomies' ] ) ) {
 		$wp_cache_preload_taxonomies = 1;
