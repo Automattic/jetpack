@@ -16,12 +16,21 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 		add_action( 'activated_plugin', $callable, 10, 2 );
 		add_action( 'deactivated_plugin', $callable, 10, 2 );
 		add_action( 'delete_plugin',  array( $this, 'delete_plugin') );
+		add_action( 'upgrader_process_complete', array( $this, 'install_plugin') );
+		add_action( 'jetpack_installed_plugin', $callable );
 	}
 
 	public function init_before_send() {
 		add_filter( 'jetpack_sync_before_send_activated_plugin', array( $this, 'expand_plugin_data' ) );
 		add_filter( 'jetpack_sync_before_send_deactivated_plugin', array( $this, 'expand_plugin_data' ) );
 		//Note that we don't simply 'expand_plugin_data' on the 'delete_plugin' action here because the plugin file is deleted when that action finishes
+	}
+
+	public function install_plugin( $upgrader ) {
+		if ( 'Plugin_Upgrader' === get_class( $upgrader ) ) {
+			error_log(print_r($upgrader->plugin_info(), true) );
+		}
+
 	}
 
 	public function delete_plugin( $plugin_path ) {
