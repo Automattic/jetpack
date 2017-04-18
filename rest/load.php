@@ -14,7 +14,7 @@ class WP_Super_Cache_Router {
 	 * Register the routes for the objects of the controller.
 	 *
 	 * GET /wp-super-cache/v1/settings
-	 * PATCH /wp-super-cache/v1/settings
+	 * POST /wp-super-cache/v1/settings
 	 * GET /wp-super-cache/v1/stats
 	 * GET /wp-super-cache/v1/cache
 	 * DELETE /wp-super-cache/v1/cache
@@ -40,7 +40,7 @@ class WP_Super_Cache_Router {
 				'args'            	  => array(),
 			),
 			array(
-				'methods'         	  => 'PATCH',
+				'methods'         	  => 'POST',
 				'callback'        	  => array( $update_settings, 'callback' ),
 				'permission_callback' => __CLASS__ . '::update_item_permissions_check',
 				'args'           	  => array(),
