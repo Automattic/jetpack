@@ -3553,3 +3553,11 @@ function wpsc_preload_settings( $min_refresh_interval = 'NA' ) {
 
 	return $return;
 }
+
+function wpsc_is_preloading() {
+	if ( wp_next_scheduled( 'wp_cache_preload_hook' ) || wp_next_scheduled( 'wp_cache_full_preload_hook' ) ) { 
+		return true;
+	} else {
+		return false;
+	}
+}

@@ -40,6 +40,14 @@ class WP_Super_Cache_Rest_Get_Settings extends WP_REST_Controller {
 		'ossdl_off_exclude'             => 'ossdl_off_exclude',
 		'ossdl_off_include_dirs'        => 'ossdl_off_include_dirs',
 		'ossdlcdn'                      => 'ossdlcdn',
+		'cache_gzencode'                => 'cache_gzencode',
+		'cache_disable_locking'         => 'cache_disable_locking',
+		'cache_readonly'                => 'cache_readonly',
+		'cache_writable'                => 'cache_writable',
+		'cache_mobile_browsers'         => 'cache_mobile_browsers',
+		'cache_mobile_prefixes'         => 'cache_mobile_prefixes',
+		'cache_mutex_disabled'          => 'cache_mutex_disabled',
+		'cache_hello_world'             => 'cache_hello_world',
 	);
 
 	/**
@@ -55,6 +63,7 @@ class WP_Super_Cache_Rest_Get_Settings extends WP_REST_Controller {
 		$settings[ 'is_preload_enabled' ]       = $this->is_preload_enabled();
 		$settings[ 'minimum_preload_interval' ] = $this->minimum_preload_interval();
 		$settings[ 'cache_stats' ]              = get_option( 'supercache_stats' );
+		$settings[ 'is_preloading' ]            = wpsc_is_preloading();
 
 		if ( false == is_array( $settings[ 'cache_stats' ] ) )
 			$settings[ 'cache_stats' ] = wp_cache_regenerate_cache_file_stats();
