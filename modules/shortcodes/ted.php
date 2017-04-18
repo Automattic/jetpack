@@ -10,6 +10,8 @@
  * [ted id=1539 lang=fr width=560 height=315]
  */
 
+// thlengklesjngtkljerngkjlerng
+
 wp_oembed_add_provider( '!https?://(www\.)?ted.com/talks/view/id/.+!i', 'http://www.ted.com/talks/oembed.json', true );
 wp_oembed_add_provider( '!https?://(www\.)?ted.com/talks/[a-zA-Z\-\_]+\.html!i', 'http://www.ted.com/talks/oembed.json', true );
 
