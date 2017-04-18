@@ -823,7 +823,8 @@ table.wpsc-settings-table {
 		echo '<a name="preload"></a>';
 		if ( $super_cache_enabled == true && false == defined( 'DISABLESUPERCACHEPRELOADING' ) ) {
 			global $wp_cache_preload_interval, $wp_cache_preload_on, $wp_cache_preload_taxonomies, $wp_cache_preload_email_me, $wp_cache_preload_email_volume, $wp_cache_preload_posts, $wpdb;
-			$count = $wpdb->get_var( "SELECT count(*) FROM {$wpdb->posts} WHERE post_status = 'publish'" );
+			$posts_count = wp_count_posts();
+			$count = $posts_count->publish;
 			if ( $count > 1000 ) {
 				$min_refresh_interval = 720;
 			} else {
@@ -3490,7 +3491,8 @@ function wpsc_preload_settings( $min_refresh_interval = 'NA' ) {
 	} 
 	
 	if ( $min_refresh_interval == 'NA' ) {
-		$count = $wpdb->get_var( "SELECT count(*) FROM {$wpdb->posts} WHERE post_status = 'publish'" );
+		$posts_count = wp_count_posts();
+		$count = $posts_count->publish;
 		if ( $count > 1000 ) {
 			$min_refresh_interval = 720;
 		} else {

@@ -64,6 +64,7 @@ class WP_Super_Cache_Rest_Get_Settings extends WP_REST_Controller {
 		$settings[ 'minimum_preload_interval' ] = $this->minimum_preload_interval();
 		$settings[ 'cache_stats' ]              = get_option( 'supercache_stats' );
 		$settings[ 'is_preloading' ]            = wpsc_is_preloading();
+		$settings[ 'post_count' ]               = $this->post_count();
 
 		if ( false == is_array( $settings[ 'cache_stats' ] ) )
 			$settings[ 'cache_stats' ] = wp_cache_regenerate_cache_file_stats();
@@ -138,5 +139,13 @@ class WP_Super_Cache_Rest_Get_Settings extends WP_REST_Controller {
 		}
 
 		return $min_refresh_interval;
+	}
+
+	/**
+	 * @return int
+	 */
+	protected function post_count() {
+		$posts_count = wp_count_posts();
+		return $posts_count->publish;
 	}
 }
