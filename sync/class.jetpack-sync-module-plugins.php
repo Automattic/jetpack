@@ -27,7 +27,11 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 	}
 
 	public function check_upgrader( $upgrader, $details) {
-		if ( 'plugin' !== $details['type'] ) {
+
+		if ( is_wp_error( $upgrader->skin->result ) ||
+			'plugin' !== $details['type'] ||
+			! method_exists( $upgrader, 'plugin_info')
+		) {
 			return;
 		}
 
