@@ -242,6 +242,8 @@ class Jetpack_Sync_Server_Replicator {
 				break;
 
 			// users
+			case 'jetpack_sync_register_user':
+			case 'jetpack_sync_add_user':
 			case 'jetpack_sync_save_user':
 				list( $user ) = $args;
 				$this->store->upsert_user( $user );
