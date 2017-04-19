@@ -30,7 +30,7 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 
 		if ( is_wp_error( $upgrader->skin->result ) ||
 			'plugin' !== $details['type'] ||
-			! method_exists( $upgrader, 'plugin_info')
+			! method_exists( $upgrader, 'plugin_info' )
 		) {
 			return;
 		}
