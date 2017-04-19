@@ -311,7 +311,11 @@ class Jetpack_Protect_Module {
 	 * a busy IP that has a lot of good logins along with some forgotten passwords. Also saves current user's ip
 	 * to the ip address whitelist
 	 */
-	public function log_successful_login( $user_login, $user ) {
+	public function log_successful_login( $user_login, $user = null ) {
+		if ( ! $user ) { // For do_action( 'wp_login' ) calls that lacked passing the 2nd arg.
+			$user = get_user_by( 'login', $user_login );
+		}
+
 		$this->protect_call( 'successful_login', array ( 'roles' => $user->roles ) );
 	}
 

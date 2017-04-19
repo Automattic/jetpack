@@ -1043,8 +1043,16 @@ add_shortcode( 'jetpack_subscription_form', 'jetpack_do_subscription_form' );
 add_shortcode( 'blog_subscription_form', 'jetpack_do_subscription_form' );
 
 function jetpack_do_subscription_form( $instance ) {
+	if ( empty( $instance ) || ! is_array( $instance ) ) {
+		$instance = array();
+	}
 	$instance['show_subscribers_total'] = empty( $instance['show_subscribers_total'] ) ? false : true;
-	$instance = shortcode_atts( Jetpack_Subscriptions_Widget::defaults(), $instance, 'jetpack_subscription_form' );
+
+	$instance = shortcode_atts(
+		Jetpack_Subscriptions_Widget::defaults(),
+		$instance,
+		'jetpack_subscription_form'
+	);
 	$args = array(
 		'before_widget' => sprintf( '<div class="%s">', 'jetpack_subscription_widget' ),
 	);
