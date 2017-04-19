@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Testing CRUD on Plugins
  */
@@ -18,9 +17,34 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 		if ( defined( 'PHP_VERSION_ID' ) && PHP_VERSION_ID < 50300 ) {
 			$this->markTestIncomplete("Right now this doesn't work on PHP 5.2");	
 		}
+
+		$this->resetCallableAndConstantTimeouts();
+		$this->sender->do_sync();
+		$this->server_event_storage->reset();
+		$this->resetCallableAndConstantTimeouts();
+
 		$this->remove_plugin(); // make sure that we start with no plugin.
+
+		$this->server_event_storage->reset();
+
 		$this->install_wp_super_cache();
 		$this->sender->do_sync();
+
+		//Determine which action came first as between jetpack_installed_plugin and jetpack_sync_callable
+		$events = $this->server_event_storage->get_all_events();
+		$first_action = false;
+		foreach( $events as $event ) {
+			if ( 'jetpack_installed_plugin' === $event->action ||
+			'jetpack_sync_callable' === $event->action ) {
+				$first_action = $event->action;
+				break;
+			}
+		}
+		$this->assertEquals( 'jetpack_installed_plugin', $first_action);
+
+		$installed_plugin = $this->server_event_storage->get_most_recent_event( 'jetpack_installed_plugin' );
+		$this->assertEquals( 'wp-super-cache/wp-cache.php', $installed_plugin->args[0] );
+		$this->assertEquals( 'WP Super Cache', $installed_plugin->args[1]['Name'] );
 
 		$plugins = $this->server_replica_storage->get_callable( 'get_plugins' );
 		$this->assertEquals( get_plugins(), $plugins );

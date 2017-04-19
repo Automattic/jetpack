@@ -16,12 +16,42 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 		add_action( 'activated_plugin', $callable, 10, 2 );
 		add_action( 'deactivated_plugin', $callable, 10, 2 );
 		add_action( 'delete_plugin',  array( $this, 'delete_plugin') );
+		add_action( 'upgrader_process_complete', array( $this, 'check_upgrader'), 10, 2 );
+		add_action( 'jetpack_installed_plugin', $callable, 10, 2 );
 	}
 
 	public function init_before_send() {
 		add_filter( 'jetpack_sync_before_send_activated_plugin', array( $this, 'expand_plugin_data' ) );
 		add_filter( 'jetpack_sync_before_send_deactivated_plugin', array( $this, 'expand_plugin_data' ) );
 		//Note that we don't simply 'expand_plugin_data' on the 'delete_plugin' action here because the plugin file is deleted when that action finishes
+	}
+
+	public function check_upgrader( $upgrader, $details) {
+
+		if ( ! isset( $details['type'] ) ||
+			'plugin' !== $details['type'] ||
+			is_wp_error( $upgrader->skin->result ) ||
+			! method_exists( $upgrader, 'plugin_info' )
+		) {
+			return;
+		}
+
+		if ( 'install' === $details['action'] ) {
+			$plugin_path = $upgrader->plugin_info();
+			$plugins = get_plugins();
+			$plugin_info = $plugins[ $plugin_path ];
+
+			/**
+			 * Signals to the sync listener that a plugin was installed and a sync action
+			 * reflecting the installation and the plugin info should be sent
+			 *
+			 * @since 4.9.0
+			 *
+			 * @param string $plugin_path Path of plugin installed
+			 * @param mixed $plugin_info Array of info describing plugin installed
+			 */
+			do_action( 'jetpack_installed_plugin', $plugin_path, $plugin_info );
+		}
 	}
 
 	public function delete_plugin( $plugin_path ) {
