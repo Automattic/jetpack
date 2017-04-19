@@ -315,9 +315,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		$this->assertNotNull( $this->server_replica_storage->get_user( $mu_blog_user_id ) );
-
-
-		//
+		
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_add_user' );
 
 		$user_sync_module = Jetpack_Sync_Modules::get_module( "users" );
