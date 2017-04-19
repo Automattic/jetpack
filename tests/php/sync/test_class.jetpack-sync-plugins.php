@@ -22,6 +22,10 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 		$this->install_wp_super_cache();
 		$this->sender->do_sync();
 
+		$installed_plugin = $this->server_event_storage->get_most_recent_event( 'jetpack_installed_plugin' );
+		$this->assertEquals( 'wp-super-cache/wp-cache.php', $installed_plugin->args[0] );
+		$this->assertEquals( 'WP Super Cache', $installed_plugin->args[1]['Name'] );
+
 		$plugins = $this->server_replica_storage->get_callable( 'get_plugins' );
 		$this->assertEquals( get_plugins(), $plugins );
 		$this->assertTrue( isset( $plugins['wp-super-cache/wp-cache.php'] ) );
