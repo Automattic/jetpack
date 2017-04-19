@@ -40,7 +40,7 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 			 * Signals to the sync listener that a plugin was installed and a sync action
 			 * reflecting the installation and the plugin info should be sent
 			 *
-			 * @since 4.8.3
+			 * @since 4.9.0
 			 *
 			 * @param string $plugin_path Path of plugin installed
 			 * @param mixed $plugin_info Array of info describing plugin installed
