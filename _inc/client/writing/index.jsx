@@ -46,7 +46,8 @@ export const Writing = React.createClass( {
 			'carousel',
 			'post-by-email',
 			'infinite-scroll',
-			'minileven'
+			'minileven',
+			'videopress'
 		].some( this.props.isModuleFound );
 
 		if ( ! this.props.searchTerm && ! this.props.active ) {
