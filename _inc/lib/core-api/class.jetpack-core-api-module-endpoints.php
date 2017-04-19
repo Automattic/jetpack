@@ -622,7 +622,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					}
 
 					// If we got an email address (create or regenerate) or 1 (delete), consider it done.
-					if ( preg_match( '/[a-z0-9]+@post.wordpress.com/', $result ) ) {
+					if ( is_string( $result ) && preg_match( '/[a-z0-9]+@post.wordpress.com/', $result ) ) {
 						$response[$option] = $result;
 						$updated           = true;
 					} elseif ( 1 == $result ) {
