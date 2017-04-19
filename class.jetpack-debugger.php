@@ -299,16 +299,7 @@ class Jetpack_Debugger {
 							esc_html( Jetpack::get_master_user_email() )
 						); ?></p>
 					</div>
-				<?php elseif (
-					current_user_can( 'jetpack_manage_modules' )
-					&& Jetpack::is_development_mode()
-				) :
-					printf(
-						'<p><a href="%1$s">%2$s</a></p>',
-						Jetpack::admin_url( 'page=jetpack_modules' ),
-						esc_html__( 'Access the full list of Jetpack modules available on your site.', 'jetpack' )
-					);
-				else : ?>
+				<?php else : ?>
 					<div id="dev-mode-details">
 						<p><?php printf(
 							__( 'Would you like to use Jetpack on your local development site? You can do so thanks to <a href="%s">Jetpack\'s development mode</a>.', 'jetpack' ),
@@ -316,6 +307,16 @@ class Jetpack_Debugger {
 						); ?></p>
 					</div>
 				<?php endif; ?>
+				<?php if (
+					current_user_can( 'jetpack_manage_modules' )
+					&& ( Jetpack::is_development_mode() || Jetpack::is_active() )
+				) {
+					printf(
+						'<p><a href="%1$s">%2$s</a></p>',
+						Jetpack::admin_url( 'page=jetpack_modules' ),
+						esc_html__( 'Access the full list of Jetpack modules available on your site.', 'jetpack' )
+					);
+				} ?>
 			</div>
 			<div id="contact-message" <?php if( ! isset( $_GET['contact'] ) ) {?>  style="display:none" <?php } ?>>
 			<?php if ( self::is_jetpack_support_open() ): ?>
