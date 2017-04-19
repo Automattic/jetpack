@@ -27,7 +27,7 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 	}
 
 	public function check_upgrader( $upgrader, $details) {
-		if ( 'plugin' !== $details['type'] || 'Plugin_Upgrader' !== get_class( $upgrader ) ) {
+		if ( 'plugin' !== $details['type'] ) {
 			return;
 		}
 
