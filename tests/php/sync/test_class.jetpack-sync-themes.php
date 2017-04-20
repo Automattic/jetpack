@@ -105,11 +105,7 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 			wp_die( $api );
 		}
 
-		//$upgrader = new Theme_Upgrader( new Theme_Upgrader_Skin( compact('title', 'nonce', 'url', 'theme') ) );
-
 		$upgrader = new Theme_Upgrader( new Test_Upgrader_Skin( compact('title', 'nonce', 'url', 'theme') ) );
-
-		// This is noisy, so buffer output so that it doesn't cause test to fail in certain Travis environments
 		$upgrader->install( $api->download_link );
 
 		$this->sender->do_sync();
