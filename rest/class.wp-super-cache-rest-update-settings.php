@@ -64,8 +64,8 @@ class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 			wp_cache_setting( 'cache_path', $cache_path );
 		}
 
-		if ( isset( $parameters[ 'wp_cache_status' ] ) ) {
-			if ( 1 == $parameters[ 'wp_cache_status' ] ) {
+		if ( isset( $parameters[ 'cache_enabled' ] ) ) {
+			if ( 1 == $parameters[ 'cache_enabled' ] ) {
 
 				wp_cache_enable();
 
