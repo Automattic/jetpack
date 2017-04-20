@@ -23,31 +23,33 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		error_log(get_class($upgrader));
 		error_log(print_r($details, true));
 
-		return;
-
 		if ( ! isset( $details['type'] ) ||
-			'plugin' !== $details['type'] ||
+			'theme' !== $details['type'] ||
 			is_wp_error( $upgrader->skin->result ) ||
-			! method_exists( $upgrader, 'plugin_info' )
+			! method_exists( $upgrader, 'theme_info' )
 		) {
 			return;
 		}
 
 		if ( 'install' === $details['action'] ) {
-			$plugin_path = $upgrader->plugin_info();
-			$plugins = get_plugins();
-			$plugin_info = $plugins[ $plugin_path ];
+			$theme = $upgrader->theme_info();
+
+			$theme_info = array(
+				'name' => $theme->name,
+				'version' => $theme->version,
+				'uri' => $theme->theme_root_uri,
+			);
 
 			/**
-			 * Signals to the sync listener that a plugin was installed and a sync action
-			 * reflecting the installation and the plugin info should be sent
+			 * Signals to the sync listener that a theme was installed and a sync action
+			 * reflecting the installation and the theme info should be sent
 			 *
 			 * @since 4.9.0
 			 *
-			 * @param string $plugin_path Path of plugin installed
-			 * @param mixed $plugin_info Array of info describing plugin installed
+			 * @param string $theme->theme_root Text domain of the theme
+			 * @param mixed $theme_info Array of abbreviated theme info
 			 */
-			do_action( 'jetpack_installed_plugin', $plugin_path, $plugin_info );
+			do_action( 'jetpack_installed_theme', $theme->theme_root, $theme_info );
 		}
 	}
 
