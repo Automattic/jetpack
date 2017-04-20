@@ -26,6 +26,24 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		unset( $server_user->data->allowed_mime_types );
 
 		$this->assertEqualsObject( $user, $server_user );
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_register_user' );
+
+		$user_sync_module = Jetpack_Sync_Modules::get_module( "users" );
+		$synced_user = $event->args[0];
+
+		// grab the codec - we need to simulate the stripping of types that comes with encoding/decoding
+		$codec = $this->sender->get_codec();
+
+		$retrieved_user = $codec->decode( $codec->encode(
+			$user_sync_module->get_object_by_id( 'user', $this->user_id )
+		) );
+
+		// TODO: this is to address a testing bug, alas :/
+		unset( $retrieved_user->data->allowed_mime_types );
+
+		$this->assertEquals( $synced_user, $retrieved_user );
+
 	}
 
 	public function test_update_user_url_is_synced() {
@@ -297,6 +315,24 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		$this->assertNotNull( $this->server_replica_storage->get_user( $mu_blog_user_id ) );
+		
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_add_user' );
+
+		$user_sync_module = Jetpack_Sync_Modules::get_module( "users" );
+		$synced_user = $event->args[0];
+
+		// grab the codec - we need to simulate the stripping of types that comes with encoding/decoding
+		$codec = $this->sender->get_codec();
+
+		$retrieved_user = $codec->decode( $codec->encode(
+			$user_sync_module->get_object_by_id( 'user', $mu_blog_user_id )
+		) );
+
+		// TODO: this is to address a testing bug, alas :/
+		unset( $retrieved_user->data->allowed_mime_types );
+
+		$this->assertEquals( $synced_user, $retrieved_user );
+		
 	}
 
 	public function test_syncs_user_authentication_attempts() {
