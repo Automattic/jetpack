@@ -106,6 +106,9 @@ class WP_Test_Jetpack_Shortcodes_Flickr extends WP_UnitTestCase {
 	 * Shortcode reversals.
 	 */
 	public function test_shortcodes_flickr_reversal_iframe_to_link() {
+		if ( defined( 'TESTING_IN_JETPACK' ) && TESTING_IN_JETPACK ) {
+			self::markTestSkipped( 'This test only runs on WPCOM' );
+		}
 		$content = '<iframe src="http://www.flickr.com/photos/batmoo/5265478228/player/" height="500" width="375"  frameborder="0" allowfullscreen webkitallowfullscreen mozallowfullscreen oallowfullscreen msallowfullscreen></iframe>';
 
 		$shortcode_content = wp_kses_post( $content );

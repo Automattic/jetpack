@@ -54,7 +54,7 @@ class WP_Test_Jetpack_Shortcodes_TwitterTimeline extends WP_UnitTestCase {
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertEquals( $shortcode_content, '<!-- Invalid Twitter Timeline username -->' );
+		$this->assertEquals( '<a class="twitter-timeline" data-partner="jetpack" data-width="450" data-height="282" data-widget-id="297487559557251073">Tweets by @</a>', $shortcode_content );
 	}
 
 	public function test_shortcodes_twitter_timeline_missing_id() {
@@ -62,7 +62,7 @@ class WP_Test_Jetpack_Shortcodes_TwitterTimeline extends WP_UnitTestCase {
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertEquals( $shortcode_content, '<!-- Invalid Twitter Timeline id -->' );
+		$this->assertEquals( '<a class="twitter-timeline" data-partner="jetpack" data-width="450" data-height="282" href="https://twitter.com/wordpressdotcom">Tweets by @wordpressdotcom</a>', $shortcode_content );
 	}
 
 
@@ -71,7 +71,7 @@ class WP_Test_Jetpack_Shortcodes_TwitterTimeline extends WP_UnitTestCase {
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertEquals( $shortcode_content, '<a class="twitter-timeline" width="450" height="282" href="https://twitter.com/wordpressdotcom/" data-widget-id="297487559557251073">Tweets by @wordpressdotcom</a>' );
+		$this->assertEquals( '<a class="twitter-timeline" data-partner="jetpack" data-width="450" data-height="282" data-widget-id="297487559557251073" href="https://twitter.com/wordpressdotcom">Tweets by @wordpressdotcom</a>',  $shortcode_content );
 	}
 
 	public function test_shortcodes_twitter_timeline_username() {
@@ -79,7 +79,7 @@ class WP_Test_Jetpack_Shortcodes_TwitterTimeline extends WP_UnitTestCase {
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertEquals( $shortcode_content, '<a class="twitter-timeline" width="450" height="282" href="https://twitter.com/wordpressdotcom/" data-widget-id="297487559557251073">Tweets by @wordpressdotcom</a>' );
+		$this->assertEquals( '<a class="twitter-timeline" data-partner="jetpack" data-width="450" data-height="282" data-widget-id="297487559557251073" href="https://twitter.com/wordpressdotcom">Tweets by @wordpressdotcom</a>',  $shortcode_content );
 	}
 
 	public function test_shortcodes_twitter_timeline_height_width() {
@@ -87,6 +87,6 @@ class WP_Test_Jetpack_Shortcodes_TwitterTimeline extends WP_UnitTestCase {
 
 		$shortcode_content = do_shortcode( $content );
 
-		$this->assertEquals( $shortcode_content, '<a class="twitter-timeline" width="100" height="100" href="https://twitter.com/wordpressdotcom/" data-widget-id="297487559557251073">Tweets by @wordpressdotcom</a>' );
+		$this->assertEquals( '<a class="twitter-timeline" data-partner="jetpack" data-width="100" data-height="100" data-widget-id="297487559557251073" href="https://twitter.com/wordpressdotcom">Tweets by @wordpressdotcom</a>',  $shortcode_content );
 	}
 }
