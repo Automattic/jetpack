@@ -3,7 +3,7 @@
 class WP_Test_Jetpack_Shortcodes_Slideshow extends WP_UnitTestCase {
 
 	public function setUp() {
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+		if ( ! defined( 'TESTING_IN_JETPACK' ) || ! TESTING_IN_JETPACK ) {
 			switch_to_blog( 104104364 ); // test.wordpress.com
 			$this->IDs = '161,162';
 			return;
