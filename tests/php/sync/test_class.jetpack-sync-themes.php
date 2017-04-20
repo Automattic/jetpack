@@ -277,8 +277,12 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_updated_nav_menu' );
 		$this->assertEquals( $event->args[0], $menu_id );
 		$this->assertEquals( $event->args[1]['menu-name'], 'UPDATE' );
-		
-		// Add item to the menu 
+	}
+
+	function test_sync_updating_a_menu_update_an_item() {
+		$menu_id = wp_create_nav_menu( 'FUN' );
+
+		// Add item to the menu
 		$link_item = wp_update_nav_menu_item( $menu_id, null, array(
 			'menu-item-title' => 'LINK TO LINKS',
 			'menu-item-url' => 'http://example.com',
@@ -286,18 +290,6 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 
 		$this->server_event_storage->reset();
 		$this->sender->do_sync();
-
-		// Make sure that this event is not there...
-		$update_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_updated_nav_menu_update_item' );
-		$this->assertFalse( $update_event );
-
-		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_updated_nav_menu_add_item' );
-
-		$this->assertEquals( $event->args[0], $menu_id );
-		$this->assertEquals( $event->args[1]->name, 'UPDATE' );
-		$this->assertEquals( $event->args[2], $link_item );
-		$this->assertEquals( $event->args[3]['menu-item-title'], 'LINK TO LINKS' );
-		$this->assertEquals( $event->args[3]['menu-item-url'], 'http://example.com' );
 
 		// Update item in the menu
 		$link_item = wp_update_nav_menu_item( $menu_id, $link_item, array(
@@ -317,6 +309,7 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $event->args[2], $link_item );
 		$this->assertEquals( $event->args[3]['menu-item-title'], 'make it https MORE LINKS' );
 		$this->assertEquals( $event->args[3]['menu-item-url'], 'https://example.com' );
+
 	}
 
 	function test_sync_deleteing_a_menu() {
