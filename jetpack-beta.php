@@ -54,7 +54,7 @@ define( 'JETPACK_DEV_PLUGIN_SLUG', 'jetpack-dev' );
 define( 'JETPACK_PLUGIN_FILE', 'jetpack/jetpack.php' );
 define( 'JETPACK_DEV_PLUGIN_FILE', 'jetpack-dev/jetpack.php' );
 
-define( 'JETPACK_BETA_REPORT_URL', 'https://github.com/Automattic/jetpack/issues/new' );
+define( 'JETPACK_BETA_REPORT_URL', 'https://jetpack.com/contact-support/beta-group/' );
 
 
 require_once 'autoupdate-self.php';
