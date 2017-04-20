@@ -363,7 +363,7 @@ class Jetpack_Beta_Admin {
 							</svg>
 						</div>
 						<input aria-hidden="false" class="dops-search__input" id="search-component"
-						       placeholder="<?php esc_attr_e( 'Search for a Jetpack Feature Branches', 'jetpack-beta' ); ?>" role="search" type="search" value="">
+						       placeholder="<?php esc_attr_e( 'Search for a Jetpack Feature Branch', 'jetpack-beta' ); ?>" role="search" type="search" value="">
 						<span aria-controls="search-component" id="search-component-close" aria-label="<?php esc_attr_e( 'Close Search','jetpack-beta'); ?>"
 						      tabindex="0">
 							<svg class="gridicon gridicons-cross dops-search-close__icon" height="24"
