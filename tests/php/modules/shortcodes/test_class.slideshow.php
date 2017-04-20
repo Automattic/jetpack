@@ -10,13 +10,13 @@ class WP_Test_Jetpack_Shortcodes_Slideshow extends WP_UnitTestCase {
 		}
 
 		// Otherwise, create the two images we're going to be using ourselves!
-		$a1 = self::factory()->attachment->create_object( array(
+		$a1 = self::factory()->attachment->create_object( 'image1.jpg', 0, array(
 			'file'           => 'image1.jpg',
 			'post_mime_type' => 'image/jpeg',
 			'post_type'      => 'attachment',
 		) );
 
-		$a2 = self::factory()->attachment->create_object( array(
+		$a2 = self::factory()->attachment->create_object( 'image1.jpg', 0, array(
 			'file'           => 'image2.jpg',
 			'post_mime_type' => 'image/jpeg',
 			'post_type'      => 'attachment',
