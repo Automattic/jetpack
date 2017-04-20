@@ -72,44 +72,35 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_theme_install() {
-			require_once ABSPATH . 'wp-admin/includes/theme-install.php';
-			require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
+		require_once ABSPATH . 'wp-admin/includes/theme-install.php';
+		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 
-			// code from wp-admin/update.php
-			$api = themes_api( 'theme_information', array(
-				'slug'   => 'nordby')    );
+		$theme_stylesheet = 'itek';
+		$theme_name = 'iTek';
 
-			/*,
-				'fields' => array(
-					'short_description' => false,
-					'sections'          => false,
-					'requires'          => false,
-					'rating'            => false,
-					'ratings'           => false,
-					'downloaded'        => false,
-					'last_updated'      => false,
-					'added'             => false,
-					'tags'              => false,
-					'compatibility'     => false,
-					'homepage'          => false,
-					'donate_link'       => false,
-				),
-			) );
-*/
-			if ( is_wp_error( $api ) ) {
-				wp_die( $api );
-			}
+		$api = themes_api(
+			'theme_information',
+			array(
+				'slug'   => $theme_stylesheet,
+			)
+		);
+
+		if ( is_wp_error( $api ) ) {
+			wp_die( $api );
+		}
 
 		$upgrader = new Theme_Upgrader( new Theme_Upgrader_Skin( compact('title', 'nonce', 'url', 'theme') ) );
-			/*
-			$upgrader = new Plugin_Upgrader(
-				new Automatic_Upgrader_Skin( compact( 'title', 'url', 'nonce', 'plugin', 'api' ) )
-			);
-			*/
+		$upgrader->install( $api->download_link );
 
-			$upgrader->install( $api->download_link );
+		$this->sender->do_sync();
+		$event_data = $this->server_event_storage->get_most_recent_event( 'jetpack_installed_theme' );
 
-		//}
+		$this->assertEquals( $event_data->args[0], $theme_stylesheet );
+		$this->assertEquals( $event_data->args[1]['name'], $theme_name );
+		$this->assertTrue( (bool) $event_data->args[1]['version'] );
+		$this->assertTrue( (bool) $event_data->args[1]['uri'] );
+
+		delete_theme( $theme_stylesheet );
 	}
 
 	public function test_widgets_changes_get_synced() {

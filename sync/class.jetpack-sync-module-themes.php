@@ -21,9 +21,6 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 	}
 
 	public function check_upgrader( $upgrader, $details) {
-		error_log(get_class($upgrader));
-		error_log(print_r($details, true));
-
 		if ( ! isset( $details['type'] ) ||
 			'theme' !== $details['type'] ||
 			is_wp_error( $upgrader->skin->result ) ||
@@ -34,11 +31,10 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 
 		if ( 'install' === $details['action'] ) {
 			$theme = $upgrader->theme_info();
-
 			$theme_info = array(
-				'name' => $theme->name,
-				'version' => $theme->version,
-				'uri' => $theme->theme_root_uri,
+				'name' => $theme->get('Name'),
+				'version' => $theme->get('Version'),
+				'uri' => $theme->get('ThemeURI'),
 			);
 
 			/**
