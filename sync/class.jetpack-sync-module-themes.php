@@ -9,6 +9,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		add_action( 'switch_theme', array( $this, 'sync_theme_support' ) );
 		add_action( 'jetpack_sync_current_theme_support', $callable );
 		add_action( 'upgrader_process_complete', array( $this, 'check_upgrader'), 10, 2 );
+		add_action( 'jetpack_installed_theme', $callable, 10, 2 );
 
 		// Sidebar updates.
 		add_action( 'update_option_sidebars_widgets', array( $this, 'sync_sidebar_widgets_actions' ), 10, 2 );
