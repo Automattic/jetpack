@@ -435,7 +435,7 @@ class Jetpack_Beta_Admin {
 		if ( $should_update_dev_to_master ) {
 			self::update_card(
 				__( 'Feature Branch was merged', 'jetpack-beta' ),
-				__( 'Update to the feature branch.', 'jetpack-beta' ),
+				__( 'Go back to Jetpack\'s Bleeding Edge version.', 'jetpack-beta' ),
 				self::update_action_url( 'master', 'master' )
 			);
 		} ?>
