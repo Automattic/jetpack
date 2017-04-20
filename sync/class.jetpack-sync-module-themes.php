@@ -50,7 +50,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 			 * @param string $theme->theme_root Text domain of the theme
 			 * @param mixed $theme_info Array of abbreviated theme info
 			 */
-			do_action( 'jetpack_installed_theme', $theme->theme_root, $theme_info );
+			do_action( 'jetpack_installed_theme', $theme->stylesheet, $theme_info );
 		}
 	}
 
