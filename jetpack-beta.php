@@ -258,7 +258,7 @@ class Jetpack_Beta {
 		if ( ! $wp_filesystem ) {
 			return;
 		}
-		
+
 		$working_dir = WP_PLUGIN_DIR . DIRECTORY_SEPARATOR . JETPACK_DEV_PLUGIN_SLUG;
 		// delete the folder JETPACK_BETA_PLUGIN_FOLDER
 		if ( $wp_filesystem->is_dir( $working_dir ) ) {
@@ -326,7 +326,7 @@ class Jetpack_Beta {
 			$wp_admin_bar->add_node( $args );
 		}
 	}
-	
+
 	public function maybe_plugins_update_transient( $transient ) {
 		// Check if the transient contains the 'checked' information
 		// If not, just return its value without hacking it
@@ -335,7 +335,7 @@ class Jetpack_Beta {
 				? self::get_jepack_dev_master_update_response() : self::get_jepack_dev_update_response();
 			return $transient;
 		}
-		
+
 		// Do not try to update things that do not exist
 		if ( ! file_exists(  WP_PLUGIN_DIR . DIRECTORY_SEPARATOR . JETPACK_DEV_PLUGIN_FILE ) ) {
 			return $transient;
@@ -511,7 +511,7 @@ class Jetpack_Beta {
 		if ( is_null ( $section ) ) {
 			list( $branch, $section ) = self::get_branch_and_section();
 		}
-		
+
 		if ( 'master' === $section ) {
 			return JETPACK_GITHUB_URL . '/tree/master-build';
 		}
@@ -592,7 +592,7 @@ class Jetpack_Beta {
 	static function switch_active() {
 		self::replace_active_plugin( JETPACK_DEV_PLUGIN_FILE, JETPACK_PLUGIN_FILE );
 	}
-	
+
 	static function get_beta_manifest() {
 		return self::get_remote_data( JETPACK_BETA_MANIFEST_URL, 'manifest' );
 	}

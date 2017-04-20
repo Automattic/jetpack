@@ -47,11 +47,11 @@ class Jetpack_Beta_Admin {
 	static function render() {
 		require_once JPBETA__PLUGIN_DIR . 'admin/main.php';
 	}
-	
+
 	static function settings_link() {
 		return admin_url( 'admin.php?page=jetpack-beta' );
 	}
-	
+
 	static function admin_plugin_settings_link( $links ) {
 		$settings_link = '<a href="'. esc_url( self::settings_link() ) . '">' . __( 'Settings', 'jetpack-beta' ) . '</a>';
 		array_unshift( $links, $settings_link );
@@ -104,7 +104,7 @@ class Jetpack_Beta_Admin {
 
 		self::start_notice();
 	}
-	
+
 	static function admin_styles() {
 		wp_enqueue_style( 'jetpack-beta-admin', plugins_url( "admin/admin.css", JPBETA__PLUGIN_FILE ), array(), JPBETA_VERSION . '-' . time() );
 	}
@@ -214,14 +214,13 @@ class Jetpack_Beta_Admin {
 		</style>
 		<div id="jetpack-beta-tester__start" class="dops-card <?php echo ( $is_notice ? 'updated' : '' ); ?> ">
 			<h1><?php _e( 'Welcome to Jetpack Beta Tester', 'jetpack-beta' ); ?></h1>
-			<p><?php _e( 'It works a bit differently. Jetpack Beta Tester helps you run 2 different version of Jetpack on your site.
-				A <em>stable</em> and a <em>development</em> version (a version that still needs more testing).', 'jetpack-beta' ); ?></p>
-			<p><?php _e( 'When you activate a version, Jetpack Beta Tester will install and activate it on your behalf and keep it up to date.
-			When you are done testing it will should be easy to switch back to the stable version. Just deactivate the Jetpack beta plugin or 
-			select the <em>Latest Stable</em>.', 'jetpack-beta' ); ?></p>
+			<p><?php _e( 'Thank you for helping to test Jetpack!  We appreciate your time and effort.', 'jetpack-beta' ); ?></p>
+			<p><?php _e( 'When you select a Jetpack branch to test, Jetpack Beta Tester will install and activate it on your behalf and keep it up to date.
+			When you are finished testing, you can switch back to the current version of Jetpack by selecting <em>Latest Stable</em>.', 'jetpack-beta' ); ?></p>
+			<p><?php _e( 'Not sure where to start?  If you select <em>Bleeding Edge</em>, you\'ll get all the cool new features we\'re planning to ship in our next release.', 'jetpack-beta' ); ?></p>
 
 			<?php if ( $is_notice ) { ?>
-			<a href="<?php echo esc_url( admin_url( 'admin.php?page=jetpack-beta' ) ); ?>"><?php _e( 'Lets get started and choose a version to test!', 'jetpack-beta' ); ?></a>
+			<a href="<?php echo esc_url( admin_url( 'admin.php?page=jetpack-beta' ) ); ?>"><?php _e( 'Let\'s get testing!', 'jetpack-beta' ); ?></a>
 			<?php } ?>
 
 		</div>
@@ -301,7 +300,7 @@ class Jetpack_Beta_Admin {
 		);
 		$url   = Jetpack_Beta::admin_url( '?' . build_query( $query ) );
 
-		return '<a href="' . esc_url( $url ) . '" 
+		return '<a href="' . esc_url( $url ) . '"
 				class="is-primary jp-form-button activate-branch dops-button is-compact" >' . __( 'Activate', 'jetpack-beta' ) . '</a>';
 	}
 
@@ -322,7 +321,7 @@ class Jetpack_Beta_Admin {
 		}
 		$branches  = (array) $manifest->{$section};
 		$count_all = count( $branches );
-		
+
 		foreach ( $branches as $branch_name => $branch ) {
 			$count ++;
 			$is_last = $count_all === $count ? true : false;
