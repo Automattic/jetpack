@@ -1,8 +1,6 @@
 <?php
 
 class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
-	private $nav_items_just_added = array();
-
 	function name() {
 		return 'themes';
 	}
@@ -21,19 +19,6 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		add_action( 'jetpack_widget_moved_to_inactive', $callable );
 		add_action( 'jetpack_cleared_inactive_widgets', $callable );
 		add_action( 'jetpack_widget_reordered', $callable );
-
-		// Menus
-		add_action( 'wp_create_nav_menu', $callable, 10, 2 );
-		add_action( 'wp_update_nav_menu', array( $this, 'update_nav_menu' ), 10, 2 );
-		add_action( 'wp_add_nav_menu_item', array( $this, 'update_nav_menu_add_item' ), 10, 3 );
-		add_action( 'wp_update_nav_menu_item', array( $this, 'update_nav_menu_update_item' ), 10, 3 );
-		add_action( 'post_updated', array( $this, 'remove_just_added_menu_item' ), 10, 2 );
-
-		add_action( 'jetpack_sync_updated_nav_menu', $callable, 10, 2 );
-		add_action( 'jetpack_sync_updated_nav_menu_add_item', $callable, 10, 4 );
-		add_action( 'jetpack_sync_updated_nav_menu_update_item', $callable, 10, 4 );
-		add_action( 'delete_nav_menu', $callable, 10, 3 );
-
 	}
 
 	public function check_upgrader( $upgrader, $details) {
@@ -266,34 +251,5 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		$theme_support['version'] =  $theme->version;
 
 		return $theme_support;
-	}
-
-	public function update_nav_menu( $menu_id, $menu_data = array() ) {
-		if ( empty( $menu_data ) ) {
-			return;
-		}
-
-		do_action( 'jetpack_sync_updated_nav_menu', $menu_id, $menu_data );
-	}
-
-	public function update_nav_menu_add_item( $menu_id, $nav_item_id, $nav_item_args ) {
-		$menu_data = wp_get_nav_menu_object( $menu_id ); //
-		$this->nav_items_just_added[] = $nav_item_id;
-		do_action( 'jetpack_sync_updated_nav_menu_add_item', $menu_id, $menu_data, $nav_item_id, $nav_item_args );
-	}
-
-	public function update_nav_menu_update_item( $menu_id, $nav_item_id, $nav_item_args ) {
-		if ( in_array( $nav_item_id, $this->nav_items_just_added ) ) {
-			return;
-		}
-		$menu_data = wp_get_nav_menu_object( $menu_id );
-		do_action( 'jetpack_sync_updated_nav_menu_update_item', $menu_id, $menu_data, $nav_item_id, $nav_item_args );
-	}
-
-	public function remove_just_added_menu_item( $nav_item_id, $post_after  ) {
-		if ( $post_after->post_type !== 'nav_menu_item' ) {
-			return;
-		}
-		$this->nav_items_just_added = array_diff( $this->nav_items_just_added, array( $nav_item_id ) );
 	}
 }
