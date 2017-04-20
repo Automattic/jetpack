@@ -8,6 +8,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 	public function init_listeners( $callable ) {
 		add_action( 'switch_theme', array( $this, 'sync_theme_support' ) );
 		add_action( 'jetpack_sync_current_theme_support', $callable );
+		add_action( 'upgrader_process_complete', array( $this, 'check_upgrader'), 10, 2 );
 
 		// Sidebar updates.
 		add_action( 'update_option_sidebars_widgets', array( $this, 'sync_sidebar_widgets_actions' ), 10, 2 );
@@ -16,6 +17,38 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		add_action( 'jetpack_widget_moved_to_inactive', $callable );
 		add_action( 'jetpack_cleared_inactive_widgets', $callable );
 		add_action( 'jetpack_widget_reordered', $callable );
+	}
+
+	public function check_upgrader( $upgrader, $details) {
+		error_log(get_class($upgrader));
+		error_log(print_r($details, true));
+
+		return;
+
+		if ( ! isset( $details['type'] ) ||
+			'plugin' !== $details['type'] ||
+			is_wp_error( $upgrader->skin->result ) ||
+			! method_exists( $upgrader, 'plugin_info' )
+		) {
+			return;
+		}
+
+		if ( 'install' === $details['action'] ) {
+			$plugin_path = $upgrader->plugin_info();
+			$plugins = get_plugins();
+			$plugin_info = $plugins[ $plugin_path ];
+
+			/**
+			 * Signals to the sync listener that a plugin was installed and a sync action
+			 * reflecting the installation and the plugin info should be sent
+			 *
+			 * @since 4.9.0
+			 *
+			 * @param string $plugin_path Path of plugin installed
+			 * @param mixed $plugin_info Array of info describing plugin installed
+			 */
+			do_action( 'jetpack_installed_plugin', $plugin_path, $plugin_info );
+		}
 	}
 
 	public function init_full_sync_listeners( $callable ) {
