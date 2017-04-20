@@ -1,4 +1,20 @@
 <?php
+require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
+
+// Used to suppress echo'd output from Theme_Upgrader_Skin so that test_theme_install() will pass under Travis environments that failed because of output
+class Test_Upgrader_Skin extends Theme_Upgrader_Skin {
+
+	public function __construct($args = array()) {
+		$defaults = array( 'url' => '', 'theme' => '', 'nonce' => '', 'title' => __('Update Theme') );
+		$args = wp_parse_args($args, $defaults);
+		$this->theme = $args['theme'];
+		parent::__construct($args);
+	}
+	public function feedback($string) {}
+	public function header() {}
+	public function footer() {}
+	public function decrement_update_count( $arg ) {}
+}
 
 /**
  * Testing CRUD on Options
@@ -69,6 +85,38 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		}
 
 		$this->assertEquals( $local_value, $this->server_replica_storage->get_option( 'theme_mods_' . $this->theme ) );
+	}
+
+	public function test_theme_install() {
+		require_once ABSPATH . 'wp-admin/includes/theme-install.php';
+		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
+
+		$theme_stylesheet = 'itek';
+		$theme_name = 'iTek';
+
+		$api = themes_api(
+			'theme_information',
+			array(
+				'slug'   => $theme_stylesheet,
+			)
+		);
+
+		if ( is_wp_error( $api ) ) {
+			wp_die( $api );
+		}
+
+		$upgrader = new Theme_Upgrader( new Test_Upgrader_Skin( compact('title', 'nonce', 'url', 'theme') ) );
+		$upgrader->install( $api->download_link );
+
+		$this->sender->do_sync();
+		$event_data = $this->server_event_storage->get_most_recent_event( 'jetpack_installed_theme' );
+
+		$this->assertEquals( $event_data->args[0], $theme_stylesheet );
+		$this->assertEquals( $event_data->args[1]['name'], $theme_name );
+		$this->assertTrue( (bool) $event_data->args[1]['version'] );
+		$this->assertTrue( (bool) $event_data->args[1]['uri'] );
+
+		delete_theme( $theme_stylesheet );
 	}
 
 	public function test_widgets_changes_get_synced() {
