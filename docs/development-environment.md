@@ -76,17 +76,7 @@ $ yarn build-production
 
 ## Unit-testing
 
-Jetpack includes several [unit tests](https://github.com/Automattic/jetpack/tree/master/tests) that you can run in your local environment before to submit a new Pull Request.
-
-To get started, you can follow the instructions [here](https://phpunit.de/getting-started.html) to install PHPUnit on your machine. Once you've done so, you can get the WordPress testing codebase like so:
-
-`svn checkout http://unit-tests.svn.wordpress.org/trunk wordpress-tests`
-
-To run tests on your machine, you can run `phpunit` while in the Jetpack directory.
-
-If you need more information, you can follow [this guide](https://jetpack.com/2013/08/20/unit-tests/).
-
-If you're not familiar with PHP Unit Testing, you can also check [this tutorial](https://pippinsplugins.com/series/unit-tests-wordpress-plugins/)
+See [The unit test guide](./unit-testing.md)
 
 ## Unit-testing the JS Admin Page
 

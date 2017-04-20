@@ -4,6 +4,7 @@
 /vendor/
 /wpcom-test-backup/
 /.vscode/
+/wordpress-tests/
 
 
 ## FILES
