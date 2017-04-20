@@ -217,8 +217,10 @@ class Jetpack_Beta_Admin {
 			<p><?php _e( 'Thank you for helping to test Jetpack!  We appreciate your time and effort.', 'jetpack-beta' ); ?></p>
 			<p><?php _e( 'When you select a Jetpack branch to test, Jetpack Beta Tester will install and activate it on your behalf and keep it up to date.
 			When you are finished testing, you can switch back to the current version of Jetpack by selecting <em>Latest Stable</em>.', 'jetpack-beta' ); ?></p>
-			<p><?php _e( 'Not sure where to start?  If you select <em>Bleeding Edge</em>, you\'ll get all the cool new features we\'re planning to ship in our next release.', 'jetpack-beta' ); ?></p>
-
+			<p><?php printf(
+				__( 'Not sure where to start?  If you select <em>Bleeding Edge</em>, you\'ll get <a href="%1$s">all the cool new features</a> we\'re planning to ship in our next release.', 'jetpack-beta' ),
+				esc_url( 'https://github.com/Automattic/jetpack/blob/master/to-test.md' )
+			); ?></p>
 			<?php if ( $is_notice ) { ?>
 			<a href="<?php echo esc_url( admin_url( 'admin.php?page=jetpack-beta' ) ); ?>"><?php _e( 'Let\'s get testing!', 'jetpack-beta' ); ?></a>
 			<?php } ?>
