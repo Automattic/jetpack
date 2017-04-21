@@ -5,27 +5,29 @@
  * @param WP_Customize_Manager $wp_customize Theme Customizer object.
  */
 function jetpack_content_options_customize_register( $wp_customize ) {
-	$options            = get_theme_support( 'jetpack-content-options' );
-	$blog_display       = ( ! empty( $options[0]['blog-display'] ) ) ? $options[0]['blog-display'] : null;
-	$blog_display       = preg_grep( '/^(content|excerpt)$/', (array) $blog_display );
+	$options             = get_theme_support( 'jetpack-content-options' );
+	$blog_display        = ( ! empty( $options[0]['blog-display'] ) ) ? $options[0]['blog-display'] : null;
+	$blog_display        = preg_grep( '/^(content|excerpt)$/', (array) $blog_display );
 	sort( $blog_display );
-	$blog_display       = implode( ', ', $blog_display );
-	$blog_display       = ( 'content, excerpt' === $blog_display ) ? 'mixed' : $blog_display;
-	$author_bio         = ( ! empty( $options[0]['author-bio'] ) ) ? $options[0]['author-bio'] : null;
-	$author_bio_default = ( isset( $options[0]['author-bio-default'] ) && false === $options[0]['author-bio-default'] ) ? '' : 1;
-	$post_details       = ( ! empty( $options[0]['post-details'] ) ) ? $options[0]['post-details'] : null;
-	$date               = ( ! empty( $post_details['date'] ) ) ? $post_details['date'] : null;
-	$categories         = ( ! empty( $post_details['categories'] ) ) ? $post_details['categories'] : null;
-	$tags               = ( ! empty( $post_details['tags'] ) ) ? $post_details['tags'] : null;
-	$author             = ( ! empty( $post_details['author'] ) ) ? $post_details['author'] : null;
-	$comment            = ( ! empty( $post_details['comment'] ) ) ? $post_details['comment'] : null;
-	$featured_images    = ( ! empty( $options[0]['featured-images'] ) ) ? $options[0]['featured-images'] : null;
-	$fi_archive         = ( ! empty( $featured_images['archive'] ) ) ? $featured_images['archive'] : null;
-	$fi_post            = ( ! empty( $featured_images['post'] ) ) ? $featured_images['post'] : null;
-	$fi_page            = ( ! empty( $featured_images['page'] ) ) ? $featured_images['page'] : null;
-	$fi_archive_default = ( isset( $featured_images['archive-default'] ) && false === $featured_images['archive-default'] ) ? '' : 1;
-	$fi_post_default    = ( isset( $featured_images['post-default'] ) && false === $featured_images['post-default'] ) ? '' : 1;
-	$fi_page_default    = ( isset( $featured_images['page-default'] ) && false === $featured_images['page-default'] ) ? '' : 1;
+	$blog_display        = implode( ', ', $blog_display );
+	$blog_display        = ( 'content, excerpt' === $blog_display ) ? 'mixed' : $blog_display;
+	$author_bio          = ( ! empty( $options[0]['author-bio'] ) ) ? $options[0]['author-bio'] : null;
+	$author_bio_default  = ( isset( $options[0]['author-bio-default'] ) && false === $options[0]['author-bio-default'] ) ? '' : 1;
+	$post_details        = ( ! empty( $options[0]['post-details'] ) ) ? $options[0]['post-details'] : null;
+	$date                = ( ! empty( $post_details['date'] ) ) ? $post_details['date'] : null;
+	$categories          = ( ! empty( $post_details['categories'] ) ) ? $post_details['categories'] : null;
+	$tags                = ( ! empty( $post_details['tags'] ) ) ? $post_details['tags'] : null;
+	$author              = ( ! empty( $post_details['author'] ) ) ? $post_details['author'] : null;
+	$comment             = ( ! empty( $post_details['comment'] ) ) ? $post_details['comment'] : null;
+	$featured_images     = ( ! empty( $options[0]['featured-images'] ) ) ? $options[0]['featured-images'] : null;
+	$fi_archive          = ( ! empty( $featured_images['archive'] ) ) ? $featured_images['archive'] : null;
+	$fi_post             = ( ! empty( $featured_images['post'] ) ) ? $featured_images['post'] : null;
+	$fi_page             = ( ! empty( $featured_images['page'] ) ) ? $featured_images['page'] : null;
+	$fi_archive_default  = ( isset( $featured_images['archive-default'] ) && false === $featured_images['archive-default'] ) ? '' : 1;
+	$fi_post_default     = ( isset( $featured_images['post-default'] ) && false === $featured_images['post-default'] ) ? '' : 1;
+	$fi_page_default     = ( isset( $featured_images['page-default'] ) && false === $featured_images['page-default'] ) ? '' : 1;
+	$fi_fallback         = ( ! empty( $featured_images['fallback'] ) ) ? $featured_images['fallback'] : null;
+	$fi_fallback_default = ( isset( $featured_images['fallback-default'] ) && false === $featured_images['fallback-default'] ) ? '' : 1;
 
 	// If the theme doesn't support 'jetpack-content-options[ 'blog-display' ]', 'jetpack-content-options[ 'author-bio' ]', 'jetpack-content-options[ 'post-details' ]' and 'jetpack-content-options[ 'featured-images' ]', don't continue.
 	if ( ( ! in_array( $blog_display, array( 'content', 'excerpt', 'mixed' ) ) )
@@ -36,7 +38,7 @@ function jetpack_content_options_customize_register( $wp_customize ) {
 				|| empty( $tags )
 				|| empty( $author )
 				|| empty( $comment ) ) )
-		&& ( true !== $fi_archive && true !== $fi_post && true !== $fi_page ) ) {
+		&& ( true !== $fi_archive && true !== $fi_post && true !== $fi_page && true !== $fi_fallback ) ) {
 	    return;
 	}
 
@@ -218,7 +220,7 @@ function jetpack_content_options_customize_register( $wp_customize ) {
 	}
 
 	// Add Featured Images options.
-	if ( true === $fi_archive || true === $fi_post || true === $fi_page ) {
+	if ( true === $fi_archive || true === $fi_post || true === $fi_page || true === $fi_fallback ) {
 		$wp_customize->add_setting( 'jetpack_content_featured_images_title' );
 
 		$wp_customize->add_control( new Jetpack_Customize_Control_Title( $wp_customize, 'jetpack_content_featured_images_title', array(
@@ -274,6 +276,23 @@ function jetpack_content_options_customize_register( $wp_customize ) {
 			$wp_customize->add_control( 'jetpack_content_featured_images_page', array(
 				'section'              => 'jetpack_content_options',
 				'label'                => esc_html__( 'Display on pages', 'jetpack' ),
+				'type'                 => 'checkbox',
+				'active_callback'      => 'jetpack_post_thumbnail_supports',
+			) );
+		}
+
+		// Featured Images: Fallback
+		if ( true === $fi_fallback ) {
+			$wp_customize->add_setting( 'jetpack_content_featured_images_fallback', array(
+				'default'              => $fi_fallback_default,
+				'type'                 => 'option',
+				'transport'            => 'refresh',
+				'sanitize_callback'    => 'jetpack_content_options_sanitize_checkbox',
+			) );
+
+			$wp_customize->add_control( 'jetpack_content_featured_images_fallback', array(
+				'section'              => 'jetpack_content_options',
+				'label'                => esc_html__( 'Automatically use first image in post', 'jetpack' ),
 				'type'                 => 'checkbox',
 				'active_callback'      => 'jetpack_post_thumbnail_supports',
 			) );
