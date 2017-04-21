@@ -1,14 +1,14 @@
 <?php
-
 /**
  * Plugin Name: Jetpack Beta Tester
- * Plugin URI: https://github.com/Automattic/jetpack-beta
- * Description: Uses your auto-updater to update your local Jetpack to our latest beta version from the master-stable branch on GitHub. DO NOT USE IN PRODUCTION.
+ * Plugin URI: https://jetpack.com/beta/
+ * Description: Use the Beta plugin to get a sneak peek at new features and test them on your site.
  * Version: 2.0.1
  * Author: Automattic
  * Author URI: https://jetpack.com/
  * License: GPLv2 or later
  *
+ * @package Jetpack Beta
  */
 
 /*
@@ -26,6 +26,7 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
+
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
@@ -33,7 +34,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * How this plugin works.
  * Jetpack beta manages files inside jetpack-dev folder this folder should contain
- *
  */
 define( 'JPBETA__PLUGIN_FOLDER',  basename( __DIR__ ) );
 define( 'JPBETA__PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
