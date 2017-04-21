@@ -486,7 +486,7 @@ class Jetpack {
 		// without XMLRPC
 		add_action( 'rest_api_init', array( $this, 'rest_api_init' ) );
 		// Alternate XML-RPC, via ?for=jetpack&jetpack=xmlrpc
-		if ( isset( $_GET['jetpack'] ) && 'xmlrpc' == $_GET['jetpack'] ) {
+		if ( isset( $_GET['jetpack'] ) && 'comms' == $_GET['jetpack'] ) {
 			if ( ! defined( 'XMLRPC_REQUEST' ) ) {
 				define( 'XMLRPC_REQUEST', true );
 			}
