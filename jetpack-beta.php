@@ -125,9 +125,9 @@ class Jetpack_Beta {
 	}
 
 	public static function is_network_enabled() {
-			if ( Jetpack_Beta::is_network_active() ) {
-				add_filter( 'option_active_plugins', array( 'Jetpack_Beta','override_active_plugins' ) );
-			}
+		if ( Jetpack_Beta::is_network_active() ) {
+			add_filter( 'option_active_plugins', array( 'Jetpack_Beta','override_active_plugins' ) );
+		}
 	}
 
 	/**
