@@ -4,7 +4,7 @@
  * Plugin Name: Jetpack Beta Tester
  * Plugin URI: https://github.com/Automattic/jetpack-beta
  * Description: Uses your auto-updater to update your local Jetpack to our latest beta version from the master-stable branch on GitHub. DO NOT USE IN PRODUCTION.
- * Version: 2.0
+ * Version: 2.0.1
  * Author: Automattic
  * Author URI: https://jetpack.com/
  * License: GPLv2 or later
@@ -656,7 +656,7 @@ class Jetpack_Beta {
 			if ( $wp_filesystem->is_dir( $working_dir ) ) {
 				$wp_filesystem->delete( $working_dir, true );
 			}
-			// Deactivate the plugin 
+			// Deactivate the plugin
 			self::replace_active_plugin( 'jetpack-pressable-beta/jetpack.php' );
 		}
 
