@@ -905,7 +905,7 @@ That was a cool video.';
 		$this->assertTrue( $post_flags['send_subscription'] );
 	}
 
-	public function test_sync_jetpack_published_post_should_set_set_send_subscription_to_false_for_post_type_other_then_post() {
+	public function test_sync_jetpack_published_post_should_set_set_send_subscription_to_false_for_post_type_other_than_post() {
 		$this->server_event_storage->reset();
 		Jetpack_Options::update_option( 'active_modules', array( 'subscriptions' ) );
 		require_once JETPACK__PLUGIN_DIR . '/modules/subscriptions.php';
