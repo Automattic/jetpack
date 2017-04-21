@@ -905,6 +905,27 @@ That was a cool video.';
 		$this->assertTrue( $post_flags['send_subscription'] );
 	}
 
+	public function test_sync_jetpack_published_post_should_set_set_send_subscription_to_false_for_post_type_other_than_post() {
+		$this->server_event_storage->reset();
+		Jetpack_Options::update_option( 'active_modules', array( 'subscriptions' ) );
+		require_once JETPACK__PLUGIN_DIR . '/modules/subscriptions.php';
+		new Jetpack_Subscriptions; // call instead of Jetpack_Subscriptions::init() so that actions get reinitialized
+
+		$nav_menu_id = wp_insert_post( array(
+			'post_type' => 'nav_menu_item',
+			'post_status' => 'draft',
+		) );
+
+		wp_publish_post( $nav_menu_id );
+
+		$this->sender->do_sync();
+
+		$events = $this->server_event_storage->get_all_events( 'jetpack_published_post' );
+		$this->assertEquals( 1, count( $events ) );
+
+		$post_flags = $events[0]->args[1];
+		$this->assertFalse( $post_flags['send_subscription'] );
+	}
 
 	public function test_sync_jetpack_publish_post_works_with_interjecting_plugins() {
 		$this->server_event_storage->reset();
