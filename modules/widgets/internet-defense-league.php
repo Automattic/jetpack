@@ -29,27 +29,26 @@ class Jetpack_Internet_Defense_League_Widget extends WP_Widget {
 			/** This filter is documented in modules/widgets/facebook-likebox.php */
 			apply_filters( 'jetpack_widget_name_widget', esc_html__( 'Internet Defense League', 'jetpack' ) ),
 			array(
-				'description' => __( 'Show your support for the Internet Defense League.', 'internetdefenseleague' ),
+				'description' => __( 'Show your support for the Internet Defense League.', 'jetpack' ),
 			)
 		);
 
 		// When enabling campaigns other than 'none' or empty, change $no_current to false above.
 		$this->campaigns = array(
-			''       => __( 'All current and future campaigns', 'internetdefenseleague' ),
-			// 'nsa' => __( 'NSA Protest on July 4th, 2013', 'internetdefenseleague' ),
-			'none'   => __( 'None, just display the badge please', 'internetdefenseleague' ),
+			''       => __( 'All current and future campaigns', 'jetpack' ),
+			'none'   => __( 'None, just display the badge please', 'jetpack' ),
 		);
 
 		$this->variants = array(
-			'banner' => __( 'Banner at the top of my site', 'internetdefenseleague' ),
-			'modal'  => __( 'Modal (Overlay Box)', 'internetdefenseleague' ),
+			'banner' => __( 'Banner at the top of my site', 'jetpack' ),
+			'modal'  => __( 'Modal (Overlay Box)', 'jetpack' ),
 		);
 
 		$this->badges = array(
-			'shield_badge'   => __( 'Shield Badge', 'internetdefenseleague' ),
-			'super_badge'    => __( 'Super Badge', 'internetdefenseleague' ),
-			'side_bar_badge' => __( 'Red Cat Badge', 'internetdefenseleague' ),
-			'none'           => __( 'Don\'t display a badge (just the campaign)', 'internetdefenseleague' ),
+			'shield_badge'   => __( 'Shield Badge', 'jetpack' ),
+			'super_badge'    => __( 'Super Badge', 'jetpack' ),
+			'side_bar_badge' => __( 'Red Cat Badge', 'jetpack' ),
+			'none'           => __( 'Don\'t display a badge (just the campaign)', 'jetpack' ),
 		);
 
 		$this->defaults = array(
@@ -108,23 +107,23 @@ class Jetpack_Internet_Defense_League_Widget extends WP_Widget {
 		// Hide first two form fields if no current campaigns.
 		if ( false === $this->no_current ) {
 			echo '<p><label>';
-			echo __( 'Which Internet Defense League campaign do you want to participate in?', 'internetdefenseleague' ) . '<br />';
+			echo __( 'Which Internet Defense League campaign do you want to participate in?', 'jetpack' ) . '<br />';
 			$this->select( 'campaign', $this->campaigns, $instance['campaign'] );
 			echo '</label></p>';
 
 			echo '<p><label>';
-			echo __( 'How do you want to promote the campaign?', 'internetdefenseleague' ) . '<br />';
+			echo __( 'How do you want to promote the campaign?', 'jetpack' ) . '<br />';
 			$this->select( 'variant', $this->variants, $instance['variant'] );
 			echo '</label></p>';
 		}
 
 		echo '<p><label>';
-		echo __( 'Which badge would you like to display?', 'internetdefenseleague' ) . '<br />';
+		echo __( 'Which badge would you like to display?', 'jetpack' ) . '<br />';
 		$this->select( 'badge', $this->badges, $instance['badge'] );
 		echo '</label></p>';
 
 		/* translators: %s is a name of an internet campaign called the "Internet Defense League" */
-		echo '<p>' . sprintf( _x( 'Learn more about the %s', 'the Internet Defense League', 'internetdefenseleague' ), '<a href="https://www.internetdefenseleague.org/">Internet Defense League</a>' ) . '</p>';
+		echo '<p>' . sprintf( _x( 'Learn more about the %s', 'the Internet Defense League', 'jetpack' ), '<a href="https://www.internetdefenseleague.org/">Internet Defense League</a>' ) . '</p>';
 	}
 
 	public function select( $field_name, $options, $default = null ) {
