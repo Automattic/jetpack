@@ -30,6 +30,7 @@ class Jetpack_Internet_Defense_League_Widget extends WP_Widget {
 			apply_filters( 'jetpack_widget_name_widget', esc_html__( 'Internet Defense League', 'jetpack' ) ),
 			array(
 				'description' => __( 'Show your support for the Internet Defense League.', 'jetpack' ),
+				'customize_selective_refresh' => true,
 			)
 		);
 
