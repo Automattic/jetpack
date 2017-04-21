@@ -66,7 +66,8 @@ class Jetpack_Beta_Autoupdate_Self {
 			$tagged_version = false;
 			if ( is_array( $releases ) ) {
 				foreach ( $releases as $release ) {
-					if ( $release->prerelease ) {
+					// Since 2.2, So that we don't have to maker the Jetpack Beta 2.0.3 as prerelease
+					if ( ! $release->prerelease ) {
 						$tagged_version = $release->tag_name;
 						break;
 					}
