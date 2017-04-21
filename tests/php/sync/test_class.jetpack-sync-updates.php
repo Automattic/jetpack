@@ -36,6 +36,8 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 		wp_update_themes();
 		$this->sender->do_sync();
 		$updates = $this->server_replica_storage->get_updates( 'themes' );
+
+		$this->assertEquals( 'WordPress Default', $updates->response['default']['name'] );
 		$this->assertTrue( is_int( $updates->last_checked ) );
 	}
 
