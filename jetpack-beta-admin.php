@@ -17,7 +17,7 @@ class Jetpack_Beta_Admin {
 		add_action( "load-$hook", array( __CLASS__, 'admin_page_load' ) );
 		add_action( "admin_print_styles-$hook", array( __CLASS__, 'admin_styles' ) );
 		add_action( "admin_print_scripts-$hook", array( __CLASS__, 'admin_scripts' ) );
-		add_filter( 'plugin_action_links_' . JPBETA__PLUGIN_BASENAME . '/jetpack-beta.php', array( __CLASS__, 'admin_plugin_settings_link' ) );
+		add_filter( 'plugin_action_links_' . JPBETA__PLUGIN_FOLDER . '/jetpack-beta.php', array( __CLASS__, 'admin_plugin_settings_link' ) );
 	}
 
 	static function get_page_hook() {
