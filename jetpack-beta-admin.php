@@ -222,7 +222,7 @@ class Jetpack_Beta_Admin {
 				esc_url( 'https://github.com/Automattic/jetpack/blob/master/to-test.md' )
 			); ?></p>
 			<?php if ( $is_notice ) { ?>
-			<a href="<?php echo esc_url( admin_url( 'admin.php?page=jetpack-beta' ) ); ?>"><?php _e( 'Let\'s get testing!', 'jetpack-beta' ); ?></a>
+			<a href="<?php echo esc_url( Jetpack_Beta::admin_url() ); ?>"><?php _e( 'Let\'s get testing!', 'jetpack-beta' ); ?></a>
 			<?php } ?>
 
 		</div>
