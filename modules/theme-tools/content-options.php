@@ -63,6 +63,7 @@ add_action( 'init', 'jetpack_content_options_init' );
 
 function jetpack_featured_images_get_settings() {
 	$options         = get_theme_support( 'jetpack-content-options' );
+
 	$featured_images = ( ! empty( $options[0]['featured-images'] ) ) ? $options[0]['featured-images'] : null;
 
 	$settings        = array(
@@ -84,11 +85,17 @@ function jetpack_featured_images_get_settings() {
 }
 
 function jetpack_featured_images_should_load() {
+	// If the theme doesn't support post thumbnails, don't continue.
+	if ( ! current_theme_supports( 'post-thumbnails' ) ) {
+		return false;
+	}
+
 	$opts = jetpack_featured_images_get_settings();
 
 	// If the theme doesn't support archive, post and page or if all the options are ticked and we aren't in the customizer, don't continue.
 	if ( ( true !== $opts['archive'] && true !== $opts['post'] && true !== $opts['page'] )
-		return false;
+	    || ( 1 === $opts['archive-option'] && 1 === $opts['post-option'] && 1 === $opts['page-option'] && ! is_customize_preview() ) ) {
+			return false;
 	}
 
 	return true;

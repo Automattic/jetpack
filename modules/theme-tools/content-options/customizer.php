@@ -225,6 +225,7 @@ function jetpack_content_options_customize_register( $wp_customize ) {
 			'section'                  => 'jetpack_content_options',
 			'label'                    => esc_html__( 'Featured Images', 'jetpack' ),
 			'type'                     => 'title',
+			'active_callback'          => 'jetpack_post_thumbnail_supports',
 		) ) );
 
 		// Featured Images: Archive
@@ -232,6 +233,7 @@ function jetpack_content_options_customize_register( $wp_customize ) {
 			$wp_customize->add_setting( 'jetpack_content_featured_images_archive', array(
 				'default'              => $fi_archive_default,
 				'type'                 => 'option',
+				'transport'            => 'refresh',
 				'sanitize_callback'    => 'jetpack_content_options_sanitize_checkbox',
 			) );
 
@@ -239,6 +241,7 @@ function jetpack_content_options_customize_register( $wp_customize ) {
 				'section'              => 'jetpack_content_options',
 				'label'                => esc_html__( 'Display on blog and archives', 'jetpack' ),
 				'type'                 => 'checkbox',
+				'active_callback'      => 'jetpack_post_thumbnail_supports',
 			) );
 		}
 
@@ -247,6 +250,7 @@ function jetpack_content_options_customize_register( $wp_customize ) {
 			$wp_customize->add_setting( 'jetpack_content_featured_images_post', array(
 				'default'              => $fi_post_default,
 				'type'                 => 'option',
+				'transport'            => 'refresh',
 				'sanitize_callback'    => 'jetpack_content_options_sanitize_checkbox',
 			) );
 
@@ -254,6 +258,7 @@ function jetpack_content_options_customize_register( $wp_customize ) {
 				'section'              => 'jetpack_content_options',
 				'label'                => esc_html__( 'Display on single posts', 'jetpack' ),
 				'type'                 => 'checkbox',
+				'active_callback'      => 'jetpack_post_thumbnail_supports',
 			) );
 		}
 
@@ -262,6 +267,7 @@ function jetpack_content_options_customize_register( $wp_customize ) {
 			$wp_customize->add_setting( 'jetpack_content_featured_images_page', array(
 				'default'              => $fi_page_default,
 				'type'                 => 'option',
+				'transport'            => 'refresh',
 				'sanitize_callback'    => 'jetpack_content_options_sanitize_checkbox',
 			) );
 
@@ -269,11 +275,19 @@ function jetpack_content_options_customize_register( $wp_customize ) {
 				'section'              => 'jetpack_content_options',
 				'label'                => esc_html__( 'Display on pages', 'jetpack' ),
 				'type'                 => 'checkbox',
+				'active_callback'      => 'jetpack_post_thumbnail_supports',
 			) );
 		}
 	}
 }
 add_action( 'customize_register', 'jetpack_content_options_customize_register' );
+
+/**
+ * Return whether the theme supports Post Thumbnails.
+ */
+function jetpack_post_thumbnail_supports() {
+	return ( current_theme_supports( 'post-thumbnails' ) );
+}
 
 /**
  * Sanitize the checkbox.
