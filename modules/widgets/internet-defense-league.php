@@ -26,6 +26,7 @@ class Jetpack_Internet_Defense_League_Widget extends WP_Widget {
 	function __construct() {
 		parent::__construct(
 			'internet_defense_league_widget',
+			/** This filter is documented in modules/widgets/facebook-likebox.php */
 			apply_filters( 'jetpack_widget_name_widget', esc_html__( 'Internet Defense League', 'jetpack' ) ),
 			array(
 				'description' => __( 'Show your support for the Internet Defense League.', 'internetdefenseleague' ),
