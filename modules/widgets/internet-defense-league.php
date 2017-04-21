@@ -9,7 +9,7 @@ Author URI:   https://automattic.com/
 
 **************************************************************************/
 
-class Internet_Defense_League_Widget extends WP_Widget {
+class Jetpack_Internet_Defense_League_Widget extends WP_Widget {
 
 	public $defaults = array();
 
@@ -147,7 +147,7 @@ class Internet_Defense_League_Widget extends WP_Widget {
 
 function jetpack_internet_defense_league_init() {
 	if ( Jetpack::is_active() ) {
-		register_widget( 'Internet_Defense_League_Widget' );
+		register_widget( 'Jetpack_Internet_Defense_League_Widget' );
 	}
 }
 
