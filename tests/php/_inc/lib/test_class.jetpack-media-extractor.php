@@ -121,7 +121,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 
 		$this->assertInternalType( 'array', $extract );
 		$this->assertArrayHasKey( 'embed', $extract );
-        $this->assertEquals( $extract[ 'embed' ][ 'url' ][ 0 ], $embed_link );
+		$this->assertEquals( $extract[ 'embed' ][ 'url' ][ 0 ], $embed_link );
 	}
 
 	/**
@@ -367,6 +367,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 			),
 			'has' => array(
 				'image' => 1,
+				'gallery' => 0,
 			)
 		);
 
