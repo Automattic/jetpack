@@ -106,7 +106,7 @@ class Jetpack_Beta_Admin {
 	}
 
 	static function admin_styles() {
-		wp_enqueue_style( 'jetpack-beta-admin', plugins_url( "admin/admin.css", JPBETA__PLUGIN_FILE ), array(), JPBETA_VERSION . '-' . time() );
+		wp_enqueue_style( 'jetpack-beta-admin', plugins_url( "admin/admin.css", JPBETA__PLUGIN_FILE ), array(), JPBETA_VERSION );
 	}
 
 	static function admin_scripts() {
