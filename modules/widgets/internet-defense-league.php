@@ -73,15 +73,16 @@ class Jetpack_Internet_Defense_League_Widget extends WP_Widget {
 			echo $args['before_widget'];
 			echo '<p><a href="https://internetdefenseleague.org/"><img src="' . $photon_badge_url . '" alt="Member of The Internet Defense League" style="max-width: 100%; height: auto;" /></a></p>';
 			echo $args['after_widget'];
-			do_action( 'jetpack_stats_extra', 'widget_view', 'internet_defense_league' );
 		}
 
 		if ( 'none' != $instance['campaign'] ) {
 			$this->campaign = $instance['campaign'];
 			$this->variant  = $instance['variant'];
 			add_action( 'wp_footer', array( $this, 'footer_script' ) );
-			do_action( 'jetpack_stats_extra', 'widget_view', 'internet_defense_league' );
 		}
+
+		/** This action is already documented in modules/widgets/gravatar-profile.php */
+		do_action( 'jetpack_stats_extra', 'widget_view', 'internet_defense_league' );
 	}
 
 	public function footer_script() {
