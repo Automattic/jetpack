@@ -18,6 +18,7 @@ function jetpack_content_options_customize_register( $wp_customize ) {
 	$categories         = ( ! empty( $post_details['categories'] ) ) ? $post_details['categories'] : null;
 	$tags               = ( ! empty( $post_details['tags'] ) ) ? $post_details['tags'] : null;
 	$author             = ( ! empty( $post_details['author'] ) ) ? $post_details['author'] : null;
+	$comment            = ( ! empty( $post_details['comment'] ) ) ? $post_details['comment'] : null;
 	$featured_images    = ( ! empty( $options[0]['featured-images'] ) ) ? $options[0]['featured-images'] : null;
 	$fi_archive         = ( ! empty( $featured_images['archive'] ) ) ? $featured_images['archive'] : null;
 	$fi_post            = ( ! empty( $featured_images['post'] ) ) ? $featured_images['post'] : null;
@@ -33,7 +34,8 @@ function jetpack_content_options_customize_register( $wp_customize ) {
 			&& ( empty( $date )
 				|| empty( $categories )
 				|| empty( $tags )
-				|| empty( $author ) ) )
+				|| empty( $author )
+				|| empty( $comment ) ) )
 		&& ( true !== $fi_archive && true !== $fi_post && true !== $fi_page ) ) {
 	    return;
 	}
@@ -124,7 +126,8 @@ function jetpack_content_options_customize_register( $wp_customize ) {
 		&& ( ! empty( $date )
 			|| ! empty( $categories )
 			|| ! empty( $tags )
-			|| ! empty( $author ) ) ) {
+			|| ! empty( $author )
+			|| ! empty( $comment ) ) ) {
 		$wp_customize->add_setting( 'jetpack_content_post_details_title' );
 
 		$wp_customize->add_control( new Jetpack_Customize_Control_Title( $wp_customize, 'jetpack_content_post_details_title', array(
@@ -193,6 +196,22 @@ function jetpack_content_options_customize_register( $wp_customize ) {
 			$wp_customize->add_control( 'jetpack_content_post_details_author', array(
 				'section'              => 'jetpack_content_options',
 				'label'                => esc_html__( 'Display author', 'jetpack' ),
+				'type'                 => 'checkbox',
+			) );
+		}
+
+		// Post Details: Comment link
+		if ( ! empty( $comment ) ) {
+			$wp_customize->add_setting( 'jetpack_content_post_details_comment', array(
+				'default'              => 1,
+				'type'                 => 'option',
+				'transport'            => 'postMessage',
+				'sanitize_callback'    => 'jetpack_content_options_sanitize_checkbox',
+			) );
+
+			$wp_customize->add_control( 'jetpack_content_post_details_comment', array(
+				'section'              => 'jetpack_content_options',
+				'label'                => esc_html__( 'Display comment link', 'jetpack' ),
 				'type'                 => 'checkbox',
 			) );
 		}
@@ -295,6 +314,7 @@ function jetpack_content_options_customize_preview_js() {
 	$categories   = ( ! empty( $post_details['categories'] ) ) ? $post_details['categories'] : null;
 	$tags         = ( ! empty( $post_details['tags'] ) ) ? $post_details['tags'] : null;
 	$author       = ( ! empty( $post_details['author'] ) ) ? $post_details['author'] : null;
+	$comment      = ( ! empty( $post_details['comment'] ) ) ? $post_details['comment'] : null;
 
 	wp_enqueue_script( 'jetpack-content-options-customizer', plugins_url( 'customizer.js', __FILE__ ), array( 'customize-preview' ), '1.0', true );
 
@@ -308,6 +328,7 @@ function jetpack_content_options_customize_preview_js() {
 		'categories' => $categories,
 		'tags'       => $tags,
 		'author'     => $author,
+		'comment'    => $comment,
 	) );
 }
 add_action( 'customize_preview_init', 'jetpack_content_options_customize_preview_js' );
