@@ -746,6 +746,9 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 						$atd_option = 'AtD_options';
 					}
 					$user_id                 = get_current_user_id();
+					if ( ! function_exists( 'AtD_get_options' ) ) {
+						@include( JETPACK__PLUGIN_DIR . 'modules/after-the-deadline.php' );
+					}
 					$grouped_options_current = AtD_get_options( $user_id, $atd_option );
 					unset( $grouped_options_current['name'] );
 					$grouped_options = $grouped_options_current;
