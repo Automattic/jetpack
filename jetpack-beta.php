@@ -637,6 +637,29 @@ class Jetpack_Beta {
 	}
 
 	static function install_and_activate( $branch, $section ) {
+
+		// Clean up previous version of the beta plugin
+		if ( file_exists( WP_PLUGIN_DIR . DIRECTORY_SEPARATOR . 'jetpack-pressable-beta' ) ) {
+			// Delete the jetpack dev plugin
+			$creds = request_filesystem_credentials( site_url() . '/wp-admin/', '', false, false, array() );
+			if ( ! WP_Filesystem( $creds ) ) {
+				/* any problems and we exit */
+				return;
+			}
+			global $wp_filesystem;
+			if ( ! $wp_filesystem ) {
+				return;
+			}
+
+			$working_dir = WP_PLUGIN_DIR . DIRECTORY_SEPARATOR . 'jetpack-pressable-beta';
+			// delete the folder JETPACK_BETA_PLUGIN_FOLDER
+			if ( $wp_filesystem->is_dir( $working_dir ) ) {
+				$wp_filesystem->delete( $working_dir, true );
+			}
+			// Deactivate the plugin 
+			self::replace_active_plugin( 'jetpack-pressable-beta/jetpack.php' );
+		}
+
 		if ( 'stable' === $section &&
 		     file_exists( WP_PLUGIN_DIR . DIRECTORY_SEPARATOR . JETPACK_PLUGIN_FILE ) ) {
 			self::replace_active_plugin( JETPACK_DEV_PLUGIN_FILE, JETPACK_PLUGIN_FILE, true );
@@ -759,7 +782,7 @@ class Jetpack_Beta {
 		return false;
 	}
 
-	static function replace_active_plugin( $current_plugin, $replace_with_plugin, $force_activate = false ) {
+	static function replace_active_plugin( $current_plugin, $replace_with_plugin = null, $force_activate = false ) {
 		if ( self::is_network_active() ) {
 			$new_active_plugins = array();
 			$network_active_plugins = get_site_option( 'active_sitewide_plugins' );
@@ -774,8 +797,12 @@ class Jetpack_Beta {
 		$active_plugins     = (array) get_option( 'active_plugins', array() );
 		$new_active_plugins = array();
 
-		foreach ( $active_plugins as $plugin ) {
-			$new_active_plugins[] = ( $plugin === $current_plugin ? $replace_with_plugin : $plugin );
+		if ( empty( $replace_with_plugin ) ) {
+			$new_active_plugins = array_diff( $active_plugins, array( $current_plugin ) );
+		} else {
+			foreach ( $active_plugins as $plugin ) {
+				$new_active_plugins[] = ( $plugin === $current_plugin ? $replace_with_plugin : $plugin );
+			}
 		}
 
 		if ( $force_activate && ! in_array( $replace_with_plugin, $new_active_plugins ) ) {
