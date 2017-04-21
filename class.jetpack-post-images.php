@@ -109,10 +109,16 @@ class Jetpack_PostImages {
 		 *  See core ticket:
 		 *  https://core.trac.wordpress.org/ticket/39304
 		 */
-		$juggle_post = $GLOBALS['post'];
-		$GLOBALS['post'] = $post;
-		$galleries = get_post_galleries( $post->ID, false );
-		$GLOBALS['post'] = $juggle_post;
+		if ( isset( $GLOBALS['post'] ) ) {
+			$juggle_post = $GLOBALS['post'];
+			$GLOBALS['post'] = $post;
+			$galleries = get_post_galleries( $post->ID, false );
+			$GLOBALS['post'] = $juggle_post;
+		} else {
+			$GLOBALS['post'] = $post;
+			$galleries = get_post_galleries( $post->ID, false );
+			unset( $GLOBALS['post'] );
+		}
 
 		foreach ( $galleries as $gallery ) {
 			if ( isset( $gallery['type'] ) && 'slideshow' === $gallery['type'] && ! empty( $gallery['ids'] ) ) {
