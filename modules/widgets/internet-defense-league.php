@@ -68,8 +68,10 @@ class Jetpack_Internet_Defense_League_Widget extends WP_Widget {
 			if ( ! isset( $this->badges[ $instance['badge'] ] ) ) {
 				$instance['badge'] = $this->defaults['badge'];
 			}
+			$badge_url = esc_url( 'https://internetdefenseleague.org/images/badges/final/' . $instance['badge'] . '.png' );
+			$photon_badge_url = jetpack_photon_url( $badge_url );
 			echo $args['before_widget'];
-			echo '<p><a href="https://internetdefenseleague.org/"><img src="' . esc_url( 'https://internetdefenseleague.org/images/badges/final/' . $instance['badge'] . '.png' ) . '" alt="Member of The Internet Defense League" style="max-width: 100%; height: auto;" /></a></p>';
+			echo '<p><a href="https://internetdefenseleague.org/"><img src="' . $photon_badge_url . '" alt="Member of The Internet Defense League" style="max-width: 100%; height: auto;" /></a></p>';
 			echo $args['after_widget'];
 			do_action( 'jetpack_stats_extra', 'widget_view', 'internet_defense_league' );
 		}
