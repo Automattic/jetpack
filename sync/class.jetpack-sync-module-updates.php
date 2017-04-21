@@ -35,8 +35,8 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 	}
 
 	public function init_before_send() {
-		// full sync
 		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_updates', array( $this, 'expand_updates' ) );
+		add_filter( 'jetpack_sync_before_send_jetpack_update_themes_change', array( $this, 'expand_themes' ) );
 	}
 
 	public function get_update_checksum( $value ) {
@@ -124,6 +124,14 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 			return $this->get_all_updates();
 		}
 
+		return $args;
+	}
+
+	public function expand_themes( $args ) {
+		foreach ( $args[0]->response as $stylesheet => &$theme_data ) {
+			$theme = wp_get_theme( $stylesheet );
+			$theme_data['name'] = $theme->name;
+		}
 		return $args;
 	}
 }
