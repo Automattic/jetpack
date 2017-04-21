@@ -68,30 +68,32 @@ function jetpack_require_lib_dir() {
 add_filter( 'jetpack_require_lib_dir', 'jetpack_require_lib_dir' );
 
 // @todo: Abstract out the admin functions, and only include them if is_admin()
-require_once( JETPACK__PLUGIN_DIR . 'class.jetpack.php'               );
-require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-network.php'       );
-require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-client.php'        );
-require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-data.php'          );
-require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-client-server.php' );
+require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-feature-rollout.php'   );
+require_once( JETPACK__PLUGIN_DIR . 'class.jetpack.php'                   );
+require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-network.php'           );
+require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-client.php'            );
+require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-data.php'              );
+require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-client-server.php'     );
 require_once( JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-actions.php' );
-require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-options.php'       );
-require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-user-agent.php'    );
-require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-post-images.php'   );
-require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-error.php'         );
-require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-heartbeat.php'     );
-require_once( JETPACK__PLUGIN_DIR . 'class.photon.php'                );
-require_once( JETPACK__PLUGIN_DIR . 'functions.photon.php'            );
-require_once( JETPACK__PLUGIN_DIR . 'functions.global.php'            );
-require_once( JETPACK__PLUGIN_DIR . 'functions.compat.php'            );
-require_once( JETPACK__PLUGIN_DIR . 'functions.gallery.php'           );
-require_once( JETPACK__PLUGIN_DIR . 'require-lib.php'                 );
-require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-autoupdate.php'    );
-require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-tracks.php'        );
-require_once( JETPACK__PLUGIN_DIR . 'class.frame-nonce-preview.php'   );
-require_once( JETPACK__PLUGIN_DIR . 'modules/module-headings.php');
-require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-constants.php');
-require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-idc.php'  );
-require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-connection-banner.php'  );
+require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-options.php'           );
+require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-user-agent.php'        );
+require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-post-images.php'       );
+require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-error.php'             );
+require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-heartbeat.php'         );
+require_once( JETPACK__PLUGIN_DIR . 'class.photon.php'                    );
+require_once( JETPACK__PLUGIN_DIR . 'functions.photon.php'                );
+require_once( JETPACK__PLUGIN_DIR . 'functions.global.php'                );
+require_once( JETPACK__PLUGIN_DIR . 'functions.compat.php'                );
+require_once( JETPACK__PLUGIN_DIR . 'functions.gallery.php'               );
+require_once( JETPACK__PLUGIN_DIR . 'require-lib.php'                     );
+require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-autoupdate.php'        );
+require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-tracks.php'            );
+require_once( JETPACK__PLUGIN_DIR . 'class.frame-nonce-preview.php'       );
+require_once( JETPACK__PLUGIN_DIR . 'modules/module-headings.php'         );
+require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-constants.php'         );
+require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-idc.php'               );
+require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-connection-banner.php' );
+require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-feature-rollout.php'   );
 
 if ( is_admin() ) {
 	require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-admin.php'     );

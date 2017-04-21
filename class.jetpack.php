@@ -5631,26 +5631,10 @@ p {
 	public static function validate_sync_error_idc_option() {
 		$is_valid = false;
 
-		$idc_allowed = get_transient( 'jetpack_idc_allowed' );
-		if ( false === $idc_allowed ) {
-			$response = wp_remote_get( 'https://jetpack.com/is-idc-allowed/' );
-			if ( 200 === (int) wp_remote_retrieve_response_code( $response ) ) {
-				$json = json_decode( wp_remote_retrieve_body( $response ) );
-				$idc_allowed = isset( $json, $json->result ) && $json->result ? '1' : '0';
-				$transient_duration = HOUR_IN_SECONDS;
-			} else {
-				// If the request failed for some reason, then assume IDC is allowed and set shorter transient.
-				$idc_allowed = '1';
-				$transient_duration = 5 * MINUTE_IN_SECONDS;
-			}
-
-			set_transient( 'jetpack_idc_allowed', $idc_allowed, $transient_duration );
-		}
-
 		// Is the site opted in and does the stored sync_error_idc option match what we now generate?
 		$sync_error = Jetpack_Options::get_option( 'sync_error_idc' );
 		$local_options = self::get_sync_error_idc_option();
-		if ( $idc_allowed && $sync_error && self::sync_idc_optin() ) {
+		if ( $sync_error && self::sync_idc_optin() ) {
 			if ( $sync_error['home'] === $local_options['home'] && $sync_error['siteurl'] === $local_options['siteurl'] ) {
 				$is_valid = true;
 			}
@@ -5665,7 +5649,7 @@ p {
 		 */
 		$is_valid = (bool) apply_filters( 'jetpack_sync_error_idc_validation', $is_valid );
 
-		if ( ! $idc_allowed || ( ! $is_valid && $sync_error ) ) {
+		if ( ! $is_valid && $sync_error ) {
 			// Since the option exists, and did not validate, delete it
 			Jetpack_Options::delete_option( 'sync_error_idc' );
 		}
@@ -5735,10 +5719,13 @@ p {
 	 * @return bool
 	 */
 	public static function sync_idc_optin() {
-		if ( Jetpack_Constants::is_defined( 'JETPACK_SYNC_IDC_OPTIN' ) ) {
-			$default = Jetpack_Constants::get_constant( 'JETPACK_SYNC_IDC_OPTIN' );
-		} else {
-			$default = ! Jetpack_Constants::is_defined( 'SUNRISE' ) && ! is_multisite();
+		$default = false;
+		if ( Jetpack_Feature_Rollout::init()->is_enabled( 'idc' ) ) {
+			if ( Jetpack_Constants::is_defined( 'JETPACK_SYNC_IDC_OPTIN' ) ) {
+				$default = Jetpack_Constants::get_constant( 'JETPACK_SYNC_IDC_OPTIN' );
+			} else {
+				$default = ! Jetpack_Constants::is_defined( 'SUNRISE' ) && ! is_multisite();
+			}
 		}
 
 		/**
