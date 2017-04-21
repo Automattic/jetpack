@@ -7,6 +7,15 @@
  * @package wordpress-plugin-tests
  */
 
+/**
+ * For tests that should be skipped in Jetpack but run in WPCOM (or vice versa), test against this constant.
+ *
+ *	if ( defined( 'TESTING_IN_JETPACK' ) && TESTING_IN_JETPACK ) {
+ *		self::markTestSkipped( 'This test only runs on WPCOM' );
+ *	}
+ */
+define( 'TESTING_IN_JETPACK', true );
+
 // Support for:
 // 1. `WP_DEVELOP_DIR` environment variable
 // 2. Plugin installed inside of WordPress.org developer checkout
