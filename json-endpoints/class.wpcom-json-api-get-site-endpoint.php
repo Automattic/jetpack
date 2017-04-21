@@ -108,7 +108,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 	protected static $jetpack_response_option_additions = array(
 		'publicize_permanently_disabled',
-		'ak_vp_bundle_enabled'
+		'ak_vp_bundle_enabled',
 		'is_automated_transfer',
 		'frame_nonce'
 	);
@@ -217,6 +217,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 		foreach ( $response_keys as $key ) {
 			$this->render_response_key( $key, $response, $is_user_logged_in );
+		}
 
 		$this->site->after_render( $response );
 
