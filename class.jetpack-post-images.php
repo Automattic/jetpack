@@ -109,10 +109,16 @@ class Jetpack_PostImages {
 		 *  See core ticket:
 		 *  https://core.trac.wordpress.org/ticket/39304
 		 */
-		$juggle_post = $GLOBALS['post'];
-		$GLOBALS['post'] = $post;
-		$galleries = get_post_galleries( $post->ID, false );
-		$GLOBALS['post'] = $juggle_post;
+		if ( isset( $GLOBALS['post'] ) ) {
+			$juggle_post = $GLOBALS['post'];
+			$GLOBALS['post'] = $post;
+			$galleries = get_post_galleries( $post->ID, false );
+			$GLOBALS['post'] = $juggle_post;
+		} else {
+			$GLOBALS['post'] = $post;
+			$galleries = get_post_galleries( $post->ID, false );
+			unset( $GLOBALS['post'] );
+		}
 
 		foreach ( $galleries as $gallery ) {
 			if ( isset( $gallery['type'] ) && 'slideshow' === $gallery['type'] && ! empty( $gallery['ids'] ) ) {
@@ -246,7 +252,6 @@ class Jetpack_PostImages {
 
 		if ( $thumb ) {
 			$meta = wp_get_attachment_metadata( $thumb );
-
 			// Must be larger than requested minimums
 			if ( !isset( $meta['width'] ) || $meta['width'] < $width )
 				return $images;
@@ -259,16 +264,21 @@ class Jetpack_PostImages {
 				$too_big &&
 				(
 					( method_exists( 'Jetpack', 'is_module_active' ) && Jetpack::is_module_active( 'photon' ) ) ||
-					( defined( 'WPCOM' ) && IS_WPCOM )
+					( defined( 'IS_WPCOM' ) && IS_WPCOM )
 				)
 			) {
 				$img_src = wp_get_attachment_image_src( $thumb, array( 1200, 1200 ) );
 			} else {
 				$img_src = wp_get_attachment_image_src( $thumb, 'full' );
 			}
+			if ( ! is_array( $img_src ) ) {
+				// If wp_get_attachment_image_src returns false but we know that there should be an image that could be used.
+				// we try a bit harder and user the data that we have.
+				$thumb_post_data = get_post( $thumb );
+				$img_src = array( $thumb_post_data->guid, $meta['width'], $meta['height'] );
+			}
 
 			$url = $img_src[0];
-
 			$images = array( array( // Other methods below all return an array of arrays
 				'type'       => 'image',
 				'from'       => 'thumbnail',
@@ -277,6 +287,7 @@ class Jetpack_PostImages {
 				'src_height' => $img_src[2],
 				'href'       => get_permalink( $thumb ),
 			) );
+
 		}
 
 		if ( empty( $images ) && ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ) {
@@ -537,7 +548,7 @@ class Jetpack_PostImages {
 
 	/**
 	 * Takes an image URL and pixel dimensions then returns a URL for the
-	 * resized and croped image.
+	 * resized and cropped image.
 	 *
 	 * @param  string $src
 	 * @param  int    $dimension
@@ -547,7 +558,6 @@ class Jetpack_PostImages {
 		$width = (int) $width;
 		$height = (int) $height;
 
-		// Umm...
 		if ( $width < 1 || $height < 1 ) {
 			return $src;
 		}
@@ -569,14 +579,14 @@ class Jetpack_PostImages {
 		// If WPCOM hosted image use native transformations
 		$img_host = parse_url( $src, PHP_URL_HOST );
 		if ( '.files.wordpress.com' == substr( $img_host, -20 ) ) {
-			return add_query_arg( array( 'w' => $width, 'h' => $height, 'crop' => 1 ), $src );
+			return add_query_arg( array( 'w' => $width, 'h' => $height, 'crop' => 1 ), set_url_scheme( $src ) );
 		}
 
 		// Use Photon magic
 		if( function_exists( 'jetpack_photon_url' ) ) {
 			return jetpack_photon_url( $src, array( 'resize' => "$width,$height" ) );
 		}
-
+		
 		// Arg... no way to resize image using WordPress.com infrastructure!
 		return $src;
 	}
