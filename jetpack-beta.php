@@ -35,9 +35,10 @@ if ( ! defined( 'ABSPATH' ) ) {
  * Jetpack beta manages files inside jetpack-dev folder this folder should contain
  *
  */
-define( 'JPBETA__PLUGIN_FOLDER', plugins_url() . '/jetpack-beta-master/' );
+define( 'JPBETA__PLUGIN_FOLDER', plugin_dir_url( __FILE__ ) );
 define( 'JPBETA__PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'JPBETA__PLUGIN_FILE', __FILE__ );
+define( 'JPBETA__PLUGIN_BASENAME', dirname( plugin_basename( __FILE__ ) ) );
 define( 'JPBETA_VERSION', 2 );
 
 define( 'JPBETA_DEFAULT_BRANCH', 'rc_only' );

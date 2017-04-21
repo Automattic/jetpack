@@ -26,9 +26,9 @@ class Jetpack_Beta_Autoupdate_Self {
 		}
 
 		$this->config = array(
-			'plugin_file'        => 'jetpack-beta-master/jetpack-beta.php',
-			'slug'               => 'jetpack-beta-master',
-			'proper_folder_name' => 'jetpack-beta-master',
+			'plugin_file'        => JPBETA__PLUGIN_BASENAME . '/jetpack-beta.php',
+			'slug'               => JPBETA__PLUGIN_BASENAME,
+			'proper_folder_name' => JPBETA__PLUGIN_BASENAME,
 			'api_url'            => 'https://api.github.com/repos/Automattic/jetpack-beta',
 			'github_url'         => 'https://github.com/Automattic/jetpack-beta',
 			'requires'           => '4.7',
