@@ -48,8 +48,11 @@ class Jetpack_Internet_Defense_League_Widget extends WP_Widget {
 			'shield_badge'   => __( 'Shield Badge', 'jetpack' ),
 			'super_badge'    => __( 'Super Badge', 'jetpack' ),
 			'side_bar_badge' => __( 'Red Cat Badge', 'jetpack' ),
-			'none'           => __( 'Don\'t display a badge (just the campaign)', 'jetpack' ),
 		);
+
+		if ( $this->no_current === false ) {
+			$this->badges[ 'none' ] = __( 'Don\'t display a badge (just the campaign)', 'jetpack' );
+		}
 
 		$this->defaults = array(
 			'campaign' => key( $this->campaigns ),
