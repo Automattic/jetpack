@@ -397,9 +397,14 @@ class Jetpack_Beta {
 	 */
 	public function upgrader_post_install( $worked, $hook_extras, $result ) {
 		global $wp_filesystem;
-		if ( $hook_extras['plugin'] !== JETPACK_DEV_PLUGIN_FILE ) {
+
+		if (
+			! isset( $hook_extras['plugin'] )
+			|| JETPACK_DEV_PLUGIN_FILE !== $hook_extras['plugin']
+		) {
 			return $worked;
 		}
+
 		if ( $wp_filesystem->move( $result['destination'], WP_PLUGIN_DIR . DIRECTORY_SEPARATOR . JETPACK_DEV_PLUGIN_SLUG , true ) ) {
 			return $worked;
 		} else {
