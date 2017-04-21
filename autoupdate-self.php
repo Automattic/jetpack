@@ -26,9 +26,9 @@ class Jetpack_Beta_Autoupdate_Self {
 		}
 
 		$this->config = array(
-			'plugin_file'        => 'jetpack-beta/jetpack-beta.php',
-			'slug'               => 'jetpack-beta',
-			'proper_folder_name' => 'jetpack-beta',
+			'plugin_file'        => 'jetpack-beta-master/jetpack-beta.php',
+			'slug'               => 'jetpack-beta-master',
+			'proper_folder_name' => 'jetpack-beta-master',
 			'api_url'            => 'https://api.github.com/repos/Automattic/jetpack-beta',
 			'github_url'         => 'https://github.com/Automattic/jetpack-beta',
 			'requires'           => '4.7',
@@ -180,7 +180,7 @@ class Jetpack_Beta_Autoupdate_Self {
 		}
 		return $source;
 	}
-	
+
 	public function auto_update_jetpack_beta( $update, $item ) {
 		if ( 'sure' !== get_option( 'jp_beta_autoupdate') ) {
 			return $update;
