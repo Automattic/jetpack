@@ -92,3 +92,14 @@
 	opacity: 0;
 }
 
+
+/* =Square Layout
+-------------------------------------------------------------- */
+
+.gallery-row.gallery-singleton-row,
+.gallery-row.gallery-singleton-row .gallery-group,
+.tiled-gallery.type-square .gallery-row.gallery-singleton-row:first-child .gallery-group .tiled-gallery-item img {
+	/* Do not vertically stretch an image if it's the only one in the row. */
+	height: auto !important;
+}
+
