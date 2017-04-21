@@ -36,10 +36,9 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 		wp_update_themes();
 		$this->sender->do_sync();
 		$updates = $this->server_replica_storage->get_updates( 'themes' );
-
-		if ( isset( $updates->response['default'] ) ) { //Account for 'default' theme not existing on stable minus one Travis environment
-			$this->assertEquals('WordPress Default', $updates->response['default']['name']);
-		}
+		$theme = reset( $updates->response );
+		
+		$this->assertTrue( (bool) $theme['name'] );
 		$this->assertTrue( is_int( $updates->last_checked ) );
 	}
 
