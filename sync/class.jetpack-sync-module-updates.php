@@ -35,9 +35,7 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 	}
 
 	public function init_before_send() {
-		// full sync
 		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_updates', array( $this, 'expand_updates' ) );
-
 		add_filter( 'jetpack_sync_before_send_jetpack_update_themes_change', array( $this, 'expand_themes' ) );
 	}
 
