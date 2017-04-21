@@ -6,11 +6,7 @@
  * Example: [twitter-timeline id="297487559557251073" username="wordpressdotcom"]
  *
  * Expected shortcode output:
- * <a class="twitter-timeline" width="450" height="282" href="https://twitter.com/wordpressdotcom/" data-widget-id="297487559557251073">Tweets by @wordpressdotcom</a>
- *
- * @param
- *
- * @return
+ * <a class="twitter-timeline" data-partner="jetpack" data-width="100" data-height="100" data-widget-id="297487559557251073" href="https://twitter.com/wordpressdotcom">Tweets by @wordpressdotcom</a>
  */
 class WP_Test_Jetpack_Shortcodes_TwitterTimeline extends WP_UnitTestCase {
 
