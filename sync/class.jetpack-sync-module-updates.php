@@ -130,6 +130,11 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 	}
 
 	public function expand_themes( $args ) {
-		error_log(print_r($args, true));
+		foreach ( $args[0]->response as $stylesheet => &$theme_data ) {
+			$theme = wp_get_theme( $stylesheet );
+			$theme_data['name'] = $theme->name;
+
+		}
+		return $args;
 	}
 }
