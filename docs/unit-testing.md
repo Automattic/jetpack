@@ -1,12 +1,22 @@
 Jetpack includes several [unit tests](https://github.com/Automattic/jetpack/tree/master/tests) that you can run in your
- local environment before to submit a new Pull Request.
+ local environment before you submit a new Pull Request.
 
 ## Prerequisites
 
 To get started, you can follow the instructions [here](https://phpunit.de/getting-started.html) to install PHPUnit on 
-your machine. Once you've done so, you can get the WordPress testing codebase like so:
+your machine.
 
 You'll also need to install a mySQL server, to run the tests.
+
+We've included two styles to run unit tests here, depending on whichever you feel most comfortable with. Whichever you
+choose, the end result will be the same. 
+
+Option #1: putting everything inside the Jetpack repo you've already cloned.
+This option is probably the best option if you already cloned the repo and you just want to test that your changes didn't
+break anything.
+ 
+Option #2: clone the repo inside a WordPress svn checkout. This option is the simplest. It's the best if you don't already
+have any work in progress or are just starting out.
 
 # Option 1: Everything inside Jetpack folder
 
