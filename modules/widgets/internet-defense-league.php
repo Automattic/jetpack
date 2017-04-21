@@ -86,11 +86,13 @@ class Jetpack_Internet_Defense_League_Widget extends WP_Widget {
 	}
 
 	public function footer_script() {
-		if ( ! isset( $this->campaigns[ $this->campaign ] ) )
+		if ( ! isset( $this->campaigns[ $this->campaign ] ) ) {
 			$this->campaign = $this->defaults['campaign'];
+		}
 
-		if ( ! isset( $this->variants[ $this->variant ] ) )
+		if ( ! isset( $this->variants[ $this->variant ] ) ) {
 			$this->variant = $this->defaults['variant'];
+		}
 		?>
 		<script type="text/javascript">
 			window._idl = {};
