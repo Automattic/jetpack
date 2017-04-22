@@ -1,5 +1,4 @@
 <?php
-
 class WPCOM_JSON_API_Update_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 	function callback( $path = '', $blog_id = 0, $user_id = 0 ) {
