@@ -12,7 +12,9 @@ if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 	$sync_dir = dirname( __FILE__ ) . '/../../../sync/';	
 }
 
+
 require_once $sync_dir . 'class.jetpack-sync-json-deflate-array-codec.php';
+require_once $sync_dir . 'class.jetpack-sync-json-deflate-codec.php';
 
 class WP_Test_iJetpack_Sync_Codec extends PHPUnit_Framework_TestCase {
 	
@@ -77,6 +79,42 @@ class WP_Test_iJetpack_Sync_Codec extends PHPUnit_Framework_TestCase {
 
 		$this->assertEquals( $copy_of_object, $object );
 		$this->assertEquals( $copy_of_object, $decoded_object );
+	}
+
+	/**
+	 * @dataProvider codec_provider
+	 * @requires PHP 5.3
+	 */
+	public function test_codec_doesnt_introduce_large_memory_overhead( $codec ) {
+		error_log(get_class($codec));
+		$large_object = array();
+
+		foreach( range( 1, 1000 ) as $i ) {
+			$large_object["entry_$i"] = $this->long_random_string( 100 );
+		}
+
+		$before_mem = memory_get_usage();
+		// $before_peak = memory_get_peak_usage();
+
+		$response = $codec->encode( $large_object );
+
+		$after_mem = memory_get_usage();
+		$after_peak = memory_get_peak_usage();
+
+		error_log("Memory added: ".($after_mem-$before_mem));
+		error_log("Peak: $after_peak");
+	}
+
+	private function long_random_string( $length ) {
+		// we generate a random string so it's hard to compress (i.e. doesn't shrink when gzencoded)
+		$characters       = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+		$charactersLength = strlen( $characters );
+		$randomString     = '';
+		for ( $i = 0; $i < $length; $i ++ ) {
+			$randomString .= $characters[ rand( 0, $charactersLength - 1 ) ];
+		}
+
+		return $randomString;
 	}
 
 	public function codec_provider( $name ) {
