@@ -139,9 +139,11 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 				$response[$key] = (string) home_url();
 				break;
 			case 'locale_variant':
-				$blog_locale_variant = wpcom_l10n_get_blog_locale_variant();
-				if ( $blog_locale_variant ) {
-					$response[$key] = $blog_locale_variant;
+				if ( function_exists( 'wpcom_l10n_get_blog_locale_variant' ) ) {
+					$blog_locale_variant = wpcom_l10n_get_blog_locale_variant();
+					if ( $blog_locale_variant ) {
+						$response[$key] = $blog_locale_variant;
+					}
 				}
 				break;
 			case 'settings':
