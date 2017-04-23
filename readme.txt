@@ -112,6 +112,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Slightly Less Exciting Enhancements**
 
+* General: remove unused code from old "My Jetpack" interface. #6856
 * Sync: record comment content modifications to make sure comments are always up to date on WordPress.com. #6929
 * WordPess.com REST API: Allow HTTP `PUT` requests sent from Jetpack to WordPress.com. #6853
 
