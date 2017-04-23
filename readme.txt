@@ -115,6 +115,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * General: remove unused code from old "My Jetpack" interface. #6856
 * Sync: record comment content modifications to make sure comments are always up to date on WordPress.com. #6929
 * Sync: add a way to distinguish between an added and an updated attachment. #6884
+* Sync: track when posts are deleted. #6885
 * WordPess.com REST API: Allow HTTP `PUT` requests sent from Jetpack to WordPress.com. #6853
 
 **Performance Improvements**
