@@ -82,7 +82,7 @@ function wpcache_do_rebuild( $dir ) {
 	if ( isset( $do_rebuild_list[ $dir ] ) )
 		return false;
 
-	$protected = array( $cache_path, $cache_path . "blogs/", get_supercache_dir() );
+	$protected = array( $cache_path, $cache_path . "blogs/", $cache_path . 'supercache' );
 	foreach( $protected as $id => $directory ) {
 		$protected[ $id ] = trailingslashit( realpath( $directory ) );
 	}
@@ -871,7 +871,7 @@ function wp_cache_rebuild_or_delete( $file ) {
 	}
 
 	if ( $protected == '' ) {
-		$protected = array( $cache_path . "index.html", get_supercache_dir() . "index.html", $cache_path . "blogs/index.html" );
+		$protected = array( $cache_path . "index.html", $cache_path . "supercache/index.html", $cache_path . "blogs/index.html" );
 		foreach( $protected as $id => $directory ) {
 			$protected[ $id ] = trailingslashit( realpath( $directory ) );
 		}
