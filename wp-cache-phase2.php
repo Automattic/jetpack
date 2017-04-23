@@ -761,9 +761,14 @@ function prune_super_cache( $directory, $force = false, $rename = false ) {
 		$rp_cache_path = trailingslashit( realpath( $cache_path ) );
 	}
 
-	$directory = trailingslashit( realpath( $directory ) );
+	$dir = $directory;
+	$directory = realpath( $directory );
+	if ( $directory == '' ) {
+		wp_cache_debug( "prune_super_cache: exiting as file/directory does not exist : $dir" );
+		return false;
+	}
 	if ( substr( $directory, 0, strlen( $rp_cache_path ) ) != $rp_cache_path ) {
-		wp_cache_debug( "prune_super_cache: exiting as directory is not in cache path: $directory" );
+		wp_cache_debug( "prune_super_cache: exiting as directory is not in cache path: *$directory* (was $dir before realpath)" );
 		return false;
 	}
 
