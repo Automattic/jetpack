@@ -122,6 +122,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Compatibility Improvements**
 
+* Plugin Compatibility: do not auto-activate Jetpack's Contact Form module when Ninja Forms is active. #6857
+
 **Bug Fixes**
 
 
