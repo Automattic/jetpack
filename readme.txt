@@ -115,6 +115,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Admin Page: automatically dismiss success notices once an action is completed. #6898
 * General: remove unused code from old "My Jetpack" interface. #6856
 * Internationalization: update the list of locales available in Jetpack. #6965
+* Manage: only trigger plugin auto-updates from WordPress.com. #7015
 * Sync: record comment content modifications and moderation events to make sure comments are always up to date on WordPress.com. #6929, #6899
 * Sync: add a way to distinguish between an added and an updated attachment. #6884
 * Sync: track when posts are deleted. #6885
