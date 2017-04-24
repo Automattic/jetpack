@@ -131,6 +131,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Bug Fixes**
 
 * Admin Page: change wording on Post By Email button when no email address was generated yet. #6894
+* Tiled Galleries: make sure images are not distorted when using the Photon service. #6900
+* Theme Tools: allow removing connections from The Social Links feature. #6900
 
 = 4.8.2 =
 
