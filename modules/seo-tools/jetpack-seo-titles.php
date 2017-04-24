@@ -246,7 +246,7 @@ class Jetpack_SEO_Titles {
 				return false;
 			}
 
-			if ( $format_array === "" ) {
+			if ( '' === $format_array ) {
 				continue;
 			}
 			
