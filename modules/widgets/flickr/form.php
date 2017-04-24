@@ -23,13 +23,13 @@
 </p>
 <p>
 	<small>
-		<?php esc_html_e( 'To find your Flickr RSS feed, go to your photostream, open the "More" menu and click on "Edit". Scroll down until you see the RSS icon or the Latest link. Right click on either and copy the URL. Paste into the box above.', 'jetpack' ); ?>
+		<?php esc_html_e( 'To find your Flickr RSS URL, go to your photostream, open the "More" menu and click on "Edit". Scroll down until you see the RSS icon or the "Latest" link. Right click on either and copy the URL. Paste into the box above.', 'jetpack' ); ?>
 	</small>
 </p>
 <p>
 	<small>
 		<?php printf(
-			__( 'Leave the Flickr RSS URL blank to display <a href="%s">interesting</a> Flickr photos.', 'jetpack' ),
+			__( 'Leave the Flickr RSS URL field blank to display <a href="%s">interesting</a> Flickr photos.', 'jetpack' ),
 			'http://www.flickr.com/explore/interesting'
 		); ?>
 	</small>
