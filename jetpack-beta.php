@@ -35,7 +35,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  * How this plugin works.
  * Jetpack beta manages files inside jetpack-dev folder this folder should contain
  */
-define( 'JPBETA__PLUGIN_FOLDER',  basename( __DIR__ ) );
+define( 'JPBETA__PLUGIN_FOLDER',  basename( dirname( __FILE__ ) ) );
 define( 'JPBETA__PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 define( 'JPBETA__PLUGIN_FILE', __FILE__ );
 define( 'JPBETA_VERSION', 2 );
