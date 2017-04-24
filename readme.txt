@@ -112,6 +112,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Slightly Less Exciting Enhancements**
 
+* Admin Page: automatically dismiss success notices once an action is completed. #6898
 * General: remove unused code from old "My Jetpack" interface. #6856
 * Sync: record comment content modifications to make sure comments are always up to date on WordPress.com. #6929
 * Sync: add a way to distinguish between an added and an updated attachment. #6884
