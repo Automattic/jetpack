@@ -141,6 +141,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Admin Page: change wording on Post By Email button when no email address was generated yet. #6894
 * Admin Page: make sure VaultPress notices are displayed properly in the Jetpack dashboard. #6963
+* Admin Page: fix issue where VideoPress wasn't in the results when searching for video. #6998
 * Publicize: make sure the Featured Image is always used in tweets posted via Publicize. #6965
 * Tiled Galleries: make sure images are not distorted when using the Photon service. #6900
 * Theme Tools: allow removing connections from The Social Links feature. #6900
