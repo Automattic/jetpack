@@ -4,7 +4,18 @@
 
 ### Widgets
 
-This release introduces a brand new widget, allowing you to display a EU Cookie Law Banner on your site. To give the widget a try, go to Appearance > Customize > Widgets in your dashboard:
+This release introduces 2 new widgets:
+
+#### Flickr
+
+The Flickr widget will display pictures from your own Flickr account, or will display random interesting pictures from Flickr. To test it, go to Appearance > Customize > Widgets in your dashboard:
+
+1. Add the widget to a sidebar and check if the widget shows up.
+2. Check if the photos are retrieved from the correct RSS feed.
+
+#### EU Cookie Law Banner
+
+This new widget allows you to display a EU Cookie Law Banner on your site. To give the widget a try, go to Appearance > Customize > Widgets in your dashboard:
 
 1. Add the widget to a sidebar and check if the banner shows up near the bottom of the window.
 2. Check if, when closed with the selected method, it actually stays closed.
