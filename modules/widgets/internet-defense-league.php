@@ -1,13 +1,4 @@
-<?php /*
-
-**************************************************************************
-
-Plugin Name:  Internet Defense League
-Description:  Displays your support for the Internet Defense League.
-Author:       Automattic Inc.
-Author URI:   https://automattic.com/
-
-**************************************************************************/
+<?php
 
 class Jetpack_Internet_Defense_League_Widget extends WP_Widget {
 
@@ -27,7 +18,7 @@ class Jetpack_Internet_Defense_League_Widget extends WP_Widget {
 		parent::__construct(
 			'internet_defense_league_widget',
 			/** This filter is documented in modules/widgets/facebook-likebox.php */
-			apply_filters( 'jetpack_widget_name_widget', esc_html__( 'Internet Defense League', 'jetpack' ) ),
+			apply_filters( 'jetpack_widget_name', esc_html__( 'Internet Defense League', 'jetpack' ) ),
 			array(
 				'description' => __( 'Show your support for the Internet Defense League.', 'jetpack' ),
 				'customize_selective_refresh' => true,
@@ -52,7 +43,7 @@ class Jetpack_Internet_Defense_League_Widget extends WP_Widget {
 		);
 
 		if ( $this->no_current === false ) {
-			$this->badges[ 'none' ] = __( 'Don\'t display a badge (just the campaign)', 'jetpack' );
+			$this->badges['none'] = __( 'Don\'t display a badge (just the campaign)', 'jetpack' );
 		}
 
 		$this->defaults = array(
