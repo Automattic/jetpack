@@ -189,7 +189,7 @@
 
 <p class="small">
 	<?php esc_html_e( 'It is your own responsibility to ensure that your site complies with the relevant laws.', 'jetpack' ); ?>
-	<a href="http://jetpack.com/support/eu-cookie-law-widget/">
+	<a href="https://jetpack.com/support/eu-cookie-law-widget/">
 		<?php esc_html_e( 'Click here for more information', 'jetpack' ); ?>
 	</a>
 </p>
