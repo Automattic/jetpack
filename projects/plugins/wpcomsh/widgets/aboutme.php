@@ -169,7 +169,7 @@ function aboutme_widget_init() {
 	// [DEPRECATION]: Only register widget if active widget exists already
 	$has_widget = is_active_widget( false, false, 'aboutme_widget', false );
 	if ( false === $has_widget ) {
-		// return;
+		return;
 	}
 
 	register_widget( 'Aboutme_Widget' );
