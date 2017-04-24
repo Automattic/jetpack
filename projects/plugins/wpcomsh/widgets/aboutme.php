@@ -1,6 +1,8 @@
 <?php
 /**
  * [DEPRECATION]: This widget was deprecated on 2016-07-01.
+ * This code has been copied from https://wpcom.trac.automattic.com/browser/trunk/wp-content/mu-plugins/widgets/aboutme.php
+ * and significant parts of it that are deprecated were removed in the process.
  */
 
 /**
