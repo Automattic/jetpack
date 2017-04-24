@@ -2,6 +2,14 @@
 
 4.9 is still in progress; [keep an eye on the changelog to find out more!](https://github.com/Automattic/jetpack/pull/6949)
 
+### Widgets
+
+This release introduces a brand new widget, allowing you to display a EU Cookie Law Banner on your site. To give the widget a try, go to Appearance > Customize > Widgets in your dashboard:
+
+1. Add the widget to a sidebar and check if the banner shows up near the bottom of the window.
+2. Check if, when closed with the selected method, it actually stays closed.
+3. Check if both light and dark themes work appropriately.
+
 ### Final Notes
 
 During your tests, we encourage you to open your browser's Development Tools and keep the Console open, checking for any errors in the Console and the Network tabs.

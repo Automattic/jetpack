@@ -110,6 +110,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Major Enhancements**
 
+* Widgets: new EU Cookie Law Banner widget. #6881
+
 **Slightly Less Exciting Enhancements**
 
 * Admin Page: automatically dismiss success notices once an action is completed. #6898
