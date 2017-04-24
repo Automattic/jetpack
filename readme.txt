@@ -146,6 +146,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Admin Page: fix issue where VideoPress wasn't in the results when searching for video. #6998
 * Multisite: display all sites available in network, even on large multisite installations. #6999
 * Publicize: make sure the Featured Image is always used in tweets posted via Publicize. #6965
+* Related Posts: avoid fatal errors when the exclusion parameter is not a string. #6922
 * SEO: allow the removal of all custom title settings. #7044
 * Tiled Galleries: make sure images are not distorted when using the Photon service. #6900
 * Theme Tools: allow removing connections from The Social Links feature. #6900
