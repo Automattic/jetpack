@@ -21,10 +21,13 @@ require_once( 'custom-fonts/custom-fonts.php' );
 require_once( 'custom-fonts-typekit/custom-fonts-typekit.php' );
 require_once( 'custom-colors/colors.php' );
 
-// WP.com widgets
+/**
+ * WP.com Widgets
+ */
 require_once( 'widgets/aboutme.php' );
-require_once( 'widgets/i-voted.php' );
 require_once( 'widgets/gravatar.php' );
+require_once( 'widgets/i-voted.php' );
+require_once( 'widgets/recent-comments-widget.php' );
 
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once WPCOMSH__PLUGIN_DIR_PATH . '/class.cli-commands.php';
