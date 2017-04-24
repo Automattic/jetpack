@@ -15,6 +15,8 @@ define( 'WPCOMSH__PLUGIN_FILE', WPCOMSH__PLUGIN_DIR_PATH . '/wpcomsh.php' );
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
 
 require_once( 'constants.php' );
+require_once( 'non-dotcom-shims.php' );
+
 require_once( 'footer-credit/footer-credit.php' );
 require_once( 'custom-fonts/custom-fonts.php' );
 require_once( 'custom-fonts-typekit/custom-fonts-typekit.php' );
