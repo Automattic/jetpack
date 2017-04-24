@@ -290,6 +290,7 @@ frontendcss = [
 	'css/jetpack-idc-admin-bar.css',
 	'modules/wordads/css/style.css',
 	'modules/widgets/eu-cookie-law/style.css',
+	'modules/widgets/flickr/style.css'
 ];
 
 gulp.task( 'old-styles:watch', function() {
