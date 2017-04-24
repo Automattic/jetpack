@@ -4,7 +4,7 @@
 
 ### Widgets
 
-This release introduces 2 new widgets:
+This release introduces 3 new widgets:
 
 #### Flickr
 
@@ -20,6 +20,13 @@ This new widget allows you to display a EU Cookie Law Banner on your site. To gi
 1. Add the widget to a sidebar and check if the banner shows up near the bottom of the window.
 2. Check if, when closed with the selected method, it actually stays closed.
 3. Check if both light and dark themes work appropriately.
+
+#### Internet Defense League
+
+This widget displays Internet Defense League campaigns and banners in your sidebar. To test it, go to Appearance > Customize > Widgets in your dashboard:
+
+1. Add the widget to one of your sidebars, and change the options.
+2. The widget options should work, regardless of the image type or visibility settings.
 
 ### Final Notes
 
