@@ -123,6 +123,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Sync: track changes to sidebar elements. #6909
 * Sync: track plugin and theme names and versions when a plugin or theme event is triggered. #6961, #6986
 * Sync: track theme installations. #7013
+* Sync: add theme name to sync events triggered when a theme update is available. #7028
 * Sync: track each user event (addition, removal, and update) separately for better insight into user events. #7000
 * Unit Tests: add and update multiple unit tests for multiple Jetpack features. #6927
 * WordPess.com REST API: Allow HTTP `PUT` requests sent from Jetpack to WordPress.com. #6853
