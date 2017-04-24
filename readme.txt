@@ -117,6 +117,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Sync: record comment content modifications and moderation events to make sure comments are always up to date on WordPress.com. #6929, #6899
 * Sync: add a way to distinguish between an added and an updated attachment. #6884
 * Sync: track when posts are deleted. #6885
+* Sync: trac changes to sidebar elements. #6909
 * WordPess.com REST API: Allow HTTP `PUT` requests sent from Jetpack to WordPress.com. #6853
 
 **Performance Improvements**
