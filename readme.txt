@@ -147,6 +147,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Admin Page: make sure VaultPress notices are displayed properly in the Jetpack dashboard. #6963
 * Admin Page: fix issue where VideoPress wasn't in the results when searching for video. #6998
 * Admin Page: fix positioning of search icon on mobile screens. #6940
+* Admin Page: avoid API requests being cached on some hosts. #6948
 * Contact Form: Set message content type to restore compatibility with email plugins. #7018
 * Custom Content Types / Ads: do not display ads in the portfolio projects displayed thanks to the Portfolio shortcode. #6962
 * Multisite: display all sites available in network, even on large multisite installations. #6999
