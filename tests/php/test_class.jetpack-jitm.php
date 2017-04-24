@@ -154,10 +154,16 @@ class WP_Test_Jetpack_JITM extends WP_UnitTestCase {
 	function test_jitm_dismiss() {
 		$jitm = new Mock_JITM();
 
-		$this->assertFalse( $jitm->is_jitm_dismissed() );
+		$this->assertFalse(
+			$jitm->is_jitm_dismissed(),
+			'The test JITM should not be dismissed initially'
+		);
 
-		update_option( 'hide_jitm', array( 'any' ) );
+		Jetpack_Options::update_option( 'hide_jitm', array( 'any' ) );
 
-		$this->assertTrue( $jitm->is_jitm_dismissed() );
+		$this->assertTrue(
+			$jitm->is_jitm_dismissed(),
+			'The test JITM should be dismissed upon setting the option'
+		);
 	}
 }
