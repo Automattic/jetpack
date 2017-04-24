@@ -288,7 +288,8 @@ frontendcss = [
 	'modules/widgets/my-community/style.css',
 	'modules/widgets/authors/style.css',
 	'css/jetpack-idc-admin-bar.css',
-	'modules/wordads/css/style.css'
+	'modules/wordads/css/style.css',
+	'modules/widgets/eu-cookie-law/style.css',
 ];
 
 gulp.task( 'old-styles:watch', function() {
