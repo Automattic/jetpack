@@ -8,7 +8,7 @@ Whether you can barely recognize a filter (or don’t know what that means) or y
 
 ### Beta Testing
 
-Beta testers give updates, fixes, and new modules a test run before they’re publicly released, so they’re an important part of the development process. If you'd like to join our Beta group, [sign up to be a Beta tester here](http://jetpack.com/beta/).
+We're always interested in hearing your feedback about existing and upcoming Jetpack features. The easiest way to help test Jetpack is to [join our Beta group.](/docs/testing/beta-testing.md)
 
 ### Create Bug Reports
 
