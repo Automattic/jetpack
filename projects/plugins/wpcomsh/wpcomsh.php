@@ -24,6 +24,7 @@ require_once( 'custom-colors/colors.php' );
 
 // Widgets
 require_once( 'widgets/aboutme.php' );
+require_once( 'widgets/i-voted.php' );
 
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once WPCOMSH__PLUGIN_DIR_PATH . '/class.cli-commands.php';
