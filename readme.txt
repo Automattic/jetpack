@@ -129,6 +129,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug Fixes**
 
+* Admin Page: change wording on Post By Email button when no email address was generated yet. #6894
 
 = 4.8.2 =
 
