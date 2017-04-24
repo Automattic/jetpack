@@ -116,6 +116,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Slightly Less Exciting Enhancements**
 
 * Admin Page: automatically dismiss success notices once an action is completed. #6898
+* Debugger: diplay the module list in development mode as well. #6959
 * General: remove unused code from old "My Jetpack" interface. #6856
 * Internationalization: update the list of locales available in Jetpack. #6965
 * Manage: only trigger plugin auto-updates from WordPress.com. #7015
