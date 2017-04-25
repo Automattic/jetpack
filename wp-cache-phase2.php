@@ -64,7 +64,7 @@ function wp_cache_phase2() {
 	wp_cache_debug( 'Created output buffer', 4 );
 
 	// restore old supercache file temporarily
-	if( $super_cache_enabled && $cache_rebuild_files ) {
+	if ( ( $_SERVER["REQUEST_METHOD"] != 'POST' && empty( $_POST ) ) && $super_cache_enabled && $cache_rebuild_files ) {
 		$user_info = wp_cache_get_cookies_values();
 		$do_cache = apply_filters( 'do_createsupercache', $user_info );
 		if( $user_info == '' || $do_cache === true )
@@ -101,24 +101,54 @@ function wpcache_do_rebuild( $dir ) {
 		return false;
 	}
 
-	if ( is_dir( $dir ) && $dh = @opendir( $dir ) ) {
-		while ( ( $file = readdir( $dh ) ) !== false ) {
-			if ( $file != '.' && $file != '..' && is_file( $dir . $file ) ) {
-				$cache_file = $dir . $file;
-				if( !@file_exists( $cache_file . '.needs-rebuild' ) )
-					continue;
-				$mtime = @filemtime( $cache_file . '.needs-rebuild' );
-				if( $mtime && ( time() - $mtime ) < 10 ) {
-					wp_cache_debug( "Rebuild file renamed to cache file temporarily: $cache_file" );
-					@rename( $cache_file . '.needs-rebuild', $cache_file );
-					$do_rebuild_list[ $dir ] = 1;
-				}
-				// cleanup old files or if rename fails
-				if( @file_exists( $cache_file . '.needs-rebuild' ) ) {
-					wp_cache_debug( "Rebuild file deleted: {$cache_file}.needs-rebuild", 3 );
-					@unlink( $cache_file . '.needs-rebuild' );
-				}
+	if ( !is_dir( $dir ) ) {
+		wp_cache_debug( "wpcache_do_rebuild: exiting as directory is not a directory: $dir" );
+		return false;
+	}
+
+	$dh = @opendir( $dir );
+	if ( false == $dh ) {
+		wp_cache_debug( "wpcache_do_rebuild: exiting as could not open directory for reading: $dir" );
+		return false;
+	}
+
+	while ( ( $file = readdir( $dh ) ) !== false ) {
+		if ( $file == '.' || $file == '..' || false == is_file( $dir . $file ) ) {
+			continue;
+		}
+
+		$cache_file = $dir . $file;
+		// if the file is index.html.needs-rebuild and index.html doesn't exist and
+		// if the rebuild file is less than 10 seconds old then remove the ".needs-rebuild"
+		// extension so index.html can be served to other visitors temporarily
+		// until index.html is generated again at the end of this page.
+
+		if ( substr( $cache_file, -14 ) != '.needs-rebuild' ) {
+			wp_cache_debug( "wpcache_do_rebuild: base file found: $cache_file" );
+			continue;
+		}
+
+		wp_cache_debug( "wpcache_do_rebuild: found rebuild file: $cache_file" );
+
+		if ( @file_exists( substr( $cache_file, 0, -14 ) ) ) { // index.html doesn't exist?
+			wp_cache_debug( "wpcache_do_rebuild: rebuild file deleted because base file found: $cache_file" );
+			@unlink( $cache_file ); // delete the rebuild file because index.html already exists
+			continue;
+		}
+
+		$mtime = @filemtime( $cache_file );
+		if ( $mtime && ( time() - $mtime ) < 10 ) {
+			wp_cache_debug( "wpcache_do_rebuild: rebuild file is new: $cache_file" );
+			if ( false == @rename( $cache_file, substr( $cache_file, 0, -14 ) ) ) { // rename the rebuild file
+				@unlink( $cache_file );
+				wp_cache_debug( "wpcache_do_rebuild: rebuild file rename failed. Deleted rebuild file: $cache_file" );
+			} else {
+				wp_cache_debug( "wpcache_do_rebuild: rebuild file renamed: $cache_file" );
 			}
+			$do_rebuild_list[ $dir ] = 1;
+		} else {
+			wp_cache_debug( "wpcache_do_rebuild: rebuild file deleted because it's too old: $cache_file" );
+			@unlink( $cache_file ); // delete the rebuild file because index.html already exists
 		}
 	}
 }
