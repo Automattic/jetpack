@@ -69,9 +69,9 @@ const AppsCard = React.createClass( {
 							className="is-primary"
 							onClick={ this.trackDownloadClick }
 							href="https://apps.wordpress.com/">
-							{ __( 'Download the Free Apps' ) }
+							{ __( 'Download the free apps' ) }
 						</Button>
-						<br/>
+						<br />
 						<a
 							href="javascript:void(0)"
 							onClick={ this.dismissCard }

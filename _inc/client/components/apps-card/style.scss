@@ -10,7 +10,7 @@
 		padding: 0;
 	}
 
-	a {
+	a:not( .dops-button ) {
 		font-style: italic;
 	}
 }
