@@ -7,9 +7,8 @@
  * Author URI: http://automattic.com/
  */
 
-// Needed as Pressable has different path for wpcomsh than normally.
-define( 'WPCOMSH__PLUGIN_DIR_PATH', WP_CONTENT_DIR . '/mu-plugins/wpcomsh' );
-define( 'WPCOMSH__PLUGIN_FILE', WPCOMSH__PLUGIN_DIR_PATH . '/wpcomsh.php' );
+// Increase version number if you change something in wpcomsh.
+define( 'WPCOMSH_VERSION', '1.8.1' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -384,7 +383,9 @@ add_filter( 'bulk_actions-plugins', 'wpcomsh_disable_bulk_plugin_deactivation' )
 function wpcomsh_admin_enqueue_style() {
 	wp_enqueue_style(
 		'wpcomsh-admin-style',
-		plugins_url( 'assets/admin-style.css', __FILE__ )
+		plugins_url( 'assets/admin-style.css', __FILE__ ),
+		null,
+		WPCOMSH_VERSION
 	);
 }
 add_action( 'admin_enqueue_scripts', 'wpcomsh_admin_enqueue_style', 999 );
