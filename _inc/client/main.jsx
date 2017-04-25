@@ -240,7 +240,7 @@ const Main = React.createClass( {
 								? null
 								: <SupportCard path={ this.props.route.path } />
 						}
-						{ ! this.props.isAppsCardDismissed && <AppsCard /> }
+						<AppsCard />
 					</div>
 					<Footer siteAdminUrl={ this.props.siteAdminUrl } />
 				<Tracker analytics={ analytics } />
