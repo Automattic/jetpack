@@ -38,13 +38,14 @@ class WP_Super_Cache_Rest_Get_Settings extends WP_REST_Controller {
 		'wp_cache_preload_email_volume' => 'preload_email_volume',
 		'wp_cache_mobile_browsers'      => 'cache_mobile_browsers',
 		'wp_cache_mobile_prefixes'      => 'cache_mobile_prefixes',
-		'wp_cache_mutex_disabled'       => 'cache_mutex_disabled',
+		'wp_cache_mutex_disabled'       => 'cache_disable_locking',
 		'wp_cache_hello_world'          => 'cache_hello_world',
 		'wp_cache_gzencode'             => 'cache_gzencode',
 		'cache_schedule_interval'       => 'cache_schedule_interval',
 		'cache_acceptable_files'        => 'cache_acceptable_files',
 		'cache_rejected_uri'            => 'cache_rejected_uri',
 		'cache_rejected_user_agent'     => 'cache_rejected_user_agent',
+		'cached_direct_pages'           => 'cache_direct_pages',
 	);
 
 	/**
@@ -59,6 +60,7 @@ class WP_Super_Cache_Rest_Get_Settings extends WP_REST_Controller {
 		$settings['is_submit_enabled'] = $this->is_submit_enabled();
 		$settings['is_preload_enabled'] = $this->is_preload_enabled();
 		$settings['lock_down'] = $this->is_lock_down_enabled();
+		$settings['cache_next_gc'] = $this->get_next_gc();
 
 		foreach ( self::$settings_map as $var => $name ) {
 			global ${$var};
@@ -66,6 +68,13 @@ class WP_Super_Cache_Rest_Get_Settings extends WP_REST_Controller {
 		}
 
 		return $this->prepare_item_for_response( $settings, $request );
+	}
+
+	/**
+	 * @return false|int
+	 */
+	protected function get_next_gc() {
+		return wp_next_scheduled( 'wp_cache_gc' );
 	}
 
 	/**
