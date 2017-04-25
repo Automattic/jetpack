@@ -30,14 +30,14 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 			return;
 		}
 
-		if ( 'install' === $details['action'] ) {
-			$theme = $upgrader->theme_info();
-			$theme_info = array(
-				'name' => $theme->get('Name'),
-				'version' => $theme->get('Version'),
-				'uri' => $theme->get('ThemeURI'),
-			);
+		$theme = $upgrader->theme_info();
+		$theme_info = array(
+			'name' => $theme->get( 'Name' ),
+			'version' => $theme->get( 'Version' ),
+			'uri' => $theme->get( 'ThemeURI' ),
+		);
 
+		if ( 'install' === $details['action'] ) {
 			/**
 			 * Signals to the sync listener that a theme was installed and a sync action
 			 * reflecting the installation and the theme info should be sent
@@ -51,13 +51,6 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		}
 
 		if ( 'update' === $details['action'] ) {
-			$theme = $upgrader->theme_info();
-			$theme_info = array(
-				'name' => $theme->get('Name'),
-				'version' => $theme->get('Version'),
-				'uri' => $theme->get('ThemeURI'),
-			);
-
 			/**
 			 * Signals to the sync listener that a theme was updated and a sync action
 			 * reflecting the update and the theme info should be sent
