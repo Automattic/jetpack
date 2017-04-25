@@ -28,6 +28,7 @@ require_once( 'widgets/aboutme.php' );
 require_once( 'widgets/gravatar.php' );
 require_once( 'widgets/i-voted.php' );
 require_once( 'widgets/recent-comments-widget.php' );
+require_once( 'widgets/tlkio/tlkio.php' );
 
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once WPCOMSH__PLUGIN_DIR_PATH . '/class.cli-commands.php';
