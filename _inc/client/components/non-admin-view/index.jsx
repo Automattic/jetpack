@@ -16,7 +16,6 @@ import Navigation from 'components/navigation';
 import NavigationSettings from 'components/navigation-settings';
 import AtAGlance from 'at-a-glance/index.jsx';
 import SearchableSettings from 'settings/index.jsx';
-import Apps from 'apps/index.jsx';
 import { getSiteConnectionStatus } from 'state/connection';
 
 const NonAdminView = React.createClass( {
@@ -32,9 +31,6 @@ const NonAdminView = React.createClass( {
 			case '/dashboard':
 			default:
 				pageComponent = <AtAGlance { ...this.props } />;
-				break;
-			case '/apps':
-				pageComponent = <Apps { ...this.props } />;
 				break;
 			case '/settings':
 			case '/writing':
