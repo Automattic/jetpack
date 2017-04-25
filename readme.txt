@@ -121,6 +121,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Debugger: display the module list in development mode as well. #6959
 * General: remove unused code from old "My Jetpack" interface. #6856
 * General: remove an XML-RPC method that's no longer used in Jetpack. #6990
+* General: increase code coverage of unit tests. #7027
 * Internationalization: update the list of locales available in Jetpack. #6965
 * Manage: only trigger plugin auto-updates from WordPress.com. #7015
 * Manage: trigger WordPress' maintenance mode while a plugin is automatically updated. #7019
