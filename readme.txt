@@ -117,6 +117,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Slightly Less Exciting Enhancements**
 
 * Admin Page: automatically dismiss success notices once an action is completed. #6898
+* Admin Page: add a WordPress Apps card to the bottom of the Dashboard page. #6804
 * Contact Form: Add display names to addresses in the `To` header. #6657
 * Debugger: display the module list in development mode as well. #6959
 * General: remove unused code from old "My Jetpack" interface. #6856
