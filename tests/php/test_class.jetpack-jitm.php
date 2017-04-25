@@ -46,8 +46,8 @@ class WP_Test_Jetpack_JITM extends WP_UnitTestCase {
 		$this->_backup_hooks();
 		$jitm->prepare_jitms( $screen );
 
-		$this->assertNotFalse( has_action( 'admin_enqueue_scripts', array( $jitm, 'jitm_enqueue_files' ) ) );
-		$this->assertNotFalse( has_action( 'admin_notices', array( $jitm, 'akismet_msg' ) ) );
+		$this->assertTrue( has_action( 'admin_enqueue_scripts', array( $jitm, 'jitm_enqueue_files' ) ) !== false );
+		$this->assertTrue( has_action( 'admin_notices', array( $jitm, 'akismet_msg' ) ) !== false );
 
 		$this->_restore_hooks();
 
@@ -76,8 +76,8 @@ class WP_Test_Jetpack_JITM extends WP_UnitTestCase {
 		$this->_backup_hooks();
 		$jitm->prepare_jitms( $screen );
 
-		$this->assertNotFalse( has_action( 'admin_enqueue_scripts', array( $jitm, 'jitm_enqueue_files' ) ) );
-		$this->assertNotFalse( has_action( 'edit_form_top', array( $jitm, 'backups_after_publish_msg' ) ) );
+		$this->assertTrue( has_action( 'admin_enqueue_scripts', array( $jitm, 'jitm_enqueue_files' ) ) !== false );
+		$this->assertTrue( has_action( 'edit_form_top', array( $jitm, 'backups_after_publish_msg' ) ) !== false );
 
 		$this->_restore_hooks();
 		$this->clean_up_global_scope();
@@ -114,8 +114,8 @@ class WP_Test_Jetpack_JITM extends WP_UnitTestCase {
 		$this->_backup_hooks();
 		$jitm->prepare_jitms( $screen );
 
-		$this->assertNotFalse( has_action( 'admin_enqueue_scripts', array( $jitm, 'jitm_enqueue_files' ) ) );
-		$this->assertNotFalse( has_action( 'admin_notices', array( $jitm, 'backups_updates_msg' ) ) );
+		$this->assertTrue( has_action( 'admin_enqueue_scripts', array( $jitm, 'jitm_enqueue_files' ) ) !== false );
+		$this->assertTrue( has_action( 'admin_notices', array( $jitm, 'backups_updates_msg' ) ) !== false );
 
 		// assert jitm will not show if VaultPress is active
 		$this->_restore_hooks();
@@ -139,8 +139,8 @@ class WP_Test_Jetpack_JITM extends WP_UnitTestCase {
 		$this->_backup_hooks();
 		$jitm->prepare_jitms( $screen );
 
-		$this->assertNotFalse( has_action( 'admin_enqueue_scripts', array( $jitm, 'jitm_enqueue_files' ) ) );
-		$this->assertNotFalse( has_action( 'admin_notices', array( $jitm, 'woocommerce_services_msg' ) ) );
+		$this->assertTrue( has_action( 'admin_enqueue_scripts', array( $jitm, 'jitm_enqueue_files' ) ) !== false );
+		$this->assertTrue( has_action( 'admin_notices', array( $jitm, 'woocommerce_services_msg' ) ) !== false );
 
 		$this->_restore_hooks();
 		self::activate_plugin( 'woocommerce-services/woocommerce-services.php' );
