@@ -2,6 +2,9 @@
 
 $current_dir = dirname( __FILE__ );
 
+define( 'THEMES_PATH_BASE', '/home/mendezco/wordpress/themes' ); // TODO: DELETE AFTER TESTING
+define( 'THEMES_SYMLINK_BASE', THEMES_PATH_BASE ); // TODO: DELETE AFTER TESTING
+
 // Base paths containing the location of WP.com and storefront themes, defined in Pressable.
 if ( ! defined( 'THEMES_SYMLINK_BASE' ) || ! defined( 'THEMES_PATH_BASE' ) ) {
 	define( 'THEMES_SYMLINK_BASE', $current_dir );

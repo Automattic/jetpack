@@ -9,7 +9,9 @@ function wpcomsh_maybe_symlink_storefront() {
 	$at_options = wpcomsh_get_at_options();
 
 	// Nothing to do if the storefront themes are already symlinked.
-	if ( array_key_exists( 'storefront_themes_installed', $at_options ) && true === $at_options[ 'storefront_themes_installed' ] ) {
+	if (
+		array_key_exists( 'storefront_themes_installed', $at_options ) &&
+		true === $at_options[ 'storefront_themes_installed' ] ) {
 		return;
 	}
 
@@ -91,15 +93,34 @@ function wpcomsh_symlink_the_storefront_themes() {
 	// Filter the available storefront themes from the `all-themes` repo.
 	$storefront_themes = wpcomsh_get_storefront_theme_slugs();
 
-	// Go over each child theme and symlink it.
-	foreach( $storefront_themes as $theme_slug ) {
-		wpcomsh_symlink_storefront_theme( $theme_slug );
+	// Exit early if no themes found.
+	if ( empty( $storefront_themes ) ) {
+		$error_message = sprintf( "No storefront themes found in %s", WPCOMSH_STOREFRONT_PATH );
+
+		error_log( 'WPComSH: ' . $error_message );
+
+		return new WP_Error( 'error_symlinking_storefront_themes', $error_message );
 	}
 
 	// Symlink the storefront parent theme.
-	wpcomsh_symlink_storefront_parent_theme();
+	$was_storefront_symlinked = wpcomsh_symlink_storefront_parent_theme();
 
-	// Update `at_options` to register storefront theme installation.
+	// Exit early if storefront parent theme was not symlinked.
+	if ( is_wp_error( $was_storefront_symlinked ) ) {
+		return $was_storefront_symlinked;
+	}
+
+	// Go over each child theme and symlink it.
+	foreach( $storefront_themes as $theme_slug ) {
+		$was_theme_symlinked = wpcomsh_symlink_storefront_theme( $theme_slug );
+
+		// Exit early if theme was not symlinked.
+		if ( is_wp_error( $was_theme_symlinked ) ) {
+			return $was_theme_symlinked;
+		}
+	}
+
+	// Update `at_options` to register successful storefront theme installation.
 	$at_options = wpcomsh_get_at_options();
 	$at_options[ 'storefront_themes_installed' ] = true;
 	update_option( 'at_options', $at_options );
