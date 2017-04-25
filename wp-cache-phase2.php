@@ -890,7 +890,7 @@ function prune_super_cache( $directory, $force = false, $rename = false ) {
 }
 
 function wp_cache_rebuild_or_delete( $file ) {
-	global $cache_rebuild_files, $cache_path;
+	global $cache_rebuild_files, $cache_path, $file_prefix;
 	static $rp_cache_path = '';
 
 	if ( $rp_cache_path == '' ) {
@@ -916,6 +916,18 @@ function wp_cache_rebuild_or_delete( $file ) {
 
 	if ( in_array( $file, $protected ) ) {
 		wp_cache_debug( "rebuild_or_gc: file is protected: $file" );
+		return false;
+	}
+
+	if ( substr( basename( $file ), 0, mb_strlen( $file_prefix ) ) == $file_prefix ) {
+		@unlink( $file );
+		wp_cache_debug( "rebuild_or_gc: deleted non-anonymous file: $file" );
+		return false;
+	}
+
+	if ( substr( basename( $file ), 0, 5 + mb_strlen( $file_prefix ) ) == 'meta-' . $file_prefix ) {
+		@unlink( $file );
+		wp_cache_debug( "rebuild_or_gc: deleted meta file: $file" );
 		return false;
 	}
 
