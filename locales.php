@@ -1,7 +1,7 @@
 <?php
 
 if ( ! class_exists( 'GP_Locale' ) ) :
-	
+
 class GP_Locale {
 	public $english_name;
 	public $native_name;
@@ -439,7 +439,7 @@ class GP_Locales {
 
 		$cs = new GP_Locale();
 		$cs->english_name = 'Czech';
-		$cs->native_name = 'Čeština‎';
+		$cs->native_name = 'Čeština';
 		$cs->lang_code_iso_639_1 = 'cs';
 		$cs->lang_code_iso_639_2 = 'ces';
 		$cs->country_code = 'cz';
@@ -688,6 +688,15 @@ class GP_Locales {
 		$es_co->slug = 'es-co';
 		$es_co->google_code = 'es';
 		$es_co->facebook_locale = 'es_CO';
+
+		$es_CR = new GP_Locale();
+		$es_CR->english_name = 'Spanish (Costa Rica)';
+		$es_CR->native_name = 'Español';
+		$es_CR->lang_code_iso_639_1 = 'es';
+		$es_CR->lang_code_iso_639_2 = 'spa';
+		$es_CR->country_code = 'cr';
+		$es_CR->wp_locale = 'es_CR';
+		$es_CR->slug = 'es-cr';
 
 		$es_gt = new GP_Locale();
 		$es_gt->english_name = 'Spanish (Guatemala)';
@@ -1721,6 +1730,14 @@ class GP_Locales {
 		$sa_in->slug = 'sa-in';
 		$sa_in->facebook_locale = 'sa_IN';
 
+		$scn = new GP_Locale();
+		$scn->english_name = 'Sicilian';
+		$scn->native_name = 'Sicilianu';
+		$scn->lang_code_iso_639_3 = 'scn';
+		$scn->country_code = 'it';
+		$scn->wp_locale = 'scn';
+		$scn->slug = 'scn';
+
 		$si = new GP_Locale();
 		$si->english_name = 'Sinhala';
 		$si->native_name = 'සිංහල';
@@ -1758,6 +1775,15 @@ class GP_Locales {
 		$sl->google_code = 'sl';
 		$sl->facebook_locale = 'sl_SI';
 
+		$sna = new GP_Locale();
+		$sna->english_name = 'Shona';
+		$sna->native_name = 'ChiShona';
+		$sna->lang_code_iso_639_1 = 'sn';
+		$sna->lang_code_iso_639_3 = 'sna';
+		$sna->country_code = 'zw';
+		$sna->wp_locale = 'sna';
+		$sna->slug = 'sna';
+
 		$snd = new GP_Locale();
 		$snd->english_name = 'Sindhi';
 		$snd->native_name = 'سنڌي';
@@ -1791,6 +1817,14 @@ class GP_Locales {
 		$sq->slug = 'sq';
 		$sq->google_code = 'sq';
 		$sq->facebook_locale = 'sq_AL';
+
+		$sq_XK = new GP_Locale();
+		$sq_XK->english_name = 'Shqip (Kosovo)';
+		$sq_XK->native_name = 'Për Kosovën Shqip';
+		$sq_XK->lang_code_iso_639_1 = 'sq';
+		$sq_XK->country_code = 'xk'; // Temporary country code until Kosovo is assigned an ISO code.
+		$sq_XK->wp_locale = 'sq_XK';
+		$sq_XK->slug = 'sq-xk';
 
 		$sr = new GP_Locale();
 		$sr->english_name = 'Serbian';
@@ -1847,6 +1881,14 @@ class GP_Locales {
 		$sw->slug = 'sw';
 		$sw->google_code = 'sw';
 		$sw->facebook_locale = 'sw_KE';
+
+		$syr = new GP_Locale();
+		$syr->english_name = 'Syriac';
+		$syr->native_name = 'Syriac';
+		$syr->lang_code_iso_639_3 = 'syr';
+		$syr->country_code = 'iq';
+		$syr->wp_locale = 'syr';
+		$syr->slug = 'syr';
 
 		$szl = new GP_Locale();
 		$szl->english_name = 'Silesian';
