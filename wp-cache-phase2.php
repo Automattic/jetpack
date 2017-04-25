@@ -76,11 +76,14 @@ function wp_cache_phase2() {
 
 function wpcache_do_rebuild( $dir ) {
 	global $do_rebuild_list, $cache_path;
+	wp_cache_debug( "wpcache_do_rebuild: doing rebuild for $dir" );
 
 	$dir = trailingslashit( realpath( $dir ) );
 
-	if ( isset( $do_rebuild_list[ $dir ] ) )
+	if ( isset( $do_rebuild_list[ $dir ] ) ) {
+		wp_cache_debug( "wpcache_do_rebuild: directory already rebuilt: $dir" );
 		return false;
+	}
 
 	$protected = array( $cache_path, $cache_path . "blogs/", $cache_path . 'supercache' );
 	foreach( $protected as $id => $directory ) {
@@ -88,11 +91,15 @@ function wpcache_do_rebuild( $dir ) {
 	}
 	$rp_cache_path = trailingslashit( realpath( $cache_path ) );
 
-	if ( substr( $dir, 0, strlen( $rp_cache_path ) ) != $rp_cache_path )
+	if ( substr( $dir, 0, strlen( $rp_cache_path ) ) != $rp_cache_path ) {
+		wp_cache_debug( "wpcache_do_rebuild: exiting as directory not in cache_path: $dir" );
 		return false;
+	}
 
-	if ( in_array( $dir, $protected ) )
+	if ( in_array( $dir, $protected ) ) {
+		wp_cache_debug( "wpcache_do_rebuild: exiting as directory is protected: $dir" );
 		return false;
+	}
 
 	if ( is_dir( $dir ) && $dh = @opendir( $dir ) ) {
 		while ( ( $file = readdir( $dh ) ) !== false ) {
@@ -877,9 +884,15 @@ function wp_cache_rebuild_or_delete( $file ) {
 		}
 	}
 
-	if ( in_array( $file, $protected ) )
+	if ( in_array( $file, $protected ) ) {
+		wp_cache_debug( "rebuild_or_gc: file is protected: $file" );
 		return false;
+	}
 
+	if ( false == @file_exists( $file ) ) {
+		wp_cache_debug( "rebuild_or_gc: file has disappeared: $file" );
+		return false;
+	}
 	if( $cache_rebuild_files && substr( $file, -14 ) != '.needs-rebuild' ) {
 		if( @rename($file, $file . '.needs-rebuild') ) {
 			@touch( $file . '.needs-rebuild' );
