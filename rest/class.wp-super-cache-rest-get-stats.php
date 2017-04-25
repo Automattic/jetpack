@@ -9,12 +9,7 @@ class WP_Super_Cache_Rest_Get_Stats extends WP_REST_Controller {
 	 * @return WP_Error|WP_REST_Response
 	 */
 	public function callback( $request ) {
-		$sizes[ 'supercache' ][ 'expired' ] = 0;
-		$sizes[ 'supercache' ][ 'cached' ] = 0;
-		$sizes[ 'supercache' ][ 'fsize' ] = 0;
-		$sizes[ 'wpcache' ][ 'expired' ] = 0;
-		$sizes[ 'wpcache' ][ 'cached' ] = 0;
-		$sizes[ 'wpcache' ][ 'fsize' ] = 0;
+		$sizes = wpsc_generate_sizes_array();
 		$supercachedir = get_supercache_dir();
 
 		return rest_ensure_response( wpsc_dirsize( $supercachedir, $sizes ) );

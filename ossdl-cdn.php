@@ -20,7 +20,7 @@ if ( !is_array( $arr_of_excludes ) )
 if ( get_option( 'ossdl_cname' ) == false )
 	add_option('ossdl_cname', '');
 $ossdl_cname = trim(get_option('ossdl_cname'));
-$ossdl_https = trim(get_option('ossdl_https'));
+$ossdl_https = intval(get_option('ossdl_https'));
 $arr_of_cnames = array_map('trim', explode(',', $ossdl_cname));
 if ($arr_of_cnames[0] == '') $arr_of_cnames = array();
 
