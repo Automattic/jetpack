@@ -532,7 +532,7 @@ class Jetpack_JITM {
 	 * @return bool
 	 */
 	function is_jitm_dismissed() {
-		if ( is_null( self::$jetpack_hide_jitm ) ) {
+		if ( empty( self::$jetpack_hide_jitm ) ) {
 
 			// The option returns false when nothing was dismissed
 			self::$jetpack_hide_jitm = Jetpack_Options::get_option( 'hide_jitm' );
