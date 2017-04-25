@@ -1633,7 +1633,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			// Apps card on dashboard
 			'dismiss_dash_app_card' => array(
 				'description'       => '',
-				'type'              => 'bool',
+				'type'              => 'boolean',
 				'default'           => 0,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'settings',
