@@ -236,11 +236,11 @@ const Main = React.createClass( {
 						<JetpackNotices />
 						{ this.renderMainContent( this.props.route.path ) }
 						{
-							this.props.jumpStartStatus ?
-							null :
-							<SupportCard path={ this.props.route.path } />
+							this.props.jumpStartStatus
+								? null
+								: <SupportCard path={ this.props.route.path } />
 						}
-						<AppsCard />
+						{ ! this.props.isAppsCardDismissed && <AppsCard /> }
 					</div>
 					<Footer siteAdminUrl={ this.props.siteAdminUrl } />
 				<Tracker analytics={ analytics } />

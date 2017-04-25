@@ -13,6 +13,7 @@ import analytics from 'lib/analytics';
  * Internal dependencies
  */
 import { imagePath } from 'constants';
+import { updateSettings, appsCardDismissed } from 'state/settings';
 
 const AppsCard = React.createClass( {
 	displayName: 'AppsCard',
@@ -25,7 +26,19 @@ const AppsCard = React.createClass( {
 		} );
 	},
 
+	dismissCard() {
+		this.props.dismissAppCard();
+		analytics.tracks.recordJetpackClick( {
+			target: 'apps-card',
+			button: 'dismiss',
+			page: this.props.path
+		} );
+	},
+
 	render() {
+		if ( this.props.isAppsCardDismissed ) {
+			return null;
+		}
 
 		const classes = classNames(
 				this.props.className,
@@ -45,11 +58,11 @@ const AppsCard = React.createClass( {
 
 					<div className="jp-apps-card__description">
 						<h3 className="jp-apps-card__header">
-							{ __( "Get WordPress Apps for every device" ) }
+							{ __( 'Get WordPress Apps for every device' ) }
 						</h3>
 
 						<p className="jp-apps-card__paragraph">
-							{ __( "Manage all your sites from a single dashboard: publish content, track stats, moderate comments, and so much more from anywhere in the world." ) }
+							{ __( 'Manage all your sites from a single dashboard: publish content, track stats, moderate comments, and so much more from anywhere in the world.' ) }
 						</p>
 
 						<Button
@@ -58,6 +71,11 @@ const AppsCard = React.createClass( {
 							href="https://apps.wordpress.com/">
 							{ __( 'Download the Free Apps' ) }
 						</Button>
+						<br/>
+						<a
+							href="javascript:void(0)"
+							onClick={ this.dismissCard }
+						>{ __( 'I already use this app.' ) }</a>
 					</div>
 				</Card>
 			</div>
@@ -70,4 +88,16 @@ AppsCard.propTypes = {
 };
 
 export default connect(
+	state => {
+		return {
+			isAppsCardDismissed: appsCardDismissed( state )
+		};
+	},
+	( dispatch ) => {
+		return {
+			dismissAppCard: () => {
+				return dispatch( updateSettings( { dismiss_dash_app_card: true } ) );
+			}
+		};
+	}
 )( AppsCard );
