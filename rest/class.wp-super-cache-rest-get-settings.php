@@ -3,6 +3,13 @@
 class WP_Super_Cache_Rest_Get_Settings extends WP_REST_Controller {
 
 	public static $settings_map = array(
+		// Local method gets
+		'get_is_submit_enabled'         => 'is_submit_enabled',
+		'get_is_preload_enabled'        => 'is_preload_enabled',
+		'get_is_lock_down_enabled'      => 'lock_down',
+		'get_next_gc'                   => 'cache_next_gc',
+
+		// Globals
 		'cache_enabled'                 => 'is_cache_enabled',
 		'super_cache_enabled'           => 'is_super_cache_enabled',
 		'wp_cache_mobile_enabled'       => 'is_mobile_enabled',
@@ -57,35 +64,17 @@ class WP_Super_Cache_Rest_Get_Settings extends WP_REST_Controller {
 	public function callback( $request ) {
 		$settings = array();
 
-		$settings['is_submit_enabled'] = $this->is_submit_enabled();
-		$settings['is_preload_enabled'] = $this->is_preload_enabled();
-		$settings['lock_down'] = $this->is_lock_down_enabled();
-		$settings['cache_next_gc'] = $this->get_next_gc();
-
 		foreach ( self::$settings_map as $var => $name ) {
-			global ${$var};
-			$settings[ $name ] = $$var;
+			if ( method_exists( $this, $name ) ) {
+				$settings[ $name ] = $this->$var();
+
+			} else {
+				global ${$var};
+				$settings[ $name ] = $$var;
+			}
 		}
 
 		return $this->prepare_item_for_response( $settings, $request );
-	}
-
-	/**
-	 * @return false|int
-	 */
-	protected function get_next_gc() {
-		return wp_next_scheduled( 'wp_cache_gc' );
-	}
-
-	/**
-	 * @return int
-	 */
-	protected function is_lock_down_enabled() {
-		if ( defined( 'WPLOCKDOWN' ) ) {
-			return constant( 'WPLOCKDOWN' ) ? 1 : 0;
-		}
-
-		return 0;
 	}
 
 	/**
@@ -125,7 +114,7 @@ class WP_Super_Cache_Rest_Get_Settings extends WP_REST_Controller {
 	/**
 	 * @return bool
 	 */
-	protected function is_submit_enabled() {
+	protected function get_is_submit_enabled() {
 		global $wp_cache_config_file;
 		return is_writeable_ACLSafe( $wp_cache_config_file );
 	}
@@ -133,7 +122,25 @@ class WP_Super_Cache_Rest_Get_Settings extends WP_REST_Controller {
 	/**
 	 * @return bool
 	 */
-	protected function is_preload_enabled() {
+	protected function get_is_preload_enabled() {
 		return false === defined( 'DISABLESUPERCACHEPRELOADING' );
+	}
+
+	/**
+	 * @return false|int
+	 */
+	protected function get_next_gc() {
+		return wp_next_scheduled( 'wp_cache_gc' );
+	}
+
+	/**
+	 * @return int
+	 */
+	protected function get_is_lock_down_enabled() {
+		if ( defined( 'WPLOCKDOWN' ) ) {
+			return constant( 'WPLOCKDOWN' ) ? 1 : 0;
+		}
+
+		return 0;
 	}
 }
