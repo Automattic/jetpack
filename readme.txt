@@ -161,6 +161,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * SEO: allow the removal of all custom title settings. #7044
 * Tiled Galleries: make sure images are not distorted when using the Photon service. #6900
 * Theme Tools: allow removing connections from The Social Links feature. #6900
+* Stats: avoid PHP warnings and errors in the Stats dashboard on Multisite. #6957
 * Subscriptions: fix a notice in the subscription widget in PHP 7.1. #6958
 * Sync: avoid errors when the Jetpack plugin is deleted. #6947
 
