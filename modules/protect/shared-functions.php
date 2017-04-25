@@ -172,9 +172,7 @@ function jetpack_protect_get_ip() {
 		return false;
 	}
 
-	// Trim off ports
-	$ips = explode( ':', $ip );
-	$ip  = $ips[0];
+
 
 	$ips = explode( ',', $ip );
 	if ( ! isset( $segments ) || ! $segments ) {
@@ -212,6 +210,23 @@ function jetpack_clean_ip( $ip ) {
 	if ( preg_match( '/^::ffff:(\d+\.\d+\.\d+\.\d+)$/', $ip, $matches ) ) {
 		$ip = $matches[1];
 	}
+
+	if ( function_exists( 'parse_url' ) ) {
+		$parsed_url = parse_url( $ip );
+
+		if ( isset( $parsed_url['host'] ) ) {
+			$ip = $parsed_url['host'];
+		} elseif ( isset( $parsed_url['path'] ) ) {
+			$ip = $parsed_url['path'];
+		}
+	} else {
+		$colon_count = substr_count( $ip, ':' );
+		if ( 1 == $colon_count ) {
+			$ips = explode( ':', $ip );
+			$ip  = $ips[0];
+		}
+	}
+
 	return $ip;
 }
 
