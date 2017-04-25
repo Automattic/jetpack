@@ -183,26 +183,18 @@ class Jetpack_Widget_Conditions {
 			$conditions['match_all'] = false;
 		}
 
+		$widget_conditional_class = 'widget-conditional ';
+		if ( empty( $_POST['widget-conditions-visible'] ) || $_POST['widget-conditions-visible'] == '0' ) {
+			$widget_conditional_class .= 'widget-conditional-hide ';
+		}
+
+		if ( ! empty( $conditions['match_all'] ) && $conditions['match_all'] ) {
+			$widget_conditional_class .= 'intersection';
+		} else {
+			$widget_conditional_class .= 'conjunction';
+		}
 		?>
-		<div
-			class="
-				widget-conditional
-				<?php
-					if (
-						empty( $_POST['widget-conditions-visible'] )
-						|| $_POST['widget-conditions-visible'] == '0'
-					) {
-						?>widget-conditional-hide<?php
-					}
-				?>
-				<?php
-					if ( ! empty( $conditions['match_all'] ) && $conditions['match_all'] ) {
-						?>intersection<?php
-					} else {
-						?>conjunction<?php
-					}
-				?>
-			">
+		<div class="<?php echo $widget_conditional_class; ?>">
 			<input type="hidden" name="widget-conditions-visible" value="<?php if ( isset( $_POST['widget-conditions-visible'] ) ) { echo esc_attr( $_POST['widget-conditions-visible'] ); } else { ?>0<?php } ?>" />
 			<?php if ( ! isset( $_POST['widget-conditions-visible'] ) ) { ?><a href="#" class="button display-options"><?php _e( 'Visibility', 'jetpack' ); ?></a><?php } ?>
 			<div class="widget-conditional-inner">
