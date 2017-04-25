@@ -166,6 +166,11 @@ class Jetpack_Subscriptions {
 			return false;
 		}
 
+		// Only posts are currently supported
+		if ( $post->post_type !== 'post' ) {
+			return false;
+		}
+
 		/**
 		 * Array of categories that will never trigger subscription emails.
 		 *
@@ -201,7 +206,6 @@ class Jetpack_Subscriptions {
 		if ( ! empty( $only_these_categories ) && ! in_category( $only_these_categories, $post->ID ) ) {
 			$should_email = false;
 		}
-
 
 		return $should_email;
 	}

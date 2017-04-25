@@ -8,6 +8,8 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 	public function init_listeners( $callable ) {
 		add_action( 'switch_theme', array( $this, 'sync_theme_support' ) );
 		add_action( 'jetpack_sync_current_theme_support', $callable );
+		add_action( 'upgrader_process_complete', array( $this, 'check_upgrader'), 10, 2 );
+		add_action( 'jetpack_installed_theme', $callable, 10, 2 );
 
 		// Sidebar updates.
 		add_action( 'update_option_sidebars_widgets', array( $this, 'sync_sidebar_widgets_actions' ), 10, 2 );
@@ -16,6 +18,36 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		add_action( 'jetpack_widget_moved_to_inactive', $callable );
 		add_action( 'jetpack_cleared_inactive_widgets', $callable );
 		add_action( 'jetpack_widget_reordered', $callable );
+	}
+
+	public function check_upgrader( $upgrader, $details) {
+		if ( ! isset( $details['type'] ) ||
+			'theme' !== $details['type'] ||
+			is_wp_error( $upgrader->skin->result ) ||
+			! method_exists( $upgrader, 'theme_info' )
+		) {
+			return;
+		}
+
+		if ( 'install' === $details['action'] ) {
+			$theme = $upgrader->theme_info();
+			$theme_info = array(
+				'name' => $theme->get('Name'),
+				'version' => $theme->get('Version'),
+				'uri' => $theme->get('ThemeURI'),
+			);
+
+			/**
+			 * Signals to the sync listener that a theme was installed and a sync action
+			 * reflecting the installation and the theme info should be sent
+			 *
+			 * @since 4.9.0
+			 *
+			 * @param string $theme->theme_root Text domain of the theme
+			 * @param mixed $theme_info Array of abbreviated theme info
+			 */
+			do_action( 'jetpack_installed_theme', $theme->stylesheet, $theme_info );
+		}
 	}
 
 	public function init_full_sync_listeners( $callable ) {

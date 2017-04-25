@@ -622,7 +622,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					}
 
 					// If we got an email address (create or regenerate) or 1 (delete), consider it done.
-					if ( preg_match( '/[a-z0-9]+@post.wordpress.com/', $result ) ) {
+					if ( is_string( $result ) && preg_match( '/[a-z0-9]+@post.wordpress.com/', $result ) ) {
 						$response[$option] = $result;
 						$updated           = true;
 					} elseif ( 1 == $result ) {
@@ -675,7 +675,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					break;
 
 				case 'sharing_services':
-					if ( ! class_exists( 'Sharing_Service' ) && ! @include( JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php' ) ) {
+					if ( ! class_exists( 'Sharing_Service' ) && ! include_once( JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php' ) ) {
 						break;
 					}
 
@@ -688,7 +688,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 				case 'button_style':
 				case 'sharing_label':
 				case 'show':
-					if ( ! class_exists( 'Sharing_Service' ) && ! @include( JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php' ) ) {
+					if ( ! class_exists( 'Sharing_Service' ) && ! include_once( JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php' ) ) {
 						break;
 					}
 
@@ -699,7 +699,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					break;
 
 				case 'custom':
-					if ( ! class_exists( 'Sharing_Service' ) && ! @include( JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php' ) ) {
+					if ( ! class_exists( 'Sharing_Service' ) && ! include_once( JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php' ) ) {
 						break;
 					}
 
@@ -711,7 +711,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					break;
 
 				case 'sharing_delete_service':
-					if ( ! class_exists( 'Sharing_Service' ) && ! @include( JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php' ) ) {
+					if ( ! class_exists( 'Sharing_Service' ) && ! include_once( JETPACK__PLUGIN_DIR . 'modules/sharedaddy/sharing-service.php' ) ) {
 						break;
 					}
 
@@ -746,6 +746,9 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 						$atd_option = 'AtD_options';
 					}
 					$user_id                 = get_current_user_id();
+					if ( ! function_exists( 'AtD_get_options' ) ) {
+						include_once( JETPACK__PLUGIN_DIR . 'modules/after-the-deadline.php' );
+					}
 					$grouped_options_current = AtD_get_options( $user_id, $atd_option );
 					unset( $grouped_options_current['name'] );
 					$grouped_options = $grouped_options_current;
@@ -852,6 +855,11 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
 					// If option value was the same, consider it done.
 					$updated = $grouped_options_current != $grouped_options ? update_option( 'jetpack_wga', $grouped_options ) : true;
+					break;
+
+				case 'dismiss_dash_app_card':
+					// If option value was the same, consider it done.
+					$updated = get_option( $option ) != $value ? update_option( $option, (bool) $value ) : true;
 					break;
 
 				default:

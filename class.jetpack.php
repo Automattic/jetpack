@@ -56,6 +56,8 @@ class Jetpack {
 		'jetpack_image_widget',
 		'jetpack-my-community-widget',
 		'wordads',
+		'eu-cookie-law-style',
+		'flickr-widget-style',
 	);
 
 	public $plugins_to_deactivate = array(
