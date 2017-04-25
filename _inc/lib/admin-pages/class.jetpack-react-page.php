@@ -204,10 +204,14 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
 		}
 
-		// Collecting roles that can view site stats
+		// Collecting roles that can view site stats.
 		$stats_roles = array();
 		$enabled_roles = function_exists( 'stats_get_option' ) ? stats_get_option( 'roles' ) : array( 'administrator' );
-		foreach( get_editable_roles() as $slug => $role ) {
+
+		if ( ! function_exists( 'get_editable_roles' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/user.php';
+		}
+		foreach ( get_editable_roles() as $slug => $role ) {
 			$stats_roles[ $slug ] = array(
 				'name' => translate_user_role( $role['name'] ),
 				'canView' => is_array( $enabled_roles ) ? in_array( $slug, $enabled_roles, true ) : false,
