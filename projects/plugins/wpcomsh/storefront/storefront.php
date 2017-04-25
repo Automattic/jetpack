@@ -71,7 +71,7 @@ function wpcomsh_symlink_storefront_parent_theme() {
 
 		if ( ! symlink( $storefront_theme_path, $storefront_theme_symlink_path ) ) {
 			$error_message = "Can't symlink the storefront parent theme." .
-							 "Make sure it exists in the " . WPCOMSH_STOREFRONT_PATH . " directory.";
+											 "Make sure it exists in the " . WPCOMSH_STOREFRONT_PATH . " directory.";
 
 			error_log( 'WPComSH: ' . $error_message );
 
