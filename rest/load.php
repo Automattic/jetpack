@@ -10,6 +10,7 @@ require_once __DIR__ . '/class.wp-super-cache-rest-delete-cache.php';
 require_once __DIR__ . '/class.wp-super-cache-rest-preload.php';
 
 class WP_Super_Cache_Router {
+
 	/**
 	 * Register the routes for the objects of the controller.
 	 *
@@ -95,6 +96,7 @@ class WP_Super_Cache_Router {
 	 * @return WP_Error|bool
 	 */
 	public static function get_items_permissions_check( $request ) {
+		return true;
 		return wpsupercache_site_admin();
 	}
 

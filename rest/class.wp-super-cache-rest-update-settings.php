@@ -1,5 +1,7 @@
 <?php
 
+require_once __DIR__ . '/class.wp-super-cache-settings-map.php';
+
 class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 
 	/**
@@ -15,12 +17,12 @@ class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 			$errors = $this->toggle_easy_caching( $parameters[ 'easy' ] );
 
 		} else {
-			$settings_map = WP_Super_Cache_Rest_Get_Settings::$settings_map;
+			$settings_map = WP_Super_Cache_Settings_Map::$map;
 
 			$new_params = array();
-			foreach ( $settings_map as $local => $external ) {
-				if ( isset( $parameters[ $external ] ) ) {
-					$new_params[ $local ] = $parameters[ $external ];
+			foreach ( $settings_map as $name => $map ) {
+				if ( isset( $map['global'] ) && isset( $parameters[ $map['global'] ] ) ) {
+					$new_params[ $name ] = $parameters[ $map['global'] ];
 				}
 			}
 
