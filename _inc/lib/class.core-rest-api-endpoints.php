@@ -1634,7 +1634,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'dismiss_dash_app_card' => array(
 				'description'       => '',
 				'type'              => 'bool',
-				'default'           => '',
+				'default'           => 0,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'settings',
 			),
