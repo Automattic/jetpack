@@ -153,6 +153,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Contact Form: Set message content type to restore compatibility with email plugins. #7018
 * Custom Content Types / Ads: do not display ads in the portfolio projects displayed thanks to the Portfolio shortcode. #6962
 * Multisite: display all sites available in network, even on large multisite installations. #6999
+* Protect: make sure IPv6 addresses are still supported. #7048 
 * Publicize: make sure the Featured Image is always used in tweets posted via Publicize. #6965
 * Related Posts: avoid fatal errors when the exclusion parameter is not a string. #6922
 * SEO: allow the removal of all custom title settings. #7044
