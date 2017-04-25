@@ -2002,26 +2002,20 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		 * @param string|array $to Array of valid email addresses, or single email address.
 		 */
 		$to = (array) apply_filters( 'contact_form_to', $to );
+		$reply_to_addr = $to[0]; // get just the address part before the name part is added
+
 		foreach ( $to as $to_key => $to_value ) {
 			$to[ $to_key ] = Grunion_Contact_Form_Plugin::strip_tags( $to_value );
+			$to[ $to_key ] = self::add_name_to_address( $to_value );
 		}
 
 		$blog_url = parse_url( site_url() );
 		$from_email_addr = 'wordpress@' . $blog_url['host'];
 
-		$reply_to_addr = $to[0];
 		if ( ! empty( $comment_author_email ) ) {
 			$reply_to_addr = $comment_author_email;
 		}
 
-		/*
-		 * Build the message headers
-		 *
-		 * We don't need to specify a Content-Type header, because PHPMailer will automatically generate the
-		 * proper content-type for each part of the message once it detects that an AltBody is added.
-		 *
-		 * wp_mail() automatically sets the Charset to the site's charset, so we don't need to do that either.
-		 */
 		$headers = 'From: "' . $comment_author . '" <' . $from_email_addr . ">\r\n" .
 					'Reply-To: "' . $comment_author . '" <' . $reply_to_addr . ">\r\n";
 
@@ -2156,6 +2150,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			wp_schedule_event( time() + 250, 'daily', 'grunion_scheduled_delete' );
 		}
 
+		add_filter( 'wp_mail_content_type', __CLASS__ . '::get_mail_content_type' );
 		add_action( 'phpmailer_init', __CLASS__ . '::add_plain_text_alternative' );
 		if (
 			$is_spam !== true &&
@@ -2187,6 +2182,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		) { // don't send spam by default.  Filterable.
 			wp_mail( $to, "{$spam}{$subject}", $message, $headers );
 		}
+		remove_filter( 'wp_mail_content_type', __CLASS__ . '::get_mail_content_type' );
 		remove_action( 'phpmailer_init', __CLASS__ . '::add_plain_text_alternative' );
 
 		if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
@@ -2219,6 +2215,34 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		wp_safe_redirect( $redirect );
 		exit;
+	}
+
+	/**
+	 * Add a display name part to an email address
+	 *
+	 * SpamAssassin doesn't like addresses in HTML messages that are missing display names (e.g., `foo@bar.org`
+	 * instead of `"Foo Bar" <foo@bar.org>`.
+	 *
+	 * @param string $address
+	 *
+	 * @return string
+	 */
+	function add_name_to_address( $address ) {
+		// If it's just the address, without a display name
+		if ( is_email( $address ) ) {
+			$address = sprintf( '"%s" <%s>', $address, $address );
+		}
+
+		return $address;
+	}
+
+	/**
+	 * Get the content type that should be assigned to outbound emails
+	 *
+	 * @return string
+	 */
+	static function get_mail_content_type() {
+		return 'text/html';
 	}
 
 	/**

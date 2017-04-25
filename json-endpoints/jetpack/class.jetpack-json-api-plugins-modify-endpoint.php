@@ -200,8 +200,8 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 			$upgrader = new Plugin_Upgrader( $skin );
 			$upgrader->init();
 			// This avoids the plugin to be deactivated.
-			defined( 'DOING_CRON' ) or define( 'DOING_CRON', true );
-			$result = $upgrader->upgrade( $plugin );
+			// Using bulk upgrade puts the site into maintenance mode during the upgrades
+			$result = $upgrader->bulk_upgrade( array( $plugin ) );
 
 			$this->log[ $plugin ] = $upgrader->skin->get_upgrade_messages();
 		}

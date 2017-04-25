@@ -246,6 +246,10 @@ class Jetpack_SEO_Titles {
 				return false;
 			}
 
+			if ( '' === $format_array ) {
+				continue;
+			}
+			
 			if ( ! is_array( $format_array ) ) {
 				return false;
 			}
