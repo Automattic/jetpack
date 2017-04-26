@@ -55,8 +55,7 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 			do_action( 'jetpack_installed_plugin', $plugin_path, $plugin_info );
 		}
 	}
-
-
+	
 	public function check_plugin_edit() {
 		$screen = get_current_screen();
 		if ( 'plugin-editor' !== $screen->base ||
@@ -68,33 +67,6 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 		}
 
 		$plugin = $_POST['plugin'];
-		$plugins = get_plugins();
-		if ( ! isset( $plugins[ $plugin ] ) ) {
-			return;
-		}
-
-		/**
-		 * Helps Sync log that a plugin was edited
-		 *
-		 * @since 4.9.0
-		 *
-		 * @param string $plugin, Plugin slug
-		 * @param mixed $plugins[ $plugin ], Array of plugin data
-		 */
-		do_action( 'jetpack_edited_plugin', $plugin, $plugins[ $plugin ] );
-	}
-
-	public function check_plugin_edit2() {
-		$screen = get_current_screen();
-		if ( 'plugin-editor' !== $screen->base ||
-			! isset( $_GET['a'] ) ||
-			! 'te' === $_GET['a'] ||
-			! isset( $_GET['plugin'] )
-		) {
-			return;
-		}
-
-		$plugin = $_GET['plugin'];
 		$plugins = get_plugins();
 		if ( ! isset( $plugins[ $plugin ] ) ) {
 			return;
