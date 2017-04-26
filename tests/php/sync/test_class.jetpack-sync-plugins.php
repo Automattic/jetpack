@@ -85,13 +85,13 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_edit_plugin() {
-		$_GET = array(
-			'a' => 'te',
+		$_POST = array(
+			'action' => 'update',
 			'plugin' => 'hello.php',
 		);
 		set_current_screen( 'plugin-editor' );
 
-		do_action( 'current_screen' );
+		do_action( 'wp_admin_update' );
 
 		$this->sender->do_sync();
 

@@ -18,7 +18,7 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 		add_action( 'delete_plugin',  array( $this, 'delete_plugin') );
 		add_action( 'upgrader_process_complete', array( $this, 'check_upgrader'), 10, 2 );
 		add_action( 'jetpack_installed_plugin', $callable, 10, 2 );
-		add_action( 'current_screen', array( $this, 'check_plugin_edit') );
+		add_action( 'wp_admin_update', array( $this, 'check_plugin_edit') );
 		add_action( 'jetpack_edited_plugin', $callable, 10, 2 );
 	}
 
@@ -56,7 +56,35 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 		}
 	}
 
+
 	public function check_plugin_edit() {
+		$screen = get_current_screen();
+		if ( 'plugin-editor' !== $screen->base ||
+			! isset( $_POST['action'] ) ||
+			'update' !== $_POST['action'] ||
+			! isset( $_POST['plugin'] )
+		) {
+			return;
+		}
+
+		$plugin = $_POST['plugin'];
+		$plugins = get_plugins();
+		if ( ! isset( $plugins[ $plugin ] ) ) {
+			return;
+		}
+
+		/**
+		 * Helps Sync log that a plugin was edited
+		 *
+		 * @since 4.9.0
+		 *
+		 * @param string $plugin, Plugin slug
+		 * @param mixed $plugins[ $plugin ], Array of plugin data
+		 */
+		do_action( 'jetpack_edited_plugin', $plugin, $plugins[ $plugin ] );
+	}
+
+	public function check_plugin_edit2() {
 		$screen = get_current_screen();
 		if ( 'plugin-editor' !== $screen->base ||
 			! isset( $_GET['a'] ) ||
