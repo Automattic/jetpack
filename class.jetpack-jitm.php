@@ -56,38 +56,48 @@ class Jetpack_JITM {
 	 * @param object $screen
 	 */
 	function prepare_jitms( $screen ) {
-		if ( ! current_user_can( 'jetpack_manage_modules' ) ) {
+		/*if ( ! current_user_can( 'jetpack_manage_modules' ) ) {
 			return;
-		}
+		}*/
+		add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
+		add_action('admin_notices', array($this, 'ajax_message'));
+	}
 
-		if ( 'edit-comments' == $screen->base && ! Jetpack::is_plugin_active( 'akismet/akismet.php' ) ) {
-			add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
-			add_action( 'admin_notices', array( $this, 'akismet_msg' ) );
-		}
-		elseif (
-			'post' == $screen->base
-			&& ( isset( $_GET['message'] ) && 6 == $_GET['message'] )
-			&& ! Jetpack::is_plugin_active( 'vaultpress/vaultpress.php' )
-		) {
-			add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
-			add_action( 'edit_form_top', array( $this, 'backups_after_publish_msg' ) );
-		}
-		elseif ( 'update-core' == $screen->base && ! Jetpack::is_plugin_active( 'vaultpress/vaultpress.php' ) ) {
-			add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
-			add_action( 'admin_notices', array( $this, 'backups_updates_msg' ) );
-		}
-		elseif ( ! Jetpack::is_plugin_active( 'woocommerce-services/woocommerce-services.php' ) ) {
-			 $pages_to_display = array(
-				 'woocommerce_page_wc-settings', // WooCommerce > Settings
-				 'edit-shop_order', // WooCommerce > Orders
-				 'shop_order', // WooCommerce > Edit Order
-			 );
+	function ajax_message() {
+		global $screen;
+		?>
+		<div class="jetpack-jitm-message" data-message-path="<? echo esc_attr($screen->base) ?>"></div>
+		<?php
+	}
 
-			if ( in_array( $screen->id, $pages_to_display ) ) {
+	function display_jitm_message() {
+		global $screen;
+
+		switch ( $screen->base ) {
+			case 'edit-comments':
+				$this->display_basic_message();
+				add_action( 'admin_notices', array( $this, 'akismet_msg' ) );
+				break;
+			case 'post':
+
+				break;
+			case 'update-core':
+				add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
+				add_action( 'admin_notices', array( $this, 'backups_updates_msg' ) );
+				break;
+			case 'woocommerce_page_wc-settings':
+			case 'edit_shop_order':
+			case 'shop_order':
 				add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
 				add_action( 'admin_notices', array( $this, 'woocommerce_services_msg' ) );
-			}
+				break;
 		}
+	}
+
+	function basic_message() {
+		return function () {
+
+		};
 	}
 
 	/*
@@ -490,6 +500,7 @@ class Jetpack_JITM {
 	*/
 	function jitm_enqueue_files( $hook ) {
 
+
 		$wp_styles = new WP_Styles();
 		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
 		wp_enqueue_style( 'jetpack-jitm-css', plugins_url( "css/jetpack-admin-jitm{$min}.css", JETPACK__PLUGIN_FILE ), false, JETPACK__VERSION . '-201243242' );
@@ -497,6 +508,10 @@ class Jetpack_JITM {
 
 		//Build stats url for tracking manage button
 		$jitm_stats_url = Jetpack::build_stats_url( array( 'x_jetpack-jitm' => 'wordpresstools' ) );
+
+		wp_enqueue_script( 'jetpack-jitm-new', plugins_url( '_inc/jetpack-jitm-new.js', JETPACK__PLUGIN_FILE ), array( 'jquery' ), JETPACK__VERSION, true );
+
+		return;
 
 		// Enqueue javascript to handle jitm notice events
 		wp_enqueue_script( 'jetpack-jitm-js', plugins_url( '_inc/jetpack-jitm.js', JETPACK__PLUGIN_FILE ),

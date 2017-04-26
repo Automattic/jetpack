@@ -63,6 +63,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$module_data_endpoint = new Jetpack_Core_API_Module_Data_Endpoint();
 		$module_toggle_endpoint = new Jetpack_Core_API_Module_Toggle_Endpoint( new Jetpack_IXR_Client() );
 
+		register_rest_route( 'jetpack/v4', '/jitm', array(
+			'methods'  => WP_REST_Server::READABLE,
+			'callback' => __CLASS__ . '::get_jitm_message',
+		) );
+
 		// Get current connection status of Jetpack
 		register_rest_route( 'jetpack/v4', '/connection', array(
 			'methods' => WP_REST_Server::READABLE,
@@ -301,6 +306,32 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'callback' => __CLASS__ . '::get_plugin',
 			'permission_callback' => __CLASS__ . '::activate_plugins_permission_check',
 		) );
+	}
+
+	/**
+	 * @param $request WP_REST_Request
+	 *
+	 * @return array
+	 */
+	public static function get_jitm_message( $request ) {
+
+		wp_remote_get('https://public-api.wordpress.com/');
+
+		/*require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-client.php' );
+
+		$wpcom_response = Jetpack_Client::wpcom_json_api_request_as_blog(
+			sprintf( '/sites/%d/jitm/%s', Jetpack_Options::get_option( 'id' ), $request['message_path'] ),
+			Jetpack_Client::WPCOM_JSON_API_VERSION,
+			array( 'method' => 'GET', 'timeout' => 60, 'user_id' => get_current_user_id() ),
+			array( 'user_id' => get_current_user_id() )
+		);*/
+
+		return array(
+			'content'  => array(),
+			'id'       => 'dumbo_elephant',
+			'template' => 'default',
+			'wpcom' => $wpcom_response
+		);
 	}
 
 	/**
