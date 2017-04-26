@@ -75,7 +75,7 @@ function wp_cache_phase2() {
 }
 
 function wpcache_do_rebuild( $dir ) {
-	global $do_rebuild_list, $cache_path;
+	global $do_rebuild_list, $cache_path, $wpsc_file_mtimes;
 	wp_cache_debug( "wpcache_do_rebuild: doing rebuild for $dir" );
 
 	$dir = trailingslashit( realpath( $dir ) );
@@ -112,6 +112,7 @@ function wpcache_do_rebuild( $dir ) {
 		return false;
 	}
 
+	$wpsc_file_mtimes = array();
 	while ( ( $file = readdir( $dh ) ) !== false ) {
 		if ( $file == '.' || $file == '..' || false == is_file( $dir . $file ) ) {
 			continue;
@@ -139,13 +140,15 @@ function wpcache_do_rebuild( $dir ) {
 		$mtime = @filemtime( $cache_file );
 		if ( $mtime && ( time() - $mtime ) < 10 ) {
 			wp_cache_debug( "wpcache_do_rebuild: rebuild file is new: $cache_file" );
-			if ( false == @rename( $cache_file, substr( $cache_file, 0, -14 ) ) ) { // rename the rebuild file
+			$base_file = substr( $cache_file, 0, -14 );
+			if ( false == @rename( $cache_file, $base_file ) ) { // rename the rebuild file
 				@unlink( $cache_file );
 				wp_cache_debug( "wpcache_do_rebuild: rebuild file rename failed. Deleted rebuild file: $cache_file" );
 			} else {
-				wp_cache_debug( "wpcache_do_rebuild: rebuild file renamed: $cache_file" );
+				$do_rebuild_list[ $dir ] = 1;
+				$wpsc_file_mtimes[ $base_file ] = $mtime;
+				wp_cache_debug( "wpcache_do_rebuild: rebuild file renamed: $base_file" );
 			}
-			$do_rebuild_list[ $dir ] = 1;
 		} else {
 			wp_cache_debug( "wpcache_do_rebuild: rebuild file deleted because it's too old: $cache_file" );
 			@unlink( $cache_file ); // delete the rebuild file because index.html already exists
@@ -305,7 +308,7 @@ function wp_super_cache_query_vars() {
 }
 
 function wp_cache_ob_callback( $buffer ) {
-	global $wp_cache_pages, $wp_query, $wp_super_cache_query, $cache_acceptable_files, $wp_cache_no_cache_for_get, $wp_cache_object_cache, $wp_cache_request_uri, $do_rebuild_list;
+	global $wp_cache_pages, $wp_query, $wp_super_cache_query, $cache_acceptable_files, $wp_cache_no_cache_for_get, $wp_cache_object_cache, $wp_cache_request_uri, $do_rebuild_list, $wpsc_file_mtimes;
 	$buffer = apply_filters( 'wp_cache_ob_callback_filter', $buffer );
 
 	$script = basename($_SERVER['PHP_SELF']);
@@ -380,6 +383,15 @@ function wp_cache_ob_callback( $buffer ) {
 
 		$buffer = wp_cache_get_ob( $buffer );
 		wp_cache_shutdown_callback();
+
+		if ( isset( $wpsc_file_mtimes ) && is_array( $wpsc_file_mtimes ) && !empty( $wpsc_file_mtimes ) ) {
+			foreach( $wpsc_file_mtimes as $cache_file => $old_mtime ) {
+				if ( $old_mtime == @filemtime( $cache_file ) ) {
+					wp_cache_debug( "wp_cache_ob_callback deleting unmodified rebuilt cache file: $cache_file" );
+					@unlink( $cache_file );
+				}
+			}
+		}
 		return $buffer;
 	} else {
 		if ( is_array( $do_rebuild_list ) && false == empty( $do_rebuild_list ) ) {
