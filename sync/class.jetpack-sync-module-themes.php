@@ -10,6 +10,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		add_action( 'jetpack_sync_current_theme_support', $callable );
 		add_action( 'upgrader_process_complete', array( $this, 'check_upgrader'), 10, 2 );
 		add_action( 'jetpack_installed_theme', $callable, 10, 2 );
+		add_action( 'jetpack_updated_theme', $callable, 10, 2 );
 
 		// Sidebar updates.
 		add_action( 'update_option_sidebars_widgets', array( $this, 'sync_sidebar_widgets_actions' ), 10, 2 );
@@ -29,14 +30,14 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 			return;
 		}
 
-		if ( 'install' === $details['action'] ) {
-			$theme = $upgrader->theme_info();
-			$theme_info = array(
-				'name' => $theme->get('Name'),
-				'version' => $theme->get('Version'),
-				'uri' => $theme->get('ThemeURI'),
-			);
+		$theme = $upgrader->theme_info();
+		$theme_info = array(
+			'name' => $theme->get( 'Name' ),
+			'version' => $theme->get( 'Version' ),
+			'uri' => $theme->get( 'ThemeURI' ),
+		);
 
+		if ( 'install' === $details['action'] ) {
 			/**
 			 * Signals to the sync listener that a theme was installed and a sync action
 			 * reflecting the installation and the theme info should be sent
@@ -47,6 +48,19 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 			 * @param mixed $theme_info Array of abbreviated theme info
 			 */
 			do_action( 'jetpack_installed_theme', $theme->stylesheet, $theme_info );
+		}
+
+		if ( 'update' === $details['action'] ) {
+			/**
+			 * Signals to the sync listener that a theme was updated and a sync action
+			 * reflecting the update and the theme info should be sent
+			 *
+			 * @since 4.9.0
+			 *
+			 * @param string $theme->theme_root Text domain of the theme
+			 * @param mixed $theme_info Array of abbreviated theme info
+			 */
+			do_action( 'jetpack_updated_theme', $theme->stylesheet, $theme_info );
 		}
 	}
 
