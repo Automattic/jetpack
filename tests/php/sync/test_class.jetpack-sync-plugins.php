@@ -84,6 +84,25 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 		$this->assertFalse( in_array( 'hello', $set_autoupdate_plugin ) );
 	}
 
+	public function test_edit_plugin() {
+		$_POST = array(
+			'action' => 'update',
+			'plugin' => 'hello.php',
+			'newcontent' => 'stuff',
+		);
+		set_current_screen( 'plugin-editor' );
+
+		do_action( 'admin_action_update' );
+
+		$this->sender->do_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_edited_plugin' );
+
+		$plugins = get_plugins();
+		$this->assertEquals( 'hello.php', $event->args[0] );
+		$this->assertEquals( $plugins['hello.php'], $event->args[1] );
+	}
+
 	function install_wp_super_cache() {
 		require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
 		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
