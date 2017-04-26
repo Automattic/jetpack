@@ -59,6 +59,7 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 	public function check_plugin_edit() {
 		$screen = get_current_screen();
 		if ( 'plugin-editor' !== $screen->base ||
+			! isset( $_GET['a'] ) ||
 			! 'te' === $_GET['a'] ||
 			! isset( $_GET['plugin'] )
 		) {
