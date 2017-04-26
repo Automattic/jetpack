@@ -13,15 +13,15 @@
  * @return string      $html              Thumbnail image with markup.
  */
 function jetpack_featured_images_fallback_get_image( $html, $post_id, $post_thumbnail_id, $size, $attr ) {
-	if ( ! empty( $html ) || (bool) 1 !== (bool) get_option( 'jetpack_content_featured_images_fallback', 1 ) ) {
+	$opts = jetpack_featured_images_get_settings();
+
+	if ( ! empty( $html ) || (bool) 1 !== (bool) $opts['fallback-option'] ) {
 		return trim( $html );
 	}
 
 	if ( jetpack_featured_images_should_load() ) {
-		$opts = jetpack_featured_images_get_settings();
-
 		if ( ( true === $opts['archive'] && ( is_home() || is_archive() || is_search() ) && ! $opts['archive-option'] )
-			|| ( true === $opts['post'] && is_single() && ! $opts['post-option'] ) ) {
+			|| ( true === $opts['post'] && is_single() && ! $opts['post-option'] ) || ! $opts['fallback-option'] ) {
 				return trim( $html );
 		}
 	}
@@ -76,14 +76,13 @@ add_filter( 'post_thumbnail_html', 'jetpack_featured_images_fallback_get_image',
  */
 function jetpack_featured_images_fallback_get_image_src( $post_id, $post_thumbnail_id, $size ) {
 	$image_src = ( ! empty( wp_get_attachment_image_src( $post_thumbnail_id, $size )[0] ) ) ? wp_get_attachment_image_src( $post_thumbnail_id, $size )[0] : null;
+	$opts      = jetpack_featured_images_get_settings();
 
-	if ( ! empty( $image_src ) || (bool) 1 !== (bool) get_option( 'jetpack_content_featured_images_fallback', 1 ) ) {
+	if ( ! empty( $image_src ) || (bool) 1 !== (bool) $opts['fallback-option'] ) {
 		return esc_url( $image_src );
 	}
 
 	if ( jetpack_featured_images_should_load() ) {
-		$opts = jetpack_featured_images_get_settings();
-
 		if ( ( true === $opts['archive'] && ( is_home() || is_archive() || is_search() ) && ! $opts['archive-option'] )
 			|| ( true === $opts['post'] && is_single() && ! $opts['post-option'] ) ) {
 				return esc_url( $image_src );
@@ -147,8 +146,9 @@ function jetpack_has_featured_image( $post = null ) {
  */
 function jetpack_featured_images_post_class( $classes, $class, $post_id ) {
 	$post_password_required = post_password_required( $post_id );
+	$opts                   = jetpack_featured_images_get_settings();
 
-	if ( jetpack_has_featured_image( $post_id ) && (bool) 1 === (bool) get_option( 'jetpack_content_featured_images_fallback', 1 ) && ! is_attachment() && ! $post_password_required ) {
+	if ( jetpack_has_featured_image( $post_id ) && (bool) 1 === (bool) $opts['fallback-option'] && ! is_attachment() && ! $post_password_required ) {
 		$classes[] = 'has-post-thumbnail';
 	}
 
