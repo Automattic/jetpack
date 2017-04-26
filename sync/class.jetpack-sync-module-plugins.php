@@ -55,12 +55,11 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 			do_action( 'jetpack_installed_plugin', $plugin_path, $plugin_info );
 		}
 	}
-	
+
 	public function check_plugin_edit() {
 		$screen = get_current_screen();
 		if ( 'plugin-editor' !== $screen->base ||
-			! isset( $_POST['action'] ) ||
-			'update' !== $_POST['action'] ||
+			! isset( $_POST['new_content'] ) ||
 			! isset( $_POST['plugin'] )
 		) {
 			return;

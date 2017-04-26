@@ -88,6 +88,7 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 		$_POST = array(
 			'action' => 'update',
 			'plugin' => 'hello.php',
+			'new_content' => 'stuff',
 		);
 		set_current_screen( 'plugin-editor' );
 
