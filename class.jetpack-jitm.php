@@ -64,14 +64,14 @@ class Jetpack_JITM {
 	}
 
 	function ajax_message() {
-		global $screen;
+		$screen = get_current_screen();
 		?>
-		<div class="jetpack-jitm-message" data-message-path="<? echo esc_attr($screen->base) ?>"></div>
+		<div class="jetpack-jitm-message" data-message-path="<?php echo esc_attr($screen->base) ?>"></div>
 		<?php
 	}
 
 	function display_jitm_message() {
-		global $screen;
+		$screen = get_current_screen();
 
 		switch ( $screen->base ) {
 			case 'edit-comments':
