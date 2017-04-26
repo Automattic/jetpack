@@ -130,7 +130,7 @@ function wpcache_do_rebuild( $dir ) {
 
 		wp_cache_debug( "wpcache_do_rebuild: found rebuild file: $cache_file" );
 
-		if ( @file_exists( substr( $cache_file, 0, -14 ) ) ) { // index.html doesn't exist?
+		if ( @file_exists( substr( $cache_file, 0, -14 ) ) ) {
 			wp_cache_debug( "wpcache_do_rebuild: rebuild file deleted because base file found: $cache_file" );
 			@unlink( $cache_file ); // delete the rebuild file because index.html already exists
 			continue;
