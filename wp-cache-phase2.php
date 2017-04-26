@@ -941,11 +941,14 @@ function wp_cache_rebuild_or_delete( $file ) {
 			wp_cache_debug( "rebuild_or_gc: rename file to {$file}.needs-rebuild", 2 );
 		} else {
 			@unlink( $file );
-			wp_cache_debug( "rebuild_or_gc: deleted $file", 2 );
+			wp_cache_debug( "rebuild_or_gc: rename failed. deleted $file", 2 );
 		}
 	} else {
-		@unlink( $file );
-		wp_cache_debug( "rebuild_or_gc: deleted $file", 2 );
+		$mtime = @filemtime( $file );
+		if ( $mtime && ( time() - $mtime ) > 10 ) {
+			@unlink( $file );
+			wp_cache_debug( "rebuild_or_gc: rebuild file found. deleted because it was too old: $file", 2 );
+		}
 	}
 }
 
