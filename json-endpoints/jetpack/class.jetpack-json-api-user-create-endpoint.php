@@ -28,10 +28,18 @@ class Jetpack_JSON_API_User_Create_Endpoint extends Jetpack_JSON_API_Endpoint {
 		require_once JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-helpers.php';
 
 		// Check for an existing user
-		$user = get_user_by( 'email', $this->user_date['email'] );
+		$user = get_user_by( 'email', $this->user_data['email'] );
 
 		if ( ! $user ) {
-			$user = Jetpack_SSO_Helpers::generate_user( (object) $this->user_data );
+			// We modify the input here to mimick the same call structure of the update user endpoint.
+
+			$this->user_data = (object) $this->user_data;
+			$roles = (array) $this->user_data->roles;
+			$this->user_data->role = array_pop( $roles );
+			$this->user_data->url = $this->user_data->roles;
+			$this->user_data->display_name = $this->user_data->name;
+			$this->user_data->description = '';
+			$user = Jetpack_SSO_Helpers::generate_user( $this->user_data );
 		}
 
 		if ( ! $user ) {
