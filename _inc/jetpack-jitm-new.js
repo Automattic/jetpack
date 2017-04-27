@@ -1,10 +1,17 @@
 jQuery( document ).ready( function( $ ) {
 	var templates = {
-		'default': function( $el, msg ) {
-			console.log( msg );
-			$el.hide();
-			$el.html( msg.content );
-			$el.delay( 400 ).slideDown();
+		'default': function( $el, envelope ) {
+			console.log( envelope );
+			var html = '<div class="jp-jitm" data-stats_url="' + envelope.jitm_stats_url + '"> \
+	<a href="#" data-module="' + envelope.id + '" class="dismiss"><span class="genericon genericon-close"></span></a>' + envelope.content.emblem + ' \
+	<p class="msg"> \
+		' + envelope.content.message + ' \
+	</p> \
+	<p> \
+		<a href="' + envelope.url + '" target="_blank" title="' + envelope.CTA.message + '" data-module="' + envelope.id + '" data-jptracks-name="nudge_click" data-jptracks-prop="jitm-' + envelope.id + '" class="button button-jetpack launch jptracks">' + envelope.CTA.message + '</a> \
+	</p> \
+</div> ';
+			$el.html( html );
 		}
 	};
 
