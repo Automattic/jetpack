@@ -61,8 +61,9 @@ class WP_Super_Cache_Rest_Get_Settings extends WP_REST_Controller {
 	public function prepare_item_for_response( $item, $request ) {
 		$settings = array();
 
+		$string_arrays = array( 'cache_stats', 'cache_acceptable_files', 'cache_rejected_uri' );
 		foreach( $item as $key => $value ) {
-			if ( is_array( $value ) && $key != 'cache_stats' ) {
+			if ( is_array( $value ) && false == in_array( $key, $string_arrays ) ) {
 				array_walk( $value, array( $this, 'make_array_bool' ) );
 
 			} elseif ( ( $value === 0 || $value === 1 ) && $key != 'preload_interval' ) {
