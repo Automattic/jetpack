@@ -23,8 +23,8 @@ class WP_Super_Cache_Settings_Map {
 			'get' => 'get_is_preload_enabled',
 			'set' => '',
 		),
-		'is_lock_down_enabled' => array(
-			'get' => 'get_lock_down',
+		'cache_lock_down' => array(
+			'get' => 'get_is_lock_down_enabled',
 			'set' => '',
 		),
 		'cache_next_gc' => array(
