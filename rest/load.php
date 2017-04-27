@@ -96,7 +96,6 @@ class WP_Super_Cache_Router {
 	 * @return WP_Error|bool
 	 */
 	public static function get_items_permissions_check( $request ) {
-		return true;
 		return wpsupercache_site_admin();
 	}
 
