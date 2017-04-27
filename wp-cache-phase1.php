@@ -653,7 +653,7 @@ function wpsc_delete_files( $dir, $delete = true ) {
 
 	// only do this once, this function will be called many times
 	if ( $rp_cache_path == '' ) {
-		$protected = array( $cache_path, $cache_path . "blogs/", get_supercache_dir() );
+		$protected = array( $cache_path, $cache_path . "blogs/", $cache_path . 'supercache' );
 		foreach( $protected as $id => $directory ) {
 			$protected[ $id ] = trailingslashit( realpath( $directory ) );
 		}
