@@ -314,17 +314,20 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return array
 	 */
 	public static function get_jitm_message( $request ) {
-
-		// wp_remote_get('https://public-api.wordpress.com/');
-
 		// this will ultimately end up inside some JITM library
 
 		require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-client.php' );
-		$site_id = Jetpack_Options::get_option( 'id' );
-		$wpcom_response = Jetpack_Client::wpcom_json_api_request_as_blog( 
+		$site_id        = Jetpack_Options::get_option( 'id' );
+		$wpcom_response = Jetpack_Client::wpcom_json_api_request_as_blog(
 			sprintf( '/sites/%d/jitm/%s', $site_id, $request['message_path'] ) .'?force=wpcom', '1.1',
 			array( 'user_id' => get_current_user_id() )
 		);
+
+		if ( is_wp_error( $wpcom_response ) ) {
+			return array();
+		}
+
+		return json_decode( $wpcom_response['body'] );
 
 		// $wpcom_response = Jetpack_Client::wpcom_json_api_request_as_blog(
 		// 	sprintf( '/sites/%d/jitm/%s?force=wpcom', Jetpack_Options::get_option( 'id' ), $request['message_path'] ),

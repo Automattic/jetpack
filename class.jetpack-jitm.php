@@ -59,14 +59,15 @@ class Jetpack_JITM {
 		/*if ( ! current_user_can( 'jetpack_manage_modules' ) ) {
 			return;
 		}*/
+		//todo: if not connected, fall back to old way
 		add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
-		add_action('admin_notices', array($this, 'ajax_message'));
+		add_action( 'admin_notices', array( $this, 'ajax_message' ) );
 	}
 
 	function ajax_message() {
 		$screen = get_current_screen();
 		?>
-		<div class="jetpack-jitm-message" data-message-path="<?php echo esc_attr($screen->base) ?>"></div>
+		<div class="jetpack-jitm-message" data-message-path="<?php echo esc_attr( $screen->base ) ?>"></div>
 		<?php
 	}
 
