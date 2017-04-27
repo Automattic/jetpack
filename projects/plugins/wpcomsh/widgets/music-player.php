@@ -43,7 +43,6 @@ class Music_Player_Widget extends WP_Widget {
 		$instance['shortcode'] = wp_kses( $instance['shortcode'], array() );
 		echo do_shortcode( $instance['shortcode'] );
 		echo $after_widget;
-		do_action( 'stats_extra', 'widget_view', 'music_player' );
 	}
 
     /**

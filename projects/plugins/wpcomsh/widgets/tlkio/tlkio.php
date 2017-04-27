@@ -42,7 +42,6 @@ class Tlkio_Widget extends WP_Widget {
 		}
 
 		echo $args['after_widget'];
-		stats_extra( 'widget_view', 'tlkio' );
 	}
 	
 	function form( $instance ) {

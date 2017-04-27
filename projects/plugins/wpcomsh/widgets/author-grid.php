@@ -81,8 +81,6 @@ class Widget_Authors_Grid extends WP_Widget {
 
 		if ( '%BEG_OF_TITLE%' != $args['before_title'] )
 			wp_cache_add( $cache_bucket, ob_get_flush(), 'widget' );
-
-		do_action( 'stats_extra', 'widget_view', 'author-grid' );
 	}
 
 	public function form( $instance ) {

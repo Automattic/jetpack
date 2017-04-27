@@ -44,8 +44,6 @@ class Jetpack_I_Voted_Widget extends WP_Widget {
 		echo '<img src="//i0.wp.com/wordpress.com/i/i-voted.png" alt="I Voted" style="max-width:100%;height:auto;" />';
 
 		echo "\n" . $args['after_widget'];
-
-		stats_extra( 'widget_view', 'i_voted' );
 	}
 
 	function update( $new_instance, $old_instance ) {
