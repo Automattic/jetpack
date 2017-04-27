@@ -124,12 +124,10 @@ class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 		);
 
 		if ( ! in_array( $global_name, $whitelist ) ) {
-			return;
+			return false;
 		}
 
-		global ${$global_name};
-		$$global_name = (int) $value;
-		wp_cache_setting( $global_name, $$global_name );
+		wp_cache_setting( $global_name, (int)$value );
 
 	}
 
