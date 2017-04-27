@@ -3,14 +3,14 @@ jQuery( document ).ready( function( $ ) {
 		'default': function( $el, envelope ) {
 			console.log( envelope );
 			var html = '<div class="jp-jitm" data-stats_url="' + envelope.jitm_stats_url + '"> \
-	<a href="#" data-module="' + envelope.id + '" class="dismiss"><span class="genericon genericon-close"></span></a>' + envelope.content.emblem + ' \
+	<a href="#" data-module="' + envelope.id + '" class="dismiss"><span class="genericon genericon-close"></span></a>' + envelope.content.icon + ' \
 	<p class="msg"> \
 		' + envelope.content.message + ' \
 	</p> \
 	<p> \
 		<a href="' + envelope.url + '" target="_blank" title="' + envelope.CTA.message + '" data-module="' + envelope.id + '" data-jptracks-name="nudge_click" data-jptracks-prop="jitm-' + envelope.id + '" class="button button-jetpack launch jptracks">' + envelope.CTA.message + '</a> \
 	</p> \
-</div> ';
+</div>';
 			$el.html( html );
 		}
 	};
@@ -25,7 +25,6 @@ jQuery( document ).ready( function( $ ) {
 				template = 'default';
 			}
 
-			// todo: inject a div to put the template in and pass it to the template
 			templates[ template ]( $el, response[ i ] );
 		}
 	};

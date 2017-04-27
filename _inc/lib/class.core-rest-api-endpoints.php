@@ -314,56 +314,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return array
 	 */
 	public static function get_jitm_message( $request ) {
-		// this will ultimately end up inside some JITM library
+		require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-jitm.php' );
 
-		require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-client.php' );
-		$site_id        = Jetpack_Options::get_option( 'id' );
+		$jitm = Jetpack_JITM::init();
 
-		$path = sprintf( '/sites/%d/jitm/%s', $site_id, $request['message_path'] ) . '?force=wpcom';
-
-		//todo: try retrieve from transient first
-
-		$wpcom_response = Jetpack_Client::wpcom_json_api_request_as_blog(
-			$path, '1.1',
-			array( 'user_id' => get_current_user_id() )
-		);
-
-		// silently fail...might be helpful to track it?
-		if ( is_wp_error( $wpcom_response ) ) {
-			return array();
-		}
-
-		// todo: use ttl value to set expiration ...
-		// todo: clear transient on dismiss
-		$envelopes = json_decode( $wpcom_response['body'] );
-
-		if ( ! is_array( $envelopes ) ) {
-			return array();
-		}
-
-		$expiration = isset( $envelopes[0] ) ? $envelopes[0]->ttl : 300;
-		set_transient( 'jetpack_jitm_' . $path, $wpcom_response, $expiration );
-
-		foreach ( $envelopes as $envelope ) {
-			$normalized_site_url      = Jetpack::build_raw_urls( get_home_url() );
-			$envelope->url            = 'https://jetpack.com/redirect/?source=jitm-' . $envelope->id . '&site=' . $normalized_site_url;
-			$envelope->jitm_stats_url = Jetpack::build_stats_url( array( 'x_jetpack-jitm' => $envelope->id ) );
-
-			switch ( $envelope->content->emblem ) {
-				case 'jetpack':
-					$envelope->content->emblem = '<div class="jp-emblem">' . Jetpack::get_jp_emblem() . '</div>';
-					break;
-				default:
-					$envelope->content->emblem = '';
-					break;
-			}
-
-			$jetpack = Jetpack::init();
-			$jetpack->stat( 'jitm', $envelope->id . '-viewed-' . JETPACK__VERSION );
-			$jetpack->do_stats( 'server_side' );
-		}
-
-		return $envelopes;
+		return $jitm->get_messages( $request['message_path'] );
 	}
 
 	/**
