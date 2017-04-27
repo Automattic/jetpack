@@ -14,6 +14,7 @@ class WP_Super_Cache_Rest_Get_Notices extends WP_REST_Controller {
 		$this->add_rewrite_notice( $notices );
 		$this->add_cache_disabled_notice( $notices );
 		$this->add_writable_notice( $notices );
+		$this->add_compression_notice( $notices );
 
 		return rest_ensure_response( $notices );
 	}
@@ -46,6 +47,29 @@ class WP_Super_Cache_Rest_Get_Notices extends WP_REST_Controller {
 					'%s is writable. Please make it readonly after your page is generated as this is a security risk.',
 					'wp-super-cache'
 				), ABSPATH )
+			);
+		}
+	}
+
+	/**
+	 * @param array $notices
+	 */
+	protected function add_compression_notice( & $notices ) {
+		if ( defined( 'WPSC_DISABLE_COMPRESSION' ) ) {
+			$notices['compression'] = array(
+				'type' => 'warning',
+				'message' => __(
+					'Compression disabled by a site administrator.',
+					'wp-super-cache'
+				),
+			);
+		} elseif ( false == function_exists( 'gzencode' ) ) {
+			$notices['compression'] = array(
+				'type' => 'warning',
+				'message' => __(
+					'Warning! Compression is disabled as gzencode() function was not found.',
+					'wp-super-cache'
+				),
 			);
 		}
 	}
