@@ -1,6 +1,42 @@
 <?php
 require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 
+//Mock object requiered for test_theme_update()
+class Dummy_Sync_Test_WP_Theme {
+	public $stylesheet = 'updated-theme';
+
+	public function get( $key ) {
+		switch ( $key ) {
+			case 'Name':
+				return 'Updated Theme';
+				break;
+			case 'Version':
+				return '10.0';
+				break;
+			case 'ThemeURI':
+				return 'http://NOT!';
+				break;
+		}
+	}
+}
+
+//Mock object requiered for test_theme_update()
+class Dummy_Sync_Test_WP_Upgrader {
+	public $skin;
+
+	public $result = true;
+
+	public function __construct() {
+		$this->skin = (object) array(
+			'result' => true,
+		);
+	}
+
+	function theme_info() {
+		return new Dummy_Sync_Test_WP_Theme();
+	}
+}
+
 // Used to suppress echo'd output from Theme_Upgrader_Skin so that test_theme_install() will pass under Travis environments that failed because of output
 class Test_Upgrader_Skin extends Theme_Upgrader_Skin {
 
@@ -117,6 +153,30 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( (bool) $event_data->args[1]['uri'] );
 
 		delete_theme( $theme_stylesheet );
+	}
+
+	public function test_theme_update() {
+		$dummy_details = array(
+			'type' => 'theme',
+			'action' => 'update',
+		);
+
+		/** This action is documented in /wp-admin/includes/class-wp-upgrader.php */
+		do_action( 'upgrader_process_complete', new Dummy_Sync_Test_WP_Upgrader(), $dummy_details );
+
+		$this->sender->do_sync();
+
+		$event_data = $this->server_event_storage->get_most_recent_event( 'jetpack_updated_theme' );
+
+		$expected = array(
+			'updated-theme',
+			array(
+				'name' => 'Updated Theme',
+				'version' => '10.0',
+                'uri' => 'http://NOT!',
+			)
+		);
+		$this->assertEquals( $expected, $event_data->args );
 	}
 
 	public function test_widgets_changes_get_synced() {
