@@ -11,7 +11,8 @@ function wpcomsh_maybe_symlink_storefront() {
 	// Nothing to do if the storefront themes are already symlinked.
 	if (
 		array_key_exists( 'storefront_themes_installed', $at_options ) &&
-		true === $at_options[ 'storefront_themes_installed' ] ) {
+		true === $at_options[ 'storefront_themes_installed' ]
+	) {
 		return;
 	}
 
@@ -39,7 +40,7 @@ function wpcomsh_site_has_woocommerce() {
  */
 function wpcomsh_get_storefront_theme_slugs() {
 	$storefront_themes = array();
-	$base_path = WPCOMSH_STOREFRONT_THEMES_SYMLINK;
+	$base_path = WPCOMSH_STOREFRONT_THEMES_PATH;
 
 	// Get list of themes from repo, ignoring dotfiles and regular files.
 	$themes = preg_grep( '/(^\.|\.[a-z0-9]+$)/i', scandir( $base_path ), PREG_GREP_INVERT );
@@ -107,6 +108,8 @@ function wpcomsh_symlink_the_storefront_themes() {
 
 	// Exit early if storefront parent theme was not symlinked.
 	if ( is_wp_error( $was_storefront_symlinked ) ) {
+		error_log( "Can't symlink storefront parent theme. Error: " . print_r( $was_storefront_symlinked, true ) );
+
 		return $was_storefront_symlinked;
 	}
 
@@ -116,6 +119,8 @@ function wpcomsh_symlink_the_storefront_themes() {
 
 		// Exit early if theme was not symlinked.
 		if ( is_wp_error( $was_theme_symlinked ) ) {
+			error_log( "Can't symlink storefront child theme with slug: ${theme_slug}. Error: " . print_r( $was_theme_symlinked, true ) );
+
 			return $was_theme_symlinked;
 		}
 	}
