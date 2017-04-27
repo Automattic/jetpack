@@ -8,7 +8,9 @@ env:
   global:
     - WP_TRAVISCI=phpunit
 
-cache: yarn
+cache:
+  - yarn: true
+  - apt: true
 
 # Next we define our matrix of additional build configurations to test against.
 # The versions listed above will automatically create our first configuration,
