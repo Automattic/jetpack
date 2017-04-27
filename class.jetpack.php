@@ -494,6 +494,9 @@ class Jetpack {
 			add_action( 'template_redirect', array( $this, 'alternate_xmlrpc' ) );
 		}
 
+
+		// define a few REST endpoints for getting through the connection process without XMLRPC
+		add_action( 'rest_api_init', array( $this, 'rest_api_init' ) );
 		if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST && isset( $_GET['for'] ) && 'jetpack' == $_GET['for'] ) {
 			@ini_set( 'display_errors', false ); // Display errors can cause the XML to be not well formed.
 
@@ -661,6 +664,12 @@ class Jetpack {
 		$wp_xmlrpc_server->serve_request();
 
 		exit;
+	}
+
+	function rest_api_init() {
+		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-xmlrpc-fallback.php';
+		$fallback = new Jetpack_XMLRPC_Fallback();
+		$fallback->init();
 	}
 
 	function jetpack_admin_ajax_tracks_callback() {
