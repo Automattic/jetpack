@@ -56,7 +56,7 @@ class WP_Super_Cache_Rest_Get_Notices extends WP_REST_Controller {
 	 */
 	protected function add_compression_notice( & $notices ) {
 		if ( defined( 'WPSC_DISABLE_COMPRESSION' ) ) {
-			$notices['compression'] = array(
+			$notices['compression_disabled'] = array(
 				'type' => 'warning',
 				'message' => __(
 					'Compression disabled by a site administrator.',
@@ -64,7 +64,7 @@ class WP_Super_Cache_Rest_Get_Notices extends WP_REST_Controller {
 				),
 			);
 		} elseif ( false == function_exists( 'gzencode' ) ) {
-			$notices['compression'] = array(
+			$notices['compression_disabled'] = array(
 				'type' => 'warning',
 				'message' => __(
 					'Warning! Compression is disabled as gzencode() function was not found.',
