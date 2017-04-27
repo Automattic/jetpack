@@ -26,6 +26,7 @@ require_once( 'custom-colors/colors.php' );
 require_once( 'widgets/aboutme.php' );
 require_once( 'widgets/gravatar.php' );
 require_once( 'widgets/i-voted.php' );
+require_once( 'widgets/music-player.php' );
 require_once( 'widgets/recent-comments-widget.php' );
 require_once( 'widgets/tlkio/tlkio.php' );
 
