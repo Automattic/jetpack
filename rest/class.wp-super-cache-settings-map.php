@@ -165,9 +165,6 @@ class WP_Super_Cache_Settings_Map {
 		'cache_hello_world' => array(
 			'global' => 'wp_cache_hello_world',
 		),
-		'cache_gzencode' => array(
-			'global' => 'wp_cache_gzencode',
-		),
 		'cache_schedule_interval' => array(
 			'global' => 'cache_schedule_interval',
 			'set' => 'set_time_setting',
