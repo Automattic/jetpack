@@ -25,7 +25,7 @@ class WP_Super_Cache_Settings_Map {
 		),
 		'cache_lock_down' => array(
 			'get' => 'get_is_lock_down_enabled',
-			'set' => '',
+			'set' => 'set_lock_down',
 		),
 		'cache_next_gc' => array(
 			'get' => 'get_next_gc',

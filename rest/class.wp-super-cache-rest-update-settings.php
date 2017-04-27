@@ -181,6 +181,14 @@ class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 	/**
 	 * @param mixed $value
 	 */
+	protected function set_lock_down( $value ) {
+		$_POST[ 'wp_lock_down' ] = (int)$value;
+		wp_update_lock_down();
+	}
+
+	/**
+	 * @param mixed $value
+	 */
 	protected function set_super_cache_enabled( $value ) {
 		global $wp_cache_mod_rewrite;
 
