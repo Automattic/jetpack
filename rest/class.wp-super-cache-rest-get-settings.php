@@ -61,7 +61,7 @@ class WP_Super_Cache_Rest_Get_Settings extends WP_REST_Controller {
 	public function prepare_item_for_response( $item, $request ) {
 		$settings = array();
 
-		$string_arrays = array( 'cache_stats', 'cache_acceptable_files', 'cache_rejected_uri' );
+		$string_arrays = array( 'cache_stats', 'cache_acceptable_files', 'cache_rejected_uri', 'cache_rejected_user_agent' );
 		foreach( $item as $key => $value ) {
 			if ( is_array( $value ) && false == in_array( $key, $string_arrays ) ) {
 				array_walk( $value, array( $this, 'make_array_bool' ) );
