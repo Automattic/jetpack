@@ -38,10 +38,9 @@ if [ "$WP_TRAVISCI" == "phpunit" ]; then
     fi
 else
 
+    npm install -g yarn@0.22.0
     gem install sass
     gem install compass
-    rm -rf ~/.yarn
-    curl -o- -L https://yarnpkg.com/install.sh | bash -s -- --version 0.20.3
     yarn
 
     if $WP_TRAVISCI; then
