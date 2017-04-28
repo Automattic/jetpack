@@ -18,7 +18,7 @@ import SearchableSettings from 'settings/index.jsx';
 import JetpackConnect from 'components/jetpack-connect';
 import JumpStart from 'components/jumpstart';
 import { getJumpStartStatus, isJumpstarting } from 'state/jumpstart';
-import { getSiteConnectionStatus, isCurrentUserLinked } from 'state/connection';
+import { getSiteConnectionStatus, isCurrentUserLinked, isSiteConnected } from 'state/connection';
 import {
 	setInitialState,
 	getSiteRawUrl,
@@ -148,7 +148,7 @@ const Main = React.createClass( {
 
 	renderMainContent: function( route ) {
 		// Track page views
-		analytics.tracks.recordEvent( 'jetpack_wpa_page_view', { path: route } );
+		this.props.isSiteConnected && analytics.tracks.recordEvent( 'jetpack_wpa_page_view', { path: route } );
 
 		if ( ! this.props.userCanManageModules ) {
 			if ( ! this.props.siteConnectionStatus ) {
@@ -264,7 +264,8 @@ export default connect(
 			apiNonce: getApiNonce( state ),
 			tracksUserData: getTracksUserData( state ),
 			areThereUnsavedSettings: areThereUnsavedSettings( state ),
-			userCanManageModules: userCanManageModules( state )
+			userCanManageModules: userCanManageModules( state ),
+			isSiteConnected: isSiteConnected( state )
 		};
 	},
 	( dispatch ) => ( {
