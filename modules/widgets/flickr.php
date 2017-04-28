@@ -103,7 +103,11 @@ if ( ! class_exists( 'Jetpack_Flickr_Widget' ) ) {
 			echo $args['before_widget'];
 			if ( empty( $photos ) ) {
 				if ( current_user_can( 'edit_theme_options' ) ) {
-					echo '<p>' . esc_html__( 'There are no photos to display. Make sure your Flickr feed URL is correct, and that your pictures are publicly accessible.', 'jetpack' ) . '</p>';
+					printf(
+						'<p>%1$s<br />%2$s</p>',
+						esc_html__( 'There are no photos to display. Make sure your Flickr feed URL is correct, and that your pictures are publicly accessible.', 'jetpack' ),
+						esc_html__( '(Only admins can see this message)', 'jetpack' )
+					);
 				}
 			} else {
 				echo $args['before_title'] . esc_html( $instance['title'] ) . $args['after_title'];
