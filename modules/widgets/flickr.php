@@ -71,8 +71,34 @@ if ( ! class_exists( 'Jetpack_Flickr_Widget' ) ) {
 				? 'https://api.flickr.com/services/feeds/photos_interesting.gne?format=rss_200'
 				: htmlspecialchars_decode( $instance['flickr_rss_url'] );
 
-			// We want to use the HTTPS version so the URLs in the API response are also HTTPS and we avoid mixed-content warnings.
-			$rss_url = preg_replace( '!^http://api.flickr.com/!i', 'https://api.flickr.com/', $rss_url );
+			/**
+			 * Parse the URL, and rebuild a URL that's sure to display images.
+			 * Some Flickr Feeds do not display images by default.
+			 */
+			$flickr_parameters = parse_url( $rss_url );
+			parse_str( $flickr_parameters['query'], $vars );
+
+			// Do we have an ID in the feed? Let's continue.
+			if ( isset( $vars['id'] ) ) {
+				/**
+				 * Flickr Feeds can be used for groups or for individuals.
+				 */
+				if (
+					! empty( $flickr_parameters['path'] )
+					&& false !== strpos( $flickr_parameters['path'], 'groups' )
+				) {
+					$feed_url = 'https://api.flickr.com/services/feeds/groups_pool.gne';
+				} else {
+					$feed_url = 'https://api.flickr.com/services/feeds/photos_public.gne';
+				}
+
+				// Build our new RSS feed.
+				$rss_url = sprintf(
+					'%1$s?id=%2$s&format=rss_200_enc',
+					esc_url( $feed_url ),
+					esc_attr( $vars['id'] )
+				);
+			}
 
 			$rss = fetch_feed( $rss_url );
 
