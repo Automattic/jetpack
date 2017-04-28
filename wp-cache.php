@@ -2330,7 +2330,9 @@ function wp_cache_verify_config_file() {
 		$sem_id = crc32( $WPSC_HTTP_HOST . $cache_path ) & 0x7fffffff;
 		wp_cache_replace_line('sem_id', '$sem_id = ' . $sem_id . ';', $wp_cache_config_file);
 	}
-	require($wp_cache_config_file);
+	if ( $new ) {
+		require($wp_cache_config_file);
+	}
 	return true;
 }
 
