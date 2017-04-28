@@ -115,6 +115,8 @@ class Jetpack_Client {
 		$url = add_query_arg( urlencode_deep( $url_args ), $args['url'] );
 		$url = Jetpack::fix_url_for_bad_hosts( $url );
 
+		var_dump($url);
+
 		$signature = $jetpack_signature->sign_request( $token_key, $timestamp, $nonce, $body_hash, $method, $url, $body, false );
 
 		if ( !$signature || is_wp_error( $signature ) ) {

@@ -34,7 +34,10 @@ jQuery( document ).ready( function( $ ) {
 
 		var message_path = $el.data( 'message-path' );
 
-		$.get( '/wp-json/jetpack/v4/jitm', { message_path: message_path } ).then( function( response ) {
+		$.get( '/wp-json/jetpack/v4/jitm', {
+			message_path: message_path,
+			_wpnonce: $el.data( 'nonce' )
+		} ).then( function( response ) {
 			setJITMContent( $el, response );
 		} );
 	} );

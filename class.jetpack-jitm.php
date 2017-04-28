@@ -67,7 +67,9 @@ class Jetpack_JITM {
 	function ajax_message() {
 		$message_path = $this->get_message_path();
 		?>
-		<div class="jetpack-jitm-message" data-message-path="<?php echo esc_attr( $message_path ) ?>"></div>
+		<div class="jetpack-jitm-message"
+		     data-nonce="<?php echo wp_create_nonce( 'wp_rest' ) ?>"
+		     data-message-path="<?php echo esc_attr( $message_path ) ?>"></div>
 		<?php
 	}
 
@@ -119,17 +121,25 @@ class Jetpack_JITM {
 	 * @return array
 	 */
 	public static function get_messages( $message_path ) {
+		$user = wp_get_current_user();
+
+		// unauthenticated or invalid requests just bail
+		if ( ! $user ) {
+			return array();
+		}
+
 		require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-client.php' );
 
 		$site_id = Jetpack_Options::get_option( 'id' );
 
-		$path = sprintf( '/sites/%d/jitm/%s', $site_id, $message_path ) . '?force=wpcom';
+		$path = sprintf( '/sites/%d/jitm/%s?force=wpcom&user_id=%s&user_roles=%s', $site_id, $message_path, urlencode_deep( $user->ID ), urlencode_deep( implode( ',', $user->roles ) ) );
 
 		//todo: try retrieve from transient first
 
 		$wpcom_response = Jetpack_Client::wpcom_json_api_request_as_blog(
-			$path, '1.1',
-			array( 'user_id' => get_current_user_id() )
+			$path,
+			'1.1',
+			array( 'user_id' => $user->ID, 'user_roles' => implode( ',', $user->roles ) )
 		);
 
 		// silently fail...might be helpful to track it?
@@ -139,7 +149,10 @@ class Jetpack_JITM {
 
 		// todo: use ttl value to set expiration ...
 		// todo: clear transient on dismiss
+		// todo: do not show anything we've already dismissed if it came from the cache
 		$envelopes = json_decode( $wpcom_response['body'] );
+
+		return $envelopes;
 
 		if ( ! is_array( $envelopes ) ) {
 			return array();
