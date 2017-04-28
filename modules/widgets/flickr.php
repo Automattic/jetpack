@@ -89,9 +89,8 @@ if ( ! class_exists( 'Jetpack_Flickr_Widget' ) ) {
 					$photos .= '<a href="' . esc_url( $photo->get_permalink(), array( 'http', 'https' ) ) . '">';
 					$photos .= '<img src="' . esc_url( $src, array( 'http', 'https' ) ) . '" ';
 					$photos .= 'alt="' . esc_attr( $photo->get_title() ) . '" ';
-					$photos .= 'border="0" ';
 					$photos .= 'title="' . esc_attr( $photo->get_title() ) . '" ';
-					$photos .= ' /></a><br /><br />';
+					$photos .= ' /></a>';
 				}
 				if ( ! empty( $photos ) && class_exists( 'Jetpack_Photon' ) && Jetpack::is_module_active( 'photon' ) ) {
 					$photos = Jetpack_Photon::filter_the_content( $photos );
