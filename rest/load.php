@@ -18,7 +18,7 @@ class WP_Super_Cache_Router {
 	 * POST /wp-super-cache/v1/settings
 	 * GET /wp-super-cache/v1/stats
 	 * GET /wp-super-cache/v1/cache
-	 * DELETE /wp-super-cache/v1/cache
+	 * POST /wp-super-cache/v1/cache
 	 */
 	public static function register_routes() {
 		$version = '1';
@@ -41,7 +41,7 @@ class WP_Super_Cache_Router {
 				'args'            	  => array(),
 			),
 			array(
-				'methods'         	  => 'POST',
+				'methods'         	  => WP_REST_Server::CREATABLE,
 				'callback'        	  => array( $update_settings, 'callback' ),
 				'permission_callback' => __CLASS__ . '::update_item_permissions_check',
 				'args'           	  => array(),
@@ -69,7 +69,7 @@ class WP_Super_Cache_Router {
 				'args'            	  => array(),
 			),
 			array(
-				'methods'         	  => WP_REST_Server::DELETABLE,
+				'methods'         	  => WP_REST_Server::CREATABLE,
 				'callback'        	  => array( $delete_cache, 'callback' ),
 				'permission_callback' => __CLASS__ . '::delete_item_permissions_check',
 				'args'           	  => array(),
