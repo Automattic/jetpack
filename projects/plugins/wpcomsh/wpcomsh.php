@@ -21,7 +21,7 @@ require_once( 'custom-fonts-typekit/custom-fonts-typekit.php' );
 require_once( 'custom-colors/colors.php' );
 
 /**
- * WP.com Widgets
+ * WP.com Widgets (in alphabetical order)
  */
 require_once( 'widgets/aboutme.php' );
 require_once( 'widgets/author-grid.php' );
@@ -29,6 +29,7 @@ require_once( 'widgets/gravatar.php' );
 require_once( 'widgets/instagram/instagram.php' );
 require_once( 'widgets/i-voted.php' );
 require_once( 'widgets/music-player.php' );
+require_once( 'widgets/posts-i-like.php' );
 require_once( 'widgets/recent-comments-widget.php' );
 require_once( 'widgets/tlkio/tlkio.php' );
 
