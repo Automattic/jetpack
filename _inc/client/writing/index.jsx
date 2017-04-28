@@ -24,6 +24,7 @@ import CustomContentTypes from './custom-content-types';
 import ThemeEnhancements from './theme-enhancements';
 import PostByEmail from './post-by-email';
 import { Masterbar } from './masterbar';
+import { CommentLikes } from './comment-likes';
 
 export const Writing = React.createClass( {
 	displayName: 'WritingSettings',
@@ -38,6 +39,7 @@ export const Writing = React.createClass( {
 		};
 
 		const found = [
+			'comment-likes',
 			'masterbar',
 			'markdown',
 			'after-the-deadline',
@@ -71,6 +73,7 @@ export const Writing = React.createClass( {
 						<Masterbar connectUrl={ this.props.connectUrl } { ...commonProps } />
 					)
 				}
+				<CommentLikes connectUrl={ this.props.connectUrl } { ...commonProps } />
 				{
 					showComposing && (
 						<Composing { ...commonProps } userCanManageModules={ this.props.userCanManageModules } />
