@@ -36,7 +36,7 @@ class WP_Super_Cache_Settings_Map {
 			'set' => 'set_time_setting',
 		),
 		'cache_stats' => array(
-			'get' => 'get_cache_states',
+			'get' => 'get_cache_stats',
 			'set' => '',
 		),
 		'is_preloading' => array(
