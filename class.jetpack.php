@@ -482,22 +482,19 @@ class Jetpack {
 		add_action( 'remove_user_from_blog', array( $this, 'unlink_user' ), 10, 1 );
 
 
-		// define a few REST endpoints for getting through the connection process
-		// without XMLRPC
-		add_action( 'rest_api_init', array( $this, 'rest_api_init' ) );
-		// Alternate XML-RPC, via ?for=jetpack&jetpack=xmlrpc
+		// Alternate XML-RPC, via ?jetpack=comms
 		if ( isset( $_GET['jetpack'] ) && 'comms' == $_GET['jetpack'] ) {
 			if ( ! defined( 'XMLRPC_REQUEST' ) ) {
 				define( 'XMLRPC_REQUEST', true );
 			}
 
+			error_log("alternate xmlrpc");
+
 			add_action( 'template_redirect', array( $this, 'alternate_xmlrpc' ) );
 		}
 
-
-		// define a few REST endpoints for getting through the connection process without XMLRPC
-		add_action( 'rest_api_init', array( $this, 'rest_api_init' ) );
 		if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST && isset( $_GET['for'] ) && 'jetpack' == $_GET['for'] ) {
+			error_log("traditional XMLRPC request");
 			@ini_set( 'display_errors', false ); // Display errors can cause the XML to be not well formed.
 
 			require_once JETPACK__PLUGIN_DIR . 'class.jetpack-xmlrpc-server.php';
@@ -664,12 +661,6 @@ class Jetpack {
 		$wp_xmlrpc_server->serve_request();
 
 		exit;
-	}
-
-	function rest_api_init() {
-		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-xmlrpc-fallback.php';
-		$fallback = new Jetpack_XMLRPC_Fallback();
-		$fallback->init();
 	}
 
 	function jetpack_admin_ajax_tracks_callback() {
