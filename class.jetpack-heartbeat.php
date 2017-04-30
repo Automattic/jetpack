@@ -87,6 +87,9 @@ class Jetpack_Heartbeat {
 			$jetpack->stat( $key, $value );
 		}
 
+		// Only add the heartbeat stat when actually doing the heartbeat
+		$jetpack->stat( 'v2-heartbeat', 1 );
+
 		Jetpack_Options::update_option( 'last_heartbeat', time() );
 
 		$jetpack->do_stats( 'server_side' );
