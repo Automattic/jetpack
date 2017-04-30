@@ -132,7 +132,7 @@ class Jetpack_JITM {
 
 		$site_id = Jetpack_Options::get_option( 'id' );
 
-		$path = sprintf( '/sites/%d/jitm/%s?force=wpcom&user_id=%s&user_roles=%s', $site_id, $message_path, urlencode_deep( $user->ID ), urlencode_deep( implode( ',', $user->roles ) ) );
+		$path = sprintf( '/sites/%d/jitm/%s?force=wpcom&external_user_id=%s&user_roles=%s', $site_id, $message_path, urlencode_deep( $user->ID ), urlencode_deep( implode( ',', $user->roles ) ) );
 
 		//todo: try retrieve from transient first
 
@@ -151,8 +151,6 @@ class Jetpack_JITM {
 		// todo: clear transient on dismiss
 		// todo: do not show anything we've already dismissed if it came from the cache
 		$envelopes = json_decode( $wpcom_response['body'] );
-
-		return $envelopes;
 
 		if ( ! is_array( $envelopes ) ) {
 			return array();
