@@ -93,7 +93,10 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 		set_current_screen( 'plugin-editor' );
 
 		/**
-		 * This action is already documented in wp-admin/admin.php as a dynamic action that fires upon admin update
+		 * This action is already documented in wp-admin/admin.php
+		 *
+		 * The 'update' portion of the hook name is from `$_REQUEST['action']`,
+		 * e.g. 'admin_action_' . $_REQUEST['action']
 		 *
 		 * @since 2.6.0
 		 */
