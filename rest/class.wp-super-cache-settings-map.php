@@ -89,7 +89,7 @@ class WP_Super_Cache_Settings_Map {
 		'cache_mod_rewrite' => array(
 			'global' => 'wp_cache_mod_rewrite',
 		),
-		'304_headers_enabled' => array(
+		'use_304_headers' => array(
 			'global' => 'wp_supercache_304',
 		),
 		'cache_late_init' => array(
