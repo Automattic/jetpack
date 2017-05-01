@@ -9,7 +9,7 @@ class WP_Super_Cache_Rest_Delete_Cache extends WP_REST_Controller {
 	 * @return WP_Error|WP_REST_Response
 	 */
 	public function callback( $request ) {
-		$params = $request->get_query_params();
+		$params = $request->get_json_params();
 
 		if ( isset( $params['id'] ) && is_numeric( $params['id'] ) ) {
 			wpsc_delete_post_cache( $params['id'] );
