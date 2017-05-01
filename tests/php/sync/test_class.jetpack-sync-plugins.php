@@ -92,6 +92,11 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 		);
 		set_current_screen( 'plugin-editor' );
 
+		/**
+		 * Used to signal that a plugin was updated
+		 *
+		 * @since 2.6.0
+		 */
 		do_action( 'admin_action_update' );
 
 		$this->sender->do_sync();
