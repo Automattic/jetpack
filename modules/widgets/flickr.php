@@ -67,37 +67,48 @@ if ( ! class_exists( 'Jetpack_Flickr_Widget' ) ) {
 
 			$image_size_string = 'small' == $instance['flickr_image_size'] ? '_m.jpg' : '_t.jpg';
 
-			$rss_url = ( ! isset( $instance['flickr_rss_url'] ) || empty( $instance['flickr_rss_url'] ) )
-				? 'https://api.flickr.com/services/feeds/photos_interesting.gne?format=rss_200'
-				: htmlspecialchars_decode( $instance['flickr_rss_url'] );
-
-			/**
-			 * Parse the URL, and rebuild a URL that's sure to display images.
-			 * Some Flickr Feeds do not display images by default.
-			 */
-			$flickr_parameters = parse_url( $rss_url );
-			parse_str( $flickr_parameters['query'], $vars );
-
-			// Do we have an ID in the feed? Let's continue.
-			if ( isset( $vars['id'] ) ) {
+			if ( ! empty( $instance['flickr_rss_url'] ) ) {
 				/**
-				 * Flickr Feeds can be used for groups or for individuals.
+				 * Parse the URL, and rebuild a URL that's sure to display images.
+				 * Some Flickr Feeds do not display images by default.
 				 */
-				if (
-					! empty( $flickr_parameters['path'] )
-					&& false !== strpos( $flickr_parameters['path'], 'groups' )
-				) {
-					$feed_url = 'https://api.flickr.com/services/feeds/groups_pool.gne';
-				} else {
-					$feed_url = 'https://api.flickr.com/services/feeds/photos_public.gne';
-				}
+				$flickr_parameters = parse_url( htmlspecialchars_decode( $instance['flickr_rss_url'] ) );
 
-				// Build our new RSS feed.
-				$rss_url = sprintf(
-					'%1$s?id=%2$s&format=rss_200_enc',
-					esc_url( $feed_url ),
-					esc_attr( $vars['id'] )
-				);
+				// Is it a Flickr Feed.
+				if (
+					! empty( $flickr_parameters['host'] )
+					&& ! empty( $flickr_parameters['query'] )
+					&& false !== strpos( $flickr_parameters['host'], 'flickr' )
+				) {
+					parse_str( $flickr_parameters['query'], $vars );
+
+					// Do we have an ID in the feed? Let's continue.
+					if ( isset( $vars['id'] ) ) {
+						/**
+						 * Flickr Feeds can be used for groups or for individuals.
+						 */
+						if (
+							! empty( $flickr_parameters['path'] )
+							&& false !== strpos( $flickr_parameters['path'], 'groups' )
+						) {
+							$feed_url = 'https://api.flickr.com/services/feeds/groups_pool.gne';
+						} else {
+							$feed_url = 'https://api.flickr.com/services/feeds/photos_public.gne';
+						}
+
+						// Build our new RSS feed.
+						$rss_url = sprintf(
+							'%1$s?id=%2$s&format=rss_200_enc',
+							esc_url( $feed_url ),
+							esc_attr( $vars['id'] )
+						);
+					}
+				}
+			} // End if().
+
+			// Still no RSS feed URL? Get a default feed from Flickr to grab interesting photos.
+			if ( empty( $rss_url ) ) {
+				$rss_url = 'https://api.flickr.com/services/feeds/photos_interesting.gne?format=rss_200';
 			}
 
 			$rss = fetch_feed( $rss_url );
