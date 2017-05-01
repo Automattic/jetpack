@@ -207,10 +207,10 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'comment_max_links'       => (int) get_option( 'comment_max_links' ),
 					'moderation_keys'         => get_option( 'moderation_keys' ),
 					'blacklist_keys'          => get_option( 'blacklist_keys' ),
-					'lang_id'                 => defined ( 'IS_WPCOM' ) && IS_WPCOM
+					'lang_id'                 => defined( 'IS_WPCOM' ) && IS_WPCOM
 						? get_lang_id_by_code( wpcom_l10n_get_blog_locale_variant( $blog_id, true ) )
 						: get_option( 'lang_id' ),
-					'wga'                     =>  defined ( 'IS_WPCOM' ) && IS_WPCOM
+					'wga'                     => defined( 'IS_WPCOM' ) && IS_WPCOM
 						? get_option( 'wga' )
 						: $this->get_google_analytics(),
 					'disabled_likes'          => (bool) get_option( 'disabled_likes' ),
@@ -230,11 +230,11 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'jetpack_portfolio'       => (bool) get_option( 'jetpack_portfolio', '0' ),
 					'jetpack_portfolio_posts_per_page' => (int) get_option( 'jetpack_portfolio_posts_per_page', '10' ),
 					'markdown_supported'      => true,
-					'amp_is_supported'        => (bool) function_exists( 'wpcom_is_amp_supported' ) && wpcom_is_amp_supported( $blog_id ),
-					'amp_is_enabled'          => (bool) function_exists( 'wpcom_is_amp_enabled' ) && wpcom_is_amp_enabled( $blog_id ),
 					'site_icon'               => $this->get_cast_option_value_or_null( 'site_icon', 'intval' ),
 					Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION => get_option( Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION, '' ),
 					Jetpack_SEO_Titles::TITLE_FORMATS_OPTION => get_option( Jetpack_SEO_Titles::TITLE_FORMATS_OPTION, array() ),
+					'amp_is_supported'        => (bool) function_exists( 'wpcom_is_amp_supported' ) && wpcom_is_amp_supported( $blog_id ),
+					'amp_is_enabled'          => (bool) function_exists( 'wpcom_is_amp_enabled' ) && wpcom_is_amp_enabled( $blog_id ),
 					'api_cache'               => $api_cache,
 				);
 
@@ -510,7 +510,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					// settings are stored as deletable numeric (all empty
 					// values as delete intent), validated as media image
 					if ( empty( $value ) || WPCOM_JSON_API::is_falsy( $value ) ) {
-						if ( delete_option( $key ) ) {
+						if ( delete_option( $key ) || apply_filters( 'rest_api_site_icon_cleared', false )  ) {
 							$updated[ $key ] = null;
 						}
 					} else if ( is_numeric( $value ) ) {
@@ -574,21 +574,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 						$saved = wpcom_update_amp_enabled( $blog_id, $value );
 						if ( $saved ) {
 							$updated[ $key ] = (bool) $value;
-						}
-					}
-					break;
-
-				case 'site_icon':
-					// settings are stored as deletable numeric (all empty
-					// values as delete intent), validated as media image
-					if ( empty( $value ) || WPCOM_JSON_API::is_falsy( $value ) ) {
-						if ( delete_option( $key ) || apply_filters( 'rest_api_site_icon_cleared', false ) ) {
-							$updated[ $key ] = null;
-						}
-					} else if ( is_numeric( $value ) ) {
-						$coerce_value = (int) $value;
-						if ( wp_attachment_is_image( $coerce_value ) && update_option( $key, $coerce_value ) ) {
-							$updated[ $key ] = $coerce_value;
 						}
 					}
 					break;
