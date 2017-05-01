@@ -72,7 +72,7 @@ class Jetpack_Sync_Module_Menus extends Jetpack_Sync_Module {
 	}
 
 	public function remove_just_added_menu_item( $nav_item_id, $post_after  ) {
-		if ( $post_after->post_type !== 'nav_menu_item' ) {
+		if ( 'nav_menu_item' !== $post_after->post_type ) {
 			return;
 		}
 		$this->nav_items_just_added = array_diff( $this->nav_items_just_added, array( $nav_item_id ) );
