@@ -191,7 +191,7 @@ HTML;
 	 */
 	function insert_ad( $content ) {
 		// Ad JS won't work in XML feeds.
-		if ( is_feed() ){
+		if ( is_feed() ) {
 			return $content;
 		}
 		/**
