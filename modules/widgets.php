@@ -31,6 +31,8 @@ function jetpack_load_widgets() {
 	foreach( $widgets_include as $include ) {
 		include $include;
 	}
+
+	include_once dirname( __FILE__ ) . '/widgets/migrate-to-core/image-widget.php';
 }
 
 add_action( 'jetpack_modules_loaded', 'jetpack_widgets_loaded' );
