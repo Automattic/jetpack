@@ -510,6 +510,14 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					// settings are stored as deletable numeric (all empty
 					// values as delete intent), validated as media image
 					if ( empty( $value ) || WPCOM_JSON_API::is_falsy( $value ) ) {
+						/**
+						 * Fallback mechanism to clear a third party site icon setting. Can be used
+						 * to unset the option when an API request instructs the site to remove the site icon.
+						 *
+						 * @module json-api
+						 *
+						 * @since 4.10
+						 */
 						if ( delete_option( $key ) || apply_filters( 'rest_api_site_icon_cleared', false )  ) {
 							$updated[ $key ] = null;
 						}
