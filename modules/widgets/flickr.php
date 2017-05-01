@@ -68,7 +68,8 @@ if ( ! class_exists( 'Jetpack_Flickr_Widget' ) ) {
 			$image_size_string = 'small' == $instance['flickr_image_size'] ? '_m.jpg' : '_t.jpg';
 
 			if ( ! empty( $instance['flickr_rss_url'] ) ) {
-				/**
+
+				/*
 				 * Parse the URL, and rebuild a URL that's sure to display images.
 				 * Some Flickr Feeds do not display images by default.
 				 */
@@ -84,9 +85,8 @@ if ( ! class_exists( 'Jetpack_Flickr_Widget' ) ) {
 
 					// Do we have an ID in the feed? Let's continue.
 					if ( isset( $vars['id'] ) ) {
-						/**
-						 * Flickr Feeds can be used for groups or for individuals.
-						 */
+
+						// Flickr Feeds can be used for groups or for individuals.
 						if (
 							! empty( $flickr_parameters['path'] )
 							&& false !== strpos( $flickr_parameters['path'], 'groups' )
