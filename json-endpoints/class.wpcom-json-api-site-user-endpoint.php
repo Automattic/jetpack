@@ -104,12 +104,12 @@ class WPCOM_JSON_API_Site_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 			} else if ( is_string( $input['roles'] ) ) {
 				$user['role'] = $input['roles'];
 			} else {
-				return new WP_Error( 'invalid_input', __( 'The roles property must be a string or an array.' ), 400 );
+				return new WP_Error( 'invalid_input', __( 'The roles property must be a string or an array.', 'jetpack' ), 400 );
 			}
 
 			$editable_roles = array_keys( get_editable_roles() );
 			if ( ! in_array( $user['role'], $editable_roles ) ) {
-				return new WP_Error( 'invalid_input', sprintf( __( '%s is not a valid role.' ), $editable_roles ), 400 );
+				return new WP_Error( 'invalid_input', sprintf( __( '%s is not a valid role.', 'jetpack' ), $editable_roles ), 400 );
 			}
 		}
 
