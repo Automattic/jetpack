@@ -93,7 +93,7 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 		set_current_screen( 'plugin-editor' );
 
 		/**
-		 * Used to signal that a plugin was updated
+		 * This action is already documented in wp-admin/admin.php as a dynamic action that fires upon admin update
 		 *
 		 * @since 2.6.0
 		 */
