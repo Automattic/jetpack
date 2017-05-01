@@ -27,7 +27,7 @@ class WP_Super_Cache_Rest_Delete_Cache extends WP_REST_Controller {
 
 		} else {
 			global $file_prefix;
-			wp_cache_clean_cache( $file_prefix, isset( $params['all'] ) );
+			wp_cache_clean_cache( $file_prefix, !empty( $params['all'] ) );
 		}
 
 		return rest_ensure_response( array( 'Cache Cleared' => true ) );
