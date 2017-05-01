@@ -8,7 +8,7 @@
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '1.8.3' );
+define( 'WPCOMSH_VERSION', '1.8.4' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -34,6 +34,24 @@ require_once( 'widgets/tlkio/tlkio.php' );
 
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once WPCOMSH__PLUGIN_DIR_PATH . '/class.cli-commands.php';
+}
+
+require_once WPCOMSH__PLUGIN_DIR_PATH . '/class.jetpack-plugin-compatibility.php';
+
+if ( class_exists( 'Jetpack_Plugin_Compatibility' ) ) {
+	$wpcomsh_incompatible_plugins = array(
+		'advanced-reset-wp/advanced-reset-wp.php' => 'advanced-reset-wp and other WordPress reset plugins delete data ' .
+			'necessary to manage your site and are not supported on WordPress.com. advanced-reset-wp has been deactivated.',
+		'advanced-wp-reset/advanced-wp-reset.php' => 'advanced-wp-reset and other WordPress reset plugins delete data ' .
+			'necessary to manage your site and are not supported on WordPress.com. advanced-wp-reset has been deactivated.',
+		'reset-wp/reset-wp.php' => 'reset-wp and other WordPress reset plugins delete data ' .
+			'necessary to manage your site and are not supported on WordPress.com. reset-wp has been deactivated.',
+		'wordpress-database-reset/wp-reset.php' => 'wordpress-database-reset and other WordPress reset plugins delete data ' .
+			'necessary to manage your site and are not supported on WordPress.com. wordpress-database-reset has been deactivated.',
+		'wp-reset/wp-reset.php' => 'wp-reset and other WordPress reset plugins delete data ' .
+			'necessary to manage your site and are not supported on WordPress.com. wp-reset has been deactivated.',
+	);
+	new Jetpack_Plugin_Compatibility( $wpcomsh_incompatible_plugins );
 }
 
 function wpcomsh_remove_vaultpress_wpadmin_notices() {
