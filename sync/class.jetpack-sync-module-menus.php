@@ -27,8 +27,6 @@ class Jetpack_Sync_Module_Menus extends Jetpack_Sync_Module {
 		}
 		/**
 		 * Helps sync log that a nav menu was updated.
-		 *
-		 * Helps Sync log that a got cleared from inactive.
 		 * 
 		 * @since 5.0.0
 		 * 
