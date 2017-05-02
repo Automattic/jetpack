@@ -42,7 +42,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		 * Signals to the sync listener that a theme was deleted and a sync action
 		 * reflecting the deletion and theme slug should be sent
 		 *
-		 * @since 4.9.0
+		 * @since 5.0.0
 		 *
 		 * @param string $slug Theme slug
 		 */
