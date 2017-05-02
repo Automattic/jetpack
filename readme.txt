@@ -120,7 +120,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Added an updated multiple unit tests increasing code coverage.
 * Development mode now also shows module list.
 * Updated the list of locales available in Jetpack.
-* Plugin auto-updates only triggered from WordPress.com and now trigger WordPress' maintenance mode..
+* Plugin auto-updates only triggered from WordPress.com and now trigger WordPress' maintenance mode.
 
 **Performance Improvements**
 
