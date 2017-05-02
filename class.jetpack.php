@@ -599,6 +599,25 @@ class Jetpack {
 			add_action( 'wp_print_styles', array( $this, 'implode_frontend_css' ), -1 ); // Run first
 			add_action( 'wp_print_footer_scripts', array( $this, 'implode_frontend_css' ), -1 ); // Run first to trigger before `print_late_styles`
 		}
+		
+		if ( Jetpack::is_active() ) {
+			// Add wordpress.com to the safe redirect whitelist if Jetpack is connected
+			// so the customizer can `return` to wordpress.com if invoked from there.
+			add_action( 'customize_register', array( $this, 'add_wpcom_to_allowed_redirect_hosts' ) );
+		}
+	}
+
+	function add_wpcom_to_allowed_redirect_hosts( $domains ) {
+		add_filter( 'allowed_redirect_hosts', array( $this, 'allow_wpcom_domain' ) );
+	}
+
+	// Return $domains, with 'wordpress.com' appended.
+	function allow_wpcom_domain( $domains ) {
+		if ( empty( $domains ) ) {
+			$domains = array();
+		}
+		$domains[] = 'wordpress.com';
+		return array_unique( $domains );
 	}
 
 	function jetpack_admin_ajax_tracks_callback() {

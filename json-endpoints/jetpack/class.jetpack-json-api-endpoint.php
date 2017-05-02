@@ -57,6 +57,9 @@ abstract class Jetpack_JSON_API_Endpoint extends WPCOM_JSON_API_Endpoint {
 	/**
 	 * Switches to the blog and checks current user capabilities.
 	 * @return bool|WP_Error a WP_Error object or true if things are good.
+	 *
+	 * @since 5.0, $check_manage_active doesn't actually check for the existence of the manage module,
+	 * 	since it doesn't exist anymore.  We're checking just to see if Jetpack is active instead.
 	 */
 	protected function validate_call( $_blog_id, $capability, $check_manage_active = true ) {
 		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $_blog_id ) );
@@ -68,7 +71,7 @@ abstract class Jetpack_JSON_API_Endpoint extends WPCOM_JSON_API_Endpoint {
 			return $error;
 		}
 
-		if ( $check_manage_active &&  'GET' !== $this->method && ! Jetpack::is_module_active( 'manage' ) ) {
+		if ( $check_manage_active && 'GET' !== $this->method && ! Jetpack::is_active() ) {
 			return new WP_Error( 'unauthorized_full_access', __( 'Full management mode is off for this site.', 'jetpack' ), 403 );
 		}
 
