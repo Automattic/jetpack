@@ -2036,7 +2036,11 @@ function wp_cache_setting( $field, $value ) {
 	global $wp_cache_config_file;
 	global ${$field};
 	$$field = $value;
-	wp_cache_replace_line('^ *\$' . $field, "\$$field = '$value';", $wp_cache_config_file);
+	if ( is_numeric( $value ) ) {
+		wp_cache_replace_line( '^ *\$' . $field, "\$$field = $value;", $wp_cache_config_file );
+	} else {
+		wp_cache_replace_line( '^ *\$' . $field, "\$$field = '$value';", $wp_cache_config_file );
+	}
 }
 
 function wp_cache_replace_line($old, $new, $my_file) {
