@@ -35,12 +35,8 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 			return;
 		}
 		error_log(print_r($delete_theme_call, true));
-//error_log(print_r($_POST, true));
-//error_log(print_r($_GET, true));
-//error_log(print_r($_REQUEST, true));
 		$name = $delete_theme_call['args'][0];
 		error_log($name);
-
 	}
 
 	public function check_upgrader( $upgrader, $details) {
