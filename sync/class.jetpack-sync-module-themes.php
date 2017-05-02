@@ -11,6 +11,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		add_action( 'upgrader_process_complete', array( $this, 'check_upgrader'), 10, 2 );
 		add_action( 'jetpack_installed_theme', $callable, 10, 2 );
 		add_action( 'jetpack_updated_theme', $callable, 10, 2 );
+		add_action( 'delete_site_transient_update_themes', array($this, 'detect_theme_deletion') );
 
 		// Sidebar updates.
 		add_action( 'update_option_sidebars_widgets', array( $this, 'sync_sidebar_widgets_actions' ), 10, 2 );
@@ -19,6 +20,22 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		add_action( 'jetpack_widget_moved_to_inactive', $callable );
 		add_action( 'jetpack_cleared_inactive_widgets', $callable );
 		add_action( 'jetpack_widget_reordered', $callable );
+	}
+
+	public function detect_theme_deletion() {
+		$backtrace = debug_backtrace();
+		$delete_theme_call = null;
+		foreach ( $backtrace as $call ) {
+			if ( isset( $call['function'] ) && 'delete_theme' === $call['function'] ) {
+				$delete_theme_call = $call;
+				break;
+			}
+		}
+		if ( empty( $delete_theme_call ) ) {
+			return;
+		}
+		error_log(print_r($delete_theme_call, true));
+		$name = $delete_theme_call['args'][0];
 	}
 
 	public function check_upgrader( $upgrader, $details) {
