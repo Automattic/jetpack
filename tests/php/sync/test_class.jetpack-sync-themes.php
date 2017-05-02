@@ -123,7 +123,7 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $local_value, $this->server_replica_storage->get_option( 'theme_mods_' . $this->theme ) );
 	}
 
-	public function test_theme_install() {
+	public function test_theme_install_and_delete() {
 		require_once ABSPATH . 'wp-admin/includes/theme-install.php';
 		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 
@@ -153,6 +153,12 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( (bool) $event_data->args[1]['uri'] );
 
 		delete_theme( $theme_stylesheet );
+
+		$this->sender->do_sync();
+
+		$event_data = $this->server_event_storage->get_most_recent_event( 'jetpack_deleted_theme' );
+
+		$this->assertEquals( 'itek', $event_data->args[0] );
 	}
 
 	public function test_theme_update() {
@@ -177,6 +183,10 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 			)
 		);
 		$this->assertEquals( $expected, $event_data->args );
+	}
+
+	public function test_theme_deletion() {
+
 	}
 
 	public function test_widgets_changes_get_synced() {
