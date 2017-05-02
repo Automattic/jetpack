@@ -55,13 +55,15 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 
 	public function test_sync_wp_version() {
 		global $wp_version;
+		$previews_version = $wp_version;
 		$this->assertEquals( $wp_version, $this->server_replica_storage->get_callable( 'wp_version' ) );
 
 		// Lets pretend that we updated the wp_version to bar.
 		$wp_version = 'bar';
 		do_action( 'upgrader_process_complete', null, array( 'action' => 'update', 'type' => 'core' ) );
 		$this->sender->do_sync();
-		$this->assertEquals( $wp_version, $this->server_replica_storage->get_callable( 'wp_version' ) );
+		$wp_version = $previews_version;
+		$this->assertEquals( 'bar', $this->server_replica_storage->get_callable( 'wp_version' ) );
 	}
 
 	public function test_automatic_updates_complete_sync_action() {
@@ -70,28 +72,62 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 			'item'     => array( 'somedata' ),
 			'result'   => 'some more data',
 			'name'     => 'WordPress 4.7',
-			'messages' => array('it worked.') ) ) );
+			'messages' => array( 'it worked.' ) ) ) );
 		$this->sender->do_sync();
 
 		$event = $this->server_event_storage->get_most_recent_event( 'automatic_updates_complete' );
+		var_dump($event);
 		$this->assertTrue( (bool) $event );
 	}
 
 	public function test_update_core_successfully_sync_action() {
-		global $wp_version;
+		global $wp_version, $pagenow;
+		$current_page = $pagenow;
+
+		$pagenow = 'update-core.php';
 		// Remove the _redirect_to_about_wordpress action
 		remove_action( '_core_updated_successfully', '_redirect_to_about_wordpress' );
 		do_action( '_core_updated_successfully', 'foo' );
+		$pagenow = $current_page; // revert page now
 		$this->sender->do_sync();
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_update_core_successfull' );
 
 		$this->assertTrue( (bool) $event );
-		$this->assertEquals( $event->args[0], $wp_version ); // Old Version
-		$this->assertEquals( $event->args[1], 'foo' ); // New version
-		$this->assertTrue( $event->args[2] ); // Autoupdated
-		$this->assertFalse( $event->args[3] ); // is Reinstall?
+		$this->assertEquals( $event->args[0], 'foo' ); // Old Version
+		$this->assertEquals( $event->args[1], $wp_version ); // New version
+	}
 
+	public function test_autoupdate_core_successfully_sync_action() {
+		global $wp_version;
+
+		// Remove the _redirect_to_about_wordpress action
+		remove_action( '_core_updated_successfully', '_redirect_to_about_wordpress' );
+		do_action( '_core_updated_successfully', 'foo' );
+		$this->sender->do_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_autoupdate_core_successfull' );
+
+		$this->assertTrue( (bool) $event );
+		$this->assertEquals( $event->args[0], 'foo' ); // Old Version
+		$this->assertEquals( $event->args[1], $wp_version ); // New version
+	}
+
+	public function test_reinstall_core_successfully_sync_action() {
+		global $_GET;
+		$_GET['action'] = 'do-core-reinstall';
+
+		// Remove the _redirect_to_about_wordpress action
+		remove_action( '_core_updated_successfully', '_redirect_to_about_wordpress' );
+		do_action( '_core_updated_successfully', 'foo' );
+		$this->sender->do_sync();
+
+		unset( $_GET['action'] );
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_reinstall_core_successfull' );
+
+		$this->assertTrue( (bool) $event );
+		$this->assertEquals( $event->args[0], 'foo' ); // New version
 	}
 
 }

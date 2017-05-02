@@ -34,7 +34,9 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 
 		// Send data when update completes
 		add_action( '_core_updated_successfully', array( $this, 'update_core' ) );
-		add_action( 'jetpack_sync_update_core_successfull', $callable, 10, 4 );
+		add_action( 'jetpack_sync_update_core_successfull', $callable, 10, 2 );
+		add_action( 'jetpack_sync_autoupdate_core_successfull', $callable, 10, 2 );
+		add_action( 'jetpack_sync_reinstall_core_successfull', $callable, 10, 1 );
 	}
 
 	public function init_full_sync_listeners( $callable ) {
@@ -49,13 +51,21 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 	public function update_core( $new_version ) {
 		global $pagenow;
 
-		$auto_updated = (bool) ( 'update-core.php' !== $pagenow );
+		if ( isset( $_GET[ 'action' ] ) && 'do-core-reinstall' == $_GET[ 'action' ] ) {
+			do_action( 'jetpack_sync_reinstall_core_successfull', $new_version );
+			return;
+		}
 
-		$reinstall = isset( $_GET[ 'action' ] ) && 'do-core-reinstall' == $_GET[ 'action' ] ? true : false ;
+		// Core was autoudpated
+		if ( 'update-core.php' !== $pagenow ) {
+			do_action( 'jetpack_sync_autoupdate_core_successfull', $new_version, $this->old_version );
+			return;
+		}
 
-		do_action( 'jetpack_sync_update_core_successfull', $this->old_version, $new_version, $auto_updated, $reinstall );
+		do_action( 'jetpack_sync_update_core_successfull', $new_version, $this->old_version );
+		return;
 	}
-	
+
 	public function get_update_checksum( $value ) {
 		// Create an new array so we don't modify the object passed in.
 		$a_value = (array) $value;
