@@ -185,10 +185,6 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $expected, $event_data->args );
 	}
 
-	public function test_theme_deletion() {
-
-	}
-
 	public function test_widgets_changes_get_synced() {
 
 		$sidebar_widgets = array(
