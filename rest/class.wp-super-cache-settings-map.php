@@ -60,7 +60,7 @@ class WP_Super_Cache_Settings_Map {
 			'global' => 'wp_cache_mfunc_enabled',
 		),
 		'cache_list' => array(
-			'global' => 'wp_cache_config_file',
+			'global' => 'wp_supercache_cache_list',
 		),
 		'clear_cache_on_post_edit' => array(
 			'global' => 'wp_cache_clear_on_post_edit',
