@@ -1924,6 +1924,7 @@ function wp_cache_edit_accepted() {
 function wp_cache_debug_settings() {
 	global $wp_super_cache_debug, $wp_cache_debug_log, $wp_cache_debug_ip, $cache_path, $valid_nonce, $wp_cache_config_file, $wp_super_cache_comments;
 	global $wp_super_cache_front_page_check, $wp_super_cache_front_page_clear, $wp_super_cache_front_page_text, $wp_super_cache_front_page_notification, $wp_super_cache_advanced_debug;
+	global $wp_cache_debug_username, $wp_cache_debug_password;
 
 	if ( false == isset( $wp_super_cache_comments ) )
 		$wp_super_cache_comments = 1;
@@ -1933,10 +1934,28 @@ function wp_cache_debug_settings() {
 		$wp_super_cache_debug = intval( $_POST[ 'wp_super_cache_debug' ] );
 		wp_cache_replace_line('^ *\$wp_super_cache_debug', "\$wp_super_cache_debug = '$wp_super_cache_debug';", $wp_cache_config_file);
 		if ( $wp_super_cache_debug && ( ( isset( $wp_cache_debug_log ) && $wp_cache_debug_log == '' ) || !isset( $wp_cache_debug_log ) ) ) {
-			$wp_cache_debug_log = md5( time() ) . ".txt";
+			$wp_cache_debug_log = md5( time() + mt_rand() ) . ".php";
+			$wp_cache_debug_username = md5( time() + mt_rand() );
+			$wp_cache_debug_password = md5( time() + mt_rand() );
+			$fp = fopen( $cache_path . $wp_cache_debug_log, 'w' );
+			if ( $fp ) {
+				fwrite( $fp, '<' . "?php\n" );
+				$msg = '
+				if ( !isset( $_SERVER[ "PHP_AUTH_USER" ] ) || ( $_SERVER[ "PHP_AUTH_USER" ] != "' . $wp_cache_debug_username . '" && $_SERVER[ "PHP_AUTH_PW" ] != "' . $wp_cache_debug_password . '" ) ) {
+					header( "WWW-Authenticate: Basic realm=\"WP-Super-Cache Debug Log\"" );
+					header("HTTP/1.0 401 Unauthorized");
+					echo "You must login to view the debug log";
+					exit;
+				}';
+				fwrite( $fp, $msg );
+				fwrite( $fp, '?' . "><pre>" );
+				fclose( $fp );
+			}
 		} else {
 			$wp_cache_debug_log = "";
 		}
+		wp_cache_replace_line('^ *\$wp_cache_debug_username', "\$wp_cache_debug_username = '$wp_cache_debug_username';", $wp_cache_config_file);
+		wp_cache_replace_line('^ *\$wp_cache_debug_password', "\$wp_cache_debug_password = '$wp_cache_debug_password';", $wp_cache_config_file);
 		wp_cache_replace_line('^ *\$wp_cache_debug_log', "\$wp_cache_debug_log = '$wp_cache_debug_log';", $wp_cache_config_file);
 		$wp_super_cache_comments = isset( $_POST[ 'wp_super_cache_comments' ] ) ? 1 : 0;
 		wp_cache_replace_line('^ *\$wp_super_cache_comments', "\$wp_super_cache_comments = '$wp_super_cache_comments';", $wp_cache_config_file);
@@ -1958,8 +1977,13 @@ function wp_cache_debug_settings() {
 
 	echo '<a name="debug"></a>';
 	echo '<fieldset class="options">';
-	if ( isset( $wp_cache_debug_log ) && $wp_cache_debug_log != '' )
+	if ( isset( $wp_cache_debug_log ) && $wp_cache_debug_log != '' ) {
 		echo "<p>" . sprintf( __( 'Currently logging to: %s', 'wp-super-cache' ), "<a href='" . site_url( str_replace( ABSPATH, '', "{$cache_path}{$wp_cache_debug_log}" ) ) . "'>$cache_path{$wp_cache_debug_log}</a>" ) . "</p>";
+		if ( isset( $wp_cache_debug_username ) && $wp_cache_debug_username != '' ) {
+			echo "<p>" . sprintf( __( 'Username: %s', 'wp-super-cache' ), $wp_cache_debug_username ) . "<br />";
+			echo sprintf( __( 'Password: %s', 'wp-super-cache' ), $wp_cache_debug_password ) . "</p>";
+		}
+	}
 
 
 	echo '<p>' . __( 'Fix problems with the plugin by debugging it here. It can log them to a file in your cache directory.', 'wp-super-cache' ) . '</p>';
