@@ -10,14 +10,14 @@ _x( "Settings", "Navigation item.", "jetpack" ), // _inc/client/admin.js:65
 _x( "Plans", "Navigation item.", "jetpack" ), // _inc/client/admin.js:64
 __( "At A Glance", "jetpack" ), // _inc/client/admin.js:63
 _x( "At A Glance", "Navigation item.", "jetpack" ), // _inc/client/admin.js:61
-__( "Options failed to reset.", "jetpack" ), // _inc/client/state/dev-version/actions.js:40
-__( "Options reset.", "jetpack" ), // _inc/client/state/dev-version/actions.js:33
-__( "Resetting Jetpack options…", "jetpack" ), // _inc/client/state/dev-version/actions.js:27
 __( "Error unlinking from WordPress.com. %(error)s", "jetpack" ), // _inc/client/state/connection/actions.js:128
 __( "Unlinked from WordPress.com.", "jetpack" ), // _inc/client/state/connection/actions.js:119
 __( "Unlinking from WordPress.com", "jetpack" ), // _inc/client/state/connection/actions.js:112
 __( "There was an error disconnecting Jetpack. Error: %(error)s", "jetpack" ), // _inc/client/state/connection/actions.js:96
 __( "Disconnecting Jetpack", "jetpack" ), // _inc/client/state/connection/actions.js:81
+__( "Options failed to reset.", "jetpack" ), // _inc/client/state/dev-version/actions.js:40
+__( "Options reset.", "jetpack" ), // _inc/client/state/dev-version/actions.js:33
+__( "Resetting Jetpack options…", "jetpack" ), // _inc/client/state/dev-version/actions.js:27
 __( "Recommended features failed to activate. %(error)s", "jetpack" ), // _inc/client/state/jumpstart/actions.js:47
 __( "Recommended features active.", "jetpack" ), // _inc/client/state/jumpstart/actions.js:37
 __( "Activating recommended features…", "jetpack" ), // _inc/client/state/jumpstart/actions.js:29
@@ -530,8 +530,6 @@ __( "Real-time site backups and automatic threat resolution.", "jetpack" ), // _
 __( "Generate income with high-quality ads.", "jetpack" ), // _inc/client/components/settings-card/index.jsx:111
 __( "Host fast, high-quality, ad-free video.", "jetpack" ), // _inc/client/components/settings-card/index.jsx:92
 _x( "Upgrade", "A caption for a button to upgrade an existing paid feature to a higher tier.", "jetpack" ), // _inc/client/components/settings-card/index.jsx:79
-__( "Learn more", "jetpack" ), // _inc/client/components/settings-group/index.jsx:77
-__( "Learn more", "jetpack" ), // _inc/client/components/settings-group/index.jsx:70
 __( "Upgrade", "jetpack" ), // _inc/client/components/support-card/index.jsx:111
 __( "Get a faster resolution to your support questions.", "jetpack" ), // _inc/client/components/support-card/index.jsx:109
 __( "Search our support site", "jetpack" ), // _inc/client/components/support-card/index.jsx:101
@@ -539,5 +537,7 @@ __( "Ask a question", "jetpack" ), // _inc/client/components/support-card/index.
 __( "Your paid plan gives you access to prioritized Jetpack support.", "jetpack" ), // _inc/client/components/support-card/index.jsx:81
 __( "Jetpack comes with free, basic support for all users.", "jetpack" ), // _inc/client/components/support-card/index.jsx:80
 __( "We're here to help", "jetpack" ), // _inc/client/components/support-card/index.jsx:75
+__( "Learn more", "jetpack" ), // _inc/client/components/settings-group/index.jsx:77
+__( "Learn more", "jetpack" ), // _inc/client/components/settings-group/index.jsx:70
 );
 /* THIS IS THE END OF THE GENERATED FILE */
