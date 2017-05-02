@@ -14,7 +14,7 @@ class WP_Super_Cache_Rest_Delete_Cache extends WP_REST_Controller {
 		if ( isset( $params['id'] ) && is_numeric( $params['id'] ) ) {
 			wpsc_delete_post_cache( $params['id'] );
 
-		} elseif ( isset( $params['expired'] ) ) {
+		} elseif ( !empty( $params['expired'] ) ) {
 			global $file_prefix;
 			wp_cache_clean_expired( $file_prefix );
 
