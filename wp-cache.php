@@ -649,7 +649,7 @@ function wp_cache_manager_updates() {
 		} else {
 			$wp_cache_refresh_single_only = 0;
 		}
-		wp_cache_replace_line('^ *\$wp_cache_refresh_single_only', "\$wp_cache_refresh_single_only = '" . $wp_cache_refresh_single_only . "';", $wp_cache_config_file);
+		wp_cache_setting( 'wp_cache_refresh_single_only', $wp_cache_refresh_single_only );
 
 		if ( defined( 'WPSC_DISABLE_COMPRESSION' ) ) {
 			$cache_compression = 0;
