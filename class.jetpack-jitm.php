@@ -155,8 +155,6 @@ class Jetpack_JITM {
 
 		//todo: try retrieve from transient first
 
-		var_dump($path);
-
 		$wpcom_response = Jetpack_Client::wpcom_json_api_request_as_blog(
 			$path,
 			'1.1',
