@@ -318,7 +318,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 		$jitm = Jetpack_JITM::init();
 
-		return $jitm->get_messages( $request['message_path'] );
+		return $jitm->get_messages( $request['message_path'], urldecode_deep( $request['query'] ) );
 	}
 
 	/**

@@ -66,10 +66,24 @@ class Jetpack_JITM {
 
 	function ajax_message() {
 		$message_path = $this->get_message_path();
+		$query        = new WP_Query( $_GET );
+		$query        = $query->query;
+		$query_string = array();
+
+		if ( is_array( $query ) ) {
+			foreach ( $query as $key => $value ) {
+				$query_string[] = "$key=$value";
+			}
+		}
+
+		$query_string = implode( ',', $query_string );
+
 		?>
 		<div class="jetpack-jitm-message"
 		     data-nonce="<?php echo wp_create_nonce( 'wp_rest' ) ?>"
-		     data-message-path="<?php echo esc_attr( $message_path ) ?>"></div>
+		     data-message-path="<?php echo esc_attr( $message_path ) ?>"
+		     data-query="<?php echo urlencode_deep( $query_string ) ?>"
+		></div>
 		<?php
 	}
 
@@ -120,7 +134,7 @@ class Jetpack_JITM {
 	 *
 	 * @return array
 	 */
-	public static function get_messages( $message_path ) {
+	public static function get_messages( $message_path, $query ) {
 		$user = wp_get_current_user();
 
 		// unauthenticated or invalid requests just bail
@@ -132,9 +146,16 @@ class Jetpack_JITM {
 
 		$site_id = Jetpack_Options::get_option( 'id' );
 
-		$path = sprintf( '/sites/%d/jitm/%s?force=wpcom&external_user_id=%s&user_roles=%s', $site_id, $message_path, urlencode_deep( $user->ID ), urlencode_deep( implode( ',', $user->roles ) ) );
+		$path = add_query_arg( array(
+			'force'            => 'wpcom',
+			'external_user_id' => urlencode_deep( $user->ID ),
+			'user_roles'       => urlencode_deep( implode( ',', $user->roles ) ),
+			'query_string'     => urlencode_deep( $query ),
+		), sprintf( '/sites/%d/jitm/%s', $site_id, $message_path ) );
 
 		//todo: try retrieve from transient first
+
+		var_dump($path);
 
 		$wpcom_response = Jetpack_Client::wpcom_json_api_request_as_blog(
 			$path,
