@@ -4,12 +4,15 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 
 	const UPDATES_CHECKSUM_OPTION_NAME = 'jetpack_updates_sync_checksum';
 
+	private $old_version = null;
+
 	function name() {
 		return 'updates';
 	}
 
 	public function init_listeners( $callable ) {
-
+		global $wp_version;
+		$this->old_version = $wp_version;
 		add_action( 'set_site_transient_update_plugins', array( $this, 'validate_update_change' ), 10, 3 );
 		add_action( 'set_site_transient_update_themes', array( $this, 'validate_update_change' ), 10, 3 );
 		add_action( 'set_site_transient_update_core', array( $this, 'validate_update_change' ), 10, 3 );
@@ -28,6 +31,10 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 		), 10, 2 );
 
 		add_action( 'automatic_updates_complete', $callable );
+
+		// Send data when update completes
+		add_action( '_core_updated_successfully', array( $this, 'update_core' ) );
+		add_action( 'jetpack_sync_update_core_successfull', $callable, 10, 4 );
 	}
 
 	public function init_full_sync_listeners( $callable ) {
@@ -39,6 +46,16 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 		add_filter( 'jetpack_sync_before_send_jetpack_update_themes_change', array( $this, 'expand_themes' ) );
 	}
 
+	public function update_core( $new_version ) {
+		global $pagenow;
+
+		$auto_updated = (bool) ( 'update-core.php' !== $pagenow );
+
+		$reinstall = isset( $_GET[ 'action' ] ) && 'do-core-reinstall' == $_GET[ 'action' ] ? true : false ;
+
+		do_action( 'jetpack_sync_update_core_successfull', $this->old_version, $new_version, $auto_updated, $reinstall );
+	}
+	
 	public function get_update_checksum( $value ) {
 		// Create an new array so we don't modify the object passed in.
 		$a_value = (array) $value;

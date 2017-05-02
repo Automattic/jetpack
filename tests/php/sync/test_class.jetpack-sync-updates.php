@@ -67,7 +67,7 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 	public function test_automatic_updates_complete_sync_action() {
 		// wp_maybe_auto_update();
 		do_action( 'automatic_updates_complete', array( 'core' => array(
-			'item'     => array('somedata'),
+			'item'     => array( 'somedata' ),
 			'result'   => 'some more data',
 			'name'     => 'WordPress 4.7',
 			'messages' => array('it worked.') ) ) );
@@ -75,6 +75,23 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 
 		$event = $this->server_event_storage->get_most_recent_event( 'automatic_updates_complete' );
 		$this->assertTrue( (bool) $event );
+	}
+
+	public function test_update_core_successfully_sync_action() {
+		global $wp_version;
+		// Remove the _redirect_to_about_wordpress action
+		remove_action( '_core_updated_successfully', '_redirect_to_about_wordpress' );
+		do_action( '_core_updated_successfully', 'foo' );
+		$this->sender->do_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_update_core_successfull' );
+
+		$this->assertTrue( (bool) $event );
+		$this->assertEquals( $event->args[0], $wp_version ); // Old Version
+		$this->assertEquals( $event->args[1], 'foo' ); // New version
+		$this->assertTrue( $event->args[2] ); // Autoupdated
+		$this->assertFalse( $event->args[3] ); // is Reinstall?
+
 	}
 
 }
