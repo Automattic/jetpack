@@ -486,3 +486,47 @@ function wpcomsh_activate_masterbar_module() {
 	}
 }
 add_action( 'init', 'wpcomsh_activate_masterbar_module', 0, 0 );
+
+function require_lib( $slug ) {
+	if ( !preg_match( '|^[a-z0-9/_.-]+$|i', $slug ) ) {
+		return;
+	}
+
+	// these are whitelisted libraries that Jetpack has
+	$in_jetpack = array(
+		'tonesque',
+		'class.color'
+	);
+
+	// hand off to `jetpack_require_lib`, if possible.
+	if ( in_array( $slug, $in_jetpack ) && function_exists( 'jetpack_require_lib' ) ) {
+		return jetpack_require_lib( $slug );
+	}
+
+
+	$basename = basename( $slug );
+
+	$lib_dir = __DIR__ . '/lib';
+
+	/**
+	 * Filter the location of the library directory.
+	 *
+	 * @since 2.5.0
+	 *
+	 * @param str $lib_dir Path to the library directory.
+	 */
+	$lib_dir = apply_filters( 'require_lib_dir', $lib_dir );
+
+	$choices = array(
+		"$lib_dir/$slug.php",
+		"$lib_dir/$slug/0-load.php",
+		"$lib_dir/$slug/$basename.php",
+	);
+	foreach( $choices as $file_name ) {
+		if ( is_readable( $file_name ) ) {
+			require_once $file_name;
+			return;
+		}
+	}
+}
+
