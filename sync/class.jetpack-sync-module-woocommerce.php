@@ -15,8 +15,15 @@ class Jetpack_Sync_Module_WooCommerce extends Jetpack_Sync_Module {
 		'_line_tax',
 		'_line_tax_data',
 		'_visibility',
+		// Coupons
 		'discount_amount',
 		'discount_amount_tax',
+		// Tax on an order
+		'rate_id',
+		'label',
+		'compound',
+		'tax_amount',
+		'shipping_tax_amount',
 	);
 
 	private $order_item_table_name;
