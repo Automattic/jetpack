@@ -599,11 +599,22 @@ class Jetpack {
 		}
 	}
 
+	/**
+	 * This is ported over from the manage module, which has been deprecated and baked in here.
+	 *
+	 * @param $domains
+	 */
 	function add_wpcom_to_allowed_redirect_hosts( $domains ) {
 		add_filter( 'allowed_redirect_hosts', array( $this, 'allow_wpcom_domain' ) );
 	}
 
-	// Return $domains, with 'wordpress.com' appended.
+	/**
+	 * Return $domains, with 'wordpress.com' appended.
+	 * This is ported over from the manage module, which has been deprecated and baked in here.
+	 *
+	 * @param $domains
+	 * @return array
+	 */
 	function allow_wpcom_domain( $domains ) {
 		if ( empty( $domains ) ) {
 			$domains = array();
