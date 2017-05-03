@@ -530,3 +530,24 @@ function require_lib( $slug ) {
 	}
 }
 
+/**
+ * Provides a fallback Google Maps API key when otherwise not configured by the
+ * user. This is subject to a usage quota.
+ *
+ * @see p5j4vm-1gT-p2
+ *
+ * @param string $api_key Google Maps API key
+ * @return string Google Maps API key
+ */
+function wpcom_google_maps_api_key( $api_key ) {
+	// We don't want to add the fallback API key to the Geocode API call; we'll get "referer restrictions" errors.
+	// That call is only made when saving the form, to validate the address.
+	if ( is_admin() ) {
+		return $api_key;
+	}
+
+	// Fall back to the dotcom API key if the user has not set their own.
+	return ( empty( $api_key ) ) ? 'AIzaSyCq4vWNv6eCGe2uvhPRGWQlv80IQp8dwTE' : $api_key;
+}
+add_filter( 'jetpack_google_maps_api_key', 'wpcom_google_maps_api_key' );
+
