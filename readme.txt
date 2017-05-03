@@ -1,7 +1,7 @@
 === Jetpack by WordPress.com ===
 Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, blobaugh, cainm, cena, cfinke, chaselivingston, chellycat, csonnek, danielbachhuber, davoraltman, daniloercoli, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, eliorivero, enej, eoigal, erania-pinnera, ethitter, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jacobshere, jblz, jeherve, jenhooks, jenia, jgs, jkudish, jmdodd, Joen, johnjamesjacoby, jshreve, koke, kraftbj, lamdayap, lancewillett, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, michael-arestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, scarstocea, sdquirk, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Jetpack, WordPress.com, backup, security, related posts, CDN, speed, anti-spam, social sharing, SEO, video, stats
-Stable tag: 4.8.2
+Stable tag: 4.9
 Requires at least: 4.6
 Tested up to: 4.7
 
@@ -105,66 +105,53 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 = 4.9 =
 
-* Release date:
-* Release post:
+* Release date: May 2nd, 2017
+* Release post: http://wp.me/p1moTy-4Rl
 
 **Major Enhancements**
 
-* Widgets: new EU Cookie Law Banner widget. #6881
-* Widgets: new Flickr Widget. #6942
-* Widgets: new Internet Defense League Widget. #7030
+* New "EU Cookie Law Banner", Flickr, and "Internet Defense League" widgets.
 
 **Slightly Less Exciting Enhancements**
 
-* Admin Page: automatically dismiss success notices once an action is completed. #6898
-* Contact Form: Add display names to addresses in the `To` header. #6657
-* Debugger: display the module list in development mode as well. #6959
-* General: remove unused code from old "My Jetpack" interface. #6856
-* General: remove an XML-RPC method that's no longer used in Jetpack. #6990
-* General: increase code coverage of unit tests. #7027
-* Internationalization: update the list of locales available in Jetpack. #6965
-* Manage: only trigger plugin auto-updates from WordPress.com. #7015
-* Manage: trigger WordPress' maintenance mode while a plugin is automatically updated. #7019
-* Sync: record comment content modifications and moderation events to make sure comments are always up to date on WordPress.com. #6929, #6899
-* Sync: add a way to distinguish between an added and an updated attachment. #6884
-* Sync: track when posts are deleted. #6885
-* Sync: track changes to sidebar elements. #6909
-* Sync: track plugin and theme names and versions when a plugin or theme event is triggered. #6961, #6986
-* Sync: track theme installations. #7013
-* Sync: add theme name to sync events triggered when a theme update is available. #7028
-* Sync: track each user event (addition, removal, and update) separately for better insight into user events. #7000
-* Unit Tests: add and update multiple unit tests for multiple Jetpack features. #6927
-* WordPess.com REST API: Allow HTTP `PUT` requests sent from Jetpack to WordPress.com. #6853
+* Success notices are automatically dismissed after a short period.
+* Removed unused code from "My Jetpack" interface and deprecated an XML-RPC method.
+* Contact Form now adds display names to email addresses in the `To` header.
+* Added an updated multiple unit tests increasing code coverage.
+* Development mode now also shows module list.
+* Updated the list of locales available in Jetpack.
+* Plugin auto-updates only triggered from WordPress.com and now trigger WordPress' maintenance mode.
 
 **Performance Improvements**
 
-**Accessibility Improvements**
+* Record comment content modifications and moderation events to make sure comments are always up to date on WordPress.com.
+* Sync post deletions, changes to sidebar, user events (addition, removal, and update) and theme installation.
+* We now distinguish between a new and an updated attachment.
+* Sync plugin and theme names when a related event is triggered including theme updates.
 
 **Compatibility Improvements**
 
-* Protect: avoid conflicts with other plugins hooking into the log in form. #6892
-* Plugin Compatibility: do not auto-activate Jetpack's Contact Form module when Ninja Forms is active. #6857
+* Protect avoid conflicts with other plugins hooking into the log in form.
+* Contact Form not auto-activated when Ninja Forms is active.
+* WordPess.com REST API now allows `HTTP PUT` requests.
 
 **Bug Fixes**
 
-* Admin Page: change wording on Post By Email button when no email address was generated yet. #6894
-* Admin Page: make sure VaultPress notices are displayed properly in the Jetpack dashboard. #6963
-* Admin Page: fix issue where VideoPress wasn't in the results when searching for video. #6998
-* Admin Page: fix positioning of search icon on mobile screens. #6940
-* Admin Page: avoid API requests being cached on some hosts. #6948
-* Admin Page: avoid errors when the Spellchecker module is not active. #7031
-* Contact Form: Set message content type to restore compatibility with email plugins. #7018
-* Custom Content Types / Ads: do not display ads in the portfolio projects displayed thanks to the Portfolio shortcode. #6962
-* Multisite: display all sites available in network, even on large multisite installations. #6999
-* Protect: make sure IPv6 addresses are still supported. #7048
-* Publicize: make sure the Featured Image is always used in tweets posted via Publicize. #6965
-* Related Posts: avoid fatal errors when the exclusion parameter is not a string. #6922
-* SEO: allow the removal of all custom title settings. #7044
-* Tiled Galleries: make sure images are not distorted when using the Photon service. #6900
-* Theme Tools: allow removing connections from The Social Links feature. #6900
-* Stats: avoid PHP warnings and errors in the Stats dashboard on Multisite. #6957
-* Subscriptions: fix a notice in the subscription widget in PHP 7.1. #6958
-* Sync: avoid errors when the Jetpack plugin is deleted. #6947
+* Fixed wording in Post By Email button when no email address has been generated.
+* Fixed a notice in the subscription widget in PHP 7.1
+* Properly display VaultPress notices in the Jetpack dashboard.
+* VideoPress now included in search results for "video" and fixed positioning of search icon on mobile screens.
+* Protect supports IPv6 addresses properly.
+* Dashboard avoids API requests being cached on some hosts and avoids errors when Spellchecker is inactive.
+* Contact Form message content type is now set properly to restore compatibility with email plugins.
+* Ads not displayed in the portfolio projects custom content type.
+* Display all sites available in a network, even on large multisite installations.
+* Featured Image is always used in tweets posted via Publicize.
+* Avoid fatal errors when the exclusion parameter in Related Posts is not a string.
+* Allow the removal of all custom title settings in the SEO feature.
+* Make sure images are not distorted when Tiled Galleries uses Photon.
+* Avoid PHP warnings and errors in the Stats dashboard on Multisite.
+* Avoid errors when the Jetpack plugin is deleted.
 
 = 4.8.2 =
 

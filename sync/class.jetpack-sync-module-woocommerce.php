@@ -22,6 +22,14 @@ class Jetpack_Sync_Module_WooCommerce extends Jetpack_Sync_Module {
 	public function __construct() {
 		global $wpdb;
 		$this->order_item_table_name = $wpdb->prefix . 'woocommerce_order_items';
+
+		// options, constants and post meta whitelists
+		add_filter( 'jetpack_sync_options_whitelist', array( $this, 'add_woocommerce_options_whitelist' ), 10 );
+		add_filter( 'jetpack_sync_constants_whitelist', array( $this, 'add_woocommerce_constants_whitelist' ), 10 );
+		add_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'add_woocommerce_post_meta_whitelist' ), 10 );
+
+		add_filter( 'jetpack_sync_before_enqueue_woocommerce_new_order_item', array( $this, 'filter_order_item' ) );
+		add_filter( 'jetpack_sync_before_enqueue_woocommerce_update_order_item', array( $this, 'filter_order_item' ) );
 	}
 
 	function name() {
@@ -37,16 +45,9 @@ class Jetpack_Sync_Module_WooCommerce extends Jetpack_Sync_Module {
 		// order items
 		add_action( 'woocommerce_new_order_item', $callable, 10, 4 );
 		add_action( 'woocommerce_update_order_item', $callable, 10, 4 );
-		add_filter( 'jetpack_sync_before_enqueue_woocommerce_new_order_item', array( $this, 'filter_order_item' ) );
-		add_filter( 'jetpack_sync_before_enqueue_woocommerce_update_order_item', array( $this, 'filter_order_item' ) );
 
 		// order item meta
 		$this->init_listeners_for_meta_type( 'order_item', $callable );
-
-		// options, constants and post meta whitelists
-		add_filter( 'jetpack_sync_options_whitelist', array( $this, 'add_woocommerce_options_whitelist' ), 10 );
-		add_filter( 'jetpack_sync_constants_whitelist', array( $this, 'add_woocommerce_constants_whitelist' ), 10 );
-		add_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'add_woocommerce_post_meta_whitelist' ), 10 );
 	}
 
 	public function init_full_sync_listeners( $callable ) {

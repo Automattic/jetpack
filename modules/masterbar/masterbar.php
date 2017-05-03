@@ -802,18 +802,6 @@ class A8C_WPCOM_Masterbar {
 				'href'   => $href,
 				'meta'   => $meta
 			) );
-
-			if ( current_theme_supports( 'menus' ) ) {
-				$wp_admin_bar->add_menu( array(
-					'parent' => 'look-and-feel',
-					'id'     => 'menus',
-					'title'  => __( 'Menus', 'jetpack' ),
-					'href'   => 'https://wordpress.com/menus/' . esc_attr( $this->primary_site_slug ),
-					'meta' => array(
-						'class' => 'mb-icon',
-					),
-				) );
-			}
 		}
 
 		if ( current_user_can( 'manage_options' ) ) {
