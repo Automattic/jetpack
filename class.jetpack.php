@@ -2826,10 +2826,6 @@ p {
 	 * @return null              [description]
 	 */
 	public static function do_version_bump( $version, $old_version ) {
-
-		// Remove this if you decide you want to use this function
-		_deprecated_function( __METHOD__, 'jetpack-5.0' );
-
 		if ( ! $old_version ) { // For new sites
 			// There used to be stuff here, but this seems like it might  be useful to someone in the future...
 		}
