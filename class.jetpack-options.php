@@ -28,7 +28,6 @@ class Jetpack_Options {
 				'available_modules',
 				'do_activate',
 				'log',
-				'publicize',
 				'slideshow_background_color',
 				'widget_twitter',
 				'wpcc_options',

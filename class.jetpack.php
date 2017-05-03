@@ -2846,7 +2846,6 @@ p {
 
 		Jetpack_Options::delete_option(
 			array(
-				'register',
 				'blog_token',
 				'user_token',
 				'user_tokens',
@@ -2855,7 +2854,7 @@ p {
 				'fallback_no_verify_ssl_certs',
 			)
 		);
-
+		
 		Jetpack_IDC::clear_all_idc_options();
 
 		if ( $update_activated_state ) {
