@@ -36,3 +36,12 @@ if [ "$CLIENT_ID" = "" ] || [ "$CLIENT_SECRET" = "" ] || [ "$PLAN_NAME" = "" ]; 
 fi
 
 echo "Success - client = $CLIENT_ID, secret = $CLIENT_SECRET, plan = $PLAN_NAME";
+
+ACCESS_TOKEN_JSON=`curl https://public-api.wordpress.com/oauth2/token --silent -d "grant_type=client_credentials&client_id=$CLIENT_ID&client_secret=$CLIENT_SECRET&scope=jetpack-partner"`
+
+echo $ACCESS_TOKEN_JSON
+
+# TODO: 
+# - execute wp-cli script to provision site and plan
+# - pass back any errors, or if successful a "next" URL for the user to finish provisioning their plan
+
