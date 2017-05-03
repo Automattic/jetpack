@@ -14,6 +14,8 @@ class WP_Test_Jetpack extends WP_UnitTestCase {
 	public function tearDown() {
 		parent::tearDown();
 		Jetpack_Constants::clear_constants();
+
+		$this->__clear_transients();
 	}
 
 	/**
@@ -578,6 +580,87 @@ EXPECTED;
 		$url = '123.456.789.0';
 		$url_normalized = Jetpack::normalize_url_protocol_agnostic( $url );
 		$this->assertTrue( '123.456.789.0/' === $url_normalized );
+	}
+
+	/**
+	 * The generate_secrets method should return and store the secret.
+	 *
+	 * @author zinigor
+	 * @covers Jetpack::generate_secrets
+	 */
+	function test_generate_secrets_stores_secrets() {
+		$secret = Jetpack::generate_secrets( 'name' );
+
+		$this->assertEquals( $secret, get_transient( 'jetpack_name_' . get_current_user_id() ) );
+	}
+
+	/**
+	 * The generate_secrets method should return the same secret after calling generate several times.
+	 *
+	 * @author zinigor
+	 * @covers Jetpack::generate_secrets
+	 */
+	function test_generate_secrets_does_not_regenerate_secrets() {
+		$secret = Jetpack::generate_secrets( 'name' );
+		$secret2 = Jetpack::generate_secrets( 'name' );
+		$secret3 = Jetpack::generate_secrets( 'name' );
+
+		$this->assertEquals( $secret, $secret2 );
+		$this->assertEquals( $secret, $secret3 );
+		$this->assertEquals( $secret, get_transient( 'jetpack_name_' . get_current_user_id() ) );
+	}
+
+	/**
+	 * The generate_secrets method should work with filters on wp_generate_password.
+	 *
+	 * @author zinigor
+	 * @covers Jetpack::generate_secrets
+	 */
+	function test_generate_secrets_works_with_filters() {
+		add_filter( 'random_password', array( __CLASS__, '__cyrillic_salt' ), 20 );
+		add_filter( 'random_password', array( __CLASS__, '__kanji_salt' ), 21 );
+
+		$secret = Jetpack::generate_secrets( 'name' );
+
+		$this->assertEquals( $secret, get_transient( 'jetpack_name_' . get_current_user_id() ) );
+
+		remove_filter( 'random_password', array( __CLASS__, '__cyrillic_salt' ), 20 );
+		remove_filter( 'random_password', array( __CLASS__, '__kanji_salt' ), 21 );
+	}
+
+	/**
+	 * The generate_secrets method should work with long strings.
+	 *
+	 * @author zinigor
+	 * @covers Jetpack::generate_secrets
+	 */
+	function test_generate_secrets_works_with_long_strings() {
+		add_filter( 'random_password', array( __CLASS__, '__multiply_filter' ), 20 );
+
+		$secret = Jetpack::generate_secrets( 'name' );
+
+		$this->assertEquals( $secret, get_transient( 'jetpack_name_' . get_current_user_id() ) );
+
+		remove_filter( 'random_password', array( __CLASS__, '__multiply_filter' ), 20 );
+	}
+
+	function __clear_transients() {
+		delete_transient( 'jetpack_name_' . get_current_user_id() );
+	}
+
+	static function __cyrillic_salt( $password ) {
+		return 'ленка' . $password . 'пенка';
+	}
+
+	static function __kanji_salt( $password ) {
+		return '強熊' . $password . '清珠';
+	}
+
+	static function __multiply_filter( $password ) {
+		for ( $i = 0; $i < 10; $i++ ) {
+			$password .= $password;
+		}
+		return $password;
 	}
 
 	function __return_string_1() {

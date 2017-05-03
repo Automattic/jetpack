@@ -4579,9 +4579,13 @@ p {
 			wp_generate_password( 32, false ) // secret_1
 			. ':' . wp_generate_password( 32, false ); // secret_2
 
-		set_transient( $secret_name, $secret_value, $exp );
+		$result = set_transient( $secret_name, $secret_value, $exp );
 
-		return get_transient( $secret_name );
+		if ( $result ) {
+			return get_transient( $secret_name );
+		} else {
+			return new WP_Error( __( 'Could not save generated secrets', 'jetpack' ) );
+		}
 	}
 
 	/**

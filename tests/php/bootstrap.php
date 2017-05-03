@@ -35,7 +35,7 @@ if ( '1' != getenv( 'WP_MULTISITE' ) &&
 }
 
 if ( '1' != getenv( 'JETPACK_TEST_WOOCOMMERCE' ) ) {
- echo "To run Jetpack woocommerce tests, prefix phpunit with JETPACK_TEST_WOOCOMMERCE=1" . PHP_EOL;
+	echo "To run Jetpack woocommerce tests, prefix phpunit with JETPACK_TEST_WOOCOMMERCE=1" . PHP_EOL;
 } else {
 	define( 'JETPACK_WOOCOMMERCE_INSTALL_DIR', dirname( __FILE__ ) . '/../../../woocommerce' );
 }
