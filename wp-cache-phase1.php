@@ -788,8 +788,12 @@ function wp_cache_confirm_delete( $dir ) {
 	global $cache_path, $blog_cache_dir;
 	// don't allow cache_path, blog cache dir, blog meta dir, supercache.
 	$dir = realpath( $dir );
+	$rp_cache_path = realpath( $cache_path );
+	if ( substr( $dir, 0, strlen( $rp_cache_path ) ) != $rp_cache_path )
+		return false;
+
 	if ( 
-		$dir == realpath( $cache_path ) ||
+		$dir == $rp_cache_path ||
 		$dir == realpath( $blog_cache_dir ) ||
 		$dir == realpath( $blog_cache_dir . "meta/" ) ||
 		$dir == realpath( $cache_path . "supercache" )

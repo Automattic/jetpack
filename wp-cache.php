@@ -2450,24 +2450,18 @@ function wp_cache_regenerate_cache_file_stats() {
 			}
 			closedir( $dh );
 		}
-	} else {
-		$filem = @filemtime( $supercachedir );
-		if ( strpos( $directory, '/' . $file_prefix ) === true ) {
-			$cache_type = 'wpcache';
-		} else {
-			$cache_type = 'supercache';
-		}
-		$keep_fresh = false;
-		if ( $cache_type == 'supercache' && $wp_cache_preload_on )
-			$keep_fresh = true;
-		if ( false == $keep_fresh && is_file( $supercachedir ) && $cache_max_time > 0 && $filem + $cache_max_time <= $now ) {
-			$sizes[ $cache_type ][ 'expired' ] ++;
-			if ( isset( $_GET[ 'listfiles' ] ) )
-				$sizes[ $cache_type ][ 'expired_list' ][ str_replace( $cache_path . 'supercache/' , '', $supercachedir ) ] = $now - $filem;
-		} else {
-			$sizes[ $cache_type ][ 'cached' ] ++;
-			if ( isset( $_GET[ 'listfiles' ] ) && $filem )
-				$sizes[ $cache_type ][ 'cached_list' ][ str_replace( $cache_path . 'supercache/' , '', $supercachedir ) ] = $now - $filem;
+	}
+	foreach( $sizes as $cache_type => $list ) {
+		foreach( array( 'cached_list', 'expired_list' ) as $status ) {
+			$cached_list = array();
+			foreach( $list[ $status ] as $dir => $details ) {
+				if ( $details[ 'files' ] == 2 && !isset( $details[ 'upper_age' ] ) ) {
+					$details[ 'files' ] = 1;
+				}
+				$details[ 'dir' ] = $dir;
+				$cached_list[] = $details;
+			}
+			$sizes[ $cache_type ][ $status ] = $cached_list;
 		}
 	}
 	$cache_stats = array( 'generated' => time(), 'supercache' => $sizes[ 'supercache' ], 'wpcache' => $sizes[ 'wpcache' ] );
@@ -2529,6 +2523,8 @@ function wp_cache_files() {
 				wpsc_delete_files( $supercacheuri );
 				prune_super_cache( $supercacheuri . 'page', true );
 				@rmdir( $supercacheuri );
+			} else {
+				wp_die( __( 'Warning! You are not allowed to delete that file', 'wp-super-cache' ) );
 			}
 		}
 		while( false !== ( $file = readdir( $handle ) ) ) {
@@ -2621,21 +2617,21 @@ function wp_cache_files() {
 				foreach( array( 'cached_list' => 'Fresh', 'expired_list' => 'Stale' ) as $list => $description ) {
 					if ( is_array( $details[ $list ] ) & !empty( $details[ $list ] ) ) {
 						echo "<h4>" . sprintf( __( '%s %s Files', 'wp-super-cache' ), $description, $cache_description[ $type ] ) . "</h4>";
-						echo "<table class='widefat'><tr><th>#</th><th>" . __( 'URI', 'wp-super-cache' ) . "</th><th>" . __( 'Age', 'wp-super-cache' ) . "</th><th>" . __( 'Delete', 'wp-super-cache' ) . "</th></tr>";
+						echo "<table class='widefat'><tr><th>#</th><th>" . __( 'URI', 'wp-super-cache' ) . "</th><th>" . __( 'Files', 'wp-super-cache' ) . "</th><th>" . __( 'Age', 'wp-super-cache' ) . "</th><th>" . __( 'Delete', 'wp-super-cache' ) . "</th></tr>";
 						$c = 1;
 						$flip = 1;
 
 						ksort( $details[ $list ] );
-						foreach( $details[ $list ] as $age => $d ) {
-							foreach( $d as $uri => $n ) {
-								$bg = $flip ? 'style="background: #EAEAEA;"' : '';
-								if ( $type == 'wpcache' ) {
-									$uri = substr( $uri, 0, -1 * strlen( basename( $uri ) ) );
-								}
-								echo "<tr $bg><td>$c</td><td> <a href='http://{$uri}'>" . $uri . "</a></td><td>$age</td><td><a href='" . wp_nonce_url( add_query_arg( array( 'page' => 'wpsupercache', 'action' => 'deletesupercache', 'uri' => base64_encode( $uri ) ) ), 'wp-cache' ) . "#listfiles'>X</a></td></tr>\n";
-								$flip = !$flip;
-								$c++;
+						foreach( $details[ $list ] as $d ) {
+							if ( isset( $d[ 'upper_age' ] ) ) {
+								$age = "{$d[ 'lower_age' ]} - {$d[ 'upper_age' ]}";
+							} else {
+								$age = $d[ 'lower_age' ];
 							}
+							$bg = $flip ? 'style="background: #EAEAEA;"' : '';
+							echo "<tr $bg><td>$c</td><td> <a href='http://{$d[ 'dir' ]}'>{$d[ 'dir' ]}</a></td><td>{$d[ 'files' ]}</td><td>{$age}</td><td><a href='" . wp_nonce_url( add_query_arg( array( 'page' => 'wpsupercache', 'action' => 'deletesupercache', 'uri' => base64_encode( $d[ 'dir' ] ) ) ), 'wp-cache' ) . "#listfiles'>X</a></td></tr>\n";
+							$flip = !$flip;
+							$c++;
 						}
 						echo "</table>";
 					}
@@ -2716,13 +2712,32 @@ function wpsc_dirsize($directory, $sizes) {
 				$keep_fresh = true;
 			$filem = filemtime( $directory );
 			if ( $keep_fresh == false && $cache_max_time > 0 && $filem + $cache_max_time <= $now ) {
-				$sizes[ $cache_type ][ 'expired' ]+=1;
-				if ( $valid_nonce && isset( $_GET[ 'listfiles' ] ) )
-					$sizes[ $cache_type ][ 'expired_list' ][ $now - $filem ][ str_replace( $cache_path . 'supercache/' , '', str_replace( 'index.html', '', str_replace( 'index.html.gz', '', $directory ) ) ) ] = 1;
+				$cache_status = 'expired';
 			} else {
-				$sizes[ $cache_type ][ 'cached' ]+=1;
-				if ( $valid_nonce && array_key_exists('listfiles', $_GET) && $_GET[ 'listfiles' ] )
-					$sizes[ $cache_type ][ 'cached_list' ][ $now - $filem ][ str_replace( $cache_path . 'supercache/' , '', str_replace( 'index.html', '', str_replace( 'index.html.gz', '', $directory ) ) ) ] = 1;
+				$cache_status = 'cached';
+			}
+			$sizes[ $cache_type ][ $cache_status ]+=1;
+			if ( $valid_nonce && isset( $_GET[ 'listfiles' ] ) ) {
+				$dir = str_replace( $cache_path . 'supercache/' , '', dirname( $directory ) );
+				$age = $now - $filem;
+				if ( false == isset( $sizes[ $cache_type ][ $cache_status . '_list' ][ $dir ] ) ) {
+					$sizes[ $cache_type ][ $cache_status . '_list' ][ $dir ][ 'lower_age' ] = $age;
+					$sizes[ $cache_type ][ $cache_status . '_list' ][ $dir ][ 'files' ] = 1;
+				} else {
+					$sizes[ $cache_type ][ $cache_status . '_list' ][ $dir ][ 'files' ] += 1;
+					if ( $age <= $sizes[ $cache_type ][ $cache_status . '_list' ][ $dir ][ 'lower_age' ] ) {
+
+						if ( $age < $sizes[ $cache_type ][ $cache_status . '_list' ][ $dir ][ 'lower_age' ] && !isset( $sizes[ $cache_type ][ $cache_status . '_list' ][ $dir ][ 'upper_age' ] ) )
+							$sizes[ $cache_type ][ $cache_status . '_list' ][ $dir ][ 'upper_age' ] = $sizes[ $cache_type ][ $cache_status . '_list' ][ $dir ][ 'lower_age' ];
+
+						$sizes[ $cache_type ][ $cache_status . '_list' ][ $dir ][ 'lower_age' ] = $age;
+
+					} elseif ( !isset( $sizes[ $cache_type ][ $cache_status . '_list' ][ $dir ][ 'upper_age' ] ) || $age > $sizes[ $cache_type ][ $cache_status . '_list' ][ $dir ][ 'upper_age' ] ) {
+
+						$sizes[ $cache_type ][ $cache_status . '_list' ][ $dir ][ 'upper_age' ] = $age;
+
+					}
+				}
 			}
 			if ( ! isset( $sizes[ 'fsize' ] ) )
 				$sizes[ $cache_type ][ 'fsize' ] = @filesize( $directory );

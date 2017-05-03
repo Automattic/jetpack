@@ -9,9 +9,10 @@ class WP_Super_Cache_Rest_Get_Stats extends WP_REST_Controller {
 	 * @return WP_Error|WP_REST_Response
 	 */
 	public function callback( $request ) {
-		$sizes = wpsc_generate_sizes_array();
-		$supercachedir = get_supercache_dir();
+		global $valid_nonce;
+		$_GET[ 'listfiles' ] = 1;
+		$valid_nonce = true;
 
-		return rest_ensure_response( wpsc_dirsize( $supercachedir, $sizes ) );
+		return rest_ensure_response( wp_cache_regenerate_cache_file_stats() );
 	}
 }
