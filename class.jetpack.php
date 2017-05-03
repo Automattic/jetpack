@@ -4570,16 +4570,18 @@ p {
 	public static function generate_secrets( $action, $exp = 600 ) {
 		$secret_name = 'jetpack_' . $action . '_' . get_current_user_id();
 		$secret = get_transient( $secret_name );
-		
+
 		if ( $secret ) {
 			return $secret;
 		}
-	    
-		$secret_value = wp_generate_password( 32, false ) // secret_1
-	    		. ':' . wp_generate_password( 32, false ); // secret_2
+
+		$secret_value =
+			wp_generate_password( 32, false ) // secret_1
+			. ':' . wp_generate_password( 32, false ); // secret_2
+
 		set_transient( $secret_name, $secret_value, $exp );
 
-	    return get_transient( $secret_name );
+		return get_transient( $secret_name );
 	}
 
 	/**
