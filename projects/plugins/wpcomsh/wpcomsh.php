@@ -7,22 +7,55 @@
  * Author URI: http://automattic.com/
  */
 
-// Needed as Pressable has different path for wpcomsh than normally.
-define( 'WPCOMSH__PLUGIN_DIR_PATH', WP_CONTENT_DIR . '/mu-plugins/wpcomsh' );
-define( 'WPCOMSH__PLUGIN_FILE', WPCOMSH__PLUGIN_DIR_PATH . '/wpcomsh.php' );
+// Increase version number if you change something in wpcomsh.
+define( 'WPCOMSH_VERSION', '1.8.4' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
 
 require_once( 'constants.php' );
+
 require_once( 'footer-credit/footer-credit.php' );
 require_once( 'storefront/storefront.php' );
 require_once( 'custom-fonts/custom-fonts.php' );
 require_once( 'custom-fonts-typekit/custom-fonts-typekit.php' );
 require_once( 'custom-colors/colors.php' );
 
+/**
+ * WP.com Widgets (in alphabetical order)
+ */
+require_once( 'widgets/aboutme.php' );
+require_once( 'widgets/author-grid.php' );
+require_once( 'widgets/gravatar.php' );
+if ( is_active_widget( false, false, 'wpcom_instagram_widget' ) ) {
+	require_once( 'widgets/instagram/instagram.php' );
+}
+require_once( 'widgets/i-voted.php' );
+require_once( 'widgets/music-player.php' );
+require_once( 'widgets/posts-i-like.php' );
+require_once( 'widgets/recent-comments-widget.php' );
+require_once( 'widgets/tlkio/tlkio.php' );
+
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once WPCOMSH__PLUGIN_DIR_PATH . '/class.cli-commands.php';
+}
+
+require_once WPCOMSH__PLUGIN_DIR_PATH . '/class.jetpack-plugin-compatibility.php';
+
+if ( class_exists( 'Jetpack_Plugin_Compatibility' ) ) {
+	$wpcomsh_incompatible_plugins = array(
+		'advanced-reset-wp/advanced-reset-wp.php' => 'advanced-reset-wp and other WordPress reset plugins delete data ' .
+			'necessary to manage your site and are not supported on WordPress.com. advanced-reset-wp has been deactivated.',
+		'advanced-wp-reset/advanced-wp-reset.php' => 'advanced-wp-reset and other WordPress reset plugins delete data ' .
+			'necessary to manage your site and are not supported on WordPress.com. advanced-wp-reset has been deactivated.',
+		'reset-wp/reset-wp.php' => 'reset-wp and other WordPress reset plugins delete data ' .
+			'necessary to manage your site and are not supported on WordPress.com. reset-wp has been deactivated.',
+		'wordpress-database-reset/wp-reset.php' => 'wordpress-database-reset and other WordPress reset plugins delete data ' .
+			'necessary to manage your site and are not supported on WordPress.com. wordpress-database-reset has been deactivated.',
+		'wp-reset/wp-reset.php' => 'wp-reset and other WordPress reset plugins delete data ' .
+			'necessary to manage your site and are not supported on WordPress.com. wp-reset has been deactivated.',
+	);
+	new Jetpack_Plugin_Compatibility( $wpcomsh_incompatible_plugins );
 }
 
 function wpcomsh_remove_vaultpress_wpadmin_notices() {
@@ -375,7 +408,9 @@ add_filter( 'bulk_actions-plugins', 'wpcomsh_disable_bulk_plugin_deactivation' )
 function wpcomsh_admin_enqueue_style() {
 	wp_enqueue_style(
 		'wpcomsh-admin-style',
-		plugins_url( 'assets/admin-style.css', __FILE__ )
+		plugins_url( 'assets/admin-style.css', __FILE__ ),
+		null,
+		WPCOMSH_VERSION
 	);
 }
 add_action( 'admin_enqueue_scripts', 'wpcomsh_admin_enqueue_style', 999 );
@@ -452,3 +487,47 @@ function wpcomsh_activate_masterbar_module() {
 	}
 }
 add_action( 'init', 'wpcomsh_activate_masterbar_module', 0, 0 );
+
+function require_lib( $slug ) {
+	if ( !preg_match( '|^[a-z0-9/_.-]+$|i', $slug ) ) {
+		return;
+	}
+
+	// these are whitelisted libraries that Jetpack has
+	$in_jetpack = array(
+		'tonesque',
+		'class.color'
+	);
+
+	// hand off to `jetpack_require_lib`, if possible.
+	if ( in_array( $slug, $in_jetpack ) && function_exists( 'jetpack_require_lib' ) ) {
+		return jetpack_require_lib( $slug );
+	}
+
+
+	$basename = basename( $slug );
+
+	$lib_dir = __DIR__ . '/lib';
+
+	/**
+	 * Filter the location of the library directory.
+	 *
+	 * @since 2.5.0
+	 *
+	 * @param str $lib_dir Path to the library directory.
+	 */
+	$lib_dir = apply_filters( 'require_lib_dir', $lib_dir );
+
+	$choices = array(
+		"$lib_dir/$slug.php",
+		"$lib_dir/$slug/0-load.php",
+		"$lib_dir/$slug/$basename.php",
+	);
+	foreach( $choices as $file_name ) {
+		if ( is_readable( $file_name ) ) {
+			require_once $file_name;
+			return;
+		}
+	}
+}
+

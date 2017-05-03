@@ -1,0 +1,24 @@
+.wpcom-instagram-images {
+	overflow: hidden;
+}
+
+.wpcom-instagram-images img {
+	display: block;
+	float: left;
+	height: auto;
+}
+
+.wpcom-instagram-columns-1 img {
+	margin: 0 1% 5px;
+	max-width: 97%;
+}
+
+.wpcom-instagram-columns-2 img {
+	margin: 0 1% 2%;
+	max-width: 47%;
+}
+
+.wpcom-instagram-columns-3 img {
+	margin: 0 1% 2%;
+	max-width: 30%;
+}
