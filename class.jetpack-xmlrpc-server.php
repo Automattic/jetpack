@@ -135,7 +135,6 @@ class Jetpack_XMLRPC_Server {
 	 * verify_secret_1_malformed
 	 * verify_secrets_missing: verification secrets are not found in database
 	 * verify_secrets_incomplete: verification secrets are only partially found in database
-	 * verify_secrets_expired: verification secrets have expired
 	 * verify_secrets_mismatch: stored secret_1 does not match secret_1 sent by Jetpack.WordPress.com
 	 * state_missing: required parameter of state not found
 	 * state_malformed: state is not a digit
@@ -156,45 +155,33 @@ class Jetpack_XMLRPC_Server {
 			return $this->error( new Jetpack_Error( 'verify_secret_1_missing', sprintf( 'The required "%s" parameter is missing.', 'secret_1' ), 400 ) );
 		} else if ( ! is_string( $verify_secret ) ) {
 			return $this->error( new Jetpack_Error( 'verify_secret_1_malformed', sprintf( 'The required "%s" parameter is malformed.', 'secret_1' ), 400 ) );
+		} else if ( empty( $state ) ) {
+			return $this->error( new Jetpack_Error( 'state_missing', sprintf( 'The required "%s" parameter is missing.', 'state' ), 400 ) );
+		} else if ( ! ctype_digit( $state ) ) {
+			return $this->error( new Jetpack_Error( 'state_malformed', sprintf( 'The required "%s" parameter is malformed.', 'state' ), 400 ) );
 		}
 
-		$secrets = Jetpack_Options::get_option( $action );
+		$secret_name = 'jetpack_' . $action . '_' . $state;
+		$secrets = get_transient( $secret_name );
+
 		if ( ! $secrets || is_wp_error( $secrets ) ) {
-			Jetpack_Options::delete_option( $action );
+			delete_transient( $secret_name );
 			return $this->error( new Jetpack_Error( 'verify_secrets_missing', 'Verification secrets not found', 400 ) );
 		}
 
-		@list( $secret_1, $secret_2, $secret_eol, $user_id ) = explode( ':', $secrets );
+		@list( $secret_1, $secret_2 ) = explode( ':', $secrets );
 
-		if ( empty( $secret_1 ) || empty( $secret_2 ) || empty( $secret_eol ) ) {
-			Jetpack_Options::delete_option( $action );
+		if ( empty( $secret_1 ) || empty( $secret_2 ) ) {
+			delete_transient( $secret_name );
 			return $this->error( new Jetpack_Error( 'verify_secrets_incomplete', 'Verification secrets are incomplete', 400 ) );
 		}
 
-		if ( $secret_eol < time() ) {
-			Jetpack_Options::delete_option( $action );
-			return $this->error( new Jetpack_Error( 'verify_secrets_expired', 'Verification took too long', 400 ) );
-		}
-
 		if ( ! hash_equals( $verify_secret, $secret_1 ) ) {
-			Jetpack_Options::delete_option( $action );
+			delete_transient( $secret_name );
 			return $this->error( new Jetpack_Error( 'verify_secrets_mismatch', 'Secret mismatch', 400 ) );
 		}
 
-		if ( in_array( $action, array( 'authorize', 'register' ) ) ) {
-			// 'authorize' and 'register' actions require further testing
-			if ( empty( $state ) ) {
-				return $this->error( new Jetpack_Error( 'state_missing', sprintf( 'The required "%s" parameter is missing.', 'state' ), 400 ) );
-			} else if ( ! ctype_digit( $state ) ) {
-				return $this->error( new Jetpack_Error( 'state_malformed', sprintf( 'The required "%s" parameter is malformed.', 'state' ), 400 ) );
-			}
-			if ( empty( $user_id ) || $user_id !== $state ) {
-				Jetpack_Options::delete_option( $action );
-				return $this->error( new Jetpack_Error( 'invalid_state', 'State is invalid', 400 ) );
-			}
-		}
-
-		Jetpack_Options::delete_option( $action );
+		delete_transient( $secret_name );
 
 		return $secret_2;
 	}

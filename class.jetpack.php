@@ -4158,7 +4158,7 @@ p {
 				$redirect = Jetpack_Network::init()->get_url( 'network_admin_page' );
 			}
 
-			$secrets = Jetpack::init()->generate_secrets( 'authorize' );
+			$secrets = Jetpack::generate_secrets( 'authorize' );
 			@list( $secret ) = explode( ':', $secrets );
 
 			$site_icon = ( function_exists( 'has_site_icon') && has_site_icon() )
@@ -4588,13 +4588,19 @@ p {
 	 * @since 2.6
 	 * @return array
 	 */
-	public function generate_secrets( $action, $exp = 600 ) {
-	    $secret = wp_generate_password( 32, false ) // secret_1
-	    		. ':' . wp_generate_password( 32, false ) // secret_2
-	    		. ':' . ( time() + $exp ) // eol ( End of Life )
-	    		. ':' . get_current_user_id(); // ties the secrets to the current user
-		Jetpack_Options::update_option( $action, $secret );
-	    return Jetpack_Options::get_option( $action );
+	public static function generate_secrets( $action, $exp = 600 ) {
+		$secret_name = 'jetpack_' . $action . '_' . get_current_user_id();
+		$secret = get_transient( $secret_name );
+		
+		if ( $secret ) {
+			return $secret;
+		}
+	    
+		$secret_value = wp_generate_password( 32, false ) // secret_1
+	    		. ':' . wp_generate_password( 32, false ); // secret_2
+		set_transient( $secret_name, $secret_value, $exp );
+
+	    return get_transient( $secret_name );
 	}
 
 	/**
@@ -4665,10 +4671,10 @@ p {
 	 */
 	public static function register() {
 		add_action( 'pre_update_jetpack_option_register', array( 'Jetpack_Options', 'delete_option' ) );
-		$secrets = Jetpack::init()->generate_secrets( 'register' );
+		$secrets = Jetpack::generate_secrets( 'register' );
 
-		@list( $secret_1, $secret_2, $secret_eol ) = explode( ':', $secrets );
-		if ( empty( $secret_1 ) || empty( $secret_2 ) || empty( $secret_eol ) || $secret_eol < time() ) {
+		@list( $secret_1, $secret_2 ) = explode( ':', $secrets );
+		if ( empty( $secret_1 ) || empty( $secret_2 ) ) {
 			return new Jetpack_Error( 'missing_secrets' );
 		}
 

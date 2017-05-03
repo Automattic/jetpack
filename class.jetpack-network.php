@@ -417,8 +417,8 @@ class Jetpack_Network {
 		// Save the secrets in the subsite so when the wpcom server does a pingback it
 		// will be able to validate the connection
 		$secrets = $jp->generate_secrets( 'register' );
-		@list( $secret_1, $secret_2, $secret_eol ) = explode( ':', $secrets );
-		if ( empty( $secret_1 ) || empty( $secret_2 ) || empty( $secret_eol ) || $secret_eol < time() ) {
+		@list( $secret_1, $secret_2 ) = explode( ':', $secrets );
+		if ( empty( $secret_1 ) || empty( $secret_2 ) ) {
 			return new Jetpack_Error( 'missing_secrets' );
 		}
 
