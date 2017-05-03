@@ -17,7 +17,7 @@ class Jetpack_Sync_Module_WooCommerce extends Jetpack_Sync_Module {
 		'_line_subtotal_tax',
 		'_line_total',
 		'_line_tax',
-		'_line_tax_data'
+		'_line_tax_data',
 		// https://github.com/woocommerce/woocommerce/blob/master/includes/data-stores/class-wc-order-item-shipping-data-store.php#L20
 		'method_id',
 		'cost',
