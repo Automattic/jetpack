@@ -2816,9 +2816,11 @@ p {
 	 */
 	public static function do_version_bump( $version, $old_version ) {
 
+		// Remove this if you decide you want to use this function
+		_deprecated_function( __METHOD__, 'jetpack-5.0' );
+
 		if ( ! $old_version ) { // For new sites
-			// There used to be stuff here, but this function might be useful to someone
-			// in the future...
+			// There used to be stuff here, but this seems like it might  be useful to someone in the future...
 		}
 	}
 
@@ -6329,5 +6331,30 @@ p {
 				}
 			</style>
 		<?php }
+	}
+
+	/*
+	 * Deprecated manage functions
+	 */
+	function prepare_manage_jetpack_notice() {
+		_deprecated_function( __METHOD__, 'jetpack-5.0' );
+	}
+	function manage_activate_screen() {
+		_deprecated_function( __METHOD__, 'jetpack-5.0' );
+	}
+	function admin_jetpack_manage_notice() {
+		_deprecated_function( __METHOD__, 'jetpack-5.0' );
+	}
+	function opt_out_jetpack_manage_url() {
+		_deprecated_function( __METHOD__, 'jetpack-5.0' );
+	}
+	function opt_in_jetpack_manage_url() {
+		_deprecated_function( __METHOD__, 'jetpack-5.0' );
+	}
+	function opt_in_jetpack_manage_notice() {
+		_deprecated_function( __METHOD__, 'jetpack-5.0' );
+	}
+	function can_display_jetpack_manage_notice() {
+		_deprecated_function( __METHOD__, 'jetpack-5.0' );
 	}
 }
