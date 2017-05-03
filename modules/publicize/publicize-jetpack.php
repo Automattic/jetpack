@@ -159,8 +159,8 @@ class Publicize extends Publicize_Base {
 					check_admin_referer( 'keyring-request', 'kr_nonce' );
 					check_admin_referer( "keyring-request-$service_name", 'nonce' );
 
-					$verification = Jetpack::create_nonce( 'publicize' );
-					if ( is_wp_error( $verification ) ) {
+					$verification = Jetpack::generate_secrets( 'publicize' );
+					if ( ! $verification ) {
 						$url = Jetpack::admin_url( 'jetpack#/settings' );
 						wp_die( sprintf( __( "Jetpack is not connected. Please connect Jetpack by visiting <a href='%s'>Settings</a>.", 'jetpack' ), $url ) );
 
