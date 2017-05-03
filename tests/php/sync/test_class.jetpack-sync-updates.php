@@ -76,7 +76,6 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		$event = $this->server_event_storage->get_most_recent_event( 'automatic_updates_complete' );
-		var_dump($event);
 		$this->assertTrue( (bool) $event );
 	}
 
