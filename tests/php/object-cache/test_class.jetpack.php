@@ -52,6 +52,9 @@ class WP_Test_Object_Cache_Jetpack extends WP_UnitTestCase {
 		Jetpack::generate_secrets( 'some_name' );
 	}
 
+	/**
+	 * @requires PHP 5.3
+	 */
 	function test_generate_secrets_restores_from_cache() {
 		self::$cache->expects( $this->once() )
 			->method( 'get' )
@@ -61,6 +64,9 @@ class WP_Test_Object_Cache_Jetpack extends WP_UnitTestCase {
 		$this->assertEquals( get_transient( 'jetpack_some_name_' . get_current_user_id() ), 'some_secret' );
 	}
 
+	/**
+	 * @requires PHP 5.3
+	 */
 	function test_generate_secrets_handles_errors() {
 		self::$cache->expects( $this->once() )
 			->method( 'set' )
