@@ -3,6 +3,8 @@
 # accepts: partner client ID and secret key
 # executes wp-cli command to provision Jetpack site for given partner
 
+PHP_PROVISION_SCRIPT="./partner-provision-wp.php";
+
 function usage
 {
     echo "Usage: partner-provision.sh --client_id=client_id --client_secret=client_secret --plan=plan_name"
@@ -37,8 +39,11 @@ fi
 
 echo "Success - client = $CLIENT_ID, secret = $CLIENT_SECRET, plan = $PLAN_NAME";
 
-ACCESS_TOKEN_JSON=`$( printf "curl https://public-api.wordpress.com/oauth2/token --silent -d \"grant_type=client_credentials&client_id=%q&client_secret=%q&scope=jetpack-partner\"" $CLIENT_ID $CLIENT_SECRET )`
+ACCESS_TOKEN_JSON=`curl https://public-api.wordpress.com/oauth2/token --silent -d "grant_type=client_credentials&client_id=$CLIENT_ID&client_secret=$CLIENT_SECRET&scope=jetpack-partner"`
+
 echo $ACCESS_TOKEN_JSON
+
+php $PHP_PROVISION_SCRIPT $( printf "%q" $ACCESS_TOKEN_JSON ) $PLAN_NAME
 
 # TODO: 
 # - execute wp-cli script to provision site and plan
