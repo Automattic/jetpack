@@ -37,8 +37,7 @@ fi
 
 echo "Success - client = $CLIENT_ID, secret = $CLIENT_SECRET, plan = $PLAN_NAME";
 
-ACCESS_TOKEN_JSON=`curl https://public-api.wordpress.com/oauth2/token --silent -d "grant_type=client_credentials&client_id=$CLIENT_ID&client_secret=$CLIENT_SECRET&scope=jetpack-partner"`
-
+ACCESS_TOKEN_JSON=`$( printf "curl https://public-api.wordpress.com/oauth2/token --silent -d \"grant_type=client_credentials&client_id=%q&client_secret=%q&scope=jetpack-partner\"" $CLIENT_ID $CLIENT_SECRET )`
 echo $ACCESS_TOKEN_JSON
 
 # TODO: 
