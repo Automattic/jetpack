@@ -85,6 +85,7 @@ class WP_Super_Cache_Settings_Map {
 		),
 		'cache_compression' => array(
 			'global' => 'cache_compression',
+			'set'    => 'set_cache_compression',
 		),
 		'cache_mod_rewrite' => array(
 			'global' => 'wp_cache_mod_rewrite',
