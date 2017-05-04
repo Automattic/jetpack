@@ -755,6 +755,39 @@ class Jetpack_CLI extends WP_CLI_Command {
 				break;
 		}
 	}
+
+	/**
+	 * Provision a site using a Jetpack Partner license
+	 *
+	 * Returns JSON blob
+	 *
+	 * ## OPTIONS
+	 *
+	 * <token_json>
+	  * : JSON blob of WPCOM API token
+	 * <plan_name>
+	 * : Slug of the requested plan, e.g. premium
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     $ wp jetpack partner_provision '{ some: "json" }' premium
+	 *     { success: true }
+	 *
+	 * @synopsis <token_json> <plan_name>
+	 */
+	public function partner_provision( $args ) {
+		list( $token_json, $plan_name ) = $args;
+
+		if ( ! $token_json || ! ( $token = json_decode( $token_json ) ) ) {
+			echo "Invalid token JSON: $token_json";
+		}
+
+		if ( ! $plan_name ) {
+			echo "Missing plan name";
+		}
+
+		echo "Running provision";
+	}
 }
 
 /*
