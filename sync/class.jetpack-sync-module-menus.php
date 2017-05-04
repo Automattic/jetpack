@@ -18,7 +18,6 @@ class Jetpack_Sync_Module_Menus extends Jetpack_Sync_Module {
 		add_action( 'jetpack_sync_updated_nav_menu_add_item', $callable, 10, 4 );
 		add_action( 'jetpack_sync_updated_nav_menu_update_item', $callable, 10, 4 );
 		add_action( 'delete_nav_menu', $callable, 10, 3 );
-
 	}
 	
 	public function update_nav_menu( $menu_id, $menu_data = array() ) {
@@ -57,7 +56,6 @@ class Jetpack_Sync_Module_Menus extends Jetpack_Sync_Module {
 			return;
 		}
 		$menu_data = wp_get_nav_menu_object( $menu_id );
-
 		/**
 		 * Helps sync log that an update to the menu item happened.
 		 *
