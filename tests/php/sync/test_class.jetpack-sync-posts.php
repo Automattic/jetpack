@@ -234,6 +234,17 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertFalse( (bool) $add_attachment_event );
 	}
 
+	public function test_broken_do_wp_insert_post_does_not_break_sync() {
+		// Some plugins do unexpected things see pet-manager 
+		$this->server_event_storage->reset();
+		do_action('wp_insert_post', 'wp_insert_post' );
+		$this->sender->do_sync();
+
+		$should_not_be_there = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' );
+		$this->assertFalse( (bool) $should_not_be_there );
+
+	}
+
 	public function test_sync_attachment_delete_is_synced() {
 		$filename      = dirname( __FILE__ ) . '/../files/jetpack.jpg';
 		$filename_copy = dirname( __FILE__ ) . '/../files/jetpack-copy.jpg';
