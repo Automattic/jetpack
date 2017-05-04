@@ -92,7 +92,7 @@ const CustomContentTypes = moduleSettingsForm(
 						<FormFieldset>
 							<p className="jp-form-setting-explanation">
 								{
-									__( "Add, organize, and display {{portfolioLink}}portfolios{{/portfolioLink}}. If your theme doesn’t support portfolios yet, you can display them using the shortcode ( [portfolios] )",
+									__( "Add, organize, and display {{portfolioLink}}portfolios{{/portfolioLink}}. If your theme doesn’t support portfolios yet, you can display them using the shortcode ( [portfolios] ).",
 										{
 											components: {
 												portfolioLink: this.linkIfActiveCPT( 'portfolio' )
