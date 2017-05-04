@@ -4,20 +4,21 @@
 # executes wp-cli command to provision Jetpack site for given partner
 
 PHP_PROVISION_SCRIPT="./partner-provision-wp.php";
+# PHP_PROVISION_SCRIPT="wp jetpack partner-provision";
 
 function usage
 {
-    echo "Usage: partner-provision.sh --client_id=client_id --client_secret=client_secret --plan=plan_name"
+    echo "Usage: partner-provision.sh --partner_id=partner_id --partner_secret=partner_secret --plan=plan_name"
 }
 
 for i in "$@"; do
     key="$1"
     echo $i
     case $i in
-        -c=* | --client_id=* )      CLIENT_ID="${i#*=}"
+        -c=* | --partner_id=* )     CLIENT_ID="${i#*=}"
                                     shift
                                     ;;
-        -s=* | --client_secret=* )  CLIENT_SECRET="${i#*=}"
+        -s=* | --partner_secret=* ) CLIENT_SECRET="${i#*=}"
                                     shift
                                     ;;
         -p=* | --plan=* )           PLAN_NAME="${i#*=}"
