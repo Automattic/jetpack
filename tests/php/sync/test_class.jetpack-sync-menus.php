@@ -13,7 +13,6 @@ class WP_Test_Jetpack_Sync_Menus extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( (bool) $event );
 		$this->assertEquals( $event->args[0], $menu_id );
 		$this->assertEquals( $event->args[1]['menu-name'], 'FUN' );
-
 	}
 
 	function test_sync_updating_a_menu() {
@@ -56,7 +55,6 @@ class WP_Test_Jetpack_Sync_Menus extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $event->args[2], $link_item );
 		$this->assertEquals( $event->args[3]['menu-item-title'], 'LINK TO LINKS' );
 		$this->assertEquals( $event->args[3]['menu-item-url'], 'http://example.com' );
-
 	}
 
 	function test_sync_updating_a_menu_update_an_item() {
@@ -89,7 +87,6 @@ class WP_Test_Jetpack_Sync_Menus extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $event->args[2], $link_item );
 		$this->assertEquals( $event->args[3]['menu-item-title'], 'make it https MORE LINKS' );
 		$this->assertEquals( $event->args[3]['menu-item-url'], 'https://example.com' );
-
 	}
 
 	function test_sync_deleteing_a_menu() {
