@@ -3,6 +3,10 @@
 # accepts: partner client ID and secret key
 # executes wp-cli command to provision Jetpack site for given partner
 
+# change to script directory so that wp finds the wordpress install part for this Jetpack instance
+SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
+cd $SCRIPT_DIR
+
 usage () {
     echo "Usage: partner-provision.sh --partner_id=partner_id --partner_secret=partner_secret --plan=plan_name"
 }
