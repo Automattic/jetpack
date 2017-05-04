@@ -44,6 +44,9 @@ class WP_Test_Jetpack_Sync_Terms extends WP_Test_Jetpack_Sync_Base {
 		$terms        = $this->get_terms();
 		$server_terms = $this->server_replica_storage->get_terms( $this->taxonomy );
 		$this->assertEqualsObject( $terms, $server_terms );
+
+		$event_data = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_term' );
+		$this->assertEquals( 'created_term', $event_data->args[1] );
 	}
 
 	public function test_update_term_is_synced() {
@@ -57,6 +60,9 @@ class WP_Test_Jetpack_Sync_Terms extends WP_Test_Jetpack_Sync_Base {
 		$terms        = $this->get_terms();
 		$server_terms = $this->server_replica_storage->get_terms( $this->taxonomy );
 		$this->assertEqualsObject( $terms, $server_terms );
+
+		$event_data = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_term' );
+		$this->assertEquals( 'edited_term', $event_data->args[1] );
 	}
 
 	public function test_delete_term_is_synced() {
