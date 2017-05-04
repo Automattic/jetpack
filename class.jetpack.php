@@ -2418,6 +2418,14 @@ class Jetpack {
 			$active[] = 'protect';
 		}
 
+		// Force manage "on" always, even though it's no longer a module, Calypso still relies on this method
+		// through a JSON API endpoint that checks to see if manage is enabled.
+		// @todo remove this once Calypso is no longer looking for this module.
+		// @see https://github.com/Automattic/jetpack/pull/7114
+		if ( ! in_array( 'manage', $active ) ) {
+			$active[] = 'manage';
+		}
+
 		return array_unique( $active );
 	}
 
