@@ -34,9 +34,9 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 
 		// Send data when update completes
 		add_action( '_core_updated_successfully', array( $this, 'update_core' ) );
-		add_action( 'jetpack_sync_update_core_successfull', $callable, 10, 2 );
-		add_action( 'jetpack_sync_autoupdate_core_successfull', $callable, 10, 2 );
-		add_action( 'jetpack_sync_reinstall_core_successfull', $callable );
+		add_action( 'jetpack_sync_update_core_successful', $callable, 10, 2 );
+		add_action( 'jetpack_sync_autoupdate_core_successful', $callable, 10, 2 );
+		add_action( 'jetpack_sync_reinstall_core_successful', $callable );
 	}
 
 	public function init_full_sync_listeners( $callable ) {
