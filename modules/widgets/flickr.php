@@ -67,12 +67,49 @@ if ( ! class_exists( 'Jetpack_Flickr_Widget' ) ) {
 
 			$image_size_string = 'small' == $instance['flickr_image_size'] ? '_m.jpg' : '_t.jpg';
 
-			$rss_url = ( ! isset( $instance['flickr_rss_url'] ) || empty( $instance['flickr_rss_url'] ) )
-				? 'https://api.flickr.com/services/feeds/photos_interesting.gne?format=rss_200'
-				: htmlspecialchars_decode( $instance['flickr_rss_url'] );
+			if ( ! empty( $instance['flickr_rss_url'] ) ) {
 
-			// We want to use the HTTPS version so the URLs in the API response are also HTTPS and we avoid mixed-content warnings.
-			$rss_url = preg_replace( '!^http://api.flickr.com/!i', 'https://api.flickr.com/', $rss_url );
+				/*
+				 * Parse the URL, and rebuild a URL that's sure to display images.
+				 * Some Flickr Feeds do not display images by default.
+				 */
+				$flickr_parameters = parse_url( htmlspecialchars_decode( $instance['flickr_rss_url'] ) );
+
+				// Is it a Flickr Feed.
+				if (
+					! empty( $flickr_parameters['host'] )
+					&& ! empty( $flickr_parameters['query'] )
+					&& false !== strpos( $flickr_parameters['host'], 'flickr' )
+				) {
+					parse_str( $flickr_parameters['query'], $vars );
+
+					// Do we have an ID in the feed? Let's continue.
+					if ( isset( $vars['id'] ) ) {
+
+						// Flickr Feeds can be used for groups or for individuals.
+						if (
+							! empty( $flickr_parameters['path'] )
+							&& false !== strpos( $flickr_parameters['path'], 'groups' )
+						) {
+							$feed_url = 'https://api.flickr.com/services/feeds/groups_pool.gne';
+						} else {
+							$feed_url = 'https://api.flickr.com/services/feeds/photos_public.gne';
+						}
+
+						// Build our new RSS feed.
+						$rss_url = sprintf(
+							'%1$s?id=%2$s&format=rss_200_enc',
+							esc_url( $feed_url ),
+							esc_attr( $vars['id'] )
+						);
+					}
+				}
+			} // End if().
+
+			// Still no RSS feed URL? Get a default feed from Flickr to grab interesting photos.
+			if ( empty( $rss_url ) ) {
+				$rss_url = 'https://api.flickr.com/services/feeds/photos_interesting.gne?format=rss_200';
+			}
 
 			$rss = fetch_feed( $rss_url );
 
@@ -101,8 +138,18 @@ if ( ! class_exists( 'Jetpack_Flickr_Widget' ) ) {
 			}
 
 			echo $args['before_widget'];
-			echo $args['before_title'] . esc_html( $instance['title'] ) . $args['after_title'];
-			require( dirname( __FILE__ ) . '/flickr/widget.php' );
+			if ( empty( $photos ) ) {
+				if ( current_user_can( 'edit_theme_options' ) ) {
+					printf(
+						'<p>%1$s<br />%2$s</p>',
+						esc_html__( 'There are no photos to display. Make sure your Flickr feed URL is correct, and that your pictures are publicly accessible.', 'jetpack' ),
+						esc_html__( '(Only admins can see this message)', 'jetpack' )
+					);
+				}
+			} else {
+				echo $args['before_title'] . esc_html( $instance['title'] ) . $args['after_title'];
+				require( dirname( __FILE__ ) . '/flickr/widget.php' );
+			}
 			echo $args['after_widget'];
 			/** This action is already documented in modules/widgets/gravatar-profile.php */
 			do_action( 'jetpack_stats_extra', 'widget_view', 'flickr' );
