@@ -1196,7 +1196,7 @@ new Jetpack_JSON_API_User_Connect_Endpoint( array(
     }',
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/users/6/connect'
 ) );
- 
+
 require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-user-create-endpoint.php' );
 
 // POST /sites/%s/users/create
@@ -1238,4 +1238,5 @@ new Jetpack_JSON_API_User_Create_Endpoint( array(
         "roles": [ "administrator" ]
     }',
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/users/create'
+
 ) );
