@@ -59,9 +59,35 @@ class Jetpack_JITM {
 		/*if ( ! current_user_can( 'jetpack_manage_modules' ) ) {
 			return;
 		}*/
-		//todo: if not connected, fall back to old way
 		add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
 		add_action( 'admin_notices', array( $this, 'ajax_message' ) );
+	}
+
+	static function jitm_woocommerce_services_msg( $message ) {
+		if ( ! function_exists( 'wc_get_base_location' ) ) {
+			return '';
+		}
+
+		$base_location = wc_get_base_location();
+
+		switch ( $base_location['country'] ) {
+			case 'US':
+				return __( 'New free service: Show USPS shipping rates on your store! Added bonus: print shipping labels without leaving WooCommerce.', 'jetpack' );
+				break;
+			case 'CA':
+				return __( 'New free service: Show Canada Post shipping rates on your store!', 'jetpack' );
+				break;
+			default:
+				return '';
+		}
+	}
+
+	static function jitm_jetpack_woo_services_install( $CTA ) {
+		return wp_nonce_url( add_query_arg( array( 'wc-services-action' => 'install' ), '/wp-admin/admin.php?page=wc-settings' ), 'wc-services-install' );
+	}
+
+	static function jitm_jetpack_woo_services_activate( $CTA ) {
+		return wp_nonce_url( add_query_arg( array( 'wc-services-action' => 'activate' ), '/wp-admin/admin.php?page=wc-settings' ), 'wc-services-install' );
 	}
 
 	function ajax_message() {
@@ -90,7 +116,7 @@ class Jetpack_JITM {
 	function get_message_path() {
 		$screen = get_current_screen();
 
-		return 'wp:' . $screen->base . ':' . current_filter();
+		return 'wp:' . $screen->id . ':' . current_filter();
 	}
 
 	function display_jitm_message() {
@@ -134,7 +160,15 @@ class Jetpack_JITM {
 	 *
 	 * @return array
 	 */
-	public static function get_messages( $message_path, $query ) {
+	static function get_messages( $message_path, $query ) {
+		// custom filters go here
+		add_filter( 'jitm_woocommerce_services_msg', array( 'Jetpack_JITM', 'jitm_woocommerce_services_msg' ) );
+		add_filter( 'jitm_jetpack_woo_services_install', array( 'Jetpack_JITM', 'jitm_jetpack_woo_services_install' ) );
+		add_filter( 'jitm_jetpack_woo_services_activate', array(
+			'Jetpack_JITM',
+			'jitm_jetpack_woo_services_activate'
+		) );
+
 		$user = wp_get_current_user();
 
 		// unauthenticated or invalid requests just bail
@@ -183,9 +217,30 @@ class Jetpack_JITM {
 			$envelope->url            = 'https://jetpack.com/redirect/?source=jitm-' . $envelope->id . '&site=' . $normalized_site_url;
 			$envelope->jitm_stats_url = Jetpack::build_stats_url( array( 'x_jetpack-jitm' => $envelope->id ) );
 
+			if ( $envelope->CTA->hook ) {
+				$envelope->url = apply_filters( 'jitm_' . $envelope->CTA->hook, $envelope->url ) ;
+				unset( $envelope->CTA->hook );
+			}
+
+			if ( isset( $envelope->content->hook ) ) {
+				// todo: this may be a security concern!
+				$envelope->content->message = esc_html( apply_filters( 'jitm_' . $envelope->content->hook, $envelope->content->message ) );
+				unset( $envelope->content->hook );
+			}
+
+			// no point in showing an empty message
+			if ( empty( $envelope->content->message ) ) {
+				return array();
+			}
+
 			switch ( $envelope->content->icon ) {
 				case 'jetpack':
 					$envelope->content->icon = '<div class="jp-emblem">' . Jetpack::get_jp_emblem() . '</div>';
+					break;
+				case 'woocommerce':
+					$envelope->content->icon = "<div class=\"jp-emblem\"><svg xmlns=\"http://www.w3.org/2000/svg\" xmlns:xlink=\"http://www.w3.org/1999/xlink\" version=\"1.1\" id=\"Layer_1\" x=\"0\" y=\"0\" viewBox=\"0 0 24 24\" enable-background=\"new 0 0 24 24\" xml:space=\"preserve\">
+ 					<path d=\"M18,8h-2V7c0-1.105-0.895-2-2-2H4C2.895,5,2,5.895,2,7v10h2c0,1.657,1.343,3,3,3s3-1.343,3-3h4c0,1.657,1.343,3,3,3s3-1.343,3-3h2v-5L18,8z M7,18.5c-0.828,0-1.5-0.672-1.5-1.5s0.672-1.5,1.5-1.5s1.5,0.672,1.5,1.5S7.828,18.5,7,18.5z M4,14V7h10v7H4z M17,18.5c-0.828,0-1.5-0.672-1.5-1.5s0.672-1.5,1.5-1.5s1.5,0.672,1.5,1.5S17.828,18.5,17,18.5z\" />
+ 				</svg></div>";
 					break;
 				default:
 					$envelope->content->icon = '';
