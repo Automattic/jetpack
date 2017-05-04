@@ -84,7 +84,7 @@ class Jetpack_Sync_Module_Terms extends Jetpack_Sync_Module {
 			 *
 			 * @param object the Term object
 			 */
-			do_action('jetpack_sync_save_term', $term_object);
+			do_action( 'jetpack_sync_save_term', $term_object);
 		}
 
 		if ( 'created_term' === $current_filter ) {
@@ -95,7 +95,7 @@ class Jetpack_Sync_Module_Terms extends Jetpack_Sync_Module {
 			 *
 			 * @param object the Term object
 			 */
-			do_action('jetpack_sync_add_term', $term_object);
+			do_action( 'jetpack_sync_add_term', $term_object);
 		}
 	}
 
