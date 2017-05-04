@@ -336,15 +336,15 @@ class Jetpack_JITM {
 			</p>
 		</div>
 
-		<div class="jitm-card dops-banner has-call-to-action is-upgrade-premium">
-			<div class="dops-banner__icon-plan">
-
+		<div class="jitm-card jitm-banner has-call-to-action is-upgrade-premium">
+			<div class="jitm-banner__icon-plan">
+				<?php echo self::get_emblem(); ?>
 			</div>
-			<div class="dops-banner__content">
-				<div class="dops-banner__info">
-					<div class="dops-banner__title">Testing the new JITM styles.</div>
+			<div class="jitm-banner__content">
+				<div class="jitm-banner__info">
+					<div class="jitm-banner__title">Testing the new JITM styles.</div>
 				</div>
-				<div class="dops-banner__action">
+				<div class="jitm-banner__action">
 					<a href="https://jetpack.com/redirect/?source=settings-video-premium&amp;site=golenskijetpack.mystagingwebsite.com" type="button" class="dops-button is-compact is-primary">Upgrade</a>
 				</div>
 			</div>
