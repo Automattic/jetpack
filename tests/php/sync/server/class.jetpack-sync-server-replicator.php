@@ -218,7 +218,8 @@ class Jetpack_Sync_Server_Replicator {
 				break;
 
 			// terms
-			case 'jetpack_sync_save_term':
+			case 'jetpack_sync_save_term': //break intentionally omitted
+			case 'jetpack_sync_add_term':
 				list( $term_object ) = $args;
 				$this->store->update_term( $term_object );
 				break;
