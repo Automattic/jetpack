@@ -335,6 +335,22 @@ class Jetpack_JITM {
 				<a href="<?php echo esc_url( $url ); ?>" target="_blank" title="<?php esc_attr_e( 'Enable VaultPress Backups', 'jetpack' ); ?>" data-module="vaultpress" data-jptracks-name="nudge_click" data-jptracks-prop="jitm-vault" class="button button-jetpack launch jptracks"><?php esc_html_e( 'Enable VaultPress Backups', 'jetpack' ); ?></a>
 			</p>
 		</div>
+
+		<div class="jitm-card dops-banner has-call-to-action is-upgrade-premium">
+			<div class="dops-banner__icon-plan">
+
+			</div>
+			<div class="dops-banner__content">
+				<div class="dops-banner__info">
+					<div class="dops-banner__title">Testing the new JITM styles.</div>
+				</div>
+				<div class="dops-banner__action">
+					<a href="https://jetpack.com/redirect/?source=settings-video-premium&amp;site=golenskijetpack.mystagingwebsite.com" type="button" class="dops-button is-compact is-primary">Upgrade</a>
+				</div>
+			</div>
+		</div>
+
+
 		<?php
 		//jitm is being viewed, track it
 		$jetpack = Jetpack::init();
