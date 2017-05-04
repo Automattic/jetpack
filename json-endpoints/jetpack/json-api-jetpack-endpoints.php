@@ -1162,7 +1162,6 @@ new Jetpack_JSON_API_Get_Post_Backup_Endpoint( array(
 
 
 // USERS
-
 require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-user-connect-endpoint.php' );
 
 // POST /sites/%s/users/%d/connect

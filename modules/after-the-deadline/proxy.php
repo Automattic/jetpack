@@ -87,8 +87,8 @@ function AtD_redirect_call() {
 	$atd_lang = get_locale();
 
 	// If we're on WPCOM, this function should be available.
-	if ( function_exists( 'get_user_lang_code' ) ) {
-		$atd_lang = get_user_lang_code( $user->ID );
+	if ( function_exists( 'get_user_locale' ) ) {
+		$atd_lang = get_user_locale( $user->ID );
 	}
 
 	if ( ! empty( $atd_lang ) ) {

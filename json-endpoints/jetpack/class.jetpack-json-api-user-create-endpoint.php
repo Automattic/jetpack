@@ -32,7 +32,6 @@ class Jetpack_JSON_API_User_Create_Endpoint extends Jetpack_JSON_API_Endpoint {
 
 		if ( ! $user ) {
 			// We modify the input here to mimick the same call structure of the update user endpoint.
-
 			$this->user_data = (object) $this->user_data;
 			$roles = (array) $this->user_data->roles;
 			$this->user_data->role = array_pop( $roles );

@@ -13,7 +13,7 @@ import NoticesList from 'components/global-notices';
  */
 import JetpackStateNotices from './state-notices';
 import { getSiteConnectionStatus, getSiteDevMode, isStaging, isInIdentityCrisis, isCurrentUserLinked } from 'state/connection';
-import { isDevVersion, userCanManageModules, getUsername, userIsSubscriber } from 'state/initial-state';
+import { isDevVersion, userCanManageModules, userIsSubscriber } from 'state/initial-state';
 import DismissableNotices from './dismissable';
 import { getConnectUrl as _getConnectUrl } from 'state/connection';
 import QueryConnectUrl from 'components/data/query-connect-url';
@@ -54,7 +54,7 @@ export const StagingSiteNotice = React.createClass( {
 		if ( this.props.isStaging && ! this.props.isInIdentityCrisis ) {
 			const stagingSiteSupportLink = 'https://jetpack.com/support/staging-sites/',
 				props = {
-					text: 	__( 'You are running Jetpack on a staging server.' ),
+					text:	__( 'You are running Jetpack on a staging server.' ),
 					status: 'is-basic',
 					showDismiss: false
 				};
@@ -162,11 +162,7 @@ export const UserUnlinked = React.createClass( {
 			this.props.connectUrl &&
 			this.props.siteConnected
 		) {
-			const text = __( 'You, %(userName)s, are not connected to WordPress.com.', {
-				args: {
-					userName: this.props.username
-				}
-			} );
+			const text = __( 'You are not connected to WordPress.com.' );
 
 			return (
 				<SimpleNotice
@@ -213,8 +209,7 @@ const JetpackNotices = React.createClass( {
 				<UserUnlinked
 					connectUrl={ this.props.connectUrl }
 					siteConnected={ true === this.props.siteConnectionStatus }
-					isLinked={ this.props.isLinked }
-					username={ this.props.username } />
+					isLinked={ this.props.isLinked } />
 				{
 					( ! this.props.siteConnectionStatus && ! this.props.userCanManageModules ) && (
 						<SimpleNotice
@@ -236,7 +231,6 @@ export default connect(
 			siteConnectionStatus: getSiteConnectionStatus( state ),
 			userCanManageModules: userCanManageModules( state ),
 			userIsSubscriber: userIsSubscriber( state ),
-			username: getUsername( state ),
 			isLinked: isCurrentUserLinked( state ),
 			isDevVersion: isDevVersion( state ),
 			siteDevMode: getSiteDevMode( state ),
