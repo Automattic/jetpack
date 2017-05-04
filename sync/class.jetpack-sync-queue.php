@@ -50,11 +50,18 @@ class Jetpack_Sync_Queue {
 			$rows_added = $wpdb->query( $wpdb->prepare(
 				"INSERT INTO $wpdb->options (option_name, option_value, autoload) VALUES (%s, %s,%s)",
 				$this->get_next_data_row_option_name(),
-				serialize( $item ),
+				$this->serialize( $item ),
 				'no'
 			) );
 			$added      = ( 0 !== $rows_added );
 		}
+	}
+
+	function serialize( $item ) {
+		if ( $item instanceof SimpleXMLElement ) {
+			$item = $item->asXML();
+		}
+		return serialize( $item );
 	}
 
 	// Attempts to insert all the items in a single SQL query. May be subject to query size limits!
@@ -68,7 +75,7 @@ class Jetpack_Sync_Queue {
 
 		for ( $i = 0; $i < count( $items ); $i += 1 ) {
 			$option_name  = esc_sql( $base_option_name . '-' . $i );
-			$option_value = esc_sql( serialize( $items[ $i ] ) );
+			$option_value = esc_sql( $this->serialize( $items[ $i ] ) );
 			$rows[]       = "('$option_name', '$option_value', 'no')";
 		}
 

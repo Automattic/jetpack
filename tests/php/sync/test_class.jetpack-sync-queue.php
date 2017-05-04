@@ -254,6 +254,22 @@ class WP_Test_Jetpack_Sync_Queue extends WP_UnitTestCase {
 		$this->assertEquals( array( 'foo' ), $other_queue->checkout( 5 )->get_item_values() );
 	}
 
+	function test_add_simple_xml_object() {
+		// lag is the difference in time between the age of the oldest item and the current time
+		$this->queue->reset();
+		$xml = simplexml_load_string( '<x>hello</x>');
+		$this->queue->add( $xml );
+		
+		$buffer = $this->queue->checkout( 1 );
+		$this->assertNotEquals( false, $buffer );
+		$this->queue->close( $buffer );
+
+		$this->queue->add_all( array( $xml ) );
+		$buffer = $this->queue->checkout( 1 );
+		$this->assertNotEquals( false, $buffer );
+		$this->queue->close( $buffer );
+	}
+
 	function test_benchmark() {
 		$this->markTestIncomplete( "We don't want to run this every time" );
 		$iterations  = 100;
