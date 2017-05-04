@@ -1411,7 +1411,7 @@ function wp_update_lock_down() {
 
 	if ( isset( $_POST[ 'wp_lock_down' ] ) && $valid_nonce ) {
 		$wp_lock_down = $_POST[ 'wp_lock_down' ] == '1' ? '1' : '0';
-		wp_cache_replace_line('^.*WPLOCKDOWN', "define( 'WPLOCKDOWN', '$wp_lock_down' );", $wp_cache_config_file);
+		wp_cache_replace_line( '^.*WPLOCKDOWN', "if ( ! defined( 'WPLOCKDOWN' ) ) define( 'WPLOCKDOWN', '$wp_lock_down' );", $wp_cache_config_file );
 		if ( false == defined( 'WPLOCKDOWN' ) )
 			define( 'WPLOCKDOWN', $wp_lock_down );
 		if ( $wp_lock_down == '0' && function_exists( 'prune_super_cache' ) )

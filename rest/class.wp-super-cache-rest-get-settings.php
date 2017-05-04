@@ -13,6 +13,16 @@ class WP_Super_Cache_Rest_Get_Settings extends WP_REST_Controller {
 	public function callback( $request ) {
 		$settings = array();
 
+		global $wp_cache_config_file;
+
+		if ( defined( 'WPLOCKDOWN' ) ) {
+			$config_file = file_get_contents( $wp_cache_config_file );
+			if ( false === strpos( $config_file, "defined( 'WPLOCKDOWN' )" ) ) {
+				wp_cache_replace_line( '^.*WPLOCKDOWN', "if ( ! defined( 'WPLOCKDOWN' ) ) define( 'WPLOCKDOWN', constant( 'WPLOCKDOWN' ) );", $wp_cache_config_file );
+			}
+		}
+		include( $wp_cache_config_file );
+
 		foreach ( WP_Super_Cache_Settings_Map::$map as $name => $map ) {
 			if ( isset ( $map['get'] ) ) {
 				$get_method = $map['get'];
@@ -29,7 +39,6 @@ class WP_Super_Cache_Rest_Get_Settings extends WP_REST_Controller {
 
 			} elseif ( isset( $map['global'] ) ) {
 				$global_var = $map['global'];
-				global ${$global_var};
 				$settings[ $name ] = $$global_var;
 			}
 		}
