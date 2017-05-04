@@ -591,7 +591,7 @@ class Jetpack {
 			add_action( 'wp_print_styles', array( $this, 'implode_frontend_css' ), -1 ); // Run first
 			add_action( 'wp_print_footer_scripts', array( $this, 'implode_frontend_css' ), -1 ); // Run first to trigger before `print_late_styles`
 		}
-		
+
 		if ( Jetpack::is_active() ) {
 			// Add wordpress.com to the safe redirect whitelist if Jetpack is connected
 			// so the customizer can `return` to wordpress.com if invoked from there.
@@ -5777,6 +5777,7 @@ p {
 			'jetpack_sync_all_registered_options'                    => null,
 			'jetpack_has_identity_crisis'                            => 'jetpack_sync_error_idc_validation',
 			'jetpack_is_post_mailable'                               => null,
+			'can_display_jetpack_manage_notice'                      => null,
 		);
 
 		// This is a silly loop depth. Better way?
