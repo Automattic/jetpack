@@ -90,7 +90,7 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 		$pagenow = $current_page; // revert page now
 		$this->sender->do_sync();
 
-		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_update_core_successfull' );
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_update_core_successful' );
 
 		$this->assertTrue( (bool) $event );
 		$this->assertEquals( $event->args[0], 'foo' ); // Old Version
@@ -105,7 +105,7 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 		do_action( '_core_updated_successfully', 'foo' );
 		$this->sender->do_sync();
 
-		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_autoupdate_core_successfull' );
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_autoupdate_core_successful' );
 
 		$this->assertTrue( (bool) $event );
 		$this->assertEquals( $event->args[0], 'foo' ); // Old Version
@@ -123,7 +123,7 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 
 		unset( $_GET['action'] );
 
-		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_reinstall_core_successfull' );
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_reinstall_core_successful' );
 
 		$this->assertTrue( (bool) $event );
 		$this->assertEquals( $event->args[0], 'foo' ); // New version
