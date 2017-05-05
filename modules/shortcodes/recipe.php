@@ -41,7 +41,7 @@ class Jetpack_Recipes {
 										'itemtype' => array()
 									) );
 		endif;
-	    return $allowedtags;
+	return $allowedtags;
 	}
 
 	/*
@@ -122,6 +122,8 @@ class Jetpack_Recipes {
 				'time'        => '', //string
 				'difficulty'  => '', //string
 				'print'       => '', //string
+				'source'      => '', //string
+				'sourceurl' => '', //string
 				'image'       => '', //string
 				'description' => '', //string
 			), $atts, 'recipe'
@@ -170,6 +172,30 @@ class Jetpack_Recipes {
 					esc_html_x( 'Difficulty', 'recipe', 'jetpack' ),
 					esc_html( $atts['difficulty'] )
 				);
+			}
+
+			if ( '' !== $atts['source'] ) {
+				$html .= sprintf(
+					'<li class="jetpack-recipe-source"><strong>%1$s: </strong>',
+					esc_html_x( 'Source', 'recipe', 'jetpack' )
+				);
+
+				if ( '' !== $atts['sourceurl'] ) :
+					// Show the link if we have one.
+					$html .= sprintf(
+						'<a href="%2$s">%1$s</a>',
+						esc_html( $atts['source'] ),
+						esc_url( $atts['sourceurl'] )
+					);
+				else :
+					// Skip the link.
+					$html .= sprintf(
+						'%1$s',
+						esc_html( $atts['source'] )
+					);
+				endif;
+
+				$html .= '</li>';
 			}
 
 			if ( 'false' !== $atts['print'] ) {
