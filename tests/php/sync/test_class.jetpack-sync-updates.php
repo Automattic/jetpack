@@ -55,14 +55,14 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 
 	public function test_sync_wp_version() {
 		global $wp_version;
-		$previews_version = $wp_version;
+		$previous_version = $wp_version;
 		$this->assertEquals( $wp_version, $this->server_replica_storage->get_callable( 'wp_version' ) );
 
 		// Lets pretend that we updated the wp_version to bar.
 		$wp_version = 'bar';
 		do_action( 'upgrader_process_complete', null, array( 'action' => 'update', 'type' => 'core' ) );
 		$this->sender->do_sync();
-		$wp_version = $previews_version;
+		$wp_version = $previous_version;
 		$this->assertEquals( 'bar', $this->server_replica_storage->get_callable( 'wp_version' ) );
 	}
 
@@ -90,7 +90,7 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 		$pagenow = $current_page; // revert page now
 		$this->sender->do_sync();
 
-		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_update_core_successful' );
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_core_updated_successfully' );
 
 		$this->assertTrue( (bool) $event );
 		$this->assertEquals( $event->args[0], 'foo' ); // Old Version
@@ -105,7 +105,7 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 		do_action( '_core_updated_successfully', 'foo' );
 		$this->sender->do_sync();
 
-		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_autoupdate_core_successful' );
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_core_autoupdated_successfully' );
 
 		$this->assertTrue( (bool) $event );
 		$this->assertEquals( $event->args[0], 'foo' ); // Old Version
@@ -123,7 +123,7 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 
 		unset( $_GET['action'] );
 
-		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_reinstall_core_successful' );
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_core_reinstalled_successfully' );
 
 		$this->assertTrue( (bool) $event );
 		$this->assertEquals( $event->args[0], 'foo' ); // New version

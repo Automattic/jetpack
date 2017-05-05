@@ -34,9 +34,10 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 
 		// Send data when update completes
 		add_action( '_core_updated_successfully', array( $this, 'update_core' ) );
-		add_action( 'jetpack_sync_update_core_successful', $callable, 10, 2 );
-		add_action( 'jetpack_sync_autoupdate_core_successful', $callable, 10, 2 );
-		add_action( 'jetpack_sync_reinstall_core_successful', $callable );
+		add_action( 'jetpack_sync_core_reinstalled_successfully', $callable );
+		add_action( 'jetpack_sync_core_autoupdated_successfully', $callable, 10, 2 );
+		add_action( 'jetpack_sync_core_updated_successfully', $callable, 10, 2 );
+
 	}
 
 	public function init_full_sync_listeners( $callable ) {
@@ -52,17 +53,39 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 		global $pagenow;
 
 		if ( isset( $_GET[ 'action' ] ) && 'do-core-reinstall' == $_GET[ 'action' ] ) {
-			do_action( 'jetpack_sync_reinstall_core_successful', $new_wp_version );
+			/**
+			 * Sync event that is fires when the core reinstall was successful
+			 *
+			 * @since 5.0.0
+			 *
+			 * @param string $new_wp_version the updated WordPress version
+			 */
+			do_action( 'jetpack_sync_core_reinstalled_successfully', $new_wp_version );
 			return;
 		}
 
 		// Core was autoudpated
 		if ( 'update-core.php' !== $pagenow ) {
-			do_action( 'jetpack_sync_autoupdate_core_successful', $new_wp_version, $this->old_wp_version );
+			/**
+			 * Sync event that is fires when the core autoupdate was successful
+			 *
+			 * @since 5.0.0
+			 *
+			 * @param string $new_wp_version the updated WordPress version
+			 * @param string $old_wp_version the previous WordPress version
+			 */
+			do_action( 'jetpack_sync_core_autoupdated_successfully', $new_wp_version, $this->old_wp_version );
 			return;
 		}
-
-		do_action( 'jetpack_sync_update_core_successful', $new_wp_version, $this->old_wp_version );
+		/**
+		 * Sync event that is fires when the core update was successful
+		 *
+		 * @since 5.0.0
+		 *
+		 * @param string $new_wp_version the updated WordPress version
+		 * @param string $old_wp_version the previous WordPress version
+		 */
+		do_action( 'jetpack_sync_core_updated_successfully', $new_wp_version, $this->old_wp_version );
 		return;
 	}
 
