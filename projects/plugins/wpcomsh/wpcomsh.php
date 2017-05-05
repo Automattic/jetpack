@@ -34,6 +34,7 @@ require_once( 'widgets/music-player.php' );
 require_once( 'widgets/posts-i-like.php' );
 require_once( 'widgets/recent-comments-widget.php' );
 require_once( 'widgets/tlkio/tlkio.php' );
+require_once( 'widgets/twitter.php' );
 
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once WPCOMSH__PLUGIN_DIR_PATH . '/class.cli-commands.php';
