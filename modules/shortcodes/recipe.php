@@ -26,6 +26,11 @@ class Jetpack_Recipes {
 			$allowedposttags[ $tag ]['itemprop'] = array();
 		}
 
+		$allowedposttags['h3'] = array(
+			'class'     => array(),
+			'itemprop' => array ()
+		);
+
 		$allowedposttags['div'] = array(
 			'class'     => array(),
 			'itemscope' => array (),
@@ -111,6 +116,11 @@ class Jetpack_Recipes {
 		// Add itemprop, itemscope, and itemtype to allowed tags for wp_kses_post, so we can use them for better Schema compliance.
 		global $allowedtags;
 		$allowedtags['li'] = array(
+			'itemprop' => array ()
+		);
+
+		$allowedtags['h3'] = array(
+			'class'     => array(),
 			'itemprop' => array ()
 		);
 
