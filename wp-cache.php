@@ -1951,8 +1951,10 @@ function wp_cache_debug_settings() {
 				fwrite( $fp, '?' . "><pre>" );
 				fclose( $fp );
 			}
-		} else {
+		} elseif ( !$wp_super_cache_debug ) {
 			$wp_cache_debug_log = "";
+			$wp_cache_debug_username = '';
+			$wp_cache_debug_password = '';
 		}
 		wp_cache_replace_line('^ *\$wp_cache_debug_username', "\$wp_cache_debug_username = '$wp_cache_debug_username';", $wp_cache_config_file);
 		wp_cache_replace_line('^ *\$wp_cache_debug_password', "\$wp_cache_debug_password = '$wp_cache_debug_password';", $wp_cache_config_file);
