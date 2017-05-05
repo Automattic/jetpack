@@ -16,7 +16,7 @@ class Jetpack_Recipes {
 	function __construct() {
 		add_action( 'init', array( $this, 'action_init' ) );
 
-		// Add itemprop to allowed tags for wp_kses_post, so we can use it for better Schema compliance.
+		// Add itemprop, itemscope, and itemtype to allowed tags for wp_kses_post, so we can use them for better Schema compliance.
 		global $allowedposttags;
 		$tags = array( 'li', 'ol', 'img' );
 		foreach ( $tags as $tag ) {
@@ -25,6 +25,12 @@ class Jetpack_Recipes {
 			}
 			$allowedposttags[ $tag ]['itemprop'] = array();
 		}
+
+		$allowedposttags['div'] = array(
+			'class'     => array(),
+			'itemscope' => array (),
+			'itemtype'  => array ()
+		);
 	}
 
 	function action_init() {
@@ -102,9 +108,17 @@ class Jetpack_Recipes {
 	 * @return string HTML output
 	 */
 	static function recipe_shortcode_html( $atts, $content = '' ) {
-		// Add itemprop to allowed tags for wp_kses_post, so we can use it for better Schema compliance.
+		// Add itemprop, itemscope, and itemtype to allowed tags for wp_kses_post, so we can use them for better Schema compliance.
 		global $allowedtags;
-		$allowedtags['li'] = array( 'itemprop' => array () );
+		$allowedtags['li'] = array(
+			'itemprop' => array ()
+		);
+
+		$allowedtags['div'] = array(
+			'class'     => array(),
+			'itemscope' => array (),
+			'itemtype'  => array ()
+		);
 
 		$html = '<div class="hrecipe jetpack-recipe" itemscope itemtype="https://schema.org/Recipe">';
 
@@ -154,7 +168,7 @@ class Jetpack_Recipes {
 		// Output the image, if we have one.
 		if ( '' !== $atts['image'] ) {
 			$html .= sprintf(
-				'<img class="jetpack-recipe-image" itemprop="thumbnailUrl" src="%1$s" />',
+				'<img class="jetpack-recipe-image" itemprop="image" src="%1$s" />',
 				esc_url( $atts['image'] )
 			);
 		}
