@@ -212,31 +212,32 @@ class Jetpack_JITM {
 			'query_string'     => urlencode_deep( $query ),
 		), sprintf( '/sites/%d/jitm/%s', $site_id, $message_path ) );
 
-		//todo: try retrieve from transient first
-		$from_cache = false;
+		$envelopes = get_transient( 'jetpack_jitm_' . $path );
 
-		$wpcom_response = Jetpack_Client::wpcom_json_api_request_as_blog(
-			$path,
-			'1.1',
-			array( 'user_id' => $user->ID, 'user_roles' => implode( ',', $user->roles ) )
-		);
+		if ( $envelopes ) {
+			$from_cache = true;
+		} else {
+			$from_cache     = false;
+			$wpcom_response = Jetpack_Client::wpcom_json_api_request_as_blog(
+				$path,
+				'1.1',
+				array( 'user_id' => $user->ID, 'user_roles' => implode( ',', $user->roles ) )
+			);
 
-		// silently fail...might be helpful to track it?
-		if ( is_wp_error( $wpcom_response ) ) {
-			return array();
+			// silently fail...might be helpful to track it?
+			if ( is_wp_error( $wpcom_response ) ) {
+				return array();
+			}
+
+			$envelopes = json_decode( $wpcom_response['body'] );
+
+			if ( ! is_array( $envelopes ) ) {
+				return array();
+			}
+
+			$expiration = isset( $envelopes[0] ) ? $envelopes[0]->ttl : 300;
+			set_transient( 'jetpack_jitm_' . $path, $envelopes, $expiration );
 		}
-
-		// todo: use ttl value to set expiration ...
-		// todo: clear transient on dismiss
-		// todo: do not show anything we've already dismissed if it came from the cache
-		$envelopes = json_decode( $wpcom_response['body'] );
-
-		if ( ! is_array( $envelopes ) ) {
-			return array();
-		}
-
-		$expiration = isset( $envelopes[0] ) ? $envelopes[0]->ttl : 300;
-		set_transient( 'jetpack_jitm_' . $path, $wpcom_response, $expiration );
 
 		$hidden_jitms = Jetpack_Options::get_option( 'hide_jitm' );
 
