@@ -211,7 +211,7 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		 if ( count( $action_links ) > 0 ) {
 			 $dom_doc = new DOMDocument;
 			 foreach( $action_links as $action_link ) {
-				 $dom_doc->loadHTML( $action_link );
+				 $dom_doc->loadHTML( mb_convert_encoding( $action_link, 'HTML-ENTITIES', 'UTF-8' ) );
 				 $link_elements = $dom_doc->getElementsByTagName( 'a' );
 				 if ( $link_elements->length == 0 ) {
 					 continue;
