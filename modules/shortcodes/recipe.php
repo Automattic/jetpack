@@ -16,15 +16,49 @@ class Jetpack_Recipes {
 	function __construct() {
 		add_action( 'init', array( $this, 'action_init' ) );
 
-		// Add itemprop to allowed tags for wp_kses_post, so we can use it for better Schema compliance.
-		global $allowedposttags;
-		$tags = array( 'li', 'ol', 'img' );
-		foreach ( $tags as $tag ) {
-			if ( ! is_array( $allowedposttags[ $tag ] ) ) {
-				$allowedposttags[ $tag ] = array();
+		add_filter( 'wp_kses_allowed_html', array( $this, 'add_recipes_kses_rules' ), 10, 2 );
+	}
+
+	/*
+	 * Add Schema-specific attributes to our allowed tags in wp_kses,
+	 * so we can have better Schema.org compliance.
+	 */
+	function add_recipes_kses_rules( $allowedtags, $context ) {
+		if ( in_array( $context, array( '', 'post', 'data' ) ) ) :
+			// Create an array of all the tags we'd like to add the itemprop attribute to.
+			$tags = array( 'li', 'ol', 'ul', 'img', 'p', 'h3' );
+			foreach ( $tags as $tag ) {
+				$allowedtags = $this->add_kses_rule( $allowedtags, $tag, array(
+											'class'    => array(),
+											'itemprop' => array()
+										) );
 			}
-			$allowedposttags[ $tag ]['itemprop'] = array();
-		}
+
+			// Allow itemscope and itemtype for divs.
+			$allowedtags = $this->add_kses_rule( $allowedtags, 'div', array(
+										'class'    => array(),
+										'itemscope' => array(),
+										'itemtype' => array()
+									) );
+		endif;
+	    return $allowedtags;
+	}
+
+	/*
+	 * Function to add a new property rule to our kses array.
+	 * Used by add_recipe_kses_rules() above.
+	 */
+	private function add_kses_rule( $all_tags, $tag, $rules ) {
+
+		// If the tag doesn't already exist, add it.
+		if ( ! isset( $all_tags[ $tag ] ) ) :
+			$all_tags[ $tag ] = array();
+		endif;
+
+		// Merge the new tags with existing tags.
+		$all_tags[ $tag ] = array_merge( $all_tags[ $tag ], $rules );
+
+		return $all_tags;
 	}
 
 	function action_init() {
@@ -102,9 +136,6 @@ class Jetpack_Recipes {
 	 * @return string HTML output
 	 */
 	static function recipe_shortcode_html( $atts, $content = '' ) {
-		// Add itemprop to allowed tags for wp_kses_post, so we can use it for better Schema compliance.
-		global $allowedtags;
-		$allowedtags['li'] = array( 'itemprop' => array () );
 
 		$html = '<div class="hrecipe jetpack-recipe" itemscope itemtype="https://schema.org/Recipe">';
 
@@ -154,7 +185,7 @@ class Jetpack_Recipes {
 		// Output the image, if we have one.
 		if ( '' !== $atts['image'] ) {
 			$html .= sprintf(
-				'<img class="jetpack-recipe-image" itemprop="thumbnailUrl" src="%1$s" />',
+				'<img class="jetpack-recipe-image" itemprop="image" src="%1$s" />',
 				esc_url( $atts['image'] )
 			);
 		}
@@ -162,7 +193,7 @@ class Jetpack_Recipes {
 		// Output the description, if we have one.
 		if ( '' !== $atts['description'] ) {
 			$html .= sprintf(
-				'<p class="jetpack-recipe-description">%1$s</p>',
+				'<p class="jetpack-recipe-description" itemprop="description">%1$s</p>',
 				esc_html( $atts['description'] )
 			);
 		}
@@ -187,7 +218,7 @@ class Jetpack_Recipes {
 
 	/**
 	 * Our [recipe-notes] shortcode.
-	 * Outputs notes, styled in a div.
+	 * Outputs ingredients, styled in a div.
 	 *
 	 * @return string HTML for recipe notes shortcode.
 	 */
@@ -268,8 +299,8 @@ class Jetpack_Recipes {
 				$listtype              = 'ol';
 				break;
 			case 'ingredients' :
-				$list_item_replacement = '<li class="jetpack-recipe-ingredient">${1}</li>';
-				$itemprop              = ' itemprop="recipeIngredient"';
+				$list_item_replacement = '<li class="jetpack-recipe-ingredient" itemprop="recipeIngredient">${1}</li>';
+				$itemprop              = '';
 				$listtype              = 'ul';
 				break;
 			default:
@@ -328,9 +359,9 @@ class Jetpack_Recipes {
 
 	/**
 	 * Our [recipe-directions] shortcode.
-	 * Outputs notes, styled in a div.
+	 * Outputs directions, styled in a div.
 	 *
-	 * @return string HTML for recipe notes shortcode.
+	 * @return string HTML for recipe directions shortcode.
 	 */
 	static function recipe_directions_shortcode( $atts, $content = '' ) {
 		$atts = shortcode_atts( array(
