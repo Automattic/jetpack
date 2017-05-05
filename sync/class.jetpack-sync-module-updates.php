@@ -28,6 +28,12 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 		), 10, 2 );
 
 		add_action( 'automatic_updates_complete', $callable );
+
+		if ( is_multisite() ) {
+			add_action( 'update_site_option_wpmu_upgrade_site', array ( $this, 'update_core_network_event' ), 10, 3 );
+			add_action( 'jetpack_sync_core_update_network', $callable, 10, 3 );
+		}
+
 	}
 
 	public function init_full_sync_listeners( $callable ) {
@@ -37,6 +43,21 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 	public function init_before_send() {
 		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_updates', array( $this, 'expand_updates' ) );
 		add_filter( 'jetpack_sync_before_send_jetpack_update_themes_change', array( $this, 'expand_themes' ) );
+	}
+
+	public function update_core_network_event( $option, $wp_db_version, $old_wp_db_version ) {
+		global $wp_version;
+		/**
+		 * Sync Event for when core wp network updated happends.
+		 *
+		 * @since 5.0.0
+		 *
+		 * @param int $wp_db_version the latest wp_db_version
+		 * @param int $old_wp_db_version previous wp_db_version
+		 * @param string $wp_version the latest wp_version
+		 *
+		 */
+		do_action( 'jetpack_sync_core_update_network', $wp_db_version, $old_wp_db_version, $wp_version );
 	}
 
 	public function get_update_checksum( $value ) {
