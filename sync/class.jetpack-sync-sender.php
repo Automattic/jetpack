@@ -166,7 +166,7 @@ class Jetpack_Sync_Sender {
 
 		do_action( 'jetpack_sync_before_send_queue_' . $queue->id );
 		if ( $queue->size() === 0 ) {
-			return new WP_Error( 'empty_queue_' . $queue );
+			return new WP_Error( 'empty_queue_' . $queue->id );
 		}
 		// now that we're sure we are about to sync, try to
 		// ignore user abort so we can avoid getting into a
