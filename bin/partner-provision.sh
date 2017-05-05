@@ -42,7 +42,7 @@ ACCESS_TOKEN_JSON=`curl https://public-api.wordpress.com/oauth2/token --silent -
 
 echo $ACCESS_TOKEN_JSON
 
-wp jetpack partner_provision $ACCESS_TOKEN_JSON $PLAN_NAME
+wp jetpack partner_provision $ACCESS_TOKEN_JSON --user_id=1 --plan=$PLAN_NAME
 
 # TODO: 
 # - execute wp-cli script to provision site and plan

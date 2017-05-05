@@ -764,29 +764,212 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * ## OPTIONS
 	 *
 	 * <token_json>
-	  * : JSON blob of WPCOM API token
-	 * <plan_name>
+	 * : JSON blob of WPCOM API token
+	 * --plan=<plan_name>
 	 * : Slug of the requested plan, e.g. premium
+	 * --user_id=<user_id>
+	 * : Local ID of user to connect as (if omitted, user will be required to redirect via wp-admin)
 	 *
 	 * ## EXAMPLES
 	 *
-	 *     $ wp jetpack partner_provision '{ some: "json" }' premium
+	 *     $ wp jetpack partner_provision '{ some: "json" }' premium 1
 	 *     { success: true }
 	 *
-	 * @synopsis <token_json> <plan_name>
+	 * @synopsis <token_json> --plan=<plan_name> --user_id=<user_id>
 	 */
-	public function partner_provision( $args ) {
-		list( $token_json, $plan_name ) = $args;
+	public function partner_provision( $args, $named_args ) {
+		error_log("args: ".print_r($args,1));
+		error_log("named args: ".print_r($named_args,1));
+		
+		list( $token_json ) = $args;
+
+		$plan_name = $named_args['plan'];
+		$user_id   = $named_args['user_id'];
 
 		if ( ! $token_json || ! ( $token = json_decode( $token_json ) ) ) {
-			echo "Invalid token JSON: $token_json";
+			$this->partner_provision_error( new WP_Error( 'missing_access_token',  sprintf( __( 'Invalid token JSON: %s', 'jetpack' ), $token_json ) ) );
+		}
+
+		if ( ! isset( $token->access_token ) ) {
+			$this->partner_provision_error( new WP_Error( 'missing_access_token', __( 'Missing or invalid access token', 'jetpack' ) ) );
 		}
 
 		if ( ! $plan_name ) {
-			echo "Missing plan name";
+			$this->partner_provision_error( new WP_Error( 'missing_plan_param', __( 'Missing plan name', 'jetpack' ) ) );
 		}
 
-		echo "Running provision";
+		if ( ! $user_id ) {
+			// nothing right now... but should we want if user_id not present, as it means we need to redirect via WPCOM?
+		}
+
+		WP_CLI::log( __( 'Running partner provision', 'jetpack' ) );
+
+		// register host if necessary
+		WP_CLI::log( __( 'Attempting to register', 'jetpack' ) );
+
+		$blog_id = Jetpack_Options::get_option( 'id' );
+		$blog_token   = Jetpack_Options::get_option( 'blog_token' );
+
+		// we need to set the current user because:
+		// 1) register uses it as the "state" variable
+		// 2) authorize uses it to construct state variable and also to check if site is authorized for this user, and to send role
+		wp_set_current_user( $user_id );
+
+		if ( ! $blog_id || ! $blog_token ) {
+			// this code mostly copied from Jetpack::admin_page_load
+			Jetpack::maybe_set_version_option();
+			$registered = Jetpack::try_registration();
+			if ( is_wp_error( $registered ) ) {
+				error_log("in wp error for registration");
+				$this->partner_provision_error( $registered );
+			} elseif ( ! $registered ) {
+				$this->partner_provision_error( new WP_Error( 'registration_error', __( 'There was an unspecified error registering the site', 'jetpack' ) ) );
+			}
+		}
+
+		// wp_redirect( $this->build_connect_url( true, false, 'jetpack' ) );
+
+		$host = JETPACK__WPCOM_JSON_API_HOST;
+
+		$request = array(
+			'headers' => array(
+				'Authorization' => "Bearer " . $token->access_token,
+			),
+			'method'  => 'POST',
+			'body'    => json_encode( array( 'plan' => $plan_name ) )
+		);
+
+		if ( defined( 'JETPACK__WPCOM_JSON_API_HOST_HEADER' ) && JETPACK__WPCOM_JSON_API_HOST_HEADER ) {
+			$request['headers']['Host'] = JETPACK__WPCOM_JSON_API_HOST_HEADER;
+		} else {
+			$request['headers']['Host'] = 'public-api.wordpress.com';
+		}
+
+		WP_CLI::log( __( 'All done', 'jetpack' ) );
+
+		$url = sprintf( 'https://%s/rest/v1.3/jpphp/%d/partner-provision', $host, $blog_id );
+
+		WP_CLI::log( "Requesting from $url " . print_r( $request, 1 ) );
+
+		$result = Jetpack_Client::_wp_remote_request( $url, $request );
+
+		// WP_CLI::log( print_r( $result, 1 ) );
+
+		if ( is_wp_error( $result ) ) {
+			$this->partner_provision_error( $result );
+		} 
+		
+		$response_code = wp_remote_retrieve_response_code( $result );
+		$body_json     = json_decode( wp_remote_retrieve_body( $result ) );
+
+		if( 200 !== $response_code ) {
+			if ( isset( $body_json->error ) ) {
+				$this->partner_provision_error( new WP_Error( $body_json->error, $body_json->message ) );
+			} else {
+				$this->partner_provision_error( new WP_Error( 'server_error', sprintf( __( "Request failed with code %s" ), $response_code ) ) );
+			}
+		}
+
+		// WP_CLI::log( json_encode( $body_json ) );
+
+		// if we're not connected, generate the connect URL. We currently need the user_id param for this. Eventually we might not,
+		// if we redirect via wp-admin
+
+		// TODO: default user_id to first admin user? Are there security implications of this?
+
+		// if we got back secrets for the master user, inject them now
+
+		// 'master_user'	=> $user_id,
+		// 'user_tokens'	=> array($user_id => $jetpack_access_token.'.'.$user_id)
+
+		if ( ! Jetpack::is_user_connected() ) {
+			// this has been adapted from build_connect_url, but doesn't go via wp-admin, and tries
+			// to return via an SSO URL so that the user lands right on their dashboard.
+
+			$site_url = site_url();
+
+			// needed to generate authorize URL
+			$role = Jetpack::translate_current_user_to_role();
+			$signed_role = Jetpack::sign_role( $role );
+
+			$user = wp_get_current_user();
+
+			if ( defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' ) && include_once JETPACK__GLOTPRESS_LOCALES_PATH ) {
+				$gp_locale = GP_Locales::by_field( 'wp_locale', get_locale() );
+			}
+
+			$secrets = Jetpack::init()->generate_secrets( 'authorize' );
+			@list( $secret ) = explode( ':', $secrets );
+
+			$site_icon = ( function_exists( 'has_site_icon') && has_site_icon() )
+				? get_site_icon_url()
+				: false;
+
+			/**
+			 * Filter the type of authorization.
+			 * 'calypso' completes authorization on wordpress.com/jetpack/connect
+			 * while 'jetpack' ( or any other value ) completes the authorization at jetpack.wordpress.com.
+			 *
+			 * @since 4.3.3
+			 *
+			 * @param string $auth_type Defaults to 'calypso', can also be 'jetpack'.
+			 */
+			$auth_type = apply_filters( 'jetpack_auth_type', 'calypso' );
+
+			// final destination should be Jetpack landing page, but for now let's just make it the admin_url()
+			$final_destination_url = admin_url();
+
+			// generate authorize URL
+			$authorize_url = add_query_arg(
+				array(
+					'action'   => 'authorize',
+					'_wpnonce' => wp_create_nonce( "jetpack-authorize_{$role}_{$final_destination_url}" ),
+					'redirect' => urlencode( $final_destination_url ),
+				),
+				esc_url( admin_url( 'admin.php?page=jetpack' ) )
+			);
+
+			// redirect to SSO URL so that user is auto-logged-in before hitting authorize URL
+			$sso_url = add_query_arg(
+				array( 'action' => 'jetpack-sso' ),
+				wp_login_url( $authorize_url )
+			);
+
+			$args = urlencode_deep(
+				array(
+					'response_type' => 'code',
+					'client_id'     => Jetpack_Options::get_option( 'id' ),
+					'redirect_uri'  => $sso_url,
+					'state'         => $user->ID,
+					'scope'         => $signed_role,
+					'user_email'    => $user->user_email,
+					'user_login'    => $user->user_login,
+					'is_active'     => Jetpack::is_active(),
+					'jp_version'    => JETPACK__VERSION,
+					'auth_type'     => $auth_type,
+					'secret'        => $secret,
+					'locale'        => ( isset( $gp_locale ) && isset( $gp_locale->slug ) ) ? $gp_locale->slug : '',
+					'blogname'      => get_option( 'blogname' ),
+					'site_url'      => site_url(),
+					'home_url'      => home_url(),
+					'site_icon'     => $site_icon,
+				)
+			);
+
+			$url = add_query_arg( $args, Jetpack::api_url( 'authorize' ) );
+		}
+
+		WP_CLI::log( json_encode( array( 'success' => 'true', 'next_url' => $url ) ) );
+
+		WP_CLI::log( "\n\n" . $url );
+	}
+
+	private function partner_provision_error( $error ) {
+		WP_CLI::error( json_encode( array(
+			'success'       => false,
+			'error_code'    => $error->get_error_code(),
+			'error_message' => $error->get_error_message()
+		) ) );
 	}
 }
 
