@@ -827,8 +827,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 			}
 		}
 
-		// wp_redirect( $this->build_connect_url( true, false, 'jetpack' ) );
-
 		$host = JETPACK__WPCOM_JSON_API_HOST;
 
 		$request = array(
@@ -932,14 +930,14 @@ class Jetpack_CLI extends WP_CLI_Command {
 			// redirect to SSO URL so that user is auto-logged-in before hitting authorize URL
 			$sso_url = add_query_arg(
 				array( 'action' => 'jetpack-sso' ),
-				wp_login_url( $authorize_url )
+				esc_url( wp_login_url( $authorize_url ) )
 			);
 
 			$args = urlencode_deep(
 				array(
 					'response_type' => 'code',
 					'client_id'     => Jetpack_Options::get_option( 'id' ),
-					'redirect_uri'  => $sso_url,
+					'redirect_uri'  => $authorize_url, //$sso_url,
 					'state'         => $user->ID,
 					'scope'         => $signed_role,
 					'user_email'    => $user->user_email,
