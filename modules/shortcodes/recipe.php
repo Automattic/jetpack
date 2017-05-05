@@ -26,6 +26,11 @@ class Jetpack_Recipes {
 			$allowedposttags[ $tag ]['itemprop'] = array();
 		}
 
+		$allowedposttags['p'] = array(
+			'class'    => array(),
+			'itemprop' => array()
+		);
+
 		$allowedposttags['h3'] = array(
 			'class'     => array(),
 			'itemprop' => array ()
@@ -116,18 +121,23 @@ class Jetpack_Recipes {
 		// Add itemprop, itemscope, and itemtype to allowed tags for wp_kses_post, so we can use them for better Schema compliance.
 		global $allowedtags;
 		$allowedtags['li'] = array(
-			'itemprop' => array ()
+			'itemprop' => array()
+		);
+
+		$allowedtags['p'] = array(
+			'class'    => array(),
+			'itemprop' => array()
 		);
 
 		$allowedtags['h3'] = array(
 			'class'     => array(),
-			'itemprop' => array ()
+			'itemprop' => array()
 		);
 
 		$allowedtags['div'] = array(
 			'class'     => array(),
-			'itemscope' => array (),
-			'itemtype'  => array ()
+			'itemscope' => array(),
+			'itemtype'  => array()
 		);
 
 		$html = '<div class="hrecipe jetpack-recipe" itemscope itemtype="https://schema.org/Recipe">';
@@ -186,7 +196,7 @@ class Jetpack_Recipes {
 		// Output the description, if we have one.
 		if ( '' !== $atts['description'] ) {
 			$html .= sprintf(
-				'<p class="jetpack-recipe-description">%1$s</p>',
+				'<p class="jetpack-recipe-description" itemprop="description">%1$s</p>',
 				esc_html( $atts['description'] )
 			);
 		}
