@@ -135,6 +135,7 @@ class Jetpack_XMLRPC_Server {
 	 * verify_secret_1_malformed
 	 * verify_secrets_missing: verification secrets are not found in database
 	 * verify_secrets_incomplete: verification secrets are only partially found in database
+	 * verify_secrets_expired: verification secrets have expired
 	 * verify_secrets_mismatch: stored secret_1 does not match secret_1 sent by Jetpack.WordPress.com
 	 * state_missing: required parameter of state not found
 	 * state_malformed: state is not a digit
@@ -161,29 +162,31 @@ class Jetpack_XMLRPC_Server {
 			return $this->error( new Jetpack_Error( 'state_malformed', sprintf( 'The required "%s" parameter is malformed.', 'state' ), 400 ) );
 		}
 
-		$secret_name = 'jetpack_' . $action . '_' . $state;
-		$secrets = get_transient( $secret_name );
+		$secrets = Jetpack::get_secret( $action, $state );
 
 		if ( ! $secrets || is_wp_error( $secrets ) ) {
-			delete_transient( $secret_name );
+			Jetpack::delete_secret( $action, $state );
 			return $this->error( new Jetpack_Error( 'verify_secrets_missing', 'Verification secrets not found', 400 ) );
 		}
 
-		@list( $secret_1, $secret_2 ) = explode( ':', $secrets );
-
-		if ( empty( $secret_1 ) || empty( $secret_2 ) ) {
-			delete_transient( $secret_name );
+		if ( empty( $secrets['secret_1'] ) || empty( $secrets['secret_2'] ) || empty( $secrets['exp'] ) ) {
+			Jetpack::delete_secret( $action, $state );
 			return $this->error( new Jetpack_Error( 'verify_secrets_incomplete', 'Verification secrets are incomplete', 400 ) );
 		}
 
-		if ( ! hash_equals( $verify_secret, $secret_1 ) ) {
-			delete_transient( $secret_name );
+		if ( $secrets['exp'] < time() ) {
+			Jetpack::delete_secret( $action, $state );
+			return $this->error( new Jetpack_Error( 'verify_secrets_expired', 'Verification took too long', 400 ) );
+		}
+
+		if ( ! hash_equals( $verify_secret, $secrets['secret_1'] ) ) {
+			Jetpack::delete_secret( $action, $state );
 			return $this->error( new Jetpack_Error( 'verify_secrets_mismatch', 'Secret mismatch', 400 ) );
 		}
 
-		delete_transient( $secret_name );
+		Jetpack::delete_secret( $action, $state );
 
-		return $secret_2;
+		return $secrets['secret_2'];
 	}
 
 	/**

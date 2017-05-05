@@ -2846,6 +2846,7 @@ p {
 
 		Jetpack_Options::delete_option(
 			array(
+				'authorize',
 				'blog_token',
 				'user_token',
 				'user_tokens',
@@ -4138,7 +4139,6 @@ p {
 			}
 
 			$secrets = Jetpack::generate_secrets( 'authorize' );
-			@list( $secret ) = explode( ':', $secrets );
 
 			$site_icon = ( function_exists( 'has_site_icon') && has_site_icon() )
 				? get_site_icon_url()
@@ -4174,7 +4174,7 @@ p {
 					'is_active'     => Jetpack::is_active(),
 					'jp_version'    => JETPACK__VERSION,
 					'auth_type'     => $auth_type,
-					'secret'        => $secret,
+					'secret'        => $secrets['secret_1'],
 					'locale'        => ( isset( $gp_locale ) && isset( $gp_locale->slug ) ) ? $gp_locale->slug : '',
 					'blogname'      => get_option( 'blogname' ),
 					'site_url'      => site_url(),
@@ -4569,22 +4569,42 @@ p {
 	 */
 	public static function generate_secrets( $action, $exp = 600 ) {
 		$secret_name = 'jetpack_' . $action . '_' . get_current_user_id();
-		$secret = get_transient( $secret_name );
+		$secrets = Jetpack_Options::get_option( 'secrets', array() );
 
-		if ( $secret ) {
-			return $secret;
+		if (
+			isset( $secrets[ $secret_name ] ) &&
+			$secrets[ $secret_name ]['exp'] < time()
+		) {
+			return $secrets[ $secret_name ];
 		}
 
-		$secret_value =
-			wp_generate_password( 32, false ) // secret_1
-			. ':' . wp_generate_password( 32, false ); // secret_2
+		$secret_value = array(
+			'secret_1' => wp_generate_password( 32, false ),
+			'secret_2' => wp_generate_password( 32, false ),
+			'exp' => time() + $exp,
+		);
 
-		$result = set_transient( $secret_name, $secret_value, $exp );
+		$secrets[ $secret_name ] = $secret_value;
 
-		if ( $result ) {
-			return get_transient( $secret_name );
-		} else {
-			return new WP_Error( __( 'Could not save generated secrets', 'jetpack' ) );
+		Jetpack_Options::update_option( 'secrets', $secrets );
+		return $secrets[ $secret_name ];
+	}
+
+	public static function get_secret( $action, $user_id ) {
+		$secret_name = 'jetpack_' . $action . '_' . $user_id;
+		$secrets = Jetpack_Options::get_option( 'secrets', array() );
+		if ( isset( $secrets[ $secret_name ] ) ) {
+			return $secrets[ $secret_name ];
+		}
+		return false;
+	}
+
+	public static function delete_secret( $action, $user_id ) {
+		$secret_name = 'jetpack_' . $action . '_' . $user_id;
+		$secrets = Jetpack_Options::get_option( 'secrets', array() );
+		if ( isset( $secrets[ $secret_name ] ) ) {
+			unset( $secrets[ $secret_name ] );
+			Jetpack_Options::update_options( 'secrets', $secrets );
 		}
 	}
 
@@ -4658,8 +4678,12 @@ p {
 		add_action( 'pre_update_jetpack_option_register', array( 'Jetpack_Options', 'delete_option' ) );
 		$secrets = Jetpack::generate_secrets( 'register' );
 
-		@list( $secret_1, $secret_2 ) = explode( ':', $secrets );
-		if ( empty( $secret_1 ) || empty( $secret_2 ) ) {
+		if (
+			empty( $secrets['secret_1'] ) ||
+			empty( $secrets['secret_2'] ) ||
+			empty( $secrets['exp'] ) ||
+			$secrets['exp'] < time()
+		) {
 			return new Jetpack_Error( 'missing_secrets' );
 		}
 

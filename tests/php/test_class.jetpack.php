@@ -14,8 +14,6 @@ class WP_Test_Jetpack extends WP_UnitTestCase {
 	public function tearDown() {
 		parent::tearDown();
 		Jetpack_Constants::clear_constants();
-
-		$this->__clear_transients();
 	}
 
 	/**
@@ -591,7 +589,7 @@ EXPECTED;
 	function test_generate_secrets_stores_secrets() {
 		$secret = Jetpack::generate_secrets( 'name' );
 
-		$this->assertEquals( $secret, get_transient( 'jetpack_name_' . get_current_user_id() ) );
+		$this->assertEquals( $secret, Jetpack::get_secret( 'name', get_current_user_id() ) );
 	}
 
 	/**
@@ -607,7 +605,7 @@ EXPECTED;
 
 		$this->assertEquals( $secret, $secret2 );
 		$this->assertEquals( $secret, $secret3 );
-		$this->assertEquals( $secret, get_transient( 'jetpack_name_' . get_current_user_id() ) );
+		$this->assertEquals( $secret, Jetpack::get_secret( 'name', get_current_user_id() ) );
 	}
 
 	/**
@@ -622,7 +620,7 @@ EXPECTED;
 
 		$secret = Jetpack::generate_secrets( 'name' );
 
-		$this->assertEquals( $secret, get_transient( 'jetpack_name_' . get_current_user_id() ) );
+		$this->assertEquals( $secret, Jetpack::get_secret( 'name', get_current_user_id() ) );
 
 		remove_filter( 'random_password', array( __CLASS__, '__cyrillic_salt' ), 20 );
 		remove_filter( 'random_password', array( __CLASS__, '__kanji_salt' ), 21 );
@@ -639,13 +637,9 @@ EXPECTED;
 
 		$secret = Jetpack::generate_secrets( 'name' );
 
-		$this->assertEquals( $secret, get_transient( 'jetpack_name_' . get_current_user_id() ) );
+		$this->assertEquals( $secret, Jetpack::get_secret( 'name', get_current_user_id() ) );
 
 		remove_filter( 'random_password', array( __CLASS__, '__multiply_filter' ), 20 );
-	}
-
-	function __clear_transients() {
-		delete_transient( 'jetpack_name_' . get_current_user_id() );
 	}
 
 	static function __cyrillic_salt( $password ) {

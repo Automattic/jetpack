@@ -180,7 +180,7 @@ class Publicize extends Publicize_Base {
 						'blog_id'      => $wpcom_blog_id,
 						'secret_1'     => $verification['secret_1'],
 						'secret_2'     => $verification['secret_2'],
-						'eol'          => $verification['eol'],
+						'eol'          => $verification['exp'],
 					) ) );
 					wp_redirect( $redirect );
 					exit;
