@@ -61,6 +61,7 @@ class Jetpack_JITM {
 		}*/
 		add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
 		add_action( 'admin_notices', array( $this, 'ajax_message' ) );
+		add_action( 'edit_form_top', array( $this, 'ajax_message' ) );
 	}
 
 	static function jitm_woocommerce_services_msg( $message ) {
@@ -155,6 +156,30 @@ class Jetpack_JITM {
 		wp_enqueue_script( 'jetpack-jitm-new', plugins_url( '_inc/jetpack-jitm-new.js', JETPACK__PLUGIN_FILE ), array( 'jquery' ), JETPACK__VERSION, true );
 	}
 
+	function dismiss( $id, $feature_class ) {
+		// todo: track dismissal of id and feature class?
+		$hide_jitm = Jetpack_Options::get_option( 'hide_jitm' );
+		if ( ! is_array( $hide_jitm ) ) {
+			$hide_jitm = array();
+		}
+
+		if ( isset( $hide_jitm[ $feature_class ] ) ) {
+			if ( ! is_array( $hide_jitm[ $feature_class ] ) ) {
+				$hide_jitm[ $feature_class ] = array( 'last_dismissal' => 0, 'number' => 0 );
+			}
+		} else {
+			$hide_jitm[ $feature_class ] = array( 'last_dismissal' => 0, 'number' => 0 );
+		}
+
+		$number = $hide_jitm[ $feature_class ]['number'];
+
+		$hide_jitm[ $feature_class ] = array( 'last_dismissal' => time(), 'number' => $number + 1 );
+
+		Jetpack_Options::update_option( 'hide_jitm', $hide_jitm );
+
+		return true;
+	}
+
 	/**
 	 * @param $request WP_REST_Request
 	 *
@@ -188,6 +213,7 @@ class Jetpack_JITM {
 		), sprintf( '/sites/%d/jitm/%s', $site_id, $message_path ) );
 
 		//todo: try retrieve from transient first
+		$from_cache = false;
 
 		$wpcom_response = Jetpack_Client::wpcom_json_api_request_as_blog(
 			$path,
@@ -212,7 +238,17 @@ class Jetpack_JITM {
 		$expiration = isset( $envelopes[0] ) ? $envelopes[0]->ttl : 300;
 		set_transient( 'jetpack_jitm_' . $path, $wpcom_response, $expiration );
 
-		foreach ( $envelopes as $envelope ) {
+		$hidden_jitms = Jetpack_Options::get_option( 'hide_jitm' );
+
+		foreach ( $envelopes as $idx => &$envelope ) {
+			$dismissed_feature = isset( $hidden_jitms[ $envelope->feature_class ] ) && is_array( $hidden_jitms[ $envelope->feature_class ] ) ? $hidden_jitms[ $envelope->feature_class ] : null;
+
+			// if the this feature class has been dismissed and the request has not expired from the cache, skip it as it's been dismissed
+			if ( is_array( $dismissed_feature ) && $from_cache && time() - $dismissed_feature['last_dismissal'] < $expiration + 60 ) {
+				unset( $envelopes[ $idx ] );
+				continue;
+			}
+
 			$normalized_site_url      = Jetpack::build_raw_urls( get_home_url() );
 			$envelope->url            = 'https://jetpack.com/redirect/?source=jitm-' . $envelope->id . '&site=' . $normalized_site_url;
 			$envelope->jitm_stats_url = Jetpack::build_stats_url( array( 'x_jetpack-jitm' => $envelope->id ) );

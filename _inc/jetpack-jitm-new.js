@@ -1,9 +1,9 @@
 jQuery( document ).ready( function( $ ) {
 	var templates = {
-		'default': function( $el, envelope ) {
+		'default': function( envelope ) {
 			console.log( envelope );
 			var html = '<div class="jp-jitm" data-stats_url="' + envelope.jitm_stats_url + '"> \
-	<a href="#" data-module="' + envelope.id + '" class="dismiss"><span class="genericon genericon-close"></span></a>' + envelope.content.icon + ' \
+	<a href="#" data-module="' + envelope.feature_class + '" class="dismiss"><span class="genericon genericon-close"></span></a>' + envelope.content.icon + ' \
 	<p class="msg"> \
 		' + envelope.content.message + ' \
 	</p>';
@@ -13,7 +13,7 @@ jQuery( document ).ready( function( $ ) {
 	</p>';
 			}
 			html += '</div>';
-			$el.html( html );
+			return $( html );
 		}
 	};
 
@@ -27,7 +27,26 @@ jQuery( document ).ready( function( $ ) {
 				template = 'default';
 			}
 
-			templates[ template ]( $el, response[ i ] );
+			var $template = templates[ template ]( response[ i ] );
+			$template.find( '.dismiss' ).click( (
+				function( index, $my_template ) {
+					return function( e ) {
+						e.preventDefault();
+
+						$my_template.hide();
+
+						$.ajax( {
+							url: '/wp-json/jetpack/v4/jitm',
+							method: 'DELETE',
+							data: {
+								id: response[ index ].id,
+								feature_class: response[ index ].feature_class
+							}
+						} );
+					};
+				}
+			)( i, $template ) );
+			$el.append( $template );
 		}
 	};
 
@@ -39,6 +58,7 @@ jQuery( document ).ready( function( $ ) {
 
 		console.log( query );
 
+		// todo: figure out how this can work with sites that don't have permalinks set up
 		$.get( '/wp-json/jetpack/v4/jitm', {
 			message_path: message_path,
 			query: query,

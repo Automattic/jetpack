@@ -68,6 +68,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'callback' => __CLASS__ . '::get_jitm_message',
 		) );
 
+		register_rest_route( 'jetpack/v4', '/jitm', array(
+			'methods'  => WP_REST_Server::DELETABLE,
+			'callback' => __CLASS__ . '::delete_jitm_message'
+		) );
+
 		// Get current connection status of Jetpack
 		register_rest_route( 'jetpack/v4', '/connection', array(
 			'methods' => WP_REST_Server::READABLE,
@@ -319,6 +324,14 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$jitm = Jetpack_JITM::init();
 
 		return $jitm->get_messages( $request['message_path'], urldecode_deep( $request['query'] ) );
+	}
+
+	public static function delete_jitm_message( $request ) {
+		require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-jitm.php' );
+
+		$jitm = Jetpack_JITM::init();
+
+		return $jitm->dismiss( $request['id'], $request['feature_class'] );
 	}
 
 	/**
