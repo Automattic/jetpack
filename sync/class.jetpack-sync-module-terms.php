@@ -76,17 +76,6 @@ class Jetpack_Sync_Module_Terms extends Jetpack_Sync_Module {
 
 		$current_filter = current_filter();
 
-		if ( 'edited_term' === $current_filter ) {
-			/**
-			 * Fires when the client needs to update a term
-			 *
-			 * @since 4.2.0
-			 *
-			 * @param object the Term object
-			 */
-			do_action( 'jetpack_sync_save_term', $term_object);
-		}
-
 		if ( 'created_term' === $current_filter ) {
 			/**
 			 * Fires when the client needs to add a new term
@@ -97,6 +86,15 @@ class Jetpack_Sync_Module_Terms extends Jetpack_Sync_Module {
 			 */
 			do_action( 'jetpack_sync_add_term', $term_object);
 		}
+
+		/**
+		 * Fires when the client needs to update a term
+		 *
+		 * @since 4.2.0
+		 *
+		 * @param object the Term object
+		 */
+		do_action( 'jetpack_sync_save_term', $term_object);
 	}
 
 	function set_taxonomy_whitelist( $taxonomies ) {
