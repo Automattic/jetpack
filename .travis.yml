@@ -9,8 +9,9 @@ env:
     - WP_TRAVISCI=phpunit
 
 cache:
-  - yarn: true
-  - apt: true
+  directories:
+   - $HOME/.composer/cache/files
+   - $HOME/.cache/yarn
 
 # Next we define our matrix of additional build configurations to test against.
 # The versions listed above will automatically create our first configuration,
