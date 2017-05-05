@@ -105,7 +105,8 @@ class Jetpack_Sync_Sender {
 		if ( is_wp_error( $sync_result ) ) {
 			if ( 'unclosed_buffer' === $sync_result->get_error_code() ) {
 				$this->set_next_sync_time( time() + self::QUEUE_LOCKED_SYNC_DELAY, $queue->id );
-			} else {
+			}
+			if ( 'wpcom_error' === $sync_result->get_error_code() ) {
 				$this->set_next_sync_time( time() + self::WPCOM_ERROR_SYNC_DELAY, $queue->id );
 			}
 		} elseif ( $exceeded_sync_wait_threshold ) {
@@ -215,11 +216,11 @@ class Jetpack_Sync_Sender {
 				$queue->force_checkin();
 			}
 			if ( is_wp_error( $processed_item_ids ) ) {
-				return $processed_item_ids;
+				return new WP_Error( 'wpcom_error', $processed_item_ids->get_error_code() );
 			}
-			// returning a WP_Error is a sign to the caller that we should wait a while
+			// returning a WP_Error('wpcom_error') is a sign to the caller that we should wait a while
 			// before syncing again
-			return new WP_Error( 'server_error' );
+			return new WP_Error( 'wpcom_error', 'jetpack_sync_send_data_false' );
 		} else {
 			// detect if the last item ID was an error
 			$had_wp_error = is_wp_error( end( $processed_item_ids ) );
@@ -244,7 +245,7 @@ class Jetpack_Sync_Sender {
 			// returning a WP_Error is a sign to the caller that we should wait a while
 			// before syncing again
 			if ( $had_wp_error ) {
-				return $wp_error;
+				return new WP_Error( 'wpcom_error', $wp_error->get_error_code() );
 			}
 		}
 		return true;
