@@ -83,12 +83,13 @@ class Jetpack_Sync_Sender {
 	public function do_sync_and_set_delays( $queue ) {
 		// don't sync if importing
 		if ( defined( 'WP_IMPORTING' ) && WP_IMPORTING ) {
-			return false;
+			return new WP_Error( 'is_importing' );;
 		}
 
 		// don't sync if we are throttled
 		if ( $this->get_next_sync_time( $queue->id ) > microtime( true ) ) {
-			return false;
+			return new WP_Error( 'sync_throttled' );;
+;
 		}
 
 		$start_time = microtime( true );
@@ -107,7 +108,6 @@ class Jetpack_Sync_Sender {
 			} else {
 				$this->set_next_sync_time( time() + self::WPCOM_ERROR_SYNC_DELAY, $queue->id );
 			}
-			$sync_result = false;
 		} elseif ( $exceeded_sync_wait_threshold ) {
 			// if we actually sent data and it took a while, wait before sending again
 			$this->set_next_sync_time( time() + $this->get_sync_wait_time(), $queue->id );
@@ -166,7 +166,7 @@ class Jetpack_Sync_Sender {
 
 		do_action( 'jetpack_sync_before_send_queue_' . $queue->id );
 		if ( $queue->size() === 0 ) {
-			return false;
+			return new WP_Error( 'empty_queue_' . $queue );
 		}
 		// now that we're sure we are about to sync, try to
 		// ignore user abort so we can avoid getting into a
@@ -181,7 +181,7 @@ class Jetpack_Sync_Sender {
 
 		if ( ! $buffer ) {
 			// buffer has no items
-			return false;
+			return new WP_Error( 'empty_buffer' );
 		}
 
 		if ( is_wp_error( $buffer ) ) {
