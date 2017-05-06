@@ -113,6 +113,7 @@ if ( ! function_exists( 'jetpack_social_menu_social_links_icons' ) ) :
 function jetpack_social_menu_social_links_icons() {
 	// Supported social links icons.
 	$social_links_icons = array(
+		'500px.com'       => '500px',
 		'amazon.cn'       => 'amazon',
 		'amazon.in'       => 'amazon',
 		'amazon.fr'       => 'amazon',
