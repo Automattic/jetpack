@@ -790,6 +790,10 @@ class Jetpack_CLI extends WP_CLI_Command {
 			$this->partner_provision_error( new WP_Error( 'missing_access_token',  sprintf( __( 'Invalid token JSON: %s', 'jetpack' ), $token_json ) ) );
 		}
 
+		if ( isset( $token->error ) ) {
+			$this->partner_provision_error( new WP_Error( $token->error, $token->message ) );
+		}
+
 		if ( ! isset( $token->access_token ) ) {
 			$this->partner_provision_error( new WP_Error( 'missing_access_token', __( 'Missing or invalid access token', 'jetpack' ) ) );
 		}
