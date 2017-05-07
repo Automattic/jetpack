@@ -814,8 +814,8 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		WP_CLI::log( __( 'Running partner provision', 'jetpack' ) );
 
-		$blog_id = Jetpack_Options::get_option( 'id' );
-		$blog_token   = Jetpack_Options::get_option( 'blog_token' );
+		$blog_id    = Jetpack_Options::get_option( 'id' );
+		$blog_token = Jetpack_Options::get_option( 'blog_token' );
 
 		// we need to set the current user because:
 		// 1) register uses it as the "state" variable
@@ -832,6 +832,9 @@ class Jetpack_CLI extends WP_CLI_Command {
 			} elseif ( ! $registered ) {
 				$this->partner_provision_error( new WP_Error( 'registration_error', __( 'There was an unspecified error registering the site', 'jetpack' ) ) );
 			}
+
+			$blog_id    = Jetpack_Options::get_option( 'id' );
+			$blog_token = Jetpack_Options::get_option( 'blog_token' );
 		}
 
 		$host = JETPACK__WPCOM_JSON_API_HOST;
