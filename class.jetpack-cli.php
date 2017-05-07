@@ -777,14 +777,14 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 *     $ wp jetpack partner_provision '{ some: "json" }' premium 1
 	 *     { success: true }
 	 *
-	 * @synopsis <token_json> --plan=<plan_name> --user_id=<user_id> --site_url=<site_url>
+	 * @synopsis <token_json> --plan=<plan_name> --user_id=<user_id> [--site_url=<site_url>]
 	 */
 	public function partner_provision( $args, $named_args ) {
 		list( $token_json ) = $args;
 
 		$plan_name = $named_args['plan'];
 		$user_id   = $named_args['user_id'];
-		$site_url  = isset( $named_args['site_url'] ) ? $named_args['site_url'] : site_url();
+		$site_url  = ( isset( $named_args['site_url'] ) && $named_args['site_url'] ) ? $named_args['site_url'] : site_url();
 
 		// if we don't have a valid site_url() setting, set it from command line
 		if ( parse_url( $site_url ) && ! parse_url( site_url() ) ) {
