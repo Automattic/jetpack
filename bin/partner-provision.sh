@@ -43,7 +43,7 @@ if [ -z "$JETPACK_START_API_HOST" ]; then
     JETPACK_START_API_HOST='public-api.wordpress.com'
 fi 
 
-ACCESS_TOKEN_JSON=`curl https://$JETPACK_START_API_HOST/oauth2/token --silent -d "grant_type=client_credentials&client_id=$CLIENT_ID&client_secret=$CLIENT_SECRET&scope=jetpack-partner"`
+ACCESS_TOKEN_JSON=`curl https://$JETPACK_START_API_HOST/oauth2/token --silent --header "Host: public-api.wordpress.com" -d "grant_type=client_credentials&client_id=$CLIENT_ID&client_secret=$CLIENT_SECRET&scope=jetpack-partner"`
 
 echo $ACCESS_TOKEN_JSON
 
