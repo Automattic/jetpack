@@ -965,9 +965,9 @@ class Jetpack_CLI extends WP_CLI_Command {
 			$url = add_query_arg( $args, Jetpack::api_url( 'authorize' ) );
 		}
 
-		WP_CLI::log( json_encode( array( 'success' => 'true', 'next_url' => $url ) ) );
+		WP_CLI::log( "\n\n" . $url . "\n\n");
 
-		WP_CLI::log( "\n\n" . $url );
+		WP_CLI::log( json_encode( array( 'success' => 'true', 'next_url' => $url ) ) );
 	}
 
 	private function partner_provision_error( $error ) {
