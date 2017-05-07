@@ -769,22 +769,28 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * : Slug of the requested plan, e.g. premium
 	 * --user_id=<user_id>
 	 * : Local ID of user to connect as (if omitted, user will be required to redirect via wp-admin)
+	 * [--site_url=<site_url>]
+	 * : URL of site, use this to override the output of site_url()
 	 *
 	 * ## EXAMPLES
 	 *
 	 *     $ wp jetpack partner_provision '{ some: "json" }' premium 1
 	 *     { success: true }
 	 *
-	 * @synopsis <token_json> --plan=<plan_name> --user_id=<user_id>
+	 * @synopsis <token_json> --plan=<plan_name> --user_id=<user_id> --site_url=<site_url>
 	 */
 	public function partner_provision( $args, $named_args ) {
-		error_log("args: ".print_r($args,1));
-		error_log("named args: ".print_r($named_args,1));
-		
 		list( $token_json ) = $args;
 
 		$plan_name = $named_args['plan'];
 		$user_id   = $named_args['user_id'];
+		$site_url  = isset( $named_args['site_url'] ) ? $named_args['site_url'] : site_url();
+
+		// if we don't have a valid site_url() setting, set it from command line
+		if ( parse_url( $site_url ) && ! parse_url( site_url() ) ) {
+			update_option( 'siteurl', $site_url );
+			update_option( 'home', $site_url );
+		}
 
 		if ( ! $token_json || ! ( $token = json_decode( $token_json ) ) ) {
 			$this->partner_provision_error( new WP_Error( 'missing_access_token',  sprintf( __( 'Invalid token JSON: %s', 'jetpack' ), $token_json ) ) );
@@ -824,7 +830,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 			Jetpack::maybe_set_version_option();
 			$registered = Jetpack::try_registration();
 			if ( is_wp_error( $registered ) ) {
-				error_log("in wp error for registration");
 				$this->partner_provision_error( $registered );
 			} elseif ( ! $registered ) {
 				$this->partner_provision_error( new WP_Error( 'registration_error', __( 'There was an unspecified error registering the site', 'jetpack' ) ) );
@@ -887,8 +892,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 		if ( ! Jetpack::is_user_connected() ) {
 			// this has been adapted from build_connect_url, but doesn't go via wp-admin, and tries
 			// to return via an SSO URL so that the user lands right on their dashboard.
-
-			$site_url = site_url();
 
 			// needed to generate authorize URL
 			$role = Jetpack::translate_current_user_to_role();
@@ -967,11 +970,12 @@ class Jetpack_CLI extends WP_CLI_Command {
 	}
 
 	private function partner_provision_error( $error ) {
-		WP_CLI::error( json_encode( array(
+		WP_CLI::log( json_encode( array(
 			'success'       => false,
 			'error_code'    => $error->get_error_code(),
 			'error_message' => $error->get_error_message()
 		) ) );
+		exit( 1 );
 	}
 }
 
