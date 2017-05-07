@@ -36,8 +36,6 @@ if [ "$CLIENT_ID" = "" ] || [ "$CLIENT_SECRET" = "" ] || [ "$PLAN_NAME" = "" ]; 
     exit 1
 fi
 
-echo "Success - client = $CLIENT_ID, secret = $CLIENT_SECRET, plan = $PLAN_NAME";
-
 # default API host that can be overridden
 if [ -z "$JETPACK_START_API_HOST" ]; then
     JETPACK_START_API_HOST='public-api.wordpress.com'
