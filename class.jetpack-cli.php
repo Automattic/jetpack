@@ -814,9 +814,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		WP_CLI::log( __( 'Running partner provision', 'jetpack' ) );
 
-		// register host if necessary
-		WP_CLI::log( __( 'Attempting to register', 'jetpack' ) );
-
 		$blog_id = Jetpack_Options::get_option( 'id' );
 		$blog_token   = Jetpack_Options::get_option( 'blog_token' );
 
@@ -826,6 +823,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 		wp_set_current_user( $user_id );
 
 		if ( ! $blog_id || ! $blog_token ) {
+			WP_CLI::log( __( 'Attempting to register', 'jetpack' ) );
 			// this code mostly copied from Jetpack::admin_page_load
 			Jetpack::maybe_set_version_option();
 			$registered = Jetpack::try_registration();
