@@ -11,7 +11,7 @@ SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
 cd $SCRIPT_DIR
 
 usage () {
-    echo "Usage: partner-provision.sh --partner_id=partner_id --partner_secret=partner_secret --user_id=wp_user_id --plan=plan_name [--site_url=http://example.com]"
+    echo "Usage: partner-provision.sh --partner_id=partner_id --partner_secret=partner_secret --user_id=wp_user_id --plan=plan_name"
 }
 
 for i in "$@"; do
@@ -27,9 +27,6 @@ for i in "$@"; do
                                     shift
                                     ;;
         -p=* | --plan=* )           PLAN_NAME="${i#*=}"
-                                    shift
-                                    ;;
-        -u=* | --site_url=* )       SITE_URL="${i#*=}"
                                     shift
                                     ;;
         -h | --help )               usage
@@ -57,5 +54,5 @@ ACCESS_TOKEN_JSON=`curl https://$JETPACK_START_API_HOST/oauth2/token --silent --
 wp plugin activate jetpack >/dev/null 2>&1
 
 # provision the partner plan
-wp jetpack partner_provision "$ACCESS_TOKEN_JSON" --user_id=$WP_USER_ID --plan=$PLAN_NAME --site_url=$SITE_URL
+wp jetpack partner_provision "$ACCESS_TOKEN_JSON" --user_id=$WP_USER_ID --plan=$PLAN_NAME
 

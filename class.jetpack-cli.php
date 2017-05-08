@@ -769,28 +769,19 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * : Slug of the requested plan, e.g. premium
 	 * --user_id=<user_id>
 	 * : Local ID of user to connect as (if omitted, user will be required to redirect via wp-admin)
-	 * [--site_url=<site_url>]
-	 * : URL of site, use this to override the output of site_url()
 	 *
 	 * ## EXAMPLES
 	 *
 	 *     $ wp jetpack partner_provision '{ some: "json" }' premium 1
 	 *     { success: true }
 	 *
-	 * @synopsis <token_json> --plan=<plan_name> --user_id=<user_id> [--site_url=<site_url>]
+	 * @synopsis <token_json> --plan=<plan_name> --user_id=<user_id>
 	 */
 	public function partner_provision( $args, $named_args ) {
 		list( $token_json ) = $args;
 
 		$plan_name = $named_args['plan'];
 		$user_id   = $named_args['user_id'];
-		$site_url  = ( isset( $named_args['site_url'] ) && $named_args['site_url'] ) ? $named_args['site_url'] : site_url();
-
-		// if we don't have a valid site_url() setting, set it from command line
-		if ( parse_url( $site_url ) && ! parse_url( site_url() ) ) {
-			update_option( 'siteurl', $site_url );
-			update_option( 'home', $site_url );
-		}
 
 		if ( ! $token_json || ! ( $token = json_decode( $token_json ) ) ) {
 			$this->partner_provision_error( new WP_Error( 'missing_access_token',  sprintf( __( 'Invalid token JSON: %s', 'jetpack' ), $token_json ) ) );
@@ -865,11 +856,9 @@ class Jetpack_CLI extends WP_CLI_Command {
 			? get_site_icon_url()
 			: false;
 
-		// final destination should be Jetpack landing page, but for now let's just make it the admin_url()
-
 		$sso_url = add_query_arg(
 			array( 'action' => 'jetpack-sso', 'redirect_to' => urlencode( admin_url() ) ),
-			wp_login_url()
+			wp_login_url() // TODO: come back to Jetpack dashboard?
 		);
 
 		$request = array(
@@ -902,7 +891,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 					'site_icon'     => $site_icon,
 
 					// Then come back to this URL
-					// Legacy authorize URL scheme is required so that wp_nonce gets set correctly via jetpack.wp.com/jetpack.authorize method
 					'redirect_uri'  => $sso_url
 				) 
 			)
