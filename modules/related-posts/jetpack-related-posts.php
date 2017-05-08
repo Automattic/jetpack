@@ -73,7 +73,11 @@ class Jetpack_RelatedPosts {
 		add_action( 'wp', array( $this, 'action_frontend_init' ) );
 
 		if ( ! class_exists( 'Jetpack_Media_Summary' ) ) {
-			jetpack_require_lib( 'class.media-summary' );
+			$lib = 'class.media-summary';
+			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+				$lib = 'class.wpcom-media-summary';
+			}
+			jetpack_require_lib( $lib );
 		}
 
 		// Add Related Posts to the REST API Post response.
