@@ -2846,7 +2846,7 @@ p {
 
 		Jetpack_Options::delete_option(
 			array(
-				'authorize',
+				'secrets',
 				'blog_token',
 				'user_token',
 				'user_tokens',
