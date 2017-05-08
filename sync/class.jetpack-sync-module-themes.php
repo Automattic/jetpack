@@ -13,7 +13,8 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		add_action( 'jetpack_updated_theme', $callable, 10, 2 );
 		add_action( 'delete_site_transient_update_themes', array( $this, 'detect_theme_deletion') );
 		add_action( 'jetpack_deleted_theme', $callable );
-		add_action( 'wp_redirect', array($this, 'detect_theme_edit') );
+		add_filter( 'wp_redirect', array($this, 'detect_theme_edit') );
+		add_action( 'jetpack_edited_theme', $callable, 10, 2);
 
 		// Sidebar updates.
 		add_action( 'update_option_sidebars_widgets', array( $this, 'sync_sidebar_widgets_actions' ), 10, 2 );
@@ -26,7 +27,36 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 
 	public function detect_theme_edit( $redirect_url ) {
 		$url = wp_parse_url( $redirect_url );
-		error_log( print_r( $url ) );
+		if ( '/wp-admin/theme-editor.php' !== $url['path'] ) {
+			return;
+		}
+		$query_params = array();
+		wp_parse_str( $url['query'], $query_params );
+		if (
+			! isset( $query_params['file'] ) ||
+			! isset( $query_params['theme'] ) ||
+			! isset( $query_params['updated'] )
+		) {
+			return;
+		}
+		$theme = wp_get_theme( $query_params['theme'] );
+		$theme_data = array(
+			'name' => $theme->get('Name'),
+			'version' => $theme->get('Version'),
+			'uri' => $theme->get( 'ThemeURI' ),
+		);
+
+		/**
+		 * Trigger action to alert $callable sync listener that a theme was edited
+		 *
+		 * @since 5.0.0
+		 *
+		 * @param string $query_params['theme'], Slug of edited theme
+		 * @param string $theme_data, Information about edited them
+		 */
+		do_action( 'jetpack_edited_theme', $query_params['theme'], $theme_data );
+
+		return $redirect_url;
 	}
 
 	public function detect_theme_deletion() {
