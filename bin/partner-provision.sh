@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 
-# accepts: partner client ID and secret key
+# accepts: partner client ID and secret key, and some site info
 # executes wp-cli command to provision Jetpack site for given partner
 
 # change to script directory so that wp finds the wordpress install part for this Jetpack instance
@@ -8,7 +8,7 @@ SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
 cd $SCRIPT_DIR
 
 usage () {
-    echo "Usage: partner-provision.sh --partner_id=partner_id --partner_secret=partner_secret --plan=plan_name [--site_url=http://example.com]"
+    echo "Usage: partner-provision.sh --partner_id=partner_id --partner_secret=partner_secret --user_id=wp_user_id --plan=plan_name [--site_url=http://example.com]"
 }
 
 for i in "$@"; do
@@ -18,6 +18,9 @@ for i in "$@"; do
                                     shift
                                     ;;
         -s=* | --partner_secret=* ) CLIENT_SECRET="${i#*=}"
+                                    shift
+                                    ;;
+        -i=* | --user_id=* )        WP_USER_ID="${i#*=}"
                                     shift
                                     ;;
         -p=* | --plan=* )           PLAN_NAME="${i#*=}"
@@ -47,9 +50,9 @@ fi
 # fetch an access token using our client ID/secret
 ACCESS_TOKEN_JSON=`curl https://$JETPACK_START_API_HOST/oauth2/token --silent --header "Host: public-api.wordpress.com" -d "grant_type=client_credentials&client_id=$CLIENT_ID&client_secret=$CLIENT_SECRET&scope=jetpack-partner"`
 
-wp jetpack partner_provision "$ACCESS_TOKEN_JSON" --user_id=1 --plan=$PLAN_NAME --site_url=$SITE_URL
+# silently ensure Jetpack is active
+wp plugin activate jetpack >/dev/null 2>&1
 
-# TODO: 
-# - execute wp-cli script to provision site and plan
-# - pass back any errors, or if successful a "next" URL for the user to finish provisioning their plan
+# provision the partner plan
+wp jetpack partner_provision "$ACCESS_TOKEN_JSON" --user_id=$WP_USER_ID --plan=$PLAN_NAME --site_url=$SITE_URL
 
