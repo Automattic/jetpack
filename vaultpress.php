@@ -511,22 +511,7 @@ class VaultPress {
 					<h2><?php _e( 'The VaultPress plugin <strong>requires a subscription</strong>.', 'vaultpress' ); ?></h2>
 					<p class="vp_card-description"><?php _e( 'Get realtime backups, automated security scanning, and support from WordPress&nbsp;experts.', 'vaultpress' ); ?></p>
 					<a class="vp_button-mega" href="https://vaultpress.com/plugin/?utm_source=plugin-unregistered&amp;utm_medium=view-plans-and-pricing&amp;utm_campaign=1.0-plugin"><?php _e( 'View plans and pricing&nbsp;&raquo;', 'vaultpress' ); ?></a>
-			</div>
-
-				<?php if ( $jetpack_available ): ?>
-					<div class="vp_card half connect-via-jetpack">
-						<h2><?php _e( 'Instantly connect through Jetpack', 'vaultpress' ); ?></h2>
-						<p class="vp_card-description"><?php printf( __( 'Start a <strong>free</strong> five-day trial of VaultPress Lite. Registering will create a VaultPress account for %s.', 'vaultpress' ), $jetpack_email); ?></p>
-				<form method="post" action="">
-					<fieldset>
-								<button class="vp_button-mega"><?php _e( 'Start free trial', 'vaultpress' ); ?></button>
-						<input type="hidden" name="action" value="register" />
-								<input type="hidden" name="key_source" value="jetpack" />
-						<?php wp_nonce_field( 'vaultpress_register' ); ?>
-					</fieldset>
-				</form>
-			</div>
-				<?php endif ?>
+				</div>
 
 				<div class="vp_card half">
 					<h2><?php _e( 'Already have a VaultPress&nbsp;account?', 'vaultpress' ); ?></h2>
