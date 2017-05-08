@@ -1,3 +1,5 @@
+// Dynamically load the comment likes iframe for visible comments
+
 function processCommentLikes() {
 	var commentLikeButtons = document.getElementsByClassName( 'comment-likes' );
 
@@ -5,7 +7,7 @@ function processCommentLikes() {
 		var commentLikeButton = commentLikeButtons[ i ];
 		if ( isScrolledIntoView( commentLikeButton ) ) {
 			if ( ! commentLikeButton.innerHTML.startsWith( '<iframe' ) ) {
-				commentLikeButton.innerHTML = '<iframe class="post-likes-widget jetpack-likes-widget" name="like-post-frame-124316610-1-58ff939ed8d6a" height="55px" width="100%" frameborder="0" src="//widgets.wp.com/notifications"></iframe>';
+				commentLikeButton.innerHTML = '<iframe class="comment-likes-widget jetpack-comment-likes-widget" height="55px" width="100%" frameborder="0" src="//widgets.wp.com/notifications"></iframe>';
 			}
 		} else if ( ! commentLikeButton.innerHTML.startsWith( 'Loading' ) ) {
 			commentLikeButton.innerHTML = 'Loading iframe...';

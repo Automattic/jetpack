@@ -15,8 +15,12 @@ import { ModuleToggle } from 'components/module-toggle';
 export const Likes = moduleSettingsForm(
 	class extends Component {
 		render() {
-			const unavailableInDevMode = this.props.isUnavailableInDevMode( 'likes' ),
-				isActive = this.props.getOptionValue( 'likes' );
+			const { isUnavailableInDevMode, getOptionValue } = this.props;
+			const postLikesUnavailable = isUnavailableInDevMode( 'likes' );
+			const postLikesActive = getOptionValue( 'likes' );
+
+			const commentLikesUnavailable = isUnavailableInDevMode( 'comment-likes' );
+			const commentLikesActive = getOptionValue( 'comment-likes' );
 
 			return (
 				<SettingsCard
@@ -27,11 +31,19 @@ export const Likes = moduleSettingsForm(
 					<SettingsGroup disableInDevMode module={ { module: 'likes' } } support="https://jetpack.com/support/likes/">
 						<ModuleToggle
 							slug="likes"
-							disabled={ unavailableInDevMode }
-							activated={ isActive }
+							disabled={ postLikesUnavailable }
+							activated={ postLikesActive }
 							toggling={ this.props.isSavingAnyOption( 'likes' ) }
 							toggleModule={ this.props.toggleModuleNow }>
-							{ __( 'Allow readers to show their appreciation of your posts by adding a like button to your content' ) }
+							{ __( 'Add a like button to your posts' ) }
+						</ModuleToggle>
+						<ModuleToggle
+							slug="comment-likes"
+							disabled={ commentLikesUnavailable }
+							activated={ commentLikesActive }
+							toggling={ this.props.isSavingAnyOption( 'likes' ) }
+							toggleModule={ this.props.toggleModuleNow }>
+							{ __( 'Add a like button to your post comments' ) }
 						</ModuleToggle>
 					</SettingsGroup>
 				</SettingsCard>
