@@ -54,7 +54,7 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 
 		if ( isset( $_GET[ 'action' ] ) && 'do-core-reinstall' == $_GET[ 'action' ] ) {
 			/**
-			 * Sync event that is fires when the core reinstall was successful
+			 * Sync event that fires when core reinstall was successful
 			 *
 			 * @since 5.0.0
 			 *
@@ -67,7 +67,7 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 		// Core was autoudpated
 		if ( 'update-core.php' !== $pagenow ) {
 			/**
-			 * Sync event that is fires when the core autoupdate was successful
+			 * Sync event that fires when core autoupdate was successful
 			 *
 			 * @since 5.0.0
 			 *
@@ -78,7 +78,7 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 			return;
 		}
 		/**
-		 * Sync event that is fires when the core update was successful
+		 * Sync event that fires when core update was successful
 		 *
 		 * @since 5.0.0
 		 *
