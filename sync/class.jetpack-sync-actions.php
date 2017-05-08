@@ -265,7 +265,7 @@ class Jetpack_Sync_Actions {
 			}
 
 			$result = 'full_sync' === $type ? self::$sender->do_full_sync() : self::$sender->do_sync();
-		} while ( $result && ( $start_time + $time_limit ) > time() );
+		} while ( $result && ! is_wp_error( $result ) && ( $start_time + $time_limit ) > time() );
 	}
 
 	static function initialize_listener() {
