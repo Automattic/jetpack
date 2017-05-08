@@ -846,7 +846,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 			$blog_token = Jetpack_Options::get_option( 'blog_token' );
 		}
 
-		$host = isset( $_ENV['JETPACK_START_API_HOST'] ) ? $_ENV['JETPACK_START_API_HOST'] : JETPACK__WPCOM_JSON_API_HOST;
+		$host = isset( $_SERVER['JETPACK_START_API_HOST'] ) ? $_SERVER['JETPACK_START_API_HOST'] : JETPACK__WPCOM_JSON_API_HOST;
 
 		// role
 		$role = Jetpack::translate_current_user_to_role();
@@ -880,7 +880,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 		$request = array(
 			'headers' => array(
 				'Authorization' => "Bearer " . $token->access_token,
-				'Host'          => defined( 'JETPACK__WPCOM_JSON_API_HOST_HEADER' ) ? JETPACK__WPCOM_JSON_API_HOST_HEADER : $host,
+				'Host'          => defined( 'JETPACK__WPCOM_JSON_API_HOST_HEADER' ) ? JETPACK__WPCOM_JSON_API_HOST_HEADER : 'public-api.wordpress.com',
 			),
 			'method'  => 'POST',
 			'body'    => json_encode( 
