@@ -35,7 +35,7 @@ class Jetpack_JITM {
 	}
 
 	private function __construct() {
-		if ( ! Jetpack::is_active() || self::is_jitm_dismissed() ) {
+		if ( ! Jetpack::is_active() ) {
 			return;
 		}
 		add_action( 'current_screen', array( $this, 'prepare_jitms' ) );
