@@ -848,8 +848,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		$host = isset( $_ENV['JETPACK_START_API_HOST'] ) ? $_ENV['JETPACK_START_API_HOST'] : JETPACK__WPCOM_JSON_API_HOST;
 
-		// set up params
-
 		// role
 		$role = Jetpack::translate_current_user_to_role();
 		$signed_role = Jetpack::sign_role( $role );
@@ -914,15 +912,11 @@ class Jetpack_CLI extends WP_CLI_Command {
 			)
 		);
 
-		WP_CLI::log( __( 'All done', 'jetpack' ) );
-
 		$url = sprintf( 'https://%s/rest/v1.3/jpphp/%d/partner-provision', $host, $blog_id );
 
-		WP_CLI::log( "Requesting from $url " . print_r( $request, 1 ) );
+		WP_CLI::log( "POSTing to $url " . print_r( $request, 1 ) );
 
 		$result = Jetpack_Client::_wp_remote_request( $url, $request );
-
-		// WP_CLI::log( print_r( $result, 1 ) );
 
 		if ( is_wp_error( $result ) ) {
 			$this->partner_provision_error( $result );
@@ -935,6 +929,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 			if ( isset( $body_json->error ) ) {
 				$this->partner_provision_error( new WP_Error( $body_json->error, $body_json->message ) );
 			} else {
+				error_log(print_r($result,1));
 				$this->partner_provision_error( new WP_Error( 'server_error', sprintf( __( "Request failed with code %s" ), $response_code ) ) );
 			}
 		}
