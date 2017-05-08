@@ -806,8 +806,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 			$this->partner_provision_error( new WP_Error( 'missing_user_id', __( 'Missing user ID', 'jetpack' ) ) );
 		}
 
-		WP_CLI::log( __( 'Running partner provision', 'jetpack' ) );
-
 		$blog_id    = Jetpack_Options::get_option( 'id' );
 		$blog_token = Jetpack_Options::get_option( 'blog_token' );
 
@@ -823,7 +821,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 		}
 
 		if ( ! $blog_id || ! $blog_token ) {
-			WP_CLI::log( __( 'Attempting to register', 'jetpack' ) );
 			// this code mostly copied from Jetpack::admin_page_load
 			Jetpack::maybe_set_version_option();
 			$registered = Jetpack::try_registration();
@@ -903,8 +900,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 			$url = add_query_arg( array( 'calypso_env' => getenv( 'CALYPSO_ENV' ) ), $url );
 		}
 
-		WP_CLI::log( "POSTing to $url " . print_r( $request, 1 ) );
-
 		$result = Jetpack_Client::_wp_remote_request( $url, $request );
 
 		if ( is_wp_error( $result ) ) {
@@ -921,10 +916,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 				error_log(print_r($result,1));
 				$this->partner_provision_error( new WP_Error( 'server_error', sprintf( __( "Request failed with code %s" ), $response_code ) ) );
 			}
-		}
-
-		if ( isset( $body_json->next_url ) ) {
-			WP_CLI::log( "\n\n" . $body_json->next_url . "\n\n" );	
 		}
 
 		WP_CLI::log( json_encode( $body_json ) );
