@@ -153,7 +153,7 @@ class Jetpack_JITM {
 		wp_enqueue_style( 'jetpack-jitm-css', plugins_url( "css/jetpack-admin-jitm{$min}.css", JETPACK__PLUGIN_FILE ), false, JETPACK__VERSION . '-201243242' );
 		$wp_styles->add_data( 'jetpack-jitm-css', 'rtl', true );
 
-		wp_enqueue_script( 'jetpack-jitm-new', plugins_url( '_inc/jetpack-jitm-new.js', JETPACK__PLUGIN_FILE ), array( 'jquery' ), JETPACK__VERSION, true );
+		wp_enqueue_script( 'jetpack-jitm-new', plugins_url( '_inc/jetpack-jitm.js', JETPACK__PLUGIN_FILE ), array( 'jquery' ), JETPACK__VERSION, true );
 	}
 
 	function dismiss( $id, $feature_class ) {
