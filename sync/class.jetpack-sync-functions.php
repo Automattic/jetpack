@@ -214,8 +214,11 @@ class Jetpack_Sync_Functions {
 	}
 
 	public static function get_plugins_filter( $plugins ) {
-		// todo: make sure this works with network sites
 		$active_plugins = get_option( 'active_plugins' );
+
+		if ( is_multisite() ) {
+			$active_plugins = array_merge( get_option( 'active_sitewide_plugins' ) );
+		}
 
 		foreach ( $plugins as $plugin_file => &$plugin_meta ) {
 			$plugin_meta['Active'] = in_array( $plugin_file, $active_plugins );
