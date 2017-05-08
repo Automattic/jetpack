@@ -48,7 +48,7 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 	public function update_core_network_event( $option, $wp_db_version, $old_wp_db_version ) {
 		global $wp_version;
 		/**
-		 * Sync Event for when core wp network updated happends.
+		 * Sync event for when core wp network updates to a new db version
 		 *
 		 * @since 5.0.0
 		 *
