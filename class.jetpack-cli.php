@@ -905,6 +905,11 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		$url = sprintf( 'https://%s/rest/v1.3/jpphp/%d/partner-provision', $host, $blog_id );
 
+		// add calypso env if set
+		if ( getenv( 'CALYPSO_ENV' ) ) {
+			$url = add_query_arg( array( 'calypso_env' => getenv( 'CALYPSO_ENV' ) ), $url );
+		}
+
 		WP_CLI::log( "POSTing to $url " . print_r( $request, 1 ) );
 
 		$result = Jetpack_Client::_wp_remote_request( $url, $request );
