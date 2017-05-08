@@ -866,7 +866,11 @@ class Jetpack_CLI extends WP_CLI_Command {
 			: false;
 
 		// final destination should be Jetpack landing page, but for now let's just make it the admin_url()
-		$destination_url = admin_url();
+
+		$sso_url = add_query_arg(
+			array( 'action' => 'jetpack-sso', 'redirect_to' => urlencode( admin_url() ) ),
+			wp_login_url()
+		);
 
 		$request = array(
 			'headers' => array(
@@ -899,14 +903,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 					// Then come back to this URL
 					// Legacy authorize URL scheme is required so that wp_nonce gets set correctly via jetpack.wp.com/jetpack.authorize method
-					'redirect_uri'  => add_query_arg(
-						array(
-							'action'   => 'authorize',
-							'_wpnonce' => wp_create_nonce( "jetpack-authorize_{$role}_{$destination_url}" ),
-							'redirect' => urlencode( $destination_url ),
-						),
-						esc_url( admin_url( 'admin.php?page=jetpack' ) )
-					),
+					'redirect_uri'  => $sso_url
 				) 
 			)
 		);
@@ -937,6 +934,11 @@ class Jetpack_CLI extends WP_CLI_Command {
 				$this->partner_provision_error( new WP_Error( 'server_error', sprintf( __( "Request failed with code %s" ), $response_code ) ) );
 			}
 		}
+
+		// enable manage and SSO, minimum required modules
+		Jetpack::activate_module( 'manage', false, false );
+		Jetpack::activate_module( 'sso', false, false );
+
 
 		if ( isset( $body_json->next_url ) ) {
 			WP_CLI::log( "\n\n" . $body_json->next_url . "\n\n" );	
