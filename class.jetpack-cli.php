@@ -846,7 +846,8 @@ class Jetpack_CLI extends WP_CLI_Command {
 			$blog_token = Jetpack_Options::get_option( 'blog_token' );
 		}
 
-		$host = isset( $_SERVER['JETPACK_START_API_HOST'] ) ? $_SERVER['JETPACK_START_API_HOST'] : JETPACK__WPCOM_JSON_API_HOST;
+		$env_api_host = getenv( 'JETPACK_START_API_HOST', true );
+		$host = $env_api_host ? $env_api_host : JETPACK__WPCOM_JSON_API_HOST;
 
 		// role
 		$role = Jetpack::translate_current_user_to_role();
