@@ -37,7 +37,7 @@ for i in "$@"; do
     esac
 done
 
-if [ "$CLIENT_ID" = "" ] || [ "$CLIENT_SECRET" = "" ] || [ "$PLAN_NAME" = "" ]; then
+if [ "$CLIENT_ID" = "" ] || [ "$CLIENT_SECRET" = "" ] || [ "$PLAN_NAME" = "" || [ "$WP_USER_ID" = "" ] ]; then
     usage
     exit 1
 fi
