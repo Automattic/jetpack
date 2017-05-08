@@ -4,6 +4,26 @@
 @import '_inc/client/scss/variables/colors';
 @import '_inc/client/scss/mixins/breakpoints';
 
+@mixin clear-fix {
+	&:after {
+		content: ".";
+		display: block;
+		height: 0;
+		clear: both;
+		visibility: hidden;
+	}
+}
+
+@mixin jitm-banner-color( $color ) {
+	border-left-color: $color;
+	.jitm-banner__icon {
+		color: $color;
+	}
+	.jitm-banner__icon-circle {
+		background-color: $color;
+	}
+}
+
 // Original JITMs
 .jp-jitm {
 	border-radius: 2px;
@@ -14,14 +34,7 @@
 	border: 1px solid #dedede;
 	text-align: center;
 
-	// clear hack
-	&:before, &:after {
-		content: "";
-		display: table;
-	}
-	&:after {
-		clear: both;
-	}
+	@include clear-fix;
 
 	#screen-meta-links + & {
 	  margin: 3em 1.5385em 0 auto;
@@ -294,17 +307,7 @@
 	}
 }
 
-@mixin clear-fix {
-	&:after {
-		content: ".";
-		display: block;
-		height: 0;
-		clear: both;
-		visibility: hidden;
-	}
-}
-
-// if JITM appears directly below WordPress "help" menu
+// if JITM appears directly below WordPress "help" menu adjust margins
 #screen-meta-links+.jitm-card {
 	margin: rem( 32px ) 1.5385em 0 auto;
 }
@@ -341,17 +344,6 @@
 	}
 }
 
-
-@mixin banner-color( $color ) {
-	border-left-color: $color;
-	.jitm-banner__icon {
-		color: $color;
-	}
-	.jitm-banner__icon-circle {
-		background-color: $color;
-	}
-}
-
 .jitm-banner.jitm-card {
 	border-left: 3px solid;
 	display: flex;
@@ -366,16 +358,16 @@
 		padding-right: 48px;
 	}
 
-	@include banner-color( $blue-wordpress );
+	@include jitm-banner-color( $blue-wordpress );
 
 	&.is-upgrade-personal {
-		@include banner-color( $alert-yellow );
+		@include jitm-banner-color( $alert-yellow );
 	}
 	&.is-upgrade-premium {
-		@include banner-color( $alert-green );
+		@include jitm-banner-color( $alert-green );
 	}
 	&.is-upgrade-business {
-		@include banner-color( $alert-purple );
+		@include jitm-banner-color( $alert-purple );
 	}
 
 	.jitm-card__link-indicator {
@@ -550,6 +542,28 @@
 			text-align: right;
 		}
 	}
+}
+
+.jitm-banner__dismiss {
+	display: block;
+	text-decoration: none;
+	line-height: .5;
+
+	&:before {
+		color: darken($gray, 20%);
+		font: 400 16px/1 dashicons;
+		content: '\f158';
+	}
+
+	@include breakpoint( "<480px" ) {
+		position: absolute;
+		top: rem( 14px );
+		right: rem( 14px );
+	}
+}
+
+.jitm-banner__action + .jitm-banner__dismiss {
+	margin-left: rem( 10px );
 }
 
 // Large JITMS

@@ -347,6 +347,7 @@ class Jetpack_JITM {
 				<div class="jitm-banner__action">
 					<a href="https://jetpack.com/redirect/?source=settings-video-premium&amp;site=golenskijetpack.mystagingwebsite.com" type="button" class="dops-button is-compact is-primary">Upgrade</a>
 				</div>
+				<a href="#" data-module="" class="jitm-banner__dismiss"></a>
 			</div>
 		</div>
 
