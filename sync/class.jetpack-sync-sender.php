@@ -83,12 +83,12 @@ class Jetpack_Sync_Sender {
 	public function do_sync_and_set_delays( $queue ) {
 		// don't sync if importing
 		if ( defined( 'WP_IMPORTING' ) && WP_IMPORTING ) {
-			return new WP_Error( 'is_importing' );;
+			return new WP_Error( 'is_importing' );
 		}
 
 		// don't sync if we are throttled
 		if ( $this->get_next_sync_time( $queue->id ) > microtime( true ) ) {
-			return new WP_Error( 'sync_throttled' );;
+			return new WP_Error( 'sync_throttled' );
 ;
 		}
 
