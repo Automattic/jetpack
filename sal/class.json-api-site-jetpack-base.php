@@ -10,9 +10,11 @@ abstract class Abstract_Jetpack_Site extends SAL_Site {
 
 	abstract protected function get_theme_support( $feature_name );
 
-	abstract protected function get_jetpack_version();
+	abstract protected function get_mock_option( $name );
 
-	abstract protected function get_updates();
+	abstract public function get_jetpack_version();
+
+	abstract public function get_updates();
 
 	abstract protected function main_network_site();
 
