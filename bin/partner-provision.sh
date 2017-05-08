@@ -3,6 +3,9 @@
 # accepts: partner client ID and secret key, and some site info
 # executes wp-cli command to provision Jetpack site for given partner
 
+# TODO: 
+# - allow user_email instead of user_id, automatically lookup/provision an admin on site (maybe rename user_id param to user?)
+
 # change to script directory so that wp finds the wordpress install part for this Jetpack instance
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
 cd $SCRIPT_DIR
@@ -37,7 +40,7 @@ for i in "$@"; do
     esac
 done
 
-if [ "$CLIENT_ID" = "" ] || [ "$CLIENT_SECRET" = "" ] || [ "$PLAN_NAME" = "" || [ "$WP_USER_ID" = "" ] ]; then
+if [ "$CLIENT_ID" = "" ] || [ "$CLIENT_SECRET" = "" ] || [ "$PLAN_NAME" = "" ] || [ "$WP_USER_ID" = "" ]; then
     usage
     exit 1
 fi

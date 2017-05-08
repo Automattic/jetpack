@@ -804,12 +804,15 @@ class Jetpack_CLI extends WP_CLI_Command {
 			$this->partner_provision_error( new WP_Error( 'missing_access_token', __( 'Missing or invalid access token', 'jetpack' ) ) );
 		}
 
-		if ( ! $plan_name ) {
+		if ( empty( $plan_name ) ) {
 			$this->partner_provision_error( new WP_Error( 'missing_plan_param', __( 'Missing plan name', 'jetpack' ) ) );
 		}
 
-		if ( ! $user_id ) {
-			// nothing right now... but should we want if user_id not present, as it means we need to redirect via WPCOM?
+		// This could perhaps become optional for sites which already have a connected user... but maybe not since
+		// gifting plans requires gifting them to a specific WPCOM user, and finding that user requires a local user_id, 
+		// at a minimum
+		if ( empty( $user_id ) ) {
+			$this->partner_provision_error( new WP_Error( 'missing_user_id', __( 'Missing user ID', 'jetpack' ) ) );
 		}
 
 		WP_CLI::log( __( 'Running partner provision', 'jetpack' ) );
@@ -820,7 +823,13 @@ class Jetpack_CLI extends WP_CLI_Command {
 		// we need to set the current user because:
 		// 1) register uses it as the "state" variable
 		// 2) authorize uses it to construct state variable and also to check if site is authorized for this user, and to send role
+		// 3) ultimately, it is this user who receives the plan
 		wp_set_current_user( $user_id );
+		$user = wp_get_current_user();
+
+		if ( empty( $user ) ) {
+			$this->partner_provision_error( new WP_Error( 'missing_user', sprintf( __( "User %s doesn't exist", 'jetpack' ), $user_id ) ) );
+		}
 
 		if ( ! $blog_id || ! $blog_token ) {
 			WP_CLI::log( __( 'Attempting to register', 'jetpack' ) );
@@ -839,19 +848,71 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		$host = isset( $_ENV['JETPACK_START_API_HOST'] ) ? $_ENV['JETPACK_START_API_HOST'] : JETPACK__WPCOM_JSON_API_HOST;
 
+		// set up params
+
+		// role
+		$role = Jetpack::translate_current_user_to_role();
+		$signed_role = Jetpack::sign_role( $role );
+
+		// locale
+		if ( defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' ) && include_once JETPACK__GLOTPRESS_LOCALES_PATH ) {
+			$gp_locale = GP_Locales::by_field( 'wp_locale', get_locale() );
+		}
+
+		$secrets = Jetpack::init()->generate_secrets( 'authorize' );
+		@list( $secret ) = explode( ':', $secrets );
+
+		$site_icon = ( function_exists( 'has_site_icon') && has_site_icon() )
+			? get_site_icon_url()
+			: false;
+
+		// final destination should be Jetpack landing page, but for now let's just make it the admin_url()
+		$final_destination_url = admin_url();
+
+		// generate authorize URL - TODO, authorize remotely??
+		$authorize_url = add_query_arg(
+			array(
+				'action'   => 'authorize',
+				'_wpnonce' => wp_create_nonce( "jetpack-authorize_{$role}_{$final_destination_url}" ),
+				'redirect' => urlencode( $final_destination_url ),
+			),
+			esc_url( admin_url( 'admin.php?page=jetpack' ) )
+		);
+
 		$request = array(
 			'headers' => array(
 				'Authorization' => "Bearer " . $token->access_token,
+				'Host'          => defined( 'JETPACK__WPCOM_JSON_API_HOST_HEADER' ) ? JETPACK__WPCOM_JSON_API_HOST_HEADER : $host,
 			),
 			'method'  => 'POST',
-			'body'    => json_encode( array( 'plan' => $plan_name ) )
-		);
+			'body'    => json_encode( 
+				array( 
+					'jp_version'    => JETPACK__VERSION,
 
-		if ( defined( 'JETPACK__WPCOM_JSON_API_HOST_HEADER' ) && JETPACK__WPCOM_JSON_API_HOST_HEADER ) {
-			$request['headers']['Host'] = JETPACK__WPCOM_JSON_API_HOST_HEADER;
-		} else {
-			$request['headers']['Host'] = 'public-api.wordpress.com';
-		}
+					// Partner plan stuff
+					'plan'          => $plan_name,
+
+					// Jetpack auth stuff
+					'scope'         => $signed_role,
+					'secret'        => $secret,
+					'state'         => $user->ID,
+
+					// User stuff
+					'user_email'    => $user->user_email,
+					'user_login'    => $user->user_login,
+
+					// Blog meta stuff
+					'locale'        => ( isset( $gp_locale ) && isset( $gp_locale->slug ) ) ? $gp_locale->slug : '',
+					'blogname'      => get_option( 'blogname' ), // required? we already have this from register()
+					'site_url'      => site_url(), // required? we already have this from register()
+					'home_url'      => home_url(), // required? we already have this from register()
+					'site_icon'     => $site_icon,
+
+					// Then come back to this URL
+					'redirect_uri'  => $authorize_url,
+				) 
+			)
+		);
 
 		WP_CLI::log( __( 'All done', 'jetpack' ) );
 
@@ -878,96 +939,11 @@ class Jetpack_CLI extends WP_CLI_Command {
 			}
 		}
 
-		// WP_CLI::log( json_encode( $body_json ) );
-
-		// if we're not connected, generate the connect URL. We currently need the user_id param for this. Eventually we might not,
-		// if we redirect via wp-admin
-
-		// TODO: default user_id to first admin user? Are there security implications of this?
-
-		// if we got back secrets for the master user, inject them now
-
-		// 'master_user'	=> $user_id,
-		// 'user_tokens'	=> array($user_id => $jetpack_access_token.'.'.$user_id)
-
-		if ( ! Jetpack::is_user_connected() ) {
-			// this has been adapted from build_connect_url, but doesn't go via wp-admin, and tries
-			// to return via an SSO URL so that the user lands right on their dashboard.
-
-			// needed to generate authorize URL
-			$role = Jetpack::translate_current_user_to_role();
-			$signed_role = Jetpack::sign_role( $role );
-
-			$user = wp_get_current_user();
-
-			if ( defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' ) && include_once JETPACK__GLOTPRESS_LOCALES_PATH ) {
-				$gp_locale = GP_Locales::by_field( 'wp_locale', get_locale() );
-			}
-
-			$secrets = Jetpack::init()->generate_secrets( 'authorize' );
-			@list( $secret ) = explode( ':', $secrets );
-
-			$site_icon = ( function_exists( 'has_site_icon') && has_site_icon() )
-				? get_site_icon_url()
-				: false;
-
-			/**
-			 * Filter the type of authorization.
-			 * 'calypso' completes authorization on wordpress.com/jetpack/connect
-			 * while 'jetpack' ( or any other value ) completes the authorization at jetpack.wordpress.com.
-			 *
-			 * @since 4.3.3
-			 *
-			 * @param string $auth_type Defaults to 'calypso', can also be 'jetpack'.
-			 */
-			$auth_type = apply_filters( 'jetpack_auth_type', 'calypso' );
-
-			// final destination should be Jetpack landing page, but for now let's just make it the admin_url()
-			$final_destination_url = admin_url();
-
-			// generate authorize URL
-			$authorize_url = add_query_arg(
-				array(
-					'action'   => 'authorize',
-					'_wpnonce' => wp_create_nonce( "jetpack-authorize_{$role}_{$final_destination_url}" ),
-					'redirect' => urlencode( $final_destination_url ),
-				),
-				esc_url( admin_url( 'admin.php?page=jetpack' ) )
-			);
-
-			// redirect to SSO URL so that user is auto-logged-in before hitting authorize URL
-			$sso_url = add_query_arg(
-				array( 'action' => 'jetpack-sso' ),
-				esc_url( wp_login_url( $authorize_url ) )
-			);
-
-			$args = urlencode_deep(
-				array(
-					'response_type' => 'code',
-					'client_id'     => Jetpack_Options::get_option( 'id' ),
-					'redirect_uri'  => $authorize_url, //$sso_url,
-					'state'         => $user->ID,
-					'scope'         => $signed_role,
-					'user_email'    => $user->user_email,
-					'user_login'    => $user->user_login,
-					'is_active'     => Jetpack::is_active(),
-					'jp_version'    => JETPACK__VERSION,
-					'auth_type'     => $auth_type,
-					'secret'        => $secret,
-					'locale'        => ( isset( $gp_locale ) && isset( $gp_locale->slug ) ) ? $gp_locale->slug : '',
-					'blogname'      => get_option( 'blogname' ),
-					'site_url'      => site_url(),
-					'home_url'      => home_url(),
-					'site_icon'     => $site_icon,
-				)
-			);
-
-			$url = add_query_arg( $args, Jetpack::api_url( 'authorize' ) );
+		if ( isset( $body_json->next_url ) ) {
+			WP_CLI::log( "\n\n" . $body_json->next_url . "\n\n" );	
 		}
 
-		WP_CLI::log( "\n\n" . $url . "\n\n");
-
-		WP_CLI::log( json_encode( array( 'success' => 'true', 'next_url' => $url ) ) );
+		WP_CLI::log( json_encode( $body_json ) );
 	}
 
 	private function partner_provision_error( $error ) {
