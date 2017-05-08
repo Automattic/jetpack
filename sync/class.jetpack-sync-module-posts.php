@@ -7,6 +7,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 	private $just_published = array();
 	private $just_trashed = array();
 	private $action_handler;
+	private $import_end = false;
 
 	public function name() {
 		return 'posts';
@@ -21,6 +22,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 	}
 
 	public function set_defaults() {
+		$this->import_end = false;
 	}
 
 	public function init_listeners( $callable ) {
@@ -42,7 +44,85 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		// listen for meta changes
 		$this->init_listeners_for_meta_type( 'post', $callable );
 		$this->init_meta_whitelist_handler( 'post', array( $this, 'filter_meta' ) );
+
 		add_action( 'export_wp', $callable );
+		add_action( 'jetpack_sync_import_end', $callable );
+
+		// Movable type, RSS, Livejournal
+		add_action( 'import_done', array( $this, 'sync_import_done' ) );
+
+		// WordPress, Blogger, Livejournal, woo tax rate
+		add_action( 'import_end', array( $this, 'sync_import_end' ) );
+	}
+
+	public function sync_import_done( $importer ) {
+		// We already ran an send the import
+		if ( $this->import_end ) {
+			return;
+		}
+		/**
+		 * Sync Event that tells that that the import is finished
+		 *
+		 * @since 5.0.0
+		 *
+		 * $param string $importer 
+		 */
+		do_action( 'jetpack_sync_import_end', $importer );
+		$this->import_end = true;
+	}
+
+	public function sync_import_end() {
+		// We already ran an send the import
+		if ( $this->import_end ) {
+			return;
+		}
+
+		$this->import_end = true;
+		$importer = 'unknown';
+		$backtrace = wp_debug_backtrace_summary(null, 0, false );
+		if ( $this->is_blogger_importer( $backtrace ) ) {
+			$importer = 'blogger';
+		}
+
+		if ( 'unknown' === $importer && $this->is_woo_tax_rate_importer( $backtrace ) ) {
+			$importer = 'woo-tax-rate';
+		}
+
+		if ( 'unknown' === $importer && $this->is_wp_importer( $backtrace ) ) {
+			$importer = 'wordpress';
+		}
+
+		/**
+		 * Documented already: Sync Event that tells that that the import is finished
+		 */
+		do_action( 'jetpack_sync_import_end', $importer );
+	}
+	
+	private function is_blogger_importer( $backtrace ) {
+		foreach ( $backtrace as $trace ) {
+			if ( strpos( $trace, 'Blogger_Importer') !== false ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private function is_woo_tax_rate_importer( $backtrace ) {
+		foreach ( $backtrace as $trace ) {
+			if ( strpos( $trace, 'WC_Tax_Rate_Importer') !== false ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	private function is_wp_importer( $backtrace ) {
+		foreach( $backtrace as $trace ) {
+			if ( strpos( $trace, 'WP_Import') !== false ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public function init_full_sync_listeners( $callable ) {
