@@ -1,16 +1,15 @@
 jQuery( document ).ready( function( $ ) {
 	var templates = {
 		'default': function( envelope ) {
-			console.log( envelope );
-			var html = '<div class="jp-jitm" data-stats_url="' + envelope.jitm_stats_url + '"> \
-	<a href="#" data-module="' + envelope.feature_class + '" class="dismiss"><span class="genericon genericon-close"></span></a>' + envelope.content.icon + ' \
-	<p class="msg"> \
-		' + envelope.content.message + ' \
-	</p>';
+			var html = '<div class="jp-jitm" data-stats_url="' + envelope.jitm_stats_url + '"> ' +
+	'<a href="#" data-module="' + envelope.feature_class + '" class="dismiss"><span class="genericon genericon-close"></span></a>' + envelope.content.icon +
+	'<p class="msg">' +
+		envelope.content.message +
+	'</p>';
 			if ( envelope.CTA.message ) {
-				html += '<p> \
-		<a href="' + envelope.url + '" target="_blank" title="' + envelope.CTA.message + '" data-module="' + envelope.id + '" data-jptracks-name="nudge_click" data-jptracks-prop="jitm-' + envelope.id + '" class="button button-jetpack launch jptracks">' + envelope.CTA.message + '</a> \
-	</p>';
+				html += '<p>' +
+		'<a href="' + envelope.url + '" target="_blank" title="' + envelope.CTA.message + '" data-module="' + envelope.id + '" data-jptracks-name="nudge_click" data-jptracks-prop="jitm-' + envelope.id + '" class="button button-jetpack launch jptracks">' + envelope.CTA.message + '</a>' +
+	'</p>';
 			}
 			html += '</div>';
 			return $( html );
@@ -19,6 +18,24 @@ jQuery( document ).ready( function( $ ) {
 
 	var setJITMContent = function( $el, response ) {
 		var i, template;
+
+		var render = function( index, $my_template ) {
+			return function( e ) {
+				e.preventDefault();
+
+				$my_template.hide();
+
+				$.ajax( {
+					url: '/wp-json/jetpack/v4/jitm', // todo: not hardcode this
+					method: 'DELETE',
+					data: {
+						id: response[ index ].id,
+						feature_class: response[ index ].feature_class
+					}
+				} );
+			};
+		};
+
 		for ( i = 0; i < response.length; i += 1 ) {
 			template = response[ i ].template;
 
@@ -28,24 +45,7 @@ jQuery( document ).ready( function( $ ) {
 			}
 
 			var $template = templates[ template ]( response[ i ] );
-			$template.find( '.dismiss' ).click( (
-				function( index, $my_template ) {
-					return function( e ) {
-						e.preventDefault();
-
-						$my_template.hide();
-
-						$.ajax( {
-							url: '/wp-json/jetpack/v4/jitm',
-							method: 'DELETE',
-							data: {
-								id: response[ index ].id,
-								feature_class: response[ index ].feature_class
-							}
-						} );
-					};
-				}
-			)( i, $template ) );
+			$template.find( '.dismiss' ).click( render( i, $template ) );
 			$el.append( $template );
 		}
 	};
@@ -55,8 +55,6 @@ jQuery( document ).ready( function( $ ) {
 
 		var message_path = $el.data( 'message-path' );
 		var query = $el.data( 'query' );
-
-		console.log( query );
 
 		// todo: figure out how this can work with sites that don't have permalinks set up
 		$.get( '/wp-json/jetpack/v4/jitm', {
