@@ -892,13 +892,21 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 					// Blog meta stuff
 					'locale'        => ( isset( $gp_locale ) && isset( $gp_locale->slug ) ) ? $gp_locale->slug : '',
-					'blogname'      => get_option( 'blogname' ), // required? we already have this from register()
-					'site_url'      => site_url(), // required? we already have this from register()
-					'home_url'      => home_url(), // required? we already have this from register()
+					'blogname'      => get_option( 'blogname' ),
+					'site_url'      => site_url(),
+					'home_url'      => home_url(),
 					'site_icon'     => $site_icon,
 
 					// Then come back to this URL
-					'redirect_uri'  => $destination_url,
+					// Legacy authorize URL scheme is required so that wp_nonce gets set correctly via jetpack.wp.com/jetpack.authorize method
+					'redirect_uri'  => add_query_arg(
+						array(
+							'action'   => 'authorize',
+							'_wpnonce' => wp_create_nonce( "jetpack-authorize_{$role}_{$destination_url}" ),
+							'redirect' => urlencode( $destination_url ),
+						),
+						esc_url( admin_url( 'admin.php?page=jetpack' ) )
+					),
 				) 
 			)
 		);
