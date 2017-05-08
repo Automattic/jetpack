@@ -798,10 +798,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 		if ( empty( $plan_name ) ) {
 			$this->partner_provision_error( new WP_Error( 'missing_plan_param', __( 'Missing plan name', 'jetpack' ) ) );
 		}
-
-		// This could perhaps become optional for sites which already have a connected user... but maybe not since
-		// gifting plans requires gifting them to a specific WPCOM user, and finding that user requires a local user_id, 
-		// at a minimum
+		
 		if ( empty( $user_id ) ) {
 			$this->partner_provision_error( new WP_Error( 'missing_user_id', __( 'Missing user ID', 'jetpack' ) ) );
 		}
