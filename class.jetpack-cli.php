@@ -865,17 +865,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 			: false;
 
 		// final destination should be Jetpack landing page, but for now let's just make it the admin_url()
-		$final_destination_url = admin_url();
-
-		// generate authorize URL - TODO, authorize remotely??
-		$authorize_url = add_query_arg(
-			array(
-				'action'   => 'authorize',
-				'_wpnonce' => wp_create_nonce( "jetpack-authorize_{$role}_{$final_destination_url}" ),
-				'redirect' => urlencode( $final_destination_url ),
-			),
-			esc_url( admin_url( 'admin.php?page=jetpack' ) )
-		);
+		$destination_url = admin_url();
 
 		$request = array(
 			'headers' => array(
@@ -907,7 +897,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 					'site_icon'     => $site_icon,
 
 					// Then come back to this URL
-					'redirect_uri'  => $authorize_url,
+					'redirect_uri'  => $destination_url,
 				) 
 			)
 		);
