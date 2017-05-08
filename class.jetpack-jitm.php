@@ -336,20 +336,45 @@ class Jetpack_JITM {
 			</p>
 		</div>
 
+		<? /* ===========   Begin new JITM style EXAMPLES */ ?>
+
 		<div class="jitm-card jitm-banner has-call-to-action is-upgrade-premium">
 			<div class="jitm-banner__icon-plan">
 				<?php echo self::get_emblem(); ?>
 			</div>
 			<div class="jitm-banner__content">
 				<div class="jitm-banner__info">
-					<div class="jitm-banner__title">Testing the new JITM styles.</div>
+					<div class="jitm-banner__title"><?php esc_html_e( 'This is a JITM title.', 'jetpack' ); ?></div>
+					<div class="jitm-banner__description"><?php esc_html_e( 'This is a optional JITM description. Super cool, right? We can enter longer strings of text here and it shall flow nicely on all screen sizes.', 'jetpack' ); ?></div>
 				</div>
 				<div class="jitm-banner__action">
-					<a href="https://jetpack.com/redirect/?source=settings-video-premium&amp;site=golenskijetpack.mystagingwebsite.com" type="button" class="dops-button is-compact is-primary">Upgrade</a>
+					<a href="#" type="button" class="jitm-button is-compact is-primary">Upgrade</a>
 				</div>
 				<a href="#" data-module="" class="jitm-banner__dismiss"></a>
 			</div>
 		</div>
+
+		<div class="jitm-card jitm-banner has-call-to-action is-upgrade-premium">
+			<div class="jitm-banner__icon-plan">
+				<?php echo self::get_emblem(); ?>
+			</div>
+			<div class="jitm-banner__content">
+				<div class="jitm-banner__info">
+					<div class="jitm-banner__title"><?php esc_html_e( 'This is a JITM title.', 'jetpack' ); ?></div>
+					<div class="jitm-banner__description"><?php esc_html_e( 'This is a optional JITM description. Super cool, right? We can enter longer strings of text here and it shall flow nicely on all screen sizes.', 'jetpack' ); ?></div>
+					<div class="jitm-banner__list">
+						<li>Testing JITM list</li>
+						<li>Testing JITM list, again!</li>
+					</div>
+				</div>
+				<div class="jitm-banner__action">
+					<a href="#" type="button" class="jitm-button is-compact is-primary">Upgrade</a>
+				</div>
+				<a href="#" data-module="" class="jitm-banner__dismiss"></a>
+			</div>
+		</div>
+
+		<? /* ===========   End new JITM style EXAMPLES */ ?>
 
 
 		<?php

@@ -196,7 +196,7 @@
 
 // New JITMS - calypso banner styles
 
-.dops-button {
+.jitm-button {
 	background: $white;
 	border-color: lighten( $gray, 20% );
 	border-style: solid;
@@ -248,7 +248,7 @@
 	&.is-compact {
 		padding: rem( 7px );
 		color: darken( $gray, 10% );
-		font-size: rem( 11px };
+		font-size: rem( 11px );
 		line-height: 1;
 		text-transform: uppercase;
 
@@ -263,7 +263,7 @@
 }
 
 // Primary buttons
-.dops-button.is-primary {
+.jitm-button.is-primary {
 	background: $blue-medium;
 	border-color: $blue-wordpress;
 	color: $white;
@@ -328,6 +328,10 @@
 	position: relative;
 	z-index: 2;
 
+	@include breakpoint( "<480px" ) {
+		display: block;
+	}
+
 	&.is-card-link {
 		padding: rem( 12px ) rem( 48px ) rem( 12px ) rem( 16px );
 	}
@@ -365,6 +369,7 @@
 
 	@include breakpoint( ">480px" ) {
 		padding: rem( 12px ) rem( 16px );
+
 		&.is-dismissible {
 			padding-right: rem( 16px );
 		}
@@ -419,6 +424,21 @@
 		width: rem( 32px );
 	}
 
+	.jp-emblem {
+		position: relative;
+		top: rem( 2px );
+
+		@include breakpoint( "<480px" ) {
+			margin-bottom: rem( 12px );
+		}
+
+		svg {
+			height: rem(  32px );
+			width: rem( 32px );
+			fill: $green-primary;
+		}
+	}
+
 	@include breakpoint( ">480px" ) {
 		align-items: center;
 	}
@@ -453,18 +473,22 @@
 
 	.jitm-banner__description {
 		font-size: rem( 12px );
-		margin-top: rem( 3px );
+		line-height: 1.5;
+		margin-top: rem( 6px );
 	}
 
 	.jitm-banner__list {
 		font-size: rem( 12px );
 		list-style: none;
 		margin: 0;
+
 		li {
 			margin: rem( 6px ) 0;
-			.gridicon {
-				color: $gray;
-				display: none;
+
+			&:before {
+				color: darken($gray, 20%);
+				font: 400 16px/1 dashicons;
+				content: '\f147';
 			}
 		}
 	}
@@ -472,7 +496,7 @@
 	@include breakpoint( ">480px" ) {
 		width: auto;
 
-		.jitm-banner__list li .gridicon {
+		.jitm-banner__list li {
 			display: inline;
 			margin-right: rem( 12px );
 			vertical-align: bottom;
