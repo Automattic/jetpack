@@ -935,11 +935,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 			}
 		}
 
-		// enable manage and SSO, minimum required modules
-		Jetpack::activate_module( 'manage', false, false );
-		Jetpack::activate_module( 'sso', false, false );
-
-
 		if ( isset( $body_json->next_url ) ) {
 			WP_CLI::log( "\n\n" . $body_json->next_url . "\n\n" );	
 		}
