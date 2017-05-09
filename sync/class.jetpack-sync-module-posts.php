@@ -80,51 +80,31 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		$this->import_end = true;
 		$importer = 'unknown';
 		$backtrace = wp_debug_backtrace_summary(null, 0, false );
-		if ( $this->is_blogger_importer( $backtrace ) ) {
+		if ( $this->is_importer( $backtrace, 'Blogger_Importer' ) ) {
 			$importer = 'blogger';
 		}
 
-		if ( 'unknown' === $importer && $this->is_woo_tax_rate_importer( $backtrace ) ) {
+		if ( 'unknown' === $importer && $this->is_importer( $backtrace, 'WC_Tax_Rate_Importer' ) ) {
 			$importer = 'woo-tax-rate';
 		}
 
-		if ( 'unknown' === $importer && $this->is_wp_importer( $backtrace ) ) {
+		if ( 'unknown' === $importer && $this->is_importer( $backtrace, 'WP_Import' ) ) {
 			$importer = 'wordpress';
 		}
 
-		/**
-		 * Documented already: Sync Event that tells that that the import is finished
-		 */
+		/** This filter is already documented in sync/class.jetpack-sync-module-posts.php */
 		do_action( 'jetpack_sync_import_end', $importer );
 	}
 	
-	private function is_blogger_importer( $backtrace ) {
+	private function is_importer( $backtrace, $class_name ) {
 		foreach ( $backtrace as $trace ) {
-			if ( strpos( $trace, 'Blogger_Importer') !== false ) {
+			if ( strpos( $trace, $class_name ) !== false ) {
 				return true;
 			}
 		}
 		return false;
 	}
-
-	private function is_woo_tax_rate_importer( $backtrace ) {
-		foreach ( $backtrace as $trace ) {
-			if ( strpos( $trace, 'WC_Tax_Rate_Importer') !== false ) {
-				return true;
-			}
-		}
-		return false;
-	}
-
-	private function is_wp_importer( $backtrace ) {
-		foreach( $backtrace as $trace ) {
-			if ( strpos( $trace, 'WP_Import') !== false ) {
-				return true;
-			}
-		}
-		return false;
-	}
-
+	
 	public function init_full_sync_listeners( $callable ) {
 		add_action( 'jetpack_full_sync_posts', $callable ); // also sends post meta
 	}
