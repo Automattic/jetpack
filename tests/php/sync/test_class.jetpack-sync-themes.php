@@ -126,10 +126,13 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 	public function test_install_edit_delete_theme_sync() {
 		$theme_slug = 'itek';
 		$theme_name = 'iTek';
-		$this->install_theme( $theme_slug );
+
+		delete_theme( $theme_slug ); //Ensure theme is not lingering on file system
+		$this->server_event_storage->reset();
 
 		//Test Install Theme
 
+		$this->install_theme( $theme_slug );
 		$this->sender->do_sync();
 
 		$event_data = $this->server_event_storage->get_most_recent_event( 'jetpack_installed_theme' );
@@ -147,7 +150,7 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		 * @since 1.5.1
 		 */
 		$_POST['newcontent'] = 'foo';
-		apply_filters( 'wp_redirect', 'https://test.com/wp-admin/theme-editor.php?file=style.css&theme=' . $theme_slug . '&scrollto=0&updated=true');
+		apply_filters( 'wp_redirect', 'http://example.org/wp-admin/theme-editor.php?file=style.css&theme=' . $theme_slug . '&scrollto=0&updated=true');
 		$this->sender->do_sync();
 
 		$event_data = $this->server_event_storage->get_most_recent_event( 'jetpack_edited_theme' );
