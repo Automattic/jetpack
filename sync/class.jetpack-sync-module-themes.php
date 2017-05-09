@@ -28,7 +28,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 	public function detect_theme_edit( $redirect_url ) {
 		$url = wp_parse_url( $redirect_url );
 		if ( '/wp-admin/theme-editor.php' !== $url['path'] ) {
-			return;
+			return $redirect_url;
 		}
 		$query_params = array();
 		wp_parse_str( $url['query'], $query_params );
