@@ -150,7 +150,7 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		 * @since 1.5.1
 		 */
 		$_POST['newcontent'] = 'foo';
-		apply_filters( 'wp_redirect', 'theme-editor.php?file=style.css&theme=' . $theme_slug . '&scrollto=0&updated=true');
+		apply_filters( 'wp_redirect', 'theme-editor.php?file=style.css&theme=' . $theme_slug . '&scrollto=0&updated=true' );
 		$this->sender->do_sync();
 
 		$event_data = $this->server_event_storage->get_most_recent_event( 'jetpack_edited_theme' );
@@ -290,7 +290,7 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 			wp_die( $api );
 		}
 
-		$upgrader = new Theme_Upgrader( new Test_Upgrader_Skin( compact('title', 'nonce', 'url', 'theme') ) );
+		$upgrader = new Theme_Upgrader( new Test_Upgrader_Skin( compact( 'title', 'nonce', 'url', 'theme' ) ) );
 		$upgrader->install( $api->download_link );
 	}
 }
