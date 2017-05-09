@@ -34,6 +34,7 @@ require_once( 'widgets/i-voted.php' );
 require_once( 'widgets/music-player.php' );
 require_once( 'widgets/posts-i-like.php' );
 require_once( 'widgets/recent-comments-widget.php' );
+require_once( 'widgets/reservations.php' );
 require_once( 'widgets/tlkio/tlkio.php' );
 require_once( 'widgets/twitter.php' );
 
