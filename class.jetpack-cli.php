@@ -838,11 +838,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 		$role = Jetpack::translate_current_user_to_role();
 		$signed_role = Jetpack::sign_role( $role );
 
-		// locale
-		if ( defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' ) && include_once JETPACK__GLOTPRESS_LOCALES_PATH ) {
-			$gp_locale = GP_Locales::by_field( 'wp_locale', get_locale() );
-		}
-
 		$secrets = Jetpack::init()->generate_secrets( 'authorize' );
 		@list( $secret ) = explode( ':', $secrets );
 
@@ -878,10 +873,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 					'user_login'    => $user->user_login,
 
 					// Blog meta stuff
-					'locale'        => ( isset( $gp_locale ) && isset( $gp_locale->slug ) ) ? $gp_locale->slug : '',
-					'blogname'      => get_option( 'blogname' ),
-					'site_url'      => site_url(),
-					'home_url'      => home_url(),
 					'site_icon'     => $site_icon,
 
 					// Then come back to this URL
