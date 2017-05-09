@@ -123,20 +123,31 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $local_value, $this->server_replica_storage->get_option( 'theme_mods_' . $this->theme ) );
 	}
 
-	public function test_edit_theme_sync() {
+	public function test_install_edit_delete_theme_sync() {
 		$theme_slug = 'itek';
 		$theme_name = 'iTek';
 		$this->install_theme( $theme_slug );
 
+		//Test Install Theme
+
 		$this->sender->do_sync();
+
+		$event_data = $this->server_event_storage->get_most_recent_event( 'jetpack_installed_theme' );
+
+		$this->assertEquals( $event_data->args[0], $theme_slug );
+		$this->assertEquals( $event_data->args[1]['name'], $theme_name );
+		$this->assertTrue( (bool) $event_data->args[1]['version'] );
+		$this->assertTrue( (bool) $event_data->args[1]['uri'] );
+
+		//Test Edit Theme
 
 		/**
 		 * This filter is already documented in wp-includes/pluggable.php
 		 *
 		 * @since 1.5.1
 		 */
+		$_POST['newcontent'] = 'foo';
 		apply_filters( 'wp_redirect', 'https://test.com/wp-admin/theme-editor.php?file=style.css&theme=' . $theme_slug . '&scrollto=0&updated=true');
-
 		$this->sender->do_sync();
 
 		$event_data = $this->server_event_storage->get_most_recent_event( 'jetpack_edited_theme' );
@@ -146,34 +157,11 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( (bool) $event_data->args[1]['version'] );
 		$this->assertTrue( (bool) $event_data->args[1]['uri'] );
 
-		delete_theme( $theme_slug );
-	}
+		unset( $_POST['newcontent'] );
 
-	public function test_install_theme_sync() {
-		$theme_slug = 'itek';
-		$theme_name = 'iTek';
-		$this->install_theme( $theme_slug );
-
-		$this->sender->do_sync();
-		$event_data = $this->server_event_storage->get_most_recent_event( 'jetpack_installed_theme' );
-
-		$this->assertEquals( $event_data->args[0], $theme_slug );
-		$this->assertEquals( $event_data->args[1]['name'], $theme_name );
-		$this->assertTrue( (bool) $event_data->args[1]['version'] );
-		$this->assertTrue( (bool) $event_data->args[1]['uri'] );
+		//Test Delete Theme
 
 		delete_theme( $theme_slug );
-	}
-
-	public function test_delete_theme_sync() {
-		$theme_slug = 'itek';
-		$theme_name = 'iTek';
-		$this->install_theme( $theme_slug );
-
-		$this->sender->do_sync();
-
-		delete_theme( $theme_slug );
-
 		$this->sender->do_sync();
 
 		$event_data = $this->server_event_storage->get_most_recent_event( 'jetpack_deleted_theme' );

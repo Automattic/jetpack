@@ -33,11 +33,12 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		$query_params = array();
 		wp_parse_str( $url['query'], $query_params );
 		if (
+			! isset( $_POST['newcontent'] ) ||
 			! isset( $query_params['file'] ) ||
 			! isset( $query_params['theme'] ) ||
 			! isset( $query_params['updated'] )
 		) {
-			return;
+			return $redirect_url;
 		}
 		$theme = wp_get_theme( $query_params['theme'] );
 		$theme_data = array(
