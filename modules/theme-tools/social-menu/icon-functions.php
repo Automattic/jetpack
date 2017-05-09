@@ -133,6 +133,7 @@ function jetpack_social_menu_social_links_icons() {
 		'digg.com'        => 'digg',
 		'dribbble.com'    => 'dribbble',
 		'dropbox.com'     => 'dropbox',
+		'etsy.com'        => 'etsy',
 		'facebook.com'    => 'facebook',
 		'/feed/'          => 'feed',
 		'flickr.com'      => 'flickr',
