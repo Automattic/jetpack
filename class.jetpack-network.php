@@ -418,8 +418,8 @@ class Jetpack_Network {
 		// will be able to validate the connection
 		$secrets = $jp->generate_secrets( 'register' );
 		if (
-			empty( $secrets[ 'secret_1' ] ) ||
-			empty( $secrets[ 'secret_2' ]  ) ||
+			empty( $secrets['secret_1'] ) ||
+			empty( $secrets['secret_2']  ) ||
 			empty( $secrets['exp'] ) ||
 			$secrets['exp'] < time()
 		) {
