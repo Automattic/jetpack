@@ -4567,9 +4567,13 @@ p {
 	 * @since 2.6
 	 * @return array
 	 */
-	public static function generate_secrets( $action, $exp = 600 ) {
-		$secret_name = 'jetpack_' . $action . '_' . get_current_user_id();
-		$secrets = Jetpack_Options::get_option( 'secrets', array() );
+	public static function generate_secrets( $action, $user_id = false, $exp = 600 ) {
+		if ( ! $user_id ) {
+			$user_id = get_current_user_id();
+		}
+
+		$secret_name  = 'jetpack_' . $action . '_' . $user_id;
+		$secrets      = Jetpack_Options::get_option( 'secrets', array() );
 
 		if (
 			isset( $secrets[ $secret_name ] ) &&
@@ -4579,9 +4583,9 @@ p {
 		}
 
 		$secret_value = array(
-			'secret_1' => wp_generate_password( 32, false ),
-			'secret_2' => wp_generate_password( 32, false ),
-			'exp' => time() + $exp,
+			'secret_1'  => wp_generate_password( 32, false ),
+			'secret_2'  => wp_generate_password( 32, false ),
+			'exp'       => time() + $exp,
 		);
 
 		$secrets[ $secret_name ] = $secret_value;
