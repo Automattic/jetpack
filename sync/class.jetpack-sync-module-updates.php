@@ -52,7 +52,7 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 	public function update_core( $new_wp_version ) {
 		global $pagenow;
 
-		if ( isset( $_GET[ 'action' ] ) && 'do-core-reinstall' == $_GET[ 'action' ] ) {
+		if ( isset( $_GET[ 'action' ] ) && 'do-core-reinstall' === $_GET[ 'action' ] ) {
 			/**
 			 * Sync event that fires when core reinstall was successful
 			 *
