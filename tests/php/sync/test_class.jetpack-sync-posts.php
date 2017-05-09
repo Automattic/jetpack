@@ -997,7 +997,7 @@ That was a cool video.';
 		$this->assertEquals( 'unknown', $event->args[0] );
 	}
 
-	function test_import_dene_and_import_end_action_syncs_jetpack_sync_import_end() {
+	function test_import_done_and_import_end_action_syncs_jetpack_sync_import_end() {
 		do_action( 'import_done', 'test' );
 		do_action( 'import_end' );
 		$this->sender->do_sync();
