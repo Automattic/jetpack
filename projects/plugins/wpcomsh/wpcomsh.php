@@ -8,7 +8,7 @@
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '1.8.4' );
+define( 'WPCOMSH_VERSION', '1.8.6' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -552,3 +552,37 @@ function wpcomsh_google_maps_api_key( $api_key ) {
 }
 add_filter( 'jetpack_google_maps_api_key', 'wpcomsh_google_maps_api_key' );
 
+
+/**
+ * Provides a fallback mofile that uses wpcom locale slugs instead of wporg locale slugs
+ * This is needed for WP.COM themes that have their translations bundled with the theme.
+ *
+ * @see p8yzl4-4c-p2
+ *
+ * @param string $mofile .mo language file being loaded by load_textdomain()
+ * @return string $mofile same or alternate mo file
+ */
+function wpcomsh_wporg_to_wpcom_locale_mo_file( $mofile ) {
+	if ( file_exists( $mofile ) ) {
+		return $mofile;
+	}
+
+	if ( ! class_exists( 'GP_Locales' ) ) {
+		if ( ! defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' ) || ! file_exists( JETPACK__GLOTPRESS_LOCALES_PATH ) ) {
+			return $mofile;
+		}
+
+		require JETPACK__GLOTPRESS_LOCALES_PATH;
+	}
+
+	$possible_locale_slug = basename( $mofile, '.mo' );
+	$locale_object = GP_Locales::by_field( 'wp_locale', $possible_locale_slug );
+
+	if ( ! $locale_object ) {
+		return $mofile;
+	}
+
+	$mofile = preg_replace( '/' . preg_quote( $possible_locale_slug ) . '\.mo$/', $locale_object->slug . '.mo', $mofile );
+	return $mofile;
+}
+add_filter( 'load_textdomain_mofile', 'wpcomsh_wporg_to_wpcom_locale_mo_file' );
