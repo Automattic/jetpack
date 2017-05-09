@@ -4594,7 +4594,7 @@ p {
 		return $secrets[ $secret_name ];
 	}
 
-	public static function get_secret( $action, $user_id ) {
+	public static function get_secrets( $action, $user_id ) {
 		$secret_name = 'jetpack_' . $action . '_' . $user_id;
 		$secrets = Jetpack_Options::get_option( 'secrets', array() );
 		if ( isset( $secrets[ $secret_name ] ) ) {
@@ -4603,7 +4603,7 @@ p {
 		return false;
 	}
 
-	public static function delete_secret( $action, $user_id ) {
+	public static function delete_secrets( $action, $user_id ) {
 		$secret_name = 'jetpack_' . $action . '_' . $user_id;
 		$secrets = Jetpack_Options::get_option( 'secrets', array() );
 		if ( isset( $secrets[ $secret_name ] ) ) {

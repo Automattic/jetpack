@@ -162,29 +162,29 @@ class Jetpack_XMLRPC_Server {
 			return $this->error( new Jetpack_Error( 'state_malformed', sprintf( 'The required "%s" parameter is malformed.', 'state' ), 400 ) );
 		}
 
-		$secrets = Jetpack::get_secret( $action, $state );
+		$secrets = Jetpack::get_secrets( $action, $state );
 
 		if ( ! $secrets || is_wp_error( $secrets ) ) {
-			Jetpack::delete_secret( $action, $state );
+			Jetpack::delete_secrets( $action, $state );
 			return $this->error( new Jetpack_Error( 'verify_secrets_missing', 'Verification secrets not found', 400 ) );
 		}
 
 		if ( empty( $secrets['secret_1'] ) || empty( $secrets['secret_2'] ) || empty( $secrets['exp'] ) ) {
-			Jetpack::delete_secret( $action, $state );
+			Jetpack::delete_secrets( $action, $state );
 			return $this->error( new Jetpack_Error( 'verify_secrets_incomplete', 'Verification secrets are incomplete', 400 ) );
 		}
 
 		if ( $secrets['exp'] < time() ) {
-			Jetpack::delete_secret( $action, $state );
+			Jetpack::delete_secrets( $action, $state );
 			return $this->error( new Jetpack_Error( 'verify_secrets_expired', 'Verification took too long', 400 ) );
 		}
 
 		if ( ! hash_equals( $verify_secret, $secrets['secret_1'] ) ) {
-			Jetpack::delete_secret( $action, $state );
+			Jetpack::delete_secrets( $action, $state );
 			return $this->error( new Jetpack_Error( 'verify_secrets_mismatch', 'Secret mismatch', 400 ) );
 		}
 
-		Jetpack::delete_secret( $action, $state );
+		Jetpack::delete_secrets( $action, $state );
 
 		return $secrets['secret_2'];
 	}
