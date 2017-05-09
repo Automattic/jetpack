@@ -4705,8 +4705,8 @@ p {
 				'gmt_offset'      => $gmt_offset,
 				'timezone_string' => (string) get_option( 'timezone_string' ),
 				'site_name'       => (string) get_option( 'blogname' ),
-				'secret_1'        => $secret_1,
-				'secret_2'        => $secret_2,
+				'secret_1'        => $secrets['secret_1'],
+				'secret_2'        => $secrets['secret_2'],
 				'site_lang'       => get_locale(),
 				'timeout'         => $timeout,
 				'stats_id'        => $stats_id,
@@ -4722,7 +4722,7 @@ p {
 		// Make sure the response is valid and does not contain any Jetpack errors
 		$registration_details = Jetpack::init()->validate_remote_register_response( $response );
 		if ( is_wp_error( $registration_details ) ) {
-		    return $registration_details;
+			return $registration_details;
 		} elseif ( ! $registration_details ) {
 			return new Jetpack_Error( 'unknown_error', __( 'Unknown error registering your Jetpack site', 'jetpack' ), wp_remote_retrieve_response_code( $response ) );
 		}
