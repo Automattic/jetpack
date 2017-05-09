@@ -68,7 +68,8 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 		 *
 		 */
 		do_action( 'jetpack_sync_core_update_network', $wp_db_version, $old_wp_db_version, $wp_version );
-
+	}
+	
 	public function update_core( $new_wp_version ) {
 		global $pagenow;
 
