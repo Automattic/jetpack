@@ -221,6 +221,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'amp_is_enabled'          => (bool) function_exists( 'wpcom_is_amp_enabled' ) && wpcom_is_amp_enabled( $blog_id ),
 					'site_icon'               => $this->get_cast_option_value_or_null( 'site_icon', 'intval' ),
 					'api_cache'               => $api_cache,
+					'posts_per_page'          => (int) get_option( 'posts_per_page' ),
 				);
 
 				//allow future versions of this endpoint to support additional settings keys
