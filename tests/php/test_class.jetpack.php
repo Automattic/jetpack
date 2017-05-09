@@ -603,6 +603,8 @@ EXPECTED;
 		$secret2 = Jetpack::generate_secrets( 'name' );
 		$secret3 = Jetpack::generate_secrets( 'name' );
 
+		print_r( Jetpack_Options::get_option( 'secrets' ) );
+
 		$this->assertEquals( $secret, $secret2 );
 		$this->assertEquals( $secret, $secret3 );
 		$this->assertEquals( $secret, Jetpack::get_secret( 'name', get_current_user_id() ) );

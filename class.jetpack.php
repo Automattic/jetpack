@@ -4573,7 +4573,7 @@ p {
 
 		if (
 			isset( $secrets[ $secret_name ] ) &&
-			$secrets[ $secret_name ]['exp'] < time()
+			$secrets[ $secret_name ]['exp'] > time()
 		) {
 			return $secrets[ $secret_name ];
 		}
