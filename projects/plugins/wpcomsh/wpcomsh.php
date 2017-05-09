@@ -25,6 +25,7 @@ require_once( 'custom-colors/colors.php' );
  */
 require_once( 'widgets/aboutme.php' );
 require_once( 'widgets/author-grid.php' );
+require_once( 'widgets/freshly-pressed.php' );
 require_once( 'widgets/gravatar.php' );
 if ( is_active_widget( false, false, 'wpcom_instagram_widget' ) ) {
 	require_once( 'widgets/instagram/instagram.php' );
