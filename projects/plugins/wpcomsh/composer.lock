@@ -1,0 +1,42 @@
+{
+    "_readme": [
+        "This file locks the dependencies of your project to a known state",
+        "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
+        "This file is @generated automatically"
+    ],
+    "content-hash": "87db7c89553554a2a1012168dbd8cbc9",
+    "packages": [
+        {
+            "name": "automattic/at-pressable-podcasting",
+            "version": "dev-master",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/automattic/at-pressable-podcasting.git",
+                "reference": "8661eff9e33077eec6219116b73fc98536b6eba5"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/automattic/at-pressable-podcasting/zipball/8661eff9e33077eec6219116b73fc98536b6eba5",
+                "reference": "8661eff9e33077eec6219116b73fc98536b6eba5",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "psr-0": [
+                    "podcasting.php"
+                ]
+            },
+            "time": "2017-05-09 04:22:45"
+        }
+    ],
+    "packages-dev": [],
+    "aliases": [],
+    "minimum-stability": "stable",
+    "stability-flags": {
+        "automattic/at-pressable-podcasting": 20
+    },
+    "prefer-stable": false,
+    "prefer-lowest": false,
+    "platform": [],
+    "platform-dev": []
+}
