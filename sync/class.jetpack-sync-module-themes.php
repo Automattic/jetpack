@@ -26,11 +26,10 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 	}
 
 	public function detect_theme_edit( $redirect_url ) {
-		$url = wp_parse_url( $redirect_url );
-		$expected_url = admin_url() . 'theme-editor.php';
-		$actual_url = $url['scheme'] . '://' . $url['host'] . $url['path'];
+		$url = wp_parse_url( admin_url( $redirect_url ) );
+		$theme_editor_url = wp_parse_url( admin_url( 'theme-editor.php' ) );
 
-		if ( $expected_url !== $actual_url) {
+		if ( $theme_editor_url['path'] !== $url['path'] ) {
 			return $redirect_url;
 		}
 
