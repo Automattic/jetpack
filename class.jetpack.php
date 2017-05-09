@@ -4604,7 +4604,7 @@ p {
 		$secrets = Jetpack_Options::get_option( 'secrets', array() );
 		if ( isset( $secrets[ $secret_name ] ) ) {
 			unset( $secrets[ $secret_name ] );
-			Jetpack_Options::update_options( 'secrets', $secrets );
+			Jetpack_Options::update_option( 'secrets', $secrets );
 		}
 	}
 
