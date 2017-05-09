@@ -2624,7 +2624,8 @@ new WPCOM_JSON_API_Site_Settings_Endpoint( array(
 		'verification_services_codes'          => '(array) Website verification codes. Allowed keys: google, pinterest, bing, yandex',
 		Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION => '(string) The SEO meta description for the site.',
 		Jetpack_SEO_Titles::TITLE_FORMATS_OPTION  => '(array) SEO meta title formats. Allowed keys: front_page, posts, pages, groups, archives',
-		'api_cache'                            => '(bool) Turn on/off the Jetpack JSON API cache'
+		'api_cache'                            => '(bool) Turn on/off the Jetpack JSON API cache',
+		'posts_per_page'                       => '(int) Number of posts to show on blog pages',
 
 	),
 
