@@ -123,6 +123,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug Fixes**
 
+* Add a mechanism to detect broken connection states and resolve them. #6964
 
 = 4.9 =
 
