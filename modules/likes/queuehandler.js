@@ -123,11 +123,13 @@ function JetpackLikesMessageListener( event, message ) {
 	}
 
 	if ( 'showLikeWidget' === event.event ) {
-		jQuery( '#' + event.id + ' .post-likes-widget-placeholder'  ).fadeOut( 'fast', function() {
-			jQuery( '#' + event.id + ' .post-likes-widget' ).fadeIn( 'fast', function() {
-				JetpackLikespostMessage( { event: 'likeWidgetDisplayed', blog_id: event.blog_id, post_id: event.post_id, obj_id: event.obj_id }, window.frames['likes-master'] );
-			});
-		});
+		jQuery( '#' + event.id + ' .likes-widget-placeholder' ).fadeOut( 'fast', function() {
+			jQuery( '#' + event.id + ' .jetpack-likes-widget' ).fadeIn( 'fast', function() {
+				if ( event.post_id ) {
+					JetpackLikespostMessage( { event: 'likeWidgetDisplayed', blog_id: event.blog_id, post_id: event.post_id, obj_id: event.obj_id }, window.frames['likes-master'] );
+				}
+			} );
+		} );
 	}
 
 	if ( 'clickReblogFlair' === event.event ) {
@@ -200,6 +202,18 @@ function JetpackLikesMessageListener( event, message ) {
 			$list.width( $list.width() + scrollbarWidth );
 		}
 	}
+
+	if ( 'showCommentLikeWidget' == event.event ) {
+		jQuery( '#' + event.id + ' .likes-widget-placeholder'  ).fadeOut( 'fast', function() {
+			jQuery( '#' + event.id + ' .jetpack-likes-widget' ).fadeIn( 'fast', function() {
+				if ( event.comment_id ) {
+					jQuery( '#' + event.id + ' .comment-like-feedback' )
+						.html( event.feedback )
+						.data( 'likes', event.likes );
+				}
+			} );
+		} );
+	}
 }
 
 pm.bind( 'likesMessage', JetpackLikesMessageListener );
@@ -255,10 +269,15 @@ function JetpackLikesWidgetQueueHandler() {
 	$wrapper = jQuery( '#' + wrapperID );
 	$wrapper.find( 'iframe' ).remove();
 
-	if ( $wrapper.hasClass( 'slim-likes-widget' ) ) {
-		$wrapper.find( '.post-likes-widget-placeholder' ).after( '<iframe class="post-likes-widget jetpack-likes-widget" name="' + $wrapper.data( 'name' ) + '" height="22px" width="68px" frameBorder="0" scrolling="no" src="' + $wrapper.data( 'src' ) + '"></iframe>' );
-	} else {
-		$wrapper.find( '.post-likes-widget-placeholder' ).after( '<iframe class="post-likes-widget jetpack-likes-widget" name="' + $wrapper.data( 'name' ) + '" height="55px" width="100%" frameBorder="0" src="' + $wrapper.data( 'src' ) + '"></iframe>' );
+	var placeholder = $wrapper.find( '.likes-widget-placeholder' );
+	if ( placeholder.hasClass( 'post-likes-widget-placeholder' ) ) {
+		if ( $wrapper.hasClass( 'slim-likes-widget' ) ) {
+			placeholder.after( "<iframe class='post-likes-widget jetpack-likes-widget' name='" + $wrapper.data( 'name' ) + "' height='22px' width='68px' frameBorder='0' scrolling='no' src='" + $wrapper.data( 'src' ) + "'></iframe>" );
+		} else {
+			placeholder.after( "<iframe class='post-likes-widget jetpack-likes-widget' name='" + $wrapper.data( 'name' ) + "' height='55px' width='100%' frameBorder='0' src='" + $wrapper.data( 'src' ) + "'></iframe>" );
+		}
+	} else if ( placeholder.hasClass( 'comment-likes-widget-placeholder' ) ) {
+		$wrapper.find('.comment-like-feedback').before("<iframe class='comment-likes-widget-frame jetpack-likes-widget-frame' name='" + $wrapper.data('name') + "' height='16px' width='24px' frameBorder='0' scrolling='no' src='" + $wrapper.data('src') + "'></iframe>");
 	}
 
 	$wrapper.removeClass( 'jetpack-likes-widget-unloaded' ).addClass( 'jetpack-likes-widget-loading' );

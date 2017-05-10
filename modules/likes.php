@@ -632,8 +632,7 @@ class Jetpack_Likes {
 			return;
 		}
 
-		// Comment Likes widget has been disabled, pending performance improvements.
-		// add_filter( 'comment_text', array( &$this, 'comment_likes' ), 10, 2 );
+		add_filter( 'comment_text', array( &$this, 'comment_likes' ), 10, 2 );
 
 		if ( $this->in_jetpack ) {
 			add_filter( 'the_content', array( &$this, 'post_likes' ), 30, 1 );
@@ -829,13 +828,18 @@ class Jetpack_Likes {
 		// make sure to include the scripts before the iframe otherwise weird things happen
 		add_action( 'wp_footer', array( $this, 'likes_master' ), 21 );
 
-		$src = sprintf( '%1$s://widgets.wp.com/likes/#blog_id=%2$d&amp;comment_id=%3$d&amp;origin=%1$s://%4$s', $protocol, $blog_id, $comment->comment_ID, $domain );
-		$name = sprintf( 'like-comment-frame-%1$d-%2$d', $blog_id, $comment->comment_ID );
-		$wrapper = sprintf( 'like-comment-wrapper-%1$d-%2$d', $blog_id, $comment->comment_ID );
+		$uniqid = uniqid();
 
-		$html  = "<div><div class='jetpack-likes-widget-wrapper jetpack-likes-widget-unloaded' id='$wrapper'>";
-		$html .= "<iframe class='comment-likes-widget jetpack-likes-widget' name='$name' height='16px' width='100%' data='$src'></iframe>";
+		$src     = sprintf( '//widgets.wp.com/likes/#blog_id=%1$d&amp;comment_id=%2$d&amp;origin=%3$s&amp;obj_id=%1$d-%2$d-%4$s', $blog_id, $comment->comment_ID, $domain, $uniqid );
+		$name    = sprintf( 'like-comment-frame-%1$d-%2$d-%3$s', $blog_id, $comment->comment_ID, $uniqid );
+		$wrapper = sprintf( 'like-comment-wrapper-%1$d-%2$d-%3$s', $blog_id, $comment->comment_ID, $uniqid );
+
+		$html = "<div class='jetpack-likes-widget-wrapper jetpack-likes-widget-unloaded' id='$wrapper' data-src='$src' data-name='$name'>";
+		$html .= "<div class='likes-widget-placeholder comment-likes-widget-placeholder comment-likes'><span class=\"loading\">" . esc_html__( 'Loading...', 'jetpack' ) . "</span> </div>";
+		$html .= "<div class='comment-likes-widget jetpack-likes-widget comment-likes'><span class='comment-like-feedback'></span>";
+		$html .= "<span class='sd-text-color'></span><a class='sd-link-color'></a>";
 		$html .= '</div></div>';
+
 		return $content . $html;
 	}
 
@@ -1104,6 +1108,8 @@ class Jetpack_Likes {
 	 * @return boolean true if we should show comment likes, false if not
 	 */
 	function is_comments_enabled() {
+		// For now return true in all cases, just for testing purposes
+		return true;
 		/**
 		 * Filters whether Comment Likes are enabled.
 		 * true if enabled, false if not.

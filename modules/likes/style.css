@@ -140,7 +140,8 @@ div.sd-box {
 
 
 /* Loading text */
-.post-likes-widget-placeholder {
+.post-likes-widget-placeholder,
+.comment-likes-widget-placeholder {
 	margin: 0;
 	border-width: 0;
 	position: relative;
