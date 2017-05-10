@@ -115,6 +115,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * General: improve wording on connection banners for secondary users to avoid confusion. #6753
 * Internationalization: add and update language information handling. #7057
 * Sync: better synchronization of changes to navigation menus. #7014
+* WordPress.com REST API: Force secure API requests when getting request body. #7060
 
 **Performance Improvements**
 
