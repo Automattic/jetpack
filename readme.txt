@@ -117,7 +117,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Masterbar: Remove the Menus item to match WordPress.com menu. #7070
 * Sync: better synchronization of changes to navigation menus. #7014
 * WordPress.com REST API: Force secure API requests when getting request body. #7060
-* WordPress.com REST API: add new endpoint to invite new users. #7068, #7072
+* WordPress.com REST API: add new endpoint to invite new users. #7068, #7072, #7071
 
 **Performance Improvements**
 
