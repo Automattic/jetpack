@@ -113,6 +113,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Slightly Less Exciting Enhancements**
 
 * General: improve wording on connection banners for secondary users to avoid confusion. #6753
+* Internationalization: add and update language information handling. #7057
 * Sync: better synchronization of changes to navigation menus. #7014
 
 **Performance Improvements**
