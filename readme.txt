@@ -112,6 +112,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Slightly Less Exciting Enhancements**
 
+* General: improve wording on connection banners for secondary users to avoid confusion. #6753
+
 **Performance Improvements**
 
 **Compatibility Improvements**
