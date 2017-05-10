@@ -236,6 +236,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'amp_is_supported'        => (bool) function_exists( 'wpcom_is_amp_supported' ) && wpcom_is_amp_supported( $blog_id ),
 					'amp_is_enabled'          => (bool) function_exists( 'wpcom_is_amp_enabled' ) && wpcom_is_amp_enabled( $blog_id ),
 					'api_cache'               => $api_cache,
+					'posts_per_page'          => (int) get_option( 'posts_per_page' ),
 				);
 
 				if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {

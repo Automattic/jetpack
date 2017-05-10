@@ -2732,7 +2732,8 @@ new WPCOM_JSON_API_Site_Settings_Endpoint( array(
 		'wpcom_publish_comments_with_markdown' => '(bool) Whether markdown is enabled for comments',
 		'amp_is_enabled'   => '(bool) Whether AMP is enabled for this site',
 		'site_icon'                    => '(int) Media attachment ID to use as site icon. Set to zero or an otherwise empty value to clear',
-		'api_cache'                    => '(bool) Turn on/off the Jetpack JSON API cache'
+		'api_cache'                    => '(bool) Turn on/off the Jetpack JSON API cache',
+		'posts_per_page'               => '(int) Number of posts to show on blog pages',
 	),
 
 	'response_format' => array(
