@@ -192,18 +192,23 @@ class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 	protected function set_super_cache_enabled( $value ) {
 		global $wp_cache_mod_rewrite;
 
-		if ( $value === 0 ) {
-			wp_cache_enable(); // logged in cache
+		if ( $value === 0 ) { // legacy
 			wp_super_cache_disable();
 
-		} elseif ( $value == 1 ) {
-			$wp_cache_mod_rewrite = 1; // we need this because supercached files can be served by PHP too.
+		} else {
+			wp_super_cache_enable();
+			$wp_cache_mod_rewrite = 0; // PHP recommended
 
-		} else { // super_cache_enabled == 2
-			$wp_cache_mod_rewrite = 0; // cache files served by PHP
+			if ( $value == 1 ) { // mod_rewrite
+				$wp_cache_mod_rewrite = 1;
+
+			} elseif( $value == 2 ) { // PHP
+				$wp_cache_mod_rewrite = 0;
+			}
+
+			wp_cache_setting( 'wp_cache_mod_rewrite', $wp_cache_mod_rewrite );
 		}
 
-		wp_cache_setting( 'wp_cache_mod_rewrite', $wp_cache_mod_rewrite );
 	}
 
 	/**
