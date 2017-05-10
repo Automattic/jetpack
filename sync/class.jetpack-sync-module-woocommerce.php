@@ -98,7 +98,7 @@ class Jetpack_Sync_Module_WooCommerce extends Jetpack_Sync_Module {
 
 		return array(
 			$order_items,
-			$this->get_metadata( $order_item_ids, 'order_item', $this->order_item_meta_whitelist )
+			$this->get_metadata( $order_item_ids, 'order_item', $this->order_item_meta_whitelist ),
 		);
 	}
 
