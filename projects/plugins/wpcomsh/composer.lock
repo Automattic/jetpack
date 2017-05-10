@@ -4,37 +4,35 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "87db7c89553554a2a1012168dbd8cbc9",
+    "content-hash": "0994cded92d8896aca89383baa54884a",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
-            "version": "dev-master",
+            "version": "v1.0.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/automattic/at-pressable-podcasting.git",
-                "reference": "8661eff9e33077eec6219116b73fc98536b6eba5"
+                "reference": "d26f6d815100f99f7eed9b5e86d560e9fb70b0cf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/automattic/at-pressable-podcasting/zipball/8661eff9e33077eec6219116b73fc98536b6eba5",
-                "reference": "8661eff9e33077eec6219116b73fc98536b6eba5",
+                "url": "https://api.github.com/repos/automattic/at-pressable-podcasting/zipball/d26f6d815100f99f7eed9b5e86d560e9fb70b0cf",
+                "reference": "d26f6d815100f99f7eed9b5e86d560e9fb70b0cf",
                 "shasum": ""
             },
             "type": "library",
             "autoload": {
-                "psr-0": [
+                "files": [
                     "podcasting.php"
                 ]
             },
-            "time": "2017-05-09 04:22:45"
+            "time": "2017-05-09T20:06:20+00:00"
         }
     ],
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "automattic/at-pressable-podcasting": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],

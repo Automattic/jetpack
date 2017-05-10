@@ -1,6 +1,6 @@
 {
   "require": {
-    "automattic/at-pressable-podcasting":"dev-master"
+    "automattic/at-pressable-podcasting":"1.0.0"
   },
   "repositories": [
     {
