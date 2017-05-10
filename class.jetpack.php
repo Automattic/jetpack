@@ -4597,10 +4597,17 @@ p {
 	public static function get_secrets( $action, $user_id ) {
 		$secret_name = 'jetpack_' . $action . '_' . $user_id;
 		$secrets = Jetpack_Sync_Options::get_option( 'jetpack_secrets', array() );
-		if ( isset( $secrets[ $secret_name ] ) ) {
-			return $secrets[ $secret_name ];
+
+		if ( ! isset( $secrets[ $secret_name ] ) ) {
+			return new WP_Error( 'verify_secrets_missing', 'Verification secrets not found' );
 		}
-		return false;
+
+		if ( $secrets[ $secret_name ]['exp'] < time() ) {
+			self::delete_secrets( $action, $user_id );
+			return new WP_Error( 'verify_secrets_expired', 'Verification took too long' );
+		}
+
+		return $secrets[ $secret_name ];
 	}
 
 	public static function delete_secrets( $action, $user_id ) {
@@ -4685,8 +4692,7 @@ p {
 		if (
 			empty( $secrets['secret_1'] ) ||
 			empty( $secrets['secret_2'] ) ||
-			empty( $secrets['exp'] ) ||
-			$secrets['exp'] < time()
+			empty( $secrets['exp'] )
 		) {
 			return new Jetpack_Error( 'missing_secrets' );
 		}

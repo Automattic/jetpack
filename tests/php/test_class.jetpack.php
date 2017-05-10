@@ -642,6 +642,36 @@ EXPECTED;
 		remove_filter( 'random_password', array( __CLASS__, '__multiply_filter' ), 20 );
 	}
 
+	/**
+	 * The get_secrets method should return an error for unknown secrets
+	 *
+	 * @author roccotripaldi
+	 * @covers Jetpack::generate_secrets
+	 */
+	function test_generate_secrets_returns_error_for_unknown_secrets() {
+		Jetpack::generate_secrets( 'name' );
+		$unknown_action = Jetpack::get_secrets( 'unknown', get_current_user_id() );
+		$unknown_user_id = Jetpack::get_secrets( 'name', 5 );
+
+		$this->assertInstanceOf( 'WP_Error', $unknown_action );
+		$this->assertArrayHasKey( 'verify_secrets_missing', $unknown_action->errors );
+		$this->assertInstanceOf( 'WP_Error', $unknown_user_id );
+		$this->assertArrayHasKey( 'verify_secrets_missing', $unknown_user_id->errors );
+	}
+
+	/**
+	 * The get_secrets method should return an error for expired secrets
+	 *
+	 * @author roccotripaldi
+	 * @covers Jetpack::generate_secrets
+	 */
+	function test_generate_secrets_returns_error_for_expired_secrets() {
+		Jetpack::generate_secrets( 'name', get_current_user_id(), -600 );
+		$expired = Jetpack::get_secrets( 'name', get_current_user_id() );
+		$this->assertInstanceOf( 'WP_Error', $expired );
+		$this->assertArrayHasKey( 'verify_secrets_expired', $expired->errors );
+	}
+
 	static function __cyrillic_salt( $password ) {
 		return 'ленка' . $password . 'пенка';
 	}

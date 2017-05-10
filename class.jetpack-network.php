@@ -420,8 +420,7 @@ class Jetpack_Network {
 		if (
 			empty( $secrets['secret_1'] ) ||
 			empty( $secrets['secret_2']  ) ||
-			empty( $secrets['exp'] ) ||
-			$secrets['exp'] < time()
+			empty( $secrets['exp'] )
 		) {
 			return new Jetpack_Error( 'missing_secrets' );
 		}

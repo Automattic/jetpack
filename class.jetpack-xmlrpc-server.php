@@ -164,19 +164,19 @@ class Jetpack_XMLRPC_Server {
 
 		$secrets = Jetpack::get_secrets( $action, $state );
 
-		if ( ! $secrets || is_wp_error( $secrets ) ) {
+		if ( ! $secrets ) {
 			Jetpack::delete_secrets( $action, $state );
 			return $this->error( new Jetpack_Error( 'verify_secrets_missing', 'Verification secrets not found', 400 ) );
+		}
+
+		if ( is_wp_error( $secrets ) ) {
+			Jetpack::delete_secrets( $action, $state );
+			return $this->error( new Jetpack_Error( $secrets->get_error_code(), $secrets->get_error_message(), 400 ) );
 		}
 
 		if ( empty( $secrets['secret_1'] ) || empty( $secrets['secret_2'] ) || empty( $secrets['exp'] ) ) {
 			Jetpack::delete_secrets( $action, $state );
 			return $this->error( new Jetpack_Error( 'verify_secrets_incomplete', 'Verification secrets are incomplete', 400 ) );
-		}
-
-		if ( $secrets['exp'] < time() ) {
-			Jetpack::delete_secrets( $action, $state );
-			return $this->error( new Jetpack_Error( 'verify_secrets_expired', 'Verification took too long', 400 ) );
 		}
 
 		if ( ! hash_equals( $verify_secret, $secrets['secret_1'] ) ) {
