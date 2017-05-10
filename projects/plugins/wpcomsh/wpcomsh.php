@@ -56,6 +56,8 @@ if ( class_exists( 'Jetpack_Plugin_Compatibility' ) ) {
 			'necessary to manage your site and are not supported on WordPress.com. wordpress-database-reset has been deactivated.',
 		'wp-reset/wp-reset.php' => 'wp-reset and other WordPress reset plugins delete data ' .
 			'necessary to manage your site and are not supported on WordPress.com. wp-reset has been deactivated.',
+		'wordpress-reset/wordpress-reset.php' => 'WordPress Reset and similar reset plugins delete data ' .
+			'necessary to manage your site and are not supported on Wordpress.com. WordPress Reset has been deactivated.',
 	);
 	new Jetpack_Plugin_Compatibility( $wpcomsh_incompatible_plugins );
 }
