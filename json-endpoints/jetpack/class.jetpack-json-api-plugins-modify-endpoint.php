@@ -245,7 +245,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 			 *
 			 * @param array $plugin Plugin data
 			 * @param array $plugin Array of plugin objects
-			 * @param bool $updated_attempted false for the first update, true subsequently
+			 * @param bool $update_attempted false for the first update, true subsequently
 			 */
 			do_action( 'jetpack_pre_plugin_upgrade_translations', $plugin, $this->plugins, $update_attempted );
 
