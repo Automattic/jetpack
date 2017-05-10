@@ -521,8 +521,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			$response->{ $key } = $value;
 		}
 
-		$token_details = (object) $this->api->token_details;
-		if ( $this->has_blog_access( $token_details, $response->ID ) ) {
+		if ( $this->has_blog_access( $this->api->token_details, $response->ID ) ) {
 			$wpcom_member_response = $this->render_response_keys( self::$jetpack_response_field_member_additions );
 
 			foreach( $wpcom_member_response as $key => $value ) {
