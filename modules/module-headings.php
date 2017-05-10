@@ -23,6 +23,11 @@ function jetpack_get_module_i18n( $key ) {
 				'recommended description' => _x( 'Brings your photos and images to life as full-size, easily navigable galleries.', 'Jumpstart Description', 'jetpack' ),
 			),
 
+			'comment-likes' => array(
+				'name' => _x( 'Comment Likes', 'Module Name', 'jetpack' ),
+				'description' => _x( 'Inrease visitor engagement by adding a Like button to comments.', 'Module Description', 'jetpack' ),
+			),
+
 			'comments' => array(
 				'name' => _x( 'Comments', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Let readers use WordPress.com, Twitter, Facebook, or Google+ accounts to comment', 'Module Description', 'jetpack' ),
@@ -266,6 +271,11 @@ function jetpack_get_module_i18n_tag( $key ) {
 			//  - modules/videopress.php
 			'Photos and Videos' =>_x( 'Photos and Videos', 'Module Tag', 'jetpack' ),
 
+			// Modules with `General` tag:
+			//  - modules/comment-likes.php
+			//  - modules/masterbar.php
+			'General' =>_x( 'General', 'Module Tag', 'jetpack' ),
+
 			// Modules with `Social` tag:
 			//  - modules/comments.php
 			//  - modules/gravatar-hovercards.php
@@ -314,10 +324,6 @@ function jetpack_get_module_i18n_tag( $key ) {
 			//  - modules/sitemaps.php
 			//  - modules/stats.php
 			'Recommended' =>_x( 'Recommended', 'Module Tag', 'jetpack' ),
-
-			// Modules with `General` tag:
-			//  - modules/masterbar.php
-			'General' =>_x( 'General', 'Module Tag', 'jetpack' ),
 
 			// Modules with `Mobile` tag:
 			//  - modules/minileven.php

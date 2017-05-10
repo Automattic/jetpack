@@ -632,8 +632,6 @@ class Jetpack_Likes {
 			return;
 		}
 
-		add_filter( 'comment_text', array( &$this, 'comment_likes' ), 10, 2 );
-
 		if ( $this->in_jetpack ) {
 			add_filter( 'the_content', array( &$this, 'post_likes' ), 30, 1 );
 			add_filter( 'the_excerpt', array( &$this, 'post_likes' ), 30, 1 );
@@ -800,45 +798,6 @@ class Jetpack_Likes {
 
 		// Let's make sure that the script is enqueued
 		wp_enqueue_script( 'jetpack_likes_queuehandler' );
-
-		return $content . $html;
-	}
-
-	function comment_likes( $content, $comment = null ) {
-		if ( empty( $comment ) )
-			return $content;
-
-		if ( ! $this->is_comments_enabled() )
-			return $content;
-
-		$protocol = 'http';
-		if ( is_ssl() )
-			$protocol = 'https';
-
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$blog_id = get_current_blog_id();
-			$bloginfo = get_blog_details( (int) $blog_id );
-			$domain = $bloginfo->domain;
-		} else {
-			$blog_id = Jetpack_Options::get_option( 'id' );
-			$url = home_url();
-			$url_parts = parse_url( $url );
-			$domain = $url_parts['host'];
-		}
-		// make sure to include the scripts before the iframe otherwise weird things happen
-		add_action( 'wp_footer', array( $this, 'likes_master' ), 21 );
-
-		$uniqid = uniqid();
-
-		$src     = sprintf( '//widgets.wp.com/likes/#blog_id=%1$d&amp;comment_id=%2$d&amp;origin=%3$s&amp;obj_id=%1$d-%2$d-%4$s', $blog_id, $comment->comment_ID, $domain, $uniqid );
-		$name    = sprintf( 'like-comment-frame-%1$d-%2$d-%3$s', $blog_id, $comment->comment_ID, $uniqid );
-		$wrapper = sprintf( 'like-comment-wrapper-%1$d-%2$d-%3$s', $blog_id, $comment->comment_ID, $uniqid );
-
-		$html = "<div class='jetpack-likes-widget-wrapper jetpack-likes-widget-unloaded' id='$wrapper' data-src='$src' data-name='$name'>";
-		$html .= "<div class='likes-widget-placeholder comment-likes-widget-placeholder comment-likes'><span class=\"loading\">" . esc_html__( 'Loading...', 'jetpack' ) . "</span> </div>";
-		$html .= "<div class='comment-likes-widget jetpack-likes-widget comment-likes'><span class='comment-like-feedback'></span>";
-		$html .= "<span class='sd-text-color'></span><a class='sd-link-color'></a>";
-		$html .= '</div></div>';
 
 		return $content . $html;
 	}
