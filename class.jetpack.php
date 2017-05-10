@@ -4573,7 +4573,7 @@ p {
 		}
 
 		$secret_name  = 'jetpack_' . $action . '_' . $user_id;
-		$secrets      = Jetpack_Options::get_option( 'secrets', array() );
+		$secrets      = Jetpack_Sync_Options::get_option( 'jetpack_secrets', array() );
 
 		if (
 			isset( $secrets[ $secret_name ] ) &&
@@ -4590,13 +4590,13 @@ p {
 
 		$secrets[ $secret_name ] = $secret_value;
 
-		Jetpack_Options::update_option( 'secrets', $secrets );
+		Jetpack_Sync_Options::update_option( 'jetpack_secrets', $secrets );
 		return $secrets[ $secret_name ];
 	}
 
 	public static function get_secrets( $action, $user_id ) {
 		$secret_name = 'jetpack_' . $action . '_' . $user_id;
-		$secrets = Jetpack_Options::get_option( 'secrets', array() );
+		$secrets = Jetpack_Sync_Options::get_option( 'jetpack_secrets', array() );
 		if ( isset( $secrets[ $secret_name ] ) ) {
 			return $secrets[ $secret_name ];
 		}
@@ -4605,10 +4605,10 @@ p {
 
 	public static function delete_secrets( $action, $user_id ) {
 		$secret_name = 'jetpack_' . $action . '_' . $user_id;
-		$secrets = Jetpack_Options::get_option( 'secrets', array() );
+		$secrets = Jetpack_Sync_Options::get_option( 'jetpack_secrets', array() );
 		if ( isset( $secrets[ $secret_name ] ) ) {
 			unset( $secrets[ $secret_name ] );
-			Jetpack_Options::update_option( 'secrets', $secrets );
+			Jetpack_Sync_Options::update_option( 'jetpack_secrets', $secrets );
 		}
 	}
 
