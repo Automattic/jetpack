@@ -116,6 +116,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Compatibility Improvements**
 
+* Sync: avoid PHP notices when using the Pet Manager plugin. #6051
+
 **Bug Fixes**
 
 
