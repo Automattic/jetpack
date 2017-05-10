@@ -383,19 +383,6 @@ class Jetpack_Likes {
 				<div>
 			</td>
 		</tr>
-		<tr>
-			<th scope="row">
-				<label><?php esc_html_e( 'Comment Likes are', 'jetpack' ); ?></label>
-			</th>
-			<td>
-				<div>
-					<label>
-						<input type="checkbox" class="code" name="jetpack_comment_likes_enabled" value="1" <?php checked( $this->is_comments_enabled(), true ); ?> />
-						<?php esc_html_e( 'On for all comments', 'jetpack' ); ?>
-					</label>
-				</div>
-			</td>
-		</tr>
 		<?php endif; ?>
 		</tbody> <?php // closes the tbody attached to sharing_show_buttons_on_row_start... ?>
 	<?php }
@@ -529,28 +516,6 @@ class Jetpack_Likes {
 				delete_option( 'disabled_reblogs' );
 				break;
 		}
-
-		// comment setting
-		$new_comments_state = !empty( $_POST['jetpack_comment_likes_enabled'] ) ? $_POST['jetpack_comment_likes_enabled'] : false;
-		switch( (bool) $new_comments_state ) {
-			case true:
-				update_option( 'jetpack_comment_likes_enabled', 1 );
-			break;
-			case false:
-			default:
-				update_option( 'jetpack_comment_likes_enabled', 0 );
-			break;
-		}
-	}
-
-	/**
-	 * Force comment likes on for a blog
-	 * Used when a new blog is created
-	 */
-	function enable_comment_likes( $blog_id ) {
-		switch_to_blog( $blog_id );
-		update_option( 'jetpack_comment_likes_enabled', 1 );
-		restore_current_blog();
 	}
 
 	/**
@@ -1060,26 +1025,6 @@ class Jetpack_Likes {
 		 * @param bool $option Are Reblogs enabled sitewide.
 		 */
 		return (bool) apply_filters( 'wpl_reblogging_enabled_sitewide', ! get_option( 'disabled_reblogs' ) );
-	}
-
-	/**
-	 * Returns if comment likes are enabled. Defaults to 'off'
-	 * @return boolean true if we should show comment likes, false if not
-	 */
-	function is_comments_enabled() {
-		// For now return true in all cases, just for testing purposes
-		return true;
-		/**
-		 * Filters whether Comment Likes are enabled.
-		 * true if enabled, false if not.
-		 *
-		 * @module likes
-		 *
-		 * @since 2.2.0
-		 *
-		 * @param bool $option Are Comment Likes enabled sitewide.
-		 */
-		return (bool) apply_filters( 'jetpack_comment_likes_enabled', get_option( 'jetpack_comment_likes_enabled', false ) );
 	}
 
 	function is_admin_bar_button_visible() {
