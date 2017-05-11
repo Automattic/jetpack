@@ -19,6 +19,7 @@ require_once( 'footer-credit/footer-credit.php' );
 require_once( 'custom-fonts/custom-fonts.php' );
 require_once( 'custom-fonts-typekit/custom-fonts-typekit.php' );
 require_once( 'custom-colors/colors.php' );
+require_once( 'class.wpcomsh-log.php' );
 
 /**
  * WP.com Widgets (in alphabetical order)
@@ -422,6 +423,7 @@ add_action( 'admin_enqueue_scripts', 'wpcomsh_admin_enqueue_style', 999 );
 function wpcomsh_allow_custom_wp_options( $options ) {
 	// For storing AT options.
 	$options[] = 'at_options';
+	$options[] = 'at_options_logging_on';
 	$options[] = 'jetpack_fonts';
 	$options[] = 'site_logo';
 	$options[] = 'footercredit';

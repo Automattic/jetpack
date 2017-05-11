@@ -115,6 +115,19 @@ All the wp-admin custom styles for transferred sites are in `assets/admin-style.
 
 On WP.com, we provide custom colors and fonts in a site's Customizer. In order to get them supported on an AT site, wpcomsh imports the `colors`, `custom-fonts` and `custom-fonts-typekit` codebases.
 
+### Logging
+
+WPCOMSH provides a hook to log arbitrary information in our Kibana instance. 
+You cannot use these function by itself, you need to call a proper hook like so:
+```php
+do_action(  'wpcomsh_log', "test" );
+```
+
+You will see the output here:
+78d11cc3116d62c53c50ae95c04d265b-logstash
+
+But, logging needs to be turned on via `at_options_logging_on`. You can do that via `/option` endpoint. More tools coming. 
+
 ### Cli commands
 
 wpcomsh includes [WP CLI](http://wp-cli.org/) commands. They are located in the `class.cli-commands.php` file. At the moment, they are:
