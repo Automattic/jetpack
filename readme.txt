@@ -119,6 +119,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Sync: trigger synchronization when WordPress is updated. #7108
 * Sync: record event when a theme is deleted. #7113
 * Sync: record event when a term is created or edited. #7123
+* Sync: record sync error instead of just bailing when something blocks Sync. #7135
 * WordPress.com REST API: force secure API requests when getting request body. #7060
 * WordPress.com REST API: add new endpoint to invite new users. #7068, #7072, #7071
 
