@@ -114,9 +114,9 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * General: improve wording on connection banners for secondary users to avoid confusion. #6753
 * Internationalization: add and update language information handling. #7057
-* Masterbar: Remove the Menus item to match WordPress.com menu. #7070
+* Masterbar: remove the Menus item to match WordPress.com menu. #7070
 * Sync: better synchronization of changes to navigation menus. #7014
-* WordPress.com REST API: Force secure API requests when getting request body. #7060
+* WordPress.com REST API: force secure API requests when getting request body. #7060
 * WordPress.com REST API: add new endpoint to invite new users. #7068, #7072, #7071
 
 **Performance Improvements**
@@ -128,7 +128,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug Fixes**
 
-* Add a mechanism to detect broken connection states and resolve them. #6964
+* CLI interface: properly print full list of modules when using the sync command. #7094
+* General: add a mechanism to detect broken connection states and resolve them. #6964
 
 = 4.9 =
 
