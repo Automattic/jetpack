@@ -29,11 +29,15 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 	}
 
 	public function sync_network_allowed_themes_change( $option, $value, $old_value, $network_id ) {
-		if ( ! isset( $_REQUEST['action']) ) {
+		if ( ! isset( $_REQUEST['action']) ||
+			( '-1' === $_REQUEST['action'] && ! isset( $_REQUEST['action2'] ) )
+		) {
 			return;
 		}
 
-		if ( 'disable_selected' === $_REQUEST['action'] || 'disable' === $_REQUEST['action'] )  {
+		$action = '-1' === $_REQUEST['action'] ? $_REQUEST['action2'] : $_REQUEST['action'];
+
+		if ( 'disable_selected' === $action || 'disable' === $action )  {
 			$disabled_theme_names = array_keys( array_diff_key( $old_value, $value ) );
 			$disabled_themes = array();
 			foreach ( $disabled_theme_names as $name ) {
@@ -56,7 +60,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 			return;
 		}
 
-		if ( 'enable_selected' === $_REQUEST['action'] || 'enable' === $_REQUEST['action'] ) {
+		if ( 'enable_selected' === $action || 'enable' === $action ) {
 			$enabled_theme_names = array_keys(array_diff_key($value, $old_value));
 			$enabled_themes = array();
 			foreach ($enabled_theme_names as $name) {
