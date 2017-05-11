@@ -82,35 +82,40 @@ class WPcom_Instagram_Widget extends WP_Widget {
 	 * @return string|array A string on error, an array of images on success.
 	 */
 	public function get_images( $instance ) {
-		if ( ! $instance['token_id'] ) {
+		if ( empty( $instance['token_id'] ) ) {
+			// TODO log error
 			return 'ERROR';
 		}
 
+		$cache_time = MINUTE_IN_SECONDS;
 		$transient_key = implode( '|', array( 'wpcom-instagram-widget', $instance['token_id'], $instance['count'] ) );
-		$images = get_transient( $transient_key );
-
-		if ( ! $images ) {
-			$domain = preg_replace( '|^https?://|', '', home_url() );
-			$exploded = explode( '/', $domain );
-			$domain = array_shift( $exploded );
-			$path = sprintf( '/sites/%s/instagram/%s?count=%s', $domain, $instance['token_id'], $instance['count'] );
-			$result = $this->wpcom_json_api_request_as_blog( $path, 2, [ 'headers' => [ 'content-type' => 'application/json' ] ], null, 'wpcom' );
-
-			// defaults
-			$images = 'ERROR'; // non-array value = error
-			$cache_time = MINUTE_IN_SECONDS;
-
-			if ( 200 === wp_remote_retrieve_response_code( $result ) ) {
-				$data = json_decode( wp_remote_retrieve_body( $result ), true );
-				if ( isset( $data['images'] ) ) {
-					$images = $data['images'];
-					$cache_time = 20 * MINUTE_IN_SECONDS;
-				}
-			}
-
-			set_transient( $transient_key, $images, $cache_time );
+		$cached_images = get_transient( $transient_key );
+		if ( $cached_images ) {
+			return $cached_images;
 		}
 
+		$domain = preg_replace( '|^https?://|', '', home_url() );
+		$exploded = explode( '/', $domain );
+		$domain = array_shift( $exploded );
+		$path = sprintf( '/sites/%s/instagram/%s?count=%s', $domain, $instance['token_id'], $instance['count'] );
+		$result = $this->wpcom_json_api_request_as_blog( $path, 2, [ 'headers' => [ 'content-type' => 'application/json' ] ], null, 'wpcom' );
+
+		if ( 200 !== wp_remote_retrieve_response_code( $result ) ) {
+			// TODO log error
+			set_transient( $transient_key, 'ERROR', $cache_time );
+			return 'ERROR';
+		}
+
+		$data = json_decode( wp_remote_retrieve_body( $result ), true );
+		if ( ! isset( $data['images'] ) || ! is_array( $data['images'] ) ) {
+			// TODO log error
+			set_transient( $transient_key, 'ERROR', $cache_time );
+			return 'ERROR';
+		}
+
+		$images = $data['images'];
+		$cache_time = 20 * MINUTE_IN_SECONDS;
+		set_transient( $transient_key, $images, $cache_time );
 		return $images;
 	}
 
