@@ -115,6 +115,7 @@ class WPCom_Markdown {
 	 * @return null
 	 */
 	public function load_markdown_for_posts() {
+		add_filter( 'wp_kses_allowed_html', array( $this, 'wp_kses_allowed_html' ), 10, 2 );
 		add_action( 'wp_insert_post', array( $this, 'wp_insert_post' ) );
 		add_filter( 'wp_insert_post_data', array( $this, 'wp_insert_post_data' ), 10, 2 );
 		add_filter( 'edit_post_content', array( $this, 'edit_post_content' ), 10, 2 );
@@ -133,6 +134,7 @@ class WPCom_Markdown {
 	 * @return null
 	 */
 	public function unload_markdown_for_posts() {
+		remove_filter( 'wp_kses_allowed_html', array( $this, 'wp_kses_allowed_html' ) );
 		remove_action( 'wp_insert_post', array( $this, 'wp_insert_post' ) );
 		remove_filter( 'wp_insert_post_data', array( $this, 'wp_insert_post_data' ), 10, 2 );
 		remove_filter( 'edit_post_content', array( $this, 'edit_post_content' ), 10, 2 );
@@ -413,6 +415,29 @@ class WPCom_Markdown {
 				$content = '';
 		}
 		return $content;
+	}
+
+	/**
+	 * Some tags are allowed to have a 'markdown' attribute, allowing them to contain Markdown.
+	 * We need to tell KSES about those tags.
+	 * @param  array $tags     List of tags that KSES allows.
+	 * @param  string $context The context that KSES is allowing these tags.
+	 * @return array           The tags that KSES allows, with our extra 'markdown' parameter where necessary.
+	 */
+	public function wp_kses_allowed_html( $tags, $context ) {
+		if ( 'post' !== $context ) {
+			return $tags;
+		}
+
+		$re = '/' . $this->get_parser()->contain_span_tags_re . '/';
+		foreach ( $tags as $tag => $attributes ) {
+			if ( preg_match( $re, $tag ) ) {
+				$attributes['markdown'] = true;
+				$tags[ $tag ] = $attributes;
+			}
+		}
+
+		return $tags;
 	}
 
 	/**
