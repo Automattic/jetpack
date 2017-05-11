@@ -61,7 +61,6 @@ require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-media-v1-1-endpoin
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-media-v1-1-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-media-v1-1-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-upload-media-v1-1-endpoint.php' );
-require_once( $json_endpoints_dir . 'class.wpcom-json-api-post-upload-token-v1-1-endpoint.php' );
 
 // Posts
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-post-v1-1-endpoint.php' );
@@ -90,7 +89,6 @@ require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-site-homepage-e
 
 // Publicize
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-publicize-endpoint.php' );
-require_once( $json_endpoints_dir . 'class.wpcom-json-api-publicize-scheduled-actions-endpoint.php' );
 
 // **********
 // v1.2
@@ -1484,33 +1482,6 @@ new WPCOM_JSON_API_Upload_Media_v1_1_Endpoint( array(
 		'body' => array(
 			'media_urls' => 'https://s.w.org/about/images/logos/codeispoetry-rgb.png',
 		),
-	)
-) );
-
-new WPCOM_JSON_API_Post_Upload_Token_v1_1_Endpoint( array(
-	'description' => 'Generate a new upload token',
-	'group'       => '__do_not_document',
-	'stat'        => 'media:token',
-	'allow_jetpack_site_auth' => true,
-	'force'       => 'wpcom',
-	'min_version' => '1.1',
-	'max_version' => '1.1',
-	'method'      => 'POST',
-	'path'        => '/sites/%s/media/token',
-	'path_labels' => array(
-		'$site' => '(int|string) Site ID or domain',
-	),
-
-	'response_format' => array(
-		'upload_token' => '(string) The upload token that can be used to upload media as this user.',
-		'upload_blog_id' => '(int) The id of the blog that this token is good for.',
-	),
-
-	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/82974409/media/token',
-	'example_request_data' =>  array(
-		'headers' => array(
-			'authorization' => 'Bearer YOUR_API_TOKEN',
-		)
 	)
 ) );
 
@@ -3394,113 +3365,6 @@ new WPCOM_JSON_API_Publicize_Endpoint( array(
 		'body' => array(
 			'message'   => 'Hello World',
 			'share_date'		=> '1490045140',
-		)
-	)
- ) );
-
-new WPCOM_JSON_API_List_Publicize_Scheduled_Actions_Endpoint( array(
-	'description' => 'List scheduled  publicize actions for a post.',
-	'group'       => '__do_not_document',
-	'stat'        => 'publicize:list_scheduled',
-	'min_version' => '1',
-	'method'      => 'GET',
-	'force'       => 'wpcom',
-	'path'        => '/sites/%s/post/%d/publicize/scheduled',
-	'path_labels' => array(
-		'$site' => '(int|string) Site ID or domain',
-		'$post_id' => '(int) Post ID',
-	),
-
-	'response_format' => array(
-		'items' => '(array) Actions',
-	),
-
-	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/post/1/publicize/scheduled',
-	'example_request_data' => array(
-		'headers' => array(
-			'authorization' => 'Bearer YOUR_API_TOKEN'
-		)
-	)
- ) );
-
-new WPCOM_JSON_API_List_Publicize_Published_Actions_Endpoint( array(
-	'description' => 'List scheduled and published publicize actions for a post.',
-	'group'       => '__do_not_document',
-	'stat'        => 'publicize:list_published',
-	'min_version' => '1',
-	'method'      => 'GET',
-	'force'       => 'wpcom',
-	'path'        => '/sites/%s/post/%d/publicize/published',
-	'path_labels' => array(
-		'$site' => '(int|string) Site ID or domain',
-		'$post_id' => '(int) Post ID',
-	),
-
-	'response_format' => array(
-		'items' => '(array) Actions',
-	),
-
-	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/post/1/publicize/published',
-	'example_request_data' => array(
-		'headers' => array(
-			'authorization' => 'Bearer YOUR_API_TOKEN'
-		)
-	)
- ) );
-
-new WPCOM_JSON_API_Edit_Publicize_Scheduled_Action_Endpoint( array(
-	'description' => 'Edit scheduled publicize action for a post.',
-	'group'       => '__do_not_document',
-	'stat'        => 'publicize:edit_action',
-	'min_version' => '1',
-	'method'      => 'POST',
-	'force'       => 'wpcom',
-	'path'        => '/sites/%s/post/%d/publicize/action/%s/edit',
-	'path_labels' => array(
-		'$site' => '(int|string) Site ID or domain',
-		'$post_id' => '(int) Post ID',
-		'$id' => '(string) Publicize action ID',
-	),
-	'request_format'  => array(
-		'message'  => '(string) The custom message that gets publicized',
-		'share_date' => '(int) Time for the message to publish',
-	),
-	'response_format' => array(
-		'id' => '(string) ID of new publicize action',
-	),
-	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/post/1/publicize/action/15505463_1489962162_58cf04b27b662/edit/',
-	'example_request_data' => array(
-		'headers' => array(
-			'authorization' => 'Bearer YOUR_API_TOKEN'
-		),
-		'body' => array(
-			'message'   => 'Hello World',
-			'share_date'		=> '1490045140',
-		)
-	)
- ) );
-new WPCOM_JSON_API_Delete_Publicize_Scheduled_Action_Endpoint( array(
-	'description' => 'Delete scheduled publicize action for a post.',
-	'group'       => '__do_not_document',
-	'stat'        => 'publicize:delete_action',
-	'min_version' => '1',
-	'method'      => 'POST',
-	'force'       => 'wpcom',
-	'path'        => '/sites/%s/post/%d/publicize/action/%s/delete',
-	'path_labels' => array(
-		'$site' => '(int|string) Site ID or domain',
-		'$post_id' => '(int) Post ID',
-		'$id' => '(string) Publicize action ID',
-	),
-
-	'response_format' => array(
-		'success' => '(bool) Action was succesfully deleted?',
-	),
-
-	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/post/1/publicize/action/15505463_1489962162_58cf04b27b662/delete/',
-	'example_request_data' => array(
-		'headers' => array(
-			'authorization' => 'Bearer YOUR_API_TOKEN'
 		)
 	)
  ) );
