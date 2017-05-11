@@ -130,6 +130,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * CLI interface: properly print full list of modules when using the sync command. #7094
 * General: add a mechanism to detect broken connection states and resolve them. #6964
+* Spellcheck: Properly escape Button attribute. #7100
 
 = 4.9 =
 
