@@ -116,6 +116,7 @@ class WPCom_Markdown {
 	 */
 	public function load_markdown_for_posts() {
 		add_filter( 'wp_kses_allowed_html', array( $this, 'wp_kses_allowed_html' ), 10, 2 );
+		add_action( 'after_wp_tiny_mce', array( $this, 'after_wp_tiny_mce' ) );
 		add_action( 'wp_insert_post', array( $this, 'wp_insert_post' ) );
 		add_filter( 'wp_insert_post_data', array( $this, 'wp_insert_post_data' ), 10, 2 );
 		add_filter( 'edit_post_content', array( $this, 'edit_post_content' ), 10, 2 );
@@ -135,6 +136,7 @@ class WPCom_Markdown {
 	 */
 	public function unload_markdown_for_posts() {
 		remove_filter( 'wp_kses_allowed_html', array( $this, 'wp_kses_allowed_html' ) );
+		remove_action( 'after_wp_tiny_mce', array( $this, 'after_wp_tiny_mce' ) );
 		remove_action( 'wp_insert_post', array( $this, 'wp_insert_post' ) );
 		remove_filter( 'wp_insert_post_data', array( $this, 'wp_insert_post_data' ), 10, 2 );
 		remove_filter( 'edit_post_content', array( $this, 'edit_post_content' ), 10, 2 );
@@ -438,6 +440,27 @@ class WPCom_Markdown {
 		}
 
 		return $tags;
+	}
+
+	/**
+	 * TinyMCE needs to know not to strip the 'markdown' attribute. Unfortunately, it doesn't
+	 * really offer a nice API for whitelisting attributes, so we have to manually add it
+	 * to the schema instead.
+	 */
+	public function after_wp_tiny_mce() {
+?>
+<script type="text/javascript">
+tinymce.on( 'AddEditor', function( event ) {
+	event.editor.on( 'BeforeSetContent', function( event ) {
+		var editor = event.target;
+		Object.keys( editor.schema.elements ).forEach( function( key, index ) {
+			editor.schema.elements[ key ].attributes['markdown'] = {};
+			editor.schema.elements[ key ].attributesOrder.push( 'markdown' );
+		} );
+	} );
+}, true );
+</script>
+<?php
 	}
 
 	/**
