@@ -291,7 +291,7 @@ class WPCOM_JSON_API {
 			 * @param string help.
 			 */
 			do_action( 'wpcom_json_api_output', 'help' );
-			$proxied = wpcom_is_proxied_request();
+			$proxied = function_exists( 'wpcom_is_proxied_request' ) ? wpcom_is_proxied_request() : false;
 			if ( 'json' === $help_content_type ) {
 				$docs = array();
 				foreach ( $matching_endpoints as $matching_endpoint ) {
