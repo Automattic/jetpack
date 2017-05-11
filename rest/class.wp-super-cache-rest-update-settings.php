@@ -334,15 +334,15 @@ class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 	 * @param mixed $value
 	 */
 	protected function set_cache_rejected_uri( $value ) {
-		$_REQUEST['wp_rejected_uri'] = $value;
+		$_REQUEST['wp_rejected_uri'] = implode( "\n", $value );
 		wp_cache_update_rejected_strings();
 	}
 
 	/**
 	 * @param mixed $value
 	 */
-	protected function cache_acceptable_files( $value ) {
-		$_REQUEST['wp_accepted_files'] = $value;
+	protected function set_cache_acceptable_files( $value ) {
+		$_REQUEST['wp_accepted_files'] = implode( "\n", $value );
 		wp_cache_update_accepted_strings();
 	}
 
@@ -350,7 +350,7 @@ class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 	 * @param mixed $value
 	 */
 	protected function set_cache_rejected_user_agent( $value ) {
-		$_REQUEST['wp_rejected_user_agent'] = $value;
+		$_REQUEST['wp_rejected_user_agent'] = implode( "\n", $value );
 		wp_cache_update_rejected_ua();
 	}
 
