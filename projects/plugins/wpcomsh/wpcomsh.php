@@ -40,7 +40,9 @@ require_once( 'widgets/tlkio/tlkio.php' );
 require_once( 'widgets/twitter.php' );
 
 # autoload composer sourced plugins
-require_once( 'vendor/autoload.php' );
+if ( file_exists( 'vendor/autoload.php' ) {
+  require_once( 'vendor/autoload.php' );
+}
 
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once WPCOMSH__PLUGIN_DIR_PATH . '/class.cli-commands.php';
