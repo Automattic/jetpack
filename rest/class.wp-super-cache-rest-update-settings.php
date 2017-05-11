@@ -350,7 +350,7 @@ class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 	 * @param mixed $value
 	 */
 	protected function set_cache_rejected_user_agent( $value ) {
-		$_REQUEST['wp_rejected_user_agent'] = implode( "\n", $value );
+		$_POST['wp_rejected_user_agent'] = implode( "\n", $value );
 		wp_cache_update_rejected_ua();
 	}
 
