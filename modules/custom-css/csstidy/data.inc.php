@@ -302,6 +302,7 @@ $GLOBALS['csstidy']['all_properties']['animation'] = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['animation-delay'] = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['animation-direction'] = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['animation-duration'] = 'CSS3.0';
+$GLOBALS['csstidy']['all_properties']['animation-fill-mode'] = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['animation-iteration-count'] = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['animation-name'] = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['animation-play-state'] = 'CSS3.0';
@@ -668,5 +669,3 @@ $GLOBALS['csstidy']['predefined_templates']['low_compression'][] = '</span>'."\n
 $GLOBALS['csstidy']['predefined_templates']['low_compression'][] = "\n";
 
 require dirname( __FILE__ ) . '/data-wp.inc.php';
-
-?>
