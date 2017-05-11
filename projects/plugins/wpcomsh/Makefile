@@ -1,7 +1,7 @@
 NAME					:= wpcomsh
 SHELL 				:= /bin/bash
 UNAME 				:= $(shell uname -s)
-REQUIRED_BINS := zip git rsync
+REQUIRED_BINS := zip git rsync composer
 
 ## check required bins can be found in $PATH
 $(foreach bin,$(REQUIRED_BINS),\
@@ -65,9 +65,13 @@ $(BUILD_PATH)/$(BUILD_FILE): $(BUILD_PATH)/$(NAME)
 	@echo "===== getting submodules ====="
 	git submodule update --init --recursive
 
+	@echo "===== getting composer dependencies ====="
+	composer install --prefer-source
+
 	@echo "===== creating '$(BUILD_PATH)/$(BUILD_FILE)' ====="
 	cd $(BUILD_PATH) && \
-    zip -r $(BUILD_PATH)/$(BUILD_FILE) $(NAME)/
+	zip -r $(BUILD_PATH)/$(BUILD_FILE) $(NAME)/
+
 
 ## release
 release: export RELEASE_BUCKET := pressable-misc
