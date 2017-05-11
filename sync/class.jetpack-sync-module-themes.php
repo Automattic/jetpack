@@ -29,7 +29,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 	}
 
 	public function sync_network_allowed_themes_change( $option, $value, $old_value, $network_id ) {
-		if ( count( $old_value ) > $value )  ) {
+		if ( count( $old_value ) > $value )  {
 			$disabled_theme_names = array_keys( array_diff_key( $old_value, $value ) );
 			$disabled_themes = array();
 			foreach ( $disabled_theme_names as $name ) {
