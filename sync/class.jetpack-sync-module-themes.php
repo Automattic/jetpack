@@ -15,6 +15,9 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		add_action( 'jetpack_deleted_theme', $callable );
 		add_filter( 'wp_redirect', array( $this, 'detect_theme_edit' ) );
 		add_action( 'jetpack_edited_theme', $callable, 10, 2 );
+		add_action( 'update_site_option_allowedthemes', array( $this, 'sync_network_allowed_themes_change' ) );
+		add_action( 'jetpack_network_disabled_themes', $callable );
+		add_action( 'jetpack_network_enabled_themes', $callable );
 
 		// Sidebar updates.
 		add_action( 'update_option_sidebars_widgets', array( $this, 'sync_sidebar_widgets_actions' ), 10, 2 );
@@ -23,6 +26,51 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		add_action( 'jetpack_widget_moved_to_inactive', $callable );
 		add_action( 'jetpack_cleared_inactive_widgets', $callable );
 		add_action( 'jetpack_widget_reordered', $callable );
+	}
+
+	public function sync_network_allowed_themes_change( $option, $value, $old_value, $network_id ) {
+		if ( count( $old_value ) > $value )  ) {
+			$disabled_theme_names = array_keys( array_diff_key( $old_value, $value ) );
+			$disabled_themes = array();
+			foreach ( $disabled_theme_names as $name ) {
+				$theme = wp_get_theme( $name );
+				$disabled_themes[ $name ] = array(
+					'name' => $theme->get('Name'),
+					'version' => $theme->get('Version'),
+					'uri' => $theme->get( 'ThemeURI' ),
+				);
+			}
+
+			/**
+			 * Trigger action to alert $callable sync listener that network themes were disabled
+			 *
+			 * @since 5.0.0
+			 *
+			 * @param mixed $disabled_themes, Array of info about network disabled themes
+			 */
+			do_action( 'jetpack_network_disabled_themes', $disabled_themes );
+			return;
+		}
+
+		$enabled_theme_names = array_keys( array_diff_key( $value, $old_value ) );
+		$enabled_themes = array();
+		foreach ( $enabled_theme_names as $name ) {
+			$theme = wp_get_theme( $name );
+			$enabled_themes[ $name ] = array(
+				'name' => $theme->get('Name'),
+				'version' => $theme->get('Version'),
+				'uri' => $theme->get( 'ThemeURI' ),
+			);
+		}
+
+		/**
+		 * Trigger action to alert $callable sync listener that network themes were enabled
+		 *
+		 * @since 5.0.0
+		 *
+		 * @param mixed $enabled_themes, Array of info about network enabled themes
+		 */
+		do_action( 'jetpack_network_enabled_themes', $enabled_themes );
 	}
 
 	public function detect_theme_edit( $redirect_url ) {
