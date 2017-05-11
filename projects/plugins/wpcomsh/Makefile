@@ -66,11 +66,10 @@ $(BUILD_PATH)/$(BUILD_FILE): $(BUILD_PATH)/$(NAME)
 	git submodule update --init --recursive
 
 	@echo "===== getting composer dependencies ====="
-	composer install --prefer-source
+	composer install
 
 	@echo "===== creating '$(BUILD_PATH)/$(BUILD_FILE)' ====="
-	cd $(BUILD_PATH) && \
-	zip -r $(BUILD_PATH)/$(BUILD_FILE) $(NAME)/
+	cd $(BUILD_PATH) && zip -r $(BUILD_PATH)/$(BUILD_FILE) $(NAME)/
 
 
 ## release
