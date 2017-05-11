@@ -102,6 +102,15 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 	public function get_settings_response() {
 
 		// Allow update in later versions
+		/**
+		 * Filter the structure of site settings to return.
+		 *
+		 * @module json-api
+		 *
+		 * @since 3.9.3
+		 *
+		 * @param array $site_format Data structure.
+		 */
 		$response_format = apply_filters( 'site_settings_site_format', self::$site_format );
 
 		$blog_id = (int) $this->api->get_blog_id_for_output();
@@ -130,9 +139,11 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 				$response[$key] = (string) home_url();
 				break;
 			case 'locale_variant':
-				$blog_locale_variant = wpcom_l10n_get_blog_locale_variant();
-				if ( $blog_locale_variant ) {
-					$response[$key] = $blog_locale_variant;
+				if ( function_exists( 'wpcom_l10n_get_blog_locale_variant' ) ) {
+					$blog_locale_variant = wpcom_l10n_get_blog_locale_variant();
+					if ( $blog_locale_variant ) {
+						$response[$key] = $blog_locale_variant;
+					}
 				}
 				break;
 			case 'settings':
@@ -170,8 +181,8 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'jetpack_sync_non_public_post_stati' => (bool) Jetpack_Options::get_option( 'sync_non_public_post_stati' ),
 					'jetpack_relatedposts_allowed' => (bool) $this->jetpack_relatedposts_supported(),
 					'jetpack_relatedposts_enabled' => (bool) $jetpack_relatedposts_options[ 'enabled' ],
-					'jetpack_relatedposts_show_headline' => (bool) $jetpack_relatedposts_options[ 'show_headline' ],
-					'jetpack_relatedposts_show_thumbnails' => (bool) $jetpack_relatedposts_options[ 'show_thumbnails' ],
+					'jetpack_relatedposts_show_headline' => (bool) isset( $jetpack_relatedposts_options[ 'show_headline' ] ) ? $jetpack_relatedposts_options[ 'show_headline' ] : false,
+					'jetpack_relatedposts_show_thumbnails' => (bool) isset( $jetpack_relatedposts_options[ 'show_thumbnails' ] ) ? $jetpack_relatedposts_options[ 'show_thumbnails' ] : false,
 					'default_category'        => (int) get_option('default_category'),
 					'post_categories'         => (array) $post_categories,
 					'default_post_format'     => get_option( 'default_post_format' ),
@@ -196,8 +207,10 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'comment_max_links'       => (int) get_option( 'comment_max_links' ),
 					'moderation_keys'         => get_option( 'moderation_keys' ),
 					'blacklist_keys'          => get_option( 'blacklist_keys' ),
-					'lang_id'                 => get_lang_id_by_code( wpcom_l10n_get_blog_locale_variant( $blog_id, true ) ),
-					'wga'                     => get_option( 'wga' ),
+					'lang_id'                 => defined( 'IS_WPCOM' ) && IS_WPCOM
+						? get_lang_id_by_code( wpcom_l10n_get_blog_locale_variant( $blog_id, true ) )
+						: get_option( 'lang_id' ),
+					'wga'                     => $this->get_google_analytics(),
 					'disabled_likes'          => (bool) get_option( 'disabled_likes' ),
 					'disabled_reblogs'        => (bool) get_option( 'disabled_reblogs' ),
 					'jetpack_comment_likes_enabled' => (bool) get_option( 'jetpack_comment_likes_enabled', false ),
@@ -215,16 +228,30 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'jetpack_portfolio'       => (bool) get_option( 'jetpack_portfolio', '0' ),
 					'jetpack_portfolio_posts_per_page' => (int) get_option( 'jetpack_portfolio_posts_per_page', '10' ),
 					'markdown_supported'      => true,
-					'wpcom_publish_posts_with_markdown' => (bool) WPCom_Markdown::is_posting_enabled(),
-					'wpcom_publish_comments_with_markdown' => (bool) WPCom_Markdown::is_commenting_enabled(),
+					'site_icon'               => $this->get_cast_option_value_or_null( 'site_icon', 'intval' ),
+					Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION => get_option( Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION, '' ),
+					Jetpack_SEO_Titles::TITLE_FORMATS_OPTION => get_option( Jetpack_SEO_Titles::TITLE_FORMATS_OPTION, array() ),
 					'amp_is_supported'        => (bool) function_exists( 'wpcom_is_amp_supported' ) && wpcom_is_amp_supported( $blog_id ),
 					'amp_is_enabled'          => (bool) function_exists( 'wpcom_is_amp_enabled' ) && wpcom_is_amp_enabled( $blog_id ),
-					'site_icon'               => $this->get_cast_option_value_or_null( 'site_icon', 'intval' ),
 					'api_cache'               => $api_cache,
 					'posts_per_page'          => (int) get_option( 'posts_per_page' ),
 				);
 
+				if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+					$response[ $key ]['wpcom_publish_posts_with_markdown'] = (bool) WPCom_Markdown::is_posting_enabled();
+					$response[ $key ]['wpcom_publish_comments_with_markdown'] = (bool) WPCom_Markdown::is_commenting_enabled();
+				}
+
 				//allow future versions of this endpoint to support additional settings keys
+				/**
+				 * Filter the current site setting in the returned response.
+				 *
+				 * @module json-api
+				 *
+				 * @since 3.9.3
+				 *
+				 * @param mixed $response_item A single site setting.
+				 */
 				$response[ $key ] = apply_filters( 'site_settings_endpoint_get', $response[ $key ] );
 
 				if ( class_exists( 'Sharing_Service' ) ) {
@@ -262,6 +289,10 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 		return false;
 	}
 
+	protected function get_google_analytics () {
+		$option_name = defined( 'IS_WPCOM' ) && IS_WPCOM ? 'wga' : 'jetpack_wga';
+		return get_option( $option_name );
+	}
 
 	/**
 	 * Updates site settings for authorized users
@@ -349,12 +380,18 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					}
 					break;
 				case 'wga':
+				case 'jetpack_wga':
 					if ( ! isset( $value['code'] ) || ! preg_match( '/^$|^UA-[\d-]+$/i', $value['code'] ) ) {
 						return new WP_Error( 'invalid_code', 'Invalid UA ID' );
 					}
-					$wga = get_option( 'wga', array() );
+
+					$is_wpcom = defined( 'IS_WPCOM' ) && IS_WPCOM;
+					$option_name = $is_wpcom ? 'wga' : 'jetpack_wga';
+
+					$wga = get_option( $option_name, array() );
 					$wga['code'] = $value['code']; // maintain compatibility with wp-google-analytics
-					if ( update_option( 'wga', $wga ) ) {
+
+					if ( update_option( $option_name, $wga ) ) {
 						$updated[ $key ] = $value;
 					}
 
@@ -363,8 +400,10 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					/** This action is documented in modules/widgets/social-media-icons.php */
 					do_action( 'jetpack_bump_stats_extras', 'google-analytics', $enabled_or_disabled );
 
-					$business_plugins = WPCOM_Business_Plugins::instance();
-					$business_plugins->activate_plugin( 'wp-google-analytics' );
+					if ( $is_wpcom ) {
+						$business_plugins = WPCOM_Business_Plugins::instance();
+						$business_plugins->activate_plugin( 'wp-google-analytics' );
+					}
 					break;
 
 				case 'jetpack_testimonial':
@@ -466,13 +505,36 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					}
 					break;
 
+				case 'site_icon':
+					// settings are stored as deletable numeric (all empty
+					// values as delete intent), validated as media image
+					if ( empty( $value ) || WPCOM_JSON_API::is_falsy( $value ) ) {
+						/**
+						 * Fallback mechanism to clear a third party site icon setting. Can be used
+						 * to unset the option when an API request instructs the site to remove the site icon.
+						 *
+						 * @module json-api
+						 *
+						 * @since 4.10
+						 */
+						if ( delete_option( $key ) || apply_filters( 'rest_api_site_icon_cleared', false )  ) {
+							$updated[ $key ] = null;
+						}
+					} else if ( is_numeric( $value ) ) {
+						$coerce_value = (int) $value;
+						if ( wp_attachment_is_image( $coerce_value ) && update_option( $key, $coerce_value ) ) {
+							$updated[ $key ] = $coerce_value;
+						}
+					}
+					break;
+
 				case Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION:
 					if ( ! Jetpack_SEO_Utils::is_enabled_jetpack_seo() && ! Jetpack_SEO_Utils::has_grandfathered_front_page_meta() ) {
-						return new WP_Error( 'unauthorized', __( 'SEO tools are not enabled for this site.', 'Jetpack' ), 403 );
+						return new WP_Error( 'unauthorized', __( 'SEO tools are not enabled for this site.', 'jetpack' ), 403 );
 					}
 
 					if ( ! is_string( $value ) ) {
-						return new WP_Error( 'invalid_input', __( 'Invalid SEO meta description value.', 'Jetpack' ), 400 );
+						return new WP_Error( 'invalid_input', __( 'Invalid SEO meta description value.', 'jetpack' ), 400 );
 					}
 
 					$new_description = Jetpack_SEO_Utils::update_front_page_meta_description( $value );
@@ -484,11 +546,11 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 				case Jetpack_SEO_Titles::TITLE_FORMATS_OPTION:
 					if ( ! Jetpack_SEO_Utils::is_enabled_jetpack_seo() ) {
-						return new WP_Error( 'unauthorized', __( 'SEO tools are not enabled for this site.', 'Jetpack' ), 403 );
+						return new WP_Error( 'unauthorized', __( 'SEO tools are not enabled for this site.', 'jetpack' ), 403 );
 					}
 
 					if ( ! Jetpack_SEO_Titles::are_valid_title_formats( $value ) ) {
-						return new WP_Error( 'invalid_input', __( 'Invalid SEO title format.', 'Jetpack' ), 400 );
+						return new WP_Error( 'invalid_input', __( 'Invalid SEO title format.', 'jetpack' ), 400 );
 					}
 
 					$new_title_formats = Jetpack_SEO_Titles::update_title_formats( $value );
@@ -500,7 +562,10 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 				case 'verification_services_codes':
 					$verification_codes = jetpack_verification_validate( $value );
-					update_option( 'verification_services_codes', $verification_codes );
+
+					if ( update_option( 'verification_services_codes', $verification_codes ) ) {
+						$updated[ $key ] = $verification_codes;
+					}
 					break;
 
 				case 'wpcom_publish_posts_with_markdown':
@@ -520,24 +585,18 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					}
 					break;
 
-				case 'site_icon':
-					// settings are stored as deletable numeric (all empty
-					// values as delete intent), validated as media image
-					if ( empty( $value ) || WPCOM_JSON_API::is_falsy( $value ) ) {
-						if ( delete_option( $key ) || apply_filters( 'rest_api_site_icon_cleared', false ) ) {
-							$updated[ $key ] = null;
-						}
-					} else if ( is_numeric( $value ) ) {
-						$coerce_value = (int) $value;
-						if ( wp_attachment_is_image( $coerce_value ) && update_option( $key, $coerce_value ) ) {
-							$updated[ $key ] = $coerce_value;
-						}
-					}
-					break;
-
 				default:
 					//allow future versions of this endpoint to support additional settings keys
 					if ( has_filter( 'site_settings_endpoint_update_' . $key ) ) {
+						/**
+						 * Filter current site setting value to be updated.
+						 *
+						 * @module json-api
+						 *
+						 * @since 3.9.3
+						 *
+						 * @param mixed $response_item A single site setting value.
+						 */
 						$value = apply_filters( 'site_settings_endpoint_update_' . $key, $value );
 						$updated[ $key ] = $value;
 						continue;
@@ -554,8 +613,8 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 			// track new jetpack_relatedposts options against old
 			$old_relatedposts_options = Jetpack_Options::get_option( 'relatedposts' );
 			if ( Jetpack_Options::update_option( 'relatedposts', $jetpack_relatedposts_options ) ) {
-				foreach( $jetpack_relatedposts_options as $key => $value ) {
-					if ( $value !== $old_relatedposts_options[ $key ] ) {
+				foreach ( $jetpack_relatedposts_options as $key => $value ) {
+					if ( isset( $old_relatedposts_options[ $key ] ) && $value !== $old_relatedposts_options[ $key ] ) {
 						$updated[ 'jetpack_relatedposts_' . $key ] = $value;
 					}
 				}
