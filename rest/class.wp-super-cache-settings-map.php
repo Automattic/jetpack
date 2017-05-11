@@ -77,6 +77,7 @@ class WP_Super_Cache_Settings_Map {
 		),
 		'cache_path' => array(
 			'global' => 'cache_path',
+			'set'    => 'set_wp_cache_location',
 		),
 		'use_object_cache' => array(
 			'global' => 'wp_cache_object_cache',
