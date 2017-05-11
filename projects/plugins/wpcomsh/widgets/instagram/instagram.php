@@ -83,7 +83,7 @@ class WPcom_Instagram_Widget extends WP_Widget {
 	 */
 	public function get_images( $instance ) {
 		if ( empty( $instance['token_id'] ) ) {
-			// TODO log error
+			do_action( 'wpcomsh_log', 'Instagram widget: failed to get images: no token_id present' );
 			return 'ERROR';
 		}
 
@@ -100,15 +100,16 @@ class WPcom_Instagram_Widget extends WP_Widget {
 		$path = sprintf( '/sites/%s/instagram/%s?count=%s', $domain, $instance['token_id'], $instance['count'] );
 		$result = $this->wpcom_json_api_request_as_blog( $path, 2, [ 'headers' => [ 'content-type' => 'application/json' ] ], null, 'wpcom' );
 
-		if ( 200 !== wp_remote_retrieve_response_code( $result ) ) {
-			// TODO log error
+		$response_code = wp_remote_retrieve_response_code( $result );
+		if ( 200 !== $response_code ) {
+			do_action( 'wpcomsh_log', 'Instagram widget: failed to get images: API returned code ' . $response_code );
 			set_transient( $transient_key, 'ERROR', $cache_time );
 			return 'ERROR';
 		}
 
 		$data = json_decode( wp_remote_retrieve_body( $result ), true );
 		if ( ! isset( $data['images'] ) || ! is_array( $data['images'] ) ) {
-			// TODO log error
+			do_action( 'wpcomsh_log', 'Instagram widget: failed to get images: API returned no images; got this instead: ' . json_encode( $data ) );
 			set_transient( $transient_key, 'ERROR', $cache_time );
 			return 'ERROR';
 		}
