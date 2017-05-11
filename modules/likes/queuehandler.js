@@ -4,7 +4,7 @@ var jetpackLikesWidgetQueue = [];
 var jetpackLikesWidgetBatch = [];
 var jetpackLikesMasterReady = false;
 
-function JetpackLikespostMessage( message, target ) {
+function JetpackLikesPostMessage(message, target ) {
 	if ( 'string' === typeof message ){
 		try {
 			message = JSON.parse( message );
@@ -53,7 +53,7 @@ function JetpackLikesBatchHandler() {
 	});
 
 	if ( requests.length > 0 ) {
-		JetpackLikespostMessage( { event: 'initialBatch', requests: requests }, window.frames['likes-master'] );
+		JetpackLikesPostMessage( { event: 'initialBatch', requests: requests }, window.frames['likes-master'] );
 	}
 }
 
@@ -81,7 +81,7 @@ function JetpackLikesMessageListener( event, message ) {
 				$sdLinkColor = jQuery( '.sd-link-color' );
 
 			if ( jQuery( 'iframe.admin-bar-likes-widget' ).length > 0 ) {
-				JetpackLikespostMessage( { event: 'adminBarEnabled' }, window.frames[ 'likes-master' ] );
+				JetpackLikesPostMessage( { event: 'adminBarEnabled' }, window.frames[ 'likes-master' ] );
 
 				stylesData.adminBarStyles = {
 					background: jQuery( '#wpadminbar .quicklinks li#wp-admin-bar-wpl-like > a' ).css( 'background' ),
@@ -112,7 +112,7 @@ function JetpackLikesMessageListener( event, message ) {
 				fontStyle:      $sdLinkColor.css( 'font-style' )
 			};
 
-			JetpackLikespostMessage( stylesData, window.frames[ 'likes-master' ] );
+			JetpackLikesPostMessage( stylesData, window.frames[ 'likes-master' ] );
 
 			JetpackLikesBatchHandler();
 
@@ -126,7 +126,7 @@ function JetpackLikesMessageListener( event, message ) {
 		jQuery( '#' + event.id + ' .likes-widget-placeholder' ).fadeOut( 'fast', function() {
 			jQuery( '#' + event.id + ' .jetpack-likes-widget' ).fadeIn( 'fast', function() {
 				if ( event.post_id ) {
-					JetpackLikespostMessage( { event: 'likeWidgetDisplayed', blog_id: event.blog_id, post_id: event.post_id, obj_id: event.obj_id }, window.frames['likes-master'] );
+					JetpackLikesPostMessage( { event: 'likeWidgetDisplayed', blog_id: event.blog_id, post_id: event.post_id, obj_id: event.obj_id }, window.frames['likes-master'] );
 				}
 			} );
 		} );
@@ -286,7 +286,7 @@ function JetpackLikesWidgetQueueHandler() {
 		var $iframe = jQuery( e.target );
 		$wrapper.removeClass( 'jetpack-likes-widget-loading' ).addClass( 'jetpack-likes-widget-loaded' );
 
-		JetpackLikespostMessage( { event: 'loadLikeWidget', name: $iframe.attr( 'name' ), width: $iframe.width() }, window.frames[ 'likes-master' ] );
+		JetpackLikesPostMessage( { event: 'loadLikeWidget', name: $iframe.attr( 'name' ), width: $iframe.width() }, window.frames[ 'likes-master' ] );
 
 		if ( $wrapper.hasClass( 'slim-likes-widget' ) ) {
 			$wrapper.find( 'iframe' ).Jetpack( 'resizeable' );
