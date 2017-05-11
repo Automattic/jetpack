@@ -29,7 +29,11 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 	}
 
 	public function sync_network_allowed_themes_change( $option, $value, $old_value, $network_id ) {
-		if ( count( $old_value ) > $value )  {
+		if ( ! isset( $_REQUEST['action']) ) {
+			return;
+		}
+
+		if ( 'disable_selected' === $_REQUEST['action'] || 'disable' === $_REQUEST['action'] )  {
 			$disabled_theme_names = array_keys( array_diff_key( $old_value, $value ) );
 			$disabled_themes = array();
 			foreach ( $disabled_theme_names as $name ) {
@@ -52,25 +56,27 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 			return;
 		}
 
-		$enabled_theme_names = array_keys( array_diff_key( $value, $old_value ) );
-		$enabled_themes = array();
-		foreach ( $enabled_theme_names as $name ) {
-			$theme = wp_get_theme( $name );
-			$enabled_themes[ $name ] = array(
-				'name' => $theme->get('Name'),
-				'version' => $theme->get('Version'),
-				'uri' => $theme->get( 'ThemeURI' ),
-			);
-		}
+		if ( 'enable_selected' === $_REQUEST['action'] || 'enable' === $_REQUEST['action'] ) {
+			$enabled_theme_names = array_keys(array_diff_key($value, $old_value));
+			$enabled_themes = array();
+			foreach ($enabled_theme_names as $name) {
+				$theme = wp_get_theme($name);
+				$enabled_themes[$name] = array(
+					'name' => $theme->get('Name'),
+					'version' => $theme->get('Version'),
+					'uri' => $theme->get('ThemeURI'),
+				);
+			}
 
-		/**
-		 * Trigger action to alert $callable sync listener that network themes were enabled
-		 *
-		 * @since 5.0.0
-		 *
-		 * @param mixed $enabled_themes, Array of info about network enabled themes
-		 */
-		do_action( 'jetpack_network_enabled_themes', $enabled_themes );
+			/**
+			 * Trigger action to alert $callable sync listener that network themes were enabled
+			 *
+			 * @since 5.0.0
+			 *
+			 * @param mixed $enabled_themes , Array of info about network enabled themes
+			 */
+			do_action('jetpack_network_enabled_themes', $enabled_themes);
+		}
 	}
 
 	public function detect_theme_edit( $redirect_url ) {
