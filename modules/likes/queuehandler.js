@@ -4,6 +4,13 @@ var jetpackLikesWidgetQueue = [];
 var jetpackLikesWidgetBatch = [];
 var jetpackLikesMasterReady = false;
 
+function jetpackIsScrolledIntoView( element ) {
+	var elementTop = element.getBoundingClientRect().top;
+	var elementBottom = element.getBoundingClientRect().bottom;
+
+	return ( elementTop >= 0 ) && ( elementBottom <= window.innerHeight );
+}
+
 function JetpackLikesPostMessage(message, target ) {
 	if ( 'string' === typeof message ){
 		try {
@@ -27,7 +34,13 @@ function JetpackLikesBatchHandler() {
 		if ( jetpackLikesWidgetBatch.indexOf( this.id ) > -1 ) {
 			return;
 		}
+
+		if ( ! jetpackIsScrolledIntoView( this ) ) {
+			return;
+		}
+
 		jetpackLikesWidgetBatch.push( this.id );
+
 		var regex = /like-(post|comment)-wrapper-(\d+)-(\d+)-(\w+)/,
 			match = regex.exec( this.id ),
 			info;
@@ -118,7 +131,7 @@ function JetpackLikesMessageListener( event, message ) {
 
 			jQuery( document ).on( 'inview', 'div.jetpack-likes-widget-unloaded', function() {
 				jetpackLikesWidgetQueue.push( this.id );
-			});
+			} );
 		});
 	}
 
@@ -253,8 +266,12 @@ function JetpackLikesWidgetQueueHandler() {
 		JetpackLikesBatchHandler();
 
 		// Get the next unloaded widget
-		wrapperID = jQuery( 'div.jetpack-likes-widget-unloaded' ).first()[0].id;
-		if ( ! wrapperID ) {
+		wrapper = jQuery( 'div.jetpack-likes-widget-unloaded' ).first()[0];
+		wrapperID = wrapper.id;
+
+		// Bail if current widget wrapper is not scrolled into view.
+		// We need this in order to prevent performance issues caused by loading all iFrames at once.
+		if ( ! wrapperID || ! jetpackIsScrolledIntoView( wrapper ) ){
 			// Everything is currently loaded
 			setTimeout( JetpackLikesWidgetQueueHandler, 500 );
 			return;

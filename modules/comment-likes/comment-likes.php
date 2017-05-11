@@ -40,6 +40,4 @@ function comment_likes( $content, $comment = null ) {
 	return $content . $like_button;
 }
 
-// TODO: If possible, rework this script in order to integrate it with existing master<->widget iframe logic
-//wp_enqueue_script( 'jetpack-comment-likes', plugins_url( '_inc/comment-likes.js', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
 add_filter( 'comment_text', 'comment_likes', 10, 2 );
