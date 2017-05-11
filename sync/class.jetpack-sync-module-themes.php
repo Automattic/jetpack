@@ -35,7 +35,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 			return;
 		}
 
-		$action = '-1' === $_REQUEST['action'] ? $_REQUEST['action2'] : $_REQUEST['action'];
+		$action = -1 === intval( $_REQUEST['action'] ) ? $_REQUEST['action2'] : $_REQUEST['action'];
 
 		if ( 'disable_selected' === $action || 'disable' === $action )  {
 			$disabled_theme_names = array_keys( array_diff_key( $old_value, $value ) );
