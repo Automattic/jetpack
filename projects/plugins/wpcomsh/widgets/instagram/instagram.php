@@ -98,7 +98,7 @@ class WPcom_Instagram_Widget extends WP_Widget {
 		$exploded = explode( '/', $domain );
 		$domain = array_shift( $exploded );
 		$path = sprintf( '/sites/%s/instagram/%s?count=%s', $domain, $instance['token_id'], $instance['count'] );
-		$result = $this->wpcom_json_api_request_as_blog( $path, 2, [ 'headers' => [ 'content-type' => 'application/json' ] ], null, 'wpcom' );
+		$result = $this->wpcom_json_api_request_as_blog( $path, 2, array( 'headers' => array( 'content-type' => 'application/json' ) ), null, 'wpcom' );
 
 		$response_code = wp_remote_retrieve_response_code( $result );
 		if ( 200 !== $response_code ) {
