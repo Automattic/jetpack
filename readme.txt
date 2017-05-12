@@ -113,6 +113,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Slightly Less Exciting Enhancements**
 
 * Admin Page: remove bottom alignment of content in dashboard cards. #6996
+* Custom CSS: allow the `animation-fill-mode` property. #7166
 * General: improve wording on connection banners for secondary users to avoid confusion. #6753
 * Internationalization: add and update language information handling. #7057
 * Masterbar: remove the Menus item to match WordPress.com menu. #7070
