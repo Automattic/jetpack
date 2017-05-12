@@ -3,4 +3,3 @@
 .DS_Store
 /private-constants.php
 build/
-vendor/
