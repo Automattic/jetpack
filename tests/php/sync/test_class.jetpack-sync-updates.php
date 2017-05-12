@@ -79,6 +79,23 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( (bool) $event );
 	}
 
+
+	public function test_network_core_update_sync_action() {
+		if ( ! is_multisite() ) {
+			$this->markTestSkipped( 'Not compatible with single site mode' );
+		}
+
+		global $wp_db_version, $wp_version;
+		update_site_option( 'wpmu_upgrade_site', (int)$wp_db_version + 1 );
+		$this->sender->do_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_core_update_network' );
+		$this->assertTrue( (bool) $event );
+		$this->assertEquals( $event->args[0], $wp_db_version + 1 );
+		$this->assertEquals( $event->args[1], $wp_db_version );
+		$this->assertEquals( $event->args[2], $wp_version );
+	}
+
 	public function test_update_core_successfully_sync_action() {
 		global $wp_version, $pagenow;
 		$current_page = $pagenow;
@@ -128,5 +145,4 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( (bool) $event );
 		$this->assertEquals( $event->args[0], 'foo' ); // New version
 	}
-
 }

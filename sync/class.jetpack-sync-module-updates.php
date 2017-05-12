@@ -32,6 +32,12 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 
 		add_action( 'automatic_updates_complete', $callable );
 
+
+		if ( is_multisite() ) {
+			add_action( 'update_site_option_wpmu_upgrade_site', array ( $this, 'update_core_network_event' ), 10, 3 );
+			add_action( 'jetpack_sync_core_update_network', $callable, 10, 3 );
+		}
+
 		// Send data when update completes
 		add_action( '_core_updated_successfully', array( $this, 'update_core' ) );
 		add_action( 'jetpack_sync_core_reinstalled_successfully', $callable );
@@ -49,6 +55,21 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 		add_filter( 'jetpack_sync_before_send_jetpack_update_themes_change', array( $this, 'expand_themes' ) );
 	}
 
+	public function update_core_network_event( $option, $wp_db_version, $old_wp_db_version ) {
+		global $wp_version;
+		/**
+		 * Sync event for when core wp network updates to a new db version
+		 *
+		 * @since 5.0.0
+		 *
+		 * @param int $wp_db_version the latest wp_db_version
+		 * @param int $old_wp_db_version previous wp_db_version
+		 * @param string $wp_version the latest wp_version
+		 *
+		 */
+		do_action( 'jetpack_sync_core_update_network', $wp_db_version, $old_wp_db_version, $wp_version );
+	}
+	
 	public function update_core( $new_wp_version ) {
 		global $pagenow;
 
@@ -87,6 +108,7 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 		 */
 		do_action( 'jetpack_sync_core_updated_successfully', $new_wp_version, $this->old_wp_version );
 		return;
+
 	}
 
 	public function get_update_checksum( $value ) {
