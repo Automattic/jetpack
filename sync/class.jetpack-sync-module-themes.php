@@ -29,7 +29,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 	}
 
 	public function sync_network_allowed_themes_change( $option, $value, $old_value, $network_id ) {
-		if ( ! isset( $_REQUEST['action']) ||
+		if ( ! isset( $_REQUEST['action'] ) ||
 			( '-1' === $_REQUEST['action'] && ! isset( $_REQUEST['action2'] ) )
 		) {
 			return;
@@ -61,10 +61,10 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		}
 
 		if ( 'enable-selected' === $action || 'enable' === $action ) {
-			$enabled_theme_names = array_keys(array_diff_key($value, $old_value));
+			$enabled_theme_names = array_keys( array_diff_key( $value, $old_value ) );
 			$enabled_themes = array();
-			foreach ($enabled_theme_names as $name) {
-				$theme = wp_get_theme($name);
+			foreach ( $enabled_theme_names as $name ) {
+				$theme = wp_get_theme( $name );
 				$enabled_themes[$name] = array(
 					'name' => $theme->get('Name'),
 					'version' => $theme->get('Version'),
@@ -79,7 +79,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 			 *
 			 * @param mixed $enabled_themes , Array of info about network enabled themes
 			 */
-			do_action('jetpack_network_enabled_themes', $enabled_themes);
+			do_action( 'jetpack_network_enabled_themes', $enabled_themes );
 		}
 	}
 
