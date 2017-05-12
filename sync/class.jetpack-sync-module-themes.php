@@ -37,7 +37,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 
 		$action = -1 === intval( $_REQUEST['action'] ) ? $_REQUEST['action2'] : $_REQUEST['action'];
 
-		if ( 'disable_selected' === $action || 'disable' === $action )  {
+		if ( 'disable-selected' === $action || 'disable' === $action )  {
 			$disabled_theme_names = array_keys( array_diff_key( $old_value, $value ) );
 			$disabled_themes = array();
 			foreach ( $disabled_theme_names as $name ) {
@@ -60,7 +60,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 			return;
 		}
 
-		if ( 'enable_selected' === $action || 'enable' === $action ) {
+		if ( 'enable-selected' === $action || 'enable' === $action ) {
 			$enabled_theme_names = array_keys(array_diff_key($value, $old_value));
 			$enabled_themes = array();
 			foreach ($enabled_theme_names as $name) {
