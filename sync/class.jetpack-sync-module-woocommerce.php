@@ -4,17 +4,34 @@ require_once JETPACK__PLUGIN_DIR . '/sync/class.jetpack-sync-module.php';
 
 class Jetpack_Sync_Module_WooCommerce extends Jetpack_Sync_Module {
 
-	private $meta_whitelist = array(
+	private $order_item_meta_whitelist = array(
+		// https://github.com/woocommerce/woocommerce/blob/master/includes/data-stores/class-wc-order-item-product-store.php#L20
 		'_product_id',
 		'_variation_id',
 		'_qty',
+		// Tax ones also included in below class
+		// https://github.com/woocommerce/woocommerce/blob/master/includes/data-stores/class-wc-order-item-fee-data-store.php#L20
 		'_tax_class',
+		'_tax_status',
 		'_line_subtotal',
 		'_line_subtotal_tax',
 		'_line_total',
 		'_line_tax',
 		'_line_tax_data',
-		'_visibility',
+		// https://github.com/woocommerce/woocommerce/blob/master/includes/data-stores/class-wc-order-item-shipping-data-store.php#L20
+		'method_id',
+		'cost',
+		'total_tax',
+		'taxes',
+		// https://github.com/woocommerce/woocommerce/blob/master/includes/data-stores/class-wc-order-item-tax-data-store.php#L20
+		'rate_id',
+		'label',
+		'compound',
+		'tax_amount',
+		'shipping_tax_amount',
+		// https://github.com/woocommerce/woocommerce/blob/master/includes/data-stores/class-wc-order-item-coupon-data-store.php
+		'discount_amount',
+		'discount_amount_tax',
 	);
 
 	private $order_item_table_name;
@@ -81,7 +98,7 @@ class Jetpack_Sync_Module_WooCommerce extends Jetpack_Sync_Module {
 
 		return array(
 			$order_items,
-			$this->get_metadata( $order_item_ids, 'order_item', $this->meta_whitelist )
+			$this->get_metadata( $order_item_ids, 'order_item', $this->order_item_meta_whitelist ),
 		);
 	}
 
