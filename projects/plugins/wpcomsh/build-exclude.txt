@@ -1,0 +1,13 @@
+/build
+/build-exclude.txt
+.idea
+.env
+.DS_Store
+.*ntrc
+Makefile
+.git*
+.svn*
+*.md
+*.mdown
+composer.json
+composer.lock
