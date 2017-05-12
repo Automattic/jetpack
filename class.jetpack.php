@@ -584,7 +584,7 @@ class Jetpack {
 		add_filter( 'jetpack_get_default_modules', array( $this, 'handle_deprecated_modules' ), 99 );
 
 		// A filter to control all just in time messages
-		add_filter( 'jetpack_just_in_time_msgs', '__return_true' );
+		add_filter( 'jetpack_just_in_time_msgs', '__return_true', 9 );
 
 		// Update the Jetpack plan from API on heartbeats
 		add_action( 'jetpack_heartbeat', array( $this, 'refresh_active_plan_from_wpcom' ) );
