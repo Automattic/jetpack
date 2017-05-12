@@ -161,7 +161,7 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		$event_data = $this->server_event_storage->get_most_recent_event( 'jetpack_network_enabled_themes' );
 
 		foreach ( $test_themes as $theme ) {
-			$this->assertEquals( $event_data->args[0][ $theme[0] ]['name'], $theme[1]);
+			$this->assertEquals( $event_data->args[0][ $theme[0] ]['name'], $theme[1] );
 			$this->assertTrue( (bool) $event_data->args[0][ $theme[0] ]['version'] );
 			$this->assertTrue( (bool) $event_data->args[0][ $theme[0] ]['uri'] );
 		}
@@ -184,7 +184,7 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		$event_data = $this->server_event_storage->get_most_recent_event( 'jetpack_network_disabled_themes' );
 
 		foreach ( $test_themes as $theme ) {
-			$this->assertEquals( $event_data->args[0][ $theme[0] ]['name'], $theme[1]);
+			$this->assertEquals( $event_data->args[0][ $theme[0] ]['name'], $theme[1] );
 			$this->assertTrue( (bool) $event_data->args[0][ $theme[0] ]['version'] );
 			$this->assertTrue( (bool) $event_data->args[0][ $theme[0] ]['uri'] );
 		}
@@ -213,7 +213,7 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		$event_data = $this->server_event_storage->get_most_recent_event( 'jetpack_network_enabled_themes' );
 
 		foreach ( $test_themes as $theme ) {
-			$this->assertEquals( $event_data->args[0][ $theme[0] ]['name'], $theme[1]);
+			$this->assertEquals( $event_data->args[0][ $theme[0] ]['name'], $theme[1] );
 			$this->assertTrue( (bool) $event_data->args[0][ $theme[0] ]['version'] );
 			$this->assertTrue( (bool) $event_data->args[0][ $theme[0] ]['uri'] );
 		}
@@ -236,7 +236,7 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		$event_data = $this->server_event_storage->get_most_recent_event( 'jetpack_network_disabled_themes' );
 
 		foreach ( $test_themes as $theme ) {
-			$this->assertEquals( $event_data->args[0][ $theme[0] ]['name'], $theme[1]);
+			$this->assertEquals( $event_data->args[0][ $theme[0] ]['name'], $theme[1] );
 			$this->assertTrue( (bool) $event_data->args[0][ $theme[0] ]['version'] );
 			$this->assertTrue( (bool) $event_data->args[0][ $theme[0] ]['uri'] );
 		}
