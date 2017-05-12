@@ -22,6 +22,7 @@ endif
 
 ## get files to include in the build
 SOURCE_FILES := $(shell git ls-files --cached --recurse-submodules --no-empty-directory | grep -vE "^(\.git|Makefile|\.md)$$")
+SOURCE_FILES += $(shell find vendor -type f | grep -vE "\.git|(\.md$$)" )
 
 ## set paths from the location of the makefile
 MAKEFILE   = $(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST))
@@ -70,7 +71,6 @@ $(BUILD_PATH)/$(BUILD_FILE): $(BUILD_PATH)/$(NAME)
 
 	@echo "===== creating '$(BUILD_PATH)/$(BUILD_FILE)' ====="
 	cd $(BUILD_PATH) && zip -r $(BUILD_PATH)/$(BUILD_FILE) $(NAME)/
-
 
 ## release
 release: export RELEASE_BUCKET := pressable-misc
