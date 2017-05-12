@@ -43,8 +43,8 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 			foreach ( $disabled_theme_names as $name ) {
 				$theme = wp_get_theme( $name );
 				$disabled_themes[ $name ] = array(
-					'name' => $theme->get('Name'),
-					'version' => $theme->get('Version'),
+					'name' => $theme->get( 'Name' ),
+					'version' => $theme->get( 'Version' ),
 					'uri' => $theme->get( 'ThemeURI' ),
 				);
 			}
@@ -66,9 +66,9 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 			foreach ( $enabled_theme_names as $name ) {
 				$theme = wp_get_theme( $name );
 				$enabled_themes[$name] = array(
-					'name' => $theme->get('Name'),
-					'version' => $theme->get('Version'),
-					'uri' => $theme->get('ThemeURI'),
+					'name' => $theme->get( 'Name' ),
+					'version' => $theme->get( 'Version' ),
+					'uri' => $theme->get( 'ThemeURI' ),
 				);
 			}
 
