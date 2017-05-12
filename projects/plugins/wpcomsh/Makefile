@@ -91,4 +91,4 @@ clean: $(BUILD_DST)
 	@ echo "removing $(BUILD_DST)"
 	@ rm -rf $(BUILD_DST)
 
-.PHONY: check git.fetch submodules release clean test
+.PHONY: check git.fetch submodules release clean
