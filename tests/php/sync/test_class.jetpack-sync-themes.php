@@ -123,6 +123,102 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $local_value, $this->server_replica_storage->get_option( 'theme_mods_' . $this->theme ) );
 	}
 
+	public function test_network_enable_disable_theme_sync() {
+		if ( ! is_multisite() ) {
+			$this->markTestSkipped( 'Run it in multi site mode' );
+		}
+
+		$test_themes = array(
+			array(
+				'twentyten',
+				'Twenty Ten',
+			),
+			array(
+				'twentytwelve',
+				'Twenty Twelve',
+			)
+		);
+
+		$themes = array(
+			$test_themes[0][0] => 1,
+			$test_themes[1][0] => 1,
+		);
+
+		//Test enable multiple themes
+
+		$_REQUEST['action'] = -1;
+		$_REQUEST['action2'] = 'enable-selected';
+		do_action( 'update_site_option_allowedthemes', 'allowedthemes', $themes, array(), 0 );
+		$this->sender->do_sync();
+
+		$event_data = $this->server_event_storage->get_most_recent_event( 'jetpack_network_enabled_themes' );
+
+		foreach ( $test_themes as $theme ) {
+			$this->assertEquals( $event_data->args[0][ $theme[0] ]['name'], $theme[1]);
+			$this->assertTrue( (bool) $event_data->args[0][ $theme[0] ]['version'] );
+			$this->assertTrue( (bool) $event_data->args[0][ $theme[0] ]['uri'] );
+		}
+
+		$this->server_event_storage->reset();
+
+		//Test disable multiple themes
+
+		$_REQUEST['action'] = -1;
+		$_REQUEST['action2'] = 'disable-selected';
+		do_action( 'update_site_option_allowedthemes', 'allowedthemes', array(), $themes, 0 );
+		$this->sender->do_sync();
+
+		$event_data = $this->server_event_storage->get_most_recent_event( 'jetpack_network_disabled_themes' );
+
+		foreach ( $test_themes as $theme ) {
+			$this->assertEquals( $event_data->args[0][ $theme[0] ]['name'], $theme[1]);
+			$this->assertTrue( (bool) $event_data->args[0][ $theme[0] ]['version'] );
+			$this->assertTrue( (bool) $event_data->args[0][ $theme[0] ]['uri'] );
+		}
+
+		$this->server_event_storage->reset();
+
+		//Prepare for single theme enable and disable tests
+
+		unset( $_REQUEST['action2'] );
+		$test_themes = array( $test_themes[0] );
+		$themes = array( $test_themes[0][0] => 1 );
+
+		//Test enable single theme
+
+		$_REQUEST['action'] = 'enable';
+		do_action( 'update_site_option_allowedthemes', 'allowedthemes', $themes, array(), 0 );
+		$this->sender->do_sync();
+
+		$event_data = $this->server_event_storage->get_most_recent_event( 'jetpack_network_enabled_themes' );
+
+		foreach ( $test_themes as $theme ) {
+			$this->assertEquals( $event_data->args[0][ $theme[0] ]['name'], $theme[1]);
+			$this->assertTrue( (bool) $event_data->args[0][ $theme[0] ]['version'] );
+			$this->assertTrue( (bool) $event_data->args[0][ $theme[0] ]['uri'] );
+		}
+
+		$this->server_event_storage->reset();
+
+		//Test disable single theme
+
+		$_REQUEST['action'] = 'disable';
+		do_action( 'update_site_option_allowedthemes', 'allowedthemes', array(), $themes, 0 );
+		$this->sender->do_sync();
+
+		$event_data = $this->server_event_storage->get_most_recent_event( 'jetpack_network_disabled_themes' );
+
+		foreach ( $test_themes as $theme ) {
+			$this->assertEquals( $event_data->args[0][ $theme[0] ]['name'], $theme[1]);
+			$this->assertTrue( (bool) $event_data->args[0][ $theme[0] ]['version'] );
+			$this->assertTrue( (bool) $event_data->args[0][ $theme[0] ]['uri'] );
+		}
+
+		//Cleanup
+
+		unset( $_REQUEST['action'] );
+	}
+
 	public function test_install_edit_delete_theme_sync() {
 		$theme_slug = 'itek';
 		$theme_name = 'iTek';
