@@ -197,27 +197,25 @@ class Jetpack_Photon {
 					// WP Attachment ID, if uploaded to this site
 					if (
 						preg_match( '#class=["|\']?[^"\']*wp-image-([\d]+)[^"\']*["|\']?#i', $images['img_tag'][ $index ], $attachment_id ) &&
-						(
-							0 === strpos( $src, $upload_dir['baseurl'] ) ||
-							/**
-							 * Filter whether an image using an attachment ID in its class has to be uploaded to the local site to go through Photon.
-							 *
-							 * @module photon
-							 *
-							 * @since 2.0.3
-							 *
-							 * @param bool false Was the image uploaded to the local site. Default to false.
-							 * @param array $args {
-							 * 	 Array of image details.
-							 *
-							 * 	 @type $src Image URL.
-							 * 	 @type tag Image tag (Image HTML output).
-							 * 	 @type $images Array of information about the image.
-							 * 	 @type $index Image index.
-							 * }
-							 */
-							apply_filters( 'jetpack_photon_image_is_local', false, compact( 'src', 'tag', 'images', 'index' ) )
-						)
+						0 === strpos( $src, $upload_dir['baseurl'] ) &&
+						/**
+						 * Filter whether an image using an attachment ID in its class has to be uploaded to the local site to go through Photon.
+						 *
+						 * @module photon
+						 *
+						 * @since 2.0.3
+						 *
+						 * @param bool false Was the image uploaded to the local site. Default to false.
+						 * @param array $args {
+						 * 	 Array of image details.
+						 *
+						 * 	 @type $src Image URL.
+						 * 	 @type tag Image tag (Image HTML output).
+						 * 	 @type $images Array of information about the image.
+						 * 	 @type $index Image index.
+						 * }
+						 */
+						apply_filters( 'jetpack_photon_image_is_local', false, compact( 'src', 'tag', 'images', 'index' ) )
 					) {
 						$attachment_id = intval( array_pop( $attachment_id ) );
 
