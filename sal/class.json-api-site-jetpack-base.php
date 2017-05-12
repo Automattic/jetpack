@@ -24,7 +24,9 @@ abstract class Abstract_Jetpack_Site extends SAL_Site {
 
 	abstract protected function is_main_network();
 
-	abstract protected function is_multi_site();
+	abstract protected function is_multisite();
+
+	abstract protected function is_single_user_site();
 
 	abstract protected function is_version_controlled();
 
@@ -66,7 +68,7 @@ abstract class Abstract_Jetpack_Site extends SAL_Site {
 		// Sites have to prove that they are not main_network site.
 		// If the sync happends right then we should be able to see that we are not dealing with a network site
 		$options['is_multi_network'] = (bool) $this->is_main_network();
-		$options['is_multi_site']    = (bool) $this->is_multi_site();
+		$options['is_multi_site']    = (bool) $this->is_multisite();
 
 		$file_mod_disabled_reasons = array_keys( array_filter( array(
 			'automatic_updater_disabled'      => (bool) $this->get_constant( 'AUTOMATIC_UPDATER_DISABLED' ),
@@ -91,14 +93,6 @@ abstract class Abstract_Jetpack_Site extends SAL_Site {
 
 	function is_vip() {
 		return false; // this may change for VIP Go sites, which sync using Jetpack
-	}
-
-	function is_multisite() {
-		return (bool) is_multisite();
-	}
-
-	function is_single_user_site() {
-		return (bool) Jetpack::is_single_user_site();
 	}
 
 	function featured_images_enabled() {
