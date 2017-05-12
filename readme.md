@@ -46,10 +46,6 @@ To clarify these expectations, Jetpack has adopted the code of conduct defined b
 
 Need to report a security vulnerability? Go to [https://automattic.com/security/](https://automattic.com/security/) or directly to our security bug bounty site [https://hackerone.com/automattic](https://hackerone.com/automattic).
 
-## Browser Support
-
-We support the latest two versions of all major browsers, except  IE, where we currently only support 11 and Edge. (see [Browse Happy](http://browsehappy.com) for current latest versions).
-
 ## License
 
 Jetpack is licensed under [GNU General Public License v2 (or later)](./LICENSE.txt).

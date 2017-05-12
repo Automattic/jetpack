@@ -6,6 +6,7 @@ These are some things to keep in mind when writing code for Jetpack plugin. Plea
 
 - Jetpack supports PHP 5.2, so to name two examples, don't use array notation like `[]` or the short ternary like `expr1 ?: expr3`: use always `array()` and the long ternary `expr1 ? expr2: expr3`.
 - Jetpack supports the WP current version and the immediate previous version. So if WP version is 4.6, Jetpack will support it, as well as 4.5. It's desirable that when Jetpack is installed in older versions, it doesn't fail in a severe way.
+- We support the latest two versions of all major browsers, except IE, where we currently only support 11 and Edge. (see [Browse Happy](http://browsehappy.com) for current latest versions).
 
 ### General
 
