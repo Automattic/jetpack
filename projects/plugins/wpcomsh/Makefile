@@ -20,14 +20,11 @@ ifeq ($(shell git describe --tags > /dev/null 2>&1 ; echo $$?), 0)
 		$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_POINT)
 endif
 
-## get files to include in the build
-SOURCE_FILES := $(shell git ls-files --cached --recurse-submodules --no-empty-directory | grep -vE "^(\.git|Makefile|\.md)$$")
-SOURCE_FILES += $(shell find vendor -type f | grep -vE "\.git|(\.md$$)" )
-
 ## set paths from the location of the makefile
-MAKEFILE   = $(word $(words $(MAKEFILE_LIST)),$(MAKEFILE_LIST))
-BUILD_PATH = $(shell cd $(shell dirname $(MAKEFILE)); pwd)/build
-BUILD_FILE = $(NAME)-$(VERSION_STRING).zip
+MAKEFILE   := $(abspath $(lastword $(MAKEFILE_LIST)))
+BUILD_SRC  := $(dir $(MAKEFILE))
+BUILD_DST  := $(addsuffix build, $(dir $(MAKEFILE)))
+BUILD_FILE := $(NAME)-$(VERSION_STRING).zip
 
 ## git related vars
 GIT_BRANCH = $(shell git rev-parse --abbrev-ref HEAD)
@@ -48,41 +45,50 @@ ifneq ($(strip $(shell git diff --exit-code --quiet $(GIT_REMOTE_FULL)..HEAD 2>/
 	$(error local branch not in sync with remote, need to git push/pull)
 endif
 
+$(BUILD_DST)/$(BUILD_FILE): $(BUILD_DST)/$(NAME)
+	@ echo "fetching submodules..."
+	@ git submodule update --init --recursive &>/dev/null
+
+	@ echo "running composer install..."
+	@ composer install &>/dev/null
+
+	@ echo "rsync'ing to build dir..."
+	@ rsync \
+    --quiet \
+    --links \
+    --recursive \
+    --times \
+    --perms \
+    --exclude-from=$(BUILD_SRC)build-exclude.txt \
+    $(BUILD_SRC) \
+    $(BUILD_DST)/$(NAME)/
+
+	@ echo "creating zip file..."
+	@ cd $(BUILD_DST) && zip -q -r $(BUILD_FILE) $(NAME)/ -x "._*"
+
+	@ echo "DONE!"
+
+$(BUILD_DST)/$(NAME): $(BUILD_DST)
+	@ mkdir -p $(BUILD_DST)/$(NAME)
+
+$(BUILD_DST):
+	@ mkdir -p $(BUILD_DST)
+
 ## build
-build: check $(BUILD_PATH)/$(BUILD_FILE)
-
-$(BUILD_PATH):
-	@echo "===== creating '$(BUILD_PATH)' directory ====="
-	mkdir -p $(BUILD_PATH)
-
-$(BUILD_PATH)/$(NAME): $(BUILD_PATH)
-	@echo "===== creating $(BUILD_PATH)/$(NAME) directory ====="
-	mkdir -p $(BUILD_PATH)/$(NAME)
-
-	@echo "===== rsync source files to $(BUILD_PATH)/$(NAME) ====="
-	rsync -lrRtp --itemize-changes $(SOURCE_FILES) $(BUILD_PATH)/$(NAME)/
-
-$(BUILD_PATH)/$(BUILD_FILE): $(BUILD_PATH)/$(NAME)
-	@echo "===== getting submodules ====="
-	git submodule update --init --recursive
-
-	@echo "===== getting composer dependencies ====="
-	composer install
-
-	@echo "===== creating '$(BUILD_PATH)/$(BUILD_FILE)' ====="
-	cd $(BUILD_PATH) && zip -r $(BUILD_PATH)/$(BUILD_FILE) $(NAME)/
+build: $(BUILD_DST)/$(BUILD_FILE)
 
 ## release
 release: export RELEASE_BUCKET := pressable-misc
 release: build
-	@echo "===== uploading to s3 ====="
 	$(if $(shell command -v s3cmd 2> /dev/null),, $(error `s3cmd` not found in $$PATH))
-	s3cmd put --acl-public --guess-mime-type \
-		$(BUILD_PATH)/$(BUILD_FILE) s3://$(RELEASE_BUCKET)
+	@ echo "uploading to s3 $(RELEASE_BUCKET)..."
+	@ s3cmd put --acl-public --guess-mime-type \
+      $(BUILD_DST)/$(BUILD_FILE) s3://$(RELEASE_BUCKET) &>/dev/null
+	@ echo "DONE!"
 
 ## clean
-clean:
-	@echo "===== removing '$(BUILD_PATH)' ====="
-	rm -rf $(BUILD_PATH)
+clean: $(BUILD_DST)
+	@ echo "removing $(BUILD_DST)"
+	@ rm -rf $(BUILD_DST)
 
-.PHONY: check git.fetch submodules release clean
+.PHONY: check git.fetch submodules release clean test

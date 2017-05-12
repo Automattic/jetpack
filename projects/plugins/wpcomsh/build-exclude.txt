@@ -1,0 +1,10 @@
+/build
+/build-exclude.txt
+Makefile
+.git*
+.svn*
+*.md
+*.mdown
+.*ntrc
+composer.json
+composer.lock
