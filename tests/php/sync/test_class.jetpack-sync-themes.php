@@ -144,10 +144,10 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 			$test_themes[1][0] => 1,
 		);
 
+		$theme_slugs = array_keys( $themes );
+
 		//Test enable multiple themes
 
-		$_REQUEST['action'] = -1;
-		$_REQUEST['action2'] = 'enable-selected';
 		/**
 		 * This filter is already documented in wp-includes/option.php
 		 *
@@ -165,13 +165,12 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 			$this->assertTrue( (bool) $event_data->args[0][ $theme[0] ]['version'] );
 			$this->assertTrue( (bool) $event_data->args[0][ $theme[0] ]['uri'] );
 		}
+		$this->assertEquals( $event_data->args[1], $theme_slugs );
 
 		$this->server_event_storage->reset();
 
 		//Test disable multiple themes
 
-		$_REQUEST['action'] = -1;
-		$_REQUEST['action2'] = 'disable-selected';
 		/**
 		 * This filter is already documented in wp-includes/option.php
 		 *
@@ -189,18 +188,18 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 			$this->assertTrue( (bool) $event_data->args[0][ $theme[0] ]['version'] );
 			$this->assertTrue( (bool) $event_data->args[0][ $theme[0] ]['uri'] );
 		}
+		$this->assertEquals( $event_data->args[1], array() );
 
 		$this->server_event_storage->reset();
 
 		//Prepare for single theme enable and disable tests
 
-		unset( $_REQUEST['action2'] );
 		$test_themes = array( $test_themes[0] );
 		$themes = array( $test_themes[0][0] => 1 );
+		$theme_slugs = array_keys( $themes );
 
 		//Test enable single theme
 
-		$_REQUEST['action'] = 'enable';
 		/**
 		 * This filter is already documented in wp-includes/option.php
 		 *
@@ -218,12 +217,12 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 			$this->assertTrue( (bool) $event_data->args[0][ $theme[0] ]['version'] );
 			$this->assertTrue( (bool) $event_data->args[0][ $theme[0] ]['uri'] );
 		}
+		$this->assertEquals( $event_data->args[1], $theme_slugs );
 
 		$this->server_event_storage->reset();
 
 		//Test disable single theme
 
-		$_REQUEST['action'] = 'disable';
 		/**
 		 * This filter is already documented in wp-includes/option.php
 		 *
@@ -241,10 +240,7 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 			$this->assertTrue( (bool) $event_data->args[0][ $theme[0] ]['version'] );
 			$this->assertTrue( (bool) $event_data->args[0][ $theme[0] ]['uri'] );
 		}
-
-		//Cleanup
-
-		unset( $_REQUEST['action'] );
+		$this->assertEquals( $event_data->args[1], array() );
 	}
 
 	public function test_install_edit_delete_theme_sync() {
