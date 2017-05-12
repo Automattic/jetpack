@@ -31,35 +31,37 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 	public function sync_network_allowed_themes_change( $option, $value, $old_value, $network_id ) {
 		if ( count( $old_value ) > count( $value ) )  {
 			$disabled_theme_names = array_keys( array_diff_key( $old_value, $value ) );
-			$disabled_themes = $this->get_multisite_changed_themes( $disabled_theme_names );
+			$disabled_themes = $this->get_theme_details_for_slugs( $disabled_theme_names );
 			/**
 			 * Trigger action to alert $callable sync listener that network themes were disabled
 			 *
 			 * @since 5.0.0
 			 *
 			 * @param mixed $disabled_themes, Array of info about network disabled themes
+			 * @param mixed array_keys( $value ), Array of slugs of all enabled themes
 			 */
 			do_action( 'jetpack_network_disabled_themes', $disabled_themes, array_keys( $value ) );
 			return;
 		}
 
 		$enabled_theme_names = array_keys( array_diff_key( $value, $old_value ) );
-		$enabled_themes = $this->get_multisite_changed_themes( $enabled_theme_names );
+		$enabled_themes = $this->get_theme_details_for_slugs( $enabled_theme_names );
 		/**
 		 * Trigger action to alert $callable sync listener that network themes were enabled
 		 *
 		 * @since 5.0.0
 		 *
 		 * @param mixed $enabled_themes , Array of info about network enabled themes
+		 * @param mixed array_keys( $value ), Array of slugs of all enabled themes
 		 */
 		do_action( 'jetpack_network_enabled_themes', $enabled_themes, array_keys( $value ) );
 	}
 
-	private function get_multisite_changed_themes( $theme_names ) {
+	private function get_theme_details_for_slugs( $theme_slugs ) {
 		$theme_data = array();
-		foreach ( $theme_names as $name ) {
-			$theme = wp_get_theme( $name );
-			$theme_data[ $name ] = array(
+		foreach ( $theme_slugs as $slug ) {
+			$theme = wp_get_theme( $slug );
+			$theme_data[ $slug ] = array(
 				'name' => $theme->get( 'Name' ),
 				'version' => $theme->get( 'Version' ),
 				'uri' => $theme->get( 'ThemeURI' ),
