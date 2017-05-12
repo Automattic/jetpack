@@ -40,7 +40,7 @@ require_once( 'widgets/tlkio/tlkio.php' );
 require_once( 'widgets/twitter.php' );
 
 # autoload composer sourced plugins
-if ( file_exists( 'vendor/autoload.php' ) {
+if ( file_exists( 'vendor/autoload.php' ) ) {
   require_once( 'vendor/autoload.php' );
 }
 
