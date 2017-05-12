@@ -148,6 +148,13 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 
 		$_REQUEST['action'] = -1;
 		$_REQUEST['action2'] = 'enable-selected';
+		/**
+		 * This filter is already documented in wp-includes/option.php
+		 *
+		 * Note that 'allowedthemes' is dynamic, i.e. do_action is called on "update_site_option_{$option}"
+		 *
+		 * @since 2.9.0
+		 */
 		do_action( 'update_site_option_allowedthemes', 'allowedthemes', $themes, array(), 0 );
 		$this->sender->do_sync();
 
@@ -165,6 +172,13 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 
 		$_REQUEST['action'] = -1;
 		$_REQUEST['action2'] = 'disable-selected';
+		/**
+		 * This filter is already documented in wp-includes/option.php
+		 *
+		 * Note that 'allowedthemes' is dynamic, i.e. do_action is called on "update_site_option_{$option}"
+		 *
+		 * @since 2.9.0
+		 */
 		do_action( 'update_site_option_allowedthemes', 'allowedthemes', array(), $themes, 0 );
 		$this->sender->do_sync();
 
@@ -187,6 +201,13 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		//Test enable single theme
 
 		$_REQUEST['action'] = 'enable';
+		/**
+		 * This filter is already documented in wp-includes/option.php
+		 *
+		 * Note that 'allowedthemes' is dynamic, i.e. do_action is called on "update_site_option_{$option}"
+		 *
+		 * @since 2.9.0
+		 */
 		do_action( 'update_site_option_allowedthemes', 'allowedthemes', $themes, array(), 0 );
 		$this->sender->do_sync();
 
@@ -203,6 +224,13 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		//Test disable single theme
 
 		$_REQUEST['action'] = 'disable';
+		/**
+		 * This filter is already documented in wp-includes/option.php
+		 *
+		 * Note that 'allowedthemes' is dynamic, i.e. do_action is called on "update_site_option_{$option}"
+		 *
+		 * @since 2.9.0
+		 */
 		do_action( 'update_site_option_allowedthemes', 'allowedthemes', array(), $themes, 0 );
 		$this->sender->do_sync();
 
