@@ -75,7 +75,7 @@ $(BUILD_DST):
 	@ mkdir -p $(BUILD_DST)
 
 ## build
-build: $(BUILD_DST)/$(BUILD_FILE)
+build: check $(BUILD_DST)/$(BUILD_FILE)
 
 ## release
 release: export RELEASE_BUCKET := pressable-misc
