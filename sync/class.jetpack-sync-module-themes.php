@@ -29,32 +29,34 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 	}
 
 	public function sync_network_allowed_themes_change( $option, $value, $old_value, $network_id ) {
+		$all_enabled_theme_slugs = array_keys( $value );
+
 		if ( count( $old_value ) > count( $value ) )  {
-			$disabled_theme_names = array_keys( array_diff_key( $old_value, $value ) );
-			$disabled_themes = $this->get_theme_details_for_slugs( $disabled_theme_names );
+			$newly_disabled_theme_names = array_keys( array_diff_key( $old_value, $value ) );
+			$newly_disabled_themes = $this->get_theme_details_for_slugs( $newly_disabled_theme_names );
 			/**
 			 * Trigger action to alert $callable sync listener that network themes were disabled
 			 *
 			 * @since 5.0.0
 			 *
-			 * @param mixed $disabled_themes, Array of info about network disabled themes
-			 * @param mixed array_keys( $value ), Array of slugs of all enabled themes
+			 * @param mixed $newly_disabled_themes, Array of info about network disabled themes
+			 * @param mixed $all_enabled_theme_slugs, Array of slugs of all enabled themes
 			 */
-			do_action( 'jetpack_network_disabled_themes', $disabled_themes, array_keys( $value ) );
+			do_action( 'jetpack_network_disabled_themes', $newly_disabled_themes, $all_enabled_theme_slugs );
 			return;
 		}
 
-		$enabled_theme_names = array_keys( array_diff_key( $value, $old_value ) );
-		$enabled_themes = $this->get_theme_details_for_slugs( $enabled_theme_names );
+		$newly_enabled_theme_names = array_keys( array_diff_key( $value, $old_value ) );
+		$newly_enabled_themes = $this->get_theme_details_for_slugs( $newly_enabled_theme_names );
 		/**
 		 * Trigger action to alert $callable sync listener that network themes were enabled
 		 *
 		 * @since 5.0.0
 		 *
-		 * @param mixed $enabled_themes , Array of info about network enabled themes
-		 * @param mixed array_keys( $value ), Array of slugs of all enabled themes
+		 * @param mixed $newly_enabled_themes , Array of info about network enabled themes
+		 * @param mixed $all_enabled_theme_slugs, Array of slugs of all enabled themes
 		 */
-		do_action( 'jetpack_network_enabled_themes', $enabled_themes, array_keys( $value ) );
+		do_action( 'jetpack_network_enabled_themes', $newly_enabled_themes, $all_enabled_theme_slugs );
 	}
 
 	private function get_theme_details_for_slugs( $theme_slugs ) {
@@ -65,6 +67,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 				'name' => $theme->get( 'Name' ),
 				'version' => $theme->get( 'Version' ),
 				'uri' => $theme->get( 'ThemeURI' ),
+				'slug' => $slug,
 			);
 		}
 		return $theme_data;
