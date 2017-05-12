@@ -15,6 +15,9 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		add_action( 'jetpack_deleted_theme', $callable );
 		add_filter( 'wp_redirect', array( $this, 'detect_theme_edit' ) );
 		add_action( 'jetpack_edited_theme', $callable, 10, 2 );
+		add_action( 'update_site_option_allowedthemes', array( $this, 'sync_network_allowed_themes_change' ), 10, 4 );
+		add_action( 'jetpack_network_disabled_themes', $callable, 10, 2 );
+		add_action( 'jetpack_network_enabled_themes', $callable, 10, 2 );
 
 		// Sidebar updates.
 		add_action( 'update_option_sidebars_widgets', array( $this, 'sync_sidebar_widgets_actions' ), 10, 2 );
@@ -23,6 +26,51 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		add_action( 'jetpack_widget_moved_to_inactive', $callable );
 		add_action( 'jetpack_cleared_inactive_widgets', $callable );
 		add_action( 'jetpack_widget_reordered', $callable );
+	}
+
+	public function sync_network_allowed_themes_change( $option, $value, $old_value, $network_id ) {
+		$all_enabled_theme_slugs = array_keys( $value );
+
+		if ( count( $old_value ) > count( $value ) )  {
+			$newly_disabled_theme_names = array_keys( array_diff_key( $old_value, $value ) );
+			$newly_disabled_themes = $this->get_theme_details_for_slugs( $newly_disabled_theme_names );
+			/**
+			 * Trigger action to alert $callable sync listener that network themes were disabled
+			 *
+			 * @since 5.0.0
+			 *
+			 * @param mixed $newly_disabled_themes, Array of info about network disabled themes
+			 * @param mixed $all_enabled_theme_slugs, Array of slugs of all enabled themes
+			 */
+			do_action( 'jetpack_network_disabled_themes', $newly_disabled_themes, $all_enabled_theme_slugs );
+			return;
+		}
+
+		$newly_enabled_theme_names = array_keys( array_diff_key( $value, $old_value ) );
+		$newly_enabled_themes = $this->get_theme_details_for_slugs( $newly_enabled_theme_names );
+		/**
+		 * Trigger action to alert $callable sync listener that network themes were enabled
+		 *
+		 * @since 5.0.0
+		 *
+		 * @param mixed $newly_enabled_themes , Array of info about network enabled themes
+		 * @param mixed $all_enabled_theme_slugs, Array of slugs of all enabled themes
+		 */
+		do_action( 'jetpack_network_enabled_themes', $newly_enabled_themes, $all_enabled_theme_slugs );
+	}
+
+	private function get_theme_details_for_slugs( $theme_slugs ) {
+		$theme_data = array();
+		foreach ( $theme_slugs as $slug ) {
+			$theme = wp_get_theme( $slug );
+			$theme_data[ $slug ] = array(
+				'name' => $theme->get( 'Name' ),
+				'version' => $theme->get( 'Version' ),
+				'uri' => $theme->get( 'ThemeURI' ),
+				'slug' => $slug,
+			);
+		}
+		return $theme_data;
 	}
 
 	public function detect_theme_edit( $redirect_url ) {

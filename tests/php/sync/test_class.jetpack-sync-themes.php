@@ -123,6 +123,92 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $local_value, $this->server_replica_storage->get_option( 'theme_mods_' . $this->theme ) );
 	}
 
+	public function test_network_enable_disable_theme_sync() {
+		if ( ! is_multisite() ) {
+			$this->markTestSkipped( 'Run it in multi site mode' );
+		}
+
+		$test_themes = array(
+			array(
+				'twentyten',
+				'Twenty Ten',
+			),
+			array(
+				'twentytwelve',
+				'Twenty Twelve',
+			)
+		);
+
+		$themes = array(
+			$test_themes[0][0] => 1,
+			$test_themes[1][0] => 1,
+		);
+
+		$theme_slugs = array_keys( $themes );
+
+		//Test enable multiple themes
+		/**
+		 * This filter is already documented in wp-includes/option.php
+		 *
+		 * Note that 'allowedthemes' is dynamic, i.e. do_action is called on "update_site_option_{$option}"
+		 */
+		do_action( 'update_site_option_allowedthemes', 'allowedthemes', $themes, array(), 0 );
+		$this->sender->do_sync();
+		$event_data = $this->server_event_storage->get_most_recent_event( 'jetpack_network_enabled_themes' );
+		$this->perform_network_enable_disable_assertions( $test_themes, $event_data, $theme_slugs );
+		$this->server_event_storage->reset();
+
+		//Test disable multiple themes
+		/**
+		 * This filter is already documented in wp-includes/option.php
+		 *
+		 * Note that 'allowedthemes' is dynamic, i.e. do_action is called on "update_site_option_{$option}"
+		 */
+		do_action( 'update_site_option_allowedthemes', 'allowedthemes', array(), $themes, 0 );
+		$this->sender->do_sync();
+		$event_data = $this->server_event_storage->get_most_recent_event( 'jetpack_network_disabled_themes' );
+		$this->perform_network_enable_disable_assertions( $test_themes, $event_data, array() );
+		$this->server_event_storage->reset();
+
+		//Prepare for single theme enable and disable tests
+		$test_themes = array( $test_themes[0] );
+		$themes = array( $test_themes[0][0] => 1 );
+		$theme_slugs = array_keys( $themes );
+
+		//Test enable single theme
+		/**
+		 * This filter is already documented in wp-includes/option.php
+		 *
+		 * Note that 'allowedthemes' is dynamic, i.e. do_action is called on "update_site_option_{$option}"
+		 */
+		do_action( 'update_site_option_allowedthemes', 'allowedthemes', $themes, array(), 0 );
+		$this->sender->do_sync();
+		$event_data = $this->server_event_storage->get_most_recent_event( 'jetpack_network_enabled_themes' );
+		$this->perform_network_enable_disable_assertions( $test_themes, $event_data, $theme_slugs );
+		$this->server_event_storage->reset();
+
+		//Test disable single theme
+		/**
+		 * This filter is already documented in wp-includes/option.php
+		 *
+		 * Note that 'allowedthemes' is dynamic, i.e. do_action is called on "update_site_option_{$option}"
+		 */
+		do_action( 'update_site_option_allowedthemes', 'allowedthemes', array(), $themes, 0 );
+		$this->sender->do_sync();
+		$event_data = $this->server_event_storage->get_most_recent_event( 'jetpack_network_disabled_themes' );
+		$this->perform_network_enable_disable_assertions( $test_themes, $event_data, array() );
+	}
+
+	private function perform_network_enable_disable_assertions( $test_themes, $event_data, $enabled_slugs ) {
+		foreach ( $test_themes as $theme ) {
+			$this->assertEquals( $event_data->args[0][ $theme[0] ]['slug'], $theme[0] );
+			$this->assertEquals( $event_data->args[0][ $theme[0] ]['name'], $theme[1] );
+			$this->assertTrue( (bool) $event_data->args[0][ $theme[0] ]['version'] );
+			$this->assertTrue( (bool) $event_data->args[0][ $theme[0] ]['uri'] );
+		}
+		$this->assertEquals( $event_data->args[1], $enabled_slugs );
+	}
+
 	public function test_install_edit_delete_theme_sync() {
 		$theme_slug = 'itek';
 		$theme_name = 'iTek';
