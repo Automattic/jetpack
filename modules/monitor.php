@@ -19,12 +19,24 @@ class Jetpack_Monitor {
 	function __construct() {
 		add_action( 'jetpack_modules_loaded', array( $this, 'jetpack_modules_loaded' ) );
 		add_action( 'jetpack_activate_module_monitor', array( $this, 'activate_module' ) );
+		add_action( 'jetpack_deactivate_module_monitor', array( $this, 'deactivate_module' ) );
 	}
 
 	public function activate_module() {
 		if ( Jetpack::is_user_connected() ) {
 			self::update_option_receive_jetpack_monitor_notification( true );
 		}
+		// Activate its related service in wpcom.
+		self::activate_monitor();
+	}
+
+	/**
+	 * When the module is deactivated, deactivate its related service in wpcom.
+	 *
+	 * @since 4.1.0
+	 */
+	public function deactivate_module() {
+		self::deactivate_monitor();
 	}
 
 	public function jetpack_modules_loaded() {
