@@ -216,7 +216,6 @@
 	line-height: rem( 21px );
 	border-radius: rem( 4px );
 	padding: rem( 7px ) rem( 14px ) rem( 9px );
-	-webkit-appearance: none;
 	appearance: none;
 
 	&:hover {
@@ -339,7 +338,7 @@
 		padding-right: rem( 48px );
 	}
 
-	@include jitm-banner-color( $blue-wordpress );
+	@include jitm-banner-color( $alert-green );
 
 	&.is-upgrade-personal {
 		@include jitm-banner-color( $alert-yellow );
@@ -461,8 +460,7 @@
 	width: 100%;
 
 	.jitm-banner__title,
-	.jitm-banner__description,
-	.jitm-banner__list {
+	.jitm-banner__description {
 		color: $gray-dark;
 	}
 
@@ -475,32 +473,6 @@
 		font-size: rem( 12px );
 		line-height: 1.5;
 		margin-top: rem( 6px );
-	}
-
-	.jitm-banner__list {
-		font-size: rem( 12px );
-		list-style: none;
-		margin: 0;
-
-		li {
-			margin: rem( 6px ) 0;
-
-			&:before {
-				color: darken($gray, 20%);
-				font: 400 16px/1 dashicons;
-				content: '\f147';
-			}
-		}
-	}
-
-	@include breakpoint( ">480px" ) {
-		width: auto;
-
-		.jitm-banner__list li {
-			display: inline;
-			margin-right: rem( 12px );
-			vertical-align: bottom;
-		}
 	}
 }
 

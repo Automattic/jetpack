@@ -325,30 +325,33 @@ class Jetpack_JITM {
 		$url = 'https://jetpack.com/redirect/?source=jitm-backup-updates&site=' . $normalized_site_url;
 		$jitm_stats_url = Jetpack::build_stats_url( array( 'x_jetpack-jitm' => 'vaultpress' ) );
 		?>
-		<div class="jp-jitm" data-track="vaultpress-updates" data-stats_url="<?php echo esc_url( $jitm_stats_url ); ?>">
-			<a href="#" data-module="vaultpress" class="dismiss"><span class="genericon genericon-close"></span></a>
-			<?php echo self::get_emblem(); ?>
-			<p class="msg">
-				<?php esc_html_e( 'Backups are recommended to protect your site before you make any changes.', 'jetpack' ); ?>
-			</p>
-			<p>
-				<a href="<?php echo esc_url( $url ); ?>" target="_blank" title="<?php esc_attr_e( 'Enable VaultPress Backups', 'jetpack' ); ?>" data-module="vaultpress" data-jptracks-name="nudge_click" data-jptracks-prop="jitm-vault" class="button button-jetpack launch jptracks"><?php esc_html_e( 'Enable VaultPress Backups', 'jetpack' ); ?></a>
-			</p>
-		</div>
-
-		<? /* ===========   Begin new JITM style EXAMPLES */ ?>
-
-		<div class="jitm-card jitm-banner has-call-to-action is-upgrade-premium">
+		<div class="jitm-card jitm-banner has-call-to-action" data-track="vaultpress-updates" data-stats_url="<?php echo esc_url( $jitm_stats_url ); ?>">
 			<div class="jitm-banner__icon-plan">
 				<?php echo self::get_emblem(); ?>
 			</div>
 			<div class="jitm-banner__content">
 				<div class="jitm-banner__info">
-					<div class="jitm-banner__title"><?php esc_html_e( 'This is a JITM title.', 'jetpack' ); ?></div>
-					<div class="jitm-banner__description"><?php esc_html_e( 'This is a optional JITM description. Super cool, right? We can enter longer strings of text here and it shall flow nicely on all screen sizes.', 'jetpack' ); ?></div>
+					<div class="jitm-banner__title"><?php esc_html_e( 'Backups are recommended to protect your site before you make any changes.', 'jetpack' ); ?></div>
 				</div>
 				<div class="jitm-banner__action">
-					<a href="#" type="button" class="jitm-button is-compact is-primary">Upgrade</a>
+					<a href="<?php echo esc_url( $url ); ?>" target="_blank" title="<?php esc_attr_e( 'Enable Backups', 'jetpack' ); ?>" data-module="vaultpress" data-jptracks-name="nudge_click" data-jptracks-prop="jitm-vault" class="jitm-button is-compact launch jptracks"><?php esc_html_e( 'Enable Backups', 'jetpack' ); ?></a>
+				</div>
+				<a href="#" data-module="vaultpress" class="jitm-banner__dismiss"></a>
+			</div>
+		</div>
+
+		<? /* ===========   Begin new JITM style EXAMPLES */ ?>
+
+		<div class="jitm-card jitm-banner has-call-to-action">
+			<div class="jitm-banner__icon-plan">
+				<?php echo self::get_emblem(); ?>
+			</div>
+			<div class="jitm-banner__content">
+				<div class="jitm-banner__info">
+					<div class="jitm-banner__title"><?php esc_html_e( 'This is a JITM title. Messages go here', 'jetpack' ); ?></div>
+				</div>
+				<div class="jitm-banner__action">
+					<a href="#" type="button" class="jitm-button is-compact">Upgrade</a>
 				</div>
 				<a href="#" data-module="" class="jitm-banner__dismiss"></a>
 			</div>
@@ -362,10 +365,6 @@ class Jetpack_JITM {
 				<div class="jitm-banner__info">
 					<div class="jitm-banner__title"><?php esc_html_e( 'This is a JITM title.', 'jetpack' ); ?></div>
 					<div class="jitm-banner__description"><?php esc_html_e( 'This is a optional JITM description. Super cool, right? We can enter longer strings of text here and it shall flow nicely on all screen sizes.', 'jetpack' ); ?></div>
-					<div class="jitm-banner__list">
-						<li>Testing JITM list</li>
-						<li>Testing JITM list, again!</li>
-					</div>
 				</div>
 				<div class="jitm-banner__action">
 					<a href="#" type="button" class="jitm-button is-compact is-primary">Upgrade</a>
