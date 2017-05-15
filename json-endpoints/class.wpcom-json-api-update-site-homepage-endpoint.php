@@ -36,10 +36,10 @@ class WPCOM_JSON_API_Update_Site_Homepage_Endpoint extends WPCOM_JSON_API_Endpoi
 		$page_on_front_id = get_option( 'page_on_front' );
 		$page_for_posts_id = get_option( 'page_for_posts' );
 
-		return [
+		return array(
 			'is_page_on_front' => $is_page_on_front,
 			'page_on_front_id' => $page_on_front_id,
 			'page_for_posts_id' => $page_for_posts_id,
-		];
+		);
 	}
 }
