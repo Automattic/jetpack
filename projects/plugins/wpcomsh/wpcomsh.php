@@ -595,3 +595,9 @@ function wpcomsh_wporg_to_wpcom_locale_mo_file( $mofile ) {
 	return $mofile;
 }
 add_filter( 'load_textdomain_mofile', 'wpcomsh_wporg_to_wpcom_locale_mo_file' );
+
+/**
+ * Links were removed in 3.5 core, but we've kept them active on dotcom.
+ * This will expose both the Links section, and the widget.
+ */
+add_filter( 'pre_option_link_manager_enabled', '__return_true' );
