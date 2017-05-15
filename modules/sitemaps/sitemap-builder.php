@@ -1253,7 +1253,7 @@ FOOTER
 			),
 		);
 
-		$title = esc_html( $post->post_title );
+		$title = apply_filters( 'the_title_rss', $post->post_title );
 		if ( '' !== $title ) {
 			$item_array['url']['image:image']['image:title'] = $title;
 		}
