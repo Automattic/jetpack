@@ -342,21 +342,6 @@ class Jetpack_JITM {
 
 		<? /* ===========   Begin new JITM style EXAMPLES */ ?>
 
-		<div class="jitm-card jitm-banner has-call-to-action">
-			<div class="jitm-banner__icon-plan">
-				<?php echo self::get_emblem(); ?>
-			</div>
-			<div class="jitm-banner__content">
-				<div class="jitm-banner__info">
-					<div class="jitm-banner__title"><?php esc_html_e( 'This is a JITM title. Messages go here', 'jetpack' ); ?></div>
-				</div>
-				<div class="jitm-banner__action">
-					<a href="#" type="button" class="jitm-button is-compact">Upgrade</a>
-				</div>
-				<a href="#" data-module="" class="jitm-banner__dismiss"></a>
-			</div>
-		</div>
-
 		<div class="jitm-card jitm-banner has-call-to-action is-upgrade-premium">
 			<div class="jitm-banner__icon-plan">
 				<?php echo self::get_emblem(); ?>
