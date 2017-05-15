@@ -12,20 +12,6 @@ class Jetpack_JITM {
 	 **/
 	private static $instance = null;
 
-	/**
-	 * Get user dismissed messages.
-	 *
-	 * @var array
-	 */
-	private static $jetpack_hide_jitm = null;
-
-	/**
-	 * Whether plugin auto updates are allowed in this WordPress installation or not.
-	 *
-	 * @var bool
-	 */
-	private static $auto_updates_allowed = false;
-
 	static function init() {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new Jetpack_JITM;
@@ -93,6 +79,7 @@ class Jetpack_JITM {
 
 	function ajax_message() {
 		$message_path = $this->get_message_path();
+		// todo: can this be optimized? wp parse args?
 		$query        = new WP_Query( $_GET );
 		$query        = $query->query;
 		$query_string = array();
