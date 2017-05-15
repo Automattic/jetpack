@@ -1159,7 +1159,7 @@ FOOTER
 			);
 		}
 
-		$url = get_permalink( $post );
+		$url = esc_url( get_permalink( $post ) );
 
 		/*
 		 * Spec requires the URL to be <=2048 bytes.
@@ -1236,11 +1236,11 @@ FOOTER
 			);
 		}
 
-		$url = wp_get_attachment_url( $post->ID );
+		$url = esc_url( wp_get_attachment_url( $post->ID ) );
 
-		$parent_url = get_permalink( get_post( $post->post_parent ) );
+		$parent_url = esc_url( get_permalink( get_post( $post->post_parent ) ) );
 		if ( '' == $parent_url ) { // WPCS: loose comparison ok.
-			$parent_url = get_permalink( $post );
+			$parent_url = esc_url( get_permalink( $post ) );
 		}
 
 		$item_array = array(
@@ -1318,9 +1318,9 @@ FOOTER
 			);
 		}
 
-		$parent_url = get_permalink( get_post( $post->post_parent ) );
+		$parent_url = esc_url( get_permalink( get_post( $post->post_parent ) ) );
 		if ( '' == $parent_url ) { // WPCS: loose comparison ok.
-			$parent_url = get_permalink( $post );
+			$parent_url = esc_url( get_permalink( $post ) );
 		}
 
 		// Prepare the content like get_the_content_feed()
@@ -1337,7 +1337,7 @@ FOOTER
 					'video:title'         => apply_filters( 'the_title_rss', $post->post_title ),
 					'video:thumbnail_loc' => '',
 					'video:description'   => $content,
-					'video:content_loc'   => wp_get_attachment_url( $post->ID ),
+					'video:content_loc'   => esc_url( wp_get_attachment_url( $post->ID ) ),
 				),
 			),
 		);
