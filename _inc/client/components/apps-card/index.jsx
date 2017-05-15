@@ -14,6 +14,7 @@ import analytics from 'lib/analytics';
  */
 import { imagePath } from 'constants';
 import { updateSettings, appsCardDismissed } from 'state/settings';
+import { arePromotionsActive } from 'state/initial-state';
 
 const AppsCard = React.createClass( {
 	displayName: 'AppsCard',
@@ -36,7 +37,7 @@ const AppsCard = React.createClass( {
 	},
 
 	render() {
-		if ( this.props.isAppsCardDismissed ) {
+		if ( this.props.arePromotionsActive && this.props.isAppsCardDismissed ) {
 			return null;
 		}
 
@@ -90,7 +91,8 @@ AppsCard.propTypes = {
 export default connect(
 	state => {
 		return {
-			isAppsCardDismissed: appsCardDismissed( state )
+			isAppsCardDismissed: appsCardDismissed( state ),
+			arePromotionsActive: arePromotionsActive( state )
 		};
 	},
 	( dispatch ) => {
