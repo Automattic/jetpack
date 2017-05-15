@@ -205,23 +205,33 @@ class Jetpack_JITM {
 
 		$site_id = Jetpack_Options::get_option( 'id' );
 
+		// build our jitm request
 		$path = add_query_arg( array(
-			'force'            => 'wpcom',
-			'external_user_id' => urlencode_deep( $user->ID ),
-			'user_roles'       => urlencode_deep( implode( ',', $user->roles ) ),
-			'query_string'     => urlencode_deep( $query ),
+			'force'                => 'wpcom',
+			'external_user_id'     => urlencode_deep( $user->ID ),
+			'user_roles'           => urlencode_deep( implode( ',', $user->roles ) ),
+			'query_string'         => urlencode_deep( $query ),
 		), sprintf( '/sites/%d/jitm/%s', $site_id, $message_path ) );
 
-		$envelopes = get_transient( 'jetpack_jitm_' . $path );
+		// attempt to get from cache
+		$envelopes  = get_transient( 'jetpack_jitm_' . $path );
+		$from_cache = false;
 
-		if ( $envelopes ) {
+		// if something is in the cache and it was put in the cache after the last heartbeat, use it
+		if ( $envelopes && Jetpack_Options::get_option( 'last_heartbeat', time() ) < $envelopes['response_time'] ) {
 			$from_cache = true;
-		} else {
+		}
+
+		// otherwise, ask again
+		if ( ! $from_cache ) {
 			$from_cache     = false;
 			$wpcom_response = Jetpack_Client::wpcom_json_api_request_as_blog(
 				$path,
 				'1.1',
-				array( 'user_id' => $user->ID, 'user_roles' => implode( ',', $user->roles ) )
+				array(
+					'user_id'    => $user->ID,
+					'user_roles' => implode( ',', $user->roles ),
+				)
 			);
 
 			// silently fail...might be helpful to track it?
@@ -235,13 +245,17 @@ class Jetpack_JITM {
 				return array();
 			}
 
-			$expiration = isset( $envelopes[0] ) ? $envelopes[0]->ttl : 300;
+			$expiration                 = isset( $envelopes[0] ) ? $envelopes[0]->ttl : 300;
+			$envelopes['response_time'] = time();
+
 			set_transient( 'jetpack_jitm_' . $path, $envelopes, $expiration );
 		}
 
 		$hidden_jitms = Jetpack_Options::get_option( 'hide_jitm' );
+		unset( $envelopes['response_time'] );
 
 		foreach ( $envelopes as $idx => &$envelope ) {
+
 			$dismissed_feature = isset( $hidden_jitms[ $envelope->feature_class ] ) && is_array( $hidden_jitms[ $envelope->feature_class ] ) ? $hidden_jitms[ $envelope->feature_class ] : null;
 
 			// if the this feature class has been dismissed and the request has not expired from the cache, skip it as it's been dismissed
