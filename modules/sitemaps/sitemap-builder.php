@@ -1258,9 +1258,9 @@ FOOTER
 			$item_array['url']['image:image']['image:title'] = $title;
 		}
 
-		$caption = esc_html( $post->post_excerpt );
+		$caption = apply_filters( 'the_excerpt_rss', $post->post_excerpt );
 		if ( '' !== $caption ) {
-			$item_array['url']['image:image']['image:caption'] = $caption;
+			$item_array['url']['image:image']['image:caption'] = "<![CDATA[" . $caption . "]]>";
 		}
 
 		/**
