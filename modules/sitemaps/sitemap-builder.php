@@ -1323,14 +1323,20 @@ FOOTER
 			$parent_url = get_permalink( $post );
 		}
 
+		// Prepare the content like get_the_content_feed()
+		$content = $post->post_content;
+		$content = apply_filters( 'the_content', $content );
+		$content = str_replace(']]>', ']]&gt;', $content);
+		$content = apply_filters( 'the_content_feed', $content, 'rss2' );
+
 		$item_array = array(
 			'url' => array(
 				'loc'         => $parent_url,
 				'lastmod'     => jp_sitemap_datetime( $post->post_modified_gmt ),
 				'video:video' => array(
-					'video:title'         => esc_html( $post->post_title ),
+					'video:title'         => apply_filters( 'the_title_rss', $post->post_title ),
 					'video:thumbnail_loc' => '',
-					'video:description'   => esc_html( $post->post_content ),
+					'video:description'   => $content,
 					'video:content_loc'   => wp_get_attachment_url( $post->ID ),
 				),
 			),
