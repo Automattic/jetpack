@@ -755,6 +755,168 @@ class Jetpack_CLI extends WP_CLI_Command {
 				break;
 		}
 	}
+
+	/**
+	 * Provision a site using a Jetpack Partner license
+	 *
+	 * Returns JSON blob
+	 *
+	 * ## OPTIONS
+	 *
+	 * <token_json>
+	 * : JSON blob of WPCOM API token
+	 * --plan=<plan_name>
+	 * : Slug of the requested plan, e.g. premium
+	 * --user_id=<user_id>
+	 * : Local ID of user to connect as (if omitted, user will be required to redirect via wp-admin)
+	 *
+	 * ## EXAMPLES
+	 *
+	 *     $ wp jetpack partner_provision '{ some: "json" }' premium 1
+	 *     { success: true }
+	 *
+	 * @synopsis <token_json> --plan=<plan_name> --user_id=<user_id>
+	 */
+	public function partner_provision( $args, $named_args ) {
+		list( $token_json ) = $args;
+
+		$plan_name = $named_args['plan'];
+		$user_id   = $named_args['user_id'];
+
+		if ( ! $token_json || ! ( $token = json_decode( $token_json ) ) ) {
+			$this->partner_provision_error( new WP_Error( 'missing_access_token',  sprintf( __( 'Invalid token JSON: %s', 'jetpack' ), $token_json ) ) );
+		}
+
+		if ( isset( $token->error ) ) {
+			$this->partner_provision_error( new WP_Error( $token->error, $token->message ) );
+		}
+
+		if ( ! isset( $token->access_token ) ) {
+			$this->partner_provision_error( new WP_Error( 'missing_access_token', __( 'Missing or invalid access token', 'jetpack' ) ) );
+		}
+
+		if ( empty( $plan_name ) ) {
+			$this->partner_provision_error( new WP_Error( 'missing_plan_param', __( 'Missing plan name', 'jetpack' ) ) );
+		}
+		
+		if ( empty( $user_id ) ) {
+			$this->partner_provision_error( new WP_Error( 'missing_user_id', __( 'Missing user ID', 'jetpack' ) ) );
+		}
+
+		$blog_id    = Jetpack_Options::get_option( 'id' );
+		$blog_token = Jetpack_Options::get_option( 'blog_token' );
+
+		// we need to set the current user because:
+		// 1) register uses it as the "state" variable
+		// 2) authorize uses it to construct state variable and also to check if site is authorized for this user, and to send role
+		// 3) ultimately, it is this user who receives the plan
+		wp_set_current_user( $user_id );
+		$user = wp_get_current_user();
+
+		if ( empty( $user ) ) {
+			$this->partner_provision_error( new WP_Error( 'missing_user', sprintf( __( "User %s doesn't exist", 'jetpack' ), $user_id ) ) );
+		}
+
+		if ( ! $blog_id || ! $blog_token ) {
+			// this code mostly copied from Jetpack::admin_page_load
+			Jetpack::maybe_set_version_option();
+			$registered = Jetpack::try_registration();
+			if ( is_wp_error( $registered ) ) {
+				$this->partner_provision_error( $registered );
+			} elseif ( ! $registered ) {
+				$this->partner_provision_error( new WP_Error( 'registration_error', __( 'There was an unspecified error registering the site', 'jetpack' ) ) );
+			}
+
+			$blog_id    = Jetpack_Options::get_option( 'id' );
+			$blog_token = Jetpack_Options::get_option( 'blog_token' );
+		}
+
+		$env_api_host = getenv( 'JETPACK_START_API_HOST', true );
+		$host = $env_api_host ? $env_api_host : JETPACK__WPCOM_JSON_API_HOST;
+
+		// role
+		$role = Jetpack::translate_current_user_to_role();
+		$signed_role = Jetpack::sign_role( $role );
+
+		$secrets = Jetpack::init()->generate_secrets( 'authorize' );
+		@list( $secret ) = explode( ':', $secrets );
+
+		$site_icon = ( function_exists( 'has_site_icon') && has_site_icon() )
+			? get_site_icon_url()
+			: false;
+
+		$sso_url = add_query_arg(
+			array( 'action' => 'jetpack-sso', 'redirect_to' => urlencode( admin_url() ) ),
+			wp_login_url() // TODO: come back to Jetpack dashboard?
+		);
+
+		$request = array(
+			'headers' => array(
+				'Authorization' => "Bearer " . $token->access_token,
+				'Host'          => defined( 'JETPACK__WPCOM_JSON_API_HOST_HEADER' ) ? JETPACK__WPCOM_JSON_API_HOST_HEADER : 'public-api.wordpress.com',
+			),
+			'method'  => 'POST',
+			'body'    => json_encode( 
+				array( 
+					'jp_version'    => JETPACK__VERSION,
+
+					// Partner plan stuff
+					'plan'          => $plan_name,
+
+					// Jetpack auth stuff
+					'scope'         => $signed_role,
+					'secret'        => $secret,
+					'state'         => $user->ID,
+
+					// User stuff
+					'user_email'    => $user->user_email,
+					'user_login'    => $user->user_login,
+
+					// Blog meta stuff
+					'site_icon'     => $site_icon,
+
+					// Then come back to this URL
+					'redirect_uri'  => $sso_url
+				) 
+			)
+		);
+
+		$url = sprintf( 'https://%s/rest/v1.3/jpphp/%d/partner-provision', $host, $blog_id );
+
+		// add calypso env if set
+		if ( getenv( 'CALYPSO_ENV' ) ) {
+			$url = add_query_arg( array( 'calypso_env' => getenv( 'CALYPSO_ENV' ) ), $url );
+		}
+
+		$result = Jetpack_Client::_wp_remote_request( $url, $request );
+
+		if ( is_wp_error( $result ) ) {
+			$this->partner_provision_error( $result );
+		} 
+		
+		$response_code = wp_remote_retrieve_response_code( $result );
+		$body_json     = json_decode( wp_remote_retrieve_body( $result ) );
+
+		if( 200 !== $response_code ) {
+			if ( isset( $body_json->error ) ) {
+				$this->partner_provision_error( new WP_Error( $body_json->error, $body_json->message ) );
+			} else {
+				error_log(print_r($result,1));
+				$this->partner_provision_error( new WP_Error( 'server_error', sprintf( __( "Request failed with code %s" ), $response_code ) ) );
+			}
+		}
+
+		WP_CLI::log( json_encode( $body_json ) );
+	}
+
+	private function partner_provision_error( $error ) {
+		WP_CLI::log( json_encode( array(
+			'success'       => false,
+			'error_code'    => $error->get_error_code(),
+			'error_message' => $error->get_error_message()
+		) ) );
+		exit( 1 );
+	}
 }
 
 /*

@@ -131,6 +131,12 @@ class Jetpack_Client_Server {
 			Jetpack::activate_default_modules( false, false, array(), $redirect_on_activation_error );
 		}
 
+		// If redirect_uri is SSO, ensure SSO module is enabled
+		parse_str( parse_url( $data['redirect_uri'], PHP_URL_QUERY ), $redirect_options );
+		if ( isset( $redirect_options['action'] ) && 'jetpack-sso' === $redirect_options['action'] ) {
+			Jetpack::activate_module( 'sso', false, false );
+		}
+
 		// Since this is a fresh connection, be sure to clear out IDC options
 		Jetpack_IDC::clear_all_idc_options();
 
