@@ -1430,7 +1430,7 @@ FOOTER
 						'news:name'     => esc_html( get_bloginfo( 'name' ) ),
 						'news:language' => $language,
 					),
-					'news:title'            => esc_html( $post->post_title ),
+					'news:title'            => apply_filters( 'the_title_rss', $post->post_title ),
 					'news:publication_date' => jp_sitemap_datetime( $post->post_date_gmt ),
 					'news:genres'           => 'Blog',
 				),
