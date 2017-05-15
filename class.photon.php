@@ -624,7 +624,10 @@ class Jetpack_Photon {
 	 * @uses Jetpack_Photon::strip_image_dimensions_maybe, Jetpack::get_content_width
 	 * @return array An array of Photon image urls and widths.
 	 */
-	public function filter_srcset_array( $sources, $size_array, $image_src, $image_meta ) {
+	public function filter_srcset_array( $sources = array(), $size_array = array(), $image_src = array(), $image_meta = array() ) {
+		if ( ! is_array( $sources ) ) {
+			return $sources;
+		}
 		$upload_dir = wp_get_upload_dir();
 
 		foreach ( $sources as $i => $source ) {
