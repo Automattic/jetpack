@@ -1336,7 +1336,7 @@ FOOTER
 				'video:video' => array(
 					'video:title'         => apply_filters( 'the_title_rss', $post->post_title ),
 					'video:thumbnail_loc' => '',
-					'video:description'   => $content,
+					'video:description'   => '<![CDATA[' . $content . ']]>',
 					'video:content_loc'   => esc_url( wp_get_attachment_url( $post->ID ) ),
 				),
 			),
