@@ -540,21 +540,22 @@ class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 		$_POST['action'] = 'preload';
 
 		$all_preload_settings = array(
-			'wp_cache_preload_interval',
-			'wp_cache_preload_on',
-			'wp_cache_preload_taxonomies',
-			'wp_cache_preload_email_volume',
-			'wp_cache_preload_posts',
-			'wp_cache_preload_on'
+			'preload_interval'     => 'wp_cache_preload_interval',
+			'preload_on'           => 'wp_cache_preload_on',
+			'preload_taxonomies'   => 'wp_cache_preload_taxonomies',
+			'preload_email_volume' => 'wp_cache_preload_email_volume',
+			'preload_posts'        => 'wp_cache_preload_posts',
 		);
 
-		foreach ( $all_preload_settings as $key ) {
+		foreach ( $all_preload_settings as $key => $original ) {
 			if ( ! isset( $_POST[ $key ] ) ) {
-				global ${$key};
-				$_POST[ $key ] = $$key;
-
-			} elseif ( $_POST[ $key ] == 0 ) {
-				unset( $_POST[ $key ] );
+				global ${$original};
+				$_POST[ $original ] = $$original;
+			} else {
+				$_POST[ $original ] = $_POST[ $key ];
+				if ( $_POST[ $key ] == 0 ) {
+					unset( $_POST[ $original ] );
+				}
 			}
 		}
 
