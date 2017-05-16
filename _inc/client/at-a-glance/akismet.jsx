@@ -15,10 +15,10 @@ import { getSitePlan } from 'state/site';
 
 class DashAkismet extends Component {
 	getContent() {
-		const akismetData = this.props.getAkismetData,
+		const akismetData = this.props.akismetData,
 			akismetSettingsUrl = this.props.siteAdminUrl + 'admin.php?page=akismet-key-config',
 			labelName = __( 'Spam Protection' ),
-			hasSitePlan = false !== this.props.getSitePlan;
+			hasSitePlan = false !== this.props.sitePlan;
 
 		if ( akismetData === 'N/A' ) {
 			return (
@@ -138,8 +138,8 @@ DashAkismet.propTypes = {
 export default connect(
 	( state ) => {
 		return {
-			getAkismetData: getAkismetData( state ),
-			getSitePlan: getSitePlan( state )
+			akismetData: getAkismetData( state ),
+			sitePlan: getSitePlan( state )
 		};
 	}
 )( DashAkismet );
