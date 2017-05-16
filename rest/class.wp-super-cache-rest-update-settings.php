@@ -36,7 +36,7 @@ class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 				}
 			}
 
-			$this->save_time_settings();
+			$this->save_time_settings( $parameters );
 			$this->save_preload_settings();
 		}
 
@@ -497,7 +497,7 @@ class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 	/**
 	 * Runs at the end and saves the time settings.
 	 */
-	protected function save_time_settings() {
+	protected function save_time_settings( $parameters ) {
 		if ( ! isset( $_POST['_time_setting'] ) || true !== $_POST['_time_setting'] ) {
 			return;
 		}
@@ -523,6 +523,7 @@ class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 		if ( isset( $parameters['cache_gc_email_me'] ) && $parameters['cache_gc_email_me'] == 0 ) {
 			unset( $_POST['cache_gc_email_me'] );
 		}
+		$_POST[ 'wp_max_time' ] = $_POST[ 'cache_max_time' ];
 
 		wp_cache_time_update();
 	}
