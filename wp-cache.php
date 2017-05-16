@@ -2458,8 +2458,7 @@ function wp_cache_regenerate_cache_file_stats() {
 				if ( $details[ 'files' ] == 2 && !isset( $details[ 'upper_age' ] ) ) {
 					$details[ 'files' ] = 1;
 				}
-				$details[ 'dir' ] = $dir;
-				$cached_list[] = $details;
+				$cached_list[ $dir ] = $details;
 			}
 			$sizes[ $cache_type ][ $status ] = $cached_list;
 		}
@@ -2622,14 +2621,14 @@ function wp_cache_files() {
 						$flip = 1;
 
 						ksort( $details[ $list ] );
-						foreach( $details[ $list ] as $d ) {
+						foreach( $details[ $list ] as $directory => $d ) {
 							if ( isset( $d[ 'upper_age' ] ) ) {
 								$age = "{$d[ 'lower_age' ]} - {$d[ 'upper_age' ]}";
 							} else {
 								$age = $d[ 'lower_age' ];
 							}
 							$bg = $flip ? 'style="background: #EAEAEA;"' : '';
-							echo "<tr $bg><td>$c</td><td> <a href='http://{$d[ 'dir' ]}'>{$d[ 'dir' ]}</a></td><td>{$d[ 'files' ]}</td><td>{$age}</td><td><a href='" . wp_nonce_url( add_query_arg( array( 'page' => 'wpsupercache', 'action' => 'deletesupercache', 'uri' => base64_encode( $d[ 'dir' ] ) ) ), 'wp-cache' ) . "#listfiles'>X</a></td></tr>\n";
+							echo "<tr $bg><td>$c</td><td> <a href='http://{$directory}'>{$directory}</a></td><td>{$d[ 'files' ]}</td><td>{$age}</td><td><a href='" . wp_nonce_url( add_query_arg( array( 'page' => 'wpsupercache', 'action' => 'deletesupercache', 'uri' => base64_encode( $directory ) ) ), 'wp-cache' ) . "#listfiles'>X</a></td></tr>\n";
 							$flip = !$flip;
 							$c++;
 						}
