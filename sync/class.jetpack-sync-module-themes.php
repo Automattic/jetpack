@@ -35,12 +35,21 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 			! isset( $_REQUEST['action'] ) ||
 			'save-widget' !== $_REQUEST['action'] ||
 			! isset( $_REQUEST['add_new'] ) ||
-			false  !== ( bool ) $_REQUEST['add_new']
+			false  !== ( bool ) $_REQUEST['add_new'] ||
+			! isset( $_REQUEST['id_base'] )
 		) {
 			return;
 		}
+
 		global $wp_registered_widget_updates;
 		$widget_name = $wp_registered_widget_updates[ $_REQUEST['id_base'] ]['callback'][0]->name;
+		/**
+		 * Trigger action to alert $callable sync listener that a widget was edited
+		 *
+		 * @since 5.0.0
+		 *
+		 * @param string $widget_name, Name of edited widget
+		 */
 		do_action( 'jetpack_widget_edited', $widget_name );
 	}
 

@@ -361,6 +361,35 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( (bool) $event, 'Not fired cleared inacative widgets' );
 	}
 
+	public function test_widget_edited() {
+		$_REQUEST['action'] = 'save-widget';
+		$_REQUEST['add_new'] = '';
+		$_REQUEST['id_base'] = 'search';
+		global $wp_registered_widget_updates;
+		$wp_registered_widget_updates = array(
+			$_REQUEST['id_base'] => array(
+				'callback' => array(
+					(object) array(
+						'name' => 'Search',
+					)
+				)
+			)
+		);
+		/**
+		 * This filter is already documented in wp-admin/includes/ajax-actions.php
+		 */
+		do_action( 'widgets.php' );
+
+		$this->sender->do_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_widget_edited' );
+		$this->assertEquals( $event->args[0], 'Search' );
+
+		//Cleanup
+		$_REQUEST = array();
+		$wp_registered_widget_updates = array();
+	}
+
 	private function install_theme( $slug ) {
 		require_once ABSPATH . 'wp-admin/includes/theme-install.php';
 		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
