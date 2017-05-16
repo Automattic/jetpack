@@ -26,23 +26,14 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		add_action( 'jetpack_widget_moved_to_inactive', $callable );
 		add_action( 'jetpack_cleared_inactive_widgets', $callable );
 		add_action( 'jetpack_widget_reordered', $callable );
-		add_action( 'widgets.php', array( $this, 'detect_widget_edit' ) );
+		add_filter( 'widget_update_callback', array( $this, 'sync_widget_edit' ), 10, 3 );
 		add_action( 'jetpack_widget_edited', $callable );
 	}
 
-	public function detect_widget_edit() {
-		if (
-			! isset( $_REQUEST['action'] ) ||
-			'save-widget' !== $_REQUEST['action'] ||
-			! isset( $_REQUEST['add_new'] ) ||
-			false  !== ( bool ) $_REQUEST['add_new'] ||
-			! isset( $_REQUEST['id_base'] )
-		) {
-			return;
-		}
-
-		global $wp_registered_widget_updates;
-		$widget_name = $wp_registered_widget_updates[ $_REQUEST['id_base'] ]['callback'][0]->name;
+	public function sync_widget_edit( $instance, $new_instance, $old_instance ) {
+		$widget_name = $instance->name;
+		error_log(print_r($new_instance, true));
+		error_log(print_r($old_instance, true));
 		/**
 		 * Trigger action to alert $callable sync listener that a widget was edited
 		 *
@@ -51,6 +42,8 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		 * @param string $widget_name, Name of edited widget
 		 */
 		do_action( 'jetpack_widget_edited', $widget_name );
+
+		return $instance;
 	}
 
 	public function sync_network_allowed_themes_change( $option, $value, $old_value, $network_id ) {
