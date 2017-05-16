@@ -37,7 +37,7 @@ const AppsCard = React.createClass( {
 	},
 
 	render() {
-		if ( this.props.arePromotionsActive && this.props.isAppsCardDismissed ) {
+		if ( ! this.props.arePromotionsActive || this.props.isAppsCardDismissed ) {
 			return null;
 		}
 
