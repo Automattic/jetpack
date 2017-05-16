@@ -26,7 +26,7 @@ jQuery( document ).ready( function( $ ) {
 				$my_template.hide();
 
 				$.ajax( {
-					url: '/wp-json/jetpack/v4/jitm', // todo: not hardcode this
+					url: window.jitm_config.api_root + 'jetpack/v4/jitm',
 					method: 'DELETE',
 					data: {
 						id: response[ index ].id,
@@ -56,8 +56,7 @@ jQuery( document ).ready( function( $ ) {
 		var message_path = $el.data( 'message-path' );
 		var query = $el.data( 'query' );
 
-		// todo: figure out how this can work with sites that don't have permalinks set up
-		$.get( '/wp-json/jetpack/v4/jitm', {
+		$.get( window.jitm_config.api_root + 'jetpack/v4/jitm', {
 			message_path: message_path,
 			query: query,
 			_wpnonce: $el.data( 'nonce' )

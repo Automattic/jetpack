@@ -141,6 +141,9 @@ class Jetpack_JITM {
 		$wp_styles->add_data( 'jetpack-jitm-css', 'rtl', true );
 
 		wp_enqueue_script( 'jetpack-jitm-new', plugins_url( '_inc/jetpack-jitm.js', JETPACK__PLUGIN_FILE ), array( 'jquery' ), JETPACK__VERSION, true );
+		wp_localize_script('jetpack-jitm-new', 'jitm_config', array(
+				'api_root' => esc_url_raw( rest_url() ),
+		) );
 	}
 
 	function dismiss( $id, $feature_class ) {
