@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import Gridicon from 'components/gridicon';
@@ -27,9 +27,9 @@ import {
 import QueryUserConnectionData from 'components/data/query-user-connection';
 import ConnectButton from 'components/connect-button';
 
-export const DashConnections = React.createClass( {
+class DashConnections extends Component {
 
-	/**
+	/*
 	 * Render a card for site connection. If it's connected, indicate if user is the connection owner.
 	 * Show alternative message if site is in development mode.
 	 *
@@ -85,9 +85,9 @@ export const DashConnections = React.createClass( {
 		}
 
 		return cardContent;
-	},
+	}
 
-	/**
+	/*
 	 * Render a card for user linking. If it's connected, show the currently linked user.
 	 * Show an alternative message if site is in Dev Mode.
 	 *
@@ -125,7 +125,7 @@ export const DashConnections = React.createClass( {
 											'Connected as {{span}}%(username)s{{/span}}',
 											{
 												args: {
-													username: this.props.userWpComLogin,
+													username: this.props.userWpComLogin
 												},
 												components: {
 													span: <span
@@ -160,11 +160,10 @@ export const DashConnections = React.createClass( {
 		}
 
 		return cardContent;
-	},
+	}
 
 	render() {
-
-		return(
+		return (
 			<div>
 				<QueryUserConnectionData />
 				<div className="jp-at-a-glance__item-grid">
@@ -192,7 +191,7 @@ export const DashConnections = React.createClass( {
 			</div>
 		);
 	}
-} );
+}
 
 DashConnections.propTypes = {
 	siteConnectionStatus: React.PropTypes.any.isRequired,
@@ -203,7 +202,7 @@ DashConnections.propTypes = {
 	userWpComLogin: React.PropTypes.any.isRequired,
 	userWpComEmail: React.PropTypes.any.isRequired,
 	userWpComAvatar: React.PropTypes.any.isRequired,
-	username: React.PropTypes.any.isRequired,
+	username: React.PropTypes.any.isRequired
 };
 
 export default connect(
@@ -219,6 +218,6 @@ export default connect(
 			username: getUsername( state ),
 			isLinked: isCurrentUserLinked( state ),
 			siteIcon: getSiteIcon( state )
-		}
+		};
 	}
 )( DashConnections );
