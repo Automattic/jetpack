@@ -26,14 +26,12 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		add_action( 'jetpack_widget_moved_to_inactive', $callable );
 		add_action( 'jetpack_cleared_inactive_widgets', $callable );
 		add_action( 'jetpack_widget_reordered', $callable );
-		add_filter( 'widget_update_callback', array( $this, 'sync_widget_edit' ), 10, 3 );
+		add_filter( 'widget_update_callback', array( $this, 'sync_widget_edit' ), 10, 4 );
 		add_action( 'jetpack_widget_edited', $callable );
 	}
 
-	public function sync_widget_edit( $instance, $new_instance, $old_instance ) {
-		$widget_name = $instance->name;
-		error_log(print_r($new_instance, true));
-		error_log(print_r($old_instance, true));
+	public function sync_widget_edit( $instance, $new_instance, $old_instance, $widget_object ) {
+		$widget_name = $widget_object->name;
 		/**
 		 * Trigger action to alert $callable sync listener that a widget was edited
 		 *

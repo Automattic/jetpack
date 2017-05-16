@@ -362,32 +362,18 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_widget_edited() {
-		$_REQUEST['action'] = 'save-widget';
-		$_REQUEST['add_new'] = '';
-		$_REQUEST['id_base'] = 'search';
-		global $wp_registered_widget_updates;
-		$wp_registered_widget_updates = array(
-			$_REQUEST['id_base'] => array(
-				'callback' => array(
-					(object) array(
-						'name' => 'Search',
-					)
-				)
-			)
+		$object = (object) array(
+			'name' => 'Search'
 		);
 		/**
-		 * This filter is already documented in wp-admin/includes/ajax-actions.php
+		 * This filter is already documented in wp-includes/class-wp-widget.php
 		 */
-		do_action( 'widgets.php' );
+		do_action( 'widget_update_callback', array(), array(), array(), $object);
 
 		$this->sender->do_sync();
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_widget_edited' );
 		$this->assertEquals( $event->args[0], 'Search' );
-
-		//Cleanup
-		$_REQUEST = array();
-		$wp_registered_widget_updates = array();
 	}
 
 	private function install_theme( $slug ) {
