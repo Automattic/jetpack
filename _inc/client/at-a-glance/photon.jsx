@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import DashItem from 'components/dash-item';
 import { translate as __ } from 'i18n-calypso';
@@ -10,18 +10,15 @@ import includes from 'lodash/includes';
 /**
  * Internal dependencies
  */
-import {
-	isModuleActivated as _isModuleActivated,
-	activateModule,
-	getModules
-} from 'state/modules';
+import { getModules } from 'state/modules';
 import { isDevMode } from 'state/connection';
 
-const DashPhoton = React.createClass( {
-	getContent: function() {
-		const labelName = __( 'Image Performance %(photon)s', { args: { photon: '(Photon)' } } );
+class DashPhoton extends Component {
+	getContent() {
+		const labelName = __( 'Image Performance %(photon)s', { args: { photon: '(Photon)' } } ),
+			activatePhoton = () => this.props.updateOptions( { [ 'photon' ]: true } );
 
-		if ( this.props.isModuleActivated( 'photon' ) ) {
+		if ( this.props.getOptionValue( 'photon' ) ) {
 			return (
 				<DashItem
 					label={ labelName }
@@ -39,19 +36,20 @@ const DashPhoton = React.createClass( {
 				className="jp-dash-item__is-inactive" >
 				<p className="jp-dash-item__description">
 					{
-						this.props.isDevMode ? __( 'Unavailable in Dev Mode' ) :
-						__( '{{a}}Activate Photon{{/a}} to enhance the performance and speed of your images.', {
-							components: {
-								a: <a href="javascript:void(0)" onClick={ this.props.activatePhoton } />
+						this.props.isDevMode ? __( 'Unavailable in Dev Mode' )
+							: __( '{{a}}Activate Photon{{/a}} to enhance the performance and speed of your images.', {
+								components: {
+									a: <a href="javascript:void(0)" onClick={ activatePhoton } />
+								}
 							}
-						} )
+						)
 					}
 				</p>
 			</DashItem>
 		);
-	},
+	}
 
-	render: function() {
+	render() {
 		const moduleList = Object.keys( this.props.moduleList );
 		if ( ! includes( moduleList, 'photon' ) ) {
 			return null;
@@ -63,7 +61,7 @@ const DashPhoton = React.createClass( {
 			</div>
 		);
 	}
-} );
+}
 
 DashPhoton.propTypes = {
 	isDevMode: React.PropTypes.bool.isRequired
@@ -72,16 +70,8 @@ DashPhoton.propTypes = {
 export default connect(
 	( state ) => {
 		return {
-			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
 			isDevMode: isDevMode( state ),
 			moduleList: getModules( state )
-		};
-	},
-	( dispatch ) => {
-		return {
-			activatePhoton: () => {
-				return dispatch( activateModule( 'photon' ) );
-			}
 		};
 	}
 )( DashPhoton );
