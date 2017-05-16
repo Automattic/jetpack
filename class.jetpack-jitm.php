@@ -79,18 +79,7 @@ class Jetpack_JITM {
 
 	function ajax_message() {
 		$message_path = $this->get_message_path();
-		// todo: can this be optimized? wp parse args?
-		$query        = new WP_Query( $_GET );
-		$query        = $query->query;
-		$query_string = array();
-
-		if ( is_array( $query ) ) {
-			foreach ( $query as $key => $value ) {
-				$query_string[] = "$key=$value";
-			}
-		}
-
-		$query_string = implode( ',', $query_string );
+		$query_string = _http_build_query($_GET, '', ',');
 
 		?>
 		<div class="jetpack-jitm-message"
@@ -264,7 +253,6 @@ class Jetpack_JITM {
 			}
 
 			if ( isset( $envelope->content->hook ) ) {
-				// todo: this may be a security concern!
 				$envelope->content->message = esc_html( apply_filters( 'jitm_' . $envelope->content->hook, $envelope->content->message ) );
 				unset( $envelope->content->hook );
 			}
