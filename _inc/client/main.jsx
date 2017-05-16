@@ -235,12 +235,8 @@ const Main = React.createClass( {
 						<AdminNotices />
 						<JetpackNotices />
 						{ this.renderMainContent( this.props.route.path ) }
-						{
-							this.props.jumpStartStatus
-								? null
-								: <SupportCard path={ this.props.route.path } />
-						}
-						<AppsCard />
+						{ ! this.props.jumpStartStatus && <SupportCard path={ this.props.route.path } /> }
+						{ ! this.props.jumpStartStatus && <AppsCard /> }
 					</div>
 					<Footer siteAdminUrl={ this.props.siteAdminUrl } />
 				<Tracker analytics={ analytics } />
