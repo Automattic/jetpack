@@ -61,19 +61,19 @@ class DashBackups extends Component {
 				return (
 					__( 'To automatically back up your entire site, please {{a}}install and activate{{/a}} VaultPress.', {
 						components: {
-							a: <a href='https://wordpress.com/plugins/vaultpress' target="_blank" rel="noopener noreferrer" />
-						}
-					} )
-				);
-			} else {
-				return (
-					__( 'To automatically back up your entire site, please {{a}}upgrade your account{{/a}}.', {
-						components: {
-							a: <a href={ 'https://jetpack.com/redirect/?source=aag-backups&site=' + this.props.siteRawUrl } target="_blank" rel="noopener noreferrer" />
+							a: <a href="https://wordpress.com/plugins/vaultpress" target="_blank" rel="noopener noreferrer" />
 						}
 					} )
 				);
 			}
+
+			return (
+				__( 'To automatically back up your entire site, please {{a}}upgrade your account{{/a}}.', {
+					components: {
+						a: <a href={ 'https://jetpack.com/redirect/?source=aag-backups&site=' + this.props.siteRawUrl } target="_blank" rel="noopener noreferrer" />
+					}
+				} )
+			);
 		};
 
 		return (
@@ -85,8 +85,8 @@ class DashBackups extends Component {
 				pro={ true } >
 				<p className="jp-dash-item__description">
 					{
-						this.props.isDevMode ? __( 'Unavailable in Dev Mode.' ) :
-							upgradeOrActivateText()
+						this.props.isDevMode ? __( 'Unavailable in Dev Mode.' )
+							: upgradeOrActivateText()
 					}
 				</p>
 			</DashItem>
