@@ -26,6 +26,22 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		add_action( 'jetpack_widget_moved_to_inactive', $callable );
 		add_action( 'jetpack_cleared_inactive_widgets', $callable );
 		add_action( 'jetpack_widget_reordered', $callable );
+		add_action( 'widgets.php', array( $this, 'detect_widget_edit' ) );
+		add_action( 'jetpack_widget_edited', $callable );
+	}
+
+	public function detect_widget_edit() {
+		if (
+			! isset( $_REQUEST['action'] ) ||
+			'save-widget' !== $_REQUEST['action'] ||
+			! isset( $_REQUEST['add_new'] ) ||
+			false  !== ( bool ) $_REQUEST['add_new']
+		) {
+			return;
+		}
+		global $wp_registered_widget_updates;
+		$widget_name = $wp_registered_widget_updates[ $_REQUEST['id_base'] ]['callback'][0]->name;
+		do_action( 'jetpack_widget_edited', $widget_name );
 	}
 
 	public function sync_network_allowed_themes_change( $option, $value, $old_value, $network_id ) {
