@@ -363,7 +363,8 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 
 	public function test_widget_edited() {
 		$object = (object) array(
-			'name' => 'Search'
+			'name' => 'Search',
+			'id' => 'search-1',
 		);
 		/**
 		 * This filter is already documented in wp-includes/class-wp-widget.php
@@ -373,7 +374,8 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_widget_edited' );
-		$this->assertEquals( $event->args[0], 'Search' );
+		$this->assertEquals( $event->args[0]['name'], 'Search' );
+		$this->assertEquals( $event->args[0]['id'], 'search-1' );
 	}
 
 	private function install_theme( $slug ) {
