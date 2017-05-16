@@ -541,6 +541,7 @@ class Jetpack {
 
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
 		add_action( 'admin_init', array( $this, 'dismiss_jetpack_notice' ) );
+		add_action( 'switch_theme', array( $this, 'on_theme_switch' ), 10, 3 );
 
 		add_filter( 'admin_body_class', array( $this, 'admin_body_class' ) );
 
@@ -4307,6 +4308,22 @@ p {
 
 				}
 				break;
+		}
+	}
+
+	/**
+	 * Delete previous theme if it was a WPCOM theme.
+	 *
+	 * @since 5.0
+	 *
+	 * @param string   $new_name  Name of the new theme.
+	 * @param WP_Theme $new_theme WP_Theme instance of the new theme.
+	 * @param WP_Theme $old_theme WP_Theme instance of the old theme.
+	 */
+	function on_theme_switch( $new_name, $new_theme, $old_theme ) {
+		$old_theme = $old_theme->get_stylesheet();
+		if ( false !== stripos( $old_theme, '-wpcom' ) ) {
+			delete_theme( $old_theme );
 		}
 	}
 
