@@ -12,6 +12,7 @@ import Security from 'security/index.jsx';
 import Traffic from 'traffic';
 import Writing from 'writing/index.jsx';
 import Sharing from 'sharing/index.jsx';
+import SearchableModules from 'searchable-modules/index.jsx';
 
 export default React.createClass( {
 	displayName: 'SearchableSettings',
@@ -66,6 +67,7 @@ export default React.createClass( {
 					active={ ( '/sharing' === this.props.route.path ) }
 					{ ...commonProps }
 				/>
+				<SearchableModules searchTerm={ this.props.searchTerm } />
 			</div>
 		);
 	}
