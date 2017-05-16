@@ -12,6 +12,11 @@ class Jetpack_JITM {
 	 **/
 	private static $instance = null;
 
+	/**
+	 * Initializes the class, or returns the singleton
+	 *
+	 * @return Jetpack_JITM
+	 */
 	static function init() {
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new Jetpack_JITM;
@@ -20,6 +25,9 @@ class Jetpack_JITM {
 		return self::$instance;
 	}
 
+	/**
+	 * Jetpack_JITM constructor.
+	 */
 	private function __construct() {
 		if ( ! Jetpack::is_active() ) {
 			return;
@@ -27,6 +35,11 @@ class Jetpack_JITM {
 		add_action( 'current_screen', array( $this, 'prepare_jitms' ) );
 	}
 
+	/**
+	 * Get's the Jetpack emblem
+	 *
+	 * @return string The Jetpack emblem
+	 */
 	function get_emblem()
 	{
 		return '<div class="jp-emblem">' . Jetpack::get_jp_emblem() . '</div>';
@@ -50,6 +63,13 @@ class Jetpack_JITM {
 		add_action( 'edit_form_top', array( $this, 'ajax_message' ) );
 	}
 
+	/**
+	 * A special filter for WooCommerce, to set a message based on local state.
+	 *
+	 * @param $message string The current message
+	 *
+	 * @return string The new message
+	 */
 	static function jitm_woocommerce_services_msg( $message ) {
 		if ( ! function_exists( 'wc_get_base_location' ) ) {
 			return '';
@@ -69,14 +89,31 @@ class Jetpack_JITM {
 		}
 	}
 
+	/**
+	 * A special filter for WooCommerce Call To Action button
+	 *
+	 * @param $CTA string The existing CTA
+	 *
+	 * @return string The new CTA
+	 */
 	static function jitm_jetpack_woo_services_install( $CTA ) {
 		return wp_nonce_url( add_query_arg( array( 'wc-services-action' => 'install' ), '/wp-admin/admin.php?page=wc-settings' ), 'wc-services-install' );
 	}
 
+	/**
+	 * A special filter for WooCommerce Call To Action button
+	 *
+	 * @param $CTA string The existing CTA
+	 *
+	 * @return string The new CTA
+	 */
 	static function jitm_jetpack_woo_services_activate( $CTA ) {
 		return wp_nonce_url( add_query_arg( array( 'wc-services-action' => 'activate' ), '/wp-admin/admin.php?page=wc-settings' ), 'wc-services-install' );
 	}
 
+	/**
+	 * Injects the dom to show a JITM inside of
+	 */
 	function ajax_message() {
 		$message_path = $this->get_message_path();
 		$query_string = _http_build_query($_GET, '', ',');
@@ -90,37 +127,18 @@ class Jetpack_JITM {
 		<?php
 	}
 
+	/**
+	 * Get's the current message path for display of a JITM
+	 *
+	 * @return string The message path
+	 */
 	function get_message_path() {
 		$screen = get_current_screen();
 
 		return 'wp:' . $screen->id . ':' . current_filter();
 	}
 
-	function display_jitm_message() {
-		$screen = get_current_screen();
-
-		switch ( $screen->base ) {
-			case 'edit-comments':
-				$this->display_basic_message();
-				add_action( 'admin_notices', array( $this, 'akismet_msg' ) );
-				break;
-			case 'post':
-
-				break;
-			case 'update-core':
-				add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
-				add_action( 'admin_notices', array( $this, 'backups_updates_msg' ) );
-				break;
-			case 'woocommerce_page_wc-settings':
-			case 'edit_shop_order':
-			case 'shop_order':
-				add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
-				add_action( 'admin_notices', array( $this, 'woocommerce_services_msg' ) );
-				break;
-		}
-	}
-
-	/*
+	/**
 	* Function to enqueue jitm css and js
 	*/
 	function jitm_enqueue_files() {
@@ -135,6 +153,14 @@ class Jetpack_JITM {
 		) );
 	}
 
+	/**
+	 * Dismisses a JITM feature class so that it will no longer be shown
+	 *
+	 * @param $id string The id of the JITM that was dismissed
+	 * @param $feature_class string The feature class of the JITM that was dismissed
+	 *
+	 * @return bool Always true
+	 */
 	function dismiss( $id, $feature_class ) {
 		// todo: track dismissal of id and feature class?
 		$hide_jitm = Jetpack_Options::get_option( 'hide_jitm' );
@@ -160,9 +186,12 @@ class Jetpack_JITM {
 	}
 
 	/**
-	 * @param $request WP_REST_Request
+	 * Asks the wpcom API for the current message to display keyed on query string and message path
 	 *
-	 * @return array
+	 * @param $message_path string The message path to ask for
+	 * @param $query string The query string originally from the front end
+	 *
+	 * @return array The JITM's to show, or an empty array if there is nothing to show
 	 */
 	static function get_messages( $message_path, $query ) {
 		// custom filters go here
