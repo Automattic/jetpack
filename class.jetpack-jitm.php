@@ -55,9 +55,6 @@ class Jetpack_JITM {
 	 * @param object $screen
 	 */
 	function prepare_jitms( $screen ) {
-		/*if ( ! current_user_can( 'jetpack_manage_modules' ) ) {
-			return;
-		}*/
 		add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
 		add_action( 'admin_notices', array( $this, 'ajax_message' ) );
 		add_action( 'edit_form_top', array( $this, 'ajax_message' ) );
