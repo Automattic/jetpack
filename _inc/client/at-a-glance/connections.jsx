@@ -27,7 +27,7 @@ import {
 import QueryUserConnectionData from 'components/data/query-user-connection';
 import ConnectButton from 'components/connect-button';
 
-class DashConnections extends Component {
+export class DashConnections extends Component {
 
 	/*
 	 * Render a card for site connection. If it's connected, indicate if user is the connection owner.

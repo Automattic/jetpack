@@ -26,111 +26,107 @@ import {
 	userCanManageModules
 } from 'state/initial-state';
 
-export const DashItem = moduleSettingsForm(
-	class extends Component {
-		trackMonitorSettingsClick() {
-			analytics.tracks.recordJetpackClick( {
-				target: 'monitor-settings',
-				page: 'aag'
-			} );
-		}
+export class DashItem extends Component {
+	trackMonitorSettingsClick() {
+		analytics.tracks.recordJetpackClick( {
+			target: 'monitor-settings',
+			page: 'aag'
+		} );
+	}
 
-		render() {
-			let toggle, proButton = '';
+	render() {
+		let toggle, proButton = '';
 
-			const classes = classNames(
-				this.props.className,
-				'jp-dash-item',
-				this.props.disabled ? 'jp-dash-item__disabled' : ''
+		const classes = classNames(
+			this.props.className,
+			'jp-dash-item',
+			this.props.disabled ? 'jp-dash-item__disabled' : ''
+		);
+
+		const toggleModule = () => this.props.updateOptions( { [ this.props.module ]: ! this.props.getOptionValue( this.props.module ) } ),
+			trackPaidBtnClick = () => {
+				analytics.tracks.recordJetpackClick( {
+					target: 'paid-button',
+					feature: this.props.module,
+					page: 'aag'
+				} );
+			};
+
+		if ( '' !== this.props.module ) {
+			toggle = ( includes( [ 'protect', 'photon', 'vaultpress', 'scan', 'backups', 'akismet' ], this.props.module ) && this.props.isDevMode ) ? '' : (
+				<ModuleToggle
+					slug={ this.props.module }
+					activated={ this.props.getOptionValue( this.props.module ) }
+					toggling={ this.props.isUpdating( this.props.module ) }
+					toggleModule={ toggleModule }
+					compact={ true }
+				/>
 			);
 
-			const toggleModule = () => this.props.updateOptions( { [ this.props.module ]: ! this.props.getOptionValue( this.props.module ) } ),
-				trackPaidBtnClick = () => {
-					analytics.tracks.recordJetpackClick( {
-						target: 'paid-button',
-						feature: this.props.module,
-						page: 'aag'
-					} );
-				};
-
-			if ( '' !== this.props.module ) {
-				toggle = ( includes( [ 'protect', 'photon', 'vaultpress', 'scan', 'backups', 'akismet' ], this.props.module ) && this.props.isDevMode ) ? '' : (
-					<ModuleToggle
-						slug={ this.props.module }
-						activated={ this.props.getOptionValue( this.props.module ) }
-						toggling={ this.props.isUpdating( this.props.module ) }
-						toggleModule={ toggleModule }
-						compact={ true }
-					/>
-				);
-
-				if ( 'manage' === this.props.module ) {
-					if ( 'is-warning' === this.props.status ) {
-						toggle = (
-							<a href={ this.props.getOptionValue( 'manage' )
-								? 'https://wordpress.com/plugins/' + this.props.siteRawUrl
-								: this.props.siteAdminUrl + 'plugins.php' } >
-								<SimpleNotice
-									showDismiss={ false }
-									status={ this.props.status }
-									isCompact={ true }
-								>
-									{ __( 'Updates needed', { context: 'Short warning message' } ) }
-								</SimpleNotice>
-							</a>
-						);
-					}
-					if ( 'is-working' === this.props.status ) {
-						toggle = <span className="jp-dash-item__active-label">{ __( 'Active' ) }</span>;
-					}
-				}
-
-				if ( 'monitor' === this.props.module ) {
-					toggle = ! this.props.isDevMode && this.props.getOptionValue( this.props.module ) && (
-						<Button
-							onClick={ this.trackMonitorSettingsClick }
-							href={ 'https://wordpress.com/settings/security/' + this.props.siteRawUrl }
-							compact>
-							{
-								__( 'Settings' )
-							}
-						</Button>
+			if ( 'manage' === this.props.module ) {
+				if ( 'is-warning' === this.props.status ) {
+					toggle = (
+						<a href={ 'https://wordpress.com/plugins/' + this.props.siteRawUrl } >
+							<SimpleNotice
+								showDismiss={ false }
+								status={ this.props.status }
+								isCompact={ true }
+							>
+								{ __( 'Updates needed', { context: 'Short warning message' } ) }
+							</SimpleNotice>
+						</a>
 					);
 				}
+				if ( 'is-working' === this.props.status ) {
+					toggle = <span className="jp-dash-item__active-label">{ __( 'Active' ) }</span>;
+				}
 			}
 
-			if ( this.props.pro && ! this.props.isDevMode ) {
-				proButton =
+			if ( 'monitor' === this.props.module ) {
+				toggle = ! this.props.isDevMode && this.props.getOptionValue( this.props.module ) && (
 					<Button
-						onClick={ trackPaidBtnClick }
-						compact={ true }
-						href="#/plans"
-					>
-						{ __( 'Paid', { context: 'Short label appearing near a paid feature configuration block.' } ) }
+						onClick={ this.trackMonitorSettingsClick }
+						href={ 'https://wordpress.com/settings/security/' + this.props.siteRawUrl }
+						compact>
+						{
+							__( 'Settings' )
+						}
 					</Button>
-				;
-
-				toggle = <ProStatus proFeature={ this.props.module } siteAdminUrl={ this.props.siteAdminUrl } />;
+				);
 			}
-
-			return (
-				<div className={ classes }>
-					<SectionHeader
-						label={ this.props.label }
-						cardBadge={ proButton }
-					>
-						{ this.props.userCanToggle ? toggle : '' }
-					</SectionHeader>
-					<Card className="jp-dash-item__card" href={ this.props.href }>
-						<div className="jp-dash-item__content">
-							{ this.props.children }
-						</div>
-					</Card>
-				</div>
-			);
 		}
+
+		if ( this.props.pro && ! this.props.isDevMode ) {
+			proButton =
+				<Button
+					onClick={ trackPaidBtnClick }
+					compact={ true }
+					href="#/plans"
+				>
+					{ __( 'Paid', { context: 'Short label appearing near a paid feature configuration block.' } ) }
+				</Button>
+			;
+
+			toggle = <ProStatus proFeature={ this.props.module } siteAdminUrl={ this.props.siteAdminUrl } />;
+		}
+
+		return (
+			<div className={ classes }>
+				<SectionHeader
+					label={ this.props.label }
+					cardBadge={ proButton }
+				>
+					{ this.props.userCanToggle ? toggle : '' }
+				</SectionHeader>
+				<Card className="jp-dash-item__card" href={ this.props.href }>
+					<div className="jp-dash-item__content">
+						{ this.props.children }
+					</div>
+				</Card>
+			</div>
+		);
 	}
-);
+}
 
 DashItem.propTypes = {
 	label: React.PropTypes.string,
@@ -157,4 +153,4 @@ export default connect(
 			siteAdminUrl: getSiteAdminUrl( state )
 		};
 	}
-)( DashItem );
+)( moduleSettingsForm( DashItem ) );
