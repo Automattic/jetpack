@@ -57,5 +57,5 @@ ACCESS_TOKEN_JSON=`curl https://$JETPACK_START_API_HOST/oauth2/token --silent --
 wp plugin activate jetpack >/dev/null 2>&1
 
 # provision the partner plan
-wp jetpack partner_provision "$ACCESS_TOKEN_JSON" --user_id=$WP_USER_ID --plan=$PLAN_NAME --wpcom_user_id=$WPCOM_USER_ID --force_register=1
+wp jetpack partner_provision "$ACCESS_TOKEN_JSON" --user_id=$WP_USER_ID --plan=$PLAN_NAME --wpcom_user_id=$WPCOM_USER_ID
 
