@@ -19,7 +19,7 @@ import { isDevMode } from 'state/connection';
 
 const DashPhoton = React.createClass( {
 	getContent: function() {
-		const labelName = __( 'Image Performance %(photon)s', { args: { photon: '(Photon)' } } );
+		const labelName = __( 'Image Performance' );
 
 		if ( this.props.isModuleActivated( 'photon' ) ) {
 			return (
@@ -40,7 +40,7 @@ const DashPhoton = React.createClass( {
 				<p className="jp-dash-item__description">
 					{
 						this.props.isDevMode ? __( 'Unavailable in Dev Mode' ) :
-						__( '{{a}}Activate Photon{{/a}} to enhance the performance and speed of your images.', {
+						__( '{{a}}Activate{{/a}} to enhance the performance and speed of your images.', {
 							components: {
 								a: <a href="javascript:void(0)" onClick={ this.props.activatePhoton } />
 							}
