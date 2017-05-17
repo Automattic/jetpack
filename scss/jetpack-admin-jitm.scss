@@ -320,6 +320,11 @@
 	}
 }
 
+// remove right margin for jitms in the editor
+.post-php .jitm-card {
+	margin-right: 0;
+}
+
 .jitm-banner.jitm-card {
 	border-left: 3px solid;
 	display: flex;

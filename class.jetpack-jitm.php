@@ -405,18 +405,23 @@ class Jetpack_JITM {
 		$url = 'https://jetpack.com/redirect/?source=jitm-backup-publish&site=' . $normalized_site_url;
 		$jitm_stats_url = Jetpack::build_stats_url( array( 'x_jetpack-jitm' => 'vaultpress' ) );
 		?>
-		<div class="jp-jitm" data-track="vaultpress-publish" data-stats_url="<?php echo esc_url( $jitm_stats_url ); ?>">
-			<a href="#" data-module="vaultpress" class="dismiss"><span class="genericon genericon-close"></span></a>
-
-			<?php echo self::get_emblem(); ?>
-
-			<p class="msg">
-				<?php esc_html_e( "Great job! Now let's make sure your hard work is never lost, backup everything with VaultPress.", 'jetpack' ); ?>
-			</p>
-			<p>
-				<a href="<?php echo esc_url( $url ); ?>" target="_blank" title="<?php esc_attr_e( 'Enable Backups', 'jetpack' ); ?>" data-module="vaultpress" data-jptracks-name="nudge_click" data-jptracks-prop="jitm-vault-post" class="button button-jetpack launch jptracks"><?php esc_html_e( 'Enable Backups', 'jetpack' ); ?></a>
-			</p>
+		<div class="jitm-card jitm-banner has-call-to-action" data-track="vaultpress-publish" data-stats_url="<?php echo esc_url( $jitm_stats_url ); ?>">
+			<div class="jitm-banner__icon-plan">
+				<?php echo self::get_emblem(); ?>
+			</div>
+			<div class="jitm-banner__content">
+				<div class="jitm-banner__info">
+					<div class="jitm-banner__title"><?php esc_html_e( 'Ensure your work is backed up.', 'jetpack' ); ?></div>
+					<div class="jitm-banner__description"><?php esc_html_e( 'Great work creating that post! Now make sure your hard work is never lost, backup everything with Jetpack Backups.', 'jetpack' ); ?></div>
+				</div>
+				<div class="jitm-banner__action">
+					<a href="<?php echo esc_url( $url ); ?>" target="_blank" title="<?php esc_attr_e( 'Enable Jetpack Backups', 'jetpack' ); ?>" data-module="vaultpress" data-jptracks-name="nudge_click" data-jptracks-prop="jitm-vault-post" class="jitm-button is-compact launch jptracks is-primary"><?php esc_html_e( 'Enable', 'jetpack' ); ?></a>
+				</div>
+				<a href="#" data-module="vaultpress" class="jitm-banner__dismiss"></a>
+			</div>
 		</div>
+
+
 		<?php
 		//jitm is being viewed, track it
 		$jetpack = Jetpack::init();
