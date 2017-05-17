@@ -34,7 +34,7 @@ function JetpackLikesBatchHandler() {
 		if ( jetpackLikesWidgetBatch.indexOf( this.id ) > -1 ) {
 			return;
 		}
-		
+
 		jetpackLikesWidgetBatch.push( this.id );
 
 		var regex = /like-(post|comment)-wrapper-(\d+)-(\d+)-(\w+)/,
@@ -273,6 +273,20 @@ function JetpackLikesWidgetQueueHandler() {
 			return;
 		}
 	}
+
+	// Restore widgets to initial unloaded state when they are scrolled out of view.
+	jQuery( 'div.jetpack-likes-widget-loaded' ).each( function() {
+		if ( ! jetpackIsScrolledIntoView( this ) ) {
+			// Remove comment like iFrames that are scrolled out of view.
+			jQuery( this ).children( '.comment-likes-widget' ).children( '.comment-likes-widget-frame' ).remove();
+
+			// Restore parent class to 'unloaded' so this widget can be picked up by queue manager again if needed.
+			jQuery( this ).removeClass( 'jetpack-likes-widget-loaded' ).addClass( 'jetpack-likes-widget-unloaded' );
+
+			// Bring back the loading placeholder into view.
+			jQuery( this ).children( '.comment-likes-widget-placeholder' ).fadeIn();
+		}
+	} );
 
 	if ( 'undefined' === typeof wrapperID ) {
 		setTimeout( JetpackLikesWidgetQueueHandler, 500 );
