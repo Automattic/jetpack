@@ -105,17 +105,6 @@ class Jetpack_SEO {
 			return;
 		}
 
-		/**
-		 * Can be used to insert custom site host that will used for meta title.
-		 *
-		 * @module seo-tools
-		 *
-		 * @since 4.4.0
-		 *
-		 * @param string Name of the site host. Defaults to empty string.
-		 */
-		$site_host = apply_filters( 'jetpack_seo_site_host', '' );
-
 		$front_page_meta     = Jetpack_SEO_Utils::get_front_page_meta_description();
 		$description         = $front_page_meta ? $front_page_meta : get_bloginfo( 'description' );
 		$meta['description'] = trim( $description );
