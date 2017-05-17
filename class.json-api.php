@@ -594,8 +594,20 @@ class WPCOM_JSON_API {
 		return '';
 	}
 
+	function get_avatar_url( $email, $avatar_size = null ) {
+		if ( function_exists( 'wpcom_get_avatar_url' ) ) {
+			return null === $avatar_size
+				? wpcom_get_avatar_url( $email )
+				: wpcom_get_avatar_url( $email, $avatar_size );
+		} else {
+			return null === $avatar_size
+				? get_avatar_url( $email )
+				: get_avatar_url( $email, $avatar_size );
+		}
+	}
+
 	/**
-	 * Traps `wp_die()` calls and outputs a JSON response instead.
+	 * traps `wp_die()` calls and outputs a JSON response instead.
 	 * The result is always output, never returned.
 	 *
 	 * @param string|null $error_code  Call with string to start the trapping.  Call with null to stop.
