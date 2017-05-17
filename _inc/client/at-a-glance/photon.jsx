@@ -15,7 +15,7 @@ import { isDevMode } from 'state/connection';
 
 class DashPhoton extends Component {
 	getContent() {
-		const labelName = __( 'Image Performance %(photon)s', { args: { photon: '(Photon)' } } ),
+		const labelName = __( 'Image Performance' ),
 			activatePhoton = () => this.props.updateOptions( { [ 'photon' ]: true } );
 
 		if ( this.props.getOptionValue( 'photon' ) ) {
@@ -37,7 +37,7 @@ class DashPhoton extends Component {
 				<p className="jp-dash-item__description">
 					{
 						this.props.isDevMode ? __( 'Unavailable in Dev Mode' )
-							: __( '{{a}}Activate Photon{{/a}} to enhance the performance and speed of your images.', {
+							: __( '{{a}}Activate{{/a}} to enhance the performance and speed of your images.', {
 								components: {
 									a: <a href="javascript:void(0)" onClick={ activatePhoton } />
 								}

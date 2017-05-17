@@ -190,6 +190,10 @@ HTML;
 	 * @since 4.5.0
 	 */
 	function insert_ad( $content ) {
+		// Ad JS won't work in XML feeds.
+		if ( is_feed() ) {
+			return $content;
+		}
 		/**
 		 * Allow third-party tools to disable the display of in post ads.
 		 *

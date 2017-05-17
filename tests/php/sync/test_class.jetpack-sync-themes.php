@@ -361,6 +361,23 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( (bool) $event, 'Not fired cleared inacative widgets' );
 	}
 
+	public function test_widget_edited() {
+		$object = (object) array(
+			'name' => 'Search',
+			'id' => 'search-1',
+		);
+		/**
+		 * This filter is already documented in wp-includes/class-wp-widget.php
+		 */
+		do_action( 'widget_update_callback', array(), array(), array(), $object);
+
+		$this->sender->do_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_widget_edited' );
+		$this->assertEquals( $event->args[0]['name'], 'Search' );
+		$this->assertEquals( $event->args[0]['id'], 'search-1' );
+	}
+
 	private function install_theme( $slug ) {
 		require_once ABSPATH . 'wp-admin/includes/theme-install.php';
 		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';

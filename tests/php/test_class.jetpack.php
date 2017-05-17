@@ -580,6 +580,113 @@ EXPECTED;
 		$this->assertTrue( '123.456.789.0/' === $url_normalized );
 	}
 
+	/**
+	 * The generate_secrets method should return and store the secret.
+	 *
+	 * @author zinigor
+	 * @covers Jetpack::generate_secrets
+	 */
+	function test_generate_secrets_stores_secrets() {
+		$secret = Jetpack::generate_secrets( 'name' );
+
+		$this->assertEquals( $secret, Jetpack::get_secrets( 'name', get_current_user_id() ) );
+	}
+
+	/**
+	 * The generate_secrets method should return the same secret after calling generate several times.
+	 *
+	 * @author zinigor
+	 * @covers Jetpack::generate_secrets
+	 */
+	function test_generate_secrets_does_not_regenerate_secrets() {
+		$secret = Jetpack::generate_secrets( 'name' );
+		$secret2 = Jetpack::generate_secrets( 'name' );
+		$secret3 = Jetpack::generate_secrets( 'name' );
+
+		$this->assertEquals( $secret, $secret2 );
+		$this->assertEquals( $secret, $secret3 );
+		$this->assertEquals( $secret, Jetpack::get_secrets( 'name', get_current_user_id() ) );
+	}
+
+	/**
+	 * The generate_secrets method should work with filters on wp_generate_password.
+	 *
+	 * @author zinigor
+	 * @covers Jetpack::generate_secrets
+	 */
+	function test_generate_secrets_works_with_filters() {
+		add_filter( 'random_password', array( __CLASS__, '__cyrillic_salt' ), 20 );
+		add_filter( 'random_password', array( __CLASS__, '__kanji_salt' ), 21 );
+
+		$secret = Jetpack::generate_secrets( 'name' );
+
+		$this->assertEquals( $secret, Jetpack::get_secrets( 'name', get_current_user_id() ) );
+
+		remove_filter( 'random_password', array( __CLASS__, '__cyrillic_salt' ), 20 );
+		remove_filter( 'random_password', array( __CLASS__, '__kanji_salt' ), 21 );
+	}
+
+	/**
+	 * The generate_secrets method should work with long strings.
+	 *
+	 * @author zinigor
+	 * @covers Jetpack::generate_secrets
+	 */
+	function test_generate_secrets_works_with_long_strings() {
+		add_filter( 'random_password', array( __CLASS__, '__multiply_filter' ), 20 );
+
+		$secret = Jetpack::generate_secrets( 'name' );
+
+		$this->assertEquals( $secret, Jetpack::get_secrets( 'name', get_current_user_id() ) );
+
+		remove_filter( 'random_password', array( __CLASS__, '__multiply_filter' ), 20 );
+	}
+
+	/**
+	 * The get_secrets method should return an error for unknown secrets
+	 *
+	 * @author roccotripaldi
+	 * @covers Jetpack::generate_secrets
+	 */
+	function test_generate_secrets_returns_error_for_unknown_secrets() {
+		Jetpack::generate_secrets( 'name' );
+		$unknown_action = Jetpack::get_secrets( 'unknown', get_current_user_id() );
+		$unknown_user_id = Jetpack::get_secrets( 'name', 5 );
+
+		$this->assertInstanceOf( 'WP_Error', $unknown_action );
+		$this->assertArrayHasKey( 'verify_secrets_missing', $unknown_action->errors );
+		$this->assertInstanceOf( 'WP_Error', $unknown_user_id );
+		$this->assertArrayHasKey( 'verify_secrets_missing', $unknown_user_id->errors );
+	}
+
+	/**
+	 * The get_secrets method should return an error for expired secrets
+	 *
+	 * @author roccotripaldi
+	 * @covers Jetpack::generate_secrets
+	 */
+	function test_generate_secrets_returns_error_for_expired_secrets() {
+		Jetpack::generate_secrets( 'name', get_current_user_id(), -600 );
+		$expired = Jetpack::get_secrets( 'name', get_current_user_id() );
+		$this->assertInstanceOf( 'WP_Error', $expired );
+		$this->assertArrayHasKey( 'verify_secrets_expired', $expired->errors );
+	}
+
+	static function __cyrillic_salt( $password ) {
+		return 'ленка' . $password . 'пенка';
+	}
+
+	static function __kanji_salt( $password ) {
+		return '強熊' . $password . '清珠';
+	}
+
+	static function __multiply_filter( $password ) {
+		for ( $i = 0; $i < 10; $i++ ) {
+			$password .= $password;
+		}
+		return $password;
+	}
+
 	function __return_string_1() {
 		return '1';
 	}
