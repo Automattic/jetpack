@@ -24,10 +24,6 @@ abstract class Abstract_Jetpack_Site extends SAL_Site {
 
 	abstract protected function is_main_network();
 
-	abstract protected function is_multisite();
-
-	abstract protected function is_single_user_site();
-
 	abstract protected function is_version_controlled();
 
 	abstract protected function file_system_write_access();
