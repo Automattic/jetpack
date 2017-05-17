@@ -765,22 +765,25 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 *
 	 * <token_json>
 	 * : JSON blob of WPCOM API token
-	 * --plan=<plan_name>
-	 * : Slug of the requested plan, e.g. premium
 	 * --user_id=<user_id>
 	 * : Local ID of user to connect as (if omitted, user will be required to redirect via wp-admin)
+	 * [--plan=<plan_name>]
+	 * : Slug of the requested plan, e.g. premium
+	 * [--wpcom_user_id=<user_id>]
+	 * : WordPress.com ID of user to connect as (must be whitelisted against partner key)
+	 * [--force_register=<register>]
+	 * : Whether to force a site to register
 	 *
 	 * ## EXAMPLES
 	 *
 	 *     $ wp jetpack partner_provision '{ some: "json" }' premium 1
 	 *     { success: true }
 	 *
-	 * @synopsis <token_json> --plan=<plan_name> --user_id=<user_id>
+	 * @synopsis <token_json> --user_id=<user_id> [--wpcom_user_id=<user_id>] [--plan=<plan_name>] [--force_register=<register>]
 	 */
 	public function partner_provision( $args, $named_args ) {
 		list( $token_json ) = $args;
 
-		$plan_name = $named_args['plan'];
 		$user_id   = $named_args['user_id'];
 
 		if ( ! $token_json || ! ( $token = json_decode( $token_json ) ) ) {
@@ -793,10 +796,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		if ( ! isset( $token->access_token ) ) {
 			$this->partner_provision_error( new WP_Error( 'missing_access_token', __( 'Missing or invalid access token', 'jetpack' ) ) );
-		}
-
-		if ( empty( $plan_name ) ) {
-			$this->partner_provision_error( new WP_Error( 'missing_plan_param', __( 'Missing plan name', 'jetpack' ) ) );
 		}
 		
 		if ( empty( $user_id ) ) {
@@ -817,7 +816,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 			$this->partner_provision_error( new WP_Error( 'missing_user', sprintf( __( "User %s doesn't exist", 'jetpack' ), $user_id ) ) );
 		}
 
-		if ( ! $blog_id || ! $blog_token ) {
+		if ( ! $blog_id || ! $blog_token || intval( $named_args['force_register'] ) ) {
 			// this code mostly copied from Jetpack::admin_page_load
 			Jetpack::maybe_set_version_option();
 			$registered = Jetpack::try_registration();
@@ -850,35 +849,41 @@ class Jetpack_CLI extends WP_CLI_Command {
 			wp_login_url() // TODO: come back to Jetpack dashboard?
 		);
 
+		$request_body = array( 
+			'jp_version'    => JETPACK__VERSION,
+
+			// Jetpack auth stuff
+			'scope'         => $signed_role,
+			'secret'        => $secret,			
+
+			// User stuff
+			'user_id'       => $user->ID,
+			'user_email'    => $user->user_email,
+			'user_login'    => $user->user_login,
+
+			// Blog meta stuff
+			'site_icon'     => $site_icon,
+
+			// Then come back to this URL
+			'redirect_uri'  => $sso_url
+		);
+
+		// optional additional params
+		if ( isset( $named_args['wpcom_user_id'] ) && ! empty( $named_args['wpcom_user_id'] ) ) {
+			$request_body['wpcom_user_id'] = $named_args['wpcom_user_id'];
+		}
+
+		if ( isset( $named_args['plan'] ) && ! empty( $named_args['plan'] ) ) {
+			$request_body['plan'] = $named_args['plan'];
+		}
+
 		$request = array(
 			'headers' => array(
 				'Authorization' => "Bearer " . $token->access_token,
 				'Host'          => defined( 'JETPACK__WPCOM_JSON_API_HOST_HEADER' ) ? JETPACK__WPCOM_JSON_API_HOST_HEADER : 'public-api.wordpress.com',
 			),
 			'method'  => 'POST',
-			'body'    => json_encode( 
-				array( 
-					'jp_version'    => JETPACK__VERSION,
-
-					// Partner plan stuff
-					'plan'          => $plan_name,
-
-					// Jetpack auth stuff
-					'scope'         => $signed_role,
-					'secret'        => $secret,
-					'state'         => $user->ID,
-
-					// User stuff
-					'user_email'    => $user->user_email,
-					'user_login'    => $user->user_login,
-
-					// Blog meta stuff
-					'site_icon'     => $site_icon,
-
-					// Then come back to this URL
-					'redirect_uri'  => $sso_url
-				) 
-			)
+			'body'    => json_encode( $request_body )
 		);
 
 		$url = sprintf( 'https://%s/rest/v1.3/jpphp/%d/partner-provision', $host, $blog_id );
@@ -905,6 +910,8 @@ class Jetpack_CLI extends WP_CLI_Command {
 				$this->partner_provision_error( new WP_Error( 'server_error', sprintf( __( "Request failed with code %s" ), $response_code ) ) );
 			}
 		}
+
+		WP_CLI::log( $body_json->next_url );
 
 		WP_CLI::log( json_encode( $body_json ) );
 	}
