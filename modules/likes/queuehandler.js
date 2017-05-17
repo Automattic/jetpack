@@ -34,11 +34,7 @@ function JetpackLikesBatchHandler() {
 		if ( jetpackLikesWidgetBatch.indexOf( this.id ) > -1 ) {
 			return;
 		}
-
-		if ( ! jetpackIsScrolledIntoView( this ) ) {
-			return;
-		}
-
+		
 		jetpackLikesWidgetBatch.push( this.id );
 
 		var regex = /like-(post|comment)-wrapper-(\d+)-(\d+)-(\w+)/,
