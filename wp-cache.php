@@ -483,7 +483,7 @@ function wp_cache_manager_updates() {
 			wp_clear_scheduled_hook( 'wp_cache_gc' );
 			wp_clear_scheduled_hook( 'wp_cache_gc_watcher' );
 		}
-		$advanced_settings = array( 'wp_super_cache_late_init', 'wp_cache_disable_utf8', 'wp_cache_no_cache_for_get', 'wp_supercache_304', 'wp_cache_mfunc_enabled', 'wp_cache_mobile_enabled', 'wp_cache_front_page_checks', 'wp_supercache_cache_list', 'wp_cache_hello_world', 'wp_cache_clear_on_post_edit', 'wp_cache_not_logged_in', 'wp_cache_make_known_anon','wp_cache_object_cache', 'wp_cache_refresh_single_only', 'cache_compression', 'wp_cache_mutex_disabled' );
+		$advanced_settings = array( 'wp_super_cache_late_init', 'wp_cache_disable_utf8', 'wp_cache_no_cache_for_get', 'wp_supercache_304', 'wp_cache_mfunc_enabled', 'wp_cache_mobile_enabled', 'wp_cache_front_page_checks', 'wp_supercache_cache_list', 'wp_cache_hello_world', 'wp_cache_clear_on_post_edit', 'wp_cache_not_logged_in', 'wp_cache_make_known_anon','wp_cache_object_cache', 'wp_cache_refresh_single_only', 'cache_compression' );
 		foreach( $advanced_settings as $setting ) {
 			if ( isset( $$setting ) && $$setting == 1 ) {
 				$_POST[ $setting ] = 1;
@@ -838,7 +838,7 @@ table.wpsc-settings-table {
 			}
 			echo '<p>' . __( 'This will cache every published post and page on your site. It will create supercache static files so unknown visitors (including bots) will hit a cached page. This will probably help your Google ranking as they are using speed as a metric when judging websites now.', 'wp-super-cache' ) . '</p>';
 			echo '<p>' . __( 'Preloading creates lots of files however. Caching is done from the newest post to the oldest so please consider only caching the newest if you have lots (10,000+) of posts. This is especially important on shared hosting.', 'wp-super-cache' ) . '</p>';
-			echo '<p>' . __( 'In &#8217;Preload Mode&#8217; regular garbage collection will only clean out old legacy files for known users, not the preloaded supercache files. This is a recommended setting when the cache is preloaded.', 'wp-super-cache' ) . '</p>';
+			echo '<p>' . __( 'In &#8217;Preload Mode&#8217; regular garbage collection will be disabled so that old cache files are not deleted. This is a recommended setting when the cache is preloaded.', 'wp-super-cache' ) . '</p>';
 			echo '<form name="cache_filler" action="" method="POST">';
 			echo '<input type="hidden" name="action" value="preload" />';
 			echo '<input type="hidden" name="page" value="wpsupercache" />';
@@ -875,8 +875,8 @@ table.wpsc-settings-table {
 
 			echo '<input type="checkbox" name="wp_cache_preload_on" value="1" ';
 			echo $wp_cache_preload_on == 1 ? 'checked=1' : '';
-			echo ' /> ' . __( 'Preload mode (garbage collection only on legacy cache files. Recommended.)', 'wp-super-cache' ) . '<br />';
-			echo '<input type="checkbox" name="wp_cache_preload_taxonomies" value="1" ';
+			echo ' /> ' . __( 'Preload mode (garbage collection disabled. Recommended.)', 'wp-super-cache' ) . '<br />';
+			echo '<input type="checkbox" name="preload_taxonomies" value="1" ';
 			echo $wp_cache_preload_taxonomies == 1 ? 'checked=1' : '';
 			echo ' /> ' . __( 'Preload tags, categories and other taxonomies.', 'wp-super-cache' ) . '<br />';
 			echo __( 'Send me status emails when files are refreshed.', 'wp-super-cache' ) . '<br />';
@@ -1191,11 +1191,13 @@ table.wpsc-settings-table {
 			?>
 			<h3 class="clear"><?php _e( 'Recommended Links and Plugins', 'wp-super-cache' ); ?></h3>
 			<p><?php _e( 'Caching is only one part of making a website faster. Here are some other plugins that will help:', 'wp-super-cache' ); ?></p>
+			<ul style="list-style: square; margin-left: 2em;">
+			<li><?php printf( __( '<a href="%s">Jetpack</a> provides everything you need to build a successful WordPress website including an image/photo CDN (free) and a video hosting service (paid).', 'wp-super-cache' ), 'https://jetpack.com/redirect/?source=jitm-wpsc-recommended' ); ?></li>
 			<li><?php printf( __( '<a href="%s">Yahoo! Yslow</a> is an extension for the Firefox add-on Firebug. It analyzes web pages and suggests ways to improve their performance based on a set of rules for high performance web pages. Also try the performance tools online at <a href="%s">GTMetrix</a>.', 'wp-super-cache' ), 'http://developer.yahoo.com/yslow/', 'http://gtmetrix.com/' ); ?></li>
 			<li><?php printf( __( '<a href="%s">Use Google Libraries</a> allows you to load some commonly used Javascript libraries from Google webservers. Ironically, it may reduce your Yslow score.', 'wp-super-cache' ), 'http://wordpress.org/plugins/use-google-libraries/' ); ?></li>
 			<li><?php printf( __( '<strong>Advanced users only:</strong> Install an object cache. Choose from <a href="%s">Memcached</a>, <a href="%s">XCache</a>, <a href="%s">eAcccelerator</a> and others.', 'wp-super-cache' ), 'http://wordpress.org/plugins/memcached/', 'http://neosmart.net/dl.php?id=12', 'http://neosmart.net/dl.php?id=13' ); ?></li>
 			<li><?php printf( __( '<a href="%s">Cron View</a> is a useful plugin to use when trying to debug garbage collection and preload problems.', 'wp-super-cache' ), 'http://wordpress.org/plugins/cron-view/' ); ?></li>
-			</ol>
+			</ul>
 
 			<?php
 		break;
@@ -1204,17 +1206,21 @@ table.wpsc-settings-table {
 	?>
 	</fieldset>
 	</td><td valign='top' style='width: 300px'>
-	<div style='background: #ffc; border: 1px solid #333; margin: 2px; padding: 5px'>
-	<h3 align='center'><?php _e( 'Need Help?', 'wp-super-cache' ); ?></h3>
+	<div style='background: #ffc; border: 1px solid #333; margin: 2px; padding: 3px 15px'>
+	<h3><?php _e( 'More Site Speed Tools', 'wp-super-cache' ); ?></h3>
+	<ul style="list-style: square; margin-left: 2em;">
+	<li><a href="https://jetpack.com/redirect/?source=jitm-wpsc-generic"><?php _e( 'Speed up images and photos (free)' ); ?></a></li>
+	<li><a href="https://jetpack.com/redirect/?source=jitm-wpsc-premium"><?php _e( 'Fast video hosting (paid)' ); ?></a></li>
+	</ul>
+	<h3><?php _e( 'Need Help?', 'wp-super-cache' ); ?></h3>
 	<ol>
-	<li><?php _e( 'Use the debug system in the Debug tab above. It will tell you what the plugin is doing.', 'wp-super-cache' ); ?></li>
-	<li><?php printf( __( '<a href="%1$s">Installation Help</a>', 'wp-super-cache' ), 'http://wordpress.org/plugins/wp-super-cache/installation/' ); ?></li>
-	<li><?php printf( __( '<a href="%1$s">Frequently Asked Questions</a>', 'wp-super-cache' ), 'http://wordpress.org/plugins/wp-super-cache/faq/' ); ?></li>
-	<li><?php printf( __( '<a href="%1$s">Support Forum</a>', 'wp-super-cache' ), 'http://wordpress.org/tags/wp-super-cache' ); ?></li>
-	<li><?php printf( __( '<a href="%1$s">Development Version</a>', 'wp-super-cache' ), 'http://ocaoimh.ie/y/2o' ); ?></li>
+	<li><?php printf( __( 'Use the <a href="%1$s">Debug tab</a> for diagnostics.', 'wp-super-cache' ), admin_url( 'options-general.php?page=wpsupercache&tab=debug' ) ); ?></li>
+	<li><?php printf( __( 'Check out the <a href="%1$s">support forum</a> and <a href="%2$s">FAQ</a>.', 'wp-super-cache' ), 'https://wordpress.org/support/plugin/wp-super-cache', 'http://wordpress.org/plugins/wp-super-cache/#faq' ); ?></li>
+	<li><?php printf( __( 'Visit the <a href="%1$s">plugin homepage</a>.', 'wp-super-cache' ), 'http://wordpress.org/plugins/wp-super-cache/' ); ?></li>
+	<li><?php printf( __( 'Try out the <a href="%1$s">development version</a> for the latest fixes (<a href="%2$s">changelog</a>).', 'wp-super-cache' ), 'https://odd.blog/y/2o', 'https://plugins.trac.wordpress.org/log/wp-super-cache/' ); ?></li>
 	</ol>
-	<h3 align='center'><?php _e( 'Rate This Plugin!', 'wp-super-cache' ); ?></h3>
-	<p><?php printf( __( 'Please <a href="%s">rate</a> this plugin and tell me if it works for you or not. It really helps development.', 'wp-super-cache' ), 'http://wordpress.org/plugins/wp-super-cache/' ); ?></p>
+	<h3><?php _e( 'Rate This Plugin', 'wp-super-cache' ); ?></h3>
+	<p><?php printf( __( 'Please <a href="%s">rate us</a> and give feedback.', 'wp-super-cache' ), 'https://wordpress.org/support/plugin/wp-super-cache/reviews?rate=5#new-post' ); ?></p>
 
 	<?php
 	if ( isset( $wp_supercache_cache_list ) && $wp_supercache_cache_list ) {
@@ -1288,7 +1294,7 @@ function wpsc_admin_tabs( $current = 0 ) {
 	if ( $wp_db_version >= 15477 ) {
 		echo '<div id="nav"><h2 class="themes-php">';
 		echo implode( "", $links );
-		echo '</h2></div>';
+		echo '</div></h2></div>';
 	} else {
 		echo implode( " | ", $links );
 	}
@@ -1900,6 +1906,7 @@ function wp_cache_edit_accepted() {
 function wp_cache_debug_settings() {
 	global $wp_super_cache_debug, $wp_cache_debug_log, $wp_cache_debug_ip, $cache_path, $valid_nonce, $wp_cache_config_file, $wp_super_cache_comments;
 	global $wp_super_cache_front_page_check, $wp_super_cache_front_page_clear, $wp_super_cache_front_page_text, $wp_super_cache_front_page_notification, $wp_super_cache_advanced_debug;
+	global $wp_cache_debug_username, $wp_cache_debug_password;
 
 	if ( false == isset( $wp_super_cache_comments ) )
 		$wp_super_cache_comments = 1;
@@ -1909,10 +1916,30 @@ function wp_cache_debug_settings() {
 		$wp_super_cache_debug = intval( $_POST[ 'wp_super_cache_debug' ] );
 		wp_cache_replace_line('^ *\$wp_super_cache_debug', "\$wp_super_cache_debug = '$wp_super_cache_debug';", $wp_cache_config_file);
 		if ( $wp_super_cache_debug && ( ( isset( $wp_cache_debug_log ) && $wp_cache_debug_log == '' ) || !isset( $wp_cache_debug_log ) ) ) {
-			$wp_cache_debug_log = md5( time() ) . ".txt";
-		} else {
+			$wp_cache_debug_log = md5( time() + mt_rand() ) . ".php";
+			$wp_cache_debug_username = md5( time() + mt_rand() );
+			$wp_cache_debug_password = md5( time() + mt_rand() );
+			$fp = fopen( $cache_path . $wp_cache_debug_log, 'w' );
+			if ( $fp ) {
+				fwrite( $fp, '<' . "?php\n" );
+				$msg = '
+				if ( !isset( $_SERVER[ "PHP_AUTH_USER" ] ) || ( $_SERVER[ "PHP_AUTH_USER" ] != "' . $wp_cache_debug_username . '" && $_SERVER[ "PHP_AUTH_PW" ] != "' . $wp_cache_debug_password . '" ) ) {
+					header( "WWW-Authenticate: Basic realm=\"WP-Super-Cache Debug Log\"" );
+					header("HTTP/1.0 401 Unauthorized");
+					echo "You must login to view the debug log";
+					exit;
+				}';
+				fwrite( $fp, $msg );
+				fwrite( $fp, '?' . "><pre>" );
+				fclose( $fp );
+			}
+		} elseif ( !$wp_super_cache_debug ) {
 			$wp_cache_debug_log = "";
+			$wp_cache_debug_username = '';
+			$wp_cache_debug_password = '';
 		}
+		wp_cache_replace_line('^ *\$wp_cache_debug_username', "\$wp_cache_debug_username = '$wp_cache_debug_username';", $wp_cache_config_file);
+		wp_cache_replace_line('^ *\$wp_cache_debug_password', "\$wp_cache_debug_password = '$wp_cache_debug_password';", $wp_cache_config_file);
 		wp_cache_replace_line('^ *\$wp_cache_debug_log', "\$wp_cache_debug_log = '$wp_cache_debug_log';", $wp_cache_config_file);
 		$wp_super_cache_comments = isset( $_POST[ 'wp_super_cache_comments' ] ) ? 1 : 0;
 		wp_cache_replace_line('^ *\$wp_super_cache_comments', "\$wp_super_cache_comments = '$wp_super_cache_comments';", $wp_cache_config_file);
@@ -1934,8 +1961,13 @@ function wp_cache_debug_settings() {
 
 	echo '<a name="debug"></a>';
 	echo '<fieldset class="options">';
-	if ( isset( $wp_cache_debug_log ) && $wp_cache_debug_log != '' )
+	if ( isset( $wp_cache_debug_log ) && $wp_cache_debug_log != '' ) {
 		echo "<p>" . sprintf( __( 'Currently logging to: %s', 'wp-super-cache' ), "<a href='" . site_url( str_replace( ABSPATH, '', "{$cache_path}{$wp_cache_debug_log}" ) ) . "'>$cache_path{$wp_cache_debug_log}</a>" ) . "</p>";
+		if ( isset( $wp_cache_debug_username ) && $wp_cache_debug_username != '' ) {
+			echo "<p>" . sprintf( __( 'Username: %s', 'wp-super-cache' ), $wp_cache_debug_username ) . "<br />";
+			echo sprintf( __( 'Password: %s', 'wp-super-cache' ), $wp_cache_debug_password ) . "</p>";
+		}
+	}
 
 
 	echo '<p>' . __( 'Fix problems with the plugin by debugging it here. It can log them to a file in your cache directory.', 'wp-super-cache' ) . '</p>';
@@ -2316,7 +2348,9 @@ function wp_cache_verify_config_file() {
 		$sem_id = crc32( $WPSC_HTTP_HOST . $cache_path ) & 0x7fffffff;
 		wp_cache_replace_line('sem_id', '$sem_id = ' . $sem_id . ';', $wp_cache_config_file);
 	}
-	require($wp_cache_config_file);
+	if ( $new ) {
+		require($wp_cache_config_file);
+	}
 	return true;
 }
 
