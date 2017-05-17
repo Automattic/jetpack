@@ -1252,12 +1252,12 @@ FOOTER
 				),
 			),
 		);
-
+		/** This filter is already documented in core/wp-includes/feed.php */
 		$title = apply_filters( 'the_title_rss', $post->post_title );
 		if ( '' !== $title ) {
 			$item_array['url']['image:image']['image:title'] = $title;
 		}
-
+		/** This filter is already documented in core/wp-includes/feed.php */
 		$caption = apply_filters( 'the_excerpt_rss', $post->post_excerpt );
 		if ( '' !== $caption ) {
 			$item_array['url']['image:image']['image:caption'] = "<![CDATA[" . $caption . "]]>";
@@ -1325,8 +1325,10 @@ FOOTER
 
 		// Prepare the content like get_the_content_feed()
 		$content = $post->post_content;
+		/** This filter is already documented in core/wp-includes/post-template.php */
 		$content = apply_filters( 'the_content', $content );
 		$content = str_replace(']]>', ']]&gt;', $content);
+		/** This filter is already documented in core/wp-includes/feed.php */
 		$content = apply_filters( 'the_content_feed', $content, 'rss2' );
 
 		$item_array = array(
@@ -1334,6 +1336,7 @@ FOOTER
 				'loc'         => $parent_url,
 				'lastmod'     => jp_sitemap_datetime( $post->post_modified_gmt ),
 				'video:video' => array(
+					/** This filter is already documented in core/wp-includes/feed.php */
 					'video:title'         => apply_filters( 'the_title_rss', $post->post_title ),
 					'video:thumbnail_loc' => '',
 					'video:description'   => '<![CDATA[' . $content . ']]>',
@@ -1430,6 +1433,7 @@ FOOTER
 						'news:name'     => esc_html( get_bloginfo( 'name' ) ),
 						'news:language' => $language,
 					),
+					/** This filter is already documented in core/wp-includes/feed.php */
 					'news:title'            => apply_filters( 'the_title_rss', $post->post_title ),
 					'news:publication_date' => jp_sitemap_datetime( $post->post_date_gmt ),
 					'news:genres'           => 'Blog',
