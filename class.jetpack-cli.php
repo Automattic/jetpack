@@ -838,7 +838,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 		$signed_role = Jetpack::sign_role( $role );
 
 		$secrets = Jetpack::init()->generate_secrets( 'authorize' );
-		@list( $secret ) = explode( ':', $secrets );
 
 		$site_icon = ( function_exists( 'has_site_icon') && has_site_icon() )
 			? get_site_icon_url()
@@ -854,7 +853,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 			// Jetpack auth stuff
 			'scope'         => $signed_role,
-			'secret'        => $secret,			
+			'secret'        => $secrets['secret_1'],			
 
 			// User stuff
 			'user_id'       => $user->ID,
