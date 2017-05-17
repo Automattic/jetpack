@@ -351,7 +351,8 @@
 	&.is-upgrade-premium {
 		@include jitm-banner-color( $alert-green );
 	}
-	&.is-upgrade-business {
+	&.is-upgrade-business,
+	&.woo-jitm {
 		@include jitm-banner-color( $alert-purple );
 	}
 
