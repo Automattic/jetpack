@@ -220,6 +220,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION => get_option( Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION, '' ),
 					Jetpack_SEO_Titles::TITLE_FORMATS_OPTION => get_option( Jetpack_SEO_Titles::TITLE_FORMATS_OPTION, array() ),
 					'api_cache'               => $api_cache,
+					'posts_per_page'          => (int) get_option( 'posts_per_page' ),
 				);
 
 				//allow future versions of this endpoint to support additional settings keys
