@@ -23,12 +23,15 @@ class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 		global $valid_nonce;
 		$valid_nonce = true;
 
+		$errors = array();
+
 		if ( isset( $parameters['easy'] ) ) {
 			$errors = $this->toggle_easy_caching( $parameters['easy'] );
 
-		} else {
+		} elseif ( isset( $parameters[ 'reset' ] ) ) {
+			$errors = $this->restore_default_settings( $parameters );
 
-			$errors = array();
+		} else {
 
 			foreach ( $parameters as $name => $value ) {
 				if ( $has_error = $this->set_value_by_key( $value, $name ) ) {
@@ -433,24 +436,7 @@ class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 				'cache_rebuild_files'     => 1,
 				'cache_compression'       => 0,
 			);
-
-			// set up garbage collection with some default settings
-			if ( ( ! isset( $wp_cache_shutdown_gc ) || $wp_cache_shutdown_gc == 0 ) && false == wp_next_scheduled( 'wp_cache_gc' ) ) {
-				if ( false == isset( $cache_schedule_type ) ) {
-					$cache_schedule_type     = 'interval';
-					$cache_time_interval     = 600;
-					$cache_max_time          = 1800;
-					$cache_schedule_interval = 'hourly';
-					$cache_gc_email_me       = 0;
-					wp_cache_setting( 'cache_schedule_type', $cache_schedule_type );
-					wp_cache_setting( 'cache_time_interval', $cache_time_interval );
-					wp_cache_setting( 'cache_max_time', $cache_max_time );
-					wp_cache_setting( 'cache_schedule_interval', $cache_schedule_interval );
-					wp_cache_setting( 'cache_gc_email_me', $cache_gc_email_me );
-				}
-
-				wp_schedule_single_event( time() + 600, 'wp_cache_gc' );
-			}
+			wpsc_set_default_gc();
 
 		} else {
 			$settings = array( 'super_cache_enabled' => 0 );
@@ -560,5 +546,21 @@ class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 		}
 
 		wpsc_preload_settings();
+	}
+
+	/*
+	 * Delete the plugin configuration file and restore the sample one.
+	 */
+	protected function restore_default_settings( $parameters ) {
+		global $wp_cache_config_file, $wp_cache_config_file_sample;
+
+		if ( file_exists( $wp_cache_config_file_sample ) ) {
+			copy( $wp_cache_config_file_sample, $wp_cache_config_file );
+			$cache_page_secret = md5( date( 'H:i:s' ) . mt_rand() );
+			wp_cache_setting( 'cache_page_secret', $cache_page_secret );
+
+		}
+		wpsc_set_default_gc( true );
+
 	}
 }
