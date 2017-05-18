@@ -75,6 +75,10 @@ function jetpack_blog_display_custom_excerpt( $content ) {
  */
 function jetpack_the_content_to_the_excerpt( $content ) {
 	if ( is_home() || is_archive() ) {
+		$blog = get_post( get_option( 'page_for_posts' ) );
+		if ( get_the_content() === $blog->post_content ) {
+			return $content;
+		}
 		if ( post_password_required() ) {
 			$content = sprintf( '<p>%s</p>', esc_html__( 'There is no excerpt because this is a protected post.', 'jetpack' ) );
 		} else {
@@ -106,6 +110,10 @@ function jetpack_the_excerpt_to_the_content( $content ) {
 function jetpack_the_content_customizer( $content ) {
 	$class = jetpack_the_content_customizer_class();
 	if ( is_home() || is_archive() ) {
+		$blog = get_post( get_option( 'page_for_posts' ) );
+		if ( get_the_content() === $blog->post_content ) {
+			return $content;
+		}
 		if ( post_password_required() ) {
 			$excerpt = sprintf( '<p>%s</p>', esc_html__( 'There is no excerpt because this is a protected post.', 'jetpack' ) );
 		} else {
