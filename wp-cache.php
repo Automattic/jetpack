@@ -2350,6 +2350,7 @@ function wp_cache_verify_config_file() {
 	}
 	if ( $new ) {
 		require($wp_cache_config_file);
+		wpsc_set_default_gc( true );
 	}
 	return true;
 }
@@ -3624,3 +3625,39 @@ function wpsc_is_preloading() {
 		return false;
 	}
 }
+
+function wpsc_set_default_gc( $force = false ) {
+	global $cache_path, $wp_cache_shutdown_gc, $cache_schedule_type;
+
+	if ( isset( $wp_cache_shutdown_gc ) && $wp_cache_shutdown_gc == 1 ) {
+		return false;
+	}
+
+	if ( $force ) {
+		unset( $cache_schedule_type );
+		$timestamp = wp_next_scheduled( 'wp_cache_gc' );
+		if ( $timestamp ) {
+			wp_unschedule_event( $timestamp, 'wp_cache_gc' );
+		}
+	}
+
+	// set up garbage collection with some default settings
+	if ( false == isset( $cache_schedule_type ) && false == wp_next_scheduled( 'wp_cache_gc' ) ) {
+		$cache_schedule_type     = 'interval';
+		$cache_time_interval     = 600;
+		$cache_max_time          = 1800;
+		$cache_schedule_interval = 'hourly';
+		$cache_gc_email_me       = 0;
+		wp_cache_setting( 'cache_schedule_type', $cache_schedule_type );
+		wp_cache_setting( 'cache_time_interval', $cache_time_interval );
+		wp_cache_setting( 'cache_max_time', $cache_max_time );
+		wp_cache_setting( 'cache_schedule_interval', $cache_schedule_interval );
+		wp_cache_setting( 'cache_gc_email_me', $cache_gc_email_me );
+
+		wp_schedule_single_event( time() + 600, 'wp_cache_gc' );
+	}
+
+	return true;
+
+}
+
