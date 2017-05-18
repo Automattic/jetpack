@@ -4312,7 +4312,7 @@ p {
 	}
 
 	/**
-	 * Delete previous theme if it was a WPCOM theme.
+	 * Delete previous theme if it was a WPCOM premium theme.
 	 *
 	 * @since 5.0
 	 *
@@ -4322,9 +4322,29 @@ p {
 	 */
 	function on_theme_switch( $new_name, $new_theme, $old_theme ) {
 		$old_theme = $old_theme->get_stylesheet();
-		if ( false !== stripos( $old_theme, '-wpcom' ) ) {
+		if ( false !== stripos( $old_theme, '-wpcom' ) && Jetpack::is_premium_theme( str_replace( '-wpcom', '', $old_theme ) ) ) {
 			delete_theme( $old_theme );
 		}
+	}
+
+	/**
+	 * Checks if a theme is a WPCOM premium theme.
+	 *
+	 * @since 5.0
+	 *
+	 * @param string $theme_slug The slug of the theme to check, like twentyfifteen or mood.
+	 *
+	 * @return bool
+	 */
+	function is_premium_theme( $theme_slug ) {
+		$response_body = wp_remote_retrieve_body( wp_remote_get( 'https://public-api.wordpress.com/rest/v1/themes/theme:' . $theme_slug ) );
+		if ( ! empty( $response_body ) ) {
+			$response_body = json_decode( $response_body );
+			if ( isset( $response_body->stylesheet ) && ( "premium/$theme_slug" === $response_body->stylesheet ) ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public static function admin_screen_configure_module( $module_id ) {
