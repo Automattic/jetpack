@@ -128,11 +128,10 @@ abstract class SAL_Site {
 	private function validate_access( $post ) {
 		$context = $post->context;
 
-		if ( ! $this->is_post_type_allowed( $post->post_type )
-			&&
-			( ! function_exists( 'is_post_freshly_pressed' ) || ! is_post_freshly_pressed( $post->ID ) )
-			&&
-			! $this->is_a8c_publication( $post->ID ) ) {
+		if (
+			! $this->is_post_type_allowed( $post->post_type )
+			&& ! $this->is_a8c_publication( $post->ID )
+		) {
 			return new WP_Error( 'unknown_post', 'Unknown post', 404 );
 		}
 
