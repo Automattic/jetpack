@@ -3,9 +3,6 @@
 require_once dirname( __FILE__ ) . '/class.json-api-date.php';
 require_once dirname( __FILE__ ) . '/class.json-api-post-base.php';
 
-require_once dirname( __FILE__ ) . '/class.json-api-date.php';
-require_once dirname( __FILE__ ) . '/class.json-api-post-base.php';
-
 /**
  * Base class for the Site Abstraction Layer (SAL)
  * Note that this is the site "as seen by user $user_id with token $token", which
@@ -103,6 +100,8 @@ abstract class SAL_Site {
 
 	// wrap a WP_Post object with SAL methods
 	abstract public function wrap_post( $post, $context );
+
+	abstract protected function is_a8c_publication( $post_id );
 
 	public function is_automated_transfer() {
 		return false;
@@ -541,13 +540,6 @@ abstract class SAL_Site {
 	function get_wordpress_version() {
 		global $wp_version;
 		return $wp_version;
-	}
-
-	protected function is_a8c_publication( $post_id ) {
-		$is_freshly_pressed = function_exists( 'is_post_freshly_pressed' ) && is_post_freshly_pressed( $post_id );
-		$is_daily_post = function_exists( 'is_dailypost_blog' ) && is_dailypost_blog( $this->blog_id );
-
-		return ( $is_freshly_pressed || $is_daily_post );
 	}
 
 	function is_domain_only() {

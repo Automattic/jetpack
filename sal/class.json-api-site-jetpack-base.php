@@ -1,6 +1,5 @@
 <?php
 
-
 require_once dirname( __FILE__ ) . '/class.json-api-site-base.php';
 
 abstract class Abstract_Jetpack_Site extends SAL_Site {
@@ -150,6 +149,11 @@ abstract class Abstract_Jetpack_Site extends SAL_Site {
 			}
 		}
 
+		return false;
+	}
+
+	// For Jetpack sites this will always return false
+	protected function is_a8c_publication( $post_id ) {
 		return false;
 	}
 }
