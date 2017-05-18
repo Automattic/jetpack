@@ -4568,13 +4568,12 @@ p {
 	 * @return array
 	 */
 	public static function generate_secrets( $action, $user_id = false, $exp = 600 ) {
-		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-options.php';
 		if ( ! $user_id ) {
 			$user_id = get_current_user_id();
 		}
 
 		$secret_name  = 'jetpack_' . $action . '_' . $user_id;
-		$secrets      = Jetpack_Sync_Options::get_option( 'jetpack_secrets', array() );
+		$secrets      = Jetpack_Options::get_raw_option( 'jetpack_secrets', array() );
 
 		if (
 			isset( $secrets[ $secret_name ] ) &&
@@ -4591,14 +4590,13 @@ p {
 
 		$secrets[ $secret_name ] = $secret_value;
 
-		Jetpack_Sync_Options::update_option( 'jetpack_secrets', $secrets );
+		Jetpack_Options::update_raw_option( 'jetpack_secrets', $secrets );
 		return $secrets[ $secret_name ];
 	}
 
 	public static function get_secrets( $action, $user_id ) {
-		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-options.php';
 		$secret_name = 'jetpack_' . $action . '_' . $user_id;
-		$secrets = Jetpack_Sync_Options::get_option( 'jetpack_secrets', array() );
+		$secrets = Jetpack_Options::get_raw_option( 'jetpack_secrets', array() );
 
 		if ( ! isset( $secrets[ $secret_name ] ) ) {
 			return new WP_Error( 'verify_secrets_missing', 'Verification secrets not found' );
@@ -4613,12 +4611,11 @@ p {
 	}
 
 	public static function delete_secrets( $action, $user_id ) {
-		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-options.php';
 		$secret_name = 'jetpack_' . $action . '_' . $user_id;
-		$secrets = Jetpack_Sync_Options::get_option( 'jetpack_secrets', array() );
+		$secrets = Jetpack_Options::get_raw_option( 'jetpack_secrets', array() );
 		if ( isset( $secrets[ $secret_name ] ) ) {
 			unset( $secrets[ $secret_name ] );
-			Jetpack_Sync_Options::update_option( 'jetpack_secrets', $secrets );
+			Jetpack_Options::update_raw_option( 'jetpack_secrets', $secrets );
 		}
 	}
 
