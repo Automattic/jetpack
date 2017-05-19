@@ -7,8 +7,9 @@ var jetpackLikesMasterReady = false;
 function jetpackIsScrolledIntoView( element ) {
 	var elementTop = element.getBoundingClientRect().top;
 	var elementBottom = element.getBoundingClientRect().bottom;
+	var lookAhead = 1000;
 
-	return ( elementTop >= 0 ) && ( elementBottom <= window.innerHeight );
+	return ( elementTop >= 0 - lookAhead ) && ( elementBottom <= window.innerHeight + lookAhead );
 }
 
 function JetpackLikesPostMessage(message, target ) {
