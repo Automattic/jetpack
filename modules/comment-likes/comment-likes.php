@@ -32,6 +32,7 @@ function comment_likes( $content, $comment = null ) {
 	$html[] = "<div class='jetpack-likes-widget-wrapper jetpack-likes-widget-unloaded' id='$wrapper' data-src='$src' data-name='$name'>";
 	$html[] = "<div class='likes-widget-placeholder comment-likes-widget-placeholder comment-likes'><span class=\"loading\">" . esc_html__( 'Loading...', 'jetpack' ) . "</span> </div>";
 	$html[] = "<div class='comment-likes-widget jetpack-likes-widget comment-likes'><span class='comment-like-feedback'></span>";
+	$html[] = "<span class='sd-text-color'></span><a class='sd-link-color'></a>";
 	$html[] = '</div></div>';
 
 	// Filter and finalize the comment like button

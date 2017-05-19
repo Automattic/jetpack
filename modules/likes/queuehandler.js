@@ -216,6 +216,7 @@ function JetpackLikesMessageListener( event, message ) {
 		jQuery( '#' + event.id + ' .likes-widget-placeholder'  ).fadeOut( 'fast', function() {
 			jQuery( '#' + event.id + ' .jetpack-likes-widget' ).fadeIn( 'fast', function() {
 				if ( event.comment_id ) {
+					JetpackLikesPostMessage( { event: 'likeWidgetDisplayed', blog_id: event.blog_id, comment_id: event.comment_id, obj_id: event.obj_id }, window.frames['likes-master'] );
 					jQuery( '#' + event.id + ' .comment-like-feedback' )
 						.html( event.feedback )
 						.data( 'likes', event.likes );
@@ -306,7 +307,7 @@ function JetpackLikesWidgetQueueHandler() {
 			placeholder.after( "<iframe class='post-likes-widget jetpack-likes-widget' name='" + $wrapper.data( 'name' ) + "' height='55px' width='100%' frameBorder='0' src='" + $wrapper.data( 'src' ) + "'></iframe>" );
 		}
 	} else if ( placeholder.hasClass( 'comment-likes-widget-placeholder' ) ) {
-		$wrapper.find('.comment-like-feedback').before("<iframe class='comment-likes-widget-frame jetpack-likes-widget-frame' name='" + $wrapper.data('name') + "' height='16px' width='30px' frameBorder='0' scrolling='no' src='" + $wrapper.data('src') + "'></iframe>");
+		$wrapper.find('.comment-like-feedback').before("<iframe class='comment-likes-widget-frame jetpack-likes-widget-frame' name='" + $wrapper.data('name') + "' height='16px' width='200px' frameBorder='0' scrolling='no' src='" + $wrapper.data('src') + "'></iframe>");
 	}
 
 	$wrapper.removeClass( 'jetpack-likes-widget-unloaded' ).addClass( 'jetpack-likes-widget-loading' );
