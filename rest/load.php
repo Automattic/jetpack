@@ -79,7 +79,7 @@ class WP_Super_Cache_Router {
 		register_rest_route( $namespace, '/preload', array(
 			'methods'             => WP_REST_Server::CREATABLE,
 			'callback'            => array( $preload_cache, 'callback' ),
-			'permission_callback' => array( __CLASS__ . '::update_item_permissions_check' ),
+			'permission_callback' => __CLASS__ . '::update_item_permissions_check',
 		) );
 
 		register_rest_route( $namespace, '/cache/test', array(
