@@ -757,6 +757,55 @@ class Jetpack_CLI extends WP_CLI_Command {
 	}
 
 	/**
+	 * Cancel's the current Jetpack plan granted by this partner, if applicable
+	 *
+	 * Returns success or error JSON
+	 *
+	 * <token_json>
+	 * : JSON blob of WPCOM API token
+	 */
+	public function partner_cancel( $args, $named_args ) {
+		list( $token_json ) = $args;
+
+		if ( ! $token_json || ! ( $token = json_decode( $token_json ) ) ) {
+			$this->partner_provision_error( new WP_Error( 'missing_access_token',  sprintf( __( 'Invalid token JSON: %s', 'jetpack' ), $token_json ) ) );
+		}
+
+		if ( isset( $token->error ) ) {
+			$this->partner_provision_error( new WP_Error( $token->error, $token->message ) );
+		}
+
+		if ( ! isset( $token->access_token ) ) {
+			$this->partner_provision_error( new WP_Error( 'missing_access_token', __( 'Missing or invalid access token', 'jetpack' ) ) );
+		}
+
+		$blog_id    = Jetpack_Options::get_option( 'id' );
+
+		if ( ! $blog_id ) {
+			$this->partner_provision_error( new WP_Error( 'site_not_registered',  __( 'This site is not connected to Jetpack', 'jetpack' ) ) );
+		}
+
+		$request = array(
+			'headers' => array(
+				'Authorization' => "Bearer " . $token->access_token,
+				'Host'          => defined( 'JETPACK__WPCOM_JSON_API_HOST_HEADER' ) ? JETPACK__WPCOM_JSON_API_HOST_HEADER : 'public-api.wordpress.com',
+			),
+			'method'  => 'POST',
+			'body'    => json_encode( array( 'site_id' => $blog_id ) )
+		);
+
+		$url = sprintf( 'https://%s/rest/v1.3/jpphp/%d/partner-cancel', $this->get_api_host(), $blog_id );
+
+		$result = Jetpack_Client::_wp_remote_request( $url, $request );
+
+		if ( is_wp_error( $result ) ) {
+			$this->partner_provision_error( $result );
+		}
+
+		WP_CLI::log( print_r( $result, 1 ) );
+	}
+
+	/**
 	 * Provision a site using a Jetpack Partner license
 	 *
 	 * Returns JSON blob
@@ -830,9 +879,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 			$blog_token = Jetpack_Options::get_option( 'blog_token' );
 		}
 
-		$env_api_host = getenv( 'JETPACK_START_API_HOST', true );
-		$host = $env_api_host ? $env_api_host : JETPACK__WPCOM_JSON_API_HOST;
-
 		// role
 		$role = Jetpack::translate_current_user_to_role();
 		$signed_role = Jetpack::sign_role( $role );
@@ -853,7 +899,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 			// Jetpack auth stuff
 			'scope'         => $signed_role,
-			'secret'        => $secrets['secret_1'],			
+			'secret'        => $secrets['secret_1'],	
 
 			// User stuff
 			'user_id'       => $user->ID,
@@ -885,7 +931,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 			'body'    => json_encode( $request_body )
 		);
 
-		$url = sprintf( 'https://%s/rest/v1.3/jpphp/%d/partner-provision', $host, $blog_id );
+		$url = sprintf( 'https://%s/rest/v1.3/jpphp/%d/partner-provision', $this->get_api_host(), $blog_id );
 
 		// add calypso env if set
 		if ( getenv( 'CALYPSO_ENV' ) ) {
@@ -913,6 +959,11 @@ class Jetpack_CLI extends WP_CLI_Command {
 		WP_CLI::log( $body_json->next_url );
 
 		WP_CLI::log( json_encode( $body_json ) );
+	}
+
+	private function get_api_host() {
+		$env_api_host = getenv( 'JETPACK_START_API_HOST', true );
+		return $env_api_host ? $env_api_host : JETPACK__WPCOM_JSON_API_HOST;
 	}
 
 	private function partner_provision_error( $error ) {
