@@ -134,6 +134,22 @@ class Jetpack_Search {
 			'url'           => $service_url,
 		);
 
+		/**
+		 * Fires after a search request has been performed
+		 *
+		 * Includes the following info in the $query parameter:
+		 *
+		 * array args Array of Elasticsearch arguments for the search
+		 * array response Raw API response, JSON decoded
+		 * int response_code HTTP response code of the request
+		 * float elapsed_time Roundtrip time of the search request, in milliseconds
+		 * float es_time Amount of time Elasticsearch spent running the request, in milliseconds
+		 * string url API url that was queried
+		 *
+		 * @since 5.0
+		 *
+		 * @param array $query Array of information about the query performed
+		 */
 		do_action( 'did_jetpack_search_query', $query );
 
 		return $response;

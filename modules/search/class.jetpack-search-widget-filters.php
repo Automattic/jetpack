@@ -13,6 +13,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 
 		parent::__construct(
 			'jetpack-search-filters',
+			/** This filter is documented in modules/widgets/facebook-likebox.php */
 			apply_filters( 'jetpack_widget_name', esc_html__( 'Search Filters', 'jetpack' ) ),
 			array(
 				'classname'   => 'jetpack-filters',
@@ -56,6 +57,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			$title = __( 'Filter By', 'jetpack' );
 		}
 
+		/** This filter is documented in core/src/wp-includes/default-widgets.php */
 		$title = apply_filters( 'widget_title', $title, $instance, $this->id_base );
 
 		echo $args['before_widget'];
