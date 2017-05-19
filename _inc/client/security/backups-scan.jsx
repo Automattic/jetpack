@@ -32,59 +32,70 @@ export const BackupsScan = moduleSettingsForm(
 			analytics.tracks.recordJetpackClick( 'configure-scan' );
 		};
 
-		render() {
-			const backupsAndScansEnabled =
-				get( this.props.vaultPressData, [ 'data', 'features', 'backups' ], false ) &&
-				get( this.props.vaultPressData, [ 'data', 'features', 'security' ], false ),
+		getCardText() {
+			const backupsEnabled = get( this.props.vaultPressData, [ 'data', 'features', 'backups' ], false ),
+				scanEnabled = get( this.props.vaultPressData, [ 'data', 'features', 'security' ], false ),
 				planClass = getPlanClass( this.props.sitePlan.product_slug );
 			let cardText = '';
 
-			if ( this.props.isDevMode ) {
-				cardText = __( 'Unavailable in Dev Mode.' );
-			} else if ( ! this.props.isFetchingSiteData && ! this.props.isFetchingVaultPressData ) {
-				if ( backupsAndScansEnabled ) {
-					cardText = __( 'Your site is backed up and threat-free.' );
-				} else if (
-					includes( [ 'is-personal-plan', 'is-premium-plan', 'is-business-plan' ], planClass )
-				) {
-					if ( 'is-personal-plan' === planClass ) {
-						cardText = __( "You have paid for backups but they're not yet active." );
-					} else if ( includes( [ 'is-premium-plan', 'is-business-plan' ], planClass ) ) {
-						cardText = __(
-							'You have paid for backups and security scanning but they’re not yet active.'
-						);
-					}
-					cardText += ' ' + __( 'Click "Set Up" to finish installation.' );
-				}
-			} else if ( this.props.isFetchingSiteData || this.props.isFetchingVaultPressData ) {
-				cardText += ' ' + __( 'Checking site status…' );
+			if ( this.props.isFetchingSiteData || this.props.isFetchingVaultPressData ) {
+				return __( 'Checking site status…' );
 			}
 
+			if ( this.props.isDevMode ) {
+				return __( 'Unavailable in Dev Mode.' );
+			}
+
+			// We check if the features are active first, rather than the plan because it's possible the site is on a
+			// VP-only plan, purchased before Jetpack plans existed.
+			if ( backupsEnabled && scanEnabled ) {
+				return __( 'Your site is backed up and threat-free.' );
+			}
+
+			// Only return here if backups enabled and site on on free/personal plan.  If they're on a higher plan,
+			// then they have access to scan as well, and need to set it up!
+			if ( backupsEnabled && includes( [ 'is-free-plan', 'is-personal-plan' ], planClass ) ) {
+				return __( 'Your site is backed up.' );
+			}
+
+			// Nothing is enabled. We can show upgrade/setup text now.
+			switch ( planClass ) {
+				case 'is-personal-plan':
+					cardText = __( "You have paid for backups but they're not yet active." );
+					cardText += ' ' + __( 'Click "Set Up" to finish installation.' );
+					break;
+				case 'is-premium-plan':
+				case 'is-business-plan':
+					cardText = __( 'You have paid for backups and security scanning but they’re not yet active.' );
+					cardText += ' ' + __( 'Click "Set Up" to finish installation.' );
+					break;
+			}
+
+			return cardText;
+		};
+
+		render() {
+			const scanEnabled = get( this.props.vaultPressData, [ 'data', 'features', 'security' ], false );
 			return (
 				<SettingsCard
 					feature={ FEATURE_SECURITY_SCANNING_JETPACK }
 					{ ...this.props }
 					header={ __( 'Backups and security scanning', { context: 'Settings header' } ) }
 					action="scan"
-					hideButton
-				>
+					hideButton>
 					<SettingsGroup
 						disableInDevMode
 						module={ { module: 'backups' } }
-						support="https://help.vaultpress.com/get-to-know/"
-					>
-						{ cardText }
+						support="https://help.vaultpress.com/get-to-know/">
+						{
+							this.getCardText()
+						}
 					</SettingsGroup>
-					{ ! this.props.isUnavailableInDevMode( 'backups' ) &&
-						backupsAndScansEnabled &&
-						<Card
-							compact
-							className="jp-settings-card__configure-link"
-							onClick={ this.trackConfigureClick }
-							href="https://dashboard.vaultpress.com/"
-						>
-							{ __( 'Configure your Security Scans' ) }
-						</Card> }
+					{
+						( ! this.props.isUnavailableInDevMode( 'backups' ) && scanEnabled ) && (
+							<Card compact className="jp-settings-card__configure-link" onClick={ this.trackConfigureClick } href="https://dashboard.vaultpress.com/">{ __( 'Configure your Security Scans' ) }</Card>
+						)
+					}
 				</SettingsCard>
 			);
 		}
