@@ -518,11 +518,10 @@ class Jetpack {
 		) {
 			$this->require_jetpack_authentication();
 			$this->add_remote_request_handlers();
+		} elseif ( Jetpack::is_active() ) {
+			add_action( 'login_form_jetpack_json_api_authorization', array( &$this, 'login_form_json_api_authorization' ) );
 		} else {
-			if ( Jetpack::is_active() ) {
-				add_action( 'login_form_jetpack_json_api_authorization', array( &$this, 'login_form_json_api_authorization' ) );
-				add_filter( 'xmlrpc_methods', array( $this, 'public_xmlrpc_methods' ) );
-			}
+			add_filter( 'xmlrpc_methods', array( $this, 'public_xmlrpc_methods' ) );
 		}
 
 		if ( Jetpack::is_active() ) {
@@ -5105,11 +5104,28 @@ p {
 		return $methods;
 	}
 
+	/**
+	 * For connected sites, this filters XMLRPC method wp.getOptions and replaces it with jetpack_getOptions.
+	 * Also adds XMLRPC method jetpack.sayHowdy.
+	 * 
+	 * @param $methods
+	 * @return mixed
+	 */
 	function public_xmlrpc_methods( $methods ) {
-		if ( array_key_exists( 'wp.getOptions', $methods ) ) {
+		if ( array_key_exists( 'wp.getOptions', $methods ) && Jetpack::is_active() ) {
 			$methods['wp.getOptions'] = array( $this, 'jetpack_getOptions' );
 		}
+		$methods['jetpack.sayHowdy'] = array( $this, 'say_howdy' );
 		return $methods;
+	}
+
+	/**
+	 * An XMLRPC method that demonstrates that Jetpack is active.
+	 *
+	 * @return string
+	 */
+	function say_howdy() {
+		return 'Howdy!';
 	}
 
 	function jetpack_getOptions( $args ) {
