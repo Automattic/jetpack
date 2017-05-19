@@ -111,6 +111,9 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 		$plugin_path = $args[0];
 		$plugin_data = array();
 
+		if ( ! function_exists( 'get_plugins' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
 		$all_plugins = get_plugins();
 		if ( isset( $all_plugins[ $plugin_path ] ) ) {
 			$all_plugin_data = $all_plugins[ $plugin_path ];
