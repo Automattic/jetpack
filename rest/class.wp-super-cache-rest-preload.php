@@ -17,8 +17,10 @@ class WP_Super_Cache_Rest_Preload extends WP_REST_Controller {
 		if ( isset( $parameters[ 'enable' ] ) ) {
 			if ( $parameters[ 'enable' ] == true ) {
 				wpsc_enable_preload();
+				return( rest_ensure_response( array( 'enabled' => true ) ) );
 			} else {
 				wpsc_cancel_preload();
+				return( rest_ensure_response( array( 'enabled' => false ) ) );
 			}
 		}
 	}
