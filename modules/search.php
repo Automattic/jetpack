@@ -11,4 +11,4 @@
  * Additional Search Queries: search
  */
 
-require_once( __DIR__ . '/search/class.jetpack-search.php' );
+require_once( dirname( __FILE__ ) . '/search/class.jetpack-search.php' );

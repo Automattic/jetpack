@@ -398,7 +398,7 @@ class Jetpack_Search {
 	 * @module search
 	 */
 	public function action__widgets_init() {
-		require_once( __DIR__ . '/class.jetpack-search-widget-filters.php' );
+		require_once( dirname( __FILE__ ) . '/class.jetpack-search-widget-filters.php' );
 
 		register_widget( 'Jetpack_Search_Widget_Filters' );
 	}
@@ -1103,6 +1103,10 @@ class Jetpack_Search {
 					case 'date_histogram':
 						$timestamp = $item['key'] / 1000;
 
+						$current_year  = $query->get( 'year' );
+						$current_month = $query->get( 'monthnum' );
+						$current_day   = $query->get( 'day' );
+
 						switch ( $this->aggregations[ $label ]['interval'] ) {
 							case 'year':
 								$year = (int) date( 'Y', $timestamp );
@@ -1116,7 +1120,7 @@ class Jetpack_Search {
 								$name = $year;
 
 								// Is this year currently selected?
-								if ( ! empty( $query->get( 'year' ) ) && $query->get( 'year' ) === $year ) {
+								if ( ! empty( $current_year ) && (int) $current_year === $year ) {
 									$active = true;
 
 									$remove_url = remove_query_arg( array( 'year', 'monthnum', 'day' ) );
@@ -1137,8 +1141,8 @@ class Jetpack_Search {
 								$name = date( 'F Y', $timestamp );
 
 								// Is this month currently selected?
-								if ( ! empty( $query->get( 'year' ) ) && $query->get( 'year' ) === $year &&
-								     ! empty( $query->get( 'monthnum' ) ) && $query->get( 'monthnum' ) === $month ) {
+								if ( ! empty( $current_year ) && (int) $current_year === $year &&
+								     ! empty( $current_month ) && (int) $current_month === $month ) {
 									$active = true;
 
 									$remove_url = remove_query_arg( array( 'monthnum', 'day' ) );
@@ -1160,9 +1164,9 @@ class Jetpack_Search {
 								$name = date( 'F jS, Y', $timestamp );
 
 								// Is this day currently selected?
-								if ( ! empty( $query->get( 'year' ) ) && $query->get( 'year' ) === $year &&
-								     ! empty( $query->get( 'monthnum' ) ) && $query->get( 'month' ) === $month &&
-								     ! empty( $query->get( 'day' ) ) && $query->get( 'day' ) === $day ) {
+								if ( ! empty( $current_year ) && (int) $current_year === $year &&
+								     ! empty( $current_month ) && (int) $current_month === $month &&
+								     ! empty( $current_day ) && (int) $current_day === $day ) {
 									$active = true;
 
 									$remove_url = remove_query_arg( array( 'day' ) );
