@@ -151,7 +151,7 @@ function stats_template_redirect() {
 	// Should we be counting this user's views?
 	if ( ! empty( $current_user->ID ) ) {
 		$count_roles = stats_get_option( 'count_roles' );
-		if ( ! array_intersect( $current_user->roles, $count_roles ) ) {
+		if ( ! is_array( $count_roles ) || ! array_intersect( $current_user->roles, $count_roles ) ) {
 			return;
 		}
 	}
