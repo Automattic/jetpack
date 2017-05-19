@@ -13,7 +13,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 
 		parent::__construct(
 			'jetpack-search-filters',
-			apply_filters( 'jetpack_widget_name', esc_html__( 'Search Filters (Jetpack)', 'jetpack' ) ),
+			apply_filters( 'jetpack_widget_name', esc_html__( 'Search Filters', 'jetpack' ) ),
 			array(
 				'classname'   => 'jetpack-filters',
 				'description' => __( 'Displays search result filters when viewing search results.', 'jetpack' ),
