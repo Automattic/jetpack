@@ -124,4 +124,3 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		<?php
 	}
 }
-
