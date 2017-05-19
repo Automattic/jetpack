@@ -47,6 +47,23 @@ class WP_Super_Cache_Rest_Get_Settings extends WP_REST_Controller {
 	}
 
 	/**
+	 * @return string
+	 */
+	public function get_cache_type() {
+		global $super_cache_enabled, $wp_cache_mod_rewrite;
+
+		if ( $super_cache_enabled ) {
+			if ( $wp_cache_mod_rewrite == 1 ) {
+				return 'mod_rewrite';
+			} else {
+				return 'PHP';
+			}
+		} else {
+			return 'wpcache';
+		}
+	}
+
+	/**
 	 * Prepare the item for the REST response
 	 *
 	 * @param mixed $item WordPress representation of the item.
