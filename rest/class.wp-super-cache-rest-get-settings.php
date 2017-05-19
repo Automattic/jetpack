@@ -47,20 +47,6 @@ class WP_Super_Cache_Rest_Get_Settings extends WP_REST_Controller {
 	}
 
 	/**
-	 * @return array
-	 */
-	public function get_cache_stats() {
-		$cache_stats = get_option( 'supercache_stats' );
-
-		// If stats are empty, let's generate them.
-		if ( false == is_array( $cache_stats ) ) {
-			$cache_stats = wp_cache_regenerate_cache_file_stats();
-		}
-
-		return $cache_stats;
-	}
-
-	/**
 	 * Prepare the item for the REST response
 	 *
 	 * @param mixed $item WordPress representation of the item.

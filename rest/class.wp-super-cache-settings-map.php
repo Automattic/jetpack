@@ -35,10 +35,6 @@ class WP_Super_Cache_Settings_Map {
 			'global' => 'cache_gc_email_me',
 			'set' => 'set_time_setting',
 		),
-		'cache_stats' => array(
-			'get' => 'get_cache_stats',
-			'set' => '',
-		),
 		'is_preloading' => array(
 			'get' => 'wpsc_is_preloading',
 			'set' => '',
