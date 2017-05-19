@@ -120,6 +120,11 @@ class Jetpack_Search {
 		if ( is_wp_error( $request ) ) {
 			return $request;
 		}
+		$response_code = wp_remote_retrieve_response_code( $request );
+
+		if ( ! $response_code || $response_code < 200 || $response_code >= 300 ) {
+			return new WP_Error( 'invalid_search_api_response', 'Invalid response from API - ' . $response_code );
+		}
 
 		$response = json_decode( wp_remote_retrieve_body( $request ), true );
 
@@ -128,7 +133,7 @@ class Jetpack_Search {
 		$query = array(
 			'args'          => $es_args,
 			'response'      => $response,
-			'response_code' => wp_remote_retrieve_response_code( $request ),
+			'response_code' => $response_code,
 			'elapsed_time'   => ( $end_time - $start_time ) * 1000, // Convert from float seconds to ms
 			'es_time'       => $took,
 			'url'           => $service_url,
