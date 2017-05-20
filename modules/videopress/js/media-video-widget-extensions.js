@@ -8,7 +8,7 @@ window.wp = window.wp || {};
 			return function( mediaFrameProps ) {
 				var newProps, originalProps;
 				originalProps = originalMapMediaToModelProps.call( this, mediaFrameProps );
-				newProps = _.extend( {}, originalProps );;
+				newProps = _.extend( {}, originalProps );
 				
 				if ( mediaFrameProps.videopress && mediaFrameProps.videopress.guid ) {
 					newProps = _.extend( {}, originalProps, {
