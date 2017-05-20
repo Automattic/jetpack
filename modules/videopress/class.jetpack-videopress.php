@@ -164,6 +164,14 @@ class Jetpack_VideoPress {
 				),
 				$this->version
 			);
+
+			wp_enqueue_script(
+				'media-video-widget-extensions',
+				plugins_url( 'js/media-video-widget-extensions.js', __FILE__ ),
+				array(),
+				$this->version,
+				true
+			);
 		}
 
 		/**
