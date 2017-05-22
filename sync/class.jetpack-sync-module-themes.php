@@ -21,11 +21,12 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 
 		// Sidebar updates.
 		add_action( 'update_option_sidebars_widgets', array( $this, 'sync_sidebar_widgets_actions' ), 10, 2 );
-		add_action( 'jetpack_widget_added', $callable, 10, 2 );
-		add_action( 'jetpack_widget_removed', $callable, 10, 2 );
-		add_action( 'jetpack_widget_moved_to_inactive', $callable );
+
+		add_action( 'jetpack_widget_added', $callable, 10, 4 );
+		add_action( 'jetpack_widget_removed', $callable, 10, 4 );
+		add_action( 'jetpack_widget_moved_to_inactive', $callable, 10, 2 );
 		add_action( 'jetpack_cleared_inactive_widgets', $callable );
-		add_action( 'jetpack_widget_reordered', $callable );
+		add_action( 'jetpack_widget_reordered', $callable, 10, 2 );
 		add_filter( 'widget_update_callback', array( $this, 'sync_widget_edit' ), 10, 4 );
 		add_action( 'jetpack_widget_edited', $callable );
 	}
@@ -245,14 +246,27 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		return array( $this->get_theme_support_info() );
 	}
 
+	function get_widget_name( $widget_id ) {
+		global $wp_registered_widgets;
+		return ( isset( $wp_registered_widgets[ $widget_id ] ) ? $wp_registered_widgets[ $widget_id ]['name'] : null );
+	}
+
+	function get_sidebar_name( $sidebar_id ) {
+		global $wp_registered_sidebars;
+		return ( isset( $wp_registered_sidebars[ $sidebar_id ] ) ? $wp_registered_sidebars[ $sidebar_id ]['name'] : null );
+	}
+
 	function sync_add_widgets_to_sidebar( $new_widgets, $old_widgets, $sidebar ) {
 		$added_widgets = array_diff( $new_widgets, $old_widgets );
 		if ( empty( $added_widgets ) ) {
 			return array();
 		}
 		$moved_to_sidebar = array();
+		$sidebar_name = $this->get_sidebar_name( $sidebar );
+
 		foreach ( $added_widgets as $added_widget ) {
 			$moved_to_sidebar[] = $added_widget;
+			$added_widget_name = $this->get_widget_name( $added_widget );
 			/**
 			 * Helps Sync log that a widget got added
 			 *
@@ -260,8 +274,11 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 			 *
 			 * @param string $sidebar, Sidebar id got changed
 			 * @param string $added_widget, Widget id got added
+			 * @param string $sidebar_name, Sidebar id got changed Since 5.0.0
+			 * @param string $added_widget_name, Widget id got added Since 5.0.0
+			 *
 			 */
-			do_action( 'jetpack_widget_added', $sidebar, $added_widget );
+			do_action( 'jetpack_widget_added', $sidebar, $added_widget,  $sidebar_name, $added_widget_name ); // $this->get_sidebar_name( $sidebar ), $this->get_widget_name( $added_widget ) );
 		}
 		return $moved_to_sidebar;
 	}
@@ -274,10 +291,12 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		}
 
 		$moved_to_inactive = array();
+		$sidebar_name = $this->get_sidebar_name( $sidebar );
 
 		foreach( $removed_widgets as $removed_widget ) {
 			// Lets check if we didn't move the widget to in_active_widgets
 			if ( isset( $inactive_widgets ) && ! in_array( $removed_widget, $inactive_widgets ) ) {
+				$removed_widget_name = $this->get_widget_name( $removed_widget );
 				/**
 				 * Helps Sync log that a widgte got removed
 				 *
@@ -285,8 +304,10 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 				 *
 				 * @param string $sidebar, Sidebar id got changed
 				 * @param string $removed_widget, Widget id got removed
+				 * @param string $sidebar_name, Name of the sidebar that changed  Since 5.0.0
+				 * @param string $removed_widget_name, Name of the widget that got removed Since 5.0.0
 				 */
-				do_action( 'jetpack_widget_removed', $sidebar, $removed_widget );
+				do_action( 'jetpack_widget_removed', $sidebar, $removed_widget, $sidebar_name, $removed_widget_name );
 			} else {
 				$moved_to_inactive[] = $removed_widget;
 			}
@@ -306,14 +327,16 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		}
 
 		if ( serialize( $old_widgets ) !== serialize( $new_widgets ) ) {
+			$sidebar_name = $this->get_sidebar_name( $sidebar );
 			/**
 			 * Helps Sync log that a sidebar id got reordered
 			 *
 			 * @since 4.9.0
 			 *
 			 * @param string $sidebar, Sidebar id got changed
+			 * @param string $sidebar_name, Name of the sidebar that changed  Since 5.0.0
 			 */
-			do_action( 'jetpack_widget_reordered', $sidebar );
+			do_action( 'jetpack_widget_reordered', $sidebar, $sidebar_name );
 		}
 
 	}
@@ -339,7 +362,6 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 			$moved_to_inactive_recently = $this->sync_remove_widgets_from_sidebar( $new_widgets, $old_widgets, $sidebar, $new_value['wp_inactive_widgets'] );
 			$moved_to_inactive = array_merge( $moved_to_inactive, $moved_to_inactive_recently );
 
-
 			$moved_to_sidebar_recently = $this->sync_add_widgets_to_sidebar( $new_widgets, $old_widgets, $sidebar );
 			$moved_to_sidebar = array_merge( $moved_to_sidebar, $moved_to_sidebar_recently );
 
@@ -354,9 +376,10 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 			 *
 			 * @since 4.9.0
 			 *
-			 * @param array $sidebar, Sidebar id got changed
+			 * @param array $moved_to_inactive, Array of widgets id that moved to inactive id got changed
+			 * @param array $moved_to_inactive, Array of widgets names that moved to inactive id got changed Since 5.0.0
 			 */
-			do_action( 'jetpack_widget_moved_to_inactive', $moved_to_inactive );
+			do_action( 'jetpack_widget_moved_to_inactive', $moved_to_inactive, array_map( array( $this, 'get_widget_name' ), $moved_to_inactive ) );
 		} elseif ( empty( $moved_to_sidebar ) &&
 		           empty( $new_value['wp_inactive_widgets']) &&
 		           ! empty( $old_value['wp_inactive_widgets'] ) ) {

@@ -283,10 +283,9 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_widgets_changes_get_synced() {
-
 		$sidebar_widgets = array(
 			'wp_inactive_widgets' => array( 'author-1' ),
-			'sidebar-1' => array( 'recent-posts-2' ),
+			'sidebar-1' => array( 'nav_menu-1' ),
 			'array_version' => 3
 		);
 		wp_set_sidebars_widgets( $sidebar_widgets );
@@ -300,7 +299,7 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		// Add widget
 		$sidebar_widgets = array(
 			'wp_inactive_widgets' => array( 'author-1' ),
-			'sidebar-1' => array( 'recent-posts-2', 'calendar-2'),
+			'sidebar-1' => array( 'nav_menu-1', 'calendar-1' ),
 			'array_version' => 3
 		);
 		wp_set_sidebars_widgets( $sidebar_widgets );
@@ -308,37 +307,46 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_widget_added' );
+
 		$this->assertEquals( $event->args[0], 'sidebar-1', 'Added to sidebar not found' );
-		$this->assertEquals( $event->args[1], 'calendar-2', 'Added widget not found' );
+		$this->assertEquals( $event->args[1], 'calendar-1', 'Added widget not found' );
+		$this->assertEquals( $event->args[2], 'Sidebar 1', 'Added sidebar name not found' );
+		$this->assertEquals( $event->args[3], 'Calendar', 'Added widget name not found' );
 
 		// Reorder widget
 		$sidebar_widgets  = array(
 			'wp_inactive_widgets' => array( 'author-1' ),
-			'sidebar-1' => array( 'calendar-2', 'recent-posts-2' ),
+			'sidebar-1' => array( 'calendar-1', 'nav_menu-1' ),
 			'array_version' => 3
 		);
 		wp_set_sidebars_widgets( $sidebar_widgets );
 		$this->sender->do_sync();
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_widget_reordered' );
+
 		$this->assertEquals( $event->args[0], 'sidebar-1', 'Reordered sidebar not found' );
+		$this->assertEquals( $event->args[1], 'Sidebar 1', 'Reordered sidebar name not found' );
 
 		// Deleted widget
 		$sidebar_widgets  = array(
 			'wp_inactive_widgets' => array( 'author-1' ),
-			'sidebar-1' => array( 'calendar-2' ),
+			'sidebar-1' => array( 'calendar-1' ),
 			'array_version' => 3
 		);
 		wp_set_sidebars_widgets( $sidebar_widgets );
 		$this->sender->do_sync();
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_widget_removed' );
+
 		$this->assertEquals( $event->args[0], 'sidebar-1', 'Sidebar not found' );
-		$this->assertEquals( $event->args[1], 'recent-posts-2', 'Recent removed widget not found' );
+		$this->assertEquals( $event->args[1], 'nav_menu-1', 'Recent removed widget not found' );
+
+		$this->assertEquals( $event->args[2], 'Sidebar 1', 'Added sidebar name not found' );
+		$this->assertEquals( $event->args[3], 'Custom Menu', 'Added widget name not found' );
 
 		// Moved to inactive
 		$sidebar_widgets  = array(
-			'wp_inactive_widgets' => array( 'author-1', 'calendar-2' ),
+			'wp_inactive_widgets' => array( 'author-1', 'calendar-1' ),
 			'sidebar-1' => array(),
 			'array_version' => 3
 		);
@@ -346,7 +354,8 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_widget_moved_to_inactive' );
-		$this->assertEquals( $event->args[0], array( 'calendar-2' ), 'Moved to inactive not present' );
+		$this->assertEquals( $event->args[0], array( 'calendar-1' ), 'Moved to inactive not present' );
+		$this->assertEquals( $event->args[1], array( 'Calendar' ), 'Moved to inactive not present' );
 		
 		// Cleared inavite
 		$sidebar_widgets  = array(
