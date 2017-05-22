@@ -568,14 +568,14 @@ function wp_cache_manager_updates() {
 
 		if ( isset( $_POST[ 'wp_cache_status' ] ) && 'all' == $_POST[ 'wp_cache_status' ] ) {
 			if ( $_POST[ 'wp_cache_status' ] == 'all' ) {
-					wp_cache_enable();
-					if ( wpsc_set_default_gc() ) {
-						// gc might not be scheduled, check and schedule
-						$timestamp = wp_next_scheduled( 'wp_cache_gc' );
-						if ( false == $timestamp ) {
-							wp_schedule_single_event( time() + 600, 'wp_cache_gc' );
-						}
+				wp_cache_enable();
+				if ( wpsc_set_default_gc() ) {
+					// gc might not be scheduled, check and schedule
+					$timestamp = wp_next_scheduled( 'wp_cache_gc' );
+					if ( false == $timestamp ) {
+						wp_schedule_single_event( time() + 600, 'wp_cache_gc' );
 					}
+				}
 			}
 
 
