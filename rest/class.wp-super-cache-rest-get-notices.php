@@ -85,13 +85,26 @@ class WP_Super_Cache_Rest_Get_Notices extends WP_REST_Controller {
 			return;
 		}
 
+		include_once( ABSPATH . 'wp-admin/includes/misc.php' );
+		include_once( ABSPATH . 'wp-admin/includes/file.php' );
 		$scrules = implode( "\n", $this->extract_from_markers( $home_path . '.htaccess', 'WPSuperCache' ) );
+		extract( wpsc_get_htaccess_info() );
 
-		if ( $scrules == '' ) {
+		if ( $scrules != $rules ) {
 			$notices['mod_rewrite'] = array(
 				'type' => 'warning',
 				'message' => __(
-					'The rewrite rules required by this plugin have changed or are missing. ',
+					'The rewrite rules required by this plugin have changed or are missing.',
+					'wp-super-cache'
+				),
+			);
+		}
+		$got_rewrite = apache_mod_loaded( 'mod_rewrite', true );
+		if ( $wp_cache_mod_rewrite && false == apply_filters( 'got_rewrite', $got_rewrite ) ) {
+			$notices['mod_rewrite_missing'] = array(
+				'type' => 'warning',
+				'message' => __(
+					'The mod_rewrite module has not been detected. Cache files will still be served by PHP.',
 					'wp-super-cache'
 				),
 			);
