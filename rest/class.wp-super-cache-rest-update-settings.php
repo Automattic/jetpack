@@ -35,7 +35,9 @@ class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 
 			foreach ( $parameters as $name => $value ) {
 				if ( $has_error = $this->set_value_by_key( $value, $name ) ) {
-					$errors[] = $has_error;
+					if ( false == is_numeric( $has_error ) && false == is_bool( $has_error ) ) {
+						$errors[] = $has_error;
+					}
 				}
 			}
 
