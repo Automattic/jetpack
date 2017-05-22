@@ -195,6 +195,15 @@ class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 	protected function set_super_cache_enabled( $value ) {
 		global $wp_cache_mod_rewrite;
 
+		if ( is_numeric( $value ) == false ) {
+			$types = array( 'wpcache' => 0, 'rewrite' => 1, 'PHP' => 2 );
+			if ( isset( $types[ $value ] ) ) {
+				$value = $types[ $value ];
+			} else {
+				return false;
+			}
+		}
+
 		if ( $value === 0 ) { // legacy
 			wp_super_cache_disable();
 
@@ -211,7 +220,7 @@ class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 
 			wp_cache_setting( 'wp_cache_mod_rewrite', $wp_cache_mod_rewrite );
 		}
-
+		return true;
 	}
 
 	/**

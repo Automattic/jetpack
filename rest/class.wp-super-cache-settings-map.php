@@ -37,7 +37,7 @@ class WP_Super_Cache_Settings_Map {
 		),
 		'cache_type' => array(
 			'get' => 'get_cache_type',
-			'set' => '',
+			'set' => 'set_super_cache_enabled',
 		),
 		'is_preloading' => array(
 			'get' => 'wpsc_is_preloading',
