@@ -156,7 +156,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Success notices are automatically dismissed after a short period.
 * Removed unused code from "My Jetpack" interface and deprecated an XML-RPC method.
 * Contact Form now adds display names to email addresses in the `To` header.
-* Added an updated multiple unit tests increasing code coverage.
+* Updated multiple unit tests to increase code coverage.
 * Development mode now also shows module list.
 * Updated the list of locales available in Jetpack.
 * Plugin auto-updates only triggered from WordPress.com and now trigger WordPress' maintenance mode.
