@@ -12,40 +12,60 @@ class WPCOMSH_Log {
 	static protected $log_endpoint = 'https://public-api.wordpress.com/rest/v1.1/automated-transfers/log';
 	private static $instance;
 	private $log_queue = array();
-	private $logging_on = false;
+	private $has_shutdown_hook = false;
 	private $siteurl;
 
-	private function __construct() {
-		$this->logging_on = get_option( 'at_options_logging_on' );
-		if( $this->logging_on ) {
-			// Hook to more hooks if needed.
-			add_action( 'wpcomsh_log', array( $this, 'log' ), 1 );
-			register_shutdown_function( array( $this, 'send_to_api' ) );
-			$this->siteurl = get_site_url();
-		}
-	}
-
+	/**
+	 * This instantiates the logging system. Because constructor is private, it can be only set up with `init` or `unsafe_direct_log`.
+	 * `init` respects `at_options_logging_on` option. This essentially turns logging on/off so that we don't flood
+	 * endpoint with too many requests.
+	 * This is to be hooked into wp `init` hook.
+	 */
 	public static function init() {
+		if ( ! get_option( 'at_options_logging_on' ) ) {
+			return;
+		}
+
 		if ( self::$instance ) {
 			return;
-		} else {
-			self::$instance = new self();
 		}
+
+		self::$instance = new self();
+		self::$instance->add_hooks();
 	}
 
-	public function is_logging_on() {
-		return $this->logging_on;
+	/**
+	 * This method bypasses `at_options_logging_on` check.
+	 * It is intended to be used when we are sure we want to send logs to logstash and
+	 * we are sure that we don't fire it off frequently. Good example of when we want to use this
+	 * is during the site setup process
+	 * @param $message
+	 */
+	public static function unsafe_direct_log( $message ) {
+		if ( ! self::$instance ) {
+			self::$instance = new self();
+		}
+		self::$instance->log( $message );
+	}
+
+
+	private function __construct() {
+		$this->siteurl = get_site_url();
+	}
+	private function add_hooks() {
+		add_action( 'wpcomsh_log', array( $this, 'log' ), 1 );
 	}
 
 	public function log( $message ) {
-		if ( ! $this->is_logging_on() ) {
-			return;
-		}
 		$this->log_queue[] = array( "message" => $message );
+		if ( ! $this->has_shutdown_hook ) {
+			register_shutdown_function( array( $this, 'send_to_api' ) );
+			$this->has_shutdown_hook = true;
+		}
 	}
 
 	public function send_to_api() {
-		if ( $this->is_logging_on() && count( $this->log_queue ) > 0 ) {
+		if ( count( $this->log_queue ) > 0 ) {
 			$payload = array(
 				'siteurl' => $this->siteurl,
 				'messages' =>$this->log_queue

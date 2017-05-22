@@ -87,8 +87,10 @@ class WPCOMSH_CLI_Commands extends WP_CLI_Command {
 		$total_sync_time = time() - $total_sync_time;
 
 		if ( ! $result || is_wp_error( $result ) ) {
-			WP_CLI::error( 'Jetpack Sync failed to complete in ' . self::JETPACK_SYNC_RETRIES .
-			' retries and ' . $total_sync_time . ' seconds: ' . print_r( $result, true ) );
+			$message = 'Jetpack Sync failed to complete in ' . self::JETPACK_SYNC_RETRIES .
+			' retries and ' . $total_sync_time . ' seconds: ' . print_r( $result, true );
+			WPCOMSH_Log::unsafe_direct_log( $message );
+			WP_CLI::error( $message );
 		}
 
 		// now restore the original settings
