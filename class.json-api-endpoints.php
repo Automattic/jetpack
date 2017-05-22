@@ -1505,7 +1505,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 				continue;
 			}
 
-			foreach ( (array) $actions as $priority => $callbacks ) {
+			foreach ( $actions as $priority => $callbacks ) {
 				foreach( $callbacks as $callback_key => $callback_data ) {
 					$callback = $callback_data['function'];
 
