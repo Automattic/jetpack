@@ -14,6 +14,7 @@
 include dirname( __FILE__ ) . '/comment-likes/comment-likes.php';
 
 Jetpack::dns_prefetch( array(
+	'//widgets.wp.com',
 	'//s0.wp.com',
 	'//s1.wp.com',
 	'//s2.wp.com',
