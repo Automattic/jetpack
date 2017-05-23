@@ -19,10 +19,10 @@ import SettingsGroup from 'components/settings-group';
 export const SSO = moduleSettingsForm(
 	class extends Component {
 		/**
-     * Get options for initial state.
-     *
-     * @returns {{jetpack_sso_match_by_email: *, jetpack_sso_require_two_step: *}}
-     */
+		 * Get options for initial state.
+		 *
+		 * @returns {{jetpack_sso_match_by_email: *, jetpack_sso_require_two_step: *}}
+		 */
 		state = {
 			jetpack_sso_match_by_email: this.props.getOptionValue( 'jetpack_sso_match_by_email', 'sso' ),
 			jetpack_sso_require_two_step: this.props.getOptionValue(
@@ -32,10 +32,10 @@ export const SSO = moduleSettingsForm(
 		};
 
 		/**
-     * Update state so toggles are updated.
-     *
-     * @param {string} optionName
-     */
+		 * Update state so toggles are updated.
+		 *
+		 * @param {string} optionName
+		 */
 		updateOptions = optionName => {
 			this.setState(
 				{
