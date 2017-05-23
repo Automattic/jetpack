@@ -283,19 +283,21 @@ function jetpack_photon_parse_url( $url, $component = -1 ) {
 	return parse_url( $url, $component );
 }
 
-add_filter( 'jetpack_photon_skip_for_url', 'jetpack_photon_banned_domains', 9, 4 );
-function jetpack_photon_banned_domains( $skip, $image_url, $args, $scheme ) {
-	$banned_domains = array(
-		'http://chart.googleapis.com/',
-		'https://chart.googleapis.com/',
-		'http://chart.apis.google.com/',
-		'http://graph.facebook.com/',
-		'https://graph.facebook.com/',
+add_filter( 'jetpack_photon_skip_for_url', 'jetpack_photon_banned_domains', 9, 2 );
+function jetpack_photon_banned_domains( $skip, $image_url ) {
+	$banned_host_patterns = array(
+		'/^chart\.googleapis\.com$/',
+		'/^chart\.apis\.google\.com$/',
+		'/^graph\.facebook\.com$/',
+		'/\.fbcdn\.net$/'
 	);
 
-	foreach ( $banned_domains as $banned_domain ) {
-		if ( wp_startswith( $image_url, $banned_domain ) )
+	$host = jetpack_photon_parse_url( $image_url, PHP_URL_HOST );
+
+	foreach ( $banned_host_patterns as $banned_host_pattern ) {
+		if ( 1 === preg_match( $banned_host_pattern, $host ) ) {
 			return true;
+		}
 	}
 
 	return $skip;

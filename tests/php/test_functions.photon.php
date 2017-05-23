@@ -395,4 +395,25 @@ class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 		$this->assertEquals( 'i0.wp.com', $host );
 	}
 
+	/**
+	 * @author aduth
+	 * @covers jetpack_photon_banned_domains
+	 * @since  5.0.0
+	 * @group  jetpack_photon_banned_domains
+	 */
+	public function test_photon_banned_domains_banned() {
+		$this->assertTrue( jetpack_photon_banned_domains( false, 'http://graph.facebook.com/37512822/picture' ) );
+		$this->assertTrue( jetpack_photon_banned_domains( false, 'https://scontent-mrs1-1.xx.fbcdn.net/v/t31.0-8/00000000_000000000000000_0000000000000000000_o.jpg' ) );
+	}
+
+	/**
+	 * @author aduth
+	 * @covers jetpack_photon_banned_domains
+	 * @since  5.0.0
+	 * @group  jetpack_photon_banned_domains
+	 */
+	public function test_photon_banned_domains_not_banned() {
+		$this->assertFalse( jetpack_photon_banned_domains( false, 'https://s.w.org/style/images/wp-header-logo-2x.png' ) );
+	}
+
 }
