@@ -113,6 +113,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Slightly Less Exciting Enhancements**
 
 * Admin Page: remove bottom alignment of content in dashboard cards. #6996
+* Admin Page: change priority used when injecting admin notices, to make it easier to remove them if needed. #7122
 * Custom CSS: allow the `animation-fill-mode` property. #7166
 * General: improve wording on connection banners for secondary users to avoid confusion. #6753
 * Internationalization: add and update language information handling. #7057
@@ -130,7 +131,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Compatibility Improvements**
 
-* Genera: fix issue causing potential errors during the connection process. #7115
+* General: fix issue causing potential errors during the connection process. #7115
 * General: add tools for partners to provision Jetpack sites. #7112
 * Sync: improve synchronization of WooCommerce meta data. #6928
 * Sync: avoid PHP notices when using the Pet Manager plugin. #6051
