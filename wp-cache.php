@@ -569,13 +569,6 @@ function wp_cache_manager_updates() {
 		if ( isset( $_POST[ 'wp_cache_status' ] ) && 'all' == $_POST[ 'wp_cache_status' ] ) {
 			if ( $_POST[ 'wp_cache_status' ] == 'all' ) {
 				wp_cache_enable();
-				if ( wpsc_set_default_gc() ) {
-					// gc might not be scheduled, check and schedule
-					$timestamp = wp_next_scheduled( 'wp_cache_gc' );
-					if ( false == $timestamp ) {
-						wp_schedule_single_event( time() + 600, 'wp_cache_gc' );
-					}
-				}
 			}
 
 
@@ -2011,14 +2004,17 @@ function wp_cache_debug_settings() {
 function wp_cache_enable() {
 	global $wp_cache_config_file, $cache_enabled, $supercachedir;
 
-	if(get_option('gzipcompression')) {
-		echo "<strong>" . __( 'Error: GZIP compression is enabled. Disable it if you want to enable wp-cache.', 'wp-super-cache' ) . "</strong>";
-		return false;
-	}
 	if( wp_cache_replace_line('^ *\$cache_enabled', '$cache_enabled = true;', $wp_cache_config_file) ) {
 		$cache_enabled = true;
 	}
-	wp_super_cache_enable();
+
+	if ( wpsc_set_default_gc() ) {
+		// gc might not be scheduled, check and schedule
+		$timestamp = wp_next_scheduled( 'wp_cache_gc' );
+		if ( false == $timestamp ) {
+			wp_schedule_single_event( time() + 600, 'wp_cache_gc' );
+		}
+	}
 }
 
 function wp_cache_disable() {

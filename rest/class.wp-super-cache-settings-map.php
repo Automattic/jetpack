@@ -49,6 +49,7 @@ class WP_Super_Cache_Settings_Map {
 		),
 		'is_cache_enabled' => array(
 			'global' => 'cache_enabled',
+			'set'    => 'set_cache_enabled',
 		),
 		'is_super_cache_enabled' => array(
 			'global' => 'super_cache_enabled',
