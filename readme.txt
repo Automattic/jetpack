@@ -151,6 +151,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Spellcheck: Properly escape Button attribute. #7100
 * Theme Tools: avoid issues when Social Menu functions have already been defined in the theme or in another plugin. #7132
 * Widgets: fix style of the EU Cookie Law Widget on themes with specific widgets positioning. #7143
+* Widgets: use correct time constant to define an hour in Upcoming Events Widget. #7163
 
 = 4.9 =
 
