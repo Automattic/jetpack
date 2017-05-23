@@ -354,11 +354,16 @@ class Publicize extends Publicize_Base {
 		), menu_page_url( 'sharing', false ) );
 	}
 
-	function get_services( $filter ) {
-		if ( ! in_array( $filter, array( 'all', 'connected' ) ) ) {
-			$filter = 'all';
-		}
-
+	/**
+	 * Get social networks, either all available or only those that the site is connected to.
+	 *
+	 * @since 2.0
+	 *
+	 * @param string $filter Select the list of services that will be returned. Defaults to 'all', accepts 'connected'.
+	 *
+	 * @return array List of social networks.
+	 */
+	function get_services( $filter = 'all' ) {
 		$services = array(
 			'facebook'    => array(),
 			'twitter'     => array(),
@@ -378,7 +383,6 @@ class Publicize extends Publicize_Base {
 					$connected_services[ $service ] = $connections;
 				}
 			}
-
 			return $connected_services;
 		}
 	}
