@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import analytics from 'lib/analytics';
@@ -9,8 +9,9 @@ import analytics from 'lib/analytics';
 /**
  * Internal dependencies
  */
+import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 import DashSectionHeader from 'components/dash-section-header';
-import DashStats from './stats';
+import DashStats from './stats/index.jsx';
 import DashProtect from './protect';
 import DashMonitor from './monitor';
 import DashScan from './scan';
@@ -19,7 +20,6 @@ import DashBackups from './backups';
 import DashPluginUpdates from './plugins';
 import DashPhoton from './photon';
 import DashConnections from './connections';
-import { isModuleActivated as _isModuleActivated } from 'state/modules';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 import QuerySite from 'components/data/query-site';
 import {
@@ -29,12 +29,19 @@ import {
 } from 'state/initial-state';
 import { isDevMode } from 'state/connection';
 
-const AtAGlance = React.createClass( {
+class AtAGlance extends Component {
 	render() {
+		const settingsProps = {
+			updateOptions: this.props.updateOptions,
+			getOptionValue: this.props.getOptionValue,
+			isUpdating: this.props.isUpdating
+		};
+
 		const urls = {
 				siteAdminUrl: this.props.siteAdminUrl,
 				siteRawUrl: this.props.siteRawUrl
 			},
+			trackSecurityClick = () => analytics.tracks.recordJetpackClick( 'aag_manage_security_wpcom' ),
 			securityHeader = <DashSectionHeader
 					label={ __( 'Security' ) }
 					settingsPath="#security"
@@ -47,7 +54,7 @@ const AtAGlance = React.createClass( {
 						? ''
 						: 'https://wordpress.com/settings/security/' + this.props.siteRawUrl
 					}
-					externalLinkClick={ () => analytics.tracks.recordJetpackClick( 'aag_manage_security_wpcom' ) }
+					externalLinkClick={ trackSecurityClick }
 				/>,
 			connections = (
 				<div>
@@ -62,7 +69,7 @@ const AtAGlance = React.createClass( {
 				<div className="jp-at-a-glance">
 					<QuerySitePlugins />
 					<QuerySite />
-					<DashStats { ...urls } />
+					<DashStats { ...settingsProps } { ...urls } />
 
 					{
 						// Site Security
@@ -70,18 +77,18 @@ const AtAGlance = React.createClass( {
 					}
 					<div className="jp-at-a-glance__item-grid">
 						<div className="jp-at-a-glance__left">
-							<DashProtect />
+							<DashProtect { ...settingsProps } />
 						</div>
 						<div className="jp-at-a-glance__right">
-							<DashScan siteRawUrl={ this.props.siteRawUrl } />
+							<DashScan { ...settingsProps } siteRawUrl={ this.props.siteRawUrl } />
 						</div>
 					</div>
 					<div className="jp-at-a-glance__item-grid">
 						<div className="jp-at-a-glance__left">
-							<DashBackups siteRawUrl={ this.props.siteRawUrl } />
+							<DashBackups { ...settingsProps } siteRawUrl={ this.props.siteRawUrl } />
 						</div>
 						<div className="jp-at-a-glance__right">
-							<DashMonitor />
+							<DashMonitor { ...settingsProps } />
 						</div>
 					</div>
 					<div className="jp-at-a-glance__item-grid">
@@ -89,7 +96,7 @@ const AtAGlance = React.createClass( {
 							<DashAkismet { ...urls } />
 						</div>
 						<div className="jp-at-a-glance__right">
-							<DashPluginUpdates { ...urls }/>
+							<DashPluginUpdates { ...settingsProps } { ...urls } />
 						</div>
 					</div>
 
@@ -100,7 +107,7 @@ const AtAGlance = React.createClass( {
 					}
 					<div className="jp-at-a-glance__item-grid">
 						<div className="jp-at-a-glance__left">
-							<DashPhoton />
+							<DashPhoton { ...settingsProps } />
 						</div>
 					</div>
 
@@ -109,49 +116,49 @@ const AtAGlance = React.createClass( {
 					}
 				</div>
 			);
-		} else {
-			let stats = '';
-			if ( this.props.userCanViewStats ) {
-				stats = <DashStats { ...urls } />;
-			}
+		}
 
-			let protect = '';
-			if ( this.props.isModuleActivated( 'protect' ) ) {
-				protect = <DashProtect />;
-			}
+		/*
+		 * Non-admin zone...
+         */
+		let stats = '';
+		if ( this.props.userCanViewStats ) {
+			stats = <DashStats { ...urls } />;
+		}
 
-			const nonAdminAAG = this.props.userIsSubscriber
-				? (
+		let protect = '';
+		if ( this.props.getOptionValue( 'protect' ) ) {
+			protect = <DashProtect { ...settingsProps } />;
+		}
+
+		return this.props.userIsSubscriber
+			? (
 				<div>
 					{ stats	}
 					{ connections }
 				</div>
 			)
-				: (
+			: (
 				<div>
 					{ stats	}
 					{
 						// Site Security
-						this.props.isModuleActivated( 'protect' ) && securityHeader
+						this.props.getOptionValue( 'protect' ) && securityHeader
 					}
 					{ protect }
 					{ connections }
 				</div>
 			);
-
-			return nonAdminAAG;
-		}
 	} // render
-} );
+}
 
 export default connect(
 	( state ) => {
 		return {
-			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
 			userCanManageModules: userCanManageModules( state ),
 			userCanViewStats: userCanViewStats( state ),
 			userIsSubscriber: userIsSubscriber( state ),
 			isDevMode: isDevMode( state )
 		};
 	}
-)( AtAGlance );
+)( moduleSettingsForm( AtAGlance ) );

@@ -22,11 +22,10 @@ describe( 'DashItem', () => {
 		isDevMode: false,
 		href: 'https://jetpack.com/',
 		userCanToggle: true,
-		isModuleActivated: () => true,
-		isTogglingModule: () => true,
-		toggleModule: () => false,
 		siteAdminUrl: 'https://example.org/wp-admin/',
-		siteRawUrl: 'example.org'
+		siteRawUrl: 'example.org',
+		getOptionValue: () => true,
+		isUpdating: () => false
 	};
 
 	const wrapper = shallow( <DashItem { ...testProps } /> );
@@ -167,11 +166,10 @@ describe( 'DashItem', () => {
 			pro: false,
 			isDevMode: false,
 			userCanToggle: true,
-			isModuleActivated: () => true,
-			isTogglingModule: () => true,
-			toggleModule: () => false,
 			siteAdminUrl: 'https://example.org/wp-admin/',
-			siteRawUrl: 'example.org'
+			siteRawUrl: 'example.org',
+			getOptionValue: () => true,
+			isUpdating: () => false
 		};
 
 		const wrapper = shallow( <DashItem { ...manageProps } /> );
@@ -182,10 +180,6 @@ describe( 'DashItem', () => {
 
 		it( 'when it is activated, the warning badge is linked to Plugins screen in WordPress.com', () => {
 			expect( wrapper.find( 'SectionHeader' ).find( 'a' ).props().href ).to.be.equal( 'https://wordpress.com/plugins/' + manageProps.siteRawUrl );
-		} );
-
-		it( 'when Manage is deactivated, the warning badge is linked to Plugins screen in WP Admin', () => {
-			expect( shallow( <DashItem { ...manageProps } isModuleActivated={ () => false } /> ).find( 'SectionHeader' ).find( 'a' ).props().href ).to.be.equal( manageProps.siteAdminUrl + 'plugins.php' );
 		} );
 
 		it( "when status is 'is-working', the warning badge has an 'active' label", () => {
@@ -203,11 +197,10 @@ describe( 'DashItem', () => {
 			pro: false,
 			isDevMode: false,
 			userCanToggle: true,
-			isModuleActivated: () => true,
-			isTogglingModule: () => true,
-			toggleModule: () => false,
 			siteAdminUrl: 'https://example.org/wp-admin/',
-			siteRawUrl: 'example.org'
+			siteRawUrl: 'example.org',
+			getOptionValue: () => true,
+			isUpdating: () => false
 		};
 
 		const wrapper = shallow( <DashItem { ...monitorProps } /> );

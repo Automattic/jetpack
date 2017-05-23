@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import DashItem from 'components/dash-item';
 import { translate as __ } from 'i18n-calypso';
@@ -11,30 +11,21 @@ import includes from 'lodash/includes';
  * Internal dependencies
  */
 import QueryPluginUpdates from 'components/data/query-plugin-updates';
-import {
-	getPluginUpdates as _getPluginUpdates
-} from 'state/at-a-glance';
-import {
-	isModuleActivated as _isModuleActivated,
-	activateModule,
-	getModules
-} from 'state/modules';
+import { getPluginUpdates } from 'state/at-a-glance';
+import { getModules } from 'state/modules';
 import { isDevMode } from 'state/connection';
 
-const DashPluginUpdates = React.createClass( {
-	activateAndRedirect: function( e ) {
+class DashPluginUpdates extends Component {
+	activateAndRedirect( e ) {
 		e.preventDefault();
 		this.props.activateManage()
 			.then( window.location = 'https://wordpress.com/plugins/' + this.props.siteRawUrl );
-	},
+	}
 
-	getContent: function() {
+	getContent() {
 		const labelName = __( 'Plugin Updates' );
 		const pluginUpdates = this.props.pluginUpdates;
-		const manageActive = this.props.isModuleActivated( 'manage' );
-		const ctaLink = manageActive ?
-			'https://wordpress.com/plugins/' + this.props.siteRawUrl :
-			this.props.siteAdminUrl + 'plugins.php';
+		const manageActive = this.props.getOptionValue( 'manage' );
 
 		if ( 'N/A' === pluginUpdates ) {
 			return (
@@ -49,9 +40,6 @@ const DashPluginUpdates = React.createClass( {
 		}
 
 		if ( 'updates-available' === pluginUpdates.code ) {
-			const manageDashText = manageActive
-				? __( '{{a}}Turn on plugin auto updates{{/a}}', { components: { a: <a href={ ctaLink } /> } } )
-				: __( '{{a}}Activate Manage and turn on auto updates{{/a}}', { components: { a: <a onClick={ this.activateAndRedirect } href="javascript:void(0)" /> } } );
 			return (
 				<DashItem
 					label={ labelName }
@@ -78,7 +66,9 @@ const DashPluginUpdates = React.createClass( {
 							} )
 						}
 						{
-							this.props.isDevMode ? '' : manageDashText
+							this.props.isDevMode
+								? ''
+								: __( '{{a}}Turn on plugin auto updates{{/a}}', { components: { a: <a href={ 'https://wordpress.com/plugins/' + this.props.siteRawUrl } /> } } )
 						}
 					</p>
 				</DashItem>
@@ -92,16 +82,14 @@ const DashPluginUpdates = React.createClass( {
 				status={ manageActive ? 'is-working' : 'is-inactive' } >
 				<p className="jp-dash-item__description">
 					{
-						manageActive
-							? __( 'All plugins are up-to-date. Awesome work!' )
-							: __( '{{a}}Activate Manage{{/a}} to turn on auto updates and manage your plugins from WordPress.com.', { components: { a: <a onClick={ this.props.activateManage } href="javascript:void(0)" /> } } )
+						__( 'All plugins are up-to-date. Awesome work!' )
 					}
 				</p>
 			</DashItem>
 		);
-	},
+	}
 
-	render: function() {
+	render() {
 		const moduleList = Object.keys( this.props.moduleList );
 		if ( ! includes( moduleList, 'manage' ) ) {
 			return null;
@@ -114,7 +102,7 @@ const DashPluginUpdates = React.createClass( {
 			</div>
 		);
 	}
-} );
+}
 
 DashPluginUpdates.propTypes = {
 	isDevMode: React.PropTypes.bool.isRequired,
@@ -126,17 +114,9 @@ DashPluginUpdates.propTypes = {
 export default connect(
 	( state ) => {
 		return {
-			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
-			pluginUpdates: _getPluginUpdates( state ),
+			pluginUpdates: getPluginUpdates( state ),
 			isDevMode: isDevMode( state ),
 			moduleList: getModules( state )
-		};
-	},
-	( dispatch ) => {
-		return {
-			activateManage: () => {
-				return dispatch( activateModule( 'manage' ) );
-			}
 		};
 	}
 )( DashPluginUpdates );

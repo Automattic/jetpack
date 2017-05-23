@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { Component } from 'react';
 import Button from 'components/button';
 import analytics from 'lib/analytics';
 import Card from 'components/card';
@@ -11,24 +11,8 @@ import Card from 'components/card';
  */
 import { numberFormat, moment, translate as __ } from 'i18n-calypso';
 
-const DashStatsBottom = React.createClass( {
-	propTypes: {
-		siteRawUrl: React.PropTypes.string.isRequired,
-		siteAdminUrl: React.PropTypes.string.isRequired,
-		statsData: React.PropTypes.object.isRequired,
-		isLinked: React.PropTypes.bool.isRequired
-	},
-
-	getDefaultProps: function() {
-		return {
-			siteRawUrl: '',
-			siteAdminUrl: '',
-			statsData: {},
-			isLinked: false
-		};
-	},
-
-	statsBottom: function() {
+class DashStatsBottom extends Component {
+	statsBottom() {
 		let generalStats;
 		if ( 'object' === typeof this.props.statsData.general ) {
 			generalStats = this.props.statsData.general.stats;
@@ -54,10 +38,13 @@ const DashStatsBottom = React.createClass( {
 				}
 			}
 		];
-	},
+	}
 
-	render: function() {
+	render() {
 		const s = this.statsBottom()[ 0 ];
+		const trackViewDetailedStats = () => analytics.tracks.recordJetpackClick( 'view_detailed_stats' ),
+			trackViewWpcomStats = () => analytics.tracks.recordJetpackClick( 'view_wpcom_stats' );
+
 		return (
 		<div>
 			<div className="jp-at-a-glance__stats-summary">
@@ -114,7 +101,7 @@ const DashStatsBottom = React.createClass( {
 						components: {
 							button:
 								<Button
-									onClick={ () => analytics.tracks.recordJetpackClick( 'view_detailed_stats' ) }
+									onClick={ trackViewDetailedStats }
 									href={ this.props.siteAdminUrl + 'admin.php?page=stats' }
 								/>
 						}
@@ -125,7 +112,7 @@ const DashStatsBottom = React.createClass( {
 								components: {
 									button:
 										<Button
-											onClick={ () => analytics.tracks.recordJetpackClick( 'view_wpcom_stats' ) }
+											onClick={ trackViewWpcomStats }
 											className="is-primary"
 											href={ 'https://wordpress.com/stats/insights/' + this.props.siteRawUrl }
 										/>
@@ -151,6 +138,20 @@ const DashStatsBottom = React.createClass( {
 		</div>
 		);
 	}
-} );
+}
+
+DashStatsBottom.propTypes = {
+	siteRawUrl: React.PropTypes.string.isRequired,
+	siteAdminUrl: React.PropTypes.string.isRequired,
+	statsData: React.PropTypes.object.isRequired,
+	isLinked: React.PropTypes.bool.isRequired
+};
+
+DashStatsBottom.defaultProps = {
+	siteRawUrl: '',
+	siteAdminUrl: '',
+	statsData: {},
+	isLinked: false
+};
 
 export default DashStatsBottom;

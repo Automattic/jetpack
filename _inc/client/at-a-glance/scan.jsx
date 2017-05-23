@@ -1,9 +1,8 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import DashItem from 'components/dash-item';
 import { numberFormat, translate as __ } from 'i18n-calypso';
 import { getPlanClass } from 'lib/plans/constants';
 
@@ -11,11 +10,6 @@ import { getPlanClass } from 'lib/plans/constants';
  * Internal dependencies
  */
 import QueryVaultPressData from 'components/data/query-vaultpress-data';
-import {
-	isModuleActivated as _isModuleActivated,
-	activateModule,
-	isFetchingModulesList as _isFetchingModulesList
-} from 'state/modules';
 import { getSitePlan } from 'state/site';
 import { isPluginInstalled } from 'state/site/plugins';
 import {
@@ -24,9 +18,10 @@ import {
 } from 'state/at-a-glance';
 import { isDevMode } from 'state/connection';
 import { isFetchingSiteData } from 'state/site';
+import DashItem from 'components/dash-item';
 
-const DashScan = React.createClass( {
-	getContent: function() {
+class DashScan extends Component {
+	getContent() {
 		const planClass = getPlanClass( this.props.sitePlan.product_slug ),
 			labelName = __( 'Security Scanning' ),
 			hasSitePlan = false !== this.props.sitePlan,
@@ -41,7 +36,7 @@ const DashScan = React.createClass( {
 			hasPremium = 'is-premium-plan' === planClass,
 			hasBusiness = 'is-business-plan' === planClass;
 
-		if ( this.props.isModuleActivated( 'vaultpress' ) ) {
+		if ( this.props.getOptionValue( 'vaultpress' ) ) {
 			if ( vpData === 'N/A' ) {
 				return (
 					<DashItem label={ labelName }>
@@ -72,8 +67,8 @@ const DashScan = React.createClass( {
 							}</h3>
 							<p className="jp-dash-item__description">
 								{ __( '{{a}}View details at VaultPress.com{{/a}}', { components: { a: <a href="https://dashboard.vaultpress.com/" /> } } ) }
-								<br/>
-								{ __( '{{a}}Contact Support{{/a}}', { components: { a: <a href='https://jetpack.com/support' /> } } ) }
+								<br />
+								{ __( '{{a}}Contact Support{{/a}}', { components: { a: <a href="https://jetpack.com/support" /> } } ) }
 							</p>
 						</DashItem>
 					);
@@ -105,19 +100,19 @@ const DashScan = React.createClass( {
 				return (
 					__( 'For automated, comprehensive scanning of security threats, please {{a}}install and activate{{/a}} VaultPress.', {
 						components: {
-							a: <a href='https://wordpress.com/plugins/vaultpress' target="_blank" rel="noopener noreferrer" />
-						}
-					} )
-				);
-			} else {
-				return (
-					__( 'For automated, comprehensive scanning of security threats, please {{a}}upgrade your account{{/a}}.', {
-						components: {
-							a: <a href={ 'https://jetpack.com/redirect/?source=aag-scan&site=' + this.props.siteRawUrl } target="_blank" rel="noopener noreferrer" />
+							a: <a href="https://wordpress.com/plugins/vaultpress" target="_blank" rel="noopener noreferrer" />
 						}
 					} )
 				);
 			}
+
+			return (
+				__( 'For automated, comprehensive scanning of security threats, please {{a}}upgrade your account{{/a}}.', {
+					components: {
+						a: <a href={ 'https://jetpack.com/redirect/?source=aag-scan&site=' + this.props.siteRawUrl } target="_blank" rel="noopener noreferrer" />
+					}
+				} )
+			);
 		};
 
 		return (
@@ -129,15 +124,15 @@ const DashScan = React.createClass( {
 				pro={ true } >
 				<p className="jp-dash-item__description">
 					{
-						this.props.isDevMode ? __( 'Unavailable in Dev Mode.' ) :
-							upgradeOrActivateText()
+						this.props.isDevMode ? __( 'Unavailable in Dev Mode.' )
+							: upgradeOrActivateText()
 					}
 				</p>
 			</DashItem>
 		);
-	},
+	}
 
-	render: function() {
+	render() {
 		return (
 			<div>
 				<QueryVaultPressData />
@@ -145,7 +140,7 @@ const DashScan = React.createClass( {
 			</div>
 		);
 	}
-} );
+}
 
 DashScan.propTypes = {
 	vaultPressData: React.PropTypes.any.isRequired,
@@ -153,26 +148,17 @@ DashScan.propTypes = {
 	isDevMode: React.PropTypes.bool.isRequired,
 	siteRawUrl: React.PropTypes.string.isRequired,
 	sitePlan: React.PropTypes.object.isRequired
-}
+};
 
 export default connect(
 	( state ) => {
 		return {
-			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
-			isFetchingModulesList: () => _isFetchingModulesList( state ),
 			vaultPressData: _getVaultPressData( state ),
 			scanThreats: _getVaultPressScanThreatCount( state ),
 			sitePlan: getSitePlan( state ),
 			isDevMode: isDevMode( state ),
 			isPluginInstalled: ( plugin_slug ) => isPluginInstalled( state, plugin_slug ),
 			fetchingSiteData: isFetchingSiteData( state )
-		};
-	},
-	( dispatch ) => {
-		return {
-			activateModule: ( slug ) => {
-				return dispatch( activateModule( slug ) );
-			}
 		};
 	}
 )( DashScan );

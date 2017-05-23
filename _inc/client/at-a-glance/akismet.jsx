@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import DashItem from 'components/dash-item';
 import { numberFormat, translate as __ } from 'i18n-calypso';
@@ -10,28 +10,15 @@ import { numberFormat, translate as __ } from 'i18n-calypso';
  * Internal dependencies
  */
 import QueryAkismetData from 'components/data/query-akismet-data';
-import {
-	getAkismetData as _getAkismetData
-} from 'state/at-a-glance';
+import { getAkismetData } from 'state/at-a-glance';
 import { getSitePlan } from 'state/site';
-import {
-	isModuleActivated as _isModuleActivated,
-	activateModule
-} from 'state/modules';
 
-const DashAkismet = React.createClass( {
-	activateManageAndRedirect: function( e ) {
-		e.preventDefault();
-
-		this.props.activateModule( 'manage' )
-			.then( window.location = 'https://wordpress.com/plugins/akismet/' + this.props.siteRawUrl );
-	},
-
-	getContent: function() {
-		const akismetData = this.props.getAkismetData(),
+class DashAkismet extends Component {
+	getContent() {
+		const akismetData = this.props.akismetData,
 			akismetSettingsUrl = this.props.siteAdminUrl + 'admin.php?page=akismet-key-config',
 			labelName = __( 'Spam Protection' ),
-			hasSitePlan = false !== this.props.getSitePlan();
+			hasSitePlan = false !== this.props.sitePlan;
 
 		if ( akismetData === 'N/A' ) {
 			return (
@@ -129,18 +116,11 @@ const DashAkismet = React.createClass( {
 						} )
 					}
 				</p>
-				{/*
-				<strong>This is the data we could show here: </strong> <br/>
-				Spam blocked all-time: { akismetData.all.spam } <br/>
-				Time saved ( in seconds ): { akismetData.all.time_saved } <br/>
-				Accuracy: { akismetData.all.accuracy } <br/>
-				false positives: { akismetData.all.false_positives }
-				*/}
 			</DashItem>
 		);
-	},
+	}
 
-	render: function() {
+	render() {
 		return (
 			<div className="jp-dash-item__interior">
 				<QueryAkismetData />
@@ -148,7 +128,7 @@ const DashAkismet = React.createClass( {
 			</div>
 		);
 	}
-} );
+}
 
 DashAkismet.propTypes = {
 	siteRawUrl: React.PropTypes.string.isRequired,
@@ -158,16 +138,8 @@ DashAkismet.propTypes = {
 export default connect(
 	( state ) => {
 		return {
-			getAkismetData: () => _getAkismetData( state ),
-			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
-			getSitePlan: () => getSitePlan( state )
+			akismetData: getAkismetData( state ),
+			sitePlan: getSitePlan( state )
 		};
-	},
-	( dispatch ) => {
-		return {
-			activateModule: ( slug ) => {
-				return dispatch( activateModule( slug ) );
-			}
-		}
 	}
 )( DashAkismet );

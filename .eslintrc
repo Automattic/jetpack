@@ -80,7 +80,7 @@
 		"wpcalypso/i18n-no-variables": 1,
 		"wpcalypso/i18n-mismatched-placeholders": 1,
 		"wpcalypso/import-docblock": 1,
-		"wpcalypso/jsx-gridicon-size": 1,
+		"wpcalypso/jsx-gridicon-size": 0, // Ignored for Jetpack
 		"wpcalypso/jsx-classname-namespace": 0 // Ignored for Jetpack
 	}
 }
