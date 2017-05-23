@@ -138,6 +138,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * CLI interface: properly print full list of modules when using the sync command. #7094
 * General: add a mechanism to detect broken connection states and resolve them. #6964
+* Photon: avoid potential PHP notices when used with other themes and plugins customizing responsive images. #7090
 * Spellcheck: Properly escape Button attribute. #7100
 * Theme Tools: avoid issues when Social Menu functions have already been defined in the theme or in another plugin. #7132
 * Widgets: fix style of the EU Cookie Law Widget on themes with specific widgets positioning. #7143
