@@ -283,6 +283,11 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_widgets_changes_get_synced() {
+		global $wp_registered_sidebars;
+
+		$sidebar_id = 'sidebar-1';
+		$sidebar_name = $wp_registered_sidebars[ $sidebar_id ]['name'];
+		
 		$sidebar_widgets = array(
 			'wp_inactive_widgets' => array( 'author-1' ),
 			'sidebar-1' => array( 'nav_menu-1' ),
@@ -308,9 +313,9 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_widget_added' );
 
-		$this->assertEquals( $event->args[0], 'sidebar-1', 'Added to sidebar not found' );
+		$this->assertEquals( $event->args[0], $sidebar_id, 'Added to sidebar not found' );
 		$this->assertEquals( $event->args[1], 'calendar-1', 'Added widget not found' );
-		$this->assertEquals( $event->args[2], 'Sidebar 1', 'Added sidebar name not found' );
+		$this->assertEquals( $event->args[2], $sidebar_name, 'Added sidebar name not found' );
 		$this->assertEquals( $event->args[3], 'Calendar', 'Added widget name not found' );
 
 		// Reorder widget
@@ -324,8 +329,8 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_widget_reordered' );
 
-		$this->assertEquals( $event->args[0], 'sidebar-1', 'Reordered sidebar not found' );
-		$this->assertEquals( $event->args[1], 'Sidebar 1', 'Reordered sidebar name not found' );
+		$this->assertEquals( $event->args[0], $sidebar_id, 'Reordered sidebar not found' );
+		$this->assertEquals( $event->args[1], $sidebar_name, 'Reordered sidebar name not found' );
 
 		// Deleted widget
 		$sidebar_widgets  = array(
@@ -338,10 +343,10 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_widget_removed' );
 
-		$this->assertEquals( $event->args[0], 'sidebar-1', 'Sidebar not found' );
+		$this->assertEquals( $event->args[0], $sidebar_id, 'Sidebar not found' );
 		$this->assertEquals( $event->args[1], 'nav_menu-1', 'Recent removed widget not found' );
 
-		$this->assertEquals( $event->args[2], 'Sidebar 1', 'Added sidebar name not found' );
+		$this->assertEquals( $event->args[2], $sidebar_name, 'Added sidebar name not found' );
 		$this->assertEquals( $event->args[3], 'Custom Menu', 'Added widget name not found' );
 
 		// Moved to inactive
