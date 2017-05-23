@@ -1,17 +1,13 @@
 #!/usr/bin/env sh
 
-# accepts: partner client ID and secret key, and some site info
-# executes wp-cli command to provision Jetpack site for given partner
-
-# TODO: 
-# - allow user_email instead of user_id, automatically lookup/provision an admin on site (maybe rename user_id param to user?)
+# cancel a the plan provided for the current site using the given partner keys
 
 # change to script directory so that wp finds the wordpress install part for this Jetpack instance
 SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
 cd $SCRIPT_DIR
 
 usage () {
-    echo "Usage: partner-provision.sh --partner_id=partner_id --partner_secret=partner_secret --user_id=wp_user_id [--plan=plan_name] [--wpcom_user_id=1234]"
+    echo "Usage: partner-cancel.sh --partner_id=partner_id --partner_secret=partner_secret"
 }
 
 for i in "$@"; do
@@ -23,15 +19,6 @@ for i in "$@"; do
         -s=* | --partner_secret=* ) CLIENT_SECRET="${i#*=}"
                                     shift
                                     ;;
-        -i=* | --user_id=* )        WP_USER_ID="${i#*=}"
-                                    shift
-                                    ;;
-        -w=* | --wpcom_user_id=* )  WPCOM_USER_ID="${i#*=}"
-                                    shift
-                                    ;;
-        -p=* | --plan=* )           PLAN_NAME="${i#*=}"
-                                    shift
-                                    ;;
         -h | --help )               usage
                                     exit
                                     ;;
@@ -40,7 +27,7 @@ for i in "$@"; do
     esac
 done
 
-if [ "$CLIENT_ID" = "" ] || [ "$CLIENT_SECRET" = "" ] || [ "$WP_USER_ID" = "" ]; then
+if [ "$CLIENT_ID" = "" ] || [ "$CLIENT_SECRET" = "" ]; then
     usage
     exit 1
 fi
@@ -56,6 +43,6 @@ ACCESS_TOKEN_JSON=`curl https://$JETPACK_START_API_HOST/oauth2/token --silent --
 # silently ensure Jetpack is active
 wp plugin activate jetpack >/dev/null 2>&1
 
-# provision the partner plan
-wp jetpack partner_provision "$ACCESS_TOKEN_JSON" --user_id=$WP_USER_ID --plan=$PLAN_NAME --wpcom_user_id=$WPCOM_USER_ID
+# cancel the partner plan
+wp jetpack partner_cancel "$ACCESS_TOKEN_JSON"
 
