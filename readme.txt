@@ -130,6 +130,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Compatibility Improvements**
 
+* General: add tools for partners to provision Jetpack sites. #7112
 * Sync: improve synchronization of WooCommerce meta data. #6928
 * Sync: avoid PHP notices when using the Pet Manager plugin. #6051
 * Sync: fix missing item meta data when syncing WooCommerce tables. #7105
