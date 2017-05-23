@@ -114,6 +114,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Admin Page: remove bottom alignment of content in dashboard cards. #6996
 * Admin Page: change priority used when injecting admin notices, to make it easier to remove them if needed. #7122
+* Admin Page: remove Apps card from "Jumpstart" view. #7181
 * Custom CSS: add the `animation-fill-mode`, `fill`, and `stroke` properties. #7166, #7171
 * General: improve wording on connection banners for secondary users to avoid confusion. #6753
 * Internationalization: add and update language information handling. #7057
