@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
 /**
@@ -19,7 +19,7 @@ import Antispam from './antispam';
 import { Protect } from './protect';
 import { SSO } from './sso';
 
-export class Security extends React.Component {
+export class Security extends Component {
 	static displayName = 'SecuritySettings';
 
 	/**

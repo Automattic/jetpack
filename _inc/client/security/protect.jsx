@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { Component } from 'react';
 import { translate as __ } from 'i18n-calypso';
 import Button from 'components/button';
 import Textarea from 'components/textarea';
@@ -22,7 +22,7 @@ import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 
 export const Protect = moduleSettingsForm(
-	class extends React.Component {
+	class extends Component {
 		state = {
 			whitelist: this.props.getOptionValue( 'jetpack_protect_global_whitelist' )
 				? this.props.getOptionValue( 'jetpack_protect_global_whitelist' ).local

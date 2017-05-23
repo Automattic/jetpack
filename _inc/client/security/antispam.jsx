@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import TextInput from 'components/text-input';
@@ -27,7 +27,7 @@ import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 
 export const Antispam = moduleSettingsForm(
-	class extends React.Component {
+	class extends Component {
 		state = {
 			apiKey: this.props.getOptionValue( 'wordpress_api_key' ),
 			delayKeyCheck: false,

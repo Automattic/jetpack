@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import Card from 'components/card';
@@ -23,7 +23,7 @@ import { getSitePlan, isFetchingSiteData } from 'state/site';
 import includes from 'lodash/includes';
 
 export const BackupsScan = moduleSettingsForm(
-	class extends React.Component {
+	class extends Component {
 		toggleModule = ( name, value ) => {
 			this.props.updateFormStateOptionValue( name, ! value );
 		};

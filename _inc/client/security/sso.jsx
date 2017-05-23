@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { Component } from 'react';
 import { translate as __ } from 'i18n-calypso';
 import CompactFormToggle from 'components/form/form-toggle/compact';
 
@@ -17,7 +17,7 @@ import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 
 export const SSO = moduleSettingsForm(
-	class extends React.Component {
+	class extends Component {
 		/**
      * Get options for initial state.
      *
