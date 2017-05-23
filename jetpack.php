@@ -114,6 +114,9 @@ add_action( 'plugins_loaded', array( 'Jetpack', 'plugin_textdomain' ), 99 );
 add_action( 'plugins_loaded', array( 'Jetpack', 'load_modules' ), 100 );
 add_filter( 'jetpack_static_url', array( 'Jetpack', 'staticize_subdomain' ) );
 add_filter( 'is_jetpack_site', '__return_true' );
+// TODO: Verify that this is desirable over IS_WPCOM checks in Blogs I Follow widget.
+// If so, registering get_blog_locale() for filter on WP.com will be required.
+add_filter( 'jetpack_blog_locale', array( 'Jetpack', 'get_blog_locale' ) );
 
 /**
  * Add an easy way to photon-ize a URL that is safe to call even if Jetpack isn't active.

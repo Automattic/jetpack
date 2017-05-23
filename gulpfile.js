@@ -282,7 +282,7 @@ frontendcss = [
 	'modules/widgets/gravatar-profile.css',
 	'modules/widgets/goodreads/css/goodreads.css',
 	'modules/widgets/social-media-icons/style.css',
-	'modules/widgets/top-posts/style.css',
+	'modules/widgets/widget-grid-and-list.css',
 	'modules/widgets/image-widget/style.css',
 	'modules/widgets/my-community/style.css',
 	'modules/widgets/authors/style.css',

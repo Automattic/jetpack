@@ -52,7 +52,7 @@ class Jetpack {
 		'gravatar-profile-widget',
 		'goodreads-widget',
 		'jetpack_social_media_icons_widget',
-		'jetpack-top-posts-widget',
+		'widget-grid-and-list',
 		'jetpack_image_widget',
 		'jetpack-my-community-widget',
 		'wordads',
@@ -6522,5 +6522,16 @@ p {
 				}
 			</style>
 		<?php }
+	}
+
+	/**
+	 * Return blog locale as a two-character string
+	 *
+	 * @return string The blog's locale, e.g. 'en' or 'it'
+	 */
+	public static function get_blog_locale() {
+		// The locale shortcode may be longer than two characters. Split on the underscore to be safe.
+		$locale_slug = explode( '_', get_locale() );
+		return $locale_slug[0];
 	}
 }

@@ -57,8 +57,10 @@ class Jetpack_Top_Posts_Widget extends WP_Widget {
 	}
 
 	function enqueue_style() {
-		wp_register_style( 'jetpack-top-posts-widget', plugins_url( 'top-posts/style.css', __FILE__ ), array(), '20141013' );
-		wp_enqueue_style( 'jetpack-top-posts-widget' );
+		if ( ! wp_style_is( 'widget-grid-and-list', 'registered' ) ) {
+			wp_register_style( 'widget-grid-and-list', plugins_url( 'widget-grid-and-list.css', __FILE__ ), array(), JETPACK__VERSION );
+		}
+		wp_enqueue_style( 'widget-grid-and-list' );
 	}
 
 	function form( $instance ) {
