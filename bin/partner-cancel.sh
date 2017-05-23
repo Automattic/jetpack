@@ -7,7 +7,7 @@ SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
 cd $SCRIPT_DIR
 
 usage () {
-    echo "Usage: partner-provision.sh --partner_id=partner_id --partner_secret=partner_secret"
+    echo "Usage: partner-cancel.sh --partner_id=partner_id --partner_secret=partner_secret"
 }
 
 for i in "$@"; do

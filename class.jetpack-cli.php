@@ -802,7 +802,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 			$this->partner_provision_error( $result );
 		}
 
-		WP_CLI::log( print_r( $result, 1 ) );
+		WP_CLI::log( json_encode( $result ) );
 	}
 
 	/**
