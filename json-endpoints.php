@@ -87,9 +87,6 @@ require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-site-logo-endpo
 // Homepage Settings
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-site-homepage-endpoint.php' );
 
-// Publicize
-require_once( $json_endpoints_dir . 'class.wpcom-json-api-publicize-endpoint.php' );
-
 // **********
 // v1.2
 // **********
@@ -3332,39 +3329,3 @@ new WPCOM_JSON_API_Menus_Delete_Menu_Endpoint( array (
 		'headers' => array( 'authorization' => 'Bearer YOUR_API_TOKEN' ),
 	),
 ) );
-
-new WPCOM_JSON_API_Publicize_Endpoint( array(
-	'description' => 'Share a post.',
-	'group'       => '__do_not_document',
-	'stat'        => 'publicize:new',
-	'min_version' => '1',
-	'method'      => 'POST',
-	'force'       => 'wpcom',
-	'path'        => '/sites/%s/post/%d/publicize',
-	'path_labels' => array(
-		'$site' => '(int|string) Site ID or domain',
-		'$post_id' => '(int) Post ID',
-	),
-
-	'request_format'  => array(
-		'message'  => '(string) The custom message that gets publicized',
-		'skipped_connections' => '(array) List of publicize account ids that we don\'t want publicize to',
-		'connections' => '(array) List of publicize account ids that we want to publicize to',
-		'share_date' => '(int) Time for the message to publish',
-	),
-
-	'response_format' => array(
-		'success' => '(bool) Whether the operation was successful',
-	),
-
-	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/post/1/publicize/',
-	'example_request_data' => array(
-		'headers' => array(
-			'authorization' => 'Bearer YOUR_API_TOKEN'
-		),
-		'body' => array(
-			'message'   => 'Hello World',
-			'share_date'		=> '1490045140',
-		)
-	)
- ) );
