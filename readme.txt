@@ -136,6 +136,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug Fixes**
 
+* Ads: do not display in RSS feeds. #7095
 * CLI interface: properly print full list of modules when using the sync command. #7094
 * General: add a mechanism to detect broken connection states and resolve them. #6964
 * Photon: avoid potential PHP notices when used with other themes and plugins customizing responsive images. #7090
