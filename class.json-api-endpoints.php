@@ -1183,7 +1183,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		if ( ! $media_item || is_wp_error( $media_item ) )
 			return new WP_Error( 'unknown_media', 'Unknown Media', 404 );
 
-		$attachment_file = wp_get_attachment_url( $media_item->ID );
+		$attachment_file = get_attached_file( $media_item->ID );
 
 		$file = basename( $attachment_file ? $attachment_file : $file );
 		$file_info = pathinfo( $file );
