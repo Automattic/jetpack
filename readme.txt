@@ -122,6 +122,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Sync: trigger synchronization when WordPress is updated. #7108
 * Sync: record event when a theme is deleted. #7113
 * Sync: record event when a theme is edited. #7151
+* Sync: record event when a theme is activated on a Multisite network. #7180
 * Sync: record event when a term is created or edited. #7123
 * Sync: record event when WordPress is updated on a Multisite network. #7137
 * Sync: record event when a site is exported. #7138
