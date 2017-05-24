@@ -34,11 +34,11 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 		return Jetpack::is_multi_network();
 	}
 
-	protected function is_multisite() {
+	public function is_multisite() {
 		return (bool) is_multisite();
 	}
 
-	protected function is_single_user_site() {
+	public function is_single_user_site() {
 		return (bool) Jetpack::is_single_user_site();
 	}
 
@@ -58,7 +58,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 		return get_theme_support( $feature_name );
 	}
 
-	protected function get_updates() {
+	public function get_updates() {
 		return (array) Jetpack::get_updates();
 	}
 
@@ -144,7 +144,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 		return true;
 	}
 
-	protected function get_jetpack_version() {
+	public function get_jetpack_version() {
 		return JETPACK__VERSION;
 	}
 
