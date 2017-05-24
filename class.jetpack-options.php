@@ -326,6 +326,9 @@ class Jetpack_Options {
 		$wpdb->query( $wpdb->prepare( "DELETE FROM $wpdb->options WHERE option_name = %s", $name ) );
 	}
 
+	// Raw option methods allow Jetpack to get / update / delete options via direct DB queries, including options
+	// that are not created by the Jetpack plugin. This is helpful when we need to bypass cache and filters.
+
 	static function update_raw_option( $name, $value, $autoload = false ) {
 
 		$autoload_value = $autoload ? 'yes' : 'no';
