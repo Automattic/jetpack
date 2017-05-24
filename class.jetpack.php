@@ -541,6 +541,7 @@ class Jetpack {
 
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
 		add_action( 'admin_init', array( $this, 'dismiss_jetpack_notice' ) );
+		add_action( 'switch_theme', array( $this, 'on_theme_switch' ), 10, 3 );
 
 		add_filter( 'admin_body_class', array( $this, 'admin_body_class' ) );
 
@@ -4287,6 +4288,42 @@ p {
 				}
 				break;
 		}
+	}
+
+	/**
+	 * Delete previous theme if it was a WPCOM premium theme.
+	 *
+	 * @since 5.0
+	 *
+	 * @param string   $new_name  Name of the new theme.
+	 * @param WP_Theme $new_theme WP_Theme instance of the new theme.
+	 * @param WP_Theme $old_theme WP_Theme instance of the old theme.
+	 */
+	function on_theme_switch( $new_name, $new_theme, $old_theme ) {
+		$old_theme = $old_theme->get_stylesheet();
+		if ( false !== stripos( $old_theme, '-wpcom' ) && Jetpack::is_premium_theme( str_replace( '-wpcom', '', $old_theme ) ) ) {
+			delete_theme( $old_theme );
+		}
+	}
+
+	/**
+	 * Checks if a theme is a WPCOM premium theme.
+	 *
+	 * @since 5.0
+	 *
+	 * @param string $theme_slug The slug of the theme to check, like twentyfifteen or mood.
+	 *
+	 * @return bool
+	 */
+	function is_premium_theme( $theme_slug ) {
+		$response_body = wp_remote_retrieve_body( wp_remote_get( 'https://public-api.wordpress.com/rest/v1/themes/theme:' . $theme_slug ) );
+		if ( ! empty( $response_body ) ) {
+			$response_body = json_decode( $response_body );
+			if ( isset( $response_body->stylesheet ) && ( "premium/$theme_slug" === $response_body->stylesheet ) ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public static function admin_screen_configure_module( $module_id ) {
