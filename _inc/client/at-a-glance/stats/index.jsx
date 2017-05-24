@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { Component } from 'react';
 import forEach from 'lodash/forEach';
 import get from 'lodash/get';
 import Card from 'components/card';
@@ -30,15 +30,10 @@ import {
 	fetchStatsData,
 	getActiveStatsTab as _getActiveStatsTab
 } from 'state/at-a-glance';
-import {
-	isModuleActivated as _isModuleActivated,
-	activateModule,
-	isFetchingModulesList as _isFetchingModulesList,
-	getModules
-} from 'state/modules';
+import { getModules } from 'state/modules';
 
-const DashStats = React.createClass( {
-	barClick: function( bar ) {
+class DashStats extends Component {
+	barClick( bar ) {
 		if ( bar.data.link ) {
 			analytics.tracks.recordJetpackClick( 'stats_bar' );
 			window.open(
@@ -46,21 +41,21 @@ const DashStats = React.createClass( {
 				'_blank'
 			);
 		}
-	},
+	}
 
-	statsChart: function( unit ) {
-		const props = this.props;
-		let s = [];
+	statsChart( unit ) {
+		const props = this.props,
+			s = [];
 
-		if ( 'object' !== typeof props.statsData[unit] ) {
+		if ( 'object' !== typeof props.statsData[ unit ] ) {
 			return s;
 		}
 
-		forEach( props.statsData[unit].data, function( v ) {
-			let date = v[0];
-			let chartLabel = '';
-			let tooltipLabel = '';
-			let views = v[1];
+		forEach( props.statsData[ unit ].data, function( v ) {
+			const views = v[ 1 ];
+			let date = v[ 0 ],
+				chartLabel = '',
+				tooltipLabel = '';
 
 			if ( 'day' === unit ) {
 				chartLabel = moment( date ).format( 'MMM D' );
@@ -90,7 +85,7 @@ const DashStats = React.createClass( {
 			} );
 		} );
 		return s;
-	},
+	}
 
 	/**
 	 * Checks that the stats fetching didn't return errors.
@@ -98,12 +93,14 @@ const DashStats = React.createClass( {
 	 * @returns {object|bool} Returns statsData.general.errors or false if it is not an object
 	 */
 	statsErrors() {
-		return get( this.props.statsData, [ 'general', 'errors'], false );
-	},
+		return get( this.props.statsData, [ 'general', 'errors' ], false );
+	}
 
-	renderStatsArea: function() {
-		if ( this.props.isModuleActivated( 'stats' ) ) {
-			let statsErrors = this.statsErrors();
+	renderStatsArea() {
+		const activateStats = () => this.props.updateOptions( { [ 'stats' ]: true } );
+
+		if ( this.props.getOptionValue( 'stats' ) ) {
+			const statsErrors = this.statsErrors();
 			if ( statsErrors ) {
 				return (
 					<div className="jp-at-a-glance__stats-inactive">
@@ -119,7 +116,7 @@ const DashStats = React.createClass( {
 					</div>
 				);
 			}
-			let chartData = this.statsChart( this.props.activeTab() );
+			const chartData = this.statsChart( this.props.activeTab() );
 			return (
 				<div className="jp-at-a-glance__stats-container">
 					<div className="jp-at-a-glance__stats-chart">
@@ -139,86 +136,93 @@ const DashStats = React.createClass( {
 					</div>
 				</div>
 			);
-		} else {
-			return (
-				<div className="jp-at-a-glance__stats-inactive">
-					<div className="jp-at-a-glance__stats-inactive-icon">
-						<img src={ imagePath + 'stats.svg' } width="60" height="60" alt={ __( 'Jetpack Stats Icon' ) } className="jp-at-a-glance__stats-icon" />
-					</div>
-					<div className="jp-at-a-glance__stats-inactive-text">
-						{
-							this.props.isDevMode ? __( 'Unavailable in Dev Mode' ) :
-							__( '{{a}}Activate Site Stats{{/a}} to see detailed stats, likes, followers, subscribers, and more! {{a1}}Learn More{{/a1}}', {
+		}
+
+		return (
+			<div className="jp-at-a-glance__stats-inactive">
+				<div className="jp-at-a-glance__stats-inactive-icon">
+					<img src={ imagePath + 'stats.svg' } width="60" height="60" alt={ __( 'Jetpack Stats Icon' ) } className="jp-at-a-glance__stats-icon" />
+				</div>
+				<div className="jp-at-a-glance__stats-inactive-text">
+					{
+						this.props.isDevMode ? __( 'Unavailable in Dev Mode' )
+							: __( '{{a}}Activate Site Stats{{/a}} to see detailed stats, likes, followers, subscribers, and more! {{a1}}Learn More{{/a1}}', {
 								components: {
-									a: <a href="javascript:void(0)" onClick={ this.props.activateStats } />,
+									a: <a href="javascript:void(0)" onClick={ activateStats } />,
 									a1: <a href="https://jetpack.com/support/wordpress-com-stats/" target="_blank" rel="noopener noreferrer" />
 								}
 							} )
-						}
-					</div>
-						{
-							this.props.isDevMode ? '' : (
-								<div className="jp-at-a-glance__stats-inactive-button">
-									<Button
-										onClick={ this.props.activateStats }
-										primary={ true }
-									>
-										{ __( 'Activate Site Stats' ) }
-									</Button>
-								</div>
-							)
-						}
+					}
 				</div>
-			);
-		}
-	},
+				{
+					this.props.isDevMode ? '' : (
+						<div className="jp-at-a-glance__stats-inactive-button">
+							<Button
+								onClick={ activateStats }
+								primary={ true }
+							>
+								{ __( 'Activate Site Stats' ) }
+							</Button>
+						</div>
+					)
+				}
+			</div>
+		);
+	}
 
-	maybeShowStatsTabs: function() {
-		if ( this.props.isModuleActivated( 'stats' ) && ! this.statsErrors() ) {
+	maybeShowStatsTabs() {
+		const switchToDay = () => {
+				analytics.tracks.recordJetpackClick( { target: 'stats_switch_view', view: 'day' } );
+				this.props.switchView( 'day' );
+				this.props.fetchStatsData( 'day' );
+			},
+			switchToWeek = () => {
+				analytics.tracks.recordJetpackClick( { target: 'stats_switch_view', view: 'week' } );
+				this.props.switchView( 'week' );
+				this.props.fetchStatsData( 'week' );
+			},
+			switchToMonth = () => {
+				analytics.tracks.recordJetpackClick( { target: 'stats_switch_view', view: 'month' } );
+				this.props.switchView( 'month' );
+				this.props.fetchStatsData( 'month' );
+			};
+
+		if ( this.props.getOptionValue( 'stats' ) && ! this.statsErrors() ) {
 			return (
 				<ul className="jp-at-a-glance__stats-views">
 					<li tabIndex="0" className="jp-at-a-glance__stats-view">
-						<a href="javascript:void(0)" onClick={ this.handleSwitchStatsView.bind( this, 'day' ) }
+						<a href="javascript:void(0)" onClick={ switchToDay }
 							className={ this.getClass( 'day' ) }
 						>{ __( 'Days' ) }</a>
 					</li>
 					<li tabIndex="0" className="jp-at-a-glance__stats-view">
-						<a href="javascript:void(0)" onClick={ this.handleSwitchStatsView.bind( this, 'week' ) }
+						<a href="javascript:void(0)" onClick={ switchToWeek }
 							className={ this.getClass( 'week' ) }
 						>{ __( 'Weeks' ) }</a>
 					</li>
 					<li tabIndex="0" className="jp-at-a-glance__stats-view">
-						<a href="javascript:void(0)" onClick={ this.handleSwitchStatsView.bind( this, 'month' ) }
+						<a href="javascript:void(0)" onClick={ switchToMonth }
 							className={ this.getClass( 'month' ) }
 						>{ __( 'Months' ) }</a>
 					</li>
 				</ul>
 			);
 		}
-	},
+	}
 
-	handleSwitchStatsView: function( view ) {
-		analytics.tracks.recordJetpackClick( {
-			target: 'stats_switch_view',
-			view: view
-		} );
-		this.props.switchView( view );
-		this.props.fetchStatsData( view );
-	},
+	getClass( view ) {
+		return this.props.activeTab() === view
+			? 'jp-at-a-glance__stats-view-link is-current'
+			: 'jp-at-a-glance__stats-view-link';
+	}
 
-	getClass: function( view ) {
-		return this.props.activeTab() === view ?
-			'jp-at-a-glance__stats-view-link is-current' :
-			'jp-at-a-glance__stats-view-link';
-	},
-
-	render: function() {
+	render() {
 		const moduleList = Object.keys( this.props.moduleList );
 		if ( ! includes( moduleList, 'stats' ) ) {
 			return null;
 		}
 
-		let range = this.props.activeTab();
+		const range = this.props.activeTab();
 		return (
 			<div>
 				<QueryStatsData range={ range } />
@@ -231,7 +235,7 @@ const DashStats = React.createClass( {
 			</div>
 		);
 	}
-} );
+}
 
 DashStats.propTypes = {
 	isDevMode: React.PropTypes.bool.isRequired,
@@ -243,9 +247,7 @@ DashStats.propTypes = {
 export default connect(
 	( state ) => {
 		return {
-			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
 			moduleList: getModules( state ),
-			isFetchingModules: () => _isFetchingModulesList( state ),
 			activeTab: () => _getActiveStatsTab( state ),
 			isDevMode: isDevMode( state ),
 			isLinked: isCurrentUserLinked( state ),
@@ -255,9 +257,6 @@ export default connect(
 	},
 	( dispatch ) => {
 		return {
-			activateStats: () => {
-				return dispatch( activateModule( 'stats' ) );
-			},
 			switchView: ( tab ) => {
 				return dispatch( statsSwitchTab( tab ) );
 			},

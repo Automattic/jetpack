@@ -61,7 +61,6 @@ function render() {
 					<Route path='/' name={ i18n.translate( 'At A Glance', { context: 'Navigation item.' } ) } component={ Main } />
 					<Route path='/jumpstart' component={ Main } />
 					<Route path='/dashboard' name={ i18n.translate( 'At A Glance' ) } component={ Main } />
-					<Route path='/apps' name={ i18n.translate( 'Apps', { context: 'Navigation item.' } ) } component={ Main } />
 					<Route path='/plans' name={ i18n.translate( 'Plans', { context: 'Navigation item.' } ) } component={ Main } />
 					<Route path='/settings' name={ i18n.translate( 'Settings', { context: 'Navigation item.' } ) } component={ Main } />
 					<Route path='/discussion' name={ i18n.translate( 'Discussion', { context: 'Navigation item.' } ) } component={ Main } />

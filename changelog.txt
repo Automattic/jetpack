@@ -1,5 +1,99 @@
 == Changelog ==
 
+= 4.8.2 =
+
+* Release date: April 7th, 2017
+* Release post: http://wp.me/p1moTy-4P0
+
+**Bug Fixes**
+
+* Fixed a bug that prevented activating/deactivating of some features in PHP versions below 5.4.
+* Removed an unused function that was also incompatible with PHP versions below 5.4.
+* Fixed a bug that was causing a blank Jetpack admin area.
+
+= 4.8.1 =
+
+* Release date: April 5th, 2017
+* Release post: http://wp.me/p1moTy-4N5
+
+**Bug Fixes**
+
+* An incompatibility with PHP versions lower than 5.4 was introduced in the last release, causing a fatal error and we've immediately fixed this.
+* Sitemaps: Some plugins were relying on a function that was removed in the last release, which has been fixed.
+* General: Clicking on the info icon in the settings area will no longer jump to the top of the page.
+* General: The Anti-spam card will always display the correct status in the Jetpack dashboard.
+
+= 4.8 =
+
+* Release date: April 4th, 2017
+* Release post: http://wp.me/p1moTy-4gA
+
+**Major Enhancements**
+
+* Easier to navigate Jetpack's feature settings in your dashboard and WordPress.com.
+* New WordPress.com Toolbar provides quick access to site management, stats, and other services.
+* New MailChimp Subscribe Popup widget.
+* Sitemaps are faster and now support sites with a very large amount of posts.
+* Contact Form now has a plain-text alternative and better avoids spam filters.
+* Debug form includes extra information to better prioritize your support requests.
+* Photon can now be used within the dashboard, and supports bbPress topics and replies.
+
+**Slightly Less Exciting Enhancements**
+
+* Improved previously confusing wording in Stats dashboard, and Featured Content options.
+* You can now embed Apple Keynotes straight from icloud.com in your posts and pages.
+* Changed Infinite Scroll button text on taxonomy page and added a new filter to short-circuit the `is_last_batch()` method.
+* Open Graph now uses transients to save image IDs.
+* You can now use full URLs in the Social Media Icons widget.
+* Milestone widget now allows custom links to open in a new window.
+* VideoPress videos can be used as headers in themes that support it, like Twenty Seventeen.
+* Extracted the timezone offset method from the Upcoming Events widget so it can be used by other features.
+
+**Performance Improvements**
+
+* Database load is reduced during updates on large sites with multiple servers by retaining hashes for current and current-1 versions.
+* Disk storage is reduced on large multisite networks by storing the `jetpack_file_data` option in the `wp_sitemeta` table.
+* Jetpack plan data now uses the WordPress.com REST API.
+* Slovakian language files now rely on WordPress.org's language packs.
+
+**Accessibility Improvements**
+
+* Improved post details clipping for better screen reader support.
+* Updated custom language packs for multiple languages.
+
+**Security Improvements**
+
+* We now avoid path disclosure via cookies in PHP error messages.
+
+**Compatibility Improvements**
+
+* Removed deprecated functions `get_theme` and `get_current_theme`.
+* Publicize now works with third-party plugins like WP Recipe Maker.
+* Open Graph Meta Tags are now enabled when you use the "Head, Footer and Post Injections" plugin.
+* Better support for WooCommerce data sync and backup.
+* We now also sync the `sync_via_cron` setting, the user's chosen language, and WP Super Cache's globals and constants.
+* We no longer sync post types from the WordPress Automatic Plugin and RSS AutoPilot to avoid synchronization issues.
+* Sync settings can now be edited from the WordPress.com REST API to better troubleshoot sync issues.
+
+**Bug Fixes**
+
+* Gravatar is always displayed in Settings.
+* Submenu items always use relative links.
+* Contact Form avoids PHP notices when using the form in a Text widget.
+* Content Options now correctly displays single characters word count on sites with multibyte languages.
+* Administrator area translations fixed for several languages.
+* Added proper support for Formal/Informal translation versions for languages that support them.
+* Site Icons are always used as fallback Open Graph Image tags.
+* Protect removes port number when server returns a port alongside a stored IP address.
+* Filters ensure that more than 1,024 posts can be excluded from Related Posts.
+* When the email is already subscribed we now show the correct notification in the subscription form.
+* When using the Email sharing button, we now avoid syntax errors due to unexpected characters in the from name.
+* Remove deprecated `jetpack_publicize_post` action.
+* VideoPress now avoids PHP Notices when fetching video information.
+* Instagram base URL now uses `www` in the Social Media Icons widget.
+* All values entered in Facebook Page Plugin widget settings are now escaped.
+* Widget Visibility now avoids memory issues on sites with a lot of registered users.
+
 = 4.7.1 =
 
 * Release date: March 14th, 2017

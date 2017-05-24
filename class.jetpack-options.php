@@ -28,7 +28,6 @@ class Jetpack_Options {
 				'available_modules',
 				'do_activate',
 				'log',
-				'publicize',
 				'slideshow_background_color',
 				'widget_twitter',
 				'wpcc_options',
@@ -55,12 +54,10 @@ class Jetpack_Options {
 
 		case 'private' :
 			return array(
-				'register',
-				'authorize',
-				'activate_manage',
-				'blog_token',                  // (string) The Client Secret/Blog Token of this site.
-				'user_token',                  // (string) The User Token of this site. (deprecated)
-				'user_tokens'                  // (array)  User Tokens for each user of this site who has connected to jetpack.wordpress.com.
+				'secrets',     // (array)  Nonce-like secrets used for the authorization process.
+				'blog_token',  // (string) The Client Secret/Blog Token of this site.
+				'user_token',  // (string) The User Token of this site. (deprecated)
+				'user_tokens'  // (array)  User Tokens for each user of this site who has connected to jetpack.wordpress.com.
 			);
 
 		case 'network' :

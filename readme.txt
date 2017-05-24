@@ -1,7 +1,7 @@
 === Jetpack by WordPress.com ===
 Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, blobaugh, cainm, cena, cfinke, chaselivingston, chellycat, csonnek, danielbachhuber, davoraltman, daniloercoli, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, eliorivero, enej, eoigal, erania-pinnera, ethitter, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jacobshere, jblz, jeherve, jenhooks, jenia, jgs, jkudish, jmdodd, Joen, johnjamesjacoby, jshreve, koke, kraftbj, lamdayap, lancewillett, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, michael-arestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, scarstocea, sdquirk, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Jetpack, WordPress.com, backup, security, related posts, CDN, speed, anti-spam, social sharing, SEO, video, stats
-Stable tag: 4.7.1
+Stable tag: 4.9
 Requires at least: 4.6
 Tested up to: 4.7
 
@@ -102,6 +102,56 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 5. Traffic: SEO Tools for Google, Twitter, Facebook and more.
 
 == Changelog ==
+
+= 4.9 =
+
+* Release date: May 2nd, 2017
+* Release post: http://wp.me/p1moTy-4Rl
+
+**Major Enhancements**
+
+* New "EU Cookie Law Banner", Flickr, and "Internet Defense League" widgets.
+
+**Slightly Less Exciting Enhancements**
+
+* Success notices are automatically dismissed after a short period.
+* Removed unused code from "My Jetpack" interface and deprecated an XML-RPC method.
+* Contact Form now adds display names to email addresses in the `To` header.
+* Added an updated multiple unit tests increasing code coverage.
+* Development mode now also shows module list.
+* Updated the list of locales available in Jetpack.
+* Plugin auto-updates only triggered from WordPress.com and now trigger WordPress' maintenance mode.
+
+**Performance Improvements**
+
+* Record comment content modifications and moderation events to make sure comments are always up to date on WordPress.com.
+* Sync post deletions, changes to sidebar, user events (addition, removal, and update) and theme installation.
+* We now distinguish between a new and an updated attachment.
+* Sync plugin and theme names when a related event is triggered including theme updates.
+
+**Compatibility Improvements**
+
+* Protect avoid conflicts with other plugins hooking into the log in form.
+* Contact Form not auto-activated when Ninja Forms is active.
+* WordPess.com REST API now allows `HTTP PUT` requests.
+
+**Bug Fixes**
+
+* Fixed wording in Post By Email button when no email address has been generated.
+* Fixed a notice in the subscription widget in PHP 7.1
+* Properly display VaultPress notices in the Jetpack dashboard.
+* VideoPress now included in search results for "video" and fixed positioning of search icon on mobile screens.
+* Protect supports IPv6 addresses properly.
+* Dashboard avoids API requests being cached on some hosts and avoids errors when Spellchecker is inactive.
+* Contact Form message content type is now set properly to restore compatibility with email plugins.
+* Ads not displayed in the portfolio projects custom content type.
+* Display all sites available in a network, even on large multisite installations.
+* Featured Image is always used in tweets posted via Publicize.
+* Avoid fatal errors when the exclusion parameter in Related Posts is not a string.
+* Allow the removal of all custom title settings in the SEO feature.
+* Make sure images are not distorted when Tiled Galleries uses Photon.
+* Avoid PHP warnings and errors in the Stats dashboard on Multisite.
+* Avoid errors when the Jetpack plugin is deleted.
 
 = 4.8.2 =
 

@@ -1,6 +1,42 @@
 <?php
 require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 
+//Mock object requiered for test_theme_update()
+class Dummy_Sync_Test_WP_Theme {
+	public $stylesheet = 'updated-theme';
+
+	public function get( $key ) {
+		switch ( $key ) {
+			case 'Name':
+				return 'Updated Theme';
+				break;
+			case 'Version':
+				return '10.0';
+				break;
+			case 'ThemeURI':
+				return 'http://NOT!';
+				break;
+		}
+	}
+}
+
+//Mock object requiered for test_theme_update()
+class Dummy_Sync_Test_WP_Upgrader {
+	public $skin;
+
+	public $result = true;
+
+	public function __construct() {
+		$this->skin = (object) array(
+			'result' => true,
+		);
+	}
+
+	function theme_info() {
+		return new Dummy_Sync_Test_WP_Theme();
+	}
+}
+
 // Used to suppress echo'd output from Theme_Upgrader_Skin so that test_theme_install() will pass under Travis environments that failed because of output
 class Test_Upgrader_Skin extends Theme_Upgrader_Skin {
 
@@ -87,36 +123,163 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $local_value, $this->server_replica_storage->get_option( 'theme_mods_' . $this->theme ) );
 	}
 
-	public function test_theme_install() {
-		require_once ABSPATH . 'wp-admin/includes/theme-install.php';
-		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
+	public function test_network_enable_disable_theme_sync() {
+		if ( ! is_multisite() ) {
+			$this->markTestSkipped( 'Run it in multi site mode' );
+		}
 
-		$theme_stylesheet = 'itek';
-		$theme_name = 'iTek';
-
-		$api = themes_api(
-			'theme_information',
+		$test_themes = array(
 			array(
-				'slug'   => $theme_stylesheet,
+				'twentyten',
+				'Twenty Ten',
+			),
+			array(
+				'twentytwelve',
+				'Twenty Twelve',
 			)
 		);
 
-		if ( is_wp_error( $api ) ) {
-			wp_die( $api );
-		}
+		$themes = array(
+			$test_themes[0][0] => 1,
+			$test_themes[1][0] => 1,
+		);
 
-		$upgrader = new Theme_Upgrader( new Test_Upgrader_Skin( compact('title', 'nonce', 'url', 'theme') ) );
-		$upgrader->install( $api->download_link );
+		$theme_slugs = array_keys( $themes );
 
+		//Test enable multiple themes
+		/**
+		 * This filter is already documented in wp-includes/option.php
+		 *
+		 * Note that 'allowedthemes' is dynamic, i.e. do_action is called on "update_site_option_{$option}"
+		 */
+		do_action( 'update_site_option_allowedthemes', 'allowedthemes', $themes, array(), 0 );
 		$this->sender->do_sync();
+		$event_data = $this->server_event_storage->get_most_recent_event( 'jetpack_network_enabled_themes' );
+		$this->perform_network_enable_disable_assertions( $test_themes, $event_data, $theme_slugs );
+		$this->server_event_storage->reset();
+
+		//Test disable multiple themes
+		/**
+		 * This filter is already documented in wp-includes/option.php
+		 *
+		 * Note that 'allowedthemes' is dynamic, i.e. do_action is called on "update_site_option_{$option}"
+		 */
+		do_action( 'update_site_option_allowedthemes', 'allowedthemes', array(), $themes, 0 );
+		$this->sender->do_sync();
+		$event_data = $this->server_event_storage->get_most_recent_event( 'jetpack_network_disabled_themes' );
+		$this->perform_network_enable_disable_assertions( $test_themes, $event_data, array() );
+		$this->server_event_storage->reset();
+
+		//Prepare for single theme enable and disable tests
+		$test_themes = array( $test_themes[0] );
+		$themes = array( $test_themes[0][0] => 1 );
+		$theme_slugs = array_keys( $themes );
+
+		//Test enable single theme
+		/**
+		 * This filter is already documented in wp-includes/option.php
+		 *
+		 * Note that 'allowedthemes' is dynamic, i.e. do_action is called on "update_site_option_{$option}"
+		 */
+		do_action( 'update_site_option_allowedthemes', 'allowedthemes', $themes, array(), 0 );
+		$this->sender->do_sync();
+		$event_data = $this->server_event_storage->get_most_recent_event( 'jetpack_network_enabled_themes' );
+		$this->perform_network_enable_disable_assertions( $test_themes, $event_data, $theme_slugs );
+		$this->server_event_storage->reset();
+
+		//Test disable single theme
+		/**
+		 * This filter is already documented in wp-includes/option.php
+		 *
+		 * Note that 'allowedthemes' is dynamic, i.e. do_action is called on "update_site_option_{$option}"
+		 */
+		do_action( 'update_site_option_allowedthemes', 'allowedthemes', array(), $themes, 0 );
+		$this->sender->do_sync();
+		$event_data = $this->server_event_storage->get_most_recent_event( 'jetpack_network_disabled_themes' );
+		$this->perform_network_enable_disable_assertions( $test_themes, $event_data, array() );
+	}
+
+	private function perform_network_enable_disable_assertions( $test_themes, $event_data, $enabled_slugs ) {
+		foreach ( $test_themes as $theme ) {
+			$this->assertEquals( $event_data->args[0][ $theme[0] ]['slug'], $theme[0] );
+			$this->assertEquals( $event_data->args[0][ $theme[0] ]['name'], $theme[1] );
+			$this->assertTrue( (bool) $event_data->args[0][ $theme[0] ]['version'] );
+			$this->assertTrue( (bool) $event_data->args[0][ $theme[0] ]['uri'] );
+		}
+		$this->assertEquals( $event_data->args[1], $enabled_slugs );
+	}
+
+	public function test_install_edit_delete_theme_sync() {
+		$theme_slug = 'itek';
+		$theme_name = 'iTek';
+
+		delete_theme( $theme_slug ); //Ensure theme is not lingering on file system
+		$this->server_event_storage->reset();
+
+		//Test Install Theme
+
+		$this->install_theme( $theme_slug );
+		$this->sender->do_sync();
+
 		$event_data = $this->server_event_storage->get_most_recent_event( 'jetpack_installed_theme' );
 
-		$this->assertEquals( $event_data->args[0], $theme_stylesheet );
+		$this->assertEquals( $event_data->args[0], $theme_slug );
 		$this->assertEquals( $event_data->args[1]['name'], $theme_name );
 		$this->assertTrue( (bool) $event_data->args[1]['version'] );
 		$this->assertTrue( (bool) $event_data->args[1]['uri'] );
 
-		delete_theme( $theme_stylesheet );
+		//Test Edit Theme
+
+		/**
+		 * This filter is already documented in wp-includes/pluggable.php
+		 *
+		 * @since 1.5.1
+		 */
+		$_POST['newcontent'] = 'foo';
+		apply_filters( 'wp_redirect', 'theme-editor.php?file=style.css&theme=' . $theme_slug . '&scrollto=0&updated=true' );
+		$this->sender->do_sync();
+
+		$event_data = $this->server_event_storage->get_most_recent_event( 'jetpack_edited_theme' );
+
+		$this->assertEquals( $event_data->args[0], $theme_slug );
+		$this->assertEquals( $event_data->args[1]['name'], $theme_name );
+		$this->assertTrue( (bool) $event_data->args[1]['version'] );
+		$this->assertTrue( (bool) $event_data->args[1]['uri'] );
+
+		unset( $_POST['newcontent'] );
+
+		//Test Delete Theme
+
+		delete_theme( $theme_slug );
+		$this->sender->do_sync();
+
+		$event_data = $this->server_event_storage->get_most_recent_event( 'jetpack_deleted_theme' );
+
+		$this->assertEquals( 'itek', $event_data->args[0] );
+	}
+
+	public function test_update_theme_sync() {
+		$dummy_details = array(
+			'type' => 'theme',
+			'action' => 'update',
+		);
+
+		/** This action is documented in /wp-admin/includes/class-wp-upgrader.php */
+		do_action( 'upgrader_process_complete', new Dummy_Sync_Test_WP_Upgrader(), $dummy_details );
+
+		$this->sender->do_sync();
+
+		$event_data = $this->server_event_storage->get_most_recent_event( 'jetpack_updated_theme' );
+
+		$expected = array(
+			'updated-theme',
+			array(
+				'name' => 'Updated Theme',
+				'version' => '10.0',
+                'uri' => 'http://NOT!',
+			)
+		);
+		$this->assertEquals( $expected, $event_data->args );
 	}
 
 	public function test_widgets_changes_get_synced() {
@@ -196,5 +359,41 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_cleared_inactive_widgets' );
 		$this->assertTrue( (bool) $event, 'Not fired cleared inacative widgets' );
+	}
+
+	public function test_widget_edited() {
+		$object = (object) array(
+			'name' => 'Search',
+			'id' => 'search-1',
+		);
+		/**
+		 * This filter is already documented in wp-includes/class-wp-widget.php
+		 */
+		do_action( 'widget_update_callback', array(), array(), array(), $object);
+
+		$this->sender->do_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_widget_edited' );
+		$this->assertEquals( $event->args[0]['name'], 'Search' );
+		$this->assertEquals( $event->args[0]['id'], 'search-1' );
+	}
+
+	private function install_theme( $slug ) {
+		require_once ABSPATH . 'wp-admin/includes/theme-install.php';
+		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
+
+		$api = themes_api(
+			'theme_information',
+			array(
+				'slug'   => $slug,
+			)
+		);
+
+		if ( is_wp_error( $api ) ) {
+			wp_die( $api );
+		}
+
+		$upgrader = new Theme_Upgrader( new Test_Upgrader_Skin( compact( 'title', 'nonce', 'url', 'theme' ) ) );
+		$upgrader->install( $api->download_link );
 	}
 }

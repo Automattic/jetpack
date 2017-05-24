@@ -234,6 +234,17 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertFalse( (bool) $add_attachment_event );
 	}
 
+	public function test_broken_do_wp_insert_post_does_not_break_sync() {
+		// Some plugins do unexpected things see pet-manager 
+		$this->server_event_storage->reset();
+		do_action('wp_insert_post', 'wp_insert_post' );
+		$this->sender->do_sync();
+
+		$should_not_be_there = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' );
+		$this->assertFalse( (bool) $should_not_be_there );
+
+	}
+
 	public function test_sync_attachment_delete_is_synced() {
 		$filename      = dirname( __FILE__ ) . '/../files/jetpack.jpg';
 		$filename_copy = dirname( __FILE__ ) . '/../files/jetpack-copy.jpg';
@@ -905,6 +916,27 @@ That was a cool video.';
 		$this->assertTrue( $post_flags['send_subscription'] );
 	}
 
+	public function test_sync_jetpack_published_post_should_set_set_send_subscription_to_false_for_post_type_other_than_post() {
+		$this->server_event_storage->reset();
+		Jetpack_Options::update_option( 'active_modules', array( 'subscriptions' ) );
+		require_once JETPACK__PLUGIN_DIR . '/modules/subscriptions.php';
+		new Jetpack_Subscriptions; // call instead of Jetpack_Subscriptions::init() so that actions get reinitialized
+
+		$nav_menu_id = wp_insert_post( array(
+			'post_type' => 'nav_menu_item',
+			'post_status' => 'draft',
+		) );
+
+		wp_publish_post( $nav_menu_id );
+
+		$this->sender->do_sync();
+
+		$events = $this->server_event_storage->get_all_events( 'jetpack_published_post' );
+		$this->assertEquals( 1, count( $events ) );
+
+		$post_flags = $events[0]->args[1];
+		$this->assertFalse( $post_flags['send_subscription'] );
+	}
 
 	public function test_sync_jetpack_publish_post_works_with_interjecting_plugins() {
 		$this->server_event_storage->reset();
@@ -926,6 +958,15 @@ That was a cool video.';
 		$this->assertEquals( $events[2]->args[0], $events[3]->args[0] );
 		$this->assertEquals( $events[2]->action, 'wp_insert_post' );
 		$this->assertEquals( $events[3]->action, 'jetpack_published_post' );
+	}
+
+	public function test_sync_export_content_event() {
+		// Can't call export_wp directly since it require no headers to be set...
+		do_action( 'export_wp', array( 'content' => 'all' ) );
+		$this->sender->do_sync();
+		$event = $this->server_event_storage->get_most_recent_event( 'export_wp' );
+		$this->assertTrue( (bool) $event );
+		$this->assertEquals( $event->args[0]['content'], 'all' );
 	}
 
 	function add_a_hello_post_type() {

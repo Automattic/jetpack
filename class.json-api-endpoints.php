@@ -279,11 +279,32 @@ abstract class WPCOM_JSON_API_Endpoint {
 			break;
 		}
 
-		if ( !$cast_and_filter ) {
-			return $return;
+		if ( isset( $this->api->query['force'] ) 
+		    && 'secure' === $this->api->query['force']
+		    && isset( $return['secure_key'] ) ) {
+			$this->api->post_body = $this->get_secure_body( $return['secure_key'] );
+			$this->api->query['force'] = false;
+			return $this->input( $return_default_values, $cast_and_filter );
 		}
 
-		return $this->cast_and_filter( $return, $this->request_format, $return_default_values );
+		if ( $cast_and_filter ) {
+			$return = $this->cast_and_filter( $return, $this->request_format, $return_default_values );
+		}
+		return $return;
+	}
+
+
+	protected function get_secure_body( $secure_key ) {
+		$response =  Jetpack_Client::wpcom_json_api_request_as_blog( 
+			sprintf( '/sites/%d/secure-request', Jetpack_Options::get_option('id' ) ), 
+			'1.1', 
+			array( 'method' => 'POST' ), 
+			array( 'secure_key' => $secure_key ) 
+		);
+		if ( 200 !== $response['response']['code'] ) {
+			return null;
+		}
+		return json_decode( $response['body'], true );
 	}
 
 	function cast_and_filter( $data, $documentation, $return_default_values = false, $for_output = false ) {
@@ -1244,7 +1265,11 @@ abstract class WPCOM_JSON_API_Endpoint {
 			$response['exif']   = $metadata;
 		}
 
-		if ( in_array( $ext, array( 'ogv', 'mp4', 'mov', 'wmv', 'avi', 'mpg', '3gp', '3g2', 'm4v' ) ) ) {
+		if (
+		        in_array( $ext, array( 'ogv', 'mp4', 'mov', 'wmv', 'avi', 'mpg', '3gp', '3g2', 'm4v' ) )
+            ||
+                $response['mime_type'] === 'video/videopress'
+        ) {
 			$metadata = wp_get_attachment_metadata( $media_item->ID );
 			if ( isset( $metadata['height'], $metadata['width'] ) ) {
 				$response['height'] = $metadata['height'];

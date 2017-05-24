@@ -246,7 +246,6 @@ function doStatic( done ) {
 admincss = [
 	'modules/after-the-deadline/atd.css',
 	'modules/after-the-deadline/tinymce/css/content.css',
-	'modules/contact-form/css/menu-alter.css',
 	'modules/custom-css/csstidy/cssparse.css',
 	'modules/custom-css/csstidy/cssparsed.css',
 	'modules/custom-css/custom-css/css/codemirror.css',
@@ -288,7 +287,9 @@ frontendcss = [
 	'modules/widgets/my-community/style.css',
 	'modules/widgets/authors/style.css',
 	'css/jetpack-idc-admin-bar.css',
-	'modules/wordads/css/style.css'
+	'modules/wordads/css/style.css',
+	'modules/widgets/eu-cookie-law/style.css',
+	'modules/widgets/flickr/style.css'
 ];
 
 gulp.task( 'old-styles:watch', function() {

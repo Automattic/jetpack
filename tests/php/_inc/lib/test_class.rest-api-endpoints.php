@@ -633,12 +633,17 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		$response->data = parse_url( $response->data );
 		parse_str( $response->data['query'], $response->data['query'] );
+
+		// Because dotcom will not respond to a fake token, the method
+		// generates a register URL
+		$this->assertContains( 'register', $response->data['query'] );
+
 		unset( $response->data['query'] );
 		$this->assertResponseData(
 			array(
-				'scheme' => 'https',
-				'host'   => 'jetpack.wordpress.com',
-				'path'   => '/jetpack.authorize/1/',
+				'scheme' => 'http',
+				'host'   => 'example.org',
+				'path'   => '/wp-admin/admin.php'
 			), $response
 		);
 	}

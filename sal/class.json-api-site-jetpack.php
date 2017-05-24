@@ -6,6 +6,10 @@ require_once dirname( __FILE__ ) . '/class.json-api-post-jetpack.php';
 // this code runs on Jetpack (.org) sites
 class Jetpack_Site extends Abstract_Jetpack_Site {
 
+	protected function get_mock_option( $name ) {
+		return get_option( 'jetpack_'.$name );
+	}
+
 	protected function get_constant( $name ) {
 		if ( defined( $name) ) {
 			return constant( $name );
@@ -30,8 +34,12 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 		return Jetpack::is_multi_network();
 	}
 
-	protected function is_multi_site() {
-		return is_multisite();
+	public function is_multisite() {
+		return (bool) is_multisite();
+	}
+
+	public function is_single_user_site() {
+		return (bool) Jetpack::is_single_user_site();
 	}
 
 	protected function is_version_controlled() {
@@ -50,7 +58,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 		return get_theme_support( $feature_name );
 	}
 
-	protected function get_updates() {
+	public function get_updates() {
 		return (array) Jetpack::get_updates();
 	}
 
@@ -93,6 +101,10 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 		return false;
 	}
 
+	function is_headstart_fresh() {
+		return false;
+	}
+
 	function allowed_file_types() {
 		$allowed_file_types = array();
 
@@ -132,7 +144,7 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 		return true;
 	}
 
-	protected function get_jetpack_version() {
+	public function get_jetpack_version() {
 		return JETPACK__VERSION;
 	}
 
@@ -148,6 +160,10 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 
 	function get_verification_services_codes() {
 		return get_option( 'verification_services_codes', null );
+	}
+
+	function get_podcasting_archive() {
+		return null;
 	}
 
 	/**

@@ -1,0 +1,12 @@
+#flickr_badge_uber_wrapper,
+#flickr_badge_wrapper,
+.widget_flickr table td {
+	background-color: transparent;
+	border: 0;
+	margin: 0;
+	padding: 0;
+}
+
+#flickr_badge_uber_wrapper {
+	width: auto;
+}

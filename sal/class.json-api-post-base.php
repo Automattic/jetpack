@@ -282,12 +282,12 @@ abstract class SAL_Post {
 		$metadata = wp_get_attachment_metadata( $attachment->ID );
 
 		$result = array(
-			'ID'		=> (int) $attachment->ID,
-			'URL'           => (string) wp_get_attachment_url( $attachment->ID ),
-			'guid'		=> (string) $attachment->guid,
-			'mime_type'	=> (string) $attachment->post_mime_type,
-			'width'		=> (int) isset( $metadata['width']  ) ? $metadata['width']  : 0,
-			'height'	=> (int) isset( $metadata['height'] ) ? $metadata['height'] : 0,
+			'ID'        => (int) $attachment->ID,
+			'URL'       => (string) wp_get_attachment_url( $attachment->ID ),
+			'guid'      => (string) $attachment->guid,
+			'mime_type' => (string) $attachment->post_mime_type,
+			'width'     => (int) isset( $metadata['width']  ) ? $metadata['width']  : 0,
+			'height'    => (int) isset( $metadata['height'] ) ? $metadata['height'] : 0,
 		);
 
 		if ( isset( $metadata['duration'] ) ) {
@@ -468,7 +468,7 @@ abstract class SAL_Post {
 		// TODO factor this out
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$active_blog = get_active_blog_for_user( $user->ID );
-			$site_id     = $active_blog->get_id();
+			$site_id     = $active_blog->blog_id;
 			$profile_URL = "http://en.gravatar.com/{$user->user_login}";
 		} else {
 			$profile_URL = 'http://en.gravatar.com/' . md5( strtolower( trim( $user->user_email ) ) );

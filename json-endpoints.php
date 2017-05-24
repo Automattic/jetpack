@@ -2786,8 +2786,8 @@ new WPCOM_JSON_API_Site_Settings_V1_2_Endpoint( array(
 		Jetpack_SEO_Titles::TITLE_FORMATS_OPTION  => '(array) SEO meta title formats. Allowed keys: front_page, posts, pages, groups, archives',
 		'amp_is_enabled'                       => '(bool) Whether AMP is enabled for this site',
 		'podcasting_archive'                   => '(string) The post category, if any, used for publishing podcasts',
-		'api_cache'                            => '(bool) Turn on/off the Jetpack JSON API cache'
-
+		'api_cache'                            => '(bool) Turn on/off the Jetpack JSON API cache',
+		'posts_per_page'                       => '(int) Number of posts to show on blog pages',
 	),
 
 	'response_format' => array(

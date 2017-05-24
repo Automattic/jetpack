@@ -36,11 +36,7 @@ describe( 'Navigation', () => {
 		} );
 
 		it( 'renders 2 NavItem components', () => {
-			expect( wrapper.find( 'NavItem' ) ).to.have.length( 2 );
-		} );
-
-		it( 'renders tabs with At a Glance, Apps', () => {
-			expect( wrapper.find( 'NavItem' ).children().map( item => item.text() ).join() ).to.be.equal( 'At a Glance,Apps' );
+			expect( wrapper.find( 'NavItem' ) ).to.have.length( 1 );
 		} );
 	} );
 
@@ -50,12 +46,12 @@ describe( 'Navigation', () => {
 
 		const wrapperProtect = shallow( <Navigation { ...testProps } /> );
 
-		it( 'renders 2 NavItem components', () => {
-			expect( wrapperProtect.find( 'NavItem' ) ).to.have.length( 2 );
+		it( 'renders 1 NavItem components', () => {
+			expect( wrapperProtect.find( 'NavItem' ) ).to.have.length( 1 );
 		} );
 
-		it( 'renders tabs with At a Glance, Apps', () => {
-			expect( wrapperProtect.find( 'NavItem' ).children().map( item => item.text() ).join() ).to.be.equal( 'At a Glance,Apps' );
+		it( 'renders tabs with At a Glance', () => {
+			expect( wrapperProtect.find( 'NavItem' ).children().map( item => item.text() ).join() ).to.be.equal( 'At a Glance' );
 		} );
 
 	} );
@@ -70,12 +66,12 @@ describe( 'Navigation', () => {
 
 		const wrapperManage = shallow( <Navigation { ...testProps } /> );
 
-		it( 'renders 3 NavItem components', () => {
-			expect( wrapperManage.find( 'NavItem' ) ).to.have.length( 3 );
+		it( 'renders 2 NavItem components', () => {
+			expect( wrapperManage.find( 'NavItem' ) ).to.have.length( 2 );
 		} );
 
-		it( 'renders tabs with At a Glance, Apps, Plans', () => {
-			expect( wrapperManage.find( 'NavItem' ).children().map( item => item.text() ).join() ).to.be.equal( 'At a Glance,Apps,Plans' );
+		it( 'renders tabs with At a Glance, Plans', () => {
+			expect( wrapperManage.find( 'NavItem' ).children().map( item => item.text() ).join() ).to.be.equal( 'At a Glance,Plans' );
 		} );
 
 	} );

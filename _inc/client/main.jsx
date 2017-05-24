@@ -18,7 +18,7 @@ import SearchableSettings from 'settings/index.jsx';
 import JetpackConnect from 'components/jetpack-connect';
 import JumpStart from 'components/jumpstart';
 import { getJumpStartStatus, isJumpstarting } from 'state/jumpstart';
-import { getSiteConnectionStatus, isCurrentUserLinked } from 'state/connection';
+import { getSiteConnectionStatus, isCurrentUserLinked, isSiteConnected } from 'state/connection';
 import {
 	setInitialState,
 	getSiteRawUrl,
@@ -30,10 +30,10 @@ import {
 import { areThereUnsavedSettings, clearUnsavedSettingsFlag } from 'state/settings';
 import { getSearchTerm } from 'state/search';
 import AtAGlance from 'at-a-glance/index.jsx';
-import Apps from 'apps/index.jsx';
 import Plans from 'plans/index.jsx';
 import Footer from 'components/footer';
 import SupportCard from 'components/support-card';
+import AppsCard from 'components/apps-card';
 import NonAdminView from 'components/non-admin-view';
 import JetpackNotices from 'components/jetpack-notices';
 import AdminNotices from 'components/admin-notices';
@@ -148,7 +148,7 @@ const Main = React.createClass( {
 
 	renderMainContent: function( route ) {
 		// Track page views
-		analytics.tracks.recordEvent( 'jetpack_wpa_page_view', { path: route } );
+		this.props.isSiteConnected && analytics.tracks.recordEvent( 'jetpack_wpa_page_view', { path: route } );
 
 		if ( ! this.props.userCanManageModules ) {
 			if ( ! this.props.siteConnectionStatus ) {
@@ -190,9 +190,6 @@ const Main = React.createClass( {
 		switch ( route ) {
 			case '/dashboard':
 				pageComponent = <AtAGlance siteRawUrl={ this.props.siteRawUrl } siteAdminUrl={ this.props.siteAdminUrl } />;
-				break;
-			case '/apps':
-				pageComponent = <Apps siteRawUrl={ this.props.siteRawUrl } />;
 				break;
 			case '/plans':
 				pageComponent = <Plans siteRawUrl={ this.props.siteRawUrl } siteAdminUrl={ this.props.siteAdminUrl } />;
@@ -238,11 +235,8 @@ const Main = React.createClass( {
 						<AdminNotices />
 						<JetpackNotices />
 						{ this.renderMainContent( this.props.route.path ) }
-						{
-							this.props.jumpStartStatus || '/apps' === this.props.route.path ?
-							null :
-							<SupportCard path={ this.props.route.path } />
-						}
+						{ ! this.props.jumpStartStatus && <SupportCard path={ this.props.route.path } /> }
+						{ ! this.props.jumpStartStatus && <AppsCard /> }
 					</div>
 					<Footer siteAdminUrl={ this.props.siteAdminUrl } />
 				<Tracker analytics={ analytics } />
@@ -266,7 +260,8 @@ export default connect(
 			apiNonce: getApiNonce( state ),
 			tracksUserData: getTracksUserData( state ),
 			areThereUnsavedSettings: areThereUnsavedSettings( state ),
-			userCanManageModules: userCanManageModules( state )
+			userCanManageModules: userCanManageModules( state ),
+			isSiteConnected: isSiteConnected( state )
 		};
 	},
 	( dispatch ) => ( {
@@ -296,7 +291,6 @@ window.wpNavMenuClassChange = function() {
 	dashboardRoutes = [
 		'#/',
 		'#/dashboard',
-		'#/apps',
 		'#/plans'
 	];
 

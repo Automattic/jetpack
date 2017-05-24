@@ -42,6 +42,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		// listen for meta changes
 		$this->init_listeners_for_meta_type( 'post', $callable );
 		$this->init_meta_whitelist_handler( 'post', array( $this, 'filter_meta' ) );
+		add_action( 'export_wp', $callable );
 	}
 
 	public function init_full_sync_listeners( $callable ) {
@@ -250,7 +251,10 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		}
 	}
 
-	public function wp_insert_post( $post_ID, $post, $update ) {
+	public function wp_insert_post( $post_ID, $post = null , $update = null ) {
+		if ( ! is_numeric( $post_ID ) || is_null( $post ) ) {
+			return;
+		}
 		call_user_func( $this->action_handler, $post_ID, $post, $update );
 		$this->send_published( $post_ID, $post );
 		$this->send_trashed( $post_ID, $post );

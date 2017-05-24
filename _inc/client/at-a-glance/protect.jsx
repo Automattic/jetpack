@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import DashItem from 'components/dash-item';
 import { numberFormat, translate as __ } from 'i18n-calypso';
@@ -11,20 +11,15 @@ import includes from 'lodash/includes';
  * Internal dependencies
  */
 import QueryProtectCount from 'components/data/query-dash-protect';
-import {
-	isModuleActivated as _isModuleActivated,
-	activateModule,
-	getModules
-} from 'state/modules';
-import {
-	fetchProtectCount,
-	getProtectCount as _getProtectCount
-} from 'state/at-a-glance';
+import { getModules } from 'state/modules';
+import { getProtectCount } from 'state/at-a-glance';
 import { isDevMode } from 'state/connection';
 
-const DashProtect = React.createClass( {
-	getContent: function() {
-		if ( this.props.isModuleActivated( 'protect' ) ) {
+class DashProtect extends Component {
+	getContent() {
+		const activateProtect = () => this.props.updateOptions( { [ 'protect' ]: true } );
+
+		if ( this.props.getOptionValue( 'protect' ) ) {
 			const protectCount = this.props.protectCount;
 
 			if ( false === protectCount || '0' === protectCount || 'N/A' === protectCount ) {
@@ -61,18 +56,19 @@ const DashProtect = React.createClass( {
 				className="jp-dash-item__is-inactive"
 			>
 				<p className="jp-dash-item__description">{
-					this.props.isDevMode ? __( 'Unavailable in Dev Mode' ) :
-					__( '{{a}}Activate Protect{{/a}} to keep your site protected from malicious sign in attempts.', {
-						components: {
-							a: <a href="javascript:void(0)" onClick={ this.props.activateProtect } />
+					this.props.isDevMode ? __( 'Unavailable in Dev Mode' )
+						: __( '{{a}}Activate Protect{{/a}} to keep your site protected from malicious sign in attempts.', {
+							components: {
+								a: <a href="javascript:void(0)" onClick={ activateProtect } />
+							}
 						}
-					} )
+					)
 				}</p>
 			</DashItem>
 		);
-	},
+	}
 
-	render: function() {
+	render() {
 		const moduleList = Object.keys( this.props.moduleList );
 		if ( ! includes( moduleList, 'protect' ) ) {
 			return null;
@@ -85,7 +81,7 @@ const DashProtect = React.createClass( {
 			</div>
 		);
 	}
-} );
+}
 
 DashProtect.propTypes = {
 	isDevMode: React.PropTypes.bool.isRequired,
@@ -95,20 +91,9 @@ DashProtect.propTypes = {
 export default connect(
 	( state ) => {
 		return {
-			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
-			protectCount: _getProtectCount( state ),
+			protectCount: getProtectCount( state ),
 			isDevMode: isDevMode( state ),
 			moduleList: getModules( state )
-		};
-	},
-	( dispatch ) => {
-		return {
-			activateProtect: () => {
-				return dispatch( activateModule( 'protect' ) );
-			},
-			fetchProtectCount: () => {
-				return dispatch( fetchProtectCount() );
-			}
 		};
 	}
 )( DashProtect );

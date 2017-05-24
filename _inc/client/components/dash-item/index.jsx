@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { Component } from 'react';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
 import SimpleNotice from 'components/notice';
@@ -13,18 +13,12 @@ import analytics from 'lib/analytics';
 /**
  * Internal dependencies
  */
+import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 import Card from 'components/card';
 import SectionHeader from 'components/section-header';
 import { ModuleToggle } from 'components/module-toggle';
 import { isDevMode } from 'state/connection';
-import {
-	isModuleActivated as _isModuleActivated,
-	activateModule,
-	deactivateModule,
-	isActivatingModule,
-	isDeactivatingModule,
-	getModule as _getModule
-} from 'state/modules';
+import { getModule as _getModule } from 'state/modules';
 import ProStatus from 'pro-status';
 import {
 	getSiteRawUrl,
@@ -32,40 +26,13 @@ import {
 	userCanManageModules
 } from 'state/initial-state';
 
-export const DashItem = React.createClass( {
-	displayName: 'DashItem',
-
-	propTypes: {
-		label: React.PropTypes.string,
-		status: React.PropTypes.string,
-		statusText: React.PropTypes.string,
-		disabled: React.PropTypes.bool,
-		module: React.PropTypes.string,
-		pro: React.PropTypes.bool
-	},
-
-	getDefaultProps() {
-		return {
-			label: '',
-			module: '',
-			pro: false
-		};
-	},
-
+export class DashItem extends Component {
 	trackMonitorSettingsClick() {
 		analytics.tracks.recordJetpackClick( {
 			target: 'monitor-settings',
 			page: 'aag'
 		} );
-	},
-
-	trackPaidBtnClick( feature ) {
-		analytics.tracks.recordJetpackClick( {
-			target: 'paid-button',
-			feature: feature,
-			page: 'aag'
-		} );
-	},
+	}
 
 	render() {
 		let toggle, proButton = '';
@@ -76,13 +43,22 @@ export const DashItem = React.createClass( {
 			this.props.disabled ? 'jp-dash-item__disabled' : ''
 		);
 
+		const toggleModule = () => this.props.updateOptions( { [ this.props.module ]: ! this.props.getOptionValue( this.props.module ) } ),
+			trackPaidBtnClick = () => {
+				analytics.tracks.recordJetpackClick( {
+					target: 'paid-button',
+					feature: this.props.module,
+					page: 'aag'
+				} );
+			};
+
 		if ( '' !== this.props.module ) {
 			toggle = ( includes( [ 'protect', 'photon', 'vaultpress', 'scan', 'backups', 'akismet' ], this.props.module ) && this.props.isDevMode ) ? '' : (
 				<ModuleToggle
 					slug={ this.props.module }
-					activated={ this.props.isModuleActivated( this.props.module ) }
-					toggling={ this.props.isTogglingModule( this.props.module ) }
-					toggleModule={ this.props.toggleModule }
+					activated={ this.props.getOptionValue( this.props.module ) }
+					toggling={ this.props.isUpdating( this.props.module ) }
+					toggleModule={ toggleModule }
 					compact={ true }
 				/>
 			);
@@ -90,9 +66,7 @@ export const DashItem = React.createClass( {
 			if ( 'manage' === this.props.module ) {
 				if ( 'is-warning' === this.props.status ) {
 					toggle = (
-						<a href={ this.props.isModuleActivated( 'manage' )
-							? 'https://wordpress.com/plugins/' + this.props.siteRawUrl
-							: this.props.siteAdminUrl + 'plugins.php' } >
+						<a href={ 'https://wordpress.com/plugins/' + this.props.siteRawUrl } >
 							<SimpleNotice
 								showDismiss={ false }
 								status={ this.props.status }
@@ -109,7 +83,7 @@ export const DashItem = React.createClass( {
 			}
 
 			if ( 'monitor' === this.props.module ) {
-				toggle = ! this.props.isDevMode && this.props.isModuleActivated( this.props.module ) && (
+				toggle = ! this.props.isDevMode && this.props.getOptionValue( this.props.module ) && (
 					<Button
 						onClick={ this.trackMonitorSettingsClick }
 						href={ 'https://wordpress.com/settings/security/' + this.props.siteRawUrl }
@@ -125,7 +99,7 @@ export const DashItem = React.createClass( {
 		if ( this.props.pro && ! this.props.isDevMode ) {
 			proButton =
 				<Button
-					onClick={ () => this.trackPaidBtnClick( this.props.module ) }
+					onClick={ trackPaidBtnClick }
 					compact={ true }
 					href="#/plans"
 				>
@@ -152,27 +126,31 @@ export const DashItem = React.createClass( {
 			</div>
 		);
 	}
-} );
+}
+
+DashItem.propTypes = {
+	label: React.PropTypes.string,
+	status: React.PropTypes.string,
+	statusText: React.PropTypes.string,
+	disabled: React.PropTypes.bool,
+	module: React.PropTypes.string,
+	pro: React.PropTypes.bool
+};
+
+DashItem.defaultProps = {
+	label: '',
+	module: '',
+	pro: false
+};
 
 export default connect(
 	( state ) => {
 		return {
-			isModuleActivated: ( module_name ) => _isModuleActivated( state, module_name ),
-			isTogglingModule: ( module_name ) => isActivatingModule( state, module_name ) || isDeactivatingModule( state, module_name ),
 			getModule: ( module_name ) => _getModule( state, module_name ),
 			isDevMode: isDevMode( state ),
 			userCanToggle: userCanManageModules( state ),
 			siteRawUrl: getSiteRawUrl( state ),
 			siteAdminUrl: getSiteAdminUrl( state )
 		};
-	},
-	( dispatch ) => {
-		return {
-			toggleModule: ( module_name, activated ) => {
-				return ( activated )
-					? dispatch( deactivateModule( module_name ) )
-					: dispatch( activateModule( module_name ) );
-			}
-		};
 	}
-)( DashItem );
+)( moduleSettingsForm( DashItem ) );

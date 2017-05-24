@@ -132,7 +132,7 @@ else
 
           <p><?php _e( 'Identify words and phrases to ignore while proofreading your posts and pages:', 'jetpack' ); ?></p>
 
-          <p><input type="text" id="AtD_add_ignore" name="AtD_add_ignore"> <input type="button" value="<?php _e( 'Add', 'jetpack' ); ?>" onclick="javascript:atd_ignore()"></p>
+          <p><input type="text" id="AtD_add_ignore" name="AtD_add_ignore"> <input type="button" value="<?php esc_attr_e( 'Add', 'jetpack' ); ?>" onclick="javascript:atd_ignore()"></p>
 
           <div class="tagchecklist" id="atd_ignores"></div>
 

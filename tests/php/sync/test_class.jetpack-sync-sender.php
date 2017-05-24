@@ -175,7 +175,9 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( $next_sync_time < $this->sender->get_next_sync_time( 'sync' ) );
 
 		// doesn't sync second time
-		$this->assertFalse( $this->sender->do_sync() );
+		$result = $this->sender->do_sync();
+		$this->assertTrue( is_wp_error( $result ) );
+		$this->assertEquals( 'sync_throttled', $result->get_error_code() );
 		$this->assertEquals( 4, count( $this->server_event_storage->get_all_events( 'my_action' ) ) );
 
 		sleep( 3 );
