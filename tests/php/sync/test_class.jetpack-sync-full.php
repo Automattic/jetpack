@@ -337,7 +337,9 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_full_sync();
 
 		$synced_options_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_options' );
-		$this->assertEquals(  sizeof( $synced_options_event->args ), 2, 'Size of synced potions not as expected' );
+		$this->assertEquals(  sizeof( $synced_options_event->args ), 2, 'Size of synced options not as expected' );
+		$this->assertEquals( 'foo', $synced_options_event->args['my_option'] );
+		$this->assertEquals( 'bar', $synced_options_event->args['my_prefix_value'] );
 		
 		$this->assertEquals( 'foo', $this->server_replica_storage->get_option( 'my_option' ) );
 		$this->assertEquals( 'bar', $this->server_replica_storage->get_option( 'my_prefix_value' ) );
