@@ -62,6 +62,10 @@ new Jetpack_JSON_API_Themes_List_Endpoint( array(
 	'path_labels' => array(
 		'$site' => '(int|string) The site ID, The site domain'
 	),
+	'query_parameters' => array(
+		'search'   => '(string) Query string to look for in a theme.',
+		'features' => '(array) Features to look for in a theme.'
+	),
 	'response_format' => array(
 		'found'  => '(int) The total number of themes found.',
 		'themes' => '(array) An array of theme objects.',
