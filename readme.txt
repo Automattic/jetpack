@@ -117,6 +117,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Admin Page: remove Apps card from "Jumpstart" view. #7181
 * Admin Page: surface all modules on search and allow activation from new interface. #7183
 * Admin Page: remove the "Photon" word from the Photon card. #7193
+* Admin Page: refactor the dashboard cards for better performance. #7188
 * Command Line Interface: add information about primary Jetpack site owner. #7209
 * Custom CSS: add the `animation-fill-mode`, `fill`, and `stroke` properties. #7166, #7171
 * General: improve wording on connection banners for secondary users to avoid confusion. #6753

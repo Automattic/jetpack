@@ -2,6 +2,15 @@
 
 5.0 is still in progress; [keep an eye on the changelog to find out more!](https://github.com/Automattic/jetpack/pull/7116)
 
+### Admin Interface
+
+While we haven't made many changes in the design of the Jetpack Dashboard, we've refactored most of its code. We would consequently really appreciate if you could play as much as possible with the different settings under Jetpack > Dashboard and Jetpack > Settings.
+
+- Try disconnecting and reconnecting your site to WordPress.com.
+- Try activating and deactivating features.
+- Try changing options.
+- Try to visit those pages as an editor or an author.
+
 ### Connection process
 
 The connection process is a very important part of the Jetpack experience. It is, after all, one of the first things you do after activating the plugin. We've made some improvements to that process in this release, and we'd like you go through that process again on your site to make sure it works.
