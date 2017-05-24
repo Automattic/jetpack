@@ -61,22 +61,48 @@ class Jetpack {
 	);
 
 	public $plugins_to_deactivate = array(
-		'stats'               => array( 'stats/stats.php', 'WordPress.com Stats' ),
-		'shortlinks'          => array( 'stats/stats.php', 'WordPress.com Stats' ),
-		'sharedaddy'          => array( 'sharedaddy/sharedaddy.php', 'Sharedaddy' ),
-		'twitter-widget'      => array( 'wickett-twitter-widget/wickett-twitter-widget.php', 'Wickett Twitter Widget' ),
-		'after-the-deadline'  => array( 'after-the-deadline/after-the-deadline.php', 'After The Deadline' ),
-		'contact-form'        => array( 'grunion-contact-form/grunion-contact-form.php', 'Grunion Contact Form' ),
-		'contact-form'        => array( 'mullet/mullet-contact-form.php', 'Mullet Contact Form' ),
-		'custom-css'          => array( 'safecss/safecss.php', 'WordPress.com Custom CSS' ),
-		'random-redirect'     => array( 'random-redirect/random-redirect.php', 'Random Redirect' ),
-		'videopress'          => array( 'video/video.php', 'VideoPress' ),
-		'widget-visibility'   => array( 'jetpack-widget-visibility/widget-visibility.php', 'Jetpack Widget Visibility' ),
-		'widget-visibility'   => array( 'widget-visibility-without-jetpack/widget-visibility-without-jetpack.php', 'Widget Visibility Without Jetpack' ),
-		'sharedaddy'          => array( 'jetpack-sharing/sharedaddy.php', 'Jetpack Sharing' ),
-		'omnisearch'          => array( 'jetpack-omnisearch/omnisearch.php', 'Jetpack Omnisearch' ),
-		'gravatar-hovercards' => array( 'jetpack-gravatar-hovercards/gravatar-hovercards.php', 'Jetpack Gravatar Hovercards' ),
-		'latex'               => array( 'wp-latex/wp-latex.php', 'WP LaTeX' )
+		'stats'               => array(
+			array( 'stats/stats.php', 'WordPress.com Stats' ),
+		),
+		'shortlinks'          => array(
+			array( 'stats/stats.php', 'WordPress.com Stats' ),
+		),
+		'sharedaddy'          => array(
+			array( 'sharedaddy/sharedaddy.php', 'Sharedaddy' ),
+			array( 'jetpack-sharing/sharedaddy.php', 'Jetpack Sharing' ),
+		),
+		'twitter-widget'      => array(
+			array( 'wickett-twitter-widget/wickett-twitter-widget.php', 'Wickett Twitter Widget' ),
+		),
+		'after-the-deadline'  => array(
+			array( 'after-the-deadline/after-the-deadline.php', 'After The Deadline' ),
+		),
+		'contact-form'        => array(
+			array( 'grunion-contact-form/grunion-contact-form.php', 'Grunion Contact Form' ),
+			array( 'mullet/mullet-contact-form.php', 'Mullet Contact Form' ),
+		),
+		'custom-css'          => array(
+			array( 'safecss/safecss.php', 'WordPress.com Custom CSS' ),
+		),
+		'random-redirect'     => array(
+			array( 'random-redirect/random-redirect.php', 'Random Redirect' ),
+		),
+		'videopress'          => array(
+			array( 'video/video.php', 'VideoPress' ),
+		),
+		'widget-visibility'   => array(
+			array( 'jetpack-widget-visibility/widget-visibility.php', 'Jetpack Widget Visibility' ),
+			array( 'widget-visibility-without-jetpack/widget-visibility-without-jetpack.php', 'Widget Visibility Without Jetpack' ),
+		),
+		'omnisearch'          => array(
+			array( 'jetpack-omnisearch/omnisearch.php', 'Jetpack Omnisearch' ),
+		),
+		'gravatar-hovercards' => array(
+			array( 'jetpack-gravatar-hovercards/gravatar-hovercards.php', 'Jetpack Gravatar Hovercards' ),
+		),
+		'latex'               => array(
+			array( 'wp-latex/wp-latex.php', 'WP LaTeX' )
+		)
 	);
 
 	static $capability_translations = array(
@@ -2457,15 +2483,17 @@ class Jetpack {
 		}
 
 		$deactivated = array();
-		foreach ( $to_deactivate as $module => $deactivate_me ) {
-			list( $probable_file, $probable_title ) = $deactivate_me;
-			if ( Jetpack_Client_Server::deactivate_plugin( $probable_file, $probable_title ) ) {
-				$deactivated[] = $module;
+		foreach ( $to_deactivate as $module => $to_deactivate_list ) {
+			foreach( $to_deactivate_list as $index => $deactivate_me ) {
+				list( $probable_file, $probable_title ) = $deactivate_me;
+				if ( Jetpack_Client_Server::deactivate_plugin( $probable_file, $probable_title ) ) {
+					$deactivated[ $module ][] = $index;
+				}
 			}
 		}
 
 		if ( $deactivated && $redirect ) {
-			Jetpack::state( 'deactivated_plugins', join( ',', $deactivated ) );
+			Jetpack::state( 'deactivated_plugins', json_encode( $deactivated ) );
 
 			$url = add_query_arg(
 				array(
@@ -2600,10 +2628,16 @@ class Jetpack {
 		// Check and see if the old plugin is active
 		if ( isset( $jetpack->plugins_to_deactivate[ $module ] ) ) {
 			// Deactivate the old plugin
-			if ( Jetpack_Client_Server::deactivate_plugin( $jetpack->plugins_to_deactivate[ $module ][0], $jetpack->plugins_to_deactivate[ $module ][1] ) ) {
+			$deactivated_plugins = array();
+			foreach ( $jetpack->plugins_to_deactivate[ $module ] as $index => $to_deactivate ) {
+				if ( Jetpack_Client_Server::deactivate_plugin( $to_deactivate[0], $to_deactivate[1] ) ) {
+					$deactivated_plugins[ $module ][] = $index;
+				};
+			}
+			if ( ! empty( $deactivated_plugins ) ) {
 				// If we deactivated the old plugin, remembere that with ::state() and redirect back to this page to activate the module
 				// We can't activate the module on this page load since the newly deactivated old plugin is still loaded on this page load.
-				Jetpack::state( 'deactivated_plugins', $module );
+				Jetpack::state( 'deactivated_plugins', json_encode( $deactivated_plugins ) );
 				wp_safe_redirect( add_query_arg( 'jetpack_restate', 1 ) );
 				exit;
 			}
@@ -3823,17 +3857,19 @@ p {
 
 		}
 
-		$deactivated_plugins = Jetpack::state( 'deactivated_plugins' );
+		$deactivated_plugins = json_decode( stripslashes( Jetpack::state( 'deactivated_plugins' ) ), true );
 
 		if ( ! empty( $deactivated_plugins ) ) {
-			$deactivated_plugins = explode( ',', $deactivated_plugins );
-			$deactivated_titles  = array();
-			foreach ( $deactivated_plugins as $deactivated_plugin ) {
-				if ( ! isset( $this->plugins_to_deactivate[$deactivated_plugin] ) ) {
+
+			$deactivated_titles = array();
+			foreach ( $deactivated_plugins as $conflicting_module => $deactivated_index_list ) {
+				if ( ! isset( $this->plugins_to_deactivate[ $conflicting_module ] ) ) {
 					continue;
 				}
 
-				$deactivated_titles[] = '<strong>' . str_replace( ' ', '&nbsp;', $this->plugins_to_deactivate[$deactivated_plugin][1] ) . '</strong>';
+				foreach ( $deactivated_index_list as $deactivated_index ) {
+					$deactivated_titles[] = '<strong>' . str_replace( ' ', '&nbsp;', $this->plugins_to_deactivate[ $conflicting_module ][ $deactivated_index ][1] ) . '</strong>';
+				}
 			}
 
 			if ( $deactivated_titles ) {
