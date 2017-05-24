@@ -222,7 +222,7 @@ function JetpackLikesMessageListener( event, message ) {
 		}
 	}
 
-	if ( 'showCommentLikeWidget' == event.event ) {
+	if ( 'showCommentLikeWidget' === event.event ) {
 		jQuery( '#' + event.id + ' .likes-widget-placeholder'  ).fadeOut( 'fast', function() {
 			jQuery( '#' + event.id + ' .jetpack-likes-widget' ).fadeIn( 'fast', function() {
 				if ( event.comment_id ) {
@@ -247,7 +247,7 @@ jQuery( document ).click( function( e ) {
 });
 
 function JetpackLikesWidgetQueueHandler() {
-	var $wrapper, wrapperID, found;
+	var $wrapper, wrapper, wrapperID, found;
 	if ( ! jetpackLikesMasterReady ) {
 		setTimeout( JetpackLikesWidgetQueueHandler, 500 );
 		return;
@@ -312,12 +312,12 @@ function JetpackLikesWidgetQueueHandler() {
 	var placeholder = $wrapper.find( '.likes-widget-placeholder' );
 	if ( placeholder.hasClass( 'post-likes-widget-placeholder' ) ) {
 		if ( $wrapper.hasClass( 'slim-likes-widget' ) ) {
-			placeholder.after( "<iframe class='post-likes-widget jetpack-likes-widget' name='" + $wrapper.data( 'name' ) + "' height='22px' width='68px' frameBorder='0' scrolling='no' src='" + $wrapper.data( 'src' ) + "'></iframe>" );
+			placeholder.after( '<iframe class="post-likes-widget jetpack-likes-widget" name="' + $wrapper.data( 'name' ) + '" height="22px" width="68px" frameBorder="0" scrolling="no" src="' + $wrapper.data( 'src' ) + '"></iframe>' );
 		} else {
-			placeholder.after( "<iframe class='post-likes-widget jetpack-likes-widget' name='" + $wrapper.data( 'name' ) + "' height='55px' width='100%' frameBorder='0' src='" + $wrapper.data( 'src' ) + "'></iframe>" );
+			placeholder.after( '<iframe class="post-likes-widget jetpack-likes-widget" name="' + $wrapper.data( 'name' ) + '" height="55px" width="100%" frameBorder="0" src="' + $wrapper.data( 'src' ) + '"></iframe>' );
 		}
 	} else if ( placeholder.hasClass( 'comment-likes-widget-placeholder' ) ) {
-		$wrapper.find('.comment-like-feedback').before("<iframe class='comment-likes-widget-frame jetpack-likes-widget-frame' name='" + $wrapper.data('name') + "' height='16px' width='200px' frameBorder='0' scrolling='no' src='" + $wrapper.data('src') + "'></iframe>");
+		$wrapper.find('.comment-like-feedback').before( '<iframe class="comment-likes-widget-frame jetpack-likes-widget-frame" name="' + $wrapper.data('name') + '" height="16px" width="200px" frameBorder="0" scrolling="no" src="' + $wrapper.data('src') + '"></iframe>' );
 	}
 
 	$wrapper.removeClass( 'jetpack-likes-widget-unloaded' ).addClass( 'jetpack-likes-widget-loading' );
