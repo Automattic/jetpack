@@ -29,7 +29,7 @@ class Jetpack_Recipes {
 	function add_recipes_kses_rules( $allowedtags, $context ) {
 		if ( in_array( $context, array( '', 'post', 'data' ) ) ) :
 			// Create an array of all the tags we'd like to add the itemprop attribute to.
-			$tags = array( 'li', 'ol', 'ul', 'img', 'p', 'h3' );
+			$tags = array( 'li', 'ol', 'ul', 'img', 'p', 'h3', 'time' );
 			foreach ( $tags as $tag ) {
 				$allowedtags = $this->add_kses_rule(
 					$allowedtags,
@@ -37,6 +37,7 @@ class Jetpack_Recipes {
 					array(
 						'class'    => array(),
 						'itemprop' => array(),
+						'datetime'  => array(),
 					)
 				);
 			}
@@ -192,10 +193,20 @@ class Jetpack_Recipes {
 			}
 
 			if ( '' !== $atts['time'] ) {
+				// Get a time that's supported by Schema.org.
+				$duration = WPCOM_JSON_API_Date::format_duration( $atts['time'] );
+				// If no duration can be calculated, let's output what the user provided.
+				if ( empty( $duration ) ) {
+					$duration = $atts['time'];
+				}
+
 				$html .= sprintf(
-					'<li class="jetpack-recipe-time" itemprop="totalTime"><strong>%1$s: </strong>%2$s</li>',
+					'<li class="jetpack-recipe-time">
+					<time itemprop="totalTime" datetime="%3$s"><strong>%1$s: </strong>%2$s</time>
+					</li>',
 					esc_html_x( 'Time', 'recipe', 'jetpack' ),
-					esc_html( $atts['time'] )
+					esc_html( $atts['time'] ),
+					esc_attr( $duration )
 				);
 			}
 
