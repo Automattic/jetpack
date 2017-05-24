@@ -159,7 +159,9 @@ class WPCOM_JSON_API_Links {
 		$matches_by_version = & $this->matches_by_version;
 
 		// try to match out of saved matches
-		$matches = $matches_by_version[ $this->api->version ];
+		$matches = isset( $matches_by_version[ $this->api->version ] )
+			? $matches_by_version[ $this->api->version ]
+			: false;
 		if ( ! $matches ) {
 			$matches_by_version[ $this->api->version ] = array();
 			$matches = & $matches_by_version[ $this->api->version ];
