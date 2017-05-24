@@ -141,4 +141,52 @@ class WP_Test_Jetpack_Shortcodes_Dailymotion extends WP_UnitTestCase {
 		$this->assertContains( 'ui-theme=dark', $shortcode_content );
 	}
 
+	/**
+	 * @author mathildes
+	 * @covers ::dailymotion_shortcode
+	 * @since 4.2.0
+	 */
+	public function test_shortcodes_dailymotion_widget_exists() {
+		$this->assertEquals( shortcode_exists( 'dailymotion-widget' ), true );
+	}
+
+	/**
+	 * @author mathildes
+	 * @covers ::dailymotion_shortcode
+	 * @since 4.2.0
+	 */
+	public function test_shortcodes_dailymotion_widget() {
+		$content = '[dailymotion-widget]';
+
+		$shortcode_content = do_shortcode( $content );
+
+		$this->assertNotEquals( $content, $shortcode_content );
+	}
+
+	/**
+	 * @author mathildes
+	 * @covers ::dailymotion_shortcode
+	 * @since 4.2.0
+	 */
+	public function test_shortcodes_dailymotion_widget_id() {
+		$id = 'xyz';
+		$content = '[dailymotion-widget id=' . $id . ']';
+
+		$shortcode_content = do_shortcode( $content );
+
+		$this->assertContains( $id, $shortcode_content );
+	}
+
+	/**
+	 * @author mathildes
+	 * @covers ::dailymotion_shortcode
+	 * @since 4.2.0
+	 */
+	public function test_shortcodes_dailymotion_widget_missing_id() {
+		$content = '[dailymotion-widget]';
+
+		$shortcode_content = do_shortcode( $content );
+
+		$this->assertEquals( '<!--Dailymotion error: bad or missing ID-->', $shortcode_content );
+	}
 }

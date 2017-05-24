@@ -18,6 +18,11 @@
  * movie param enforces anti-xss protection
  *
  * Scroll down for the new <iframe> embed code handler.
+ *
+ * @module shortcodes
+ *
+ * @param string $content
+ * @return string shortcode
  */
 
 function dailymotion_embed_to_shortcode( $content ) {
@@ -81,6 +86,8 @@ add_filter( 'pre_kses', 'dailymotion_embed_to_shortcode' );
  * ui-highlight, ui-logo, ui-start-screen-info, ui-theme
  * see https://developer.dailymotion.com/player#player-parameters
  * @todo: Update code to sniff for iframe embeds and convert those to shortcodes.
+ *
+ * @module shortcodes
  *
  * @param array $atts
  * @return string html
@@ -217,6 +224,11 @@ add_shortcode( 'dailymotion', 'dailymotion_shortcode' );
  * Examples:
  * [dailymotion-channel user=MatthewDominick]
  * [dailymotion-channel user=MatthewDominick type=grid] (supports grid, carousel, badge/default)
+ *
+ * @module shortcodes
+ *
+ * @param array $atts
+ * @return string html
  */
 function dailymotion_channel_shortcode( $atts ) {
 	$username = $atts['user'];
@@ -237,6 +249,11 @@ add_shortcode( 'dailymotion-channel', 'dailymotion_channel_shortcode' );
 
 /**
  * Embed Reversal for Badge/Channel
+ *
+ * @module shortcodes
+ *
+ * @param string $content
+ * @return string shortcode
  */
 function dailymotion_channel_reversal( $content ) {
 	if ( ! is_string( $content ) || false === stripos( $content, 'dailymotion.com/badge/' ) ) {
@@ -286,6 +303,11 @@ add_filter( 'pre_kses', 'dailymotion_channel_reversal' );
  *
  * Converts a generic HTML embed code from Dailymotion into an
  * oEmbeddable URL.
+ *
+ * @module shortcodes
+ *
+ * @param string $content
+ * @return string oEmbeddable URL
  */
 
 function jetpack_dailymotion_embed_reversal( $content ) {
@@ -327,3 +349,68 @@ function jetpack_dailymotion_embed_reversal( $content ) {
 }
 
 add_filter( 'pre_kses', 'jetpack_dailymotion_embed_reversal' );
+
+/**
+ * DailyMotion Widget Shortcode
+ *
+ * Example:
+ * [dailymotion-widget id=XYZ]
+ *
+ * @module shortcodes
+ *
+ * @param array $atts
+ * @return string html
+ */
+function jetpack_dailymotion_widget_shortcode( $atts ) {
+	if ( isset( $atts['id'] ) ) {
+		$id = $atts['id'];
+	} else {
+		return '<!--Dailymotion error: bad or missing ID-->';
+	}
+
+	$output = "<div class='dailymotion-widget' data-placement='$id'></div>";
+	$output .= '<script>(function(w,d,s,u,n,e,c){w.PXLObject = n; w[n] = w[n] || function(){(w[n].q = w[n].q || []).push(arguments);};w[n].l = 1 * new Date();e = d.createElement(s); e.async = 1; e.src = u;c = d.getElementsByTagName(s)[0]; c.parentNode.insertBefore(e,c);})(window, document, "script", "//api.dmcdn.net/pxl/client.js", "pxl");</script>';
+
+	return $output;
+}
+
+add_shortcode( 'dailymotion-widget', 'jetpack_dailymotion_widget_shortcode' );
+
+/**
+ * Embed Reversal for Dailymotion widget
+ *
+ * @module shortcodes
+ *
+ * @param string $content
+ * @return string shortcode
+ */
+function jetpack_dailymotion_widget_reversal( $content ) {
+
+	if ( false === stripos( $content, 'dailymotion-widget' ) ) {
+		return $content;
+	}
+
+	/* Sample embed code:
+		<div class="dailymotion-widget" data-placement="XXXXXXXXX"></div><script>(function(w,d,s,u,n,e,c){w.PXLObject = n; w[n] = w[n] || function(){(w[n].q = w[n].q || []).push(arguments);};w[n].l = 1 * new Date();e = d.createElement(s); e.async = 1; e.src = u;c = d.getElementsByTagName(s)[0]; c.parentNode.insertBefore(e,c);})(window, document, "script", "//api.dmcdn.net/pxl/client.js", "pxl");</script>
+	*/
+
+	$ifr_regexp = '#<div class="dailymotion-widget" data-placement="([A-Za-z0-9]+)"><\/div><script>.+?<\/script>#';
+	$ifr_regexp_ent = str_replace( '&amp;#0*58;', '&amp;#0*58;|&#0*58;', htmlspecialchars( $ifr_regexp, ENT_NOQUOTES ) );
+
+	foreach ( array( 'ifr_regexp', 'ifr_regexp_ent' ) as $regex ) {
+		if ( ! preg_match_all( $$regex, $content, $matches, PREG_SET_ORDER ) ) {
+			continue;
+		}
+
+		foreach ( $matches as $match ) {
+			$id = $match[1];
+			$shortcode = '[dailymotion-widget id=' . $id . ']';
+			$content = str_replace( $match[0], $shortcode, $content );
+
+		}
+	}
+
+	return $content;
+}
+
+add_filter( 'pre_kses', 'jetpack_dailymotion_widget_reversal' );
