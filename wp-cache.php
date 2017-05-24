@@ -1296,7 +1296,7 @@ function wpsc_admin_tabs( $current = 0 ) {
 	if ( $wp_db_version >= 15477 ) {
 		echo '<div id="nav"><h2 class="themes-php">';
 		echo implode( "", $links );
-		echo '</div></h2></div>';
+		echo '</div></h2>';
 	} else {
 		echo implode( " | ", $links );
 	}
