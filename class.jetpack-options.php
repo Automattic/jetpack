@@ -320,20 +320,36 @@ class Jetpack_Options {
 		return true;
 	}
 
+	// Raw option methods allow Jetpack to get / update / delete options via direct DB queries, including options
+	// that are not created by the Jetpack plugin. This is helpful only in rare cases when we need to bypass
+	// cache and filters.
+
+	/**
+	 * Deletes an option via $wpdb query.
+	 *
+	 * @param string $name Option name.
+	 * 
+	 * @return bool Is the option deleted?
+	 */
 	static function delete_raw_option( $name ) {
 		global $wpdb;
-		$wpdb->query( $wpdb->prepare( "DELETE FROM $wpdb->options WHERE option_name = %s", $name ) );
+		$result = $wpdb->query( $wpdb->prepare( "DELETE FROM $wpdb->options WHERE option_name = %s", $name ) );
+		return $result;
 	}
 
-	// Raw option methods allow Jetpack to get / update / delete options via direct DB queries, including options
-	// that are not created by the Jetpack plugin. This is helpful when we need to bypass cache and filters.
-
+	/**
+	 * Updates an option via $wpdb query.
+	 *
+	 * @param string $name Option name.
+	 * @param mixed $value Option value.
+	 * @param bool $autoload Specifying whether to autoload or not.
+	 *
+	 * @return bool Is the option updated?
+	 */
 	static function update_raw_option( $name, $value, $autoload = false ) {
-
+		global $wpdb;
 		$autoload_value = $autoload ? 'yes' : 'no';
 
-		// we write our own option updating code to bypass filters/caching/etc on set_option/get_option
-		global $wpdb;
 		$serialized_value = maybe_serialize( $value );
 		// try updating, if no update then insert
 		// TODO: try to deal with the fact that unchanged values can return updated_num = 0
@@ -358,6 +374,14 @@ class Jetpack_Options {
 		return $updated_num;
 	}
 
+	/**
+	 * Gets an option via $wpdb query.
+	 *
+	 * @param string $name Option name.
+	 * @param mixed $default Default option value if option is not found.
+	 *
+	 * @return mixed Option value, or null if option is not found and default is not specified.
+	 */
 	static function get_raw_option( $name, $default = null ) {
 		global $wpdb;
 		$value = $wpdb->get_var(
