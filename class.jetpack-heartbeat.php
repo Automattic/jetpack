@@ -118,6 +118,15 @@ class Jetpack_Heartbeat {
 		$return["{$prefix}plugins"]        = implode( ',', Jetpack::get_active_plugins() );
 		$return["{$prefix}manage-enabled"] = Jetpack::is_module_active( 'manage' );
 
+		if ( ! function_exists( 'get_plugins' ) ) {
+			require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
+		}
+		/** This filter is documented in wp-admin/includes/class-wp-plugins-list-table.php */
+		$return["{$prefix}qty-plugins"]        = sizeof( apply_filters( 'all_plugins', get_plugins() ) );
+		$return["{$prefix}qty-plugins-active"] = sizeof( Jetpack::get_active_plugins() ); // Includes network-activated plugins.
+		$return["{$prefix}qty-mu-plugins"]     = sizeof( Jetpack::glob_php( WPMU_PLUGIN_DIR ) );
+		$return["{$prefix}qty-themes"]         = sizeof( wp_get_themes( array( 'allowed' => true ) ) );
+
 		// is-multi-network can have three values, `single-site`, `single-network`, and `multi-network`
 		$return["{$prefix}is-multi-network"] = 'single-site';
 		if ( is_multisite() ) {
