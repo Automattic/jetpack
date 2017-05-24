@@ -1660,7 +1660,7 @@ class MarkdownExtra_Parser extends Markdown_Parser {
 	# Expression to use when parsing in a context when no capture is desired
 	public $id_class_attr_nocatch_re = '\{(?:[ ]*[#.][-_:a-zA-Z0-9]+){1,}[ ]*\}';
 
-	function doExtraAttributes($tag_name, $attr) {
+	function doExtraAttributes($tag_name, &$attr) {
 	#
 	# Parse attributes caught by the $this->id_class_attr_catch_re expression
 	# and return the HTML-formatted list of attributes.
@@ -1736,7 +1736,7 @@ class MarkdownExtra_Parser extends Markdown_Parser {
 		$url = $matches[2] == '' ? $matches[3] : $matches[2];
 		$this->urls[$link_id] = $url;
 		$this->titles[$link_id] =& $matches[4];
-		$this->ref_attr[$link_id] = $this->doExtraAttributes("", $dummy =& $matches[5]);
+		$this->ref_attr[$link_id] = $this->doExtraAttributes("", $matches[5]);
 		return ''; # String that will replace the block
 	}
 
@@ -2326,7 +2326,7 @@ class MarkdownExtra_Parser extends Markdown_Parser {
 		$link_text		=  $this->runSpanGamut($matches[2]);
 		$url			=  $matches[3] == '' ? $matches[4] : $matches[3];
 		$title			=& $matches[7];
-		$attr  = $this->doExtraAttributes("a", $dummy =& $matches[8]);
+		$attr  = $this->doExtraAttributes("a", $matches[8]);
 
 
 		$url = $this->encodeAttribute($url);
@@ -2436,7 +2436,7 @@ class MarkdownExtra_Parser extends Markdown_Parser {
 		$alt_text		= $matches[2];
 		$url			= $matches[3] == '' ? $matches[4] : $matches[3];
 		$title			=& $matches[7];
-		$attr  = $this->doExtraAttributes("img", $dummy =& $matches[8]);
+		$attr  = $this->doExtraAttributes("img", $matches[8]);
 
 		$alt_text = $this->encodeAttribute($alt_text);
 		$url = $this->encodeAttribute($url);
@@ -2496,13 +2496,13 @@ class MarkdownExtra_Parser extends Markdown_Parser {
 		if ($matches[3] == '-' && preg_match('{^- }', $matches[1]))
 			return $matches[0];
 		$level = $matches[3]{0} == '=' ? 1 : 2;
-		$attr  = $this->doExtraAttributes("h$level", $dummy =& $matches[2]);
+		$attr  = $this->doExtraAttributes("h$level", $matches[2]);
 		$block = "<h$level$attr>".$this->runSpanGamut($matches[1])."</h$level>";
 		return "\n" . $this->hashBlock($block) . "\n\n";
 	}
 	function _doHeaders_callback_atx($matches) {
 		$level = strlen($matches[1]);
-		$attr  = $this->doExtraAttributes("h$level", $dummy =& $matches[3]);
+		$attr  = $this->doExtraAttributes("h$level", $matches[3]);
 		$block = "<h$level$attr>".$this->runSpanGamut($matches[2])."</h$level>";
 		return "\n" . $this->hashBlock($block) . "\n\n";
 	}
