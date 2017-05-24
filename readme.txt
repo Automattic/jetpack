@@ -123,6 +123,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * General: improve wording on connection banners for secondary users to avoid confusion. #6753
 * Internationalization: add and update language information handling. #7057
 * Masterbar: remove the Menus item to match WordPress.com menu. #7070
+* Omnisearch: improve display of the Omnisearch search results on sites using an RTL language. #7225
 * Social Menu: add new icons -- Etsy, Meetup, 500px, Goodreads. #7200
 * Sync: better synchronization of changes to navigation menus. #7014
 * Sync: trigger synchronization when WordPress is updated. #7108
