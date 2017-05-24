@@ -10,7 +10,7 @@
  */
 
 function jetpack_breadcrumbs() {
-	$taxonomy = is_category() ? 'category' : get_query_var( 'taxonomy' );
+	$taxonomy = is_category() || is_singular( 'post' ) ? 'category' : get_query_var( 'taxonomy' );
 	$is_taxonomy_hierarchical = is_taxonomy_hierarchical( $taxonomy );
 
 	$post_type = is_page() ? 'page' : get_query_var( 'post_type' );
