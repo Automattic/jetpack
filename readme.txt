@@ -153,6 +153,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Bug Fixes**
 
 * Ads: do not display in RSS feeds. #7095
+* Comments: avoid non-secure warnings when submitting comments on a HTTP site in Safari. #7205
 * CLI interface: properly print full list of modules when using the sync command. #7094
 * General: add a mechanism to detect broken connection states and resolve them. #6964
 * Photon: correct logic error that defeated the `jetpack_photon_image_is_local` filter. #7140
