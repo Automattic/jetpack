@@ -199,7 +199,7 @@ class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 		global $wp_cache_mod_rewrite;
 
 		if ( is_numeric( $value ) == false ) {
-			$types = array( 'wpcache' => 0, 'rewrite' => 1, 'PHP' => 2 );
+			$types = array( 'wpcache' => 0, 'mod_rewrite' => 1, 'PHP' => 2 );
 			if ( isset( $types[ $value ] ) ) {
 				$value = $types[ $value ];
 			} else {
