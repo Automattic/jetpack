@@ -159,6 +159,22 @@ class WP_Test_Jetpack_Json_Api_endpoints extends WP_UnitTestCase {
 		$this->rmdir( $the_real_folder );
 	}
 
+	/**
+	 * @author wpbenyamin
+	 * @covers WPCOM_JSON_API_Export_Start_Endpoint
+	 * @requires PHP 5.3.2
+	 */
+	public function test_WPCOM_JSON_API_Export_Start_Endpoint() {
+		$endpoint = new WPCOM_JSON_API_Export_Start_Endpoint( array() );
+		$class = new ReflectionClass('Jetpack_JSON_API_Export_Endpoint');
+		$result_method = $class->getMethod( 'callback' );
+		$result_method->setAccessible( true );
+		$result = $result_method->invoke( $endpoint );
+
+		$this->assertEqual( 'success', $result['status'] );
+	}
+
+
 	function filesystem_method_direct( $method ) {
 
 		return 'direct';

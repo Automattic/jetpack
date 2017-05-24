@@ -50,6 +50,7 @@ require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-user-endpoint.p
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-upload-media-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-site-settings-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-sharing-buttons-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-export-start-endpoint.php' );
 
 // **********
 // v1.1
@@ -3151,3 +3152,33 @@ new WPCOM_JSON_API_Menus_Delete_Menu_Endpoint( array (
 		'headers' => array( 'authorization' => 'Bearer YOUR_API_TOKEN' ),
 	),
 ) );
+
+// POST /sites/%s/exports/start
+new WPCOM_JSON_API_Export_Start_Endpoint( array (
+	'method' => 'POST',
+	'description' => 'Export site data.',
+	'group' => '__do_not_document',
+	'stat' => 'export',
+	'path' => '/sites/%s/exports/start',
+	'path_labels' => array(
+		'$site' => '(int|string) Site ID or domain',
+	),
+	'request_format'  => array(
+		'post_type'       => '(string) Post type. Optional (default is "all" post types).',
+		'category'        => '(int) Category ID. Optional (defaults to all categories).',
+		'author'          => '(int) Author user ID. Optional (defaults to all authors).',
+		'start_date'      => '(string) Export posts from this month onwards. Format is yyyy-mm. Optional.',
+		'end_date'        => '(string) Export posts up to the end of this month. Format is yyyy-mm. Optional.',
+		'status'          => '(string) The publishing status of the posts to export. Optional (defaults to "all" posts).',
+	),
+	'response_format' => array(
+		'ID'            => '(Integer) The ID of the export, if started successfully',
+		'status'        => '(string) The status of the export. Values are success|fail',
+		'download_url'  => '(string) The URL of the export file to download from the Jetpack site.'
+	),
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.com/exports/start',
+	'example_request_data' => array(
+		'headers' => array( 'authorization' => 'Bearer YOUR_API_TOKEN' ),
+	),
+) );
+
