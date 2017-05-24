@@ -50,7 +50,8 @@ class WP_Super_Cache_Rest_Get_Settings extends WP_REST_Controller {
 	 * @return string
 	 */
 	public function get_cache_type() {
-		global $super_cache_enabled, $wp_cache_mod_rewrite;
+		global $wp_cache_config_file;
+		include( $wp_cache_config_file );
 
 		if ( $super_cache_enabled ) {
 			if ( $wp_cache_mod_rewrite == 1 ) {
