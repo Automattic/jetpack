@@ -2781,7 +2781,7 @@ function wpsc_dirsize($directory, $sizes) {
 			if ( ! isset( $sizes[ 'fsize' ] ) )
 				$sizes[ $cache_type ][ 'fsize' ] = @filesize( $directory );
 			else
-				$sizes[ $cache_typee ][ 'fsize' ] += @filesize( $directory );
+				$sizes[ $cache_type ][ 'fsize' ] += @filesize( $directory );
 		}
 	}
 	return $sizes;
