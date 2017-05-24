@@ -5,11 +5,20 @@ var jetpackLikesWidgetBatch = [];
 var jetpackLikesMasterReady = false;
 
 function jetpackIsScrolledIntoView( element ) {
+	if ( jetpackGetCommentLikeCount() <= 10 ) {
+		// on pages containing up to 10 comments load all iframes immediately
+		return true;
+	}
+
 	var elementTop = element.getBoundingClientRect().top;
 	var elementBottom = element.getBoundingClientRect().bottom;
-	var lookAhead = 1000;
+	var lookAhead = 2000;
 
-	return ( elementTop >= 0 - lookAhead ) && ( elementBottom <= window.innerHeight + lookAhead );
+	return ( elementTop + lookAhead >= 0 ) && ( elementBottom <= window.innerHeight + lookAhead );
+}
+
+function jetpackGetCommentLikeCount() {
+	return jQuery( '.comment-likes-widget-placeholder' ).length;
 }
 
 function JetpackLikesPostMessage(message, target ) {

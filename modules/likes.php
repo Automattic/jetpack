@@ -20,7 +20,7 @@ Jetpack::dns_prefetch( array(
 ) );
 
 class Jetpack_Likes {
-	public $version = '20170523';
+	public $version = '20170525';
 
 	public static function init() {
 		static $instance = NULL;
