@@ -19,9 +19,9 @@ Jetpack::dns_prefetch( array(
 	'//2.gravatar.com',
 ) );
 
-class Jetpack_Likes {
-	public $version = '20170526';
+include dirname( __FILE__ ) . '/likes/jetpack-likes-master-iframe.php';
 
+class Jetpack_Likes {
 	public static function init() {
 		static $instance = NULL;
 
@@ -738,7 +738,7 @@ class Jetpack_Likes {
 			$domain = $url_parts['host'];
 		}
 		// make sure to include the scripts before the iframe otherwise weird things happen
-		add_action( 'wp_footer', array( $this, 'likes_master' ), 21 );
+		add_action( 'wp_footer', 'jetpack_likes_master_iframe', 21 );
 
 		/**
 		* if the same post appears more then once on a page the page goes crazy
@@ -796,7 +796,7 @@ class Jetpack_Likes {
 			$domain = $url_parts['host'];
 		}
 		// make sure to include the scripts before the iframe otherwise weird things happen
-		add_action( 'wp_footer', array( $this, 'likes_master' ), 21 );
+		add_action( 'wp_footer', 'jetpack_likes_master_iframe', 21 );
 
 		$src = sprintf( '%1$s://widgets.wp.com/likes/#blog_id=%2$d&amp;post_id=%3$d&amp;origin=%1$s://%4$s', $protocol, $blog_id, $post_id, $domain );
 
@@ -810,46 +810,6 @@ class Jetpack_Likes {
 		);
 
 		$wp_admin_bar->add_node( $node );
-	}
-
-	/**
-	 * This function needs to get loaded after the scripts get added to the page.
-	 *
-	 */
-	function likes_master() {
-		$protocol = 'http';
-		if ( is_ssl() )
-			$protocol = 'https';
-
-		$_locale = get_locale();
-
-		// We have to account for w.org vs WP.com locale divergence
-		if ( $this->in_jetpack ) {
-			if ( ! defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' ) || ! file_exists( JETPACK__GLOTPRESS_LOCALES_PATH ) ) {
-				return false;
-			}
-
-			require_once JETPACK__GLOTPRESS_LOCALES_PATH;
-
-			$gp_locale = GP_Locales::by_field( 'wp_locale', $_locale );
-			$_locale = isset( $gp_locale->slug ) ? $gp_locale->slug : '';
-		}
-
-		$likes_locale = ( '' == $_locale || 'en' == $_locale ) ? '' : '&amp;lang=' . strtolower( $_locale );
-
-		$src = sprintf(
-			'%1$s://widgets.wp.com/likes/master.html?ver=%2$s#ver=%2$s%3$s',
-			$protocol,
-			$this->version,
-			$likes_locale
-		);
-
-		/* translators: The value of %d is not available at the time of output */
-		$likersText = wp_kses( __( '<span>%d</span> bloggers like this:', 'jetpack' ), array( 'span' => array() ) );
-		?>
-		<iframe src='<?php echo $src; ?>' scrolling='no' id='likes-master' name='likes-master' style='display:none;'></iframe>
-		<div id='likes-other-gravatars'><div class="likes-text"><?php echo $likersText; ?></div><ul class="wpl-avatars sd-like-gravatars"></ul></div>
-		<?php
 	}
 
 	/**
