@@ -107,7 +107,7 @@ function videopress_media_list_table_query( $query ) {
 		return;
 	}
 
-	if ( is_admin() && $query->is_main_query() && ( 'upload' === get_current_screen()->id ) ) {
+	if ( is_admin() && $query->is_main_query() && ( 'upload' === $current_screen->id ) ) {
 		$meta_query = array(
 			array(
 				'key'     => 'videopress_poster_image',
