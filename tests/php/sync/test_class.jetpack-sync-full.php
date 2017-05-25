@@ -312,7 +312,8 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_full_sync_sends_all_options() {
-		Jetpack_Sync_Modules::get_module( "options" )->set_options_whitelist( array( 'my_option', 'my_prefix_value' ) );
+		delete_option( 'non_existant' );
+		Jetpack_Sync_Modules::get_module( "options" )->set_options_whitelist( array( 'my_option', 'my_prefix_value', 'non_existant' ) );
 		update_option( 'my_option', 'foo' );
 		update_option( 'my_prefix_value', 'bar' );
 		update_option( 'my_non_synced_option', 'baz' );
@@ -323,19 +324,27 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 'foo', $this->server_replica_storage->get_option( 'my_option' ) );
 		$this->assertEquals( 'bar', $this->server_replica_storage->get_option( 'my_prefix_value' ) );
 		$this->assertEquals( null, $this->server_replica_storage->get_option( 'my_non_synced_option' ) );
+		$this->assertEquals( null, $this->server_replica_storage->get_option( 'non_existant' )  );
 
 		// reset the storage, check value, and do full sync - storage should be set!
 		$this->server_replica_storage->reset();
 
 		$this->assertEquals( null, $this->server_replica_storage->get_option( 'my_option' ) );
 		$this->assertEquals( null, $this->server_replica_storage->get_option( 'my_prefix_value' ) );
+		$this->assertEquals( null, $this->server_replica_storage->get_option( 'non_existant' )  );
 
 		$this->full_sync->start();
 		$this->sender->do_full_sync();
 
+		$synced_options_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_options' );
+		$this->assertEquals(  sizeof( $synced_options_event->args ), 2, 'Size of synced options not as expected' );
+		$this->assertEquals( 'foo', $synced_options_event->args['my_option'] );
+		$this->assertEquals( 'bar', $synced_options_event->args['my_prefix_value'] );
+		
 		$this->assertEquals( 'foo', $this->server_replica_storage->get_option( 'my_option' ) );
 		$this->assertEquals( 'bar', $this->server_replica_storage->get_option( 'my_prefix_value' ) );
 		$this->assertEquals( null, $this->server_replica_storage->get_option( 'my_non_synced_option' ) );
+		$this->assertEquals( null, $this->server_replica_storage->get_option( 'non_existant' )  );
 	}
 
 	// to test run phpunit -c tests/php.multisite.xml --filter test_full_sync_sends_all_network_options
