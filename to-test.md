@@ -33,6 +33,18 @@ We've made some changes to the EU Cookie Law Banner widget, to make sure it's al
 3. Check that the banner width spans the entire window at all screen sizes.
 4. Check that, even at small screen sizes, the "Close" button is always positioned after the text, without covering it.
 
+### WordPress.com and WordPress.com REST API
+
+We've made several changes to the WordPress.com REST API in this release, and would appreciate your help testing communication between your site and the API in this Beta.
+
+To do so, start by enabling the JSON API module on your site. It should be enabled by default, but you can also activate it manually by searching for "JSON" under Jetpack > Settings in your dashboard.
+
+Then, use a tool that relies on the WordPress.com REST API to interact with your site. It could be the [Google Docs add-on](https://chrome.google.com/webstore/detail/wordpresscom-for-google-d/baibkfjlahbcogbckhjljjenalhamjbp?hl=en), an editor like [Stackedit](https://stackedit.io/editor), or [WordPress.com itself](https://wordpress.com/posts/).
+
+You'll want to try to create new posts, editing existing ones, delete posts, adding media, and other content management actions.
+
+Make sure everything works as advertized, and that there are no errors in the logs on your site, as explained below.
+
 ### Final Notes
 
 During your tests, we encourage you to open your browser's Development Tools and keep the Console open, checking for any errors in the Console and the Network tabs.
