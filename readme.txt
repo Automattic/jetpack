@@ -158,6 +158,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Comments: do not use Photon for Facebook and Twitter avatars. #6872
 * CLI interface: properly print full list of modules when using the sync command. #7094
 * General: add a mechanism to detect broken connection states and resolve them. #6964
+* Markdown: make sure autosaves can be restored as Markdown. #7107
 * Photon: correct logic error that defeated the `jetpack_photon_image_is_local` filter. #7140
 * Photon: avoid potential PHP notices when used with other themes and plugins customizing responsive images. #7090
 * Photon: do not use Photon with images already served by Facebook's CDN. #6872
