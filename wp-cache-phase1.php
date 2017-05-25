@@ -768,6 +768,9 @@ function wp_supercache_cache_for_admins() {
 	if ( false == do_cacheaction( 'wp_supercache_remove_cookies', true ) )
 		return true;
 
+	if ( $_SERVER[ "REQUEST_METHOD" ] != 'GET' || strpos( $_SERVER[ 'REQUEST_URI' ], '/wp-json/' ) !== false )
+		return true;
+
 	$cookie_keys = array( 'wordpress_logged_in', 'comment_author_' );
 	if ( defined( 'LOGGED_IN_COOKIE' ) )
 		$cookie_keys[] = constant( 'LOGGED_IN_COOKIE' );
@@ -788,8 +791,12 @@ function wp_cache_confirm_delete( $dir ) {
 	global $cache_path, $blog_cache_dir;
 	// don't allow cache_path, blog cache dir, blog meta dir, supercache.
 	$dir = realpath( $dir );
+	$rp_cache_path = realpath( $cache_path );
+	if ( substr( $dir, 0, strlen( $rp_cache_path ) ) != $rp_cache_path )
+		return false;
+
 	if ( 
-		$dir == realpath( $cache_path ) ||
+		$dir == $rp_cache_path ||
 		$dir == realpath( $blog_cache_dir ) ||
 		$dir == realpath( $blog_cache_dir . "meta/" ) ||
 		$dir == realpath( $cache_path . "supercache" )
