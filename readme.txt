@@ -155,10 +155,12 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Ads: do not display in RSS feeds. #7095
 * Comments: avoid non-secure warnings when submitting comments on a HTTP site in Safari. #7205
+* Comments: do not use Photon for Facebook and Twitter avatars. #6872
 * CLI interface: properly print full list of modules when using the sync command. #7094
 * General: add a mechanism to detect broken connection states and resolve them. #6964
 * Photon: correct logic error that defeated the `jetpack_photon_image_is_local` filter. #7140
 * Photon: avoid potential PHP notices when used with other themes and plugins customizing responsive images. #7090
+* Photon: do not use Photon with images already served by Facebook's CDN. #6872
 * Shortcodes: fix bad jQuery selector in Presentations shortcode. #7184
 * Spellcheck: Properly escape Button attribute. #7100
 * Stats: avoid PHP notices on some sites when user roles are not attributed properly. #7212
