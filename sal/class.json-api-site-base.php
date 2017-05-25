@@ -41,6 +41,10 @@ abstract class SAL_Site {
 		return (int) wp_count_posts( 'post' )->publish;
 	}
 
+	public function get_quota() {
+		return null;
+	}
+
 	abstract public function has_videopress();
 
 	abstract public function upgraded_filetypes_enabled();
