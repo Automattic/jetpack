@@ -60,7 +60,6 @@ export const SSO = moduleSettingsForm(
 							slug="sso"
 							disabled={ unavailableInDevMode }
 							activated={ isSSOActive }
-							F
 							toggling={ this.props.isSavingAnyOption( 'sso' ) }
 							toggleModule={ this.props.toggleModuleNow }
 						>
