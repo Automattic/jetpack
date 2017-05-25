@@ -4,7 +4,26 @@ With the help of this mu-plugin, a Pressable site is transformed into a WP.com s
 
 ## Development
 
-To work on wpcomsh, you need a WP.org site and ideally the Jetpack plugin installed and connected to WP.com. Clone the [wpcomsh git repo](https://github.com/Automattic/wpcomsh/) into `wp-content/mu-plugins` of that site. Then, either copy or symlink the `wp-content/mu-plugins/wpcomsh-loader.php` file to `wp-content/mu-plugins`. It acts as a "loader" for wpcomsh and we need this because plugin folders put into `mu-plugins` are not automatically loaded like plugin in `wp-content/plugins`. Run `git submodule update --init --recursive` to clone and initialize the submodules (you'll need to run this again to pull in later updates to the submodules).
+### Quick Start
+
+```
+# From the root of a wp.org install
+$ cd wp-content/mu-plugins
+$ git clone git@github.com:Automattic/wpcomsh.git
+$ cd wpcomsh
+$ ln -s wpcomsh-loader.php ../plugins # or copy the loader
+$ git submodule update --init --recursive # installs the submodules
+$ composer install # installs the composer dependencies
+```
+
+To work on wpcomsh, you need a WP.org site and ideally the Jetpack plugin installed and connected to WP.com.
+You will also need to install [Composer](https://getcomposer.org/)
+
+1. Clone the [wpcomsh git repo](https://github.com/Automattic/wpcomsh/) into `wp-content/mu-plugins` of that site.
+2. Then, either copy or symlink the `wp-content/mu-plugins/wpcomsh/wpcomsh-loader.php` file to `wp-content/plugins`.
+It acts as a "loader" for wpcomsh and we need this because plugin folders put into `mu-plugins` are not automatically loaded like plugin in `wp-content/plugins`.
+3. Run `git submodule update --init --recursive` to clone and initialize the submodules (you'll need to run this again to pull in later updates to the submodules).
+4. From the project root run `$ composer install` to install composer based dependencies.
 
 Note: if you decide to download the zip of wpcomsh from the GitHub repo, it won't work as that zip doesn't contain all the git submodules which wpcomsh depends on.
 
@@ -16,7 +35,8 @@ When working on wpcomsh, follow the [WP.org coding standards](https://codex.word
 
 There are two stages of testing wpcomsh:
 
-The first one is to set up a WP.org site and test on it (more instructions in the [Development section](#development)). However, it's the best if you also install the Jetpack plugin and connect it to WP.com on the WP.org site as that's how AT sites communicate with WP.com -- many things can be tested only with connected Jetpack. We recommend either using your .wpsandbox.me site (PCYsg-5Q0-p2) or use [Vagrant](https://github.com/Varying-Vagrant-Vagrants/VVV) to set up the WP.org site locally on your machine and share it with world (so WP.com can connect to it).
+The first one is to set up a WP.org site and test on it (more instructions in the [Development section](#development)). 
+However, it's the best if you also install the Jetpack plugin and connect it to WP.com on the WP.org site as that's how AT sites communicate with WP.com -- many things can be tested only with connected Jetpack. We recommend either using your .wpsandbox.me site (PCYsg-5Q0-p2) or use [Vagrant](https://github.com/Varying-Vagrant-Vagrants/VVV) to set up the WP.org site locally on your machine and share it with world (so WP.com can connect to it).
 
 The second stage of testing your changes to wpcomsh is to [get it deployed](#deployment) on the AT staging server (currently Pressable `web12`) and test on a transferred site which was pointed to this staging server. If you don't have any, you can use [@lamosty's ones](https://mc.a8c.com/secret-store/?secret_id=2977).
 
@@ -114,6 +134,19 @@ All the wp-admin custom styles for transferred sites are in `assets/admin-style.
 ### Custom colors and fonts (+ Typekit fonts)
 
 On WP.com, we provide custom colors and fonts in a site's Customizer. In order to get them supported on an AT site, wpcomsh imports the `colors`, `custom-fonts` and `custom-fonts-typekit` codebases.
+
+### Logging
+
+WPCOMSH provides a hook to log arbitrary information in our Kibana instance. 
+You cannot use these function by itself, you need to call a proper hook like so:
+```php
+do_action(  'wpcomsh_log', "test" );
+```
+
+You will see the output here:
+78d11cc3116d62c53c50ae95c04d265b-logstash
+
+But, logging needs to be turned on via `at_options_logging_on`. You can do that via `/option` endpoint. More tools coming. 
 
 ### Cli commands
 

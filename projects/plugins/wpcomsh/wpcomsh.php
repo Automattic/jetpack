@@ -8,7 +8,7 @@
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '1.8.4' );
+define( 'WPCOMSH_VERSION', '1.8.6' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -20,12 +20,14 @@ require_once( 'storefront/storefront.php' );
 require_once( 'custom-fonts/custom-fonts.php' );
 require_once( 'custom-fonts-typekit/custom-fonts-typekit.php' );
 require_once( 'custom-colors/colors.php' );
+require_once( 'class.wpcomsh-log.php' );
 
 /**
  * WP.com Widgets (in alphabetical order)
  */
 require_once( 'widgets/aboutme.php' );
 require_once( 'widgets/author-grid.php' );
+require_once( 'widgets/freshly-pressed.php' );
 require_once( 'widgets/gravatar.php' );
 if ( is_active_widget( false, false, 'wpcom_instagram_widget' ) ) {
 	require_once( 'widgets/instagram/instagram.php' );
@@ -34,7 +36,13 @@ require_once( 'widgets/i-voted.php' );
 require_once( 'widgets/music-player.php' );
 require_once( 'widgets/posts-i-like.php' );
 require_once( 'widgets/recent-comments-widget.php' );
+require_once( 'widgets/reservations.php' );
 require_once( 'widgets/tlkio/tlkio.php' );
+require_once( 'widgets/top-rated.php' );
+require_once( 'widgets/twitter.php' );
+
+# autoload composer sourced plugins
+require_once( 'vendor/autoload.php' );
 
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once WPCOMSH__PLUGIN_DIR_PATH . '/class.cli-commands.php';
@@ -54,6 +62,8 @@ if ( class_exists( 'Jetpack_Plugin_Compatibility' ) ) {
 			'necessary to manage your site and are not supported on WordPress.com. wordpress-database-reset has been deactivated.',
 		'wp-reset/wp-reset.php' => 'wp-reset and other WordPress reset plugins delete data ' .
 			'necessary to manage your site and are not supported on WordPress.com. wp-reset has been deactivated.',
+		'wordpress-reset/wordpress-reset.php' => 'WordPress Reset and similar reset plugins delete data ' .
+			'necessary to manage your site and are not supported on Wordpress.com. WordPress Reset has been deactivated.',
 	);
 	new Jetpack_Plugin_Compatibility( $wpcomsh_incompatible_plugins );
 }
@@ -418,6 +428,7 @@ add_action( 'admin_enqueue_scripts', 'wpcomsh_admin_enqueue_style', 999 );
 function wpcomsh_allow_custom_wp_options( $options ) {
 	// For storing AT options.
 	$options[] = 'at_options';
+	$options[] = 'at_options_logging_on';
 	$options[] = 'jetpack_fonts';
 	$options[] = 'site_logo';
 	$options[] = 'footercredit';
@@ -531,3 +542,64 @@ function require_lib( $slug ) {
 	}
 }
 
+/**
+ * Provides a fallback Google Maps API key when otherwise not configured by the
+ * user. This is subject to a usage quota.
+ *
+ * @see p5j4vm-1gT-p2
+ *
+ * @param string $api_key Google Maps API key
+ * @return string Google Maps API key
+ */
+function wpcomsh_google_maps_api_key( $api_key ) {
+	// We don't want to add the fallback API key to the Geocode API call; we'll get "referer restrictions" errors.
+	// That call is only made when saving the form, to validate the address.
+	if ( is_admin() ) {
+		return $api_key;
+	}
+
+	// Fall back to the dotcom API key if the user has not set their own.
+	return ( empty( $api_key ) ) ? 'AIzaSyCq4vWNv6eCGe2uvhPRGWQlv80IQp8dwTE' : $api_key;
+}
+add_filter( 'jetpack_google_maps_api_key', 'wpcomsh_google_maps_api_key' );
+
+
+/**
+ * Provides a fallback mofile that uses wpcom locale slugs instead of wporg locale slugs
+ * This is needed for WP.COM themes that have their translations bundled with the theme.
+ *
+ * @see p8yzl4-4c-p2
+ *
+ * @param string $mofile .mo language file being loaded by load_textdomain()
+ * @return string $mofile same or alternate mo file
+ */
+function wpcomsh_wporg_to_wpcom_locale_mo_file( $mofile ) {
+	if ( file_exists( $mofile ) ) {
+		return $mofile;
+	}
+
+	if ( ! class_exists( 'GP_Locales' ) ) {
+		if ( ! defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' ) || ! file_exists( JETPACK__GLOTPRESS_LOCALES_PATH ) ) {
+			return $mofile;
+		}
+
+		require JETPACK__GLOTPRESS_LOCALES_PATH;
+	}
+
+	$possible_locale_slug = basename( $mofile, '.mo' );
+	$locale_object = GP_Locales::by_field( 'wp_locale', $possible_locale_slug );
+
+	if ( ! $locale_object ) {
+		return $mofile;
+	}
+
+	$mofile = preg_replace( '/' . preg_quote( $possible_locale_slug ) . '\.mo$/', $locale_object->slug . '.mo', $mofile );
+	return $mofile;
+}
+add_filter( 'load_textdomain_mofile', 'wpcomsh_wporg_to_wpcom_locale_mo_file' );
+
+/**
+ * Links were removed in 3.5 core, but we've kept them active on dotcom.
+ * This will expose both the Links section, and the widget.
+ */
+add_filter( 'pre_option_link_manager_enabled', '__return_true' );
