@@ -69,7 +69,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		) );
 
 		register_rest_route( 'jetpack/v4', '/jitm', array(
-			'methods'  => WP_REST_Server::DELETABLE,
+			'methods'  => WP_REST_Server::CREATABLE,
 			'callback' => __CLASS__ . '::delete_jitm_message'
 		) );
 

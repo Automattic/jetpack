@@ -36,7 +36,7 @@ jQuery( document ).ready( function( $ ) {
 
 				$.ajax( {
 					url: window.jitm_config.api_root + 'jetpack/v4/jitm',
-					method: 'DELETE',
+					method: 'POST', // using DELETE without permalinks is broken in default nginx configuration
 					data: {
 						id: response[ index ].id,
 						feature_class: response[ index ].feature_class
