@@ -224,14 +224,15 @@ class Jetpack_JITM {
 		$envelopes  = get_transient( 'jetpack_jitm_' . $path );
 		$from_cache = false;
 
-		// if something is in the cache and it was put in the cache after the last heartbeat, use it
-		if ( $envelopes && Jetpack_Options::get_option( 'last_heartbeat', time() ) < $envelopes['response_time'] ) {
+		// if something is in the cache and it was put in the cache after the last heartbeat or sync, use it
+		$last_heartbeat = Jetpack_Options::get_option( 'last_heartbeat', time() );
+		$last_sync      = Jetpack_Options::get_option( 'last_sync', time() );
+		if ( $envelopes && $last_heartbeat < $envelopes['response_time'] || $last_sync < $envelopes['response_time'] ) {
 			$from_cache = true;
 		}
 
 		// otherwise, ask again
 		if ( ! $from_cache ) {
-			$from_cache     = false;
 			$wpcom_response = Jetpack_Client::wpcom_json_api_request_as_blog(
 				$path,
 				'2',

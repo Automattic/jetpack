@@ -155,6 +155,7 @@ class Jetpack_Sync_Actions {
 		) );
 
 		$result = $rpc->query( 'jetpack.syncActions', $data );
+		Jetpack_Options::update_option( 'last_sync', time() );
 
 		if ( ! $result ) {
 			return $rpc->get_jetpack_error();
