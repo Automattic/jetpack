@@ -360,7 +360,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 				: array();
 
 			$moved_to_inactive_recently = $this->sync_remove_widgets_from_sidebar( $new_widgets, $old_widgets, $sidebar, $new_value['wp_inactive_widgets'] );
-			$moved_to_inactive = array_merge( $moved_to_inactive, $moved_to_inactive_recently );
+			$moved_to_inactive_ids = array_merge( $moved_to_inactive, $moved_to_inactive_recently );
 
 			$moved_to_sidebar_recently = $this->sync_add_widgets_to_sidebar( $new_widgets, $old_widgets, $sidebar );
 			$moved_to_sidebar = array_merge( $moved_to_sidebar, $moved_to_sidebar_recently );
@@ -370,16 +370,17 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		}
 
 		// Treat inactive sidebar a bit differently
-		if ( ! empty( $moved_to_inactive ) ) {
+		if ( ! empty( $moved_to_inactive_ids ) ) {
+			$moved_to_inactive_name = array_map( array( $this, 'get_widget_name' ), $moved_to_inactive_ids );
 			/**
 			 * Helps Sync log that a widgets IDs got moved to in active
 			 *
 			 * @since 4.9.0
 			 *
-			 * @param array $moved_to_inactive, Array of widgets id that moved to inactive id got changed
-			 * @param array $moved_to_inactive, Array of widgets names that moved to inactive id got changed Since 5.0.0
+			 * @param array $moved_to_inactive_ids, Array of widgets id that moved to inactive id got changed
+			 * @param array $moved_to_inactive_names, Array of widgets names that moved to inactive id got changed Since 5.0.0
 			 */
-			do_action( 'jetpack_widget_moved_to_inactive', $moved_to_inactive, array_map( array( $this, 'get_widget_name' ), $moved_to_inactive ) );
+			do_action( 'jetpack_widget_moved_to_inactive', $moved_to_inactive_ids, $moved_to_inactive_name );
 		} elseif ( empty( $moved_to_sidebar ) &&
 		           empty( $new_value['wp_inactive_widgets']) &&
 		           ! empty( $old_value['wp_inactive_widgets'] ) ) {
