@@ -232,7 +232,7 @@ class Jetpack_JITM {
 			$from_cache     = false;
 			$wpcom_response = Jetpack_Client::wpcom_json_api_request_as_blog(
 				$path,
-				'1.1',
+				'2',
 				array(
 					'user_id'    => $user->ID,
 					'user_roles' => implode( ',', $user->roles ),
