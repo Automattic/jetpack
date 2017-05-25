@@ -101,6 +101,12 @@ function videopress_ajax_query_attachments_args( $args ) {
  */
 add_action( 'pre_get_posts', 'videopress_media_list_table_query' );
 function videopress_media_list_table_query( $query ) {
+	$current_screen = get_current_screen();
+
+	if ( is_null( $current_screen ) ) {
+		return;
+	}
+
 	if ( is_admin() && $query->is_main_query() && ( 'upload' === get_current_screen()->id ) ) {
 		$meta_query = array(
 			array(
