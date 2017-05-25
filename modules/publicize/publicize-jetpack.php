@@ -515,7 +515,7 @@ class Publicize extends Publicize_Base {
 
 		if ( ! empty( $connection['connection_data']['meta']['facebook_page'] ) ) {
 			$found = false;
-			if ( is_array( $pages->data ) ) {
+			if ( $pages && is_array( $pages->data ) ) {
 				foreach ( $pages->data as $page ) {
 					if ( $page->id == $connection['connection_data']['meta']['facebook_page'] ) {
 						$found = true;
