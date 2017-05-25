@@ -6,18 +6,7 @@
  * @hide-in-jetpack
  */
 
-class WPCOM_JSON_API_List_Posts_v1_2_Endpoint extends WPCOM_JSON_API_Post_v1_1_Endpoint {
-	public $date_range = array();
-	public $modified_range = array();
-	public $page_handle = array();
-	public $performed_query = null;
-
-	public $response_format = array(
-		'found'    => '(int) The total number of posts found that match the request (ignoring limits, offsets, and pagination).',
-		'posts'    => '(array:post) An array of post objects.',
-		'meta'     => '(object) Meta data',
-	);
-
+class WPCOM_JSON_API_List_Posts_v1_2_Endpoint extends WPCOM_JSON_API_List_Posts_v1_1_Endpoint {
 	// /sites/%s/posts/ -> $blog_id
 	function callback( $path = '', $blog_id = 0 ) {
 		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );
@@ -389,94 +378,5 @@ class WPCOM_JSON_API_List_Posts_v1_2_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 		}
 
 		return $where;
-	}
-
-	function handle_date_range( $where ) {
-		return $this->_build_date_range_query( 'post_date', $this->date_range, $where );
-	}
-
-	function handle_modified_range( $where ) {
-		return $this->_build_date_range_query( 'post_modified_gmt', $this->modified_range, $where );
-	}
-
-	function handle_where_for_page_handle( $where ) {
-		global $wpdb;
-
-		$column = $this->performed_query['orderby'];
-		if ( ! $column ) {
-			$column = 'date';
-		}
-		$order = $this->performed_query['order'];
-		if ( ! $order ) {
-			$order = 'DESC';
-		}
-
-		if ( ! in_array( $column, array( 'ID', 'title', 'date', 'modified', 'comment_count' ) ) ) {
-			return $where;
-		}
-
-		if ( ! in_array( $order, array( 'DESC', 'ASC' ) ) ) {
-			return $where;
-		}
-
-		$db_column = '';
-		$db_value = '';
-		switch( $column ) {
-			case 'ID':
-				$db_column = 'ID';
-				$db_value = '%d';
-				break;
-			case 'title':
-				$db_column = 'post_title';
-				$db_value = '%s';
-				break;
-			case 'date':
-				$db_column = 'post_date';
-				$db_value = 'CAST( %s as DATETIME )';
-				break;
-			case 'modified':
-				$db_column = 'post_modified';
-				$db_value = 'CAST( %s as DATETIME )';
-				break;
-			case 'comment_count':
-				$db_column = 'comment_count';
-				$db_value = '%d';
-				break;
-		}
-
-		if ( 'DESC'=== $order ) {
-			$db_order = '<';
-		} else {
-			$db_order = '>';
-		}
-
-		// Add a clause that limits the results to items beyond the passed item, or equivalent to the passed item
-		// but with an ID beyond the passed item. When we're ordering by the ID already, we only ask for items
-		// beyond the passed item.
-		$where .= $wpdb->prepare( " AND ( ( `$wpdb->posts`.`$db_column` $db_order $db_value ) ", $this->page_handle['value'] );
-		if ( $db_column !== 'ID' ) {
-			$where .= $wpdb->prepare( "OR ( `$wpdb->posts`.`$db_column` = $db_value AND `$wpdb->posts`.ID $db_order %d )", $this->page_handle['value'], $this->page_handle['id'] );
-		}
-		$where .= ' )';
-
-		return $where;
-	}
-
-	function handle_orderby_for_page_handle( $orderby ) {
-		global $wpdb;
-		if ( $this->performed_query['orderby'] === 'ID' ) {
-			// bail if we're already ordering by ID
-			return $orderby;
-		}
-
-		if ( $orderby ) {
-			$orderby .= ' ,';
-		}
-		$order = $this->performed_query['order'];
-		if ( ! $order ) {
-			$order = 'DESC';
-		}
-		$orderby .= " `$wpdb->posts`.ID $order";
-		return $orderby;
 	}
 }
