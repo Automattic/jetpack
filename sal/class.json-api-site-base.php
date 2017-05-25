@@ -84,13 +84,13 @@ abstract class SAL_Site {
 
 	abstract public function get_ak_vp_bundle_enabled();
 
+	abstract public function get_podcasting_archive();
+
 	abstract public function get_jetpack_seo_front_page_description();
 
 	abstract public function get_jetpack_seo_title_formats();
 
 	abstract public function get_verification_services_codes();
-
-	abstract public function get_podcasting_archive();
 
 	abstract public function before_render();
 
@@ -102,12 +102,15 @@ abstract class SAL_Site {
 	// wrap a WP_Post object with SAL methods
 	abstract public function wrap_post( $post, $context );
 
+	abstract protected function is_a8c_publication( $post_id );
+
 	public function is_automated_transfer() {
 		return false;
 	}
 
 	public function get_post_by_id( $post_id, $context ) {
 		$post = get_post( $post_id, OBJECT, $context );
+
 		if ( ! $post ) {
 			return new WP_Error( 'unknown_post', 'Unknown post', 404 );
 		}
@@ -126,7 +129,10 @@ abstract class SAL_Site {
 	private function validate_access( $post ) {
 		$context = $post->context;
 
-		if ( ! $this->is_post_type_allowed( $post->post_type ) && ! $this->is_a8c_publication( $post->ID ) ) {
+		if (
+			! $this->is_post_type_allowed( $post->post_type )
+			&& ! $this->is_a8c_publication( $post->ID )
+		) {
 			return new WP_Error( 'unknown_post', 'Unknown post', 404 );
 		}
 
@@ -434,7 +440,7 @@ abstract class SAL_Site {
 	}
 
 	function get_unmapped_url() {
-		return get_site_url( $this->blog_id );
+		return get_site_url( get_current_blog_id() );
 	}
 
 	function get_theme_slug() {
@@ -546,13 +552,6 @@ abstract class SAL_Site {
 	function get_wordpress_version() {
 		global $wp_version;
 		return $wp_version;
-	}
-
-	protected function is_a8c_publication( $post_id ) {
-		$is_freshly_pressed = function_exists( 'is_post_freshly_pressed' ) && is_post_freshly_pressed( $post_id );
-		$is_daily_post = function_exists( 'is_dailypost_blog' ) && is_dailypost_blog( $this->blog_id );
-
-		return ( $is_freshly_pressed || $is_daily_post );
 	}
 
 	function is_domain_only() {
