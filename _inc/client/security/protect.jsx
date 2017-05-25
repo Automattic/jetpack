@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { Component } from 'react';
 import { translate as __ } from 'i18n-calypso';
 import Button from 'components/button';
 import Textarea from 'components/textarea';
@@ -13,68 +13,66 @@ import analytics from 'lib/analytics';
 /**
  * Internal dependencies
  */
-import {
-	FormFieldset,
-	FormLegend,
-	FormLabel
-} from 'components/forms';
+import { FormFieldset, FormLegend, FormLabel } from 'components/forms';
 import { ModuleToggle } from 'components/module-toggle';
-import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
+import {
+	ModuleSettingsForm as moduleSettingsForm,
+} from 'components/module-settings/module-settings-form';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 
 export const Protect = moduleSettingsForm(
-	React.createClass( {
+	class extends Component {
+		state = {
+			whitelist: this.props.getOptionValue( 'jetpack_protect_global_whitelist' )
+				? this.props.getOptionValue( 'jetpack_protect_global_whitelist' ).local
+				: '',
+		};
 
-		getInitialState() {
-			return {
-				whitelist: this.props.getOptionValue( 'jetpack_protect_global_whitelist' )
-					? this.props.getOptionValue( 'jetpack_protect_global_whitelist' ).local
-					: ''
-			};
-		},
-
-		currentIpIsWhitelisted() {
+		currentIpIsWhitelisted = () => {
 			// get current whitelist in textarea from this.state.whitelist;
 			return !! includes( this.state.whitelist, this.props.currentIp );
-		},
+		};
 
-		updateText( event ) {
+		updateText = event => {
 			// Enable button if IP is not in the textarea
 			this.currentIpIsWhitelisted();
 
 			// Update textarea value
 			this.setState( {
-				whitelist: event.target.value
+				whitelist: event.target.value,
 			} );
 
 			// Add textarea content to form values to save
 			this.props.onOptionChange( event );
-		},
+		};
 
-		addToWhitelist() {
-			const newWhitelist = this.state.whitelist + ( 0 >= this.state.whitelist.length ? '' : '\n' ) + this.props.currentIp;
+		addToWhitelist = () => {
+			const newWhitelist =
+				this.state.whitelist +
+				( 0 >= this.state.whitelist.length ? '' : '\n' ) +
+				this.props.currentIp;
 
 			// Update form value manually
 			this.props.updateFormStateOptionValue( 'jetpack_protect_global_whitelist', newWhitelist );
 
 			// add to current state this.state.whitelist;
 			this.setState( {
-				whitelist: newWhitelist
+				whitelist: newWhitelist,
 			} );
 
 			analytics.tracks.recordJetpackClick( {
 				target: 'add-to-whitelist',
-				feature: 'protect'
+				feature: 'protect',
 			} );
-		},
+		};
 
-		trackOpenCard() {
+		trackOpenCard = () => {
 			analytics.tracks.recordJetpackClick( {
 				target: 'foldable-settings-open',
-				feature: 'protect'
+				feature: 'protect',
 			} );
-		},
+		};
 
 		render() {
 			const isProtectActive = this.props.getOptionValue( 'protect' ),
@@ -107,40 +105,52 @@ export const Protect = moduleSettingsForm(
 					>
 						<SettingsGroup hasChild disableInDevMode module={ this.props.getModule( 'protect' ) }>
 							<FormFieldset>
-								{
-									this.props.currentIp && (
-										<div>
-											<div className="jp-form-label-wide">
-												{
-													__( 'Your current IP: %(ip)s', { args: { ip: this.props.currentIp } } )
-												}
-											</div>
-											{
-												<Button
-													disabled={ ! isProtectActive || unavailableInDevMode || this.currentIpIsWhitelisted() || this.props.isSavingAnyOption( [ 'protect', 'jetpack_protect_global_whitelist' ] ) }
-													onClick={ this.addToWhitelist }
-													>{ __( 'Add to whitelist' ) }</Button>
-											}
+								{ this.props.currentIp &&
+									<div>
+										<div className="jp-form-label-wide">
+											{ __( 'Your current IP: %(ip)s', { args: { ip: this.props.currentIp } } ) }
 										</div>
-									)
-								}
+										{
+											<Button
+												disabled={
+													! isProtectActive ||
+														unavailableInDevMode ||
+														this.currentIpIsWhitelisted() ||
+														this.props.isSavingAnyOption(
+															[ 'protect', 'jetpack_protect_global_whitelist' ]
+														)
+												}
+												onClick={ this.addToWhitelist }
+											>
+												{ __( 'Add to whitelist' ) }
+											</Button>
+										}
+									</div> }
 								<FormLabel>
 									<FormLegend>{ __( 'Whitelisted IP addresses' ) }</FormLegend>
 									<Textarea
-										disabled={ ! isProtectActive || unavailableInDevMode || this.props.isSavingAnyOption( [ 'protect', 'jetpack_protect_global_whitelist' ] ) }
+										disabled={
+											! isProtectActive ||
+												unavailableInDevMode ||
+												this.props.isSavingAnyOption(
+													[ 'protect', 'jetpack_protect_global_whitelist' ]
+												)
+										}
 										name={ 'jetpack_protect_global_whitelist' }
 										placeholder={ 'Example: 12.12.12.1-12.12.12.100' }
 										onChange={ this.updateText }
-										value={ this.state.whitelist } />
+										value={ this.state.whitelist }
+									/>
 								</FormLabel>
 								<span className="jp-form-setting-explanation">
-									{
-										__( 'You may whitelist an IP address or series of addresses preventing them from ever being blocked by Jetpack. IPv4 and IPv6 are acceptable. To specify a range, enter the low value and high value separated by a dash. Example: 12.12.12.1-12.12.12.100', {
+									{ __(
+										'You may whitelist an IP address or series of addresses preventing them from ever being blocked by Jetpack. IPv4 and IPv6 are acceptable. To specify a range, enter the low value and high value separated by a dash. Example: 12.12.12.1-12.12.12.100',
+										{
 											components: {
-												br: <br />
-											}
-										} )
-									}
+												br: <br />,
+											},
+										}
+									) }
 								</span>
 							</FormFieldset>
 						</SettingsGroup>
@@ -148,5 +158,5 @@ export const Protect = moduleSettingsForm(
 				</SettingsCard>
 			);
 		}
-	} )
+	}
 );

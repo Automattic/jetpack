@@ -938,7 +938,7 @@ class Grunion_Contact_Form_Plugin {
 	 *
 	 * @return string
 	 */
-	function esc_csv( $field ) {
+	public function esc_csv( $field ) {
 		$active_content_triggers = array( '=', '+', '-', '@' );
 
 		if ( in_array( mb_substr( $field, 0, 1 ), $active_content_triggers, true ) ) {
