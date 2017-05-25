@@ -768,6 +768,9 @@ function wp_supercache_cache_for_admins() {
 	if ( false == do_cacheaction( 'wp_supercache_remove_cookies', true ) )
 		return true;
 
+	if ( $_SERVER[ "REQUEST_METHOD" ] != 'GET' || strpos( $_SERVER[ 'REQUEST_URI' ], '/wp-json/' ) !== false )
+		return true;
+
 	$cookie_keys = array( 'wordpress_logged_in', 'comment_author_' );
 	if ( defined( 'LOGGED_IN_COOKIE' ) )
 		$cookie_keys[] = constant( 'LOGGED_IN_COOKIE' );
