@@ -140,6 +140,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Widgets: trim white space from email in the Contact Info Widget before validating. #7155
 * WordPress.com REST API: force secure API requests when getting request body. #7060
 * WordPress.com REST API: add new endpoint to invite new users. #7068, #7072, #7071
+* WordPress.com REST API: remove deprecated method to poll for stats. #7118
 
 **Performance Improvements**
 
