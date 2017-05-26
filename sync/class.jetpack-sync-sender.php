@@ -89,7 +89,6 @@ class Jetpack_Sync_Sender {
 		// don't sync if we are throttled
 		if ( $this->get_next_sync_time( $queue->id ) > microtime( true ) ) {
 			return new WP_Error( 'sync_throttled' );
-;
 		}
 
 		$start_time = microtime( true );
