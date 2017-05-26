@@ -134,10 +134,11 @@ class Jetpack_WPES_Search_Query_Parser extends Jetpack_WPES_Query_Builder {
 		$lst = array();
 		foreach( $langs as $l ) {
 			$l = strtok( $l, '-_' );
-			if (in_array( $l, $this->avail_langs ) )
+			if ( in_array( $l, $this->avail_langs ) ) {
 				$lst[$l] = true;
-			else
+			} else {
 				$lst['default'] = true;
+			}
 		}
 		return array_keys( $lst );
 	}
@@ -190,13 +191,15 @@ class Jetpack_WPES_Search_Query_Parser extends Jetpack_WPES_Query_Builder {
 		foreach( $args['prefixes'] as $p ) {
 			$found = $this->get_fields( $p );
 			if ( $found ) {
-				foreach( $found as $f )
+				foreach( $found as $f ) {
 					$names[] = $f;
+				}
 			}
 		}
 
-		if ( empty( $names ) )
+		if ( empty( $names ) ) {
 			return false;
+		}
 
 		foreach( $args['prefixes'] as $p ) {
 			$this->remove_fields( $p );
@@ -211,7 +214,7 @@ class Jetpack_WPES_Search_Query_Parser extends Jetpack_WPES_Query_Builder {
 			$userdata = get_user_by( 'login', strtolower( $n ) );
 			$filtering = false;
 			if ( $userdata ) {
-				$user_ids[$userdata->ID] = true;
+				$user_ids[ $userdata->ID ] = true;
 				$filtering = true;
 			}
 
@@ -290,13 +293,15 @@ class Jetpack_WPES_Search_Query_Parser extends Jetpack_WPES_Query_Builder {
 		foreach( $args['prefixes'] as $p ) {
 			$found = $this->get_fields( $p );
 			if ( $found ) {
-				foreach( $found as $f )
+				foreach( $found as $f ) {
 					$tags[] = $f;
+				}
 			}
 		}
 
-		if ( empty( $tags ) )
+		if ( empty( $tags ) ) {
 			return false;
+		}
 
 		foreach( $args['prefixes'] as $p ) {
 			$this->remove_fields( $p );
@@ -309,7 +314,7 @@ class Jetpack_WPES_Search_Query_Parser extends Jetpack_WPES_Query_Builder {
 				$t = preg_replace( '/"/', '', $t );
 			}
 
-			if ( !empty( $args['must_query_fields'] ) ) {
+			if ( ! empty( $args['must_query_fields'] ) ) {
 				if ( $is_phrase ) {
 					$this->add_query( array(
 						'multi_match' => array(
@@ -326,7 +331,7 @@ class Jetpack_WPES_Search_Query_Parser extends Jetpack_WPES_Query_Builder {
 				}
 			}
 
-			if ( !empty( $args['boost_query_fields'] ) ) {
+			if ( ! empty( $args['boost_query_fields'] ) ) {
 				if ( $is_phrase ) {
 					$this->add_query( array(
 						'multi_match' => array(
@@ -392,10 +397,12 @@ class Jetpack_WPES_Search_Query_Parser extends Jetpack_WPES_Query_Builder {
 			$this->current_query = preg_replace( "/'([^']+)$/", '', $this->current_query );
 		}
 
-		if ( $phrase_prefix )
+		if ( $phrase_prefix ) {
 			$phrases[] = $phrase_prefix;
-		if( empty( $phrases ) )
+		}
+		if ( empty( $phrases ) ) {
 			return false;
+		}
 
 		foreach ( $phrases as $p ) {
 			$this->add_query( array(
@@ -405,7 +412,7 @@ class Jetpack_WPES_Search_Query_Parser extends Jetpack_WPES_Query_Builder {
 					'type' => 'phrase',
 				) ) );
 
-			if ( !empty( $args['boost_query_fields'] ) ) {
+			if ( ! empty( $args['boost_query_fields'] ) ) {
 				$this->add_query( array(
 					'multi_match' => array(
 						'fields' => $args['boost_query_fields'],
@@ -437,10 +444,11 @@ class Jetpack_WPES_Search_Query_Parser extends Jetpack_WPES_Query_Builder {
 		);
 		$args = wp_parse_args( $args, $defaults );
 
-		if ( empty( $this->current_query ) || ctype_space( $this->current_query ) )
+		if ( empty( $this->current_query ) || ctype_space( $this->current_query ) ) {
 			return;
+		}
 
-		if ( !empty( $args['must_query_fields'] ) ) {
+		if ( ! empty( $args['must_query_fields'] ) ) {
 			$this->add_query( array(
 				'multi_match' => array(
 					'fields' => $args['must_query_fields'],
@@ -449,7 +457,7 @@ class Jetpack_WPES_Search_Query_Parser extends Jetpack_WPES_Query_Builder {
 			) ) );
 		}
 
-		if ( !empty( $args['boost_query_fields'] ) ) {
+		if ( ! empty( $args['boost_query_fields'] ) ) {
 			$this->add_query( array(
 				'multi_match' => array(
 					'fields' => $args['boost_query_fields'],
@@ -481,8 +489,9 @@ class Jetpack_WPES_Search_Query_Parser extends Jetpack_WPES_Query_Builder {
 		);
 		$args = wp_parse_args( $args, $defaults );
 
-		if ( empty( $this->current_query ) || ctype_space( $this->current_query ) )
+		if ( empty( $this->current_query ) || ctype_space( $this->current_query ) ) {
 			return;
+		}
 
 		//////////////////////////////////
 		// Example cases to think about:
@@ -505,16 +514,18 @@ class Jetpack_WPES_Search_Query_Parser extends Jetpack_WPES_Query_Builder {
 
 		$prefix_word = false;
 		$prefix_remainder = false;
-		if ( preg_match_all( '/([^ ]+)$/', $this->current_query, $matches ) )
+		if ( preg_match_all( '/([^ ]+)$/', $this->current_query, $matches ) ) {
 			$prefix_word = $matches[1][0];
+		}
 
 		$prefix_remainder = preg_replace( '/([^ ]+)$/', '', $this->current_query );
-		if ( ctype_space( $prefix_remainder ) )
+		if ( ctype_space( $prefix_remainder ) ) {
 			$prefix_remainder = false;
+		}
 
-		if ( !$prefix_word ) {
+		if ( ! $prefix_word ) {
 			//Space at the end of the query, so skip using a prefix query
-			if ( !empty( $args['must_query_fields'] ) ) {
+			if ( ! empty( $args['must_query_fields'] ) ) {
 				$this->add_query( array(
 					'multi_match' => array(
 						'fields' => $args['must_query_fields'],
@@ -523,7 +534,7 @@ class Jetpack_WPES_Search_Query_Parser extends Jetpack_WPES_Query_Builder {
 					) ) );
 			}
 
-			if ( !empty( $args['boost_query_fields'] ) ) {
+			if ( ! empty( $args['boost_query_fields'] ) ) {
 				$this->add_query( array(
 					'multi_match' => array(
 						'fields' => $args['boost_query_fields'],
@@ -535,7 +546,7 @@ class Jetpack_WPES_Search_Query_Parser extends Jetpack_WPES_Query_Builder {
 		} else {
 
 			//must match the prefix word and the prefix remainder
-			if ( !empty( $args['must_query_fields'] ) ) {
+			if ( ! empty( $args['must_query_fields'] ) ) {
 				//need to do an OR across a few fields to handle all cases
 				$must_q = array( 'bool' => array( 'should' => array( ), 'minimum_should_match' => 1 ) );
 
@@ -587,7 +598,7 @@ class Jetpack_WPES_Search_Query_Parser extends Jetpack_WPES_Query_Builder {
 			}
 
 			//Now add any boosting of the query
-			if ( !empty( $args['boost_query_fields'] ) ) {
+			if ( ! empty( $args['boost_query_fields'] ) ) {
 				//treat all words as an exact search (boosts complete word like "news"
 				//from prefixes of "newspaper")
 				$this->add_query( array(
@@ -633,7 +644,7 @@ class Jetpack_WPES_Search_Query_Parser extends Jetpack_WPES_Query_Builder {
 	//Get the text after some prefix. eg @gibrown, or @"Greg Brown"
 	protected function get_fields( $field_prefix ) {
 		$regex = '/' . $field_prefix . '(("[^"]+")|([^\\p{Z}]+))/';
-		if( preg_match_all( $regex, $this->current_query, $match ) ) {
+		if ( preg_match_all( $regex, $this->current_query, $match ) ) {
 			return $match[1];
 		}
 		return false;
@@ -647,8 +658,9 @@ class Jetpack_WPES_Search_Query_Parser extends Jetpack_WPES_Query_Builder {
 
 	//Best effort string truncation that splits on word breaks
 	function truncate_string( $string, $limit, $break=" " ) {
-		if ( mb_strwidth( $string ) <= $limit )
+		if ( mb_strwidth( $string ) <= $limit ) {
 			return $string;
+		}
 
 		// walk backwards from $limit to find first break
 		$breakpoint = $limit;
