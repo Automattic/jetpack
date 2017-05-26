@@ -3228,6 +3228,12 @@ function wp_cron_preload_cache() {
 		wp_cache_debug( "wp_cron_preload_cache: preload cancelled", 1 );
 		return true;
 	}
+
+	if ( !function_exists( 'wp_cache_debug' ) )
+		include_once( 'wp-cache-phase1.php' );
+	if ( !function_exists( 'prune_super_cache' ) )
+		include_once( 'wp-cache-phase2.php' );
+
 	$mutex = $cache_path . "preload_mutex.tmp";
 	sleep( 3 + mt_rand( 1, 5 ) );
 	if ( @file_exists( $mutex ) ) {
