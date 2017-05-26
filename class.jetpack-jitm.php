@@ -141,10 +141,17 @@ class Jetpack_JITM {
 	* Function to enqueue jitm css and js
 	*/
 	function jitm_enqueue_files() {
-		$wp_styles = new WP_Styles();
 		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
-		wp_enqueue_style( 'jetpack-jitm-css', plugins_url( "css/jetpack-admin-jitm{$min}.css", JETPACK__PLUGIN_FILE ), false, JETPACK__VERSION . '-201243242' );
-		$wp_styles->add_data( 'jetpack-jitm-css', 'rtl', true );
+		wp_register_style(
+			'jetpack-jitm-css',
+			plugins_url( "css/jetpack-admin-jitm{$min}.css", JETPACK__PLUGIN_FILE ),
+			false,
+			JETPACK__VERSION .
+			'-201243242'
+		);
+		wp_style_add_data( 'jetpack-jitm-css', 'rtl', 'replace' );
+		wp_style_add_data( 'jetpack-jitm-css', 'suffix', $min );
+		wp_enqueue_style( 'jetpack-jitm-css' );
 
 		wp_enqueue_script( 'jetpack-jitm-new', plugins_url( '_inc/jetpack-jitm.js', JETPACK__PLUGIN_FILE ), array( 'jquery' ), JETPACK__VERSION, true );
 		wp_localize_script('jetpack-jitm-new', 'jitm_config', array(
