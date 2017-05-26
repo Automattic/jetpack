@@ -135,7 +135,8 @@ class WP_Super_Cache_Rest_Get_Settings extends WP_REST_Controller {
 	 */
 	protected function get_minimum_preload_interval() {
 		global $wpdb;
-		$count = $wpdb->get_var( "SELECT count(ID) FROM {$wpdb->posts} WHERE post_status = 'publish'" );
+		$posts_count = wp_count_posts();
+		$count = $posts_count->publish;
 		if ( $count > 1000 ) {
 			$min_refresh_interval = 720;
 		} else {
