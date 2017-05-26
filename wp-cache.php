@@ -66,7 +66,7 @@ include(WPCACHEHOME . 'wp-cache-base.php');
 include( WPCACHEHOME . 'rest/load.php' );
 
 function wp_super_cache_text_domain() {
-	load_plugin_textdomain( 'wp-super-cache', WPCACHEHOME . 'languages', basename( dirname( __FILE__ ) ) . '/languages' );
+	load_plugin_textdomain( 'wp-super-cache', false, basename( dirname( __FILE__ ) ) . '/languages' );
 }
 add_action( 'init', 'wp_super_cache_text_domain' );
 
