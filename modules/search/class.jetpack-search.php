@@ -1255,13 +1255,11 @@ class Jetpack_Search {
 		}
 
 		foreach( $filters as $filter ) {
-			if ( ! is_array( $filter['buckets'] ) ) {
-				continue;
-			}
-
-			foreach( $filter['buckets'] as $item ) {
-				if ( $item['active'] ) {
-					$active_buckets[] = $item;
+			if ( isset( $filters['buckets'] ) && is_array( $filter['buckets'] ) ) {
+				foreach( $filter['buckets'] as $item ) {
+					if ( isset( $item['active'] ) && $item['active'] ) {
+						$active_buckets[] = $item;
+					}
 				}
 			}
 		}

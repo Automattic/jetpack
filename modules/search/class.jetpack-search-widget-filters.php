@@ -40,7 +40,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		$buckets_found = false;
 
 		foreach ( $filters as $filter ) {
-			if ( count( $filter['buckets'] ) > 1 ) {
+			if ( isset( $filter['buckets'] ) && count( $filter['buckets'] ) > 1 ) {
 				$buckets_found = true;
 
 				break;
