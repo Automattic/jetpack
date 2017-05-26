@@ -142,7 +142,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * WordPress.com REST API: add new endpoint to invite new users. #7068, #7072, #7071
 * WordPress.com REST API: remove deprecated method to poll for stats. #7118
 * WordPress.com REST API: updates to content management endpoints. #7142
-
+* WordPress.com REST API: add new endpoint version for listing posts. #7232
 **Performance Improvements**
 
 **Compatibility Improvements**
