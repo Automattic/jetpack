@@ -172,6 +172,10 @@ const ProStatus = React.createClass( {
 					return '';
 				}
 				if ( 'N/A' !== vpData ) {
+					if ( ! hasScan ) {
+						return this.getSetUpButton( 'scan' );
+					}
+
 					const threatsCount = this.props.getScanThreats();
 					if ( 0 !== threatsCount ) {
 						return this.getProActions( 'threats', 'scan' );
