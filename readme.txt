@@ -169,6 +169,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Social Links: avoid Fatal Errors on sites running PHP 7.1. #7210
 * Spellcheck: Properly escape Button attribute. #7100
 * Stats: avoid PHP notices on some sites when user roles are not attributed properly. #7212
+* Sync: do not attempt to sync options that do not exist. #7218
 * Theme Tools: avoid issues when Social Menu functions have already been defined in the theme or in another plugin. #7132
 * Video: make sure that VideoPress media items return their unique ID. #7191
 * Widgets: fix style of the EU Cookie Law Widget on themes with specific widgets positioning. #7143
