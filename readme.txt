@@ -159,6 +159,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Ads: do not display in RSS feeds. #7095
 * Comments: avoid non-secure warnings when submitting comments on a HTTP site in Safari. #7205
 * Comments: do not use Photon for Facebook and Twitter avatars. #6872
+* Contact form: send emails through a wrapper that ensures they are correctly rendered as HTML. #7214
 * CLI interface: properly print full list of modules when using the sync command. #7094
 * Custom Content Types: avoid errors when reordering a lot of Resturant menu items. #7170
 * General: add a mechanism to detect broken connection states and resolve them. #6964
