@@ -37,6 +37,8 @@ class Jetpack_XMLRPC_Server {
 				'jetpack.unlinkUser'        => array( $this, 'unlink_user' ),
 				'jetpack.syncObject'        => array( $this, 'sync_object' ),
 				'jetpack.idcUrlValidation'  => array( $this, 'validate_urls_for_idc_mitigation' ),
+				'jetpack.addUserFromInvite' => array( $this, 'add_user_from_invite' ),
+				'jetpack.addTokenOnInvite'  => array( $this, 'add_user_token_from_invite' ),
 			) );
 
 			if ( isset( $core_methods['metaWeblog.editPost'] ) ) {
@@ -344,6 +346,60 @@ class Jetpack_XMLRPC_Server {
 			'home'    => get_home_url(),
 			'siteurl' => get_site_url(),
 		);
+	}
+
+	/**
+	 * @param object $user_data
+	 *
+	 * @return bool|int
+	 */
+	function add_user_from_invite( $user_data ) {
+		require_once JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-helpers.php';
+
+		$user_data = (object) $user_data;
+		if ( ! $user_data || ! isset( $user_data->email ) ) {
+			return false;
+		}
+
+		// Check for an existing user
+		$user = get_user_by( 'email', $user_data->email );
+		if ( $user ) {
+			return $user->ID;
+		}
+
+		$user = Jetpack_SSO_Helpers::generate_user( $user_data );
+		if ( ! $user ) {
+			 return false;
+		}
+
+		return $user->ID;
+	}
+
+	/**
+	 * @param array $args
+	 *
+	 * @return bool|WP_Error
+	 */
+	function add_user_token_from_invite( $args ) {
+		if ( empty( $args['user_id'] ) || empty( $args['user_token'] ) ) {
+			return false;
+		}
+
+		$user_id = (int) $args['user_id'];
+		if ( ! get_user_by( 'id', $user_id ) ) {
+			return new WP_Error( 'user_does_not_exist', __( 'The user does not exist', 'jetpack' ) );
+		}
+		if ( Jetpack::is_user_connected( $user_id ) ) {
+			return new WP_Error( 'user_already_connected', __( 'The user is already connected', 'jetpack' ) );
+		}
+
+		// Need to update total number of connection here.
+		// Should probably factor the logic out of Jetpack_Client_Server instead of duplicating
+
+		$user_token = sanitize_text_field( $args['user_token'] );
+		Jetpack::update_user_token( $user_id, sprintf( '%s.%d', $user_token, $user_id ), false );
+
+		return true;
 	}
 
 	/**
