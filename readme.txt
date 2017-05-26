@@ -166,6 +166,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Photon: correct logic error that defeated the `jetpack_photon_image_is_local` filter. #7140
 * Photon: avoid potential PHP notices when used with other themes and plugins customizing responsive images. #7090
 * Photon: do not use Photon with images already served by Facebook's CDN. #6872
+* Publicize: fix potential PHP notice. #7230
 * Shortcodes: fix bad jQuery selector in Presentations shortcode. #7184
 * Social Links: avoid Fatal Errors on sites running PHP 7.1. #7210
 * Spellcheck: Properly escape Button attribute. #7100
