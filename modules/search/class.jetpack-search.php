@@ -1048,6 +1048,7 @@ class Jetpack_Search {
 
 				$active     = false;
 				$remove_url = null;
+				$name       = '';
 
 				// What type was the original aggregation?
 				switch ( $type ) {
