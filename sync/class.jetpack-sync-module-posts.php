@@ -94,7 +94,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 	 * @return array
 	 */
 	function expand_wp_insert_post( $args ) {
-		return array( $args[0], $this->filter_post_content_and_add_links( $args[1] ), $args[2] );
+		return array( $args[0], $this->filter_post_content_and_add_links( $args[1] ), $args[2], $_SERVER['REQUEST_URI'] );
 	}
 
 	function filter_blacklisted_post_types( $args ) {
