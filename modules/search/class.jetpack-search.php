@@ -196,8 +196,9 @@ class Jetpack_Search {
 
 		// Query all posts now
 		$args = array(
-			'post__in' => $post_ids,
-			'perm'     => 'readable',
+			'post__in'  => $post_ids,
+			'perm'      => 'readable',
+			'post_type' => 'any',
 		);
 
 		$posts_query = new WP_Query( $args );
