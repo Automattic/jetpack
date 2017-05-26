@@ -155,6 +155,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug Fixes**
 
+* Admin Page: add the missing "Set Up" button when a Personal plan is purchased, but VaultPress isn't active. #7211
 * Ads: do not display in RSS feeds. #7095
 * Comments: avoid non-secure warnings when submitting comments on a HTTP site in Safari. #7205
 * Comments: do not use Photon for Facebook and Twitter avatars. #6872
