@@ -54,7 +54,6 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		$event = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' );
 		$this->assertEquals( 'my_URI', $event->args[3] );
-
 	}
 
 	public function test_trash_post_trashes_data() {
