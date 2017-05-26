@@ -47,8 +47,8 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		//Sync from setup should not be auto save
 		$event = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' );
 		$this->assertFalse( $event->args[3] );
-
-		define( 'DOING_AUTOSAVE', true );
+		
+		Jetpack_Constants::set_constant( 'DOING_AUTOSAVE', true );//define( 'DOING_AUTOSAVE', true );
 
 		//Performing sync here (even though setup() does it) to sync REQUEST_URI
 		$user_id = $this->factory->user->create();

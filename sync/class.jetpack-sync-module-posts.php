@@ -94,12 +94,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 	 * @return array
 	 */
 	function expand_wp_insert_post( $args ) {
-		if ( defined( 'DOING_AUTOSAVE' ) && DOING_AUTOSAVE ) {
-			$is_auto_save = true;
-		} else {
-			$is_auto_save = false;
-		}
-		return array( $args[0], $this->filter_post_content_and_add_links( $args[1] ), $args[2], $is_auto_save );
+		return array( $args[0], $this->filter_post_content_and_add_links( $args[1] ), $args[2], $args[3] );
 	}
 
 	function filter_blacklisted_post_types( $args ) {
@@ -260,7 +255,14 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		if ( ! is_numeric( $post_ID ) || is_null( $post ) ) {
 			return;
 		}
-		call_user_func( $this->action_handler, $post_ID, $post, $update );
+
+		if ( Jetpack_Constants::get_constant( 'DOING_AUTOSAVE' ) ) {
+			$is_auto_save = true;
+		} else {
+			$is_auto_save = false;
+		}
+
+		call_user_func( $this->action_handler, $post_ID, $post, $update, $is_auto_save );
 		$this->send_published( $post_ID, $post );
 		$this->send_trashed( $post_ID, $post );
 	}
