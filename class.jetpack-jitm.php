@@ -115,7 +115,7 @@ class Jetpack_JITM {
 	 */
 	function ajax_message() {
 		$message_path = $this->get_message_path();
-		$query_string = _http_build_query($_GET, '', ',');
+		$query_string = _http_build_query( $_GET, '', ',' );
 
 		?>
 		<div class="jetpack-jitm-message"
