@@ -216,8 +216,6 @@ class Jetpack_Search {
 	 * @param WP_Query $query The original WP_Query to use for the parameters of our search
 	 */
 	public function do_search( WP_Query $query ) {
-		global $wpdb;
-
 		if ( ! $query->is_main_query() || ! $query->is_search() ) {
 			return;
 		}
@@ -444,8 +442,8 @@ class Jetpack_Search {
 	/**
 	 * Add the date portion of a WP_Query onto the query args
 	 *
-	 * @param array $es_wp_query_args
-	 * @param $query The original WP_Query
+	 * @param array    $es_wp_query_args
+	 * @param WP_Query $query The original WP_Query
 	 *
 	 * @return array The es wp query args, with date filters added (as needed)
 	 */
@@ -527,8 +525,6 @@ class Jetpack_Search {
 			 */
 			'aggregations'         => null,
 		);
-
-		$raw_args = $args; // Keep a copy
 
 		$args = wp_parse_args( $args, $defaults );
 
@@ -778,7 +774,7 @@ class Jetpack_Search {
 	 * @module search
 	 *
 	 * @param array $aggregation The aggregation to add to the query builder
-	 * @param $label The 'label' (unique id) for this aggregation
+	 * @param string $label The 'label' (unique id) for this aggregation
 	 * @param Jetpack_WPES_Query_Builder $builder The builder instance that is creating the ES query
 	 */
 	public function add_taxonomy_aggregation_to_es_query_builder( array $aggregation, $label, Jetpack_WPES_Query_Builder $builder ) {
@@ -812,7 +808,7 @@ class Jetpack_Search {
 	 * @module search
 	 *
 	 * @param array $aggregation The aggregation to add to the query builder
-	 * @param $label The 'label' (unique id) for this aggregation
+	 * @param string $label The 'label' (unique id) for this aggregation
 	 * @param Jetpack_WPES_Query_Builder $builder The builder instance that is creating the ES query
 	 */
 	public function add_post_type_aggregation_to_es_query_builder( array $aggregation, $label, Jetpack_WPES_Query_Builder $builder ) {
@@ -830,7 +826,7 @@ class Jetpack_Search {
 	 * @module search
 	 *
 	 * @param array $aggregation The aggregation to add to the query builder
-	 * @param $label The 'label' (unique id) for this aggregation
+	 * @param string $label The 'label' (unique id) for this aggregation
 	 * @param Jetpack_WPES_Query_Builder $builder The builder instance that is creating the ES query
 	 */
 	public function add_date_histogram_aggregation_to_es_query_builder( array $aggregation, $label, Jetpack_WPES_Query_Builder $builder ) {
@@ -982,7 +978,7 @@ class Jetpack_Search {
 	 *
 	 * @module search
 	 *
-	 * @param WP_Query The optional original WP_Query to use for determining which filters are active. Defaults to the main query
+	 * @param WP_Query $query The optional original WP_Query to use for determining which filters are active. Defaults to the main query
 	 *
 	 * @return array Array of Filters applied and info about them
 	 */
@@ -1246,11 +1242,9 @@ class Jetpack_Search {
 	 *
 	 * @module search
 	 *
-	 * @param WP_Query $query An optional WP_Query object - defaults to global $wp_query
-	 *
 	 * @return array Array if Filters that were applied
 	 */
-	public function get_active_filter_buckets( WP_Query $query = null ) {
+	public function get_active_filter_buckets() {
 		$active_buckets = array();
 
 		$filters = $this->get_filters();
@@ -1279,11 +1273,9 @@ class Jetpack_Search {
 	 *
 	 * @module search
 	 *
-	 * @param WP_Query $query An optional WP_Query object - defaults to global $wp_query
-	 *
 	 * @return array Array if Filters that were applied
 	 */
-	public function get_current_filters( WP_Query $query = null ) {
+	public function get_current_filters() {
 		_deprecated_function( __METHOD__, 'jetpack-5.0', 'Jetpack_Search::get_active_filter_buckets()' );
 
 		return $this->get_active_filter_buckets();
