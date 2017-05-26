@@ -13,7 +13,6 @@ class WP_Super_Cache_Rest_Get_Notices extends WP_REST_Controller {
 
 		$this->add_rewrite_notice( $notices );
 		$this->add_cache_disabled_notice( $notices );
-		$this->add_writable_notice( $notices );
 		$this->add_compression_notice( $notices );
 
 		return rest_ensure_response( $notices );
@@ -32,21 +31,6 @@ class WP_Super_Cache_Rest_Get_Notices extends WP_REST_Controller {
 					'Read Only Mode. Configuration cannot be changed.',
 					'wp-super-cache'
 				),
-			);
-		}
-	}
-
-	/**
-	 * @param array $notices
-	 */
-	protected function add_writable_notice( & $notices ) {
-		if ( is_writeable_ACLSafe( ABSPATH ) ) {
-			$notices['cache_writable'] = array(
-				'type' => 'warning',
-				'message' => sprintf( __(
-					'%s is writable. Please make it readonly after your page is generated as this is a security risk.',
-					'wp-super-cache'
-				), ABSPATH )
 			);
 		}
 	}
@@ -78,7 +62,9 @@ class WP_Super_Cache_Rest_Get_Notices extends WP_REST_Controller {
 	 * @param array $notices
 	 */
 	protected function add_rewrite_notice( & $notices ) {
-		global $wp_cache_mod_rewrite, $cache_enabled, $home_path, $super_cache_enabled;
+		global $home_path, $wp_cache_config_file;
+
+		include( $wp_cache_config_file );
 
 		// Return if the rewrite caching is disabled.
 		if ( ! $cache_enabled || ! $super_cache_enabled || ! $wp_cache_mod_rewrite ) {
@@ -91,10 +77,10 @@ class WP_Super_Cache_Rest_Get_Notices extends WP_REST_Controller {
 		extract( wpsc_get_htaccess_info() );
 
 		if ( $scrules != $rules ) {
-			$notices['mod_rewrite'] = array(
+			$notices[ 'mod_rewrite_rules' ] = array(
 				'type' => 'warning',
 				'message' => __(
-					'The rewrite rules required by this plugin have changed or are missing.',
+					'The rewrite rules required by this plugin have changed or are missing. Cache files will still be served by PHP.',
 					'wp-super-cache'
 				),
 			);
@@ -105,6 +91,16 @@ class WP_Super_Cache_Rest_Get_Notices extends WP_REST_Controller {
 				'type' => 'warning',
 				'message' => __(
 					'The mod_rewrite module has not been detected. Cache files will still be served by PHP.',
+					'wp-super-cache'
+				),
+			);
+		}
+
+		if ( !is_writeable_ACLSafe( $home_path . ".htaccess" ) ) {
+			$notices[ 'htaccess_ro' ] = array(
+				'type' => 'warning',
+				'message' => __(
+					'The .htaccess file is readonly and cannot be updated. Cache files will still be served by PHP.',
 					'wp-super-cache'
 				),
 			);
