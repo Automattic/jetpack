@@ -1009,7 +1009,7 @@ class Jetpack_Search {
 
 			$type = $this->aggregations[ $label ]['type'];
 
-			$aggregations_data[ $label ]['buckets'] = array();
+			$aggregation_data[ $label ]['buckets'] = array();
 
 			$existing_term_slugs = array();
 
@@ -1204,7 +1204,7 @@ class Jetpack_Search {
 				// Need to urlencode param values since add_query_arg doesn't
 				$url_params = urlencode_deep( $query_vars );
 
-				$aggregations_data[ $label ]['buckets'][] = array(
+				$aggregation_data[ $label ]['buckets'][] = array(
 					'url'        => add_query_arg( $url_params ),
 					'query_vars' => $query_vars,
 					'name'       => $name,
@@ -1217,7 +1217,7 @@ class Jetpack_Search {
 			} // End foreach().
 		} // End foreach().
 
-		return $aggregations_data;
+		return $aggregation_data;
 	}
 
 	/**
