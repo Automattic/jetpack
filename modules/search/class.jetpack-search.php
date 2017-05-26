@@ -354,7 +354,7 @@ class Jetpack_Search {
 
 			$taxonomy = $tax_query['taxonomy'];
 
-			if ( ! is_array( $args[ $taxonomy ] ) ) {
+			if ( ! isset( $args[ $taxonomy ] ) || ! is_array( $args[ $taxonomy ] ) ) {
 				$args[ $taxonomy ] = array();
 			}
 
