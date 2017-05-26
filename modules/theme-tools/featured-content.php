@@ -648,10 +648,10 @@ Featured_Content::setup();
  * @param array $copy_dirs Copy paths with actions to be copied
  * @return array Copy paths with featured content plugin
  */
-function featured_content_copy_plugin_actions( $copy_dirs ) {
+function wpcom_rest_api_featured_content_copy_plugin_actions( $copy_dirs ) {
 	$copy_dirs[] = __FILE__;
 	return $copy_dirs;
 }
-add_action( 'restapi_theme_action_copy_dirs', 'featured_content_copy_plugin_actions' );
+add_action( 'restapi_theme_action_copy_dirs', 'wpcom_rest_api_featured_content_copy_plugin_actions' );
 
 } // end if ( ! class_exists( 'Featured_Content' ) && isset( $GLOBALS['pagenow'] ) && 'plugins.php' !== $GLOBALS['pagenow'] ) {
