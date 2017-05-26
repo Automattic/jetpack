@@ -696,7 +696,7 @@ function grunion_ajax_spam() {
 			 */
 			$subject = apply_filters( 'contact_form_subject', $content_fields['_feedback_subject'], $content_fields['_feedback_all_fields'] );
 
-			wp_mail( $to, $subject, $message, $headers );
+			Grunion_Contact_Form::wp_mail( $to, $subject, $message, $headers );
 		}
 	} elseif( $_POST['make_it'] == 'publish' ) {
 		if ( ! current_user_can($post_type_object->cap->delete_post, $post_id) ) {
