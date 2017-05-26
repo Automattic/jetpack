@@ -1045,7 +1045,6 @@ class Jetpack_Search {
 
 			foreach ( $buckets as $item ) {
 				$query_vars = array();
-
 				$active     = false;
 				$remove_url = null;
 				$name       = '';
