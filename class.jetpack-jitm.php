@@ -325,16 +325,42 @@ class Jetpack_JITM {
 		$url = 'https://jetpack.com/redirect/?source=jitm-backup-updates&site=' . $normalized_site_url;
 		$jitm_stats_url = Jetpack::build_stats_url( array( 'x_jetpack-jitm' => 'vaultpress' ) );
 		?>
-		<div class="jp-jitm" data-track="vaultpress-updates" data-stats_url="<?php echo esc_url( $jitm_stats_url ); ?>">
-			<a href="#" data-module="vaultpress" class="dismiss"><span class="genericon genericon-close"></span></a>
-			<?php echo self::get_emblem(); ?>
-			<p class="msg">
-				<?php esc_html_e( 'Backups are recommended to protect your site before you make any changes.', 'jetpack' ); ?>
-			</p>
-			<p>
-				<a href="<?php echo esc_url( $url ); ?>" target="_blank" title="<?php esc_attr_e( 'Enable VaultPress Backups', 'jetpack' ); ?>" data-module="vaultpress" data-jptracks-name="nudge_click" data-jptracks-prop="jitm-vault" class="button button-jetpack launch jptracks"><?php esc_html_e( 'Enable VaultPress Backups', 'jetpack' ); ?></a>
-			</p>
+		<div class="jitm-card jitm-banner has-call-to-action" data-track="vaultpress-updates" data-stats_url="<?php echo esc_url( $jitm_stats_url ); ?>">
+			<div class="jitm-banner__icon-plan">
+				<?php echo self::get_emblem(); ?>
+			</div>
+			<div class="jitm-banner__content">
+				<div class="jitm-banner__info">
+					<div class="jitm-banner__title"><?php esc_html_e( 'Backups are recommended to protect your site before you make any changes.', 'jetpack' ); ?></div>
+				</div>
+				<div class="jitm-banner__action">
+					<a href="<?php echo esc_url( $url ); ?>" target="_blank" title="<?php esc_attr_e( 'Enable Backups', 'jetpack' ); ?>" data-module="vaultpress" data-jptracks-name="nudge_click" data-jptracks-prop="jitm-vault" class="jitm-button is-compact launch jptracks"><?php esc_html_e( 'Enable Backups', 'jetpack' ); ?></a>
+				</div>
+				<a href="#" data-module="vaultpress" class="jitm-banner__dismiss"></a>
+			</div>
 		</div>
+
+		<? /* ===========   Begin new JITM style EXAMPLES */ ?>
+
+		<div class="jitm-card jitm-banner has-call-to-action is-upgrade-premium">
+			<div class="jitm-banner__icon-plan">
+				<?php echo self::get_emblem(); ?>
+			</div>
+			<div class="jitm-banner__content">
+				<div class="jitm-banner__info">
+					<div class="jitm-banner__title"><?php esc_html_e( 'This is a JITM title.', 'jetpack' ); ?></div>
+					<div class="jitm-banner__description"><?php esc_html_e( 'This is a optional JITM description. Super cool, right? We can enter longer strings of text here and it shall flow nicely on all screen sizes.', 'jetpack' ); ?></div>
+				</div>
+				<div class="jitm-banner__action">
+					<a href="#" type="button" class="jitm-button is-compact is-primary">Upgrade</a>
+				</div>
+				<a href="#" data-module="" class="jitm-banner__dismiss"></a>
+			</div>
+		</div>
+
+		<? /* ===========   End new JITM style EXAMPLES */ ?>
+
+
 		<?php
 		//jitm is being viewed, track it
 		$jetpack = Jetpack::init();
@@ -379,18 +405,23 @@ class Jetpack_JITM {
 		$url = 'https://jetpack.com/redirect/?source=jitm-backup-publish&site=' . $normalized_site_url;
 		$jitm_stats_url = Jetpack::build_stats_url( array( 'x_jetpack-jitm' => 'vaultpress' ) );
 		?>
-		<div class="jp-jitm" data-track="vaultpress-publish" data-stats_url="<?php echo esc_url( $jitm_stats_url ); ?>">
-			<a href="#" data-module="vaultpress" class="dismiss"><span class="genericon genericon-close"></span></a>
-
-			<?php echo self::get_emblem(); ?>
-
-			<p class="msg">
-				<?php esc_html_e( "Great job! Now let's make sure your hard work is never lost, backup everything with VaultPress.", 'jetpack' ); ?>
-			</p>
-			<p>
-				<a href="<?php echo esc_url( $url ); ?>" target="_blank" title="<?php esc_attr_e( 'Enable Backups', 'jetpack' ); ?>" data-module="vaultpress" data-jptracks-name="nudge_click" data-jptracks-prop="jitm-vault-post" class="button button-jetpack launch jptracks"><?php esc_html_e( 'Enable Backups', 'jetpack' ); ?></a>
-			</p>
+		<div class="jitm-card jitm-banner has-call-to-action" data-track="vaultpress-publish" data-stats_url="<?php echo esc_url( $jitm_stats_url ); ?>">
+			<div class="jitm-banner__icon-plan">
+				<?php echo self::get_emblem(); ?>
+			</div>
+			<div class="jitm-banner__content">
+				<div class="jitm-banner__info">
+					<div class="jitm-banner__title"><?php esc_html_e( 'Ensure your work is backed up.', 'jetpack' ); ?></div>
+					<div class="jitm-banner__description"><?php esc_html_e( 'Great work creating that post! Now make sure your hard work is never lost, backup everything with Jetpack Backups.', 'jetpack' ); ?></div>
+				</div>
+				<div class="jitm-banner__action">
+					<a href="<?php echo esc_url( $url ); ?>" target="_blank" title="<?php esc_attr_e( 'Enable Jetpack Backups', 'jetpack' ); ?>" data-module="vaultpress" data-jptracks-name="nudge_click" data-jptracks-prop="jitm-vault-post" class="jitm-button is-compact launch jptracks is-primary"><?php esc_html_e( 'Enable', 'jetpack' ); ?></a>
+				</div>
+				<a href="#" data-module="vaultpress" class="jitm-banner__dismiss"></a>
+			</div>
 		</div>
+
+
 		<?php
 		//jitm is being viewed, track it
 		$jetpack = Jetpack::init();
@@ -463,22 +494,30 @@ class Jetpack_JITM {
 		$install_url = wp_nonce_url( add_query_arg( array( 'wc-services-action' => $already_installed ? 'activate' : 'install' ) ), 'wc-services-install' );
 
 		?>
-		<div class="jp-jitm woo-jitm">
-			<a href="#"  data-module="wooservices" class="dismiss"><span class="genericon genericon-close"></span></a>
-			<div class="jp-emblem">
-				<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0" y="0" viewBox="0 0 24 24" enable-background="new 0 0 24 24" xml:space="preserve">
-					<path d="M18,8h-2V7c0-1.105-0.895-2-2-2H4C2.895,5,2,5.895,2,7v10h2c0,1.657,1.343,3,3,3s3-1.343,3-3h4c0,1.657,1.343,3,3,3s3-1.343,3-3h2v-5L18,8z M7,18.5c-0.828,0-1.5-0.672-1.5-1.5s0.672-1.5,1.5-1.5s1.5,0.672,1.5,1.5S7.828,18.5,7,18.5z M4,14V7h10v7H4z M17,18.5c-0.828,0-1.5-0.672-1.5-1.5s0.672-1.5,1.5-1.5s1.5,0.672,1.5,1.5S17.828,18.5,17,18.5z" />
-				</svg>
+
+		<div class="jitm-card jitm-banner has-call-to-action woo-jitm" data-track="woo-services-activate">
+			<div class="jitm-banner__icon-plan">
+				<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0px" y="0px" viewBox="0 0 168 100" xml:space="preserve" enable-background="new 0 0 168 100" width="50" height="30"><style type="text/css">
+					.st0{clip-path:url(#SVGID_2_);enable-background:new    ;}
+					.st1{clip-path:url(#SVGID_4_);}
+					.st2{clip-path:url(#SVGID_6_);}
+					.st3{clip-path:url(#SVGID_8_);fill:#8F567F;}
+					.st4{clip-path:url(#SVGID_10_);fill:#FFFFFE;}
+					.st5{clip-path:url(#SVGID_12_);fill:#FFFFFE;}
+					.st6{clip-path:url(#SVGID_14_);fill:#FFFFFE;}
+				</style><g><defs><polygon id="SVGID_1_" points="83.8 100 0 100 0 0.3 83.8 0.3 167.6 0.3 167.6 100 "/></defs><clipPath id="SVGID_2_"><use xlink:href="#SVGID_1_" overflow="visible"/></clipPath><g class="st0"><g><defs><rect id="SVGID_3_" width="168" height="100"/></defs><clipPath id="SVGID_4_"><use xlink:href="#SVGID_3_" overflow="visible"/></clipPath><g class="st1"><defs><path id="SVGID_5_" d="M15.6 0.3H152c8.6 0 15.6 7 15.6 15.6v52c0 8.6-7 15.6-15.6 15.6h-48.9l6.7 16.4L80.2 83.6H15.6C7 83.6 0 76.6 0 67.9v-52C0 7.3 7 0.3 15.6 0.3"/></defs><clipPath id="SVGID_6_"><use xlink:href="#SVGID_5_" overflow="visible"/></clipPath><g class="st2"><defs><rect id="SVGID_7_" width="168" height="100"/></defs><clipPath id="SVGID_8_"><use xlink:href="#SVGID_7_" overflow="visible"/></clipPath><rect x="-10" y="-9.7" class="st3" width="187.6" height="119.7"/></g></g></g></g></g><g><defs><path id="SVGID_9_" d="M8.4 14.5c1-1.3 2.4-2 4.3-2.1 3.5-0.2 5.5 1.4 6 4.9 2.1 14.3 4.4 26.4 6.9 36.4l15-28.6c1.4-2.6 3.1-3.9 5.2-4.1 3-0.2 4.9 1.7 5.6 5.7 1.7 9.1 3.9 16.9 6.5 23.4 1.8-17.4 4.8-30 9-37.7 1-1.9 2.5-2.9 4.5-3 1.6-0.1 3 0.3 4.3 1.4 1.3 1 2 2.3 2.1 3.9 0.1 1.2-0.1 2.3-0.7 3.3 -2.7 5-4.9 13.2-6.6 24.7 -1.7 11.1-2.3 19.8-1.9 26.1 0.1 1.7-0.1 3.2-0.8 4.5 -0.8 1.5-2 2.4-3.7 2.5 -1.8 0.1-3.6-0.7-5.4-2.5C52.4 66.7 47.4 57 43.7 44.1c-4.4 8.8-7.7 15.3-9.9 19.7 -4 7.7-7.5 11.7-10.3 11.9 -1.9 0.1-3.5-1.4-4.8-4.7 -3.5-9-7.3-26.3-11.3-52C7.1 17.3 7.5 15.8 8.4 14.5"/></defs><clipPath id="SVGID_10_"><use xlink:href="#SVGID_9_" overflow="visible"/></clipPath><rect x="-2.7" y="-0.6" class="st4" width="90.6" height="86.4"/></g><g><defs><path id="SVGID_11_" d="M155.6 25.2c-2.5-4.3-6.1-6.9-11-7.9 -1.3-0.3-2.5-0.4-3.7-0.4 -6.6 0-11.9 3.4-16.1 10.2 -3.6 5.8-5.3 12.3-5.3 19.3 0 5.3 1.1 9.8 3.3 13.6 2.5 4.3 6.1 6.9 11 7.9 1.3 0.3 2.5 0.4 3.7 0.4 6.6 0 12-3.4 16.1-10.2 3.6-5.9 5.3-12.4 5.3-19.4C159 33.4 157.9 28.9 155.6 25.2zM147 44.2c-0.9 4.5-2.7 7.9-5.2 10.1 -2 1.8-3.9 2.5-5.5 2.2 -1.7-0.3-3-1.8-4-4.4 -0.8-2.1-1.2-4.2-1.2-6.2 0-1.7 0.2-3.4 0.5-5 0.6-2.8 1.8-5.5 3.6-8.1 2.3-3.3 4.7-4.8 7.1-4.2 1.7 0.3 3 1.8 4 4.4 0.8 2.1 1.2 4.2 1.2 6.2C147.5 40.9 147.3 42.6 147 44.2z"/></defs><clipPath id="SVGID_12_"><use xlink:href="#SVGID_11_" overflow="visible"/></clipPath><rect x="109.6" y="6.9" class="st5" width="59.4" height="71.4"/></g><g><defs><path id="SVGID_13_" d="M112.7 25.2c-2.5-4.3-6.1-6.9-11-7.9 -1.3-0.3-2.5-0.4-3.7-0.4 -6.6 0-11.9 3.4-16.1 10.2 -3.5 5.8-5.3 12.3-5.3 19.3 0 5.3 1.1 9.8 3.3 13.6 2.5 4.3 6.1 6.9 11 7.9 1.3 0.3 2.5 0.4 3.7 0.4 6.6 0 12-3.4 16.1-10.2 3.5-5.9 5.3-12.4 5.3-19.4C116 33.4 114.9 28.9 112.7 25.2zM104.1 44.2c-0.9 4.5-2.7 7.9-5.2 10.1 -2 1.8-3.9 2.5-5.5 2.2 -1.7-0.3-3-1.8-4-4.4 -0.8-2.1-1.2-4.2-1.2-6.2 0-1.7 0.2-3.4 0.5-5 0.6-2.8 1.8-5.5 3.6-8.1 2.3-3.3 4.7-4.8 7.1-4.2 1.7 0.3 3 1.8 4 4.4 0.8 2.1 1.2 4.2 1.2 6.2C104.6 40.9 104.4 42.6 104.1 44.2z"/></defs><clipPath id="SVGID_14_"><use xlink:href="#SVGID_13_" overflow="visible"/></clipPath><rect x="66.7" y="6.9" class="st6" width="59.4" height="71.4"/></g></svg>
 			</div>
-			<p class="msg">
-				<?php echo esc_html( $message ); ?>
-			</p>
-			<p>
-				<a href="<?php echo esc_url( $install_url ); ?>" title="<?php $already_installed ? esc_attr_e( 'Activate WooCommerce Services', 'jetpack' ) : esc_attr_e( 'Install WooCommerce Services', 'jetpack' ); ?>" data-module="wooservices" class="button button-jetpack show-after-enable">
-					<?php $already_installed ? esc_html_e( 'Activate WooCommerce Services', 'jetpack' ) : esc_html_e( 'Install WooCommerce Services', 'jetpack' ); ?>
-				</a>
-			</p>
+			<div class="jitm-banner__content">
+				<div class="jitm-banner__info">
+					<div class="jitm-banner__title"><?php echo esc_html( $message ); ?></div>
+				</div>
+				<div class="jitm-banner__action">
+					<a href="<?php echo esc_url( $install_url ); ?>" target="_blank" title="<?php $already_installed ? esc_attr_e( 'Activate WooCommerce Services', 'jetpack' ) : esc_attr_e( 'Install WooCommerce Services', 'jetpack' ); ?>" data-module="wooservices" data-jptracks-name="nudge_click" data-jptracks-prop="jitm-woo-services" class="jitm-button is-compact launch jptracks is-primary"><?php $already_installed ? esc_html_e( 'Activate', 'jetpack' ) : esc_html_e( 'Install', 'jetpack' ); ?></a>
+				</div>
+				<a href="#" data-module="vaultpress" class="jitm-banner__dismiss"></a>
+			</div>
 		</div>
+
 		<?php
 		//jitm is being viewed, track it
 		$jetpack = Jetpack::init();
