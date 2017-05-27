@@ -41,7 +41,7 @@ export const Likes = moduleSettingsForm(
 							slug="comment-likes"
 							disabled={ commentLikesUnavailable }
 							activated={ commentLikesActive }
-							toggling={ this.props.isSavingAnyOption( 'likes' ) }
+							toggling={ this.props.isSavingAnyOption( 'comment-likes' ) }
 							toggleModule={ this.props.toggleModuleNow }>
 							{ __( 'Add a like button to your post comments' ) }
 						</ModuleToggle>
