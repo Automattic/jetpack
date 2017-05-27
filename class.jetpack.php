@@ -2856,6 +2856,7 @@ p {
 		);
 		
 		Jetpack_IDC::clear_all_idc_options();
+		Jetpack_Options::delete_raw_option( 'jetpack_secrets' );
 
 		if ( $update_activated_state ) {
 			Jetpack_Options::update_option( 'activated', 4 );
