@@ -106,79 +106,49 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 = 5.0 =
 
 * Release date: June 6th, 2017
-* Release post: http://wp.me/p1moTy-52O
+* Release post: https://jetpack.com/?p=20320
 
-**Major Enhancements**
 
 **Slightly Less Exciting Enhancements**
 
-* Admin Page: remove bottom alignment of content in dashboard cards. #6996
-* Admin Page: change priority used when injecting admin notices, to make it easier to remove them if needed. #7122
-* Admin Page: remove Apps card from "Jumpstart" view. #7181
-* Admin Page: surface all modules on search and allow activation from new interface. #7183
-* Admin Page: remove the "Photon" word from the Photon card. #7193
-* Admin Page: refactor the dashboard cards for better performance. #7188
-* Command Line Interface: add information about primary Jetpack site owner. #7209
-* Custom CSS: add the `animation-fill-mode`, `fill`, and `stroke` properties. #7166, #7171
-* General: improve wording on connection banners for secondary users to avoid confusion. #6753
-* Internationalization: add and update language information handling. #7057
-* Masterbar: remove the Menus item to match WordPress.com menu. #7070
-* Omnisearch: improve display of the Omnisearch search results on sites using an RTL language. #7225
-* Social Menu: add new icons -- Etsy, Meetup, 500px, Goodreads. #7200
-* Sync: better synchronization of changes to navigation menus. #7014
-* Sync: trigger synchronization when WordPress is updated. #7108
-* Sync: record event when a theme is deleted. #7113
-* Sync: record event when a theme is edited. #7151
-* Sync: record event when a theme is activated on a Multisite network. #7180
-* Sync: record event when a term is created or edited. #7123
-* Sync: record event when a widget is edited. #7189
-* Sync: record event when WordPress is updated on a Multisite network. #7137
-* Sync: record event when a site is exported. #7138
-* Sync: record sync error instead of just bailing when something blocks Sync. #7135
-* Sync: synchronize the number of posts per page setting. #7154
-* Video: update so it can be fully compatible with the upcoming Media Widget. #7167
-* Widgets: trim white space from email in the Contact Info Widget before validating. #7155
-* WordPress.com REST API: force secure API requests when getting request body. #7060
-* WordPress.com REST API: add new endpoint to invite new users. #7068, #7072, #7071
-* WordPress.com REST API: remove deprecated method to poll for stats. #7118
-* WordPress.com REST API: updates to content management endpoints. #7142
-* WordPress.com REST API: add new endpoint version for listing posts. #7232
-**Performance Improvements**
+* Lots of polish to the Jetpack dashboard and notices including alignment tweaks, code refactor, and text simplification.
+* Social menu gets icons for Etsy, Meetup, 500px, and Goodreads.
+* Jetpack data sync now better supports WordPress updates, themes changes, widgets, and multisites.
+* Video is updated to be fully compatible with the upcoming Media Widget.
+* Force secure WordPress.com API requests for request body, remove deprecated stats methods, and adds new endpoints for post listing and user invitations.
+* Jetpack CLI now contains information about primary Jetpack site owner.
+* Custom CSS nw supports the `animation-fill-mode`, `fill`, and `stroke` properties.
+* Add and update language information handling for better internationlization support.
+* Remove the Menus item from the Masterbar for parity with the WordPress.com menu.
+* Improved display of Omnisearch results on sites using an RTL language.
+* Trim white space from email in the Contact Info Widget before validating.
 
 **Compatibility Improvements**
 
-* General: fix issue causing potential errors during the connection process. #7115
-* General: add tools for partners to provision Jetpack sites. #7112, #7198
-* Sync: improve synchronization of WooCommerce meta data. #6928
-* Sync: avoid PHP notices when using the Pet Manager plugin. #6051
-* Sync: fix missing item meta data when syncing WooCommerce tables. #7105
+* Improved connection process for end users and hosts.
+* Improved compatibility of Jetpack data sync with WooCommerce and Pet Manager plugins.
 
 **Bug Fixes**
 
-* Admin Page: add the missing "Set Up" button when a Personal plan is purchased, but VaultPress isn't active. #7211
-* Ads: do not display in RSS feeds. #7095
-* Comments: avoid non-secure warnings when submitting comments on a HTTP site in Safari. #7205
-* Comments: do not use Photon for Facebook and Twitter avatars. #6872
-* Contact form: send emails through a wrapper that ensures they are correctly rendered as HTML. #7214
-* CLI interface: properly print full list of modules when using the sync command. #7094
-* Custom Content Types: avoid errors when reordering a lot of Resturant menu items. #7170
-* General: add a mechanism to detect broken connection states and resolve them. #6964
-* Markdown: make sure autosaves can be restored as Markdown. #7107
-* Photon: correct logic error that defeated the `jetpack_photon_image_is_local` filter. #7140
-* Photon: avoid potential PHP notices when used with other themes and plugins customizing responsive images. #7090
-* Photon: do not use Photon with images already served by Facebook's CDN. #6872
-* Publicize: fix potential PHP notice. #7230
-* Shortcodes: fix bad jQuery selector in Presentations shortcode. #7184
-* Social Links: avoid Fatal Errors on sites running PHP 7.1. #7210
-* Spellcheck: Properly escape Button attribute. #7100
-* Stats: avoid PHP notices on some sites when user roles are not attributed properly. #7212
-* Sync: do not attempt to sync options that do not exist. #7218
-* Sync: avoid Fatal errors when activating or deactivating plugins. #7213
-* Theme Tools: avoid issues when Social Menu functions have already been defined in the theme or in another plugin. #7132
-* Video: make sure that VideoPress media items return their unique ID. #7191
-* Video: fix notice when get_current_screen() is null. #7229
-* Widgets: fix style of the EU Cookie Law Widget on themes with specific widgets positioning. #7143
-* Widgets: use correct time constant to define an hour in Upcoming Events Widget. #7163
+* Added the missing "Set Up" button when a Personal plan is purchased, but VaultPress isn't active.
+* Ads are not displayed in RSS feeds.
+* Comments do not use Photon for Facebook and Twitter avatars and now avoid non-secure warnings when submitting comments on a HTTP site in Safari.
+* Contact form emails are now sent in a way that ensures they are correctly rendered as HTML.
+* Properly print full list of modules when using the sync command in Jetpack CLI.
+* Gracefully handle errors when reordering a lot of Resturant menu items.
+* Added a mechanism to detect broken connection states and resolve them.
+* Autosaves can now be restored as Markdown.
+* Photon no longer conflicts with Facebook's CDN, local images, and other plugins that customize reponsive images.
+* Avoid potential PHP notice in Publicize.
+* Fix bad jQuery selector in Presentations shortcode.
+* Avoid fatal errors for Social Links on sites running PHP 7.1.
+* Properly escape Button attribute in spellchecker.
+* Avoid PHP notices for stats on some sites when user roles are not attributed properly.
+* No longer attempt to sync options that do not exist and avoids fatal errors when de/activating plugins.
+* Avoid errors when Social Menu functions have already been defined in the theme or in another plugin.
+* VideoPress media items now always return their unique ID and improved notice when get_current_screen() is null.
+* Fixed style of the EU Cookie Law Widget on themes with specific positioning.
+* Use correct time constant to define an hour in Upcoming Events Widget.
 
 = 4.9 =
 
