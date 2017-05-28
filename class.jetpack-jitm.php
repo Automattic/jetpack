@@ -96,7 +96,9 @@ class Jetpack_JITM {
 	 * @return string The new CTA
 	 */
 	static function jitm_jetpack_woo_services_install( $CTA ) {
-		return wp_nonce_url( add_query_arg( array( 'wc-services-action' => 'install' ), '/wp-admin/admin.php?page=wc-settings' ), 'wc-services-install' );
+		return wp_nonce_url( add_query_arg( array(
+			'wc-services-action' => 'install'
+		), admin_url( 'admin.php?page=wc-settings' ) ), 'wc-services-install' );
 	}
 
 	/**
@@ -107,7 +109,9 @@ class Jetpack_JITM {
 	 * @return string The new CTA
 	 */
 	static function jitm_jetpack_woo_services_activate( $CTA ) {
-		return wp_nonce_url( add_query_arg( array( 'wc-services-action' => 'activate' ), '/wp-admin/admin.php?page=wc-settings' ), 'wc-services-install' );
+		return wp_nonce_url( add_query_arg( array(
+			'wc-services-action' => 'activate'
+		), admin_url( 'admin.php?page=wc-settings' ) ), 'wc-services-install' );
 	}
 
 	/**
