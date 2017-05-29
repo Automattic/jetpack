@@ -49,14 +49,6 @@
 #wpadminbar li#wp-admin-bar-newdash.menupop > .ab-sub-wrapper, /* Reader */
 #wpadminbar li#wp-admin-bar-my-account.menupop > .ab-sub-wrapper, /* Me */
 #wpadminbar li#wp-admin-bar-notes.menupop > #wpnt-notes-panel2 { /* Notifications */
-	display: none !important;
-}
-
-/* Show the panels when the item is active */
-#wpadminbar li#wp-admin-bar-blog.menupop.ab-active > .ab-sub-wrapper, /* My Sites */
-#wpadminbar li#wp-admin-bar-newdash.menupop.ab-active > .ab-sub-wrapper, /* Reader */
-#wpadminbar li#wp-admin-bar-my-account.menupop.ab-active > .ab-sub-wrapper, /* Me */
-#wpadminbar li#wp-admin-bar-notes.menupop.wpnt-show > #wpnt-notes-panel2 { /* Notifications */
 	display: block !important;
 }
 
