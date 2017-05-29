@@ -61,7 +61,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 			return;
 		}
 		/**
-		 * Sync Event that tells that that the import is finished
+		 * Sync Event that tells that the import is finished
 		 *
 		 * @since 5.0.0
 		 *
