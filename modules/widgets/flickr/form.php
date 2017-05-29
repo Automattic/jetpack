@@ -52,29 +52,42 @@
 </p>
 
 <p>
-	<label>
+	<div>
 		<?php esc_html_e( 'What size photos would you like to display?', 'jetpack' ); ?>
-	</label>
-	<select name="<?php echo esc_attr( $this->get_field_name( 'flickr_image_size' ) ); ?>">
-		<?php
-		$flickr_sizes = array(
-			array(
-				'size' => 'thumbnail',
-				'text' => esc_html__( 'Thumbnail', 'jetpack' ),
-			),
-			array(
-				'size' => 'small',
-				'text' => esc_html__( 'Small', 'jetpack' ),
-			),
-		);
-		foreach( $flickr_sizes as $flickr_size ) { ?>
-			<option
-				<?php selected( $instance['flickr_image_size'], $flickr_size['size'] ); ?>
-				value="<?php echo esc_attr( $flickr_size['size'] ); ?>"
-			>
-				<?php esc_html_e( $flickr_size['text'] ); ?>
-			</option>
-		<?php }
-		?>
-	</select>
+	</div>
+	<ul>
+		<li>
+			<label>
+				<input
+					<?php checked( $instance['flickr_image_size'], 'thumbnail' ); ?>
+					name="<?php echo esc_attr( $this->get_field_name( 'flickr_image_size' ) ); ?>"
+					type="radio"
+					value="thumbnail"
+				/>
+				<?php esc_html_e( 'Thumbnail', 'jetpack' ); ?>
+			</label>
+		</li>
+		<li>
+			<label>
+				<input
+					<?php checked( $instance['flickr_image_size'], 'small' ); ?>
+					name="<?php echo esc_attr( $this->get_field_name( 'flickr_image_size' ) ); ?>"
+					type="radio"
+					value="small"
+				/>
+				<?php esc_html_e( 'Medium', 'jetpack' ); ?>
+			</label>
+		</li>
+		<li>
+			<label>
+				<input
+					<?php checked( $instance['flickr_image_size'], 'large' ); ?>
+					name="<?php echo esc_attr( $this->get_field_name( 'flickr_image_size' ) ); ?>"
+					type="radio"
+					value="large"
+				/>
+				<?php esc_html_e( 'Large', 'jetpack' ); ?>
+			</label>
+		</li>
+	</ul>
 </p>
