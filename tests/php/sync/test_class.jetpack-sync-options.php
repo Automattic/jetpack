@@ -170,6 +170,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'advanced_seo_title_formats'           => array( 'posts' => array( 'type' => 'string', 'value' => 'test' ) ), // Jetpack_SEO_Titles::TITLE_FORMATS_OPTION
 			'jetpack_api_cache_enabled'            => '1',
 			'sidebars_widgets'                     => array( 'array_version' => 3 ),
+			'WPLANG'                               => 'en',
 		);
 
 		$theme_mod_key             = 'theme_mods_' . get_option( 'stylesheet' );
