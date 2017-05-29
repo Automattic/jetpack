@@ -66,7 +66,10 @@ export class DashItem extends Component {
 			if ( 'manage' === this.props.module ) {
 				if ( 'is-warning' === this.props.status ) {
 					toggle = (
-						<a href={ 'https://wordpress.com/plugins/' + this.props.siteRawUrl } >
+						<a href={ this.props.isDevMode
+							? this.props.siteAdminUrl + 'update-core.php'
+							: 'https://wordpress.com/plugins/' + this.props.siteRawUrl
+						} >
 							<SimpleNotice
 								showDismiss={ false }
 								status={ this.props.status }
