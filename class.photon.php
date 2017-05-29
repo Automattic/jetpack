@@ -394,7 +394,7 @@ class Jetpack_Photon {
 	 * @param array $instance Image widget instance data.
 	 * @return array
 	 */
-	function filter_the_image_widget( $instance ) {
+	public static function filter_the_image_widget( $instance ) {
 		if ( Jetpack::is_module_active( 'photon' ) && ! $instance['attachment_id'] && $instance['url'] ) {
 			jetpack_photon_url( $instance['url'], array(
 				'w' => $instance['width'],
