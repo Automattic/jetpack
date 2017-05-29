@@ -5958,6 +5958,7 @@ p {
 			'jetpack_sync_all_registered_options'                    => null,
 			'jetpack_has_identity_crisis'                            => 'jetpack_sync_error_idc_validation',
 			'jetpack_is_post_mailable'                               => null,
+			'jetpack_seo_site_host'                                  => null,
 		);
 
 		// This is a silly loop depth. Better way?

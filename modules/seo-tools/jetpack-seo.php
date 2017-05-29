@@ -105,39 +105,12 @@ class Jetpack_SEO {
 			return;
 		}
 
-		/**
-		 * Can be used to insert custom site host that will used for meta title.
-		 *
-		 * @module seo-tools
-		 *
-		 * @since 4.4.0
-		 *
-		 * @param string Name of the site host. Defaults to empty string.
-		 */
-		$site_host     = apply_filters( 'jetpack_seo_site_host', '' );
-
-		$meta['title'] = sprintf( _x( '%1$s', 'Site Title', 'jetpack' ), get_bloginfo( 'title' ) );
-
-		if ( ! empty( $site_host ) ) {
-			$meta['title'] = sprintf(
-				_x( '%1$s on %2$s', 'Site Title on WordPress', 'jetpack' ),
-				get_bloginfo( 'title' ),
-				$site_host
-			);
-		}
-
 		$front_page_meta     = Jetpack_SEO_Utils::get_front_page_meta_description();
 		$description         = $front_page_meta ? $front_page_meta : get_bloginfo( 'description' );
 		$meta['description'] = trim( $description );
 
 		// Try to target things if we're on a "specific" page of any kind.
 		if ( is_singular() ) {
-			$meta['title'] = sprintf(
-				_x( '%1$s | %2$s', 'Post Title | Site Title on WordPress', 'jetpack' ),
-				get_the_title(),
-				$meta['title']
-			);
-
 			// Business users can overwrite the description.
 			if ( ! ( is_front_page() && Jetpack_SEO_Utils::get_front_page_meta_description() ) ) {
 				$description = Jetpack_SEO_Posts::get_post_description( get_post() );
@@ -151,12 +124,6 @@ class Jetpack_SEO {
 		} elseif ( is_author() ) {
 			$obj = get_queried_object();
 
-			$meta['title'] = sprintf(
-				_x( 'Posts by %1$s | %2$s', 'Posts by Author Name | Blog Title on WordPress', 'jetpack' ),
-				$obj->display_name,
-				$meta['title']
-			);
-
 			$meta['description'] = sprintf(
 				_x( 'Read all of the posts by %1$s on %2$s', 'Read all of the posts by Author Name on Blog Title', 'jetpack' ),
 				$obj->display_name,
@@ -164,12 +131,6 @@ class Jetpack_SEO {
 			);
 		} elseif ( is_tag() || is_category() || is_tax() ) {
 			$obj = get_queried_object();
-
-			$meta['title'] = sprintf(
-				_x( 'Posts about %1$s on %2$s', 'Posts about Category on Blog Title', 'jetpack' ),
-				single_term_title( '', false ),
-				get_bloginfo( 'title' )
-			);
 
 			$description = get_term_field( 'description', $obj->term_id, $obj->taxonomy, 'raw' );
 
@@ -220,20 +181,8 @@ class Jetpack_SEO {
 				);
 			}
 
-			$meta['title'] = sprintf(
-				_x( 'Posts from %1$s on %2$s', 'Posts from May 2012 on Blog Title', 'jetpack' ),
-				$period,
-				get_bloginfo( 'title' )
-			);
-
 			$authors             = $this->get_authors();
 			$meta['description'] = wp_sprintf( $template, count( $wp_query->posts ), $authors, $period );
-		}
-
-		$custom_title = Jetpack_SEO_Titles::get_custom_title();
-
-		if ( ! empty( $custom_title ) ) {
-			$meta['title'] = $custom_title;
 		}
 
 		/**
