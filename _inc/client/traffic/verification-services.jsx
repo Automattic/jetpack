@@ -27,7 +27,7 @@ export const VerificationServices = moduleSettingsForm(
 					module="verification-tools"
 					saveDisabled={ this.props.isSavingAnyOption( [ 'google', 'bing', 'pinterest', 'yandex' ] ) }
 				>
-					<SettingsGroup module={ verification } support={ verification.learn_more_button }>
+					<SettingsGroup module={ verification }>
 						<p>
 							{ __(
 								'Note that {{b}}verifying your site with these services is not necessary{{/b}} in order for your site to be indexed by search engines. To use these advanced search engine tools and verify your site with a service, paste the HTML Tag code below. Read the {{support}}full instructions{{/support}} if you are having trouble. Supported verification services: {{google}}Google Search Console{{/google}}, {{bing}}Bing Webmaster Center{{/bing}}, {{pinterest}}Pinterest Site Verification{{/pinterest}}, and {{yandex}}Yandex.Webmaster{{/yandex}}.',

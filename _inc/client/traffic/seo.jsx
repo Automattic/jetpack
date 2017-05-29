@@ -27,7 +27,7 @@ export const SEO = moduleSettingsForm(
 					header={ __( 'Search engine optimization', { context: 'Settings header' } ) }
 					feature={ FEATURE_SEO_TOOLS_JETPACK }
 					hideButton>
-					<SettingsGroup disableInDevMode module={ { module: 'seo-tools' } } support="https://jetpack.com/support/seo-tools/">
+					<SettingsGroup disableInDevMode module={ this.props.getModule( 'seo-tools' ) }>
 						<span>
 							{
 								__( "You can tweak these settings if you'd like more advanced control. Read more about what you can do to {{a}}optimize your site's SEO{{/a}}.",

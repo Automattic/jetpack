@@ -47,9 +47,9 @@ export const ShareButtons = moduleSettingsForm(
 				<SettingsCard
 					{ ...this.props }
 					header={ __( 'Sharing buttons', { context: 'Settings header' } ) }
-					module="sharing"
+					module="sharedaddy"
 					hideButton>
-					<SettingsGroup disableInDevMode module={ { module: 'sharing' } } support="https://jetpack.com/support/sharing/">
+					<SettingsGroup disableInDevMode module={ this.props.getModule( 'sharedaddy' ) }>
 						<ModuleToggle
 							slug="sharedaddy"
 							activated={ isActive }

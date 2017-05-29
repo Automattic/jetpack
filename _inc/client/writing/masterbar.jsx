@@ -23,10 +23,9 @@ export const Masterbar = moduleSettingsForm(
 			return (
 				<SettingsCard
 					{ ...this.props }
-					header={ __( 'WordPress.com toolbar', { context: 'Settings header' } ) }
 					module="masterbar"
 					hideButton>
-					<SettingsGroup disableInDevMode module={ { module: 'masterbar' } } support="https://jetpack.com/support/masterbar/">
+					<SettingsGroup disableInDevMode module={ this.props.getModule( 'masterbar' ) }>
 						<ModuleToggle
 							slug="masterbar"
 							disabled={ unavailableInDevMode || ! isLinked }

@@ -72,10 +72,15 @@ export const BackupsScan = moduleSettingsForm(
 			}
 
 			return cardText;
-		};
+		}
 
 		render() {
-			const scanEnabled = get( this.props.vaultPressData, [ 'data', 'features', 'security' ], false );
+			const scanEnabled = get( this.props.vaultPressData, [ 'data', 'features', 'security' ], false ),
+				backups = {
+					module: 'backups',
+					name: __( 'Backups', { comment: 'A module name' } ),
+					learn_more_button: 'https://help.vaultpress.com/get-to-know/'
+				};
 			return (
 				<SettingsCard
 					feature={ FEATURE_SECURITY_SCANNING_JETPACK }
@@ -85,8 +90,7 @@ export const BackupsScan = moduleSettingsForm(
 					hideButton>
 					<SettingsGroup
 						disableInDevMode
-						module={ { module: 'backups' } }
-						support="https://help.vaultpress.com/get-to-know/">
+						module={ backups }>
 						{
 							this.getCardText()
 						}

@@ -41,7 +41,7 @@ export const Sitemaps = moduleSettingsForm(
 					module="sitemaps"
 					hideButton
 				>
-					<SettingsGroup module={ { module: 'sitemaps' } } hasChild support={ sitemaps.learn_more_button }>
+					<SettingsGroup module={ sitemaps } hasChild>
 						<ModuleToggle
 							slug="sitemaps"
 							compact

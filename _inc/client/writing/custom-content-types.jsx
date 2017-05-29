@@ -55,7 +55,7 @@ const CustomContentTypes = moduleSettingsForm(
 					{ ...this.props }
 					module="custom-content-types"
 					hideButton>
-					<SettingsGroup hasChild module={ module } support={ module.learn_more_button }>
+					<SettingsGroup hasChild module={ module }>
 						<CompactFormToggle
 									checked={ this.state.testimonial }
 									disabled={ this.props.isSavingAnyOption( 'jetpack_testimonial' ) }
