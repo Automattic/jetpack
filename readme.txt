@@ -127,6 +127,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Improve the connection process for end users and hosts.
 * Improve compatibility of Jetpack data sync with WooCommerce and Pet Manager plugins.
+* Make sure Jetpack's SEO Tools don't conflict with other SEO plugins that may already be active on the site, like Yoast SEO or All In One SEO Pack.
 
 **Bug Fixes**
 
