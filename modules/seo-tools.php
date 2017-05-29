@@ -24,8 +24,8 @@ $jetpack_seo_conflicting_plugins = array(
 	'all-in-one-seo-pack-pro/all_in_one_seo_pack.php',
 );
 
-foreach( $jetpack_seo_conflicting_plugins as $seo_pluging ) {
-	if ( is_plugin_active( $seo_pluging ) ) {
+foreach( $jetpack_seo_conflicting_plugins as $seo_plugin ) {
+	if ( Jetpack::is_plugin_active( $seo_plugin ) ) {
 		add_filter( 'jetpack_disable_seo_tools', '__return_true' );
 		break;
 	}

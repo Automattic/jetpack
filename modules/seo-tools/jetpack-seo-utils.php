@@ -27,7 +27,7 @@ class Jetpack_SEO_Utils {
 		 *
 		 * @module seo-tools
 		 *
-		 * @since 4.9.0
+		 * @since 5.0.0
 		 *
 		 * @param bool True if SEO Tools should be disabled, false otherwise.
 		 */
