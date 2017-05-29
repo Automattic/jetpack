@@ -111,6 +111,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Enhancements**
 
 * Several changes to the Jetpack dashboard and notices: alignment tweaks, code refactor, text simplification, and more.
+* Changes to the communication layer between your site and WordPress.com, to improve performance and allow you to do more to manage your site from WordPress.com.
 * Social menu gets icons for Etsy, Meetup, 500px, and Goodreads.
 * Jetpack data sync now better supports WordPress updates, themes changes, widgets, and multisite networks.
 * Video is updated to be fully compatible with the upcoming Media Widget.

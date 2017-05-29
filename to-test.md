@@ -1,6 +1,6 @@
 ## 5.0
 
-5.0 is still in progress; [keep an eye on the changelog to find out more!](https://github.com/Automattic/jetpack/pull/7116)
+Jetpack 5.0 introduces a few visual changes in the Admin Interface, but most importantly we've made a ton of changes under the hood to clean things up and make Jetpack more performant. In this round of testing, we would encourage you to use as many different Jetpack features as you can, as almost all Jetpack features are impacted by this release.
 
 ### Admin Interface
 
