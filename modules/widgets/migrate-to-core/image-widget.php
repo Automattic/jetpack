@@ -76,7 +76,8 @@ function jetpack_migrate_image_widget() {
 			$image_meta = wp_get_attachment_metadata( $attachment_id );
 
 			// Is it a full size image?
-			if ( $image_basename === array_pop( explode( '/', $image_meta['file'] ) ) ) {
+			$image_path_pieces = explode( '/', $image_meta['file'] );
+			if ( $image_basename === array_pop( $image_path_pieces ) ) {
 				$media_image[ $id ]['attachment_id'] = $attachment_id;
 				$media_image[ $id ]['width']         = $image_meta['width'];
 				$media_image[ $id ]['height']        = $image_meta['height'];
