@@ -186,6 +186,12 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		foreach ( $options as $option_name => $value ) {
+			// WPLANG is special because it can't be updated in an installation that can not
+			// manage language packs, let's skip this check
+			if ( 'WPLANG' === $option_name ) {
+				continue;
+			}
+
 			$this->assertOptionIsSynced( $option_name, $value );
 		}
 		$option_keys                          = array_keys( $options );
