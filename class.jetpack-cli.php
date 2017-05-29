@@ -872,7 +872,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 			$this->partner_provision_error( new WP_Error( 'missing_user', sprintf( __( "User %s doesn't exist", 'jetpack' ), $user_id ) ) );
 		}
 
-		if ( ! $blog_id || ! $blog_token || intval( $named_args['force_register'] ) ) {
+		if ( ! $blog_id || ! $blog_token || ( isset( $named_args['force_register'] ) && intval( $named_args['force_register'] ) ) ) {
 			// this code mostly copied from Jetpack::admin_page_load
 			Jetpack::maybe_set_version_option();
 			$registered = Jetpack::try_registration();
