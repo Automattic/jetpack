@@ -278,7 +278,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 			 * @param string $added_widget_name, Widget id got added Since 5.0.0
 			 *
 			 */
-			do_action( 'jetpack_widget_added', $sidebar, $added_widget,  $sidebar_name, $added_widget_name ); // $this->get_sidebar_name( $sidebar ), $this->get_widget_name( $added_widget ) );
+			do_action( 'jetpack_widget_added', $sidebar, $added_widget,  $sidebar_name, $added_widget_name );
 		}
 		return $moved_to_sidebar;
 	}
