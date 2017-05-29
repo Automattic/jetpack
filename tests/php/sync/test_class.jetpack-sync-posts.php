@@ -959,7 +959,7 @@ That was a cool video.';
 		$this->assertEquals( $events[2]->action, 'wp_insert_post' );
 		$this->assertEquals( $events[3]->action, 'jetpack_published_post' );
 	}
-	
+
 	public function test_sync_export_content_event() {
 		// Can't call export_wp directly since it require no headers to be set...
 		do_action( 'export_wp', array( 'content' => 'all' ) );
@@ -974,7 +974,6 @@ That was a cool video.';
 		$this->sender->do_sync();
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_import_end' );
-		$this->assertTrue( (bool) $event );
 		$this->assertEquals( 'test', $event->args[0] );
 	}
 
@@ -983,7 +982,6 @@ That was a cool video.';
 		$this->sender->do_sync();
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_import_end' );
-		$this->assertTrue( (bool) $event );
 		$this->assertEquals( 'unknown', $event->args[0] );
 	}
 
@@ -993,7 +991,6 @@ That was a cool video.';
 		$this->sender->do_sync();
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_import_end' );
-		$this->assertTrue( (bool) $event );
 		$this->assertEquals( 'unknown', $event->args[0] );
 	}
 
@@ -1003,7 +1000,6 @@ That was a cool video.';
 		$this->sender->do_sync();
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_import_end' );
-		$this->assertTrue( (bool) $event );
 		$this->assertEquals( 'test', $event->args[0] );
 	}
 
