@@ -11,6 +11,15 @@ While we haven't made many changes in the design of the Jetpack Dashboard, we've
 - Try changing options.
 - Try to visit those pages as an editor or an author.
 
+### Admin Notices
+
+We've refactored the way Jetpack's admin notices are displayed in the dashboard. To test, you'll need to be in one of the following situations:
+- Jetpack activated and connected to WordPress.com, while Akismet isn't active. Then visit the Comments menu in your dashboard.
+- Jetpack activated and connected to WordPress.com, while VaultPress isn't active. Then visit Dashboard > Updates, or try to publish a new post and look for the notice appearing as soon as the pages refreshes once you hit the Publish button.
+- Jetpack activated and connected to WordPress.com, WooCommerce active and with a shop configured to sell in the US or in Canada, while the WooCommerce Services plugin isn't active. Then visit your WooCommerce settings.
+
+Make sure the notices displayed on those pages are correct, can be dismissed, and can be acted upon.
+
 ### Connection process
 
 The connection process is a very important part of the Jetpack experience. It is, after all, one of the first things you do after activating the plugin. We've made some improvements to that process in this release, and we'd like you go through that process again on your site to make sure it works.
