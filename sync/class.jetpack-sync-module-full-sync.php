@@ -1,7 +1,5 @@
 <?php
 
-require_once dirname( __FILE__ ) . '/class.jetpack-sync-options.php';
-
 /**
  * This class does a full resync of the database by
  * enqueuing an outbound action for every single object
@@ -267,14 +265,14 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 
 	public function clear_status() {
 		$prefix = self::STATUS_OPTION_PREFIX;
-		Jetpack_Sync_Options::delete_option( "{$prefix}_started" );
-		Jetpack_Sync_Options::delete_option( "{$prefix}_params" );
-		Jetpack_Sync_Options::delete_option( "{$prefix}_queue_finished" );
-		Jetpack_Sync_Options::delete_option( "{$prefix}_send_started" );
-		Jetpack_Sync_Options::delete_option( "{$prefix}_finished" );
+		Jetpack_Options::delete_raw_option( "{$prefix}_started" );
+		Jetpack_Options::delete_raw_option( "{$prefix}_params" );
+		Jetpack_Options::delete_raw_option( "{$prefix}_queue_finished" );
+		Jetpack_Options::delete_raw_option( "{$prefix}_send_started" );
+		Jetpack_Options::delete_raw_option( "{$prefix}_finished" );
 
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
-			Jetpack_Sync_Options::delete_option( "{$prefix}_{$module->name()}_sent" );
+			Jetpack_Options::delete_raw_option( "{$prefix}_{$module->name()}_sent" );
 		}
 	}
 
@@ -286,29 +284,29 @@ class Jetpack_Sync_Module_Full_Sync extends Jetpack_Sync_Module {
 	}
 
 	private function get_status_option( $name, $default = null ) {
-		$value = Jetpack_Sync_Options::get_option( self::STATUS_OPTION_PREFIX . "_$name", $default );
+		$value = Jetpack_Options::get_raw_option( self::STATUS_OPTION_PREFIX . "_$name", $default );
 
 		return is_numeric( $value ) ? intval( $value ) : $value;
 	}
 
 	private function update_status_option( $name, $value, $autoload = false ) {
-		Jetpack_Sync_Options::update_option( self::STATUS_OPTION_PREFIX . "_$name", $value, $autoload );
+		Jetpack_Options::update_raw_option( self::STATUS_OPTION_PREFIX . "_$name", $value, $autoload );
 	}
 
 	private function set_enqueue_status( $new_status ) {
-		Jetpack_Sync_Options::update_option( 'jetpack_sync_full_enqueue_status', $new_status );
+		Jetpack_Options::update_raw_option( 'jetpack_sync_full_enqueue_status', $new_status );
 	}
 
 	private function get_enqueue_status() {
-		return Jetpack_Sync_Options::get_option( 'jetpack_sync_full_enqueue_status' );
+		return Jetpack_Options::get_raw_option( 'jetpack_sync_full_enqueue_status' );
 	}
 
 	private function set_config( $config ) {
-		Jetpack_Sync_Options::update_option( 'jetpack_sync_full_config', $config );
+		Jetpack_Options::update_raw_option( 'jetpack_sync_full_config', $config );
 	}
 	
 	private function get_config() {
-		return Jetpack_Sync_Options::get_option( 'jetpack_sync_full_config' );
+		return Jetpack_Options::get_raw_option( 'jetpack_sync_full_config' );
 	}
 
 	private function write_option( $name, $value ) {

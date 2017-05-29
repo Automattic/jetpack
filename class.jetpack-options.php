@@ -54,7 +54,6 @@ class Jetpack_Options {
 
 		case 'private' :
 			return array(
-				'secrets',     // (array)  Nonce-like secrets used for the authorization process.
 				'blog_token',  // (string) The Client Secret/Blog Token of this site.
 				'user_token',  // (string) The User Token of this site. (deprecated)
 				'user_tokens'  // (array)  User Tokens for each user of this site who has connected to jetpack.wordpress.com.
@@ -320,6 +319,85 @@ class Jetpack_Options {
 		}
 
 		return true;
+	}
+
+	// Raw option methods allow Jetpack to get / update / delete options via direct DB queries, including options
+	// that are not created by the Jetpack plugin. This is helpful only in rare cases when we need to bypass
+	// cache and filters.
+
+	/**
+	 * Deletes an option via $wpdb query.
+	 *
+	 * @param string $name Option name.
+	 * 
+	 * @return bool Is the option deleted?
+	 */
+	static function delete_raw_option( $name ) {
+		global $wpdb;
+		$result = $wpdb->query( $wpdb->prepare( "DELETE FROM $wpdb->options WHERE option_name = %s", $name ) );
+		return $result;
+	}
+
+	/**
+	 * Updates an option via $wpdb query.
+	 *
+	 * @param string $name Option name.
+	 * @param mixed $value Option value.
+	 * @param bool $autoload Specifying whether to autoload or not.
+	 *
+	 * @return bool Is the option updated?
+	 */
+	static function update_raw_option( $name, $value, $autoload = false ) {
+		global $wpdb;
+		$autoload_value = $autoload ? 'yes' : 'no';
+
+		$serialized_value = maybe_serialize( $value );
+		// try updating, if no update then insert
+		// TODO: try to deal with the fact that unchanged values can return updated_num = 0
+		// below we used "insert ignore" to at least suppress the resulting error
+		$updated_num = $wpdb->query(
+			$wpdb->prepare(
+				"UPDATE $wpdb->options SET option_value = %s WHERE option_name = %s",
+				$serialized_value,
+				$name
+			)
+		);
+
+		if ( ! $updated_num ) {
+			$updated_num = $wpdb->query(
+				$wpdb->prepare(
+					"INSERT IGNORE INTO $wpdb->options ( option_name, option_value, autoload ) VALUES ( %s, %s, '$autoload_value' )",
+					$name,
+					$serialized_value
+				)
+			);
+		}
+		return $updated_num;
+	}
+
+	/**
+	 * Gets an option via $wpdb query.
+	 *
+	 * @param string $name Option name.
+	 * @param mixed $default Default option value if option is not found.
+	 *
+	 * @return mixed Option value, or null if option is not found and default is not specified.
+	 */
+	static function get_raw_option( $name, $default = null ) {
+		global $wpdb;
+		$value = $wpdb->get_var(
+			$wpdb->prepare(
+				"SELECT option_value FROM $wpdb->options WHERE option_name = %s LIMIT 1",
+				$name
+			)
+		);
+		$value = maybe_unserialize( $value );
+
+		if ( $value === null && $default !== null ) {
+			return $default;
+		}
+
+		return $value;
 	}
 
 }
