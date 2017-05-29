@@ -844,7 +844,10 @@ class Jetpack_CLI extends WP_CLI_Command {
 		}
 
 		if ( isset( $token->error ) ) {
-			$this->partner_provision_error( new WP_Error( $token->error, $token->message ) );
+			$message = isset( $token->message )
+				? $token->message
+				: '';
+			$this->partner_provision_error( new WP_Error( $token->error, $message ) );
 		}
 
 		if ( ! isset( $token->access_token ) ) {
