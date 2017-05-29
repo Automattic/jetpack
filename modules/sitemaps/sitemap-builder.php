@@ -1255,7 +1255,7 @@ FOOTER
 		/** This filter is already documented in core/wp-includes/feed.php */
 		$title = apply_filters( 'the_title_rss', $post->post_title );
 		if ( '' !== $title ) {
-			$item_array['url']['image:image']['image:title'] = $title;
+			$item_array['url']['image:image']['image:title'] = htmlentities( $title );
 		}
 		/** This filter is already documented in core/wp-includes/feed.php */
 		$caption = apply_filters( 'the_excerpt_rss', $post->post_excerpt );
