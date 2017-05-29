@@ -50,6 +50,7 @@ function jetpack_migrate_image_widget() {
 		$media_image[ $id ] = array_merge( $default_data, array_intersect_key( $widget, $default_data ), array(
 			'alt'         => $widget['alt_text'],
 			'height'      => $widget['img_height'],
+			'image_classes' => ! empty( $widget['align'] ) ? 'align' . $widget['align'] : '',
 			'image_title' => $widget['img_title'],
 			'link_url'    => $widget['link'],
 			'url'         => $widget['img_url'],
