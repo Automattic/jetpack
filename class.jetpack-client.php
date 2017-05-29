@@ -301,8 +301,14 @@ class Jetpack_Client {
 		// Use GET by default whereas `remote_request` uses POST
 		$request_method = ( isset( $filtered_args['method'] ) ) ? $filtered_args['method'] : 'GET';
 
+		if ( $version >= 2.0 ) {
+			$url = sprintf( '%s://%s/wpcom/v%s/%s', $proto, JETPACK__WPCOM_JSON_API_HOST, $version, $_path );
+		} else {
+			$url = sprintf( '%s://%s/rest/v%s/%s', $proto, JETPACK__WPCOM_JSON_API_HOST, $version, $_path );
+		}
+
 		$validated_args = array_merge( $filtered_args, array(
-			'url'     => sprintf( '%s://%s/rest/v%s/%s', $proto, JETPACK__WPCOM_JSON_API_HOST, $version, $_path ),
+			'url'     => $url,
 			'blog_id' => (int) Jetpack_Options::get_option( 'id' ),
 			'method'  => $request_method,
 		) );
