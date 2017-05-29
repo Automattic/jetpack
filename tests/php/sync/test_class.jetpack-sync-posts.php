@@ -43,6 +43,22 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $this->post, $this->server_replica_storage->get_post( $this->post->ID ) );
 	}
 
+	public function test_add_post_syncs_request_is_auto_save() {
+		//Sync from setup should not be auto save
+		$event = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' );
+		$this->assertFalse( $event->args[3] );
+		
+		Jetpack_Constants::set_constant( 'DOING_AUTOSAVE', true );//define( 'DOING_AUTOSAVE', true );
+
+		//Performing sync here (even though setup() does it) to sync REQUEST_URI
+		$user_id = $this->factory->user->create();
+		$this->factory->post->create( array( 'post_author' => $user_id ) );
+		$this->sender->do_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' );
+		$this->assertTrue( $event->args[3] );
+	}
+
 	public function test_trash_post_trashes_data() {
 		$this->assertEquals( 1, $this->server_replica_storage->post_count( 'publish' ) );
 
