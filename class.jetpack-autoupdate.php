@@ -31,7 +31,7 @@ class Jetpack_Autoupdate {
 	}
 
 	private function __construct() {
-		if ( Jetpack::is_module_active( 'manage' ) ) {
+		if ( Jetpack::is_active() ) {
 			add_filter( 'auto_update_theme', array( $this, 'autoupdate_theme' ), 10, 2 );
 			add_filter( 'auto_update_core', array( $this, 'autoupdate_core' ), 10, 2 );
 			add_filter( 'auto_update_translation', array( $this, 'autoupdate_translation' ), 10, 2 );

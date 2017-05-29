@@ -107,11 +107,10 @@ class Jetpack_JITM {
 			</p>
 
 			<p>
-				<img class="j-spinner hide" src="<?php echo esc_url( includes_url( 'images/spinner-2x.gif' ) ); ?>" alt="<?php echo esc_attr__( 'Loading...', 'jetpack' ); ?>" /><a href="#" data-module="manage" class="activate button <?php if ( Jetpack::is_module_active( 'manage' ) ) {
-					echo 'hide';
-				} ?>"><?php esc_html_e( 'Activate Now', 'jetpack' ); ?></a><a href="<?php echo esc_url( 'https://wordpress.com/plugins/' . $normalized_site_url ); ?>" target="_blank" title="<?php esc_attr_e( 'Go to WordPress.com to try these features', 'jetpack' ); ?>" id="jetpack-wordpressdotcom" class="button button-jetpack <?php if ( ! Jetpack::is_module_active( 'manage' ) ) {
-					echo 'hide';
-				} ?>"><?php esc_html_e( 'Go to WordPress.com', 'jetpack' ); ?></a>
+				<img class="j-spinner hide" src="<?php echo esc_url( includes_url( 'images/spinner-2x.gif' ) ); ?>" alt="<?php echo esc_attr__( 'Loading...', 'jetpack' ); ?>" />
+				<a href="<?php echo esc_url( 'https://wordpress.com/plugins/' . $normalized_site_url ); ?>" target="_blank" title="<?php esc_attr_e( 'Go to WordPress.com to try these features', 'jetpack' ); ?>" id="jetpack-wordpressdotcom" class="button button-jetpack">
+					<?php esc_html_e( 'Go to WordPress.com', 'jetpack' ); ?>
+				</a>
 			</p>
 		</div>
 		<?php
@@ -179,7 +178,6 @@ class Jetpack_JITM {
 	 */
 	function manage_pi_msg() {
 		$normalized_site_url = Jetpack::build_raw_urls( get_home_url() );
-		$manage_active       = Jetpack::is_module_active( 'manage' );
 
 		// Check if plugin has auto update already enabled in WordPress.com and don't show JITM in such case.
 		$active_before = get_option( 'jetpack_temp_active_plugins_before', array() );
@@ -220,28 +218,17 @@ class Jetpack_JITM {
 			}
 		}
 
-		if ( ! $manage_active && $plugin_auto_update_disabled && $plugin_can_auto_update && self::$auto_updates_allowed ) :
+		if ( $plugin_auto_update_disabled && $plugin_can_auto_update && self::$auto_updates_allowed ) :
 			?>
 			<div class="jp-jitm">
 				<a href="#" data-module="manage-pi" class="dismiss"><span class="genericon genericon-close"></span></a>
 
 			<?php echo self::get_emblem(); ?>
-
-				<?php if ( ! $manage_active ) : ?>
-					<p class="msg">
-						<?php esc_html_e( 'Save time with automated plugin updates.', 'jetpack' ); ?>
-					</p>
-					<p>
-						<img class="j-spinner hide" src="<?php echo esc_url( includes_url( 'images/spinner-2x.gif' ) ); ?>" alt="<?php echo esc_attr__( 'Loading...', 'jetpack' ); ?>" /><a href="#" data-module="manage" data-module-success="<?php esc_attr_e( 'Success!', 'jetpack' ); ?>" class="activate button"><?php esc_html_e( 'Activate remote management', 'jetpack' ); ?></a>
-					</p>
-				<?php elseif ( $manage_active ) : ?>
-					<p>
-						<?php esc_html_e( 'Save time with auto updates on WordPress.com', 'jetpack' ); ?>
-					</p>
-				<?php endif; // manage inactive
-				?>
-				<p class="show-after-enable <?php echo $manage_active ? '' : 'hide'; ?>">
-					<a href="<?php echo esc_url( 'https://wordpress.com/plugins/' . $normalized_site_url ); ?>" target="_blank" title="<?php esc_attr_e( 'Go to WordPress.com to enable auto-updates for plugins', 'jetpack' ); ?>" data-module="manage-pi" class="button button-jetpack launch show-after-enable"><?php if ( ! $manage_active ) : ?><?php esc_html_e( 'Enable auto-updates on WordPress.com', 'jetpack' ); ?><?php elseif ( $manage_active ) : ?><?php esc_html_e( 'Enable auto-updates', 'jetpack' ); ?><?php endif; // manage inactive ?></a>
+				<p>
+					<?php esc_html_e( 'Save time with auto updates on WordPress.com', 'jetpack' ); ?>
+				</p>
+				<p class="show-after-enable">
+					<a href="<?php echo esc_url( 'https://wordpress.com/plugins/' . $normalized_site_url ); ?>" target="_blank" title="<?php esc_attr_e( 'Go to WordPress.com to enable auto-updates for plugins', 'jetpack' ); ?>" data-module="manage-pi" class="button button-jetpack launch show-after-enable"><?php esc_html_e( 'Enable auto-updates', 'jetpack' ); ?></a>
 				</p>
 			</div>
 			<?php
