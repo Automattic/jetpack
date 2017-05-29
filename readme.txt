@@ -121,6 +121,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Remove the "Menus" item from the WordPress.com toolbar for parity with the toolbar on WordPress.com.
 * Improve the display of the Omnisearch results page on sites using an RTL language.
 * Trim any white space when adding new email address in the Contact Info Widget.
+* Improve the look of your recipes in search engine result pages, when you use the Recipe shortcode.
 
 **Compatibility Improvements**
 
