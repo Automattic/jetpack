@@ -4,6 +4,11 @@
  * @todo: doesn't look like "style.css" is used anymore.
  */
 
+ @font-face {
+    font-family: Noticons;
+    src: url("https://wordpress.com/i/noticons/Noticons.woff");
+}
+
 
 /* Master container */
 #jp-post-flair {
@@ -63,6 +68,16 @@ div.jetpack-likes-widget-wrapper .sd-link-color {
 div.jetpack-likes-widget-wrapper.slim-likes-widget {
 	width: 1px; /* initial default */
 	min-height: 0;
+}
+
+div.jetpack-comment-likes-widget-wrapper {
+	width: 100%;
+	position: relative;
+	min-height: 31px;
+}
+
+div.jetpack-comment-likes-widget-wrapper iframe {
+	margin-bottom: 0;
 }
 
 #likes-other-gravatars {
@@ -146,6 +161,25 @@ div.sd-box {
 	position: relative;
 }
 
+.comment-likes-widget-placeholder {
+	height: 18px;
+	position: absolute;
+	display: flex;
+}
+
+.comment-likes-widget-placeholder::before {
+	-webkit-font-smoothing: antialiased;
+	font-family: "Noticons";
+	font-size: 20px;
+	line-height: .9;
+	color: #2EA2CC;
+	content: '\f408';
+	width: 16px;
+	display: inline-block;
+	vertical-align: middle;
+	padding: 0 3px;
+}
+
 .post-likes-widget-placeholder .button {
 	display: none;	/* Let's not show a dummy like button, let's just make a great button experience once it's loaded */
 }
@@ -159,11 +193,15 @@ div.sd-box {
 	font-size: 12px;
 }
 
+.comment-likes-widget-placeholder .loading {
+	font-size: 11px;
+	padding-left: 8px;
+}
+
 .slim-likes-widget .post-likes-widget {
 	width: auto;
 	float: none;
 }
-
 
 /* Like Special cases (display on it's own) */
 div.sharedaddy.sd-like-enabled .sd-like h3 {
