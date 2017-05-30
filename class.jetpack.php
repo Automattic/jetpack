@@ -488,8 +488,6 @@ class Jetpack {
 				define( 'XMLRPC_REQUEST', true );
 			}
 
-			error_log("alternate xmlrpc");
-
 			add_action( 'template_redirect', array( $this, 'alternate_xmlrpc' ) );
 		}
 
@@ -646,16 +644,8 @@ class Jetpack {
 		 * @var string
 		 */
 		$post_default_title = "";
-
-		/**
-		 * Filters the class used for handling XML-RPC requests.
-		 *
-		 * @since 3.1.0
-		 *
-		 * @param string $class The name of the XML-RPC server class.
-		 */
-		$wp_xmlrpc_server_class = apply_filters( 'wp_xmlrpc_server_class', 'wp_xmlrpc_server' );
-		$wp_xmlrpc_server = new $wp_xmlrpc_server_class;
+		
+		$wp_xmlrpc_server = new wp_xmlrpc_server();
 
 		// Fire off the request
 		$wp_xmlrpc_server->serve_request();
