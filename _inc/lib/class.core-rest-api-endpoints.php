@@ -63,7 +63,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$module_data_endpoint = new Jetpack_Core_API_Module_Data_Endpoint();
 		$module_toggle_endpoint = new Jetpack_Core_API_Module_Toggle_Endpoint( new Jetpack_IXR_Client() );
 
-
 		register_rest_route( 'jetpack/v4', '/jitm', array(
 			'methods'  => WP_REST_Server::READABLE,
 			'callback' => __CLASS__ . '::get_jitm_message',
@@ -72,12 +71,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 		register_rest_route( 'jetpack/v4', '/jitm', array(
 			'methods'  => WP_REST_Server::CREATABLE,
 			'callback' => __CLASS__ . '::delete_jitm_message'
-		) );
-
-		// Register a site
-		register_rest_route( 'jetpack/v4', '/verify_registration', array(
-			'methods' => WP_REST_Server::EDITABLE,
-			'callback' => __CLASS__ . '::verify_registration',
 		) );
 
 		// Get current connection status of Jetpack
@@ -339,21 +332,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$jitm = Jetpack_JITM::init();
 
 		return $jitm->dismiss( $request['id'], $request['feature_class'] );
-	}
-
-	/**
-	 * Handles verification that a site is registered
-	 *
-	 * @since 4.9.0
-	 *
-	 * @param WP_REST_Request $request The request sent to the WP REST API.
-	 *
-	 * @return array|wp-error
-	 */
-	public static function verify_registration( $request ) {
-		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-xmlrpc-server.php';
-		$xmlrpc_server = new Jetpack_XMLRPC_Server();
-		return $xmlrpc_server->verify_registration( array( $request['secret_1'], $request['state'] ) );
 	}
 
 	/**
