@@ -13,6 +13,14 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 		parent::tearDown();
 	}
 
+	function filter_plugins( $plugins ) {
+		foreach ( $plugins as $plugin => &$data ) {
+			$data['Active'] = false;
+		}
+
+		return $plugins;
+	}
+
 	public function test_installing_and_removing_plugin_is_synced() {
 		if ( defined( 'PHP_VERSION_ID' ) && PHP_VERSION_ID < 50300 ) {
 			$this->markTestIncomplete("Right now this doesn't work on PHP 5.2");	
@@ -47,7 +55,7 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 'WP Super Cache', $installed_plugin->args[1]['Name'] );
 
 		$plugins = $this->server_replica_storage->get_callable( 'get_plugins' );
-		$this->assertEquals( get_plugins(), $plugins );
+		$this->assertEquals( $this->filter_plugins( get_plugins() ), $plugins );
 		$this->assertTrue( isset( $plugins['wp-super-cache/wp-cache.php'] ) );
 		// gets called via callable.
 		$this->assertEquals( get_option( 'uninstall_plugins', array() ), $this->server_replica_storage->get_option( 'uninstall_plugins', array() ) );
@@ -57,7 +65,7 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 		$this->remove_plugin();
 		$this->sender->do_sync();
 		$plugins = $this->server_replica_storage->get_callable( 'get_plugins' );
-		$this->assertEquals( get_plugins(), $plugins );
+		$this->assertEquals( $this->filter_plugins( get_plugins() ), $plugins );
 		$this->assertFalse( isset( $plugins['wp-super-cache/wp-cache.php'] ) );
 	}
 
@@ -203,7 +211,7 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 
 	function test_all_plugins_filter_is_respected() {
 		$this->sender->do_sync();
-		$plugins = get_plugins();
+		$plugins = $this->filter_plugins( get_plugins() );
 
 		if ( ! isset( $plugins['hello.php'] ) ) {
 			$this->markTestSkipped( 'Plugin hello dolly is not available' );
