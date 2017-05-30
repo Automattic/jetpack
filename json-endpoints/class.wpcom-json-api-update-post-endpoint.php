@@ -311,7 +311,16 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 				$insert['edit_date'] = true;
 			}
 
-			$post_id = wp_update_post( (object) $insert );
+			// this two-step process ensures any changes submitted along with status=trash get saved before trashing
+			if ( isset( $input['status'] ) && 'trash' === $input['status'] ) {
+				// if we insert it with status='trash', it will get double-trashed, so insert it as a draft first
+				unset( $insert['status'] );
+				$post_id = wp_update_post( (object) $insert );
+				// now call wp_trash_post so post_meta gets set and any filters get called
+				wp_trash_post( $post_id );
+			} else {
+				$post_id = wp_update_post( (object) $insert );
+			}
 
 		}
 
@@ -537,6 +546,10 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 				if ( ! empty( $meta->id ) ) {
 					$meta->id = absint( $meta->id );
 					$existing_meta_item = get_metadata_by_mid( 'post', $meta->id );
+					if ( $post_id !== (int) $existing_meta_item->post_id ) {
+						// Only allow updates for metadata on this post
+						continue;
+					}
 				}
 
 				$unslashed_meta_key = wp_unslash( $meta->key ); // should match what the final key will be
@@ -648,7 +661,11 @@ class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 		/** This action is documented in json-endpoints/class.wpcom-json-api-site-settings-endpoint.php */
 		do_action( 'wpcom_json_api_objects', 'posts' );
 
-		wp_delete_post( $post->ID );
+		// we need to call wp_trash_post so that untrash will work correctly for all post types
+		if ( 'trash' === $post->post_status )
+			wp_delete_post( $post->ID );
+		else
+			wp_trash_post( $post->ID );
 
 		$status = get_post_status( $post->ID );
 		if ( false === $status ) {
