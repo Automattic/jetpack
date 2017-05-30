@@ -236,10 +236,12 @@ class Jetpack_Sync_Listener {
 	}
 	function get_actor() {
 		$current_user = wp_get_current_user();
+
 		$actor = array();
 		if ( $current_user ) {
 			$actor[ 'display_name' ] = $current_user->display_name;
 			$actor[ 'user_email' ] = $current_user->user_email;
+			$actor['user_roles'] = $current_user->roles; /* Since in 5.0.0 */
 		}
 
 		if ( isset( $_SERVER['REMOTE_ADDR'] ) ) {

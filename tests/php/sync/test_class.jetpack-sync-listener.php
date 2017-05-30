@@ -89,6 +89,7 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 		$example_actor = array(
 			'display_name' => $current_user->display_name,
 			'user_email'   => $current_user->user_email,
+			'roles'        => $current_user->roles,
 			'ip'           => $_SERVER['REMOTE_ADDR'],
 			'is_cron'      => defined( 'DOING_CRON' ) ? DOING_CRON : false,
 			'is_wp_admin'  => is_admin(),
