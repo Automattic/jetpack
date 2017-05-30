@@ -229,6 +229,7 @@ class Jetpack_JITM {
 			'external_user_id'     => urlencode_deep( $user->ID ),
 			'user_roles'           => urlencode_deep( implode( ',', $user->roles ) ),
 			'query_string'         => urlencode_deep( $query ),
+			'_locale'              => get_user_locale(),
 		), sprintf( '/sites/%d/jitm/%s', $site_id, $message_path ) );
 
 		// attempt to get from cache
