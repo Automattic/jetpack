@@ -150,6 +150,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * VideoPress media items now always return their unique ID, and do not trigger any PHP notice.
 * Fix style of the EU Cookie Law Widget on themes with specific positioning.
 * Use correct time constant to define an hour in Upcoming Events Widget.
+* Avoid HTML encoding issues in sitemaps.
 
 = 4.9 =
 
