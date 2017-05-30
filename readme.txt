@@ -116,7 +116,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Jetpack data sync now better supports WordPress updates, themes changes, widgets, and multisite networks.
 * Video is updated to be fully compatible with the upcoming Media Widget.
 * Force secure WordPress.com API requests for request body, remove deprecated stats methods, and add new endpoints for post listing and user invitations.
-* Jetpack's Command Line tools can now output information about the primary Jetpack site owner.
+* Jetpack's Command Line tools can now output information about the primary Jetpack site owner. Try `wp jetpack status`!
 * Custom CSS now supports the `animation-fill-mode`, `fill`, and `stroke` properties.
 * Remove the "Menus" item from the WordPress.com toolbar for parity with the toolbar on WordPress.com.
 * Improve the display of the Omnisearch results page on sites using an RTL language.
