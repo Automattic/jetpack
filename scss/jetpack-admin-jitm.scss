@@ -24,7 +24,7 @@
 	}
 }
 
-// Original JITMs
+/* Original JITMs
 .jp-jitm {
 	border-radius: 2px;
 	max-width: 100%;
@@ -93,8 +93,6 @@
 	@media (min-width: 800px) {
 		.jp-emblem, p {
 			float: left;
-			/* margin: .5em 1em 0 .5em;
-			padding-top: 4px; */
 		}
 		.jp-emblem {
 			width: 20px;
@@ -189,8 +187,9 @@
 		}
 	}
 }
+*/
 
-// New JITMS - calypso banner styles
+// New JITMS - modified calypso banner styles
 
 .jitm-button {
 	background: $white;
@@ -459,7 +458,14 @@
 .jitm-banner__info {
 	flex-grow: 1;
 	line-height: 1.4;
-	width: 100%;
+
+	@include breakpoint( ">480px" ) {
+		flex-basis: 50%;
+	}
+
+	@include breakpoint( ">960px" ) {
+		flex-basis: 70%;
+	}
 
 	.jitm-banner__title,
 	.jitm-banner__description {
