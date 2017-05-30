@@ -1159,7 +1159,7 @@ FOOTER
 			);
 		}
 
-		$url = get_permalink( $post );
+		$url = esc_url( get_permalink( $post ) );
 
 		/*
 		 * Spec requires the URL to be <=2048 bytes.
@@ -1236,11 +1236,11 @@ FOOTER
 			);
 		}
 
-		$url = wp_get_attachment_url( $post->ID );
+		$url = esc_url( wp_get_attachment_url( $post->ID ) );
 
-		$parent_url = get_permalink( get_post( $post->post_parent ) );
+		$parent_url = esc_url( get_permalink( get_post( $post->post_parent ) ) );
 		if ( '' == $parent_url ) { // WPCS: loose comparison ok.
-			$parent_url = get_permalink( $post );
+			$parent_url = esc_url( get_permalink( $post ) );
 		}
 
 		$item_array = array(
@@ -1252,15 +1252,15 @@ FOOTER
 				),
 			),
 		);
-
-		$title = esc_html( $post->post_title );
+		/** This filter is already documented in core/wp-includes/feed.php */
+		$title = apply_filters( 'the_title_rss', $post->post_title );
 		if ( '' !== $title ) {
-			$item_array['url']['image:image']['image:title'] = $title;
+			$item_array['url']['image:image']['image:title'] = htmlentities( $title );
 		}
-
-		$caption = esc_html( $post->post_excerpt );
+		/** This filter is already documented in core/wp-includes/feed.php */
+		$caption = apply_filters( 'the_excerpt_rss', $post->post_excerpt );
 		if ( '' !== $caption ) {
-			$item_array['url']['image:image']['image:caption'] = $caption;
+			$item_array['url']['image:image']['image:caption'] = "<![CDATA[" . $caption . "]]>";
 		}
 
 		/**
@@ -1318,20 +1318,29 @@ FOOTER
 			);
 		}
 
-		$parent_url = get_permalink( get_post( $post->post_parent ) );
+		$parent_url = esc_url( get_permalink( get_post( $post->post_parent ) ) );
 		if ( '' == $parent_url ) { // WPCS: loose comparison ok.
-			$parent_url = get_permalink( $post );
+			$parent_url = esc_url( get_permalink( $post ) );
 		}
+
+		// Prepare the content like get_the_content_feed()
+		$content = $post->post_content;
+		/** This filter is already documented in core/wp-includes/post-template.php */
+		$content = apply_filters( 'the_content', $content );
+		$content = str_replace(']]>', ']]&gt;', $content);
+		/** This filter is already documented in core/wp-includes/feed.php */
+		$content = apply_filters( 'the_content_feed', $content, 'rss2' );
 
 		$item_array = array(
 			'url' => array(
 				'loc'         => $parent_url,
 				'lastmod'     => jp_sitemap_datetime( $post->post_modified_gmt ),
 				'video:video' => array(
-					'video:title'         => esc_html( $post->post_title ),
+					/** This filter is already documented in core/wp-includes/feed.php */
+					'video:title'         => apply_filters( 'the_title_rss', $post->post_title ),
 					'video:thumbnail_loc' => '',
-					'video:description'   => esc_html( $post->post_content ),
-					'video:content_loc'   => wp_get_attachment_url( $post->ID ),
+					'video:description'   => '<![CDATA[' . $content . ']]>',
+					'video:content_loc'   => esc_url( wp_get_attachment_url( $post->ID ) ),
 				),
 			),
 		);
@@ -1424,7 +1433,8 @@ FOOTER
 						'news:name'     => esc_html( get_bloginfo( 'name' ) ),
 						'news:language' => $language,
 					),
-					'news:title'            => esc_html( $post->post_title ),
+					/** This filter is already documented in core/wp-includes/feed.php */
+					'news:title'            => apply_filters( 'the_title_rss', $post->post_title ),
 					'news:publication_date' => jp_sitemap_datetime( $post->post_date_gmt ),
 					'news:genres'           => 'Blog',
 				),
