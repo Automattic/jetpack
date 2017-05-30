@@ -371,7 +371,7 @@
 		content: '\f158';
 	}
 
-	@include breakpoint( ">960px" ) {
+	@include breakpoint( ">660px" ) {
 		margin-right: rem( -8px );
 	}
 
