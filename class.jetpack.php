@@ -4107,10 +4107,11 @@ p {
 			$url = Jetpack::nonce_url_no_esc( Jetpack::admin_url( 'action=register' ), 'jetpack-register' );
 
 			if ( ! empty( $redirect ) ) {
-				$validated_redirect = wp_validate_redirect( esc_url_raw( $redirect ), false );
-				$url = ! empty( $redirect )
-					? add_query_arg( 'redirect', urlencode( $validated_redirect ), $url )
-					: $url;
+				$url = add_query_arg(
+					'redirect',
+					urlencode( wp_validate_redirect( esc_url_raw( $redirect ) ) ),
+					$url
+				);
 			}
 
 			if( is_network_admin() ) {
