@@ -492,7 +492,6 @@ class Jetpack {
 		}
 
 		if ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST && isset( $_GET['for'] ) && 'jetpack' == $_GET['for'] ) {
-			error_log("traditional XMLRPC request");
 			@ini_set( 'display_errors', false ); // Display errors can cause the XML to be not well formed.
 
 			require_once JETPACK__PLUGIN_DIR . 'class.jetpack-xmlrpc-server.php';
@@ -644,7 +643,7 @@ class Jetpack {
 		 * @var string
 		 */
 		$post_default_title = "";
-		
+
 		$wp_xmlrpc_server = new wp_xmlrpc_server();
 
 		// Fire off the request
