@@ -183,7 +183,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Protect avoid conflicts with other plugins hooking into the log in form.
 * Contact Form not auto-activated when Ninja Forms is active.
 * WordPess.com REST API now allows `HTTP PUT` requests.
-* Ensure that Jetpack's Image Widget is fully compatible with the Media Widget soon to be available in WordPress.
+* Ensure that Jetpack's Image Widget is fully compatible with the Media Widget soon to be available in WordPress 4.8.
 
 **Bug Fixes**
 
