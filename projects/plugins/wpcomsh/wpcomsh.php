@@ -37,6 +37,7 @@ require_once( 'widgets/posts-i-like.php' );
 require_once( 'widgets/recent-comments-widget.php' );
 require_once( 'widgets/reservations.php' );
 require_once( 'widgets/tlkio/tlkio.php' );
+require_once( 'widgets/top-clicks.php' );
 require_once( 'widgets/top-rated.php' );
 require_once( 'widgets/twitter.php' );
 
