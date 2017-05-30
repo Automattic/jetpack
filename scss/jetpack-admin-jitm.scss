@@ -284,14 +284,14 @@
 }
 
 // if JITM appears directly below WordPress "help" menu adjust margins
-#screen-meta-links+.jitm-card {
-	margin: rem( 32px ) 1.5385em 0 auto;
+#screen-meta-links+.jetpack-jitm-message {
+	margin: rem( 40px ) 1.5385em 0 auto;
 }
 
 .jitm-card {
 	display: block;
 	position: relative;
-	margin: rem( 16px ) 1.30rem 0 auto;
+	margin: rem( 16px ) 0 0 auto;
 	padding: rem( 16px );
 	box-sizing: border-box;
 	background: $white;
