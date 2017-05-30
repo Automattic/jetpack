@@ -122,7 +122,7 @@ class Social_Links {
 			'priority' => 35,
 		) );
 
-		foreach ( array_keys( $this->publicize->get_services() ) as $service ) {
+		foreach ( array_keys( $this->publicize->get_services( 'all' ) ) as $service ) {
 			$choices = $this->get_customize_select( $service );
 
 			if ( empty( $choices ) ) {

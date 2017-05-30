@@ -302,6 +302,7 @@ $GLOBALS['csstidy']['all_properties']['animation'] = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['animation-delay'] = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['animation-direction'] = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['animation-duration'] = 'CSS3.0';
+$GLOBALS['csstidy']['all_properties']['animation-fill-mode'] = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['animation-iteration-count'] = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['animation-name'] = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['animation-play-state'] = 'CSS3.0';
@@ -399,6 +400,7 @@ $GLOBALS['csstidy']['all_properties']['drop-initial-size'] = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['drop-initial-value'] = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['elevation'] = 'CSS2.0,CSS2.1,CSS3.0';
 $GLOBALS['csstidy']['all_properties']['empty-cells'] = 'CSS2.0,CSS2.1,CSS3.0';
+$GLOBALS['csstidy']['all_properties']['fill'] = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['fit'] = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['fit-position'] = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['flex'] = 'CSS3.0';
@@ -530,6 +532,7 @@ $GLOBALS['csstidy']['all_properties']['speech-rate'] = 'CSS2.0,CSS2.1,CSS3.0';
 $GLOBALS['csstidy']['all_properties']['src'] = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['stress'] = 'CSS2.0,CSS2.1,CSS3.0';
 $GLOBALS['csstidy']['all_properties']['string-set'] = 'CSS3.0';
+$GLOBALS['csstidy']['all_properties']['stroke'] = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['tab-size'] = 'CSS3.0';
 $GLOBALS['csstidy']['all_properties']['table-layout'] = 'CSS2.0,CSS2.1,CSS3.0';
 $GLOBALS['csstidy']['all_properties']['target'] = 'CSS3.0';
@@ -668,5 +671,3 @@ $GLOBALS['csstidy']['predefined_templates']['low_compression'][] = '</span>'."\n
 $GLOBALS['csstidy']['predefined_templates']['low_compression'][] = "\n";
 
 require dirname( __FILE__ ) . '/data-wp.inc.php';
-
-?>

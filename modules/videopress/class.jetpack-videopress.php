@@ -52,6 +52,8 @@ class Jetpack_VideoPress {
 
 		add_filter( 'wp_mime_type_icon', array( $this, 'wp_mime_type_icon' ), 10, 3 );
 
+		add_filter( 'wp_video_extensions', array( $this, 'add_videopress_extenstion' ) );
+
 		$this->add_media_new_notice();
 
 		VideoPress_Scheduler::init();
@@ -161,6 +163,14 @@ class Jetpack_VideoPress {
 					'videopress-plupload'
 				),
 				$this->version
+			);
+
+			wp_enqueue_script(
+				'media-video-widget-extensions',
+				plugins_url( 'js/media-video-widget-extensions.js', __FILE__ ),
+				array(),
+				$this->version,
+				true
 			);
 		}
 
@@ -296,6 +306,9 @@ class Jetpack_VideoPress {
 			$existing_mimes[ $key ] = $value;
 		}
 
+		// Make sure that videopress mimes are considered videos.
+		$existing_mimes['videopress'] = 'video/videopress';
+
 		return $existing_mimes;
 	}
 
@@ -329,6 +342,17 @@ class Jetpack_VideoPress {
 		}
 
 		return 'https://wordpress.com/wp-content/mu-plugins/videopress/images/media-video-processing-icon.png';
+	}
+
+	/**
+	 * @param array $extensions
+	 *
+	 * @return array
+	 */
+	public function add_videopress_extenstion( $extensions ) {
+		$extensions[] = 'videopress';
+
+		return $extensions;
 	}
 }
 

@@ -21,6 +21,7 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 
 		$args = $this->query_args();
 		$is_eligible_for_page_handle = true;
+		$site = $this->get_platform()->get_site( $blog_id );
 
 		if ( $args['number'] < 1 ) {
 			$args['number'] = 20;
@@ -28,7 +29,7 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 			return new WP_Error( 'invalid_number',  'The NUMBER parameter must be less than or equal to 100.', 400 );
 		}
 
-		if ( isset( $args['type'] ) && ! $this->is_post_type_allowed( $args['type'] ) ) {
+		if ( isset( $args['type'] ) && ! $site->is_post_type_allowed( $args['type'] ) ) {
 			return new WP_Error( 'unknown_post_type', 'Unknown post type', 404 );
 		}
 
@@ -37,7 +38,7 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 			if ( version_compare( $this->api->version, '1.1', '<' ) ) {
 				$args['type'] = array( 'post', 'page' );
 			} else { // 1.1+
-				$args['type'] = $this->_get_whitelisted_post_types();
+				$args['type'] = $site->get_whitelisted_post_types();
 			}
 		}
 
@@ -68,7 +69,7 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 		}
 
 		if ( isset( $args['type'] ) &&
-			   ! in_array( $args['type'], array( 'post', 'page', 'revision', 'any' ) ) &&
+			   ! in_array( $args['type'], array( 'post', 'revision', 'page', 'any' ) ) &&
 			   defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 			$this->load_theme_functions();
 		}
@@ -80,7 +81,7 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 		if ( is_array( $args['type'] ) ) {
 			$allowed_types = array();
 			foreach ( $args['type'] as $post_type ) {
-				if ( $this->current_user_can_access_post_type( $post_type, $args['context'] ) ) {
+				if ( $site->current_user_can_access_post_type( $post_type, $args['context'] ) ) {
 				   	$allowed_types[] = $post_type;
 				}
 			}
@@ -91,7 +92,7 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 			$args['type'] = $allowed_types;
 		}
 		else {
-			if ( ! $this->current_user_can_access_post_type( $args['type'], $args['context'] ) ) {
+			if ( ! $site->current_user_can_access_post_type( $args['type'], $args['context'] ) ) {
 				return array( 'found' => 0, 'posts' => array() );
 			}
 		}
@@ -181,6 +182,23 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 
 		if ( isset( $args['tag'] ) ) {
 			$query['tag'] = $args['tag'];
+		}
+
+		if ( ! empty( $args['term'] ) ) {
+			$query['tax_query'] = array();
+			foreach ( $args['term'] as $taxonomy => $slug ) {
+				$taxonomy_object = get_taxonomy( $taxonomy );
+				if ( false === $taxonomy_object || ( ! $taxonomy_object->public && 
+						! current_user_can( $taxonomy_object->cap->assign_terms ) ) ) {
+					continue;
+				}
+
+				$query['tax_query'][] = array(
+					'taxonomy' => $taxonomy,
+					'field' => 'slug',
+					'terms' => explode( ',', $slug )
+				);				
+			}
 		}
 
 		if ( isset( $args['page'] ) ) {
@@ -311,6 +329,13 @@ class WPCOM_JSON_API_List_Posts_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_E
 						$return[$key]->next_page = $this->build_page_handle( $last_post, $query );
 					}
 				}
+
+				if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+					if ( !isset( $return[$key] ) )
+						$return[$key] = new stdClass;
+					$return[$key]->wpcom = true;
+				}
+
 				break;
 			}
 		}

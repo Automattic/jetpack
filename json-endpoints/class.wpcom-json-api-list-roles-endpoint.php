@@ -45,14 +45,13 @@ class WPCOM_JSON_API_List_Roles_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 		$roles = array();
 
-		global $wp_roles;
-		$wp_roles->reinit();
+		$wp_roles= new WP_Roles();
 		$role_names = $wp_roles->get_names();
 		$role_keys = array_keys( $role_names );
 
 		foreach ( (array) $role_keys as $role_key ) {
 			$role_details = get_role( $role_key );
-			$role_details->display_name = $role_names[$role_key];
+			$role_details->display_name = translate_user_role( $role_names[$role_key] );
 			$roles[] = $role_details;
 		}
 

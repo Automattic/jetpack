@@ -184,6 +184,11 @@ class VideoPress_Shortcode {
 						$videopress_guid = $matches[2];
 					}
 
+					// Also test for videopress oembed url, which is used by the Video Media Widget.
+					if ( ! $videopress_guid && preg_match( '@https://videopress.com/v/([a-z0-9]{8})@i', $url, $matches ) ) {
+						$videopress_guid = $matches[1];
+					}
+
 					break;
 				}
 			}

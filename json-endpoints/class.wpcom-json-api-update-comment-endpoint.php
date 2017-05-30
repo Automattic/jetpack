@@ -173,10 +173,6 @@ class WPCOM_JSON_API_Update_Comment_Endpoint extends WPCOM_JSON_API_Comment_Endp
 		}
 
 		if ( isset( $update['comment_status'] ) ) {
-			if ( count( $update ) === 1 ) {
-				// We are only here to update the comment status so let's respond ASAP
-				add_action( 'wp_set_comment_status', array( $this, 'output_comment' ), 0, 1 );
-			}
 			switch ( $update['comment_status'] ) {
 				case 'approved' :
 					if ( 'approve' !== $comment_status ) {
@@ -262,11 +258,5 @@ class WPCOM_JSON_API_Update_Comment_Endpoint extends WPCOM_JSON_API_Comment_Endp
 		}
 
 		return $this->get_comment( $comment->comment_ID, $args['context'] );
-	}
-
-	function output_comment( $comment_id ) {
-		$args  = $this->query_args();
-		$output = $this->get_comment( $comment_id, $args['context'] );
-		$this->api->output_early( 200, $output );
 	}
 }

@@ -1,5 +1,4 @@
 <?php
-
 class WPCOM_JSON_API_Site_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 	public static $user_format = array(
@@ -14,7 +13,7 @@ class WPCOM_JSON_API_Site_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'avatar_URL'   => '(url) Gravatar image URL',
 		'profile_URL'  => '(url) Gravatar Profile URL',
 		'site_ID'      => '(int) ID of the user\'s primary blog',
-		'roles'        => '(array) The roles of the user',
+		'roles'        => '(array|string) The role or roles of the user',
 	);
 
 	// /sites/%s/users/%d -> $blog_id, $user_id
@@ -55,7 +54,7 @@ class WPCOM_JSON_API_Site_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 		$the_user = $this->get_author( $user_id, true );
 		if ( $the_user && ! is_wp_error( $the_user ) ) {
 			$userdata = get_userdata( $user_id );
-			$the_user->roles = ! is_wp_error( $userdata ) ? $userdata->roles : array();
+			$the_user->roles = ! is_wp_error( $userdata ) ? array_values( $userdata->roles ) : array();
 		}
 
 		return $the_user;
@@ -97,13 +96,23 @@ class WPCOM_JSON_API_Site_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 				}
 			}
 		}
+
 		if ( isset( $input[ 'roles' ] ) ) {
+			// For now, we only use the first role in the array.
 			if ( is_array( $input['roles'] ) ) {
 				$user['role'] = $input['roles'][0];
-			} else {
+			} else if ( is_string( $input['roles'] ) ) {
 				$user['role'] = $input['roles'];
+			} else {
+				return new WP_Error( 'invalid_input', __( 'The roles property must be a string or an array.', 'jetpack' ), 400 );
+			}
+
+			$editable_roles = array_keys( get_editable_roles() );
+			if ( ! in_array( $user['role'], $editable_roles ) ) {
+				return new WP_Error( 'invalid_input', sprintf( __( '%s is not a valid role.', 'jetpack' ), $editable_roles ), 400 );
 			}
 		}
+
 		$result = wp_update_user( $user );
 		if ( is_wp_error( $result ) ) {
 			return $result;

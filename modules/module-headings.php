@@ -143,6 +143,11 @@ function jetpack_get_module_i18n( $key ) {
 				'recommended description' => _x( 'Keep visitors engaged on your blog by highlighting relevant and new content at the bottom of each published post.', 'Jumpstart Description', 'jetpack' ),
 			),
 
+			'search' => array(
+				'name' => _x( 'Search', 'Module Name', 'jetpack' ),
+				'description' => _x( 'Enhanced search, powered by Elasticsearch', 'Module Description', 'jetpack' ),
+			),
+
 			'seo-tools' => array(
 				'name' => _x( 'SEO Tools', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Better results on search engines and social media.', 'Module Description', 'jetpack' ),

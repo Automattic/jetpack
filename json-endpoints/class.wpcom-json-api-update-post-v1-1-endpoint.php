@@ -29,6 +29,8 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 	// /sites/%s/posts/new       -> $blog_id
 	// /sites/%s/posts/%d        -> $blog_id, $post_id
 	function write_post( $path, $blog_id, $post_id ) {
+		global $wpdb;
+
 		$new  = $this->api->ends_with( $path, '/new' );
 		$args = $this->query_args();
 
@@ -139,9 +141,9 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 			}
 		}
 
-		if ( function_exists( 'wpcom_switch_to_locale' ) ) {
+		if ( function_exists( 'wpcom_switch_to_blog_locale' ) ) {
 			// fixes calypso-pre-oss #12476: respect blog locale when creating the post slug
-			wpcom_switch_to_locale( get_blog_lang_code( $blog_id ) );
+			wpcom_switch_to_blog_locale( $blog_id );
 		}
 
 		// If date was set, $this->input will set date_gmt, date still needs to be adjusted for the blog's offset
@@ -330,8 +332,16 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 		$has_media = ! empty( $input['media'] ) ? count( $input['media'] ) : false;
 		$has_media_by_url = ! empty( $input['media_urls'] ) ? count( $input['media_urls'] ) : false;
 
-		if ( $new ) {
+		$media_id_string = '';
+		if ( $has_media || $has_media_by_url ) {
+			$media_files = ! empty( $input['media'] ) ? $input['media'] : array();
+			$media_urls = ! empty( $input['media_urls'] ) ? $input['media_urls'] : array();
+			$media_attrs = ! empty( $input['media_attrs'] ) ? $input['media_attrs'] : array();
+			$media_results = $this->handle_media_creation_v1_1( $media_files, $media_urls, $media_attrs );
+			$media_id_string = join( ',', array_filter( array_map( 'absint', $media_results['media_ids'] ) ) );
+		}
 
+		if ( $new ) {
 			if ( isset( $input['content'] ) && ! has_shortcode( $input['content'], 'gallery' ) && ( $has_media || $has_media_by_url ) ) {
 				switch ( ( $has_media + $has_media_by_url ) ) {
 				case 0 :
@@ -339,11 +349,17 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 					break;
 				case 1 :
 					// 1 image - make it big
-					$insert['post_content'] = $input['content'] = "[gallery size=full columns=1]\n\n" . $input['content'];
+					$insert['post_content'] = $input['content'] = sprintf(
+						"[gallery size=full ids='%s' columns=1]\n\n",
+						$media_id_string
+					) . $input['content'];
 					break;
 				default :
 					// Several images - 3 column gallery
-					$insert['post_content'] = $input['content'] = "[gallery]\n\n" . $input['content'];
+					$insert['post_content'] = $input['content'] = sprintf(
+						"[gallery ids='%s']\n\n",
+						$media_id_string
+					) . $input['content'];
 					break;
 				}
 			}
@@ -359,7 +375,16 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 				$insert['edit_date'] = true;
 			}
 
-			$post_id = wp_update_post( (object) $insert );
+			// this two-step process ensures any changes submitted along with status=trash get saved before trashing
+			if ( isset( $input['status'] ) && 'trash' === $input['status'] ) {
+				// if we insert it with status='trash', it will get double-trashed, so insert it as a draft first
+				unset( $insert['status'] );
+				$post_id = wp_update_post( (object) $insert );
+				// now call wp_trash_post so post_meta gets set and any filters get called
+				wp_trash_post( $post_id );
+			} else {
+				$post_id = wp_update_post( (object) $insert );
+			}
 		}
 
 
@@ -373,12 +398,16 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 			return $post_check;
 		}
 
-		if ( $has_media || $has_media_by_url ) {
-			$media_files = ! empty( $input['media'] ) ? $input['media'] : array();
-			$media_urls = ! empty( $input['media_urls'] ) ? $input['media_urls'] : array();
-			$media_attrs = ! empty( $input['media_attrs'] ) ? $input['media_attrs'] : array();
-			$force_parent_id = $post_id;
-			$media_results = $this->handle_media_creation_v1_1( $media_files, $media_urls, $media_attrs, $force_parent_id );
+		if ( $media_id_string ) {
+			// Yes - this is really how wp-admin does it.
+			$wpdb->query( $wpdb->prepare(
+				"UPDATE $wpdb->posts SET post_parent = %d WHERE post_type = 'attachment' AND ID IN ( $media_id_string )",
+				$post_id
+			) );
+			foreach ( $media_results['media_ids'] as $media_id ) {
+				clean_attachment_cache( $media_id );
+			}
+			clean_post_cache( $post_id );
 		}
 
 		// set page template for this post..
@@ -585,6 +614,10 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 				if ( ! empty( $meta->id ) ) {
 					$meta->id = absint( $meta->id );
 					$existing_meta_item = get_metadata_by_mid( 'post', $meta->id );
+					if ( $post_id !== (int) $existing_meta_item->post_id ) {
+						// Only allow updates for metadata on this post
+						continue;
+					}
 				}
 
 				$unslashed_meta_key = wp_unslash( $meta->key ); // should match what the final key will be
@@ -694,7 +727,11 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 		/** This action is documented in json-endpoints/class.wpcom-json-api-site-settings-endpoint.php */
 		do_action( 'wpcom_json_api_objects', 'posts' );
 
-		wp_delete_post( $post->ID );
+		// we need to call wp_trash_post so that untrash will work correctly for all post types
+		if ( 'trash' === $post->post_status )
+			wp_delete_post( $post->ID );
+		else
+			wp_trash_post( $post->ID );
 
 		$status = get_post_status( $post->ID );
 		if ( false === $status ) {
@@ -777,6 +814,6 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 			$type = get_post_type( $post_id );
 		}
 
-		return ! empty( $type ) && ! in_array( $type, array( 'post', 'page', 'revision' ) );
+		return ! empty( $type ) && ! in_array( $type, array( 'post', 'revision' ) );
 	}
 }

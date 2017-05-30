@@ -584,7 +584,7 @@ class Jetpack {
 		add_filter( 'jetpack_get_default_modules', array( $this, 'handle_deprecated_modules' ), 99 );
 
 		// A filter to control all just in time messages
-		add_filter( 'jetpack_just_in_time_msgs', '__return_true' );
+		add_filter( 'jetpack_just_in_time_msgs', '__return_true', 9 );
 
 		// Update the Jetpack plan from API on heartbeats
 		add_action( 'jetpack_heartbeat', array( $this, 'refresh_active_plan_from_wpcom' ) );
@@ -1847,26 +1847,6 @@ class Jetpack {
 	}
 
 	/**
-	* Stores two secrets and a timestamp so WordPress.com can make a request back and verify an action
-	* Does some extra verification so urls (such as those to public-api, register, etc) can't just be crafted
-	* $name must be a registered option name.
-	*/
-	public static function create_nonce( $name ) {
-		$secret = wp_generate_password( 32, false ) . ':' . wp_generate_password( 32, false ) . ':' . ( time() + 600 );
-
-		Jetpack_Options::update_option( $name, $secret );
-		@list( $secret_1, $secret_2, $eol ) = explode( ':', Jetpack_Options::get_option( $name ) );
-		if ( empty( $secret_1 ) || empty( $secret_2 ) || $eol < time() )
-			return new Jetpack_Error( 'missing_secrets' );
-
-		return array(
-			'secret_1' => $secret_1,
-			'secret_2' => $secret_2,
-			'eol'      => $eol,
-		);
-	}
-
-	/**
 	 * Updates the single given option.  Updates jetpack_options or jetpack_$name as appropriate.
  	 *
 	 * @deprecated 3.4 use Jetpack_Options::update_option() instead.
@@ -2866,7 +2846,6 @@ p {
 
 		Jetpack_Options::delete_option(
 			array(
-				'register',
 				'blog_token',
 				'user_token',
 				'user_tokens',
@@ -2875,8 +2854,9 @@ p {
 				'fallback_no_verify_ssl_certs',
 			)
 		);
-
+		
 		Jetpack_IDC::clear_all_idc_options();
+		Jetpack_Options::delete_raw_option( 'jetpack_secrets' );
 
 		if ( $update_activated_state ) {
 			Jetpack_Options::update_option( 'activated', 4 );
@@ -4158,8 +4138,7 @@ p {
 				$redirect = Jetpack_Network::init()->get_url( 'network_admin_page' );
 			}
 
-			$secrets = Jetpack::init()->generate_secrets( 'authorize' );
-			@list( $secret ) = explode( ':', $secrets );
+			$secrets = Jetpack::generate_secrets( 'authorize' );
 
 			$site_icon = ( function_exists( 'has_site_icon') && has_site_icon() )
 				? get_site_icon_url()
@@ -4195,7 +4174,7 @@ p {
 					'is_active'     => Jetpack::is_active(),
 					'jp_version'    => JETPACK__VERSION,
 					'auth_type'     => $auth_type,
-					'secret'        => $secret,
+					'secret'        => $secrets['secret_1'],
 					'locale'        => ( isset( $gp_locale ) && isset( $gp_locale->slug ) ) ? $gp_locale->slug : '',
 					'blogname'      => get_option( 'blogname' ),
 					'site_url'      => site_url(),
@@ -4588,13 +4567,56 @@ p {
 	 * @since 2.6
 	 * @return array
 	 */
-	public function generate_secrets( $action, $exp = 600 ) {
-	    $secret = wp_generate_password( 32, false ) // secret_1
-	    		. ':' . wp_generate_password( 32, false ) // secret_2
-	    		. ':' . ( time() + $exp ) // eol ( End of Life )
-	    		. ':' . get_current_user_id(); // ties the secrets to the current user
-		Jetpack_Options::update_option( $action, $secret );
-	    return Jetpack_Options::get_option( $action );
+	public static function generate_secrets( $action, $user_id = false, $exp = 600 ) {
+		if ( ! $user_id ) {
+			$user_id = get_current_user_id();
+		}
+
+		$secret_name  = 'jetpack_' . $action . '_' . $user_id;
+		$secrets      = Jetpack_Options::get_raw_option( 'jetpack_secrets', array() );
+
+		if (
+			isset( $secrets[ $secret_name ] ) &&
+			$secrets[ $secret_name ]['exp'] > time()
+		) {
+			return $secrets[ $secret_name ];
+		}
+
+		$secret_value = array(
+			'secret_1'  => wp_generate_password( 32, false ),
+			'secret_2'  => wp_generate_password( 32, false ),
+			'exp'       => time() + $exp,
+		);
+
+		$secrets[ $secret_name ] = $secret_value;
+
+		Jetpack_Options::update_raw_option( 'jetpack_secrets', $secrets );
+		return $secrets[ $secret_name ];
+	}
+
+	public static function get_secrets( $action, $user_id ) {
+		$secret_name = 'jetpack_' . $action . '_' . $user_id;
+		$secrets = Jetpack_Options::get_raw_option( 'jetpack_secrets', array() );
+
+		if ( ! isset( $secrets[ $secret_name ] ) ) {
+			return new WP_Error( 'verify_secrets_missing', 'Verification secrets not found' );
+		}
+
+		if ( $secrets[ $secret_name ]['exp'] < time() ) {
+			self::delete_secrets( $action, $user_id );
+			return new WP_Error( 'verify_secrets_expired', 'Verification took too long' );
+		}
+
+		return $secrets[ $secret_name ];
+	}
+
+	public static function delete_secrets( $action, $user_id ) {
+		$secret_name = 'jetpack_' . $action . '_' . $user_id;
+		$secrets = Jetpack_Options::get_raw_option( 'jetpack_secrets', array() );
+		if ( isset( $secrets[ $secret_name ] ) ) {
+			unset( $secrets[ $secret_name ] );
+			Jetpack_Options::update_raw_option( 'jetpack_secrets', $secrets );
+		}
 	}
 
 	/**
@@ -4665,10 +4687,13 @@ p {
 	 */
 	public static function register() {
 		add_action( 'pre_update_jetpack_option_register', array( 'Jetpack_Options', 'delete_option' ) );
-		$secrets = Jetpack::init()->generate_secrets( 'register' );
+		$secrets = Jetpack::generate_secrets( 'register' );
 
-		@list( $secret_1, $secret_2, $secret_eol ) = explode( ':', $secrets );
-		if ( empty( $secret_1 ) || empty( $secret_2 ) || empty( $secret_eol ) || $secret_eol < time() ) {
+		if (
+			empty( $secrets['secret_1'] ) ||
+			empty( $secrets['secret_2'] ) ||
+			empty( $secrets['exp'] )
+		) {
 			return new Jetpack_Error( 'missing_secrets' );
 		}
 
@@ -4690,8 +4715,8 @@ p {
 				'gmt_offset'      => $gmt_offset,
 				'timezone_string' => (string) get_option( 'timezone_string' ),
 				'site_name'       => (string) get_option( 'blogname' ),
-				'secret_1'        => $secret_1,
-				'secret_2'        => $secret_2,
+				'secret_1'        => $secrets['secret_1'],
+				'secret_2'        => $secrets['secret_2'],
 				'site_lang'       => get_locale(),
 				'timeout'         => $timeout,
 				'stats_id'        => $stats_id,
@@ -4707,7 +4732,7 @@ p {
 		// Make sure the response is valid and does not contain any Jetpack errors
 		$registration_details = Jetpack::init()->validate_remote_register_response( $response );
 		if ( is_wp_error( $registration_details ) ) {
-		    return $registration_details;
+			return $registration_details;
 		} elseif ( ! $registration_details ) {
 			return new Jetpack_Error( 'unknown_error', __( 'Unknown error registering your Jetpack site', 'jetpack' ), wp_remote_retrieve_response_code( $response ) );
 		}
@@ -5933,6 +5958,7 @@ p {
 			'jetpack_sync_all_registered_options'                    => null,
 			'jetpack_has_identity_crisis'                            => 'jetpack_sync_error_idc_validation',
 			'jetpack_is_post_mailable'                               => null,
+			'jetpack_seo_site_host'                                  => null,
 		);
 
 		// This is a silly loop depth. Better way?
@@ -6448,7 +6474,7 @@ p {
 	 * @return string
 	 */
 	public static function get_jp_emblem() {
-		return '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0" y="0" viewBox="0 0 172.9 172.9" enable-background="new 0 0 172.9 172.9" xml:space="preserve">	<path d="M86.4 0C38.7 0 0 38.7 0 86.4c0 47.7 38.7 86.4 86.4 86.4s86.4-38.7 86.4-86.4C172.9 38.7 134.2 0 86.4 0zM83.1 106.6l-27.1-6.9C49 98 45.7 90.1 49.3 84l33.8-58.5V106.6zM124.9 88.9l-33.8 58.5V66.3l27.1 6.9C125.1 74.9 128.4 82.8 124.9 88.9z" /></svg>';
+		return '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0" y="0" width="20" height="20" viewBox="0 0 172.9 172.9" enable-background="new 0 0 172.9 172.9" xml:space="preserve"><path d="M86.4 0C38.7 0 0 38.7 0 86.4c0 47.7 38.7 86.4 86.4 86.4s86.4-38.7 86.4-86.4C172.9 38.7 134.2 0 86.4 0zM83.1 106.6l-27.1-6.9C49 98 45.7 90.1 49.3 84l33.8-58.5V106.6zM124.9 88.9l-33.8 58.5V66.3l27.1 6.9C125.1 74.9 128.4 82.8 124.9 88.9z" /></svg>';
 	}
 
 	/*

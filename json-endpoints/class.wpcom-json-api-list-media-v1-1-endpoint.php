@@ -97,6 +97,7 @@ class WPCOM_JSON_API_List_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint {
 		}
 
 		$response = array();
+
 		foreach ( $media->posts as $item ) {
 			$response[] = $this->get_media_item_v1_1( $item->ID );
 		}

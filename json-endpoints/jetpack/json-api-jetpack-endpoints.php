@@ -1159,3 +1159,84 @@ new Jetpack_JSON_API_Get_Post_Backup_Endpoint( array(
 	),
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/posts/1/backup'
 ) );
+
+
+// USERS
+
+require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-user-connect-endpoint.php' );
+
+// POST /sites/%s/users/%d/connect
+new Jetpack_JSON_API_User_Connect_Endpoint( array(
+	'description'    => 'Creates or returns a new user given profile data',
+	'group'          => '__do_not_document',
+	'method'         => 'POST',
+	'path'           => '/sites/%s/users/%d/connect',
+	'stat'           => 'users:connect',
+	'allow_jetpack_site_auth' => true,
+	'path_labels'    => array(
+		'$site' => '(int|string) The site ID, The site domain',
+		'$user_id' => '(int) The site user ID to connect',
+	),
+	'request_format' => array(
+		'user_token'        => '(string) The user token',
+	),
+	'response_format' => array(
+		'success' => '(bool) Was the user connected',
+	),
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN',
+		),
+		'body' => array(
+			'user_token' => 'XDH55jndskjf3klh3',
+		)
+	),
+	'example_response'     => '{
+       "success" => true
+    }',
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/users/6/connect'
+) );
+
+require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-user-create-endpoint.php' );
+
+// POST /sites/%s/users/create
+new Jetpack_JSON_API_User_Create_Endpoint( array(
+	'description'    => 'Creates or returns a new user given profile data',
+	'group'          => '__do_not_document',
+	'method'         => 'POST',
+	'path'           => '/sites/%s/users/create',
+	'stat'           => 'users:create',
+	'allow_jetpack_site_auth' => true,
+	'path_labels'    => array(
+		'$site' => '(int|string) The site ID, The site domain',
+	),
+	'request_format'  => WPCOM_JSON_API_Site_User_Endpoint::$user_format,
+	'response_format' => WPCOM_JSON_API_Site_User_Endpoint::$user_format,
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+		'body' => array(
+			'roles' => array(
+				array(
+					'administrator',
+				)
+			),
+			'first_name' => 'John',
+			'last_name' => 'Doe',
+			'email' => 'john.doe@example.wordpress.org',
+		)
+	),
+	'example_response'     => '{
+        "ID": 18342963,
+        "login": "binarysmash"
+        "email": false,
+        "name": "binarysmash",
+        "URL": "http:\/\/binarysmash.wordpress.com",
+        "avatar_URL": "http:\/\/0.gravatar.com\/avatar\/a178ebb1731d432338e6bb0158720fcc?s=96&d=identicon&r=G",
+        "profile_URL": "http:\/\/en.gravatar.com\/binarysmash",
+        "roles": [ "administrator" ]
+    }',
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/users/create'
+
+) );

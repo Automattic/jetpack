@@ -938,7 +938,7 @@ class Grunion_Contact_Form_Plugin {
 	 *
 	 * @return string
 	 */
-	function esc_csv( $field ) {
+	public function esc_csv( $field ) {
 		$active_content_triggers = array( '=', '+', '-', '@' );
 
 		if ( in_array( mb_substr( $field, 0, 1 ), $active_content_triggers, true ) ) {
@@ -2150,8 +2150,6 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			wp_schedule_event( time() + 250, 'daily', 'grunion_scheduled_delete' );
 		}
 
-		add_filter( 'wp_mail_content_type', __CLASS__ . '::get_mail_content_type' );
-		add_action( 'phpmailer_init', __CLASS__ . '::add_plain_text_alternative' );
 		if (
 			$is_spam !== true &&
 			/**
@@ -2166,7 +2164,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			 */
 			true === apply_filters( 'grunion_should_send_email', true, $post_id )
 		) {
-			wp_mail( $to, "{$spam}{$subject}", $message, $headers );
+			self::wp_mail( $to, "{$spam}{$subject}", $message, $headers );
 		} elseif (
 			true === $is_spam &&
 			/**
@@ -2180,10 +2178,8 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			 */
 			apply_filters( 'grunion_still_email_spam', false ) == true
 		) { // don't send spam by default.  Filterable.
-			wp_mail( $to, "{$spam}{$subject}", $message, $headers );
+			self::wp_mail( $to, "{$spam}{$subject}", $message, $headers );
 		}
-		remove_filter( 'wp_mail_content_type', __CLASS__ . '::get_mail_content_type' );
-		remove_action( 'phpmailer_init', __CLASS__ . '::add_plain_text_alternative' );
 
 		if ( defined( 'DOING_AJAX' ) && DOING_AJAX ) {
 			return self::success_message( $post_id, $this );
@@ -2215,6 +2211,29 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		wp_safe_redirect( $redirect );
 		exit;
+	}
+
+	/**
+	 * Wrapper for wp_mail() that enables HTML messages with text alternatives
+	 *
+	 * @param string|array $to          Array or comma-separated list of email addresses to send message.
+	 * @param string       $subject     Email subject.
+	 * @param string       $message     Message contents.
+	 * @param string|array $headers     Optional. Additional headers.
+	 * @param string|array $attachments Optional. Files to attach.
+	 *
+	 * @return bool Whether the email contents were sent successfully.
+	 */
+	public static function wp_mail( $to, $subject, $message, $headers = '', $attachments = array() ) {
+		add_filter( 'wp_mail_content_type', __CLASS__ . '::get_mail_content_type' );
+		add_action( 'phpmailer_init',       __CLASS__ . '::add_plain_text_alternative' );
+
+		$result = wp_mail( $to, $subject, $message, $headers, $attachments );
+
+		remove_filter( 'wp_mail_content_type', __CLASS__ . '::get_mail_content_type' );
+		remove_action( 'phpmailer_init',       __CLASS__ . '::add_plain_text_alternative' );
+
+		return $result;
 	}
 
 	/**

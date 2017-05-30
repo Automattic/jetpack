@@ -155,6 +155,7 @@ class Jetpack_Sync_Actions {
 		) );
 
 		$result = $rpc->query( 'jetpack.syncActions', $data );
+		Jetpack_Options::update_option( 'last_sync', time() );
 
 		if ( ! $result ) {
 			return $rpc->get_jetpack_error();
@@ -265,7 +266,7 @@ class Jetpack_Sync_Actions {
 			}
 
 			$result = 'full_sync' === $type ? self::$sender->do_full_sync() : self::$sender->do_sync();
-		} while ( $result && ( $start_time + $time_limit ) > time() );
+		} while ( $result && ! is_wp_error( $result ) && ( $start_time + $time_limit ) > time() );
 	}
 
 	static function initialize_listener() {
