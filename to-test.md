@@ -35,6 +35,8 @@ There are different ways to connect Jetpack to WordPress.com. Pick one, give it 
 
 ### Widgets
 
+WordPress core has a new Image Widget coming!  We're migrating your Jetpack Image widgets to use WP Core's new image widget. If you are running a WordPress version 4.8-alpha or above, please make sure that these new widgets (you know they are new because they do not have `(jetpack)` on the name), have been migrated over successfully.
+
 We've made some changes to the EU Cookie Law Banner widget, to make sure it's always displayed properly, regardless of the theme you're using. To test, try the following:
 
 1. Switch to a new theme under Appearance > Themes.
