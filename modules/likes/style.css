@@ -4,11 +4,15 @@
  * @todo: doesn't look like "style.css" is used anymore.
  */
 
- @font-face {
-    font-family: Noticons;
-    src: url("https://wordpress.com/i/noticons/Noticons.woff");
+@font-face {
+	font-family: Noticons;
+	src: url("https://wordpress.com/i/noticons/Noticons.woff");
 }
 
+@font-face {
+	font-family: "Open Sans";
+	src: url("https://fonts.googleapis.com/css?family=Open+Sans");
+}
 
 /* Master container */
 #jp-post-flair {
@@ -165,6 +169,7 @@ div.sd-box {
 	height: 18px;
 	position: absolute;
 	display: flex;
+	font-family: "Open Sans", sans-serif;
 }
 
 .comment-likes-widget-placeholder::before {
@@ -172,12 +177,11 @@ div.sd-box {
 	font-family: "Noticons";
 	font-size: 20px;
 	line-height: .9;
-	color: #2EA2CC;
+	color: #5CB5D4;
 	content: '\f408';
 	width: 16px;
 	display: inline-block;
 	vertical-align: middle;
-	padding: 0 3px;
 }
 
 .post-likes-widget-placeholder .button {
@@ -194,8 +198,10 @@ div.sd-box {
 }
 
 .comment-likes-widget-placeholder .loading {
-	font-size: 11px;
-	padding-left: 8px;
+	padding-left: 5px;
+	margin-top: 2px;
+	align-self: center;
+	color: #4E4E4E;
 }
 
 .slim-likes-widget .post-likes-widget {
