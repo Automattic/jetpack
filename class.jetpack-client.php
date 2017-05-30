@@ -278,6 +278,7 @@ class Jetpack_Client {
 	 */
 	static function wpcom_json_api_request_as_blog( $path, $version = self::WPCOM_JSON_API_VERSION, $args = array(), $body = null ) {
 		$filtered_args = array_intersect_key( $args, array(
+			'headers'     => 'array',
 			'method'      => 'string',
 			'timeout'     => 'int',
 			'redirection' => 'int',
