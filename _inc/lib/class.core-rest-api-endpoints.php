@@ -351,7 +351,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @return array|wp-error
 	 */
 	public static function verify_registration( $request ) {
-        require_once JETPACK__PLUGIN_DIR . 'class.jetpack-xmlrpc-server.php';
+		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-xmlrpc-server.php';
 		$xmlrpc_server = new Jetpack_XMLRPC_Server();
 		return $xmlrpc_server->verify_registration( array( $request['secret_1'], $request['state'] ) );
 	}
