@@ -36,10 +36,6 @@
 
 	@include clear-fix;
 
-	#screen-meta-links + & {
-		margin: 3em 1.5385em 0 auto;
-	}
-
 	.activate {
 		margin-top: .5em;
 	}
@@ -326,7 +322,7 @@
 }
 
 .jitm-banner.jitm-card {
-	border-left: 3px solid;
+	border-left: 4px solid;
 	display: flex;
 	padding: rem( 12px ) rem( 6px ) rem( 12px ) rem( 12px );
 	position: relative;
@@ -512,7 +508,7 @@
 		text-align: center;
 		width: auto;
 
-		.is-dismissible & {
+		.is-dismissible {
 			margin-top: rem( 40px );
 		}
 
@@ -532,6 +528,10 @@
 		color: darken($gray, 20%);
 		font: 400 16px/1 dashicons;
 		content: '\f158';
+	}
+
+	@include breakpoint( ">960px" ) {
+		margin-right: rem( -8px );
 	}
 
 	@include breakpoint( "<480px" ) {
