@@ -232,7 +232,7 @@ class Jetpack_JITM {
 		), sprintf( '/sites/%d/jitm/%s', $site_id, $message_path ) );
 
 		// attempt to get from cache
-		$envelopes  = get_transient( sha1( 'jetpack_jitm_' . $path ) );
+		$envelopes  = get_transient( 'jetpack_jitm_' . substr( md5( $path ), 0, 31 ) );
 		$from_cache = false;
 
 		// if something is in the cache and it was put in the cache after the last heartbeat or sync, use it
@@ -267,7 +267,7 @@ class Jetpack_JITM {
 			$expiration                 = isset( $envelopes[0] ) ? $envelopes[0]->ttl : 300;
 			$envelopes['response_time'] = time();
 
-			set_transient( sha1( 'jetpack_jitm_' . $path ), $envelopes, $expiration );
+			set_transient( 'jetpack_jitm_' . substr( md5( $path ), 0, 31 ), $envelopes, $expiration );
 		}
 
 		$hidden_jitms = Jetpack_Options::get_option( 'hide_jitm' );
