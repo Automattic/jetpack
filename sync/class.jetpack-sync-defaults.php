@@ -146,6 +146,8 @@ class Jetpack_Sync_Defaults {
 		'ALTERNATE_WP_CRON',
 		'WP_CRON_LOCK_TIMEOUT',
 		'PHP_VERSION',
+		'WP_MEMORY_LIMIT',
+		'WP_MAX_MEMORY_LIMIT'
 	);
 
 	public static function get_constants_whitelist() {
