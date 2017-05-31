@@ -794,6 +794,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				'Authorization' => "Bearer " . $token->access_token,
 				'Host'          => defined( 'JETPACK__WPCOM_JSON_API_HOST_HEADER' ) ? JETPACK__WPCOM_JSON_API_HOST_HEADER : 'public-api.wordpress.com',
 			),
+			'timeout' => 60,
 			'method'  => 'POST',
 			'body'    => json_encode( array( 'site_id' => $blog_id ) )
 		);
@@ -938,6 +939,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				'Authorization' => "Bearer " . $token->access_token,
 				'Host'          => defined( 'JETPACK__WPCOM_JSON_API_HOST_HEADER' ) ? JETPACK__WPCOM_JSON_API_HOST_HEADER : 'public-api.wordpress.com',
 			),
+			'timeout' => 60,
 			'method'  => 'POST',
 			'body'    => json_encode( $request_body )
 		);
