@@ -148,10 +148,19 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 
 	$image_host_path = $image_url_parts['host'] . $image_url_parts['path'];
 
-	// Figure out which CDN subdomain to use
-	srand( crc32( $image_host_path ) );
-	$subdomain = rand( 0, 2 );
-	srand();
+	// Figure out which CDN subdomain to use for this site
+	if ( class_exists( 'Jetpack_Server' ) ) {
+		// Is WordPress.com
+		$subdomain = get_current_blog_id();
+	} elseif ( (int) Jetpack_Options::get_option( 'id' ) > 0 ) {
+		// Is connected Jetpack
+		$subdomain = Jetpack_Options::get_option( 'id' );
+	} else {
+		// Fallback to site domain
+		$subdomain = crc32( (string) $_SERVER['HTTP_HOST'] );
+	}
+	// abs() for 32bit system CRCs
+	$subdomain = abs( (int) $subdomain % 3 );
 
 	/**
 	 * Filters the domain used by the Photon module.
