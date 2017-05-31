@@ -963,6 +963,15 @@ class Jetpack_CLI extends WP_CLI_Command {
 			}
 		}
 
+		if ( isset( $body_json->access_token ) ) {
+			Jetpack_Options::update_options(
+				array(
+					'master_user'	=> $user->ID,
+					'user_tokens'	=> array($user->ID => $access_token.'.'.$user->ID)
+				)
+			);
+		}
+
 		WP_CLI::log( $body_json->next_url );
 
 		WP_CLI::log( json_encode( $body_json ) );
