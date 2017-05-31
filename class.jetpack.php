@@ -607,10 +607,12 @@ class Jetpack {
 	}
 
 	function jetpack_track_last_sync_callback( $params ) {
-		$option = $params[ 0 ];
-		if ( $option === 'active_plugins' ) {
-			// use the cache if we can, but not terribly important if it gets evicted
-			set_transient( 'jetpack_last_sync', time(), 3600 );
+		if ( is_array( $params ) && isset( $params[0] ) ) {
+			$option = $params[0];
+			if ( 'active_plugins' === $option ) {
+				// use the cache if we can, but not terribly important if it gets evicted
+				set_transient( 'jetpack_last_plugin_sync', time(), 3600 );
+			}
 		}
 
 		return $params;

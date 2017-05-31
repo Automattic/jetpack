@@ -235,8 +235,8 @@ class Jetpack_JITM {
 		$envelopes  = get_transient( 'jetpack_jitm_' . substr( md5( $path ), 0, 31 ) );
 
 		// if something is in the cache and it was put in the cache after the last sync we care about, use it
-		$last_sync = (int) get_transient( 'jetpack_last_sync' );
-		$from_cache = $envelopes && $last_sync < $envelopes[ 'response_time' ];
+		$last_sync = (int) get_transient( 'jetpack_last_plugin_sync' );
+		$from_cache = $envelopes && $last_sync > 0 && $last_sync < $envelopes[ 'last_response_time' ];
 
 		// otherwise, ask again
 		if ( ! $from_cache ) {
@@ -261,13 +261,13 @@ class Jetpack_JITM {
 			}
 
 			$expiration                 = isset( $envelopes[0] ) ? $envelopes[0]->ttl : 300;
-			$envelopes['response_time'] = time();
+			$envelopes['last_response_time'] = time();
 
 			set_transient( 'jetpack_jitm_' . substr( md5( $path ), 0, 31 ), $envelopes, $expiration );
 		}
 
 		$hidden_jitms = Jetpack_Options::get_option( 'hide_jitm' );
-		unset( $envelopes['response_time'] );
+		unset( $envelopes['last_response_time'] );
 
 		foreach ( $envelopes as $idx => &$envelope ) {
 
