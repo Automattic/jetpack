@@ -32,6 +32,40 @@ function usage {
     exit 1
 }
 
+# This creates a new .gitignore file based on master, but removes the items we need for release builds
+function create_release_gitignore {
+    # Copy .gitignore to temp file
+    mv .gitignore .gitignore-tmp
+
+    # Create empty .gitignore
+    touch .gitignore
+
+    # Add things to the new .gitignore file, stopping at the things we want to keep.
+    while IFS='' read -r line || [[ -n "$line" ]]
+    do
+        if [ "$line" == "## Things we will need in release branches" ]
+        then
+            break
+        fi
+        echo "$line" >> .gitignore
+    done < ".gitignore-tmp"
+
+    # Add custom stuff to .gitignore release
+    echo "/_inc/client" >> .gitignore
+
+    # Remove old .gitignore
+    rm .gitignore-tmp
+
+    git commit .gitignore -m "updated .gitignore"
+}
+
+# Remove stuff from .svnignore for releases
+function modify_svnignore {
+    awk '!/.eslintrc/' .svnignore > temp && mv temp .svnignore
+    awk '!/.eslintignore/' .svnignore > temp && mv temp .svnignore
+    git commit .svnignore -m "Updated .svnignore"
+}
+
 # This function will create a new set of release branches.
 # The branch formats will be branch-x.x (unbuilt version) and branch-x-x-built (built)
 # These branches will be created off of master.
@@ -54,9 +88,12 @@ function create_new_release_branches {
         echo "Creating new unbuilt branch $NEW_UNBUILT_BRANCH from current master branch..."
         echo ""
         # reset --hard to remote master in case they have local commits in their repo
-        git checkout master && git pull && git reset --hard origin/master
+        #git checkout master && git pull && git reset --hard origin/master
+        git checkout update/build-release-branch-script
+
         # Create new branch, push to repo
         git checkout -b $NEW_UNBUILT_BRANCH
+
         git push -u origin $NEW_UNBUILT_BRANCH
         echo ""
         echo "$NEW_UNBUILT_BRANCH created."
@@ -68,10 +105,20 @@ function create_new_release_branches {
             # make sure we're still checked out on the right branch
             git checkout $NEW_UNBUILT_BRANCH
 
-            # Create fresh new branch to build on, push it to repo, and come back to the original branch
             git checkout -b $NEW_BUILT_BRANCH
-            git push -u origin $NEW_BUILT_BRANCH
+
+            # New .gitignore for release branches
+            echo ""
+            echo "Creating new .gitignore"
+            echo ""
+            create_release_gitignore
+
+            # Remove stuff from svnignore
+            modify_svnignore
+
             git checkout $NEW_UNBUILT_BRANCH
+
+            git push -u origin $NEW_BUILT_BRANCH
 
             # Script will continue on to actually build the plugin onto this new branch...
         else
@@ -133,8 +180,6 @@ else
     exit 1
 fi
 
-
-
 ### This bit is the engine that will build a branch and push to another one ####
 
 # Make sure we're trying to deploy something that exists.
@@ -178,7 +223,8 @@ echo "Purging paths included in .svnignore"
 # check .svnignore
 for file in $( cat "$DIR/.svnignore" 2>/dev/null ); do
 	# We want to commit changes to to-test.md as well as the testing tips.
-	if [ $file == "to-test.md" || $file == "docs/testing/testing-tips.md" ]; then
+	if [[ $file == "to-test.md" || $file == "docs/testing/testing-tips.md" ]]
+    then
 		continue;
 	fi
 	rm -rf TMP_LOCAL_BUILT_VERSION/$file
@@ -198,7 +244,7 @@ cd TMP_REMOTE_BUILT_VERSION
 echo "Finally, Committing and Pushing"
 git add .
 git commit -am 'New build'
-#git push origin $BUILD_TARGET
+git push origin $BUILD_TARGET
 echo "Done! Branch $BUILD_TARGET has been updated."
 
 echo "Cleaning up the mess"
