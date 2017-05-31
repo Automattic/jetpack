@@ -3715,8 +3715,9 @@ p {
 				}
 
 				$from = isset( $_GET['from'] ) ? $_GET['from'] : false;
+				$redirect = isset( $_GET['redirect'] ) ? $_GET['redirect'] : false;
 
-				wp_redirect( $this->build_connect_url( true, false, $from ) );
+				wp_redirect( $this->build_connect_url( true, $redirect, $from ) );
 				exit;
 			case 'activate' :
 				if ( ! current_user_can( 'jetpack_activate_modules' ) ) {
@@ -4104,6 +4105,15 @@ p {
 
 		if ( $register || ! $token || ! $site_id ) {
 			$url = Jetpack::nonce_url_no_esc( Jetpack::admin_url( 'action=register' ), 'jetpack-register' );
+
+			if ( ! empty( $redirect ) ) {
+				$url = add_query_arg(
+					'redirect',
+					urlencode( wp_validate_redirect( esc_url_raw( $redirect ) ) ),
+					$url
+				);
+			}
+
 			if( is_network_admin() ) {
 				$url = add_query_arg( 'is_multisite', network_admin_url( 'admin.php?page=jetpack-settings' ), $url );
 			}
