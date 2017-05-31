@@ -969,12 +969,14 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		if ( isset( $body_json->access_token ) ) {
 			// authorize user and enable SSO
-			Jetpack_Options::update_options(
-				array(
-					'master_user'	=> $user->ID,
-					'user_tokens'	=> array($user->ID => $body_json->access_token.'.'.$user->ID)
-				)
-			);
+			Jetpack::update_user_token( $user->ID, sprintf( '%s.%d', $body_json->access_token, $user->ID ), true );
+
+			if ( $active_modules = Jetpack_Options::get_option( 'active_modules' ) ) {
+				Jetpack::delete_active_modules();
+				Jetpack::activate_default_modules( 999, 1, $active_modules, false );
+			} else {
+				Jetpack::activate_default_modules( false, false, array(), false );
+			}
 
 			if ( apply_filters( 'jetpack_start_enable_sso', true ) ) {
 				Jetpack::activate_module( 'sso', false, false );
