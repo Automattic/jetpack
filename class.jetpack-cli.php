@@ -972,7 +972,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 			Jetpack_Options::update_options(
 				array(
 					'master_user'	=> $user->ID,
-					'user_tokens'	=> array($user->ID => $access_token.'.'.$user->ID)
+					'user_tokens'	=> array($user->ID => $body_json->access_token.'.'.$user->ID)
 				)
 			);
 
