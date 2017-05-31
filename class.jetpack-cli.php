@@ -897,6 +897,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 			? get_site_icon_url()
 			: false;
 
+		/** This filter is documented in class.jetpack-cli.php */
 		if ( apply_filters( 'jetpack_start_enable_sso', true ) ) {
 			$redirect_uri = add_query_arg(
 				array( 'action' => 'jetpack-sso', 'redirect_to' => urlencode( admin_url() ) ),
@@ -980,6 +981,13 @@ class Jetpack_CLI extends WP_CLI_Command {
 				Jetpack::activate_default_modules( false, false, array(), false );
 			}
 
+			/**
+			 * Auto-enable SSO module for new Jetpack Start connections
+			 *
+			 * @since 5.0.0
+			 *
+			 * @param bool $enable_sso Whether to enable the SSO module. Default to true.
+			 */
 			if ( apply_filters( 'jetpack_start_enable_sso', true ) ) {
 				Jetpack::activate_module( 'sso', false, false );
 			}
