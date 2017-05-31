@@ -41,7 +41,7 @@
 			right: 0;
 			bottom: 0;
 			left: 0;
-			z-index: 999; // to sit over other elements
+		z-index: 9999; // to sit over other elements
 		background: rgba($gray-light, .95);
 		text-align: center;
 		padding: rem( 32px );
