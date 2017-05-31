@@ -133,7 +133,7 @@ class Jetpack_Client_Server {
 
 		// If redirect_uri is SSO, ensure SSO module is enabled
 		parse_str( parse_url( $data['redirect_uri'], PHP_URL_QUERY ), $redirect_options );
-		if ( isset( $redirect_options['action'] ) && 'jetpack-sso' === $redirect_options['action'] ) {
+		if ( isset( $redirect_options['action'] ) && 'jetpack-sso' === $redirect_options['action'] && apply_filters( 'jetpack_start_enable_sso', true ) ) {
 			Jetpack::activate_module( 'sso', false, false );
 		}
 

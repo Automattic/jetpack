@@ -896,10 +896,14 @@ class Jetpack_CLI extends WP_CLI_Command {
 			? get_site_icon_url()
 			: false;
 
-		$sso_url = add_query_arg(
-			array( 'action' => 'jetpack-sso', 'redirect_to' => urlencode( admin_url() ) ),
-			wp_login_url() // TODO: come back to Jetpack dashboard?
-		);
+		if ( apply_filters( 'jetpack_start_enable_sso', true ) ) {
+			$redirect_uri = add_query_arg(
+				array( 'action' => 'jetpack-sso', 'redirect_to' => urlencode( admin_url() ) ),
+				wp_login_url() // TODO: come back to Jetpack dashboard?
+			);
+		} else {
+			$redirect_uri = admin_url();
+		}
 
 		$request_body = array( 
 			'jp_version'    => JETPACK__VERSION,
@@ -917,7 +921,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 			'site_icon'     => $site_icon,
 
 			// Then come back to this URL
-			'redirect_uri'  => $sso_url
+			'redirect_uri'  => $redirect_uri
 		);
 
 		// optional additional params
@@ -964,12 +968,17 @@ class Jetpack_CLI extends WP_CLI_Command {
 		}
 
 		if ( isset( $body_json->access_token ) ) {
+			// authorize user and enable SSO
 			Jetpack_Options::update_options(
 				array(
 					'master_user'	=> $user->ID,
 					'user_tokens'	=> array($user->ID => $access_token.'.'.$user->ID)
 				)
 			);
+
+			if ( apply_filters( 'jetpack_start_enable_sso', true ) ) {
+				Jetpack::activate_module( 'sso', false, false );
+			}
 		}
 
 		WP_CLI::log( $body_json->next_url );
