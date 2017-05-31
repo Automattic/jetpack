@@ -719,6 +719,8 @@ function get_all_supercache_filenames( $dir = '' ) {
 }
 
 function supercache_filename() {
+	global $cached_direct_pages;
+
 	//Add support for https and http caching
 	$is_https = ( ( isset( $_SERVER[ 'HTTPS' ] ) && 'on' ==  strtolower( $_SERVER[ 'HTTPS' ] ) ) || ( isset( $_SERVER[ 'HTTP_X_FORWARDED_PROTO' ] ) && 'https' == strtolower( $_SERVER[ 'HTTP_X_FORWARDED_PROTO' ] ) ) ); //Also supports https requests coming from an nginx reverse proxy
 	$extra_str = $is_https ? '-https' : '';
@@ -727,6 +729,10 @@ function supercache_filename() {
 		$extra_str = apply_filters( 'supercache_filename_str', $extra_str );
 	} else {
 		$extra_str = do_cacheaction( 'supercache_filename_str', $extra_str );
+	}
+
+	if ( is_array( $cached_direct_pages ) && in_array( $_SERVER[ 'REQUEST_URI' ], $cached_direct_pages ) ) {
+		$extra_str = '';
 	}
 	$filename = 'index' . $extra_str . '.html';
 

@@ -1432,6 +1432,78 @@ function wp_update_lock_down() {
 		return 0;
 }
 
+function wpsc_update_direct_pages() {
+	global $cached_direct_pages, $valid_nonce, $cache_path, $wp_cache_config_file;
+	$out = '';
+	if ( $valid_nonce && array_key_exists('direct_pages', $_POST) && is_array( $_POST[ 'direct_pages' ] ) && !empty( $_POST[ 'direct_pages' ] ) ) {
+		$expiredfiles = array_diff( $cached_direct_pages, $_POST[ 'direct_pages' ] );
+		unset( $cached_direct_pages );
+		foreach( $_POST[ 'direct_pages' ] as $page ) {
+			$page = str_replace( '..', '', preg_replace('/[ <>\'\"\r\n\t\(\)]/', '', $page ) );
+			if ( $page != '' ) {
+				$cached_direct_pages[] = $page;
+				$out .= "'$page', ";
+			}
+		}
+		if ( $out == '' ) {
+			$out = "'', ";
+		}
+	}
+	if ( $valid_nonce && array_key_exists('new_direct_page', $_POST) && $_POST[ 'new_direct_page' ] && '' != $_POST[ 'new_direct_page' ] ) {
+		$page = str_replace( get_option( 'siteurl' ), '', $_POST[ 'new_direct_page' ] );
+		$page = str_replace( '..', '', preg_replace('/[ <>\'\"\r\n\t\(\)]/', '', $page ) );
+		if ( substr( $page, 0, 1 ) != '/' )
+			$page = '/' . $page;
+		if ( $page != '/' || false == is_array( $cached_direct_pages ) || in_array( $page, $cached_direct_pages ) == false ) {
+			$cached_direct_pages[] = $page;
+			$out .= "'$page', ";
+
+			@unlink( trailingslashit( ABSPATH . $page ) . "index.html" );
+			wpsc_delete_files( get_supercache_dir() . $page );
+		}
+	}
+
+	if ( $out != '' ) {
+		$out = substr( $out, 0, -2 );
+		$out = '$cached_direct_pages = array( ' . $out . ' );';
+		wp_cache_replace_line('^ *\$cached_direct_pages', "$out", $wp_cache_config_file);
+	}
+
+	if ( !empty( $expiredfiles ) ) {
+		foreach( $expiredfiles as $file ) {
+			if( $file != '' ) {
+				$firstfolder = explode( '/', $file );
+				$firstfolder = ABSPATH . $firstfolder[1];
+				$file = ABSPATH . $file;
+				$file = realpath( str_replace( '..', '', preg_replace('/[ <>\'\"\r\n\t\(\)]/', '', $file ) ) );
+				if ( $file ) {
+					@unlink( trailingslashit( $file ) . "index.html" );
+					@unlink( trailingslashit( $file ) . "index.html.gz" );
+					RecursiveFolderDelete( trailingslashit( $firstfolder ) );
+				}
+			}
+		}
+	}
+
+	if ( $valid_nonce && array_key_exists('deletepage', $_POST) && $_POST[ 'deletepage' ] ) {
+		$page = str_replace( '..', '', preg_replace('/[ <>\'\"\r\n\t\(\)]/', '', $_POST['deletepage'] ) ) . '/';
+		$pagefile = realpath( ABSPATH . $page . 'index.html' );
+		if ( substr( $pagefile, 0, strlen( ABSPATH ) ) != ABSPATH || false == wp_cache_confirm_delete( ABSPATH . $page ) ) {
+			die( __( 'Cannot delete directory', 'wp-super-cache' ) );
+		}
+		$firstfolder = explode( '/', $page );
+		$firstfolder = ABSPATH . $firstfolder[1];
+		$page = ABSPATH . $page;
+		if( is_file( $pagefile ) && is_writeable_ACLSafe( $pagefile ) && is_writeable_ACLSafe( $firstfolder ) ) {
+			@unlink( $pagefile );
+			@unlink( $pagefile . '.gz' );
+			RecursiveFolderDelete( $firstfolder );
+		}
+	}
+
+	return $cached_direct_pages;
+}
+
 function wp_lock_down() {
 	global $wpdb, $cache_path, $wp_cache_config_file, $valid_nonce, $cached_direct_pages, $cache_enabled, $super_cache_enabled;
 
@@ -1465,69 +1537,7 @@ function wp_lock_down() {
 	<fieldset class="options">
 	<h3><?php _e( 'Directly Cached Files', 'wp-super-cache' ); ?></h3><?php
 
-	$out = '';
-	if( $valid_nonce && array_key_exists('direct_pages', $_POST) && is_array( $_POST[ 'direct_pages' ] ) && !empty( $_POST[ 'direct_pages' ] ) ) {
-		$expiredfiles = array_diff( $cached_direct_pages, $_POST[ 'direct_pages' ] );
-		unset( $cached_direct_pages );
-		foreach( $_POST[ 'direct_pages' ] as $page ) {
-			$page = esc_sql( $page );
-			if( $page != '' ) {
-				$cached_direct_pages[] = $page;
-				$out .= "'$page', ";
-			}
-		}
-		if( $out == '' ) {
-			$out = "'', ";
-		}
-	}
-	if( $valid_nonce && array_key_exists('new_direct_page', $_POST) && $_POST[ 'new_direct_page' ] && '' != $_POST[ 'new_direct_page' ] ) {
-		$page = str_replace( get_option( 'siteurl' ), '', $_POST[ 'new_direct_page' ] );
-		if( substr( $page, 0, 1 ) != '/' )
-			$page = '/' . $page;
-		$page = esc_sql( $page );
-		if ( false == is_array( $cached_direct_pages ) || in_array( $page, $cached_direct_pages ) == false ) {
-			$cached_direct_pages[] = $page;
-			$out .= "'$page', ";
-		}
-	}
-
-	if( $out != '' ) {
-		$out = substr( $out, 0, -2 );
-		$out = '$cached_direct_pages = array( ' . $out . ' );';
-		wp_cache_replace_line('^ *\$cached_direct_pages', "$out", $wp_cache_config_file);
-		prune_super_cache( $cache_path, true );
-	}
-
-	if( !empty( $expiredfiles ) ) {
-		foreach( $expiredfiles as $file ) {
-			if( $file != '' ) {
-				$firstfolder = explode( '/', $file );
-				$firstfolder = ABSPATH . $firstfolder[1];
-				$file = ABSPATH . $file;
-				@unlink( trailingslashit( $file ) . 'index.html' );
-				@unlink( trailingslashit( $file ) . 'index.html.gz' );
-				RecursiveFolderDelete( trailingslashit( $firstfolder ) );
-			}
-		}
-	}
-
-	if( $valid_nonce && array_key_exists('deletepage', $_POST) && $_POST[ 'deletepage' ] ) {
-		$page = str_replace( '..', '', preg_replace('/[ <>\'\"\r\n\t\(\)]/', '', $_POST['deletepage'] ) ) . '/';
-		$pagefile = realpath( ABSPATH . $page . 'index.html' );
-		if ( substr( $pagefile, 0, strlen( ABSPATH ) ) != ABSPATH || false == wp_cache_confirm_delete( ABSPATH . $page ) ) {
-			die( __( 'Cannot delete directory', 'wp-super-cache' ) );
-		}
-		$firstfolder = explode( '/', $page );
-		$firstfolder = ABSPATH . $firstfolder[1];
-		$page = ABSPATH . $page;
-		if( is_file( $pagefile ) && is_writeable_ACLSafe( $pagefile ) && is_writeable_ACLSafe( $firstfolder ) ) {
-			@unlink( $pagefile );
-			@unlink( $pagefile . '.gz' );
-			RecursiveFolderDelete( $firstfolder );
-			echo "<strong>" . sprintf( __( '%s removed!', 'wp-super-cache' ), $pagefile ) . "</strong>";
-			prune_super_cache( $cache_path, true );
-		}
-	}
+	$cached_direct_pages = wpsc_update_direct_pages();
 
 	$readonly = '';
 	if( !is_writeable_ACLSafe( ABSPATH ) ) {

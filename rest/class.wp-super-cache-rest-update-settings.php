@@ -528,6 +528,32 @@ class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 
 
 	/**
+	 * set the cached direct pages list.
+	 */
+	protected function set_cache_direct_pages( $list ) {
+		if ( is_array( $list ) == false ) {
+			return false;
+		}
+
+		$_POST[ 'direct_pages' ] = $list;
+		wpsc_update_direct_pages();
+	}
+
+	/**
+	 * add an entry to the cached direct pages list.
+	 */
+	protected function new_direct_page( $value ) {
+		global $cached_direct_pages;
+
+		if ( isset( $_POST[ 'direct_pages' ] ) == false ) {
+			$_POST[ 'direct_pages' ] = $cached_direct_pages;
+		}
+
+		$_POST[ 'new_direct_page' ] = $value;
+		wpsc_update_direct_pages();
+	}
+
+	/**
 	 * Runs at the end and saves the preload settings.
 	 */
 	protected function save_preload_settings() {
