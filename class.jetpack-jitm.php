@@ -233,16 +233,13 @@ class Jetpack_JITM {
 
 		// attempt to get from cache
 		$envelopes  = get_transient( 'jetpack_jitm_' . substr( md5( $path ), 0, 31 ) );
-		$from_cache = false;
 
-		// if something is in the cache and it was put in the cache after the last heartbeat, use it
-		if ( $envelopes && Jetpack_Options::get_option( 'last_heartbeat', time() ) < $envelopes['response_time'] ) {
-			$from_cache = true;
-		}
+		// if something is in the cache and it was put in the cache after the last sync we care about, use it
+		$last_sync = (int) get_transient( 'jetpack_last_sync' );
+		$from_cache = $envelopes && $last_sync < $envelopes[ 'response_time' ];
 
 		// otherwise, ask again
 		if ( ! $from_cache ) {
-			$from_cache     = false;
 			$wpcom_response = Jetpack_Client::wpcom_json_api_request_as_blog(
 				$path,
 				'2',

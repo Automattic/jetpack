@@ -599,6 +599,21 @@ class Jetpack {
 			add_action( 'wp_print_styles', array( $this, 'implode_frontend_css' ), -1 ); // Run first
 			add_action( 'wp_print_footer_scripts', array( $this, 'implode_frontend_css' ), -1 ); // Run first to trigger before `print_late_styles`
 		}
+
+		/**
+		 * These are sync actions that we need to keep track of for jitms
+		 */
+		add_filter( 'jetpack_sync_before_send_updated_option', array( $this, 'jetpack_track_last_sync_callback' ), 99 );
+	}
+
+	function jetpack_track_last_sync_callback( $params ) {
+		$option = $params[ 0 ];
+		if ( $option === 'active_plugins' ) {
+			// use the cache if we can, but not terribly important if it gets evicted
+			set_transient( 'jetpack_last_sync', time(), 3600 );
+		}
+
+		return $params;
 	}
 
 	function jetpack_admin_ajax_tracks_callback() {
