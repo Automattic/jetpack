@@ -1434,6 +1434,9 @@ function wp_update_lock_down() {
 
 function wpsc_update_direct_pages() {
 	global $cached_direct_pages, $valid_nonce, $cache_path, $wp_cache_config_file;
+
+	if ( false == isset( $cached_direct_pages ) )
+		$cached_direct_pages = array();
 	$out = '';
 	if ( $valid_nonce && array_key_exists('direct_pages', $_POST) && is_array( $_POST[ 'direct_pages' ] ) && !empty( $_POST[ 'direct_pages' ] ) ) {
 		$expiredfiles = array_diff( $cached_direct_pages, $_POST[ 'direct_pages' ] );
@@ -1445,9 +1448,8 @@ function wpsc_update_direct_pages() {
 				$out .= "'$page', ";
 			}
 		}
-		if ( $out == '' ) {
-			$out = "'', ";
-		}
+		if ( false == isset( $cached_direct_pages ) )
+			$cached_direct_pages = array();
 	}
 	if ( $valid_nonce && array_key_exists('new_direct_page', $_POST) && $_POST[ 'new_direct_page' ] && '' != $_POST[ 'new_direct_page' ] ) {
 		$page = str_replace( get_option( 'siteurl' ), '', $_POST[ 'new_direct_page' ] );
@@ -1465,9 +1467,12 @@ function wpsc_update_direct_pages() {
 
 	if ( $out != '' ) {
 		$out = substr( $out, 0, -2 );
-		$out = '$cached_direct_pages = array( ' . $out . ' );';
-		wp_cache_replace_line('^ *\$cached_direct_pages', "$out", $wp_cache_config_file);
 	}
+	if ( $out == "''" ) {
+		$out = '';
+	}
+	$out = '$cached_direct_pages = array( ' . $out . ' );';
+	wp_cache_replace_line('^ *\$cached_direct_pages', "$out", $wp_cache_config_file);
 
 	if ( !empty( $expiredfiles ) ) {
 		foreach( $expiredfiles as $file ) {
