@@ -7,7 +7,7 @@ SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
 cd $SCRIPT_DIR
 
 usage () {
-    echo "Usage: partner-cancel.sh --partner_id=partner_id --partner_secret=partner_secret"
+    echo "Usage: partner-cancel.sh --partner_id=partner_id --partner_secret=partner_secret [--url=http://example.com]"
 }
 
 for i in "$@"; do
@@ -17,6 +17,9 @@ for i in "$@"; do
                                     shift
                                     ;;
         -s=* | --partner_secret=* ) CLIENT_SECRET="${i#*=}"
+                                    shift
+                                    ;;
+        -u=* | --url=* )            SITE_URL="${i#*=}"
                                     shift
                                     ;;
         -h | --help )               usage
@@ -44,5 +47,5 @@ ACCESS_TOKEN_JSON=`curl https://$JETPACK_START_API_HOST/oauth2/token --silent --
 wp plugin activate jetpack >/dev/null 2>&1
 
 # cancel the partner plan
-wp jetpack partner_cancel "$ACCESS_TOKEN_JSON"
+wp jetpack partner_cancel "$ACCESS_TOKEN_JSON" --url="$SITE_URL"
 
