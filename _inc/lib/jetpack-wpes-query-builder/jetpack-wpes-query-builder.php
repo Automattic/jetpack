@@ -27,6 +27,7 @@ class Jetpack_WPES_Query_Builder {
 
 	// Custom boosting with function_score
 	public $functions = array();
+	public $weighting_functions = array();
 	public $decays    = array();
 	public $scripts   = array();
 	public $functions_max_boost  = 2.0;
@@ -68,6 +69,19 @@ class Jetpack_WPES_Query_Builder {
 				$this->must_queries[] = $query;
 				break;
 		}
+	}
+
+	/**
+	 * Add any weighting function to the query
+	 *
+	 * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-function-score-query.html
+	 *
+	 * @param $function array A function structure to apply to the query
+	 *
+	 * @return void
+	 */
+	public function add_weighting_function( $function ) {
+		$this->weighting_functions[] = $function;
 	}
 
 	/**
@@ -226,8 +240,7 @@ class Jetpack_WPES_Query_Builder {
 		}
 
 		// If there are any function score adjustments, then combine those
-		if ( $this->functions || $this->decays || $this->scripts ) {
-			$weighting_functions = array();
+		if ( $this->functions || $this->decays || $this->scripts || $this->weighting_functions ) {
 
 			if ( $this->functions ) {
 				foreach ( $this->functions as $function_type => $configs ) {
@@ -237,7 +250,7 @@ class Jetpack_WPES_Query_Builder {
 
 							$func_arr['field'] = $field;
 
-							$weighting_functions[] = array(
+							$this->weighting_functions[] = array(
 								$function_type => $func_arr,
 							);
 						}
@@ -249,7 +262,7 @@ class Jetpack_WPES_Query_Builder {
 				foreach ( $this->decays as $decay_type => $configs ) {
 					foreach ( $configs as $config ) {
 						foreach ( $config as $field => $params ) {
-							$weighting_functions[] = array(
+							$this->weighting_functions[] = array(
 								$decay_type => array(
 									$field => $params,
 								),
@@ -261,7 +274,7 @@ class Jetpack_WPES_Query_Builder {
 
 			if ( $this->scripts ) {
 				foreach ( $this->scripts as $script ) {
-					$weighting_functions[] = array(
+					$this->weighting_functions[] = array(
 						'script_score' => array(
 							'script' => $script,
 						),
@@ -272,11 +285,13 @@ class Jetpack_WPES_Query_Builder {
 			$query = array(
 				'function_score' => array(
 					'query'     => $query,
-					'functions' => $weighting_functions,
-					'max_boost' => $this->functions_max_boost,
+					'functions' => $this->weighting_functions,
 					'score_mode' => $this->functions_score_mode,
 				),
 			);
+			if ( $this->functions_max_boost )
+				$query['function_score']['max_boost'] = $this->functions_max_boost;
+
 		} // End if().
 
 		return $query;
