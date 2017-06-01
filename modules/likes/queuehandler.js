@@ -119,14 +119,14 @@ function JetpackLikesMessageListener( event, message ) {
 				direction:      $sdTextColor.css( 'direction' ),
 				fontWeight:     $sdTextColor.css( 'font-weight' ),
 				fontStyle:      $sdTextColor.css( 'font-style' ),
-				textDecoration: $sdTextColor.css('text-decoration')
+				textDecoration: $sdTextColor.css( 'text-decoration' )
 			};
 
 			stylesData.linkStyles = {
-				color:          $sdLinkColor.css('color'),
-				fontFamily:     $sdLinkColor.css('font-family'),
-				fontSize:       $sdLinkColor.css('font-size'),
-				textDecoration: $sdLinkColor.css('text-decoration'),
+				color:          $sdLinkColor.css( 'color' ),
+				fontFamily:     $sdLinkColor.css( 'font-family' ),
+				fontSize:       $sdLinkColor.css( 'font-size' ),
+				textDecoration: $sdLinkColor.css( 'text-decoration' ),
 				fontWeight:     $sdLinkColor.css( 'font-weight' ),
 				fontStyle:      $sdLinkColor.css( 'font-style' )
 			};
@@ -146,6 +146,16 @@ function JetpackLikesMessageListener( event, message ) {
 			jQuery( '#' + event.id + ' .jetpack-likes-widget' ).fadeIn( 'fast', function() {
 				if ( event.post_id ) {
 					JetpackLikesPostMessage( { event: 'likeWidgetDisplayed', blog_id: event.blog_id, post_id: event.post_id, obj_id: event.obj_id }, window.frames['likes-master'] );
+				}
+			} );
+		} );
+	}
+
+	if ( 'showCommentLikeWidget' === event.event ) {
+		jQuery( '#' + event.id + ' .likes-widget-placeholder'  ).fadeOut( 'fast', function() {
+			jQuery( '#' + event.id + ' .jetpack-likes-widget' ).fadeIn( 'fast', function() {
+				if ( event.comment_id ) {
+					JetpackLikesPostMessage( { event: 'likeWidgetDisplayed', blog_id: event.blog_id, comment_id: event.comment_id, obj_id: event.obj_id }, window.frames['likes-master'] );
 				}
 			} );
 		} );
@@ -220,19 +230,6 @@ function JetpackLikesMessageListener( event, message ) {
 			$container.width( $container.width() + scrollbarWidth );
 			$list.width( $list.width() + scrollbarWidth );
 		}
-	}
-
-	if ( 'showCommentLikeWidget' === event.event ) {
-		jQuery( '#' + event.id + ' .likes-widget-placeholder'  ).fadeOut( 'fast', function() {
-			jQuery( '#' + event.id + ' .jetpack-likes-widget' ).fadeIn( 'fast', function() {
-				if ( event.comment_id ) {
-					JetpackLikesPostMessage( { event: 'likeWidgetDisplayed', blog_id: event.blog_id, comment_id: event.comment_id, obj_id: event.obj_id }, window.frames['likes-master'] );
-					jQuery( '#' + event.id + ' .comment-like-feedback' )
-						.html( event.feedback )
-						.data( 'likes', event.likes );
-				}
-			} );
-		} );
 	}
 }
 
