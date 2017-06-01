@@ -516,8 +516,11 @@ class Share_Email extends Sharing_Source {
 
 			<?php endif; ?>
 			<input type="text" id="jetpack-source_f_name" name="source_f_name" class="input" value="" size="25" autocomplete="off" title="<?php esc_attr_e( 'This field is for validation and should not be changed', 'jetpack' ); ?>" />
-			<script>jQuery( document ).ready( function(){ document.getElementById('jetpack-source_f_name').value = '' });</script>
 			<?php
+				wp_add_inline_script(
+					'sharing-js',
+					"jQuery( document ).ready( function(){ document.getElementById('jetpack-source_f_name').value = '' });"
+				);
 				/**
 				 * Fires when the Email sharing dialog is loaded.
 				 *
@@ -741,9 +744,10 @@ class Share_Twitter extends Sharing_Source {
 
 	public function display_footer() {
 		if ( $this->smart ) {
-			?>
-			<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');</script>
-			<?php
+			wp_add_inline_script(
+				'sharing-js',
+				"!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+'://platform.twitter.com/widgets.js';fjs.parentNode.insertBefore(js,fjs);}}(document, 'script', 'twitter-wjs');"
+			);
 		} else {
 			$this->js_dialog( $this->shortname, array( 'height' => 350 ) );
 		}
@@ -849,17 +853,18 @@ class Share_LinkedIn extends Sharing_Source {
 		if ( ! $this->smart ) {
 			$this->js_dialog( $this->shortname, array( 'width' => 580, 'height' => 450 ) );
 		} else {
-			?><script type="text/javascript">
-			jQuery( document ).ready( function() {
-				jQuery.getScript( 'https://platform.linkedin.com/in.js?async=true', function success() {
-					IN.init();
+			wp_add_inline_script(
+				'sharing-js',
+				"jQuery( document ).ready( function() {
+					jQuery.getScript( 'https://platform.linkedin.com/in.js?async=true', function success() {
+						IN.init();
+					});
 				});
-			});
-			jQuery( document.body ).on( 'post-load', function() {
-				if ( typeof IN != 'undefined' )
-					IN.parse();
-			});
-			</script><?php
+				jQuery( document.body ).on( 'post-load', function() {
+					if ( typeof IN != 'undefined' )
+						IN.parse();
+				});"
+			);
 		}
 	}
 }
@@ -985,16 +990,22 @@ class Share_Facebook extends Sharing_Source {
 			} else {
 				$fb_app_id = '';
 			}
-			?><div id="fb-root"></div>
-			<script>(function(d, s, id) { var js, fjs = d.getElementsByTagName(s)[0]; if (d.getElementById(id)) return; js = d.createElement(s); js.id = id; js.src = 'https://connect.facebook.net/<?php echo $locale; ?>/sdk.js#xfbml=1<?php echo $fb_app_id; ?>&version=v2.3'; fjs.parentNode.insertBefore(js, fjs); }(document, 'script', 'facebook-jssdk'));</script>
-			<script>
-			jQuery( document.body ).on( 'post-load', function() {
-				if ( 'undefined' !== typeof FB ) {
-					FB.XFBML.parse();
-				}
-			} );
-			</script>
-			<?php
+
+			echo "<div id=\"fb-root\"></div>";
+
+			wp_add_inline_script(
+				'sharing-js',
+				sprintf(
+					'(function(d, s, id) { var js, fjs = d.getElementsByTagName(s)[0]; if (d.getElementById(id)) return; js = d.createElement(s); js.id = id; js.src = \'https://connect.facebook.net/%1$s/sdk.js#xfbml=1%2$s&version=v2.3\'; fjs.parentNode.insertBefore(js, fjs); }(document, \'script\', \'facebook-jssdk\'));
+					jQuery( document.body ).on( \'post-load\', function() {
+						if ( \'undefined\' !== typeof FB ) {
+							FB.XFBML.parse();
+						}
+					} );',
+					$locale,
+					$fb_app_id
+				)
+			);
 		}
 	}
 }
@@ -1139,39 +1150,39 @@ class Share_GooglePlus1 extends Sharing_Source {
 	public function display_footer() {
 		global $post;
 
-		if ( $this->smart ) { ?>
-			<script>
-			function renderGooglePlus1() {
-				if ( 'undefined' === typeof gapi ) {
-					return;
+		if ( $this->smart ) {
+			wp_add_inline_script(
+				'sharing-js',
+				"function renderGooglePlus1() {
+					if ( 'undefined' === typeof gapi ) {
+						return;
+					}
+
+					jQuery( '.g-plus' ).each(function() {
+						var button = jQuery( this );
+
+						if ( ! button.data( 'gplus-rendered' ) ) {
+							gapi.plusone.render( this, {
+								href: button.attr( 'data-href' ),
+								size: button.attr( 'data-size' ),
+								annotation: button.attr( 'data-annotation' )
+							});
+
+							button.data( 'gplus-rendered', true );
+						}
+					});
 				}
 
-				jQuery( '.g-plus' ).each(function() {
-					var $button = jQuery( this );
+				(function() {
+					var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
+					po.src = 'https://apis.google.com/js/plusone.js';
+					po.innerHTML = '{\"parsetags\": \"explicit\"}';
+					po.onload = renderGooglePlus1;
+					var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
+				})();
 
-					if ( ! $button.data( 'gplus-rendered' ) ) {
-						gapi.plusone.render( this, {
-							href: $button.attr( 'data-href' ),
-							size: $button.attr( 'data-size' ),
-							annotation: $button.attr( 'data-annotation' )
-						});
-
-						$button.data( 'gplus-rendered', true );
-					}
-				});
-			}
-
-			(function() {
-				var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
-				po.src = 'https://apis.google.com/js/plusone.js';
-				po.innerHTML = '{"parsetags": "explicit"}';
-				po.onload = renderGooglePlus1;
-				var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
-			})();
-
-			jQuery( document.body ).on( 'post-load', renderGooglePlus1 );
-			</script>
-			<?php
+				jQuery( document.body ).on( 'post-load', renderGooglePlus1 );"
+			);
 		} else {
 			$this->js_dialog( 'google-plus-1', array( 'width' => 480, 'height' => 550 ) );
 		}
@@ -1427,7 +1438,11 @@ class Share_Tumblr extends Sharing_Source {
 	// http://www.tumblr.com/share?v=3&u=URL&t=TITLE&s=
 	public function display_footer() {
 		if ( $this->smart ) {
-			?><script type="text/javascript" src="https://platform.tumblr.com/v1/share.js"></script><?php
+			wp_enqueue_script(
+				'sharing-js-tumblr',
+				'https://platform.tumblr.com/v1/share.js',
+				array( 'sharing-js' )
+			);
 		} else {
 			$this->js_dialog( $this->shortname, array( 'width' => 450, 'height' => 450 ) );
 		}
@@ -1442,7 +1457,7 @@ class Share_Pinterest extends Sharing_Source {
 		parent::__construct( $id, $settings );
 		if ( 'official' == $this->button_style ) {
 			$this->smart = true;
-		} else { 
+		} else {
 			$this->smart = false;
 		}
 	}
@@ -1546,26 +1561,29 @@ class Share_Pinterest extends Sharing_Source {
 		 * @param bool $jetpack_pinit_over True by default, displays the Pin it button when hovering over images.
 		 */
 		$jetpack_pinit_over = apply_filters( 'jetpack_pinit_over_button', true );
-		?>
-		<?php if ( $this->smart ) : ?>
-			<script type="text/javascript">
-				// Pinterest shared resources
-				var s = document.createElement("script");
-				s.type = "text/javascript";
-				s.async = true;
-				<?php if ( $jetpack_pinit_over ) { 
-				echo "s.setAttribute('data-pin-hover', true);";
-				} ?>
-				s.src = window.location.protocol + "//assets.pinterest.com/js/pinit.js";
-				var x = document.getElementsByTagName("script")[0];
-				x.parentNode.insertBefore(s, x);
-				// if 'Pin it' button has 'counts' make container wider
-				jQuery(window).load( function(){ jQuery( 'li.share-pinterest a span:visible' ).closest( '.share-pinterest' ).width( '80px' ); } );
-			</script>
-		<?php elseif ( 'buttonPin' != $this->get_widget_type() ) : ?>
-			<script type="text/javascript">
-				jQuery(document).ready( function(){
-					jQuery('body').on('click', 'a.share-pinterest', function(e){
+
+		if ( $this->smart ) {
+			wp_add_inline_script(
+				'sharing-js',
+				sprintf(
+					'// Pinterest shared resources
+					var s = document.createElement("script");
+					s.type = "text/javascript";
+					s.async = true;
+					%1$s
+					s.src = window.location.protocol + "//assets.pinterest.com/js/pinit.js";
+					var x = document.getElementsByTagName("script")[0];
+					x.parentNode.insertBefore(s, x);
+					// if \'Pin it\' button has \'counts\' make container wider
+					jQuery(window).load( function(){ jQuery( \'li.share-pinterest a span:visible\' ).closest( \'.share-pinterest\' ).width( \'80px\' ); } );',
+					$jetpack_pinit_over ? "s.setAttribute('data-pin-hover', true);" : ""
+				)
+			);
+		} elseif ( 'buttonPin' != $this->get_widget_type() ) {
+			wp_add_inline_script(
+				'sharing-js',
+				'jQuery(document).ready( function(){
+					jQuery(\'body\').on(\'click\', \'a.share-pinterest\', function(e){
 						e.preventDefault();
 						// Load Pinterest Bookmarklet code
 						var s = document.createElement("script");
@@ -1576,13 +1594,13 @@ class Share_Pinterest extends Sharing_Source {
 						// Trigger Stats
 						var s = document.createElement("script");
 						s.type = "text/javascript";
-						s.src = this + ( this.toString().indexOf( '?' ) ? '&' : '?' ) + 'js_only=1';
+						s.src = this + ( this.toString().indexOf( \'?\' ) ? \'&\' : \'?\' ) + \'js_only=1\';
 						var x = document.getElementsByTagName("script")[0];
 						x.parentNode.insertBefore(s, x);
 					});
-				});
-			</script>
-		<?php endif;
+				});'
+			);
+		}
 	}
 }
 
@@ -1630,21 +1648,20 @@ class Share_Pocket extends Sharing_Source {
 	}
 
 	function display_footer() {
-		if ( $this->smart ) :
-		?>
-		<script>
-		// Don't use Pocket's default JS as it we need to force init new Pocket share buttons loaded via JS.
-		function jetpack_sharing_pocket_init() {
-			jQuery.getScript( 'https://widgets.getpocket.com/v1/j/btn.js?v=1' );
-		}
-		jQuery( document ).ready( jetpack_sharing_pocket_init );
-		jQuery( document.body ).on( 'post-load', jetpack_sharing_pocket_init );
-		</script>
-		<?php
-		else :
+		if ( $this->smart ) {
+			wp_add_inline_script(
+				'sharing-js',
+				"
+				// Don't use Pocket's default JS as it we need to force init new Pocket share buttons loaded via JS.
+				function jetpack_sharing_pocket_init() {
+					jQuery.getScript( 'https://widgets.getpocket.com/v1/j/btn.js?v=1' );
+				}
+				jQuery( document ).ready( jetpack_sharing_pocket_init );
+				jQuery( document.body ).on( 'post-load', jetpack_sharing_pocket_init );"
+			);
+		} else {
 			$this->js_dialog( $this->shortname, array( 'width' => 450, 'height' => 450 ) );
-		endif;
-
+		}
 	}
 
 }
@@ -1749,29 +1766,28 @@ class Share_Skype extends Sharing_Source {
 	}
 
 	public function display_footer() {
-		if ( $this->smart ) :
-		?>
-		<script>
-		(function(r, d, s) {
-			r.loadSkypeWebSdkAsync = r.loadSkypeWebSdkAsync || function(p) {
-				var js, sjs = d.getElementsByTagName(s)[0];
-				if (d.getElementById(p.id)) { return; }
-				js = d.createElement(s);
-				js.id = p.id;
-				js.src = p.scriptToLoad;
-				js.onload = p.callback
-				sjs.parentNode.insertBefore(js, sjs);
-			};
-			var p = {
-				scriptToLoad: 'https://swx.cdn.skype.com/shared/v/latest/skypewebsdk.js',
-				id: 'skype_web_sdk'
-			};
-			r.loadSkypeWebSdkAsync(p);
-		})(window, document, 'script');
-		</script>
-		<?php
-		else :
+		if ( $this->smart ) {
+			wp_add_inline_script(
+				'sharing-js',
+				"(function(r, d, s) {
+					r.loadSkypeWebSdkAsync = r.loadSkypeWebSdkAsync || function(p) {
+						var js, sjs = d.getElementsByTagName(s)[0];
+						if (d.getElementById(p.id)) { return; }
+						js = d.createElement(s);
+						js.id = p.id;
+						js.src = p.scriptToLoad;
+						js.onload = p.callback
+						sjs.parentNode.insertBefore(js, sjs);
+					};
+					var p = {
+						scriptToLoad: 'https://swx.cdn.skype.com/shared/v/latest/skypewebsdk.js',
+						id: 'skype_web_sdk'
+					};
+					r.loadSkypeWebSdkAsync(p);
+				})(window, document, 'script');"
+			);
+		} else {
 			$this->js_dialog( $this->shortname, array( 'width' => 305, 'height' => 665 ) );
-		endif;
+		}
 	}
 }
