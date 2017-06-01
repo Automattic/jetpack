@@ -67,6 +67,7 @@ function wpcomsh_is_wpcom_pub_theme( $theme_slug ) {
  */
 function wpcomsh_symlink_theme( $theme_slug, $theme_type ) {
 	$themes_source_path = '';
+	$storefront_theme = false;
 
 	if ( WPCOMSH_PUB_THEME_TYPE === $theme_type ) {
 		$themes_source_path = WPCOMSH_PUB_THEMES_SYMLINK;
@@ -74,13 +75,13 @@ function wpcomsh_symlink_theme( $theme_slug, $theme_type ) {
 		$themes_source_path = WPCOMSH_PREMIUM_THEMES_SYMLINK;
 	} elseif ( WPCOMSH_STOREFRONT_THEME_TYPE === $theme_type ) {
 		$themes_source_path = WPCOMSH_STOREFRONT_THEMES_SYMLINK;
+		$storefront_theme = true;
 	}
 
 	$abs_theme_path = $themes_source_path . "/{$theme_slug}";
 	$abs_theme_symlink_path = get_theme_root() . '/' . $theme_slug;
 
-	if ( ! file_exists( $abs_theme_path ) ) {
-
+	if ( ! $storefront_theme && ! file_exists( $abs_theme_path ) ) {
 		$error_message = "Source theme directory doesn't exists at: ${abs_theme_path}";
 
 		error_log( 'WPComSH: ' . $error_message );
