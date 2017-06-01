@@ -142,23 +142,11 @@ function JetpackLikesMessageListener( event, message ) {
 	}
 
 	if ( 'showLikeWidget' === event.event ) {
-		jQuery( '#' + event.id + ' .likes-widget-placeholder' ).fadeOut( 'fast', function() {
-			jQuery( '#' + event.id + ' .jetpack-likes-widget' ).fadeIn( 'fast', function() {
-				if ( event.post_id ) {
-					JetpackLikesPostMessage( { event: 'likeWidgetDisplayed', blog_id: event.blog_id, post_id: event.post_id, obj_id: event.obj_id }, window.frames['likes-master'] );
-				}
-			} );
-		} );
+		jQuery( '#' + event.id + ' .likes-widget-placeholder' ).fadeOut( 'fast' );
 	}
 
 	if ( 'showCommentLikeWidget' === event.event ) {
-		jQuery( '#' + event.id + ' .likes-widget-placeholder'  ).fadeOut( 'fast', function() {
-			jQuery( '#' + event.id + ' .jetpack-likes-widget' ).fadeIn( 'fast', function() {
-				if ( event.comment_id ) {
-					JetpackLikesPostMessage( { event: 'likeWidgetDisplayed', blog_id: event.blog_id, comment_id: event.comment_id, obj_id: event.obj_id }, window.frames['likes-master'] );
-				}
-			} );
-		} );
+		jQuery( '#' + event.id + ' .likes-widget-placeholder' ).fadeOut( 'fast' );
 	}
 
 	if ( 'clickReblogFlair' === event.event ) {

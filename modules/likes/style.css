@@ -170,6 +170,7 @@ div.sd-box {
 	position: absolute;
 	display: flex;
 	font-family: "Open Sans", sans-serif;
+	margin-top: 4px;
 }
 
 .comment-likes-widget-placeholder::before {
