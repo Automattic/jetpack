@@ -41,8 +41,8 @@ fi
 ACCESS_TOKEN_JSON=`curl https://$JETPACK_START_API_HOST/oauth2/token --silent --header "Host: public-api.wordpress.com" -d "grant_type=client_credentials&client_id=$CLIENT_ID&client_secret=$CLIENT_SECRET&scope=jetpack-partner"`
 
 # silently ensure Jetpack is active
-wp plugin activate jetpack >/dev/null 2>&1
+wp --allow-root plugin activate jetpack >/dev/null 2>&1
 
 # cancel the partner plan
-wp jetpack partner_cancel "$ACCESS_TOKEN_JSON"
+wp --allow-root jetpack partner_cancel "$ACCESS_TOKEN_JSON"
 
