@@ -218,7 +218,7 @@ jQuery( document ).click( function( e ) {
 });
 
 function JetpackLikesWidgetQueueHandler() {
-	var $wrapper, wrapper, wrapperID, found;
+	var wrapper, wrapperID, found;
 	if ( ! jetpackLikesMasterReady ) {
 		setTimeout( JetpackLikesWidgetQueueHandler, 500 );
 		return;
@@ -259,6 +259,13 @@ function JetpackLikesWidgetQueueHandler() {
 		}
 	}
 
+	jetpackLoadLikeWidgetIframe( wrapperID );
+}
+JetpackLikesWidgetQueueHandler();
+
+function jetpackLoadLikeWidgetIframe( wrapperID ) {
+	var $wrapper;
+	
 	if ( 'undefined' === typeof wrapperID ) {
 		return;
 	}
@@ -267,23 +274,29 @@ function JetpackLikesWidgetQueueHandler() {
 	$wrapper.find( 'iframe' ).remove();
 
 	var placeholder = $wrapper.find( '.likes-widget-placeholder' );
+
+	// post likes iframe
 	if ( placeholder.hasClass( 'post-likes-widget-placeholder' ) ) {
 		if ( $wrapper.hasClass( 'slim-likes-widget' ) ) {
 			placeholder.after( '<iframe class="post-likes-widget jetpack-likes-widget" name="' + $wrapper.data( 'name' ) + '" height="22px" width="68px" frameBorder="0" scrolling="no" src="' + $wrapper.data( 'src' ) + '"></iframe>' );
 		} else {
 			placeholder.after( '<iframe class="post-likes-widget jetpack-likes-widget" name="' + $wrapper.data( 'name' ) + '" height="55px" width="100%" frameBorder="0" src="' + $wrapper.data( 'src' ) + '"></iframe>' );
 		}
-	} else if ( placeholder.hasClass( 'comment-likes-widget-placeholder' ) ) {
+	}
+
+	// comment likes iframe
+	if ( placeholder.hasClass( 'comment-likes-widget-placeholder' ) ) {
 		var commentLikesFrame = document.createElement( 'iframe' );
+
 		commentLikesFrame['class'] = 'comment-likes-widget-frame jetpack-likes-widget-frame';
 		commentLikesFrame.name = $wrapper.data( 'name' );
+		commentLikesFrame.src = $wrapper.data( 'src' );
 		commentLikesFrame.height = '18px';
 		commentLikesFrame.width = '200px';
 		commentLikesFrame.frameBorder = '0';
 		commentLikesFrame.scrolling = 'no';
-		commentLikesFrame.src = $wrapper.data( 'src' );
-		$wrapper.find( '.comment-like-feedback' ).after( commentLikesFrame );
 
+		$wrapper.find( '.comment-like-feedback' ).after( commentLikesFrame );
 		jetpackCommentLikesLoadedWidgets.push( commentLikesFrame );
 	}
 
@@ -301,7 +314,6 @@ function JetpackLikesWidgetQueueHandler() {
 		}
 	});
 }
-JetpackLikesWidgetQueueHandler();
 
 function jetpackHasUnloadedWidgetsInView( $unloadedWidgets ) {
 	if ( typeof $unloadedWidgets === 'undefined' ) {
