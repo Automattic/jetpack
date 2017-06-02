@@ -236,7 +236,7 @@ class Jetpack_JITM {
 
 		// if something is in the cache and it was put in the cache after the last sync we care about, use it
 		$last_sync = (int) get_transient( 'jetpack_last_plugin_sync' );
-		$from_cache = $envelopes && $last_sync > 0 && $last_sync < $envelopes[ 'last_response_time' ];
+		$from_cache = $envelopes && $last_sync > 0 && $last_sync < $envelopes['last_response_time'];
 
 		// otherwise, ask again
 		if ( ! $from_cache ) {
