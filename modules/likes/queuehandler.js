@@ -1,8 +1,13 @@
 /* global pm, wpcom_reblog, JSON */
 
-var jetpackLikesWidgetQueue = [];
 var jetpackLikesWidgetBatch = [];
 var jetpackLikesMasterReady = false;
+
+// Due to performance problems on pages with a large number of widget iframes that need to be loaded,
+// we are limiting the processing at any instant to unloaded widgets that are currently in viewport,
+// plus this constant that will allow processing of widgets above and bellow the current fold.
+// This aim of it is to improve the UX and hide the transition from unloaded to loaded state from users.
+var jetpackLikesLookAhead = 2000; // pixels
 
 // Keeps track of loaded comment likes widget so we can unload them when they are scrolled out of view.
 var jetpackCommentLikesLoadedWidgets = [];
@@ -218,7 +223,7 @@ jQuery( document ).click( function( e ) {
 });
 
 function JetpackLikesWidgetQueueHandler() {
-	var wrapper, wrapperID, found;
+	var wrapperID;
 	if ( ! jetpackLikesMasterReady ) {
 		setTimeout( JetpackLikesWidgetQueueHandler, 500 );
 		return;
@@ -227,41 +232,23 @@ function JetpackLikesWidgetQueueHandler() {
 	// Restore widgets to initial unloaded state when they are scrolled out of view.
 	jetpackUnloadScrolledOutWidgets();
 
-	if ( jetpackLikesWidgetQueue.length > 0 ) {
-		// We may have a widget that needs creating now
-		found = false;
-		while( jetpackLikesWidgetQueue.length > 0 ) {
-			// Grab the first member of the queue that isn't already loading.
-			wrapperID = jetpackLikesWidgetQueue.splice( 0, 1 )[0];
-			if ( jQuery( '#' + wrapperID ).hasClass( 'jetpack-likes-widget-unloaded' ) ) {
-				found = true;
-				break;
-			}
-		}
-		if ( ! found ) {
-			return;
-		}
-	} else {
-		var $unloadedWidgets = jQuery( 'div.jetpack-likes-widget-unloaded' );
+	var unloadedWidgetsInView = jetpackGetUnloadedWidgetsInView();
 
-		if ( jetpackHasUnloadedWidgetsInView() ) {
-			// Get the next unloaded widget
-			wrapper = $unloadedWidgets.first()[0];
-			wrapperID = wrapper.id;
+	for ( var i=0; i <= unloadedWidgetsInView.length - 1; i++ ) {
+		wrapperID = unloadedWidgetsInView[i].id;
 
-			if ( ! wrapperID ){
-				// Everything is currently loaded
-				return;
-			}
-
-			// Grab any unloaded widgets for a batch request
-			JetpackLikesBatchHandler();
+		if ( ! wrapperID ){
+			continue;
 		}
+
+		jetpackLoadLikeWidgetIframe( wrapperID );
 	}
 
-	jetpackLoadLikeWidgetIframe( wrapperID );
+	if ( unloadedWidgetsInView.length > 0 ) {
+		// Grab any unloaded widgets for a batch request
+		JetpackLikesBatchHandler();
+	}
 }
-JetpackLikesWidgetQueueHandler();
 
 function jetpackLoadLikeWidgetIframe( wrapperID ) {
 	var $wrapper;
@@ -315,29 +302,23 @@ function jetpackLoadLikeWidgetIframe( wrapperID ) {
 	});
 }
 
-function jetpackHasUnloadedWidgetsInView( $unloadedWidgets ) {
+function jetpackGetUnloadedWidgetsInView( $unloadedWidgets ) {
 	if ( typeof $unloadedWidgets === 'undefined' ) {
 		$unloadedWidgets = jQuery( 'div.jetpack-likes-widget-unloaded' );
 	}
 
-	var hasUnloadedWidgets = false;
-
-	$unloadedWidgets.each( function() {
-		if ( jetpackIsScrolledIntoView( this ) ) {
-			hasUnloadedWidgets = true;
-		}
+	return $unloadedWidgets.filter( function() {
+		return jetpackIsScrolledIntoView( this );
 	} );
-
-	return hasUnloadedWidgets;
 }
 
 function jetpackIsScrolledIntoView( element ) {
-	var elementTop = element.getBoundingClientRect().top;
-	var elementBottom = element.getBoundingClientRect().bottom;
-	var lookAhead = 2000;
-	var lookBehind = 1000;
+	var top = element.getBoundingClientRect().top;
+	var bottom = element.getBoundingClientRect().bottom;
 
-	return ( elementTop + lookBehind >= 0 ) && ( elementBottom <= window.innerHeight + lookAhead );
+	// Allow some slack above and bellow the fold with jetpackLikesLookAhead,
+	// with the aim of hiding the transition from unloaded to loaded widget from users.
+	return ( top + jetpackLikesLookAhead >= 0 ) && ( bottom <= window.innerHeight + jetpackLikesLookAhead );
 }
 
 function jetpackUnloadScrolledOutWidgets() {
@@ -374,4 +355,8 @@ var jetpackWidgetsDelayedExec = function( after, fn ) {
 
 var jetpackOnScrollStopped = jetpackWidgetsDelayedExec( 250, JetpackLikesWidgetQueueHandler );
 
+// Load initial batch of widgets, prior to any scrolling events.
+JetpackLikesWidgetQueueHandler();
+
+// Add event listener to execute queue handler after scroll.
 window.addEventListener( 'scroll', jetpackOnScrollStopped, true );
