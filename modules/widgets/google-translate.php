@@ -66,7 +66,27 @@ class Jetpack_Google_Translate_Widget extends WP_Widget {
 				'title' => $this->default_title,
 			) );
 
-			wp_localize_script( 'google-translate-init', '_wp_google_translate_widget', array( 'lang' => get_locale() ) );
+			wp_localize_script(
+				'google-translate-init',
+				'_wp_google_translate_widget',
+				array(
+					'lang'   => get_locale(),
+					/**
+					 * Filter the layout of the Google Translate Widget.
+					 *
+					 * 3 different values are accepted. Nothing, google.translate.TranslateElement.InlineLayout.SIMPLE, or google.translate.TranslateElement.InlineLayout.HORIZONTAL
+					 *
+					 * @see https://translate.google.com/manager/website/
+					 *
+					 * @module widgets
+					 *
+					 * @since 5.1.0
+					 *
+					 * @param string $layout layout of the Google Translate Widget.
+					 */
+					'layout' => wp_json_encode( apply_filters( 'jetpack_google_translate_widget_layout', '' ) ),
+				)
+			);
 			wp_enqueue_script( 'google-translate-init' );
 			wp_enqueue_script( 'google-translate' );
 
