@@ -213,7 +213,7 @@ class WP_Super_Cache_Settings_Map {
 			'set'    => 'set_ossdl_off_include_dirs',
 		),
 		'ossdlcdn' => array(
-			'option' => 'ossdlcdn',
+			'global' => 'ossdlcdn',
 			'set'    => 'set_ossdlcdn',
 		),
 	);
