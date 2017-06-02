@@ -10,7 +10,7 @@ var jetpackCommentLikesLoadedWidgets = [];
 function jetpackIsScrolledIntoView( element ) {
 	var elementTop = element.getBoundingClientRect().top;
 	var elementBottom = element.getBoundingClientRect().bottom;
-	var lookAhead = 1500;
+	var lookAhead = 2000;
 	var lookBehind = 1000;
 
 	return ( elementTop + lookBehind >= 0 ) && ( elementBottom <= window.innerHeight + lookAhead );
@@ -21,7 +21,7 @@ function jetpackUnloadScrolledOutWidgets() {
 		var currentWidgetIframe = jetpackCommentLikesLoadedWidgets[ i ];
 
 		if ( ! jetpackIsScrolledIntoView( currentWidgetIframe ) ) {
-			$widgetWrapper = jQuery( currentWidgetIframe ).parent().parent();
+			var $widgetWrapper = jQuery( currentWidgetIframe ).parent().parent();
 
 			// Restore parent class to 'unloaded' so this widget can be picked up by queue manager again if needed.
 			$widgetWrapper
@@ -61,6 +61,10 @@ function JetpackLikesBatchHandler() {
 	var requests = [];
 	jQuery( 'div.jetpack-likes-widget-unloaded' ).each( function() {
 		if ( jetpackLikesWidgetBatch.indexOf( this.id ) > -1 ) {
+			return;
+		}
+
+		if ( ! jetpackIsScrolledIntoView( this ) ) {
 			return;
 		}
 
@@ -310,7 +314,7 @@ function JetpackLikesWidgetQueueHandler() {
 		}
 	} else if ( placeholder.hasClass( 'comment-likes-widget-placeholder' ) ) {
 		var commentLikesFrame = document.createElement( 'iframe' );
-		commentLikesFrame.class = 'comment-likes-widget-frame jetpack-likes-widget-frame';
+		commentLikesFrame['class'] = 'comment-likes-widget-frame jetpack-likes-widget-frame';
 		commentLikesFrame.name = $wrapper.data( 'name' );
 		commentLikesFrame.height = '18px';
 		commentLikesFrame.width = '200px';
@@ -326,9 +330,10 @@ function JetpackLikesWidgetQueueHandler() {
 
 	$wrapper.find( 'iframe' ).load( function( e ) {
 		var $iframe = jQuery( e.target );
-		$wrapper.removeClass( 'jetpack-likes-widget-loading' ).addClass( 'jetpack-likes-widget-loaded' );
 
 		JetpackLikesPostMessage( { event: 'loadLikeWidget', name: $iframe.attr( 'name' ), width: $iframe.width() }, window.frames[ 'likes-master' ] );
+
+		$wrapper.removeClass( 'jetpack-likes-widget-loading' ).addClass( 'jetpack-likes-widget-loaded' );
 
 		if ( $wrapper.hasClass( 'slim-likes-widget' ) ) {
 			$wrapper.find( 'iframe' ).Jetpack( 'resizeable' );
@@ -345,8 +350,6 @@ var delayedExec = function( after, fn ) {
 	};
 };
 
-var onScrollStopped = delayedExec( 500, function() {
-	JetpackLikesWidgetQueueHandler();
-} );
+var onScrollStopped = delayedExec( 250, JetpackLikesWidgetQueueHandler );
 
 window.addEventListener( 'scroll', onScrollStopped, true );
