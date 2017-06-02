@@ -7,39 +7,6 @@ var jetpackLikesMasterReady = false;
 // Keeps track of loaded comment likes widget so we can unload them when they are scrolled out of view.
 var jetpackCommentLikesLoadedWidgets = [];
 
-function jetpackIsScrolledIntoView( element ) {
-	var elementTop = element.getBoundingClientRect().top;
-	var elementBottom = element.getBoundingClientRect().bottom;
-	var lookAhead = 2000;
-	var lookBehind = 1000;
-
-	return ( elementTop + lookBehind >= 0 ) && ( elementBottom <= window.innerHeight + lookAhead );
-}
-
-function jetpackUnloadScrolledOutWidgets() {
-	for ( var i = jetpackCommentLikesLoadedWidgets.length - 1; i >= 0; i-- ) {
-		var currentWidgetIframe = jetpackCommentLikesLoadedWidgets[ i ];
-
-		if ( ! jetpackIsScrolledIntoView( currentWidgetIframe ) ) {
-			var $widgetWrapper = jQuery( currentWidgetIframe ).parent().parent();
-
-			// Restore parent class to 'unloaded' so this widget can be picked up by queue manager again if needed.
-			$widgetWrapper
-				.removeClass( 'jetpack-likes-widget-loaded jetpack-likes-widget-loading' )
-				.addClass( 'jetpack-likes-widget-unloaded' );
-
-			// Bring back the loading placeholder into view.
-			$widgetWrapper.children( '.comment-likes-widget-placeholder' ).fadeIn();
-
-			// Remove it from the list of loaded widgets.
-			jetpackCommentLikesLoadedWidgets.splice( i, 1 );
-
-			// Remove comment like widget iFrame.
-			jQuery( currentWidgetIframe ).remove();
-		}
-	}
-}
-
 function JetpackLikesPostMessage(message, target ) {
 	if ( 'string' === typeof message ){
 		try {
@@ -277,14 +244,12 @@ function JetpackLikesWidgetQueueHandler() {
 	} else {
 		var $unloadedWidgets = jQuery( 'div.jetpack-likes-widget-unloaded' );
 
-		if ( $unloadedWidgets.length > 0 ) {
+		if ( jetpackHasUnloadedWidgetsInView() ) {
 			// Get the next unloaded widget
 			wrapper = $unloadedWidgets.first()[0];
 			wrapperID = wrapper.id;
 
-			// Bail if current widget wrapper is not scrolled into view.
-			// We need this in order to prevent performance issues caused by loading all iFrames at once.
-			if ( ! wrapperID || ! jetpackIsScrolledIntoView( wrapper ) ){
+			if ( ! wrapperID ){
 				// Everything is currently loaded
 				return;
 			}
@@ -337,6 +302,55 @@ function JetpackLikesWidgetQueueHandler() {
 	});
 }
 JetpackLikesWidgetQueueHandler();
+
+function jetpackHasUnloadedWidgetsInView( $unloadedWidgets ) {
+	if ( typeof $unloadedWidgets === 'undefined' ) {
+		$unloadedWidgets = jQuery( 'div.jetpack-likes-widget-unloaded' );
+	}
+
+	var hasUnloadedWidgets = false;
+
+	$unloadedWidgets.each( function() {
+		if ( jetpackIsScrolledIntoView( this ) ) {
+			hasUnloadedWidgets = true;
+		}
+	} );
+
+	return hasUnloadedWidgets;
+}
+
+function jetpackIsScrolledIntoView( element ) {
+	var elementTop = element.getBoundingClientRect().top;
+	var elementBottom = element.getBoundingClientRect().bottom;
+	var lookAhead = 2000;
+	var lookBehind = 1000;
+
+	return ( elementTop + lookBehind >= 0 ) && ( elementBottom <= window.innerHeight + lookAhead );
+}
+
+function jetpackUnloadScrolledOutWidgets() {
+	for ( var i = jetpackCommentLikesLoadedWidgets.length - 1; i >= 0; i-- ) {
+		var currentWidgetIframe = jetpackCommentLikesLoadedWidgets[ i ];
+
+		if ( ! jetpackIsScrolledIntoView( currentWidgetIframe ) ) {
+			var $widgetWrapper = jQuery( currentWidgetIframe ).parent().parent();
+
+			// Restore parent class to 'unloaded' so this widget can be picked up by queue manager again if needed.
+			$widgetWrapper
+				.removeClass( 'jetpack-likes-widget-loaded jetpack-likes-widget-loading' )
+				.addClass( 'jetpack-likes-widget-unloaded' );
+
+			// Bring back the loading placeholder into view.
+			$widgetWrapper.children( '.comment-likes-widget-placeholder' ).fadeIn();
+
+			// Remove it from the list of loaded widgets.
+			jetpackCommentLikesLoadedWidgets.splice( i, 1 );
+
+			// Remove comment like widget iFrame.
+			jQuery( currentWidgetIframe ).remove();
+		}
+	}
+}
 
 var jetpackWidgetsDelayedExec = function( after, fn ) {
 	var timer;
