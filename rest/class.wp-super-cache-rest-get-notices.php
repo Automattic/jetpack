@@ -17,11 +17,46 @@ class WP_Super_Cache_Rest_Get_Notices extends WP_REST_Controller {
 		$this->add_cache_disabled_notice( $notices );
 		$this->add_compression_notice( $notices );
 		$this->add_php_mod_rewrite_notice( $notices );
+		$this->add_preload_notices( $notices );
 
 		if ( empty( $notices ) ) {
 			return "{}";
 		} else {
 			return rest_ensure_response( $notices );
+		}
+	}
+
+	/**
+	 * @param array $notices
+	 */
+	protected function add_preload_notices( & $notices ) {
+		global $cache_enabled, $super_cache_enabled;
+		if ( false == $cache_enabled ) {
+			$notices[ 'preload_disabled_cache_off' ] = array(
+				'type' => 'warning',
+				'message' => __(
+					'Preloading is disabled as caching is disabled',
+					'wp-super-cache'
+				),
+			);
+		}
+		if ( false == $super_cache_enabled ) {
+			$notices[ 'preload_disabled_supercache_off' ] = array(
+				'type' => 'warning',
+				'message' => __(
+					'Preloading is disabled as supercaching is disabled',
+					'wp-super-cache'
+				),
+			);
+		}
+		if ( false === defined( 'DISABLESUPERCACHEPRELOADING' ) ) {
+			$notices[ 'preload_disabled_by_admin' ] = array(
+				'type' => 'warning',
+				'message' => __(
+					'Preloading is disabled by the administrator of your site',
+					'wp-super-cache'
+				),
+			);
 		}
 	}
 
@@ -120,6 +155,7 @@ class WP_Super_Cache_Rest_Get_Notices extends WP_REST_Controller {
 				),
 			);
 		}
+
 		if ( !is_writeable_ACLSafe( $home_path . ".htaccess" ) ) {
 			$notices[ 'htaccess_ro' ] = array(
 				'type' => 'warning',
