@@ -84,7 +84,7 @@ class Jetpack_Google_Translate_Widget extends WP_Widget {
 					 *
 					 * @param string $layout layout of the Google Translate Widget.
 					 */
-					'layout' => wp_json_encode( apply_filters( 'jetpack_google_translate_widget_layout', '' ) ),
+					'layout' => esc_js( apply_filters( 'jetpack_google_translate_widget_layout', '' ) ),
 				)
 			);
 			wp_enqueue_script( 'google-translate-init' );
