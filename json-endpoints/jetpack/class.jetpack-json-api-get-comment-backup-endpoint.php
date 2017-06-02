@@ -41,7 +41,7 @@ class Jetpack_JSON_API_Get_Comment_Backup_Endpoint extends Jetpack_JSON_API_Endp
 		);
 
 		$comment = array_intersect_key( $comment->to_array(), array_flip( $allowed_keys ) );
-		$comment_meta = get_comment_meta( $comment->comment_ID );
+		$comment_meta = get_comment_meta( $comment['comment_ID'] );
 
 		return array(
 			'comment' => $comment,
