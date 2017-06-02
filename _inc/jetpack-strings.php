@@ -371,8 +371,6 @@ __( "Settings", "jetpack" ), // _inc/client/components/dash-item/index.jsx:95
 __( "Active", "jetpack" ), // _inc/client/components/dash-item/index.jsx:84
 _x( "Updates needed", "Short warning message", "jetpack" ), // _inc/client/components/dash-item/index.jsx:78
 _x( "Settings", "Noun. Displayed to screen readers.", "jetpack" ), // _inc/client/components/dash-section-header/index.jsx:52
-__( "Save Settings", "jetpack" ), // _inc/client/components/forms/index.jsx:143
-__( "Saving…", "jetpack" ), // _inc/client/components/forms/index.jsx:143
 _x( "Privacy", "Shorthand for Privacy Policy.", "jetpack" ), // _inc/client/components/footer/index.jsx:174
 __( "Automattic's Privacy Policy", "jetpack" ), // _inc/client/components/footer/index.jsx:172
 _x( "Terms", "Shorthand for Terms of Service.", "jetpack" ), // _inc/client/components/footer/index.jsx:163
@@ -383,6 +381,8 @@ _x( "Debug", "Navigation item. Noun. Links to a debugger tool for Jetpack.", "je
 __( "Test your site’s compatibility with Jetpack.", "jetpack" ), // _inc/client/components/footer/index.jsx:97
 _x( "Reset Options (dev only)", "Navigation item.", "jetpack" ), // _inc/client/components/footer/index.jsx:82
 __( "This will reset all Jetpack options, are you sure?", "jetpack" ), // _inc/client/components/footer/index.jsx:32
+__( "Save Settings", "jetpack" ), // _inc/client/components/forms/index.jsx:143
+__( "Saving…", "jetpack" ), // _inc/client/components/forms/index.jsx:143
 __( "No account? Create one for free…", "jetpack" ), // _inc/client/components/jetpack-connect/index.jsx:222
 __( "Join the millions of users who rely on Jetpack to enhance and secure their sites. We're passionate about WordPress and here to make your life easier.", "jetpack" ), // _inc/client/components/jetpack-connect/index.jsx:214
 __( "Jetpack is supported by some of the most technical and passionate people in the community. They're located around the globe and ready to help you.", "jetpack" ), // _inc/client/components/jetpack-connect/index.jsx:199
