@@ -56,7 +56,7 @@ https://github.com/thoughtbot/bourbon
   right: 0;
   bottom: 0;
   left: 0;
-  z-index: 999;
+  z-index: 9999;
   background: rgba(243, 246, 248, 0.95);
   text-align: center;
   padding: 2rem;

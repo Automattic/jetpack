@@ -55,9 +55,11 @@ class Jetpack_JITM {
 	 * @param object $screen
 	 */
 	function prepare_jitms( $screen ) {
-		add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
-		add_action( 'admin_notices', array( $this, 'ajax_message' ) );
-		add_action( 'edit_form_top', array( $this, 'ajax_message' ) );
+		if ( ! in_array( $screen->id, array( 'toplevel_page_jetpack', 'jetpack_page_stats', 'jetpack_page_akismet-key-config', 'admin_page_jetpack_modules' )  ) ) {
+			add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
+			add_action( 'admin_notices', array( $this, 'ajax_message' ) );
+			add_action( 'edit_form_top', array( $this, 'ajax_message' ) );
+		}
 	}
 
 	/**
@@ -225,22 +227,17 @@ class Jetpack_JITM {
 
 		// build our jitm request
 		$path = add_query_arg( array(
-			'force'                => 'wpcom',
 			'external_user_id'     => urlencode_deep( $user->ID ),
 			'user_roles'           => urlencode_deep( implode( ',', $user->roles ) ),
 			'query_string'         => urlencode_deep( $query ),
 		), sprintf( '/sites/%d/jitm/%s', $site_id, $message_path ) );
 
 		// attempt to get from cache
-		$envelopes  = get_transient( 'jetpack_jitm_' . $path );
-		$from_cache = false;
+		$envelopes  = get_transient( 'jetpack_jitm_' . substr( md5( $path ), 0, 31 ) );
 
-		// if something is in the cache and it was put in the cache after the last heartbeat or sync, use it
-		$last_heartbeat = Jetpack_Options::get_option( 'last_heartbeat', time() );
-		$last_sync      = Jetpack_Options::get_option( 'last_sync', time() );
-		if ( $envelopes && $last_heartbeat < $envelopes['response_time'] || $last_sync < $envelopes['response_time'] ) {
-			$from_cache = true;
-		}
+		// if something is in the cache and it was put in the cache after the last sync we care about, use it
+		$last_sync = (int) get_transient( 'jetpack_last_plugin_sync' );
+		$from_cache = $envelopes && $last_sync > 0 && $last_sync < $envelopes['last_response_time'];
 
 		// otherwise, ask again
 		if ( ! $from_cache ) {
@@ -265,13 +262,13 @@ class Jetpack_JITM {
 			}
 
 			$expiration                 = isset( $envelopes[0] ) ? $envelopes[0]->ttl : 300;
-			$envelopes['response_time'] = time();
+			$envelopes['last_response_time'] = time();
 
-			set_transient( 'jetpack_jitm_' . $path, $envelopes, $expiration );
+			set_transient( 'jetpack_jitm_' . substr( md5( $path ), 0, 31 ), $envelopes, $expiration );
 		}
 
 		$hidden_jitms = Jetpack_Options::get_option( 'hide_jitm' );
-		unset( $envelopes['response_time'] );
+		unset( $envelopes['last_response_time'] );
 
 		foreach ( $envelopes as $idx => &$envelope ) {
 

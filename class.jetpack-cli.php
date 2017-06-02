@@ -963,8 +963,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 			}
 		}
 
-		WP_CLI::log( $body_json->next_url );
-
 		WP_CLI::log( json_encode( $body_json ) );
 	}
 

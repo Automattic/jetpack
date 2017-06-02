@@ -22,168 +22,6 @@ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
 
 https://github.com/thoughtbot/bourbon
 */
-.jp-jitm {
-  border-radius: 2px;
-  max-width: 100%;
-  margin: 2em auto 1em;
-  padding: .85em;
-  background: #fcfcfc;
-  border: 1px solid #dedede;
-  text-align: center;
-}
-
-.jp-jitm:after {
-  content: ".";
-  display: block;
-  height: 0;
-  clear: both;
-  visibility: hidden;
-}
-
-#screen-meta-links + .jp-jitm {
-  margin: 3em 1.5385em 0 auto;
-}
-
-.jp-jitm .activate {
-  margin-top: .5em;
-}
-
-.jp-jitm .jp-emblem {
-  width: 25px;
-  height: 25px;
-  margin: .40em 1em 0 auto;
-}
-
-.jp-jitm svg {
-  width: 100%;
-  height: 100%;
-}
-
-.jp-jitm path {
-  fill: #8cc258;
-}
-
-.jp-jitm.woo-jitm path {
-  fill: #96588a;
-}
-
-.jp-jitm .dismiss {
-  margin: 0;
-  text-decoration: none;
-  float: right;
-}
-
-.jp-jitm .dismiss:before {
-  color: #666;
-  font: 400 15px/1 dashicons;
-  content: '\f158';
-}
-
-.jp-jitm p {
-  font-size: 1em;
-  line-height: 165%;
-}
-
-.jp-jitm .j-spinner {
-  margin: 8px 0 0;
-  height: 17px;
-  width: 17px;
-}
-
-.jp-jitm .hide {
-  display: none;
-}
-
-form[name=post] > .jp-jitm:first-of-type {
-  margin-top: 1em;
-}
-
-@media (min-width: 800px) {
-  .jp-jitm .jp-emblem, .jp-jitm p {
-    float: left;
-    /* margin: .5em 1em 0 .5em;
-			padding-top: 4px; */
-  }
-  .jp-jitm .jp-emblem {
-    width: 20px;
-    height: 20px;
-    margin-right: .5em;
-  }
-  .jp-jitm p {
-    margin: .40em 1em 0 0;
-  }
-  .jp-jitm p + p {
-    margin: 0;
-    padding: 0;
-  }
-  .jp-jitm .activate {
-    margin-top: 0;
-  }
-}
-
-@media (max-width: 1100px) {
-  .jp-jitm {
-    margin: 2.5em .75em .5em .5em;
-  }
-  form[name=post] > .jp-jitm:first-of-type {
-    margin-left: auto;
-    margin-right: auto;
-  }
-}
-
-@media (max-width: 800px) {
-  .jp-jitm .jp-emblem {
-    margin: .40em auto 0 auto;
-  }
-}
-
-@media (min-width: 1100px) {
-  .update-core-php .jp-jitm {
-    margin: 3em 2em 0 auto;
-  }
-}
-
-.jetpack-connected .media-modal-content .uploader-inline-content {
-  top: 20%;
-}
-
-@media only screen and (min-width: 800px) {
-  .media-menu .jp-jitm {
-    margin: 10px 0;
-    padding: 5px 5px 15px;
-    border-width: 1px 0;
-  }
-  .media-menu .jp-jitm .jp-emblem {
-    margin: 20px 10px 0 15px;
-  }
-  .media-menu .jp-jitm .msg {
-    width: 75%;
-    text-align: left;
-    margin: 0 0 10px;
-  }
-  .media-menu .jp-jitm .msg + p {
-    text-align: center;
-    width: 100%;
-  }
-}
-
-@media only screen and (max-width: 900px) {
-  .media-menu .jp-jitm {
-    display: none;
-    margin: .5em 3%;
-    border-width: 1px;
-  }
-  .media-menu .jp-jitm .msg {
-    margin-top: 20px;
-    width: 88%;
-    margin-left: auto;
-    margin-right: auto;
-  }
-  .media-menu.visible .jp-jitm {
-    display: block;
-  }
-}
-
 .jitm-button {
   background: white;
   border-color: #c8d7e1;
@@ -277,13 +115,13 @@ form[name=post] > .jp-jitm:first-of-type {
 }
 
 #screen-meta-links + .jitm-card {
-  margin: 2rem 1.5385em 0 auto;
+  margin: 2.5rem 1.5385em 0 auto;
 }
 
 .jitm-card {
   display: block;
   position: relative;
-  margin: 1rem 1.3rem 0 auto;
+  margin: 1rem 0 0 auto;
   padding: 1rem;
   box-sizing: border-box;
   background: white;
@@ -325,7 +163,7 @@ form[name=post] > .jp-jitm:first-of-type {
 }
 
 .jitm-banner.jitm-card {
-  border-left: 3px solid;
+  border-left: 4px solid;
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
@@ -534,7 +372,20 @@ form[name=post] > .jp-jitm:first-of-type {
       -ms-flex-positive: 1;
           flex-grow: 1;
   line-height: 1.4;
-  width: 100%;
+}
+
+@media (min-width: 481px) {
+  .jitm-banner__info {
+    -ms-flex-preferred-size: 50%;
+        flex-basis: 50%;
+  }
+}
+
+@media (min-width: 961px) {
+  .jitm-banner__info {
+    -ms-flex-preferred-size: 70%;
+        flex-basis: 70%;
+  }
 }
 
 .jitm-banner__info .jitm-banner__title,
@@ -591,7 +442,7 @@ form[name=post] > .jp-jitm:first-of-type {
     text-align: center;
     width: auto;
   }
-  .is-dismissible .jitm-banner__action {
+  .jitm-banner__action .is-dismissible {
     margin-top: 2.5rem;
   }
   .jitm-banner__action .jitm-banner__prices {
@@ -612,6 +463,12 @@ form[name=post] > .jp-jitm:first-of-type {
   color: #4f748e;
   font: 400 16px/1 dashicons;
   content: '\f158';
+}
+
+@media (min-width: 661px) {
+  .jitm-banner__dismiss {
+    margin-right: -0.5rem;
+  }
 }
 
 @media (max-width: 480px) {

@@ -26,9 +26,9 @@ jQuery( document ).ready( function( $ ) {
 	};
 
 	var setJITMContent = function( $el, response ) {
-		var i, template;
+		var template;
 
-		var render = function( index, $my_template ) {
+		var render = function( $my_template ) {
 			return function( e ) {
 				e.preventDefault();
 
@@ -38,25 +38,24 @@ jQuery( document ).ready( function( $ ) {
 					url: window.jitm_config.api_root + 'jetpack/v4/jitm',
 					method: 'POST', // using DELETE without permalinks is broken in default nginx configuration
 					data: {
-						id: response[ index ].id,
-						feature_class: response[ index ].feature_class
+						id: response.id,
+						feature_class: response.feature_class
 					}
 				} );
 			};
 		};
 
-		for ( i = 0; i < response.length; i += 1 ) {
-			template = response[ i ].template;
+		template = response.template;
 
-			// if we don't have a template for this version, just use the default template
-			if ( ! template || ! templates[ template ] ) {
-				template = 'default';
-			}
-
-			var $template = templates[ template ]( response[ i ] );
-			$template.find( '.jitm-banner__dismiss' ).click( render( i, $template ) );
-			$el.append( $template );
+		// if we don't have a template for this version, just use the default template
+		if ( ! template || ! templates[ template ] ) {
+			template = 'default';
 		}
+
+		var $template = templates[ template ]( response );
+		$template.find( '.jitm-banner__dismiss' ).click( render( $template ) );
+
+		$el.replaceWith( $template );
 	};
 
 	$( '.jetpack-jitm-message' ).each( function() {
@@ -70,7 +69,12 @@ jQuery( document ).ready( function( $ ) {
 			query: query,
 			_wpnonce: $el.data( 'nonce' )
 		} ).then( function( response ) {
-			setJITMContent( $el, response );
+			if ( 0 === response.length ) {
+				return;
+			}
+
+			// for now, always take the first response
+			setJITMContent( $el, response[ 0 ] );
 		} );
 	} );
 } );
