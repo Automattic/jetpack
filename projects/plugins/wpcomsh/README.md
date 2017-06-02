@@ -137,7 +137,7 @@ On WP.com, we provide custom colors and fonts in a site's Customizer. In order t
 
 ### Logging
 
-WPCOMSH provides a hook to log arbitrary information in our Kibana instance. 
+WPCOMSH provides a hook to log arbitrary information in our Kibana instance.
 You cannot use these function by itself, you need to call a proper hook like so:
 ```php
 do_action(  'wpcomsh_log', "test" );
@@ -146,7 +146,7 @@ do_action(  'wpcomsh_log', "test" );
 You will see the output here:
 78d11cc3116d62c53c50ae95c04d265b-logstash
 
-But, logging needs to be turned on via `at_options_logging_on`. You can do that via `/option` endpoint. More tools coming. 
+But, logging needs to be turned on via `at_options_logging_on`. You can do that via `/option` endpoint. More tools coming.
 
 ### Cli commands
 
@@ -156,3 +156,5 @@ wpcomsh includes [WP CLI](http://wp-cli.org/) commands. They are located in the 
 
 To write a new WP CLI command, define a public method on the `WPCOMSH_CLI_Commands` class. If a method should not be used as a WP CLI command, add a doc block saying "Not a WP CLI command".
 
+### Require specific Jetpack Modules
+To provide feature parity within WordPress.com, some Jetpack modules are required to always be active. This is done by the function `wpcomsh_enable_required_jetpack_modules` in `wpcomsh`, which sets the `jetpack_active_modules` option to active for those modules. If you need to update required modules, update the `$required_modules` array with the slug of the module you wish to require. 

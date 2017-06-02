@@ -8,7 +8,7 @@
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '1.8.6' );
+define( 'WPCOMSH_VERSION', '1.8.12' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -483,21 +483,28 @@ function wpcomsh_symlinked_plugins_url( $url, $path, $plugin ) {
 
 add_filter( 'plugins_url', 'wpcomsh_symlinked_plugins_url', 0, 3 );
 
-function wpcomsh_activate_masterbar_module() {
-	if ( ! defined( 'JETPACK__VERSION' ) ) {
-		return;
+/**
+ * Make sure required Jetpack modules always remain active
+ *
+ * @param $modules = jetpack_active_modules option from the database
+ * @return  Update jetpack_active_modules option to always include required modules
+ */
+
+function wpcomsh_enable_required_jetpack_modules( $modules ) {
+	$required_modules = array( 'sso', 'masterbar' );
+
+	if ( ! class_exists( 'Jetpack' ) ) {
+			return;
 	}
 
-	// Masterbar was introduced in Jetpack 4.8
-	if ( version_compare( JETPACK__VERSION, '4.8', '<' ) ) {
-		return;
-	}
+    $get_required_modules = array_intersect(
+				$required_modules,
+				Jetpack::get_available_modules()
+		);
 
-	if ( ! Jetpack::is_module_active( 'masterbar' ) ) {
-		Jetpack::activate_module( 'masterbar', false, false );
-	}
+    return array_merge( (array) $modules, $get_required_modules );
 }
-add_action( 'init', 'wpcomsh_activate_masterbar_module', 0, 0 );
+add_filter( 'option_jetpack_active_modules', 'wpcomsh_enable_required_jetpack_modules' );
 
 function require_lib( $slug ) {
 	if ( !preg_match( '|^[a-z0-9/_.-]+$|i', $slug ) ) {
