@@ -611,7 +611,7 @@ class Jetpack {
 			$option = $params[0];
 			if ( 'active_plugins' === $option ) {
 				// use the cache if we can, but not terribly important if it gets evicted
-				set_transient( 'jetpack_last_plugin_sync', time(), 3600 );
+				set_transient( 'jetpack_last_plugin_sync', time(), HOUR_IN_SECONDS );
 			}
 		}
 
