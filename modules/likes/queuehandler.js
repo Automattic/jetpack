@@ -272,7 +272,6 @@ function JetpackLikesWidgetQueueHandler() {
 			}
 		}
 		if ( ! found ) {
-			setTimeout( JetpackLikesWidgetQueueHandler, 500 );
 			return;
 		}
 	} else {
@@ -287,7 +286,6 @@ function JetpackLikesWidgetQueueHandler() {
 			// We need this in order to prevent performance issues caused by loading all iFrames at once.
 			if ( ! wrapperID || ! jetpackIsScrolledIntoView( wrapper ) ){
 				// Everything is currently loaded
-				setTimeout( JetpackLikesWidgetQueueHandler, 500 );
 				return;
 			}
 
@@ -297,7 +295,6 @@ function JetpackLikesWidgetQueueHandler() {
 	}
 
 	if ( 'undefined' === typeof wrapperID ) {
-		setTimeout( JetpackLikesWidgetQueueHandler, 500 );
 		return;
 	}
 
@@ -337,6 +334,19 @@ function JetpackLikesWidgetQueueHandler() {
 			$wrapper.find( 'iframe' ).Jetpack( 'resizeable' );
 		}
 	});
-	setTimeout( JetpackLikesWidgetQueueHandler, 250 );
 }
 JetpackLikesWidgetQueueHandler();
+
+var delayedExec = function( after, fn ) {
+	var timer;
+	return function() {
+		timer && clearTimeout( timer );
+		timer = setTimeout( fn, after );
+	};
+};
+
+var onScrollStopped = delayedExec( 500, function() {
+	JetpackLikesWidgetQueueHandler();
+} );
+
+window.addEventListener( 'scroll', onScrollStopped, true );
