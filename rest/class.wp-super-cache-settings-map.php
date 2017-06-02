@@ -80,6 +80,9 @@ class WP_Super_Cache_Settings_Map {
 			'global' => 'cache_path',
 			'set'    => 'set_wp_cache_location',
 		),
+		'default_cache_path' => array(
+			'get' => 'get_default_cache_path',
+		),
 		'use_object_cache' => array(
 			'global' => 'wp_cache_object_cache',
 		),

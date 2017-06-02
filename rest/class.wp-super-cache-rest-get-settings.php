@@ -157,8 +157,18 @@ class WP_Super_Cache_Rest_Get_Settings extends WP_REST_Controller {
 		return 0;
 	}
 
+	/**
+	 * @return int
+	 */
 	protected function get_post_count() {
 		$posts_count = wp_count_posts();
 		return $posts_count->publish;
+	}
+
+	/**
+	 * @return string
+	 */
+	protected function get_default_cache_path() {
+		return WP_CONTENT_DIR . '/wp-cache/';
 	}
 }
