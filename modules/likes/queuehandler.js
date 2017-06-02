@@ -157,10 +157,6 @@ function JetpackLikesMessageListener( event, message ) {
 			JetpackLikesPostMessage( stylesData, window.frames[ 'likes-master' ] );
 
 			JetpackLikesBatchHandler();
-
-			jQuery( document ).on( 'inview', 'div.jetpack-likes-widget-unloaded', function() {
-				jetpackLikesWidgetQueue.push( this.id );
-			} );
 		} );
 	}
 
@@ -342,7 +338,7 @@ function JetpackLikesWidgetQueueHandler() {
 }
 JetpackLikesWidgetQueueHandler();
 
-var delayedExec = function( after, fn ) {
+var jetpackWidgetsDelayedExec = function( after, fn ) {
 	var timer;
 	return function() {
 		timer && clearTimeout( timer );
@@ -350,6 +346,6 @@ var delayedExec = function( after, fn ) {
 	};
 };
 
-var onScrollStopped = delayedExec( 250, JetpackLikesWidgetQueueHandler );
+var jetpackOnScrollStopped = jetpackWidgetsDelayedExec( 250, JetpackLikesWidgetQueueHandler );
 
-window.addEventListener( 'scroll', onScrollStopped, true );
+window.addEventListener( 'scroll', jetpackOnScrollStopped, true );
