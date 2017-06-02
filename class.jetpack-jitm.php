@@ -55,9 +55,11 @@ class Jetpack_JITM {
 	 * @param object $screen
 	 */
 	function prepare_jitms( $screen ) {
-		add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
-		add_action( 'admin_notices', array( $this, 'ajax_message' ) );
-		add_action( 'edit_form_top', array( $this, 'ajax_message' ) );
+		if ( ! in_array( $screen->id, array( 'toplevel_page_jetpack', 'jetpack_page_stats', 'jetpack_page_akismet-key-config', 'admin_page_jetpack_modules' )  ) ) {
+			add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
+			add_action( 'admin_notices', array( $this, 'ajax_message' ) );
+			add_action( 'edit_form_top', array( $this, 'ajax_message' ) );
+		}
 	}
 
 	/**
