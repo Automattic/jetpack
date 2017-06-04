@@ -11,6 +11,10 @@
  * Additional Search Queries: widget, widgets, facebook, gallery, twitter, gravatar, image, rss
  */
 
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+require_once dirname( __FILE__ ) . '/footer-credit.php';
+
 function jetpack_load_widgets() {
 	$widgets_include = array();
 
