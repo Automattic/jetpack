@@ -16,7 +16,6 @@ import { getSiteConnectionStatus } from 'state/connection';
 import PlanHeader from './plan-header';
 import PlanBody from './plan-body';
 
-
 export const Plans = React.createClass( {
 	render() {
 		let sitePlan = this.props.sitePlan.product_slug || '';
