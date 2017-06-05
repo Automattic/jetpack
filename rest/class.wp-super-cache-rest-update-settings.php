@@ -577,9 +577,10 @@ class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 				$_POST[ $original ] = $$original;
 			} else {
 				$_POST[ $original ] = $_POST[ $key ];
-				if ( $_POST[ $key ] === 0 || $_POST[ $key ] === false ) {
+				if ( $key !== 'preload_interval' && ( $_POST[ $key ] === 0 || $_POST[ $key ] === false ) ) {
 					unset( $_POST[ $original ] );
 				}
+
 			}
 		}
 
