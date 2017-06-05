@@ -206,15 +206,16 @@ class Jetpack_Sync_Defaults {
 
 	static $blacklisted_post_types = array(
 		'ai1ec_event',
-		'snitch',
-		'secupress_log_action',
-		'http',
-		'bwg_gallery',
 		'bwg_album',
+		'bwg_gallery',
+		'customize_changeset', // WP built-in post type for Customizer changesets
+		'http',
 		'idx_page',
 		'postman_sent_mail',
-		'rssmi_feed_item',
 		'rssap-feed',
+		'rssmi_feed_item',
+		'secupress_log_action',
+		'snitch',
 		'wp_automatic',
 	);
 
