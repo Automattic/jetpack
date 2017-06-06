@@ -170,6 +170,7 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 			'advanced_seo_title_formats'           => array( 'posts' => array( 'type' => 'string', 'value' => 'test' ) ), // Jetpack_SEO_Titles::TITLE_FORMATS_OPTION
 			'jetpack_api_cache_enabled'            => '1',
 			'sidebars_widgets'                     => array( 'array_version' => 3 ),
+			'WPLANG'                               => 'en',
 		);
 
 		$theme_mod_key             = 'theme_mods_' . get_option( 'stylesheet' );
@@ -185,6 +186,12 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		foreach ( $options as $option_name => $value ) {
+			// WPLANG is special because it can't be updated in an installation that can not
+			// manage language packs, let's skip this check
+			if ( 'WPLANG' === $option_name ) {
+				continue;
+			}
+
 			$this->assertOptionIsSynced( $option_name, $value );
 		}
 		$option_keys                          = array_keys( $options );
