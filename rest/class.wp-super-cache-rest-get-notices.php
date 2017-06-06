@@ -30,7 +30,10 @@ class WP_Super_Cache_Rest_Get_Notices extends WP_REST_Controller {
 	 * @param array $notices
 	 */
 	protected function add_preload_notices( & $notices ) {
-		global $cache_enabled, $super_cache_enabled;
+		global $wp_cache_config_file;
+
+		include( $wp_cache_config_file );
+
 		if ( false == $cache_enabled ) {
 			$notices[ 'preload_disabled_cache_off' ] = array(
 				'type' => 'warning',
@@ -64,7 +67,9 @@ class WP_Super_Cache_Rest_Get_Notices extends WP_REST_Controller {
 	 * @param array $notices
 	 */
 	protected function add_php_mod_rewrite_notice( & $notices ) {
-		global $cache_enabled, $wp_cache_mod_rewrite;
+		global $wp_cache_config_file;
+
+		include( $wp_cache_config_file );
 
 		if ( $cache_enabled && !$wp_cache_mod_rewrite ) {
 			$scrules = trim( implode( "\n", extract_from_markers( trailingslashit( get_home_path() ) . '.htaccess', 'WPSuperCache' ) ) );
