@@ -19,7 +19,7 @@ Jetpack::dns_prefetch( array(
 	'//2.gravatar.com',
 ) );
 
-include dirname( __FILE__ ) . '/likes/jetpack-likes-master-iframe.php';
+include_once dirname( __FILE__ ) . '/likes/jetpack-likes-master-iframe.php';
 
 class Jetpack_Likes {
 	public static function init() {
