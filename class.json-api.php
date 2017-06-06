@@ -496,7 +496,11 @@ class WPCOM_JSON_API {
 
 				foreach ( $response[ $key_to_filter ] as $key => $values ) {
 					if ( is_object( $values ) ) {
-						$response[ $key_to_filter ][ $key ] = (object) array_intersect_key( (array) $values, array_flip( $fields ) );
+						if ( is_object( $response[ $key_to_filter ] ) ) {
+							$response[ $key_to_filter ]->$key = (object) array_intersect_key( ( (array) $values ), array_flip( $fields ) );
+						} elseif ( is_array( $response[ $key_to_filter ] ) ) {
+							$response[ $key_to_filter ][ $key ] = (object) array_intersect_key( ( (array) $values ), array_flip( $fields ) );
+						}
 					} elseif ( is_array( $values ) ) {
 						$response[ $key_to_filter ][ $key ] = array_intersect_key( $values, array_flip( $fields ) );
 					}
