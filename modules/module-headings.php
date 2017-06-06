@@ -271,11 +271,8 @@ function jetpack_get_module_i18n_tag( $key ) {
 			//  - modules/videopress.php
 			'Photos and Videos' =>_x( 'Photos and Videos', 'Module Tag', 'jetpack' ),
 
-			// Modules with `Sharing` tag:
-			//  - modules/comment-likes.php
-			'Sharing' =>_x( 'Sharing', 'Module Tag', 'jetpack' ),
-
 			// Modules with `Social` tag:
+			//  - modules/comment-likes.php
 			//  - modules/comments.php
 			//  - modules/gravatar-hovercards.php
 			//  - modules/likes.php
