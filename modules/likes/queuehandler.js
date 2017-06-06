@@ -224,6 +224,7 @@ jQuery( document ).click( function( e ) {
 
 function JetpackLikesWidgetQueueHandler() {
 	var wrapperID;
+
 	if ( ! jetpackLikesMasterReady ) {
 		setTimeout( JetpackLikesWidgetQueueHandler, 500 );
 		return;
@@ -234,6 +235,11 @@ function JetpackLikesWidgetQueueHandler() {
 
 	var unloadedWidgetsInView = jetpackGetUnloadedWidgetsInView();
 
+	if ( unloadedWidgetsInView.length > 0 ) {
+		// Grab any unloaded widgets for a batch request
+		JetpackLikesBatchHandler();
+	}
+
 	for ( var i=0; i <= unloadedWidgetsInView.length - 1; i++ ) {
 		wrapperID = unloadedWidgetsInView[i].id;
 
@@ -242,11 +248,6 @@ function JetpackLikesWidgetQueueHandler() {
 		}
 
 		jetpackLoadLikeWidgetIframe( wrapperID );
-	}
-
-	if ( unloadedWidgetsInView.length > 0 ) {
-		// Grab any unloaded widgets for a batch request
-		JetpackLikesBatchHandler();
 	}
 }
 
@@ -262,16 +263,31 @@ function jetpackLoadLikeWidgetIframe( wrapperID ) {
 
 	var placeholder = $wrapper.find( '.likes-widget-placeholder' );
 
-	// post likes iframe
+	// Post like iframe
 	if ( placeholder.hasClass( 'post-likes-widget-placeholder' ) ) {
+		var postLikesFrame = document.createElement( 'iframe' );
+
+		postLikesFrame['class'] = 'post-likes-widget jetpack-likes-widget';
+		postLikesFrame.name = $wrapper.data( 'name' );
+		postLikesFrame.src = $wrapper.data( 'src' );
+		postLikesFrame.height = '18px';
+		postLikesFrame.width = '200px';
+		postLikesFrame.frameBorder = '0';
+		postLikesFrame.scrolling = 'no';
+
 		if ( $wrapper.hasClass( 'slim-likes-widget' ) ) {
-			placeholder.after( '<iframe class="post-likes-widget jetpack-likes-widget" name="' + $wrapper.data( 'name' ) + '" height="22px" width="68px" frameBorder="0" scrolling="no" src="' + $wrapper.data( 'src' ) + '"></iframe>' );
+			postLikesFrame.height = '22px';
+			postLikesFrame.width = '68px';
+			postLikesFrame.scrolling = 'no';
 		} else {
-			placeholder.after( '<iframe class="post-likes-widget jetpack-likes-widget" name="' + $wrapper.data( 'name' ) + '" height="55px" width="100%" frameBorder="0" src="' + $wrapper.data( 'src' ) + '"></iframe>' );
+			postLikesFrame.height = '55px';
+			postLikesFrame.width = '100%';
 		}
+
+		placeholder.after( postLikesFrame );
 	}
 
-	// comment likes iframe
+	// Comment like iframe
 	if ( placeholder.hasClass( 'comment-likes-widget-placeholder' ) ) {
 		var commentLikesFrame = document.createElement( 'iframe' );
 
@@ -283,7 +299,8 @@ function jetpackLoadLikeWidgetIframe( wrapperID ) {
 		commentLikesFrame.frameBorder = '0';
 		commentLikesFrame.scrolling = 'no';
 
-		$wrapper.find( '.comment-like-feedback' ).after( commentLikesFrame );
+		placeholder.after( commentLikesFrame );
+		
 		jetpackCommentLikesLoadedWidgets.push( commentLikesFrame );
 	}
 
@@ -302,10 +319,8 @@ function jetpackLoadLikeWidgetIframe( wrapperID ) {
 	});
 }
 
-function jetpackGetUnloadedWidgetsInView( $unloadedWidgets ) {
-	if ( typeof $unloadedWidgets === 'undefined' ) {
-		$unloadedWidgets = jQuery( 'div.jetpack-likes-widget-unloaded' );
-	}
+function jetpackGetUnloadedWidgetsInView() {
+	var $unloadedWidgets = jQuery( 'div.jetpack-likes-widget-unloaded' );
 
 	return $unloadedWidgets.filter( function() {
 		return jetpackIsScrolledIntoView( this );
