@@ -576,6 +576,9 @@ function wp_cache_manager_updates() {
 				if ( $_POST[ 'super_cache_enabled' ] == 0 ) {
 					wp_cache_enable(); // logged in cache
 					wp_super_cache_disable();
+				} else {
+					wp_super_cache_enable();
+					$super_cache_enabled = true;
 				}
 				if( $_POST[ 'super_cache_enabled' ] == 1 ) {
 					$wp_cache_mod_rewrite = 1; // we need this because supercached files can be served by PHP too.
