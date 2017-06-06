@@ -299,7 +299,7 @@ function jetpackLoadLikeWidgetIframe( wrapperID ) {
 		commentLikesFrame.frameBorder = '0';
 		commentLikesFrame.scrolling = 'no';
 
-		placeholder.after( commentLikesFrame );
+		$wrapper.find( '.comment-like-feedback' ).after( commentLikesFrame );
 		
 		jetpackCommentLikesLoadedWidgets.push( commentLikesFrame );
 	}
