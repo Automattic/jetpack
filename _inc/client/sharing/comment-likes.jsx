@@ -12,27 +12,27 @@ import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import { ModuleToggle } from 'components/module-toggle';
 
-export const Likes = moduleSettingsForm(
+export const CommentLikes = moduleSettingsForm(
 	class extends Component {
 		render() {
 			const { isUnavailableInDevMode, getOptionValue } = this.props;
-			const postLikesUnavailable = isUnavailableInDevMode( 'likes' );
-			const postLikesActive = getOptionValue( 'likes' );
+			const commentLikesUnavailable = isUnavailableInDevMode( 'comment-likes' );
+			const commentLikesActive = getOptionValue( 'comment-likes' );
 
 			return (
 				<SettingsCard
 					{ ...this.props }
-					header={ __( 'Like buttons', { context: 'Settings header' } ) }
-					module="likes"
+					header={ __( 'Comment like buttons', { context: 'Settings header' } ) }
+					module="comment-likes"
 					hideButton>
-					<SettingsGroup disableInDevMode module={ { module: 'likes' } } support="https://jetpack.com/support/likes/">
+					<SettingsGroup disableInDevMode module={ { module: 'comment-likes' } } support="https://jetpack.com/support/comment-likes/">
 						<ModuleToggle
-							slug="likes"
-							disabled={ postLikesUnavailable }
-							activated={ postLikesActive }
-							toggling={ this.props.isSavingAnyOption( 'likes' ) }
+							slug="comment-likes"
+							disabled={ commentLikesUnavailable }
+							activated={ commentLikesActive }
+							toggling={ this.props.isSavingAnyOption( 'comment-likes' ) }
 							toggleModule={ this.props.toggleModuleNow }>
-							{ __( 'Add a like button to your posts' ) }
+							{ __( 'Add a like button to your post comments' ) }
 						</ModuleToggle>
 					</SettingsGroup>
 				</SettingsCard>

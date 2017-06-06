@@ -2,13 +2,13 @@
 /**
  * Module Name: Comment Likes
  * Module Description: Inrease visitor engagement by adding a Like button to comments.
- * Sort Order: 38
- * Recommendation Order: 16
- * First Introduced: 4.9
+ * Sort Order: 39
+ * Recommendation Order: 17
+ * First Introduced: 5.1
  * Requires Connection: Yes
  * Auto Activate: No
- * Module Tags: General
- * Additional Search Queries: like widget
+ * Module Tags: Sharing
+ * Additional Search Queries: like widget, like button
  */
 
 Jetpack::dns_prefetch( array(

@@ -271,10 +271,9 @@ function jetpack_get_module_i18n_tag( $key ) {
 			//  - modules/videopress.php
 			'Photos and Videos' =>_x( 'Photos and Videos', 'Module Tag', 'jetpack' ),
 
-			// Modules with `General` tag:
+			// Modules with `Sharing` tag:
 			//  - modules/comment-likes.php
-			//  - modules/masterbar.php
-			'General' =>_x( 'General', 'Module Tag', 'jetpack' ),
+			'Sharing' =>_x( 'Sharing', 'Module Tag', 'jetpack' ),
 
 			// Modules with `Social` tag:
 			//  - modules/comments.php
@@ -324,6 +323,10 @@ function jetpack_get_module_i18n_tag( $key ) {
 			//  - modules/sitemaps.php
 			//  - modules/stats.php
 			'Recommended' =>_x( 'Recommended', 'Module Tag', 'jetpack' ),
+
+			// Modules with `General` tag:
+			//  - modules/masterbar.php
+			'General' =>_x( 'General', 'Module Tag', 'jetpack' ),
 
 			// Modules with `Mobile` tag:
 			//  - modules/minileven.php
