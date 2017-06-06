@@ -49,7 +49,7 @@ class WP_Super_Cache_Rest_Get_Notices extends WP_REST_Controller {
 				),
 			);
 		}
-		if ( false === defined( 'DISABLESUPERCACHEPRELOADING' ) ) {
+		if ( true === defined( 'DISABLESUPERCACHEPRELOADING' ) ) {
 			$notices[ 'preload_disabled_by_admin' ] = array(
 				'type' => 'warning',
 				'message' => __(
