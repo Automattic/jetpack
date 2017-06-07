@@ -838,7 +838,10 @@ class Jetpack_CLI extends WP_CLI_Command {
 	public function partner_provision( $args, $named_args ) {
 		list( $token_json ) = $args;
 
-		$user_id   = $named_args['user_id'];
+		// legacy user_id param
+		if ( $named_args['user_id'] && get_userdata( $named_args['user_id'] ) ) {
+			wp_set_current_user( $named_args['user_id'] );
+		}
 
 		if ( ! $token_json || ! ( $token = json_decode( $token_json ) ) ) {
 			$this->partner_provision_error( new WP_Error( 'missing_access_token',  sprintf( __( 'Invalid token JSON: %s', 'jetpack' ), $token_json ) ) );
@@ -854,9 +857,11 @@ class Jetpack_CLI extends WP_CLI_Command {
 		if ( ! isset( $token->access_token ) ) {
 			$this->partner_provision_error( new WP_Error( 'missing_access_token', __( 'Missing or invalid access token', 'jetpack' ) ) );
 		}
-		
-		if ( empty( $user_id ) ) {
-			$this->partner_provision_error( new WP_Error( 'missing_user_id', __( 'Missing user ID', 'jetpack' ) ) );
+
+		$user = wp_get_current_user();
+
+		if ( empty( $user ) ) {
+			$this->partner_provision_error( new WP_Error( 'missing_user', __( "No current user", 'jetpack' ) ) );
 		}
 
 		$blog_id    = Jetpack_Options::get_option( 'id' );
@@ -866,12 +871,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 		// 1) register uses it as the "state" variable
 		// 2) authorize uses it to construct state variable and also to check if site is authorized for this user, and to send role
 		// 3) ultimately, it is this user who receives the plan
-		wp_set_current_user( $user_id );
-		$user = wp_get_current_user();
-
-		if ( empty( $user ) ) {
-			$this->partner_provision_error( new WP_Error( 'missing_user', sprintf( __( "User %s doesn't exist", 'jetpack' ), $user_id ) ) );
-		}
 
 		if ( ! $blog_id || ! $blog_token || ( isset( $named_args['force_register'] ) && intval( $named_args['force_register'] ) ) ) {
 			// this code mostly copied from Jetpack::admin_page_load
