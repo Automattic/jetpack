@@ -225,6 +225,10 @@
 				options.showContext = response.show_context;
 				options.layout = response.layout;
 			}
+			
+			if ( 0 === html.length ) {
+				return;
+			}
 
 			html = ! showThumbnails ? jprp.generateMinimalHtml( response.items, options ) : jprp.generateVisualHtml( response.items, options );
 
