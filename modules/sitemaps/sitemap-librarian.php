@@ -93,6 +93,7 @@ class Jetpack_Sitemap_Librarian {
 				'post_date'    => date( 'Y-m-d H:i:s', strtotime( $timestamp ) ),
 			));
 		}
+
 		return;
 	}
 

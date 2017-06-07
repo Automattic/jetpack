@@ -6,7 +6,7 @@
  * @since 4.7.0
  */
 
-require dirname( __FILE__ ) . '/../../../../modules/sitemaps/sitemap-buffer.php';
+require_once dirname( __FILE__ ) . '/../../../../modules/sitemaps/sitemap-buffer.php';
 
 /**
  * Test class for Jetpack_Sitemap_Buffer.
@@ -195,28 +195,6 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 
 		$xml = <<<XML
 <foo>bar</foo>\n
-XML;
-
-		$this->assertEquals(
-			$xml,
-			Jetpack_Sitemap_Buffer::array_to_xml_string( $array )
-		);
-	}
-
-	/**
-	 * Test array_to_xml_string with an attribute.
-	 *
-	 * @covers Jetpack_Sitemap_Buffer::array_to_xml_string
-	 * @group jetpack-sitemap
-	 * @since 4.7.0
-	 */
-	public function test_array_to_xml_string_with_attribute() {
-		$array = array(
-			'foo src="baz"' => 'bar',
-		);
-
-		$xml = <<<XML
-<foo src=&quot;baz&quot;>bar</foo>\n
 XML;
 
 		$this->assertEquals(
