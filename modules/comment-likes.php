@@ -91,7 +91,15 @@ class Jetpack_Comment_Likes {
 		$html[] = "<span class='sd-text-color'></span><a class='sd-link-color'></a>";
 		$html[] = '</div></div>';
 
-		// Filter and finalize the comment like button
+		/**
+		 * Filters the Comment Likes button content.
+		 *
+		 * @module comment-likes
+		 *
+		 * @since 5.1.0
+		 *
+		 * @param string Comment Likes button content.
+		 */
 		$like_button = apply_filters( 'comment_like_button', implode( '', $html ), '' );
 
 		return $content . $like_button;
