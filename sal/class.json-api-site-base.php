@@ -549,4 +549,8 @@ abstract class SAL_Site {
 		$options = get_option( 'options' );
 		return ! empty ( $options['is_domain_only'] ) ? (bool) $options['is_domain_only'] : false;
 	}
+
+	function get_blog_public() {
+		return (int) get_option( 'blog_public' );
+	}
 }

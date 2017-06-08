@@ -49,6 +49,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 	protected static $site_options_format = array(
 		'timezone',
 		'gmt_offset',
+		'blog_public',
 		'videopress_enabled',
 		'upgraded_filetypes_enabled',
 		'login_url',
@@ -481,6 +482,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 				case 'is_automated_transfer':
 					$options[ $key ] = $site->is_automated_transfer();
+					break;
+				case 'blog_public':
+					$options[ $key ] = $site->get_blog_public();
 					break;
 			}
 		}
