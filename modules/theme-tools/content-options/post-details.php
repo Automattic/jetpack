@@ -10,8 +10,8 @@ function jetpack_post_details_enqueue_scripts() {
 		return;
 	}
 
-	list( $date_option, $categories_option, $tags_option, $author_option ) = $options;
-	list( $date, $categories, $tags, $author ) = $definied;
+	list( $date_option, $categories_option, $tags_option, $author_option, $comment_option ) = $options;
+	list( $date, $categories, $tags, $author, $comment ) = $definied;
 
 	$elements = array();
 
@@ -33,6 +33,11 @@ function jetpack_post_details_enqueue_scripts() {
 	// If author option is unticked, add it to the list of classes.
 	if ( 1 != $author_option && ! empty( $author ) ) {
 		$elements[] = $author;
+	}
+
+	// If comment option is unticked, add it to the list of classes.
+	if ( 1 != $comment_option && ! empty( $comment ) ) {
+		$elements[] = $comment;
 	}
 
 	// Get the list of classes.
@@ -57,8 +62,8 @@ function jetpack_post_details_body_classes( $classes ) {
 		return $classes;
 	}
 
-	list( $date_option, $categories_option, $tags_option, $author_option ) = $options;
-	list( $date, $categories, $tags, $author ) = $definied;
+	list( $date_option, $categories_option, $tags_option, $author_option, $comment_option ) = $options;
+	list( $date, $categories, $tags, $author, $comment ) = $definied;
 
 	// If date option is unticked, add a class of 'date-hidden' to the body.
 	if ( 1 != $date_option && ! empty( $date ) ) {
@@ -78,6 +83,11 @@ function jetpack_post_details_body_classes( $classes ) {
 	// If author option is unticked, add a class of 'author-hidden' to the body.
 	if ( 1 != $author_option && ! empty( $author ) ) {
 		$classes[] = 'author-hidden';
+	}
+
+	// If comment option is unticked, add a class of 'comment-hidden' to the body.
+	if ( 1 != $comment_option && ! empty( $comment ) ) {
+		$classes[] = 'comment-hidden';
 	}
 
 	return $classes;
@@ -108,13 +118,15 @@ function jetpack_post_details_should_run() {
 	$categories = ( ! empty( $post_details['categories'] ) ) ? $post_details['categories'] : null;
 	$tags       = ( ! empty( $post_details['tags'] ) ) ? $post_details['tags'] : null;
 	$author     = ( ! empty( $post_details['author'] ) ) ? $post_details['author'] : null;
+	$comment    = ( ! empty( $post_details['comment'] ) ) ? $post_details['comment'] : null;
 
-	// If there is no stylesheet and there are no date, categories, tags or author declared, don't continue.
+	// If there is no stylesheet and there are no date, categories, tags, author or comment declared, don't continue.
 	if ( empty( $post_details['stylesheet'] )
 		 && ( empty( $date )
 			 || empty( $categories )
 			 || empty( $tags )
-			 || empty( $author ) ) ) {
+			 || empty( $author )
+			 || empty( $comment ) ) ) {
 		return $void;
 	}
 
@@ -122,12 +134,13 @@ function jetpack_post_details_should_run() {
 	$categories_option = get_option( 'jetpack_content_post_details_categories', 1 );
 	$tags_option       = get_option( 'jetpack_content_post_details_tags', 1 );
 	$author_option     = get_option( 'jetpack_content_post_details_author', 1 );
+	$comment_option    = get_option( 'jetpack_content_post_details_comment', 1 );
 
-	$options  = array( $date_option, $categories_option, $tags_option, $author_option );
-	$definied = array( $date, $categories, $tags, $author );
+	$options  = array( $date_option, $categories_option, $tags_option, $author_option, $comment_option );
+	$definied = array( $date, $categories, $tags, $author, $comment );
 
 	// If all the options are ticked, don't continue.
-	if ( array( 1, 1, 1, 1 ) === $options ) {
+	if ( array( 1, 1, 1, 1, 1 ) === $options ) {
 		return $void;
 	}
 

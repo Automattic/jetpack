@@ -17,6 +17,7 @@
 			'categories'      => '.cat-links', // a CSS selector matching the elements that display the post categories.
 			'tags'            => '.tags-links', // a CSS selector matching the elements that display the post tags.
 			'author'          => '.byline', // a CSS selector matching the elements that display the post author.
+			'comment'         => '.comments-link', // a CSS selector matching the elements that display the comment link.
 		),
 		'featured-images'    => array(
 			'archive'         => true, // enable or not the featured image check for archive pages: true or false.
