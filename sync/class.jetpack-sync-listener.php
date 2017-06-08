@@ -240,10 +240,10 @@ class Jetpack_Sync_Listener {
 
 		$actor = array(
 			'wpcom_user_id'    => null,
-			'external_user_id' => $user ? $user->ID : null,
-			'display_name'     => $user ? $user->display_name : null,
-			'user_email'       => $user ? $user->user_email : null,
-			'user_roles'       => $user ? $user->roles : null,
+			'external_user_id' => $user && isset( $user->ID ) ? $user->ID : null,
+			'display_name'     => $user && isset( $user->display_name ) ? $user->display_name : null,
+			'user_email'       => $user && isset( $user->user_email ) ? $user->user_email : null,
+			'user_roles'       => $user && isset( $user->roles ) ? $user->roles : null,
 			'translated_role'  => $user ? Jetpack::translate_current_user_to_role() : null,
 			'is_cron'          => defined( 'DOING_CRON' ) ? DOING_CRON : false,
 			'is_rest'          => defined( 'REST_API_REQUEST' ) ? REST_API_REQUEST : false,
