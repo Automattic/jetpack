@@ -237,6 +237,7 @@ class Jetpack_Sync_Listener {
 
 	function get_actor() {
 		$user = wp_get_current_user();
+		$translated_role = Jetpack::translate_current_user_to_role();
 
 		$actor = array(
 			'wpcom_user_id'    => null,
@@ -244,7 +245,7 @@ class Jetpack_Sync_Listener {
 			'display_name'     => $user && isset( $user->display_name ) ? $user->display_name : null,
 			'user_email'       => $user && isset( $user->user_email ) ? $user->user_email : null,
 			'user_roles'       => $user && isset( $user->roles ) ? $user->roles : null,
-			'translated_role'  => $user ? Jetpack::translate_current_user_to_role() : null,
+			'translated_role'  => $translated_role ? $translated_role : null,
 			'is_cron'          => defined( 'DOING_CRON' ) ? DOING_CRON : false,
 			'is_rest'          => defined( 'REST_API_REQUEST' ) ? REST_API_REQUEST : false,
 			'is_xmlrpc'        => defined( 'XMLRPC_REQUEST' ) ? XMLRPC_REQUEST : false,
