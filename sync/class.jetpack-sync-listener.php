@@ -240,7 +240,7 @@ class Jetpack_Sync_Listener {
 
 		$actor = array(
 			'wpcom_user_id'    => null,
-			'external_user_id' => $user ? $user->id : null,
+			'external_user_id' => $user ? $user->ID : null,
 			'display_name'     => $user ? $user->display_name : null,
 			'user_email'       => $user ? $user->user_email : null,
 			'user_roles'       => $user ? $user->roles : null,
