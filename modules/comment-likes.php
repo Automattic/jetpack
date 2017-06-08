@@ -81,7 +81,7 @@ class Jetpack_Comment_Likes {
 
 		$uniqid = uniqid();
 
-		$src     = sprintf( '//widgets.wp.com/likes/#blog_id=%1$d&amp;comment_id=%2$d&amp;origin=%3$s&amp;obj_id=%1$d-%2$d-%4$s', $blog_id, $comment_id, $domain, $uniqid );
+		$src     = sprintf( 'https://widgets.wp.com/likes/#blog_id=%1$d&amp;comment_id=%2$d&amp;origin=%3$s&amp;obj_id=%1$d-%2$d-%4$s', $blog_id, $comment_id, $domain, $uniqid );
 		$name    = sprintf( 'like-comment-frame-%1$d-%2$d-%3$s', $blog_id, $comment_id, $uniqid );
 		$wrapper = sprintf( 'like-comment-wrapper-%1$d-%2$d-%3$s', $blog_id, $comment_id, $uniqid );
 

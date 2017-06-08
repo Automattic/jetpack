@@ -7,10 +7,6 @@ function jetpack_likes_master_iframe() {
 	$version = '20170607';
 	$in_jetpack = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? false : true;
 
-	$protocol = 'http';
-	if ( is_ssl() )
-		$protocol = 'https';
-
 	$_locale = get_locale();
 
 	// We have to account for w.org vs WP.com locale divergence
@@ -28,8 +24,7 @@ function jetpack_likes_master_iframe() {
 	$likes_locale = ( '' == $_locale || 'en' == $_locale ) ? '' : '&amp;lang=' . strtolower( $_locale );
 
 	$src = sprintf(
-		'%1$s://widgets.wp.com/likes/master.html?ver=%2$s#ver=%2$s%3$s',
-		$protocol,
+		'https://widgets.wp.com/likes/master.html?ver=%1$s#ver=%1$s%2$s',
 		$version,
 		$likes_locale
 	);

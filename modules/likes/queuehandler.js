@@ -79,7 +79,7 @@ function JetpackLikesMessageListener( event, message ) {
 	}
 
 	// We only allow messages from one origin
-	allowedOrigin = window.location.protocol + '//widgets.wp.com';
+	allowedOrigin = 'https://widgets.wp.com';
 	if ( allowedOrigin !== message.origin ) {
 		return;
 	}
