@@ -539,7 +539,10 @@ jQuery( function($) {
 		if ( ! is_array( $services ) )
 			$services = array();
 
-		$active = array(); ?>
+		$active = array();
+
+		if ( 0 == count( $services ) && ! current_user_can( 'manage_options' ) )
+			return; ?>
 
 		<div id="publicize" class="misc-pub-section misc-pub-section-last">
 			<?php
