@@ -4168,7 +4168,7 @@ p {
 			$secrets = Jetpack::generate_secrets( 'authorize' );
 
 			$site_icon = ( function_exists( 'has_site_icon') && has_site_icon() )
-				? get_site_icon_url()
+				? jetpack_photon_url( get_site_icon_url(), array(), 'https' )
 				: false;
 
 			/**
