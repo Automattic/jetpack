@@ -5228,6 +5228,9 @@ p {
 	 * @param bool $restate private
 	 */
 	public static function state( $key = null, $value = null, $restate = false ) {
+		if ( XMLRPC_REQUEST ) {
+			return;
+		}
 		static $state = array();
 		static $path, $domain;
 		if ( ! isset( $path ) ) {
