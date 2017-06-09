@@ -443,15 +443,20 @@ class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 		if ( $enabled ) {
 			$settings = array(
 				'wp_cache_mobile_enabled' => 1,
-				'wp_cache_status'         => 1,
-				'super_cache_enabled'     => 2,
+				'is_cache_enabled'        => 1,
 				'cache_rebuild_files'     => 1,
 				'cache_compression'       => 0,
 			);
+			wp_cache_enable();
+			if ( ! defined( 'DISABLE_SUPERCACHE' ) ) {
+				wp_cache_debug( 'DISABLE_SUPERCACHE is not set, super_cache enabled.' );
+				wp_super_cache_enable();
+			}
 			wpsc_set_default_gc();
 
 		} else {
-			$settings = array( 'super_cache_enabled' => 0 );
+			wp_cache_disable();
+			$settings = array( 'is_cache_enabled' => 0 );
 			wp_clear_scheduled_hook( 'wp_cache_check_site_hook' );
 			wp_clear_scheduled_hook( 'wp_cache_gc' );
 			wp_clear_scheduled_hook( 'wp_cache_gc_watcher' );

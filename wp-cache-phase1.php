@@ -10,6 +10,10 @@ if( !@include( WP_CONTENT_DIR . '/wp-cache-config.php' ) )
 if( !defined( 'WPCACHEHOME' ) )
 	define('WPCACHEHOME', dirname(__FILE__).'/');
 
+if ( defined( 'DISABLE_SUPERCACHE' ) ) {
+	wp_cache_debug( 'DISABLE_SUPERCACHE set, super_cache disabled.' );
+	$super_cache_enabled = 0;
+}
 
 include( WPCACHEHOME . 'wp-cache-base.php');
 

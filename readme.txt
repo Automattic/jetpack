@@ -10,49 +10,45 @@ A very fast caching engine for WordPress that produces static html files.
 == Description ==
 This plugin generates static html files from your dynamic WordPress blog.  After a html file is generated your webserver will serve that file instead of processing the comparatively heavier and more expensive WordPress PHP scripts.
 
-The static html files will be served to the vast majority of your users, but because a user's details are displayed in the comment form after they leave a comment those requests are handled by the legacy caching engine. Static files are served to:
+The static html files will be served to the vast majority of your users:
 
 1. Users who are not logged in.
 2. Users who have not left a comment on your blog.
 3. Or users who have not viewed a password protected post.
 
-99% of your visitors will be served static html files. Those users who don't see the static files will still benefit because they will see different cached files that aren't quite as efficient but still better than uncached. This plugin will help your server cope with a front page appearance on digg.com or other social networking site.
-
-If for some reason "supercaching" doesn't work on your server then don't worry. Caching will still be performed, but every request will require loading the PHP engine. In normal circumstances this isn't bad at all. Visitors to your site will notice no slowdown or difference. Supercache really comes into it's own if your server is underpowered, or you're experiencing heavy traffic.
-Super Cached html files will be served more quickly than PHP generated cached files but in every day use, the difference isn't noticeable.
+99% of your visitors will be served static html files. One cached file can be served thousands of times. Other visitors will be served custom cached files tailored to their visit. If they are logged in, or have left comments those details will be displayed and cached for them.
 
 The plugin serves cached files in 3 ways (ranked by speed):
 
-1. Mod_Rewrite. The fastest method is by using Apache mod_rewrite (or whatever similar module your web server supports) to serve "supercached" static html files. This completely bypasses PHP and is extremely quick. If your server is hit by a deluge of traffic it is more likely to cope as the requests are "lighter". This does require the Apache mod_rewrite module (which is probably installed if you have custom permalinks) and a modification of your .htaccess file. Visits by anonymous or unknown users will be served this way.
-2. PHP. Supercached static files can now be served by PHP. The plugin will serve a "supercached" file if it exists and it's almost as fast as the mod_rewrite method. It's easier to configure as the .htaccess file doesn't need to be changed. You still need a custom permalink. You can keep portions of your page dynamic in this caching mode. Your server may not cope as well with a really large amount of traffic. (You're gaming Digg aren't you? You'll need mod_rewrite, the rest of us are ok with PHP!)
-3. Legacy caching. This is mainly used to cache pages for known users. These are logged in users, visitors who leave comments or those who should be shown custom per-user data. It's the most flexible caching method but also the slowest. As each page is different it's often better not to cache pages for these users at all and avoid legacy caching. Legacy caching will also cache visits by unknown users if this caching mode is selected. You can have dynamic parts to your page in this mode too.
+1. Expert. The fastest method is by using Apache mod_rewrite (or whatever similar module your web server supports) to serve "supercached" static html files. This completely bypasses PHP and is extremely quick. If your server is hit by a deluge of traffic it is more likely to cope as the requests are "lighter". This does require the Apache mod_rewrite module (which is probably installed if you have custom permalinks) and a modification of your .htaccess file which is risky and may take down your site if modified incorrectly.
+2. Simple. Supercached static files can be served by PHP and this is the recommended way of using the plugin. The plugin will serve a "supercached" file if it exists and it's almost as fast as the mod_rewrite method. It's easier to configure as the .htaccess file doesn't need to be changed. You still need a custom permalink. You can keep portions of your page dynamic in this caching mode.
+3. WP-Cache caching. This is mainly used to cache pages for known users and URLs with parameters. These are logged in users, visitors who leave comments or those who should be shown custom per-user data. It's the most flexible caching method and slightly slower. Legacy caching will also cache visits by unknown users if supercaching is disabled. You can have dynamic parts to your page in this mode too.
 
-If you're new to caching use PHP caching. It's easy to set up and very fast. Avoid legacy caching if you can.
+If you're new to caching use the Simple mode. It's easy to set up and very fast.
 
 = Recommended Settings =
-Advanced users will probably want to use mod_rewrite caching, but PHP caching is almost as good and recommended for everyone else. Enable the following:
 
-1. PHP caching.
+1. Simple caching.
 2. Compress pages.
 3. Don't cache pages for known users.
 4. Cache rebuild.
 5. CDN support.
 6. Extra homepage checks.
 
-Garbage collection is the act of cleaning up cache files that are out of date and stale. There's no correct value for the expiry time but a good starting point is 1800 seconds if you're not using legacy mode. If you are using that mode start with an expiry time of 600 seconds.
+Garbage collection is the act of cleaning up cache files that are out of date and stale. There's no correct value for the expiry time but a good starting point is 1800 seconds.
 
-If you are not using legacy mode caching consider deleting the contents of the "Rejected User Agents" text box and allow search engines to create supercache static files.
+Consider deleting the contents of the "Rejected User Agents" text box and allow search engines to cache files for you.
 
 Likewise, preload as many posts as you can and enable "Preload Mode". Garbage collection will still occur but it won't affect the preloaded files. If you don't care about sidebar widgets updating often set the preload interval to 2880 minutes (2 days) so all your posts aren't recached very often. When the preload occurs the cache files for the post being refreshed is deleted and then regenerated. Afterwards a garbage collection of all old files is performed to clean out stale cache files.
-With preloading on cached files will still be deleted when posts are made or edited or comments made.
+Cached files will still be deleted when posts are made or edited or comments made when preloading is enabled.
 
-See the [WP Super Cache homepage](https://wordpress.org/plugins/wp-super-cache/) for further information. [Developer documentation](http://z9.io/wp-super-cache-developers/) is also available for those who need to interact with the cache or write plugins.
+See the [WP Super Cache homepage](https://wordpress.org/plugins/wp-super-cache/) for further information. [Developer documentation](https://odd.blog/wp-super-cache-developers/) is also available for those who need to interact with the cache or write plugins.
 
 There's a [GIT repository](https://github.com/Automattic/wp-super-cache) too if you want to contribute a patch.
 
 The [changelog](http://svn.wp-plugins.org/wp-super-cache/trunk/Changelog.txt) is a good place to start if you want to know what has changed since you last downloaded the plugin.
 
-Interested in translating WP Super Cache to your language? Grab the [development version](http://downloads.wordpress.org/plugin/wp-super-cache.zip) where you will find an up to date wp-super-cache.pot. Send any translation files to donncha @ ocaoimh.ie and thank you!
+Interested in translating WP Super Cache to your language? See the [translation page](https://translate.wordpress.org/projects/wp-plugins/wp-super-cache) for the plugin.
 
 The cache directory, usually wp-content/cache/ is only for temporary files. Do not ever put important files or symlinks to important files or directories in that directory. They will be deleted if the plugin has write access to them.
 
@@ -363,13 +359,16 @@ To manually uninstall:
 Go to Settings->WP Super Cache and look for the "Cache Tester" form on the easy settings page. Click "Test Cache" and the plugin will request the front page of the site twice, comparing a timestamp on each to make sure they match.
 
 If you want to do it manually, enable debugging in the plugin settings page and load the log file in a new browser tab. Then view your blog while logged in and logged out. You should see activity in the log. View the source of any page on your site. When a page is first created, you'll see the text "Dynamic page generated in XXXX seconds." and "Cached page generated by WP-Super-Cache on YYYY-MM-DD HH:MM:SS" at the end of the source code. On reload, a cached page will show the same timestamp so wait a few seconds before checking.
-In legacy caching mode, if you have compression enabled, the text "Compression = gzip" will be added. If compression is disabled and the page is served as a static html file, the text "super cache" will be added. The only other way to check if your cached file was served by PHP script or from the static cache is by looking at the HTTP headers. PHP cached pages will have the header "WP-Super-Cache: Served supercache file from PHP". Legacy cached files will have the header, "WP-Super-Cache: Served legacy cache file". I used the <a href="https://addons.mozilla.org/en-US/firefox/addon/3829">Live HTTP Headers</a> extension for Firefox to examine the headers. You should also check your cache directory in wp-content/cache/supercache/hostname/ for static cache files.
+If Supercaching is disabled and you have compression enabled, the text "Compression = gzip" will be added. If compression is disabled and the page is served as a static html file, the text "super cache" will be added. The only other way to check if your cached file was served by PHP script or from the static cache is by looking at the HTTP headers. PHP cached pages will have the header "WP-Super-Cache: Served supercache file from PHP". Legacy cached files will have the header, "WP-Super-Cache: Served legacy cache file". You should also check your cache directory in wp-content/cache/supercache/hostname/ for static cache files.
 If the plugin rules are missing from your .htaccess file, the plugin will attempt to serve the super cached page if it's found. The header "WP-Super-Cache: Served supercache file from PHP" if this happens.
+
+= How do I disable Supercaching? =
+
+If you only want to use the WP-Cache engine then edit your wp-config.php or create an mu-plugin that sets the constant 'DISABLE_SUPERCACHE' to 1.
 
 = Legacy (WP-Cache) vs Supercache files =
 
-WP-Cache files are stored in wp-content/cache/ (or on MU sites in a blogs sub directory) and are named wp-cache-XXXXXXXXXXXXXXXXX.html. Associated meta files are stored in a meta sub directory. Those files contain information about the cached file. These files are generated by the "legacy caching" code in the plugin.
-Supercache files are stored in wp-content/cache/supercache/HOSTNAME/ where HOSTNAME is your domain name. The files are stored in directories matching your site's permalink structure.
+All cache files are stored in wp-content/cache/supercache/HOSTNAME/ where HOSTNANE is your domain name. The files are stored in directories matching your site's permalink structure. Supercache files are index.html or some variant of that, depending on what type of visitor hit the blog. Other files are named wp-cache-XXXXXXXXXXXXXXXXX.php. Associated meta filesnames start with "meta". Those files contain information about the cached file. These files are generated by the "legacy caching" engine in the plugin.
 
 = Will comments and other dynamic parts of my blog update immediately? =
 
@@ -383,11 +382,11 @@ No, it will do the opposite. Super Cache files are compressed and stored that wa
 
 Note: this functionality is disabled by default. You will have to enable it on the Advanced Settings page.
 
-There are 2 ways of doing this. You can use Javascript to draw the part of the page you want to keep dynamic. That's what Google Adsense and many widgets from external sites do and is the recommended way. Or you can use a WP Super Cache filter to do the job but you can't use mod_rewrite mode caching. You have to switch to PHP or legacy caching.
+There are 2 ways of doing this. You can use Javascript to draw the part of the page you want to keep dynamic. That's what Google Adsense and many widgets from external sites do and is the recommended way. Or you can use a WP Super Cache filter to do the job but you can't use mod_rewrite mode caching. You have to use the "simple" delivery method or disable supercaching.
 
 WP Super Cache 1.4 introduced a cacheaction filter called wpsc_cachedata. The cached page to be displayed goes through this filter and allows modification of the page. If the page contains a placeholder tag the filter can be used to replace that tag with your dynamically generated html.
 The function that hooks on to the wpsc_cachedata filter should be put in a file in the WP Super Cache plugins folder unless you use the late_init feature. An example plugin is included. Edit [dynamic-cache-test.php](http://svn.wp-plugins.org/wp-super-cache/trunk/plugins/dynamic-cache-test.php) to see the example code.
-There are two example functions there. There's a simple function that replaces a string (or tag) you define when the cached page is served. The other example function uses an output buffer to generate the dynamic content. Due to a limitation in how PHP works the output buffer code MUST run before the wpsc_cachedata filter is hit, at least for when a page is cached. It doesn't matter when serving cached pages. See [this post](http://z9.io/y/6j) for a more technical and longer explanation.
+There are two example functions there. There's a simple function that replaces a string (or tag) you define when the cached page is served. The other example function uses an output buffer to generate the dynamic content. Due to a limitation in how PHP works the output buffer code MUST run before the wpsc_cachedata filter is hit, at least for when a page is cached. It doesn't matter when serving cached pages. See [this post](https://odd.blog/y/6j) for a more technical and longer explanation.
 To execute WordPress functions you must enable the 'Late init' feature on the advanced settings page.
 
 = How do I use WordPress functions in cached dynamic pages? =
@@ -399,17 +398,17 @@ Cached files are served before almost all of WordPress is loaded. While that's g
 
 This plugin caches entire pages but some plugins think they can run PHP code every time a page loads. To fix this, the plugin needs to use Javascript/AJAX methods or the wpsc_cachedata filter described in the previous answer to update or display dynamic information.
 
-= Why do my WP Super Cache plugin disappear when I upgrade the plugin? =
+= Why do my WP Super Cache plugins disappear when I upgrade the plugin? =
 
 WordPress deletes the plugin folder when it updates a plugin. This is the same with WP Super Cache so any modified files in wp-super-cache/plugins/ will be deleted. You can define the variable $wp_cache_plugins_dir in wp-config.php or wp-content/wp-cache-config.php and point it at a directory outside of the wp-super-cache folder. The plugin will look there for it's plugins.
 
 = What does the Cache Rebuild feature do? =
 
-When a visitor leaves a comment the cached file for that page is deleted and the next visitor recreates the cached page. A page takes time to load so what happens if it receives 100 visitors during this time? There won't be a cached page so WordPress will serve a fresh page for each user and the plugin will try to create a cached page for each of those 100 visitors causing a huge load on your server. This feature stops this happening. The cached page is not cleared when a comment is left. It is marked for rebuilding instead. The next visitor within the next 10 seconds will regenerate the cached page while the old page is served to the other 99 visitors. The page is eventually loaded by the first visitor and the cached page updated. See [this post](http://z9.io/2009/01/23/wp-super-cache-089/) for more.
+When a visitor leaves a comment the cached file for that page is deleted and the next visitor recreates the cached page. A page takes time to load so what happens if it receives 100 visitors during this time? There won't be a cached page so WordPress will serve a fresh page for each user and the plugin will try to create a cached page for each of those 100 visitors causing a huge load on your server. This feature stops this happening. The cached page is not cleared when a comment is left. It is marked for rebuilding instead. The next visitor within the next 10 seconds will regenerate the cached page while the old page is served to the other 99 visitors. The page is eventually loaded by the first visitor and the cached page updated. See [this post](https://odd.blog/2009/01/23/wp-super-cache-089/) for more.
 
 = Why doesn't the plugin cache requests by search engine bots by default? =
 
-Those bots usually only visit each page once and if the page is not popular there's no point creating a cache file that will sit idle on your server. However if you're not using legacy caching you can allow these visits to be cached by removing the list of bots from "Rejected User Agents" on the Advanced settings page.
+Those bots usually only visit each page once and if the page is not popular there's no point creating a cache file that will sit idle on your server. However you can allow these visits to be cached by removing the list of bots from "Rejected User Agents" on the Advanced settings page.
 
 = A category page is showing instead of my homepage =
 
@@ -418,19 +417,19 @@ A tiny proportion of websites will have problems with the following configuratio
 1. Uses a static page for the front page.
 2. Uses /%category%/%postname%/ permalink structure.
 
-Sometimes a category page is cached as the homepage of the site instead of the static page. I can't [replicate the problem](http://wordpress.org/support/topic/237415/page/2?replies=38) but a simple solution is to switch the plugin to PHP mode. For normal traffic you will see no difference in the speed of your site. You can also enable "Extra homepage checks" on the Advanced Settings page.
+Sometimes a category page is cached as the homepage of the site instead of the static page. I can't [replicate the problem](http://wordpress.org/support/topic/237415/page/2?replies=38) but a simple solution is to use the "Simple" mode. You can also enable "Extra homepage checks" on the Advanced Settings page.
 
 = Why do I get warnings about caching from http://ismyblogworking.com/ =
 
 "Your blog doesn't support client caching (no 304 response to If-modified-since)."
 "Your feed doesn't support caching (no 304 response to If-modified-since)"
 
-Supercache doesn't support 304 header checks in mod_rewrite mode but does support it in PHP mode. This is caching done by your browser, not the server. It is a check your browser does to ask the server if an updated version of the current page is available. If not, it doesn't download the old version again. The page is still cached by your server, just not by your visitors' browsers.
+Supercache doesn't support 304 header checks in Expert mode but does support it in Simple mode. This is caching done by your browser, not the server. It is a check your browser does to ask the server if an updated version of the current page is available. If not, it doesn't download the old version again. The page is still cached by your server, just not by your visitors' browsers.
 Try the Cacheability Engine at http://www.ircache.net/cgi-bin/cacheability.py or http://redbot.org/ for further analysis.
 
 = How should I best use the utm_source tracking tools in Google Analytics with this plugin? =
 
-That tracking adds a query string to each url linked from various sources like Twitter and feedreaders. Unfortunately it stops pages being supercached. See [Joost's comment here](http://z9.io/remove-unused-utmsource-urls/#comment-672813) for how to turn it into an anchor tag which can be supercached.
+That tracking adds a query string to each url linked from various sources like Twitter and feedreaders. Unfortunately it stops pages being supercached. See [Joost's comment here](https://odd.blog/remove-unused-utmsource-urls/#comment-672813) for how to turn it into an anchor tag which can be supercached.
 
 = The plugin complains that wp-content is writable! htdocs is writable! =
 
@@ -492,7 +491,7 @@ If things don't work when you installed the plugin here are a few things to chec
     `127.0.0.1 myhostname.com`
 17. If old pages are being served to your visitors via the supercache, you may be missing Apache modules (or their equivalents if you don't use Apache). 3 modules are required: mod_mime, mod_headers and mod_expires. The last two are especially important for making sure browsers load new versions of existing pages on your site.
 18. The error message, "WP Super Cache is installed but broken. The path to wp-cache-phase1.php in wp-content/advanced-cache.php must be fixed!" appears at the end of every page. Open the file wp-content/advanced-cache.php in your favourite editor. Is the path to wp-cache-phase1.php correct? This file will normally be in wp-content/plugins/wp-super-cache/. If it is not correct the caching engine will not load.
-19. Caching doesn't work. The timestamp on my blog keeps changing when I reload. Check that the path in your .htaccess rules matches where the supercache directory is. You may have to hardcode it. Or use the plugin in PHP or legacy caching mode.
+19. Caching doesn't work. The timestamp on my blog keeps changing when I reload. Check that the path in your .htaccess rules matches where the supercache directory is. You may have to hardcode it. Try disabling supercache mode.
 20. If supercache cache files are generated but not served, check the permissions on all your wp-content/cache/supercache folders (and each of wp-content cache and supercache folders) and wp-content/cache/.htaccess. If your PHP runs as a different user to Apache and permissions are strict Apache may not be able to read the PHP generated cache files. To fix you must add the following line to your wp-config.php (Add it above the WP_CACHE define.) Then clear your cache.
 
 	`umask( 0022 );`
@@ -535,13 +534,13 @@ There is one regular WordPress filter too. Use the "do_createsupercache" filter
 to customize the checks made before caching. The filter accepts one parameter.
 The output of WP-Cache's wp_cache_get_cookies_values() function.
 
-See plugins/searchengine.php as an example I use for my [No Adverts for Friends](http://z9.io/no-adverts-for-friends/) plugin.
+See plugins/searchengine.php as an example I use for my [No Adverts for Friends](https://odd.blog/no-adverts-for-friends/) plugin.
 
 == Links ==
 [WP Widget Cache](http://wordpress.org/plugins/wp-widget-cache/) is another caching plugin for WordPress. This plugin caches the output of widgets and may significantly speed up dynamic page generation times.
 
 == Updates ==
-Updates to the plugin will be posted here, to [Holy Shmoly!](http://z9.io/) and the [WP Super Cache homepage](https://wordpress.org/plugins/wp-super-cache/) will always link to the newest version.
+Updates to the plugin will be posted here, to [Holy Shmoly!](https://odd.blog/) and the [WP Super Cache homepage](https://wordpress.org/plugins/wp-super-cache/) will always link to the newest version.
 
 == Thanks ==
 I would sincerely like to thank [John Pozadzides](http://onemansblog.com/) for giving me the idea for this, for writing the "How it works" section and for testing the plugin through 2 front page appearances on digg.com
