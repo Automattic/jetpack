@@ -300,14 +300,17 @@ class Jetpack_Sitemap_Buffer {
 	 * @return string The rendered attribute string.
 	 */
 	public static function array_to_xml_attr_string( $array ) {
-		$string = '';
+		$doc = new DOMDocument();
+		$element = $doc->createElement( 'div' );
 
 		foreach ( $array as $key => $value ) {
 			$key = preg_replace( '/[^a-zA-Z:_-]/', '_', $key );
-			$string .= ' ' . $key . '="' . esc_attr( $value ) . '"';
+			$element->setAttribute( $key, $value );
 		}
 
-		return $string;
+		$doc->appendChild( $element );
+
+		return substr( trim( $doc->saveHTML() ), 4, -7 );
 	}
 
 }
