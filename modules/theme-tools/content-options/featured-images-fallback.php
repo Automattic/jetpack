@@ -75,7 +75,8 @@ add_filter( 'post_thumbnail_html', 'jetpack_featured_images_fallback_get_image',
  * @return string|null $image_src         The URL of the thumbnail image.
  */
 function jetpack_featured_images_fallback_get_image_src( $post_id, $post_thumbnail_id, $size ) {
-	$image_src = ( ! empty( wp_get_attachment_image_src( $post_thumbnail_id, $size )[0] ) ) ? wp_get_attachment_image_src( $post_thumbnail_id, $size )[0] : null;
+	$image_src = wp_get_attachment_image_src( $post_thumbnail_id, $size );
+	$image_src = ( ! empty( $image_src[0] ) ) ? $image_src[0] : null;
 	$opts      = jetpack_featured_images_get_settings();
 
 	if ( ! empty( $image_src ) || (bool) 1 !== (bool) $opts['fallback-option'] ) {
