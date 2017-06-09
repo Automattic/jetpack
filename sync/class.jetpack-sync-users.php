@@ -41,7 +41,7 @@ class Jetpack_Sync_Users {
 	}
 
 	static function get_signed_role( $user_id ) {
-		return Jetpack::sign_role( self::get_role( $user_id ) );
+		return Jetpack::sign_role( self::get_role( $user_id ), $user_id );
 	}
 
 	static function update_role_on_com( $user_id ) {
