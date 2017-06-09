@@ -251,4 +251,41 @@ XML;
 			Jetpack_Sitemap_Buffer::array_to_xml_string( $array )
 		);
 	}
+
+	public function test_news_sitemap_item_to_xml() {
+		$timestamp = date( 'r' );
+		$array =array(
+			'url' => array(
+				'loc' => 'http://example.com/blog-url-about-stuff',
+				'lastmod' => $timestamp,
+				'news:news' => array(
+					'news:publication' => array(
+						'news:name'     => 'Blog about stuff',
+						'news:language' => 'en',
+					),
+					'news:title'            => 'Stuff',
+					'news:publication_date' => $timestamp,
+					'news:genres'           => 'Blog',
+				),
+			),
+		);
+
+		$xml = "<url><loc>http://example.com/blog-url-about-stuff</loc>"
+			   . "<lastmod>$timestamp</lastmod>"
+			   . "<news:news>"
+			     . "<news:publication>"
+			       . "<news:name>Blog about stuff</news:name>"
+			       . "<news:language>en</news:language>"
+			     . "</news:publication>"
+			     . "<news:title>Stuff</news:title>"
+			     . "<news:publication_date>$timestamp</news:publication_date>"
+			     . "<news:genres>Blog</news:genres>"
+			   . "</news:news>"
+			 . "</url>\n";
+
+		$this->assertEquals(
+			$xml,
+			Jetpack_Sitemap_Buffer::array_to_xml_string( $array )
+		);
+	}
 }

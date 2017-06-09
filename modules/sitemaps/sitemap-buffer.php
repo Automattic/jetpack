@@ -245,43 +245,45 @@ class Jetpack_Sitemap_Buffer {
 	 * @since 4.8.0 Rename, add $depth parameter, and change return type.
 	 *
 	 * @param array  $array A recursive associative array of tag/child relationships.
-	 * @param boolean $return_string (optional) should the method return a string instead of DOMDocument object.
+	 * @param DOMElement $parent (optional) an element to which new children should be added.
+	 * @param DOMDocument $root (optional) the parent document.
 	 *
-	 * @return string|DOMDocument The rendered XML string or an object.
+	 * @return string|DOMDocument The rendered XML string or an object if root element is specified.
 	 */
-	public static function array_to_xml_string( $array, $return_string = true ) {
-		if ( null === self::$doc ) {
-			self::$doc = new DOMDocument();
+	public static function array_to_xml_string( $array, $parent = null, $root = null ) {
+		$return_string = false;
+
+		if ( null === $parent ) {
+			$return_string = true;
+			$parent = $root = new DOMDocument();
 		}
 
 		if ( is_array( $array ) ) {
 
 			foreach ( $array as $key => $value ) {
+				if ( is_array( $value ) ) {
+					$element = $root->createElement( $key );
+				} else {
+					$element = $root->createElement( $key, $value );
+				}
+
+				$parent->appendChild( $element );
 
 				if ( is_array( $value ) ) {
-					$element = self::$doc->createElement( $key );
-
-					foreach( $value as $child_key => $child_value ) {
-						$child = self::$doc->createElement( $child_key );
+					foreach ( $value as $child_key => $child_value ) {
+						$child = $root->createElement( $child_key );
 						$element->appendChild( $child );
-						$child->appendChild( self::array_to_xml_string( $child_value, false ) );
+						$child->appendChild( self::array_to_xml_string( $child_value, $child, $root ) );
 					}
-				} else {
-					$element = self::$doc->createElement( $key, $value );
 				}
-				self::$doc->appendChild( $element );
-
 			}
 		} else {
-			$element = self::$doc->createTextNode( $array );
-			self::$doc->appendChild( $element );
+			$element = $root->createTextNode( $array );
+			$parent->appendChild( $element );
 		}
 
 		if ( $return_string ) {
-			$string = self::$doc->saveHTML();
-
-			self::$doc = null;
-			return $string;
+			return $root->saveHTML();
 		} else {
 			return $element;
 		}
