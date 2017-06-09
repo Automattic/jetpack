@@ -213,7 +213,7 @@ XML;
 	public function test_array_to_xml_string_empty_array() {
 		$array = array();
 
-		$xml = '';
+		$xml = "\n";
 
 		$this->assertEquals(
 			$xml,
@@ -243,16 +243,7 @@ XML;
 		);
 
 		$xml = <<<XML
-<foo>
-  <baz>baz</baz>
-  <qux>
-    <xyzzy>xyzzy</xyzzy>
-  </qux>
-</foo>
-<bar>
-  <crunch>crunch</crunch>
-  <munch />
-</bar>\n
+<foo><baz>baz</baz><qux><xyzzy>xyzzy</xyzzy></qux></foo><bar><crunch>crunch</crunch><munch></munch></bar>\n
 XML;
 
 		$this->assertEquals(

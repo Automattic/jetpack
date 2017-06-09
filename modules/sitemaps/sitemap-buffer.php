@@ -88,6 +88,15 @@ class Jetpack_Sitemap_Buffer {
 	private $timestamp;
 
 	/**
+	 * The DOM element object that is currently being used to construct an XML fragment.
+	 *
+	 * @access private
+	 * @since 5.1.0
+	 * @var DOMDocument $doc
+	 */
+	static private $doc = null;
+
+	/**
 	 * Construct a new Jetpack_Sitemap_Buffer.
 	 *
 	 * @since 4.8.0
@@ -236,30 +245,46 @@ class Jetpack_Sitemap_Buffer {
 	 * @since 4.8.0 Rename, add $depth parameter, and change return type.
 	 *
 	 * @param array  $array A recursive associative array of tag/child relationships.
-	 * @param string $depth String to prepend to each line. For internal use only.
+	 * @param boolean $return_string (optional) should the method return a string instead of DOMDocument object.
 	 *
-	 * @return string The rendered XML string.
+	 * @return string|DOMDocument The rendered XML string or an object.
 	 */
-	public static function array_to_xml_string( $array, $depth = '' ) {
-		$string = '';
-
-		foreach ( $array as $key => $value ) {
-
-			// Only allow a-z, A-Z, colon, underscore, and hyphen.
-			$tag = preg_replace( '/[^a-zA-Z:_-]/', '_', $key );
-
-			if ( is_array( $value ) ) {
-				$string .= $depth . "<$tag>\n";
-				$string .= self::array_to_xml_string( $value, $depth . '  ' );
-				$string .= $depth . "</$tag>\n";
-			} elseif ( is_null( $value ) ) {
-				$string .= $depth . "<$tag />\n";
-			} else {
-				$string .= $depth . "<$tag>" . ent2ncr( $value ) . "</$tag>\n";
-			}
+	public static function array_to_xml_string( $array, $return_string = true ) {
+		if ( null === self::$doc ) {
+			self::$doc = new DOMDocument();
 		}
 
-		return $string;
+		if ( is_array( $array ) ) {
+
+			foreach ( $array as $key => $value ) {
+
+				if ( is_array( $value ) ) {
+					$element = self::$doc->createElement( $key );
+
+					foreach( $value as $child_key => $child_value ) {
+						$child = self::$doc->createElement( $child_key );
+						$element->appendChild( $child );
+						$child->appendChild( self::array_to_xml_string( $child_value, false ) );
+					}
+				} else {
+					$element = self::$doc->createElement( $key, $value );
+				}
+				self::$doc->appendChild( $element );
+
+			}
+		} else {
+			$element = self::$doc->createTextNode( $array );
+			self::$doc->appendChild( $element );
+		}
+
+		if ( $return_string ) {
+			$string = self::$doc->saveHTML();
+
+			self::$doc = null;
+			return $string;
+		} else {
+			return $element;
+		}
 	}
 
 	/**
