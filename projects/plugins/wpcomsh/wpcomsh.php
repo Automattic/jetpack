@@ -603,3 +603,17 @@ add_filter( 'load_textdomain_mofile', 'wpcomsh_wporg_to_wpcom_locale_mo_file' );
  * This will expose both the Links section, and the widget.
  */
 add_filter( 'pre_option_link_manager_enabled', '__return_true' );
+
+/*
+ * We have some instances where `track_number` of an audio attachment is `??0` and shows up as type string.
+ * However the problem is, that if post has nested property attachments with this track_number, `json_serialize` fails silently.
+ * Of course, this should be fixed during audio upload, but we need this fix until we can clean this up properly.
+ * More detail here: 235-gh-Automattic/automated-transfer
+ */
+function wpcomsh_jetpack_api_fix_unserializable_track_number( $exif_data ) {
+	if ( isset( $exif_data[ 'track_number' ] ) ) {
+		$exif_data[ 'track_number' ] = intval( $exif_data[ 'track_number' ] );
+	}
+	return $exif_data;
+}
+add_filter( 'wp_get_attachment_metadata', 'wpcomsh_jetpack_api_fix_unserializable_track_number' );
