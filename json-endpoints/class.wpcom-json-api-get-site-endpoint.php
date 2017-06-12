@@ -136,10 +136,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 			return $blog_id;
 		}
 
-		// TODO: enable this when we can do so without being interfered with by
-		// other endpoints that might be wrapping this one.
-		// Uncomment and see failing test: test_jetpack_site_should_have_true_jetpack_property_via_site_meta
-		// $this->filter_fields_and_options();
+		$this->filter_fields_and_options();
 
 		$response = $this->build_current_site_response();
 
