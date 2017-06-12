@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "3ae7cb6ea19b7b9f64fabb689b15eaea",
-    "content-hash": "b45f7fe1c9fb7932f61ee25ce198647b",
+    "hash": "ce1b60aa3815a45f1ba531655360b864",
+    "content-hash": "344b2b9b34d3a757ae24bc7b929b8031",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -31,43 +31,53 @@
         },
         {
             "name": "automattic/custom-fonts",
-            "version": "v1.0.0",
+            "version": "v1.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/custom-fonts.git",
-                "reference": "2b3a0d8c010c8a45ba7ca30f9691d63d4c262b39"
+                "reference": "2804fb54f39d8447365490d7a7cdf83b3679d358"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/custom-fonts/zipball/2b3a0d8c010c8a45ba7ca30f9691d63d4c262b39",
-                "reference": "2b3a0d8c010c8a45ba7ca30f9691d63d4c262b39",
+                "url": "https://api.github.com/repos/Automattic/custom-fonts/zipball/2804fb54f39d8447365490d7a7cdf83b3679d358",
+                "reference": "2804fb54f39d8447365490d7a7cdf83b3679d358",
                 "shasum": ""
             },
             "require-dev": {
                 "10up/wp_mock": "dev-master"
             },
             "type": "library",
-            "time": "2017-06-12 21:13:31"
+            "autoload": {
+                "files": [
+                    "custom-fonts.php"
+                ]
+            },
+            "time": "2017-06-12 21:39:47"
         },
         {
             "name": "automattic/custom-fonts-typekit",
-            "version": "v1.0.0",
+            "version": "v1.0.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/custom-fonts-typekit.git",
-                "reference": "9adbecb110833dda5234581f5fe216fed200335b"
+                "reference": "0a57bb979a59dac1975b623b8b46d889e944ac87"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/custom-fonts-typekit/zipball/9adbecb110833dda5234581f5fe216fed200335b",
-                "reference": "9adbecb110833dda5234581f5fe216fed200335b",
+                "url": "https://api.github.com/repos/Automattic/custom-fonts-typekit/zipball/0a57bb979a59dac1975b623b8b46d889e944ac87",
+                "reference": "0a57bb979a59dac1975b623b8b46d889e944ac87",
                 "shasum": ""
             },
             "require-dev": {
                 "10up/wp_mock": "dev-master"
             },
             "type": "library",
-            "time": "2017-06-12 20:51:09"
+            "autoload": {
+                "files": [
+                    "custom-fonts-typekit.php"
+                ]
+            },
+            "time": "2017-06-12 21:40:06"
         }
     ],
     "packages-dev": [],
