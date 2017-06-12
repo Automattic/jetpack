@@ -17,7 +17,6 @@ require_once( 'constants.php' );
 
 require_once( 'footer-credit/footer-credit.php' );
 require_once( 'custom-fonts/custom-fonts.php' );
-require_once( 'custom-fonts-typekit/custom-fonts-typekit.php' );
 require_once( 'custom-colors/colors.php' );
 require_once( 'class.wpcomsh-log.php' );
 
