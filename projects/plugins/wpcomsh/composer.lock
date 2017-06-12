@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "70e70e07c3a89e943b3bb8b4b46c730a",
-    "content-hash": "852ae93a934d9685ea737a32c0d0c68f",
+    "hash": "3ae7cb6ea19b7b9f64fabb689b15eaea",
+    "content-hash": "b45f7fe1c9fb7932f61ee25ce198647b",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -28,6 +28,26 @@
                 ]
             },
             "time": "2017-05-09 20:06:20"
+        },
+        {
+            "name": "automattic/custom-fonts",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Automattic/custom-fonts.git",
+                "reference": "2b3a0d8c010c8a45ba7ca30f9691d63d4c262b39"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Automattic/custom-fonts/zipball/2b3a0d8c010c8a45ba7ca30f9691d63d4c262b39",
+                "reference": "2b3a0d8c010c8a45ba7ca30f9691d63d4c262b39",
+                "shasum": ""
+            },
+            "require-dev": {
+                "10up/wp_mock": "dev-master"
+            },
+            "type": "library",
+            "time": "2017-06-12 21:13:31"
         },
         {
             "name": "automattic/custom-fonts-typekit",
