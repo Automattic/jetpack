@@ -77,7 +77,7 @@ class WP_Test_Jetpack_Sitemap_Librarian extends WP_UnitTestCase {
 	 */
 	public function test_sitemap_librarian_set_then_get_is_identity() {
 		$librarian = new Jetpack_Sitemap_Librarian();
-		$contents = esc_html( 'These are the times that try men\'s souls.' );
+		$contents = '<wrapper>These are the times that try men\'s <a href="http://example.com/soul">souls</a>.</wrapper>';
 
 		// Store a sitemap.
 		$librarian->store_sitemap_data( 0, JP_MASTER_SITEMAP_TYPE, $contents, '1970-01-01 00:00:00' );
