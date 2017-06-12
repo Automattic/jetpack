@@ -90,6 +90,15 @@ abstract class Jetpack_Sitemap_Buffer {
 	protected $root = null;
 
 	/**
+	 * Helper class to construct sitemap paths.
+	 *
+	 * @since 5.1.0
+	 * @protected
+	 * @var Jetpack_Sitemap_Finder
+	 */
+	protected $finder;
+
+	/**
 	 * Construct a new Jetpack_Sitemap_Buffer.
 	 *
 	 * @since 4.8.0
@@ -109,6 +118,7 @@ abstract class Jetpack_Sitemap_Buffer {
 		$this->is_empty_flag = true;
 		$this->timestamp = $time;
 
+		$this->finder = new Jetpack_Sitemap_Finder();
 		$this->doc = new DOMDocument( '1.0', 'UTF-8' );
 	}
 
@@ -119,15 +129,7 @@ abstract class Jetpack_Sitemap_Buffer {
 	 * @since 5.1.0
 	 * @return DOMElement $root
 	 */
-	protected function get_root_element() {
-		if ( ! isset( $this->root ) ) {
-			$this->root = $this->doc->createElement( 'sitemapindex' );
-			$this->root->setAttribute( 'xmlns', 'http://www.sitemaps.org/schemas/sitemap/0.9' );
-			$this->doc->appendChild( $this->root );
-		}
-
-		return $this->root;
-	}
+	abstract protected function get_root_element();
 
 	/**
 	 * Append an item to the buffer, if there is room for it,
@@ -195,6 +197,16 @@ abstract class Jetpack_Sitemap_Buffer {
 	 */
 	public function contents() {
 		return $this->doc->saveXML();
+	}
+
+	/**
+	 * Retrieve the document object.
+	 *
+	 * @since 5.1.0
+	 * @return DOMDocument $doc
+	 */
+	public function get_document() {
+		return $this->doc;
 	}
 
 	/**
@@ -288,12 +300,7 @@ abstract class Jetpack_Sitemap_Buffer {
 		if ( is_array( $array ) ) {
 
 			foreach ( $array as $key => $value ) {
-				if ( is_array( $value ) ) {
-					$element = $root->createElement( $key );
-				} else {
-					$element = $root->createElement( $key, $value );
-				}
-
+				$element = $root->createElement( $key );
 				$parent->appendChild( $element );
 
 				if ( is_array( $value ) ) {
@@ -302,6 +309,10 @@ abstract class Jetpack_Sitemap_Buffer {
 						$element->appendChild( $child );
 						$child->appendChild( self::array_to_xml_string( $child_value, $child, $root ) );
 					}
+				} else {
+					$element->appendChild(
+						$root->createTextNode( $value )
+					);
 				}
 			}
 		} else {

@@ -267,4 +267,13 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 /**
  * Dummy testing class for a concrete Buffer implementation
  */
-class Jetpack_Sitemap_Buffer_Dummy extends Jetpack_Sitemap_Buffer {}
+class Jetpack_Sitemap_Buffer_Dummy extends Jetpack_Sitemap_Buffer {
+	public function get_root_element() {
+		if ( ! isset ( $this->root ) ) {
+			$this->root = $this->doc->createElement( 'dummy' );
+			$this->doc->appendChild( $this->root );
+		}
+
+		return $this->root;
+	}
+}
