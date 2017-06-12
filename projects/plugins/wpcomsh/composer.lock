@@ -4,7 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "0994cded92d8896aca89383baa54884a",
+    "hash": "70e70e07c3a89e943b3bb8b4b46c730a",
+    "content-hash": "852ae93a934d9685ea737a32c0d0c68f",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -12,12 +13,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/automattic/at-pressable-podcasting.git",
-                "reference": "d26f6d815100f99f7eed9b5e86d560e9fb70b0cf"
+                "reference": "a6823ef7151ac8262868a4b2b33702d6250cc251"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/automattic/at-pressable-podcasting/zipball/d26f6d815100f99f7eed9b5e86d560e9fb70b0cf",
-                "reference": "d26f6d815100f99f7eed9b5e86d560e9fb70b0cf",
+                "url": "https://api.github.com/repos/automattic/at-pressable-podcasting/zipball/a6823ef7151ac8262868a4b2b33702d6250cc251",
+                "reference": "a6823ef7151ac8262868a4b2b33702d6250cc251",
                 "shasum": ""
             },
             "type": "library",
@@ -26,7 +27,27 @@
                     "podcasting.php"
                 ]
             },
-            "time": "2017-05-09T20:06:20+00:00"
+            "time": "2017-05-09 20:06:20"
+        },
+        {
+            "name": "automattic/custom-fonts-typekit",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Automattic/custom-fonts-typekit.git",
+                "reference": "9adbecb110833dda5234581f5fe216fed200335b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Automattic/custom-fonts-typekit/zipball/9adbecb110833dda5234581f5fe216fed200335b",
+                "reference": "9adbecb110833dda5234581f5fe216fed200335b",
+                "shasum": ""
+            },
+            "require-dev": {
+                "10up/wp_mock": "dev-master"
+            },
+            "type": "library",
+            "time": "2017-06-12 20:51:09"
         }
     ],
     "packages-dev": [],
