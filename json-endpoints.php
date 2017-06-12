@@ -126,6 +126,7 @@ new WPCOM_JSON_API_GET_Site_Endpoint( array(
 	'allow_jetpack_site_auth' => true,
 	'query_parameters' => array(
 		'context' => false,
+		'options' => '(string) Optional. Returns specified options only. Comma-separated list. Example: options=login_url,timezone',
 	),
 
 	'response_format' => WPCOM_JSON_API_GET_Site_Endpoint::$site_format,
