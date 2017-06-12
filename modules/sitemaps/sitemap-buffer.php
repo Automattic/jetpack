@@ -22,7 +22,7 @@
  *
  * @since 4.8.0
  */
-class Jetpack_Sitemap_Buffer {
+abstract class Jetpack_Sitemap_Buffer {
 
 	/**
 	 * Largest number of items the buffer can hold.
@@ -42,23 +42,6 @@ class Jetpack_Sitemap_Buffer {
 	 */
 	private $byte_capacity;
 
-	/**
-	 * Footer text of the buffer; stored here so it can be appended when the buffer is full.
-	 *
-	 * @access private
-	 * @since 4.8.0
-	 * @var string $footer_text The footer text.
-	 */
-	private $footer_text;
-
-	/**
-	 * The buffer contents.
-	 *
-	 * @access private
-	 * @since 4.8.0
-	 * @var string The buffer contents.
-	 */
-	private $buffer;
 
 	/**
 	 * Flag which detects when the buffer is full.
@@ -88,13 +71,23 @@ class Jetpack_Sitemap_Buffer {
 	private $timestamp;
 
 	/**
-	 * The DOM element object that is currently being used to construct an XML fragment.
+	 * The DOM document object that is currently being used to construct the XML doc.
 	 *
 	 * @access private
 	 * @since 5.1.0
 	 * @var DOMDocument $doc
 	 */
-	static private $doc = null;
+	protected $doc = null;
+
+	/**
+	 * The root DOM element object that holds everything inside. Do not use directly, call
+	 * the get_root_element getter method instead.
+	 *
+	 * @access private
+	 * @since 5.1.0
+	 * @var DOMElement $doc
+	 */
+	protected $root = null;
 
 	/**
 	 * Construct a new Jetpack_Sitemap_Buffer.
@@ -103,29 +96,37 @@ class Jetpack_Sitemap_Buffer {
 	 *
 	 * @param int    $item_limit The maximum size of the buffer in items.
 	 * @param int    $byte_limit The maximum size of the buffer in bytes.
-	 * @param string $header The string to prepend to the entire buffer.
-	 * @param string $footer The string to append to the entire buffer.
 	 * @param string $time The initial datetime of the buffer. Must be in 'YYYY-MM-DD hh:mm:ss' format.
 	 */
-	public function __construct(
-		$item_limit,
-		$byte_limit,
-		$header = '',
-		$footer = '',
-		$time
-	) {
+	public function __construct( $item_limit, $byte_limit, $time ) {
 		$this->item_capacity = max( 1, intval( $item_limit ) );
 
 		mbstring_binary_safe_encoding(); // So we can safely use strlen().
-		$this->byte_capacity = max( 1, intval( $byte_limit ) ) - strlen( $header ) - strlen( $footer );
+		$this->byte_capacity = max( 1, intval( $byte_limit ) );
 		reset_mbstring_encoding();
 
-		$this->footer_text = $footer;
-		$this->buffer = $header;
 		$this->is_full_flag = false;
 		$this->is_empty_flag = true;
 		$this->timestamp = $time;
-		return;
+
+		$this->doc = new DOMDocument( '1.0', 'UTF-8' );
+	}
+
+	/**
+	 * Returns a DOM element that contains all sitemap elements.
+	 *
+	 * @access protected
+	 * @since 5.1.0
+	 * @return DOMElement $root
+	 */
+	protected function get_root_element() {
+		if ( ! isset( $this->root ) ) {
+			$this->root = $this->doc->createElement( 'sitemapindex' );
+			$this->root->setAttribute( 'xmlns', 'http://www.sitemaps.org/schemas/sitemap/0.9' );
+			$this->doc->appendChild( $this->root );
+		}
+
+		return $this->root;
 	}
 
 	/**
@@ -141,24 +142,47 @@ class Jetpack_Sitemap_Buffer {
 	 * @return bool True if the append succeeded, False if not.
 	 */
 	public function try_to_add_item( $item ) {
-		if ( is_null( $item ) ) {
+		_deprecated_function(
+			'Jetpack_Sitemap_Buffer::try_to_add_item',
+			'5.1.0',
+			'Jetpack_Sitemap_Buffer::append'
+		);
+		$this->append( $item );
+	}
+
+	/**
+	 * Append an item to the buffer, if there is room for it,
+	 * and set is_empty_flag to false. If there is no room,
+	 * we set is_full_flag to true. If $item is null,
+	 * don't do anything and report success.
+	 *
+	 * @since 5.1.0
+	 *
+	 * @param string $item The item to be added.
+	 *
+	 * @return bool True if the append succeeded, False if not.
+	 */
+	public function append( $array ) {
+		if ( is_null( $array ) ) {
 			return true;
+		}
+
+		if ( $this->is_full_flag ) {
+			return false;
+		}
+
+		if ( 0 >= $this->item_capacity ) {
+			$this->is_full_flag = true;
+			return false;
 		} else {
+			$this->item_capacity -= 1;
+			$this->array_to_xml_string( $array, $this->get_root_element(), $this->doc );
 
-			mbstring_binary_safe_encoding(); // So we can safely use strlen().
-			$item_size = strlen( $item ); // Size in bytes.
-			reset_mbstring_encoding();
-
-			if ( 0 >= $this->item_capacity || 0 > $this->byte_capacity - $item_size ) {
+			// If the new document is over the maximum, we don't add any more
+			if ( strlen( $this->contents() ) > $this->byte_capacity ) {
 				$this->is_full_flag = true;
-				return false;
-			} else {
-				$this->is_empty_flag = false;
-				$this->item_capacity -= 1;
-				$this->byte_capacity -= $item_size;
-				$this->buffer .= $item;
-				return true;
 			}
+			return true;
 		}
 	}
 
@@ -170,7 +194,7 @@ class Jetpack_Sitemap_Buffer {
 	 * @return string The contents of the buffer (with the footer included).
 	 */
 	public function contents() {
-		return $this->buffer . $this->footer_text;
+		return $this->doc->saveXML();
 	}
 
 	/**
@@ -192,7 +216,10 @@ class Jetpack_Sitemap_Buffer {
 	 * @return bool True if the buffer is empty, false otherwise.
 	 */
 	public function is_empty() {
-		return $this->is_empty_flag;
+		return (
+			! isset( $this->root )
+			|| ! $this->root->hasChildNodes()
+		);
 	}
 
 	/**
@@ -204,7 +231,6 @@ class Jetpack_Sitemap_Buffer {
 	 */
 	public function view_time( $new_time ) {
 		$this->timestamp = max( $this->timestamp, $new_time );
-		return;
 	}
 
 	/**
@@ -240,9 +266,10 @@ class Jetpack_Sitemap_Buffer {
 	 *   ),                                  |</html>
 	 * )
 	 *
-	 * @access public
+	 * @access protected
 	 * @since 3.9.0
 	 * @since 4.8.0 Rename, add $depth parameter, and change return type.
+	 * @since 5.1.0 Refactor, remove $depth parameter, add $parent and $root, make access protected.
 	 *
 	 * @param array  $array A recursive associative array of tag/child relationships.
 	 * @param DOMElement $parent (optional) an element to which new children should be added.
@@ -250,7 +277,7 @@ class Jetpack_Sitemap_Buffer {
 	 *
 	 * @return string|DOMDocument The rendered XML string or an object if root element is specified.
 	 */
-	public static function array_to_xml_string( $array, $parent = null, $root = null ) {
+	protected function array_to_xml_string( $array, $parent = null, $root = null ) {
 		$return_string = false;
 
 		if ( null === $parent ) {

@@ -6,6 +6,7 @@
  * @since 4.7.0
  */
 
+require_once dirname( __FILE__ ) . '/../../../../modules/sitemaps/sitemap-constants.php';
 require_once dirname( __FILE__ ) . '/../../../../modules/sitemaps/sitemap-buffer.php';
 
 /**
@@ -23,20 +24,8 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 	 * @since 4.7.0
 	 */
 	public function test_sitemap_buffer_constructor() {
-		$buffer = new Jetpack_Sitemap_Buffer( 1, 10, 'hello', 'world', '1970-01-01 00:00:00' );
-		$this->assertEquals( $buffer->contents(), 'helloworld' );
-	}
-
-	/**
-	 * Construct a new buffer with empty header and footer.
-	 *
-	 * @covers Jetpack_Sitemap_Buffer::__contents
-	 * @group jetpack-sitemap
-	 * @since 4.7.0
-	 */
-	public function test_sitemap_buffer_empty() {
-		$buffer = new Jetpack_Sitemap_Buffer( 1, 10, '', '', '1970-01-01 00:00:00' );
-		$this->assertEquals( $buffer->contents(), '' );
+		$buffer = new Jetpack_Sitemap_Buffer_Dummy( 1, 10, '1970-01-01 00:00:00' );
+		$this->assertEquals( $buffer->contents(), '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL );
 	}
 
 	/**
@@ -47,10 +36,16 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 	 * @since 4.7.0
 	 */
 	public function test_sitemap_buffer_try_to_add_item() {
-		$buffer = new Jetpack_Sitemap_Buffer( 2, 16, '(', ')', '1970-01-01 00:00:00' );
-		$buffer->try_to_add_item( 'foo' );
-		$buffer->try_to_add_item( 'bar' );
-		$this->assertEquals( $buffer->contents(), '(foobar)' );
+		$buffer = new Jetpack_Sitemap_Buffer_Dummy( 2, 128, '1970-01-01 00:00:00' );
+		$buffer->append( 'foo' );
+		$buffer->append( 'bar' );
+		$this->assertEquals(
+			$buffer->contents(),
+			'<?xml version="1.0" encoding="UTF-8"?>'
+			. PHP_EOL
+			. '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">foobar</sitemapindex>'
+			. PHP_EOL
+		);
 	}
 
 	/**
@@ -61,9 +56,9 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 	 * @since 4.7.0
 	 */
 	public function test_sitemap_buffer_is_empty() {
-		$buffer = new Jetpack_Sitemap_Buffer( 2, 16, '(', ')', '1970-01-01 00:00:00' );
+		$buffer = new Jetpack_Sitemap_Buffer_Dummy( 2, 16, '1970-01-01 00:00:00' );
 		$this->assertTrue( $buffer->is_empty() );
-		$buffer->try_to_add_item( 'foo' );
+		$buffer->append( 'foo' );
 		$this->assertFalse( $buffer->is_empty() );
 	}
 
@@ -75,10 +70,16 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 	 * @since 4.7.0
 	 */
 	public function test_sitemap_buffer_add_item_at_item_capacity() {
-		$buffer = new Jetpack_Sitemap_Buffer( 1, 16, '(', ')', '1970-01-01 00:00:00' );
-		$buffer->try_to_add_item( 'foo' );
-		$buffer->try_to_add_item( 'bar' );
-		$this->assertEquals( $buffer->contents(), '(foo)' );
+		$buffer = new Jetpack_Sitemap_Buffer_Dummy( 1, 16, '1970-01-01 00:00:00' );
+		$buffer->append( 'foo' );
+		$buffer->append( 'bar' );
+		$this->assertEquals(
+			$buffer->contents(),
+			'<?xml version="1.0" encoding="UTF-8"?>'
+			. PHP_EOL
+			. '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">foo</sitemapindex>'
+			. PHP_EOL
+		);
 	}
 
 	/**
@@ -89,10 +90,16 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 	 * @since 4.7.0
 	 */
 	public function test_sitemap_buffer_add_item_at_byte_capacity() {
-		$buffer = new Jetpack_Sitemap_Buffer( 1, 16, '(', ')', '1970-01-01 00:00:00' );
-		$buffer->try_to_add_item( 'foobarbazxyzzy' );
-		$buffer->try_to_add_item( 'quux' );
-		$this->assertEquals( $buffer->contents(), '(foobarbazxyzzy)' );
+		$buffer = new Jetpack_Sitemap_Buffer_Dummy( 100, 16, '1970-01-01 00:00:00' );
+		$buffer->append( 'foobarbazxyzzy' );
+		$buffer->append( 'quux' );
+		$this->assertEquals(
+			$buffer->contents(),
+			'<?xml version="1.0" encoding="UTF-8"?>'
+			. PHP_EOL
+			. '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">foobarbazxyzzy</sitemapindex>'
+			. PHP_EOL
+		);
 	}
 
 	/**
@@ -103,10 +110,16 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 	 * @since 4.7.0
 	 */
 	public function test_sitemap_buffer_add_item_below_byte_capacity() {
-		$buffer = new Jetpack_Sitemap_Buffer( 1, 16, '(', ')', '1970-01-01 00:00:00' );
-		$buffer->try_to_add_item( 'foobarbazquux' );
-		$buffer->try_to_add_item( 'crunchly' );
-		$this->assertEquals( $buffer->contents(), '(foobarbazquux)' );
+		$buffer = new Jetpack_Sitemap_Buffer_Dummy( 1, 16, '(', ')', '1970-01-01 00:00:00' );
+		$buffer->append( 'foobarbazquux' );
+		$buffer->append( 'crunchly' );
+		$this->assertEquals(
+			$buffer->contents(),
+			'<?xml version="1.0" encoding="UTF-8"?>'
+			. PHP_EOL
+			. '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">foobarbazquux</sitemapindex>'
+			. PHP_EOL
+		);
 	}
 
 	/**
@@ -117,12 +130,12 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 	 * @since 4.7.0
 	 */
 	public function test_sitemap_buffer_is_full_item_capacity() {
-		$buffer = new Jetpack_Sitemap_Buffer( 2, 16, '(', ')', '1970-01-01 00:00:00' );
-		$buffer->try_to_add_item( 'foo' );
+		$buffer = new Jetpack_Sitemap_Buffer_Dummy( 2, 1024, '1970-01-01 00:00:00' );
+		$buffer->append( 'foo' );
 		$this->assertEquals( $buffer->is_full(), false );
-		$buffer->try_to_add_item( 'bar' );
+		$buffer->append( 'bar' );
 		$this->assertEquals( $buffer->is_full(), false );
-		$buffer->try_to_add_item( 'baz' );
+		$buffer->append( 'baz' );
 		$this->assertEquals( $buffer->is_full(), true );
 	}
 
@@ -134,12 +147,12 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 	 * @since 4.7.0
 	 */
 	public function test_sitemap_buffer_is_full_byte_capacity() {
-		$buffer = new Jetpack_Sitemap_Buffer( 10, 8, '(', ')', '1970-01-01 00:00:00' );
-		$buffer->try_to_add_item( 'foo' );
+		$buffer = new Jetpack_Sitemap_Buffer_Dummy( 10, 128, '1970-01-01 00:00:00' );
+		$buffer->append( 'foo' );
 		$this->assertEquals( $buffer->is_full(), false );
-		$buffer->try_to_add_item( 'bar' );
+		$buffer->append( 'bar' );
 		$this->assertEquals( $buffer->is_full(), false );
-		$buffer->try_to_add_item( 'baz' );
+		$buffer->append( 'baz' );
 		$this->assertEquals( $buffer->is_full(), true );
 	}
 
@@ -151,7 +164,7 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 	 * @since 4.7.0
 	 */
 	public function test_sitemap_buffer_last_modified() {
-		$buffer = new Jetpack_Sitemap_Buffer( 2, 16, '(', ')', '1970-01-01 00:00:00' );
+		$buffer = new Jetpack_Sitemap_Buffer_Dummy( 2, 16, '1970-01-01 00:00:00' );
 		$this->assertEquals( $buffer->last_modified(), '1970-01-01 00:00:00' );
 	}
 
@@ -163,7 +176,7 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 	 * @since 4.7.0
 	 */
 	public function test_sitemap_buffer_view_time_update() {
-		$buffer = new Jetpack_Sitemap_Buffer( 2, 16, '(', ')', '1970-01-01 00:00:00' );
+		$buffer = new Jetpack_Sitemap_Buffer_Dummy( 2, 16, '1970-01-01 00:00:00' );
 		$buffer->view_time( '1971-01-01 00:00:00' );
 		$this->assertEquals( $buffer->last_modified(), '1971-01-01 00:00:00' );
 	}
@@ -176,85 +189,21 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 	 * @since 4.7.0
 	 */
 	public function test_sitemap_buffer_view_time_do_not_update() {
-		$buffer = new Jetpack_Sitemap_Buffer( 2, 16, '(', ')', '1971-01-01 00:00:00' );
+		$buffer = new Jetpack_Sitemap_Buffer_Dummy( 2, 16, '1971-01-01 00:00:00' );
 		$buffer->view_time( '1970-01-01 00:00:00' );
 		$this->assertEquals( $buffer->last_modified(), '1971-01-01 00:00:00' );
 	}
 
 	/**
-	 * Test array_to_xml_string on a simple array; no nesting, no attributes.
+	 * Test array_to_xml_string with a real-life example of an array.
 	 *
 	 * @covers Jetpack_Sitemap_Buffer::array_to_xml_string
 	 * @group jetpack-sitemap
-	 * @since 4.7.0
+	 * @since 5.1.0
 	 */
-	public function test_array_to_xml_string() {
-		$array = array(
-			'foo' => 'bar',
-		);
-
-		$xml = <<<XML
-<foo>bar</foo>\n
-XML;
-
-		$this->assertEquals(
-			$xml,
-			Jetpack_Sitemap_Buffer::array_to_xml_string( $array )
-		);
-	}
-
-	/**
-	 * Test array_to_xml_string with an empty array.
-	 *
-	 * @covers Jetpack_Sitemap_Buffer::array_to_xml_string
-	 * @group jetpack-sitemap
-	 * @since 4.7.0
-	 */
-	public function test_array_to_xml_string_empty_array() {
-		$array = array();
-
-		$xml = "\n";
-
-		$this->assertEquals(
-			$xml,
-			Jetpack_Sitemap_Buffer::array_to_xml_string( $array )
-		);
-	}
-
-	/**
-	 * Test array_to_xml_string with a nested array.
-	 *
-	 * @covers Jetpack_Sitemap_Buffer::array_to_xml_string
-	 * @group jetpack-sitemap
-	 * @since 4.7.0
-	 */
-	public function test_array_to_xml_string_nested_array() {
-		$array = array(
-			'foo' => array(
-				'baz' => 'baz',
-				'qux' => array(
-					'xyzzy' => 'xyzzy',
-				),
-			),
-			'bar' => array(
-				'crunch' => 'crunch',
-				'munch'  => null,
-			),
-		);
-
-		$xml = <<<XML
-<foo><baz>baz</baz><qux><xyzzy>xyzzy</xyzzy></qux></foo><bar><crunch>crunch</crunch><munch></munch></bar>\n
-XML;
-
-		$this->assertEquals(
-			$xml,
-			Jetpack_Sitemap_Buffer::array_to_xml_string( $array )
-		);
-	}
-
 	public function test_news_sitemap_item_to_xml() {
 		$timestamp = date( 'r' );
-		$array =array(
+		$array = array(
 			'url' => array(
 				'loc' => 'http://example.com/blog-url-about-stuff',
 				'lastmod' => $timestamp,
@@ -270,35 +219,52 @@ XML;
 			),
 		);
 
-		$xml = "<url><loc>http://example.com/blog-url-about-stuff</loc>"
-			   . "<lastmod>$timestamp</lastmod>"
-			   . "<news:news>"
-			     . "<news:publication>"
-			       . "<news:name>Blog about stuff</news:name>"
-			       . "<news:language>en</news:language>"
-			     . "</news:publication>"
-			     . "<news:title>Stuff</news:title>"
-			     . "<news:publication_date>$timestamp</news:publication_date>"
-			     . "<news:genres>Blog</news:genres>"
-			   . "</news:news>"
-			 . "</url>\n";
+		$xml = '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL
+			 . '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
+			 . '<url><loc>http://example.com/blog-url-about-stuff</loc>'
+			 . "<lastmod>$timestamp</lastmod>"
+			 . '<news:news>'
+			 . '<news:publication>'
+			 . '<news:name>Blog about stuff</news:name>'
+			 . '<news:language>en</news:language>'
+			 . '</news:publication>'
+			 . '<news:title>Stuff</news:title>'
+			 . "<news:publication_date>$timestamp</news:publication_date>"
+			 . '<news:genres>Blog</news:genres>'
+			 . '</news:news>'
+			 . '</url></sitemapindex>' . PHP_EOL;
+
+		$buffer = new Jetpack_Sitemap_Buffer_Dummy( JP_SITEMAP_MAX_ITEMS, JP_SITEMAP_MAX_BYTES, $timestamp );
+		$buffer->append( $array );
 
 		$this->assertEquals(
 			$xml,
-			Jetpack_Sitemap_Buffer::array_to_xml_string( $array )
+			$buffer->contents()
 		);
 	}
 
+	/**
+	 * Test array_to_xml_attr_string.
+	 *
+	 * @covers Jetpack_Sitemap_Buffer::array_to_attr_string
+	 * @group jetpack-sitemap
+	 * @since 5.1.0
+	 */
 	public function test_array_to_attr_string() {
 		$array = array(
 			'href' => 'http://example.com/blog-url-about-stuff',
 			'something' => 'With symbols " that \' need escaping &&&&',
-			'attr-name-with spaces?' => 'Not even sure what that will be'
+			'attr-name-with spaces?' => 'Not even sure what that will be',
 		);
 
 		$this->assertEquals(
 			' href="http://example.com/blog-url-about-stuff" something="With symbols &quot; that \' need escaping &amp;&amp;&amp;&amp;" attr-name-with_spaces_="Not even sure what that will be"',
-			Jetpack_Sitemap_Buffer::array_to_xml_attr_string( $array )
+			Jetpack_Sitemap_Buffer_Dummy::array_to_xml_attr_string( $array )
 		);
 	}
 }
+
+/**
+ * Dummy testing class for a concrete Buffer implementation
+ */
+class Jetpack_Sitemap_Buffer_Dummy extends Jetpack_Sitemap_Buffer {}
