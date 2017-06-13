@@ -27,53 +27,52 @@ abstract class Jetpack_Sitemap_Buffer {
 	/**
 	 * Largest number of items the buffer can hold.
 	 *
-	 * @access private
+	 * @access protected
 	 * @since 4.8.0
 	 * @var int $item_capacity The item capacity.
 	 */
-	private $item_capacity;
+	protected $item_capacity;
 
 	/**
 	 * Largest number of bytes the buffer can hold.
 	 *
-	 * @access private
+	 * @access protected
 	 * @since 4.8.0
 	 * @var int $byte_capacity The byte capacity.
 	 */
-	private $byte_capacity;
-
+	protected $byte_capacity;
 
 	/**
 	 * Flag which detects when the buffer is full.
 	 *
-	 * @access private
+	 * @access protected
 	 * @since 4.8.0
 	 * @var bool $is_full_flag The flag value. This flag is set to false on construction and only flipped to true if we've tried to add something and failed.
 	 */
-	private $is_full_flag;
+	protected $is_full_flag;
 
 	/**
 	 * Flag which detects when the buffer is empty.
 	 *
-	 * @access private
+	 * @access protected
 	 * @since 4.8.0
 	 * @var bool $is_empty_flag The flag value. This flag is set to true on construction and only flipped to false if we've tried to add something and succeeded.
 	 */
-	private $is_empty_flag;
+	protected $is_empty_flag;
 
 	/**
 	 * The most recent timestamp seen by the buffer.
 	 *
-	 * @access private
+	 * @access protected
 	 * @since 4.8.0
 	 * @var string $timestamp Must be in 'YYYY-MM-DD hh:mm:ss' format.
 	 */
-	private $timestamp;
+	protected $timestamp;
 
 	/**
 	 * The DOM document object that is currently being used to construct the XML doc.
 	 *
-	 * @access private
+	 * @access protected
 	 * @since 5.1.0
 	 * @var DOMDocument $doc
 	 */
@@ -83,7 +82,7 @@ abstract class Jetpack_Sitemap_Buffer {
 	 * The root DOM element object that holds everything inside. Do not use directly, call
 	 * the get_root_element getter method instead.
 	 *
-	 * @access private
+	 * @access protected
 	 * @since 5.1.0
 	 * @var DOMElement $doc
 	 */
@@ -108,18 +107,14 @@ abstract class Jetpack_Sitemap_Buffer {
 	 * @param string $time The initial datetime of the buffer. Must be in 'YYYY-MM-DD hh:mm:ss' format.
 	 */
 	public function __construct( $item_limit, $byte_limit, $time ) {
-		$this->item_capacity = max( 1, intval( $item_limit ) );
-
-		mbstring_binary_safe_encoding(); // So we can safely use strlen().
-		$this->byte_capacity = max( 1, intval( $byte_limit ) );
-		reset_mbstring_encoding();
-
 		$this->is_full_flag = false;
-		$this->is_empty_flag = true;
 		$this->timestamp = $time;
 
 		$this->finder = new Jetpack_Sitemap_Finder();
 		$this->doc = new DOMDocument( '1.0', 'UTF-8' );
+
+		$this->item_capacity = max( 1, intval( $item_limit ) );
+		$this->byte_capacity = max( 1, intval( $byte_limit ) ) - strlen( $this->contents() );
 	}
 
 	/**
@@ -160,7 +155,7 @@ abstract class Jetpack_Sitemap_Buffer {
 	 *
 	 * @since 5.1.0
 	 *
-	 * @param string $item The item to be added.
+	 * @param array $array The item to be added.
 	 *
 	 * @return bool True if the append succeeded, False if not.
 	 */
@@ -173,17 +168,15 @@ abstract class Jetpack_Sitemap_Buffer {
 			return false;
 		}
 
-		if ( 0 >= $this->item_capacity ) {
+		if ( 0 >= $this->item_capacity || 0 >= $this->byte_capacity ) {
 			$this->is_full_flag = true;
 			return false;
 		} else {
 			$this->item_capacity -= 1;
-			$this->array_to_xml_string( $array, $this->get_root_element(), $this->doc );
+			$added_element = $this->array_to_xml_string( $array, $this->get_root_element(), $this->doc );
 
-			// If the new document is over the maximum, we don't add any more
-			if ( strlen( $this->contents() ) > $this->byte_capacity ) {
-				$this->is_full_flag = true;
-			}
+			$this->byte_capacity -= strlen( $this->doc->saveXML( $added_element ) );
+
 			return true;
 		}
 	}

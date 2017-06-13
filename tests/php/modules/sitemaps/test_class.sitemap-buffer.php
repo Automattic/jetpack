@@ -56,7 +56,7 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 	 * @since 4.7.0
 	 */
 	public function test_sitemap_buffer_is_empty() {
-		$buffer = new Jetpack_Sitemap_Buffer_Dummy( 2, 16, '1970-01-01 00:00:00' );
+		$buffer = new Jetpack_Sitemap_Buffer_Dummy( 2, 64, '1970-01-01 00:00:00' );
 		$this->assertTrue( $buffer->is_empty() );
 		$buffer->append( 'foo' );
 		$this->assertFalse( $buffer->is_empty() );
@@ -70,7 +70,7 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 	 * @since 4.7.0
 	 */
 	public function test_sitemap_buffer_add_item_at_item_capacity() {
-		$buffer = new Jetpack_Sitemap_Buffer_Dummy( 1, 16, '1970-01-01 00:00:00' );
+		$buffer = new Jetpack_Sitemap_Buffer_Dummy( 1, 48, '1970-01-01 00:00:00' );
 		$buffer->append( 'foo' );
 		$buffer->append( 'bar' );
 		$this->assertEquals(
@@ -90,7 +90,7 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 	 * @since 4.7.0
 	 */
 	public function test_sitemap_buffer_add_item_at_byte_capacity() {
-		$buffer = new Jetpack_Sitemap_Buffer_Dummy( 100, 16, '1970-01-01 00:00:00' );
+		$buffer = new Jetpack_Sitemap_Buffer_Dummy( 100, 48, '1970-01-01 00:00:00' );
 		$buffer->append( 'foobarbazxyzzy' );
 		$buffer->append( 'quux' );
 		$this->assertEquals(
@@ -110,7 +110,7 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 	 * @since 4.7.0
 	 */
 	public function test_sitemap_buffer_add_item_below_byte_capacity() {
-		$buffer = new Jetpack_Sitemap_Buffer_Dummy( 1, 16, '(', ')', '1970-01-01 00:00:00' );
+		$buffer = new Jetpack_Sitemap_Buffer_Dummy( 1, 48, '(', ')', '1970-01-01 00:00:00' );
 		$buffer->append( 'foobarbazquux' );
 		$buffer->append( 'crunchly' );
 		$this->assertEquals(
@@ -147,7 +147,7 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 	 * @since 4.7.0
 	 */
 	public function test_sitemap_buffer_is_full_byte_capacity() {
-		$buffer = new Jetpack_Sitemap_Buffer_Dummy( 10, 62, '1970-01-01 00:00:00' );
+		$buffer = new Jetpack_Sitemap_Buffer_Dummy( 10, 44, '1970-01-01 00:00:00' );
 		$buffer->append( 'foo' );
 		$this->assertEquals( $buffer->is_full(), false );
 		$buffer->append( 'bar' );

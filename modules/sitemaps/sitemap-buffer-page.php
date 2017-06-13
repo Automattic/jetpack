@@ -59,6 +59,7 @@ class Jetpack_Sitemap_Buffer_Page extends Jetpack_Sitemap_Buffer {
 			}
 
 			$this->doc->appendChild( $this->root );
+			$this->byte_capacity -= strlen( $this->doc->saveXML( $this->root ) );
 		}
 
 		return $this->root;
