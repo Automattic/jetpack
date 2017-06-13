@@ -36,6 +36,42 @@ class Jetpack_Comment_Likes {
 
 	private function __construct() {
 		add_action( 'init', array( $this, 'frontend_init' ) );
+		add_action( 'admin_init', array( $this, 'admin_init' ) );
+	}
+
+	public function admin_init() {
+		add_filter( 'manage_edit-comments_columns', array( $this, 'add_like_count_column' ) );
+		add_action( 'manage_comments_custom_column', array( $this, 'comment_likes_edit_column' ), 10, 2 );
+		add_action( 'admin_print_styles-edit-comments.php', array( $this, 'enqueue_admin_styles_scripts' ) );
+	}
+
+	public function comment_likes_edit_column( $column_name, $comment_id ) {
+		if ( 'comment_likes' == $column_name ) {
+			$blog_id = Jetpack_Options::get_option( 'id' );
+
+			$permalink = get_permalink( get_the_ID() ); ?>
+			<a title=""
+			   data-comment-id="<?php echo (int) $comment_id; ?>"
+			   data-blog-id="<?php echo (int) $blog_id; ?>"
+			   class="comment-like-count"
+			   id="comment-like-count-<?php echo (int) $comment_id; ?>"
+			   href="<?php echo esc_url( $permalink ); ?>#comment-<?php echo (int) $comment_id; ?>"
+			>
+				<span class="like-count">0</span>
+			</a>
+			<?php
+		}
+	}
+
+	function enqueue_admin_styles_scripts() {
+		wp_enqueue_style( 'comment-like-count', plugins_url( 'comment-likes/admin-style.css', __FILE__ ), array(), JETPACK__VERSION );
+		wp_enqueue_script( 'comment-like-count', plugins_url( 'comment-likes/comment-like-count.js', __FILE__ ), array( 'jquery' ), JETPACK__VERSION );
+	}
+
+	public function add_like_count_column( $columns ) {
+		$columns['comment_likes'] = '<span class="vers"><img title="' . esc_attr__( 'Comment likes', 'jetpack' ) . '" alt="' . esc_attr__( 'Comment likes', 'jetpack' ) . '" src="//s0.wordpress.com/i/like-grey-icon.png" /></span>';
+
+		return $columns;
 	}
 
 	public function frontend_init() {
