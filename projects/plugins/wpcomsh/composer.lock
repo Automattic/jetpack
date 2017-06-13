@@ -4,7 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "0994cded92d8896aca89383baa54884a",
+    "hash": "ce1b60aa3815a45f1ba531655360b864",
+    "content-hash": "344b2b9b34d3a757ae24bc7b929b8031",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -12,12 +13,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/automattic/at-pressable-podcasting.git",
-                "reference": "d26f6d815100f99f7eed9b5e86d560e9fb70b0cf"
+                "reference": "a6823ef7151ac8262868a4b2b33702d6250cc251"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/automattic/at-pressable-podcasting/zipball/d26f6d815100f99f7eed9b5e86d560e9fb70b0cf",
-                "reference": "d26f6d815100f99f7eed9b5e86d560e9fb70b0cf",
+                "url": "https://api.github.com/repos/automattic/at-pressable-podcasting/zipball/a6823ef7151ac8262868a4b2b33702d6250cc251",
+                "reference": "a6823ef7151ac8262868a4b2b33702d6250cc251",
                 "shasum": ""
             },
             "type": "library",
@@ -26,7 +27,57 @@
                     "podcasting.php"
                 ]
             },
-            "time": "2017-05-09T20:06:20+00:00"
+            "time": "2017-05-09 20:06:20"
+        },
+        {
+            "name": "automattic/custom-fonts",
+            "version": "v1.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Automattic/custom-fonts.git",
+                "reference": "2804fb54f39d8447365490d7a7cdf83b3679d358"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Automattic/custom-fonts/zipball/2804fb54f39d8447365490d7a7cdf83b3679d358",
+                "reference": "2804fb54f39d8447365490d7a7cdf83b3679d358",
+                "shasum": ""
+            },
+            "require-dev": {
+                "10up/wp_mock": "dev-master"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "custom-fonts.php"
+                ]
+            },
+            "time": "2017-06-12 21:39:47"
+        },
+        {
+            "name": "automattic/custom-fonts-typekit",
+            "version": "v1.0.2",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Automattic/custom-fonts-typekit.git",
+                "reference": "0a57bb979a59dac1975b623b8b46d889e944ac87"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Automattic/custom-fonts-typekit/zipball/0a57bb979a59dac1975b623b8b46d889e944ac87",
+                "reference": "0a57bb979a59dac1975b623b8b46d889e944ac87",
+                "shasum": ""
+            },
+            "require-dev": {
+                "10up/wp_mock": "dev-master"
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "custom-fonts-typekit.php"
+                ]
+            },
+            "time": "2017-06-12 21:40:06"
         }
     ],
     "packages-dev": [],

@@ -1,12 +1,6 @@
 [submodule "footer-credit"]
 	path = footer-credit
 	url = git@github.com:Automattic/at-pressable-footer-credit.git
-[submodule "custom-fonts"]
-	path = custom-fonts
-	url = git@github.com:Automattic/custom-fonts.git
-[submodule "custom-fonts-typekit"]
-	path = custom-fonts-typekit
-	url = git@github.com:Automattic/custom-fonts-typekit.git
 [submodule "custom-colors"]
 	path = custom-colors
 	url = git@github.com:Automattic/custom-colors.git

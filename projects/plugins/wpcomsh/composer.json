@@ -1,8 +1,20 @@
 {
   "require": {
-    "automattic/at-pressable-podcasting":"1.0.0"
+    "automattic/at-pressable-podcasting":"1.0.0",
+    "automattic/custom-fonts-typekit": "1.0.2",
+    "automattic/custom-fonts": "1.0.1"
   },
   "repositories": [
+    {
+      "type":"vcs",
+      "no-api": true,
+      "url":"https://github.com/Automattic/custom-fonts.git"
+    },
+    {
+      "type":"vcs",
+      "no-api": true,
+      "url":"https://github.com/Automattic/custom-fonts-typekit.git"
+    },
     {
       "type":"vcs",
       "no-api": true,
