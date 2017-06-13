@@ -22,6 +22,7 @@ Jetpack::dns_prefetch( array(
 ) );
 
 require_once dirname( __FILE__ ) . '/likes/jetpack-likes-master-iframe.php';
+require_once dirname( __FILE__ ) . '/likes/jetpack-likes-settings.php';
 
 class Jetpack_Comment_Likes {
 	public static function init() {
@@ -35,8 +36,39 @@ class Jetpack_Comment_Likes {
 	}
 
 	private function __construct() {
+		$this->settings = new Jetpack_Likes_Settings();
 		add_action( 'init', array( $this, 'frontend_init' ) );
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
+
+		if ( ! Jetpack::is_module_active( 'likes' ) ) {
+			$active = Jetpack::get_active_modules();
+
+			if ( ! in_array( 'sharedaddy', $active ) && ! in_array( 'publicize', $active ) ) {
+				// we don't have a sharing page yet
+				add_action( 'admin_menu', array( $this->settings, 'sharing_menu' ) );
+			}
+
+			if ( in_array( 'publicize', $active ) && ! in_array( 'sharedaddy', $active ) ) {
+				// we have a sharing page but not the global options area
+				add_action( 'pre_admin_screen_sharing', array( $this->settings, 'sharing_block' ), 20 );
+				add_action( 'pre_admin_screen_sharing', array( $this->settings, 'updated_message' ), -10 );
+			}
+
+			if( ! in_array( 'sharedaddy', $active ) ) {
+				add_action( 'admin_init', array( $this->settings, 'process_update_requests_if_sharedaddy_not_loaded' ) );
+				add_action( 'sharing_global_options', array( $this->settings, 'admin_settings_showbuttonon_init' ), 19 );
+				add_action( 'sharing_admin_update', array( $this->settings, 'admin_settings_showbuttonon_callback' ), 19 );
+				add_action( 'admin_init', array( $this->settings, 'add_meta_box' ) );
+			} else {
+				add_filter( 'sharing_meta_box_title', array( $this->settings, 'add_likes_to_sharing_meta_box_title' ) );
+				add_action( 'start_sharing_meta_box_content', array( $this->settings, 'meta_box_content' ) );
+			}
+
+			add_action( 'save_post', array( $this->settings, 'meta_box_save' ) );
+			add_action( 'edit_attachment', array( $this->settings, 'meta_box_save' ) );
+			add_action( 'sharing_global_options', array( $this->settings, 'admin_settings_init' ), 20 );
+			add_action( 'sharing_admin_update',   array( $this->settings, 'admin_settings_callback' ), 20 );
+		}
 	}
 
 	public function admin_init() {
@@ -92,6 +124,10 @@ class Jetpack_Comment_Likes {
 
 	public function comment_likes( $content, $comment = null ) {
 		if ( empty( $comment ) ) {
+			return $content;
+		}
+
+		if ( ! $this->settings->is_likes_visible() ) {
 			return $content;
 		}
 
