@@ -43,7 +43,7 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 			$buffer->contents(),
 			'<?xml version="1.0" encoding="UTF-8"?>'
 			. PHP_EOL
-			. '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">foobar</sitemapindex>'
+			. '<dummy>foobar</dummy>'
 			. PHP_EOL
 		);
 	}
@@ -77,7 +77,7 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 			$buffer->contents(),
 			'<?xml version="1.0" encoding="UTF-8"?>'
 			. PHP_EOL
-			. '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">foo</sitemapindex>'
+			. '<dummy>foo</dummy>'
 			. PHP_EOL
 		);
 	}
@@ -97,7 +97,7 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 			$buffer->contents(),
 			'<?xml version="1.0" encoding="UTF-8"?>'
 			. PHP_EOL
-			. '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">foobarbazxyzzy</sitemapindex>'
+			. '<dummy>foobarbazxyzzy</dummy>'
 			. PHP_EOL
 		);
 	}
@@ -117,7 +117,7 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 			$buffer->contents(),
 			'<?xml version="1.0" encoding="UTF-8"?>'
 			. PHP_EOL
-			. '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">foobarbazquux</sitemapindex>'
+			. '<dummy>foobarbazquux</dummy>'
 			. PHP_EOL
 		);
 	}
@@ -147,7 +147,7 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 	 * @since 4.7.0
 	 */
 	public function test_sitemap_buffer_is_full_byte_capacity() {
-		$buffer = new Jetpack_Sitemap_Buffer_Dummy( 10, 128, '1970-01-01 00:00:00' );
+		$buffer = new Jetpack_Sitemap_Buffer_Dummy( 10, 62, '1970-01-01 00:00:00' );
 		$buffer->append( 'foo' );
 		$this->assertEquals( $buffer->is_full(), false );
 		$buffer->append( 'bar' );
@@ -220,7 +220,7 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 		);
 
 		$xml = '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL
-			 . '<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">'
+			 . '<dummy>'
 			 . '<url><loc>http://example.com/blog-url-about-stuff</loc>'
 			 . "<lastmod>$timestamp</lastmod>"
 			 . '<news:news>'
@@ -232,7 +232,7 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 			 . "<news:publication_date>$timestamp</news:publication_date>"
 			 . '<news:genres>Blog</news:genres>'
 			 . '</news:news>'
-			 . '</url></sitemapindex>' . PHP_EOL;
+			 . '</url></dummy>' . PHP_EOL;
 
 		$buffer = new Jetpack_Sitemap_Buffer_Dummy( JP_SITEMAP_MAX_ITEMS, JP_SITEMAP_MAX_BYTES, $timestamp );
 		$buffer->append( $array );
