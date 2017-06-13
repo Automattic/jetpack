@@ -326,29 +326,4 @@ abstract class Jetpack_Sitemap_Buffer {
 			return $element;
 		}
 	}
-
-	/**
-	 * Render an associative array of XML attribute key/value pairs.
-	 *
-	 * @access public
-	 * @since 4.8.0
-	 *
-	 * @param array $array Key/value array of attributes.
-	 *
-	 * @return string The rendered attribute string.
-	 */
-	public static function array_to_xml_attr_string( $array ) {
-		$doc = new DOMDocument();
-		$element = $doc->createElement( 'div' );
-
-		foreach ( $array as $key => $value ) {
-			$key = preg_replace( '/[^a-zA-Z:_-]/', '_', $key );
-			$element->setAttribute( $key, $value );
-		}
-
-		$doc->appendChild( $element );
-
-		return substr( trim( $doc->saveHTML() ), 4, -7 );
-	}
-
 }

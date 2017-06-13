@@ -242,26 +242,6 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 			$buffer->contents()
 		);
 	}
-
-	/**
-	 * Test array_to_xml_attr_string.
-	 *
-	 * @covers Jetpack_Sitemap_Buffer::array_to_attr_string
-	 * @group jetpack-sitemap
-	 * @since 5.1.0
-	 */
-	public function test_array_to_attr_string() {
-		$array = array(
-			'href' => 'http://example.com/blog-url-about-stuff',
-			'something' => 'With symbols " that \' need escaping &&&&',
-			'attr-name-with spaces?' => 'Not even sure what that will be',
-		);
-
-		$this->assertEquals(
-			' href="http://example.com/blog-url-about-stuff" something="With symbols &quot; that \' need escaping &amp;&amp;&amp;&amp;" attr-name-with_spaces_="Not even sure what that will be"',
-			Jetpack_Sitemap_Buffer_Dummy::array_to_xml_attr_string( $array )
-		);
-	}
 }
 
 /**
