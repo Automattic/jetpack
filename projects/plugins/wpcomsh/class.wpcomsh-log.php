@@ -1,12 +1,18 @@
 <?php
 /**
  * Class WPCOMSH_Log
+ *
  * This is an interface for logging arbitrary data to wpcom logstash cluster.
  * This auto-initializes and provides a hook to log data:
  * ```
- * do_action(  'wpcomsh_log', "test" );
+ * do_action( 'wpcomsh_log', "test" );
  * ```
- * You can see logs in Kibana, log2logstash index, `feature:automated-transfer`
+ *
+ * You can see logs in Kibana, log2logstash index, `feature:automated_transfer`
+ *
+ * Note that logging must be enabled for the site for the logs to be sent,
+ * which involves enabling the `at_options_logging_on` site option on the
+ * Jetpack site.
  */
 class WPCOMSH_Log {
 	static protected $log_endpoint = 'https://public-api.wordpress.com/rest/v1.1/automated-transfers/log';
