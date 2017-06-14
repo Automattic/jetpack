@@ -580,8 +580,10 @@ function wp_cache_manager_updates() {
 
 		if ( $_POST[ 'wp_cache_mod_rewrite' ] == 1 ) {
 			$wp_cache_mod_rewrite = 1;
+			add_mod_rewrite_rules();
 		} else {
 			$wp_cache_mod_rewrite = 0; // cache files served by PHP
+			remove_mod_rewrite_rules();
 		}
 		wp_cache_setting( 'wp_cache_mod_rewrite', $wp_cache_mod_rewrite );
 
@@ -3687,3 +3689,63 @@ function wpsc_set_default_gc( $force = false ) {
 
 }
 
+function add_mod_rewrite_rules() {
+	update_mod_rewrite_rules();
+}
+
+function remove_mod_rewrite_rules() {
+	update_mod_rewrite_rules( false );
+}
+
+function update_mod_rewrite_rules( $add_rules = true ) {
+	global $wp_cache_mobile_prefixes, $wp_cache_mobile_browsers, $cache_path;
+
+	if ( ! function_exists( 'get_home_path' ) ) {
+		include_once( ABSPATH . 'wp-admin/includes/file.php' ); // get_home_path()
+		include_once( ABSPATH . 'wp-admin/includes/misc.php' ); // extract_from_markers()
+	}
+	$home_path = trailingslashit( get_home_path() );
+
+	if ( ! file_exists( $home_path . ".htaccess" ) ) {
+		return false;
+	}
+
+	$generated_rules = wpsc_get_htaccess_info();
+
+	if ( $add_rules ) {
+		$rules = $generated_rules[ 'rules' ];
+	}  else {
+		$rules = '';
+	}
+
+	$existing_rules = implode( "\n", extract_from_markers( trailingslashit( get_home_path() ) . '.htaccess', 'WPSuperCache' ) );
+
+	if ( $existing_rules == $rules ) {
+		return true;
+	}
+
+	if ( $generated_rules[ 'wprules' ] == '' ) {
+		return false;
+	}
+
+	$url = trailingslashit( get_bloginfo( 'url' ) );
+	$original_page = wp_remote_get( $url, array( 'timeout' => 60, 'blocking' => true ) );
+	if ( is_wp_error( $original_page ) ) {
+		return false;
+	}
+
+	$backup_filename = $cache_path . 'htaccess.' . mt_rand();
+	copy( $home_path . '.htaccess', $backup_filename );
+	wpsc_remove_marker( $home_path.'.htaccess', 'WordPress' ); // remove original WP rules so SuperCache rules go on top
+	if ( insert_with_markers( $home_path.'.htaccess', 'WPSuperCache', explode( "\n", $rules ) ) && insert_with_markers( $home_path.'.htaccess', 'WordPress', explode( "\n", $generated_rules[ 'wprules' ] ) ) ) {
+		$new_page = wp_remote_get( $url, array( 'timeout' => 60, 'blocking' => true ) );
+		if ( is_wp_error( $new_page ) || $new_page[ 'body' ] != $original_page[ 'body' ] ) {
+			copy( $backup_filename, $home_path . '.htaccess' );
+			return false;
+		}
+	} else {
+		return false;
+	}
+
+	return true;
+}
