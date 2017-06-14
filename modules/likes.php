@@ -419,12 +419,39 @@ class Jetpack_Likes {
 		return $classes;
 	}
 
+	function is_admin_bar_button_visible() {
+		global $wp_admin_bar;
+
+		if ( ! is_object( $wp_admin_bar ) )
+			return false;
+
+		if ( ( ! is_singular( 'post' ) && ! is_attachment() && ! is_page() ) )
+			return false;
+
+		if ( ! $this->settings->is_likes_visible() )
+			return false;
+
+		if ( ! $this->settings->is_post_likeable() )
+			return false;
+
+		/**
+		 * Filters whether the Like button is enabled in the admin bar.
+		 *
+		 * @module likes
+		 *
+		 * @since 2.2.0
+		 *
+		 * @param bool true Should the Like button be visible in the Admin bar. Default to true.
+		 */
+		return (bool) apply_filters( 'jetpack_admin_bar_likes_enabled', true );
+	}
+
 	function admin_bar_likes() {
 		global $wp_admin_bar;
 
 		$post_id = get_the_ID();
 
-		if ( ! is_numeric( $post_id ) || ! $this->settings->is_admin_bar_button_visible() ) {
+		if ( ! is_numeric( $post_id ) || ! $this->is_admin_bar_button_visible() ) {
 			return;
 		}
 

@@ -444,33 +444,6 @@ class Jetpack_Likes_Settings {
 		return (bool) apply_filters( 'wpl_is_attachment_disabled', (bool) in_array( 'attachment', $options['show'] ) );
 	}
 
-	function is_admin_bar_button_visible() {
-		global $wp_admin_bar;
-
-		if ( ! is_object( $wp_admin_bar ) )
-			return false;
-
-		if ( ( ! is_singular( 'post' ) && ! is_attachment() && ! is_page() ) )
-			return false;
-
-		if ( ! $this->settings->is_likes_visible() )
-			return false;
-
-		if ( ! $this->settings->is_post_likeable() )
-			return false;
-
-		/**
-		 * Filters whether the Like button is enabled in the admin bar.
-		 *
-		 * @module likes
-		 *
-		 * @since 2.2.0
-		 *
-		 * @param bool true Should the Like button be visible in the Admin bar. Default to true.
-		 */
-		return (bool) apply_filters( 'jetpack_admin_bar_likes_enabled', true );
-	}
-
 	/**
 	 * The actual options block to be inserted into the sharing page.
 	 */
