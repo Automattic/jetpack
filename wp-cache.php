@@ -3170,10 +3170,10 @@ function wpsc_get_htaccess_info() {
 	$condition_rules[] = "RewriteCond %{HTTP:X-Wap-Profile} !^[a-z0-9\\\"]+ [NC]";
 	$condition_rules[] = "RewriteCond %{HTTP:Profile} !^[a-z0-9\\\"]+ [NC]";
 	if ( $wp_cache_mobile_enabled ) {
-		if ( false == empty( $wp_cache_mobile_browsers ) )
-			$condition_rules[] = "RewriteCond %{HTTP_USER_AGENT} !^.*(" . addcslashes( implode( '|', $wp_cache_mobile_browsers ), ' ' ) . ").* [NC]";
-		if ( false == empty( $wp_cache_mobile_prefixes ) )
-			$condition_rules[] = "RewriteCond %{HTTP_user_agent} !^(" . addcslashes( implode( '|', $wp_cache_mobile_prefixes ), ' ' ) . ").* [NC]";
+		if ( isset( $wp_cache_mobile_browsers ) && "" != $wp_cache_mobile_browsers )
+			$condition_rules[] = "RewriteCond %{HTTP_USER_AGENT} !^.*(" . addcslashes( str_replace( ', ', '|', $wp_cache_mobile_browsers ), ' ' ) . ").* [NC]";
+		if ( isset( $wp_cache_mobile_prefixes ) && "" != $wp_cache_mobile_prefixes )
+			$condition_rules[] = "RewriteCond %{HTTP_USER_AGENT} !^(" . addcslashes( str_replace( ', ', '|', $wp_cache_mobile_prefixes ), ' ' ) . ").* [NC]";
 	}
 	$condition_rules = apply_filters( 'supercacherewriteconditions', $condition_rules );
 
