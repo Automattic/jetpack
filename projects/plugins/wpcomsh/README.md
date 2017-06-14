@@ -35,7 +35,7 @@ When working on wpcomsh, follow the [WP.org coding standards](https://codex.word
 
 There are two stages of testing wpcomsh:
 
-The first one is to set up a WP.org site and test on it (more instructions in the [Development section](#development)). 
+The first one is to set up a WP.org site and test on it (more instructions in the [Development section](#development)).
 However, it's the best if you also install the Jetpack plugin and connect it to WP.com on the WP.org site as that's how AT sites communicate with WP.com -- many things can be tested only with connected Jetpack. We recommend either using your .wpsandbox.me site (PCYsg-5Q0-p2) or use [Vagrant](https://github.com/Varying-Vagrant-Vagrants/VVV) to set up the WP.org site locally on your machine and share it with world (so WP.com can connect to it).
 
 The second stage of testing your changes to wpcomsh is to [get it deployed](#deployment) on the AT staging server (currently Pressable `web12`) and test on a transferred site which was pointed to this staging server. If you don't have any, you can use [@lamosty's ones](https://mc.a8c.com/secret-store/?secret_id=2977).
@@ -137,16 +137,17 @@ On WP.com, we provide custom colors and fonts in a site's Customizer. In order t
 
 ### Logging
 
-WPCOMSH provides a hook to log arbitrary information in our Kibana instance. 
+WPCOMSH provides a hook to log arbitrary information in our Kibana instance.
 You cannot use these function by itself, you need to call a proper hook like so:
+
 ```php
-do_action(  'wpcomsh_log', "test" );
+do_action( 'wpcomsh_log', "test" );
 ```
 
 You will see the output here:
 78d11cc3116d62c53c50ae95c04d265b-logstash
 
-But, logging needs to be turned on via `at_options_logging_on`. You can do that via `/option` endpoint. More tools coming. 
+But, logging needs to be turned on via `at_options_logging_on`. You can do that via `/option` endpoint. More tools coming.
 
 ### Cli commands
 
