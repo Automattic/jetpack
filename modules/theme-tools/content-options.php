@@ -104,7 +104,7 @@ function jetpack_featured_images_should_load() {
 
 	// If the theme doesn't support archive, post and page or if all the options are ticked and we aren't in the customizer, don't continue.
 	if ( ( true !== $opts['archive'] && true !== $opts['post'] && true !== $opts['page'] )
-	    || ( 1 === $opts['archive-option'] && 1 === $opts['post-option'] && 1 === $opts['page-option'] && ! is_customize_preview() ) ) {
+	|| ( 1 === $opts['archive-option'] && 1 === $opts['post-option'] && 1 === $opts['page-option'] && ! is_customize_preview() ) ) {
 			return false;
 	}
 
