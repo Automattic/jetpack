@@ -3698,7 +3698,10 @@ function remove_mod_rewrite_rules() {
 }
 
 function update_mod_rewrite_rules( $add_rules = true ) {
-	global $wp_cache_mobile_prefixes, $wp_cache_mobile_browsers, $cache_path;
+	global $cache_path;
+
+	if ( defined( "DO_NOT_UPDATE_HTACCESS" ) )
+		return false;
 
 	if ( ! function_exists( 'get_home_path' ) ) {
 		include_once( ABSPATH . 'wp-admin/includes/file.php' ); // get_home_path()
@@ -3718,7 +3721,7 @@ function update_mod_rewrite_rules( $add_rules = true ) {
 		$rules = '';
 	}
 
-	$existing_rules = implode( "\n", extract_from_markers( trailingslashit( get_home_path() ) . '.htaccess', 'WPSuperCache' ) );
+	$existing_rules = implode( "\n", extract_from_markers( $home_path . '.htaccess', 'WPSuperCache' ) );
 
 	if ( $existing_rules == $rules ) {
 		return true;
@@ -3734,13 +3737,20 @@ function update_mod_rewrite_rules( $add_rules = true ) {
 		return false;
 	}
 
-	$backup_filename = $cache_path . 'htaccess.' . mt_rand();
-	copy( $home_path . '.htaccess', $backup_filename );
-	wpsc_remove_marker( $home_path.'.htaccess', 'WordPress' ); // remove original WP rules so SuperCache rules go on top
-	if ( insert_with_markers( $home_path.'.htaccess', 'WPSuperCache', explode( "\n", $rules ) ) && insert_with_markers( $home_path.'.htaccess', 'WordPress', explode( "\n", $generated_rules[ 'wprules' ] ) ) ) {
+	$backup_filename = $cache_path . 'htaccess.' . mt_rand() . ".php";
+	$backup_file_contents = file_get_contents( $home_path . '.htaccess' );
+	file_put_contents( $backup_filename, "<" . "?php die(); ?" . ">" . $backup_file_contents );
+	$existing_gzip_rules = implode( "\n", extract_from_markers( $cache_path . '.htaccess', 'supercache' ) );
+	if ( $existing_gzip_rules != $generated_rules[ 'gziprules' ] ) {
+		insert_with_markers( $cache_path . '.htaccess', 'supercache', explode( "\n", $generated_rules[ 'gziprules' ] ) );
+	}
+	$wprules = extract_from_markers( $home_path . '.htaccess', 'WordPress' );
+	wpsc_remove_marker( $home_path . '.htaccess', 'WordPress' ); // remove original WP rules so SuperCache rules go on top
+	if ( insert_with_markers( $home_path . '.htaccess', 'WPSuperCache', explode( "\n", $rules ) ) && insert_with_markers( $home_path . '.htaccess', 'WordPress', $wprules ) ) {
 		$new_page = wp_remote_get( $url, array( 'timeout' => 60, 'blocking' => true ) );
 		if ( is_wp_error( $new_page ) || $new_page[ 'body' ] != $original_page[ 'body' ] ) {
-			copy( $backup_filename, $home_path . '.htaccess' );
+			file_put_contents( $home_path . '.htaccess', $backup_file_contents );
+			unlink( $backup_filename );
 			return false;
 		}
 	} else {
