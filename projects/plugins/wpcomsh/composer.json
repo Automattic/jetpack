@@ -1,7 +1,7 @@
 {
   "require": {
     "automattic/at-pressable-podcasting":"1.0.0",
-    "automattic/custom-fonts-typekit": "1.0.2",
+    "automattic/custom-fonts-typekit": "1.0.3",
     "automattic/custom-fonts": "1.0.1"
   },
   "repositories": [
