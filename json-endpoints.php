@@ -3408,8 +3408,6 @@ new WPCOM_JSON_API_Publicize_Endpoint( array(
 	'request_format'  => array(
 		'message'  => '(string) The custom message that gets publicized',
 		'skipped_connections' => '(array) List of publicize account ids that we don\'t want publicize to',
-		'connections' => '(array) List of publicize account ids that we want to publicize to',
-		'share_date' => '(int) Time for the message to publish',
 	),
 
 	'response_format' => array(
@@ -3423,7 +3421,6 @@ new WPCOM_JSON_API_Publicize_Endpoint( array(
 		),
 		'body' => array(
 			'message'   => 'Hello World',
-			'share_date'		=> '1490045140',
 		)
 	)
  ) );
