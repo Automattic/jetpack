@@ -16,6 +16,8 @@
  * All ES queries take a standard form with main query (with some filters),
  *  wrapped in a function_score
  *
+ * Most functions are chainable, e.g. $bldr->add_filter( ... )->add_query( ... )->build_query();
+ *
  * Bucketed queries use an aggregation to diversify results. eg a bunch
  *  of separate filters where to get different sets of results.
  *
@@ -52,6 +54,8 @@ class Jetpack_WPES_Query_Builder {
 
 	public function add_filter( $filter ) {
 		$this->es_filters[] = $filter;
+
+		return $this;
 	}
 
 	public function add_query( $query, $type = 'must' ) {
@@ -69,6 +73,8 @@ class Jetpack_WPES_Query_Builder {
 				$this->must_queries[] = $query;
 				break;
 		}
+
+		return $this;
 	}
 
 	/**
@@ -82,6 +88,8 @@ class Jetpack_WPES_Query_Builder {
 	 */
 	public function add_weighting_function( $function ) {
 		$this->weighting_functions[] = $function;
+
+		return $this;
 	}
 
 	/**
@@ -98,6 +106,8 @@ class Jetpack_WPES_Query_Builder {
 	 */
 	public function add_function( $function, $params ) {
 		$this->functions[ $function ][] = $params;
+
+		return $this;
 	}
 
 	/**
@@ -115,6 +125,8 @@ class Jetpack_WPES_Query_Builder {
 	 */
 	public function add_decay( $function, $params ) {
 		$this->decays[ $function ][] = $params;
+
+		return $this;
 	}
 
 	/**
@@ -128,19 +140,27 @@ class Jetpack_WPES_Query_Builder {
 	 */
 	public function add_score_mode_to_functions( $mode='multiply' ) {
 		$this->functions_score_mode = $mode;
+
+		return $this;
 	}
 
 	public function add_max_boost_to_functions( $boost ) {
 		$this->functions_max_boost = $boost;
+
+		return $this;
 	}
 
 	public function add_boost_to_query_bool( $boost ) {
 		$this->query_bool_boost = $boost;
+
+		return $this;
 	}
 
 	public function add_aggs( $aggs_name, $aggs ) {
 		$this->aggs_query = true;
 		$this->aggs[$aggs_name] = $aggs;
+
+		return $this;
 	}
 
 	public function add_aggs_sub_aggs( $aggs_name, $sub_aggs ) {
@@ -148,12 +168,16 @@ class Jetpack_WPES_Query_Builder {
 			$this->aggs[$aggs_name]['aggs'] = array();
 		}
 		$this->aggs[$aggs_name]['aggs'] = $sub_aggs;
+
+		return $this;
 	}
 
 	public function add_bucketed_query( $name, $query ) {
 		$this->_add_bucket_filter( $name, $query );
 
 		$this->add_query( $query, 'dis_max' );
+
+		return $this;
 	}
 
 	public function add_bucketed_terms( $name, $field, $terms, $boost = 1 ) {
@@ -177,15 +201,21 @@ class Jetpack_WPES_Query_Builder {
 				'boost' => $boost,
 			),
 		), 'dis_max' );
+
+		return $this;
 	}
 
 	public function add_bucket_sub_aggs( $agg ) {
 		$this->bucket_sub_aggs = array_merge( $this->bucket_sub_aggs, $agg );
+
+		return $this;
 	}
 
 	public function _add_bucket_filter( $name, $filter ) {
 		$this->diverse_buckets_query   = true;
 		$this->bucket_filters[ $name ] = $filter;
+
+		return $this;
 	}
 
 	////////////////////////////////////
