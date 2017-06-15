@@ -3701,7 +3701,9 @@ function remove_mod_rewrite_rules() {
 }
 
 function update_mod_rewrite_rules( $add_rules = true ) {
-	global $cache_path;
+	global $cache_path, $update_mod_rewrite_rules_error;
+
+	$update_mod_rewrite_rules_error = false;
 
 	if ( defined( "DO_NOT_UPDATE_HTACCESS" ) )
 		return false;
@@ -3713,6 +3715,7 @@ function update_mod_rewrite_rules( $add_rules = true ) {
 	$home_path = trailingslashit( get_home_path() );
 
 	if ( ! file_exists( $home_path . ".htaccess" ) ) {
+		$update_mod_rewrite_rules_error = ".htaccess not found: {$home_path}.htaccess";
 		return false;
 	}
 
@@ -3727,16 +3730,19 @@ function update_mod_rewrite_rules( $add_rules = true ) {
 	$existing_rules = implode( "\n", extract_from_markers( $home_path . '.htaccess', 'WPSuperCache' ) );
 
 	if ( $existing_rules == $rules ) {
+		$update_mod_rewrite_rules_error = "rules have not changed";
 		return true;
 	}
 
 	if ( $generated_rules[ 'wprules' ] == '' ) {
+		$update_mod_rewrite_rules_error = "WordPress rules empty";
 		return false;
 	}
 
 	$url = trailingslashit( get_bloginfo( 'url' ) );
 	$original_page = wp_remote_get( $url, array( 'timeout' => 60, 'blocking' => true ) );
 	if ( is_wp_error( $original_page ) ) {
+		$update_mod_rewrite_rules_error = "WordPress rules empty";
 		return false;
 	}
 
@@ -3754,9 +3760,13 @@ function update_mod_rewrite_rules( $add_rules = true ) {
 		if ( is_wp_error( $new_page ) || $new_page[ 'body' ] != $original_page[ 'body' ] ) {
 			file_put_contents( $home_path . '.htaccess', $backup_file_contents );
 			unlink( $backup_filename );
+			$update_mod_rewrite_rules_error = "page error or pages do not match and original .htaccess restored";
 			return false;
 		}
 	} else {
+		file_put_contents( $home_path . '.htaccess', $backup_file_contents );
+		unlink( $backup_filename );
+		$update_mod_rewrite_rules_error = "problem inserting rules in .htaccess and original .htaccess restored";
 		return false;
 	}
 
