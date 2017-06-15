@@ -17,6 +17,11 @@ function jetpack_get_module_i18n( $key ) {
 				'description' => _x( 'Check your spelling, style, and grammar', 'Module Description', 'jetpack' ),
 			),
 
+			'amp' => array(
+				'name' => _x( 'Accelerated Mobile Pages', 'Module Name', 'jetpack' ),
+				'description' => _x( 'Enable display of posts and pages in Google\'s Accelerated Mobile Pages (AMP) format', 'Module Description', 'jetpack' ),
+			),
+
 			'carousel' => array(
 				'name' => _x( 'Carousel', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Display images and galleries in a gorgeous, full-screen browsing experience', 'Module Description', 'jetpack' ),
@@ -258,6 +263,39 @@ function jetpack_get_module_i18n_tag( $key ) {
 			//  - modules/shortcodes.php
 			'Writing' =>_x( 'Writing', 'Module Tag', 'jetpack' ),
 
+			// Modules with `Appearance` tag:
+			//  - modules/amp.php
+			//  - modules/custom-css.php
+			//  - modules/gravatar-hovercards.php
+			//  - modules/infinite-scroll.php
+			//  - modules/minileven.php
+			//  - modules/photon.php
+			//  - modules/seo-tools.php
+			//  - modules/shortcodes.php
+			//  - modules/widget-visibility.php
+			//  - modules/widgets.php
+			//  - modules/wordads.php
+			'Appearance' =>_x( 'Appearance', 'Module Tag', 'jetpack' ),
+
+			// Modules with `Mobile` tag:
+			//  - modules/amp.php
+			//  - modules/minileven.php
+			'Mobile' =>_x( 'Mobile', 'Module Tag', 'jetpack' ),
+
+			// Modules with `Recommended` tag:
+			//  - modules/amp.php
+			//  - modules/manage.php
+			//  - modules/minileven.php
+			//  - modules/monitor.php
+			//  - modules/photon.php
+			//  - modules/protect.php
+			//  - modules/publicize.php
+			//  - modules/related-posts.php
+			//  - modules/sharedaddy.php
+			//  - modules/sitemaps.php
+			//  - modules/stats.php
+			'Recommended' =>_x( 'Recommended', 'Module Tag', 'jetpack' ),
+
 			// Modules with `Photos and Videos` tag:
 			//  - modules/carousel.php
 			//  - modules/photon.php
@@ -279,19 +317,6 @@ function jetpack_get_module_i18n_tag( $key ) {
 			//  - modules/widgets.php
 			'Social' =>_x( 'Social', 'Module Tag', 'jetpack' ),
 
-			// Modules with `Appearance` tag:
-			//  - modules/custom-css.php
-			//  - modules/gravatar-hovercards.php
-			//  - modules/infinite-scroll.php
-			//  - modules/minileven.php
-			//  - modules/photon.php
-			//  - modules/seo-tools.php
-			//  - modules/shortcodes.php
-			//  - modules/widget-visibility.php
-			//  - modules/widgets.php
-			//  - modules/wordads.php
-			'Appearance' =>_x( 'Appearance', 'Module Tag', 'jetpack' ),
-
 			// Modules with `Developers` tag:
 			//  - modules/json-api.php
 			//  - modules/omnisearch.php
@@ -302,26 +327,9 @@ function jetpack_get_module_i18n_tag( $key ) {
 			//  - modules/manage.php
 			'Centralized Management' =>_x( 'Centralized Management', 'Module Tag', 'jetpack' ),
 
-			// Modules with `Recommended` tag:
-			//  - modules/manage.php
-			//  - modules/minileven.php
-			//  - modules/monitor.php
-			//  - modules/photon.php
-			//  - modules/protect.php
-			//  - modules/publicize.php
-			//  - modules/related-posts.php
-			//  - modules/sharedaddy.php
-			//  - modules/sitemaps.php
-			//  - modules/stats.php
-			'Recommended' =>_x( 'Recommended', 'Module Tag', 'jetpack' ),
-
 			// Modules with `General` tag:
 			//  - modules/masterbar.php
 			'General' =>_x( 'General', 'Module Tag', 'jetpack' ),
-
-			// Modules with `Mobile` tag:
-			//  - modules/minileven.php
-			'Mobile' =>_x( 'Mobile', 'Module Tag', 'jetpack' ),
 
 			// Modules with `Traffic` tag:
 			//  - modules/sitemaps.php
