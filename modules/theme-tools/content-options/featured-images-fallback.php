@@ -20,7 +20,7 @@ function jetpack_featured_images_fallback_get_image( $html, $post_id, $post_thum
 	}
 
 	if ( jetpack_featured_images_should_load() ) {
-		if ( 
+		if (
 			( true === $opts['archive'] && ( is_home() || is_archive() || is_search() ) && ! $opts['archive-option'] )
 			|| ( true === $opts['post'] && is_single() && ! $opts['post-option'] )
 			|| ! $opts['fallback-option']
@@ -152,7 +152,7 @@ function jetpack_featured_images_post_class( $classes, $class, $post_id ) {
 	$post_password_required = post_password_required( $post_id );
 	$opts                   = jetpack_featured_images_get_settings();
 
-	if ( jetpack_has_featured_image( $post_id ) && (bool) 1 === (bool) $opts['fallback-option'] && ! is_attachment() && ! $post_password_required ) {
+	if ( jetpack_has_featured_image( $post_id ) && (bool) 1 === (bool) $opts['fallback-option'] && ! is_attachment() && ! $post_password_required && 'post' === get_post_type() ) {
 		$classes[] = 'has-post-thumbnail';
 	}
 
