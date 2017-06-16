@@ -3157,7 +3157,19 @@ function wpsc_get_htaccess_info() {
 	}
 	$home_path = get_home_path();
 	$home_root = parse_url(get_bloginfo('url'));
-	$home_root = isset( $home_root['path'] ) ? trailingslashit( $home_root['path'] ) : '/';
+	$home_root = isset( $home_root[ 'path' ] ) ? trailingslashit( $home_root[ 'path' ] ) : '/';
+	if (
+		$home_root == '/' &&
+		$home_path != $_SERVER[ 'DOCUMENT_ROOT' ]
+	) {
+		$home_path = $_SERVER[ 'DOCUMENT_ROOT' ];
+	} elseif (
+		$home_root != '/' &&
+		$home_path != str_replace( '//', '/', $_SERVER[ 'DOCUMENT_ROOT' ] . $home_root ) &&
+		is_dir( $_SERVER[ 'DOCUMENT_ROOT' ] . $home_root )
+	) {
+		$home_path = str_replace( '//', '/', $_SERVER[ 'DOCUMENT_ROOT' ] . $home_root );
+	}
 	$home_root_lc = str_replace( '//', '/', strtolower( $home_root ) );
 	$inst_root = str_replace( '//', '/', '/' . trailingslashit( str_replace( $content_dir_root, '', str_replace( '\\', '/', WP_CONTENT_DIR ) ) ) );
 	$wprules = implode( "\n", extract_from_markers( $home_path.'.htaccess', 'WordPress' ) );
@@ -3714,6 +3726,20 @@ function update_mod_rewrite_rules( $add_rules = true ) {
 		include_once( ABSPATH . 'wp-admin/includes/misc.php' ); // extract_from_markers()
 	}
 	$home_path = trailingslashit( get_home_path() );
+	$home_root = parse_url( get_bloginfo( 'url' ) );
+	$home_root = isset( $home_root[ 'path' ] ) ? trailingslashit( $home_root[ 'path' ] ) : '/';
+	if (
+		$home_root == '/' &&
+		$home_path != $_SERVER[ 'DOCUMENT_ROOT' ]
+	) {
+		$home_path = $_SERVER[ 'DOCUMENT_ROOT' ];
+	} elseif (
+		$home_root != '/' &&
+		$home_path != str_replace( '//', '/', $_SERVER[ 'DOCUMENT_ROOT' ] . $home_root ) &&
+		is_dir( $_SERVER[ 'DOCUMENT_ROOT' ] . $home_root )
+	) {
+		$home_path = str_replace( '//', '/', $_SERVER[ 'DOCUMENT_ROOT' ] . $home_root );
+	}
 
 	if ( ! file_exists( $home_path . ".htaccess" ) ) {
 		$update_mod_rewrite_rules_error = ".htaccess not found: {$home_path}.htaccess";
