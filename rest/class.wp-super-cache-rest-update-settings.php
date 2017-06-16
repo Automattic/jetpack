@@ -216,9 +216,12 @@ class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 
 			if ( $value == 1 ) { // mod_rewrite
 				$wp_cache_mod_rewrite = 1;
+				add_mod_rewrite_rules();
 
 			} elseif( $value == 2 ) { // PHP
 				$wp_cache_mod_rewrite = 0;
+				remove_mod_rewrite_rules();
+
 			}
 
 			wp_cache_setting( 'wp_cache_mod_rewrite', $wp_cache_mod_rewrite );

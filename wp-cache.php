@@ -580,8 +580,10 @@ function wp_cache_manager_updates() {
 
 		if ( $_POST[ 'wp_cache_mod_rewrite' ] == 1 ) {
 			$wp_cache_mod_rewrite = 1;
+			add_mod_rewrite_rules();
 		} else {
 			$wp_cache_mod_rewrite = 0; // cache files served by PHP
+			remove_mod_rewrite_rules();
 		}
 		wp_cache_setting( 'wp_cache_mod_rewrite', $wp_cache_mod_rewrite );
 
@@ -1313,52 +1315,19 @@ function wsc_mod_rewrite() {
 
 	if ( !$wp_cache_mod_rewrite )
 		return false;
-
-	if ( isset( $wpmu_version ) || function_exists( 'is_multisite' ) && is_multisite() ) {
-		if ( false == wpsupercache_site_admin() )
-			return false;
-		if ( function_exists( "is_main_site" ) && false == is_main_site() ) {
-			global $current_site;
-			$protocol = ( 'on' == strtolower( $_SERVER['HTTPS' ] ) ) ? 'https://' : 'http://';
-			if ( isset( $wpmu_version ) ) {
-				$link_to_admin = admin_url( "wpmu-admin.php?page=wpsupercache" );
-			} else {
-				$link_to_admin = admin_url( "ms-admin.php?page=wpsupercache" );
-			}
-			echo '<div id="message" class="updated fade"><p>' .  sprintf( __( 'Notice: WP Super Cache mod_rewrite rule checks disabled unless running on <a href="%s">the main site</a> of this network.', 'wp-super-cache' ), $link_to_admin ) . '</p></div>';
-			return false;
-		}
-	}
-
-	if ( function_exists( "is_main_site" ) && false == is_main_site() )
-		return true;
 	?>
 	<a name="modrewrite"></a><fieldset class="options">
-	<h3><?php _e( 'Mod Rewrite Rules', 'wp-super-cache' ); ?></h3><?php
+	<h3><?php _e( 'Mod Rewrite Rules', 'wp-super-cache' ); ?></h3>
+	<p><?php _e( 'When Expert cache delivery is enabled a file called <em>.htaccess</em> is modified. It should probably be in the same directory as your wp-config.php. This file has special rules that serve the cached files very quickly to visitors without ever executing PHP. The .htaccess file can be updated automatically, but if that fails, the rules will be displayed here and it can be edited by you. You will not need to update the rules unless a warning shows here.' ); ?></p>
 
+	<?php
 	extract( wpsc_get_htaccess_info() );
 	$dohtaccess = true;
 	global $wpmu_version;
-	if( isset( $wpmu_version ) ) {
-		echo "<h4 style='color: #a00'>" . __( 'WordPress MU Detected', 'wp-super-cache' ) . "</h4><p>" . __( "Unfortunately, the rewrite rules cannot be updated automatically when running WordPress MU. Please open your .htaccess and add the following mod_rewrite rules above any other rules in that file.", 'wp-super-cache' ) . "</p>";
-	} elseif( !$wprules || $wprules == '' ) {
-		echo "<h4 style='color: #a00'>" . __( 'Mod Rewrite rules cannot be updated!', 'wp-super-cache' ) . "</h4>";
-		echo "<p>" . sprintf( __( "You must have <strong>BEGIN</strong> and <strong>END</strong> markers in %s.htaccess for the auto update to work. They look like this and surround the main WordPress mod_rewrite rules:", 'wp-super-cache' ), $home_path );
-		echo "<blockquote><pre><em># BEGIN WordPress</em>\n RewriteCond %{REQUEST_FILENAME} !-f\n RewriteCond %{REQUEST_FILENAME} !-d\n RewriteRule . /index.php [L]\n <em># END WordPress</em></pre></blockquote>";
-		_e( 'Refresh this page when you have updated your .htaccess file.', 'wp-super-cache' );
-		echo "</fieldset>";
-		$dohtaccess = false;
-	} elseif( strpos( $wprules, 'wordpressuser' ) ) { // Need to clear out old mod_rewrite rules
+	if( strpos( $wprules, 'wordpressuser' ) ) { // Need to clear out old mod_rewrite rules
 		echo "<p><strong>" . __( 'Thank you for upgrading.', 'wp-super-cache' ) . "</strong> " . sprintf( __( 'The mod_rewrite rules changed since you last installed this plugin. Unfortunately, you must remove the old supercache rules before the new ones are updated. Refresh this page when you have edited your .htaccess file. If you wish to manually upgrade, change the following line: %1$s so it looks like this: %2$s The only changes are "HTTP_COOKIE" becomes "HTTP:Cookie" and "wordpressuser" becomes "wordpress". This is a WordPress 2.5 change but it&#8217;s backwards compatible with older versions if you&#8217;re brave enough to use them.', 'wp-super-cache' ), '<blockquote><code>RewriteCond %{HTTP_COOKIE} !^.*wordpressuser.*$</code></blockquote>', '<blockquote><code>RewriteCond %{HTTP:Cookie} !^.*wordpress.*$</code></blockquote>' ) . "</p>";
 		echo "</fieldset></div>";
 		return;
-	} elseif( $scrules != '' && strpos( $scrules, '%{REQUEST_URI} !^.*[^/]$' ) === false && substr( get_option( 'permalink_structure' ), -1 ) == '/' ) { // permalink structure has a trailing slash, need slash check in rules.
-		echo "<div style='padding:0 8px;color:#9f6000;background-color:#feefb3;border:1px solid #9f6000;'><h4>" . __( 'Trailing slash check required.', 'wp-super-cache' ) . "</h4><p>" . __( 'It looks like your blog has URLs that end with a "/". Unfortunately since you installed this plugin a duplicate content bug has been found where URLs not ending in a "/" end serve the same content as those with the "/" and do not redirect to the proper URL. To fix, you must edit your .htaccess file and add these two rules to the two groups of Super Cache rules:', 'wp-super-cache' ) . "</p>";
-		echo "<blockquote><code>RewriteCond %{REQUEST_URI} !^.*[^/]$RewriteCond %{REQUEST_URI} !^.*//.*$</code></blockquote>";
-		echo "<p>" . __( 'You can see where the rules go and examine the complete rules by clicking the "View mod_rewrite rules" link below.', 'wp-super-cache' ) . "</p></div>";
-		$dohtaccess = false;
-	} elseif( strpos( $scrules, 'supercache' ) || strpos( $wprules, 'supercache' ) ) { // only write the rules once
-		$dohtaccess = false;
 	}
 	if ( $dohtaccess && !isset( $_POST[ 'updatehtaccess' ] ) ){
 		if ( $scrules == '' ) {
@@ -1368,12 +1337,13 @@ function wsc_mod_rewrite() {
 		}
 	} elseif ( $valid_nonce && isset( $_POST[ 'updatehtaccess' ] ) ) {
 		echo "<div style='padding:0 8px;color:#4f8a10;background-color:#dff2bf;border:1px solid #4f8a10;'>";
-		if( wpsc_update_htaccess() ) {
+		if ( add_mod_rewrite_rules() ) {
 			echo "<h4>" . __( 'Mod Rewrite rules updated!', 'wp-super-cache' ) . "</h4>";
 			echo "<p><strong>" . sprintf( __( '%s.htaccess has been updated with the necessary mod_rewrite rules. Please verify they are correct. They should look like this:', 'wp-super-cache' ), $home_path ) . "</strong></p>\n";
 		} else {
+			global $update_mod_rewrite_rules_error;
 			echo "<h4>" . __( 'Mod Rewrite rules must be updated!', 'wp-super-cache' ) . "</h4>";
-			echo "<p><strong>" . sprintf( __( 'Your %s.htaccess is not writable by the webserver and must be updated with the necessary mod_rewrite rules. The new rules go above the regular WordPress rules as shown in the code below:', 'wp-super-cache' ), $home_path ) . "</strong></p>\n";
+			echo "<p><strong>" . sprintf( __( 'The plugin could not update %1$s.htaccess file: %2$s. The new rules go above the regular WordPress rules as shown in the code below:', 'wp-super-cache' ), $home_path, $update_mod_rewrite_rules_error ) . "</strong></p>\n";
 		}
 		echo "<p><pre>" . esc_html( $rules ) . "</pre></p>\n</div>";
 	} else {
@@ -1387,15 +1357,12 @@ function wsc_mod_rewrite() {
 		wpsc_update_htaccess_form();
 		echo "<div id='rewriterules' style='display: none;'>";
 		if ( $rules != $scrules )
-			echo '<div style="background: #fff; border: 1px solid #333; margin: 2px;">' . wp_text_diff( $scrules, $rules, array( 'title' => 'Rewrite Rules', 'title_left' => 'Current Rules', 'title_right' => 'New Rules' ) ) . "</div>";
+			echo '<div style="background: #fff; border: 1px solid #333; margin: 2px;">' . wp_text_diff( $scrules, $rules, array( 'title' => __( 'Rewrite Rules', 'wp-super-cache' ), 'title_left' => __( 'Current Rules', 'wp-super-cache' ), 'title_right' => __( 'New Rules', 'wp-super-cache' ) ) ) . "</div>";
 		echo "<p><pre># BEGIN WPSuperCache\n" . esc_html( $rules ) . "# END WPSuperCache</pre></p>\n";
 		echo "<p>" . sprintf( __( 'Rules must be added to %s too:', 'wp-super-cache' ), WP_CONTENT_DIR . "/cache/.htaccess" ) . "</p>";
 		echo "<pre># BEGIN supercache\n" . esc_html( $gziprules ) . "# END supercache</pre></p>";
 		echo '</div>';
 	}
-	// http://allmybrain.com/2007/11/08/making-wp-super-cache-gzip-compression-work/
-	$gziprules = insert_with_markers( $cache_path . '.htaccess', 'supercache', explode( "\n", $gziprules ) );
-	echo "<h4>" . sprintf( __( 'Gzip encoding rules in %s.htaccess created.', 'wp-super-cache' ), $cache_path ) . "</h4>";
 
 	?></fieldset><?php
 }
@@ -3149,7 +3116,19 @@ function wpsc_get_htaccess_info() {
 	}
 	$home_path = get_home_path();
 	$home_root = parse_url(get_bloginfo('url'));
-	$home_root = isset( $home_root['path'] ) ? trailingslashit( $home_root['path'] ) : '/';
+	$home_root = isset( $home_root[ 'path' ] ) ? trailingslashit( $home_root[ 'path' ] ) : '/';
+	if (
+		$home_root == '/' &&
+		$home_path != $_SERVER[ 'DOCUMENT_ROOT' ]
+	) {
+		$home_path = $_SERVER[ 'DOCUMENT_ROOT' ];
+	} elseif (
+		$home_root != '/' &&
+		$home_path != str_replace( '//', '/', $_SERVER[ 'DOCUMENT_ROOT' ] . $home_root ) &&
+		is_dir( $_SERVER[ 'DOCUMENT_ROOT' ] . $home_root )
+	) {
+		$home_path = str_replace( '//', '/', $_SERVER[ 'DOCUMENT_ROOT' ] . $home_root );
+	}
 	$home_root_lc = str_replace( '//', '/', strtolower( $home_root ) );
 	$inst_root = str_replace( '//', '/', '/' . trailingslashit( str_replace( $content_dir_root, '', str_replace( '\\', '/', WP_CONTENT_DIR ) ) ) );
 	$wprules = implode( "\n", extract_from_markers( $home_path.'.htaccess', 'WordPress' ) );
@@ -3684,3 +3663,99 @@ function wpsc_set_default_gc( $force = false ) {
 
 }
 
+function add_mod_rewrite_rules() {
+	return update_mod_rewrite_rules();
+}
+
+function remove_mod_rewrite_rules() {
+	return update_mod_rewrite_rules( false );
+}
+
+function update_mod_rewrite_rules( $add_rules = true ) {
+	global $cache_path, $update_mod_rewrite_rules_error;
+
+	$update_mod_rewrite_rules_error = false;
+
+	if ( defined( "DO_NOT_UPDATE_HTACCESS" ) ) {
+		$update_mod_rewrite_rules_error = ".htaccess update disabled by admin: DO_NOT_UPDATE_HTACCESS defined";
+		return false;
+	}
+
+	if ( ! function_exists( 'get_home_path' ) ) {
+		include_once( ABSPATH . 'wp-admin/includes/file.php' ); // get_home_path()
+		include_once( ABSPATH . 'wp-admin/includes/misc.php' ); // extract_from_markers()
+	}
+	$home_path = trailingslashit( get_home_path() );
+	$home_root = parse_url( get_bloginfo( 'url' ) );
+	$home_root = isset( $home_root[ 'path' ] ) ? trailingslashit( $home_root[ 'path' ] ) : '/';
+	if (
+		$home_root == '/' &&
+		$home_path != $_SERVER[ 'DOCUMENT_ROOT' ]
+	) {
+		$home_path = $_SERVER[ 'DOCUMENT_ROOT' ];
+	} elseif (
+		$home_root != '/' &&
+		$home_path != str_replace( '//', '/', $_SERVER[ 'DOCUMENT_ROOT' ] . $home_root ) &&
+		is_dir( $_SERVER[ 'DOCUMENT_ROOT' ] . $home_root )
+	) {
+		$home_path = str_replace( '//', '/', $_SERVER[ 'DOCUMENT_ROOT' ] . $home_root );
+	}
+
+	if ( ! file_exists( $home_path . ".htaccess" ) ) {
+		$update_mod_rewrite_rules_error = ".htaccess not found: {$home_path}.htaccess";
+		return false;
+	}
+
+	$generated_rules = wpsc_get_htaccess_info();
+
+	if ( $add_rules ) {
+		$rules = $generated_rules[ 'rules' ];
+	}  else {
+		$rules = '';
+	}
+
+	$existing_rules = implode( "\n", extract_from_markers( $home_path . '.htaccess', 'WPSuperCache' ) );
+
+	if ( $existing_rules == $rules ) {
+		$update_mod_rewrite_rules_error = "rules have not changed";
+		return true;
+	}
+
+	if ( $generated_rules[ 'wprules' ] == '' ) {
+		$update_mod_rewrite_rules_error = "WordPress rules empty";
+		return false;
+	}
+
+	$url = trailingslashit( get_bloginfo( 'url' ) );
+	$original_page = wp_remote_get( $url, array( 'timeout' => 60, 'blocking' => true ) );
+	if ( is_wp_error( $original_page ) ) {
+		$update_mod_rewrite_rules_error = "Problem loading page";
+		return false;
+	}
+
+	$backup_filename = $cache_path . 'htaccess.' . mt_rand() . ".php";
+	$backup_file_contents = file_get_contents( $home_path . '.htaccess' );
+	file_put_contents( $backup_filename, "<" . "?php die(); ?" . ">" . $backup_file_contents );
+	$existing_gzip_rules = implode( "\n", extract_from_markers( $cache_path . '.htaccess', 'supercache' ) );
+	if ( $existing_gzip_rules != $generated_rules[ 'gziprules' ] ) {
+		insert_with_markers( $cache_path . '.htaccess', 'supercache', explode( "\n", $generated_rules[ 'gziprules' ] ) );
+	}
+	$wprules = extract_from_markers( $home_path . '.htaccess', 'WordPress' );
+	wpsc_remove_marker( $home_path . '.htaccess', 'WordPress' ); // remove original WP rules so SuperCache rules go on top
+	if ( insert_with_markers( $home_path . '.htaccess', 'WPSuperCache', explode( "\n", $rules ) ) && insert_with_markers( $home_path . '.htaccess', 'WordPress', $wprules ) ) {
+		$new_page = wp_remote_get( $url, array( 'timeout' => 60, 'blocking' => true ) );
+		if ( is_wp_error( $new_page ) || $new_page[ 'body' ] != $original_page[ 'body' ] ) {
+			file_put_contents( $home_path . '.htaccess', $backup_file_contents );
+			unlink( $backup_filename );
+			$update_mod_rewrite_rules_error = "page error or pages do not match and original .htaccess restored";
+			return false;
+		}
+	} else {
+		file_put_contents( $home_path . '.htaccess', $backup_file_contents );
+		unlink( $backup_filename );
+		$update_mod_rewrite_rules_error = "problem inserting rules in .htaccess and original .htaccess restored";
+		return false;
+	}
+
+	return true;
+}
