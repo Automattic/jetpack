@@ -12,8 +12,12 @@ self.addEventListener('install', function(evt) {
 // On fetch, try the cache but if there's a miss try loading the content
 self.addEventListener('fetch', function(evt) {
   console.log('The service worker is serving the asset.' + evt.request );
-  evt.respondWith(fromCache(evt.request));
-  evt.waitUntil(update(evt.request).then(refresh));
+  evt.respondWith(
+      fromCache(evt.request).catch( function( err ) {
+        return update(evt.request);
+      })
+  );
+//   evt.waitUntil(update(evt.request).then(refresh));
 });
 
 // Open a cache and use `addAll()` with an array of assets to add all of them
@@ -50,7 +54,7 @@ function update(request) {
 function refresh(response) {
   return self.clients.matchAll().then(function (clients) {
     clients.forEach(function (client) {
-        var message = {
+      var message = {
         type: 'refresh',
         url: response.url,
         eTag: response.headers.get('ETag')

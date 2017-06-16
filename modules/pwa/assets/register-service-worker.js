@@ -1,4 +1,5 @@
 if ('serviceWorker' in navigator) {
+    // TODO - allow this URL to be customized
     navigator.serviceWorker.register('/service-worker.js', {
         scope: '/'
     }).then(function(reg) {
