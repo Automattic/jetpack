@@ -59,6 +59,10 @@ class Sharing_Service {
 			'skype'             => 'Share_Skype',
 		);
 
+		$email = false;
+		if ( function_exists( 'akismet_http_post' ) || method_exists( 'Akismet', 'http_post' ) ) {
+			$email = true;
+		}
 		/**
 		 * Filters if Email Sharing is enabled.
 		 *
@@ -67,9 +71,9 @@ class Sharing_Service {
 		 *
 		 * @since 5.1.0
 		 *
-		 * @param bool $email Is e-mail sharing enabled? Default false
+		 * @param bool $email Is e-mail sharing enabled? Default false if Akismet is not active or true if Akismet is active.
 		 */
-		if ( apply_filters( 'sharing_services_email', false ) ) {
+		if ( apply_filters( 'sharing_services_email', $email ) ) {
 			$services['email'] = 'Share_Email';
 		}
 
