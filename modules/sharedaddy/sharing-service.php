@@ -60,7 +60,7 @@ class Sharing_Service {
 		);
 
 		$email = false;
-		if ( function_exists( 'akismet_http_post' ) || method_exists( 'Akismet', 'http_post' ) ) {
+		if ( Jetpack::is_akismet_active() ) {
 			$email = true;
 		}
 		/**
