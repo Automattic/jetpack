@@ -3706,6 +3706,7 @@ function update_mod_rewrite_rules( $add_rules = true ) {
 	$update_mod_rewrite_rules_error = false;
 
 	if ( defined( "DO_NOT_UPDATE_HTACCESS" ) )
+		$update_mod_rewrite_rules_error = ".htaccess update disabled by admin: DO_NOT_UPDATE_HTACCESS defined";
 		return false;
 
 	if ( ! function_exists( 'get_home_path' ) ) {
