@@ -58,7 +58,7 @@ class Sharing_Service {
 			'jetpack-whatsapp'  => 'Jetpack_Share_WhatsApp',
 			'skype'             => 'Share_Skype',
 		);
-		
+
 		/**
 		 * Filters if Email Sharing is enabled.
 		 *
