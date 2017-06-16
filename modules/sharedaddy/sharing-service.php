@@ -59,10 +59,6 @@ class Sharing_Service {
 			'skype'             => 'Share_Skype',
 		);
 
-		$email = false;
-		if ( Jetpack::is_akismet_active() ) {
-			$email = true;
-		}
 		/**
 		 * Filters if Email Sharing is enabled.
 		 *
@@ -73,7 +69,7 @@ class Sharing_Service {
 		 *
 		 * @param bool $email Is e-mail sharing enabled? Default false if Akismet is not active or true if Akismet is active.
 		 */
-		if ( apply_filters( 'sharing_services_email', $email ) ) {
+		if ( apply_filters( 'sharing_services_email', Jetpack::is_akismet_active() ) ) {
 			$services['email'] = 'Share_Email';
 		}
 
