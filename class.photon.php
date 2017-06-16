@@ -57,7 +57,7 @@ class Jetpack_Photon {
 		add_filter( 'image_downsize', array( $this, 'filter_image_downsize' ), 10, 3 );
 
 		// Responsive image srcset substitution
-		add_filter( 'wp_calculate_image_srcset', array( $this, 'filter_srcset_array' ), 10, 4 );
+		add_filter( 'wp_calculate_image_srcset', array( $this, 'filter_srcset_array' ), 10, 5 );
 		add_filter( 'wp_calculate_image_sizes', array( $this, 'filter_sizes' ), 1, 2 ); // Early so themes can still easily filter.
 
 		// Helpers for maniuplated images
@@ -643,7 +643,7 @@ class Jetpack_Photon {
 	 * @uses Jetpack_Photon::strip_image_dimensions_maybe, Jetpack::get_content_width
 	 * @return array An array of Photon image urls and widths.
 	 */
-	public function filter_srcset_array( $sources = array(), $size_array = array(), $image_src = array(), $image_meta = array() ) {
+	public function filter_srcset_array( $sources = array(), $size_array = array(), $image_src = array(), $image_meta = array(), $attachment_id = 0 ) {
 		if ( ! is_array( $sources ) ) {
 			return $sources;
 		}
@@ -663,8 +663,8 @@ class Jetpack_Photon {
 			list( $width, $height ) = Jetpack_Photon::parse_dimensions_from_filename( $url );
 
 			// It's quicker to get the full size with the data we have already, if available
-			if ( isset( $image_meta['file'] ) ) {
-				$url = trailingslashit( $upload_dir['baseurl'] ) . $image_meta['file'];
+			if ( ! empty( $attachment_id ) ) {
+				$url = wp_get_attachment_url( $attachment_id );
 			} else {
 				$url = Jetpack_Photon::strip_image_dimensions_maybe( $url );
 			}
