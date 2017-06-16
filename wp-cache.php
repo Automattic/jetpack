@@ -1905,7 +1905,7 @@ function wp_cache_debug_settings() {
 		if ( $wp_super_cache_debug && ( ( isset( $wp_cache_debug_log ) && $wp_cache_debug_log == '' ) || !isset( $wp_cache_debug_log ) ) ) {
 			$wp_cache_debug_log = md5( time() + mt_rand() ) . ".php";
 			$wp_cache_debug_username = md5( time() + mt_rand() );
-			$wp_cache_debug_password = md5( time() + mt_rand() );
+			$wp_cache_debug_password = $wp_cache_debug_username;
 			$fp = fopen( $cache_path . $wp_cache_debug_log, 'w' );
 			if ( $fp ) {
 				fwrite( $fp, '<' . "?php\n" );
