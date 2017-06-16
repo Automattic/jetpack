@@ -1314,8 +1314,10 @@ function wsc_mod_rewrite() {
 		return false;
 	?>
 	<a name="modrewrite"></a><fieldset class="options">
-	<h3><?php _e( 'Mod Rewrite Rules', 'wp-super-cache' ); ?></h3><?php
+	<h3><?php _e( 'Mod Rewrite Rules', 'wp-super-cache' ); ?></h3>
+	<p><?php _e( 'When Expert cache delivery is enabled a file called <em>.htaccess</em> is modified. It should probably be in the same directory as your wp-config.php. This file has special rules that serve the cached files very quickly to visitors without ever executing PHP. The .htaccess file can be updated automatically, but if that fails, the rules will be displayed here and it can be edited by you. You will not need to update the rules unless a warning shows here.' ); ?></p>
 
+	<?php
 	extract( wpsc_get_htaccess_info() );
 	$dohtaccess = true;
 	global $wpmu_version;
