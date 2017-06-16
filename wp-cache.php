@@ -3730,7 +3730,7 @@ function update_mod_rewrite_rules( $add_rules = true ) {
 	$url = trailingslashit( get_bloginfo( 'url' ) );
 	$original_page = wp_remote_get( $url, array( 'timeout' => 60, 'blocking' => true ) );
 	if ( is_wp_error( $original_page ) ) {
-		$update_mod_rewrite_rules_error = "WordPress rules empty";
+		$update_mod_rewrite_rules_error = "Problem loading page";
 		return false;
 	}
 
