@@ -1,3 +1,6 @@
+/*jshint es5: true */
+/* global console */
+'use strict;';
 if ('serviceWorker' in navigator) {
     // TODO - allow this URL to be customized
     navigator.serviceWorker.register('/service-worker.js', {
