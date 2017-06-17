@@ -14,15 +14,20 @@ self.addEventListener('install', function (evt) {
 
 // On fetch, try the cache but if there's a miss try loading the content
 self.addEventListener('fetch', function (evt) {
-    console.log('The service worker is serving the asset.' + evt.request);
+    console.log('The service worker is serving the asset ' + evt.request.url);
+
     evt.respondWith(
-        fromCache(evt.request).catch(function (err) {
-            console.warn(err);
-            return update(evt.request);
+        caches.open(CACHE).then( function ( cache ) {
+            return cache.match( evt.request ).then(function (response) {
+                var fetchPromise = fetch(evt.request).then(function (networkResponse) {
+                    cache.put( evt.request, networkResponse.clone() );
+                    return networkResponse;
+                })
+
+                return response || fetchPromise;
+            })
         })
     );
-    
-    evt.waitUntil(update(evt.request).then(refresh));
 });
 
 // Open a cache and use `addAll()` with an array of assets to add all of them
@@ -37,34 +42,18 @@ function precache() {
     });
 }
 
-// Open the cache where the assets were stored and search for the requested
-// resource. Notice that in case of no matching, the promise still resolves
-// but it does with `undefined` as value.
-function fromCache(request) {
-    return caches.open(CACHE).then(function (cache) {
-        return cache.match(request).then(function (matching) {
-            return matching || Promise.reject('no-match');
-        });
-    });
-}
-
-function update(request) {
-    return caches.open(CACHE).then(function (cache) {
-        return fetch(request).then(function (response) {
-            return cache.put(request, response);
-        });
-    });
-}
-
-function refresh(response) {
-    return self.clients.matchAll().then(function (clients) {
-        clients.forEach(function (client) {
-            var message = {
-                type: 'refresh',
-                url: response.url,
-                eTag: response.headers.get('ETag')
-            };
-            client.postMessage(JSON.stringify(message));
-        });
-    });
-}
+// function refresh(response) {
+//     if (!response) {
+//         return Promise.reject('empty-response');
+//     }
+//     return self.clients.matchAll().then(function (clients) {
+//         clients.forEach(function (client) {
+//             var message = {
+//                 type: 'refresh',
+//                 url: response.url,
+//                 eTag: response.headers.get('ETag')
+//             };
+//             client.postMessage(JSON.stringify(message));
+//         });
+//     });
+// }

@@ -16,10 +16,18 @@ define( 'PWA_MANIFEST_QUERY_VAR', 'jetpack_app_manifest' );
 add_action( 'jetpack_activate_module_pwa', 'pwa_activate' );
 add_action( 'jetpack_deactivate_module_pwa', 'pwa_deactivate' );
 add_filter( 'query_vars', 'pwa_register_query_vars' );
-add_action( 'wp_enqueue_scripts', 'pwa_enqueue_script' );
+
+// manifest
 add_action( 'wp_head', 'pwa_render_manifest_link' );
+add_action( 'amp_post_template_head', 'pwa_render_manifest_link' );
 add_action( 'admin_head', 'pwa_render_manifest_link' );
-add_action( 'template_redirect', 'pwa_render_custom_assets', 1 );
+
+// service worker
+add_action( 'template_redirect', 'pwa_force_https', 1 );
+add_action( 'wp_enqueue_scripts', 'pwa_enqueue_script' );
+add_action( 'template_redirect', 'pwa_render_custom_assets', 2 );
+add_action( 'amp_post_template_head', 'pwa_render_amp_serviceworker_script' );
+add_action( 'amp_post_template_footer', 'pwa_render_amp_serviceworker_element' );
 
 function pwa_activate() {
 	if ( ! did_action( 'pwa_init' ) ) {
@@ -129,4 +137,23 @@ function pwa_render_manifest_link() {
         <link rel="manifest" href="/index.php?<?php echo PWA_MANIFEST_QUERY_VAR; ?>=1">
         <meta name="theme-color" content="<?php echo pwa_get_theme_color(); ?>">
     <?php
+}
+
+function pwa_render_amp_serviceworker_script() {
+    ?>
+        <script async custom-element="amp-install-serviceworker" src="https://cdn.ampproject.org/v0/amp-install-serviceworker-0.1.js"></script>
+    <?php
+}
+
+function pwa_render_amp_serviceworker_element() {
+    ?>
+        <amp-install-serviceworker src="/service-worker.js" layout="nodisplay"></amp-install-serviceworker>
+    <?php
+}
+
+function pwa_force_https () {
+	if ( !is_ssl() ) {
+		wp_redirect('https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'], 301 );
+		exit();
+	}
 }
