@@ -37,6 +37,7 @@ function jetpack_migrate_image_widget() {
 		'link_rel' => '',
 		'image_title' => '',
 		'link_target_blank' => false,
+		'conditions' => array(),
 	);
 
 	$media_image      = get_option( 'widget_media_image' );
