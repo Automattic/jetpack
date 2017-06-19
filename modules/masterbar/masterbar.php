@@ -924,6 +924,15 @@ class A8C_WPCOM_Masterbar {
 					),
 				) );
 			}
+
+			// Restore dashboard menu toggle that is needed on mobile views.
+			if ( is_admin() ) {
+				$wp_admin_bar->add_menu( array(
+				'id'    => 'menu-toggle',
+				'title' => '<span class="ab-icon"></span><span class="screen-reader-text">' . __( 'Menu', 'jetpack' ) . '</span>',
+				'href'  => '#',
+				) );
+			}
 		}
 	}
 }
