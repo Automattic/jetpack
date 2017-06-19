@@ -102,7 +102,10 @@ function jetpack_migrate_image_widget() {
 		}
 
 		foreach ( $sidebars_widgets as $sidebar => $widgets ) {
-			if ( false !== ( $key = array_search( "image-{$id}", $widgets, true ) ) ) {
+			if (
+				is_array( $widgets )
+				&& false !== ( $key = array_search( "image-{$id}", $widgets, true ) )
+			) {
 				$sidebars_widgets[ $sidebar ][ $key ] = "media_image-{$id}";
 			}
 		}
