@@ -103,6 +103,11 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
+= 5.1 =
+
+* Release date: July 5th, 2017
+* Release post:
+
 = 5.0 =
 
 * Release date: June 6th, 2017
