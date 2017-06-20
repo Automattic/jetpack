@@ -831,7 +831,7 @@ function wpsc_deep_replace( $search, $subject ) {
 
 function wpsc_get_protected_directories() {
 	global $cache_path, $blog_cache_dir;
-	$return = apply_filters( 'wpsc_protected_directories', array(
+	return apply_filters( 'wpsc_protected_directories', array(
 									$cache_path . '.htaccess',
 									$cache_path . "index.html",
 									$blog_cache_dir,
@@ -841,7 +841,6 @@ function wpsc_get_protected_directories() {
 									$cache_path . 'supercache/index.html',
 									$cache_path . 'supercache' )
 								);
-	return $return;
 }
 
 ?>
