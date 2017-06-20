@@ -388,7 +388,9 @@ function wp_cache_ob_callback( $buffer ) {
 			foreach( $wpsc_file_mtimes as $cache_file => $old_mtime ) {
 				if ( $old_mtime == @filemtime( $cache_file ) ) {
 					wp_cache_debug( "wp_cache_ob_callback deleting unmodified rebuilt cache file: $cache_file" );
-					@unlink( $cache_file );
+					if ( wp_cache_confirm_delete( $cache_file ) ) {
+						@unlink( $cache_file );
+					}
 				}
 			}
 		}
@@ -578,6 +580,12 @@ function wp_cache_get_ob(&$buffer) {
 
 	if( @is_dir( $dir ) == false )
 		@wp_mkdir_p( $dir );
+	$dir = realpath( $dir );
+	$rp_cache_path = realpath( $cache_path );
+	if ( substr( $dir, 0, strlen( $rp_cache_path ) ) != $rp_cache_path ) {
+		wp_cache_debug( "wp_cache_get_ob: not caching as directory is not in cache_path: $dir" );
+		return $buffer;
+	}
 
 	$fr = $fr2 = $gz = false;
 	// Open wp-cache cache file
