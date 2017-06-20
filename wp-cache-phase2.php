@@ -85,7 +85,7 @@ function wpcache_do_rebuild( $dir ) {
 		return false;
 	}
 
-	$protected = array( $cache_path, $cache_path . "blogs/", $cache_path . 'supercache' );
+	$protected = wpsc_get_protected_directories();
 	foreach( $protected as $id => $directory ) {
 		$protected[ $id ] = trailingslashit( realpath( $directory ) );
 	}
@@ -813,6 +813,7 @@ function prune_super_cache( $directory, $force = false, $rename = false ) {
 	global $cache_max_time, $cache_path, $cache_rebuild_files, $blog_cache_dir;
 	static $log = 0;
 	static $rp_cache_path = '';
+	static $protected_directories = '';
 
 	if ( $rp_cache_path == '' ) {
 		$rp_cache_path = trailingslashit( realpath( $cache_path ) );
@@ -838,14 +839,9 @@ function prune_super_cache( $directory, $force = false, $rename = false ) {
 
 	$now = time();
 
-	$protected_directories = array( $cache_path . '.htaccess', 
-									$cache_path . "index.html", 
-									$cache_path . $blog_cache_dir, 
-									$cache_path . $blog_cache_dir . "index.html", 
-									$cache_path . $blog_cache_dir . 'meta', 
-									$cache_path . $blog_cache_dir . 'meta/index.html', 
-									$cache_path . 'supercache/index.html',
-									$cache_path . 'supercache' );
+	if ( $protected_directories == '' ) {
+		$protected_directories = wpsc_get_protected_directories();
+	}
 
 	$oktodelete = false;
 	if (is_dir($directory)) {
@@ -927,11 +923,9 @@ function wp_cache_rebuild_or_delete( $file ) {
 		return false;
 	}
 
-	if ( $protected == '' ) {
-		$protected = array( $cache_path . "index.html", $cache_path . "supercache/index.html", $cache_path . "blogs/index.html" );
-		foreach( $protected as $id => $directory ) {
-			$protected[ $id ] = trailingslashit( realpath( $directory ) );
-		}
+	$protected = wpsc_get_protected_directories();
+	foreach( $protected as $id => $directory ) {
+		$protected[ $id ] = trailingslashit( realpath( $directory ) );
 	}
 
 	if ( in_array( $file, $protected ) ) {

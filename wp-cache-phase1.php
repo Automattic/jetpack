@@ -829,4 +829,18 @@ function wpsc_deep_replace( $search, $subject ) {
 	return $subject;
 }
 
+function wpsc_get_protected_directories() {
+	global $cache_path, $blog_cache_dir;
+	return apply_filters( 'wpsc_protected_directories', array(
+									$cache_path . '.htaccess',
+									$cache_path . "index.html",
+									$blog_cache_dir,
+									$blog_cache_dir . "index.html",
+									$blog_cache_dir . 'meta',
+									$blog_cache_dir . 'meta/index.html',
+									$cache_path . 'supercache/index.html',
+									$cache_path . 'supercache' )
+								);
+}
+
 ?>
