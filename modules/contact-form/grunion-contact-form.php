@@ -2018,6 +2018,10 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 		$headers = 'From: "' . $comment_author . '" <' . $from_email_addr . ">\r\n" .
 					'Reply-To: "' . $comment_author . '" <' . $reply_to_addr . ">\r\n";
+		// todo ^^^ will probably need pass through same treatment as add_name_to_address(),
+		// since $comment_author can be $comment_author_email, or be set by a filter
+		// should only apply `if ( is_email() )`, though
+		// need to see if anywhere else in module is affected, too
 
 		// Build feedback reference
 		$feedback_time  = current_time( 'mysql' );
@@ -2233,6 +2237,9 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		remove_filter( 'wp_mail_content_type', __CLASS__ . '::get_mail_content_type' );
 		remove_action( 'phpmailer_init',       __CLASS__ . '::add_plain_text_alternative' );
 
+		var_dump( $result );
+		wp_die();
+
 		return $result;
 	}
 
@@ -2249,7 +2256,34 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	function add_name_to_address( $address ) {
 		// If it's just the address, without a display name
 		if ( is_email( $address ) ) {
-			$address = sprintf( '"%s" <%s>', $address, $address );
+			/*
+			 * The `@` in the display name should be escaped, according to RFC 5322 section 3.2.3. Some hosts will
+			 * reject the message if it isn't escaped.
+			 *
+			 * The `.` should not have to be escaped, as long as the atom is in double quotes. We don't add quotes
+			 * here, though, because PHPMailer will add them, and adding extra ones can cause some hosts to reject
+			 * the message.
+			 *
+			 * We can't use PHPMailer to handle this, because some plugins replace it; see
+			 * https://github.com/Automattic/jetpack/pull/7018
+			 *
+			 * 		todo add note that we should _not_ add quotes here, b/c phpmailer will add them
+			 * 		but what about zendmail and other libraries that plugins replace phpmailer with?
+			 * 		they should add them too, b/c wp_mail() breaks the address into parts.
+			 * 		need to test, though, to be safe. gmail-smtp, postman-smtp, maybe a few others?
+			 *
+			 * See https://tools.ietf.org/html/rfc5322#section-3.2.3
+			 */
+			$address = sprintf(
+				'%s <%s>',
+				str_replace( '@', '\@', $address ),
+				$address
+			);
+
+			error_log( $address );
+			var_dump( esc_html( $address ) );
+			// lots of escaped quotes in the string. is that expected?
+			// is phpmailer escaping this after me? if so, why doesn't it escape it in the first place?
 		}
 
 		return $address;
