@@ -827,13 +827,15 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * : WordPress.com ID of user to connect as (must be whitelisted against partner key)
 	 * [--force_register=<register>]
 	 * : Whether to force a site to register
+	 * [--onboarding=<onboarding>]
+	 * : Guide the user through an onboarding wizard
 	 *
 	 * ## EXAMPLES
 	 *
 	 *     $ wp jetpack partner_provision '{ some: "json" }' premium 1
 	 *     { success: true }
 	 *
-	 * @synopsis <token_json> [--wpcom_user_id=<user_id>] [--plan=<plan_name>] [--force_register=<register>]
+	 * @synopsis <token_json> [--wpcom_user_id=<user_id>] [--plan=<plan_name>] [--force_register=<register>] [--onboarding=<onboarding>]
 	 */
 	public function partner_provision( $args, $named_args ) {
 		list( $token_json ) = $args;
@@ -924,6 +926,10 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		if ( isset( $named_args['plan'] ) && ! empty( $named_args['plan'] ) ) {
 			$request_body['plan'] = $named_args['plan'];
+		}
+
+		if ( isset( $named_args['onboarding'] ) && ! empty( $named_args['onboarding'] ) ) {
+			$request_body['onboarding'] = intval( $named_args['onboarding'] );
 		}
 
 		$request = array(
