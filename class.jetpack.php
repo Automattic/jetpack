@@ -2458,7 +2458,13 @@ class Jetpack {
 		return $string;
 	}
 
-	public static function activate_default_modules( $min_version = false, $max_version = false, $other_modules = array(), $redirect = true ) {
+	public static function activate_default_modules(
+		$min_version = false,
+		$max_version = false,
+		$other_modules = array(),
+		$redirect = true,
+		$send_state_messages = true
+	) {
 		$jetpack = Jetpack::init();
 
 		$modules = Jetpack::get_default_modules( $min_version, $max_version );
@@ -2519,7 +2525,7 @@ class Jetpack {
 				continue;
 			}
 
-			if ( in_array( $module, $active ) ) {
+			if ( $send_state_messages && in_array( $module, $active ) ) {
 				$module_info = Jetpack::get_module( $module );
 				if ( ! $module_info['deactivate'] ) {
 					$state = in_array( $module, $other_modules ) ? 'reactivated_modules' : 'activated_modules';
@@ -2543,26 +2549,39 @@ class Jetpack {
 			if ( $redirect ) {
 				wp_safe_redirect( Jetpack::admin_url( 'page=jetpack' ) );
 			}
-			Jetpack::state( 'error', 'module_activation_failed' );
-			Jetpack::state( 'module', $module );
+
+			if ( $send_state_messages ) {
+				Jetpack::state( 'error', 'module_activation_failed' );
+				Jetpack::state( 'module', $module );
+			}
+
 			ob_start();
 			require $file;
 
 			$active[] = $module;
-			$state    = in_array( $module, $other_modules ) ? 'reactivated_modules' : 'activated_modules';
-			if ( $active_state = Jetpack::state( $state ) ) {
-				$active_state = explode( ',', $active_state );
-			} else {
-				$active_state = array();
+
+			if ( $send_state_messages ) {
+
+				$state    = in_array( $module, $other_modules ) ? 'reactivated_modules' : 'activated_modules';
+				if ( $active_state = Jetpack::state( $state ) ) {
+					$active_state = explode( ',', $active_state );
+				} else {
+					$active_state = array();
+				}
+				$active_state[] = $module;
+				Jetpack::state( $state, implode( ',', $active_state ) );
 			}
-			$active_state[] = $module;
-			Jetpack::state( $state, implode( ',', $active_state ) );
+
 			Jetpack::update_active_modules( $active );
 
 			ob_end_clean();
 		}
-		Jetpack::state( 'error', false );
-		Jetpack::state( 'module', false );
+
+		if ( $send_state_messages ) {
+			Jetpack::state( 'error', false );
+			Jetpack::state( 'module', false );
+		}
+
 		Jetpack::catch_errors( false );
 		/**
 		 * Fires when default modules are activated.
