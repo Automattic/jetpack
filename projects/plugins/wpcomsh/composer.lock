@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "6c203b1e255c66795df0f8a6d1fc9a64",
-    "content-hash": "d75e49ed6536c18a21f8fd627899c3fc",
+    "hash": "453c7df10f1298b3a7c9cec1fcda4186",
+    "content-hash": "60a67df80a1ae28d50fbfe354e230bfe",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -78,6 +78,28 @@
                 ]
             },
             "time": "2017-06-15 16:29:07"
+        },
+        {
+            "name": "automattic/text-media-widget-styles",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Automattic/text-media-widget-styles.git",
+                "reference": "f22db278fbfeb6e536935031726be39c63a5b41b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Automattic/text-media-widget-styles/zipball/f22db278fbfeb6e536935031726be39c63a5b41b",
+                "reference": "f22db278fbfeb6e536935031726be39c63a5b41b",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "text-media-widget-styles.php"
+                ]
+            },
+            "time": "2017-06-20 23:34:19"
         }
     ],
     "packages-dev": [],
