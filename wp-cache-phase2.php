@@ -580,7 +580,7 @@ function wp_cache_get_ob(&$buffer) {
 
 	if( @is_dir( $dir ) == false )
 		@wp_mkdir_p( $dir );
-	$dir = realpath( $dir );
+	$dir = realpath( $dir ) . '/';
 	$rp_cache_path = realpath( $cache_path );
 	if ( substr( $dir, 0, strlen( $rp_cache_path ) ) != $rp_cache_path ) {
 		wp_cache_debug( "wp_cache_get_ob: not caching as directory is not in cache_path: $dir" );
