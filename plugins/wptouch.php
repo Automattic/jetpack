@@ -25,9 +25,9 @@ function wp_super_cache_wptouch_admin() {
 		echo '<p>' . __( 'Provides support for <a href="http://wordpress.org/extend/plugins/wptouch/">WPTouch</a> mobile theme and plugin.', 'wp-super-cache' ) . '</p>';
 		if ( isset( $changed ) && $changed ) {
 			if ( $cache_wptouch )
-				$status = __( "enabled" );
+				$status = __( "enabled", 'wp-super-cache' );
 			else
-				$status = __( "disabled" );
+				$status = __( "disabled", 'wp-super-cache' );
 			echo "<p><strong>" . sprintf( __( "WPTouch support is now %s", 'wp-super-cache' ), $status ) . "</strong></p>";
 		}
 	echo '<div class="submit"><input class="button-primary" ' . SUBMITDISABLED . 'type="submit" value="' . __( 'Update', 'wp-super-cache' ) . '" /></div>';
