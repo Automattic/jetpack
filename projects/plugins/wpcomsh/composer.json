@@ -1,5 +1,6 @@
 {
   "require": {
+    "automattic/text-media-widget-styles":"1.0.0",
     "automattic/at-pressable-podcasting":"1.0.0",
     "automattic/custom-fonts-typekit": "1.0.3",
     "automattic/custom-fonts": "1.0.1"
@@ -19,6 +20,11 @@
       "type":"vcs",
       "no-api": true,
       "url":"https://github.com/automattic/at-pressable-podcasting.git"
+    },
+    {
+      "type":"vcs",
+      "no-api": true,
+      "url":"https://github.com/Automattic/text-media-widget-styles.git"
     }
   ]
 }
