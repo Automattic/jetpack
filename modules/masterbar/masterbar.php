@@ -567,8 +567,8 @@ class A8C_WPCOM_Masterbar {
 		if ( is_admin() ) {
 			$wp_admin_bar->add_menu( array(
 				'parent' => 'blog',
-				'id'     => 'site-preview',
-				'title'  => __( 'Site Preview' ),
+				'id'     => 'site-view',
+				'title'  => __( 'View Site', 'jetpack' ),
 				'href'   => home_url(),
 				'meta'   => array(
 					'class' => 'mb-icon',
