@@ -1,30 +1,37 @@
 {
+  "name": "automattic/wpcomsh",
+  "type": "project",
+  "description": "Like Jetpack for WPCom sites transferred to Pressable.",
+  "license": "GPLv3",
   "require": {
-    "automattic/text-media-widget-styles":"1.0.0",
-    "automattic/at-pressable-podcasting":"1.0.0",
+    "automattic/at-pressable-podcasting": "1.0.0",
+    "automattic/custom-fonts": "1.0.1",
     "automattic/custom-fonts-typekit": "1.0.3",
-    "automattic/custom-fonts": "1.0.1"
+    "automattic/text-media-widget-styles": "1.0.0"
+  },
+  "require-dev": {
+    "php": ">=7.0.0"
   },
   "repositories": [
     {
-      "type":"vcs",
+      "type": "vcs",
       "no-api": true,
-      "url":"https://github.com/Automattic/custom-fonts.git"
+      "url": "https://github.com/Automattic/custom-fonts.git"
     },
     {
-      "type":"vcs",
+      "type": "vcs",
       "no-api": true,
-      "url":"https://github.com/Automattic/custom-fonts-typekit.git"
+      "url": "https://github.com/Automattic/custom-fonts-typekit.git"
     },
     {
-      "type":"vcs",
+      "type": "vcs",
       "no-api": true,
-      "url":"https://github.com/automattic/at-pressable-podcasting.git"
+      "url": "https://github.com/automattic/at-pressable-podcasting.git"
     },
     {
-      "type":"vcs",
+      "type": "vcs",
       "no-api": true,
-      "url":"https://github.com/Automattic/text-media-widget-styles.git"
+      "url": "https://github.com/Automattic/text-media-widget-styles.git"
     }
   ]
 }
