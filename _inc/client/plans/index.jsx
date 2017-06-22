@@ -8,7 +8,8 @@ import { connect } from 'react-redux';
  * Internal dependencies
  */
 import {
-	getSitePlan
+	getSitePlan,
+	getAvailableFeatures
 } from 'state/site';
 import QuerySite from 'components/data/query-site';
 import { getSiteConnectionStatus } from 'state/connection';
@@ -18,9 +19,11 @@ import PlanBody from './plan-body';
 
 export const Plans = React.createClass( {
 	render() {
-		let sitePlan = this.props.sitePlan.product_slug || '';
+		let sitePlan = this.props.sitePlan.product_slug || '',
+			features = this.props.availableFeatures;
 		if ( 'dev' === this.props.getSiteConnectionStatus( this.props ) ) {
 			sitePlan = 'dev';
+			features = {};
 		}
 
 		return (
@@ -28,7 +31,12 @@ export const Plans = React.createClass( {
 				<QuerySite />
 				<div className="jp-landing__plans dops-card">
 					<PlanHeader plan={ sitePlan } siteRawUrl={ this.props.siteRawUrl } />
-					<PlanBody plan={ sitePlan } siteRawUrl={ this.props.siteRawUrl } siteAdminUrl={ this.props.siteAdminUrl } />
+					<PlanBody
+						plan={ sitePlan }
+						features={ features }
+						siteRawUrl={ this.props.siteRawUrl }
+						siteAdminUrl={ this.props.siteAdminUrl }
+					/>
 				</div>
 			</div>
 		);
@@ -39,7 +47,8 @@ export default connect(
 	( state ) => {
 		return {
 			getSiteConnectionStatus: () => getSiteConnectionStatus( state ),
-			sitePlan: getSitePlan( state )
+			sitePlan: getSitePlan( state ),
+			availableFeatures: getAvailableFeatures( state )
 		};
 	}
 )( Plans );

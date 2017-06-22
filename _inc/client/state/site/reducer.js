@@ -85,3 +85,12 @@ export function isFetchingSiteData( state ) {
 export function getSitePlan( state ) {
 	return get( state.jetpack.siteData, [ 'data', 'plan'], {} );
 }
+
+/**
+ * Returns features that are available when upgrading to higher tier plans.
+ * @param  {Object}  state Global state tree
+ * @return {Object}  Features
+ */
+export function getAvailableFeatures( state ) {
+	return get( state.jetpack.siteFeatures, [ 'available' ], {} );
+}
