@@ -68,9 +68,9 @@ function wp_supercache_badbehaviour_admin() {
 		echo '<p>' . sprintf( __( '(Only legacy caching supported, disabled compression and requires <a href="http://www.bad-behavior.ioerror.us/">Bad Behavior</a> in "%s/plugins/bad-behavior/") ', 'wp-super-cache' ), WP_CONTENT_DIR ) . '</p>';
 		if ( isset( $changed ) && $changed ) {
 			if ( $cache_badbehaviour )
-				$status = __( "enabled" );
+				$status = __( "enabled", 'wp-super-cache' );
 			else
-				$status = __( "disabled" );
+				$status = __( "disabled", 'wp-super-cache' );
 			echo "<p><strong>" . sprintf( __( "Bad Behavior support is now %s", 'wp-super-cache' ), $status ) . "</strong></p>";
 		}
 	echo '<div class="submit"><input class="button-primary" ' . SUBMITDISABLED . 'type="submit" value="' . __( 'Update', 'wp-super-cache' ) . '" /></div>';

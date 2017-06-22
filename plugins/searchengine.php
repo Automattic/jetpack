@@ -72,9 +72,9 @@ function wp_supercache_searchengine_admin() {
 		echo '<p>' . __( 'Provides support for <a href="http://ocaoimh.ie/no-adverts-for-friends/">No Adverts for Friends</a>.', 'wp-super-cache' ) . '</p>';
 		if ( isset( $changed ) && $changed ) {
 			if ( 'yes' == $cache_no_adverts_for_friends )
-				$status = __( "enabled" );
+				$status = __( "enabled", 'wp-super-cache' );
 			else
-				$status = __( "disabled" );
+				$status = __( "disabled", 'wp-super-cache' );
 			echo "<p><strong>" . sprintf( __( "No Adverts for Friends support is now %s", 'wp-super-cache' ), $status ) . "</strong></p>";
 		}
 	echo '<div class="submit"><input class="button-primary" ' . SUBMITDISABLED . 'type="submit" value="' . __( 'Update', 'wp-super-cache' ) . '" /></div>';

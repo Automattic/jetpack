@@ -78,9 +78,9 @@ function wp_supercache_domain_mapping_admin() {
 		echo '<p>' . __( 'Provides support for <a href="http://wordpress.org/extend/plugins/wordpress-mu-domain-mapping/">Domain Mapping</a> plugin to map multiple domains to a blog.', 'wp-super-cache' ) . '</p>';
 		if ( isset( $changed ) && $changed ) {
 			if ( $cache_domain_mapping )
-				$status = __( "enabled" );
+				$status = __( "enabled", 'wp-super-cache' );
 			else
-				$status = __( "disabled" );
+				$status = __( "disabled", 'wp-super-cache' );
 			echo "<p><strong>" . sprintf( __( "Domain Mapping support is now %s", 'wp-super-cache' ), $status ) . "</strong></p>";
 		}
 	echo '<div class="submit"><input class="button-primary" ' . SUBMITDISABLED . 'type="submit" value="' . __( 'Update', 'wp-super-cache' ) . '" /></div>';
