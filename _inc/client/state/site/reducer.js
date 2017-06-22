@@ -11,13 +11,18 @@ import assign from 'lodash/assign';
 import {
 	JETPACK_SITE_DATA_FETCH,
 	JETPACK_SITE_DATA_FETCH_RECEIVE,
-	JETPACK_SITE_DATA_FETCH_FAIL
+	JETPACK_SITE_DATA_FETCH_FAIL,
+	JETPACK_SITE_FEATURES_FETCH,
+	JETPACK_SITE_FEATURES_FETCH_RECEIVE,
+	JETPACK_SITE_FEATURES_FETCH_FAIL
 } from 'state/action-types';
 
 export const data = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case JETPACK_SITE_DATA_FETCH_RECEIVE:
 			return assign( {}, action.siteData );
+		case JETPACK_SITE_FEATURES_FETCH_RECEIVE:
+			return assign( {}, action.siteFeatures );
 		default:
 			return state;
 	}
@@ -33,10 +38,19 @@ export const requests = ( state = initialRequestsState, action ) => {
 			return assign( {}, state, {
 				isFetchingSiteData: true
 			} );
+		case JETPACK_SITE_FEATURES_FETCH:
+			return assign( {}, state, {
+				isFetchingSiteFeatures: true
+			} );
 		case JETPACK_SITE_DATA_FETCH_FAIL:
 		case JETPACK_SITE_DATA_FETCH_RECEIVE:
 			return assign( {}, state, {
 				isFetchingSiteData: false
+			} );
+		case JETPACK_SITE_FEATURES_FETCH_FAIL:
+		case JETPACK_SITE_FEATURES_FETCH_RECEIVE:
+			return assign( {}, state, {
+				isFetchingSiteFeatures: false
 			} );
 
 		default:
@@ -57,7 +71,10 @@ export const reducer = combineReducers( {
  * @return {Boolean}       Whether site data is being requested
  */
 export function isFetchingSiteData( state ) {
-	return !!state.jetpack.siteData.requests.isFetchingSiteData;
+	return !! (
+		state.jetpack.siteData.requests.isFetchingSiteData
+		&& state.jetpack.siteData.requests.isFetchingSiteFeatures
+	);
 }
 
 /**
