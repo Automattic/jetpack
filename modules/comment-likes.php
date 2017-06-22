@@ -78,21 +78,24 @@ class Jetpack_Comment_Likes {
 	}
 
 	public function comment_likes_edit_column( $column_name, $comment_id ) {
-		if ( 'comment_likes' == $column_name ) {
-			$blog_id = Jetpack_Options::get_option( 'id' );
-
-			$permalink = get_permalink( get_the_ID() ); ?>
-			<a title=""
-			   data-comment-id="<?php echo (int) $comment_id; ?>"
-			   data-blog-id="<?php echo (int) $blog_id; ?>"
-			   class="comment-like-count"
-			   id="comment-like-count-<?php echo (int) $comment_id; ?>"
-			   href="<?php echo esc_url( $permalink ); ?>#comment-<?php echo (int) $comment_id; ?>"
-			>
-				<span class="like-count">0</span>
-			</a>
-			<?php
+		if ( 'comment_likes' !== $column_name ) {
+			return;
 		}
+
+		$blog_id = Jetpack_Options::get_option( 'id' );
+
+		$permalink = get_permalink( get_the_ID() );
+		?>
+		<a title=""
+		   data-comment-id="<?php echo (int) $comment_id; ?>"
+		   data-blog-id="<?php echo (int) $blog_id; ?>"
+		   class="comment-like-count"
+		   id="comment-like-count-<?php echo (int) $comment_id; ?>"
+		   href="<?php echo esc_url( $permalink ); ?>#comment-<?php echo (int) $comment_id; ?>"
+		>
+			<span class="like-count">0</span>
+		</a>
+		<?php
 	}
 
 	function enqueue_admin_styles_scripts() {
@@ -157,11 +160,12 @@ class Jetpack_Comment_Likes {
 		$name    = sprintf( 'like-comment-frame-%1$d-%2$d-%3$s', $blog_id, $comment_id, $uniqid );
 		$wrapper = sprintf( 'like-comment-wrapper-%1$d-%2$d-%3$s', $blog_id, $comment_id, $uniqid );
 
-		$html[] = "<div class='jetpack-comment-likes-widget-wrapper jetpack-likes-widget-unloaded' id='$wrapper' data-src='$src' data-name='$name'>";
-		$html[] = "<div class='likes-widget-placeholder comment-likes-widget-placeholder comment-likes'><span class=\"loading\">" . esc_html__( 'Loading...', 'jetpack' ) . "</span> </div>";
-		$html[] = "<div class='comment-likes-widget jetpack-likes-widget comment-likes'><span class='comment-like-feedback'></span>";
-		$html[] = "<span class='sd-text-color'></span><a class='sd-link-color'></a>";
-		$html[] = '</div></div>';
+		$html = '';
+		$html .= "<div class='jetpack-comment-likes-widget-wrapper jetpack-likes-widget-unloaded' id='$wrapper' data-src='$src' data-name='$name'>";
+		$html .= "<div class='likes-widget-placeholder comment-likes-widget-placeholder comment-likes'><span class='loading'>" . esc_html__( 'Loading...', 'jetpack' ) . "</span></div>";
+		$html .= "<div class='comment-likes-widget jetpack-likes-widget comment-likes'><span class='comment-like-feedback'></span>";
+		$html .= "<span class='sd-text-color'></span><a class='sd-link-color'></a>";
+		$html .= '</div></div>';
 
 		/**
 		 * Filters the Comment Likes button content.
@@ -172,7 +176,7 @@ class Jetpack_Comment_Likes {
 		 *
 		 * @param string Comment Likes button content.
 		 */
-		$like_button = apply_filters( 'comment_like_button', implode( '', $html ), '' );
+		$like_button = apply_filters( 'comment_like_button', $html, '' );
 
 		return $content . $like_button;
 	}

@@ -240,7 +240,7 @@ function JetpackLikesWidgetQueueHandler() {
 		JetpackLikesBatchHandler();
 	}
 
-	for ( var i=0; i <= unloadedWidgetsInView.length - 1; i++ ) {
+	for ( var i=0, length = unloadedWidgetsInView.length; i <= length - 1; i++ ) {
 		wrapperID = unloadedWidgetsInView[i].id;
 
 		if ( ! wrapperID ){

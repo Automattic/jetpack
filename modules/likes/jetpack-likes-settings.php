@@ -2,7 +2,7 @@
 
 class Jetpack_Likes_Settings {
 	function __construct() {
-		$this->in_jetpack = ( defined( 'IS_WPCOM' ) && IS_WPCOM ) ? false : true;
+		$this->in_jetpack = ! ( defined( 'IS_WPCOM' ) && IS_WPCOM );
 	}
 
 	/**
@@ -175,8 +175,9 @@ class Jetpack_Likes_Settings {
 	 * Returns the settings have been saved message.
 	 */
 	function updated_message() {
-		if ( isset( $_GET['update'] ) && $_GET['update'] == 'saved' )
+		if ( isset( $_GET['update'] ) && $_GET['update'] == 'saved' ){
 			echo '<div class="updated"><p>' . esc_html__( 'Settings have been saved', 'jetpack' ) . '</p></div>';
+		}
 	}
 
 	/**
@@ -217,12 +218,7 @@ class Jetpack_Likes_Settings {
 		$sitewide_likes_enabled = (bool) $this->is_enabled_sitewide();
 		$post_likes_switched    = (bool) get_post_meta( $post->ID, 'switch_like_status', true );
 
-		$post_likes_enabled = $sitewide_likes_enabled;
-		if ( $post_likes_switched ) {
-			$post_likes_enabled = ! $post_likes_enabled;
-		}
-
-		return $post_likes_enabled;
+		return $post_likes_switched xor $sitewide_likes_enabled;
 	}
 
 	/**
