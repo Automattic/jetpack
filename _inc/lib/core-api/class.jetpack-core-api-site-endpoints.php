@@ -39,7 +39,12 @@ class Jetpack_Core_API_Site_Endpoint {
 			);
 		}
 
-		return $results;
+		return rest_ensure_response( array(
+				'code' => 'success',
+				'message' => esc_html__( 'Site features correctly received.', 'jetpack' ),
+				'data' => wp_remote_retrieve_body( $response ),
+			)
+		);
 	}
 
 	/**

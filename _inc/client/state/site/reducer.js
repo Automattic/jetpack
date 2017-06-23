@@ -4,6 +4,7 @@
 import { combineReducers } from 'redux';
 import get from 'lodash/get';
 import assign from 'lodash/assign';
+import merge from 'lodash/merge';
 
 /**
  * Internal dependencies
@@ -20,9 +21,9 @@ import {
 export const data = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case JETPACK_SITE_DATA_FETCH_RECEIVE:
-			return assign( {}, action.siteData );
+			return assign( {}, state, action.siteData );
 		case JETPACK_SITE_FEATURES_FETCH_RECEIVE:
-			return assign( {}, action.siteFeatures );
+			return merge( {}, state, { siteFeatures: action.siteFeatures } );
 		default:
 			return state;
 	}
@@ -72,8 +73,8 @@ export const reducer = combineReducers( {
  */
 export function isFetchingSiteData( state ) {
 	return !! (
-		state.jetpack.siteData.requests.isFetchingSiteData
-		&& state.jetpack.siteData.requests.isFetchingSiteFeatures
+		state.jetpack.siteData.requests.isFetchingSiteData &&
+		state.jetpack.siteData.requests.isFetchingSiteFeatures
 	);
 }
 
@@ -92,5 +93,5 @@ export function getSitePlan( state ) {
  * @return {Object}  Features
  */
 export function getAvailableFeatures( state ) {
-	return get( state.jetpack.siteFeatures, [ 'available' ], {} );
+	return get( state.jetpack.siteData, [ 'data', 'siteFeatures', 'available' ], {} );
 }
