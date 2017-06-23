@@ -71,6 +71,8 @@ const PlanBody = React.createClass( {
 		const planClass = 'dev' !== this.props.plan
 			? getPlanClass( this.props.plan )
 			: 'dev';
+		const premiumThemesActive = 'undefined' !== typeof this.props.activeFeatures[ FEATURE_UNLIMITED_PREMIUM_THEMES ];
+
 		switch ( planClass ) {
 			case 'is-personal-plan':
 			case 'is-premium-plan':
@@ -78,7 +80,7 @@ const PlanBody = React.createClass( {
 				planCard = (
 					<div className="jp-landing__plan-features">
 						{
-							( 'undefined' !== typeof this.props.features[ FEATURE_UNLIMITED_PREMIUM_THEMES ] ) && (
+							premiumThemesActive && (
 								<div className="jp-landing__plan-features-card">
 									<h3 className="jp-landing__plan-features-title">{ __( 'Unlimited Premium Themes' ) }</h3>
 									<p>{ __( 'Exclusive hand-crafted designs you will love with dedicated support directly from the themes authors.' ) }</p>
@@ -389,8 +391,10 @@ const PlanBody = React.createClass( {
 		}
 		return (
 			<div>
-				<QuerySitePlugins />
-				{ planCard	}
+				<div>
+					<QuerySitePlugins />
+					{ planCard }
+				</div>
 			</div>
 		);
 	}

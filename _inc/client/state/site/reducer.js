@@ -88,10 +88,19 @@ export function getSitePlan( state ) {
 }
 
 /**
- * Returns features that are available when upgrading to higher tier plans.
+ * Returns features that are available on any plan.
  * @param  {Object}  state Global state tree
  * @return {Object}  Features
  */
 export function getAvailableFeatures( state ) {
 	return get( state.jetpack.siteData, [ 'data', 'siteFeatures', 'available' ], {} );
+}
+
+/**
+ * Returns features that are available for current plan.
+ * @param  {Object}  state Global state tree
+ * @return {Object}  Features
+ */
+export function getActiveFeatures( state ) {
+	return get( state.jetpack.siteData, [ 'data', 'siteFeatures', 'active' ], {} );
 }
