@@ -18,6 +18,7 @@ import {
 } from 'state/site';
 import QuerySite from 'components/data/query-site';
 import { getSiteConnectionStatus } from 'state/connection';
+import ThemesPromoCard from 'components/themes-promo-card';
 
 import PlanHeader from './plan-header';
 import PlanBody from './plan-body';
@@ -33,9 +34,7 @@ export const Plans = React.createClass( {
 			case 'is-personal-plan':
 			case 'is-premium-plan':
 			case 'is-free-plan':
-				return (
-					<div>hello Themes</div>
-				);
+				return <ThemesPromoCard plan={ sitePlan } />;
 		}
 
 		return null;
