@@ -93,7 +93,7 @@ function wp_supercache_domain_mapping_admin() {
 add_cacheaction( 'cache_admin_page', 'wp_supercache_domain_mapping_admin' );
 
 function wp_supercache_domain_mapping_notice() {
-	global $cache_enabled, $cache_domain_mapping;
+	global $cache_enabled;
 	if( $cache_enabled )
 		echo '<div class="error"><p><strong>' . __('Domain Mapping plugin detected! Please go to the Supercache plugins page and enable the domain mapping helper plugin.', 'wp-super-cache' ) . '</strong></p></div>';
 }

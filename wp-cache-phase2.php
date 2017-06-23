@@ -1,9 +1,7 @@
 <?php
 
 function wp_cache_phase2() {
-	global $cache_filename, $cache_acceptable_files, $wp_cache_gzip_encoding, $super_cache_enabled, $cache_rebuild_files, $wp_cache_last_gc;
-	global $cache_max_time, $wp_cache_request_uri, $super_cache_enabled, $wp_cache_object_cache, $cache_time_interval;
-	global $cache_enabled, $wp_cache_gmt_offset, $wp_cache_blog_charset, $cache_schedule_type, $cache_scheduled_time, $cache_schedule_interval;
+	global $wp_cache_gzip_encoding, $super_cache_enabled, $cache_rebuild_files, $cache_enabled, $wp_cache_gmt_offset, $wp_cache_blog_charset;
 
 	if ( $cache_enabled == false ) {
 		wp_cache_debug( "Caching disabled! quiting!", 1 );
@@ -466,11 +464,11 @@ function wp_cache_maybe_dynamic( &$buffer ) {
 }
 
 function wp_cache_get_ob(&$buffer) {
-	global $cache_enabled, $cache_path, $cache_filename, $meta_file, $wp_start_time, $supercachedir;
-	global $new_cache, $wp_cache_meta, $file_expired, $blog_id, $cache_compression;
-	global $wp_cache_gzip_encoding, $super_cache_enabled, $cached_direct_pages;
+	global $cache_enabled, $cache_path, $cache_filename, $wp_start_time, $supercachedir;
+	global $new_cache, $wp_cache_meta, $cache_compression;
+	global $wp_cache_gzip_encoding, $super_cache_enabled;
 	global $wp_cache_404, $gzsize, $supercacheonly;
-	global $blog_cache_dir, $wp_cache_request_uri, $wp_supercache_cache_list;
+	global $blog_cache_dir, $wp_supercache_cache_list;
 	global $wp_cache_not_logged_in, $wp_cache_object_cache, $cache_max_time;
 	global $wp_cache_is_home, $wp_cache_front_page_checks, $wp_cache_mfunc_enabled;
 
@@ -782,7 +780,7 @@ function wp_cache_get_ob(&$buffer) {
 }
 
 function wp_cache_phase2_clean_cache($file_prefix) {
-	global $cache_path, $blog_cache_dir;
+	global $wpdb, $blog_cache_dir;
 
 	if( !wp_cache_writers_entry() )
 		return false;
@@ -810,7 +808,7 @@ function wp_cache_phase2_clean_cache($file_prefix) {
 }
 
 function prune_super_cache( $directory, $force = false, $rename = false ) {
-	global $cache_max_time, $cache_path, $cache_rebuild_files, $blog_cache_dir;
+	global $cache_max_time, $cache_path, $blog_cache_dir;
 	static $log = 0;
 	static $rp_cache_path = '';
 	static $protected_directories = '';
@@ -843,7 +841,6 @@ function prune_super_cache( $directory, $force = false, $rename = false ) {
 		$protected_directories = wpsc_get_protected_directories();
 	}
 
-	$oktodelete = false;
 	if (is_dir($directory)) {
 		if( $dh = @opendir( $directory ) ) {
 			$directory = trailingslashit( $directory );
@@ -1005,7 +1002,7 @@ function wp_cache_phase2_clean_expired( $file_prefix, $force = false ) {
 }
 
 function wp_cache_shutdown_callback() {
-	global $cache_path, $cache_max_time, $file_expired, $file_prefix, $meta_file, $new_cache, $wp_cache_meta, $known_headers, $blog_id, $wp_cache_gzip_encoding, $gzsize, $cache_filename, $supercacheonly, $blog_cache_dir;
+	global $cache_max_time, $meta_file, $new_cache, $wp_cache_meta, $known_headers, $blog_id, $wp_cache_gzip_encoding, $supercacheonly, $blog_cache_dir;
 	global $wp_cache_request_uri, $wp_cache_key, $wp_cache_object_cache, $cache_enabled, $wp_cache_blog_charset, $wp_cache_not_logged_in;
 	global $WPSC_HTTP_HOST;
 
@@ -1270,8 +1267,8 @@ function wp_cache_post_edit($post_id) {
 	}
 }
 
-function wp_cache_post_id_gc( $siteurl, $post_id, $all = 'all' ) {
-	global $cache_path, $wp_cache_object_cache, $wp_cache_refresh_single_only;
+function wp_cache_post_id_gc( $post_id, $all = 'all' ) {
+	global $wp_cache_object_cache;
 	
 	if ( $wp_cache_object_cache )
 		reset_oc_version();
@@ -1299,7 +1296,7 @@ function wp_cache_post_id_gc( $siteurl, $post_id, $all = 'all' ) {
 }
 
 function wp_cache_post_change( $post_id ) {
-	global $file_prefix, $cache_path, $blog_id, $super_cache_enabled, $blog_cache_dir, $blogcacheid, $wp_cache_refresh_single_only, $wp_cache_object_cache;
+	global $file_prefix, $cache_path, $blog_id, $super_cache_enabled, $blog_cache_dir, $wp_cache_refresh_single_only, $wp_cache_object_cache;
 	static $last_processed = -1;
 
 	if ( $post_id == $last_processed ) {
@@ -1338,13 +1335,10 @@ function wp_cache_post_change( $post_id ) {
 	if ( $wp_cache_object_cache )
 		reset_oc_version();
 
-	$permalink = trailingslashit( str_replace( get_option( 'siteurl' ), '', get_permalink( $post_id ) ) );
-
 	// Delete supercache files whenever a post change event occurs, even if supercache is currently disabled.
 	$dir = get_supercache_dir();
-	$siteurl = trailingslashit( strtolower( preg_replace( '/:.*$/', '', str_replace( 'https://', '', str_replace( 'http://', '', get_option( 'home' ) ) ) ) ) );
 	// make sure the front page has a rebuild file
-	wp_cache_post_id_gc( $siteurl, $post_id, $all );
+	wp_cache_post_id_gc( $post_id, $all );
 	if ( $all == true ) {
 		wp_cache_debug( "Post change: supercache enabled: deleting cache files in " . $dir );
 		wpsc_rebuild_files( $dir );

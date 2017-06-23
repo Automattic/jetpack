@@ -40,7 +40,7 @@ function wp_super_cache_wptouch_admin() {
 add_cacheaction( 'cache_admin_page', 'wp_super_cache_wptouch_admin' );
 
 function wp_super_cache_wptouch_notice() {
-	global $cache_enabled, $cache_wptouch;
+	global $cache_enabled;
 	if( $cache_enabled )
 		echo '<div class="error"><p><strong>' . __('WPTouch plugin detected! Please go to the Supercache plugins page and enable the WPTouch helper plugin.', 'wp-super-cache' ) . '</strong></p></div>';
 }
@@ -80,7 +80,7 @@ function wp_super_cache_maybe_disable_wptouch( $t ) {
 add_cacheaction( 'disable_mobile_check', 'wp_super_cache_maybe_disable_wptouch' );
 
 function wp_super_cache_wptouch_browsers( $browsers ) {
-	global $cache_wptouch, $wptouch_exclude_ua, $wp_cache_config_file;
+	global $wptouch_exclude_ua, $wp_cache_config_file;
 
 	if ( false == function_exists( 'bnc_wptouch_get_exclude_user_agents' ) || false == function_exists( 'bnc_wptouch_get_user_agents' ) )
 		return $browsers;

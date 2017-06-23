@@ -41,7 +41,6 @@ function searchenginesupercache( $user_info ) {
 	} else {
 		return false;
 	}
-	return $user_info;
 }
 
 function searchengine_phase2_actions() {

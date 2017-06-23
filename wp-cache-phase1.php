@@ -116,7 +116,7 @@ function get_wp_cache_key( $url = false ) {
 }
 
 function wp_super_cache_init() {
-	global $wp_cache_key, $key, $blogcacheid, $wp_cache_request_uri, $file_prefix, $blog_cache_dir, $meta_file, $cache_file, $cache_filename, $meta_pathname, $wp_cache_gzip_encoding, $meta;
+	global $wp_cache_key, $key, $blogcacheid, $file_prefix, $blog_cache_dir, $meta_file, $cache_file, $cache_filename, $meta_pathname;
 
 	$wp_cache_key = get_wp_cache_key();
 	$key = $blogcacheid . md5( $wp_cache_key );
