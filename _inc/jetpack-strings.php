@@ -325,7 +325,7 @@ __( "Double Negatives", "jetpack" ), // _inc/client/writing/composing.jsx:135
 __( "Diacritical Marks", "jetpack" ), // _inc/client/writing/composing.jsx:134
 __( "Complex Phrases", "jetpack" ), // _inc/client/writing/composing.jsx:133
 __( "Clichés", "jetpack" ), // _inc/client/writing/composing.jsx:132
-__( "Bias Language", "jetpack" ), // _inc/client/writing/composing.jsx:131
+__( "Biased Language", "jetpack" ), // _inc/client/writing/composing.jsx:131
 __( "Enable proofreading for the following grammar and style rules: ", "jetpack" ), // _inc/client/writing/composing.jsx:129
 __( "English Options", "jetpack" ), // _inc/client/writing/composing.jsx:127
 __( "Use automatically detected language to proofread posts and pages", "jetpack" ), // _inc/client/writing/composing.jsx:122

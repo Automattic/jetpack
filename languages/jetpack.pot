@@ -1531,7 +1531,7 @@ msgid ""
 msgstr ""
 
 #: modules/after-the-deadline/config-options.php:63
-msgid "Bias Language"
+msgid "Biased Language"
 msgstr ""
 
 #: modules/after-the-deadline/config-options.php:65

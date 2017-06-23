@@ -10162,7 +10162,7 @@ msgstr "Klišei"
 
 #: _inc/jetpack-strings.php:328 _inc/lib/class.core-rest-api-endpoints.php:1405
 #: modules/after-the-deadline/config-options.php:63
-msgid "Bias Language"
+msgid "Biased Language"
 msgstr "Vulgaran jezik"
 
 #: modules/after-the-deadline/config-options.php:60

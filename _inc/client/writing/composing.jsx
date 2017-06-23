@@ -34,7 +34,7 @@ const Composing = moduleSettingsForm(
 		 *		onpublish: *,
 		*		onupdate: *,
 		*		guess_lang: *,
-		*		Bias Language: *,
+		*		Biased Language: *,
 		*		Cliches: *,
 		*		Complex Expression: *,
 		*		Diacritical Marks: *,
@@ -51,7 +51,7 @@ const Composing = moduleSettingsForm(
 				onpublish: this.props.getOptionValue( 'onpublish', 'after-the-deadline' ),
 				onupdate: this.props.getOptionValue( 'onupdate', 'after-the-deadline' ),
 				guess_lang: this.props.getOptionValue( 'guess_lang', 'after-the-deadline' ),
-				'Bias Language': this.props.getOptionValue( 'Bias Language', 'after-the-deadline' ),
+				'Biased Language': this.props.getOptionValue( 'Biased Language', 'after-the-deadline' ),
 				Cliches: this.props.getOptionValue( 'Cliches', 'after-the-deadline' ),
 				'Complex Expression': this.props.getOptionValue( 'Complex Expression', 'after-the-deadline' ),
 				'Diacritical Marks': this.props.getOptionValue( 'Diacritical Marks', 'after-the-deadline' ),
@@ -128,7 +128,7 @@ const Composing = moduleSettingsForm(
 						<span className="jp-form-setting-explanation">
 							{ __( 'Enable proofreading for the following grammar and style rules: ' ) }
 						</span>
-						{ this.getToggle( 'Bias Language', __( 'Bias Language' ) ) }
+						{ this.getToggle( 'Biased Language', __( 'Biased Language' ) ) }
 						{ this.getToggle( 'Cliches', __( 'Clichés' ) ) }
 						{ this.getToggle( 'Complex Expression', __( 'Complex Phrases' ) ) }
 						{ this.getToggle( 'Diacritical Marks', __( 'Diacritical Marks' ) ) }
