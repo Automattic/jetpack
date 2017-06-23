@@ -11,6 +11,17 @@
  * License: GPLv2 or later
  */
 
+ /**
+  * Include the following PWA capabilities:
+  * - cache the home page and posts/pages
+  * - cache all CSS and JS
+  * - show offline/online status using body class "jetpack__offline"
+  * TODO:
+  * - push updates
+  * - how to cache within wp-admin?
+  * - hook WP's native cache functions to expire and push updates to sites
+  */
+
 define( 'PWA_SW_QUERY_VAR', 'jetpack_service_worker' );
 define( 'PWA_MANIFEST_QUERY_VAR', 'jetpack_app_manifest' );
 add_action( 'jetpack_activate_module_pwa', 'pwa_activate' );
@@ -54,7 +65,9 @@ function pwa_init() {
 
 	do_action( 'pwa_init' );
     add_rewrite_rule('service-worker.js$', 'index.php?' . PWA_SW_QUERY_VAR . '=1', 'top');
-    wp_register_script( 'jetpack-register-service-worker', plugins_url( 'assets/register-service-worker.js', __FILE__ ), false, '1.5' );
+    wp_register_script( 'jetpack-register-service-worker', plugins_url( 'assets/js/register-service-worker.js', __FILE__ ), false, '1.5' );
+    wp_register_script( 'jetpack-show-network-status', plugins_url( 'assets/js/show-network-status.js', __FILE__ ), false, '1.5' );
+    wp_register_style( 'jetpack-show-network-status', plugins_url( 'assets/css/show-network-status.css', __FILE__ ) );
 }
 
 function pwa_render_custom_assets() {
@@ -62,7 +75,7 @@ function pwa_render_custom_assets() {
 
     if ( $wp_query->get( PWA_SW_QUERY_VAR ) ) {
         header( 'Content-Type: application/javascript; charset=utf-8' );
-        echo file_get_contents( plugin_dir_path( __FILE__ ) . 'assets/service-worker.js' );
+        echo file_get_contents( plugin_dir_path( __FILE__ ) . 'assets/js/service-worker.js' );
         exit;
     }
 
@@ -116,6 +129,8 @@ function pwa_site_icon_url( $size ) {
 
 function pwa_enqueue_script() {
     wp_enqueue_script( 'jetpack-register-service-worker' );
+    wp_enqueue_script( 'jetpack-show-network-status' );
+    wp_enqueue_style( 'jetpack-show-network-status' );
 }
 
 function pwa_get_theme_color() {
