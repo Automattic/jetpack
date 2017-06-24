@@ -1291,15 +1291,15 @@ class Jetpack {
 	 * @return array Active Jetpack plan details
 	 */
 	public static function get_active_plan() {
-		$plan = get_option( 'jetpack_active_plan' );
+		$plan = get_option( 'jetpack_active_plan', array() );
 
 		// Set the default options
-		if ( ! $plan ) {
-			$plan = array(
+		if ( empty( $plan ) || ( isset( $plan['product_slug'] ) && 'jetpack_free' === $plan['product_slug'] ) ) {
+			$plan = wp_parse_args( $plan, array(
 				'product_slug' => 'jetpack_free',
 				'supports'     => array(),
 				'class'        => 'free',
-			);
+			) );
 		}
 
 		// Define what paid modules are supported by personal plans
