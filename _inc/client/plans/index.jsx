@@ -34,7 +34,7 @@ export const Plans = React.createClass( {
 			case 'is-personal-plan':
 			case 'is-premium-plan':
 			case 'is-free-plan':
-				return <ThemesPromoCard plan={ sitePlan } />;
+				return <ThemesPromoCard plan={ planClass } siteRawUrl={ this.props.siteRawUrl } />;
 		}
 
 		return null;

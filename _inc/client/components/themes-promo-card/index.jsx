@@ -30,6 +30,11 @@ const ThemesPromoCard = React.createClass( {
 				'jp-themes-card'
 		);
 
+		// Plan classes come through as `is-whatever-plan`, we need to strip off `is-` and `-plan` from the string to pass to the URL
+		const plan = this.props.plan;
+		const regex = /(?![is-])(.*)(?=-plan)/g;
+		const urlFriendlyPlan = Array.isArray( plan.match( regex ) ) ? plan.match( regex )[ 0 ] : '';
+
 		return (
 			<div className={ classes }>
 				<Card className="jp-apps-card__content">
@@ -57,15 +62,13 @@ const ThemesPromoCard = React.createClass( {
 						<Button
 							className="is-primary"
 							onClick={ this.trackGetStarted }
-							// @todo: real link please
-							href="">
+							href={ 'https://jetpack.com/redirect/?source=upgrade-pro-' + urlFriendlyPlan + '&site=' + this.props.siteRawUrl }>
 							{ __( 'Get Started' ) }
 						</Button>
 						<br />
-						<a
-							// @todo: real link please
-							href="javascript:void(0)"
-						>{ __( 'Includes 50% introductory discount' ) }</a>
+						<p className="jp-apps-card__promo_subhead">
+							{ __( 'Includes 50% introductory discount' ) }
+						</p>
 					</div>
 				</Card>
 			</div>
