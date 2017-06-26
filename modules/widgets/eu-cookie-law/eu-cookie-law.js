@@ -1,7 +1,14 @@
 ( function( $ ) {
-	$( '.widget_eu_cookie_law_widget' ).appendTo( 'body' );
+	var cookieValue = document.cookie.replace( /(?:(?:^|.*;\s*)eucookielaw\s*\=\s*([^;]*).*$)|^.*$/, '$1' ),
+		overlay = $( '#eu-cookie-law' ),
+		initialScrollPosition,
+		scrollFunction;
 
-	var overlay = $( '#eu-cookie-law' ), initialScrollPosition, scrollFunction;
+	if ( '' !== cookieValue ) {
+		overlay.remove();
+	}
+
+	$( '.widget_eu_cookie_law_widget' ).appendTo( 'body' ).fadeIn();
 
 	overlay.find( 'form' ).on( 'submit', accept );
 
