@@ -56,7 +56,7 @@ const ThemesPromoCard = React.createClass( {
 						</p>
 
 						<p className="jp-apps-card__paragraph">
-							{ __( 'Over 200 professionally designed, versatile themes are now available to all Jetpack Professional customers, alongside our advanced security tools and other Professional features' ) }
+							{ __( 'Over 200 professionally designed, versatile themes are now available to all Jetpack Professional customers, alongside our advanced security tools and other Professional features.' ) }
 						</p>
 
 						<Button

@@ -83,7 +83,7 @@ const PlanBody = React.createClass( {
 							premiumThemesActive && (
 								<div className="jp-landing__plan-features-card">
 									<h3 className="jp-landing__plan-features-title">{ __( 'Unlimited Premium Themes' ) }</h3>
-									<p>{ __( 'Exclusive hand-crafted designs you will love with dedicated support directly from the themes\' authors.' ) }</p>
+									<p>{ __( "Exclusive hand-crafted designs you will love with dedicated support directly from the themes' authors." ) }</p>
 									<Button
 										onClick={ () => this.trackPlansClick( 'premium_themes' ) }
 										href={ 'https://wordpress.com/themes/premium/' + this.props.siteRawUrl }
