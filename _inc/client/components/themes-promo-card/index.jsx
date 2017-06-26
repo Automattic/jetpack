@@ -66,9 +66,12 @@ const ThemesPromoCard = React.createClass( {
 							{ __( 'Get Started' ) }
 						</Button>
 						<br />
-						<p className="jp-apps-card__promo_subhead">
+						<a
+							onClick={ this.trackGetStarted }
+							href={ 'https://jetpack.com/redirect/?source=upgrade-pro-' + urlFriendlyPlan + '&site=' + this.props.siteRawUrl }
+						>
 							{ __( 'Includes 50% introductory discount' ) }
-						</p>
+						</a>
 					</div>
 				</Card>
 			</div>
