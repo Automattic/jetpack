@@ -1890,10 +1890,55 @@ function wp_cache_edit_accepted() {
 	echo "</form>\n";
 }
 
+function wpsc_create_debug_log( $filename = '', $username = '' ) {
+	global $cache_path, $wp_cache_debug_username, $wp_cache_debug_log;
+	if ( $filename != '' ) {
+		$wp_cache_debug_log = $filename;
+	} else {
+		$wp_cache_debug_log = md5( time() + mt_rand() ) . ".php";
+	}
+	if ( $username != '' ) {
+		$wp_cache_debug_username = $username;
+	} else {
+		$wp_cache_debug_username = md5( time() + mt_rand() );
+	}
+	$fp = fopen( $cache_path . $wp_cache_debug_log, 'w' );
+	if ( $fp ) {
+		fwrite( $fp, '<' . "?php\n" );
+		$msg = '
+				if ( !isset( $_SERVER[ "PHP_AUTH_USER" ] ) || ( $_SERVER[ "PHP_AUTH_USER" ] != "' . $wp_cache_debug_username . '" && $_SERVER[ "PHP_AUTH_PW" ] != "' . $wp_cache_debug_username . '" ) ) {
+					header( "WWW-Authenticate: Basic realm=\"WP-Super-Cache Debug Log\"" );
+					header("HTTP/1.0 401 Unauthorized");
+					echo "You must login to view the debug log";
+					exit;
+				}';
+		fwrite( $fp, $msg );
+		fwrite( $fp, '?' . "><pre>" );
+		fclose( $fp );
+		wp_cache_setting( 'wp_cache_debug_log', $wp_cache_debug_log );
+		wp_cache_setting( 'wp_cache_debug_username', $wp_cache_debug_username );
+	}
+	return array( 'wp_cache_debug_log' => $wp_cache_debug_log, 'wp_cache_debug_username' => $wp_cache_debug_username );
+}
+
 function wp_cache_debug_settings() {
 	global $wp_super_cache_debug, $wp_cache_debug_log, $wp_cache_debug_ip, $cache_path, $valid_nonce, $wp_cache_config_file, $wp_super_cache_comments;
 	global $wp_super_cache_front_page_check, $wp_super_cache_front_page_clear, $wp_super_cache_front_page_text, $wp_super_cache_front_page_notification, $wp_super_cache_advanced_debug;
-	global $wp_cache_debug_username, $wp_cache_debug_password;
+	global $wp_cache_debug_username;
+
+	if ( isset( $_POST[ 'wpsc_delete_log' ] ) && $valid_nonce ) {
+		@unlink( $cache_path . $wp_cache_debug_log );
+		wp_cache_setting( 'wp_super_cache_debug', 0 );
+		wp_cache_setting( 'wp_cache_debug_log', '' );
+		$wp_super_cache_debug = 0;
+	} elseif ( isset( $_POST[ 'wpsc_disable_log' ] ) && $valid_nonce ) {
+		wp_cache_setting( 'wp_super_cache_debug', 0 );
+		wp_cache_setting( 'wp_cache_debug_log', '' );
+		$wp_super_cache_debug = 0;
+	} elseif ( isset( $_POST[ 'wpsc_reset_log' ] ) && $valid_nonce ) {
+		@unlink( $cache_path . $wp_cache_debug_log );
+		wpsc_create_debug_log( $wp_cache_debug_log, $wp_cache_debug_username );
+	}
 
 	if ( false == isset( $wp_super_cache_comments ) )
 		$wp_super_cache_comments = 1;
@@ -1903,30 +1948,12 @@ function wp_cache_debug_settings() {
 		$wp_super_cache_debug = intval( $_POST[ 'wp_super_cache_debug' ] );
 		wp_cache_replace_line('^ *\$wp_super_cache_debug', "\$wp_super_cache_debug = '$wp_super_cache_debug';", $wp_cache_config_file);
 		if ( $wp_super_cache_debug && ( ( isset( $wp_cache_debug_log ) && $wp_cache_debug_log == '' ) || !isset( $wp_cache_debug_log ) ) ) {
-			$wp_cache_debug_log = md5( time() + mt_rand() ) . ".php";
-			$wp_cache_debug_username = md5( time() + mt_rand() );
-			$wp_cache_debug_password = $wp_cache_debug_username;
-			$fp = fopen( $cache_path . $wp_cache_debug_log, 'w' );
-			if ( $fp ) {
-				fwrite( $fp, '<' . "?php\n" );
-				$msg = '
-				if ( !isset( $_SERVER[ "PHP_AUTH_USER" ] ) || ( $_SERVER[ "PHP_AUTH_USER" ] != "' . $wp_cache_debug_username . '" && $_SERVER[ "PHP_AUTH_PW" ] != "' . $wp_cache_debug_password . '" ) ) {
-					header( "WWW-Authenticate: Basic realm=\"WP-Super-Cache Debug Log\"" );
-					header("HTTP/1.0 401 Unauthorized");
-					echo "You must login to view the debug log";
-					exit;
-				}';
-				fwrite( $fp, $msg );
-				fwrite( $fp, '?' . "><pre>" );
-				fclose( $fp );
-			}
+			extract( wpsc_create_debug_log() );
 		} elseif ( !$wp_super_cache_debug ) {
 			$wp_cache_debug_log = "";
 			$wp_cache_debug_username = '';
-			$wp_cache_debug_password = '';
 		}
 		wp_cache_replace_line('^ *\$wp_cache_debug_username', "\$wp_cache_debug_username = '$wp_cache_debug_username';", $wp_cache_config_file);
-		wp_cache_replace_line('^ *\$wp_cache_debug_password', "\$wp_cache_debug_password = '$wp_cache_debug_password';", $wp_cache_config_file);
 		wp_cache_replace_line('^ *\$wp_cache_debug_log', "\$wp_cache_debug_log = '$wp_cache_debug_log';", $wp_cache_config_file);
 		$wp_super_cache_comments = isset( $_POST[ 'wp_super_cache_comments' ] ) ? 1 : 0;
 		wp_cache_replace_line('^ *\$wp_super_cache_comments', "\$wp_super_cache_comments = '$wp_super_cache_comments';", $wp_cache_config_file);
@@ -1948,20 +1975,36 @@ function wp_cache_debug_settings() {
 
 	echo '<a name="debug"></a>';
 	echo '<fieldset class="options">';
+	echo '<p>' . __( 'Fix problems with the plugin by debugging it here. It can log them to a file in your cache directory.', 'wp-super-cache' ) . '</p>';
 	if ( isset( $wp_cache_debug_log ) && $wp_cache_debug_log != '' ) {
+		?>
+		<form style='display: inline' name="wpsc_debug_log_reset" action="" method="post">
+		<input type='hidden' name='wpsc_reset_log' value='1' />
+		<input type='submit' class="button-primary" value='<?php _e( 'Reset Debug Log', 'wp-super-cache' ); ?>' />
+		<?php wp_nonce_field('wp-cache'); ?>
+		</form>
+		<form style='display: inline' name="wpsc_debug_log_disable" action="" method="post">
+		<input type='hidden' name='wpsc_disable_log' value='1' />
+		<input type='submit' class="button-primary" value='<?php _e( 'Disable Debug Log', 'wp-super-cache' ); ?>' />
+		<?php wp_nonce_field('wp-cache'); ?>
+		</form>
+		<form style='display: inline' name="wpsc_debug_log_delete" action="" method="post">
+		<input type='hidden' name='wpsc_delete_log' value='1' />
+		<input type='submit' class="button-primary" value='<?php _e( 'Disable and Delete Debug Log', 'wp-super-cache' ); ?>' />
+		<?php wp_nonce_field('wp-cache'); ?>
+		</form>
+		<?php
 		echo "<p>" . sprintf( __( 'Currently logging to: %s', 'wp-super-cache' ), "<a href='" . site_url( str_replace( ABSPATH, '', "{$cache_path}{$wp_cache_debug_log}" ) ) . "'>$cache_path{$wp_cache_debug_log}</a>" ) . "</p>";
 		if ( isset( $wp_cache_debug_username ) && $wp_cache_debug_username != '' ) {
-			echo "<p>" . sprintf( __( 'Username: %s', 'wp-super-cache' ), $wp_cache_debug_username ) . "<br />";
-			echo sprintf( __( 'Password: %s', 'wp-super-cache' ), $wp_cache_debug_password ) . "</p>";
+			echo "<p>" . sprintf( __( 'Username and Password: %s', 'wp-super-cache' ), $wp_cache_debug_username ) . "</p>";
 		}
 	}
 
 
-	echo '<p>' . __( 'Fix problems with the plugin by debugging it here. It can log them to a file in your cache directory.', 'wp-super-cache' ) . '</p>';
 	echo '<div style="clear:both"></div><form name="wp_cache_debug" action="" method="post">';
 	echo "<input type='hidden' name='wp_cache_debug' value='1' /><br />";
 	echo "<table class='form-table'>";
-	echo "<tr><td>" . __( 'Debugging', 'wp-super-cache' ) . "</td><td><input type='checkbox' name='wp_super_cache_debug' value='1' " . checked( 1, $wp_super_cache_debug, false ) . " /> " . __( 'enabled', 'wp-super-cache' ) . "</td></tr>";
+	echo "<tr><td>" . __( 'Debugging', 'wp-super-cache' ) . "</td><td><label><input type='checkbox' name='wp_super_cache_debug' value='1' " . checked( 1, $wp_super_cache_debug, false ) . " /> " . __( 'enabled', 'wp-super-cache' ) . "</label></td></tr>";
 	echo "<tr><td>" . __( 'IP Address', 'wp-super-cache' ) . "</td><td> <input type='text' size='20' name='wp_cache_debug_ip' value='{$wp_cache_debug_ip}' /> " . sprintf( __( '(only log requests from this IP address. Your IP is %s)', 'wp-super-cache' ), $_SERVER[ 'REMOTE_ADDR' ] ) . "</td></tr>";
 	echo "<tr><td valign='top'>" . __( 'Cache Status Messages', 'wp-super-cache' ) . "</td><td><input type='checkbox' name='wp_super_cache_comments' value='1' " . checked( 1, $wp_super_cache_comments, false ) . " /> " . __( 'enabled', 'wp-super-cache' ) . "<br />";
 	echo  __( 'Display comments at the end of every page like this:', 'wp-super-cache' ) . "<br />";
