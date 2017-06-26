@@ -40,10 +40,14 @@ export const Plans = React.createClass( {
 		return null;
 	},
 
-	render() {
+	renderContent() {
 		let sitePlan = this.props.sitePlan.product_slug || '',
 			availableFeatures = this.props.availableFeatures,
-			activeFeatures = this.props.activeFeatures;
+			activeFeatures = this.props.activeFeatures,
+			themePromo = '';
+		const planClass = 'dev' !== this.props.plan
+			? getPlanClass( sitePlan )
+			: 'dev';
 		if ( 'dev' === this.props.getSiteConnectionStatus( this.props ) ) {
 			sitePlan = 'dev';
 			availableFeatures = {};
@@ -54,10 +58,18 @@ export const Plans = React.createClass( {
 			premiumThemesActive = 'undefined' !== typeof this.props.activeFeatures[ FEATURE_UNLIMITED_PREMIUM_THEMES ],
 			showThemesPromo = premiumThemesAvailable && ! premiumThemesActive;
 
+		if ( showThemesPromo ) {
+			themePromo = this.themesPromo();
+
+			// Don't show the rest of the promos if theme promo available and on Free plan.
+			if ( 'is-free-plan' === planClass ) {
+				return themePromo;
+			}
+		}
+
 		return (
 			<div>
-				<QuerySite />
-				{ showThemesPromo && this.themesPromo() }
+				{ themePromo }
 				<div className="jp-landing__plans dops-card">
 					<PlanHeader plan={ sitePlan } siteRawUrl={ this.props.siteRawUrl } />
 					<PlanBody
@@ -68,6 +80,15 @@ export const Plans = React.createClass( {
 						siteAdminUrl={ this.props.siteAdminUrl }
 					/>
 				</div>
+			</div>
+		);
+	},
+
+	render() {
+		return (
+			<div>
+				<QuerySite />
+				{ this.renderContent() }
 			</div>
 		);
 	}
