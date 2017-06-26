@@ -50,7 +50,7 @@ if ( ! class_exists( 'Jetpack_Flickr_Widget' ) ) {
 		public function defaults() {
 			return array(
 				'title'             => esc_html__( 'Flickr Photos', 'jetpack' ),
-				'items'             => 3,
+				'items'             => 4,
 				'flickr_image_size' => 'thumbnail',
 				'flickr_rss_url'    => ''
 			);
