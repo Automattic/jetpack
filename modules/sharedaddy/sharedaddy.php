@@ -59,7 +59,7 @@ function sharing_email_send_post( $data ) {
 /* Return $data as it if email about to be send out is not spam. */
 function sharing_email_check_for_spam_via_akismet( $data ) {
 
-	if ( ! function_exists( 'akismet_http_post' ) && ! method_exists( 'Akismet', 'http_post' ) )
+	if ( ! Jetpack::is_akismet_active() )
 		return $data;
 
 	// Prepare the body_request for akismet

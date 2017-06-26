@@ -2890,7 +2890,7 @@ p {
 				'fallback_no_verify_ssl_certs',
 			)
 		);
-		
+
 		Jetpack_IDC::clear_all_idc_options();
 		Jetpack_Options::delete_raw_option( 'jetpack_secrets' );
 
@@ -6570,5 +6570,18 @@ p {
 				}
 			</style>
 		<?php }
+	}
+
+	/**
+	 * Checks if Akismet is active and working.
+	 *
+	 * @since  5.1.0
+	 * @return bool True = Akismet available. False = Aksimet not available.
+	 */
+	public static function is_akismet_active() {
+		if ( method_exists( 'Akismet' , 'http_post' ) || function_exists( 'akismet_http_post' ) ) {
+			return true;
+		}
+		return false;
 	}
 }
