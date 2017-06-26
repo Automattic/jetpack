@@ -1,11 +1,11 @@
-jQuery( document ).ready( function() {
-	var jsonAPIbase = 'https://public-api.wordpress.com/rest/v1';
-	var APIqueue = [];
+jQuery( document ).ready( function( $ ) {
+	var jsonAPIbase = 'https://public-api.wordpress.com/rest/v1',
+		APIqueue = [];
 
 	function getCommentLikeCounts() {
-		jQuery( '.comment-like-count' ).each( function() {
-			var blogId = jQuery( this ).attr( 'data-blog-id' );
-			var commentId = jQuery( this ).attr( 'data-comment-id' );
+		$( '.comment-like-count' ).each( function() {
+			var blogId = $( this ).attr( 'data-blog-id' ),
+				commentId = $( this ).attr( 'data-comment-id' );
 
 			APIqueue.push( '/sites/' + blogId + '/comments/' + commentId + '/likes' );
 		} );
@@ -18,20 +18,18 @@ jQuery( document ).ready( function() {
 			return;
 		}
 
-		jQuery( '#comment-like-count-' + commentId ).find( '.like-count' ).hide();
-		jQuery( '#comment-like-count-' + commentId ).find( '.like-count' ).text( count );
-		jQuery( '#comment-like-count-' + commentId ).find( '.like-count' ).fadeIn();
+		$( '#comment-like-count-' + commentId ).find( '.like-count' ).hide().text( count ).fadeIn();
 	}
 
 	function fetchCounts() {
 		var batchRequest = {
-			path:    '/batch',
-			data:    'urls[]=' + APIqueue.join( '&urls[]=' ),
+			path: '/batch',
+			data: 'urls[]=' + APIqueue.join( '&urls[]=' ),
 			success: function( response ) {
 				for ( var path in response ) {
 					if ( ! response[ path ].error_data ) {
-						var urlPieces = path.split( '/' );
-						var commentId = urlPieces[ 4 ];
+						var urlPieces = path.split( '/' ),
+							commentId = urlPieces[ 4 ];
 						showCount( commentId, response[ path ].found );
 					}
 				}
@@ -43,10 +41,10 @@ jQuery( document ).ready( function() {
 	}
 
 	function request( options ) {
-		return jQuery.ajax( {
+		return $.ajax( {
 			type: 'GET',
 			url: jsonAPIbase + options.path,
-			dataType : 'jsonp',
+			dataType: 'jsonp',
 			data: options.data,
 			success: options.success,
 			error: options.error
