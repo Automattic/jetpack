@@ -67,34 +67,3 @@
 #wpadminbar .menupop .ab-submenu .ab-submenu-header > .ab-empty-item {
 	line-height: 1 !important;
 }
-
-@media screen and ( max-width: 782px ) {
-	.wp-admin .wrap h1 {
-		padding-left: 50px;
-	}
-
-	#wpadminbar #wp-admin-bar-menu-toggle {
-		position: absolute;
-		top: 53px;
-	}
-
-	#wpadminbar #wp-admin-bar-menu-toggle a {
-		padding: 0 8px !important;
-	}
-
-	#wpadminbar #wp-admin-bar-menu-toggle .ab-icon:before {
-		color: #333;
-	}
-
-	.wp-responsive-open #wpadminbar #wp-admin-bar-menu-toggle .ab-icon:before {
-		color: #00b9eb !important;
-	}
-
-	.wp-responsive-open #wpadminbar #wp-admin-bar-menu-toggle {
-		left: 190px;
-	}
-
-	.wp-responsive-open #wpadminbar #wp-admin-bar-menu-toggle .ab-item {
-		background-color: transparent;
-	}
-}
