@@ -108,6 +108,25 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Release date: July 5th, 2017
 * Release post:
 
+**Enhancements**
+* Introducing Comment likes! Allow your visitors to like comments.
+* Masterbar has a new View Site item that launches the front end of the current site.
+* Site data fetch from /me/sites REST API endpoint now includes blog_public in the list of returned options.
+* The Flickr widget now displays the images in a grid if there's enough room in the widget area.
+* E-mail sharing is now disabled in Sharing by default unless it's explicitly enabled by a filter or Akismet plugin is active.
+
+**Compatibility Improvements**
+
+* Update instructions in Flickr widget to cope with changes in Flickr UI.
+
+**Bug fixes**
+
+* Prevent the caching of the EU Cookie Law Banner cookie.
+* WP Admin menu can now be accessed in mobile when Masterbar is displayed.
+* Ensure we sync the order_id for order_items in older WooCommerce versions.
+* Don't freeze UI if VaultPress can't be reached (either due to not being registered or connection error).
+* Photon will now work correctly with very old images, uploaded before WordPress 2.7.
+
 = 5.0 =
 
 * Release date: June 6th, 2017
