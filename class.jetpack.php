@@ -4108,8 +4108,12 @@ p {
 		return self::$capability_translations[$role];
 	}
 
-	static function sign_role( $role ) {
-		if ( ! $user_id = (int) get_current_user_id() ) {
+	static function sign_role( $role, $user_id = null ) {
+		if ( empty( $user_id ) ) {
+			$user_id = (int) get_current_user_id();
+		}
+
+		if ( ! $user_id  ) {
 			return false;
 		}
 
