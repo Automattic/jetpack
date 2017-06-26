@@ -563,6 +563,20 @@ class A8C_WPCOM_Masterbar {
 			) );
 		}
 
+		// Site Preview
+		if ( is_admin() ) {
+			$wp_admin_bar->add_menu( array(
+				'parent' => 'blog',
+				'id'     => 'site-view',
+				'title'  => __( 'View Site', 'jetpack' ),
+				'href'   => home_url(),
+				'meta'   => array(
+					'class' => 'mb-icon',
+					'target' => '_blank',
+				),
+			) );
+		}
+
 		// Stats
 		if ( Jetpack::is_module_active( 'stats' ) ) {
 			$wp_admin_bar->add_menu( array(
