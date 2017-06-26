@@ -16,7 +16,6 @@ import QuerySite from 'components/data/query-site';
 import { Publicize } from './publicize';
 import { ShareButtons } from './share-buttons';
 import { Likes } from './likes';
-import { CommentLikes } from './comment-likes';
 
 class Sharing extends Component {
 
@@ -34,8 +33,7 @@ class Sharing extends Component {
 
 		const foundPublicize = this.props.isModuleFound( 'publicize' ),
 			foundSharing = this.props.isModuleFound( 'sharedaddy' ),
-			foundLikes = this.props.isModuleFound( 'likes' ),
-			foundCommentLikes = this.props.isModuleFound( 'comment-likes' );
+			foundLikes = this.props.isModuleFound( 'likes' );
 
 		if ( ! this.props.searchTerm && ! this.props.active ) {
 			return null;
@@ -44,8 +42,7 @@ class Sharing extends Component {
 		if (
 			! foundPublicize &&
 			! foundSharing &&
-			! foundLikes &&
-			! foundCommentLikes
+			! foundLikes
 		) {
 			return null;
 		}
@@ -70,13 +67,6 @@ class Sharing extends Component {
 				{
 					foundLikes && (
 						<Likes
-							{ ...commonProps }
-						/>
-					)
-				}
-				{
-					foundCommentLikes && (
-						<CommentLikes
 							{ ...commonProps }
 						/>
 					)

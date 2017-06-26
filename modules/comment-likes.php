@@ -1,7 +1,7 @@
 <?php
 /**
  * Module Name: Comment Likes
- * Module Description: Inrease visitor engagement by adding a Like button to comments.
+ * Module Description: Increase visitor engagement by adding a Like button to comments.
  * Sort Order: 39
  * Recommendation Order: 17
  * First Introduced: 5.1
