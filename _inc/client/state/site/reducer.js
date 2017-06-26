@@ -4,6 +4,7 @@
 import { combineReducers } from 'redux';
 import get from 'lodash/get';
 import assign from 'lodash/assign';
+import merge from 'lodash/merge';
 
 /**
  * Internal dependencies
@@ -11,13 +12,18 @@ import assign from 'lodash/assign';
 import {
 	JETPACK_SITE_DATA_FETCH,
 	JETPACK_SITE_DATA_FETCH_RECEIVE,
-	JETPACK_SITE_DATA_FETCH_FAIL
+	JETPACK_SITE_DATA_FETCH_FAIL,
+	JETPACK_SITE_FEATURES_FETCH,
+	JETPACK_SITE_FEATURES_FETCH_RECEIVE,
+	JETPACK_SITE_FEATURES_FETCH_FAIL
 } from 'state/action-types';
 
 export const data = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case JETPACK_SITE_DATA_FETCH_RECEIVE:
-			return assign( {}, action.siteData );
+			return assign( {}, state, action.siteData );
+		case JETPACK_SITE_FEATURES_FETCH_RECEIVE:
+			return merge( {}, state, { siteFeatures: action.siteFeatures } );
 		default:
 			return state;
 	}
@@ -33,10 +39,19 @@ export const requests = ( state = initialRequestsState, action ) => {
 			return assign( {}, state, {
 				isFetchingSiteData: true
 			} );
+		case JETPACK_SITE_FEATURES_FETCH:
+			return assign( {}, state, {
+				isFetchingSiteFeatures: true
+			} );
 		case JETPACK_SITE_DATA_FETCH_FAIL:
 		case JETPACK_SITE_DATA_FETCH_RECEIVE:
 			return assign( {}, state, {
 				isFetchingSiteData: false
+			} );
+		case JETPACK_SITE_FEATURES_FETCH_FAIL:
+		case JETPACK_SITE_FEATURES_FETCH_RECEIVE:
+			return assign( {}, state, {
+				isFetchingSiteFeatures: false
 			} );
 
 		default:
@@ -57,7 +72,10 @@ export const reducer = combineReducers( {
  * @return {Boolean}       Whether site data is being requested
  */
 export function isFetchingSiteData( state ) {
-	return !!state.jetpack.siteData.requests.isFetchingSiteData;
+	return !! (
+		state.jetpack.siteData.requests.isFetchingSiteData &&
+		state.jetpack.siteData.requests.isFetchingSiteFeatures
+	);
 }
 
 /**
@@ -67,4 +85,22 @@ export function isFetchingSiteData( state ) {
  */
 export function getSitePlan( state ) {
 	return get( state.jetpack.siteData, [ 'data', 'plan'], {} );
+}
+
+/**
+ * Returns features that are available on any plan.
+ * @param  {Object}  state Global state tree
+ * @return {Object}  Features
+ */
+export function getAvailableFeatures( state ) {
+	return get( state.jetpack.siteData, [ 'data', 'siteFeatures', 'available' ], {} );
+}
+
+/**
+ * Returns features that are available for current plan.
+ * @param  {Object}  state Global state tree
+ * @return {Object}  Features
+ */
+export function getActiveFeatures( state ) {
+	return get( state.jetpack.siteData, [ 'data', 'siteFeatures', 'active' ], {} );
 }

@@ -62,3 +62,28 @@
 	margin-top: 0;
 	font-weight: 500;
 }
+
+.jp-apps-card__promo_subhead {
+	font-style: italic;
+}
+
+.jp-themes-card {
+	margin-bottom: rem( 20px );
+
+	.jp-apps-card__top {
+		padding: rem( 60px ) 0 0;
+	}
+
+	.jp-apps-card__description {
+		max-width: 81%;
+		padding-top: rem( 10px );
+	}
+
+	.jp-apps-card__header {
+		margin-bottom: rem( 5px );
+	}
+
+	.jp-apps-card__promo_subhead {
+		margin-top: 0;
+	}
+}

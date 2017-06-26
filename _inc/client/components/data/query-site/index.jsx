@@ -10,6 +10,7 @@ import isEmpty from 'lodash/isEmpty';
  */
 import {
 	fetchSiteData,
+	fetchSiteFeatures,
 	isFetchingSiteData,
 	getSitePlan
 } from 'state/site';
@@ -31,6 +32,7 @@ class QuerySite extends Component {
 	componentWillMount() {
 		if ( ! this.props.isFetchingSiteData && ! this.props.isDevMode && isEmpty( this.props.sitePlan ) ) {
 			this.props.fetchSiteData();
+			this.props.fetchSiteFeatures();
 		}
 	}
 
@@ -49,7 +51,8 @@ export default connect(
 	},
 	( dispatch ) => {
 		return {
-			fetchSiteData: () => dispatch( fetchSiteData() )
+			fetchSiteData: () => dispatch( fetchSiteData() ),
+			fetchSiteFeatures: () => dispatch( fetchSiteFeatures() )
 		};
 	}
 )( QuerySite );

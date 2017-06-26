@@ -189,6 +189,11 @@ function JetpackRestApiClient( root, nonce ) {
 			.then( response => response.json() )
 			.then( body => JSON.parse( body.data ) ),
 
+		fetchSiteFeatures: () => getRequest( `${ apiRoot }jetpack/v4/site/features`, getParams )
+			.then( checkStatus )
+			.then( response => response.json() )
+			.then( body => JSON.parse( body.data ) ),
+
 		dismissJetpackNotice: ( notice ) => postRequest(
 			`${ apiRoot }jetpack/v4/notice/${ notice }`,
 			postParams,

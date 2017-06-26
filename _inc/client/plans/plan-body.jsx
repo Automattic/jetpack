@@ -6,7 +6,10 @@ import { connect } from 'react-redux';
 import Button from 'components/button';
 import { translate as __ } from 'i18n-calypso';
 import analytics from 'lib/analytics';
-import { getPlanClass } from 'lib/plans/constants';
+import {
+	getPlanClass,
+	FEATURE_UNLIMITED_PREMIUM_THEMES
+} from 'lib/plans/constants';
 
 /**
  * Internal dependencies
@@ -68,21 +71,37 @@ const PlanBody = React.createClass( {
 		const planClass = 'dev' !== this.props.plan
 			? getPlanClass( this.props.plan )
 			: 'dev';
+		const premiumThemesActive = 'undefined' !== typeof this.props.activeFeatures[ FEATURE_UNLIMITED_PREMIUM_THEMES ];
+
 		switch ( planClass ) {
 			case 'is-personal-plan':
 			case 'is-premium-plan':
 			case 'is-business-plan':
 				planCard = (
 					<div className="jp-landing__plan-features">
+						{
+							premiumThemesActive && (
+								<div className="jp-landing__plan-features-card">
+									<h3 className="jp-landing__plan-features-title">{ __( 'Unlimited Premium Themes' ) }</h3>
+									<p>{ __( "Exclusive hand-crafted designs you will love with dedicated support directly from the themes' authors." ) }</p>
+									<Button
+										onClick={ () => this.trackPlansClick( 'premium_themes' ) }
+										href={ 'https://wordpress.com/themes/premium/' + this.props.siteRawUrl }
+										className="is-primary">
+										{ __( 'Explore' ) }
+									</Button>
+								</div>
+							)
+						}
 						<div className="jp-landing__plan-features-card">
 							<h3 className="jp-landing__plan-features-title">{ __( 'Spam Protection' ) }</h3>
 							<p>{ __( 'State-of-the-art spam defense powered by Akismet.' ) }</p>
 							{
-								this.props.isPluginInstalled( 'akismet/akismet.php' ) && this.props.isPluginActive( 'akismet/akismet.php' ) ? (
-									<Button onClick={ () => this.trackPlansClick( 'view_spam_stats' ) } href={ this.props.siteAdminUrl + 'admin.php?page=akismet-key-config' } className="is-primary">
-										{ __( 'View your spam stats' ) }
-									</Button>
-								)
+							this.props.isPluginInstalled( 'akismet/akismet.php' ) && this.props.isPluginActive( 'akismet/akismet.php' ) ? (
+							<Button onClick={ () => this.trackPlansClick( 'view_spam_stats' ) } href={ this.props.siteAdminUrl + 'admin.php?page=akismet-key-config' } className="is-primary">
+								{ __( 'View your spam stats' ) }
+							</Button>
+							)
 								: (
 									<Button onClick={ () => this.trackPlansClick( 'configure_akismet' ) } href={ 'https://wordpress.com/plugins/setup/' + this.props.siteRawUrl + '?only=akismet' } className="is-primary">
 										{ __( 'Configure Akismet' ) }
@@ -372,8 +391,10 @@ const PlanBody = React.createClass( {
 		}
 		return (
 			<div>
-				<QuerySitePlugins />
-				{ planCard	}
+				<div>
+					<QuerySitePlugins />
+					{ planCard }
+				</div>
 			</div>
 		);
 	}
