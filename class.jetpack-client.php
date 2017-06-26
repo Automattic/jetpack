@@ -274,9 +274,10 @@ class Jetpack_Client {
 	 * @param string  $version
 	 * @param array   $args
 	 * @param string  $body
+	 * @param string  $base_api_path
 	 * @return array|WP_Error $response Data.
 	 */
-	static function wpcom_json_api_request_as_blog( $path, $version = self::WPCOM_JSON_API_VERSION, $args = array(), $body = null ) {
+	static function wpcom_json_api_request_as_blog( $path, $version = self::WPCOM_JSON_API_VERSION, $args = array(), $body = null, $base_api_path = 'rest' ) {
 		$filtered_args = array_intersect_key( $args, array(
 			'headers'     => 'array',
 			'method'      => 'string',
@@ -302,11 +303,7 @@ class Jetpack_Client {
 		// Use GET by default whereas `remote_request` uses POST
 		$request_method = ( isset( $filtered_args['method'] ) ) ? $filtered_args['method'] : 'GET';
 
-		if ( $version >= 2.0 ) {
-			$url = sprintf( '%s://%s/wpcom/v%s/%s', $proto, JETPACK__WPCOM_JSON_API_HOST, $version, $_path );
-		} else {
-			$url = sprintf( '%s://%s/rest/v%s/%s', $proto, JETPACK__WPCOM_JSON_API_HOST, $version, $_path );
-		}
+		$url = sprintf( '%s://%s/%s/v%s/%s', $proto, JETPACK__WPCOM_JSON_API_HOST, $base_api_path, $version, $_path );
 
 		$validated_args = array_merge( $filtered_args, array(
 			'url'     => $url,
