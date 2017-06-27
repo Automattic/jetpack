@@ -59,6 +59,8 @@ abstract class Abstract_Jetpack_Site extends SAL_Site {
 
 		$options['software_version'] = (string) $this->wp_version();
 		$options['max_upload_size']  = $this->max_upload_size();
+		$options['wp_memory_limit']  = $this->wp_memory_limit();
+		$options['wp_max_memory_limit']  = $this->wp_max_memory_limit();
 
 		// Sites have to prove that they are not main_network site.
 		// If the sync happends right then we should be able to see that we are not dealing with a network site
