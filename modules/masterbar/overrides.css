@@ -3,11 +3,6 @@
     min-height: unset !important;
 }
 
-/* Remove icon that appeared before plugins Add link */
-#wpadminbar ul li#wp-admin-bar-plugins a:before {
-    content: none;
-}
-
 /* Overwrite a core style which breaks the overflow for .my-sites in Safari */
 #wpadminbar li.menupop.my-sites {
 	overflow: visible;
