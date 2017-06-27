@@ -106,31 +106,31 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 = 5.1 =
 
 * Release date: July 5th, 2017
-* Release post:
+* Release post: https://jetpack.com/?p=20888
 
 **Enhancements**
-* Introducing Comment likes! Allow your visitors to like comments.
-* Masterbar has a new View Site item that launches the front end of the current site.
-* Site data fetch from /me/sites REST API endpoint now includes blog_public in the list of returned options.
-* The Flickr widget now displays the images in a grid if there's enough room in the widget area.
-* E-mail sharing is now disabled in Sharing by default unless it's explicitly enabled by a filter or Akismet plugin is active.
+* Readers and commenters can now like each others blog post comments.
+* Quickly visit your current site's front-end directly from the Masterbar's new "View Site" item.
+* Site data fetch from /me/sites REST API endpoint now includes `blog_public` in the list of returned options.
+* The Flickr widget now automatically displays images in a grid if there's enough room.
+* E-mail sharing is now disabled by default unless it's explicitly enabled by a filter or Akismet is active.
 
 **Compatibility Improvements**
 
-* Update instructions in Flickr widget to cope with changes in Flickr UI.
+* Updated instructions in Flickr widget to reflect recent changes to the Flickr UI.
 
 **Bug fixes**
 
-* Prevent the caching of the EU Cookie Law Banner cookie.
+* EU Cookie Law Banner cookie no longer cached.
 * WP Admin menu can now be accessed in mobile when Masterbar is displayed.
-* Ensure we sync the order_id for order_items in older WooCommerce versions.
-* Don't freeze UI if VaultPress can't be reached (either due to not being registered or connection error).
-* Photon will now work correctly with very old images, uploaded before WordPress 2.7.
+* We now sync the `order_id` for `order_items` in older WooCommerce versions.
+* UI now handles VaultPress connection or registration problems gracefully.
+* Photon now works correctly with images uploaded before WordPress 2.7.
 
 = 5.0 =
 
 * Release date: June 6th, 2017
-* Release post: http://wp.me/p1moTy-5hK
+* Release post: http://jetpack.com/2017/06/06/jetpack-5-0-spring-clean/
 
 **Enhancements**
 
@@ -179,7 +179,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 = 4.9 =
 
 * Release date: May 2nd, 2017
-* Release post: http://wp.me/p1moTy-4Rl
+* Release post: http://jetpack.com/2017/05/02/jetpack-4-9-widgets-and-improvements/
 
 **Major Enhancements**
 
