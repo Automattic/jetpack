@@ -103,10 +103,36 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
+= 5.1 =
+
+* Release date: July 5th, 2017
+* Release post: https://jetpack.com/?p=20888
+
+**Major Enhancements**
+* You and your readers can now show appreciation to particularly clever comments with the new Comment Likes feature.
+
+**Enhancements**
+* Quickly visit your current site's front-end directly from the Masterbar's new "View Site" item.
+* Site data fetch from /me/sites REST API endpoint now includes `blog_public` in the list of returned options.
+* The Flickr widget now automatically displays images in a grid if there's enough room.
+* E-mail sharing is now disabled by default unless it's explicitly enabled by a filter or Akismet is active.
+
+**Compatibility Improvements**
+
+* Updated instructions in Flickr widget to reflect recent changes to the Flickr UI.
+
+**Bug fixes**
+
+* EU Cookie Law Banner cookie no longer cached.
+* WP Admin menu can now be accessed in mobile when Masterbar is displayed.
+* We now sync the `order_id` for `order_items` in older WooCommerce versions.
+* UI now handles VaultPress connection or registration problems gracefully.
+* Photon now works correctly with images uploaded before WordPress 2.7.
+
 = 5.0 =
 
 * Release date: June 6th, 2017
-* Release post: http://wp.me/p1moTy-5hK
+* Release post: http://jetpack.com/2017/06/06/jetpack-5-0-spring-clean/
 
 **Enhancements**
 
@@ -151,54 +177,3 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Fix style of the EU Cookie Law Widget on themes with specific positioning.
 * Use correct time constant to define an hour in Upcoming Events Widget.
 * Avoid HTML encoding issues in sitemaps.
-
-= 4.9 =
-
-* Release date: May 2nd, 2017
-* Release post: http://wp.me/p1moTy-4Rl
-
-**Major Enhancements**
-
-* New "EU Cookie Law Banner", Flickr, and "Internet Defense League" widgets.
-
-**Slightly Less Exciting Enhancements**
-
-* Success notices are automatically dismissed after a short period.
-* Removed unused code from "My Jetpack" interface and deprecated an XML-RPC method.
-* Contact Form now adds display names to email addresses in the `To` header.
-* Updated multiple unit tests to increase code coverage.
-* Development mode now also shows module list.
-* Updated the list of locales available in Jetpack.
-* Plugin auto-updates only triggered from WordPress.com and now trigger WordPress' maintenance mode.
-
-**Performance Improvements**
-
-* Record comment content modifications and moderation events to make sure comments are always up to date on WordPress.com.
-* Sync post deletions, changes to sidebar, user events (addition, removal, and update) and theme installation.
-* We now distinguish between a new and an updated attachment.
-* Sync plugin and theme names when a related event is triggered including theme updates.
-
-**Compatibility Improvements**
-
-* Protect avoid conflicts with other plugins hooking into the log in form.
-* Contact Form not auto-activated when Ninja Forms is active.
-* WordPess.com REST API now allows `HTTP PUT` requests.
-* Ensure that Jetpack's Image Widget is fully compatible with the Media Widget soon to be available in WordPress 4.8.
-
-**Bug Fixes**
-
-* Fixed wording in Post By Email button when no email address has been generated.
-* Fixed a notice in the subscription widget in PHP 7.1
-* Properly display VaultPress notices in the Jetpack dashboard.
-* VideoPress now included in search results for "video" and fixed positioning of search icon on mobile screens.
-* Protect supports IPv6 addresses properly.
-* Dashboard avoids API requests being cached on some hosts and avoids errors when Spellchecker is inactive.
-* Contact Form message content type is now set properly to restore compatibility with email plugins.
-* Ads not displayed in the portfolio projects custom content type.
-* Display all sites available in a network, even on large multisite installations.
-* Featured Image is always used in tweets posted via Publicize.
-* Avoid fatal errors when the exclusion parameter in Related Posts is not a string.
-* Allow the removal of all custom title settings in the SEO feature.
-* Make sure images are not distorted when Tiled Galleries uses Photon.
-* Avoid PHP warnings and errors in the Stats dashboard on Multisite.
-* Avoid errors when the Jetpack plugin is deleted.
