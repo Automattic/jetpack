@@ -77,9 +77,9 @@ class WP_Super_Cache_Rest_Get_Status extends WP_REST_Controller {
 	 */
 	protected function add_compression_status( & $status ) {
 		if ( defined( 'WPSC_DISABLE_COMPRESSION' ) ) {
-			$status['compression_disabled'] = true;
+			$status['compression_disabled_by_admin'] = true;
 		} elseif ( false == function_exists( 'gzencode' ) ) {
-			$status['compression_disabled'] = true;
+			$status['compression_disabled_no_gzencode'] = true;
 		}
 	}
 
