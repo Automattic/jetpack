@@ -108,8 +108,10 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Release date: July 5th, 2017
 * Release post: https://jetpack.com/?p=20888
 
+**Major Enhancements**
+* You and your readers can now show appreciation to particularly clever comments with the new Comment Likes feature.
+
 **Enhancements**
-* Readers and commenters can now like each others blog post comments.
 * Quickly visit your current site's front-end directly from the Masterbar's new "View Site" item.
 * Site data fetch from /me/sites REST API endpoint now includes `blog_public` in the list of returned options.
 * The Flickr widget now automatically displays images in a grid if there's enough room.
