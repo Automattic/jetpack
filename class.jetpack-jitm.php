@@ -248,6 +248,7 @@ class Jetpack_JITM {
 					'user_id'    => $user->ID,
 					'user_roles' => implode( ',', $user->roles ),
 				),
+				null,
 				'wpcom'
 			);
 
