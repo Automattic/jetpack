@@ -37,14 +37,22 @@ function jetpack_migrate_image_widget() {
 		'link_rel' => '',
 		'image_title' => '',
 		'link_target_blank' => false,
-		'conditions' => array(),
+		'conditions' => null,
 	);
 
 	$media_image      = get_option( 'widget_media_image' );
 	$sidebars_widgets = wp_get_sidebars_widgets();
 
+	// Array to store legacy widget ids in to unregister on success.
+	$widgets_to_unregister = array();
+
 	foreach ( get_option( 'widget_image', array() ) as $id => $widget ) {
 		if ( is_string( $id ) ) {
+			continue;
+		}
+
+		// Can be caused by instanciating but not populating a widget in the Customizer.
+		if ( empty( $widget ) ) {
 			continue;
 		}
 
@@ -60,18 +68,21 @@ function jetpack_migrate_image_widget() {
 
 		// Check if the image is in the media library.
 		$image_basename = basename( $widget['img_url'] );
-		$attachment_ids = get_posts( array(
-			'fields'      => 'ids',
-			'meta_query'  => array(
-				array(
-					'value'   => basename( $image_basename ),
-					'compare' => 'LIKE',
-					'key'     => '_wp_attachment_metadata',
+
+		if ( ! empty( $image_basename ) ) {
+			$attachment_ids = get_posts( array(
+				'fields'      => 'ids',
+				'meta_query'  => array(
+					array(
+						'value'   => basename( $image_basename ),
+						'compare' => 'LIKE',
+						'key'     => '_wp_attachment_metadata',
+					),
 				),
-			),
-			'post_status' => 'inherit',
-			'post_type'   => 'attachment',
-		) );
+				'post_status' => 'inherit',
+				'post_type'   => 'attachment',
+			) );
+		}
 
 		foreach ( (array) $attachment_ids as $attachment_id ) {
 			$image_meta = wp_get_attachment_metadata( $attachment_id );
@@ -110,14 +121,23 @@ function jetpack_migrate_image_widget() {
 			}
 		}
 
-		wp_unregister_sidebar_widget( "image-{$id}" );
-		$media_image_widget = new WP_Widget_Media_Image();
-		$media_image_widget->_set( $id );
-		$media_image_widget->_register_one( $id );
+		$widgets_to_unregister[] = $id;
 	}
 
-	update_option( 'widget_media_image', $media_image );
-	delete_option( 'widget_image' );
+	if ( update_option( 'widget_media_image', $media_image ) ) {
+		delete_option( 'widget_image' );
+
+		// Now un-register old widgets and register new.
+		foreach ( $widgets_to_unregister as $id ) {
+			wp_unregister_sidebar_widget( "image-${id}" );
+
+			// register new widget.
+			$media_image_widget = new WP_Widget_Media_Image();
+			$media_image_widget->_set( $id );
+			$media_image_widget->_register_one( $id );
+		}
+	}
+
 	wp_set_sidebars_widgets( $sidebars_widgets );
 
 	Jetpack_Options::update_option( 'image_widget_migration', true );
