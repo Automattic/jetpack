@@ -294,7 +294,7 @@ function wp_cache_serve_cache_file() {
 		if( strpos( $header, 'Last-Modified:' ) === false )
 			header($header);
 	}
-	header( 'WP-Super-Cache: Served legacy cache file' );
+	header( 'WP-Super-Cache: Served WPCache cache file' );
 	if ( $wp_cache_object_cache ) {
 		if ( $cache ) {
 			if ( $ungzip ) {

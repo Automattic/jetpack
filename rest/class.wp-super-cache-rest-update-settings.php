@@ -207,7 +207,7 @@ class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 			}
 		}
 
-		if ( $value === 0 ) { // legacy
+		if ( $value === 0 ) { // WPCache
 			wp_super_cache_disable();
 
 		} else {
