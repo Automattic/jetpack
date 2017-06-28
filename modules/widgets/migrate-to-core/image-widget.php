@@ -56,7 +56,7 @@ function jetpack_migrate_image_widget() {
 
 	// Only migrate if the new widget is available and we haven't yet migrated
 	if ( ! class_exists( 'WP_Widget_Media_Image' ) || Jetpack_Options::get_option( 'image_widget_migration' ) ) {
-		//		return;
+		return;
 	}
 
 	$default_data = array(
