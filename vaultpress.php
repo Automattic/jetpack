@@ -1856,8 +1856,9 @@ JS;
 		}
 
 		$signature = $this->sign_string( $to_sign, $secret, $sig[1] );
-		if ( $sig[0] === $signature )
+		if ( hash_equals( $sig[0], $signature ) ) {
 			return true;
+		}
 
 		$__vp_validate_error = array( 'error' => 'invalid_signed_data' );
 		return false;
