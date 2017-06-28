@@ -25,7 +25,7 @@ function jetpack_get_module_i18n( $key ) {
 
 			'comment-likes' => array(
 				'name' => _x( 'Comment Likes', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Inrease visitor engagement by adding a Like button to comments.', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Increase visitor engagement by adding a Like button to comments.', 'Module Description', 'jetpack' ),
 			),
 
 			'comments' => array(

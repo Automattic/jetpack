@@ -140,6 +140,11 @@ function JetpackLikesMessageListener( event, message ) {
 		jQuery( '#' + event.id + ' .likes-widget-placeholder' ).fadeOut( 'fast' );
 	}
 
+	if ( 'killCommentLikes' === event.event ) {
+		// If kill switch for comment likes is enabled remove all widgets wrappers and `Loading...` placeholders.
+		jQuery( '.jetpack-comment-likes-widget-wrapper' ).remove();
+	}
+
 	if ( 'clickReblogFlair' === event.event ) {
 		wpcom_reblog.toggle_reblog_box_flair( event.obj_id );
 	}
