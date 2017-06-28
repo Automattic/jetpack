@@ -189,8 +189,6 @@ function wp_cache_get_response_headers() {
 
 			$headers[$header_name] = $header_value;
 		}
-	} else {
-		$headers = null;
 	}
 
 	return $headers;
