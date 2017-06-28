@@ -774,13 +774,14 @@ table.wpsc-settings-table {
 		$wp_cache_mod_rewrite = 1;
 	}
 
-	if ( !isset( $_GET[ 'tab' ] ) )
-		$_GET[ 'tab' ] = '';
-
-	if ( $_GET[ 'tab' ] == '' && $cache_enabled && ( $wp_cache_mod_rewrite || $super_cache_enabled == false ) ) {
+	if ( ! isset( $_GET[ 'tab' ] ) && $cache_enabled && ( $wp_cache_mod_rewrite || $super_cache_enabled == false ) ) {
 		$_GET[ 'tab' ] = 'settings';
 		echo '<div id="message" class="updated fade"><p>' .  __( 'Notice: <em>Mod_rewrite or Legacy caching enabled</em>. Showing Advanced Settings Page by default.', 'wp-super-cache' ) . '</p></div>';
 	}
+	if ( ! isset( $_GET[ 'tab' ] ) ) {
+		$_GET[ 'tab' ] = 'easy';
+	}
+
 	wpsc_admin_tabs();
 
 	if ( isset( $wp_super_cache_front_page_check ) && $wp_super_cache_front_page_check == 1 && !wp_next_scheduled( 'wp_cache_check_site_hook' ) ) {
