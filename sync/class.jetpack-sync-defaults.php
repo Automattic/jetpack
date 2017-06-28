@@ -1,5 +1,4 @@
 <?php
-require_once( JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-helpers.php' );
 
 /**
  * Just some defaults that we share with the server
@@ -78,6 +77,7 @@ class Jetpack_Sync_Defaults {
 		'wpcom_publish_posts_with_markdown',
 		'wpcom_publish_comments_with_markdown',
 		'jetpack_activated',
+		'jetpack_active_modules',
 		'jetpack_available_modules',
 		'jetpack_autoupdate_plugins',
 		'jetpack_autoupdate_plugins_translations',
@@ -116,6 +116,7 @@ class Jetpack_Sync_Defaults {
 	public static function get_options_whitelist() {
 		/** This filter is already documented in json-endpoints/jetpack/class.wpcom-json-api-get-option-endpoint.php */
 		$options_whitelist = apply_filters( 'jetpack_options_whitelist', self::$default_options_whitelist );
+
 		/**
 		 * Filter the list of WordPress options that are manageable via the JSON API.
 		 *
@@ -127,6 +128,49 @@ class Jetpack_Sync_Defaults {
 		 */
 		return apply_filters( 'jetpack_sync_options_whitelist', $options_whitelist );
 	}
+
+	/**
+	 * These are options that don't need to go in the regular wp_options table.
+	 * The reason we're putting them here is that all wp_options are pre-loaded to memory and we don't want to abuse that.
+	 *
+	 * @var array
+	 */
+	private static $options_whitelist_no_autoload = array(
+		'woocommerce_currency'                              => 'string',
+		'woocommerce_db_version'                            => 'string',
+		'woocommerce_weight_unit'                           => 'string',
+		'woocommerce_version'                               => 'string',
+		'woocommerce_unforce_ssl_checkout'                  => 'string',
+		'woocommerce_tax_total_display'                     => 'string',
+		'woocommerce_tax_round_at_subtotal'                 => 'string',
+		'woocommerce_tax_display_shop'                      => 'string',
+		'woocommerce_tax_display_cart'                      => 'string',
+		'woocommerce_prices_include_tax'                    => 'string',
+		'woocommerce_price_thousand_sep'                    => 'string',
+		'woocommerce_price_num_decimals'                    => 'string',
+		'woocommerce_price_decimal_sep'                     => 'string',
+		'woocommerce_notify_low_stock'                      => 'string',
+		'woocommerce_notify_low_stock_amount'               => 'int',
+		'woocommerce_notify_no_stock'                       => 'string',
+		'woocommerce_notify_no_stock_amount'                => 'int',
+		'woocommerce_manage_stock'                          => 'string',
+		'woocommerce_force_ssl_checkout'                    => 'string',
+		'woocommerce_hide_out_of_stock_items'               => 'string',
+		'woocommerce_file_download_method'                  => 'string',
+		'woocommerce_enable_signup_and_login_from_checkout' => 'string',
+		'woocommerce_enable_shipping_calc'                  => 'string',
+		'woocommerce_enable_review_rating'                  => 'string',
+		'woocommerce_enable_guest_checkout'                 => 'string',
+		'woocommerce_enable_coupons'                        => 'string',
+		'woocommerce_enable_checkout_login_reminder'        => 'string',
+		'woocommerce_enable_ajax_add_to_cart'               => 'string',
+		'woocommerce_dimension_unit'                        => 'string',
+		'woocommerce_default_country'                       => 'string',
+		'woocommerce_default_customer_address'              => 'string',
+		'woocommerce_currency_pos'                          => 'string',
+		'woocommerce_api_enabled'                           => 'string',
+		'woocommerce_allow_tracking'                        => 'string',
+	);
 
 	static $default_constants_whitelist = array(
 		'EMPTY_TRASH_DAYS',
@@ -147,7 +191,7 @@ class Jetpack_Sync_Defaults {
 		'WP_CRON_LOCK_TIMEOUT',
 		'PHP_VERSION',
 		'WP_MEMORY_LIMIT',
-		'WP_MAX_MEMORY_LIMIT'
+		'WP_MAX_MEMORY_LIMIT',
 	);
 
 	public static function get_constants_whitelist() {
@@ -162,6 +206,21 @@ class Jetpack_Sync_Defaults {
 		 */
 		return apply_filters( 'jetpack_sync_constants_whitelist', self::$default_constants_whitelist );
 	}
+
+	private static $constants_whitelist_no_autoload = array(
+		'WC_PLUGIN_FILE'            => 'string',
+		'WC_ABSPATH'                => 'string',
+		'WC_PLUGIN_BASENAME'        => 'string',
+		'WC_VERSION'                => 'string',
+		'WOOCOMMERCE_VERSION'       => 'string',
+		'WC_ROUNDING_PRECISION'     => 'int',
+		'WC_DISCOUNT_ROUNDING_MODE' => 'int',
+		'WC_TAX_ROUNDING_MODE'      => 'int',
+		'WC_DELIMITER'              => 'string',
+		'WC_LOG_DIR'                => 'string',
+		'WC_SESSION_CACHE_GROUP'    => 'string',
+		'WC_TEMPLATE_DEBUG_MODE'    => 'bool',
+	);
 
 	static $default_callable_whitelist = array(
 		'wp_max_upload_size'               => 'wp_max_upload_size',
@@ -227,7 +286,7 @@ class Jetpack_Sync_Defaults {
 
 	static $default_post_meta_checksum_columns = array(
 		'meta_id',
-		'meta_value'
+		'meta_value',
 	);
 
 	static $default_comment_checksum_columns = array(
@@ -237,13 +296,18 @@ class Jetpack_Sync_Defaults {
 
 	static $default_comment_meta_checksum_columns = array(
 		'meta_id',
-		'meta_value'
+		'meta_value',
 	);
 
 	static $default_option_checksum_columns = array(
 		'option_name',
 		'option_value',
 	);
+
+	// returns escapted SQL that can be injected into a WHERE clause
+	static function get_blacklisted_post_types_sql() {
+		return 'post_type NOT IN (\'' . join( '\', \'', array_map( 'esc_sql', self::$blacklisted_post_types ) ) . '\')';
+	}
 
 	static $default_multisite_callable_whitelist = array(
 		'network_name'                        => array( 'Jetpack', 'network_name' ),
@@ -293,6 +357,7 @@ class Jetpack_Sync_Defaults {
 		'_wp_page_template',
 		'_wp_trash_meta_comments_status',
 		'_wpas_mess',
+		'advanced_seo_description', // Jetpack_SEO_Posts::DESCRIPTION_META_KEY
 		'content_width',
 		'custom_css_add',
 		'custom_css_preprocessor',
@@ -304,7 +369,46 @@ class Jetpack_Sync_Defaults {
 		'switch_like_status',
 		'videopress_guid',
 		'vimeo_poster_image',
-		'advanced_seo_description', // Jetpack_SEO_Posts::DESCRIPTION_META_KEY
+
+		//woocommerce products
+		'_stock_status',
+		'_visibility',
+		'total_sales',
+		'_downloadable',
+		'_virtual',
+		'_regular_price',
+		'_sale_price',
+		'_tax_status',
+		'_tax_class',
+		'_featured',
+		'_price',
+		'_stock',
+		'_backorders',
+		'_manage_stock',
+
+		//woocommerce orders
+		'_order_currency',
+		'_prices_include_tax',
+		'_created_via',
+		'_billing_country',
+		'_billing_city',
+		'_billing_state',
+		'_billing_postcode',
+		'_shipping_country',
+		'_shipping_city',
+		'_shipping_state',
+		'_shipping_postcode',
+		'_payment_method',
+		'_payment_method_title',
+		'_order_shipping',
+		'_cart_discount',
+		'_cart_discount_tax',
+		'_order_tax',
+		'_order_shipping_tax',
+		'_order_total',
+		'_download_permissions_granted',
+		'_recorded_sales',
+		'_order_stock_reduced',
 	);
 
 	public static function get_post_meta_whitelist() {
@@ -348,12 +452,59 @@ class Jetpack_Sync_Defaults {
 	);
 
 	static function is_whitelisted_option( $option ) {
-		foreach ( self::$default_options_whitelist as $whitelisted_option ) {
-			if ( $whitelisted_option[0] === '/' && preg_match( $whitelisted_option, $option ) ) {
-				return true;
+		return null !== self::match_option_key( $option, self::$default_options_whitelist );
+	}
+
+	/**
+	 * Gets the sanitization type of the option.
+	 * Null means the option is either not whitelisted at all or is an auto loaded options.
+	 *
+	 * @param $option string The option name
+	 *
+	 * @return mixed|null null of nothing found, the type otherwise
+	 */
+	public static function get_option_type( $option ) {
+		$key = self::match_option_key( $option, array_keys( self::$options_whitelist_no_autoload ) );
+
+		return null === $key ? null : self::$options_whitelist_no_autoload[ $key ];
+	}
+
+	private static function match_option_key( $option, $list ) {
+		foreach ( $list as $whitelisted_option ) {
+			if ( '/' === $whitelisted_option[0] && preg_match( $whitelisted_option, $option ) ) {
+				return $whitelisted_option;
 			} elseif ( $whitelisted_option === $option ) {
-				return true;
+				return $whitelisted_option;
 			}
+		}
+
+		return null;
+	}
+
+	/**
+	 * Gets the sanitization type of the constant.
+	 * Null means the option is either not whitelisted at all or is an auto loaded options.
+	 *
+	 * @param $name string name of the constant
+	 *
+	 * @return mixed|null
+	 */
+	public static function get_constant_type( $name ) {
+		if ( isset( self::$constants_whitelist_no_autoload[ $name ] ) ) {
+			return self::$constants_whitelist_no_autoload[ $name ];
+		}
+
+		return null;
+	}
+
+	static function is_whitelisted_post_meta_key( $meta_key ) {
+		if ( in_array( $meta_key, self::get_post_meta_whitelist() ) ) {
+			return true;
+		}
+
+		$blog_id = get_current_blog_id();
+		if ( ! empty( $blog_id ) ) {
+			return in_array( $blog_id, self::$allow_all_post_meta_blog_ids );
 		}
 
 		return false;
