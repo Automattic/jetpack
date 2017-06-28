@@ -8,6 +8,44 @@
  */
 
 /**
+ * Stores legacy image widget data in the database.
+ */
+function jetpack_store_legacy_image_widget_options( $option_name, $option_value ){
+	$post = get_page_by_title( $option_name, 'OBJECT', 'jetpack_migration' );
+
+	if ( null !== $post ) {
+		return wp_insert_post( array(
+			'ID' => $post->ID,
+			'post_title' => $option_name,
+			'post_content_filtered' => $option_value,
+			'post_type' => 'jetpack_migration',
+			'post_date' => date( 'Y-m-d H:i:s', time() ),
+		), true );
+	} else {
+		return wp_insert_post( array(
+			'post_title' => $option_name,
+			'post_content_filtered' => $option_value,
+			'post_type' => 'jetpack_migration',
+			'post_date' => date( 'Y-m-d H:i:s', time() ),
+		), true );
+	}
+}
+
+/**
+ * Retrieves legacy image widget data.
+ */
+function jetpack_get_legacy_image_widget_option( $option_name ) {
+
+	$post = get_page_by_title( $option_name, 'OBJECT', 'jetpack_migration' );
+
+	if ( null !== $post ) {
+		return maybe_unserialize( $post->post_content_filtered );
+	} else {
+		return null;
+	}
+}
+
+/**
  * Migrates all active instances of Jetpack's image widget to Core's media image widget.
  */
 function jetpack_migrate_image_widget() {
@@ -15,16 +53,17 @@ function jetpack_migrate_image_widget() {
 	if ( ! is_admin() ) {
 		return;
 	}
+
 	// Only migrate if the new widget is available and we haven't yet migrated
 	if ( ! class_exists( 'WP_Widget_Media_Image' ) || Jetpack_Options::get_option( 'image_widget_migration' ) ) {
-		return;
+		//		return;
 	}
 
 	$default_data = array(
 		'attachment_id' => 0,
 		'url' => '',
 		'title' => '',
-		'size' => 'full',
+		'size' => 'custom',
 		'width' => 0,
 		'height' => 0,
 		'align' => 'none',
@@ -40,13 +79,25 @@ function jetpack_migrate_image_widget() {
 		'conditions' => null,
 	);
 
-	$media_image      = get_option( 'widget_media_image' );
+	$old_widgets = get_option( 'widget_image', array() );
+	$media_image = get_option( 'widget_media_image' );
 	$sidebars_widgets = wp_get_sidebars_widgets();
+
+	// Persist old and current widgets in backup table.
+	jetpack_store_legacy_image_widget_options( 'widget_image', serialize( $old_widgets ) );
+	if ( jetpack_get_legacy_image_widget_option( 'widget_image' ) !== $old_widgets ) {
+		return false;
+	}
+
+	jetpack_store_legacy_image_widget_options( 'sidebars_widgets', serialize( $sidebars_widgets ) );
+	if ( jetpack_get_legacy_image_widget_option( 'sidebars_widgets' ) !== $sidebars_widgets ) {
+		return false;
+	}
 
 	// Array to store legacy widget ids in to unregister on success.
 	$widgets_to_unregister = array();
 
-	foreach ( get_option( 'widget_image', array() ) as $id => $widget ) {
+	foreach ( $old_widgets as $id => $widget ) {
 		if ( is_string( $id ) ) {
 			continue;
 		}
@@ -56,7 +107,29 @@ function jetpack_migrate_image_widget() {
 			continue;
 		}
 
-		$media_image[ $id ] = array_merge( $default_data, array_intersect_key( $widget, $default_data ), array(
+		// Ensure widget has no keys other than those expected.
+		// Not all widgets have conditions, so lets add it in.
+		$widget_copy = array_merge( array( 'conditions' => null ), $widget );
+		$non_whitelisted_keys = array_diff_key( $widget_copy, array(
+			'title' => '',
+			'img_url' => '',
+			'alt_text' => '',
+			'img_title' => '',
+			'caption' => '',
+			'align' => '',
+			'img_width' => '',
+			'img_height' => '',
+			'link' => '',
+			'link_target_blank' => '',
+			'conditions' => '',
+		) );
+
+		if ( count( $non_whitelisted_keys ) > 0 ) {
+			// skipping the widget in question
+			continue;
+		}
+
+		$media_image[ $id ] = array_merge( $default_data, $widget, array(
 			'alt'         => $widget['alt_text'],
 			'height'      => $widget['img_height'],
 			'image_classes' => ! empty( $widget['align'] ) ? 'align' . $widget['align'] : '',
@@ -64,6 +137,17 @@ function jetpack_migrate_image_widget() {
 			'link_url'    => $widget['link'],
 			'url'         => $widget['img_url'],
 			'width'       => $widget['img_width'],
+		) );
+
+		// Unsetting old widget fields
+		$media_image[ $id ] = array_diff_key( $media_image[ $id ], array(
+			'align' => false,
+			'alt_text' => false,
+			'img_height' => false,
+			'img_title' => false,
+			'img_url' => false,
+			'img_width' => false,
+			'link' => false,
 		) );
 
 		// Check if the image is in the media library.
@@ -91,8 +175,14 @@ function jetpack_migrate_image_widget() {
 			$image_path_pieces = explode( '/', $image_meta['file'] );
 			if ( $image_basename === array_pop( $image_path_pieces ) ) {
 				$media_image[ $id ]['attachment_id'] = $attachment_id;
-				$media_image[ $id ]['width']         = $image_meta['width'];
-				$media_image[ $id ]['height']        = $image_meta['height'];
+
+				// Set correct size if dimensions fit.
+				if (
+					$media_image[ $id ]['width']  == $image_meta['width'] ||
+					$media_image[ $id ]['height'] == $image_meta['height']
+				) {
+					$media_image[ $id ]['size'] = 'full';
+				}
 				break;
 			}
 
@@ -100,9 +190,14 @@ function jetpack_migrate_image_widget() {
 			foreach ( $image_meta['sizes'] as $size => $image ) {
 				if ( false !== array_search( $image_basename, $image ) ) {
 					$media_image[ $id ]['attachment_id'] = $attachment_id;
-					$media_image[ $id ]['size']          = $size;
-					$media_image[ $id ]['width']         = $image['width'];
-					$media_image[ $id ]['height']        = $image['height'];
+
+					// Set correct size if dimensions fit.
+					if (
+						$media_image[ $id ]['width']  == $image['width'] ||
+						$media_image[ $id ]['height'] == $image['height']
+					) {
+						$media_image[ $id ]['size'] = $size;
+					}
 					break 2;
 				}
 			}
@@ -136,14 +231,14 @@ function jetpack_migrate_image_widget() {
 			$media_image_widget->_set( $id );
 			$media_image_widget->_register_one( $id );
 		}
+
+		wp_set_sidebars_widgets( $sidebars_widgets );
+
+		Jetpack_Options::update_option( 'image_widget_migration', true );
+
+		// We need to refresh on widgets page for changes to take effect.
+		add_action( 'current_screen', 'jetpack_refresh_on_widget_page' );
 	}
-
-	wp_set_sidebars_widgets( $sidebars_widgets );
-
-	Jetpack_Options::update_option( 'image_widget_migration', true );
-
-	// We need to refresh on widgets page for changes to take effect.
-	add_action( 'current_screen', 'jetpack_refresh_on_widget_page' );
 }
 add_action( 'widgets_init', 'jetpack_migrate_image_widget' );
 
