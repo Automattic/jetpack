@@ -176,12 +176,6 @@ function wpsupercache_site_admin() {
 
 function wp_cache_add_pages() {
 	global $wpmu_version;
-	if ( function_exists( 'is_multisite' ) && is_multisite() && wpsupercache_site_admin() ) {
-		add_submenu_page( 'ms-admin.php', 'WP Super Cache', 'WP Super Cache', 'manage_options', 'wpsupercache', 'wp_cache_manager' );
-	} elseif ( isset( $wpmu_version ) && wpsupercache_site_admin() ) {
-		add_submenu_page( 'wpmu-admin.php', 'WP Super Cache', 'WP Super Cache', 'manage_options', 'wpsupercache', 'wp_cache_manager' );
-	}
-
 	if ( wpsupercache_site_admin() ) { // in single or MS mode add this menu item too, but only for superadmins in MS mode.
 		add_options_page( 'WP Super Cache', 'WP Super Cache', 'manage_options', 'wpsupercache', 'wp_cache_manager');
 	}
