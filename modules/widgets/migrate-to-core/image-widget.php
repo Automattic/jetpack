@@ -153,20 +153,22 @@ function jetpack_migrate_image_widget() {
 		// Check if the image is in the media library.
 		$image_basename = basename( $widget['img_url'] );
 
-		if ( ! empty( $image_basename ) ) {
-			$attachment_ids = get_posts( array(
-				'fields'      => 'ids',
-				'meta_query'  => array(
-					array(
-						'value'   => basename( $image_basename ),
-						'compare' => 'LIKE',
-						'key'     => '_wp_attachment_metadata',
-					),
-				),
-				'post_status' => 'inherit',
-				'post_type'   => 'attachment',
-			) );
+		if ( empty( $image_basename ) ) {
+			continue;
 		}
+
+		$attachment_ids = get_posts( array(
+			'fields'      => 'ids',
+			'meta_query'  => array(
+				array(
+					'value'   => basename( $image_basename ),
+					'compare' => 'LIKE',
+					'key'     => '_wp_attachment_metadata',
+				),
+			),
+			'post_status' => 'inherit',
+			'post_type'   => 'attachment',
+		) );
 
 		foreach ( (array) $attachment_ids as $attachment_id ) {
 			$image_meta = wp_get_attachment_metadata( $attachment_id );
