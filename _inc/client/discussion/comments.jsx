@@ -38,17 +38,22 @@ export const Comments = moduleSettingsForm(
 		render() {
 			const foundComments = this.props.isModuleFound( 'comments' ),
 				foundGravatar = this.props.isModuleFound( 'gravatar-hovercards' ),
-				foundMarkdown = this.props.isModuleFound( 'markdown' );
+				foundMarkdown = this.props.isModuleFound( 'markdown' ),
+				foundCommentLikes = this.props.isModuleFound( 'comment-likes' );
 
 			if ( ! foundComments && ! foundGravatar && ! foundMarkdown ) {
 				return null;
 			}
 
+			const { isUnavailableInDevMode, getOptionValue } = this.props;
+
 			const comments = this.props.getModule( 'comments' ),
 				isCommentsActive = this.props.getOptionValue( 'comments' ),
 				commentsUnavailableInDevMode = this.props.isUnavailableInDevMode( 'comments' ),
 				gravatar = this.props.getModule( 'gravatar-hovercards' ),
-				markdown = this.props.getModule( 'markdown' );
+				markdown = this.props.getModule( 'markdown' ),
+				commentLikesUnavailable = isUnavailableInDevMode( 'comment-likes' ),
+				commentLikesActive = getOptionValue( 'comment-likes' );
 
 			return (
 				<SettingsCard
@@ -99,7 +104,7 @@ export const Comments = moduleSettingsForm(
 						)
 					}
 					{
-						( foundGravatar || foundMarkdown ) && (
+						( foundGravatar || foundMarkdown || foundCommentLikes ) && (
 							<SettingsGroup>
 								{
 									foundGravatar && (
@@ -136,6 +141,29 @@ export const Comments = moduleSettingsForm(
 														__( 'Enable Markdown use for comments.' ) + ' '
 													}
 													<a href={ markdown.learn_more_button }>{ __( 'Learn more' ) }</a>
+												</span>
+											</ModuleToggle>
+										</FormFieldset>
+									)
+								}
+								{
+									foundCommentLikes && (
+										<FormFieldset>
+											<ModuleToggle
+												slug="comment-likes"
+												compact
+												disabled={ commentLikesUnavailable }
+												activated={ commentLikesActive }
+												toggling={ this.props.isSavingAnyOption( 'comment-likes' ) }
+												toggleModule={ this.props.toggleModuleNow }
+											>
+												<span className="jp-form-toggle-explanation">
+													{
+														( 'Enable comment likes.' ) + ' '
+													}
+													<a href="https://jetpack.com/support/comment-likes/">
+														{ __( 'Learn more' ) }
+													</a>
 												</span>
 											</ModuleToggle>
 										</FormFieldset>

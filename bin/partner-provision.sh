@@ -11,7 +11,7 @@ SCRIPT_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd -P)
 cd "$SCRIPT_DIR" || exit
 
 usage () {
-    echo "Usage: partner-provision.sh --partner_id=partner_id --partner_secret=partner_secret --user_id=wp_user_id [--plan=plan_name] [--wpcom_user_id=1234] [--url=http://example.com]"
+    echo "Usage: partner-provision.sh --partner_id=partner_id --partner_secret=partner_secret [--user=wp_user_id] [--plan=plan_name] [--onboarding=1] [--wpcom_user_id=1234] [--url=http://example.com]"
 }
 
 for i in "$@"; do
@@ -22,13 +22,16 @@ for i in "$@"; do
         -s=* | --partner_secret=* ) CLIENT_SECRET="${i#*=}"
                                     shift
                                     ;;
-        -i=* | --user_id=* )        WP_USER_ID="${i#*=}"
+        -i=* | --user_id=* | --user=* ) WP_USER="${i#*=}"
                                     shift
                                     ;;
         -w=* | --wpcom_user_id=* )  WPCOM_USER_ID="${i#*=}"
                                     shift
                                     ;;
         -p=* | --plan=* )           PLAN_NAME="${i#*=}"
+                                    shift
+                                    ;;
+        -o=* | --onboarding=* )     ONBOARDING="${i#*=}"
                                     shift
                                     ;;
         -u=* | --url=* )            SITE_URL="${i#*=}"
@@ -42,7 +45,7 @@ for i in "$@"; do
     esac
 done
 
-if [ "$CLIENT_ID" = "" ] || [ "$CLIENT_SECRET" = "" ] || [ "$WP_USER_ID" = "" ]; then
+if [ "$CLIENT_ID" = "" ] || [ "$CLIENT_SECRET" = "" ]; then
     usage
     exit 1
 fi
@@ -55,8 +58,30 @@ fi
 # fetch an access token using our client ID/secret
 ACCESS_TOKEN_JSON=$(curl https://$JETPACK_START_API_HOST/oauth2/token --silent --header "Host: public-api.wordpress.com" -d "grant_type=client_credentials&client_id=$CLIENT_ID&client_secret=$CLIENT_SECRET&scope=jetpack-partner")
 
+# set URL arg for multisite compatibility
+if [ ! -z "$SITE_URL" ]; then
+  ADDITIONAL_ARGS="--url=$SITE_URL"
+fi
+
 # silently ensure Jetpack is active
-wp --allow-root plugin activate jetpack --url="$SITE_URL" >/dev/null 2>&1
+wp --allow-root plugin activate jetpack $ADDITIONAL_ARGS >/dev/null 2>&1
+
+# add extra args if available
+if [ ! -z "$WP_USER" ]; then
+  ADDITIONAL_ARGS="$ADDITIONAL_ARGS --user=$WP_USER"
+fi
+
+if [ ! -z "$ONBOARDING" ]; then
+  ADDITIONAL_ARGS="$ADDITIONAL_ARGS --onboarding=$ONBOARDING"
+fi 
+
+if [ ! -z "$PLAN_NAME" ]; then
+  ADDITIONAL_ARGS="$ADDITIONAL_ARGS --plan=$PLAN_NAME"
+fi 
+
+if [ ! -z "$WPCOM_USER_ID" ]; then
+  ADDITIONAL_ARGS="$ADDITIONAL_ARGS --wpcom_user_id=$WPCOM_USER_ID"
+fi 
 
 # provision the partner plan
-wp --allow-root jetpack partner_provision "$ACCESS_TOKEN_JSON" --user_id="$WP_USER_ID" --plan="$PLAN_NAME" --wpcom_user_id="$WPCOM_USER_ID" --url="$SITE_URL"
+wp --allow-root jetpack partner_provision "$ACCESS_TOKEN_JSON" $ADDITIONAL_ARGS

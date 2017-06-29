@@ -359,6 +359,10 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 				? $old_value[ $sidebar ]
 				: array();
 
+			if ( ! is_array( $new_widgets ) ) {
+				$new_widgets = array();
+			}
+
 			$moved_to_inactive_recently = $this->sync_remove_widgets_from_sidebar( $new_widgets, $old_widgets, $sidebar, $new_value['wp_inactive_widgets'] );
 			$moved_to_inactive_ids = array_merge( $moved_to_inactive, $moved_to_inactive_recently );
 

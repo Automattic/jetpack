@@ -247,7 +247,9 @@ class Jetpack_JITM {
 				array(
 					'user_id'    => $user->ID,
 					'user_roles' => implode( ',', $user->roles ),
-				)
+				),
+				null,
+				'wpcom'
 			);
 
 			// silently fail...might be helpful to track it?

@@ -1329,7 +1329,12 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 		}
 
 		$data = json_decode( base64_decode( $vaultpress->contact_service( 'plugin_data' ) ) );
-		if ( is_wp_error( $data ) || ! isset( $data->backups->last_backup ) ) {
+		if ( false == $data ) {
+			return rest_ensure_response( array(
+				'code'    => 'not_registered',
+				'message' => esc_html__( 'Could not connect to VaultPress.', 'jetpack' )
+			) );
+		} else if ( is_wp_error( $data ) || ! isset( $data->backups->last_backup ) ) {
 			return $data;
 		} else if ( empty( $data->backups->last_backup ) ) {
 			return rest_ensure_response( array(
