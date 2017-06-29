@@ -80,16 +80,16 @@ function jetpack_migrate_image_widget() {
 	);
 
 	$old_widgets = get_option( 'widget_image', array() );
-	$media_image = get_option( 'widget_media_image' );
+	$media_image = get_option( 'widget_media_image', array() );
 	$sidebars_widgets = wp_get_sidebars_widgets();
 
 	// Persist old and current widgets in backup table.
-	jetpack_store_legacy_image_widget_options( 'widget_image', serialize( $old_widgets ) );
+	jetpack_store_legacy_image_widget_options( 'widget_image', maybe_serialize( $old_widgets ) );
 	if ( jetpack_get_legacy_image_widget_option( 'widget_image' ) !== $old_widgets ) {
 		return false;
 	}
 
-	jetpack_store_legacy_image_widget_options( 'sidebars_widgets', serialize( $sidebars_widgets ) );
+	jetpack_store_legacy_image_widget_options( 'sidebars_widgets', maybe_serialize( $sidebars_widgets ) );
 	if ( jetpack_get_legacy_image_widget_option( 'sidebars_widgets' ) !== $sidebars_widgets ) {
 		return false;
 	}
@@ -170,7 +170,7 @@ function jetpack_migrate_image_widget() {
 			'post_type'   => 'attachment',
 		) );
 
-		foreach ( (array) $attachment_ids as $attachment_id ) {
+		foreach ( $attachment_ids as $attachment_id ) {
 			$image_meta = wp_get_attachment_metadata( $attachment_id );
 
 			// Is it a full size image?
