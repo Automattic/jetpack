@@ -21,12 +21,8 @@ class Jetpack_Widget_Conditions {
 	}
 
 	public static function widget_admin_setup() {
-		if( is_rtl() ) {
-			wp_enqueue_style( 'widget-conditions', plugins_url( 'widget-conditions/rtl/widget-conditions-rtl.css', __FILE__ ) );
-		} else {
-			wp_enqueue_style( 'widget-conditions', plugins_url( 'widget-conditions/widget-conditions.css', __FILE__ ) );
-		}
 		wp_enqueue_style( 'widget-conditions', plugins_url( 'widget-conditions/widget-conditions.css', __FILE__ ) );
+		wp_style_add_data( 'widget-conditions', 'rtl', 'replace' );
 		wp_enqueue_script( 'widget-conditions', plugins_url( 'widget-conditions/widget-conditions.js', __FILE__ ), array( 'jquery', 'jquery-ui-core' ), 20140721, true );
 
 		// Set up a single copy of all of the data that Widget Visibility needs.
