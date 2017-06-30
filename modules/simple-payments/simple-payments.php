@@ -41,6 +41,15 @@ class Jetpack_Simple_Payments {
 	 * Sets up the custom post types for the module.
 	 */
 	function setup_cpts() {
+
+		/*
+		 * ORDER data structure. holds:
+		 * title = customer name
+		 * metadata:
+		 * spay_paypal_id
+		 * spay_status
+		 * ... (WIP)
+		 */
 		$order_capabilities = array(
 			'edit_post'             => 'edit_posts',
 			'read_post'             => 'read_private_posts',
@@ -70,6 +79,18 @@ class Jetpack_Simple_Payments {
 		);
 		register_post_type( self::$post_type_order, $order_args );
 
+		/*
+		 * PRODUCT data structure. Holds:
+		 * title - title
+		 * content - description
+		 * thumbnail - image
+		 * metadata:
+		 * spay_price - price
+		 * spay_currency - currency code
+		 * spay_cta - text with "Buy" or other CTA
+		 * spay_email - paypal email
+		 * spay_multiple - allow for multiple items
+		 */
 		$product_capabilities = array(
 			'edit_post'             => 'edit_posts',
 			'read_post'             => 'read_private_posts',
@@ -82,7 +103,7 @@ class Jetpack_Simple_Payments {
 		$product_args = array(
 			'label'                 => __( 'Product', 'jetpack' ),
 			'description'           => __( 'Simple Payments products', 'jetpack' ),
-			'supports'              => array( 'custom-fields' ),
+			'supports'              => array( 'title', 'editor','thumbnail', 'custom-fields' ),
 			'hierarchical'          => false,
 			'public'                => false,
 			'show_ui'               => false,
