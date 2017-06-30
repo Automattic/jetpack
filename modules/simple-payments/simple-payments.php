@@ -44,10 +44,15 @@ class Jetpack_Simple_Payments {
 
 		/*
 		 * ORDER data structure. holds:
-		 * title = customer name
+		 * title = customer_name | 4xproduct_name
+		 * excerpt = customer_name + customer contact info + customer notes from paypal form
 		 * metadata:
-		 * spay_paypal_id
+		 * spay_paypal_id - paypal id of transaction
 		 * spay_status
+		 * spay_product_id - post_id of bought product
+		 * spay_quantity - quantity of product
+		 * spay_price - item price at the time of purchase
+		 * spay_customer_email - customer email
 		 * ... (WIP)
 		 */
 		$order_capabilities = array(
@@ -62,7 +67,7 @@ class Jetpack_Simple_Payments {
 		$order_args = array(
 			'label'                 => __( 'Order', 'jetpack' ),
 			'description'           => __( 'Simple Payments orders', 'jetpack' ),
-			'supports'              => array( 'custom-fields' ),
+			'supports'              => array( 'custom-fields', 'excerpt' ),
 			'hierarchical'          => false,
 			'public'                => false,
 			'show_ui'               => false,
