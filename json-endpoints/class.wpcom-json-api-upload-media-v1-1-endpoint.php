@@ -27,8 +27,12 @@ class WPCOM_JSON_API_Upload_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 			return new WP_Error( 'invalid_input', 'No media provided in input.' );
 		}
 
-		// For jetpack sites, we send the media via a different method, because the sync is very different.
-		$jetpack_sync = Jetpack_Media_Sync::summon( $blog_id );
+		$is_jetpack_site = false;
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			// For jetpack sites, we send the media via a different method, because the sync is very different.
+			$jetpack_sync = Jetpack_Media_Sync::summon( $blog_id );
+			$is_jetpack_site = $jetpack_sync->is_jetpack_site();
+		}
 
 		$jetpack_media_files = array();
 		$other_media_files   = array();
@@ -37,7 +41,7 @@ class WPCOM_JSON_API_Upload_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 
 		// We're splitting out videos for Jetpack sites
 		foreach ( $media_files as $media_item ) {
-			if ( preg_match( '@^video/@', $media_item['type'] ) && $jetpack_sync->is_jetpack_site() ) {
+			if ( preg_match( '@^video/@', $media_item['type'] ) && $is_jetpack_site ) {
 				$jetpack_media_files[] = $media_item;
 
 			} else {
@@ -46,32 +50,34 @@ class WPCOM_JSON_API_Upload_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 		}
 
 		// New Jetpack / VideoPress media upload processing
-        if ( count( $jetpack_media_files ) > 0  ) {
-	        add_filter( 'upload_mimes', array( $this, 'allow_video_uploads' ) );
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			if ( count( $jetpack_media_files ) > 0 ) {
+				add_filter( 'upload_mimes', array( $this, 'allow_video_uploads' ) );
 
-	        $media_items = $jetpack_sync->upload_media( $jetpack_media_files, $this->api );
+				$media_items = $jetpack_sync->upload_media( $jetpack_media_files, $this->api );
 
-	        $errors = $jetpack_sync->get_errors();
+				$errors = $jetpack_sync->get_errors();
 
-	        foreach ( $media_items as & $media_item ) {
-		        // More than likely a post has not been created yet, so we pass in the media item we
-		        // got back from the Jetpack site.
-		        $post = (object) $media_item['post'];
-		        $media_item = $this->get_media_item_v1_1( $post->ID, $post, $media_item['file'] );
-	        }
-        }
+				foreach ( $media_items as & $media_item ) {
+					// More than likely a post has not been created yet, so we pass in the media item we
+					// got back from the Jetpack site.
+					$post       = (object) $media_item['post'];
+					$media_item = $this->get_media_item_v1_1( $media_item['ID'], $post, $media_item['file'] );
+				}
+			}
+		}
 
-        // Normal WPCOM upload processing
-        if ( count( $other_media_files ) > 0 || count( $media_urls ) > 0 ) {
-	        $create_media = $this->handle_media_creation_v1_1( $other_media_files, $media_urls, $media_attrs );
-	        $media_ids = $create_media['media_ids'];
-	        $errors = $create_media['errors'];
+		// Normal WPCOM upload processing
+		if ( count( $other_media_files ) > 0 || count( $media_urls ) > 0 ) {
+			$create_media = $this->handle_media_creation_v1_1( $other_media_files, $media_urls, $media_attrs );
+			$media_ids = $create_media['media_ids'];
+			$errors = $create_media['errors'];
 
-	        $media_items = array();
-	        foreach ( $media_ids as $media_id ) {
-		        $media_items[] = $this->get_media_item_v1_1( $media_id );
-	        }
-        }
+			$media_items = array();
+			foreach ( $media_ids as $media_id ) {
+				$media_items[] = $this->get_media_item_v1_1( $media_id );
+			}
+		}
 
 		if ( count( $media_items ) <= 0 ) {
 			return $this->api->output_early( 400, array( 'errors' => $errors ) );
