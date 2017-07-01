@@ -4,8 +4,12 @@
 	box-shadow: 0 1px 0 transparentize( lighten( $gray, 20% ), .5 ),
 		0 1px 2px lighten( $gray, 30% );
 
-	@media (max-width: rem( 720px ) ) {
-		padding: 0 rem( 20px );
+	@media (max-width: rem( 782px ) ) {
+		padding: 0 rem( 24px );
+
+		.jetpack-masterbar & {
+			padding-left: rem( 64px );
+		}
 	}
 }
 
