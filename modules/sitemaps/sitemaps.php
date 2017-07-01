@@ -137,6 +137,10 @@ class Jetpack_Sitemap_Manager {
 	private function serve_raw_and_die( $the_content_type, $the_content ) {
 		header( 'Content-Type: ' . $the_content_type . '; charset=UTF-8' );
 
+		global $wp_query;
+		$wp_query->is_feed = true;
+		set_query_var( 'feed', 'sitemap' );
+
 		if ( '' === $the_content ) {
 			wp_die(
 				esc_html__( "No sitemap found. Maybe it's being generated. Please try again later.", 'jetpack' ),
