@@ -50,6 +50,7 @@ class A8C_WPCOM_Masterbar {
 			// Extend core WP_Admin_Bar class in order to add rtl styles
 			add_filter( 'wp_admin_bar_class', array( $this, 'get_rtl_admin_bar_class' ) );
 		}
+		add_filter( 'admin_body_class', array( $this, 'admin_body_class' ) );
 
 		add_action( 'wp_before_admin_bar_render', array( $this, 'replace_core_masterbar' ), 99999 );
 
@@ -79,6 +80,19 @@ class A8C_WPCOM_Masterbar {
 
 	public function get_rtl_admin_bar_class() {
 		return 'RTL_Admin_Bar';
+	}
+
+	/**
+	 * Adds CSS classes to admin body tag.
+	 *
+	 * @since 5.1
+	 *
+	 * @param string $admin_body_classes CSS classes that will be added.
+	 *
+	 * @return string
+	 */
+	public function admin_body_class( $admin_body_classes ) {
+		return "$admin_body_classes jetpack-masterbar";
 	}
 
 	public function remove_core_styles() {
