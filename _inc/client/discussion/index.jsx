@@ -30,13 +30,14 @@ export const Discussion = React.createClass( {
 		const foundComments = this.props.isModuleFound( 'comments' ),
 			foundMarkdown = this.props.isModuleFound( 'markdown' ),
 			foundGravatar = this.props.isModuleFound( 'gravatar-hovercards' ),
-			foundSubscriptions = this.props.isModuleFound( 'subscriptions' );
+			foundSubscriptions = this.props.isModuleFound( 'subscriptions' ),
+			foundCommentLikes = this.props.isModuleFound( 'comment-likes' );
 
 		if ( ! this.props.searchTerm && ! this.props.active ) {
 			return null;
 		}
 
-		if ( ! foundComments && ! foundSubscriptions && ! foundMarkdown && ! foundGravatar ) {
+		if ( ! foundComments && ! foundSubscriptions && ! foundMarkdown && ! foundGravatar && ! foundCommentLikes ) {
 			return null;
 		}
 

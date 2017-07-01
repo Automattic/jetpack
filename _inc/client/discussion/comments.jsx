@@ -41,7 +41,7 @@ export const Comments = moduleSettingsForm(
 				foundMarkdown = this.props.isModuleFound( 'markdown' ),
 				foundCommentLikes = this.props.isModuleFound( 'comment-likes' );
 
-			if ( ! foundComments && ! foundGravatar && ! foundMarkdown ) {
+			if ( ! foundComments && ! foundGravatar && ! foundMarkdown && ! foundCommentLikes ) {
 				return null;
 			}
 
