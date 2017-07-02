@@ -4887,7 +4887,7 @@ p {
 			$user_id = 0;
 		} else {
 			$token_type = 'user';
-			if ( empty( $user_id ) || ! ctype_digit( $user_id ) ) {
+			if ( empty( $user_id ) || ! is_numeric( $user_id ) ) {
 				return false;
 			}
 			$user_id = (int) $user_id;
