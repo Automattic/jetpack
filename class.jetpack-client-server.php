@@ -85,7 +85,7 @@ class Jetpack_Client_Server {
 			return new Jetpack_Error( 'no_state', 'Request must include state.', 400 );
 		}
 
-		if ( ! ctype_digit( $data['state'] ) ) {
+		if ( !is_numeric( $data['state'] ) ) {
 			return new Jetpack_Error( $data['error'], 'State must be an integer.', 400 );
 		}
 
