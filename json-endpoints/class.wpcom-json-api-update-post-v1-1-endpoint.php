@@ -772,7 +772,7 @@ class WPCOM_JSON_API_Update_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_
 		$featured_image = (string) $featured_image;
 
 		// if we got a post ID, we can just set it as the thumbnail
-		if ( ctype_digit( $featured_image ) && 'attachment' == get_post_type( $featured_image ) ) {
+		if ( is_numeric( $featured_image ) && 'attachment' == get_post_type( $featured_image ) ) {
 			set_post_thumbnail( $post_id, $featured_image );
 			return $featured_image;
 		}
