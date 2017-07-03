@@ -40,21 +40,21 @@ class Jetpack_Simple_Payments {
 		if( empty( $attrs[ 'id' ] ) ) {
 			return;
 		}
-		$post = get_post( $attrs[ 'id' ] );
-		if( is_wp_error( $post ) ) {
+		$product = get_post( $attrs[ 'id' ] );
+		if( is_wp_error( $product ) ) {
 			return;
 		}
-		if( $post->post_type !== self::$post_type_product ) {
+		if( $product->post_type !== self::$post_type_product ) {
 			return;
 		}
 
 		// We allow for overriding the presentation labels
 		$data = shortcode_atts( array(
-			'dom_id' => uniqid( 'jp_simple_payments__button_' . $post->ID . '_' ),
-			'class' => 'jp_simple_payments__' . $post->ID,
-			'title' => get_the_title( $post ),
-			'description' => get_the_content( $post ),
-			'cta' => get_post_meta( $post->ID, 'spay_cta', true ),
+			'dom_id' => uniqid( 'jp_simple_payments__button_' . $product->ID . '_' ),
+			'class' => 'jp_simple_payments__' . $product->ID,
+			'title' => get_the_title( $product ),
+			'description' => get_the_content( $product ),
+			'cta' => get_post_meta( $product->ID, 'spay_cta', true ),
 		), $attrs );
 
 		wp_enqueue_script( 'paypal-express-checkout' );
