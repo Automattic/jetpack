@@ -103,7 +103,7 @@ function jetpack_get_module_i18n( $key ) {
 
 			'minileven' => array(
 				'name' => _x( 'Mobile Theme', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Optimize your site for smartphones', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Enable the Jetpack Mobile theme', 'Module Description', 'jetpack' ),
 			),
 
 			'monitor' => array(

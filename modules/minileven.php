@@ -2,7 +2,7 @@
 
 /**
  * Module Name: Mobile Theme
- * Module Description: Optimize your site for smartphones
+ * Module Description: Enable the Jetpack Mobile theme
  * Sort Order: 21
  * Recommendation Order: 11
  * First Introduced: 1.8
