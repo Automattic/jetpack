@@ -37,12 +37,41 @@ class Jetpack_Simple_Payments {
 	}
 
 	function parse_shortcode( $attrs, $content = false ) {
-		$config = shortcode_atts( array(
-			'class' => 'caption',
-		), $attrs );
-		wp_add_inline_script( 'paypal-express-checkout', 'try{PaypalExpressCheckoutButton( { type: 2 } );}catch(e){}' );
+		if( empty( $attrs[ 'id' ] ) ) {
+			return;
+		}
+		$post = get_post( $attrs[ 'id' ] );
+		if( is_wp_error( $post ) ) {
+			return;
+		}
+		if( $post->post_type !== self::$post_type_product ) {
+			return;
+		}
 
-		return "<b>POTATO</b>";
+		// We allow for overriding the presentation labels
+		$data = shortcode_atts( array(
+			'dom_id' => uniqid( 'jp_simple_payments__button_' . $post->ID . '_' ),
+			'style' => 'jp_simple_payments__' . $post->ID,
+			'title' => get_the_title( $post ),
+			'description' => get_the_content( $post ),
+			'cta' => get_post_meta( $post->ID, 'spay_cta', true ),
+		), $attrs );
+
+		wp_enqueue_script( 'paypal-express-checkout' );
+		wp_add_inline_script( 'paypal-express-checkout', "try{PaypalExpressCheckoutButton( {$data['dom_id']} );}catch(e){}" );
+
+		return output_shortcode( $data );
+	}
+
+	function output_shortcode( $data ) {
+		$output = <<<TEMPLATE
+<div class="{$data[ 'class' ]} jp_simple_payments__wrapper">
+	<h2 class="jp_simple_payments__title">{$data['title']}</h2>
+	<div class="jp_simple_payments__description">{$data['description']}</div>
+	<div class="jp_simple_payments__button" id="{$data['dom_id']}"></div>
+</div>
+TEMPLATE;
+		return $output;
 	}
 
 	/**
