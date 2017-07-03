@@ -6,17 +6,18 @@
 
 /* global paypal */
 /* exported PaypalExpressCheckout */
+/* jshint unused:false */
 var PaypalExpressCheckout = {
 	constants: {
 		createPaymentEndpoint: '', //TODO: point to the actual endpoint
-		executePaymentEndpoint: '', //TODO: point to the actual endpoint
+		executePaymentEndpoint: '' //TODO: point to the actual endpoint
 	},
 	renderButton: function( id ) {
 		paypal.Button.render( {
 			commit: true,
 			style: {
 				label: 'pay',
-				color: 'blue',
+				color: 'blue'
 			},
 			payment: function() {
 				return paypal.request.post( PaypalExpressCheckout.constants.createPaymentEndpoint ).then( function( data ) {
@@ -29,8 +30,10 @@ var PaypalExpressCheckout = {
 					payerID: data.payerID
 				} ).then( function( payment ) {
 					// TODO: handle success, errors, messaging, etc, etc.
+					/* jshint ignore:start */
 					console.log( 'payment: ', payment );
 					alert( 'success!' );
+					/* jshint ignore:end */
 				} );
 			}
 
