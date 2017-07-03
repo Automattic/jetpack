@@ -458,8 +458,8 @@ class Jetpack_Network {
 				'gmt_offset'            => $gmt_offset,
 				'timezone_string'       => (string) get_option( 'timezone_string' ),
 				'site_name'             => (string) get_option( 'blogname' ),
-				'secret_1'              => $secret_1,
-				'secret_2'              => $secret_2,
+				'secret_1'              => $secrets['secret_1'],
+				'secret_2'              => $secrets['secret_2'],
 				'site_lang'             => get_locale(),
 				'timeout'               => $timeout,
 				'stats_id'              => $stat_id, // Is this still required?

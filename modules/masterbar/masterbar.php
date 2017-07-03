@@ -50,6 +50,7 @@ class A8C_WPCOM_Masterbar {
 			// Extend core WP_Admin_Bar class in order to add rtl styles
 			add_filter( 'wp_admin_bar_class', array( $this, 'get_rtl_admin_bar_class' ) );
 		}
+		add_filter( 'admin_body_class', array( $this, 'admin_body_class' ) );
 
 		add_action( 'wp_before_admin_bar_render', array( $this, 'replace_core_masterbar' ), 99999 );
 
@@ -81,6 +82,19 @@ class A8C_WPCOM_Masterbar {
 		return 'RTL_Admin_Bar';
 	}
 
+	/**
+	 * Adds CSS classes to admin body tag.
+	 *
+	 * @since 5.1
+	 *
+	 * @param string $admin_body_classes CSS classes that will be added.
+	 *
+	 * @return string
+	 */
+	public function admin_body_class( $admin_body_classes ) {
+		return "$admin_body_classes jetpack-masterbar";
+	}
+
 	public function remove_core_styles() {
 		wp_dequeue_style( 'admin-bar' );
 	}
@@ -92,15 +106,15 @@ class A8C_WPCOM_Masterbar {
 	public function add_styles_and_scripts() {
 
 		if ( $this->is_rtl() ) {
-			wp_enqueue_style( 'a8c-wpcom-masterbar-rtl', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/rtl/wpcom-admin-bar-rtl.css' ) );
-			wp_enqueue_style( 'a8c-wpcom-masterbar-overrides-rtl', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/masterbar-overrides/rtl/masterbar-rtl.css' ) );
+			wp_enqueue_style( 'a8c-wpcom-masterbar-rtl', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/rtl/wpcom-admin-bar-rtl.css' ), array(), JETPACK__VERSION );
+			wp_enqueue_style( 'a8c-wpcom-masterbar-overrides-rtl', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/masterbar-overrides/rtl/masterbar-rtl.css' ), array(), JETPACK__VERSION );
 		} else {
-			wp_enqueue_style( 'a8c-wpcom-masterbar', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/wpcom-admin-bar.css' ) );
-			wp_enqueue_style( 'a8c-wpcom-masterbar-overrides', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/masterbar-overrides/masterbar.css' ) );
+			wp_enqueue_style( 'a8c-wpcom-masterbar', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/wpcom-admin-bar.css' ), array(), JETPACK__VERSION );
+			wp_enqueue_style( 'a8c-wpcom-masterbar-overrides', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/masterbar-overrides/masterbar.css' ), array(), JETPACK__VERSION );
 		}
 
 		// Local overrides
-		wp_enqueue_style( 'a8c_wpcom_css_override', plugins_url( 'overrides.css', __FILE__ ) );
+		wp_enqueue_style( 'a8c_wpcom_css_override', plugins_url( 'overrides.css', __FILE__ ), array(), JETPACK__VERSION );
 
 		if ( ! Jetpack::is_module_active( 'notes ' ) ) {
 			// Masterbar is relying on some icons from noticons.css
@@ -108,7 +122,7 @@ class A8C_WPCOM_Masterbar {
 		}
 
 		wp_enqueue_script( 'jetpack-accessible-focus', plugins_url( '_inc/accessible-focus.js', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
-		wp_enqueue_script( 'a8c_wpcom_masterbar_overrides', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/masterbar-overrides/masterbar.js' ) );
+		wp_enqueue_script( 'a8c_wpcom_masterbar_overrides', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/masterbar-overrides/masterbar.js' ), array(), JETPACK__VERSION );
 	}
 
 	function wpcom_static_url( $file ) {

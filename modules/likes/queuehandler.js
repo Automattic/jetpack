@@ -84,131 +84,138 @@ function JetpackLikesMessageListener( event, message ) {
 		return;
 	}
 
-	if ( 'masterReady' === event.event ) {
-		jQuery( document ).ready( function() {
-			jetpackLikesMasterReady = true;
+	switch ( event.event ) {
+		case 'masterReady':
+			jQuery( document ).ready( function() {
+				jetpackLikesMasterReady = true;
 
-			var stylesData = {
-					event: 'injectStyles'
-				},
-				$sdTextColor = jQuery( '.sd-text-color' ),
-				$sdLinkColor = jQuery( '.sd-link-color' );
+				var stylesData = {
+						event: 'injectStyles'
+					},
+					$sdTextColor = jQuery( '.sd-text-color' ),
+					$sdLinkColor = jQuery( '.sd-link-color' );
 
-			if ( jQuery( 'iframe.admin-bar-likes-widget' ).length > 0 ) {
-				JetpackLikesPostMessage( { event: 'adminBarEnabled' }, window.frames[ 'likes-master' ] );
+				if ( jQuery( 'iframe.admin-bar-likes-widget' ).length > 0 ) {
+					JetpackLikesPostMessage( { event: 'adminBarEnabled' }, window.frames[ 'likes-master' ] );
 
-				stylesData.adminBarStyles = {
-					background: jQuery( '#wpadminbar .quicklinks li#wp-admin-bar-wpl-like > a' ).css( 'background' ),
-					isRtl: ( 'rtl' === jQuery( '#wpadminbar' ).css( 'direction' ) )
+					stylesData.adminBarStyles = {
+						background: jQuery( '#wpadminbar .quicklinks li#wp-admin-bar-wpl-like > a' ).css( 'background' ),
+						isRtl: ( 'rtl' === jQuery( '#wpadminbar' ).css( 'direction' ) )
+					};
+				}
+
+				if ( ! window.addEventListener ) {
+					jQuery( '#wp-admin-bar-admin-bar-likes-widget' ).hide();
+				}
+
+				stylesData.textStyles = {
+					color:          $sdTextColor.css( 'color' ),
+					fontFamily:     $sdTextColor.css( 'font-family' ),
+					fontSize:       $sdTextColor.css( 'font-size' ),
+					direction:      $sdTextColor.css( 'direction' ),
+					fontWeight:     $sdTextColor.css( 'font-weight' ),
+					fontStyle:      $sdTextColor.css( 'font-style' ),
+					textDecoration: $sdTextColor.css( 'text-decoration' )
 				};
-			}
 
-			if ( ! window.addEventListener ) {
-				jQuery( '#wp-admin-bar-admin-bar-likes-widget' ).hide();
-			}
+				stylesData.linkStyles = {
+					color:          $sdLinkColor.css( 'color' ),
+					fontFamily:     $sdLinkColor.css( 'font-family' ),
+					fontSize:       $sdLinkColor.css( 'font-size' ),
+					textDecoration: $sdLinkColor.css( 'text-decoration' ),
+					fontWeight:     $sdLinkColor.css( 'font-weight' ),
+					fontStyle:      $sdLinkColor.css( 'font-style' )
+				};
 
-			stylesData.textStyles = {
-				color:          $sdTextColor.css( 'color' ),
-				fontFamily:     $sdTextColor.css( 'font-family' ),
-				fontSize:       $sdTextColor.css( 'font-size' ),
-				direction:      $sdTextColor.css( 'direction' ),
-				fontWeight:     $sdTextColor.css( 'font-weight' ),
-				fontStyle:      $sdTextColor.css( 'font-style' ),
-				textDecoration: $sdTextColor.css( 'text-decoration' )
-			};
+				JetpackLikesPostMessage( stylesData, window.frames[ 'likes-master' ] );
 
-			stylesData.linkStyles = {
-				color:          $sdLinkColor.css( 'color' ),
-				fontFamily:     $sdLinkColor.css( 'font-family' ),
-				fontSize:       $sdLinkColor.css( 'font-size' ),
-				textDecoration: $sdLinkColor.css( 'text-decoration' ),
-				fontWeight:     $sdLinkColor.css( 'font-weight' ),
-				fontStyle:      $sdLinkColor.css( 'font-style' )
-			};
+				JetpackLikesBatchHandler();
+			} );
 
-			JetpackLikesPostMessage( stylesData, window.frames[ 'likes-master' ] );
+			break;
 
-			JetpackLikesBatchHandler();
-		} );
-	}
+		case 'showLikeWidget':
+			jQuery( '#' + event.id + ' .likes-widget-placeholder' ).fadeOut( 'fast' );
+			break;
 
-	if ( 'showLikeWidget' === event.event ) {
-		jQuery( '#' + event.id + ' .likes-widget-placeholder' ).fadeOut( 'fast' );
-	}
+		case 'showCommentLikeWidget':
+			jQuery( '#' + event.id + ' .likes-widget-placeholder' ).fadeOut( 'fast' );
+			break;
 
-	if ( 'showCommentLikeWidget' === event.event ) {
-		jQuery( '#' + event.id + ' .likes-widget-placeholder' ).fadeOut( 'fast' );
-	}
+		case 'killCommentLikes':
+			// If kill switch for comment likes is enabled remove all widgets wrappers and `Loading...` placeholders.
+			jQuery( '.jetpack-comment-likes-widget-wrapper' ).remove();
+			break;
 
-	if ( 'clickReblogFlair' === event.event ) {
-		wpcom_reblog.toggle_reblog_box_flair( event.obj_id );
-	}
+		case 'clickReblogFlair':
+			wpcom_reblog.toggle_reblog_box_flair( event.obj_id );
+			break;
 
-	if ( 'showOtherGravatars' === event.event ) {
-		$container = jQuery( '#likes-other-gravatars' );
-		$list = $container.find( 'ul' );
+		case 'showOtherGravatars':
+			$container = jQuery( '#likes-other-gravatars' );
+			$list = $container.find( 'ul' );
 
-		$container.hide();
-		$list.html( '' );
+			$container.hide();
+			$list.html( '' );
 
-		$container.find( '.likes-text span' ).text( event.total );
+			$container.find( '.likes-text span' ).text( event.total );
 
-		jQuery.each( event.likers, function( i, liker ) {
-			var element;
+			jQuery.each( event.likers, function( i, liker ) {
+				var element;
 
-			if ( 'http' !== liker.profile_URL.substr( 0, 4 ) ) {
-				// We only display gravatars with http or https schema
-				return;
-			}
+				if ( 'http' !== liker.profile_URL.substr( 0, 4 ) ) {
+					// We only display gravatars with http or https schema
+					return;
+				}
 
-			element = jQuery( '<li><a><img /></a></li>' );
-			element.addClass( liker.css_class );
+				element = jQuery( '<li><a><img /></a></li>' );
+				element.addClass( liker.css_class );
 
-			element.find( 'a' ).
-				attr({
+				element.find( 'a' ).
+				attr( {
 					href: liker.profile_URL,
 					rel: 'nofollow',
 					target: '_parent'
-				}).
+				} ).
 				addClass( 'wpl-liker' );
 
-			element.find( 'img' ).
-				attr({
+				element.find( 'img' ).
+				attr( {
 					src: liker.avatar_URL,
 					alt: liker.name
-				}).
-				css({
+				} ).
+				css( {
 					width: '30px',
 					height: '30px',
 					paddingRight: '3px'
-				});
+				} );
 
-			$list.append( element );
-		} );
+				$list.append( element );
+			} );
 
-		offset = jQuery( '[name=\'' + event.parent + '\']' ).offset();
+			offset = jQuery( '[name=\'' + event.parent + '\']' ).offset();
 
-		$container.css( 'left', offset.left + event.position.left - 10 + 'px' );
-		$container.css( 'top', offset.top + event.position.top - 33 + 'px' );
+			$container.css( 'left', offset.left + event.position.left - 10 + 'px' );
+			$container.css( 'top', offset.top + event.position.top - 33 + 'px' );
 
-		rowLength = Math.floor( event.width / 37 );
-		height = ( Math.ceil( event.likers.length / rowLength ) * 37 ) + 13;
-		if ( height > 204 ) {
-			height = 204;
-		}
+			rowLength = Math.floor( event.width / 37 );
+			height = ( Math.ceil( event.likers.length / rowLength ) * 37 ) + 13;
+			if ( height > 204 ) {
+				height = 204;
+			}
 
-		$container.css( 'height', height + 'px' );
-		$container.css( 'width', rowLength * 37 - 7 + 'px' );
+			$container.css( 'height', height + 'px' );
+			$container.css( 'width', rowLength * 37 - 7 + 'px' );
 
-		$list.css( 'width', rowLength * 37 + 'px' );
+			$list.css( 'width', rowLength * 37 + 'px' );
 
-		$container.fadeIn( 'slow' );
+			$container.fadeIn( 'slow' );
 
-		scrollbarWidth = $list[0].offsetWidth - $list[0].clientWidth;
-		if ( scrollbarWidth > 0 ) {
-			$container.width( $container.width() + scrollbarWidth );
-			$list.width( $list.width() + scrollbarWidth );
-		}
+			scrollbarWidth = $list[0].offsetWidth - $list[0].clientWidth;
+			if ( scrollbarWidth > 0 ) {
+				$container.width( $container.width() + scrollbarWidth );
+				$list.width( $list.width() + scrollbarWidth );
+			}
 	}
 }
 
