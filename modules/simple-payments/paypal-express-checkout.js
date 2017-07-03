@@ -14,6 +14,10 @@ var PaypalExpressCheckout = {
 	renderButton: function( id ) {
 		paypal.Button.render( {
 			commit: true,
+			style: {
+				label: 'pay',
+				color: 'blue',
+			},
 			payment: function() {
 				return paypal.request.post( PaypalExpressCheckout.constants.createPaymentEndpoint ).then( function( data ) {
 					return data.id;
