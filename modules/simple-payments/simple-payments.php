@@ -32,6 +32,7 @@ class Jetpack_Simple_Payments {
 	public function init_hook_action() {
 		add_filter( 'rest_api_allowed_post_types', array( $this, 'allow_rest_api_types' ) );
 		$this->register_scripts();
+		$this->register_shortcode();
 		$this->setup_cpts();
 	}
 
