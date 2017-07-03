@@ -5,6 +5,8 @@ class Jetpack_Simple_Payments {
 	static $post_type_order = 'jp_pay_order';
 	static $post_type_product = 'jp_pay_product';
 
+	static $shortcode = 'simple-payment';
+
 	// Classic singleton pattern:
 	private static $instance;
 	private function __construct() {}
@@ -16,13 +18,30 @@ class Jetpack_Simple_Payments {
 		return self::$instance;
 	}
 
+	private function register_scripts() {
+		wp_register_script( 'paypal-checkout-js', 'https://www.paypalobjects.com/api/checkout.js' );
+		wp_register_script( 'paypal-express-checkout', plugins_url( '/paypal-express-checkout-button.js', __FILE__ ) , array( 'paypal-checkout-js' ) );
+	}
 	private function register_init_hook() {
 		add_action( 'init', array( $this, 'init_hook_action' ) );
+	}
+	private function register_shortcode() {
+		add_shortcode( static::$shortcode, array( $this, 'parse_shortcode' ) );
 	}
 
 	public function init_hook_action() {
 		add_filter( 'rest_api_allowed_post_types', array( $this, 'allow_rest_api_types' ) );
+		$this->register_scripts();
 		$this->setup_cpts();
+	}
+
+	function parse_shortcode( $attrs, $content = false ) {
+		$config = shortcode_atts( array(
+			'class' => 'caption',
+		), $attrs );
+		wp_add_inline_script( 'paypal-express-checkout', 'try{PaypalExpressCheckoutButton( { type: 2 } );}catch(e){}' );
+
+		return "<b>POTATO</b>";
 	}
 
 	/**
