@@ -60,7 +60,7 @@ class Jetpack_Simple_Payments {
 		wp_enqueue_script( 'paypal-express-checkout' );
 		wp_add_inline_script( 'paypal-express-checkout', "try{PaypalExpressCheckoutButton( {$data['dom_id']} );}catch(e){}" );
 
-		return output_shortcode( $data );
+		return $this->output_shortcode( $data );
 	}
 
 	function output_shortcode( $data ) {
