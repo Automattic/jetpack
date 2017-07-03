@@ -726,7 +726,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
 				case 'onpublish':
 				case 'onupdate':
-				case 'Bias Language':
+				case 'Biased Language':
 				case 'Cliches':
 				case 'Complex Expression':
 				case 'Diacritical Marks':
