@@ -95,6 +95,7 @@ class Jetpack_Simple_Payments {
 		 * spay_cta - text with "Buy" or other CTA
 		 * spay_email - paypal email
 		 * spay_multiple - allow for multiple items
+		 * spay_status - status. { enabled | disabled }
 		 */
 		$product_capabilities = array(
 			'edit_post'             => 'edit_posts',
