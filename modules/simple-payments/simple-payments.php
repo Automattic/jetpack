@@ -53,7 +53,7 @@ class Jetpack_Simple_Payments {
 			'dom_id' => uniqid( 'jp_simple_payments__button_' . $product->ID . '_' ),
 			'class' => 'jp_simple_payments__' . $product->ID,
 			'title' => get_the_title( $product ),
-			'description' => $product->post_content,
+			'description' => apply_filters( 'the_content', $product->post_content ),
 			'cta' => get_post_meta( $product->ID, 'spay_cta', true ),
 		), $attrs );
 		$data[ 'price' ] = $this->format_price(
