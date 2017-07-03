@@ -1432,8 +1432,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'after-the-deadline',
 			),
-			'Biased Language' => array(
-				'description'       => esc_html__( 'Biased Language', 'jetpack' ),
+			'Bias Language' => array(
+				'description'       => esc_html__( 'Bias Language', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 0,
 				'validate_callback' => __CLASS__ . '::validate_boolean',

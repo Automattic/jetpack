@@ -10150,7 +10150,7 @@ msgstr "Klichéer"
 
 #: _inc/jetpack-strings.php:328 _inc/lib/class.core-rest-api-endpoints.php:1405
 #: modules/after-the-deadline/config-options.php:63
-msgid "Biased Language"
+msgid "Bias Language"
 msgstr "Vanesprog"
 
 #: modules/after-the-deadline/config-options.php:60

@@ -6425,7 +6425,7 @@ msgid "Enable proofreading for the following grammar and style rules when writin
 msgstr ""
 
 #: modules/after-the-deadline/config-options.php:63
-msgid "Biased Language"
+msgid "Bias Language"
 msgstr ""
 
 #: modules/after-the-deadline/config-options.php:65

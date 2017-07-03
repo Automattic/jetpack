@@ -60,7 +60,7 @@ function AtD_display_options_form() {
    <p><?php _e('Enable proofreading for the following grammar and style rules when writing posts and pages:', 'jetpack'); ?></p>
 
    <p><?php
-		AtD_print_option( 'Biased Language', __('Biased Language', 'jetpack'), $options_show_types );
+		AtD_print_option( 'Bias Language', __('Bias Language', 'jetpack'), $options_show_types );
 		echo '<br />';
 		AtD_print_option( 'Cliches', __('Clich&eacute;s', 'jetpack'), $options_show_types );
 		echo '<br />';
