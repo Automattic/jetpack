@@ -210,9 +210,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'lang_id'                 => defined( 'IS_WPCOM' ) && IS_WPCOM
 						? get_lang_id_by_code( wpcom_l10n_get_blog_locale_variant( $blog_id, true ) )
 						: get_option( 'lang_id' ),
-					'wga'                     => defined( 'IS_WPCOM' ) && IS_WPCOM
-						? get_option( 'wga' )
-						: $this->get_google_analytics(),
+					'wga'                     => $this->get_google_analytics(),
 					'disabled_likes'          => (bool) get_option( 'disabled_likes' ),
 					'disabled_reblogs'        => (bool) get_option( 'disabled_reblogs' ),
 					'jetpack_comment_likes_enabled' => (bool) get_option( 'jetpack_comment_likes_enabled', false ),
