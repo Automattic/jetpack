@@ -56,6 +56,11 @@ class Jetpack_Simple_Payments {
 			'description' => $product->post_content,
 			'cta' => get_post_meta( $product->ID, 'spay_cta', true ),
 		), $attrs );
+		$data[ 'price' ] = $this->format_price(
+			get_post_meta( $product->ID, 'spay_price', true ),
+			get_post_meta( $product->ID, 'spay_currency', true ),
+			$data
+		);
 
 		wp_enqueue_script( 'paypal-express-checkout' );
 		wp_add_inline_script( 'paypal-express-checkout', "try{PaypalExpressCheckout.renderButton( {$data['dom_id']} );}catch(e){}" );
@@ -68,10 +73,16 @@ class Jetpack_Simple_Payments {
 <div class="{$data[ 'class' ]} jp_simple_payments__wrapper">
 	<h2 class="jp_simple_payments__title">{$data['title']}</h2>
 	<div class="jp_simple_payments__description">{$data['description']}</div>
+	<div class="jp_simple_payments__price">{$data['price']}</div>
 	<div class="jp_simple_payments__button" id="{$data['dom_id']}"></div>
 </div>
 TEMPLATE;
 		return $output;
+	}
+
+	function format_price( $price, $currency ) {
+		// TODO: better logic here.
+		return $price. " " . $currency;
 	}
 
 	/**
