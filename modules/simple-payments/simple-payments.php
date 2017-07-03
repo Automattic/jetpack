@@ -51,7 +51,7 @@ class Jetpack_Simple_Payments {
 		// We allow for overriding the presentation labels
 		$data = shortcode_atts( array(
 			'dom_id' => uniqid( 'jp_simple_payments__button_' . $post->ID . '_' ),
-			'style' => 'jp_simple_payments__' . $post->ID,
+			'class' => 'jp_simple_payments__' . $post->ID,
 			'title' => get_the_title( $post ),
 			'description' => get_the_content( $post ),
 			'cta' => get_post_meta( $post->ID, 'spay_cta', true ),
