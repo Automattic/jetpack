@@ -24,7 +24,7 @@ jQuery( document ).ready( function( $ ) {
 	function fetchCounts() {
 		var batchRequest = {
 			path: '/batch',
-			data: 'urls[]=' + APIqueue.join( '&urls[]=' ),
+			data: 'urls[]=' + APIqueue.map( 'encodeURIComponent' ).join( '&urls[]=' ),
 			success: function( response ) {
 				for ( var path in response ) {
 					if ( ! response[ path ].error_data ) {
