@@ -65,7 +65,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		 *
 		 * @since 5.0.0
 		 *
-		 * $param string $importer 
+		 * $param string $importer
 		 */
 		do_action( 'jetpack_sync_import_end', $importer );
 		$this->import_end = true;
@@ -78,8 +78,8 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		}
 
 		$this->import_end = true;
-		$importer = 'unknown';
-		$backtrace = wp_debug_backtrace_summary(null, 0, false );
+		$importer         = 'unknown';
+		$backtrace        = wp_debug_backtrace_summary( null, 0, false );
 		if ( $this->is_importer( $backtrace, 'Blogger_Importer' ) ) {
 			$importer = 'blogger';
 		}
@@ -95,16 +95,17 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		/** This filter is already documented in sync/class.jetpack-sync-module-posts.php */
 		do_action( 'jetpack_sync_import_end', $importer );
 	}
-	
+
 	private function is_importer( $backtrace, $class_name ) {
 		foreach ( $backtrace as $trace ) {
 			if ( strpos( $trace, $class_name ) !== false ) {
 				return true;
 			}
 		}
+
 		return false;
 	}
-	
+
 	public function init_full_sync_listeners( $callable ) {
 		add_action( 'jetpack_full_sync_posts', $callable ); // also sends post meta
 	}
@@ -154,7 +155,12 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 	 * @return array
 	 */
 	function expand_wp_insert_post( $args ) {
-		return array( $args[0], $this->filter_post_content_and_add_links( $args[1] ), $args[2], $args[3] );
+		$post_id      = $args[0];
+		$post         = $args[1];
+		$update       = $args[2];
+		$is_auto_save = isset( $args[3] ) ? $args[3] : false; //See https://github.com/Automattic/jetpack/issues/7372
+
+		return array( $post_id, $this->filter_post_content_and_add_links( $post ), $update, $is_auto_save );
 	}
 
 	function filter_blacklisted_post_types( $args ) {
@@ -311,7 +317,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		}
 	}
 
-	public function wp_insert_post( $post_ID, $post = null , $update = null ) {
+	public function wp_insert_post( $post_ID, $post = null, $update = null ) {
 		if ( ! is_numeric( $post_ID ) || is_null( $post ) ) {
 			return;
 		}
