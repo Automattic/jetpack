@@ -41,10 +41,10 @@ class Jetpack_Simple_Payments {
 	}
 
 	function parse_shortcode( $attrs, $content = false ) {
-		if( empty( $attrs[ 'id' ] ) ) {
+		if( empty( $attrs['id'] ) ) {
 			return;
 		}
-		$product = get_post( $attrs[ 'id' ] );
+		$product = get_post( $attrs['id'] );
 		if( is_wp_error( $product ) ) {
 			return;
 		}
@@ -61,7 +61,7 @@ class Jetpack_Simple_Payments {
 			'cta' => get_post_meta( $product->ID, 'spay_cta', true ),
 			'multiple' => get_post_meta( $product->ID, 'spay_multiple', true )
 		), $attrs );
-		$data[ 'price' ] = $this->format_price(
+		$data['price'] = $this->format_price(
 			get_post_meta( $product->ID, 'spay_price', true ),
 			get_post_meta( $product->ID, 'spay_currency', true ),
 			$data
