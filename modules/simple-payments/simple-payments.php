@@ -1,5 +1,18 @@
 <?php
+/*
+Plugin Name: Jetpack Simple Payments
+Plugin URL: https://wordpress.com/
+Description: Enable easy ecommerce with Simple Payments powered by PayPal. Start selling today with fully integrated PayPal express checkout button.:
+Version: 0.1
+Author: Automattic
 
+Released under the GPL v.2 license.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+*/
 class Jetpack_Simple_Payments {
 	// These have to be under 20 chars because that is CPT limit.
 	static $post_type_order = 'jp_pay_order';
