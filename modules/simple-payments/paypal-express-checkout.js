@@ -13,6 +13,9 @@ var PaypalExpressCheckout = {
 		executePaymentEndpoint: '' //TODO: point to the actual endpoint
 	},
 	renderButton: function( id ) {
+		if ( ! paypal ) {
+			throw new Error( 'PayPal module is required by PaypalExpressCheckout' );
+		}
 		paypal.Button.render( {
 			commit: true,
 			style: {
