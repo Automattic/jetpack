@@ -30,7 +30,7 @@ class Jetpack_Simple_Payments {
 		add_action( 'init', array( $this, 'init_hook_action' ) );
 	}
 	private function register_shortcode() {
-		add_shortcode( static::$shortcode, array( $this, 'parse_shortcode' ) );
+		add_shortcode( self::$shortcode, array( $this, 'parse_shortcode' ) );
 	}
 
 	public function init_hook_action() {
