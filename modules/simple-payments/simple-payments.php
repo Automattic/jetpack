@@ -55,6 +55,7 @@ class Jetpack_Simple_Payments {
 			'title' => get_the_title( $product ),
 			'description' => apply_filters( 'the_content', $product->post_content ),
 			'cta' => get_post_meta( $product->ID, 'spay_cta', true ),
+			'multiple' => get_post_meta( $product->ID, 'spay_multiple', true )
 		), $attrs );
 		$data[ 'price' ] = $this->format_price(
 			get_post_meta( $product->ID, 'spay_price', true ),
@@ -69,11 +70,17 @@ class Jetpack_Simple_Payments {
 	}
 
 	function output_shortcode( $data ) {
+		$items="";
+		// TODO: tie number of items to request
+		if( $data['multiple'] ) {
+		       $items='<div class="jp_simple_payments__items" ><input type="number" value="1"></div>';
+		}
 		$output = <<<TEMPLATE
 <div class="{$data[ 'class' ]} jp_simple_payments__wrapper">
 	<h2 class="jp_simple_payments__title">{$data['title']}</h2>
 	<div class="jp_simple_payments__description">{$data['description']}</div>
 	<div class="jp_simple_payments__price">{$data['price']}</div>
+	{$items}
 	<div class="jp_simple_payments__button" id="{$data['dom_id']}"></div>
 </div>
 TEMPLATE;
