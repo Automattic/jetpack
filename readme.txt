@@ -62,7 +62,7 @@ Installation is free, quick, and easy. Set up <a href="https://jetpack.com/insta
 Installation is free, quick, and easy. [Install Jetpack from our site](https://jetpack.com/install?from=wporg) in minutes.
 
 = Manual Alternatives =
-Alternatively, install Jetpack via the plugin directory, or upload the files manually to your server and follow the on-screen instructions. If you need additional help [read our detailed instructions](http://jetpack.com/support/installing-jetpack/).
+Alternatively, install Jetpack via the plugin directory, or upload the files manually to your server and follow the on-screen instructions. If you need additional help [read our detailed instructions](https://jetpack.com/support/installing-jetpack/).
 
 == Frequently Asked Questions ==
 
@@ -132,7 +132,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 = 5.0 =
 
 * Release date: June 6th, 2017
-* Release post: http://jetpack.com/2017/06/06/jetpack-5-0-spring-clean/
+* Release post: https://jetpack.com/2017/06/06/jetpack-5-0-spring-clean/
 
 **Enhancements**
 
