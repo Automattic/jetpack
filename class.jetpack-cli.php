@@ -678,14 +678,20 @@ class Jetpack_CLI extends WP_CLI_Command {
 				$i = 1;
 				do {
 					$result = Jetpack_Sync_Actions::$sender->do_full_sync();
-					if ( $result ) {
-						if ( 1 == $i++ ) {
+					if ( is_wp_error( $result ) ) {
+						$queue_empty_error = ( 'empty_queue_full_sync' == $result->get_error_code() );
+						if ( ! $queue_empty_error || ( $queue_empty_error && ( 1 == $i ) ) ) {
+							WP_CLI::error( sprintf( __( 'Sync errored with code: %s', 'jetpack' ), $result->get_error_code() ) );
+						}
+					} else {
+						if ( 1 == $i ) {
 							WP_CLI::log( __( 'Sent data to WordPress.com', 'jetpack' ) );
 						} else {
 							WP_CLI::log( __( 'Sent more data to WordPress.com', 'jetpack' ) );
 						}
 					}
-				} while ( $result );
+					$i++;
+				} while ( $result && ! is_wp_error( $result ) );
 
 				// Reset sync settings to original.
 				Jetpack_Sync_Settings::update_settings( $original_settings );
