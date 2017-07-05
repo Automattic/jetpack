@@ -106,7 +106,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 = 5.1 =
 
 * Release date: July 5th, 2017
-* Release post: https://jetpack.com/?p=20888
+* Release post: https://jetpack.com/2017/07/05/jetpack-5-1-comment-likes/
 
 **Major Enhancements**
 * You and your readers can now show appreciation to particularly clever comments with the new Comment Likes feature.
