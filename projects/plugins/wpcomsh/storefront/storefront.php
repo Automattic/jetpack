@@ -130,3 +130,30 @@ function wpcomsh_symlink_the_storefront_themes() {
 	$at_options[ 'storefront_themes_installed' ] = true;
 	update_option( 'at_options', $at_options );
 }
+
+/**
+ * When a request is made to Jetpack Themes API, we need to make sure to mark the symlinked
+ * storefront themes in the response. This function adds a `storefront_theme` field, which
+ * can then be used to distinguish if it's a Storefront child theme or Storefront itself.
+ *
+ * @param array $formatted_theme Array containing the Jetpack Themes API data to be sent to wpcom
+ *
+ * @return array The original or modified theme info array
+ */
+function wpcomsh_add_storefront_meta_to_theme_endpoint_response( $formatted_theme ) {
+        if ( ! array_key_exists( 'id', $formatted_theme ) ) {
+                return $formatted_theme;
+        }
+
+	$theme_slug = $formatted_theme['id'];
+
+	if ( wpcomsh_is_theme_symlinked( $theme_slug ) ) {
+		$theme = wp_get_theme( $theme_slug );
+		if ( 'storefront' === $theme_slug || 'storefront' === $theme->get( 'Template' ) ) {
+			$formatted_theme['storefront_theme'] = true;
+		}
+	}
+
+	return $formatted_theme;
+}
+add_filter( 'jetpack_format_theme_details', 'wpcomsh_add_storefront_meta_to_theme_endpoint_response' );
