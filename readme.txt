@@ -103,6 +103,24 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
+= 5.2 =
+
+* Release date: August 1, 2017
+* Release post: https://jetpack.com/?p=22509
+
+**Major Enhancements**
+* Contact Forms now sports a fancy new interface that allows you to visually compose your form in the editor.
+* We have a new and slick way to showcase and explain the features we recommend to activate to new users.
+
+**Enhancements**
+* Reduced 500kb from plugin zip file, which means faster updates.
+* Refactored and reduced code for Comment Likes so it's faster and lighter.
+
+**Bug fixes**
+* An inconsistency experienced in WordPress.com dashboard when Related Posts settings were set in the local site's WP Admin is now fixed.
+* Fixed a 404 when loading Open Sans font from a stylesheet plus now it's only enqueued if it will be used.
+* Solve PHP warnings when Image widget wasn't migrated.
+
 = 5.1 =
 
 * Release date: July 5th, 2017
@@ -128,52 +146,3 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * We now sync the `order_id` for `order_items` in older WooCommerce versions.
 * UI now handles VaultPress connection or registration problems gracefully.
 * Photon now works correctly with images uploaded before WordPress 2.7.
-
-= 5.0 =
-
-* Release date: June 6th, 2017
-* Release post: https://jetpack.com/2017/06/06/jetpack-5-0-spring-clean/
-
-**Enhancements**
-
-* Several changes to the Jetpack dashboard and notices: alignment tweaks, code refactor, text simplification, and more.
-* Changes to the communication layer between your site and WordPress.com, to improve performance and allow you to do more to manage your site from WordPress.com.
-* Social menu gets icons for Etsy, Meetup, 500px, and Goodreads.
-* Jetpack data sync now better supports WordPress updates, themes changes, widgets, and multisite networks.
-* Video is updated to be fully compatible with the upcoming Media Widget.
-* Force secure WordPress.com API requests for request body, remove deprecated stats methods, and add new endpoints for post listing and user invitations.
-* Jetpack's Command Line tools can now output information about the primary Jetpack site owner. Try `wp jetpack status`!
-* Custom CSS now supports the `animation-fill-mode`, `fill`, and `stroke` properties.
-* Remove the "Menus" item from the WordPress.com toolbar for parity with the toolbar on WordPress.com.
-* Improve the display of the Omnisearch results page on sites using an RTL language.
-* Trim any white space when adding new email address in the Contact Info Widget.
-* Improve the look of your recipes in search engine result pages, when you use the Recipe shortcode.
-
-**Compatibility Improvements**
-
-* Improve the connection process for end users and hosts.
-* Improve compatibility of Jetpack data sync with WooCommerce and Pet Manager plugins.
-* Make sure Jetpack's SEO Tools don't conflict with other SEO plugins that may already be active on the site, like Yoast SEO or All In One SEO Pack.
-
-**Bug Fixes**
-
-* Add a "Set Up" button when a Personal plan is purchased, but VaultPress isn't active yet.
-* When the Ads feature is active, do not display Ads in RSS feeds.
-* Comments do not use Photon for Facebook and Twitter avatars and now avoid non-secure warnings when submitting comments on a HTTP site in Safari.
-* Contact form emails are now sent in a way that ensures they are correctly rendered as HTML.
-* Properly print the full list of modules when using the sync command in Jetpack's Command Line Interface (CLI).
-* Avoid errors when reordering a lot of Restaurant menu items at once.
-* Add a mechanism to detect broken connection states and resolve them.
-* Autosaves can now be restored as Markdown.
-* Photon no longer conflicts with Facebook's CDN, local images, and plugins that customize reponsive images.
-* Avoid potential PHP notice in Publicize.
-* Fix bad jQuery selector in Presentations shortcode.
-* Avoid fatal errors for Social Links on sites running PHP 7.1.
-* Properly escape button attribute in spellchecker.
-* Avoid PHP notices for stats on some sites when user roles are not attributed properly.
-* No longer attempt to sync options that do not exist and avoid fatal errors when de/activating plugins.
-* Avoid errors when Social Menu functions have already been defined in the theme or in another plugin.
-* VideoPress media items now always return their unique ID, and do not trigger any PHP notice.
-* Fix style of the EU Cookie Law Widget on themes with specific positioning.
-* Use correct time constant to define an hour in Upcoming Events Widget.
-* Avoid HTML encoding issues in sitemaps.
