@@ -85,6 +85,7 @@ class Jetpack_Sync_Module_Terms extends Jetpack_Sync_Module {
 			 * @param object the Term object
 			 */
 			do_action( 'jetpack_sync_add_term', $term_object );
+			return;
 		}
 
 		/**
