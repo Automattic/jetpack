@@ -4,7 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "1d4d59bd20433a0aaafea462b0777f79",
+    "hash": "4dea473ca893cb32aa89caab45dfbc8d",
+    "content-hash": "93fe367a3556ef698feb1dedd71409b7",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -12,12 +13,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/automattic/at-pressable-podcasting.git",
-                "reference": "d26f6d815100f99f7eed9b5e86d560e9fb70b0cf"
+                "reference": "a6823ef7151ac8262868a4b2b33702d6250cc251"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/automattic/at-pressable-podcasting/zipball/d26f6d815100f99f7eed9b5e86d560e9fb70b0cf",
-                "reference": "d26f6d815100f99f7eed9b5e86d560e9fb70b0cf",
+                "url": "https://api.github.com/repos/automattic/at-pressable-podcasting/zipball/a6823ef7151ac8262868a4b2b33702d6250cc251",
+                "reference": "a6823ef7151ac8262868a4b2b33702d6250cc251",
                 "shasum": ""
             },
             "type": "library",
@@ -26,7 +27,7 @@
                     "podcasting.php"
                 ]
             },
-            "time": "2017-05-09T20:06:20+00:00"
+            "time": "2017-05-09 20:06:20"
         },
         {
             "name": "automattic/custom-fonts",
@@ -51,7 +52,7 @@
                     "custom-fonts.php"
                 ]
             },
-            "time": "2017-06-12T21:39:47+00:00"
+            "time": "2017-06-12 21:39:47"
         },
         {
             "name": "automattic/custom-fonts-typekit",
@@ -76,7 +77,29 @@
                     "custom-fonts-typekit.php"
                 ]
             },
-            "time": "2017-06-15T16:29:07+00:00"
+            "time": "2017-06-15 16:29:07"
+        },
+        {
+            "name": "automattic/jetpack-social-icons",
+            "version": "v1.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/Automattic/jetpack-social-icons.git",
+                "reference": "dfa7b70bc3742d2bd6f5bbb8d3111daadc8468c2"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/Automattic/jetpack-social-icons/zipball/dfa7b70bc3742d2bd6f5bbb8d3111daadc8468c2",
+                "reference": "dfa7b70bc3742d2bd6f5bbb8d3111daadc8468c2",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "jetpack-social-icons-load.php"
+                ]
+            },
+            "time": "2017-07-06 23:10:13"
         },
         {
             "name": "automattic/text-media-widget-styles",
@@ -98,7 +121,7 @@
                     "text-media-widget-styles.php"
                 ]
             },
-            "time": "2017-06-20T23:34:19+00:00"
+            "time": "2017-06-20 23:34:19"
         }
     ],
     "packages-dev": [],
