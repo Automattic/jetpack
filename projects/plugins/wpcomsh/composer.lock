@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "4dea473ca893cb32aa89caab45dfbc8d",
-    "content-hash": "93fe367a3556ef698feb1dedd71409b7",
+    "hash": "8a9789c7ed323204f25629dec3c296e9",
+    "content-hash": "091912863d1442af2b12bf6459f38d74",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -81,16 +81,16 @@
         },
         {
             "name": "automattic/jetpack-social-icons",
-            "version": "v1.0.0",
+            "version": "v1.0.1",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/jetpack-social-icons.git",
-                "reference": "dfa7b70bc3742d2bd6f5bbb8d3111daadc8468c2"
+                "reference": "9d76c94cd807247cfccf9b0fdad86a5d90f7bf1e"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/jetpack-social-icons/zipball/dfa7b70bc3742d2bd6f5bbb8d3111daadc8468c2",
-                "reference": "dfa7b70bc3742d2bd6f5bbb8d3111daadc8468c2",
+                "url": "https://api.github.com/repos/Automattic/jetpack-social-icons/zipball/9d76c94cd807247cfccf9b0fdad86a5d90f7bf1e",
+                "reference": "9d76c94cd807247cfccf9b0fdad86a5d90f7bf1e",
                 "shasum": ""
             },
             "type": "library",
@@ -99,7 +99,7 @@
                     "jetpack-social-icons-load.php"
                 ]
             },
-            "time": "2017-07-06 23:10:13"
+            "time": "2017-07-07 17:24:22"
         },
         {
             "name": "automattic/text-media-widget-styles",
