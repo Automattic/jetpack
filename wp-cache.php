@@ -165,6 +165,12 @@ function wpsupercache_activate() {
 register_activation_hook( __FILE__, 'wpsupercache_activate' );
 
 function wpsupercache_site_admin() {
+	global $wp_version;
+
+	if ( version_compare( "4.8", $wp_version, "<=" ) ) {
+		return current_user_can( 'setup_network' );
+	}
+
 	if ( function_exists( 'is_super_admin' ) ) {
 		return is_super_admin();
 	} elseif ( function_exists( 'is_site_admin' ) ) {
