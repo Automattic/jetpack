@@ -159,8 +159,9 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		$post         = $args[1];
 		$update       = $args[2];
 		$is_auto_save = isset( $args[3] ) ? $args[3] : false; //See https://github.com/Automattic/jetpack/issues/7372
+		$just_published = isset( $args[4] ) ? $args[4] : false; //Preventative in light of above issue
 
-		return array( $post_id, $this->filter_post_content_and_add_links( $post ), $update, $is_auto_save );
+		return array( $post_id, $this->filter_post_content_and_add_links( $post ), $update, $is_auto_save, $just_published );
 	}
 
 	function filter_blacklisted_post_types( $args ) {
@@ -328,7 +329,13 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 			$is_auto_save = false;
 		}
 
-		call_user_func( $this->action_handler, $post_ID, $post, $update, $is_auto_save );
+		if ( ! in_array( $post_ID, $this->just_published ) ) {
+			$just_published = false;
+		} else {
+			$just_published = true;
+		}
+
+		call_user_func( $this->action_handler, $post_ID, $post, $update, $is_auto_save, $just_published );
 		$this->send_published( $post_ID, $post );
 		$this->send_trashed( $post_ID, $post );
 	}
