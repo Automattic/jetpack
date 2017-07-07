@@ -219,5 +219,32 @@ class WP_Super_Cache_Settings_Map {
 			'global' => 'ossdlcdn',
 			'set'    => 'set_ossdlcdn',
 		),
+		'wp_super_cache_debug' => array(
+			'global' => 'wp_super_cache_debug',
+		),
+		'wp_cache_debug_username' => array(
+			'global' => 'wp_cache_debug_username',
+		),
+		'wp_cache_debug_log' => array(
+			'global' => 'wp_cache_debug_log',
+		),
+		'wp_cache_debug_ip' => array(
+			'global' => 'wp_cache_debug_ip',
+		),
+		'wp_super_cache_comments' => array(
+			'global' => 'wp_super_cache_comments',
+		),
+		'wp_super_cache_front_page_check' => array(
+			'global' => 'wp_super_cache_front_page_check',
+		),
+		'wp_super_cache_front_page_clear' => array(
+			'global' => 'wp_super_cache_front_page_clear',
+		),
+		'wp_super_cache_front_page_text' => array(
+			'global' => 'wp_super_cache_front_page_text',
+		),
+		'wp_super_cache_front_page_notification' => array(
+			'global' => 'wp_super_cache_front_page_notification',
+		),
 	);
 }

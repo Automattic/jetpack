@@ -87,6 +87,7 @@ class WP_Super_Cache_Router {
 			'callback'        	  => array( $test_cache, 'callback' ),
 			'permission_callback' => __CLASS__ . '::create_item_permissions_check',
 		) );
+
 	}
 
 	/**
