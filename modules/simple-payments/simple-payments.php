@@ -64,7 +64,7 @@ class Jetpack_Simple_Payments {
 			'title' => get_the_title( $product ),
 			'description' => apply_filters( 'the_content', $product->post_content ),
 			'cta' => get_post_meta( $product->ID, 'spay_cta', true ),
-			'multiple' => get_post_meta( $product->ID, 'spay_multiple', true )
+			'multiple' => get_post_meta( $product->ID, 'spay_multiple', true ) || 0
 		), $attrs );
 		$data['price'] = $this->format_price(
 			get_post_meta( $product->ID, 'spay_price', true ),
@@ -73,24 +73,23 @@ class Jetpack_Simple_Payments {
 		);
 
 		wp_enqueue_script( 'paypal-express-checkout' );
-		wp_add_inline_script( 'paypal-express-checkout', "try{PaypalExpressCheckout.renderButton( {$data['dom_id']} );}catch(e){}" );
+		wp_add_inline_script( 'paypal-express-checkout', "try{PaypalExpressCheckout.renderButton( {$data['dom_id']}, {$data['multiple']} );}catch(e){}" );
 
 		return $this->output_shortcode( $data );
 	}
 
 	function output_shortcode( $data ) {
 		$items="";
-		// TODO: tie number of items to request
 		if( $data['multiple'] ) {
-		       $items='<div class="jetpack-simple-payments-items" ><input type="number" value="1"></div>';
+		       $items='<div class="jetpack-simple-payments-items" ><input class="jetpack-simple-payments-items-number" type="number" value="1"></div>';
 		}
 		$output = <<<TEMPLATE
-<div class="{$data[ 'class' ]} jetpack-simple-payments-wrapper">
+<div class="{$data[ 'class' ]} jetpack-simple-payments-wrapper" id="{$data['dom_id']}">
 	<div class="jetpack-simple-payments-title">{$data['title']}</div>
 	<div class="jetpack-simple-payments-description">{$data['description']}</div>
 	<div class="jetpack-simple-payments-price">{$data['price']}</div>
 	{$items}
-	<div class="jetpack-simple-payments-button" id="{$data['dom_id']}"></div>
+	<div class="jetpack-simple-payments-button"></div>
 </div>
 TEMPLATE;
 		return $output;
