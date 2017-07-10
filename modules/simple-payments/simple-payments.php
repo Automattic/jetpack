@@ -1,17 +1,9 @@
 <?php
 /*
-Plugin Name: Jetpack Simple Payments
-Plugin URL: https://wordpress.com/
-Description: Enable easy ecommerce with Simple Payments powered by PayPal. Start selling today with fully integrated PayPal express checkout button.:
-Version: 0.1
-Author: Automattic
-
-Released under the GPL v.2 license.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
+ * Simple Payments lets users embed a PayPal button fully integrated with wpcom to sell products on the site.
+ * This is not a proper module yet, because not all the pieces are in place. Until everything is shipped, it can be turned
+ * into module that can be enabled/disabled.
+ * TODO: Once the feature is fully shipped, create a file modules/simple-payments.php with a proper header to turn module on/off.
 */
 class Jetpack_Simple_Payments {
 	// These have to be under 20 chars because that is CPT limit.
