@@ -1,17 +1,10 @@
 /**
  * Like Button toolbar button, loading text & container styles
- *
- * @todo: doesn't look like "style.css" is used anymore.
  */
 
 @font-face {
 	font-family: Noticons;
-	src: url("https://wordpress.com/i/noticons/Noticons.woff");
-}
-
-@font-face {
-	font-family: "Open Sans";
-	src: url("https://fonts.googleapis.com/css?family=Open+Sans");
+	src: url(https://wordpress.com/i/noticons/Noticons.woff);
 }
 
 /* Master container */
