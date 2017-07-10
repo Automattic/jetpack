@@ -97,7 +97,7 @@ TEMPLATE;
 	}
 
 	function format_price( $price, $currency ) {
-		// TODO: better logic here.
+		// TODO: better price formatting logic. Extracting from woocmmerce is not a solution since its bound with woo site options.
 		return $price. " " . $currency;
 	}
 
