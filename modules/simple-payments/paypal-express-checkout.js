@@ -12,7 +12,24 @@ var PaypalExpressCheckout = {
 		createPaymentEndpoint: '', //TODO: point to the actual endpoint
 		executePaymentEndpoint: '' //TODO: point to the actual endpoint
 	},
-	renderButton: function( id ) {
+	getNumberOfItems( field, enableMultiple ) {
+		var numberField, number;
+		if ( enableMultiple !== '1' ) {
+			return 1;
+		}
+		numberField = document.querySelector( field );
+
+		if ( ! numberField ) {
+			return 1;
+		}
+		number = Number( numberField.value );
+
+		if ( isNaN( number ) ) {
+			return 1;
+		}
+		return number;
+	},
+	renderButton: function( id, enableMultiple ) {
 		if ( ! paypal ) {
 			throw new Error( 'PayPal module is required by PaypalExpressCheckout' );
 		}
@@ -23,7 +40,10 @@ var PaypalExpressCheckout = {
 				color: 'blue'
 			},
 			payment: function() {
-				return paypal.request.post( PaypalExpressCheckout.constants.createPaymentEndpoint ).then( function( data ) {
+				var payload = {
+					number: PaypalExpressCheckout.getNumberOfItems( id + ' .jetpack-simple-payments-items', enableMultiple )
+				};
+				return paypal.request.post( PaypalExpressCheckout.constants.createPaymentEndpoint, payload ).then( function( data ) {
 					return data.id;
 				} );
 			},
@@ -40,6 +60,6 @@ var PaypalExpressCheckout = {
 				} );
 			}
 
-		}, id );
+		}, id + ' > .jetpack-simple-payments-button' );
 	}
 };
