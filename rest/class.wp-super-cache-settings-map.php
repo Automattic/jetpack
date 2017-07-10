@@ -226,7 +226,7 @@ class WP_Super_Cache_Settings_Map {
 			'global' => 'wp_cache_debug_username',
 		),
 		'wp_cache_debug_log' => array(
-			'global' => 'wp_cache_debug_log',
+			'get'    => 'get_wp_cache_debug_log',
 		),
 		'wp_cache_debug_ip' => array(
 			'global' => 'wp_cache_debug_ip',

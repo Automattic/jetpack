@@ -111,6 +111,14 @@ class WP_Super_Cache_Rest_Get_Settings extends WP_REST_Controller {
 	/**
 	 * @return bool
 	 */
+	protected function get_wp_cache_debug_log() {
+		global $cache_path, $wp_cache_debug_log;
+		return site_url( str_replace( ABSPATH, '', "{$cache_path}{$wp_cache_debug_log}" ) );
+	}
+
+	/**
+	 * @return bool
+	 */
 	protected function get_is_submit_enabled() {
 		global $wp_cache_config_file;
 		return is_writeable_ACLSafe( $wp_cache_config_file );
