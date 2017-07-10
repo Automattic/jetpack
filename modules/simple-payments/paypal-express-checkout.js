@@ -17,7 +17,7 @@ var PaypalExpressCheckout = {
 		if ( enableMultiple !== '1' ) {
 			return 1;
 		}
-		numberField = document.querySelector( field );
+		numberField = document.getElementById( field );
 
 		if ( ! numberField ) {
 			return 1;
