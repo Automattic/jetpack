@@ -59,12 +59,12 @@ class Jetpack_Simple_Payments {
 
 		// We allow for overriding the presentation labels
 		$data = shortcode_atts( array(
-			'dom_id' => uniqid( 'jetpack-simple-payments-button_' . $product->ID . '_' ),
+			'dom_id' => uniqid( 'jetpack-simple-payments-' . $product->ID . '_' ),
 			'class' => 'jetpack-simple-payments-' . $product->ID,
 			'title' => get_the_title( $product ),
 			'description' => apply_filters( 'the_content', $product->post_content ),
 			'cta' => get_post_meta( $product->ID, 'spay_cta', true ),
-			'multiple' => get_post_meta( $product->ID, 'spay_multiple', true ) || 0
+			'multiple' => get_post_meta( $product->ID, 'spay_multiple', true ) || '0'
 		), $attrs );
 		$data['price'] = $this->format_price(
 			get_post_meta( $product->ID, 'spay_price', true ),
@@ -81,15 +81,17 @@ class Jetpack_Simple_Payments {
 	function output_shortcode( $data ) {
 		$items="";
 		if( $data['multiple'] ) {
-		       $items='<div class="jetpack-simple-payments-items" ><input class="jetpack-simple-payments-items-number" type="number" value="1"></div>';
+		       $items="<div class='jetpack-simple-payments-items'>
+		       <input class='jetpack-simple-payments-items-number' type='number' value='1' id='{$data['dom_id']}_number'>
+		       </div>";
 		}
 		$output = <<<TEMPLATE
-<div class="{$data[ 'class' ]} jetpack-simple-payments-wrapper" id="{$data['dom_id']}">
+<div class="{$data[ 'class' ]} jetpack-simple-payments-wrapper">
 	<div class="jetpack-simple-payments-title">{$data['title']}</div>
 	<div class="jetpack-simple-payments-description">{$data['description']}</div>
 	<div class="jetpack-simple-payments-price">{$data['price']}</div>
 	{$items}
-	<div class="jetpack-simple-payments-button"></div>
+	<div class="jetpack-simple-payments-button" id="{$data['dom_id']}_button"></div>
 </div>
 TEMPLATE;
 		return $output;

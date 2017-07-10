@@ -41,7 +41,7 @@ var PaypalExpressCheckout = {
 			},
 			payment: function() {
 				var payload = {
-					number: PaypalExpressCheckout.getNumberOfItems( id + ' .jetpack-simple-payments-items', enableMultiple )
+					number: PaypalExpressCheckout.getNumberOfItems( id + '_number', enableMultiple )
 				};
 				return paypal.request.post( PaypalExpressCheckout.constants.createPaymentEndpoint, payload ).then( function( data ) {
 					return data.id;
@@ -60,6 +60,6 @@ var PaypalExpressCheckout = {
 				} );
 			}
 
-		}, id + ' > .jetpack-simple-payments-button' );
+		}, id + '_button' );
 	}
 };
