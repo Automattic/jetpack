@@ -11,8 +11,8 @@ var PaypalExpressCheckout = {
 	getCreatePaymentEndpoint: function( blogId ) {
 		return 'https://public-api.wordpress.com/wpcom/v2/sites/' + blogId + '/simple-payments/paypal/payment';
 	},
-	getExecutePaymentEndpoint: function( blogId ) {
-		return 'https://public-api.wordpress.com/wpcom/v2/sites/' + blogId + '/simple-payments/paypal/execute';
+	getExecutePaymentEndpoint: function( blogId, paymentId ) {
+		return 'https://public-api.wordpress.com/wpcom/v2/sites/' + blogId + '/simple-payments/paypal/' + paymentId + '/execute';
 	},
 	getNumberOfItems( field, enableMultiple ) {
 		var numberField, number;
@@ -51,10 +51,9 @@ var PaypalExpressCheckout = {
 				} );
 			},
 			onAuthorize: function( data ) {
-				return paypal.request.post( PaypalExpressCheckout.getExecutePaymentEndpoint( blogId ), {
+				return paypal.request.post( PaypalExpressCheckout.getExecutePaymentEndpoint( blogId, data.paymentID ), {
 					buttonId: buttonId,
-					paymentID: data.paymentID,
-					payerID: data.payerID
+					payerId: data.payerID
 				} ).then( function( payment ) {
 					// TODO: handle success, errors, messaging, etc, etc.
 					/* jshint ignore:start */
