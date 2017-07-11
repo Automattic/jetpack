@@ -29,7 +29,7 @@ class Jetpack_Simple_Payments {
 		 * @see https://developer.paypal.com/docs/integration/direct/express-checkout/integration-jsv4/add-paypal-button/
 		 */
 		wp_register_script( 'paypal-checkout-js', 'https://www.paypalobjects.com/api/checkout.js' );
-		wp_register_script( 'paypal-express-checkout', plugins_url( '/paypal-express-checkout.js', __FILE__ ) , array( 'paypal-checkout-js' ) );
+		wp_register_script( 'paypal-express-checkout', plugins_url( '/paypal-express-checkout.js', __FILE__ ) , array( 'paypal-checkout-js' ), '0.2' );
 	}
 	private function register_init_hook() {
 		add_action( 'init', array( $this, 'init_hook_action' ) );
