@@ -2142,6 +2142,10 @@ function wp_cache_setting( $field, $value ) {
 	$$field = $value;
 	if ( is_numeric( $value ) ) {
 		wp_cache_replace_line( '^ *\$' . $field, "\$$field = $value;", $wp_cache_config_file );
+	} elseif ( is_object( $value ) || is_array( $value ) ) {
+		$text = var_export( $value, true );
+		$text = preg_replace( '/[\s]+/', ' ', $text );
+		wp_cache_replace_line( '^ *\$' . $field, "\$$field = $text;", $wp_cache_config_file );
 	} else {
 		wp_cache_replace_line( '^ *\$' . $field, "\$$field = '$value';", $wp_cache_config_file );
 	}
