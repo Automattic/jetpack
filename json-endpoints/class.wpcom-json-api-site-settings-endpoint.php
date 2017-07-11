@@ -169,7 +169,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 				$api_cache = $is_jetpack ? (bool) get_option( 'jetpack_api_cache_enabled' ) : true;
 
-				$net_neutrality_options = get_option( 'net_neutrality_options' );
+				$net_neutrality_options = get_option( 'net_neutrality_options_2017' );
 				$net_neutrality = ( $net_neutrality_options && ! empty( $net_neutrality_options['enabled'] ) )
 					? true
 					: false;
@@ -594,7 +594,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 				case 'net_neutrality':
 					$original_value = $value;
 					$value = array( 'enabled' => (bool) $value );
-					if ( update_option( 'net_neutrality_options', $value ) ) {
+					if ( update_option( 'net_neutrality_options_2017', $value ) ) {
 						$updated[ $key ] = $original_value;
 					}
 
