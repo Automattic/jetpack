@@ -8,9 +8,11 @@
 /* exported PaypalExpressCheckout */
 /* jshint unused:false */
 var PaypalExpressCheckout = {
-	constants: {
-		createPaymentEndpoint: 'https://public-api.wordpress.com/wpcom/v2/simple-payments/paypal/payment',
-		executePaymentEndpoint: 'https://public-api.wordpress.com/wpcom/v2/simple-payments/paypal/execute'
+	getCreatePaymentEndpoint: function( blogId ) {
+		return 'https://public-api.wordpress.com/wpcom/v2/sites/' + blogId + '/simple-payments/paypal/payment';
+	},
+	getExecutePaymentEndpoint: function( blogId ) {
+		return 'https://public-api.wordpress.com/wpcom/v2/sites/' + blogId + '/simple-payments/paypal/execute';
 	},
 	getNumberOfItems( field, enableMultiple ) {
 		var numberField, number;
@@ -29,7 +31,7 @@ var PaypalExpressCheckout = {
 		}
 		return number;
 	},
-	renderButton: function( id, enableMultiple ) {
+	renderButton: function( blogId, buttonId, domId, enableMultiple ) {
 		if ( ! paypal ) {
 			throw new Error( 'PayPal module is required by PaypalExpressCheckout' );
 		}
@@ -41,14 +43,16 @@ var PaypalExpressCheckout = {
 			},
 			payment: function() {
 				var payload = {
-					number: PaypalExpressCheckout.getNumberOfItems( id + '_number', enableMultiple )
+					number: PaypalExpressCheckout.getNumberOfItems( domId + '_number', enableMultiple ),
+					buttonId: buttonId
 				};
-				return paypal.request.post( PaypalExpressCheckout.constants.createPaymentEndpoint, payload ).then( function( data ) {
+				return paypal.request.post( PaypalExpressCheckout.getCreatePaymentEndpoint( blogId ), payload ).then( function( data ) {
 					return data.id;
 				} );
 			},
 			onAuthorize: function( data ) {
-				return paypal.request.post( PaypalExpressCheckout.constants.executePaymentEndpoint, {
+				return paypal.request.post( PaypalExpressCheckout.getExecutePaymentEndpoint( blogId ), {
+					buttonId: buttonId,
 					paymentID: data.paymentID,
 					payerID: data.payerID
 				} ).then( function( payment ) {
@@ -60,6 +64,6 @@ var PaypalExpressCheckout = {
 				} );
 			}
 
-		}, id + '_button' );
+		}, domId + '_button' );
 	}
 };
