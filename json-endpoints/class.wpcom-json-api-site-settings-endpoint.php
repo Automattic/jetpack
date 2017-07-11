@@ -592,9 +592,10 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 
 				case 'net_neutrality':
+					$original_value = $value;
 					$value = array( 'enabled' => (bool) $value );
 					if ( update_option( 'net_neutrality_options', $value ) ) {
-						$updated[ $key ] = $value;
+						$updated[ $key ] = $original_value;
 					}
 
 					break;
