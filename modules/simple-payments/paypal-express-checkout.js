@@ -9,8 +9,8 @@
 /* jshint unused:false */
 var PaypalExpressCheckout = {
 	constants: {
-		createPaymentEndpoint: '', //TODO: point to the actual endpoint
-		executePaymentEndpoint: '' //TODO: point to the actual endpoint
+		createPaymentEndpoint: 'https://public-api/wpcom/v2/simple-payments/paypal/payment',
+		executePaymentEndpoint: 'https://public-api/wpcom/v2/simple-payments/paypal/execute'
 	},
 	getNumberOfItems( field, enableMultiple ) {
 		var numberField, number;
