@@ -59,6 +59,7 @@ class Jetpack_Simple_Payments {
 
 		// We allow for overriding the presentation labels
 		$data = shortcode_atts( array(
+			'blog_id' => $blog_id = Jetpack_Options::get_option( 'id' ),
 			'dom_id' => uniqid( 'jetpack-simple-payments-' . $product->ID . '_' ),
 			'class' => 'jetpack-simple-payments-' . $product->ID,
 			'title' => get_the_title( $product ),
@@ -73,7 +74,7 @@ class Jetpack_Simple_Payments {
 		);
 
 		wp_enqueue_script( 'paypal-express-checkout' );
-		wp_add_inline_script( 'paypal-express-checkout', "try{PaypalExpressCheckout.renderButton( '{$data['dom_id']}', '{$data['multiple']}' );}catch(e){}" );
+		wp_add_inline_script( 'paypal-express-checkout', "try{PaypalExpressCheckout.renderButton( '{$data['blog_id']}', '{$data['id']}', '{$data['dom_id']}', '{$data['multiple']}' );}catch(e){}" );
 
 		return $this->output_shortcode( $data );
 	}
