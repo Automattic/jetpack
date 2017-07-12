@@ -32,10 +32,12 @@ var PaypalExpressCheckout = {
 		return number;
 	},
 	renderButton: function( blogId, buttonId, domId, enableMultiple ) {
+		var env = 'sandbox';
 		if ( ! paypal ) {
 			throw new Error( 'PayPal module is required by PaypalExpressCheckout' );
 		}
 		paypal.Button.render( {
+			env: env,
 			commit: true,
 			style: {
 				label: 'pay',
@@ -44,7 +46,8 @@ var PaypalExpressCheckout = {
 			payment: function() {
 				var payload = {
 					number: PaypalExpressCheckout.getNumberOfItems( domId + '_number', enableMultiple ),
-					buttonId: buttonId
+					buttonId: buttonId,
+					env: env
 				};
 				return paypal.request.post( PaypalExpressCheckout.getCreatePaymentEndpoint( blogId ), payload ).then( function( data ) {
 					return data.id;
