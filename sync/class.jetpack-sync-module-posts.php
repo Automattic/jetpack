@@ -61,9 +61,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 			return;
 		}
 
-		//Identify importer
-		$importers = get_importers();
-		$importer_name = isset( $importers[ $importer ] ) ? $importers[ $importer ][0] : 'Unknown Importer';
+		$importer_name = $this->get_importer_name( $importer );
 
 		/**
 		 * Sync Event that tells that the import is finished
@@ -97,12 +95,14 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 			$importer = 'wordpress';
 		}
 
-		//Identify importer
-		$importers = get_importers();
-		$importer_name = isset( $importers[ $importer ] ) ? $importers[ $importer ][0] : 'Unknown Importer';
+		$importer_name = $this->get_importer_name( $importer );
 
 		/** This filter is already documented in sync/class.jetpack-sync-module-posts.php */
 		do_action( 'jetpack_sync_import_end', $importer, $importer_name );
+	}
+
+	private function get_importer_name( $importer ) {
+		return isset( $importers[ $importer ] ) ? $importers[ $importer ][0] : 'Unknown Importer';
 	}
 
 	private function is_importer( $backtrace, $class_name ) {
