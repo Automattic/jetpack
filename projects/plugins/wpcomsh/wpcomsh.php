@@ -50,6 +50,8 @@ require_once WPCOMSH__PLUGIN_DIR_PATH . '/class.jetpack-plugin-compatibility.php
 
 if ( class_exists( 'Jetpack_Plugin_Compatibility' ) ) {
 	$wpcomsh_incompatible_plugins = array(
+		'advanced-database-cleaner/advanced-db-cleaner.php' => 'advanced-database-cleaner and other WordPress reset plugins delete data ' .
+			'necessary to manage your site and are not supported on WordPress.com. advanced-database-cleaner has been deactivated.',
 		'advanced-reset-wp/advanced-reset-wp.php' => 'advanced-reset-wp and other WordPress reset plugins delete data ' .
 			'necessary to manage your site and are not supported on WordPress.com. advanced-reset-wp has been deactivated.',
 		'advanced-wp-reset/advanced-wp-reset.php' => 'advanced-wp-reset and other WordPress reset plugins delete data ' .
