@@ -40,6 +40,7 @@ class Jetpack_Simple_Payments {
 
 	public function init_hook_action() {
 		add_filter( 'rest_api_allowed_post_types', array( $this, 'allow_rest_api_types' ) );
+		add_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'allow_sync_post_meta' ) );
 		$this->register_scripts();
 		$this->register_shortcode();
 		$this->setup_cpts();
@@ -113,6 +114,21 @@ TEMPLATE;
 		$post_types[] = self::$post_type_order;
 		$post_types[] = self::$post_type_product;
 		return $post_types;
+	}
+
+	function allow_sync_post_meta( $post_meta ) {
+		return array_merge( $post_meta, array(
+			'spay_paypal_id',
+			'spay_status',
+			'spay_product_id',
+			'spay_quantity',
+			'spay_price',
+			'spay_customer_email',
+			'spay_currency',
+			'spay_cta',
+			'spay_email',
+			'spay_multiple'
+		) );
 	}
 
 	/**
