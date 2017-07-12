@@ -8,6 +8,7 @@ require_once __DIR__ . '/class.wp-super-cache-rest-get-status.php';
 require_once __DIR__ . '/class.wp-super-cache-rest-test-cache.php';
 require_once __DIR__ . '/class.wp-super-cache-rest-delete-cache.php';
 require_once __DIR__ . '/class.wp-super-cache-rest-preload.php';
+require_once __DIR__ . '/class.wp-super-cache-rest-debug.php';
 
 class WP_Super_Cache_Router {
 
@@ -32,6 +33,7 @@ class WP_Super_Cache_Router {
 		$delete_cache 	 = new WP_Super_Cache_Rest_Delete_Cache();
 		$preload_cache   = new WP_Super_Cache_Rest_Preload();
 		$get_status 	 = new WP_Super_Cache_Rest_Get_Status();
+		$debug_lists     = new WP_Super_Cache_Rest_Debug_List();
 
 		register_rest_route( $namespace, '/settings', array(
 			array(
@@ -60,6 +62,20 @@ class WP_Super_Cache_Router {
 			'permission_callback' => __CLASS__ . '::get_item_permissions_check',
 		) );
 
+		register_rest_route( $namespace, '/debug', array(
+			array(
+				'methods'         	  => WP_REST_Server::READABLE,
+				'callback'        	  => array( $debug_lists, 'get_list' ),
+				'permission_callback' => __CLASS__ . '::get_item_permissions_check',
+				'args'            	  => array(),
+			),
+			array(
+				'methods'         	  => WP_REST_Server::DELETABLE,
+				'callback'        	  => array( $debug_lists, 'update_list' ),
+				'permission_callback' => __CLASS__ . '::delete_item_permissions_check',
+				'args'           	  => array(),
+			),
+		) );
 
 		register_rest_route( $namespace, '/cache', array(
 			array(
