@@ -102,6 +102,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 	}
 
 	private function get_importer_name( $importer ) {
+		$importers = get_importers();
 		return isset( $importers[ $importer ] ) ? $importers[ $importer ][0] : 'Unknown Importer';
 	}
 
