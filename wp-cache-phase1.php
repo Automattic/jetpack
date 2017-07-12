@@ -395,11 +395,15 @@ function wp_cache_get_cookies_values() {
 		return $string;
 	}
 
-	$regex = "/^wp-postpass|^comment_author_";
+	if ( defined( 'COOKIEHASH' ) )
+		$cookiehash = preg_quote( constant( 'COOKIEHASH' ) );
+	else
+		$cookiehash = '';
+	$regex = "/^wp-postpass_$cookiehash|^comment_author_$cookiehash";
 	if ( defined( 'LOGGED_IN_COOKIE' ) )
 		$regex .= "|^" . preg_quote( constant( 'LOGGED_IN_COOKIE' ) );
 	else
-		$regex .= "|^wordpress_logged_in_";
+		$regex .= "|^wordpress_logged_in_$cookiehash";
 	$regex .= "/";
 	while ($key = key($_COOKIE)) {
 		if ( preg_match( $regex, $key ) ) {
