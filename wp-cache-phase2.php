@@ -1143,7 +1143,7 @@ function wp_cache_get_postid_from_comment( $comment_id, $status = 'NA' ) {
 			define( 'DONOTDELETECACHE', 1 );
 			return $postid;
 		} elseif( $comment['comment_approved'] == '0' ) {
-			if ( $comment[ 'content_type' ] == '' ) {
+			if ( $comment[ 'comment_type' ] == '' ) {
 				wp_cache_debug( "Moderated comment. Don't delete supercache file until comment approved.", 4 );
 				$super_cache_enabled = 0; // don't remove the super cache static file until comment is approved
 				define( 'DONOTDELETECACHE', 1 );
