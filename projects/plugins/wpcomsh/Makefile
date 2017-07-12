@@ -49,8 +49,11 @@ $(BUILD_DST)/$(BUILD_FILE): $(BUILD_DST)/$(NAME)
 	@ echo "fetching submodules..."
 	@ git submodule update --init --recursive &>/dev/null
 
+	@ echo "removing vendor dir..."
+	@ rm -rf vendor
+
 	@ echo "running composer install..."
-	@ composer install &>/dev/null
+	@ composer install --no-dev --optimize-autoloader &>/dev/null
 
 	@ echo "rsync'ing to build dir..."
 	@ rsync \

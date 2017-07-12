@@ -8,7 +8,7 @@
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '1.8.7' );
+define( 'WPCOMSH_VERSION', '1.8.17' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -16,9 +16,9 @@ add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
 require_once( 'constants.php' );
 
 require_once( 'footer-credit/footer-credit.php' );
-require_once( 'storefront/storefront.php' );
 require_once( 'custom-fonts/custom-fonts.php' );
 require_once( 'custom-fonts-typekit/custom-fonts-typekit.php' );
+require_once( 'storefront/storefront.php' );
 require_once( 'custom-colors/colors.php' );
 require_once( 'class.wpcomsh-log.php' );
 
@@ -38,6 +38,7 @@ require_once( 'widgets/posts-i-like.php' );
 require_once( 'widgets/recent-comments-widget.php' );
 require_once( 'widgets/reservations.php' );
 require_once( 'widgets/tlkio/tlkio.php' );
+require_once( 'widgets/top-clicks.php' );
 require_once( 'widgets/top-rated.php' );
 require_once( 'widgets/twitter.php' );
 
@@ -603,3 +604,17 @@ add_filter( 'load_textdomain_mofile', 'wpcomsh_wporg_to_wpcom_locale_mo_file' );
  * This will expose both the Links section, and the widget.
  */
 add_filter( 'pre_option_link_manager_enabled', '__return_true' );
+
+/*
+ * We have some instances where `track_number` of an audio attachment is `??0` and shows up as type string.
+ * However the problem is, that if post has nested property attachments with this track_number, `json_serialize` fails silently.
+ * Of course, this should be fixed during audio upload, but we need this fix until we can clean this up properly.
+ * More detail here: 235-gh-Automattic/automated-transfer
+ */
+function wpcomsh_jetpack_api_fix_unserializable_track_number( $exif_data ) {
+	if ( isset( $exif_data[ 'track_number' ] ) ) {
+		$exif_data[ 'track_number' ] = intval( $exif_data[ 'track_number' ] );
+	}
+	return $exif_data;
+}
+add_filter( 'wp_get_attachment_metadata', 'wpcomsh_jetpack_api_fix_unserializable_track_number' );
