@@ -1,0 +1,57 @@
+.jetpack_widget_social_icons ul,
+.jetpack_widget_social_icons li {
+	list-style: none;
+}
+
+.jetpack_widget_social_icons ul {
+	display: block;
+	margin: 0 0 1.5em;
+	padding: 0;
+}
+
+.jetpack_widget_social_icons ul li {
+	border: 0;
+	display: inline-block;
+	line-height: 1;
+	margin: 0;
+	padding: 0;
+}
+
+.jetpack_widget_social_icons ul li:before,
+.jetpack_widget_social_icons ul li:after {
+	display: none;
+}
+
+.jetpack_widget_social_icons a {
+	border: 0;
+	box-shadow: none;
+	display: block;
+	height: 24px;
+	text-decoration: none;
+	width: 24px;
+}
+
+.jetpack_widget_social_icons svg {
+	color: inherit;
+	fill: currentColor;
+	height: inherit;
+	vertical-align: middle;
+	width: inherit;
+}
+
+/* Sizes */
+
+.jetpack_widget_social_icons ul.size-small a {
+	height: 24px;
+	width: 24px;
+}
+
+.jetpack_widget_social_icons ul.size-medium a {
+	height: 32px;
+	width: 32px;
+}
+
+.jetpack_widget_social_icons ul.size-large a {
+	height: 48px;
+	width: 48px;
+}

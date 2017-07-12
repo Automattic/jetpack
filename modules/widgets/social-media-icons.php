@@ -40,7 +40,7 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 		parent::__construct(
 			'wpcom_social_media_icons_widget',
 			/** This filter is documented in modules/widgets/facebook-likebox.php */
-			apply_filters( 'jetpack_widget_name', esc_html__( 'Social Media Icons', 'jetpack' ) ),
+			apply_filters( 'jetpack_widget_name', esc_html__( 'Social Media Icons (Deprecated)', 'jetpack' ) ),
 			array(
 				'description' => __( 'A simple widget that displays social media icons.', 'jetpack' ),
 				'customize_selective_refresh' => true,
@@ -325,6 +325,12 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
  * @return void
  */
 function wpcom_social_media_icons_widget_load_widget() {
+	// [DEPRECATION]: Only register widget if active widget exists already
+	$has_widget = is_active_widget( false, false, 'wpcom_social_media_icons_widget', false );
+	if ( false === $has_widget ) {
+		return;
+	}
+
 	register_widget( 'wpcom_social_media_icons_widget' );
 }
 add_action( 'widgets_init', 'wpcom_social_media_icons_widget_load_widget' );
