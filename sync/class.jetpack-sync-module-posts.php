@@ -46,7 +46,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		$this->init_meta_whitelist_handler( 'post', array( $this, 'filter_meta' ) );
 
 		add_action( 'export_wp', $callable );
-		add_action( 'jetpack_sync_import_end', $callable );
+		add_action( 'jetpack_sync_import_end', $callable, 10, 2 );
 
 		// Movable type, RSS, Livejournal
 		add_action( 'import_done', array( $this, 'sync_import_done' ) );
@@ -60,6 +60,11 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		if ( $this->import_end ) {
 			return;
 		}
+
+		//Identify importer
+		$importers = get_importers();
+		$importer_name = isset( $importers[ $importer ] ) ? $importers[ $importer ][0] : 'Unknown Importer';
+
 		/**
 		 * Sync Event that tells that the import is finished
 		 *
@@ -67,7 +72,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		 *
 		 * $param string $importer
 		 */
-		do_action( 'jetpack_sync_import_end', $importer );
+		do_action( 'jetpack_sync_import_end', $importer, $importer_name );
 		$this->import_end = true;
 	}
 
@@ -92,8 +97,12 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 			$importer = 'wordpress';
 		}
 
+		//Identify importer
+		$importers = get_importers();
+		$importer_name = isset( $importers[ $importer ] ) ? $importers[ $importer ][0] : 'Unknown Importer';
+
 		/** This filter is already documented in sync/class.jetpack-sync-module-posts.php */
-		do_action( 'jetpack_sync_import_end', $importer );
+		do_action( 'jetpack_sync_import_end', $importer, $importer_name );
 	}
 
 	private function is_importer( $backtrace, $class_name ) {
