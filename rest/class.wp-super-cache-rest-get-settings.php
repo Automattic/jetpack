@@ -49,6 +49,15 @@ class WP_Super_Cache_Rest_Get_Settings extends WP_REST_Controller {
 	/**
 	 * @return string
 	 */
+	public function get_cache_path_url() {
+		global $cache_path;
+
+		return site_url( str_replace( ABSPATH, '', "{$cache_path}" ) );
+	}
+
+	/**
+	 * @return string
+	 */
 	public function get_cache_type() {
 		global $wp_cache_config_file;
 		include( $wp_cache_config_file );

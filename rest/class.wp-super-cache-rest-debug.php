@@ -11,7 +11,7 @@ class WP_Super_Cache_Rest_Debug_List extends WP_REST_Controller {
 	public function get_list( $request ) {
 		$parameters = $request->get_json_params();
 
-		$list = wpsc_get_debug_log_list();
+		$list = wpsc_get_debug_log_list_assoc();
 
 		return rest_ensure_response( $list );
 	}
@@ -35,6 +35,7 @@ class WP_Super_Cache_Rest_Debug_List extends WP_REST_Controller {
 			}
 			$wp_cache_debug_list = wpsc_get_debug_log_list();
 		}
+		$list = wpsc_get_debug_log_list_assoc();
 
 		return rest_ensure_response( $wp_cache_debug_list );
 	}

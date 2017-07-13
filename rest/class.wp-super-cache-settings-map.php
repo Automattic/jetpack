@@ -35,6 +35,9 @@ class WP_Super_Cache_Settings_Map {
 			'global' => 'cache_gc_email_me',
 			'set' => 'set_time_setting',
 		),
+		'cache_path_url' => array(
+			'get' => 'get_cache_path_url',
+		),
 		'cache_type' => array(
 			'get' => 'get_cache_type',
 			'set' => 'set_super_cache_enabled',

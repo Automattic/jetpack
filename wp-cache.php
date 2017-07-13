@@ -1899,22 +1899,50 @@ function wp_cache_edit_accepted() {
 	echo "</form>\n";
 }
 
-function wpsc_get_debug_log_list() {
+function wpsc_get_debug_log_list_assoc() {
+	return wpsc_get_debug_log_list( false );
+}
+
+function wpsc_get_debug_log_list( $short = true ) {
 	global $wp_cache_debug_list, $cache_path, $wp_cache_debug_log, $wp_cache_debug_username;
 
 	$return = array();
+	$files = array();
 	if ( is_array( $wp_cache_debug_list ) && ! empty( $wp_cache_debug_list ) ) {
 		foreach( $wp_cache_debug_list as $filename => $username ) {
 			if ( file_exists( $cache_path . $filename ) ) {
-				$return[ $filename ] = $username;
+				$files[ $filename ] = 1;
+				if ( $short ) {
+					$return[ $filename ] = $username;
+				} else {
+					if ( $wp_cache_debug_log != '' && $filename == $wp_cache_debug_log ) {
+						$active = true;
+					} else {
+						$active = false;
+					}
+					$return[] = array(
+										'filename' => $filename,
+										'username' => $username,
+										'active'   => $active,
+									);
+				}
 			}
 		}
 	}
 
-	if ( $wp_cache_debug_log != '' && ! isset( $return[ $wp_cache_debug_log ] ) )
-		$return[ $wp_cache_debug_log ] = $wp_cache_debug_username;
+	if ( $wp_cache_debug_log != '' && ! isset( $files[ $wp_cache_debug_log ] ) ) {
+		if ( $short ) {
+			$return[ $wp_cache_debug_log ] = $wp_cache_debug_username;
+		} else {
+			$return[] = array(
+								'filename' => $filename,
+								'username' => $username,
+								'active'   => true,
+							);
+		}
+	}
 
-	if ( count( $return ) != count( $wp_cache_debug_list ) ) {
+	if ( $short && count( $return ) != count( $wp_cache_debug_list ) ) {
 		wp_cache_setting( 'wp_cache_debug_list', $return );
 	}
 	return $return;
