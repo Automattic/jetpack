@@ -128,6 +128,7 @@ class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 			'cache_rebuild_files',
 			'wp_cache_refresh_single_only',
 			'wp_cache_mutex_disabled',
+			'wpsc_save_headers',
 		);
 
 		if ( ! in_array( $global_name, $whitelist ) ) {

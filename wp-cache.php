@@ -437,7 +437,7 @@ if ( isset( $_GET[ 'action' ] ) && $_GET[ 'action' ] == 'delcachepage' )
 
 function wp_cache_manager_updates() {
 	global $wp_cache_mobile_enabled, $wp_cache_mfunc_enabled, $wp_supercache_cache_list, $wp_cache_config_file, $wp_cache_hello_world, $wp_cache_clear_on_post_edit, $cache_rebuild_files, $wp_cache_mutex_disabled, $wp_cache_not_logged_in, $wp_cache_make_known_anon, $cache_path, $wp_cache_object_cache, $_wp_using_ext_object_cache, $wp_cache_refresh_single_only, $cache_compression, $wp_cache_mod_rewrite, $wp_supercache_304, $wp_super_cache_late_init, $wp_cache_front_page_checks, $cache_page_secret, $wp_cache_disable_utf8, $wp_cache_no_cache_for_get;
-	global $cache_schedule_type, $cache_max_time, $cache_time_interval, $wp_cache_shutdown_gc;
+	global $cache_schedule_type, $cache_max_time, $cache_time_interval, $wp_cache_shutdown_gc, $wpsc_save_headers;
 
 	if ( !wpsupercache_site_admin() )
 		return false;
@@ -607,6 +607,13 @@ function wp_cache_manager_updates() {
 		}
 		wp_cache_replace_line('^ *\$cache_rebuild_files', "\$cache_rebuild_files = " . $cache_rebuild_files . ";", $wp_cache_config_file);
 
+		if ( isset( $_POST[ 'wpsc_save_headers' ] ) ) {
+			$wpsc_save_headers = 1;
+		} else {
+			$wpsc_save_headers = 0;
+		}
+		wp_cache_replace_line('^ *\$wpsc_save_headers', "\$wpsc_save_headers = " . $wpsc_save_headers . ";", $wp_cache_config_file);
+
 		if( isset( $_POST[ 'wp_cache_mutex_disabled' ] ) ) {
 			$wp_cache_mutex_disabled = 0;
 		} else {
@@ -683,7 +690,7 @@ function wp_cache_manager() {
 	global $wp_cache_not_logged_in, $wp_cache_make_known_anon, $wp_supercache_cache_list, $cache_page_secret;
 	global $wp_super_cache_front_page_check, $wp_cache_object_cache, $_wp_using_ext_object_cache, $wp_cache_refresh_single_only, $wp_cache_mobile_prefixes;
 	global $wp_cache_mod_rewrite, $wp_supercache_304, $wp_super_cache_late_init, $wp_cache_front_page_checks, $wp_cache_disable_utf8, $wp_cache_mfunc_enabled;
-	global $wp_super_cache_comments, $wp_cache_home_path;
+	global $wp_super_cache_comments, $wp_cache_home_path, $wpsc_save_headers;
 
 	if ( !wpsupercache_site_admin() )
 		return false;
@@ -981,6 +988,7 @@ table.wpsc-settings-table {
 					<?php }
 				}
 				?>
+				<label><input type='checkbox' name='wpsc_save_headers' <?php if ( $wpsc_save_headers ) echo "checked"; ?> value='1' /> <?php _e( 'Cache HTTP headers with page content.', 'wp-super-cache' ); ?></label><br />
 				<label><input type='checkbox' name='cache_rebuild_files' <?php if ( $cache_rebuild_files ) echo "checked"; ?> value='1'> <?php _e( 'Cache rebuild. Serve a supercache file to anonymous users while a new file is being generated.', 'wp-super-cache' ); echo " <em>(" . __( "Recommended", "wp-super-cache" ) . ")</em>"; ?></label><br />
 				<?php
 				$disable_304 = true;

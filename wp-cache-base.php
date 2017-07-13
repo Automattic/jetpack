@@ -1,6 +1,4 @@
 <?php
-$known_headers = array("Last-Modified", "Expires", "Content-Type", "Content-type", "X-Pingback", "ETag", "Cache-Control", "Pragma");
-
 if ( false == isset( $_SERVER[ 'HTTP_HOST' ] ) ) {
 	$cache_enabled = false;
 	$WPSC_HTTP_HOST = '';

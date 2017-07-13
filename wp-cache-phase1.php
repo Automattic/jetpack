@@ -190,6 +190,7 @@ function wp_cache_serve_cache_file() {
 			return true;
 		}
 	} else { // no $cache_file
+		global $wpsc_save_headers;
 		// last chance, check if a supercache file exists. Just in case .htaccess rules don't work on this host
 		$filename = supercache_filename();
 		$file = get_current_url_supercache_dir() . $filename;
@@ -201,6 +202,9 @@ function wp_cache_serve_cache_file() {
 			return false;
 		} elseif ( wp_cache_get_cookies_values() != '' ) {
 			wp_cache_debug( "Cookies found. Cannot serve a supercache file. " . wp_cache_get_cookies_values() );
+			return false;
+		} elseif ( isset( $wpsc_save_headers ) && $wpsc_save_headers ) {
+			wp_cache_debug( "Saving headers. Cannot serve a supercache file." );
 			return false;
 		}
 
