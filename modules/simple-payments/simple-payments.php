@@ -47,24 +47,24 @@ class Jetpack_Simple_Payments {
 	}
 
 	function parse_shortcode( $attrs, $content = false ) {
-		if( empty( $attrs['id'] ) ) {
+		if ( empty( $attrs['id'] ) ) {
 			return;
 		}
 		$product = get_post( $attrs['id'] );
-		if( is_wp_error( $product ) ) {
+		if ( is_wp_error( $product ) ) {
 			return;
 		}
-		if( $product->post_type !== self::$post_type_product ) {
+		if ( $product->post_type !== self::$post_type_product ) {
 			return;
 		}
 
 		// We allow for overriding the presentation labels
 		$data = shortcode_atts( array(
-			'blog_id' => $blog_id = Jetpack_Options::get_option( 'id' ),
-			'dom_id' => uniqid( 'jetpack-simple-payments-' . $product->ID . '_' ),
+			'blog_id' => Jetpack_Options::get_option( 'id' ),
+			'dom_id' => uniqid( 'jetpack-simple-payments-' . $product->ID . '_', true ),
 			'class' => 'jetpack-simple-payments-' . $product->ID,
 			'title' => get_the_title( $product ),
-			'description' => apply_filters( 'the_content', $product->post_content ),
+			'description' => $product->post_content,
 			'cta' => get_post_meta( $product->ID, 'spay_cta', true ),
 			'multiple' => get_post_meta( $product->ID, 'spay_multiple', true ) || '0'
 		), $attrs );
@@ -74,34 +74,37 @@ class Jetpack_Simple_Payments {
 			$data
 		);
 
-		wp_enqueue_script( 'paypal-express-checkout' );
+		if ( ! wp_script_is( 'paypal-express-checkout','enqueued' ) ) {
+			wp_enqueue_script( 'paypal-express-checkout' );
+		}
+
 		wp_add_inline_script( 'paypal-express-checkout', "try{PaypalExpressCheckout.renderButton( '{$data['blog_id']}', '{$attrs['id']}', '{$data['dom_id']}', '{$data['multiple']}' );}catch(e){}" );
 
 		return $this->output_shortcode( $data );
 	}
 
 	function output_shortcode( $data ) {
-		$items="";
-		if( $data['multiple'] ) {
+		$items = '';
+		if ( $data['multiple'] ) {
 		       $items="<div class='jetpack-simple-payments-items'>
 		       <input class='jetpack-simple-payments-items-number' type='number' value='1' id='{$data['dom_id']}_number'>
 		       </div>";
 		}
-		$output = <<<TEMPLATE
-<div class="{$data[ 'class' ]} jetpack-simple-payments-wrapper">
-	<div class="jetpack-simple-payments-title">{$data['title']}</div>
-	<div class="jetpack-simple-payments-description">{$data['description']}</div>
-	<div class="jetpack-simple-payments-price">{$data['price']}</div>
+		$output = "
+<div class='{$data[ 'class' ]} jetpack-simple-payments-wrapper'>
+	<div class='jetpack-simple-payments-title'>{$data['title']}</div>
+	<div class='jetpack-simple-payments-description'>{$data['description']}</div>
+	<div class='jetpack-simple-payments-price'>{$data['price']}</div>
 	{$items}
-	<div class="jetpack-simple-payments-button" id="{$data['dom_id']}_button"></div>
+	<div class='jetpack-simple-payments-button' id='{$data['dom_id']}_button'></div>
 </div>
-TEMPLATE;
+";
 		return $output;
 	}
 
-	function format_price( $price, $currency ) {
+	function format_price( $price, $currency, $all_data ) {
 		// TODO: better price formatting logic. Extracting from woocmmerce is not a solution since its bound with woo site options.
-		return $price. " " . $currency;
+		return "$price $currency";
 	}
 
 	/**
@@ -159,8 +162,8 @@ TEMPLATE;
 			'read_private_posts'    => 'read_private_posts',
 		);
 		$order_args = array(
-			'label'                 => __( 'Order', 'jetpack' ),
-			'description'           => __( 'Simple Payments orders', 'jetpack' ),
+			'label'                 => esc_html__( 'Order', 'jetpack' ),
+			'description'           => esc_html__( 'Simple Payments orders', 'jetpack' ),
 			'supports'              => array( 'custom-fields', 'excerpt' ),
 			'hierarchical'          => false,
 			'public'                => false,
@@ -201,8 +204,8 @@ TEMPLATE;
 			'read_private_posts'    => 'read_private_posts',
 		);
 		$product_args = array(
-			'label'                 => __( 'Product', 'jetpack' ),
-			'description'           => __( 'Simple Payments products', 'jetpack' ),
+			'label'                 => esc_html__( 'Product', 'jetpack' ),
+			'description'           => esc_html__( 'Simple Payments products', 'jetpack' ),
 			'supports'              => array( 'title', 'editor','thumbnail', 'custom-fields' ),
 			'hierarchical'          => false,
 			'public'                => false,
