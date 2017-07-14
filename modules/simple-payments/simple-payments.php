@@ -51,7 +51,7 @@ class Jetpack_Simple_Payments {
 			return;
 		}
 		$product = get_post( $attrs['id'] );
-		if ( is_wp_error( $product ) ) {
+		if ( ! $product || is_wp_error( $product ) ) {
 			return;
 		}
 		if ( $product->post_type !== self::$post_type_product ) {
