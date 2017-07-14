@@ -169,11 +169,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 				$api_cache = $is_jetpack ? (bool) get_option( 'jetpack_api_cache_enabled' ) : true;
 
-				$net_neutrality_options = get_option( 'net_neutrality_options_2017' );
-				$net_neutrality = ( $net_neutrality_options && ! empty( $net_neutrality_options['enabled'] ) )
-					? true
-					: false;
-
 				$response[ $key ] = array(
 
 					// also exists as "options"
@@ -240,7 +235,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'amp_is_enabled'          => (bool) function_exists( 'wpcom_is_amp_enabled' ) && wpcom_is_amp_enabled( $blog_id ),
 					'api_cache'               => $api_cache,
 					'posts_per_page'          => (int) get_option( 'posts_per_page' ),
-					'net_neutrality'          => $net_neutrality,
 				);
 
 				if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
@@ -589,15 +583,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 							$updated[ $key ] = (bool) $value;
 						}
 					}
-					break;
-
-				case 'net_neutrality':
-					$original_value = $value;
-					$value = array( 'enabled' => (bool) $value );
-					if ( update_option( 'net_neutrality_options_2017', $value ) ) {
-						$updated[ $key ] = $original_value;
-					}
-
 					break;
 
 				default:
