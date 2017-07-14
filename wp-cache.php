@@ -889,7 +889,7 @@ table.wpsc-settings-table {
 			echo '<input type="checkbox" name="wp_cache_preload_on" value="1" ';
 			echo $wp_cache_preload_on == 1 ? 'checked=1' : '';
 			echo ' /> ' . __( 'Preload mode (garbage collection disabled. Recommended.)', 'wp-super-cache' ) . '<br />';
-			echo '<input type="checkbox" name="preload_taxonomies" value="1" ';
+			echo '<input type="checkbox" name="wp_cache_preload_taxonomies" value="1" ';
 			echo $wp_cache_preload_taxonomies == 1 ? 'checked=1' : '';
 			echo ' /> ' . __( 'Preload tags, categories and other taxonomies.', 'wp-super-cache' ) . '<br />';
 			echo __( 'Send me status emails when files are refreshed.', 'wp-super-cache' ) . '<br />';
