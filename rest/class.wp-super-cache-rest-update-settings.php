@@ -620,11 +620,9 @@ class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 	 * @return WP_Error|WP_REST_Response
 	 */
 	public function set_debug_settings( $parameters ) {
-		global $cache_path, $wp_cache_debug_log, $wp_cache_debug_username;
 
 		$settings = array (
 			'wp_super_cache_debug',
-			'wp_cache_debug_log',
 			'wp_cache_debug_ip',
 			'wp_super_cache_comments',
 			'wp_super_cache_front_page_check',

@@ -121,7 +121,8 @@ class WP_Super_Cache_Rest_Get_Settings extends WP_REST_Controller {
 	 * @return bool
 	 */
 	protected function get_wp_cache_debug_log() {
-		global $cache_path, $wp_cache_debug_log;
+		global $wp_cache_config_file;
+		include( $wp_cache_config_file );
 		return site_url( str_replace( ABSPATH, '', "{$cache_path}{$wp_cache_debug_log}" ) );
 	}
 
