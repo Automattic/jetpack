@@ -15,7 +15,7 @@ var PaypalExpressCheckout = {
 	getExecutePaymentEndpoint: function( blogId, paymentId ) {
 		return 'https://public-api.wordpress.com/wpcom/v2/sites/' + blogId + '/simple-payments/paypal/' + paymentId + '/execute';
 	},
-	getNumberOfItems( field, enableMultiple ) {
+	getNumberOfItems: function( field, enableMultiple ) {
 		var numberField, number;
 		if ( enableMultiple !== '1' ) {
 			return 1;
@@ -59,10 +59,9 @@ var PaypalExpressCheckout = {
 					buttonId: buttonId,
 					payerId: data.payerID,
 					env: env
-				} ).then( function( payment ) {
+				} ).then( function() {
 					// TODO: handle success, errors, messaging, etc, etc.
 					/* jshint ignore:start */
-					console.log( 'payment: ', payment );
 					alert( 'success!' );
 					/* jshint ignore:end */
 				} );
