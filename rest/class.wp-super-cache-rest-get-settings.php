@@ -21,6 +21,10 @@ class WP_Super_Cache_Rest_Get_Settings extends WP_REST_Controller {
 				wp_cache_replace_line( '^.*WPLOCKDOWN', "if ( ! defined( 'WPLOCKDOWN' ) ) define( 'WPLOCKDOWN', " . $this->get_is_lock_down_enabled() . " );", $wp_cache_config_file );
 			}
 		}
+
+		if ( function_exists( "opcache_invalidate" ) ) {
+			opcache_invalidate( $wp_cache_config_file );
+		}
 		include( $wp_cache_config_file );
 
 		foreach ( WP_Super_Cache_Settings_Map::$map as $name => $map ) {
@@ -60,6 +64,9 @@ class WP_Super_Cache_Rest_Get_Settings extends WP_REST_Controller {
 	 */
 	public function get_cache_type() {
 		global $wp_cache_config_file;
+		if ( function_exists( "opcache_invalidate" ) ) {
+			opcache_invalidate( $wp_cache_config_file );
+		}
 		include( $wp_cache_config_file );
 
 		if ( $super_cache_enabled ) {
@@ -122,6 +129,9 @@ class WP_Super_Cache_Rest_Get_Settings extends WP_REST_Controller {
 	 */
 	protected function get_wp_cache_debug_log() {
 		global $wp_cache_config_file;
+		if ( function_exists( "opcache_invalidate" ) ) {
+			opcache_invalidate( $wp_cache_config_file );
+		}
 		include( $wp_cache_config_file );
 		return site_url( str_replace( ABSPATH, '', "{$cache_path}{$wp_cache_debug_log}" ) );
 	}
