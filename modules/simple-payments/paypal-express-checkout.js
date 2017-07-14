@@ -8,6 +8,7 @@
 /* exported PaypalExpressCheckout */
 /* jshint unused:false */
 var PaypalExpressCheckout = {
+	sandbox: true,
 	getCreatePaymentEndpoint: function( blogId ) {
 		return 'https://public-api.wordpress.com/wpcom/v2/sites/' + blogId + '/simple-payments/paypal/payment';
 	},
@@ -32,7 +33,7 @@ var PaypalExpressCheckout = {
 		return number;
 	},
 	renderButton: function( blogId, buttonId, domId, enableMultiple ) {
-		var env = 'sandbox';
+		var env = PaypalExpressCheckout.sandbox ? 'sandbox' : 'production';
 		if ( ! paypal ) {
 			throw new Error( 'PayPal module is required by PaypalExpressCheckout' );
 		}
@@ -56,7 +57,8 @@ var PaypalExpressCheckout = {
 			onAuthorize: function( data ) {
 				return paypal.request.post( PaypalExpressCheckout.getExecutePaymentEndpoint( blogId, data.paymentID ), {
 					buttonId: buttonId,
-					payerId: data.payerID
+					payerId: data.payerID,
+					env: env
 				} ).then( function( payment ) {
 					// TODO: handle success, errors, messaging, etc, etc.
 					/* jshint ignore:start */
