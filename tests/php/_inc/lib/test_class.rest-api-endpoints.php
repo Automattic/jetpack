@@ -605,6 +605,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 					array(
 						'page'     => 'jetpack',
 						'action'   => 'register',
+						'onboarding' => '1',
 					)
 			), $response
 		);
