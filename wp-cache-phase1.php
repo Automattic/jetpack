@@ -46,6 +46,12 @@ if( is_array( $plugins ) ) {
 	}
 }
 
+if ( $wp_cache_not_logged_in && wp_cache_get_cookies_values() ) {
+	wp_cache_debug( 'Caching disabled for logged in users on settings page.' );
+	define( 'DONOTCACHEPAGE', 1 );
+	return true;
+}
+
 if ( isset( $wp_cache_make_known_anon ) && $wp_cache_make_known_anon )
 	wp_supercache_cache_for_admins();
 
