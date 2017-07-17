@@ -6163,7 +6163,9 @@ p {
 
 		$version = Jetpack::is_development_version() ? filemtime( JETPACK__PLUGIN_DIR . 'css/jetpack.css' ) : JETPACK__VERSION;
 
-		wp_register_style( 'open-sans', 'https://fonts.googleapis.com/css?family=Open+Sans', array(), $version );
+		if ( ! wp_style_is( 'open-sans', 'registered' ) ) {
+			wp_register_style( 'open-sans', 'https://fonts.googleapis.com/css?family=Open+Sans', array(), $version );
+		}
 		wp_enqueue_style( 'jetpack_css', plugins_url( 'css/jetpack.css', __FILE__ ), array( 'open-sans' ), $version );
 		wp_style_add_data( 'jetpack_css', 'rtl', 'replace' );
 	}
