@@ -1201,8 +1201,9 @@ abstract class WPCOM_JSON_API_Endpoint {
 			$media_item = get_post( $media_id );
 		}
 
-		if ( ! $media_item || is_wp_error( $media_item ) )
+		if ( ! $media_item || is_wp_error( $media_item ) ) {
 			return new WP_Error( 'unknown_media', 'Unknown Media', 404 );
+		}
 
 		$attachment_file = get_attached_file( $media_item->ID );
 
@@ -1246,7 +1247,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 				 * @param array $metadata['sizes'] Array of thumbnail sizes available for a given attachment ID.
 				 * @param string $media_id Attachment ID.
 				 */
-				$sizes = apply_filters( 'rest_api_thumbnail_sizes', $metadata['sizes'], $media_id );
+				$sizes = apply_filters( 'rest_api_thumbnail_sizes', $metadata['sizes'], $media_item->ID );
 				if ( is_array( $sizes ) ) {
 					foreach ( $sizes as $size => $size_details ) {
 						$response['thumbnails'][ $size ] = dirname( $response['URL'] ) . '/' . $size_details['file'];
@@ -1265,12 +1266,20 @@ abstract class WPCOM_JSON_API_Endpoint {
 			$response['exif']   = $metadata;
 		}
 
+		$is_video = false;
+
 		if (
-		        in_array( $ext, array( 'ogv', 'mp4', 'mov', 'wmv', 'avi', 'mpg', '3gp', '3g2', 'm4v' ) )
-            ||
-                $response['mime_type'] === 'video/videopress'
-        ) {
+			in_array( $ext, array( 'ogv', 'mp4', 'mov', 'wmv', 'avi', 'mpg', '3gp', '3g2', 'm4v' ) )
+			||
+			$response['mime_type'] === 'video/videopress'
+		) {
+			$is_video = true;
+		}
+
+
+		if ( $is_video ) {
 			$metadata = wp_get_attachment_metadata( $media_item->ID );
+
 			if ( isset( $metadata['height'], $metadata['width'] ) ) {
 				$response['height'] = $metadata['height'];
 				$response['width']  = $metadata['width'];
@@ -1282,7 +1291,13 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 			// add VideoPress info
 			if ( function_exists( 'video_get_info_by_blogpostid' ) ) {
-				$info = video_get_info_by_blogpostid( $this->api->get_blog_id_for_output(), $media_id );
+				$info = video_get_info_by_blogpostid( $this->api->get_blog_id_for_output(), $media_item->ID );
+
+				// If we failed to get VideoPress info, but it exists in the meta data (for some reason)
+				// then let's use that.
+				if ( false === $info && isset( $metadata['videopress'] ) ) {
+				    $info = (object) $metadata['videopress'];
+				}
 
 				// Thumbnails
 				if ( function_exists( 'video_format_done' ) && function_exists( 'video_image_url_by_guid' ) ) {
@@ -1296,10 +1311,14 @@ abstract class WPCOM_JSON_API_Endpoint {
 					}
 				}
 
-				$response['videopress_guid'] = $info->guid;
-				$response['videopress_processing_done'] = true;
-				if ( '0000-00-00 00:00:00' == $info->finish_date_gmt ) {
-					$response['videopress_processing_done'] = false;
+				// If we didn't get VideoPress information (for some reason) then let's
+				// not try and include it in the response.
+				if ( isset( $info->guid ) ) {
+					$response['videopress_guid']            = $info->guid;
+					$response['videopress_processing_done'] = true;
+					if ( '0000-00-00 00:00:00' === $info->finish_date_gmt ) {
+						$response['videopress_processing_done'] = false;
+					}
 				}
 			}
 		}
@@ -1308,14 +1327,14 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 		$response['meta'] = (object) array(
 			'links' => (object) array(
-				'self' => (string) $this->links->get_media_link( $this->api->get_blog_id_for_output(), $media_id ),
-				'help' => (string) $this->links->get_media_link( $this->api->get_blog_id_for_output(), $media_id, 'help' ),
+				'self' => (string) $this->links->get_media_link( $this->api->get_blog_id_for_output(), $media_item->ID ),
+				'help' => (string) $this->links->get_media_link( $this->api->get_blog_id_for_output(), $media_item->ID, 'help' ),
 				'site' => (string) $this->links->get_site_link( $this->api->get_blog_id_for_output() ),
 			),
 		);
 
 		// add VideoPress link to the meta
-		if ( in_array( $ext, array( 'ogv', 'mp4', 'mov', 'wmv', 'avi', 'mpg', '3gp', '3g2', 'm4v' ) ) ) {
+		if ( isset ( $response['videopress_guid'] ) ) {
 			if ( function_exists( 'video_get_info_by_blogpostid' ) ) {
 				$response['meta']->links->videopress = (string) $this->links->get_link( '/videos/%s', $response['videopress_guid'], '' );
 			}
