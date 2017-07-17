@@ -10,6 +10,7 @@ import {
 	getPlanClass,
 	FEATURE_UNLIMITED_PREMIUM_THEMES
 } from 'lib/plans/constants';
+import includes from 'lodash/includes';
 
 /**
  * Internal dependencies
@@ -71,7 +72,7 @@ const PlanBody = React.createClass( {
 		const planClass = 'dev' !== this.props.plan
 			? getPlanClass( this.props.plan )
 			: 'dev';
-		const premiumThemesActive = 'undefined' !== typeof this.props.activeFeatures[ FEATURE_UNLIMITED_PREMIUM_THEMES ];
+		const premiumThemesActive = includes( this.props.activeFeatures, FEATURE_UNLIMITED_PREMIUM_THEMES );
 
 		switch ( planClass ) {
 			case 'is-personal-plan':
