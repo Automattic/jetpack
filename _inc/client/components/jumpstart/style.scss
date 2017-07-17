@@ -14,7 +14,7 @@
 .jp-jumpstart {
 	text-align: center;
 	max-width: rem( 600px );
-	margin: 0 auto;
+	margin: 0 auto rem( 32px );
 
 	@include breakpoint( "<660px" ) {
 		text-align: left;
