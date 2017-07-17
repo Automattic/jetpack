@@ -62,7 +62,7 @@ class WPCOM_JSON_API_Upload_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 					// More than likely a post has not been created yet, so we pass in the media item we
 					// got back from the Jetpack site.
 					$post       = (object) $media_item['post'];
-					$media_item = $this->get_media_item_v1_1( $media_item['ID'], $post, $media_item['file'] );
+					$media_item = $this->get_media_item_v1_1( $post->ID, $post, $media_item['file'] );
 				}
 			}
 		}
