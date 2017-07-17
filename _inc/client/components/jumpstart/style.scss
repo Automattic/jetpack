@@ -13,7 +13,7 @@
 
 .jp-jumpstart {
 	text-align: center;
-	max-width: 720px;
+	max-width: rem( 600px );
 	margin: 0 auto;
 
 	@include breakpoint( "<660px" ) {
@@ -53,18 +53,27 @@
 }
 
 .jp-jumpstart__title {
-	font-weight: 400;
+	font-weight: 300;
 	text-align: center;
+	font-size: rem( 24px );
+	margin-bottom: rem( 32px );
 }
 
 .jp-jumpstart__description {
-	margin-top: 0;
-	padding: 0 rem( 16px ) rem( 16px );
-	font-size: rem( 16px );
+	margin-bottom: 0;
 
-	@include breakpoint( "<660px" ) {
-		padding: 0 0 rem( 16px );
+	p {
+		margin: 0;
+		font-size: rem( 14px );
+		color: $gray-text-min;
 	}
+}
+
+.jp-jumpstart__feature-heading {
+	margin-top: 0;
+	margin-bottom: rem( 24px );
+	font-size: rem( 16px );
+	font-weight: 400;
 }
 
 .jp-jumpstart__features {
@@ -105,14 +114,14 @@
 }
 
 .jp-jumpstart__feature-list {
-	margin: 0;
+	margin: 0 0 rem( 24px );
 	padding: 0;
 	display: flex;
 	flex-direction: row;
 	flex-wrap: wrap;
 
 	@include breakpoint( "<660px" ) {
-		margin: rem( -8px ) rem( -16px ) 0; // to avoid altering multiple other elements
+		margin: 0 rem( -16px ) rem( 24px ); // to avoid altering multiple other elements
 	}
 }
 
@@ -121,18 +130,13 @@
 	text-align: left;
 	background: $white;
 
-	@include breakpoint( ">660px" ) { 
+	@include breakpoint( ">660px" ) {
 		flex-grow: 1;
 		flex-shrink: 0;
 		flex-basis: 50%;
-
-		&:last-of-type {
-			margin-top: 1px;
-			max-width: 49.9%;
-		}
 	}
 
-	@include breakpoint( "<660px" ) { 
+	@include breakpoint( "<660px" ) {
 		flex-basis: 100%;
 	}
 }

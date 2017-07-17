@@ -60,8 +60,8 @@ const JumpStart = React.createClass( {
 						{ __( 'Your Jetpack site is ready to go!' ) }
 					</h1>
 
-					<Card>
-						<p className="jp-jumpstart__description">
+					<Card className="jp-jumpstart__description">
+						<p>
 							{ __( "We’re now collecting stats, securing your site, and speeding up your images. Pretty soon you’ll be able to see everything going on with your site right through Jetpack! Welcome aboard." ) }
 						</p>
 					</Card>
@@ -77,9 +77,9 @@ const JumpStart = React.createClass( {
 					</Card>
 
 					<Card>
-						<p className="jp-jumpstart__description">
+						<h2 className="jp-jumpstart__feature-heading">
 							{ __( "Jetpack's recommended features include:" ) }
-						</p>
+						</h2>
 
 						<div className="jp-jumpstart__feature-list">
 							{ jumpstartModules }
