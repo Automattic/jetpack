@@ -1,9 +1,35 @@
+.jp-jumpstart-full__container {
+	box-sizing: border-box;
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	z-index: 9999; // to sit over other elements
+	background: rgba($gray-light, .95);
+	text-align: center;
+	padding: rem( 32px );
+}
+
 .jp-jumpstart {
 	text-align: center;
+	max-width: 720px;
+	margin: 0 auto;
 
 	@include breakpoint( "<660px" ) {
 		text-align: left;
 	}
+}
+
+.jp-jumpstart-full__dismiss {
+	cursor: pointer;
+	position: absolute;
+	right: 0;
+	top: 0;
+	fill: $gray;
+	padding: rem( 16px );
+	height: rem( 24px );
+	width: rem( 24px );
 }
 
 .jp-jumpstart__cta-container {
@@ -24,19 +50,6 @@
 	.dops-spinner__image {
 		align-self: center;
 	}
-}
-
-.jp-jumpstart__cta {
-	margin-bottom: 0;
-}
-
-.jp-jumpstart__cta-container {
-	padding: 0;
-}
-
-.jp-jumpstart__cta {
-	margin-bottom: 0;
-	padding-bottom: 0;
 }
 
 .jp-jumpstart__title {
@@ -140,7 +153,17 @@
 	font-style: italic;
 }
 
-.jp-jumpstart__skip-step {
-	font-style: italic;
-	cursor: pointer;
+// Planet + star svgs for decoration only
+.jp-jumpstart-full__svg-jupiter {
+	position: absolute;
+	right: 0;
+	top: rem( 80px );
+	opacity: .90;
+}
+
+.jp-jumpstart-full__svg-stars {
+	position: absolute;
+	left: rem( 100px );
+	top: rem( 100px );
+	opacity: .90;
 }
