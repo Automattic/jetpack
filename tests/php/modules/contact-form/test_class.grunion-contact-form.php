@@ -526,6 +526,7 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 	 * @covers Grunion_Contact_Form::parse_contact_field
 	 */
 	public function test_parse_contact_field_escapes_things_inside_a_value_and_attribute_and_the_content() {
+		global $wp_version;
 		add_shortcode( 'contact-field', array( 'Grunion_Contact_Form', 'parse_contact_field' ) );
 
 		$shortcode = "[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type=''email'' req'uired='1'/][contact-field label='asdasd' type='text'/][contact-field id='1' required 'derp' herp asd lkj]adsasd[/contact-field]";
@@ -533,7 +534,12 @@ class WP_Test_Grunion_Contact_Form extends WP_UnitTestCase {
 
 		// The expected string has some quotes escaped, since we want to make
 		// sure we don't output anything harmful
-		$this->assertEquals( "[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type=&#039;&#039;email&#039;&#039; req&#039;uired=&#039;1&#039;/][contact-field label='asdasd' type='text'/][contact-field id='1' required &#039;derp&#039; herp asd lkj]adsasd[/contact-field]", $html );
+
+		if ( version_compare( $wp_version, '4.9-alpha', '>') ){
+			$this->assertEquals( "[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type=&#039;&#039;email&#039;&#039; req&#039;uired=&#039;1&#039;/][contact-field label='asdasd' type='text'/][contact-field id='1' required derp herp asd lkj]adsasd[/contact-field]", $html );
+		} else {
+			$this->assertEquals( "[contact-field label='Name' type='name' required='1'/][contact-field label='Email' type=&#039;&#039;email&#039;&#039; req&#039;uired=&#039;1&#039;/][contact-field label='asdasd' type='text'/][contact-field id='1' required &#039;derp&#039; herp asd lkj]adsasd[/contact-field]", $html );
+		}
 	}
 
 
