@@ -633,8 +633,6 @@ class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 			'wp_super_cache_front_page_text',
 			'wp_super_cache_front_page_notification',
 			'wpsc_delete_log',
-			'wpsc_disable_log',
-			'wpsc_reset_log',
 		);
 
 		foreach( $settings as $setting ) {
