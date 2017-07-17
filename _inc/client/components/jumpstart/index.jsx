@@ -24,6 +24,16 @@ const JumpStart = React.createClass( {
 
 	displayName: 'JumpStart',
 
+	activateButton: function() {
+		return <Button
+			primary={ true }
+			onClick={ this.props.jumpStartActivate }
+			disabled={ this.props.isJumpstarting }
+		>
+			{ this.props.isJumpstarting ? __( 'Activating recommended features…' ) : __( 'Activate recommended features' ) }
+		</Button>;
+	},
+
 	render: function() {
 		const jumpstartModules = this.props.jumpstartFeatures.map( ( module ) => (
 			<div
@@ -67,13 +77,7 @@ const JumpStart = React.createClass( {
 					</Card>
 
 					<Card>
-						<Button
-							primary={ true }
-							onClick={ this.props.jumpStartActivate }
-							disabled={ this.props.isJumpstarting }
-						>
-							{ __( 'Activate recommended features' ) }
-						</Button>
+						{ this.activateButton() }
 					</Card>
 
 					<Card>
@@ -85,13 +89,7 @@ const JumpStart = React.createClass( {
 							{ jumpstartModules }
 						</div>
 
-						<Button
-							primary={ true }
-							onClick={ this.props.jumpStartActivate }
-							disabled={ this.props.isJumpstarting }
-						>
-							{ __( 'Activate recommended features' ) }
-						</Button>
+						{ this.activateButton() }
 
 						<p className="jp-jumpstart__note">
 							{ __( 'Features can be activated or deactivated at any time.' ) }
