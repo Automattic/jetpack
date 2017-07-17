@@ -143,6 +143,11 @@
 
 .jp-jumpstart__feature-content {
 	padding: rem( 16px );
+
+	p {
+		margin-top: rem( 8px );
+		margin-bottom: 0;
+	}
 }
 
 .jp-jumpstart__feature-content-title {
