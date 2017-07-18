@@ -1953,20 +1953,19 @@ function wpsc_update_debug_settings() {
 
 	if ( isset( $_POST[ 'wpsc_delete_log' ] ) && $wp_cache_debug_log != '' ) {
 		@unlink( $cache_path . $wp_cache_debug_log );
-		wpsc_create_debug_log( $wp_cache_debug_log, $wp_cache_debug_username );
+		extract( wpsc_create_debug_log( $wp_cache_debug_log, $wp_cache_debug_username ) );
+	} elseif ( isset( $_POST[ 'wp_super_cache_debug' ] ) ) {
+		$wp_super_cache_debug = (int) $_POST[ 'wp_super_cache_debug' ];
+		wp_cache_setting( 'wp_super_cache_debug', $wp_super_cache_debug );
+		if ( ! isset( $wp_cache_debug_log ) || $wp_cache_debug_log == '' ) {
+			extract( wpsc_create_debug_log() );
+		}
 	}
 
 	if ( false == isset( $wp_super_cache_comments ) )
 		$wp_super_cache_comments = 1;
 
 	if ( isset( $_POST[ 'wp_cache_debug' ] ) ) {
-		if ( !isset( $_POST[ 'wp_super_cache_debug' ] ) )
-			$_POST[ 'wp_super_cache_debug' ] = 0;
-		$wp_super_cache_debug = intval( $_POST[ 'wp_super_cache_debug' ] );
-		wp_cache_setting( 'wp_super_cache_debug', $wp_super_cache_debug );
-		if ( ! isset( $wp_cache_debug_log ) || $wp_cache_debug_log == '' ) {
-			extract( wpsc_create_debug_log() );
-		}
 		wp_cache_setting( 'wp_cache_debug_username', $wp_cache_debug_username );
 		wp_cache_setting( 'wp_cache_debug_log', $wp_cache_debug_log );
 		$wp_super_cache_comments = isset( $_POST[ 'wp_super_cache_comments' ] ) ? 1 : 0;
@@ -2023,7 +2022,6 @@ function wp_cache_debug_settings() {
 	echo "<p>" . sprintf( __( 'Username/Password: %s', 'wp-super-cache' ), $wp_cache_debug_username ) . "</p>";
 
 	echo '<form name="wpsc_delete" action="" method="post">';
-	echo "<input type='hidden' name='wp_cache_debug' value='1' />";
 	wp_nonce_field('wp-cache');
 	submit_button( __( 'Delete', 'wp-super-cache' ), 'delete', 'wpsc_delete_log', false );
 	echo "</form>";
@@ -2035,7 +2033,6 @@ function wp_cache_debug_settings() {
 		$debug_status_message = __( 'Disable Logging', 'wp-super-cache' );
 		$not_status = 0;
 	}
-	echo "<input type='hidden' name='wp_cache_debug' value='1' />";
 	echo "<input type='hidden' name='wp_super_cache_debug' value='" . $not_status . "' />";
 	wp_nonce_field('wp-cache');
 	submit_button( $debug_status_message, 'primary', 'wpsc_log_status', true );
