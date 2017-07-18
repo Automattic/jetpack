@@ -1,8 +1,8 @@
 === WP Super Cache ===
 Contributors: donncha, automattic, kraftbj
 Tags: performance,caching,wp-cache,wp-super-cache,cache
-Tested up to: 4.7.3
-Stable tag: 1.4.9
+Tested up to: 4.8
+Stable tag: 1.5.0
 Requires at least: 3.0
 
 A very fast caching engine for WordPress that produces static html files.
@@ -22,9 +22,9 @@ The plugin serves cached files in 3 ways (ranked by speed):
 
 1. Expert. The fastest method is by using Apache mod_rewrite (or whatever similar module your web server supports) to serve "supercached" static html files. This completely bypasses PHP and is extremely quick. If your server is hit by a deluge of traffic it is more likely to cope as the requests are "lighter". This does require the Apache mod_rewrite module (which is probably installed if you have custom permalinks) and a modification of your .htaccess file which is risky and may take down your site if modified incorrectly.
 2. Simple. Supercached static files can be served by PHP and this is the recommended way of using the plugin. The plugin will serve a "supercached" file if it exists and it's almost as fast as the mod_rewrite method. It's easier to configure as the .htaccess file doesn't need to be changed. You still need a custom permalink. You can keep portions of your page dynamic in this caching mode.
-3. WP-Cache caching. This is mainly used to cache pages for known users, URLs with parameters and feeds. Known users are logged in users, visitors who leave comments or those who should be shown custom per-user data. It's the most flexible caching method and slightly slower. WP-Cache caching will also cache visits by unknown users if supercaching is disabled. You can have dynamic parts to your page in this mode too. This mode is always enabled but you can disable caching for known users, URLs with parameters, or feeds separately.
+3. WP-Cache caching. This is mainly used to cache pages for known users, URLs with parameters and feeds. Known users are logged in users, visitors who leave comments or those who should be shown custom per-user data. It's the most flexible caching method and slightly slower. WP-Cache caching will also cache visits by unknown users if supercaching is disabled. You can have dynamic parts to your page in this mode too. This mode is always enabled but you can disable caching for known users, URLs with parameters, or feeds separately. Set the constant "DISABLE_SUPERCACHE" to 1 in your wp-config.php if you want to only use WP-Cache caching.
 
-If you're new to caching use the Simple mode. It's easy to set up and very fast.
+If you're not comfortable with editing PHP files then use simple mode. It's easy to set up and very fast.
 
 = Recommended Settings =
 
@@ -458,7 +458,7 @@ The only real limit are limits defined by your server. For example, EXT2 and EXT
 
 = How do I serve cached mobile pages to clients on small screens like phones and tablets? =
 
-You'll have to use a separate mobile plugin to render a page formatted for those visitors. The following plugins have been tested but YMMV depending on mobile client.
+Your theme is probably responsive which means it resizes the page to suit whatever device is displaying the page. If it's not responsive, you'll have to use a separate mobile plugin to render a page formatted for those visitors. The following plugins have been tested but YMMV depending on mobile client. You'll have to enable mobile browser support as well on the Advanced settings page.
 
 * [Jetpack's Mobile Theme Module](http://wordpress.org/plugins/jetpack)
 * [WPTouch](http://wordpress.org/plugins/wptouch/)
@@ -512,6 +512,20 @@ If that doesn't work, add this line to your wp-config.php:
 18. The error message, "WP Super Cache is installed but broken. The constant WPCACHEHOME must be set in the file wp-config.php and point at the WP Super Cache plugin directory." appears at the end of every page. You can delete wp-content/advanced-cache.php and reload the plugin settings page or edit wp-config.php and look for WPCACHEHOME and make sure it points at the wp-super-cache folder. This will normally be wp-content/plugins/wp-super-cache/ but you'll likely need the full path to that file (so it's easier to let the settings page fix it). If it is not correct the caching engine will not load.
 19. If your server is running into trouble because of the number of semaphores used by the plugin it's because your users are using file locking which is not recommended (but is needed by a small number of users). You can globally disable file locking by defining the constant WPSC_DISABLE_LOCKING, or defining the constant WPSC_REMOVE_SEMAPHORE so that sem_remove() is called after every page is cached but that seems to cause problems for other processes requesting the same semaphore. Best to disable it.
 
+== Preloading ==
+
+You can generate cached files for the posts, categories and tags of your site by preloading. Preloading will visit each page of your site generating a cached page as it goes along, just like any other visitor to the site. Due to the sequential nature of this function, it can take some time to preload a complete site if there are many posts.
+To make preloading more effective it can be useful to disable garbage collection so that older cache files are not deleted. This is done by enabling "Preload Mode" in the settings. Be aware however, that pages will go out of date eventually but that updates by submitting comments or editing posts will clear portions of the cache.
+
+== Garbage Collection ==
+
+Your cache directory fills up over time, which takes up space on your server. If space is limited or billed by capacity, or if you worry that the cached pages of your site will go stale then garbage collection has to be done. Garbage collection happens on a regular basis and deletes old files in the cache directory. On the advanced settings page you can specify:
+1. Cache timeout. How long cache files are considered fresh for. After this time they are stale and can be deleted.
+2. Scheduler. Setup how often garbage collection should be done.
+3. Notification emails. You can be informed on garbage collection job progress.
+There's no right or wrong settings for garbage collection. It depends on your own site.
+If your site gets regular updates, or comments then set the timeout to 1800 seconds, and set the timer to 600 seconds.
+If your site is mostly static you can disable garbage collection by entering 0 as the timeout, or use a really large timeout value.
 
 == CDN ==
 
@@ -520,6 +534,10 @@ A Content Delivery Network (CDN) is usually a network of computers situated arou
 [OSSDL CDN off-linker](http://wordpress.org/plugins/ossdl-cdn-off-linker/) has been integrated into WP Super Cache to provide basic CDN support. It works by rewriting the URLs of files (excluding .php files) in wp-content and wp-includes on your server so they point at a different hostname. Many CDNs support [origin pull](http://www.google.com/search?hl=en&q=%22origin+pull%22). This means the CDN will download the file automatically from your server when it's first requested, and will continue to serve it for a configurable length of time before downloading it again from your server.
 
 Configure this on the "CDN" tab of the plugin settings page. This is an advanced technique and requires a basic understanding of how your webserver or CDNs work. Please be sure to clear the file cache after you configure the CDN.
+
+== REST API ==
+
+There are now REST API endpoints for accessing the settings of this plugin. You'll need to be authenticated as an admin user with permission to view the settings page to use it. This has not been documented yet but you can find all the code that deals with this in the "rest" directory.
 
 == Custom Caching ==
 It is now possible to hook into the caching process using the add_cacheaction() function.
@@ -536,32 +554,5 @@ The output of WP-Cache's wp_cache_get_cookies_values() function.
 
 See plugins/searchengine.php as an example I use for my [No Adverts for Friends](https://odd.blog/no-adverts-for-friends/) plugin.
 
-== Links ==
-[WP Widget Cache](http://wordpress.org/plugins/wp-widget-cache/) is another caching plugin for WordPress. This plugin caches the output of widgets and may significantly speed up dynamic page generation times.
-
 == Updates ==
 Updates to the plugin will be posted here, to [Holy Shmoly!](https://odd.blog/) and the [WP Super Cache homepage](https://wordpress.org/plugins/wp-super-cache/) will always link to the newest version.
-
-== Thanks ==
-I would sincerely like to thank [John Pozadzides](http://onemansblog.com/) for giving me the idea for this, for writing the "How it works" section and for testing the plugin through 2 front page appearances on digg.com
-
-Thanks to James Farmer and Andrew Billits of [Edu Blogs](http://edublogs.org/) fame who helped me make this more WordPress MU friendly.
-
-Translators who did a great job converting the text of the plugin to their native language. Thank you!
-
-* [Gianni Diurno](http://gidibao.net/) (Italian)
-* [Omi](http://equipajedemano.info/) (Spanish)
-* [tomchen1989](http://emule-fans.com/) and [Christopher Meng](http://cicku.me) (Simplified Chinese)
-* Tai (Japanese)
-* [Vitaly](http://pressword.com.ua/wordpress/) (Ukranian)
-* [Pseric](http://pseric.com/) and [Priv](http://priv.tw/blog) (Traditional Chinese)
-* [Ma�tre M�](http://maitremo.fr/) (French)
-* [Mathias Roth](http://trade-service.eu/) (German)
-* Bar�� �nver (Turkish)
-* [Elvis Fweb](http://wp.turkenichev.ru/) (Russian)
-* Fredrik Fors�ll (Swedish)
-* [Alyona Lompar](http://wwww.webhostinggeeks.com/) (Ukranian)
-* [Nata Strazda](http://www.webhostingrating.com/) (Lithuanian)
-* [Alexander Alexandrov](http://www.designcontest.com/) (Belarusian)
-* [Michail Bogdanov](http://www.webhostinghub.com/) (Romanian)
-* [Anja Skrba](http://science.webhostinggeeks.com/wordpress-super-cache) (Serbo-Croatian)
