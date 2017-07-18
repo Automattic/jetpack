@@ -3596,14 +3596,17 @@ function wpsc_cancel_preload() {
 	global $cache_path;
 	$next_preload = wp_next_scheduled( 'wp_cache_preload_hook' );
 	if ( $next_preload ) {
+		wp_cache_debug( 'wpsc_cancel_preload: unscheduling wp_cache_preload_hook' );
 		update_option( 'preload_cache_counter', array( 'c' => 0, 't' => time() ) );
 		wp_unschedule_event( $next_preload, 'wp_cache_preload_hook' );
 	}
 	$next_preload = wp_next_scheduled( 'wp_cache_full_preload_hook' );
 	if ( $next_preload ) {
 		update_option( 'preload_cache_counter', array( 'c' => 0, 't' => time() ) );
+		wp_cache_debug( 'wpsc_cancel_preload: unscheduling wp_cache_full_preload_hook' );
 		wp_unschedule_event( $next_preload, 'wp_cache_full_preload_hook' );
 	}
+	wp_cache_debug( 'wpsc_cancel_preload: creating stop_preload.txt' );
 	$fp = @fopen( $cache_path . "stop_preload.txt", 'w' );
 	@fclose( $fp );
 }

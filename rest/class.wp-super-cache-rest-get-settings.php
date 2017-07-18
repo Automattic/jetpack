@@ -149,6 +149,17 @@ class WP_Super_Cache_Rest_Get_Settings extends WP_REST_Controller {
 	/**
 	 * @return int
 	 */
+	protected function get_is_preload_active() {
+		if ( wp_next_scheduled( 'wp_cache_preload_hook' ) || wp_next_scheduled( 'wp_cache_full_preload_hook' ) ) { 
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * @return int
+	 */
 	protected function get_minimum_preload_interval() {
 		global $wpdb;
 		$posts_count = wp_count_posts();

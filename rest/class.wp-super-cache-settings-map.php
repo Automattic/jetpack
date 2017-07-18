@@ -157,6 +157,9 @@ class WP_Super_Cache_Settings_Map {
 			'global' => 'wp_cache_preload_on',
 			'set' => 'set_preload_setting',
 		),
+		'preload_active' => array(
+			'get' => 'get_is_preload_active',
+		),
 		'preload_taxonomies' => array(
 			'global' => 'wp_cache_preload_taxonomies',
 			'set' => 'set_preload_setting',
