@@ -76,6 +76,11 @@ function wpcache_do_rebuild( $dir ) {
 	global $do_rebuild_list, $cache_path, $wpsc_file_mtimes;
 	wp_cache_debug( "wpcache_do_rebuild: doing rebuild for $dir" );
 
+	if ( !is_dir( $dir ) ) {
+		wp_cache_debug( "wpcache_do_rebuild: exiting as directory is not a directory: $dir" );
+		return false;
+	}
+
 	$dir = trailingslashit( realpath( $dir ) );
 
 	if ( isset( $do_rebuild_list[ $dir ] ) ) {
