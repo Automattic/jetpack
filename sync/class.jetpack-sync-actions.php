@@ -69,7 +69,7 @@ class Jetpack_Sync_Actions {
 		 */
 		if ( apply_filters( 'jetpack_sync_sender_should_load',
 			(
-				( isset( $_SERVER["REQUEST_METHOD"] ) && 'POST' === $_SERVER['REQUEST_METHOD'] )
+				( isset( $_SERVER['REQUEST_METHOD'] ) && 'POST' === $_SERVER['REQUEST_METHOD'] )
 				||
 				current_user_can( 'manage_options' )
 				||
@@ -78,9 +78,21 @@ class Jetpack_Sync_Actions {
 				defined( 'PHPUNIT_JETPACK_TESTSUITE' )
 			)
 		) ) {
-			self::initialize_sender();
-			add_action( 'shutdown', array( self::$sender, 'do_sync' ) );
-			add_action( 'shutdown', array( self::$sender, 'do_full_sync' ) );
+			if ( isset( $_GET['jetpack_sync_async_sender'] ) ) {
+				if ( ! defined( 'JETPACK_SYNC_DOING_ASYNC_SENDER' ) ) {
+					define( 'JETPACK_SYNC_DOING_ASYNC_SENDER', true );
+				}
+				ignore_user_abort(true );
+			}
+
+			if ( ! defined( 'JETPACK_SYNC_DOING_ASYNC_SENDER' )
+			     && apply_filters( 'jetpack_sync_async_sender', defined( 'REST_REQUEST' ) && REST_REQUEST && ! headers_sent() ) ) {
+				self::async_sender();
+			} else {
+				self::initialize_sender();
+				add_action( 'shutdown', array( self::$sender, 'do_sync' ) );
+				add_action( 'shutdown', array( self::$sender, 'do_full_sync' ) );
+			}
 		}
 	}
 
@@ -440,6 +452,18 @@ class Jetpack_Sync_Actions {
 				'full_queue_next_sync'  => ( self::$sender->get_next_sync_time( 'full_sync' ) - microtime( true ) ),
 			)
 		);
+	}
+
+	static function async_sender() {
+		$url = add_query_arg( 'jetpack_sync_async_sender', true, site_url() );
+		$args = array(
+			'timeout'   => 0.01,
+			'blocking'  => false,
+			/** This filter is documented in wp-includes/class-wp-http-streams.php */
+			'sslverify' => apply_filters( 'https_local_ssl_verify', false )
+		);
+
+		wp_remote_post( $url, $args );
 	}
 }
 
