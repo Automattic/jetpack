@@ -148,7 +148,11 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 				break;
 			case 'settings':
 
-				$jetpack_relatedposts_options = Jetpack_Options::get_option( 'relatedposts' );
+				$jetpack_relatedposts_options = Jetpack_Options::get_option( 'relatedposts', array() );
+				// If the option's enabled key is NOT SET, it is considered enabled by the plugin
+				if ( ! isset( $jetpack_relatedposts_options['enabled'] ) ) {
+					$jetpack_relatedposts_options['enabled'] = true;
+				}
 
 				if ( method_exists( 'Jetpack', 'is_module_active' ) ) {
 					$jetpack_relatedposts_options[ 'enabled' ] = Jetpack::is_module_active( 'related-posts' );
