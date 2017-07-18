@@ -36,6 +36,10 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 			'name' => $widget_object->name,
 			'id' => $widget_object->id,
 		);
+		error_log("NEW INSTANCE");
+		error_log(print_r($new_instance, true));
+		error_log("OLD INSTANCE");
+		error_log(print_r($old_instance, true));
 		/**
 		 * Trigger action to alert $callable sync listener that a widget was edited
 		 *
