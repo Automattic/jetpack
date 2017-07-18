@@ -991,6 +991,7 @@ That was a cool video.';
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_import_end' );
 		$this->assertEquals( 'test', $event->args[0] );
+		$this->assertEquals( 'Unknown Importer', $event->args[1] );
 	}
 
 	function test_import_end_action_syncs_jetpack_sync_import_end() {
@@ -999,6 +1000,7 @@ That was a cool video.';
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_import_end' );
 		$this->assertEquals( 'unknown', $event->args[0] );
+		$this->assertEquals( 'Unknown Importer', $event->args[1] );
 	}
 
 	function test_import_end_and_import_done_action_syncs_jetpack_sync_import_end() {
