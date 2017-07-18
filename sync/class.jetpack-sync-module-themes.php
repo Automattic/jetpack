@@ -28,7 +28,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		add_action( 'jetpack_cleared_inactive_widgets', $callable );
 		add_action( 'jetpack_widget_reordered', $callable, 10, 2 );
 		add_filter( 'widget_update_callback', array( $this, 'sync_widget_edit' ), 10, 4 );
-		add_action( 'jetpack_widget_edited', $callable );
+		add_action( 'jetpack_widget_edited', $callable, 10, 2 );
 	}
 
 	public function sync_widget_edit( $instance, $new_instance, $old_instance, $widget_object ) {
@@ -36,10 +36,8 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 			'name' => $widget_object->name,
 			'id' => $widget_object->id,
 		);
-		error_log("NEW INSTANCE");
-		error_log(print_r($new_instance, true));
-		error_log("OLD INSTANCE");
-		error_log(print_r($old_instance, true));
+		$is_new = empty( $old_instance ) ? true : false;
+
 		/**
 		 * Trigger action to alert $callable sync listener that a widget was edited
 		 *
@@ -47,7 +45,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		 *
 		 * @param string $widget_name, Name of edited widget
 		 */
-		do_action( 'jetpack_widget_edited', $widget );
+		do_action( 'jetpack_widget_edited', $widget, $is_new );
 
 		return $instance;
 	}
