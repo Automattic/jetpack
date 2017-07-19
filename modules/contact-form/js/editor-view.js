@@ -14,7 +14,7 @@
 			textarea            : wp.template( 'grunion-field-textarea' ),
 			radio               : wp.template( 'grunion-field-radio' ),
 			checkbox            : wp.template( 'grunion-field-checkbox' ),
-			"checkbox-multiple" : wp.template( 'grunion-field-checkbox-multiple' ),
+			'checkbox-multiple' : wp.template( 'grunion-field-checkbox-multiple' ),
 			select              : wp.template( 'grunion-field-select' ),
 			date                : wp.template( 'grunion-field-date' ),
 			text                : wp.template( 'grunion-field-text' )
@@ -49,7 +49,7 @@
 				body += this.field_templates[ named.type ]( named );
 			}
 
-			options = {
+			var options = {
 				body : body,
 				submit_button_text : grunionEditorView.labels.submit_button_text
 			};
@@ -69,7 +69,7 @@
 				fields = '',
 				$stylesheet = $( '<link rel="stylesheet" href="' + grunionEditorView.inline_editing_style + '" />' ),
 				$dashicons_css  = $( '<link rel="stylesheet" href="' + grunionEditorView.dashicons_css_url + '" />' ),
-				$editfields;
+				$editfields, field;
 
 			if ( ! shortcode.content ) {
 				shortcode.content = grunionEditorView.default_form;
@@ -129,7 +129,7 @@
 							type  : 'single',
 							attrs : {
 								label : $(this).find('input[name=label]').val(),
-								type  : $(this).find('select[name=type]').val(),
+								type  : $(this).find('select[name=type]').val()
 							}
 						},
 						options = [];
