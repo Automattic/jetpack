@@ -1,4 +1,4 @@
-/* global grunionEditorView */
+/* global grunionEditorView, tinymce */
 (function() {
 	tinymce.create( 'tinymce.plugins.grunion_form', {
 
