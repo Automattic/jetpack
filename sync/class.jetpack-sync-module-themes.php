@@ -32,8 +32,6 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 	}
 
 	public function sync_widget_edit( $instance, $new_instance, $old_instance, $widget_object ) {
-		error_log("WIDGET: ");
-		error_log(print_r($new_instance, true));
 		$widget = array(
 			'name' => $widget_object->name,
 			'id' => $widget_object->id,
