@@ -57,6 +57,7 @@ class Grunion_Editor_View {
 								'[contact-field label="' . __( 'Message', 'jetpack' ) . '" type="textarea" /]',
 			'labels'      => array(
 				'submit_button_text'  => __( 'Submit', 'jetpack' ),
+				/** This filter is documented in modules/contact-form/grunion-contact-form.php */
 				'required_field_text' => apply_filters( 'jetpack_required_field_text', __( '(required)', 'jetpack' ) ),
 				'edit_close_ays'      => __( 'Are you sure you\'d like to stop editing this form without saving your changes?', 'jetpack' ),
 				'quicktags_label'     => __( 'contact form', 'jetpack' ),
