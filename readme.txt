@@ -54,10 +54,17 @@ The cache directory, usually wp-content/cache/ is only for temporary files. Do n
 
 == Upgrade Notice ==
 
-= 1.4.9 =
-Fixed XSS on the settings page, settings page updates, file locking fixes and PHP 7.1 fix, caching fixes on static homepage blogs and more.
+= 1.5.0 =
+Added REST API settings endpoints, simplified settings, reorganised cache files. Lots of bug fixes.
 
 == Changelog ==
+
+= 1.5.0 =
+* REST API settings endpoints.
+* Simplified settings page.
+* WP-Cache files reorganised.
+* Caching of more http headers.
+* Lots of bug fixes.
 
 = 1.4.9 =
 * Fixed bug when not running sem_remove after sem_release. See https://github.com/Automattic/wp-super-cache/issues/85
