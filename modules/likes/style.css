@@ -6,12 +6,12 @@
 
 @font-face {
 	font-family: Noticons;
-	src: url("https://wordpress.com/i/noticons/Noticons.woff");
+	src: url(https://wordpress.com/i/noticons/Noticons.woff);
 }
 
 @font-face {
 	font-family: "Open Sans";
-	src: url("https://fonts.googleapis.com/css?family=Open+Sans");
+	src: url(https://fonts.googleapis.com/css?family=Open+Sans);
 }
 
 /* Master container */
