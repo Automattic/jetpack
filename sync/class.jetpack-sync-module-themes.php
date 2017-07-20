@@ -37,7 +37,6 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 			'id' => $widget_object->id,
 		);
 		if ( ! empty( $old_instance ) ) {
-
 			/**
 			 * Trigger action to alert $callable sync listener that a widget was edited
 			 *
