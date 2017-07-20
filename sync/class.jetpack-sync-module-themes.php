@@ -373,6 +373,8 @@ error_log("RECENTLYU:");
 			error_log(print_r($moved_to_inactive_recently, true));
 			error_log("NON:");
 error_log(print_r($moved_to_inactive, true));
+error_log("INACTIVE IDS:");
+error_log(print_r($moved_to_inactive_ids, true));
 
 			$moved_to_sidebar_recently = $this->sync_add_widgets_to_sidebar( $new_widgets, $old_widgets, $sidebar );
 			$moved_to_sidebar = array_merge( $moved_to_sidebar, $moved_to_sidebar_recently );
