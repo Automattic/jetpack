@@ -3210,6 +3210,8 @@ function wpsc_get_htaccess_info() {
 	) {
 		$home_path = str_replace( '//', '/', $_SERVER[ 'DOCUMENT_ROOT' ] . $home_root );
 	}
+
+	$home_path = trailingslashit( $home_path );
 	$home_root_lc = str_replace( '//', '/', strtolower( $home_root ) );
 	$inst_root = str_replace( '//', '/', '/' . trailingslashit( str_replace( $content_dir_root, '', str_replace( '\\', '/', WP_CONTENT_DIR ) ) ) );
 	$wprules = implode( "\n", extract_from_markers( $home_path.'.htaccess', 'WordPress' ) );
@@ -3781,6 +3783,7 @@ function update_mod_rewrite_rules( $add_rules = true ) {
 	) {
 		$home_path = str_replace( '//', '/', $_SERVER[ 'DOCUMENT_ROOT' ] . $home_root );
 	}
+	$home_path = trailingslashit( $home_path );
 
 	if ( ! file_exists( $home_path . ".htaccess" ) ) {
 		$update_mod_rewrite_rules_error = ".htaccess not found: {$home_path}.htaccess";
