@@ -32,6 +32,9 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 	}
 
 	public function sync_widget_edit( $instance, $new_instance, $old_instance, $widget_object ) {
+		global $wp_registered_widgets;
+		error_log( print_r( $wp_registered_widgets[ $widget_object->id ], true ) );
+
 		$widget = array(
 			'name' => $widget_object->name,
 			'id' => $widget_object->id,
