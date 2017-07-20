@@ -352,7 +352,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 			return;
 		}
 
-		$moved_to_inactive = array();
+		$moved_to_inactive_ids = array();
 		$moved_to_sidebar = array();
 
 		foreach ( $new_value as $sidebar => $new_widgets ) {
@@ -367,12 +367,11 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 				$new_widgets = array();
 			}
 
-			$moved_to_inactive_recently[] = $this->sync_remove_widgets_from_sidebar( $new_widgets, $old_widgets, $sidebar, $new_value['wp_inactive_widgets'] );
-			$moved_to_inactive_ids[] = array_merge( $moved_to_inactive, $moved_to_inactive_recently );
+			$moved_to_inactive_recently = $this->sync_remove_widgets_from_sidebar( $new_widgets, $old_widgets, $sidebar, $new_value['wp_inactive_widgets'] );
+			$moved_to_inactive_ids = array_merge( $moved_to_inactive_ids, $moved_to_inactive_recently );
 error_log("RECENTLYU:");
 			error_log(print_r($moved_to_inactive_recently, true));
 			error_log("NON:");
-error_log(print_r($moved_to_inactive, true));
 error_log("INACTIVE IDS:");
 error_log(print_r($moved_to_inactive_ids, true));
 
