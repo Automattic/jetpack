@@ -35,7 +35,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		if ( ! empty( $old_instance ) ) {
 			return;
 		}
-error_log(print_r($widget_object, true));
+
 		$widget = array(
 			'name' => $widget_object->name,
 			'id' => $widget_object->id,
