@@ -32,23 +32,22 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 	}
 
 	public function sync_widget_edit( $instance, $new_instance, $old_instance, $widget_object ) {
-		global $wp_registered_widgets;
-		error_log( print_r( $wp_registered_widgets[ $widget_object->id ], true ) );
-
+		if ( ! empty( $old_instance ) ) {
+			return;
+		}
+error_log(print_r($widget_object, true));
 		$widget = array(
 			'name' => $widget_object->name,
 			'id' => $widget_object->id,
 		);
-		if ( ! empty( $old_instance ) ) {
-			/**
-			 * Trigger action to alert $callable sync listener that a widget was edited
-			 *
-			 * @since 5.0.0
-			 *
-			 * @param string $widget_name , Name of edited widget
-			 */
-			do_action( 'jetpack_widget_edited', $widget );
-		}
+		/**
+		 * Trigger action to alert $callable sync listener that a widget was edited
+		 *
+		 * @since 5.0.0
+		 *
+		 * @param string $widget_name , Name of edited widget
+		 */
+		do_action( 'jetpack_widget_edited', $widget );
 
 		return $instance;
 	}
