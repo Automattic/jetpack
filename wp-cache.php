@@ -63,7 +63,9 @@ if( !defined( 'WP_CACHE' ) || ( defined( 'WP_CACHE' ) && constant( 'WP_CACHE' ) 
 }
 
 include(WPCACHEHOME . 'wp-cache-base.php');
-include( WPCACHEHOME . 'rest/load.php' );
+if ( class_exists( 'WP_REST_Controller' ) ) {
+	include( WPCACHEHOME . 'rest/load.php' );
+}
 
 function wp_super_cache_text_domain() {
 	load_plugin_textdomain( 'wp-super-cache', false, basename( dirname( __FILE__ ) ) . '/languages' );
