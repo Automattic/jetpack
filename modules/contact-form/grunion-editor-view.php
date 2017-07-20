@@ -187,21 +187,23 @@ class Grunion_Editor_View {
 			'radio'             => __( 'Radio', 'jetpack' ),
 		);
 		?>
-		<label class="grunion-type">
-			<?php esc_html_e( 'Field Type', 'jetpack' ); ?>
-			<select name="type">
-				<?php foreach ( $grunion_field_types as $type => $label ) : ?>
-				<option <# if ( '<?php echo esc_js( $type ); ?>' === data.type ) print( "selected='selected'" ) #> value="<?php echo esc_attr( $type ); ?>">
-					<?php echo esc_html( $label ); ?>
-				</option>
-				<?php endforeach; ?>
-			</select>
-		</label>
+		<div class="grunion-type-options">
+			<label class="grunion-type">
+				<?php esc_html_e( 'Field Type', 'jetpack' ); ?>
+				<select name="type">
+					<?php foreach ( $grunion_field_types as $type => $label ) : ?>
+					<option <# if ( '<?php echo esc_js( $type ); ?>' === data.type ) print( "selected='selected'" ) #> value="<?php echo esc_attr( $type ); ?>">
+						<?php echo esc_html( $label ); ?>
+					</option>
+					<?php endforeach; ?>
+				</select>
+			</label>
 
-		<label class="grunion-required">
-			<input type="checkbox" name="required" value="1" <# if ( data.required ) print( 'checked="checked"' ) #> />
-			<span><?php esc_html_e( 'Required?', 'jetpack' ); ?></span>
-		</label>
+			<label class="grunion-required">
+				<input type="checkbox" name="required" value="1" <# if ( data.required ) print( 'checked="checked"' ) #> />
+				<span><?php esc_html_e( 'Required?', 'jetpack' ); ?></span>
+			</label>
+		</div>
 
 		<label class="grunion-options">
 			<?php esc_html_e( 'Options', 'jetpack' ); ?>
@@ -243,10 +245,12 @@ class Grunion_Editor_View {
 			</section>
 			<section class="buttons">
 				<?php submit_button( esc_html__( 'Add Field', 'jetpack' ), 'secondary', 'add-field', false ); ?>
-				<?php submit_button( esc_html__( 'Update Form', 'jetpack' ), 'primary', 'submit', false ); ?>
 				<?php submit_button( esc_html__( 'Cancel', 'jetpack' ), 'delete', 'cancel', false ); ?>
+				<?php submit_button( esc_html__( 'Update Form', 'jetpack' ), 'primary', 'submit', false ); ?>
 			</section>
 </script>
+
+</div>
 	<?php
 	}
 }

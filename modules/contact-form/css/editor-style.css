@@ -526,70 +526,6 @@ input[type="submit"]:focus {
 	box-shadow: 0 0 0 2px #78dcfa;
 }
 
-input[type="submit"].is-compact {
-	padding: 7px;
-	color: #668eaa;
-	font-size: 11px;
-	line-height: 1;
-	text-transform: uppercase;
-}
-
-input[type="submit"].is-compact:disabled {
-	color: #e9eff3;
-}
-
-input[type="submit"].is-compact .gridicon {
-	top: 4px;
-	margin-top: -8px;
-}
-
-input[type="submit"].is-compact .gridicons-plus-small {
-	margin-left: -4px;
-}
-
-input[type="submit"].is-compact .gridicons-plus-small:last-of-type {
-	margin-left: 0;
-}
-
-input[type="submit"].is-compact .gridicons-plus-small + .gridicon {
-	margin-left: -4px;
-}
-
-input[type="submit"].hidden {
-	display: none;
-}
-
-input[type="submit"] .gridicon {
-	position: relative;
-	top: 4px;
-	margin-top: -2px;
-	width: 18px;
-	height: 18px;
-}
-
-input[type="submit"].is-primary {
-	background: #00aadc;
-	border-color: #008ab3;
-	color: white;
-}
-
-input[type="submit"].is-primary:hover,
-input[type="submit"].is-primary:focus {
-	border-color: #005082;
-	color: white;
-}
-
-input[type="submit"].is-primary[disabled],
-input[type="submit"].is-primary:disabled {
-	background: #bceefd;
-	border-color: #8cc9e2;
-	color: white;
-}
-
-input[type="submit"].is-primary {
-		color: white;
-}
-
 /* ==========================================================================
 ** Preview styles
 ** ======================================================================== */
@@ -599,4 +535,9 @@ input[type="submit"].is-primary {
 	min-height: 500px;
 	border: 0;
 	overflow: hidden;
+}
+
+.contact-submit.contact-submit {
+	margin-top: 0;
+	margin-bottom: 0;
 }

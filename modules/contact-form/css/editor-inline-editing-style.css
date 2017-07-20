@@ -11,7 +11,6 @@ body {
 	font-size: 16px;
 	line-height: 1.4em;
 	margin: 0;
-	padding: 0 1em;
 }
 
 /* Links */
@@ -31,7 +30,8 @@ a:active {
 ** Card
 ** ======================================================================= */
 
-.card {
+.card,
+body {
 	display: block;
 	position: relative;
 	margin: 0 auto 10px auto;
@@ -39,6 +39,11 @@ a:active {
 	box-sizing: border-box;
 	background: white;
 	box-shadow: 0 0 0 1px rgba(200, 215, 225, 0.5), 0 1px 2px #e9eff3;
+}
+
+body {
+	margin: 0;
+	background: #f5f5f5;
 }
 
 .card:after {
@@ -49,6 +54,11 @@ a:active {
 	visibility: hidden;
 }
 
+.card:hover,
+.card:focus {
+	box-shadow: 0 0 0 1px #999, 0 1px 2px #e9eff3;
+}
+
 .card .delete-field {
 	display: block;
 	float: right;
@@ -57,6 +67,9 @@ a:active {
 @media ( min-width: 481px ) {
 	.card {
 		margin-bottom: 16px;
+		padding: 24px;
+	}
+	body {
 		padding: 24px;
 	}
 }
@@ -90,11 +103,11 @@ label {
 	font-size: 14px;
 	font-weight: 600;
 	margin-bottom: 5px;
-	margin-top: 24px;
+	margin-top: 8px;
 }
 
 label:first-of-type {
-	margin-top: 7px;
+	margin-top: 4px;
 }
 
 
@@ -584,35 +597,6 @@ input[type="submit"]:focus {
 	box-shadow: 0 0 0 2px #78dcfa;
 }
 
-input[type="submit"].is-compact {
-	padding: 7px;
-	color: #668eaa;
-	font-size: 11px;
-	line-height: 1;
-	text-transform: uppercase;
-}
-
-input[type="submit"].is-compact:disabled {
-	color: #e9eff3;
-}
-
-input[type="submit"].is-compact .gridicon {
-	top: 4px;
-	margin-top: -8px;
-}
-
-input[type="submit"].is-compact .gridicons-plus-small {
-	margin-left: -4px;
-}
-
-input[type="submit"].is-compact .gridicons-plus-small:last-of-type {
-	margin-left: 0;
-}
-
-input[type="submit"].is-compact .gridicons-plus-small + .gridicon {
-	margin-left: -4px;
-}
-
 input[type="submit"].hidden {
 	display: none;
 }
@@ -625,26 +609,26 @@ input[type="submit"] .gridicon {
 	height: 18px;
 }
 
-input[type="submit"].is-primary {
+input[type="submit"].button-primary {
 	background: #00aadc;
 	border-color: #008ab3;
 	color: white;
 }
 
-input[type="submit"].is-primary:hover,
-input[type="submit"].is-primary:focus {
+input[type="submit"].button-primary:hover,
+input[type="submit"].button-primary:focus {
 	border-color: #005082;
 	color: white;
 }
 
-input[type="submit"].is-primary[disabled],
-input[type="submit"].is-primary:disabled {
+input[type="submit"].button-primary[disabled],
+input[type="submit"].button-primary:disabled {
 	background: #bceefd;
 	border-color: #8cc9e2;
 	color: white;
 }
 
-input[type="submit"].is-primary {
+input[type="submit"].button-primary {
 	color: white;
 }
 
@@ -653,17 +637,9 @@ input[type="submit"].is-primary {
 ** Inline editor styles
 ** ======================================================================== */
 
-.card.grunion-form-settings {
-	background: #f5f5f5;
-}
 
-.card.grunion-field-edit {
-	margin-bottom: 0.5em;
-	background: #f5f5f5;
-}
-
-.ui-sortable-helper.card{
-	background: #e9eff3;
+.ui-sortable-handle {
+	cursor: move;
 }
 
 .grunion-section-header {
@@ -671,9 +647,18 @@ input[type="submit"].is-primary {
 	margin-top: 32px;
 }
 
+.grunion-section-header:first-child {
+	margin-top: 0;
+}
+
+.grunion-type-options {
+	display: flex;
+	flex-wrap: wrap;
+}
+
 .grunion-type {
-	float: left;
-	width: 60%;
+	flex-grow: 0;
+	flex-shrink: 0;
 }
 
 .grunion-type select {
@@ -681,13 +666,13 @@ input[type="submit"].is-primary {
 }
 
 .grunion-required {
-	float: right;
-	width: 30%;
-	padding-top: 2em;
+	padding: 27px 0 0 16px;
+	flex-grow: 0;
+	flex-shrink: 0;
 }
 
 .grunion-options {
-	clear: both;
+	padding-top: 16px;
 }
 
 .grunion-options ol {
