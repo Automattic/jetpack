@@ -2,7 +2,7 @@
 Contributors: donncha, automattic, kraftbj
 Tags: performance,caching,wp-cache,wp-super-cache,cache
 Tested up to: 4.8
-Stable tag: 1.5.0
+Stable tag: 1.5.1
 Requires at least: 3.0
 
 A very fast caching engine for WordPress that produces static html files.
@@ -54,10 +54,15 @@ The cache directory, usually wp-content/cache/ is only for temporary files. Do n
 
 == Upgrade Notice ==
 
-= 1.5.0 =
-Added REST API settings endpoints, simplified settings, reorganised cache files. Lots of bug fixes.
+= 1.5.1 =
+Emergency fix for sites running outdated WordPress and PHP.
 
 == Changelog ==
+
+= 1.5.1 =
+* Don't use anonymous functions in REST API
+* Check that REST API Controller is available before loading the REST API.
+* Don't use multibyte string functions because some sites don't have it enabled.
 
 = 1.5.0 =
 * REST API settings endpoints.
