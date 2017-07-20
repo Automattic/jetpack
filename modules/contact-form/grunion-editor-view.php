@@ -47,9 +47,11 @@ class Grunion_Editor_View {
 		add_action( 'admin_print_footer_scripts', array( __CLASS__, 'editor_view_js_templates' ), 1 );
 
 		wp_enqueue_style( 'grunion-editor-ui', plugins_url( 'css/editor-ui.css', __FILE__ ) );
+		wp_style_add_data( 'grunion-editor-ui', 'rtl', 'replace' );
 		wp_enqueue_script( 'grunion-editor-view', plugins_url( 'js/editor-view.js', __FILE__ ), array( 'wp-util', 'jquery', 'quicktags' ), false, true );
 		wp_localize_script( 'grunion-editor-view', 'grunionEditorView', array(
 			'inline_editing_style' => plugins_url( 'css/editor-inline-editing-style.css', __FILE__ ),
+			'inline_editing_style_rtl' => plugins_url( 'css/editor-inline-editing-style-rtl.css', __FILE__ ),
 			'dashicons_css_url'    => includes_url( 'css/dashicons.css' ),
 			'default_form'  => '[contact-field label="' . __( 'Name', 'jetpack' ) . '" type="name"  required="true" /]' .
 								'[contact-field label="' . __( 'Email', 'jetpack' )   . '" type="email" required="true" /]' .

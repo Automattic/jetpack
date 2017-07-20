@@ -246,6 +246,9 @@ function doStatic( done ) {
 admincss = [
 	'modules/after-the-deadline/atd.css',
 	'modules/after-the-deadline/tinymce/css/content.css',
+	'modules/contact-form/css/editor-inline-editing-style.css',
+	'modules/contact-form/css/editor-style.css',
+	'modules/contact-form/css/editor-ui.css',
 	'modules/custom-css/csstidy/cssparse.css',
 	'modules/custom-css/csstidy/cssparsed.css',
 	'modules/custom-css/custom-css/css/codemirror.css',
