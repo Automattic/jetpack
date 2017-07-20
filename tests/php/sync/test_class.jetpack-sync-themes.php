@@ -383,7 +383,7 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		/**
 		 * This filter is already documented in wp-includes/class-wp-widget.php
 		 */
-		do_action( 'widget_update_callback', array(), array(), array(), $object);
+		do_action( 'widget_update_callback', array(), array(), array( 'dummy' => 'data' ), $object);
 
 		$this->sender->do_sync();
 
