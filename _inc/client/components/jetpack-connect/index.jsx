@@ -190,25 +190,6 @@ const JetpackConnect = React.createClass( {
 							className="jp-jetpack-connect__feature-image" alt="Jetpacks photon serves up lightning fast, optimized images" />
 					</div>
 				</Card>
-				<Card className="jp-jetpack-connect__feature">
-					<header className="jp-jetpack-connect__header">
-						<h2 className="jp-jetpack-connect__container-subtitle" title="Jetpack offers free, professional support">
-							{ __( 'Did we mention free, professional support?' ) }
-						</h2>
-						<p className="jp-jetpack-connect__description">
-							{ __(
-								'Jetpack is supported by some of the most technical and passionate people in the community. ' +
-								"They're located around the globe and ready to help you."
-							) }
-						</p>
-					</header>
-
-					<div className="jp-jetpack-connect__interior-container">
-						<img src={ imagePath + 'aurora-med.jpg' }
-							srcSet={ `${imagePath}aurora-sm.jpg 600w, ${imagePath}aurora-med.jpg 770w, ${imagePath}aurora-lrg.jpg 1200w` }
-							className="jp-jetpack-connect__feature-image" alt="Jetpack's free support team" />
-					</div>
-				</Card>
 				<Card className="jp-jetpack-connect__cta">
 					<p className="jp-jetpack-connect__description">
 						{ __(
