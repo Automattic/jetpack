@@ -32,6 +32,10 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 	}
 
 	public function sync_widget_edit( $instance, $new_instance, $old_instance, $widget_object ) {
+		if ( empty( $old_instance ) ) {
+			return;
+		}
+
 		$widget = array(
 			'name' => $widget_object->name,
 			'id' => $widget_object->id,
@@ -41,7 +45,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		 *
 		 * @since 5.0.0
 		 *
-		 * @param string $widget_name, Name of edited widget
+		 * @param string $widget_name , Name of edited widget
 		 */
 		do_action( 'jetpack_widget_edited', $widget );
 
