@@ -11,7 +11,7 @@
  * @param  string buttonDomId id of the payment button placeholder
  * @return Element the dom element to print the message
  */
-var getButtonMessageElement = function ( buttonDomId ) {
+var getButtonMessageElement = function( buttonDomId ) {
 	var messageDomId = buttonDomId + '_message';
 
 	var domButtonElement = document.getElementById( buttonDomId );
@@ -32,6 +32,11 @@ var getButtonMessageElement = function ( buttonDomId ) {
 
 	return domMessageElement;
 }
+
+var cleanAndHideMessage = function( el ) {
+	el.style.display = 'none';
+	el.innerHTML = '';
+};
 
 var showMessage = function( message, el ) {
 	// show message 500ms after Paypal popup is closed
@@ -88,6 +93,7 @@ var PaypalExpressCheckout = {
 			},
 			payment: function( paymentData ) {
 				paypalMessagePlaceholder = getButtonMessageElement( domId + '_button' );
+				cleanAndHideMessage( paypalMessagePlaceholder );
 
 				var payload = {
 					number: PaypalExpressCheckout.getNumberOfItems( domId + '_number', enableMultiple ),
@@ -104,6 +110,8 @@ var PaypalExpressCheckout = {
 				} );
 			},
 			onAuthorize: function( onAuthData ) {
+				cleanAndHideMessage( paypalMessagePlaceholder );
+
 				return paypal.request.post( PaypalExpressCheckout.getExecutePaymentEndpoint( blogId, onAuthData.paymentID ), {
 					buttonId: buttonId,
 					payerId: onAuthData.payerID,
