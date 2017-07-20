@@ -301,13 +301,15 @@ const PlanBody = React.createClass( {
 					{
 						'is-personal-plan' === planClass && (
 							<div className="jp-landing__plan-features-card">
-								<h3 className="jp-landing__plan-features-title">{ __( 'Need more? Running a business site?' ) }</h3>
-								<p>{ __( 'If your site is important to you, consider protecting and improving it with some of our advanced features: ' ) }</p>
-								<p> &mdash; { __( 'Daily and on-demand security scanning' ) }</p>
-								<p> &mdash; { __( 'Real-time backups and one-click threat resolution' ) }</p>
-								<p> &mdash; { __( 'Unlimited and ad-free video hosting' ) }</p>
-								<p> &mdash; { __( 'Advanced SEO tools' ) }</p>
-								<p> &mdash; { __( 'Income generation from ads' ) }</p>
+								<h3 className="jp-landing__plan-features-title">{ __( 'Explore Premium and Professional Options' ) }</h3>
+								<p>{ __( 'Learn about Jetpack services used by WordPress professionals. On top of the security essentials you currently enjoy, Jetpack offers you:' ) }</p>
+								<p> &bull; { __( 'Over 200 Premium themes to explore' ) }</p>
+								<p> &bull; { __( 'Business class security: malware scanning, real-time backups, and threat resolution' ) }</p>
+								<p> &bull; { __( 'Social media automation and scheduling' ) }</p>
+								<p> &bull; { __( 'Unlimited and ad-free video hosting' ) }</p>
+								<p> &bull; { __( 'SEO and social media previewing tools' ) }</p>
+								<p> &bull; { __( 'Income generation from a WordPress ad program' ) }</p>
+								<p> &bull; { __( 'Google Analytics integration' ) }</p>
 								<p>
 									<Button onClick={ () => this.trackPlansClick( 'compare_plans' ) } href={ 'https://jetpack.com/redirect/?source=plans-compare-personal&site=' + this.props.siteRawUrl } className="is-primary">
 										{ __( 'Compare Plans' ) }
@@ -320,16 +322,16 @@ const PlanBody = React.createClass( {
 					{
 						'is-premium-plan' === planClass && (
 							<div className="jp-landing__plan-features-card">
-								<h3 className="jp-landing__plan-features-title">{ __( 'Need more? Running a business site?' ) }</h3>
-								<p>{ __( 'If your site is important to you, consider protecting and improving it with some of our advanced features: ' ) }</p>
-								<p> &mdash; { __( 'On-demand security scanning' ) }</p>
-								<p> &mdash; { __( 'Real-time backups' ) }</p>
-								<p> &mdash; { __( 'One-click threat resolution' ) }</p>
-								<p> &mdash; { __( 'Advanced SEO tools' ) }</p>
-								<p> &mdash; { __( 'Income generation from ads' ) }</p>
+								<h3 className="jp-landing__plan-features-title">{ __( 'Explore Jetpack Professional' ) }</h3>
+								<p>{ __( 'Jetpack Professional is the tool used by WordPress professionals. On top of the services you already enjoy, you also benefit from:' ) }</p>
+								<p> &bull; { __( 'Over 200 Premium themes to explore' ) }</p>
+								<p> &bull; { __( 'Business class security: real-time backups and threat resolution' ) }</p>
+								<p> &bull; { __( 'SEO and social media previewing tools' ) }</p>
+								<p> &bull; { __( 'Unlimited ad-free video hosting' ) }</p>
+								<p> &bull; { __( 'Google Analytics integration' ) }</p>
 								<p>
 									<Button onClick={ () => this.trackPlansClick( 'compare_plans' ) } href={ 'https://jetpack.com/redirect/?source=plans-compare-premium&site=' + this.props.siteRawUrl } className="is-primary">
-										{ __( 'Compare Plans' ) }
+										{ __( 'Explore Jetpack Professional' ) }
 									</Button>
 								</p>
 							</div>
