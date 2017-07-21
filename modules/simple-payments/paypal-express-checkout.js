@@ -74,9 +74,6 @@ var PaypalExpressCheckout = {
 				return paypal.request.post( PaypalExpressCheckout.getCreatePaymentEndpoint( blogId ), payload )
 				.then( function( paymentResponse ) {
 					return paymentResponse.id;
-				} )
-				.catch( function( paymentError ) {
-					PaypalExpressCheckout.togglePurchaseMessage( paymentError, 'error' );
 				} );
 			},
 			onAuthorize: function( onAuthData ) {
