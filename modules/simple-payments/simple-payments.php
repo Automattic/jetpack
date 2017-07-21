@@ -93,8 +93,8 @@ class Jetpack_Simple_Payments {
 		}
 		$output = "
 <div class='{$data[ 'class' ]} jetpack-simple-payments__wrapper'>
-	<div class='jetpack-simple-payments__purchase-message'>
-	</div>
+	<p class='jetpack-simple-payments__purchase-message'>
+	</p>
 	<div class='jetpack-simple-payments__title'>{$data['title']}</div>
 	<div class='jetpack-simple-payments__description'>{$data['description']}</div>
 	<div class='jetpack-simple-payments__price'>{$data['price']}</div>
