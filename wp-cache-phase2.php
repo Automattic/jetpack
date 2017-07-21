@@ -233,7 +233,7 @@ function wp_cache_get_response_headers() {
 	$known_headers = apply_filters( 'wpsc_known_headers', $known_headers );
 
 	if ( ! isset( $known_headers[ 'age' ] ) ) {
-		$known_headers = array_map( 'mb_strtolower', $known_headers );
+		$known_headers = array_map( 'strtolower', $known_headers );
 	}
 
 	$headers = array();
@@ -252,7 +252,7 @@ function wp_cache_get_response_headers() {
 	}
 
 	foreach( $headers as $key => $value ) {
-		if ( ! in_array( mb_strtolower( $key ), $known_headers ) ) {
+		if ( ! in_array( strtolower( $key ), $known_headers ) ) {
 			unset( $headers[ $key ] );
 		}
 	}
