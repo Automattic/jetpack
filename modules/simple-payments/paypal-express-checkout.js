@@ -4,54 +4,12 @@
  * of simple-payments module.
  */
 
-/**
- * Get the DOM element-placeholder used to show message
- * about the transaction. If it doesn't exist then the function will create a new one.
- * 
- * @param  string buttonDomId id of the payment button placeholder
- * @return Element the dom element to print the message
- */
-var getButtonMessageElement = function( buttonDomId ) {
-	var messageDomId = buttonDomId + '_message';
-
-	var domButtonElement = document.getElementById( buttonDomId );
-	var domMessageElement = document.getElementById( messageDomId );
-
-	if ( domMessageElement ) {
-		return domMessageElement;
-	}
-
-	// create dom message element
-	domMessageElement = document.createElement( 'div' );
-	domMessageElement.setAttribute( 'class', 'jetpack-simple-payments-message-placeholder' );
-	domMessageElement.setAttribute( 'id', messageDomId );
-	domMessageElement.style.display = 'none';
-
-	// inject into the DOM Tree
-	domButtonElement.appendChild( domMessageElement );
-
-	return domMessageElement;
-}
-
-var cleanAndHideMessage = function( el ) {
-	el.style.display = 'none';
-	el.innerHTML = '';
-};
-
-var showMessage = function( message, el ) {
-	// show message 500ms after Paypal popup is closed
-	setTimeout( function() {
-		el.style.display = 'block';
-		el.style.color = '#06F';
-		el.innerHTML = message;
-	}, 1000 );
-}
-
 /* global paypal */
 /* exported PaypalExpressCheckout */
 /* jshint unused:false */
 var PaypalExpressCheckout = {
 	sandbox: true,
+	$purchaseMessageContainer: null,
 	getCreatePaymentEndpoint: function( blogId ) {
 		return 'https://public-api.wordpress.com/wpcom/v2/sites/' + blogId + '/simple-payments/paypal/payment';
 	},
@@ -75,6 +33,22 @@ var PaypalExpressCheckout = {
 		}
 		return number;
 	},
+	togglePurcahseMessage: function( message, successOrError ) {
+		if ( ! this.$purchaseMessageContainer ) {
+			this.$purchaseMessageContainer = jQuery( '.jetpack-simple-payments__purchase-message' );
+		}
+
+		if ( this.$purchaseMessageContainer.hasClass( 'show' ) ) {
+			this.$purchaseMessageContainer
+				.removeClass( 'show' )
+				.text( '' )
+				.removeClass( 'success error' );
+		} else {
+			this.$purchaseMessageContainer
+				.text( message )
+				.addClass( 'show ' + successOrError );
+		}
+	},
 	renderButton: function( blogId, buttonId, domId, enableMultiple ) {
 		var env = PaypalExpressCheckout.sandbox ? 'sandbox' : 'production';
 		if ( ! paypal ) {
@@ -92,8 +66,7 @@ var PaypalExpressCheckout = {
 				color: 'blue'
 			},
 			payment: function( paymentData ) {
-				paypalMessagePlaceholder = getButtonMessageElement( domId + '_button' );
-				cleanAndHideMessage( paypalMessagePlaceholder );
+				PaypalExpressCheckout.togglePurcahseMessage();
 
 				var payload = {
 					number: PaypalExpressCheckout.getNumberOfItems( domId + '_number', enableMultiple ),
@@ -106,11 +79,11 @@ var PaypalExpressCheckout = {
 					return paymentResponse.id;
 				} )
 				.catch( function( paymentError ) {
-					showMessage( paymentError, paypalMessagePlaceholder );
+					PaypalExpressCheckout.togglePurcahseMessage( paymentError, 'error' );
 				} );
 			},
 			onAuthorize: function( onAuthData ) {
-				cleanAndHideMessage( paypalMessagePlaceholder );
+				PaypalExpressCheckout.togglePurcahseMessage();
 
 				return paypal.request.post( PaypalExpressCheckout.getExecutePaymentEndpoint( blogId, onAuthData.paymentID ), {
 					buttonId: buttonId,
@@ -119,17 +92,20 @@ var PaypalExpressCheckout = {
 				} )
 				.then( function( authResponse ) {
 					var payerInfo = authResponse.payer.payer_info;
-					var message = 'Thanks <strong>' + payerInfo.first_name + '</strong>! ' +
-						'The purchase has been successful.<br />' +
-						'For more details, an email has been sent to the <em>' + payerInfo.email + '<em>.';
+					var message =
+						'<strong>Thank you for your purchase, ' + payerInfo.first_name + '!</strong>' +
+						'<br />' +
+						'The purchase has been successful. <br />' +
+						'For more details, an email has been sent to your email address <em>' + payerInfo.email + '<em>.';
 
-					showMessage( message, paypalMessagePlaceholder );
+					PaypalExpressCheckout.togglePurcahseMessage( message, 'success' );
 
 					// TODO: handle success, errors, messaging, etc, etc.
 					/* jshint ignore:start */
 					/* jshint ignore:end */
 				} )
 				.catch( function( authError ) {
+					PaypalExpressCheckout.togglePurcahseMessage( 'Error!', 'error' );
 					// console.log( 'authError: %o', authError );
 				} );
 			}
