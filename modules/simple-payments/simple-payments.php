@@ -30,6 +30,7 @@ class Jetpack_Simple_Payments {
 		 */
 		wp_register_script( 'paypal-checkout-js', 'https://www.paypalobjects.com/api/checkout.js' );
 		wp_register_script( 'paypal-express-checkout', plugins_url( '/paypal-express-checkout.js', __FILE__ ) , array( 'paypal-checkout-js' ), '0.21' );
+		wp_enqueue_style( 'simple-payments', plugins_url( '/simple-payments.css', __FILE__ ) );
 	}
 	private function register_init_hook() {
 		add_action( 'init', array( $this, 'init_hook_action' ) );
@@ -91,12 +92,17 @@ class Jetpack_Simple_Payments {
 		       </div>";
 		}
 		$output = "
-<div class='{$data[ 'class' ]} jetpack-simple-payments-wrapper'>
-	<div class='jetpack-simple-payments-title'>{$data['title']}</div>
-	<div class='jetpack-simple-payments-description'>{$data['description']}</div>
-	<div class='jetpack-simple-payments-price'>{$data['price']}</div>
+<div class='{$data[ 'class' ]} jetpack-simple-payments__wrapper'>
+	<div class='jetpack-simple-payments__purchase-message success'>
+		<strong>Thank you for your purchase!</strong>
+		<br />
+		More info and exact copies TBD.
+	</div>
+	<div class='jetpack-simple-payments__title'>{$data['title']}</div>
+	<div class='jetpack-simple-payments__description'>{$data['description']}</div>
+	<div class='jetpack-simple-payments__price'>{$data['price']}</div>
 	{$items}
-	<div class='jetpack-simple-payments-button' id='{$data['dom_id']}_button'></div>
+	<div class='jetpack-simple-payments__button' id='{$data['dom_id']}_button'></div>
 </div>
 ";
 		return $output;
