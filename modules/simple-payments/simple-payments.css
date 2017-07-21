@@ -1,0 +1,14 @@
+.jetpack-simple-payments__purchase-message {
+	display: none;
+	color: #fff;
+	padding: 1em;
+
+	margin: 20px 0;
+}
+.jetpack-simple-payments__purchase-message.success {
+	background-color: #4ab866;
+}
+
+.jetpack-simple-payments__purchase-message.error {
+	background-color: #d94f4f;
+}
