@@ -41,11 +41,11 @@ var PaypalExpressCheckout = {
 		if ( this.$purchaseMessageContainer.hasClass( 'show' ) ) {
 			this.$purchaseMessageContainer
 				.removeClass( 'show' )
-				.text( '' )
+				.html( '' )
 				.removeClass( 'success error' );
 		} else {
 			this.$purchaseMessageContainer
-				.text( message )
+				.html( message )
 				.addClass( 'show ' + successOrError );
 		}
 	},
