@@ -29,7 +29,8 @@
 }
 
 .jetpack-simple-payments-button{
-	display:inline-block;
+	display:block;
+	float:right;
 }
 
 .jetpack-simple-payments__purchase-message {
