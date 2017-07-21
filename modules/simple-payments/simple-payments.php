@@ -28,7 +28,7 @@ class Jetpack_Simple_Payments {
 		 * Paypal heavily discourages putting that script in your own server:
 		 * @see https://developer.paypal.com/docs/integration/direct/express-checkout/integration-jsv4/add-paypal-button/
 		 */
-		wp_register_script( 'paypal-checkout-js', 'https://www.paypalobjects.com/api/checkout.js' );
+		wp_register_script( 'paypal-checkout-js', 'https://www.paypalobjects.com/api/checkout.js', array(), null, true );
 		wp_register_script( 'paypal-express-checkout', plugins_url( '/paypal-express-checkout.js', __FILE__ ) , array( 'jquery', 'paypal-checkout-js' ), '0.21' );
 		wp_enqueue_style( 'simple-payments', plugins_url( '/simple-payments.css', __FILE__ ) );
 	}
