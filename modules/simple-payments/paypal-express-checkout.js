@@ -55,9 +55,6 @@ var PaypalExpressCheckout = {
 			throw new Error( 'PayPal module is required by PaypalExpressCheckout' );
 		}
 
-		// message DOM element instance
-		var paypalMessagePlaceholder;
-
 		paypal.Button.render( {
 			env: env,
 			commit: true,
