@@ -369,11 +369,6 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 
 			$moved_to_inactive_recently = $this->sync_remove_widgets_from_sidebar( $new_widgets, $old_widgets, $sidebar, $new_value['wp_inactive_widgets'] );
 			$moved_to_inactive_ids = array_merge( $moved_to_inactive_ids, $moved_to_inactive_recently );
-error_log("RECENTLYU:");
-			error_log(print_r($moved_to_inactive_recently, true));
-			error_log("NON:");
-error_log("INACTIVE IDS:");
-error_log(print_r($moved_to_inactive_ids, true));
 
 			$moved_to_sidebar_recently = $this->sync_add_widgets_to_sidebar( $new_widgets, $old_widgets, $sidebar );
 			$moved_to_sidebar = array_merge( $moved_to_sidebar, $moved_to_sidebar_recently );
