@@ -33,7 +33,7 @@ var PaypalExpressCheckout = {
 		}
 		return number;
 	},
-	togglePurcahseMessage: function( message, successOrError ) {
+	togglePurchaseMessage: function( message, successOrError ) {
 		if ( ! this.$purchaseMessageContainer ) {
 			this.$purchaseMessageContainer = jQuery( '.jetpack-simple-payments__purchase-message' );
 		}
@@ -63,7 +63,7 @@ var PaypalExpressCheckout = {
 				color: 'blue'
 			},
 			payment: function( paymentData ) {
-				PaypalExpressCheckout.togglePurcahseMessage();
+				PaypalExpressCheckout.togglePurchaseMessage();
 
 				var payload = {
 					number: PaypalExpressCheckout.getNumberOfItems( domId + '_number', enableMultiple ),
@@ -76,11 +76,11 @@ var PaypalExpressCheckout = {
 					return paymentResponse.id;
 				} )
 				.catch( function( paymentError ) {
-					PaypalExpressCheckout.togglePurcahseMessage( paymentError, 'error' );
+					PaypalExpressCheckout.togglePurchaseMessage( paymentError, 'error' );
 				} );
 			},
 			onAuthorize: function( onAuthData ) {
-				PaypalExpressCheckout.togglePurcahseMessage();
+				PaypalExpressCheckout.togglePurchaseMessage();
 
 				return paypal.request.post( PaypalExpressCheckout.getExecutePaymentEndpoint( blogId, onAuthData.paymentID ), {
 					buttonId: buttonId,
@@ -95,14 +95,14 @@ var PaypalExpressCheckout = {
 						'The purchase has been successful. <br />' +
 						'For more details, an email has been sent to your email address <em>' + payerInfo.email + '<em>.';
 
-					PaypalExpressCheckout.togglePurcahseMessage( message, 'success' );
+					PaypalExpressCheckout.togglePurchaseMessage( message, 'success' );
 
 					// TODO: handle success, errors, messaging, etc, etc.
 					/* jshint ignore:start */
 					/* jshint ignore:end */
 				} )
 				.catch( function( authError ) {
-					PaypalExpressCheckout.togglePurcahseMessage( 'Error!', 'error' );
+					PaypalExpressCheckout.togglePurchaseMessage( 'Error!', 'error' );
 					// console.log( 'authError: %o', authError );
 				} );
 			}
