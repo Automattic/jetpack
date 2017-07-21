@@ -33,30 +33,75 @@ var PaypalExpressCheckout = {
 		}
 		return number;
 	},
-	togglePurchaseMessage: function( message, successOrError ) {
-		if ( ! PaypalExpressCheckout.$purchaseMessageContainer ) {
-			PaypalExpressCheckout.$purchaseMessageContainer = jQuery( '.jetpack-simple-payments__purchase-message' );
+
+	/**
+	 * Get the DOM element-placeholder used to show message
+	 * about the transaction. If it doesn't exist then the function will create a new one.
+	 * 
+	 * @param  string buttonDomId id of the payment button placeholder
+	 * @return Element the dom element to print the message
+	 */
+	getMessageElement: function ( buttonDomId ) {
+		var messageDomId = buttonDomId + '_message';
+
+		// DOM Elements
+		var buttonDomElement = document.getElementById( buttonDomId );
+		var messageDomElement = document.getElementById( messageDomId );
+
+		if ( messageDomElement ) {
+			return messageDomElement;
 		}
 
-		if ( PaypalExpressCheckout.$purchaseMessageContainer.hasClass( 'show' ) ) {
-			PaypalExpressCheckout.$purchaseMessageContainer
-				.removeClass( 'show success error' )
-				.html( '' )
-		} else {
-			PaypalExpressCheckout.$purchaseMessageContainer
-				.html( message )
-				.addClass( 'show' );
+		// create dom message element
+		messageDomElement = document.createElement( 'div' );
+		messageDomElement.setAttribute( 'id', messageDomId );
 
-			if ( typeof successOrError !== 'undefined' ) {
-				PaypalExpressCheckout.$purchaseMessageContainer.addClass( successOrError );
-			}
-		}
+		// inject into the DOM Tree
+		buttonDomElement.appendChild( messageDomElement );
+
+		return messageDomElement;
 	},
+
+	/**
+	 * Show a messange close to the Paypal button.
+	 * Use this function to give feedback to the user according
+	 * to the transaction result.
+	 * 
+	 * @param  {String} message message to show
+	 * @param  {String} domId paypal-button element dom identifier
+	 * @param  {Boolean} [error] defines if it's a message error. Not TRUE as default.
+	 */
+	showMessage: function( message, buttonDomId, isError ) {
+		var domEl = PaypalExpressCheckout.getMessageElement( buttonDomId );
+
+		// set css classes
+		var cssClasses = 'jetpack-simple-payments__purchase-message show ';
+		cssClasses += isError ? 'error' : 'success';
+
+		// show message 1s after Paypal popup is closed
+		setTimeout( function() {
+			domEl.innerHTML = message;
+			domEl.setAttribute( 'class', cssClasses );
+		}, 1000 );
+	},
+
+	showError: function( message, buttonDomId ) {
+		PaypalExpressCheckout.showMessage( message, buttonDomId, true );
+	},
+
+	cleanAndHideMessage: function( buttonDomId ) {
+		var domEl = PaypalExpressCheckout.getMessageElement( buttonDomId );
+		domEl.setAttribute( 'class', 'jetpack-simple-payments__purchase-message' );
+		domEl.innerHTML = '';
+	},
+
 	renderButton: function( blogId, buttonId, domId, enableMultiple ) {
 		var env = PaypalExpressCheckout.sandbox ? 'sandbox' : 'production';
 		if ( ! paypal ) {
 			throw new Error( 'PayPal module is required by PaypalExpressCheckout' );
 		}
+
+		var buttonDomId = domId+ '_button';
 
 		paypal.Button.render( {
 			env: env,
@@ -66,12 +111,7 @@ var PaypalExpressCheckout = {
 				color: 'blue'
 			},
 			payment: function( paymentData ) {
-				if (
-					PaypalExpressCheckout.$purchaseMessageContainer &&
-					PaypalExpressCheckout.$purchaseMessageContainer.hasClass( 'show' )
-				) {
-					PaypalExpressCheckout.togglePurchaseMessage();
-				}
+				PaypalExpressCheckout.cleanAndHideMessage( buttonDomId );
 
 				var payload = {
 					number: PaypalExpressCheckout.getNumberOfItems( domId + '_number', enableMultiple ),
@@ -79,13 +119,18 @@ var PaypalExpressCheckout = {
 					env: env
 				};
 
-				return paypal.request.post( PaypalExpressCheckout.getCreatePaymentEndpoint( blogId ), payload )
-				.then( function( paymentResponse ) {
-					return paymentResponse.id;
-				} );
+				return paypal
+					.request
+					.post( PaypalExpressCheckout.getCreatePaymentEndpoint( blogId ), payload )
+					.then( function( paymentResponse ) {
+						return paymentResponse.id;
+					} )
+					.catch( function( paymentError) {
+						PaypalExpressCheckout.showError( 'Item temporarily unavailable', buttonDomId );
+					} );
 			},
-			onAuthorize: function( onAuthData ) {
 
+			onAuthorize: function( onAuthData ) {
 				return paypal.request.post( PaypalExpressCheckout.getExecutePaymentEndpoint( blogId, onAuthData.paymentID ), {
 					buttonId: buttonId,
 					payerId: onAuthData.payerID,
@@ -93,24 +138,21 @@ var PaypalExpressCheckout = {
 				} )
 				.then( function( authResponse ) {
 					var payerInfo = authResponse.payer.payer_info;
+
 					var message =
 						'<strong>Thank you for your purchase, ' + payerInfo.first_name + '!</strong>' +
 						'<br />' +
 						'The purchase has been successful. <br />' +
-						'For more details, an email has been sent to your email address <em>' + payerInfo.email + '<em>.';
+						'For more details, an email has been sent to your email address ' +
+						'<a href="mailto:' + payerInfo.email + '"><em>' + payerInfo.email + '</em></a>.';
 
-					PaypalExpressCheckout.togglePurchaseMessage( message, 'success' );
-
-					// TODO: handle success, errors, messaging, etc, etc.
-					/* jshint ignore:start */
-					/* jshint ignore:end */
+					PaypalExpressCheckout.showMessage( message, buttonDomId );
 				} )
 				.catch( function( authError ) {
-					PaypalExpressCheckout.togglePurchaseMessage( 'Error!', 'error' );
-					// console.log( 'authError: %o', authError );
+					PaypalExpressCheckout.showError( 'Item temporarily unavailable', buttonDomId );
 				} );
 			}
 
-		}, domId + '_button' );
+		}, buttonDomId );
 	}
 };

@@ -1,17 +1,21 @@
-.jetpack-simple-payments__purchase-message {
+body .jetpack-simple-payments__wrapper div.jetpack-simple-payments__purchase-message {
 	display: none;
+}
+
+body .jetpack-simple-payments__wrapper div.jetpack-simple-payments__purchase-message,
+body .jetpack-simple-payments__wrapper div.jetpack-simple-payments__purchase-message a {
 	color: #fff;
 	padding: 1em;
 }
 
-.jetpack-simple-payments__purchase-message.show {
+body .jetpack-simple-payments__wrapper div.jetpack-simple-payments__purchase-message.show {
 	display: block;
 }
 
-.jetpack-simple-payments__purchase-message.success {
+body .jetpack-simple-payments__wrapper div.jetpack-simple-payments__purchase-message.success {
 	background-color: #4ab866;
 }
 
-.jetpack-simple-payments__purchase-message.error {
+body .jetpack-simple-payments__wrapper div.jetpack-simple-payments__purchase-message.error {
 	background-color: #d94f4f;
 }
