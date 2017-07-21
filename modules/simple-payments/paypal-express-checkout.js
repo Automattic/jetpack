@@ -34,19 +34,22 @@ var PaypalExpressCheckout = {
 		return number;
 	},
 	togglePurchaseMessage: function( message, successOrError ) {
-		if ( ! this.$purchaseMessageContainer ) {
-			this.$purchaseMessageContainer = jQuery( '.jetpack-simple-payments__purchase-message' );
+		if ( ! PaypalExpressCheckout.$purchaseMessageContainer ) {
+			PaypalExpressCheckout.$purchaseMessageContainer = jQuery( '.jetpack-simple-payments__purchase-message' );
 		}
 
-		if ( this.$purchaseMessageContainer.hasClass( 'show' ) ) {
-			this.$purchaseMessageContainer
-				.removeClass( 'show' )
+		if ( PaypalExpressCheckout.$purchaseMessageContainer.hasClass( 'show' ) ) {
+			PaypalExpressCheckout.$purchaseMessageContainer
+				.removeClass( 'show success error' )
 				.html( '' )
-				.removeClass( 'success error' );
 		} else {
-			this.$purchaseMessageContainer
+			PaypalExpressCheckout.$purchaseMessageContainer
 				.html( message )
-				.addClass( 'show ' + successOrError );
+				.addClass( 'show' );
+
+			if ( typeof successOrError !== 'undefined' ) {
+				PaypalExpressCheckout.$purchaseMessageContainer.addClass( successOrError );
+			}
 		}
 	},
 	renderButton: function( blogId, buttonId, domId, enableMultiple ) {
@@ -63,7 +66,12 @@ var PaypalExpressCheckout = {
 				color: 'blue'
 			},
 			payment: function( paymentData ) {
-				PaypalExpressCheckout.togglePurchaseMessage();
+				if (
+					PaypalExpressCheckout.$purchaseMessageContainer &&
+					PaypalExpressCheckout.$purchaseMessageContainer.hasClass( 'show' )
+				) {
+					PaypalExpressCheckout.togglePurchaseMessage();
+				}
 
 				var payload = {
 					number: PaypalExpressCheckout.getNumberOfItems( domId + '_number', enableMultiple ),
@@ -77,7 +85,6 @@ var PaypalExpressCheckout = {
 				} );
 			},
 			onAuthorize: function( onAuthData ) {
-				PaypalExpressCheckout.togglePurchaseMessage();
 
 				return paypal.request.post( PaypalExpressCheckout.getExecutePaymentEndpoint( blogId, onAuthData.paymentID ), {
 					buttonId: buttonId,
