@@ -1,21 +1,55 @@
-body .jetpack-simple-payments__wrapper div.jetpack-simple-payments__purchase-message {
-	display: none;
+
+.jetpack-simple-payments-wrapper {
+	margin: 0.5em 0;
 }
 
-body .jetpack-simple-payments__wrapper div.jetpack-simple-payments__purchase-message,
-body .jetpack-simple-payments__wrapper div.jetpack-simple-payments__purchase-message a {
-	color: #fff;
+.jetpack-simple-payments-title {
+	font-weight: bold;
+	display: block;
+	margin-bottom: 0.3em;
+}
+
+.jetpack-simple-payments-payment-row {
+	margin-top: 0.3em;
+}
+
+.jetpack-simple-payments-price {
+	font-weight: bold;
+	display: inline-block;
+	margin-right: 15px;
+}
+
+.jetpack-simple-payments-items {
+	display:inline-block;
+	margin-right: 15px;
+}
+
+.jetpack-simple-payments-items input {
+	width: 30px;
+}
+
+.jetpack-simple-payments-button{
+	display:inline-block;
+}
+
+.jetpack-simple-payments__purchase-message {
+	display: none;
 	padding: 1em;
 }
 
-body .jetpack-simple-payments__wrapper div.jetpack-simple-payments__purchase-message.show {
+/* stronger rule in order to set the text color */
+body .jetpack-simple-payments__wrapper div.jetpack-simple-payments__purchase-message
+	color: #fff;
+}
+
+.jetpack-simple-payments__purchase-message.show {
 	display: block;
 }
 
-body .jetpack-simple-payments__wrapper div.jetpack-simple-payments__purchase-message.success {
+.jetpack-simple-payments__purchase-message.success {
 	background-color: #4ab866;
 }
 
-body .jetpack-simple-payments__wrapper div.jetpack-simple-payments__purchase-message.error {
+.jetpack-simple-payments__purchase-message.error {
 	background-color: #d94f4f;
 }
