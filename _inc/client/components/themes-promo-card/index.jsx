@@ -24,6 +24,14 @@ const ThemesPromoCard = React.createClass( {
 		} );
 	},
 
+	trackComparePlans() {
+		analytics.tracks.recordJetpackClick( {
+			target: 'themes-card',
+			button: 'themes-compare-all',
+			plan: this.props.plan
+		} );
+	},
+
 	render() {
 		const classes = classNames(
 				this.props.className,
@@ -56,21 +64,30 @@ const ThemesPromoCard = React.createClass( {
 						</p>
 
 						<p className="jp-apps-card__paragraph">
-							{ __( 'Over 200 professionally designed, versatile themes are now available to all Jetpack Professional customers, alongside our advanced security tools and other Professional features.' ) }
+							{ __( 'Protect your site and work with Jetpack Personal: daily automated backups, unlimited storage, and expert priority support. Security essentials for every WordPress site starting from $3.50.' ) }
+						</p>
+
+						<p className="jp-apps-card__paragraph">
+							{ __( 'Or go Pro with more than 200 Premium Themes, business class security, unlimited video hosting, monetization, marketing automation, and SEO tools.' ) }
 						</p>
 
 						<Button
 							className="is-primary"
 							onClick={ this.trackGetStarted }
 							href={ 'https://jetpack.com/redirect/?source=upgrade-pro-' + urlFriendlyPlan + '&site=' + this.props.siteRawUrl }>
-							{ __( 'Get Started' ) }
+							{ __( 'Explore Professional' ) }
+						</Button>
+						<Button
+							onClick={ this.trackComparePlans }
+							href={ 'https://jetpack.com/redirect/?source=plans-compare-free' + '&site=' + this.props.siteRawUrl }>
+							{ __( 'Compare All Plans' ) }
 						</Button>
 						<br />
 						<a
 							onClick={ this.trackGetStarted }
 							href={ 'https://jetpack.com/redirect/?source=upgrade-pro-' + urlFriendlyPlan + '&site=' + this.props.siteRawUrl }
 						>
-							{ __( 'Includes 50% introductory discount' ) }
+							{ __( 'Limited time 50% introductory discount on Jetpack Professional.' ) }
 						</a>
 					</div>
 				</Card>
