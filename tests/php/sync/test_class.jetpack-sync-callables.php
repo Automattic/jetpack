@@ -519,7 +519,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		Jetpack_Constants::clear_constants();
 	}
 
-	function test_get_raw_url_returns_with_https_if_is_ssl() {
+	function test_get_raw_url_returns_with_http_if_is_ssl() {
 		$home_option = get_option( 'home' );
 
 		// Test without https first
@@ -528,7 +528,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		// Now, with https
 		$_SERVER['HTTPS'] = 'on';
 		$this->assertEquals(
-			set_url_scheme( $home_option, 'https' ),
+			set_url_scheme( $home_option, 'http' ),
 			Jetpack_Sync_Functions::get_raw_url( 'home' )
 		);
 		unset( $_SERVER['HTTPS'] );
