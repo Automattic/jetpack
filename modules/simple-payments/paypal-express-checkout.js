@@ -140,11 +140,11 @@ var PaypalExpressCheckout = {
 					var payerInfo = authResponse.payer.payer_info;
 
 					var message =
-						'<strong>Thank you for your purchase, ' + payerInfo.first_name + '!</strong>' +
+						'<strong>Thank you, ' + payerInfo.first_name + '!</strong>' +
 						'<br />' +
-						'The purchase has been successful. <br />' +
-						'For more details, an email has been sent to your email address ' +
-						'<a href="mailto:' + payerInfo.email + '"><em>' + payerInfo.email + '</em></a>.';
+						'Your purchase was successful. <br />' +
+						'We just sent you a confirmation email to ' +
+						'<em>' + payerInfo.email + '</em>.';
 
 					PaypalExpressCheckout.showMessage( message, buttonDomId );
 				} )
