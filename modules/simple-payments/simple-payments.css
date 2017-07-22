@@ -39,7 +39,7 @@
 }
 
 /* stronger rule in order to set the text color */
-body .jetpack-simple-payments-wrapper div.jetpack-simple-payments-purchase-message {
+body .jetpack-simple-payments-wrapper p.jetpack-simple-payments-purchase-message {
 	color: #fff;
 }
 

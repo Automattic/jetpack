@@ -97,8 +97,8 @@ class Jetpack_Simple_Payments {
 			<div class='{$data[ 'class' ]} jetpack-simple-payments-wrapper'>
 				<p class='jetpack-simple-payments-purchase-message'></p>
 				<div class='jetpack-simple-payments-title'>{$data['title']}</div>
-				<div class='jetpack-simple-payments-description'>{$data['description']}</div>
-				<div class='jetpack-simple-payments-price'>{$data['price']}</div>
+				<p class='jetpack-simple-payments-description'>{$data['description']}</p>
+				<p class='jetpack-simple-payments-price'>{$data['price']}</p>
 				{$items}
 				<div class='jetpack-simple-payments__button' id='{$data['dom_id']}_button'></div>
 			</div>
