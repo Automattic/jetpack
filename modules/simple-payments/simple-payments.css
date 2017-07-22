@@ -33,24 +33,24 @@
 	float:right;
 }
 
-.jetpack-simple-payments__purchase-message {
+.jetpack-simple-payments-purchase-message {
 	display: none;
 	padding: 1em;
 }
 
 /* stronger rule in order to set the text color */
-body .jetpack-simple-payments__wrapper div.jetpack-simple-payments__purchase-message
+body .jetpack-simple-payments-wrapper div.jetpack-simple-payments-purchase-message {
 	color: #fff;
 }
 
-.jetpack-simple-payments__purchase-message.show {
+.jetpack-simple-payments-purchase-message.show {
 	display: block;
 }
 
-.jetpack-simple-payments__purchase-message.success {
+.jetpack-simple-payments-purchase-message.success {
 	background-color: #4ab866;
 }
 
-.jetpack-simple-payments__purchase-message.error {
+.jetpack-simple-payments-purchase-message.error {
 	background-color: #d94f4f;
 }

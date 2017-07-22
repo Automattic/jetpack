@@ -4,6 +4,9 @@
  * of simple-payments module.
  */
 
+var primaryCssClassName = 'jetpack-simple-payments';
+var messageCssClassName = primaryCssClassName + '-purchase-message';
+
 /* global paypal */
 /* global jQuery */
 /* exported PaypalExpressCheckout */
@@ -76,7 +79,7 @@ var PaypalExpressCheckout = {
 		var domEl = PaypalExpressCheckout.getMessageElement( buttonDomId );
 
 		// set css classes
-		var cssClasses = 'jetpack-simple-payments__purchase-message show ';
+		var cssClasses = messageCssClassName + ' show ';
 		cssClasses += isError ? 'error' : 'success';
 
 		// show message 1s after Paypal popup is closed
@@ -113,7 +116,7 @@ var PaypalExpressCheckout = {
 
 	cleanAndHideMessage: function( buttonDomId ) {
 		var domEl = PaypalExpressCheckout.getMessageElement( buttonDomId );
-		domEl.setAttribute( 'class', 'jetpack-simple-payments__purchase-message' );
+		domEl.setAttribute( 'class', messageCssClassName );
 		domEl.innerHTML = '';
 	},
 
