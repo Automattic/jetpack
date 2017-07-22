@@ -16,6 +16,7 @@
 .jetpack-simple-payments-price {
 	font-weight: bold;
 	display: inline-block;
+	float: left;
 	margin-right: 15px;
 }
 
@@ -29,8 +30,8 @@
 }
 
 .jetpack-simple-payments-button {
-	display:block;
-	float:right;
+	display: inline-block;
+	float: left;
 }
 
 .jetpack-simple-payments-purchase-message {
