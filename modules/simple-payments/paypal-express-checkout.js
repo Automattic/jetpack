@@ -6,7 +6,7 @@
 
 /* global paypal */
 /* exported PaypalExpressCheckout */
-/* jshint unused:false */
+/* jshint unused:false, es3:false, esversion:5 */
 var PaypalExpressCheckout = {
 	sandbox: true,
 	$purchaseMessageContainer: null,
@@ -37,7 +37,7 @@ var PaypalExpressCheckout = {
 	/**
 	 * Get the DOM element-placeholder used to show message
 	 * about the transaction. If it doesn't exist then the function will create a new one.
-	 * 
+	 *
 	 * @param  string buttonDomId id of the payment button placeholder
 	 * @return Element the dom element to print the message
 	 */
@@ -66,7 +66,7 @@ var PaypalExpressCheckout = {
 	 * Show a messange close to the Paypal button.
 	 * Use this function to give feedback to the user according
 	 * to the transaction result.
-	 * 
+	 *
 	 * @param  {String} message message to show
 	 * @param  {String} domId paypal-button element dom identifier
 	 * @param  {Boolean} [error] defines if it's a message error. Not TRUE as default.
