@@ -6,9 +6,10 @@
 
 /* global paypal */
 /* exported PaypalExpressCheckout */
-/* jshint unused:false */
+/* jshint unused:false, es3:false, esversion:5 */
 var PaypalExpressCheckout = {
 	sandbox: true,
+	$purchaseMessageContainer: null,
 	getCreatePaymentEndpoint: function( blogId ) {
 		return 'https://public-api.wordpress.com/wpcom/v2/sites/' + blogId + '/simple-payments/paypal/payment';
 	},
@@ -32,11 +33,76 @@ var PaypalExpressCheckout = {
 		}
 		return number;
 	},
+
+	/**
+	 * Get the DOM element-placeholder used to show message
+	 * about the transaction. If it doesn't exist then the function will create a new one.
+	 *
+	 * @param  string buttonDomId id of the payment button placeholder
+	 * @return Element the dom element to print the message
+	 */
+	getMessageElement: function ( buttonDomId ) {
+		var messageDomId = buttonDomId + '_message';
+
+		// DOM Elements
+		var buttonDomElement = document.getElementById( buttonDomId );
+		var messageDomElement = document.getElementById( messageDomId );
+
+		if ( messageDomElement ) {
+			return messageDomElement;
+		}
+
+		// create dom message element
+		messageDomElement = document.createElement( 'div' );
+		messageDomElement.setAttribute( 'id', messageDomId );
+
+		// inject into the DOM Tree
+		buttonDomElement.appendChild( messageDomElement );
+
+		return messageDomElement;
+	},
+
+	/**
+	 * Show a messange close to the Paypal button.
+	 * Use this function to give feedback to the user according
+	 * to the transaction result.
+	 *
+	 * @param  {String} message message to show
+	 * @param  {String} domId paypal-button element dom identifier
+	 * @param  {Boolean} [error] defines if it's a message error. Not TRUE as default.
+	 */
+	showMessage: function( message, buttonDomId, isError ) {
+		var domEl = PaypalExpressCheckout.getMessageElement( buttonDomId );
+
+		// set css classes
+		var cssClasses = 'jetpack-simple-payments__purchase-message show ';
+		cssClasses += isError ? 'error' : 'success';
+
+		// show message 1s after Paypal popup is closed
+		setTimeout( function() {
+			domEl.innerHTML = message;
+			domEl.setAttribute( 'class', cssClasses );
+		}, 1000 );
+	},
+
+	showError: function( message, buttonDomId ) {
+		PaypalExpressCheckout.showMessage( message, buttonDomId, true );
+	},
+
+	cleanAndHideMessage: function( buttonDomId ) {
+		var domEl = PaypalExpressCheckout.getMessageElement( buttonDomId );
+		domEl.setAttribute( 'class', 'jetpack-simple-payments__purchase-message' );
+		domEl.innerHTML = '';
+	},
+
 	renderButton: function( blogId, buttonId, domId, enableMultiple ) {
 		var env = PaypalExpressCheckout.sandbox ? 'sandbox' : 'production';
 		if ( ! paypal ) {
 			throw new Error( 'PayPal module is required by PaypalExpressCheckout' );
 		}
+
+		var buttonDomId = domId+ '_button';
+
 		paypal.Button.render( {
 			env: env,
 			commit: true,
@@ -44,29 +110,49 @@ var PaypalExpressCheckout = {
 				label: 'pay',
 				color: 'blue'
 			},
-			payment: function() {
+			payment: function( paymentData ) {
+				PaypalExpressCheckout.cleanAndHideMessage( buttonDomId );
+
 				var payload = {
 					number: PaypalExpressCheckout.getNumberOfItems( domId + '_number', enableMultiple ),
 					buttonId: buttonId,
 					env: env
 				};
-				return paypal.request.post( PaypalExpressCheckout.getCreatePaymentEndpoint( blogId ), payload ).then( function( data ) {
-					return data.id;
-				} );
+
+				return paypal
+					.request
+					.post( PaypalExpressCheckout.getCreatePaymentEndpoint( blogId ), payload )
+					.then( function( paymentResponse ) {
+						return paymentResponse.id;
+					} )
+					.catch( function( paymentError) {
+						PaypalExpressCheckout.showError( 'Item temporarily unavailable', buttonDomId );
+					} );
 			},
-			onAuthorize: function( data ) {
-				return paypal.request.post( PaypalExpressCheckout.getExecutePaymentEndpoint( blogId, data.paymentID ), {
+
+			onAuthorize: function( onAuthData ) {
+				return paypal.request.post( PaypalExpressCheckout.getExecutePaymentEndpoint( blogId, onAuthData.paymentID ), {
 					buttonId: buttonId,
-					payerId: data.payerID,
+					payerId: onAuthData.payerID,
 					env: env
-				} ).then( function() {
-					// TODO: handle success, errors, messaging, etc, etc.
-					/* jshint ignore:start */
-					alert( 'success!' );
-					/* jshint ignore:end */
+				} )
+				.then( function( authResponse ) {
+					var payerInfo = authResponse.payer.payer_info;
+
+					var message =
+						'<strong>Thank you, ' + payerInfo.first_name + '!</strong>' +
+						'<br />' +
+						'Your purchase was successful. <br />' +
+						'We just sent you a confirmation email to ' +
+						'<em>' + payerInfo.email + '</em>.';
+
+					PaypalExpressCheckout.showMessage( message, buttonDomId );
+				} )
+				.catch( function( authError ) {
+					PaypalExpressCheckout.showError( 'Item temporarily unavailable', buttonDomId );
 				} );
 			}
 
-		}, domId + '_button' );
+		}, buttonDomId );
 	}
 };

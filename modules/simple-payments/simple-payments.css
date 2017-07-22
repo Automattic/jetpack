@@ -1,0 +1,21 @@
+body .jetpack-simple-payments__wrapper div.jetpack-simple-payments__purchase-message {
+	display: none;
+}
+
+body .jetpack-simple-payments__wrapper div.jetpack-simple-payments__purchase-message,
+body .jetpack-simple-payments__wrapper div.jetpack-simple-payments__purchase-message a {
+	color: #fff;
+	padding: 1em;
+}
+
+body .jetpack-simple-payments__wrapper div.jetpack-simple-payments__purchase-message.show {
+	display: block;
+}
+
+body .jetpack-simple-payments__wrapper div.jetpack-simple-payments__purchase-message.success {
+	background-color: #4ab866;
+}
+
+body .jetpack-simple-payments__wrapper div.jetpack-simple-payments__purchase-message.error {
+	background-color: #d94f4f;
+}
