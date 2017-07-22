@@ -86,23 +86,23 @@ class Jetpack_Simple_Payments {
 
 	function output_shortcode( $data ) {
 		$items = '';
+
 		if ( $data['multiple'] ) {
-		       $items="<div class='jetpack-simple-payments-items'>
-		       <input class='jetpack-simple-payments-items-number' type='number' min='1' value='1' id='{$data['dom_id']}_number'>
-		       </div>";
+			$items="<div class='jetpack-simple-payments-items'>
+				<input class='jetpack-simple-payments-items-number' type='number' value='1' id='{$data['dom_id']}_number' />
+			</div>";
 		}
-		$output = "
-<div class='{$data[ 'class' ]} jetpack-simple-payments__wrapper'>
-	<p class='jetpack-simple-payments__purchase-message'>
-	</p>
-	<div class='jetpack-simple-payments__title'>{$data['title']}</div>
-	<div class='jetpack-simple-payments__description'>{$data['description']}</div>
-	<div class='jetpack-simple-payments__price'>{$data['price']}</div>
-	{$items}
-	<div class='jetpack-simple-payments__button' id='{$data['dom_id']}_button'></div>
-</div>
-";
-		return $output;
+
+		return "
+			<div class='{$data[ 'class' ]} jetpack-simple-payments__wrapper'>
+				<p class='jetpack-simple-payments__purchase-message'></p>
+				<div class='jetpack-simple-payments__title'>{$data['title']}</div>
+				<div class='jetpack-simple-payments__description'>{$data['description']}</div>
+				<div class='jetpack-simple-payments__price'>{$data['price']}</div>
+				{$items}
+				<div class='jetpack-simple-payments__button' id='{$data['dom_id']}_button'></div>
+			</div>
+		";
 	}
 
 	function format_price( $price, $currency, $all_data ) {
