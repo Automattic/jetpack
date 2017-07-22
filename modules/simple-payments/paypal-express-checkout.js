@@ -16,7 +16,6 @@ var wpRestAPIVersion = '/wpcom/v2';
 /* jshint unused:false, es3:false, esversion:5 */
 var PaypalExpressCheckout = {
 	sandbox: true,
-	$purchaseMessageContainer: null,
 
 	getCreatePaymentEndpoint: function( blogId ) {
 		return wpRestAPIHost + wpRestAPIVersion + '/sites/' + blogId + '/simple-payments/paypal/payment';
@@ -181,7 +180,6 @@ var PaypalExpressCheckout = {
 						} );
 				} );
 			}
-
 		}, buttonDomId );
 	}
 };
