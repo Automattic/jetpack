@@ -323,14 +323,6 @@ EXPECTED;
 		}
 	}
 
-	function test_idc_optin_false_when_sunrise() {
-		Jetpack_Constants::set_constant( 'SUNRISE', true );
-
-		$this->assertFalse( Jetpack::sync_idc_optin() );
-
-		Jetpack_Constants::clear_constants();
-	}
-
 	function test_idc_optin_filter_overrides_development_version() {
 		add_filter( 'jetpack_development_version', '__return_true' );
 		add_filter( 'jetpack_sync_idc_optin', '__return_false' );
