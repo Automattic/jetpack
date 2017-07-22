@@ -136,10 +136,13 @@ var PaypalExpressCheckout = {
 		paypal.Button.render( {
 			env: env,
 			commit: true,
+
 			style: {
 				label: 'pay',
-				color: 'blue'
+				shape: 'rect',
+				color: 'silver'
 			},
+			
 			payment: function() {
 				PaypalExpressCheckout.cleanAndHideMessage( buttonDomId );
 
