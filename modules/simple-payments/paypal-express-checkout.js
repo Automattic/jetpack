@@ -7,6 +7,9 @@
 var primaryCssClassName = 'jetpack-simple-payments';
 var messageCssClassName = primaryCssClassName + '-purchase-message';
 
+var wpRestAPIHost = 'https://public-api.wordpress.com';
+var wpRestAPIVersion = '/wpcom/v2';
+
 /* global paypal */
 /* global jQuery */
 /* exported PaypalExpressCheckout */
@@ -14,12 +17,15 @@ var messageCssClassName = primaryCssClassName + '-purchase-message';
 var PaypalExpressCheckout = {
 	sandbox: true,
 	$purchaseMessageContainer: null,
+
 	getCreatePaymentEndpoint: function( blogId ) {
-		return 'https://public-api.wordpress.com/wpcom/v2/sites/' + blogId + '/simple-payments/paypal/payment';
+		return wpRestAPIHost + wpRestAPIVersion + '/sites/' + blogId + '/simple-payments/paypal/payment';
 	},
+
 	getExecutePaymentEndpoint: function( blogId, paymentId ) {
-		return 'https://public-api.wordpress.com/wpcom/v2/sites/' + blogId + '/simple-payments/paypal/' + paymentId + '/execute';
+		return wpRestAPIHost + wpRestAPIVersion + '/sites/' + blogId + '/simple-payments/paypal/' + paymentId + '/execute';
 	},
+
 	getNumberOfItems: function( field, enableMultiple ) {
 		var numberField, number;
 		if ( enableMultiple !== '1' ) {
