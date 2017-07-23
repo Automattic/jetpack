@@ -89,6 +89,25 @@ var PaypalExpressCheckout = {
 		PaypalExpressCheckout.showMessage( message, buttonDomId, true );
 	},
 
+	processErrorMessage( errorResponse ) {
+		var error = errorResponse.responseJSON;
+		var defaultMessage = 'There was an issue processing your payment.';
+
+		if ( ! error ) {
+			return defaultMessage;
+		}
+
+		if ( error.additional_errors ) {
+			var messages = [];
+			error.additional_errors.forEach( function( error ) {
+				messages.push( error.message );
+			} );
+			return messages.join( '<br />' );
+		}
+
+		return error.message || defaultMessage;
+	},
+
 	cleanAndHideMessage: function( buttonDomId ) {
 		var domEl = PaypalExpressCheckout.getMessageElement( buttonDomId );
 		domEl.setAttribute( 'class', 'jetpack-simple-payments__purchase-message' );
