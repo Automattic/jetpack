@@ -274,7 +274,7 @@
 * Translate new terms easier with an improvement to the translator comments.
 * We switched to use Core functions to retrieve the list of sites in a multisite network for more accurate results.
 * We added Product visibility to post meta whitelist, for better control of products displayed in Related Posts.
-* We no longer sync specific post meta data added by Postman or WP RSS Mutli Importer to avoid performance issues during the sync process.
+* We no longer sync specific post meta data added by Postman or WP RSS Multi Importer to avoid performance issues during the sync process.
 * We're now avoiding conflicts with plugins adding the core Video upload library to the post editor.
 * Removed deprecated compatibility code for older versions of WordPress.
 * We had some Shortcode conflicts with WordPress Post embeds, but that's been fixed.
