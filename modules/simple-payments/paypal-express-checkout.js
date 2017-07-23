@@ -138,37 +138,43 @@ var PaypalExpressCheckout = {
 					env: env
 				};
 
-				return paypal
-					.request
-					.post( PaypalExpressCheckout.getCreatePaymentEndpoint( blogId ), payload )
-					.then( function( paymentResponse ) {
-						return paymentResponse.id;
-					} )
-					.catch( function( paymentError) {
-						PaypalExpressCheckout.showError( 'Item temporarily unavailable', buttonDomId );
-					} );
+				return new paypal.Promise( function( resolve, reject ) {
+					jQuery.post( PaypalExpressCheckout.getCreatePaymentEndpoint( blogId ), payload )
+						.done( function( paymentResponse ) {
+							resolve( paymentResponse.id );
+						} )
+						.fail( function( paymentError ) {
+							var errorMessage = PaypalExpressCheckout.processErrorMessage( paymentError ) ;
+							PaypalExpressCheckout.showError( errorMessage, buttonDomId );
+							reject( new Error( paymentError.responseJSON.code ) );
+						} );
+				} );
 			},
 
 			onAuthorize: function( onAuthData ) {
-				return paypal.request.post( PaypalExpressCheckout.getExecutePaymentEndpoint( blogId, onAuthData.paymentID ), {
+				var payload = {
 					buttonId: buttonId,
 					payerId: onAuthData.payerID,
 					env: env
-				} )
-				.then( function( authResponse ) {
-					var payerInfo = authResponse.payer.payer_info;
-
-					var message =
-						'<strong>Thank you, ' + payerInfo.first_name + '!</strong>' +
-						'<br />' +
-						'Your purchase was successful. <br />' +
-						'We just sent you a confirmation email to ' +
-						'<em>' + payerInfo.email + '</em>.';
-
-					PaypalExpressCheckout.showMessage( message, buttonDomId );
-				} )
-				.catch( function( authError ) {
-					PaypalExpressCheckout.showError( 'Item temporarily unavailable', buttonDomId );
+				};
+				return new paypal.Promise( function( resolve, reject ) {
+					jQuery.post( PaypalExpressCheckout.getExecutePaymentEndpoint( blogId, onAuthData.paymentID ), payload )
+						.done( function( authResponse ) {
+							var payerInfo = authResponse.payer.payer_info;
+							var message =
+								'<strong>Thank you, ' + payerInfo.first_name + '!</strong>' +
+								'<br />' +
+								'Your purchase was successful. <br />' +
+								'We just sent you a confirmation email to ' +
+								'<em>' + payerInfo.email + '</em>.';
+							PaypalExpressCheckout.showMessage( message, buttonDomId );
+							resolve();
+						} )
+						.fail( function( authError ) {
+							var errorMessage = PaypalExpressCheckout.processErrorResponse( paymentError ) ;
+							PaypalExpressCheckout.showError( authError, buttonDomId );
+							reject( new Error( authError.responseJSON.code ) );
+						} );
 				} );
 			}
 
