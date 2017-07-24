@@ -53,6 +53,14 @@ export const SettingsGroup = props => {
 		} );
 	};
 
+	const getInfoText = props.supportLabel
+		? props.supportLabel
+		: __( 'Learn more about %(moduleName)s', {
+			args: {
+				moduleName: module.name
+			}
+		} );
+
 	return (
 		<div className="jp-form-settings-group">
 			<Card className={ classNames( {
@@ -67,14 +75,15 @@ export const SettingsGroup = props => {
 						<div className="jp-module-settings__learn-more">
 							<InfoPopover
 								onClick={ trackInfoClick }
-								screenReaderText={ __( 'Learn more' ) }
+								screenReaderText={ getInfoText }
+								position={ 'left' }
 							>
 								<ExternalLink
 									onClick={ trackLearnMoreClick }
-									icon={ false }
+									icon={ true }
 									href={ support }
 									target="_blank">
-									{ __( 'Learn more' ) }
+									{ getInfoText }
 								</ExternalLink>
 							</InfoPopover>
 						</div>
@@ -90,6 +99,7 @@ export const SettingsGroup = props => {
 
 SettingsGroup.propTypes = {
 	support: React.PropTypes.string,
+	supportLabel: React.PropTypes.string,
 	module: React.PropTypes.object,
 	disableInDevMode: React.PropTypes.bool.isRequired,
 	isDevMode: React.PropTypes.bool.isRequired,
@@ -101,6 +111,7 @@ SettingsGroup.propTypes = {
 
 SettingsGroup.defaultProps = {
 	support: '',
+	supportLabel: '',
 	module: {},
 	disableInDevMode: false,
 	isDevMode: false,

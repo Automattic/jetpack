@@ -24,7 +24,7 @@ export const Likes = moduleSettingsForm(
 					header={ __( 'Like buttons', { context: 'Settings header' } ) }
 					module="likes"
 					hideButton>
-					<SettingsGroup disableInDevMode module={ { module: 'likes' } } support="https://jetpack.com/support/likes/">
+					<SettingsGroup disableInDevMode module={ this.props.getModule( 'likes' ) }>
 						<ModuleToggle
 							slug="likes"
 							disabled={ unavailableInDevMode }

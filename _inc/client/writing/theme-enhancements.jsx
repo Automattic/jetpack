@@ -145,7 +145,7 @@ const ThemeEnhancements = moduleSettingsForm(
 								}
 
 								return (
-									<SettingsGroup hasChild module={ { module: item.module } } key={ `theme_enhancement_${ item.module }` } support={ item.learn_more_button }>
+									<SettingsGroup hasChild module={ this.props.getModule( item.module ) } key={ `theme_enhancement_${ item.module }` }>
 										<FormLegend className="jp-form-label-wide">
 											{
 												item.name
@@ -216,7 +216,7 @@ const ThemeEnhancements = moduleSettingsForm(
 								}
 
 								return (
-									<SettingsGroup hasChild module={ { module: item.module } } key={ `theme_enhancement_${ item.module }` } support={ item.learn_more_button }>
+									<SettingsGroup hasChild module={ this.props.getModule( item.module ) } key={ `theme_enhancement_${ item.module }` }>
 										{
 											<ModuleToggle
 												slug={ item.module }

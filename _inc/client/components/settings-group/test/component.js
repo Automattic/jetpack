@@ -84,6 +84,10 @@ describe( 'SettingsGroup', () => {
 		expect( shallow( <SettingsGroup /> ).find( 'InfoPopover' ) ).to.have.length( 0 );
 	} );
 
+	it( 'uses a custom label for info link if one is provided', () => {
+		expect( shallow( <SettingsGroup module={ testProps } supportLabel={ 'Test' } /> ).find( 'ExternalLink' ).props().children ).to.be.equal( 'Test' );
+	} );
+
 	describe( 'has a fading layer', () => {
 
 		it( 'visible in in Dev Mode', () => {

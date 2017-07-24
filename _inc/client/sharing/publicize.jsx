@@ -61,7 +61,7 @@ export const Publicize = moduleSettingsForm(
 					header={ __( 'Publicize connections', { context: 'Settings header' } ) }
 					module="publicize"
 					hideButton>
-					<SettingsGroup disableInDevMode module={ { module: 'publicize' } } support="https://jetpack.com/support/publicize/">
+					<SettingsGroup disableInDevMode module={ this.props.getModule( 'publicize' ) }>
 						<ModuleToggle
 							slug="publicize"
 							disabled={ unavailableInDevMode }

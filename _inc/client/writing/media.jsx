@@ -24,7 +24,6 @@ import { ModuleToggle } from 'components/module-toggle';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import { getModule } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
 import { getSitePlan } from 'state/site';
 
@@ -78,17 +77,19 @@ const Media = moduleSettingsForm(
 				return null;
 			}
 
-			const photon = this.props.module( 'photon' ),
-				carousel = this.props.module( 'carousel' ),
+			const photon = this.props.getModule( 'photon' ),
+				carousel = this.props.getModule( 'carousel' ),
 				isCarouselActive = this.props.getOptionValue( 'carousel' ),
-				videoPress = this.props.module( 'videopress' ),
+				videoPress = this.props.getModule( 'videopress' ),
 				planClass = getPlanClass( this.props.sitePlan.product_slug );
 
 			const photonSettings = (
 				<SettingsGroup
 					hasChild
 					disableInDevMode
-					module={ photon }>
+					module={ photon }
+					supportLabel={ __( 'Learn about speeding up images' ) }
+					>
 					<ModuleToggle
 						slug="photon"
 						disabled={ this.props.isUnavailableInDevMode( 'photon' ) }
@@ -113,7 +114,7 @@ const Media = moduleSettingsForm(
 			);
 
 			const carouselSettings = (
-				<SettingsGroup module={ { module: 'carousel' } } hasChild support={ carousel.learn_more_button }>
+				<SettingsGroup module={ carousel } hasChild>
 					<ModuleToggle
 						slug="carousel"
 						activated={ isCarouselActive }
@@ -193,7 +194,6 @@ const Media = moduleSettingsForm(
 export default connect(
 	( state ) => {
 		return {
-			module: ( module_name ) => getModule( state, module_name ),
 			isModuleFound: ( module_name ) => _isModuleFound( state, module_name ),
 			sitePlan: getSitePlan( state )
 		};

@@ -61,8 +61,8 @@ export const Ads = moduleSettingsForm(
 					<SettingsGroup
 						disableInDevMode
 						hasChild
-						module={ { module: 'wordads' } }
-						support="https://jetpack.com/support/ads/">
+						module={ this.props.getModule( 'wordads' ) }
+						>
 						<p>
 							{ __( 'Show ads on the first article on your home page or at the end of every page and post. Place additional ads at the top of your site and to any widget area to increase your earnings.' ) }
 							<br />
