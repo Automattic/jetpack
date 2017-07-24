@@ -143,7 +143,7 @@ var PaypalExpressCheckout = {
 					env: env
 				};
 
-				return ( new paypal.Promise( function( resolve, reject ) {
+				return new paypal.Promise( function( resolve, reject ) {
 					jQuery.post( PaypalExpressCheckout.getCreatePaymentEndpoint( blogId ), payload )
 						.done( function( paymentResponse ) {
 							resolve( paymentResponse.id );
@@ -153,7 +153,7 @@ var PaypalExpressCheckout = {
 							PaypalExpressCheckout.showError( errorMessage, buttonDomId );
 							reject( new Error( paymentError.responseJSON.code ) );
 						} );
-				} ) ).catch( PaypalExpressCheckout.log );
+				} ).catch( PaypalExpressCheckout.log );
 			},
 
 			onAuthorize: function( onAuthData ) {
@@ -162,7 +162,7 @@ var PaypalExpressCheckout = {
 					payerId: onAuthData.payerID,
 					env: env
 				};
-				return ( new paypal.Promise( function( resolve, reject ) {
+				return new paypal.Promise( function( resolve, reject ) {
 					jQuery.post( PaypalExpressCheckout.getExecutePaymentEndpoint( blogId, onAuthData.paymentID ), payload )
 						.done( function( authResponse ) {
 							PaypalExpressCheckout.showMessage( authResponse.message, buttonDomId );
@@ -172,7 +172,7 @@ var PaypalExpressCheckout = {
 							PaypalExpressCheckout.showError( authError, buttonDomId );
 							reject( new Error( authError.responseJSON.code ) );
 						} );
-				} ) ).catch( PaypalExpressCheckout.log );
+				} ).catch( PaypalExpressCheckout.log );
 			}
 
 		}, buttonDomId );
