@@ -12,22 +12,24 @@
 		'author-bio-default' => false, // the default setting of the author bio, if it's being displayed or not: true or false (only required if false).
 		'masonry'            => '.site-main', // a CSS selector matching the elements that triggers a masonry refresh if the theme is using a masonry layout.
 		'post-details'       => array(
-			'stylesheet'      => 'themeslug-style', // name of the theme's stylesheet.
-			'date'            => '.posted-on', // a CSS selector matching the elements that display the post date.
-			'categories'      => '.cat-links', // a CSS selector matching the elements that display the post categories.
-			'tags'            => '.tags-links', // a CSS selector matching the elements that display the post tags.
-			'author'          => '.byline', // a CSS selector matching the elements that display the post author.
-			'comment'         => '.comments-link', // a CSS selector matching the elements that display the comment link.
+			'stylesheet'        => 'themeslug-style', // name of the theme's stylesheet.
+			'date'              => '.posted-on', // a CSS selector matching the elements that display the post date.
+			'categories'        => '.cat-links', // a CSS selector matching the elements that display the post categories.
+			'tags'              => '.tags-links', // a CSS selector matching the elements that display the post tags.
+			'author'            => '.byline', // a CSS selector matching the elements that display the post author.
+			'comment'           => '.comments-link', // a CSS selector matching the elements that display the comment link.
 		),
 		'featured-images'    => array(
-			'archive'          => true, // enable or not the featured image check for archive pages: true or false.
-			'archive-default'  => false, // the default setting of the featured image on archive pages, if it's being displayed or not: true or false (only required if false).
-			'post'             => true, // enable or not the featured image check for single posts: true or false.
-			'post-default'     => false, // the default setting of the featured image on single posts, if it's being displayed or not: true or false (only required if false).
-			'page'             => true, // enable or not the featured image check for single pages: true or false.
-			'page-default'     => false, // the default setting of the featured image on single pages, if it's being displayed or not: true or false (only required if false).
-			'fallback'         => true, // enable or not the featured image fallback: true or false.
-			'fallback-default' => true, // the default setting for featured image fallbacks: true or false (only required if false)
+			'archive'           => true, // enable or not the featured image check for archive pages: true or false.
+			'archive-default'   => false, // the default setting of the featured image on archive pages, if it's being displayed or not: true or false (only required if false).
+			'post'              => true, // enable or not the featured image check for single posts: true or false.
+			'post-default'      => false, // the default setting of the featured image on single posts, if it's being displayed or not: true or false (only required if false).
+			'page'              => true, // enable or not the featured image check for single pages: true or false.
+			'page-default'      => false, // the default setting of the featured image on single pages, if it's being displayed or not: true or false (only required if false).
+			'portfolio'         => true, // enable or not the featured image check for single projects: true or false.
+			'portfolio-default' => false, // the default setting of the featured image on single projects, if it's being displayed or not: true or false (only required if false).
+			'fallback'          => true, // enable or not the featured image fallback: true or false.
+			'fallback-default'  => true, // the default setting for featured image fallbacks: true or false (only required if false)
 		),
 	) );
  *
@@ -74,21 +76,24 @@ function jetpack_featured_images_get_settings() {
 	$featured_images = ( ! empty( $options[0]['featured-images'] ) ) ? $options[0]['featured-images'] : null;
 
 	$settings        = array(
-		'archive'          => ( ! empty( $featured_images['archive'] ) ) ? $featured_images['archive'] : null,
-		'post'             => ( ! empty( $featured_images['post'] ) ) ? $featured_images['post'] : null,
-		'page'             => ( ! empty( $featured_images['page'] ) ) ? $featured_images['page'] : null,
-		'archive-default'  => ( isset( $featured_images['archive-default'] ) && false === $featured_images['archive-default'] ) ? '' : 1,
-		'post-default'     => ( isset( $featured_images['post-default'] ) && false === $featured_images['post-default'] ) ? '' : 1,
-		'page-default'     => ( isset( $featured_images['page-default'] ) && false === $featured_images['page-default'] ) ? '' : 1,
-		'fallback'         => ( ! empty( $featured_images['fallback'] ) ) ? $featured_images['fallback'] : null,
-		'fallback-default' => ( isset( $featured_images['fallback-default'] ) && false === $featured_images['fallback-default'] ) ? '' : 1,
+		'archive'           => ( ! empty( $featured_images['archive'] ) ) ? $featured_images['archive'] : null,
+		'post'              => ( ! empty( $featured_images['post'] ) ) ? $featured_images['post'] : null,
+		'page'              => ( ! empty( $featured_images['page'] ) ) ? $featured_images['page'] : null,
+		'portfolio'         => ( ! empty( $featured_images['portfolio'] ) ) ? $featured_images['portfolio'] : null,
+		'archive-default'   => ( isset( $featured_images['archive-default'] ) && false === $featured_images['archive-default'] ) ? '' : 1,
+		'post-default'      => ( isset( $featured_images['post-default'] ) && false === $featured_images['post-default'] ) ? '' : 1,
+		'page-default'      => ( isset( $featured_images['page-default'] ) && false === $featured_images['page-default'] ) ? '' : 1,
+		'portfolio-default' => ( isset( $featured_images['portfolio-default'] ) && false === $featured_images['portfolio-default'] ) ? '' : 1,
+		'fallback'          => ( ! empty( $featured_images['fallback'] ) ) ? $featured_images['fallback'] : null,
+		'fallback-default'  => ( isset( $featured_images['fallback-default'] ) && false === $featured_images['fallback-default'] ) ? '' : 1,
 	);
 
 	$settings        = array_merge( $settings, array(
-		'archive-option'  => get_option( 'jetpack_content_featured_images_archive', $settings['archive-default'] ),
-		'post-option'     => get_option( 'jetpack_content_featured_images_post', $settings['post-default'] ),
-		'page-option'     => get_option( 'jetpack_content_featured_images_page', $settings['page-default'] ),
-		'fallback-option' => get_option( 'jetpack_content_featured_images_fallback', $settings['fallback-default'] ),
+		'archive-option'   => get_option( 'jetpack_content_featured_images_archive', $settings['archive-default'] ),
+		'post-option'      => get_option( 'jetpack_content_featured_images_post', $settings['post-default'] ),
+		'page-option'      => get_option( 'jetpack_content_featured_images_page', $settings['page-default'] ),
+		'portfolio-option' => get_option( 'jetpack_content_featured_images_portfolio', $settings['portfolio-default'] ),
+		'fallback-option'  => get_option( 'jetpack_content_featured_images_fallback', $settings['fallback-default'] ),
 	) );
 
 	return $settings;
