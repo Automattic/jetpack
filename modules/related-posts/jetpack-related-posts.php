@@ -1449,7 +1449,16 @@ EOT;
 	protected function _enqueue_assets( $script, $style ) {
 		$dependencies = is_customize_preview() ? array( 'customize-base' ) : array( 'jquery' );
 		if ( $script ) {
-			wp_enqueue_script( 'jetpack_related-posts', plugins_url( 'related-posts.js', __FILE__ ), $dependencies, self::VERSION );
+			$file_name = Jetpack::should_load_minified_js()
+				? 'related-posts.min.js'
+				: 'related-posts.js';
+
+			wp_enqueue_script(
+				'jetpack_related-posts',
+				plugins_url( $file_name, __FILE__ ),
+				$dependencies,
+				self::VERSION
+			);
 			$related_posts_js_options = array(
 				/**
 				 * Filter each Related Post Heading structure.

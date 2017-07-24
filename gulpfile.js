@@ -29,7 +29,9 @@ var autoprefixer = require( 'gulp-autoprefixer' ),
 	util = require( 'gulp-util' ),
 	webpack = require( 'webpack' );
 
-var admincss, frontendcss,
+var admincss,
+	frontendcss,
+	frontendjs,
 	meta = require( './package.json' );
 
 function onBuild( done ) {
@@ -65,7 +67,7 @@ function onBuild( done ) {
 				.pipe( uglify() )
 				.pipe( gulp.dest( '_inc/build' ) )
 				.on( 'end', function() {
-					gutil.log( 'Your JS is now uglified!' );
+					gutil.log( 'Your admin page JS is now uglified!' );
 				} );;
 		}
 
@@ -295,6 +297,29 @@ frontendcss = [
 	'modules/widgets/flickr/style.css'
 ];
 
+frontendjs = [
+	'modules/carousel/jetpack-carousel.js',
+	'modules/holiday-snow/snowstorm.js',
+	'modules/infinite-scroll/infinity.js',
+	'modules/photon/photon.js',
+	'modules/related-posts/related-posts.js',
+	'modules/sharedaddy/sharing.js',
+	'modules/tiled-gallery/tiled-gallery/tiled-gallery.js',
+	'modules/shortcodes/js/gist.js',
+	'modules/shortcodes/js/instagram.js',
+	'modules/shortcodes/js/impress.js',
+	'modules/shortcodes/js/jquery.cycle.js',
+	'modules/shortcodes/js/main.js',
+	'modules/shortcodes/js/recipes.js',
+	'modules/shortcodes/js/recipes-printthis.js',
+	'modules/shortcodes/js/slideshow-shortcode.js',
+	'modules/wpgroho.js',
+	'_inc/spin.js',
+	'_inc/jquery.spin.js',
+	'_inc/twitter-timeline.js',
+	'_inc/facebook-embed.js'
+];
+
 gulp.task( 'old-styles:watch', function() {
 	gulp.watch( 'scss/**/*.scss', ['old-sass'] );
 } );
@@ -354,6 +379,19 @@ gulp.task( 'frontendcss', function() {
 		.pipe( gulp.dest( 'css' ) )
 		.on( 'end', function() {
 			console.log( 'Front end modules CSS finished.' );
+		} );
+} );
+
+gulp.task( 'frontendjs', function() {
+	return gulp.src( frontendjs )
+		.pipe( uglify() )
+		.pipe( banner( '/* Do not modify this file directly. It is minified from other JS files. */\n' ) )
+		.pipe( rename( { suffix: '.min' } ) )
+		.pipe( gulp.dest( function( file ) {
+			return file.base;
+		} ) )
+		.on( 'end', function() {
+			console.log( 'Your frontend JS is now uglified.' );
 		} );
 } );
 
@@ -640,11 +678,12 @@ gulp.task( 'languages:extract', function( done ) {
 // Default task
 gulp.task(
 	'default',
-	['react:build', 'old-styles', 'checkstrings', 'php:lint', 'js:hint', 'php:module-headings']
+	['react:build', 'old-styles', 'checkstrings', 'php:lint', 'js:hint', 'php:module-headings', 'frontendjs']
+
 );
 gulp.task(
 	'watch',
-	['react:watch', 'sass:watch', 'old-styles:watch']
+	['react:watch', 'sass:watch', 'old-styles:watch', 'frontendjs']
 );
 
 gulp.task( 'jshint', ['js:hint'] );

@@ -797,6 +797,21 @@ class Jetpack {
 	}
 
 	/**
+	 * Helper function to determine whether minified JS should be loaded.
+	 *
+	 * @since 4.8.0
+	 *
+	 * @return bool
+	 */
+	public static function should_load_minified_js() {
+		return (
+			! is_admin() &&
+			! ( Jetpack_Constants::is_defined( 'SCRIPT_DEBUG' ) && Jetpack_Constants::get_constant( 'SCRIPT_DEBUG') ) &&
+			! ( Jetpack_Constants::is_defined( 'IS_WPCOM' ) && Jetpack_Constants::get_constant( 'IS_WPCOM' ) )
+		);
+	}
+
+	/**
 	 * Register assets for use in various modules and the Jetpack admin page.
 	 *
 	 * @uses wp_script_is, wp_register_script, plugins_url
@@ -804,12 +819,19 @@ class Jetpack {
 	 * @return null
 	 */
 	public function register_assets() {
+		$load_minified = self::should_load_minified_js();
 		if ( ! wp_script_is( 'spin', 'registered' ) ) {
-			wp_register_script( 'spin', plugins_url( '_inc/spin.js', JETPACK__PLUGIN_FILE ), false, '1.3' );
+			$file_path = $load_minified
+				? '_inc/spin.min.js'
+				: '_inc/spin.js';
+			wp_register_script( 'spin', plugins_url( $file_path, JETPACK__PLUGIN_FILE ), false, '1.3' );
 		}
 
 		if ( ! wp_script_is( 'jquery.spin', 'registered' ) ) {
-			wp_register_script( 'jquery.spin', plugins_url( '_inc/jquery.spin.js', JETPACK__PLUGIN_FILE ) , array( 'jquery', 'spin' ), '1.3' );
+			$file_path = $load_minified
+				? '_inc/jquery.spin.min.js'
+				: '_inc/jquery.spin.js';
+			wp_register_script( 'jquery.spin', plugins_url( $file_path, JETPACK__PLUGIN_FILE ) , array( 'jquery', 'spin' ), '1.3' );
 		}
 
 		if ( ! wp_script_is( 'jetpack-gallery-settings', 'registered' ) ) {
@@ -817,11 +839,17 @@ class Jetpack {
 		}
 
 		if ( ! wp_script_is( 'jetpack-twitter-timeline', 'registered' ) ) {
-			wp_register_script( 'jetpack-twitter-timeline', plugins_url( '_inc/twitter-timeline.js', JETPACK__PLUGIN_FILE ) , array( 'jquery' ), '4.0.0', true );
+			$file_path = $load_minified
+				? '_inc/twitter-timeline.min.js'
+				: '_inc/twitter-timeline.js';
+			wp_register_script( 'jetpack-twitter-timeline', plugins_url( $file_path, JETPACK__PLUGIN_FILE ) , array( 'jquery' ), '4.0.0', true );
 		}
 
 		if ( ! wp_script_is( 'jetpack-facebook-embed', 'registered' ) ) {
-			wp_register_script( 'jetpack-facebook-embed', plugins_url( '_inc/facebook-embed.js', __FILE__ ), array( 'jquery' ), null, true );
+			$file_path = $load_minified
+				? '_inc/facebook-embed.min.js'
+				: '_inc/facebook-embed.js';
+			wp_register_script( 'jetpack-facebook-embed', plugins_url( $file_path, __FILE__ ), array( 'jquery' ), null, true );
 
 			/** This filter is documented in modules/sharedaddy/sharing-sources.php */
 			$fb_app_id = apply_filters( 'jetpack_sharing_facebook_app_id', '249643311490' );

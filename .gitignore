@@ -15,6 +15,27 @@ npm-debug.log
 tests/php/files/jetpack-150x150.jpg
 *.unison.tmp
 
+## Minified JS that should not be source-controlled.
+## See frontendjs array in gulpfile.js
+_inc/facebook-embed.min.js
+_inc/jquery.spin.min.js
+_inc/spin.min.js
+_inc/twitter-timeline.min.js
+modules/carousel/jetpack-carousel.min.js
+modules/holiday-snow/snowstorm.min.js
+modules/infinite-scroll/infinity.min.js
+modules/photon/photon.min.js
+modules/related-posts/related-posts.min.js
+modules/sharedaddy/sharing.min.js
+modules/shortcodes/js/gist.min.js
+modules/shortcodes/js/instagram.min.js
+modules/shortcodes/js/main.min.js
+modules/shortcodes/js/recipes-printthis.min.js
+modules/shortcodes/js/recipes.min.js
+modules/shortcodes/js/slideshow-shortcode.min.js
+modules/tiled-gallery/tiled-gallery/tiled-gallery.min.js
+modules/wpgroho.min.js
+
 ## Things we will need in release branches
 /_inc/build
 /modules/**/*.min.css

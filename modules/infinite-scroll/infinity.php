@@ -405,8 +405,18 @@ class The_Neverending_Home_Page {
 		if ( empty( $id ) )
 			return;
 
+		$file_name = Jetpack::should_load_minified_js()
+			? 'infinity.min.js'
+			: 'infinity.js';
+
 		// Add our scripts.
-		wp_register_script( 'the-neverending-homepage', plugins_url( 'infinity.js', __FILE__ ), array( 'jquery' ), '4.0.0', true );
+		wp_register_script(
+			'the-neverending-homepage',
+			plugins_url( $file_name, __FILE__ ),
+			array( 'jquery' ),
+			'4.0.0',
+			true
+		);
 
 		// Add our default styles.
 		wp_register_style( 'the-neverending-homepage', plugins_url( 'infinity.css', __FILE__ ), array(), '20140422' );
