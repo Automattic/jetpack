@@ -86,7 +86,7 @@ class Jetpack_Simple_Payments {
 			get_post_meta( $product->ID, 'spay_currency', true ),
 			$data
 		);
-
+		$data['id'] = $attrs['id'];
 		if ( ! wp_script_is( 'paypal-express-checkout','enqueued' ) ) {
 			wp_enqueue_script( 'paypal-express-checkout' );
 		}
