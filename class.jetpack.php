@@ -5797,9 +5797,10 @@ p {
 	 * @return array Array of the local urls, wpcom urls, and error code
 	 */
 	public static function get_sync_error_idc_option( $response = array() ) {
+		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-functions.php';
 		$local_options = array(
-			'home' => get_home_url(),
-			'siteurl' => get_site_url(),
+			'home'    => Jetpack_Sync_Functions::home_url(),
+			'siteurl' => Jetpack_Sync_Functions::site_url(),
 		);
 
 		$options = array_merge( $local_options, $response );

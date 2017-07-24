@@ -113,6 +113,7 @@ class Jetpack_Sync_Actions {
 	}
 
 	static function send_data( $data, $codec_name, $sent_timestamp, $queue_id, $checkout_duration, $preprocess_duration ) {
+		require_once dirname( __FILE__ ) . '/class.jetpack-sync-functions.php';
 		Jetpack::load_xml_rpc_client();
 
 		$query_args = array(
@@ -120,8 +121,8 @@ class Jetpack_Sync_Actions {
 			'codec'     => $codec_name,     // send the name of the codec used to encode the data
 			'timestamp' => $sent_timestamp, // send current server time so we can compensate for clock differences
 			'queue'     => $queue_id,       // sync or full_sync
-			'home'      => get_home_url(),  // Send home url option to check for Identity Crisis server-side
-			'siteurl'   => get_site_url(),  // Send siteurl option to check for Identity Crisis server-side
+			'home'      => Jetpack_Sync_Functions::home_url(),  // Send home url option to check for Identity Crisis server-side
+			'siteurl'   => Jetpack_Sync_Functions::site_url(),  // Send siteurl option to check for Identity Crisis server-side
 			'cd'        => sprintf( '%.4f', $checkout_duration),   // Time spent retrieving queue items from the DB
 			'pd'        => sprintf( '%.4f', $preprocess_duration), // Time spent converting queue items into data to send
 		);

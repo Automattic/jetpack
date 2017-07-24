@@ -145,7 +145,7 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 			return;
 		}
 
-		$callable_checksums = (array) get_option( self::CALLABLES_CHECKSUM_OPTION_NAME, array() );
+		$callable_checksums = (array) Jetpack_Options::get_raw_option( self::CALLABLES_CHECKSUM_OPTION_NAME, array() );
 
 		// only send the callables that have changed
 		foreach ( $callables as $name => $value ) {
@@ -166,7 +166,7 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 				$callable_checksums[ $name ] = $checksum;
 			}
 		}
-		update_option( self::CALLABLES_CHECKSUM_OPTION_NAME, $callable_checksums );
+		Jetpack_Options::update_raw_option( self::CALLABLES_CHECKSUM_OPTION_NAME, $callable_checksums );
 	}
 
 	public function expand_callables( $args ) {

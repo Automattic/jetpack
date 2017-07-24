@@ -340,9 +340,10 @@ class Jetpack_XMLRPC_Server {
 	 * @return array
 	 */
 	function validate_urls_for_idc_mitigation() {
+		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-functions.php';
 		return array(
-			'home'    => get_home_url(),
-			'siteurl' => get_site_url(),
+			'home'    => Jetpack_Sync_Functions::home_url(),
+			'siteurl' => Jetpack_Sync_Functions::site_url(),
 		);
 	}
 
