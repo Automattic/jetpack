@@ -8,44 +8,6 @@
  */
 
 /**
- * Stores legacy image widget data in the database.
- */
-function jetpack_store_legacy_image_widget_options( $option_name, $option_value ){
-	$post = get_page_by_title( $option_name, 'OBJECT', 'jetpack_migration' );
-
-	if ( null !== $post ) {
-		return wp_insert_post( array(
-			'ID' => $post->ID,
-			'post_title' => $option_name,
-			'post_content_filtered' => $option_value,
-			'post_type' => 'jetpack_migration',
-			'post_date' => date( 'Y-m-d H:i:s', time() ),
-		), true );
-	} else {
-		return wp_insert_post( array(
-			'post_title' => $option_name,
-			'post_content_filtered' => $option_value,
-			'post_type' => 'jetpack_migration',
-			'post_date' => date( 'Y-m-d H:i:s', time() ),
-		), true );
-	}
-}
-
-/**
- * Retrieves legacy image widget data.
- */
-function jetpack_get_legacy_image_widget_option( $option_name ) {
-
-	$post = get_page_by_title( $option_name, 'OBJECT', 'jetpack_migration' );
-
-	if ( null !== $post ) {
-		return maybe_unserialize( $post->post_content_filtered );
-	} else {
-		return null;
-	}
-}
-
-/**
  * Migrates all active instances of Jetpack's image widget to Core's media image widget.
  */
 function jetpack_migrate_image_widget() {
@@ -84,13 +46,13 @@ function jetpack_migrate_image_widget() {
 	$sidebars_widgets = wp_get_sidebars_widgets();
 
 	// Persist old and current widgets in backup table.
-	jetpack_store_legacy_image_widget_options( 'widget_image', maybe_serialize( $old_widgets ) );
-	if ( jetpack_get_legacy_image_widget_option( 'widget_image' ) !== $old_widgets ) {
+	jetpack_store_migration_data( 'widget_image', maybe_serialize( $old_widgets ) );
+	if ( jetpack_get_migration_data( 'widget_image' ) !== $old_widgets ) {
 		return false;
 	}
 
-	jetpack_store_legacy_image_widget_options( 'sidebars_widgets', maybe_serialize( $sidebars_widgets ) );
-	if ( jetpack_get_legacy_image_widget_option( 'sidebars_widgets' ) !== $sidebars_widgets ) {
+	jetpack_store_migration_data( 'sidebars_widgets', maybe_serialize( $sidebars_widgets ) );
+	if ( jetpack_get_migration_data( 'sidebars_widgets' ) !== $sidebars_widgets ) {
 		return false;
 	}
 

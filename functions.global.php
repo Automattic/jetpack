@@ -28,3 +28,63 @@ function jetpack_is_automated_transfer_site() {
 	$at_options = get_option( 'at_options', array() );
 	return ! empty( $at_options ) || defined( 'WPCOMSH__PLUGIN_FILE' );
 }
+
+/**
+ * Register post type for migration.
+ *
+ * @since 5.2
+ */
+function jetpack_register_migration_post_type() {
+	register_post_type( 'jetpack_migration', array(
+		'supports'     => array(),
+		'taxonomies'   => array(),
+		'hierarchical' => false,
+		'public'       => false,
+		'has_archive'  => false,
+		'can_export'   => true,
+	) );
+}
+
+/**
+ * Stores migration data in the database.
+ *
+ * @since 5.2
+ *
+ * @param string $option_name
+ * @param bool $option_value
+ *
+ * @return int|WP_Error
+ */
+function jetpack_store_migration_data( $option_name, $option_value ) {
+	jetpack_register_migration_post_type();
+
+	$insert = array(
+		'post_title' => $option_name,
+		'post_content_filtered' => $option_value,
+		'post_type' => 'jetpack_migration',
+		'post_date' => date( 'Y-m-d H:i:s', time() ),
+	);
+
+	$post = get_page_by_title( $option_name, 'OBJECT', 'jetpack_migration' );
+
+	if ( null !== $post ) {
+		$insert['ID'] = $post->ID;
+	}
+
+	return wp_insert_post( $insert, true );
+}
+
+/**
+ * Retrieves legacy image widget data.
+ *
+ * @since 5.2
+ *
+ * @param string $option_name
+ *
+ * @return mixed|null
+ */
+function jetpack_get_migration_data( $option_name ) {
+	$post = get_page_by_title( $option_name, 'OBJECT', 'jetpack_migration' );
+
+	return null !== $post ? maybe_unserialize( $post->post_content_filtered ) : null;
+}
