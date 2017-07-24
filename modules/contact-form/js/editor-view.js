@@ -67,9 +67,7 @@
 				index = 0,
 				named,
 				fields = '',
-				stylesheet_url = ( 1 === window.isRtl )
-					? grunionEditorView.inline_editing_style_rtl
-					: grunionEditorView.inline_editing_style,
+				stylesheet_url = ( 1 === window.isRtl ) ? grunionEditorView.inline_editing_style_rtl : grunionEditorView.inline_editing_style,
 				$stylesheet = $( '<link rel="stylesheet" href="' + stylesheet_url + '" />' ),
 				$dashicons_css = $( '<link rel="stylesheet" href="' + grunionEditorView.dashicons_css_url + '" />' ),
 				$editfields,
