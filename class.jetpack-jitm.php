@@ -283,7 +283,7 @@ class Jetpack_JITM {
 			}
 
 			$normalized_site_url      = Jetpack::build_raw_urls( get_home_url() );
-			$envelope->url            = 'https://jetpack.com/redirect/?source=jitm-' . $envelope->id . '&site=' . $normalized_site_url;
+			$envelope->url            = 'https://jetpack.com/redirect/?source=jitm-' . $envelope->id . '&site=' . $normalized_site_url . '&u=' . $user->ID;
 			$envelope->jitm_stats_url = Jetpack::build_stats_url( array( 'x_jetpack-jitm' => $envelope->id ) );
 
 			if ( $envelope->CTA->hook ) {
