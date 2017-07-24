@@ -150,13 +150,16 @@ class Jetpack_Sync_Functions {
 	 *
 	 * @return string
 	 */
-	public static function get_raw_or_filtered_url( $url_type, $url_function) {
+	public static function get_raw_or_filtered_url( $url_type ) {
 		if (
 			! Jetpack_Constants::is_defined( 'JETPACK_SYNC_USE_RAW_URL' ) ||
 			Jetpack_Constants::get_constant( 'JETPACK_SYNC_USE_RAW_URL' )
 		) {
 			$url = self::get_raw_url( $url_type );
 		} else {
+			$url_function = ( 'home' == $url_type )
+				? 'home_url'
+				: 'site_url';
 			$url = self::normalize_www_in_url( $url_type, $url_function );
 			$url = self::get_protocol_normalized_url( $url_function, $url );
 		}
@@ -165,7 +168,7 @@ class Jetpack_Sync_Functions {
 	}
 
 	public static function home_url() {
-		$url = self::get_raw_or_filtered_url( 'home', 'home_url' );
+		$url = self::get_raw_or_filtered_url( 'home' );
 
 		/**
 		 * Allows overriding of the home_url value that is synced back to WordPress.com.
@@ -178,7 +181,7 @@ class Jetpack_Sync_Functions {
 	}
 
 	public static function site_url() {
-		$url = self::get_raw_or_filtered_url( 'siteurl', 'site_url' );
+		$url = self::get_raw_or_filtered_url( 'siteurl' );
 
 		/**
 		 * Allows overriding of the site_url value that is synced back to WordPress.com.
@@ -218,10 +221,12 @@ class Jetpack_Sync_Functions {
 
 	public static function get_raw_url( $option_name ) {
 		$value = null;
-		if ( 'home' == $option_name && Jetpack_Constants::is_defined( 'WP_HOME' ) ) {
-			$value = Jetpack_Constants::get_constant( 'WP_HOME' );
-		} else if ( 'siteurl' == $option_name && Jetpack_Constants::is_defined( 'WP_SITEURL' ) ) {
-			$value = Jetpack_Constants::get_constant( 'WP_SITEURL' );
+		$constant = ( 'home' == $option_name )
+			? 'WP_HOME'
+			: 'WP_SITEURL';
+
+		if ( Jetpack_Constants::is_defined( $constant ) ) {
+			$value = Jetpack_Constants::get_constant( $constant );
 		} else {
 			// Let's get the option from the database so that we can bypass filters. This will help
 			// ensure that we get more uniform values.
