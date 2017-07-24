@@ -88,7 +88,7 @@ class Jetpack_Simple_Payments {
 		$items = '';
 		if ( $data['multiple'] ) {
 		       $items="<div class='jetpack-simple-payments-items'>
-		       <input class='jetpack-simple-payments-items-number' type='number' value='1' id='{$data['dom_id']}_number'>
+		       <input class='jetpack-simple-payments-items-number' type='number' min='1' value='1' id='{$data['dom_id']}_number'>
 		       </div>";
 		}
 		$output = "
