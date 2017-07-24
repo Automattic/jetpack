@@ -101,7 +101,9 @@ var PaypalExpressCheckout = {
 		if ( error.additional_errors ) {
 			var messages = [];
 			error.additional_errors.forEach( function( error ) {
-				messages.push( '<p>' + error.message.toString() + '</p>' );
+				if ( error.message ) {
+					messages.push( '<p>' + error.message.toString() + '</p>' );
+				}
 			} );
 			return messages.join();
 		}
@@ -119,9 +121,6 @@ var PaypalExpressCheckout = {
 		var env = PaypalExpressCheckout.sandbox ? 'sandbox' : 'production';
 		if ( ! paypal ) {
 			throw new Error( 'PayPal module is required by PaypalExpressCheckout' );
-		}
-		if ( ! jQuery ) {
-			throw new Error( 'jQuery library is required by PaypalExpressCheckout' );
 		}
 
 		var buttonDomId = domId + '_button';
@@ -169,7 +168,7 @@ var PaypalExpressCheckout = {
 						} )
 						.fail( function( authError ) {
 							PaypalExpressCheckout.showError( authError, buttonDomId );
-							reject( new Error( authError.responseJSON.code ) );
+							reject();
 						} );
 				} );
 			}
