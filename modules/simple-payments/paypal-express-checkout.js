@@ -15,7 +15,7 @@ var PaypalExpressCheckout = {
 	wpRestAPIHost: 'https://public-api.wordpress.com',
 	wpRestAPIVersion: '/wpcom/v2',
 
-	sandbox: false,
+	sandbox: true,
 
 	getCreatePaymentEndpoint: function( blogId ) {
 		return PaypalExpressCheckout.wpRestAPIHost + PaypalExpressCheckout.wpRestAPIVersion + '/sites/' + blogId + '/simple-payments/paypal/payment';
