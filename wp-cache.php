@@ -2193,9 +2193,9 @@ function wp_cache_replace_line($old, $new, $my_file) {
 	if ($found) {
 		$fd = fopen($my_file, 'w');
 		foreach( (array)$lines as $line ) {
-			if ( !preg_match("/$old/", $line))
+			if ( !preg_match( "/$old/", $line ) ) {
 				fputs($fd, $line);
-			else {
+			} elseif ( $new != '' ) {
 				fputs($fd, "$new //Added by WP-Cache Manager\n");
 			}
 		}
@@ -3545,8 +3545,13 @@ function wp_cache_disable_plugin( $delete_config_file = true ) {
 		$global_config_file = dirname(ABSPATH) . '/wp-config.php';
 	}
 	$line = 'define(\'WP_CACHE\', true);';
-	if ( strpos( file_get_contents( $global_config_file ), $line ) && ( !is_writeable_ACLSafe( $global_config_file ) || !wp_cache_replace_line( 'define *\( *\'WP_CACHE\'', '//' . $line, $global_config_file ) ) )
+	if ( strpos( file_get_contents( $global_config_file ), $line ) && ( !is_writeable_ACLSafe( $global_config_file ) || !wp_cache_replace_line( 'define *\( *\'WP_CACHE\'', '', $global_config_file ) ) ) {
 		wp_die( "Could not remove WP_CACHE define from $global_config_file. Please edit that file and remove the line containing the text 'WP_CACHE'. Then refresh this page." );
+	}
+	$line = 'define( \'WPCACHEHOME\',';
+	if ( strpos( file_get_contents( $global_config_file ), $line ) && ( !is_writeable_ACLSafe( $global_config_file ) || !wp_cache_replace_line( 'define *\( *\'WPCACHEHOME\'', '', $global_config_file ) ) ) {
+		wp_die( "Could not remove WPCACHEHOME define from $global_config_file. Please edit that file and remove the line containing the text 'WPCACHEHOME'. Then refresh this page." );
+	}
 
 	uninstall_supercache( WP_CONTENT_DIR . '/cache' );
 	$file_not_deleted = false;
