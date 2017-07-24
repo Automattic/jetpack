@@ -12,7 +12,7 @@ class Jetpack_Simple_Payments {
 
 	static $shortcode = 'simple-payment';
 
-	static $cssClassnamePrefix = 'jetpack-simple-payments';
+	static $css_classname_prefix = 'jetpack-simple-payments';
 
 	// Classic singleton pattern:
 	private static $instance;
@@ -74,8 +74,8 @@ class Jetpack_Simple_Payments {
 		// We allow for overriding the presentation labels
 		$data = shortcode_atts( array(
 			'blog_id'     => Jetpack_Options::get_option( 'id' ),
-			'dom_id'      => uniqid( self::$cssClassnamePrefix . '-' . $product->ID . '_', true ),
-			'class'       => self::$cssClassnamePrefix . '-' . $product->ID,
+			'dom_id'      => uniqid( self::$css_classname_prefix . '-' . $product->ID . '_', true ),
+			'class'       => self::$css_classname_prefix . '-' . $product->ID,
 			'title'       => get_the_title( $product ),
 			'description' => $product->post_content,
 			'cta'         => get_post_meta( $product->ID, 'spay_cta', true ),
@@ -98,7 +98,7 @@ class Jetpack_Simple_Payments {
 
 	function output_shortcode( $data ) {
 		$items = '';
-		$cssPrefix = self::$cssClassnamePrefix;
+		$cssPrefix = self::$css_classname_prefix;
 
 		if ( $data['multiple'] ) {
 			$items="<div class='${cssPrefix}-items'>
@@ -107,16 +107,16 @@ class Jetpack_Simple_Payments {
 		}
 
 		return "
-			<div class='{$data['class']} ${cssPrefix}-wrapper'>
-				<p class='${cssPrefix}-purchase-message'></p>
-				<div class='${cssPrefix}-title'><p>{$data['title']}</p></div>
-				<div class='${cssPrefix}-description'><p>{$data['description']}</p></div>
-				<div class='${cssPrefix}-purchase-box'>
-					<div class='${cssPrefix}-price'><p>{$data['price']}</p></div>
-					{$items}
-					<div class='${cssPrefix}-button' id='{$data['dom_id']}_button'></div>
-				</div>
-			</div>
+<div class='{$data['class']} ${cssPrefix}-wrapper'>
+	<p class='${cssPrefix}-purchase-message'></p>
+	<div class='${cssPrefix}-title'><p>{$data['title']}</p></div>
+	<div class='${cssPrefix}-description'><p>{$data['description']}</p></div>
+	<div class='${cssPrefix}-purchase-box'>
+		<div class='${cssPrefix}-price'><p>{$data['price']}</p></div>
+		{$items}
+		<div class='${cssPrefix}-button' id='{$data['dom_id']}_button'></div>
+	</div>
+</div>
 		";
 	}
 
