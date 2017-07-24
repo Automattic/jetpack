@@ -98,29 +98,29 @@ class Jetpack_Simple_Payments {
 
 	function output_shortcode( $data ) {
 		$items = '';
-		$cssPrefix = self::$css_classname_prefix;
+		$css_prefix = self::$css_classname_prefix;
 
 		if ( $data['multiple'] ) {
-			$items="<div class='${cssPrefix}-items'>
-				<input class='${cssPrefix}-items-number' type='number' value='1' id='{$data['dom_id']}_number' />
+			$items="<div class='${css_prefix}-items'>
+				<input class='${css_prefix}-items-number' type='number' value='1' id='{$data['dom_id']}_number' />
 			</div>";
 		}
 		$image = "";
 		if( has_post_thumbnail( $data['id'] ) ) {
-			$image = "<div class='${cssPrefix}-image'>" . get_the_post_thumbnail( $data['id'], 'full' ) . "</div>";
+			$image = "<div class='${css_prefix}-image'>" . get_the_post_thumbnail( $data['id'], 'full' ) . "</div>";
 		}
 		return "
-<div class='{$data['class']} ${cssPrefix}-wrapper'>
-	<p class='${cssPrefix}-purchase-message'></p>
-	<div class='${cssPrefix}-product'> 
+<div class='{$data['class']} ${css_prefix}-wrapper'>
+	<p class='${css_prefix}-purchase-message'></p>
+	<div class='${css_prefix}-product'> 
 		{$image}
-		<div class='${cssPrefix}-details'> 
-			<div class='${cssPrefix}-title'><p>{$data['title']}</p></div>
-			<div class='${cssPrefix}-description'><p>{$data['description']}</p></div>
-			<div class='${cssPrefix}-price'><p>{$data['price']}</p></div>
-			<div class='${cssPrefix}-purchase-box'>
+		<div class='${css_prefix}-details'> 
+			<div class='${css_prefix}-title'><p>{$data['title']}</p></div>
+			<div class='${css_prefix}-description'><p>{$data['description']}</p></div>
+			<div class='${css_prefix}-price'><p>{$data['price']}</p></div>
+			<div class='${css_prefix}-purchase-box'>
 				{$items}
-				<div class='${cssPrefix}-button' id='{$data['dom_id']}_button'></div>
+				<div class='${css_prefix}-button' id='{$data['dom_id']}_button'></div>
 			</div>
 		</div>
 	</div>
