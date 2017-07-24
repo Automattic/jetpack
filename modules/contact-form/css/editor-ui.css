@@ -1,0 +1,8 @@
+i.mce-i-grunion {
+	font-family: dashicons;
+	font-size: 20px;
+}
+
+i.mce-i-grunion:before {
+	content: "\f175";
+}
