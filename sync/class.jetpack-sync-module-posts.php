@@ -355,6 +355,8 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 			return;
 		}
 
+		error_log(print_r($post, true));
+
 		// Post revisions cause race conditions where this send_published add the action before the actual post gets synced
 		if ( wp_is_post_autosave( $post ) || wp_is_post_revision( $post ) ) {
 			return;
