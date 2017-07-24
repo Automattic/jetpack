@@ -1,46 +1,67 @@
-
 .jetpack-simple-payments-wrapper {
-	margin: 0.5em 0;
+	margin-bottom: 1.5em;
+}
+
+/* Higher specificity in order to reset paragraph style */
+body .jetpack-simple-payments-wrapper .jetpack-simple-payments-details p {
+	margin: 0 0 1.5em 0;
+	padding: 0;
 }
 
 .jetpack-simple-payments-product {
 	display: flex;
-	flex-direction: row;
+	flex-direction: column;
+}
+
+.jetpack-simple-payments-product-image {
+	flex: 0 0 30%;
+	margin-bottom: 1.5em;
 }
 
 .jetpack-simple-payments-image {
-	margin-right: 15px;
+	border: 1px solid rgba(0, 0, 0, 0.1);
+	box-sizing: border-box;
+	min-width: 70px;
+	padding-top: calc(100% - 2px);
+	position: relative;
 }
 
-.jetpack-simple-payments-title {
+/* Higher specificity in order to trump theme's style */
+body .jetpack-simple-payments-wrapper .jetpack-simple-payments-product-image .jetpack-simple-payments-image img.size-full {
+	border: 0;
+	border-radius: 0;
+	height: auto;
+	left: 50%;
+	margin: 0;
+	max-height: 100%;
+	max-width: 100%;
+	padding: 0;
+	position: absolute;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	width: auto;
+}
+
+.jetpack-simple-payments-title p,
+.jetpack-simple-payments-price p {
 	font-weight: bold;
-	display: block;
-	margin-bottom: 0.3em;
 }
 
-.jetpack-simple-payments-payment-row {
-	margin-top: 0.3em;
-}
-
-.jetpack-simple-payments-price {
-	font-weight: bold;
-	display: inline-block;
-	float: left;
-	margin-right: 15px;
+.jetpack-simple-payments-purchase-box {
+	align-items: flex-start;
+	display: flex;
 }
 
 .jetpack-simple-payments-items {
-	display:inline-block;
-	margin-right: 15px;
+	flex: 0 0 auto;
+	margin-right: 10px;
 }
 
-.jetpack-simple-payments-items input {
-	width: 30px;
-}
-
-.jetpack-simple-payments-button {
-	display: inline-block;
-	float: left;
+input[type="number"].jetpack-simple-payments-items-number {
+	font-size: 16px;
+	line-height: 1;
+	max-width: 60px;
+	padding: 4px 8px;
 }
 
 .jetpack-simple-payments-purchase-message {
@@ -48,7 +69,7 @@
 	padding: 1em;
 }
 
-/* stronger rule in order to set the text color */
+/* Higher specificity in order to set the text color */
 body .jetpack-simple-payments-wrapper p.jetpack-simple-payments-purchase-message {
 	color: #fff;
 }
@@ -63,4 +84,15 @@ body .jetpack-simple-payments-wrapper p.jetpack-simple-payments-purchase-message
 
 .jetpack-simple-payments-purchase-message.error {
 	background-color: #d94f4f;
+}
+
+@media screen and (min-width: 400px) {
+	.jetpack-simple-payments-product {
+		flex-direction: row;
+	}
+
+	.jetpack-simple-payments-product-image + .jetpack-simple-payments-details {
+		flex-basis: 70%;
+		padding-left: 1em;
+	}
 }
