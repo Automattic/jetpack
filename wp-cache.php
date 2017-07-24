@@ -170,7 +170,8 @@ register_deactivation_hook( __FILE__, 'wpsupercache_deactivate' );
 
 function wpsupercache_activate() {
 	global $cache_path;
-	$cache_path = WP_CONTENT_DIR . '/cache/'; // from sample config file
+	if ( ! isset( $cache_path ) || $cache_path == '' )
+		$cache_path = WP_CONTENT_DIR . '/cache/'; // from sample config file
 
 	ob_start();
 	wpsc_init();
