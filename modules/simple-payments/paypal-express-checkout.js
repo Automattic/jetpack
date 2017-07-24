@@ -149,7 +149,7 @@ var PaypalExpressCheckout = {
 						.fail( function( paymentError ) {
 							var errorMessage = PaypalExpressCheckout.processErrorMessage( paymentError );
 							PaypalExpressCheckout.showError( errorMessage, buttonDomId );
-							reject( new Error( paymentError.responseJSON.code ) );
+							reject();
 						} );
 				} );
 			},
