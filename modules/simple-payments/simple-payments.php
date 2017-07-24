@@ -105,7 +105,10 @@ class Jetpack_Simple_Payments {
 				<input class='${cssPrefix}-items-number' type='number' value='1' id='{$data['dom_id']}_number' />
 			</div>";
 		}
-		$image = get_the_post_thumbnail( $data['id'], 'full', array( 'class' => "${cssPrefix}-image" ) );
+		$image = "";
+		if( has_post_thumbnail( $data['id'] ) ) {
+			$image = "<div class='${cssPrefix}-image'>" . get_the_post_thumbnail( $data['id'], 'full' ) . "</div>";
+		}
 		return "
 <div class='{$data['class']} ${cssPrefix}-wrapper'>
 	<p class='${cssPrefix}-purchase-message'></p>
@@ -114,8 +117,8 @@ class Jetpack_Simple_Payments {
 		<div class='${cssPrefix}-details'> 
 			<div class='${cssPrefix}-title'><p>{$data['title']}</p></div>
 			<div class='${cssPrefix}-description'><p>{$data['description']}</p></div>
+			<div class='${cssPrefix}-price'><p>{$data['price']}</p></div>
 			<div class='${cssPrefix}-purchase-box'>
-				<div class='${cssPrefix}-price'><p>{$data['price']}</p></div>
 				{$items}
 				<div class='${cssPrefix}-button' id='{$data['dom_id']}_button'></div>
 			</div>
