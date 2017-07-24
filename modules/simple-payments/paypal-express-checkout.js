@@ -9,25 +9,34 @@
 /* exported PaypalExpressCheckout */
 /* jshint unused:false, es3:false, esversion:5 */
 var PaypalExpressCheckout = {
+	primaryCssClassName: 'jetpack-simple-payments',
+	messageCssClassName: 'jetpack-simple-payments-purchase-message',
+
+	wpRestAPIHost: 'https://public-api.wordpress.com',
+	wpRestAPIVersion: '/wpcom/v2',
+
 	sandbox: true,
-	$purchaseMessageContainer: null,
+
 	getCreatePaymentEndpoint: function( blogId ) {
-		return 'https://public-api.wordpress.com/wpcom/v2/sites/' + blogId + '/simple-payments/paypal/payment';
+		return PaypalExpressCheckout.wpRestAPIHost + PaypalExpressCheckout.wpRestAPIVersion + '/sites/' + blogId + '/simple-payments/paypal/payment';
 	},
+
 	getExecutePaymentEndpoint: function( blogId, paymentId ) {
-		return 'https://public-api.wordpress.com/wpcom/v2/sites/' + blogId + '/simple-payments/paypal/' + paymentId + '/execute';
+		return PaypalExpressCheckout.wpRestAPIHost + PaypalExpressCheckout.wpRestAPIVersion + '/sites/' + blogId + '/simple-payments/paypal/' + paymentId + '/execute';
 	},
+
 	getNumberOfItems: function( field, enableMultiple ) {
-		var numberField, number;
 		if ( enableMultiple !== '1' ) {
 			return 1;
 		}
-		numberField = document.getElementById( field );
+
+		var numberField = document.getElementById( field );
 
 		if ( ! numberField ) {
 			return 1;
 		}
-		number = Number( numberField.value );
+
+		var number = Number( numberField.value );
 
 		if ( isNaN( number ) ) {
 			return 1;
@@ -42,7 +51,7 @@ var PaypalExpressCheckout = {
 	 * @param  string buttonDomId id of the payment button placeholder
 	 * @return Element the dom element to print the message
 	 */
-	getMessageElement: function ( buttonDomId ) {
+	getMessageElement: function( buttonDomId ) {
 		var messageDomId = buttonDomId + '_message';
 
 		// DOM Elements
@@ -76,7 +85,7 @@ var PaypalExpressCheckout = {
 		var domEl = PaypalExpressCheckout.getMessageElement( buttonDomId );
 
 		// set css classes
-		var cssClasses = 'jetpack-simple-payments__purchase-message show ';
+		var cssClasses = PaypalExpressCheckout.messageCssClassName + ' show ';
 		cssClasses += isError ? 'error' : 'success';
 
 		// show message 1s after Paypal popup is closed
@@ -100,7 +109,7 @@ var PaypalExpressCheckout = {
 
 		if ( error.additional_errors ) {
 			var messages = [];
-			error.additional_errors.forEach( function( error ) {
+			error.additional_errors.forEach( function() {
 				if ( error.message ) {
 					messages.push( '<p>' + error.message.toString() + '</p>' );
 				}
@@ -113,7 +122,7 @@ var PaypalExpressCheckout = {
 
 	cleanAndHideMessage: function( buttonDomId ) {
 		var domEl = PaypalExpressCheckout.getMessageElement( buttonDomId );
-		domEl.setAttribute( 'class', 'jetpack-simple-payments__purchase-message' );
+		domEl.setAttribute( 'class', PaypalExpressCheckout.messageCssClassName );
 		domEl.innerHTML = '';
 	},
 
@@ -128,10 +137,13 @@ var PaypalExpressCheckout = {
 		paypal.Button.render( {
 			env: env,
 			commit: true,
+
 			style: {
 				label: 'pay',
-				color: 'blue'
+				shape: 'rect',
+				color: 'silver'
 			},
+
 			payment: function() {
 				PaypalExpressCheckout.cleanAndHideMessage( buttonDomId );
 
@@ -172,7 +184,6 @@ var PaypalExpressCheckout = {
 						} );
 				} );
 			}
-
 		}, buttonDomId );
 	}
 };
