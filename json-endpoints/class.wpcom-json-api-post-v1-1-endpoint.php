@@ -118,10 +118,8 @@ abstract class WPCOM_JSON_API_Post_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint
 			$keys_to_render = array_intersect( $keys_to_render, $limit_to_fields );
 		}
 
-		// always include 'type' because processors require it to validate access
-		if ( ! in_array( 'type', $keys_to_render ) ) {
-			array_push( $keys_to_render, 'type' );
-		}
+		// always include some keys because processors require it to validate access
+		$keys_to_render = array_unique( array_merge( $keys_to_render, array( 'type', 'status', 'password' ) ) );
 
 		$response = $this->render_response_keys( $post, $context, $keys_to_render );
 
