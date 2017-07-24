@@ -133,7 +133,7 @@ var PaypalExpressCheckout = {
 				label: 'pay',
 				color: 'blue'
 			},
-			payment: function( paymentData ) {
+			payment: function() {
 				PaypalExpressCheckout.cleanAndHideMessage( buttonDomId );
 
 				var payload = {
@@ -148,7 +148,7 @@ var PaypalExpressCheckout = {
 							resolve( paymentResponse.id );
 						} )
 						.fail( function( paymentError ) {
-							var errorMessage = PaypalExpressCheckout.processErrorMessage( paymentError ) ;
+							var errorMessage = PaypalExpressCheckout.processErrorMessage( paymentError );
 							PaypalExpressCheckout.showError( errorMessage, buttonDomId );
 							reject( new Error( paymentError.responseJSON.code ) );
 						} );
@@ -164,18 +164,10 @@ var PaypalExpressCheckout = {
 				return new paypal.Promise( function( resolve, reject ) {
 					jQuery.post( PaypalExpressCheckout.getExecutePaymentEndpoint( blogId, onAuthData.paymentID ), payload )
 						.done( function( authResponse ) {
-							var payerInfo = authResponse.payer.payer_info;
-							var message =
-								'<strong>Thank you, ' + payerInfo.first_name + '!</strong>' +
-								'<br />' +
-								'Your purchase was successful. <br />' +
-								'We just sent you a confirmation email to ' +
-								'<em>' + payerInfo.email + '</em>.';
-							PaypalExpressCheckout.showMessage( message, buttonDomId );
+							PaypalExpressCheckout.showMessage( authResponse.message, buttonDomId );
 							resolve();
 						} )
 						.fail( function( authError ) {
-							var errorMessage = PaypalExpressCheckout.processErrorResponse( paymentError ) ;
 							PaypalExpressCheckout.showError( authError, buttonDomId );
 							reject( new Error( authError.responseJSON.code ) );
 						} );
