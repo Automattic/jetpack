@@ -45,6 +45,16 @@ class Jetpack_Simple_Payments {
 		$this->register_scripts();
 		$this->register_shortcode();
 		$this->setup_cpts();
+
+		add_filter( 'the_content', array( $this, 'remove_auto_paragraph_from_product_description' ), 0 );
+	}
+
+	function remove_auto_paragraph_from_product_description( $content ) {
+		if ( get_post_type() === self::$post_type_product ) {
+			remove_filter( 'the_content', 'wpautop' );
+		}
+
+		return $content;
 	}
 
 	function parse_shortcode( $attrs, $content = false ) {
