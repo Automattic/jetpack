@@ -135,7 +135,10 @@ class Jetpack_Likes {
 	 */
 	function load_styles_register_scripts() {
 		if ( $this->in_jetpack ) {
-			wp_enqueue_style( 'jetpack_likes', plugins_url( 'likes/style.css', __FILE__ ), array(), JETPACK__VERSION );
+			if ( ! wp_style_is( 'open-sans', 'registered' ) ) {
+				wp_register_style( 'open-sans', 'https://fonts.googleapis.com/css?family=Open+Sans', array(), JETPACK__VERSION );
+			}
+			wp_enqueue_style( 'jetpack_likes', plugins_url( 'likes/style.css', __FILE__ ), array( 'open-sans' ), JETPACK__VERSION );
 			$this->register_scripts();
 		}
 	}
