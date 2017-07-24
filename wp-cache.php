@@ -602,7 +602,7 @@ function wp_cache_manager_updates() {
 			$super_cache_enabled = false;
 		}
 
-		if ( $_POST[ 'wp_cache_mod_rewrite' ] == 1 ) {
+		if ( isset( $_POST[ 'wp_cache_mod_rewrite' ] ) && $_POST[ 'wp_cache_mod_rewrite' ] == 1 ) {
 			$wp_cache_mod_rewrite = 1;
 			add_mod_rewrite_rules();
 		} else {
