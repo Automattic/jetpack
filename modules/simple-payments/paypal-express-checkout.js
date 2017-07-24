@@ -4,25 +4,27 @@
  * of simple-payments module.
  */
 
-var primaryCssClassName = 'jetpack-simple-payments';
-var messageCssClassName = primaryCssClassName + '-purchase-message';
-
-var wpRestAPIHost = 'https://public-api.wordpress.com';
-var wpRestAPIVersion = '/wpcom/v2';
+var PaypalExpressCheckout = {};
 
 /* global paypal */
 /* global jQuery */
 /* exported PaypalExpressCheckout */
 /* jshint unused:false, es3:false, esversion:5 */
-var PaypalExpressCheckout = {
+PaypalExpressCheckout = {
+	primaryCssClassName: 'jetpack-simple-payments',
+	messageCssClassName: PaypalExpressCheckout.primaryCssClassName + '-purchase-message',
+
+	wpRestAPIHost: 'https://public-api.wordpress.com',
+	wpRestAPIVersion: '/wpcom/v2',
+
 	sandbox: true,
 
 	getCreatePaymentEndpoint: function( blogId ) {
-		return wpRestAPIHost + wpRestAPIVersion + '/sites/' + blogId + '/simple-payments/paypal/payment';
+		return PaypalExpressCheckout.wpRestAPIHost + PaypalExpressCheckout.wpRestAPIVersion + '/sites/' + blogId + '/simple-payments/paypal/payment';
 	},
 
 	getExecutePaymentEndpoint: function( blogId, paymentId ) {
-		return wpRestAPIHost + wpRestAPIVersion + '/sites/' + blogId + '/simple-payments/paypal/' + paymentId + '/execute';
+		return PaypalExpressCheckout.wpRestAPIHost + PaypalExpressCheckout.wpRestAPIVersion + '/sites/' + blogId + '/simple-payments/paypal/' + paymentId + '/execute';
 	},
 
 	getNumberOfItems: function( field, enableMultiple ) {
@@ -84,7 +86,7 @@ var PaypalExpressCheckout = {
 		var domEl = PaypalExpressCheckout.getMessageElement( buttonDomId );
 
 		// set css classes
-		var cssClasses = messageCssClassName + ' show ';
+		var cssClasses = PaypalExpressCheckout.messageCssClassName + ' show ';
 		cssClasses += isError ? 'error' : 'success';
 
 		// show message 1s after Paypal popup is closed
@@ -121,7 +123,7 @@ var PaypalExpressCheckout = {
 
 	cleanAndHideMessage: function( buttonDomId ) {
 		var domEl = PaypalExpressCheckout.getMessageElement( buttonDomId );
-		domEl.setAttribute( 'class', messageCssClassName );
+		domEl.setAttribute( 'class', PaypalExpressCheckout.messageCssClassName );
 		domEl.innerHTML = '';
 	},
 
