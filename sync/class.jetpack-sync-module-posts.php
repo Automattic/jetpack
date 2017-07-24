@@ -346,6 +346,10 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		}
 
 		call_user_func( $this->action_handler, $post_ID, $post, $update, $is_auto_save, $just_published );
+
+		if ( 'customize_changeset' === $post->post_type ) {
+			return;
+		}
 		$this->send_published( $post_ID, $post );
 		$this->send_trashed( $post_ID, $post );
 	}
@@ -354,8 +358,6 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		if ( ! in_array( $post_ID, $this->just_published ) ) {
 			return;
 		}
-
-		error_log(print_r($post, true));
 
 		// Post revisions cause race conditions where this send_published add the action before the actual post gets synced
 		if ( wp_is_post_autosave( $post ) || wp_is_post_revision( $post ) ) {
