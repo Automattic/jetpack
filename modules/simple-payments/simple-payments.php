@@ -99,10 +99,10 @@ class Jetpack_Simple_Payments {
 		return "
 			<div class='{$data['class']} ${cssPrefix}-wrapper'>
 				<p class='${cssPrefix}-purchase-message'></p>
-				<div class='${cssPrefix}-title'>{$data['title']}</div>
-				<p class='${cssPrefix}-description'>{$data['description']}</p>
+				<div class='${cssPrefix}-title'><p>{$data['title']}</p></div>
+				<div class='${cssPrefix}-description'><p>{$data['description']}</p></div>
 				<div class='${cssPrefix}-purchase-box'>
-					<p class='${cssPrefix}-price'>{$data['price']}</p>
+					<div class='${cssPrefix}-price'><p>{$data['price']}</p></div>
 					{$items}
 					<div class='${cssPrefix}-button' id='{$data['dom_id']}_button'></div>
 				</div>
