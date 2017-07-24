@@ -34,10 +34,7 @@ var PaypalExpressCheckout = {
 		}
 		return number;
 	},
-	/**
-	 * To overwrite for debugging needs.
-	 */
-	log: function() {},
+
 	/**
 	 * Get the DOM element-placeholder used to show message
 	 * about the transaction. If it doesn't exist then the function will create a new one.
@@ -119,6 +116,7 @@ var PaypalExpressCheckout = {
 		domEl.setAttribute( 'class', 'jetpack-simple-payments__purchase-message' );
 		domEl.innerHTML = '';
 	},
+
 	renderButton: function( blogId, buttonId, domId, enableMultiple ) {
 		var env = PaypalExpressCheckout.sandbox ? 'sandbox' : 'production';
 		if ( ! paypal ) {
@@ -153,7 +151,7 @@ var PaypalExpressCheckout = {
 							PaypalExpressCheckout.showError( errorMessage, buttonDomId );
 							reject( new Error( paymentError.responseJSON.code ) );
 						} );
-				} ).catch( PaypalExpressCheckout.log );
+				} );
 			},
 
 			onAuthorize: function( onAuthData ) {
@@ -172,7 +170,7 @@ var PaypalExpressCheckout = {
 							PaypalExpressCheckout.showError( authError, buttonDomId );
 							reject( new Error( authError.responseJSON.code ) );
 						} );
-				} ).catch( PaypalExpressCheckout.log );
+				} );
 			}
 
 		}, buttonDomId );
