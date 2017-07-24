@@ -5,6 +5,7 @@
  */
 
 /* global paypal */
+/* global jQuery */
 /* exported PaypalExpressCheckout */
 /* jshint unused:false, es3:false, esversion:5 */
 var PaypalExpressCheckout = {
@@ -89,6 +90,27 @@ var PaypalExpressCheckout = {
 		PaypalExpressCheckout.showMessage( message, buttonDomId, true );
 	},
 
+	processErrorMessage: function( errorResponse ) {
+		var error = errorResponse.responseJSON;
+		var defaultMessage = 'There was an issue processing your payment.';
+
+		if ( ! error ) {
+			return defaultMessage;
+		}
+
+		if ( error.additional_errors ) {
+			var messages = [];
+			error.additional_errors.forEach( function( error ) {
+				if ( error.message ) {
+					messages.push( '<p>' + error.message.toString() + '</p>' );
+				}
+			} );
+			return messages.join();
+		}
+
+		return '<p>' + ( error.message || defaultMessage ) + '</p>';
+	},
+
 	cleanAndHideMessage: function( buttonDomId ) {
 		var domEl = PaypalExpressCheckout.getMessageElement( buttonDomId );
 		domEl.setAttribute( 'class', 'jetpack-simple-payments__purchase-message' );
@@ -101,7 +123,7 @@ var PaypalExpressCheckout = {
 			throw new Error( 'PayPal module is required by PaypalExpressCheckout' );
 		}
 
-		var buttonDomId = domId+ '_button';
+		var buttonDomId = domId + '_button';
 
 		paypal.Button.render( {
 			env: env,
@@ -110,7 +132,7 @@ var PaypalExpressCheckout = {
 				label: 'pay',
 				color: 'blue'
 			},
-			payment: function( paymentData ) {
+			payment: function() {
 				PaypalExpressCheckout.cleanAndHideMessage( buttonDomId );
 
 				var payload = {
@@ -119,37 +141,35 @@ var PaypalExpressCheckout = {
 					env: env
 				};
 
-				return paypal
-					.request
-					.post( PaypalExpressCheckout.getCreatePaymentEndpoint( blogId ), payload )
-					.then( function( paymentResponse ) {
-						return paymentResponse.id;
-					} )
-					.catch( function( paymentError) {
-						PaypalExpressCheckout.showError( 'Item temporarily unavailable', buttonDomId );
-					} );
+				return new paypal.Promise( function( resolve, reject ) {
+					jQuery.post( PaypalExpressCheckout.getCreatePaymentEndpoint( blogId ), payload )
+						.done( function( paymentResponse ) {
+							resolve( paymentResponse.id );
+						} )
+						.fail( function( paymentError ) {
+							var errorMessage = PaypalExpressCheckout.processErrorMessage( paymentError );
+							PaypalExpressCheckout.showError( errorMessage, buttonDomId );
+							reject( new Error( paymentError.responseJSON.code ) );
+						} );
+				} );
 			},
 
 			onAuthorize: function( onAuthData ) {
-				return paypal.request.post( PaypalExpressCheckout.getExecutePaymentEndpoint( blogId, onAuthData.paymentID ), {
+				var payload = {
 					buttonId: buttonId,
 					payerId: onAuthData.payerID,
 					env: env
-				} )
-				.then( function( authResponse ) {
-					var payerInfo = authResponse.payer.payer_info;
-
-					var message =
-						'<strong>Thank you, ' + payerInfo.first_name + '!</strong>' +
-						'<br />' +
-						'Your purchase was successful. <br />' +
-						'We just sent you a confirmation email to ' +
-						'<em>' + payerInfo.email + '</em>.';
-
-					PaypalExpressCheckout.showMessage( message, buttonDomId );
-				} )
-				.catch( function( authError ) {
-					PaypalExpressCheckout.showError( 'Item temporarily unavailable', buttonDomId );
+				};
+				return new paypal.Promise( function( resolve, reject ) {
+					jQuery.post( PaypalExpressCheckout.getExecutePaymentEndpoint( blogId, onAuthData.paymentID ), payload )
+						.done( function( authResponse ) {
+							PaypalExpressCheckout.showMessage( authResponse.message, buttonDomId );
+							resolve();
+						} )
+						.fail( function( authError ) {
+							PaypalExpressCheckout.showError( authError, buttonDomId );
+							reject( new Error( authError.responseJSON.code ) );
+						} );
 				} );
 			}
 
