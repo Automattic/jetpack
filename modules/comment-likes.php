@@ -36,7 +36,12 @@ class Jetpack_Comment_Likes {
 	}
 
 	private function __construct() {
-		$this->settings = new Jetpack_Likes_Settings();
+		$this->settings  = new Jetpack_Likes_Settings();
+		$this->blog_id   = Jetpack_Options::get_option( 'id' );
+		$this->url       = home_url();
+		$this->url_parts = parse_url( $this->url );
+		$this->domain    = $this->url_parts['host'];
+
 		add_action( 'init', array( $this, 'frontend_init' ) );
 		add_action( 'admin_init', array( $this, 'admin_init' ) );
 
@@ -82,16 +87,14 @@ class Jetpack_Comment_Likes {
 			return;
 		}
 
-		$blog_id = Jetpack_Options::get_option( 'id' );
-
 		$permalink = get_permalink( get_the_ID() );
 		?>
-		<a title=""
-		   data-comment-id="<?php echo (int) $comment_id; ?>"
-		   data-blog-id="<?php echo (int) $blog_id; ?>"
+		<a
+		   data-comment-id="<?php echo absint( $comment_id ); ?>"
+		   data-blog-id="<?php echo absint( $this->blog_id ); ?>"
 		   class="comment-like-count"
-		   id="comment-like-count-<?php echo (int) $comment_id; ?>"
-		   href="<?php echo esc_url( $permalink ); ?>#comment-<?php echo (int) $comment_id; ?>"
+		   id="comment-like-count-<?php echo absint( $comment_id ); ?>"
+		   href="<?php echo esc_url( $permalink ); ?>#comment-<?php echo absint( $comment_id ); ?>"
 		>
 			<span class="like-count">0</span>
 		</a>
@@ -104,7 +107,7 @@ class Jetpack_Comment_Likes {
 	}
 
 	public function add_like_count_column( $columns ) {
-		$columns['comment_likes'] = '<span class="vers"><img title="' . esc_attr__( 'Comment likes', 'jetpack' ) . '" alt="' . esc_attr__( 'Comment likes', 'jetpack' ) . '" src="//s0.wordpress.com/i/like-grey-icon.png" /></span>';
+		$columns['comment_likes'] = '<span class="vers"></span>';
 
 		return $columns;
 	}
@@ -123,8 +126,8 @@ class Jetpack_Comment_Likes {
 			wp_register_style( 'open-sans', 'https://fonts.googleapis.com/css?family=Open+Sans', array(), JETPACK__VERSION );
 		}
 		wp_enqueue_style( 'jetpack_likes', plugins_url( 'likes/style.css', __FILE__ ), array( 'open-sans' ), JETPACK__VERSION );
-		wp_enqueue_script( 'postmessage', plugins_url( '_inc/postmessage.js', dirname(__FILE__) ), array( 'jquery' ), JETPACK__VERSION, false );
-		wp_enqueue_script( 'jetpack_resize', plugins_url( '_inc/jquery.jetpack-resize.js' , dirname(__FILE__) ), array( 'jquery' ), JETPACK__VERSION, false );
+		wp_enqueue_script( 'postmessage', plugins_url( '_inc/postmessage.js', JETPACK__PLUGIN_DIR ), array( 'jquery' ), JETPACK__VERSION, false );
+		wp_enqueue_script( 'jetpack_resize', plugins_url( '_inc/jquery.jetpack-resize.js' , JETPACK__PLUGIN_DIR ), array( 'jquery' ), JETPACK__VERSION, false );
 		wp_enqueue_script( 'jetpack_likes_queuehandler', plugins_url( 'likes/queuehandler.js' , __FILE__ ), array( 'jquery', 'postmessage', 'jetpack_resize' ), JETPACK__VERSION, true );
 	}
 
@@ -137,11 +140,6 @@ class Jetpack_Comment_Likes {
 			return $content;
 		}
 
-		$blog_id   = Jetpack_Options::get_option( 'id' );
-		$url       = home_url();
-		$url_parts = parse_url( $url );
-		$domain    = $url_parts['host'];
-
 		$comment_id = get_comment_ID();
 		if ( empty( $comment_id ) && ! empty( $comment->comment_ID ) ) {
 			$comment_id = $comment->comment_ID;
@@ -153,15 +151,15 @@ class Jetpack_Comment_Likes {
 
 		// In case master iframe hasn't been loaded. This could be the case when Post Likes module is disabled,
 		// or on pages on which we have comments but post likes are disabled.
-		if ( ! has_action( 'wp_footer', 'jetpack_likes_master_iframe' ) ) {
+		if ( false === has_action( 'wp_footer', 'jetpack_likes_master_iframe' ) ) {
 			add_action( 'wp_footer', 'jetpack_likes_master_iframe', 21 );
 		}
 
 		$uniqid = uniqid();
 
-		$src     = sprintf( 'https://widgets.wp.com/likes/#blog_id=%1$d&amp;comment_id=%2$d&amp;origin=%3$s&amp;obj_id=%1$d-%2$d-%4$s', $blog_id, $comment_id, $domain, $uniqid );
-		$name    = sprintf( 'like-comment-frame-%1$d-%2$d-%3$s', $blog_id, $comment_id, $uniqid );
-		$wrapper = sprintf( 'like-comment-wrapper-%1$d-%2$d-%3$s', $blog_id, $comment_id, $uniqid );
+		$src     = sprintf( 'https://widgets.wp.com/likes/#blog_id=%1$d&amp;comment_id=%2$d&amp;origin=%3$s&amp;obj_id=%1$d-%2$d-%4$s', $this->blog_id, $comment_id, $this->domain, $uniqid );
+		$name    = sprintf( 'like-comment-frame-%1$d-%2$d-%3$s', $this->blog_id, $comment_id, $uniqid );
+		$wrapper = sprintf( 'like-comment-wrapper-%1$d-%2$d-%3$s', $this->blog_id, $comment_id, $uniqid );
 
 		$html = '';
 		$html .= "<div class='jetpack-comment-likes-widget-wrapper jetpack-likes-widget-unloaded' id='$wrapper' data-src='$src' data-name='$name'>";
@@ -177,9 +175,9 @@ class Jetpack_Comment_Likes {
 		 *
 		 * @since 5.1.0
 		 *
-		 * @param string Comment Likes button content.
+		 * @param string $html Comment Likes button content.
 		 */
-		$like_button = apply_filters( 'comment_like_button', $html, '' );
+		$like_button = apply_filters( 'comment_like_button', $html );
 
 		return $content . $like_button;
 	}

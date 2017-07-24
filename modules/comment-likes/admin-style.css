@@ -1,11 +1,3 @@
-.vers img {
-    display: none;
-}
-
-.metabox-prefs .vers img {
-    display: inline;
-}
-
 .fixed .column-comment_likes {
     width: 5.5em;
     padding: 8px 0;
@@ -17,8 +9,6 @@
 }
 
 .fixed .column-comment_likes .comment-like-count {
-    -webkit-box-sizing: border-box;
-    -moz-box-sizing: border-box;
     box-sizing: border-box;
     display: inline-block;
     padding: 0 8px;
@@ -26,18 +16,18 @@
     margin-top: 5px;
     -webkit-border-radius: 5px;
     border-radius: 5px;
-    background-color: #72777C;
-    color: #FFF;
+    background-color: #72777c;
+    color: #fff;
     font-size: 11px;
     line-height: 21px;
 }
 
 .fixed .column-comment_likes .comment-like-count:after {
-    border: none !important;
+    border: none;
 }
 
 .fixed .column-comment_likes .comment-like-count:hover {
-    background-color: #0073AA;
+    background-color: #0073aa;
 }
 
 .fixed .column-comment_likes .vers:before {
