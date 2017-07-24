@@ -28,16 +28,17 @@ PaypalExpressCheckout = {
 	},
 
 	getNumberOfItems: function( field, enableMultiple ) {
-		var numberField, number;
 		if ( enableMultiple !== '1' ) {
 			return 1;
 		}
-		numberField = document.getElementById( field );
+
+		var numberField = document.getElementById( field );
 
 		if ( ! numberField ) {
 			return 1;
 		}
-		number = Number( numberField.value );
+
+		var number = Number( numberField.value );
 
 		if ( isNaN( number ) ) {
 			return 1;
@@ -110,7 +111,7 @@ PaypalExpressCheckout = {
 
 		if ( error.additional_errors ) {
 			var messages = [];
-			error.additional_errors.forEach( function( error ) {
+			error.additional_errors.forEach( function() {
 				if ( error.message ) {
 					messages.push( '<p>' + error.message.toString() + '</p>' );
 				}
@@ -144,7 +145,7 @@ PaypalExpressCheckout = {
 				shape: 'rect',
 				color: 'silver'
 			},
-			
+
 			payment: function() {
 				PaypalExpressCheckout.cleanAndHideMessage( buttonDomId );
 
