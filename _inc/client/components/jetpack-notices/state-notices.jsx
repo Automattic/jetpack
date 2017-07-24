@@ -167,12 +167,13 @@ const JetpackStateNotices = React.createClass( {
 		switch ( key ) {
 			// This is the message that is shown on first page load after a Jetpack plugin update.
 			case 'modules_activated' :
-				message = __( 'Welcome to {{s}}Jetpack %(jetpack_version)s{{/s}}!',
+				message = __( "Welcome to {{s}}Jetpack %(jetpack_version)s{{/s}}! {{a}}Learn about what's new{{/a}}.",
 					{
 						args: {
 							jetpack_version: this.props.currentVersion
 						},
 						components: {
+							a: <a href="https://jetpack.com/?p=20888" />,
 							s: <strong />
 						}
 					}
