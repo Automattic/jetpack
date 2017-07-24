@@ -28,25 +28,38 @@ Text Domain: wp-super-cache
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-// Pre-2.6 compatibility
-if( !defined('WP_CONTENT_URL') )
-	define( 'WP_CONTENT_URL', get_option('siteurl') . '/wp-content');
-if( !defined('WP_CONTENT_DIR') )
-	define( 'WP_CONTENT_DIR', ABSPATH . 'wp-content' );
+function wpsc_init() {
+	global $wp_cache_config_file, $wp_cache_config_file_sample, $wp_cache_file, $wp_cache_check_wp_config, $wp_cache_link;
+	// Pre-2.6 compatibility
+	if ( !defined('WP_CONTENT_URL') )
+		define( 'WP_CONTENT_URL', get_option( 'siteurl' ) . '/wp-content');
+	if ( !defined('WP_CONTENT_DIR') )
+		define( 'WP_CONTENT_DIR', ABSPATH . 'wp-content' );
 
-$wp_cache_config_file = WP_CONTENT_DIR . '/wp-cache-config.php';
+	$wp_cache_config_file = WP_CONTENT_DIR . '/wp-cache-config.php';
 
-if ( !defined( 'WPCACHEHOME' ) ) {
-	define( 'WPCACHEHOME', dirname( __FILE__ ) . '/' );
-	$wp_cache_config_file_sample = WPCACHEHOME . 'wp-cache-config-sample.php';
-	$wp_cache_file = WPCACHEHOME . 'advanced-cache.php';
-} elseif ( WPCACHEHOME != dirname( __FILE__ ) . '/' ) {
-	$wp_cache_config_file_sample = dirname( __FILE__ ) . '/wp-cache-config-sample.php';
-	$wp_cache_file = dirname( __FILE__ ) . '/advanced-cache.php';
-} else {
-	$wp_cache_config_file_sample = WPCACHEHOME . 'wp-cache-config-sample.php';
-	$wp_cache_file = WPCACHEHOME . 'advanced-cache.php';
+	if ( !defined( 'WPCACHEHOME' ) ) {
+		define( 'WPCACHEHOME', dirname( __FILE__ ) . '/' );
+		$wp_cache_config_file_sample = WPCACHEHOME . 'wp-cache-config-sample.php';
+		$wp_cache_file = WPCACHEHOME . 'advanced-cache.php';
+	} elseif ( WPCACHEHOME != dirname( __FILE__ ) . '/' ) {
+		$wp_cache_config_file_sample = dirname( __FILE__ ) . '/wp-cache-config-sample.php';
+		$wp_cache_file = dirname( __FILE__ ) . '/advanced-cache.php';
+		if ( ! defined( 'ADVANCEDCACHEPROBLEM' ) ) {
+			define( 'ADVANCEDCACHEPROBLEM', 1 ); // force an update of WPCACHEHOME
+		}
+	} else {
+		$wp_cache_config_file_sample = WPCACHEHOME . 'wp-cache-config-sample.php';
+		$wp_cache_file = WPCACHEHOME . 'advanced-cache.php';
+	}
+	$wp_cache_link = WP_CONTENT_DIR . '/advanced-cache.php';
+
+	if ( !defined( 'WP_CACHE' ) || ( defined( 'WP_CACHE' ) && constant( 'WP_CACHE' ) == false ) ) {
+		$wp_cache_check_wp_config = true;
+	}
 }
+
+wpsc_init();
 
 if( !@include($wp_cache_config_file) ) {
 	get_wpcachehome();
@@ -54,12 +67,6 @@ if( !@include($wp_cache_config_file) ) {
 	@include($wp_cache_config_file_sample);
 } else {
 	get_wpcachehome();
-}
-
-$wp_cache_link = WP_CONTENT_DIR . '/advanced-cache.php';
-
-if( !defined( 'WP_CACHE' ) || ( defined( 'WP_CACHE' ) && constant( 'WP_CACHE' ) == false ) ) {
-	$wp_cache_check_wp_config = true;
 }
 
 include(WPCACHEHOME . 'wp-cache-base.php');
@@ -162,6 +169,22 @@ function wpsupercache_deactivate() {
 register_deactivation_hook( __FILE__, 'wpsupercache_deactivate' );
 
 function wpsupercache_activate() {
+	global $cache_path;
+	$cache_path = WP_CONTENT_DIR . '/cache/'; // from sample config file
+
+	ob_start();
+	wpsc_init();
+
+	if ( !wp_cache_check_link() ||
+		!wp_cache_verify_config_file() ||
+		!wp_cache_verify_cache_dir() ) {
+		$text = ob_get_contents();
+		ob_end_clean();
+		return false;
+	}
+	$text = ob_get_contents();
+	wp_cache_check_global_config();
+	ob_end_clean();
 	wp_schedule_single_event( time() + 10, 'wp_cache_add_site_cache_index' );
 }
 register_activation_hook( __FILE__, 'wpsupercache_activate' );
