@@ -4,15 +4,13 @@
  * of simple-payments module.
  */
 
-var PaypalExpressCheckout = {};
-
 /* global paypal */
 /* global jQuery */
 /* exported PaypalExpressCheckout */
 /* jshint unused:false, es3:false, esversion:5 */
-PaypalExpressCheckout = {
+var PaypalExpressCheckout = {
 	primaryCssClassName: 'jetpack-simple-payments',
-	messageCssClassName: PaypalExpressCheckout.primaryCssClassName + '-purchase-message',
+	messageCssClassName: 'jetpack-simple-payments-purchase-message',
 
 	wpRestAPIHost: 'https://public-api.wordpress.com',
 	wpRestAPIVersion: '/wpcom/v2',
@@ -53,7 +51,7 @@ PaypalExpressCheckout = {
 	 * @param  string buttonDomId id of the payment button placeholder
 	 * @return Element the dom element to print the message
 	 */
-	getMessageElement: function ( buttonDomId ) {
+	getMessageElement: function( buttonDomId ) {
 		var messageDomId = buttonDomId + '_message';
 
 		// DOM Elements
