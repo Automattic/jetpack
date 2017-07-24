@@ -15,7 +15,12 @@ var PaypalExpressCheckout = {
 	wpRestAPIHost: 'https://public-api.wordpress.com',
 	wpRestAPIVersion: '/wpcom/v2',
 
-	sandbox: true,
+	getEnvironment: function() {
+		if ( localStorage && localStorage.getItem && localStorage.getItem( 'simple-payments-env' ) === 'sandbox' ) {
+			return 'sandbox';
+		}
+		return 'production';
+	},
 
 	getCreatePaymentEndpoint: function( blogId ) {
 		return PaypalExpressCheckout.wpRestAPIHost + PaypalExpressCheckout.wpRestAPIVersion + '/sites/' + blogId + '/simple-payments/paypal/payment';
@@ -127,7 +132,7 @@ var PaypalExpressCheckout = {
 	},
 
 	renderButton: function( blogId, buttonId, domId, enableMultiple ) {
-		var env = PaypalExpressCheckout.sandbox ? 'sandbox' : 'production';
+		var env = PaypalExpressCheckout.getEnvironment();
 		if ( ! paypal ) {
 			throw new Error( 'PayPal module is required by PaypalExpressCheckout' );
 		}
