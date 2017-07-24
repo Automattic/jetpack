@@ -5,6 +5,7 @@
  */
 
 /* global paypal */
+/* global jQuery */
 /* exported PaypalExpressCheckout */
 /* jshint unused:false, es3:false, esversion:5 */
 var PaypalExpressCheckout = {
@@ -89,7 +90,7 @@ var PaypalExpressCheckout = {
 		PaypalExpressCheckout.showMessage( message, buttonDomId, true );
 	},
 
-	processErrorMessage( errorResponse ) {
+	processErrorMessage: function( errorResponse ) {
 		var error = errorResponse.responseJSON;
 		var defaultMessage = 'There was an issue processing your payment.';
 
@@ -100,12 +101,12 @@ var PaypalExpressCheckout = {
 		if ( error.additional_errors ) {
 			var messages = [];
 			error.additional_errors.forEach( function( error ) {
-				messages.push( error.message );
+				messages.push( '<p>' + error.message.toString() + '</p>' );
 			} );
-			return messages.join( '<br />' );
+			return messages.join();
 		}
 
-		return error.message || defaultMessage;
+		return '<p>' + ( error.message || defaultMessage ) + '</p>';
 	},
 
 	cleanAndHideMessage: function( buttonDomId ) {
@@ -119,8 +120,11 @@ var PaypalExpressCheckout = {
 		if ( ! paypal ) {
 			throw new Error( 'PayPal module is required by PaypalExpressCheckout' );
 		}
+		if ( ! jQuery ) {
+			throw new Error( 'jQuery library is required by PaypalExpressCheckout' );
+		}
 
-		var buttonDomId = domId+ '_button';
+		var buttonDomId = domId + '_button';
 
 		paypal.Button.render( {
 			env: env,
