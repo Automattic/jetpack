@@ -53,28 +53,11 @@ var PaypalExpressCheckout = {
 	 * Get the DOM element-placeholder used to show message
 	 * about the transaction. If it doesn't exist then the function will create a new one.
 	 *
-	 * @param  string buttonDomId id of the payment button placeholder
+	 * @param  string domId id of the payment button placeholder
 	 * @return Element the dom element to print the message
 	 */
-	getMessageElement: function( buttonDomId ) {
-		var messageDomId = buttonDomId + '_message';
-
-		// DOM Elements
-		var buttonDomElement = document.getElementById( buttonDomId );
-		var messageDomElement = document.getElementById( messageDomId );
-
-		if ( messageDomElement ) {
-			return messageDomElement;
-		}
-
-		// create dom message element
-		messageDomElement = document.createElement( 'div' );
-		messageDomElement.setAttribute( 'id', messageDomId );
-
-		// inject into the DOM Tree
-		buttonDomElement.appendChild( messageDomElement );
-
-		return messageDomElement;
+	getMessageContainer: function( domId ) {
+		return document.getElementById( domId + '-message-container' );
 	},
 
 	/**
@@ -86,8 +69,8 @@ var PaypalExpressCheckout = {
 	 * @param  {String} domId paypal-button element dom identifier
 	 * @param  {Boolean} [error] defines if it's a message error. Not TRUE as default.
 	 */
-	showMessage: function( message, buttonDomId, isError ) {
-		var domEl = PaypalExpressCheckout.getMessageElement( buttonDomId );
+	showMessage: function( message, domId, isError ) {
+		var domEl = PaypalExpressCheckout.getMessageContainer( domId );
 
 		// set css classes
 		var cssClasses = PaypalExpressCheckout.messageCssClassName + ' show ';
@@ -100,8 +83,8 @@ var PaypalExpressCheckout = {
 		}, 1000 );
 	},
 
-	showError: function( message, buttonDomId ) {
-		PaypalExpressCheckout.showMessage( message, buttonDomId, true );
+	showError: function( message, domId ) {
+		PaypalExpressCheckout.showMessage( message, domId, true );
 	},
 
 	processErrorMessage: function( errorResponse ) {
@@ -125,14 +108,15 @@ var PaypalExpressCheckout = {
 		return '<p>' + ( error.message || defaultMessage ) + '</p>';
 	},
 
-	cleanAndHideMessage: function( buttonDomId ) {
-		var domEl = PaypalExpressCheckout.getMessageElement( buttonDomId );
+	cleanAndHideMessage: function( domId ) {
+		var domEl = PaypalExpressCheckout.getMessageContainer( domId );
 		domEl.setAttribute( 'class', PaypalExpressCheckout.messageCssClassName );
 		domEl.innerHTML = '';
 	},
 
 	renderButton: function( blogId, buttonId, domId, enableMultiple ) {
 		var env = PaypalExpressCheckout.getEnvironment();
+
 		if ( ! paypal ) {
 			throw new Error( 'PayPal module is required by PaypalExpressCheckout' );
 		}
@@ -150,7 +134,7 @@ var PaypalExpressCheckout = {
 			},
 
 			payment: function() {
-				PaypalExpressCheckout.cleanAndHideMessage( buttonDomId );
+				PaypalExpressCheckout.cleanAndHideMessage( domId );
 
 				var payload = {
 					number: PaypalExpressCheckout.getNumberOfItems( domId + '_number', enableMultiple ),
@@ -164,8 +148,8 @@ var PaypalExpressCheckout = {
 							resolve( paymentResponse.id );
 						} )
 						.fail( function( paymentError ) {
-							var errorMessage = PaypalExpressCheckout.processErrorMessage( paymentError );
-							PaypalExpressCheckout.showError( errorMessage, buttonDomId );
+							var paymentErrorMessage = PaypalExpressCheckout.processErrorMessage( paymentError );
+							PaypalExpressCheckout.showError( paymentErrorMessage, domId );
 							reject( new Error( paymentError.responseJSON.code ) );
 						} );
 				} );
@@ -180,11 +164,12 @@ var PaypalExpressCheckout = {
 				return new paypal.Promise( function( resolve, reject ) {
 					jQuery.post( PaypalExpressCheckout.getExecutePaymentEndpoint( blogId, onAuthData.paymentID ), payload )
 						.done( function( authResponse ) {
-							PaypalExpressCheckout.showMessage( authResponse.message, buttonDomId );
+							PaypalExpressCheckout.showMessage( authResponse.message, domId );
 							resolve();
 						} )
 						.fail( function( authError ) {
-							PaypalExpressCheckout.showError( authError, buttonDomId );
+							var authErrorMessage = PaypalExpressCheckout.processErrorMessage( authError );
+							PaypalExpressCheckout.showError( authErrorMessage, domId );
 							reject( new Error( authError.responseJSON.code ) );
 						} );
 				} );
