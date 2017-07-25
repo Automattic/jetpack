@@ -12,4 +12,4 @@ modules/custom-css*      @georgestephanis
 modules/omnisearch*      @georgestephanis
 
 # Other bits of the Codebase
-
+class.jetpack-debugger.php @kraftbj
