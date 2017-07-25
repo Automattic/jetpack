@@ -48,8 +48,7 @@ if [ ! -z "$SITE_URL" ]; then
 fi
 
 # silently ensure Jetpack is active
-wp plugin activate jetpack $ADDITIONAL_ARGS >/dev/null 2>&1
+wp plugin activate jetpack $ADDITIONAL_ARGS >/dev/null 2>&1 --allow-root
 
 # cancel the partner plan
-wp jetpack partner_cancel "$ACCESS_TOKEN_JSON" $ADDITIONAL_ARGS
-
+wp jetpack partner_cancel "$ACCESS_TOKEN_JSON" $ADDITIONAL_ARGS --allow-root
