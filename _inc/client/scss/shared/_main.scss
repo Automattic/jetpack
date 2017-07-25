@@ -27,6 +27,10 @@
 	text-decoration: none;
 }
 
+.dops-notice__text a {
+	text-decoration: underline;
+}
+
 // Hello Dolly positioning overwrite
 .jetpack-pagestyles #dolly {
 	float: none;
