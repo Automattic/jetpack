@@ -58,6 +58,14 @@ class Jetpack_Simple_Payments {
 		return $content;
 	}
 
+	function get_blog_id() {
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			return get_current_blog_id();
+		}
+
+		return Jetpack_Options::get_option( 'id' );
+	}
+
 	function parse_shortcode( $attrs, $content = false ) {
 		if ( empty( $attrs['id'] ) ) {
 			return;
@@ -72,7 +80,7 @@ class Jetpack_Simple_Payments {
 
 		// We allow for overriding the presentation labels
 		$data = shortcode_atts( array(
-			'blog_id'     => Jetpack_Options::get_option( 'id' ),
+			'blog_id'     => $this->get_blog_id(),
 			'dom_id'      => uniqid( self::$css_classname_prefix . '-' . $product->ID . '_', true ),
 			'class'       => self::$css_classname_prefix . '-' . $product->ID,
 			'title'       => get_the_title( $product ),
