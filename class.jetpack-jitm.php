@@ -282,6 +282,10 @@ class Jetpack_JITM {
 				continue;
 			}
 
+			JetpackTracking::record_user_event( 'jitm_view_client', array(
+				'jitm_id' => $envelope->id,
+			) );
+
 			$normalized_site_url      = Jetpack::build_raw_urls( get_home_url() );
 			$envelope->url            = 'https://jetpack.com/redirect/?source=jitm-' . $envelope->id . '&site=' . $normalized_site_url . '&u=' . $user->ID;
 			$envelope->jitm_stats_url = Jetpack::build_stats_url( array( 'x_jetpack-jitm' => $envelope->id ) );
