@@ -102,7 +102,7 @@ var PaypalExpressCheckout = {
 					messages.push( '<p>' + additionalError.message.toString() + '</p>' );
 				}
 			} );
-			return messages.join();
+			return messages.join('');
 		}
 
 		return '<p>' + ( error.message || defaultMessage ) + '</p>';
