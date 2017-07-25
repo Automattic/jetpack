@@ -169,7 +169,7 @@ const Main = React.createClass( {
 			);
 		}
 
-		if ( this.props.jumpStartStatus ) {
+		if ( this.props.isSiteConnected && this.props.jumpStartStatus ) {
 			if ( includes( [ '/', '/dashboard' ], route ) ) {
 				window.location.hash = 'jumpstart';
 				const history = createHistory();
