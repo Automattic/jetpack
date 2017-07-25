@@ -97,4 +97,5 @@ $wp_cache_preload_email_me = 0;
 $wp_cache_preload_email_volume = 'none';
 $wp_cache_mobile_prefixes = '';
 $cached_direct_pages = array();
+$wpsc_served_header = false;
 ?>
