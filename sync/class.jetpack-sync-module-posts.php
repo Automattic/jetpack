@@ -346,6 +346,10 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		}
 
 		call_user_func( $this->action_handler, $post_ID, $post, $update, $is_auto_save, $just_published );
+
+		if ( 'customize_changeset' === $post->post_type ) {
+			return;
+		}
 		$this->send_published( $post_ID, $post );
 		$this->send_trashed( $post_ID, $post );
 	}
