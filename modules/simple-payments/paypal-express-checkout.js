@@ -97,9 +97,9 @@ var PaypalExpressCheckout = {
 
 		if ( error.additional_errors ) {
 			var messages = [];
-			error.additional_errors.forEach( function() {
-				if ( error.message ) {
-					messages.push( '<p>' + error.message.toString() + '</p>' );
+			error.additional_errors.forEach( function( additionalError) {
+				if ( additionalError.message ) {
+					messages.push( '<p>' + additionalError.message.toString() + '</p>' );
 				}
 			} );
 			return messages.join();
