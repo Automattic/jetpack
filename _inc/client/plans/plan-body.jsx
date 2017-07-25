@@ -52,6 +52,11 @@ const PlanBody = React.createClass( {
 		this.trackPlansClick( 'activate_wordads' );
 	},
 
+	activatePublicize() {
+		this.props.activateModule( 'publicize' );
+		this.trackPlansClick( 'activate_publicize' );
+	},
+
 	activateVideoPress() {
 		this.props.activateModule( 'videopress' );
 		this.trackPlansClick( 'activate_videopress' );
@@ -194,6 +199,32 @@ const PlanBody = React.createClass( {
 											{ __( 'Activate Ads' ) }
 										</Button>
 									)
+								}
+							</div>
+						)
+					}
+
+					{
+						( 'is-business-plan' === planClass || 'is-premium-plan' === planClass ) && (
+							<div className="jp-landing__plan-features-card">
+								<h3 className="jp-landing__plan-features-title">{ __( 'Social Media Scheduling' ) }</h3>
+								<p>{ __( 'Schedule multiple Facebook, Twitter, and other social media postings in advance and view share history stats.' ) }</p>
+								{
+									this.props.isModuleActivated( 'publicize' )
+										? (
+											<Button onClick={ () => this.trackPlansClick( 'schedule_posts' ) } href={ 'https://wordpress.com/posts/' + this.props.siteRawUrl } className="is-primary">
+												{ __( 'Schedule Posts' ) }
+											</Button>
+										)
+										: (
+											<Button
+												onClick={ this.activatePublicize }
+												className="is-primary"
+												disabled={ this.props.isActivatingModule( 'publicize' ) }
+											>
+												{ __( 'Activate Publicize' ) }
+											</Button>
+										)
 								}
 							</div>
 						)
