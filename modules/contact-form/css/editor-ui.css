@@ -1,9 +1,11 @@
-i.mce-i-grunion, .jetpack-contact-form-icon {
+i.mce-i-grunion,
+.jetpack-contact-form-icon {
 	font-family: dashicons;
 	font-size: 20px;
 }
 
-i.mce-i-grunion:before, .jetpack-contact-form-icon:before {
+i.mce-i-grunion:before,
+.jetpack-contact-form-icon:before {
 	content: "\f175";
 	vertical-align: top;
 }
