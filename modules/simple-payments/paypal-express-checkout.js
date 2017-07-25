@@ -156,9 +156,8 @@ var PaypalExpressCheckout = {
 							var paymentErrorMessage = PaypalExpressCheckout.processErrorMessage( paymentError );
 							PaypalExpressCheckout.showError( paymentErrorMessage, domId );
 
-							var code = paymentError.responseJSON && paymentError.responseJSON.code
-								? paymentError.responseJSON.code
-								: 'server_error';
+							var code = paymentError.responseJSON && paymentError.responseJSON.code ?
+								paymentError.responseJSON.code : 'server_error';
 
 							reject( new Error( code ) );
 						} );
@@ -186,9 +185,8 @@ var PaypalExpressCheckout = {
 							var authErrorMessage = PaypalExpressCheckout.processErrorMessage( authError );
 							PaypalExpressCheckout.showError( authErrorMessage, domId );
 
-							var code = authError.responseJSON && authError.responseJSON.code
-								? authError.responseJSON.code
-								: 'server_error';
+							var code = authError.responseJSON && authError.responseJSON.code ?
+								authError.responseJSON.code : 'server_error';
 
 							reject( new Error( code ) );
 						} );
