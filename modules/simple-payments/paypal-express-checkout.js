@@ -114,6 +114,17 @@ var PaypalExpressCheckout = {
 		domEl.innerHTML = '';
 	},
 
+	getButtonStyle: function( domId ) {
+		var buttonEl = document.getElementById( domId );
+		var dataset = buttonEl ? ( buttonEl.dataset || {} ) : {};
+
+		return {
+			label: dataset.buttonStyleLabel || 'pay',
+			shape: dataset.buttonStyleShape || 'rect',
+			color: dataset.buttonStyleColor || 'silver'
+		};
+	},
+
 	renderButton: function( blogId, buttonId, domId, enableMultiple ) {
 		var env = PaypalExpressCheckout.getEnvironment();
 
@@ -127,11 +138,7 @@ var PaypalExpressCheckout = {
 			env: env,
 			commit: true,
 
-			style: {
-				label: 'pay',
-				shape: 'rect',
-				color: 'silver'
-			},
+			style: PaypalExpressCheckout.getButtonStyle( buttonDomId ),
 
 			payment: function() {
 				PaypalExpressCheckout.cleanAndHideMessage( domId );

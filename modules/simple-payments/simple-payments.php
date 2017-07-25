@@ -72,13 +72,17 @@ class Jetpack_Simple_Payments {
 
 		// We allow for overriding the presentation labels
 		$data = shortcode_atts( array(
-			'blog_id'     => Jetpack_Options::get_option( 'id' ),
-			'dom_id'      => uniqid( self::$css_classname_prefix . '-' . $product->ID . '_', true ),
-			'class'       => self::$css_classname_prefix . '-' . $product->ID,
-			'title'       => get_the_title( $product ),
-			'description' => $product->post_content,
-			'cta'         => get_post_meta( $product->ID, 'spay_cta', true ),
-			'multiple'    => get_post_meta( $product->ID, 'spay_multiple', true ) || '0'
+			'blog_id'            => Jetpack_Options::get_option( 'id' ),
+			'dom_id'             => uniqid( self::$css_classname_prefix . '-' . $product->ID . '_', true ),
+			'class'              => self::$css_classname_prefix . '-' . $product->ID,
+			'title'              => get_the_title( $product ),
+			'description'        => $product->post_content,
+			'cta'                => get_post_meta( $product->ID, 'spay_cta', true ),
+			'multiple'           => get_post_meta( $product->ID, 'spay_multiple', true ) || '0',
+
+			'button_style_label' => get_post_meta( $product->ID, 'spay_button_style_label', true ),
+			'button_style_shape' => get_post_meta( $product->ID, 'spay_button_style_shape', true ),
+			'button_style_color' => get_post_meta( $product->ID, 'spay_button_style_color', true ),
 		), $attrs );
 		$data['price'] = $this->format_price(
 			get_post_meta( $product->ID, 'spay_price', true ),
@@ -114,6 +118,12 @@ class Jetpack_Simple_Payments {
 		if( has_post_thumbnail( $data['id'] ) ) {
 			$image = "<div class='${css_prefix}-product-image'><div class='${css_prefix}-image'>" . get_the_post_thumbnail( $data['id'], 'full' ) . "</div></div>";
 		}
+
+		$button_style_markup = '';
+		$button_style_markup .= ' data-button-style-label="' . ( $data['button_style_label'] ? $data['button_style_label'] : 'pay' ) . '"';
+		$button_style_markup .= ' data-button-style-shape="' . ( $data['button_style_shape'] ? $data['button_style_shape'] : 'rect' ) . '"';
+		$button_style_markup .= ' data-button-style-color="' . ( $data['button_style_color'] ? $data['button_style_color'] : 'silver' ) . '"';
+
 		return "
 <div class='{$data['class']} ${css_prefix}-wrapper'>
 	<div class='${css_prefix}-purchase-message' id='{$data['dom_id']}-message-container'></div>
@@ -125,7 +135,12 @@ class Jetpack_Simple_Payments {
 			<div class='${css_prefix}-price'><p>{$data['price']}</p></div>
 			<div class='${css_prefix}-purchase-box'>
 				{$items}
-				<div class='${css_prefix}-button' id='{$data['dom_id']}_button'></div>
+				<div
+					class='${css_prefix}-button'
+					id='{$data['dom_id']}_button'
+					{$button_style_markup}
+				>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -161,7 +176,10 @@ class Jetpack_Simple_Payments {
 			'spay_currency',
 			'spay_cta',
 			'spay_email',
-			'spay_multiple'
+			'spay_multiple',
+			'button_style_label',
+			'button_style_shape',
+			'button_style_color',
 		) );
 	}
 
