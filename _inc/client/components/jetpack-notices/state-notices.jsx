@@ -17,6 +17,7 @@ import {
 	getJetpackStateNoticesErrorDescription
 } from 'state/jetpack-notices';
 import NoticeAction from 'components/notice/notice-action.jsx';
+import UpgradeNoticeContent from 'components/upgrade-notice-content';
 
 const JetpackStateNotices = React.createClass( {
 	displayName: 'JetpackStateNotices',
@@ -147,17 +148,17 @@ const JetpackStateNotices = React.createClass( {
 			return (
 				<div>
 					{ message }
-					<br/>
+					<br />
 					{ errorDesc }
 				</div>
-			)
+			);
 		}
 
 		return (
 			<div>
 				{ message }
 			</div>
-		)
+		);
 	},
 
 	getMessageFromKey: function( key ) {
@@ -227,11 +228,18 @@ const JetpackStateNotices = React.createClass( {
 			}
 		}
 
+		// Show custom message for upgraded Jetpack
+		if ( 'modules_activated' === message && '5.2' === this.props.currentVersion ) {
+			return (
+				<UpgradeNoticeContent dismiss={ this.dismissJetpackStateNotice } />
+			);
+		}
+
 		if ( message ) {
 			const messageData = this.getMessageFromKey( message );
-			noticeText = messageData[0];
-			status = messageData[1];
-			action = messageData[2]
+			noticeText = messageData[ 0 ];
+			status = messageData[ 1 ];
+			action = messageData[ 2 ];
 		}
 
 		return (
