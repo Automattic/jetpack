@@ -67,6 +67,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_trashed_post' );
 
+		$this->assertEquals( 'post', $event->args[1] );
 		$this->assertTrue( (bool) $event );
 		$this->server_event_storage->reset();
 
@@ -872,6 +873,7 @@ That was a cool video.';
 
 		$this->assertEquals( 'jetpack_published_post', $event->action );
 		$this->assertEquals( $post_id, $event->args[0] );
+		$this->assertEquals( 'post', $event->args[1]['post_type']);
 	}
 
 	public function test_sync_jetpack_update_post_to_draft_shouldnt_publish() {
