@@ -168,6 +168,16 @@ const JetpackStateNotices = React.createClass( {
 		switch ( key ) {
 			// This is the message that is shown on first page load after a Jetpack plugin update.
 			case 'modules_activated' :
+				message = __( 'Welcome to {{s}}Jetpack %(jetpack_version)s{{/s}}!',
+					{
+						args: {
+							jetpack_version: this.props.currentVersion
+						},
+						components: {
+							s: <strong />
+						}
+					}
+				);
 				break;
 			case 'already_authorized' :
 				message = __( 'Your Jetpack is already connected.' );
@@ -219,7 +229,7 @@ const JetpackStateNotices = React.createClass( {
 		}
 
 		// Show custom message for upgraded Jetpack
-		if ( 'modules_activated' === message ) {
+		if ( 'modules_activated' === message && '5.2' === this.props.currentVersion ) {
 			return (
 				<UpgradeNoticeContent dismiss={ this.dismissJetpackStateNotice } />
 			);
