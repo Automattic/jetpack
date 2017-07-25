@@ -17,6 +17,21 @@ class Grunion_Editor_View {
 
 	public static function admin_head() {
 		remove_action( 'media_buttons', 'grunion_media_button', 999 );
+		add_action( 'media_buttons', array( __CLASS__, 'grunion_media_button' ), 999 );
+	}
+
+	public static function grunion_media_button() {
+		if ( empty( $GLOBALS['pagenow'] ) || 'press-this.php' === $GLOBALS['pagenow'] ) {
+			return;
+		}
+		$title = __( 'Add Contact Form', 'jetpack' );
+		?>
+
+		<a id="insert-jetpack-contact-form" class="button" title="<?php echo esc_attr( $title ); ?>" href="javascript:;">
+			<?php echo esc_html( $title ); ?>
+		</a>
+
+		<?php
 	}
 
 	public static function mce_external_plugins( $plugin_array ) {
