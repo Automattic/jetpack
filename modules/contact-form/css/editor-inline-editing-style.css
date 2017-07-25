@@ -645,6 +645,11 @@ input[type="submit"].button-primary {
 .grunion-section-header {
 	font-size: 21px;
 	margin-top: 32px;
+	font-weight: 600;
+}
+
+.grunion-form-settings:hover {
+	box-shadow: 0 0 0 1px rgba(200, 215, 225, 0.5), 0 1px 2px #e9eff3;
 }
 
 .grunion-section-header:first-child {
@@ -705,6 +710,20 @@ input[type="submit"].button-primary {
 	position: absolute;
 	top: 0;
 	right: 0;
+}
+
+.grunion-controls {
+	display: flex;
+	flex-wrap: wrap;
+}
+
+.grunion-update-controls {
+	text-align: right;
+	flex-grow: 1;
+}
+
+#add-field {
+	flex-grow: 0;
 }
 
 .delete-option:before,
