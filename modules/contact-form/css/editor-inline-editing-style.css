@@ -667,6 +667,7 @@ input[type="submit"].button-primary {
 }
 
 .grunion-type select {
+	-webkit-appearance: none;
 	width: 100%;
 }
 
