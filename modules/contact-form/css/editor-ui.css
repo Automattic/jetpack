@@ -1,8 +1,14 @@
-i.mce-i-grunion {
+i.mce-i-grunion, .jetpack-contact-form-icon {
 	font-family: dashicons;
 	font-size: 20px;
 }
 
-i.mce-i-grunion:before {
+i.mce-i-grunion:before, .jetpack-contact-form-icon:before {
 	content: "\f175";
+	vertical-align: top;
+}
+
+.jetpack-contact-form-icon {
+	opacity: 0.7;
+	vertical-align: text-top;
 }
