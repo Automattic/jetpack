@@ -17,6 +17,9 @@ import {
 	getJetpackStateNoticesErrorDescription
 } from 'state/jetpack-notices';
 import NoticeAction from 'components/notice/notice-action.jsx';
+import JetpackDialogue from 'components/jetpack-dialogue';
+import { imagePath } from 'constants';
+import UpgradeNoticeContent from 'components/upgrade-notice-content';
 
 const JetpackStateNotices = React.createClass( {
 	displayName: 'JetpackStateNotices',
@@ -147,17 +150,17 @@ const JetpackStateNotices = React.createClass( {
 			return (
 				<div>
 					{ message }
-					<br/>
+					<br />
 					{ errorDesc }
 				</div>
-			)
+			);
 		}
 
 		return (
 			<div>
 				{ message }
 			</div>
-		)
+		);
 	},
 
 	getMessageFromKey: function( key ) {
@@ -167,16 +170,6 @@ const JetpackStateNotices = React.createClass( {
 		switch ( key ) {
 			// This is the message that is shown on first page load after a Jetpack plugin update.
 			case 'modules_activated' :
-				message = __( 'Welcome to {{s}}Jetpack %(jetpack_version)s{{/s}}!',
-					{
-						args: {
-							jetpack_version: this.props.currentVersion
-						},
-						components: {
-							s: <strong />
-						}
-					}
-				);
 				break;
 			case 'already_authorized' :
 				message = __( 'Your Jetpack is already connected.' );
@@ -227,11 +220,23 @@ const JetpackStateNotices = React.createClass( {
 			}
 		}
 
+		// Show custom message for upgraded Jetpack
+		if ( 'modules_activated' === message ) {
+			return (
+				<JetpackDialogue
+					svg={ <img src={ imagePath + 'people-around-page.svg' } width="250" alt={ __( 'People around page' ) } /> }
+					title={ __( 'A new contact form is here at last!' ) }
+					content={ <UpgradeNoticeContent /> }
+					dismissOnClick={ this.dismissJetpackStateNotice }
+				/>
+			);
+		}
+
 		if ( message ) {
 			const messageData = this.getMessageFromKey( message );
-			noticeText = messageData[0];
-			status = messageData[1];
-			action = messageData[2]
+			noticeText = messageData[ 0 ];
+			status = messageData[ 1 ];
+			action = messageData[ 2 ];
 		}
 
 		return (
