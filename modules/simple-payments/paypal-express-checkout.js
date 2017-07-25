@@ -148,8 +148,8 @@ var PaypalExpressCheckout = {
 							resolve( paymentResponse.id );
 						} )
 						.fail( function( paymentError ) {
-							var errorMessage = PaypalExpressCheckout.processErrorMessage( paymentError );
-							PaypalExpressCheckout.showError( errorMessage, domId );
+							var paymentErrorMessage = PaypalExpressCheckout.processErrorMessage( paymentError );
+							PaypalExpressCheckout.showError( paymentErrorMessage, domId );
 							reject( new Error( paymentError.responseJSON.code ) );
 						} );
 				} );
@@ -168,7 +168,8 @@ var PaypalExpressCheckout = {
 							resolve();
 						} )
 						.fail( function( authError ) {
-							PaypalExpressCheckout.showError( authError, domId );
+							var authErrorMessage = PaypalExpressCheckout.processErrorMessage( authError );
+							PaypalExpressCheckout.showError( authErrorMessage, domId );
 							reject( new Error( authError.responseJSON.code ) );
 						} );
 				} );
