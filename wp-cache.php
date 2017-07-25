@@ -3410,6 +3410,16 @@ function wp_cron_preload_cache() {
 						wp_remote_get( $url, array('timeout' => 60, 'blocking' => true ) );
 						wp_cache_debug( "wp_cron_preload_cache: fetched $url", 5 );
 						sleep( 1 );
+						if ( @file_exists( $cache_path . "stop_preload.txt" ) ) {
+							wp_cache_debug( "wp_cron_preload_cache: cancelling preload. stop_preload.txt found.", 5 );
+							@unlink( $mutex );
+							@unlink( $cache_path . "stop_preload.txt" );
+							@unlink( $taxonomy_filename );
+							update_option( 'preload_cache_counter', array( 'c' => 0, 't' => time() ) );
+							if ( $wp_cache_preload_email_me )
+								wp_mail( get_option( 'admin_email' ), sprintf( __( '[%1$s] Cache Preload Stopped', 'wp-super-cache' ), home_url(), '' ), ' ' );
+							return true;
+						}
 					}
 					$fp = fopen( $taxonomy_filename, 'w' );
 					if ( $fp ) {
