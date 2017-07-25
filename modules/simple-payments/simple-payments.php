@@ -80,11 +80,17 @@ class Jetpack_Simple_Payments {
 			'cta'         => get_post_meta( $product->ID, 'spay_cta', true ),
 			'multiple'    => get_post_meta( $product->ID, 'spay_multiple', true ) || '0'
 		), $attrs );
-		$data['price'] = $this->format_price(
-			get_post_meta( $product->ID, 'spay_price', true ),
-			get_post_meta( $product->ID, 'spay_currency', true ),
-			$data
-		);
+
+		if ( $formatted_price = get_post_meta( $product->ID, 'spay_formatted_price', true ) ) {
+			$data['price'] = $formatted_price;
+		} else {
+			$data['price'] = $this->format_price(
+				get_post_meta( $product->ID, 'spay_price', true ),
+				get_post_meta( $product->ID, 'spay_currency', true ),
+				$data
+			);
+		}
+
 		$data['id'] = $attrs['id'];
 		if ( ! wp_script_is( 'paypal-express-checkout', 'enqueued' ) ) {
 			wp_enqueue_script( 'paypal-express-checkout' );
@@ -161,7 +167,8 @@ class Jetpack_Simple_Payments {
 			'spay_currency',
 			'spay_cta',
 			'spay_email',
-			'spay_multiple'
+			'spay_multiple',
+			'spay_formatted_price',
 		) );
 	}
 
