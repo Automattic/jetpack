@@ -3,7 +3,6 @@
  * Simple Payments lets users embed a PayPal button fully integrated with wpcom to sell products on the site.
  * This is not a proper module yet, because not all the pieces are in place. Until everything is shipped, it can be turned
  * into module that can be enabled/disabled.
- * TODO: Once the feature is fully shipped, create a file modules/simple-payments.php with a proper header to turn module on/off.
 */
 class Jetpack_Simple_Payments {
 	// These have to be under 20 chars because that is CPT limit.
@@ -87,11 +86,17 @@ class Jetpack_Simple_Payments {
 			$data
 		);
 		$data['id'] = $attrs['id'];
-		if ( ! wp_script_is( 'paypal-express-checkout','enqueued' ) ) {
+		if ( ! wp_script_is( 'paypal-express-checkout', 'enqueued' ) ) {
 			wp_enqueue_script( 'paypal-express-checkout' );
 		}
 
-		wp_add_inline_script( 'paypal-express-checkout', "try{PaypalExpressCheckout.renderButton( '{$data['blog_id']}', '{$attrs['id']}', '{$data['dom_id']}', '{$data['multiple']}' );}catch(e){}" );
+		wp_add_inline_script( 'paypal-express-checkout', sprintf(
+			"try{PaypalExpressCheckout.renderButton( '%d', '%d', '%s', '%d' );}catch(e){}",
+			esc_js( $data['blog_id'] ),
+			esc_js( $attrs['id'] ),
+			esc_js( $data['dom_id'] ),
+			esc_js( $data['multiple'] )
+		) );
 
 		return $this->output_shortcode( $data );
 	}
