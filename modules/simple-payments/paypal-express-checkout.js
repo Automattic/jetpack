@@ -108,6 +108,17 @@ var PaypalExpressCheckout = {
 		return '<p>' + ( error.message || defaultMessage ) + '</p>';
 	},
 
+	processSuccessMessage: function( successResponse ) {
+		var message = successResponse.message;
+		var defaultMessage = 'Thank you. Your purchase was successful!';
+
+		if ( ! message ) {
+			return '<p>' + defaultMessage + '</p>';
+		}
+
+		return '<p>' + message + '</p>';
+	},
+
 	cleanAndHideMessage: function( domId ) {
 		var domEl = PaypalExpressCheckout.getMessageContainer( domId );
 		domEl.setAttribute( 'class', PaypalExpressCheckout.messageCssClassName );
@@ -178,7 +189,10 @@ var PaypalExpressCheckout = {
 								return reject( new Error( 'server_error' ) );
 							}
 
-							PaypalExpressCheckout.showMessage( authResponse.message, domId );
+							PaypalExpressCheckout.showMessage(
+								PaypalExpressCheckout.processSuccessMessage( authResponse ),
+								domId
+							);
 							resolve();
 						} )
 						.fail( function( authError ) {
