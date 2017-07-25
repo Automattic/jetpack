@@ -360,6 +360,10 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 			return;
 		}
 
+		$post_flags = array(
+			'post_type' => $post->post_type
+		);
+
 		/**
 		 * Filter that is used to add to the post flags ( meta data ) when a post gets published
 		 *
@@ -368,7 +372,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		 * @param mixed array post flags that are added to the post
 		 * @param mixed $post WP_POST object
 		 */
-		$flags = apply_filters( 'jetpack_published_post_flags', array(), $post );
+		$flags = apply_filters( 'jetpack_published_post_flags', $post_flags, $post );
 
 		/**
 		 * Action that gets synced when a post type gets published.
@@ -400,7 +404,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		 *
 		 * @param int $post_ID
 		 */
-		do_action( 'jetpack_trashed_post', $post_ID );
+		do_action( 'jetpack_trashed_post', $post_ID, $post->post_type );
 
 		$this->just_trashed = array_diff( $this->just_trashed, array( $post_ID ) );
 	}
