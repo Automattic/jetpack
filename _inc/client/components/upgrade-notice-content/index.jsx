@@ -43,7 +43,7 @@ class UpgradeNoticeContent extends Component {
 				</Button>
 
 				<p className="jp-dialogue__note">
-					<a href="https://jetpack.com/?p=20888">{ __( 'Read the full release post' ) }</a>
+					<a href="https://jetpack.com/?p=22509">{ __( 'Read the full release post' ) }</a>
 				</p>
 			</div>
 		);
