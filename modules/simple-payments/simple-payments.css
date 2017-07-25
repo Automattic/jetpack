@@ -64,6 +64,10 @@ input[type="number"].jetpack-simple-payments-items-number {
 	padding: 4px 8px;
 }
 
+.jetpack-simple-payments-button iframe {
+	margin: 0;
+}
+
 .jetpack-simple-payments-purchase-message {
 	display: none;
 	padding: 0.5em 1em;
