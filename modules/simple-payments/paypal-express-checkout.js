@@ -145,12 +145,22 @@ var PaypalExpressCheckout = {
 				return new paypal.Promise( function( resolve, reject ) {
 					jQuery.post( PaypalExpressCheckout.getCreatePaymentEndpoint( blogId ), payload )
 						.done( function( paymentResponse ) {
+							if ( ! paymentResponse ) {
+								PaypalExpressCheckout.showError( PaypalExpressCheckout.processErrorMessage(), domId );
+								return reject( new Error( 'unknown_error' ) );
+							}
+
 							resolve( paymentResponse.id );
 						} )
 						.fail( function( paymentError ) {
 							var paymentErrorMessage = PaypalExpressCheckout.processErrorMessage( paymentError );
 							PaypalExpressCheckout.showError( paymentErrorMessage, domId );
-							reject( new Error( paymentError.responseJSON.code ) );
+
+							var code = paymentError.responseJSON && paymentError.responseJSON.code
+								? paymentError.responseJSON.code
+								: 'unknown_error';
+
+							reject( new Error( code ) );
 						} );
 				} );
 			},
@@ -164,13 +174,23 @@ var PaypalExpressCheckout = {
 				return new paypal.Promise( function( resolve, reject ) {
 					jQuery.post( PaypalExpressCheckout.getExecutePaymentEndpoint( blogId, onAuthData.paymentID ), payload )
 						.done( function( authResponse ) {
+							if ( ! authResponse ) {
+								PaypalExpressCheckout.showError( PaypalExpressCheckout.processErrorMessage(), domId );
+								return reject( new Error( 'unknown_error' ) );
+							}
+
 							PaypalExpressCheckout.showMessage( authResponse.message, domId );
 							resolve();
 						} )
 						.fail( function( authError ) {
 							var authErrorMessage = PaypalExpressCheckout.processErrorMessage( authError );
 							PaypalExpressCheckout.showError( authErrorMessage, domId );
-							reject( new Error( authError.responseJSON.code ) );
+
+							var code = authError.responseJSON && authError.responseJSON.code
+								? authError.responseJSON.code
+								: 'unknown_error';
+
+							reject( new Error( code ) );
 						} );
 				} );
 			}
