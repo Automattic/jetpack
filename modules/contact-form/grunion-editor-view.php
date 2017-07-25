@@ -246,7 +246,7 @@ class Grunion_Editor_View {
 </script>
 
 <script type="text/html" id="tmpl-grunion-editor-inline">
-			<h1 id="form-settings-header" class="grunion-section-header"><?php esc_html_e( 'Form Settings', 'jetpack' ); ?></h1>
+			<h1 id="form-settings-header" class="grunion-section-header"><?php esc_html_e( 'Contact form information', 'jetpack' ); ?></h1>
 			<section class="card grunion-form-settings" aria-labelledby="form-settings-header">
 				<label><?php esc_html_e( 'What would you like the subject of the email to be?', 'jetpack' ); ?>
 					<input type="text" name="subject" value="{{ data.subject }}" />
@@ -255,14 +255,17 @@ class Grunion_Editor_View {
 					<input type="text" name="to" value="{{ data.to }}" />
 				</label>
 			</section>
-			<h1 id="form-fields-header" class="grunion-section-header"><?php esc_html_e( 'Form Fields', 'jetpack' ); ?></h1>
+			<h1 id="form-fields-header" class="grunion-section-header"><?php esc_html_e( 'Contact form fields', 'jetpack' ); ?></h1>
 			<section class="grunion-fields" aria-labelledby="form-fields-header">
 				{{{ data.fields }}}
 			</section>
-			<section class="buttons">
+			<section class="grunion-controls">
 				<?php submit_button( esc_html__( 'Add Field', 'jetpack' ), 'secondary', 'add-field', false ); ?>
-				<?php submit_button( esc_html__( 'Cancel', 'jetpack' ), 'delete', 'cancel', false ); ?>
-				<?php submit_button( esc_html__( 'Update Form', 'jetpack' ), 'primary', 'submit', false ); ?>
+
+				<div class="grunion-update-controls">
+					<?php submit_button( esc_html__( 'Cancel', 'jetpack' ), 'delete', 'cancel', false ); ?>
+					<?php submit_button( esc_html__( 'Update Form', 'jetpack' ), 'primary', 'submit', false ); ?>
+				</div>
 			</section>
 </script>
 

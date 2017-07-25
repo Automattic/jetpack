@@ -116,7 +116,7 @@
 				$editframe.trigger( 'checkheight' );
 			} );
 
-			var $buttons = $editframe.contents().find( '.buttons' );
+			var $buttons = $editframe.contents().find( '.grunion-controls' );
 
 			// The 'save' listener.
 			$buttons.find( 'input[name=submit]' ).on( 'click', function(){
