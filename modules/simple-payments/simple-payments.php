@@ -111,7 +111,7 @@ class Jetpack_Simple_Payments {
 		}
 		return "
 <div class='{$data['class']} ${css_prefix}-wrapper'>
-	<p class='${css_prefix}-purchase-message' id='{$data['dom_id']}-message-container'></p>
+	<div class='${css_prefix}-purchase-message' id='{$data['dom_id']}-message-container'></div>
 	<div class='${css_prefix}-product'>
 		{$image}
 		<div class='${css_prefix}-details'>

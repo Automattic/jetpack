@@ -4,7 +4,7 @@
 
 /* Higher specificity in order to reset paragraph style */
 body .jetpack-simple-payments-wrapper .jetpack-simple-payments-details p {
-	margin: 0 0 1.5em 0;
+	margin: 0 0 1.5em;
 	padding: 0;
 }
 
@@ -66,12 +66,19 @@ input[type="number"].jetpack-simple-payments-items-number {
 
 .jetpack-simple-payments-purchase-message {
 	display: none;
-	padding: 1em;
+	padding: 0.5em 1em;
+	margin-bottom: 1.5em;
 }
 
 /* Higher specificity in order to set the text color */
-body .jetpack-simple-payments-wrapper p.jetpack-simple-payments-purchase-message {
+body .jetpack-simple-payments-wrapper .jetpack-simple-payments-purchase-message p {
 	color: #fff;
+	margin: 0 0 0.5em;
+	padding: 0;
+}
+
+body .jetpack-simple-payments-wrapper .jetpack-simple-payments-purchase-message p:last-child {
+	margin: 0;
 }
 
 .jetpack-simple-payments-purchase-message.show {
