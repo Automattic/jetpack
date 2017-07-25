@@ -81,15 +81,12 @@ class Jetpack_Simple_Payments {
 			'multiple'    => get_post_meta( $product->ID, 'spay_multiple', true ) || '0'
 		), $attrs );
 
-		if ( $formatted_price = get_post_meta( $product->ID, 'spay_formatted_price', true ) ) {
-			$data['price'] = $formatted_price;
-		} else {
-			$data['price'] = $this->format_price(
-				get_post_meta( $product->ID, 'spay_price', true ),
-				get_post_meta( $product->ID, 'spay_currency', true ),
-				$data
-			);
-		}
+		$data['price'] = $this->format_price(
+			get_post_meta( $product->ID, 'spay_formatted_price', true ),
+			get_post_meta( $product->ID, 'spay_price', true ),
+			get_post_meta( $product->ID, 'spay_currency', true ),
+			$data
+		);
 
 		$data['id'] = $attrs['id'];
 		if ( ! wp_script_is( 'paypal-express-checkout', 'enqueued' ) ) {
@@ -139,8 +136,10 @@ class Jetpack_Simple_Payments {
 		";
 	}
 
-	function format_price( $price, $currency, $all_data ) {
-		// TODO: better price formatting logic. Extracting from woocmmerce is not a solution since its bound with woo site options.
+	function format_price( $formatted_price, $price, $currency, $all_data ) {
+		if ( $formatted_price ) {
+			return $formatted_price;
+		}
 		return "$price $currency";
 	}
 
@@ -226,6 +225,7 @@ class Jetpack_Simple_Payments {
 		 * thumbnail - image
 		 * metadata:
 		 * spay_price - price
+		 * spay_formatted_price
 		 * spay_currency - currency code
 		 * spay_cta - text with "Buy" or other CTA
 		 * spay_email - paypal email
