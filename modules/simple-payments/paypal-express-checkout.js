@@ -92,7 +92,7 @@ var PaypalExpressCheckout = {
 		var defaultMessage = 'There was an issue processing your payment.';
 
 		if ( ! error ) {
-			return defaultMessage;
+			return '<p>' + defaultMessage + '</p>';
 		}
 
 		if ( error.additional_errors ) {
