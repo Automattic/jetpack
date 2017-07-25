@@ -107,14 +107,14 @@ class Jetpack_Simple_Payments {
 		}
 		$image = "";
 		if( has_post_thumbnail( $data['id'] ) ) {
-			$image = "<div class='${css_prefix}-image'>" . get_the_post_thumbnail( $data['id'], 'full' ) . "</div>";
+			$image = "<div class='${css_prefix}-product-image'><div class='${css_prefix}-image'>" . get_the_post_thumbnail( $data['id'], 'full' ) . "</div></div>";
 		}
 		return "
 <div class='{$data['class']} ${css_prefix}-wrapper'>
-	<p class='${css_prefix}-purchase-message'></p>
-	<div class='${css_prefix}-product'> 
+	<div class='${css_prefix}-purchase-message' id='{$data['dom_id']}-message-container'></div>
+	<div class='${css_prefix}-product'>
 		{$image}
-		<div class='${css_prefix}-details'> 
+		<div class='${css_prefix}-details'>
 			<div class='${css_prefix}-title'><p>{$data['title']}</p></div>
 			<div class='${css_prefix}-description'><p>{$data['description']}</p></div>
 			<div class='${css_prefix}-price'><p>{$data['price']}</p></div>
