@@ -207,15 +207,15 @@
 		}
 	);
 
-	var $wp_content_wrap = $('#wp-content-wrap');
+	var $wp_content_wrap = $( '#wp-content-wrap' );
 	$( '#insert-jetpack-contact-form' ).on( 'click', function( e ) {
 		e.preventDefault();
-		if ( $wp_content_wrap.hasClass('tmce-active') ) {
-			tinymce.execCommand( 'grunion_add_form' );
-		} else if ( $wp_content_wrap.hasClass('html-active') ) {
+		if ( $wp_content_wrap.hasClass( 'tmce-active' ) ) {
+			tinyMCE.execCommand( 'grunion_add_form' );
+		} else if ( $wp_content_wrap.hasClass( 'html-active' ) ) {
 			QTags.insertContent( '[contact-form]' + grunionEditorView.default_form + '[/contact-form]' );
 		} else {
 			window.console.error( 'Neither TinyMCE nor QuickTags is active. Unable to insert form.' );
 		}
-	} )
+	} );
 }( jQuery, wp, grunionEditorView ) );
