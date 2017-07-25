@@ -6,8 +6,14 @@ import { Component } from 'react';
 import { translate as __ } from 'i18n-calypso';
 import Button from 'components/button';
 
+/**
+ * Internal dependencies
+ */
+import JetpackDialogue from 'components/jetpack-dialogue';
+import { imagePath } from 'constants';
+
 class UpgradeNoticeContent extends Component {
-	render() {
+	renderInnerContent() {
 		return (
 			<div>
 				<p>
@@ -42,6 +48,21 @@ class UpgradeNoticeContent extends Component {
 			</div>
 		);
 	}
+
+	render() {
+		return (
+			<JetpackDialogue
+				svg={ <img src={ imagePath + 'people-around-page.svg' } width="250" alt={ __( 'People around page' ) } /> }
+				title={ __( 'A new contact form is here at last!' ) }
+				content={ this.renderInnerContent() }
+				dismiss={ this.props.dismiss }
+			/>
+		);
+	}
 }
+
+JetpackDialogue.propTypes = {
+	dismiss: React.PropTypes.func
+};
 
 export default UpgradeNoticeContent;

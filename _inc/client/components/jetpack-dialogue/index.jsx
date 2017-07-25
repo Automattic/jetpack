@@ -10,9 +10,9 @@ import noop from 'lodash/noop';
 /**
  * Internal dependencies
  */
-import { imagePath } from 'constants';
 import Gridicon from 'components/gridicon';
 import onKeyDownCallback from 'utils/onkeydown-callback';
+import { imagePath } from 'constants';
 
 class JetpackDialogue extends Component {
 	render() {
@@ -25,8 +25,8 @@ class JetpackDialogue extends Component {
 						icon="cross-small"
 						className="jp-dialogue-full__dismiss"
 						tabIndex="0"
-						onKeyDown={ onKeyDownCallback( this.props.dismissOnClick ) }
-						onClick={ this.props.dismissOnClick }
+						onKeyDown={ onKeyDownCallback( this.props.dismiss ) }
+						onClick={ this.props.dismiss }
 					/>
 				}
 
@@ -63,7 +63,7 @@ JetpackDialogue.propTypes = {
 JetpackDialogue.defaultProps = {
 	svg: false,
 	showDismiss: true,
-	dismissOnClick: noop,
+	dismiss: noop,
 	content: '',
 	title: '',
 };
