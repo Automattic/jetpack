@@ -107,7 +107,7 @@ class Jetpack_Simple_Payments {
 
 		if ( $data['multiple'] ) {
 			$items="<div class='${css_prefix}-items'>
-				<input class='${css_prefix}-items-number' type='number' value='1' id='{$data['dom_id']}_number' />
+				<input class='${css_prefix}-items-number' type='number' value='1' min='1' id='{$data['dom_id']}_number' />
 			</div>";
 		}
 		$image = "";
