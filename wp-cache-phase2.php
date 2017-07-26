@@ -81,7 +81,7 @@ function wpcache_do_rebuild( $dir ) {
 		return false;
 	}
 
-	$dir = trailingslashit( realpath( $dir ) );
+	$dir = wpsc_get_realpath( $dir );
 
 	if ( isset( $do_rebuild_list[ $dir ] ) ) {
 		wp_cache_debug( "wpcache_do_rebuild: directory already rebuilt: $dir" );
@@ -90,11 +90,10 @@ function wpcache_do_rebuild( $dir ) {
 
 	$protected = wpsc_get_protected_directories();
 	foreach( $protected as $id => $directory ) {
-		$protected[ $id ] = trailingslashit( realpath( $directory ) );
+		$protected[ $id ] = wpsc_get_realpath( $directory );
 	}
-	$rp_cache_path = trailingslashit( realpath( $cache_path ) );
 
-	if ( substr( $dir, 0, strlen( $rp_cache_path ) ) != $rp_cache_path ) {
+	if ( ! wpsc_is_in_cache_directory( $dir ) ) {
 		wp_cache_debug( "wpcache_do_rebuild: exiting as directory not in cache_path: $dir" );
 		return false;
 	}
@@ -115,6 +114,7 @@ function wpcache_do_rebuild( $dir ) {
 		return false;
 	}
 
+	$dir = trailingslashit( $dir );
 	$wpsc_file_mtimes = array();
 	while ( ( $file = readdir( $dh ) ) !== false ) {
 		if ( $file == '.' || $file == '..' || false == is_file( $dir . $file ) ) {
@@ -645,9 +645,8 @@ function wp_cache_get_ob(&$buffer) {
 
 	if( @is_dir( $dir ) == false )
 		@wp_mkdir_p( $dir );
-	$dir = realpath( $dir ) . '/';
-	$rp_cache_path = realpath( $cache_path );
-	if ( substr( $dir, 0, strlen( $rp_cache_path ) ) != $rp_cache_path ) {
+	$dir = trailingslashit( wpsc_get_realpath( $dir ) );
+	if ( ! wpsc_is_in_cache_directory( $dir ) ) {
 		wp_cache_debug( "wp_cache_get_ob: not caching as directory is not in cache_path: $dir" );
 		return $buffer;
 	}
@@ -877,20 +876,15 @@ function wp_cache_phase2_clean_cache($file_prefix) {
 function prune_super_cache( $directory, $force = false, $rename = false ) {
 	global $cache_max_time, $cache_path, $blog_cache_dir;
 	static $log = 0;
-	static $rp_cache_path = '';
 	static $protected_directories = '';
 
-	if ( $rp_cache_path == '' ) {
-		$rp_cache_path = trailingslashit( realpath( $cache_path ) );
-	}
-
 	$dir = $directory;
-	$directory = realpath( $directory );
+	$directory = wpsc_get_realpath( $directory );
 	if ( $directory == '' ) {
 		wp_cache_debug( "prune_super_cache: exiting as file/directory does not exist : $dir" );
 		return false;
 	}
-	if ( substr( $directory, 0, strlen( $rp_cache_path ) ) != $rp_cache_path ) {
+	if ( ! wpsc_is_in_cache_directory( $directory ) ) {
 		wp_cache_debug( "prune_super_cache: exiting as directory is not in cache path: *$directory* (was $dir before realpath)" );
 		return false;
 	}
@@ -971,25 +965,21 @@ function prune_super_cache( $directory, $force = false, $rename = false ) {
 
 function wp_cache_rebuild_or_delete( $file ) {
 	global $cache_rebuild_files, $cache_path, $file_prefix;
-	static $rp_cache_path = '';
 
-	if ( $rp_cache_path == '' ) {
-		$rp_cache_path = trailingslashit( realpath( $cache_path ) );
-	}
 
 	if ( strpos( $file, '?' ) !== false )
 		$file = substr( $file, 0, strpos( $file, '?' ) );
 
-	$file = realpath( $file );
+	$file = wpsc_get_realpath( $file );
 
-	if ( substr( $file, 0, strlen( $rp_cache_path ) ) != $rp_cache_path ) {
+	if ( ! wpsc_is_in_cache_directory( $file ) ) {
 		wp_cache_debug( "rebuild_or_gc quitting because file is not in cache_path: $file" );
 		return false;
 	}
 
 	$protected = wpsc_get_protected_directories();
 	foreach( $protected as $id => $directory ) {
-		$protected[ $id ] = trailingslashit( realpath( $directory ) );
+		$protected[ $id ] = wpsc_get_realpath( $directory );
 	}
 
 	if ( in_array( $file, $protected ) ) {

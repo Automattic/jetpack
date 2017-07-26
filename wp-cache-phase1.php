@@ -130,8 +130,8 @@ function wp_super_cache_init() {
 
 	$cache_filename = $file_prefix . $key . '.php';
 	$meta_file = $file_prefix . $key . '.php';
-	$cache_file = realpath( $blog_cache_dir . $cache_filename );
-	$meta_pathname = realpath( $blog_cache_dir . 'meta/' . $meta_file );
+	$cache_file = wpsc_get_realpath( $blog_cache_dir . $cache_filename );
+	$meta_pathname = wpsc_get_realpath( $blog_cache_dir . 'meta/' . $meta_file );
 	return compact( 'key', 'cache_filename', 'meta_file', 'cache_file', 'meta_pathname' );
 }
 
@@ -672,23 +672,51 @@ function wpsc_rebuild_files( $dir ) {
 	return wpsc_delete_files( $dir, false );
 }
 
-function wpsc_delete_files( $dir, $delete = true ) {
+// realpath() doesn't always remove the trailing slash
+function wpsc_get_realpath( $directory ) {
+	$directory = realpath( $directory );
+	if ( substr( $directory, -1 ) == '/' || substr( $directory, -1 ) == '\\' ) {
+		$directory = substr( $directory, 0, -1 ); // remove trailing slash
+	}
+
+	return $directory;
+}
+
+// return true if directory is in the cache directory
+function wpsc_is_in_cache_directory( $directory ) {
 	global $cache_path;
 	static $rp_cache_path = '';
+
+	if ( $rp_cache_path == '' ) {
+		$rp_cache_path = wpsc_get_realpath( $cache_path );
+	}
+
+	$directory = wpsc_get_realpath( $directory );
+
+	if ( substr( $directory, 0, strlen( $rp_cache_path ) ) == $rp_cache_path ) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+function wpsc_delete_files( $dir, $delete = true ) {
+	global $cache_path;
 	static $protected = '';
 
 	// only do this once, this function will be called many times
-	if ( $rp_cache_path == '' ) {
+	if ( $protected == '' ) {
 		$protected = array( $cache_path, $cache_path . "blogs/", $cache_path . 'supercache' );
 		foreach( $protected as $id => $directory ) {
-			$protected[ $id ] = trailingslashit( realpath( $directory ) );
+			$protected[ $id ] = trailingslashit( wpsc_get_realpath( $directory ) );
 		}
-		$rp_cache_path = trailingslashit( realpath( $cache_path ) );
 	}
 
-	$dir = trailingslashit( realpath( $dir ) );
-	if ( substr( $dir, 0, strlen( $rp_cache_path ) ) != $rp_cache_path )
+	$dir = trailingslashit( wpsc_get_realpath( $dir ) );
+
+	if ( ! wpsc_is_in_cache_directory( $dir ) ) {
 		return false;
+	}
 
 	if ( in_array( $dir, $protected ) )
 		return false;
@@ -712,10 +740,11 @@ function wpsc_delete_files( $dir, $delete = true ) {
 function get_all_supercache_filenames( $dir = '' ) {
 	global $wp_cache_mobile_enabled, $cache_path;
 
-	$dir = realpath( $dir );
-	$rp_cache_path = realpath( $cache_path );
-	if ( substr( $dir, 0, strlen( $rp_cache_path ) ) != $rp_cache_path )
+	$dir = wpsc_get_realpath( $dir );
+
+	if ( ! wpsc_is_in_cache_directory( $dir ) ) {
 		return array();
+	}
 
 	$filenames = array( 'index.html', 'index-https.html', 'index.html.php' );
 
@@ -822,16 +851,18 @@ function wp_supercache_cache_for_admins() {
 function wp_cache_confirm_delete( $dir ) {
 	global $cache_path, $blog_cache_dir;
 	// don't allow cache_path, blog cache dir, blog meta dir, supercache.
-	$dir = realpath( $dir );
-	$rp_cache_path = realpath( $cache_path );
-	if ( substr( $dir, 0, strlen( $rp_cache_path ) ) != $rp_cache_path )
+	$dir = wpsc_get_realpath( $dir );
+	$rp_cache_path = wpsc_get_realpath( $cache_path );
+	if ( ! wpsc_is_in_cache_directory( $dir ) ) {
 		return false;
+	}
+
 
 	if ( 
 		$dir == $rp_cache_path ||
-		$dir == realpath( $blog_cache_dir ) ||
-		$dir == realpath( $blog_cache_dir . "meta/" ) ||
-		$dir == realpath( $cache_path . "supercache" )
+		$dir == wpsc_get_realpath( $blog_cache_dir ) ||
+		$dir == wpsc_get_realpath( $blog_cache_dir . "meta/" ) ||
+		$dir == wpsc_get_realpath( $cache_path . "supercache" )
 	) {
 		return false;
 	} else {
