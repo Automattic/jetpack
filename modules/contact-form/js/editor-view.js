@@ -113,7 +113,7 @@
 				}, 250 );
 
 				var $editfields = $editframe.contents().find( '.grunion-fields' ),
-					$buttons = $editframe.contents().find( '.buttons' );
+					$buttons = $editframe.contents().find( '.grunion-controls' );
 
 				$editfields.sortable();
 
