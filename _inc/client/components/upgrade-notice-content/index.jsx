@@ -19,7 +19,7 @@ class UpgradeNoticeContent extends Component {
 				<p>
 					{ __( 'With this release, your contact form just got a bit sweeter. We moved the big old button ' +
 						"right down into your editor's toolbar on the right. Yes, it's a little smaller, but it fits " +
-						"in a bit better, don't you think? Oh and all your forms now have a preview that can be edited" +
+						"in a bit better, don't you think? Oh and all your forms now have a preview that can be edited " +
 						'all right inside the editor.' ) }
 				</p>
 
