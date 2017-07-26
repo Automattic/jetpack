@@ -2,7 +2,7 @@
 Contributors: donncha, automattic, kraftbj
 Tags: performance,caching,wp-cache,wp-super-cache,cache
 Tested up to: 4.8
-Stable tag: 1.5.1
+Stable tag: 1.5.2
 Requires at least: 3.0
 
 A very fast caching engine for WordPress that produces static html files.
@@ -46,7 +46,7 @@ See the [WP Super Cache homepage](https://wordpress.org/plugins/wp-super-cache/)
 
 There's a [GIT repository](https://github.com/Automattic/wp-super-cache) too if you want to contribute a patch.
 
-The [changelog](http://svn.wp-plugins.org/wp-super-cache/trunk/Changelog.txt) is a good place to start if you want to know what has changed since you last downloaded the plugin.
+The [commit list](https://github.com/Automattic/wp-super-cache/commits/master) is a good place to start if you want to know what has changed since you last downloaded the plugin.
 
 Interested in translating WP Super Cache to your language? See the [translation page](https://translate.wordpress.org/projects/wp-plugins/wp-super-cache) for the plugin.
 
@@ -54,10 +54,23 @@ The cache directory, usually wp-content/cache/ is only for temporary files. Do n
 
 == Upgrade Notice ==
 
-= 1.5.1 =
-Emergency fix for sites running outdated WordPress and PHP.
+= 1.5.2 =
+Fix loading the REST API code, finding the .htaccess file, mobile browsers using WP-Cache caching, and more..
 
 == Changelog ==
+
+= 1.5.2 =
+* Add a trailing slash to home path. Fixes problems with finding the .htaccess file.
+* Delete WPCACHEHOME and WP_CACHE from wp-config.php when plugin deactivated.
+* Check that WPCACHEHOME is the right path on each load of the settings page.
+* Load the REST API code without using WPCACHEHOME.
+* Fixed mobile browser caching when using WP-Cache caching.
+* Fixed directory checks on Windows machines.
+* Reverted CDN changes in 1.5.0 as they caused problems in older "WordPress in a separate directory" installs.
+* Added note to CDN page when site url != home url. Site owners can use a filter to adjust the URL used.
+* Stop preload quicker when requested while preloading taxonomies.
+* Added more information for when updating the .htaccess file fails.
+* "Served by" header is now optional. Enable it by setting $wpsc_served_header to true in the config file.
 
 = 1.5.1 =
 * Don't use anonymous functions in REST API
