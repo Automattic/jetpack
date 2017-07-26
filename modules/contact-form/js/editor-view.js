@@ -95,16 +95,17 @@
 					$stylesheet = $( '<link rel="stylesheet" href="' + stylesheet_url + '" />' ),
 					$dashicons_css = $( '<link rel="stylesheet" href="' + grunionEditorView.dashicons_css_url + '" />' );
 
-				$editframe.contents().find( 'head' ).append( $stylesheet ).append( $dashicons_css );
 				$stylesheet.on( 'load', function() {
+					$editframe.contents().find( 'body' ).css( 'visibility', 'visible' );
 					$editframe.trigger( 'checkheight' );
 				} );
+				$editframe.contents().find( 'head' ).append( $stylesheet ).append( $dashicons_css );
 
 				$editframe.contents().find( 'body' ).html( wp.mce.grunion_wp_view_renderer.editor_inline( {
 					to      : shortcode.attrs.named.to,
 					subject : shortcode.attrs.named.subject,
 					fields  : fields
-				} ) );
+				} ) ).css( 'visibility', 'hidden' );
 
 				$editframe.contents().find( 'input:first' ).focus();
 
