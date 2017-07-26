@@ -88,7 +88,7 @@
 				this.style.height = '10px';
 				this.style.height = ( 5 + innerDoc.body.scrollHeight ) + 'px';
 				tinyMCE.activeEditor.execCommand( 'wpAutoResize' );
-			} )
+			} );
 
 			$editframe.on( 'load', function() {
 				var stylesheet_url = ( 1 === window.isRtl ) ? grunionEditorView.inline_editing_style_rtl : grunionEditorView.inline_editing_style,
