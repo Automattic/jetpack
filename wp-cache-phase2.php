@@ -874,6 +874,12 @@ function wp_cache_phase2_clean_cache($file_prefix) {
 }
 
 function prune_super_cache( $directory, $force = false, $rename = false ) {
+
+	// Don't prune a NULL/empty directory.
+	if ( null === $directory || '' === $directory ) {
+		return false;
+	}
+
 	global $cache_max_time, $cache_path, $blog_cache_dir;
 	static $log = 0;
 	static $protected_directories = '';
