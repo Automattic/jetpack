@@ -123,7 +123,7 @@ class AtAGlance extends Component {
          */
 		let stats = '';
 		if ( this.props.userCanViewStats ) {
-			stats = <DashStats { ...urls } />;
+			stats = <DashStats { ...settingsProps } { ...urls } />;
 		}
 
 		let protect = '';
