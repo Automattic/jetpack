@@ -22,7 +22,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		// Sidebar updates.
 		add_action( 'update_option_sidebars_widgets', array( $this, 'sync_sidebar_widgets_actions' ), 10, 2 );
 
-		add_action( 'jetpack_widget_added', $callable, 10, 4 );
+		add_action( 'jetpack_widget_added', $callable, 10, 5 );
 		add_action( 'jetpack_widget_removed', $callable, 10, 4 );
 		add_action( 'jetpack_widget_moved_to_inactive', $callable, 10, 2 );
 		add_action( 'jetpack_cleared_inactive_widgets', $callable );
@@ -268,6 +268,20 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		$moved_to_sidebar = array();
 		$sidebar_name = $this->get_sidebar_name( $sidebar );
 
+		if ( empty( $delete_theme_call ) ) {
+			return;
+		}
+
+		//Determine whether widgets were added via theme switch
+		$backtrace = debug_backtrace();
+		$is_theme_switch = false;
+		foreach ( $backtrace as $call ) {
+			if ( isset( $call['function'] ) && 'after_switch_theme' === $call['args'][0] ) {
+				$is_theme_switch = true;
+				break;
+			}
+		}
+
 		foreach ( $added_widgets as $added_widget ) {
 			$moved_to_sidebar[] = $added_widget;
 			$added_widget_name = $this->get_widget_name( $added_widget );
@@ -280,9 +294,10 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 			 * @param string $added_widget, Widget id got added
 			 * @param string $sidebar_name, Sidebar id got changed Since 5.0.0
 			 * @param string $added_widget_name, Widget id got added Since 5.0.0
+			 * @param string $is_theme_switch, If theme switched got added since 5.3
 			 *
 			 */
-			do_action( 'jetpack_widget_added', $sidebar, $added_widget,  $sidebar_name, $added_widget_name );
+			do_action( 'jetpack_widget_added', $sidebar, $added_widget,  $sidebar_name, $added_widget_name, $is_theme_switch );
 		}
 		return $moved_to_sidebar;
 	}
