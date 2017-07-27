@@ -1388,10 +1388,21 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	 *
 	 * @param string $content
 	 */
-	static function store_shortcode( $content = null, $attributes = null ) {
+	function store_shortcode( $content = null, $attributes = null ) {
 
 		if ( $content != null and isset( $attributes['id'] ) ) {
 
+			$meta = (array) get_post_meta( $attributes['id'], '_jetpack_contact_forms', true );
+
+			// If it doesn't know about our form yet, store it.
+			if ( ! array_key_exists( $this->hash, $meta ) ) {
+				$meta[ $this->hash ] = array(
+					'content'    => $content,
+					'attributes' => $attributes,
+				);
+				update_post_meta( $attributes['id'], '_jetpack_contact_forms', $meta );
+			}
+/*
 			$shortcode_meta = get_post_meta( $attributes['id'], '_g_feedback_shortcode', true );
 
 			if ( $shortcode_meta != '' or $shortcode_meta != $content ) {
@@ -1400,6 +1411,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				// Save attributes to post_meta for later use. They're not available later in do_shortcode situations.
 				update_post_meta( $attributes['id'], '_g_feedback_shortcode_atts', $attributes );
 			}
+*/
 		}
 	}
 
