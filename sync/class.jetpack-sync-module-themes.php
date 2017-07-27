@@ -69,7 +69,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 			 *
 			 * @param mixed $newly_disabled_themes, Array of info about network disabled themes
 			 * @param mixed $all_enabled_theme_slugs, Array of slugs of all enabled themes
-			 * @param bool $is_theme_deletion, Whether a theme was deleted
+			 * @param bool $is_theme_deletion, Whether a theme was deleted, Since 5.3
 			 */
 			do_action( 'jetpack_network_disabled_themes', $newly_disabled_themes, $all_enabled_theme_slugs, $is_theme_deletion );
 			return;
