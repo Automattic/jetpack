@@ -182,6 +182,13 @@ class Grunion_Editor_View {
 	</div>
 </script>
 
+<script type="text/html" id="tmpl-grunion-field-url">
+	<div>
+		<label for='{{ data.id }}' class='grunion-field-label {{ data.type }}'>{{ data.label }}<# if ( data.required ) print( " <span>" + data.required + "</span>" ) #></label>
+		<input type='url' name='{{ data.id }}' id='{{ data.id }}' value='{{ data.value }}' class='{{ data.class }}' placeholder='{{ data.placeholder }}' />
+	</div>
+</script>
+
 
 <script type="text/html" id="tmpl-grunion-field-edit">
 	<div class="card is-compact grunion-field-edit grunion-field-{{ data.type }}" aria-label="<?php esc_attr_e( 'Form Field', 'jetpack' ); ?>">
