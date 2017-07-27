@@ -270,7 +270,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		$backtrace = debug_backtrace();
 		$is_theme_switch = false;
 		foreach ( $backtrace as $call ) {
-			if ( isset( $call['function'] ) && 'after_switch_theme' === $call['args'][0] ) {
+			if ( isset( $call['args'][0] ) && 'after_switch_theme' === $call['args'][0] ) {
 				$is_theme_switch = true;
 				break;
 			}
