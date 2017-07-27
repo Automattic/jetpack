@@ -1443,7 +1443,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			return '[contact-form]';
 		}
 
-		// Only allow one contact form per post/widget
+/*		// Only allow one contact form per post/widget
 		if ( self::$last && $id == self::$last->get_attribute( 'id' ) ) {
 			// We're processing the same post
 			if ( self::$last->attributes != $form->attributes || self::$last->content != $form->content ) {
@@ -1451,9 +1451,9 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 				return '';
 			} // else, we're processing the same shortcode - probably a separate run of do_shortcode() - let it through
 
-		} else {
+		} else { */
 			self::$last = $form;
-		}
+//		}
 
 		// Enqueue the grunion.css stylesheet if self::$style allows it
 		if ( self::$style && ( empty( $_REQUEST['action'] ) || $_REQUEST['action'] != 'grunion_shortcode_to_json' ) ) {
