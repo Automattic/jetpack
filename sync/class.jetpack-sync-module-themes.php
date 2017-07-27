@@ -16,7 +16,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		add_filter( 'wp_redirect', array( $this, 'detect_theme_edit' ) );
 		add_action( 'jetpack_edited_theme', $callable, 10, 2 );
 		add_action( 'update_site_option_allowedthemes', array( $this, 'sync_network_allowed_themes_change' ), 10, 4 );
-		add_action( 'jetpack_network_disabled_themes', $callable, 10, 2 );
+		add_action( 'jetpack_network_disabled_themes', $callable, 10, 3 );
 		add_action( 'jetpack_network_enabled_themes', $callable, 10, 2 );
 
 		// Sidebar updates.
