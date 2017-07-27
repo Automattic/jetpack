@@ -268,10 +268,6 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		$moved_to_sidebar = array();
 		$sidebar_name = $this->get_sidebar_name( $sidebar );
 
-		if ( empty( $delete_theme_call ) ) {
-			return;
-		}
-
 		//Determine whether widgets were added via theme switch
 		$backtrace = debug_backtrace();
 		$is_theme_switch = false;
