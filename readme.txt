@@ -2,7 +2,7 @@
 Contributors: donncha, automattic, kraftbj
 Tags: performance,caching,wp-cache,wp-super-cache,cache
 Tested up to: 4.8
-Stable tag: 1.5.2
+Stable tag: 1.5.3
 Requires at least: 3.0
 
 A very fast caching engine for WordPress that produces static html files.
@@ -54,10 +54,13 @@ The cache directory, usually wp-content/cache/ is only for temporary files. Do n
 
 == Upgrade Notice ==
 
-= 1.5.2 =
-Fix loading the REST API code, finding the .htaccess file, mobile browsers using WP-Cache caching, and more..
+= 1.5.3 =
+Emergency fix of a critical bug that caused wp-super-cache to delete the wp-admin when deleting the plugin thanks to a null cache path
 
 == Changelog ==
+
+= 1.5.3 =
+* Fix a critical bug that caused unlink to be run on null while deleting the plugin.
 
 = 1.5.2 =
 * Add a trailing slash to home path. Fixes problems with finding the .htaccess file.
