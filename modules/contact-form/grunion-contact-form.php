@@ -1291,6 +1291,11 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	public $errors;
 
 	/**
+	 * @var string The SHA1 hash of the attributes that comprise the form.
+	 */
+	public $hash;
+
+	/**
 	 * @var Grunion_Contact_Form The most recent (inclusive) contact-form shortcode processed
 	 */
 	static $last;
@@ -1307,6 +1312,8 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 
 	function __construct( $attributes, $content = null ) {
 		global $post;
+
+		$this->hash = sha1( json_encode( $attributes ) . $content );
 
 		// Set up the default subject and recipient for this form
 		$default_to = '';
@@ -1529,6 +1536,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$url = apply_filters( 'grunion_contact_form_form_action', "{$url}#contact-form-{$id}", $GLOBALS['post'], $id );
 
 			$r .= "<form action='" . esc_url( $url ) . "' method='post' class='contact-form commentsblock'>\n";
+			$r .= "\t<input type='hidden' name='contact-form-hash' value='" . esc_attr( $form->hash ) . "' />\r\n";
 			$r .= $form->body;
 			$r .= "\t<p class='contact-submit'>\n";
 			$r .= "\t\t<input type='submit' value='" . esc_attr( $form->get_attribute( 'submit_button_text' ) ) . "' class='pushbutton-wide'/>\n";
