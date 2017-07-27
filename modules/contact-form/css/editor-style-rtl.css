@@ -591,6 +591,8 @@ input[type="submit"]:focus {
 	min-height: 500px;
 	border: 0;
 	overflow: hidden;
+	margin-bottom: 0;
+	display: block;
 }
 
 .contact-submit.contact-submit {
