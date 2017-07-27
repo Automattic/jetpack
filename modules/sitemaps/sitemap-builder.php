@@ -10,7 +10,7 @@
 require_once dirname( __FILE__ ) . '/sitemap-constants.php';
 require_once dirname( __FILE__ ) . '/sitemap-buffer.php';
 
-if ( true || ! ( function_exists( 'libxml_use_internal_errors' ) && function_exists( 'simplexml_load_string' ) ) ) {
+if ( ! ( function_exists( 'libxml_use_internal_errors' ) && function_exists( 'simplexml_load_string' ) ) ) {
 	require_once dirname( __FILE__ ) . '/sitemap-buffer-fallback.php';
 	require_once dirname( __FILE__ ) . '/sitemap-buffer-image-fallback.php';
 	require_once dirname( __FILE__ ) . '/sitemap-buffer-master-fallback.php';
