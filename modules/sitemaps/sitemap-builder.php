@@ -568,7 +568,7 @@ class Jetpack_Sitemap_Builder {
 		 * @module sitemaps
 		 *
 		 * @since 3.9.0
-		 * @since 5.1.0 returns an element of DOMDocument type instead of SimpleXMLElement
+		 * @since 5.3.0 returns an element of DOMDocument type instead of SimpleXMLElement
 		 *
 		 * @param DOMDocument      $doc Data tree for sitemap.
 		 * @param string           $last_modified Date of last modification.

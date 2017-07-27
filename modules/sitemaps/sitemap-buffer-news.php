@@ -5,14 +5,14 @@
  * extends the Jetpack_Sitemap_Buffer class to represent the single news sitemap
  * buffer.
  *
- * @since 5.1.0
+ * @since 5.3.0
  * @package Jetpack
  */
 
 /**
  * A buffer for constructing sitemap image xml files.
  *
- * @since 5.1.0
+ * @since 5.3.0
  */
 class Jetpack_Sitemap_Buffer_News extends Jetpack_Sitemap_Buffer {
 

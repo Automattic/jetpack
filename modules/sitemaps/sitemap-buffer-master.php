@@ -5,14 +5,14 @@
  * extends the Jetpack_Sitemap_Buffer class to represent the master sitemap
  * buffer.
  *
- * @since 5.1.0
+ * @since 5.3.0
  * @package Jetpack
  */
 
 /**
  * A buffer for constructing master sitemap xml files.
  *
- * @since 5.1.0
+ * @since 5.3.0
  */
 class Jetpack_Sitemap_Buffer_Master extends Jetpack_Sitemap_Buffer {
 

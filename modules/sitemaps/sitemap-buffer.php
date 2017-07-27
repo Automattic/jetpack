@@ -73,7 +73,7 @@ abstract class Jetpack_Sitemap_Buffer {
 	 * The DOM document object that is currently being used to construct the XML doc.
 	 *
 	 * @access protected
-	 * @since 5.1.0
+	 * @since 5.3.0
 	 * @var DOMDocument $doc
 	 */
 	protected $doc = null;
@@ -83,7 +83,7 @@ abstract class Jetpack_Sitemap_Buffer {
 	 * the get_root_element getter method instead.
 	 *
 	 * @access protected
-	 * @since 5.1.0
+	 * @since 5.3.0
 	 * @var DOMElement $doc
 	 */
 	protected $root = null;
@@ -91,7 +91,7 @@ abstract class Jetpack_Sitemap_Buffer {
 	/**
 	 * Helper class to construct sitemap paths.
 	 *
-	 * @since 5.1.0
+	 * @since 5.3.0
 	 * @protected
 	 * @var Jetpack_Sitemap_Finder
 	 */
@@ -121,7 +121,7 @@ abstract class Jetpack_Sitemap_Buffer {
 	 * Returns a DOM element that contains all sitemap elements.
 	 *
 	 * @access protected
-	 * @since 5.1.0
+	 * @since 5.3.0
 	 * @return DOMElement $root
 	 */
 	abstract protected function get_root_element();
@@ -141,7 +141,7 @@ abstract class Jetpack_Sitemap_Buffer {
 	public function try_to_add_item( $item ) {
 		_deprecated_function(
 			'Jetpack_Sitemap_Buffer::try_to_add_item',
-			'5.1.0',
+			'5.3.0',
 			'Jetpack_Sitemap_Buffer::append'
 		);
 		$this->append( $item );
@@ -153,7 +153,7 @@ abstract class Jetpack_Sitemap_Buffer {
 	 * we set is_full_flag to true. If $item is null,
 	 * don't do anything and report success.
 	 *
-	 * @since 5.1.0
+	 * @since 5.3.0
 	 *
 	 * @param array $array The item to be added.
 	 *
@@ -195,7 +195,7 @@ abstract class Jetpack_Sitemap_Buffer {
 	/**
 	 * Retrieve the document object.
 	 *
-	 * @since 5.1.0
+	 * @since 5.3.0
 	 * @return DOMDocument $doc
 	 */
 	public function get_document() {
@@ -274,7 +274,7 @@ abstract class Jetpack_Sitemap_Buffer {
 	 * @access protected
 	 * @since 3.9.0
 	 * @since 4.8.0 Rename, add $depth parameter, and change return type.
-	 * @since 5.1.0 Refactor, remove $depth parameter, add $parent and $root, make access protected.
+	 * @since 5.3.0 Refactor, remove $depth parameter, add $parent and $root, make access protected.
 	 *
 	 * @param array  $array A recursive associative array of tag/child relationships.
 	 * @param DOMElement $parent (optional) an element to which new children should be added.
