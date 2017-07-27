@@ -53,6 +53,9 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 	}
 
 	public function sync_network_allowed_themes_change( $option, $value, $old_value, $network_id ) {
+		error_log(print_r($value, true));
+		error_log(print_r($old_value, true));
+		error_log(print_r($option, true));
 		$all_enabled_theme_slugs = array_keys( $value );
 
 		if ( count( $old_value ) > count( $value ) )  {
