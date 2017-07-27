@@ -8,6 +8,7 @@
 
 require_once dirname( __FILE__ ) . '/../../../../modules/sitemaps/sitemap-constants.php';
 require_once dirname( __FILE__ ) . '/../../../../modules/sitemaps/sitemap-buffer.php';
+require_once dirname( __FILE__ ) . '/../../../../modules/sitemaps/sitemap-buffer-fallback.php';
 
 /**
  * Test class for Jetpack_Sitemap_Buffer.
@@ -212,9 +213,9 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 						'news:name'     => 'Blog about stuff',
 						'news:language' => 'en',
 					),
-					'news:title'            => 'Stuff',
+					'news:title'            => 'Stuff with stuff to escape, like less than signs: < and ampersands: &',
 					'news:publication_date' => $timestamp,
-					'news:genres'           => 'Blog',
+					'news:genres'           => 'Blog with some already escaped stuff: &amp;&#321;',
 				),
 			),
 		);
@@ -228,19 +229,26 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 			 . '<news:name>Blog about stuff</news:name>'
 			 . '<news:language>en</news:language>'
 			 . '</news:publication>'
-			 . '<news:title>Stuff</news:title>'
+			 . '<news:title>Stuff with stuff to escape, like less than signs: &lt; and ampersands: &amp;</news:title>'
 			 . "<news:publication_date>$timestamp</news:publication_date>"
-			 . '<news:genres>Blog</news:genres>'
+			 . '<news:genres>Blog with some already escaped stuff: &amp;amp;&amp;#321;</news:genres>'
 			 . '</news:news>'
 			 . '</url></dummy>' . PHP_EOL;
 
-		$buffer = new Jetpack_Sitemap_Buffer_Dummy( JP_SITEMAP_MAX_ITEMS, JP_SITEMAP_MAX_BYTES, $timestamp );
-		$buffer->append( $array );
+		foreach(
+			array(
+				new Jetpack_Sitemap_Buffer_Dummy( JP_SITEMAP_MAX_ITEMS, JP_SITEMAP_MAX_BYTES, $timestamp ),
+				new Jetpack_Sitemap_Buffer_Fallback_Dummy( JP_SITEMAP_MAX_ITEMS, JP_SITEMAP_MAX_BYTES, $timestamp )
+			) as $buffer
+		) {
+			$buffer->append( $array );
 
-		$this->assertEquals(
-			$xml,
-			$buffer->contents()
-		);
+			$this->assertEquals(
+				$xml,
+				$buffer->contents(),
+				get_class( $buffer )
+			);
+		}
 	}
 }
 
@@ -252,6 +260,19 @@ class Jetpack_Sitemap_Buffer_Dummy extends Jetpack_Sitemap_Buffer {
 		if ( ! isset ( $this->root ) ) {
 			$this->root = $this->doc->createElement( 'dummy' );
 			$this->doc->appendChild( $this->root );
+		}
+
+		return $this->root;
+	}
+}
+
+/**
+ * Dummy testing class for a concrete Buffer implementation for users with no XML support.
+ */
+class Jetpack_Sitemap_Buffer_Fallback_Dummy extends Jetpack_Sitemap_Buffer_Fallback {
+	public function get_root_element() {
+		if ( ! isset ( $this->root ) ) {
+			$this->root = array( '<dummy>', '</dummy>' );
 		}
 
 		return $this->root;
