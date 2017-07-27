@@ -11,7 +11,7 @@
  *
  * @since 5.1.0
  */
-class Jetpack_Sitemap_Buffer_Fallback extends Jetpack_Sitemap_Buffer {
+abstract class Jetpack_Sitemap_Buffer_Fallback extends Jetpack_Sitemap_Buffer {
 
 	/**
 	 * The buffer contents.
@@ -24,16 +24,13 @@ class Jetpack_Sitemap_Buffer_Fallback extends Jetpack_Sitemap_Buffer {
 
 	public function __construct( $item_limit, $byte_limit, $time = '1970-01-01 00:00:00' ) {
 		$this->is_full_flag = false;
+		$this->is_empty_flag = true;
 		$this->timestamp = $time;
 
 		$this->finder = new Jetpack_Sitemap_Finder();
 
 		$this->item_capacity = max( 1, intval( $item_limit ) );
 		$this->byte_capacity = max( 1, intval( $byte_limit ) ) - strlen( $this->contents() );
-	}
-
-	protected function get_root_element() {
-		return parent::get_root_element();
 	}
 
 	/**
@@ -64,6 +61,7 @@ class Jetpack_Sitemap_Buffer_Fallback extends Jetpack_Sitemap_Buffer {
 			$this->item_capacity -= 1;
 			$added_string = $this->array_to_xml_string( $array );
 			$this->buffer .= $added_string;
+			$this->is_empty_flag = false;
 
 			mbstring_binary_safe_encoding(); // So we can safely use strlen().
 			$this->byte_capacity -= strlen( $added_string );
@@ -71,6 +69,17 @@ class Jetpack_Sitemap_Buffer_Fallback extends Jetpack_Sitemap_Buffer {
 
 			return true;
 		}
+	}
+
+	/**
+	 * Detect whether the buffer is empty.
+	 *
+	 * @since 5.3.0
+	 *
+	 * @return bool True if the buffer is empty, false otherwise.
+	 */
+	public function is_empty() {
+		return $this->is_empty_flag;
 	}
 
 	/**
@@ -108,6 +117,27 @@ class Jetpack_Sitemap_Buffer_Fallback extends Jetpack_Sitemap_Buffer {
 			} else {
 				$string .= "<$tag>" . htmlspecialchars( $value ) . "</$tag>";
 			}
+		}
+
+		return $string;
+	}
+
+	/**
+	 * Render an associative array of XML attribute key/value pairs.
+	 *
+	 * @access public
+	 * @since 5.3.0
+	 *
+	 * @param array $array Key/value array of attributes.
+	 *
+	 * @return string The rendered attribute string.
+	 */
+	public static function array_to_xml_attr_string( $array ) {
+		$string = '';
+
+		foreach ( $array as $key => $value ) {
+			$key = preg_replace( '/[^a-zA-Z:_-]/', '_', $key );
+			$string .= ' ' . $key . '="' . esc_attr( $value ) . '"';
 		}
 
 		return $string;
