@@ -120,7 +120,9 @@ export const Comments = moduleSettingsForm(
 													{
 														gravatar.description + ' '
 													}
-													<a href={ gravatar.learn_more_button }>{ __( 'Learn more' ) }</a>
+													<a href={ gravatar.learn_more_button } target="_blank" rel="noopener noreferrer">
+														{ __( 'Learn more' ) }
+													</a>
 												</span>
 											</ModuleToggle>
 										</FormFieldset>
@@ -140,7 +142,9 @@ export const Comments = moduleSettingsForm(
 													{
 														__( 'Enable Markdown use for comments.' ) + ' '
 													}
-													<a href={ markdown.learn_more_button }>{ __( 'Learn more' ) }</a>
+													<a href={ markdown.learn_more_button } target="_blank" rel="noopener noreferrer">
+														{ __( 'Learn more' ) }
+													</a>
 												</span>
 											</ModuleToggle>
 										</FormFieldset>
@@ -161,7 +165,7 @@ export const Comments = moduleSettingsForm(
 													{
 														( 'Enable comment likes.' ) + ' '
 													}
-													<a href="https://jetpack.com/support/comment-likes/">
+													<a href="https://jetpack.com/support/comment-likes/" target="_blank" rel="noopener noreferrer">
 														{ __( 'Learn more' ) }
 													</a>
 												</span>
