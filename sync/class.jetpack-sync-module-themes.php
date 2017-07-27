@@ -53,12 +53,13 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 	}
 
 	public function sync_network_allowed_themes_change( $option, $value, $old_value, $network_id ) {
-		error_log(print_r($value, true));
-		error_log(print_r($old_value, true));
-		error_log(print_r($option, true));
 		$all_enabled_theme_slugs = array_keys( $value );
 
 		if ( count( $old_value ) > count( $value ) )  {
+
+			$delete_theme_call = $this->get_delete_theme_call();
+			$is_theme_deletion = empty( $delete_theme_call ) ? false : true;
+
 			$newly_disabled_theme_names = array_keys( array_diff_key( $old_value, $value ) );
 			$newly_disabled_themes = $this->get_theme_details_for_slugs( $newly_disabled_theme_names );
 			/**
@@ -68,8 +69,9 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 			 *
 			 * @param mixed $newly_disabled_themes, Array of info about network disabled themes
 			 * @param mixed $all_enabled_theme_slugs, Array of slugs of all enabled themes
+			 * @param bool $is_theme_deletion, Whether a theme was deleted
 			 */
-			do_action( 'jetpack_network_disabled_themes', $newly_disabled_themes, $all_enabled_theme_slugs );
+			do_action( 'jetpack_network_disabled_themes', $newly_disabled_themes, $all_enabled_theme_slugs, $is_theme_deletion );
 			return;
 		}
 
@@ -139,14 +141,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 	}
 
 	public function detect_theme_deletion() {
-		$backtrace = debug_backtrace();
-		$delete_theme_call = null;
-		foreach ( $backtrace as $call ) {
-			if ( isset( $call['function'] ) && 'delete_theme' === $call['function'] ) {
-				$delete_theme_call = $call;
-				break;
-			}
-		}
+		$delete_theme_call = $this->get_delete_theme_call();
 		if ( empty( $delete_theme_call ) ) {
 			return;
 		}
@@ -431,5 +426,17 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		$theme_support['version'] =  $theme->version;
 
 		return $theme_support;
+	}
+
+	private function get_delete_theme_call() {
+		$backtrace = debug_backtrace();
+		$delete_theme_call = null;
+		foreach ( $backtrace as $call ) {
+			if ( isset( $call['function'] ) && 'delete_theme' === $call['function'] ) {
+				$delete_theme_call = $call;
+				break;
+			}
+		}
+		return $delete_theme_call;
 	}
 }
