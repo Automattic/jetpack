@@ -137,8 +137,6 @@ function wpsupercache_uninstall() {
 	if ( !function_exists( 'prune_super_cache' ) )
 		include_once( 'wp-cache-phase2.php' );
 
-	prune_super_cache( $cache_path, true );
-
 	wp_cache_remove_index();
 
 	if ( null !== $cache_path && '' !== $cache_path ) {
