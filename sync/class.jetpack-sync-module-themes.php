@@ -69,7 +69,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 			 *
 			 * @param mixed $newly_disabled_themes, Array of info about network disabled themes
 			 * @param mixed $all_enabled_theme_slugs, Array of slugs of all enabled themes
-			 * @param bool $is_theme_deletion, Whether a theme was deleted, Since 5.3
+			 * @param bool $is_theme_deletion, Whether a theme was deleted Since 5.3
 			 */
 			do_action( 'jetpack_network_disabled_themes', $newly_disabled_themes, $all_enabled_theme_slugs, $is_theme_deletion );
 			return;
@@ -288,7 +288,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 			 * @param string $added_widget, Widget id got added
 			 * @param string $sidebar_name, Sidebar id got changed Since 5.0.0
 			 * @param string $added_widget_name, Widget id got added Since 5.0.0
-			 * @param string $is_theme_switch, If theme switched got added since 5.3
+			 * @param string $is_theme_switch, If theme got switched Since 5.3
 			 *
 			 */
 			do_action( 'jetpack_widget_added', $sidebar, $added_widget,  $sidebar_name, $added_widget_name, $is_theme_switch );
