@@ -10,7 +10,7 @@
 require_once dirname( __FILE__ ) . '/sitemap-constants.php';
 require_once dirname( __FILE__ ) . '/sitemap-buffer.php';
 
-if ( ! ( function_exists( 'libxml_use_internal_errors' ) && function_exists( 'simplexml_load_string' ) ) ) {
+if ( ! class_exists( 'DOMDocument' ) ) {
 	require_once dirname( __FILE__ ) . '/sitemap-buffer-fallback.php';
 	require_once dirname( __FILE__ ) . '/sitemap-buffer-image-fallback.php';
 	require_once dirname( __FILE__ ) . '/sitemap-buffer-master-fallback.php';
@@ -115,6 +115,17 @@ class Jetpack_Sitemap_Builder {
 	public function update_sitemap() {
 		if ( $this->logger ) {
 			$this->logger->report( '-- Updating...' );
+			if ( ! class_exists( 'DOMDocument' ) ) {
+				$this->logger->report(
+					__(
+						'-- WARNING: Jetpack can not load necessary XML manipulation libraries. '
+						. 'This can happen if XML support in PHP is not enabled on your server. '
+						. 'XML support is highly recommended for WordPress and Jetpack, please enable '
+						. 'it or contact your hosting provider about it.',
+						'jetpack'
+					)
+				);
+			}
 		}
 
 		for ( $i = 1; $i <= JP_SITEMAP_UPDATE_SIZE; $i++ ) {
