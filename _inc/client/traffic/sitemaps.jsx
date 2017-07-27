@@ -56,9 +56,9 @@ export const Sitemaps = moduleSettingsForm(
 									<FormFieldset>
 										<p className="jp-form-setting-explanation">{ __( 'Your sitemap is automatically sent to all major search engines for indexing.' ) }</p>
 										<p>
-											<ExternalLink onClick={ this.trackSitemapUrl } icon={ true } target="_blank" href={ sitemap_url }>{ sitemap_url }</ExternalLink>
+											<ExternalLink onClick={ this.trackSitemapUrl } icon={ true } target="_blank" rel="noopener noreferrer" href={ sitemap_url }>{ sitemap_url }</ExternalLink>
 											<br />
-											<ExternalLink onClick={ this.trackSitemapNewsUrl } icon={ true } target="_blank" href={ news_sitemap_url }>{ news_sitemap_url }</ExternalLink>
+											<ExternalLink onClick={ this.trackSitemapNewsUrl } icon={ true } target="_blank" rel="noopener noreferrer" href={ news_sitemap_url }>{ news_sitemap_url }</ExternalLink>
 										</p>
 									</FormFieldset>
 								)

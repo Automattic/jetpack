@@ -73,7 +73,7 @@ export const SettingsGroup = props => {
 									onClick={ trackLearnMoreClick }
 									icon={ false }
 									href={ support }
-									target="_blank">
+									target="_blank" rel="noopener noreferrer">
 									{ __( 'Learn more' ) }
 								</ExternalLink>
 							</InfoPopover>

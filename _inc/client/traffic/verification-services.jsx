@@ -38,28 +38,28 @@ export const VerificationServices = moduleSettingsForm(
 										google: (
 											<ExternalLink
 												icon={ true }
-												target="_blank"
+												target="_blank" rel="noopener noreferrer"
 												href="https://www.google.com/webmasters/tools/"
 											/>
 										),
 										bing: (
 											<ExternalLink
 												icon={ true }
-												target="_blank"
+												target="_blank" rel="noopener noreferrer"
 												href="https://www.bing.com/webmaster/"
 											/>
 										),
 										pinterest: (
 											<ExternalLink
 												icon={ true }
-												target="_blank"
+												target="_blank" rel="noopener noreferrer"
 												href="https://pinterest.com/website/verify/"
 											/>
 										),
 										yandex: (
 											<ExternalLink
 												icon={ true }
-												target="_blank"
+												target="_blank" rel="noopener noreferrer"
 												href="https://webmaster.yandex.com/sites/"
 											/>
 										)
