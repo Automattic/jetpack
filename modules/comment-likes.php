@@ -126,8 +126,8 @@ class Jetpack_Comment_Likes {
 			wp_register_style( 'open-sans', 'https://fonts.googleapis.com/css?family=Open+Sans', array(), JETPACK__VERSION );
 		}
 		wp_enqueue_style( 'jetpack_likes', plugins_url( 'likes/style.css', __FILE__ ), array( 'open-sans' ), JETPACK__VERSION );
-		wp_enqueue_script( 'postmessage', plugins_url( '_inc/postmessage.js', JETPACK__PLUGIN_DIR ), array( 'jquery' ), JETPACK__VERSION, false );
-		wp_enqueue_script( 'jetpack_resize', plugins_url( '_inc/jquery.jetpack-resize.js' , JETPACK__PLUGIN_DIR ), array( 'jquery' ), JETPACK__VERSION, false );
+		wp_enqueue_script( 'postmessage', plugins_url( '_inc/postmessage.js', JETPACK__PLUGIN_FILE ), array( 'jquery' ), JETPACK__VERSION, false );
+		wp_enqueue_script( 'jetpack_resize', plugins_url( '_inc/jquery.jetpack-resize.js' , JETPACK__PLUGIN_FILE ), array( 'jquery' ), JETPACK__VERSION, false );
 		wp_enqueue_script( 'jetpack_likes_queuehandler', plugins_url( 'likes/queuehandler.js' , __FILE__ ), array( 'jquery', 'postmessage', 'jetpack_resize' ), JETPACK__VERSION, true );
 	}
 
