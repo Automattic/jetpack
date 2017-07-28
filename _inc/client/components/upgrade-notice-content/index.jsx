@@ -23,6 +23,8 @@ class UpgradeNoticeContent extends Component {
 						'all right inside the editor.' ) }
 				</p>
 
+				<img src={ imagePath + 'cf-ss.png' } alt={ __( 'Contact Form screen shot' ) } />
+
 				<p>
 					{ __( "To use it, just open up a post or page to the visual editor. From there, you'll find a button " +
 						'inside the toolbar with an icon that looks a bit like the contact form. It is usually furthest ' +
@@ -35,16 +37,18 @@ class UpgradeNoticeContent extends Component {
 						'looks like a pencil.' ) }
 				</p>
 
-				<Button
-					primary={ true }
-					href="#"
-				>
-					{ __( 'Try it out!' ) }
-				</Button>
+				<div className="jp-dialogue__cta-container">
+					<Button
+						primary={ true }
+						href={ this.props.adminUrl + 'post-new.php' }
+					>
+						{ __( 'Try it out!' ) }
+					</Button>
 
-				<p className="jp-dialogue__note">
-					<a href="https://jetpack.com/?p=22509">{ __( 'Read the full release post' ) }</a>
-				</p>
+					<p className="jp-dialogue__note">
+						<a href="https://jetpack.com/?p=22509">{ __( 'Read the full release post' ) }</a>
+					</p>
+				</div>
 			</div>
 		);
 	}

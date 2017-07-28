@@ -15,9 +15,19 @@
 	text-align: center;
 	max-width: rem( 600px );
 	margin: 0 auto rem( 32px );
+	overflow: auto;
 
 	@include breakpoint( "<660px" ) {
 		text-align: left;
+	}
+
+	p {
+		font-size: rem( 14px );
+		color: $gray-text-min;
+	}
+
+	img {
+		max-width: 100%;
 	}
 }
 
@@ -60,4 +70,8 @@
 	left: rem( 100px );
 	top: rem( 100px );
 	opacity: .90;
+}
+
+.jp-dialogue__cta-container {
+	padding: rem( 8px ) 0 0 0;
 }
