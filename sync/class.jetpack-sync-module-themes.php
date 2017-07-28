@@ -16,7 +16,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		add_filter( 'wp_redirect', array( $this, 'detect_theme_edit' ) );
 		add_action( 'jetpack_edited_theme', $callable, 10, 2 );
 		add_action( 'update_site_option_allowedthemes', array( $this, 'sync_network_allowed_themes_change' ), 10, 4 );
-		add_action( 'jetpack_network_disabled_themes', $callable, 10, 3 );
+		add_action( 'jetpack_network_disabled_themes', $callable, 10, 2 );
 		add_action( 'jetpack_network_enabled_themes', $callable, 10, 2 );
 
 		// Sidebar updates.
@@ -57,8 +57,11 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 
 		if ( count( $old_value ) > count( $value ) )  {
 
+			//Suppress jetpack_network_disabled_themes sync action when theme is deleted
 			$delete_theme_call = $this->get_delete_theme_call();
-			$is_theme_deletion = empty( $delete_theme_call ) ? false : true;
+			if ( ! empty( $delete_theme_call ) ) {
+				return;
+			}
 
 			$newly_disabled_theme_names = array_keys( array_diff_key( $old_value, $value ) );
 			$newly_disabled_themes = $this->get_theme_details_for_slugs( $newly_disabled_theme_names );
@@ -71,7 +74,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 			 * @param mixed $all_enabled_theme_slugs, Array of slugs of all enabled themes
 			 * @param bool $is_theme_deletion, Whether a theme was deleted Since 5.3
 			 */
-			do_action( 'jetpack_network_disabled_themes', $newly_disabled_themes, $all_enabled_theme_slugs, $is_theme_deletion );
+			do_action( 'jetpack_network_disabled_themes', $newly_disabled_themes, $all_enabled_theme_slugs );
 			return;
 		}
 
