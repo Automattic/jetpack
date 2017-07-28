@@ -39,7 +39,14 @@ class Jetpack_Sitemap_Librarian {
 	 * }
 	 */
 	public function read_sitemap_data( $name, $type ) {
-		$the_post = get_page_by_title( $name, 'OBJECT', $type );
+		$post_array = get_posts( array(
+			'numberposts' => 1,
+			'title' => $name,
+			'post_type' => $type,
+			'post_status' => 'draft'
+		) );
+
+		$the_post = array_shift( $post_array );
 
 		if ( null === $the_post ) {
 			return null;
@@ -72,7 +79,7 @@ class Jetpack_Sitemap_Librarian {
 	public function store_sitemap_data( $index, $type, $contents, $timestamp ) {
 		$name = jp_sitemap_filename( $type, $index );
 
-		$the_post = get_page_by_title( $name, 'OBJECT', $type );
+		$the_post = $this->read_sitemap_data( $name, $type );
 
 		if ( null === $the_post ) {
 			// Post does not exist.
@@ -85,7 +92,7 @@ class Jetpack_Sitemap_Librarian {
 		} else {
 			// Post does exist.
 			wp_insert_post(array(
-				'ID'           => $the_post->ID,
+				'ID'           => $the_post['id'],
 				'post_title'   => $name,
 				'post_content' => base64_encode( $contents ),
 				'post_type'    => $type,
@@ -106,12 +113,12 @@ class Jetpack_Sitemap_Librarian {
 	 * @return bool 'true' if a row was deleted, 'false' otherwise.
 	 */
 	public function delete_sitemap_data( $name, $type ) {
-		$the_post = get_page_by_title( $name, 'OBJECT', $type );
+		$the_post = $this->read_sitemap_data( $name, $type );
 
 		if ( null === $the_post ) {
 			return false;
 		} else {
-			wp_delete_post( $the_post->ID );
+			wp_delete_post( $the_post['id'] );
 			return true;
 		}
 	}
@@ -166,34 +173,33 @@ class Jetpack_Sitemap_Librarian {
 	 * @since 4.8.0
 	 */
 	public function delete_all_stored_sitemap_data() {
-		$this->delete_sitemap_data(
-			jp_sitemap_filename( JP_MASTER_SITEMAP_TYPE ),
-			JP_MASTER_SITEMAP_TYPE
-		);
+		$this->delete_sitemap_type_data( JP_MASTER_SITEMAP_TYPE );
+		$this->delete_sitemap_type_data( JP_PAGE_SITEMAP_TYPE );
+		$this->delete_sitemap_type_data( JP_PAGE_SITEMAP_INDEX_TYPE );
+		$this->delete_sitemap_type_data( JP_IMAGE_SITEMAP_TYPE );
+		$this->delete_sitemap_type_data( JP_IMAGE_SITEMAP_INDEX_TYPE );
+		$this->delete_sitemap_type_data( JP_VIDEO_SITEMAP_TYPE );
+		$this->delete_sitemap_type_data( JP_VIDEO_SITEMAP_INDEX_TYPE );
+	}
 
-		$this->delete_numbered_sitemap_rows_after(
-			0, JP_PAGE_SITEMAP_TYPE
-		);
+	/**
+	 * Deletes all sitemap data of specific type
+	 *
+	 * @access protected
+	 * @since 5.3.0
+	 *
+	 * @param String $type
+	 */
+	protected function delete_sitemap_type_data( $type ) {
+		$ids = get_posts( array(
+			'post_type' => $type,
+			'post_status' => 'draft',
+			'fields' => 'ids'
+		) );
 
-		$this->delete_numbered_sitemap_rows_after(
-			0, JP_PAGE_SITEMAP_INDEX_TYPE
-		);
-
-		$this->delete_numbered_sitemap_rows_after(
-			0, JP_IMAGE_SITEMAP_TYPE
-		);
-
-		$this->delete_numbered_sitemap_rows_after(
-			0, JP_IMAGE_SITEMAP_INDEX_TYPE
-		);
-
-		$this->delete_numbered_sitemap_rows_after(
-			0, JP_VIDEO_SITEMAP_TYPE
-		);
-
-		$this->delete_numbered_sitemap_rows_after(
-			0, JP_VIDEO_SITEMAP_INDEX_TYPE
-		);
+		foreach( $ids as $id ) {
+			wp_trash_post( $id );
+		}
 	}
 
 	/**
