@@ -29,6 +29,10 @@
 	img {
 		max-width: 100%;
 	}
+
+	p + img {
+		margin: 1em 0 .5em;
+	}
 }
 
 .jp-dialogue-full__dismiss {
