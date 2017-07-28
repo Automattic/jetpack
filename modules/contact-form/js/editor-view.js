@@ -19,6 +19,7 @@
 			date                : wp.template( 'grunion-field-date' ),
 			text                : wp.template( 'grunion-field-text' ),
 			url                 : wp.template( 'grunion-field-url' )
+			name                : wp.template( 'grunion-field-text' ),
 		},
 		edit_template  : wp.template( 'grunion-field-edit' ),
 		editor_inline  : wp.template( 'grunion-editor-inline' ),
