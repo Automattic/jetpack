@@ -276,13 +276,9 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		$moved_to_sidebar = array();
 		$sidebar_name = $this->get_sidebar_name( $sidebar );
 
-		//Suppress jetpack_widget_added sync action when theme is switched
-		$backtrace = debug_backtrace();
-		$is_theme_switch = false;
-		foreach ( $backtrace as $call ) {
-			if ( isset( $call['args'][0] ) && 'after_switch_theme' === $call['args'][0] ) {
-				return;
-			}
+		//Don't sync jetpack_widget_added if theme was switched
+		if ( $this->is_theme_switch() ) {
+			return;
 		}
 
 		foreach ( $added_widgets as $added_widget ) {
@@ -393,6 +389,11 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 
 		}
 
+		//Don't sync either jetpack_widget_moved_to_inactive or jetpack_cleared_inactive_widgets if theme was switched
+		if ( $this->is_theme_switch() ) {
+			return;
+		}
+
 		// Treat inactive sidebar a bit differently
 		if ( ! empty( $moved_to_inactive_ids ) ) {
 			$moved_to_inactive_name = array_map( array( $this, 'get_widget_name' ), $moved_to_inactive_ids );
@@ -446,5 +447,15 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 			}
 		}
 		return $delete_theme_call;
+	}
+
+	private function is_theme_switch() {
+		$backtrace = debug_backtrace();
+		foreach ( $backtrace as $call ) {
+			if ( isset( $call['args'][0] ) && 'after_switch_theme' === $call['args'][0] ) {
+				return true;
+			}
+		}
+		return false;
 	}
 }
