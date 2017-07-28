@@ -431,8 +431,11 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		}
 
 		$theme = wp_get_theme();
+		error_log(print_r($theme, true));
 		$theme_support['name'] = $theme->name;
 		$theme_support['version'] =  $theme->version;
+		$theme_support['slug'] = '';
+
 
 		return $theme_support;
 	}
