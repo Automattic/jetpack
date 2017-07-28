@@ -278,7 +278,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 
 		//Don't sync jetpack_widget_added if theme was switched
 		if ( $this->is_theme_switch() ) {
-			return;
+			return array();
 		}
 
 		foreach ( $added_widgets as $added_widget ) {
