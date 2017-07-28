@@ -12,7 +12,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		add_action( 'jetpack_installed_theme', $callable, 10, 2 );
 		add_action( 'jetpack_updated_theme', $callable, 10, 2 );
 		add_action( 'delete_site_transient_update_themes', array( $this, 'detect_theme_deletion') );
-		add_action( 'jetpack_deleted_theme', $callable );
+		add_action( 'jetpack_deleted_theme', $callable, 10, 2 );
 		add_filter( 'wp_redirect', array( $this, 'detect_theme_edit' ) );
 		add_action( 'jetpack_edited_theme', $callable, 10, 2 );
 		add_action( 'update_site_option_allowedthemes', array( $this, 'sync_network_allowed_themes_change' ), 10, 4 );
