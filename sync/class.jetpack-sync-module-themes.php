@@ -149,6 +149,12 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		}
 
 		$slug = $delete_theme_call['args'][0];
+		$theme = wp_get_theme( $slug );
+		$theme_data = array(
+			'name' => $theme->get('Name'),
+			'version' => $theme->get('Version'),
+			'uri' => $theme->get( 'ThemeURI' ),
+		);
 
 		/**
 		 * Signals to the sync listener that a theme was deleted and a sync action
@@ -157,8 +163,9 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		 * @since 5.0.0
 		 *
 		 * @param string $slug Theme slug
+		 * @param array $theme_data Theme info Since 5.3
 		 */
-		do_action( 'jetpack_deleted_theme', $slug );
+		do_action( 'jetpack_deleted_theme', $slug, $theme_data );
 	}
 
 	public function check_upgrader( $upgrader, $details) {
