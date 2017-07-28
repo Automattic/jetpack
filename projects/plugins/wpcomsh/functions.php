@@ -67,21 +67,17 @@ function wpcomsh_is_wpcom_pub_theme( $theme_slug ) {
  */
 function wpcomsh_symlink_theme( $theme_slug, $theme_type ) {
 	$themes_source_path = '';
-	$storefront_theme = false;
 
 	if ( WPCOMSH_PUB_THEME_TYPE === $theme_type ) {
 		$themes_source_path = WPCOMSH_PUB_THEMES_SYMLINK;
 	} elseif ( WPCOMSH_PREMIUM_THEME_TYPE === $theme_type ) {
 		$themes_source_path = WPCOMSH_PREMIUM_THEMES_SYMLINK;
-	} elseif ( WPCOMSH_STOREFRONT_THEME_TYPE === $theme_type ) {
-		$themes_source_path = WPCOMSH_STOREFRONT_THEMES_SYMLINK;
-		$storefront_theme = true;
 	}
 
 	$abs_theme_path = $themes_source_path . "/{$theme_slug}";
 	$abs_theme_symlink_path = get_theme_root() . '/' . $theme_slug;
 
-	if ( ! $storefront_theme && ! file_exists( $abs_theme_path ) ) {
+	if ( ! file_exists( $abs_theme_path ) ) {
 		$error_message = "Source theme directory doesn't exists at: ${abs_theme_path}";
 
 		error_log( 'WPComSH: ' . $error_message );
@@ -90,13 +86,9 @@ function wpcomsh_symlink_theme( $theme_slug, $theme_type ) {
 	}
 
 	if ( ! symlink( $abs_theme_path, $abs_theme_symlink_path ) ) {
-		if ( WPCOMSH_STOREFRONT_THEME_TYPE === $theme_type ) {
-			$theme_source_folder_path = WPCOMSH_STOREFRONT_THEMES_PATH;
-		} else {
-			$theme_source_folder_path = WPCOMSH_PUB_THEME_TYPE === $theme_type
-				? WPCOMSH_PUB_THEMES_PATH
-				: WPCOMSH_PREMIUM_THEMES_PATH;
-		}
+		$theme_source_folder_path = WPCOMSH_PUB_THEME_TYPE === $theme_type
+			? WPCOMSH_PUB_THEMES_PATH
+			: WPCOMSH_PREMIUM_THEMES_PATH;
 
 		$error_message = "Can't symlink theme with slug: ${theme_slug}." .
 						 "Make sure it exists in the " . $theme_source_folder_path . " directory.";
@@ -107,16 +99,6 @@ function wpcomsh_symlink_theme( $theme_slug, $theme_type ) {
 	}
 
 	return true;
-}
-
-/**
- * Symlinks a storefront theme.
- *
- * @param string $theme_slug
- * @return bool|WP_Error
- */
-function wpcomsh_symlink_storefront_theme( $theme_slug ) {
-	return wpcomsh_symlink_theme( $theme_slug, WPCOMSH_STOREFRONT_THEME_TYPE );
 }
 
 /**
