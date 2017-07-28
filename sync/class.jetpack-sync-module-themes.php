@@ -154,6 +154,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 			'name' => $theme->get('Name'),
 			'version' => $theme->get('Version'),
 			'uri' => $theme->get( 'ThemeURI' ),
+			'slug' => $slug,
 		);
 
 		/**
