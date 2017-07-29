@@ -1548,7 +1548,6 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$url = apply_filters( 'grunion_contact_form_form_action', "{$url}#contact-form-{$id}", $GLOBALS['post'], $id );
 
 			$r .= "<form action='" . esc_url( $url ) . "' method='post' class='contact-form commentsblock'>\n";
-			$r .= "\t<input type='hidden' name='contact-form-hash' value='" . esc_attr( $form->hash ) . "' />\r\n";
 			$r .= $form->body;
 			$r .= "\t<p class='contact-submit'>\n";
 			$r .= "\t\t<input type='submit' value='" . esc_attr( $form->get_attribute( 'submit_button_text' ) ) . "' class='pushbutton-wide'/>\n";
@@ -1557,6 +1556,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			}
 			$r .= "\t\t<input type='hidden' name='contact-form-id' value='$id' />\n";
 			$r .= "\t\t<input type='hidden' name='action' value='grunion-contact-form' />\n";
+			$r .= "\t\t<input type='hidden' name='contact-form-hash' value='" . esc_attr( $form->hash ) . "' />\n";
 			$r .= "\t</p>\n";
 			$r .= "</form>\n";
 		}
