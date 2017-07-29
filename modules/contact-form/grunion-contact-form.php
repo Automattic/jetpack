@@ -1372,10 +1372,10 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$this->parse_content( $default_form );
 
 			// Store the shortcode
-			$this->store_shortcode( $default_form, $attributes );
+			$this->store_shortcode( $default_form, $attributes, $this->hash );
 		} else {
 			// Store the shortcode
-			$this->store_shortcode( $content, $attributes );
+			$this->store_shortcode( $content, $attributes, $this->hash );
 		}
 
 		// $this->body and $this->fields have been setup.  We no longer need the contact-field shortcode.
@@ -1387,31 +1387,25 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	 *	- used to receate shortcode when user uses do_shortcode
 	 *
 	 * @param string $content
+	 * @param array $attributes
+	 * @param string $hash
 	 */
-	function store_shortcode( $content = null, $attributes = null ) {
+	static function store_shortcode( $content = null, $attributes = null, $hash = null ) {
 
 		if ( $content != null and isset( $attributes['id'] ) ) {
 
-			$meta = (array) get_post_meta( $attributes['id'], '_jetpack_contact_forms', true );
-
-			// If it doesn't know about our form yet, store it.
-			if ( ! array_key_exists( $this->hash, $meta ) ) {
-				$meta[ $this->hash ] = array(
-					'content'    => $content,
-					'attributes' => $attributes,
-				);
-				update_post_meta( $attributes['id'], '_jetpack_contact_forms', $meta );
+			if ( empty( $hash ) ) {
+				$hash = sha1( json_encode( $attributes ) . $content );
 			}
-/*
-			$shortcode_meta = get_post_meta( $attributes['id'], '_g_feedback_shortcode', true );
+
+			$shortcode_meta = get_post_meta( $attributes['id'], "_g_feedback_shortcode_{$hash}", true );
 
 			if ( $shortcode_meta != '' or $shortcode_meta != $content ) {
-				update_post_meta( $attributes['id'], '_g_feedback_shortcode', $content );
+				update_post_meta( $attributes['id'], "_g_feedback_shortcode_{$hash}", $content );
 
 				// Save attributes to post_meta for later use. They're not available later in do_shortcode situations.
-				update_post_meta( $attributes['id'], '_g_feedback_shortcode_atts', $attributes );
+				update_post_meta( $attributes['id'], "_g_feedback_shortcode_atts_{$hash}", $attributes );
 			}
-*/
 		}
 	}
 
