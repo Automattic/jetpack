@@ -1308,6 +1308,11 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	static $current_form;
 
 	/**
+	 * @var array All found forms, indexed by hash.
+	 */
+	static $forms = array();
+
+	/**
 	 * @var bool Whether to print the grunion.css style when processing the contact-form shortcode
 	 */
 	static $style = false;
@@ -1316,6 +1321,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		global $post;
 
 		$this->hash = sha1( json_encode( $attributes ) . $content );
+		self::$forms[ $this->hash ] = $this;
 
 		// Set up the default subject and recipient for this form
 		$default_to = '';
