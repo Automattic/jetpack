@@ -252,6 +252,7 @@ class Grunion_Contact_Form_Plugin {
 		add_filter( 'contact_form_subject', array( $this, 'replace_tokens_with_input' ), 10, 2 );
 
 		$id = stripslashes( $_POST['contact-form-id'] );
+		$hash = $_POST['contact-form-hash'];
 
 		if ( is_user_logged_in() ) {
 			check_admin_referer( "contact-form_{$id}" );
@@ -301,14 +302,14 @@ class Grunion_Contact_Form_Plugin {
 		if ( ! $form ) {
 
 			// Get shortcode from post meta
-			$shortcode = get_post_meta( $_POST['contact-form-id'], '_g_feedback_shortcode', true );
+			$shortcode = get_post_meta( $_POST['contact-form-id'], "_g_feedback_shortcode_{$hash}", true );
 
 			// Format it
 			if ( $shortcode != '' ) {
 
 				// Get attributes from post meta.
 				$parameters = '';
-				$attributes = get_post_meta( $_POST['contact-form-id'], '_g_feedback_shortcode_atts', true );
+				$attributes = get_post_meta( $_POST['contact-form-id'], "_g_feedback_shortcode_atts_{$hash}", true );
 				if ( ! empty( $attributes ) && is_array( $attributes ) ) {
 					foreach( array_filter( $attributes ) as $param => $value  ) {
 						$parameters .= " $param=\"$value\"";
