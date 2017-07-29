@@ -578,9 +578,9 @@ class Grunion_Contact_Form_Plugin {
 			$query_string = http_build_query( $form );
 		}
 		if ( method_exists( 'Akismet', 'http_post' ) ) {
-		    $response = Akismet::http_post( $query_string, "submit-{$as}" );
+			$response = Akismet::http_post( $query_string, "submit-{$as}" );
 		} else {
-		    $response = akismet_http_post( $query_string, $akismet_api_host, "/1.1/submit-{$as}", $akismet_api_port );
+			$response = akismet_http_post( $query_string, $akismet_api_host, "/1.1/submit-{$as}", $akismet_api_port );
 		}
 
 		return trim( $response[1] );
