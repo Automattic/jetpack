@@ -1496,7 +1496,10 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$r .= "</ul>\n</div>\n\n";
 		}
 
-		if ( isset( $_GET['contact-form-id'] ) && $_GET['contact-form-id'] == self::$last->get_attribute( 'id' ) && isset( $_GET['contact-form-sent'] ) ) {
+		if ( isset( $_GET['contact-form-id'] )
+			&& $_GET['contact-form-id'] == self::$last->get_attribute( 'id' )
+			&& isset( $_GET['contact-form-sent'], $_GET['contact-form-hash'] )
+			&& hash_equals( $form->hash, $_GET['contact-form-hash'] ) ) {
 			// The contact form was submitted.  Show the success message/results
 			$feedback_id = (int) $_GET['contact-form-sent'];
 
@@ -1717,6 +1720,8 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			isset( $_POST['action'] ) && 'grunion-contact-form' === $_POST['action']
 		&&
 			isset( $_POST['contact-form-id'] ) && $form->get_attribute( 'id' ) == $_POST['contact-form-id']
+		&&
+			isset( $_POST['contact-form-hash'] ) && $form->hash === $_POST['contact-form-hash']
 		) {
 			// If we're processing a POST submission for this contact form, validate the field value so we can show errors as necessary.
 			$field->validate();
@@ -2215,6 +2220,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		$redirect = add_query_arg( urlencode_deep( array(
 			'contact-form-id'   => $id,
 			'contact-form-sent' => $post_id,
+			'contact-form-hash' => $this->hash,
 			'_wpnonce'          => wp_create_nonce( "contact-form-sent-{$post_id}" ), // wp_nonce_url HTMLencodes :(
 		) ), $redirect );
 
