@@ -296,7 +296,8 @@ class Grunion_Contact_Form_Plugin {
 			apply_filters( 'the_content', $post->post_content );
 		}
 
-		$form = Grunion_Contact_Form::$last;
+	//	$form = Grunion_Contact_Form::$last;
+		$form = isset( Grunion_Contact_Form::$forms[ $hash ] ) ? Grunion_Contact_Form::$forms[ $hash ] : null;
 
 		// No form may mean user is using do_shortcode, grab the form using the stored post meta
 		if ( ! $form ) {
