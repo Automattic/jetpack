@@ -252,7 +252,7 @@ class Grunion_Contact_Form_Plugin {
 		add_filter( 'contact_form_subject', array( $this, 'replace_tokens_with_input' ), 10, 2 );
 
 		$id = stripslashes( $_POST['contact-form-id'] );
-		$hash = isset ( $_POST['contact-form-hash'] ) ? $_POST['contact-form-hash'] : null;
+		$hash = isset( $_POST['contact-form-hash'] ) ? $_POST['contact-form-hash'] : null;
 		$hash = preg_replace( '/[^\da-f]/i', '', $hash );
 
 		if ( is_user_logged_in() ) {
