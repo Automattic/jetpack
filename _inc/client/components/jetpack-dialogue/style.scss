@@ -31,7 +31,7 @@
 	}
 
 	p + img {
-		margin: 1em 0 .5em;
+		margin: rem( 32px ) 0 rem( 16px );
 	}
 }
 
@@ -77,5 +77,5 @@
 }
 
 .jp-dialogue__cta-container {
-	padding: rem( 8px ) 0 0 0;
+	padding: rem( 8px ) 0 0;
 }
