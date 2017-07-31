@@ -17,7 +17,9 @@
 			'checkbox-multiple' : wp.template( 'grunion-field-checkbox-multiple' ),
 			select              : wp.template( 'grunion-field-select' ),
 			date                : wp.template( 'grunion-field-date' ),
-			text                : wp.template( 'grunion-field-text' )
+			text                : wp.template( 'grunion-field-text' ),
+			name                : wp.template( 'grunion-field-text' ),
+			url                 : wp.template( 'grunion-field-text' )
 		},
 		edit_template  : wp.template( 'grunion-field-edit' ),
 		editor_inline  : wp.template( 'grunion-editor-inline' ),
