@@ -252,7 +252,7 @@ class Grunion_Contact_Form_Plugin {
 		add_filter( 'contact_form_subject', array( $this, 'replace_tokens_with_input' ), 10, 2 );
 
 		$id = stripslashes( $_POST['contact-form-id'] );
-		$hash = $_POST['contact-form-hash'];
+		$hash = isset ( $_POST['contact-form-hash'] ) ? $_POST['contact-form-hash'] : null;
 
 		if ( is_user_logged_in() ) {
 			check_admin_referer( "contact-form_{$id}" );
