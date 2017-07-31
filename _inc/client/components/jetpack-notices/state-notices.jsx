@@ -18,6 +18,7 @@ import {
 } from 'state/jetpack-notices';
 import NoticeAction from 'components/notice/notice-action.jsx';
 import UpgradeNoticeContent from 'components/upgrade-notice-content';
+import { getSiteAdminUrl } from 'state/initial-state';
 
 const JetpackStateNotices = React.createClass( {
 	displayName: 'JetpackStateNotices',
@@ -231,7 +232,7 @@ const JetpackStateNotices = React.createClass( {
 		// Show custom message for upgraded Jetpack
 		if ( 'modules_activated' === message && '5.2' === this.props.currentVersion ) {
 			return (
-				<UpgradeNoticeContent dismiss={ this.dismissJetpackStateNotice } />
+				<UpgradeNoticeContent dismiss={ this.dismissJetpackStateNotice } adminUrl={ this.props.adminUrl } />
 			);
 		}
 
@@ -268,7 +269,8 @@ export default connect(
 			currentVersion: getCurrentVersion( state ),
 			jetpackStateNoticesErrorCode: getJetpackStateNoticesErrorCode( state ),
 			jetpackStateNoticesMessageCode: getJetpackStateNoticesMessageCode( state ),
-			jetpackStateNoticesErrorDescription: getJetpackStateNoticesErrorDescription( state )
+			jetpackStateNoticesErrorDescription: getJetpackStateNoticesErrorDescription( state ),
+			adminUrl: getSiteAdminUrl( state ),
 		};
 	}
 )( JetpackStateNotices );
