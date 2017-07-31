@@ -1,6 +1,7 @@
 .react-tagsinput {
 	border: 1px solid #e9eff3;
 	padding: rem( 5px );
+	height: rem( 30px );
 }
 
 .react-tagsinput--focused {
@@ -37,11 +38,13 @@
 	content: " \00d7";
 }
 
-.react-tagsinput-input {
-	font-size: 13px;
-	padding: rem( 5px );
+input[type=text].react-tagsinput-input {
 	width: rem( 150px );
-	margin: 0;
 	height: rem( 30px );
-	vertical-align: top;
+	margin: 0;
+	padding: rem( 5px );
+	font-size: 13px;
+	vertical-align: middle;
+	border: none;
+	box-shadow: none;
 }
