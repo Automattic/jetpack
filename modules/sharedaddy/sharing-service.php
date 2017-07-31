@@ -189,8 +189,10 @@ class Sharing_Service {
 		 * @see https://github.com/Automattic/jetpack/issues/6121
 		 */
 		if ( ! is_array( $options ) || ! isset( $options['button_style'], $options['global'] ) ) {
-			$global_options = $this->get_global_options();
-			$options = array_merge( is_array( $options ) ? $options : array(), $global_options );
+			$global_options = array( 'global' => $this->get_global_options() );
+			$options = is_array( $options )
+				? array_merge( $options, $global_options )
+				: $global_options;
 		}
 
 		$global = $options['global'];
