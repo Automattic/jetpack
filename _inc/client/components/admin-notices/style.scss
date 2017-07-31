@@ -12,18 +12,14 @@
 
 	.woocommerce-message.dops-notice {
 		display: block;
+		padding: 0;
+
+		&::before {
+			content: '';
+		}
 
 		.submit {
 			padding: 0;
-		}
-
-		.skip {
-			color: $gray;
-			opacity: 0.85;
-		}
-
-		.skip:hover {
-			opacity: 1;
 		}
 
 		.notice-dismiss::before {
