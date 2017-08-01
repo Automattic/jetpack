@@ -1995,9 +1995,6 @@ function wpsc_update_debug_settings() {
 		}
 	}
 
-	if ( false == isset( $wp_super_cache_comments ) )
-		$wp_super_cache_comments = 1;
-
 	if ( isset( $_POST[ 'wp_cache_debug' ] ) ) {
 		wp_cache_setting( 'wp_cache_debug_username', $wp_cache_debug_username );
 		wp_cache_setting( 'wp_cache_debug_log', $wp_cache_debug_log );
