@@ -96,10 +96,10 @@ __( "{{a}}View details at VaultPress.com{{/a}}", "jetpack" ), // _inc/client/at-
 _n( "Uh oh, %(number)s threat found.", "Uh oh, %(number)s threats found.", 1, "jetpack" ), // _inc/client/at-a-glance/scan.jsx:59
 __( "Loading…", "jetpack" ), // _inc/client/at-a-glance/scan.jsx:43
 __( "Security Scanning", "jetpack" ), // _inc/client/at-a-glance/scan.jsx:26
-__( "Learn more", "jetpack" ), // _inc/client/discussion/comments.jsx:165
-__( "Learn more", "jetpack" ), // _inc/client/discussion/comments.jsx:143
-__( "Enable Markdown use for comments.", "jetpack" ), // _inc/client/discussion/comments.jsx:141
-__( "Learn more", "jetpack" ), // _inc/client/discussion/comments.jsx:123
+__( "Learn more", "jetpack" ), // _inc/client/discussion/comments.jsx:169
+__( "Learn more", "jetpack" ), // _inc/client/discussion/comments.jsx:146
+__( "Enable Markdown use for comments.", "jetpack" ), // _inc/client/discussion/comments.jsx:143
+__( "Learn more", "jetpack" ), // _inc/client/discussion/comments.jsx:124
 __( "Color scheme", "jetpack" ), // _inc/client/discussion/comments.jsx:93
 __( "A few catchy words to motivate your readers to comment.", "jetpack" ), // _inc/client/discussion/comments.jsx:91
 __( "Comments headline", "jetpack" ), // _inc/client/discussion/comments.jsx:84
@@ -462,22 +462,22 @@ __( "More Info", "jetpack" ), // _inc/client/components/jetpack-notices/index.js
 __( "You are running Jetpack on a staging server.", "jetpack" ), // _inc/client/components/jetpack-notices/index.jsx:57
 __( "Submit Beta feedback", "jetpack" ), // _inc/client/components/jetpack-notices/index.jsx:34
 __( "You are currently running a development version of Jetpack.", "jetpack" ), // _inc/client/components/jetpack-notices/index.jsx:29
-__( "Learn More", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:201
-__( "Your server is misconfigured, which means that Jetpack Protect is unable to effectively protect your site.", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:195
-__( "You're fueled up and ready to go.", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:191
-__( "You're fueled up and ready to go, Jetpack is now active.", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:187
-__( "Your Jetpack is already connected.", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:183
-__( "Welcome to {{s}}Jetpack %(jetpack_version)s{{/s}}!", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:171
-__( "{{s}}Your Jetpack has a glitch.{{/s}}  We're sorry for the inconvenience. Please try again later, if the issue continues please contact support with this message: %(error_key)s", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:130
-__( "Jetpack could not contact WordPress.com: %(error_key)s.  This usually means something is incorrectly configured on your web host.", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:91
-__( "WordPress.com is currently having problems and is unable to fuel up your Jetpack.  Please try again later.", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:87
-__( "{{s}}Your Jetpack has a glitch.{{/s}} Connecting this site with WordPress.com is not possible. This usually means your site is not publicly accessible (localhost).", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:74
-__( "Your website needs to be publicly accessible to use Jetpack: %(error_key)s", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:65
-__( "There was an issue connecting your Jetpack. Please click \"Connect to WordPress.com\" again.", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:61
-__( "We had an issue connecting Jetpack; deactivate then reactivate the Jetpack plugin, then connect again.", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:58
-__( "You need to stay logged in to your WordPress blog while you authorize Jetpack.", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:55
-__( "{{p}}Would you mind telling us why you did not complete the Jetpack connection in this {{a}}2 question survey{{/a}}?{{/p}}{{p}}A Jetpack connection is required for our free security and traffic features to work.{{/p}}", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:44
-__( "Cheatin' uh?", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:41
+__( "Learn More", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:202
+__( "Your server is misconfigured, which means that Jetpack Protect is unable to effectively protect your site.", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:196
+__( "You're fueled up and ready to go.", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:192
+__( "You're fueled up and ready to go, Jetpack is now active.", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:188
+__( "Your Jetpack is already connected.", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:184
+__( "Welcome to {{s}}Jetpack %(jetpack_version)s{{/s}}!", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:172
+__( "{{s}}Your Jetpack has a glitch.{{/s}}  We're sorry for the inconvenience. Please try again later, if the issue continues please contact support with this message: %(error_key)s", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:131
+__( "Jetpack could not contact WordPress.com: %(error_key)s.  This usually means something is incorrectly configured on your web host.", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:92
+__( "WordPress.com is currently having problems and is unable to fuel up your Jetpack.  Please try again later.", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:88
+__( "{{s}}Your Jetpack has a glitch.{{/s}} Connecting this site with WordPress.com is not possible. This usually means your site is not publicly accessible (localhost).", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:75
+__( "Your website needs to be publicly accessible to use Jetpack: %(error_key)s", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:66
+__( "There was an issue connecting your Jetpack. Please click \"Connect to WordPress.com\" again.", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:62
+__( "We had an issue connecting Jetpack; deactivate then reactivate the Jetpack plugin, then connect again.", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:59
+__( "You need to stay logged in to your WordPress blog while you authorize Jetpack.", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:56
+__( "{{p}}Would you mind telling us why you did not complete the Jetpack connection in this {{a}}2 question survey{{/a}}?{{/p}}{{p}}A Jetpack connection is required for our free security and traffic features to work.{{/p}}", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:45
+__( "Cheatin' uh?", "jetpack" ), // _inc/client/components/jetpack-notices/state-notices.jsx:42
 __( "Features can be activated or deactivated at any time.", "jetpack" ), // _inc/client/components/jumpstart/index.jsx:95
 __( "Jetpack's recommended features include:", "jetpack" ), // _inc/client/components/jumpstart/index.jsx:85
 __( "We're now collecting stats, securing your site, and speeding up your images. Pretty soon you'll be able to see everything going on with your site right through Jetpack! Welcome aboard.", "jetpack" ), // _inc/client/components/jumpstart/index.jsx:75
@@ -554,12 +554,13 @@ __( "Compare All Plans", "jetpack" ), // _inc/client/components/themes-promo-car
 __( "Explore Professional", "jetpack" ), // _inc/client/components/themes-promo-card/index.jsx:76
 __( "{{subhead}}Only with Jetpack Professional{{/subhead}}{{p}}Protect your site and work with Jetpack Personal: daily automated backups, unlimited storage, and expert priority support. Security essentials for every WordPress site starting from $3.50.{{/p}}{{p}}Or go Pro with more than 200 Premium Themes, business class security, unlimited video hosting, monetization, marketing automation, and SEO tools.{{/p}}", "jetpack" ), // _inc/client/components/themes-promo-card/index.jsx:59
 __( "Introducing Unlimited Themes", "jetpack" ), // _inc/client/components/themes-promo-card/index.jsx:58
-__( "A new contact form is here at last!", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:56
-__( "People around page", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:55
-__( "Read the full release post", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:46
-__( "Try it out!", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:42
-__( "You will likely want to customize it to properly encourage folks to contact you. To do that, simply select the contact form preview and then click or tap the edit button. It's the one that looks like a pencil.", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:33
-__( "To use it, just open up a post or page to the visual editor. From there, you'll find a button inside the toolbar with an icon that looks a bit like the contact form. It is usually furthest to the right. Then just click the button and, voila, a contact form has been created!", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:27
-__( "With this release, your contact form just got a bit sweeter. We moved the big old button right down into your editor's toolbar on the right. Yes, it's a little smaller, but it fits in a bit better, don't you think? Oh and all your forms now have a preview that can be editedall right inside the editor.", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:20
+__( "A new contact form is here at last!", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:60
+__( "People around page", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:59
+__( "Read the full release post", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:49
+__( "Try it out!", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:45
+__( "You will likely want to customize it to properly encourage folks to contact you. To do that, simply select the contact form preview and then click or tap the edit button. It's the one that looks like a pencil.", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:35
+__( "To use it, just open up a post or page to the visual editor. From there, you'll find a button inside the toolbar with an icon that looks a bit like the contact form. It is usually furthest to the right. Then just click the button and, voila, a contact form has been created!", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:29
+__( "Contact Form screen shot", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:26
+__( "With this release, your contact form just got a bit sweeter. We moved the big old button right down into your editor's toolbar on the right. Yes, it's a little smaller, but it fits in a bit better, don't you think? Oh and all your forms now have a preview that can be edited all right inside the editor.", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:20
 );
 /* THIS IS THE END OF THE GENERATED FILE */
