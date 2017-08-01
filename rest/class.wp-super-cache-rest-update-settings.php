@@ -384,6 +384,13 @@ class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 	/**
 	 * @param mixed $value
 	 */
+	protected function set_ossdl_off_blog_url( $value ) {
+		update_option( 'ossdl_off_blog_url', untrailingslashit( $value ) );
+	}
+
+	/**
+	 * @param mixed $value
+	 */
 	protected function set_ossdl_off_cdn_url( $value ) {
 		update_option( 'ossdl_off_cdn_url', $value );
 	}

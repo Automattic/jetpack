@@ -216,6 +216,10 @@ class WP_Super_Cache_Settings_Map {
 			'option' => 'ossdl_off_cdn_url',
 			'set'    => 'set_ossdl_off_cdn_url',
 		),
+		'ossdl_off_blog_url' => array(
+			'option' => 'ossdl_off_blog_url',
+			'set'    => 'set_ossdl_off_blog_url',
+		),
 		'ossdl_off_exclude' => array(
 			'option' => 'ossdl_off_exclude',
 			'set'    => 'set_ossdl_off_exclude',

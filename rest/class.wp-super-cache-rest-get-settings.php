@@ -53,6 +53,16 @@ class WP_Super_Cache_Rest_Get_Settings extends WP_REST_Controller {
 	/**
 	 * @return string
 	 */
+	public function get_ossdl_off_blog_url() {
+		$url = get_option( 'ossdl_off_blog_url' );
+		if ( ! $url )
+			$url = apply_filters( 'ossdl_off_blog_url', untrailingslashit( get_option( 'siteurl' ) ) );
+		return $url;
+	}
+
+	/**
+	 * @return string
+	 */
 	public function get_cache_path_url() {
 		global $cache_path;
 

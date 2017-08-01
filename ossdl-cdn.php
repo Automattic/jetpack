@@ -5,7 +5,9 @@
 /* Set up some defaults */
 if ( get_option( 'ossdl_off_cdn_url' ) == false )
 	add_option( 'ossdl_off_cdn_url', get_option( 'siteurl' ) );
-$ossdl_off_blog_url = apply_filters( 'ossdl_off_blog_url', get_option( 'siteurl' ) );
+if ( get_option( 'ossdl_off_blog_url' ) == false )
+	add_option( 'ossdl_off_blog_url', apply_filters( 'ossdl_off_blog_url', untrailingslashit( get_option( 'siteurl' ) ) ) );
+$ossdl_off_blog_url = get_option( 'ossdl_off_blog_url' );
 $ossdl_off_cdn_url = trim( get_option('ossdl_off_cdn_url') );
 if ( get_option( 'ossdl_off_include_dirs' ) == false )
 	add_option('ossdl_off_include_dirs', 'wp-content,wp-includes');
@@ -132,7 +134,8 @@ function scossdl_off_update() {
 	global $ossdlcdn, $wp_cache_config_file, $valid_nonce;
 
 	if ( $valid_nonce && isset($_POST['action']) && ( $_POST['action'] == 'update_ossdl_off' )){
-		update_option('ossdl_off_cdn_url', $_POST['ossdl_off_cdn_url']);
+		update_option( 'ossdl_off_cdn_url', untrailingslashit( $_POST[ 'ossdl_off_cdn_url' ] ) );
+		update_option( 'ossdl_off_blog_url', untrailingslashit( $_POST[ 'ossdl_off_blog_url' ] ) );
 		update_option('ossdl_off_include_dirs', $_POST['ossdl_off_include_dirs'] == '' ? 'wp-content,wp-includes' : $_POST['ossdl_off_include_dirs']);
 		update_option('ossdl_off_exclude', $_POST['ossdl_off_exclude']);
 		update_option('ossdl_cname', $_POST['ossdl_cname']);
@@ -177,6 +180,13 @@ function scossdl_off_options() {
 					<input id='ossdlcdn' type="checkbox" name="ossdlcdn" value="1" <?php if ( $ossdlcdn ) echo "checked=1"; ?> />
 				</td>
 				<th scope="row"><label for="ossdlcdn"><?php _e( 'Enable CDN Support', 'wp-super-cache' ); ?></label></th>
+			</tr>
+			<tr valign="top">
+				<th scope="row"><label for="ossdl_off_cdn_url"><?php _e( 'Site URL', 'wp-super-cache' ); ?></label></th>
+				<td>
+					<input type="text" name="ossdl_off_blog_url" value="<?php echo esc_url( untrailingslashit( get_option( 'ossdl_off_blog_url' ) ) ); ?>" size="64" class="regular-text code" /><br />
+					<span class="description"><?php _e( 'The URL of your site. No trailing <code>/</code> please.', 'wp-super-cache' ); ?></span>
+				</td>
 			</tr>
 			<tr valign="top">
 				<th scope="row"><label for="ossdl_off_cdn_url"><?php _e( 'Off-site URL', 'wp-super-cache' ); ?></label></th>
