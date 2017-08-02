@@ -1622,4 +1622,9 @@ function wp_cache_gc_watcher() {
 	}
 }
 
+function wpsc_timestamp_cache_update( $type, $permalink ) {
+	wp_cache_setting( 'wpsc_last_post_update', time() );
+}
+add_action( 'gc_cache', 'wpsc_timestamp_cache_update', 10, 2 );
+
 ?>

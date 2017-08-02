@@ -194,6 +194,21 @@ function wp_cache_serve_cache_file() {
 			@unlink( $cache_file );
 			return true;
 		}
+		// check for updated feed
+		if ( isset( $meta[ 'headers' ][ 'Content-Type' ] ) ) {
+			$rss_types = apply_filters( 'wpsc_rss_types', array( 'application/rss+xml', 'application/rdf+xml', 'application/atom+xml' ) );
+			foreach( $rss_types as $rss_type ) {
+				if ( strpos( $meta[ 'headers' ][ 'Content-Type' ], $rss_type ) ) {
+					global $wpsc_last_post_update;
+					if ( isset( $wpsc_last_post_update ) && filemtime( $meta_pathname ) < $wpsc_last_post_update ) {
+						wp_cache_debug( "wp_cache_serve_cache_file: feed out of date. deleting cache files: $meta_pathname, $cache_file" );
+						@unlink( $meta_pathname );
+						@unlink( $cache_file );
+						return true;
+					}
+				}
+			}
+		}
 	} else { // no $cache_file
 		global $wpsc_save_headers;
 		// last chance, check if a supercache file exists. Just in case .htaccess rules don't work on this host
