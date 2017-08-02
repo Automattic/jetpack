@@ -103,6 +103,14 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
+= 5.2.1 =
+
+* Release date: August 2, 2017*
+* Release post: https://jetpack.com/?p=22686
+
+**Bug fixes**
+* Solves an issue that caused widgets to lose their content when saved in WP Admin or Customizer.
+
 = 5.2 =
 
 * Release date: August 1, 2017
