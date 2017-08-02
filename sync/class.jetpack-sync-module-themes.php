@@ -33,7 +33,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 
 	public function sync_widget_edit( $instance, $new_instance, $old_instance, $widget_object ) {
 		if ( empty( $old_instance ) ) {
-			return;
+			return $instance;
 		}
 
 		$widget = array(
