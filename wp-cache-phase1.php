@@ -174,7 +174,7 @@ function wp_cache_serve_cache_file() {
 			wp_cache_debug( "Meta array from object cache corrupt. Ignoring cache.", 1 );
 			return true;
 		}
-	} elseif ( file_exists( $cache_file ) || file_exists( get_current_url_supercache_dir() . 'meta-' . $cache_filename ) ) {
+	} elseif ( ( $cache_file && file_exists( $cache_file ) ) || file_exists( get_current_url_supercache_dir() . 'meta-' . $cache_filename ) ) {
 		if ( file_exists( get_current_url_supercache_dir() . 'meta-' . $cache_filename ) ) {
 			$cache_file = get_current_url_supercache_dir() . $cache_filename;
 			$meta_pathname = get_current_url_supercache_dir() . 'meta-' . $cache_filename;
@@ -673,7 +673,18 @@ function wpsc_rebuild_files( $dir ) {
 
 // realpath() doesn't always remove the trailing slash
 function wpsc_get_realpath( $directory ) {
+	if ( $directory == '/' ) {
+		return false;
+	}
+
+	$original_dir = $directory;
 	$directory = realpath( $directory );
+
+	if ( ! $directory ) {
+		wp_cache_debug( "wpsc_get_realpath: directory does not exist - $original_dir" );
+		return false;
+	}
+
 	if ( substr( $directory, -1 ) == '/' || substr( $directory, -1 ) == '\\' ) {
 		$directory = substr( $directory, 0, -1 ); // remove trailing slash
 	}
@@ -686,11 +697,31 @@ function wpsc_is_in_cache_directory( $directory ) {
 	global $cache_path;
 	static $rp_cache_path = '';
 
+	if ( $directory == '' ) {
+		wp_cache_debug( "wpsc_is_in_cache_directory: exiting as directory is blank" );
+		return false;
+	}
+
+	if ( $cache_path == '' ) {
+		wp_cache_debug( "wpsc_is_in_cache_directory: exiting as cache_path is blank" );
+		return false;
+	}
+
 	if ( $rp_cache_path == '' ) {
 		$rp_cache_path = wpsc_get_realpath( $cache_path );
 	}
 
+	if ( ! $rp_cache_path ) {
+		wp_cache_debug( "wpsc_is_in_cache_directory: exiting as cache_path directory does not exist" );
+		return false;
+	}
+
 	$directory = wpsc_get_realpath( $directory );
+
+	if ( ! $directory ) {
+		wp_cache_debug( "wpsc_is_in_cache_directory: directory does not exist" );
+		return false;
+	}
 
 	if ( substr( $directory, 0, strlen( $rp_cache_path ) ) == $rp_cache_path ) {
 		return true;
@@ -703,6 +734,11 @@ function wpsc_delete_files( $dir, $delete = true ) {
 	global $cache_path;
 	static $protected = '';
 
+	if ( $dir == '' ) {
+		wp_cache_debug( "wpsc_delete_files: directory is blank" );
+		return false;
+	}
+
 	// only do this once, this function will be called many times
 	if ( $protected == '' ) {
 		$protected = array( $cache_path, $cache_path . "blogs/", $cache_path . 'supercache' );
@@ -711,7 +747,13 @@ function wpsc_delete_files( $dir, $delete = true ) {
 		}
 	}
 
-	$dir = trailingslashit( wpsc_get_realpath( $dir ) );
+	$dir = wpsc_get_realpath( $dir );
+	if ( ! $dir ) {
+		wp_cache_debug( "wpsc_delete_files: directory does not exist" );
+		return false;
+	}
+
+	$dir = trailingslashit( $dir );
 
 	if ( ! wpsc_is_in_cache_directory( $dir ) ) {
 		return false;
@@ -740,6 +782,10 @@ function get_all_supercache_filenames( $dir = '' ) {
 	global $wp_cache_mobile_enabled, $cache_path;
 
 	$dir = wpsc_get_realpath( $dir );
+	if ( ! $dir ) {
+		wp_cache_debug( "get_all_supercache_filenames: directory does not exist" );
+		return array();
+	}
 
 	if ( ! wpsc_is_in_cache_directory( $dir ) ) {
 		return array();
@@ -851,13 +897,25 @@ function wp_cache_confirm_delete( $dir ) {
 	global $cache_path, $blog_cache_dir;
 	// don't allow cache_path, blog cache dir, blog meta dir, supercache.
 	$dir = wpsc_get_realpath( $dir );
-	$rp_cache_path = wpsc_get_realpath( $cache_path );
+
+	if ( ! $dir ) {
+		wp_cache_debug( "wp_cache_confirm_delete: directory does not exist" );
+		return false;
+	}
+
 	if ( ! wpsc_is_in_cache_directory( $dir ) ) {
 		return false;
 	}
 
+	$rp_cache_path = wpsc_get_realpath( $cache_path );
 
-	if ( 
+	if ( ! $rp_cache_path ) {
+		wp_cache_debug( "wp_cache_confirm_delete: cache_path does not exist: $cache_path" );
+		return false;
+	}
+
+	if (
+		$dir == '' ||
 		$dir == $rp_cache_path ||
 		$dir == wpsc_get_realpath( $blog_cache_dir ) ||
 		$dir == wpsc_get_realpath( $blog_cache_dir . "meta/" ) ||

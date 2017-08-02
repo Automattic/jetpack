@@ -82,6 +82,10 @@ function wpcache_do_rebuild( $dir ) {
 	}
 
 	$dir = wpsc_get_realpath( $dir );
+	if ( ! $dir ) {
+		wp_cache_debug( "wpcache_do_rebuild: exiting as directory does not exist." );
+		return false;
+	}
 
 	if ( isset( $do_rebuild_list[ $dir ] ) ) {
 		wp_cache_debug( "wpcache_do_rebuild: directory already rebuilt: $dir" );
@@ -645,7 +649,15 @@ function wp_cache_get_ob(&$buffer) {
 
 	if( @is_dir( $dir ) == false )
 		@wp_mkdir_p( $dir );
-	$dir = trailingslashit( wpsc_get_realpath( $dir ) );
+	$dir = wpsc_get_realpath( $dir );
+
+	if ( ! $dir ) {
+		wp_cache_debug( "wp_cache_get_ob: not caching as directory does not exist." );
+		return $buffer;
+	}
+
+	$dir = trailingslashit( $dir );
+
 	if ( ! wpsc_is_in_cache_directory( $dir ) ) {
 		wp_cache_debug( "wp_cache_get_ob: not caching as directory is not in cache_path: $dir" );
 		return $buffer;
@@ -877,6 +889,7 @@ function prune_super_cache( $directory, $force = false, $rename = false ) {
 
 	// Don't prune a NULL/empty directory.
 	if ( null === $directory || '' === $directory ) {
+		wp_cache_debug( "prune_super_cache: directory is blank" );
 		return false;
 	}
 
@@ -977,6 +990,11 @@ function wp_cache_rebuild_or_delete( $file ) {
 		$file = substr( $file, 0, strpos( $file, '?' ) );
 
 	$file = wpsc_get_realpath( $file );
+
+	if ( ! $file ) {
+		wp_cache_debug( "wp_cache_rebuild_or_delete: file doesn't exist" );
+		return false;
+	}
 
 	if ( ! wpsc_is_in_cache_directory( $file ) ) {
 		wp_cache_debug( "rebuild_or_gc quitting because file is not in cache_path: $file" );
