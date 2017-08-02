@@ -230,7 +230,7 @@ const JetpackStateNotices = React.createClass( {
 		}
 
 		// Show custom message for upgraded Jetpack
-		if ( 'modules_activated' === message && '5.2' === this.props.currentVersion ) {
+		if ( 'modules_activated' === message && '5.2.1' === this.props.currentVersion ) {
 			return (
 				<UpgradeNoticeContent dismiss={ this.dismissJetpackStateNotice } adminUrl={ this.props.adminUrl } />
 			);
