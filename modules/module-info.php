@@ -443,23 +443,6 @@ function jetpack_likes_more_info() { ?>
 add_action( 'jetpack_module_more_info_likes', 'jetpack_likes_more_info' );
 
 /**
- * Omnisearch
- */
-function jetpack_omnisearch_more_link() {
-	echo 'https://jetpack.com/support/omnisearch/';
-}
-add_action( 'jetpack_learn_more_button_omnisearch', 'jetpack_omnisearch_more_link' );
-
-function jetpack_omnisearch_more_info() {
-	esc_html_e(
-		'A search to rule them all: search once, get results from everything! Omnisearch supports searching posts,
-		pages, comments, media, and plugins and plays nice with other plugins by letting other providers offer
-		results as well.'
-		, 'jetpack' );
-}
-add_action( 'jetpack_module_more_info_omnisearch',  'jetpack_omnisearch_more_info' );
-
-/**
  * Widget Visibility
  */
 function jetpack_widget_visibility_more_link() {
