@@ -41,6 +41,28 @@ function wpcomsh_site_has_woocommerce() {
 }
 
 /**
+ * Checks if the theme is the symlinked storefront theme.
+ *
+ * @return bool
+ */
+function wpcomsh_is_symlinked_storefront_theme( $theme_slug ) {
+	return 'storefront' === $theme_slug && is_link( get_theme_root() . '/' . $theme_slug );
+}
+
+/**
+ * Handles deletion of the storefront parent theme.
+ *
+ * @return bool|WP_Error
+ */
+function wpcomsh_jetpack_storefront_theme_delete( $result, $theme_slug ) {
+	if ( wpcomsh_is_symlinked_storefront_theme( $theme_slug ) ) {
+		$result = wpcomsh_delete_symlinked_theme( $theme_slug );
+	}
+	return $result;
+}
+add_filter( 'jetpack_wpcom_theme_delete', 'wpcomsh_jetpack_storefront_theme_delete', 10, 2 );
+
+/**
  * Handles symlinking of the storefront parent theme if not installed.
  *
  * @return bool|WP_Error

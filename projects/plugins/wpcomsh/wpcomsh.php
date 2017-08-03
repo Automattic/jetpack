@@ -256,7 +256,7 @@ function wpcomsh_remove_theme_delete_button( $prepared_themes ) {
 	require_once( 'functions.php' );
 
 	foreach ( $prepared_themes as $theme_slug => $theme_data ) {
-		if ( wpcomsh_is_wpcom_theme( $theme_slug ) ) {
+		if ( wpcomsh_is_wpcom_theme( $theme_slug ) || wpcomsh_is_symlinked_storefront_theme( $theme_slug ) ) {
 			$prepared_themes[ $theme_slug ]['actions']['delete'] = '';
 		}
 	}
