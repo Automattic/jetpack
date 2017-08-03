@@ -5,7 +5,14 @@
 		contentContainer = $( '.jp-wpcom-connect__content-container' ),
 		nextFeatureButtons = $( '.jp-banner__button-container .next-feature' ),
 		fullScreenContainer = $( '.jp-connect-full__container' ),
-		fullScreenDismiss = $( '.jp-connect-full__dismiss' );
+		fullScreenDismiss = $( '.jp-connect-full__dismiss' ),
+		wpWelcomeNotice = $( '#welcome-panel' ),
+		connectionBanner = $( '#message' );
+
+	// Move the banner below the WP Welcome notice on the dashboard
+	$( window ).on( 'load', function() {
+		wpWelcomeNotice.insertBefore( connectionBanner );
+	} );
 
 	nav.on( 'click', '.vertical-menu__feature-item:not( .vertical-menu__feature-item-is-selected )', function() {
 		transitionSlideToIndex( $( this ).index() );

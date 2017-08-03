@@ -45,7 +45,7 @@ class Jetpack_Connection_Banner {
 	 */
 	function maybe_initialize_hooks( $current_screen ) {
 		// Don't show the connect notice anywhere but the plugins.php after activating
-		if ( 'plugins' !== $current_screen->base ) {
+		if ( 'plugins' !== $current_screen->base && 'dashboard' !== $current_screen->base ) {
 			return;
 		}
 
