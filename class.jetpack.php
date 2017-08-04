@@ -4103,6 +4103,16 @@ p {
 		return false;
 	}
 
+	static function translate_user_to_role( $user ) {
+		foreach ( self::$capability_translations as $role => $cap ) {
+			if ( user_can( $user, $role ) || user_can( $user, $cap ) ) {
+				return $role;
+			}
+		}
+
+		return false;
+    }
+
 	static function translate_role_to_cap( $role ) {
 		if ( ! isset( self::$capability_translations[$role] ) ) {
 			return false;
