@@ -115,7 +115,6 @@ function jetpack_theme_update( $preempt, $r, $url ) {
 		);
 
 		if ( 200 !== wp_remote_retrieve_response_code( $result ) ) {
-			unlink( $file );
 			return new WP_Error( 'problem_fetching_theme', esc_html__( 'Problem downloading theme', 'jetpack' ) );
 		}
 		return $result;
