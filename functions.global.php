@@ -101,7 +101,7 @@ function jetpack_get_migration_data( $option_name ) {
  * @return array|bool|WP_Error
  */
 function jetpack_theme_update( $preempt, $r, $url ) {
-	if ( false !== stripos( $url, 'themes/download' ) ) {
+	if ( false !== stripos( $url, JETPACK__WPCOM_JSON_API_HOST . '/rest/v1/themes/download' ) ) {
 		$file = $r['filename'];
 		if ( ! $file ) {
 			return new WP_Error( 'problem_creating_theme_file', esc_html__( 'Problem creating file for theme download', 'jetpack' ) );
