@@ -121,4 +121,19 @@ function jetpack_theme_update( $preempt, $r, $url ) {
 	}
 	return $preempt;
 }
-add_filter( 'pre_http_request', 'jetpack_theme_update', 10, 3 );
+
+/**
+ * Add the filter when a upgrade is going to be downloaded.
+ *
+ * @since 5.3
+ *
+ * @param bool $reply Whether to bail without returning the package. Default false.
+ *
+ * @return bool
+ */
+function jetpack_upgrader_pre_download( $reply ) {
+	add_filter( 'pre_http_request', 'jetpack_theme_update', 10, 3 );
+	return $reply;
+}
+
+add_filter( 'upgrader_pre_download', 'jetpack_upgrader_pre_download' );
