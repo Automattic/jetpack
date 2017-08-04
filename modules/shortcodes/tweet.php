@@ -17,6 +17,7 @@
  */
 
 add_shortcode( 'tweet', array( 'Jetpack_Tweet', 'jetpack_tweet_shortcode' ) );
+add_action( 'enqueue_block_editor_assets', array( 'Jetpack_Tweet', 'enqueue_block_editor_assets' ) );
 
 class Jetpack_Tweet {
 
@@ -140,6 +141,63 @@ class Jetpack_Tweet {
 			wp_register_script( 'twitter-widgets', set_url_scheme( 'http://platform.twitter.com/widgets.js' ), array(), JETPACK__VERSION, true );
 			wp_print_scripts( 'twitter-widgets' );
 		}
+	}
+
+	static public function enqueue_block_editor_assets() {
+		wp_enqueue_script( 'wp-blocks' );
+		wp_enqueue_script( 'wp-i18n' );
+		wp_enqueue_script( 'wp-element' );
+		wp_enqueue_script( 'shortcode' );
+		add_action( 'admin_print_footer_scripts', array( __CLASS__, 'admin_footer' ), 999 );
+	}
+
+	static public function admin_footer() {
+?>
+<script>
+( function( wp ) {
+	var blockStyle = {
+			backgroundColor: '#900',
+			color: '#fff',
+			padding: '20px'
+		};
+
+	wp.blocks.registerBlockType( 'jetpack/tweet', {
+		title: wp.i18n.__( 'Tweet', 'jetpack' ),
+		icon: 'twitter',
+		category: 'layout',
+
+		attributes : {
+			tweet : wp.blocks.query.query( 'input[name=tweet]').value
+		},
+
+		edit : function( props ) {
+			return wp.element.createElement(
+				'input',
+				{
+					name : 'tweet',
+					type : 'url',
+					value : props.tweet
+				},
+				null
+			);
+		},
+
+		save : function( props ) {
+			return wp.shortcode.string({
+				tag     : 'tweet',
+				attrs   : {
+					named   : {},
+					numeric : [
+						props.tweet
+					]
+				}
+			});
+		}
+
+	} );
+} )( window.wp );
+</script>
+<?php
 	}
 
 } // class end
