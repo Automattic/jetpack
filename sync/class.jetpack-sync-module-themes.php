@@ -179,6 +179,9 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		}
 
 		$theme = $upgrader->theme_info();
+		if ( ! $theme instanceof WP_Theme ) {
+			return;
+		}
 		$theme_info = array(
 			'name' => $theme->get( 'Name' ),
 			'version' => $theme->get( 'Version' ),
