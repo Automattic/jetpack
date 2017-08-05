@@ -176,7 +176,12 @@ class Jetpack_Tweet {
 				{
 					name : 'tweet',
 					type : 'url',
-					value : props.attributes.tweet
+					value : props.attributes.tweet,
+					onInput: function( event ) {
+						props.setAttributes({
+							tweet: event.target.value
+						});
+					}
 				},
 				null
 			);
