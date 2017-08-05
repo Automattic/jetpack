@@ -144,16 +144,23 @@ class Jetpack_Tweet {
 	}
 
 	static public function enqueue_block_editor_assets() {
-		wp_enqueue_script( 'wp-blocks' );
-		wp_enqueue_script( 'wp-i18n' );
-		wp_enqueue_script( 'wp-element' );
-		wp_enqueue_script( 'shortcode' );
-		add_action( 'admin_print_footer_scripts', array( __CLASS__, 'admin_footer' ), 999 );
+		wp_register_script(
+			'jetpack-shortcode-tweet-gutenberg',
+			null,
+			array( 'wp-blocks', 'wp-i18n', 'wp-element', 'shortcode' )
+		);
+		wp_enqueue_script( 'jetpack-shortcode-tweet-gutenberg' );
+
+		ob_start();
+		self::jetpack_shortcode_tweet_gutenberg_script();
+		$content = ob_get_clean();
+
+		wp_script_add_data( 'jetpack-shortcode-tweet-gutenberg', 'data', $content );
 	}
 
-	static public function admin_footer() {
+	static public function jetpack_shortcode_tweet_gutenberg_script() {
 ?>
-<script>
+// <script>
 ( function( wp ) {
 	var blockStyle = {
 			backgroundColor: '#900',
@@ -203,7 +210,7 @@ class Jetpack_Tweet {
 
 	} );
 } )( window.wp );
-</script>
+// </script>
 <?php
 	}
 
