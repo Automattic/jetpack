@@ -176,7 +176,7 @@ class Jetpack_Tweet {
 				{
 					name : 'tweet',
 					type : 'url',
-					value : props.tweet
+					value : props.attributes.tweet
 				},
 				null
 			);
@@ -188,7 +188,7 @@ class Jetpack_Tweet {
 				attrs   : {
 					named   : {},
 					numeric : [
-						props.tweet
+						props.attributes.tweet
 					]
 				}
 			});
