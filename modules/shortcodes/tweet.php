@@ -167,7 +167,9 @@ class Jetpack_Tweet {
 		category: 'layout',
 
 		attributes : {
-			tweet : wp.blocks.query.query( 'input[name=tweet]').value
+			tweet : function ( node ) {
+				console.log( node );
+			}
 		},
 
 		edit : function( props ) {
