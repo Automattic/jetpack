@@ -1506,7 +1506,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			}
 
 			/**
-			 * Filter the message returned after a successfull contact form submission.
+			 * Filter the message returned after a successful contact form submission.
 			 *
 			 * @module contact-form
 			 *
@@ -2133,7 +2133,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		$message = join( $message, '' );
 
 		/**
-		 * Filters the message sent via email after a successfull form submission.
+		 * Filters the message sent via email after a successful form submission.
 		 *
 		 * @module contact-form
 		 *
@@ -2170,7 +2170,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		if (
 			$is_spam !== true &&
 			/**
-			 * Filter to choose whether an email should be sent after each successfull contact form submission.
+			 * Filter to choose whether an email should be sent after each successful contact form submission.
 			 *
 			 * @module contact-form
 			 *
