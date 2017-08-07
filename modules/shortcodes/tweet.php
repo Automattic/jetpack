@@ -162,12 +162,6 @@ class Jetpack_Tweet {
 ?>
 // <script>
 ( function( wp ) {
-	var blockStyle = {
-			backgroundColor: '#900',
-			color: '#fff',
-			padding: '20px'
-		};
-
 	wp.blocks.registerBlockType( 'jetpack/tweet', {
 		title: wp.i18n.__( 'Tweet', 'jetpack' ),
 		icon: 'twitter',
