@@ -260,6 +260,13 @@ class Jetpack_Tweet {
 				args.attrs.named.hide_media = props.attributes.hide_media;
 			}
 
+			if ( props.className ) {
+				return wp.element.createElement(
+					'div',
+					{ className : props.className },
+					wp.shortcode.string( args )
+			}
+
 			return wp.shortcode.string( args );
 		}
 
