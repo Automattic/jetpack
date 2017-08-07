@@ -2862,6 +2862,7 @@ p {
 		Jetpack::load_modules();
 
 		Jetpack_Options::delete_option( 'do_activate' );
+		Jetpack_Options::delete_option( 'dismissed_connection_banner' );
 	}
 
 	/**
