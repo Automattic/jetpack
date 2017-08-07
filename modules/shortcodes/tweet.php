@@ -232,6 +232,45 @@ class Jetpack_Tweet {
 						}
 					)
 				),
+				!! props.focus && wp.element.createElement(
+					wp.blocks.InspectorControls,
+					{ key : 'inspector' },
+					[
+						wp.element.createElement(
+							wp.blocks.BlockDescription,
+							null,
+							wp.element.createElement(
+								'p',
+								null,
+								wp.i18n.__( 'Optional embed settings:' )
+							)
+						),
+						wp.element.createElement(
+							'label',
+							null,
+							wp.element.createElement(
+								'label',
+								null,
+								[
+									wp.i18n.__( 'Width:' ),
+									wp.element.createElement(
+										'input',
+										{
+											type : 'number',
+											min : 100,
+											value : props.attributes.width,
+											onChange : function( newWidth ) {
+												props.setAttributes( {
+													width : newWidth.target.value
+												} );
+											}
+										}
+									)
+								]
+							)
+						),
+					]
+				),
 				wp.element.createElement(
 					'input',
 					{
