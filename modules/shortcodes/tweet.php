@@ -199,7 +199,7 @@ class Jetpack_Tweet {
 		},
 
 		save : function( props ) {
-			return wp.shortcode.string({
+			var args = {
 				tag     : 'tweet',
 				attrs   : {
 					named   : {},
@@ -207,7 +207,9 @@ class Jetpack_Tweet {
 						props.attributes.tweet
 					]
 				}
-			});
+			};
+
+			return wp.shortcode.string( args );
 		}
 
 	} );
