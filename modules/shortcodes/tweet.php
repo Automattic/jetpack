@@ -235,6 +235,7 @@ class Jetpack_Tweet {
 		save : function( props ) {
 			var args = {
 				tag     : 'tweet',
+				type    : 'single',
 				attrs   : {
 					named   : {},
 					numeric : [
