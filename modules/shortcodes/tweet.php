@@ -265,6 +265,7 @@ class Jetpack_Tweet {
 					'div',
 					{ className : props.className },
 					wp.shortcode.string( args )
+				);
 			}
 
 			return wp.shortcode.string( args );
