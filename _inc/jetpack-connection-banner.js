@@ -1,4 +1,4 @@
-/* jQuery, jp_banner */
+/* global jQuery, jp_banner */
 
 ( function( $ ) {
 	var nav = $( '.jp-wpcom-connect__vertical-nav-container' ),
@@ -22,7 +22,7 @@
 		var data = {
 			action: 'jetpack_connection_banner',
 			nonce: jp_banner.connectionBannerNonce,
-			dismissBanner: true,
+			dismissBanner: true
 		};
 
 		$.post( jp_banner.ajax_url, data, function( response ) {
