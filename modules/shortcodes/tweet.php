@@ -178,6 +178,40 @@ class Jetpack_Tweet {
 				}
 				return null;
 			},
+			align : function ( node ) {
+				var shortcode = wp.shortcode.next( 'tweet', node.innerText );
+				if ( shortcode.attrs.named.align ) {
+					return shortcode.attrs.named.align;
+				}
+				return 'none';
+			},
+			width : function ( node ) {
+				var shortcode = wp.shortcode.next( 'tweet', node.innerText );
+				if ( shortcode.attrs.named.width ) {
+					return shortcode.attrs.named.width;
+				}
+				return '';
+			},
+			lang : function ( node ) {
+				var shortcode = wp.shortcode.next( 'tweet', node.innerText );
+				if ( shortcode.attrs.named.lang ) {
+					return shortcode.attrs.named.lang;
+				}
+				return 'en';
+			},
+			hide_thread : function ( node ) {
+				var shortcode = wp.shortcode.next( 'tweet', node.innerText );
+				if ( shortcode.attrs.named.hide_thread ) {
+					return shortcode.attrs.named.hide_thread;
+				}
+				return 'false';
+			},
+			hide_media : function ( node ) {
+				var shortcode = wp.shortcode.next( 'tweet', node.innerText );
+				if ( shortcode.attrs.named.hide_media ) {
+					return shortcode.attrs.named.hide_media;
+				}
+				return 'false';
 			}
 		},
 
@@ -208,6 +242,23 @@ class Jetpack_Tweet {
 					]
 				}
 			};
+
+			// Populate optional attributes.
+			if ( props.attributes.align && props.attributes.align !== 'none' ) {
+				args.attrs.named.align = props.attributes.align;
+			}
+			if ( props.attributes.width && props.attributes.width !== '' ) {
+				args.attrs.named.width = props.attributes.width;
+			}
+			if ( props.attributes.lang && props.attributes.lang !== 'en' ) {
+				args.attrs.named.lang = props.attributes.lang;
+			}
+			if ( props.attributes.hide_thread && props.attributes.hide_thread !== 'none' ) {
+				args.attrs.named.hide_thread = props.attributes.hide_thread;
+			}
+			if ( props.attributes.hide_media && props.attributes.hide_media !== 'none' ) {
+				args.attrs.named.hide_media = props.attributes.hide_media;
+			}
 
 			return wp.shortcode.string( args );
 		}
