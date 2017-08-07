@@ -217,6 +217,21 @@ class Jetpack_Tweet {
 
 		edit : function( props ) {
 			return [
+				!! props.focus && wp.element.createElement(
+					wp.blocks.BlockControls,
+					{ key : 'controls' },
+					wp.element.createElement(
+						wp.blocks.AlignmentToolbar,
+						{
+							value    : props.attributes.align,
+							onChange : function( newAlignment ) {
+								props.setAttributes( {
+									align : newAlignment
+								} );
+							}
+						}
+					)
+				),
 				wp.element.createElement(
 					'input',
 					{
