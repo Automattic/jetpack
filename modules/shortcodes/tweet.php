@@ -321,8 +321,12 @@ class Jetpack_Tweet {
 			if ( props.className || props.attributes.className ) {
 				return wp.element.createElement(
 					'div',
-					{ className : props.className },
-					wp.shortcode.string( args )
+					{
+						// This is necessary so React doesn't turn `"` into `&quot;`
+						dangerouslySetInnerHTML: {
+							__html: wp.shortcode.string( args )
+						}
+					}
 				);
 			}
 
