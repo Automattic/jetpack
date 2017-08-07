@@ -317,7 +317,8 @@ class Jetpack_Tweet {
 				args.attrs.named.hide_media = props.attributes.hide_media;
 			}
 
-			if ( props.className ) {
+			// If there's a className to be set, wrap it in a div so it can be set on that.
+			if ( props.className || props.attributes.className ) {
 				return wp.element.createElement(
 					'div',
 					{ className : props.className },
