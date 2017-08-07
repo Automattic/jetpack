@@ -216,20 +216,22 @@ class Jetpack_Tweet {
 		},
 
 		edit : function( props ) {
-			return wp.element.createElement(
-				'input',
-				{
-					name : 'tweet',
-					type : 'url',
-					value : props.attributes.tweet,
-					onChange: function( event ) {
-						props.setAttributes({
-							tweet: event.target.value
-						});
-					}
-				},
-				null
-			);
+			return [
+				wp.element.createElement(
+					'input',
+					{
+						name : 'tweet',
+						type : 'url',
+						value : props.attributes.tweet,
+						onChange: function( event ) {
+							props.setAttributes({
+								tweet : event.target.value
+							});
+						}
+					},
+					null
+				)
+			];
 		},
 
 		save : function( props ) {
