@@ -169,7 +169,15 @@ class Jetpack_Tweet {
 
 		attributes : {
 			tweet : function ( node ) {
-				console.log( node );
+				var shortcode = wp.shortcode.next( 'tweet', node.innerText );
+				if ( shortcode.attrs.named.tweet ) {
+					return shortcode.attrs.named.tweet;
+				}
+				if ( shortcode.attrs.numeric[0] ) {
+					return shortcode.attrs.numeric[0];
+				}
+				return null;
+			},
 			}
 		},
 
