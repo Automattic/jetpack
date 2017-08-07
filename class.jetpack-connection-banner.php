@@ -100,52 +100,6 @@ class Jetpack_Connection_Banner {
 	}
 
 	/**
-	 * Renders the legacy connection banner.
-	 */
-	function render_legacy_banner() {
-		$legacy_banner_from = self::check_ab_test_not_expired()
-			? 'banner-legacy'
-			: 'banner';
-		?>
-		<div id="message" class="updated jp-banner">
-			<a
-				href="<?php echo esc_url( $this->get_dismiss_and_deactivate_url() ); ?>"
-				class="notice-dismiss" title="<?php esc_attr_e( 'Dismiss this notice', 'jetpack' ); ?>">
-			</a>
-			<div class="jp-banner__description-container">
-				<h2 class="jp-banner__header"><?php esc_html_e( 'Your Jetpack is almost ready!', 'jetpack' ); ?></h2>
-				<p class="jp-banner__description">
-					<?php
-					esc_html_e(
-						'Please connect to or create a WordPress.com account to enable Jetpack, including
-								powerful security, traffic, and customization services.',
-						'jetpack'
-					);
-					?>
-				</p>
-				<p class="jp-banner__button-container">
-					<a
-						href="<?php echo Jetpack::init()->build_connect_url( false, false, $legacy_banner_from ) ?>"
-						class="button button-primary">
-						<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
-					</a>
-					<a
-						href="<?php echo Jetpack::admin_url( 'admin.php?page=jetpack' ) ?>"
-						class="button"
-						title="<?php
-						esc_attr_e(
-							'Learn about the benefits you receive when you connect Jetpack to WordPress.com',
-							'jetpack'
-						);
-						?> ">
-						<?php esc_html_e( 'Learn more', 'jetpack' ); ?>
-					</a>
-				</p>
-			</div>
-		</div>
-	<?php }
-
-	/**
 	 * Renders the new connection banner.
 	 *
 	 * @since 4.4.0
