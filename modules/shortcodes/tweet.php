@@ -188,7 +188,7 @@ class Jetpack_Tweet {
 					name : 'tweet',
 					type : 'url',
 					value : props.attributes.tweet,
-					onInput: function( event ) {
+					onChange: function( event ) {
 						props.setAttributes({
 							tweet: event.target.value
 						});
