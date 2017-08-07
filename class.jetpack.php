@@ -4344,9 +4344,9 @@ p {
 			$url = add_query_arg( 'calypso_env', sanitize_key( $_GET['calypso_env'] ), $url );
 		}
 
-		// Onboard connection
-		// Todo: considerate cases where we don't want to onboard, just connect
-		$url = add_query_arg( 'onboarding', '1', $url );
+		if ( Jetpack_Options::get_option( 'onboarding' ) ) {
+			$url = add_query_arg( 'onboarding', '1', $url );
+		}
 
 		return $raw ? $url : esc_url( $url );
 	}

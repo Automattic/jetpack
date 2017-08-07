@@ -851,6 +851,8 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		$result = Jetpack_Client::_wp_remote_request( $url, $request );
 
+		Jetpack_Options::delete_option( 'onboarding' );
+
 		if ( is_wp_error( $result ) ) {
 			$this->partner_provision_error( $result );
 		}
@@ -984,6 +986,10 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		if ( isset( $named_args['force_connect'] ) && ! empty( $named_args['force_connect'] ) ) {
 			$request_body['force_connect'] = intval( $named_args['force_connect'] );
+		}
+
+		if ( isset( $request_body['onboarding'] ) && (bool) $request_body['onboarding'] ) {
+			Jetpack_Options::update_option( 'onboarding', 1 );
 		}
 
 		$request = array(
