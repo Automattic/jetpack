@@ -563,6 +563,8 @@ class Jetpack {
 		// Universal ajax callback for all tracking events triggered via js
 		add_action( 'wp_ajax_jetpack_tracks', array( $this, 'jetpack_admin_ajax_tracks_callback' ) );
 
+		add_action( 'wp_ajax_jetpack_connection_banner', array( $this, 'jetpack_connection_banner_callback' ) );
+
 		add_action( 'wp_loaded', array( $this, 'register_assets' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'devicepx' ) );
 		add_action( 'customize_controls_enqueue_scripts', array( $this, 'devicepx' ) );
@@ -621,6 +623,17 @@ class Jetpack {
 		return $params;
 	}
 
+	function jetpack_connection_banner_callback() {
+		check_ajax_referer( 'jp-connection-banner-nonce', 'nonce' );
+
+		if ( isset( $_REQUEST['dismissBanner'] ) ) {
+			Jetpack_Options::update_option( 'dismissed_connection_banner', 1 );
+			wp_send_json_success();
+		}
+		
+		wp_die();
+	}
+	
 	function jetpack_admin_ajax_tracks_callback() {
 		// Check for nonce
 		if ( ! isset( $_REQUEST['tracksNonce'] ) || ! wp_verify_nonce( $_REQUEST['tracksNonce'], 'jp-tracks-ajax-nonce' ) ) {

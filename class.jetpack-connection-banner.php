@@ -44,6 +44,11 @@ class Jetpack_Connection_Banner {
 	 * @param $current_screen
 	 */
 	function maybe_initialize_hooks( $current_screen ) {
+		// Kill if banner has been dismissed
+		if ( Jetpack_Options::get_option( 'dismissed_connection_banner' ) ) {
+			return;
+		}
+
 		// Don't show the connect notice anywhere but the plugins.php after activating
 		if ( 'plugins' !== $current_screen->base && 'dashboard' !== $current_screen->base ) {
 			return;
@@ -83,19 +88,14 @@ class Jetpack_Connection_Banner {
 			JETPACK__VERSION,
 			true
 		);
-	}
 
-	/**
-	 * Returns a URL that will dismiss allow the current user to dismiss the connection banner.
-	 *
-	 * @since 4.4.0
-	 *
-	 * @return string
-	 */
-	function get_dismiss_and_deactivate_url() {
-		return wp_nonce_url(
-			Jetpack::admin_url( '?page=jetpack&jetpack-notice=dismiss' ),
-			'jetpack-deactivate'
+		wp_localize_script(
+			'jetpack-connection-banner-js',
+			'jp_banner',
+			array(
+				'ajax_url' => admin_url( 'admin-ajax.php' ),
+				'connectionBannerNonce' => wp_create_nonce( 'jp-connection-banner-nonce' ),
+			)
 		);
 	}
 
@@ -111,7 +111,6 @@ class Jetpack_Connection_Banner {
 			<a
 				href="<?php echo esc_url( $this->get_dismiss_and_deactivate_url() ); ?>"
 				class="notice-dismiss" title="<?php esc_attr_e( 'Dismiss this notice', 'jetpack' ); ?>">
-
 			</a>
 			<div class="jp-banner__description-container">
 				<h2 class="jp-banner__header"><?php esc_html_e( 'Your Jetpack is almost ready!', 'jetpack' ); ?></h2>
@@ -154,11 +153,10 @@ class Jetpack_Connection_Banner {
 	function render_banner() { ?>
 		<div id="message" class="updated jp-wpcom-connect__container">
 			<div class="jp-wpcom-connect__inner-container">
-				<a
-					href="<?php echo esc_url( $this->get_dismiss_and_deactivate_url() ); ?>"
-					class="notice-dismiss"
+				<span
+					class="notice-dismiss connection-banner-dismiss"
 					title="<?php esc_attr_e( 'Dismiss this notice', 'jetpack' ); ?>">
-				</a>
+				</span>
 
 				<div class="jp-wpcom-connect__vertical-nav">
 					<div class="jp-wpcom-connect__vertical-nav-container">
