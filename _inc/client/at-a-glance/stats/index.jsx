@@ -97,7 +97,7 @@ class DashStats extends Component {
 	}
 
 	renderStatsArea() {
-		const activateStats = () => this.props.updateOptions( { [ 'stats' ]: true } );
+		const activateStats = () => this.props.updateOptions( { 'stats': true } );
 
 		if ( this.props.getOptionValue( 'stats' ) ) {
 			const statsErrors = this.statsErrors();

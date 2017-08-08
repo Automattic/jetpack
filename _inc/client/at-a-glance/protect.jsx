@@ -17,7 +17,7 @@ import { isDevMode } from 'state/connection';
 
 class DashProtect extends Component {
 	getContent() {
-		const activateProtect = () => this.props.updateOptions( { [ 'protect' ]: true } );
+		const activateProtect = () => this.props.updateOptions( { 'protect': true } );
 
 		if ( this.props.getOptionValue( 'protect' ) ) {
 			const protectCount = this.props.protectCount;

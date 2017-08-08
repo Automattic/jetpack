@@ -21,7 +21,7 @@ import JetpackBanner from 'components/jetpack-banner';
 export const VerificationServices = moduleSettingsForm(
 	React.createClass( {
 		activateVerificationTools: function() {
-			return this.props.updateOptions( { [ 'verification-tools' ]: true } );
+			return this.props.updateOptions( { 'verification-tools': true } );
 		},
 
 		render() {
