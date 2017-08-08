@@ -207,9 +207,9 @@ EXPECTED;
 		Jetpack::dns_prefetch( 'https://example2.com' );
 
 		$expected = "\r\n" .
-		            "<link rel='dns-prefetch' href='//example1.com'>\r\n" .
-		            "<link rel='dns-prefetch' href='//example2.com'>\r\n" .
-		            "<link rel='dns-prefetch' href='//example3.com'>\r\n";
+		            "<link rel='dns-prefetch' href='//example1.com'/>\r\n" .
+		            "<link rel='dns-prefetch' href='//example2.com'/>\r\n" .
+		            "<link rel='dns-prefetch' href='//example3.com'/>\r\n";
 
 		$this->assertEquals( $expected, str_replace( $remove_this, "\r\n", get_echo( array( 'Jetpack', 'dns_prefetch' ) ) ) );
 	}
