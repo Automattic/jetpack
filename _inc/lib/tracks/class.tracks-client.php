@@ -158,7 +158,7 @@ class Jetpack_Tracks_Client {
 				$anon_id = 'jetpack:' . base64_encode( $binary );
 
 				if ( ! headers_sent() ) {
-					setcookie( 'tk_ai', $anon_id );
+					setcookie( 'tk_ai', $anon_id, time() + 1000, '/' );
 				}
 			}
 		}

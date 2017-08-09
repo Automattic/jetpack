@@ -88,9 +88,9 @@ function jetpack_tracks_get_identity( $user_id ) {
 
 	// User isn't linked at all.  Fall back to anonymous ID.
 	$anon_id = get_user_meta( $user_id, 'jetpack_tracks_anon_id', true );
-	if ( ! $anon_id ) {
+	if ( ! $anon_id || $anon_id !== $_COOKIE['tk_ai'] ) {
 		$anon_id = Jetpack_Tracks_Client::get_anon_id();
-		add_user_meta( $user_id, 'jetpack_tracks_anon_id', $anon_id, false );
+		update_user_meta( $user_id, 'jetpack_tracks_anon_id', $anon_id );
 	}
 
 	if ( ! isset( $_COOKIE[ 'tk_ai' ] ) && ! headers_sent() ) {
