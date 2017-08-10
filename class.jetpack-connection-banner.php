@@ -526,7 +526,7 @@ class Jetpack_Connection_Banner {
 						<p>
 							<?php
 							esc_html_e(
-								'Jetpack is the best way to experience WordPress: whether your site is brand new or already well established.',
+								'Jetpack is the best way to experience WordPress, whether your site is brand new or already well established.',
 								'jetpack'
 							);
 							?>
@@ -581,7 +581,7 @@ class Jetpack_Connection_Banner {
 						<p>
 							<?php
 							esc_html_e(
-								'Jetpack gives you access to more than 300 hundred professional WordPress themes, 100 of which are free.',
+								'Jetpack gives you access to more than 100 free and 200 premium WordPress themes.',
 								'jetpack'
 							);
 							?>
@@ -590,7 +590,7 @@ class Jetpack_Connection_Banner {
 						<p>
 							<?php
 							esc_html_e(
-								'Customization tools and widgets help you make it look just right it without writing any code and our CDN speeds up your images.',
+								'Customization tools and widgets help you make your site look great without writing any code, and our CDN speeds up your images.',
 								'jetpack'
 							);
 							?>
@@ -672,7 +672,7 @@ class Jetpack_Connection_Banner {
 
 						<p>
 							<?php
-							esc_html_e(  'Jetpack checks your site every few minutes and if its offline we will notify you instantly.',
+							esc_html_e(  'Jetpack checks your site every few minutes, and if it\'s offline we\'ll notify you instantly.',
 								'jetpack'
 							);
 							?>
@@ -680,7 +680,7 @@ class Jetpack_Connection_Banner {
 
 						<p>
 							<?php
-							esc_html_e(  'Your site is automatically protected from brute force attacks and you can use single sign-on for extra security.',
+							esc_html_e(  'Your site is automatically protected from brute force attacks, plus you can use single sign-on for extra security.',
 								'jetpack'
 							);
 							?>
