@@ -605,6 +605,48 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 					array(
 						'page'     => 'jetpack',
 						'action'   => 'register',
+					)
+			), $response
+		);
+	}
+
+	/**
+	 * Test connection url build when there's onboarding.
+	 *
+	 * @since 5.3
+	 */
+	public function test_build_connect_url_onboarding() {
+
+		// Create a user and set it up as current.
+		$user = $this->create_and_get_user( 'administrator' );
+		wp_set_current_user( $user->ID );
+
+		// Enable connection onboarding
+		Jetpack_Options::update_option( 'onboarding', '1' );
+
+		// Build URL to compare scheme and host with the one in response
+		$admin_url = parse_url( admin_url() );
+
+		// Create REST request in JSON format and dispatch
+		$response = $this->create_and_get_request( 'connection/url' );
+
+		// Format data to test it
+		$response->data = parse_url( $response->data );
+		parse_str( $response->data['query'], $response->data['query'] );
+
+		// Remove nonce for comparing
+		unset( $response->data['query']['_wpnonce'] );
+
+		// The URL was properly built
+		$this->assertResponseData(
+			array(
+				'scheme' => $admin_url['scheme'],
+				'host'   => $admin_url['host'],
+				'path'   => '/wp-admin/admin.php',
+				'query'  =>
+					array(
+						'page'       => 'jetpack',
+						'action'     => 'register',
 						'onboarding' => '1',
 					)
 			), $response
