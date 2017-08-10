@@ -26,11 +26,48 @@ class Jetpack_Connection_Banner {
 	}
 
 	function cleanup_on_upgrade( $new_version = null, $old_version = null ) {
-		if ( version_compare( $old_version, '4.4', '>=' ) && version_compare( $old_version, '4.5', '<' ) ) {
-			// We don't use `Jetpack_Options` here since the option is no longer in that class.
+		if ( version_compare( $old_version, '4.4', '>=' ) && version_compare( $old_version, '5.3', '<' ) ) {
 			delete_option( 'jetpack_connection_banner_ab' );
 		}
 	}
+
+	/**
+	 * Checks whether the connection banner A/B test should be ran.
+	 *
+	 * @since 5.3.0
+	 *
+	 * @param null $now
+	 *
+	 * @return bool
+	 */
+	static function check_ab_test_not_expired( $now = null ) {
+		// Get the current timestamp in GMT
+		$now = empty( $now ) ? current_time( 'timestamp', 1 ) : $now;
+
+		// Arguments are hour, minute, second, month, day, year. So, we are getting the timestamp for GMT timestamp
+		// for the 15th of December 2016.
+		$expiration = gmmktime( 0, 0, 0, 10, 5, 2017 );
+
+		return $expiration >= $now;
+	}
+
+	/**
+	 * Gets the value for which connection banner to show, and initializes if not set.
+	 *
+	 * @since 5.3.0
+	 *
+	 * @return int
+	 */
+	static function get_random_connection_banner_value() {
+		$random_connection_banner = get_option( 'jetpack_connection_banner_ab' );
+		if ( ! $random_connection_banner ) {
+			$random_connection_banner = mt_rand( 1, 2 );
+			update_option( 'jetpack_connection_banner_ab', $random_connection_banner );
+		}
+
+		return $random_connection_banner;
+	}
+
 
 	/**
 	 * Will initialize hooks to display the new (as of 4.4) connection banner if the current user can
@@ -40,6 +77,7 @@ class Jetpack_Connection_Banner {
 	 *
 	 * @since 4.4.0
 	 * @since 4.5.0 Made the new (as of 4.4) connection banner display to everyone by default.
+	 * @since 5.3.0 Running another split test between 4.4 banner and a new one in 5.3.
 	 *
 	 * @param $current_screen
 	 */
@@ -58,10 +96,13 @@ class Jetpack_Connection_Banner {
 			return;
 		}
 
-		add_action( 'admin_notices', array( $this, 'render_banner' ) );
+		if ( self::check_ab_test_not_expired() && 2 == self::get_random_connection_banner_value() ) {
+			add_action( 'admin_notices', array( $this, 'render_banner_b' ) );
+		} else {
+			add_action( 'admin_notices', array( $this, 'render_banner' ) );
+		}
 
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_banner_scripts' ) );
-
 		add_action( 'admin_print_styles', array( Jetpack::init(), 'admin_banner_styles' ) );
 
 		if ( Jetpack::state( 'network_nag' ) ) {
@@ -100,7 +141,7 @@ class Jetpack_Connection_Banner {
 	}
 
 	/**
-	 * Renders the new connection banner.
+	 * Renders the new connection banner as of 4.4.0.
 	 *
 	 * @since 4.4.0
 	 */
@@ -424,9 +465,9 @@ class Jetpack_Connection_Banner {
 	}
 
 	/**
-	 * Renders a modified connection banner.
+	 * Renders a split-test banner as of 5.3.0.
 	 *
-	 * @since 4.4.0
+	 * @since 5.3.0
 	 */
 	function render_banner_b() { ?>
 		<div id="message" class="updated jp-wpcom-connect__container">
@@ -511,7 +552,7 @@ class Jetpack_Connection_Banner {
 
 						<p class="jp-banner__button-container">
 							<a
-								href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, 'banner-44-slide-1' ) ); ?>"
+								href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, 'banner-53-slide-1' ) ); ?>"
 								class="dops-button is-primary">
 								<?php esc_html_e( 'Sign Up', 'jetpack' ); ?>
 							</a>
@@ -565,7 +606,7 @@ class Jetpack_Connection_Banner {
 						</p>
 
 						<p class="jp-banner__button-container">
-							<a href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, 'banner-44-slide-2' ) ); ?>" class="dops-button is-primary">
+							<a href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, 'banner-53-slide-2' ) ); ?>" class="dops-button is-primary">
 								<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
 							</a>
 							<a href="#" class="dops-button next-feature" title="<?php esc_attr_e( 'Jetpack Tour: Next Feature', 'jetpack' ); ?>">
@@ -611,7 +652,7 @@ class Jetpack_Connection_Banner {
 
 						<p class="jp-banner__button-container">
 							<a
-								href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, 'banner-44-slide-3' ) ); ?>"
+								href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, 'banner-53-slide-3' ) ); ?>"
 								class="dops-button is-primary">
 								<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
 							</a>
@@ -655,7 +696,7 @@ class Jetpack_Connection_Banner {
 
 						<p class="jp-banner__button-container">
 							<a
-								href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, 'banner-44-slide-6' ) ); ?>"
+								href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, 'banner-53-slide-4' ) ); ?>"
 								class="dops-button is-primary">
 								<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
 							</a>
