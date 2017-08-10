@@ -8,7 +8,8 @@
     "automattic/custom-fonts": "1.0.1",
     "automattic/custom-fonts-typekit": "1.0.3",
     "automattic/jetpack-social-icons": "~1.0",
-    "automattic/text-media-widget-styles": "~1.0"
+    "automattic/text-media-widget-styles": "~1.0",
+    "woocommerce/wc-api-dev": "dev-add/composer-json"
   },
   "require-dev": {
     "php": ">=7.0.0"
@@ -38,6 +39,11 @@
       "type": "vcs",
       "no-api": true,
       "url": "https://github.com/Automattic/text-media-widget-styles.git"
+    },
+    {
+      "type": "vcs",
+      "no-api": true,
+      "url": "https://github.com/woocommerce/wc-api-dev.git"
     }
   ]
 }
