@@ -94,8 +94,7 @@ class Jetpack_Connection_Banner {
 	 */
 	function get_dismiss_and_deactivate_url() {
 		return wp_nonce_url(
-			Jetpack::admin_url( '?page=jetpack&jetpack-notice=dismiss' ),
-			'jetpack-deactivate'
+			Jetpack::admin_url( '?page=jetpack&jetpack-notice=dismiss' )
 		);
 	}
 
