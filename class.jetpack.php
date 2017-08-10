@@ -4346,6 +4346,9 @@ p {
 
 		if ( Jetpack_Options::get_option( 'onboarding' ) ) {
 			$url = add_query_arg( 'onboarding', '1', $url );
+
+			// Remove this once https://github.com/Automattic/wp-calypso/pull/17094 is merged.
+			$url = add_query_arg( 'calypso_env', 'development', $url );
 		}
 
 		return $raw ? $url : esc_url( $url );
