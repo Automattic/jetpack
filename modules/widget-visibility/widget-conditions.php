@@ -125,16 +125,16 @@ class Jetpack_Widget_Conditions {
 
 		$taxonomies = get_taxonomies(
 			/**
-			* Filters args passed to get_taxonomies.
-			*
-			* @see https://developer.wordpress.org/reference/functions/get_taxonomies/
-			*
-			* @since 4.4.0
-			*
-			* @module widget-visibility
-			*
-			* @param array $args Widget Visibility taxonomy arguments.
-			*/
+			 * Filters args passed to get_taxonomies.
+			 *
+			 * @see https://developer.wordpress.org/reference/functions/get_taxonomies/
+			 *
+			 * @since 5.3.0
+			 *
+			 * @module widget-visibility
+			 *
+			 * @param array $args Widget Visibility taxonomy arguments.
+			 */
 			apply_filters( 'jetpack_widget_visibility_tax_args', array( '_builtin' => false ) ),
 			'objects'
 		);
