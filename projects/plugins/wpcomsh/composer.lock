@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "d0bd9d3f134a8c948022adf2ce496828",
+    "content-hash": "edff0b7830df9cd7217b00e61ec3fc4f",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -124,16 +124,16 @@
         },
         {
             "name": "woocommerce/wc-api-dev",
-            "version": "dev-add/composer-json",
+            "version": "v0.8.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/woocommerce/wc-api-dev.git",
-                "reference": "c6595d4ac2e726bb9459d7cc627103e52653d161"
+                "reference": "6f923bb9e7025dc88a443ddf6960a54479380e5b"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/woocommerce/wc-api-dev/zipball/c6595d4ac2e726bb9459d7cc627103e52653d161",
-                "reference": "c6595d4ac2e726bb9459d7cc627103e52653d161",
+                "url": "https://api.github.com/repos/woocommerce/wc-api-dev/zipball/6f923bb9e7025dc88a443ddf6960a54479380e5b",
+                "reference": "6f923bb9e7025dc88a443ddf6960a54479380e5b",
                 "shasum": ""
             },
             "type": "library",
@@ -142,15 +142,13 @@
                     "wc-api-dev.php"
                 ]
             },
-            "time": "2017-08-11T19:56:22+00:00"
+            "time": "2017-08-11T21:57:43+00:00"
         }
     ],
     "packages-dev": [],
     "aliases": [],
     "minimum-stability": "stable",
-    "stability-flags": {
-        "woocommerce/wc-api-dev": 20
-    },
+    "stability-flags": [],
     "prefer-stable": false,
     "prefer-lowest": false,
     "platform": [],
