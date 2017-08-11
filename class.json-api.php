@@ -444,10 +444,10 @@ class WPCOM_JSON_API {
 		if ( !$status_code ) {
 			$status_code = 400;
 		}
-		$response = [
+		$response = array(
 			'error'   => $error->get_error_code(),
 			'message' => $error->get_error_message(),
-		];
+		);
 		
 		if ( $additional_data = $error->get_error_data( 'additional_data' ) ) {
 			$response['data'] = $additional_data;
