@@ -42,11 +42,8 @@ class WPCOM_Widget_Goodreads extends WP_Widget {
 	}
 
 	function enqueue_style() {
-		if ( is_rtl() ) {
-			wp_enqueue_style( 'goodreads-widget', plugins_url( 'goodreads/css/rtl/goodreads-rtl.css', __FILE__ ) );
-		} else {
-			wp_enqueue_style( 'goodreads-widget', plugins_url( 'goodreads/css/goodreads.css', __FILE__ ) );
-		}
+		wp_enqueue_style( 'goodreads-widget', plugins_url( 'goodreads/css/goodreads.css', __FILE__ ) );
+		wp_style_add_data( 'goodreads-widget', 'rtl', 'replace' );
 	}
 
 	function widget( $args, $instance ) {

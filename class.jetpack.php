@@ -60,6 +60,13 @@ class Jetpack {
 		'flickr-widget-style',
 	);
 
+	/**
+	 * Contains all assets that have had their URL rewritten to minified versions.
+	 *
+	 * @var array
+	 */
+	static $min_assets = array();
+
 	public $plugins_to_deactivate = array(
 		'stats'               => array( 'stats/stats.php', 'WordPress.com Stats' ),
 		'shortlinks'          => array( 'stats/stats.php', 'WordPress.com Stats' ),
@@ -579,6 +586,7 @@ class Jetpack {
 		add_action( 'plugins_loaded', array( $this, 'check_rest_api_compat' ), 1000 );
 
 		add_filter( 'plugins_url',      array( 'Jetpack', 'maybe_min_asset' ),     1, 3 );
+		add_action( 'style_loader_src', array( 'Jetpack', 'set_suffix_on_min' ), 10, 2  );
 		add_filter( 'style_loader_tag', array( 'Jetpack', 'maybe_inline_style' ), 10, 2 );
 
 		add_filter( 'map_meta_cap', array( $this, 'jetpack_custom_caps' ), 1, 4 );
@@ -5872,6 +5880,8 @@ p {
 			return $url;
 		}
 
+		$path = ltrim( $path, '/' );
+
 		// Strip out the abspath.
 		$base = dirname( plugin_basename( $plugin ) );
 
@@ -5896,10 +5906,41 @@ p {
 			$min_full_path = preg_replace( "#\.{$extension}$#", ".min.{$extension}", $full_path );
 			if ( file_exists( $min_full_path ) ) {
 				$url = preg_replace( "#\.{$extension}$#", ".min.{$extension}", $url );
+				// If it's a CSS file, stash it so we can set the .min suffix for rtl-ing.
+				if ( 'css' === $extension ) {
+					$key = str_replace( JETPACK__PLUGIN_DIR, 'jetpack/', $min_full_path );
+					self::$min_assets[ $key ] = $path;
+				}
 			}
 		}
 
 		return $url;
+	}
+
+	/**
+	 * If the asset is minified, let's flag .min as the suffix.
+	 *
+	 * Attached to `style_loader_src` filter.
+	 *
+	 * @param string $tag The tag that would link to the external asset.
+	 * @param string $handle The registered handle of the script in question.
+	 * @param string $href The url of the asset in question.
+	 */
+	public static function set_suffix_on_min( $src, $handle ) {
+		if ( false === strpos( $src, '.min.css' ) ) {
+			return $src;
+		}
+
+		if ( ! empty( self::$min_assets ) ) {
+			foreach ( self::$min_assets as $file => $path ) {
+				if ( false !== strpos( $src, $file ) ) {
+					wp_style_add_data( $handle, 'suffix', '.min' );
+					return $src;
+				}
+			}
+		}
+
+		return $src;
 	}
 
 	/**

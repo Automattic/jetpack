@@ -1463,11 +1463,8 @@ EOT;
 			wp_localize_script( 'jetpack_related-posts', 'related_posts_js_options', $related_posts_js_options );
 		}
 		if ( $style ){
-			if( is_rtl() ) {
-				wp_enqueue_style( 'jetpack_related-posts', plugins_url( 'rtl/related-posts-rtl.css', __FILE__ ), array(), self::VERSION );
-			} else {
-				wp_enqueue_style( 'jetpack_related-posts', plugins_url( 'related-posts.css', __FILE__ ), array(), self::VERSION );
-			}
+			wp_enqueue_style( 'jetpack_related-posts', plugins_url( 'related-posts.css', __FILE__ ), array(), self::VERSION );
+			wp_style_add_data( 'jetpack_related-posts', 'rtl', 'replace' );
 		}
 	}
 
