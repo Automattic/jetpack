@@ -79,28 +79,17 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 		$args = rawurlencode_deep( $args );
 	}
 
-	/* Don't photon-ize WPCOM hosted images with only the following url args:
-	 *  `w`, `h`, `fit`, `crop`, `zoom`, `strip`, `resize`, `quality`
-	 * These args can just be added to the wpcom-version of the image, and save on latency.
-	 */
-	$is_wpcom_image_with_safe_args = false;
-	$allowed_wpcom_keys = array(
-		'ssl'     => true, // Not really, but it's set early up above, and wpcom images should be ssl anyways.
-		'w'       => true,
-		'h'       => true,
-		'fit'     => true,
-		'crop'    => true,
-		'zoom'    => true,
-		'strip'   => true,
-		'resize'  => true,
-		'quality' => true,
-	);
-	// Disabled until we sort out some differences between WPCOM and Photon
-	/*
-	if ( wp_endswith( strtolower( $image_url_parts['host'] ), '.files.wordpress.com' ) && ! array_diff_key( $args, $allowed_wpcom_keys ) ) {
-		$is_wpcom_image_with_safe_args = true;
+	// Don't photon-ize WPCOM hosted images -- we can serve them up from wpcom directly.
+	$is_wpcom_image = false;
+
+	// Move [a-e]*.files.wordpress.com traffic over to using direct WPCOM images, reference: http://wp.me/p3topS-mu
+	if ( preg_match( '/^([a-e][^\/]*)\.files\.wordpress\.com$/', $image_url_parts['host'] ) ) {
+		$is_wpcom_image = true;
+		if ( isset( $args['ssl'] ) ) {
+			// Do not send the ssl argument to prevent caching issues
+			unset( $args['ssl'] );
+		}
 	}
-	* /
 
 	/** This filter is documented below. */
 	$custom_photon_url = apply_filters( 'jetpack_photon_domain', '', $image_url );
@@ -108,11 +97,11 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 
 	// You can't run a Photon URL through Photon again because query strings are stripped.
 	// So if the image is already a Photon URL, append the new arguments to the existing URL.
-	// Alternately, if it's a *.files.wordpress.com url, and the arguments are supported, keep the domain.
+	// Alternately, if it's a *.files.wordpress.com url, then keep the domain as is.
 	if (
 		in_array( $image_url_parts['host'], array( 'i0.wp.com', 'i1.wp.com', 'i2.wp.com' ) )
 		|| $image_url_parts['host'] === parse_url( $custom_photon_url, PHP_URL_HOST )
-		|| $is_wpcom_image_with_safe_args
+		|| $is_wpcom_image
 	) {
 		$photon_url = add_query_arg( $args, $image_url );
 		return jetpack_photon_url_scheme( $photon_url, $scheme );
