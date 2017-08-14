@@ -125,13 +125,10 @@ if ( false == isset( $ossdlcdn ) )
 if ( $ossdlcdn == 1 )
 	add_action('init', 'do_scossdl_off_ob_start');
 
-if ( function_exists( 'wp_verify_nonce' ) )
-	$valid_nonce = isset($_REQUEST['_wpnonce']) ? wp_verify_nonce($_REQUEST['_wpnonce'], 'wp-cache') : false;
-else
-	$valid_nonce = false;
-
 function scossdl_off_update() {
-	global $ossdlcdn, $wp_cache_config_file, $valid_nonce;
+	global $ossdlcdn, $wp_cache_config_file;
+
+	$valid_nonce = isset($_REQUEST['_wpnonce']) ? wp_verify_nonce($_REQUEST['_wpnonce'], 'wp-cache') : false;
 
 	if ( $valid_nonce && isset($_POST['action']) && ( $_POST['action'] == 'update_ossdl_off' )){
 		update_option( 'ossdl_off_cdn_url', untrailingslashit( $_POST[ 'ossdl_off_cdn_url' ] ) );
@@ -152,7 +149,7 @@ function scossdl_off_update() {
 }
 
 function scossdl_off_options() {
-	global $ossdlcdn, $wp_cache_config_file, $valid_nonce, $ossdl_off_blog_url;
+	global $ossdlcdn, $wp_cache_config_file, $ossdl_off_blog_url;
 
 	scossdl_off_update();
 
