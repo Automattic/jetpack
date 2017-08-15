@@ -1846,7 +1846,6 @@ new WPCOM_JSON_API_Get_Comments_Tree_Endpoint( array(
 	'path'        =>  '/sites/%s/comments-tree',
 	'path_labels' => array(
 		'$site'   => '(int|string) Site ID or domain',
-		'$status' => '(string) Comment status value (allowed values: all, approved, trash, spam)',
 	),
 	'query_parameters' => array(
 		'status' => '(string) Filter returned comments based on this value (allowed values: all, approved, pending, trash, spam).'

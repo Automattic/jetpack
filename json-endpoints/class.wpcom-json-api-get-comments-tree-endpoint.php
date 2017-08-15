@@ -27,12 +27,12 @@ class WPCOM_JSON_API_Get_Comments_Tree_Endpoint extends WPCOM_JSON_API_Endpoint 
 			ARRAY_N
 		);
 
-		return array(
-			$total_count,
-			array_map( function( $comment ) {
-				return array_map( 'intval', $comment );
-			}, $db_comments )
-		);
+		// Avoid using anonymous function bellow in order to preserve PHP 5.2 compatibility.
+		function intval_array_map( $comments ) {
+			return array_map( 'intval', $comments );
+		}
+
+		return array( $total_count, intval_array_map( $db_comments ) );
 	}
 
 	/**
