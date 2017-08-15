@@ -16,10 +16,7 @@ class Grunion_Editor_View {
 	 */
 	public static function add_hooks( $screen ) {
 		if ( isset( $screen->base ) && 'post' === $screen->base ) {
-			add_filter( 'mce_external_plugins', array( __CLASS__, 'mce_external_plugins' ) );
-			add_filter( 'mce_buttons', array( __CLASS__, 'mce_buttons' ) );
 			add_action( 'admin_notices', array( __CLASS__, 'handle_editor_view_js' ) );
-			add_action( 'admin_print_footer_scripts', array( __CLASS__, 'editor_view_js_templates' ), 1 );
 			add_action( 'admin_head', array( __CLASS__, 'admin_head' ) );
 		}
 	}
@@ -61,6 +58,10 @@ class Grunion_Editor_View {
 	 * WordPress Shortcode Editor View JS Code
 	 */
 	public static function handle_editor_view_js() {
+		add_action( 'admin_print_footer_scripts', array( __CLASS__, 'editor_view_js_templates' ), 1 );
+		add_filter( 'mce_external_plugins', array( __CLASS__, 'mce_external_plugins' ) );
+		add_filter( 'mce_buttons', array( __CLASS__, 'mce_buttons' ) );
+
 		wp_enqueue_style( 'grunion-editor-ui', plugins_url( 'css/editor-ui.css', __FILE__ ) );
 		wp_style_add_data( 'grunion-editor-ui', 'rtl', 'replace' );
 		wp_enqueue_script( 'grunion-editor-view', plugins_url( 'js/editor-view.js', __FILE__ ), array( 'wp-util', 'jquery', 'quicktags' ), false, true );
