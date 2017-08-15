@@ -1987,11 +1987,13 @@ function wpsc_update_debug_settings() {
 		@unlink( $cache_path . $wp_cache_debug_log );
 		extract( wpsc_create_debug_log( $wp_cache_debug_log, $wp_cache_debug_username ) );
 	} elseif ( isset( $_POST[ 'wp_super_cache_debug' ] ) ) {
-		$wp_super_cache_debug = (int) $_POST[ 'wp_super_cache_debug' ];
-		wp_cache_setting( 'wp_super_cache_debug', $wp_super_cache_debug );
 		if ( ! isset( $wp_cache_debug_log ) || $wp_cache_debug_log == '' ) {
 			extract( wpsc_create_debug_log() );
+		} elseif ( ! file_exists( $cache_path . $wp_cache_debug_log ) ) { // make sure debug log exists before toggling debugging
+			extract( wpsc_create_debug_log( $wp_cache_debug_log, $wp_cache_debug_username ) ); 
 		}
+		$wp_super_cache_debug = (int) $_POST[ 'wp_super_cache_debug' ];
+		wp_cache_setting( 'wp_super_cache_debug', $wp_super_cache_debug );
 	}
 
 	if ( isset( $_POST[ 'wp_cache_debug' ] ) ) {
