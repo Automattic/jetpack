@@ -102,7 +102,9 @@ class Jetpack_Simple_Payments {
 		$data['id'] = $attrs['id'];
 		if ( ! wp_script_is( 'paypal-express-checkout', 'enqueued' ) ) {
 			wp_enqueue_script( 'paypal-express-checkout' );
-			wp_enqueue_style( 'simple-payments', plugins_url( '/simple-payments.css', __FILE__ ) );
+		}
+		if ( ! wp_style_is( 'simple-payments', 'enqueued' ) ) {
+			wp_enqueue_style( 'simple-payments', plugins_url( 'simple-payments.css', __FILE__ ) );
 		}
 
 		wp_add_inline_script( 'paypal-express-checkout', sprintf(
