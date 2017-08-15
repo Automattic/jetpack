@@ -649,6 +649,38 @@ class A8C_WPCOM_Masterbar {
 			),
 		) );
 
+		// Pages
+		$pages_title = $this->create_menu_item_pair(
+			array(
+				'url'   => 'https://wordpress.com/pages/' . esc_attr( $this->primary_site_slug ),
+				'id'    => 'wp-admin-bar-edit-page',
+				'label' => esc_html__( 'Pages', 'jetpack' ),
+			),
+			array(
+				'url'   => 'https://wordpress.com/page/' . esc_attr( $this->primary_site_slug ),
+				'id'    => 'wp-admin-bar-new-page',
+				'label' => esc_html_x( 'Add', 'admin bar menu new item label', 'jetpack' ),
+			)
+		);
+
+		if ( ! current_user_can( 'edit_pages' ) ) {
+			$pages_title = $this->create_menu_item_anchor(
+				'ab-item ab-primary mb-icon',
+				'https://wordpress.com/pages/' . esc_attr( $this->primary_site_slug ),
+				esc_html__( 'Site Pages', 'jetpack' ),
+				'wp-admin-bar-edit-page'
+			);
+		}
+
+		$wp_admin_bar->add_menu( array(
+			'parent' => 'publish',
+			'id'     => 'new-page',
+			'title'  => $pages_title,
+			'meta'   => array(
+				'class' => 'inline-action',
+			),
+		) );
+
 		// Blog Posts
 		$posts_title = $this->create_menu_item_pair(
 			array(
@@ -676,38 +708,6 @@ class A8C_WPCOM_Masterbar {
 			'parent' => 'publish',
 			'id'     => 'new-post',
 			'title'  => $posts_title,
-			'meta'   => array(
-				'class' => 'inline-action',
-			),
-		) );
-
-		// Pages
-		$pages_title = $this->create_menu_item_pair(
-			array(
-				'url'   => 'https://wordpress.com/pages/' . esc_attr( $this->primary_site_slug ),
-				'id'    => 'wp-admin-bar-edit-page',
-				'label' => esc_html__( 'Pages', 'jetpack' ),
-			),
-			array(
-				'url'   => 'https://wordpress.com/page/' . esc_attr( $this->primary_site_slug ),
-				'id'    => 'wp-admin-bar-new-page',
-				'label' => esc_html_x( 'Add', 'admin bar menu new item label', 'jetpack' ),
-			)
-		);
-
-		if ( ! current_user_can( 'edit_pages' ) ) {
-			$pages_title = $this->create_menu_item_anchor(
-				'ab-item ab-primary mb-icon',
-				'https://wordpress.com/pages/' . esc_attr( $this->primary_site_slug ),
-				esc_html__( 'Pages', 'jetpack' ),
-				'wp-admin-bar-edit-page'
-			);
-		}
-
-		$wp_admin_bar->add_menu( array(
-			'parent' => 'publish',
-			'id'     => 'new-page',
-			'title'  => $pages_title,
 			'meta'   => array(
 				'class' => 'inline-action',
 			),
