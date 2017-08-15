@@ -81,9 +81,7 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 
 	// Don't photon-ize WPCOM hosted images -- we can serve them up from wpcom directly.
 	$is_wpcom_image = false;
-
-	// Move [a-z]*.files.wordpress.com traffic over to using direct WPCOM images, reference: http://wp.me/p3topS-mu
-	if ( preg_match( '/^([a-z][^\/]*)\.files\.wordpress\.com$/', $image_url_parts['host'] ) ) {
+	if ( wp_endswith( strtolower( $image_url_parts['host'] ), '.files.wordpress.com' ) ) {
 		$is_wpcom_image = true;
 		if ( isset( $args['ssl'] ) ) {
 			// Do not send the ssl argument to prevent caching issues
