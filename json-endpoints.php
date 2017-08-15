@@ -20,6 +20,7 @@ require_once( $json_endpoints_dir . 'class.wpcom-json-api-taxonomy-endpoint.php'
 
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-delete-media-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-comment-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-comments-tree-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-media-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-post-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-render-endpoint.php' );
@@ -1834,6 +1835,24 @@ new WPCOM_JSON_API_Get_Comment_Endpoint( array(
 	),
 
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/comments/147564'
+) );
+
+new WPCOM_JSON_API_Get_Comments_Tree_Endpoint( array(
+	'description' => 'Get a comments tree for site.',
+	'group'       => 'comments-tree',
+	'stat'        => 'comments-tree:1',
+
+	'method'      => 'GET',
+	'path'        =>  '/sites/%s/comments-tree',
+	'path_labels' => array(
+		'$site'   => '(int|string) Site ID or domain',
+		'$status' => '(string) Comment status value (allowed values: all, approved, trash, spam)',
+	),
+	'query_parameters' => array(
+		'status' => '(string) Filter returned comments based on this value (allowed values: all, approved, pending, trash, spam).'
+	),
+
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/comments-tree?status=approved'
 ) );
 
 new WPCOM_JSON_API_Update_Comment_Endpoint( array(
