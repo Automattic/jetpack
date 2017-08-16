@@ -643,7 +643,7 @@ class A8C_WPCOM_Masterbar {
 		$wp_admin_bar->add_menu( array(
 			'parent' => 'publish',
 			'id'     => 'publish-header',
-			'title'  => esc_html_x( 'Publish', 'admin bar menu group label', 'jetpack' ),
+			'title'  => esc_html_x( 'Manage', 'admin bar menu group label', 'jetpack' ),
 			'meta'   => array(
 				'class' => 'ab-submenu-header',
 			),
@@ -654,7 +654,7 @@ class A8C_WPCOM_Masterbar {
 			array(
 				'url'   => 'https://wordpress.com/pages/' . esc_attr( $this->primary_site_slug ),
 				'id'    => 'wp-admin-bar-edit-page',
-				'label' => esc_html__( 'Pages', 'jetpack' ),
+				'label' => esc_html__( 'Site Pages', 'jetpack' ),
 			),
 			array(
 				'url'   => 'https://wordpress.com/page/' . esc_attr( $this->primary_site_slug ),
