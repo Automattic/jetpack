@@ -192,3 +192,12 @@ export function areThereUnsavedSettings( state ) {
 export function appsCardDismissed( state ) {
 	return get( state.jetpack.settings.items, 'dismiss_dash_app_card', false );
 }
+
+/**
+ * Returns true if Empty Stats card has been dismissed.
+ * @param  {Object}  state Global state tree
+ * @return {Boolean} Whether the card has been dismissed
+ */
+export function emptyStatsCardDismissed( state ) {
+	return get( state.jetpack.settings.items, 'dismiss_empty_stats_card', false );
+}

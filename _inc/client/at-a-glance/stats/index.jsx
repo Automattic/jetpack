@@ -31,8 +31,16 @@ import {
 	getActiveStatsTab as _getActiveStatsTab
 } from 'state/at-a-glance';
 import { getModules } from 'state/modules';
+import { emptyStatsCardDismissed } from 'state/settings';
 
 class DashStats extends Component {
+	constructor( props ) {
+		super( props );
+		this.state = {
+			emptyStatsDismissed: props.isEmptyStatsCardDismissed,
+		};
+	}
+
 	barClick( bar ) {
 		if ( bar.data.link ) {
 			analytics.tracks.recordJetpackClick( 'stats_bar' );
@@ -125,6 +133,10 @@ class DashStats extends Component {
 	}
 
 	renderEmptyStatsCard() {
+		const dismissCard = () => {
+			this.setState( { emptyStatsDismissed: true } );
+			this.props.updateOptions( { dismiss_empty_stats_card: true } );
+		};
 		return (
 			<Card className="jp-at-a-glance__stats-empty">
 				<img src={ imagePath + 'stats.svg' } alt={ __( 'Jetpack Stats Icon' ) } className="jp-at-a-glance__stats-icon" />
@@ -134,6 +146,7 @@ class DashStats extends Component {
 					{ __( 'Just give us a little time to collect data so we can display it for you here.' ) }
 				</p>
 				<Button
+					onClick={ dismissCard }
 					primary={ true }
 				>
 					{ __( 'Okay, got it!' ) }
@@ -166,11 +179,11 @@ class DashStats extends Component {
 			const statsChart = this.statsChart( this.props.activeTab() ),
 				chartData = statsChart.chartData,
 				totalViews = statsChart.totalViews,
-				emptyStats = chartData.length > 0 && totalViews <= 0;
+				showEmptyStats = chartData.length > 0 && totalViews <= 0 && ! this.props.isEmptyStatsCardDismissed && ! this.state.emptyStatsDismissed;
 
 			return (
 				<div className="jp-at-a-glance__stats-container">
-					{ ! emptyStats ? this.renderStatsChart( chartData ) : this.renderEmptyStatsCard() }
+					{ ! showEmptyStats ? this.renderStatsChart( chartData ) : this.renderEmptyStatsCard() }
 				</div>
 			);
 		}
@@ -289,7 +302,8 @@ export default connect(
 			isDevMode: isDevMode( state ),
 			isLinked: isCurrentUserLinked( state ),
 			connectUrl: getConnectUrl( state ),
-			statsData: getStatsData( state ) !== 'N/A' ? getStatsData( state ) : getInitialStateStatsData( state )
+			statsData: getStatsData( state ) !== 'N/A' ? getStatsData( state ) : getInitialStateStatsData( state ),
+			isEmptyStatsCardDismissed: emptyStatsCardDismissed( state ),
 		};
 	},
 	( dispatch ) => {
