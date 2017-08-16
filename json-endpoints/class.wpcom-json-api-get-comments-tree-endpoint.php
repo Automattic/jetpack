@@ -32,7 +32,7 @@ class WPCOM_JSON_API_Get_Comments_Tree_Endpoint extends WPCOM_JSON_API_Endpoint 
 			return array_map( 'intval', $comments );
 		}
 
-		return array( $total_count, intval_array_map( $db_comments ) );
+		return array( $total_count, array_map( 'intval_array_map', $db_comments ) );
 	}
 
 	/**
