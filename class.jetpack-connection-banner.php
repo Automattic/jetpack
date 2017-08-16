@@ -510,7 +510,7 @@ class Jetpack_Connection_Banner {
 
 					<!-- slide 1: intro -->
 					<div class="jp-wpcom-connect__slide jp-wpcom-connect__slide-one jp__slide-is-active">
-						<h2><?php esc_html_e( 'Welcome to WordPress', 'jetpack' ) ?></h2>
+						<h2><?php esc_html_e( 'Welcome to Jetpack', 'jetpack' ) ?></h2>
 
 						<div class="jp-wpcom-connect__content-icon jp-connect-illo">
 							<img src="<?php echo plugins_url( 'jetpack/images/jetpack-welcome.svg', dirname( __FILE__ ) ); ?>" alt="Your site is automatically protected from brute force attacks, plus you can use single sign-on for extra security." height="auto" width="250" />
@@ -547,7 +547,7 @@ class Jetpack_Connection_Banner {
 							<a
 								href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, 'banner-53-slide-1' ) ); ?>"
 								class="dops-button is-primary">
-								<?php esc_html_e( 'Sign Up', 'jetpack' ); ?>
+								<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
 							</a>
 							<a
 								href="#"
