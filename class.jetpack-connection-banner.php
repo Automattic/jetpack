@@ -613,7 +613,7 @@ class Jetpack_Connection_Banner {
 						<h2><?php esc_html_e( 'Get The Traffic You Deserve', 'jetpack' ) ?></h2>
 
 						<div class="jp-wpcom-connect__content-icon">
-							<img src="<?php echo plugins_url( 'jetpack/images/stats-people.svg', dirname( __FILE__ ) ); ?>" alt="Get clear and concise stats and analytics about your visitors." height="auto" width="250" />
+							<img src="<?php echo plugins_url( 'jetpack/images/stats-people.svg', dirname( __FILE__ ) ); ?>" alt="Get clear and concise stats and analytics about your visitors." height="auto" width="265" />
 						</div>
 
 						<p>
