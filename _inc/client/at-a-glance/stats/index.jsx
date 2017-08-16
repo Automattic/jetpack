@@ -47,15 +47,20 @@ class DashStats extends Component {
 		const props = this.props,
 			s = [];
 
+		let totalViews = 0;
+
 		if ( 'object' !== typeof props.statsData[ unit ] ) {
-			return s;
+			return { chartData: s, totalViews: false };
 		}
 
 		forEach( props.statsData[ unit ].data, function( v ) {
-			const views = v[ 1 ];
+			const views = 0;
 			let date = v[ 0 ],
 				chartLabel = '',
 				tooltipLabel = '';
+
+			// Increment total views for the period
+			totalViews += views;
 
 			if ( 'day' === unit ) {
 				chartLabel = moment( date ).format( 'MMM D' );
@@ -84,7 +89,8 @@ class DashStats extends Component {
 				}, { label: __( 'Click to view detailed stats.' ) } ]
 			} );
 		} );
-		return s;
+
+		return { chartData: s, totalViews: totalViews };
 	}
 
 	/**
@@ -96,8 +102,48 @@ class DashStats extends Component {
 		return get( this.props.statsData, [ 'general', 'errors' ], false );
 	}
 
+	renderStatsChart( chartData ) {
+		return (
+			<div>
+				<div className="jp-at-a-glance__stats-chart">
+					<Chart data={ chartData } barClick={ this.barClick } />
+					{
+						0 < chartData.length ? '' : <Spinner />
+					}
+				</div>
+				<div id="stats-bottom" className="jp-at-a-glance__stats-bottom">
+					<DashStatsBottom
+						statsData={ this.props.statsData }
+						siteRawUrl={ this.props.siteRawUrl }
+						siteAdminUrl={ this.props.siteAdminUrl }
+						isLinked={ this.props.isLinked }
+						connectUrl={ this.props.connectUrl }
+					/>
+				</div>
+			</div>
+		);
+	}
+
+	renderEmptyStatsCard() {
+		return (
+			<Card className="jp-at-a-glance__stats-empty">
+				<img src={ imagePath + 'stats.svg' } alt={ __( 'Jetpack Stats Icon' ) } className="jp-at-a-glance__stats-icon" />
+				<p>
+					{ __( 'Hello there! Your stats have been activated.' ) }
+					<br />
+					{ __( 'Just give us a little time to collect data so we can display it for you here.' ) }
+				</p>
+				<Button
+					primary={ true }
+				>
+					{ __( 'Okay, got it!' ) }
+				</Button>
+			</Card>
+		);
+	}
+
 	renderStatsArea() {
-		const activateStats = () => this.props.updateOptions( { 'stats': true } );
+		const activateStats = () => this.props.updateOptions( { stats: true } );
 
 		if ( this.props.getOptionValue( 'stats' ) ) {
 			const statsErrors = this.statsErrors();
@@ -116,24 +162,15 @@ class DashStats extends Component {
 					</div>
 				);
 			}
-			const chartData = this.statsChart( this.props.activeTab() );
+
+			const statsChart = this.statsChart( this.props.activeTab() ),
+				chartData = statsChart.chartData,
+				totalViews = statsChart.totalViews,
+				emptyStats = chartData.length > 0 && totalViews <= 0;
+
 			return (
 				<div className="jp-at-a-glance__stats-container">
-					<div className="jp-at-a-glance__stats-chart">
-						<Chart data={ chartData } barClick={ this.barClick } />
-						{
-							0 < chartData.length ? '' : <Spinner />
-						}
-					</div>
-					<div id="stats-bottom" className="jp-at-a-glance__stats-bottom">
-						<DashStatsBottom
-							statsData={ this.props.statsData }
-							siteRawUrl={ this.props.siteRawUrl }
-							siteAdminUrl={ this.props.siteAdminUrl }
-							isLinked={ this.props.isLinked }
-							connectUrl={ this.props.connectUrl }
-						/>
-					</div>
+					{ ! emptyStats ? this.renderStatsChart( chartData ) : this.renderEmptyStatsCard() }
 				</div>
 			);
 		}
