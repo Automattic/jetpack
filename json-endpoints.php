@@ -1850,6 +1850,10 @@ new WPCOM_JSON_API_Get_Comments_Tree_Endpoint( array(
 	'query_parameters' => array(
 		'status' => '(string) Filter returned comments based on this value (allowed values: all, approved, pending, trash, spam).'
 	),
+	'response_format' => array(
+		'comment_count' => '(int) The number of comments returned',
+		'comments_tree' => '(array) Array of arrays representing the comments tree for given site',
+	),
 
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/comments-tree?status=approved'
 ) );
