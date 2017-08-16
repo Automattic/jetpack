@@ -512,7 +512,7 @@ class Jetpack_Connection_Banner {
 					<div class="jp-wpcom-connect__slide jp-wpcom-connect__slide-one jp__slide-is-active">
 						<h2><?php esc_html_e( 'Welcome to WordPress', 'jetpack' ) ?></h2>
 
-						<div class="jp-wpcom-connect__content-icon">
+						<div class="jp-wpcom-connect__content-icon jp-connect-illo">
 							<img src="<?php echo plugins_url( 'jetpack/images/jetpack-welcome.svg', dirname( __FILE__ ) ); ?>" alt="Your site is automatically protected from brute force attacks, plus you can use single sign-on for extra security." height="auto" width="250" />
 						</div>
 
@@ -567,7 +567,7 @@ class Jetpack_Connection_Banner {
 					<div class="jp-wpcom-connect__slide jp-wpcom-connect__slide-two">
 						<h2><?php esc_html_e( 'Code-Free Design and Publishing', 'jetpack' ) ?></h2>
 
-						<div class="jp-wpcom-connect__content-icon">
+						<div class="jp-wpcom-connect__content-icon jp-connect-illo">
 							<img src="<?php echo plugins_url( 'jetpack/images/customize-theme.svg', dirname( __FILE__ ) ); ?>" alt="Customization tools and widgets help you make your site look great without writing any code" height="auto" width="225" />
 						</div>
 
@@ -612,7 +612,7 @@ class Jetpack_Connection_Banner {
 					<div class="jp-wpcom-connect__slide jp-wpcom-connect__slide-three">
 						<h2><?php esc_html_e( 'Get The Traffic You Deserve', 'jetpack' ) ?></h2>
 
-						<div class="jp-wpcom-connect__content-icon">
+						<div class="jp-wpcom-connect__content-icon jp-connect-illo">
 							<img src="<?php echo plugins_url( 'jetpack/images/stats-people.svg', dirname( __FILE__ ) ); ?>" alt="Get clear and concise stats and analytics about your visitors." height="auto" width="265" />
 						</div>
 
@@ -659,7 +659,7 @@ class Jetpack_Connection_Banner {
 					<div class="jp-wpcom-connect__slide jp-wpcom-connect__slide-four">
 						<h2><?php esc_html_e( 'Make Sure Your Site Is Always Online', 'jetpack' ) ?></h2>
 
-						<div class="jp-wpcom-connect__content-icon">
+						<div class="jp-wpcom-connect__content-icon jp-connect-illo">
 							<img src="<?php echo plugins_url( 'jetpack/images/security.svg', dirname( __FILE__ ) ); ?>" alt="Your site is automatically protected from brute force attacks, plus you can use single sign-on for extra security." height="auto" width="250" />
 						</div>
 
