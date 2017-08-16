@@ -242,6 +242,16 @@
 .jp-wpcom-connect__content-icon {
 	float: right;
 	margin: 0 0 rem( 36px ) rem( 36px );
+
+	&.jp-connect-illo {
+
+		@include breakpoint(tablet) {
+			float: none;
+			width: 100%;
+			text-align: center;
+			margin: rem( 36px ) 0 rem( 24px );
+		}
+	}
 }
 
 .jp-wpcom-connect__slide {
