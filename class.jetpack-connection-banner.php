@@ -184,6 +184,12 @@ class Jetpack_Connection_Banner {
 							<div class="vertical-menu__feature-item-icon">
 								<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 2 20 20" version="1.1"><path d="M6 4L6 10.3 9 7 13.9 12.4 14.5 11.7C15.3 10.8 16.7 10.8 17.5 11.7L18 12.2 18 4 6 4ZM20 4L20 16C20 17.1 19.1 18 18 18L6 18C4.9 18 4 17.1 4 16L4 4C4 2.9 4.9 2 6 2L18 2C19.1 2 20 2.9 20 4L20 4ZM2 20L16 20 16 20C16 21.1 15.1 22 14 22L2 22C0.9 22 0 21.1 0 20L0 8C0 6.9 0.9 6 2 6L2 6 2 20ZM13 7.5C13 6.7 13.7 6 14.5 6 15.3 6 16 6.7 16 7.5 16 8.3 15.3 9 14.5 9 13.7 9 13 8.3 13 7.5L13 7.5Z" /></svg>
 							</div>
+							<span class="vertical-menu__feature-item-label"><?php esc_html_e( 'Professional Themes', 'jetpack' ); ?></span>
+						</div>
+						<div class="vertical-menu__feature-item">
+							<div class="vertical-menu__feature-item-icon">
+								<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 2 20 20" version="1.1"><path d="M6 4L6 10.3 9 7 13.9 12.4 14.5 11.7C15.3 10.8 16.7 10.8 17.5 11.7L18 12.2 18 4 6 4ZM20 4L20 16C20 17.1 19.1 18 18 18L6 18C4.9 18 4 17.1 4 16L4 4C4 2.9 4.9 2 6 2L18 2C19.1 2 20 2.9 20 4L20 4ZM2 20L16 20 16 20C16 21.1 15.1 22 14 22L2 22C0.9 22 0 21.1 0 20L0 8C0 6.9 0.9 6 2 6L2 6 2 20ZM13 7.5C13 6.7 13.7 6 14.5 6 15.3 6 16 6.7 16 7.5 16 8.3 15.3 9 14.5 9 13.7 9 13 8.3 13 7.5L13 7.5Z" /></svg>
+							</div>
 							<span class="vertical-menu__feature-item-label"><?php esc_html_e( 'Performance', 'jetpack' ); ?></span>
 						</div>
 						<div class="vertical-menu__feature-item wp-app-logo">
@@ -355,6 +361,50 @@ class Jetpack_Connection_Banner {
 							</a>
 						</p>
 					</div> <!-- end slide 3 -->
+
+					<!-- slide 3A: themes -->
+					<div class="jp-wpcom-connect__slide jp-wpcom-connect__slide-three-a">
+						<h2><?php esc_html_e( 'Hundreds of beautiful themes to choose from', 'jetpack' ) ?></h2>
+
+						<p>
+							<?php
+							esc_html_e(
+								'Choosing a design for your site is essential. It defines your brand, your layout, and your visitors’ reading experience.',
+								'jetpack'
+							);
+							?>
+						</p>
+
+						<p>
+							<?php
+							esc_html_e(
+								'Jetpack hides all the complexity away and makes this previously difficult process a breeze. Browse hundreds of themes in our showcase and search by theme, name, style, color, or type.',
+								'jetpack'
+							);
+							?>
+						</p>
+
+						<p>
+							<?php
+							esc_html_e(
+								'Preview, install, and activate with one-click and then use our suite of design tools to make it look just as you need it to.',
+								'jetpack'
+							);
+							?>
+						</p>
+
+						<p class="jp-banner__button-container">
+							<a
+								href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, 'banner-44-slide-3a' ) ); ?>"
+								class="dops-button is-primary">
+								<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
+							</a>
+							<a href="#" class="dops-button next-feature" title="<?php esc_attr_e( 'Jetpack Tour: Next Feature', 'jetpack' ); ?>">
+								<?php esc_html_e( 'Next feature', 'jetpack' ); ?>
+							</a>
+						</p>
+					</div> <!-- end slide 3A -->
+
 
 					<!-- slide 4: Performance -->
 					<div class="jp-wpcom-connect__slide jp-wpcom-connect__slide-four">
