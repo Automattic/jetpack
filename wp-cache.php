@@ -1363,7 +1363,7 @@ function wsc_mod_rewrite() {
 	<p><?php _e( 'When Expert cache delivery is enabled a file called <em>.htaccess</em> is modified. It should probably be in the same directory as your wp-config.php. This file has special rules that serve the cached files very quickly to visitors without ever executing PHP. The .htaccess file can be updated automatically, but if that fails, the rules will be displayed here and it can be edited by you. You will not need to update the rules unless a warning shows here.', 'wp-super-cache' ); ?></p>
 
 	<?php
-	extract( wpsc_get_htaccess_info() );
+	extract( wpsc_get_htaccess_info() ); // $document_root, $apache_root, $home_path, $home_root, $home_root_lc, $inst_root, $wprules, $scrules, $condition_rules, $rules, $gziprules
 	$dohtaccess = true;
 	if( strpos( $wprules, 'wordpressuser' ) ) { // Need to clear out old mod_rewrite rules
 		echo "<p><strong>" . __( 'Thank you for upgrading.', 'wp-super-cache' ) . "</strong> " . sprintf( __( 'The mod_rewrite rules changed since you last installed this plugin. Unfortunately, you must remove the old supercache rules before the new ones are updated. Refresh this page when you have edited your .htaccess file. If you wish to manually upgrade, change the following line: %1$s so it looks like this: %2$s The only changes are "HTTP_COOKIE" becomes "HTTP:Cookie" and "wordpressuser" becomes "wordpress". This is a WordPress 2.5 change but it&#8217;s backwards compatible with older versions if you&#8217;re brave enough to use them.', 'wp-super-cache' ), '<blockquote><code>RewriteCond %{HTTP_COOKIE} !^.*wordpressuser.*$</code></blockquote>', '<blockquote><code>RewriteCond %{HTTP:Cookie} !^.*wordpress.*$</code></blockquote>' ) . "</p>";
@@ -1985,12 +1985,12 @@ function wpsc_update_debug_settings() {
 
 	if ( isset( $_POST[ 'wpsc_delete_log' ] ) && $wp_cache_debug_log != '' ) {
 		@unlink( $cache_path . $wp_cache_debug_log );
-		extract( wpsc_create_debug_log( $wp_cache_debug_log, $wp_cache_debug_username ) );
+		extract( wpsc_create_debug_log( $wp_cache_debug_log, $wp_cache_debug_username ) ); // $wp_cache_debug_log, $wp_cache_debug_username
 	} elseif ( isset( $_POST[ 'wp_super_cache_debug' ] ) ) {
 		if ( ! isset( $wp_cache_debug_log ) || $wp_cache_debug_log == '' ) {
-			extract( wpsc_create_debug_log() );
+			extract( wpsc_create_debug_log() ); // $wp_cache_debug_log, $wp_cache_debug_username
 		} elseif ( ! file_exists( $cache_path . $wp_cache_debug_log ) ) { // make sure debug log exists before toggling debugging
-			extract( wpsc_create_debug_log( $wp_cache_debug_log, $wp_cache_debug_username ) ); 
+			extract( wpsc_create_debug_log( $wp_cache_debug_log, $wp_cache_debug_username ) ); // $wp_cache_debug_log, $wp_cache_debug_username 
 		}
 		$wp_super_cache_debug = (int) $_POST[ 'wp_super_cache_debug' ];
 		wp_cache_setting( 'wp_super_cache_debug', $wp_super_cache_debug );
@@ -2036,13 +2036,13 @@ function wp_cache_debug_settings() {
 	global $wp_super_cache_front_page_check, $wp_super_cache_front_page_clear, $wp_super_cache_front_page_text, $wp_super_cache_front_page_notification, $wp_super_cache_advanced_debug;
 	global $wp_cache_debug_username;
 
-	extract( wpsc_update_debug_settings() );
+	extract( wpsc_update_debug_settings() ); // $wp_super_cache_debug, $wp_cache_debug_log, $wp_cache_debug_ip, $wp_super_cache_comments, $wp_super_cache_front_page_check, $wp_super_cache_front_page_clear, $wp_super_cache_front_page_text, $wp_super_cache_front_page_notification, $wp_super_cache_advanced_debug, $wp_cache_debug_username
 
 	echo '<a name="debug"></a>';
 	echo '<fieldset class="options">';
 	echo '<p>' . __( 'Fix problems with the plugin by debugging it here. It will log to a file in your cache directory.', 'wp-super-cache' ) . '</p>';
 	if ( ! isset( $wp_cache_debug_log ) || $wp_cache_debug_log == '' ) {
-		extract( wpsc_create_debug_log() );
+		extract( wpsc_create_debug_log() ); // $wp_cache_debug_log, $wp_cache_debug_username
 	}
 	$log_file_link = "<a href='" . site_url( str_replace( ABSPATH, '', "{$cache_path}{$wp_cache_debug_log}" ) ) . "'>$wp_cache_debug_log</a>";
 	if ( $wp_super_cache_debug == 1 ) {
@@ -3156,7 +3156,7 @@ function update_cached_mobile_ua_list( $mobile_browsers, $mobile_prefixes = 0, $
 }
 
 function wpsc_update_htaccess() {
-	extract( wpsc_get_htaccess_info() );
+	extract( wpsc_get_htaccess_info() ); // $document_root, $apache_root, $home_path, $home_root, $home_root_lc, $inst_root, $wprules, $scrules, $condition_rules, $rules, $gziprules
 	wpsc_remove_marker( $home_path.'.htaccess', 'WordPress' ); // remove original WP rules so SuperCache rules go on top
 	if( insert_with_markers( $home_path.'.htaccess', 'WPSuperCache', explode( "\n", $rules ) ) && insert_with_markers( $home_path.'.htaccess', 'WordPress', explode( "\n", $wprules ) ) ) {
 		return true;
@@ -3168,7 +3168,7 @@ function wpsc_update_htaccess() {
 function wpsc_update_htaccess_form( $short_form = true ) {
 	global $wpmu_version;
 
-	extract( wpsc_get_htaccess_info() );
+	extract( wpsc_get_htaccess_info() ); // $document_root, $apache_root, $home_path, $home_root, $home_root_lc, $inst_root, $wprules, $scrules, $condition_rules, $rules, $gziprules
 	if( !is_writeable_ACLSafe( $home_path . ".htaccess" ) ) {
 		echo "<div style='padding:0 8px;color:#9f6000;background-color:#feefb3;border:1px solid #9f6000;'><h4>" . __( 'Cannot update .htaccess', 'wp-super-cache' ) . "</h4><p>" . sprintf( __( 'The file <code>%s.htaccess</code> cannot be modified by the web server. Please correct this using the chmod command or your ftp client.', 'wp-super-cache' ), $home_path ) . "</p><p>" . __( 'Refresh this page when the file permissions have been modified.' ) . "</p><p>" . sprintf( __( 'Alternatively, you can edit your <code>%s.htaccess</code> file manually and add the following code (before any WordPress rules):', 'wp-super-cache' ), $home_path ) . "</p>";
 		echo "<p><pre># BEGIN WPSuperCache\n" . esc_html( $rules ) . "# END WPSuperCache</pre></p></div>";
@@ -3599,7 +3599,7 @@ function wp_cache_disable_plugin( $delete_config_file = true ) {
 		$msg .= "</ol>\n<p>First try fixing the directory permissions with this command and refresh this page:<br /><br /><code>chmod 777 " . WP_CONTENT_DIR . "</code><br /><br />If you still see this error, you have to fix the permissions on the files themselves and refresh this page again:</p> {$code}\n<p>Don't forgot to fix things later:<br /><code>chmod 755 " . WP_CONTENT_DIR . "</code></p><p>If you don't know what <strong>chmod</strong> is use <a href='http://www.google.ie/search?hl=en&q=ftp+chmod+777'>this Google search</a> to find out all about it.</p><p>Please refresh this page when the permissions have been modified.</p>";
 		wp_die( $msg );
 	}
-	extract( wpsc_get_htaccess_info() );
+	extract( wpsc_get_htaccess_info() ); // $document_root, $apache_root, $home_path, $home_root, $home_root_lc, $inst_root, $wprules, $scrules, $condition_rules, $rules, $gziprules
 	if ( $scrules != '' && insert_with_markers( $home_path.'.htaccess', 'WPSuperCache', array() ) ) {
 		$wp_rewrite->flush_rules();
 	} elseif( $scrules != '' ) {

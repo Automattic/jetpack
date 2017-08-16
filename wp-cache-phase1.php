@@ -154,7 +154,7 @@ function wp_cache_serve_cache_file() {
 		return false;
 	}
 
-	extract( wp_super_cache_init() );
+	extract( wp_super_cache_init() ); // $key, $cache_filename, $meta_file, $cache_file, $meta_pathname
 
 	if ( $wp_cache_object_cache && wp_cache_get_cookies_values() == '' ) {
 		if ( !empty( $_GET ) ) {
@@ -390,7 +390,7 @@ function wp_cache_get_legacy_cache( $cache_file ) {
 }
 
 if(defined('DOING_CRON')) {
-	extract( wp_super_cache_init() );
+	extract( wp_super_cache_init() ); // $key, $cache_filename, $meta_file, $cache_file, $meta_pathname
 	return true;
 }
 
