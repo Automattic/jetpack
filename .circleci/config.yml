@@ -1,0 +1,51 @@
+version: 2
+jobs:
+  build:
+    parallelism: 2
+    working_directory: /wp-e2e-tests
+    docker:
+      - image: automattic/wp-e2e-tests:0.0.5
+        environment:
+                JETPACKHOST: CI
+                NODE_ENV: test
+    steps:
+      - run:
+          name: Clone wp-e2e-tests repo
+          command: cd / && git clone https://github.com/Automattic/wp-e2e-tests.git
+      - restore_cache:
+          key: << checksum "package.json" >>
+      - run: source $HOME/.nvm/nvm.sh && npm install
+      - save_cache:
+          paths:
+            - /wp-e2e-tests/node_modules
+          key: << checksum "package.json" >>
+      - run:
+          name: Set name for Jetpack installation
+          command:  echo "export JP_PREFIX=$(date +'%s')$RANDOM" >> $BASH_ENV
+      - run:
+          name: Initialize site on Digital Ocean via ServerPilot
+          command: source $HOME/.nvm/nvm.sh && ./scripts/jetpack/wp-serverpilot-init.js
+      - run:
+          name: Install Jetpack from master
+          command: |
+                  scp -o "StrictHostKeyChecking no" scripts/jetpack/git-jetpack.sh serverpilot@wp-e2e-tests.pw:~serverpilot/git-jetpack.sh
+                  ssh -o "StrictHostKeyChecking no" serverpilot@wp-e2e-tests.pw ~serverpilot/git-jetpack.sh wordpress-$JP_PREFIX
+      - run: ./scripts/randomize.sh specs
+      - run:
+          name: Run Jetpack activation spec
+          command: source $HOME/.nvm/nvm.sh && xvfb-run ./node_modules/.bin/mocha scripts/jetpack/wp-jetpack-activate.js
+      - run: ./scripts/run-wrapper.sh
+      - run:
+          name: Run Jetpack deactivation spec
+          command: source $HOME/.nvm/nvm.sh && xvfb-run ./node_modules/.bin/mocha scripts/jetpack/wp-jetpack-deactivate.js
+          when: always
+      - run:
+          name: Delete site from Digital Ocean via ServerPilot
+          command: source $HOME/.nvm/nvm.sh && ./scripts/jetpack/wp-serverpilot-delete.js
+          when: always
+      - store_test_results:
+          path: reports/
+      - store_artifacts:
+          path: reports/
+      - store_artifacts:
+          path: screenshots/
