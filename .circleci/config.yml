@@ -30,13 +30,15 @@ jobs:
           command: |
                   scp -o "StrictHostKeyChecking no" scripts/jetpack/git-jetpack.sh serverpilot@wp-e2e-tests.pw:~serverpilot/git-jetpack.sh
                   ssh -o "StrictHostKeyChecking no" serverpilot@wp-e2e-tests.pw ~serverpilot/git-jetpack.sh wordpress-$JP_PREFIX
-      - run: ./scripts/randomize.sh specs
+      - run:
+          name: Randomize spec execution order
+          command: ./scripts/randomize.sh specs
       - run:
           name: Run Jetpack activation spec
           command: source $HOME/.nvm/nvm.sh && xvfb-run ./node_modules/.bin/mocha scripts/jetpack/wp-jetpack-activate.js
       - run:
           name: Run e2e tests
-          command: ./run.sh -R -j -H CI -p
+          command: ./run.sh -R -j -H CI -p -x
       - run:
           name: Run Jetpack deactivation spec
           command: source $HOME/.nvm/nvm.sh && xvfb-run ./node_modules/.bin/mocha scripts/jetpack/wp-jetpack-deactivate.js
