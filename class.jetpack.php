@@ -6413,10 +6413,6 @@ p {
 	}
 
 	public function wp_dashboard_setup() {
-		if ( ! self::is_active() ) {
-			return;
-		}
-
 		if ( self::is_active() ) {
 			add_action( 'jetpack_dashboard_widget', array( __CLASS__, 'dashboard_widget_footer' ), 999 );
 			$widget_title = __( 'Site Stats', 'jetpack' );
