@@ -249,11 +249,11 @@ class Jetpack_Sync_Server_Replicator {
 				list( $user ) = $args;
 				$this->store->upsert_user( $user );
 				break;
-			case 'deleted_user':
+			case 'jetpack_deleted_user':
 				list( $user_id, $reassign ) = $args;
 				$this->store->delete_user( $user_id );
 				break;
-			case 'remove_user_from_blog':
+			case 'jetpack_removed_user_from_blog':
 				list( $user_id, $blog_id ) = $args;
 				$this->store->delete_user( $user_id );
 				break;

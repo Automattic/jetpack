@@ -6646,4 +6646,35 @@ p {
 		}
 		return false;
 	}
+
+	/**
+	 * Checks if one or more function names is in debug_backtrace
+	 *
+	 * @param $names Mixed string name of function or array of string names of functions
+	 *
+	 * @return bool
+	 */
+	public static function is_function_in_backtrace( $names ) {
+		$backtrace = debug_backtrace( false );
+		if ( ! is_array( $names ) ) {
+			$names = array( $names );
+		}
+		$names_as_keys = array_flip( $names );
+
+		//Do check in constant O(1) time for PHP5.5+
+		if ( function_exists( 'array_column' ) ) {
+			$backtrace_functions = array_column( $backtrace, 'function' );
+			$backtrace_functions_as_keys = array_flip( $backtrace_functions );
+			$intersection = array_intersect_key( $backtrace_functions_as_keys, $names_as_keys );
+			return ! empty ( $intersection );
+		}
+
+		//Do check in linear O(n) time for < PHP5.5 ( using isset at least prevents O(n^2) )
+		foreach ( $backtrace as $call ) {
+			if ( isset( $names[ $call['function'] ] ) ) {
+				return true;
+			}
+		}
+		return false;
+	}
 }
