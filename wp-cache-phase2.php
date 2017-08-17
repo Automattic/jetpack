@@ -232,6 +232,7 @@ function wp_cache_get_response_headers() {
 						'X-Content-Type-Options',
 						'X-Powered-By',
 						'X-UA-Compatible',
+						'X-Robots-Tag',
 					);
 
 	$known_headers = apply_filters( 'wpsc_known_headers', $known_headers );
@@ -369,8 +370,10 @@ function wp_super_cache_query_vars() {
 		$wp_super_cache_query[ 'is_home' ] = 1;
 	if ( is_author() )
 		$wp_super_cache_query[ 'is_author' ] = 1;
-	if ( is_feed() )
+	if ( is_feed() || get_query_var( 'sitemap' ) || get_query_var( 'xsl' ) || get_query_var( 'xml_sitemap' ) )
 		$wp_super_cache_query[ 'is_feed' ] = 1;
+
+	return $wp_super_cache_query;
 }
 
 function wp_cache_ob_callback( $buffer ) {
@@ -381,7 +384,15 @@ function wp_cache_ob_callback( $buffer ) {
 
 	// All the things that can stop a page being cached
 	$cache_this_page = true;
-	if ( defined( 'DONOTCACHEPAGE' ) ) {
+
+	if ( empty( $wp_super_cache_query ) ) {
+		$wp_super_cache_query = wp_super_cache_query_vars();
+	}
+
+	if ( empty( $wp_super_cache_query ) ) {
+		$cache_this_page = false;
+		wp_cache_debug( 'wp_cache_ob_callback: wp_super_cache_query is empty. Not caching unknown page type.' );
+	} elseif ( defined( 'DONOTCACHEPAGE' ) ) {
 		wp_cache_debug( 'DONOTCACHEPAGE defined. Caching disabled.', 2 );
 		$cache_this_page = false;
 	} elseif ( $wp_cache_no_cache_for_get && false == empty( $_GET ) && false == defined( 'DOING_CRON' ) ) {
@@ -536,7 +547,7 @@ function wp_cache_maybe_dynamic( &$buffer ) {
 
 function wp_cache_get_ob(&$buffer) {
 	global $cache_enabled, $cache_path, $cache_filename, $wp_start_time, $supercachedir;
-	global $new_cache, $wp_cache_meta, $cache_compression;
+	global $new_cache, $wp_cache_meta, $cache_compression, $wp_super_cache_query;
 	global $wp_cache_gzip_encoding, $super_cache_enabled;
 	global $wp_cache_404, $gzsize, $supercacheonly;
 	global $blog_cache_dir, $wp_supercache_cache_list;
@@ -592,7 +603,7 @@ function wp_cache_get_ob(&$buffer) {
 		return wp_cache_maybe_dynamic( $buffer );
 	}
 
-	if ( $wp_cache_not_logged_in && is_feed() ) {
+	if ( $wp_cache_not_logged_in && isset( $wp_super_cache_query[ 'is_feed' ] ) ) {
 		wp_cache_debug( "Feed detected. Writing wpcache cache files.", 5 );
 		$wp_cache_not_logged_in = false;
 	}
@@ -601,7 +612,7 @@ function wp_cache_get_ob(&$buffer) {
 
 	$dir = get_current_url_supercache_dir();
 	$supercachedir = $cache_path . 'supercache/' . preg_replace('/:.*$/', '',  $home_url[ 'host' ]);
-	if( !empty( $_GET ) || is_feed() || ( $super_cache_enabled == true && is_dir( substr( $supercachedir, 0, -1 ) . '.disabled' ) ) ) {
+	if ( ! empty( $_GET ) || isset( $wp_super_cache_query[ 'is_feed' ] ) || ( $super_cache_enabled == true && is_dir( substr( $supercachedir, 0, -1 ) . '.disabled' ) ) ) {
 		wp_cache_debug( "Supercache disabled: GET or feed detected or disabled by config.", 2 );
 		$super_cache_enabled = false;
 	}
@@ -1085,7 +1096,7 @@ function wp_cache_phase2_clean_expired( $file_prefix, $force = false ) {
 function wp_cache_shutdown_callback() {
 	global $cache_max_time, $meta_file, $new_cache, $wp_cache_meta, $known_headers, $blog_id, $wp_cache_gzip_encoding, $supercacheonly, $blog_cache_dir;
 	global $wp_cache_request_uri, $wp_cache_key, $wp_cache_object_cache, $cache_enabled, $wp_cache_blog_charset, $wp_cache_not_logged_in;
-	global $WPSC_HTTP_HOST;
+	global $WPSC_HTTP_HOST, $wp_super_cache_query;
 
 	if ( false == $new_cache ) {
 		wp_cache_debug( "wp_cache_shutdown_callback: No cache file created. Returning." );
@@ -1098,8 +1109,8 @@ function wp_cache_shutdown_callback() {
 	$wp_cache_meta[ 'key' ] = $wp_cache_key;
 	$wp_cache_meta = apply_filters( 'wp_cache_meta', $wp_cache_meta );
 
-	$headers = wp_cache_get_response_headers();
-	foreach( $headers as $key => $value ) {
+	$response = wp_cache_get_response_headers();
+	foreach( $response as $key => $value ) {
 		$wp_cache_meta[ 'headers' ][ $key ] = "$key: $value";
 	}
 
@@ -1116,7 +1127,7 @@ function wp_cache_shutdown_callback() {
 		// the output buffer. This is a last ditch effort to set the
 		// correct Content-Type header for feeds, if we didn't see
 		// it in the response headers already. -- dougal
-		if (is_feed()) {
+		if ( isset( $wp_super_cache_query[ 'is_feed' ] ) ) {
 			$type = get_query_var('feed');
 			$type = str_replace('/','',$type);
 			switch ($type) {
@@ -1132,8 +1143,17 @@ function wp_cache_shutdown_callback() {
 				case 'rss':
 				case 'rss2':
 				default:
-					$value = "application/rss+xml";
+					if ( get_query_var( 'sitemap' ) || get_query_var( 'xsl' ) || get_query_var( 'xml_sitemap' ) ) {
+						wp_cache_debug( "wp_cache_shutdown_callback: feed sitemap detected: text/xml" );
+						$value = "text/xml";
+					} else {
+						$value = "application/rss+xml";
+					}
 			}
+			wp_cache_debug( "wp_cache_shutdown_callback: feed is type: $type - $value" );
+		} elseif ( get_query_var( 'sitemap' ) || get_query_var( 'xsl' ) || get_query_var( 'xml_sitemap' ) ) {
+			wp_cache_debug( "wp_cache_shutdown_callback: sitemap detected: text/xml" );
+			$value = "text/xml";
 		} else { // not a feed
 			$value = get_option( 'html_type' );
 			if( $value == '' )
