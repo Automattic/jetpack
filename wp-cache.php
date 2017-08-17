@@ -820,6 +820,52 @@ table.wpsc-settings-table {
 		$_GET[ 'tab' ] = 'easy';
 	}
 
+	if ( $_GET[ 'tab' ] == 'preload' ) {
+		if ( $super_cache_enabled == true && false == defined( 'DISABLESUPERCACHEPRELOADING' ) ) {
+			global $wp_cache_preload_interval, $wp_cache_preload_on, $wp_cache_preload_taxonomies, $wp_cache_preload_email_me, $wp_cache_preload_email_volume, $wp_cache_preload_posts, $wpdb;
+			$count = wpsc_post_count();
+			if ( $count > 1000 ) {
+				$min_refresh_interval = 720;
+			} else {
+				$min_refresh_interval = 30;
+			}
+			$return = wpsc_preload_settings( $min_refresh_interval );
+			$msg = '';
+			if ( empty( $return ) == false ) {
+				foreach( $return as $message ) {
+					$msg .= $message;
+				}
+			}
+			$currently_preloading = false;
+
+			$preload_counter = get_option( 'preload_cache_counter' );
+			if ( isset( $preload_counter[ 'first' ] ) ) // converted from int to array
+				update_option( 'preload_cache_counter', array( 'c' => $preload_counter[ 'c' ], 't' => time() ) );
+			if ( is_array( $preload_counter ) && $preload_counter[ 'c' ] > 0 ) {
+				$msg .= '<p>' . sprintf( __( 'Currently caching from post %d to %d.', 'wp-super-cache' ), ( $preload_counter[ 'c' ] - 100 ), $preload_counter[ 'c' ] ) . '</p>';
+				$currently_preloading = true;
+				if ( @file_exists( $cache_path . "preload_permalink.txt" ) ) {
+					$url = file_get_contents( $cache_path . "preload_permalink.txt" );
+					$msg .="<p>" . sprintf( __( "<strong>Page last cached:</strong> %s", 'wp-super-cache' ), $url ) . "</p>";
+				}
+				if ( $msg != '' ) {
+					echo '<div class="notice notice-warning"><h3>' . __( 'Preload Active', 'wp-super-cache' ) . '</h3>' . $msg;
+					echo '<form name="do_preload" action="" method="POST">';
+					echo '<input type="hidden" name="action" value="preload" />';
+					echo '<input type="hidden" name="page" value="wpsupercache" />';
+					echo '<p><input class="button-primary" type="submit" name="preload_off" value="' . __( 'Cancel Cache Preload', 'wp-super-cache' ) . '" /></p>';
+					wp_nonce_field('wp-cache');
+					echo '</form>';
+					echo '</div>';
+				}
+			}
+			next_preload_message( 'wp_cache_preload_hook', __( 'Refresh of cache in %d hours %d minutes and %d seconds.', 'wp-super-cache' ), 60 );
+			next_preload_message( 'wp_cache_full_preload_hook', __( 'Full refresh of cache in %d hours %d minutes and %d seconds.', 'wp-super-cache' ) );
+
+		}
+	}
+
+
 	wpsc_admin_tabs();
 
 	if ( isset( $wp_super_cache_front_page_check ) && $wp_super_cache_front_page_check == 1 && !wp_next_scheduled( 'wp_cache_check_site_hook' ) ) {
@@ -866,20 +912,6 @@ table.wpsc-settings-table {
 			wp_die( __( 'Caching must be enabled to use this feature', 'wp-super-cache' ) );
 		echo '<a name="preload"></a>';
 		if ( $super_cache_enabled == true && false == defined( 'DISABLESUPERCACHEPRELOADING' ) ) {
-			global $wp_cache_preload_interval, $wp_cache_preload_on, $wp_cache_preload_taxonomies, $wp_cache_preload_email_me, $wp_cache_preload_email_volume, $wp_cache_preload_posts, $wpdb;
-			$posts_count = wp_count_posts();
-			$count = $posts_count->publish;
-			if ( $count > 1000 ) {
-				$min_refresh_interval = 720;
-			} else {
-				$min_refresh_interval = 30;
-			}
-			$return = wpsc_preload_settings( $min_refresh_interval );
-			if ( empty( $return ) == false ) {
-				foreach( $return as $message ) {
-					echo $message;
-				}
-			}
 			echo '<p>' . __( 'This will cache every published post and page on your site. It will create supercache static files so unknown visitors (including bots) will hit a cached page. This will probably help your Google ranking as they are using speed as a metric when judging websites now.', 'wp-super-cache' ) . '</p>';
 			echo '<p>' . __( 'Preloading creates lots of files however. Caching is done from the newest post to the oldest so please consider only caching the newest if you have lots (10,000+) of posts. This is especially important on shared hosting.', 'wp-super-cache' ) . '</p>';
 			echo '<p>' . __( 'In &#8217;Preload Mode&#8217; regular garbage collection will be disabled so that old cache files are not deleted. This is a recommended setting when the cache is preloaded.', 'wp-super-cache' ) . '</p>';
@@ -933,24 +965,8 @@ table.wpsc-settings-table {
 			echo '<option value="less" '. selected( 'less', $wp_cache_preload_email_volume ) . '>'.  __( 'Less emails, 1 at the start and 1 at the end of preloading all posts.', 'wp-super-cache' ) . '</option>';
 			echo "</select>";
 
-			$currently_preloading = false;
-
-			next_preload_message( 'wp_cache_preload_hook', __( 'Refresh of cache in %d hours %d minutes and %d seconds.', 'wp-super-cache' ), 60 );
-			next_preload_message( 'wp_cache_full_preload_hook', __( 'Full refresh of cache in %d hours %d minutes and %d seconds.', 'wp-super-cache' ) );
-
 			if ( wp_next_scheduled( 'wp_cache_preload_hook' ) || wp_next_scheduled( 'wp_cache_full_preload_hook' ) ) {
 				$currently_preloading = true;
-			}
-			$preload_counter = get_option( 'preload_cache_counter' );
-			if ( isset( $preload_counter[ 'first' ] ) ) // converted from int to array
-				update_option( 'preload_cache_counter', array( 'c' => $preload_counter[ 'c' ], 't' => time() ) );
-			if ( is_array( $preload_counter ) && $preload_counter[ 'c' ] > 0 ) {
-				echo '<p><strong>' . sprintf( __( 'Currently caching from post %d to %d.', 'wp-super-cache' ), ( $preload_counter[ 'c' ] - 100 ), $preload_counter[ 'c' ] ) . '</strong></p>';
-				$currently_preloading = true;
-				if ( @file_exists( $cache_path . "preload_permalink.txt" ) ) {
-					$url = file_get_contents( $cache_path . "preload_permalink.txt" );
-					echo "<p>" . sprintf( __( "<strong>Page last cached:</strong> %s", 'wp-super-cache' ), $url ) . "</p>";
-				}
 			}
 			echo '<div class="submit"><input class="button-primary" type="submit" name="preload" value="' . __( 'Update Settings', 'wp-super-cache' ) . '" />';
 			echo '</div>';
@@ -3441,10 +3457,8 @@ function wp_cron_preload_cache() {
 	}
 
 	if ( $wp_cache_preload_posts == 'all' || $c < $wp_cache_preload_posts ) {
-		$types = get_post_types( array( 'public' => true, 'publicly_queryable' => true ), 'names', 'or' );
-		$types = array_map( 'esc_sql', $types );
-		$types = "'" . implode( "','", $types ) . "'";
-		$posts = $wpdb->get_col( "SELECT ID FROM {$wpdb->posts} WHERE ( post_type IN ( $types ) ) AND post_status = 'publish' ORDER BY ID DESC LIMIT $c, 100" );
+		$types = wpsc_get_post_types();
+		$posts = $wpdb->get_col( $wpdb->prepare( "SELECT ID FROM {$wpdb->posts} WHERE ( post_type IN ( $types ) ) AND post_status = 'publish' ORDER BY ID DESC LIMIT %d, 100", $c ) );
 		wp_cache_debug( "wp_cron_preload_cache: got 100 posts from position $c.", 5 );
 	} else {
 		wp_cache_debug( "wp_cron_preload_cache: no more posts to get. Limit ($wp_cache_preload_posts) reached.", 5 );
@@ -3535,7 +3549,7 @@ function next_preload_message( $hook, $text, $limit = 0 ) {
 			$h = (int)($m / 60); $m = $m % 60;
 		}
 		if ( $next_time > 0 && $next_time < ( 60 * $wp_cache_preload_interval ) )
-			echo '<p><strong>' . sprintf( $text, $h, $m, $s ) . '</strong></p>';
+			echo '<div class="notice notice-warning"><p>' . sprintf( $text, $h, $m, $s ) . '</p></div>';
 		if ( ( $next_preload - time() ) <= 60 )
 			$currently_preloading = true;
 	}
@@ -3673,6 +3687,30 @@ function wpsc_enable_preload() {
 	wp_schedule_single_event( time() + 10, 'wp_cache_full_preload_hook' );
 }
 
+function wpsc_get_post_types() {
+
+	$preload_type_args = apply_filters( 'wpsc_preload_post_types_args', array(
+		'public'             => true,
+		'publicly_queryable' => true
+	) );
+
+	$post_types = (array) apply_filters( 'wpsc_preload_post_types', get_post_types( $preload_type_args, 'names', 'or' ));
+
+	return "'" . join( "', '", array_map( 'esc_sql', $post_types ) ) . "'";
+}
+function wpsc_post_count() {
+	global $wpdb;
+	static $count;
+
+	if ( isset( $count ) ) {
+		return $count;
+	}
+
+	$post_type_list = wpsc_get_post_types();
+	$count = $wpdb->get_var( "SELECT COUNT(*) FROM {$wpdb->posts} WHERE post_type IN ( $post_type_list ) AND post_status = 'publish'" );
+
+	return $count;
+}
 function wpsc_preload_settings( $min_refresh_interval = 'NA' ) {
 	global $wp_cache_preload_interval, $wp_cache_preload_on, $wp_cache_preload_taxonomies, $wp_cache_preload_email_me, $wp_cache_preload_email_volume, $wp_cache_preload_posts, $wpdb;
 
@@ -3691,8 +3729,7 @@ function wpsc_preload_settings( $min_refresh_interval = 'NA' ) {
 	} 
 	
 	if ( $min_refresh_interval == 'NA' ) {
-		$posts_count = wp_count_posts();
-		$count = $posts_count->publish;
+		$count = wpsc_post_count();
 		if ( $count > 1000 ) {
 			$min_refresh_interval = 720;
 		} else {

@@ -172,8 +172,7 @@ class WP_Super_Cache_Rest_Get_Settings extends WP_REST_Controller {
 	 */
 	protected function get_minimum_preload_interval() {
 		global $wpdb;
-		$posts_count = wp_count_posts();
-		$count = $posts_count->publish;
+		$count = $this->get_post_count();
 		if ( $count > 1000 ) {
 			$min_refresh_interval = 720;
 		} else {
@@ -198,8 +197,7 @@ class WP_Super_Cache_Rest_Get_Settings extends WP_REST_Controller {
 	 * @return int
 	 */
 	protected function get_post_count() {
-		$posts_count = wp_count_posts();
-		return $posts_count->publish;
+		return wpsc_post_count();
 	}
 
 	/**
