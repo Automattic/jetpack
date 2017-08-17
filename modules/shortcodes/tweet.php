@@ -167,52 +167,38 @@ class Jetpack_Tweet {
 		icon: 'twitter',
 		category: 'layout',
 
-		attributes : {
-			tweet : function ( node ) {
-				var shortcode = wp.shortcode.next( 'tweet', node.innerText );
-				if ( shortcode.attrs.named.tweet ) {
-					return shortcode.attrs.named.tweet;
-				}
-				if ( shortcode.attrs.numeric[0] ) {
-					return shortcode.attrs.numeric[0];
-				}
-				return null;
-			},
-			align : function ( node ) {
-				var shortcode = wp.shortcode.next( 'tweet', node.innerText );
-				if ( shortcode.attrs.named.align ) {
-					return shortcode.attrs.named.align;
-				}
-				return 'none';
-			},
-			width : function ( node ) {
-				var shortcode = wp.shortcode.next( 'tweet', node.innerText );
-				if ( shortcode.attrs.named.width ) {
-					return shortcode.attrs.named.width;
-				}
-				return '';
-			},
-			lang : function ( node ) {
-				var shortcode = wp.shortcode.next( 'tweet', node.innerText );
-				if ( shortcode.attrs.named.lang ) {
-					return shortcode.attrs.named.lang;
-				}
-				return 'en';
-			},
-			hide_thread : function ( node ) {
-				var shortcode = wp.shortcode.next( 'tweet', node.innerText );
-				if ( shortcode.attrs.named.hide_thread ) {
-					return shortcode.attrs.named.hide_thread;
-				}
-				return 'false';
-			},
-			hide_media : function ( node ) {
-				var shortcode = wp.shortcode.next( 'tweet', node.innerText );
-				if ( shortcode.attrs.named.hide_media ) {
-					return shortcode.attrs.named.hide_media;
-				}
-				return 'false';
+		attributes : function( content ) {
+			console.log( content );
+			var shortcode = wp.shortcode.next( 'tweet', content ),
+				data = {};
+
+			if ( shortcode.attrs.named.tweet ) {
+				data.tweet = shortcode.attrs.named.tweet;
+			} else if ( shortcode.attrs.numeric[0] ) {
+				data.tweet = shortcode.attrs.numeric[0];
 			}
+
+			if ( shortcode.attrs.named.align ) {
+				data.align = shortcode.attrs.named.align;
+			}
+
+			if ( shortcode.attrs.named.width ) {
+				data.width = shortcode.attrs.named.width;
+			}
+
+			if ( shortcode.attrs.named.lang ) {
+				data.lang = shortcode.attrs.named.lang;
+			}
+
+			if ( shortcode.attrs.named.hide_thread ) {
+				data.hide_thread = shortcode.attrs.named.hide_thread;
+			}
+
+			if ( shortcode.attrs.named.hide_media ) {
+				data.hide_media = shortcode.attrs.named.hide_media;
+			}
+
+			return data;
 		},
 
 		edit : function( props ) {
