@@ -93,7 +93,7 @@ class WPCOM_JSON_API_Get_Comments_Tree_Endpoint extends WPCOM_JSON_API_Endpoint 
 		$comment_status = empty( $args['status'] ) ? 'all' : $args['status'];
 
 		if ( ! $this->validate_status_param( $comment_status ) ) {
-			return new WP_Error( 'invalid_status', "Invalid comment status value provided: '$comment_status''.", 400 );
+			return new WP_Error( 'invalid_status', "Invalid comment status value provided: '$comment_status'.", 400 );
 		}
 
 		return $this->get_site_tree( $comment_status );
