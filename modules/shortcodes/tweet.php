@@ -162,6 +162,8 @@ class Jetpack_Tweet {
 ?>
 // <script>
 ( function( wp ) {
+	var el = wp.element.createElement;
+
 	wp.blocks.registerBlockType( 'jetpack/tweet', {
 		title: wp.i18n.__( 'Tweet', 'jetpack' ),
 		icon: 'twitter',
@@ -203,10 +205,10 @@ class Jetpack_Tweet {
 
 		edit : function( props ) {
 			return [
-				!! props.focus && wp.element.createElement(
+				!! props.focus && el(
 					wp.blocks.BlockControls,
 					{ key : 'controls' },
-					wp.element.createElement(
+					el(
 						wp.blocks.AlignmentToolbar,
 						{
 							key : '<?php echo md5( __FILE__ . __LINE__ ); ?>',
@@ -219,28 +221,28 @@ class Jetpack_Tweet {
 						}
 					)
 				),
-				!! props.focus && wp.element.createElement(
+				!! props.focus && el(
 					wp.blocks.InspectorControls,
 					{ key : 'inspector' },
 					[
-						wp.element.createElement(
+						el(
 							wp.blocks.BlockDescription,
 							{ key : '<?php echo md5( __FILE__ . __LINE__ ); ?>' },
-							wp.element.createElement(
+							el(
 								'p',
 								null,
 								wp.i18n.__( 'Optional embed settings:' )
 							)
 						),
-						wp.element.createElement(
+						el(
 							'label',
 							{ key : '<?php echo md5( __FILE__ . __LINE__ ); ?>' },
-							wp.element.createElement(
+							el(
 								'label',
 								{ key : '<?php echo md5( __FILE__ . __LINE__ ); ?>' },
 								[
 									wp.i18n.__( 'Width:' ),
-									wp.element.createElement(
+									el(
 										'input',
 										{
 											key : '<?php echo md5( __FILE__ . __LINE__ ); ?>',
@@ -259,7 +261,7 @@ class Jetpack_Tweet {
 						),
 					]
 				),
-				wp.element.createElement(
+				el(
 					'input',
 					{
 						key : '<?php echo md5( __FILE__ . __LINE__ ); ?>',
@@ -308,7 +310,7 @@ class Jetpack_Tweet {
 
 			// If there's a className to be set, wrap it in a div so it can be set on that.
 			if ( props.className || props.attributes.className ) {
-				return wp.element.createElement(
+				return el(
 					'div',
 					{
 						// This is necessary so React doesn't turn `"` into `&quot;`
