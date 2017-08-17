@@ -396,6 +396,13 @@ class Jetpack {
 		if ( class_exists( 'Jetpack_Widget_Conditions' ) ) {
 			Jetpack_Widget_Conditions::migrate_post_type_rules();
 		}
+
+		if (
+			class_exists( 'Jetpack_Sitemap_Manager' )
+			&& version_compare( JETPACK__VERSION, '5.3', '>=' )
+		) {
+			do_action( 'jetpack_sitemaps_purge_data' );
+		}
 	}
 
 	static function activate_manage( ) {
