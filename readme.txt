@@ -106,7 +106,19 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 = 5.3 =
 
 * Release date: September 5, 2017
-* Release post: 
+* Release post:
+
+* Contact Forms: use current_screen hook to specify when to add actions #7618
+* Convert some Jetpack synced files from subdirectory rtl to core stye RTL  #7407
+* Fixed warnings appearing when kses is called on an array #7630
+* Add email field to error on social account create #7625
+* Likes: Remove Open Sans #7645
+* Masterbar: Rename and reorder Pages menu #7641
+* Comments: Add author IP address to the response #7637
+* Site Verification: Show one-way activation banner when feature is inactive #7606
+* Makes Sitemaps module use DOM library. #7335
+* Update the "Unlinked User" notice to a banner, and improve verbiage #7604
+* Widgets: if widget_media_image exists, flag migration as done #7605
 
 = 5.2.1 =
 
