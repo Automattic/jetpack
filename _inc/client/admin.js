@@ -8,6 +8,8 @@ import { Route, Router, useRouterHistory } from 'react-router';
 import { syncHistoryWithStore } from 'react-router-redux';
 import { createHashHistory } from 'history'
 import assign from 'lodash/assign';
+import injectTapEventPlugin from 'react-tap-event-plugin';
+injectTapEventPlugin();
 
 /**
  * Internal dependencies
