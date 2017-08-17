@@ -119,6 +119,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Makes Sitemaps module use DOM library. #7335
 * Update the "Unlinked User" notice to a banner, and improve verbiage #7604
 * Widgets: if widget_media_image exists, flag migration as done #7605
+* Fixed issue with non XHTML compliant <link> tags for dns-prefetch #7607
 
 = 5.2.1 =
 
