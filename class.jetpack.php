@@ -6671,7 +6671,7 @@ p {
 
 		//Do check in linear O(n) time for < PHP5.5 ( using isset at least prevents O(n^2) )
 		foreach ( $backtrace as $call ) {
-			if ( isset( $names[ $call['function'] ] ) ) {
+			if ( isset( $names_as_keys[ $call['function'] ] ) ) {
 				return true;
 			}
 		}
