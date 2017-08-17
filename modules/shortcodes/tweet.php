@@ -209,6 +209,7 @@ class Jetpack_Tweet {
 					wp.element.createElement(
 						wp.blocks.AlignmentToolbar,
 						{
+							key : '<?php echo md5( __FILE__ . __LINE__ ); ?>',
 							value    : props.attributes.align,
 							onChange : function( newAlignment ) {
 								props.setAttributes( {
@@ -224,7 +225,7 @@ class Jetpack_Tweet {
 					[
 						wp.element.createElement(
 							wp.blocks.BlockDescription,
-							null,
+							{ key : '<?php echo md5( __FILE__ . __LINE__ ); ?>' },
 							wp.element.createElement(
 								'p',
 								null,
@@ -233,15 +234,16 @@ class Jetpack_Tweet {
 						),
 						wp.element.createElement(
 							'label',
-							null,
+							{ key : '<?php echo md5( __FILE__ . __LINE__ ); ?>' },
 							wp.element.createElement(
 								'label',
-								null,
+								{ key : '<?php echo md5( __FILE__ . __LINE__ ); ?>' },
 								[
 									wp.i18n.__( 'Width:' ),
 									wp.element.createElement(
 										'input',
 										{
+											key : '<?php echo md5( __FILE__ . __LINE__ ); ?>',
 											type : 'number',
 											min : 100,
 											value : props.attributes.width,
@@ -260,6 +262,7 @@ class Jetpack_Tweet {
 				wp.element.createElement(
 					'input',
 					{
+						key : '<?php echo md5( __FILE__ . __LINE__ ); ?>',
 						name : 'tweet',
 						type : 'url',
 						value : props.attributes.tweet,
