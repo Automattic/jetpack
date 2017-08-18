@@ -35,7 +35,6 @@ class Jetpack_Simple_Payments {
 		wp_register_script( 'paypal-checkout-js', 'https://www.paypalobjects.com/api/checkout.js', array(), null, true );
 		wp_register_script( 'paypal-express-checkout', plugins_url( '/paypal-express-checkout.js', __FILE__ ),
 			array( 'jquery', 'paypal-checkout-js' ), self::$version );
-		wp_enqueue_style( 'simple-payments', plugins_url( '/simple-payments.css', __FILE__ ) );
 	}
 	private function register_init_hook() {
 		add_action( 'init', array( $this, 'init_hook_action' ) );
@@ -103,6 +102,9 @@ class Jetpack_Simple_Payments {
 		$data['id'] = $attrs['id'];
 		if ( ! wp_script_is( 'paypal-express-checkout', 'enqueued' ) ) {
 			wp_enqueue_script( 'paypal-express-checkout' );
+		}
+		if ( ! wp_style_is( 'simple-payments', 'enqueued' ) ) {
+			wp_enqueue_style( 'simple-payments', plugins_url( 'simple-payments.css', __FILE__ ) );
 		}
 
 		wp_add_inline_script( 'paypal-express-checkout', sprintf(
