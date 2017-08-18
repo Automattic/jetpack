@@ -472,11 +472,10 @@ class Jetpack_Connection_Banner {
 	function render_banner_b() { ?>
 		<div id="message" class="updated jp-wpcom-connect__container">
 			<div class="jp-wpcom-connect__inner-container">
-				<a
-					href="<?php echo esc_url( $this->get_dismiss_and_deactivate_url() ); ?>"
-					class="notice-dismiss"
+				<span
+					class="notice-dismiss connection-banner-dismiss"
 					title="<?php esc_attr_e( 'Dismiss this notice', 'jetpack' ); ?>">
-				</a>
+				</span>
 
 				<div class="jp-wpcom-connect__vertical-nav">
 					<div class="jp-wpcom-connect__vertical-nav-container">
