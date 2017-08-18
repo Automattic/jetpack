@@ -67,7 +67,7 @@ class WPCOM_JSON_API_Update_Comment_Endpoint extends WPCOM_JSON_API_Comment_Endp
 			return new WP_Error( 'unauthorized', 'User cannot create comments', 403 );
 		}
 
-		if ( !comments_open( $post->ID ) ) {
+		if ( ! ( comments_open( $post->ID ) || current_user_can( 'moderate_comments' ) ) ) {
 			return new WP_Error( 'unauthorized', 'Comments on this post are closed', 403 );
 		}
 
