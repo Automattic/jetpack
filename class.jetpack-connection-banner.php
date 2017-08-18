@@ -44,8 +44,13 @@ class Jetpack_Connection_Banner {
 	 * @param $current_screen
 	 */
 	function maybe_initialize_hooks( $current_screen ) {
+		// Kill if banner has been dismissed
+		if ( Jetpack_Options::get_option( 'dismissed_connection_banner' ) ) {
+			return;
+		}
+
 		// Don't show the connect notice anywhere but the plugins.php after activating
-		if ( 'plugins' !== $current_screen->base ) {
+		if ( 'plugins' !== $current_screen->base && 'dashboard' !== $current_screen->base ) {
 			return;
 		}
 
@@ -83,82 +88,31 @@ class Jetpack_Connection_Banner {
 			JETPACK__VERSION,
 			true
 		);
-	}
 
-	/**
-	 * Returns a URL that will dismiss allow the current user to dismiss the connection banner.
-	 *
-	 * @since 4.4.0
-	 *
-	 * @return string
-	 */
-	function get_dismiss_and_deactivate_url() {
-		return wp_nonce_url(
-			Jetpack::admin_url( '?page=jetpack&jetpack-notice=dismiss' ),
-			'jetpack-deactivate'
+		wp_localize_script(
+			'jetpack-connection-banner-js',
+			'jp_banner',
+			array(
+				'ajax_url' => admin_url( 'admin-ajax.php' ),
+				'connectionBannerNonce' => wp_create_nonce( 'jp-connection-banner-nonce' ),
+			)
 		);
 	}
-
-	/**
-	 * Renders the legacy connection banner.
-	 */
-	function render_legacy_banner() {
-		$legacy_banner_from = self::check_ab_test_not_expired()
-			? 'banner-legacy'
-			: 'banner';
-		?>
-		<div id="message" class="updated jp-banner">
-			<a
-				href="<?php echo esc_url( $this->get_dismiss_and_deactivate_url() ); ?>"
-				class="notice-dismiss" title="<?php esc_attr_e( 'Dismiss this notice', 'jetpack' ); ?>">
-
-			</a>
-			<div class="jp-banner__description-container">
-				<h2 class="jp-banner__header"><?php esc_html_e( 'Your Jetpack is almost ready!', 'jetpack' ); ?></h2>
-				<p class="jp-banner__description">
-					<?php
-					esc_html_e(
-						'Please connect to or create a WordPress.com account to enable Jetpack, including
-								powerful security, traffic, and customization services.',
-						'jetpack'
-					);
-					?>
-				</p>
-				<p class="jp-banner__button-container">
-					<a
-						href="<?php echo Jetpack::init()->build_connect_url( false, false, $legacy_banner_from ) ?>"
-						class="button button-primary">
-						<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
-					</a>
-					<a
-						href="<?php echo Jetpack::admin_url( 'admin.php?page=jetpack' ) ?>"
-						class="button"
-						title="<?php
-						esc_attr_e(
-							'Learn about the benefits you receive when you connect Jetpack to WordPress.com',
-							'jetpack'
-						);
-						?> ">
-						<?php esc_html_e( 'Learn more', 'jetpack' ); ?>
-					</a>
-				</p>
-			</div>
-		</div>
-	<?php }
 
 	/**
 	 * Renders the new connection banner.
 	 *
 	 * @since 4.4.0
 	 */
-	function render_banner() { ?>
+	function render_banner() {
+		global $current_screen;
+		?>
 		<div id="message" class="updated jp-wpcom-connect__container">
 			<div class="jp-wpcom-connect__inner-container">
-				<a
-					href="<?php echo esc_url( $this->get_dismiss_and_deactivate_url() ); ?>"
-					class="notice-dismiss"
+				<span
+					class="notice-dismiss connection-banner-dismiss"
 					title="<?php esc_attr_e( 'Dismiss this notice', 'jetpack' ); ?>">
-				</a>
+				</span>
 
 				<div class="jp-wpcom-connect__vertical-nav">
 					<div class="jp-wpcom-connect__vertical-nav-container">
@@ -246,7 +200,7 @@ class Jetpack_Connection_Banner {
 
 						<p class="jp-banner__button-container">
 							<a
-								href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, 'banner-44-slide-1' ) ); ?>"
+								href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, 'banner-44-slide-1-' . $current_screen->base ) ); ?>"
 								class="dops-button is-primary">
 								<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
 							</a>
@@ -300,7 +254,7 @@ class Jetpack_Connection_Banner {
 						</p>
 
 						<p class="jp-banner__button-container">
-							<a href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, 'banner-44-slide-2' ) ); ?>" class="dops-button is-primary">
+							<a href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, 'banner-44-slide-2-' . $current_screen->base ) ); ?>" class="dops-button is-primary">
 								<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
 							</a>
 							<a href="#" class="dops-button next-feature" title="<?php esc_attr_e( 'Jetpack Tour: Next Feature', 'jetpack' ); ?>">
@@ -346,7 +300,7 @@ class Jetpack_Connection_Banner {
 
 						<p class="jp-banner__button-container">
 							<a
-								href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, 'banner-44-slide-3' ) ); ?>"
+								href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, 'banner-44-slide-3-' . $current_screen->base ) ); ?>"
 								class="dops-button is-primary">
 								<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
 							</a>
@@ -383,7 +337,7 @@ class Jetpack_Connection_Banner {
 						</p>
 
 						<p class="jp-banner__button-container">
-							<a href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, 'banner-44-slide-4' ) ); ?>" class="dops-button is-primary">
+							<a href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, 'banner-44-slide-4-' . $current_screen->base ) ); ?>" class="dops-button is-primary">
 								<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
 							</a>
 							<a href="#" class="dops-button next-feature" title="<?php esc_attr_e( 'Jetpack Tour: Next Feature', 'jetpack' ); ?>">
@@ -419,7 +373,7 @@ class Jetpack_Connection_Banner {
 						</p>
 
 						<p class="jp-banner__button-container">
-							<a href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, 'banner-44-slide-5' ) ); ?>" class="dops-button is-primary">
+							<a href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, 'banner-44-slide-5-' . $current_screen->base ) ); ?>" class="dops-button is-primary">
 								<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
 							</a>
 							<a href="#" class="dops-button next-feature" title="<?php esc_attr_e( 'Jetpack Tour: Next Feature', 'jetpack' ); ?>">
@@ -457,7 +411,7 @@ class Jetpack_Connection_Banner {
 
 						<p class="jp-banner__button-container">
 							<a
-								href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, 'banner-44-slide-6' ) ); ?>"
+								href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, 'banner-44-slide-6-' . $current_screen->base ) ); ?>"
 								class="dops-button is-primary">
 								<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
 							</a>
