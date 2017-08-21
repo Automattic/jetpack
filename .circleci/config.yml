@@ -21,7 +21,7 @@ jobs:
           key: << checksum "package.json" >>
       - run:
           name: Set name for Jetpack installation
-          command:  echo "export JP_PREFIX=${CIRCLECI_BUILD_NUM}-${CIRCLE_NODE_INDEX}-${RANDOM}" >> $BASH_ENV
+          command:  echo "export JP_PREFIX=${CIRCLE_BUILD_NUM}-${CIRCLE_NODE_INDEX}-${RANDOM}" >> $BASH_ENV
       - run:
           name: Initialize site on Digital Ocean via ServerPilot
           command: source $HOME/.nvm/nvm.sh && ./scripts/jetpack/wp-serverpilot-init.js
