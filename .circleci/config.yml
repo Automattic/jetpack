@@ -11,7 +11,7 @@ jobs:
     steps:
       - run:
           name: Clone wp-e2e-tests repo
-          command: cd / && git clone https://github.com/Automattic/wp-e2e-tests.git
+          command: cd / && git clone https://github.com/Automattic/wp-e2e-tests.git && cd /wp-e2e-tests && git checkout update/jetpack-CI-script
       - restore_cache:
           key: << checksum "package.json" >>
       - run: source $HOME/.nvm/nvm.sh && npm install
