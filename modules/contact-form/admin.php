@@ -37,7 +37,7 @@ function grunion_admin_css() {
 	if ( is_null( $current_screen ) ) {
 		return;
 	}
-	if ( ! in_array( $current_screen->id, array( 'edit-feedback' ) ) ) {
+	if ( 'edit-feedback' !== $current_screen->id ) {
 		return;
 	}
 
