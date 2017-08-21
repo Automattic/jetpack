@@ -203,7 +203,7 @@ function scossdl_off_options() {
 				<th scope="row"><label for="ossdl_off_exclude"><?php _e( 'Exclude if substring', 'wp-super-cache' ); ?></label></th>
 				<td>
 					<input type="text" name="ossdl_off_exclude" value="<?php echo esc_attr( get_option( 'ossdl_off_exclude' ) ); ?>" size="64" class="regular-text code" /><br />
-					<span class="description"><?php _e( 'Excludes something from being rewritten if one of the above strings is found in the match. Use a comma as the delimiter like this, <code>.php, .flv, .do</code>, and always include <code>.php</code> (default).', 'wp-super-cache' ); ?></span>
+					<span class="description"><?php _e( 'Excludes something from being rewritten if one of the above strings is found in the URL. Use a comma as the delimiter like this, <code>.php, .flv, .do</code>, and always include <code>.php</code> (default).', 'wp-super-cache' ); ?></span>
 				</td>
 			</tr>
 			<tr valign="top">
