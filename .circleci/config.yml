@@ -21,7 +21,7 @@ jobs:
           key: << checksum "package.json" >>
       - run:
           name: Set name for Jetpack installation
-          command:  echo "export JP_PREFIX=$(date +'%s')$RANDOM" >> $BASH_ENV
+          command:  echo "export JP_PREFIX=${CIRCLECI_BUILD_NUM}_${CIRCLE_NODE_INDEX}_${RANDOM}" >> $BASH_ENV
       - run:
           name: Initialize site on Digital Ocean via ServerPilot
           command: source $HOME/.nvm/nvm.sh && ./scripts/jetpack/wp-serverpilot-init.js
@@ -41,11 +41,21 @@ jobs:
           command: ./run.sh -R -j -H CI -p -x
       - run:
           name: Run Jetpack deactivation spec
-          command: source $HOME/.nvm/nvm.sh && xvfb-run ./node_modules/.bin/mocha scripts/jetpack/wp-jetpack-deactivate.js
+          command: |
+                  if [ "$E2E_DEBUG" == "true" ]; then
+                    echo "Skipping deactivation step for DEBUG purposes"
+                  else
+                    source $HOME/.nvm/nvm.sh && xvfb-run ./node_modules/.bin/mocha scripts/jetpack/wp-jetpack-deactivate.js
+                  fi
           when: always
       - run:
           name: Delete site from Digital Ocean via ServerPilot
-          command: source $HOME/.nvm/nvm.sh && ./scripts/jetpack/wp-serverpilot-delete.js
+          command: |
+                  if [ "$E2E_DEBUG" == "true" ]; then
+                    echo "Skipping delete step for DEBUG purposes"
+                  else
+                    source $HOME/.nvm/nvm.sh && ./scripts/jetpack/wp-serverpilot-delete.js
+                  fi
           when: always
       - store_test_results:
           path: reports/
