@@ -53,9 +53,9 @@ function wp_super_cache_jetpack_cookie_check( $cache_key ) {
 	if ( function_exists( "jetpack_is_mobile" ) == false ) {
 
 		if ( file_exists( dirname( WPCACHEHOME ) . '/jetpack-dev/class.jetpack-user-agent.php' ) ) {
-			include( dirname( WPCACHEHOME ) . '/jetpack-dev/class.jetpack-user-agent.php' );
+			include_once( dirname( WPCACHEHOME ) . '/jetpack-dev/class.jetpack-user-agent.php' );
 		} elseif ( file_exists( dirname( WPCACHEHOME ) . '/jetpack/class.jetpack-user-agent.php' ) ) {
-			include( dirname( WPCACHEHOME ) . '/jetpack/class.jetpack-user-agent.php' );
+			include_once( dirname( WPCACHEHOME ) . '/jetpack/class.jetpack-user-agent.php' );
 		} else {
 			wp_cache_debug( "wp_super_cache_jetpack_cookie_check: jetpack UA file not found." );
 		}
