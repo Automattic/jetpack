@@ -127,7 +127,7 @@ class VideoPress_Shortcode {
 		$options = apply_filters( 'videopress_shortcode_options', array(
 			'at'              => (int) $attr['at'],
 			'hd'              => $attr['hd'],
-			'loop'            => $attr['autoplay'] || $attr['loop'],
+			'loop'            => $attr['loop'],
 			'freedom'         => $attr['freedom'],
 			'autoplay'        => $attr['autoplay'],
 			'permalink'       => $attr['permalink'],
