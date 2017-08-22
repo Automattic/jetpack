@@ -161,7 +161,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		}
 
 		// Return the FB or Twitter avatar
-		return preg_replace( '#src=([\'"])[^\'"]+\\1#', 'src=\\1' . esc_url( $this->photon_avatar( $foreign_avatar, $size ) ) . '\\1', $avatar );
+		return preg_replace( '#src=([\'"])[^\'"]+\\1#', 'src=\\1' . esc_url( set_url_scheme( $this->photon_avatar( $foreign_avatar, $size ), 'https' ) ) . '\\1', $avatar );
 	}
 
 	/** Output Methods ********************************************************/
