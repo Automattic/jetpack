@@ -20,7 +20,7 @@ class WPCOM_JSON_API_Get_Comments_Tree_Endpoint extends WPCOM_JSON_API_Endpoint 
 				"SELECT comment_ID, comment_post_ID, comment_parent " .
 				"FROM $wpdb->comments AS comments " .
 				"INNER JOIN $wpdb->posts AS posts ON comments.comment_post_ID = posts.ID " .
-				"WHERE comment_type = '' AND comment_ID <= %d AND ( %s = 'all' OR comment_approved = %s ) " .
+				"WHERE comment_ID <= %d AND ( %s = 'all' OR comment_approved = %s ) " .
 				"ORDER BY comment_ID DESC " .
 				"LIMIT %d",
 				(int) $start_at, $db_status, $db_status, $max_comment_count
@@ -55,7 +55,7 @@ class WPCOM_JSON_API_Get_Comments_Tree_Endpoint extends WPCOM_JSON_API_Endpoint 
 				"SELECT COUNT(1) " .
 				"FROM $wpdb->comments AS comments " .
 				"INNER JOIN $wpdb->posts AS posts ON comments.comment_post_ID = posts.ID " .
-				"WHERE comment_type = '' AND ( %s = 'all' OR comment_approved = %s )",
+				"WHERE ( %s = 'all' OR comment_approved = %s )",
 				$db_status, $db_status
 			)
 		);
