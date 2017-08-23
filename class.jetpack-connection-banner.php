@@ -45,7 +45,7 @@ class Jetpack_Connection_Banner {
 		$now = empty( $now ) ? current_time( 'timestamp', 1 ) : $now;
 
 		// Arguments are hour, minute, second, month, day, year. So, we are getting the timestamp for GMT timestamp
-		// for the 15th of December 2016.
+		// for the October 5th, 2017.
 		$expiration = gmmktime( 0, 0, 0, 10, 5, 2017 );
 
 		return $expiration >= $now;
