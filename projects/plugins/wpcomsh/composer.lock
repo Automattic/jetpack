@@ -4,8 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "fa5d80b6cb7c911df0be52869ef26b77",
-    "content-hash": "fe23de3e4f6e6b33a4e0b9982bacb28c",
+    "content-hash": "edff0b7830df9cd7217b00e61ec3fc4f",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -13,12 +12,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/automattic/at-pressable-podcasting.git",
-                "reference": "a6823ef7151ac8262868a4b2b33702d6250cc251"
+                "reference": "d26f6d815100f99f7eed9b5e86d560e9fb70b0cf"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/automattic/at-pressable-podcasting/zipball/a6823ef7151ac8262868a4b2b33702d6250cc251",
-                "reference": "a6823ef7151ac8262868a4b2b33702d6250cc251",
+                "url": "https://api.github.com/repos/automattic/at-pressable-podcasting/zipball/d26f6d815100f99f7eed9b5e86d560e9fb70b0cf",
+                "reference": "d26f6d815100f99f7eed9b5e86d560e9fb70b0cf",
                 "shasum": ""
             },
             "type": "library",
@@ -27,7 +26,7 @@
                     "podcasting.php"
                 ]
             },
-            "time": "2017-05-09 20:06:20"
+            "time": "2017-05-09T20:06:20+00:00"
         },
         {
             "name": "automattic/custom-fonts",
@@ -52,7 +51,7 @@
                     "custom-fonts.php"
                 ]
             },
-            "time": "2017-06-12 21:39:47"
+            "time": "2017-06-12T21:39:47+00:00"
         },
         {
             "name": "automattic/custom-fonts-typekit",
@@ -77,7 +76,7 @@
                     "custom-fonts-typekit.php"
                 ]
             },
-            "time": "2017-06-15 16:29:07"
+            "time": "2017-06-15T16:29:07+00:00"
         },
         {
             "name": "automattic/jetpack-social-icons",
@@ -99,7 +98,7 @@
                     "jetpack-social-icons-load.php"
                 ]
             },
-            "time": "2017-07-07 21:45:14"
+            "time": "2017-07-07T21:45:14+00:00"
         },
         {
             "name": "automattic/text-media-widget-styles",
@@ -121,7 +120,29 @@
                     "text-media-widget-styles.php"
                 ]
             },
-            "time": "2017-06-20 23:34:19"
+            "time": "2017-06-20T23:34:19+00:00"
+        },
+        {
+            "name": "woocommerce/wc-api-dev",
+            "version": "v0.8.4",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/woocommerce/wc-api-dev.git",
+                "reference": "6f923bb9e7025dc88a443ddf6960a54479380e5b"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/woocommerce/wc-api-dev/zipball/6f923bb9e7025dc88a443ddf6960a54479380e5b",
+                "reference": "6f923bb9e7025dc88a443ddf6960a54479380e5b",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "wc-api-dev.php"
+                ]
+            },
+            "time": "2017-08-11T21:57:43+00:00"
         }
     ],
     "packages-dev": [],
