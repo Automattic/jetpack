@@ -120,6 +120,11 @@ class Jetpack_Search {
 		if ( is_wp_error( $request ) ) {
 			return $request;
 		}
+		$response_code = wp_remote_retrieve_response_code( $request );
+
+		if ( ! $response_code || $response_code < 200 || $response_code >= 300 ) {
+			return new WP_Error( 'invalid_search_api_response', 'Invalid response from API - ' . $response_code );
+		}
 
 		$response = json_decode( wp_remote_retrieve_body( $request ), true );
 
@@ -128,12 +133,28 @@ class Jetpack_Search {
 		$query = array(
 			'args'          => $es_args,
 			'response'      => $response,
-			'response_code' => wp_remote_retrieve_response_code( $request ),
+			'response_code' => $response_code,
 			'elapsed_time'   => ( $end_time - $start_time ) * 1000, // Convert from float seconds to ms
 			'es_time'       => $took,
 			'url'           => $service_url,
 		);
 
+		/**
+		 * Fires after a search request has been performed
+		 *
+		 * Includes the following info in the $query parameter:
+		 *
+		 * array args Array of Elasticsearch arguments for the search
+		 * array response Raw API response, JSON decoded
+		 * int response_code HTTP response code of the request
+		 * float elapsed_time Roundtrip time of the search request, in milliseconds
+		 * float es_time Amount of time Elasticsearch spent running the request, in milliseconds
+		 * string url API url that was queried
+		 *
+		 * @since 5.0
+		 *
+		 * @param array $query Array of information about the query performed
+		 */
 		do_action( 'did_jetpack_search_query', $query );
 
 		return $response;
@@ -175,8 +196,9 @@ class Jetpack_Search {
 
 		// Query all posts now
 		$args = array(
-			'post__in' => $post_ids,
-			'perm'     => 'readable',
+			'post__in'  => $post_ids,
+			'perm'      => 'readable',
+			'post_type' => 'any',
 		);
 
 		$posts_query = new WP_Query( $args );
@@ -195,8 +217,6 @@ class Jetpack_Search {
 	 * @param WP_Query $query The original WP_Query to use for the parameters of our search
 	 */
 	public function do_search( WP_Query $query ) {
-		global $wpdb;
-
 		if ( ! $query->is_main_query() || ! $query->is_search() ) {
 			return;
 		}
@@ -335,7 +355,7 @@ class Jetpack_Search {
 
 			$taxonomy = $tax_query['taxonomy'];
 
-			if ( ! is_array( $args[ $taxonomy ] ) ) {
+			if ( ! isset( $args[ $taxonomy ] ) || ! is_array( $args[ $taxonomy ] ) ) {
 				$args[ $taxonomy ] = array();
 			}
 
@@ -398,7 +418,7 @@ class Jetpack_Search {
 	 * @module search
 	 */
 	public function action__widgets_init() {
-		require_once( __DIR__ . '/class.jetpack-search-widget-filters.php' );
+		require_once( dirname( __FILE__ ) . '/class.jetpack-search-widget-filters.php' );
 
 		register_widget( 'Jetpack_Search_Widget_Filters' );
 	}
@@ -423,8 +443,8 @@ class Jetpack_Search {
 	/**
 	 * Add the date portion of a WP_Query onto the query args
 	 *
-	 * @param array $es_wp_query_args
-	 * @param $query The original WP_Query
+	 * @param array    $es_wp_query_args
+	 * @param WP_Query $query The original WP_Query
 	 *
 	 * @return array The es wp query args, with date filters added (as needed)
 	 */
@@ -506,8 +526,6 @@ class Jetpack_Search {
 			 */
 			'aggregations'         => null,
 		);
-
-		$raw_args = $args; // Keep a copy
 
 		$args = wp_parse_args( $args, $defaults );
 
@@ -757,7 +775,7 @@ class Jetpack_Search {
 	 * @module search
 	 *
 	 * @param array $aggregation The aggregation to add to the query builder
-	 * @param $label The 'label' (unique id) for this aggregation
+	 * @param string $label The 'label' (unique id) for this aggregation
 	 * @param Jetpack_WPES_Query_Builder $builder The builder instance that is creating the ES query
 	 */
 	public function add_taxonomy_aggregation_to_es_query_builder( array $aggregation, $label, Jetpack_WPES_Query_Builder $builder ) {
@@ -791,7 +809,7 @@ class Jetpack_Search {
 	 * @module search
 	 *
 	 * @param array $aggregation The aggregation to add to the query builder
-	 * @param $label The 'label' (unique id) for this aggregation
+	 * @param string $label The 'label' (unique id) for this aggregation
 	 * @param Jetpack_WPES_Query_Builder $builder The builder instance that is creating the ES query
 	 */
 	public function add_post_type_aggregation_to_es_query_builder( array $aggregation, $label, Jetpack_WPES_Query_Builder $builder ) {
@@ -809,7 +827,7 @@ class Jetpack_Search {
 	 * @module search
 	 *
 	 * @param array $aggregation The aggregation to add to the query builder
-	 * @param $label The 'label' (unique id) for this aggregation
+	 * @param string $label The 'label' (unique id) for this aggregation
 	 * @param Jetpack_WPES_Query_Builder $builder The builder instance that is creating the ES query
 	 */
 	public function add_date_histogram_aggregation_to_es_query_builder( array $aggregation, $label, Jetpack_WPES_Query_Builder $builder ) {
@@ -961,7 +979,7 @@ class Jetpack_Search {
 	 *
 	 * @module search
 	 *
-	 * @param WP_Query The optional original WP_Query to use for determining which filters are active. Defaults to the main query
+	 * @param WP_Query $query The optional original WP_Query to use for determining which filters are active. Defaults to the main query
 	 *
 	 * @return array Array of Filters applied and info about them
 	 */
@@ -992,7 +1010,7 @@ class Jetpack_Search {
 
 			$type = $this->aggregations[ $label ]['type'];
 
-			$aggregations_data[ $label ]['buckets'] = array();
+			$aggregation_data[ $label ]['buckets'] = array();
 
 			$existing_term_slugs = array();
 
@@ -1028,9 +1046,9 @@ class Jetpack_Search {
 
 			foreach ( $buckets as $item ) {
 				$query_vars = array();
-
 				$active     = false;
 				$remove_url = null;
+				$name       = '';
 
 				// What type was the original aggregation?
 				switch ( $type ) {
@@ -1103,6 +1121,10 @@ class Jetpack_Search {
 					case 'date_histogram':
 						$timestamp = $item['key'] / 1000;
 
+						$current_year  = $query->get( 'year' );
+						$current_month = $query->get( 'monthnum' );
+						$current_day   = $query->get( 'day' );
+
 						switch ( $this->aggregations[ $label ]['interval'] ) {
 							case 'year':
 								$year = (int) date( 'Y', $timestamp );
@@ -1116,7 +1138,7 @@ class Jetpack_Search {
 								$name = $year;
 
 								// Is this year currently selected?
-								if ( ! empty( $query->get( 'year' ) ) && $query->get( 'year' ) === $year ) {
+								if ( ! empty( $current_year ) && (int) $current_year === $year ) {
 									$active = true;
 
 									$remove_url = remove_query_arg( array( 'year', 'monthnum', 'day' ) );
@@ -1137,8 +1159,8 @@ class Jetpack_Search {
 								$name = date( 'F Y', $timestamp );
 
 								// Is this month currently selected?
-								if ( ! empty( $query->get( 'year' ) ) && $query->get( 'year' ) === $year &&
-								     ! empty( $query->get( 'monthnum' ) ) && $query->get( 'monthnum' ) === $month ) {
+								if ( ! empty( $current_year ) && (int) $current_year === $year &&
+								     ! empty( $current_month ) && (int) $current_month === $month ) {
 									$active = true;
 
 									$remove_url = remove_query_arg( array( 'monthnum', 'day' ) );
@@ -1160,9 +1182,9 @@ class Jetpack_Search {
 								$name = date( 'F jS, Y', $timestamp );
 
 								// Is this day currently selected?
-								if ( ! empty( $query->get( 'year' ) ) && $query->get( 'year' ) === $year &&
-								     ! empty( $query->get( 'monthnum' ) ) && $query->get( 'month' ) === $month &&
-								     ! empty( $query->get( 'day' ) ) && $query->get( 'day' ) === $day ) {
+								if ( ! empty( $current_year ) && (int) $current_year === $year &&
+								     ! empty( $current_month ) && (int) $current_month === $month &&
+								     ! empty( $current_day ) && (int) $current_day === $day ) {
 									$active = true;
 
 									$remove_url = remove_query_arg( array( 'day' ) );
@@ -1183,7 +1205,7 @@ class Jetpack_Search {
 				// Need to urlencode param values since add_query_arg doesn't
 				$url_params = urlencode_deep( $query_vars );
 
-				$aggregations_data[ $label ]['buckets'][] = array(
+				$aggregation_data[ $label ]['buckets'][] = array(
 					'url'        => add_query_arg( $url_params ),
 					'query_vars' => $query_vars,
 					'name'       => $name,
@@ -1196,7 +1218,7 @@ class Jetpack_Search {
 			} // End foreach().
 		} // End foreach().
 
-		return $aggregations_data;
+		return $aggregation_data;
 	}
 
 	/**
@@ -1221,19 +1243,23 @@ class Jetpack_Search {
 	 *
 	 * @module search
 	 *
-	 * @param WP_Query $query An optional WP_Query object - defaults to global $wp_query
-	 *
 	 * @return array Array if Filters that were applied
 	 */
-	public function get_active_filter_buckets( WP_Query $query = null ) {
+	public function get_active_filter_buckets() {
 		$active_buckets = array();
 
 		$filters = $this->get_filters();
 
+		if ( ! is_array( $filters ) ) {
+			return $active_buckets;
+		}
+
 		foreach( $filters as $filter ) {
-			foreach( $filter['buckets'] as $item ) {
-				if ( $item['active'] ) {
-					$active_buckets[] = $item;
+			if ( isset( $filter['buckets'] ) && is_array( $filter['buckets'] ) ) {
+				foreach( $filter['buckets'] as $item ) {
+					if (  $item['active'] ) {
+						$active_buckets[] = $item;
+					}
 				}
 			}
 		}
@@ -1246,11 +1272,9 @@ class Jetpack_Search {
 	 *
 	 * @module search
 	 *
-	 * @param WP_Query $query An optional WP_Query object - defaults to global $wp_query
-	 *
 	 * @return array Array if Filters that were applied
 	 */
-	public function get_current_filters( WP_Query $query = null ) {
+	public function get_current_filters() {
 		_deprecated_function( __METHOD__, 'jetpack-5.0', 'Jetpack_Search::get_active_filter_buckets()' );
 
 		return $this->get_active_filter_buckets();
