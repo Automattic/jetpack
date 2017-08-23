@@ -42,7 +42,7 @@ jobs:
           command: source $HOME/.nvm/nvm.sh && xvfb-run ./node_modules/.bin/mocha scripts/jetpack/wp-jetpack-activate.js
       - run:
           name: Run e2e tests
-          command: ./run.sh -R -j -H CI -p -x
+          command: ./run.sh -R -j -H CI -p -x -a 1
       - run:
           name: Run Jetpack deactivation spec
           command: |
