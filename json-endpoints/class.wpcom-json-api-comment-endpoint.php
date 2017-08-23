@@ -4,14 +4,15 @@
 abstract class WPCOM_JSON_API_Comment_Endpoint extends WPCOM_JSON_API_Endpoint {
 	public $comment_object_format = array(
 		// explicitly document and cast all output
-		'ID'        => '(int) The comment ID.',
-		'post'      => "(object>post_reference) A reference to the comment's post.",
-		'author'    => '(object>author) The author of the comment.',
-		'date'      => "(ISO 8601 datetime) The comment's creation time.",
-		'URL'       => '(URL) The full permalink URL to the comment.',
-		'short_URL' => '(URL) The wp.me short URL.',
-		'content'   => '(HTML) <code>context</code> dependent.',
-		'status'    => array(
+		'ID'          => '(int) The comment ID.',
+		'post'        => "(object>post_reference) A reference to the comment's post.",
+		'author'      => '(object>author) The author of the comment.',
+		'date'        => "(ISO 8601 datetime) The comment's creation time.",
+		'URL'         => '(URL) The full permalink URL to the comment.',
+		'short_URL'   => '(URL) The wp.me short URL.',
+		'content'     => '(HTML) <code>context</code> dependent.',
+		'raw_content' => '(string) Raw comment content.',
+		'status'      => array(
 			'approved'   => 'The comment has been approved.',
 			'unapproved' => 'The comment has been held for review in the moderation queue.',
 			'spam'       => 'The comment has been marked as spam.',
@@ -147,6 +148,9 @@ abstract class WPCOM_JSON_API_Comment_Endpoint extends WPCOM_JSON_API_Endpoint {
 				} else {
 					$response[$key] = (string) $comment->comment_content;
 				}
+				break;
+			case 'raw_content':
+				$response[$key] = (string) $comment->comment_content;
 				break;
 			case 'status' :
 				$response[$key] = (string) $status;
