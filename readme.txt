@@ -1,8 +1,8 @@
 === WP Super Cache ===
 Contributors: donncha, automattic, kraftbj
 Tags: performance,caching,wp-cache,wp-super-cache,cache
-Tested up to: 4.8
-Stable tag: 1.5.3
+Tested up to: 4.8.1
+Stable tag: 1.5.4
 Requires at least: 3.0
 
 A very fast caching engine for WordPress that produces static html files.
@@ -53,11 +53,29 @@ Interested in translating WP Super Cache to your language? See the [translation 
 The cache directory, usually wp-content/cache/ is only for temporary files. Do not ever put important files or symlinks to important files or directories in that directory. They will be deleted if the plugin has write access to them.
 
 == Upgrade Notice ==
+Sitemap, feed, REST API and other maintenance fixes.
 
-= 1.5.3 =
-Emergency fix of a critical bug that caused wp-super-cache to delete the wp-admin when deleting the plugin thanks to a null cache path
 
 == Changelog ==
+= 1.5.4 =
+* Fix messages related to creating advanced-cache.php (#355, #354)
+* Deleting the plugin doesn't need to delete the cache directory as it's already done on deactivation. (#323)
+* Disable Jetpack mobile detection if Jetpack Beta is detected. (#298)
+* Add more checks on directories to make sure they exist before deleting them. (#324)
+* Add siteurl setting to CDN page for users who have WordPress in it's own directory. (#332)
+* Don't enable and then not save debug comments when toggling logging. (#334)
+* Show plugin activity html comments to users who disable caching for logged in users. (#335)
+* Better notifications on Preload page, and redo sql to fetch posts. Added "wpsc_preload_post_types_args" filter on post visibility, and wpsc_preload_post_types filter on post types used. (#336)
+* Use a cached feed if it is newer than the last time a post was updated. (#337)
+* Better define a sitemap (#340) but when the content type is unknown add more checks to find out what it is. (#346)
+* Save cache location correctly on the advanced settings page. (#345)
+* Make sure the debug log exists before toggling it on/off to ensure the http auth code is added to it.
+* Return the correct cache type to the REST API. Ignore supercache enabled status. (#352)
+* Fix cache contents in REST API showing double count of supercache files. (#353)
+* Move the nonce in the CDN page back into a function. (#346)
+* Use realpath to compare directories when loading the sample config file to account for symlinked directories. (#342)
+* Other minor changes to html or typos
+(Numbers are [pull requests](https://github.com/Automattic/wp-super-cache/pulls) on Github.)
 
 = 1.5.3 =
 * Fix a critical bug that caused unlink to be run on null while deleting the plugin.
