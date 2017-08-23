@@ -385,7 +385,7 @@ class Jetpack_Connection_Banner {
 						<p>
 							<?php
 							esc_html_e(
-								'Jetpack hides all the complexity away and makes this previously difficult process a breeze. Browse hundreds of themes in our showcase and search by theme, name, style, color, or type.',
+								'Jetpack reduces complexity and makes this previously difficult process a breeze. Browse hundreds of themes in our showcase, or search by theme, name, style, color, or type.',
 								'jetpack'
 							);
 							?>
@@ -394,7 +394,7 @@ class Jetpack_Connection_Banner {
 						<p>
 							<?php
 							esc_html_e(
-								'Preview, install, and activate with one-click and then use our suite of design tools to make it look just as you need it to.',
+								'Preview, install, and activate with one-click, then use our suite of design tools to make it look just as you need it to.',
 								'jetpack'
 							);
 							?>
