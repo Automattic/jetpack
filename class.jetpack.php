@@ -81,7 +81,6 @@ class Jetpack {
 		'widget-visibility'   => array( 'jetpack-widget-visibility/widget-visibility.php', 'Jetpack Widget Visibility' ),
 		'widget-visibility'   => array( 'widget-visibility-without-jetpack/widget-visibility-without-jetpack.php', 'Widget Visibility Without Jetpack' ),
 		'sharedaddy'          => array( 'jetpack-sharing/sharedaddy.php', 'Jetpack Sharing' ),
-		'omnisearch'          => array( 'jetpack-omnisearch/omnisearch.php', 'Jetpack Omnisearch' ),
 		'gravatar-hovercards' => array( 'jetpack-gravatar-hovercards/gravatar-hovercards.php', 'Jetpack Gravatar Hovercards' ),
 		'latex'               => array( 'wp-latex/wp-latex.php', 'WP LaTeX' )
 	);
@@ -396,6 +395,13 @@ class Jetpack {
 		if ( class_exists( 'Jetpack_Widget_Conditions' ) ) {
 			Jetpack_Widget_Conditions::migrate_post_type_rules();
 		}
+
+		if (
+			class_exists( 'Jetpack_Sitemap_Manager' )
+			&& version_compare( JETPACK__VERSION, '5.3', '>=' )
+		) {
+			do_action( 'jetpack_sitemaps_purge_data' );
+		}
 	}
 
 	static function activate_manage( ) {
@@ -570,6 +576,8 @@ class Jetpack {
 		// Universal ajax callback for all tracking events triggered via js
 		add_action( 'wp_ajax_jetpack_tracks', array( $this, 'jetpack_admin_ajax_tracks_callback' ) );
 
+		add_action( 'wp_ajax_jetpack_connection_banner', array( $this, 'jetpack_connection_banner_callback' ) );
+
 		add_action( 'wp_loaded', array( $this, 'register_assets' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'devicepx' ) );
 		add_action( 'customize_controls_enqueue_scripts', array( $this, 'devicepx' ) );
@@ -629,6 +637,17 @@ class Jetpack {
 		return $params;
 	}
 
+	function jetpack_connection_banner_callback() {
+		check_ajax_referer( 'jp-connection-banner-nonce', 'nonce' );
+
+		if ( isset( $_REQUEST['dismissBanner'] ) ) {
+			Jetpack_Options::update_option( 'dismissed_connection_banner', 1 );
+			wp_send_json_success();
+		}
+		
+		wp_die();
+	}
+	
 	function jetpack_admin_ajax_tracks_callback() {
 		// Check for nonce
 		if ( ! isset( $_REQUEST['tracksNonce'] ) || ! wp_verify_nonce( $_REQUEST['tracksNonce'], 'jp-tracks-ajax-nonce' ) ) {
@@ -2857,6 +2876,7 @@ p {
 		Jetpack::load_modules();
 
 		Jetpack_Options::delete_option( 'do_activate' );
+		Jetpack_Options::delete_option( 'dismissed_connection_banner' );
 	}
 
 	/**
@@ -6218,10 +6238,7 @@ p {
 
 		$version = Jetpack::is_development_version() ? filemtime( JETPACK__PLUGIN_DIR . 'css/jetpack.css' ) : JETPACK__VERSION;
 
-		if ( ! wp_style_is( 'open-sans', 'registered' ) ) {
-			wp_register_style( 'open-sans', 'https://fonts.googleapis.com/css?family=Open+Sans', array(), $version );
-		}
-		wp_enqueue_style( 'jetpack_css', plugins_url( 'css/jetpack.css', __FILE__ ), array( 'open-sans' ), $version );
+		wp_enqueue_style( 'jetpack_css', plugins_url( 'css/jetpack.css', __FILE__ ), array(), $version );
 		wp_style_add_data( 'jetpack_css', 'rtl', 'replace' );
 	}
 
@@ -6436,7 +6453,7 @@ p {
 		if ( empty( $new_urls ) && ! empty( $prefetch_urls ) ) {
 			echo "\r\n";
 			foreach ( $prefetch_urls as $this_prefetch_url ) {
-				printf( "<link rel='dns-prefetch' href='%s'>\r\n", esc_attr( $this_prefetch_url ) );
+				printf( "<link rel='dns-prefetch' href='%s'/>\r\n", esc_attr( $this_prefetch_url ) );
 			}
 		} elseif ( ! empty( $new_urls ) ) {
 			if ( ! has_action( 'wp_head', array( __CLASS__, __FUNCTION__ ) ) ) {
@@ -6453,9 +6470,6 @@ p {
 		if ( self::is_active() ) {
 			add_action( 'jetpack_dashboard_widget', array( __CLASS__, 'dashboard_widget_footer' ), 999 );
 			$widget_title = __( 'Site Stats', 'jetpack' );
-		} elseif ( ! self::is_development_mode() && current_user_can( 'jetpack_connect' ) ) {
-			add_action( 'jetpack_dashboard_widget', array( $this, 'dashboard_widget_connect_to_wpcom' ) );
-			$widget_title = __( 'Please Connect Jetpack', 'jetpack' );
 		}
 
 		if ( has_action( 'jetpack_dashboard_widget' ) ) {
@@ -6551,29 +6565,6 @@ p {
 		<?php
 	}
 
-	public function dashboard_widget_connect_to_wpcom() {
-		if ( Jetpack::is_active() || Jetpack::is_development_mode() || ! current_user_can( 'jetpack_connect' ) ) {
-			return;
-		}
-		?>
-		<div class="wpcom-connect">
-			<div class="jp-emblem">
-			<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0" y="0" viewBox="0 0 172.9 172.9" enable-background="new 0 0 172.9 172.9" xml:space="preserve">
-				<path d="M86.4 0C38.7 0 0 38.7 0 86.4c0 47.7 38.7 86.4 86.4 86.4s86.4-38.7 86.4-86.4C172.9 38.7 134.2 0 86.4 0zM83.1 106.6l-27.1-6.9C49 98 45.7 90.1 49.3 84l33.8-58.5V106.6zM124.9 88.9l-33.8 58.5V66.3l27.1 6.9C125.1 74.9 128.4 82.8 124.9 88.9z"/>
-			</svg>
-			</div>
-			<h3><?php esc_html_e( 'Please Connect Jetpack', 'jetpack' ); ?></h3>
-			<p><?php echo wp_kses( __( 'Connecting Jetpack will show you <strong>stats</strong> about your traffic, <strong>protect</strong> you from brute force attacks, <strong>speed up</strong> your images and photos, and enable other <strong>traffic and security</strong> features.', 'jetpack' ), 'jetpack' ) ?></p>
-
-			<div class="actions">
-				<a href="<?php echo $this->build_connect_url( false, false, 'widget-btn' ); ?>" class="button button-primary">
-					<?php esc_html_e( 'Connect Jetpack', 'jetpack' ); ?>
-				</a>
-			</div>
-		</div>
-		<?php
-	}
-
 	/**
 	 * Return string containing the Jetpack logo.
 	 *
@@ -6639,6 +6630,37 @@ p {
 	public static function is_akismet_active() {
 		if ( method_exists( 'Akismet' , 'http_post' ) || function_exists( 'akismet_http_post' ) ) {
 			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Checks if one or more function names is in debug_backtrace
+	 *
+	 * @param $names Mixed string name of function or array of string names of functions
+	 *
+	 * @return bool
+	 */
+	public static function is_function_in_backtrace( $names ) {
+		$backtrace = debug_backtrace( false );
+		if ( ! is_array( $names ) ) {
+			$names = array( $names );
+		}
+		$names_as_keys = array_flip( $names );
+
+		//Do check in constant O(1) time for PHP5.5+
+		if ( function_exists( 'array_column' ) ) {
+			$backtrace_functions = array_column( $backtrace, 'function' );
+			$backtrace_functions_as_keys = array_flip( $backtrace_functions );
+			$intersection = array_intersect_key( $backtrace_functions_as_keys, $names_as_keys );
+			return ! empty ( $intersection );
+		}
+
+		//Do check in linear O(n) time for < PHP5.5 ( using isset at least prevents O(n^2) )
+		foreach ( $backtrace as $call ) {
+			if ( isset( $names_as_keys[ $call['function'] ] ) ) {
+				return true;
+			}
 		}
 		return false;
 	}

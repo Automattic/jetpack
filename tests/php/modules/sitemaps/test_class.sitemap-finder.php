@@ -6,7 +6,8 @@
  * @since 4.7.0
  */
 
-require dirname( __FILE__ ) . '/../../../../modules/sitemaps/sitemap-finder.php';
+require_once dirname( __FILE__ ) . '/../../../../modules/sitemaps/sitemaps.php';
+require_once dirname( __FILE__ ) . '/../../../../modules/sitemaps/sitemap-finder.php';
 
 /**
  * Test class for Jetpack_Sitemap_Finder.
@@ -32,8 +33,7 @@ class WP_Test_Jetpack_Sitemap_Finder extends WP_UnitTestCase {
 			$array['path'] . '?' . $array['query']
 		);
 
-		$this->assertEquals( $result['sitemap_uri'], 'sitemap.xml' );
-		$this->assertEquals( $result['sitemap_name'], 'sitemap' );
+		$this->assertEquals( $result['sitemap_name'], 'sitemap.xml' );
 	}
 
 }

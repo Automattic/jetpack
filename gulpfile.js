@@ -259,8 +259,6 @@ admincss = [
 	'modules/custom-css/custom-css/css/codemirror.css',
 	'modules/custom-css/custom-css/css/css-editor.css',
 	'modules/custom-css/custom-css/css/use-codemirror.css',
-	'modules/omnisearch/omnisearch.css',
-	'modules/omnisearch/omnisearch-jetpack.css',
 	'modules/post-by-email/post-by-email.css',
 	'modules/publicize/assets/publicize.css',
 	'modules/protect/protect-dashboard-widget.css',

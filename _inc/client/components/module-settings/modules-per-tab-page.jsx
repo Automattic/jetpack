@@ -26,14 +26,6 @@ const AllModuleSettingsComponent = React.createClass( {
 		switch ( module.module ) {
 			case 'videopress':
 				return ( <VideoPressSettings module={ module } /> );
-			case 'omnisearch':
-				return (
-					<div>
-						<span className="jp-form-setting-explanation">{ this.props.module.long_description }</span>
-						<br/>
-						<ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href='/wp-admin/admin.php?page=omnisearch'>{ __( 'Search your content.' ) }</ExternalLink>
-					</div>
-				);
 			case 'monitor':
 				module.raw_url = this.props.siteRawUrl;
 				return ( <MonitorSettings module={ module }  /> );

@@ -6,8 +6,8 @@
  * @since 4.7.0
  */
 
-require dirname( __FILE__ ) . '/../../../../modules/sitemaps/sitemap-constants.php';
-require dirname( __FILE__ ) . '/../../../../modules/sitemaps/sitemap-librarian.php';
+require_once dirname( __FILE__ ) . '/../../../../modules/sitemaps/sitemap-constants.php';
+require_once dirname( __FILE__ ) . '/../../../../modules/sitemaps/sitemap-librarian.php';
 
 /**
  * Test class for Jetpack_Sitemap_Librarian.
@@ -26,7 +26,6 @@ class WP_Test_Jetpack_Sitemap_Librarian extends WP_UnitTestCase {
 	public function test_sitemap_librarian_constructor() {
 		$librarian = new Jetpack_Sitemap_Librarian();
 		$this->assertTrue( true );
-		return;
 	}
 
 	/**
@@ -40,7 +39,6 @@ class WP_Test_Jetpack_Sitemap_Librarian extends WP_UnitTestCase {
 		$librarian = new Jetpack_Sitemap_Librarian();
 		$row = $librarian->read_sitemap_data( 'unset', 'unset' );
 		$this->assertTrue( is_null( $row ) );
-		return;
 	}
 
 	/**
@@ -54,7 +52,6 @@ class WP_Test_Jetpack_Sitemap_Librarian extends WP_UnitTestCase {
 		$librarian = new Jetpack_Sitemap_Librarian();
 		$result = $librarian->delete_sitemap_data( 'unset', 'unset' );
 		$this->assertEquals( false, $result );
-		return;
 	}
 
 	/**
@@ -66,10 +63,9 @@ class WP_Test_Jetpack_Sitemap_Librarian extends WP_UnitTestCase {
 	 */
 	public function test_sitemap_librarian_delete_set_row_returns_true() {
 		$librarian = new Jetpack_Sitemap_Librarian();
-		$librarian->store_sitemap_data( 'name', 'type', 'contents', '1970-01-01 00:00:00' );
-		$result = $librarian->delete_sitemap_data( 'name', 'type' );
+		$librarian->store_sitemap_data( 0, JP_MASTER_SITEMAP_TYPE, 'contents', '1970-01-01 00:00:00' );
+		$result = $librarian->delete_sitemap_data( jp_sitemap_filename( JP_MASTER_SITEMAP_TYPE, 0 ), JP_MASTER_SITEMAP_TYPE );
 		$this->assertEquals( true, $result );
-		return;
 	}
 
 	/**
@@ -81,23 +77,19 @@ class WP_Test_Jetpack_Sitemap_Librarian extends WP_UnitTestCase {
 	 */
 	public function test_sitemap_librarian_set_then_get_is_identity() {
 		$librarian = new Jetpack_Sitemap_Librarian();
-		$contents = esc_html( 'These are the times that try men\'s souls.' );
+		$contents = '<wrapper>These are the times that try men\'s <a href="http://example.com/soul">souls</a>.</wrapper>';
 
 		// Store a sitemap.
-		$librarian->store_sitemap_data( 'name', 'type', $contents, '1970-01-01 00:00:00' );
+		$librarian->store_sitemap_data( 0, JP_MASTER_SITEMAP_TYPE, $contents, '1970-01-01 00:00:00' );
 
 		// Get the stored sitemap.
-		$result = $librarian->read_sitemap_data( 'name', 'type' );
+		$result = $librarian->read_sitemap_data( jp_sitemap_filename( JP_MASTER_SITEMAP_TYPE, 0 ), JP_MASTER_SITEMAP_TYPE );
 
 		// Check that the stored sitemap and the retrieved sitemap are the same.
-		$this->assertEquals( 'name', $result['name'] );
-		$this->assertEquals( 'type', $result['type'] );
+		$this->assertEquals( 'sitemap.xml', $result['name'] );
+		$this->assertEquals( JP_MASTER_SITEMAP_TYPE, $result['type'] );
 		$this->assertEquals( $contents, $result['text'] );
 		$this->assertEquals( '1970-01-01 00:00:00', $result['timestamp'] );
-
-		// Clean up.
-		$librarian->delete_sitemap_data( 'name', 'type' );
-		return;
 	}
 
 	/**
@@ -112,19 +104,15 @@ class WP_Test_Jetpack_Sitemap_Librarian extends WP_UnitTestCase {
 		$new_contents = esc_html( 'It was the worst of times.' );
 
 		// Set the same data twice.
-		$librarian->store_sitemap_data( 'name', 'type', $old_contents, '1970-01-01 00:00:00' );
-		$librarian->store_sitemap_data( 'name', 'type', $new_contents, '1980-01-01 00:00:00' );
+		$librarian->store_sitemap_data( 0, JP_MASTER_SITEMAP_TYPE, $old_contents, '1970-01-01 00:00:00' );
+		$librarian->store_sitemap_data( 0, JP_MASTER_SITEMAP_TYPE, $new_contents, '1980-01-01 00:00:00' );
 
 		// Get the stored data.
-		$result = $librarian->read_sitemap_data( 'name', 'type' );
+		$result = $librarian->read_sitemap_data( jp_sitemap_filename( JP_MASTER_SITEMAP_TYPE, 0 ), JP_MASTER_SITEMAP_TYPE );
 
 		// Check that the second set is what comes out.
 		$this->assertEquals( $new_contents, $result['text'] );
 		$this->assertEquals( '1980-01-01 00:00:00', $result['timestamp'] );
-
-		// Clean up.
-		$librarian->delete_sitemap_data( 'name', 'type' );
-		return;
 	}
 
 	/**
@@ -139,17 +127,13 @@ class WP_Test_Jetpack_Sitemap_Librarian extends WP_UnitTestCase {
 		$contents = 'These are the times that try men\'s souls.';
 
 		// Store a sitemap.
-		$librarian->store_sitemap_data( 'name', 'type', $contents, '1970-01-01 00:00:00' );
+		$librarian->store_sitemap_data( 0, JP_MASTER_SITEMAP_TYPE, $contents, '1970-01-01 00:00:00' );
 
 		// Get the text of the stored sitemap.
-		$result = $librarian->get_sitemap_text( 'name', 'type' );
+		$result = $librarian->get_sitemap_text( jp_sitemap_filename( JP_MASTER_SITEMAP_TYPE, 0 ), JP_MASTER_SITEMAP_TYPE );
 
-		// Check that the stored sitemap and the retrieved sitemap are the same.
+		// check that the stored sitemap and the retrieved sitemap are the same.
 		$this->assertEquals( $contents, $result );
-
-		// Clean up.
-		$librarian->delete_sitemap_data( 'name', 'type' );
-		return;
 	}
 
 	/**
@@ -174,7 +158,6 @@ class WP_Test_Jetpack_Sitemap_Librarian extends WP_UnitTestCase {
 		$this->assertTrue( is_null( $librarian->read_sitemap_data( 'name-1', 'type' ) ) );
 		$this->assertTrue( is_null( $librarian->read_sitemap_data( 'name-2', 'type' ) ) );
 		$this->assertTrue( is_null( $librarian->read_sitemap_data( 'name-3', 'type' ) ) );
-		return;
 	}
 
 }

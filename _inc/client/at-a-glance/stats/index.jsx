@@ -31,8 +31,16 @@ import {
 	getActiveStatsTab as _getActiveStatsTab
 } from 'state/at-a-glance';
 import { getModules } from 'state/modules';
+import { emptyStatsCardDismissed } from 'state/settings';
 
 class DashStats extends Component {
+	constructor( props ) {
+		super( props );
+		this.state = {
+			emptyStatsDismissed: props.isEmptyStatsCardDismissed,
+		};
+	}
+
 	barClick( bar ) {
 		if ( bar.data.link ) {
 			analytics.tracks.recordJetpackClick( 'stats_bar' );
@@ -47,8 +55,10 @@ class DashStats extends Component {
 		const props = this.props,
 			s = [];
 
+		let totalViews = 0;
+
 		if ( 'object' !== typeof props.statsData[ unit ] ) {
-			return s;
+			return { chartData: s, totalViews: false };
 		}
 
 		forEach( props.statsData[ unit ].data, function( v ) {
@@ -56,6 +66,9 @@ class DashStats extends Component {
 			let date = v[ 0 ],
 				chartLabel = '',
 				tooltipLabel = '';
+
+			// Increment total views for the period
+			totalViews += views;
 
 			if ( 'day' === unit ) {
 				chartLabel = moment( date ).format( 'MMM D' );
@@ -84,7 +97,8 @@ class DashStats extends Component {
 				}, { label: __( 'Click to view detailed stats.' ) } ]
 			} );
 		} );
-		return s;
+
+		return { chartData: s, totalViews: totalViews };
 	}
 
 	/**
@@ -96,8 +110,53 @@ class DashStats extends Component {
 		return get( this.props.statsData, [ 'general', 'errors' ], false );
 	}
 
+	renderStatsChart( chartData ) {
+		return (
+			<div>
+				<div className="jp-at-a-glance__stats-chart">
+					<Chart data={ chartData } barClick={ this.barClick } />
+					{
+						0 < chartData.length ? '' : <Spinner />
+					}
+				</div>
+				<div id="stats-bottom" className="jp-at-a-glance__stats-bottom">
+					<DashStatsBottom
+						statsData={ this.props.statsData }
+						siteRawUrl={ this.props.siteRawUrl }
+						siteAdminUrl={ this.props.siteAdminUrl }
+						isLinked={ this.props.isLinked }
+						connectUrl={ this.props.connectUrl }
+					/>
+				</div>
+			</div>
+		);
+	}
+
+	renderEmptyStatsCard() {
+		const dismissCard = () => {
+			this.setState( { emptyStatsDismissed: true } );
+			this.props.updateOptions( { dismiss_empty_stats_card: true } );
+		};
+		return (
+			<Card className="jp-at-a-glance__stats-empty">
+				<img src={ imagePath + 'stats-people.svg' } width="272" height="144" alt={ __( 'Jetpack Stats People' ) } className="jp-at-a-glance__stats-icon" />
+				<p>
+					{ __( 'Hello there! Your stats have been activated.' ) }
+					<br />
+					{ __( 'Just give us a little time to collect data so we can display it for you here.' ) }
+				</p>
+				<Button
+					onClick={ dismissCard }
+					primary={ true }
+				>
+					{ __( 'Okay, got it!' ) }
+				</Button>
+			</Card>
+		);
+	}
+
 	renderStatsArea() {
-		const activateStats = () => this.props.updateOptions( { 'stats': true } );
+		const activateStats = () => this.props.updateOptions( { stats: true } );
 
 		if ( this.props.getOptionValue( 'stats' ) ) {
 			const statsErrors = this.statsErrors();
@@ -116,24 +175,15 @@ class DashStats extends Component {
 					</div>
 				);
 			}
-			const chartData = this.statsChart( this.props.activeTab() );
+
+			const statsChart = this.statsChart( this.props.activeTab() ),
+				chartData = statsChart.chartData,
+				totalViews = statsChart.totalViews,
+				showEmptyStats = chartData.length > 0 && totalViews <= 0 && ! this.props.isEmptyStatsCardDismissed && ! this.state.emptyStatsDismissed;
+
 			return (
 				<div className="jp-at-a-glance__stats-container">
-					<div className="jp-at-a-glance__stats-chart">
-						<Chart data={ chartData } barClick={ this.barClick } />
-						{
-							0 < chartData.length ? '' : <Spinner />
-						}
-					</div>
-					<div id="stats-bottom" className="jp-at-a-glance__stats-bottom">
-						<DashStatsBottom
-							statsData={ this.props.statsData }
-							siteRawUrl={ this.props.siteRawUrl }
-							siteAdminUrl={ this.props.siteAdminUrl }
-							isLinked={ this.props.isLinked }
-							connectUrl={ this.props.connectUrl }
-						/>
-					</div>
+					{ ! showEmptyStats ? this.renderStatsChart( chartData ) : this.renderEmptyStatsCard() }
 				</div>
 			);
 		}
@@ -252,7 +302,8 @@ export default connect(
 			isDevMode: isDevMode( state ),
 			isLinked: isCurrentUserLinked( state ),
 			connectUrl: getConnectUrl( state ),
-			statsData: getStatsData( state ) !== 'N/A' ? getStatsData( state ) : getInitialStateStatsData( state )
+			statsData: getStatsData( state ) !== 'N/A' ? getStatsData( state ) : getInitialStateStatsData( state ),
+			isEmptyStatsCardDismissed: emptyStatsCardDismissed( state ),
 		};
 	},
 	( dispatch ) => {
