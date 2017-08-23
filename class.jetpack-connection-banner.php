@@ -68,6 +68,23 @@ class Jetpack_Connection_Banner {
 		return $random_connection_banner;
 	}
 
+	/**
+	 * Given a string for the the banner was added, and an int that represents the slide to 
+	 * a URL for, this function returns a connection URL with a from parameter that will
+	 * support split testing.
+	 *
+	 * @param string $jp_version_banner_added A short version of when the banner was added. Ex. 44
+	 * @param int    $slide_num               The index of the slide, 1-indexed. 
+	 * @return string
+	 */
+	function build_connect_url_for_slide( $jp_version_banner_added, $slide_num ) {
+		global $current_screen;
+		return Jetpack::init()->build_connect_url(
+			true, 
+			false, 
+			sprintf( 'banner-%s-slide-%s-%s', $jp_version_banner_added, $slide_num, $current_screen->base )
+		);
+	}
 
 	/**
 	 * Will initialize hooks to display the new (as of 4.4) connection banner if the current user can
@@ -145,9 +162,7 @@ class Jetpack_Connection_Banner {
 	 *
 	 * @since 4.4.0
 	 */
-	function render_banner() {
-		global $current_screen;
-		?>
+	function render_banner() { ?>
 		<div id="message" class="updated jp-wpcom-connect__container">
 			<div class="jp-wpcom-connect__inner-container">
 				<span
@@ -241,7 +256,7 @@ class Jetpack_Connection_Banner {
 
 						<p class="jp-banner__button-container">
 							<a
-								href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, 'banner-44-slide-1-' . $current_screen->base ) ); ?>"
+								href="<?php echo esc_url( $this->build_connect_url_for_slide( '44', 1 ) ); ?>"
 								class="dops-button is-primary">
 								<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
 							</a>
@@ -295,7 +310,7 @@ class Jetpack_Connection_Banner {
 						</p>
 
 						<p class="jp-banner__button-container">
-							<a href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, 'banner-44-slide-2-' . $current_screen->base ) ); ?>" class="dops-button is-primary">
+							<a href="<?php echo esc_url( $this->build_connect_url_for_slide( '44', 2 ) ); ?>" class="dops-button is-primary">
 								<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
 							</a>
 							<a href="#" class="dops-button next-feature" title="<?php esc_attr_e( 'Jetpack Tour: Next Feature', 'jetpack' ); ?>">
@@ -341,7 +356,7 @@ class Jetpack_Connection_Banner {
 
 						<p class="jp-banner__button-container">
 							<a
-								href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, 'banner-44-slide-3-' . $current_screen->base ) ); ?>"
+								href="<?php echo esc_url( $this->build_connect_url_for_slide( '44', 3 ) ); ?>"
 								class="dops-button is-primary">
 								<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
 							</a>
@@ -378,7 +393,7 @@ class Jetpack_Connection_Banner {
 						</p>
 
 						<p class="jp-banner__button-container">
-							<a href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, 'banner-44-slide-4-' . $current_screen->base ) ); ?>" class="dops-button is-primary">
+							<a href="<?php echo esc_url( $this->build_connect_url_for_slide( '44', 4 ) ); ?>" class="dops-button is-primary">
 								<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
 							</a>
 							<a href="#" class="dops-button next-feature" title="<?php esc_attr_e( 'Jetpack Tour: Next Feature', 'jetpack' ); ?>">
@@ -414,7 +429,7 @@ class Jetpack_Connection_Banner {
 						</p>
 
 						<p class="jp-banner__button-container">
-							<a href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, 'banner-44-slide-5-' . $current_screen->base ) ); ?>" class="dops-button is-primary">
+							<a href="<?php echo esc_url( $this->build_connect_url_for_slide( '44', 5 ) ); ?>" class="dops-button is-primary">
 								<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
 							</a>
 							<a href="#" class="dops-button next-feature" title="<?php esc_attr_e( 'Jetpack Tour: Next Feature', 'jetpack' ); ?>">
@@ -452,7 +467,7 @@ class Jetpack_Connection_Banner {
 
 						<p class="jp-banner__button-container">
 							<a
-								href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, 'banner-44-slide-6-' . $current_screen->base ) ); ?>"
+								href="<?php echo esc_url( $this->build_connect_url_for_slide( '44', 6 ) ); ?>"
 								class="dops-button is-primary">
 								<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
 							</a>
@@ -544,7 +559,7 @@ class Jetpack_Connection_Banner {
 
 						<p class="jp-banner__button-container">
 							<a
-								href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, 'banner-53-slide-1' ) ); ?>"
+								href="<?php echo esc_url( $this->build_connect_url_for_slide( '53', 1 ) ); ?>"
 								class="dops-button is-primary">
 								<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
 							</a>
@@ -598,7 +613,7 @@ class Jetpack_Connection_Banner {
 						</p>
 
 						<p class="jp-banner__button-container">
-							<a href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, 'banner-53-slide-2' ) ); ?>" class="dops-button is-primary">
+							<a href="<?php echo esc_url( $this->build_connect_url_for_slide( '53', 2 ) ); ?>" class="dops-button is-primary">
 								<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
 							</a>
 							<a href="#" class="dops-button next-feature" title="<?php esc_attr_e( 'Jetpack Tour: Next Feature', 'jetpack' ); ?>">
@@ -644,7 +659,7 @@ class Jetpack_Connection_Banner {
 
 						<p class="jp-banner__button-container">
 							<a
-								href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, 'banner-53-slide-3' ) ); ?>"
+								href="<?php echo esc_url( $this->build_connect_url_for_slide( '53', 3 ) ); ?>"
 								class="dops-button is-primary">
 								<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
 							</a>
@@ -688,7 +703,7 @@ class Jetpack_Connection_Banner {
 
 						<p class="jp-banner__button-container">
 							<a
-								href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, 'banner-53-slide-4' ) ); ?>"
+								href="<?php echo esc_url( $this->build_connect_url_for_slide( '53', 4 ) ); ?>"
 								class="dops-button is-primary">
 								<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
 							</a>
