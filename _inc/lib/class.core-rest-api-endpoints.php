@@ -1723,6 +1723,14 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'jp_group'          => 'settings',
 			),
 
+			'onboarding' => array(
+				'description'       => '',
+				'type'              => 'array',
+				'default'           => '',
+				'validate_callback' => __CLASS__ . '::validate_onboarding',
+				'jp_group'          => 'settings',
+			),
+
 		);
 
 		// Add modules to list so they can be toggled
@@ -1765,6 +1773,24 @@ class Jetpack_Core_Json_Api_Endpoints {
 			}
 		}
 		return $selected;
+	}
+
+	/**
+	 * Validates that the parameters are proper values that can be set during Jetpack onboarding.
+	 *
+	 * @since 5.3.0
+	 *
+	 * @param array $value Value to check.
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 * @param string $param Name of the parameter passed to endpoint holding $value.
+	 *
+	 * @return bool|WP_Error
+	 */
+	public static function validate_onboarding( $value, $request, $param ) {
+		if ( ! is_array( $value ) ) {
+			return new WP_Error( 'invalid_param', esc_html__( 'Not valid onboarding data.', 'jetpack' ) );
+		}
+		return true;
 	}
 
 	/**
