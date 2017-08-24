@@ -864,9 +864,15 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					break;
 
 				case 'onboarding':
+					error_log( print_r( $value ) );
 					// Break apart and set Jetpack onboarding options.
-					update_option( 'site_title', $value['siteTitle'] );
-					$updated = true;
+					$result = $this->_process_onboarding( (array) $value );
+					if ( empty( $result ) ) {
+						$updated = true;
+					} else {
+						$error = sprintf( esc_html__( 'Onboarding failed to process: %s', 'jetpack' ), $result );
+						$updated = false;
+					}
 					break;
 
 				default:
@@ -917,6 +923,82 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			return new WP_Error( 'some_updated', esc_html( $error ), array( 'status' => 400 ) );
 		}
 
+	}
+
+	/**
+	 * Perform tasks in the site based on onboarding choices.
+	 *
+	 * @since 5.3
+	 *
+	 * @param array $data Onboarding choices made by user.
+	 *
+	 * @return string Result of onboarding processing and, if there is one, an error message.
+	 */
+	private function _process_onboarding( $data ) {
+		$updated = false;
+		$error = array();
+
+		if ( ! empty( $data['siteTitle'] ) ) {
+			// If option value was the same, consider it done.
+			$updated = get_option( 'blogname' ) != $data['siteTitle'] ? update_option( 'blogname', $data['siteTitle'] ) : true;
+			if ( ! $updated ) {
+				$error[] = 'siteTitle';
+			}
+		}
+
+		if ( ! empty( $data['siteDescription'] ) ) {
+			// If option value was the same, consider it done.
+			$updated = get_option( 'blogdescription' ) != $data['siteDescription'] ? update_option( 'blogdescription', $data['siteDescription'] ) : true;
+			if ( ! $updated ) {
+				$error[] = 'siteDescription';
+			}
+		}
+
+		// If $data['homepageFormat'] is 'posts', we have nothing to do since it's WordPress' default
+		if ( 'page' === $data['homepageFormat'] ) {
+			$home = wp_insert_post( array(
+				'post_type'     => 'page',
+				/* translators: this references the home page of a site, also called front page. */
+				'post_title'    => esc_html_x( 'Home Page', 'The home page of a website.', 'jetpack' ),
+				'post_content'  => esc_html__( 'This is the content for your front page. Edit it as you like!', 'jetpack' ),
+				'post_status'   => 'publish',
+				'post_author'   => get_current_user_id() || 1,
+			) );
+			if ( 0 == $home ) {
+				$error[] = 'home insert: 0';
+			} elseif ( is_wp_error( $home ) ) {
+				$error[] = 'home creation: '. $home->get_error_message();
+			}
+			$updated = get_option( 'show_on_front' ) != 'page' ? update_option( 'show_on_front', 'page' ) : true;
+			if ( ! $updated ) {
+				$error[] = 'homepageFormat';
+			}
+			$updated = get_option( 'page_on_front' ) != $home ? update_option( 'page_on_front', $home ) : true;
+			if ( ! $updated ) {
+				$error[] = 'home set';
+			}
+			$blog = wp_insert_post( array(
+				'post_type'     => 'page',
+				/* translators: this references the home page of a site, also called front page. */
+				'post_title'    => esc_html_x( 'Blog', 'The blog of a website.', 'jetpack' ),
+				'post_content'  => esc_html__( 'This is the content for your blog posts page. Edit it as you like!', 'jetpack' ),
+				'post_status'   => 'publish',
+				'post_author'   => get_current_user_id() || 1,
+			) );
+			if ( 0 == $blog ) {
+				$error[] = 'blog insert: 0';
+			} elseif ( is_wp_error( $blog ) ) {
+				$error[] = 'blog creation: '. $blog->get_error_message();
+			}
+			$updated = get_option( 'page_for_posts' ) != $blog ? update_option( 'page_for_posts', $blog ) : true;
+			if ( ! $updated ) {
+				$error[] = 'blog set';
+			}
+		}
+
+		return $updated
+			? ''
+			: join( ', ', $error );
 	}
 
 	/**

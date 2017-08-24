@@ -1725,8 +1725,20 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 			'onboarding' => array(
 				'description'       => '',
-				'type'              => 'array',
-				'default'           => '',
+				'type'              => 'object',
+				'default'           => array(
+					'siteTitle'        => '',
+					'siteDescription'  => '',
+					'genre'            => 'blog',
+					'businessPersonal' => '',
+					'businessName'     => '',
+					'businessAddress'  => '',
+					'businessCity'     => '',
+					'businessState'    => '',
+					'businessZipCode'  => '',
+					'homepageFormat'   => 'news',
+					'addContactForm'   => false
+				),
 				'validate_callback' => __CLASS__ . '::validate_onboarding',
 				'jp_group'          => 'settings',
 			),
@@ -1780,15 +1792,25 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @since 5.3.0
 	 *
-	 * @param array $value Value to check.
-	 * @param WP_REST_Request $request The request sent to the WP REST API.
-	 * @param string $param Name of the parameter passed to endpoint holding $value.
+	 * @param array           $onboarding_data Values to check.
+	 * @param WP_REST_Request $request         The request sent to the WP REST API.
+	 * @param string          $param           Name of the parameter passed to endpoint holding $value.
 	 *
 	 * @return bool|WP_Error
 	 */
-	public static function validate_onboarding( $value, $request, $param ) {
-		if ( ! is_array( $value ) ) {
+	public static function validate_onboarding( $onboarding_data, $request, $param ) {
+		if ( ! is_array( $onboarding_data ) ) {
 			return new WP_Error( 'invalid_param', esc_html__( 'Not valid onboarding data.', 'jetpack' ) );
+		}
+		foreach ( $onboarding_data as $key => $value ) {
+			if ( is_string( $value ) ) {
+				$onboarding_choice = self::validate_string( $value, $request, $param );
+			} else {
+				$onboarding_choice = self::validate_boolean( $value, $request, $param );
+			}
+			if ( is_wp_error( $onboarding_choice ) ) {
+				return $onboarding_choice;
+			}
 		}
 		return true;
 	}
@@ -1802,7 +1824,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
 	 * @param string $param Name of the parameter passed to endpoint holding $value.
 	 *
-	 * @return bool
+	 * @return bool|WP_Error
 	 */
 	public static function validate_boolean( $value, $request, $param ) {
 		if ( ! is_bool( $value ) && ! ( ( ctype_digit( $value ) || is_numeric( $value ) ) && in_array( $value, array( 0, 1 ) ) ) ) {
@@ -1820,7 +1842,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
 	 * @param string $param Name of the parameter passed to endpoint holding $value.
 	 *
-	 * @return bool
+	 * @return bool|WP_Error
 	 */
 	public static function validate_posint( $value = 0, $request, $param ) {
 		if ( ! is_numeric( $value ) || $value <= 0 ) {
@@ -1838,7 +1860,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
 	 * @param string $param Name of the parameter passed to endpoint holding $value.
 	 *
-	 * @return bool
+	 * @return bool|WP_Error
 	 */
 	public static function validate_list_item( $value = '', $request, $param ) {
 		$attributes = $request->get_attributes();
@@ -1869,7 +1891,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
 	 * @param string $param Name of the parameter passed to endpoint holding $value.
 	 *
-	 * @return bool
+	 * @return bool|WP_Error
 	 */
 	public static function validate_module_list( $value = '', $request, $param ) {
 		if ( ! is_array( $value ) ) {
@@ -1894,7 +1916,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
 	 * @param string $param Name of the parameter passed to endpoint holding $value.
 	 *
-	 * @return bool
+	 * @return bool|WP_Error
 	 */
 	public static function validate_alphanum( $value = '', $request, $param ) {
 		if ( ! empty( $value ) && ( ! is_string( $value ) || ! preg_match( '/^[a-z0-9]+$/i', $value ) ) ) {
@@ -1912,7 +1934,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @param WP_REST_Request $request
 	 * @param string $param Name of the parameter passed to endpoint holding $value.
 	 *
-	 * @return bool
+	 * @return bool|WP_Error
 	 */
 	public static function validate_verification_service( $value = '', $request, $param ) {
 		if ( ! empty( $value ) && ! ( is_string( $value ) && ( preg_match( '/^[a-z0-9_-]+$/i', $value ) || preg_match( '#^<meta name="([a-z0-9_\-.:]+)?" content="([a-z0-9_-]+)?" />$#i', $value ) ) ) ) {
@@ -1930,7 +1952,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
 	 * @param string $param Name of the parameter passed to endpoint holding $value.
 	 *
-	 * @return bool
+	 * @return bool|WP_Error
 	 */
 	public static function validate_stats_roles( $value, $request, $param ) {
 		if ( ! empty( $value ) && ! array_intersect( self::$stats_roles, $value ) ) {
@@ -1951,7 +1973,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
 	 * @param string $param Name of the parameter passed to endpoint holding $value.
 	 *
-	 * @return bool
+	 * @return bool|WP_Error
 	 */
 	public static function validate_sharing_show( $value, $request, $param ) {
 		$views = array( 'index', 'post', 'page', 'attachment', 'jetpack-portfolio' );
@@ -1981,7 +2003,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
 	 * @param string $param Name of the parameter passed to endpoint holding $value.
 	 *
-	 * @return bool
+	 * @return bool|WP_Error
 	 */
 	public static function validate_services( $value, $request, $param ) {
 		if ( ! is_array( $value ) || ! isset( $value['visible'] ) || ! isset( $value['hidden'] ) ) {
@@ -2021,7 +2043,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
 	 * @param string $param Name of the parameter passed to endpoint holding $value.
 	 *
-	 * @return bool
+	 * @return bool|WP_Error
 	 */
 	public static function validate_custom_service( $value, $request, $param ) {
 		if ( ! is_array( $value ) || ! isset( $value['sharing_name'] ) || ! isset( $value['sharing_url'] ) || ! isset( $value['sharing_icon'] ) ) {
@@ -2054,7 +2076,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
 	 * @param string $param Name of the parameter passed to endpoint holding $value.
 	 *
-	 * @return bool
+	 * @return bool|WP_Error
 	 */
 	public static function validate_custom_service_id( $value = '', $request, $param ) {
 		if ( ! empty( $value ) && ( ! is_string( $value ) || ! preg_match( '/custom\-[0-1]+/i', $value ) ) ) {
@@ -2083,7 +2105,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @param WP_REST_Request $request
 	 * @param string $param Name of the parameter passed to endpoint holding $value.
 	 *
-	 * @return bool
+	 * @return bool|WP_Error
 	 */
 	public static function validate_twitter_username( $value = '', $request, $param ) {
 		if ( ! empty( $value ) && ( ! is_string( $value ) || ! preg_match( '/^@?\w{1,15}$/i', $value ) ) ) {
@@ -2101,7 +2123,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
 	 * @param string $param Name of the parameter passed to endpoint holding $value.
 	 *
-	 * @return bool
+	 * @return bool|WP_Error
 	 */
 	public static function validate_string( $value = '', $request, $param ) {
 		if ( ! is_string( $value ) ) {
@@ -2118,7 +2140,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @param string|bool $value Value to check.
 	 *
-	 * @return bool
+	 * @return bool|array
 	 */
 	public static function sanitize_stats_allowed_roles( $value ) {
 		if ( empty( $value ) ) {
@@ -2134,7 +2156,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @param string $route Regular expression for the endpoint with the module slug to return.
 	 *
-	 * @return array
+	 * @return array|string
 	 */
 	public static function get_module_requested( $route = '/module/(?P<slug>[a-z\-]+)' ) {
 
@@ -2156,10 +2178,10 @@ class Jetpack_Core_Json_Api_Endpoints {
 	 *
 	 * @since 4.3.0
 	 *
-	 * @param string      $modules Can be a single module or a list of modules.
-	 * @param null|string $slug    Slug of the module in the first parameter.
+	 * @param string|array $modules Can be a single module or a list of modules.
+	 * @param null|string  $slug    Slug of the module in the first parameter.
 	 *
-	 * @return array
+	 * @return array|string
 	 */
 	public static function prepare_modules_for_response( $modules = '', $slug = null ) {
 		global $wp_rewrite;
