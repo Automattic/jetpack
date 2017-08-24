@@ -278,7 +278,7 @@ class Jetpack_Connection_Banner {
 						<h2><?php esc_html_e( 'Detailed stats and traffic tools to help your site grow', 'jetpack' ) ?></h2>
 
 						<div class="jp-wpcom-connect__content-icon jp-connect-illo">
-							<img src="<?php echo plugins_url( 'jetpack/images/stats-people.svg', dirname( __FILE__ ) ); ?>" alt="Get clear and concise stats and analytics about your visitors." height="auto" width="265" />
+							<img src="<?php echo plugins_url( 'jetpack/images/stats-people.svg', dirname( __FILE__ ) ); ?>" alt="Get clear and concise stats and analytics about your visitors." height="auto" width="225" />
 						</div>
 
 						<p>
