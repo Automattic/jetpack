@@ -73,8 +73,8 @@ class Jetpack_Connection_Banner {
 	 * a URL for, this function returns a connection URL with a from parameter that will
 	 * support split testing.
 	 *
-	 * @param string $jp_version_banner_added A short version of when the banner was added. Ex. 44
-	 * @param int    $slide_num               The index of the slide, 1-indexed. 
+	 * @param string     $jp_version_banner_added A short version of when the banner was added. Ex. 44
+	 * @param string|int $slide_num               The index of the slide, 1-indexed. 
 	 * @return string
 	 */
 	function build_connect_url_for_slide( $jp_version_banner_added, $slide_num ) {
@@ -402,7 +402,7 @@ class Jetpack_Connection_Banner {
 
 						<p class="jp-banner__button-container">
 							<a
-								href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, 'banner-44-slide-3a' ) ); ?>"
+								href="<?php echo esc_url( $this->build_connect_url_for_slide( '44', '3a' ) ); ?>"
 								class="dops-button is-primary">
 								<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
 							</a>
