@@ -223,7 +223,11 @@ class Jetpack_Connection_Banner {
 						<h2><?php esc_html_e( 'Jetpack simplifies site security, customization, and management.', 'jetpack' ) ?></h2>
 
 						<div class="jp-wpcom-connect__content-icon jp-connect-illo">
-							<img src="<?php echo plugins_url( 'jetpack/images/jetpack-welcome.svg', dirname( __FILE__ ) ); ?>" alt="Jetpack is a free plugin that utilizes powerful WordPress.com servers to enhance your site and simplify managing it." height="auto" width="250" />
+							<img src="<?php echo plugins_url( 'jetpack/images/jetpack-welcome.svg', dirname( __FILE__ ) ); ?>" alt="<?php 
+									esc_attr_e( 
+										'Jetpack is a free plugin that utilizes powerful WordPress.com servers to enhance your site and simplify managing it', 
+									'jetpack' 
+								); ?>" height="auto" width="250" />
 						</div>
 
 						<p>
@@ -278,7 +282,11 @@ class Jetpack_Connection_Banner {
 						<h2><?php esc_html_e( 'Detailed stats and traffic tools to help your site grow', 'jetpack' ) ?></h2>
 
 						<div class="jp-wpcom-connect__content-icon jp-connect-illo">
-							<img src="<?php echo plugins_url( 'jetpack/images/stats-people.svg', dirname( __FILE__ ) ); ?>" alt="Get clear and concise stats and analytics about your visitors." height="auto" width="225" />
+							<img src="<?php echo plugins_url( 'jetpack/images/stats-people.svg', dirname( __FILE__ ) ); ?>" alt="<?php 
+								esc_attr_e( 
+									'Get clear and concise stats and analytics about your visitors',
+								 'jetpack' 
+								); ?>" height="auto" width="225" />
 						</div>
 
 						<p>
@@ -323,7 +331,11 @@ class Jetpack_Connection_Banner {
 						<h2><?php esc_html_e( 'Multiple security tools to give you peace of mind', 'jetpack' ) ?></h2>
 
 						<div class="jp-wpcom-connect__content-icon jp-connect-illo">
-							<img src="<?php echo plugins_url( 'jetpack/images/security.svg', dirname( __FILE__ ) ); ?>" alt="Your site is automatically protected from brute force attacks, plus you can use single sign-on for extra security." height="auto" width="250" />
+							<img src="<?php echo plugins_url( 'jetpack/images/security.svg', dirname( __FILE__ ) ); ?>" alt="<?php 
+									esc_attr_e( 
+										'Your site is automatically protected from brute force attacks, plus you can use single sign-on for extra security', 
+									'jetpack' 
+								); ?>" height="auto" width="250" />
 						</div>
 
 						<p>
@@ -370,7 +382,11 @@ class Jetpack_Connection_Banner {
 						<h2><?php esc_html_e( 'Hundreds of beautiful themes to choose from', 'jetpack' ) ?></h2>
 
 						<div class="jp-wpcom-connect__content-icon jp-connect-illo">
-							<img src="<?php echo plugins_url( 'jetpack/images/customize-theme.svg', dirname( __FILE__ ) ); ?>" alt="Choosing a design for your site is essential. It defines your brand, your layout, and your visitors’ reading experience." height="auto" width="250" />
+							<img src="<?php echo plugins_url( 'jetpack/images/customize-theme.svg', dirname( __FILE__ ) ); ?>" alt="<?php 
+									esc_attr_e( 
+										'Choosing a design for your site is essential. It defines your brand, your layout, and your visitors’ reading experience', 
+									'jetpack' 
+								); ?>" height="auto" width="250" />
 						</div>
 
 						<p>
@@ -418,7 +434,11 @@ class Jetpack_Connection_Banner {
 						<h2><?php esc_html_e( 'Faster site speeds through the WordPress.com CDN', 'jetpack' ) ?></h2>
 
 						<div class="jp-wpcom-connect__content-icon jp-connect-illo">
-							<img src="<?php echo plugins_url( 'jetpack/images/cloud-based.svg', dirname( __FILE__ ) ); ?>" alt="Jetpack automatically optimizes and speeds up images using the global WordPress.com Content Delivery Network (CDN)." height="auto" width="225" />
+							<img src="<?php echo plugins_url( 'jetpack/images/cloud-based.svg', dirname( __FILE__ ) ); ?>" alt="<?php 
+									esc_attr_e( 
+										'Jetpack automatically optimizes and speeds up images using the global WordPress.com Content Delivery Network (CDN)', 
+									'jetpack' 
+								); ?>" height="auto" width="225" />
 						</div>
 
 						<p>
@@ -454,7 +474,11 @@ class Jetpack_Connection_Banner {
 						<h2><?php esc_html_e( 'Free WordPress apps to manage your site(s) from any device', 'jetpack' ) ?></h2>
 
 						<div class="jp-wpcom-connect__content-icon jp-connect-illo">
-							<img src="<?php echo plugins_url( 'jetpack/images/apps.svg', dirname( __FILE__ ) ); ?>" alt="Our mobile and desktop apps are free and available to you on Apple or Android devices once Jetpack is connected to WordPress.com." height="auto" width="225" />
+							<img src="<?php echo plugins_url( 'jetpack/images/apps.svg', dirname( __FILE__ ) ); ?>" alt="<?php 
+									esc_attr_e( 
+										'Our mobile and desktop apps are free and available to you on Apple or Android devices once Jetpack is connected to WordPress.com', 
+									'jetpack' 
+								); ?>" height="auto" width="225" />
 						</div>
 
 						<p>
@@ -490,7 +514,11 @@ class Jetpack_Connection_Banner {
 						<h2><?php esc_html_e( 'More Jetpack features our users love', 'jetpack' ) ?></h2>
 
 						<div class="jp-wpcom-connect__content-icon jp-connect-illo">
-							<img src="<?php echo plugins_url( 'jetpack/images/customize-theme-2.svg', dirname( __FILE__ ) ); ?>" alt="Jetpack includes other features that help you customize your site" height="auto" width="250" />
+							<img src="<?php echo plugins_url( 'jetpack/images/customize-theme-2.svg', dirname( __FILE__ ) ); ?>" alt="<?php 
+									esc_attr_e( 
+										'Jetpack includes other features that help you customize your site', 
+									'jetpack' 
+								); ?>" height="auto" width="225" />
 						</div>
 
 						<p>
