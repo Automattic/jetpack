@@ -935,68 +935,87 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 	 * @return string Result of onboarding processing and, if there is one, an error message.
 	 */
 	private function _process_onboarding( $data ) {
-		$updated = false;
 		$error = array();
 
 		if ( ! empty( $data['siteTitle'] ) ) {
 			// If option value was the same, consider it done.
-			$updated = get_option( 'blogname' ) != $data['siteTitle'] ? update_option( 'blogname', $data['siteTitle'] ) : true;
-			if ( ! $updated ) {
+			if ( ! ( update_option( 'blogname', $data['siteTitle'] ) || get_option( 'blogname' ) == $data['siteTitle'] ) ) {
 				$error[] = 'siteTitle';
 			}
 		}
 
 		if ( ! empty( $data['siteDescription'] ) ) {
 			// If option value was the same, consider it done.
-			$updated = get_option( 'blogdescription' ) != $data['siteDescription'] ? update_option( 'blogdescription', $data['siteDescription'] ) : true;
-			if ( ! $updated ) {
+			if ( ! ( update_option( 'blogdescription', $data['siteDescription'] ) || get_option( 'blogdescription' ) == $data['siteDescription'] ) ) {
 				$error[] = 'siteDescription';
 			}
 		}
 
+		$site_title = get_option( 'blogname' );
+		$author = get_current_user_id() || 1;
+
 		// If $data['homepageFormat'] is 'posts', we have nothing to do since it's WordPress' default
 		if ( 'page' === $data['homepageFormat'] ) {
+			if ( ! ( update_option( 'show_on_front', 'page' ) || get_option( 'show_on_front' ) == 'page' ) ) {
+				$error[] = 'homepageFormat';
+			}
+
 			$home = wp_insert_post( array(
 				'post_type'     => 'page',
 				/* translators: this references the home page of a site, also called front page. */
 				'post_title'    => esc_html_x( 'Home Page', 'The home page of a website.', 'jetpack' ),
-				'post_content'  => esc_html__( 'This is the content for your front page. Edit it as you like!', 'jetpack' ),
+				'post_content'  => sprintf( esc_html__( 'Welcome to %s.', 'jetpack' ), $site_title ),
 				'post_status'   => 'publish',
-				'post_author'   => get_current_user_id() || 1,
+				'post_author'   => $author,
 			) );
 			if ( 0 == $home ) {
 				$error[] = 'home insert: 0';
 			} elseif ( is_wp_error( $home ) ) {
 				$error[] = 'home creation: '. $home->get_error_message();
 			}
-			$updated = get_option( 'show_on_front' ) != 'page' ? update_option( 'show_on_front', 'page' ) : true;
-			if ( ! $updated ) {
-				$error[] = 'homepageFormat';
-			}
-			$updated = get_option( 'page_on_front' ) != $home ? update_option( 'page_on_front', $home ) : true;
-			if ( ! $updated ) {
+			if ( ! ( update_option( 'page_on_front', $home ) || get_option( 'page_on_front' ) == $home ) ) {
 				$error[] = 'home set';
 			}
+
 			$blog = wp_insert_post( array(
 				'post_type'     => 'page',
-				/* translators: this references the home page of a site, also called front page. */
+				/* translators: this references the page where blog posts are listed. */
 				'post_title'    => esc_html_x( 'Blog', 'The blog of a website.', 'jetpack' ),
-				'post_content'  => esc_html__( 'This is the content for your blog posts page. Edit it as you like!', 'jetpack' ),
+				'post_content'  => sprintf( esc_html__( 'These are the latest posts in %s.', 'jetpack' ), $site_title ),
 				'post_status'   => 'publish',
-				'post_author'   => get_current_user_id() || 1,
+				'post_author'   => $author,
 			) );
 			if ( 0 == $blog ) {
 				$error[] = 'blog insert: 0';
 			} elseif ( is_wp_error( $blog ) ) {
 				$error[] = 'blog creation: '. $blog->get_error_message();
 			}
-			$updated = get_option( 'page_for_posts' ) != $blog ? update_option( 'page_for_posts', $blog ) : true;
-			if ( ! $updated ) {
+			if ( ! ( update_option( 'page_for_posts', $blog ) || get_option( 'page_for_posts' ) == $blog ) ) {
 				$error[] = 'blog set';
 			}
 		}
 
-		return $updated
+		if ( $data['addContactForm'] ) {
+			if ( ! Jetpack::is_module_active( 'contact-form' ) && ! Jetpack::activate_module( 'contact-form', false, false ) ) {
+				$error[] = 'contact-form activate';
+			} else {
+				$form = wp_insert_post( array(
+					'post_type'     => 'page',
+					/* translators: this references a page with contact details and possibly a form. */
+					'post_title'    => esc_html_x( 'Contact us', 'Contact page for your website.', 'jetpack' ),
+					'post_content'  => esc_html__( 'Send us a message!', 'jetpack' ) . "\n" . '[contact-form][contact-field label="Name" type="name" required="true" /][contact-field label="Email" type="email" required="true" /][contact-field label="Website" type="url" /][contact-field label="Message" type="textarea" /][/contact-form]',
+					'post_status'   => 'publish',
+					'post_author'   => $author,
+				) );
+				if ( 0 == $form ) {
+					$error[] = 'form insert: 0';
+				} elseif ( is_wp_error( $form ) ) {
+					$error[] = 'form creation: '. $form->get_error_message();
+				}
+			}
+		}
+
+		return empty( $error )
 			? ''
 			: join( ', ', $error );
 	}
