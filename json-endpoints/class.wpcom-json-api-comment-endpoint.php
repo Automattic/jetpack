@@ -127,7 +127,7 @@ abstract class WPCOM_JSON_API_Comment_Endpoint extends WPCOM_JSON_API_Endpoint {
 				);
 				break;
 			case 'author' :
-				$response[$key] = (object) $this->get_author( $comment, in_array( $context, array( 'edit', 'display' ) ) && current_user_can( 'edit_comment', $comment->comment_ID ) );
+				$response[$key] = (object) $this->get_author( $comment, current_user_can( 'edit_comment', $comment->comment_ID ) );
 				break;
 			case 'date' :
 				$response[$key] = (string) $this->format_date( $comment->comment_date_gmt, $comment->comment_date );
