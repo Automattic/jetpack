@@ -13,6 +13,8 @@ class JetpackTracking {
 			return;
 		}
 
+		jetpack_tracks_get_identity( get_current_user_id() );
+
 		// For tracking stuff via js/ajax
 		add_action( 'admin_enqueue_scripts',         array( __CLASS__, 'enqueue_tracks_scripts' ) );
 
