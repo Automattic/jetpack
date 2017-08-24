@@ -2,12 +2,13 @@
 /**
  * Module Name: Likes
  * Module Description: Give visitors an easy way to show they appreciate your content.
+ * Jumpstart Description: Give visitors an easy way to show they appreciate your content.
  * First Introduced: 2.2
  * Sort Order: 23
  * Requires Connection: Yes
  * Auto Activate: No
  * Module Tags: Social
- * Feature: Engagement
+ * Feature: Engagement, Jumpstart
  * Additional Search Queries: like, likes, wordpress.com
  */
 

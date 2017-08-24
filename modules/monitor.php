@@ -2,13 +2,14 @@
 /**
  * Module Name: Monitor
  * Module Description: Receive immediate notifications if your site goes down, 24/7.
+ * Jumpstart Description: Receive immediate notifications if your site goes down, 24/7.
  * Sort Order: 28
  * Recommendation Order: 10
  * First Introduced: 2.6
  * Requires Connection: Yes
  * Auto Activate: No
  * Module Tags: Recommended
- * Feature: Security
+ * Feature: Security, Jumpstart
  * Additional Search Queries: monitor, uptime, downtime, monitoring
  */
 
