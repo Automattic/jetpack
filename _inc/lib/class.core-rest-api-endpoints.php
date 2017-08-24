@@ -1730,12 +1730,14 @@ class Jetpack_Core_Json_Api_Endpoints {
 					'siteTitle'        => '',
 					'siteDescription'  => '',
 					'genre'            => 'blog',
-					'businessPersonal' => '',
-					'businessName'     => '',
-					'businessAddress'  => '',
-					'businessCity'     => '',
-					'businessState'    => '',
-					'businessZipCode'  => '',
+					'businessPersonal' => 'personal',
+					'businessInfo'     => array(
+						'businessName'     => '',
+						'businessAddress'  => '',
+						'businessCity'     => '',
+						'businessState'    => '',
+						'businessZipCode'  => '',
+					),
 					'homepageFormat'   => 'news',
 					'addContactForm'   => false
 				),
@@ -1802,9 +1804,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 		if ( ! is_array( $onboarding_data ) ) {
 			return new WP_Error( 'invalid_param', esc_html__( 'Not valid onboarding data.', 'jetpack' ) );
 		}
-		foreach ( $onboarding_data as $key => $value ) {
+		foreach ( $onboarding_data as $value ) {
 			if ( is_string( $value ) ) {
 				$onboarding_choice = self::validate_string( $value, $request, $param );
+			} elseif ( is_array( $value ) ) {
+				$onboarding_choice = self::validate_onboarding( $value, $request, $param );
 			} else {
 				$onboarding_choice = self::validate_boolean( $value, $request, $param );
 			}

@@ -864,7 +864,6 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					break;
 
 				case 'onboarding':
-					error_log( print_r( $value ) );
 					// Break apart and set Jetpack onboarding options.
 					$result = $this->_process_onboarding( (array) $value );
 					if ( empty( $result ) ) {
@@ -995,23 +994,34 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			}
 		}
 
+		// Setup contact page and add a form and/or business info
+		$contact_page = '';
+
 		if ( $data['addContactForm'] ) {
-			if ( ! Jetpack::is_module_active( 'contact-form' ) && ! Jetpack::activate_module( 'contact-form', false, false ) ) {
-				$error[] = 'contact-form activate';
+			if ( Jetpack::is_module_active( 'contact-form' ) ) {
+				$contact_page = '[contact-form][contact-field label="' . esc_html__( 'Name', 'jetpack' ) . '" type="name" required="true" /][contact-field label="' . esc_html__( 'Email', 'jetpack' ) . '" type="email" required="true" /][contact-field label="' . esc_html__( 'Website', 'jetpack' ) . '" type="url" /][contact-field label="' . esc_html__( 'Message', 'jetpack' ) . '" type="textarea" /][/contact-form]';
 			} else {
-				$form = wp_insert_post( array(
-					'post_type'     => 'page',
-					/* translators: this references a page with contact details and possibly a form. */
-					'post_title'    => esc_html_x( 'Contact us', 'Contact page for your website.', 'jetpack' ),
-					'post_content'  => esc_html__( 'Send us a message!', 'jetpack' ) . "\n" . '[contact-form][contact-field label="Name" type="name" required="true" /][contact-field label="Email" type="email" required="true" /][contact-field label="Website" type="url" /][contact-field label="Message" type="textarea" /][/contact-form]',
-					'post_status'   => 'publish',
-					'post_author'   => $author,
-				) );
-				if ( 0 == $form ) {
-					$error[] = 'form insert: 0';
-				} elseif ( is_wp_error( $form ) ) {
-					$error[] = 'form creation: '. $form->get_error_message();
-				}
+				$error[] = 'contact-form activate';
+			}
+		}
+
+		if ( 'business' === $data['businessPersonal'] ) {
+			$contact_page .= "\n" . join( "\n", $data['businessInfo'] );
+		}
+
+		if ( ! empty( $contact_page ) ) {
+			$form = wp_insert_post( array(
+				'post_type'     => 'page',
+				/* translators: this references a page with contact details and possibly a form. */
+				'post_title'    => esc_html_x( 'Contact us', 'Contact page for your website.', 'jetpack' ),
+				'post_content'  => esc_html__( 'Send us a message!', 'jetpack' ) . "\n" . $contact_page,
+				'post_status'   => 'publish',
+				'post_author'   => $author,
+			) );
+			if ( 0 == $form ) {
+				$error[] = 'form insert: 0';
+			} elseif ( is_wp_error( $form ) ) {
+				$error[] = 'form creation: '. $form->get_error_message();
 			}
 		}
 
