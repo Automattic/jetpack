@@ -7,13 +7,12 @@ const AdminNotices = React.createClass( {
 	componentDidMount() {
 		const $adminNotices = jQuery( this.refs.adminNotices );
 
-		const $vpNotice = jQuery( '.vp-notice' ),
-			$success = jQuery( '#vp-notice' ).hasClass( 'vp-registered' );
-
-		const $warningOrSuccess = $success ? 'is-success' : 'is-warning';
+		const $vpNotice = jQuery( '.vp-notice' );
 
 		if ( $vpNotice.length > 0 ) {
 			$vpNotice.each( function() {
+				const $success = jQuery( this ).hasClass( 'vp-registered' );
+				const $warningOrSuccess = $success ? 'is-success' : 'is-warning';
 				const $notice = jQuery( this ).addClass( 'dops-notice vp-notice-jp ' + $warningOrSuccess ).removeClass( 'wrap vp-notice' );
 				const icon = $success
 					? '<svg class="gridicon gridicons-notice dops-notice__icon" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M9 19.414l-6.707-6.707 1.414-1.414L9 16.586 20.293 5.293l1.414 1.414"/></g></svg>'
