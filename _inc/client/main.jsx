@@ -141,7 +141,8 @@ const Main = React.createClass( {
 			window.location.hash = 'jumpstart';
 			history.push( window.location.pathname + '?page=jetpack#/jumpstart' );
 		}
-		if ( ! this.props.jumpStartStatus && ! willShowJumpStart && ! willBeJumpstarting ) {
+		if ( this.props.jumpStartStatus && ! willShowJumpStart && ! willBeJumpstarting ) {
+			window.location.hash = 'dashboard';
 			history.push( window.location.pathname + '?page=jetpack#/dashboard' );
 		}
 	},
