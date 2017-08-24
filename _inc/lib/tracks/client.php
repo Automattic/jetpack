@@ -86,6 +86,10 @@ function jetpack_tracks_get_identity( $user_id ) {
 		);
 	}
 
+	if ( 0 === $user_id ) {
+		return array();
+	}
+
 	// User isn't linked at all.  Fall back to anonymous ID.
 	$anon_id = get_user_meta( $user_id, 'jetpack_tracks_anon_id', true );
 	if ( ! $anon_id || isset($_COOKIE['tk_ai']) && $anon_id !== $_COOKIE['tk_ai'] ) {
