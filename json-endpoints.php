@@ -1934,8 +1934,11 @@ new WPCOM_JSON_API_Update_Comment_Endpoint( array(
 	),
 
 	'request_format' => array(
-		'date'    => "(ISO 8601 datetime) The comment's creation time.",
-		'content' => '(HTML) The comment text.',
+		'author'       => "(string) The comment author's name.",
+		'author_email' => "(string) The comment author's email.",
+		'author_url'   => "(string) The comment author's URL.",
+		'content'      => '(HTML) The comment text.',
+		'date'         => "(ISO 8601 datetime) The comment's creation time.",
 		'status'  => array(
 			'approved'   => 'Approve the comment.',
 			'unapproved' => 'Remove the comment from public view and send it to the moderation queue.',
