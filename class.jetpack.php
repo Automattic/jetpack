@@ -4229,7 +4229,7 @@ p {
 				$redirect = Jetpack_Network::init()->get_url( 'network_admin_page' );
 			}
 
-			$secrets = Jetpack::generate_secrets( 'authorize' );
+			$secrets = Jetpack::generate_secrets( 'authorize', false, 2 * HOUR_IN_SECONDS );
 
 			$site_icon = ( function_exists( 'has_site_icon') && has_site_icon() )
 				? get_site_icon_url()
