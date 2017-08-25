@@ -129,6 +129,7 @@ class Jetpack_Connection_Banner {
 		// Only fires immediately after plugin activation
 		if ( get_transient( 'activated_jetpack' ) ) {
 			add_action( 'admin_notices', array( $this, 'render_connect_prompt_full_screen' ) );
+			JetpackTracking::record_user_event( 'jpc_prompt_full_screen' );
 			delete_transient( 'activated_jetpack' );
 		}
 	}
