@@ -3346,7 +3346,11 @@ function clear_post_supercache( $post_id ) {
 		include_once( 'wp-cache-phase2.php' );
 
 	wp_cache_debug( "clear_post_supercache: deleting files in $dir", 2 );
-	prune_super_cache( $dir, true );
+	if ( get_post_type( $post_id ) != 'page' ) { // don't delete child pages if they exist
+		prune_super_cache( $dir, true );
+	} else {
+		wpsc_delete_files( $dir );
+	}
 }
 
 function wp_cron_preload_cache() {
