@@ -63,7 +63,7 @@ class WPCOM_JSON_API_Site_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 	/**
 	 * Updates user data
 	 *
-	 * @return (array)
+	 * @return array
 	 */
 	public function update_user( $user_id, $blog_id ) {
 		$input = $this->input();

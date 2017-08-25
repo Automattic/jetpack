@@ -156,7 +156,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 	/**
 	 * Collects the necessary information to return for a site's response.
 	 *
-	 * @return (array)
+	 * @return array
 	 */
 	public function build_current_site_response() {
 
