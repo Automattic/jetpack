@@ -470,8 +470,10 @@ class Jetpack {
 		/*
 		 * Enable enhanced handling of previewing sites in Calypso
 		 */
-		require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-iframe-embed.php';
-		add_action( 'init', array( 'Jetpack_Iframe_Embed', 'init' ), 9, 0 );
+		if ( Jetpack::is_active() ) {
+			require_once JETPACK__PLUGIN_DIR . '_inc/lib/class.jetpack-iframe-embed.php';
+			add_action( 'init', array( 'Jetpack_Iframe_Embed', 'init' ), 9, 0 );
+		}
 
 		/*
 		 * Load things that should only be in Network Admin.
