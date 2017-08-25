@@ -120,6 +120,29 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Update the "Unlinked User" notice to a banner, and improve verbiage #7604
 * Widgets: if widget_media_image exists, flag migration as done #7605
 * Fixed issue with non XHTML compliant <link> tags for dns-prefetch #7607
+* Comments: Add checks on the `moderate_comments` capabilities #7619
+* XHTML compliance #7607
+* Jetpack Sync: Update user sync for activity log #7591
+* Comments management: add Comments tree endpoint from WP.com #7640
+* Simple payments: load CSS on demand #7626
+* Add connection banner to Dashboard #7603
+* Remove omnisearch #7590
+* EU Cookie Law Widget: Remove unnecessary widget border #7668
+* Comments: Force https on Facebook/Twitter avatars #7547
+* adding back the tax filter for the widget visibility module #7628
+* VideoPress: Only loop if specifically indicated #7670
+* Add empty stats view for new users #7646
+* New connection banner for testing #7622
+* General: Update module headings file #7676
+* SSO: Allow redirecting to JETPACK__API_BASE in production #7681
+* Comments: adds a raw content response to the sites comment endpoint. #7674
+* Comments: adds author email and IP Address to the site's comments endpoint #7673
+* CLI: Add command to test Jetpack connection #7636
+* Fix VaultPress success notice design #7688
+* Connection Banner: Adding themes slide and enhancing visuals #7648
+* Allow 2 hours for authorize secrets rather than 10 minutes #7684
+* Add JetpackIframeEmbed lib #7623
+
 
 = 5.2.1 =
 
