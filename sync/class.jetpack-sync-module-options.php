@@ -1,6 +1,8 @@
 <?php
 
 class Jetpack_Sync_Module_Options extends Jetpack_Sync_Module {
+	const OPTIONS_CHECKSUM_OPTION_NAME = 'jetpack_options_sync_checksum';
+	const OPTIONS_AWAIT_TRANSIENT_NAME = 'jetpack_sync_options_await';
 	private $options_whitelist;
 
 	public function name() {
@@ -12,6 +14,7 @@ class Jetpack_Sync_Module_Options extends Jetpack_Sync_Module {
 		add_action( 'added_option', $callable, 10, 2 );
 		add_action( 'updated_option', $callable, 10, 3 );
 		add_action( 'deleted_option', $callable, 10, 1 );
+		add_action( 'jetpack_sync_option', $callable, 10, 2 );
 
 		// Sync Core Icon: Detect changes in Core's Site Icon and make it syncable.
 		add_action( 'add_option_site_icon', array( $this, 'jetpack_sync_core_icon' ) );
@@ -22,6 +25,42 @@ class Jetpack_Sync_Module_Options extends Jetpack_Sync_Module {
 		add_filter( 'jetpack_sync_before_enqueue_deleted_option', $whitelist_option_handler );
 		add_filter( 'jetpack_sync_before_enqueue_added_option', $whitelist_option_handler );
 		add_filter( 'jetpack_sync_before_enqueue_updated_option', $whitelist_option_handler );
+
+	}
+
+	function maybe_sync_options() {
+		if ( get_transient( self::OPTIONS_AWAIT_TRANSIENT_NAME ) ) {
+			return;
+		}
+
+		set_transient( self::OPTIONS_AWAIT_TRANSIENT_NAME, microtime( true ), Jetpack_Sync_Defaults::$default_sync_options_wait_time );
+
+		$options = $this->get_all_options();
+		if ( empty( $options ) ) {
+			return;
+		}
+
+		$options_checksums = (array) get_option( self::OPTIONS_CHECKSUM_OPTION_NAME, array() );
+
+		foreach ( $options as $name => $value ) {
+			$checksum = $this->get_check_sum( $value );
+			// explicitly not using Identical comparison as get_option returns a string
+			if ( ! $this->still_valid_checksum( $options_checksums, $name, $checksum ) && ! is_null( $value ) ) {
+				/**
+				 * Tells the client to sync an option to the server
+				 *
+				 * @since 5.2.0
+				 *
+				 * @param string The name of the constant
+				 * @param mixed The value of the constant
+				 */
+				do_action( 'jetpack_sync_option', $name, $value );
+				$options_checksums[ $name ] = $checksum;
+			} else {
+				$options_checksums[ $name ] = $checksum;
+			}
+		}
+		update_option( self::OPTIONS_CHECKSUM_OPTION_NAME, $options_checksums );
 	}
 
 	public function init_full_sync_listeners( $callable ) {
@@ -31,6 +70,8 @@ class Jetpack_Sync_Module_Options extends Jetpack_Sync_Module {
 	public function init_before_send() {
 		// full sync
 		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_options', array( $this, 'expand_options' ) );
+
+		add_action( 'jetpack_sync_before_send_queue_sync', array( $this, 'maybe_sync_options' ) );
 	}
 
 	public function set_defaults() {

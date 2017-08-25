@@ -65,7 +65,8 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 
 	protected function resetCallableAndConstantTimeouts() {
 		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
-		delete_transient( Jetpack_Sync_Module_Constants::CONSTANTS_AWAIT_TRANSIENT_NAME );	
+		delete_transient( Jetpack_Sync_Module_Constants::CONSTANTS_AWAIT_TRANSIENT_NAME );
+		delete_transient( Jetpack_Sync_Module_Options::OPTIONS_AWAIT_TRANSIENT_NAME );
 	}
 
 	public function test_pass() {

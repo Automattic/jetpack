@@ -68,6 +68,7 @@ class Jetpack_Sync_Server_Replicator {
 				break;
 
 			// options
+			case 'jetpack_sync_option':
 			case 'added_option':
 				list( $option, $value ) = $args;
 				$this->store->update_option( $option, $value );

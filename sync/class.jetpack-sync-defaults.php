@@ -395,6 +395,7 @@ class Jetpack_Sync_Defaults {
 	static $default_max_queue_size_full_sync = 1000; // max number of total items in the full sync queue
 	static $default_sync_callables_wait_time = MINUTE_IN_SECONDS; // seconds before sending callables again
 	static $default_sync_constants_wait_time = HOUR_IN_SECONDS; // seconds before sending constants again
+	static $default_sync_options_wait_time = DAY_IN_SECONDS;
 	static $default_sync_queue_lock_timeout = 120; // 2 minutes
 	static $default_cron_sync_time_limit = 30; // 30 seconds
 }

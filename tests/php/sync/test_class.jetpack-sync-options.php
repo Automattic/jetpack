@@ -19,6 +19,25 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 	}
 
+	function test_white_listed_option_is_synced() {
+		$this->resetCallableAndConstantTimeouts();
+		add_option('banana', 'phone' );
+		add_option( 'coffee','white' );
+
+		$helper = new Jetpack_Sync_Test_Helper();
+		$helper->array_override = array( 'banana' );
+		add_filter( 'jetpack_sync_options_whitelist', array( $helper, 'filter_override_array' ) );
+		$this->options_module->set_defaults(); // Reset the
+
+		$this->sender->do_sync();
+
+		$synced_foo_value = $this->server_replica_storage->get_option( 'banana' );
+		$synced_bar_value = $this->server_replica_storage->get_option( 'coffee' );
+
+		$this->assertEquals( 'phone', $synced_foo_value );
+		$this->assertNotEquals( 'white', $synced_bar_value );
+	}
+
 	public function test_added_option_is_synced() {
 		$synced_option_value = $this->server_replica_storage->get_option( 'test_option' );
 		$this->assertEquals( 'foo', $synced_option_value );
@@ -213,8 +232,6 @@ class WP_Test_Jetpack_Sync_Options extends WP_Test_Jetpack_Sync_Base {
 		$options[] = 'foo_option_bar';
 		return $options;
 	}
-
-
 
 	function add_option_on_89() {
 		add_filter( 'jetpack_options_whitelist', array( $this, 'add_jetpack_options_whitelist_filter' ) );
