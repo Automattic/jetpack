@@ -5,7 +5,7 @@
  * Embed Reversal for Instagram
  *
  * Hooked to pre_kses, converts an embed code from Instagram.com to an oEmbeddable URL.
- * @return (string) the filtered or the original content
+ * @return string The filtered or the original content.
  **/
 function jetpack_instagram_embed_reversal( $content ) {
 	if ( ! is_string( $content ) || false === stripos( $content, 'instagram.com' ) ) {

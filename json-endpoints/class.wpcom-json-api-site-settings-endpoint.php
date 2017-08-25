@@ -53,7 +53,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 	/**
 	 * Determines whether jetpack_relatedposts is supported
 	 *
-	 * @return (bool)
+	 * @return bool
 	 */
 	public function jetpack_relatedposts_supported() {
 		$wpcom_related_posts_theme_blacklist = array(
@@ -68,7 +68,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 	/**
 	 * Returns category details
 	 *
-	 * @return (array)
+	 * @return array
 	 */
 	public function get_category_details( $category ) {
 		return array(
@@ -81,9 +81,9 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 * Returns an option value as the result of the callable being applied to
 	 * it if a value is set, otherwise null.
 	 *
-	 * @param (string) $option_name Option name
-	 * @param (callable) $cast_callable Callable to invoke on option value
-	 * @return (int|null) Numeric option value or null
+	 * @param string $option_name Option name
+	 * @param callable $cast_callable Callable to invoke on option value
+	 * @return int|null Numeric option value or null
 	 */
 	protected function get_cast_option_value_or_null( $option_name, $cast_callable ) {
 		$option_value = get_option( $option_name, null );
@@ -97,7 +97,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 	/**
 	 * Collects the necessary information to return for a get settings response.
 	 *
-	 * @return (array)
+	 * @return array
 	 */
 	public function get_settings_response() {
 
@@ -303,7 +303,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 	/**
 	 * Updates site settings for authorized users
 	 *
-	 * @return (array)
+	 * @return array
 	 */
 	public function update_settings() {
 		// $this->input() retrieves posted arguments whitelisted and casted to the $request_format

@@ -588,7 +588,7 @@ abstract class WPCOM_JSON_API_Post_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 *
 	 * @param $attachment attachment row
 	 *
-	 * @return (object)
+	 * @return object
 	 */
 	function get_attachment( $attachment ) {
 		$metadata = wp_get_attachment_metadata( $attachment->ID );

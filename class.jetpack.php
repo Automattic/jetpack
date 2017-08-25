@@ -2845,8 +2845,8 @@ p {
 	}
 	/**
 	 * Runs before bumping version numbers up to a new version
-	 * @param  (string) $version    Version:timestamp
-	 * @param  (string) $old_version Old Version:timestamp or false if not set yet.
+	 * @param  string $version    Version:timestamp
+	 * @param  string $old_version Old Version:timestamp or false if not set yet.
 	 * @return null              [description]
 	 */
 	public static function do_version_bump( $version, $old_version ) {
@@ -3635,7 +3635,7 @@ p {
 
 	/**
 	 * Returns the url that the user clicks to remove the notice for the big banner
-	 * @return (string)
+	 * @return string
 	 */
 	function opt_out_jetpack_manage_url() {
 		$referer = '&_wp_http_referer=' . add_query_arg( '_wp_http_referer', null );
@@ -3643,7 +3643,7 @@ p {
 	}
 	/**
 	 * Returns the url that the user clicks to opt in to Jetpack Manage
-	 * @return (string)
+	 * @return string
 	 */
 	function opt_in_jetpack_manage_url() {
 		return wp_nonce_url( Jetpack::admin_url( 'jetpack-notice=jetpack-manage-opt-in' ), 'jetpack_manage_banner_opt_in' );
@@ -3661,7 +3661,7 @@ p {
 	}
 	/**
 	 * Determines whether to show the notice of not true = display notice
-	 * @return (bool)
+	 * @return bool
 	 */
 	function can_display_jetpack_manage_notice() {
 		// never display the notice to users that can't do anything about it anyways
