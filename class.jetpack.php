@@ -4843,6 +4843,8 @@ p {
 		$stats_options = get_option( 'stats_options' );
 		$stats_id = isset($stats_options['blog_id']) ? $stats_options['blog_id'] : null;
 
+		$tracks_identity = jetpack_tracks_get_identity( get_current_user_id() );
+
 		$args = array(
 			'method'  => 'POST',
 			'body'    => array(
@@ -4857,6 +4859,8 @@ p {
 				'timeout'         => $timeout,
 				'stats_id'        => $stats_id,
 				'state'           => get_current_user_id(),
+				'_ui'             => $tracks_identity['_ui'],
+				'_ut'             => $tracks_identity['_ut'],
 			),
 			'headers' => array(
 				'Accept' => 'application/json',
