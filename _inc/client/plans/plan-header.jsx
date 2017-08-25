@@ -77,7 +77,7 @@ const PlanHeader = React.createClass( {
 				planCard = (
 					<div className="jp-landing__plan-card">
 						<div className="jp-landing__plan-card-img">
-							<img src={ imagePath + '/plans/plan-jetpack-premium.svg' } className="jp-landing__plan-icon" alt="" />
+							<img src={ imagePath + '/plans/plan-personal.svg' } className="jp-landing__plan-icon" alt="" />
 						</div>
 						<div className="jp-landing__plan-card-current">
 							<h3 className="jp-landing__plan-features-title">{ __( 'Welcome to Jetpack Personal' ) }</h3>
