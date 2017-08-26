@@ -277,7 +277,7 @@ class Jetpack_Connection_Banner {
 							<span class="jp-banner__tos-blurb">
 							<?php
 								printf(
-									__( 'By connecting your site you agree to our fascinating <a href="%s" target="_blank" class="jp-connect-full__tos-a">Terms of Service</a> and to <a href="%s" target="_blank" class="jp-connect-full__tos-a">share details</a> with WordPress.com', 'jetpack' ),
+									__( 'By connecting your site you agree to our fascinating <a href="%s" target="_blank">Terms of Service</a> and to <a href="%s" target="_blank">share details</a> with WordPress.com', 'jetpack' ),
 									'https://wordpress.com/tos',
 									'https://jetpack.com/support/what-data-does-jetpack-sync'
 								);
@@ -335,7 +335,7 @@ class Jetpack_Connection_Banner {
 							<span class="jp-banner__tos-blurb">
 							<?php
 								printf(
-									__( 'By connecting your site you agree to our fascinating <a href="%s" target="_blank" class="jp-connect-full__tos-a">Terms of Service</a> and to <a href="%s" target="_blank" class="jp-connect-full__tos-a">share details</a> with WordPress.com', 'jetpack' ),
+									__( 'By connecting your site you agree to our fascinating <a href="%s" target="_blank">Terms of Service</a> and to <a href="%s" target="_blank">share details</a> with WordPress.com', 'jetpack' ),
 									'https://wordpress.com/tos',
 									'https://jetpack.com/support/what-data-does-jetpack-sync'
 								);
@@ -395,7 +395,7 @@ class Jetpack_Connection_Banner {
 							<span class="jp-banner__tos-blurb">
 							<?php
 								printf(
-									__( 'By connecting your site you agree to our fascinating <a href="%s" target="_blank" class="jp-connect-full__tos-a">Terms of Service</a> and to <a href="%s" target="_blank" class="jp-connect-full__tos-a">share details</a> with WordPress.com', 'jetpack' ),
+									__( 'By connecting your site you agree to our fascinating <a href="%s" target="_blank">Terms of Service</a> and to <a href="%s" target="_blank">share details</a> with WordPress.com', 'jetpack' ),
 									'https://wordpress.com/tos',
 									'https://jetpack.com/support/what-data-does-jetpack-sync'
 								);
@@ -455,7 +455,7 @@ class Jetpack_Connection_Banner {
 							<span class="jp-banner__tos-blurb">
 							<?php
 								printf(
-									__( 'By connecting your site you agree to our fascinating <a href="%s" target="_blank" class="jp-connect-full__tos-a">Terms of Service</a> and to <a href="%s" target="_blank" class="jp-connect-full__tos-a">share details</a> with WordPress.com', 'jetpack' ),
+									__( 'By connecting your site you agree to our fascinating <a href="%s" target="_blank">Terms of Service</a> and to <a href="%s" target="_blank">share details</a> with WordPress.com', 'jetpack' ),
 									'https://wordpress.com/tos',
 									'https://jetpack.com/support/what-data-does-jetpack-sync'
 								);
@@ -505,7 +505,7 @@ class Jetpack_Connection_Banner {
 							<span class="jp-banner__tos-blurb">
 							<?php
 								printf(
-									__( 'By connecting your site you agree to our fascinating <a href="%s" target="_blank" class="jp-connect-full__tos-a">Terms of Service</a> and to <a href="%s" target="_blank" class="jp-connect-full__tos-a">share details</a> with WordPress.com', 'jetpack' ),
+									__( 'By connecting your site you agree to our fascinating <a href="%s" target="_blank">Terms of Service</a> and to <a href="%s" target="_blank">share details</a> with WordPress.com', 'jetpack' ),
 									'https://wordpress.com/tos',
 									'https://jetpack.com/support/what-data-does-jetpack-sync'
 								);
@@ -554,7 +554,7 @@ class Jetpack_Connection_Banner {
 							<span class="jp-banner__tos-blurb">
 							<?php
 								printf(
-									__( 'By connecting your site you agree to our fascinating <a href="%s" target="_blank" class="jp-connect-full__tos-a">Terms of Service</a> and to <a href="%s" target="_blank" class="jp-connect-full__tos-a">share details</a> with WordPress.com', 'jetpack' ),
+									__( 'By connecting your site you agree to our fascinating <a href="%s" target="_blank">Terms of Service</a> and to <a href="%s" target="_blank">share details</a> with WordPress.com', 'jetpack' ),
 									'https://wordpress.com/tos',
 									'https://jetpack.com/support/what-data-does-jetpack-sync'
 								);
@@ -603,7 +603,7 @@ class Jetpack_Connection_Banner {
 							<span class="jp-banner__tos-blurb">
 							<?php
 								printf(
-									__( 'By connecting your site you agree to our fascinating <a href="%s" target="_blank" class="jp-connect-full__tos-a">Terms of Service</a> and to <a href="%s" target="_blank" class="jp-connect-full__tos-a">share details</a> with WordPress.com', 'jetpack' ),
+									__( 'By connecting your site you agree to our fascinating <a href="%s" target="_blank">Terms of Service</a> and to <a href="%s" target="_blank">share details</a> with WordPress.com', 'jetpack' ),
 									'https://wordpress.com/tos',
 									'https://jetpack.com/support/what-data-does-jetpack-sync'
 								);
@@ -715,7 +715,7 @@ class Jetpack_Connection_Banner {
 							<span class="jp-banner__tos-blurb">
 							<?php
 								printf(
-									__( 'By connecting your site you agree to our fascinating <a href="%s" target="_blank" class="jp-connect-full__tos-a">Terms of Service</a> and to <a href="%s" target="_blank" class="jp-connect-full__tos-a">share details</a> with WordPress.com', 'jetpack' ),
+									__( 'By connecting your site you agree to our fascinating <a href="%s" target="_blank">Terms of Service</a> and to <a href="%s" target="_blank">share details</a> with WordPress.com', 'jetpack' ),
 									'https://wordpress.com/tos',
 									'https://jetpack.com/support/what-data-does-jetpack-sync'
 								);
@@ -772,7 +772,7 @@ class Jetpack_Connection_Banner {
 							<span class="jp-banner__tos-blurb">
 							<?php
 								printf(
-									__( 'By connecting your site you agree to our fascinating <a href="%s" target="_blank" class="jp-connect-full__tos-a">Terms of Service</a> and to <a href="%s" target="_blank" class="jp-connect-full__tos-a">share details</a> with WordPress.com', 'jetpack' ),
+									__( 'By connecting your site you agree to our fascinating <a href="%s" target="_blank">Terms of Service</a> and to <a href="%s" target="_blank">share details</a> with WordPress.com', 'jetpack' ),
 									'https://wordpress.com/tos',
 									'https://jetpack.com/support/what-data-does-jetpack-sync'
 								);
@@ -828,7 +828,7 @@ class Jetpack_Connection_Banner {
 							<span class="jp-banner__tos-blurb">
 							<?php
 								printf(
-									__( 'By connecting your site you agree to our fascinating <a href="%s" target="_blank" class="jp-connect-full__tos-a">Terms of Service</a> and to <a href="%s" target="_blank" class="jp-connect-full__tos-a">share details</a> with WordPress.com', 'jetpack' ),
+									__( 'By connecting your site you agree to our fascinating <a href="%s" target="_blank">Terms of Service</a> and to <a href="%s" target="_blank">share details</a> with WordPress.com', 'jetpack' ),
 									'https://wordpress.com/tos',
 									'https://jetpack.com/support/what-data-does-jetpack-sync'
 								);
@@ -878,7 +878,7 @@ class Jetpack_Connection_Banner {
 							<span class="jp-banner__tos-blurb">
 							<?php
 								printf(
-									__( 'By connecting your site you agree to our fascinating <a href="%s" target="_blank" class="jp-connect-full__tos-a">Terms of Service</a> and to <a href="%s" target="_blank" class="jp-connect-full__tos-a">share details</a> with WordPress.com', 'jetpack' ),
+									__( 'By connecting your site you agree to our fascinating <a href="%s" target="_blank">Terms of Service</a> and to <a href="%s" target="_blank">share details</a> with WordPress.com', 'jetpack' ),
 									'https://wordpress.com/tos',
 									'https://jetpack.com/support/what-data-does-jetpack-sync'
 								);
@@ -939,7 +939,7 @@ class Jetpack_Connection_Banner {
 					<p class="jp-connect-full__tos-blurb">
 						<?php
 						printf(
-							__( 'By connecting your site you agree to our fascinating <a href="%s" target="_blank" class="jp-connect-full__tos-a">Terms of Service</a> and to <a href="%s" target="_blank" class="jp-connect-full__tos-a">share details</a> with WordPress.com', 'jetpack' ),
+							__( 'By connecting your site you agree to our fascinating <a href="%s" target="_blank">Terms of Service</a> and to <a href="%s" target="_blank">share details</a> with WordPress.com', 'jetpack' ),
 							'https://wordpress.com/tos',
 							'https://jetpack.com/support/what-data-does-jetpack-sync'
 						);
