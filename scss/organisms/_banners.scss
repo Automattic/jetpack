@@ -15,6 +15,14 @@
 
 	.jp-banner__button-container {
 		padding: rem( 12px ) 0 0;
+
+		span.jp-banner__tos-blurb {
+			display: block;
+			font-size: rem( 11px );
+			margin: 0 auto rem( 16px );
+			max-width: rem( 385px );
+			color: $gray-dark;
+		}
 	}
 }
 

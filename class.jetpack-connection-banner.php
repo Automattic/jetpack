@@ -129,7 +129,6 @@ class Jetpack_Connection_Banner {
 		// Only fires immediately after plugin activation
 		if ( get_transient( 'activated_jetpack' ) ) {
 			add_action( 'admin_notices', array( $this, 'render_connect_prompt_full_screen' ) );
-			JetpackTracking::record_user_event( 'jpc_prompt_full_screen' );
 			delete_transient( 'activated_jetpack' );
 		}
 	}
@@ -275,6 +274,15 @@ class Jetpack_Connection_Banner {
 								?>">
 								<?php esc_html_e( 'Start quick tour', 'jetpack' ); ?>
 							</a>
+							<span class="jp-banner__tos-blurb">
+							<?php
+								printf(
+									__( 'By connecting your site you agree to our fascinating <a href="%s" target="_blank" class="jp-connect-full__tos-a">Terms of Service</a> and to <a href="%s" target="_blank" class="jp-connect-full__tos-a">share details</a> with WordPress.com', 'jetpack' ),
+									'https://wordpress.com/tos',
+									'https://jetpack.com/support/what-data-does-jetpack-sync'
+								);
+							?>
+							</span>
 						</p>
 					</div> <!-- end slide 1 -->
 
@@ -650,7 +658,19 @@ class Jetpack_Connection_Banner {
 								?>">
 								<?php esc_html_e( 'Start quick tour', 'jetpack' ); ?>
 							</a>
+							<span class="jp-banner__tos-blurb">
+							<?php
+								printf(
+									__( 'By connecting your site you agree to our fascinating <a href="%s" target="_blank" class="jp-connect-full__tos-a">Terms of Service</a> and to <a href="%s" target="_blank" class="jp-connect-full__tos-a">share details</a> with WordPress.com', 'jetpack' ),
+									'https://wordpress.com/tos',
+									'https://jetpack.com/support/what-data-does-jetpack-sync'
+								);
+							?>
+							</span>
 						</p>
+						
+							
+						
 					</div> <!-- end slide 1 -->
 
 					<!-- slide 2: design -->
