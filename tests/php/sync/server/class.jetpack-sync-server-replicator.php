@@ -131,6 +131,7 @@ class Jetpack_Sync_Server_Replicator {
 				break;
 
 			// network options
+			case 'jetpack_sync_network_option':
 			case 'add_site_option':
 				list( $option, $value ) = $args;
 				$this->store->update_site_option( $option, $value );

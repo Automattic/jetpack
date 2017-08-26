@@ -375,6 +375,19 @@ class Jetpack_Sync_Defaults {
 		'active_sitewide_plugins',
 	);
 
+	static function get_network_options_whitelist() {
+		/**
+		 * Filter the list of WordPress network options that are can be synced.
+		 *
+		 * @module sync
+		 *
+		 * @since 5.3.0
+		 *
+		 * @param array The default list of network options.
+		 */
+		return apply_filters( 'jetpack_sync_network_options_whitelist', self::$default_network_options_whitelist );
+	}
+
 	static $default_taxonomy_whitelist = array();
 	static $default_dequeue_max_bytes = 500000; // very conservative value, 1/2 MB
 	static $default_upload_max_bytes = 600000; // a little bigger than the upload limit to account for serialization

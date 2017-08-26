@@ -49,7 +49,7 @@ class Jetpack_Sync_Module_Options extends Jetpack_Sync_Module {
 				/**
 				 * Tells the client to sync an option to the server
 				 *
-				 * @since 5.2.0
+				 * @since 5.3.0
 				 *
 				 * @param string The name of the constant
 				 * @param mixed The value of the constant
