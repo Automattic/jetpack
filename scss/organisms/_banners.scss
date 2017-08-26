@@ -19,7 +19,6 @@
 		span.jp-banner__tos-blurb {
 			display: block;
 			font-size: rem( 11px );
-			max-width: rem( 385px );
 			color: $gray-dark;
 		}
 	}
@@ -273,7 +272,7 @@
 .jp-wpcom-connect__content-container .jp-banner__button-container {
 	@include minbreakpoint(tablet) {
 		position: absolute;
-		bottom: 0;
+		bottom: rem(8px);
 	};
 }
 

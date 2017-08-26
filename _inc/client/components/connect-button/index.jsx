@@ -138,6 +138,19 @@ export const ConnectButton = React.createClass( {
 			<div>
 				<QueryConnectUrl />
 				{ this.renderContent() }
+				{ ! this.props.isSiteConnected && 
+					<p className="jp-banner__tos-blurb">
+					{ __( 
+						'By connecting your site you agree to our fascinating {{tosLink}}Terms of Service{{/tosLink}} and to {{shareDetailsLink}}share details{{/shareDetailsLink}} with WordPress.com',
+						{ 
+							components: {
+								tosLink: <a href="https://wordpress.com/tos" rel="noopener noreferrer" target="_blank"/>,
+								shareDetailsLink: <a href="https://jetpack.com/support/what-data-does-jetpack-sync" rel="noopener noreferrer" target="_blank"/>
+							}
+						}
+					) }
+					</p>
+				}
 				<JetpackDisconnectDialog
 					show={ this.state.showModal }
 					toggleModal={ this.toggleVisibility }
