@@ -85,13 +85,7 @@ class Publicize extends Publicize_Base {
 							id="wpcom-connect"><?php esc_html_e( 'Link account with WordPress.com', 'jetpack' ); ?></a>
 					</p>
 					<p class="jetpack-install-blurb">
-					<?php
-						printf(
-							__( 'By connecting your site you agree to our fascinating <a href="%s" target="_blank">Terms of Service</a> and to <a href="%s" target="_blank">share details</a> with WordPress.com', 'jetpack' ),
-							'https://wordpress.com/tos',
-							'https://jetpack.com/support/what-data-does-jetpack-sync'
-						);
-					?>
+						<?php jetpack_render_tos_blurb(); ?>
 					</p>
 				</div>
 			</div>

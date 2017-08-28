@@ -90,6 +90,20 @@ function jetpack_get_migration_data( $option_name ) {
 }
 
 /**
+ * Prints a TOS blurb used throughout the connection prompts.
+ *
+ * @since 5.3
+ *
+ * @return string
+ */
+function jetpack_render_tos_blurb() {
+	printf(
+		__( 'By connecting your site you agree to our fascinating <a href="%s" target="_blank">Terms of Service</a> and to <a href="%s" target="_blank">share details</a> with WordPress.com', 'jetpack' ),
+		'https://wordpress.com/tos',
+		'https://jetpack.com/support/what-data-does-jetpack-sync'
+	);
+}
+/**
  * Intervene upgrade process so Jetpack themes are downloaded with credentials.
  *
  * @since 5.3
