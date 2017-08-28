@@ -61,13 +61,19 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 		// don't sync callables or constants every time - slows down tests
 		set_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME, 60 );
 		set_transient( Jetpack_Sync_Module_Constants::CONSTANTS_AWAIT_TRANSIENT_NAME, 60 );
+		set_transient( Jetpack_Sync_Module_Options::OPTIONS_AWAIT_TRANSIENT_NAME, 60 );
+		if ( is_multisite() ) {
+			set_site_transient( Jetpack_Sync_Module_Network_Options::OPTIONS_AWAIT_TRANSIENT_NAME, 60 );
+		}
 	}
 
 	protected function resetCallableAndConstantTimeouts() {
 		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
 		delete_transient( Jetpack_Sync_Module_Constants::CONSTANTS_AWAIT_TRANSIENT_NAME );
 		delete_transient( Jetpack_Sync_Module_Options::OPTIONS_AWAIT_TRANSIENT_NAME );
-		delete_transient( Jetpack_Sync_Module_Network_Options::OPTIONS_AWAIT_TRANSIENT_NAME );
+		if ( is_multisite() ) {
+			delete_site_transient( Jetpack_Sync_Module_Network_Options::OPTIONS_AWAIT_TRANSIENT_NAME );
+		}
 	}
 
 	public function test_pass() {
