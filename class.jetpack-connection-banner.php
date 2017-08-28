@@ -87,6 +87,19 @@ class Jetpack_Connection_Banner {
 	}
 
 	/**
+	 * Prints a TOS blurb used throughout the connection prompts.
+	 *
+	 * @return string
+	 */
+	function render_tos_blurb() {
+		printf(
+			__( 'By connecting your site you agree to our fascinating <a href="%s" target="_blank">Terms of Service</a> and to <a href="%s" target="_blank">share details</a> with WordPress.com', 'jetpack' ),
+			'https://wordpress.com/tos',
+			'https://jetpack.com/support/what-data-does-jetpack-sync'
+		);
+	}
+
+	/**
 	 * Will initialize hooks to display the new (as of 4.4) connection banner if the current user can
 	 * connect Jetpack, if Jetpack has not been deactivated, and if the current page is the plugins page.
 	 *
@@ -275,13 +288,7 @@ class Jetpack_Connection_Banner {
 								<?php esc_html_e( 'Start quick tour', 'jetpack' ); ?>
 							</a>
 							<span class="jp-banner__tos-blurb">
-							<?php
-								printf(
-									__( 'By connecting your site you agree to our fascinating <a href="%s" target="_blank">Terms of Service</a> and to <a href="%s" target="_blank">share details</a> with WordPress.com', 'jetpack' ),
-									'https://wordpress.com/tos',
-									'https://jetpack.com/support/what-data-does-jetpack-sync'
-								);
-							?>
+								<?php $this->render_tos_blurb(); ?>
 							</span>
 						</p>
 					</div> <!-- end slide 1 -->
@@ -333,13 +340,7 @@ class Jetpack_Connection_Banner {
 								<?php esc_html_e( 'Next feature', 'jetpack' ); ?>
 							</a>
 							<span class="jp-banner__tos-blurb">
-							<?php
-								printf(
-									__( 'By connecting your site you agree to our fascinating <a href="%s" target="_blank">Terms of Service</a> and to <a href="%s" target="_blank">share details</a> with WordPress.com', 'jetpack' ),
-									'https://wordpress.com/tos',
-									'https://jetpack.com/support/what-data-does-jetpack-sync'
-								);
-							?>
+								<?php $this->render_tos_blurb(); ?>
 							</span>
 						</p>
 					</div> <!-- end slide 2 -->
@@ -393,13 +394,7 @@ class Jetpack_Connection_Banner {
 								<?php esc_html_e( 'Next feature', 'jetpack' ); ?>
 							</a>
 							<span class="jp-banner__tos-blurb">
-							<?php
-								printf(
-									__( 'By connecting your site you agree to our fascinating <a href="%s" target="_blank">Terms of Service</a> and to <a href="%s" target="_blank">share details</a> with WordPress.com', 'jetpack' ),
-									'https://wordpress.com/tos',
-									'https://jetpack.com/support/what-data-does-jetpack-sync'
-								);
-							?>
+								<?php $this->render_tos_blurb(); ?>
 							</span>
 						</p>
 					</div> <!-- end slide 3 -->
@@ -453,13 +448,7 @@ class Jetpack_Connection_Banner {
 								<?php esc_html_e( 'Next feature', 'jetpack' ); ?>
 							</a>
 							<span class="jp-banner__tos-blurb">
-							<?php
-								printf(
-									__( 'By connecting your site you agree to our fascinating <a href="%s" target="_blank">Terms of Service</a> and to <a href="%s" target="_blank">share details</a> with WordPress.com', 'jetpack' ),
-									'https://wordpress.com/tos',
-									'https://jetpack.com/support/what-data-does-jetpack-sync'
-								);
-							?>
+								<?php $this->render_tos_blurb(); ?>
 							</span>
 						</p>
 					</div> <!-- end slide 3A -->
@@ -503,13 +492,7 @@ class Jetpack_Connection_Banner {
 								<?php esc_html_e( 'Next feature', 'jetpack' ); ?>
 							</a>
 							<span class="jp-banner__tos-blurb">
-							<?php
-								printf(
-									__( 'By connecting your site you agree to our fascinating <a href="%s" target="_blank">Terms of Service</a> and to <a href="%s" target="_blank">share details</a> with WordPress.com', 'jetpack' ),
-									'https://wordpress.com/tos',
-									'https://jetpack.com/support/what-data-does-jetpack-sync'
-								);
-							?>
+								<?php $this->render_tos_blurb(); ?>
 							</span>
 						</p>
 					</div> <!-- end slide 4 -->
@@ -552,13 +535,7 @@ class Jetpack_Connection_Banner {
 								<?php esc_html_e( 'Next feature', 'jetpack' ); ?>
 							</a>
 							<span class="jp-banner__tos-blurb">
-							<?php
-								printf(
-									__( 'By connecting your site you agree to our fascinating <a href="%s" target="_blank">Terms of Service</a> and to <a href="%s" target="_blank">share details</a> with WordPress.com', 'jetpack' ),
-									'https://wordpress.com/tos',
-									'https://jetpack.com/support/what-data-does-jetpack-sync'
-								);
-							?>
+								<?php $this->render_tos_blurb(); ?>
 							</span>
 						</p>
 					</div> <!-- end slide 5 -->
@@ -601,13 +578,7 @@ class Jetpack_Connection_Banner {
 								<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
 							</a>
 							<span class="jp-banner__tos-blurb">
-							<?php
-								printf(
-									__( 'By connecting your site you agree to our fascinating <a href="%s" target="_blank">Terms of Service</a> and to <a href="%s" target="_blank">share details</a> with WordPress.com', 'jetpack' ),
-									'https://wordpress.com/tos',
-									'https://jetpack.com/support/what-data-does-jetpack-sync'
-								);
-							?>
+								<?php $this->render_tos_blurb(); ?>
 							</span>
 						</p>
 					</div> <!-- end slide 6 -->
@@ -713,18 +684,9 @@ class Jetpack_Connection_Banner {
 								<?php esc_html_e( 'Start quick tour', 'jetpack' ); ?>
 							</a>
 							<span class="jp-banner__tos-blurb">
-							<?php
-								printf(
-									__( 'By connecting your site you agree to our fascinating <a href="%s" target="_blank">Terms of Service</a> and to <a href="%s" target="_blank">share details</a> with WordPress.com', 'jetpack' ),
-									'https://wordpress.com/tos',
-									'https://jetpack.com/support/what-data-does-jetpack-sync'
-								);
-							?>
+								<?php $this->render_tos_blurb(); ?>
 							</span>
 						</p>
-						
-							
-						
 					</div> <!-- end slide 1 -->
 
 					<!-- slide 2: design -->
@@ -770,13 +732,7 @@ class Jetpack_Connection_Banner {
 								<?php esc_html_e( 'Next feature', 'jetpack' ); ?>
 							</a>
 							<span class="jp-banner__tos-blurb">
-							<?php
-								printf(
-									__( 'By connecting your site you agree to our fascinating <a href="%s" target="_blank">Terms of Service</a> and to <a href="%s" target="_blank">share details</a> with WordPress.com', 'jetpack' ),
-									'https://wordpress.com/tos',
-									'https://jetpack.com/support/what-data-does-jetpack-sync'
-								);
-							?>
+								<?php $this->render_tos_blurb(); ?>
 							</span>
 						</p>
 					</div> <!-- end slide 2 -->
@@ -826,13 +782,7 @@ class Jetpack_Connection_Banner {
 								<?php esc_html_e( 'Next feature', 'jetpack' ); ?>
 							</a>
 							<span class="jp-banner__tos-blurb">
-							<?php
-								printf(
-									__( 'By connecting your site you agree to our fascinating <a href="%s" target="_blank">Terms of Service</a> and to <a href="%s" target="_blank">share details</a> with WordPress.com', 'jetpack' ),
-									'https://wordpress.com/tos',
-									'https://jetpack.com/support/what-data-does-jetpack-sync'
-								);
-							?>
+								<?php $this->render_tos_blurb(); ?>
 							</span>
 						</p>
 					</div> <!-- end slide 3 -->
@@ -876,17 +826,10 @@ class Jetpack_Connection_Banner {
 								<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
 							</a>
 							<span class="jp-banner__tos-blurb">
-							<?php
-								printf(
-									__( 'By connecting your site you agree to our fascinating <a href="%s" target="_blank">Terms of Service</a> and to <a href="%s" target="_blank">share details</a> with WordPress.com', 'jetpack' ),
-									'https://wordpress.com/tos',
-									'https://jetpack.com/support/what-data-does-jetpack-sync'
-								);
-							?>
+								<?php $this->render_tos_blurb(); ?>
 							</span>
 						</p>
 					</div> <!-- end slide 4 -->
-
 				</div>
 			</div>
 		</div>
@@ -937,13 +880,7 @@ class Jetpack_Connection_Banner {
 				</div>
 				<div class="jp-connect-full__card-footer">
 					<p class="jp-connect-full__tos-blurb">
-						<?php
-						printf(
-							__( 'By connecting your site you agree to our fascinating <a href="%s" target="_blank">Terms of Service</a> and to <a href="%s" target="_blank">share details</a> with WordPress.com', 'jetpack' ),
-							'https://wordpress.com/tos',
-							'https://jetpack.com/support/what-data-does-jetpack-sync'
-						);
-						?>
+						<?php $this->render_tos_blurb(); ?>
 					</p>
 					<p class="jp-connect-full__button-container">
 						<a href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, 'full-screen-prompt' ) ); ?>" class="dops-button is-primary">
