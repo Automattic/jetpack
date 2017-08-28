@@ -67,17 +67,17 @@ class WPCOM_JSON_API_Upload_Media_v1_1_Endpoint extends WPCOM_JSON_API_Endpoint 
 			}
 		}
 
-        // Normal WPCOM upload processing
-        if ( count( $other_media_files ) > 0 || count( $media_urls ) > 0 ) {
-	        $create_media = $this->handle_media_creation_v1_1( $other_media_files, $media_urls, $media_attrs );
-	        $media_ids = $create_media['media_ids'];
-	        $errors = $create_media['errors'];
+		// Normal WPCOM upload processing
+		if ( count( $other_media_files ) > 0 || count( $media_urls ) > 0 ) {
+			$create_media = $this->handle_media_creation_v1_1( $other_media_files, $media_urls, $media_attrs );
+			$media_ids = $create_media['media_ids'];
+			$errors = $create_media['errors'];
 
-	        $media_items = array();
-	        foreach ( $media_ids as $media_id ) {
-		        $media_items[] = $this->get_media_item_v1_1( $media_id );
-	        }
-        }
+			$media_items = array();
+			foreach ( $media_ids as $media_id ) {
+				$media_items[] = $this->get_media_item_v1_1( $media_id );
+			}
+		}
 
 		if ( count( $media_items ) <= 0 ) {
 			return $this->api->output_early( 400, array( 'errors' => $errors ) );
