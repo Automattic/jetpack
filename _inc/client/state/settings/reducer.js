@@ -25,8 +25,7 @@ import {
 	JETPACK_SETTINGS_UPDATE_SUCCESS,
 	JETPACK_SETTINGS_UPDATE_FAIL,
 	JETPACK_SETTINGS_SET_UNSAVED_FLAG,
-	JETPACK_SETTINGS_CLEAR_UNSAVED_FLAG,
-	JETPACK_MODULES_LIST_RECEIVE,
+	JETPACK_SETTINGS_CLEAR_UNSAVED_FLAG
 } from 'state/action-types';
 
 export const items = ( state = {}, action ) => {
@@ -35,11 +34,6 @@ export const items = ( state = {}, action ) => {
 			return assign( {}, state, action.initialState.settings );
 		case JETPACK_SETTINGS_FETCH_RECEIVE:
 			return assign( {}, action.settings );
-		case JETPACK_MODULES_LIST_RECEIVE:
-			Object.keys( action.modules ).forEach( key => {
-				action.modules[ key ] = action.modules[ key ].activated;
-			} );
-			return assign( {}, action.modules );
 		case JETPACK_SETTING_UPDATE_SUCCESS:
 			let key = Object.keys( action.updatedOption )[0];
 			return assign( {}, state, {
