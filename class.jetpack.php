@@ -613,6 +613,11 @@ class Jetpack {
 		// A filter to control all just in time messages
 		add_filter( 'jetpack_just_in_time_msgs', '__return_true', 9 );
 
+		// If enabled, point edit post and page links to Calypso instead of WP-Admin.
+		if ( get_option( 'jetpack_edit_links_calypso_redirect' ) ) {
+			add_filter( 'get_edit_post_link', array( $this, 'point_edit_links_to_calypso' ), 1, 2 );
+		}
+
 		// Update the Jetpack plan from API on heartbeats
 		add_action( 'jetpack_heartbeat', array( $this, 'refresh_active_plan_from_wpcom' ) );
 
@@ -631,6 +636,28 @@ class Jetpack {
 		 * These are sync actions that we need to keep track of for jitms
 		 */
 		add_filter( 'jetpack_sync_before_send_updated_option', array( $this, 'jetpack_track_last_sync_callback' ), 99 );
+	}
+
+	function point_edit_links_to_calypso( $default_url, $post_id ) {
+		if ( ! $post = get_post( $post_id ) ) {
+			return $default_url;
+		}
+
+		$post_type = $post->post_type;
+
+		if ( in_array( $post_type, array( 'post', 'page' ) ) ) {
+			$path_prefix = $post_type;
+		} else if ( in_array( $post_type, apply_filters( 'rest_api_allowed_post_types', array( 'post', 'page', 'revision' ) ) ) ) {
+			$path_prefix = sprintf( 'edit/%s', $post_type );
+		}
+
+		if ( ! isset( $path_prefix ) ) {
+			return $default_url;
+		}
+
+		$site_slug  = Jetpack::build_raw_urls( get_home_url() );
+
+		return esc_url_raw( sprintf( 'https://wordpress.com/%s/%s/%d', $path_prefix, $site_slug, $post_id ) );
 	}
 
 	function jetpack_track_last_sync_callback( $params ) {
