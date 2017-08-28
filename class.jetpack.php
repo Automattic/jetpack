@@ -639,7 +639,9 @@ class Jetpack {
 	}
 
 	function point_edit_links_to_calypso( $default_url, $post_id ) {
-		if ( ! $post = get_post( $post_id ) ) {
+		$post = get_post( $post_id );
+
+		if ( empty( $post ) ) {
 			return $default_url;
 		}
 
