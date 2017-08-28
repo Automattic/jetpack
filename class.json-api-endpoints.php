@@ -1061,7 +1061,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 	function get_author( $author, $show_email_and_ip = false ) {
 		$ip_address = isset( $author->comment_author_IP ) ? $author->comment_author_IP : '';
 
-		if ( isset( $author->comment_author_email ) && !$author->user_id ) {
+		if ( isset( $author->comment_author_email ) ) {
 			$ID          = 0;
 			$login       = '';
 			$email       = $author->comment_author_email;
@@ -1069,7 +1069,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			$first_name  = '';
 			$last_name   = '';
 			$URL         = $author->comment_author_url;
-			$avatar_URL  = $this->api->get_avatar_url( $author );
+			$avatar_URL  = $this->api->get_avatar_url( $email );
 			$profile_URL = 'https://en.gravatar.com/' . md5( strtolower( trim( $email ) ) );
 			$nice        = '';
 			$site_id     = -1;
