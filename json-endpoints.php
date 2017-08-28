@@ -70,6 +70,7 @@ require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-post-v1-1-endpo
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-autosave-v1-1-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-autosave-post-v1-1-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-post-counts-v1-1-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-bulk-delete-post-endpoint.php' );
 
 // Custom Menus
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-menus-v1-1-endpoint.php' );
@@ -3409,4 +3410,66 @@ new WPCOM_JSON_API_Menus_Delete_Menu_Endpoint( array (
 	'example_request_data' => array(
 		'headers' => array( 'authorization' => 'Bearer YOUR_API_TOKEN' ),
 	),
+) );
+
+new WPCOM_JSON_API_Publicize_Endpoint( array(
+	'description' => 'Share a post.',
+	'group'       => '__do_not_document',
+	'stat'        => 'publicize:new',
+	'min_version' => '1',
+	'method'      => 'POST',
+	'force'       => 'wpcom',
+	'path'        => '/sites/%s/post/%d/publicize',
+	'path_labels' => array(
+		'$site' => '(int|string) Site ID or domain',
+		'$post_id' => '(int) Post ID',
+	),
+
+	'request_format'  => array(
+		'message'  => '(string) The custom message that gets publicized',
+		'skipped_connections' => '(array) List of publicize account ids that we don\'t want publicize to',
+	),
+
+	'response_format' => array(
+		'success' => '(bool) Whether the operation was successful',
+	),
+
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/post/1/publicize/',
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+		'body' => array(
+			'message'   => 'Hello World',
+		)
+	)
+ ) );
+
+new WPCOM_JSON_API_Bulk_Delete_Post_Endpoint( array(
+	'description' => 'Delete multiple posts. Note: If the trash is enabled, this request will send non-trashed posts to the trash. Trashed posts will be permanently deleted.',
+	'group'       => 'posts',
+	'stat'        => 'posts:1:bulk-delete',
+	'min_version' => '1.1',
+	'max_version' => '1.1',
+	'method'      => 'POST',
+	'path'        => '/sites/%s/posts/delete',
+	'path_labels' => array(
+		'$site'    => '(int|string) Site ID or domain',
+	),
+	'request_format' => array(
+		'post_ids' => '(array) An array of Post IDs to delete or trash.',
+	),
+
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1.1/sites/82974409/posts/delete',
+
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+
+		'body' => array(
+			'post_ids' => array( 881, 882 ),
+		),
+
+	)
 ) );
