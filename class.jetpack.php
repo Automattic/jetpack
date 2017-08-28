@@ -4299,6 +4299,8 @@ p {
 			 */
 			$auth_type = apply_filters( 'jetpack_auth_type', 'calypso' );
 
+			$tracks_identity = jetpack_tracks_get_identity( get_current_user_id() );
+			
 			$args = urlencode_deep(
 				array(
 					'response_type' => 'code',
@@ -4324,6 +4326,9 @@ p {
 					'site_url'      => site_url(),
 					'home_url'      => home_url(),
 					'site_icon'     => $site_icon,
+					'site_lang'     => get_locale(),
+					'_ui'           => $tracks_identity['_ui'],
+					'_ut'           => $tracks_identity['_ut']
 				)
 			);
 
@@ -4870,6 +4875,7 @@ p {
 				'state'           => get_current_user_id(),
 				'_ui'             => $tracks_identity['_ui'],
 				'_ut'             => $tracks_identity['_ut'],
+				'jetpack_version' => JETPACK__VERSION
 			),
 			'headers' => array(
 				'Accept' => 'application/json',
