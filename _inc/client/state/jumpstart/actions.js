@@ -19,6 +19,7 @@ import {
 } from 'state/action-types';
 import restApi from 'rest-api';
 import { fetchModules } from 'state/modules';
+import { fetchSettings } from 'state/settings';
 
 export const jumpStartActivate = () => {
 	return ( dispatch ) => {
@@ -36,6 +37,7 @@ export const jumpStartActivate = () => {
 			dispatch( removeNotice( 'jumpstart-activate' ) );
 			dispatch( createNotice( 'is-success', __( 'Recommended features active.' ), { id: 'jumpstart-activate', duration: 2000 } ) );
 			dispatch( fetchModules() );
+			dispatch( fetchSettings() );
 		} ).catch( error => {
 			dispatch( {
 				type: JUMPSTART_ACTIVATE_FAIL,
