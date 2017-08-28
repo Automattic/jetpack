@@ -24,10 +24,8 @@ class Jetpack_Client_Server {
 
 		if ( wp_validate_redirect( $redirect ) ) {
 			wp_safe_redirect( $redirect );
-			exit;
 		} else {
 			wp_safe_redirect( Jetpack::admin_url() );
-			exit;
 		}
 
 		/**
