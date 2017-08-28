@@ -659,7 +659,7 @@ class Jetpack {
 
 		$site_slug  = Jetpack::build_raw_urls( get_home_url() );
 
-		return esc_url_raw( sprintf( 'https://wordpress.com/%s/%s/%d', $path_prefix, $site_slug, $post_id ) );
+		return esc_url( sprintf( 'https://wordpress.com/%s/%s/%d', $path_prefix, $site_slug, $post_id ) );
 	}
 
 	function jetpack_track_last_sync_callback( $params ) {
