@@ -45,6 +45,7 @@ class Jetpack_Monitor {
 			$this->update_option_receive_jetpack_monitor_notification( isset( $_POST['receive_jetpack_monitor_notification'] ) );
 			Jetpack::state( 'message', 'module_configured' );
 			wp_safe_redirect( Jetpack::module_configuration_url( $this->module ) );
+			exit;
 		}
 	}
 

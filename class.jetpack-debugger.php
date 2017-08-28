@@ -55,6 +55,7 @@ class Jetpack_Debugger {
 			if ( Jetpack::is_active() ) {
 				Jetpack::disconnect();
 				wp_redirect( Jetpack::admin_url() );
+				exit;
 			}
 		}
 	}

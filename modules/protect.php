@@ -597,6 +597,7 @@ class Jetpack_Protect_Module {
 			// If it fails we need access to $this->api_key_error
 			if ( $result ) {
 				wp_safe_redirect( Jetpack::module_configuration_url( 'protect' ) );
+				exit;
 			}
 		}
 

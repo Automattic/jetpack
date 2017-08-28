@@ -3791,6 +3791,7 @@ p {
 					$connect_url = $this->build_connect_url( true, false, 'iframe' );
 					$connect_url .= '&already_authorized=true';
 					wp_redirect( $connect_url );
+					exit;
 				}
 			}
 		}
