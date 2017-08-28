@@ -9,18 +9,17 @@ class WPCOM_JSON_API_Get_Comments_Tree_Endpoint extends WPCOM_JSON_API_Endpoint 
 	 *
 	 * @return array
 	 */
-	public function get_site_tree( $status, $start_at = PHP_INT_MAX ) {
+	function get_site_tree( $status, $start_at = PHP_INT_MAX ) {
 		global $wpdb;
-		$max_comment_count = 10000;
-		$total_count = $this->get_site_tree_total_count( $status );
+		$max_comment_count = 50000;
 		$db_status = $this->get_comment_db_status( $status );
 
 		$db_comment_rows = $wpdb->get_results(
 			$wpdb->prepare(
-				"SELECT comment_ID, comment_post_ID, comment_parent " .
+				"SELECT comment_ID, comment_post_ID, comment_parent, comment_type " .
 				"FROM $wpdb->comments AS comments " .
 				"INNER JOIN $wpdb->posts AS posts ON comments.comment_post_ID = posts.ID " .
-				"WHERE comment_type = '' AND comment_ID <= %d AND ( %s = 'all' OR comment_approved = %s ) " .
+				"WHERE comment_ID <= %d AND ( %s = 'all' OR comment_approved = %s ) " .
 				"ORDER BY comment_ID DESC " .
 				"LIMIT %d",
 				(int) $start_at, $db_status, $db_status, $max_comment_count
@@ -28,37 +27,69 @@ class WPCOM_JSON_API_Get_Comments_Tree_Endpoint extends WPCOM_JSON_API_Endpoint 
 			ARRAY_N
 		);
 
-		// Avoid using anonymous function bellow in order to preserve PHP 5.2 compatibility.
-		function array_map_all_as_ints( $comments ) {
-			return array_map( 'intval', $comments );
+		$comments = array();
+		$trackbacks = array();
+		$pingbacks = array();
+		foreach ( $db_comment_rows as $row ) {
+			list( $comment_id, $comment_post_id, $comment_parent, $comment_type ) = $row;
+			switch ( $comment_type ) {
+				case 'trackback':
+					$trackbacks[] = array( $comment_id, $comment_post_id, $comment_parent );
+					break;
+				case 'pingback':
+					$pingbacks[] = array( $comment_id, $comment_post_id, $comment_parent );
+					break;
+				default:
+					$comments[] = array( $comment_id, $comment_post_id, $comment_parent );
+			}
 		}
 
 		return array(
-			'comment_count' => intval( $total_count ),
-			'comments_tree' => array_map( 'array_map_all_as_ints', $db_comment_rows ),
+			'comments_count' => $this->get_site_tree_total_count( $status, 'comment' ),
+			'comments_tree' => array_map( array( $this, 'array_map_all_as_ints' ), $comments ),
+			'trackbacks_count' => $this->get_site_tree_total_count( $status, 'trackback' ),
+			'trackbacks_tree' => array_map( array( $this, 'array_map_all_as_ints' ), $trackbacks ),
+			'pingbacks_count' => $this->get_site_tree_total_count( $status, 'pingback' ),
+			'pingbacks_tree' => array_map( array( $this, 'array_map_all_as_ints' ), $pingbacks ),
 		);
 	}
 
 	/**
-	 * Retrieves a total count of comments for the given site.
+	 * Ensure all values are integers.
+	 *
+	 * @param array $comments Collection of comments.
+	 *
+	 * @return array Comments with values as integers.
+	 */
+	function array_map_all_as_ints( $comments ) {
+		return array_map( 'intval', $comments );
+	}
+
+	/**
+	 * Retrieves a total count of comments by type for the given site.
 	 *
 	 * @param string $status Filter by status: all, approved, pending, spam or trash.
+	 * @param string $type Comment type: 'trackback', 'pingback', or 'comment'.
 	 *
 	 * @return int Total count of comments for a site.
 	 */
-	public function get_site_tree_total_count( $status ) {
+	function get_site_tree_total_count( $status, $type ) {
 		global $wpdb;
 		$db_status = $this->get_comment_db_status( $status );
+		$type = $this->get_sanitized_comment_type( $type );
+		// An empty value in the comments_type column denotes a regular comment.
+		$type = ( 'comment' === $type ) ? '' : $type;
 
-		return $wpdb->get_var(
+		$result = $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT COUNT(1) " .
 				"FROM $wpdb->comments AS comments " .
 				"INNER JOIN $wpdb->posts AS posts ON comments.comment_post_ID = posts.ID " .
-				"WHERE comment_type = '' AND ( %s = 'all' OR comment_approved = %s )",
-				$db_status, $db_status
+				"WHERE comment_type = %s AND ( %s = 'all' OR comment_approved = %s )",
+				$type, $db_status, $db_status
 			)
 		);
+		return intval( $result );
 	}
 
 	/**
@@ -68,7 +99,7 @@ class WPCOM_JSON_API_Get_Comments_Tree_Endpoint extends WPCOM_JSON_API_Endpoint 
 	 *
 	 * @return string Corresponding value that exists in database.
 	 */
-	public function get_comment_db_status( $status ) {
+	function get_comment_db_status( $status ) {
 		if ( 'approved' === $status ) {
 			return '1';
 		}
@@ -78,11 +109,39 @@ class WPCOM_JSON_API_Get_Comments_Tree_Endpoint extends WPCOM_JSON_API_Endpoint 
 		return $status;
 	}
 
-	public function validate_status_param( $status ) {
+	/**
+	 * Determine if the passed comment status is valid or not.
+	 *
+	 * @param string $status
+	 *
+	 * @return boolean
+	 */
+	function validate_status_param( $status ) {
 		return in_array( $status, array( 'all', 'approved', 'pending', 'spam', 'trash' ) );
 	}
 
-	// /sites/%s/comments-tree
+	/**
+	 * Sanitize a given comment type.
+	 *
+	 * @param string Comment type: can be 'trackback', 'pingback', or 'comment'.
+	 *
+	 * @return string Sanitized comment type.
+	 */
+	function get_sanitized_comment_type( $type = 'comment' ) {
+		if ( in_array( $type, array( 'trackback', 'pingback', 'comment' ) ) ) {
+			return $type;
+		}
+		return 'comment';
+	}
+
+	/**
+	 * Endpoint callback for /sites/%s/comments-tree
+	 *
+	 * @param string $path
+	 * @param int    $blog_id
+	 *
+	 * @return array Site tree results by status.
+	 */
 	function callback( $path = '', $blog_id = 0 ) {
 		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );
 		if ( is_wp_error( $blog_id ) ) {

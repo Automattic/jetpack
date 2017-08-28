@@ -1851,8 +1851,12 @@ new WPCOM_JSON_API_Get_Comments_Tree_Endpoint( array(
 		'status' => '(string) Filter returned comments based on this value (allowed values: all, approved, pending, trash, spam).'
 	),
 	'response_format' => array(
-		'comment_count' => '(int) The number of comments returned',
-		'comments_tree' => '(array) Array of arrays representing the comments tree for given site',
+		'comments_count' => '(int) Total number of comments on the site',
+		'comments_tree' => '(array) Array of arrays representing the comments tree for given site (max 50000)',
+		'trackbacks_count' => '(int) Total number of trackbacks on the site',
+		'trackbacks_tree' => '(array) Array of arrays representing the trackbacks tree for given site (max 50000)',
+		'pingbacks_count' => '(int) Total number of pingbacks on the site',
+		'pingbacks_tree' => '(array) Array of arrays representing the pingbacks tree for given site (max 50000)',
 	),
 
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/comments-tree?status=approved'
