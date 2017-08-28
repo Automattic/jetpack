@@ -3787,6 +3787,7 @@ p {
 				if ( ! isset( $_GET['calypso_env'] ) ) {
 					Jetpack::state( 'message', 'already_authorized' );
 					wp_safe_redirect( Jetpack::admin_url() );
+					exit;
 				} else {
 					$connect_url = $this->build_connect_url( true, false, 'iframe' );
 					$connect_url .= '&already_authorized=true';
