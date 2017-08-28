@@ -3823,7 +3823,7 @@ p {
 					$error = $registered->get_error_code();
 					Jetpack::state( 'error', $error );
 					Jetpack::state( 'error', $registered->get_error_message() );
-					JetpackTracking::record_user_event( 'jpc_wpa_register_fail', array(
+					JetpackTracking::record_user_event( 'jpc_register_fail', array(
 						'error_code' => $error,
 						'error_message' => $registered->get_error_message()
 					) );
@@ -3833,7 +3833,7 @@ p {
 				$from = isset( $_GET['from'] ) ? $_GET['from'] : false;
 				$redirect = isset( $_GET['redirect'] ) ? $_GET['redirect'] : false;
 
-				JetpackTracking::record_user_event( 'jpc_wpa_register_success', array(
+				JetpackTracking::record_user_event( 'jpc_register_success', array(
 					'from' => $from
 				) );
 				
@@ -4830,7 +4830,7 @@ p {
 	 * @return bool|WP_Error
 	 */
 	public static function register() {
-		JetpackTracking::record_user_event( 'jpc_wpa_register_begin' );
+		JetpackTracking::record_user_event( 'jpc_register_begin' );
 		add_action( 'pre_update_jetpack_option_register', array( 'Jetpack_Options', 'delete_option' ) );
 		$secrets = Jetpack::generate_secrets( 'register' );
 
