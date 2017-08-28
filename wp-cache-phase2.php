@@ -1115,6 +1115,17 @@ function wp_cache_shutdown_callback() {
 	global $wp_cache_request_uri, $wp_cache_key, $wp_cache_object_cache, $cache_enabled, $wp_cache_blog_charset, $wp_cache_not_logged_in;
 	global $WPSC_HTTP_HOST, $wp_super_cache_query;
 
+	if ( ! function_exists( 'wpsc_init' ) ) {
+		/*
+		 * If a server has multiple networks the plugin may not have been activated
+		 * on all of them. Give feeds on those blogs a short TTL.
+		 * ref: https://wordpress.org/support/topic/fatal-error-while-updating-post-or-publishing-new-one/
+		 */
+		$wpsc_feed_ttl = 1;
+		wp_cache_debug( "wp_cache_shutdown_callback: Plugin not loaded. Setting feed ttl to 60 seconds." );
+	}
+
+
 	if ( false == $new_cache ) {
 		wp_cache_debug( "wp_cache_shutdown_callback: No cache file created. Returning." );
 		return false;
@@ -1167,10 +1178,18 @@ function wp_cache_shutdown_callback() {
 						$value = "application/rss+xml";
 					}
 			}
+			if ( isset( $wpsc_feed_ttl ) && $wpsc_feed_ttl == 1 ) {
+				$wp_cache_meta[ 'ttl' ] = 60;
+			}
+
 			wp_cache_debug( "wp_cache_shutdown_callback: feed is type: $type - $value" );
 		} elseif ( get_query_var( 'sitemap' ) || get_query_var( 'xsl' ) || get_query_var( 'xml_sitemap' ) ) {
 			wp_cache_debug( "wp_cache_shutdown_callback: sitemap detected: text/xml" );
 			$value = "text/xml";
+			if ( isset( $wpsc_feed_ttl ) && $wpsc_feed_ttl == 1 ) {
+				$wp_cache_meta[ 'ttl' ] = 60;
+			}
+
 		} else { // not a feed
 			$value = get_option( 'html_type' );
 			if( $value == '' )
@@ -1658,10 +1677,5 @@ function wp_cache_gc_watcher() {
 		schedule_wp_gc();
 	}
 }
-
-function wpsc_timestamp_cache_update( $type, $permalink ) {
-	wp_cache_setting( 'wpsc_last_post_update', time() );
-}
-add_action( 'gc_cache', 'wpsc_timestamp_cache_update', 10, 2 );
 
 ?>

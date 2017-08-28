@@ -200,7 +200,8 @@ function wp_cache_serve_cache_file() {
 			foreach( $rss_types as $rss_type ) {
 				if ( strpos( $meta[ 'headers' ][ 'Content-Type' ], $rss_type ) ) {
 					global $wpsc_last_post_update;
-					if ( isset( $wpsc_last_post_update ) && filemtime( $meta_pathname ) < $wpsc_last_post_update ) {
+					if ( isset( $wpsc_last_post_update ) && filemtime( $meta_pathname ) < $wpsc_last_post_update ||
+						( isset( $meta[ 'ttl' ] ) && ( time() - filemtime( $meta_pathname ) ) > $meta[ 'ttl' ] ) ) {
 						wp_cache_debug( "wp_cache_serve_cache_file: feed out of date. deleting cache files: $meta_pathname, $cache_file" );
 						@unlink( $meta_pathname );
 						@unlink( $cache_file );
