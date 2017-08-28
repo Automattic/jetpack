@@ -615,7 +615,7 @@ class Jetpack {
 
 		// If enabled, point edit post and page links to Calypso instead of WP-Admin.
 		// We should make sure to only do this for front end links.
-		if ( get_option( 'jetpack_edit_links_calypso_redirect', true ) && ! is_admin() ) {
+		if ( get_option( 'jetpack_edit_links_calypso_redirect' ) && ! is_admin() ) {
 			add_filter( 'get_edit_post_link', array( $this, 'point_edit_links_to_calypso' ), 1, 2 );
 		}
 
@@ -648,15 +648,20 @@ class Jetpack {
 
 		$post_type = $post->post_type;
 
-		if ( in_array( $post_type, array( 'post', 'page' ) ) ) {
-			$path_prefix = $post_type;
-		} else if ( in_array( $post_type, apply_filters( 'rest_api_allowed_post_types', array( 'post', 'page', 'revision' ) ) ) ) {
-			$path_prefix = sprintf( 'edit/%s', $post_type );
-		}
+		// Mapping the allowed CPTs on WordPress.com to corresponding paths in Calypso.
+		// https://en.support.wordpress.com/custom-post-types/
+		$allowed_post_types = array(
+			'post' => 'post',
+			'page' => 'page',
+			'jetpack-portfolio' => 'edit/jetpack-portfolio',
+			'jetpack-testimonial' => 'edit/jetpack-testimonial',
+		);
 
-		if ( ! isset( $path_prefix ) ) {
+		if ( ! in_array( $post_type, array_keys( $allowed_post_types ) ) ) {
 			return $default_url;
 		}
+
+		$path_prefix = $allowed_post_types[ $post_type ];
 
 		$site_slug  = Jetpack::build_raw_urls( get_home_url() );
 
