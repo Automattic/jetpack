@@ -103,6 +103,7 @@ function jetpack_render_tos_blurb() {
 		'https://jetpack.com/support/what-data-does-jetpack-sync'
 	);
 }
+
 /**
  * Intervene upgrade process so Jetpack themes are downloaded with credentials.
  *
