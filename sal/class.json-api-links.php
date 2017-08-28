@@ -159,14 +159,10 @@ class WPCOM_JSON_API_Links {
 		$matches_by_version = & $this->matches_by_version;
 
 		// try to match out of saved matches
-		$matches = isset( $matches_by_version[ $this->api->version ] )
-			? $matches_by_version[ $this->api->version ]
-			: false;
-		if ( ! $matches ) {
+		if ( ! isset( $matches_by_version[ $this->api->version ] ) ) {
 			$matches_by_version[ $this->api->version ] = array();
-			$matches = & $matches_by_version[ $this->api->version ];
 		}
-		foreach ( $matches as $match ) {
+		foreach ( $matches_by_version[ $this->api->version ] as $match ) {
 			$regex = $match->regex;
 			if ( preg_match( "#^$regex\$#", $path ) ) {
 				$closest_endpoint_cache[ $template_path ][ $request_method ] = $match->version;
@@ -202,7 +198,10 @@ class WPCOM_JSON_API_Links {
 				// Make sure the endpoint exists at the same version
 				if ( version_compare( $this->api->version, $endpoint['min_version'], '>=') &&
 					 version_compare( $this->api->version, $endpoint['max_version'], '<=') ) {
-					array_push( $matches, (object) array( 'version' => $this->api->version, 'regex' => $endpoint_path_regex ) );
+					array_push(
+						$matches_by_version[ $this->api->version ],
+						(object) array( 'version' => $this->api->version, 'regex' => $endpoint_path_regex )
+					);
 					$closest_endpoint_cache[ $template_path ][ $request_method ] = $this->api->version;
 					return $this->api->version;
 				}
@@ -216,7 +215,10 @@ class WPCOM_JSON_API_Links {
 
 		// If the endpoint version is less than the requested endpoint version, return the max version found
 		if ( ! empty( $max_version_found ) ) {
-			array_push( $matches, (object) $max_version_found );
+			array_push(
+				$matches_by_version[ $this->api->version ],
+				(object) $max_version_found
+			);
 			$closest_endpoint_cache[ $template_path ][ $request_method ] = $max_version_found['version'];
 			return $max_version_found['version'];
 		}
