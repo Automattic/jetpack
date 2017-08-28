@@ -46,6 +46,8 @@ if( is_array( $plugins ) ) {
 	}
 }
 
+$wp_start_time = microtime();
+
 if ( $wp_cache_not_logged_in && wp_cache_get_cookies_values() ) {
 	wp_cache_debug( 'Caching disabled for logged in users on settings page.' );
 	return true;
@@ -108,8 +110,6 @@ function setup_blog_cache_dir() {
 	if( false == @is_dir( $blog_cache_dir . 'meta' ) )
 		@mkdir( $blog_cache_dir . 'meta' );
 }
-
-$wp_start_time = microtime();
 
 function get_wp_cache_key( $url = false ) {
 	global $wp_cache_request_uri, $wp_cache_gzip_encoding, $WPSC_HTTP_HOST;
