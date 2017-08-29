@@ -59,7 +59,7 @@ jobs:
   destroy:
     working_directory: /wp-e2e-tests
     docker:
-      - image: circleci/node:6.11.1
+      - image: automattic/wp-e2e-tests:0.0.5
     steps:
       - attach_workspace:
           at: /wp-e2e-tests
@@ -72,10 +72,10 @@ jobs:
                     source $HOME/.nvm/nvm.sh && ./scripts/jetpack/wp-serverpilot-delete.js
                   fi
           when: always
-workflows:
-  version: 2
-  build_test_destroy:
-    jobs:
-      - build
-      - test
-      - destroy
+  workflows:
+    version: 2
+    build_test_destroy:
+      jobs:
+        - build
+        - test
+        - destroy
