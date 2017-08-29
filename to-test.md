@@ -2,11 +2,11 @@
 
 ### PHP 7.1 fixes: Interact with your site in Calypso
 
-This version ships with a pretty big change in our API, which fixes the issues we were having with PHP 7.1.x
+This version refactors our API, which fixes the issues we were having with PHP 7.1.x
 
-- Navigate to Calypso with a PHP 7.1 site, and interact with your site in as many ways as you can think of.
+- Navigate to Calypso and interact with your site in as many ways as you can think of.
 - Look for network errors, settings not saving properly, or notices saying that it can't communicate with your site.
-- It's also important to test this with other PHP versions, so if you're not running 7.1.x please play around in Calypso.
+- It's important that we test this thoroughly in both PHP 7.1.x and older PHP versions.
 
 ### Sitemaps fixes
 
@@ -23,8 +23,8 @@ We've done a significant refactor to the Sitemaps feature. All Sitemap items sho
 You may now preview your Jetpack site in Calypso.  To test it:
 - Go to https://wordpess.com/view/ and pick your site
 - Try clicking a few links, see if your site works correctly
-- See if the preview toolbar in Calypso gets updated URL as you navigate
-- There should be no adminbar/masterbar inside the preview
+- See if the preview toolbar in Calypso gets an updated URL as you navigate
+- There should be no admin bar inside the preview
 
 ### Added Likes and Monitor to Jumpstart features
 
@@ -56,6 +56,6 @@ There were a few small changes to the connection process that is aimed at fixing
 
 ### WordPress.com Theme updating
 
-- Add a free and premium Jetpack themes
-- Downgrade them manually editing the style.css
+- Add a free and premium Jetpack theme
+- Downgrade them by manually editing the style.css
 - Try updating them in update-core.php page and in themes
