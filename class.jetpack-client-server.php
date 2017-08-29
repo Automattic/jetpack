@@ -20,6 +20,15 @@ class Jetpack_Client_Server {
 		$result = $this->authorize( $data );
 		if ( is_wp_error( $result ) ) {
 			Jetpack::state( 'error', $result->get_error_code() );
+		} else {
+			/**
+			 * Fires after the Jetpack client is authorized to communicate with WordPress.com.
+			 *
+			 * @since 4.2.0
+			 *
+			 * @param int Jetpack Blog ID.
+			 */
+			do_action( 'jetpack_client_authorized', Jetpack_Options::get_option( 'id' ) );
 		}
 
 		if ( wp_validate_redirect( $redirect ) ) {
@@ -29,15 +38,6 @@ class Jetpack_Client_Server {
 			// Exit happens below in $this->do_exit()
 			wp_safe_redirect( Jetpack::admin_url() );
 		}
-
-		/**
-		 * Fires after the Jetpack client is authorized to communicate with WordPress.com.
-		 *
-		 * @since 4.2.0
-		 *
-		 * @param int Jetpack Blog ID.
-		 */
-		do_action( 'jetpack_client_authorized', Jetpack_Options::get_option( 'id' ) );
 
 		$this->do_exit();
 	}
