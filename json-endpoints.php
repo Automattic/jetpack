@@ -1944,7 +1944,7 @@ new WPCOM_JSON_API_Update_Comment_Endpoint( array(
 		'author_url'   => "(string) The comment author's URL.",
 		'content'      => '(HTML) The comment text.',
 		'date'         => "(ISO 8601 datetime) The comment's creation time.",
-		'status'  => array(
+		'status'       => array(
 			'approved'   => 'Approve the comment.',
 			'unapproved' => 'Remove the comment from public view and send it to the moderation queue.',
 			'spam'       => 'Mark the comment as spam.',
