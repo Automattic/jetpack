@@ -109,51 +109,36 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Release post:
 
 **Major Enhancements**
-* PHP 7.1 compatibility
-* Jetpack sites can be fully previewed when editing in WordPress.com #7623
+* Full PHP 7.1 compatibility.
+* It's now possible to preview your site within WordPress.com.
 
 **Enhancements**
-* The Ads feature now gives you more options and control over the ads displayed on your site
-* Jetpack admin area got some much needed design love #7604
-* Performance improvements by removing unnecessary HTTP requests on admin page loads.
-* Styling enhancements for the EU Cookie Law widget #7668
-* Loading comment avatars from Facebook and Twitter through https #7547
-* Admin UI is much friendlier on initial activation, when there are no stats to display #7646
-* Now able to stop VideoPress from looping a video during autoplay through the shortcode #7670
-* Optimizations to the Jetpack connection process will cut down on errors. #7684
-* New Jetpack CLI command to allow testing of the Jetpack connection #7636
-* We've added the Likes and Monitor features to our recommended features list, making it easier to activate for new sites. #7682
-* Improvements made (to sync) that makes sure we have the most up-to-date version of your site at wordpress.com
-* Added a link to view your Comments in the WordPress.com toolbar #7678
-* We've found a few places where we were able to optimize the loading of css files #7626
+* The Ads feature now gives you more options and control over the ads displayed on your site.
+* Increased performance in the admin by cutting back on unnecessary requests.
+* Loading comment avatars from Facebook and Twitter through a more secure https.
+* Admin UI is much friendlier on initial activation when there are no stats to display.
+* You're now able to stop VideoPress from looping a video during autoplay through the shortcode.
+* Made some optimizations to the Jetpack connection process which means connecting your site more is more reliable.
+* The EU Cookie Law widget got some styling improvements and looks better in any theme.
+* There's a new Jetpack CLI command to allow testing of the Jetpack connection.
+* Added the Likes and Monitor features to our recommended features list, making it easier to activate for new sites.
+* Improvements made that makes sure we have the most up-to-date version of your site when managing from WordPress.com.
+* Added a link to view your Comments in the WordPress.com toolbar.
+* Lots of minor design improvements to the Jetpack admin area.
+* We've found a few places where we were able to optimize the loading of css files.
+* Removed the Omnisearch feature.
 
 **Bug fixes**
-* Fixed issues with plugins using TinyMCE
-* Fixed a bug that sometimes broke the update process for free and premium WordPress.com themes
-* Fixed the Sitemaps feature, and will no longer error with posts/images with special characters in the title. #7335
-* Fixed a bug that was causing conflicts with the ACF plugin when adding a new custom field. #7605
-* Fixed a bug that would cause some plugins to throw warnings with the Shortcode feature
-* We're no longer loading a font on the front-end for the Likes feature, which may have some performance benefits.
-* Fixed some Jetpack admin UI bugs that were causing some features to not display the correct active status #7606
-* Cleaned up XHTML validation errors #7607
-* Added back a filter for the Widget Visibility feature that was accidentally removed #7628
-* We've fixed some things to make managing your comments and comment authors more reliable from WordPress.com
-
-**OTHER / NOT NOTABLE (PLEASE DELETE IF WE DON'T ADD THEM**
-* Add email field to error on social account create #7625
-* Comments: Add author IP address to the response #7637
-* Comments: Add checks on the `moderate_comments` capabilities #7619
-* Jetpack Sync: Update user sync for activity log #7591
-* Add connection banner to Dashboard #7603
-* Remove omnisearch #7590
-* New connection banner for testing #7622
-* SSO: Allow redirecting to JETPACK__API_BASE in production #7681
-* Comments: adds a raw content response to the sites comment endpoint. #7674
-* Comments: adds author email and IP Address to the site's comments endpoint #7673
-* Connection Banner: Adding themes slide and enhancing visuals #7648
-* Add pingbacks and trackbacks to the response of the comments tree endpoint. #7671
-* Fix `force_*` params for partner provision script #7654
-
+* Fixed compatibility issues with plugins using TinyMCE.
+* Updating WordPress.com themes will no longer have any problems.
+* The Sitemaps feature will no longer error with posts/images with special characters in the title.
+* There are more conflicts with the ACF plugin when adding a new custom field.
+* Fixed a bug that would cause some plugins to throw warnings with the Shortcode feature.
+* We're no longer loading a font on the front-end for the Likes feature, which will also have some performance benefits.
+* The Jetpack admin UI had some bugs that were causing some features to not display the correct active status, which are squashed now.
+* Cleaned up our markup to avoid XHTML validation errors.
+* Brought back a filter for the Widget Visibility feature that was accidentally removed.
+* Managing your comments and comment authors more reliable from WordPress.com.
 
 
 = 5.2.1 =

@@ -80,7 +80,7 @@ There were a few small changes to the connection process that is aimed at fixing
 
 ### Jetpack Sync
 
-The site should now fully sync on every Jetpack connection. 
+The site should now fully sync on every Jetpack connection.
 
 - Disconnect jetpack
 - Update an option such as site_icon.
