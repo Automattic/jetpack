@@ -334,7 +334,6 @@ class Jetpack_Network {
 
 					wp_safe_redirect( $url );
 					exit;
-					break;
 
 				case 'subsitedisconnect':
 					Jetpack::log( 'subsitedisconnect' );
