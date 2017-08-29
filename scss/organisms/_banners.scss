@@ -18,7 +18,9 @@
 	}
 
 	.jp-banner__tos-blurb {
-		clear: both;
+		display: block;
+		padding: rem( 6px ) 0;
+		line-height: 1.5;
 		font-size: rem( 11px );
 		color: $gray-dark;
 	}
