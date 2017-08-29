@@ -20,6 +20,7 @@ jobs:
             - /wp-e2e-tests/node_modules
           key: << checksum "package.json" >>
       - persist_to_workspace:
+          root: /
           paths:
             - /wp-e2e-tests
       - run:
