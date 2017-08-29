@@ -157,7 +157,3 @@ wpcomsh includes [WP CLI](http://wp-cli.org/) commands. They are located in the 
 
 To write a new WP CLI command, define a public method on the `WPCOMSH_CLI_Commands` class. If a method should not be used as a WP CLI command, add a doc block saying "Not a WP CLI command".
 
-### Store support
-
-wpcomsh adds the `wc-api-dev` plugin to support Store on WordPress.com
-
