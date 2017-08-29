@@ -72,10 +72,14 @@ jobs:
                     source $HOME/.nvm/nvm.sh && ./scripts/jetpack/wp-serverpilot-delete.js
                   fi
           when: always
-  workflows:
-    version: 2
-    build_test_destroy:
-      jobs:
-        - build
-        - test
-        - destroy
+workflows:
+  version: 2
+  build_test_destroy:
+    jobs:
+      - build
+      - test:
+          requires:
+            - build
+      - destroy:
+          requires:
+            - test
