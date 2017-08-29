@@ -138,6 +138,7 @@ export const ConnectButton = React.createClass( {
 			<div>
 				<QueryConnectUrl />
 				{ this.renderContent() }
+				{ this.props.children }
 				{ ! this.props.isSiteConnected && 
 					<p className="jp-banner__tos-blurb">
 					{ __( 
