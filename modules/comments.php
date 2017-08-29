@@ -3,12 +3,13 @@
 /**
  * Module Name: Comments
  * Module Description: Let readers use WordPress.com, Twitter, Facebook, or Google+ accounts to comment
+ * Jumpstart Description: Let readers use WordPress.com, Twitter, Facebook, or Google+ accounts to comment.
  * First Introduced: 1.4
  * Sort Order: 20
  * Requires Connection: Yes
  * Auto Activate: No
  * Module Tags: Social
- * Feature: Engagement
+ * Feature: Engagement, Jumpstart
  * Additional Search Queries: comments, comment, facebook, twitter, google+, social
  */
 
