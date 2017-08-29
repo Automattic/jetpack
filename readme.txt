@@ -113,6 +113,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Jetpack sites can be fully previewed when editing in WordPress.com #7623
 
 **Enhancements**
+* The Ads feature now gives you more options and control over the ads displayed on your site
 * Jetpack admin area got some much needed design love #7604
 * Performance improvements by removing unnecessary HTTP requests on admin page loads.
 * Styling enhancements for the EU Cookie Law widget #7668

@@ -34,6 +34,19 @@ We've added a couple features to the Jumpstart suite.
 - When you see the Jumpstart prompt, refresh the page
 - Click "Activate Recommended Features", and verify that Likes and Monitor have been activated.
 
+### WordAds
+
+There were some new options added to the Ads feature this release.
+
+- Enable Jetpack Ads module
+- Enable Display second ad below post
+- - Check to see that 2nd unit appears below post
+- Enable options under Enable below post ads on
+- - Check below post ads do/don't display under appropriate type of page
+- Enable AdBlock Plus extension
+- - Check Allow some non-intrusive advertising in Adblock Plus Options
+- - Check that some non-obtrusive ads are in the regular spots.
+
 ### Admin UI Improvements
 
 - Make sure that Site Verification does not look active when it is indeed inactive
@@ -59,3 +72,11 @@ There were a few small changes to the connection process that is aimed at fixing
 - Add a free and premium Jetpack themes
 - Downgrade them manually editing the style.css
 - Try updating them in update-core.php page and in themes
+
+### Jetpack Sync
+
+The site should now fully sync on every Jetpack connection. 
+
+- Disconnect jetpack
+- Update an option such as site_icon.
+- Connect the site. Check that the option was saved right away and reflects correctly in Calypso
