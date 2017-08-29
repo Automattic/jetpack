@@ -2,7 +2,7 @@
 Contributors: donncha, automattic, kraftbj
 Tags: performance,caching,wp-cache,wp-super-cache,cache
 Tested up to: 4.8.1
-Stable tag: 1.5.4
+Stable tag: 1.5.5
 Requires at least: 3.0
 
 A very fast caching engine for WordPress that produces static html files.
@@ -53,10 +53,16 @@ Interested in translating WP Super Cache to your language? See the [translation 
 The cache directory, usually wp-content/cache/ is only for temporary files. Do not ever put important files or symlinks to important files or directories in that directory. They will be deleted if the plugin has write access to them.
 
 == Upgrade Notice ==
-Sitemap, feed, REST API and other maintenance fixes.
-
+Fix for older versions of WordPress, catch fatal errors before they're cached, preload fixes.
 
 == Changelog ==
+= 1.5.5 =
+* Catch fatal errors so they're not cached, improve code that catches unknown page types. (#367)
+* Fix caching on older WP installs, and if the plugin is inactive on a blog, but still caching, give feeds a short TTL to ensure they're fresh. (#366)
+* When preloading don't delete sub-directories, or child pages, when caching pages. (#363)
+* Avoid PHP warnings from the REST API for settings that are not yet defined. (#361)
+* Added missing settings to the config file. (#360)
+
 = 1.5.4 =
 * Fix messages related to creating advanced-cache.php (#355, #354)
 * Deleting the plugin doesn't need to delete the cache directory as it's already done on deactivation. (#323)
