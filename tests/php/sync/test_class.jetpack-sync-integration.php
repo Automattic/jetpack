@@ -23,11 +23,13 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 
 		global $wpdb;
 
+		$current_user = wp_get_current_user();
+
 		$expected_sync_config = array( 
 			'options' => true,
 			'functions' => true, 
 			'constants' => true, 
-			'users' => 'initial'
+			'users' => array( $current_user->ID )
 		);
 
 		if ( is_multisite() ) {

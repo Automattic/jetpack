@@ -1134,13 +1134,17 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		// finally, let's make sure that the initial sync method actually invokes our initial sync user config
 		Jetpack_Sync_Actions::do_initial_sync( '4.2', '4.1' );
 		$current_user = wp_get_current_user();
+
 		$expected_sync_config = array( 
-			'options' => true, 
-			'network_options' => true,
+			'options' => true,
 			'functions' => true, 
 			'constants' => true, 
 			'users' => array( $current_user->ID )
 		);
+
+		if ( is_multisite() ) {
+			$expected_sync_config['network_options'] = true;
+		}
 
 		$full_sync_status = $this->full_sync->get_status();
 		$this->assertEquals(
