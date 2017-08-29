@@ -28,7 +28,9 @@ jobs:
             - .
       - run:
           name: Initialize site on Digital Ocean via ServerPilot
-          command: source $HOME/.nvm/nvm.sh && ./scripts/jetpack/wp-serverpilot-init.js
+          command: |
+                  source $HOME/.nvm/nvm.sh && ./scripts/jetpack/wp-serverpilot-delete.js # In case of a rebuild
+                  source $HOME/.nvm/nvm.sh && ./scripts/jetpack/wp-serverpilot-init.js
       - run:
           name: Install Jetpack from master
           command: |
