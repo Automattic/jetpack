@@ -16,6 +16,14 @@
 	.jp-banner__button-container {
 		padding: rem( 12px ) 0 0;
 	}
+
+	.jp-banner__tos-blurb {
+		display: block;
+		padding: rem( 6px ) 0;
+		line-height: 1.5;
+		font-size: rem( 11px );
+		color: $gray-dark;
+	}
 }
 
 .jp-banner .notice-dismiss {
@@ -266,7 +274,7 @@
 .jp-wpcom-connect__content-container .jp-banner__button-container {
 	@include minbreakpoint(tablet) {
 		position: absolute;
-		bottom: rem( 16px );
+		bottom: rem( 8px );
 	};
 }
 

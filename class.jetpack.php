@@ -3823,12 +3823,20 @@ p {
 					$error = $registered->get_error_code();
 					Jetpack::state( 'error', $error );
 					Jetpack::state( 'error', $registered->get_error_message() );
+					JetpackTracking::record_user_event( 'jpc_register_fail', array(
+						'error_code' => $error,
+						'error_message' => $registered->get_error_message()
+					) );
 					break;
 				}
 
 				$from = isset( $_GET['from'] ) ? $_GET['from'] : false;
 				$redirect = isset( $_GET['redirect'] ) ? $_GET['redirect'] : false;
 
+				JetpackTracking::record_user_event( 'jpc_register_success', array(
+					'from' => $from
+				) );
+				
 				wp_redirect( $this->build_connect_url( true, $redirect, $from ) );
 				exit;
 			case 'activate' :
@@ -4291,6 +4299,8 @@ p {
 			 */
 			$auth_type = apply_filters( 'jetpack_auth_type', 'calypso' );
 
+			$tracks_identity = jetpack_tracks_get_identity( get_current_user_id() );
+			
 			$args = urlencode_deep(
 				array(
 					'response_type' => 'code',
@@ -4316,6 +4326,9 @@ p {
 					'site_url'      => site_url(),
 					'home_url'      => home_url(),
 					'site_icon'     => $site_icon,
+					'site_lang'     => get_locale(),
+					'_ui'           => $tracks_identity['_ui'],
+					'_ut'           => $tracks_identity['_ut']
 				)
 			);
 
@@ -4822,6 +4835,7 @@ p {
 	 * @return bool|WP_Error
 	 */
 	public static function register() {
+		JetpackTracking::record_user_event( 'jpc_register_begin' );
 		add_action( 'pre_update_jetpack_option_register', array( 'Jetpack_Options', 'delete_option' ) );
 		$secrets = Jetpack::generate_secrets( 'register' );
 
@@ -4843,6 +4857,8 @@ p {
 		$stats_options = get_option( 'stats_options' );
 		$stats_id = isset($stats_options['blog_id']) ? $stats_options['blog_id'] : null;
 
+		$tracks_identity = jetpack_tracks_get_identity( get_current_user_id() );
+
 		$args = array(
 			'method'  => 'POST',
 			'body'    => array(
@@ -4857,6 +4873,9 @@ p {
 				'timeout'         => $timeout,
 				'stats_id'        => $stats_id,
 				'state'           => get_current_user_id(),
+				'_ui'             => $tracks_identity['_ui'],
+				'_ut'             => $tracks_identity['_ut'],
+				'jetpack_version' => JETPACK__VERSION
 			),
 			'headers' => array(
 				'Accept' => 'application/json',
