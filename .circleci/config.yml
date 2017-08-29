@@ -14,7 +14,7 @@ jobs:
                   cd /
                   git clone https://github.com/Automattic/wp-e2e-tests.git
                   cd /wp-e2e-tests
-                  git checkout origin/${E2E_BRANCH-update/jetpack-CI-new-prefix}
+                  git checkout origin/${E2E_BRANCH-master}
       - restore_cache:
           key: << checksum "package.json" >>
       - run: source $HOME/.nvm/nvm.sh && npm install
@@ -71,6 +71,15 @@ jobs:
       - attach_workspace:
           at: /wp-e2e-tests
       - run:
+          name: Run Jetpack deactivation spec
+          command: |
+                  if [ "$E2E_DEBUG" == "true" ]; then
+                    echo "Skipping deactivation step for DEBUG purposes"
+                  else
+                    source $HOME/.nvm/nvm.sh && xvfb-run ./node_modules/.bin/mocha scripts/jetpack/wp-jetpack-deactivate.js
+                  fi
+          when: always
+      - run:
           name: Delete site from Digital Ocean via ServerPilot
           command: |
                   if [ "$E2E_DEBUG" == "true" ]; then
@@ -90,3 +99,4 @@ workflows:
       - destroy:
           requires:
             - test
+          when: always
