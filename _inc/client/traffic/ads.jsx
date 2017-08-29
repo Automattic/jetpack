@@ -91,7 +91,7 @@ export const Ads = moduleSettingsForm(
 							</span>
 						</ModuleToggle>
 						<FormFieldset>
-							<FormLegend>{ __( 'Display ads beneath posts on' ) }</FormLegend>
+							<FormLegend>{ __( 'Display ads below posts on' ) }</FormLegend>
 							<CompactFormToggle
 								checked={ this.state.wordads_display_front_page }
 								disabled={ ! isAdsActive || unavailableInDevMode || this.props.isSavingAnyOption( [ 'wordads', 'wordads_display_front_page' ] ) }
