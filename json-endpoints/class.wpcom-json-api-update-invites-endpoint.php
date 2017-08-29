@@ -1,4 +1,48 @@
 <?php
+
+new WPCOM_JSON_API_Update_Invites_Endpoint( array(
+	'description' => 'Delete an invite for a user to join a site.',
+	'group'       => '__do_not_document',
+	'stat'        => 'invites:1:delete',
+	'method'      => 'POST',
+	'path'        => '/sites/%s/invites/%s/delete',
+	'path_labels' => array(
+		'$site'      => '(int|string) Site ID or domain',
+		'$invite_id' => '(string) The ID of the invite'
+	),
+	'response_format' => array(
+		'invite_key' => '(string) Identifier for the deleted invite',
+		'deleted' => '(bool) Was the invitation removed?'
+	),
+
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/30434183/invites/123523562/delete',
+
+	'example_request_data' => array(
+		'headers' => array( 'authorization' => 'Bearer YOUR_API_TOKEN' ),
+	),
+) );
+
+new WPCOM_JSON_API_Update_Invites_Endpoint( array(
+	'description' => 'Resend invitation for a user to join a site.',
+	'group'       => '__do_not_document',
+	'stat'        => 'invites:1',
+	'method'      => 'POST',
+	'path'        => '/sites/%s/invites/%s/resend',
+	'path_labels' => array(
+		'$site'      => '(int|string) Site ID or domain',
+		'$invite_id' => '(string) The ID of the invite'
+	),
+	'response_format' => array(
+		'result' => '(bool) Was the invitation resent?'
+	),
+
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/30434183/invites/123523562',
+
+	'example_request_data' => array(
+		'headers' => array( 'authorization' => 'Bearer YOUR_API_TOKEN' ),
+	),
+) );
+
 class WPCOM_JSON_API_Update_Invites_Endpoint extends WPCOM_JSON_API_Endpoint {
 	public $blog_id;
 	public $invite_id;
