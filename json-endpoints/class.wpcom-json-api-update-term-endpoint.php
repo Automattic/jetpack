@@ -1,5 +1,81 @@
 <?php
 
+new WPCOM_JSON_API_Update_Term_Endpoint( array(
+	'description' => 'Create a new term.',
+	'group'       => 'taxonomy',
+	'stat'        => 'terms:new',
+	'method'      => 'POST',
+	'path'        => '/sites/%s/taxonomies/%s/terms/new',
+	'path_labels' => array(
+		'$site'     => '(int|string) Site ID or domain',
+		'$taxonomy' => '(string) Taxonomy',
+	),
+	'request_format' => array(
+		'name'        => '(string) Name of the term',
+		'description' => '(string) A description of the term',
+		'parent'      => '(int) The parent ID for the term, if hierarchical',
+	),
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/taxonomies/post_tag/terms/new',
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+		'body' => array(
+			'name' => 'Ribs & Chicken'
+		)
+	)
+) );
+
+new WPCOM_JSON_API_Update_Term_Endpoint( array(
+	'description' => 'Edit a term.',
+	'group'       => 'taxonomy',
+	'stat'        => 'terms:1:POST',
+	'method'      => 'POST',
+	'path'        => '/sites/%s/taxonomies/%s/terms/slug:%s',
+	'path_labels' => array(
+		'$site'     => '(int|string) Site ID or domain',
+		'$taxonomy' => '(string) Taxonomy',
+		'$slug'     => '(string) The term slug',
+	),
+	'request_format' => array(
+		'name'        => '(string) Name of the term',
+		'description' => '(string) A description of the term',
+		'parent'      => '(int) The parent ID for the term, if hierarchical',
+	),
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/taxonomies/post_tag/terms/slug:testing-term',
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+		'body' => array(
+			'description' => 'The most delicious'
+		)
+	)
+) );
+
+new WPCOM_JSON_API_Update_Term_Endpoint( array(
+	'description' => 'Delete a term.',
+	'group'       => 'taxonomy',
+	'stat'        => 'terms:1:delete',
+	'method'      => 'POST',
+	'path'        => '/sites/%s/taxonomies/%s/terms/slug:%s/delete',
+	'path_labels' => array(
+		'$site'     => '(int|string) Site ID or domain',
+		'$taxonomy' => '(string) Taxonomy',
+		'$slug'     => '(string) The term slug',
+	),
+	'response_format' => array(
+		'slug'    => '(string) The slug of the deleted term',
+		'success' => '(bool) Whether the operation was successful',
+	),
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/taxonomies/post_tag/terms/slug:$term/delete',
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	)
+) );
+
 class WPCOM_JSON_API_Update_Term_Endpoint extends WPCOM_JSON_API_Taxonomy_Endpoint {
 	// /sites/%s/taxonomies/%s/terms/new            -> $blog_id, $taxonomy
 	// /sites/%s/taxonomies/%s/terms/slug:%s        -> $blog_id, $taxonomy, $slug

@@ -1,4 +1,183 @@
 <?php
+
+new WPCOM_JSON_API_Update_Post_Endpoint( array(
+	'description' => 'Create a post.',
+	'group'       => 'posts',
+	'stat'        => 'posts:new',
+	'new_version' => '1.2',
+	'max_version' => '1',
+	'method'      => 'POST',
+	'path'        => '/sites/%s/posts/new',
+	'path_labels' => array(
+		'$site' => '(int|string) Site ID or domain',
+	),
+
+	'request_format' => array(
+		// explicitly document all input
+		'date'      => "(ISO 8601 datetime) The post's creation time.",
+		'title'     => '(HTML) The post title.',
+		'content'   => '(HTML) The post content.',
+		'excerpt'   => '(HTML) An optional post excerpt.',
+		'slug'      => '(string) The name (slug) for the post, used in URLs.',
+		'author'    => '(string) The username or ID for the user to assign the post to.',
+		'publicize' => '(array|bool) True or false if the post be publicized to external services. An array of services if we only want to publicize to a select few. Defaults to true.',
+		'publicize_message' => '(string) Custom message to be publicized to external services.',
+		'status'    => array(
+			'publish' => 'Publish the post.',
+			'private' => 'Privately publish the post.',
+			'draft'   => 'Save the post as a draft.',
+			'pending' => 'Mark the post as pending editorial approval.',
+			'auto-draft' => 'Save a placeholder for a newly created post, with no content.',
+		),
+		'sticky'    => array(
+			'false'   => 'Post is not marked as sticky.',
+			'true'    => 'Stick the post to the front page.',
+		),
+		'password'  => '(string) The plaintext password protecting the post, or, more likely, the empty string if the post is not password protected.',
+		'parent'    => "(int) The post ID of the new post's parent.",
+		'type'      => "(string) The post type. Defaults to 'post'. Post types besides post and page need to be whitelisted using the <code>rest_api_allowed_post_types</code> filter.",
+		'categories' => "(array|string) Comma-separated list or array of categories (name or id)",
+		'tags'       => "(array|string) Comma-separated list or array of tags (name or id)",
+		'format'     => array_merge( array( 'default' => 'Use default post format' ), get_post_format_strings() ),
+		'featured_image' => "(string) The post ID of an existing attachment to set as the featured image. Pass an empty string to delete the existing image.",
+		'media'      => "(media) An array of files to attach to the post. To upload media, the entire request should be multipart/form-data encoded. Multiple media items will be displayed in a gallery. Accepts  jpg, jpeg, png, gif, pdf, doc, ppt, odt, pptx, docx, pps, ppsx, xls, xlsx, key. Audio and Video may also be available. See <code>allowed_file_types</code> in the options response of the site endpoint. <br /><br /><strong>Example</strong>:<br />" .
+		 				"<code>curl \<br />--form 'title=Image' \<br />--form 'media[]=@/path/to/file.jpg' \<br />-H 'Authorization: BEARER your-token' \<br />'https://public-api.wordpress.com/rest/v1/sites/123/posts/new'</code>",
+		'media_urls' => "(array) An array of URLs for images to attach to a post. Sideloads the media in for a post.",
+		'metadata'      => "(array) Array of metadata objects containing the following properties: `key` (metadata key), `id` (meta ID), `previous_value` (if set, the action will only occur for the provided previous value), `value` (the new value to set the meta to), `operation` (the operation to perform: `update` or `add`; defaults to `update`). All unprotected meta keys are available by default for read requests. Both unprotected and protected meta keys are avaiable for authenticated requests with proper capabilities. Protected meta keys can be made available with the <code>rest_api_allowed_public_metadata</code> filter.",
+		'comments_open' => "(bool) Should the post be open to comments? Defaults to the blog's preference.",
+		'pings_open'    => "(bool) Should the post be open to comments? Defaults to the blog's preference.",
+		'likes_enabled' => "(bool) Should the post be open to likes? Defaults to the blog's preference.",
+		'sharing_enabled' => "(bool) Should sharing buttons show on this post? Defaults to true.",
+		'menu_order'    => "(int) (Pages Only) the order pages should appear in. Use 0 to maintain alphabetical order.",
+	),
+
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/posts/new/',
+
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+
+		'body' => array(
+			'title'      => 'Hello World',
+			'content'    => 'Hello. I am a test post. I was created by the API',
+			'tags'       => 'tests',
+			'categories' => 'API'
+		)
+	)
+) );
+
+new WPCOM_JSON_API_Update_Post_Endpoint( array(
+	'description' => 'Edit a post.',
+	'group'       => 'posts',
+	'stat'        => 'posts:1:POST',
+	'new_version' => '1.2',
+	'max_version' => '1',
+	'method'      => 'POST',
+	'path'        => '/sites/%s/posts/%d',
+	'path_labels' => array(
+		'$site'    => '(int|string) Site ID or domain',
+		'$post_ID' => '(int) The post ID',
+	),
+
+	'request_format' => array(
+		'date'      => "(ISO 8601 datetime) The post's creation time.",
+		'title'     => '(HTML) The post title.',
+		'content'   => '(HTML) The post content.',
+		'excerpt'   => '(HTML) An optional post excerpt.',
+		'slug'      => '(string) The name (slug) for the post, used in URLs.',
+		'author'    => '(string) The username or ID for the user to assign the post to.',
+		'publicize' => '(array|bool) True or false if the post be publicized to external services. An array of services if we only want to publicize to a select few. Defaults to true.',
+		'publicize_message' => '(string) Custom message to be publicized to external services.',
+		'status'    => array(
+			'publish' => 'Publish the post.',
+			'private' => 'Privately publish the post.',
+			'draft'   => 'Save the post as a draft.',
+			'pending' => 'Mark the post as pending editorial approval.',
+			'trash'   => 'Set the post as trashed.',
+		),
+		'sticky'    => array(
+			'false'   => 'Post is not marked as sticky.',
+			'true'    => 'Stick the post to the front page.',
+		),
+		'password'   => '(string) The plaintext password protecting the post, or, more likely, the empty string if the post is not password protected.',
+		'parent'     => "(int) The post ID of the new post's parent.",
+		'categories' => "(array|string) Comma-separated list or array of categories (name or id)",
+		'tags'       => "(array|string) Comma-separated list or array of tags (name or id)",
+		'format'     => array_merge( array( 'default' => 'Use default post format' ), get_post_format_strings() ),
+		'comments_open' => '(bool) Should the post be open to comments?',
+		'pings_open'    => '(bool) Should the post be open to comments?',
+		'likes_enabled' => "(bool) Should the post be open to likes?",
+		'menu_order'    => "(int) (Pages Only) the order pages should appear in. Use 0 to maintain alphabetical order.",
+		'sharing_enabled' => "(bool) Should sharing buttons show on this post?",
+		'featured_image' => "(string) The post ID of an existing attachment to set as the featured image. Pass an empty string to delete the existing image.",
+		'media'      => "(media) An array of files to attach to the post. To upload media, the entire request should be multipart/form-data encoded. Multiple media items will be displayed in a gallery. Accepts  jpg, jpeg, png, gif, pdf, doc, ppt, odt, pptx, docx, pps, ppsx, xls, xlsx, key. Audio and Video may also be available. See <code>allowed_file_types</code> in the options resposne of the site endpoint. <br /><br /><strong>Example</strong>:<br />" .
+		 				"<code>curl \<br />--form 'title=Image' \<br />--form 'media[]=@/path/to/file.jpg' \<br />-H 'Authorization: BEARER your-token' \<br />'https://public-api.wordpress.com/rest/v1/sites/123/posts/new'</code>",
+		'media_urls' => "(array) An array of URLs for images to attach to a post. Sideloads the media in for a post.",
+		'metadata'      => "(array) Array of metadata objects containing the following properties: `key` (metadata key), `id` (meta ID), `previous_value` (if set, the action will only occur for the provided previous value), `value` (the new value to set the meta to), `operation` (the operation to perform: `update` or `add`; defaults to `update`). All unprotected meta keys are available by default for read requests. Both unprotected and protected meta keys are available for authenticated requests with proper capabilities. Protected meta keys can be made available with the <code>rest_api_allowed_public_metadata</code> filter.",
+	),
+
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/posts/881',
+
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+
+		'body' => array(
+			'title'      => 'Hello World (Again)',
+			'content'    => 'Hello. I am an edited post. I was edited by the API',
+			'tags'       => 'tests',
+			'categories' => 'API'
+		)
+	)
+) );
+
+new WPCOM_JSON_API_Update_Post_Endpoint( array(
+	'description' => 'Delete a post. Note: If the trash is enabled, this request will send the post to the trash. A second request will permanently delete the post.',
+	'group'       => 'posts',
+	'stat'        => 'posts:1:delete',
+	'new_version' => '1.1',
+	'max_version' => '1',
+	'method'      => 'POST',
+	'path'        => '/sites/%s/posts/%d/delete',
+	'path_labels' => array(
+		'$site'    => '(int|string) Site ID or domain',
+		'$post_ID' => '(int) The post ID',
+	),
+
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/posts/$post_ID/delete/',
+
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		)
+	)
+) );
+
+new WPCOM_JSON_API_Update_Post_Endpoint( array(
+	'description' => 'Restore a post or page from the trash to its previous status.',
+	'group'       => 'posts',
+	'stat'        => 'posts:1:restore',
+
+	'method'      => 'POST',
+	'new_version' => '1.1',
+	'max_version' => '1',
+	'path'        => '/sites/%s/posts/%d/restore',
+	'path_labels' => array(
+		'$site'    => '(int|string) Site ID or domain',
+		'$post_ID' => '(int) The post ID',
+	),
+
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/posts/$post_ID/restore/',
+
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		)
+	)
+) );
+
 class WPCOM_JSON_API_Update_Post_Endpoint extends WPCOM_JSON_API_Post_Endpoint {
 	function __construct( $args ) {
 		parent::__construct( $args );

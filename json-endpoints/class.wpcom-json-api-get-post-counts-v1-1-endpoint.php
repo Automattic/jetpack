@@ -1,5 +1,34 @@
 <?php
 
+new WPCOM_JSON_API_GET_Post_Counts_V1_1_Endpoint( array(
+	'description'   => 'Get number of posts in the post type groups by post status',
+	'group'         => 'sites',
+	'stat'          => 'sites:X:post-counts:X',
+	'force'         => 'wpcom',
+	'method'        => 'GET',
+	'min_version'   => '1.1',
+	'max_version'   => '1.2',
+	'path'          => '/sites/%s/post-counts/%s',
+	'path_labels'   => array(
+		'$site'       => '(int|string) Site ID or domain',
+		'$post_type'  => '(string) Post Type',
+	),
+
+	'query_parameters' => array(
+		'context' => false,
+		'author' => '(int) author ID',
+	),
+
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.2/sites/en.blog.wordpress.com/post-counts/page',
+
+	'response_format' => array(
+		'counts' => array(
+			'all' => '(array) Number of posts by any author in the post type grouped by post status',
+			'mine' => '(array) Number of posts by the current user in the post type grouped by post status'
+		)
+	)
+) );
+
 class WPCOM_JSON_API_GET_Post_Counts_V1_1_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 	private $whitelist = array( 'publish' );
@@ -67,6 +96,7 @@ class WPCOM_JSON_API_GET_Post_Counts_V1_1_Endpoint extends WPCOM_JSON_API_Endpoi
 		return $return;
 	}
 
+	// /sites/%s/post-counts/%s
 	public function callback( $path = '', $blog_id = 0, $post_type = 'post' ) {
 		if ( ! get_current_user_id() ) {
 			return new WP_Error( 'authorization_required', __( 'An active access token must be used to retrieve post counts.', 'jetpack' ), 403 );

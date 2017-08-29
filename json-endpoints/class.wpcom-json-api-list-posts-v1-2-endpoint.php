@@ -1,10 +1,61 @@
 <?php
-/*
- * WARNING: This file is distributed verbatim in Jetpack.
- * There should be nothing WordPress.com specific in this file.
- *
- * @hide-in-jetpack
- */
+
+new WPCOM_JSON_API_List_Posts_v1_2_Endpoint( array(
+	'description' => 'Get a list of matching posts.',
+	'min_version' => '1.2',
+	'max_version' => '1.2',
+
+	'group'       => 'posts',
+	'stat'        => 'posts',
+
+	'method'      => 'GET',
+	'path'        => '/sites/%s/posts/',
+	'path_labels' => array(
+		'$site' => '(int|string) Site ID or domain',
+	),
+
+	'query_parameters' => array(
+		'number'   => '(int=20) The number of posts to return. Limit: 100.',
+		'offset'   => '(int=0) 0-indexed offset.',
+		'page'     => '(int) Return the Nth 1-indexed page of posts. Takes precedence over the <code>offset</code> parameter.',
+		'page_handle' => '(string) A page handle, returned from a previous API call as a <code>meta.next_page</code> property. This is the most efficient way to fetch the next page of results.',
+		'order'    => array(
+			'DESC' => 'Return posts in descending order. For dates, that means newest to oldest.',
+			'ASC'  => 'Return posts in ascending order. For dates, that means oldest to newest.',
+		),
+		'order_by' => array(
+			'date'          => 'Order by the created time of each post.',
+			'modified'      => 'Order by the modified time of each post.',
+			'title'         => "Order lexicographically by the posts' titles.",
+			'comment_count' => 'Order by the number of comments for each post.',
+			'ID'            => 'Order by post ID.',
+		),
+		'after'    => '(ISO 8601 datetime) Return posts dated after the specified datetime.',
+		'before'   => '(ISO 8601 datetime) Return posts dated before the specified datetime.',
+		'modified_after'    => '(ISO 8601 datetime) Return posts modified after the specified datetime.',
+		'modified_before'   => '(ISO 8601 datetime) Return posts modified before the specified datetime.',
+		'tag'      => '(string) Specify the tag name or slug.',
+		'category' => '(string) Specify the category name or slug.',
+		'term'     => '(object:string) Specify comma-separated term slugs to search within, indexed by taxonomy slug.',
+		'type'     => "(string) Specify the post type. Defaults to 'post', use 'any' to query for both posts and pages. Post types besides post and page need to be whitelisted using the <code>rest_api_allowed_post_types</code> filter.",
+		'exclude_private_types' => '(bool=false) Use this flag together with `type=any` to get only publicly accessible posts.',
+		'parent_id' => '(int) Returns only posts which are children of the specified post. Applies only to hierarchical post types.',
+		'exclude'  => '(array:int|int) Excludes the specified post ID(s) from the response',
+		'exclude_tree' => '(int) Excludes the specified post and all of its descendants from the response. Applies only to hierarchical post types.',
+		'status'   => '(string) Comma-separated list of statuses for which to query, including any of: "publish", "private", "draft", "pending", "future", and "trash", or simply "any". Defaults to "publish"',
+		'sticky'    => array(
+			'include'   => 'Sticky posts are not excluded from the list.',
+			'exclude'   => 'Sticky posts are excluded from the list.',
+			'require'   => 'Only include sticky posts',
+		),
+		'author'   => "(int) Author's user ID",
+		'search'   => '(string) Search query',
+		'meta_key'   => '(string) Metadata key that the post should contain',
+		'meta_value'   => '(string) Metadata value that the post should contain. Will only be applied if a `meta_key` is also given',
+	),
+
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.2/sites/en.blog.wordpress.com/posts/?number=2'
+) );
 
 class WPCOM_JSON_API_List_Posts_v1_2_Endpoint extends WPCOM_JSON_API_List_Posts_v1_1_Endpoint {
 	// /sites/%s/posts/ -> $blog_id
