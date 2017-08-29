@@ -88,3 +88,52 @@ function jetpack_get_migration_data( $option_name ) {
 
 	return null !== $post ? maybe_unserialize( $post->post_content_filtered ) : null;
 }
+
+/**
+ * Intervene upgrade process so Jetpack themes are downloaded with credentials.
+ *
+ * @since 5.3
+ *
+ * @param bool   $preempt Whether to preempt an HTTP request's return value. Default false.
+ * @param array  $r       HTTP request arguments.
+ * @param string $url     The request URL.
+ *
+ * @return array|bool|WP_Error
+ */
+function jetpack_theme_update( $preempt, $r, $url ) {
+	if ( false !== stripos( $url, JETPACK__WPCOM_JSON_API_HOST . '/rest/v1/themes/download' ) ) {
+		$file = $r['filename'];
+		if ( ! $file ) {
+			return new WP_Error( 'problem_creating_theme_file', esc_html__( 'Problem creating file for theme download', 'jetpack' ) );
+		}
+		$theme = pathinfo( parse_url( $url, PHP_URL_PATH ), PATHINFO_FILENAME );
+
+		// Remove filter to avoid endless loop since wpcom_json_api_request_as_blog uses this too.
+		remove_filter( 'pre_http_request', 'jetpack_theme_update' );
+		$result = Jetpack_Client::wpcom_json_api_request_as_blog(
+			"themes/download/$theme.zip", '1.1', array( 'stream' => true, 'filename' => $file )
+		);
+
+		if ( 200 !== wp_remote_retrieve_response_code( $result ) ) {
+			return new WP_Error( 'problem_fetching_theme', esc_html__( 'Problem downloading theme', 'jetpack' ) );
+		}
+		return $result;
+	}
+	return $preempt;
+}
+
+/**
+ * Add the filter when a upgrade is going to be downloaded.
+ *
+ * @since 5.3
+ *
+ * @param bool $reply Whether to bail without returning the package. Default false.
+ *
+ * @return bool
+ */
+function jetpack_upgrader_pre_download( $reply ) {
+	add_filter( 'pre_http_request', 'jetpack_theme_update', 10, 3 );
+	return $reply;
+}
+
+add_filter( 'upgrader_pre_download', 'jetpack_upgrader_pre_download' );
