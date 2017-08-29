@@ -24,10 +24,6 @@ class Jetpack_Sync_Actions {
 		} else if ( wp_next_scheduled( 'jetpack_sync_cron' ) ) {
 			self::clear_sync_cron_jobs();
 		}
-
-		// On jetpack authorization, schedule a full sync
-		add_action( 'jetpack_client_authorized', array( __CLASS__, 'do_full_sync' ), 10, 0 );
-
 		// When importing via cron, do not sync
 		add_action( 'wp_cron_importer_hook', array( __CLASS__, 'set_is_importing_true' ), 1 );
 
@@ -54,7 +50,6 @@ class Jetpack_Sync_Actions {
 		}
 
 		add_action( 'init', array( __CLASS__, 'add_sender_shutdown' ), 90 );
-
 	}
 
 	static function add_sender_shutdown() {
@@ -202,6 +197,25 @@ class Jetpack_Sync_Actions {
 		);
 
 		self::do_full_sync( $initial_sync_config );
+	}
+
+	static function do_inital_sync_on_site_registration() {
+		$initial_sync_config = array(
+			'options'         => true,
+			'network_options' => true,
+			'functions'       => true,
+			'constants'       => true,
+		);
+
+		$user = wp_get_current_user();
+		if ( isset( $user->ID ) ) {
+			$initial_sync_config['users'] = array( $user->ID );
+		}
+
+		self::initialize_listener();
+		self::initialize_sender();
+		add_action( 'shutdown', array( self::$sender, 'do_full_sync' ) );
+		Jetpack_Sync_Modules::get_module( 'full-sync' )->start( $initial_sync_config );
 	}
 
 	static function do_full_sync( $modules = null ) {
@@ -450,3 +464,5 @@ add_action( 'plugins_loaded', array( 'Jetpack_Sync_Actions', 'init' ), 90 );
 // We need to define this here so that it's hooked before `updating_jetpack_version` is called
 add_action( 'updating_jetpack_version', array( 'Jetpack_Sync_Actions', 'do_initial_sync' ), 10, 2 );
 add_action( 'updating_jetpack_version', array( 'Jetpack_Sync_Actions', 'cleanup_on_upgrade' ), 10, 2 );
+add_action( 'jetpack_user_authorized', array( 'Jetpack_Sync_Actions', 'do_inital_sync_on_site_registration' ), 10, 0 );
+
