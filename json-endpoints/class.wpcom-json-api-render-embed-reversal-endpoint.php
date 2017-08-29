@@ -1,4 +1,38 @@
 <?php
+
+new WPCOM_JSON_API_Render_Embed_Reversal_Endpoint( array(
+	'description' => "Determines if the given embed code can be reversed into a single line embed or a shortcode, and if so returns the embed or shortcode. Note: The current user must have publishing access.",
+	//'group'       => 'sites',
+	'group'       => '__do_not_document',
+	'stat'        => 'embeds:reversal',
+	'method'      => 'POST',
+	'path'        => '/sites/%s/embeds/reversal',
+	'path_labels' => array(
+		'$site'    => '(int|string) Site ID or domain',
+	),
+	'request_format' => array(
+		'maybe_embed' => '(string) The embed code to reverse. Required. Only accepts one at a time.',
+	),
+	'response_format' => array(
+		'maybe_embed' => '(string) The original embed code that was passed in for rendering.',
+		'reversal_type' => '(string) The type of reversal. Either an embed or a shortcode.',
+		'render_result' => '(html) The rendered HTML result of the embed or shortcode.',
+		'result' => '(string) The reversed content. Either a single line embed or a shortcode.',
+		'scripts'   => '(array) An array of JavaScript files needed to render the embed or shortcode. Returned in the format of <code>{ "script-slug" : { "src": "http://example.com/file.js", "extra" : "" } }</code> where extra contains any neccessary extra JS for initializing the source file and src contains the script to load. Omitted if no scripts are neccessary.',
+		'styles'    => '(array) An array of CSS files needed to render the embed or shortcode. Returned in the format of <code>{ "style-slug" : { "src": "http://example.com/file.css", "media" : "all" } }</code>. Omitted if no styles are neccessary.',
+	),
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/shortcode-reversals/render/',
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+
+		'body' => array(
+			'maybe_embed' => '<iframe width="480" height="302" src="http://www.ustream.tv/embed/recorded/26370522/highlight/299667?v=3&amp;wmode=direct" scrolling="no" frameborder="0"></iframe>',
+		)
+	),
+) );
+
 class WPCOM_JSON_API_Render_Embed_Reversal_Endpoint extends WPCOM_JSON_API_Render_Endpoint {
 	// /sites/%s/embeds/reversal -> $blog_id
 	function callback( $path = '', $blog_id = 0 ) {

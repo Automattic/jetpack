@@ -1,4 +1,35 @@
 <?php
+
+new WPCOM_JSON_API_Get_Post_v1_1_Endpoint( array(
+	'description' => 'Get a single post (by ID).',
+	'min_version' => '1.1',
+	'max_version' => '1.1',
+	'group'       => 'posts',
+	'stat'        => 'posts:1',
+	'method'      => 'GET',
+	'path'        => '/sites/%s/posts/%d',
+	'path_labels' => array(
+		'$site'    => '(int|string) Site ID or domain',
+		'$post_ID' => '(int) The post ID',
+	),
+	'example_request'  => 'https://public-api.wordpress.com/rest/v1.1/sites/en.blog.wordpress.com/posts/7'
+) );
+
+new WPCOM_JSON_API_Get_Post_v1_1_Endpoint( array(
+	'description' => 'Get a single post (by slug).',
+	'min_version' => '1.1',
+	'max_version' => '1.1',
+	'group'       => 'posts',
+	'stat'        => 'posts:slug',
+	'method'      => 'GET',
+	'path'        => '/sites/%s/posts/slug:%s',
+	'path_labels' => array(
+		'$site'      => '(int|string) Site ID or domain',
+		'$post_slug' => '(string) The post slug (a.k.a. sanitized name)',
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/en.blog.wordpress.com/posts/slug:blogging-and-stuff',
+) );
+
 class WPCOM_JSON_API_Get_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_1_Endpoint {
 	// /sites/%s/posts/%d      -> $blog_id, $post_id
 	// /sites/%s/posts/slug:%s -> $blog_id, $post_id
