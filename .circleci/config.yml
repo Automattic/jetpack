@@ -30,7 +30,7 @@ jobs:
           name: Install Jetpack from master
           command: |
                   scp -o "StrictHostKeyChecking no" scripts/jetpack/git-jetpack.sh serverpilot@wp-e2e-tests.pw:~serverpilot/git-jetpack.sh
-                  ssh -o "StrictHostKeyChecking no" serverpilot@wp-e2e-tests.pw ~serverpilot/git-jetpack.sh wordpress-${CIRCLE_SHA1:0:30}
+                  ssh -o "StrictHostKeyChecking no" serverpilot@wp-e2e-tests.pw ~serverpilot/git-jetpack.sh wordpress-${CIRCLE_SHA1:0:20}
       - run:
           name: Run Jetpack activation spec
           command: source $HOME/.nvm/nvm.sh && xvfb-run ./node_modules/.bin/mocha scripts/jetpack/wp-jetpack-activate.js
