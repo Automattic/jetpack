@@ -108,40 +108,50 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Release date: September 5, 2017
 * Release post:
 
-* Contact Forms: use current_screen hook to specify when to add actions #7618
-* Convert some Jetpack synced files from subdirectory rtl to core stye RTL  #7407
-* Fixed warnings appearing when kses is called on an array #7630
+**Major Enhancements**
+* PHP 7.1 compatibility
+* Jetpack sites can be fully previewed when editing in WordPress.com #7623
+
+**Enhancements**
+* Jetpack admin area got some much needed design love #7604
+* Performance improvements by removing unnecessary HTTP requests on admin page loads.
+* Styling enhancements for the EU Cookie Law widget #7668
+* Loading comment avatars from Facebook and Twitter through https #7547
+* Admin UI is much friendlier on initial activation, when there are no stats to display #7646
+* Now able to stop VideoPress from looping a video during autoplay through the shortcode #7670
+* Optimisations to the Jetpack connection process will cut down on errors. #7684
+* New Jetpack CLI command to allow testing of the Jetpack connection #7636
+* We've added the Likes and Monitor features to our recommended features list, making it easier to activate for new sites. #7682
+* Improvements made (to sync) that makes sure we have the most up-to-date version of your site at wordpress.com
+* Added a link to view your Comments in the WordPress.com toolbar #7678
+* We've found a few places where we were able to optimize the loading of css files #7626
+
+**Bug fixes**
+* Fixed issues with plugins using TinyMCE
+* Fixed the Sitemaps feature, and will no longer error with posts/images with special characters in the title. #7335
+* Fixed a bug that was causing conflicts with the ACF plugin when adding a new custom field. #7605
+* Fixed a bug that would cause some plugins to throw warnings with the Shortcode feature
+* We're no longer loading a font on the front-end for the Likes feature, which may have some performance benefits.
+* Fixed some Jetpack admin UI bugs that were causing some features to not display the correct active status #7606
+* Cleaned up XHTML validation errors #7607
+* Added back a filter for the Widget Visibility feature that was accidentally removed #7628
+* We've fixed some things to make managing your comments and comment authors more reliable from WordPress.com
+
+**OTHER / NOT NOTABLE (PLEASE DELETE IF WE DON'T ADD THEM**
 * Add email field to error on social account create #7625
-* Likes: Remove Open Sans #7645
-* Masterbar: Rename and reorder Pages menu #7641
 * Comments: Add author IP address to the response #7637
-* Site Verification: Show one-way activation banner when feature is inactive #7606
-* Makes Sitemaps module use DOM library. #7335
-* Update the "Unlinked User" notice to a banner, and improve verbiage #7604
-* Widgets: if widget_media_image exists, flag migration as done #7605
-* Fixed issue with non XHTML compliant <link> tags for dns-prefetch #7607
 * Comments: Add checks on the `moderate_comments` capabilities #7619
-* XHTML compliance #7607
 * Jetpack Sync: Update user sync for activity log #7591
-* Comments management: add Comments tree endpoint from WP.com #7640
-* Simple payments: load CSS on demand #7626
 * Add connection banner to Dashboard #7603
 * Remove omnisearch #7590
-* EU Cookie Law Widget: Remove unnecessary widget border #7668
-* Comments: Force https on Facebook/Twitter avatars #7547
-* adding back the tax filter for the widget visibility module #7628
-* VideoPress: Only loop if specifically indicated #7670
-* Add empty stats view for new users #7646
 * New connection banner for testing #7622
-* General: Update module headings file #7676
 * SSO: Allow redirecting to JETPACK__API_BASE in production #7681
 * Comments: adds a raw content response to the sites comment endpoint. #7674
 * Comments: adds author email and IP Address to the site's comments endpoint #7673
-* CLI: Add command to test Jetpack connection #7636
-* Fix VaultPress success notice design #7688
 * Connection Banner: Adding themes slide and enhancing visuals #7648
-* Allow 2 hours for authorize secrets rather than 10 minutes #7684
-* Add JetpackIframeEmbed lib #7623
+* Add pingbacks and trackbacks to the response of the comments tree endpoint. #7671
+* Fix `force_*` params for partner provision script #7654
+
 
 
 = 5.2.1 =
