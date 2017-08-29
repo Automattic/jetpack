@@ -103,6 +103,44 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
+= 5.3 =
+
+* Release date: September 5, 2017
+* Release post:
+
+**Major Enhancements**
+* Full PHP 7.1 compatibility.
+* It's now possible to preview your site within WordPress.com.
+
+**Enhancements**
+* The Ads feature now gives you more options and control over the ads displayed on your site.
+* Increased performance in the admin by cutting back on unnecessary requests.
+* Loading comment avatars from Facebook and Twitter through a more secure https.
+* Admin UI is much friendlier on initial activation when there are no stats to display.
+* You're now able to stop VideoPress from looping a video during autoplay through the shortcode.
+* Made some optimizations to the Jetpack connection process which means connecting your site more is more reliable.
+* The EU Cookie Law widget got some styling improvements and looks better in any theme.
+* There's a new Jetpack CLI command to allow testing of the Jetpack connection.
+* Added the Likes and Monitor features to our recommended features list, making it easier to activate for new sites.
+* Improvements made that makes sure we have the most up-to-date version of your site when managing from WordPress.com.
+* Added a link to view your Comments in the WordPress.com toolbar.
+* Lots of minor design improvements to the Jetpack admin area.
+* We've found a few places where we were able to optimize the loading of css files.
+* Removed the Omnisearch feature.
+
+**Bug fixes**
+* Fixed compatibility issues with plugins using TinyMCE.
+* Updating WordPress.com themes will no longer have any problems.
+* The Sitemaps feature will no longer error with posts/images with special characters in the title.
+* There are more conflicts with the ACF plugin when adding a new custom field.
+* Fixed a bug that would cause some plugins to throw warnings with the Shortcode feature.
+* We're no longer loading a font on the front-end for the Likes feature, which will also have some performance benefits.
+* The Jetpack admin UI had some bugs that were causing some features to not display the correct active status, which are squashed now.
+* Cleaned up our markup to avoid XHTML validation errors.
+* Brought back a filter for the Widget Visibility feature that was accidentally removed.
+* Managing your comments and comment authors more reliable from WordPress.com.
+
+
 = 5.2.1 =
 
 * Release date: August 2, 2017
