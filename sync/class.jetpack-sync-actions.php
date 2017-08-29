@@ -416,8 +416,9 @@ class Jetpack_Sync_Actions {
 		$cron_timestamps = array_keys( _get_cron_array() );
 		$next_cron = $cron_timestamps[0] - time();
 
+		$full_sync_status = ( $sync_module ) ? $sync_module->get_status() : array();
 		return array_merge(
-			$sync_module->get_status(),
+			$full_sync_status,
 			array(
 				'cron_size'             => count( $cron_timestamps ),
 				'next_cron'             => $next_cron,
