@@ -226,21 +226,18 @@
 .jp-landing__plan-card-img {
 
 	@include breakpoint( "<660px" ) {
-		float: right;
-		margin: 0 0 rem( 32px ) rem( 32px );
+		margin: 0 0 rem( 32px ) 0;
 	}
 
 	@include breakpoint( "<480px" ) {
-		display: none;
+		width: 100%;
+		max-width: 100%;
+		text-align: center;
 	}
 }
 
 .jp-landing__plan-icon {
-	width: rem( 120px );
-
-	@include breakpoint( "<660px" ) {
-		width: rem( 100px );
-	}
+	width: rem( 200px );
 }
 
 .jp-landing__plan-card-img.is-placeholder {
