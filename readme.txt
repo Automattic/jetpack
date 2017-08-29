@@ -119,7 +119,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Loading comment avatars from Facebook and Twitter through https #7547
 * Admin UI is much friendlier on initial activation, when there are no stats to display #7646
 * Now able to stop VideoPress from looping a video during autoplay through the shortcode #7670
-* Optimisations to the Jetpack connection process will cut down on errors. #7684
+* Optimizations to the Jetpack connection process will cut down on errors. #7684
 * New Jetpack CLI command to allow testing of the Jetpack connection #7636
 * We've added the Likes and Monitor features to our recommended features list, making it easier to activate for new sites. #7682
 * Improvements made (to sync) that makes sure we have the most up-to-date version of your site at wordpress.com
@@ -128,6 +128,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 * Fixed issues with plugins using TinyMCE
+* Fixed a bug that sometimes broke the update process for free and premium WordPress.com themes
 * Fixed the Sitemaps feature, and will no longer error with posts/images with special characters in the title. #7335
 * Fixed a bug that was causing conflicts with the ACF plugin when adding a new custom field. #7605
 * Fixed a bug that would cause some plugins to throw warnings with the Shortcode feature
