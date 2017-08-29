@@ -54,22 +54,6 @@ jobs:
       - run:
           name: Run e2e tests
           command: ./run.sh -R -j -H CI -p -x
-      - store_test_results:
-          path: reports/
-      - store_artifacts:
-          path: reports/
-      - store_artifacts:
-          path: screenshots/
-  destroy:
-    working_directory: /wp-e2e-tests
-    docker:
-      - image: automattic/wp-e2e-tests:0.0.5
-        environment:
-                JETPACKHOST: CI
-                NODE_ENV: test
-    steps:
-      - attach_workspace:
-          at: /wp-e2e-tests
       - run:
           name: Run Jetpack deactivation spec
           command: |
@@ -88,6 +72,12 @@ jobs:
                     source $HOME/.nvm/nvm.sh && ./scripts/jetpack/wp-serverpilot-delete.js
                   fi
           when: always 
+      - store_test_results:
+          path: reports/
+      - store_artifacts:
+          path: reports/
+      - store_artifacts:
+          path: screenshots/
 workflows:
   version: 2
   build_test_destroy:
@@ -96,7 +86,3 @@ workflows:
       - test:
           requires:
             - build
-      - destroy:
-          requires:
-            - test
-          when: always
