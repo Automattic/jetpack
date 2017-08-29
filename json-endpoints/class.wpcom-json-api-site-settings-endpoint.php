@@ -112,10 +112,10 @@ new WPCOM_JSON_API_Site_Settings_Endpoint( array(
 class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 	public static $site_format = array(
- 		'ID'                => '(int) Site ID',
- 		'name'              => '(string) Title of site',
- 		'description'       => '(string) Tagline or description of site',
- 		'URL'               => '(string) Full URL to the site',
+		'ID'                => '(int) Site ID',
+		'name'              => '(string) Title of site',
+		'description'       => '(string) Tagline or description of site',
+		'URL'               => '(string) Full URL to the site',
 		'lang'              => '(string) Primary language code of the site',
 		'locale_variant'    => '(string) Locale variant code for the site, if set',
 		'settings'          => '(array) An array of options/settings for the blog. Only viewable by users with post editing rights to the site.',
