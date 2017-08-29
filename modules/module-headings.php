@@ -31,7 +31,6 @@ function jetpack_get_module_i18n( $key ) {
 			'comments' => array(
 				'name' => _x( 'Comments', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Let readers use WordPress.com, Twitter, Facebook, or Google+ accounts to comment', 'Module Description', 'jetpack' ),
-				'recommended description' => _x( 'Let readers use WordPress.com, Twitter, Facebook, or Google+ accounts to comment', 'Jumpstart Description', 'jetpack' ),
 			),
 
 			'contact-form' => array(
