@@ -4,6 +4,9 @@ jobs:
     working_directory: /wp-e2e-tests
     docker:
       - image: automattic/wp-e2e-tests:0.0.5
+        environment:
+                JETPACKHOST: CI
+                NODE_ENV: test
     steps:
       - run:
           name: Clone wp-e2e-tests repo
@@ -61,6 +64,9 @@ jobs:
     working_directory: /wp-e2e-tests
     docker:
       - image: automattic/wp-e2e-tests:0.0.5
+        environment:
+                JETPACKHOST: CI
+                NODE_ENV: test
     steps:
       - attach_workspace:
           at: /wp-e2e-tests
