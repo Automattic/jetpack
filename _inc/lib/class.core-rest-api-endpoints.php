@@ -1576,6 +1576,41 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback'  => __CLASS__ . '::validate_boolean',
 				'jp_group'           => 'wordads',
 			),
+			'wordads_second_belowpost' => array(
+				'description'        => esc_html__( 'Display second ad below post?', 'jetpack' ),
+				'type'               => 'boolean',
+				'default'            => 1,
+				'validate_callback'  => __CLASS__ . '::validate_boolean',
+				'jp_group'           => 'wordads',
+			),
+			'wordads_display_front_page' => array(
+				'description'        => esc_html__( 'Display ads on the front page?', 'jetpack' ),
+				'type'               => 'boolean',
+				'default'            => 1,
+				'validate_callback'  => __CLASS__ . '::validate_boolean',
+				'jp_group'           => 'wordads',
+			),
+			'wordads_display_post' => array(
+				'description'        => esc_html__( 'Display ads on posts?', 'jetpack' ),
+				'type'               => 'boolean',
+				'default'            => 1,
+				'validate_callback'  => __CLASS__ . '::validate_boolean',
+				'jp_group'           => 'wordads',
+			),
+			'wordads_display_page' => array(
+				'description'        => esc_html__( 'Display ads on pages?', 'jetpack' ),
+				'type'               => 'boolean',
+				'default'            => 1,
+				'validate_callback'  => __CLASS__ . '::validate_boolean',
+				'jp_group'           => 'wordads',
+			),
+			'wordads_display_archive' => array(
+				'description'        => esc_html__( 'Display ads on archive pages?', 'jetpack' ),
+				'type'               => 'boolean',
+				'default'            => 1,
+				'validate_callback'  => __CLASS__ . '::validate_boolean',
+				'jp_group'           => 'wordads',
+			),
 
 			// Google Analytics
 			'google_analytics_tracking_id' => array(
