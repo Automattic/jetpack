@@ -214,5 +214,6 @@ add_action( 'widgets_init', 'jetpack_migrate_image_widget' );
 function jetpack_refresh_on_widget_page( $current ) {
 	if ( 'widgets' === $current->base ) {
 		wp_safe_redirect( admin_url( 'widgets.php' ) );
+		exit;
 	}
 }

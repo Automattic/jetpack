@@ -333,7 +333,7 @@ class Jetpack_Network {
 					}
 
 					wp_safe_redirect( $url );
-					break;
+					exit;
 
 				case 'subsitedisconnect':
 					Jetpack::log( 'subsitedisconnect' );
