@@ -71,7 +71,7 @@ jobs:
                   else
                     source $HOME/.nvm/nvm.sh && ./scripts/jetpack/wp-serverpilot-delete.js
                   fi
-          when: always
+          when: always 
 workflows:
   version: 2
   build_test_destroy:
