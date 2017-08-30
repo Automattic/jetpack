@@ -91,7 +91,7 @@ workflows:
              branches:
                 only:
                   - master
-                  - /*e2e*/
+                  - /.*e2e.*/
       - test:
           requires:
             - build
