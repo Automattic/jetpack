@@ -203,15 +203,11 @@ class Jetpack_Sync_Actions {
 			'options'         => true,
 			'functions'       => true,
 			'constants'       => true,
+			'users'           => array( get_current_user_id() ),
 		);
 
 		if ( is_multisite() ) {
 			$initial_sync_config['network_options'] = true;
-		}
-
-		$user = wp_get_current_user();
-		if ( isset( $user->ID ) ) {
-			$initial_sync_config['users'] = array( $user->ID );
 		}
 
 		self::do_full_sync( $initial_sync_config );
