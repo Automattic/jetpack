@@ -437,6 +437,8 @@ __( "Drive more traffic to your site", "jetpack" ), // _inc/client/components/je
 __( "No account? Create one for free", "jetpack" ), // _inc/client/components/jetpack-connect/index.jsx:35
 __( "Please connect to or create a WordPress.com account to start using Jetpack. This will enable powerful security, traffic, and customization services.", "jetpack" ), // _inc/client/components/jetpack-connect/index.jsx:30
 __( "Welcome to Jetpack", "jetpack" ), // _inc/client/components/jetpack-connect/index.jsx:25
+__( "Jupiter", "jetpack" ), // _inc/client/components/jetpack-dialogue/index.jsx:22
+__( "Stars", "jetpack" ), // _inc/client/components/jetpack-dialogue/index.jsx:21
 __( "Read more about Jetpack benefits", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:188
 _x( "Disconnect", "A caption for a button to disconnect.", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:181
 _x( "Stay connected", "A caption for a button to cancel disconnection.", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:173
@@ -457,8 +459,6 @@ __( "Daily, automated backups (unlimited storage)", "jetpack" ), // _inc/client/
 __( "Spam filtering", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:53
 __( "Priority support", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:49
 __( "Daily, automated backups (unlimited storage)", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:45
-__( "Jupiter", "jetpack" ), // _inc/client/components/jetpack-dialogue/index.jsx:22
-__( "Stars", "jetpack" ), // _inc/client/components/jetpack-dialogue/index.jsx:21
 __( "Would you tell us why? Just {{a}}answering two simple questions{{/a}} would help us improve Jetpack.", "jetpack" ), // _inc/client/components/jetpack-notices/dismissable.jsx:40
 __( "You have successfully disconnected Jetpack", "jetpack" ), // _inc/client/components/jetpack-notices/dismissable.jsx:37
 __( "Let us know!", "jetpack" ), // _inc/client/components/jetpack-notices/feedback-dash-request.jsx:36
@@ -542,6 +542,8 @@ _x( "Discussion", "Navigation item.", "jetpack" ), // _inc/client/components/nav
 _x( "Sharing", "Navigation item.", "jetpack" ), // _inc/client/components/navigation-settings/index.jsx:146
 _x( "Writing", "Navigation item.", "jetpack" ), // _inc/client/components/navigation-settings/index.jsx:132
 __( "Search for a Jetpack feature.", "jetpack" ), // _inc/client/components/navigation-settings/index.jsx:67
+__( "Learn more", "jetpack" ), // _inc/client/components/settings-group/index.jsx:77
+__( "Learn more", "jetpack" ), // _inc/client/components/settings-group/index.jsx:70
 _x( "Save settings", "Button caption", "jetpack" ), // _inc/client/components/settings-card/index.jsx:264
 _x( "Saving…", "Button caption", "jetpack" ), // _inc/client/components/settings-card/index.jsx:263
 __( "Protect your site from spam.", "jetpack" ), // _inc/client/components/settings-card/index.jsx:188
@@ -552,8 +554,6 @@ __( "Real-time site backups and automatic threat resolution.", "jetpack" ), // _
 __( "Generate income with high-quality ads.", "jetpack" ), // _inc/client/components/settings-card/index.jsx:111
 __( "Host fast, high-quality, ad-free video.", "jetpack" ), // _inc/client/components/settings-card/index.jsx:92
 _x( "Upgrade", "A caption for a button to upgrade an existing paid feature to a higher tier.", "jetpack" ), // _inc/client/components/settings-card/index.jsx:79
-__( "Learn more", "jetpack" ), // _inc/client/components/settings-group/index.jsx:77
-__( "Learn more", "jetpack" ), // _inc/client/components/settings-group/index.jsx:70
 __( "Upgrade", "jetpack" ), // _inc/client/components/support-card/index.jsx:119
 __( "Get a faster resolution to your support questions.", "jetpack" ), // _inc/client/components/support-card/index.jsx:117
 __( "Search our support site", "jetpack" ), // _inc/client/components/support-card/index.jsx:109
