@@ -69,13 +69,8 @@ There were a few small changes to the connection process that is aimed at fixing
 
 ### WordPress.com Theme updating
 
-<<<<<<< HEAD
 - Add a free and premium Jetpack theme
 - Downgrade them by manually editing the style.css
-- Try updating them in update-core.php page and in themes
-=======
-- Add a free and premium Jetpack themes
-- Downgrade them manually editing the style.css
 - Try updating them in update-core.php page and in themes
 
 ### Jetpack Sync
@@ -85,4 +80,3 @@ The site should now fully sync on every Jetpack connection.
 - Disconnect jetpack
 - Update an option such as site_icon.
 - Connect the site. Check that the option was saved right away and reflects correctly in Calypso
->>>>>>> 106f4e2b444ee2084b1bab0d4e7a1635798adf05
