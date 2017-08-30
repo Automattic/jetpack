@@ -87,12 +87,14 @@ workflows:
   build_test_destroy:
     jobs:
       - build
+          filters:
+             branches:
+                only:
+                  - master
+                  - /*e2e*/
       - test:
           requires:
             - build
       - destroy:
           requires:
             - test
-    filters:
-       branches:
-          only: add/e2e-tests
