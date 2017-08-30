@@ -86,7 +86,7 @@ workflows:
   version: 2
   build_test_destroy:
     jobs:
-      - build
+      - build:
           filters:
              branches:
                 only:
