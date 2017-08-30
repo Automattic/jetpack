@@ -1,12 +1,14 @@
-version: 2
-jobs:
-  build:
+defaults: &defaults
     working_directory: /wp-e2e-tests
     docker:
       - image: automattic/wp-e2e-tests:0.0.5
         environment:
                 JETPACKHOST: CI
                 NODE_ENV: test
+version: 2
+jobs:
+  build:
+    <<: *defaults          
     steps:
       - run:
           name: Clone wp-e2e-tests repo
@@ -40,13 +42,8 @@ jobs:
           name: Run Jetpack activation spec
           command: source $HOME/.nvm/nvm.sh && xvfb-run ./node_modules/.bin/mocha scripts/jetpack/wp-jetpack-activate.js
   test:
+    <<: *defaults          
     parallelism: 2
-    working_directory: /wp-e2e-tests
-    docker:
-      - image: automattic/wp-e2e-tests:0.0.5
-        environment:
-                JETPACKHOST: CI
-                NODE_ENV: test
     steps:
       - attach_workspace:
           at: /wp-e2e-tests
@@ -63,12 +60,7 @@ jobs:
       - store_artifacts:
           path: screenshots/
   destroy:
-    working_directory: /wp-e2e-tests
-    docker:
-      - image: automattic/wp-e2e-tests:0.0.5
-        environment:
-                JETPACKHOST: CI
-                NODE_ENV: test
+    <<: *defaults          
     steps:
       - attach_workspace:
           at: /wp-e2e-tests
