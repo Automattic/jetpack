@@ -10,6 +10,7 @@ import Banner from 'components/banner';
  * Internal dependencies
  */
 import { arePromotionsActive } from 'state/initial-state';
+import { userCanManageModules } from 'state/initial-state';
 
 class JetpackBanner extends Banner {
 
@@ -29,10 +30,16 @@ class JetpackBanner extends Banner {
 	};
 
 	static defaultProps = {
-		onClick: noop
+		onClick: noop,
+		plan: false,
 	};
 
 	render() {
+		// Hide promotion banners from non-admins, since they can't upgrade the site.
+		if ( this.props.plan && ! this.props.userCanPurchasePlan ) {
+			return false;
+		}
+
 		return this.props.arePromotionsActive
 			? <Banner { ...this.props } />
 			: null;
@@ -43,7 +50,8 @@ class JetpackBanner extends Banner {
 export default connect(
 	state => {
 		return {
-			arePromotionsActive: arePromotionsActive( state )
+			arePromotionsActive: arePromotionsActive( state ),
+			userCanPurchasePlan: userCanManageModules( state ),
 		};
 	}
 )( JetpackBanner );
