@@ -84,8 +84,10 @@ class Jetpack_Sync_Actions {
 
 	static function sync_allowed() {
 		require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
-		return ( ! Jetpack_Sync_Settings::get_setting( 'disable' ) && Jetpack::is_active() && ! ( Jetpack::is_development_mode() || Jetpack::is_staging_site() ) )
-			   || defined( 'PHPUNIT_JETPACK_TESTSUITE' );
+		return ( ! Jetpack_Sync_Settings::get_setting( 'disable' )
+			&& ( doing_action( 'jetpack_user_authorized' ) || Jetpack::is_active() )
+		    && ! ( Jetpack::is_development_mode() || Jetpack::is_staging_site() ) )
+			|| defined( 'PHPUNIT_JETPACK_TESTSUITE' );
 	}
 
 	static function sync_via_cron_allowed() {
@@ -188,17 +190,14 @@ class Jetpack_Sync_Actions {
 			return;
 		}
 
-		// Lets not sync if we are not suppose to.
-		if ( ! self::sync_allowed() ) {
-			return false;
-		}
 		self::do_initial_sync();
 	}
 
 	static function do_initial_sync() {
-		self::initialize_listener();
-		self::initialize_sender();
-		add_action( 'shutdown', array( self::$sender, 'do_full_sync' ) );
+		// Lets not sync if we are not suppose to.
+		if ( ! self::sync_allowed() ) {
+			return false;
+		}
 
 		$initial_sync_config = array(
 			'options'         => true,
@@ -214,7 +213,8 @@ class Jetpack_Sync_Actions {
 		if ( isset( $user->ID ) ) {
 			$initial_sync_config['users'] = array( $user->ID );
 		}
-		Jetpack_Sync_Modules::get_module( 'full-sync' )->start( $initial_sync_config );
+
+		self::do_full_sync( $initial_sync_config );
 	}
 
 	static function do_full_sync( $modules = null ) {
