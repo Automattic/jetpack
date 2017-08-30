@@ -40,33 +40,6 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $sync_status['config'], $expected_sync_config );
 	}
 
-	function test_upgrading_from_42_plus_does_not_start_an_initial_sync() {
-		$current_user = wp_get_current_user();
-
-		$initial_sync_with_users_config = array(
-			'options' => true,
-			'functions' => true,
-			'constants' => true,
-			'users' => array( $current_user->ID )
-		);
-
-		if ( is_multisite() ) {
-			$initial_sync_with_users_config['network_options'] = true;
-		}
-		do_action( 'updating_jetpack_version', '4.3', '4.2' );
-		$sync_status = Jetpack_Sync_Modules::get_module( 'full-sync' )->get_status();
-		$sync_config = $sync_status[ 'config' ];
-
-		$this->assertNull( $sync_config );
-		$this->assertNotEquals( $initial_sync_with_users_config, $sync_config );
-
-		do_action( 'updating_jetpack_version', '4.2', '4.1' );
-		$sync_status = Jetpack_Sync_Modules::get_module( 'full-sync' )->get_status();
-		$sync_config = $sync_status[ 'config' ];
-
-		$this->assertEquals( $initial_sync_with_users_config, $sync_config );
-	}
-
 	function test_schedules_incremental_sync_cron() {
 		// we need to run this again because cron is cleared between tests
 		Jetpack_Sync_Actions::init_sync_cron_jobs();
