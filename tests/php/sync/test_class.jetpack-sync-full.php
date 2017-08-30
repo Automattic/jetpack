@@ -296,6 +296,27 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 'foo', $this->server_replica_storage->get_constant( 'TEST_SYNC_ALL_CONSTANTS' ) );
 	}
 
+	function test_full_sync_constants_updates_checksums() {
+		define( 'FOO_SYNC_ALL_CONSTANTS', 'foo' );
+		$this->resetCallableAndConstantTimeouts();
+		$helper = new Jetpack_Sync_Test_Helper();
+		$helper->array_override = array( 'FOO_SYNC_ALL_CONSTANTS' );
+		add_filter( 'jetpack_sync_constants_whitelist', array( $helper, 'filter_override_array' ) );
+		$this->full_sync->start();
+		$this->sender->do_full_sync();
+
+		$this->assertEquals( 'foo', $this->server_replica_storage->get_constant( 'FOO_SYNC_ALL_CONSTANTS' ) );
+
+		// reset the storage, check value, and do full sync - storage should be set!
+		$this->server_replica_storage->reset();
+		$this->server_event_storage->reset();
+		// Do Sync shouldn't send anything becuase the checksums are up to date.
+		$this->sender->do_sync();
+		$this->assertEquals( null, $this->server_replica_storage->get_constant( 'FOO_SYNC_ALL_CONSTANTS' ) );
+		$events = $this->server_event_storage->get_all_events( 'jetpack_sync_constant' );
+		$this->assertTrue( empty( $events ) );
+	}
+
 	function test_full_sync_sends_all_functions() {
 		Jetpack_Sync_Modules::get_module( "functions" )->set_callable_whitelist( array( 'jetpack_foo' => 'jetpack_foo_full_sync_callable' ) );
 		$this->sender->do_sync();
@@ -309,6 +330,28 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_full_sync();
 
 		$this->assertEquals( 'the value', $this->server_replica_storage->get_callable( 'jetpack_foo' ) );
+	}
+
+	function test_full_sync_sends_all_functions_inverse() {
+		Jetpack_Sync_Modules::get_module( "functions" )->set_callable_whitelist( array( 'jetpack_foo' => 'jetpack_foo_full_sync_callable' ) );
+
+		// reset the storage, check value, and do full sync - storage should be set!
+		$this->server_replica_storage->reset();
+
+		$this->assertEquals( null, $this->server_replica_storage->get_callable( 'jetpack_foo' ) );
+
+		$this->full_sync->start();
+		$this->sender->do_full_sync();
+		$this->server_replica_storage->reset();
+		$this->server_event_storage->reset();
+
+		$this->resetCallableAndConstantTimeouts();
+		$this->sender->do_sync();
+
+		$this->assertEquals( null, $this->server_replica_storage->get_callable( 'jetpack_foo' ) );
+		$events = $this->server_event_storage->get_all_events( 'jetpack_sync_callable' );
+		$this->assertTrue( empty( $events ) );
+
 	}
 
 	function test_full_sync_sends_all_options() {
@@ -1090,14 +1133,18 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 3, $this->server_replica_storage->user_count() );
 		// finally, let's make sure that the initial sync method actually invokes our initial sync user config
 		Jetpack_Sync_Actions::do_initial_sync( '4.2', '4.1' );
+		$current_user = wp_get_current_user();
 
 		$expected_sync_config = array( 
-			'options' => true, 
-			'network_options' => true,
+			'options' => true,
 			'functions' => true, 
 			'constants' => true, 
-			'users' => 'initial'
+			'users' => array( $current_user->ID )
 		);
+
+		if ( is_multisite() ) {
+			$expected_sync_config['network_options'] = true;
+		}
 
 		$full_sync_status = $this->full_sync->get_status();
 		$this->assertEquals(
