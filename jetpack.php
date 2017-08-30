@@ -3,7 +3,7 @@
 /*
  * Plugin Name: Jetpack by WordPress.com
  * Plugin URI: https://jetpack.com
- * Description: Bring the power of the WordPress.com cloud to your self-hosted WordPress. Jetpack enables you to connect your blog to a WordPress.com account to use the powerful features normally only available to WordPress.com users.
+ * Description: Get everything you need to <strong>design, secure, and grow your WordPress site</strong>. Jetpack gives you free themes, image tools, related content, and site security, all in one convenient bundle.
  * Author: Automattic
  * Version: 5.3-alpha
  * Author URI: https://jetpack.com

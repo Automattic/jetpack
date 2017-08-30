@@ -5,7 +5,7 @@ Stable tag: 5.2.1
 Requires at least: 4.7
 Tested up to: 4.8
 
-The one plugin you need for stats, related posts, search engine optimization, social sharing, protection, backups, speed, and email list management.
+Jetpack gives you tools to design, secure, and grow your site in one convenient bundle.
 
 == Description ==
 
