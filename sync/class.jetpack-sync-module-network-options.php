@@ -1,6 +1,9 @@
 <?php
 
 class Jetpack_Sync_Module_Network_Options extends Jetpack_Sync_Module {
+
+	const OPTIONS_CHECKSUM_OPTION_NAME = 'jetpack_network_options_sync_checksum';
+	const OPTIONS_AWAIT_TRANSIENT_NAME = 'jetpack_sync_network_options_await';
 	private $network_options_whitelist;
 
 	public function name() {
@@ -13,6 +16,7 @@ class Jetpack_Sync_Module_Network_Options extends Jetpack_Sync_Module {
 		}
 
 		// multi site network options
+		add_action( 'jetpack_sync_network_option', $callable, 10, 2 );
 		add_action( 'add_site_option', $callable, 10, 2 );
 		add_action( 'update_site_option', $callable, 10, 3 );
 		add_action( 'delete_site_option', $callable, 10, 1 );
@@ -37,10 +41,46 @@ class Jetpack_Sync_Module_Network_Options extends Jetpack_Sync_Module {
 			$this,
 			'expand_network_options',
 		) );
+
+		add_action( 'jetpack_sync_before_send_queue_sync', array( $this, 'maybe_sync_network_options' ) );
+	}
+
+	function maybe_sync_network_options() {
+		if ( get_site_transient( self::OPTIONS_AWAIT_TRANSIENT_NAME ) ) {
+			return;
+		}
+		set_site_transient( self::OPTIONS_AWAIT_TRANSIENT_NAME, microtime( true ), Jetpack_Sync_Defaults::$default_sync_options_wait_time );
+
+		$options = $this->get_all_network_options();
+		if ( empty( $options ) ) {
+			return;
+		}
+
+		$options_checksums = (array) get_site_option( self::OPTIONS_CHECKSUM_OPTION_NAME, array() );
+
+		foreach ( $options as $name => $value ) {
+			$checksum = $this->get_check_sum( $value );
+			// explicitly not using Identical comparison as get_option returns a string
+			if ( ! $this->still_valid_checksum( $options_checksums, $name, $checksum ) && ! is_null( $value ) ) {
+				/**
+				 * Tells the client to sync an option to the server
+				 *
+				 * @since 5.3.0
+				 *
+				 * @param string The name of the constant
+				 * @param mixed The value of the constant
+				 */
+				do_action( 'jetpack_sync_network_option', $name, $value );
+				$options_checksums[ $name ] = $checksum;
+			} else {
+				$options_checksums[ $name ] = $checksum;
+			}
+		}
+		update_site_option( self::OPTIONS_CHECKSUM_OPTION_NAME, $options_checksums );
 	}
 
 	public function set_defaults() {
-		$this->network_options_whitelist = Jetpack_Sync_Defaults::$default_network_options_whitelist;
+		$this->network_options_whitelist = Jetpack_Sync_Defaults::get_network_options_whitelist();
 	}
 
 	function enqueue_full_sync_actions( $config, $max_items_to_enqueue, $state ) {
@@ -87,6 +127,7 @@ class Jetpack_Sync_Module_Network_Options extends Jetpack_Sync_Module {
 	}
 
 	function get_network_options_whitelist() {
+
 		return $this->network_options_whitelist;
 	}
 

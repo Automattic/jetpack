@@ -375,6 +375,19 @@ class Jetpack_Sync_Defaults {
 		'active_sitewide_plugins',
 	);
 
+	static function get_network_options_whitelist() {
+		/**
+		 * Filter the list of WordPress network options that are can be synced.
+		 *
+		 * @module sync
+		 *
+		 * @since 5.3.0
+		 *
+		 * @param array The default list of network options.
+		 */
+		return apply_filters( 'jetpack_sync_network_options_whitelist', self::$default_network_options_whitelist );
+	}
+
 	static $default_taxonomy_whitelist = array();
 	static $default_dequeue_max_bytes = 500000; // very conservative value, 1/2 MB
 	static $default_upload_max_bytes = 600000; // a little bigger than the upload limit to account for serialization
@@ -395,6 +408,7 @@ class Jetpack_Sync_Defaults {
 	static $default_max_queue_size_full_sync = 1000; // max number of total items in the full sync queue
 	static $default_sync_callables_wait_time = MINUTE_IN_SECONDS; // seconds before sending callables again
 	static $default_sync_constants_wait_time = HOUR_IN_SECONDS; // seconds before sending constants again
+	static $default_sync_options_wait_time = DAY_IN_SECONDS;
 	static $default_sync_queue_lock_timeout = 120; // 2 minutes
 	static $default_cron_sync_time_limit = 30; // 30 seconds
 }
