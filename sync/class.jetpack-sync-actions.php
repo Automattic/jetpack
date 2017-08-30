@@ -210,8 +210,16 @@ class Jetpack_Sync_Actions {
 			return false;
 		}
 
+		$full_sync_module = Jetpack_Sync_Modules::get_module( 'full-sync' );
+
+		if ( ! $full_sync_module ) {
+			return false;
+		}
+
 		self::initialize_listener();
-		Jetpack_Sync_Modules::get_module( 'full-sync' )->start( $modules );
+
+		$full_sync_module->start( $modules );
+
 		return true;
 	}
 
