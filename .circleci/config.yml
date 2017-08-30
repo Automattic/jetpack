@@ -95,4 +95,4 @@ workflows:
             - test
     filters:
        branches:
-          only: master
+          only: add/e2e-tests
