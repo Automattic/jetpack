@@ -171,7 +171,13 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 
 	public function expand_callables( $args ) {
 		if ( $args[0] ) {
-			return $this->get_all_callables();
+			$callables = $this->get_all_callables();
+			$callables_checksums = array();
+			foreach ( $callables as $name => $value ) {
+				$callables_checksums[ $name ] = $this->get_check_sum( $value );
+			}
+			Jetpack_Options::update_raw_option( self::CALLABLES_CHECKSUM_OPTION_NAME, $callables_checksums );
+			return $callables;
 		}
 
 		return $args;

@@ -5,7 +5,7 @@ Stable tag: 5.2.1
 Requires at least: 4.7
 Tested up to: 4.8
 
-The one plugin you need for stats, related posts, search engine optimization, social sharing, protection, backups, speed, and email list management.
+Jetpack gives you tools to design, secure, and grow your site in one convenient bundle.
 
 == Description ==
 
@@ -132,7 +132,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Fixed compatibility issues with plugins using TinyMCE.
 * Updating WordPress.com themes will no longer have any problems.
 * The Sitemaps feature will no longer error with posts/images with special characters in the title.
-* There are more conflicts with the ACF plugin when adding a new custom field.
+* There are no more conflicts with the ACF plugin when adding a new custom field.
 * Fixed a bug that would cause some plugins to throw warnings with the Shortcode feature.
 * We're no longer loading a font on the front-end for the Likes feature, which will also have some performance benefits.
 * The Jetpack admin UI had some bugs that were causing some features to not display the correct active status, which are squashed now.
