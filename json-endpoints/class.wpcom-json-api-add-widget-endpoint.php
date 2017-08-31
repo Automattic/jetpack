@@ -17,7 +17,7 @@ new WPCOM_JSON_API_Add_Widgets_Endpoint( array (
 	),
 	'request_format' => array(
 		'id_base' => '(string) The base ID of the widget.',
-		'sidebar' => '(string) The ID of the sidebar where this widget will be active.',
+		'sidebar' => '(string) Optional. The ID of the sidebar where this widget will be active. If empty, the widget will be added in the first sidebar available.',
 		'position' => '(int) Optional. The position of the widget in the sidebar.',
 		'settings' => '(object) Optional. The settings for the new widget.',
 	),
@@ -86,8 +86,14 @@ class WPCOM_JSON_API_Add_Widgets_Endpoint extends WPCOM_JSON_API_Endpoint {
 			}
 			return array( 'widgets' => $widgets );
 		}
-		if ( ! isset( $args['id_base'] ) || ! isset( $args['sidebar'] ) ) {
+		if ( ! isset( $args['id_base'] ) ) {
 			return new WP_Error( 'missing_data', 'The data you provided was not accurate.', 400 );
+		}
+
+		if ( empty( $args['sidebar'] ) ) {
+			$active_sidebars = Jetpack_Widgets::get_active_sidebars();
+			reset( $active_sidebars );
+			$args['sidebar'] = key( $active_sidebars );
 		}
 
 		return Jetpack_Widgets::activate_widget( $args['id_base'], $args['sidebar'], $args['position'], $args['settings'] );
