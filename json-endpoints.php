@@ -89,6 +89,9 @@ require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-site-logo-endpo
 // Homepage Settings
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-site-homepage-endpoint.php' );
 
+// Widgets
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-add-widget-endpoint.php' );
+
 // **********
 // v1.2
 // **********
