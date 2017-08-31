@@ -4,6 +4,7 @@ Tags: Jetpack, WordPress.com, backup, security, related posts, CDN, speed, anti-
 Stable tag: 5.2.1
 Requires at least: 4.7
 Tested up to: 4.8
+Requires PHP: 5.6
 
 Jetpack gives you tools to design, secure, and grow your site in one convenient bundle.
 
