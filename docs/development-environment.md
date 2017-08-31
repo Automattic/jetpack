@@ -97,6 +97,7 @@ Standing on your jetpack directory, run
 ```
 $ yarn
 $ yarn test-client
+$ yarn test-gui
 ```
 
 ## Use PHP CodeSniffer and ESLint to make sure your code respects coding standards
