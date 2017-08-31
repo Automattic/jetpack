@@ -1,5 +1,7 @@
 <?php
 
+require_once dirname( __FILE__ ) . '/class.jetpack-sync-modules.php';
+
 /**
  * The role of this class is to hook the Sync subsystem into WordPress - when to listen for actions,
  * when to send, when to perform a full sync, etc.
