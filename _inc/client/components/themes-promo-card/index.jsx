@@ -20,7 +20,8 @@ const ThemesPromoCard = React.createClass( {
 		analytics.tracks.recordJetpackClick( {
 			target: 'themes-card',
 			button: 'themes-get-started',
-			plan: this.props.plan
+			plan: this.props.plan,
+			type: 'upgrade'
 		} );
 	},
 
@@ -28,7 +29,8 @@ const ThemesPromoCard = React.createClass( {
 		analytics.tracks.recordJetpackClick( {
 			target: 'themes-card',
 			button: 'themes-compare-all',
-			plan: this.props.plan
+			plan: this.props.plan,
+			type: 'upgrade'
 		} );
 	},
 
