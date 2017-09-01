@@ -2264,7 +2264,8 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	function add_name_to_address( $address ) {
 		// If it's just the address, without a display name
 		if ( is_email( $address ) ) {
-			$address = sprintf( '"%s" <%s>', $address, $address );
+			$address_parts = explode( '@', $address );
+			$address = sprintf( '"%s" <%s>', $address_parts[0], $address );
 		}
 
 		return $address;
