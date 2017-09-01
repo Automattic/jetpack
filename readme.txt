@@ -130,6 +130,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 * Fixed compatibility issues with plugins using TinyMCE.
+* Contact Form submission emails have been fixed for sites hosted on SiteGround.
 * Updating WordPress.com themes will no longer have any problems.
 * The Sitemaps feature will no longer error with posts/images with special characters in the title.
 * There are no more conflicts with the ACF plugin when adding a new custom field.

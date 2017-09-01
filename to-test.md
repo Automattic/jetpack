@@ -80,3 +80,11 @@ The site should now fully sync on every Jetpack connection.
 - Disconnect jetpack
 - Update an option such as Site Title or Site Description.
 - Connect the site. Check that the option was saved right away and reflects correctly in Calypso
+
+### Contact Forms
+
+Contact form submission emails have been fixed for sites hosted on SiteGround.
+
+- Submit a contact form on a site hosted on siteground
+- Verify you got the email
+- Test with other hosts as well.

@@ -409,7 +409,6 @@ class Jetpack_Carousel {
 		$attachment       = get_post( $attachment_id );
 		$attachment_title = wptexturize( $attachment->post_title );
 		$attachment_desc  = wpautop( wptexturize( $attachment->post_content ) );
-
 		// Not yet providing geo-data, need to "fuzzify" for privacy
 		if ( ! empty( $img_meta ) ) {
 			foreach ( $img_meta as $k => $v ) {
@@ -431,8 +430,8 @@ class Jetpack_Carousel {
 		$attr['data-orig-size']         = $size;
 		$attr['data-comments-opened']   = $comments_opened;
 		$attr['data-image-meta']        = esc_attr( $img_meta );
-		$attr['data-image-title']       = esc_attr( $attachment_title );
-		$attr['data-image-description'] = esc_attr( $attachment_desc );
+		$attr['data-image-title']       = esc_attr( htmlspecialchars( $attachment_title ) );
+		$attr['data-image-description'] = esc_attr( htmlspecialchars( $attachment_desc ) );
 		$attr['data-medium-file']       = esc_attr( $medium_file );
 		$attr['data-large-file']        = esc_attr( $large_file );
 
