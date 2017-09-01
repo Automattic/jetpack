@@ -442,6 +442,8 @@ class Jetpack_Network {
 		$stat_id = $stat_options = isset( $stats_options['blog_id'] ) ? $stats_options['blog_id'] : null;
 		$user_id = get_current_user_id();
 
+		$tracks_identity = jetpack_tracks_get_identity( $user_id );
+
 		/**
 		 * Both `state` and `user_id` need to be sent in the request, even though they are the same value.
 		 * Connecting via the network admin combines `register()` and `authorize()` methods into one step,
@@ -464,7 +466,10 @@ class Jetpack_Network {
 				'timeout'               => $timeout,
 				'stats_id'              => $stat_id, // Is this still required?
 				'user_id'               => $user_id,
-				'state'                 => $user_id
+				'state'                 => $user_id,
+				'_ui'                   => $tracks_identity['_ui'],
+				'_ut'                   => $tracks_identity['_ut'],
+				'jetpack_version'       => JETPACK__VERSION
 			),
 			'headers' => array(
 				'Accept' => 'application/json',
