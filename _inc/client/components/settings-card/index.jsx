@@ -44,7 +44,8 @@ export const SettingsCard = props => {
 	const trackBannerClick = ( feature ) => {
 		analytics.tracks.recordJetpackClick( {
 			target: 'upgrade-banner',
-			feature: feature
+			feature: feature,
+			type: 'upgrade'
 		} );
 	};
 
