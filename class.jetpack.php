@@ -615,7 +615,7 @@ class Jetpack {
 
 		// If enabled, point edit post and page links to Calypso instead of WP-Admin.
 		// We should make sure to only do this for front end links.
-		if ( get_option( 'jetpack_edit_links_calypso_redirect' ) && ! is_admin() ) {
+		if ( Jetpack_Options::get_option( 'edit_links_calypso_redirect' ) && ! is_admin() ) {
 			add_filter( 'get_edit_post_link', array( $this, 'point_edit_links_to_calypso' ), 1, 2 );
 		}
 
