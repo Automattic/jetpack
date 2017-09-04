@@ -114,7 +114,7 @@ abstract class Jetpack_Sitemap_Buffer {
 		$this->doc = new DOMDocument( '1.0', 'UTF-8' );
 
 		$this->item_capacity = max( 1, intval( $item_limit ) );
-		$this->byte_capacity = max( 1, intval( $byte_limit ) ) - strlen( $this->contents() );
+		$this->byte_capacity = max( 1, intval( $byte_limit ) ) - strlen( $this->doc->saveXML() );
 	}
 
 	/**
@@ -189,6 +189,10 @@ abstract class Jetpack_Sitemap_Buffer {
 	 * @return string The contents of the buffer (with the footer included).
 	 */
 	public function contents() {
+		if( $this->is_empty() ) {
+			// The sitemap should have at least the root element added to the DOM
+			$this->get_root_element();
+		}
 		return $this->doc->saveXML();
 	}
 
