@@ -26,7 +26,11 @@ class WP_Test_Jetpack_Sitemap_Buffer extends WP_UnitTestCase {
 	 */
 	public function test_sitemap_buffer_constructor() {
 		$buffer = new Jetpack_Sitemap_Buffer_Dummy( 1, 10, '1970-01-01 00:00:00' );
-		$this->assertEquals( $buffer->contents(), '<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL );
+		$this->assertEquals(
+			'<?xml version="1.0" encoding="UTF-8"?>' . PHP_EOL
+			. '<dummy/>' . PHP_EOL,
+			 $buffer->contents()
+		);
 	}
 
 	/**
