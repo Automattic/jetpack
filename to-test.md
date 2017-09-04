@@ -78,5 +78,5 @@ There were a few small changes to the connection process that is aimed at fixing
 The site should now fully sync on every Jetpack connection.
 
 - Disconnect jetpack
-- Update an option such as site_icon.
+- Update an option such as Site Title or Site Description.
 - Connect the site. Check that the option was saved right away and reflects correctly in Calypso
