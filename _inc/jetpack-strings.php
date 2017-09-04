@@ -380,15 +380,15 @@ __( "Jetpack Stats People", "jetpack" ), // _inc/client/at-a-glance/stats/index.
 __( "Click to view detailed stats.", "jetpack" ), // _inc/client/at-a-glance/stats/index.jsx:97
 __( "Views: %(numberOfViews)s", "jetpack" ), // _inc/client/at-a-glance/stats/index.jsx:95
 __( "Week of %(date)s", "jetpack" ), // _inc/client/at-a-glance/stats/index.jsx:79
-__( "I already use this app.", "jetpack" ), // _inc/client/components/apps-card/index.jsx:79
-__( "Download the free apps", "jetpack" ), // _inc/client/components/apps-card/index.jsx:73
-__( "Manage all your sites from a single dashboard: publish content, track stats, moderate comments, and so much more from anywhere in the world.", "jetpack" ), // _inc/client/components/apps-card/index.jsx:66
-__( "Get WordPress Apps for every device", "jetpack" ), // _inc/client/components/apps-card/index.jsx:62
 __( "By connecting your site you agree to our fascinating {{tosLink}}Terms of Service{{/tosLink}} and to {{shareDetailsLink}}share details{{/shareDetailsLink}} with WordPress.com", "jetpack" ), // _inc/client/components/connect-button/index.jsx:144
 __( "Connect Jetpack", "jetpack" ), // _inc/client/components/connect-button/index.jsx:129
 __( "Manage site connection", "jetpack" ), // _inc/client/components/connect-button/index.jsx:114
 __( "Link to WordPress.com", "jetpack" ), // _inc/client/components/connect-button/index.jsx:94
 __( "Unlink me from WordPress.com", "jetpack" ), // _inc/client/components/connect-button/index.jsx:77
+__( "I already use this app.", "jetpack" ), // _inc/client/components/apps-card/index.jsx:79
+__( "Download the free apps", "jetpack" ), // _inc/client/components/apps-card/index.jsx:73
+__( "Manage all your sites from a single dashboard: publish content, track stats, moderate comments, and so much more from anywhere in the world.", "jetpack" ), // _inc/client/components/apps-card/index.jsx:66
+__( "Get WordPress Apps for every device", "jetpack" ), // _inc/client/components/apps-card/index.jsx:62
 _x( "Paid", "Short label appearing near a paid feature configuration block.", "jetpack" ), // _inc/client/components/dash-item/index.jsx:109
 __( "Settings", "jetpack" ), // _inc/client/components/dash-item/index.jsx:95
 __( "Active", "jetpack" ), // _inc/client/components/dash-item/index.jsx:84
@@ -500,8 +500,6 @@ __( "Jupiter", "jetpack" ), // _inc/client/components/jumpstart/index.jsx:57
 __( "Stars", "jetpack" ), // _inc/client/components/jumpstart/index.jsx:56
 __( "Activate recommended features", "jetpack" ), // _inc/client/components/jumpstart/index.jsx:34
 __( "Activating recommended features…", "jetpack" ), // _inc/client/components/jumpstart/index.jsx:34
-__( "Settings", "jetpack" ), // _inc/client/components/masthead/index.jsx:83
-__( "Dashboard", "jetpack" ), // _inc/client/components/masthead/index.jsx:75
 __( "Display an ad unit at the top of your site.", "jetpack" ), // _inc/client/components/module-settings/index.jsx:198
 __( "By default ads are shown at the end of every page, post, or the first article on your front page. You can also add them to the top of your site and to any widget area to increase your earnings!", "jetpack" ), // _inc/client/components/module-settings/index.jsx:192
 __( "{{link}}Configure your Monitor notification settings on WordPress.com{{/link}}", "jetpack" ), // _inc/client/components/module-settings/index.jsx:175
@@ -531,6 +529,8 @@ __( "Make sure your site is easily found on search engines with SEO tools for yo
 __( "Configure your Security Scans", "jetpack" ), // _inc/client/components/module-settings/modules-per-tab-page.jsx:45
 __( "You can see the information about security scanning in the \"At a Glance\" section.", "jetpack" ), // _inc/client/components/module-settings/modules-per-tab-page.jsx:42
 __( "Upgrade Jetpack and our state-of-the-art security scanner will hunt out malicious files and report them immediately so that you're never unaware of what is happening on your website.", "jetpack" ), // _inc/client/components/module-settings/modules-per-tab-page.jsx:36
+__( "Settings", "jetpack" ), // _inc/client/components/masthead/index.jsx:83
+__( "Dashboard", "jetpack" ), // _inc/client/components/masthead/index.jsx:75
 _x( "At a Glance", "Navigation item.", "jetpack" ), // _inc/client/components/navigation/index.jsx:54
 _x( "Plans", "Navigation item.", "jetpack" ), // _inc/client/components/navigation/index.jsx:44
 _x( "At a Glance", "Navigation item.", "jetpack" ), // _inc/client/components/navigation/index.jsx:38
@@ -542,18 +542,16 @@ _x( "Discussion", "Navigation item.", "jetpack" ), // _inc/client/components/nav
 _x( "Sharing", "Navigation item.", "jetpack" ), // _inc/client/components/navigation-settings/index.jsx:146
 _x( "Writing", "Navigation item.", "jetpack" ), // _inc/client/components/navigation-settings/index.jsx:132
 __( "Search for a Jetpack feature.", "jetpack" ), // _inc/client/components/navigation-settings/index.jsx:67
-__( "Learn more", "jetpack" ), // _inc/client/components/settings-group/index.jsx:77
-__( "Learn more", "jetpack" ), // _inc/client/components/settings-group/index.jsx:70
-_x( "Save settings", "Button caption", "jetpack" ), // _inc/client/components/settings-card/index.jsx:264
-_x( "Saving…", "Button caption", "jetpack" ), // _inc/client/components/settings-card/index.jsx:263
-__( "Protect your site from spam.", "jetpack" ), // _inc/client/components/settings-card/index.jsx:188
-__( "Help your content get found and shared with SEO tools.", "jetpack" ), // _inc/client/components/settings-card/index.jsx:171
-__( "Integrate easily with Google Analytics.", "jetpack" ), // _inc/client/components/settings-card/index.jsx:156
-__( "Protect against data loss, malware, and malicious attacks.", "jetpack" ), // _inc/client/components/settings-card/index.jsx:141
-__( "Real-time site backups and automatic threat resolution.", "jetpack" ), // _inc/client/components/settings-card/index.jsx:128
-__( "Generate income with high-quality ads.", "jetpack" ), // _inc/client/components/settings-card/index.jsx:111
-__( "Host fast, high-quality, ad-free video.", "jetpack" ), // _inc/client/components/settings-card/index.jsx:92
-_x( "Upgrade", "A caption for a button to upgrade an existing paid feature to a higher tier.", "jetpack" ), // _inc/client/components/settings-card/index.jsx:79
+_x( "Save settings", "Button caption", "jetpack" ), // _inc/client/components/settings-card/index.jsx:265
+_x( "Saving…", "Button caption", "jetpack" ), // _inc/client/components/settings-card/index.jsx:264
+__( "Protect your site from spam.", "jetpack" ), // _inc/client/components/settings-card/index.jsx:189
+__( "Help your content get found and shared with SEO tools.", "jetpack" ), // _inc/client/components/settings-card/index.jsx:172
+__( "Integrate easily with Google Analytics.", "jetpack" ), // _inc/client/components/settings-card/index.jsx:157
+__( "Protect against data loss, malware, and malicious attacks.", "jetpack" ), // _inc/client/components/settings-card/index.jsx:142
+__( "Real-time site backups and automatic threat resolution.", "jetpack" ), // _inc/client/components/settings-card/index.jsx:129
+__( "Generate income with high-quality ads.", "jetpack" ), // _inc/client/components/settings-card/index.jsx:112
+__( "Host fast, high-quality, ad-free video.", "jetpack" ), // _inc/client/components/settings-card/index.jsx:93
+_x( "Upgrade", "A caption for a button to upgrade an existing paid feature to a higher tier.", "jetpack" ), // _inc/client/components/settings-card/index.jsx:80
 __( "Upgrade", "jetpack" ), // _inc/client/components/support-card/index.jsx:119
 __( "Get a faster resolution to your support questions.", "jetpack" ), // _inc/client/components/support-card/index.jsx:117
 __( "Search our support site", "jetpack" ), // _inc/client/components/support-card/index.jsx:109
@@ -561,11 +559,13 @@ __( "Ask a question", "jetpack" ), // _inc/client/components/support-card/index.
 __( "Your paid plan gives you access to prioritized Jetpack support.", "jetpack" ), // _inc/client/components/support-card/index.jsx:89
 __( "Jetpack comes with free, basic support for all users.", "jetpack" ), // _inc/client/components/support-card/index.jsx:88
 __( "We're here to help", "jetpack" ), // _inc/client/components/support-card/index.jsx:83
-__( "Limited time 50% introductory discount on Jetpack Professional.", "jetpack" ), // _inc/client/components/themes-promo-card/index.jsx:90
-__( "Compare All Plans", "jetpack" ), // _inc/client/components/themes-promo-card/index.jsx:82
-__( "Explore Professional", "jetpack" ), // _inc/client/components/themes-promo-card/index.jsx:76
-__( "{{subhead}}Only with Jetpack Professional{{/subhead}}{{p}}Protect your site and work with Jetpack Personal: daily automated backups, unlimited storage, and expert priority support. Security essentials for every WordPress site starting from $3.50.{{/p}}{{p}}Or go Pro with more than 200 Premium Themes, business class security, unlimited video hosting, monetization, marketing automation, and SEO tools.{{/p}}", "jetpack" ), // _inc/client/components/themes-promo-card/index.jsx:59
-__( "Introducing Unlimited Themes", "jetpack" ), // _inc/client/components/themes-promo-card/index.jsx:58
+__( "Limited time 50% introductory discount on Jetpack Professional.", "jetpack" ), // _inc/client/components/themes-promo-card/index.jsx:92
+__( "Compare All Plans", "jetpack" ), // _inc/client/components/themes-promo-card/index.jsx:84
+__( "Explore Professional", "jetpack" ), // _inc/client/components/themes-promo-card/index.jsx:78
+__( "{{subhead}}Only with Jetpack Professional{{/subhead}}{{p}}Protect your site and work with Jetpack Personal: daily automated backups, unlimited storage, and expert priority support. Security essentials for every WordPress site starting from $3.50.{{/p}}{{p}}Or go Pro with more than 200 Premium Themes, business class security, unlimited video hosting, monetization, marketing automation, and SEO tools.{{/p}}", "jetpack" ), // _inc/client/components/themes-promo-card/index.jsx:61
+__( "Introducing Unlimited Themes", "jetpack" ), // _inc/client/components/themes-promo-card/index.jsx:60
+__( "Learn more", "jetpack" ), // _inc/client/components/settings-group/index.jsx:77
+__( "Learn more", "jetpack" ), // _inc/client/components/settings-group/index.jsx:70
 __( "A new contact form is here at last!", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:60
 __( "People around page", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:59
 __( "Read the full release post", "jetpack" ), // _inc/client/components/upgrade-notice-content/index.jsx:49
