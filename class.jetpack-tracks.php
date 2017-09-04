@@ -13,6 +13,10 @@ class JetpackTracking {
 			return;
 		}
 
+		if ( ! defined( 'DOING_AJAX' ) && ! Jetpack::is_user_connected( $user_id = get_current_user_id() ) ) {
+			jetpack_tracks_get_identity( $user_id );
+		}
+
 		// For tracking stuff via js/ajax
 		add_action( 'admin_enqueue_scripts',         array( __CLASS__, 'enqueue_tracks_scripts' ) );
 
