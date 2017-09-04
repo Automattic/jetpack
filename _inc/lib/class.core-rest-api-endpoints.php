@@ -75,6 +75,18 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'callback' => __CLASS__ . '::delete_jitm_message'
 		) );
 
+		// Register a site
+		register_rest_route( 'jetpack/v4', '/verify_registration', array(
+			'methods' => WP_REST_Server::EDITABLE,
+			'callback' => __CLASS__ . '::verify_registration',
+		) );
+
+		// Authorize a remote user
+		register_rest_route( 'jetpack/v4', '/remote_authorize', array(
+			'methods' => WP_REST_Server::EDITABLE,
+			'callback' => __CLASS__ . '::remote_authorize',
+		) );
+
 		// Get current connection status of Jetpack
 		register_rest_route( 'jetpack/v4', '/connection', array(
 			'methods' => WP_REST_Server::READABLE,
@@ -342,6 +354,48 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 		return $jitm->dismiss( $request['id'], $request['feature_class'] );
 	}
+
+	/**
+	 * Handles verification that a site is registered
+	 *
+	 * @since 4.9.0
+	 *
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 *
+	 * @return array|wp-error
+	 */
+	public static function verify_registration( $request ) {
+		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-xmlrpc-server.php';
+		$xmlrpc_server = new Jetpack_XMLRPC_Server();
+		$result = $xmlrpc_server->verify_registration( array( $request['secret_1'], $request['state'] ) );
+
+		if ( is_a( $result, 'IXR_Error' ) ) {
+			$result = new WP_Error( $result->code, $result->message );
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Handles verification that a site is registered
+	 *
+	 * @since 4.9.0
+	 *
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 *
+	 * @return array|wp-error
+	 */
+	 public static function remote_authorize( $request ) {
+		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-xmlrpc-server.php';
+		$xmlrpc_server = new Jetpack_XMLRPC_Server();
+		$result = $xmlrpc_server->remote_authorize( $request );
+
+		if ( is_a( $result, 'IXR_Error' ) ) {
+			$result = new WP_Error( $result->code, $result->message );
+		}
+
+		return $result;
+	 }
 
 	/**
 	 * Handles dismissing of Jetpack Notices
