@@ -358,7 +358,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Handles verification that a site is registered
 	 *
-	 * @since 4.9.0
+	 * @since 5.4.0
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
 	 *
@@ -379,7 +379,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Handles verification that a site is registered
 	 *
-	 * @since 4.9.0
+	 * @since 5.4.0
 	 *
 	 * @param WP_REST_Request $request The request sent to the WP REST API.
 	 *
