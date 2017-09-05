@@ -5,7 +5,7 @@
  * Plugin URI: https://jetpack.com
  * Description: Get everything you need to <strong>design, secure, and grow your WordPress site</strong>. Jetpack gives you free themes, image tools, related content, and site security, all in one convenient bundle.
  * Author: Automattic
- * Version: 5.3-beta3
+ * Version: 5.3
  * Author URI: https://jetpack.com
  * License: GPL2+
  * Text Domain: jetpack
@@ -14,7 +14,7 @@
 
 define( 'JETPACK__MINIMUM_WP_VERSION', '4.7' );
 
-define( 'JETPACK__VERSION',            '5.3-beta3' );
+define( 'JETPACK__VERSION',            '5.3' );
 define( 'JETPACK_MASTER_USER',         true );
 define( 'JETPACK__API_VERSION',        1 );
 define( 'JETPACK__PLUGIN_DIR',         plugin_dir_path( __FILE__ ) );

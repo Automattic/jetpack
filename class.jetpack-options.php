@@ -27,6 +27,7 @@ class Jetpack_Options {
 				'active_modules',
 				'available_modules',
 				'do_activate',
+				'edit_links_calypso_redirect', // (bool) Whether post/page edit links on front end should point to Calypso.
 				'log',
 				'slideshow_background_color',
 				'widget_twitter',
