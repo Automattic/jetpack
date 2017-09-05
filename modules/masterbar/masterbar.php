@@ -633,13 +633,6 @@ class A8C_WPCOM_Masterbar {
 			) );
 		}
 
-		/**
-		 * Fires when menu items are added to the masterbar "My Sites" menu, below the site/plan information.
-		 *
-		 * @since 5.4
-		 */
-		do_action( 'jetpack_masterbar_site_section' );
-
 		// Publish group
 		$wp_admin_bar->add_group( array(
 			'parent' => 'blog',
@@ -801,13 +794,6 @@ class A8C_WPCOM_Masterbar {
 			) );
 		}
 
-		/**
-		 * Fires when menu items are added to the masterbar "My Sites" menu, below the manage section.
-		 *
-		 * @since 5.4
-		 */
-		do_action( 'jetpack_masterbar_manage_section' );
-
 		if ( current_user_can( 'edit_theme_options' ) ) {
 			// Look and Feel group
 			$wp_admin_bar->add_group( array(
@@ -858,13 +844,6 @@ class A8C_WPCOM_Masterbar {
 				'meta'   => $meta
 			) );
 		}
-
-		/**
-		 * Fires when menu items are added to the masterbar "My Sites" menu, below the personalize section.
-		 *
-		 * @since 5.4
-		 */
-		do_action( 'jetpack_masterbar_personalize_section' );
 
 		if ( current_user_can( 'manage_options' ) ) {
 			// Configuration group
@@ -975,13 +954,6 @@ class A8C_WPCOM_Masterbar {
 				),
 			) );
 
-			/**
-			 * Fires when menu items are added to the masterbar "My Sites" menu, below the configure section.
-			 *
-			 * @since 5.4
-			 */
-			do_action( 'jetpack_masterbar_configure_section' );
-
 			if ( ! is_admin() ) {
 				$wp_admin_bar->add_menu( array(
 					'parent' => 'configuration',
@@ -1002,6 +974,13 @@ class A8C_WPCOM_Masterbar {
 				'href'  => '#',
 				) );
 			}
+
+			/**
+			 * Fires when menu items are added to the masterbar "My Sites" menu.
+			 *
+			 * @since 5.4
+			 */
+			do_action( 'jetpack_masterbar' );
 		}
 	}
 }
