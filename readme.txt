@@ -106,7 +106,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 = 5.3 =
 
 * Release date: September 5, 2017
-* Release post:
+* Release post: http://wp.me/p1moTy-5Xv
 
 **Major Enhancements**
 * Full PHP 7.1 compatibility.
@@ -130,9 +130,10 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 * Fixed compatibility issues with plugins using TinyMCE.
+* Contact Form submission emails have been fixed for sites hosted on SiteGround.
 * Updating WordPress.com themes will no longer have any problems.
 * The Sitemaps feature will no longer error with posts/images with special characters in the title.
-* There are more conflicts with the ACF plugin when adding a new custom field.
+* There are no more conflicts with the ACF plugin when adding a new custom field.
 * Fixed a bug that would cause some plugins to throw warnings with the Shortcode feature.
 * We're no longer loading a font on the front-end for the Likes feature, which will also have some performance benefits.
 * The Jetpack admin UI had some bugs that were causing some features to not display the correct active status, which are squashed now.
