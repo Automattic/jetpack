@@ -106,7 +106,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 = 5.3 =
 
 * Release date: September 5, 2017
-* Release post:
+* Release post: http://wp.me/p1moTy-5Xv
 
 **Major Enhancements**
 * Full PHP 7.1 compatibility.
