@@ -118,7 +118,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 		}
 
 		$body = wp_remote_retrieve_body( $response );
-		if ( ! $body ) {
+		if ( ! $body || is_wp_error( $body ) ) {
 			WP_CLI::error( __( 'Failed to test connection (empty response body)', 'jetpack' ) );
 		}
 
@@ -1013,7 +1013,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 		$body_json     = json_decode( wp_remote_retrieve_body( $result ) );
 
 		if( 200 !== $response_code ) {
-			if ( isset( $body_json->error ) ) {
+			if ( isset( $body_json->error ) && !is_wp_error( $body_json ) ) {
 				$this->partner_provision_error( new WP_Error( $body_json->error, $body_json->message ) );
 			} else {
 				$this->partner_provision_error( new WP_Error( 'server_error', sprintf( __( "Request failed with code %s" ), $response_code ) ) );
