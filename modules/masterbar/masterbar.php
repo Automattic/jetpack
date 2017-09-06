@@ -974,6 +974,13 @@ class A8C_WPCOM_Masterbar {
 				'href'  => '#',
 				) );
 			}
+
+			/**
+			 * Fires when menu items are added to the masterbar "My Sites" menu.
+			 *
+			 * @since 5.4
+			 */
+			do_action( 'jetpack_masterbar' );
 		}
 	}
 }
