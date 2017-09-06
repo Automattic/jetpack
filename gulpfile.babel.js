@@ -1,36 +1,41 @@
-var autoprefixer = require( 'gulp-autoprefixer' ),
-	banner = require( 'gulp-banner' ),
-	check = require( 'gulp-check' ),
-	cleanCSS = require( 'gulp-clean-css' ),
-	concat = require( 'gulp-concat' ),
-	del = require( 'del' ),
-	fs = require( 'fs' ),
-	gulp = require( 'gulp' ),
-	eslint = require( 'gulp-eslint' ),
-	gutil = require( 'gulp-util' ),
-	i18n_calypso = require( 'i18n-calypso/cli' ),
-	jshint = require( 'gulp-jshint' ),
-	json_transform = require( 'gulp-json-transform' ),
-	phplint = require( 'gulp-phplint' ),
-	phpunit = require( 'gulp-phpunit' ),
-	po2json = require( 'gulp-po2json' ),
-	qunit = require( 'gulp-qunit' ),
-	rename = require( 'gulp-rename' ),
-	readline = require( 'readline' ),
-	request = require( 'request' ),
-	rtlcss = require( 'gulp-rtlcss' ),
-	sass = require( 'gulp-sass' ),
-	spawn = require( 'child_process' ).spawn,
-	stream = require( 'stream' ),
-	sourcemaps = require( 'gulp-sourcemaps' ),
-	tap = require( 'gulp-tap' ),
-	modify = require('gulp-modify'),
-	uglify = require('gulp-uglify'),
-	util = require( 'gulp-util' ),
-	webpack = require( 'webpack' );
+/**
+ * External dependencies
+ */
+const autoprefixer = require( 'gulp-autoprefixer' ),
+	  banner = require( 'gulp-banner' ),
+	  check = require( 'gulp-check' ),
+	  cleanCSS = require( 'gulp-clean-css' ),
+	  del = require( 'del' ),
+	  fs = require( 'fs' ),
+	  gulp = require( 'gulp' ),
+	  eslint = require( 'gulp-eslint' ),
+	  gutil = require( 'gulp-util' ),
+	  i18n_calypso = require( 'i18n-calypso/cli' ),
+	  jshint = require( 'gulp-jshint' ),
+	  json_transform = require( 'gulp-json-transform' ),
+	  phplint = require( 'gulp-phplint' ),
+	  phpunit = require( 'gulp-phpunit' ),
+	  po2json = require( 'gulp-po2json' ),
+	  qunit = require( 'gulp-qunit' ),
+	  rename = require( 'gulp-rename' ),
+	  readline = require( 'readline' ),
+	  request = require( 'request' ),
+	  rtlcss = require( 'gulp-rtlcss' ),
+	  sass = require( 'gulp-sass' ),
+	  spawn = require( 'child_process' ).spawn,
+	  stream = require( 'stream' ),
+	  sourcemaps = require( 'gulp-sourcemaps' ),
+	  tap = require( 'gulp-tap' ),
+	  util = require( 'gulp-util' ),
+	  webpack = require( 'webpack' );
 
-var admincss, frontendcss,
-	meta = require( './package.json' );
+/**
+ * Internal dependencies
+ */
+const meta = require( './package.json' );
+
+import {} from './tools/builder/frontend-css';
+import {} from './tools/builder/admin-css';
 
 function onBuild( done ) {
 	return function( err, stats ) {
@@ -238,126 +243,8 @@ function doStatic( done ) {
 	} );
 }
 
-// Admin CSS to be minified, autoprefixed, rtl
-//
-// Note: Once the Jetpack React UI lands, many of these will likely be able to be removed.
-
-/* (Pre-4.1) Admin CSS to be minified, autoprefixed, rtl */
-admincss = [
-	// Non-concatenated, non-admin styles to be processed
-	'modules/custom-post-types/comics/comics.css',
-	'modules/shortcodes/css/recipes.css',
-	'modules/shortcodes/css/recipes-print.css',
-
-	'modules/after-the-deadline/atd.css',
-	'modules/after-the-deadline/tinymce/css/content.css',
-	'modules/contact-form/css/editor-inline-editing-style.css',
-	'modules/contact-form/css/editor-style.css',
-	'modules/contact-form/css/editor-ui.css',
-	'modules/custom-css/csstidy/cssparse.css',
-	'modules/custom-css/csstidy/cssparsed.css',
-	'modules/custom-css/custom-css/css/codemirror.css',
-	'modules/custom-css/custom-css/css/css-editor.css',
-	'modules/custom-css/custom-css/css/use-codemirror.css',
-	'modules/post-by-email/post-by-email.css',
-	'modules/publicize/assets/publicize.css',
-	'modules/protect/protect-dashboard-widget.css',
-	'modules/sharedaddy/admin-sharing.css',
-	'modules/videopress/videopress-admin.css',
-	'modules/widget-visibility/widget-conditions/widget-conditions.css',
-	'modules/widgets/gallery/css/admin.css',
-	'modules/sso/jetpack-sso-login.css' // Displayed when logging into the site.
-];
-
-/* Front-end CSS to be concatenated */
-frontendcss = [
-	'modules/carousel/jetpack-carousel.css',
-	'modules/contact-form/css/grunion.css',
-	'modules/infinite-scroll/infinity.css',
-	'modules/likes/style.css',
-	'modules/related-posts/related-posts.css',
-	'modules/sharedaddy/sharing.css',
-	'modules/shortcodes/css/slideshow-shortcode.css',
-	'modules/shortcodes/css/style.css', // TODO: Should be renamed to shortcode-presentations
-	'modules/shortcodes/css/quiz.css',
-	'modules/subscriptions/subscriptions.css',
-	'modules/theme-tools/responsive-videos/responsive-videos.css',
-	'modules/theme-tools/social-menu/social-menu.css',
-	'modules/tiled-gallery/tiled-gallery/tiled-gallery.css',
-	'modules/widgets/wordpress-post-widget/style.css',
-	'modules/widgets/gravatar-profile.css',
-	'modules/widgets/goodreads/css/goodreads.css',
-	'modules/widgets/social-media-icons/style.css',
-	'modules/widgets/top-posts/style.css',
-	'modules/widgets/image-widget/style.css',
-	'modules/widgets/my-community/style.css',
-	'modules/widgets/authors/style.css',
-	'css/jetpack-idc-admin-bar.css',
-	'modules/wordads/css/style.css',
-	'modules/widgets/eu-cookie-law/style.css',
-	'modules/widgets/flickr/style.css'
-];
-
 gulp.task( 'old-styles:watch', function() {
 	gulp.watch( 'scss/**/*.scss', ['old-sass'] );
-} );
-
-// Minimizes admin css for modules.  Outputs to same folder as min.css
-gulp.task( 'admincss', function() {
-	return gulp.src( admincss, { base: './' } )
-		.pipe( autoprefixer( 'last 2 versions', 'ie >= 8' ) )
-		.pipe( cleanCSS( { compatibility: 'ie8' } ) )
-		.pipe( rename( { suffix: '.min' } ) )
-		.pipe( banner( '/* Do not modify this file directly.  It is concatenated from individual module CSS files. */\n' ) )
-		.pipe( gulp.dest( '.' ) )
-		.on( 'end', function() {
-			console.log( 'Admin modules CSS finished.' );
-		} );
-} );
-
-// Admin RTL CSS for modules.  Auto-prefix, RTL, Minify, RTL the minimized version.
-gulp.task( 'admincss:rtl', function() {
-	return gulp.src( admincss, { base: './' } )
-		.pipe( autoprefixer( 'last 2 versions', 'safari 5', 'ie 8', 'ie 9', 'Firefox 14', 'opera 12.1', 'ios 6', 'android 4' ) )
-		.pipe( rtlcss() )
-		.pipe( rename( { suffix: '-rtl' } ) )
-		.pipe( banner( '/* Do not modify this file directly.  It is concatenated from individual module CSS files. */\n') )
-		.pipe( gulp.dest( '.' ) )
-		.pipe( cleanCSS( { compatibility: 'ie8' } ) )
-		.pipe( rename( { suffix: '.min' } ) )
-		.pipe( gulp.dest( '.' ) )
-		.on( 'end', function() {
-			console.log( 'Admin modules RTL CSS finished.' );
-		} );
-} );
-
-// Frontend CSS.  Auto-prefix and minimize.
-gulp.task( 'frontendcss', function() {
-	return gulp.src( frontendcss )
-		.pipe( modify( {
-				fileModifier: function ( file, contents ) {
-					var regex = /url\((.*)\)/g,
-						f = file.path.replace( file.cwd + '/', '');
-					return contents.replace( regex, function ( match, group ) {
-						return 'url(\'' + transformRelativePath( group, f ) + '\')';
-					} );
-				}
-			}
-		) )
-		.pipe( autoprefixer( 'last 2 versions', 'safari 5', 'ie 8', 'ie 9', 'Firefox 14', 'opera 12.1', 'ios 6', 'android 4' ) )
-		.pipe( cleanCSS( { compatibility: 'ie8' } ) )
-		.pipe( concat( 'jetpack.css' ) )
-		.pipe( banner( '/*!\n' +
-			'* Do not modify this file directly.  It is concatenated from individual module CSS files.\n' +
-			'*/\n'
-		) )
-		.pipe( gulp.dest( 'css' ) )
-		.pipe( rtlcss() )
-		.pipe( rename( { suffix: '-rtl' } ) )
-		.pipe( gulp.dest( 'css' ) )
-		.on( 'end', function() {
-			console.log( 'Front end modules CSS finished.' );
-		} );
 } );
 
 /*
