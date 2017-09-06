@@ -185,7 +185,7 @@ class Jetpack_Options {
 		$is_network_option = self::is_network_option( $jetpack_name );
 		$value = $is_network_option ? get_site_option( $name ) : get_option( $name );
 
-		if ( $value === false && $default !== false ) {
+		if ( false === $value && false !== $default ) {
 			if ( $is_network_option ) {
 				update_site_option( $name, $default );
 			} else {
