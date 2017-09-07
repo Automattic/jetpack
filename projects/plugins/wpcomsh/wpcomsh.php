@@ -8,7 +8,7 @@
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '1.9.3' );
+define( 'WPCOMSH_VERSION', '1.9.4' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -598,7 +598,7 @@ function wpcomsh_wporg_to_wpcom_locale_mo_file( $mofile ) {
 	$mofile = preg_replace( '/' . preg_quote( $possible_locale_slug ) . '\.mo$/', $locale_object->slug . '.mo', $mofile );
 	return $mofile;
 }
-add_filter( 'load_textdomain_mofile', 'wpcomsh_wporg_to_wpcom_locale_mo_file' );
+add_filter( 'load_textdomain_mofile', 'wpcomsh_wporg_to_wpcom_locale_mo_file', 9999 );
 
 /**
  * Links were removed in 3.5 core, but we've kept them active on dotcom.
