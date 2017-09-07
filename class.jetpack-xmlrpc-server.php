@@ -104,7 +104,7 @@ class Jetpack_XMLRPC_Server {
 		$verified = $this->verify_action( array( 'authorize', $request['secret'], $request['state'] ) );
 
 		if ( is_a( $verified, 'IXR_Error' ) ) {
-			return $verified;
+			return $this->error( $verified, 'jpc_remote_authorize_fail' );
 		}
 
 		wp_set_current_user( $request['state'] );
