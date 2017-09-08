@@ -77,6 +77,10 @@ class Jetpack_Subscriptions {
 		add_action( 'transition_post_status', array( $this, 'maybe_send_subscription_email' ), 10, 3 );
 
 		add_filter( 'jetpack_published_post_flags', array( $this, 'set_post_flags' ), 10, 2 );
+
+		// Gutenberg!
+		add_action( 'init', array( __CLASS__, 'register_block_type' ) );
+		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_block_editor_assets' ) );
 	}
 
 	/**
@@ -729,10 +733,44 @@ class Jetpack_Subscriptions {
 		}
 	}
 
+	public static function register_block_type() {
+		if ( ! function_exists( 'register_block_type' ) ) {
+			return;
+		}
+		register_block_type( 'jetpack/subscription-form', array(
+			'render_callback' => 'jetpack_do_subscription_form',
+		) );
+	}
+
+	public static function enqueue_block_editor_assets() {
+		wp_register_script(
+			'jetpack-block-subscription-form',
+			plugins_url( 'subscriptions/block.js', __FILE__ ),
+			array( 'wp-blocks', 'wp-element' )
+		);
+		wp_enqueue_script( 'jetpack-block-subscription-form' );
+		wp_localize_script( 'jetpack-block-subscription-form', 'jpSubBlockI18n', array(
+			'Subscription Form' => __( 'Subscription Form', 'jetpack' ),
+			'Subscribe to Blog via Email' => __( 'Subscribe to Blog via Email', 'jetpack' ),
+			'Enter your email address to subscribe to this blog and receive notifications of new posts by email.'
+				=> __( 'Enter your email address to subscribe to this blog and receive notifications of new posts by email.', 'jetpack' ),
+			'Email Address' => __( 'Email Address', 'jetpack' ),
+			'Subscribe' => __( 'Subscribe', 'jetpack' ),
+			"Success! An email was just sent to confirm your subscription. Please find the email now and click 'Confirm Follow' to start subscribing."
+				=> __( "Success! An email was just sent to confirm your subscription. Please find the email now and click 'Confirm Follow' to start subscribing.", 'jetpack' ),
+			'Join %s other subscribers' => __( 'Join %s other subscribers', 'jetpack' ),
+			'Widget title:' => __( 'Widget title:', 'jetpack' ),
+			'Subscription Form settings' => __( 'Subscription Form settings', 'jetpack' ),
+			'Optional text to display to your readers:' => __( 'Optional text to display to your readers:', 'jetpack' ),
+			'Subscribe Placeholder:' => __( 'Subscribe Placeholder:', 'jetpack' ),
+			'Subscribe Button:' => __( 'Subscribe Button:', 'jetpack' ),
+			'Success Message Text:' => __( 'Success Message Text:', 'jetpack' ),
+			'Show total number of subscribers?' => __( 'Show total number of subscribers?', 'jetpack' ),
+		) );
+	}
 }
 
 Jetpack_Subscriptions::init();
-
 
 /***
  * Blog Subscription Widget
