@@ -18,7 +18,7 @@ import util from 'gulp-util';
 import { transformRelativePath } from './transform-relative-paths';
 
 /* Front-end CSS to be concatenated */
-const frontendcss = [
+const concat_list = [
 	'modules/carousel/jetpack-carousel.css',
 	'modules/contact-form/css/grunion.css',
 	'modules/infinite-scroll/infinity.css',
@@ -28,8 +28,6 @@ const frontendcss = [
 	'modules/shortcodes/css/slideshow-shortcode.css',
 	'modules/shortcodes/css/style.css', // TODO: Should be renamed to shortcode-presentations
 	'modules/shortcodes/css/quiz.css',
-	'modules/shortcodes/css/recipes.css',
-	'modules/shortcodes/css/recipes-print.css',
 	'modules/subscriptions/subscriptions.css',
 	'modules/theme-tools/responsive-videos/responsive-videos.css',
 	'modules/theme-tools/social-menu/social-menu.css',
@@ -48,18 +46,55 @@ const frontendcss = [
 	'modules/widgets/flickr/style.css'
 ];
 
+/**
+ * Front end CSS that needs separate minified and RTL styles.
+ * This list will need to have files added as we move to the add_style RTL approach.
+ */
+const separate_list = [
+	'modules/shortcodes/css/recipes.css',
+	'modules/shortcodes/css/recipes-print.css',
+];
+
+const pathModifier = function( file, contents ) {
+	const regex = /url\((.*)\)/g,
+		f = file.path.replace( file.cwd + '/', '' );
+	return contents.replace( regex, function( match, group ) {
+		return 'url(\'' + transformRelativePath( group, f ) + '\')';
+	} );
+};
+
 // Frontend CSS.  Auto-prefix and minimize.
-gulp.task( 'frontendcss', function() {
-	return gulp.src( frontendcss )
-		.pipe( modify( {
-			fileModifier: function( file, contents ) {
-				const regex = /url\((.*)\)/g,
-					f = file.path.replace( file.cwd + '/', '' );
-				return contents.replace( regex, function( match, group ) {
-					return 'url(\'' + transformRelativePath( group, f ) + '\')';
-				} );
-			}
-		} ) )
+gulp.task( 'frontendcss', [ 'frontendcss:separate' ], function() {
+	return gulp.src( concat_list )
+		.pipe( modify( { fileModifier: pathModifier } ) )
+		.pipe( autoprefixer(
+			'last 2 versions',
+			'safari 5',
+			'ie 8',
+			'ie 9',
+			'Firefox 14',
+			'opera 12.1',
+			'ios 6',
+			'android 4'
+		) )
+		.pipe( cleanCSS( { compatibility: 'ie8' } ) )
+		.pipe( concat( 'jetpack.css' ) )
+		.pipe( banner( '/*!\n' +
+			'* Do not modify this file directly.  It is concatenated from individual module CSS files.\n' +
+			'*/\n'
+		) )
+		.pipe( gulp.dest( 'css' ) )
+		.pipe( rtlcss() )
+		.pipe( rename( { suffix: '.rtl' } ) )
+		.pipe( gulp.dest( 'css/' ) )
+		.on( 'end', function() {
+			util.log( 'Front end modules CSS finished.' );
+		} );
+} );
+
+gulp.task( 'frontendcss:separate', function() {
+	return gulp.src( separate_list )
+		.pipe( modify( { fileModifier: pathModifier } ) )
 		.pipe( autoprefixer(
 			'last 2 versions',
 			'safari 5',
@@ -75,17 +110,5 @@ gulp.task( 'frontendcss', function() {
 		.pipe( rename( { suffix: '-rtl' } ) )
 		.pipe( gulp.dest( function( file ) {
 			return path.dirname( file.path );
-		} ) )
-		.pipe( concat( 'jetpack.css' ) )
-		.pipe( banner( '/*!\n' +
-			'* Do not modify this file directly.  It is concatenated from individual module CSS files.\n' +
-			'*/\n'
-		) )
-		.pipe( gulp.dest( 'css' ) )
-		.pipe( rtlcss() )
-		.pipe( rename( { suffix: '.rtl' } ) )
-		.pipe( gulp.dest( 'css/' ) )
-		.on( 'end', function() {
-			util.log( 'Front end modules CSS finished.' );
-		} );
+		} ) );
 } );
