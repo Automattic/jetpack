@@ -124,15 +124,15 @@ class A8C_WPCOM_Masterbar {
 		}
 
 		wp_enqueue_script( 'jetpack-accessible-focus', plugins_url( '_inc/accessible-focus.js', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
-		wp_enqueue_script( 'a8c_wpcom_masterbar_overrides', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/masterbar-overrides/masterbar.js' ), array( 'jquery' ), JETPACK__VERSION );
-		wp_localize_script( 'a8c_wpcom_masterbar_overrides', 'jetpackTracks', array(
-			'siteId' => Jetpack_Options::get_option( 'id' ),
-			'siteUrl' => get_option( 'siteurl' ),
+		wp_enqueue_script( 'a8c_wpcom_masterbar_tracks_events', plugins_url( 'tracks-events.js', __FILE__ ), array(), JETPACK_VERSION );
+		wp_localize_script( 'a8c_wpcom_masterbar_tracks_events', 'jetpackTracks', array(
+			'user_id' => Jetpack::get_connected_user_data( get_current_user_id() )['ID'],
 		) );
 
+		wp_enqueue_script( 'a8c_wpcom_masterbar_overrides', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/masterbar-overrides/masterbar.js' ), array( 'jquery' ), JETPACK__VERSION );
+
 		// so tracks events can be fired from the frontend.
-		wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array( 'a8c_wpcom_masterbar_overrides' ), gmdate( 'YW' ), true );
-		wp_enqueue_script( 'jp-tracks-functions', plugins_url( '_inc/lib/tracks/tracks-callables.js', JETPACK__PLUGIN_FILE ), array( 'a8c_wpcom_masterbar_overrides' ), JETPACK__VERSION, false );
+		wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
 	}
 
 	function wpcom_static_url( $file ) {
