@@ -430,8 +430,8 @@ class Jetpack_Carousel {
 		$attr['data-orig-size']         = $size;
 		$attr['data-comments-opened']   = $comments_opened;
 		$attr['data-image-meta']        = esc_attr( $img_meta );
-		$attr['data-image-title']       = esc_attr( htmlspecialchars( $attachment_title ) );
-		$attr['data-image-description'] = esc_attr( htmlspecialchars( $attachment_desc ) );
+		$attr['data-image-title']       = esc_attr( htmlspecialchars( wptexturize( $attachment_title ) ) );
+		$attr['data-image-description'] = esc_attr( htmlspecialchars( wpautop( wptexturize( $attachment_desc ) ) ) );
 		$attr['data-medium-file']       = esc_attr( $medium_file );
 		$attr['data-large-file']        = esc_attr( $large_file );
 
