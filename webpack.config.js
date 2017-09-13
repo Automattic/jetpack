@@ -23,7 +23,8 @@ var webpackConfig = {
 	// The key is used as the name of the script.
 	entry: {
 		admin: './_inc/client/admin.js',
-		static: './_inc/client/static.jsx'
+		static: './_inc/client/static.jsx',
+		gutenpack: './modules/shortcodes/js/blocks.jsx'
 	},
 	output: {
 		path: path.join( __dirname, '_inc/build' ),
@@ -41,6 +42,7 @@ var webpackConfig = {
 				include: [
 					path.join( __dirname, 'test' ),
 					path.join( __dirname, '_inc/client' ),
+					path.join( __dirname, 'modules/shortcodes/js' ),
 					fs.realpathSync( path.join( __dirname, './node_modules/@automattic/dops-components/client' ) ),
 					path.join( __dirname, './node_modules/@automattic/dops-components/client' )
 				]

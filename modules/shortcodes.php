@@ -194,3 +194,24 @@ function wpcom_shortcodereverse_parseattr( $attrs ) {
 }
 
 jetpack_load_shortcodes();
+
+/**
+ * Load Gutenberg blocks
+ *
+ * @since 5.4
+ */
+function gutenpack_editor_assets_fold() {
+	wp_enqueue_style(
+		'gutenpack-editor',
+		plugins_url( 'modules/shortcodes/css/gutenpack.css', JETPACK__PLUGIN_FILE ),
+		array( 'wp-edit-blocks' ),
+		JETPACK__VERSION
+	);
+	wp_enqueue_script(
+		'gutenpack',
+		plugins_url( '_inc/build/gutenpack.js', JETPACK__PLUGIN_FILE ),
+		array( 'wp-blocks', 'wp-i18n', 'wp-element', 'underscore' ),
+		JETPACK__VERSION
+	);
+}
+add_action( 'enqueue_block_editor_assets', 'gutenpack_editor_assets_fold' );
