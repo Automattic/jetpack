@@ -1,1 +1,2 @@
-require( './block.jsx' );
+require( './block.js' );
+require( './quiz-block.js' );
