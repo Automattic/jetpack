@@ -655,6 +655,10 @@ gulp.task( 'gutenpack', function() {
 		.pipe( gulp.dest( './' ) );
 } );
 
+gulp.task( 'gutenpack:watch', function() {
+	gulp.watch( '**/*/*block.jsx', [ 'gutenpack' ] );
+} );
+
 // Default task
 gulp.task(
 	'default',
@@ -662,7 +666,7 @@ gulp.task(
 );
 gulp.task(
 	'watch',
-	['react:watch', 'sass:watch', 'old-styles:watch']
+	[ 'react:watch', 'sass:watch', 'old-styles:watch', 'gutenpack:watch', ]
 );
 
 gulp.task( 'jshint', ['js:hint'] );
