@@ -60,7 +60,6 @@ class Simple_Payments_Widget extends WP_Widget {
      * Widget
      */
     function widget( $args, $instance ) {
-		$instance = $this->sanitize_instance( $instance );
 
 
 		echo $args['before_widget'];
@@ -73,7 +72,7 @@ class Simple_Payments_Widget extends WP_Widget {
 		echo '<div class="simple-payments-content">';
 
 		// display the product on the front end here
-		echo 'Hello World!';
+		echo get_the_title( get_post( $instance['product_id'] ) ) . ' [' . $instance['product_id'] . ']';
 
 		echo '</div><!--simple-payments-->';
 
@@ -87,18 +86,57 @@ class Simple_Payments_Widget extends WP_Widget {
      * Update
      */
     function update( $new_instance, $old_instance ) {
-
+		$product_id = isset( $old_instance['product_id'] ) ? $old_instance['product_id'] : null;
+		$product = $product_id ? get_post( $product_id ) : 0;
+		if ( ! $product || is_wp_error( $product ) || $product->post_type !== Jetpack_Simple_Payments::$post_type_product ) {
+			$product_id = 0;
+		}
+		return array(
+			'title' => $new_instance['title'],
+			'product_id' => wp_insert_post( array(
+				'ID' => $product_id,
+				'post_type' => Jetpack_Simple_Payments::$post_type_product,
+				'post_status' => 'publish',
+				'post_title' => $new_instance['name'],
+			) ),
+		);
     }
 
     /**
      * Form
      */
     function form( $instance ) {
-		// $instance = $this->sanitize_instance( $instance );
+		$instance = wp_parse_args( $instance, array(
+			'title' => '',
+			'product_id' => null,
+		) );
+
+    	$product_id = $instance['product_id'];
+    	$product = $product_id ? get_post( $product_id ) : null;
+    	$product_args = array();
+		if ( $product && ! is_wp_error( $product ) && $product->post_type === Jetpack_Simple_Payments::$post_type_product ) {
+			$product_args = array(
+				'name' => get_the_title( $product ),
+			);
+		} else {
+			$product_id = null;
+		}
+
+		$product_args = wp_parse_args( $product_args, array(
+			'name' => '',
+		) );
+		$args = array_merge( $instance, $product_args );
         ?>
 
 	<div class="simple-payments">
-		<p>Clone the simple payment button UI from Calypso here.</p>
+		<p>
+			<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title', 'jetpack' ); ?></label>
+			<input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $args['title'] ); ?>" />
+		</p>
+		<p>
+			<label for="<?php echo $this->get_field_id( 'name' ); ?>"><?php _e( 'What are you selling?', 'jetpack' ); ?></label>
+			<input class="widefat" id="<?php echo $this->get_field_id( 'name' ); ?>" name="<?php echo $this->get_field_name( 'name' ); ?>" type="text" placeholder="<?php echo esc_attr_e( 'Product name', 'jetpack' ); ?>" value="<?php echo esc_attr( $args['name'] ); ?>" />
+		</p>
         <!--p>
         	<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title', 'jetpack' ); ?></label>
         	<input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $instance['title'] ); ?>" />
