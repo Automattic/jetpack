@@ -6,7 +6,7 @@
 		attributes : {
 			title : {
 				type : 'string',
-				default : i18n['Subscribe to Blog via Email']
+				default : 'Subscribe to this site'
 			},
 			subscribe_text : {
 				type : 'string',
@@ -42,11 +42,6 @@
 					subscribe_text : value
 				});
 			}
-			function handleSubscribePlaceholderChange( value ) {
-				props.setAttributes({
-					subscribe_placeholder : value
-				});
-			}
 			function handleSubscribeButtonChange( value ) {
 				props.setAttributes({
 					subscribe_button : value
@@ -66,13 +61,16 @@
 			return [
 				el(
 					'div',
-					{ key : 'jetpack/subscription-form/preview' },
+					{
+						key : 'jetpack/subscription-form/preview',
+						className : 'subscription-form'
+					},
 					[
 						!! props.attributes.title && el(
 							'h2',
 							{
 								key : 'jetpack/subscription-form/title/preview',
-								className : 'widgettitle'
+								className : 'subscription-form__title'
 							},
 							props.attributes.title
 						),
@@ -87,7 +85,8 @@
 										'div',
 										{
 											key : 'jetpack/subscription-form/subscribe_text/preview',
-											id : 'subscribe-text'
+											id : 'subscribe-text',
+											className : 'subscription-form__text'
 										},
 										el(
 											'p',
@@ -97,7 +96,10 @@
 									),
 									!! props.attributes.show_subscribers_total && el(
 										'p',
-										{ key : 'jetpack/subscription-form/show_subscribers_total/preview' },
+										{
+											key : 'jetpack/subscription-form/show_subscribers_total/preview',
+											className : 'subscription-form__subscribers'
+										},
 										( i18n['Join %s other subscribers'] ).replace( '%s', '___' )
 						),
 						el(
@@ -111,7 +113,8 @@
 									'label',
 									{
 										key : 'jetpack/subscription-form/subscribe_placeholder/label',
-										id : 'jetpack-subscribe-label'
+										id : 'jetpack-subscribe-label',
+										className : 'subscription-form__email-label'
 									},
 									props.attributes.subscribe_placeholder
 								),
@@ -157,7 +160,7 @@
 						wp.blocks.BlockDescription,
 						{ key : 'jetpack/subscription-form/description' },
 						el(
-							'p',
+							'h3',
 							null,
 							i18n['Subscription Form settings']
 			)
@@ -166,7 +169,7 @@
 				wp.blocks.InspectorControls.TextControl,
 				{
 					key : 'jetpack/subscription-form/title/edit',
-					label : i18n['Widget title:'],
+					label : 'Title',
 				value : props.attributes.title,
 				onChange : handleTitleChange
 		}
@@ -180,25 +183,16 @@
 					onChange : handleSubscribeTextChange
 				}
 			),
-				el(
-					wp.blocks.InspectorControls.TextControl,
-					{
-						key : 'jetpack/subscription-form/subscribe_placeholder/edit',
-						label : i18n['Subscribe Placeholder:'],
-				value : props.attributes.subscribe_placeholder,
-				onChange : handleSubscribePlaceholderChange
-		}
-		),
 			el(
 				wp.blocks.InspectorControls.TextControl,
 				{
 					key : 'jetpack/subscription-form/subscribe_button/edit',
-					label : i18n['Subscribe Button:'],
+					label : 'Subscribe button',
 				value : props.attributes.subscribe_button,
 				onChange : handleSubscribeButtonChange
-		}
-		),
-			el(
+			}
+			),
+ 				el(
 				wp.blocks.InspectorControls.TextareaControl,
 				{
 					key : 'jetpack/subscription-form/success_message/edit',

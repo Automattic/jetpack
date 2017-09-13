@@ -767,6 +767,9 @@ class Jetpack_Subscriptions {
 			'Success Message Text:' => __( 'Success Message Text:', 'jetpack' ),
 			'Show total number of subscribers?' => __( 'Show total number of subscribers?', 'jetpack' ),
 		) );
+
+		wp_register_style( 'jetpack-subscriptions', plugins_url( 'subscriptions/subscriptions.css', __FILE__ ) );
+		wp_enqueue_style( 'jetpack-subscriptions' );
 	}
 }
 
