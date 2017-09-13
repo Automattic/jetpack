@@ -647,7 +647,13 @@ gulp.task( 'languages:extract', function( done ) {
 gulp.task( 'gutenpack', function() {
 	return gulp.src( '**/*/*block.jsx' )
 		.pipe( babel( {
-			plugins: [ 'transform-react-jsx' ]
+			plugins: [
+				[
+					'transform-react-jsx', {
+						'pragma': 'wp.element.createElement'
+					}
+				]
+			]
 		} ) )
 		.on( 'error', function( err ) {
 			util.log( util.colors.red( err ) );

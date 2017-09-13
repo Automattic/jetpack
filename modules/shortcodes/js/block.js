@@ -26,10 +26,10 @@ registerBlockType('gutenpack/test', {
 			props.setFocus(_.extend({}, focus, { editable: 'title' }));
 		};
 
-		return React.createElement(
+		return wp.element.createElement(
 			'div',
 			{ className: props.className },
-			React.createElement(Editable, {
+			wp.element.createElement(Editable, {
 				tagName: 'label',
 				multiline: false,
 				placeholder: __('Write visible text…'),
@@ -43,7 +43,7 @@ registerBlockType('gutenpack/test', {
 	save: function save(props) {
 		var title = props.attributes.title;
 
-		return React.createElement(
+		return wp.element.createElement(
 			'h4',
 			null,
 			title
