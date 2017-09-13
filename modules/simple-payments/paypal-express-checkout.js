@@ -145,6 +145,17 @@ var PaypalExpressCheckout = {
 				color: 'silver'
 			},
 
+			validate: function( actions ) {
+				// disable button if it's iframed into calypso.
+				var iframed = document.location.href.indexOf('calypso_token') >= 0;
+				if ( iframed ) {
+					console.log( 'disable button for ' + document.location.host + ' host.' );
+					actions.disable();	
+				} else {
+					actions.enable();
+				}
+			},
+
 			payment: function() {
 				PaypalExpressCheckout.cleanAndHideMessage( domId );
 
