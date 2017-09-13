@@ -7,11 +7,6 @@
 	"plugins": [
 		"transform-runtime",
 		"add-module-exports",
-		"transform-es3-member-expression-literals",
-		[
-			"transform-react-jsx", {
-				"pragma": "wp.element.createElement"
-			}
-		]
+		"transform-es3-member-expression-literals"
 	]
 }

@@ -214,4 +214,17 @@ function gutenpack_editor_assets_fold() {
 		JETPACK__VERSION
 	);
 }
-add_action( 'enqueue_block_editor_assets', 'gutenpack_editor_assets_fold' );
+
+/**
+ * Maybe load Gutenberg editor assets.
+ *
+ * @since 5.4
+ *
+ * @param object $screen
+ */
+function jetpack_shortcodes_current_screen( $screen ) {
+	if ( 'toplevel_page_gutenberg' === $screen->base ) {
+		add_action( 'enqueue_block_editor_assets', 'gutenpack_editor_assets_fold' );
+	}
+}
+add_action( 'current_screen', 'jetpack_shortcodes_current_screen' );
