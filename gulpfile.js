@@ -645,11 +645,13 @@ gulp.task( 'languages:extract', function( done ) {
  * Gutenpack!
  */
 gulp.task( 'gutenpack', function() {
-	return gulp.src( '**/*/block.jsx' )
+	return gulp.src( '**/*/*block.jsx' )
 		.pipe( babel( {
 			plugins: [ 'transform-react-jsx' ]
 		} ) )
-		.on( 'error', console.error.bind( console ) )
+		.on( 'error', function( err ) {
+			util.log( util.colors.red( err ) );
+		} )
 		.pipe( gulp.dest( './' ) );
 } );
 
