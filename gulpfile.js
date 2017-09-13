@@ -1,4 +1,5 @@
 var autoprefixer = require( 'gulp-autoprefixer' ),
+	babel = require( 'gulp-babel' ),
 	banner = require( 'gulp-banner' ),
 	check = require( 'gulp-check' ),
 	cleanCSS = require( 'gulp-clean-css' ),
@@ -640,14 +641,32 @@ gulp.task( 'languages:extract', function( done ) {
 		} );
 } );
 
+/*
+ * Gutenpack!
+ */
+gulp.task( 'gutenpack', function() {
+	return gulp.src( '**/*/*block.jsx' )
+		.pipe( babel( {
+			plugins: [ 'transform-react-jsx' ]
+		} ) )
+		.on( 'error', function( err ) {
+			util.log( util.colors.red( err ) );
+		} )
+		.pipe( gulp.dest( './' ) );
+} );
+
+gulp.task( 'gutenpack:watch', function() {
+	gulp.watch( '**/*/*block.jsx', [ 'gutenpack' ] );
+} );
+
 // Default task
 gulp.task(
 	'default',
-	['react:build', 'old-styles', 'checkstrings', 'php:lint', 'js:hint', 'php:module-headings']
+	['react:build', 'old-styles', 'checkstrings', 'php:lint', 'js:hint', 'php:module-headings', 'gutenpack']
 );
 gulp.task(
 	'watch',
-	['react:watch', 'sass:watch', 'old-styles:watch']
+	[ 'react:watch', 'sass:watch', 'old-styles:watch', 'gutenpack:watch', ]
 );
 
 gulp.task( 'jshint', ['js:hint'] );
