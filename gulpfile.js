@@ -471,7 +471,8 @@ gulp.task( 'js:hint', function() {
 		'modules/**/*.js',
 		'!_inc/*.min.js',
 		'!modules/*.min.',
-		'!modules/**/*.min.js'
+		'!modules/**/*.min.js',
+		'!**/*/*block.js'
 	] )
 		.pipe( jshint( '.jshintrc' ) )
 		.pipe( jshint.reporter( 'jshint-stylish' ) )
