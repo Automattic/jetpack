@@ -20,6 +20,153 @@ class Simple_Payments_Widget extends WP_Widget {
 	private static $defaults  = null;
 	private static $config_js = null;
 
+	private static $currencies = array(
+		'USD' => array(
+			'symbol' => '$',
+			'grouping' => ',',
+			'decimal' => '.',
+			'precision' => '2',
+		),
+		'EUR' => array(
+			'symbol' => '€',
+			'grouping' => '.',
+			'decimal' => ',',
+			'precision' => '2',
+		),
+		'AUD' => array(
+			'symbol' => 'A$',
+			'grouping' => ',',
+			'decimal' => '.',
+			'precision' => '2',
+		),
+		'BRL' => array(
+			'symbol' => 'R$',
+			'grouping' => ',',
+			'decimal' => '.',
+			'precision' => '2',
+		),
+		'CAD' => array(
+			'symbol' => 'C$',
+			'grouping' => ',',
+			'decimal' => '.',
+			'precision' => '2',
+		),
+		'CZK' => array(
+			'symbol' => 'Kč',
+			'grouping' => ' ',
+			'decimal' => ',',
+			'precision' => '2',
+		),
+		'DKK' => array(
+			'symbol' => 'kr.',
+			'grouping' => '',
+			'decimal' => ',',
+			'precision' => '2',
+		),
+		'HKD' => array(
+			'symbol' => 'HK$',
+			'grouping' => ',',
+			'decimal' => '.',
+			'precision' => '2',
+		),
+		'HUF' => array(
+			'symbol' => 'Ft',
+			'grouping' => '.',
+			'decimal' => ',',
+			'precision' => '0',
+		),
+		'ILS' => array(
+			'symbol' => '₪',
+			'grouping' => ',',
+			'decimal' => '.',
+			'precision' => '2',
+		),
+		'JPY' => array(
+			'symbol' => '¥',
+			'grouping' => ',',
+			'decimal' => '.',
+			'precision' => '0',
+		),
+		'MYR' => array(
+			'symbol' => 'RM',
+			'grouping' => ',',
+			'decimal' => '.',
+			'precision' => '2',
+		),
+		'MXN' => array(
+			'symbol' => 'MX$',
+			'grouping' => ',',
+			'decimal' => '.',
+			'precision' => '2',
+		),
+		'TWD' => array(
+			'symbol' => 'NT$',
+			'grouping' => ',',
+			'decimal' => '.',
+			'precision' => '2',
+		),
+		'NZD' => array(
+			'symbol' => 'NZ$',
+			'grouping' => ',',
+			'decimal' => '.',
+			'precision' => '2',
+		),
+		'NOK' => array(
+			'symbol' => 'kr',
+			'grouping' => ' ',
+			'decimal' => ',',
+			'precision' => '2',
+		),
+		'PHP' => array(
+			'symbol' => '₱',
+			'grouping' => ',',
+			'decimal' => '.',
+			'precision' => '2',
+		),
+		'PLN' => array(
+			'symbol' => 'zł',
+			'grouping' => ' ',
+			'decimal' => ',',
+			'precision' => '2',
+		),
+		'GBP' => array(
+			'symbol' => '£',
+			'grouping' => ',',
+			'decimal' => '.',
+			'precision' => '2',
+		),
+		'RUB' => array(
+			'symbol' => '₽',
+			'grouping' => ' ',
+			'decimal' => ',',
+			'precision' => '2',
+		),
+		'SGD' => array(
+			'symbol' => '$',
+			'grouping' => ',',
+			'decimal' => '.',
+			'precision' => '2',
+		),
+		'SEK' => array(
+			'symbol' => 'kr',
+			'grouping' => ',',
+			'decimal' => '.',
+			'precision' => '2',
+		),
+		'CHF' => array(
+			'symbol' => 'CHF',
+			'grouping' => '\'',
+			'decimal' => '.',
+			'precision' => '2',
+		),
+		'THB' => array(
+			'symbol' => '฿',
+			'grouping' => ',',
+			'decimal' => '.',
+			'precision' => '2',
+		),
+	);
+
 	function __construct() {
 		$widget = array(
 			'classname'   => 'simple-payments',
@@ -170,11 +317,14 @@ class Simple_Payments_Widget extends WP_Widget {
 			<textarea class="widefat" rows=5 id="<?php echo $this->get_field_id( 'description' ); ?>" name="<?php echo $this->get_field_name( 'description' ); ?>"><?php echo esc_html( $product_args['description'] ); ?></textarea>
 		</p>
 		<p>
-			<label for="<?php echo $this->get_field_id( 'currency' ); ?>"><?php _e( 'Currency', 'jetpack' ); ?></label>
-			<input class="widefat" id="<?php echo $this->get_field_id( 'currency' ); ?>" name="<?php echo $this->get_field_name( 'currency' ); ?>" type="text" value="<?php echo esc_attr( $product_args['currency'] ); ?>" />
-		</p>
-		<p>
 			<label for="<?php echo $this->get_field_id( 'price' ); ?>"><?php _e( 'Price', 'jetpack' ); ?></label>
+			<select class="widefat" id="<?php echo $this->get_field_id( 'currency' ); ?>" name="<?php echo $this->get_field_name( 'currency' ); ?>">
+				<?php foreach( self::$currencies as $code => $currency ) { ?>
+					<option value="<?php echo esc_attr( $code ) ?>" <?php if ( $code === $product_args['currency'] ) { ?>selected="selected"<?php } ?>>
+						<?php echo esc_html( $currency['symbol'] === $code ? $code : ( $code . ' ' . rtrim( $currency['symbol'], '.' ) ) ) ?>
+					</option>
+				<?php } ?>
+			</select>
 			<input class="widefat" id="<?php echo $this->get_field_id( 'price' ); ?>" name="<?php echo $this->get_field_name( 'price' ); ?>" type="text" value="<?php echo esc_attr( $product_args['price'] ); ?>" />
 		</p>
 		<p>
