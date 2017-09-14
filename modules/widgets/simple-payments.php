@@ -104,12 +104,20 @@ class Simple_Payments_Widget extends WP_Widget {
 		echo '<div class="simple-payments-content">';
 
 		// display the product on the front end here
+		/*
 		echo '#' . $instance['product_id'] . '<br>';
 		echo '<ul>';
 		foreach( $product_args as $key => $value ) {
 			echo '<li>' . $key . ': ' . $value . '</li>';
 		}
 		echo '</ul>';
+		*/
+
+		$attrs = array( 'id' => $instance['product_id'] );
+
+		$JSP = Jetpack_Simple_Payments::getInstance();
+
+		echo $JSP->parse_shortcode( $attrs );
 
 		echo '</div><!--simple-payments-->';
 
