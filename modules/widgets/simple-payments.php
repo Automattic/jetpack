@@ -275,8 +275,27 @@ class Simple_Payments_Widget extends WP_Widget {
 		}
 
 		// TODO: validate this (or use image modal)
-		$image_url = isset( $old_instance['image'] ) ? $old_instance['product_id'] : '';
-		if ( $image_url ) media_sideload_image( $image_url, $product_id );
+		if ( $new_instance['image'] ){
+			$image = media_sideload_image( $new_instance['image'], $product_id );
+		}
+
+		if ( ! empty( $image ) && ! is_wp_error( $image ) ) {
+		    $attachments = get_attached_media( 'image', $product_id );
+
+		    if ( isset( $attachments ) && is_array( $attachments ) ) {
+				foreach( $attachments as $attachment ) {
+					// grab source of full size images (so no 300x150 nonsense in path)
+					$image = wp_get_attachment_image_src( $attachment->ID, 'full' );
+					// determine if in the $media image we created, the string of the URL exists
+					if ( strpos( $media, $image[0] ) !== false ) {
+						// if so, we found our image. set it as thumbnail
+						set_post_thumbnail( $product_id, $attachment->ID );
+						// only want one image
+						break;
+					}
+				}
+		    }
+		}
 
 		return array(
 			'title' => $new_instance['title'],
@@ -319,6 +338,11 @@ class Simple_Payments_Widget extends WP_Widget {
 			<label for="<?php echo $this->get_field_id( 'name' ); ?>"><?php _e( 'What are you selling?', 'jetpack' ); ?></label>
 			<input class="widefat" id="<?php echo $this->get_field_id( 'name' ); ?>" name="<?php echo $this->get_field_name( 'name' ); ?>" type="text" placeholder="<?php echo esc_attr_e( 'Product name', 'jetpack' ); ?>" value="<?php echo esc_attr( $product_args['name'] ); ?>" />
 		</p>
+		<?php
+			if ( ! empty( $image ) ){
+				// display image
+			}
+		?>
 		<p>
 			<label for="<?php echo $this->get_field_id( 'image' ); ?>"><?php _e( 'Image', 'jetpack' ); ?></label>
 			<input class="widefat" id="<?php echo $this->get_field_id( 'image' ); ?>" name="<?php echo $this->get_field_name( 'image' ); ?>" type="text" value="<?php echo esc_attr( $image ); ?>" />
