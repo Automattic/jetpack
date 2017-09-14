@@ -176,6 +176,7 @@ class Milestone_Widget extends WP_Widget {
 		$now  = (int) current_time( 'timestamp' );
 		$diff = (int) floor( $milestone - $now );
 
+		$unit = $instance['unit'];
 		$number = 0;
 		$label  = '';
 
@@ -227,6 +228,7 @@ class Milestone_Widget extends WP_Widget {
 				'id'      => $args['widget_id'],
 				'diff'    => $diff,
 				'message' => $instance['message'],
+				'unit'    => $instance['unit'],
 			);
 		}
 
@@ -278,6 +280,7 @@ class Milestone_Widget extends WP_Widget {
 		$dirty = wp_parse_args( $dirty, array(
 			'title'   => '',
 			'event'   => __( 'The Big Day', 'jetpack' ),
+			'unit'    => 'automatic',
 			'message' => __( 'The big day is here.', 'jetpack' ),
 			'day'     => date( 'd', $now ),
 			'month'   => date( 'm', $now ),
@@ -295,6 +298,7 @@ class Milestone_Widget extends WP_Widget {
 		$clean = array(
 			'title'   => trim( strip_tags( stripslashes( $dirty['title'] ) ) ),
 			'event'   => trim( strip_tags( stripslashes( $dirty['event'] ) ) ),
+			'unit'    => $dirty['unit'],
 			'message' => wp_kses( $dirty['message'], $allowed_tags ),
 			'year'    => $this->sanitize_range( $dirty['year'],  1901, 2037 ),
 			'month'   => $this->sanitize_range( $dirty['month'], 1, 12 ),
@@ -312,7 +316,14 @@ class Milestone_Widget extends WP_Widget {
      */
     function form( $instance ) {
 		$instance = $this->sanitize_instance( $instance );
-        ?>
+
+		$units = array(
+			'automatic' => __( 'Automatic', 'jetpack' ),
+			'months' => __( 'Months', 'jetpack' ),
+			'days' => __( 'Days', 'jetpack' ),
+			'hours' => __( 'Hours', 'jetpack' ),
+		);
+		?>
 
 	<div class="milestone-widget">
         <p>
@@ -355,6 +366,20 @@ class Milestone_Widget extends WP_Widget {
 			<span class="time-separator">:</span>
 
 			<input id="<?php echo $this->get_field_id( 'min' ); ?>" class="minutes" name="<?php echo $this->get_field_name( 'min' ); ?>" type="text" value="<?php echo esc_attr( $instance['min'] ); ?>">
+		</fieldset>
+
+		<fieldset class="jp-ms-data-unit">
+			<legend><?php esc_html_e( 'Time Unit', 'jetpack' ); ?></legend>
+
+			<label for="<?php echo $this->get_field_id( 'unit' ); ?>" class="assistive-text">
+				<?php _e( 'Time Unit', 'jetpack' ); ?>
+			</label>
+			<select id="<?php echo $this->get_field_id( 'unit' ); ?>" class="unit" name="<?php echo $this->get_field_name( 'unit' ); ?>">
+			<?php
+				foreach ( $units as $key => $unit ) {
+					echo '<option value="' . esc_attr( $key ) . '"' . selected( $key, $instance['unit'], false ) . '>' . $unit . '</option>';
+				}
+			?></select>
 		</fieldset>
 
 		<p>
