@@ -655,7 +655,7 @@ function gutenShortcode() {
 					exclude: /node_modules/,
 					query: {
 						presets: [ 'es2015', 'stage-1', 'react' ]
-					}
+					},
 				} ]
 			},
 			output: {
@@ -671,7 +671,7 @@ function gutenShortcode() {
 gulp.task( 'gutenpack', function() {
 	gutenShortcode();
 
-	return gulp.src( [ '**/*/*block.jsx', '!modules/shortcodes/js/blocks/*' ] )
+	return gulp.src( '**/*/*block.jsx' )
 		.pipe( babel( {
 			plugins: [
 				[
