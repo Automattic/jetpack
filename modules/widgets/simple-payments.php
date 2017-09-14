@@ -273,6 +273,11 @@ class Simple_Payments_Widget extends WP_Widget {
 		if ( ! $product || is_wp_error( $product ) || $product->post_type !== Jetpack_Simple_Payments::$post_type_product ) {
 			$product_id = 0;
 		}
+
+		// TODO: validate this (or use image modal)
+		$image_url = isset( $old_instance['image'] ) ? $old_instance['product_id'] : '';
+		if ( $image_url ) media_sideload_image( $image_url, $product_id );
+
 		return array(
 			'title' => $new_instance['title'],
 			'product_id' => wp_insert_post( array(
@@ -301,6 +306,8 @@ class Simple_Payments_Widget extends WP_Widget {
 		) );
 
 		$product_args = $this->get_product_args( $instance['product_id'] );
+
+		$image = ( has_post_thumbnail( $instance['product_id'] ) ) ? get_the_post_thumbnail_url( $instance['product_id'] ) : '';
         ?>
 
 	<div class="simple-payments">
@@ -311,6 +318,10 @@ class Simple_Payments_Widget extends WP_Widget {
 		<p>
 			<label for="<?php echo $this->get_field_id( 'name' ); ?>"><?php _e( 'What are you selling?', 'jetpack' ); ?></label>
 			<input class="widefat" id="<?php echo $this->get_field_id( 'name' ); ?>" name="<?php echo $this->get_field_name( 'name' ); ?>" type="text" placeholder="<?php echo esc_attr_e( 'Product name', 'jetpack' ); ?>" value="<?php echo esc_attr( $product_args['name'] ); ?>" />
+		</p>
+		<p>
+			<label for="<?php echo $this->get_field_id( 'image' ); ?>"><?php _e( 'Image', 'jetpack' ); ?></label>
+			<input class="widefat" id="<?php echo $this->get_field_id( 'image' ); ?>" name="<?php echo $this->get_field_name( 'image' ); ?>" type="text" value="<?php echo esc_attr( $image ); ?>" />
 		</p>
 		<p>
 			<label for="<?php echo $this->get_field_id( 'description' ); ?>"><?php _e( 'Description', 'jetpack' ); ?></label>
