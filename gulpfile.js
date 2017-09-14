@@ -9,6 +9,7 @@ var autoprefixer = require( 'gulp-autoprefixer' ),
 	gulp = require( 'gulp' ),
 	eslint = require( 'gulp-eslint' ),
 	gutil = require( 'gulp-util' ),
+	gulp_webpack = require( 'gulp-webpack' ),
 	i18n_calypso = require( 'i18n-calypso/cli' ),
 	jshint = require( 'gulp-jshint' ),
 	json_transform = require( 'gulp-json-transform' ),
@@ -472,7 +473,8 @@ gulp.task( 'js:hint', function() {
 		'!_inc/*.min.js',
 		'!modules/*.min.',
 		'!modules/**/*.min.js',
-		'!**/*/*block.js'
+		'!**/*/*block.js',
+		'!modules/shortcodes/js/blocks/index.js',
 	] )
 		.pipe( jshint( '.jshintrc' ) )
 		.pipe( jshint.reporter( 'jshint-stylish' ) )
@@ -642,19 +644,41 @@ gulp.task( 'languages:extract', function( done ) {
 		} );
 } );
 
+function gutenShortcode() {
+	return gulp.src( 'modules/shortcodes/js/blocks/blocks.js' )
+		.pipe( gulp_webpack( {
+			module: {
+				loaders: [ {
+					test: /.jsx?$/,
+					loader: 'babel-loader',
+					exclude: /node_modules/,
+					query: {
+						presets: [ 'es2015', 'stage-1', 'react' ]
+					}
+				} ]
+			},
+			output: {
+				filename: 'index.js'
+			}
+		} ) )
+		.pipe( gulp.dest( './modules/shortcodes/js/blocks' ) );
+}
+
 /*
  * Gutenpack!
  */
 gulp.task( 'gutenpack', function() {
+	gutenShortcode();
+
 	return gulp.src( '**/*/*block.jsx' )
 		.pipe( babel( {
 			plugins: [
 				[
 					'transform-react-jsx', {
-						'pragma': 'wp.element.createElement'
+						pragma: 'wp.element.createElement'
 					}
 				]
-			]
+			],
 		} ) )
 		.on( 'error', function( err ) {
 			util.log( util.colors.red( err ) );

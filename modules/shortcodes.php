@@ -209,7 +209,7 @@ function gutenpack_editor_assets_fold() {
 	);
 	wp_enqueue_script(
 		'gutenpack',
-		plugins_url( 'shortcodes/js/block.js', __FILE__ ),
+		plugins_url( 'shortcodes/js/blocks/index.js', __FILE__ ),
 		array( 'wp-blocks', 'wp-i18n', 'wp-element', 'underscore' ),
 		JETPACK__VERSION
 	);
