@@ -34,6 +34,7 @@ class Jetpack_WPES_Query_Builder {
 	public $scripts   = array();
 	public $functions_max_boost  = 2.0;
 	public $functions_score_mode = 'multiply';
+	public $functions_boost_mode = 'multiply';
 	public $query_bool_boost     = null;
 
 	// General aggregations for buckets and metrics
@@ -140,6 +141,12 @@ class Jetpack_WPES_Query_Builder {
 	 */
 	public function add_score_mode_to_functions( $mode='multiply' ) {
 		$this->functions_score_mode = $mode;
+
+		return $this;
+	}
+
+	public function add_boost_mode_to_functions( $mode='multiply' ) {
+		$this->functions_boost_mode = $mode;
 
 		return $this;
 	}
@@ -317,6 +324,7 @@ class Jetpack_WPES_Query_Builder {
 					'query'     => $query,
 					'functions' => $this->weighting_functions,
 					'score_mode' => $this->functions_score_mode,
+					'boost_mode' => $this->functions_boost_mode,
 				),
 			);
 			if ( $this->functions_max_boost )
