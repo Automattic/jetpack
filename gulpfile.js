@@ -475,6 +475,7 @@ gulp.task( 'js:hint', function() {
 		'!modules/**/*.min.js',
 		'!**/*/*block.js',
 		'!modules/shortcodes/js/blocks/index.js',
+		'!modules/shortcodes/js/blocks/blocks.js',
 	] )
 		.pipe( jshint( '.jshintrc' ) )
 		.pipe( jshint.reporter( 'jshint-stylish' ) )
