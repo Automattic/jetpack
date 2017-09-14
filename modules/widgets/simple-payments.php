@@ -334,7 +334,7 @@ class Simple_Payments_Widget extends WP_Widget {
 		<p>
 			<label for="<?php echo $this->get_field_id( 'email' ); ?>"><?php _e( 'Email', 'jetpack' ); ?></label>
 			<input class="widefat" id="<?php echo $this->get_field_id( 'email' ); ?>" name="<?php echo $this->get_field_name( 'email' ); ?>" type="email" value="<?php echo esc_attr( $product_args['email'] ); ?>" />
-			This is where PayPal will send your money. To claim a payment, you'll need a PayPal account connected to a bank account.
+			<em><?php printf( esc_html__( 'This is where PayPal will send your money. To claim a payment, you\'ll need a %1$sPayPal account%2$s connected to a bank account.', 'jetpack' ), '<a href="https://paypal.com" target="_blank">', '</a>' ) ?></em>
 		</p>
 	</div>
 
