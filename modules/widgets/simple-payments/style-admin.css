@@ -1,0 +1,19 @@
+.simple-payments-image {
+	text-align: center;
+}
+
+.widget-content .simple-payments .cost label {
+	display: block;
+}
+
+.widget-content .simple-payments .currency {
+	display: inline-block;
+	vertical-align: top;
+	width: 19%;
+}
+.widget-content .simple-payments .price {
+	display: inline-block;
+	line-height: 20px;
+	width: 80%;
+}
+

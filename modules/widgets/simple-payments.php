@@ -190,12 +190,12 @@ class Simple_Payments_Widget extends WP_Widget {
 		*/
 
 		// add_action( 'wp_enqueue_scripts', array( __class__, 'enqueue_template' ) );
-		// add_action( 'admin_enqueue_scripts', array( __class__, 'enqueue_admin' ) );
+		add_action( 'admin_enqueue_scripts', array( __class__, 'enqueue_admin_styles' ) );
 	}
 
-	public static function enqueue_admin( $hook_suffix ) {
+	public static function enqueue_admin_styles( $hook_suffix ) {
 		if ( 'widgets.php' == $hook_suffix ) {
-			// wp_enqueue_style( 'milestone-admin', self::$url . 'style-admin.css', array(), '20161215' );
+			wp_enqueue_style( 'simple-payments-widget-admin', self::$url . '/simple-payments/style-admin.css', array(), '20171014' );
 		}
 	}
 
@@ -287,7 +287,7 @@ class Simple_Payments_Widget extends WP_Widget {
 					// grab source of full size images (so no 300x150 nonsense in path)
 					$image = wp_get_attachment_image_src( $attachment->ID, 'full' );
 					// determine if in the $media image we created, the string of the URL exists
-					if ( strpos( $media, $image[0] ) !== false ) {
+					if ( strpos( $image, $image[0] ) !== false ) {
 						// if so, we found our image. set it as thumbnail
 						set_post_thumbnail( $product_id, $attachment->ID );
 						// only want one image
@@ -338,11 +338,14 @@ class Simple_Payments_Widget extends WP_Widget {
 			<label for="<?php echo $this->get_field_id( 'name' ); ?>"><?php _e( 'What are you selling?', 'jetpack' ); ?></label>
 			<input class="widefat" id="<?php echo $this->get_field_id( 'name' ); ?>" name="<?php echo $this->get_field_name( 'name' ); ?>" type="text" placeholder="<?php echo esc_attr_e( 'Product name', 'jetpack' ); ?>" value="<?php echo esc_attr( $product_args['name'] ); ?>" />
 		</p>
+		<div class="simple-payments-image">
 		<?php
 			if ( ! empty( $image ) ){
 				// display image
+				echo get_the_post_thumbnail( $instance['product_id'], array( 200, 200 ) );
 			}
 		?>
+		</div>
 		<p>
 			<label for="<?php echo $this->get_field_id( 'image' ); ?>"><?php _e( 'Image', 'jetpack' ); ?></label>
 			<input class="widefat" id="<?php echo $this->get_field_id( 'image' ); ?>" name="<?php echo $this->get_field_name( 'image' ); ?>" type="text" value="<?php echo esc_attr( $image ); ?>" />
@@ -351,16 +354,16 @@ class Simple_Payments_Widget extends WP_Widget {
 			<label for="<?php echo $this->get_field_id( 'description' ); ?>"><?php _e( 'Description', 'jetpack' ); ?></label>
 			<textarea class="widefat" rows=5 id="<?php echo $this->get_field_id( 'description' ); ?>" name="<?php echo $this->get_field_name( 'description' ); ?>"><?php echo esc_html( $product_args['description'] ); ?></textarea>
 		</p>
-		<p>
+		<p class="cost">
 			<label for="<?php echo $this->get_field_id( 'price' ); ?>"><?php _e( 'Price', 'jetpack' ); ?></label>
-			<select class="widefat" id="<?php echo $this->get_field_id( 'currency' ); ?>" name="<?php echo $this->get_field_name( 'currency' ); ?>">
+			<select class="currency widefat" id="<?php echo $this->get_field_id( 'currency' ); ?>" name="<?php echo $this->get_field_name( 'currency' ); ?>">
 				<?php foreach( self::$currencies as $code => $currency ) { ?>
 					<option value="<?php echo esc_attr( $code ) ?>" <?php if ( $code === $product_args['currency'] ) { ?>selected="selected"<?php } ?>>
 						<?php echo esc_html( $currency['symbol'] === $code ? $code : ( $code . ' ' . rtrim( $currency['symbol'], '.' ) ) ) ?>
 					</option>
 				<?php } ?>
 			</select>
-			<input class="widefat" id="<?php echo $this->get_field_id( 'price' ); ?>" name="<?php echo $this->get_field_name( 'price' ); ?>" type="text" value="<?php echo esc_attr( $product_args['price'] ); ?>" />
+			<input class="price widefat" id="<?php echo $this->get_field_id( 'price' ); ?>" name="<?php echo $this->get_field_name( 'price' ); ?>" type="text" value="<?php echo esc_attr( $product_args['price'] ); ?>" />
 		</p>
 		<p>
 			<input id="<?php echo $this->get_field_id( 'multiple' ); ?>" name="<?php echo $this->get_field_name( 'multiple' ); ?>" type="checkbox" <?php if ( '1' === $product_args['multiple'] ) { ?>checked="checked"<?php } ?> />
