@@ -196,6 +196,8 @@ class Simple_Payments_Widget extends WP_Widget {
 	public static function enqueue_admin_styles( $hook_suffix ) {
 		if ( 'widgets.php' == $hook_suffix ) {
 			wp_enqueue_style( 'simple-payments-widget-admin', self::$url . '/simple-payments/style-admin.css', array(), '20171014' );
+			wp_enqueue_media();
+			wp_enqueue_script( 'simple-payments-widget-admin', self::$url . '/simple-payments/admin.js', array( 'jquery' ), '20171014', true );
 		}
 	}
 
@@ -374,6 +376,7 @@ class Simple_Payments_Widget extends WP_Widget {
 		<p>
 			<label for="<?php echo $this->get_field_id( 'image' ); ?>"><?php _e( 'Image', 'jetpack' ); ?></label>
 			<input class="widefat" id="<?php echo $this->get_field_id( 'image' ); ?>" name="<?php echo $this->get_field_name( 'image' ); ?>" type="text" value="<?php echo esc_attr( $image ); ?>" />
+			<button class="button simple-payments-add-image">Add Image</button>
 		</p>
 		<p>
 			<label for="<?php echo $this->get_field_id( 'description' ); ?>"><?php _e( 'Description', 'jetpack' ); ?></label>
