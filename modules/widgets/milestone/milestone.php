@@ -175,30 +175,7 @@ class Milestone_Widget extends WP_Widget {
 		$milestone = mktime( $instance['hour'], $instance['min'], 0, $instance['month'], $instance['day'], $instance['year'] );
 		$now  = (int) current_time( 'timestamp' );
 		$diff = (int) floor( $milestone - $now );
-
 		$unit = $instance['unit'];
-		$number = 0;
-		$label  = '';
-
-		if ( 63113852 < $diff ) { // more than 2 years - show in years, one decimal point
-			$number = round( $diff / 60 / 60 / 24 / 365, 1 );
-			$label  = self::$labels['years'];
-		} else if ( 7775999 < $diff ) { // fewer than 2 years - show in months
-			$number = floor( $diff / 60 / 60 / 24 / 30 );
-			$label  = ( 1 == $number ) ? self::$labels['month'] : self::$labels['months'];
-		} else if ( 86399 < $diff ) { // fewer than 3 months - show in days
-			$number = floor( $diff / 60 / 60 / 24 ) + 1;
-			$label  = ( 1 == $number ) ? self::$labels['day'] : self::$labels['days'];
-		} else if ( 3599 < $diff ) { // less than 1 day - show in hours
-			$number = floor( $diff / 60 / 60 );
-			$label  = ( 1 == $number ) ? self::$labels['hour'] : self::$labels['hours'];
-		} else if ( 59 < $diff ) { // less than 1 hour - show in minutes
-			$number = floor( $diff / 60 ) + 1;
-			$label = ( 1 == $number ) ? self::$labels['minute'] : self::$labels['minutes'];
-		} else { // less than 1 minute - show in seconds
-			$number = $diff;
-			$label = ( 1 == $number ) ? self::$labels['second'] : self::$labels['seconds'] ;
-		}
 
 		echo $args['before_widget'];
 
@@ -220,8 +197,8 @@ class Milestone_Widget extends WP_Widget {
 		} else {
 			/* Countdown to the milestone. */
 			echo '<div class="milestone-countdown">' . sprintf( __( '%1$s %2$s to go.', 'jetpack' ),
-				'<span class="difference">' . esc_html( $number ) . '</span>',
-				'<span class="label">' . esc_html( $label ) . '</span>'
+				'<span class="difference"></span>',
+				'<span class="label"></span>'
 			) . '</div>';
 
 			self::$config_js['instances'][] = array(
