@@ -1,1 +1,1 @@
-require( './block.js' );
+require( './block.jsx' );
