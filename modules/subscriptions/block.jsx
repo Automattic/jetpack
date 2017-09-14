@@ -1,170 +1,140 @@
-const { registerBlockType, InspectorControls, BlockDescription, source } = wp.blocks;
+/** @format */
+const {
+	registerBlockType,
+	InspectorControls,
+	BlockDescription,
+	Editable,
+	InspectorControls: { CheckboxControl, TextControl },
+} = wp.blocks;
 const { createElement } = wp.element;
-const { text } = source;
 
 const i18n = jpSubBlockI18n;
 
 registerBlockType( 'jetpack/subscription-form', {
-	title : i18n['Subscription Form'],
-	icon : 'email-alt',
-	category : 'common',
-	attributes : {
-		title : {
-			type : 'string',
-			source: text( '.subscription-form__title' ),
-			default : 'Subscribe to this site'
+	title: i18n[ 'Subscription Form' ],
+	icon: 'email-alt',
+	category: 'common',
+	attributes: {
+		title: {
+			type: 'string',
+			default: 'Subscribe to this site',
 		},
-		subscribe_text : {
-			type : 'string',
-			source: text( '.subscription-form__text' ),
-			default : i18n['Enter your email address to subscribe to this blog and receive notifications of new posts by email.']
+		// Using snake_case because the same attributes are passed to the
+		// `jetpack_do_subscription_form` shortcode.
+		subscribe_text: {
+			type: 'string',
+			default:
+				i18n[
+					'Enter your email address to subscribe to this blog and receive notifications of new posts by email.'
+				],
 		},
-		subscribe_button : {
-			type : 'string',
-			default : i18n['Subscribe']
+		// Using snake_case because the same attributes are passed to the
+		// `jetpack_do_subscription_form` shortcode.
+		subscribe_button: {
+			type: 'string',
+			default: i18n[ 'Subscribe' ],
 		},
-		success_message : {
-			type : 'string',
-			default : i18n['Success! An email was just sent to confirm your subscription. Please find the email now and click \'Confirm Follow\' to start subscribing.']
+		// Using snake_case because the same attributes are passed to the
+		// `jetpack_do_subscription_form` shortcode.
+		success_message: {
+			type: 'string',
+			default:
+				i18n[
+					"Success! An email was just sent to confirm your subscription. Please find the email now and click 'Confirm Follow' to start subscribing."
+				],
 		},
-		show_subscribers_total : {
-			type : 'bool',
-			default : true
-		}
+		// Using snake_case because the same attributes are passed to the
+		// `jetpack_do_subscription_form` shortcode.
+		show_subscribers_total: {
+			type: 'bool',
+			default: true,
+		},
 	},
 
-	edit : function( { attributes, setAttributes, focus } ) {
-		function handleTitleChange( value ) {
-			setAttributes({
-				title : value
-			});
-		}
-		function handleSubscribeTextChange( value ) {
-			setAttributes({
-				subscribe_text : value
-			});
-		}
-		function handleSubscribeButtonChange( value ) {
-			setAttributes({
-				subscribe_button : value
-			});
-		}
-		function handleSuccessMessageChange( value ) {
-			setAttributes({
-				success_message : value
-			});
-		}
-		function handleShowSubscribersTotalChange( value ) {
-			setAttributes({
-				show_subscribers_change : !! value
-			});
-		}
-
+	edit: function( { attributes, setAttributes, focus, setFocus } ) {
 		const {
 			title,
 			subscribe_text,
 			show_subscribers_total,
 			subscribe_button,
+			success_message,
 		} = attributes;
+
+		const toggleshow_subscribers_total = () =>
+			setAttributes( { show_subscribers_total: ! show_subscribers_total } );
 
 		return [
 			<div key="subscription-form" className="subscription-form">
 				{ !! title &&
-					<h2 className="subscription-form__title">{ title }</h2>
-				}
+					<h2 className="subscription-form__title">
+						<input
+							type="text"
+							value={ title }
+							onChange={ e => setAttributes( { title: e.target.value } ) }
+						/>
+					</h2> }
 				<form>
-					<fieldset disabled>
+					<fieldset>
 						{ !! subscribe_text &&
 							<div id="subscribe-text" className="subscription-form__text">
-								<p>{subscribe_text}</p>
-							</div>
-						}
+								<Editable
+									tagName="p"
+									value={ subscribe_text }
+									onChange={ value => setAttributes( { subscribe_text: value } ) }
+									focus={ focus }
+									onFocus={ setFocus }
+								/>
+							</div> }
 						{ !! show_subscribers_total &&
 							<p className="subscription-form__subscribers">
-								{ i18n['Join %s other subscribers'].replace( '%s', '___' ) }
-							</p>
-						}
+								{ i18n[ 'Join %s other subscribers' ].replace( '%s', '___' ) }
+							</p> }
 						<p id="subscribe-email">
-							<label
-								id="jetpack-subscribe-label"
-								className="subscription-form__email-label"
-							>
-								{ i18n['Email Address'] }
+							<label id="jetpack-subscribe-label" className="subscription-form__email-label">
+								{ i18n[ 'Email Address' ] }
 							</label>
 							<input
 								type="email"
 								className="required"
-								placeholder={ i18n['Email Address'] }
+								placeholder={ i18n[ 'Email Address' ] }
 								style={ { display: 'block' } }
 								required
+								disabled
 							/>
 						</p>
 						<p id="subscribe-submit">
-							<input type="submit" value={ subscribe_button } />
+							<input type="submit" value={ subscribe_button } disabled />
 						</p>
 					</fieldset>
 				</form>
 			</div>,
-			!! focus && (
+			!! focus &&
 				<InspectorControls key="inspector">
 					<BlockDescription>
 						<h3>
-							{ i18n['Subscription Form settings'] }
+							{ i18n[ 'Subscription Form settings' ] }
 						</h3>
 					</BlockDescription>
-				</InspectorControls>
-
-			)
+					<CheckboxControl
+						label={ i18n[ 'Show total number of subscribers?' ] }
+						checked={ show_subscribers_total }
+						onChange={ toggleshow_subscribers_total }
+					/>
+					<TextControl
+						label={ i18n[ 'Subscribe Button:' ] }
+						value={ subscribe_button }
+						onChange={ value => setAttributes( { subscribe_button: value } ) }
+					/>
+					<TextControl
+						label={ i18n[ 'Success Message Text:' ] }
+						value={ success_message }
+						onChange={ value => setAttributes( { success_message: value } ) }
+					/>
+				</InspectorControls>,
 		];
 	},
 
-	save : function( { attributes } ) {
-		const {
-			title,
-			subscribe_text,
-			show_subscribers_total,
-			subscribe_button,
-		} = attributes;
-
-		return (
-			<div className="subscription-form">
-				{ !! title &&
-				<h2 className="subscription-form__title">{ title }</h2>
-				}
-				<form>
-					<fieldset disabled>
-						{ !! subscribe_text &&
-						<div id="subscribe-text" className="subscription-form__text">
-							<p>{subscribe_text}</p>
-						</div>
-						}
-						{ !! show_subscribers_total &&
-						<p className="subscription-form__subscribers">
-							{ i18n['Join %s other subscribers'].replace( '%s', '___' ) }
-						</p>
-						}
-						<p id="subscribe-email">
-							<label
-								id="jetpack-subscribe-label"
-								className="subscription-form__email-label"
-							>
-								{ i18n['Email Address'] }
-							</label>
-							<input
-								type="email"
-								className="required"
-								placeholder={ i18n['Email Address'] }
-								style={ { display: 'block' } }
-								required
-							/>
-						</p>
-						<p id="subscribe-submit">
-							<input type="submit" value={ subscribe_button } />
-						</p>
-					</fieldset>
-				</form>
-			</div>
-		);
-	}
-
+	save: function() {
+		return null;
+	},
 } );

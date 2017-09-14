@@ -738,7 +738,7 @@ class Jetpack_Subscriptions {
 			return;
 		}
 		register_block_type( 'jetpack/subscription-form', array(
-			'render_callback' => 'jetpack_do_subscription_form',
+			'render_callback' => 'jetpack_do_subscription_form'
 		) );
 	}
 
@@ -1092,6 +1092,13 @@ function jetpack_do_subscription_form( $instance ) {
 		$instance = array();
 	}
 	$instance['show_subscribers_total'] = empty( $instance['show_subscribers_total'] ) ? false : true;
+
+	if (
+		array_key_exists( 'subscribe_text', $instance ) &&
+		is_array( $instance['subscribe_text'] )
+	) {
+		$instance['subscribe_text'] = $instance['subscribe_text'][0];
+	}
 
 	$instance = shortcode_atts(
 		Jetpack_Subscriptions_Widget::defaults(),

@@ -1,12 +1,15 @@
 'use strict';
 
+/** @format */
 var _wp$blocks = wp.blocks,
     registerBlockType = _wp$blocks.registerBlockType,
     InspectorControls = _wp$blocks.InspectorControls,
     BlockDescription = _wp$blocks.BlockDescription,
-    source = _wp$blocks.source;
+    Editable = _wp$blocks.Editable,
+    _wp$blocks$InspectorC = _wp$blocks.InspectorControls,
+    CheckboxControl = _wp$blocks$InspectorC.CheckboxControl,
+    TextControl = _wp$blocks$InspectorC.TextControl;
 var createElement = wp.element.createElement;
-var text = source.text;
 
 
 var i18n = jpSubBlockI18n;
@@ -18,22 +21,28 @@ registerBlockType('jetpack/subscription-form', {
 	attributes: {
 		title: {
 			type: 'string',
-			source: text('.subscription-form__title'),
 			default: 'Subscribe to this site'
 		},
+		// Using snake_case because the same attributes are passed to the
+		// `jetpack_do_subscription_form` shortcode.
 		subscribe_text: {
 			type: 'string',
-			source: text('.subscription-form__text'),
 			default: i18n['Enter your email address to subscribe to this blog and receive notifications of new posts by email.']
 		},
+		// Using snake_case because the same attributes are passed to the
+		// `jetpack_do_subscription_form` shortcode.
 		subscribe_button: {
 			type: 'string',
 			default: i18n['Subscribe']
 		},
+		// Using snake_case because the same attributes are passed to the
+		// `jetpack_do_subscription_form` shortcode.
 		success_message: {
 			type: 'string',
-			default: i18n['Success! An email was just sent to confirm your subscription. Please find the email now and click \'Confirm Follow\' to start subscribing.']
+			default: i18n["Success! An email was just sent to confirm your subscription. Please find the email now and click 'Confirm Follow' to start subscribing."]
 		},
+		// Using snake_case because the same attributes are passed to the
+		// `jetpack_do_subscription_form` shortcode.
 		show_subscribers_total: {
 			type: 'bool',
 			default: true
@@ -43,39 +52,18 @@ registerBlockType('jetpack/subscription-form', {
 	edit: function edit(_ref) {
 		var attributes = _ref.attributes,
 		    setAttributes = _ref.setAttributes,
-		    focus = _ref.focus;
-
-		function handleTitleChange(value) {
-			setAttributes({
-				title: value
-			});
-		}
-		function handleSubscribeTextChange(value) {
-			setAttributes({
-				subscribe_text: value
-			});
-		}
-		function handleSubscribeButtonChange(value) {
-			setAttributes({
-				subscribe_button: value
-			});
-		}
-		function handleSuccessMessageChange(value) {
-			setAttributes({
-				success_message: value
-			});
-		}
-		function handleShowSubscribersTotalChange(value) {
-			setAttributes({
-				show_subscribers_change: !!value
-			});
-		}
-
+		    focus = _ref.focus,
+		    setFocus = _ref.setFocus;
 		var title = attributes.title,
 		    subscribe_text = attributes.subscribe_text,
 		    show_subscribers_total = attributes.show_subscribers_total,
-		    subscribe_button = attributes.subscribe_button;
+		    subscribe_button = attributes.subscribe_button,
+		    success_message = attributes.success_message;
 
+
+		var toggleshow_subscribers_total = function toggleshow_subscribers_total() {
+			return setAttributes({ show_subscribers_total: !show_subscribers_total });
+		};
 
 		return [wp.element.createElement(
 			'div',
@@ -83,22 +71,32 @@ registerBlockType('jetpack/subscription-form', {
 			!!title && wp.element.createElement(
 				'h2',
 				{ className: 'subscription-form__title' },
-				title
+				wp.element.createElement('input', {
+					type: 'text',
+					value: title,
+					onChange: function onChange(e) {
+						return setAttributes({ title: e.target.value });
+					}
+				})
 			),
 			wp.element.createElement(
 				'form',
 				null,
 				wp.element.createElement(
 					'fieldset',
-					{ disabled: true },
+					null,
 					!!subscribe_text && wp.element.createElement(
 						'div',
 						{ id: 'subscribe-text', className: 'subscription-form__text' },
-						wp.element.createElement(
-							'p',
-							null,
-							subscribe_text
-						)
+						wp.element.createElement(Editable, {
+							tagName: 'p',
+							value: subscribe_text,
+							onChange: function onChange(value) {
+								return setAttributes({ subscribe_text: value });
+							},
+							focus: focus,
+							onFocus: setFocus
+						})
 					),
 					!!show_subscribers_total && wp.element.createElement(
 						'p',
@@ -110,10 +108,7 @@ registerBlockType('jetpack/subscription-form', {
 						{ id: 'subscribe-email' },
 						wp.element.createElement(
 							'label',
-							{
-								id: 'jetpack-subscribe-label',
-								className: 'subscription-form__email-label'
-							},
+							{ id: 'jetpack-subscribe-label', className: 'subscription-form__email-label' },
 							i18n['Email Address']
 						),
 						wp.element.createElement('input', {
@@ -121,13 +116,14 @@ registerBlockType('jetpack/subscription-form', {
 							className: 'required',
 							placeholder: i18n['Email Address'],
 							style: { display: 'block' },
-							required: true
+							required: true,
+							disabled: true
 						})
 					),
 					wp.element.createElement(
 						'p',
 						{ id: 'subscribe-submit' },
-						wp.element.createElement('input', { type: 'submit', value: subscribe_button })
+						wp.element.createElement('input', { type: 'submit', value: subscribe_button, disabled: true })
 					)
 				)
 			)
@@ -142,73 +138,30 @@ registerBlockType('jetpack/subscription-form', {
 					null,
 					i18n['Subscription Form settings']
 				)
-			)
+			),
+			wp.element.createElement(CheckboxControl, {
+				label: i18n['Show total number of subscribers?'],
+				checked: show_subscribers_total,
+				onChange: toggleshow_subscribers_total
+			}),
+			wp.element.createElement(TextControl, {
+				label: i18n['Subscribe Button:'],
+				value: subscribe_button,
+				onChange: function onChange(value) {
+					return setAttributes({ subscribe_button: value });
+				}
+			}),
+			wp.element.createElement(TextControl, {
+				label: i18n['Success Message Text:'],
+				value: success_message,
+				onChange: function onChange(value) {
+					return setAttributes({ success_message: value });
+				}
+			})
 		)];
 	},
 
-	save: function save(_ref2) {
-		var attributes = _ref2.attributes;
-		var title = attributes.title,
-		    subscribe_text = attributes.subscribe_text,
-		    show_subscribers_total = attributes.show_subscribers_total,
-		    subscribe_button = attributes.subscribe_button;
-
-
-		return wp.element.createElement(
-			'div',
-			{ className: 'subscription-form' },
-			!!title && wp.element.createElement(
-				'h2',
-				{ className: 'subscription-form__title' },
-				title
-			),
-			wp.element.createElement(
-				'form',
-				null,
-				wp.element.createElement(
-					'fieldset',
-					{ disabled: true },
-					!!subscribe_text && wp.element.createElement(
-						'div',
-						{ id: 'subscribe-text', className: 'subscription-form__text' },
-						wp.element.createElement(
-							'p',
-							null,
-							subscribe_text
-						)
-					),
-					!!show_subscribers_total && wp.element.createElement(
-						'p',
-						{ className: 'subscription-form__subscribers' },
-						i18n['Join %s other subscribers'].replace('%s', '___')
-					),
-					wp.element.createElement(
-						'p',
-						{ id: 'subscribe-email' },
-						wp.element.createElement(
-							'label',
-							{
-								id: 'jetpack-subscribe-label',
-								className: 'subscription-form__email-label'
-							},
-							i18n['Email Address']
-						),
-						wp.element.createElement('input', {
-							type: 'email',
-							className: 'required',
-							placeholder: i18n['Email Address'],
-							style: { display: 'block' },
-							required: true
-						})
-					),
-					wp.element.createElement(
-						'p',
-						{ id: 'subscribe-submit' },
-						wp.element.createElement('input', { type: 'submit', value: subscribe_button })
-					)
-				)
-			)
-		);
+	save: function save() {
+		return null;
 	}
-
 });
