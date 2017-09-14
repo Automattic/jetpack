@@ -25,145 +25,145 @@ class Simple_Payments_Widget extends WP_Widget {
 			'symbol' => '$',
 			'grouping' => ',',
 			'decimal' => '.',
-			'precision' => '2',
+			'precision' => 2,
 		),
 		'EUR' => array(
 			'symbol' => '€',
 			'grouping' => '.',
 			'decimal' => ',',
-			'precision' => '2',
+			'precision' => 2,
 		),
 		'AUD' => array(
 			'symbol' => 'A$',
 			'grouping' => ',',
 			'decimal' => '.',
-			'precision' => '2',
+			'precision' => 2,
 		),
 		'BRL' => array(
 			'symbol' => 'R$',
 			'grouping' => ',',
 			'decimal' => '.',
-			'precision' => '2',
+			'precision' => 2,
 		),
 		'CAD' => array(
 			'symbol' => 'C$',
 			'grouping' => ',',
 			'decimal' => '.',
-			'precision' => '2',
+			'precision' => 2,
 		),
 		'CZK' => array(
 			'symbol' => 'Kč',
 			'grouping' => ' ',
 			'decimal' => ',',
-			'precision' => '2',
+			'precision' => 2,
 		),
 		'DKK' => array(
 			'symbol' => 'kr.',
 			'grouping' => '',
 			'decimal' => ',',
-			'precision' => '2',
+			'precision' => 2,
 		),
 		'HKD' => array(
 			'symbol' => 'HK$',
 			'grouping' => ',',
 			'decimal' => '.',
-			'precision' => '2',
+			'precision' => 2,
 		),
 		'HUF' => array(
 			'symbol' => 'Ft',
 			'grouping' => '.',
 			'decimal' => ',',
-			'precision' => '0',
+			'precision' => 0,
 		),
 		'ILS' => array(
 			'symbol' => '₪',
 			'grouping' => ',',
 			'decimal' => '.',
-			'precision' => '2',
+			'precision' => 2,
 		),
 		'JPY' => array(
 			'symbol' => '¥',
 			'grouping' => ',',
 			'decimal' => '.',
-			'precision' => '0',
+			'precision' => 0,
 		),
 		'MYR' => array(
 			'symbol' => 'RM',
 			'grouping' => ',',
 			'decimal' => '.',
-			'precision' => '2',
+			'precision' => 2,
 		),
 		'MXN' => array(
 			'symbol' => 'MX$',
 			'grouping' => ',',
 			'decimal' => '.',
-			'precision' => '2',
+			'precision' => 2,
 		),
 		'TWD' => array(
 			'symbol' => 'NT$',
 			'grouping' => ',',
 			'decimal' => '.',
-			'precision' => '2',
+			'precision' => 2,
 		),
 		'NZD' => array(
 			'symbol' => 'NZ$',
 			'grouping' => ',',
 			'decimal' => '.',
-			'precision' => '2',
+			'precision' => 2,
 		),
 		'NOK' => array(
 			'symbol' => 'kr',
 			'grouping' => ' ',
 			'decimal' => ',',
-			'precision' => '2',
+			'precision' => 2,
 		),
 		'PHP' => array(
 			'symbol' => '₱',
 			'grouping' => ',',
 			'decimal' => '.',
-			'precision' => '2',
+			'precision' => 2,
 		),
 		'PLN' => array(
 			'symbol' => 'zł',
 			'grouping' => ' ',
 			'decimal' => ',',
-			'precision' => '2',
+			'precision' => 2,
 		),
 		'GBP' => array(
 			'symbol' => '£',
 			'grouping' => ',',
 			'decimal' => '.',
-			'precision' => '2',
+			'precision' => 2,
 		),
 		'RUB' => array(
 			'symbol' => '₽',
 			'grouping' => ' ',
 			'decimal' => ',',
-			'precision' => '2',
+			'precision' => 2,
 		),
 		'SGD' => array(
 			'symbol' => '$',
 			'grouping' => ',',
 			'decimal' => '.',
-			'precision' => '2',
+			'precision' => 2,
 		),
 		'SEK' => array(
 			'symbol' => 'kr',
 			'grouping' => ',',
 			'decimal' => '.',
-			'precision' => '2',
+			'precision' => 2,
 		),
 		'CHF' => array(
 			'symbol' => 'CHF',
 			'grouping' => '\'',
 			'decimal' => '.',
-			'precision' => '2',
+			'precision' => 2,
 		),
 		'THB' => array(
 			'symbol' => '฿',
 			'grouping' => ',',
 			'decimal' => '.',
-			'precision' => '2',
+			'precision' => 2,
 		),
 	);
 
@@ -223,7 +223,7 @@ class Simple_Payments_Widget extends WP_Widget {
 		return wp_parse_args( $product_args, array(
 			'name' => '',
 			'description' => '',
-			'currency' => 'USD', // TODO: Geo-localize?
+			'currency' => 'USD', // TODO: Geo-locate?
 			'price' => 1000,
 			'multiple' => '0',
 			'email' => $current_user->user_email,
@@ -263,6 +263,31 @@ class Simple_Payments_Widget extends WP_Widget {
 	    /** This action is documented in modules/widgets/gravatar-profile.php */
 	    do_action( 'jetpack_stats_extra', 'widget_view', 'simple-payments' );
     }
+
+    protected function sanitize_price( $currency_code, $price ) {
+		if ( '-' === substr( $price, 0, 1 ) ) {
+			return false;
+		}
+		$currency = self::$currencies[ $currency_code ];
+		$decimal = $currency['decimal'];
+		$precision = $currency['precision'];
+		$chars = count_chars( $price, 1 );
+		for( $i = 0; $i <= 9; $i++ ) {
+			unset( $chars[ ord( (string) $i ) ] );
+		}
+		if ( count( $chars ) > 1 || reset( $chars ) > 1 ) {
+			return false;
+		}
+
+		// Allow the decimal separator to be the currency decimal separator or "."
+		$decimal_char = chr( key( $chars ) );
+		if ( $decimal_char !== $decimal && $decimal_char !== '.' ) {
+			return false;
+		}
+		$price = str_replace( $decimal_char, '.', $price );
+
+		return round( (float) $price, $precision );
+	}
 
     /**
      * Update
@@ -307,9 +332,9 @@ class Simple_Payments_Widget extends WP_Widget {
 				'post_content' => $new_instance['description'],
 				'meta_input' => array(
 					'spay_currency' => $new_instance['currency'],
-					'spay_price' => $new_instance['price'],
+					'spay_price' => $this->sanitize_price( $new_instance['currency'], $new_instance['price'] ),
 					'spay_multiple' => $new_instance['multiple'],
-					'spay_email' => $new_instance['email'],
+					'spay_email' => is_email( $new_instance['email'] ),
 				),
 			) ),
 		);
@@ -363,7 +388,7 @@ class Simple_Payments_Widget extends WP_Widget {
 					</option>
 				<?php } ?>
 			</select>
-			<input class="price widefat" id="<?php echo $this->get_field_id( 'price' ); ?>" name="<?php echo $this->get_field_name( 'price' ); ?>" type="text" value="<?php echo esc_attr( $product_args['price'] ); ?>" />
+			<input class="price widefat" id="<?php echo $this->get_field_id( 'price' ); ?>" name="<?php echo $this->get_field_name( 'price' ); ?>" type="text" value="<?php echo esc_attr(  number_format( $product_args['price'], self::$currencies[ $product_args['currency'] ]['precision'], '.', '' ) ); ?>" />
 		</p>
 		<p>
 			<input id="<?php echo $this->get_field_id( 'multiple' ); ?>" name="<?php echo $this->get_field_name( 'multiple' ); ?>" type="checkbox" <?php if ( '1' === $product_args['multiple'] ) { ?>checked="checked"<?php } ?> />
