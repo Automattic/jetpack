@@ -46,6 +46,10 @@ registerBlockType('jetpack/subscription-form', {
 		show_subscribers_total: {
 			type: 'bool',
 			default: true
+		},
+		subscribersCount: {
+			type: 'number',
+			default: -1
 		}
 	},
 
@@ -58,12 +62,25 @@ registerBlockType('jetpack/subscription-form', {
 		    subscribe_text = attributes.subscribe_text,
 		    show_subscribers_total = attributes.show_subscribers_total,
 		    subscribe_button = attributes.subscribe_button,
-		    success_message = attributes.success_message;
+		    success_message = attributes.success_message,
+		    subscribersCount = attributes.subscribersCount;
 
 
 		var toggleshow_subscribers_total = function toggleshow_subscribers_total() {
 			return setAttributes({ show_subscribers_total: !show_subscribers_total });
 		};
+
+		var getSubscriberCount = function getSubscriberCount() {
+			var restRootUrl = wp.api.utils.getRootUrl();
+
+			return jQuery.getJSON(restRootUrl + 'wp-json/jetpack/get_subscriber_count');
+		};
+
+		if (subscribersCount === -1) {
+			getSubscriberCount().then(function (data) {
+				return setAttributes({ subscribersCount: data['value'] });
+			});
+		}
 
 		return [wp.element.createElement(
 			'div',
@@ -88,20 +105,17 @@ registerBlockType('jetpack/subscription-form', {
 					!!subscribe_text && wp.element.createElement(
 						'div',
 						{ id: 'subscribe-text', className: 'subscription-form__text' },
-						wp.element.createElement(Editable, {
-							tagName: 'p',
+						wp.element.createElement('textarea', {
 							value: subscribe_text,
-							onChange: function onChange(value) {
-								return setAttributes({ subscribe_text: value });
-							},
-							focus: focus,
-							onFocus: setFocus
+							onChange: function onChange(e) {
+								return setAttributes({ subscribe_text: e.target.value });
+							}
 						})
 					),
-					!!show_subscribers_total && wp.element.createElement(
+					!!show_subscribers_total && subscribersCount > 0 && wp.element.createElement(
 						'p',
 						{ className: 'subscription-form__subscribers' },
-						i18n['Join %s other subscribers'].replace('%s', '___')
+						i18n['Join %s other subscribers'].replace('%s', subscribersCount)
 					),
 					wp.element.createElement(
 						'p',

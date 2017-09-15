@@ -49,6 +49,10 @@ registerBlockType( 'jetpack/subscription-form', {
 			type: 'bool',
 			default: true,
 		},
+		subscribersCount: {
+			type: 'number',
+			default: -1,
+		},
 	},
 
 	edit: function( { attributes, setAttributes, focus, setFocus } ) {
@@ -58,10 +62,21 @@ registerBlockType( 'jetpack/subscription-form', {
 			show_subscribers_total,
 			subscribe_button,
 			success_message,
+			subscribersCount,
 		} = attributes;
 
 		const toggleshow_subscribers_total = () =>
 			setAttributes( { show_subscribers_total: ! show_subscribers_total } );
+
+		const getSubscriberCount = () => {
+			const restRootUrl = wp.api.utils.getRootUrl();
+
+			return jQuery.getJSON( `${ restRootUrl }wp-json/jetpack/get_subscriber_count` );
+		};
+
+		if ( subscribersCount === -1 ) {
+			getSubscriberCount().then( data => setAttributes( { subscribersCount: data[ 'value' ] } ) );
+		}
 
 		return [
 			<div key="subscription-form" className="subscription-form">
@@ -77,17 +92,15 @@ registerBlockType( 'jetpack/subscription-form', {
 					<fieldset>
 						{ !! subscribe_text &&
 							<div id="subscribe-text" className="subscription-form__text">
-								<Editable
-									tagName="p"
+								<textarea
 									value={ subscribe_text }
-									onChange={ value => setAttributes( { subscribe_text: value } ) }
-									focus={ focus }
-									onFocus={ setFocus }
+									onChange={ e => setAttributes( { subscribe_text: e.target.value } ) }
 								/>
 							</div> }
 						{ !! show_subscribers_total &&
+							subscribersCount > 0 &&
 							<p className="subscription-form__subscribers">
-								{ i18n[ 'Join %s other subscribers' ].replace( '%s', '___' ) }
+								{ i18n[ 'Join %s other subscribers' ].replace( '%s', subscribersCount ) }
 							</p> }
 						<p id="subscribe-email">
 							<label id="jetpack-subscribe-label" className="subscription-form__email-label">
