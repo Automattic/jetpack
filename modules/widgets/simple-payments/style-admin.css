@@ -21,6 +21,7 @@
 	box-sizing: border-box;
 	cursor: default;
 	line-height: 20px;
+	margin: 1em 0;
 	padding: 9px 0;
 	position: relative;
 	text-align: center;
@@ -62,7 +63,7 @@
 
 .widget-content .simple-payments-products input[type=radio] {
 	float: left;
-	margin: 8px 0;
+	margin: 4px 0;
 }
 
 .widget-content .simple-payments-products .product-info {
