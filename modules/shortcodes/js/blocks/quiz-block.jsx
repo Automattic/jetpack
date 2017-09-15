@@ -4,6 +4,11 @@ const { __ } = wp.i18n;
 const {
 	registerBlockType,
 	Editable,
+	InspectorControls,
+	InspectorControls: {
+		TextControl
+	},
+	BlockDescription,
 	source: {
 		children,
 		query
@@ -34,8 +39,8 @@ registerBlockType( 'jetpack/quiz', {
 			default: 2,
 		},
 		correct: {
-			type: 'number',
-			default: -1,
+			type: 'string',
+			default: '',
 		},
 	},
 	edit: props => {
@@ -43,7 +48,7 @@ registerBlockType( 'jetpack/quiz', {
 			attributes: {
 				question,
 				answers,
-				explanations,
+				explanation,
 				choices,
 				correct
 			},
@@ -60,11 +65,36 @@ registerBlockType( 'jetpack/quiz', {
 			setFocus( _.extend( {}, focused, { editable: 'question' } ) );
 		};
 
+		const onChangeCorrect = value => {
+			setAttributes( { correct: value } );
+		};
+		const onFocusCorrect = focused => {
+			setFocus( _.extend( {}, focused, { editable: 'correct' } ) );
+		};
+
+		const changeExplanation = value => {
+			setAttributes( { explanation: value } );
+		};
+
 		const addNewAnswer = () => {
 			setAttributes( { choices: choices + 1 } );
 		};
 
-		return (
+		return [
+			focus && (
+				<InspectorControls key="inspector">
+					<BlockDescription>
+						<p>{ __( 'Create a quiz with one correct answer and one or many incorrect answers.' ) }</p>
+					</BlockDescription>
+					<h3>{ __( 'Quiz Settings' ) }</h3>
+					<TextControl
+						label={ __( 'Explanation for the correct answer' ) }
+						type="string"
+						value={ explanation }
+						onChange={ ( value ) => changeExplanation( value ) }
+					/>
+				</InspectorControls>
+			),
 			<div className={ props.className + ' jetpack-quiz' }>
 				<Editable
 					tagName="div"
@@ -78,15 +108,26 @@ registerBlockType( 'jetpack/quiz', {
 					onFocus={ onFocusQuestion }
 				/>
 
+				<Editable
+					tagName="div"
+					multiline={ false }
+					formattingControls={ [] }
+					className="gutenpack-quiz-answer jetpack-quiz-answer is-correct"
+					placeholder={ __( 'Write the correct answer' ) }
+					value={ correct }
+					onChange={ onChangeCorrect }
+					focus={ focusedEditable === 'correct' }
+					onFocus={ onFocusCorrect }
+				/>
+
 				{ _.times( choices, ( index ) => {
-					console.log( 'index ' + index + ' correct ' + correct );
 					return <div key={ `gutenpack-quiz-choice-${ index }` }>
 						<Editable
 							tagName="div"
 							multiline={ false }
 							formattingControls={ [] }
 							className="gutenpack-quiz-answer jetpack-quiz-answer"
-							placeholder={ __( 'Add an answer' ) }
+							placeholder={ __( 'Add an incorrect answer' ) }
 							value={ answers && answers[ index ] }
 							onChange={ ( value ) => {
 								setAttributes( {
@@ -100,61 +141,24 @@ registerBlockType( 'jetpack/quiz', {
 							focus={ focus && focus.answer === index }
 							onFocus={ () => setFocus( { answer: index } ) }
 						/>
-						<label htmlFor={ `gutenpack-quiz-radio-${ index }` }>
-							<input
-								id={ `gutenpack-quiz-radio-${ index }` }
-								key={ `gutenpack-quiz-radio-${ index }` }
-								type="radio"
-								name="correct"
-								value={ index }
-								checked={
-									correct && correct === index + 1
-										? 'checked'
-										: ''
-								}
-								onChange={ () => {
-									setAttributes( { correct: index + 1 } );
-								} }
-							/>
-							{ __( 'Correct' ) }
-						</label>
-						<Editable
-							tagName="div"
-							multiline={ false }
-							className="gutenpack-quiz-explanation jetpack-quiz-explanation"
-							placeholder={ __( 'and its explanation' ) }
-							value={ explanations && explanations[ index ] }
-							onChange={ ( value ) => {
-								setAttributes( {
-									explanations: [
-										...explanations.slice( 0, index ),
-										value,
-										...explanations.slice( index + 1 ),
-									],
-								} );
-							} }
-							focus={ focus && focus.explanation === index }
-							onFocus={ () => setFocus( { explanation: index } ) }
-						/>
 					</div>;
-					}
-				) }
+				} ) }
 
 				<Button
 					className="button"
 					onClick={ addNewAnswer }
-				>{ __( 'Add new answer' ) }</Button>
+				>{ __( 'Add answer' ) }</Button>
 			</div>
-		);
+		];
 	},
 	save: ( props ) => {
 		const {
 			attributes: {
 				question,
+				correct,
 				answers,
-				explanations,
 				choices,
-				correct
+				explanation
 			}
 		} = props;
 		return (
@@ -162,28 +166,27 @@ registerBlockType( 'jetpack/quiz', {
 				<div className="jetpack-quiz-question question">
 					{ question }
 				</div>
+				<div className="jetpack-quiz-answer jetpack-quiz-answer-text" data-correct="1">
+					{ correct }
+					{
+						explanation && (
+							<div className="jetpack-quiz-explanation">
+								{ explanation }
+							</div>
+						)
+					}
+				</div>
 				{
 					// add data-correct="1" if it's the right one
 					_.times( choices, ( index ) => {
-						const dataCorrect = correct && correct === index + 1
-							? { 'data-correct': '1' }
-							: null;
 						return ( answers && answers[ index ] ) && (
 							<div
 								key={ `gutenpack-quiz-choice-${ index }` }
 								className="jetpack-quiz-answer"
-								{ ...dataCorrect }
 							>
 								<div className="jetpack-quiz-answer-text">
 									{ answers[ index ] }
 								</div>
-								{
-									( explanations && explanations[ index ] ) && (
-										<div className="jetpack-quiz-explanation">
-											{ explanations[ index ] }
-										</div>
-									)
-								}
 							</div>
 						);
 					} )
