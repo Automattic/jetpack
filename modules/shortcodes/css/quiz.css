@@ -1,4 +1,9 @@
-div.jetpack-quiz {
+.jetpack-quiz {
+	border: 1px solid #e2e4e7;
+	padding: 2em;
+}
+
+/*div.jetpack-quiz {
 	border: 1px solid #deede3;
 	background-color: #f3f3f3;
 	padding: 1em;
@@ -53,4 +58,4 @@ div.jetpack-quiz pre {
 	margin: 0;
 	padding: 0;
 }
-
+*/
