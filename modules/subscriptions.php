@@ -81,6 +81,17 @@ class Jetpack_Subscriptions {
 		// Gutenberg!
 		add_action( 'init', array( __CLASS__, 'register_block_type' ) );
 		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_block_editor_assets' ) );
+
+		// Add REST API route to get the total number of subscribers.
+		add_action( 'rest_api_init', array( $this, 'rest_api_get_subscriber_count' ) );
+	}
+
+	function rest_api_get_subscriber_count() {
+		register_rest_route( 'jetpack', '/get_subscriber_count', array(
+			'methods' => 'GET',
+			'callback' => array( 'Jetpack_Subscriptions_Widget', 'fetch_subscriber_count' ),
+		) );
+
 	}
 
 	/**
@@ -973,7 +984,7 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 		return $current_subs_array;
 	}
 
-	function fetch_subscriber_count() {
+	public static function fetch_subscriber_count() {
 		$subs_count = get_transient( 'wpcom_subscribers_total' );
 
 		if ( FALSE === $subs_count || 'failed' == $subs_count['status'] ) {
