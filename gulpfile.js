@@ -671,7 +671,7 @@ function gutenShortcode() {
 gulp.task( 'gutenpack', function() {
 	gutenShortcode();
 
-	return gulp.src( [ '**/*/*block.jsx', './modules/shortcodes/js/blocks/index.js' ] )
+	return gulp.src( '**/*/*block.jsx' )
 		.pipe( babel( {
 			plugins: [
 				[
@@ -688,7 +688,7 @@ gulp.task( 'gutenpack', function() {
 } );
 
 gulp.task( 'gutenpack:watch', function() {
-	gulp.watch( '**/*/*block.jsx', [ 'gutenpack' ] );
+	gulp.watch( [ '**/*/*block.jsx', './modules/shortcodes/js/blocks/blocks.js' ], [ 'gutenpack' ] );
 } );
 
 // Default task
