@@ -78,8 +78,9 @@ registerBlockType( 'jetpack/quiz', {
 					onFocus={ onFocusQuestion }
 				/>
 
-				{ _.times( choices, ( index ) =>
-					<div key={ `gutenpack-quiz-choice-${ index }` }>
+				{ _.times( choices, ( index ) => {
+					console.log( 'index ' + index + ' correct ' + correct );
+					return <div key={ `gutenpack-quiz-choice-${ index }` }>
 						<Editable
 							tagName="div"
 							multiline={ false }
@@ -102,16 +103,17 @@ registerBlockType( 'jetpack/quiz', {
 						<label htmlFor={ `gutenpack-quiz-radio-${ index }` }>
 							<input
 								id={ `gutenpack-quiz-radio-${ index }` }
+								key={ `gutenpack-quiz-radio-${ index }` }
 								type="radio"
 								name="correct"
 								value={ index }
 								checked={
-									correct && correct === index
+									correct && correct === index + 1
 										? 'checked'
 										: ''
 								}
 								onChange={ () => {
-									setAttributes( { correct: index } );
+									setAttributes( { correct: index + 1 } );
 								} }
 							/>
 							{ __( 'Correct' ) }
@@ -134,7 +136,8 @@ registerBlockType( 'jetpack/quiz', {
 							focus={ focus && focus.explanation === index }
 							onFocus={ () => setFocus( { explanation: index } ) }
 						/>
-					</div>
+					</div>;
+					}
 				) }
 
 				<Button
@@ -162,11 +165,14 @@ registerBlockType( 'jetpack/quiz', {
 				{
 					// add data-correct="1" if it's the right one
 					_.times( choices, ( index ) => {
+						const dataCorrect = correct && correct === index + 1
+							? { 'data-correct': '1' }
+							: null;
 						return ( answers && answers[ index ] ) && (
 							<div
 								key={ `gutenpack-quiz-choice-${ index }` }
 								className="jetpack-quiz-answer"
-								data-correct={ correct && correct === index ? '1' : '0' }
+								{ ...dataCorrect }
 							>
 								<div className="jetpack-quiz-answer-text">
 									{ answers[ index ] }
