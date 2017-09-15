@@ -688,7 +688,7 @@ gulp.task( 'gutenpack', function() {
 } );
 
 gulp.task( 'gutenpack:watch', function() {
-	gulp.watch( '**/*/*block.jsx', [ 'gutenpack' ] );
+	gulp.watch( [ '**/*/*block.jsx', './modules/shortcodes/js/blocks/blocks.js' ], [ 'gutenpack' ] );
 } );
 
 // Default task
