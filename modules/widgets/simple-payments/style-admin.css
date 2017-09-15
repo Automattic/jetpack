@@ -2,6 +2,10 @@
 	text-align: center;
 }
 
+.widget-content .simple-payments {
+	clear: both;
+}
+
 .widget-content .simple-payments .cost label {
 	display: block;
 }
@@ -11,9 +15,31 @@
 	vertical-align: top;
 	width: 19%;
 }
+
 .widget-content .simple-payments .price {
 	display: inline-block;
 	line-height: 20px;
 	width: 80%;
+}
+
+.widget-content .simple-payments-products li:after {
+	content: "";
+	display: table;
+	clear: both;
+}
+
+.widget-content .simple-payments-products input[type=radio] {
+	float: left;
+}
+
+.widget-content .simple-payments-products .product-info {
+	float: left;
+	margin-left: 24px;
+}
+
+.widget-content .simple-payments-products .image img {
+	float: right;
+	height: auto;
+	width: 80px;
 }
 

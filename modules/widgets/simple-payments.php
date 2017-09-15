@@ -195,7 +195,7 @@ class Simple_Payments_Widget extends WP_Widget {
 
 	public static function enqueue_admin_styles( $hook_suffix ) {
 		if ( 'widgets.php' == $hook_suffix ) {
-			wp_enqueue_style( 'simple-payments-widget-admin', self::$url . '/simple-payments/style-admin.css', array(), '20171014' );
+			wp_enqueue_style( 'simple-payments-widget-admin', self::$url . '/simple-payments/style-admin.css', array(), '201710151225' );
 			wp_enqueue_media();
 			wp_enqueue_script( 'simple-payments-widget-admin', self::$url . '/simple-payments/admin.js', array( 'jquery' ), '20171014', true );
 		}
@@ -254,7 +254,7 @@ class Simple_Payments_Widget extends WP_Widget {
 
 		$attrs = array( 'id' => $instance['product_id'] );
 
-		$JSP = Jetpack_Simple_Payments();
+		$JSP = Jetpack_Simple_Payments::getInstance();
 		// display the product on the front end here
 		echo $JSP->parse_shortcode( $attrs );
 
@@ -301,45 +301,50 @@ class Simple_Payments_Widget extends WP_Widget {
 			$product_id = 0;
 		}
 
-		// TODO: validate this (or use image modal)
-		if ( $new_instance['image'] ){
-			$image = media_sideload_image( $new_instance['image'], $product_id );
-		}
-
-		if ( ! empty( $image ) && ! is_wp_error( $image ) ) {
-		    $attachments = get_attached_media( 'image', $product_id );
-
-		    if ( isset( $attachments ) && is_array( $attachments ) ) {
-				foreach( $attachments as $attachment ) {
-					// grab source of full size images (so no 300x150 nonsense in path)
-					$image = wp_get_attachment_image_src( $attachment->ID, 'full' );
-					// determine if in the $media image we created, the string of the URL exists
-					if ( strpos( $image, $image[0] ) !== false ) {
-						// if so, we found our image. set it as thumbnail
-						set_post_thumbnail( $product_id, $attachment->ID );
-						// only want one image
-						break;
-					}
-				}
-		    }
-		}
-
 		if ( ! empty( $new_instance['title'] ) && ! empty( $new_instance['price'] ) ) {
+
+			$product_id = wp_insert_post( array(
+				'ID' => $product_id,
+				'post_type' => Jetpack_Simple_Payments::$post_type_product,
+				'post_status' => 'publish',
+				'post_title' => $new_instance['name'],
+				'post_content' => $new_instance['description'],
+				'meta_input' => array(
+					'spay_currency' => $new_instance['currency'],
+					'spay_price' => $this->sanitize_price( $new_instance['currency'], $new_instance['price'] ),
+					'spay_multiple' => $new_instance['multiple'],
+					'spay_email' => is_email( $new_instance['email'] ),
+				),
+			), true );
+
+			if ( ! is_wp_error( $product_id ) ) {
+				// TODO: validate this (or use image modal)
+				if ( $new_instance['image'] ){
+					$image = media_sideload_image( $new_instance['image'], $product_id );
+				}
+
+				if ( ! empty( $image ) && ! is_wp_error( $image ) ) {
+				    $attachments = get_attached_media( 'image', $product_id );
+
+				    if ( isset( $attachments ) && is_array( $attachments ) ) {
+						foreach( $attachments as $attachment ) {
+							// grab source of full size images (so no 300x150 nonsense in path)
+							$image = wp_get_attachment_image_src( $attachment->ID, 'full' );
+							// determine if in the $media image we created, the string of the URL exists
+							if ( strpos( $image, $image[0] ) !== false ) {
+								// if so, we found our image. set it as thumbnail
+								set_post_thumbnail( $product_id, $attachment->ID );
+								// only want one image
+								break;
+							}
+						}
+				    }
+				}
+			}
+
 			return array(
 				'title' => $new_instance['title'],
-				'product_id' => wp_insert_post( array(
-					'ID' => $product_id,
-					'post_type' => Jetpack_Simple_Payments::$post_type_product,
-					'post_status' => 'publish',
-					'post_title' => $new_instance['name'],
-					'post_content' => $new_instance['description'],
-					'meta_input' => array(
-						'spay_currency' => $new_instance['currency'],
-						'spay_price' => $this->sanitize_price( $new_instance['currency'], $new_instance['price'] ),
-						'spay_multiple' => $new_instance['multiple'],
-						'spay_email' => is_email( $new_instance['email'] ),
-					),
-				) ),
+				'product_id' => $product_id,
 			);
 		}
     }
@@ -369,11 +374,11 @@ class Simple_Payments_Widget extends WP_Widget {
 				$product->price = $meta['spay_price'][0] . " " . $meta['spay_currency'][0];
 
 				// start building the product list
-				$image = ( has_post_thumbnail( $product->ID ) ) ? get_the_post_thumbnail( $product->ID, array( 80, 80 ) ) : '';
+				$image = ( has_post_thumbnail( $product->ID ) ) ? get_the_post_thumbnail( $product->ID, 'medium' ) : '';
 
 				echo '<li>';
 				echo '<input type="radio" name="simple-payments-products_' . $this->id . '" value="' . $product->ID . '">';
-				echo $product->post_title . ' (' . $product->price . ')';
+				echo '<div class="product-info">' . $product->post_title . '<br> ' . $product->price . '</div>';
 				echo '<div class="image">' . $image . '</div>';
 				echo '</li>';
 			}
