@@ -24,6 +24,7 @@ registerBlockType( 'jetpack/quiz', {
 	category: 'common',
 	attributes: {
 		question: children( '.jetpack-quiz-question' ),
+		correct: children( '.jetpack-quiz-correct-answer-text' ),
 		answers: {
 			type: 'array',
 			source: query( '.jetpack-quiz-answer-text', children() ),
@@ -37,11 +38,7 @@ registerBlockType( 'jetpack/quiz', {
 		choices: {
 			type: 'number',
 			default: 2,
-		},
-		correct: {
-			type: 'string',
-			default: '',
-		},
+		}
 	},
 	edit: props => {
 		const {
@@ -139,7 +136,7 @@ registerBlockType( 'jetpack/quiz', {
 								} );
 							} }
 							focus={ focus && focus.answer === index }
-							onFocus={ () => setFocus( { answer: index } ) }
+							onFocus={ ( focused ) => setFocus( _.extend( {}, focused, { answer: index } ) ) }
 						/>
 					</div>;
 				} ) }
@@ -166,8 +163,10 @@ registerBlockType( 'jetpack/quiz', {
 				<div className="jetpack-quiz-question question">
 					{ question }
 				</div>
-				<div className="jetpack-quiz-answer jetpack-quiz-answer-text" data-correct="1">
-					{ correct }
+				<div className="jetpack-quiz-answer" data-correct="1">
+					<div className="jetpack-quiz-correct-answer-text">
+						{ correct }
+					</div>
 					{
 						explanation && (
 							<div className="jetpack-quiz-explanation">
@@ -177,7 +176,6 @@ registerBlockType( 'jetpack/quiz', {
 					}
 				</div>
 				{
-					// add data-correct="1" if it's the right one
 					_.times( choices, ( index ) => {
 						return ( answers && answers[ index ] ) && (
 							<div
