@@ -2567,7 +2567,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$plugin = stripslashes( $request['plugin'] );
 
 		if ( ! in_array( $plugin, array_keys( $plugins ) ) ) {
-			return new WP_Error( 'plugin_not_found', esc_html( sprintf( __( 'Plugin %s is not installed.', 'jetpack' ), $plugin ) ), array( 'status' => 404 ) );
+			return new WP_Error( 'plugin_not_found', sprintf( __( 'Plugin %s is not installed.', 'jetpack' ), $plugin ), array( 'status' => 404 ) );
 		}
 
 		$plugin_data = $plugins[ $plugin ];
