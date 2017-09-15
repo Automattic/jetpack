@@ -671,7 +671,7 @@ function gutenShortcode() {
 gulp.task( 'gutenpack', function() {
 	gutenShortcode();
 
-	return gulp.src( '**/*/*block.jsx' )
+	return gulp.src( [ '**/*/*block.jsx', './modules/shortcodes/js/blocks/index.js' ] )
 		.pipe( babel( {
 			plugins: [
 				[

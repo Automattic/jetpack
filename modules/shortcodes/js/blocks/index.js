@@ -110,49 +110,50 @@
 	var __ = wp.i18n.__;
 	var _wp$blocks = wp.blocks,
 	    registerBlockType = _wp$blocks.registerBlockType,
-	    Placeholder = _wp$blocks.Placeholder,
-	    DropZone = _wp$blocks.DropZone,
-	    FormFileUpload = _wp$blocks.FormFileUpload,
-	    MediaUploadButton = _wp$blocks.MediaUploadButton,
+	    UrlInput = _wp$blocks.UrlInput,
 	    children = _wp$blocks.source.children;
+	var Placeholder = wp.components.Placeholder;
 
 	registerBlockType('gutenpack/vr', {
-		title: __('VR'),
-		icon: 'image',
+		title: __('VR Image'),
+		icon: 'sort',
 		category: 'layout',
 		attributes: {
-			title: children('label')
+			url: children('url')
 		},
+
 		edit: function edit(props) {
-			var uploadButtonProps = { isLarge: true };
-			var uploadFromFiles = function uploadFromFiles(event) {
-				return mediaUpload(event.target.files, setAttributes);
-			};
-			var dropFiles = function dropFiles(files) {
-				return mediaUpload(files, setAttributes);
+			var attributes = props.attributes;
+			var onSetUrl = function onSetUrl(value) {
+				props.setAttributes({ url: value });
 			};
 
-			return wp.element.createElement('div', { className: props.className }, wp.element.createElement(Placeholder, {
-				key: 'placeholder',
-				instructions: __('Drag image here or insert from media library'),
-				icon: 'format-image',
-				label: __('VR Image'),
-				className: props.className }, wp.element.createElement(DropZone, {
-				onFilesDrop: dropFiles
-			}), wp.element.createElement(FormFileUpload, {
-				isLarge: true,
-				className: 'wp-block-image__upload-button',
-				onChange: uploadFromFiles,
-				accept: 'image/*'
-			}, __('Upload')), wp.element.createElement(MediaUploadButton, {
-				buttonProps: uploadButtonProps,
-				type: 'image'
-			}, __('Insert from Media Library'))));
+			var renderEdit = function renderEdit() {
+				if (attributes.url) {
+					return wp.element.createElement('div', { className: props.className }, wp.element.createElement('iframe', {
+						allowFullScreen: 'true',
+						frameBorder: '0',
+						width: '100%',
+						height: '300',
+						src: "https://vr.me.sh/view/?url=" + attributes.url
+					}));
+				}
+				return wp.element.createElement('div', null, wp.element.createElement(Placeholder, {
+					key: 'placeholder',
+					instructions: __('Enter URL to VR image'),
+					icon: 'format-image',
+					label: __('VR Image'),
+					className: props.className
+				}, wp.element.createElement(UrlInput, {
+					value: attributes.url,
+					onChange: onSetUrl
+				})));
+			};
+
+			return renderEdit();
 		},
-		save: function save(props) {
-			var title = props.attributes.title;
-
-			return wp.element.createElement('h4', null, title);
+		save: function save() {
+			return null;
 		}
 	});
 
