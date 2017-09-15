@@ -10,25 +10,31 @@
 	display: block;
 }
 
+.widget-content .simple-payments-image img {
+	max-width: 100%;
+	height: auto;
+}
+
 .widget-content .simple-payments .currency {
 	display: inline-block;
 	vertical-align: top;
-	width: 19%;
+	width: 28%;
 }
 
 .widget-content .simple-payments .price {
 	display: inline-block;
 	line-height: 20px;
-	width: 80%;
+	width: 70%;
 }
 
 .widget-content .simple-payments-products {
 	border-bottom: 1px solid #ccc;
 }
+
 .widget-content .simple-payments-products li {
 	border-top: 1px solid #ccc;
 	margin-bottom: 0;
-	padding: 4px 0;
+	padding: 8px 0;
 }
 
 .widget-content .simple-payments-products li:after {
@@ -39,12 +45,12 @@
 
 .widget-content .simple-payments-products input[type=radio] {
 	float: left;
-	margin: 4px 0;
+	margin: 8px 0;
 }
 
 .widget-content .simple-payments-products .product-info {
 	float: left;
-	margin-left: 24px;
+	margin-left: 8px;
 }
 
 .widget-content .simple-payments-products .image img {
@@ -52,4 +58,3 @@
 	height: auto;
 	width: 80px;
 }
-

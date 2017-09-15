@@ -195,9 +195,9 @@ class Simple_Payments_Widget extends WP_Widget {
 
 	public static function enqueue_admin_styles( $hook_suffix ) {
 		if ( 'widgets.php' == $hook_suffix ) {
-			wp_enqueue_style( 'simple-payments-widget-admin', self::$url . '/simple-payments/style-admin.css', array(), '201710151225' );
+			wp_enqueue_style( 'simple-payments-widget-admin', self::$url . '/simple-payments/style-admin.css', array(), '201710151520' );
 			wp_enqueue_media();
-			wp_enqueue_script( 'simple-payments-widget-admin', self::$url . '/simple-payments/admin.js', array( 'jquery' ), '20171014', true );
+			wp_enqueue_script( 'simple-payments-widget-admin', self::$url . '/simple-payments/admin.js', array( 'jquery' ), '20171015', true );
 		}
 	}
 
@@ -343,22 +343,33 @@ class Simple_Payments_Widget extends WP_Widget {
 			);
 
 			$products = get_posts( $args );
-			echo '<ul class="simple-payments-products">';
-			foreach ( $products as $product ){
+			?>
+		<div class="add-product">
+			<button id="simple-payments-add-product" class="button"><?php _e( 'Add New', 'jetpack' ); ?></button>
+		</div>
+		<ul class="simple-payments-products">
+			<?php
+			foreach ( $products as $product ):
 				$meta = get_post_meta( $product->ID );
 				$product->price = $meta['spay_price'][0] . " " . $meta['spay_currency'][0];
 
 				// start building the product list
 				$image = ( has_post_thumbnail( $product->ID ) ) ? get_the_post_thumbnail( $product->ID, 'medium' ) : '';
-
-				echo '<li>';
-				echo '<input type="radio" name="simple-payments-products_' . $this->id . '" value="' . $product->ID . '">';
-				echo '<div class="product-info">' . $product->post_title . '<br> ' . $product->price . '</div>';
-				echo '<div class="image">' . $image . '</div>';
-				echo '</li>';
-			}
-			echo '</ul>';
-
+			?>
+			<li>
+				<input type="radio" name="simple-payments-products_<?php echo $this->id; ?>" value="<?php esc_html_e( $product->ID ); ?>">
+				<div class="product-info">
+					<?php esc_html_e( $product->post_title ); ?><br>
+					<?php esc_html_e( $product->price ); ?>
+				</div>
+				<div class="image"><?php echo $image; ?></div>
+			</li>
+			<?php endforeach; ?>
+		</ul>
+		<div class="insert-product">
+			<button id="simple-payments-insert-product" class="button"><?php _e( 'Insert', 'jetpack' ); ?></button>
+		</div>
+		<?php
 		}
 
 		$product_args = $this->get_product_args( $instance['product_id'] );
