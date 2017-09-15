@@ -13,7 +13,7 @@ const {
 } = wp.components;
 
 registerBlockType( 'gutenpack/vr', {
-	title: __( 'VR' ),
+	title: __( 'VR Image' ),
 	icon: 'sort',
 	category: 'layout',
 	attributes: {
@@ -29,13 +29,15 @@ registerBlockType( 'gutenpack/vr', {
 		const renderEdit = () => {
 			if ( attributes.url ) {
 				return (
-					<iframe
-						allowFullScreen="true"
-						frameBorder="0"
-						width="525"
-						height="300"
-						src={ "https://vr.me.sh/view/?url=" + attributes.url }
-					/>
+					<div className={ props.className }>
+						<iframe
+							allowFullScreen="true"
+							frameBorder="0"
+							width="100%"
+							height="300"
+							src={ "https://vr.me.sh/view/?url=" + attributes.url }
+						/>
+					</div>
 				);
 			}
 			return (

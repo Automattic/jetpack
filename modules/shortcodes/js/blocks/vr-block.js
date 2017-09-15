@@ -11,7 +11,7 @@ var Placeholder = wp.components.Placeholder;
 
 
 registerBlockType('gutenpack/vr', {
-	title: __('VR'),
+	title: __('VR Image'),
 	icon: 'sort',
 	category: 'layout',
 	attributes: {
@@ -26,13 +26,17 @@ registerBlockType('gutenpack/vr', {
 
 		var renderEdit = function renderEdit() {
 			if (attributes.url) {
-				return wp.element.createElement('iframe', {
-					allowFullScreen: 'true',
-					frameBorder: '0',
-					width: '525',
-					height: '300',
-					src: "https://vr.me.sh/view/?url=" + attributes.url
-				});
+				return wp.element.createElement(
+					'div',
+					{ className: props.className },
+					wp.element.createElement('iframe', {
+						allowFullScreen: 'true',
+						frameBorder: '0',
+						width: '100%',
+						height: '300',
+						src: "https://vr.me.sh/view/?url=" + attributes.url
+					})
+				);
 			}
 			return wp.element.createElement(
 				'div',
