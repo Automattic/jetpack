@@ -226,7 +226,7 @@ class Simple_Payments_Widget extends WP_Widget {
 			'name' => '',
 			'description' => '',
 			'currency' => 'USD', // TODO: Geo-locate?
-			'price' => 1000,
+			'price' => '',
 			'multiple' => '0',
 			'email' => $current_user->user_email,
 		) );
@@ -254,7 +254,7 @@ class Simple_Payments_Widget extends WP_Widget {
 
 		$attrs = array( 'id' => $instance['product_id'] );
 
-		$JSP = Jetpack_Simple_Payments::getInstance();
+		$JSP = Jetpack_Simple_Payments();
 		// display the product on the front end here
 		echo $JSP->parse_shortcode( $attrs );
 
@@ -324,22 +324,24 @@ class Simple_Payments_Widget extends WP_Widget {
 		    }
 		}
 
-		return array(
-			'title' => $new_instance['title'],
-			'product_id' => wp_insert_post( array(
-				'ID' => $product_id,
-				'post_type' => Jetpack_Simple_Payments::$post_type_product,
-				'post_status' => 'publish',
-				'post_title' => $new_instance['name'],
-				'post_content' => $new_instance['description'],
-				'meta_input' => array(
-					'spay_currency' => $new_instance['currency'],
-					'spay_price' => $this->sanitize_price( $new_instance['currency'], $new_instance['price'] ),
-					'spay_multiple' => $new_instance['multiple'],
-					'spay_email' => is_email( $new_instance['email'] ),
-				),
-			) ),
-		);
+		if ( ! empty( $new_instance['title'] ) && ! empty( $new_instance['price'] ) ) {
+			return array(
+				'title' => $new_instance['title'],
+				'product_id' => wp_insert_post( array(
+					'ID' => $product_id,
+					'post_type' => Jetpack_Simple_Payments::$post_type_product,
+					'post_status' => 'publish',
+					'post_title' => $new_instance['name'],
+					'post_content' => $new_instance['description'],
+					'meta_input' => array(
+						'spay_currency' => $new_instance['currency'],
+						'spay_price' => $this->sanitize_price( $new_instance['currency'], $new_instance['price'] ),
+						'spay_multiple' => $new_instance['multiple'],
+						'spay_email' => is_email( $new_instance['email'] ),
+					),
+				) ),
+			);
+		}
     }
 
     /**
@@ -350,10 +352,40 @@ class Simple_Payments_Widget extends WP_Widget {
 			'title' => '',
 			'product_id' => null,
 		) );
+		if ( ! $instance['product_id'] ) {
+			$output = array();
+
+			// list existing products + add button
+			$args = array(
+				'numberposts' => -1,
+				'orderby' => 'date',
+				'post_type' => 'jp_pay_product',
+			);
+
+			$products = get_posts( $args );
+			echo '<ul class="simple-payments-products">';
+			foreach ( $products as $product ){
+				$meta = get_post_meta( $product->ID );
+				$product->price = $meta['spay_price'][0] . " " . $meta['spay_currency'][0];
+
+				// start building the product list
+				$image = ( has_post_thumbnail( $product->ID ) ) ? get_the_post_thumbnail( $product->ID, array( 80, 80 ) ) : '';
+
+				echo '<li>';
+				echo '<input type="radio" name="simple-payments-products_' . $this->id . '" value="' . $product->ID . '">';
+				echo $product->post_title . ' (' . $product->price . ')';
+				echo '<div class="image">' . $image . '</div>';
+				echo '</li>';
+			}
+			echo '</ul>';
+
+		}
 
 		$product_args = $this->get_product_args( $instance['product_id'] );
 
 		$image = ( has_post_thumbnail( $instance['product_id'] ) ) ? get_the_post_thumbnail_url( $instance['product_id'] ) : '';
+
+		$price = ( $product_args['price'] ) ? esc_attr(  number_format( $product_args['price'], self::$currencies[ $product_args['currency'] ]['precision'], '.', '' ) ) : '';
         ?>
 
 	<div class="simple-payments">
@@ -391,7 +423,7 @@ class Simple_Payments_Widget extends WP_Widget {
 					</option>
 				<?php } ?>
 			</select>
-			<input class="price widefat" id="<?php echo $this->get_field_id( 'price' ); ?>" name="<?php echo $this->get_field_name( 'price' ); ?>" type="text" value="<?php echo esc_attr(  number_format( $product_args['price'], self::$currencies[ $product_args['currency'] ]['precision'], '.', '' ) ); ?>" />
+			<input class="price widefat" id="<?php echo $this->get_field_id( 'price' ); ?>" name="<?php echo $this->get_field_name( 'price' ); ?>" type="text" value="<?php echo $price; ?>" />
 		</p>
 		<p>
 			<input id="<?php echo $this->get_field_id( 'multiple' ); ?>" name="<?php echo $this->get_field_name( 'multiple' ); ?>" type="checkbox" <?php if ( '1' === $product_args['multiple'] ) { ?>checked="checked"<?php } ?> />
