@@ -6,7 +6,7 @@ const {
 	Editable,
 	InspectorControls,
 	InspectorControls: {
-		TextControl
+		TextareaControl
 	},
 	BlockDescription,
 	source: {
@@ -81,10 +81,11 @@ registerBlockType( 'jetpack/quiz', {
 			focus && (
 				<InspectorControls key="inspector">
 					<BlockDescription>
-						<p>{ __( 'Create a quiz with one correct answer and one or many incorrect answers.' ) }</p>
+						<p>{ __( 'Create a quiz with one correct answer and two or more incorrect answers.' ) }</p>
 					</BlockDescription>
 					<h3>{ __( 'Quiz Settings' ) }</h3>
-					<TextControl
+					<TextareaControl
+						multiline={ true }
 						label={ __( 'Explanation for the correct answer' ) }
 						type="string"
 						value={ explanation }
