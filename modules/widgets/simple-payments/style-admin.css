@@ -6,8 +6,25 @@
 	clear: both;
 }
 
+.widget-content .simple-payments-product-list .control_add-product,
+.widget-content .simple-payments-product-list .control_insert-product {
+	margin: 1em 0;
+	text-align: right;
+}
+
 .widget-content .simple-payments .cost label {
 	display: block;
+}
+
+.simple-payments-image-fieldset .placeholder {
+	border: 1px dashed #b4b9be;
+	box-sizing: border-box;
+	cursor: default;
+	line-height: 20px;
+	padding: 9px 0;
+	position: relative;
+	text-align: center;
+	width: 100%;
 }
 
 .widget-content .simple-payments-image img {
@@ -28,11 +45,11 @@
 }
 
 .widget-content .simple-payments-products {
-	border-bottom: 1px solid #ccc;
+	border-bottom: 1px solid #e5e5e5;
 }
 
 .widget-content .simple-payments-products li {
-	border-top: 1px solid #ccc;
+	border-top: 1px solid #e5e5e5;
 	margin-bottom: 0;
 	padding: 8px 0;
 }
@@ -50,6 +67,7 @@
 
 .widget-content .simple-payments-products .product-info {
 	float: left;
+	line-height: 1.5;
 	margin-left: 8px;
 }
 

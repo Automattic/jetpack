@@ -195,7 +195,7 @@ class Simple_Payments_Widget extends WP_Widget {
 
 	public static function enqueue_admin_styles( $hook_suffix ) {
 		if ( 'widgets.php' == $hook_suffix ) {
-			wp_enqueue_style( 'simple-payments-widget-admin', self::$url . '/simple-payments/style-admin.css', array(), '201710151520' );
+			wp_enqueue_style( 'simple-payments-widget-admin', self::$url . '/simple-payments/style-admin.css', array(), '201710151556' );
 			wp_enqueue_media();
 			wp_enqueue_script( 'simple-payments-widget-admin', self::$url . '/simple-payments/admin.js', array( 'jquery' ), '20171015', true );
 		}
@@ -344,7 +344,8 @@ class Simple_Payments_Widget extends WP_Widget {
 
 			$products = get_posts( $args );
 			?>
-		<div class="add-product">
+	<div class="simple-payments-product-list">
+		<div class="control_add-product">
 			<button id="simple-payments-add-product" class="button"><?php _e( 'Add New', 'jetpack' ); ?></button>
 		</div>
 		<ul class="simple-payments-products">
@@ -366,12 +367,14 @@ class Simple_Payments_Widget extends WP_Widget {
 			</li>
 			<?php endforeach; ?>
 		</ul>
-		<div class="insert-product">
+		<div class="control_insert-product">
 			<button id="simple-payments-insert-product" class="button"><?php _e( 'Insert', 'jetpack' ); ?></button>
 		</div>
+	</div>
 		<?php
 		}
 
+		// form code for adding a new product
 		$product_args = $this->get_product_args( $instance['product_id'] );
 
 		$price = ( $product_args['price'] ) ? esc_attr(  number_format( $product_args['price'], self::$currencies[ $product_args['currency'] ]['precision'], '.', '' ) ) : '';
