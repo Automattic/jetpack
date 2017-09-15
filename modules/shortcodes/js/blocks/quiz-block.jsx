@@ -94,7 +94,7 @@ registerBlockType( 'jetpack/quiz', {
 			),
 			<div className={ props.className + ' jetpack-quiz' }>
 				<Editable
-					tagName="div"
+					tagName="h2"
 					multiline={ false }
 					formattingControls={ [] }
 					className="gutenpack-quiz-question jetpack-quiz-question"
@@ -142,7 +142,7 @@ registerBlockType( 'jetpack/quiz', {
 				} ) }
 
 				<Button
-					className="button"
+					className="button jetpack-quiz__button"
 					onClick={ addNewAnswer }
 				>{ __( 'Add answer' ) }</Button>
 			</div>
