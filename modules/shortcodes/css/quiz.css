@@ -1,56 +1,75 @@
-div.jetpack-quiz {
-	border: 1px solid #deede3;
-	background-color: #f3f3f3;
-	padding: 1em;
-	line-height: 1.3em;
-	margin-bottom: 2em;
-	border-radius: .2em;
+.jetpack-quiz {
+	border: 1px solid #e2e4e7;
+	border-radius: 4px;
+	padding: 0 32px;
 }
 
-div.jetpack-quiz div.jetpack-quiz-question {
-	margin-bottom: .5em;
+.jetpack-quiz p,
+.jetpack-quiz-explanation {
+	display: none; /* Dangit autop */
+}
+
+.jetpack-quiz-question {
+	padding: 20px 0;
+	font-size: 1.3em;
 	font-weight: bold;
 }
 
-div.jetpack-quiz div.jetpack-quiz-answer {
+.jetpack-quiz-answer {
+	border-top: 1px solid #e2e4e7;
+	padding: 20px 0;
 	cursor: pointer;
-	margin-bottom: .5em;
-	padding: 1em 0 1em 1em;
-	border-bottom: 1px dotted #999;
-}
-div.jetpack-quiz div.jetpack-quiz-answer.last {
-	padding-bottom: 0;
-	margin-bottom: 0;
-	border-bottom: 0;
 }
 
-div.jetpack-quiz div.jetpack-quiz-answer.correct {
-	color: green;
+.jetpack-quiz-answer.correct,
+.jetpack-quiz-answer.wrong {
+	cursor: auto;
 }
 
-div.jetpack-quiz div.jetpack-quiz-answer.wrong {
-	color: red;
+.jetpack-quiz-answer.correct .jetpack-quiz-correct-answer-text {
+	color: #008ec2;
+	font-weight: bold;
 }
 
-div.jetpack-quiz div.jetpack-quiz-answer div.jetpack-quiz-explanation {
+.jetpack-quiz-answer.correct .jetpack-quiz-explanation {
+	display: block;
+	font-style: italic;
+}
+
+.jetpack-quiz-answer.wrong {
+	color: #dc3232;
+	font-weight: bold;
+}
+
+.editor-visual-editor__block.is-selected .jetpack-quiz > div:last-of-type {
+	border-bottom: 1px solid #e2e4e7;
+}
+
+.editor-visual-editor__block.is-selected .jetpack-quiz-answer:first-child:before {
+	position: absolute;
+		top: calc(50% - 3px);
+		left: -16px;
+	content: '';
+	border-radius: 50%;
+	width: 8px;
+	height: 8px;
+	display: inline-block;
+	background: #dc3232;
+}
+
+.editor-visual-editor__block.is-selected .jetpack-quiz-answer.is-correct:first-child:before {
+	background: #008ec2;
+}
+
+.editor-visual-editor__block.is-selected .jetpack-quiz-answer:nth-child(2){
+	margin-left: 16px;
+}
+
+.editor-visual-editor__block .jetpack-quiz__button {
 	display: none;
 }
 
-div.jetpack-quiz div.jetpack-quiz-answer.correct div.jetpack-quiz-explanation, div.jetpack-quiz div.jetpack-quiz-answer.wrong div.jetpack-quiz-explanation {
+.editor-visual-editor__block.is-selected .jetpack-quiz__button {
 	display: block;
-	color: black;
-	font-size: 90%;
-	margin-top: 1em;
+	margin: 32px 0;
 }
-
-div.jetpack-quiz div.jetpack-quiz-answer.correct div.jetpack-quiz-explanation tt, div.jetpack-quiz div.jetpack-quiz-answer.wrong div.jetpack-quiz-explanation tt {
-	font-size: 85%;
-}
-
-div.jetpack-quiz pre {
-	font: 15px Monaco, Consolas, "Andale Mono", "DejaVu Sans Mono", monospace;
-	background: transparent;
-	margin: 0;
-	padding: 0;
-}
-
