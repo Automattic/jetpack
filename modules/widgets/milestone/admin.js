@@ -16,7 +16,8 @@
 		$container.find( '.milestone-type' ).trigger( 'change' );
 	}
 
-	$( document ).on( 'widget-updated', function() {
+	// Used when adding widget via customizer or saving settings.
+	$( document ).on( 'widget-added widget-updated', function() {
 		triggerChange();
 	} );
 
