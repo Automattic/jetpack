@@ -282,11 +282,13 @@ class Simple_Payments_Widget extends WP_Widget {
 		}
 
 		// Allow the decimal separator to be the currency decimal separator or "."
-		$decimal_char = chr( key( $chars ) );
-		if ( $decimal_char !== $decimal && $decimal_char !== '.' ) {
-			return false;
+		if ( ! empty( $chars ) ) {
+			$decimal_char = chr( key( $chars ) );
+			if ( $decimal_char !== $decimal && $decimal_char !== '.' ) {
+				return false;
+			}
+			$price = str_replace( $decimal_char, '.', $price );
 		}
-		$price = str_replace( $decimal_char, '.', $price );
 
 		return round( (float) $price, $precision );
 	}
@@ -301,50 +303,23 @@ class Simple_Payments_Widget extends WP_Widget {
 			$product_id = 0;
 		}
 
-		if ( ! empty( $new_instance['title'] ) && ! empty( $new_instance['price'] ) ) {
-
-			$product_id = wp_insert_post( array(
-				'ID' => $product_id,
-				'post_type' => Jetpack_Simple_Payments::$post_type_product,
-				'post_status' => 'publish',
-				'post_title' => $new_instance['name'],
-				'post_content' => $new_instance['description'],
-				'meta_input' => array(
-					'spay_currency' => $new_instance['currency'],
-					'spay_price' => $this->sanitize_price( $new_instance['currency'], $new_instance['price'] ),
-					'spay_multiple' => $new_instance['multiple'],
-					'spay_email' => is_email( $new_instance['email'] ),
-				),
-			), true );
-
-			if ( ! is_wp_error( $product_id ) ) {
-				// TODO: validate this (or use image modal)
-				if ( $new_instance['image'] ){
-					$image = media_sideload_image( $new_instance['image'], $product_id );
-				}
-
-				if ( ! empty( $image ) && ! is_wp_error( $image ) ) {
-				    $attachments = get_attached_media( 'image', $product_id );
-
-				    if ( isset( $attachments ) && is_array( $attachments ) ) {
-						foreach( $attachments as $attachment ) {
-							// grab source of full size images (so no 300x150 nonsense in path)
-							$image = wp_get_attachment_image_src( $attachment->ID, 'full' );
-							// determine if in the $media image we created, the string of the URL exists
-							if ( strpos( $image, $image[0] ) !== false ) {
-								// if so, we found our image. set it as thumbnail
-								set_post_thumbnail( $product_id, $attachment->ID );
-								// only want one image
-								break;
-							}
-						}
-				    }
-				}
-			}
-
+		if ( ! empty( $new_instance['name'] ) && ! empty( $new_instance['price'] ) ) {
 			return array(
 				'title' => $new_instance['title'],
-				'product_id' => $product_id,
+				'product_id' => wp_insert_post( array(
+					'ID' => $product_id,
+					'post_type' => Jetpack_Simple_Payments::$post_type_product,
+					'post_status' => 'publish',
+					'post_title' => $new_instance['name'],
+					'post_content' => $new_instance['description'],
+					'_thumbnail_id' => isset( $new_instance['image'] ) ? $new_instance['image'] : -1,
+					'meta_input' => array(
+						'spay_currency' => $new_instance['currency'],
+						'spay_price' => $this->sanitize_price( $new_instance['currency'], $new_instance['price'] ),
+						'spay_multiple' => $new_instance['multiple'],
+						'spay_email' => is_email( $new_instance['email'] ),
+					),
+				) ),
 			);
 		}
     }
@@ -388,8 +363,6 @@ class Simple_Payments_Widget extends WP_Widget {
 
 		$product_args = $this->get_product_args( $instance['product_id'] );
 
-		$image = ( has_post_thumbnail( $instance['product_id'] ) ) ? get_the_post_thumbnail_url( $instance['product_id'] ) : '';
-
 		$price = ( $product_args['price'] ) ? esc_attr(  number_format( $product_args['price'], self::$currencies[ $product_args['currency'] ]['precision'], '.', '' ) ) : '';
         ?>
 
@@ -402,19 +375,22 @@ class Simple_Payments_Widget extends WP_Widget {
 			<label for="<?php echo $this->get_field_id( 'name' ); ?>"><?php _e( 'What are you selling?', 'jetpack' ); ?></label>
 			<input class="widefat" id="<?php echo $this->get_field_id( 'name' ); ?>" name="<?php echo $this->get_field_name( 'name' ); ?>" type="text" placeholder="<?php echo esc_attr_e( 'Product name', 'jetpack' ); ?>" value="<?php echo esc_attr( $product_args['name'] ); ?>" />
 		</p>
-		<div class="simple-payments-image">
-		<?php
-			if ( ! empty( $image ) ){
-				// display image
-				echo get_the_post_thumbnail( $instance['product_id'], array( 200, 200 ) );
-			}
-		?>
-		</div>
-		<p>
-			<label for="<?php echo $this->get_field_id( 'image' ); ?>"><?php _e( 'Image', 'jetpack' ); ?></label>
-			<input class="widefat" id="<?php echo $this->get_field_id( 'image' ); ?>" name="<?php echo $this->get_field_name( 'image' ); ?>" type="text" value="<?php echo esc_attr( $image ); ?>" />
+		<div class="simple-payments-image-fieldset">
+			<div class="placeholder <?php if ( has_post_thumbnail( $instance['product_id'] ) ) echo 'hide'; ?>">No image selected</div> <!-- TODO: actual placeholder, i18n -->
+			<div class="simple-payments-image" data-image-field="<?php echo $this->get_field_name( 'image' ); ?>"> <!-- TODO: hide if empty, CSS? -->
+				<?php
+					if ( has_post_thumbnail( $instance['product_id'] ) ) {
+						$image_id = get_post_thumbnail_id( $instance['product_id'] );
+						list( $src, $width, $height ) = wp_get_attachment_image_src( $image_id, 'full' );
+						// TODO: caption, title
+						echo '<img width="' . esc_attr( $width ) . '" height="' . esc_attr( $height ) . '" src="' . esc_attr( $src ) . '" />';
+						echo '<input type="hidden" name="' . $this->get_field_name( 'image' ) . '" value="' . esc_attr( $image_id ) . '" />';
+					}
+				?>
+			</div>
 			<button class="button simple-payments-add-image">Add Image</button>
-		</p>
+			<button class="button simple-payments-remove-image">Remove Image</button>
+		</div>
 		<p>
 			<label for="<?php echo $this->get_field_id( 'description' ); ?>"><?php _e( 'Description', 'jetpack' ); ?></label>
 			<textarea class="widefat" rows=5 id="<?php echo $this->get_field_id( 'description' ); ?>" name="<?php echo $this->get_field_name( 'description' ); ?>"><?php echo esc_html( $product_args['description'] ); ?></textarea>
