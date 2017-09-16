@@ -1,18 +1,8 @@
-.simple-payments-image {
-	text-align: center;
-}
-
 .widget-content .simple-payments {
 	clear: both;
 }
 
-.widget-content .simple-payments-product-list .control_add-product,
-.widget-content .simple-payments-product-list .control_insert-product {
-	margin: 1em 0;
-	text-align: right;
-}
-
-.widget-content .simple-payments .cost label {
+.widget-content .simple-payments-form .cost label {
 	display: block;
 }
 
@@ -26,18 +16,18 @@
 	box-sizing: border-box;
 	cursor: pointer;
 	line-height: 20px;
-	margin: 1em 0;
 	padding: 9px 0;
 	position: relative;
 	text-align: center;
 	width: 100%;
-	margin-top: 4px;
+	margin: 4px 0 1em;
 }
 
 .widget-content .simple-payments-image {
 	max-width: 100%;
 	margin-top: 4px;
 	position: relative;
+	text-align: center;
 }
 
 .widget-content .simple-payments-image img {
@@ -53,7 +43,7 @@
 	border-style: solid;
 }
 
-.widget-content .simple-payments .currency {
+.widget-content .simple-payments-form .currency {
 	display: inline-block;
 	vertical-align: top;
 	width: 28%;
@@ -97,10 +87,17 @@
 	display: block;
 }
 
-.widget-content .simple-payments .price {
+.widget-content .simple-payments-form .field-price {
 	display: inline-block;
 	line-height: 20px;
 	width: 70%;
+}
+
+/* Product list */
+
+.widget-content .simple-payments-add-product {
+	margin: 1em 0;
+	text-align: right;
 }
 
 .widget-content .simple-payments-products {

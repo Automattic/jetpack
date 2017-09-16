@@ -1,8 +1,36 @@
 (function($) {
 	$(document).ready( function() {
-		$( document.body ).on( 'click', '.simple-payments-remove-image', function( event ) {
+		$( document.body ).on( 'click', '.simple-payments-add-product', function( event ) {
 			event.preventDefault();
 			var root = $( this ).closest( '.simple-payments' );
+			root.find( '.simple-payments-product-list input[type="radio"]' ).prop( 'checked', false );
+			root.find( '.simple-payments-product-list' ).hide();
+			root.find( '.simple-payments-form' ).show()
+				.find( '.field-name' ).prop( 'disabled', false );
+			// TODO: Reset fields
+		} );
+
+		$( document.body ).on( 'click', '.simple-payments-edit-product', function( event ) {
+			event.preventDefault();
+			$( this ).closest( 'label' ).click();
+			var root = $( this ).closest( '.simple-payments' );
+			root.find( '.simple-payments-product-list' ).hide();
+			root.find( '.simple-payments-form' ).show()
+				.find( '.field-name' ).prop( 'disabled', false );
+			// TODO: Populate fields
+		} );
+
+		$( document.body ).on( 'click', '.simple-payments-back-product-list', function( event ) {
+			event.preventDefault();
+			var root = $( this ).closest( '.simple-payments' );
+			root.find( '.simple-payments-form' ).hide()
+				.find( '.field-name' ).prop( 'disabled', true );
+			root.find( '.simple-payments-product-list' ).show();
+		} );
+
+		$( document.body ).on( 'click', '.simple-payments-remove-image', function( event ) {
+			event.preventDefault();
+			var root = $( this ).closest( '.simple-payments-form' );
 			var imageContainer = root.find( '.simple-payments-image' );
 			root.find( '.simple-payments-image-fieldset .placeholder' ).show();
 			imageContainer.find( 'img, input[type=hidden]' ).remove();
@@ -10,7 +38,7 @@
 		} );
 
 		$( document.body ).on( 'click', '.simple-payments-image-fieldset .placeholder, .simple-payments-image > img', function( event ) {
-			var root = $( this ).closest( '.simple-payments' );
+			var root = $( this ).closest( '.simple-payments-form' );
 			var imageContainer = root.find( '.simple-payments-image' );
 
 			event.preventDefault();
