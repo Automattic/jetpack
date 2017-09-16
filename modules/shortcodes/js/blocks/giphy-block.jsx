@@ -52,7 +52,7 @@ registerBlockType( 'gutenpack/giphy', {
 			const getParams = {
 				api_key: 'OpUiweD5zr2xC7BhSIuqGFfCvnz5jzHj',
 				q: attributes.searchTerm,
-				limit: 25,
+				limit: 40,
 				offset: 0,
 				rating: 'G'
 			};
@@ -75,13 +75,21 @@ registerBlockType( 'gutenpack/giphy', {
 				)
 				.then(
 					response => {
-						let gallery = {}, i;
-						for ( i = 0; i < 9; i++ ) {
-							gallery[ i ] = response.data[ i ].images.preview_gif;
-						}
+						const numImages = response.data.length >= 9 ? 9 : response.data.length;
 
-						// Store the result gallery
-						props.setAttributes( { resultGallery: gallery } );
+						if ( numImages > 0 ) {
+							const gallery = {};
+							let i;
+							for ( i = 0; i < numImages; i++ ) {
+								gallery[ i ] = response.data[ i ].images.preview_gif;
+							}
+
+							// Store the result gallery
+							props.setAttributes( { resultGallery: gallery } );
+						} else {
+							// Store the result gallery
+							props.setAttributes( { resultGallery: { noResults: true } } );
+						}
 
 						// Store the rest of the images
 						props.setAttributes( { searchResults: response.data } );
@@ -105,7 +113,7 @@ registerBlockType( 'gutenpack/giphy', {
 			// Generate random randomKeys
 			const randomKeys = [];
 			while ( randomKeys.length < 6 ) {
-				const randomNumber = Math.ceil( Math.random() * 24 );
+				const randomNumber = Math.ceil( Math.random() * imageStore.length - 1 );
 				if ( randomKeys.indexOf( randomNumber ) > -1 ) {
 					continue;
 				}
@@ -131,6 +139,10 @@ registerBlockType( 'gutenpack/giphy', {
 			const images = attributes.resultGallery,
 				chosenImage = attributes.chosenImage;
 			const gallery = [];
+
+			if ( 'undefined' !== images.noResults && images.noResults ) {
+				return __( 'No results!' );
+			}
 
 			if ( isEmpty( images ) || ! isEmpty( chosenImage ) ) {
 				return false;
