@@ -59,9 +59,17 @@ class Jetpack_Custom_CSS_Enhancements {
 		}
 
 		wp_register_style( 'jetpack-codemirror',      plugins_url( 'custom-css/css/codemirror.css', __FILE__ ), array(), '20120905' );
-		wp_register_style( 'jetpack-customizer-css',  plugins_url( 'custom-css/css/customizer-control.css', __FILE__ ), array( 'jetpack-codemirror' ), '20140728' );
+		$deps = array();
+		if ( ! function_exists( 'wp_enqueue_code_editor' ) ) {
+			$deps[] = 'jetpack-codemirror';
+		}
+		wp_register_style( 'jetpack-customizer-css',  plugins_url( 'custom-css/css/customizer-control.css', __FILE__ ), $deps, '20140728' );
 		wp_register_script( 'jetpack-codemirror',     plugins_url( 'custom-css/js/codemirror.min.js', __FILE__ ), array(), '3.16', true );
-		wp_register_script( 'jetpack-customizer-css', plugins_url( 'custom-css/js/core-customizer-css.js', __FILE__ ), array( 'customize-controls', 'underscore', 'jetpack-codemirror' ), JETPACK__VERSION, true );
+		$deps = array( 'customize-controls', 'underscore', 'jetpack-codemirror' );
+		if ( ! function_exists( 'wp_enqueue_code_editor' ) ) {
+			$deps[] = 'jetpack-codemirror';
+		}
+		wp_register_script( 'jetpack-customizer-css', plugins_url( 'custom-css/js/core-customizer-css.js', __FILE__ ), $deps, JETPACK__VERSION, true );
 
 		wp_register_script( 'jetpack-customizer-css-preview', plugins_url( 'custom-css/js/core-customizer-css-preview.js', __FILE__ ), array( 'customize-selective-refresh' ), JETPACK__VERSION, true );
 
@@ -679,9 +687,22 @@ class Jetpack_Custom_CSS_Enhancements {
 		// Overwrite the Core Control.
 		$core_custom_css = $wp_customize->get_control( 'custom_css' );
 		if ( $core_custom_css ) {
-			$wp_customize->remove_control( 'custom_css' );
-			$core_custom_css->type = 'jetpackCss';
-			$wp_customize->add_control( $core_custom_css );
+			if ( $core_custom_css instanceof WP_Customize_Code_Editor_Control ) {
+				$wp_customize->remove_control( $core_custom_css->id );
+
+				require_once( dirname( __FILE__ ) . '/class-jetpack-css-editor-customize-control.php' );
+				$wp_customize->register_control_type( 'Jetpack_CSS_Editor_Customize_Control' );
+				$c = $wp_customize->add_control( new Jetpack_CSS_Editor_Customize_Control( $wp_customize, $core_custom_css->id, array_merge(
+					get_object_vars( $core_custom_css ),
+					array(
+						'section' => $core_custom_css->section,
+						'code_type' => 'text/css', // @todo Switch to LESS or SCSS upon initialization?
+						'settings' => $core_custom_css->settings['default']->id,
+					)
+				) ) );
+			} else {
+				$core_custom_css->type = 'jetpackCss';
+			}
 		}
 
 		$wp_customize->selective_refresh->add_partial( 'custom_css', array(
