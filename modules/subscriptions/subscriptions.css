@@ -35,6 +35,7 @@ p.subscription-form__subscribers {
 .subscription-form__email-label {
 	font-size: 14px;
 	font-weight: 600;
+	margin-left: 2px;
 }
 
 #subscribe-email input {
@@ -42,5 +43,5 @@ p.subscription-form__subscribers {
 }
 
 #subscribe-submit {
-	margin: 0;
+	margin: 16px 0 0;
 }
