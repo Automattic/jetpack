@@ -29,12 +29,6 @@ The root URL for the the API is found on the same page as:
 window.Initial_State.WP_API_root;
 ```
 
-## Discovery
-
-WP-API-compatible [capabilities document](http://v2.wp-api.org/guide/discovery/) for the endpoints registered by Jetpack.
-
-`GET /wp-json/jetpack/v4`
-
 ## API Reference
 
 All endpoints return and accept JSON. Make sure you add the proper `content-type` header to your PUT/POST requests sending JSON objects.
@@ -42,6 +36,12 @@ All endpoints return and accept JSON. Make sure you add the proper `content-type
 ```
 'Content-type': 'application/json'
 ```
+
+### Discovery endpoint
+
+WP-API-compatible [capabilities document](http://v2.wp-api.org/guide/discovery/) for the endpoints registered by Jetpack.
+
+`GET /wp-json/jetpack/v4`
 
 ### Jetpack connection
 
