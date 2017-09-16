@@ -318,6 +318,7 @@ class Simple_Payments_Widget extends WP_Widget {
 			'title' => '',
 			'product_id' => null,
 		) );
+
 		if ( ! $instance['product_id'] ) {
 			$output = array();
 
@@ -332,7 +333,7 @@ class Simple_Payments_Widget extends WP_Widget {
 			?>
 	<div class="simple-payments-product-list">
 		<div class="control_add-product">
-			<button id="simple-payments-add-product" class="button"><?php _e( 'Add New', 'jetpack' ); ?></button>
+			<button id="simple-payments-add-product" class="button"><?php esc_html_e( 'Add New', 'jetpack' ); ?></button>
 		</div>
 		<ul class="simple-payments-products">
 			<?php
@@ -349,7 +350,7 @@ class Simple_Payments_Widget extends WP_Widget {
 					<?php esc_html_e( $product->post_title ); ?><br>
 					<?php esc_html_e( $product->price ); ?>
 				</div>
-				<div class="image"><?php esc_html_e( $image ); ?></div>
+				<div class="image"><?php $image; ?></div>
 			</li>
 			<?php endforeach; ?>
 		</ul>
