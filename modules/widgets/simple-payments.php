@@ -16,9 +16,6 @@ add_action( 'widgets_init', 'jetpack_register_widget_simple_payments' );
 class Simple_Payments_Widget extends WP_Widget {
 	private static $dir       = null;
 	private static $url       = null;
-	private static $labels    = null;
-	private static $defaults  = null;
-	private static $config_js = null;
 
 	private static $currencies = array(
 		'USD' => array(
@@ -299,7 +296,7 @@ class Simple_Payments_Widget extends WP_Widget {
 				'post_content' => sanitize_textarea_field( $new_instance['description'] ),
 				'_thumbnail_id' => isset( $new_instance['image'] ) ? $new_instance['image'] : -1,
 				'meta_input' => array(
-					'spay_currency' => in_array( $new_instance['currency'], $this->currencies ) ? $new_instance['currency'] : 'USD',
+					'spay_currency' => in_array( $new_instance['currency'], self::$currencies ) ? $new_instance['currency'] : 'USD',
 					'spay_price' => $this->sanitize_price( $new_instance['currency'], $new_instance['price'] ),
 					'spay_multiple' => isset( $new_instance['multiple'] ) ? intval( $new_instance['multiple'] ) : 0,
 					'spay_email' => is_email( $new_instance['email'] ),
@@ -347,12 +344,12 @@ class Simple_Payments_Widget extends WP_Widget {
 				$image = ( has_post_thumbnail( $product->ID ) ) ? get_the_post_thumbnail( $product->ID, 'medium' ) : '';
 			?>
 			<li>
-				<input type="radio" name="simple-payments-products_<?php echo $this->id; ?>" value="<?php esc_html_e( $product->ID ); ?>">
+				<input type="radio" name="simple-payments-products_<?php esc_attr_e( $this->id ); ?>" value="<?php esc_html_e( $product->ID ); ?>">
 				<div class="product-info">
 					<?php esc_html_e( $product->post_title ); ?><br>
 					<?php esc_html_e( $product->price ); ?>
 				</div>
-				<div class="image"><?php echo $image; ?></div>
+				<div class="image"><?php esc_html_e( $image ); ?></div>
 			</li>
 			<?php endforeach; ?>
 		</ul>
@@ -370,50 +367,52 @@ class Simple_Payments_Widget extends WP_Widget {
         ?>
 
 	<div class="simple-payments">
+		<input type="hidden" name="<?php esc_attr_e( $this->get_field_name( 'product_id' ) ); ?>" value="<?php esc_attr_e( $instance['product_id'] ); ?>">
 		<p>
-			<label for="<?php echo $this->get_field_id( 'title' ); ?>"><?php _e( 'Title', 'jetpack' ); ?></label>
-			<input class="widefat" id="<?php echo $this->get_field_id( 'title' ); ?>" name="<?php echo $this->get_field_name( 'title' ); ?>" type="text" value="<?php echo esc_attr( $instance['title'] ); ?>" />
+			<label for="<?php esc_attr_e( $this->get_field_id( 'title' ) ); ?>">
+			<?php esc_html_e( 'Title', 'jetpack' ); ?></label>
+			<input class="widefat" id="<?php esc_attr_e( $this->get_field_id( 'title' ) ); ?>" name="<?php esc_attr_e( $this->get_field_name( 'title' ) ); ?>" type="text" value="<?php esc_attr_e( $instance['title'] ); ?>" />
 		</p>
 		<p>
-			<label for="<?php echo $this->get_field_id( 'name' ); ?>"><?php _e( 'What are you selling?', 'jetpack' ); ?></label>
-			<input class="widefat" id="<?php echo $this->get_field_id( 'name' ); ?>" name="<?php echo $this->get_field_name( 'name' ); ?>" type="text" placeholder="<?php echo esc_attr_e( 'Product name', 'jetpack' ); ?>" value="<?php echo esc_attr( $product_args['name'] ); ?>" />
+			<label for="<?php esc_attr_e( $this->get_field_id( 'name' ) ); ?>"><?php esc_html_e( 'What are you selling?', 'jetpack' ); ?></label>
+			<input class="widefat" id="<?php esc_attr_e( $this->get_field_id( 'name' ) ); ?>" name="<?php esc_attr_e( $this->get_field_name( 'name' ) ); ?>" type="text" placeholder="<?php esc_attr_e( 'Product name', 'jetpack' ); ?>" value="<?php esc_attr_e( $product_args['name'] ); ?>" />
 		</p>
 		<div class="simple-payments-image-fieldset">
-			<label><?php _e( 'Product image', 'jetpack' ); ?></label>
-			<div class="placeholder" <?php if ( has_post_thumbnail( $instance['product_id'] ) ) echo 'style="display:none;"'; ?>>Select an image</div> <!-- TODO: actual placeholder, i18n -->
-			<div class="simple-payments-image" data-image-field="<?php echo $this->get_field_name( 'image' ); ?>"> <!-- TODO: hide if empty, CSS? -->
+			<label><?php esc_html_e( 'Product image', 'jetpack' ); ?></label>
+			<div class="placeholder" <?php if ( has_post_thumbnail( $instance['product_id'] ) ) echo 'style="display:none;"'; ?>><?php esc_html_e( 'Select an image', 'jetpack' ); ?></div> <!-- TODO: actual placeholder -->
+			<div class="simple-payments-image" data-image-field="<?php esc_attr_e( $this->get_field_name( 'image' ) ); ?>"> <!-- TODO: hide if empty, CSS? -->
 				<?php
 					if ( has_post_thumbnail( $instance['product_id'] ) ) {
 						$image_id = get_post_thumbnail_id( $instance['product_id'] );
-						echo '<img src="' . esc_attr( wp_get_attachment_image_url( $image_id, 'full' ) ) . '" />';
+						echo '<img src="' . esc_url( wp_get_attachment_image_url( $image_id, 'full' ) ) . '" />';
 						echo '<input type="hidden" name="' . $this->get_field_name( 'image' ) . '" value="' . esc_attr( $image_id ) . '" />';
 					}
 				?>
-				<button class="button simple-payments-remove-image"><span class="screen-reader-text"><?php _e( 'Remove image' ); ?></span></button>
+				<button class="button simple-payments-remove-image"><span class="screen-reader-text"><?php esc_html_e( 'Remove image', 'jetpack' ); ?></span></button>
 			</div>
 		</div>
 		<p>
-			<label for="<?php echo $this->get_field_id( 'description' ); ?>"><?php _e( 'Description', 'jetpack' ); ?></label>
-			<textarea class="widefat" rows=5 id="<?php echo $this->get_field_id( 'description' ); ?>" name="<?php echo $this->get_field_name( 'description' ); ?>"><?php echo esc_html( $product_args['description'] ); ?></textarea>
+			<label for="<?php esc_attr_e( $this->get_field_id( 'description' ) ); ?>"><?php esc_html_e( 'Description', 'jetpack' ); ?></label>
+			<textarea class="widefat" rows=5 id="<?php esc_attr_e( $this->get_field_id( 'description' ) ); ?>" name="<?php esc_attr_e( $this->get_field_name( 'description' ) ); ?>"><?php  esc_html_e( $product_args['description'] ); ?></textarea>
 		</p>
 		<p class="cost">
-			<label for="<?php echo $this->get_field_id( 'price' ); ?>"><?php _e( 'Price', 'jetpack' ); ?></label>
-			<select class="currency widefat" id="<?php echo $this->get_field_id( 'currency' ); ?>" name="<?php echo $this->get_field_name( 'currency' ); ?>">
+			<label for="<?php esc_attr_e( $this->get_field_id( 'price' ) ); ?>"><?php esc_html_e( 'Price', 'jetpack' ); ?></label>
+			<select class="currency widefat" id="<?php esc_attr_e( $this->get_field_id( 'currency' ) ); ?>" name="<?php esc_attr_e( $this->get_field_name( 'currency' ) ); ?>">
 				<?php foreach( self::$currencies as $code => $currency ) { ?>
-					<option value="<?php echo esc_attr( $code ) ?>" <?php if ( $code === $product_args['currency'] ) { ?>selected="selected"<?php } ?>>
-						<?php echo esc_html( $currency['symbol'] === $code ? $code : ( $code . ' ' . rtrim( $currency['symbol'], '.' ) ) ) ?>
+					<option value="<?php esc_attr_e( $code ) ?>"<?php selected( $product_args['currency'], $code ); ?>>
+						<?php esc_html_e( $currency['symbol'] === $code ? $code : ( $code . ' ' . rtrim( $currency['symbol'], '.' ) ) ) ?>
 					</option>
 				<?php } ?>
 			</select>
-			<input class="price widefat" id="<?php echo $this->get_field_id( 'price' ); ?>" name="<?php echo $this->get_field_name( 'price' ); ?>" type="text" value="<?php echo $price; ?>" />
+			<input class="price widefat" id="<?php esc_attr_e( $this->get_field_id( 'price' ) ); ?>" name="<?php esc_attr_e( $this->get_field_name( 'price' ) ); ?>" type="text" value="<?php esc_attr_e( $price ); ?>" />
 		</p>
 		<p>
-			<input id="<?php echo $this->get_field_id( 'multiple' ); ?>" name="<?php echo $this->get_field_name( 'multiple' ); ?>" type="checkbox" value="1"<?php checked( $product_args['multiple'], '1' ); ?>/>
-			<label for="<?php echo $this->get_field_id( 'multiple' ); ?>"><?php _e( 'Allow people to buy more than one item at a time.', 'jetpack' ); ?></label>
+			<input id="<?php esc_attr_e( $this->get_field_id( 'multiple' ) ); ?>" name="<?php esc_attr_e( $this->get_field_name( 'multiple' ) ); ?>" type="checkbox" value="1"<?php checked( $product_args['multiple'], '1' ); ?>/>
+			<label for="<?php esc_attr_e( $this->get_field_id( 'multiple' ) ); ?>"><?php esc_html_e( 'Allow people to buy more than one item at a time.', 'jetpack' ); ?></label>
 		</p>
 		<p>
-			<label for="<?php echo $this->get_field_id( 'email' ); ?>"><?php _e( 'Email', 'jetpack' ); ?></label>
-			<input class="widefat" id="<?php echo $this->get_field_id( 'email' ); ?>" name="<?php echo $this->get_field_name( 'email' ); ?>" type="email" value="<?php echo esc_attr( $product_args['email'] ); ?>" />
+			<label for="<?php esc_attr_e( $this->get_field_id( 'email' ) ); ?>"><?php esc_html_e( 'Email', 'jetpack' ); ?></label>
+			<input class="widefat" id="<?php esc_attr_e( $this->get_field_id( 'email' ) ); ?>" name="<?php esc_attr_e( $this->get_field_name( 'email' ) ); ?>" type="email" value="<?php  esc_attr_e( $product_args['email'] ); ?>" />
 			<em><?php printf( esc_html__( 'This is where PayPal will send your money. To claim a payment, you\'ll need a %1$sPayPal account%2$s connected to a bank account.', 'jetpack' ), '<a href="https://paypal.com" target="_blank">', '</a>' ) ?></em>
 		</p>
 	</div>
