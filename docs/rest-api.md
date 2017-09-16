@@ -2,6 +2,35 @@
 
 Jetpack's HTTP API is built as an [extension to the WP-API](http://v2.wp-api.org/extending/adding/). Thus, you may find additional information on approaching the API in the [WP API Docs](http://v2.wp-api.org/).
 
+* [How to use](#how-to-use)
+* [API Authentication and authorization](#api-request-authorization-via-nonces)
+* [API Reference](#api-reference)
+
+## How to use
+
+All of the extensions that Jetpack adds to the core's REST API infrastructure demand authentication and, of course knowledge of the endpoints (you can find about them under [API Reference](#api-reference)).
+
+### Requesting with jQuery from the browser console.
+
+If you go to the Jetpack wp-admin page (/wp-admin/admin.php?page=jetpack) on you WordPress site, you can open the console there and write an AJAX request using `jQuery.ajax`. This comes in handy when testing as every request demands a nonce generated for the REST API specifically. More details about this nonce in [API Authentication and authorization](#api-request-authorization-via-nonces).
+
+Example GET request to the settings endpoint
+```
+jQuery.ajax( {
+    url: '/wp-json/jetpack/v4/settings/',
+    method: 'get',
+    beforeSend: function ( xhr ) {
+        xhr.setRequestHeader( 'X-WP-Nonce', Initial_State.WP_API_nonce );
+    },
+    contentType: "application/json",
+    dataType: "json"
+} ).done( function ( response ) {
+    console.log( response );
+} ).error( function ( error ) {
+    console.log( error.responseText );
+} );
+```
+
 ## API Authentication and authorization
 
 The API requests rely on [cookie-based authentication and a specific nonce](http://v2.wp-api.org/guide/authentication/#cookie-authentication)
