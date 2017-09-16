@@ -119,7 +119,7 @@ registerBlockType('jetpack/subscription-form', {
 						i18n['Join %s other subscribers'].replace('%s', subscribersCount)
 					),
 					wp.element.createElement(
-						'p',
+						'div',
 						{ id: 'subscribe-email' },
 						wp.element.createElement(
 							'label',
@@ -136,7 +136,7 @@ registerBlockType('jetpack/subscription-form', {
 						})
 					),
 					wp.element.createElement(
-						'p',
+						'div',
 						{ id: 'subscribe-submit' },
 						wp.element.createElement('input', { type: 'submit', value: subscribe_button, disabled: true })
 					)

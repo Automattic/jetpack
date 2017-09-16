@@ -103,7 +103,7 @@ registerBlockType( 'jetpack/subscription-form', {
 							<p className="subscription-form__subscribers">
 								{ i18n[ 'Join %s other subscribers' ].replace( '%s', subscribersCount ) }
 							</p> }
-						<p id="subscribe-email">
+						<div id="subscribe-email">
 							<label id="jetpack-subscribe-label" className="subscription-form__email-label">
 								{ i18n[ 'Email Address' ] }
 							</label>
@@ -115,10 +115,10 @@ registerBlockType( 'jetpack/subscription-form', {
 								required
 								disabled
 							/>
-						</p>
-						<p id="subscribe-submit">
+						</div>
+						<div id="subscribe-submit">
 							<input type="submit" value={ subscribe_button } disabled />
-						</p>
+						</div>
 					</fieldset>
 				</form>
 			</div>,

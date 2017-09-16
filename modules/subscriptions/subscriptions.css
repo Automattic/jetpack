@@ -9,12 +9,16 @@
 	margin: 0;
 }
 
-.subscription-form__title.subscription-form__title input {
+.subscription-form__title.subscription-form__title input,
+.subscription-form__text.subscription-form__text textarea  {
+	width: 100%;
 	margin: 0 0 0;
-	padding: 0;
-	border: 0;
 	outline: 0;
 	box-shadow: none;
+	margin-bottom: 16px;
+}
+
+.subscription-form__title.subscription-form__title input {
 	font-size: 20px;
 	font-weight: 600;
 }
