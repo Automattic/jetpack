@@ -138,7 +138,11 @@ registerBlockType('jetpack/subscription-form', {
 					wp.element.createElement(
 						'div',
 						{ id: 'subscribe-submit' },
-						wp.element.createElement('input', { type: 'submit', value: subscribe_button, disabled: true })
+						wp.element.createElement(
+							'span',
+							{ className: 'button' },
+							subscribe_button
+						)
 					)
 				)
 			)

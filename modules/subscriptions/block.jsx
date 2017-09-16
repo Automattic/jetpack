@@ -117,7 +117,9 @@ registerBlockType( 'jetpack/subscription-form', {
 							/>
 						</div>
 						<div id="subscribe-submit">
-							<input type="submit" value={ subscribe_button } disabled />
+							<span className="button">
+								{ subscribe_button }
+							</span>
 						</div>
 					</fieldset>
 				</form>
