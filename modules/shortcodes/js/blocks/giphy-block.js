@@ -32,7 +32,7 @@ var _wp$components = wp.components,
 
 registerBlockType('gutenpack/giphy', {
 	title: __('Giphy'),
-	icon: 'sort',
+	icon: 'format-video',
 	category: 'layout',
 	attributes: {
 		searchTerm: {
@@ -50,6 +50,10 @@ registerBlockType('gutenpack/giphy', {
 		resultGallery: {
 			type: 'object',
 			default: {}
+		},
+		className: {
+			type: 'string',
+			default: ''
 		}
 	},
 
@@ -70,6 +74,8 @@ registerBlockType('gutenpack/giphy', {
 				return esc(k) + '=' + esc(getParams[k]);
 			}).join('&');
 
+			props.setAttributes({ className: "rainbow" });
+
 			fetch('https://api.giphy.com/v1/gifs/search?' + query, {
 				method: 'GET',
 				mode: 'cors',
@@ -79,7 +85,7 @@ registerBlockType('gutenpack/giphy', {
 			}).then(function (response) {
 				var gallery = {},
 				    i = void 0;
-				for (i = 0; i < 6; i++) {
+				for (i = 0; i < 9; i++) {
 					gallery[i] = response.data[i].images.preview_gif;
 				}
 
@@ -146,7 +152,8 @@ registerBlockType('gutenpack/giphy', {
 					height: imageData.height,
 					onClick: function onClick() {
 						return chooseImage(key);
-					}
+					},
+					className: 'giphy__a-gif-has-no-name'
 				}));
 			});
 
@@ -160,39 +167,48 @@ registerBlockType('gutenpack/giphy', {
 				'div',
 				null,
 				(0, _isEmpty2['default'])(chosenImage) && wp.element.createElement(
-					Placeholder,
-					{
-						key: 'giphy/placeholder',
-						instructions: __('Search for something!'),
-						icon: 'format-image',
-						label: __('Search for GIF'),
-						className: props.className
-					},
-					wp.element.createElement('input', {
-						type: 'search',
-						value: attributes.searchTerm,
-						onChange: setSearchTerm
-					}),
+					'div',
+					null,
 					wp.element.createElement(
-						Button,
+						Placeholder,
 						{
-							onClick: handleSearch
+							key: 'giphy/placeholder',
+							instructions: __('The peak of human expression at your fingertips!'),
+							icon: 'schedule',
+							label: __('Search gifs'),
+							className: props.className
 						},
-						wp.element.createElement(Dashicon, { icon: 'search' })
+						wp.element.createElement('input', {
+							type: 'search',
+							value: attributes.searchTerm,
+							onChange: setSearchTerm
+						}),
+						wp.element.createElement(
+							Button,
+							{
+								onClick: handleSearch
+							},
+							wp.element.createElement(Dashicon, { icon: 'search' })
+						),
+						wp.element.createElement(
+							Button,
+							{
+								onClick: shuffleImages
+							},
+							wp.element.createElement(Dashicon, { icon: 'randomize' })
+						)
 					),
 					wp.element.createElement(
-						Button,
-						{
-							onClick: shuffleImages
-						},
-						wp.element.createElement(Dashicon, { icon: 'randomize' })
-					),
-					resultGallery()
+						'div',
+						{ className: 'giphy__gallery' },
+						resultGallery()
+					)
 				),
 				!(0, _isEmpty2['default'])(chosenImage) && wp.element.createElement('img', {
 					src: chosenImage.url,
 					width: chosenImage.width,
-					height: chosenImage.height
+					height: chosenImage.height,
+					className: 'giphy__chosen-one'
 				})
 			);
 		};

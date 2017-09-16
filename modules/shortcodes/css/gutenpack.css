@@ -19,3 +19,58 @@ iframe.wp-block-gutenpack-vr {
 	left: 0;
 	height: 100%;
 }
+
+.giphy__gallery {
+	background-image:
+		linear-gradient(
+			0deg,
+			#000 5%,
+			transparent 5%
+		),
+		linear-gradient(
+			90deg,
+			#ED706B,
+			#ED706B 20%,
+			#FFFEA5 20%,
+			#FFFEA5 40%,
+			#00CCFF 40%,
+			#00CCFF 60%,
+			#00FF99 60%,
+			#00FF99 80%,
+			#9933FF 80%,
+			#9933FF
+		);
+	column-count: 3;
+	column-gap: 0;
+}
+
+.giphy__a-gif-has-no-name {
+	display: block;
+	width: 100%;
+	height: auto;
+}
+
+.giphy__chosen-one {
+	display: block;
+	width: 100%;
+	height: auto;
+	background-image:
+		linear-gradient(
+			0deg,
+			#000 5%,
+			transparent 5%
+		),
+		linear-gradient(
+			90deg,
+			#ED706B,
+			#ED706B 20%,
+			#FFFEA5 20%,
+			#FFFEA5 40%,
+			#00CCFF 40%,
+			#00CCFF 60%,
+			#00FF99 60%,
+			#00FF99 80%,
+			#9933FF 80%,
+			#9933FF
+		);
+}
