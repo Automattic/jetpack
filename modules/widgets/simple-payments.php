@@ -182,27 +182,16 @@ class Simple_Payments_Widget extends WP_Widget {
 
 		self::$dir = trailingslashit( dirname( __FILE__ ) );
 		self::$url = plugin_dir_url( __FILE__ );
-		// add form labels for translation
-		/*
-		self::$labels = array(
-			'year'    => __( 'year', 'jetpack' ),
-		);
-		*/
 
-		// add_action( 'wp_enqueue_scripts', array( __class__, 'enqueue_template' ) );
 		add_action( 'admin_enqueue_scripts', array( __class__, 'enqueue_admin_styles' ) );
 	}
 
 	public static function enqueue_admin_styles( $hook_suffix ) {
 		if ( 'widgets.php' == $hook_suffix ) {
-			wp_enqueue_style( 'simple-payments-widget-admin', self::$url . '/simple-payments/style-admin.css', array(), '201710151556' );
+			wp_enqueue_style( 'simple-payments-widget-admin', self::$url . '/simple-payments/style-admin.css', array() );
 			wp_enqueue_media();
-			wp_enqueue_script( 'simple-payments-widget-admin', self::$url . '/simple-payments/admin.js', array( 'jquery' ), '20171015', true );
+			wp_enqueue_script( 'simple-payments-widget-admin', self::$url . '/simple-payments/admin.js', array( 'jquery' ), false, true );
 		}
-	}
-
-	public static function enqueue_template() {
-		// wp_enqueue_script( 'milestone', self::$url . 'milestone.js', array( 'jquery' ), '20160520', true );
 	}
 
 	protected function get_product_args( $product_id ) {
@@ -255,7 +244,6 @@ class Simple_Payments_Widget extends WP_Widget {
 		$attrs = array( 'id' => $instance['product_id'] );
 
 		$JSP = Jetpack_Simple_Payments::getInstance();
-		// display the product on the front end here
 		echo $JSP->parse_shortcode( $attrs );
 
 		echo '</div><!--simple-payments-->';
@@ -293,36 +281,37 @@ class Simple_Payments_Widget extends WP_Widget {
 		return round( (float) $price, $precision );
 	}
 
-    /**
-     * Update
-     */
-    function update( $new_instance, $old_instance ) {
+	/**
+	 * Update
+	 */
+	function update( $new_instance, $old_instance ) {
 		$product_id = isset( $old_instance['product_id'] ) ? $old_instance['product_id'] : null;
 		$product = $product_id ? get_post( $product_id ) : 0;
 		if ( ! $product || is_wp_error( $product ) || $product->post_type !== Jetpack_Simple_Payments::$post_type_product ) {
 			$product_id = 0;
 		}
 
-		if ( ! empty( $new_instance['name'] ) && ! empty( $new_instance['price'] ) ) {
-			return array(
-				'title' => $new_instance['title'],
-				'product_id' => wp_insert_post( array(
-					'ID' => $product_id,
-					'post_type' => Jetpack_Simple_Payments::$post_type_product,
-					'post_status' => 'publish',
-					'post_title' => $new_instance['name'],
-					'post_content' => $new_instance['description'],
-					'_thumbnail_id' => isset( $new_instance['image'] ) ? $new_instance['image'] : -1,
-					'meta_input' => array(
-						'spay_currency' => $new_instance['currency'],
-						'spay_price' => $this->sanitize_price( $new_instance['currency'], $new_instance['price'] ),
-						'spay_multiple' => $new_instance['multiple'],
-						'spay_email' => is_email( $new_instance['email'] ),
-					),
-				) ),
-			);
-		}
+		$saved_id = wp_insert_post( array(
+				'ID' => $product_id,
+				'post_type' => Jetpack_Simple_Payments::$post_type_product,
+				'post_status' => 'publish',
+				'post_title' => sanitize_text_field( $new_instance['name'] ),
+				'post_content' => sanitize_textarea_field( $new_instance['description'] ),
+				'_thumbnail_id' => isset( $new_instance['image'] ) ? $new_instance['image'] : -1,
+				'meta_input' => array(
+					'spay_currency' => in_array( $new_instance['currency'], $this->currencies ) ? $new_instance['currency'] : 'USD',
+					'spay_price' => $this->sanitize_price( $new_instance['currency'], $new_instance['price'] ),
+					'spay_multiple' => isset( $new_instance['multiple'] ) ? intval( $new_instance['multiple'] ) : 0,
+					'spay_email' => is_email( $new_instance['email'] ),
+				),
+			) );
+
+		return array(
+			'title' => $new_instance['title'],
+			'product_id' => $saved_id,
+		);
     }
+
 
     /**
      * Form
@@ -419,7 +408,7 @@ class Simple_Payments_Widget extends WP_Widget {
 			<input class="price widefat" id="<?php echo $this->get_field_id( 'price' ); ?>" name="<?php echo $this->get_field_name( 'price' ); ?>" type="text" value="<?php echo $price; ?>" />
 		</p>
 		<p>
-			<input id="<?php echo $this->get_field_id( 'multiple' ); ?>" name="<?php echo $this->get_field_name( 'multiple' ); ?>" type="checkbox" <?php if ( '1' === $product_args['multiple'] ) { ?>checked="checked"<?php } ?> />
+			<input id="<?php echo $this->get_field_id( 'multiple' ); ?>" name="<?php echo $this->get_field_name( 'multiple' ); ?>" type="checkbox" value="1"<?php checked( $product_args['multiple'], '1' ); ?>/>
 			<label for="<?php echo $this->get_field_id( 'multiple' ); ?>"><?php _e( 'Allow people to buy more than one item at a time.', 'jetpack' ); ?></label>
 		</p>
 		<p>
