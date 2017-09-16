@@ -5,16 +5,17 @@
  * External dependencies
  */
 import 'whatwg-fetch';
+import isEmpty from 'lodash/isEmpty';
+import forEach from 'lodash/forEach';
 
 const { __ } = wp.i18n;
 const {
 	registerBlockType,
-	source: {
-		children
-	}
 } = wp.blocks;
 const {
-	Placeholder
+	Placeholder,
+	Button,
+	Dashicon
 } = wp.components;
 
 registerBlockType( 'gutenpack/giphy', {
@@ -22,53 +23,167 @@ registerBlockType( 'gutenpack/giphy', {
 	icon: 'sort',
 	category: 'layout',
 	attributes: {
-		s: children( 's' )
+		searchTerm: {
+			type: 'string',
+			default: ''
+		},
+		searchResults: {
+			type: 'object',
+			default: {}
+		},
+		chosenImage: {
+			type: 'object',
+			default: {}
+		},
+		resultGallery: {
+			type: 'object',
+			default: {}
+		}
 	},
 
 	edit: props => {
-		const attributes = props.attributes,
-			searchResults = '';
+		const attributes = props.attributes;
 
-		const getParams = {
-			api_key: 'c7daeb0f028c4bc294f04131e6f2d777',
-			q: 'jetpack',
-			limit: 25,
-			offset: 0,
-			rating: 'G'
+		const handleSearch = () => {
+			const getParams = {
+				api_key: 'OpUiweD5zr2xC7BhSIuqGFfCvnz5jzHj',
+				q: attributes.searchTerm,
+				limit: 25,
+				offset: 0,
+				rating: 'G'
+			};
+
+			const esc = encodeURIComponent;
+			const query = Object.keys( getParams )
+				.map( k => esc( k ) + '=' + esc( getParams[ k ] ) )
+				.join( '&' );
+
+			fetch( 'https://api.giphy.com/v1/gifs/search?' + query,
+				{
+					method: 'GET',
+					mode: 'cors',
+					cache: 'default'
+				} )
+				.then(
+					response => response.json()
+				)
+				.then(
+					response => {
+						let gallery = {}, i;
+						for ( i = 0; i < 6; i++ ) {
+							gallery[ i ] = response.data[ i ].images.preview_gif;
+						}
+
+						// Store the result gallery
+						props.setAttributes( { resultGallery: gallery } );
+
+						// Store the rest of the images
+						props.setAttributes( { searchResults: response.data } );
+					}
+				);
 		};
 
-		// eslint-disable-next-line
-		// console.log( attributes );
+		const setSearchTerm = event => {
+			const value = event.target.value;
 
-		const handleSearch = ( value ) => fetch( 'https://api.giphy.com/v1/gifs/search?api_key=c7daeb0f028c4bc294f04131e6f2d777&q=jetpack&limit=1&offset=0&rating=G&lang=en',
-			{
-				method: 'GET',
-				mode: 'cors'
-			} )
-			.then(
-				// eslint-disable-next-line
-				// console.log( value )
-			)
-			.then( props.setAttributes( { s: value } ) );
+			// Clear the chosen image
+			props.setAttributes( { chosenImage: {} } );
+
+			// Set the value
+			props.setAttributes( { searchTerm: value } );
+		};
+
+		const shuffleImages = () => {
+			const imageStore = attributes.searchResults;
+
+			// Generate random randomKeys
+			const randomKeys = [];
+			while ( randomKeys.length < 6 ) {
+				const randomNumber = Math.ceil( Math.random() * 24 );
+				if ( randomKeys.indexOf( randomNumber ) > -1 ) {
+					continue;
+				}
+				randomKeys[ randomKeys.length ] = randomNumber;
+			}
+
+			// Set the images based on randomKeys
+			const newGalleryImages = {};
+			let i = 0;
+			forEach( randomKeys, ( k ) => {
+				newGalleryImages[ i ] = imageStore[ k ].images.preview_gif;
+				i++;
+			} );
+
+			props.setAttributes( { resultGallery: newGalleryImages } );
+		};
+
+		const chooseImage = key => {
+			props.setAttributes( { chosenImage: attributes.resultGallery[ key ] } );
+		};
+
+		const resultGallery = () => {
+			const images = attributes.resultGallery,
+				chosenImage = attributes.chosenImage;
+			const gallery = [];
+
+			if ( isEmpty( images ) || ! isEmpty( chosenImage ) ) {
+				return false;
+			}
+
+			forEach( images, ( imageData, key ) => {
+				gallery.push(
+					<img
+						key={ key }
+						src={ imageData.url }
+						width={ imageData.width }
+						height={ imageData.height }
+						onClick={ () => chooseImage( key ) }
+					/>
+				);
+			} );
+
+			return gallery;
+		};
 
 		const renderEdit = () => {
-			// eslint-disable-next-line
-			console.log( attributes.s );
+			const chosenImage = attributes.chosenImage;
+
 			return (
 				<div>
-					<Placeholder
-						key="giphy/placeholder"
-						instructions={ __( 'Search for something!' ) }
-						icon="format-image"
-						label={ __( 'Search for GIF' ) }
-						className={ props.className }
-					>
-						<input
-							type="search"
-							value={ attributes.s }
-							onChange={ handleSearch }
+					{ isEmpty( chosenImage ) &&
+						<Placeholder
+							key="giphy/placeholder"
+							instructions={ __( 'Search for something!' ) }
+							icon="format-image"
+							label={ __( 'Search for GIF' ) }
+							className={ props.className }
+						>
+							<input
+								type="search"
+								value={ attributes.searchTerm }
+								onChange={ setSearchTerm }
+							/>
+							<Button
+								onClick={ handleSearch }
+							>
+								<Dashicon icon="search"/>
+							</Button>
+							<Button
+								onClick={ shuffleImages }
+							>
+								<Dashicon icon="randomize"/>
+							</Button>
+							{ resultGallery() }
+						</Placeholder>
+					}
+					{
+						! isEmpty( chosenImage ) &&
+						<img
+							src={ chosenImage.url }
+							width={ chosenImage.width }
+							height={ chosenImage.height }
 						/>
-					</Placeholder>
+					}
 				</div>
 			);
 		};
