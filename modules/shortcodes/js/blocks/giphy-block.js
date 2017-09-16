@@ -180,7 +180,7 @@ registerBlockType('gutenpack/giphy', {
 						},
 						wp.element.createElement('input', {
 							type: 'search',
-							value: attributes.searchTerm,
+							value: attributes.searchTerm || '',
 							onChange: setSearchTerm
 						}),
 						wp.element.createElement(

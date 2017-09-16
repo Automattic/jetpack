@@ -168,7 +168,7 @@ registerBlockType( 'gutenpack/giphy', {
 							>
 								<input
 									type="search"
-									value={ attributes.searchTerm }
+									value={ attributes.searchTerm || '' }
 									onChange={ setSearchTerm }
 								/>
 								<Button
