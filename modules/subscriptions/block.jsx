@@ -47,7 +47,8 @@ registerBlockType( 'jetpack/subscription-form', {
 		// `jetpack_do_subscription_form` shortcode.
 		show_subscribers_total: {
 			type: 'bool',
-			default: true,
+			// Keep this in sync with server defaults
+			default: false,
 		},
 		subscribersCount: {
 			type: 'number',
