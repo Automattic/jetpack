@@ -43,45 +43,6 @@ WP-API-compatible [capabilities document](http://v2.wp-api.org/guide/discovery/)
 
 `GET /wp-json/jetpack/v4`
 
-### Jetpack connection
-
-Operations related to Jetpack's connection to WordPress.com
-
-#### GET /wp-json/jetpack/v4/connection
-
-Fetch Jetpack's current connection status.
-
-#### GET /wp-json/jetpack/v4/connection/url
-
-Fetch a fresh WordPress.com URL for connecting the Jetpack installation.
-
-#### GET /wp-json/jetpack/v4/connection/data
-
-Fetch the data of the current's user WordPress.com account.
-
-#### POST /wp-json/jetpack/v4/connection
-
-Disconnect the Jetpack installation from WordPress.com servers.
-
-Accepts a JSON object in the body like:
-
-```
-{
-	"isActive": false
-}
-```
-
-#### POST /wp-json/jetpack/v4/connection/user
-
-Unlink current user from the related WordPress.com account.
-
-Accepts a JSON object in the body like:
-
-```
-{
-	"linked": false
-}
-```
 ### Jetpack settings
 
 We call settings to any option that a module provides.
@@ -135,6 +96,45 @@ Accepts a JSON object in the body like:
 {
 	"carousel_display_exif": false,
 	"carousel": true
+}
+```
+### Jetpack connection
+
+Operations related to Jetpack's connection to WordPress.com
+
+#### GET /wp-json/jetpack/v4/connection
+
+Fetch Jetpack's current connection status.
+
+#### GET /wp-json/jetpack/v4/connection/url
+
+Fetch a fresh WordPress.com URL for connecting the Jetpack installation.
+
+#### GET /wp-json/jetpack/v4/connection/data
+
+Fetch the data of the current's user WordPress.com account.
+
+#### POST /wp-json/jetpack/v4/connection
+
+Disconnect the Jetpack installation from WordPress.com servers.
+
+Accepts a JSON object in the body like:
+
+```
+{
+	"isActive": false
+}
+```
+
+#### POST /wp-json/jetpack/v4/connection/user
+
+Unlink current user from the related WordPress.com account.
+
+Accepts a JSON object in the body like:
+
+```
+{
+	"linked": false
 }
 ```
 
