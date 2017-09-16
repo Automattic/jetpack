@@ -92,7 +92,7 @@ class Quiz_Shortcode {
 	 *
 	 * @since 5.4
 	 */
-	function block_editor_assets() {
+	public static function block_editor_assets() {
 		wp_enqueue_style(
 			'gutenpack-quiz-editor',
 			plugins_url( 'modules/shortcodes/css/quiz.css', JETPACK__PLUGIN_FILE ),
