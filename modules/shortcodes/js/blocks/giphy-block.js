@@ -64,7 +64,7 @@ registerBlockType('gutenpack/giphy', {
 			var getParams = {
 				api_key: 'OpUiweD5zr2xC7BhSIuqGFfCvnz5jzHj',
 				q: attributes.searchTerm,
-				limit: 40,
+				limit: 50,
 				offset: 0,
 				rating: 'G'
 			};
@@ -74,7 +74,7 @@ registerBlockType('gutenpack/giphy', {
 				return esc(k) + '=' + esc(getParams[k]);
 			}).join('&');
 
-			props.setAttributes({ className: "giphy__oh-heck-yeah" });
+			props.setAttributes({ className: 'giphy__oh-heck-yeah' });
 
 			fetch('https://api.giphy.com/v1/gifs/search?' + query, {
 				method: 'GET',
@@ -82,26 +82,29 @@ registerBlockType('gutenpack/giphy', {
 				cache: 'default'
 			}).then(function (response) {
 				return response.json();
-			}).then(function (response) {
-				var numImages = response.data.length >= 9 ? 9 : response.data.length;
-
-				if (numImages > 0) {
-					var gallery = {};
-					var i = void 0;
-					for (i = 0; i < numImages; i++) {
-						gallery[i] = response.data[i].images.preview_gif;
-					}
-
-					// Store the result gallery
-					props.setAttributes({ resultGallery: gallery });
-				} else {
-					// Store the result gallery
-					props.setAttributes({ resultGallery: { noResults: true } });
-				}
-
-				// Store the rest of the images
+			}).then(setGallery).then(function (response) {
 				props.setAttributes({ searchResults: response.data });
 			});
+		};
+
+		var setGallery = function setGallery(response) {
+			var numImages = response.data.length >= 9 ? 9 : response.data.length;
+
+			if (numImages > 0) {
+				var gallery = {};
+				var i = void 0;
+				for (i = 0; i < numImages; i++) {
+					gallery[i] = response.data[i].images.preview_gif;
+				}
+
+				// Store the result gallery
+				props.setAttributes({ resultGallery: gallery });
+			} else {
+				// Store the result gallery
+				props.setAttributes({ resultGallery: { noResults: true } });
+			}
+
+			return response;
 		};
 
 		var setSearchTerm = function setSearchTerm(event) {
@@ -196,16 +199,12 @@ registerBlockType('gutenpack/giphy', {
 						}),
 						wp.element.createElement(
 							Button,
-							{
-								onClick: handleSearch
-							},
+							{ onClick: handleSearch },
 							wp.element.createElement(Dashicon, { icon: 'search' })
 						),
 						wp.element.createElement(
 							Button,
-							{
-								onClick: shuffleImages
-							},
+							{ onClick: shuffleImages },
 							wp.element.createElement(Dashicon, { icon: 'randomize' })
 						)
 					),

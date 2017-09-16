@@ -52,7 +52,7 @@ registerBlockType( 'gutenpack/giphy', {
 			const getParams = {
 				api_key: 'OpUiweD5zr2xC7BhSIuqGFfCvnz5jzHj',
 				q: attributes.searchTerm,
-				limit: 40,
+				limit: 50,
 				offset: 0,
 				rating: 'G'
 			};
@@ -62,7 +62,7 @@ registerBlockType( 'gutenpack/giphy', {
 				.map( k => esc( k ) + '=' + esc( getParams[ k ] ) )
 				.join( '&' );
 
-			props.setAttributes( { className: "giphy__oh-heck-yeah" } );
+			props.setAttributes( { className: 'giphy__oh-heck-yeah' } );
 
 			fetch( 'https://api.giphy.com/v1/gifs/search?' + query,
 				{
@@ -70,31 +70,33 @@ registerBlockType( 'gutenpack/giphy', {
 					mode: 'cors',
 					cache: 'default'
 				} )
-				.then(
-					response => response.json()
-				)
+				.then( response => response.json() )
+				.then( setGallery )
 				.then(
 					response => {
-						const numImages = response.data.length >= 9 ? 9 : response.data.length;
-
-						if ( numImages > 0 ) {
-							const gallery = {};
-							let i;
-							for ( i = 0; i < numImages; i++ ) {
-								gallery[ i ] = response.data[ i ].images.preview_gif;
-							}
-
-							// Store the result gallery
-							props.setAttributes( { resultGallery: gallery } );
-						} else {
-							// Store the result gallery
-							props.setAttributes( { resultGallery: { noResults: true } } );
-						}
-
-						// Store the rest of the images
 						props.setAttributes( { searchResults: response.data } );
 					}
 				);
+		};
+
+		const setGallery = ( response ) => {
+			const numImages = response.data.length >= 9 ? 9 : response.data.length;
+
+			if ( numImages > 0 ) {
+				const gallery = {};
+				let i;
+				for ( i = 0; i < numImages; i++ ) {
+					gallery[ i ] = response.data[ i ].images.preview_gif;
+				}
+
+				// Store the result gallery
+				props.setAttributes( { resultGallery: gallery } );
+			} else {
+				// Store the result gallery
+				props.setAttributes( { resultGallery: { noResults: true } } );
+			}
+
+			return response;
 		};
 
 		const setSearchTerm = event => {
@@ -183,15 +185,11 @@ registerBlockType( 'gutenpack/giphy', {
 									value={ attributes.searchTerm || '' }
 									onChange={ setSearchTerm }
 								/>
-								<Button
-									onClick={ handleSearch }
-								>
+								<Button onClick={ handleSearch } >
 									<Dashicon icon="search"/>
 								</Button>
-								<Button
-									onClick={ shuffleImages }
-								>
-									<Dashicon icon="randomize"/>
+								<Button onClick={ shuffleImages } >
+									<Dashicon icon="randomize" />
 								</Button>
 							</Placeholder>
 							<div className="giphy__gallery">
