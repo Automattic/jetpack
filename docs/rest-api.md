@@ -82,78 +82,6 @@ Accepts a JSON object in the body like:
 	"linked": false
 }
 ```
-
-### Jetpack modules
-
-#### GET /wp-json/jetpack/v4/module
-
-Get a list of all Jetpacks modules, its description, other properties and the module's options
-
-#### GET /wp-json/jetpack/v4/module/:module-slug
-
-Get a single module description and properties by its slug.
-
-**URL parameters**
-
-* `module-slug`: {String} The identifier of the module to get info about.
-
-#### POST /wp-json/jetpack/v4/module/:module-slug/active
-
-Activate or deactivate a module by its slug
-
-Accepts a JSON object in the body like:
-```
-{
-	"active": true
-}
-```
-
-**URL parameters**
-
-* `module-slug`: {String} The identifier of the module on which to act.
-
-**Body parameters**
-
-* `active`: {Boolean} Send false to deactivate the module.
-
-
-#### POST /wp-json/jetpack/v4/module/activate
-
-Activate several modules at a time by their slug
-
-**Note**: Try to not rely hard on this endpoint. Activation and deactivation of modules is also possible via the settings endpoint. And it may come in handy to use the settings endpoint instead as you can turn on a module and update settings related to that module at the same time in a single request.
-
-**Body parameters**
-
-* `modules`: {Array} An array of strings of identifiers of the modules to activate
-
-```
-{
-	"modules": [ "protect", "monitor", "likes" ]
-}
-```
-
-#### POST /wp-json/jetpack/v4/module/:module-slug
-
-Update an option's value for a module
-
-**Note**: Try to not rely hard on this endpoint. We started giving the name **settings** to the modules options and you can update them via the settings endpoint now.
-
-**URL parameters**
-
-* `module-slug`: {String} The identifier of the module on which to act.
-
-**Body parameters**
-
-* Accepts a simple object with the key of the option to update and the new value.
-
-Accepts a JSON object in the body like:
-```
-{
-	"option-key": "new-option-value"
-}
-```
-
 ### Jetpack settings
 
 We call settings to any option that a module provides.
@@ -207,6 +135,76 @@ Accepts a JSON object in the body like:
 {
 	"carousel_display_exif": false,
 	"carousel": true
+}
+```
+
+### Jetpack modules
+
+#### GET /wp-json/jetpack/v4/module
+
+Get a list of all Jetpacks modules, its description, other properties and the module's options
+
+#### GET /wp-json/jetpack/v4/module/:module-slug
+
+Get a single module description and properties by its slug.
+
+**URL parameters**
+
+* `module-slug`: {String} The identifier of the module to get info about.
+
+#### POST /wp-json/jetpack/v4/module/:module-slug/active
+
+Activate or deactivate a module by its slug
+
+Accepts a JSON object in the body like:
+```
+{
+	"active": true
+}
+```
+
+**URL parameters**
+
+* `module-slug`: {String} The identifier of the module on which to act.
+
+**Body parameters**
+
+* `active`: {Boolean} Send false to deactivate the module.
+
+#### POST /wp-json/jetpack/v4/module/activate
+
+Activate several modules at a time by their slug
+
+**Note**: Try to not rely hard on this endpoint. Activation and deactivation of modules is also possible via the settings endpoint. And it may come in handy to use the settings endpoint instead as you can turn on a module and update settings related to that module at the same time in a single request.
+
+**Body parameters**
+
+* `modules`: {Array} An array of strings of identifiers of the modules to activate
+
+```
+{
+	"modules": [ "protect", "monitor", "likes" ]
+}
+```
+
+#### POST /wp-json/jetpack/v4/module/:module-slug
+
+Update an option's value for a module
+
+**Note**: Try to not rely hard on this endpoint. We started giving the name **settings** to the modules options and you can update them via the settings endpoint now.
+
+**URL parameters**
+
+* `module-slug`: {String} The identifier of the module on which to act.
+
+**Body parameters**
+
+* Accepts a simple object with the key of the option to update and the new value.
+
+Accepts a JSON object in the body like:
+```
+{
+	"option-key": "new-option-value"
 }
 ```
 
