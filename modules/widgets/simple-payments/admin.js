@@ -5,10 +5,11 @@
 			var root = $( this ).closest( '.simple-payments' );
 			var imageContainer = root.find( '.simple-payments-image' );
 			root.find( '.simple-payments-image-fieldset .placeholder' ).show();
-			imageContainer.empty();
+			imageContainer.find( 'img, input[type=hidden]' ).remove();
+			imageContainer.hide();
 		} );
 
-		$( document.body ).on( 'click', '.simple-payments-add-image', function( event ) {
+		$( document.body ).on( 'click', '.simple-payments-image-fieldset .placeholder, .simple-payments-image > img', function( event ) {
 			var root = $( this ).closest( '.simple-payments' );
 			var imageContainer = root.find( '.simple-payments-image' );
 
@@ -41,13 +42,12 @@
 
 				root.find( '.simple-payments-image-fieldset .placeholder' ).hide();
 
-				imageContainer.empty()
+				imageContainer.find( 'img, input[type=hidden]' ).remove();
+				imageContainer.show()
 					.append( $( '<img/>', {
 						src: selection.url,
 						alt: selection.caption,
 						title: selection.title,
-						width: selection.width,
-						height: selection.height,
 					} ) )
 					.append( $( '<input/>', {
 						type: 'hidden',

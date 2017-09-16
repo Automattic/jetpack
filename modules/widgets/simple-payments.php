@@ -390,20 +390,18 @@ class Simple_Payments_Widget extends WP_Widget {
 			<input class="widefat" id="<?php echo $this->get_field_id( 'name' ); ?>" name="<?php echo $this->get_field_name( 'name' ); ?>" type="text" placeholder="<?php echo esc_attr_e( 'Product name', 'jetpack' ); ?>" value="<?php echo esc_attr( $product_args['name'] ); ?>" />
 		</p>
 		<div class="simple-payments-image-fieldset">
-			<div class="placeholder <?php if ( has_post_thumbnail( $instance['product_id'] ) ) echo 'hide'; ?>">No image selected</div> <!-- TODO: actual placeholder, i18n -->
+			<label><?php _e( 'Product image', 'jetpack' ); ?></label>
+			<div class="placeholder" <?php if ( has_post_thumbnail( $instance['product_id'] ) ) echo 'style="display:none;"'; ?>>Select an image</div> <!-- TODO: actual placeholder, i18n -->
 			<div class="simple-payments-image" data-image-field="<?php echo $this->get_field_name( 'image' ); ?>"> <!-- TODO: hide if empty, CSS? -->
 				<?php
 					if ( has_post_thumbnail( $instance['product_id'] ) ) {
 						$image_id = get_post_thumbnail_id( $instance['product_id'] );
-						list( $src, $width, $height ) = wp_get_attachment_image_src( $image_id, 'full' );
-						// TODO: caption, title
-						echo '<img width="' . esc_attr( $width ) . '" height="' . esc_attr( $height ) . '" src="' . esc_attr( $src ) . '" />';
+						echo '<img src="' . esc_attr( wp_get_attachment_image_url( $image_id, 'full' ) ) . '" />';
 						echo '<input type="hidden" name="' . $this->get_field_name( 'image' ) . '" value="' . esc_attr( $image_id ) . '" />';
 					}
 				?>
+				<button class="button simple-payments-remove-image"><span class="screen-reader-text"><?php _e( 'Remove image' ); ?></span></button>
 			</div>
-			<button class="button simple-payments-add-image">Add Image</button>
-			<button class="button simple-payments-remove-image">Remove Image</button>
 		</div>
 		<p>
 			<label for="<?php echo $this->get_field_id( 'description' ); ?>"><?php _e( 'Description', 'jetpack' ); ?></label>

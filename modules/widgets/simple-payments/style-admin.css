@@ -16,27 +16,85 @@
 	display: block;
 }
 
-.simple-payments-image-fieldset .placeholder {
+.widget-content .simple-payments-image-fieldset {
+	position: relative;
+	width: 100%;
+}
+
+.widget-content .simple-payments-image-fieldset .placeholder {
 	border: 1px dashed #b4b9be;
 	box-sizing: border-box;
-	cursor: default;
+	cursor: pointer;
 	line-height: 20px;
 	margin: 1em 0;
 	padding: 9px 0;
 	position: relative;
 	text-align: center;
 	width: 100%;
+	margin-top: 4px;
+}
+
+.widget-content .simple-payments-image {
+	max-width: 100%;
+	margin-top: 4px;
+	position: relative;
 }
 
 .widget-content .simple-payments-image img {
 	max-width: 100%;
+	box-sizing: border-box;
+	border: 1px dashed #b4b9be;
+	padding: 4px;
 	height: auto;
+	cursor: pointer;
+}
+
+.widget-content .simple-payments-image img:hover {
+	border-style: solid;
 }
 
 .widget-content .simple-payments .currency {
 	display: inline-block;
 	vertical-align: top;
 	width: 28%;
+}
+
+.widget-content .simple-payments-remove-image,
+.widget-content .simple-payments-remove-image:hover,
+.widget-content .simple-payments-remove-image:focus,
+.widget-content .simple-payments-remove-image:active
+{
+	display: none;
+	cursor: pointer;
+	position: absolute;
+	top: 4px;
+	right: 4px;
+	height: 28px;
+	width: 28px;
+	padding: 0;
+	background: transparent;
+	border: none;
+	box-shadow: none;
+	outline: 0;
+}
+
+.widget-content .simple-payments-remove-image:before {
+	font-family: Dashicons;
+	content: "\f158";
+	display: inline-block;
+	speak: none;
+	font-size: 24pt;
+	color: #a00;
+}
+
+.widget-content .simple-payments-remove-image:hover:before,
+.widget-content .simple-payments-remove-image:focus:before {
+	color: #dc3232;
+}
+
+
+.widget-content .simple-payments-image:hover .simple-payments-remove-image {
+	display: block;
 }
 
 .widget-content .simple-payments .price {
