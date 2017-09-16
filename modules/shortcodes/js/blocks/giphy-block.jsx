@@ -62,7 +62,7 @@ registerBlockType( 'gutenpack/giphy', {
 				.map( k => esc( k ) + '=' + esc( getParams[ k ] ) )
 				.join( '&' );
 
-			props.setAttributes( { className:"rainbow"} );
+			props.setAttributes( { className: "giphy__oh-heck-yeah" } );
 
 			fetch( 'https://api.giphy.com/v1/gifs/search?' + query,
 				{
