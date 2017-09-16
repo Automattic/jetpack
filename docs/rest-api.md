@@ -121,6 +121,8 @@ Accepts a JSON object in the body like:
 
 Activate several modules at a time by their slug
 
+**Note**: Try to not rely hard on this endpoint. Activation and deactivation of modules is also possible via the settings endpoint. And it may come in handy to use the settings endpoint instead as you can turn on a module and update settings related to that module at the same time in a single request.
+
 **Body parameters**
 
 * `modules`: {Array} An array of strings of identifiers of the modules to activate
@@ -134,6 +136,8 @@ Activate several modules at a time by their slug
 #### POST /wp-json/jetpack/v4/module/:module-slug
 
 Update an option's value for a module
+
+**Note**: Try to not rely hard on this endpoint. We started giving the name **settings** to the modules options and you can update them via the settings endpoint now.
 
 **URL parameters**
 
@@ -150,24 +154,59 @@ Accepts a JSON object in the body like:
 }
 ```
 
-### Jetpack miscellaneous settings
+### Jetpack settings
+
+We call settings to any option that a module provides.
+This endpoint returns a JSON object with multiple key and current values for them.
+When POSTing to this endpoint, you need to send a JSON object in the body with the new values for each key.
+
+As an extra, you can enable or disable modules with this endpoint too. You can pass a module slug as key and set it to `true` or `false` for updating its activation state.
 
 ### GET /wp-json/jetpack/v4/settings
 
-Fetch a list of Jetpack settings not related to a particular module.
+Fetch a list of Jetpack settings.
 
-### POST /wp-json/jetpack/v4/settings/update
+**Example response**
 
-Update a setting value
+```
+{
+	"onpublish":false,
+	"onupdate":false,
+	"Bias Language":false,
+	"Cliches":false,
+	"Complex Expression":false,
+	"Diacritical Marks":false,
+	"Double Negative":false,
+	"Hidden Verbs":true,
+	"Jargon Language":false,
+	"Passive voice":false,
+	"Phrases to Avoid":false,
+	"Redundant Expression":true,
+	"guess_lang":false,
+	"ignored_phrases":"billy,asdf,lola,y,l,asd,jsd",
+	"after-the-deadline":true,
+	"carousel_background_color":"white",
+	"carousel_display_exif":true
+}
+```
+
+### POST /wp-json/jetpack/v4/settings
+
+Update multiple settings at once.
 
 **Body parameters**
 
-* Accepts a simple object with the key of the setting to update and the new value.
+* Accepts a simple object with the key/values of the settings to update.
+If one of the keys you send matches a module slug and the value for it is `true`, the module we be activated. Setting it to `false` will deactivate the module.
+
+This endpoint is quite permissive, so you will be able to try to update settings for a module that is not yet active.
+You can also try to activate a module an set any of its options on the same request.
 
 Accepts a JSON object in the body like:
 ```
 {
-	"setting-key": "new-setting-value"
+	"carousel_display_exif": false,
+	"carousel": true
 }
 ```
 
