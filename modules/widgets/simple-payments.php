@@ -207,7 +207,6 @@ class Simple_Payments_Widget extends WP_Widget {
 			$product_id = null;
 		}
 
-
 		$product_args = wp_parse_args( $product_args, array(
 			'name' => '',
 			'description' => '',
