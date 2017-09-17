@@ -5,9 +5,36 @@
 			var root = $( this ).closest( '.simple-payments' );
 			root.find( '.simple-payments-product-list input[type="radio"]' ).prop( 'checked', false );
 			root.find( '.simple-payments-product-list' ).hide();
-			root.find( '.simple-payments-form' ).show()
-				.find( '.field-name' ).prop( 'disabled', false );
-			// TODO: Reset fields
+
+			var imageContainer = root.find( '.simple-payments-image' );
+			imageContainer.find( 'img, input[type=hidden]' ).remove();
+			root.find( '.simple-payments-form' ).show();
+			root.find( '.simple-payments-image-fieldset .placeholder' ).show();
+			root.find( '.field-name' ).prop( 'disabled', false ).val( root.find( '.field-name' ).prop( 'defaultValue' ) );
+			root.find( '.field-description' ).val( root.find( '.field-description' ).prop( 'defaultValue' ) );
+			root.find( '.field-currency' ).val( function() { // Reset the dropdown to the default value
+				return $( this ).find( 'option' ).filter( function() {
+					return $( this ).prop( 'defaultSelected' );
+				} ).val();
+			} );
+			root.find( '.field-price' ).val( root.find( '.field-price' ).prop( 'defaultValue' ) );
+			root.find( '.field-multiple' ).prop( 'checked', root.find( '.field-multiple' ).prop( 'defaultChecked' ) );
+			root.find( '.field-email' ).val( root.find( '.field-email' ).prop( 'defaultValue' ) );
+
+			if ( $( this ).data( 'image-url' ) ) {
+				root.find( '.simple-payments-image-fieldset .placeholder' ).hide();
+				imageContainer.show()
+					.append( $( '<img/>', {
+						src: $( this ).data( 'image-url' ),
+					} ) )
+					.append( $( '<input/>', {
+						type: 'hidden',
+						name: imageContainer.data( 'image-field' ),
+						value: $( this ).data( 'image-url' ),
+					} ) );
+			} else {
+				root.find( '.simple-payments-image-fieldset .placeholder' ).show();
+			}
 		} );
 
 		$( document.body ).on( 'click', '.simple-payments-edit-product', function( event ) {
@@ -15,9 +42,31 @@
 			$( this ).closest( 'label' ).click();
 			var root = $( this ).closest( '.simple-payments' );
 			root.find( '.simple-payments-product-list' ).hide();
-			root.find( '.simple-payments-form' ).show()
-				.find( '.field-name' ).prop( 'disabled', false );
-			// TODO: Populate fields
+			var imageContainer = root.find( '.simple-payments-image' );
+			imageContainer.find( 'img, input[type=hidden]' ).remove();
+
+			root.find( '.simple-payments-form' ).show();
+			root.find( '.field-name' ).prop( 'disabled', false ).val( $( this ).data( 'name' ) );
+			root.find( '.field-description' ).val( $( this ).data( 'description' ) );
+			root.find( '.field-currency' ).val( $( this ).data( 'currency' ) );
+			root.find( '.field-price' ).val( $( this ).data( 'price' ) );
+			root.find( '.field-multiple' ).prop( 'checked', $( this ).data( 'multiple' ) === '1' );
+			root.find( '.field-email' ).val( $( this ).data( 'email' ) );
+
+			if ( $( this ).data( 'image-url' ) ) {
+				root.find( '.simple-payments-image-fieldset .placeholder' ).hide();
+				imageContainer.show()
+					.append( $( '<img/>', {
+						src: $( this ).data( 'image-url' ),
+					} ) )
+					.append( $( '<input/>', {
+						type: 'hidden',
+						name: imageContainer.data( 'image-field' ),
+						value: $( this ).data( 'image-url' ),
+					} ) );
+			} else {
+				root.find( '.simple-payments-image-fieldset .placeholder' ).show();
+			}
 		} );
 
 		$( document.body ).on( 'click', '.simple-payments-back-product-list', function( event ) {

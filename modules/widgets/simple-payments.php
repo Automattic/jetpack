@@ -286,6 +286,14 @@ class Simple_Payments_Widget extends WP_Widget {
 		return number_format( $price, $currency['precision'], $currency['decimal'], $currency['grouping'] ) . ' ' . $currency['symbol'];
 	}
 
+	protected function format_price_amount( $currency_code, $price ) {
+		$currency = self::$currencies[ $currency_code ];
+		if ( ! $currency ) {
+			return number_format( $price, 2, '.', '' );
+		}
+		return number_format( $price, $currency['precision'], $currency['decimal'], '' );
+	}
+
 	/**
 	 * Update
 	 */
@@ -303,7 +311,8 @@ class Simple_Payments_Widget extends WP_Widget {
 			$product_id = 0;
 		}
 
-		$saved_id = wp_insert_post( array(
+		if ( isset( $new_instance['name'] ) ) {
+			$product_id = wp_insert_post( array(
 				'ID' => $product_id,
 				'post_type' => Jetpack_Simple_Payments::$post_type_product,
 				'post_status' => 'publish',
@@ -311,16 +320,17 @@ class Simple_Payments_Widget extends WP_Widget {
 				'post_content' => sanitize_textarea_field( $new_instance['description'] ),
 				'_thumbnail_id' => isset( $new_instance['image'] ) ? $new_instance['image'] : -1,
 				'meta_input' => array(
-					'spay_currency' => in_array( $new_instance['currency'], self::$currencies ) ? $new_instance['currency'] : 'USD',
+					'spay_currency' => isset( self::$currencies[ $new_instance['currency'] ] ) ? $new_instance['currency'] : 'USD',
 					'spay_price' => $this->sanitize_price( $new_instance['currency'], $new_instance['price'] ),
 					'spay_multiple' => isset( $new_instance['multiple'] ) ? intval( $new_instance['multiple'] ) : 0,
 					'spay_email' => is_email( $new_instance['email'] ),
 				),
 			) );
+		}
 
 		return array(
-			'title' => $new_instance['title'],
-			'product_id' => $saved_id,
+			'title' => $new_instance['title'] ? $new_instance['title'] : '',
+			'product_id' => $product_id,
 		);
     }
 
@@ -329,7 +339,12 @@ class Simple_Payments_Widget extends WP_Widget {
      * Form
      */
     function form( $instance ) {
-    	?>
+		$instance = wp_parse_args( $instance, array(
+			'title' => '',
+			'product_id' => null,
+		) );
+
+		?>
 		<div class="simple-payments">
 			<p>
 				<label for="<?php esc_attr_e( $this->get_field_id( 'title' ) ); ?>">
@@ -337,11 +352,6 @@ class Simple_Payments_Widget extends WP_Widget {
 				<input class="widefat" id="<?php esc_attr_e( $this->get_field_id( 'title' ) ); ?>" name="<?php esc_attr_e( $this->get_field_name( 'title' ) ); ?>" type="text" value="<?php esc_attr_e( $instance['title'] ); ?>" />
 			</p>
 			<?php
-				$instance = wp_parse_args( $instance, array(
-					'title' => '',
-					'product_id' => null,
-				) );
-
 				$products = null;
 				if ( ! $instance['product_id'] ) {
 					// list existing products + add button
@@ -379,7 +389,7 @@ class Simple_Payments_Widget extends WP_Widget {
 												data-name="<?php esc_attr_e( $product_args['name'] ); ?>"
 												data-description="<?php esc_attr_e( $product_args['description'] ); ?>"
 												data-currency="<?php esc_attr_e( $product_args['currency'] ); ?>"
-												data-price="<?php esc_attr_e( $product_args['price'] ); ?>"
+												data-price="<?php esc_attr_e( $this->format_price_amount( $product_args['currency'], $product_args['price'] ) ); ?>"
 												data-multiple="<?php esc_attr_e( $product_args['multiple'] ); ?>"
 												data-email="<?php esc_attr_e( $product_args['email'] ); ?>"
 												<?php if ( ! empty( $image ) ) { ?>
@@ -401,7 +411,7 @@ class Simple_Payments_Widget extends WP_Widget {
 				// form code for adding a new product
 				$product_args = $this->get_product_args( $instance['product_id'] );
 
-				$price = ( $product_args['price'] ) ? esc_attr(  number_format( $product_args['price'], self::$currencies[ $product_args['currency'] ]['precision'], '.', '' ) ) : '';
+				$price = ( $product_args['price'] ) ? esc_attr(  $this->format_price_amount( $product_args['currency'], $product_args['price'] ) ) : '';
 				?>
 
 				<div class="simple-payments-form" <?php if ( ! empty( $products ) ) echo 'style="display:none;"'; ?>>
@@ -432,7 +442,7 @@ class Simple_Payments_Widget extends WP_Widget {
 					</p>
 					<p class="cost">
 						<label for="<?php esc_attr_e( $this->get_field_id( 'price' ) ); ?>"><?php esc_html_e( 'Price', 'jetpack' ); ?></label>
-						<select class="currency widefat" id="<?php esc_attr_e( $this->get_field_id( 'currency' ) ); ?>" name="<?php esc_attr_e( $this->get_field_name( 'currency' ) ); ?>">
+						<select class="field-currency widefat" id="<?php esc_attr_e( $this->get_field_id( 'currency' ) ); ?>" name="<?php esc_attr_e( $this->get_field_name( 'currency' ) ); ?>">
 							<?php foreach( self::$currencies as $code => $currency ) { ?>
 								<option value="<?php esc_attr_e( $code ) ?>"<?php selected( $product_args['currency'], $code ); ?>>
 									<?php esc_html_e( $currency['symbol'] === $code ? $code : ( $code . ' ' . rtrim( $currency['symbol'], '.' ) ) ) ?>
