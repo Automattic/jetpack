@@ -135,15 +135,11 @@
 	display: block;
 }
 
-.widget-content .simple-payments-products input[type=radio] {
-	float: left;
-	margin: 4px 0;
-}
-
 .widget-content .simple-payments-products .product-info {
 	float: left;
-	line-height: 1.5;
-	margin-left: 8px;
+	line-height: 2;
+	margin-left: 12px;
+	margin-right: 12px;
 }
 
 .widget-content .simple-payments-products .image img {
