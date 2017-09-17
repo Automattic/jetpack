@@ -184,7 +184,12 @@ class Jetpack_Money_Format {
 		if ( ! $currency ) {
 			return $price . ' ' . $currency_code;
 		}
-		return number_format( (double) $price, $currency['precision'], $currency['decimal'], $currency['grouping'] ) . ' ' . $currency['symbol'];
+		$amount = number_format( (double) $price, $currency['precision'], $currency['decimal'], $currency['grouping'] );
+		$symbol = $currency['symbol'];
+		if ( $currency_code === 'USD' ) { // TODO: Move this information to the $currencies map
+			return $symbol . $amount;
+		}
+		return $amount . ' ' . $symbol;
 	}
 
 	public static function format_price_amount( $currency_code, $price ) {
