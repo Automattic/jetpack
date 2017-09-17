@@ -1,4 +1,7 @@
 <?php
+
+require_once( __DIR__ . '/money-format.php' );
+
 /*
  * Simple Payments lets users embed a PayPal button fully integrated with wpcom to sell products on the site.
  * This is not a proper module yet, because not all the pieces are in place. Until everything is shipped, it can be turned
@@ -147,10 +150,8 @@ class Jetpack_Simple_Payments {
 	}
 
 	function format_price( $formatted_price, $price, $currency, $all_data ) {
-		if ( $formatted_price ) {
-			return $formatted_price;
-		}
-		return "$price $currency";
+		// TODO: remove $formatted_price entirely
+		return Jetpack_Money_Format::format_price( $currency, $price );
 	}
 
 	/**
