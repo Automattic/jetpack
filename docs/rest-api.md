@@ -319,6 +319,45 @@ Get services that this site is verified with.
 
 ### Site's plugins related operations
 
+#### GET /wp-json/jetpack/v4/plugins
+
+Get a list of the currently installed plugins on the site.
+
+**Example response**
+
+```
+{
+    "hello.php": {
+        "Name": "Hello Dolly",
+        "PluginURI": "http://wordpress.org/plugins/hello-dolly/",
+        "Version": "1.6",
+        "Description": "This is not just a plugin, it symbolizes the hope and enthusiasm of an entire generation summed up in two words sung most famously by Louis Armstrong: Hello, Dolly. When activated you will randomly see a lyric from <cite>Hello, Dolly</cite> in the upper right of your admin screen on every page.",
+        "Author": "Matt Mullenweg",
+        "AuthorURI": "http://ma.tt/",
+        "TextDomain": "",
+        "DomainPath": "",
+        "Network": false,
+        "Title": "Hello Dolly",
+        "AuthorName": "Matt Mullenweg",
+        "active": false
+    },
+    "jetpack/jetpack.php": {
+        "Name": "Jetpack by WordPress.com",
+        "PluginURI": "https://jetpack.com",
+        "Version": "5.3",
+        "Description": "Get everything you need to <strong>design, secure, and grow your WordPress site</strong>. Jetpack gives you free themes, image tools, related content, and site security, all in one convenient bundle.",
+        "Author": "Automattic",
+        "AuthorURI": "https://jetpack.com",
+        "TextDomain": "jetpack",
+        "DomainPath": "/languages/",
+        "Network": false,
+        "Title": "Jetpack by WordPress.com",
+        "AuthorName": "Automattic",
+        "active": true
+    }
+}
+```
+
 #### GET /wp-json/jetpack/v4/updates/plugins
 
 Get number of updated available for currently installed WordPress plugins.
