@@ -34,3 +34,108 @@
 .jetpack-recipe-notes {
 	font-style: italic;
 }
+/**
+ * Note that these styles are loaded *before* editor styles, so that
+ * editor-specific styles using the same selectors will take precedence.
+ */
+.editor-visual-editor__block.is-selected .recipe-image {
+	background: #f8f9f9;
+}
+
+.wp-block-jetpack-recipe .recipe-image {
+	text-align: center;
+}
+
+.wp-block-jetpack-recipe .recipe-image .image-button {
+	display: inline-block;
+	height: 100%;
+	width: 100%;
+	border: 0;
+	box-shadow: none;
+	padding: 10px 10px 0;
+	background: none;
+}
+
+.wp-block-jetpack-recipe.jetpack-recipe {
+	clear: both;
+}
+.wp-block-jetpack-recipe .jetpack-recipe-title {
+	margin: 0 0 .5em;
+	padding: .25em 0;
+	border-bottom: 1px solid transparent;
+}
+.wp-block-jetpack-recipe .jetpack-recipe-title.mce-content-body {
+	border-bottom: 1px solid #ccc;
+}
+.wp-block-jetpack-recipe .jetpack-recipe-description,
+.wp-block-jetpack-recipe .recipe-image {
+	clear: both;
+}
+.wp-block-jetpack-recipe .jetpack-recipe-meta {
+	display: block;
+	font-size: .9em;
+	list-style-type: none;
+	margin-right: 0;
+	margin-left: 0;
+	padding: 0;
+	overflow: hidden;
+	width: 100%;
+	margin-bottom: 10px;
+}
+.wp-block-jetpack-recipe .jetpack-recipe-meta input {
+	width: 100px;
+}
+.wp-block-jetpack-recipe .jetpack-recipe-meta li {
+	float: left;
+	list-style-type: none;
+	margin: 0;
+	padding: 0 5px 0 0;
+}
+
+.wp-block-jetpack-recipe .jetpack-recipe__meta {
+	border: 0;
+	border-radius: 0;
+	padding: 7px 11px;
+}
+
+.wp-block-jetpack-recipe .jetpack-recipe__meta {
+	font-family: inherit;
+	font-size: inherit;
+	border-color: transparent;
+	width: 100px;
+	margin: 0 6px;
+	-webkit-transition: border-color .3s;
+	-moz-transition: border-color .3s;
+	-ms-transition: border-color .3s;
+	-o-transition: border-color .3s;
+	transition: border-color .3s;
+}
+.editor-visual-editor__block.is-selected .jetpack-recipe__meta {
+	border: 1px solid #ddd;
+	padding: 6px 0 6px 10px;
+}
+
+.editor-visual-editor__block.is-selected .jetpack-recipe__meta:focus {
+	outline: 0;
+	-webkit-appearance: unset;
+	border-width: 2px;
+	padding: 5px 0 5px 9px;
+}
+
+.wp-block-jetpack-recipe .jetpack-recipe-meta li.jetpack-recipe-print {
+	float: right;
+	padding-right: 0;
+	text-align: right;
+}
+
+.wp-block-jetpack-recipe .jetpack-recipe-notes {
+	font-style: italic;
+}
+
+.wp-block-jetpack-recipe ul.ingredients {
+	padding-left: 2.5em !important; /* Needs fix in Gutenberg. */
+}
+
+.editor-visual-editor__block.is-selected .jetpack-recipe-print {
+	pointer-events: none;
+}
