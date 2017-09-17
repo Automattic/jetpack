@@ -194,7 +194,7 @@ class Simple_Payments_Widget extends WP_Widget {
 
 	public static function enqueue_widget_styles() {
 		// This would be nice, but I don't know how this function works.
-		// if ( is_active_widget( false, false, 'Simple_Payments_Widget' ) ) {
+		// if ( is_active_widget( false, false, $this->id_base, true ) ) {
 			wp_enqueue_style( 'simple-payments-widget', self::$url . '/simple-payments/style.css', array() );
 		// }
 	}
@@ -383,7 +383,7 @@ class Simple_Payments_Widget extends WP_Widget {
 		<div class="simple-payments">
 			<p>
 				<label for="<?php esc_attr_e( $this->get_field_id( 'title' ) ); ?>">
-					<?php esc_html_e( 'Title', 'jetpack' ); ?></label>
+					<?php esc_html_e( 'Widget Title', 'jetpack' ); ?></label>
 				<input class="widefat" id="<?php esc_attr_e( $this->get_field_id( 'title' ) ); ?>" name="<?php esc_attr_e( $this->get_field_name( 'title' ) ); ?>" type="text" value="<?php esc_attr_e( $instance['title'] ); ?>" />
 			</p>
 			<?php

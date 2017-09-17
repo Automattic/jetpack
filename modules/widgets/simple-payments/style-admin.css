@@ -112,7 +112,8 @@
 	padding: 8px 0;
 }
 
-.widget-content .simple-payments-products li:after {
+.widget-content .simple-payments-products li:after,
+.widget-content .simple-payments-products li label:after {
 	content: "";
 	display: table;
 	clear: both;
