@@ -40,6 +40,10 @@ registerBlockType('gutenpack/giphy', {
 			type: 'string',
 			default: ''
 		},
+		lastSearchTerm: {
+			type: 'string',
+			default: ''
+		},
 		searchResults: {
 			type: 'object',
 			default: {}
@@ -58,11 +62,18 @@ registerBlockType('gutenpack/giphy', {
 		}
 	},
 
-	edit: function edit(props) {
-		var attributes = props.attributes;
+	edit: function edit(_ref) {
+		var attributes = _ref.attributes,
+		    setAttributes = _ref.setAttributes;
 
 		var handleKeyDown = function handleKeyDown(e) {
 			if (e.key === 'Enter') {
+				if (attributes.searchTerm === attributes.lastSearchTerm) {
+					shuffleImages();
+
+					return;
+				}
+
 				handleSearch();
 			}
 		};
@@ -72,10 +83,12 @@ registerBlockType('gutenpack/giphy', {
 		};
 
 		var handleSearch = function handleSearch() {
+			setAttributes({ lastSearchTerm: attributes.searchTerm });
+
 			var getParams = {
 				api_key: 'OpUiweD5zr2xC7BhSIuqGFfCvnz5jzHj',
 				q: attributes.searchTerm,
-				limit: 20,
+				limit: 50,
 				offset: 0,
 				rating: 'G'
 			};
@@ -85,7 +98,7 @@ registerBlockType('gutenpack/giphy', {
 				return esc(k) + '=' + esc(getParams[k]);
 			}).join('&');
 
-			props.setAttributes({ className: 'giphy__oh-heck-yeah' });
+			setAttributes({ className: 'giphy__oh-heck-yeah' });
 
 			fetch('https://api.giphy.com/v1/gifs/search?' + query, {
 				method: 'GET',
@@ -94,7 +107,7 @@ registerBlockType('gutenpack/giphy', {
 			}).then(function (response) {
 				return response.json();
 			}).then(setGallery).then(function (response) {
-				props.setAttributes({ searchResults: response.data });
+				setAttributes({ searchResults: response.data });
 			});
 		};
 
@@ -109,10 +122,10 @@ registerBlockType('gutenpack/giphy', {
 				}
 
 				// Store the result gallery
-				props.setAttributes({ resultGallery: gallery });
+				setAttributes({ resultGallery: gallery });
 			} else {
 				// Store the result gallery
-				props.setAttributes({ resultGallery: { noResults: true } });
+				setAttributes({ resultGallery: { noResults: true } });
 			}
 
 			return response;
@@ -122,18 +135,24 @@ registerBlockType('gutenpack/giphy', {
 			var value = event.target.value;
 
 			// Clear the chosen image
-			props.setAttributes({ chosenImage: {} });
+			setAttributes({ chosenImage: {} });
 
 			// Set the value
-			props.setAttributes({ searchTerm: value });
+			setAttributes({ searchTerm: value });
 		};
 
 		var shuffleImages = function shuffleImages() {
-			props.setAttributes({ resultGallery: _.shuffle(attributes.searchResults).slice(0, 6) });
+			var shuffledData = _.shuffle(attributes.searchResults).slice(0, 9);
+
+			var newGalleryImages = shuffledData.map(function (data) {
+				return data.images.preview_gif;
+			});
+
+			setAttributes({ resultGallery: newGalleryImages });
 		};
 
 		var chooseImage = function chooseImage(key) {
-			props.setAttributes({
+			setAttributes({
 				chosenImage: attributes.resultGallery[key],
 				searchTerm: '',
 				searchResults: {},
@@ -185,7 +204,7 @@ registerBlockType('gutenpack/giphy', {
 						instructions: __('The peak of human expression at your fingertips!'),
 						icon: 'schedule',
 						label: __('Search gifs'),
-						className: props.className
+						className: attributes.className
 					},
 					wp.element.createElement('input', {
 						id: 'giphy-input-search',
@@ -220,8 +239,9 @@ registerBlockType('gutenpack/giphy', {
 			})
 		);
 	},
-	save: function save(props) {
-		var chosenImage = props.attributes.chosenImage;
+	save: function save(_ref2) {
+		var attributes = _ref2.attributes;
+		var chosenImage = attributes.chosenImage;
 
 
 		return !(0, _isEmpty2['default'])(chosenImage) && wp.element.createElement(

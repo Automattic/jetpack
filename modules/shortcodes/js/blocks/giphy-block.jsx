@@ -22,6 +22,10 @@ registerBlockType( 'gutenpack/giphy', {
 			type: 'string',
 			default: '',
 		},
+		lastSearchTerm: {
+			type: 'string',
+			default: '',
+		},
 		searchResults: {
 			type: 'object',
 			default: {},
@@ -40,11 +44,15 @@ registerBlockType( 'gutenpack/giphy', {
 		},
 	},
 
-	edit: props => {
-		const attributes = props.attributes;
-
+	edit: ( { attributes, setAttributes } ) => {
 		const handleKeyDown = e => {
 			if ( e.key === 'Enter' ) {
+				if ( attributes.searchTerm === attributes.lastSearchTerm ) {
+					shuffleImages();
+
+					return;
+				}
+
 				handleSearch();
 			}
 		};
@@ -52,10 +60,12 @@ registerBlockType( 'gutenpack/giphy', {
 		const handleInputRef = input => input && input.focus();
 
 		const handleSearch = () => {
+			setAttributes( { lastSearchTerm: attributes.searchTerm } );
+
 			const getParams = {
 				api_key: 'OpUiweD5zr2xC7BhSIuqGFfCvnz5jzHj',
 				q: attributes.searchTerm,
-				limit: 20,
+				limit: 50,
 				offset: 0,
 				rating: 'G',
 			};
@@ -65,7 +75,7 @@ registerBlockType( 'gutenpack/giphy', {
 				.map( k => esc( k ) + '=' + esc( getParams[ k ] ) )
 				.join( '&' );
 
-			props.setAttributes( { className: 'giphy__oh-heck-yeah' } );
+			setAttributes( { className: 'giphy__oh-heck-yeah' } );
 
 			fetch( 'https://api.giphy.com/v1/gifs/search?' + query, {
 				method: 'GET',
@@ -75,7 +85,7 @@ registerBlockType( 'gutenpack/giphy', {
 				.then( response => response.json() )
 				.then( setGallery )
 				.then( response => {
-					props.setAttributes( { searchResults: response.data } );
+					setAttributes( { searchResults: response.data } );
 				} );
 		};
 
@@ -90,10 +100,10 @@ registerBlockType( 'gutenpack/giphy', {
 				}
 
 				// Store the result gallery
-				props.setAttributes( { resultGallery: gallery } );
+				setAttributes( { resultGallery: gallery } );
 			} else {
 				// Store the result gallery
-				props.setAttributes( { resultGallery: { noResults: true } } );
+				setAttributes( { resultGallery: { noResults: true } } );
 			}
 
 			return response;
@@ -103,18 +113,24 @@ registerBlockType( 'gutenpack/giphy', {
 			const value = event.target.value;
 
 			// Clear the chosen image
-			props.setAttributes( { chosenImage: {} } );
+			setAttributes( { chosenImage: {} } );
 
 			// Set the value
-			props.setAttributes( { searchTerm: value } );
+			setAttributes( { searchTerm: value } );
 		};
 
 		const shuffleImages = () => {
-			props.setAttributes( { resultGallery: _.shuffle( attributes.searchResults ).slice( 0, 6 ) } );
+			const shuffledData = _.shuffle( attributes.searchResults ).slice( 0, 9 );
+
+			const newGalleryImages = shuffledData.map( data => {
+				return data.images.preview_gif;
+			} );
+
+			setAttributes( { resultGallery: newGalleryImages } );
 		};
 
 		const chooseImage = key => {
-			props.setAttributes( {
+			setAttributes( {
 				chosenImage: attributes.resultGallery[ key ],
 				searchTerm: '',
 				searchResults: {},
@@ -162,7 +178,7 @@ registerBlockType( 'gutenpack/giphy', {
 							instructions={ __( 'The peak of human expression at your fingertips!' ) }
 							icon="schedule"
 							label={ __( 'Search gifs' ) }
-							className={ props.className }
+							className={ attributes.className }
 						>
 							<input
 								id="giphy-input-search"
@@ -193,8 +209,8 @@ registerBlockType( 'gutenpack/giphy', {
 			</div>
 		);
 	},
-	save: props => {
-		const { attributes: { chosenImage } } = props;
+	save: ( { attributes } ) => {
+		const { chosenImage } = attributes;
 
 		return (
 			! isEmpty( chosenImage ) &&
