@@ -40,7 +40,7 @@
 
 		$( document.body ).on( 'click', '.simple-payments-edit-product', function( event ) {
 			event.preventDefault();
-			$( this ).closest( 'label' ).click();
+			$( this ).closest( 'li' ).find( 'input[type="radio"]' ).click();
 			var root = $( this ).closest( '.simple-payments' );
 			root.find( '.simple-payments-back-product-list' ).show();
 			root.find( '.simple-payments-product-list' ).hide();

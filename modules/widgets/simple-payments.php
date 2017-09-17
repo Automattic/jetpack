@@ -226,8 +226,8 @@ class Simple_Payments_Widget extends WP_Widget {
 									$field_id = $this->get_field_id( 'product_id' ) . '_' . esc_attr( $product->ID );
 								?>
 								<li>
+									<input type="radio" id="<?php echo $field_id; ?>" name="<?php echo $this->get_field_name( 'product_id' ); ?>" value="<?php esc_html_e( $product->ID ); ?>">
 									<label for="<?php echo $field_id; ?>">
-										<input type="radio" id="<?php echo $field_id; ?>" name="<?php echo $this->get_field_name( 'product_id' ); ?>" value="<?php esc_html_e( $product->ID ); ?>">
 										<div class="product-info">
 											<?php esc_html_e( $product_args['name'] ); ?><br>
 											<?php esc_html_e( Jetpack_Money_Format::format_price( $product_args['currency'], $product_args['price'] ) ); ?>
@@ -245,7 +245,7 @@ class Simple_Payments_Widget extends WP_Widget {
 													data-image-id="<?php echo $image_id; ?>"
 												<?php } ?>
 										>
-											<?php _e( 'Edit', 'jetpack' ); ?>
+											<span class="screen-reader-text"><?php _e( 'Edit', 'jetpack' ); ?></span>
 										</button>
 									</label>
 								</li>
