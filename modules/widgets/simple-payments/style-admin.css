@@ -102,6 +102,8 @@
 
 .widget-content .simple-payments-products {
 	border-bottom: 1px solid #e5e5e5;
+	max-height: 350px;
+	overflow: auto;
 }
 
 .widget-content .simple-payments-products li {
@@ -114,6 +116,16 @@
 	content: "";
 	display: table;
 	clear: both;
+}
+
+.widget-content .simple-payments-products .simple-payments-edit-product {
+	display: none;
+	float: right;
+	margin-right: 8px;
+}
+
+.widget-content .simple-payments-products li:hover .simple-payments-edit-product {
+	display: block;
 }
 
 .widget-content .simple-payments-products input[type=radio] {
@@ -132,3 +144,4 @@
 	height: auto;
 	width: 80px;
 }
+
