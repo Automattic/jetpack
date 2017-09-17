@@ -16,7 +16,8 @@ var _forEach2 = _interopRequireDefault(_forEach);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-var __ = wp.i18n.__; /* global wp, _, */
+var __ = wp.i18n.__; /** @format */
+/* global wp, _, */
 /* eslint react/react-in-jsx-scope: 0 */
 
 /**
@@ -74,7 +75,7 @@ registerBlockType('gutenpack/giphy', {
 			var getParams = {
 				api_key: 'OpUiweD5zr2xC7BhSIuqGFfCvnz5jzHj',
 				q: attributes.searchTerm,
-				limit: 50,
+				limit: 20,
 				offset: 0,
 				rating: 'G'
 			};
@@ -215,7 +216,9 @@ registerBlockType('gutenpack/giphy', {
 		);
 	},
 	save: function save(props) {
-		var chosenImage = props.attributes.chosenImage;
+		var _props$attributes = props.attributes,
+		    chosenImage = _props$attributes.attributes.chosenImage,
+		    setAttributes = _props$attributes.setAttributes;
 
 
 		return !(0, _isEmpty2['default'])(chosenImage) && wp.element.createElement(

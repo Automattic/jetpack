@@ -1,3 +1,4 @@
+/** @format */
 /* global wp, _, */
 /* eslint react/react-in-jsx-scope: 0 */
 
@@ -9,14 +10,8 @@ import isEmpty from 'lodash/isEmpty';
 import forEach from 'lodash/forEach';
 
 const { __ } = wp.i18n;
-const {
-	registerBlockType,
-} = wp.blocks;
-const {
-	Placeholder,
-	Button,
-	Dashicon
-} = wp.components;
+const { registerBlockType } = wp.blocks;
+const { Placeholder, Button, Dashicon } = wp.components;
 
 registerBlockType( 'gutenpack/giphy', {
 	title: __( 'Giphy' ),
@@ -25,44 +20,44 @@ registerBlockType( 'gutenpack/giphy', {
 	attributes: {
 		searchTerm: {
 			type: 'string',
-			default: ''
+			default: '',
 		},
 		searchResults: {
 			type: 'object',
-			default: {}
+			default: {},
 		},
 		chosenImage: {
 			type: 'object',
-			default: {}
+			default: {},
 		},
 		resultGallery: {
 			type: 'object',
-			default: {}
+			default: {},
 		},
 		className: {
 			type: 'string',
-			default: ''
-		}
+			default: '',
+		},
 	},
 
 	edit: props => {
 		const attributes = props.attributes;
 
-		const handleKeyDown = ( e ) => {
+		const handleKeyDown = e => {
 			if ( e.key === 'Enter' ) {
 				handleSearch();
 			}
-		}
+		};
 
-		const handleInputRef = ( input ) => input && input.focus();
+		const handleInputRef = input => input && input.focus();
 
 		const handleSearch = () => {
 			const getParams = {
 				api_key: 'OpUiweD5zr2xC7BhSIuqGFfCvnz5jzHj',
 				q: attributes.searchTerm,
-				limit: 50,
+				limit: 20,
 				offset: 0,
-				rating: 'G'
+				rating: 'G',
 			};
 
 			const esc = encodeURIComponent;
@@ -72,22 +67,19 @@ registerBlockType( 'gutenpack/giphy', {
 
 			props.setAttributes( { className: 'giphy__oh-heck-yeah' } );
 
-			fetch( 'https://api.giphy.com/v1/gifs/search?' + query,
-				{
-					method: 'GET',
-					mode: 'cors',
-					cache: 'default'
-				} )
+			fetch( 'https://api.giphy.com/v1/gifs/search?' + query, {
+				method: 'GET',
+				mode: 'cors',
+				cache: 'default',
+			} )
 				.then( response => response.json() )
 				.then( setGallery )
-				.then(
-					response => {
-						props.setAttributes( { searchResults: response.data } );
-					}
-				);
+				.then( response => {
+					props.setAttributes( { searchResults: response.data } );
+				} );
 		};
 
-		const setGallery = ( response ) => {
+		const setGallery = response => {
 			const numImages = response.data.length >= 9 ? 9 : response.data.length;
 
 			if ( numImages > 0 ) {
@@ -138,7 +130,7 @@ registerBlockType( 'gutenpack/giphy', {
 				return false;
 			}
 
-			Object.keys( images ).map( ( key ) => {
+			Object.keys( images ).map( key => {
 				gallery.push(
 					<img
 						key={ images[ key ].url }
@@ -160,7 +152,7 @@ registerBlockType( 'gutenpack/giphy', {
 			<div>
 				{ isEmpty( chosenImage ) &&
 					<div>
-							<Placeholder
+						<Placeholder
 							key="giphy/placeholder"
 							instructions={ __( 'The peak of human expression at your fingertips!' ) }
 							icon="schedule"
@@ -175,43 +167,40 @@ registerBlockType( 'gutenpack/giphy', {
 								onKeyDown={ handleKeyDown }
 								ref={ handleInputRef }
 							/>
-							<Button onClick={ handleSearch } >
-								<Dashicon icon="search"/>
+							<Button onClick={ handleSearch }>
+								<Dashicon icon="search" />
 							</Button>
-							<Button onClick={ shuffleImages } >
+							<Button onClick={ shuffleImages }>
 								<Dashicon icon="randomize" />
 							</Button>
 						</Placeholder>
 						<div className="giphy__gallery">
 							{ resultGallery() }
 						</div>
-					</div>
-				}
-				{
-					! isEmpty( chosenImage ) &&
+					</div> }
+				{ ! isEmpty( chosenImage ) &&
 					<img
 						src={ chosenImage.url }
 						width={ chosenImage.width }
 						height={ chosenImage.height }
 						className="giphy__chosen-one"
-					/>
-				}
+					/> }
 			</div>
 		);
 	},
-	save: ( props ) => {
-		const { chosenImage } = props.attributes;
+	save: props => {
+		const { attributes: { chosenImage }, setAttributes } = props.attributes;
 
 		return (
-            ! isEmpty( chosenImage ) &&
-				<div className="jetpack-blocks-giphy">
-                    <img
-                        src={ chosenImage.url }
-                        width={ chosenImage.width }
-                        height={ chosenImage.height }
-                        className="giphy__chosen-one"
-                    />
-				</div>
+			! isEmpty( chosenImage ) &&
+			<div className="jetpack-blocks-giphy">
+				<img
+					src={ chosenImage.url }
+					width={ chosenImage.width }
+					height={ chosenImage.height }
+					className="giphy__chosen-one"
+				/>
+			</div>
 		);
-	}
+	},
 } );
