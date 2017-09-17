@@ -800,7 +800,7 @@ function stats_configuration_screen() {
 ?>
 		</td></tr>
 		<tr valign="top"><th scope="row"><?php esc_html_e( 'Smiley' , 'jetpack' ); ?></th>
-		<td><label><input type='checkbox'<?php checked( isset( $options['hide_smile'] ) && $options['hide_smile'] ); ?> name='hide_smile' id='hide_smile' /> <?php esc_html_e( 'Hide the stats smiley face image.', 'jetpack' ); ?></label><br /> <span class="description"><?php esc_html_e( 'The image helps collect stats and <strong>makes the world a better place</strong> but should still work when hidden', 'jetpack' ); ?> <img class="stats-smiley" alt="<?php esc_attr_e( 'Smiley face', 'jetpack' ); ?>" src="<?php echo esc_url( plugins_url( 'images/stats-smiley.gif', dirname( __FILE__ ) ) ); ?>" width="6" height="5" /></span></td></tr>
+		<td><label><input type='checkbox'<?php checked( isset( $options['hide_smile'] ) && $options['hide_smile'] ); ?> name='hide_smile' id='hide_smile' /> <?php esc_html_e( 'Hide the stats smiley face image.', 'jetpack' ); ?></label><br /> <span class="description"><?php echo wp_kses( __( 'The image helps collect stats and <strong>makes the world a better place</strong> but should still work when hidden', 'jetpack' ), array( 'strong' => array() ) ); ?> <img class="stats-smiley" alt="<?php esc_attr_e( 'Smiley face', 'jetpack' ); ?>" src="<?php echo esc_url( plugins_url( 'images/stats-smiley.gif', dirname( __FILE__ ) ) ); ?>" width="6" height="5" /></span></td></tr>
 		<tr valign="top"><th scope="row"><?php esc_html_e( 'Report visibility' , 'jetpack' ); ?></th>
 		<td>
 			<?php esc_html_e( 'Select the roles that will be able to view stats reports.', 'jetpack' ); ?><br/>
@@ -1593,7 +1593,7 @@ function stats_str_getcsv( $csv ) {
 
 	fwrite( $temp, $csv, strlen( $csv ) );
 	fseek( $temp, 0 );
-	while ( false !== $row = fgetcsv( $temp, 2000 ) ) {		
+	while ( false !== $row = fgetcsv( $temp, 2000 ) ) {
 		$data[] = $row;
 	}
 	fclose( $temp );
