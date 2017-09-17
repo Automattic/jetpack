@@ -207,15 +207,43 @@ class Simple_Payments_Widget extends WP_Widget {
 			$product_id = null;
 		}
 
-		$current_user = wp_get_current_user();
-		return wp_parse_args( $product_args, array(
+
+		$product_args = wp_parse_args( $product_args, array(
 			'name' => '',
 			'description' => '',
-			'currency' => 'USD', // TODO: Geo-locate?
+			'currency' => null,
 			'price' => '',
-			'multiple' => '0',
-			'email' => $current_user->user_email,
+			'multiple' => null,
+			'email' => null,
 		) );
+
+		if ( isset( $product_args['currency'] ) && isset( $product_args['multiple'] ) && isset( $product_args['email'] ) ) {
+			return $product_args;
+		}
+		$products = get_posts( array(
+			'numberposts' => 1,
+			'orderby' => 'date',
+			'post_type' => Jetpack_Simple_Payments::$post_type_product,
+		) );
+		$current_user = wp_get_current_user();
+		$default_email = $current_user->user_email;
+		$default_multiple = '0';
+		$default_currency = 'USD';
+		if ( ! empty( $products ) ) {
+			$default_email = get_post_meta( $products[0]->ID, 'spay_email', true );
+			$default_multiple = get_post_meta( $products[0]->ID, 'spay_multiple', true );
+			$default_currency = get_post_meta( $products[0]->ID, 'spay_currency', true );
+		}
+		if ( ! isset( $product_args['email'] ) ) {
+			$product_args['email'] = $default_email;
+		}
+		if ( ! isset( $product_args['multiple'] ) ) {
+			$product_args['multiple'] = $default_multiple;
+		}
+		if ( ! isset( $product_args['currency'] ) ) {
+			$product_args['currency'] = $default_currency;
+		}
+		return $product_args;
 	}
 
     /**
