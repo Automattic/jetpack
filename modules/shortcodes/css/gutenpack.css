@@ -44,6 +44,10 @@ iframe.wp-block-gutenpack-vr {
 	column-gap: 0;
 }
 
+.giphy__oh-heck-yeah + .giphy__gallery:empty {
+	min-height: 200px;
+}
+
 .giphy__a-gif-has-no-name {
 	display: block;
 	width: 100%;
@@ -76,7 +80,7 @@ iframe.wp-block-gutenpack-vr {
 }
 
 .giphy__oh-heck-yeah {
-	animation: frig 3s steps(5, end) infinite;
+	animation: frig .5s steps(5, end) infinite;
 	background-image:
 		linear-gradient(
 			0deg,
@@ -112,7 +116,7 @@ iframe.wp-block-gutenpack-vr {
 .giphy__oh-heck-yeah .components-placeholder__label,
 .giphy__oh-heck-yeah .components-placeholder__fieldset {
 	background: #000;
-	box-shadow: 0 0 0 4px #000;
+	box-shadow: 0 0 0 8px #000;
 	padding: 0 8px;
 	color: #fff;
 }
