@@ -23,10 +23,6 @@ registerBlockType( 'gutenpack/giphy', {
 	icon: 'format-video',
 	category: 'layout',
 	attributes: {
-		hasRun: {
-			type: 'bool',
-			default: false
-		},
 		searchTerm: {
 			type: 'string',
 			default: ''
@@ -52,26 +48,13 @@ registerBlockType( 'gutenpack/giphy', {
 	edit: props => {
 		const attributes = props.attributes;
 
-		const focusInputHandleEnter = () => {
-			setTimeout( () => {
-				const inputSearch = document.getElementById( 'giphy-input-search' );
-
-				inputSearch.focus();
-				inputSearch.addEventListener( 'keypress', ( e ) => {
-					if ( e.keyCode === 13 ) {
-						console.log('going to handle');
-						handleSearch();
-
-						return false;
-					}
-				} );
-				props.setAttributes( { 'hasRun': true } );
-			}, 400 );
-		};
-
-		if ( ! attributes.hasRun ) {
-			focusInputHandleEnter();
+		const handleKeyDown = ( e ) => {
+			if ( e.key === 'Enter' ) {
+				handleSearch();
+			}
 		}
+
+		const handleInputRef = ( input ) => input && input.focus();
 
 		const handleSearch = () => {
 			const getParams = {
@@ -135,27 +118,7 @@ registerBlockType( 'gutenpack/giphy', {
 		};
 
 		const shuffleImages = () => {
-			const imageStore = attributes.searchResults;
-
-			// Generate random randomKeys
-			const randomKeys = [];
-			while ( randomKeys.length < 6 ) {
-				const randomNumber = Math.ceil( Math.random() * imageStore.length - 1 );
-				if ( randomKeys.indexOf( randomNumber ) > -1 ) {
-					continue;
-				}
-				randomKeys[ randomKeys.length ] = randomNumber;
-			}
-
-			// Set the images based on randomKeys
-			const newGalleryImages = {};
-			let i = 0;
-			forEach( randomKeys, ( k ) => {
-				newGalleryImages[ i ] = imageStore[ k ].images.preview_gif;
-				i++;
-			} );
-
-			props.setAttributes( { resultGallery: newGalleryImages } );
+			props.setAttributes( { resultGallery: _.shuffle( attributes.searchResults ).slice( 0, 6 ) } );
 		};
 
 		const chooseImage = key => {
@@ -175,69 +138,62 @@ registerBlockType( 'gutenpack/giphy', {
 				return false;
 			}
 
-			forEach( images, ( imageData, key ) => {
-				imageData.url &&
-                    gallery.push(
-                        <img
-                            key={ key }
-                            src={ imageData.url }
-                            width={ imageData.width }
-                            height={ imageData.height }
-                            onClick={ () => chooseImage( key ) }
-                            className="giphy__a-gif-has-no-name"
-                        />
-                    );
+			return images.map( ( imageData, key ) => {
+				<img
+						key={ imageData.url }
+						src={ imageData.url }
+						width={ imageData.width }
+						height={ imageData.height }
+						onClick={ () => chooseImage( key ) }
+						className="giphy__a-gif-has-no-name"
+				/>
 			} );
-
-			return gallery;
 		};
 
-		const renderEdit = () => {
-			const chosenImage = attributes.chosenImage;
+		const chosenImage = attributes.chosenImage;
 
-			return (
-				<div>
-					{ isEmpty( chosenImage ) &&
-						<div>
-								<Placeholder
-								key="giphy/placeholder"
-								instructions={ __( 'The peak of human expression at your fingertips!' ) }
-								icon="schedule"
-								label={ __( 'Search gifs' ) }
-								className={ props.className }
-							>
-								<input
-									id="giphy-input-search"
-									type="search"
-									value={ attributes.searchTerm || '' }
-									onChange={ setSearchTerm }
-								/>
-								<Button onClick={ handleSearch } >
-									<Dashicon icon="search"/>
-								</Button>
-								<Button onClick={ shuffleImages } >
-									<Dashicon icon="randomize" />
-								</Button>
-							</Placeholder>
-							<div className="giphy__gallery">
-								{ resultGallery() }
-							</div>
+		return (
+			<div>
+				{ isEmpty( chosenImage ) &&
+					<div>
+							<Placeholder
+							key="giphy/placeholder"
+							instructions={ __( 'The peak of human expression at your fingertips!' ) }
+							icon="schedule"
+							label={ __( 'Search gifs' ) }
+							className={ props.className }
+						>
+							<input
+								id="giphy-input-search"
+								type="search"
+								value={ attributes.searchTerm || '' }
+								onChange={ setSearchTerm }
+								onKeyDown={ handleKeyDown }
+								ref={ handleInputRef }
+							/>
+							<Button onClick={ handleSearch } >
+								<Dashicon icon="search"/>
+							</Button>
+							<Button onClick={ shuffleImages } >
+								<Dashicon icon="randomize" />
+							</Button>
+						</Placeholder>
+						<div className="giphy__gallery">
+							{ resultGallery() }
 						</div>
-					}
-					{
-						! isEmpty( chosenImage ) &&
-						<img
-							src={ chosenImage.url }
-							width={ chosenImage.width }
-							height={ chosenImage.height }
-							className="giphy__chosen-one"
-						/>
-					}
-				</div>
-			);
-		};
-
-		return renderEdit();
+					</div>
+				}
+				{
+					! isEmpty( chosenImage ) &&
+					<img
+						src={ chosenImage.url }
+						width={ chosenImage.width }
+						height={ chosenImage.height }
+						className="giphy__chosen-one"
+					/>
+				}
+			</div>
+		);
 	},
 	save: ( props ) => {
 		const { chosenImage } = props.attributes;

@@ -35,10 +35,6 @@ registerBlockType('gutenpack/giphy', {
 	icon: 'format-video',
 	category: 'layout',
 	attributes: {
-		hasRun: {
-			type: 'bool',
-			default: false
-		},
 		searchTerm: {
 			type: 'string',
 			default: ''
@@ -64,26 +60,15 @@ registerBlockType('gutenpack/giphy', {
 	edit: function edit(props) {
 		var attributes = props.attributes;
 
-		var focusInputHandleEnter = function focusInputHandleEnter() {
-			setTimeout(function () {
-				var inputSearch = document.getElementById('giphy-input-search');
-
-				inputSearch.focus();
-				inputSearch.addEventListener('keypress', function (e) {
-					if (e.keyCode === 13) {
-						console.log('going to handle');
-						handleSearch();
-
-						return false;
-					}
-				});
-				props.setAttributes({ 'hasRun': true });
-			}, 400);
+		var handleKeyDown = function handleKeyDown(e) {
+			if (e.key === 'Enter') {
+				handleSearch();
+			}
 		};
 
-		if (!attributes.hasRun) {
-			focusInputHandleEnter();
-		}
+		var handleInputRef = function handleInputRef(input) {
+			return input && input.focus();
+		};
 
 		var handleSearch = function handleSearch() {
 			var getParams = {
@@ -147,7 +132,7 @@ registerBlockType('gutenpack/giphy', {
 
 			// Generate random randomKeys
 			var randomKeys = [];
-			while (randomKeys.length < 6) {
+			while (randomKeys.length < Math.min(6, imageStore.length)) {
 				var randomNumber = Math.ceil(Math.random() * imageStore.length - 1);
 				if (randomKeys.indexOf(randomNumber) > -1) {
 					continue;
@@ -199,57 +184,55 @@ registerBlockType('gutenpack/giphy', {
 			return gallery;
 		};
 
-		var renderEdit = function renderEdit() {
-			var chosenImage = attributes.chosenImage;
+		var chosenImage = attributes.chosenImage;
 
-			return wp.element.createElement(
+		return wp.element.createElement(
+			'div',
+			null,
+			(0, _isEmpty2['default'])(chosenImage) && wp.element.createElement(
 				'div',
 				null,
-				(0, _isEmpty2['default'])(chosenImage) && wp.element.createElement(
-					'div',
-					null,
+				wp.element.createElement(
+					Placeholder,
+					{
+						key: 'giphy/placeholder',
+						instructions: __('The peak of human expression at your fingertips!'),
+						icon: 'schedule',
+						label: __('Search gifs'),
+						className: props.className
+					},
+					wp.element.createElement('input', {
+						id: 'giphy-input-search',
+						type: 'search',
+						value: attributes.searchTerm || '',
+						onChange: setSearchTerm,
+						onKeyDown: handleKeyDown,
+						ref: handleInputRef
+					}),
 					wp.element.createElement(
-						Placeholder,
-						{
-							key: 'giphy/placeholder',
-							instructions: __('The peak of human expression at your fingertips!'),
-							icon: 'schedule',
-							label: __('Search gifs'),
-							className: props.className
-						},
-						wp.element.createElement('input', {
-							id: 'giphy-input-search',
-							type: 'search',
-							value: attributes.searchTerm || '',
-							onChange: setSearchTerm
-						}),
-						wp.element.createElement(
-							Button,
-							{ onClick: handleSearch },
-							wp.element.createElement(Dashicon, { icon: 'search' })
-						),
-						wp.element.createElement(
-							Button,
-							{ onClick: shuffleImages },
-							wp.element.createElement(Dashicon, { icon: 'randomize' })
-						)
+						Button,
+						{ onClick: handleSearch },
+						wp.element.createElement(Dashicon, { icon: 'search' })
 					),
 					wp.element.createElement(
-						'div',
-						{ className: 'giphy__gallery' },
-						resultGallery()
+						Button,
+						{ onClick: shuffleImages },
+						wp.element.createElement(Dashicon, { icon: 'randomize' })
 					)
 				),
-				!(0, _isEmpty2['default'])(chosenImage) && wp.element.createElement('img', {
-					src: chosenImage.url,
-					width: chosenImage.width,
-					height: chosenImage.height,
-					className: 'giphy__chosen-one'
-				})
-			);
-		};
-
-		return renderEdit();
+				wp.element.createElement(
+					'div',
+					{ className: 'giphy__gallery' },
+					resultGallery()
+				)
+			),
+			!(0, _isEmpty2['default'])(chosenImage) && wp.element.createElement('img', {
+				src: chosenImage.url,
+				width: chosenImage.width,
+				height: chosenImage.height,
+				className: 'giphy__chosen-one'
+			})
+		);
 	},
 	save: function save(props) {
 		var chosenImage = props.attributes.chosenImage;
