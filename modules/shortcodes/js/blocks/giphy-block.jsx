@@ -212,7 +212,19 @@ registerBlockType( 'gutenpack/giphy', {
 
 		return renderEdit();
 	},
-	save: () => {
-		return null;
+	save: ( props ) => {
+		const { chosenImage } = props.attributes;
+
+		return (
+            ! isEmpty( chosenImage ) &&
+				<div className="jetpack-blocks-giphy">
+                    <img
+                        src={ chosenImage.url }
+                        width={ chosenImage.width }
+                        height={ chosenImage.height }
+                        className="giphy__chosen-one"
+                    />
+				</div>
+		);
 	}
 } );

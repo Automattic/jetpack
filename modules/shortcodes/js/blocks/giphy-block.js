@@ -225,7 +225,19 @@ registerBlockType('gutenpack/giphy', {
 
 		return renderEdit();
 	},
-	save: function save() {
-		return null;
+	save: function save(props) {
+		var chosenImage = props.attributes.chosenImage;
+
+
+		return !(0, _isEmpty2['default'])(chosenImage) && wp.element.createElement(
+			'div',
+			{ className: 'jetpack-blocks-giphy' },
+			wp.element.createElement('img', {
+				src: chosenImage.url,
+				width: chosenImage.width,
+				height: chosenImage.height,
+				className: 'giphy__chosen-one'
+			})
+		);
 	}
 });
