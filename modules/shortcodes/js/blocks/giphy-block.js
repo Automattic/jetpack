@@ -35,6 +35,10 @@ registerBlockType('gutenpack/giphy', {
 	icon: 'format-video',
 	category: 'layout',
 	attributes: {
+		hasRun: {
+			type: 'bool',
+			default: false
+		},
 		searchTerm: {
 			type: 'string',
 			default: ''
@@ -59,6 +63,27 @@ registerBlockType('gutenpack/giphy', {
 
 	edit: function edit(props) {
 		var attributes = props.attributes;
+
+		var focusInputHandleEnter = function focusInputHandleEnter() {
+			setTimeout(function () {
+				var inputSearch = document.getElementById('giphy-input-search');
+
+				inputSearch.focus();
+				inputSearch.addEventListener('keypress', function (e) {
+					if (e.keyCode === 13) {
+						console.log('going to handle');
+						handleSearch();
+
+						return false;
+					}
+				});
+				props.setAttributes({ 'hasRun': true });
+			}, 400);
+		};
+
+		if (!attributes.hasRun) {
+			focusInputHandleEnter();
+		}
 
 		var handleSearch = function handleSearch() {
 			var getParams = {
@@ -159,7 +184,7 @@ registerBlockType('gutenpack/giphy', {
 			}
 
 			(0, _forEach2['default'])(images, function (imageData, key) {
-				gallery.push(wp.element.createElement('img', {
+				imageData.url && gallery.push(wp.element.createElement('img', {
 					key: key,
 					src: imageData.url,
 					width: imageData.width,
@@ -193,6 +218,7 @@ registerBlockType('gutenpack/giphy', {
 							className: props.className
 						},
 						wp.element.createElement('input', {
+							id: 'giphy-input-search',
 							type: 'search',
 							value: attributes.searchTerm || '',
 							onChange: setSearchTerm

@@ -23,6 +23,10 @@ registerBlockType( 'gutenpack/giphy', {
 	icon: 'format-video',
 	category: 'layout',
 	attributes: {
+		hasRun: {
+			type: 'bool',
+			default: false
+		},
 		searchTerm: {
 			type: 'string',
 			default: ''
@@ -47,6 +51,27 @@ registerBlockType( 'gutenpack/giphy', {
 
 	edit: props => {
 		const attributes = props.attributes;
+
+		const focusInputHandleEnter = () => {
+			setTimeout( () => {
+				const inputSearch = document.getElementById( 'giphy-input-search' );
+
+				inputSearch.focus();
+				inputSearch.addEventListener( 'keypress', ( e ) => {
+					if ( e.keyCode === 13 ) {
+						console.log('going to handle');
+						handleSearch();
+
+						return false;
+					}
+				} );
+				props.setAttributes( { 'hasRun': true } );
+			}, 400 );
+		};
+
+		if ( ! attributes.hasRun ) {
+			focusInputHandleEnter();
+		}
 
 		const handleSearch = () => {
 			const getParams = {
@@ -151,16 +176,17 @@ registerBlockType( 'gutenpack/giphy', {
 			}
 
 			forEach( images, ( imageData, key ) => {
-				gallery.push(
-					<img
-						key={ key }
-						src={ imageData.url }
-						width={ imageData.width }
-						height={ imageData.height }
-						onClick={ () => chooseImage( key ) }
-						className="giphy__a-gif-has-no-name"
-					/>
-				);
+				imageData.url &&
+                    gallery.push(
+                        <img
+                            key={ key }
+                            src={ imageData.url }
+                            width={ imageData.width }
+                            height={ imageData.height }
+                            onClick={ () => chooseImage( key ) }
+                            className="giphy__a-gif-has-no-name"
+                        />
+                    );
 			} );
 
 			return gallery;
@@ -181,6 +207,7 @@ registerBlockType( 'gutenpack/giphy', {
 								className={ props.className }
 							>
 								<input
+									id="giphy-input-search"
 									type="search"
 									value={ attributes.searchTerm || '' }
 									onChange={ setSearchTerm }
