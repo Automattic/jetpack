@@ -50,7 +50,7 @@
 			root.find( '.field-description' ).val( $( this ).data( 'description' ) );
 			root.find( '.field-currency' ).val( $( this ).data( 'currency' ) );
 			root.find( '.field-price' ).val( $( this ).data( 'price' ) );
-			root.find( '.field-multiple' ).prop( 'checked', $( this ).data( 'multiple' ) === '1' );
+			root.find( '.field-multiple' ).prop( 'checked', String( $( this ).data( 'multiple' ) ) === '1' );
 			root.find( '.field-email' ).val( $( this ).data( 'email' ) );
 
 			if ( $( this ).data( 'image-url' ) ) {
