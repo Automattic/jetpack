@@ -114,7 +114,12 @@ registerBlockType( 'gutenpack/giphy', {
 		};
 
 		const chooseImage = key => {
-			props.setAttributes( { chosenImage: attributes.resultGallery[ key ] } );
+			props.setAttributes( {
+				chosenImage: attributes.resultGallery[ key ],
+				searchTerm: '',
+				searchResults: {},
+				resultGallery: {},
+			} );
 		};
 
 		const resultGallery = () => {
@@ -189,7 +194,7 @@ registerBlockType( 'gutenpack/giphy', {
 		);
 	},
 	save: props => {
-		const { attributes: { chosenImage }, setAttributes } = props.attributes;
+		const { attributes: { chosenImage } } = props;
 
 		return (
 			! isEmpty( chosenImage ) &&

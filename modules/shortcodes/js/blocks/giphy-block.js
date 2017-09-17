@@ -133,7 +133,12 @@ registerBlockType('gutenpack/giphy', {
 		};
 
 		var chooseImage = function chooseImage(key) {
-			props.setAttributes({ chosenImage: attributes.resultGallery[key] });
+			props.setAttributes({
+				chosenImage: attributes.resultGallery[key],
+				searchTerm: '',
+				searchResults: {},
+				resultGallery: {}
+			});
 		};
 
 		var resultGallery = function resultGallery() {
@@ -216,9 +221,7 @@ registerBlockType('gutenpack/giphy', {
 		);
 	},
 	save: function save(props) {
-		var _props$attributes = props.attributes,
-		    chosenImage = _props$attributes.attributes.chosenImage,
-		    setAttributes = _props$attributes.setAttributes;
+		var chosenImage = props.attributes.chosenImage;
 
 
 		return !(0, _isEmpty2['default'])(chosenImage) && wp.element.createElement(
