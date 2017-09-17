@@ -210,7 +210,10 @@ class Simple_Payments_Widget extends WP_Widget {
 					if ( ! empty( $products ) ) {
 						?>
 						<div class="simple-payments-product-list">
-							<button class="button simple-payments-add-product"><?php esc_html_e( 'Add New', 'jetpack' ); ?></button>
+							<div>
+								<span class="simple-payments-product-count"><?php printf( _n( '%d product', '%d products', count( $products ), 'Jetpack' ), number_format_i18n( count( $products ) ) ) ?></span>
+								<button class="button simple-payments-add-product"><?php esc_html_e( 'Add New', 'jetpack' ); ?></button>
+							</div>
 							<ul class="simple-payments-products">
 								<?php
 								foreach ( $products as $product ):
@@ -259,10 +262,10 @@ class Simple_Payments_Widget extends WP_Widget {
 				$price = ( $product_args['price'] ) ? esc_attr( Jetpack_Money_Format::format_price_amount( $product_args['currency'], $product_args['price'] ) ) : '';
 				?>
 
+				<?php if ( ! empty( $products ) ) { ?>
+					<button class="button simple-payments-back-product-list" style="display:none;"><?php _e( 'Cancel', 'jetpack' ); ?></button>
+				<?php } ?>
 				<div class="simple-payments-form" <?php if ( ! empty( $products ) ) echo 'style="display:none;"'; ?>>
-					<?php if ( ! empty( $products ) ) { ?>
-						<button class="button simple-payments-back-product-list"><?php _e( 'Cancel', 'jetpack' ); ?></button>
-					<?php } ?>
 					<p>
 						<label for="<?php esc_attr_e( $this->get_field_id( 'name' ) ); ?>"><?php esc_html_e( 'What are you selling?', 'jetpack' ); ?></label>
 						<input <?php echo empty( $products ) ? '' : 'disabled'; ?> class="widefat field-name" id="<?php esc_attr_e( $this->get_field_id( 'name' ) ); ?>" name="<?php esc_attr_e( $this->get_field_name( 'name' ) ); ?>" type="text" placeholder="<?php esc_attr_e( 'Product name', 'jetpack' ); ?>" value="<?php esc_attr_e( $product_args['name'] ); ?>" />

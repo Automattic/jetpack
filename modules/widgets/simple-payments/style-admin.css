@@ -1,4 +1,5 @@
-.widget-content .simple-payments {
+.widget-content .simple-payments,
+.widget-content .simple-payments-form {
 	clear: both;
 }
 
@@ -95,21 +96,32 @@
 
 /* Product list */
 
-.widget-content .simple-payments-add-product {
+.widget-content .simple-payments-add-product,
+.widget-content .simple-payments-back-product-list
+{
 	margin: 1em 0;
-	text-align: right;
+	float: right;
+}
+
+.widget-content .simple-payments-product-count {
+	text-transform: uppercase;
 }
 
 .widget-content .simple-payments-products {
 	border-bottom: 1px solid #e5e5e5;
 	max-height: 350px;
 	overflow: auto;
+	clear: both;
 }
 
 .widget-content .simple-payments-products li {
 	border-top: 1px solid #e5e5e5;
 	margin-bottom: 0;
 	padding: 8px 0;
+}
+
+.widget-content .simple-payments-products li:hover {
+	background-color: #f7f7f7;
 }
 
 .widget-content .simple-payments-products li:after,

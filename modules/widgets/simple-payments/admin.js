@@ -8,6 +8,7 @@
 
 			var imageContainer = root.find( '.simple-payments-image' );
 			imageContainer.find( 'img, input[type=hidden]' ).remove();
+			root.find( '.simple-payments-back-product-list' ).show();
 			root.find( '.simple-payments-form' ).show();
 			root.find( '.simple-payments-image-fieldset .placeholder' ).show();
 			root.find( '.field-name' ).prop( 'disabled', false ).val( root.find( '.field-name' ).prop( 'defaultValue' ) );
@@ -41,6 +42,7 @@
 			event.preventDefault();
 			$( this ).closest( 'label' ).click();
 			var root = $( this ).closest( '.simple-payments' );
+			root.find( '.simple-payments-back-product-list' ).show();
 			root.find( '.simple-payments-product-list' ).hide();
 			var imageContainer = root.find( '.simple-payments-image' );
 			imageContainer.find( 'img, input[type=hidden]' ).remove();
@@ -71,6 +73,7 @@
 
 		$( document.body ).on( 'click', '.simple-payments-back-product-list', function( event ) {
 			event.preventDefault();
+			$( this ).hide();
 			var root = $( this ).closest( '.simple-payments' );
 			root.find( '.simple-payments-form' ).hide()
 				.find( '.field-name' ).prop( 'disabled', true );
