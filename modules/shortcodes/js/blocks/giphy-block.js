@@ -128,27 +128,7 @@ registerBlockType('gutenpack/giphy', {
 		};
 
 		var shuffleImages = function shuffleImages() {
-			var imageStore = attributes.searchResults;
-
-			// Generate random randomKeys
-			var randomKeys = [];
-			while (randomKeys.length < Math.min(6, imageStore.length)) {
-				var randomNumber = Math.ceil(Math.random() * imageStore.length - 1);
-				if (randomKeys.indexOf(randomNumber) > -1) {
-					continue;
-				}
-				randomKeys[randomKeys.length] = randomNumber;
-			}
-
-			// Set the images based on randomKeys
-			var newGalleryImages = {};
-			var i = 0;
-			(0, _forEach2['default'])(randomKeys, function (k) {
-				newGalleryImages[i] = imageStore[k].images.preview_gif;
-				i++;
-			});
-
-			props.setAttributes({ resultGallery: newGalleryImages });
+			props.setAttributes({ resultGallery: _.shuffle(attributes.searchResults).slice(0, 6) });
 		};
 
 		var chooseImage = function chooseImage(key) {
@@ -157,8 +137,8 @@ registerBlockType('gutenpack/giphy', {
 
 		var resultGallery = function resultGallery() {
 			var images = attributes.resultGallery,
-			    chosenImage = attributes.chosenImage;
-			var gallery = [];
+			    chosenImage = attributes.chosenImage,
+			    gallery = [];
 
 			if ('undefined' !== images.noResults && images.noResults) {
 				return __('No results!');
@@ -168,12 +148,12 @@ registerBlockType('gutenpack/giphy', {
 				return false;
 			}
 
-			(0, _forEach2['default'])(images, function (imageData, key) {
-				imageData.url && gallery.push(wp.element.createElement('img', {
-					key: key,
-					src: imageData.url,
-					width: imageData.width,
-					height: imageData.height,
+			(0, _keys2['default'])(images).map(function (key) {
+				gallery.push(wp.element.createElement('img', {
+					key: images[key].url,
+					src: images[key].url,
+					width: images[key].width,
+					height: images[key].height,
 					onClick: function onClick() {
 						return chooseImage(key);
 					},

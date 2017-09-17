@@ -127,8 +127,8 @@ registerBlockType( 'gutenpack/giphy', {
 
 		const resultGallery = () => {
 			const images = attributes.resultGallery,
-				chosenImage = attributes.chosenImage;
-			const gallery = [];
+				chosenImage = attributes.chosenImage,
+				gallery = [];
 
 			if ( 'undefined' !== images.noResults && images.noResults ) {
 				return __( 'No results!' );
@@ -138,16 +138,20 @@ registerBlockType( 'gutenpack/giphy', {
 				return false;
 			}
 
-			return images.map( ( imageData, key ) => {
-				<img
-						key={ imageData.url }
-						src={ imageData.url }
-						width={ imageData.width }
-						height={ imageData.height }
+			Object.keys( images ).map( ( key ) => {
+				gallery.push(
+					<img
+						key={ images[ key ].url }
+						src={ images[ key ].url }
+						width={ images[ key ].width }
+						height={ images[ key ].height }
 						onClick={ () => chooseImage( key ) }
 						className="giphy__a-gif-has-no-name"
-				/>
+					/>
+				);
 			} );
+
+			return gallery;
 		};
 
 		const chosenImage = attributes.chosenImage;
