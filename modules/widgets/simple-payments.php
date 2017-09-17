@@ -181,6 +181,7 @@ class Simple_Payments_Widget extends WP_Widget {
 		self::$url = plugin_dir_url( __FILE__ );
 
 		add_action( 'admin_enqueue_scripts', array( __class__, 'enqueue_admin_styles' ) );
+		add_action( 'wp_enqueue_scripts', array( __class__, 'enqueue_widget_styles' ) );
 	}
 
 	public static function enqueue_admin_styles( $hook_suffix ) {
@@ -189,6 +190,13 @@ class Simple_Payments_Widget extends WP_Widget {
 			wp_enqueue_media();
 			wp_enqueue_script( 'simple-payments-widget-admin', self::$url . '/simple-payments/admin.js', array( 'jquery' ), false, true );
 		}
+	}
+
+	public static function enqueue_widget_styles() {
+		// This would be nice, but I don't know how this function works.
+		// if ( is_active_widget( false, false, 'Simple_Payments_Widget' ) ) {
+			wp_enqueue_style( 'simple-payments-widget', self::$url . '/simple-payments/style.css', array() );
+		// }
 	}
 
 	protected function get_product_args( $product_id ) {
@@ -310,7 +318,7 @@ class Simple_Payments_Widget extends WP_Widget {
 		if ( ! $currency ) {
 			return $price . ' ' . $currency_code;
 		}
-		return number_format( $price, $currency['precision'], $currency['decimal'], $currency['grouping'] ) . ' ' . $currency['symbol'];
+		return number_format( (double) $price, $currency['precision'], $currency['decimal'], $currency['grouping'] ) . ' ' . $currency['symbol'];
 	}
 
 	protected function format_price_amount( $currency_code, $price ) {
@@ -318,14 +326,14 @@ class Simple_Payments_Widget extends WP_Widget {
 		if ( ! $currency ) {
 			return number_format( $price, 2, '.', '' );
 		}
-		return number_format( $price, $currency['precision'], $currency['decimal'], '' );
+		return number_format( (double) $price, $currency['precision'], $currency['decimal'], '' );
 	}
 
 	/**
 	 * Update
 	 */
 	function update( $new_instance, $old_instance ) {
-    	if ( $new_instance['product_id'] ) {
+    	if ( isset( $new_instance['product_id'] ) ) {
     		$product_id = $new_instance['product_id'];
 		} else {
     		if ( ! isset( $new_instance['name'] ) ) {
