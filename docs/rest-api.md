@@ -305,7 +305,18 @@ Dismiss a Jetpack notice by Id.
 
 #### GET /wp-json/jetpack/v4/site
 
-Get current site data
+Get current site data.
+The string value in `data` is a stringified JSON object with data coming from the WordPress.com API about the site.
+
+**Example response**
+
+```
+{
+    "code": "success",
+    "message": "Site data correctly received.",
+    "data": "{}"
+}
+```
 
 ### Protect module related operations
 
