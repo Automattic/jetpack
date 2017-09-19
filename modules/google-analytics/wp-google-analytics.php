@@ -38,7 +38,7 @@ class Jetpack_Google_Analytics {
 		add_filter( 'jetpack_wga_classic_custom_vars', array( $this, 'jetpack_wga_classic_anonymize_ip' ) );
 		add_filter( 'jetpack_wga_classic_custom_vars', array( $this, 'jetpack_wga_classic_track_purchases' ) );
 		add_action( 'wp_footer', array( $this, 'insert_code' ) );
-		add_filter( 'wp_footer', array( $this, 'jetpack_wga_classic_track_add_to_cart' ) );
+		add_action( 'wp_footer', array( $this, 'jetpack_wga_classic_track_add_to_cart' ) );
 	}
 
 	/**
