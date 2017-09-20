@@ -477,16 +477,8 @@ class Jetpack_Network {
 			'timeout' => $timeout,
 		);
 
-		list( $activation_source_name, $activation_source_keyword ) = get_option( 'jetpack_activation_source', false );
+		Jetpack::apply_activation_source_to_args( $args['body'] );
 		
-		if ( $activation_source_name ) {
-			$args['_as'] = urlencode( $activation_source_name );
-		}
-
-		if ( $activation_source_keyword ) {
-			$args['_ak'] = urlencode( $activation_source_keyword );
-		}
-
 		// Attempt to retrieve shadow blog details
 		$response = Jetpack_Client::_wp_remote_request(
 			Jetpack::fix_url_for_bad_hosts( Jetpack::api_url( 'subsiteregister' ) ), $args, true

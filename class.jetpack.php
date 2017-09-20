@@ -4385,7 +4385,7 @@ p {
 				)
 			);
 
-			$this->apply_activation_source_to_args( $args );
+			self::apply_activation_source_to_args( $args );
 
 			$url = add_query_arg( $args, Jetpack::api_url( 'authorize' ) );
 		}
@@ -4402,7 +4402,7 @@ p {
 		return $raw ? $url : esc_url( $url );
 	}
 
-	private function apply_activation_source_to_args( &$args ) {
+	public static function apply_activation_source_to_args( &$args ) {
 		list( $activation_source_name, $activation_source_keyword ) = get_option( 'jetpack_activation_source' );
 		
 		if ( $activation_source_name ) {
@@ -4950,7 +4950,7 @@ p {
 			'timeout' => $timeout,
 		);
 
-		$this->apply_activation_source_to_args( $args );
+		self::apply_activation_source_to_args( $args['body'] );
 
 		$response = Jetpack_Client::_wp_remote_request( Jetpack::fix_url_for_bad_hosts( Jetpack::api_url( 'register' ) ), $args, true );
 
