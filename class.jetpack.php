@@ -2897,8 +2897,11 @@ p {
 
 		$referer = parse_url( $referer_url );
 		
+		$source_type = 'unknown';
+		$source_query = null;
+
 		if ( ! is_array( $referer ) ) {
-			return array( 'unknown', null );
+			return array( $source_type, $source_query );
 		}
 
 		$plugins_path = parse_url( admin_url( 'plugins.php' ), PHP_URL_PATH );
@@ -2909,9 +2912,6 @@ p {
 		} else {
 			$query_parts = array();
 		}
-
-		$source_type = false;
-		$source_query = null;
 
 		if ( $plugins_path === $referer['path'] ) {
 			$source_type = 'list';
@@ -2934,8 +2934,6 @@ p {
 				default:
 					$source_type = 'featured';
 			}
-		} else {
-			$source_type = 'unknown';
 		}
 
 		return array( $source_type, $source_query );
@@ -4387,15 +4385,7 @@ p {
 				)
 			);
 
-			list( $activation_source_name, $activation_source_keyword ) = get_option( 'jetpack_activation_source' );
-
-			if ( $activation_source_name ) {
-				$args['_as'] = urlencode( $activation_source_name );
-			}
-
-			if ( $activation_source_keyword ) {
-				$args['_ak'] = urlencode( $activation_source_keyword );
-			}
+			$this->apply_activation_source_to_args( $args );
 
 			$url = add_query_arg( $args, Jetpack::api_url( 'authorize' ) );
 		}
@@ -4410,6 +4400,18 @@ p {
 		}
 
 		return $raw ? $url : esc_url( $url );
+	}
+
+	private function apply_activation_source_to_args( &$args ) {
+		list( $activation_source_name, $activation_source_keyword ) = get_option( 'jetpack_activation_source' );
+		
+		if ( $activation_source_name ) {
+			$args['_as'] = urlencode( $activation_source_name );
+		}
+
+		if ( $activation_source_keyword ) {
+			$args['_ak'] = urlencode( $activation_source_keyword );
+		}
 	}
 
 	function build_reconnect_url( $raw = false ) {
@@ -4948,15 +4950,7 @@ p {
 			'timeout' => $timeout,
 		);
 
-		list( $activation_source_name, $activation_source_keyword ) = get_option( 'jetpack_activation_source', false );
-		
-		if ( $activation_source_name ) {
-			$args['_as'] = urlencode( $activation_source_name );
-		}
-
-		if ( $activation_source_keyword ) {
-			$args['_ak'] = urlencode( $activation_source_keyword );
-		}
+		$this->apply_activation_source_to_args( $args );
 
 		$response = Jetpack_Client::_wp_remote_request( Jetpack::fix_url_for_bad_hosts( Jetpack::api_url( 'register' ) ), $args, true );
 

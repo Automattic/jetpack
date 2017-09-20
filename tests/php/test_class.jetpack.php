@@ -675,6 +675,7 @@ EXPECTED;
 	function test_get_activation_source() {
 		$plugins_url = admin_url( 'plugins.php' );
 		$plugin_install_url = admin_url( 'plugin-install.php' );
+		$unknown_url = admin_url( 'unknown.php' );
 
 		$this->assertEquals( array( 'list', null ), Jetpack::get_activation_source( $plugins_url . '?plugin_status=all&paged=1&s' ) );
 		$this->assertEquals( array( 'featured', null ), Jetpack::get_activation_source( $plugin_install_url ) );
@@ -684,6 +685,7 @@ EXPECTED;
 		$this->assertEquals( array( 'search-term', 'jetpack' ), Jetpack::get_activation_source( $plugin_install_url . '?s=jetpack&tab=search&type=term' ) );
 		$this->assertEquals( array( 'search-author', 'foo' ), Jetpack::get_activation_source( $plugin_install_url . '?s=foo&tab=search&type=author' ) );
 		$this->assertEquals( array( 'search-tag', 'social' ), Jetpack::get_activation_source( $plugin_install_url . '?s=social&tab=search&type=tag' ) );
+		$this->assertEquals( array( 'unknown', null ), Jetpack::get_activation_source( $unknown_url ) );
 	}
 
 	static function __cyrillic_salt( $password ) {
