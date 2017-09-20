@@ -2884,8 +2884,57 @@ p {
 		// For firing one-off events (notices) immediately after activation
 		set_transient( 'activated_jetpack', true, .1 * MINUTE_IN_SECONDS );
 
+		// set_transient( 'jetpack_activation_referer', wp_get_referer() );
+		set_option( 'jetpack_activation_source', self::get_activation_source( wp_get_referer() ) );
+
 		Jetpack::plugin_initialize();
 	}
+
+	public static function get_activation_source( $referer_url ) {
+		$referer = parse_url( $referer_url );
+		
+		if ( ! is_array( $referer ) ) {
+			return false;
+		}
+
+		$plugins_path = parse_url( admin_url( 'plugins.php' ), PHP_URL_PATH );
+		$plugins_install_path = parse_url( admin_url( 'plugin-install.php' ), PHP_URL_PATH );// /wp-admin/plugin-install.php
+		
+		if ( isset( $referer['query'] ) ) {
+			parse_str( $referer['query'], $query_parts );
+		} else {
+			$query_parts = array();
+		}
+
+		$source_type = false;
+		$source_query = null;
+
+		if ( $plugins_path === $referer['path'] ) {
+			$source_type = 'plugins-list';
+		} elseif ( $plugins_install_path === $referer['path'] ) {
+			$tab = isset( $query_parts['tab'] ) ? $query_parts['tab'] : 'featured';
+			switch( $tab ) {
+				case 'popular':
+					$source_type = 'plugin-install-popular';
+					break;
+				case 'recommended':
+					$source_type = 'plugin-install-recommended';
+					break;
+				case 'favorites':
+					$source_type = 'plugin-install-favorites';
+					break;
+				case 'search':
+					$source_type = 'plugin-install-search-' . ( isset( $query_parts['type'] ) ? $query_parts['type'] : 'term' );
+					$source_query = isset( $query_parts['s'] ) ? $query_parts['s'] : null;
+					break;
+				default:
+					$source_type = 'plugin-install-featured';
+			}
+		}
+
+		return array( $source_type, $source_query );
+	}
+
 	/**
 	 * Runs before bumping version numbers up to a new version
 	 * @param  string $version    Version:timestamp
