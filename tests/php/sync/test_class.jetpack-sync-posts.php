@@ -854,9 +854,15 @@ That was a cool video.';
 		return 'bar';
 	}
 
-	public function test_sync_jetpack_published_post() {
+	public function test_sync_jetpack_published_post_raw() {
 		$post_id = $this->factory->post->create( array(  'post_status' => 'draft' ) );
+		$user_id = $this->factory->user->create();
 
+		$post = get_post( $post_id);
+		$post->post_author = $user_id;
+		wp_update_post( $post ); // Make sure that the author is set.
+
+		$author = get_user_by( 'id', $user_id );
 		$this->sender->do_sync();
 
 		$remote_post = $this->server_replica_storage->get_post( $post_id );
@@ -874,6 +880,13 @@ That was a cool video.';
 		$this->assertEquals( 'jetpack_published_post', $event->action );
 		$this->assertEquals( $post_id, $event->args[0] );
 		$this->assertEquals( 'post', $event->args[1]['post_type']);
+		// We add the author information to this so that we know who the author is
+		// This information is useful when the post gets published via cron.
+		$this->assertEquals( $author->display_name, $event->args[1]['author']['display_name'] ); // since 5.4 ?
+		$this->assertEquals( $author->ID, $event->args[1]['author']['id'] ); // since 5.4 ?
+		$this->assertEquals( $author->user_email, $event->args[1]['author']['email'] ); // since 5.4 ?
+		$this->assertEquals( Jetpack::translate_user_to_role( $author ), $event->args[1]['author']['translated_role'] ); // since 5.4 ?
+		$this->assertTrue( isset( $event->args[1]['author']['wpcom_user_id'] ) );
 	}
 
 	public function test_sync_jetpack_update_post_to_draft_shouldnt_publish() {
