@@ -394,7 +394,6 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		 * @param mixed array $flags post flags that are added to the post
 		 */
 		do_action( 'jetpack_published_post', $post_ID, $flags );
-		var_dump( $flags );
 		$this->just_published = array_diff( $this->just_published, array( $post_ID ) );
 	}
 
