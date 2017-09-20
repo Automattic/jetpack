@@ -4345,7 +4345,7 @@ p {
 		}
 
 		if ( Jetpack_Options::get_option( 'onboarding' ) ) {
-			$url = add_query_arg( 'onboarding', '1', $url );
+			$url = add_query_arg( 'onboarding', Jetpack::create_onboarding_token(), $url );
 
 			// Remove this once https://github.com/Automattic/wp-calypso/pull/17094 is merged.
 			$url = add_query_arg( 'calypso_env', 'development', $url );
@@ -4601,6 +4601,20 @@ p {
 
 		// we now return the unmodified SSL URL by default, as a security precaution
 		return $url;
+	}
+
+	/**
+	 * Create a random secret for validating onboarding payload
+	 *
+	 * @return string Secret token
+	 */
+	public static function create_onboarding_token() {
+		if ( false === ( $token = get_transient( 'jetpack_onboarding_token' ) ) ) {
+			$token = wp_generate_password( 32, false );
+			set_transient( 'jetpack_onboarding_token', $token, 86400 );
+		}
+
+		return $token;
 	}
 
 	/**
