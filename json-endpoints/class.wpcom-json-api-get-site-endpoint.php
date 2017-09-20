@@ -211,7 +211,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 	}
 
 	private function has_blog_access( $token_details, $blog_id ) {
-		if ( is_user_member_of_blog( get_current_user_id(), $blog_id ) ) {
+		if ( is_user_member_of_blog( get_current_user_id(), get_current_blog_id() ) ) {
 			return true;
 		}
 
