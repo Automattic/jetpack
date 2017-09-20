@@ -2914,25 +2914,25 @@ p {
 		$source_query = null;
 
 		if ( $plugins_path === $referer['path'] ) {
-			$source_type = 'plugins-list';
+			$source_type = 'list';
 		} elseif ( $plugins_install_path === $referer['path'] ) {
 			$tab = isset( $query_parts['tab'] ) ? $query_parts['tab'] : 'featured';
 			switch( $tab ) {
 				case 'popular':
-					$source_type = 'plugin-install-popular';
+					$source_type = 'popular';
 					break;
 				case 'recommended':
-					$source_type = 'plugin-install-recommended';
+					$source_type = 'recommended';
 					break;
 				case 'favorites':
-					$source_type = 'plugin-install-favorites';
+					$source_type = 'favorites';
 					break;
 				case 'search':
-					$source_type = 'plugin-install-search-' . ( isset( $query_parts['type'] ) ? $query_parts['type'] : 'term' );
+					$source_type = 'search-' . ( isset( $query_parts['type'] ) ? $query_parts['type'] : 'term' );
 					$source_query = isset( $query_parts['s'] ) ? $query_parts['s'] : null;
 					break;
 				default:
-					$source_type = 'plugin-install-featured';
+					$source_type = 'featured';
 			}
 		} else {
 			$source_type = 'unknown';
