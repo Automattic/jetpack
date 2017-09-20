@@ -2884,8 +2884,61 @@ p {
 		// For firing one-off events (notices) immediately after activation
 		set_transient( 'activated_jetpack', true, .1 * MINUTE_IN_SECONDS );
 
+		update_option( 'jetpack_activation_source', self::get_activation_source( wp_get_referer() ) );
+
 		Jetpack::plugin_initialize();
 	}
+
+	public static function get_activation_source( $referer_url ) {
+
+		if ( defined( 'WP_CLI' ) && WP_CLI ) {
+			return array( 'wp-cli', null );
+		}
+
+		$referer = parse_url( $referer_url );
+		
+		$source_type = 'unknown';
+		$source_query = null;
+
+		if ( ! is_array( $referer ) ) {
+			return array( $source_type, $source_query );
+		}
+
+		$plugins_path = parse_url( admin_url( 'plugins.php' ), PHP_URL_PATH );
+		$plugins_install_path = parse_url( admin_url( 'plugin-install.php' ), PHP_URL_PATH );// /wp-admin/plugin-install.php
+		
+		if ( isset( $referer['query'] ) ) {
+			parse_str( $referer['query'], $query_parts );
+		} else {
+			$query_parts = array();
+		}
+
+		if ( $plugins_path === $referer['path'] ) {
+			$source_type = 'list';
+		} elseif ( $plugins_install_path === $referer['path'] ) {
+			$tab = isset( $query_parts['tab'] ) ? $query_parts['tab'] : 'featured';
+			switch( $tab ) {
+				case 'popular':
+					$source_type = 'popular';
+					break;
+				case 'recommended':
+					$source_type = 'recommended';
+					break;
+				case 'favorites':
+					$source_type = 'favorites';
+					break;
+				case 'search':
+					$source_type = 'search-' . ( isset( $query_parts['type'] ) ? $query_parts['type'] : 'term' );
+					$source_query = isset( $query_parts['s'] ) ? $query_parts['s'] : null;
+					break;
+				default:
+					$source_type = 'featured';
+			}
+		}
+
+		return array( $source_type, $source_query );
+	}
+
 	/**
 	 * Runs before bumping version numbers up to a new version
 	 * @param  string $version    Version:timestamp
@@ -4332,6 +4385,8 @@ p {
 				)
 			);
 
+			$this->apply_activation_source_to_args( $args );
+
 			$url = add_query_arg( $args, Jetpack::api_url( 'authorize' ) );
 		}
 
@@ -4345,6 +4400,18 @@ p {
 		}
 
 		return $raw ? $url : esc_url( $url );
+	}
+
+	private function apply_activation_source_to_args( &$args ) {
+		list( $activation_source_name, $activation_source_keyword ) = get_option( 'jetpack_activation_source' );
+		
+		if ( $activation_source_name ) {
+			$args['_as'] = urlencode( $activation_source_name );
+		}
+
+		if ( $activation_source_keyword ) {
+			$args['_ak'] = urlencode( $activation_source_keyword );
+		}
 	}
 
 	function build_reconnect_url( $raw = false ) {
@@ -4882,6 +4949,9 @@ p {
 			),
 			'timeout' => $timeout,
 		);
+
+		$this->apply_activation_source_to_args( $args );
+
 		$response = Jetpack_Client::_wp_remote_request( Jetpack::fix_url_for_bad_hosts( Jetpack::api_url( 'register' ) ), $args, true );
 
 		// Make sure the response is valid and does not contain any Jetpack errors
