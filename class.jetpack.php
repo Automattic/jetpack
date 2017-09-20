@@ -2884,17 +2884,21 @@ p {
 		// For firing one-off events (notices) immediately after activation
 		set_transient( 'activated_jetpack', true, .1 * MINUTE_IN_SECONDS );
 
-		// set_transient( 'jetpack_activation_referer', wp_get_referer() );
-		set_option( 'jetpack_activation_source', self::get_activation_source( wp_get_referer() ) );
+		update_option( 'jetpack_activation_source', self::get_activation_source( wp_get_referer() ) );
 
 		Jetpack::plugin_initialize();
 	}
 
 	public static function get_activation_source( $referer_url ) {
+
+		if ( defined( 'WP_CLI' ) && WP_CLI ) {
+			return array( 'wp-cli', null );
+		}
+
 		$referer = parse_url( $referer_url );
 		
 		if ( ! is_array( $referer ) ) {
-			return false;
+			return array( 'unknown', null );
 		}
 
 		$plugins_path = parse_url( admin_url( 'plugins.php' ), PHP_URL_PATH );
@@ -2930,6 +2934,8 @@ p {
 				default:
 					$source_type = 'plugin-install-featured';
 			}
+		} else {
+			$source_type = 'unknown';
 		}
 
 		return array( $source_type, $source_query );
@@ -4381,6 +4387,16 @@ p {
 				)
 			);
 
+			list( $activation_source_name, $activation_source_keyword ) = get_option( 'jetpack_activation_source' );
+
+			if ( $activation_source_name ) {
+				$args['_as'] = urlencode( $activation_source_name );
+			}
+
+			if ( $activation_source_keyword ) {
+				$args['_ak'] = urlencode( $activation_source_keyword );
+			}
+
 			$url = add_query_arg( $args, Jetpack::api_url( 'authorize' ) );
 		}
 
@@ -4931,6 +4947,17 @@ p {
 			),
 			'timeout' => $timeout,
 		);
+
+		list( $activation_source_name, $activation_source_keyword ) = get_option( 'jetpack_activation_source', false );
+		
+		if ( $activation_source_name ) {
+			$args['_as'] = urlencode( $activation_source_name );
+		}
+
+		if ( $activation_source_keyword ) {
+			$args['_ak'] = urlencode( $activation_source_keyword );
+		}
+
 		$response = Jetpack_Client::_wp_remote_request( Jetpack::fix_url_for_bad_hosts( Jetpack::api_url( 'register' ) ), $args, true );
 
 		// Make sure the response is valid and does not contain any Jetpack errors
