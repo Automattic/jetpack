@@ -344,6 +344,10 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 		$jitm = Jetpack_JITM::init();
 
+		if ( ! $jitm ) {
+			return array();
+		}
+
 		return $jitm->get_messages( $request['message_path'], urldecode_deep( $request['query'] ) );
 	}
 
@@ -351,6 +355,10 @@ class Jetpack_Core_Json_Api_Endpoints {
 		require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-jitm.php' );
 
 		$jitm = Jetpack_JITM::init();
+
+		if ( ! $jitm ) {
+			return array();
+		}
 
 		return $jitm->dismiss( $request['id'], $request['feature_class'] );
 	}

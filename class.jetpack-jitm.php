@@ -18,6 +18,17 @@ class Jetpack_JITM {
 	 * @return Jetpack_JITM
 	 */
 	static function init() {
+		/**
+		 * Filter to turn off all just in time messages
+		 *
+		 * @since 3.7.0
+		 *
+		 * @param bool true Whether to show just in time messages.
+		 */
+		if ( ! apply_filters( 'jetpack_just_in_time_msgs', false ) ) {
+			return false;
+		}
+		
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new Jetpack_JITM;
 		}
@@ -69,7 +80,7 @@ class Jetpack_JITM {
 	 *
 	 * @return array The new message
 	 */
-	static function jitm_woocommerce_services_msg( $content ) {
+	function jitm_woocommerce_services_msg( $content ) {
 		if ( ! function_exists( 'wc_get_base_location' ) ) {
 			return $content;
 		}
@@ -97,7 +108,7 @@ class Jetpack_JITM {
 	 *
 	 * @return string The new CTA
 	 */
-	static function jitm_jetpack_woo_services_install( $CTA ) {
+	function jitm_jetpack_woo_services_install( $CTA ) {
 		return wp_nonce_url( add_query_arg( array(
 			'wc-services-action' => 'install'
 		), admin_url( 'admin.php?page=wc-settings' ) ), 'wc-services-install' );
@@ -110,7 +121,7 @@ class Jetpack_JITM {
 	 *
 	 * @return string The new CTA
 	 */
-	static function jitm_jetpack_woo_services_activate( $CTA ) {
+	function jitm_jetpack_woo_services_activate( $CTA ) {
 		return wp_nonce_url( add_query_arg( array(
 			'wc-services-action' => 'activate'
 		), admin_url( 'admin.php?page=wc-settings' ) ), 'wc-services-install' );
@@ -205,7 +216,7 @@ class Jetpack_JITM {
 	 *
 	 * @return array The JITM's to show, or an empty array if there is nothing to show
 	 */
-	static function get_messages( $message_path, $query ) {
+	function get_messages( $message_path, $query ) {
 		// custom filters go here
 		add_filter( 'jitm_woocommerce_services_msg', array( 'Jetpack_JITM', 'jitm_woocommerce_services_msg' ) );
 		add_filter( 'jitm_jetpack_woo_services_install', array( 'Jetpack_JITM', 'jitm_jetpack_woo_services_install' ) );
@@ -333,15 +344,5 @@ class Jetpack_JITM {
 		return $envelopes;
 	}
 }
-if (
-	/**
-	 * Filter to turn off all just in time messages
-	 *
-	 * @since 3.7.0
-	 *
-	 * @param bool true Whether to show just in time messages.
-	 */
-	apply_filters( 'jetpack_just_in_time_msgs', false )
-) {
-	Jetpack_JITM::init();
-}
+
+add_action( 'init', array( 'Jetpack_JITM', 'init' ) );
