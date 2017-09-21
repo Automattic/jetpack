@@ -28,7 +28,7 @@ const Search = moduleSettingsForm(
                 planClass = getPlanClass( this.props.sitePlan.product_slug );
             }
 
-            if ( includes( [ 'is-personal-plan', 'is-premium-plan', 'is-business-plan' ], planClass ) ) {
+            if ( 'is-business-plan' === planClass ) {
                 return (
                     <SettingsCard
                         { ...this.props }
