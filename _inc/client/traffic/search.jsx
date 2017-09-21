@@ -42,7 +42,7 @@ const Search = moduleSettingsForm(
                                 activated={ this.props.getOptionValue( 'search' ) }
                                 toggling={ this.props.isSavingAnyOption( 'search' ) }
                                 toggleModule={ this.props.toggleModuleNow }>
-                                { __( 'Enhanced site-wide search, powered by ElasticSearch (Beta)' ) }
+                                { __( 'Enhanced site-wide search, powered by Elasticsearch (Beta)' ) }
                             </ModuleToggle>
                         </SettingsGroup>
                     </SettingsCard>
