@@ -345,6 +345,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		</script>
 		<![endif]-->
 		<script type="text/javascript">
+			(function(){
 			var comm_par_el = document.getElementById( 'comment_parent' ),
 			    comm_par = (comm_par_el && comm_par_el.value) ? comm_par_el.value : '',
 			    frame = document.getElementById( 'jetpack_remote_comment' ),
@@ -400,26 +401,35 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			}
 
 	<?php endif; ?>
+			// Do the post message bit after the dom has loaded.
+			document.addEventListener( 'DOMContentLoaded', function() {
+				if (window.postMessage) {
+					if (document.addEventListener) {
+						window.addEventListener('message', function (event) {
+							if ( <?php echo json_encode( esc_url_raw( $url_origin ) ); ?> !==
+							event.origin
+						)
+							{
+								return;
+							}
 
-			if ( window.postMessage ) {
-				if ( document.addEventListener ) {
-					window.addEventListener( 'message', function( event ) {
-						if ( <?php echo json_encode( esc_url_raw( $url_origin ) ); ?> !== event.origin ) {
-							return;
-						}
+							jQuery(frame).height(event.data);
+						});
+					} else if (document.attachEvent) {
+						window.attachEvent('message', function (event) {
+							if ( <?php echo json_encode( esc_url_raw( $url_origin ) ); ?> !==
+							event.origin
+						)
+							{
+								return;
+							}
 
-						jQuery( frame ).height( event.data );
-					} );
-				} else if ( document.attachEvent ) {
-					window.attachEvent( 'message', function( event ) {
-						if ( <?php echo json_encode( esc_url_raw( $url_origin ) ); ?> !== event.origin ) {
-							return;
-						}
-
-						jQuery( frame ).height( event.data );
-					} );
+							jQuery(frame).height(event.data);
+						});
+					}
 				}
 			}
+			})();
 		</script>
 
 	<?php
