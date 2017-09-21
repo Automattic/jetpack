@@ -415,7 +415,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 			case 'whitelist':
 				$whitelist         = array();
 				$new_ip            = $args[1];
-				$current_whitelist = get_site_option( 'jetpack_protect_whitelist' );
+				$current_whitelist = get_site_option( 'jetpack_protect_whitelist', array() );
 
 				// Build array of IPs that are already whitelisted.
 				// Re-build manually instead of using jetpack_protect_format_whitelist() so we can easily get
