@@ -103,7 +103,7 @@ class Jetpack_Sync_Sender {
 		Jetpack_Sync_Settings::set_is_syncing( false );
 
 		$exceeded_sync_wait_threshold = ( microtime( true ) - $start_time ) > (double) $this->get_sync_wait_threshold();
-		
+
 		if ( is_wp_error( $sync_result ) ) {
 			if ( 'unclosed_buffer' === $sync_result->get_error_code() ) {
 				$this->set_next_sync_time( time() + self::QUEUE_LOCKED_SYNC_DELAY, $queue->id );
@@ -210,7 +210,7 @@ class Jetpack_Sync_Sender {
 		Jetpack_Sync_Settings::set_is_sending( true );
 		$processed_item_ids = apply_filters( 'jetpack_sync_send_data', $items_to_send, $this->codec->name(), microtime( true ), $queue->id, $checkout_duration, $preprocess_duration );
 		Jetpack_Sync_Settings::set_is_sending( false );
-		
+
 		if ( ! $processed_item_ids || is_wp_error( $processed_item_ids ) ) {
 			$checked_in_item_ids = $queue->checkin( $buffer );
 			if ( is_wp_error( $checked_in_item_ids ) ) {
@@ -348,8 +348,8 @@ class Jetpack_Sync_Sender {
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
 			$module->reset_data();
 		}
-		
-		foreach ( array( 'sync', 'full_sync' ) as $queue_name ) {
+
+		foreach ( array( 'sync', 'full_sync', 'full-sync-enqueue' ) as $queue_name ) {
 			delete_option( self::NEXT_SYNC_TIME_OPTION_NAME . '_' . $queue_name );
 		}
 
