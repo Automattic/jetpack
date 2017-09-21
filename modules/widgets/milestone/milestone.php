@@ -258,6 +258,7 @@ class Milestone_Widget extends WP_Widget {
 			'title'   => '',
 			'event'   => __( 'The Big Day', 'jetpack' ),
 			'unit'    => 'automatic',
+			'type'    => 'until',
 			'message' => __( 'The big day is here.', 'jetpack' ),
 			'day'     => date( 'd', $now ),
 			'month'   => date( 'm', $now ),
@@ -276,6 +277,7 @@ class Milestone_Widget extends WP_Widget {
 			'title'   => trim( strip_tags( stripslashes( $dirty['title'] ) ) ),
 			'event'   => trim( strip_tags( stripslashes( $dirty['event'] ) ) ),
 			'unit'    => $dirty['unit'],
+			'type'    => $dirty['type'],
 			'message' => wp_kses( $dirty['message'], $allowed_tags ),
 			'year'    => $this->sanitize_range( $dirty['year'],  1901, 2037 ),
 			'month'   => $this->sanitize_range( $dirty['month'], 1, 12 ),
@@ -359,7 +361,33 @@ class Milestone_Widget extends WP_Widget {
 			?></select>
 		</fieldset>
 
-		<p>
+		<ul class="milestone-type">
+			<li>
+				<label>
+					<input
+						<?php checked( $instance['type'], 'until' ); ?>
+						name="<?php echo esc_attr( $this->get_field_name( 'type' ) ); ?>"
+						type="radio"
+						value="until"
+					/>
+					<?php esc_html_e( 'Until your milestone', 'jetpack' ); ?>
+				</label>
+			</li>
+
+			<li>
+				<label>
+					<input
+						<?php checked( $instance['type'], 'since' ); ?>
+						name="<?php echo esc_attr( $this->get_field_name( 'type' ) ); ?>"
+						type="radio"
+						value="since"
+					/>
+					<?php esc_html_e( 'Since your milestone', 'jetpack' ); ?>
+				</label>
+			</li>
+		</ul>
+
+		<p class="milestone-message-wrapper">
 			<label for="<?php echo $this->get_field_id( 'message' ); ?>"><?php _e( 'Message', 'jetpack' ); ?></label>
 			<textarea id="<?php echo $this->get_field_id( 'message' ); ?>" name="<?php echo $this->get_field_name( 'message' ); ?>" class="widefat" rows="3"><?php echo esc_textarea( $instance['message'] ); ?></textarea>
 		</p>
