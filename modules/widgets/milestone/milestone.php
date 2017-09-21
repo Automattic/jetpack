@@ -324,7 +324,7 @@ class Milestone_Widget extends WP_Widget {
         </p>
 
         <p>
-        	<label for="<?php echo $this->get_field_id( 'event' ); ?>"><?php _e( 'Event', 'jetpack' ); ?></label>
+        	<label for="<?php echo $this->get_field_id( 'event' ); ?>"><?php _e( 'Description', 'jetpack' ); ?></label>
         	<input class="widefat" id="<?php echo $this->get_field_id( 'event' ); ?>" name="<?php echo $this->get_field_name( 'event' ); ?>" type="text" value="<?php echo esc_attr( $instance['event'] ); ?>" />
         </p>
 
@@ -401,7 +401,7 @@ class Milestone_Widget extends WP_Widget {
 		</ul>
 
 		<p class="milestone-message-wrapper">
-			<label for="<?php echo $this->get_field_id( 'message' ); ?>"><?php _e( 'Message', 'jetpack' ); ?></label>
+			<label for="<?php echo $this->get_field_id( 'message' ); ?>"><?php _e( 'Milestone Reached Message', 'jetpack' ); ?></label>
 			<textarea id="<?php echo $this->get_field_id( 'message' ); ?>" name="<?php echo $this->get_field_name( 'message' ); ?>" class="widefat" rows="3"><?php echo esc_textarea( $instance['message'] ); ?></textarea>
 		</p>
 	</div>
