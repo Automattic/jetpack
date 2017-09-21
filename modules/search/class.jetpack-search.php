@@ -102,7 +102,6 @@ class Jetpack_Search {
 	 * @return object|WP_Error The response from the public api, or a WP_Error
 	 */
 	public function search( array $es_args ) {
-		error_log("Searching for ".print_r($es_args,1));
 		$endpoint    = sprintf( '/sites/%s/search', $this->jetpack_blog_id );
 		$service_url = 'https://public-api.wordpress.com/rest/v1' . $endpoint;
 
@@ -143,20 +142,16 @@ class Jetpack_Search {
 		$end_time = microtime( true );
 
 		if ( is_wp_error( $request ) ) {
-			error_log(print_r($request,1));
 			return $request;
 		}
 
 		$response_code = wp_remote_retrieve_response_code( $request );
 
 		if ( ! $response_code || $response_code < 200 || $response_code >= 300 ) {
-			error_log("invalid API response");
 			return new WP_Error( 'invalid_search_api_response', 'Invalid response from API - ' . $response_code );
 		}
 
 		$response = json_decode( wp_remote_retrieve_body( $request ), true );
-
-		error_log(print_r($response,1));
 
 		$took = is_array( $response ) && $response['took'] ? $response['took'] : null;
 
