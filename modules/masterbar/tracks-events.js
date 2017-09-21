@@ -1,3 +1,4 @@
+/*globals JSON, jetpackTracks */
 (function( $, jetpackTracks ) {
 	window._tkq = window._tkq || [];
 
@@ -7,7 +8,7 @@
 		'wp-admin-bar-newdash'     : 'jetpack_masterbar_reader_link_click',
 		'wp-admin-bar-ab-new-post' : 'jetpack_masterbar_write_button_click',
 		'wp-admin-bar-my-account'  : 'jetpack_masterbar_my_account_link_click',
-		'wp-admin-bar-notes'       : 'jetpack_masterbar_notifications_link_click',
+		'wp-admin-bar-notes'       : 'jetpack_masterbar_notifications_link_click'
 	};
 
 	var linksWhitelist = [
@@ -26,22 +27,22 @@
 		// account - profile
 		'wp-admin-bar-my-profile', 'wp-admin-bar-account-settings', 'wp-admin-bar-billing', 'wp-admin-bar-security', 'wp-admin-bar-notifications',
 		//account - special
-		'wp-admin-bar-get-apps', 'wp-admin-bar-next-steps', 'wp-admin-bar-help',
+		'wp-admin-bar-get-apps', 'wp-admin-bar-next-steps', 'wp-admin-bar-help'
 	];
 
 	var notesTracksEvents = {
 		openSite: {
 			name: 'jetpack_masterbar_notifications_open_site',
-			properties: function( data ) { return { site_id: data.siteId, post_id: data.postId } }
+			properties: function( data ) { return { site_id: data.siteId, post_id: data.postId }; }
 		},
 		openPost: {
 			name: 'jetpack_masterbar_notifications_open_post',
-			properties: function( data ) { return { site_id: data.siteId, post_id: data.postId } }
+			properties: function( data ) { return { site_id: data.siteId, post_id: data.postId }; }
 		},
 		openComment: {
 			name: 'jetpack_masterbar_notifications_open_comment',
-			properties: function( data ) { return { site_id: data.siteId, post_id: data.postId, comment_id: data.commentId } }
-		},
+			properties: function( data ) { return { site_id: data.siteId, post_id: data.postId, comment_id: data.commentId }; }
+		}
 	};
 
 	var nonce = jetpackTracks.tracks_nonce;
@@ -77,7 +78,7 @@
 				e.preventDefault();
 				window.location = 'jetpack-track-and-bounce.php?' + $.param( {
 					tracks_and_bounce: trackId,
-					tracks_and_bounce_nonce: nonce,
+					tracks_and_bounce_nonce: nonce
 				} );
 			}
 		} );
@@ -90,7 +91,7 @@
 			return;
 		}
 
-		var data = ( 'string' == typeof event.data ) ? parseJson( event.data, {} ) : event.data;
+		var data = ( 'string' === typeof event.data ) ? parseJson( event.data, {} ) : event.data;
 		if ( 'notesIframeMessage' !== data.type ) {
 			return;
 		}
