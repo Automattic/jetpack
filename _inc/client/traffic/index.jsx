@@ -17,7 +17,7 @@ import { GoogleAnalytics } from './google-analytics';
 import { Ads } from './ads';
 import { SiteStats } from './site-stats';
 import { RelatedPosts } from './related-posts';
-import { Search } from './search';
+import Search from './search';
 import { VerificationServices } from './verification-services';
 import Sitemaps from './sitemaps';
 import { getLastPostUrl } from 'state/initial-state';
