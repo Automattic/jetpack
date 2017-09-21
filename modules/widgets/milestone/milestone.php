@@ -175,8 +175,13 @@ class Milestone_Widget extends WP_Widget {
 
 		$milestone = mktime( $instance['hour'], $instance['min'], 0, $instance['month'], $instance['day'], $instance['year'] );
 		$now  = (int) current_time( 'timestamp' );
-		$diff = (int) floor( $milestone - $now );
-		$unit = $instance['unit'];
+		$type = $instance['type'];
+
+		if ( 'since' === $type ) {
+			$diff = (int) floor( $now - $milestone );
+		} else {
+			$diff = (int) floor( $milestone - $now );
+		}
 
 		echo $args['before_widget'];
 
@@ -192,14 +197,20 @@ class Milestone_Widget extends WP_Widget {
 		echo '<span class="date">' . esc_html( date_i18n( __( 'F jS, Y', 'jetpack' ), $milestone ) ) . '</span>';
 		echo '</div>';
 
-		if ( 1 > $diff ) {
-			/* Milestone has past. */
+		if ( ( 1 > $diff ) && ( 'until' === $type ) ) {
 			echo '<div class="milestone-message">' . $instance['message'] . '</div>';
 		} else {
+			if ( 'since' === $type ) {
+				$text = __( 'ago.', 'jetpack' );
+			} else {
+				$text = __( 'to go.', 'jetpack' );
+			}
+
 			/* Countdown to the milestone. */
-			echo '<div class="milestone-countdown">' . sprintf( __( '%1$s %2$s to go.', 'jetpack' ),
+			echo '<div class="milestone-countdown">' . sprintf( __( '%1$s %2$s %3$s', 'jetpack' ),
 				'<span class="difference"></span>',
-				'<span class="label"></span>'
+				'<span class="label"></span>',
+				$text
 			) . '</div>';
 
 			self::$config_js['instances'][] = array(
@@ -207,6 +218,7 @@ class Milestone_Widget extends WP_Widget {
 				'diff'    => $diff,
 				'message' => $instance['message'],
 				'unit'    => $instance['unit'],
+				'type'    => $instance['type'],
 			);
 		}
 

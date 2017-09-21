@@ -9,6 +9,7 @@ var Milestone = ( function( $ ) {
 		this.diff = args.diff;
 		this.message = args.message;
 		this.unit = args.unit;
+		this.type = args.type;
 		this.widget = $( '#' + this.id );
 		this.widgetContent = this.widget.find( '.milestone-content' );
 		this.secondsPerMonth = 2628000;
@@ -71,7 +72,11 @@ var Milestone = ( function( $ ) {
 		};
 
 		this.timer = function() {
-			this.diff = this.diff - 1;
+			if ( 'until' === this.type ) {
+				this.diff = this.diff - 1;
+			} else {
+				this.diff = this.diff + 1;
+			}
 
 			switch ( this.unit ) {
 				case 'months':
@@ -147,8 +152,14 @@ var Milestone = ( function( $ ) {
 			this.widget.find( '.difference' ).html( this.number );
 			this.widget.find( '.label' ).html( this.label );
 
+			// Milestone has been reached.
 			if ( 1 > this.diff ) {
-				this.widget.find( '.milestone-countdown' ).replaceWith( '<div class="milestone-message">' + this.message + '</div>' );
+				// Message is not applicable when counting up to future date.
+				if ( this.type === 'since' ) {
+					this.widget.find( '.milestone-countdown' ).remove();
+				} else {
+					this.widget.find( '.milestone-countdown' ).replaceWith( '<div class="milestone-message">' + this.message + '</div>' );
+				}
 			} else {
 				var instance = this;
 				setTimeout( function() { instance.timer(); }, 1000 );
