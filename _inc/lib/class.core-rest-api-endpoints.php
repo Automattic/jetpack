@@ -790,6 +790,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 			$results = json_decode( $response['body'], true );
 
 			if ( is_array( $results ) && isset( $results['plan'] ) ) {
+
+				// Set flag for newly purchased plan
+				$current_plan = Jetpack::get_active_plan();
+				if ( $current_plan['product_slug'] !== $results['plan']['product_slug'] ) {
+					update_option( 'show_welcome_for_new_plan', true ) ;
+				}
+
 				update_option( 'jetpack_active_plan', $results['plan'] );
 			}
 
@@ -1770,6 +1777,15 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 			// Empty stats card dismiss
 			'dismiss_empty_stats_card' => array(
+				'description'       => '',
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'settings',
+			),
+
+			// Show welcome for newly purchased plan
+			'show_welcome_for_new_plan' => array(
 				'description'       => '',
 				'type'              => 'boolean',
 				'default'           => 0,

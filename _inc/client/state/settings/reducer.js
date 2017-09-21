@@ -201,3 +201,12 @@ export function appsCardDismissed( state ) {
 export function emptyStatsCardDismissed( state ) {
 	return get( state.jetpack.settings.items, 'dismiss_empty_stats_card', false );
 }
+
+/**
+ * Returns true if Empty Stats card has been dismissed.
+ * @param  {Object}  state Global state tree
+ * @return {Boolean} Whether the card has been dismissed
+ */
+export function showWelcomeForNewPlan( state ) {
+	return get( state.jetpack.settings.items, 'show_welcome_for_new_plan', false );
+}

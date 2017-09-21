@@ -27,7 +27,7 @@ import {
 	getApiRootUrl,
 	userCanManageModules
 } from 'state/initial-state';
-import { areThereUnsavedSettings, clearUnsavedSettingsFlag } from 'state/settings';
+import { areThereUnsavedSettings, clearUnsavedSettingsFlag, showWelcomeForNewPlan } from 'state/settings';
 import { getSearchTerm } from 'state/search';
 import AtAGlance from 'at-a-glance/index.jsx';
 import Plans from 'plans/index.jsx';
@@ -41,6 +41,7 @@ import Tracker from 'components/tracker';
 import analytics from 'lib/analytics';
 import restApi from 'rest-api';
 import { getTracksUserData } from 'state/initial-state';
+import WelcomeNewPlan from 'components/welcome-new-plan';
 
 const Main = React.createClass( {
 	componentWillMount: function() {
@@ -104,7 +105,8 @@ const Main = React.createClass( {
 			nextProps.jumpStartStatus !== this.props.jumpStartStatus ||
 			nextProps.isLinked !== this.props.isLinked ||
 			nextProps.route.path !== this.props.route.path ||
-			nextProps.searchTerm !== this.props.searchTerm;
+			nextProps.searchTerm !== this.props.searchTerm ||
+			nextProps.newPlanActivated !== this.props.newPlanActivated;
 	},
 
 	componentDidUpdate( prevProps ) {
@@ -182,6 +184,14 @@ const Main = React.createClass( {
 					</div>
 				);
 			}
+		}
+
+		if ( this.props.newPlanActivated ) {
+			return (
+				<div aria-live="assertive">
+					<WelcomeNewPlan dismiss={ this.props.dismissWelcomeNewPlan } />
+				</div>
+			);
 		}
 
 		let pageComponent,
@@ -262,7 +272,8 @@ export default connect(
 			tracksUserData: getTracksUserData( state ),
 			areThereUnsavedSettings: areThereUnsavedSettings( state ),
 			userCanManageModules: userCanManageModules( state ),
-			isSiteConnected: isSiteConnected( state )
+			isSiteConnected: isSiteConnected( state ),
+			newPlanActivated: showWelcomeForNewPlan( state ),
 		};
 	},
 	( dispatch ) => ( {
