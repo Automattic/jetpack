@@ -84,7 +84,7 @@ class Jetpack_JITM {
 	 *
 	 * @return array The new message
 	 */
-	function jitm_woocommerce_services_msg( $content ) {
+	static function jitm_woocommerce_services_msg( $content ) {
 		if ( ! function_exists( 'wc_get_base_location' ) ) {
 			return $content;
 		}
@@ -112,7 +112,7 @@ class Jetpack_JITM {
 	 *
 	 * @return string The new CTA
 	 */
-	function jitm_jetpack_woo_services_install( $CTA ) {
+	static function jitm_jetpack_woo_services_install( $CTA ) {
 		return wp_nonce_url( add_query_arg( array(
 			'wc-services-action' => 'install'
 		), admin_url( 'admin.php?page=wc-settings' ) ), 'wc-services-install' );
@@ -125,7 +125,7 @@ class Jetpack_JITM {
 	 *
 	 * @return string The new CTA
 	 */
-	function jitm_jetpack_woo_services_activate( $CTA ) {
+	static function jitm_jetpack_woo_services_activate( $CTA ) {
 		return wp_nonce_url( add_query_arg( array(
 			'wc-services-action' => 'activate'
 		), admin_url( 'admin.php?page=wc-settings' ) ), 'wc-services-install' );
