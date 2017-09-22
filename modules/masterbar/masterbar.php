@@ -21,52 +21,7 @@ class A8C_WPCOM_Masterbar {
 	private $primary_site_slug;
 	private $user_text_direction;
 	private $user_site_count;
-
-	private $links_tracks_events = array(
-		"wp-admin-bar-switch-site"                => array( "masterbar_switch_site_link_click", "/sites" ),
-		"wp-admin-bar-blog-info"                  => array( "masterbar_blog_info_link_click", "{blog_url}" ),
-		"wp-admin-bar-site-view"                  => array( "masterbar_view_site_link_click", "{blog_url}" ),
-		"wp-admin-bar-blog-stats"                 => array( "masterbar_blog_stats_link_click", "/stats/{blog_url}" ),
-		"wp-admin-bar-plan"                       => array( "masterbar_plan_link_click", "/stats/{blog_url}" ),
-		"wp-admin-bar-plan-secondary"             => array( "masterbar_plan_badge_link_click", "/plan/{blog_url}" ),
-		//my sites - manage
-		"wp-admin-bar-new-page"                   => array( "masterbar_new_page_link_click", "/pages/{blog_url}" ),
-		"wp-admin-bar-new-page-secondary"         => array( "masterbar_add_page_link_click", "/page/{blog_url}" ),
-		"wp-admin-bar-new-post"                   => array( "masterbar_new_post_link_click", "/posts/{blog_url}" ),
-		"wp-admin-bar-new-post-secondary"         => array( "masterbar_add_new_post_link_click", "/post/{blog_url}" ),
-		"wp-admin-bar-comments"                   => array( "masterbar_comments_link_click", "/comments/{blog_url}" ),
-		//my sites - personalize
-		"wp-admin-bar-themes"                     => array( "masterbar_themes_link_click", "/design/{blog_url}" ),
-		"wp-admin-bar-themes-secondary"           => array( "masterbar_themes_customize_button_click", "/design/{blog_url}" ),
-		//my sites - configure
-		"wp-admin-bar-sharing"                    => array( "masterbar_configure_sharing_link_click", "/sharing/{blog_url}" ),
-		"wp-admin-bar-users-toolbar"              => array( "masterbar_configure_people_link_click", "/people/team/{blog_url}" ),
-		"wp-admin-bar-users-toolbar-secondary"    => array( "masterbar_configure_people_add_button_click", "/wp-admin/user-new.php" ),
-		"wp-admin-bar-plugins"                    => array( "masterbar_configure_plugins_link_click", "/plugins/{blog_url}" ),
-		"wp-admin-bar-plugins-secondary"          => array( "masterbar_configure_plugins_add_button_click", "/plugins/browse/{blog_url}" ),
-		"wp-admin-bar-blog-settings"              => array( "masterbar_settings_link_click", "/settings/general/{blog_url}" ),
-
-		//reader
-		"wp-admin-bar-following"                  => array( "masterbar_followed_sites_link_click", "" ),
-		"wp-admin-bar-following-secondary"        => array( "masterbar_followed_sites_manage_button_click", "/following/edit" ),
-		"wp-admin-bar-discover-discover"          => array( "masterbar_reader_discover_link_click", "/discover" ),
-		"wp-admin-bar-discover-search"            => array( "masterbar_reader_search_link_click", "/read/search" ),
-		"wp-admin-bar-discover-recommended-blogs" => array( "masterbar_reader_recommendations_link_click", "/recommendations" ),
-		"wp-admin-bar-my-activity-my-likes"       => array( "masterbar_reader_my_links_link_click", "/activities/likes" ),
-
-		//account
-		"wp-admin-bar-user-info"                  => array( "masterbar_user_name_link_click", "" ),
-		// account - profile
-		"wp-admin-bar-my-profile"                 => array( "masterbar_profile_my_profile_link_click", "/me" ),
-		"wp-admin-bar-account-settings"           => array( "masterbar_profile_account_settings_link_click", "/me/account" ),
-		"wp-admin-bar-billing"                    => array( "masterbar_profile_manage_purchases_link_click", "/me/purchases" ),
-		"wp-admin-bar-security"                   => array( "masterbar_profile_security_link_click", "/me/security" ),
-		"wp-admin-bar-notifications"              => array( "masterbar_profile_notifications_link_click", "/me/notifications" ),
-		//account - special
-		"wp-admin-bar-get-apps"                   => array( "masterbar_get_apps_link_click", "/me/get-apps" ),
-		"wp-admin-bar-next-steps"                 => array( "masterbar_next_steps_link_click", "/me/next" ),
-		"wp-admin-bar-help"                       => array( "masterbar_help_link_click", "" ),
-	);
+	private $tracks_events;
 
 	function __construct() {
 		$this->locale  = $this->get_locale();
@@ -91,6 +46,8 @@ class A8C_WPCOM_Masterbar {
 
 		// Used to build menu links that point directly to Calypso.
 		$this->primary_site_slug = Jetpack::build_raw_urls( get_home_url() );
+
+		$this->initialize_tracks_events( $this->primary_site_slug );
 
 		// Used for display purposes and for building WP Admin links.
 		$this->primary_site_url = str_replace( '::', '/', $this->primary_site_slug );
