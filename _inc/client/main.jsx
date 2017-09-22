@@ -189,7 +189,10 @@ const Main = React.createClass( {
 		if ( this.props.newPlanActivated ) {
 			return (
 				<div aria-live="assertive">
-					<WelcomeNewPlan dismiss={ this.props.dismissWelcomeNewPlan } />
+					<WelcomeNewPlan
+						dismiss={ this.props.dismissWelcomeNewPlan }
+						siteRawUrl={ this.props.siteRawUrl }
+					/>
 				</div>
 			);
 		}

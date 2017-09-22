@@ -5,6 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { Component } from 'react';
 import { translate as __ } from 'i18n-calypso';
+import { getPlanClass } from 'lib/plans/constants';
 
 /**
  * Internal dependencies
@@ -13,26 +14,35 @@ import JetpackDialogue from 'components/jetpack-dialogue';
 import { imagePath } from 'constants';
 import { getSitePlan } from 'state/site';
 import { updateSettings } from 'state/settings';
+import WelcomePersonal from './personal';
+import WelcomePremium from './premium';
+import WelcomeProfessional from './professional';
 
 class WelcomeNewPlan extends Component {
-	renderInnerContent() {
-		const sitePlan = this.props.sitePlan.product_slug || '';
-		return (
-			<div>
-				{ sitePlan }
-			</div>
-		);
-	}
-
 	render() {
-		return (
-			<JetpackDialogue
-				svg={ <img src={ imagePath + 'people-around-page.svg' } width="250" alt={ __( 'People around page' ) } /> }
-				title={ this.props.sitePlan.product_slug || '' }
-				content={ this.renderInnerContent() }
-				dismiss={ this.props.dismiss }
-			/>
-		);
+		const planClass = getPlanClass( this.props.sitePlan.product_slug );
+		const defaultProps = {
+			dismiss: this.props.dismiss,
+			siteRawUrl: this.props.siteRawUrl,
+		};
+
+		switch ( planClass ) {
+			case 'is-personal-plan' :
+				return <WelcomePersonal { ...defaultProps } />;
+			case 'is-premium-plan' :
+				return <WelcomePremium { ...defaultProps } />;
+			case 'is-business-plan' :
+				return <WelcomeProfessional { ...defaultProps } />;
+			default :
+				return (
+					<JetpackDialogue
+						svg={ <img src={ imagePath + 'people-around-page.svg' } width="250" alt={ __( 'People around page' ) } /> }
+						title={ '' }
+						content={ '' }
+						dismiss={ this.props.dismiss }
+					/>
+				);
+		}
 	}
 }
 

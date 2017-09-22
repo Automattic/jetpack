@@ -40,6 +40,9 @@ class JetpackDialogue extends Component {
 					<Card>
 						{ this.props.content }
 					</Card>
+					<div>
+						{ this.props.belowContent }
+					</div>
 				</div>
 			</div>
 		);
@@ -48,6 +51,10 @@ class JetpackDialogue extends Component {
 
 JetpackDialogue.propTypes = {
 	content: React.PropTypes.oneOfType( [
+		React.PropTypes.string,
+		React.PropTypes.object,
+	] ).isRequired,
+	belowContent: React.PropTypes.oneOfType( [
 		React.PropTypes.string,
 		React.PropTypes.object,
 	] ).isRequired,
@@ -65,6 +72,7 @@ JetpackDialogue.defaultProps = {
 	showDismiss: true,
 	dismiss: noop,
 	content: '',
+	belowContent: '',
 	title: '',
 };
 
