@@ -4609,12 +4609,45 @@ p {
 	 * @return string Secret token
 	 */
 	public static function create_onboarding_token() {
-		if ( false === ( $token = get_transient( 'jetpack_onboarding_token' ) ) ) {
+		if ( false === ( $token = get_option( 'jetpack_onboarding_token' ) ) ) {
 			$token = wp_generate_password( 32, false );
-			set_transient( 'jetpack_onboarding_token', $token, 86400 );
+			update_option( 'jetpack_onboarding_token', $token );
 		}
 
 		return $token;
+	}
+
+	/**
+	 * Remove the onboarding token
+	 *
+	 * @return bool True on success, false on failure
+	 */
+	public static function invalidate_onboarding_token() {
+		return delete_option( 'jetpack_onboarding_token' );
+	}
+
+	/**
+	 * Validate an onboarding token for a specific action
+	 *
+	 * @return boolean True if token/action pair is accepted, false if not
+	 */
+	public static function validate_onboarding_token_action( $token, $action ) {
+		// Compare tokens, bail if tokens do not match
+		if ( $token !== get_option( 'jetpack_onboarding_token' ) ) {
+			return false;
+		}
+
+		// List of valid actions we can take
+		$valid_actions = array(
+			'/jetpack/v4/settings',
+		);
+
+		// Whitelist the action
+		if ( ! in_array( $action, $valid_actions ) ) {
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
