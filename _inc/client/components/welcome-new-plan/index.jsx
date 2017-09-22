@@ -16,15 +16,27 @@ import WelcomePremium from './premium';
 import WelcomeProfessional from './professional';
 
 class WelcomeNewPlan extends Component {
+	constructor() {
+		super();
+		this.state = {
+			planWelcomeDismissed: false,
+		};
+	}
+
+	dismissWelcome() {
+		this.setState( { planWelcomeDismissed: true } );
+		this.props.dismiss();
+	}
+
 	render() {
 		const planClass = getPlanClass( this.props.sitePlan.product_slug );
 		const defaultProps = {
-			dismiss: this.props.dismiss,
+			dismiss: this.dismissWelcome.bind( this ),
 			siteRawUrl: this.props.siteRawUrl,
 		};
 
 		// Hide from non-admins
-		if ( ! this.props.newPlanActivated || ! this.props.userCanManageModules ) {
+		if ( ! this.props.newPlanActivated || ! this.props.userCanManageModules || this.state.planWelcomeDismissed ) {
 			return false;
 		}
 
