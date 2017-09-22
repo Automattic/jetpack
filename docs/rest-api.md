@@ -1,6 +1,6 @@
 # Jetpack HTTP API
 
-Jetpack's HTTP API is built as an [extension to the WP-API](http://v2.wp-api.org/extending/adding/). Thus, you may find additional information on approaching the API in the [WP API Docs](http://v2.wp-api.org/).
+Jetpack's HTTP API is built as an [extension to the WordPress core REST API](https://developer.wordpress.org/rest-api/extending-the-rest-api/). Thus, you may find additional information on approaching the API in the [REST API Handbook](https://developer.wordpress.org/rest-api/).
 
 * [How to use](#how-to-use)
 * [API Authentication and authorization](#api-request-authorization-via-nonces)
@@ -47,7 +47,7 @@ fetch( '/wp-json/jetpack/v4/settings', {
 ```
 ## API Authentication and authorization
 
-The API requests rely on [cookie-based authentication and a specific nonce](http://v2.wp-api.org/guide/authentication/#cookie-authentication)
+The API requests rely on [cookie-based authentication and a specific nonce](https://developer.wordpress.org/rest-api/using-the-rest-api/authentication/#cookie-authentication)
 for requests to be authorized.
 
 ### API Request Authorization via nonces
@@ -82,7 +82,7 @@ All endpoints return and accept JSON. Make sure you add the proper `content-type
 
 ### Discovery endpoint
 
-WP-API-compatible [capabilities document](http://v2.wp-api.org/guide/discovery/) for the endpoints registered by Jetpack.
+Core REST API-compatible [capabilities document](https://developer.wordpress.org/rest-api/using-the-rest-api/discovery/) for the endpoints registered by Jetpack.
 
 `GET /wp-json/jetpack/v4`
 
