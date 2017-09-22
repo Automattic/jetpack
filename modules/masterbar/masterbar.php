@@ -58,6 +58,7 @@ class A8C_WPCOM_Masterbar {
 		add_action( 'init', array( $this, 'tracks_and_redirect_add_route' ) );
 		add_filter( 'query_vars', array( $this, 'tracks_and_redirect_add_query_vars' ) );
 		add_action( 'parse_request', array( $this, 'tracks_and_redirect_parse_request' ) );
+		add_filter( 'allowed_redirect_hosts', array( $this, 'tracks_and_redirect_allow_wpcom_domain' ) );
 
 		if ( $this->is_rtl() ) {
 			// Extend core WP_Admin_Bar class in order to add rtl styles
