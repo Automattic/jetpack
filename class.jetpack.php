@@ -612,6 +612,7 @@ class Jetpack {
 
 		// A filter to control all just in time messages
 		add_filter( 'jetpack_just_in_time_msgs', '__return_true', 9 );
+		add_filter( 'jetpack_just_in_time_msg_cache', '__return_true', 9);
 
 		// If enabled, point edit post and page links to Calypso instead of WP-Admin.
 		// We should make sure to only do this for front end links.
@@ -669,6 +670,17 @@ class Jetpack {
 	}
 
 	function jetpack_track_last_sync_callback( $params ) {
+		/**
+		 * Filter to turn off jitm caching
+		 *
+		 * @since 5.4.0
+		 *
+		 * @param bool true Whether to cache just in time messages
+		 */
+		if ( ! apply_filters( 'jetpack_just_in_time_msg_cache', false ) ) {
+			return $params;
+		}
+
 		if ( is_array( $params ) && isset( $params[0] ) ) {
 			$option = $params[0];
 			if ( 'active_plugins' === $option ) {

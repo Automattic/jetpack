@@ -251,8 +251,25 @@ class Jetpack_JITM {
 		$envelopes = get_transient( 'jetpack_jitm_' . substr( md5( $path ), 0, 31 ) );
 
 		// if something is in the cache and it was put in the cache after the last sync we care about, use it
-		$last_sync = (int) get_transient( 'jetpack_last_plugin_sync' );
-		$from_cache = $envelopes && $last_sync > 0 && $last_sync < $envelopes['last_response_time'];
+		$use_cache = false;
+
+		/**
+		 * Filter to turn off jitm caching
+		 *
+		 * @since 5.4.0
+		 *
+		 * @param bool true Whether to cache just in time messages
+		 */
+		if ( apply_filters( 'jetpack_just_in_time_msg_cache', false ) ) {
+			$use_cache = true;
+		}
+
+		if ( $use_cache ) {
+			$last_sync  = (int) get_transient( 'jetpack_last_plugin_sync' );
+			$from_cache = $envelopes && $last_sync > 0 && $last_sync < $envelopes['last_response_time'];
+		} else {
+			$from_cache = false;
+		}
 
 		// otherwise, ask again
 		if ( ! $from_cache ) {
@@ -278,10 +295,14 @@ class Jetpack_JITM {
 				return array();
 			}
 
-			$expiration                 = isset( $envelopes[0] ) ? $envelopes[0]->ttl : 300;
-			$envelopes['last_response_time'] = time();
+			$expiration = isset( $envelopes[0] ) ? $envelopes[0]->ttl : 300;
 
-			set_transient( 'jetpack_jitm_' . substr( md5( $path ), 0, 31 ), $envelopes, $expiration );
+			// do not cache if expiration is 0 or we're not using the cache
+			if ( 0 != $expiration && $use_cache ) {
+				$envelopes['last_response_time'] = time();
+
+				set_transient( 'jetpack_jitm_' . substr( md5( $path ), 0, 31 ), $envelopes, $expiration );
+			}
 		}
 
 		$hidden_jitms = Jetpack_Options::get_option( 'hide_jitm' );
