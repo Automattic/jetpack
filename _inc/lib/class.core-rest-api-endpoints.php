@@ -365,7 +365,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$jitm = Jetpack_JITM::init();
 
 		if ( ! $jitm ) {
-			return array();
+			return true;
 		}
 
 		return $jitm->dismiss( $request['id'], $request['feature_class'] );
