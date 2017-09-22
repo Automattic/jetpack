@@ -1724,10 +1724,10 @@ class Jetpack_Core_Json_Api_Endpoints {
 			),
 
 			'onboarding' => array(
-				'token'             => '',
 				'description'       => '',
 				'type'              => 'object',
 				'default'           => array(
+					'token'            => '',
 					'siteTitle'        => '',
 					'siteDescription'  => '',
 					'genre'            => 'blog',
