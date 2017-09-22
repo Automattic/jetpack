@@ -174,7 +174,7 @@ class WelcomePremium extends Component {
 				content={ this.renderInnerContent() }
 				belowContent={ this.renderBelowContent() }
 				dismiss={ this.props.dismiss }
-				className="is-premium"
+				className="jp-welcome-new-plan is-premium"
 			/>
 		);
 	}
