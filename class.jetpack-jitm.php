@@ -253,13 +253,7 @@ class Jetpack_JITM {
 		// if something is in the cache and it was put in the cache after the last sync we care about, use it
 		$use_cache = false;
 
-		/**
-		 * Filter to turn off jitm caching
-		 *
-		 * @since 5.4.0
-		 *
-		 * @param bool true Whether to cache just in time messages
-		 */
+		/** This filter is documented in class.jetpack.php */
 		if ( apply_filters( 'jetpack_just_in_time_msg_cache', false ) ) {
 			$use_cache = true;
 		}
