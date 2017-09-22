@@ -84,7 +84,7 @@ export function isFetchingSiteData( state ) {
  * @return {Object|Boolean}  Site plan
  */
 export function getSitePlan( state ) {
-	return get( state.jetpack.siteData, [ 'data', 'plan' ], {} );
+	return get( state.jetpack.siteData, [ 'data', 'plan'], {} );
 }
 
 /**
