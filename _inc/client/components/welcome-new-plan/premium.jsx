@@ -21,8 +21,8 @@ class WelcomePremium extends Component {
 						'now {{enableVideo}}enable our premium video player{{/enableVideo}}, ' +
 						'and {{adsSettings}}turn on ads{{/adsSettings}} to start generating a bit of cash.', {
 							components: {
-								enableVideo: <a href="#" />,
-								adsSettings: <a href="#" />,
+								enableVideo: <a onClick={ this.props.dismiss } href="#/writing" />,
+								adsSettings: <a onClick={ this.props.dismiss } href="#/traffic" />,
 							}
 					} ) }
 				</p>
@@ -34,23 +34,18 @@ class WelcomePremium extends Component {
 		return (
 			<div>
 				<Card
-					href={ 'whatever.com' }
+					href={ '#/writing' }
 					compact
 					className="jp-dialogue-card__below"
-				>
-					{ __( 'Explore Backups' ) }
-				</Card>
-				<Card
-					href={ 'whatever.com' }
-					compact
-					className="jp-dialogue-card__below"
+					onClick={ this.props.dismiss }
 				>
 					{ __( 'Enable premium video player' ) }
 				</Card>
 				<Card
-					href={ 'whatever.com' }
+					href={ '#/traffic' }
 					compact
 					className="jp-dialogue-card__below"
+					onClick={ this.props.dismiss }
 				>
 					{ __( 'Enable Ads' ) }
 				</Card>

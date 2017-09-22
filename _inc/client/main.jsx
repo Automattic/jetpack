@@ -186,17 +186,6 @@ const Main = React.createClass( {
 			}
 		}
 
-		if ( this.props.newPlanActivated ) {
-			return (
-				<div aria-live="assertive">
-					<WelcomeNewPlan
-						dismiss={ this.props.dismissWelcomeNewPlan }
-						siteRawUrl={ this.props.siteRawUrl }
-					/>
-				</div>
-			);
-		}
-
 		let pageComponent,
 			navComponent = <Navigation route={ this.props.route }/>,
 			settingsNav = <NavigationSettings route={ this.props.route } siteRawUrl={ this.props.siteRawUrl } siteAdminUrl={ this.props.siteAdminUrl } />;
@@ -237,6 +226,11 @@ const Main = React.createClass( {
 			<div aria-live="assertive">
 				{ navComponent }
 				{ pageComponent }
+				<WelcomeNewPlan
+					siteRawUrl={ this.props.siteRawUrl }
+					newPlanActivated={ this.props.newPlanActivated }
+					userCanManageModules={ this.props.userCanManageModules }
+				/>
 			</div>
 		);
 	},

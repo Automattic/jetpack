@@ -21,9 +21,9 @@ class WelcomeProfessional extends Component {
 						'now {{installThemes}}install our premium themes{{/installThemes}}, {{enableVideo}}enable our premium video player{{/enableVideo}}, ' +
 						'and {{adsSettings}}turn on ads{{/adsSettings}} to start generating a bit of cash.', {
 							components: {
-								installThemes: <a href="#" />,
-								enableVideo: <a href="#" />,
-								adsSettings: <a href="#" />,
+								installThemes: <a onClick={ this.props.dismiss } href={ 'https://wordpress.com/themes/premium/' + this.props.siteRawUrl } />,
+								enableVideo: <a onClick={ this.props.dismiss } href="#/writing" />,
+								adsSettings: <a onClick={ this.props.dismiss } href="#/traffic" />,
 						}
 					} ) }
 				</p>
@@ -35,23 +35,18 @@ class WelcomeProfessional extends Component {
 		return (
 			<div>
 				<Card
-					href={ 'whatever.com' }
-					compact
-					className="jp-dialogue-card__below"
-				>
-					{ __( 'Explore Backups' ) }
-				</Card>
-				<Card
 					href={ 'https://wordpress.com/themes/premium/' + this.props.siteRawUrl }
 					compact
 					className="jp-dialogue-card__below"
+					onClick={ this.props.dismiss }
 				>
 					{ __( 'Install Themes' ) }
 				</Card>
 				<Card
-					href={ 'whatever.com' }
+					href={ '#/traffic' }
 					compact
 					className="jp-dialogue-card__below"
+					onClick={ this.props.dismiss }
 				>
 					{ __( 'Enable Ads' ) }
 				</Card>
