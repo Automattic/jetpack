@@ -455,10 +455,13 @@ add_action( 'plugins_loaded', array( 'Jetpack_Sync_Actions', 'initialize_wp_supe
  */
 add_action( 'plugins_loaded', array( 'Jetpack_Sync_Actions', 'init' ), 90 );
 
-
-
-// We need to define this here so that it's hooked before `updating_jetpack_version` is called
-add_action( 'updating_jetpack_version', array( 'Jetpack_Sync_Actions', 'do_initial_sync' ), 10, 0 );
+// Updating a large multi site causes some issues with full sync.
+if ( ! is_multisite() ) {
+	// We need to define this here so that it's hooked before `updating_jetpack_version` is called
+	add_action( 'updating_jetpack_version', array( 'Jetpack_Sync_Actions', 'do_initial_sync' ), 10, 0 );
+} else {
+	add_action( 'updating_jetpack_version_multisite', array( 'Jetpack_Sync_Actions', 'do_initial_sync' ), 10, 0 );
+}
 add_action( 'updating_jetpack_version', array( 'Jetpack_Sync_Actions', 'cleanup_on_upgrade' ), 10, 2 );
 add_action( 'jetpack_user_authorized', array( 'Jetpack_Sync_Actions', 'do_initial_sync' ), 10, 0 );
 

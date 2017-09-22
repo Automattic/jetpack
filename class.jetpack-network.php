@@ -270,6 +270,7 @@ class Jetpack_Network {
 		add_menu_page( __( 'Jetpack', 'jetpack' ), __( 'Jetpack', 'jetpack' ), 'jetpack_network_admin_page', 'jetpack', array( $this, 'network_admin_page' ), 'div', 3 );
 		add_submenu_page( 'jetpack', __( 'Jetpack Sites', 'jetpack' ), __( 'Sites', 'jetpack' ), 'jetpack_network_sites_page', 'jetpack', array( $this, 'network_admin_page' ) );
 		add_submenu_page( 'jetpack', __( 'Settings', 'jetpack' ), __( 'Settings', 'jetpack' ), 'jetpack_network_settings_page', 'jetpack-settings', array( $this, 'render_network_admin_settings_page' ) );
+		add_submenu_page( 'jetpack', __( 'Update Network', 'jetpack' ), __( 'Update Network', 'jetpack' ), 'jetpack_network_settings_page', 'jetpack-update', array( $this, 'render_network_admin_update_page' ) );
 
 		/**
 		 * As jetpack_register_genericons is by default fired off a hook,
@@ -718,6 +719,18 @@ class Jetpack_Network {
 		);
 
 		Jetpack::init()->load_view( 'admin/network-settings.php', $data );
+		$this->network_admin_page_footer();
+	}
+
+	public function render_network_admin_update_page() {
+		$this->network_admin_page_header();
+		$data = array(
+			'nonce' => isset( $_GET['_nonce'] ) ? $_GET['_nonce'] : null,
+			'action' => isset( $_GET['action'] ) ? $_GET['action'] : null,
+			'num' => isset( $_GET['num'] ) ? $_GET['num'] : 0,
+
+		);
+		Jetpack::init()->load_view( 'admin/network-updates.php', $data );
 		$this->network_admin_page_footer();
 	}
 

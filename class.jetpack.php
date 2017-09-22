@@ -574,6 +574,7 @@ class Jetpack {
 
 		// returns HTTPS support status
 		add_action( 'wp_ajax_jetpack-recheck-ssl', array( $this, 'ajax_recheck_ssl' ) );
+		add_action( 'wp_ajax_jetpack-network-update', array( $this, 'ajax_jetpack_network_update' ) );
 
 		// If any module option is updated before Jump Start is dismissed, hide Jump Start.
 		add_action( 'update_option', array( $this, 'jumpstart_has_updated_module_option' ) );
@@ -4636,6 +4637,29 @@ p {
 			'enabled' => $result,
 			'message' => get_transient( 'jetpack_https_test_message' )
 		) );
+	}
+
+	function ajax_jetpack_network_update() {
+		// check_ajax_referer( 'jetpack-network-update-ajax', 'ajax-nonce' );
+		if ( ! is_multisite( ) ) {
+			wp_send_json( array(
+				'failed' => 'not-multisite'
+			) );
+			return;
+		}
+		if ( JETPACK__VERSION !== get_option( 'jetpack_network_version' ) ) {
+			do_action( 'updating_jetpack_version_multisite' );
+			update_option( 'jetpack_network_version', JETPACK__VERSION );
+			wp_send_json( array(
+				'success' => JETPACK__VERSION
+			) );
+			return;
+		}
+
+		wp_send_json( array(
+			'failed' => 'version_updated_already'
+		) );
+
 	}
 
 /* Client API */
