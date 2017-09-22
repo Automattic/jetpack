@@ -28,7 +28,7 @@ class Jetpack_JITM {
 		if ( ! apply_filters( 'jetpack_just_in_time_msgs', false ) ) {
 			return false;
 		}
-		
+
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new Jetpack_JITM;
 		}
@@ -51,8 +51,7 @@ class Jetpack_JITM {
 	 *
 	 * @return string The Jetpack emblem
 	 */
-	function get_emblem()
-	{
+	function get_emblem() {
 		return '<div class="jp-emblem">' . Jetpack::get_jp_emblem() . '</div>';
 	}
 
@@ -66,7 +65,12 @@ class Jetpack_JITM {
 	 * @param object $screen
 	 */
 	function prepare_jitms( $screen ) {
-		if ( ! in_array( $screen->id, array( 'toplevel_page_jetpack', 'jetpack_page_stats', 'jetpack_page_akismet-key-config', 'admin_page_jetpack_modules' )  ) ) {
+		if ( ! in_array( $screen->id, array(
+			'toplevel_page_jetpack',
+			'jetpack_page_stats',
+			'jetpack_page_akismet-key-config',
+			'admin_page_jetpack_modules'
+		) ) ) {
 			add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
 			add_action( 'admin_notices', array( $this, 'ajax_message' ) );
 			add_action( 'edit_form_top', array( $this, 'ajax_message' ) );
@@ -92,7 +96,7 @@ class Jetpack_JITM {
 				$content->message = esc_html__( 'New free service: Show USPS shipping rates on your store! Added bonus: print shipping labels without leaving WooCommerce.', 'jetpack' );
 				break;
 			case 'CA':
-				 $content->message = esc_html__( 'New free service: Show Canada Post shipping rates on your store!', 'jetpack' );
+				$content->message = esc_html__( 'New free service: Show Canada Post shipping rates on your store!', 'jetpack' );
 				break;
 			default:
 				$content->message = '';
@@ -171,8 +175,8 @@ class Jetpack_JITM {
 		wp_enqueue_style( 'jetpack-jitm-css' );
 
 		wp_enqueue_script( 'jetpack-jitm-new', plugins_url( '_inc/jetpack-jitm.js', JETPACK__PLUGIN_FILE ), array( 'jquery' ), JETPACK__VERSION, true );
-		wp_localize_script('jetpack-jitm-new', 'jitm_config', array(
-				'api_root' => esc_url_raw( rest_url() ),
+		wp_localize_script( 'jetpack-jitm-new', 'jitm_config', array(
+			'api_root' => esc_url_raw( rest_url() ),
 		) );
 	}
 
@@ -238,13 +242,13 @@ class Jetpack_JITM {
 
 		// build our jitm request
 		$path = add_query_arg( array(
-			'external_user_id'     => urlencode_deep( $user->ID ),
-			'user_roles'           => urlencode_deep( implode( ',', $user->roles ) ),
-			'query_string'         => urlencode_deep( $query ),
+			'external_user_id' => urlencode_deep( $user->ID ),
+			'user_roles'       => urlencode_deep( implode( ',', $user->roles ) ),
+			'query_string'     => urlencode_deep( $query ),
 		), sprintf( '/sites/%d/jitm/%s', $site_id, $message_path ) );
 
 		// attempt to get from cache
-		$envelopes  = get_transient( 'jetpack_jitm_' . substr( md5( $path ), 0, 31 ) );
+		$envelopes = get_transient( 'jetpack_jitm_' . substr( md5( $path ), 0, 31 ) );
 
 		// if something is in the cache and it was put in the cache after the last sync we care about, use it
 		$last_sync = (int) get_transient( 'jetpack_last_plugin_sync' );
@@ -302,7 +306,7 @@ class Jetpack_JITM {
 			$envelope->jitm_stats_url = Jetpack::build_stats_url( array( 'x_jetpack-jitm' => $envelope->id ) );
 
 			if ( $envelope->CTA->hook ) {
-				$envelope->url = apply_filters( 'jitm_' . $envelope->CTA->hook, $envelope->url ) ;
+				$envelope->url = apply_filters( 'jitm_' . $envelope->CTA->hook, $envelope->url );
 				unset( $envelope->CTA->hook );
 			}
 

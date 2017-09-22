@@ -687,10 +687,10 @@ class Jetpack {
 			Jetpack_Options::update_option( 'dismissed_connection_banner', 1 );
 			wp_send_json_success();
 		}
-		
+
 		wp_die();
 	}
-	
+
 	function jetpack_admin_ajax_tracks_callback() {
 		// Check for nonce
 		if ( ! isset( $_REQUEST['tracksNonce'] ) || ! wp_verify_nonce( $_REQUEST['tracksNonce'], 'jp-tracks-ajax-nonce' ) ) {
@@ -2896,7 +2896,7 @@ p {
 		}
 
 		$referer = parse_url( $referer_url );
-		
+
 		$source_type = 'unknown';
 		$source_query = null;
 
@@ -2906,7 +2906,7 @@ p {
 
 		$plugins_path = parse_url( admin_url( 'plugins.php' ), PHP_URL_PATH );
 		$plugins_install_path = parse_url( admin_url( 'plugin-install.php' ), PHP_URL_PATH );// /wp-admin/plugin-install.php
-		
+
 		if ( isset( $referer['query'] ) ) {
 			parse_str( $referer['query'], $query_parts );
 		} else {
@@ -3889,7 +3889,7 @@ p {
 				JetpackTracking::record_user_event( 'jpc_register_success', array(
 					'from' => $from
 				) );
-				
+
 				wp_redirect( $this->build_connect_url( true, $redirect, $from ) );
 				exit;
 			case 'activate' :
@@ -4353,7 +4353,7 @@ p {
 			$auth_type = apply_filters( 'jetpack_auth_type', 'calypso' );
 
 			$tracks_identity = jetpack_tracks_get_identity( get_current_user_id() );
-			
+
 			$args = urlencode_deep(
 				array(
 					'response_type' => 'code',
@@ -4404,7 +4404,7 @@ p {
 
 	public static function apply_activation_source_to_args( &$args ) {
 		list( $activation_source_name, $activation_source_keyword ) = get_option( 'jetpack_activation_source' );
-		
+
 		if ( $activation_source_name ) {
 			$args['_as'] = urlencode( $activation_source_name );
 		}
