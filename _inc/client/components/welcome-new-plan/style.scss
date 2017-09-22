@@ -1,0 +1,8 @@
+.jp-dialogue {
+	svg {
+		margin: rem( 40px ) auto 0;
+	}
+	&.is-premium svg {
+		max-width: rem( 240px );
+	}
+}
