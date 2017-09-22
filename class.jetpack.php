@@ -687,10 +687,10 @@ class Jetpack {
 			Jetpack_Options::update_option( 'dismissed_connection_banner', 1 );
 			wp_send_json_success();
 		}
-		
+
 		wp_die();
 	}
-	
+
 	function jetpack_admin_ajax_tracks_callback() {
 		// Check for nonce
 		if ( ! isset( $_REQUEST['tracksNonce'] ) || ! wp_verify_nonce( $_REQUEST['tracksNonce'], 'jp-tracks-ajax-nonce' ) ) {
@@ -3889,7 +3889,7 @@ p {
 				JetpackTracking::record_user_event( 'jpc_register_success', array(
 					'from' => $from
 				) );
-				
+
 				wp_redirect( $this->build_connect_url( true, $redirect, $from ) );
 				exit;
 			case 'activate' :
@@ -4306,15 +4306,21 @@ p {
 			}
 		} else {
 
-			// Checking existing token
-			$response = Jetpack_Client::wpcom_json_api_request_as_blog(
-				sprintf( '/sites/%d', $site_id ) .'?force=wpcom',
-				'1.1'
-			);
+			// Let's check the existing blog token to see if we need to re-register. We only check once per minute
+			// because otherwise this logic can get us in to a loop.
+			$last_connect_url_check = intval( Jetpack_Options::get_raw_option( 'jetpack_last_connect_url_check' ) );
+			if ( ! $last_connect_url_check || ( time() - $last_connect_url_check ) > MINUTE_IN_SECONDS ) {
+				Jetpack_Options::update_raw_option( 'jetpack_last_connect_url_check', time() );
 
-			if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
-				// Generating a register URL instead to refresh the existing token
-				return $this->build_connect_url( $raw, $redirect, $from, true );
+				$response = Jetpack_Client::wpcom_json_api_request_as_blog(
+					sprintf( '/sites/%d', $site_id ) .'?force=wpcom',
+					'1.1'
+				);
+
+				if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+					// Generating a register URL instead to refresh the existing token
+					return $this->build_connect_url( $raw, $redirect, $from, true );
+				}
 			}
 
 			if ( defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' ) && include_once JETPACK__GLOTPRESS_LOCALES_PATH ) {
@@ -4353,7 +4359,7 @@ p {
 			$auth_type = apply_filters( 'jetpack_auth_type', 'calypso' );
 
 			$tracks_identity = jetpack_tracks_get_identity( get_current_user_id() );
-			
+
 			$args = urlencode_deep(
 				array(
 					'response_type' => 'code',
