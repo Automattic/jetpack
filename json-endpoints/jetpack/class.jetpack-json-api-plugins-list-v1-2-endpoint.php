@@ -1,10 +1,9 @@
 <?php
 
-new Jetpack_JSON_API_Plugins_List_Endpoint(
+new Jetpack_JSON_API_Plugins_List_v1_2_Endpoint(
 	array(
 		'description'          => 'Get installed Plugins on your blog',
-		'min_version'          => '1',
-		'max_version'          => '1.1',
+		'min_version'          => '1.2',
 		'method'               => 'GET',
 		'path'                 => '/sites/%s/plugins',
 		'stat'                 => 'plugins',
@@ -19,21 +18,19 @@ new Jetpack_JSON_API_Plugins_List_Endpoint(
 				'authorization' => 'Bearer YOUR_API_TOKEN'
 			),
 		),
-		'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins'
+		'example_request'      => 'https://public-api.wordpress.com/rest/v1.2/sites/example.wordpress.org/plugins'
 	)
 );
-
-class Jetpack_JSON_API_Plugins_List_Endpoint extends Jetpack_JSON_API_Plugins_Endpoint {
-	// GET /sites/%s/plugins
+error_log('LOADED' );
+class Jetpack_JSON_API_Plugins_List_v1_2_Endpoint extends Jetpack_JSON_API_Plugins_v1_2_Endpoint {
 
 	protected $needed_capabilities = 'activate_plugins';
 
 	public function validate_input( $plugin ) {
-		error_log( 'V1' );
+		error_log('V1.2 VALIDATE PLUGINS>>' );
 		wp_update_plugins();
 		$this->plugins = array_keys( get_plugins() );
 
 		return true;
 	}
-
 }
