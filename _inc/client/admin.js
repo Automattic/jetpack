@@ -7,6 +7,7 @@ import { Provider } from 'react-redux';
 import { Route, Router, useRouterHistory } from 'react-router';
 import { syncHistoryWithStore } from 'react-router-redux';
 import { createHashHistory } from 'history'
+import assign from 'lodash/assign';
 
 /**
  * Internal dependencies
@@ -15,6 +16,7 @@ import accessibleFocus from 'lib/accessible-focus';
 import store from 'state/redux-store';
 import i18n from 'i18n-calypso';
 import Main from 'main';
+import * as actionTypes from 'state/action-types';
 
 // Initialize the accessibile focus to allow styling specifically for keyboard navigation
 accessibleFocus();
@@ -44,6 +46,14 @@ i18n.setLocale( Initial_State.locale );
 const hashHistory = useRouterHistory( createHashHistory )( { queryKey: false } );
 
 const history = syncHistoryWithStore( hashHistory, store );
+
+// Add dispatch and actionTypes to the window object so we can use it from the browser's console
+if ( 'undefined' !== typeof window && process.env.NODE_ENV === 'development' ) {
+	assign( window, {
+		actionTypes: actionTypes,
+		dispatch: store.dispatch,
+	} );
+}
 
 render();
 
