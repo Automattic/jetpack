@@ -232,14 +232,14 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			$stc_enabled = 0;
 		}
 
-		$params  = array(
+		$params = array(
 			'blogid'               => Jetpack_Options::get_option( 'id' ),
 			'postid'               => get_the_ID(),
 			'comment_registration' => ( get_option( 'comment_registration' ) ? '1' : '0' ), // Need to explicitly send a '1' or a '0' for these
-			'require_name_email'   => ( get_option( 'require_name_email' )   ? '1' : '0' ),
+			'require_name_email'   => ( get_option( 'require_name_email' ) ? '1' : '0' ),
 			'stc_enabled'          => $stc_enabled,
 			'stb_enabled'          => $stb_enabled,
-			'show_avatars'         => ( get_option( 'show_avatars' )         ? '1' : '0' ),
+			'show_avatars'         => ( get_option( 'show_avatars' ) ? '1' : '0' ),
 			'avatar_default'       => get_option( 'avatar_default' ),
 			'greeting'             => get_option( 'highlander_comment_form_prompt', __( 'Leave a Reply', 'jetpack' ) ),
 			/**
@@ -247,11 +247,11 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			 *
 			 * @module comments
 			 *
-			 * @since 2.3.0
+			 * @since  2.3.0
 			 *
 			 * @param string $var Default is "Leave a Reply to %s."
 			 */
-			'greeting_reply'       => apply_filters( 'jetpack_comment_form_prompt_reply', __( 'Leave a Reply to %s' , 'jetpack' ) ),
+			'greeting_reply'       => apply_filters( 'jetpack_comment_form_prompt_reply', __( 'Leave a Reply to %s', 'jetpack' ) ),
 			'color_scheme'         => get_option( 'jetpack_comment_form_color_scheme', $this->default_color_scheme ),
 			'lang'                 => get_locale(),
 			'jetpack_version'      => JETPACK__VERSION,
@@ -265,8 +265,9 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 			$params['hc_username']  = $current_user->display_name;
 			$params['hc_userurl']   = $current_user->user_url;
 			$params['hc_useremail'] = md5( strtolower( trim( $current_user->user_email ) ) );
-			if ( current_user_can( 'unfiltered_html' ) )
+			if ( current_user_can( 'unfiltered_html' ) ) {
 				$params['_wp_unfiltered_html_comment'] = wp_create_nonce( 'unfiltered-html-comment_' . get_the_ID() );
+			}
 		}
 
 		$signature = Jetpack_Comments::sign_remote_comment_parameters( $params, Jetpack_Options::get_option( 'blog_token' ) );
@@ -291,7 +292,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		 *
 		 * @module comments
 		 *
-		 * @since 4.7.0
+		 * @since  4.7.0
 		 *
 		 * @param bool $show Can the comment be displayed? Default to true.
 		 */
