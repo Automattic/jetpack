@@ -954,7 +954,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 		$author = get_current_user_id() || 1;
 
 		// If $data['homepageFormat'] is 'posts', we have nothing to do since it's WordPress' default
-		if ( 'page' === $data['homepageFormat'] ) {
+		if ( isset( $data['homepageFormat'] ) && 'page' === $data['homepageFormat'] ) {
 			if ( ! ( update_option( 'show_on_front', 'page' ) || get_option( 'show_on_front' ) == 'page' ) ) {
 				$error[] = 'homepageFormat';
 			}
@@ -997,7 +997,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 		// Setup contact page and add a form and/or business info
 		$contact_page = '';
 
-		if ( $data['addContactForm'] ) {
+		if ( isset( $data['addContactForm'] ) && $data['addContactForm'] ) {
 			if ( Jetpack::is_module_active( 'contact-form' ) ) {
 				$contact_page = '[contact-form][contact-field label="' . esc_html__( 'Name', 'jetpack' ) . '" type="name" required="true" /][contact-field label="' . esc_html__( 'Email', 'jetpack' ) . '" type="email" required="true" /][contact-field label="' . esc_html__( 'Website', 'jetpack' ) . '" type="url" /][contact-field label="' . esc_html__( 'Message', 'jetpack' ) . '" type="textarea" /][/contact-form]';
 			} else {
@@ -1005,7 +1005,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			}
 		}
 
-		if ( 'business' === $data['businessPersonal'] ) {
+		if ( isset( $data['businessPersonal'] ) && 'business' === $data['businessPersonal'] ) {
 			$contact_page .= "\n" . join( "\n", $data['businessInfo'] );
 		}
 
