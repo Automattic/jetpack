@@ -5,6 +5,7 @@ import React from 'react';
 import { Component } from 'react';
 import { translate as __ } from 'i18n-calypso';
 import Card from 'components/card';
+import analytics from 'lib/analytics';
 
 /**
  * Internal dependencies
@@ -13,6 +14,21 @@ import JetpackDialogue from 'components/jetpack-dialogue';
 import { imagePath } from 'constants';
 
 class WelcomePremium extends Component {
+	componentDidMount() {
+		analytics.tracks.recordEvent( 'jetpack_warm_welcome_plan_view', {
+			planClass: this.props.planClass,
+		} );
+	}
+
+	clickCtaDismiss( cta ) {
+		analytics.tracks.recordEvent( 'jetpack_warm_welcome_plan_click_' + cta, {
+			planClass: this.props.planClass,
+			cta: cta,
+		} );
+
+		this.props.dismiss();
+	}
+
 	renderInnerContent() {
 		return (
 			<div>
@@ -56,7 +72,7 @@ class WelcomePremium extends Component {
 					href={ '#/writing' }
 					compact
 					className="jp-dialogue-card__below"
-					onClick={ this.props.dismiss }
+					onClick={ this.clickCtaDismiss.bind( this, 'video' ) }
 				>
 					{ __( 'Enable premium video player' ) }
 				</Card>
@@ -64,7 +80,7 @@ class WelcomePremium extends Component {
 					href={ '#/traffic' }
 					compact
 					className="jp-dialogue-card__below"
-					onClick={ this.props.dismiss }
+					onClick={ this.clickCtaDismiss.bind( this, 'ads' ) }
 				>
 					{ __( 'Monetize your site with ads' ) }
 				</Card>

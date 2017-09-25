@@ -5,6 +5,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { Component } from 'react';
 import { getPlanClass } from 'lib/plans/constants';
+import analytics from 'lib/analytics';
 
 /**
  * Internal dependencies
@@ -24,6 +25,11 @@ class WelcomeNewPlan extends Component {
 	}
 
 	dismissWelcome() {
+		const planClass = getPlanClass( this.props.sitePlan.product_slug );
+		analytics.tracks.recordEvent( 'jetpack_warm_welcome_plan_dismiss', {
+			planClass: planClass,
+		} );
+
 		this.setState( { planWelcomeDismissed: true } );
 		this.props.dismiss();
 	}
