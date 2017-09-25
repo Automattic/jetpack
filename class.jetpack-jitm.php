@@ -40,7 +40,7 @@ class Jetpack_JITM {
 	 * Jetpack_JITM constructor.
 	 */
 	private function __construct() {
-		if ( ! Jetpack::is_active() ) {
+		if ( ! Jetpack::is_active() || Jetpack::is_development_mode() ) {
 			return;
 		}
 		add_action( 'current_screen', array( $this, 'prepare_jitms' ) );
