@@ -1,1 +1,0 @@
-require( './vr-block.js' );
