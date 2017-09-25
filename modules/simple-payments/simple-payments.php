@@ -14,7 +14,7 @@ class Jetpack_Simple_Payments {
 	static $css_classname_prefix = 'jetpack-simple-payments';
 
 	// Increase this number each time there's a change in CSS or JS to bust cache.
-	static $version = '0.23';
+	static $version = '0.25';
 
 	// Classic singleton pattern:
 	private static $instance;
