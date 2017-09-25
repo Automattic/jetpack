@@ -344,7 +344,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 
 		<!--[if IE]>
 		<script type="text/javascript">
-			if (0 === window.location.hash.indexOf('#comment-')) {
+			if ( 0 === window.location.hash.indexOf( '#comment-' ) ) {
 				// window.location.reload() doesn't respect the Hash in IE
 				window.location.hash = window.location.hash;
 			}
@@ -352,14 +352,14 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		<![endif]-->
 		<script type="text/javascript">
 			(function () {
-				var comm_par_el = document.getElementById('comment_parent'),
-					comm_par = (comm_par_el && comm_par_el.value) ? comm_par_el.value : '',
-					frame = document.getElementById('jetpack_remote_comment'),
+				var comm_par_el = document.getElementById( 'comment_parent' ),
+					comm_par = ( comm_par_el && comm_par_el.value ) ? comm_par_el.value : '',
+					frame = document.getElementById( 'jetpack_remote_comment' ),
 					tellFrameNewParent;
 
 				tellFrameNewParent = function () {
-					if (comm_par) {
-						frame.src = "<?php echo esc_url_raw( $this->signed_url ); ?>" + '&replytocom=' + parseInt(comm_par, 10).toString();
+					if ( comm_par ) {
+						frame.src = "<?php echo esc_url_raw( $this->signed_url ); ?>" + '&replytocom=' + parseInt( comm_par, 10 ).toString();
 					} else {
 						frame.src = "<?php echo esc_url_raw( $this->signed_url ); ?>";
 					}
@@ -367,23 +367,23 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 
 				<?php if ( get_option( 'thread_comments' ) && get_option( 'thread_comments_depth' ) ) : ?>
 
-				if ('undefined' !== typeof addComment) {
+				if ( 'undefined' !== typeof addComment ) {
 					addComment._Jetpack_moveForm = addComment.moveForm;
 
-					addComment.moveForm = function (commId, parentId, respondId, postId) {
-						var returnValue = addComment._Jetpack_moveForm(commId, parentId, respondId, postId),
+					addComment.moveForm = function ( commId, parentId, respondId, postId ) {
+						var returnValue = addComment._Jetpack_moveForm( commId, parentId, respondId, postId ),
 							cancelClick, cancel;
 
-						if (false === returnValue) {
-							cancel = document.getElementById('cancel-comment-reply-link');
+						if ( false === returnValue ) {
+							cancel = document.getElementById( 'cancel-comment-reply-link' );
 							cancelClick = cancel.onclick;
 							cancel.onclick = function () {
-								var cancelReturn = cancelClick.call(this);
-								if (false !== cancelReturn) {
+								var cancelReturn = cancelClick.call( this );
+								if ( false !== cancelReturn ) {
 									return cancelReturn;
 								}
 
-								if (!comm_par) {
+								if ( ! comm_par ) {
 									return cancelReturn;
 								}
 
@@ -395,7 +395,7 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 							};
 						}
 
-						if (comm_par == parentId) {
+						if ( comm_par == parentId ) {
 							return returnValue;
 						}
 
@@ -410,24 +410,24 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 				<?php endif; ?>
 
 				// Do the post message bit after the dom has loaded.
-				document.addEventListener('DOMContentLoaded', function () {
+				document.addEventListener( 'DOMContentLoaded', function () {
 					var iframe_url = <?php echo json_encode( esc_url_raw( $url_origin ) ); ?>;
-					if (window.postMessage) {
-						if (document.addEventListener) {
-							window.addEventListener('message', function (event) {
-								var origin = event.origin.replace(/^http:\/\//i, 'https://');
-								if (iframe_url.replace(/^http:\/\//i, 'https://') !== origin) {
+					if ( window.postMessage ) {
+						if ( document.addEventListener ) {
+							window.addEventListener( 'message', function ( event ) {
+								var origin = event.origin.replace( /^http:\/\//i, 'https://' );
+								if ( iframe_url.replace( /^http:\/\//i, 'https://' ) !== origin ) {
 									return;
 								}
-								jQuery(frame).height(event.data);
+								jQuery( frame ).height( event.data );
 							});
-						} else if (document.attachEvent) {
-							window.attachEvent('message', function (event) {
-								var origin = event.origin.replace(/^http:\/\//i, 'https://');
-								if (iframe_url.replace(/^http:\/\//i, 'https://') !== origin) {
+						} else if ( document.attachEvent ) {
+							window.attachEvent( 'message', function ( event ) {
+								var origin = event.origin.replace( /^http:\/\//i, 'https://' );
+								if ( iframe_url.replace( /^http:\/\//i, 'https://' ) !== origin ) {
 									return;
 								}
-								jQuery(frame).height(event.data);
+								jQuery( frame ).height( event.data );
 							});
 						}
 					}
