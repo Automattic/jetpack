@@ -203,9 +203,9 @@ export function emptyStatsCardDismissed( state ) {
 }
 
 /**
- * Returns true if Empty Stats card has been dismissed.
+ * Returns true if a new plan has been purchased.
  * @param  {Object}  state Global state tree
- * @return {Boolean} Whether the card has been dismissed
+ * @return {Boolean} Whether a new plan has been purchased.
  */
 export function showWelcomeForNewPlan( state ) {
 	return get( state.jetpack.settings.items, 'show_welcome_for_new_plan', false );
