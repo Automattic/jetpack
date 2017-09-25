@@ -39,6 +39,7 @@ class WelcomeNewPlan extends Component {
 		const defaultProps = {
 			dismiss: this.dismissWelcome.bind( this ),
 			siteRawUrl: this.props.siteRawUrl,
+			planClass: planClass,
 		};
 
 		// Hide from non-admins
