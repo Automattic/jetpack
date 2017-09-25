@@ -77,7 +77,7 @@ class Jetpack_Simple_Payments {
 		if ( ! $product || is_wp_error( $product ) ) {
 			return;
 		}
-		if ( $product->post_type !== self::$post_type_product ) {
+		if ( $product->post_type !== self::$post_type_product || $product->post_status === 'trash' ) {
 			return;
 		}
 
