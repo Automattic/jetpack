@@ -4633,7 +4633,7 @@ p {
 	 */
 	public static function validate_onboarding_token_action( $token, $action ) {
 		// Compare tokens, bail if tokens do not match
-		if ( $token !== get_option( 'jetpack_onboarding_token' ) ) {
+		if ( ! hash_equals( $token, get_option( 'jetpack_onboarding_token' ) ) ) {
 			return false;
 		}
 
@@ -5116,6 +5116,24 @@ p {
 
 		if ( ! $this->add_nonce( $timestamp, $nonce ) ) {
 			return false;
+		}
+
+		// Let's see if this is onboarding. In such case, use user token type and the provided user id.
+		if ( isset( $this->HTTP_RAW_POST_DATA ) ) {
+			$jpo = json_decode( $this->HTTP_RAW_POST_DATA );
+			if (
+				isset( $jpo->onboarding ) &&
+				isset( $jpo->onboarding->jpUser ) && isset( $jpo->onboarding->token ) &&
+				is_email( $jpo->onboarding->jpUser ) && ctype_alnum( $jpo->onboarding->token ) &&
+				isset( $_GET['rest_route'] ) &&
+				self::validate_onboarding_token_action( $jpo->onboarding->token, $_GET['rest_route'] )
+			) {
+				$jpUser = get_user_by( 'email', $jpo->onboarding->jpUser );
+				if ( is_a( $jpUser, 'WP_User' ) ) {
+					$token_type = 'user';
+					$token->external_user_id = $jpUser->ID;
+				}
+			}
 		}
 
 		$this->xmlrpc_verification = array(
