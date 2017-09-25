@@ -6,6 +6,7 @@ import { Component } from 'react';
 import { translate as __ } from 'i18n-calypso';
 import Card from 'components/card';
 import noop from 'lodash/noop';
+import classNames from 'classnames';
 
 /**
  * Internal dependencies
@@ -16,6 +17,10 @@ import { imagePath } from 'constants';
 
 class JetpackDialogue extends Component {
 	render() {
+		const classes = classNames(
+			this.props.className,
+			'jp-dialogue'
+		);
 		return (
 			<div className="jp-dialogue-full__container">
 				<img src={ imagePath + 'stars-full.svg' } width="60" height="60" alt={ __( 'Stars' ) } className="jp-jumpstart-full__svg-stars" />
@@ -30,7 +35,7 @@ class JetpackDialogue extends Component {
 					/>
 				}
 
-				<div className="jp-dialogue">
+				<div className={ classes }>
 					{ this.props.svg }
 
 					<h1 className="jp-dialogue__title">
@@ -40,6 +45,9 @@ class JetpackDialogue extends Component {
 					<Card>
 						{ this.props.content }
 					</Card>
+					<div>
+						{ this.props.belowContent }
+					</div>
 				</div>
 			</div>
 		);
@@ -48,6 +56,10 @@ class JetpackDialogue extends Component {
 
 JetpackDialogue.propTypes = {
 	content: React.PropTypes.oneOfType( [
+		React.PropTypes.string,
+		React.PropTypes.object,
+	] ).isRequired,
+	belowContent: React.PropTypes.oneOfType( [
 		React.PropTypes.string,
 		React.PropTypes.object,
 	] ).isRequired,
@@ -65,6 +77,7 @@ JetpackDialogue.defaultProps = {
 	showDismiss: true,
 	dismiss: noop,
 	content: '',
+	belowContent: '',
 	title: '',
 };
 
