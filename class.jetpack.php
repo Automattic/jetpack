@@ -612,6 +612,7 @@ class Jetpack {
 
 		// A filter to control all just in time messages
 		add_filter( 'jetpack_just_in_time_msgs', '__return_true', 9 );
+		add_filter( 'jetpack_just_in_time_msg_cache', '__return_true', 9);
 
 		// If enabled, point edit post and page links to Calypso instead of WP-Admin.
 		// We should make sure to only do this for front end links.
@@ -669,6 +670,17 @@ class Jetpack {
 	}
 
 	function jetpack_track_last_sync_callback( $params ) {
+		/**
+		 * Filter to turn off jitm caching
+		 *
+		 * @since 5.4.0
+		 *
+		 * @param bool true Whether to cache just in time messages
+		 */
+		if ( ! apply_filters( 'jetpack_just_in_time_msg_cache', false ) ) {
+			return $params;
+		}
+
 		if ( is_array( $params ) && isset( $params[0] ) ) {
 			$option = $params[0];
 			if ( 'active_plugins' === $option ) {
@@ -2896,7 +2908,7 @@ p {
 		}
 
 		$referer = parse_url( $referer_url );
-		
+
 		$source_type = 'unknown';
 		$source_query = null;
 
@@ -2906,7 +2918,7 @@ p {
 
 		$plugins_path = parse_url( admin_url( 'plugins.php' ), PHP_URL_PATH );
 		$plugins_install_path = parse_url( admin_url( 'plugin-install.php' ), PHP_URL_PATH );// /wp-admin/plugin-install.php
-		
+
 		if ( isset( $referer['query'] ) ) {
 			parse_str( $referer['query'], $query_parts );
 		} else {
@@ -4410,7 +4422,7 @@ p {
 
 	public static function apply_activation_source_to_args( &$args ) {
 		list( $activation_source_name, $activation_source_keyword ) = get_option( 'jetpack_activation_source' );
-		
+
 		if ( $activation_source_name ) {
 			$args['_as'] = urlencode( $activation_source_name );
 		}

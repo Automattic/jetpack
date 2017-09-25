@@ -335,22 +335,38 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
+	 * Asks for a jitm, unless they've been disabled, in which case it returns an empty array
+	 *
 	 * @param $request WP_REST_Request
 	 *
-	 * @return array
+	 * @return array An array of jitms
 	 */
 	public static function get_jitm_message( $request ) {
 		require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-jitm.php' );
 
 		$jitm = Jetpack_JITM::init();
 
+		if ( ! $jitm ) {
+			return array();
+		}
+
 		return $jitm->get_messages( $request['message_path'], urldecode_deep( $request['query'] ) );
 	}
 
+	/**
+	 * Dismisses a jitm
+	 * @param $request WP_REST_Request The request
+	 *
+	 * @return bool Always True
+	 */
 	public static function delete_jitm_message( $request ) {
 		require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-jitm.php' );
 
 		$jitm = Jetpack_JITM::init();
+
+		if ( ! $jitm ) {
+			return true;
+		}
 
 		return $jitm->dismiss( $request['id'], $request['feature_class'] );
 	}
