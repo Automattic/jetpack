@@ -675,7 +675,7 @@ class Jetpack {
 		 *
 		 * @since 5.4.0
 		 *
-		 * @param bool true Whether to cache just in time messages
+		 * @param bool false Whether to cache just in time messages
 		 */
 		if ( ! apply_filters( 'jetpack_just_in_time_msg_cache', false ) ) {
 			return $params;
