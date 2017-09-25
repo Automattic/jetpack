@@ -1,0 +1,30 @@
+.wp-block-gutenpack-test {
+	background: #00a8db;
+	color: #fff;
+}
+
+.wp-block-gutenpack-vr {
+	position: relative;
+	max-width: 525px;
+	margin-left: auto;
+	margin-right: auto;
+	overflow: hidden;
+}
+
+iframe.wp-block-gutenpack-vr {
+	position: absolute;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	left: 0;
+	height: 100%;
+}
+
+@keyframes frig {
+	0% {
+		background-position-x: 0;
+	}
+	100% {
+		background-position-x: 100px;
+	}
+}

@@ -70,6 +70,9 @@ class Quiz_Shortcode {
 		add_shortcode( 'answer', array( __CLASS__, 'answer_shortcode' ) );
 		add_shortcode( 'wrong', array( __CLASS__, 'wrong_shortcode' ) );
 		add_shortcode( 'explanation', array( __CLASS__, 'explanation_shortcode' ) );
+
+		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'block_editor_assets' ) );
+		add_action( 'enqueue_block_assets', array( __CLASS__, 'enqueue_scripts' ) );
 	}
 
 	/**
@@ -77,9 +80,25 @@ class Quiz_Shortcode {
 	 *
 	 * @since 4.5.0
 	 */
-	private static function enqueue_scripts() {
-		wp_enqueue_style( 'quiz', plugins_url( 'css/quiz.css', __FILE__ ) );
-		wp_enqueue_script( 'quiz', plugins_url( 'js/quiz.js', __FILE__ ), array( 'jquery' ), null, true );
+	public static function enqueue_scripts() {
+		if ( ! is_admin() ) {
+			wp_enqueue_style( 'quiz', plugins_url( 'css/quiz.css', __FILE__ ) );
+			wp_enqueue_script( 'quiz', plugins_url( 'js/quiz.js', __FILE__ ), array( 'jquery' ), null, true );
+		}
+	}
+
+	/**
+	 * Enqueue editor assets like JS and CSS.
+	 *
+	 * @since 5.4
+	 */
+	public static function block_editor_assets() {
+		wp_enqueue_style(
+			'gutenpack-quiz-editor',
+			plugins_url( 'modules/shortcodes/css/quiz.css', JETPACK__PLUGIN_FILE ),
+			array( 'wp-edit-blocks' ),
+			JETPACK__VERSION
+		);
 	}
 
 	/**
