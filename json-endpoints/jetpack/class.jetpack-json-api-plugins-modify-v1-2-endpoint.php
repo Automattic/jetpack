@@ -16,7 +16,7 @@ new Jetpack_JSON_API_Plugins_Modify_v1_2_Endpoint(
 			'active'       => '(bool) Activate or deactivate the plugin',
 			'network_wide' => '(bool) Do action network wide (default value: false)',
 		),
-		'response_format'      => Jetpack_JSON_API_Plugins_v1_2_Endpoint::$_response_format,
+		'response_format'      => Jetpack_JSON_API_Plugins_Endpoint::$_response_format_v1_2,
 		'example_request_data' => array(
 			'headers' => array(
 				'authorization' => 'Bearer YOUR_API_TOKEN'
@@ -47,7 +47,7 @@ new Jetpack_JSON_API_Plugins_Modify_v1_2_Endpoint(
 			'plugins'      => '(array) A list of plugin ids to modify',
 		),
 		'response_format'      => array(
-			'plugins'     => '(array:plugin) An array of plugin objects.',
+			'plugins'     => '(array:plugin_v1_2) An array of plugin objects.',
 			'updated'     => '(array) A list of plugin ids that were updated. Only present if action is update.',
 			'not_updated' => '(array) A list of plugin ids that were not updated. Only present if action is update.',
 			'log'         => '(array) Update log. Only present if action is update.',
@@ -79,7 +79,7 @@ new Jetpack_JSON_API_Plugins_Modify_v1_2_Endpoint(
 			'$site'   => '(int|string) The site ID, The site domain',
 			'$plugin' => '(string) The plugin ID',
 		),
-		'response_format'      => Jetpack_JSON_API_Plugins_v1_2_Endpoint::$_response_format,
+		'response_format'      => Jetpack_JSON_API_Plugins_Endpoint::$_response_format_v1_2,
 		'example_request_data' => array(
 			'headers' => array(
 				'authorization' => 'Bearer YOUR_API_TOKEN'
@@ -90,4 +90,66 @@ new Jetpack_JSON_API_Plugins_Modify_v1_2_Endpoint(
 );
 
 class Jetpack_JSON_API_Plugins_Modify_v1_2_Endpoint extends Jetpack_JSON_API_Plugins_Modify_Endpoint {
+
+	protected function activate() {
+		foreach ( $this->plugins as $plugin ) {
+			if ( ( ! $this->network_wide && Jetpack::is_plugin_active( $plugin ) ) || is_plugin_active_for_network( $plugin ) ) {
+				continue;
+			}
+
+			if ( ! $this->network_wide && is_network_only_plugin( $plugin ) && is_multisite() ) {
+				continue;
+			}
+
+			$result = activate_plugin( $plugin, '', $this->network_wide );
+
+			if ( is_wp_error( $result ) ) {
+				$this->log[$plugin]['error'] = $result->get_error_messages();
+				$has_errors                  = true;
+				continue;
+			}
+
+			$success = Jetpack::is_plugin_active( $plugin );
+			if ( $success && $this->network_wide ) {
+				$success &= is_plugin_active_for_network( $plugin );
+			}
+
+			if ( ! $success ) {
+				$this->log[$plugin]['error'] = $result->get_error_messages;
+				$has_errors                  = true;
+				continue;
+			}
+			$this->log[$plugin][] = __( 'Plugin activated.', 'jetpack' );
+		}
+		if ( ! $this->bulk && isset( $has_errors ) ) {
+			$plugin = $this->plugins[0];
+
+			return new WP_Error( 'activation_error', $this->log[$plugin]['error'] );
+		}
+	}
+
+
+	protected function deactivate() {
+		foreach ( $this->plugins as $plugin ) {
+			if ( ! Jetpack::is_plugin_active( $plugin ) ) {
+				continue;
+			}
+
+			deactivate_plugins( $plugin, false, $this->network_wide );
+
+			$success = ! Jetpack::is_plugin_active( $plugin );
+			if ( $success && $this->network_wide ) {
+				$success &= ! is_plugin_active_for_network( $plugin );
+			}
+
+			if ( ! $success ) {
+				$error = $this->log[$plugin]['error'] = __( 'There was an error deactivating your plugin', 'jetpack' );
+				continue;
+			}
+			$this->log[$plugin][] = __( 'Plugin deactivated.', 'jetpack' );
+		}
+		if ( ! $this->bulk && isset( $error ) ) {
+			return new WP_Error( 'deactivation_error', $error );
+		}
+	}
 }

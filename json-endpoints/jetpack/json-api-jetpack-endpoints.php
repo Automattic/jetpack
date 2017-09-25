@@ -232,18 +232,10 @@ require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-inst
 require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-delete-endpoint.php' );
 
 // PLUGINS V1.2
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-v1-2-endpoint.php' );
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-get-v1-2-endpoint.php' );
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-list-v1-2-endpoint.php' );
 require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-modify-v1-2-endpoint.php' );
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-new-v1-2-endpoint.php' );
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-install-v1-2-endpoint.php' );
-require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-plugins-delete-v1-2-endpoint.php' );
 
 // Jetpack Modules
-
 require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-modules-endpoint.php' );
-
 require_once( $json_jetpack_endpoints_dir . 'class.jetpack-json-api-modules-get-endpoint.php' );
 
 new Jetpack_JSON_API_Modules_Get_Endpoint( array(

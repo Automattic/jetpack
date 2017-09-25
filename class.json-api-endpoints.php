@@ -626,7 +626,43 @@ abstract class WPCOM_JSON_API_Endpoint {
 				'network'       => '(boolean)  Whether the plugin can only be activated network wide.',
 				'autoupdate'    => '(boolean)  Whether the plugin is auto updated',
 				'log'           => '(array:safehtml) An array of update log strings.',
-        'action_links'  => '(array) An array of action links that the plugin uses.',
+        		'action_links'  => '(array) An array of action links that the plugin uses.',
+			);
+			$return[$key] = (object) $this->cast_and_filter(
+				$value,
+				/**
+				 * Filter the documentation returned for a plugin.
+				 *
+				 * @module json-api
+				 *
+				 * @since 3.1.0
+				 *
+				 * @param array $docs Array of documentation about a plugin.
+				 */
+				apply_filters( 'wpcom_json_api_plugin_cast_and_filter', $docs ),
+				false,
+				$for_output
+			);
+			break;
+		case 'plugin_v1_2' :
+			$docs = array(
+				'slug'            => '(safehtml)  The plugin\'s .org slug',
+				'active'          => '(boolean) The plugin status.',
+				'update'          => '(object)  The plugin update info.',
+				'name'            => '(safehtml)  The plugin\'s ID',
+				'display_name'    => '(safehtml)  The name of the plugin.',
+				'plugin_url'      => '(url)  Link to the plugin\'s web site.',
+				'version'         => '(safehtml)  The plugin version number.',
+				'description'     => '(safehtml)  Description of what the plugin does and/or notes from the author',
+				'author'          => '(safehtml)  The author\'s name',
+				'author_url'      => '(url)  The authors web site address',
+				'network'         => '(boolean) Whether the plugin can only be activated network wide.',
+				'autoupdate'      => '(boolean) Whether the plugin is automatically updated',
+				'autoupdate_disabled' => '(boolean|array:safehtml) Whether the plugin has autoupdates disabled and why it is disabled',
+				'autoupdate_translation' => '(boolean) Whether the plugin is automatically updating translations',
+				'log'             => '(array:safehtml) An array of update log strings.',
+				'uninstallable'   => '(boolean) Whether the plugin is unistallable.',
+				'action_links'    => '(array) An array of action links that the plugin uses.',
 			);
 			$return[$key] = (object) $this->cast_and_filter(
 				$value,

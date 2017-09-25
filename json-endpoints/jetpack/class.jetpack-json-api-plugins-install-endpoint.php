@@ -26,6 +26,28 @@ new Jetpack_JSON_API_Plugins_Install_Endpoint(
 	)
 );
 
+new Jetpack_JSON_API_Plugins_Install_Endpoint(
+	array(
+		'description'          => 'Install a plugin to your jetpack blog',
+		'group'                => '__do_not_document',
+		'stat'                 => 'plugins:1:install',
+		'min_version'          => '1.2',
+		'method'               => 'POST',
+		'path'                 => '/sites/%s/plugins/%s/install',
+		'path_labels'          => array(
+			'$site'   => '(int|string) The site ID, The site domain',
+			'$plugin' => '(int|string) The plugin slug to install',
+		),
+		'response_format'      => Jetpack_JSON_API_Plugins_Endpoint::$_response_format_v1_2,
+		'example_request_data' => array(
+			'headers' => array(
+				'authorization' => 'Bearer YOUR_API_TOKEN'
+			),
+		),
+		'example_request'      => 'https://public-api.wordpress.com/rest/v1.2/sites/example.wordpress.org/plugins/akismet/install'
+	)
+);
+
 class Jetpack_JSON_API_Plugins_Install_Endpoint extends Jetpack_JSON_API_Plugins_Endpoint {
 
 	// POST /sites/%s/plugins/%s/install

@@ -32,6 +32,26 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		'action_links'    => '(array) An array of action links that the plugin uses.',
 	);
 
+	static $_response_format_v1_2 = array(
+		'slug'            => '(safehtml)  The plugin\'s .org slug',
+		'active'          => '(boolean) The plugin status.',
+		'update'          => '(object)  The plugin update info.',
+		'name'            => '(safehtml)  The plugin\'s ID',
+		'display_name'    => '(safehtml)  The name of the plugin.',
+		'plugin_url'      => '(url)  Link to the plugin\'s web site.',
+		'version'         => '(safehtml)  The plugin version number.',
+		'description'     => '(safehtml)  Description of what the plugin does and/or notes from the author',
+		'author'          => '(safehtml)  The author\'s name',
+		'author_url'      => '(url)  The authors web site address',
+		'network'         => '(boolean) Whether the plugin can only be activated network wide.',
+		'autoupdate'      => '(boolean) Whether the plugin is automatically updated',
+		'autoupdate_disabled' => '(boolean|array:safehtml) Whether the plugin has autoupdates disabled and why it is disabled',
+		'autoupdate_translation' => '(boolean) Whether the plugin is automatically updating translations',
+		'log'             => '(array:safehtml) An array of update log strings.',
+		'uninstallable'   => '(boolean) Whether the plugin is unistallable.',
+		'action_links'    => '(array) An array of action links that the plugin uses.',
+	);
+
 	protected function result() {
 
 		$plugins = $this->get_plugins();
@@ -101,6 +121,9 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 	}
 
 	protected function format_plugin( $plugin_file, $plugin_data ) {
+		if( version_compare( $this->min_version, '1.2', '>=' ) ) {
+			return $this->format_plugin_v1_2( $plugin_file, $plugin_data );
+		}
 		$plugin = array();
 		$plugin['id']              = preg_replace("/(.+)\.php$/", "$1", $plugin_file );
 		$plugin['slug']            = Jetpack_Autoupdate::get_plugin_slug( $plugin_file );
@@ -128,6 +151,72 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 			$plugin['log'] = $this->log[ $plugin_file ];
 		}
 		return $plugin;
+	}
+
+	protected function format_plugin_v1_2( $plugin_file, $plugin_data ) {
+		$plugin = array();
+		$plugin['slug']            = Jetpack_Autoupdate::get_plugin_slug( $plugin_file );
+		$plugin['active']          = Jetpack::is_plugin_active( $plugin_file );
+		$plugin['name']            = preg_replace("/(.+)\.php$/", "$1", $plugin_file );
+		$plugin['display_name']	   = $plugin_data['Name'];
+		$plugin['plugin_url']      = $plugin_data['PluginURI'];
+		$plugin['version']         = $plugin_data['Version'];
+		$plugin['description']     = $plugin_data['Description'];
+		$plugin['author']          = $plugin_data['Author'];
+		$plugin['author_url']      = $plugin_data['AuthorURI'];
+		$plugin['network']         = $plugin_data['Network'];
+		$plugin['update']          = $this->get_plugin_updates( $plugin_file );
+		$plugin['action_links']    = $this->get_plugin_action_links( $plugin_file );
+
+		$autoupdate = in_array( $plugin_file, Jetpack_Options::get_option( 'autoupdate_plugins', array() ) );
+		$plugin['autoupdate']      = $autoupdate;
+		if ( $autoupdates_disabled = $this->autoupdate_disabled() ) {
+			$plugin['autoupdate_disabled'] = $autoupdates_disabled;
+		}
+
+		$autoupdate_translation = in_array( $plugin_file, Jetpack_Options::get_option( 'autoupdate_plugins_translations', array() ) );
+		$plugin['autoupdate_translation'] = $autoupdate || $autoupdate_translation || Jetpack_Options::get_option( 'autoupdate_translations', false );
+
+		$plugin['uninstallable']   = is_uninstallable_plugin( $plugin_file );
+
+		if ( ! empty ( $this->log[ $plugin_file ] ) ) {
+			$plugin['log'] = $this->log[ $plugin_file ];
+		}
+		return $plugin;
+	}
+
+	protected function autoupdate_disabled() {
+		// Check if we are on multi site?
+
+		if ( is_multisite() ) {
+
+			if ( Jetpack::is_multi_network() ) {
+				return array( 'is_multi_network' => __( 'Multi Network Sites are not supported', 'jetpack' ) );
+			}
+
+			if( is_main_network() ) {
+
+			}
+		}
+		// Check if we are on multi network?
+		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-functions.php';
+		if ( ! Jetpack_Sync_Functions::file_system_write_access() ) {
+			$reason['has_no_file_system_write_access'] = __( 'The file permissions on this host prevent editing files.', 'jetpack' );
+		}
+
+		if ( defined( 'DISALLOW_FILE_MODS' ) && DISALLOW_FILE_MODS ) {
+			$reason['disallow_file_mods'] = __( 'File modifications are explicitly disabled by a site administrator.', 'jetpack' );
+		}
+
+		if ( defined( 'AUTOMATIC_UPDATER_DISABLED' ) && AUTOMATIC_UPDATER_DISABLED ) {
+			$reason['automatic_updater_disabled'] = __( 'Any autoupdates are explicitly disabled by a site administrator.', 'jetpack' );
+		}
+
+		if ( ! empty( $reason ) ) {
+			return $reason;
+		}
+		return false; // autoupdates allowed
+
 	}
 
 	protected function get_plugins() {
