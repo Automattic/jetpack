@@ -81,6 +81,7 @@ class WPCOM_JSON_API_Update_Term_Endpoint extends WPCOM_JSON_API_Taxonomy_Endpoi
 	// /sites/%s/taxonomies/%s/terms/slug:%s        -> $blog_id, $taxonomy, $slug
 	// /sites/%s/taxonomies/%s/terms/slug:%s/delete -> $blog_id, $taxonomy, $slug
 	function callback( $path = '', $blog_id = 0, $taxonomy = 'category', $slug = 0 ) {
+		$slug = urldecode( $slug );
 		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );
 		if ( is_wp_error( $blog_id ) ) {
 			return $blog_id;
@@ -97,7 +98,7 @@ class WPCOM_JSON_API_Update_Term_Endpoint extends WPCOM_JSON_API_Taxonomy_Endpoi
 
 		$taxonomy_meta = get_taxonomy( $taxonomy );
 		if ( false === $taxonomy_meta || (
-				! $taxonomy_meta->public && 
+				! $taxonomy_meta->public &&
 				! current_user_can( $taxonomy_meta->cap->manage_terms ) &&
 				! current_user_can( $taxonomy_meta->cap->edit_terms ) &&
 				! current_user_can( $taxonomy_meta->cap->delete_terms ) ) ) {
@@ -131,16 +132,15 @@ class WPCOM_JSON_API_Update_Term_Endpoint extends WPCOM_JSON_API_Taxonomy_Endpoi
 		}
 
 		if ( $term = get_term_by( 'name', $input['name'], $taxonomy ) ) {
-			// get_term_by is not case-sensitive, but a name with different casing is allowed
-			// also, the exact same name is allowed as long as the parents are different
-			if ( $input['name'] === $term->name && $input['parent'] === $term->parent ) {
+			// the same name is allowed as long as the parents are different
+			if ( $input['parent'] === $term->parent ) {
 				return new WP_Error( 'duplicate', 'A taxonomy with that name already exists', 409 );
 			}
 		}
 
 		$data = wp_insert_term( addslashes( $input['name'] ), $taxonomy, array(
-	  		'description' => isset( $input['description'] ) ? addslashes( $input['description'] ) : '',
-	  		'parent'      => $input['parent']
+			'description' => isset( $input['description'] ) ? addslashes( $input['description'] ) : '',
+			'parent'      => $input['parent']
 		) );
 
 		if ( is_wp_error( $data ) ) {
