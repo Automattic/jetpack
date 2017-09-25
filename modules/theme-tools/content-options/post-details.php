@@ -121,12 +121,14 @@ function jetpack_post_details_should_run() {
 	$comment    = ( ! empty( $post_details['comment'] ) ) ? $post_details['comment'] : null;
 
 	// If there is no stylesheet and there are no date, categories, tags, author or comment declared, don't continue.
-	if ( empty( $post_details['stylesheet'] )
-		 && ( empty( $date )
-			 || empty( $categories )
-			 || empty( $tags )
-			 || empty( $author )
-			 || empty( $comment ) ) ) {
+	if (
+		empty( $post_details['stylesheet'] )
+		&& ( empty( $date )
+			|| empty( $categories )
+			|| empty( $tags )
+			|| empty( $author )
+			|| empty( $comment ) )
+	) {
 		return $void;
 	}
 
