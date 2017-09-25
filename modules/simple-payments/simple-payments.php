@@ -14,7 +14,7 @@ class Jetpack_Simple_Payments {
 	static $css_classname_prefix = 'jetpack-simple-payments';
 
 	// Increase this number each time there's a change in CSS or JS to bust cache.
-	static $version = '0.23';
+	static $version = '0.25';
 
 	// Classic singleton pattern:
 	private static $instance;
@@ -77,7 +77,7 @@ class Jetpack_Simple_Payments {
 		if ( ! $product || is_wp_error( $product ) ) {
 			return;
 		}
-		if ( $product->post_type !== self::$post_type_product ) {
+		if ( $product->post_type !== self::$post_type_product || 'trash' === $product->post_status ) {
 			return;
 		}
 

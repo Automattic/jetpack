@@ -140,6 +140,7 @@ var PaypalExpressCheckout = {
 
 			style: {
 				label: 'pay',
+				fundingicons: true,
 				shape: 'rect',
 				color: 'silver'
 			},
