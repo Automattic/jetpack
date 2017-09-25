@@ -4775,18 +4775,35 @@ p {
 	 *
 	 * @since 2.6
 	 * @return int
+	 * @deprecated
+	 **/
+	public function get_remote_query_timeout_limit() {
+		_deprecated_function( __METHOD__, 'jetpack-5.4' );
+		return Jetpack::get_max_execution_time();
+	}
+
+	/**
+	 * Builds the timeout limit for queries talking with the wpcom servers.
+	 *
+	 * Based on local php max_execution_time in php.ini
+	 *
+	 * @since 5.4
+	 * @return int
 	 **/
 	public static function get_max_execution_time() {
-	    $timeout = (int) ini_get( 'max_execution_time' );
-	    if ( ! $timeout ) // Ensure exec time set in php.ini
+		$timeout = (int) ini_get( 'max_execution_time' );
+
+		// Ensure exec time set in php.ini
+		if ( ! $timeout ) {
 			$timeout = 30;
-	    return $timeout;
+		}
+		return $timeout;
 	}
 
 	/**
 	 * Sets a minimum request timeout, and returns the current timeout
 	 *
-	 * @since 5.3
+	 * @since 5.4
 	 **/
 	public static function set_min_time_limit( $min_timeout ) {
 		$timeout = self::get_max_execution_time();
