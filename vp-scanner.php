@@ -112,7 +112,7 @@ function split_file_to_php_html( $file ) {
  * @return array An array with 3 arrays of lines
  */
 function split_to_php_html( $source ) {
-	$tokens = token_get_all( $source );
+	$tokens = @token_get_all( $source );
 
 	$ret = array( 'php' => array(), 'php-with-comments' => array(), 'html' => array() );
 	$current_line = 0;
