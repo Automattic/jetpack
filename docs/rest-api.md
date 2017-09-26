@@ -248,9 +248,49 @@ POSTing with `linked` as `false` will disconect the site. Sending `linked: true`
 
 ### Jetpack modules
 
-#### GET /wp-json/jetpack/v4/module
+#### GET /wp-json/jetpack/v4/module/all
 
 Get a list of all Jetpacks modules, its description, other properties and the module's options
+
+**Note**. The response has a big paylod in the body. Use it carefully.
+
+**Example response**
+
+The response is huge. Try it on your browser's console for discovery. Here's a cut down version of it:
+
+```
+{
+	"protect": {
+	        "name": "Protect",
+		"description": "Block suspicious-looking sign in activity",
+		"jumpstart_desc": "",
+		"sort": 1,
+		"recommendation_order": 4,
+		"introduced": "3.4",
+		"changed": "",
+		"deactivate": true,
+		"free": true,
+		"requires_connection": true,
+		"auto_activate": "Yes",
+		"module_tags": [
+		    "Recommended"
+		],
+		"feature": [
+			"Security"
+		],
+		"additional_search_queries": "security, secure, protection, botnet, brute force, protect, login",
+		"module": "protect",
+		"activated": true,
+		"options": { ... },
+		...
+	}
+	"wordads": { ... },
+	"stats": { ... },
+	"manage": { ... },
+	...
+
+}
+```
 
 #### GET /wp-json/jetpack/v4/module/:module-slug
 
