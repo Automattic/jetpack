@@ -4417,8 +4417,8 @@ p {
 			$url = add_query_arg( 'calypso_env', sanitize_key( $_GET['calypso_env'] ), $url );
 		}
 
-		if ( Jetpack_Options::get_option( 'onboarding' ) ) {
-			$url = add_query_arg( 'onboarding', Jetpack::create_onboarding_token(), $url );
+		if ( false !== ( $token = Jetpack_Options::get_option( 'onboarding_token' ) ) ) {
+			$url = add_query_arg( 'onboarding', $token, $url );
 
 			// Remove this once https://github.com/Automattic/wp-calypso/pull/17094 is merged.
 			$url = add_query_arg( 'calypso_env', 'development', $url );
@@ -4694,9 +4694,9 @@ p {
 	 * @return string Secret token
 	 */
 	public static function create_onboarding_token() {
-		if ( false === ( $token = get_option( 'jetpack_onboarding_token' ) ) ) {
+		if ( false === ( $token = Jetpack_Options::get_option( 'onboarding_token' ) ) ) {
 			$token = wp_generate_password( 32, false );
-			update_option( 'jetpack_onboarding_token', $token );
+			Jetpack_Options::update_option( 'onboarding_token', $token );
 		}
 
 		return $token;
@@ -4708,7 +4708,7 @@ p {
 	 * @return bool True on success, false on failure
 	 */
 	public static function invalidate_onboarding_token() {
-		return delete_option( 'jetpack_onboarding_token' );
+		return Jetpack_Options::delete_option( 'onboarding_token' );
 	}
 
 	/**
@@ -4718,7 +4718,7 @@ p {
 	 */
 	public static function validate_onboarding_token_action( $token, $action ) {
 		// Compare tokens, bail if tokens do not match
-		if ( ! hash_equals( $token, get_option( 'jetpack_onboarding_token' ) ) ) {
+		if ( ! hash_equals( $token, Jetpack_Options::get_option( 'onboarding_token' ) ) ) {
 			return false;
 		}
 

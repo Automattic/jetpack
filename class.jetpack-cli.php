@@ -990,6 +990,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		if ( isset( $request_body['onboarding'] ) && (bool) $request_body['onboarding'] ) {
 			Jetpack_Options::update_option( 'onboarding', 1 );
+			Jetpack::create_onboarding_token();
 		}
 
 		$request = array(
