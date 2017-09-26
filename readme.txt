@@ -119,6 +119,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Simple Payments: improve the display of the payment items when used on your site.
 * Improve the display of the Facebook posts, images, and all other Facebook embeds in your posts.
 * Synchronize the author information for all published posts.
+* Record how Jetpack was discovered and activated to better understand how site owners first discover Jetpack.
 
 **Bug fixes**
 * Contact Form: avoid errors in the post editor on sites using RTL languages.
