@@ -540,7 +540,7 @@ Get number of updated available for currently installed WordPress plugins.
 }
 ```
 
-### Akismet related operations
+### Akismet data
 
 #### GET /wp-json/jetpack/v4/module/akismet/data
 
@@ -671,7 +671,7 @@ Get stats from Akismet filtered spam.
 }
 ```
 
-### VaultPress options
+### VaultPress data
 
 #### GET /wp-json/jetpack/v4/module/vaultpress/data
 
