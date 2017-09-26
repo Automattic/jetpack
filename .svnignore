@@ -1,5 +1,3 @@
-.eslintrc
-.eslintignore
 .git
 .gitignore
 .sass-cache
@@ -8,7 +6,6 @@
 .travis.yml
 .npmrc
 .nvmrc
-.eslintrc
 readme.md
 .github
 phpunit.xml.dist
