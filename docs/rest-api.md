@@ -461,9 +461,17 @@ The string value in `data` is a stringified JSON object with data coming from th
 
 ### Protect module related operations
 
-##### GET /wp-json/jetpack/v4/module/protect/count/get
+##### GET /wp-json/jetpack/v4/module/protect/data
 
 Get count of blocked attacks by Protect.
+
+**Example response**
+
+**Note**: The response is not an object but a plain string with the number of blocked login attempts.
+
+```
+"3"
+```
 
 ### Monitor module related operations
 
