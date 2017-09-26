@@ -19,10 +19,9 @@ body .jetpack-simple-payments-wrapper .jetpack-simple-payments-details p {
 }
 
 .jetpack-simple-payments-image {
-	border: 1px solid rgba(0, 0, 0, 0.1);
 	box-sizing: border-box;
 	min-width: 70px;
-	padding-top: calc(100% - 2px);
+	padding-top: 100%;
 	position: relative;
 }
 
@@ -69,32 +68,53 @@ input[type="number"].jetpack-simple-payments-items-number {
 }
 
 .jetpack-simple-payments-purchase-message {
+	background-color: rgba(255, 255, 255, 0.7);
+	border: 2px solid #fff;
+	border-radius: 2px;
+	box-shadow: 0 0 0 1px rgba(200, 215, 225, 0.5), 0 1px 2px #e9eff3;
 	display: none;
-	padding: 0.5em 1em;
 	margin-bottom: 1.5em;
+	min-height: 48px;
+	padding: 1em;
+	position: relative;
 }
 
-/* Higher specificity in order to set the text color */
-body .jetpack-simple-payments-wrapper .jetpack-simple-payments-purchase-message p {
-	color: #fff;
-	margin: 0 0 0.5em;
-	padding: 0;
-}
-
-body .jetpack-simple-payments-wrapper .jetpack-simple-payments-purchase-message p:last-child {
-	margin: 0;
+.jetpack-simple-payments-purchase-message:before {
+	font-family: dashicons !important;
+	font-size: 48px !important;
+	line-height: 1 !important;
+	position: absolute;
+	speak: none;
+	top: 50%;
+	left: 0;
+	transform: translateY(-50%);
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
 }
 
 .jetpack-simple-payments-purchase-message.show {
 	display: block;
 }
 
-.jetpack-simple-payments-purchase-message.success {
-	background-color: #4ab866;
+.jetpack-simple-payments-purchase-message.success:before {
+	color: #4ab866;
+	content: "\f147";
 }
 
-.jetpack-simple-payments-purchase-message.error {
-	background-color: #d94f4f;
+.jetpack-simple-payments-purchase-message.error:before {
+	color: #d94f4f;
+	content: "\f335";
+}
+
+/* Higher specificity in order to reset */
+body .jetpack-simple-payments-wrapper .jetpack-simple-payments-purchase-message p {
+	color: #222;
+	margin: 0 0 0.5em;
+	padding: 0 0 0 40px;
+}
+
+body .jetpack-simple-payments-wrapper .jetpack-simple-payments-purchase-message p:last-child {
+	margin: 0;
 }
 
 @media screen and (min-width: 400px) {

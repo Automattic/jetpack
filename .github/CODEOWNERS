@@ -12,3 +12,4 @@ modules/custom-css*      @georgestephanis
 
 # Other bits of the Codebase
 class.jetpack-debugger.php @kraftbj
+docs/* @jeherve

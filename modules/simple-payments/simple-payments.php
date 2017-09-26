@@ -14,7 +14,7 @@ class Jetpack_Simple_Payments {
 	static $css_classname_prefix = 'jetpack-simple-payments';
 
 	// Increase this number each time there's a change in CSS or JS to bust cache.
-	static $version = '0.23';
+	static $version = '0.25';
 
 	// Classic singleton pattern:
 	private static $instance;
@@ -77,7 +77,7 @@ class Jetpack_Simple_Payments {
 		if ( ! $product || is_wp_error( $product ) ) {
 			return;
 		}
-		if ( $product->post_type !== self::$post_type_product ) {
+		if ( $product->post_type !== self::$post_type_product || 'trash' === $product->post_status ) {
 			return;
 		}
 
@@ -104,7 +104,7 @@ class Jetpack_Simple_Payments {
 			wp_enqueue_script( 'paypal-express-checkout' );
 		}
 		if ( ! wp_style_is( 'simple-payments', 'enqueued' ) ) {
-			wp_enqueue_style( 'simple-payments', plugins_url( 'simple-payments.css', __FILE__ ) );
+			wp_enqueue_style( 'simple-payments', plugins_url( 'simple-payments.css', __FILE__ ), array( 'dashicons' ) );
 		}
 
 		wp_add_inline_script( 'paypal-express-checkout', sprintf(
@@ -133,13 +133,13 @@ class Jetpack_Simple_Payments {
 		}
 		return "
 <div class='{$data['class']} ${css_prefix}-wrapper'>
-	<div class='${css_prefix}-purchase-message' id='{$data['dom_id']}-message-container'></div>
 	<div class='${css_prefix}-product'>
 		{$image}
 		<div class='${css_prefix}-details'>
 			<div class='${css_prefix}-title'><p>{$data['title']}</p></div>
 			<div class='${css_prefix}-description'><p>{$data['description']}</p></div>
 			<div class='${css_prefix}-price'><p>{$data['price']}</p></div>
+			<div class='${css_prefix}-purchase-message' id='{$data['dom_id']}-message-container'></div>
 			<div class='${css_prefix}-purchase-box'>
 				{$items}
 				<div class='${css_prefix}-button' id='{$data['dom_id']}_button'></div>

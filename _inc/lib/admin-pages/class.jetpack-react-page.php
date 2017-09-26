@@ -302,7 +302,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				 * @param bool $are_promotions_active Status of promotions visibility. True by default.
 				 */
 				'showPromotions' => apply_filters( 'jetpack_show_promotions', true ),
-				'isAutomatedTransfer' => jetpack_is_automated_transfer_site(),
+				'isAtomicSite' => jetpack_is_atomic_site(),
 			),
 			'themeData' => array(
 				'name'      => $current_theme->get( 'Name' ),

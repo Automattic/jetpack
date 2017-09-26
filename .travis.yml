@@ -20,7 +20,7 @@ cache:
 # The versions listed above will automatically create our first configuration,
 # so it doesn't need to be re-defined below.
 
-# Test WP trunk/master and two latest versions on minimum (5.2).
+# Test WP trunk/master and two latest versions on minimum (5.3).
 # Test WP latest two versions (4.5, 4.3) on most popular (5.5, 5.6).
 # Test WP latest stable (4.5) on other supported PHP (5.3, 5.4).
 # Test WP trunk/master on edge platforms (7.0, PHP nightly).
@@ -33,8 +33,6 @@ matrix:
   - env: WP_TRAVISCI="yarn lint"
   - env: WP_TRAVISCI="yarn test-client"
   - env: WP_TRAVISCI="yarn test-gui"
-  - php: "5.2"
-    dist: precise
   - php: "5.3"
     dist: precise
   - php: "5.5"

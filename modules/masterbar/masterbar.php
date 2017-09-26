@@ -31,6 +31,12 @@ class A8C_WPCOM_Masterbar {
 			return;
 		}
 
+		// Atomic only - override user setting that hides masterbar from site's front.
+		// https://github.com/Automattic/jetpack/issues/7667
+		if ( jetpack_is_atomic_site() ) {
+			add_filter( 'show_admin_bar', '__return_true' );
+		}
+
 		$this->user_data = Jetpack::get_connected_user_data( $this->user_id );
 		$this->user_login = $this->user_data['login'];
 		$this->user_email = $this->user_data['email'];
@@ -66,10 +72,6 @@ class A8C_WPCOM_Masterbar {
 		}
 
 		add_action( 'wp_logout', array( $this, 'maybe_logout_user_from_wpcom' ) );
-	}
-
-	public function is_automated_transfer_site() {
-		return jetpack_is_automated_transfer_site();
 	}
 
 	public function maybe_logout_user_from_wpcom() {
@@ -475,7 +477,7 @@ class A8C_WPCOM_Masterbar {
 
 		$help_link = 'https://jetpack.com/support/';
 
-		if ( $this->is_automated_transfer_site() ) {
+		if ( jetpack_is_atomic_site() ) {
 			$help_link = 'https://wordpress.com/help';
 		}
 
@@ -920,7 +922,7 @@ class A8C_WPCOM_Masterbar {
 				),
 			) );
 
-			if ( $this->is_automated_transfer_site() ) {
+			if ( jetpack_is_atomic_site() ) {
 				$domain_title = $this->create_menu_item_pair(
 					array(
 						'url'   => 'https://wordpress.com/domains/' . esc_attr( $this->primary_site_slug ),
@@ -974,6 +976,13 @@ class A8C_WPCOM_Masterbar {
 				'href'  => '#',
 				) );
 			}
+
+			/**
+			 * Fires when menu items are added to the masterbar "My Sites" menu.
+			 *
+			 * @since 5.4
+			 */
+			do_action( 'jetpack_masterbar' );
 		}
 	}
 }

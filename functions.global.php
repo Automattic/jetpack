@@ -17,14 +17,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Determine if this site is an AT site or not looking first at the 'at_options' option.
+ * Determine if this site is an Atomic site or not looking first at the 'at_options' option.
  * As a fallback, check for presence of wpcomsh plugin to determine if a current site has undergone AT.
  *
  * @since 4.8.1
  *
  * @return bool
  */
-function jetpack_is_automated_transfer_site() {
+function jetpack_is_atomic_site() {
 	$at_options = get_option( 'at_options', array() );
 	return ! empty( $at_options ) || defined( 'WPCOMSH__PLUGIN_FILE' );
 }

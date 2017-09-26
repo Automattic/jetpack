@@ -75,6 +75,18 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'callback' => __CLASS__ . '::delete_jitm_message'
 		) );
 
+		// Register a site
+		register_rest_route( 'jetpack/v4', '/verify_registration', array(
+			'methods' => WP_REST_Server::EDITABLE,
+			'callback' => __CLASS__ . '::verify_registration',
+		) );
+
+		// Authorize a remote user
+		register_rest_route( 'jetpack/v4', '/remote_authorize', array(
+			'methods' => WP_REST_Server::EDITABLE,
+			'callback' => __CLASS__ . '::remote_authorize',
+		) );
+
 		// Get current connection status of Jetpack
 		register_rest_route( 'jetpack/v4', '/connection', array(
 			'methods' => WP_REST_Server::READABLE,
@@ -323,25 +335,83 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
+	 * Asks for a jitm, unless they've been disabled, in which case it returns an empty array
+	 *
 	 * @param $request WP_REST_Request
 	 *
-	 * @return array
+	 * @return array An array of jitms
 	 */
 	public static function get_jitm_message( $request ) {
 		require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-jitm.php' );
 
 		$jitm = Jetpack_JITM::init();
 
+		if ( ! $jitm ) {
+			return array();
+		}
+
 		return $jitm->get_messages( $request['message_path'], urldecode_deep( $request['query'] ) );
 	}
 
+	/**
+	 * Dismisses a jitm
+	 * @param $request WP_REST_Request The request
+	 *
+	 * @return bool Always True
+	 */
 	public static function delete_jitm_message( $request ) {
 		require_once( JETPACK__PLUGIN_DIR . 'class.jetpack-jitm.php' );
 
 		$jitm = Jetpack_JITM::init();
 
+		if ( ! $jitm ) {
+			return true;
+		}
+
 		return $jitm->dismiss( $request['id'], $request['feature_class'] );
 	}
+
+	/**
+	 * Handles verification that a site is registered
+	 *
+	 * @since 5.4.0
+	 *
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 *
+	 * @return array|wp-error
+	 */
+	public static function verify_registration( $request ) {
+		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-xmlrpc-server.php';
+		$xmlrpc_server = new Jetpack_XMLRPC_Server();
+		$result = $xmlrpc_server->verify_registration( array( $request['secret_1'], $request['state'] ) );
+
+		if ( is_a( $result, 'IXR_Error' ) ) {
+			$result = new WP_Error( $result->code, $result->message );
+		}
+
+		return $result;
+	}
+
+	/**
+	 * Handles verification that a site is registered
+	 *
+	 * @since 5.4.0
+	 *
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 *
+	 * @return array|wp-error
+	 */
+	 public static function remote_authorize( $request ) {
+		require_once JETPACK__PLUGIN_DIR . 'class.jetpack-xmlrpc-server.php';
+		$xmlrpc_server = new Jetpack_XMLRPC_Server();
+		$result = $xmlrpc_server->remote_authorize( $request );
+
+		if ( is_a( $result, 'IXR_Error' ) ) {
+			$result = new WP_Error( $result->code, $result->message );
+		}
+
+		return $result;
+	 }
 
 	/**
 	 * Handles dismissing of Jetpack Notices
@@ -736,6 +806,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 			$results = json_decode( $response['body'], true );
 
 			if ( is_array( $results ) && isset( $results['plan'] ) ) {
+
+				// Set flag for newly purchased plan
+				$current_plan = Jetpack::get_active_plan();
+				if ( $current_plan['product_slug'] !== $results['plan']['product_slug'] && 'jetpack_free' !== $results['plan']['product_slug'] ) {
+					update_option( 'show_welcome_for_new_plan', true ) ;
+				}
+
 				update_option( 'jetpack_active_plan', $results['plan'] );
 			}
 
@@ -1743,6 +1820,15 @@ class Jetpack_Core_Json_Api_Endpoints {
 					'addContactForm'   => false
 				),
 				'validate_callback' => __CLASS__ . '::validate_onboarding',
+				'jp_group'          => 'settings',
+			),
+
+			// Show welcome for newly purchased plan
+			'show_welcome_for_new_plan' => array(
+				'description'       => '',
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'settings',
 			),
 

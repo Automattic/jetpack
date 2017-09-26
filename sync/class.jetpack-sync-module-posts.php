@@ -364,6 +364,17 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 			'post_type' => $post->post_type
 		);
 
+		$author_user_object = get_user_by( 'id', $post->post_author );
+		if ( $author_user_object ) {
+			$post_flags['author'] = array(
+				'id'              => $post->post_author,
+				'wpcom_user_id'   => get_user_meta( $post->post_author, 'wpcom_user_id', true ),
+				'display_name'    => $author_user_object->display_name,
+				'email'           => $author_user_object->user_email,
+				'translated_role' => Jetpack::translate_user_to_role( $author_user_object ),
+			);
+		}
+
 		/**
 		 * Filter that is used to add to the post flags ( meta data ) when a post gets published
 		 *
@@ -383,7 +394,6 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		 * @param mixed array $flags post flags that are added to the post
 		 */
 		do_action( 'jetpack_published_post', $post_ID, $flags );
-
 		$this->just_published = array_diff( $this->just_published, array( $post_ID ) );
 	}
 
