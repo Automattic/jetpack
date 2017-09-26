@@ -1879,7 +1879,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	/**
 	 * Validates that the parameters are proper values that can be set during Jetpack onboarding.
 	 *
-	 * @since 5.3.0
+	 * @since 5.4.0
 	 *
 	 * @param array           $onboarding_data Values to check.
 	 * @param WP_REST_Request $request         The request sent to the WP REST API.

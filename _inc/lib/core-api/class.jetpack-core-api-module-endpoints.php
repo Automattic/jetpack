@@ -932,7 +932,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 	/**
 	 * Perform tasks in the site based on onboarding choices.
 	 *
-	 * @since 5.3
+	 * @since 5.4.0
 	 *
 	 * @param array $data Onboarding choices made by user.
 	 *

@@ -613,7 +613,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	/**
 	 * Test connection url build when there's onboarding.
 	 *
-	 * @since 5.3
+	 * @since 5.4.0
 	 */
 	public function test_build_connect_url_onboarding() {
 
