@@ -108,6 +108,13 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Release date: October 3, 2017
 * Release post: http://wp.me/p1moTy-67V
 
+**Major Enhancements**
+
+**Enhancements**
+
+**Bug fixes**
+* Toolbar: always display the Toolbar when it's active, regardless of other admin bar settings.
+
 = 5.3 =
 
 * Release date: September 5, 2017
