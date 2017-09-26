@@ -52,7 +52,7 @@ class Jetpack_Options {
 				'safe_mode_confirmed',         // (bool) True if someone confirms that this site was correctly put into safe mode automatically after an identity crisis is discovered.
 				'migrate_for_idc',             // (bool) True if someone confirms that this site should migrate stats and subscribers from its previous URL
 				'dismissed_connection_banner', // (bool) True if the connection banner has been dismissed
-				'onboarding_token',            // (string) Auth token to be used in the onboarding connection flow
+				'onboarding',            // (string) Auth token to be used in the onboarding connection flow
 			);
 
 		case 'private' :
