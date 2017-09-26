@@ -122,6 +122,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Improve the Content Options panel displayed in the Customizer with certain themes.
 * Add architecture for the Jetpack Search feature, available for Jetpack Professional users.
 * Simple Payments: improve the display of the payment items when used on your site.
+* Ensure a proper display of the Recipe shortcode on sites using an RTL language.
 * Improve the display of the Facebook posts, images, and all other Facebook embeds in your posts.
 * Synchronize the author information for all published posts.
 * Record how Jetpack was discovered and activated to better understand how site owners first discover Jetpack.
