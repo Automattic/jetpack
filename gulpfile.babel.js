@@ -1,36 +1,41 @@
-var autoprefixer = require( 'gulp-autoprefixer' ),
-	banner = require( 'gulp-banner' ),
-	check = require( 'gulp-check' ),
-	cleanCSS = require( 'gulp-clean-css' ),
-	concat = require( 'gulp-concat' ),
-	del = require( 'del' ),
-	fs = require( 'fs' ),
-	gulp = require( 'gulp' ),
-	eslint = require( 'gulp-eslint' ),
-	gutil = require( 'gulp-util' ),
-	i18n_calypso = require( 'i18n-calypso/cli' ),
-	jshint = require( 'gulp-jshint' ),
-	json_transform = require( 'gulp-json-transform' ),
-	phplint = require( 'gulp-phplint' ),
-	phpunit = require( 'gulp-phpunit' ),
-	po2json = require( 'gulp-po2json' ),
-	qunit = require( 'gulp-qunit' ),
-	rename = require( 'gulp-rename' ),
-	readline = require( 'readline' ),
-	request = require( 'request' ),
-	rtlcss = require( 'gulp-rtlcss' ),
-	sass = require( 'gulp-sass' ),
-	spawn = require( 'child_process' ).spawn,
-	stream = require( 'stream' ),
-	sourcemaps = require( 'gulp-sourcemaps' ),
-	tap = require( 'gulp-tap' ),
-	modify = require('gulp-modify'),
-	uglify = require('gulp-uglify'),
-	util = require( 'gulp-util' ),
-	webpack = require( 'webpack' );
+/**
+ * External dependencies
+ */
+import autoprefixer from 'gulp-autoprefixer';
+import banner from 'gulp-banner';
+import check from 'gulp-check';
+import cleanCSS from 'gulp-clean-css';
+import del from 'del';
+import fs from 'fs';
+import gulp from 'gulp';
+import eslint from 'gulp-eslint';
+import i18n_calypso from 'i18n-calypso/cli';
+import jshint from 'gulp-jshint';
+import json_transform from 'gulp-json-transform';
+import phplint from 'gulp-phplint';
+import phpunit from 'gulp-phpunit';
+import po2json from 'gulp-po2json';
+import qunit from 'gulp-qunit';
+import rename from 'gulp-rename';
+import readline from 'readline';
+import request from 'request';
+import rtlcss from 'gulp-rtlcss';
+import sass from 'gulp-sass';
+import { spawn } from 'child_process';
+import Stream from 'stream';
+import sourcemaps from 'gulp-sourcemaps';
+import tap from 'gulp-tap';
+import uglify from 'gulp-uglify';
+import util from 'gulp-util';
+import webpack from 'webpack';
 
-var admincss, frontendcss,
-	meta = require( './package.json' );
+/**
+ * Internal dependencies
+ */
+const meta = require( './package.json' );
+
+import {} from './tools/builder/frontend-css';
+import {} from './tools/builder/admin-css';
 
 function onBuild( done ) {
 	return function( err, stats ) {
@@ -38,12 +43,12 @@ function onBuild( done ) {
 		// @see https://github.com/webpack/webpack/issues/708
 		if ( stats.compilation.errors && stats.compilation.errors.length ) {
 			if ( done ) {
-				done( new gutil.PluginError( 'webpack', stats.compilation.errors[0] ) );
+				done( new util.PluginError( 'webpack', stats.compilation.errors[ 0 ] ) );
 				return; // Otherwise gulp complains about done called twice
 			}
 		}
 
-		gutil.log( 'Building JS…', stats.toString( {
+		util.log( 'Building JS…', stats.toString( {
 			colors: true,
 			hash: true,
 			version: false,
@@ -60,13 +65,13 @@ function onBuild( done ) {
 		} ), '\nJS finished at', Date.now() );
 
 		if ( 'production' === process.env.NODE_ENV ) {
-			gutil.log( 'Uglifying JS...' );
+			util.log( 'Uglifying JS...' );
 			gulp.src( '_inc/build/admin.js' )
 				.pipe( uglify() )
 				.pipe( gulp.dest( '_inc/build' ) )
 				.on( 'end', function() {
-					gutil.log( 'Your JS is now uglified!' );
-				} );;
+					util.log( 'Your JS is now uglified!' );
+				} );
 		}
 
 		doSass( function() {
@@ -81,17 +86,17 @@ function onBuild( done ) {
 
 function getWebpackConfig() {
 	// clone and extend webpackConfig
-	var config = Object.create( require( './webpack.config.js' ) );
+	const config = Object.create( require( './webpack.config.js' ) );
 	config.debug = true;
 
 	return config;
 }
 
 function doSass( done ) {
-	if ( arguments.length && typeof arguments[0] !== 'function' ) {
-		console.log( 'Sass file ' + arguments[0].path + ' changed.' );
+	if ( arguments.length && typeof arguments[ 0 ] !== 'function' ) {
+		util.log( 'Sass file ' + arguments[ 0 ].path + ' changed.' );
 	}
-	console.log( 'Building Dashboard CSS bundle...' );
+	util.log( 'Building Dashboard CSS bundle...' );
 	gulp.src( './_inc/client/scss/style.scss' )
 		.pipe( sass( { outputStyle: 'compressed' } ).on( 'error', sass.logError ) )
 		.pipe( banner( '/* Do not modify this file directly.  It is compiled SASS code. */\n' ) )
@@ -99,15 +104,15 @@ function doSass( done ) {
 		.pipe( rename( { suffix: '.min' } ) )
 		.pipe( gulp.dest( './_inc/build' ) )
 		.on( 'end', function() {
-			console.log( 'Dashboard CSS finished.' );
+			util.log( 'Dashboard CSS finished.' );
 			doRTL( 'main' );
 		} );
-	console.log( 'Building dops-components CSS bundle...' );
+	util.log( 'Building dops-components CSS bundle...' );
 	gulp.src( './_inc/build/*dops-style.css' )
 		.pipe( autoprefixer( 'last 2 versions', 'ie >= 8' ) )
 		.pipe( gulp.dest( './_inc/build' ) )
 		.on( 'end', function() {
-			console.log( 'dops-components CSS finished.' );
+			util.log( 'dops-components CSS finished.' );
 			doRTL( 'dops', done );
 		} );
 }
@@ -120,45 +125,14 @@ function doRTL( files, done ) {
 		.pipe( sourcemaps.write( './' ) )
 		.pipe( gulp.dest( './_inc/build' ) )
 		.on( 'end', function() {
-			console.log( 'main' === files ? 'Dashboard RTL CSS finished.' : 'DOPS Components RTL CSS finished.' );
+			util.log( 'main' === files ? 'Dashboard RTL CSS finished.' : 'DOPS Components RTL CSS finished.' );
 			if ( done && 'function' === typeof done ) {
 				done();
 			}
 		} );
 }
 
-/* Replace relative paths with new paths */
-function transformRelativePath( relPath, filepath ) {
-	// If wrapped in singly quotes, strip them
-	if ( 0 === relPath.indexOf( '\'' ) ) {
-		relPath = relPath.substr( 1, relPath.length - 2 );
-	}
-
-	// Return the path unmodified if not relative
-	if ( ! ( 0 === relPath.indexOf( './' ) || 0 === relPath.indexOf( '../' ) ) ) {
-		return relPath;
-	}
-
-	// The concat file is in jetpack/css/jetpack.css, so to get to the root we
-	// have to go back one dir
-	var relPieces = relPath.split( '/' ),
-		filePieces = filepath.split( '/' );
-
-	filePieces.pop(); // Pop the css file name
-
-	if ( '.' === relPieces[0] ) {
-		relPieces.shift();
-	}
-
-	while ( '..' === relPieces[0] ) {
-		relPieces.shift();
-		filePieces.pop();
-	}
-
-	return '../' + filePieces.join( '/' ) + '/' + relPieces.join( '/' );
-}
-
-gulp.task( 'sass:build', ['react:build'], doSass );
+gulp.task( 'sass:build', [ 'react:build' ], doSass );
 
 gulp.task( 'sass:watch', function() {
 	doSass();
@@ -166,7 +140,7 @@ gulp.task( 'sass:watch', function() {
 } );
 
 gulp.task( 'react:build', function( done ) {
-	var config = getWebpackConfig();
+	const config = getWebpackConfig();
 
 	if ( 'production' === process.env.NODE_ENV ) {
 		config.debug = false;
@@ -176,16 +150,17 @@ gulp.task( 'react:build', function( done ) {
 } );
 
 gulp.task( 'react:watch', function() {
-	var config = getWebpackConfig();
+	const config = getWebpackConfig();
 
 	webpack( config ).watch( 100, onBuild() );
 } );
 
 function doStatic( done ) {
-	var path,
-		jsdom = require( 'jsdom' );
+	let path;
 
-	gutil.log( 'Building static HTML from built JS…' );
+	const jsdom = require( 'jsdom' );
+
+	util.log( 'Building static HTML from built JS…' );
 
 	jsdom.env( '', function( err, window ) {
 		global.window = window;
@@ -226,138 +201,17 @@ function doStatic( done ) {
 						done();
 					}
 				} );
-
-
-		} catch ( err ) {
+		} catch ( error ) {
 			util.log( util.colors.yellow(
 				"Warning: gulp was unable to update static HTML files.\n\n" +
-				"If this is happening during watch, this warning is OK to dismiss: sometimes webpack fires watch handlers when source code is not yet built."
+				'If this is happening during watch, this warning is OK to dismiss: sometimes webpack fires watch handlers when source code is not yet built.'
 			) );
 		}
-
 	} );
 }
 
-// Admin CSS to be minified, autoprefixed, rtl
-//
-// Note: Once the Jetpack React UI lands, many of these will likely be able to be removed.
-
-/* (Pre-4.1) Admin CSS to be minified, autoprefixed, rtl */
-admincss = [
-	// Non-concatenated, non-admin styles to be processed
-	'modules/custom-post-types/comics/comics.css',
-	'modules/shortcodes/css/recipes.css',
-	'modules/shortcodes/css/recipes-print.css',
-
-	'modules/after-the-deadline/atd.css',
-	'modules/after-the-deadline/tinymce/css/content.css',
-	'modules/contact-form/css/editor-inline-editing-style.css',
-	'modules/contact-form/css/editor-style.css',
-	'modules/contact-form/css/editor-ui.css',
-	'modules/custom-css/csstidy/cssparse.css',
-	'modules/custom-css/csstidy/cssparsed.css',
-	'modules/custom-css/custom-css/css/codemirror.css',
-	'modules/custom-css/custom-css/css/css-editor.css',
-	'modules/custom-css/custom-css/css/use-codemirror.css',
-	'modules/post-by-email/post-by-email.css',
-	'modules/publicize/assets/publicize.css',
-	'modules/protect/protect-dashboard-widget.css',
-	'modules/sharedaddy/admin-sharing.css',
-	'modules/videopress/videopress-admin.css',
-	'modules/widget-visibility/widget-conditions/widget-conditions.css',
-	'modules/widgets/gallery/css/admin.css',
-	'modules/sso/jetpack-sso-login.css' // Displayed when logging into the site.
-];
-
-/* Front-end CSS to be concatenated */
-frontendcss = [
-	'modules/carousel/jetpack-carousel.css',
-	'modules/contact-form/css/grunion.css',
-	'modules/infinite-scroll/infinity.css',
-	'modules/likes/style.css',
-	'modules/related-posts/related-posts.css',
-	'modules/sharedaddy/sharing.css',
-	'modules/shortcodes/css/slideshow-shortcode.css',
-	'modules/shortcodes/css/style.css', // TODO: Should be renamed to shortcode-presentations
-	'modules/shortcodes/css/quiz.css',
-	'modules/subscriptions/subscriptions.css',
-	'modules/theme-tools/responsive-videos/responsive-videos.css',
-	'modules/theme-tools/social-menu/social-menu.css',
-	'modules/tiled-gallery/tiled-gallery/tiled-gallery.css',
-	'modules/widgets/wordpress-post-widget/style.css',
-	'modules/widgets/gravatar-profile.css',
-	'modules/widgets/goodreads/css/goodreads.css',
-	'modules/widgets/social-media-icons/style.css',
-	'modules/widgets/top-posts/style.css',
-	'modules/widgets/image-widget/style.css',
-	'modules/widgets/my-community/style.css',
-	'modules/widgets/authors/style.css',
-	'css/jetpack-idc-admin-bar.css',
-	'modules/wordads/css/style.css',
-	'modules/widgets/eu-cookie-law/style.css',
-	'modules/widgets/flickr/style.css'
-];
-
 gulp.task( 'old-styles:watch', function() {
-	gulp.watch( 'scss/**/*.scss', ['old-sass'] );
-} );
-
-// Minimizes admin css for modules.  Outputs to same folder as min.css
-gulp.task( 'admincss', function() {
-	return gulp.src( admincss, { base: './' } )
-		.pipe( autoprefixer( 'last 2 versions', 'ie >= 8' ) )
-		.pipe( cleanCSS( { compatibility: 'ie8' } ) )
-		.pipe( rename( { suffix: '.min' } ) )
-		.pipe( banner( '/* Do not modify this file directly.  It is concatenated from individual module CSS files. */\n' ) )
-		.pipe( gulp.dest( '.' ) )
-		.on( 'end', function() {
-			console.log( 'Admin modules CSS finished.' );
-		} );
-} );
-
-// Admin RTL CSS for modules.  Auto-prefix, RTL, Minify, RTL the minimized version.
-gulp.task( 'admincss:rtl', function() {
-	return gulp.src( admincss, { base: './' } )
-		.pipe( autoprefixer( 'last 2 versions', 'safari 5', 'ie 8', 'ie 9', 'Firefox 14', 'opera 12.1', 'ios 6', 'android 4' ) )
-		.pipe( rtlcss() )
-		.pipe( rename( { suffix: '-rtl' } ) )
-		.pipe( banner( '/* Do not modify this file directly.  It is concatenated from individual module CSS files. */\n') )
-		.pipe( gulp.dest( '.' ) )
-		.pipe( cleanCSS( { compatibility: 'ie8' } ) )
-		.pipe( rename( { suffix: '.min' } ) )
-		.pipe( gulp.dest( '.' ) )
-		.on( 'end', function() {
-			console.log( 'Admin modules RTL CSS finished.' );
-		} );
-} );
-
-// Frontend CSS.  Auto-prefix and minimize.
-gulp.task( 'frontendcss', function() {
-	return gulp.src( frontendcss )
-		.pipe( modify( {
-				fileModifier: function ( file, contents ) {
-					var regex = /url\((.*)\)/g,
-						f = file.path.replace( file.cwd + '/', '');
-					return contents.replace( regex, function ( match, group ) {
-						return 'url(\'' + transformRelativePath( group, f ) + '\')';
-					} );
-				}
-			}
-		) )
-		.pipe( autoprefixer( 'last 2 versions', 'safari 5', 'ie 8', 'ie 9', 'Firefox 14', 'opera 12.1', 'ios 6', 'android 4' ) )
-		.pipe( cleanCSS( { compatibility: 'ie8' } ) )
-		.pipe( concat( 'jetpack.css' ) )
-		.pipe( banner( '/*!\n' +
-			'* Do not modify this file directly.  It is concatenated from individual module CSS files.\n' +
-			'*/\n'
-		) )
-		.pipe( gulp.dest( 'css' ) )
-		.pipe( rtlcss() )
-		.pipe( rename( { suffix: '-rtl' } ) )
-		.pipe( gulp.dest( 'css' ) )
-		.on( 'end', function() {
-			console.log( 'Front end modules CSS finished.' );
-		} );
+	gulp.watch( 'scss/**/*.scss', [ 'old-sass' ] );
 } );
 
 /*
@@ -382,7 +236,7 @@ gulp.task( 'old-sass', function() {
 		.pipe( gulp.dest( './' ) )
 		.pipe( sourcemaps.write( '.' ) )
 		.on( 'end', function() {
-			console.log( 'Global admin CSS finished.' );
+			util.log( 'Global admin CSS finished.' );
 		} );
 } );
 
@@ -410,7 +264,7 @@ gulp.task( 'old-sass:rtl', function() {
 		.pipe( gulp.dest( './' ) )
 		// Finished
 		.on( 'end', function() {
-			console.log( 'Global admin RTL CSS finished.' );
+			util.log( 'Global admin RTL CSS finished.' );
 		} );
 } );
 
@@ -420,7 +274,7 @@ gulp.task( 'old-sass:rtl', function() {
  */
 gulp.task( 'check:DIR', function() {
 	// __DIR__ is not available in PHP 5.2...
-	return gulp.src( ['*.php', '**/*.php'] )
+	return gulp.src( [ '*.php', '**/*.php' ] )
 		.pipe( check( '__DIR__' ) )
 		.on( 'error', function( err ) {
 			util.log( util.colors.red( err ) );
@@ -490,7 +344,7 @@ gulp.task( 'js:qunit', function() {
 */
 
 gulp.task( 'languages:get', function( callback ) {
-	var process = spawn(
+	const process = spawn(
 		'php',
 		[
 			'tools/export-translations.php',
@@ -500,34 +354,34 @@ gulp.task( 'languages:get', function( callback ) {
 	);
 
 	process.stderr.on( 'data', function( data ) {
-		gutil.log( data.toString() );
+		util.log( data.toString() );
 	} );
 	process.stdout.on( 'data', function( data ) {
-		gutil.log( data.toString() );
+		util.log( data.toString() );
 	} );
 	process.on( 'exit', function( code ) {
 		if ( 0 !== code ) {
-			gutil.log( 'Failed getting languages: process exited with code ', code );
+			util.log( 'Failed getting languages: process exited with code ', code );
 		}
 		callback();
 	} );
 } );
 
 gulp.task( 'languages:build', [ 'languages:get' ], function( done ) {
-	var terms = [];
-	var instream = fs.createReadStream( './_inc/jetpack-strings.php' );
-	var outstream = new stream;
+	let terms = [];
+	const instream = fs.createReadStream( './_inc/jetpack-strings.php' );
+	const outstream = new Stream;
 	outstream.readable = true;
 	outstream.writable = true;
 
-	var rl = readline.createInterface( {
+	const rl = readline.createInterface( {
 		input: instream,
 		output: outstream,
 		terminal: false
 	} );
 
 	rl.on( 'line', function( line ) {
-		var brace_index = line.indexOf( '__(' );
+		const brace_index = line.indexOf( '__(' );
 
 		// Skipping lines that do not call translation functions
 		if ( -1 === brace_index ) {
@@ -543,17 +397,16 @@ gulp.task( 'languages:build', [ 'languages:get' ], function( done ) {
 
 		terms.push( line );
 	} ).on( 'close', function() {
-
 		// Extracting only the first argument to the translation function
 		terms = JSON.parse( '[' + terms.join( ',' ) + ']' ).map( function( term ) {
-			return term[0];
+			return term[ 0 ];
 		} );
 
 		gulp.src( [ 'languages/*.po' ] )
 			.pipe( po2json() )
-			.pipe( json_transform( function( data, file ) {
-				var filtered = {
-					'': data['']
+			.pipe( json_transform( function( data ) {
+				const filtered = {
+					'': data[ '' ]
 				};
 
 				Object.keys( data ).forEach( function( term ) {
@@ -570,7 +423,7 @@ gulp.task( 'languages:build', [ 'languages:get' ], function( done ) {
 } );
 
 gulp.task( 'php:module-headings', function( callback ) {
-	var process = spawn(
+	const process = spawn(
 		'php',
 		[
 			'tools/build-module-headings-translations.php'
@@ -578,25 +431,25 @@ gulp.task( 'php:module-headings', function( callback ) {
 	);
 
 	process.stderr.on( 'data', function( data ) {
-		gutil.log( data.toString() );
+		util.log( data.toString() );
 	} );
 	process.stdout.on( 'data', function( data ) {
-		gutil.log( data.toString() );
+		util.log( data.toString() );
 	} );
 	process.on( 'exit', function( code ) {
 		if ( 0 !== code ) {
-			gutil.log( 'Failed building module headings translations: process exited with code ', code );
+			util.log( 'Failed building module headings translations: process exited with code ', code );
 		}
 		callback();
 	} );
 } );
 
 gulp.task( 'languages:cleanup', [ 'languages:build' ], function( done ) {
-	var language_packs = [];
+	const language_packs = [];
 
 	request(
 		'https://api.wordpress.org/translations/plugins/1.0/?slug=jetpack&version=' + meta.version,
-		function ( error, response, body ) {
+		function( error, response, body ) {
 			if ( error || 200 !== response.statusCode ) {
 				done( 'Failed to reach wordpress.org translation API: ' + error );
 			}
@@ -607,10 +460,10 @@ gulp.task( 'languages:cleanup', [ 'languages:build' ], function( done ) {
 				language_packs.push( './languages/jetpack-' + language.language + '.*' );
 			} );
 
-			gutil.log( 'Cleaning up languages for which Jetpack has language packs:' );
+			util.log( 'Cleaning up languages for which Jetpack has language packs:' );
 			del( language_packs ).then( function( paths ) {
 				paths.forEach( function( item ) {
-					gutil.log( item );
+					util.log( item );
 				} );
 				done();
 			} );
@@ -619,7 +472,7 @@ gulp.task( 'languages:cleanup', [ 'languages:build' ], function( done ) {
 } );
 
 gulp.task( 'languages:extract', function( done ) {
-	var paths = [];
+	const paths = [];
 
 	gulp.src( [ '_inc/client/**/*.js', '_inc/client/**/*.jsx' ] )
 		.pipe( tap( function( file ) {
@@ -643,16 +496,16 @@ gulp.task( 'languages:extract', function( done ) {
 // Default task
 gulp.task(
 	'default',
-	['react:build', 'old-styles', 'checkstrings', 'php:lint', 'js:hint', 'php:module-headings']
+	[ 'react:build', 'old-styles', 'checkstrings', 'php:lint', 'js:hint', 'php:module-headings' ]
 );
 gulp.task(
 	'watch',
-	['react:watch', 'sass:watch', 'old-styles:watch']
+	[ 'react:watch', 'sass:watch', 'old-styles:watch' ]
 );
 
-gulp.task( 'jshint', ['js:hint'] );
-gulp.task( 'php', ['php:lint', 'php:unit'] );
-gulp.task( 'checkstrings', ['check:DIR'] );
+gulp.task( 'jshint', [ 'js:hint' ] );
+gulp.task( 'php', [ 'php:lint', 'php:unit' ] );
+gulp.task( 'checkstrings', [ 'check:DIR' ] );
 
 gulp.task(
 	'old-styles',
@@ -664,4 +517,4 @@ gulp.task(
 );
 
 // travis CI tasks.
-gulp.task( 'travis:js', ['js:hint', 'js:qunit'] );
+gulp.task( 'travis:js', [ 'js:hint', 'js:qunit' ] );
