@@ -1,5 +1,12 @@
 ## 5.4
 
+### Comments
+
+We've improved how the comment form was displayed in some themes. To test this change, enable the Comments feature on your site and make sure the comment form still works properly:
+- It should have a minimal height by default, with no white space below it.
+- When clicked, it should expand so you can enter some content in the form.
+- If you add a lot of content, the height of the form should adapt to your content.
+
 ### Search
 
 If you've purchased a [Professional Plan](https://jetpack.com/features/comparison/) for your Jetpack site, this new release will give you access to a new feature, **Jetpack Search**.

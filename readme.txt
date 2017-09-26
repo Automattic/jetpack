@@ -123,6 +123,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Record how Jetpack was discovered and activated to better understand how site owners first discover Jetpack.
 
 **Bug fixes**
+* Comment Form: avoid whitespace sometimes appearing below the form with some themes.
 * Contact Form: avoid errors in the post editor on sites using RTL languages.
 * Toolbar: always display the Toolbar when it's active, regardless of other admin bar settings.
 * Widget Visibility: make sure rules are correctly migrated from the old Jetpack image widget to the new WordPress Image Widget.
