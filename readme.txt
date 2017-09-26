@@ -138,6 +138,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Avoid errors showing that Jetpack is out of date on WordPress.com, when running a Multisite network.
 * WP CLI: avoid warnings when using the `wp jetpack protect whitelist list` command to list the whitelisted IP addresses in the Protect feature.
 * Avoid displaying raw HTML in the Stats Configuration screen.
+* Comment edits are reflected properly in wordpress.com.
 
 = 5.3 =
 

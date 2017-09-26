@@ -45,6 +45,7 @@ We added a new "Time Unit" setting, and also added a setting to count *up* to a 
 - Make sure the settings UI looks good in IE11, as we fixed some bugginess there.
 - Simple payments got some minor improvements, make sure everything looks ok.
 - Recipe Shortcode should look good in RTL
+- Edit some comments, make sure the edits are reflecting correctly in Calypso
 
 ### Final Notes
 
