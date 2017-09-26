@@ -111,6 +111,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Major Enhancements**
 
 **Enhancements**
+* Increase the timeout when connecting Jetpack to WordPress.com, so more site owners can connect, even if their site is slow to respond.
 
 **Bug fixes**
 * Toolbar: always display the Toolbar when it's active, regardless of other admin bar settings.
