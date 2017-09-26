@@ -1,82 +1,38 @@
-## 5.3
+## 5.4
 
-### PHP 7.1 fixes: Interact with your site in Calypso
+### Shortcodes
 
-This version refactors our API, which fixes the issues we were having with PHP 7.1.x
+We've made some improvements and fixed some bugs with the Facebook shortcode in this release. Try embedding different Facebook posts, images, and more in some of your posts. You will want to make sure the posts are as wide as your theme's content width. Here are a few examples of things you could embed: `https://www.facebook.com/jetpackme/photos/a.1078536988894553.1073741827.103336516414610/1078537925561126/?type=3&theater`
+`https://www.facebook.com/jetpackme/posts/1505539472860967`
+`https://www.facebook.com/RocketsAreCool/videos/1109290809200449/?permPage=1`
 
-- Navigate to Calypso and interact with your site in as many ways as you can think of.
-- Look for network errors, settings not saving properly, or notices saying that it can't communicate with your site.
-- It's important that we test this thoroughly in both PHP 7.1.x and older PHP versions.
 
-### Sitemaps fixes
 
-We've done a significant refactor to the Sitemaps feature. All Sitemap items should be displaying properly now, whether the text is encoded or not.
+### Final Notes
 
-- Enable Sitemaps
-- Verify that the following Sitemaps are displaying your posts/images correctly at the following URLs
-- yoursite.com/sitemap.xml
-- yoursite.com/news-sitemap.xml
-- yoursite.com/image-sitemap-1.xml
+During your tests, we encourage you to open your browser's Development Tools and keep the Console open, checking for any errors in the Console and the Network tabs.
 
-### Preview site in Calypso
+To open the Console in Chrome or Firefox, you can press CMD+Alt+i in macOS or F12 in Windows.
 
-You may now preview your Jetpack site in Calypso.  To test it:
-- Go to https://wordpess.com/view/ and pick your site
-- Try clicking a few links, see if your site works correctly
-- See if the preview toolbar in Calypso gets an updated URL as you navigate
-- There should be no admin bar inside the preview
+We would also recommend that you check your site's `debug.log` as you test.
 
-### Added Likes and Monitor to Jumpstart features
+To make sure errors are logged on your site, you can add the following to your site's `wp-config.php` file:
 
-We've added a couple features to the Jumpstart suite.
+```php
+define( 'WP_DEBUG', true );
 
-- Click "Reset Options" link in the footer
-- When you see the Jumpstart prompt, refresh the page
-- Click "Activate Recommended Features", and verify that Likes and Monitor have been activated.
+if ( WP_DEBUG ) {
 
-### WordAds
+	@error_reporting( E_ALL );
+	@ini_set( 'log_errors', true );
+	@ini_set( 'log_errors_max_len', '0' );
 
-There were some new options added to the Ads feature this release.
+	define( 'WP_DEBUG_LOG', true );
+	define( 'WP_DEBUG_DISPLAY', false );
+	define( 'CONCATENATE_SCRIPTS', false );
+	define( 'SAVEQUERIES', true );
 
-- Enable Jetpack Ads module
-- Enable Display second ad below post
-- - Check to see that 2nd unit appears below post
-- Enable options under Enable below post ads on
-- - Check below post ads do/don't display under appropriate type of page
-- Enable AdBlock Plus extension
-- - Check Allow some non-intrusive advertising in Adblock Plus Options
-- - Check that some non-obtrusive ads are in the regular spots.
+}
+```
 
-### Admin UI Improvements
-
-- Make sure that Site Verification does not look active when it is indeed inactive
-- Log in as an unconnected secondary user. The notice that asks you to connect has been styled differently, and should look much nicer.
-- View the stats area in the dashboard for a new site or a site that does not have any views. You should see a nice welcome message instead of a depressing empty chart.
-- Look around in the plans, settings, and dashboard areas for any design regressions
-
-### Jetpack Connection improvements
-
-There were a few small changes to the connection process that is aimed at fixing some common connection issues.
-
-- Cycle your connection a few times.  Make sure it's running smoothly
-- Do so with a brand new site, if possible
-
-### WordPress.com Toolbar
-
-- Visit site's front end and open up My Sites menu.
-- You should see a Comments field in Manage section.
-- Some CSS was updated. Make sure the styles still look ok
-
-### WordPress.com Theme updating
-
-- Add a free and premium Jetpack theme
-- Downgrade them by manually editing the style.css
-- Try updating them in update-core.php page and in themes
-
-### Jetpack Sync
-
-The site should now fully sync on every Jetpack connection.
-
-- Disconnect jetpack
-- Update an option such as site_icon.
-- Connect the site. Check that the option was saved right away and reflects correctly in Calypso
+**Thank you for all your help!**
