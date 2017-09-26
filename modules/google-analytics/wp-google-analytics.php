@@ -204,32 +204,47 @@ class Jetpack_Google_Analytics {
 				$order = new WC_Order( $order_id );
 
 				// [ '_add_Trans', '123', 'Site Title', '21.00', '1.00', '5.00', 'Snohomish', 'WA', 'USA' ]
-				$code = "_gaq.push(['_addTrans',
-					'" . esc_js( $order->get_order_number() ) . "',			// order ID
-					'" . esc_js( get_bloginfo( 'name' ) ) . "',					// store name
-					'" . esc_js( $order->get_total() ) . "',						// total
-					'" . esc_js( $order->get_total_tax() ) . "',				// tax
-					'" . esc_js( $order->get_total_shipping() ) . "',		// shipping
-					'" . esc_js( $order->get_billing_city() ) . "',			// city
-					'" . esc_js( $order->get_billing_state() ) . "',		// state or province
-					'" . esc_js( $order->get_billing_country() ) . "'		// country
-				]);";
-				array_push( $custom_vars, $code );
+				array_push(
+					$custom_vars,
+					sprintf(
+						'_gaq.push( %s );', json_encode(
+							array(
+								'_addTrans',
+								(string) $order->get_order_number(),
+								get_bloginfo( 'name' ),
+								(string) $order->get_total(),
+								(string) $order->get_total_tax(),
+								(string) $order->get_total_shipping(),
+								(string) $order->get_billing_city(),
+								(string) $order->get_billing_state(),
+								(string) $order->get_billing_country()
+							)
+						)
+					)
+				);
 
 				// Order items
 				if ( $order->get_items() ) {
 					foreach ( $order->get_items() as $item ) {
 						$product = $order->get_product_from_item( $item );
+						$product_sku_or_id = $product->get_sku() ? $product->get_sku() : $product->get_id();
 
-						$code = "_gaq.push(['_addItem',";
-						$code .= "'" . esc_js( $order->get_order_number() ) . "',";
-						$code .= "'" . esc_js( $product->get_sku() ? $product->get_sku() : $product->get_id() ) . "',";
-						$code .= "'" . esc_js( $item['name'] ) . "',";
-						$code .= "'" . esc_js( self::get_product_categories_concatenated( $product ) ) . "',";
-						$code .= "'" . esc_js( $order->get_item_total( $item ) ) . "',";
-						$code .= "'" . esc_js( $item['qty'] ) . "'";
-						$code .= "]);";
-						array_push( $custom_vars, $code );
+						array_push(
+							$custom_vars,
+							sprintf(
+								'_gaq.push( %s );', json_encode(
+									array(
+										'_addItem',
+										(string) $order->get_order_number(),
+										(string) $product_sku_or_id,
+										$item['name'],
+										self::get_product_categories_concatenated( $product ),
+										(string) $order->get_item_total( $item ),
+										(string) $item['qty']
+									)
+								)
+							)
+						);
 					}
 				} // get_items
 
