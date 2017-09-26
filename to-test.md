@@ -39,6 +39,13 @@ We've improved the [Milestone Widget](https://jetpack.com/support/extra-sidebar-
 
 We added a new "Time Unit" setting, and also added a setting to count *up* to a milestone instead of counting down. To test the new settings, follow the detailed instructions [here](https://github.com/Automattic/jetpack/pull/7782).
 
+### Misc
+
+- [always] Try to connect with a brand new site, and also cycle your connections to existing sites.
+- Make sure the settings UI looks good in IE11, as we fixed some bugginess there.
+- Simple payments got some minor improvements, make sure everything looks ok.
+- Recipe Shortcode should look good in RTL
+
 ### Final Notes
 
 During your tests, we encourage you to open your browser's Development Tools and keep the Console open, checking for any errors in the Console and the Network tabs.
