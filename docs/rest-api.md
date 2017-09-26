@@ -520,6 +520,26 @@ Get a list of the currently installed plugins on the site.
 
 Get number of updated available for currently installed WordPress plugins.
 
+**Example response** when all plugins are up to date
+
+```
+{
+	"code": "success",
+	"message": "All plugins are up-to-date. Keep up the good work!",
+	"count":0
+}
+```
+
+**Example response** when some plugins need to be updated
+
+```
+{
+	"code": "updates-available",
+	"message": "2 plugins need updating.",
+	"count": 2
+}
+```
+
 ### Akismet related operations
 
 #### GET /wp-json/jetpack/v4/akismet/stats/get
