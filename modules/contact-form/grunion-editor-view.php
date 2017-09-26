@@ -201,6 +201,7 @@ class Grunion_Editor_View {
 			'checkbox-multiple' => __( 'Checkbox with Multiple Items', 'jetpack' ),
 			'select'            => __( 'Drop down', 'jetpack' ),
 			'radio'             => __( 'Radio', 'jetpack' ),
+			'date'              => __( 'Date', 'jetpack' ),
 		);
 		?>
 		<div class="grunion-type-options">
