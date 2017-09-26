@@ -4417,6 +4417,14 @@ p {
 			$url = add_query_arg( 'calypso_env', sanitize_key( $_GET['calypso_env'] ), $url );
 		}
 
+		if ( false !== ( $token = Jetpack_Options::get_option( 'onboarding' ) ) ) {
+			$url = add_query_arg( 'onboarding', $token, $url );
+
+			// Remove this once https://github.com/Automattic/wp-calypso/pull/17094 is merged.
+			// Uncomment for development until it's merged.
+			//$url = add_query_arg( 'calypso_env', 'development', $url );
+		}
+
 		return $raw ? $url : esc_url( $url );
 	}
 
@@ -4679,6 +4687,53 @@ p {
 
 		// we now return the unmodified SSL URL by default, as a security precaution
 		return $url;
+	}
+
+	/**
+	 * Create a random secret for validating onboarding payload
+	 *
+	 * @return string Secret token
+	 */
+	public static function create_onboarding_token() {
+		if ( false === ( $token = Jetpack_Options::get_option( 'onboarding' ) ) ) {
+			$token = wp_generate_password( 32, false );
+			Jetpack_Options::update_option( 'onboarding', $token );
+		}
+
+		return $token;
+	}
+
+	/**
+	 * Remove the onboarding token
+	 *
+	 * @return bool True on success, false on failure
+	 */
+	public static function invalidate_onboarding_token() {
+		return Jetpack_Options::delete_option( 'onboarding' );
+	}
+
+	/**
+	 * Validate an onboarding token for a specific action
+	 *
+	 * @return boolean True if token/action pair is accepted, false if not
+	 */
+	public static function validate_onboarding_token_action( $token, $action ) {
+		// Compare tokens, bail if tokens do not match
+		if ( ! hash_equals( $token, Jetpack_Options::get_option( 'onboarding' ) ) ) {
+			return false;
+		}
+
+		// List of valid actions we can take
+		$valid_actions = array(
+			'/jetpack/v4/settings',
+		);
+
+		// Whitelist the action
+		if ( ! in_array( $action, $valid_actions ) ) {
+			return false;
+		}
+
+		return true;
 	}
 
 	/**
@@ -5183,6 +5238,24 @@ p {
 
 		if ( ! $this->add_nonce( $timestamp, $nonce ) ) {
 			return false;
+		}
+
+		// Let's see if this is onboarding. In such case, use user token type and the provided user id.
+		if ( isset( $this->HTTP_RAW_POST_DATA ) ) {
+			$jpo = json_decode( $this->HTTP_RAW_POST_DATA );
+			if (
+				isset( $jpo->onboarding ) &&
+				isset( $jpo->onboarding->jpUser ) && isset( $jpo->onboarding->token ) &&
+				is_email( $jpo->onboarding->jpUser ) && ctype_alnum( $jpo->onboarding->token ) &&
+				isset( $_GET['rest_route'] ) &&
+				self::validate_onboarding_token_action( $jpo->onboarding->token, $_GET['rest_route'] )
+			) {
+				$jpUser = get_user_by( 'email', $jpo->onboarding->jpUser );
+				if ( is_a( $jpUser, 'WP_User' ) ) {
+					$token_type = 'user';
+					$token->external_user_id = $jpUser->ID;
+				}
+			}
 		}
 
 		$this->xmlrpc_verification = array(
