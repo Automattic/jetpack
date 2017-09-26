@@ -116,6 +116,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Improvements to the WordPress.com REST API to avoid issues when interacting with your site's categories and tags on WordPress.com.
 * Allow third party plugin and theme authors to add new menu items to the WordPress.com toolbar.
 * Improve the Content Options panel displayed in the Customizer with certain themes.
+* Add architecture for the Jetpack Search feature, available for Jetpack Professional users.
 * Simple Payments: improve the display of the payment items when used on your site.
 * Improve the display of the Facebook posts, images, and all other Facebook embeds in your posts.
 * Synchronize the author information for all published posts.
