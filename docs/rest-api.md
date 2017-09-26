@@ -149,6 +149,21 @@ Operations related to Jetpack's connection to WordPress.com
 
 Fetch Jetpack's current connection status.
 
+**Example Response**
+
+```
+{
+	"isActive": true,
+	"isStaging": false,
+	"devMode": {
+		"isActive":false,
+		"constant":false,
+		"url":false,
+		"filter":false
+	}
+}
+```
+
 #### GET /wp-json/jetpack/v4/connection/url
 
 Fetch a fresh WordPress.com URL for connecting the Jetpack installation.
