@@ -130,10 +130,27 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	}
 
 	public function deleted_user_handler( $deleted_user_id, $reassigned_user_id = '' ) {
-		do_action( 'jetpack_deleted_user', $deleted_user_id, $reassigned_user_id, is_multisite() );
+		$is_multisite = is_multisite();
+		/**
+		 * Fires when a user is deleted on a site
+		 *
+		 * @since 5.4.0
+		 *
+		 * @param int $deleted_user_id - ID of the deleted user
+		 * @param int $reassigned_user_id - ID of the user the deleted user's posts is reassigned to (if any)
+		 * @param bool $is_multisite - Whether this site is a multisite installation
+		 */
+		do_action( 'jetpack_deleted_user', $deleted_user_id, $reassigned_user_id, $is_multisite );
 	}
 
 	public function edited_user_handler( $user_id ) {
+		/**
+		 * Fires when a user is edited on a site
+		 *
+		 * @since 5.4.0
+		 *
+		 * @param int $user_id - ID of the edited user
+		 */
 		do_action( 'jetpack_user_edited', $user_id );
 	}
 	
@@ -331,6 +348,14 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		$reassigned_user_id = $this->get_reassigned_network_user_id();
 
 		//Note that we are in the context of the blog the user is removed from, see https://github.com/WordPress/WordPress/blob/473e1ba73bc5c18c72d7f288447503713d518790/wp-includes/ms-functions.php#L233
+		/**
+		 * Fires when a user is removed from a blog on a multisite installation
+		 *
+		 * @since 5.4.0
+		 *
+		 * @param int $user_id - ID of the removed user
+		 * @param int $reassigned_user_id - ID of the user the removed user's posts is reassigned to (if any)
+		 */
 		do_action( 'jetpack_removed_user_from_blog', $user_id, $reassigned_user_id );
 	}
 
