@@ -506,9 +506,7 @@ Get count of blocked attacks by Protect.
 "3"
 ```
 
-### Monitor module related operations
-
-### Site's plugins related operations
+### Plugins related endpoints
 
 #### GET /wp-json/jetpack/v4/plugins
 
