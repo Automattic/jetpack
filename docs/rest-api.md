@@ -358,10 +358,6 @@ Accepts a JSON object in the body like:
 }
 ```
 
-**URL parameters**
-
-* `module-slug`: {String} The identifier of the module on which to act.
-
 **Body parameters**
 
 * `active`: {Boolean} Send false to deactivate the module.
