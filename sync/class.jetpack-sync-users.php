@@ -27,8 +27,8 @@ class Jetpack_Sync_Users {
 	}
 
 	static function get_role( $user_id ) {
-		if ( isset( $user_roles[ $user_id ] ) ) {
-			return $user_roles[ $user_id ];
+		if ( isset( self::$user_roles[ $user_id ] ) ) {
+			return self::$user_roles[ $user_id ];
 		}
 
 		$current_user_id = get_current_user_id();
