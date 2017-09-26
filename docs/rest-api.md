@@ -180,6 +180,43 @@ Fetch a fresh WordPress.com URL for connecting the Jetpack installation.
 
 Fetch the data of the current's user WordPress.com account.
 
+**Example response**
+
+```
+{
+    "currentUser": {
+        "isConnected": true,
+        "isMaster": true,
+        "username": "admin",
+        "wpcomUser": {
+            "ID": 9123841,
+            "login": "wondell",
+            "email": "wondell@gmail.com",
+            "display_name": "Wondell",
+            "text_direction": "ltr",
+            "site_count": 12,
+            "jetpack_connect": "",
+            "avatar": "http://2.gravatar.com/avatar/5e1a8fhjdj284c3dec35c2?s=64&d=mm&r=g"
+        },
+        "gravatar": "<img alt='' src='http://2.gravatar.com/avatar/5e1a8fhjdj284c3dec35c2?s=40&#038;d=mm&#038;r=g' srcset='http://2.gravatar.com/avatar/5e1a8fhjdj284c3dec35c2?s=80&amp;d=mm&amp;r=g 2x' class='avatar avatar-40 photo' height='40' width='40' />",
+        "permissions": {
+            "admin_page": true,
+            "connect": true,
+            "disconnect": true,
+            "manage_modules": true,
+            "network_admin": false,
+            "network_sites_page": false,
+            "edit_posts": true,
+            "publish_posts": true,
+            "manage_options": true,
+            "view_stats": true,
+            "manage_plugins": true
+        }
+    }
+}
+```
+
+
 #### POST /wp-json/jetpack/v4/connection
 
 Disconnect the Jetpack installation from WordPress.com servers.
