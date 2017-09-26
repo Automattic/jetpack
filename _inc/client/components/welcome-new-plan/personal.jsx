@@ -4,6 +4,7 @@
 import React from 'react';
 import { Component } from 'react';
 import { translate as __ } from 'i18n-calypso';
+import analytics from 'lib/analytics';
 
 /**
  * Internal dependencies
@@ -13,6 +14,12 @@ import Button from 'components/button';
 import { imagePath } from 'constants';
 
 class WelcomePersonal extends Component {
+	componentDidMount() {
+		analytics.tracks.recordEvent( 'jetpack_warm_welcome_plan_view', {
+			planClass: this.props.planClass,
+		} );
+	}
+
 	renderInnerContent() {
 		return (
 			<div>
