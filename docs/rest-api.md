@@ -475,10 +475,6 @@ Get count of blocked attacks by Protect.
 
 ### Monitor module related operations
 
-#### GET /wp-json/jetpack/v4/module/monitor/downtime/last
-
-Get from the Monitor module, the last time the site was down.
-
 ### Verification Tools module related operations
 
 #### GET /wp-json/jetpack/v4/module/verification-tools/services
