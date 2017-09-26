@@ -62,6 +62,7 @@ class Milestone_Widget extends WP_Widget {
 	public static function enqueue_admin( $hook_suffix ) {
 		if ( 'widgets.php' == $hook_suffix ) {
 			wp_enqueue_style( 'milestone-admin', self::$url . 'style-admin.css', array(), '20161215' );
+			wp_enqueue_script( 'milestone-admin-js', self::$url . 'admin.js', array( 'jquery' ), '20170915', true );
 		}
 	}
 
@@ -174,29 +175,12 @@ class Milestone_Widget extends WP_Widget {
 
 		$milestone = mktime( $instance['hour'], $instance['min'], 0, $instance['month'], $instance['day'], $instance['year'] );
 		$now  = (int) current_time( 'timestamp' );
-		$diff = (int) floor( $milestone - $now );
+		$type = $instance['type'];
 
-		$number = 0;
-		$label  = '';
-
-		if ( 63113852 < $diff ) { // more than 2 years - show in years, one decimal point
-			$number = round( $diff / 60 / 60 / 24 / 365, 1 );
-			$label  = self::$labels['years'];
-		} else if ( 7775999 < $diff ) { // fewer than 2 years - show in months
-			$number = floor( $diff / 60 / 60 / 24 / 30 );
-			$label  = ( 1 == $number ) ? self::$labels['month'] : self::$labels['months'];
-		} else if ( 86399 < $diff ) { // fewer than 3 months - show in days
-			$number = floor( $diff / 60 / 60 / 24 ) + 1;
-			$label  = ( 1 == $number ) ? self::$labels['day'] : self::$labels['days'];
-		} else if ( 3599 < $diff ) { // less than 1 day - show in hours
-			$number = floor( $diff / 60 / 60 );
-			$label  = ( 1 == $number ) ? self::$labels['hour'] : self::$labels['hours'];
-		} else if ( 59 < $diff ) { // less than 1 hour - show in minutes
-			$number = floor( $diff / 60 ) + 1;
-			$label = ( 1 == $number ) ? self::$labels['minute'] : self::$labels['minutes'];
-		} else { // less than 1 minute - show in seconds
-			$number = $diff;
-			$label = ( 1 == $number ) ? self::$labels['second'] : self::$labels['seconds'] ;
+		if ( 'since' === $type ) {
+			$diff = (int) floor( $now - $milestone );
+		} else {
+			$diff = (int) floor( $milestone - $now );
 		}
 
 		echo $args['before_widget'];
@@ -213,20 +197,28 @@ class Milestone_Widget extends WP_Widget {
 		echo '<span class="date">' . esc_html( date_i18n( __( 'F jS, Y', 'jetpack' ), $milestone ) ) . '</span>';
 		echo '</div>';
 
-		if ( 1 > $diff ) {
-			/* Milestone has past. */
+		if ( ( 1 > $diff ) && ( 'until' === $type ) ) {
 			echo '<div class="milestone-message">' . $instance['message'] . '</div>';
 		} else {
+			if ( 'since' === $type ) {
+				$text = __( 'ago.', 'jetpack' );
+			} else {
+				$text = __( 'to go.', 'jetpack' );
+			}
+
 			/* Countdown to the milestone. */
-			echo '<div class="milestone-countdown">' . sprintf( __( '%1$s %2$s to go.', 'jetpack' ),
-				'<span class="difference">' . esc_html( $number ) . '</span>',
-				'<span class="label">' . esc_html( $label ) . '</span>'
+			echo '<div class="milestone-countdown">' . sprintf( __( '%1$s %2$s %3$s', 'jetpack' ),
+				'<span class="difference"></span>',
+				'<span class="label"></span>',
+				$text
 			) . '</div>';
 
 			self::$config_js['instances'][] = array(
 				'id'      => $args['widget_id'],
 				'diff'    => $diff,
 				'message' => $instance['message'],
+				'unit'    => $instance['unit'],
+				'type'    => $instance['type'],
 			);
 		}
 
@@ -278,6 +270,8 @@ class Milestone_Widget extends WP_Widget {
 		$dirty = wp_parse_args( $dirty, array(
 			'title'   => '',
 			'event'   => __( 'The Big Day', 'jetpack' ),
+			'unit'    => 'automatic',
+			'type'    => 'until',
 			'message' => __( 'The big day is here.', 'jetpack' ),
 			'day'     => date( 'd', $now ),
 			'month'   => date( 'm', $now ),
@@ -295,6 +289,8 @@ class Milestone_Widget extends WP_Widget {
 		$clean = array(
 			'title'   => trim( strip_tags( stripslashes( $dirty['title'] ) ) ),
 			'event'   => trim( strip_tags( stripslashes( $dirty['event'] ) ) ),
+			'unit'    => $dirty['unit'],
+			'type'    => $dirty['type'],
 			'message' => wp_kses( $dirty['message'], $allowed_tags ),
 			'year'    => $this->sanitize_range( $dirty['year'],  1901, 2037 ),
 			'month'   => $this->sanitize_range( $dirty['month'], 1, 12 ),
@@ -312,7 +308,14 @@ class Milestone_Widget extends WP_Widget {
      */
     function form( $instance ) {
 		$instance = $this->sanitize_instance( $instance );
-        ?>
+
+		$units = array(
+			'automatic' => __( 'Automatic', 'jetpack' ),
+			'months' => __( 'Months', 'jetpack' ),
+			'days' => __( 'Days', 'jetpack' ),
+			'hours' => __( 'Hours', 'jetpack' ),
+		);
+		?>
 
 	<div class="milestone-widget">
         <p>
@@ -321,7 +324,7 @@ class Milestone_Widget extends WP_Widget {
         </p>
 
         <p>
-        	<label for="<?php echo $this->get_field_id( 'event' ); ?>"><?php _e( 'Event', 'jetpack' ); ?></label>
+        	<label for="<?php echo $this->get_field_id( 'event' ); ?>"><?php _e( 'Description', 'jetpack' ); ?></label>
         	<input class="widefat" id="<?php echo $this->get_field_id( 'event' ); ?>" name="<?php echo $this->get_field_name( 'event' ); ?>" type="text" value="<?php echo esc_attr( $instance['event'] ); ?>" />
         </p>
 
@@ -357,8 +360,48 @@ class Milestone_Widget extends WP_Widget {
 			<input id="<?php echo $this->get_field_id( 'min' ); ?>" class="minutes" name="<?php echo $this->get_field_name( 'min' ); ?>" type="text" value="<?php echo esc_attr( $instance['min'] ); ?>">
 		</fieldset>
 
-		<p>
-			<label for="<?php echo $this->get_field_id( 'message' ); ?>"><?php _e( 'Message', 'jetpack' ); ?></label>
+		<fieldset class="jp-ms-data-unit">
+			<legend><?php esc_html_e( 'Time Unit', 'jetpack' ); ?></legend>
+
+			<label for="<?php echo $this->get_field_id( 'unit' ); ?>" class="assistive-text">
+				<?php _e( 'Time Unit', 'jetpack' ); ?>
+			</label>
+			<select id="<?php echo $this->get_field_id( 'unit' ); ?>" class="unit" name="<?php echo $this->get_field_name( 'unit' ); ?>">
+			<?php
+				foreach ( $units as $key => $unit ) {
+					echo '<option value="' . esc_attr( $key ) . '"' . selected( $key, $instance['unit'], false ) . '>' . $unit . '</option>';
+				}
+			?></select>
+		</fieldset>
+
+		<ul class="milestone-type">
+			<li>
+				<label>
+					<input
+						<?php checked( $instance['type'], 'until' ); ?>
+						name="<?php echo esc_attr( $this->get_field_name( 'type' ) ); ?>"
+						type="radio"
+						value="until"
+					/>
+					<?php esc_html_e( 'Until your milestone', 'jetpack' ); ?>
+				</label>
+			</li>
+
+			<li>
+				<label>
+					<input
+						<?php checked( $instance['type'], 'since' ); ?>
+						name="<?php echo esc_attr( $this->get_field_name( 'type' ) ); ?>"
+						type="radio"
+						value="since"
+					/>
+					<?php esc_html_e( 'Since your milestone', 'jetpack' ); ?>
+				</label>
+			</li>
+		</ul>
+
+		<p class="milestone-message-wrapper">
+			<label for="<?php echo $this->get_field_id( 'message' ); ?>"><?php _e( 'Milestone Reached Message', 'jetpack' ); ?></label>
 			<textarea id="<?php echo $this->get_field_id( 'message' ); ?>" name="<?php echo $this->get_field_name( 'message' ); ?>" class="widefat" rows="3"><?php echo esc_textarea( $instance['message'] ); ?></textarea>
 		</p>
 	</div>
