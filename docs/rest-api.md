@@ -475,12 +475,6 @@ Get count of blocked attacks by Protect.
 
 ### Monitor module related operations
 
-### Verification Tools module related operations
-
-#### GET /wp-json/jetpack/v4/module/verification-tools/services
-
-Get services that this site is verified with.
-
 ### Site's plugins related operations
 
 #### GET /wp-json/jetpack/v4/plugins
