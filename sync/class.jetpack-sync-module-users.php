@@ -145,7 +145,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 
 	public function edited_user_handler( $user_id ) {
 		/**
-		 * Fires when a user is deleted on a site
+		 * Fires when a user is edited on a site
 		 *
 		 * @since 5.4.0
 		 *
