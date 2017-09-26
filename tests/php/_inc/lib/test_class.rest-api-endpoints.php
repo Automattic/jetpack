@@ -622,7 +622,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		wp_set_current_user( $user->ID );
 
 		// Enable connection onboarding
-		Jetpack_Options::update_option( 'onboarding', '1' );
+		$token = Jetpack::create_onboarding_token();
 
 		// Build URL to compare scheme and host with the one in response
 		$admin_url = parse_url( admin_url() );
@@ -647,7 +647,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 					array(
 						'page'       => 'jetpack',
 						'action'     => 'register',
-						'onboarding' => '1',
+						'onboarding' => $token,
 					)
 			), $response
 		);

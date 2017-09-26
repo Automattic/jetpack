@@ -4421,7 +4421,8 @@ p {
 			$url = add_query_arg( 'onboarding', $token, $url );
 
 			// Remove this once https://github.com/Automattic/wp-calypso/pull/17094 is merged.
-			$url = add_query_arg( 'calypso_env', 'development', $url );
+			// Uncomment for development until it's merged.
+			//$url = add_query_arg( 'calypso_env', 'development', $url );
 		}
 
 		return $raw ? $url : esc_url( $url );
