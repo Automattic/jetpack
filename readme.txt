@@ -112,6 +112,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 * Increase the timeout when connecting Jetpack to WordPress.com, so more site owners can connect, even if their site is slow to respond.
+* Improvements to the WordPress.com REST API to avoid issues when interacting with your site's categories and tags on WordPress.com.
 
 **Bug fixes**
 * Toolbar: always display the Toolbar when it's active, regardless of other admin bar settings.
