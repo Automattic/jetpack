@@ -117,6 +117,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Improve the Content Options panel displayed in the Customizer with certain themes.
 * Simple Payments: improve the display of the payment items when used on your site.
 * Improve the display of the Facebook posts, images, and all other Facebook embeds in your posts.
+* Synchronize the author information for all published posts.
 
 **Bug fixes**
 * Contact Form: avoid errors in the post editor on sites using RTL languages.
