@@ -113,6 +113,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 * Improvements to the WordPress.com REST API to avoid issues when interacting with your site's categories and tags on WordPress.com.
+* Allow third party plugin and theme authors to add new menu items to the WordPress.com toolbar.
 
 **Bug fixes**
 * Toolbar: always display the Toolbar when it's active, regardless of other admin bar settings.
