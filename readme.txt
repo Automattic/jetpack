@@ -109,9 +109,9 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Release post: http://wp.me/p1moTy-67V
 
 **Major Enhancements**
+* Multiple improvements to the connection process, to allow more people to use the Jetpack plugin, even on very specific server configurations.
 
 **Enhancements**
-* Increase the timeout when connecting Jetpack to WordPress.com, so more site owners can connect, even if their site is slow to respond.
 * Improvements to the WordPress.com REST API to avoid issues when interacting with your site's categories and tags on WordPress.com.
 
 **Bug fixes**
