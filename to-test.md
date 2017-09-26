@@ -1,5 +1,15 @@
 ## 5.4
 
+### Contact Form
+
+We added a new field to the Contact Form editor; you can now add a date picker to your forms.
+
+To test this new feature,
+
+1. Try creating a form containing a date field using the visual editor.
+2. Visit the front end using a modern browser, and try interacting with the date field. Make sure that the styling appears as you would expect. You should see the native browser implementation of the date field controls, including a dropdown picker (activated by an arrow inside the right edge of the input).
+3. You can use browserstack to emulate Windows 8 + IE10 to test the display for browsers that do not recognize `<input type="date">` elements. This should display the styled jQuery datepicker.
+
 ### Comments
 
 We've improved how the comment form was displayed in some themes. To test this change, enable the Comments feature on your site and make sure the comment form still works properly:
