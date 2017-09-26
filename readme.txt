@@ -116,6 +116,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Add Schema.org markup to the Contact Info Widget.
 * Do not show any update notices when in [development mode](http://jetpack.com/support/development-mode).
 * Improve our documentation to help contributors set up a unit testing environment.
+* Avoid conflicts between Jetpack's Infinite Scroll and other Infinite Scroll plugins.
 * Improvements to the WordPress.com REST API to avoid issues when interacting with your site's categories and tags on WordPress.com.
 * Allow third party plugin and theme authors to add new menu items to the WordPress.com toolbar.
 * Improve the Content Options panel displayed in the Customizer with certain themes.
