@@ -59,15 +59,31 @@
 	var notesTracksEvents = {
 		openSite: {
 			name: 'jetpack_masterbar_notifications_open_site',
-			properties: function( data ) { return { site_id: data.siteId, post_id: data.postId }; }
+			properties: function( data ) {
+				return {
+					site_id: data.siteId,
+					post_id: data.postId
+				};
+			}
 		},
 		openPost: {
 			name: 'jetpack_masterbar_notifications_open_post',
-			properties: function( data ) { return { site_id: data.siteId, post_id: data.postId }; }
+			properties: function( data ) {
+				return {
+					site_id: data.siteId,
+					post_id: data.postId
+				};
+			}
 		},
 		openComment: {
 			name: 'jetpack_masterbar_notifications_open_comment',
-			properties: function( data ) { return { site_id: data.siteId, post_id: data.postId, comment_id: data.commentId }; }
+			properties: function( data ) {
+				return {
+					site_id: data.siteId,
+					post_id: data.postId,
+					comment_id: data.commentId
+				};
+			}
 		}
 	};
 
