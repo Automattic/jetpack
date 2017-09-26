@@ -106,7 +106,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 = 5.4 =
 
 * Release date: October 3, 2017
-* Release post:
+* Release post: http://wp.me/p1moTy-67V
 
 = 5.3 =
 
@@ -172,29 +172,3 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * An inconsistency experienced in WordPress.com dashboard when Related Posts settings were set in the local site's WP Admin is now fixed.
 * Fixed a 404 when loading Open Sans font from a stylesheet plus now it's only enqueued if it will be used.
 * Solve PHP warnings when Image widget wasn't migrated.
-
-= 5.1 =
-
-* Release date: July 5th, 2017
-* Release post: https://jetpack.com/?p=20888
-
-**Major Enhancements**
-* You and your readers can now show appreciation to particularly clever comments with the new Comment Likes feature.
-
-**Enhancements**
-* Quickly visit your current site's front-end directly from the Masterbar's new "View Site" item.
-* Site data fetch from /me/sites REST API endpoint now includes `blog_public` in the list of returned options.
-* The Flickr widget now automatically displays images in a grid if there's enough room.
-* E-mail sharing is now disabled by default unless it's explicitly enabled by a filter or Akismet is active.
-
-**Compatibility Improvements**
-
-* Updated instructions in Flickr widget to reflect recent changes to the Flickr UI.
-
-**Bug fixes**
-
-* EU Cookie Law Banner cookie no longer cached.
-* WP Admin menu can now be accessed in mobile when Masterbar is displayed.
-* We now sync the `order_id` for `order_items` in older WooCommerce versions.
-* UI now handles VaultPress connection or registration problems gracefully.
-* Photon now works correctly with images uploaded before WordPress 2.7.
