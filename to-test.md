@@ -23,6 +23,12 @@ We've made some improvements and fixed some bugs with the Facebook shortcode in 
 `https://www.facebook.com/jetpackme/posts/1505539472860967`
 `https://www.facebook.com/RocketsAreCool/videos/1109290809200449/?permPage=1`
 
+### Widgets
+
+We've improved the [Milestone Widget](https://jetpack.com/support/extra-sidebar-widgets/milestone-widget/) and would like you to test it!
+
+We added a new "Time Unit" setting, and also added a setting to count *up* to a milestone instead of counting down. To test the new settings, follow the detailed instructions [here](https://github.com/Automattic/jetpack/pull/7782).
+
 ### Final Notes
 
 During your tests, we encourage you to open your browser's Development Tools and keep the Console open, checking for any errors in the Console and the Network tabs.

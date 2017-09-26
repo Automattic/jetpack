@@ -126,6 +126,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Improve the display of the Facebook posts, images, and all other Facebook embeds in your posts.
 * Synchronize the author information for all published posts.
 * Record how Jetpack was discovered and activated to better understand how site owners first discover Jetpack.
+* Improve the display and options offered with the Milestone Widget.
 
 **Bug fixes**
 * Comment Form: avoid whitespace sometimes appearing below the form with some themes.
