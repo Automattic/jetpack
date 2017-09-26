@@ -17,6 +17,9 @@ class Jetpack_Recipes {
 		add_action( 'init', array( $this, 'action_init' ) );
 
 		add_filter( 'wp_kses_allowed_html', array( $this, 'add_recipes_kses_rules' ), 10, 2 );
+
+		// Register Gutenberg block jetpack/recipe
+		add_action( 'enqueue_block_assets', array( $this, 'render_recipe_block' ) );
 	}
 
 	/**
@@ -90,6 +93,30 @@ class Jetpack_Recipes {
 		add_shortcode( 'recipe-notes', array( $this, 'recipe_notes_shortcode' ) );
 		add_shortcode( 'recipe-ingredients', array( $this, 'recipe_ingredients_shortcode' ) );
 		add_shortcode( 'recipe-directions', array( $this, 'recipe_directions_shortcode' ) );
+	}
+
+	function render_recipe_block() {
+		wp_enqueue_style( 'jetpack-recipes-style', plugins_url( '/css/recipes.css', __FILE__ ), array(), '20170917' );
+		wp_style_add_data( 'jetpack-recipes-style', 'rtl', 'replace' );
+
+		// add $themecolors-defined styles.
+		wp_add_inline_style( 'jetpack-recipes-style', self::themecolor_styles() );
+
+		wp_enqueue_script( 'jetpack-recipes-printthis', plugins_url( '/js/recipes-printthis.js', __FILE__ ), array( 'jquery' ), '20170202' );
+		wp_enqueue_script( 'jetpack-recipes-js',        plugins_url( '/js/recipes.js', __FILE__ ), array( 'jquery', 'jetpack-recipes-printthis' ), '20131230' );
+
+		$title_var     = wp_title( '|', false, 'right' );
+		$rtl           = is_rtl() ? '-rtl' : '';
+		$print_css_var = plugins_url( "/css/recipes-print{$rtl}.css", __FILE__ );
+
+		wp_localize_script(
+			'jetpack-recipes-js',
+			'jetpack_recipes_vars',
+			array(
+				'pageTitle' => $title_var,
+				'loadCSS' => $print_css_var,
+			)
+		);
 	}
 
 	/**

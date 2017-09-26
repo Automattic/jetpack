@@ -14,6 +14,8 @@ languages/messages.pot
 npm-debug.log
 tests/php/files/jetpack-150x150.jpg
 *.unison.tmp
+/modules/shortcodes/js/blocks/index.js
+/modules/**/*/*block.js
 
 ## Things we will need in release branches
 /_inc/build

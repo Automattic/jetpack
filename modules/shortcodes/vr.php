@@ -129,3 +129,14 @@ function jetpack_vr_viewer_shortcode( $atts ) {
 }
 
 add_shortcode( 'vr', 'jetpack_vr_viewer_shortcode' );
+
+// Gutenberg!
+add_action( 'init', 'jetpack_register_block_type_vr' );
+function jetpack_register_block_type_vr() {
+	if ( ! function_exists( 'register_block_type' ) ) {
+		return;
+	}
+	register_block_type( 'gutenpack/vr', array(
+		'render_callback' => 'jetpack_vr_viewer_shortcode',
+	) );
+}

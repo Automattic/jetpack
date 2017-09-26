@@ -1,4 +1,5 @@
 var autoprefixer = require( 'gulp-autoprefixer' ),
+	babel = require( 'gulp-babel' ),
 	banner = require( 'gulp-banner' ),
 	check = require( 'gulp-check' ),
 	cleanCSS = require( 'gulp-clean-css' ),
@@ -8,6 +9,7 @@ var autoprefixer = require( 'gulp-autoprefixer' ),
 	gulp = require( 'gulp' ),
 	eslint = require( 'gulp-eslint' ),
 	gutil = require( 'gulp-util' ),
+	gulp_webpack = require( 'gulp-webpack' ),
 	i18n_calypso = require( 'i18n-calypso/cli' ),
 	jshint = require( 'gulp-jshint' ),
 	json_transform = require( 'gulp-json-transform' ),
@@ -470,7 +472,10 @@ gulp.task( 'js:hint', function() {
 		'modules/**/*.js',
 		'!_inc/*.min.js',
 		'!modules/*.min.',
-		'!modules/**/*.min.js'
+		'!modules/**/*.min.js',
+		'!**/*/*block.js',
+		'!modules/shortcodes/js/blocks/index.js',
+		'!modules/shortcodes/js/blocks/blocks.js',
 	] )
 		.pipe( jshint( '.jshintrc' ) )
 		.pipe( jshint.reporter( 'jshint-stylish' ) )
@@ -640,14 +645,60 @@ gulp.task( 'languages:extract', function( done ) {
 		} );
 } );
 
+function gutenShortcode() {
+	return gulp.src( 'modules/shortcodes/js/blocks/blocks.js' )
+		.pipe( gulp_webpack( {
+			module: {
+				loaders: [ {
+					test: /.jsx?$/,
+					loader: 'babel-loader',
+					exclude: /node_modules/,
+					query: {
+						presets: [ 'es2015', 'stage-1', 'react' ]
+					},
+				} ]
+			},
+			output: {
+				filename: 'index.js'
+			}
+		} ) )
+		.pipe( gulp.dest( './modules/shortcodes/js/blocks' ) );
+}
+
+/*
+ * Gutenpack!
+ */
+gulp.task( 'gutenpack', function() {
+	gutenShortcode();
+
+	return gulp.src( '**/*/*block.jsx' )
+		.pipe( babel( {
+			plugins: [
+				[
+					'transform-react-jsx', {
+						pragma: 'wp.element.createElement'
+					}
+				]
+			],
+		} ) )
+		.on( 'error', function( err ) {
+			util.log( util.colors.red( err ) );
+		} )
+		.pipe( gulp.dest( './' ) );
+} );
+
+gulp.task( 'gutenpack:watch', function() {
+	gulp.watch( [ '**/*/*block.jsx', './modules/shortcodes/js/blocks/blocks.js' ], [ 'gutenpack' ] );
+} );
+
 // Default task
 gulp.task(
 	'default',
-	['react:build', 'old-styles', 'checkstrings', 'php:lint', 'js:hint', 'php:module-headings']
+	['react:build', 'old-styles', 'checkstrings', 'php:lint', 'js:hint', 'php:module-headings', 'gutenpack']
 );
 gulp.task(
 	'watch',
-	['react:watch', 'sass:watch', 'old-styles:watch']
+	[ 'react:watch', 'sass:watch', 'old-styles:watch', 'gutenpack:watch', ]
 );
 
 gulp.task( 'jshint', ['js:hint'] );
