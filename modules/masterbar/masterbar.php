@@ -55,11 +55,6 @@ class A8C_WPCOM_Masterbar {
 		// We need to use user's setting here, instead of relying on current blog's text direction
 		$this->user_text_direction = $this->user_data['text_direction'];
 
-		add_action( 'init', array( $this, 'tracks_and_redirect_add_route' ) );
-		add_filter( 'query_vars', array( $this, 'tracks_and_redirect_add_query_vars' ) );
-		add_action( 'parse_request', array( $this, 'tracks_and_redirect_parse_request' ) );
-		add_filter( 'allowed_redirect_hosts', array( $this, 'tracks_and_redirect_allow_wpcom_domain' ) );
-
 		if ( $this->is_rtl() ) {
 			// Extend core WP_Admin_Bar class in order to add rtl styles
 			add_filter( 'wp_admin_bar_class', array( $this, 'get_rtl_admin_bar_class' ) );
@@ -80,6 +75,53 @@ class A8C_WPCOM_Masterbar {
 		}
 
 		add_action( 'wp_logout', array( $this, 'maybe_logout_user_from_wpcom' ) );
+	}
+
+	private function initialize_tracks_events( $site_slug ) {
+		JetpackTracking::add_redirect( array (
+			//my sites - top level items
+			'wp-admin-bar-switch-site'                => 'https://wordpress.com/sites',
+			'wp-admin-bar-blog-info'                  => 'https://wordpress.com/' . $site_slug,
+			'wp-admin-bar-site-view'                  => 'https://wordpress.com/' . $site_slug,
+			'wp-admin-bar-blog-stats'                 => 'https://wordpress.com/stats/' . $site_slug,
+			'wp-admin-bar-plan'                       => 'https://wordpress.com/stats/' . $site_slug,
+			'wp-admin-bar-plan-secondary'             => 'https://wordpress.com/plan/' . $site_slug,
+			//my sites - manage
+			'wp-admin-bar-new-page'                   => 'https://wordpress.com/pages/' . $site_slug,
+			'wp-admin-bar-new-page-secondary'         => 'https://wordpress.com/page/' . $site_slug,
+			'wp-admin-bar-new-post'                   => 'https://wordpress.com/posts/' . $site_slug,
+			'wp-admin-bar-new-post-secondary'         => 'https://wordpress.com/post/' . $site_slug,
+			'wp-admin-bar-comments'                   => 'https://wordpress.com/comments/' . $site_slug,
+			//my sites - personalize
+			'wp-admin-bar-themes'                     => 'https://wordpress.com/design/' . $site_slug,
+			'wp-admin-bar-themes-secondary'           => 'https://wordpress.com/design/' . $site_slug,
+			//my sites - configure
+			'wp-admin-bar-sharing'                    => 'https://wordpress.com/sharing/' . $site_slug,
+			'wp-admin-bar-users-toolbar'              => 'https://wordpress.com/people/team/' . $site_slug,
+			'wp-admin-bar-users-toolbar-secondary'    => 'https://wordpress.com/people/new/' . $site_slug,
+			'wp-admin-bar-plugins'                    => 'https://wordpress.com/plugins/' . $site_slug,
+			'wp-admin-bar-plugins-secondary'          => 'https://wordpress.com/plugins/browse/' . $site_slug,
+			'wp-admin-bar-blog-settings'              => 'https://wordpress.com/settings/general/' . $site_slug,
+			//reader
+			'wp-admin-bar-following'                  => 'https://wordpress.com',
+			'wp-admin-bar-following-secondary'        => 'https://wordpress.com/following/edit',
+			'wp-admin-bar-discover-discover'          => 'https://wordpress.com/discover',
+			'wp-admin-bar-discover-search'            => 'https://wordpress.com/read/search',
+			'wp-admin-bar-discover-recommended-blogs' => 'https://wordpress.com/recommendations',
+			'wp-admin-bar-my-activity-my-likes'       => 'https://wordpress.com/activities/likes',
+			//account
+			'wp-admin-bar-user-info'                  => 'https://wordpress.com',
+			// account - profile
+			'wp-admin-bar-my-profile'                 => 'https://wordpress.com/me',
+			'wp-admin-bar-account-settings'           => 'https://wordpress.com/me/account',
+			'wp-admin-bar-billing'                    => 'https://wordpress.com/me/purchases',
+			'wp-admin-bar-security'                   => 'https://wordpress.com/me/security',
+			'wp-admin-bar-notifications'              => 'https://wordpress.com/me/notifications',
+			//account - special
+			'wp-admin-bar-get-apps'                   => 'https://wordpress.com/me/get-apps',
+			'wp-admin-bar-next-steps'                 => 'https://wordpress.com/me/next',
+			'wp-admin-bar-help'                       => 'https://jetpack.com/support/',
+		) );
 	}
 
 	public function maybe_logout_user_from_wpcom() {
@@ -138,9 +180,6 @@ class A8C_WPCOM_Masterbar {
 		) );
 
 		wp_enqueue_script( 'a8c_wpcom_masterbar_overrides', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/masterbar-overrides/masterbar.js' ), array( 'jquery' ), JETPACK__VERSION );
-
-		// so tracks events can be fired from the frontend.
-		wp_enqueue_script( 'jp-tracks', '//stats.wp.com/w.js', array(), gmdate( 'YW' ), true );
 	}
 
 	function wpcom_static_url( $file ) {
