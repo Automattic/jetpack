@@ -81,7 +81,7 @@
 		}
 	}
 
-	$( document ).ready( function(){
+	$( document ).ready( function() {
 		$( '.ab-item, .ab-secondary' ).on( 'click touchstart', function( e ) {
 			var $target = $( e.target ),
 					$parent = $target.closest( 'li' );
