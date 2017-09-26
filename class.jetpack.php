@@ -318,6 +318,11 @@ class Jetpack {
 	public $json_api_authorization_request = array();
 
 	/**
+	 * During the authorization process, differentiates between new and returning clients.
+	 */
+	public static $is_new_client = false;
+
+	/**
 	 * Holds the singleton instance of this class
 	 * @since 2.3.3
 	 * @var Jetpack
@@ -3831,6 +3836,7 @@ p {
 	 */
 	function admin_page_load() {
 		$error = false;
+		Jetpack::$is_new_client = false;
 
 		// Make sure we have the right body class to hook stylings for subpages off of.
 		add_filter( 'admin_body_class', array( __CLASS__, 'add_jetpack_pagestyles' ) );
@@ -4416,6 +4422,10 @@ p {
 		if ( isset( $_GET['calypso_env'] ) ) {
 			$url = add_query_arg( 'calypso_env', sanitize_key( $_GET['calypso_env'] ), $url );
 		}
+
+		if ( Jetpack::$is_new_client ) {
+		    $url = add_query_arg( 'new_client', 1, $url );
+        }
 
 		return $raw ? $url : esc_url( $url );
 	}
@@ -5007,6 +5017,7 @@ p {
 
 		// Make sure the response is valid and does not contain any Jetpack errors
 		$registration_details = Jetpack::init()->validate_remote_register_response( $response );
+		
 		if ( is_wp_error( $registration_details ) ) {
 			return $registration_details;
 		} elseif ( ! $registration_details ) {
@@ -5022,6 +5033,8 @@ p {
 		} else {
 			$jetpack_public = false;
 		}
+
+		Jetpack::$is_new_client = $registration_details->is_new_client;
 
 		Jetpack_Options::update_options(
 			array(
