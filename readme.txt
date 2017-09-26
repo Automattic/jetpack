@@ -124,6 +124,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Contact Form: avoid errors in the post editor on sites using RTL languages.
 * Toolbar: always display the Toolbar when it's active, regardless of other admin bar settings.
 * Widget Visibility: make sure rules are correctly migrated from the old Jetpack image widget to the new WordPress Image Widget.
+* Avoid errors showing that Jetpack is out of date on WordPress.com, when running a Multisite network.
 * WP Cli: avoid warnings when using the `wp jetpack protect whitelist list` command to list the whitelisted IP addresses in the Protect feature.
 * Avoid displaying raw HTML in the Stats Configuration screen.
 
