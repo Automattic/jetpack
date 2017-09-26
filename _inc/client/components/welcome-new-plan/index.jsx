@@ -22,6 +22,8 @@ class WelcomeNewPlan extends Component {
 		this.state = {
 			planWelcomeDismissed: false,
 		};
+
+		this.boundDismiss = this.dismissWelcome.bind( this );
 	}
 
 	dismissWelcome() {
@@ -37,7 +39,7 @@ class WelcomeNewPlan extends Component {
 	render() {
 		const planClass = getPlanClass( this.props.sitePlan.product_slug );
 		const defaultProps = {
-			dismiss: this.dismissWelcome.bind( this ),
+			dismiss: this.boundDismiss,
 			siteRawUrl: this.props.siteRawUrl,
 			planClass: planClass,
 		};

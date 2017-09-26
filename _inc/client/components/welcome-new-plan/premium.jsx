@@ -14,6 +14,13 @@ import JetpackDialogue from 'components/jetpack-dialogue';
 import { imagePath } from 'constants';
 
 class WelcomePremium extends Component {
+	constructor( props ) {
+		super( props );
+
+		// Preparing event handlers once to avoid calling bind on every render
+		this.clickCtaDismissVideo = this.clickCtaDismiss.bind( this, 'video' );
+		this.clickCtaDismissAds = this.clickCtaDismiss.bind( this, 'ads' );
+	}
 	componentDidMount() {
 		analytics.tracks.recordEvent( 'jetpack_warm_welcome_plan_view', {
 			planClass: this.props.planClass,
@@ -21,7 +28,7 @@ class WelcomePremium extends Component {
 	}
 
 	clickCtaDismiss( cta ) {
-		analytics.tracks.recordEvent( 'jetpack_warm_welcome_plan_click_' + cta, {
+		analytics.tracks.recordEvent( 'jetpack_warm_welcome_plan_click', {
 			planClass: this.props.planClass,
 			cta: cta,
 		} );
@@ -72,7 +79,7 @@ class WelcomePremium extends Component {
 					href={ '#/writing' }
 					compact
 					className="jp-dialogue-card__below"
-					onClick={ this.clickCtaDismiss.bind( this, 'video' ) }
+					onClick={ this.clickCtaDismissVideo }
 				>
 					{ __( 'Enable premium video player' ) }
 				</Card>
@@ -80,7 +87,7 @@ class WelcomePremium extends Component {
 					href={ '#/traffic' }
 					compact
 					className="jp-dialogue-card__below"
-					onClick={ this.clickCtaDismiss.bind( this, 'ads' ) }
+					onClick={ this.clickCtaDismissAds }
 				>
 					{ __( 'Monetize your site with ads' ) }
 				</Card>

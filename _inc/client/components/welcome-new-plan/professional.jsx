@@ -14,6 +14,15 @@ import JetpackDialogue from 'components/jetpack-dialogue';
 import { imagePath } from 'constants';
 
 class WelcomeProfessional extends Component {
+	constructor( props ) {
+		super( props );
+
+		// Preparing event handlers once to avoid calling bind on every render
+		this.clickCtaDismissThemes = this.clickCtaDismiss.bind( this, 'themes' );
+		this.clickCtaDismissAds = this.clickCtaDismiss.bind( this, 'ads' );
+		this.clickCtaDismissSeo = this.clickCtaDismiss.bind( this, 'seo' );
+	}
+
 	componentDidMount() {
 		analytics.tracks.recordEvent( 'jetpack_warm_welcome_plan_view', {
 			planClass: this.props.planClass,
@@ -21,7 +30,7 @@ class WelcomeProfessional extends Component {
 	}
 
 	clickCtaDismiss( cta ) {
-		analytics.tracks.recordEvent( 'jetpack_warm_welcome_plan_click_' + cta, {
+		analytics.tracks.recordEvent( 'jetpack_warm_welcome_plan_click', {
 			planClass: this.props.planClass,
 			cta: cta,
 		} );
@@ -72,7 +81,7 @@ class WelcomeProfessional extends Component {
 					href={ 'https://wordpress.com/themes/premium/' + this.props.siteRawUrl }
 					compact
 					className="jp-dialogue-card__below"
-					onClick={ this.clickCtaDismiss.bind( this, 'themes' ) }
+					onClick={ this.clickCtaDismissThemes }
 				>
 					{ __( 'Install premium themes' ) }
 				</Card>
@@ -80,7 +89,7 @@ class WelcomeProfessional extends Component {
 					href={ '#/traffic' }
 					compact
 					className="jp-dialogue-card__below"
-					onClick={ this.clickCtaDismiss.bind( this, 'ads' ) }
+					onClick={ this.clickCtaDismissAds }
 				>
 					{ __( 'Monetize your site with ads' ) }
 				</Card>
@@ -88,7 +97,7 @@ class WelcomeProfessional extends Component {
 					href={ '#/traffic' }
 					compact
 					className="jp-dialogue-card__below"
-					onClick={ this.clickCtaDismiss.bind( this, 'seo' ) }
+					onClick={ this.clickCtaDismissSeo }
 				>
 					{ __( 'Review SEO features' ) }
 				</Card>
