@@ -117,6 +117,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 * Toolbar: always display the Toolbar when it's active, regardless of other admin bar settings.
+* Widget Visibility: make sure rules are correctly migrated from the old Jetpack image widget to the new WordPress Image Widget.
 
 = 5.3 =
 
