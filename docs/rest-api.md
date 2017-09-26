@@ -131,7 +131,7 @@ When POSTing to this endpoint, you need to send a JSON object in the body with t
 
 As an extra, you can enable or disable modules with this endpoint too. You can pass a module slug as key and set it to `true` or `false` for updating its activation state.
 
-### GET /wp-json/jetpack/v4/settings
+#### GET /wp-json/jetpack/v4/settings
 
 Fetch a list of Jetpack settings.
 
@@ -159,7 +159,7 @@ Fetch a list of Jetpack settings.
 }
 ```
 
-### POST /wp-json/jetpack/v4/settings
+#### POST /wp-json/jetpack/v4/settings
 
 Update multiple settings at once.
 
