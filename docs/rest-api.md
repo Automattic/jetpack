@@ -31,6 +31,27 @@ jQuery.ajax( {
 } );
 ```
 
+**Example POST request**
+
+```
+jQuery.ajax( {
+    url: '/wp-json/jetpack/v4/settings/',
+    method: 'post',
+    beforeSend: function ( xhr ) {
+        xhr.setRequestHeader( 'X-WP-Nonce', Initial_State.WP_API_nonce );
+    },
+    data: JSON.stringify( {
+        'carousel_display_exif': false
+    } ),
+    contentType: "application/json",
+    dataType: "json"
+} ).done( function ( response ) {
+    console.log( response );
+} ).error( function ( error ) {
+    console.log( error.responseText );
+} );
+```
+
 ### Requesting with the fetch API from the browser's console.
 
 **Example GET request**
@@ -45,6 +66,22 @@ fetch( '/wp-json/jetpack/v4/settings', {
 	.then( response => console.log( response) )
 	.catch( error => console.log( error.responseText ) );
 ```
+
+**Example POST request**
+
+```
+fetch( '/wp-json/jetpack/v4/settings', {
+	method: 'post',
+	body: JSON.stringify( { masterbar: true } ),
+	headers: {
+		'X-WP-Nonce': Initial_State.WP_API_nonce,
+		'Content-type': 'application/json' }
+} )
+	.then( response => response.json() )
+	.then( response => console.log( response) )
+	.catch( error => console.log( error.responseText ) );
+```
+
 ## API Authentication and authorization
 
 The API requests rely on [cookie-based authentication and a specific nonce](https://developer.wordpress.org/rest-api/using-the-rest-api/authentication/#cookie-authentication)
