@@ -129,6 +129,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Improve the display and options offered with the Milestone Widget.
 
 **Bug fixes**
+* We fixed layout issues appearing in the admin interface for IE11 users.
 * Comment Form: avoid whitespace sometimes appearing below the form with some themes.
 * Contact Form: avoid errors in the post editor on sites using RTL languages.
 * Toolbar: always display the Toolbar when it's active, regardless of other admin bar settings.
