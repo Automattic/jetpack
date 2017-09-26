@@ -423,9 +423,6 @@ Reset  Jetpack module options or Jetpack modules activation state to default val
 
 	**This endpoint does not take Body parameters**
 
-### Site information
-
-Operations related to information about the site.
 
 ### Jetpack notices
 
@@ -442,6 +439,10 @@ Dismiss a Jetpack notice by Id.
 ** HTTP Status codes**
 
 * `404` - When `:notice` is not valid or absent
+
+### Site information
+
+Operations related to information about the site.
 
 #### GET /wp-json/jetpack/v4/site
 
