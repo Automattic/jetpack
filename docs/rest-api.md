@@ -229,6 +229,8 @@ Accepts a JSON object in the body like:
 }
 ```
 
+POSTing with `isActive` as `false` will disconect the site. Sending `isActive: true` has no effect.
+
 #### POST /wp-json/jetpack/v4/connection/user
 
 Unlink current user from the related WordPress.com account.
@@ -240,6 +242,9 @@ Accepts a JSON object in the body like:
 	"linked": false
 }
 ```
+
+POSTing with `linked` as `false` will disconect the site. Sending `linked: true` has no effect.
+
 
 ### Jetpack modules
 
