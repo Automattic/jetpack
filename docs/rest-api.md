@@ -296,9 +296,56 @@ The response is huge. Try it on your browser's console for discovery. Here's a c
 
 Get a single module description and properties by its slug.
 
-**URL parameters**
+**Example response** for `/module/likes`
 
-* `module-slug`: {String} The identifier of the module to get info about.
+```
+{
+    "name": "Likes",
+    "description": "Give visitors an easy way to show they appreciate your content.",
+    "jumpstart_desc": "Give visitors an easy way to show they appreciate your content.",
+    "sort": 23,
+    "recommendation_order": 20,
+    "introduced": "2.2",
+    "changed": "",
+    "deactivate": true,
+    "free": true,
+    "requires_connection": true,
+    "auto_activate": "No",
+    "module_tags": [
+        "Social"
+    ],
+    "feature": [
+        "Engagement",
+        "Jumpstart"
+    ],
+    "additional_search_queries": "like, likes, wordpress.com",
+    "options": {
+        "wpl_default": {
+            "description": "WordPress.com Likes are",
+            "type": "string",
+            "default": "on",
+            "enum": [
+                "on",
+                "off"
+            ],
+            "enum_labels": {
+                "on": "On for all posts",
+                "off": "Turned on per post"
+            },
+            "jp_group": "likes",
+            "current_value": "on"
+        },
+        "social_notifications_like": {
+            "description": "Send email notification when someone likes a post",
+            "type": "boolean",
+            "default": 1,
+            "jp_group": "likes",
+            "current_value": true
+        }
+    },
+    "short_description": "Give visitors an easy way to show they appreciate your content."
+}
+```
 
 #### POST /wp-json/jetpack/v4/module/:module-slug/active
 
