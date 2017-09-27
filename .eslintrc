@@ -43,6 +43,7 @@
 		"no-trailing-spaces": 2,
 		// Allows Chai `expect` expressions
 		"no-unused-expressions": 0,
+		"no-unused-vars": 2,
 		"no-var": 2,
 		"object-curly-spacing": [ 2, "always" ],
 		"operator-linebreak": [ 2, "after", { "overrides": {
