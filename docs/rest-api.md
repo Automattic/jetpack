@@ -125,11 +125,12 @@ Core REST API-compatible [capabilities document](https://developer.wordpress.org
 
 ### Jetpack settings
 
-We call settings to any option that a module provides.
+**Jetpack settings** are all of the options provided by Jetpack modules. That is, any configurable aspect of the features provided by Jetpack.
+In addition, this endpoint, allows you to enable or disable modules too. You can pass a module slug as key and set it to `true` or `false` for activating or deactivating the module.
+
 This endpoint returns a JSON object with multiple key and current values for them.
 When POSTing to this endpoint, you need to send a JSON object in the body with the new values for each key.
 
-As an extra, you can enable or disable modules with this endpoint too. You can pass a module slug as key and set it to `true` or `false` for updating its activation state.
 
 #### GET /wp-json/jetpack/v4/settings
 
