@@ -8,7 +8,9 @@
 .travis.yml
 .npmrc
 .nvmrc
+.eslines.json
 .eslintrc
+.eslintcache
 readme.md
 .github
 phpunit.xml.dist
