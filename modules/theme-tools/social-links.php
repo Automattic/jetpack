@@ -78,14 +78,6 @@ class Social_Links {
 	}
 
 	public function admin_setup() {
-		if ( ! current_user_can( 'manage_options' ) ) {
-			return;
-		}
-
-		if ( ! is_admin() && ! $this->is_customize_preview() ) {
-			return;
-		}
-
 		$this->publicize = publicize_init();
 		$publicize_services = $this->publicize->get_services( 'connected' );
 		$this->services  = array_intersect( array_keys( $publicize_services ), $this->theme_supported_services );
