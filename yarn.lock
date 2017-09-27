@@ -4115,8 +4115,8 @@ https-browserify@0.0.0:
   resolved "https://registry.yarnpkg.com/https-browserify/-/https-browserify-0.0.0.tgz#b3ffdfe734b2a3d4a9efd58e8654c91fce86eafd"
 
 "i18n-calypso@github:automattic/i18n-calypso":
-  version "1.7.4"
-  resolved "https://codeload.github.com/automattic/i18n-calypso/tar.gz/bb0456274b7da0a3bdc1e0fc9054908f216c804e"
+  version "1.8.0"
+  resolved "https://codeload.github.com/automattic/i18n-calypso/tar.gz/dceace781efd139fbf62c3fd6719113bac4e2f87"
   dependencies:
     async "^1.5.2"
     commander "^2.9.0"
@@ -6657,8 +6657,8 @@ react-router@^2.0.1:
     warning "^3.0.0"
 
 react-tagsinput@^3.13.1:
-  version "3.17.0"
-  resolved "https://registry.yarnpkg.com/react-tagsinput/-/react-tagsinput-3.17.0.tgz#d699bc7ff3be3492d5a3d2a57f6976908774fba3"
+  version "3.18.0"
+  resolved "https://registry.yarnpkg.com/react-tagsinput/-/react-tagsinput-3.18.0.tgz#40e036fc0f4c3d6b4689858189ab02926717a818"
 
 react-tap-event-plugin@0.2.1:
   version "0.2.1"
