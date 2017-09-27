@@ -337,6 +337,9 @@ class Jetpack_Options {
 	 * @return bool Is the option deleted?
 	 */
 	static function delete_raw_option( $name ) {
+		if ( self::by_pass_raw_option( $name ) ) {
+			return delete_option( $name );
+		}
 		global $wpdb;
 		$result = $wpdb->query( $wpdb->prepare( "DELETE FROM $wpdb->options WHERE option_name = %s", $name ) );
 		return $result;
@@ -352,6 +355,9 @@ class Jetpack_Options {
 	 * @return bool Is the option updated?
 	 */
 	static function update_raw_option( $name, $value, $autoload = false ) {
+		if ( self::by_pass_raw_option( $name ) ) {
+			return update_option( $name, $value, $autoload );
+		}
 		global $wpdb;
 		$autoload_value = $autoload ? 'yes' : 'no';
 
@@ -388,6 +394,10 @@ class Jetpack_Options {
 	 * @return mixed Option value, or null if option is not found and default is not specified.
 	 */
 	static function get_raw_option( $name, $default = null ) {
+		if ( self::by_pass_raw_option( $name ) ) {
+			return get_option( $name, $default );
+		}
+
 		global $wpdb;
 		$value = $wpdb->get_var(
 			$wpdb->prepare(
@@ -402,6 +412,29 @@ class Jetpack_Options {
 		}
 
 		return $value;
+	}
+
+	/**
+	 * This function lets us by pass certain options to be gotten via the raw sql calls.
+	 * Instead we should use the regular wp calls.
+	 * @param $name Option name
+	 *
+	 * @return bool
+	 */
+	static function by_pass_raw_option( $name ) {
+
+		if ( Jetpack_Constants::get_constant( 'JETPACK_DISABLE_RAW_OPTION' ) ) {
+			return true;
+		}
+		/**
+		 * Allows us to disable the some raw options.
+		 * @since 5.5.0
+		 *
+		 *
+		 * @param array $disabled_raw_options has the key set of the option that you want to disable
+		 */
+		$disabled_raw_options = apply_filters( 'jetpack_disabled_raw_option', array() );
+		return isset( $disabled_raw_options[$name] );
 	}
 
 }
