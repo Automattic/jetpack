@@ -74,6 +74,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			'sso_bypass_default_login_form'    => Jetpack_SSO_Helpers::bypass_login_forward_wpcom(),
 			'wp_version'                       => Jetpack_Sync_Functions::wp_version(),
 			'get_plugins'                      => Jetpack_Sync_Functions::get_plugins(),
+			'get_plugins_action_links'		   => Jetpack_Sync_functions::get_plugins_action_links(),
 			'active_modules'                   => Jetpack::get_active_modules(),
 			'hosting_provider'                 => Jetpack_Sync_Functions::get_hosting_provider(),
 			'locale'                           => get_locale(),
@@ -549,6 +550,32 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		remove_filter( 'option_home', array( $this, '__return_filtered_url' ) );
 		remove_filter( 'option_siteurl', array( $this, '__return_filtered_url' ) );
+	}
+
+	function test_plugin_action_links_get_synced() {
+		$helper_all = new Jetpack_Sync_Test_Helper();
+		$helper_all->array_override = array( '<a href="fun.php">fun</a>' );
+		add_filter( 'plugin_action_links', array( $helper_all, 'filter_override_array' ), 10 );
+
+		$helper_jetpack = new Jetpack_Sync_Test_Helper();
+		$helper_jetpack->array_override = array( '<a href="settings.php">settings</a>', '<a href="https://jetpack.com/support">support</a>' );
+		add_filter( 'plugin_action_links_jetpack/jetpack.php', array( $helper_jetpack, 'filter_override_array' ), 10 );
+
+		// Let's see if the original values get synced
+		$this->sender->do_sync();
+		$plugins_action_links = $this->server_replica_storage->get_callable( 'get_plugins_action_links' );
+
+		$expected_array = array(
+			'hello.php' => array(
+				'fun' => admin_url( 'fun.php' )
+			),
+			'jetpack/jetpack.php' => array(
+				'settings' => admin_url( 'settings.php' ),
+				'support' => 'https://jetpack.com/support'
+			)
+		);
+
+  		$this->assertEquals( $plugins_action_links, $expected_array );
 	}
 
 	function __return_filtered_url() {
