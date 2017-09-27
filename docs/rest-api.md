@@ -289,7 +289,7 @@ POSTing with `linked` as `false` will disconect the site. Sending `linked: true`
 
 Get a list of all Jetpacks modules, its description, other properties and the module's options
 
-**Note**. The response has a big paylod in the body. Use it carefully.
+**Note**. The response has a big payload in the body. Use it carefully.
 
 **Example response**
 
