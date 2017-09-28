@@ -2676,6 +2676,9 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 
 				wp_enqueue_script( 'grunion-frontend', plugins_url( 'js/grunion-frontend.js', __FILE__ ), array( 'jquery', 'jquery-ui-datepicker' ) );
 				wp_enqueue_style( 'jp-jquery-ui-datepicker', plugins_url( 'css/jquery-ui-datepicker.css', __FILE__ ), array( 'dashicons' ), '1.0' );
+
+				// Using Core's built-in datepicker localization routine
+				wp_localize_jquery_ui_datepicker();
 			break;
 			default : // text field
 				// note that any unknown types will produce a text input, so we can use arbitrary type names to handle
