@@ -171,7 +171,7 @@ class Grunion_Editor_View {
 <script type="text/html" id="tmpl-grunion-field-date">
 	<div>
 		<label for='{{ data.id }}' class='grunion-field-label {{ data.type }}'>{{ data.label }}<# if ( data.required ) print( " <span>" + data.required + "</span>" ) #></label>
-		<input type='date' name='{{ data.id }}' id='{{ data.id }}' value='{{ data.value }}' class="{{ data.class }}" />
+		<input type='text' name='{{ data.id }}' id='{{ data.id }}' value='{{ data.value }}' class="{{ data.class }}" />
 	</div>
 </script>
 
