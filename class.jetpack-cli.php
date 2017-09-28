@@ -943,7 +943,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 			$redirect_uri = admin_url();
 		}
 
-		$request_body = array( 
+		$request_body = array(
 			'jp_version'    => JETPACK__VERSION,
 			'redirect_uri'  => $redirect_uri
 		);
@@ -1013,8 +1013,8 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		if ( is_wp_error( $result ) ) {
 			$this->partner_provision_error( $result );
-		} 
-		
+		}
+
 		$response_code = wp_remote_retrieve_response_code( $result );
 		$body_json     = json_decode( wp_remote_retrieve_body( $result ) );
 
