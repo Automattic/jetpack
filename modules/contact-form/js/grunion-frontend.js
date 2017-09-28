@@ -1,6 +1,3 @@
 jQuery( function ( $ ) {
-	var datefield = $( '.contact-form input[type="date"]' );
-	if ( 'function' === typeof $.fn.datepicker && 'text' === datefield[0].type ) {
-		datefield.datepicker( { dateFormat : 'yyyy-mm-dd' } );
-	}
+	$( '.contact-form input.date' ).datepicker( { dateFormat : 'yyyy-mm-dd' } );
 } );
