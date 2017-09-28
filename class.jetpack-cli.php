@@ -119,7 +119,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		$body = wp_remote_retrieve_body( $response );
 		if ( is_wp_error( $body ) ) {
-			WP_CLI::error( __( 'Failed to test connection (empty response body)', 'jetpack' ) );
+			WP_CLI::error( __( 'Failed to test connection', 'jetpack' ) );
 		}
 
 		if ( ! $body ) {
