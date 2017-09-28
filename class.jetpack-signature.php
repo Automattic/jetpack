@@ -25,7 +25,7 @@ class Jetpack_Signature {
 		if ( isset( $override['scheme'] ) ) {
 			$scheme = $override['scheme'];
 			if ( !in_array( $scheme, array( 'http', 'https' ) ) ) {
-				return new Jetpack_Error( 'invalid_sheme', 'Invalid URL scheme' );
+				return new Jetpack_Error( 'invalid_scheme', 'Invalid URL scheme' );
 			}
 		} else {
 			if ( is_ssl() ) {
