@@ -118,10 +118,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 		}
 
 		$body = wp_remote_retrieve_body( $response );
-		if( is_wp_error( $body ) ) {
-			WP_CLI::error( __( 'Failed to test connection', 'jetpack' ) );
-		}
-
 		if ( ! $body ) {
 			WP_CLI::error( __( 'Failed to test connection (empty response body)', 'jetpack' ) );
 		}
@@ -947,7 +943,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 			$redirect_uri = admin_url();
 		}
 
-		$request_body = array( 
+		$request_body = array(
 			'jp_version'    => JETPACK__VERSION,
 			'redirect_uri'  => $redirect_uri
 		);
@@ -1017,10 +1013,10 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		if ( is_wp_error( $result ) ) {
 			$this->partner_provision_error( $result );
-		} 
-		
+		}
+
 		$response_code = wp_remote_retrieve_response_code( $result );
-		$body_json     = json_decode( wp_remote_retrieve_body( $result ), true  );
+		$body_json     = json_decode( wp_remote_retrieve_body( $result ) );
 
 		if( 200 !== $response_code ) {
 			if ( isset( $body_json->error ) ) {
