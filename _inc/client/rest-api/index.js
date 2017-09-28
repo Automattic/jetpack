@@ -228,7 +228,7 @@ function JetpackRestApiClient( root, nonce ) {
 	}
 
 	function postRequest( route, params, body ) {
-		return fetch( route, assign( {}, params, body ) );
+		return fetch( route, assign( {}, params, body ) ).catch( catchNetworkErrors );
 	}
 
 	function statsDataUrl( range ) {
@@ -249,6 +249,7 @@ const restApi = new JetpackRestApiClient();
 export default restApi;
 
 function checkStatus( response ) {
+	// Regular success responses
 	if ( response.status >= 200 && response.status < 300 ) {
 		return response;
 	}
@@ -265,4 +266,12 @@ function parseJsonResponse( response ) {
 
 function catchJsonParseError( e ) {
 	throw new Error( `Couldn't understand Jetpack's REST API response (${ e.name })` );
+}
+
+// Catches TypeError coming from the Fetch API implementation
+function catchNetworkErrors( e ) {
+	//Either one of:
+	// * A preflight error like a redirection to an external site (which results in a CORS)
+	// * A preflight error like ERR_TOO_MANY_REDIRECTS
+	throw new Error( `Could not reach Jetpack's REST API. Check the browser's console for more details` );
 }
