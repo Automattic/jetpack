@@ -2550,7 +2550,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		$field_label       = $this->get_attribute( 'label' );
 		$field_required    = $this->get_attribute( 'required' );
 		$placeholder       = $this->get_attribute( 'placeholder' );
-		$class             = $this->get_attribute( 'class' );
+		$class             = 'date' === $field_type ? 'jp-contact-form-date' : $this->get_attribute( 'class' );
 		$field_placeholder = ( ! empty( $placeholder ) ) ? "placeholder='" . esc_attr( $placeholder ) . "'" : '';
 		$field_class       = "class='" . trim( esc_attr( $field_type ) . ' ' . esc_attr( $class ) ) . "' ";
 
