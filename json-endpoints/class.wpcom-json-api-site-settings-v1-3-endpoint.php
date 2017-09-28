@@ -1,10 +1,17 @@
 <?php
+/**
+ * WARNING: This file is distributed verbatim in Jetpack.
+ * There should be nothing WordPress.com specific in this file.
+ *
+ * @hide-in-jetpack
+ * @autounit api-v1 site-settings
+ */
 
-new WPCOM_JSON_API_Site_Settings_V1_2_Endpoint( array(
+new WPCOM_JSON_API_Site_Settings_V1_3_Endpoint( array(
 	'description' => 'Get detailed settings information about a site.',
 	'group'       => '__do_not_document',
 	'stat'        => 'sites:X',
-	'min_version'   => '1.2',
+	'min_version'   => '1.3',
 	'method'      => 'GET',
 	'path'        => '/sites/%s/settings',
 	'path_labels' => array(
@@ -17,14 +24,14 @@ new WPCOM_JSON_API_Site_Settings_V1_2_Endpoint( array(
 
 	'response_format' => WPCOM_JSON_API_Site_Settings_Endpoint::$site_format,
 
-	'example_request' => 'https://public-api.wordpress.com/rest/v1.2/sites/en.blog.wordpress.com/settings?pretty=1',
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.3/sites/en.blog.wordpress.com/settings?pretty=1',
 ) );
 
-new WPCOM_JSON_API_Site_Settings_V1_2_Endpoint( array(
+new WPCOM_JSON_API_Site_Settings_V1_3_Endpoint( array(
 	'description' => 'Update settings for a site.',
 	'group'       => '__do_not_document',
 	'stat'        => 'sites:X',
-	'min_version'   => '1.2',
+	'min_version'   => '1.3',
 	'method'      => 'POST',
 	'path'        => '/sites/%s/settings',
 	'path_labels' => array(
@@ -106,56 +113,47 @@ new WPCOM_JSON_API_Site_Settings_V1_2_Endpoint( array(
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/settings?pretty=1',
 ) );
 
-class WPCOM_JSON_API_Site_Settings_V1_2_Endpoint extends WPCOM_JSON_API_Site_Settings_Endpoint {
-
-	public static $site_format = array(
-		'ID'             => '(int) Site ID',
-		'name'           => '(string) Title of site',
-		'description'    => '(string) Tagline or description of site',
-		'URL'            => '(string) Full URL to the site',
-		'locale'         => '(string) Locale code of the site',
-		'locale_variant' => '(string) Locale variant code for the site, if set',
-		'settings'       => '(array) An array of options/settings for the blog. Only viewable by users with post editing rights to the site.',
+class WPCOM_JSON_API_Site_Settings_V1_3_Endpoint extends WPCOM_JSON_API_Site_Settings_V1_2_Endpoint {
+	public static $wga_defaults = array(
+		'code'                 => '',
+		'anonymize_ip'         => false,
+		'ec_track_purchases'   => false,
+		'ec_track_add_to_cart' => false
 	);
 
-
 	function callback( $path = '', $blog_id = 0 ) {
-		add_filter( 'site_settings_endpoint_update_locale', array( $this, 'update_locale' ) );
-		add_filter( 'site_settings_endpoint_get',           array( $this, 'return_locale' ) );
-		add_filter( 'site_settings_site_format',            array( $this, 'site_format' ) );
+		add_filter( 'site_settings_endpoint_get', array( $this, 'filter_site_settings_endpoint_get' ) );
+		add_filter( 'site_settings_update_wga', array( $this, 'filter_update_google_analytics' ), 10, 2 );
 		return parent::callback( $path, $blog_id );
 	}
 
+	/**
+	 * Filter the parent's response to include the fields
+	 * added to 1.3 (and their defaults)
+	 */
+	public function filter_site_settings_endpoint_get( $settings ) {
+		$option_name = defined( 'IS_WPCOM' ) && IS_WPCOM ? 'wga' : 'jetpack_wga';
+		$option = get_option( $option_name, array() );
+		$settings[ 'wga' ] = wp_parse_args( $option, self::$wga_defaults );
+		return $settings;
+	}
 
-	protected function get_locale( $key ) {
-		if ( 'locale' == $key ) {
-			if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-				return (string) get_blog_lang_code();
-			} else {
-				return get_locale();
+	/**
+	 * Filter the parent's response to consume our new fields
+	 */
+	public function filter_update_google_analytics( $wga, $new_values ) {
+		$wga_keys = array_keys( self::$wga_defaults );
+		foreach ( $wga_keys as $wga_key ) {
+			// Skip code since the parent class has handled it
+			if ( 'code' === $wga_key ) {
+				continue;
+			}
+			// All our new keys are booleans, so let's coerce each key's value
+			// before updating the value in settings
+			if ( array_key_exists( $wga_key, $new_values ) ) {
+				$wga[ $wga_key ] = WPCOM_JSON_API::is_truthy( $new_values[ $wga_key ] );
 			}
 		}
-
-		return false;
-	}
-
-	public function return_locale( $settings ) {
-		return $settings + array( 'locale' => $this->get_locale( 'locale' ) );
-	}
-
-	public function update_locale( $value ) {
-		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
-			$lang_id = get_lang_id_by_code( $value );
-			if ( ! empty( $lang_id ) ) {
-				if ( update_option( 'lang_id', $lang_id ) ) {
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-
-	public function site_format( $format ) {
-		return self::$site_format;
+		return $wga;
 	}
 }
