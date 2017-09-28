@@ -6,8 +6,25 @@ import 'whatwg-fetch';
 import assign from 'lodash/assign';
 
 /**
- * External dependencies
+ * Helps create new custom error classes to better notify upper layers.
+ * @param {String} name the Error name that will be availble in Error.name
+ * @return {Error}      a new custom error class.
  */
+function createCustomError( name ) {
+	class CustomError extends Error {
+		constructor( ...args ) {
+			super( ...args );
+			this.name = name;
+		}
+	}
+	return CustomError;
+}
+
+const JsonParseError = createCustomError( 'JsonParseError' );
+const JsonParseAfterRedirectError = createCustomError( 'JsonParseAfterRedirectError' );
+const Api404Error = createCustomError( 'Api404Error' );
+const Api404AfterRedirectError = createCustomError( 'Api404AfterRedirectError' );
+const FetchNetworkError = createCustomError( 'FetchNetworkError' );
 
 function JetpackRestApiClient( root, nonce ) {
 	let apiRoot = root,
@@ -253,25 +270,38 @@ function checkStatus( response ) {
 	if ( response.status >= 200 && response.status < 300 ) {
 		return response;
 	}
+
+	if ( response.status === 404 ) {
+		return new Promise( () => {
+			const err = response.redirected
+				? new Api404AfterRedirectError( response.redirected )
+				: new Api404Error();
+			throw err;
+		} );
+	}
+
 	return response.json().then( json => {
-		const error = new Error( json.message );
+		const error = new Error( `${ json.message } (Status ${ response.status })` );
 		error.response = json;
 		throw error;
 	} );
 }
 
 function parseJsonResponse( response ) {
-	return response.json().catch( catchJsonParseError );
+	return response.json().catch( e => catchJsonParseError( e, response.redirected, response.url ) );
 }
 
-function catchJsonParseError( e ) {
-	throw new Error( `Couldn't understand Jetpack's REST API response (${ e.name })` );
+function catchJsonParseError( e, redirected, url ) {
+	const err = redirected
+		? new JsonParseAfterRedirectError( url )
+		: new JsonParseError();
+	throw err;
 }
 
 // Catches TypeError coming from the Fetch API implementation
-function catchNetworkErrors( e ) {
+function catchNetworkErrors() {
 	//Either one of:
 	// * A preflight error like a redirection to an external site (which results in a CORS)
 	// * A preflight error like ERR_TOO_MANY_REDIRECTS
-	throw new Error( `Could not reach Jetpack's REST API. Check the browser's console for more details` );
+	throw new FetchNetworkError();
 }
