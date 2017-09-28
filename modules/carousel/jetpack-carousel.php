@@ -220,7 +220,7 @@ class Jetpack_Carousel {
 				'post_comment'         => __( 'Post Comment', 'jetpack' ),
 				'write_comment'        => __( 'Write a Comment...', 'jetpack' ),
 				'loading_comments'     => __( 'Loading Comments...', 'jetpack' ),
-				'download_original'    => sprintf( __( 'View full size <span class="photo-size">%1$s<span class="photo-size-times">&times;</span>%2$s</span>', 'jetpack' ), '{0}', '{1}' ),
+				'download_original'    => sprintf( wp_kses ( __( 'View full size <span class="photo-size">%1$s<span class="photo-size-times">&times;</span>%2$s</span>', 'jetpack' )), '{0}', '{1}' ),
 				'no_comment_text'      => __( 'Please be sure to submit some text with your comment.', 'jetpack' ),
 				'no_comment_email'     => __( 'Please provide an email address to comment.', 'jetpack' ),
 				'no_comment_author'    => __( 'Please provide your name to comment.', 'jetpack' ),
