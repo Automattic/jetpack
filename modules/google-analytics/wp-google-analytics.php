@@ -134,6 +134,13 @@ class Jetpack_Google_Analytics {
 			$custom_vars[] = "_gaq.push(['_trackPageview']);";
 		}
 
+		/**
+		 * Allow for additional elements to be added to the classic Google Analytics queue (_gaq) array
+		 *
+		 * @since 5.4.0
+		 *
+		 * @param array $custom_vars Array of classic Google Analytics queue elements
+		 */
 		$custom_vars = apply_filters( 'jetpack_wga_classic_custom_vars', $custom_vars );
 
 		// Ref: https://developers.google.com/analytics/devguides/collection/gajs/gaTrackingEcommerce#Example
