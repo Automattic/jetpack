@@ -85,7 +85,7 @@ gulp.task( 'frontendcss', [ 'frontendcss:separate' ], function() {
 		) )
 		.pipe( gulp.dest( 'css' ) )
 		.pipe( rtlcss() )
-		.pipe( rename( { suffix: '.rtl' } ) )
+		.pipe( rename( { suffix: '-rtl' } ) )
 		.pipe( gulp.dest( 'css/' ) )
 		.on( 'end', function() {
 			util.log( 'Front end modules CSS finished.' );
