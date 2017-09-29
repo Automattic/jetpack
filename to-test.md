@@ -39,6 +39,101 @@ We've improved the [Milestone Widget](https://jetpack.com/support/extra-sidebar-
 
 We added a new "Time Unit" setting, and also added a setting to count *up* to a milestone instead of counting down. To test the new settings, follow the detailed instructions [here](https://github.com/Automattic/jetpack/pull/7782).
 
+### Google Analytics: Added support for IP anonymization and basic ecommerce tracking
+* The present Google Analytics module in Jetpack only looks for the tracking code (the UA code) in settings.
+* We are adding three other fields to the jetpack_wga option  (and, as a separate PR, to the endpoint that sets that option)
+* The three other fields are
+
+1. anonymize_ip - allows IP anonymization. It defaults to off.
+2. ec_track_purchases - syncs WooCommerce order amounts and items to Google Analytics as orders are received. Defaults to off.
+3. ec_track_add_to_cart - notifies Google Analytics (as an event) when customers add items to their carts. Defaults to off.
+
+To Test:
+
+* Sign up for a Google Analytics tracking code for your test site, e.g. UA-12345678-1
+* Install, activate and connect Jetpack
+* Install and activate WooCommerce
+* Create a product with no SKU and at least two categories
+* Create another product with a SKU and at least two categories
+* Replace the modules/google-analytics/wp-google-analytics.php file with the file from this branch
+* "Manually" set (e.g. just do something like hack Hello Dolly) the jetpack_wga option to
+
+```
+array(
+	'code' => '',
+	'anonymize_ip' => 0,
+	'ec_track_purchases' => 0,
+	'ec_track_add_to_cart' => 0
+);
+```
+
+* Visit either product page.
+* View the source and 1) ensure the Google Analytics script (ga.js) is never referenced and 2) no jQuery is present to hook .single_add_to_cart_button or .add_to_cart_button
+elements.
+
+* "Manually" set the jetpack_wga option to
+
+```
+array(
+	'code' => 'UA-12345678-1',
+	'anonymize_ip' => 0,
+	'ec_track_purchases' => 0,
+	'ec_track_add_to_cart' => 0
+);
+```
+
+* Visit either product page.
+* View the source and 1) ensure the Google Analytics script (ga.js) is present but that no jQuery is present to hook .single_add_to_cart_button or .add_to_cart_button elements.
+
+* "Manually" set the jetpack_wga option to
+
+```
+array(
+	'code' => 'UA-12345678-1',
+	'anonymize_ip' => 1,
+	'ec_track_purchases' => 0,
+	'ec_track_add_to_cart' => 0
+);
+```
+
+* Visit either product page.
+* View the source and 1) ensure the Google Analytics script (ga.js) is present and that the _anonymizeIp element is present
+
+* "Manually" set the jetpack_wga option to
+
+```
+array(
+	'code' => 'UA-12345678-1',
+	'anonymize_ip' => 0,
+	'ec_track_purchases' => 1,
+	'ec_track_add_to_cart' => 0
+);
+```
+
+* In your Google Analytics Dashboard, go to Admin for your site (it looks like a gear in the lower left corner)
+* Under View select Ecommerce Settings
+* Enable Ecommerce if you haven't already. DO NOT ENABLE ENHANCED ECOMMERCE AT THIS TIME.
+
+* Back on your test site, Complete the purchase of any item using a gateway like Check Payment.
+* Return to your Google Analytics Dashboard and go to Conversions and then Ecommerce
+* Set the date range to today
+* Make sure you see the sale and that the details are correct
+
+* "Manually" set the jetpack_wga option to
+
+```
+array(
+	'code' => 'UA-12345678-1',
+	'anonymize_ip' => 0,
+	'ec_track_purchases' => 1,
+	'ec_track_add_to_cart' => 1
+);
+```
+
+* Visit each product page, adding the product to your cart.
+* In your Google Analytics Dashboard, go to Real-time and then Events
+* Make sure you see the addition of the SKU less and the SKU product and that the details are correct
+
 ### Misc
 
 - [always] Try to connect with a brand new site, and also cycle your connections to existing sites.
