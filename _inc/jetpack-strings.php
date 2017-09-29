@@ -204,8 +204,6 @@ _x( "FIX", "A caption for a small button to fix security issues.", "jetpack" ), 
 _x( "Threats found!", "Short warning message about new threats found.", "jetpack" ), // _inc/client/pro-status/index.jsx:73
 _x( "Threats", "A caption for a small button to fix security issues.", "jetpack" ), // _inc/client/pro-status/index.jsx:71
 __( "Activate", "jetpack" ), // _inc/client/searchable-modules/index.jsx:71
-__( "Enter a search term to find settings or close search.", "jetpack" ), // _inc/client/settings/index.jsx:38
-__( "No search results found for %(term)s", "jetpack" ), // _inc/client/settings/index.jsx:30
 __( "If you don't already have an API key, then {{a}}get your API key here{{/a}}, and you'll be guided through the process of getting one.", "jetpack" ), // _inc/client/security/antispam.jsx:149
 __( "Your API key", "jetpack" ), // _inc/client/security/antispam.jsx:143
 _x( "Spam filtering", "Settings header", "jetpack" ), // _inc/client/security/antispam.jsx:135
@@ -235,6 +233,8 @@ _x( "Brute force attack protection", "Settings header", "jetpack" ), // _inc/cli
 __( "Require accounts to use WordPress.com Two-Step Authentication", "jetpack" ), // _inc/client/security/sso.jsx:94
 __( "Match accounts using email addresses", "jetpack" ), // _inc/client/security/sso.jsx:81
 _x( "WordPress.com log in", "Settings header", "jetpack" ), // _inc/client/security/sso.jsx:56
+__( "Enter a search term to find settings or close search.", "jetpack" ), // _inc/client/settings/index.jsx:38
+__( "No search results found for %(term)s", "jetpack" ), // _inc/client/settings/index.jsx:30
 __( "Allow readers to show their appreciation of your posts by adding a like button to your content", "jetpack" ), // _inc/client/sharing/likes.jsx:34
 _x( "Like buttons", "Settings header", "jetpack" ), // _inc/client/sharing/likes.jsx:24
 __( "Automatically share your posts to social networks", "jetpack" ), // _inc/client/sharing/publicize.jsx:72
@@ -381,20 +381,20 @@ __( "Jetpack Stats People", "jetpack" ), // _inc/client/at-a-glance/stats/index.
 __( "Click to view detailed stats.", "jetpack" ), // _inc/client/at-a-glance/stats/index.jsx:97
 __( "Views: %(numberOfViews)s", "jetpack" ), // _inc/client/at-a-glance/stats/index.jsx:95
 __( "Week of %(date)s", "jetpack" ), // _inc/client/at-a-glance/stats/index.jsx:79
+__( "I already use this app.", "jetpack" ), // _inc/client/components/apps-card/index.jsx:79
+__( "Download the free apps", "jetpack" ), // _inc/client/components/apps-card/index.jsx:73
+__( "Manage all your sites from a single dashboard: publish content, track stats, moderate comments, and so much more from anywhere in the world.", "jetpack" ), // _inc/client/components/apps-card/index.jsx:66
+__( "Get WordPress Apps for every device", "jetpack" ), // _inc/client/components/apps-card/index.jsx:62
 __( "By connecting your site you agree to our fascinating {{tosLink}}Terms of Service{{/tosLink}} and to {{shareDetailsLink}}share details{{/shareDetailsLink}} with WordPress.com", "jetpack" ), // _inc/client/components/connect-button/index.jsx:144
 __( "Connect Jetpack", "jetpack" ), // _inc/client/components/connect-button/index.jsx:129
 __( "Manage site connection", "jetpack" ), // _inc/client/components/connect-button/index.jsx:114
 __( "Link to WordPress.com", "jetpack" ), // _inc/client/components/connect-button/index.jsx:94
 __( "Unlink me from WordPress.com", "jetpack" ), // _inc/client/components/connect-button/index.jsx:77
-__( "I already use this app.", "jetpack" ), // _inc/client/components/apps-card/index.jsx:79
-__( "Download the free apps", "jetpack" ), // _inc/client/components/apps-card/index.jsx:73
-__( "Manage all your sites from a single dashboard: publish content, track stats, moderate comments, and so much more from anywhere in the world.", "jetpack" ), // _inc/client/components/apps-card/index.jsx:66
-__( "Get WordPress Apps for every device", "jetpack" ), // _inc/client/components/apps-card/index.jsx:62
-_x( "Settings", "Noun. Displayed to screen readers.", "jetpack" ), // _inc/client/components/dash-section-header/index.jsx:52
 _x( "Paid", "Short label appearing near a paid feature configuration block.", "jetpack" ), // _inc/client/components/dash-item/index.jsx:109
 __( "Settings", "jetpack" ), // _inc/client/components/dash-item/index.jsx:95
 __( "Active", "jetpack" ), // _inc/client/components/dash-item/index.jsx:84
 _x( "Updates needed", "Short warning message", "jetpack" ), // _inc/client/components/dash-item/index.jsx:78
+_x( "Settings", "Noun. Displayed to screen readers.", "jetpack" ), // _inc/client/components/dash-section-header/index.jsx:52
 _x( "Privacy", "Shorthand for Privacy Policy.", "jetpack" ), // _inc/client/components/footer/index.jsx:174
 __( "Automattic's Privacy Policy", "jetpack" ), // _inc/client/components/footer/index.jsx:172
 _x( "Terms", "Shorthand for Terms of Service.", "jetpack" ), // _inc/client/components/footer/index.jsx:163
