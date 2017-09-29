@@ -40,7 +40,7 @@ if ( ! Jetpack::is_active() && ! Jetpack::is_development_mode() ) {
  * Filter extra tools (not modules) to include.
  *
  * @since 2.4.0
- * @since 5.4.0 can be used when Jetpack is not connected to WordPress.com and not in development mode.
+ * @since 5.4.0 can be used in multisite when Jetpack is not connected to WordPress.com and not in development mode.
  *
  * @param array $tools Array of extra tools to include.
  */
