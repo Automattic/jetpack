@@ -504,6 +504,16 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					$wga = get_option( $option_name, array() );
 					$wga['code'] = $value['code']; // maintain compatibility with wp-google-analytics
 
+					/**
+					 * Allow newer versions of this endpoint to filter in additional fields for Google Analytics
+					 *
+					 * @since 5.4.0
+					 *
+					 * @param array $wga Associative array of existing Google Analytics settings.
+					 * @param array $value Associative array of new Google Analytics settings passed to the endpoint.
+					 */
+					$wga = apply_filters( 'site_settings_update_wga', $wga, $value );
+
 					if ( update_option( $option_name, $wga ) ) {
 						$updated[ $key ] = $value;
 					}

@@ -1654,10 +1654,15 @@ class Jetpack {
 	 * Loads the currently active modules.
 	 */
 	public static function load_modules() {
-		if ( ! self::is_active() && !self::is_development_mode() ) {
-			if ( ! is_multisite() || ! get_site_option( 'jetpack_protect_active' ) ) {
-				return;
-			}
+		if (
+			! self::is_active()
+			&& ! self::is_development_mode()
+			&& (
+				! is_multisite()
+				|| ! get_site_option( 'jetpack_protect_active' )
+			)
+		) {
+			return;
 		}
 
 		$version = Jetpack_Options::get_option( 'version' );
@@ -1734,8 +1739,7 @@ class Jetpack {
 		do_action( 'jetpack_modules_loaded' );
 
 		// Load module-specific code that is needed even when a module isn't active. Loaded here because code contained therein may need actions such as setup_theme.
-		if ( Jetpack::is_active() || Jetpack::is_development_mode() )
-			require_once( JETPACK__PLUGIN_DIR . 'modules/module-extras.php' );
+		require_once( JETPACK__PLUGIN_DIR . 'modules/module-extras.php' );
 	}
 
 	/**
@@ -5252,8 +5256,14 @@ p {
 			) {
 				$jpUser = get_user_by( 'email', $jpo->onboarding->jpUser );
 				if ( is_a( $jpUser, 'WP_User' ) ) {
-					$token_type = 'user';
-					$token->external_user_id = $jpUser->ID;
+					wp_set_current_user( $jpUser->ID );
+					$user_can = is_multisite()
+						? current_user_can_for_blog( get_current_blog_id(), 'manage_options' )
+						: current_user_can( 'manage_options' );
+					if ( $user_can ) {
+						$token_type = 'user';
+						$token->external_user_id = $jpUser->ID;
+					}
 				}
 			}
 		}
@@ -6019,6 +6029,9 @@ p {
 	/**
 	 * Checks whether the sync_error_idc option is valid or not, and if not, will do cleanup.
 	 *
+	 * @since 4.4.0
+	 * @since 5.4.0 Do not call get_sync_error_idc_option() unless site is in IDC
+	 *
 	 * @return bool
 	 */
 	public static function validate_sync_error_idc_option() {
@@ -6042,8 +6055,8 @@ p {
 
 		// Is the site opted in and does the stored sync_error_idc option match what we now generate?
 		$sync_error = Jetpack_Options::get_option( 'sync_error_idc' );
-		$local_options = self::get_sync_error_idc_option();
 		if ( $idc_allowed && $sync_error && self::sync_idc_optin() ) {
+			$local_options = self::get_sync_error_idc_option();
 			if ( $sync_error['home'] === $local_options['home'] && $sync_error['siteurl'] === $local_options['siteurl'] ) {
 				$is_valid = true;
 			}
@@ -6091,31 +6104,37 @@ p {
 	 * Gets the value that is to be saved in the jetpack_sync_error_idc option.
 	 *
 	 * @since 4.4.0
+	 * @since 5.4.0 Add transient since home/siteurl retrieved directly from DB
 	 *
 	 * @param array $response
 	 * @return array Array of the local urls, wpcom urls, and error code
 	 */
 	public static function get_sync_error_idc_option( $response = array() ) {
-		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-functions.php';
-		$local_options = array(
-			'home'    => Jetpack_Sync_Functions::home_url(),
-			'siteurl' => Jetpack_Sync_Functions::site_url(),
-		);
+		$returned_values = get_transient( 'jetpack_idc_option' );
+		if ( false === $returned_values ) {
+			require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-functions.php';
+			$local_options = array(
+				'home'    => Jetpack_Sync_Functions::home_url(),
+				'siteurl' => Jetpack_Sync_Functions::site_url(),
+			);
 
-		$options = array_merge( $local_options, $response );
+			$options = array_merge( $local_options, $response );
 
-		$returned_values = array();
-		foreach( $options as $key => $option ) {
-			if ( 'error_code' === $key ) {
-				$returned_values[ $key ] = $option;
-				continue;
+			$returned_values = array();
+			foreach( $options as $key => $option ) {
+				if ( 'error_code' === $key ) {
+					$returned_values[ $key ] = $option;
+					continue;
+				}
+
+				if ( is_wp_error( $normalized_url = self::normalize_url_protocol_agnostic( $option ) ) ) {
+					continue;
+				}
+
+				$returned_values[ $key ] = $normalized_url;
 			}
 
-			if ( is_wp_error( $normalized_url = self::normalize_url_protocol_agnostic( $option ) ) ) {
-				continue;
-			}
-
-			$returned_values[ $key ] = $normalized_url;
+			set_transient( 'jetpack_idc_option', $returned_values, MINUTE_IN_SECONDS );
 		}
 
 		return $returned_values;
@@ -6727,13 +6746,12 @@ p {
 	public function wp_dashboard_setup() {
 		if ( self::is_active() ) {
 			add_action( 'jetpack_dashboard_widget', array( __CLASS__, 'dashboard_widget_footer' ), 999 );
-			$widget_title = __( 'Site Stats', 'jetpack' );
 		}
 
 		if ( has_action( 'jetpack_dashboard_widget' ) ) {
 			wp_add_dashboard_widget(
 				'jetpack_summary_widget',
-				$widget_title,
+				esc_html__( 'Site Stats', 'jetpack' ),
 				array( __CLASS__, 'dashboard_widget' )
 			);
 			wp_enqueue_style( 'jetpack-dashboard-widget', plugins_url( 'css/dashboard-widget.css', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
