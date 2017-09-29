@@ -51,8 +51,12 @@ const concat_list = [
  * This list will need to have files added as we move to the add_style RTL approach.
  */
 const separate_list = [
+	'modules/carousel/jetpack-carousel.css',
+	'modules/contact-form/css/grunion.css',
+	'modules/related-posts/related-posts.css',
 	'modules/shortcodes/css/recipes.css',
 	'modules/shortcodes/css/recipes-print.css',
+	'modules/tiled-gallery/tiled-gallery/tiled-gallery.css',
 ];
 
 const pathModifier = function( file, contents ) {
@@ -85,7 +89,7 @@ gulp.task( 'frontendcss', [ 'frontendcss:separate' ], function() {
 		) )
 		.pipe( gulp.dest( 'css' ) )
 		.pipe( rtlcss() )
-		.pipe( rename( { suffix: '.rtl' } ) )
+		.pipe( rename( { suffix: '-rtl' } ) )
 		.pipe( gulp.dest( 'css/' ) )
 		.on( 'end', function() {
 			util.log( 'Front end modules CSS finished.' );
