@@ -333,11 +333,11 @@ class Jetpack_Options {
 	 * Deletes an option via $wpdb query.
 	 *
 	 * @param string $name Option name.
-	 * 
+	 *
 	 * @return bool Is the option deleted?
 	 */
 	static function delete_raw_option( $name ) {
-		if ( self::by_pass_raw_option( $name ) ) {
+		if ( self::bypass_raw_option( $name ) ) {
 			return delete_option( $name );
 		}
 		global $wpdb;
@@ -355,7 +355,7 @@ class Jetpack_Options {
 	 * @return bool Is the option updated?
 	 */
 	static function update_raw_option( $name, $value, $autoload = false ) {
-		if ( self::by_pass_raw_option( $name ) ) {
+		if ( self::bypass_raw_option( $name ) ) {
 			return update_option( $name, $value, $autoload );
 		}
 		global $wpdb;
@@ -394,7 +394,7 @@ class Jetpack_Options {
 	 * @return mixed Option value, or null if option is not found and default is not specified.
 	 */
 	static function get_raw_option( $name, $default = null ) {
-		if ( self::by_pass_raw_option( $name ) ) {
+		if ( self::bypass_raw_option( $name ) ) {
 			return get_option( $name, $default );
 		}
 
@@ -415,26 +415,25 @@ class Jetpack_Options {
 	}
 
 	/**
-	 * This function lets us by pass certain options to be gotten via the raw sql calls.
-	 * Instead we should use the regular wp calls.
+	 * This function checks for a constant that, if present, will disable direct DB queries Jetpack uses to manage certain options and force Jetpack to always use Options API instead.
+	 * Options can be selectively managed via a blacklist by filtering option names via the jetpack_disabled_raw_option filter.
+	 *
 	 * @param $name Option name
 	 *
 	 * @return bool
 	 */
-	static function by_pass_raw_option( $name ) {
+	static function bypass_raw_option( $name ) {
 
-		if ( Jetpack_Constants::get_constant( 'JETPACK_DISABLE_RAW_OPTION' ) ) {
+		if ( Jetpack_Constants::get_constant( 'JETPACK_DISABLE_RAW_OPTIONS' ) ) {
 			return true;
 		}
 		/**
-		 * Allows us to disable the some raw options.
+		 * Allows to disable particular raw options.
 		 * @since 5.5.0
 		 *
-		 *
-		 * @param array $disabled_raw_options has the key set of the option that you want to disable
+		 * @param array $disabled_raw_options An array of option names that you can selectively blacklist from being managed via direct database queries.
 		 */
-		$disabled_raw_options = apply_filters( 'jetpack_disabled_raw_option', array() );
-		return isset( $disabled_raw_options[$name] );
+		$disabled_raw_options = apply_filters( 'jetpack_disabled_raw_options', array() );
+		return isset( $disabled_raw_options[ $name ] );
 	}
-
 }

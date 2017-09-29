@@ -17,7 +17,7 @@ class WP_Test_Jetpack_Options extends WP_UnitTestCase {
 		}
 		return $value;
 	}
-	
+
 	function test_delete_non_compact_option_returns_true_when_successfully_deleted() {
 		Jetpack_Options::update_option( 'migrate_for_idc', true );
 
@@ -32,7 +32,7 @@ class WP_Test_Jetpack_Options extends WP_UnitTestCase {
 		// Did Jetpack_Options::delete_option() properly return true?
 		$this->assertTrue( $deleted );
 	}
-	
+
 	function test_raw_option_update_will_bypass_wp_cache_and_filters() {
 		$option_name = 'test_option';
 		add_action( 'added_option', array( $this, 'cache_option' ), 10, 2 );
@@ -48,7 +48,7 @@ class WP_Test_Jetpack_Options extends WP_UnitTestCase {
 
 
 	function test_raw_option_with_constant_does_not_by_pass_wp_cache_filters() {
-		Jetpack_Constants::set_constant( 'JETPACK_DISABLE_RAW_OPTION', true);
+		Jetpack_Constants::set_constant( 'JETPACK_DISABLE_RAW_OPTIONS', true);
 		$option_name = 'test_option_with_constant';
 		add_action( 'added_option', array( $this, 'cache_option' ), 10, 2 );
 		add_filter( 'option_' . $option_name, array( $this, 'get_test_option_from_cache' ) );
@@ -60,11 +60,11 @@ class WP_Test_Jetpack_Options extends WP_UnitTestCase {
 
 		remove_action( 'added_option', array( $this, 'cache_option' ), 10, 2 );
 		remove_filter( 'option_'. $option_name, array( $this, 'get_test_option_from_cache' ) );
-		Jetpack_Constants::clear_single_constant( 'JETPACK_DISABLE_RAW_OPTION' );
+		Jetpack_Constants::clear_single_constant( 'JETPACK_DISABLE_RAW_OPTIONS' );
 	}
 
 	function test_raw_option_with_filter_does_not_by_pass_wp_cache_filters() {
-		add_filter( 'jetpack_disabled_raw_option', array( $this, 'set_disable_raw_option' ) );
+		add_filter( 'jetpack_disabled_raw_options', array( $this, 'set_disable_raw_option' ) );
 		$option_name = 'test_option_with_filter';
 		add_action( 'added_option', array( $this, 'cache_option' ), 10, 2 );
 		add_filter( 'option_' . $option_name, array( $this, 'get_test_option_from_cache' ) );
@@ -76,7 +76,7 @@ class WP_Test_Jetpack_Options extends WP_UnitTestCase {
 
 		remove_action( 'added_option', array( $this, 'cache_option' ), 10, 2 );
 		remove_filter( 'option_'. $option_name, array( $this, 'get_test_option_from_cache' ) );
-		remove_filter( 'jetpack_disabled_raw_option', array( $this, 'set_disable_raw_option' ) );
+		remove_filter( 'jetpack_disabled_raw_options', array( $this, 'set_disable_raw_option' ) );
 	}
 
 	function set_disable_raw_option( $options ) {
