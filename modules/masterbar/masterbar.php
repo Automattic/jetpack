@@ -906,9 +906,9 @@ class A8C_WPCOM_Masterbar {
 					'label' => esc_html__( 'Plugins', 'jetpack' ),
 				),
 				array(
-					'url'   => 'https://wordpress.com/plugins/browse/' . esc_attr( $this->primary_site_slug ),
+					'url'   => 'https://wordpress.com/plugins/manage/' . esc_attr( $this->primary_site_slug ),
 					'id'    => 'wp-admin-bar-plugins-add',
-					'label' => esc_html_x( 'Add', 'Label for the button on the Masterbar to add a new plugin', 'jetpack' ),
+					'label' => esc_html_x( 'Manage', 'Label for the button on the Masterbar to manage plugins', 'jetpack' ),
 				)
 			);
 
