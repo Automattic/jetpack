@@ -53,6 +53,7 @@ const concat_list = [
 const separate_list = [
 	'modules/carousel/jetpack-carousel.css',
 	'modules/contact-form/css/grunion.css',
+	'modules/related-posts/related-posts.css',
 	'modules/shortcodes/css/recipes.css',
 	'modules/shortcodes/css/recipes-print.css',
 	'modules/tiled-gallery/tiled-gallery/tiled-gallery.css',
