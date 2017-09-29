@@ -1654,10 +1654,15 @@ class Jetpack {
 	 * Loads the currently active modules.
 	 */
 	public static function load_modules() {
-		if ( ! self::is_active() && !self::is_development_mode() ) {
-			if ( ! is_multisite() || ! get_site_option( 'jetpack_protect_active' ) ) {
-				return;
-			}
+		if (
+			! self::is_active()
+			&& ! self::is_development_mode()
+			&& (
+				! is_multisite()
+				|| ! get_site_option( 'jetpack_protect_active' )
+			)
+		) {
+			return;
 		}
 
 		$version = Jetpack_Options::get_option( 'version' );
@@ -1734,8 +1739,7 @@ class Jetpack {
 		do_action( 'jetpack_modules_loaded' );
 
 		// Load module-specific code that is needed even when a module isn't active. Loaded here because code contained therein may need actions such as setup_theme.
-		if ( Jetpack::is_active() || Jetpack::is_development_mode() )
-			require_once( JETPACK__PLUGIN_DIR . 'modules/module-extras.php' );
+		require_once( JETPACK__PLUGIN_DIR . 'modules/module-extras.php' );
 	}
 
 	/**
