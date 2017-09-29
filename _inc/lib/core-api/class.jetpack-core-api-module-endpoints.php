@@ -1079,7 +1079,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 	 */
 	public function can_request( $request ) {
 		$req_params = $request->get_params();
-		if ( isset( $req_params['onboarding'] ) && isset( $req_params['onboarding']['token'] ) && isset( $req_params['rest_route'] ) ) {
+		if ( ! empty( $req_params['onboarding']['token'] ) && isset( $req_params['rest_route'] ) ) {
 			return Jetpack::validate_onboarding_token_action( $req_params['onboarding']['token'], $req_params['rest_route'] );
 		}
 
