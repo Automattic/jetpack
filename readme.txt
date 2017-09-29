@@ -114,7 +114,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 * Add Schema.org markup to the Contact Info Widget.
-* Add a new "Date" field to the Contact Form. 
+* Add a new "Date" field to the Contact Form.
+* Added support in the Google Analytics feature for IP anonymization and basic WooCommerce tracking.
 * Do not show any update notices when in [development mode](http://jetpack.com/support/development-mode).
 * Improve our documentation to help contributors set up a unit testing environment.
 * Avoid conflicts between Jetpack's Infinite Scroll and other Infinite Scroll plugins.
