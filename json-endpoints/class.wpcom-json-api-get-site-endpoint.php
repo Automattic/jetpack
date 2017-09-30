@@ -1,4 +1,10 @@
 <?php
+/*
+ * WARNING: This file is distributed verbatim in Jetpack.
+ * There should be nothing WordPress.com specific in this file.
+ *
+ * @hide-in-jetpack
+ */
 
 new WPCOM_JSON_API_GET_Site_Endpoint( array(
 	'description' => 'Get information about a site.',
@@ -189,14 +195,14 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		$this->site = $this->get_platform()->get_site( $blog_id );
 
 		/**
- 		 * Filter the structure of information about the site to return.
- 		 *
- 		 * @module json-api
- 		 *
- 		 * @since 3.9.3
- 		 *
- 		 * @param array $site_format Data structure.
- 		 */
+		 * Filter the structure of information about the site to return.
+		 *
+		 * @module json-api
+		 *
+		 * @since 3.9.3
+		 *
+		 * @param array $site_format Data structure.
+		 */
 		$default_fields = array_keys( apply_filters( 'sites_site_format', self::$site_format ) );
 
 		$response_keys = is_array( $this->fields_to_include ) ?
@@ -210,8 +216,21 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		return $this->render_response_keys( $response_keys );
 	}
 
-	private function has_blog_access( $token_details, $wpcom_blog_id ) {
-		if ( is_user_member_of_blog( get_current_user_id(), get_current_blog_id() ) ) {
+	/**
+	 * Checks that the current user has access to the current blog,
+	 * and failing that checks that we have a valid blog token.
+	 *
+	 * @param $token_details array Details obtained from the authorization token
+	 * @param $blog_id int The server-side blog id on wordpress.com
+	 *
+	 * @return bool
+	 */
+	private function has_blog_access( $token_details, $blog_id ) {
+		$current_blog_id = (  defined( 'IS_WPCOM' ) && IS_WPCOM ) ?
+			$blog_id :
+			get_current_blog_id();
+
+		if ( is_user_member_of_blog( get_current_user_id(), $current_blog_id ) ) {
 			return true;
 		}
 
@@ -223,7 +242,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		if (
 			'jetpack' === $token_details['auth'] &&
 			'blog' === $token_details['access'] &&
-			$wpcom_blog_id === $token_details['blog_id']
+			$blog_id === $token_details['blog_id']
 		) {
 			return true;
 		}
