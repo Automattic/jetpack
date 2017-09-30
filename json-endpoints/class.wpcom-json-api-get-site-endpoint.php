@@ -210,8 +210,21 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		return $this->render_response_keys( $response_keys );
 	}
 
+	/**
+	 * Checks that the current user has access to the current blog,
+	 * and failing that checks that we have a valid blog token.
+	 *
+	 * @param $token_details array Details obtained from the authorization token
+	 * @param $blog_id int The server-side blog id on wordpress.com
+	 *
+	 * @return bool
+	 */
 	private function has_blog_access( $token_details, $blog_id ) {
-		if ( is_user_member_of_blog( get_current_user_id(), $blog_id ) ) {
+		$current_blog_id = (  defined( 'IS_WPCOM' ) && IS_WPCOM ) ?
+			$blog_id :
+			get_current_blog_id();
+
+		if ( is_user_member_of_blog( get_current_user_id(), $current_blog_id ) ) {
 			return true;
 		}
 
