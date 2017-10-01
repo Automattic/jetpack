@@ -1552,10 +1552,11 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			 * Filter the contact form submit button class attribute.
 			 *
 			 * @module contact-form
+			 * @since 5.3.0
 			 *
 			 * @param string $class Additional CSS classes for button attribute.
 			 */
-			$submit_button_class = apply_filters( 'grunion_contact_form_submit_button_class', $submit_button_class );
+			$submit_button_class = apply_filters( 'jetpack_contact_form_submit_button_class', $submit_button_class );
 			
 			$r .= "\t\t<input type='submit' value='" . esc_attr( $form->get_attribute( 'submit_button_text' ) ) . "' class='" . $submit_button_class . "'/>\n";
 			if ( is_user_logged_in() ) {
@@ -2566,13 +2567,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		$placeholder       = $this->get_attribute( 'placeholder' );
 		$class             = $this->get_attribute( 'class' );
 		
-		/**
-		 * Filter the contact form inputs class attribute.
-		 *
-		 * @module contact-form
-		 *
-		 * @param string $class Additional CSS classes for input attribute.
-		 */
+		/** This filter is already documented in modules/contact-form/grunion-contact-form.php */
 		$class             = apply_filters( 'grunion_contact_form_input_class', $class );
 		
 		$field_placeholder = ( ! empty( $placeholder ) ) ? "placeholder='" . esc_attr( $placeholder ) . "'" : '';
