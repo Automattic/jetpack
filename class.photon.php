@@ -437,7 +437,7 @@ class Jetpack_Photon {
 			 *
 			 * 	 @type $image Image URL.
 			 * 	 @type $attachment_id Attachment ID of the image.
-			 * 	 @type $size Image size. Can be a string (name of the image size, e.g. full) or an integer.
+			 * 	 @type $size Image size. Can be a string (name of the image size, e.g. full) or an array of width and height.
 			 * }
 			 */
 			false === apply_filters( 'jetpack_photon_admin_allow_image_downsize', false, compact( 'image', 'attachment_id', 'size' ) )
@@ -458,7 +458,7 @@ class Jetpack_Photon {
 		 *
 		 * 	 @type $image Image URL.
 		 * 	 @type $attachment_id Attachment ID of the image.
-		 * 	 @type $size Image size. Can be a string (name of the image size, e.g. full) or an integer.
+		 * 	 @type $size Image size. Can be a string (name of the image size, e.g. full) or an array of width and height.
 		 * }
 		 */
 		if ( apply_filters( 'jetpack_photon_override_image_downsize', false, compact( 'image', 'attachment_id', 'size' ) ) ) {
@@ -478,7 +478,9 @@ class Jetpack_Photon {
 
 			$intermediate = true; // For the fourth array item returned by the image_downsize filter.
 
-			// If an image is requested with a size known to WordPress, use that size's settings with Photon
+			// If an image is requested with a size known to WordPress, use that size's settings with Photon.
+			// WP states that `add_image_size()` should use a string for the name, but doesn't enforce that.
+			// Due to differences in how Core and Photon check for the registered image size, we check both types.
 			if ( ( is_string( $size ) || is_int( $size ) ) && array_key_exists( $size, self::image_sizes() ) ) {
 				$image_args = self::image_sizes();
 				$image_args = $image_args[ $size ];

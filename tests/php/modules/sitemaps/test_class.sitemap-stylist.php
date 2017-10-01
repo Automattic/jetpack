@@ -6,7 +6,7 @@
  * @since 4.7.0
  */
 
-require dirname( __FILE__ ) . '/../../../../modules/sitemaps/sitemap-stylist.php';
+require_once dirname( __FILE__ ) . '/../../../../modules/sitemaps/sitemap-stylist.php';
 
 /**
  * Test class for Jetpack_Sitemap_Stylist.

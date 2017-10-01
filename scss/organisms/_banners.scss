@@ -16,6 +16,14 @@
 	.jp-banner__button-container {
 		padding: rem( 12px ) 0 0;
 	}
+
+	.jp-banner__tos-blurb {
+		display: block;
+		padding: rem( 6px ) 0;
+		line-height: 1.5;
+		font-size: rem( 11px );
+		color: $gray-dark;
+	}
 }
 
 .jp-banner .notice-dismiss {
@@ -196,6 +204,7 @@
 }
 
 .updated .notice-dismiss {
+	z-index: 1;
 	text-decoration: none;
 }
 // end overrides
@@ -241,7 +250,17 @@
 
 .jp-wpcom-connect__content-icon {
 	float: right;
-	margin: 0 0 rem( 36px ) rem( 36px );
+	margin: 0 rem( 24px ) 0 rem( 36px );
+
+	&.jp-connect-illo {
+
+		@include breakpoint(tablet) {
+			float: none;
+			width: 100%;
+			text-align: center;
+			margin: rem( 36px ) 0 rem( 24px );
+		}
+	}
 }
 
 .jp-wpcom-connect__slide {
@@ -255,7 +274,7 @@
 .jp-wpcom-connect__content-container .jp-banner__button-container {
 	@include minbreakpoint(tablet) {
 		position: absolute;
-		bottom: rem( 16px );
+		bottom: rem( 8px );
 	};
 }
 
@@ -323,6 +342,7 @@
 		width: rem( 20px );
 		height: rem( 20px );
 		padding: rem( 4px );
+		text-align: center;
 	}
 
 	// svg fill swaps

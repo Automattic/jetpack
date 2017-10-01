@@ -18,6 +18,7 @@ tools
 package.json
 Gruntfile.js
 gulpfile.js
+gulpfile.babel.js
 node_modules
 languages/jetpack.pot
 LICENSE.txt

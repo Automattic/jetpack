@@ -162,7 +162,7 @@ div.sd-box {
 	height: 18px;
 	position: absolute;
 	display: flex;
-	font-family: "Open Sans", sans-serif;
+	font-family: -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",sans-serif;
 	margin-top: 4px;
 }
 

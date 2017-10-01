@@ -26,7 +26,6 @@ describe( 'SettingsGroup', () => {
 			'markdown',
 			'infinite-scroll',
 			'gravatar-hovercards',
-			'omnisearch',
 			'custom-css',
 			'sharedaddy',
 			'widgets',

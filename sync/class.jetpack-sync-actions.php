@@ -1,5 +1,7 @@
 <?php
 
+require_once dirname( __FILE__ ) . '/class.jetpack-sync-modules.php';
+
 /**
  * The role of this class is to hook the Sync subsystem into WordPress - when to listen for actions,
  * when to send, when to perform a full sync, etc.
@@ -24,10 +26,6 @@ class Jetpack_Sync_Actions {
 		} else if ( wp_next_scheduled( 'jetpack_sync_cron' ) ) {
 			self::clear_sync_cron_jobs();
 		}
-
-		// On jetpack authorization, schedule a full sync
-		add_action( 'jetpack_client_authorized', array( __CLASS__, 'do_full_sync' ), 10, 0 );
-
 		// When importing via cron, do not sync
 		add_action( 'wp_cron_importer_hook', array( __CLASS__, 'set_is_importing_true' ), 1 );
 
@@ -54,7 +52,6 @@ class Jetpack_Sync_Actions {
 		}
 
 		add_action( 'init', array( __CLASS__, 'add_sender_shutdown' ), 90 );
-
 	}
 
 	static function add_sender_shutdown() {
@@ -89,8 +86,10 @@ class Jetpack_Sync_Actions {
 
 	static function sync_allowed() {
 		require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
-		return ( ! Jetpack_Sync_Settings::get_setting( 'disable' ) && Jetpack::is_active() && ! ( Jetpack::is_development_mode() || Jetpack::is_staging_site() ) )
-			   || defined( 'PHPUNIT_JETPACK_TESTSUITE' );
+		return ( ! Jetpack_Sync_Settings::get_setting( 'disable' )
+		         && ( doing_action( 'jetpack_user_authorized' ) || Jetpack::is_active() )
+		         && ! ( Jetpack::is_development_mode() || Jetpack::is_staging_site() ) )
+		       || defined( 'PHPUNIT_JETPACK_TESTSUITE' );
 	}
 
 	static function sync_via_cron_allowed() {
@@ -188,18 +187,22 @@ class Jetpack_Sync_Actions {
 		return $response;
 	}
 
-	static function do_initial_sync( $new_version = null, $old_version = null ) {
-		if ( ! empty( $old_version ) && version_compare( $old_version, '4.2', '>=' ) ) {
-			return;
+	static function do_initial_sync() {
+		// Lets not sync if we are not suppose to.
+		if ( ! self::sync_allowed() ) {
+			return false;
 		}
 
 		$initial_sync_config = array(
 			'options'         => true,
-			'network_options' => true,
 			'functions'       => true,
 			'constants'       => true,
-			'users'           => 'initial',
+			'users'           => array( get_current_user_id() ),
 		);
+
+		if ( is_multisite() ) {
+			$initial_sync_config['network_options'] = true;
+		}
 
 		self::do_full_sync( $initial_sync_config );
 	}
@@ -209,8 +212,15 @@ class Jetpack_Sync_Actions {
 			return false;
 		}
 
+		$full_sync_module = Jetpack_Sync_Modules::get_module( 'full-sync' );
+
+		if ( ! $full_sync_module ) {
+			return false;
+		}
+
 		self::initialize_listener();
-		Jetpack_Sync_Modules::get_module( 'full-sync' )->start( $modules );
+
+		$full_sync_module->start( $modules );
 
 		return true;
 	}
@@ -416,8 +426,9 @@ class Jetpack_Sync_Actions {
 		$cron_timestamps = array_keys( _get_cron_array() );
 		$next_cron = $cron_timestamps[0] - time();
 
+		$full_sync_status = ( $sync_module ) ? $sync_module->get_status() : array();
 		return array_merge(
-			$sync_module->get_status(),
+			$full_sync_status,
 			array(
 				'cron_size'             => count( $cron_timestamps ),
 				'next_cron'             => $next_cron,
@@ -447,5 +458,7 @@ add_action( 'plugins_loaded', array( 'Jetpack_Sync_Actions', 'init' ), 90 );
 
 
 // We need to define this here so that it's hooked before `updating_jetpack_version` is called
-add_action( 'updating_jetpack_version', array( 'Jetpack_Sync_Actions', 'do_initial_sync' ), 10, 2 );
+add_action( 'updating_jetpack_version', array( 'Jetpack_Sync_Actions', 'do_initial_sync' ), 10, 0 );
 add_action( 'updating_jetpack_version', array( 'Jetpack_Sync_Actions', 'cleanup_on_upgrade' ), 10, 2 );
+add_action( 'jetpack_user_authorized', array( 'Jetpack_Sync_Actions', 'do_initial_sync' ), 10, 0 );
+

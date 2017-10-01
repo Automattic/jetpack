@@ -143,23 +143,7 @@ class WP_Test_Jetpack_SSO_Helpers extends WP_UnitTestCase {
 		$this->assertContains( 'jetpack.wordpress.com', $hosts );
 	}
 
-	function test_allow_redirect_host_api_base_not_added_when_not_in_dev() {
-		add_filter( 'jetpack_development_version', '__return_false' );
-		$hosts = Jetpack_SSO_Helpers::allowed_redirect_hosts(
-			array( 'test.com' ),
-			'http://fakesite.com/jetpack.'
-		);
-		$this->assertInternalType( 'array', $hosts );
-		$this->assertCount( 4, $hosts );
-		$this->assertContains( 'test.com', $hosts );
-		$this->assertContains( 'wordpress.com', $hosts );
-		$this->assertContains( 'jetpack.wordpress.com', $hosts );
-		$this->assertNotContains( 'fakesite.com', $hosts );
-		remove_filter( 'jetpack_development_version', '__return_false' );
-	}
-
-	function test_allowed_redirect_hosts_api_base_added_in_dev_mode() {
-		add_filter( 'jetpack_development_mode', '__return_true' );
+	function test_allowed_redirect_hosts_api_base_added() {
 		$hosts = Jetpack_SSO_Helpers::allowed_redirect_hosts(
 			array( 'test.com' ),
 			'http://fakesite.com/jetpack.'
@@ -167,7 +151,6 @@ class WP_Test_Jetpack_SSO_Helpers extends WP_UnitTestCase {
 		$this->assertInternalType( 'array', $hosts );
 		$this->assertCount( 5, $hosts );
 		$this->assertContains( 'fakesite.com', $hosts );
-		remove_filter( 'jetpack_development_mode', '__return_true' );
 	}
 
 	function test_allowed_redirect_hosts_api_base_added_on_dev_version() {

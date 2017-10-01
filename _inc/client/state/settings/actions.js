@@ -117,11 +117,15 @@ export const updateSettings = ( newOptionValues, type = '' ) => {
 
 		dispatch( removeNotice( 'module-setting-update' ) );
 		dispatch( removeNotice( 'module-setting-update-success' ) );
-		dispatch( createNotice(
-			'is-info',
-			messages.progress,
-			{ id: 'module-setting-update' }
-		) );
+
+		const suppressNoticeFor = [ 'dismiss_dash_app_card', 'dismiss_empty_stats_card', 'show_welcome_for_new_plan' ];
+		if ( 'object' === typeof newOptionValues && ! some( suppressNoticeFor, ( optionValue ) => optionValue in newOptionValues ) ) {
+			dispatch( createNotice(
+				'is-info',
+				messages.progress,
+				{ id: 'module-setting-update' }
+			) );
+		}
 
 		dispatch( {
 			type: JETPACK_SETTINGS_UPDATE,
@@ -139,11 +143,13 @@ export const updateSettings = ( newOptionValues, type = '' ) => {
 
 			dispatch( removeNotice( 'module-setting-update' ) );
 			dispatch( removeNotice( 'module-setting-update-success' ) );
-			dispatch( createNotice(
-				'is-success',
-				messages.success,
-				{ id: 'module-setting-update-success', duration: 2000 }
-			) );
+			if ( 'object' === typeof newOptionValues && ! some( suppressNoticeFor, ( optionValue ) => optionValue in newOptionValues ) ) {
+				dispatch( createNotice(
+					'is-success',
+					messages.success,
+					{ id: 'module-setting-update-success', duration: 2000 }
+				) );
+			}
 		} ).catch( error => {
 			dispatch( {
 				type: JETPACK_SETTINGS_UPDATE_FAIL,

@@ -34,6 +34,12 @@ for i in "$@"; do
         -u=* | --url=* )            SITE_URL="${i#*=}"
                                     shift
                                     ;;
+        --force_register=* )        FORCE_REGISTER="${i#*=}"
+                                    shift
+                                    ;;
+        --force_connect=* )         FORCE_CONNECT="${i#*=}"
+                                    shift
+                                    ;;
         -h | --help )               usage
                                     exit
                                     ;;

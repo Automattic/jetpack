@@ -192,3 +192,21 @@ export function areThereUnsavedSettings( state ) {
 export function appsCardDismissed( state ) {
 	return get( state.jetpack.settings.items, 'dismiss_dash_app_card', false );
 }
+
+/**
+ * Returns true if Empty Stats card has been dismissed.
+ * @param  {Object}  state Global state tree
+ * @return {Boolean} Whether the card has been dismissed
+ */
+export function emptyStatsCardDismissed( state ) {
+	return get( state.jetpack.settings.items, 'dismiss_empty_stats_card', false );
+}
+
+/**
+ * Returns true if a new plan has been purchased.
+ * @param  {Object}  state Global state tree
+ * @return {Boolean} Whether a new plan has been purchased.
+ */
+export function showWelcomeForNewPlan( state ) {
+	return get( state.jetpack.settings.items, 'show_welcome_for_new_plan', false );
+}

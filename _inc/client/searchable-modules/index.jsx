@@ -43,7 +43,6 @@ export const SearchableModules = moduleSettingsForm(
 				'latex',
 				'monitor',
 				'notes',
-				'omnisearch',
 				'shortcodes',
 				'shortlinks',
 				'widget-visibility',

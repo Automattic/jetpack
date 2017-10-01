@@ -198,16 +198,22 @@ function jetpack_migrate_image_widget() {
 
 		wp_set_sidebars_widgets( $sidebars_widgets );
 
-		Jetpack_Options::update_option( 'image_widget_migration', true );
-
 		// We need to refresh on widgets page for changes to take effect.
 		add_action( 'current_screen', 'jetpack_refresh_on_widget_page' );
+	} else {
+		$widget_media_image = get_option( 'widget_media_image' );
+		if ( is_array( $widget_media_image ) ) {
+			delete_option( 'widget_image' );
+		}
 	}
+	
+	Jetpack_Options::update_option( 'image_widget_migration', true );
 }
 add_action( 'widgets_init', 'jetpack_migrate_image_widget' );
 
 function jetpack_refresh_on_widget_page( $current ) {
 	if ( 'widgets' === $current->base ) {
 		wp_safe_redirect( admin_url( 'widgets.php' ) );
+		exit;
 	}
 }

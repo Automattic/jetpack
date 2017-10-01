@@ -15,7 +15,7 @@
 	text-align: center;
 	max-width: rem( 600px );
 	margin: 0 auto rem( 32px );
-	overflow: auto;
+	overflow: hidden;
 
 	@include breakpoint( "<660px" ) {
 		text-align: left;
@@ -32,6 +32,14 @@
 
 	p + img {
 		margin: rem( 32px ) 0 rem( 16px );
+	}
+
+	.dops-card {
+		margin-bottom: 0;
+	}
+
+	.jp-dialogue-card__below {
+		text-align: left;
 	}
 }
 

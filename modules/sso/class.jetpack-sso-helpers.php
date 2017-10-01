@@ -191,10 +191,7 @@ class Jetpack_SSO_Helpers {
 		$hosts[] = 'jetpack.wordpress.com';
 		$hosts[] = 'public-api.wordpress.com';
 
-		if (
-			( Jetpack::is_development_mode() || Jetpack::is_development_version() ) &&
-			( false === strpos( $api_base, 'jetpack.wordpress.com/jetpack' ) )
-		) {
+		if ( false === strpos( $api_base, 'jetpack.wordpress.com/jetpack' ) ) {
 			$base_url_parts = parse_url( esc_url_raw( $api_base ) );
 			if ( $base_url_parts && ! empty( $base_url_parts[ 'host' ] ) ) {
 				$hosts[] = $base_url_parts[ 'host' ];

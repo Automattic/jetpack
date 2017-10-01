@@ -84,6 +84,9 @@ class Publicize extends Publicize_Base {
 							class="button-connector"
 							id="wpcom-connect"><?php esc_html_e( 'Link account with WordPress.com', 'jetpack' ); ?></a>
 					</p>
+					<p class="jetpack-install-blurb">
+						<?php jetpack_render_tos_blurb(); ?>
+					</p>
 				</div>
 			</div>
 		</div>

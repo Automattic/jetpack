@@ -1,7 +1,7 @@
 === Jetpack by WordPress.com ===
 Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, blobaugh, cainm, cena, cfinke, chaselivingston, chellycat, csonnek, danielbachhuber, davoraltman, daniloercoli, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, eliorivero, enej, eoigal, erania-pinnera, ethitter, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jacobshere, jblz, jeherve, jenhooks, jenia, jgs, jkudish, jmdodd, Joen, johnjamesjacoby, jshreve, koke, kraftbj, lamdayap, lancewillett, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, michael-arestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, scarstocea, sdquirk, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Jetpack, WordPress.com, backup, security, related posts, CDN, speed, anti-spam, social sharing, SEO, video, stats
-Stable tag: 5.2.1
+Stable tag: 5.3
 Requires at least: 4.7
 Tested up to: 4.8
 
@@ -103,6 +103,82 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
+= 5.4 =
+
+* Release date: October 3, 2017
+* Release post: http://wp.me/p1moTy-67V
+
+**Major Enhancements**
+* Multiple improvements to the connection process, to allow more people to use the Jetpack plugin, even on very specific server configurations.
+* Add a new Welcome screen to guide site owners after they have purchased a Jetpack plan.
+
+**Enhancements**
+* Add Schema.org markup to the Contact Info Widget.
+* Add a new "Date" field to the Contact Form. 
+* Do not show any update notices when in [development mode](http://jetpack.com/support/development-mode).
+* Improve our documentation to help contributors set up a unit testing environment.
+* Avoid conflicts between Jetpack's Infinite Scroll and other Infinite Scroll plugins.
+* Improvements to the WordPress.com REST API to avoid issues when interacting with your site's categories and tags on WordPress.com.
+* Allow third party plugin and theme authors to add new menu items to the WordPress.com toolbar.
+* Improve the Content Options panel displayed in the Customizer with certain themes.
+* Add architecture for the Jetpack Search feature, available for Jetpack Professional users.
+* Simple Payments: improve the display of the payment items when used on your site.
+* Ensure a proper display of the Recipe shortcode on sites using an RTL language.
+* Improve the display of the Facebook posts, images, and all other Facebook embeds in your posts.
+* Synchronize the author information for all published posts.
+* Record how Jetpack was discovered and activated to better understand how site owners first discover Jetpack.
+* Improve the display and options offered with the Milestone Widget.
+
+**Bug fixes**
+* We fixed layout issues appearing in the admin interface for IE11 users.
+* Comment Form: avoid whitespace sometimes appearing below the form with some themes.
+* Contact Form: avoid errors in the post editor on sites using RTL languages.
+* Toolbar: always display the Toolbar when it's active, regardless of other admin bar settings.
+* Widget Visibility: make sure rules are correctly migrated from the old Jetpack image widget to the new WordPress Image Widget.
+* Avoid errors showing that Jetpack is out of date on WordPress.com, when running a Multisite network.
+* WP CLI: avoid warnings when using the `wp jetpack protect whitelist list` command to list the whitelisted IP addresses in the Protect feature.
+* Avoid displaying raw HTML in the Stats Configuration screen.
+* Comment edits are reflected properly in wordpress.com.
+
+= 5.3 =
+
+* Release date: September 5, 2017
+* Release post: http://wp.me/p1moTy-5Xv
+
+**Major Enhancements**
+* Full PHP 7.1 compatibility.
+* It's now possible to preview your site within WordPress.com.
+
+**Enhancements**
+* The Ads feature now gives you more options and control over the ads displayed on your site.
+* Increased performance in the admin by cutting back on unnecessary requests.
+* Loading comment avatars from Facebook and Twitter through a more secure https.
+* Admin UI is much friendlier on initial activation when there are no stats to display.
+* You're now able to stop VideoPress from looping a video during autoplay through the shortcode.
+* Made some optimizations to the Jetpack connection process which means connecting your site more is more reliable.
+* The EU Cookie Law widget got some styling improvements and looks better in any theme.
+* There's a new Jetpack CLI command to allow testing of the Jetpack connection.
+* Added the Likes and Monitor features to our recommended features list, making it easier to activate for new sites.
+* Improvements made that makes sure we have the most up-to-date version of your site when managing from WordPress.com.
+* Added a link to view your Comments in the WordPress.com toolbar.
+* Lots of minor design improvements to the Jetpack admin area.
+* We've found a few places where we were able to optimize the loading of css files.
+* Removed the Omnisearch feature.
+
+**Bug fixes**
+* Fixed compatibility issues with plugins using TinyMCE.
+* Contact Form submission emails have been fixed for sites hosted on SiteGround.
+* Updating WordPress.com themes will no longer have any problems.
+* The Sitemaps feature will no longer error with posts/images with special characters in the title.
+* There are no more conflicts with the ACF plugin when adding a new custom field.
+* Fixed a bug that would cause some plugins to throw warnings with the Shortcode feature.
+* We're no longer loading a font on the front-end for the Likes feature, which will also have some performance benefits.
+* The Jetpack admin UI had some bugs that were causing some features to not display the correct active status, which are squashed now.
+* Cleaned up our markup to avoid XHTML validation errors.
+* Brought back a filter for the Widget Visibility feature that was accidentally removed.
+* Managing your comments and comment authors more reliable from WordPress.com.
+
+
 = 5.2.1 =
 
 * Release date: August 2, 2017
@@ -128,29 +204,3 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * An inconsistency experienced in WordPress.com dashboard when Related Posts settings were set in the local site's WP Admin is now fixed.
 * Fixed a 404 when loading Open Sans font from a stylesheet plus now it's only enqueued if it will be used.
 * Solve PHP warnings when Image widget wasn't migrated.
-
-= 5.1 =
-
-* Release date: July 5th, 2017
-* Release post: https://jetpack.com/?p=20888
-
-**Major Enhancements**
-* You and your readers can now show appreciation to particularly clever comments with the new Comment Likes feature.
-
-**Enhancements**
-* Quickly visit your current site's front-end directly from the Masterbar's new "View Site" item.
-* Site data fetch from /me/sites REST API endpoint now includes `blog_public` in the list of returned options.
-* The Flickr widget now automatically displays images in a grid if there's enough room.
-* E-mail sharing is now disabled by default unless it's explicitly enabled by a filter or Akismet is active.
-
-**Compatibility Improvements**
-
-* Updated instructions in Flickr widget to reflect recent changes to the Flickr UI.
-
-**Bug fixes**
-
-* EU Cookie Law Banner cookie no longer cached.
-* WP Admin menu can now be accessed in mobile when Masterbar is displayed.
-* We now sync the `order_id` for `order_items` in older WooCommerce versions.
-* UI now handles VaultPress connection or registration problems gracefully.
-* Photon now works correctly with images uploaded before WordPress 2.7.

@@ -1,5 +1,37 @@
 <?php
 
+new WPCOM_JSON_API_Update_Site_Homepage_Endpoint( array (
+	'description'      => 'Set site homepage settings',
+	'group'            => '__do_not_document',
+	'stat'             => 'sites:1:homepage',
+	'method'           => 'POST',
+	'min_version'      => '1.1',
+	'path'             => '/sites/%s/homepage',
+	'path_labels'      => array(
+		'$site' => '(string) Site ID or domain.',
+	),
+	'request_format'  => array(
+		'is_page_on_front' => '(bool) True if we will use a page as the homepage; false to use a blog page as the homepage.',
+		'page_on_front_id' => '(int) Optional. The ID of the page to use as the homepage if is_page_on_front is true.',
+		'page_for_posts_id' => '(int) Optional. The ID of the page to use as the blog page if is_page_on_front is true.',
+	),
+	'response_format'  => array(
+		'is_page_on_front' => '(bool) True if we will use a page as the homepage; false to use a blog page as the homepage.',
+		'page_on_front_id' => '(int) The ID of the page to use as the homepage if is_page_on_front is true.',
+		'page_for_posts_id' => '(int) The ID of the page to use as the blog page if is_page_on_front is true.',
+	),
+	'example_request'  => 'https://public-api.wordpress.com/rest/v1.1/sites/82974409/homepage',
+	'example_request_data' => array(
+		'headers' => array( 'authorization' => 'Bearer YOUR_API_TOKEN' ),
+		'body' => array(
+			'is_page_on_front' => true,
+			'page_on_front_id' => 1,
+			'page_for_posts_id' => 0,
+		),
+	),
+	'example_response' => '{"is_page_on_front":true,"page_on_front_id":1,"page_for_posts_id":0}'
+) );
+
 class WPCOM_JSON_API_Update_Site_Homepage_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 	function callback( $path = '', $site_id = 0 ) {

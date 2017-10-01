@@ -108,6 +108,12 @@ class Jetpack_Sitemap_Manager {
 			10
 		);
 
+		// In case we need to purge all sitemaps, we do this.
+		add_action(
+			'jetpack_sitemaps_purge_data',
+			array( $this, 'callback_action_purge_data' )
+		);
+
 		/*
 		 * Module parameters are stored as options in the database.
 		 * This allows us to avoid having to process all of init
@@ -431,6 +437,17 @@ class Jetpack_Sitemap_Manager {
 	 */
 	public function callback_action_flush_news_sitemap_cache() {
 		delete_transient( 'jetpack_news_sitemap_xml' );
+	}
+
+	/**
+	 * Callback for resetting stored sitemap data.
+	 *
+	 * @access public
+	 * @since 5.3.0
+	 */
+	public function callback_action_purge_data() {
+		$this->callback_action_flush_news_sitemap_cache();
+		$this->librarian->delete_all_stored_sitemap_data();
 	}
 
 	/**

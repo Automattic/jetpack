@@ -54,7 +54,7 @@ class Filter_Embedded_HTML_Objects {
 	}
 
 	static public function filter( $html ) {
-		if ( ! $html ) {
+		if ( ! $html || ! is_string( $html ) ) {
 			return $html;
 		}
 

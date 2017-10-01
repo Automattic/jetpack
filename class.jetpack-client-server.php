@@ -20,22 +20,30 @@ class Jetpack_Client_Server {
 		$result = $this->authorize( $data );
 		if ( is_wp_error( $result ) ) {
 			Jetpack::state( 'error', $result->get_error_code() );
+			JetpackTracking::record_user_event( 'jpc_client_authorize_fail', array(
+				'error_code' => $result->get_error_code(),
+				'error_message' => $result->get_error_message()
+			) );
+		} else {
+			/**
+			 * Fires after the Jetpack client is authorized to communicate with WordPress.com.
+			 *
+			 * @since 4.2.0
+			 *
+			 * @param int Jetpack Blog ID.
+			 */
+			do_action( 'jetpack_client_authorized', Jetpack_Options::get_option( 'id' ) );
 		}
 
 		if ( wp_validate_redirect( $redirect ) ) {
+			// Exit happens below in $this->do_exit()
 			wp_safe_redirect( $redirect );
 		} else {
+			// Exit happens below in $this->do_exit()
 			wp_safe_redirect( Jetpack::admin_url() );
 		}
 
-		/**
-		 * Fires after the Jetpack client is authorized to communicate with WordPress.com.
-		 *
-		 * @since 4.2.0
-		 *
-		 * @param int Jetpack Blog ID.
-		 */
-		do_action( 'jetpack_client_authorized', Jetpack_Options::get_option( 'id' ) );
+		JetpackTracking::record_user_event( 'jpc_client_authorize_success' );
 
 		$this->do_exit();
 	}
@@ -140,6 +148,7 @@ class Jetpack_Client_Server {
 
 		// Since this is a fresh connection, be sure to clear out IDC options
 		Jetpack_IDC::clear_all_idc_options();
+		Jetpack_Options::delete_raw_option( 'jetpack_last_connect_url_check' );
 
 		// Start nonce cleaner
 		wp_clear_scheduled_hook( 'jetpack_clean_nonces' );
@@ -193,12 +202,17 @@ class Jetpack_Client_Server {
 				'redirect' => $redirect ? urlencode( $redirect ) : false,
 			), menu_page_url( 'jetpack', false ) );
 
+		// inject identity for analytics
+		$tracks_identity = jetpack_tracks_get_identity( get_current_user_id() );
+
 		$body = array(
 			'client_id' => Jetpack_Options::get_option( 'id' ),
 			'client_secret' => $client_secret->secret,
 			'grant_type' => 'authorization_code',
 			'code' => $data['code'],
 			'redirect_uri' => $redirect_uri,
+			'_ui' => $tracks_identity['_ui'],
+			'_ut' => $tracks_identity['_ut'],
 		);
 
 		$args = array(

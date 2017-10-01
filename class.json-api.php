@@ -437,8 +437,9 @@ class WPCOM_JSON_API {
 
 		$status_code = $error->get_error_data();
 
-		if ( is_array( $status_code ) )
+		if ( is_array( $status_code ) ) {
 			$status_code = $status_code['status_code'];
+		}
 
 		if ( !$status_code ) {
 			$status_code = 400;
@@ -447,6 +448,11 @@ class WPCOM_JSON_API {
 			'error'   => $error->get_error_code(),
 			'message' => $error->get_error_message(),
 		);
+		
+		if ( $additional_data = $error->get_error_data( 'additional_data' ) ) {
+			$response['data'] = $additional_data;
+		}		
+
 		return array(
 			'status_code' => $status_code,
 			'errors' => $response

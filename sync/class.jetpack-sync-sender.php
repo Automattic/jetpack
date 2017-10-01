@@ -58,6 +58,9 @@ class Jetpack_Sync_Sender {
 	}
 
 	public function do_full_sync() {
+		if ( ! Jetpack_Sync_Modules::get_module( 'full-sync' ) ) {
+			return;
+		}
 		$this->continue_full_sync_enqueue();
 		return $this->do_sync_and_set_delays( $this->full_sync_queue );
 	}

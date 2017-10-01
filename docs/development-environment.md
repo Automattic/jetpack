@@ -78,13 +78,37 @@ $ yarn build-production
 
 Jetpack includes several [unit tests](https://github.com/Automattic/jetpack/tree/master/tests) that you can run in your local environment before to submit a new Pull Request.
 
-To get started, you can follow the instructions [here](https://phpunit.de/getting-started.html) to install PHPUnit on your machine. Once you've done so, you can get the WordPress testing codebase like so:
+To get started, you can follow the instructions [here](https://phpunit.de/getting-started.html) to install PHPUnit on your machine. If you are running a recent version of [VVV](https://github.com/Varying-Vagrant-Vagrants/VVV) then Jetpack will automatically detect your wordpress-develop install and you can just run `phpunit` directly.
 
-`svn checkout http://unit-tests.svn.wordpress.org/trunk wordpress-tests`
+Otherwise you'll need to manually install the `wordpress-develop` branch, as follows:
+
+```
+svn co https://develop.svn.wordpress.org/trunk/ /tmp/wordpress-develop
+cd /tmp/wordpress-develop
+cp wp-tests-config-sample.php wp-tests-config.php
+```
+
+Set the database information for your testing DB in the file `/tmp/wordpress-develop/wp-tests-config.php`. You may need to create this database.
 
 To run tests on your machine, you can run `phpunit` while in the Jetpack directory.
 
-If you need more information, you can follow [this guide](https://jetpack.com/2013/08/20/unit-tests/).
+To run Woocommerce integration tests, you'll need the woocommerce plugin installed alongside Jetpack (in `../woocommerce`), and you can run:
+
+```
+JETPACK_TEST_WOOCOMMERCE=1 phpunit
+```
+
+To run multisite tests, run:
+
+```
+phpunit -c tests/php.multisite.xml
+```
+
+To filter and run just a particular test, you can run:
+
+```
+phpunit --filter my_test_name
+```
 
 If you're not familiar with PHP Unit Testing, you can also check [this tutorial](https://pippinsplugins.com/series/unit-tests-wordpress-plugins/)
 
@@ -97,6 +121,7 @@ Standing on your jetpack directory, run
 ```
 $ yarn
 $ yarn test-client
+$ yarn test-gui
 ```
 
 ## Use PHP CodeSniffer and ESLint to make sure your code respects coding standards

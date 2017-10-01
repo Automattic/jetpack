@@ -203,10 +203,10 @@ export function arePromotionsActive( state ) {
  *
  * @param {Object} state   Global state tree.
  *
- * @return {boolean} True if this is an AT site, false otherwise.
+ * @return {boolean} True if this is an Atomic site, false otherwise.
  */
-export function isAutomatedTransfer( state ) {
-	return get( state.jetpack.initialState.siteData, 'isAutomatedTransfer', false );
+export function isAtomicSite( state ) {
+	return get( state.jetpack.initialState.siteData, 'isAtomicSite', false );
 }
 
 /**

@@ -333,7 +333,7 @@ class Jetpack_Network {
 					}
 
 					wp_safe_redirect( $url );
-					break;
+					exit;
 
 				case 'subsitedisconnect':
 					Jetpack::log( 'subsitedisconnect' );
@@ -401,8 +401,9 @@ class Jetpack_Network {
 		// Figure out what site we are working on
 		$site_id = ( is_null( $site_id ) ) ? $_GET['site_id'] : $site_id;
 
-		// Remote query timeout limit
-		$timeout = $jp->get_remote_query_timeout_limit();
+		// better to try (and fail) to set a higher timeout than this system
+		// supports than to have register fail for more users than it should
+		$timeout = Jetpack::set_min_time_limit( 60 ) / 2;
 
 		// The blog id on WordPress.com of the primary network site
 		$network_wpcom_blog_id = Jetpack_Options::get_option( 'id' );
@@ -442,6 +443,8 @@ class Jetpack_Network {
 		$stat_id = $stat_options = isset( $stats_options['blog_id'] ) ? $stats_options['blog_id'] : null;
 		$user_id = get_current_user_id();
 
+		$tracks_identity = jetpack_tracks_get_identity( $user_id );
+
 		/**
 		 * Both `state` and `user_id` need to be sent in the request, even though they are the same value.
 		 * Connecting via the network admin combines `register()` and `authorize()` methods into one step,
@@ -464,7 +467,10 @@ class Jetpack_Network {
 				'timeout'               => $timeout,
 				'stats_id'              => $stat_id, // Is this still required?
 				'user_id'               => $user_id,
-				'state'                 => $user_id
+				'state'                 => $user_id,
+				'_ui'                   => $tracks_identity['_ui'],
+				'_ut'                   => $tracks_identity['_ut'],
+				'jetpack_version'       => JETPACK__VERSION
 			),
 			'headers' => array(
 				'Accept' => 'application/json',
@@ -472,6 +478,8 @@ class Jetpack_Network {
 			'timeout' => $timeout,
 		);
 
+		Jetpack::apply_activation_source_to_args( $args['body'] );
+		
 		// Attempt to retrieve shadow blog details
 		$response = Jetpack_Client::_wp_remote_request(
 			Jetpack::fix_url_for_bad_hosts( Jetpack::api_url( 'subsiteregister' ) ), $args, true

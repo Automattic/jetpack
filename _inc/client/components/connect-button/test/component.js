@@ -68,15 +68,15 @@ describe( 'ConnectButton', () => {
 		const wrapper = shallow( <ConnectButton { ...testProps } /> );
 
 		it( 'does not link to a URL', () => {
-			expect( wrapper.find( 'a' ).props().href ).to.not.exist;
+			expect( wrapper.find( 'a' ).first().props().href ).to.not.exist;
 		} );
 
 		it( 'has an onClick method', () => {
-			expect( wrapper.find( 'a' ).props().onClick ).to.exist;
+			expect( wrapper.find( 'a' ).first().props().onClick ).to.exist;
 		} );
 
 		it( 'when clicked, unlinkUser() is called once', () => {
-			wrapper.find( 'a' ).simulate( 'click' );
+			wrapper.find( 'a' ).first().simulate( 'click' );
 			expect( unlinkUser.calledOnce ).to.be.true;
 		} );
 

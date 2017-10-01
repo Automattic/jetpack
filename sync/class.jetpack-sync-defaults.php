@@ -191,6 +191,7 @@ class Jetpack_Sync_Defaults {
 		'hosting_provider'                 => array( 'Jetpack_Sync_Functions', 'get_hosting_provider' ),
 		'locale'                           => 'get_locale',
 		'site_icon_url'                    => array( 'Jetpack_Sync_Functions', 'site_icon_url' ),
+		'get_editable_roles'               => 'get_editable_roles',
 	);
 
 	public static function get_callable_whitelist() {
@@ -208,15 +209,16 @@ class Jetpack_Sync_Defaults {
 
 	static $blacklisted_post_types = array(
 		'ai1ec_event',
-		'snitch',
-		'secupress_log_action',
-		'http',
-		'bwg_gallery',
 		'bwg_album',
+		'bwg_gallery',
+		'customize_changeset', // WP built-in post type for Customizer changesets
+		'http',
 		'idx_page',
 		'postman_sent_mail',
-		'rssmi_feed_item',
 		'rssap-feed',
+		'rssmi_feed_item',
+		'secupress_log_action',
+		'snitch',
 		'wp_automatic',
 	);
 

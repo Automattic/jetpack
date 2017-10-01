@@ -179,6 +179,9 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		}
 
 		$theme = $upgrader->theme_info();
+		if ( ! $theme instanceof WP_Theme ) {
+			return;
+		}
 		$theme_info = array(
 			'name' => $theme->get( 'Name' ),
 			'version' => $theme->get( 'Version' ),
@@ -360,7 +363,10 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 
 	function sync_sidebar_widgets_actions( $old_value, $new_value ) {
 		// Don't really know how to deal with different array_values yet.
-		if ( $old_value['array_version'] !== 3 || $new_value['array_version'] !== 3 ) {
+		if (
+			( isset( $old_value['array_version'] ) && $old_value['array_version'] !== 3 ) ||
+			( isset( $new_value['array_version'] ) && $new_value['array_version'] !== 3 )
+			) {
 			return;
 		}
 

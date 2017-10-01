@@ -17,6 +17,7 @@ import { isDevVersion, userCanManageModules, userIsSubscriber } from 'state/init
 import DismissableNotices from './dismissable';
 import { getConnectUrl as _getConnectUrl } from 'state/connection';
 import QueryConnectUrl from 'components/data/query-connect-url';
+import JetpackBanner from 'components/jetpack-banner';
 
 export const DevVersionNotice = React.createClass( {
 	displayName: 'DevVersionNotice',
@@ -162,20 +163,15 @@ export const UserUnlinked = React.createClass( {
 			this.props.connectUrl &&
 			this.props.siteConnected
 		) {
-			const text = __( 'You are not connected to WordPress.com.' );
-
 			return (
-				<SimpleNotice
-					showDismiss={ false }
-					status="is-info"
-					text={ text }
-				>
-					<NoticeAction
+				<div className="jp-unlinked-notice">
+					<JetpackBanner
+						title={ __( 'Connect your account to get the most out of Jetpack' ) }
+						callToAction={ __( 'Connect to WordPress.com' ) }
 						href={ `${ this.props.connectUrl }&from=unlinked-user-connect` }
-					>
-						{ __( 'Link to WordPress.com' ) }
-					</NoticeAction>
-				</SimpleNotice>
+						icon="my-sites"
+					/>
+				</div>
 			);
 		}
 

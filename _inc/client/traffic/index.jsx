@@ -17,6 +17,7 @@ import { GoogleAnalytics } from './google-analytics';
 import { Ads } from './ads';
 import { SiteStats } from './site-stats';
 import { RelatedPosts } from './related-posts';
+import Search from './search';
 import { VerificationServices } from './verification-services';
 import Sitemaps from './sitemaps';
 import { getLastPostUrl } from 'state/initial-state';
@@ -38,6 +39,7 @@ export const Traffic = React.createClass( {
 			foundRelated = this.props.isModuleFound( 'related-posts' ),
 			foundVerification = this.props.isModuleFound( 'verification-tools' ),
 			foundSitemaps = this.props.isModuleFound( 'sitemaps' ),
+			foundSearch = false, // this.props.isModuleFound( 'search' ),
 			foundAnalytics = this.props.isModuleFound( 'google-analytics' );
 
 		if ( ! this.props.searchTerm && ! this.props.active ) {
@@ -51,7 +53,8 @@ export const Traffic = React.createClass( {
 			! foundRelated &&
 			! foundVerification &&
 			! foundSitemaps &&
-			! foundAnalytics
+			! foundAnalytics &&
+			! foundSearch
 		) {
 			return null;
 		}
@@ -111,6 +114,13 @@ export const Traffic = React.createClass( {
 				{
 					foundVerification && (
 						<VerificationServices
+							{ ...commonProps }
+						/>
+					)
+				}
+				{
+					foundSearch && (
+						<Search
 							{ ...commonProps }
 						/>
 					)

@@ -137,6 +137,7 @@ class Jetpack_Custom_CSS_Enhancements {
 		wp_safe_redirect( self::customizer_link( array(
 			'return_url' => wp_get_referer(),
 		) ) );
+		exit;
 	}
 
 	/**

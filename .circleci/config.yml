@@ -1,0 +1,100 @@
+defaults: &defaults
+    working_directory: /wp-e2e-tests
+    docker:
+      - image: automattic/wp-e2e-tests:0.0.5
+        environment:
+                JETPACKHOST: CI
+                NODE_ENV: test
+version: 2
+jobs:
+  build:
+    <<: *defaults          
+    steps:
+      - run:
+          name: Clone wp-e2e-tests repo
+          command: |
+                  cd /
+                  git clone https://github.com/Automattic/wp-e2e-tests.git
+                  cd /wp-e2e-tests
+                  git checkout origin/${E2E_BRANCH-master}
+      - restore_cache:
+          key: << checksum "package.json" >>
+      - run: source $HOME/.nvm/nvm.sh && npm install
+      - save_cache:
+          paths:
+            - /wp-e2e-tests/node_modules
+          key: << checksum "package.json" >>
+      - persist_to_workspace:
+          root: /wp-e2e-tests
+          paths:
+            - .
+      - run:
+          name: Initialize site on Digital Ocean via ServerPilot
+          command: |
+                  source $HOME/.nvm/nvm.sh && ./scripts/jetpack/wp-serverpilot-delete.js # In case of a rebuild
+                  source $HOME/.nvm/nvm.sh && ./scripts/jetpack/wp-serverpilot-init.js
+      - run:
+          name: Install Jetpack from master
+          command: |
+                  scp -o "StrictHostKeyChecking no" scripts/jetpack/git-jetpack.sh serverpilot@wp-e2e-tests.pw:~serverpilot/git-jetpack.sh
+                  ssh -o "StrictHostKeyChecking no" serverpilot@wp-e2e-tests.pw ~serverpilot/git-jetpack.sh wordpress-${CIRCLE_SHA1:0:20}
+      - run:
+          name: Run Jetpack activation spec
+          command: source $HOME/.nvm/nvm.sh && xvfb-run ./node_modules/.bin/mocha scripts/jetpack/wp-jetpack-activate.js
+  test:
+    <<: *defaults          
+    parallelism: 2
+    steps:
+      - attach_workspace:
+          at: /wp-e2e-tests
+      - run:
+          name: Randomize spec execution order
+          command: ./scripts/randomize.sh specs
+      - run:
+          name: Run e2e tests
+          command: ./run.sh -R -j -H CI -p -x
+      - store_test_results:
+          path: reports/
+      - store_artifacts:
+          path: reports/
+      - store_artifacts:
+          path: screenshots/
+  destroy:
+    <<: *defaults          
+    steps:
+      - attach_workspace:
+          at: /wp-e2e-tests
+      - run:
+          name: Run Jetpack deactivation spec
+          command: |
+                  if [ "$E2E_DEBUG" == "true" ]; then
+                    echo "Skipping deactivation step for DEBUG purposes"
+                  else
+                    source $HOME/.nvm/nvm.sh && xvfb-run ./node_modules/.bin/mocha scripts/jetpack/wp-jetpack-deactivate.js
+                  fi
+          when: always
+      - run:
+          name: Delete site from Digital Ocean via ServerPilot
+          command: |
+                  if [ "$E2E_DEBUG" == "true" ]; then
+                    echo "Skipping delete step for DEBUG purposes"
+                  else
+                    source $HOME/.nvm/nvm.sh && ./scripts/jetpack/wp-serverpilot-delete.js
+                  fi
+          when: always 
+workflows:
+  version: 2
+  build_test_destroy:
+    jobs:
+      - build:
+          filters:
+             branches:
+                only:
+                  - master
+                  - /.*e2e.*/
+      - test:
+          requires:
+            - build
+      - destroy:
+          requires:
+            - test

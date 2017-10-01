@@ -21,12 +21,8 @@ class Jetpack_Widget_Conditions {
 	}
 
 	public static function widget_admin_setup() {
-		if( is_rtl() ) {
-			wp_enqueue_style( 'widget-conditions', plugins_url( 'widget-conditions/rtl/widget-conditions-rtl.css', __FILE__ ) );
-		} else {
-			wp_enqueue_style( 'widget-conditions', plugins_url( 'widget-conditions/widget-conditions.css', __FILE__ ) );
-		}
 		wp_enqueue_style( 'widget-conditions', plugins_url( 'widget-conditions/widget-conditions.css', __FILE__ ) );
+		wp_style_add_data( 'widget-conditions', 'rtl', 'replace' );
 		wp_enqueue_script( 'widget-conditions', plugins_url( 'widget-conditions/widget-conditions.js', __FILE__ ), array( 'jquery', 'jquery-ui-core' ), 20140721, true );
 
 		// Set up a single copy of all of the data that Widget Visibility needs.
@@ -123,7 +119,22 @@ class Jetpack_Widget_Conditions {
 		$widget_conditions_data['taxonomy'] = array();
 		$widget_conditions_data['taxonomy'][] = array( '', __( 'All taxonomy pages', 'jetpack' ) );
 
-		$taxonomies = get_taxonomies( array( '_builtin' => false ), 'objects' );
+		$taxonomies = get_taxonomies(
+			/**
+			 * Filters args passed to get_taxonomies.
+			 *
+			 * @see https://developer.wordpress.org/reference/functions/get_taxonomies/
+			 *
+			 * @since 5.3.0
+			 *
+			 * @module widget-visibility
+			 *
+			 * @param array $args Widget Visibility taxonomy arguments.
+			 */
+			apply_filters( 'jetpack_widget_visibility_tax_args', array( '_builtin' => false ) ),
+			'objects'
+		);
+
 		usort( $taxonomies, array( __CLASS__, 'strcasecmp_name' ) );
 
 		foreach ( $taxonomies as $taxonomy ) {

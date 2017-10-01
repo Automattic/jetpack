@@ -39,10 +39,11 @@ function jetpack_twentyseventeen_has_footer_widgets() {
 	if ( is_active_sidebar( 'sidebar-2' ) ||
 		 is_active_sidebar( 'sidebar-3' ) ||
 		 has_nav_menu( 'social' ) ) {
+
 		return true;
-	} else {
-		return false;
 	}
+
+	return false;
 }
 
 /**

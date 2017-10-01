@@ -1,5 +1,27 @@
 <?php
 
+new WPCOM_JSON_API_List_Post_Types_Endpoint( array (
+	'description' => 'Get a list of post types available for a site.',
+	'group'       => 'sites',
+	'stat'        => 'sites:X:post-types',
+
+	'method'      => 'GET',
+	'path'        => '/sites/%s/post-types',
+	'path_labels' => array(
+		'$site' => '(int|string) Site ID or domain',
+	),
+
+	'query_parameters' => array(
+		'api_queryable' => '(bool) If true, only queryable post types are returned',
+	),
+
+	'response_format' => array(
+		'found'      => '(int) The number of post types found',
+		'post_types' => '(array) A list of available post types',
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.1/sites/33534099/post-types'
+) );
+
 class WPCOM_JSON_API_List_Post_Types_Endpoint extends WPCOM_JSON_API_Endpoint {
 	static $post_type_keys_to_include = array(
 		'name'         => 'name',
@@ -71,12 +93,12 @@ class WPCOM_JSON_API_List_Post_Types_Endpoint extends WPCOM_JSON_API_Endpoint {
 			'post_types' => $formatted_post_type_objects
 		);
 	}
-	
+
 	function post_type_supports_tags( $post_type ) {
 		if ( in_array( 'post_tag', get_object_taxonomies( $post_type ) ) ) {
 			return true;
 		}
-		
+
 		// the featured content module adds post_tag support
 		// to the post types that are registered for it
 		// however it does so in a way that isn't available
@@ -85,7 +107,7 @@ class WPCOM_JSON_API_List_Post_Types_Endpoint extends WPCOM_JSON_API_Endpoint {
 		if ( ! $featured_content || empty( $featured_content[0] ) || empty( $featured_content[0]['post_types'] ) ) {
 			return false;
 		}
-		
+
 		return in_array( $post_type, $featured_content[0]['post_types'] );
 	}
 }

@@ -1,5 +1,65 @@
 <?php
 
+new WPCOM_JSON_API_Get_Taxonomies_Endpoint( array(
+	'description' => "Get a list of a site's categories.",
+	'group'       => 'taxonomy',
+	'stat'        => 'categories',
+	'method'      => 'GET',
+	'path'        => '/sites/%s/categories',
+	'path_labels' => array(
+		'$site'     => '(int|string) Site ID or domain'
+	),
+	'query_parameters' => array(
+		'number'   => '(int=100) The number of categories to return. Limit: 1000.',
+		'offset'   => '(int=0) 0-indexed offset.',
+		'page'     => '(int) Return the Nth 1-indexed page of categories. Takes precedence over the <code>offset</code> parameter.',
+		'search'   => '(string) Limit response to include only categories whose names or slugs match the provided search query.',
+		'order'    => array(
+			'ASC'  => 'Return categories in ascending order.',
+			'DESC' => 'Return categories in descending order.',
+		),
+		'order_by' => array(
+			'name'  => 'Order by the name of each category.',
+			'count' => 'Order by the number of posts in each category.',
+		),
+	),
+	'response_format' => array(
+		'found'      => '(int) The number of categories returned.',
+		'categories' => '(array) Array of category objects.',
+	),
+	'example_request'  => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/categories/?number=5'
+) );
+
+new WPCOM_JSON_API_Get_Taxonomies_Endpoint( array(
+	'description' => "Get a list of a site's tags.",
+	'group'       => 'taxonomy',
+	'stat'        => 'tags',
+	'method'      => 'GET',
+	'path'        => '/sites/%s/tags',
+	'path_labels' => array(
+		'$site'     => '(int|string) Site ID or domain'
+	),
+	'query_parameters' => array(
+		'number'   => '(int=100) The number of tags to return. Limit: 1000.',
+		'offset'   => '(int=0) 0-indexed offset.',
+		'page'     => '(int) Return the Nth 1-indexed page of tags. Takes precedence over the <code>offset</code> parameter.',
+		'search'   => '(string) Limit response to include only tags whose names or slugs match the provided search query.',
+		'order'    => array(
+			'ASC'  => 'Return tags in ascending order.',
+			'DESC' => 'Return tags in descending order.',
+		),
+		'order_by' => array(
+			'name'  => 'Order by the name of each tag.',
+			'count' => 'Order by the number of posts in each tag.',
+		),
+	),
+	'response_format' => array(
+		'found'    => '(int) The number of tags returned.',
+		'tags'     => '(array) Array of tag objects.',
+	),
+	'example_request'  => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/tags/?number=5'
+) );
+
 class WPCOM_JSON_API_Get_Taxonomies_Endpoint extends WPCOM_JSON_API_Endpoint {
 	// /sites/%s/tags       -> $blog_id
 	// /sites/%s/categories -> $blog_id
@@ -30,7 +90,7 @@ class WPCOM_JSON_API_Get_Taxonomies_Endpoint extends WPCOM_JSON_API_Endpoint {
 			if ( $args['page'] < 1 ) {
 				$args['page'] = 1;
 			}
-		
+
 			$args['offset'] = ( $args['page'] - 1 ) * $args['number'];
 			unset( $args['page'] );
 		}

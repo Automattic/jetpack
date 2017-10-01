@@ -83,6 +83,7 @@ function jetpack_get_module_i18n( $key ) {
 			'likes' => array(
 				'name' => _x( 'Likes', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Give visitors an easy way to show they appreciate your content.', 'Module Description', 'jetpack' ),
+				'recommended description' => _x( 'Give visitors an easy way to show they appreciate your content.', 'Jumpstart Description', 'jetpack' ),
 			),
 
 			'manage' => array(
@@ -109,16 +110,12 @@ function jetpack_get_module_i18n( $key ) {
 			'monitor' => array(
 				'name' => _x( 'Monitor', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Receive immediate notifications if your site goes down, 24/7.', 'Module Description', 'jetpack' ),
+				'recommended description' => _x( 'Receive immediate notifications if your site goes down, 24/7.', 'Jumpstart Description', 'jetpack' ),
 			),
 
 			'notes' => array(
 				'name' => _x( 'Notifications', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Receive instant notifications of site comments and likes.', 'Module Description', 'jetpack' ),
-			),
-
-			'omnisearch' => array(
-				'name' => _x( 'Omnisearch', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Search your entire database from a single field in your dashboard.', 'Module Description', 'jetpack' ),
 			),
 
 			'photon' => array(
@@ -300,7 +297,6 @@ function jetpack_get_module_i18n_tag( $key ) {
 
 			// Modules with `Developers` tag:
 			//  - modules/json-api.php
-			//  - modules/omnisearch.php
 			//  - modules/sso.php
 			'Developers' =>_x( 'Developers', 'Module Tag', 'jetpack' ),
 

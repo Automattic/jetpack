@@ -16,7 +16,7 @@ import { isDevMode } from 'state/connection';
 class DashPhoton extends Component {
 	getContent() {
 		const labelName = __( 'Image Performance' ),
-			activatePhoton = () => this.props.updateOptions( { [ 'photon' ]: true } );
+			activatePhoton = () => this.props.updateOptions( { 'photon': true } );
 
 		if ( this.props.getOptionValue( 'photon' ) ) {
 			return (

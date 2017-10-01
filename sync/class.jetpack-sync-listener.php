@@ -214,7 +214,7 @@ class Jetpack_Sync_Listener {
 				get_current_user_id(),
 				microtime( true ),
 				Jetpack_Sync_Settings::is_importing(),
-				$this->get_actor(),
+				$this->get_actor( $current_filter, $args ),
 			) );
 		} else {
 			$queue->add( array(
@@ -235,9 +235,14 @@ class Jetpack_Sync_Listener {
 		}
 	}
 
-	function get_actor() {
-		$user = wp_get_current_user();
-		$translated_role = Jetpack::translate_current_user_to_role();
+	function get_actor( $current_filter, $args ) {
+		if ( 'wp_login' === $current_filter  ) {
+			$user = get_user_by( 'ID', $args[1]->data->ID );
+		} else {
+			$user = wp_get_current_user();
+		}
+
+		$translated_role = Jetpack::translate_user_to_role( $user );
 
 		$actor = array(
 			'wpcom_user_id'    => null,

@@ -6,7 +6,7 @@
  * @since 4.7.0
  */
 
-require dirname( __FILE__ ) . '/../../../../modules/sitemaps/sitemap-constants.php';
+require_once dirname( __FILE__ ) . '/../../../../modules/sitemaps/sitemap-constants.php';
 
 /**
  * Test class for Jetpack sitemap constants.
@@ -33,7 +33,7 @@ class WP_Test_Jetpack_Sitemap_Constants extends WP_UnitTestCase {
 		// Test range of JP_SITEMAP_MAX_BYTES.
 		$this->assertTrue( is_int( JP_SITEMAP_MAX_BYTES ) );
 		$this->assertGreaterThan( 0, JP_SITEMAP_MAX_BYTES );
-		$this->assertLessThanOrEqual( JP_SITEMAP_MAX_BYTES, 10485760 );
+		$this->assertLessThanOrEqual( JP_SITEMAP_MAX_BYTES, 716800 );
 
 		// Test range of JP_SITEMAP_MAX_ITEMS.
 		$this->assertTrue( is_int( JP_SITEMAP_MAX_ITEMS ) );
@@ -99,59 +99,4 @@ class WP_Test_Jetpack_Sitemap_Constants extends WP_UnitTestCase {
 			JP_IMAGE_SITEMAP_INDEX_TYPE
 		);
 	}
-
-	/**
-	 * Sitemap name prefix constants are all distinct.
-	 *
-	 * @covers JP_MASTER_SITEMAP_NAME
-	 * @covers JP_SITEMAP_NAME_PREFIX
-	 * @covers JP_SITEMAP_INDEX_NAME_PREFIX
-	 * @covers JP_IMAGE_SITEMAP_NAME_PREFIX
-	 * @covers JP_IMAGE_SITEMAP_INDEX_NAME_PREFIX
-	 * @group jetpack-sitemap
-	 * @since 4.7.0
-	 */
-	public function test_sitemap_librarian_name_constants_distinct() {
-		$this->assertNotEquals(
-			JP_MASTER_SITEMAP_NAME,
-			JP_SITEMAP_NAME_PREFIX
-		);
-		$this->assertNotEquals(
-			JP_MASTER_SITEMAP_NAME,
-			JP_SITEMAP_INDEX_NAME_PREFIX
-		);
-		$this->assertNotEquals(
-			JP_MASTER_SITEMAP_NAME,
-			JP_IMAGE_SITEMAP_NAME_PREFIX
-		);
-		$this->assertNotEquals(
-			JP_MASTER_SITEMAP_NAME,
-			JP_IMAGE_SITEMAP_INDEX_NAME_PREFIX
-		);
-		$this->assertNotEquals(
-			JP_SITEMAP_NAME_PREFIX,
-			JP_SITEMAP_INDEX_NAME_PREFIX
-		);
-		$this->assertNotEquals(
-			JP_SITEMAP_NAME_PREFIX,
-			JP_IMAGE_SITEMAP_NAME_PREFIX
-		);
-		$this->assertNotEquals(
-			JP_SITEMAP_NAME_PREFIX,
-			JP_IMAGE_SITEMAP_INDEX_NAME_PREFIX
-		);
-		$this->assertNotEquals(
-			JP_SITEMAP_INDEX_NAME_PREFIX,
-			JP_IMAGE_SITEMAP_NAME_PREFIX
-		);
-		$this->assertNotEquals(
-			JP_SITEMAP_INDEX_NAME_PREFIX,
-			JP_IMAGE_SITEMAP_INDEX_NAME_PREFIX
-		);
-		$this->assertNotEquals(
-			JP_IMAGE_SITEMAP_NAME_PREFIX,
-			JP_IMAGE_SITEMAP_INDEX_NAME_PREFIX
-		);
-	}
-
 }

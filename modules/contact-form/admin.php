@@ -37,7 +37,7 @@ function grunion_admin_css() {
 	if ( is_null( $current_screen ) ) {
 		return;
 	}
-	if ( ! in_array( $current_screen->id, array( 'edit-feedback', 'jetpack_page_omnisearch', 'dashboard_page_omnisearch' ) ) ) {
+	if ( 'edit-feedback' !== $current_screen->id ) {
 		return;
 	}
 
@@ -769,15 +769,6 @@ function grunion_ajax_spam() {
 
 	echo $status_html;
 	exit;
-}
-
-add_action( 'omnisearch_add_providers', 'grunion_omnisearch_add_providers' );
-function grunion_omnisearch_add_providers() {
-	// Feedback uses capability_type 'page'
-	if ( current_user_can( 'edit_pages' ) ) {
-		require_once( GRUNION_PLUGIN_DIR . 'grunion-omnisearch.php' );
-		new Jetpack_Omnisearch_Grunion;
-	}
 }
 
 /**

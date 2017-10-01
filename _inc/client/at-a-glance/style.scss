@@ -8,6 +8,16 @@
 	padding: 0;
 }
 
+.jp-at-a-glance__stats-empty {
+	text-align: center;
+	margin-bottom: 0;
+
+	p {
+		font-size: rem( 14px );
+		color: $gray-text-min;
+	}
+}
+
 .jp-at-a-glance__stats-inactive {
 	padding: rem( 16px );
 

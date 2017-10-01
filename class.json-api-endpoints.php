@@ -279,7 +279,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			break;
 		}
 
-		if ( isset( $this->api->query['force'] ) 
+		if ( isset( $this->api->query['force'] )
 		    && 'secure' === $this->api->query['force']
 		    && isset( $return['secure_key'] ) ) {
 			$this->api->post_body = $this->get_secure_body( $return['secure_key'] );
@@ -295,11 +295,11 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 
 	protected function get_secure_body( $secure_key ) {
-		$response =  Jetpack_Client::wpcom_json_api_request_as_blog( 
-			sprintf( '/sites/%d/secure-request', Jetpack_Options::get_option('id' ) ), 
-			'1.1', 
-			array( 'method' => 'POST' ), 
-			array( 'secure_key' => $secure_key ) 
+		$response =  Jetpack_Client::wpcom_json_api_request_as_blog(
+			sprintf( '/sites/%d/secure-request', Jetpack_Options::get_option('id' ) ),
+			'1.1',
+			array( 'method' => 'POST' ),
+			array( 'secure_key' => $secure_key )
 		);
 		if ( 200 !== $response['response']['code'] ) {
 			return null;
@@ -556,7 +556,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 				'avatar_URL'     => '(URL)',
 				'profile_URL'    => '(URL)',
 				'is_super_admin' => '(bool)',
-				'roles'          => '(array:string)'
+				'roles'          => '(array:string)',
+				'ip_address'     => '(string|false)',
 			);
 			$return[$key] = (object) $this->cast_and_filter( $value, $docs, false, $for_output );
 			break;
@@ -1052,13 +1053,15 @@ abstract class WPCOM_JSON_API_Endpoint {
 	/**
 	 * Returns author object.
 	 *
-	 * @param $author user ID, user row, WP_User object, comment row, post row
-	 * @param $show_email output the author's email address?
+	 * @param object $author user ID, user row, WP_User object, comment row, post row
+	 * @param bool $show_email_and_ip output the author's email address and IP address?
 	 *
-	 * @return (object)
+	 * @return object
 	 */
-	function get_author( $author, $show_email = false ) {
-		if ( isset( $author->comment_author_email ) && !$author->user_id ) {
+	function get_author( $author, $show_email_and_ip = false ) {
+		$ip_address = isset( $author->comment_author_IP ) ? $author->comment_author_IP : '';
+
+		if ( isset( $author->comment_author_email ) ) {
 			$ID          = 0;
 			$login       = '';
 			$email       = $author->comment_author_email;
@@ -1139,7 +1142,13 @@ abstract class WPCOM_JSON_API_Endpoint {
 			$avatar_URL = $this->api->get_avatar_url( $email );
 		}
 
-		$email = $show_email ? (string) $email : false;
+		if ( $show_email_and_ip ) {
+			$email = (string) $email;
+			$ip_address = (string) $ip_address;
+		} else {
+			$email = false;
+			$ip_address = false;
+		}
 
 		$author = array(
 			'ID'          => (int) $ID,
@@ -1152,6 +1161,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			'URL'         => (string) esc_url_raw( $URL ),
 			'avatar_URL'  => (string) esc_url_raw( $avatar_URL ),
 			'profile_URL' => (string) esc_url_raw( $profile_URL ),
+			'ip_address'  => $ip_address, // (string|bool)
 		);
 
 		if ($site_id > -1) {

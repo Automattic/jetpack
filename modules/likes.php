@@ -2,12 +2,13 @@
 /**
  * Module Name: Likes
  * Module Description: Give visitors an easy way to show they appreciate your content.
+ * Jumpstart Description: Give visitors an easy way to show they appreciate your content.
  * First Introduced: 2.2
  * Sort Order: 23
  * Requires Connection: Yes
  * Auto Activate: No
  * Module Tags: Social
- * Feature: Engagement
+ * Feature: Engagement, Jumpstart
  * Additional Search Queries: like, likes, wordpress.com
  */
 
@@ -135,12 +136,22 @@ class Jetpack_Likes {
 	 */
 	function load_styles_register_scripts() {
 		if ( $this->in_jetpack ) {
-			if ( ! wp_style_is( 'open-sans', 'registered' ) ) {
-				wp_register_style( 'open-sans', 'https://fonts.googleapis.com/css?family=Open+Sans', array(), JETPACK__VERSION );
-			}
-			wp_enqueue_style( 'jetpack_likes', plugins_url( 'likes/style.css', __FILE__ ), array( 'open-sans' ), JETPACK__VERSION );
+			wp_enqueue_style( 'jetpack_likes', plugins_url( 'likes/style.css', __FILE__ ), array(), JETPACK__VERSION );
 			$this->register_scripts();
 		}
+	}
+
+	/**
+	 * Stub for is_likes_visible, since some themes were calling it directly from this class
+	 *
+	 * @deprecated 5.4
+	 * @return bool
+	 */
+	function is_likes_visible() {
+		_deprecated_function( __METHOD__, 'jetpack-5.4', 'Jetpack_Likes_Settings()->is_likes_visible' );
+
+		$settings = new Jetpack_Likes_Settings();
+		return $settings->is_likes_visible();
 	}
 
 	/**

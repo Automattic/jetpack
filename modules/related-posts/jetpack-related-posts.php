@@ -584,7 +584,7 @@ EOT;
 	 * Gets an array of related posts that match the given post_id.
 	 *
 	 * @param int $post_id
-	 * @param array $args - params to use when building ElasticSearch filters to narrow down the search domain.
+	 * @param array $args - params to use when building Elasticsearch filters to narrow down the search domain.
 	 * @uses self::get_options, get_post_type, wp_parse_args, apply_filters
 	 * @return array
 	 */
@@ -620,26 +620,26 @@ EOT;
 
 		$filters = $this->_get_es_filters_from_args( $post_id, $args );
 		/**
-		 * Filter ElasticSearch options used to calculate Related Posts.
+		 * Filter Elasticsearch options used to calculate Related Posts.
 		 *
 		 * @module related-posts
 		 *
 		 * @since 2.8.0
 		 *
-		 * @param array $filters Array of ElasticSearch filters based on the post_id and args.
+		 * @param array $filters Array of Elasticsearch filters based on the post_id and args.
 		 * @param string $post_id Post ID of the post for which we are retrieving Related Posts.
 		 */
 		$filters = apply_filters( 'jetpack_relatedposts_filter_filters', $filters, $post_id );
 
 		$results = $this->_get_related_posts( $post_id, $args['size'], $filters );
 		/**
-		 * Filter the array of related posts matched by ElasticSearch.
+		 * Filter the array of related posts matched by Elasticsearch.
 		 *
 		 * @module related-posts
 		 *
 		 * @since 2.8.0
 		 *
-		 * @param array $results Array of related posts matched by ElasticSearch.
+		 * @param array $results Array of related posts matched by Elasticsearch.
 		 * @param string $post_id Post ID of the post for which we are retrieving Related Posts.
 		 */
 		return apply_filters( 'jetpack_relatedposts_returned_results', $results, $post_id );
@@ -652,7 +652,7 @@ EOT;
 	 */
 
 	/**
-	 * Creates an array of ElasticSearch filters based on the post_id and args.
+	 * Creates an array of Elasticsearch filters based on the post_id and args.
 	 *
 	 * @param int $post_id
 	 * @param array $args
@@ -1165,7 +1165,7 @@ EOT;
 	 */
 
 	/**
-	 * Workhorse method to return array of related posts matched by ElasticSearch.
+	 * Workhorse method to return array of related posts matched by Elasticsearch.
 	 *
 	 * @param int $post_id
 	 * @param int $size
@@ -1183,13 +1183,13 @@ EOT;
 		);
 
 		/**
-		 * Filter the Related Posts matched by ElasticSearch.
+		 * Filter the Related Posts matched by Elasticsearch.
 		 *
 		 * @module related-posts
 		 *
 		 * @since 2.9.0
 		 *
-		 * @param array $hits Array of Post IDs matched by ElasticSearch.
+		 * @param array $hits Array of Post IDs matched by Elasticsearch.
 		 * @param string $post_id Post ID of the post for which we are retrieving Related Posts.
 		 */
 		$hits = apply_filters( 'jetpack_relatedposts_filter_hits', $hits, $post_id );
@@ -1202,7 +1202,7 @@ EOT;
 	}
 
 	/**
-	 * Get array of related posts matched by ElasticSearch.
+	 * Get array of related posts matched by Elasticsearch.
 	 *
 	 * @param int $post_id
 	 * @param int $size
@@ -1463,11 +1463,8 @@ EOT;
 			wp_localize_script( 'jetpack_related-posts', 'related_posts_js_options', $related_posts_js_options );
 		}
 		if ( $style ){
-			if( is_rtl() ) {
-				wp_enqueue_style( 'jetpack_related-posts', plugins_url( 'rtl/related-posts-rtl.css', __FILE__ ), array(), self::VERSION );
-			} else {
-				wp_enqueue_style( 'jetpack_related-posts', plugins_url( 'related-posts.css', __FILE__ ), array(), self::VERSION );
-			}
+			wp_enqueue_style( 'jetpack_related-posts', plugins_url( 'related-posts.css', __FILE__ ), array(), self::VERSION );
+			wp_style_add_data( 'jetpack_related-posts', 'rtl', 'replace' );
 		}
 	}
 
@@ -1574,7 +1571,7 @@ class Jetpack_RelatedPosts_Raw extends Jetpack_RelatedPosts {
 	}
 
 	/**
-	 * Workhorse method to return array of related posts ids matched by ElasticSearch.
+	 * Workhorse method to return array of related posts ids matched by Elasticsearch.
 	 *
 	 * @param int $post_id
 	 * @param int $size

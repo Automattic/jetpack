@@ -1,4 +1,35 @@
 <?php
+
+new WPCOM_JSON_API_Get_Taxonomy_Endpoint( array(
+	'description' => 'Get information about a single category.',
+	'group'       => 'taxonomy',
+	'stat'        => 'categories:1',
+
+	'method'      => 'GET',
+	'path'        => '/sites/%s/categories/slug:%s',
+	'path_labels' => array(
+		'$site'     => '(int|string) Site ID or domain',
+		'$category' => '(string) The category slug'
+	),
+
+	'example_request'  => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/categories/slug:community'
+) );
+
+new WPCOM_JSON_API_Get_Taxonomy_Endpoint( array(
+	'description' => 'Get information about a single tag.',
+	'group'       => 'taxonomy',
+	'stat'        => 'tags:1',
+
+	'method'      => 'GET',
+	'path'        => '/sites/%s/tags/slug:%s',
+	'path_labels' => array(
+		'$site' => '(int|string) Site ID or domain',
+		'$tag'  => '(string) The tag slug'
+	),
+
+	'example_request'  => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/tags/slug:wordpresscom'
+) );
+
 class WPCOM_JSON_API_Get_Taxonomy_Endpoint extends WPCOM_JSON_API_Taxonomy_Endpoint {
 	// /sites/%s/tags/slug:%s       -> $blog_id, $tag_id
 	// /sites/%s/categories/slug:%s -> $blog_id, $tag_id

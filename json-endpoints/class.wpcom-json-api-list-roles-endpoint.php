@@ -1,4 +1,31 @@
 <?php
+
+new WPCOM_JSON_API_List_Roles_Endpoint( array(
+	'description' => 'List the user roles of a site.',
+	'group'       => '__do_not_document',
+	'stat'        => 'roles:list',
+
+	'method'      => 'GET',
+	'path'        => '/sites/%s/roles',
+	'path_labels' => array(
+		'$site' => '(int|string) Site ID or domain',
+	),
+
+	'query_parameters' => array(
+	),
+
+	'response_format' => array(
+		'roles'  => '(array:role) Array of role objects.',
+	),
+
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/roles',
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	)
+) );
+
 class WPCOM_JSON_API_List_Roles_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 	var $response_format = array(

@@ -8,11 +8,17 @@
  */
 
 class Grunion_Editor_View {
-	public static function add_hooks() {
-		add_action( 'admin_notices', array( __CLASS__, 'handle_editor_view_js' ) );
-		add_filter( 'mce_external_plugins', array( __CLASS__, 'mce_external_plugins' ) );
-		add_filter( 'mce_buttons', array( __CLASS__, 'mce_buttons' ) );
-		add_action( 'admin_head', array( __CLASS__, 'admin_head' ) );
+
+	/**
+	 * Add hooks according to screen.
+	 *
+	 * @param WP_Screen $screen Data about current screen.
+	 */
+	public static function add_hooks( $screen ) {
+		if ( isset( $screen->base ) && 'post' === $screen->base ) {
+			add_action( 'admin_notices', array( __CLASS__, 'handle_editor_view_js' ) );
+			add_action( 'admin_head', array( __CLASS__, 'admin_head' ) );
+		}
 	}
 
 	public static function admin_head() {
@@ -21,9 +27,6 @@ class Grunion_Editor_View {
 	}
 
 	public static function grunion_media_button() {
-		if ( empty( $GLOBALS['pagenow'] ) || 'press-this.php' === $GLOBALS['pagenow'] ) {
-			return;
-		}
 		$title = __( 'Add Contact Form', 'jetpack' );
 		?>
 
@@ -55,12 +58,9 @@ class Grunion_Editor_View {
 	 * WordPress Shortcode Editor View JS Code
 	 */
 	public static function handle_editor_view_js() {
-		$current_screen = get_current_screen();
-		if ( ! isset( $current_screen->id ) || $current_screen->base !== 'post' ) {
-			return;
-		}
-
 		add_action( 'admin_print_footer_scripts', array( __CLASS__, 'editor_view_js_templates' ), 1 );
+		add_filter( 'mce_external_plugins', array( __CLASS__, 'mce_external_plugins' ) );
+		add_filter( 'mce_buttons', array( __CLASS__, 'mce_buttons' ) );
 
 		wp_enqueue_style( 'grunion-editor-ui', plugins_url( 'css/editor-ui.css', __FILE__ ) );
 		wp_style_add_data( 'grunion-editor-ui', 'rtl', 'replace' );
@@ -83,7 +83,7 @@ class Grunion_Editor_View {
 			)
 		) );
 
-		add_editor_style( plugins_url( 'css/editor-style.css', __FILE__ ) );
+		add_editor_style( plugin_dir_url( __FILE__ ) . '/css/editor-style.css' );
 	}
 
 	/**
@@ -171,7 +171,7 @@ class Grunion_Editor_View {
 <script type="text/html" id="tmpl-grunion-field-date">
 	<div>
 		<label for='{{ data.id }}' class='grunion-field-label {{ data.type }}'>{{ data.label }}<# if ( data.required ) print( " <span>" + data.required + "</span>" ) #></label>
-		<input type='date' name='{{ data.id }}' id='{{ data.id }}' value='{{ data.value }}' class="{{ data.class }}" />
+		<input type='text' name='{{ data.id }}' id='{{ data.id }}' value='{{ data.value }}' class="{{ data.class }}" />
 	</div>
 </script>
 
@@ -201,6 +201,7 @@ class Grunion_Editor_View {
 			'checkbox-multiple' => __( 'Checkbox with Multiple Items', 'jetpack' ),
 			'select'            => __( 'Drop down', 'jetpack' ),
 			'radio'             => __( 'Radio', 'jetpack' ),
+			'date'              => __( 'Date', 'jetpack' ),
 		);
 		?>
 		<div class="grunion-type-options">
@@ -274,5 +275,4 @@ class Grunion_Editor_View {
 	}
 }
 
-
-Grunion_Editor_View::add_hooks();
+add_action( 'current_screen', array( 'Grunion_Editor_View', 'add_hooks' ) );

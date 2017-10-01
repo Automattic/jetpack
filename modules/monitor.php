@@ -2,13 +2,14 @@
 /**
  * Module Name: Monitor
  * Module Description: Receive immediate notifications if your site goes down, 24/7.
+ * Jumpstart Description: Receive immediate notifications if your site goes down, 24/7.
  * Sort Order: 28
  * Recommendation Order: 10
  * First Introduced: 2.6
  * Requires Connection: Yes
  * Auto Activate: No
  * Module Tags: Recommended
- * Feature: Security
+ * Feature: Security, Jumpstart
  * Additional Search Queries: monitor, uptime, downtime, monitoring
  */
 
@@ -45,6 +46,7 @@ class Jetpack_Monitor {
 			$this->update_option_receive_jetpack_monitor_notification( isset( $_POST['receive_jetpack_monitor_notification'] ) );
 			Jetpack::state( 'message', 'module_configured' );
 			wp_safe_redirect( Jetpack::module_configuration_url( $this->module ) );
+			exit;
 		}
 	}
 

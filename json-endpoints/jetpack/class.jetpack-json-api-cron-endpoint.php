@@ -5,7 +5,7 @@ class Jetpack_JSON_API_Cron_Endpoint extends Jetpack_JSON_API_Endpoint {
 	protected $needed_capabilities = 'manage_options';
 
 	protected function validate_call( $_blog_id, $capability, $check_manage_active = true ) {
-		parent::validate_call( $_blog_id, $capability, false );
+		return parent::validate_call( $_blog_id, $capability, false );
 	}
 
 	protected function result() {

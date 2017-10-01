@@ -111,11 +111,8 @@ class Jetpack_Recipes {
 			return;
 		}
 
-		if ( is_rtl() ) {
-			wp_enqueue_style( 'jetpack-recipes-style', plugins_url( '/css/rtl/recipes-rtl.css', __FILE__ ), array(), '20130919' );
-		} else {
-			wp_enqueue_style( 'jetpack-recipes-style', plugins_url( '/css/recipes.css', __FILE__ ), array(), '20130919' );
-		}
+		wp_enqueue_style( 'jetpack-recipes-style', plugins_url( '/css/recipes.css', __FILE__ ), array(), '20130919' );
+		wp_style_add_data( 'jetpack-recipes-style', 'rtl', 'replace' );
 
 		// add $themecolors-defined styles.
 		wp_add_inline_style( 'jetpack-recipes-style', self::themecolor_styles() );
@@ -124,7 +121,8 @@ class Jetpack_Recipes {
 		wp_enqueue_script( 'jetpack-recipes-js',        plugins_url( '/js/recipes.js', __FILE__ ), array( 'jquery', 'jetpack-recipes-printthis' ), '20131230' );
 
 		$title_var     = wp_title( '|', false, 'right' );
-		$print_css_var = plugins_url( '/css/recipes-print.css', __FILE__ );
+		$rtl           = is_rtl() ? '-rtl' : '';
+		$print_css_var = plugins_url( "/css/recipes-print{$rtl}.css", __FILE__ );
 
 		wp_localize_script(
 			'jetpack-recipes-js',
