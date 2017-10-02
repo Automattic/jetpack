@@ -79,7 +79,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			'locale'                           => get_locale(),
 			'site_icon_url'                    => Jetpack_Sync_Functions::site_icon_url(),
 			'shortcodes'                       => Jetpack_Sync_Functions::get_shortcodes(),
-			'get_editable_roles'               => get_editable_roles(),
+			'wp_roles'                         => wp_roles(),
 		);
 
 		if ( function_exists( 'wp_cache_is_enabled' ) ) {
