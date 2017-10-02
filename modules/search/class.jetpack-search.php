@@ -748,8 +748,6 @@ class Jetpack_Search {
 			foreach ( $filters as $filter ) {
 				$builder->add_filter( $filter );
 			}
-
-			$es_query_args['filter'] = $builder->build_filter();
 		}
 
 		$es_query_args['query'] = $builder->build_query();
