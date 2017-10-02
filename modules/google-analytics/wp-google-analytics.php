@@ -201,6 +201,10 @@ class Jetpack_Google_Analytics {
 	public function jetpack_wga_classic_track_purchases( $custom_vars ) {
 		global $wp;
 
+		if ( ! class_exists( 'WooCommerce' ) ) {
+			return $custom_vars;
+		}
+
 		// Ref: https://developers.google.com/analytics/devguides/collection/gajs/gaTrackingEcommerce#Example
 		$o = get_option( 'jetpack_wga' );
 		$ec_track_purchases = isset( $o[ 'ec_track_purchases' ] ) ? $o[ 'ec_track_purchases' ] : false;
@@ -291,6 +295,10 @@ class Jetpack_Google_Analytics {
 	 * on single views (.single_add_to_cart_button) and list views (.add_to_cart_button)
 	 */
 	public function jetpack_wga_classic_track_add_to_cart() {
+		if ( ! class_exists( 'WooCommerce' ) ) {
+			return;
+		}
+
 		$tracking_id = $this->_get_tracking_code();
 		if ( empty( $tracking_id ) ) {
 			return;
