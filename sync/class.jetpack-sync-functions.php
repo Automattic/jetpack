@@ -287,4 +287,9 @@ class Jetpack_Sync_Functions {
 
 		return get_site_icon_url();
 	}
+
+	public static function roles() {
+		return wp_roles()->roles;
+	}
+
 }
