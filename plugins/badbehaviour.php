@@ -85,4 +85,15 @@ function wp_supercache_badbehaviour_admin() {
 }
 add_cacheaction( 'cache_admin_page', 'wp_supercache_badbehaviour_admin' );
 
+function wpsc_badbehaviour_list( $list ) {
+	$list[ 'badbehaviour' ] = array(
+		'key'   => 'badbehaviour',
+		'url'   => 'http://www.bad-behavior.ioerror.us/',
+		'title' => __( 'Bad Behavior', 'wp-super-cache' ),
+		'desc'  => sprintf( __( 'Support for Bad Behavior. (Only WPCache caching supported, disabled compression and requires Bad Behavior in "%s/plugins/bad-behavior/") ', 'wp-super-cache' ), WP_CONTENT_DIR ),
+	);
+	return $list;
+}
+add_cacheaction( 'wpsc_filter_list', 'wpsc_badbehaviour_list' );
+
 ?>

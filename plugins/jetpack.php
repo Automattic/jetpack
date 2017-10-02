@@ -75,4 +75,16 @@ function wp_super_cache_jetpack_cookie_check( $cache_key ) {
 if ( isset( $cache_jetpack ) && $cache_jetpack == 1 ) {
 	add_cacheaction( 'wp_cache_check_mobile', 'wp_super_cache_jetpack_cookie_check' );
 }
+
+function wpsc_cache_jetpack_list( $list ) {
+	$list[ 'jetpack' ] = array(
+		'key'   => 'jetpack',
+		'url'   => 'http://wordpress.org/extend/plugins/jetpack/',
+		'title' => __( 'Jetpack Mobile Theme', 'wp-super-cache' ),
+		'desc'  => __( 'Provides support for the Jetpack mobile theme and plugin. PHP caching mode and mobile support will be enabled too.', 'wp-super-cache' ),
+	);
+	return $list;
+}
+add_cacheaction( 'wpsc_filter_list', 'wpsc_cache_jetpack_list' );
+
 ?>

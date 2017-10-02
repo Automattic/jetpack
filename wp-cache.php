@@ -3969,3 +3969,31 @@ function wpsc_timestamp_cache_update( $type, $permalink ) {
 	wp_cache_setting( 'wpsc_last_post_update', time() );
 }
 add_action( 'gc_cache', 'wpsc_timestamp_cache_update', 10, 2 );
+
+function wpsc_get_plugin_list() {
+	$list = do_cacheaction( 'wpsc_filter_list' );
+	foreach( $list as $t => $details ) {
+		$key = "cache_" . $details[ 'key' ];
+		global $$key;
+		if ( isset( $$key ) && $$key == 1 ) {
+			$list[ $t ][ 'enabled' ] = true;
+		} else {
+			$list[ $t ][ 'enabled' ] = false;
+		}
+
+		$list[ $t ][ 'desc' ]  = strip_tags( $list[ $t ][ 'desc' ] );
+		$list[ $t ][ 'title' ] = strip_tags( $list[ $t ][ 'title' ] );
+	}
+	return $list;
+}
+
+function wpsc_update_plugin_list( $update ) {
+	$list = do_cacheaction( 'wpsc_filter_list' );
+	foreach( $update as $key => $enabled ) {
+		$plugin_toggle = "cache_{$key}";
+		global $$plugin_toggle;
+		if ( isset( $$plugin_toggle ) || isset( $list[ $key ] ) ) {
+			wp_cache_setting( $plugin_toggle, (int)$enabled );
+		}
+	}
+}

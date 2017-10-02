@@ -119,4 +119,16 @@ if ( isset( $cache_wptouch ) && $cache_wptouch == 1 ) {
 	add_cacheaction( 'wp_super_cache_mobile_prefixes', 'wp_super_cache_wptouch_prefixes' );
 	add_cacheaction( 'wp_cache_check_mobile', 'wp_super_cache_wptouch_cookie_check' );
 }
+
+function wpsc_wptouch_list( $list ) {
+	$list[ 'wptouch' ] = array(
+		'key'   => 'wptouch',
+		'url'   => 'http://wordpress.org/extend/plugins/wptouch/',
+		'title' => __( 'WPTouch', 'wp-super-cache' ),
+		'desc'  => __( 'Provides support for WPTouch mobile theme and plugin.', 'wp-super-cache' ),
+	);
+	return $list;
+}
+add_cacheaction( 'wpsc_filter_list', 'wpsc_wptouch_list' );
+
 ?>

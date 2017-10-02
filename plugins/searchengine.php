@@ -2,7 +2,8 @@
 function wp_supercache_searchengine( $string ) {
 	global $passingthrough, $nevershowads, $cache_no_adverts_for_friends;
 
-	if( $cache_no_adverts_for_friends != 'yes' && $cache_no_adverts_for_friends != '1' )
+	$cache_no_adverts_for_friends = wpsc_get_searchengine_setting();
+	if ( ! $cache_no_adverts_for_friends )
 		return $string;
 
 	if( $string != '' )
@@ -43,39 +44,67 @@ function searchenginesupercache( $user_info ) {
 	}
 }
 
+function wpsc_get_searchengine_setting() {
+	global $cache_no_adverts_for_friends;
+
+	if ( ! isset( $cache_no_adverts_for_friends ) ) {
+		return 0;
+	}
+
+	$changed = false;
+	if ( $cache_no_adverts_for_friends === 'yes' || $cache_no_adverts_for_friends === '1' ) {
+		$cache_no_adverts_for_friends = 1;
+		$changed = true;
+	} elseif ( $cache_no_adverts_for_friends === 'no' ) {
+		$cache_no_adverts_for_friends = 0;
+		$changed = true;
+	}
+	if ( $changed ) {
+		wp_cache_setting( 'cache_no_adverts_for_friends', $cache_no_adverts_for_friends );
+	}
+
+	return $cache_no_adverts_for_friends;
+}
+
 function searchengine_phase2_actions() {
 	global $cache_no_adverts_for_friends;
-	if( $cache_no_adverts_for_friends == 'yes' ) {
+
+	$cache_no_adverts_for_friends = wpsc_get_searchengine_setting();
+	if ( $cache_no_adverts_for_friends ) {
 		add_filter( 'do_createsupercache', 'searchenginesupercache' );
 	}
 }
 add_cacheaction( 'add_cacheaction', 'searchengine_phase2_actions' );
 
 function wp_supercache_searchengine_admin() {
-	global $cache_no_adverts_for_friends, $wp_cache_config_file, $valid_nonce;
+	global $cache_no_adverts_for_friends, $valid_nonce;
 
-	$cache_no_adverts_for_friends = $cache_no_adverts_for_friends == '' ? 'no' : $cache_no_adverts_for_friends;
+	$cache_no_adverts_for_friends = wpsc_get_searchengine_setting();
 
 	if(isset($_POST['cache_no_adverts_for_friends']) && $valid_nonce) {
-		$cache_no_adverts_for_friends = $_POST['cache_no_adverts_for_friends'] == __( 'Disable', 'wp-super-cache' ) ? 'no' : 'yes';
-		wp_cache_replace_line('^ *\$cache_no_adverts_for_friends', "\$cache_no_adverts_for_friends = '$cache_no_adverts_for_friends';", $wp_cache_config_file);
+		if ( $cache_no_adverts_for_friends != (int)$_POST[ 'cache_no_adverts_for_friends' ] ) {
+			$changed = 1;
+		} else {
+			$changed = 0;
+		}
+		$cache_no_adverts_for_friends = (int)$_POST[ 'cache_no_adverts_for_friends' ];
+		wp_cache_setting( 'cache_no_adverts_for_friends', $cache_no_adverts_for_friends );
 	}
-	$id = 'no_adverts_for_friends-section';
 	?>
-		<fieldset id="<?php echo $id; ?>" class="options">
+		<fieldset id="no_adverts_for_friends-section" class="options">
 		<h4><?php _e( 'No Adverts for Friends', 'wp-super-cache' ); ?></h4>
 		<form name="wp_manager" action="" method="post">
-		<label><input type="radio" name="cache_no_adverts_for_friends" value="1" <?php if( $cache_no_adverts_for_friends == 'yes' ) { echo 'checked="checked" '; } ?>/> <?php _e( 'Enabled', 'wp-super-cache' ); ?></label>
-		<label><input type="radio" name="cache_no_adverts_for_friends" value="0" <?php if( $cache_no_adverts_for_friends == 'no' ) { echo 'checked="checked" '; } ?>/> <?php _e( 'Disabled', 'wp-super-cache' ); ?></label>
-		<p><?php _e( '', 'wp-super-cache' ); ?></p><?php
-		echo '<p>' . __( 'Provides support for <a href="http://ocaoimh.ie/no-adverts-for-friends/">No Adverts for Friends</a>.', 'wp-super-cache' ) . '</p>';
-		if ( isset( $changed ) && $changed ) {
-			if ( 'yes' == $cache_no_adverts_for_friends )
-				$status = __( "enabled", 'wp-super-cache' );
-			else
-				$status = __( "disabled", 'wp-super-cache' );
-			echo "<p><strong>" . sprintf( __( "No Adverts for Friends support is now %s", 'wp-super-cache' ), $status ) . "</strong></p>";
-		}
+		<label><input type="radio" name="cache_no_adverts_for_friends" value="1" <?php if ( $cache_no_adverts_for_friends ) { echo 'checked="checked" '; } ?>/> <?php _e( 'Enabled', 'wp-super-cache' ); ?></label>
+		<label><input type="radio" name="cache_no_adverts_for_friends" value="0" <?php if ( ! $cache_no_adverts_for_friends ) { echo 'checked="checked" '; } ?>/> <?php _e( 'Disabled', 'wp-super-cache' ); ?></label>
+	<?php
+	echo '<p>' . __( 'Provides support for <a href="https://odd.blog/no-adverts-for-friends/">No Adverts for Friends</a>.', 'wp-super-cache' ) . '</p>';
+	if ( isset( $changed ) && $changed ) {
+		if ( $cache_no_adverts_for_friends )
+			$status = __( "enabled", 'wp-super-cache' );
+		else
+			$status = __( "disabled", 'wp-super-cache' );
+		echo "<p><strong>" . sprintf( __( "No Adverts for Friends support is now %s", 'wp-super-cache' ), $status ) . "</strong></p>";
+	}
 	echo '<div class="submit"><input class="button-primary" ' . SUBMITDISABLED . 'type="submit" value="' . __( 'Update', 'wp-super-cache' ) . '" /></div>';
 	wp_nonce_field('wp-cache');
 	?>
@@ -85,5 +114,16 @@ function wp_supercache_searchengine_admin() {
 
 }
 add_cacheaction( 'cache_admin_page', 'wp_supercache_searchengine_admin' );
+
+function wpsc_cache_no_adverts_for_friends_list( $list ) {
+	$list[ 'no_adverts_for_friends' ] = array(
+		'key'   => 'no_adverts_for_friends',
+		'url'   => 'https://odd.blog/no-adverts-for-friends/',
+		'title' => __( 'No Adverts for Friends', 'wp-super-cache' ),
+		'desc'  => __( 'Provides support for No Adverts for Friends plugin.', 'wp-super-cache' ),
+	);
+	return $list;
+}
+add_cacheaction( 'wpsc_filter_list', 'wpsc_cache_no_adverts_for_friends_list' );
 
 ?>

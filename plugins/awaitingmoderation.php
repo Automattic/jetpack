@@ -51,4 +51,15 @@ function wp_supercache_awaitingmoderation_admin() {
 
 }
 add_cacheaction( 'cache_admin_page', 'wp_supercache_awaitingmoderation_admin' );
+
+function wpsc_awaiting_moderation_list( $list ) {
+	$list[ 'awaitingmoderation' ] = array(
+		'key'  => 'awaitingmoderation',
+		'url'  => '',
+		'title' => __( 'Awaiting Moderation', 'wp-super-cache' ),
+		'desc' => __( 'Enables or disables plugin to Remove the text "Your comment is awaiting moderation." when someone leaves a moderated comment.', 'wp-super-cache' ),
+	);
+	return $list;
+}
+add_cacheaction( 'wpsc_filter_list', 'wpsc_awaiting_moderation_list' );
 ?>
