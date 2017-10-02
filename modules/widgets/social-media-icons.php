@@ -48,6 +48,9 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 		);
 		$this->defaults = array(
 			'title'               => __( 'Social', 'jetpack' ),
+			'new_tab'             => 0,
+			'icon_size'           => '16px',
+			'icon_color'          => '',
 			'facebook_username'   => '',
 			'twitter_username'    => '',
 			'instagram_username'  => '',
@@ -91,6 +94,7 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 	public function enqueue_style() {
 		wp_register_style( 'jetpack_social_media_icons_widget', plugins_url( 'social-media-icons/style.css', __FILE__ ), array(), '20150602' );
 		wp_enqueue_style( 'jetpack_social_media_icons_widget' );
+		wp_enqueue_style( 'wp-color-picker' );
 	}
 
 	/**
@@ -127,6 +131,14 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 		$index = 10;
 		$html = array();
 		$alt_text = esc_attr__( 'View %1$s&#8217;s profile on %2$s', 'jetpack' );
+		$style = 'font-size:' . $instance['icon_size'];
+		if ( '' !== $instance['icon_color'] ) {
+			$style .= ';color:' . $instance['icon_color'];
+		}
+		$new_tab = '';
+		if ( $instance['new_tab'] ) {
+			$new_tab = 'rel="noopener noreferrer" target="_blank"';
+		}
 		foreach ( $this->services as $service => $data ) {
 			list( $service_name, $url ) = $data;
 			if ( ! isset( $instance[ $service . '_username' ] ) ) {
@@ -187,9 +199,11 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 				$service
 			);
 			$html[ $index ] = sprintf(
-				'<a href="%1$s" class="genericon genericon-%2$s" target="_blank"><span class="screen-reader-text">%3$s</span></a>',
+				'<a href="%1$s" class="genericon genericon-%2$s" style="%3$s" %4$s><span class="screen-reader-text">%5$s</span></a>',
 				esc_attr( $link ),
 				esc_attr( $service ),
+				esc_attr( $style ),
+				esc_attr( $new_tab ),
 				sprintf( $alt_text, esc_html( $username ), $service_name )
 			);
 		}
@@ -248,6 +262,42 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 						value="<?php echo esc_attr( $instance['title'] ); ?>"
 					/>
 			</p>
+			<p>
+				<label for="<?php echo esc_attr( $this->get_field_id( 'new_tab' ) ); ?>"><?php esc_attr_e( 'Open Link In New Tab:', 'jetpack' ); ?></label>
+				<input
+						class="widefat"
+						id="<?php echo esc_attr( $this->get_field_id( 'new_tab' ) ); ?>"
+						name="<?php echo esc_attr( $this->get_field_name( 'new_tab' ) ); ?>"
+						type="checkbox"
+						value="new_tab"
+						<?php checked( $instance['new_tab'] ); ?>
+					/>
+			</p>
+			<p>
+				<label for="<?php echo esc_attr( $this->get_field_id( 'icon_size' ) ); ?>"><?php esc_attr_e( 'Icon Size:', 'jetpack' ); ?></label>
+				<input
+						class="widefat"
+						id="<?php echo esc_attr( $this->get_field_id( 'icon_size' ) ); ?>"
+						name="<?php echo esc_attr( $this->get_field_name( 'icon_size' ) ); ?>"
+						type="text"
+						value="<?php echo esc_attr( $instance['icon_size'] ); ?>"
+					/>
+			</p>
+			<p>
+				<label for="<?php echo esc_attr( $this->get_field_id( 'icon_color' ) ); ?>"><?php esc_attr_e( 'Icon Color:', 'jetpack' ); ?></label><br />
+				<input
+						class="cpa-color-picker"
+						id="<?php echo esc_attr( $this->get_field_id( 'icon_color' ) ); ?>"
+						name="<?php echo esc_attr( $this->get_field_name( 'icon_color' ) ); ?>"
+						type="text"
+						value="<?php echo esc_attr( $instance['icon_color'] ); ?>"
+					/>
+			</p>
+			<script>
+				jQuery(function(){
+					jQuery(".cpa-color-picker").wpColorPicker();
+				});
+			</script>
 		<?php
 		foreach ( $this->services as $service => $data ) {
 			list( $service_name, $url ) = $data;
@@ -283,6 +333,12 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 		$instance = (array) $old_instance;
 		foreach ( $new_instance as $field => $value ) {
 			$instance[ $field ] = sanitize_text_field( $new_instance[ $field ] );
+		}
+		// Checkboxes.
+		if( 'new_tab' === $new_instance['new_tab'] ){
+			$instance['new_tab'] = 1;
+		}else{
+			$instance['new_tab'] = 0;
 		}
 		// Stats.
 		$stats = $instance;
