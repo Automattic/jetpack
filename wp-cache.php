@@ -455,10 +455,13 @@ function admin_bar_delete_page() {
 		return false;
 	if ( isset( $_GET[ 'action' ] ) && $_GET[ 'action' ] == 'delcachepage' && ( isset( $_GET[ '_wpnonce' ] ) ? wp_verify_nonce( $_REQUEST[ '_wpnonce' ], 'delete-cache' ) : false ) ) {
 		$path = realpath( trailingslashit( get_supercache_dir() . str_replace( '..', '', preg_replace( '/:.*$/', '', $_GET[ 'path' ] ) ) ) ) . '/';
-		if ( $path == '/' )
-			return false; // Directory not found. Probably not cached.
-		if ( false == wp_cache_confirm_delete( $path ) || substr( $path, 0, strlen( get_supercache_dir() ) ) != get_supercache_dir() )
-			die( "Could not delete directory" );
+		if ( $path == '/' ) {
+                        return false; // Directory not found. Probably not cached.
+                }
+                $supercachepath = realpath(get_supercache_dir());
+                if ( false == wp_cache_confirm_delete( $path ) || substr( $path, 0, strlen( $supercachepath ) ) != $supercachepath ) {
+                        die( "Could not delete directory" );
+                }
 		wpsc_delete_files( $path );
 		wp_redirect( preg_replace( '/[ <>\'\"\r\n\t\(\)]/', '', $_GET[ 'path' ] ) );
 		die();
