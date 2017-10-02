@@ -6,7 +6,7 @@
  */
 
 function jetpack_verification_validate( $verification_services_codes ) {
-	foreach ( $verification_services_codes as $key => &$code ) {
+	foreach ( $verification_services_codes as $key => $code ) {
 		// Parse html meta tags if present
 		if ( stripos( $code, 'meta' ) )
 			$code = jetpack_verification_get_code( $code );
