@@ -289,7 +289,8 @@ class Jetpack_Sync_Functions {
 	}
 
 	public static function roles() {
-		return wp_roles()->roles;
+		$wp_roles = wp_roles();
+		return $wp_roles->roles;
 	}
 
 }
