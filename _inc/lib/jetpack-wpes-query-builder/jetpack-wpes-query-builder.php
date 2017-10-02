@@ -254,15 +254,11 @@ class Jetpack_WPES_Query_Builder {
 		}
 
 		if ( empty( $this->should_queries ) ) {
-			if ( 1 == count( $this->must_queries ) ) {
-				$query = $this->must_queries[0];
-			} else {
-				$query = array(
-					'bool' => array(
-						'must' => $this->must_queries,
-					),
-				);
-			}
+			$query = array(
+				'bool' => array(
+					'must' => $this->must_queries,
+				),
+			);
 		} else {
 			$query = array(
 				'bool' => array(
@@ -270,6 +266,12 @@ class Jetpack_WPES_Query_Builder {
 					'should' => $this->should_queries,
 				),
 			);
+		}
+
+		$filter = $this->build_filter();
+
+		if ( $filter ) {
+			$query['bool']['filter'] = $filter;
 		}
 
 		if ( ! is_null( $this->query_bool_boost ) && isset( $query['bool'] ) ) {
