@@ -101,7 +101,7 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 		do_action( 'jetpack_full_sync_callables', true );
 
 		// The number of actions enqueued, and next module state (true == done)
-		return array( 1, true ); 
+		return array( 1, true );
 	}
 
 	public function estimate_full_sync_actions( $config ) {
@@ -141,7 +141,12 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 			if ( ! empty( $action_links ) && count( $action_links ) > 0 ) {
 				$dom_doc = new DOMDocument;
 				foreach ( $action_links as $action_link ) {
+					// The @ is not enough to suppress errors when dealing with libxml,
+					// we have to tell it directly how we want to handle errors.
+					libxml_use_internal_errors( true );
 					$dom_doc->loadHTML( mb_convert_encoding( $action_link, 'HTML-ENTITIES', 'UTF-8' ) );
+					libxml_use_internal_errors( false );
+
 					$link_elements = $dom_doc->getElementsByTagName( 'a' );
 					if ( $link_elements->length == 0 ) {
 						continue;
@@ -182,7 +187,7 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 
 		return ! $this->still_valid_checksum( $callable_checksums, $name, $checksum );
 	}
-	
+
 	public function maybe_sync_callables() {
 		if ( ! is_admin() || Jetpack_Sync_Settings::is_doing_cron() ) {
 			return;
