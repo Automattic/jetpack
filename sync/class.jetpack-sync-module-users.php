@@ -63,6 +63,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		if ( $this->is_whitelisted_user_meta( $args[2] ) ) {
 			return $args;
 		}
+		return false;
 	}
 
 	public function is_whitelisted_user_meta( $meta_key ) {
