@@ -939,6 +939,12 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 	 * @return string Result of onboarding processing and, if there is one, an error message.
 	 */
 	private function _process_onboarding( $data ) {
+		if ( isset( $data['end'] ) && $data['end'] ) {
+			return Jetpack::invalidate_onboarding_token()
+				? ''
+				: esc_html__( "The onboarding token couldn't be deleted.", 'jetpack' );
+		}
+
 		$error = array();
 
 		if ( ! empty( $data['siteTitle'] ) ) {
