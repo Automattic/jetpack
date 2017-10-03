@@ -456,12 +456,12 @@ function admin_bar_delete_page() {
 	if ( isset( $_GET[ 'action' ] ) && $_GET[ 'action' ] == 'delcachepage' && ( isset( $_GET[ '_wpnonce' ] ) ? wp_verify_nonce( $_REQUEST[ '_wpnonce' ], 'delete-cache' ) : false ) ) {
 		$path = realpath( trailingslashit( get_supercache_dir() . str_replace( '..', '', preg_replace( '/:.*$/', '', $_GET[ 'path' ] ) ) ) ) . '/';
 		if ( $path == '/' ) {
-                        return false; // Directory not found. Probably not cached.
-                }
-                $supercachepath = realpath(get_supercache_dir());
-                if ( false == wp_cache_confirm_delete( $path ) || substr( $path, 0, strlen( $supercachepath ) ) != $supercachepath ) {
-                        die( "Could not delete directory" );
-                }
+			return false; // Directory not found. Probably not cached.
+		}
+		$supercachepath = realpath(get_supercache_dir());
+		if ( false == wp_cache_confirm_delete( $path ) || substr( $path, 0, strlen( $supercachepath ) ) != $supercachepath ) {
+			die( "Could not delete directory" );
+		}
 		wpsc_delete_files( $path );
 		wp_redirect( preg_replace( '/[ <>\'\"\r\n\t\(\)]/', '', $_GET[ 'path' ] ) );
 		die();
@@ -771,18 +771,18 @@ function wp_cache_manager() {
 <script type='text/javascript'>
 <!--
 function toggleLayer( whichLayer ) {
-  var elem, vis;
-  if( document.getElementById ) // this is the way the standards work
-    elem = document.getElementById( whichLayer );
-  else if( document.all ) // this is the way old msie versions work
-      elem = document.all[whichLayer];
-  else if( document.layers ) // this is the way nn4 works
-    elem = document.layers[whichLayer];
-  vis = elem.style;
-  // if the style.display value is blank we try to figure it out here
-  if(vis.display==''&&elem.offsetWidth!=undefined&&elem.offsetHeight!=undefined)
-    vis.display = (elem.offsetWidth!=0&&elem.offsetHeight!=0)?'block':'none';
-  vis.display = (vis.display==''||vis.display=='block')?'none':'block';
+	var elem, vis;
+	if( document.getElementById ) // this is the way the standards work
+		elem = document.getElementById( whichLayer );
+	else if( document.all ) // this is the way old msie versions work
+		elem = document.all[whichLayer];
+	else if( document.layers ) // this is the way nn4 works
+		elem = document.layers[whichLayer];
+	vis = elem.style;
+	// if the style.display value is blank we try to figure it out here
+	if(vis.display==''&&elem.offsetWidth!=undefined&&elem.offsetHeight!=undefined)
+		vis.display = (elem.offsetWidth!=0&&elem.offsetHeight!=0)?'block':'none';
+	vis.display = (vis.display==''||vis.display=='block')?'none':'block';
 }
 // -->
 //Clicking header opens fieldset options
@@ -2178,7 +2178,7 @@ function wp_cache_is_enabled() {
 	}
 	$lines = file($wp_cache_config_file);
 	foreach($lines as $line) {
-	 	if (preg_match('/^ *\$cache_enabled *= *true *;/', $line))
+		if (preg_match('/^ *\$cache_enabled *= *true *;/', $line))
 			return true;
 	}
 	return false;
@@ -2211,7 +2211,7 @@ function wp_cache_replace_line($old, $new, $my_file) {
 	$found = false;
 	$lines = file($my_file);
 	foreach( (array)$lines as $line ) {
-	 	if ( preg_match("/$old/", $line)) {
+		if ( preg_match("/$old/", $line)) {
 			$found = true;
 			break;
 		}

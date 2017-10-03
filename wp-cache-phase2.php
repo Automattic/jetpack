@@ -1262,7 +1262,7 @@ function wp_cache_get_postid_from_comment( $comment_id, $status = 'NA' ) {
 
 	// Check is it "Empty Spam" or "Empty Trash"
 	if ( isset( $GLOBALS[ 'pagenow' ] ) && $GLOBALS[ 'pagenow' ] === 'edit-comments.php' &&
-	     ( isset( $_REQUEST['delete_all'] ) || isset( $_REQUEST['delete_all2'] ) )
+		( isset( $_REQUEST['delete_all'] ) || isset( $_REQUEST['delete_all2'] ) )
 	) {
 		wp_cache_debug( "Delete all SPAM or Trash comments. Don't delete any cache files.", 4 );
 		define( 'DONOTDELETECACHE', 1 );
