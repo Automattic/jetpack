@@ -47,8 +47,6 @@ class A8C_WPCOM_Masterbar {
 		// Used to build menu links that point directly to Calypso.
 		$this->primary_site_slug = Jetpack::build_raw_urls( get_home_url() );
 
-		$this->initialize_tracks_events( $this->primary_site_slug );
-
 		// Used for display purposes and for building WP Admin links.
 		$this->primary_site_url = str_replace( '::', '/', $this->primary_site_slug );
 
@@ -60,6 +58,9 @@ class A8C_WPCOM_Masterbar {
 			add_filter( 'wp_admin_bar_class', array( $this, 'get_rtl_admin_bar_class' ) );
 		}
 		add_filter( 'admin_body_class', array( $this, 'admin_body_class' ) );
+
+		add_filter( 'jetpack_tracks_authorized_event_names', array( $this, 'add_tracks_authorized_event_names' ) );
+		add_filter( 'jetpack_tracks_authorized_redirect_targets', array( $this, 'add_tracks_authorized_redirect_targets' ) );
 
 		add_action( 'wp_before_admin_bar_render', array( $this, 'replace_core_masterbar' ), 99999 );
 
@@ -77,50 +78,55 @@ class A8C_WPCOM_Masterbar {
 		add_action( 'wp_logout', array( $this, 'maybe_logout_user_from_wpcom' ) );
 	}
 
-	private function initialize_tracks_events( $site_slug ) {
-		JetpackTracking::add_redirect( array (
+	function add_tracks_authorized_event_names( $tracks_authorized_event_names ) {
+		$tracks_authorized_event_names[] = 'masterbar_link_click';
+		return $tracks_authorized_event_names;
+	}
+
+	function add_tracks_authorized_redirect_targets( $track_authorized_targets ) {
+		return array_merge( $track_authorized_targets, array (
 			//my sites - top level items
-			'wp-admin-bar-switch-site'                => 'https://wordpress.com/sites',
-			'wp-admin-bar-blog-info'                  => 'https://wordpress.com/' . $site_slug,
-			'wp-admin-bar-site-view'                  => 'https://wordpress.com/' . $site_slug,
-			'wp-admin-bar-blog-stats'                 => 'https://wordpress.com/stats/' . $site_slug,
-			'wp-admin-bar-plan'                       => 'https://wordpress.com/stats/' . $site_slug,
-			'wp-admin-bar-plan-secondary'             => 'https://wordpress.com/plan/' . $site_slug,
+			'wp-admin-bar-switch-site'                  => 'https://wordpress.com/sites',
+			'wp-admin-bar-blog-info'                    => 'https://wordpress.com/' . $this->primary_site_slug,
+			'wp-admin-bar-site-view'                    => 'https://wordpress.com/' . $this->primary_site_slug,
+			'wp-admin-bar-blog-stats'                   => 'https://wordpress.com/stats/' . $this->primary_site_slug,
+			'wp-admin-bar-plan'                         => 'https://wordpress.com/stats/' . $this->primary_site_slug,
+			'wp-admin-bar-plan-badge'                   => 'https://wordpress.com/plan/' . $this->primary_site_slug,
 			//my sites - manage
-			'wp-admin-bar-new-page'                   => 'https://wordpress.com/pages/' . $site_slug,
-			'wp-admin-bar-new-page-secondary'         => 'https://wordpress.com/page/' . $site_slug,
-			'wp-admin-bar-new-post'                   => 'https://wordpress.com/posts/' . $site_slug,
-			'wp-admin-bar-new-post-secondary'         => 'https://wordpress.com/post/' . $site_slug,
-			'wp-admin-bar-comments'                   => 'https://wordpress.com/comments/' . $site_slug,
+			'wp-admin-bar-edit-page'                    => 'https://wordpress.com/pages/' . $this->primary_site_slug,
+			'wp-admin-bar-new-page'                     => 'https://wordpress.com/page/' . $this->primary_site_slug,
+			'wp-admin-bar-edit-post'                    => 'https://wordpress.com/posts/' . $this->primary_site_slug,
+			'wp-admin-bar-new-post'                     => 'https://wordpress.com/post/' . $this->primary_site_slug,
+			'wp-admin-bar-comments'                     => 'https://wordpress.com/comments/' . $this->primary_site_slug,
 			//my sites - personalize
-			'wp-admin-bar-themes'                     => 'https://wordpress.com/design/' . $site_slug,
-			'wp-admin-bar-themes-secondary'           => 'https://wordpress.com/design/' . $site_slug,
+			'wp-admin-bar-themes'                       => 'https://wordpress.com/design/' . $this->primary_site_slug,
+			'wp-admin-bar-cmz'                          => 'https://wordpress.com/design/' . $this->primary_site_slug,
 			//my sites - configure
-			'wp-admin-bar-sharing'                    => 'https://wordpress.com/sharing/' . $site_slug,
-			'wp-admin-bar-users-toolbar'              => 'https://wordpress.com/people/team/' . $site_slug,
-			'wp-admin-bar-users-toolbar-secondary'    => 'https://wordpress.com/people/new/' . $site_slug,
-			'wp-admin-bar-plugins'                    => 'https://wordpress.com/plugins/' . $site_slug,
-			'wp-admin-bar-plugins-secondary'          => 'https://wordpress.com/plugins/browse/' . $site_slug,
-			'wp-admin-bar-blog-settings'              => 'https://wordpress.com/settings/general/' . $site_slug,
+			'wp-admin-bar-sharing'                      => 'https://wordpress.com/sharing/' . $this->primary_site_slug,
+			'wp-admin-bar-people'                       => 'https://wordpress.com/people/team/' . $this->primary_site_slug,
+			'wp-admin-bar-people-add'                   => 'https://wordpress.com/people/new/' . $this->primary_site_slug,
+			'wp-admin-bar-plugins'                      => 'https://wordpress.com/plugins/' . $this->primary_site_slug,
+			'wp-admin-bar-plugins-add'                  => 'https://wordpress.com/plugins/browse/' . $this->primary_site_slug,
+			'wp-admin-bar-blog-settings'                => 'https://wordpress.com/settings/general/' . $this->primary_site_slug,
 			//reader
-			'wp-admin-bar-following'                  => 'https://wordpress.com',
-			'wp-admin-bar-following-secondary'        => 'https://wordpress.com/following/edit',
-			'wp-admin-bar-discover-discover'          => 'https://wordpress.com/discover',
-			'wp-admin-bar-discover-search'            => 'https://wordpress.com/read/search',
-			'wp-admin-bar-discover-recommended-blogs' => 'https://wordpress.com/recommendations',
-			'wp-admin-bar-my-activity-my-likes'       => 'https://wordpress.com/activities/likes',
+			'wp-admin-bar-followed-sites'               => 'https://wordpress.com',
+			'wp-admin-bar-reader-followed-sites-manage' => 'https://wordpress.com/following/edit',
+			'wp-admin-bar-discover-discover'            => 'https://wordpress.com/discover',
+			'wp-admin-bar-discover-search'              => 'https://wordpress.com/read/search',
+			'wp-admin-bar-discover-recommended-blogs'   => 'https://wordpress.com/recommendations',
+			'wp-admin-bar-my-activity-my-likes'         => 'https://wordpress.com/activities/likes',
 			//account
-			'wp-admin-bar-user-info'                  => 'https://wordpress.com',
+			'wp-admin-bar-user-info'                    => 'https://wordpress.com',
 			// account - profile
-			'wp-admin-bar-my-profile'                 => 'https://wordpress.com/me',
-			'wp-admin-bar-account-settings'           => 'https://wordpress.com/me/account',
-			'wp-admin-bar-billing'                    => 'https://wordpress.com/me/purchases',
-			'wp-admin-bar-security'                   => 'https://wordpress.com/me/security',
-			'wp-admin-bar-notifications'              => 'https://wordpress.com/me/notifications',
+			'wp-admin-bar-my-profile'                   => 'https://wordpress.com/me',
+			'wp-admin-bar-account-settings'             => 'https://wordpress.com/me/account',
+			'wp-admin-bar-billing'                      => 'https://wordpress.com/me/purchases',
+			'wp-admin-bar-security'                     => 'https://wordpress.com/me/security',
+			'wp-admin-bar-notifications'                => 'https://wordpress.com/me/notifications',
 			//account - special
-			'wp-admin-bar-get-apps'                   => 'https://wordpress.com/me/get-apps',
-			'wp-admin-bar-next-steps'                 => 'https://wordpress.com/me/next',
-			'wp-admin-bar-help'                       => 'https://jetpack.com/support/',
+			'wp-admin-bar-get-apps'                     => 'https://wordpress.com/me/get-apps',
+			'wp-admin-bar-next-steps'                   => 'https://wordpress.com/me/next',
+			'wp-admin-bar-help'                         => 'https://jetpack.com/support/',
 		) );
 	}
 
@@ -176,7 +182,8 @@ class A8C_WPCOM_Masterbar {
 		wp_enqueue_script( 'jetpack-accessible-focus', plugins_url( '_inc/accessible-focus.js', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
 		wp_enqueue_script( 'a8c_wpcom_masterbar_tracks_events', plugins_url( 'tracks-events.js', __FILE__ ), array(), JETPACK__VERSION );
 		wp_localize_script( 'a8c_wpcom_masterbar_tracks_events', 'jetpackTracks', array(
-			'tracks_nonce' => wp_create_nonce( 'jp-tracks-masterbar-nonce' ),
+			'tracks_nonce' => wp_create_nonce( 'jp-masterbar-tracks-nonce' ),
+			'event_name'   => 'masterbar_link_click'
 		) );
 
 		wp_enqueue_script( 'a8c_wpcom_masterbar_overrides', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/masterbar-overrides/masterbar.js' ), array( 'jquery' ), JETPACK__VERSION );
@@ -265,7 +272,7 @@ class A8C_WPCOM_Masterbar {
 				           '</span>' .
 				           '</div>' .
 				           '</div>',
-				'class' => 'menupop',
+				'class' => 'menupop mb-trackable',
 			),
 			'parent' => 'top-secondary',
 		) );
@@ -277,6 +284,9 @@ class A8C_WPCOM_Masterbar {
 			'id'    => 'newdash',
 			'title' => esc_html__( 'Reader', 'jetpack' ),
 			'href'  => '#',
+			'meta'  => array(
+				'class' => 'mb-trackable',
+			)
 		) );
 
 		$wp_admin_bar->add_menu( array(
@@ -399,7 +409,7 @@ class A8C_WPCOM_Masterbar {
 		}
 
 		$avatar = get_avatar( $this->user_email, 32, 'mm', '', array( 'force_display' => true ) );
-		$class  = empty( $avatar ) ? '' : 'with-avatar';
+		$class  = empty( $avatar ) ? 'mb-trackable' : 'with-avatar mb-trackable';
 
 		// Add the 'Me' menu
 		$wp_admin_bar->add_menu( array(
@@ -589,7 +599,7 @@ class A8C_WPCOM_Masterbar {
 			'title' => _n( 'My Site', 'My Sites', $this->user_site_count, 'jetpack' ),
 			'href'  => '#',
 			'meta'  => array(
-				'class' => 'my-sites',
+				'class' => 'my-sites mb-trackable',
 			),
 		) );
 
@@ -766,7 +776,7 @@ class A8C_WPCOM_Masterbar {
 			'id'     => 'new-post',
 			'title'  => $posts_title,
 			'meta'   => array(
-				'class' => 'inline-action',
+				'class' => 'inline-action mb-trackable',
 			),
 		) );
 
