@@ -325,12 +325,17 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
  * @return void
  */
 function wpcom_social_media_icons_widget_load_widget() {
-	// [DEPRECATION]: Only register widget if active widget exists already
-	$has_widget = is_active_widget( false, false, 'wpcom_social_media_icons_widget', false );
+	$transient = 'wpcom_social_media_icons_widget::is_active';
+	$has_widget = get_transient( $transient );
+
 	if ( false === $has_widget ) {
-		return;
+		$has_widget = (int) ! empty( is_active_widget( false, false, 'wpcom_social_media_icons_widget', false ) );
+		set_transient( $transient, $has_widget, 1 * HOUR_IN_SECONDS );
 	}
 
-	register_widget( 'wpcom_social_media_icons_widget' );
+	// [DEPRECATION]: Only register widget if active widget exists already
+	if ( 1 === $has_widget ) {
+		register_widget( 'wpcom_social_media_icons_widget' );
+	}
 }
 add_action( 'widgets_init', 'wpcom_social_media_icons_widget_load_widget' );
