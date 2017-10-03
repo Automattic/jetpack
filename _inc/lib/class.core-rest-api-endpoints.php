@@ -1817,7 +1817,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 						'businessZipCode'  => '',
 					),
 					'homepageFormat'   => 'news',
-					'addContactForm'   => false
+					'addContactForm'   => false,
+					'end'              => false,
 				),
 				'validate_callback' => __CLASS__ . '::validate_onboarding',
 				'jp_group'          => 'settings',
