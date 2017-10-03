@@ -576,6 +576,24 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		);
 
   		$this->assertEquals( $plugins_action_links, $expected_array );
+
+
+		$helper_all->array_override = array( '<a href="not-fun.php">not fun</a>' );
+		$this->resetCallableAndConstantTimeouts();
+		$this->sender->do_sync();
+
+		$plugins_action_links = $this->server_replica_storage->get_callable( 'get_plugins_action_links' );
+		// Nothing should have changed since we cache the results.
+		$this->assertEquals( $plugins_action_links, $expected_array );
+
+		activate_plugin('hello.php', '', false, true );
+		$this->resetCallableAndConstantTimeouts();
+		$this->sender->do_sync();
+
+		$plugins_action_links = $this->server_replica_storage->get_callable( 'get_plugins_action_links' );
+		// Nothing should have changed since we cache the results.
+		$this->assertEquals( $plugins_action_links, $expected_array );
+
 	}
 
 	function __return_filtered_url() {

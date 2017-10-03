@@ -285,6 +285,11 @@ class Jetpack_Sync_Functions {
 			return array();
 		}
 
+		$action_links = get_transient( 'jetpack_plugin_api_action_links', false );
+		if ( ! empty( $action_links ) ) {
+			return is_null( $plugin_file_singular ) ? $action_links : $action_links[ $plugin_file_singular ];
+		}
+		$plugins_action_links = array();
 		$plugins = is_null( $plugin_file_singular ) ? array_keys( self::get_plugins() ) : array( $plugin_file_singular );
 		foreach( $plugins as $plugin_file ) {
 			$action_links = array();
@@ -318,12 +323,14 @@ class Jetpack_Sync_Functions {
 			}
 			$plugins_action_links[ $plugin_file ] = $formatted_action_links;
 		}
-		return is_null( $plugin_file_singular ) ? $plugins_action_links : $plugins_action_links[ $plugin_file ];
+
+		set_transient( 'jetpack_plugin_api_action_links', $plugins_action_links, DAY_IN_SECONDS );
+
+		return is_null( $plugin_file_singular ) ? $plugins_action_links : $plugins_action_links[ $plugin_file_singular ];
 	}
 
 	public static function wp_version() {
 		global $wp_version;
-
 		return $wp_version;
 	}
 
