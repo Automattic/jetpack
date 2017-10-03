@@ -18,7 +18,7 @@
 
 	// Live preview update.
 	function livePreviewUpdate( button ) {
-		if ( ! $( 'body' ).hasClass( 'wp-customizer' ) || ! button.length  ) {
+		if ( ! $( document.body ).hasClass( 'wp-customizer' ) || ! button.length  ) {
 			return;
 		}
 

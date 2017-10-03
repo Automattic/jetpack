@@ -30,7 +30,6 @@ html[class*='wordpress_com'] .jetpack-social-icons-widget-item.ui-sortable-helpe
 }
 
 .jetpack-social-icons-widget-item.ui-sortable-helper {
-	-webkit-box-shadow: 0 1px 2px rgba(0, 0, 0 , 0.1);
 	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
@@ -89,8 +88,7 @@ html[class*='wordpress_com'] .jetpack-social-icons-widget-item.ui-sortable-helpe
 	top: -1px;
 	font: 400 20px/1 dashicons;
 	vertical-align: middle;
-	-webkit-transition: all .2s;
-	transition: all .2s;
+	transition: all 0.2s;
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 }
