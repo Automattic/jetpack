@@ -322,6 +322,25 @@ class Jetpack_Sync_Defaults {
 		return apply_filters( 'jetpack_sync_post_meta_whitelist', self::$post_meta_whitelist );
 	}
 
+	static $user_meta_whitelist = array(
+		'locale',
+		'*_user_level',
+		'*_capabilities'
+	);
+
+	public static function get_user_meta_whitelist() {
+		/**
+		 * Filter the list of user meta data that are manageable via the JSON API.
+		 *
+		 * @module sync
+		 *
+		 * @since 5.5
+		 *
+		 * @param array The default list of meta data keys.
+		 */
+		return apply_filters( 'jetpack_sync_user_meta_whitelist', self::$user_meta_whitelist );
+	}
+
 	static $comment_meta_whitelist = array(
 		'hc_avatar',
 		'hc_post_as',
@@ -390,6 +409,7 @@ class Jetpack_Sync_Defaults {
 	static $default_post_types_blacklist = array();
 	static $default_post_meta_whitelist = array();
 	static $default_comment_meta_whitelist = array();
+	static $default_user_meta_whitelist = array();
 	static $default_disable = 0; // completely disable sending data to wpcom
 	static $default_sync_via_cron = 1; // use cron to sync
 	static $default_render_filtered_content = 0; // render post_filtered_content

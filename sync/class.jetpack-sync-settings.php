@@ -19,6 +19,7 @@ class Jetpack_Sync_Settings {
 		'disable'                 => true,
 		'render_filtered_content' => true,
 		'post_meta_whitelist'     => true,
+		'user_meta_whitelist'     => true,
 		'comment_meta_whitelist'  => true,
 		'max_enqueue_full_sync'   => true,
 		'max_queue_size_full_sync'=> true,
@@ -74,6 +75,9 @@ class Jetpack_Sync_Settings {
 				break;
 			case 'comment_meta_whitelist':
 				$default_array_value = Jetpack_Sync_Defaults::$comment_meta_whitelist;
+				break;
+			case 'user_meta_whitelist':
+				$default_array_value = Jetpack_Sync_Defaults::get_user_meta_whitelist();
 				break;
 		}
 

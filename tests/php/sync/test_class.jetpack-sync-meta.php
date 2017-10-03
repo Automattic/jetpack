@@ -5,9 +5,12 @@
  */
 class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 	protected $post_id;
+	protected $user_id;
 	protected $meta_module;
 
 	protected $whitelisted_post_meta = 'foobar';
+	protected $whitelisted_user_meta = 'foobar';
+
 
 	public function setUp() {
 		parent::setUp();
@@ -17,6 +20,10 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 		Jetpack_Sync_Settings::update_settings( array( 'post_meta_whitelist' => array( 'foobar' ) ) );
 		$this->post_id = $this->factory->post->create();
 		add_post_meta( $this->post_id, $this->whitelisted_post_meta, 'foo' );
+
+		$this->user_id = $this->factory->user->create();
+		Jetpack_Sync_Settings::update_settings( array( 'user_meta_whitelist' => array( 'foobar' ) ) );
+		add_user_meta( $this->user_id , $this->whitelisted_user_meta, 'foo' );
 		$this->sender->do_sync();
 	}
 
@@ -185,6 +192,100 @@ class WP_Test_Jetpack_Sync_Meta extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		$this->assertOptionIsSynced( '_wpas_skip_1234', '1', 'post', $this->post_id );
+	}
+
+	public function test_added_user_meta_is_synced() {
+
+		$meta_key_value = $this->server_replica_storage->get_metadata( 'user', $this->user_id, $this->whitelisted_user_meta, true );
+		$meta_key_array = $this->server_replica_storage->get_metadata( 'user', $this->user_id, $this->whitelisted_user_meta );
+
+		$this->assertEquals( 'foo', $meta_key_value );
+		$this->assertEquals( array( 'foo' ), $meta_key_array );
+	}
+
+	public function test_added_multiple_user_meta_is_synced() {
+
+		add_user_meta( $this->user_id, $this->whitelisted_user_meta, 'foo', true );
+		add_user_meta( $this->user_id, $this->whitelisted_user_meta, 'bar' );
+
+		$this->sender->do_sync();
+
+		$meta_key_array = $this->server_replica_storage->get_metadata( 'user', $this->user_id, $this->whitelisted_user_meta );
+		$this->assertEquals( array( 'foo', 'bar' ), $meta_key_array );
+	}
+
+	public function test_add_then_updated_user_meta_is_synced() {
+		add_user_meta( $this->user_id, $this->whitelisted_user_meta, 'foo' );
+		update_user_meta( $this->user_id, $this->whitelisted_user_meta, 'bar', 'foo' );
+
+		$this->sender->do_sync();
+
+		$meta_key_array = $this->server_replica_storage->get_metadata( 'user', $this->user_id, $this->whitelisted_user_meta );
+		$this->assertEquals( get_user_meta( $this->user_id, $this->whitelisted_user_meta ), $meta_key_array );
+	}
+
+	public function test_updated_user_meta_is_synced() {
+		update_user_meta( $this->user_id, $this->whitelisted_user_meta, 'foo' );
+		update_user_meta( $this->user_id, $this->whitelisted_user_meta, 'bar', 'foo' );
+
+		$this->sender->do_sync();
+
+		$meta_key_array = $this->server_replica_storage->get_metadata( 'user', $this->user_id, $this->whitelisted_user_meta );
+		$this->assertEquals( get_user_meta( $this->user_id, $this->whitelisted_user_meta ), $meta_key_array );
+	}
+
+	public function test_deleted_user_meta_is_synced() {
+		add_user_meta( $this->user_id, $this->whitelisted_user_meta, 'foo' );
+
+		delete_user_meta( $this->user_id, $this->whitelisted_user_meta, 'foo' );
+		$this->sender->do_sync();
+
+		$meta_key_value = $this->server_replica_storage->get_metadata( 'user', $this->user_id, $this->whitelisted_user_meta, true );
+		$meta_key_array = $this->server_replica_storage->get_metadata( 'user', $this->user_id, $this->whitelisted_user_meta );
+
+		$this->assertEquals( get_user_meta( $this->user_id, $this->whitelisted_user_meta, true ), $meta_key_value );
+		$this->assertEquals( get_user_meta( $this->user_id, $this->whitelisted_user_meta ), $meta_key_array );
+	}
+
+	public function test_delete_all_user_meta_is_synced() {
+
+		add_user_meta( $this->user_id, $this->whitelisted_user_meta, 'foo' );
+
+		delete_metadata( 'user', $this->user_id, $this->whitelisted_user_meta, '', true );
+		$this->sender->do_sync();
+
+		$meta_key_value = $this->server_replica_storage->get_metadata( 'user', $this->user_id, $this->whitelisted_user_meta, true );
+		$meta_key_array = $this->server_replica_storage->get_metadata( 'user', $this->user_id, $this->whitelisted_user_meta );
+		$this->assertEquals( get_user_meta( $this->user_id, $this->whitelisted_user_meta, true ), $meta_key_value );
+		$this->assertEquals( get_user_meta( $this->user_id, $this->whitelisted_user_meta ), $meta_key_array );
+	}
+
+	public function test_syncing_user_locale_is_synced() {
+		update_user_meta( $this->user_id, 'locale', 'en_GB' );
+		$this->sender->do_sync();
+
+		$meta_key_value = $this->server_replica_storage->get_metadata( 'user', $this->user_id, 'locale', true );
+		$this->assertEquals( get_user_meta( $this->user_id, 'locale', true ), $meta_key_value );
+	}
+
+	public function test_sync_user_capabilities_is_synced() {
+		$this->server_event_storage->reset();
+		$user = new WP_User( $this->user_id );
+		$user->add_cap( 'can_do_foo' );
+		$this->sender->do_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'updated_user_meta' );
+		$this->assertEquals( $user->caps, $event->args[3] );
+	}
+
+	public function test_sync_user_roles_is_synced() {
+		$this->server_event_storage->reset();
+		$user = new WP_User( $this->user_id );
+		$user->add_role('foo_magic' );
+		$this->sender->do_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'updated_user_meta' );
+		$this->assertEquals( $user->caps, $event->args[3] );
 	}
 
 	function assertOptionIsSynced( $meta_key, $value, $type, $object_id ) {

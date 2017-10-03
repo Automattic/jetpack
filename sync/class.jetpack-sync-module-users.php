@@ -53,7 +53,30 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		add_action( 'wp_login_failed', $callable, 10, 2 );
 		add_action( 'wp_logout', $callable, 10, 0 );
 		add_action( 'wp_masterbar_logout', $callable, 10, 0 );
+
+		// listen for meta changes
+		$this->init_listeners_for_meta_type( 'user', $callable );
+		$this->init_meta_whitelist_handler( 'user', array( $this, 'filter_meta' ) );
 	}
+
+	public function filter_meta( $args ) {
+		if ( $this->is_whitelisted_user_meta( $args[2] ) ) {
+			return $args;
+		}
+	}
+
+	public function is_whitelisted_user_meta( $meta_key ) {
+		$user_meta_keys = (array)Jetpack_Sync_Settings::get_setting( 'user_meta_whitelist' );
+		$user_keys = array_map( array( $this, 'map_user_key' ), $user_meta_keys );
+
+		return in_array( $meta_key, $user_keys );
+	}
+
+	public function map_user_key( $key ) {
+		global $wpdb;
+		return str_replace( '*_', $wpdb->get_blog_prefix(), $key );
+	}
+
 
 	public function init_full_sync_listeners( $callable ) {
 		add_action( 'jetpack_full_sync_users', $callable );
