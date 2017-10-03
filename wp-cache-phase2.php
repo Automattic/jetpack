@@ -1255,6 +1255,20 @@ function wp_cache_no_postid($id) {
 
 function wp_cache_get_postid_from_comment( $comment_id, $status = 'NA' ) {
 	global $super_cache_enabled, $wp_cache_request_uri;
+
+	if ( defined( 'DONOTDELETECACHE' ) ) {
+		return;
+	}
+
+	// Check is it "Empty Spam" or "Empty Trash"
+	if ( isset( $GLOBALS[ 'pagenow' ] ) && $GLOBALS[ 'pagenow' ] === 'edit-comments.php' &&
+	     ( isset( $_REQUEST['delete_all'] ) || isset( $_REQUEST['delete_all2'] ) )
+	) {
+		wp_cache_debug( "Delete all SPAM or Trash comments. Don't delete any cache files.", 4 );
+		define( 'DONOTDELETECACHE', 1 );
+		return;
+	}
+
 	$comment = get_comment($comment_id, ARRAY_A);
 	if ( $status != 'NA' ) {
 		$comment[ 'old_comment_approved' ] = $comment[ 'comment_approved' ];
@@ -1267,7 +1281,7 @@ function wp_cache_get_postid_from_comment( $comment_id, $status = 'NA' ) {
 		define( 'DONOTDELETECACHE', 1 );
 		return wp_cache_post_id();
 	}
-	$postid = $comment['comment_post_ID'];
+	$postid = isset( $comment[ 'comment_post_ID' ] ) ? (int) $comment[ 'comment_post_ID' ] : 0;
 	// Do nothing if comment is not moderated
 	// http://ocaoimh.ie/2006/12/05/caching-wordpress-with-wp-cache-in-a-spam-filled-world
 	if ( !preg_match('/wp-admin\//', $wp_cache_request_uri) ) {
@@ -1297,7 +1311,7 @@ function wp_cache_get_postid_from_comment( $comment_id, $status = 'NA' ) {
 	if ($postid > 0)  {
 		wp_cache_debug( "Post $postid changed. Update cache.", 4 );
 		return wp_cache_post_change( $postid );
-	} elseif ( $_GET[ 'delete_all' ] != 'Empty Trash' && $_GET[ 'delete_all2' ] != 'Empty Spam' ) {
+	} else {
 		wp_cache_debug( "Unknown post changed. Update cache.", 4 );
 		return wp_cache_post_change( wp_cache_post_id() );
 	}
