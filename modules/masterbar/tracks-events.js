@@ -5,17 +5,20 @@
 	var notesTracksEvents = {
 		openSite: function( data ) {
 			return {
+				source: 'masterbar_notifications_panel',
 				site_id: data.siteId
 			};
 		},
 		openPost: function( data ) {
 			return {
+				source: 'masterbar_notifications_panel',
 				site_id: data.siteId,
 				post_id: data.postId
 			};
 		},
 		openComment: function( data ) {
 			return {
+				source: 'masterbar_notifications_panel',
 				site_id: data.siteId,
 				post_id: data.postId,
 				comment_id: data.commentId
@@ -78,7 +81,7 @@
 			return;
 		}
 
-		window._tkq.push( [ 'recordEvent', 'jetpack_masterbar_link_click', eventData( data ) ] );
+		window._tkq.push( [ 'recordEvent', 'jetpack_' + eventName, eventData( data ) ] );
 	} );
 
 	window.jetpackTracks = null;
