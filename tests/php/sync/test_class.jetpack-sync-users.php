@@ -19,12 +19,11 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$user        = get_user_by( 'id', $this->user_id );
 		$server_user = $this->server_replica_storage->get_user( $this->user_id );
 		// make sure that we don't have a password
-		unset( $user->data->user_pass );
+		$user = $this->unset_user_data(  $user);
 		$this->assertFalse( isset( $server_user->data->user_pass ) );
 
 		// The regular user object doesn't have allowed_mime_types
 		unset( $server_user->data->allowed_mime_types );
-
 		$this->assertEqualsObject( $user, $server_user );
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_register_user' );
@@ -41,7 +40,6 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 
 		// TODO: this is to address a testing bug, alas :/
 		unset( $retrieved_user->data->allowed_mime_types );
-
 		$this->assertEquals( $synced_user, $retrieved_user );
 
 	}
@@ -149,7 +147,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 
 		$server_user = $this->server_replica_storage->get_user( $this->user_id );
 		$client_user = get_user_by( 'id', $this->user_id );
-		unset( $client_user->data->user_pass );
+		$client_user = $this->unset_user_data( $client_user );
 		$this->assertUsersEqual( $client_user, $server_user );
 	}
 
@@ -161,7 +159,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$server_user = $this->server_replica_storage->get_user( $this->user_id );
 
 		$client_user = get_user_by( 'id', $this->user_id );
-		unset( $client_user->data->user_pass );
+		$client_user = $this->unset_user_data( $client_user );
 		$this->assertUsersEqual( $client_user, $server_user );
 	}
 
@@ -172,7 +170,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 
 		$server_user = $this->server_replica_storage->get_user( $this->user_id );
 		$client_user = get_user_by( 'id', $this->user_id );
-		unset( $client_user->data->user_pass );
+		$client_user = $this->unset_user_data( $client_user );
 		$this->assertUsersEqual( $client_user, $server_user );
 
 		// lets now remove role
@@ -182,7 +180,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$server_user = $this->server_replica_storage->get_user( $this->user_id );
 
 		$client_user = get_user_by( 'id', $this->user_id );
-		unset( $client_user->data->user_pass );
+		$client_user = $this->unset_user_data( $client_user );
 		$this->assertUsersEqual( $client_user, $server_user );
 	}
 
@@ -194,7 +192,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 
 		$server_user = $this->server_replica_storage->get_user( $this->user_id );
 		$client_user = get_user_by( 'id', $this->user_id );
-		unset( $client_user->data->user_pass );
+		$client_user = $this->unset_user_data( $client_user );
 		$this->assertUsersEqual( $client_user, $server_user );
 
 		// lets now remove role
@@ -204,7 +202,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$server_user = $this->server_replica_storage->get_user( $this->user_id );
 
 		$client_user = get_user_by( 'id', $this->user_id );
-		unset( $client_user->data->user_pass );
+		$client_user = $this->unset_user_data( $client_user );
 		$this->assertUsersEqual( $client_user, $server_user );
 	}
 
@@ -225,7 +223,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$server_user = $this->server_replica_storage->get_user( $this->user_id );
 
 		$client_user = get_user_by( 'id', $this->user_id );
-		unset( $client_user->data->user_pass );
+		$client_user = $this->unset_user_data( $client_user );
 		$this->assertUsersEqual( $client_user, $server_user );
 	}
 
@@ -459,28 +457,10 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$retrieved_user = $codec->decode( $codec->encode(
 			$user_sync_module->get_object_by_id( 'user', $this->user_id )
 		) );
-
 		// TODO: this is to address a testing bug, alas :/
 		unset( $retrieved_user->data->allowed_mime_types );
-
+		unset( $retrieved_user->data->wpcom_user_id );
 		$this->assertEquals( $synced_user, $retrieved_user );
-	}
-
-	public function test_update_user_locale_is_synced() {
-		global $wp_version;
-		if ( version_compare( $wp_version, 4.7, '<' ) ) {
-			$this->markTestSkipped( 'WP 4.7 and up supports user locale' );
-			return;
-		}
-
-		update_user_meta( $this->user_id, 'locale', 'en_GB' );
-		$this->sender->do_sync();
-
-		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_user_locale' );
-		$this->assertNotEmpty( $event );
-
-		$server_user_local = $this->server_replica_storage->get_user_locale( $this->user_id );
-		$this->assertEquals( get_user_locale( $this->user_id ), $server_user_local );
 	}
 
 	public function test_delete_user_locale_is_synced() {
@@ -493,10 +473,10 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		delete_user_meta( $this->user_id, 'locale' );
 		$this->sender->do_sync();
 
-		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_user_locale_delete' );
+		$event = $this->server_event_storage->get_most_recent_event( 'deleted_user_meta' );
 		$this->assertNotEmpty( $event );
 
-		$server_user_local = $this->server_replica_storage->get_user_locale( $this->user_id );
+		$server_user_local = $this->server_replica_storage->get_metadata( 'user', $this->user_id, 'locale', true );
 		$this->assertEquals( '', $server_user_local );
 	}
 
@@ -631,6 +611,11 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		unset( $user2_array['user_pass'] );
 
 		$this->assertTrue( array_diff( $user1_array, $user2_array ) == array_diff( $user2_array, $user1_array ) );
+	}
+
+	protected function unset_user_data( $user ) {
+		$user_module = new Jetpack_Sync_Module_Users();
+		return $user_module->sanitize_user( $user );
 	}
 
 }

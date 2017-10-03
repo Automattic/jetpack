@@ -30,23 +30,10 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		add_action( 'edit_user_profile_update', array( $this, 'edited_user_handler' ) );
 		add_action( 'jetpack_user_edited', $callable );
 
-		add_action( 'jetpack_sync_user_locale', $callable, 10, 2 );
-		add_action( 'jetpack_sync_user_locale_delete', $callable, 10, 1 );
-
 		add_action( 'deleted_user', array( $this, 'deleted_user_handler' ), 10, 2 );
 		add_action( 'jetpack_deleted_user', $callable, 10, 3 );
 		add_action( 'remove_user_from_blog', array( $this, 'remove_user_from_blog_handler' ), 10, 2 );
 		add_action( 'jetpack_removed_user_from_blog', $callable, 10, 2 );
-
-		// user roles
-		add_action( 'add_user_role', array( $this, 'save_user_role_handler' ), 10, 2 );
-		add_action( 'set_user_role', array( $this, 'save_user_role_handler' ), 10, 3 );
-		add_action( 'remove_user_role', array( $this, 'save_user_role_handler' ), 10, 2 );
-
-		// user capabilities
-		add_action( 'added_user_meta', array( $this, 'maybe_save_user_meta' ), 10, 4 );
-		add_action( 'updated_user_meta', array( $this, 'maybe_save_user_meta' ), 10, 4 );
-		add_action( 'deleted_user_meta', array( $this, 'maybe_save_user_meta' ), 10, 4 );
 
 		// user authentication
 		add_action( 'wp_login', $callable, 10, 2 );
@@ -54,7 +41,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		add_action( 'wp_logout', $callable, 10, 0 );
 		add_action( 'wp_masterbar_logout', $callable, 10, 0 );
 
-		// listen for meta changes
+		// listen for meta changes ( locale, roles and capabilities )
 		$this->init_listeners_for_meta_type( 'user', $callable );
 		$this->init_meta_whitelist_handler( 'user', array( $this, 'filter_meta' ) );
 	}
@@ -68,16 +55,15 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 
 	public function is_whitelisted_user_meta( $meta_key ) {
 		$user_meta_keys = (array)Jetpack_Sync_Settings::get_setting( 'user_meta_whitelist' );
-		$user_keys = array_map( array( $this, 'map_user_key' ), $user_meta_keys );
+		$user_keys = array_map( array( $this, 'map_user_meta_key' ), $user_meta_keys );
 
 		return in_array( $meta_key, $user_keys );
 	}
 
-	public function map_user_key( $key ) {
+	public function map_user_meta_key( $key ) {
 		global $wpdb;
 		return str_replace( '*_', $wpdb->get_blog_prefix(), $key );
 	}
-
 
 	public function init_full_sync_listeners( $callable ) {
 		add_action( 'jetpack_full_sync_users', $callable );
@@ -106,22 +92,18 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 
 		if ( is_object( $user ) && is_object( $user->data ) ) {
 			unset( $user->data->user_pass );
-		}
+			unset( $user->cap_key ); //
+			unset( $user->allcaps ); // We should be able to constuct this from the roles data that we have.
 
+			if ( isset( $user->filter ) ) {
+				unset( $user->filter );
+			}
+		}
 		return $user;
 	}
 
 	public function add_to_user( $user ) {
 		$user->allowed_mime_types = get_allowed_mime_types( $user );
-
-		if ( function_exists( 'get_user_locale' ) ) {
-
-			// Only set the user locale if it is different from the site local
-			if ( get_locale() !== get_user_locale( $user->ID ) ) {
-				$user->locale = get_user_locale( $user->ID );
-			}
-		}
-
 		return $user;
 	}
 
@@ -129,7 +111,8 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		list( $user ) = $args;
 
 		if ( $user ) {
-			return array( $this->add_to_user( $user ) );
+
+			return array( $this->sanitize_user_and_expand( $user ) );
 		}
 
 		return false;
