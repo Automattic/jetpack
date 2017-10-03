@@ -45,7 +45,6 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		'author_url'      => '(url)  The authors web site address',
 		'network'         => '(boolean) Whether the plugin can only be activated network wide.',
 		'autoupdate'      => '(boolean) Whether the plugin is automatically updated',
-		'autoupdate_disabled' => '(boolean|array:safehtml) Whether the plugin has autoupdates disabled and why it is disabled',
 		'autoupdate_translation' => '(boolean) Whether the plugin is automatically updating translations',
 		'log'             => '(array:safehtml) An array of update log strings.',
 		'uninstallable'   => '(boolean) Whether the plugin is unistallable.',
@@ -183,6 +182,60 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 			$plugin['log'] = $this->log[ $plugin_file ];
 		}
 		return $plugin;
+	}
+
+
+	protected function get_file_mod_capabilities() {
+		$reasons_can_not_autoupdate = array();
+		$reasons_can_not_modify_files = array();
+
+		$has_file_system_write_access = $this->replica_store->get_callable( 'has_file_system_write_access' );
+		if ( ! $has_file_system_write_access ) {
+			$reasons_can_not_modify_files['has_no_file_system_write_access'] =  __( 'The file permissions on this host prevent editing files.', 'jetpack' );
+		}
+
+		$disallow_file_mods = $this->replica_store->get_constant( 'DISALLOW_FILE_MODS' );
+		if ( $disallow_file_mods ) {
+			$reasons_can_not_modify_files['disallow_file_mods'] =  __( 'File modifications are explicitly disabled by a site administrator.', 'jetpack' );
+		}
+
+		$automatic_updater_disabled = $this->replica_store->get_constant( 'AUTOMATIC_UPDATER_DISABLED' );
+		if ( $automatic_updater_disabled ) {
+			$reasons_can_not_autoupdate['automatic_updater_disabled'] = __( 'Any autoupdates are explicitly disabled by a site administrator.', 'jetpack' );
+		}
+
+		// Jetpack minimum
+		if ( version_compare( get_jetpack_version(), '3.3' ) < 0 ) {
+			$reasons_can_not_modify_files['no_min_jetpack_version'] = __( 'Jetpack version is less then 3.3, please update to the latest', 'jetpack' );
+		}
+
+		// Is the site a multisite?
+		$is_multi_site = $this->replica_store->get_callable( 'is_multi_site' );
+		if ( $is_multi_site ) {
+			// is it the main network ? is really is multi network
+			$is_main_network = $this->replica_store->get_callable( 'is_main_network' );
+			if ( $is_main_network ) {
+				$reasons_can_not_modify_files['is_multi_network'] =  __( 'Multi network install are not supported.', 'jetpack' );
+			}
+			// Is the site the main site here.
+			if ( $this->get_url_option( 'siteurl' ) !== $this->get_url_option( 'jetpack_main_network_site' ) ) {
+				$reasons_can_not_modify_files['is_sub_site'] =  __( 'The site is not the main network site', 'jetpack' );
+			}
+		}
+
+		$file_mod_capabilities = array(
+			'modify_files' => (bool) empty( $reasons_can_not_modify_files ), // install, remove, update
+			'autoupdate_files' => (bool) empty( $reasons_can_not_modify_files ) && empty( $reasons_can_not_autoupdate ), // enable autoupdates
+		);
+
+		if ( ! empty( $reasons_can_not_modify_files ) ) {
+			$file_mod_capabilities['reasons_modify_files_disabled'] = $reasons_can_not_modify_files;
+		}
+
+		if ( ! $file_mod_capabilities['autoupdate_files'] ) {
+			$file_mod_capabilities['reasons_autoupdate_disabled'] = array_merge( $reasons_can_not_autoupdate, $reasons_can_not_modify_files );
+		}
+		return $file_mod_capabilities;
 	}
 
 	protected function autoupdate_disabled() {
