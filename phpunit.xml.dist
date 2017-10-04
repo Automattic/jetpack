@@ -68,6 +68,9 @@
 		<testsuite name="contact-form">
 			<directory prefix="test_" suffix=".php">tests/php/modules/contact-form</directory>
 		</testsuite>
+		<testsuite name="verification-tools">
+			<directory prefix="test_" suffix=".php">tests/php/modules/verification-tools</directory>
+		</testsuite>
 		<testsuite name="sync">
 			<directory prefix="test_" suffix=".php">tests/php/sync</directory>
 		</testsuite>
