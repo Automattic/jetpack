@@ -88,7 +88,6 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		if ( is_object( $user ) && is_object( $user->data ) ) {
 			unset( $user->data->user_pass );
 			unset( $user->cap_key ); //
-			unset( $user->allcaps ); // We should be able to constuct this from the roles data that we have.
 
 			if ( isset( $user->filter ) ) {
 				unset( $user->filter );
