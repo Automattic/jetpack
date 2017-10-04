@@ -1,0 +1,43 @@
+/* All Menu Indicators */
+a[href$="calypso-plugins"] .wp-menu-name::after,
+a[href$="calypso-users"] .wp-menu-name::after,
+.wp-submenu a[href$="calypso-users"]::after,
+.wp-submenu a[href$="calypso-all-users"]::after,
+.wp-submenu a[href$="calypso-users-new"]::after,
+.wp-submenu a[href$="calypso-users-profile"]::after {
+	float: right;
+
+	/* styles from existing dashicons */
+	content: '\f504';
+	font-family: 'dashicons';
+	font-size: 20px;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+/* Top level menu indicators */
+a[href$="calypso-plugins"] .wp-menu-name::after,
+a[href$="calypso-users"] .wp-menu-name::after {
+	color: rgba(240,245,250,.6); /* match the existing menu icons */
+	padding: 0 1em 0 0;
+}
+
+/* submenu indicators */
+.wp-submenu a[href$="calypso-users"]::after,
+.wp-submenu a[href$="calypso-all-users"]::after,
+.wp-submenu a[href$="calypso-users-new"]::after,
+.wp-submenu a[href$="calypso-users-profile"]::after {
+	line-height: 0.7;
+	padding: 0.1em 0;
+}
+
+.menu-top:hover .wp-menu-name::after {
+	color: inherit;
+}
+
+@media screen and (max-width: 782px) {
+	/* do not show external indicators when the link is the trigger for expanding a submenu */
+	.wp-has-submenu .wp-menu-name::after{
+		display: none;
+	}
+}
