@@ -329,6 +329,11 @@ class Jetpack_Sync_Defaults {
 	);
 
 	public static function get_user_meta_whitelist() {
+		global $wpdb;
+		foreach ( self::$user_meta_whitelist as $key ) {
+			$user_meta[] = str_replace( '*_', $wpdb->get_blog_prefix(), $key );
+		}
+
 		/**
 		 * Filter the list of user meta data that are manageable via the JSON API.
 		 *
@@ -338,7 +343,7 @@ class Jetpack_Sync_Defaults {
 		 *
 		 * @param array The default list of meta data keys.
 		 */
-		return apply_filters( 'jetpack_sync_user_meta_whitelist', self::$user_meta_whitelist );
+		return apply_filters( 'jetpack_sync_user_meta_whitelist', $user_meta );
 	}
 
 	static $comment_meta_whitelist = array(

@@ -54,16 +54,11 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	}
 
 	public function is_whitelisted_user_meta( $meta_key ) {
-		$user_meta_keys = (array)Jetpack_Sync_Settings::get_setting( 'user_meta_whitelist' );
-		$user_keys = array_map( array( $this, 'map_user_meta_key' ), $user_meta_keys );
-
-		return in_array( $meta_key, $user_keys );
+		$user_meta_keys = (array) Jetpack_Sync_Settings::get_setting( 'user_meta_whitelist' );
+		return in_array( $meta_key, 	$user_meta_keys );
 	}
 
-	public function map_user_meta_key( $key ) {
-		global $wpdb;
-		return str_replace( '*_', $wpdb->get_blog_prefix(), $key );
-	}
+
 
 	public function init_full_sync_listeners( $callable ) {
 		add_action( 'jetpack_full_sync_users', $callable );
@@ -236,64 +231,8 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		do_action( 'jetpack_sync_save_user', $user );
 	}
 
-	function maybe_save_user_meta( $meta_id, $user_id, $meta_key, $value ) {
-		if ( $meta_key === 'locale' ) {
-			if ( current_filter() === 'deleted_user_meta' ) {
-				/**
-				 * Allow listeners to listen for user local delete changes
-				 *
-				 * @since 4.8.0
-				 *
-				 * @param int $user_id - The ID of the user whos locale is being deleted
-				 */
-				do_action( 'jetpack_sync_user_locale_delete', $user_id );
-			} else {
-				/**
-				 * Allow listeners to listen for user local changes
-				 *
-				 * @since 4.8.0
-				 *
-				 * @param int $user_id - The ID of the user whos locale is being changed
-				 * @param int $value - The value of the new locale
-				 */
-				do_action( 'jetpack_sync_user_locale', $user_id, $value );
-			}
-		}
-		$this->save_user_cap_handler( $meta_id, $user_id, $meta_key, $value );
-	}
-
-	function save_user_cap_handler( $meta_id, $user_id, $meta_key, $capabilities ) {
-		//The jetpack_sync_register_user payload is identical to jetpack_sync_save_user, don't send both
-		if ( $this->is_create_user() || $this->is_add_user_to_blog() ) {
-			return;
-		}
-
-		// if a user is currently being removed as a member of this blog, we don't fire the event
-		if ( current_filter() === 'deleted_user_meta'
-		     &&
-		     preg_match( '/capabilities|user_level/', $meta_key )
-		     &&
-		     ! is_user_member_of_blog( $user_id, get_current_blog_id() )
-		) {
-			return;
-		}
-
-		$user = get_user_by( 'id', $user_id );
-		if ( $meta_key === $user->cap_key ) {
-			/**
-			 * Fires when the client needs to sync an updated user
-			 *
-			 * @since 4.2.0
-			 *
-			 * @param object The Sanitized WP_User object
-			 */
-			do_action( 'jetpack_sync_save_user', $this->sanitize_user( $user ) );
-		}
-	}
-
 	public function enqueue_full_sync_actions( $config, $max_items_to_enqueue, $state ) {
 		global $wpdb;
-
 		return $this->enqueue_all_ids_as_action( 'jetpack_full_sync_users', $wpdb->usermeta, 'user_id', $this->get_where_sql( $config ), $max_items_to_enqueue, $state );
 	}
 
@@ -307,14 +246,13 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		}
 
 		$count = $wpdb->get_var( $query );
-
 		return (int) ceil( $count / self::ARRAY_CHUNK_SIZE );
 	}
 
 	private function get_where_sql( $config ) {
 		global $wpdb;
-
-		$query = "meta_key = '{$wpdb->prefix}capabilities'";
+		$prefix = $wpdb->get_blog_prefix();
+		$query = "meta_key = '{$prefix}capabilities'";
 
 		// config is a list of user IDs to sync
 		if ( is_array( $config ) ) {
@@ -330,8 +268,8 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 
 	function get_initial_sync_user_config() {
 		global $wpdb;
-
-		$user_ids = $wpdb->get_col( "SELECT user_id FROM $wpdb->usermeta WHERE meta_key = '{$wpdb->prefix}user_level' AND meta_value > 0 LIMIT " . ( self::MAX_INITIAL_SYNC_USERS + 1 ) );
+		$prefix = $wpdb->get_blog_prefix();
+		$user_ids = $wpdb->get_col( "SELECT user_id FROM $wpdb->usermeta WHERE meta_key = '{$prefix}user_level' AND meta_value > 0 LIMIT " . ( self::MAX_INITIAL_SYNC_USERS + 1 ) );
 
 		if ( count( $user_ids ) <= self::MAX_INITIAL_SYNC_USERS ) {
 			return $user_ids;
@@ -342,8 +280,11 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 
 	public function expand_users( $args ) {
 		$user_ids = $args[0];
-
-		return array_map( array( $this, 'sanitize_user_and_expand' ), get_users( array( 'include' => $user_ids ) ) );
+		return array(
+			'users' => array_map( array( $this, 'sanitize_user_and_expand' ), get_users( array( 'include' => $user_ids ) ) ),
+			'meta' => $this->get_metadata( $user_ids, 'user', Jetpack_Sync_Settings::get_setting( 'user_meta_whitelist' ) ),
+		);
+		return ;
 	}
 
 	public function remove_user_from_blog_handler( $user_id, $blog_id ) {

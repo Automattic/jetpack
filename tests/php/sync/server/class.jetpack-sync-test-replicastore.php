@@ -517,7 +517,7 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 	}
 
 	function get_user_locale( $user_id ) {
-		return isset( $this->users_locale[ get_current_blog_id() ][ $user_id ] ) ? $this->users_locale[ get_current_blog_id() ][ $user_id ] : null;
+		return $this->get_metadata( 'user', $user_id, 'locale' , true );
 	}
 
 	function get_allowed_mime_types( $user_id ) {
@@ -535,10 +535,6 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 			unset( $user->data->allowed_mime_types );
 		}
 
-		if ( isset( $user->data->locale ) ) {
-			$this->users_locale[ get_current_blog_id() ][ $user->ID ] = $user->data->locale;
-			unset( $user->data->locale );
-		}
 		$this->users[ get_current_blog_id() ][ $user->ID ] = $user;
 	}
 

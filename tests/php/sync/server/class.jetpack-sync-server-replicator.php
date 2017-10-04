@@ -202,8 +202,20 @@ class Jetpack_Sync_Server_Replicator {
 				}
 				break;
 			case 'jetpack_full_sync_users':
-				foreach ( $args as $user ) {
+				if ( isset( $args['users'] ) ) {
+					$users = $args['users'];
+				} else {
+					$users = $args; // for backwards compatibility Pre 5.5
+				}
+				$user_metas = array();
+				if ( isset( $args['meta'] ) ) {
+					$user_metas = $args['meta'];
+				}
+				foreach ( $users as $user ) {
 					$this->store->upsert_user( $user );
+				}
+				foreach ( $user_metas as $meta ) {
+					$this->store->upsert_metadata( 'user', $meta->user_id, $meta->meta_key, $meta->meta_value, $meta->umeta_id );
 				}
 				break;
 			case 'jetpack_full_sync_terms':
