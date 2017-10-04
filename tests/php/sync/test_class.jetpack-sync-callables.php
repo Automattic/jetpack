@@ -80,6 +80,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			'site_icon_url'                    => Jetpack_Sync_Functions::site_icon_url(),
 			'shortcodes'                       => Jetpack_Sync_Functions::get_shortcodes(),
 			'roles'                            => Jetpack_Sync_Functions::roles(),
+			'blog_prefix'                      => Jetpack_Sync_Functions::get_blog_prefix(),
 		);
 
 		if ( function_exists( 'wp_cache_is_enabled' ) ) {
@@ -591,6 +592,33 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			$this->assertObjectHasAttribute( $test, $taxonomy, "Taxonomy does not have expected {$test} attribute." );
 		}
 
+	}
+
+	function test_syncing_blog_prefix() {
+		global $wpdb;
+		$this->callable_module->set_callable_whitelist( array( 'blog_prefix' => array( 'Jetpack_Sync_Functions','get_blog_prefix' ) ) );
+		$this->sender->do_sync();
+
+		$this->assertEquals( $wpdb->get_blog_prefix(), $this->server_replica_storage->get_callable( 'blog_prefix' ) ) ;
+
+	}
+
+	function test_syncing_blog_prefix_on_multisite() {
+		if ( ! is_multisite() ) {
+			$this->markTestSkipped( 'Not compatible with single site mode' );
+		}
+		$user_id = $this->factory->user->create();
+		global $wpdb;
+		$suppress      = $wpdb->suppress_errors();
+		$other_blog_id = wpmu_create_blog( 'foo.com', '', "My Blog", $user_id );
+		$wpdb->suppress_errors( $suppress );
+
+		// let's create some users on the other blog
+		switch_to_blog( $other_blog_id );
+		$this->callable_module->set_callable_whitelist( array( 'blog_prefix' => array( 'Jetpack_Sync_Functions','get_blog_prefix' ) ) );
+		$this->sender->do_sync();
+		$this->assertEquals( $wpdb->get_blog_prefix(), $this->server_replica_storage->get_callable( 'blog_prefix' ) ) ;
+		restore_current_blog();
 	}
 
 }

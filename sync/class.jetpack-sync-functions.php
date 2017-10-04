@@ -293,4 +293,9 @@ class Jetpack_Sync_Functions {
 		return $wp_roles->roles;
 	}
 
+	public static function get_blog_prefix() {
+		global $wpdb;
+		return $wpdb->get_blog_prefix();
+	}
+
 }
