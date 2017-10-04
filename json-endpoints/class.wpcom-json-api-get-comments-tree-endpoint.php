@@ -56,38 +56,33 @@ class WPCOM_JSON_API_Get_Comments_Tree_Endpoint extends WPCOM_JSON_API_Endpoint 
 		$trackbacks = array();
 		$pingbacks = array();
 		foreach ( $db_comment_rows as $row ) {
-			list( $comment_id, $comment_post_id, $comment_parent, $comment_type ) = $row;
-			switch ( $comment_type ) {
+			$comment_id = (int) $row[0];
+			$comment_post_id = (int) $row[1];
+			$comment_parent_id = (int) $row[2];
+			switch ( $row[3] ) {
 				case 'trackback':
-					$trackbacks[] = array( $comment_id, $comment_post_id, $comment_parent );
+					$trackbacks[] = array( $comment_id, $comment_post_id );
 					break;
 				case 'pingback':
-					$pingbacks[] = array( $comment_id, $comment_post_id, $comment_parent );
+					$pingbacks[] = array( $comment_id, $comment_post_id );
 					break;
 				default:
-					$comments[] = array( $comment_id, $comment_post_id, $comment_parent );
+					if ( 0 === $comment_parent_id ) {
+						$comments[ $comment_post_id ][0][] = $comment_id;
+					} else {
+						$comments[ $comment_post_id ][1][] = array( $comment_id, $comment_parent_id );
+					}
 			}
 		}
 
 		return array(
 			'comments_count' => $this->get_site_tree_total_count( $status, 'comment' ),
-			'comments_tree' => array_map( array( $this, 'array_map_all_as_ints' ), $comments ),
+			'comments_tree' => $comments,
 			'trackbacks_count' => $this->get_site_tree_total_count( $status, 'trackback' ),
-			'trackbacks_tree' => array_map( array( $this, 'array_map_all_as_ints' ), $trackbacks ),
+			'trackbacks_tree' => $trackbacks,
 			'pingbacks_count' => $this->get_site_tree_total_count( $status, 'pingback' ),
-			'pingbacks_tree' => array_map( array( $this, 'array_map_all_as_ints' ), $pingbacks ),
+			'pingbacks_tree' => $pingbacks,
 		);
-	}
-
-	/**
-	 * Ensure all values are integers.
-	 *
-	 * @param array $comments Collection of comments.
-	 *
-	 * @return array Comments with values as integers.
-	 */
-	function array_map_all_as_ints( $comments ) {
-		return array_map( 'intval', $comments );
 	}
 
 	/**
