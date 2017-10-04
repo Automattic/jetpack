@@ -61,10 +61,10 @@ class WPCOM_JSON_API_Get_Comments_Tree_Endpoint extends WPCOM_JSON_API_Endpoint 
 			$comment_parent_id = intval( $row[2] );
 			switch ( $row[3] ) {
 				case 'trackback':
-					$trackbacks[] = array( $comment_id, $comment_post_id );
+					$trackbacks[ $comment_post_id ][] = $comment_id;
 					break;
 				case 'pingback':
-					$pingbacks[] = array( $comment_id, $comment_post_id );
+					$pingbacks[ $comment_post_id ][] = $comment_id;
 					break;
 				default:
 					if ( 0 === $comment_parent_id ) {
