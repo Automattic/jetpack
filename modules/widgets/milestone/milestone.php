@@ -36,18 +36,30 @@ class Milestone_Widget extends WP_Widget {
 		self::$dir = trailingslashit( dirname( __FILE__ ) );
 		self::$url = plugin_dir_url( __FILE__ );
 		self::$labels = array(
-			'year'    => __( 'year', 'jetpack' ),
-			'years'   => __( 'years', 'jetpack' ),
-			'month'   => __( 'month', 'jetpack' ),
-			'months'  => __( 'months', 'jetpack' ),
-			'day'     => __( 'day', 'jetpack' ),
-			'days'    => __( 'days', 'jetpack' ),
-			'hour'    => __( 'hour', 'jetpack' ),
-			'hours'   => __( 'hours', 'jetpack' ),
-			'minute'  => __( 'minute', 'jetpack' ),
-			'minutes' => __( 'minutes', 'jetpack' ),
-			'second'  => __( 'second', 'jetpack' ),
-			'seconds' => __( 'seconds', 'jetpack' ),
+			'yearToGo'    => __( 'year to go.', 'jetpack' ),
+			'yearsToGo'   => __( 'years to go.', 'jetpack' ),
+			'monthToGo'   => __( 'month to go.', 'jetpack' ),
+			'monthsToGo'  => __( 'months to go.', 'jetpack' ),
+			'dayToGo'     => __( 'day to go.', 'jetpack' ),
+			'daysToGo'    => __( 'days to go.', 'jetpack' ),
+			'hourToGo'    => __( 'hour to go.', 'jetpack' ),
+			'hoursToGo'   => __( 'hours to go.', 'jetpack' ),
+			'minuteToGo'  => __( 'minute to go.', 'jetpack' ),
+			'minutesToGo' => __( 'minutes to go.', 'jetpack' ),
+			'secondToGo'  => __( 'second to go.', 'jetpack' ),
+			'secondsToGo' => __( 'seconds to go.', 'jetpack' ),
+			'yearAgo'    => __( 'year ago.', 'jetpack' ),
+			'yearsAgo'   => __( 'years ago.', 'jetpack' ),
+			'monthAgo'   => __( 'month ago.', 'jetpack' ),
+			'monthsAgo'  => __( 'months ago.', 'jetpack' ),
+			'dayAgo'     => __( 'day ago.', 'jetpack' ),
+			'daysAgo'    => __( 'days ago.', 'jetpack' ),
+			'hourAgo'    => __( 'hour ago.', 'jetpack' ),
+			'hoursAgo'   => __( 'hours ago.', 'jetpack' ),
+			'minuteAgo'  => __( 'minute ago.', 'jetpack' ),
+			'minutesAgo' => __( 'minutes ago.', 'jetpack' ),
+			'secondAgo'  => __( 'second ago.', 'jetpack' ),
+			'secondsAgo' => __( 'seconds ago.', 'jetpack' ),
 		);
 
 		add_action( 'wp_enqueue_scripts', array( __class__, 'enqueue_template' ) );
@@ -200,20 +212,11 @@ class Milestone_Widget extends WP_Widget {
 		if ( ( 1 > $diff ) && ( 'until' === $type ) ) {
 			echo '<div class="milestone-message">' . $instance['message'] . '</div>';
 		} else {
-			if ( 'since' === $type ) {
-				/* translators: text that the widget displays when counting up from a milestone (e.g. 5 days ago.) */
-				$text = __( 'ago.', 'jetpack' );
-			} else {
-				/* translators: text that the widget displays when counting down to a milestone (e.g. 5 days to go.) */
-				$text = __( 'to go.', 'jetpack' );
-			}
-
 			/* Countdown to the milestone. */
-			echo '<div class="milestone-countdown">' . sprintf( __( '%1$s %2$s %3$s', 'jetpack' ),
-				'<span class="difference"></span>',
-				'<span class="label"></span>',
-				$text
-			) . '</div>';
+			echo '<div class="milestone-countdown">' .
+				'<span class="difference"></span>' .
+				'<span class="label"></span>' .
+				'</div>';
 
 			self::$config_js['instances'][] = array(
 				'id'      => $args['widget_id'],
