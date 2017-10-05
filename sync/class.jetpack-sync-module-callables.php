@@ -40,7 +40,8 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 
 		// get_plugins and wp_version
 		// gets fired when new code gets installed, updates etc.
-		add_action( 'upgrader_process_complete', array( $this, 'unlock_sync_callable' ) );
+		add_action( 'upgrader_process_complete', array( $this, 'unlock_plugin_action_link_and_callables' ) );
+		add_action( 'update_option_active_plugins', array( $this, 'unlock_plugin_action_link_and_callables' ) );
 	}
 
 	public function init_full_sync_listeners( $callable ) {
@@ -113,6 +114,11 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 
 	public function unlock_sync_callable() {
 		delete_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME );
+	}
+
+	public function unlock_plugin_action_link_and_callables() {
+		delete_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME );
+		delete_transient( 'jetpack_plugin_api_action_links' );
 	}
 
 	public function should_send_callable( $callable_checksums, $name, $checksum ) {

@@ -190,48 +190,8 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		return null;
 	}
 
-	/**
-	 * Get custom action link tags that the plugin is using
-	 * Ref: https://codex.wordpress.org/Plugin_API/Filter_Reference/plugin_action_links_(plugin_file_name)
-	 * @return array of plugin action links (key: link name value: url)
-	 */
 	 protected function get_plugin_action_links( $plugin_file ) {
-		 $formatted_action_links = array();
-
-		 // Some sites may have DOM disabled in PHP
-		 if ( ! class_exists( 'DOMDocument' ) ) {
-			 return $formatted_action_links;
-		 }
-
-		 $action_links = array();
-		 /** This filter is documented in src/wp-admin/includes/class-wp-plugins-list-table.php */
-		 $action_links = apply_filters( 'plugin_action_links', $action_links, $plugin_file, null, 'all' );
-		 /** This filter is documented in src/wp-admin/includes/class-wp-plugins-list-table.php */
-		 $action_links = apply_filters( "plugin_action_links_{$plugin_file}", $action_links, $plugin_file, null, 'all' );
-		 if ( count( $action_links ) > 0 ) {
-			 $dom_doc = new DOMDocument;
-			 foreach( $action_links as $action_link ) {
-				 $dom_doc->loadHTML( mb_convert_encoding( $action_link, 'HTML-ENTITIES', 'UTF-8' ) );
-				 $link_elements = $dom_doc->getElementsByTagName( 'a' );
-				 if ( $link_elements->length == 0 ) {
-					 continue;
-				 }
-
-				 $link_element = $link_elements->item( 0 );
-				 if ( $link_element->hasAttribute( 'href' ) && $link_element->nodeValue ) {
-					 $link_url = trim( $link_element->getAttribute( 'href' ) );
-
-					 // Add the full admin path to the url if the plugin did not provide it
-					 $link_url_scheme = wp_parse_url( $link_url, PHP_URL_SCHEME );
-					 if ( empty( $link_url_scheme ) ) {
-						 $link_url = admin_url( $link_url );
-					 }
-
-					 $formatted_action_links[ $link_element->nodeValue ] = $link_url;
-				 }
-			 }
-		 }
-
-		 return $formatted_action_links;
+		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-functions.php';
+		return Jetpack_Sync_Functions::get_plugins_action_links( $plugin_file );
 	 }
 }

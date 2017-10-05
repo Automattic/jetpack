@@ -274,9 +274,63 @@ class Jetpack_Sync_Functions {
 		return apply_filters( 'all_plugins', get_plugins() );
 	}
 
+	/**
+	 * Get custom action link tags that the plugin is using
+	 * Ref: https://codex.wordpress.org/Plugin_API/Filter_Reference/plugin_action_links_(plugin_file_name)
+	 * @return array of plugin action links (key: link name value: url)
+	 */
+	public static function get_plugins_action_links( $plugin_file_singular = null ) {
+		// Some sites may have DOM disabled in PHP
+		if ( ! class_exists( 'DOMDocument' ) ) {
+			return array();
+		}
+
+		$action_links = get_transient( 'jetpack_plugin_api_action_links', false );
+		if ( ! empty( $action_links ) ) {
+			return is_null( $plugin_file_singular ) ? $action_links : $action_links[ $plugin_file_singular ];
+		}
+		$plugins_action_links = array();
+		$plugins = is_null( $plugin_file_singular ) ? array_keys( self::get_plugins() ) : array( $plugin_file_singular );
+		foreach( $plugins as $plugin_file ) {
+			$action_links = array();
+			/** This filter is documented in src/wp-admin/includes/class-wp-plugins-list-table.php */
+			$action_links = apply_filters( 'plugin_action_links', $action_links, $plugin_file, null, 'all' );
+			/** This filter is documented in src/wp-admin/includes/class-wp-plugins-list-table.php */
+			$action_links = apply_filters( "plugin_action_links_{$plugin_file}", $action_links, $plugin_file, null, 'all' );
+			$formatted_action_links = null;
+			if ( count( $action_links ) > 0 ) {
+				$dom_doc = new DOMDocument;
+				foreach ( $action_links as $action_link ) {
+					$dom_doc->loadHTML( mb_convert_encoding( $action_link, 'HTML-ENTITIES', 'UTF-8' ) );
+					$link_elements = $dom_doc->getElementsByTagName( 'a' );
+					if ( $link_elements->length == 0 ) {
+						continue;
+					}
+
+					$link_element = $link_elements->item( 0 );
+					if ( $link_element->hasAttribute( 'href' ) && $link_element->nodeValue ) {
+						$link_url = trim( $link_element->getAttribute( 'href' ) );
+
+						// Add the full admin path to the url if the plugin did not provide it
+						$link_url_scheme = wp_parse_url( $link_url, PHP_URL_SCHEME );
+						if ( empty( $link_url_scheme ) ) {
+							$link_url = admin_url( $link_url );
+						}
+
+						$formatted_action_links[$link_element->nodeValue] = $link_url;
+					}
+				}
+			}
+			$plugins_action_links[ $plugin_file ] = $formatted_action_links;
+		}
+
+		set_transient( 'jetpack_plugin_api_action_links', $plugins_action_links, DAY_IN_SECONDS );
+
+		return is_null( $plugin_file_singular ) ? $plugins_action_links : $plugins_action_links[ $plugin_file_singular ];
+	}
+
 	public static function wp_version() {
 		global $wp_version;
-
 		return $wp_version;
 	}
 
