@@ -1,4 +1,4 @@
-/*globals JSON, jetpackTracks */
+/*globals JSON */
 (function( $ ) {
 	var notesTracksEvents = {
 		openSite: function( data ) {
