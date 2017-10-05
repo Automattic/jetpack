@@ -9,7 +9,7 @@
     "automattic/custom-fonts-typekit": "1.0.3",
     "automattic/jetpack-social-icons": "~1.0",
     "automattic/text-media-widget-styles": "~1.0",
-    "woocommerce/wc-api-dev": "0.8.7"
+    "woocommerce/wc-api-dev": "0.8.8"
   },
   "require-dev": {
     "php": ">=7.0.0"
