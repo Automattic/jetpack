@@ -1,7 +1,5 @@
 /*globals JSON, jetpackTracks */
-(function( $, jetpackTracks ) {
-	window._tkq = window._tkq || [];
-
+(function( $ ) {
 	var notesTracksEvents = {
 		openSite: function( data ) {
 			return {
@@ -26,8 +24,7 @@
 		}
 	};
 
-	var nonce = jetpackTracks.tracks_nonce;
-	var eventName = jetpackTracks.event_name;
+	var eventName = 'masterbar_click';
 
 	function parseJson( s, defaultValue ) {
 		try {
@@ -38,7 +35,11 @@
 	}
 
 	$( document ).ready( function() {
-		$( '.mb-trackable a' ).on( 'click touchstart', function( e ) {
+		$( '.mb-trackable .ab-item' ).on( 'click touchstart', function( e ) {
+			if ( ! window.jpTracksAJAX || 'function' !== typeof( window.jpTracksAJAX.record_ajax_event ) ) {
+				return;
+			}
+
 			var $target = $( e.target ),
 					$parent = $target.closest( 'li' );
 
@@ -46,19 +47,14 @@
 				return;
 			}
 
+			var trackingId = $target.attr( 'ID' ) || $parent.attr( 'ID' );
+
 			if( $parent.hasClass( 'menupop' ) ) {
-				//top level items that open a panel
-				window._tkq.push( [ 'recordEvent', 'jetpack_' + eventName, {
-					source: 'masterbar',
-					item: $parent.attr( 'ID' ),
-					target: $target.attr( 'href' )
-				} ] );
+				window.jpTracksAJAX.record_ajax_event( eventName, 'click', trackingId );
 			} else {
 				e.preventDefault();
-				window.location = 'jetpack-track-and-bounce.php?' + $.param( {
-					jetpack_tracks_and_bounce_id: $target.attr( 'ID' ) || $parent.attr( 'ID' ),
-					jetpack_tracks_and_bounce_event: eventName,
-					jetpack_tracks_and_bounce_nonce: nonce
+				window.jpTracksAJAX.record_ajax_event( eventName, 'click', trackingId ).always( function() {
+					window.location = $target.attr( 'href' );
 				} );
 			}
 		} );
@@ -66,6 +62,10 @@
 
 	// listen for postMessage events from the notifications iframe
 	$( window ).on( 'message', function( e ) {
+		if ( ! window.jpTracksAJAX || 'function' !== typeof( window.jpTracksAJAX.record_ajax_event ) ) {
+			return;
+		}
+
 		var event = ! e.data && e.originalEvent.data ? e.originalEvent : event;
 		if ( event.origin !== 'https://widgets.wp.com' ) {
 			return;
@@ -81,9 +81,7 @@
 			return;
 		}
 
-		window._tkq.push( [ 'recordEvent', 'jetpack_' + eventName, eventData( data ) ] );
+		window.jpTracksAJAX.record_ajax_event( eventName, 'click', eventData( data ) );
 	} );
 
-	window.jetpackTracks = null;
-
-})( jQuery, jetpackTracks );
+})( jQuery );

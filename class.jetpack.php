@@ -715,7 +715,11 @@ class Jetpack {
 
 		$tracks_data = array();
 		if ( 'click' === $_REQUEST['tracksEventType'] && isset( $_REQUEST['tracksEventProp'] ) ) {
-			$tracks_data = array( 'clicked' => $_REQUEST['tracksEventProp'] );
+			if ( is_array( $_REQUEST['tracksEventProp'] ) ) {
+				$tracks_data = $_REQUEST['tracksEventProp'];
+			} else {
+				$tracks_data = array( 'clicked' => $_REQUEST['tracksEventProp'] );
+			}
 		}
 
 		JetpackTracking::record_user_event( $_REQUEST['tracksEventName'], $tracks_data );

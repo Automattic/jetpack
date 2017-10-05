@@ -7,7 +7,6 @@ require_once( dirname( __FILE__ ) . '/_inc/lib/tracks/client.php' );
 
 class JetpackTracking {
 	static $product_name = 'jetpack';
-	static $track_and_bounce_query_vars = array( 'jetpack_tracks_and_bounce_id', 'jetpack_tracks_and_bounce_event', 'jetpack_tracks_and_bounce_nonce' );
 
 	static function track_jetpack_usage() {
 		if ( ! Jetpack::is_active() ) {
@@ -17,97 +16,10 @@ class JetpackTracking {
 		// For tracking stuff via js/ajax
 		add_action( 'admin_enqueue_scripts',     array( __CLASS__, 'enqueue_tracks_scripts' ) );
 
-		add_action( 'jetpack_activate_module', array( __CLASS__, 'track_activate_module'), 1, 1 );
+		add_action( 'jetpack_activate_module',   array( __CLASS__, 'track_activate_module'), 1, 1 );
 		add_action( 'jetpack_deactivate_module', array( __CLASS__, 'track_deactivate_module'), 1, 1 );
 		add_action( 'jetpack_user_authorized',   array( __CLASS__, 'track_user_linked' ) );
 		add_action( 'wp_login_failed',           array( __CLASS__, 'track_failed_login_attempts' ) );
-	}
-
-	static function add_track_and_bounce_query_vars( $query_vars ) {
-		return array_merge( $query_vars, self::$track_and_bounce_query_vars );
-	}
-
-	static function allow_wpcom_domain( $domains ) {
-		if ( empty( $domains ) ) {
-			$domains = array();
-		}
-		$domains[] = 'wordpress.com';
-		return array_unique( $domains );
-	}
-
-	static function parse_track_and_bounce_request( $query ) {
-		if ( count( array_intersect_key( array_flip( self::$track_and_bounce_query_vars ), $query->query_vars ) ) !== count( self::$track_and_bounce_query_vars ) ) {
-			return;
-		}
-
-		$track_id = $query->query_vars[ 'jetpack_tracks_and_bounce_id' ];
-		$jetpack_tracks_authorized_redirect_targets = self::get_tracks_authorized_redirect_targets();
-		if ( ! array_key_exists( $track_id, $jetpack_tracks_authorized_redirect_targets ) ) {
-			return;
-		}
-
-		$event_name = $query->query_vars[ 'jetpack_tracks_and_bounce_event' ];
-		$jetpack_tracks_authorized_event_names = self::get_tracks_authorized_event_names();
-		if ( ! in_array( $event_name, $jetpack_tracks_authorized_event_names ) ) {
-			return;
-		}
-
-		if ( ! wp_verify_nonce( $query->query_vars[ 'jetpack_tracks_and_bounce_nonce' ], 'jp-masterbar-tracks-nonce' ) ) {
-			// no nonce, wrong link or missing tracking information, push back to settings page
-			wp_safe_redirect(
-				add_query_arg(
-					array( 'page' => 'jetpack-settings' ),
-					network_admin_url( 'admin.php' )
-				)
-			);
-			die();
-		}
-
-		$redirect_target = $jetpack_tracks_authorized_redirect_targets[ $track_id ];
-		$tracks_data = array(
-			'source' => $track_id,
-			'target' => $redirect_target
-		);
-
-		JetpackTracking::record_user_event( $event_name, $tracks_data );
-		wp_safe_redirect( $redirect_target );
-		die();
-	}
-
-	/**
-	* Gets an array of authorized redirect targets.
-	*
-	* @since 5.5
-	* @return mixed|void
-	*/
-	static function get_tracks_authorized_redirect_targets() {
-		$jetpack_tracks_authorized_redirect_targets = array();
-	/**
-		* Array of authorized redirect targets.
-		*
-		* @since 5.5
-		*
-		* @param array $jetpack_tracks_authorized_redirect_targets.
-		*/
-		return apply_filters( 'jetpack_tracks_authorized_redirect_targets', $jetpack_tracks_authorized_redirect_targets );
-	}
-
-	/**
-	* Gets an array of authorized event names.
-	*
-	* @since 5.5
-	* @return mixed|void
-	*/
-	static function get_tracks_authorized_event_names() {
-		$jetpack_tracks_authorized_event_names = array();
-	/**
-		* Array of authorized event names.
-		*
-		* @since 5.5
-		*
-		* @param array $jetpack_tracks_authorized_event_names.
-		*/
-		return apply_filters( 'jetpack_tracks_authorized_event_names', $jetpack_tracks_authorized_event_names );
 	}
 
 	static function enqueue_tracks_scripts() {
