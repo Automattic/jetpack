@@ -201,8 +201,10 @@ class Milestone_Widget extends WP_Widget {
 			echo '<div class="milestone-message">' . $instance['message'] . '</div>';
 		} else {
 			if ( 'since' === $type ) {
+				/* translators: text that the widget displays when counting up from a milestone (e.g. 5 days ago.) */
 				$text = __( 'ago.', 'jetpack' );
 			} else {
+				/* translators: text that the widget displays when counting down to a milestone (e.g. 5 days to go.) */
 				$text = __( 'to go.', 'jetpack' );
 			}
 
