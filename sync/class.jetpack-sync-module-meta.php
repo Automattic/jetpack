@@ -34,7 +34,8 @@ class Jetpack_Sync_Module_Meta extends Jetpack_Sync_Module {
 
 		$meta_key = $config['meta_key'];
 		$ids = $config['ids'];
-		$object_id_column = $object_type.'_id';
+		$object_id_column = $object_type . '_id';
+		$object_meta_id_column = ( 'user' === $object_type ? 'umeta_id' : 'meta_id' );
 
 		// Sanitize so that the array only has integer values
 		$ids_string = implode( ', ', array_map( 'intval', $ids ) );
@@ -50,7 +51,7 @@ class Jetpack_Sync_Module_Meta extends Jetpack_Sync_Module {
 			$meta_object = (array) $meta_object;
 			$meta_objects[ $meta_object[ $object_id_column ] ] = array(
 				'meta_type' => $object_type,
-				'meta_id' => $meta_object['meta_id'],
+				'meta_id' => $meta_object[ $object_meta_id_column ],
 				'meta_key' => $meta_key,
 				'meta_value' => $meta_object['meta_value'],
 				'object_id' => $meta_object[ $object_id_column ],

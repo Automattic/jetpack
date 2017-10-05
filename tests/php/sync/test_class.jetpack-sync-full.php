@@ -191,7 +191,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		if ( function_exists( 'get_user_locale' ) ) {
 			$this->assertEquals( get_user_locale( $user_id ), $this->server_replica_storage->get_user_locale( $user_id ) );
-			$this->assertNull( $this->server_replica_storage->get_user_locale( $first_user_id ) );
+			$this->assertEmpty( $this->server_replica_storage->get_user_locale( $first_user_id ) );
 		}
 		// Lets make sure that we don't send users passwords around.
 		$this->assertFalse( isset( $user->data->user_pass ) );
@@ -913,7 +913,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 
 		$synced_users_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_users' );
 
-		$users = $synced_users_event->args;
+		$users = $synced_users_event->args['users'];
 
 		$this->assertEquals( 2, count( $users ) );
 		$this->assertEquals( $sync_user_id, $users[0]->ID );
@@ -977,7 +977,7 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_full_sync();
 
 		$synced_users_event = $this->server_event_storage->get_most_recent_event( 'jetpack_full_sync_users' );
-		$users = $synced_users_event->args;
+		$users = $synced_users_event->args['users'];
 
 		$this->assertEquals( $existing_user_count+1, count( $users ) );
 		$this->assertEquals( $keep_user_id, $users[ $existing_user_count ]->ID );
@@ -1127,12 +1127,14 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 		$this->server_replica_storage->reset();
 		$this->assertEquals( 0, $this->server_replica_storage->user_count() );
 		$user_ids = Jetpack_Sync_Modules::get_module( 'users' )->get_initial_sync_user_config();
+
 		$this->assertEquals( 3, count( $user_ids ) );
 		$this->full_sync->start( array( 'users' => 'initial' ) );
 		$this->sender->do_full_sync();
+
 		$this->assertEquals( 3, $this->server_replica_storage->user_count() );
 		// finally, let's make sure that the initial sync method actually invokes our initial sync user config
-		Jetpack_Sync_Actions::do_initial_sync( '4.2', '4.1' );
+		Jetpack_Sync_Actions::do_initial_sync();
 		$current_user = wp_get_current_user();
 
 		$expected_sync_config = array( 
@@ -1151,6 +1153,36 @@ class WP_Test_Jetpack_Sync_Full extends WP_Test_Jetpack_Sync_Base {
 			$expected_sync_config,
 			$full_sync_status[ 'config' ]
 		);
+	}
+
+	function test_initial_sync_doesnt_sync_subscribers_on_multisite() {
+		if ( ! is_multisite() ) {
+			$this->markTestSkipped( 'Not compatible with single site mode' );
+		}
+		global $wpdb;
+		$suppress      = $wpdb->suppress_errors();
+		$other_blog_id = wpmu_create_blog( 'foo.com', '', "My Blog", $this->user_id );
+		$wpdb->suppress_errors( $suppress );
+
+		// let's create some users on the other blog
+		switch_to_blog( $other_blog_id );
+		$this->factory->user->create( array( 'user_login' => 'theauthor', 'role' => 'author' ) );
+		$this->factory->user->create( array( 'user_login' => 'theadmin', 'role' => 'administrator' ) );
+		foreach( range( 1, 2 ) as $i ) {
+			$this->factory->user->create( array( 'role' => 'subscriber' ) );
+		}
+		$this->full_sync->start();
+		$this->sender->do_full_sync();
+		$this->assertEquals( 4, $this->server_replica_storage->user_count() );
+		$this->server_replica_storage->reset();
+		$this->assertEquals( 0, $this->server_replica_storage->user_count() );
+		$user_ids = Jetpack_Sync_Modules::get_module( 'users' )->get_initial_sync_user_config();
+		$this->assertEquals( 2, count( $user_ids ) );
+		$this->full_sync->start( array( 'users' => 'initial' ) );
+		$this->sender->do_full_sync();
+
+		$this->assertEquals( 2, $this->server_replica_storage->user_count() );
+		restore_current_blog();
 	}
 
 	function test_full_sync_enqueues_limited_number_of_items() {

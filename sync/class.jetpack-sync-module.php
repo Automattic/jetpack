@@ -100,7 +100,9 @@ abstract class Jetpack_Sync_Module {
 	protected function get_metadata( $ids, $meta_type, $meta_key_whitelist ) {
 		global $wpdb;
 		$table = _get_meta_table( $meta_type );
-		$id    = $meta_type . '_id';
+		$id    =  $meta_type . '_id';
+
+		$meta_id = ( 'user' === $meta_type ? 'umeta_id' : 'meta_id');
 		if ( ! $table ) {
 			return array();
 		}
@@ -110,7 +112,7 @@ abstract class Jetpack_Sync_Module {
 		return array_map( 
 			array( $this, 'unserialize_meta' ), 
 			$wpdb->get_results( 
-				"SELECT $id, meta_key, meta_value, meta_id FROM $table WHERE $id IN ( " . implode( ',', wp_parse_id_list( $ids ) ) . ' )'.
+				"SELECT $id, meta_key, meta_value, $meta_id FROM $table WHERE $id IN ( " . implode( ',', wp_parse_id_list( $ids ) ) . ' )'.
 				" AND meta_key IN ( $private_meta_whitelist_sql ) "
 				, OBJECT )
 		);
