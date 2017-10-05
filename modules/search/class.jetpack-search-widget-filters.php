@@ -11,6 +11,18 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			return;
 		}
 
+		/**
+		 * Enables or disables the search filters widget. Disabled by default for Jetpack sites.
+		 * Enable if your site's security strategy allows aggregation.
+		 *
+		 * @since 5.5
+		 *
+		 * @param bool whether to enable search filters widget
+		 */
+		if ( ! apply_filters( 'jetpack_search_enable_filters_widget', false ) ) {
+			return;
+		}
+
 		parent::__construct(
 			'jetpack-search-filters',
 			/** This filter is documented in modules/widgets/facebook-likebox.php */
