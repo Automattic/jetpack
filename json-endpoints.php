@@ -56,6 +56,9 @@ require_once( $json_endpoints_dir . 'class.wpcom-json-api-sharing-buttons-endpoi
 // v1.1
 // **********
 
+// Comments
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-comments-tree-v1-1-endpoint.php' );
+
 // Media
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-delete-media-v1-1-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-media-v1-1-endpoint.php' );
