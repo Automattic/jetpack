@@ -377,7 +377,7 @@ class Jetpack_Carousel {
 			$replace[] = str_replace( '<img ', "<img $attributes_html", $image_html );
 		}
 
-		$content = str_replace( $find, $replace, $content;)
+		$content = str_replace( $find, $replace, $content );
 		$this->enqueue_assets();
 		return $content;
 	}
