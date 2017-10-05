@@ -42,5 +42,5 @@ function jetpack_sitemap_on_activate() {
 	$sitemap_builder = new Jetpack_Sitemap_Builder();
 	add_action( 'jetpack_sitemap_generate_on_activate', array( $sitemap_builder, 'update_sitemap' ) );
 
-	wp_schedule_single_event( time(), 'jetpack_sitemap_generate_on_activate' );
+	wp_schedule_single_event( time() + 60, 'jetpack_sitemap_generate_on_activate' );
 }
