@@ -280,28 +280,30 @@ class Jetpack_Sync_Functions {
 	 * @return array of plugin action links (key: link name value: url)
 	 */
 	public static function get_plugins_action_links( $plugin_file_singular = null ) {
+
 		// Some sites may have DOM disabled in PHP
 		if ( ! class_exists( 'DOMDocument' ) ) {
 			return array();
 		}
-
-		$action_links = get_transient( 'jetpack_plugin_api_action_links', false );
-		if ( ! empty( $action_links ) ) {
-			return is_null( $plugin_file_singular ) ? $action_links : $action_links[ $plugin_file_singular ];
+		$plugins_action_links = get_transient( 'jetpack_plugin_api_action_links', array() );
+		if ( ! empty( $plugins_action_links ) ) {
+			return self::_get_plugins_action_links( $plugins_action_links, $plugin_file_singular );
 		}
 		if ( ! did_action( 'admin_init' ) ) {
-			return new WP_Error( 'wrong-context', __( 'You need to call do_action(\'admin_init\') before running this function.', 'jetpack' ) );
+			return ( is_null( $plugin_file_singular ) ?
+				new WP_Error( 'wrong-context', __( 'You need to call do_action(\'admin_init\') before running this function.', 'jetpack' ) ) :
+				array()
+			); // this gets called in the api context...
 		}
-		$plugins_action_links = array();
-		$plugins = is_null( $plugin_file_singular ) ? array_keys( self::get_plugins() ) : array( $plugin_file_singular );
-		foreach( $plugins as $plugin_file ) {
-			$action_links = array();
+		$plugins = array_keys( self::get_plugins() );
+		foreach ( $plugins as $plugin_file ) {
+
 			/** This filter is documented in src/wp-admin/includes/class-wp-plugins-list-table.php */
-			$action_links = apply_filters( 'plugin_action_links', $action_links, $plugin_file, null, 'all' );
+			$action_links = apply_filters( 'plugin_action_links', array(), $plugin_file, null, 'all' );
 			/** This filter is documented in src/wp-admin/includes/class-wp-plugins-list-table.php */
 			$action_links = apply_filters( "plugin_action_links_{$plugin_file}", $action_links, $plugin_file, null, 'all' );
 			$formatted_action_links = null;
-			if ( count( $action_links ) > 0 ) {
+			if ( ! empty( $action_links ) && count( $action_links ) > 0 ) {
 				$dom_doc = new DOMDocument;
 				foreach ( $action_links as $action_link ) {
 					$dom_doc->loadHTML( mb_convert_encoding( $action_link, 'HTML-ENTITIES', 'UTF-8' ) );
@@ -320,16 +322,24 @@ class Jetpack_Sync_Functions {
 							$link_url = admin_url( $link_url );
 						}
 
-						$formatted_action_links[$link_element->nodeValue] = $link_url;
+						$formatted_action_links[ $link_element->nodeValue ] = $link_url;
 					}
 				}
 			}
-			$plugins_action_links[ $plugin_file ] = $formatted_action_links;
+			if ( $formatted_action_links ) {
+				$plugins_action_links[ $plugin_file ] = $formatted_action_links;
+			}
 		}
-
 		set_transient( 'jetpack_plugin_api_action_links', $plugins_action_links, DAY_IN_SECONDS );
+		return self::_get_plugins_action_links( $plugins_action_links, $plugin_file_singular );
+	}
 
-		return is_null( $plugin_file_singular ) ? $plugins_action_links : $plugins_action_links[ $plugin_file_singular ];
+	private static function _get_plugins_action_links( $action_links, $plugin_file = null ) {
+		if ( is_null( $plugin_file ) ) {
+			return $action_links;
+		} else {
+			return ( isset( $action_links[ $plugin_file ] ) ? $action_links[ $plugin_file ] : array() );
+		}
 	}
 
 	public static function wp_version() {
