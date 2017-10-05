@@ -426,7 +426,7 @@ class Jetpack_Sync_Defaults {
 		 *
 		 * @module sync
 		 *
-		 * @since 5.5
+		 * @since 5.5.0
 		 *
 		 * @param array The default list of capabilities.
 		 */
