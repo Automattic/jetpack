@@ -372,9 +372,12 @@ class Jetpack_Carousel {
 			foreach( $attributes as $k => $v ) {
 				$attributes_html .= esc_attr( $k ) . '="' . esc_attr( $v ) . '" ';
 			}
-			$image_html_with_data = str_replace( '<img ', "<img $attributes_html", $image_html );
-			$content = str_replace( $image_html, $image_html_with_data, $content );
+
+			$find[]    = $image_html;
+			$replace[] = str_replace( '<img ', "<img $attributes_html", $image_html );
 		}
+
+		$content = str_replace( $find, $replace, $content;)
 		$this->enqueue_assets();
 		return $content;
 	}
