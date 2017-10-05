@@ -81,13 +81,17 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 			array_keys( $this->get_callable_whitelist() ),
 			array_map( array( $this, 'get_callable' ), array_values( $this->get_callable_whitelist() ) )
 		);
+		$callables = array_filter( $callables, array( $this, 'remove_callables_with_errors' ) );
 		wp_set_current_user( $current_user_id );
-
 		return $callables;
 	}
 
 	private function get_callable( $callable ) {
 		return call_user_func( $callable );
+	}
+
+	public function remove_callables_with_errors( $callable_value ) {
+		return ! is_wp_error( $callable_value );
 	}
 
 	public function enqueue_full_sync_actions( $config, $max_items_to_enqueue, $state ) {

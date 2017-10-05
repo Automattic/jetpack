@@ -290,7 +290,7 @@ class Jetpack_Sync_Functions {
 			return is_null( $plugin_file_singular ) ? $action_links : $action_links[ $plugin_file_singular ];
 		}
 		if ( ! did_action( 'admin_init' ) ) {
-			do_action( 'admin_init' );
+			return new WP_Error('wrong-context', __( 'You need to call do_action(\'admin_init\') before running this function.', 'jetpack' ) );
 		}
 		$plugins_action_links = array();
 		$plugins = is_null( $plugin_file_singular ) ? array_keys( self::get_plugins() ) : array( $plugin_file_singular );
