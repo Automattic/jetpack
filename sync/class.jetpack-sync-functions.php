@@ -289,6 +289,9 @@ class Jetpack_Sync_Functions {
 		if ( ! empty( $action_links ) ) {
 			return is_null( $plugin_file_singular ) ? $action_links : $action_links[ $plugin_file_singular ];
 		}
+		if ( ! did_action( 'admin_init' ) ) {
+			do_action( 'admin_init' );
+		}
 		$plugins_action_links = array();
 		$plugins = is_null( $plugin_file_singular ) ? array_keys( self::get_plugins() ) : array( $plugin_file_singular );
 		foreach( $plugins as $plugin_file ) {
