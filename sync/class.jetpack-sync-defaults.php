@@ -361,6 +361,78 @@ class Jetpack_Sync_Defaults {
 		return false;
 	}
 
+	static $default_capabilities_whitelist = array(
+		'switch_themes',
+		'edit_themes',
+		'edit_theme_options',
+		'install_themes',
+		'activate_plugins',
+		'edit_plugins',
+		'install_plugins',
+		'edit_users',
+		'edit_files',
+		'manage_options',
+		'moderate_comments',
+		'manage_categories',
+		'manage_links',
+		'upload_files',
+		'import',
+		'unfiltered_html',
+		'edit_posts',
+		'edit_others_posts',
+		'edit_published_posts',
+		'publish_posts',
+		'edit_pages',
+		'read',
+		'publish_pages',
+		'edit_others_pages',
+		'edit_published_pages',
+		'delete_pages',
+		'delete_others_pages',
+		'delete_published_pages',
+		'delete_posts',
+		'delete_others_posts',
+		'delete_published_posts',
+		'delete_private_posts',
+		'edit_private_posts',
+		'read_private_posts',
+		'delete_private_pages',
+		'edit_private_pages',
+		'read_private_pages',
+		'delete_users',
+		'create_users',
+		'unfiltered_upload',
+		'edit_dashboard',
+		'customize',
+		'delete_site',
+		'update_plugins',
+		'delete_plugins',
+		'update_themes',
+		'update_core',
+		'list_users',
+		'remove_users',
+		'add_users',
+		'promote_users',
+		'delete_themes',
+		'export',
+		'edit_comment',
+		'upload_plugins',
+		'upload_themes',
+	);
+
+	public static function get_capabilities_whitelist() {
+		/**
+		 * Filter the list of capabilities that we care about
+		 *
+		 * @module sync
+		 *
+		 * @since 5.5
+		 *
+		 * @param array The default list of capabilities.
+		 */
+		return apply_filters( 'jetpack_sync_capabilities_whitelist', self::$default_capabilities_whitelist );
+	}
+
 	static function get_max_sync_execution_time() {
 		$max_exec_time = intval( ini_get( 'max_execution_time' ) );
 		if ( 0 === $max_exec_time ) {
