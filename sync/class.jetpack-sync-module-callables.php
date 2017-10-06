@@ -22,7 +22,7 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 
 	public function init_listeners( $callable ) {
 		add_action( 'jetpack_sync_callable', $callable, 10, 2 );
-		add_action( 'admin_footer', array( $this, 'set_plugin_action_links' ) );
+		add_action( 'admin_init', array( $this, 'set_plugin_action_links' ), 9999 ); // Should happen very late
 
 		// For some options, we should always send the change right away!
 		$always_send_updates_to_these_options = array(
@@ -118,16 +118,14 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 
 	public function unlock_plugin_action_link_and_callables() {
 		delete_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME );
-		delete_transient( 'jetpack_plugin_api_action_links' );
+		delete_transient( 'jetpack_plugin_api_action_links_refresh' );
 	}
 
 	public function set_plugin_action_links() {
 		if ( ! class_exists( 'DOMDocument' ) ) {
 			return;
 		}
-		if ( ! did_action( 'admin_init' ) ) {
-			return;
-		}
+
 		// Is the transient lock in place?
 		$plugins_lock = get_transient( 'jetpack_plugin_api_action_links_refresh' );
 		if ( ! empty( $plugins_lock ) ) {
