@@ -112,6 +112,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 * Masterbar: update the "Plugins" menu item to match the updated design on WordPress.com.
+* Sharing: use Google's minified librairies to improve performance when loading Google buttons.
 * Sync: synchronize plugin action links to add that information to WordPress.com.
 
 **Bug fixes**
