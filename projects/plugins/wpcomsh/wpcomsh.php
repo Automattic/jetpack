@@ -68,8 +68,6 @@ if ( class_exists( 'Jetpack_Plugin_Compatibility' ) ) {
 			'necessary to manage your site and are not supported on Wordpress.com. better-wp-security has been deactivated.',
 		'wp-clone-by-wp-academy/wp-clone-by-wp-academy.php' => 'wp-clone-by-wp-academy and similar clone plugins delete data ' .
 			'necessary to manage your site and are not supported on Wordpress.com. wp-clone-by-wp-academy has been deactivated.',
-		'all-in-one-wp-migration/all-in-one-wp-migration.php' => 'all-in-one-wp-migration and similar migration plugins delete data ' .
-			'necessary to manage your site and are not supported on Wordpress.com. all-in-one-wp-migration has been deactivated.',
 		'wp-fastest-cache/wp-fastest-cache.php' => 'wp-fastest-cache and similar reset plugins delete data ' .
 			'necessary to manage your site and are not supported on Wordpress.com. wp-fastest-cache has been deactivated.',
 		'w3-total-cache/w3-total-cache.php' => 'w3-total-cache and similar caching plugins delete data ' .
