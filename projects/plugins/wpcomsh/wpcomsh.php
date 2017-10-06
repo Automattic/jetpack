@@ -62,8 +62,28 @@ if ( class_exists( 'Jetpack_Plugin_Compatibility' ) ) {
 			'necessary to manage your site and are not supported on WordPress.com. wordpress-database-reset has been deactivated.',
 		'wp-reset/wp-reset.php' => 'wp-reset and other WordPress reset plugins delete data ' .
 			'necessary to manage your site and are not supported on WordPress.com. wp-reset has been deactivated.',
-		'wordpress-reset/wordpress-reset.php' => 'WordPress Reset and similar reset plugins delete data ' .
-			'necessary to manage your site and are not supported on Wordpress.com. WordPress Reset has been deactivated.',
+		'wordpress-reset/wordpress-reset.php' => 'wordpress-reset and similar reset plugins delete data ' .
+			'necessary to manage your site and are not supported on Wordpress.com. wordpress-reset has been deactivated.',
+		'better-wp-security/better-wp-security.php' => 'better-wp-security and similar reset security delete data ' .
+			'necessary to manage your site and are not supported on Wordpress.com. better-wp-security has been deactivated.',
+		'wp-clone-by-wp-academy/wp-clone-by-wp-academy.php' => 'wp-clone-by-wp-academy and similar clone plugins delete data ' .
+			'necessary to manage your site and are not supported on Wordpress.com. wp-clone-by-wp-academy has been deactivated.',
+		'all-in-one-wp-migration/all-in-one-wp-migration.php' => 'all-in-one-wp-migration and similar migration plugins delete data ' .
+			'necessary to manage your site and are not supported on Wordpress.com. all-in-one-wp-migration has been deactivated.',
+		'wp-fastest-cache/wp-fastest-cache.php' => 'wp-fastest-cache and similar reset plugins delete data ' .
+			'necessary to manage your site and are not supported on Wordpress.com. wp-fastest-cache has been deactivated.',
+		'w3-total-cache/w3-total-cache.php' => 'w3-total-cache and similar caching plugins delete data ' .
+			'necessary to manage your site and are not supported on Wordpress.com. w3-total-cache has been deactivated.',
+		'wp-rocket/wp-rocket.php' => 'wp-rocket and similar caching plugins delete data ' .
+			'necessary to manage your site and are not supported on Wordpress.com. wp-rocket has been deactivated.',
+		'wp-super-cache/wp-super-cache.php' => 'wp-super-cache and similar caching plugins delete data ' .
+			'necessary to manage your site and are not supported on Wordpress.com. wp-super-cache has been deactivated.',
+		'bwp-minify/bwp-minify.php' => 'bwp-minify and similar minification plugins delete data ' .
+			'necessary to manage your site and are not supported on Wordpress.com. bwp-minify has been deactivated.',
+		'nginx-helper/nginx-helper.php' => 'nginx-helper and similar caching plugins delete data ' .
+			'necessary to manage your site and are not supported on Wordpress.com. nginx-helper has been deactivated.',
+		'file-manager/file-manager.php' => 'file-manager and similar manager plugins delete data ' .
+			'necessary to manage your site and are not supported on Wordpress.com. file-manager has been deactivated.',
 	);
 	new Jetpack_Plugin_Compatibility( $wpcomsh_incompatible_plugins );
 }
