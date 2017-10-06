@@ -59,7 +59,7 @@ function wpsc_get_searchengine_setting() {
 		$cache_no_adverts_for_friends = 0;
 		$changed = true;
 	}
-	if ( $changed ) {
+	if ( $changed && function_exists( 'wp_cache_setting' ) ) {
 		wp_cache_setting( 'cache_no_adverts_for_friends', $cache_no_adverts_for_friends );
 	}
 
