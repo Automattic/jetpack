@@ -2,7 +2,7 @@
 Contributors: donncha, automattic, kraftbj
 Tags: performance,caching,wp-cache,wp-super-cache,cache
 Tested up to: 4.8.1
-Stable tag: 1.5.6
+Stable tag: 1.5.7
 Requires at least: 3.0
 
 A very fast caching engine for WordPress that produces static html files.
@@ -53,9 +53,12 @@ Interested in translating WP Super Cache to your language? See the [translation 
 The cache directory, usually wp-content/cache/ is only for temporary files. Do not ever put important files or symlinks to important files or directories in that directory. They will be deleted if the plugin has write access to them.
 
 == Upgrade Notice ==
-Maintenance release and added /plugins REST API endpoint.
+Fixes fatal error for users who toggled the "no adverts for friends" plugin.
 
 == Changelog ==
+= 1.5.7 =
+* Fix fatal error in plugins/searchengine.php (#398)
+
 = 1.5.6 =
 * REST API: Added /plugins endpoint to handle the plugins settings page. (#382)
 * Minor changes to indentaion and spaces to tabs conversion (#371) (#395)
