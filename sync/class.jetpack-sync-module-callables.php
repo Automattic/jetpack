@@ -129,7 +129,8 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 			return;
 		}
 		// Is the transient lock in place?
-		if ( ! empty( get_transient( 'jetpack_plugin_api_action_links_refresh' ) ) ) {
+		$plugins_lock = get_transient( 'jetpack_plugin_api_action_links_refresh' );
+		if ( ! empty( $plugins_lock ) ) {
 			return;
 		}
 		$plugins = array_keys( Jetpack_Sync_Functions::get_plugins() );
