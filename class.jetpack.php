@@ -1433,6 +1433,7 @@ class Jetpack {
 				'seo-tools',
 				'google-analytics',
 				'wordads',
+				'search',
 			);
 			$plan['class'] = 'business';
 		}

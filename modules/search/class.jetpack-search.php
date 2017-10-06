@@ -64,7 +64,7 @@ class Jetpack_Search {
 	 * @module search
 	 */
 	public function setup() {
-		if ( ! Jetpack::is_active() ) {
+		if ( ! Jetpack::is_active() || ! Jetpack::active_plan_supports( 'search' ) ) {
 			return;
 		}
 
