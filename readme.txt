@@ -115,6 +115,9 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Sharing: use Google's minified librairies to improve performance when loading Google buttons.
 * Sync: synchronize plugin action links to add that information to WordPress.com.
 
+**Improved compatibility**
+* Top Posts Widget: avoid Fatal Errors when the widget is used on a site using WPML, and when a popular post cannot be found by WPML.
+
 **Bug fixes**
 * Sitemaps: wait a minute before to generate sitemaps when the feature is activated, to avoid performance issues.
 * Top Posts Widget: display the default title when it is set to empty.
