@@ -113,6 +113,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Enhancements**
 
 **Bug fixes**
+* Top Posts Widget: display the default title when it is set to empty.
 
 = 5.4 =
 
