@@ -233,11 +233,18 @@ function grofiles_extra_data() {
  */
 function grofiles_hovercards_data_html( $author ) {
 	$data = grofiles_hovercards_data( $author );
+	$hash = '';
 	if ( is_numeric( $author ) ) {
 		$user = get_userdata( $author );
-		$hash = md5( $user->user_email );
+		if ( $user ) {
+			$hash = md5( $user->user_email );
+		}
 	} else {
 		$hash = md5( $author );
+	}
+	
+	if ( ! $hash ) {
+		return;
 	}
 ?>
 	<div class="grofile-hash-map-<?php echo $hash; ?>">
