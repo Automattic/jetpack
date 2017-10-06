@@ -25,6 +25,7 @@ import {
 } from 'state/site';
 import { getSiteConnectionStatus } from 'state/connection';
 import JetpackBanner from 'components/jetpack-banner';
+import { JETPACK_CONTACT_SUPPORT } from 'constants';
 
 const SupportCard = React.createClass( {
 	displayName: 'SupportCard',
@@ -94,7 +95,7 @@ const SupportCard = React.createClass( {
 								onClick={ this.trackAskQuestionClick }
 								href={ this.props.isAtomicSite
 									? 'https://wordpress.com/help/contact/'
-									: 'https://jetpack.com/contact-support/'
+									: JETPACK_CONTACT_SUPPORT
 								}
 							>
 								{ __( 'Ask a question' ) }
