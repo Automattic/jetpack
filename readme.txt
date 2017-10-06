@@ -111,6 +111,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Major Enhancements**
 
 **Enhancements**
+* Sync: synchronize plugin action links to add that information to WordPress.com.
 
 **Bug fixes**
 * Top Posts Widget: display the default title when it is set to empty.
