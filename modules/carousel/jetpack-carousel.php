@@ -360,8 +360,7 @@ class Jetpack_Carousel {
 		$find        = array();
 		$replace     = array();
 		$attachments = get_posts( array(
-			'numberposts' => -1,
-			'include'     => array_keys( $selected_images ),
+			'include' => array_keys( $selected_images ),
 		) );
 
 		foreach ( $attachments as $attachment ) {
