@@ -157,7 +157,10 @@ class Jetpack_Tracks_Client {
 
 				$anon_id = 'jetpack:' . base64_encode( $binary );
 
-				if ( ! headers_sent() ) {
+				if ( ! headers_sent()
+					&& ! ( defined( 'REST_REQUEST' ) && REST_REQUEST )
+					&& ! ( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST )
+				) {
 					setcookie( 'tk_ai', $anon_id );
 				}
 			}
