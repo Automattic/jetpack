@@ -4,6 +4,8 @@
  *
  * @since 4.4.0
  */
+require_once( dirname( __FILE__ ) . '/../../../../modules/widgets/milestone.php' );
+
 class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 	/**
@@ -877,6 +879,44 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		// Test deactivation of Jumpstart
 		$response = $this->create_and_get_request( 'jumpstart', array( 'active' => false ), 'POST' );
 		$this->assertResponseStatus( 200, $response );
+	}
+
+	/**
+	 * Test fetching milestone widget data.
+	 *
+	 * @since 5.5.0
+	 */
+	public function test_fetch_milestone_widget_data() {
+		jetpack_register_widget_milestone();
+
+		update_option(
+			'widget_milestone_widget',
+			array(
+				3 => array(
+					'title' => 'Ouou',
+					'event' => 'The Biog Day',
+					'unit' => 'years',
+					'type' => 'until',
+					'message' => 'The big day is here.',
+					'year' => date( 'Y' ) + 10,
+					'month' => '10',
+					'hour' => '0',
+					'min' => '00',
+					'day' => '6'
+				)
+			)
+		);
+
+		$response = $this->create_and_get_request( 'widgets/milestone_widget-3', array(), 'GET' );
+
+		// Fails because user is not authenticated
+		$this->assertResponseStatus( 200, $response );
+		$this->assertResponseData(
+			array(
+				'message' => '<span class="difference">10</span> <span class="label">years to go.</span>'
+			),
+			$response
+		);
 	}
 
 } // class end
