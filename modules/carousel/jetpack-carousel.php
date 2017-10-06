@@ -362,7 +362,6 @@ class Jetpack_Carousel {
 		$attachments = get_posts( array(
 			'include' => array_keys( $selected_images ),
 		) );
-		update_postmeta_cache( array_keys( $selected_images ) );
 
 		foreach ( $attachments as $attachment ) {
 			$image_html = $selected_images[ $attachment->ID ];
