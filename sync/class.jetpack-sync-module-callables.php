@@ -22,6 +22,7 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 
 	public function init_listeners( $callable ) {
 		add_action( 'jetpack_sync_callable', $callable, 10, 2 );
+		add_action( 'admin_footer', array( $this, 'set_plugin_action_links' ) );
 
 		// For some options, we should always send the change right away!
 		$always_send_updates_to_these_options = array(
@@ -81,17 +82,12 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 			array_keys( $this->get_callable_whitelist() ),
 			array_map( array( $this, 'get_callable' ), array_values( $this->get_callable_whitelist() ) )
 		);
-		$callables = array_filter( $callables, array( $this, 'remove_callables_with_errors' ) );
 		wp_set_current_user( $current_user_id );
 		return $callables;
 	}
 
 	private function get_callable( $callable ) {
 		return call_user_func( $callable );
-	}
-
-	public function remove_callables_with_errors( $callable_value ) {
-		return ! is_wp_error( $callable_value );
 	}
 
 	public function enqueue_full_sync_actions( $config, $max_items_to_enqueue, $state ) {
@@ -123,6 +119,56 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 	public function unlock_plugin_action_link_and_callables() {
 		delete_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME );
 		delete_transient( 'jetpack_plugin_api_action_links' );
+	}
+
+	public function set_plugin_action_links() {
+		if ( ! class_exists( 'DOMDocument' ) ) {
+			return;
+		}
+		if ( ! did_action( 'admin_init' ) ) {
+			return;
+		}
+		// Is the transient lock in place?
+		if ( ! empty( get_transient( 'jetpack_plugin_api_action_links_refresh' ) ) ) {
+			return;
+		}
+		$plugins = array_keys( Jetpack_Sync_Functions::get_plugins() );
+		foreach ( $plugins as $plugin_file ) {
+			/** This filter is documented in src/wp-admin/includes/class-wp-plugins-list-table.php */
+			$action_links = apply_filters( 'plugin_action_links', array(), $plugin_file, null, 'all' );
+			/** This filter is documented in src/wp-admin/includes/class-wp-plugins-list-table.php */
+			$action_links = apply_filters( "plugin_action_links_{$plugin_file}", $action_links, $plugin_file, null, 'all' );
+			$formatted_action_links = null;
+			if ( ! empty( $action_links ) && count( $action_links ) > 0 ) {
+				$dom_doc = new DOMDocument;
+				foreach ( $action_links as $action_link ) {
+					$dom_doc->loadHTML( mb_convert_encoding( $action_link, 'HTML-ENTITIES', 'UTF-8' ) );
+					$link_elements = $dom_doc->getElementsByTagName( 'a' );
+					if ( $link_elements->length == 0 ) {
+						continue;
+					}
+
+					$link_element = $link_elements->item( 0 );
+					if ( $link_element->hasAttribute( 'href' ) && $link_element->nodeValue ) {
+						$link_url = trim( $link_element->getAttribute( 'href' ) );
+
+						// Add the full admin path to the url if the plugin did not provide it
+						$link_url_scheme = wp_parse_url( $link_url, PHP_URL_SCHEME );
+						if ( empty( $link_url_scheme ) ) {
+							$link_url = admin_url( $link_url );
+						}
+
+						$formatted_action_links[ $link_element->nodeValue ] = $link_url;
+					}
+				}
+			}
+			if ( $formatted_action_links ) {
+				$plugins_action_links[ $plugin_file ] = $formatted_action_links;
+			}
+		}
+		// Cache things for a long time
+		set_transient( 'jetpack_plugin_api_action_links_refresh', true, DAY_IN_SECONDS );
+		update_option( 'jetpack_plugin_api_action_links', $plugins_action_links );
 	}
 
 	public function should_send_callable( $callable_checksums, $name, $checksum ) {

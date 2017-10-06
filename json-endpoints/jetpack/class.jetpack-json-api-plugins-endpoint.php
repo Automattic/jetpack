@@ -131,10 +131,6 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 	}
 
 	protected function get_plugins() {
-		// Do the admin_init action in order to capture plugin action links.
-		// See get_plugin_action_links()
-		/** This action is documented in wp-admin/admin.php */
-		do_action( 'admin_init' );
 		$plugins = array();
 		/** This filter is documented in wp-admin/includes/class-wp-plugins-list-table.php */
 		$installed_plugins = apply_filters( 'all_plugins', get_plugins() );

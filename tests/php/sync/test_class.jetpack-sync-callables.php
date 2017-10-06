@@ -636,15 +636,6 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		}
 
 	}
-
-	function test_callables_that_return_an_error_dont_get_synced() {
-		$this->callable_module->set_callable_whitelist( array( 'jetpack_error_foo' => 'jetpack_foo_is_callable_error' ) );
-
-		$this->sender->do_sync();
-
-		$synced_value = $this->server_replica_storage->get_callable( 'jetpack_error_foo' );
-		$this->assertNull( $synced_value );
-	}
 }
 
 function jetpack_foo_is_callable_error() {
