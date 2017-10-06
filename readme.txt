@@ -116,6 +116,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Sync: synchronize plugin action links to add that information to WordPress.com.
 
 **Bug fixes**
+* Sitemaps: wait a minute before to generate sitemaps when the feature is activated, to avoid performance issues.
 * Top Posts Widget: display the default title when it is set to empty.
 
 = 5.4 =
