@@ -12,7 +12,11 @@ new WPCOM_JSON_API_Bulk_Delete_Post_Endpoint( array(
 		'$site'    => '(int|string) Site ID or domain',
 	),
 	'request_format' => array(
-		'post_ids' => '(array) An array of Post IDs to delete or trash.',
+		'post_ids' => '(array|string) An array, or comma-separated list, of Post IDs to delete or trash.',
+	),
+
+	'response_format' => array(
+		'results' => '(object) An object containing results, '
 	),
 
 	'example_request'      => 'https://public-api.wordpress.com/rest/v1.1/sites/82974409/posts/delete',
@@ -39,7 +43,17 @@ class WPCOM_JSON_API_Bulk_Delete_Post_Endpoint extends WPCOM_JSON_API_Update_Pos
 
 		$input = $this->input();
 
-		$post_ids = (array) $input['post_ids'];
+		if ( is_array( $input['post_ids'] ) ) {
+			$post_ids = (array) $input['post_ids'];
+		} else if ( ! empty( $input['post_ids'] ) ) {
+			$post_ids = explode( ',', $input['post_ids'] );
+		} else {
+			$post_ids = array();
+		}
+
+		if ( count( $post_ids ) < 1 ) {
+			return new WP_Error( 'empty_post_ids', 'The request must include post_ids' );
+		}
 
 		$result = array(
 			'results' => array(),
