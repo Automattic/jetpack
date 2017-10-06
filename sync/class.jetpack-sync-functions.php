@@ -280,53 +280,18 @@ class Jetpack_Sync_Functions {
 	 * @return array of plugin action links (key: link name value: url)
 	 */
 	public static function get_plugins_action_links( $plugin_file_singular = null ) {
-		// Some sites may have DOM disabled in PHP
+		// Some sites may have DOM disabled in PHP fail early
 		if ( ! class_exists( 'DOMDocument' ) ) {
 			return array();
 		}
-
-		$action_links = get_transient( 'jetpack_plugin_api_action_links', false );
-		if ( ! empty( $action_links ) ) {
-			return is_null( $plugin_file_singular ) ? $action_links : $action_links[ $plugin_file_singular ];
-		}
-		$plugins_action_links = array();
-		$plugins = is_null( $plugin_file_singular ) ? array_keys( self::get_plugins() ) : array( $plugin_file_singular );
-		foreach( $plugins as $plugin_file ) {
-			$action_links = array();
-			/** This filter is documented in src/wp-admin/includes/class-wp-plugins-list-table.php */
-			$action_links = apply_filters( 'plugin_action_links', $action_links, $plugin_file, null, 'all' );
-			/** This filter is documented in src/wp-admin/includes/class-wp-plugins-list-table.php */
-			$action_links = apply_filters( "plugin_action_links_{$plugin_file}", $action_links, $plugin_file, null, 'all' );
-			$formatted_action_links = null;
-			if ( count( $action_links ) > 0 ) {
-				$dom_doc = new DOMDocument;
-				foreach ( $action_links as $action_link ) {
-					$dom_doc->loadHTML( mb_convert_encoding( $action_link, 'HTML-ENTITIES', 'UTF-8' ) );
-					$link_elements = $dom_doc->getElementsByTagName( 'a' );
-					if ( $link_elements->length == 0 ) {
-						continue;
-					}
-
-					$link_element = $link_elements->item( 0 );
-					if ( $link_element->hasAttribute( 'href' ) && $link_element->nodeValue ) {
-						$link_url = trim( $link_element->getAttribute( 'href' ) );
-
-						// Add the full admin path to the url if the plugin did not provide it
-						$link_url_scheme = wp_parse_url( $link_url, PHP_URL_SCHEME );
-						if ( empty( $link_url_scheme ) ) {
-							$link_url = admin_url( $link_url );
-						}
-
-						$formatted_action_links[$link_element->nodeValue] = $link_url;
-					}
-				}
+		$plugins_action_links = get_option( 'jetpack_plugin_api_action_links', array() );
+		if ( ! empty( $plugins_action_links ) ) {
+			if ( is_null( $plugin_file_singular ) ) {
+				return $plugins_action_links;
 			}
-			$plugins_action_links[ $plugin_file ] = $formatted_action_links;
+			return ( isset( $plugins_action_links[ $plugin_file_singular ] ) ? $plugins_action_links[ $plugin_file_singular ] : array() );
 		}
-
-		set_transient( 'jetpack_plugin_api_action_links', $plugins_action_links, DAY_IN_SECONDS );
-
-		return is_null( $plugin_file_singular ) ? $plugins_action_links : $plugins_action_links[ $plugin_file_singular ];
+		return array();
 	}
 
 	public static function wp_version() {
