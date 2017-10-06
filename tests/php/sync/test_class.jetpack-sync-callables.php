@@ -641,9 +641,6 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	}
 }
 
-function jetpack_foo_is_callable_error() {
-	return new WP_Error( 'wrong-context' );
-}
 /* Example Test Taxonomy */
 class ABC_FOO_TEST_Taxonomy_Example {
 	function __construct() {
