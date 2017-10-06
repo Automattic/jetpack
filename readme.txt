@@ -111,6 +111,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Major Enhancements**
 
 **Enhancements**
+* Masterbar: update the "Plugins" menu item to match the updated design on WordPress.com.
 * Sync: synchronize plugin action links to add that information to WordPress.com.
 
 **Bug fixes**
