@@ -127,7 +127,7 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 		}
 
 		// Is the transient lock in place?
-		$plugins_lock = get_transient( 'jetpack_plugin_api_action_links_refresh' );
+		$plugins_lock = get_transient( 'jetpack_plugin_api_action_links_refresh', false );
 		if ( ! empty( $plugins_lock ) ) {
 			return;
 		}
@@ -166,7 +166,7 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 			}
 		}
 		// Cache things for a long time
-		set_transient( 'jetpack_plugin_api_action_links_refresh', true, DAY_IN_SECONDS );
+		set_transient( 'jetpack_plugin_api_action_links_refresh', time(), DAY_IN_SECONDS );
 		update_option( 'jetpack_plugin_api_action_links', $plugins_action_links );
 	}
 

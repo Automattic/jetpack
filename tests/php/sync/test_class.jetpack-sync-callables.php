@@ -561,6 +561,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$helper_jetpack->array_override = array( '<a href="settings.php">settings</a>', '<a href="https://jetpack.com/support">support</a>' );
 		add_filter( 'plugin_action_links_jetpack/jetpack.php', array( $helper_jetpack, 'filter_override_array' ), 10 );
 
+		do_action( 'admin_init' ); // Do the admin init here so that we calculate the plugin links
 		// Let's see if the original values get synced
 		$this->sender->do_sync();
 		$plugins_action_links = $this->server_replica_storage->get_callable( 'get_plugins_action_links' );
@@ -570,15 +571,16 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 				'fun' => admin_url( 'fun.php' )
 			),
 			'jetpack/jetpack.php' => array(
+				'Jetpack' => admin_url( 'admin.php?page=jetpack' ),
 				'settings' => admin_url( 'settings.php' ),
 				'support' => 'https://jetpack.com/support'
 			)
 		);
-
-  		$this->assertEquals( $plugins_action_links, $expected_array );
+  		$this->assertEquals( $expected_array, $plugins_action_links );
 
 		$helper_all->array_override = array( '<a href="not-fun.php">not fun</a>' );
 		$this->resetCallableAndConstantTimeouts();
+		do_action( 'admin_init' ); // Do the admin init here so that we calculate the plugin links
 		$this->sender->do_sync();
 
 		$plugins_action_links = $this->server_replica_storage->get_callable( 'get_plugins_action_links' );
@@ -587,6 +589,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		activate_plugin('hello.php', '', false, true );
 		$this->resetCallableAndConstantTimeouts();
+		do_action( 'admin_init' ); // Do the admin init here so that we calculate the plugin links
 		$this->sender->do_sync();
 
 		$plugins_action_links = $this->server_replica_storage->get_callable( 'get_plugins_action_links' );
