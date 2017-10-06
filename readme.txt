@@ -1,7 +1,7 @@
 === Jetpack by WordPress.com ===
 Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, blobaugh, cainm, cena, cfinke, chaselivingston, chellycat, csonnek, danielbachhuber, davoraltman, daniloercoli, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, eliorivero, enej, eoigal, erania-pinnera, ethitter, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jacobshere, jblz, jeherve, jenhooks, jenia, jgs, jkudish, jmdodd, Joen, johnjamesjacoby, jshreve, koke, kraftbj, lamdayap, lancewillett, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, michael-arestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, scarstocea, sdquirk, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Jetpack, WordPress.com, backup, security, related posts, CDN, speed, anti-spam, social sharing, SEO, video, stats
-Stable tag: 5.3
+Stable tag: 5.4
 Requires at least: 4.7
 Tested up to: 4.8
 
@@ -103,6 +103,17 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
+= 5.5 =
+
+* Release date: November 7, 2017
+* Release post:
+
+**Major Enhancements**
+
+**Enhancements**
+
+**Bug fixes**
+
 = 5.4 =
 
 * Release date: October 3, 2017
@@ -114,7 +125,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 * Add Schema.org markup to the Contact Info Widget.
-* Add a new "Date" field to the Contact Form. 
+* Add a new "Date" field to the Contact Form.
 * Do not show any update notices when in [development mode](http://jetpack.com/support/development-mode).
 * Improve our documentation to help contributors set up a unit testing environment.
 * Avoid conflicts between Jetpack's Infinite Scroll and other Infinite Scroll plugins.
@@ -177,30 +188,3 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Cleaned up our markup to avoid XHTML validation errors.
 * Brought back a filter for the Widget Visibility feature that was accidentally removed.
 * Managing your comments and comment authors more reliable from WordPress.com.
-
-
-= 5.2.1 =
-
-* Release date: August 2, 2017
-* Release post: https://jetpack.com/?p=22686
-
-**Bug fixes**
-* Solves an issue that caused widgets to lose their content when saved in WP Admin or Customizer.
-
-= 5.2 =
-
-* Release date: August 1, 2017
-* Release post: https://jetpack.com/?p=22509
-
-**Major Enhancements**
-* Contact Forms now sports a fancy new interface that allows you to visually compose your form in the editor.
-* We have a new and slick way to showcase and explain the features we recommend to activate to new users.
-
-**Enhancements**
-* Reduced 500kb from plugin zip file, which means faster updates.
-* Refactored and reduced code for Comment Likes so it's faster and lighter.
-
-**Bug fixes**
-* An inconsistency experienced in WordPress.com dashboard when Related Posts settings were set in the local site's WP Admin is now fixed.
-* Fixed a 404 when loading Open Sans font from a stylesheet plus now it's only enqueued if it will be used.
-* Solve PHP warnings when Image widget wasn't migrated.
