@@ -17,6 +17,10 @@ var Milestone = ( function( $ ) {
 		this.secondsPerHour = 3600;
 		this.secondsPerMinute = 60;
 
+		this.isCountingDown = function() {
+			return ! this.type || 'until' === this.type;
+		};
+
 		this.getYears = function() {
 			num = ( this.diff / 60 / 60 / 24 / 365 ).toFixed( 1 );
 
@@ -28,7 +32,11 @@ var Milestone = ( function( $ ) {
 		};
 
 		this.getYearsLabel = function() {
-			return labels.years;
+			if ( this.isCountingDown() ) {
+				return ( 1 === this.number ) ? labels.yearToGo : labels.yearsToGo;
+			}
+
+			return ( 1 === this.number ) ? labels.yearAgo : labels.yearsAgo;
 		};
 
 		this.getMonths = function() {
@@ -36,7 +44,11 @@ var Milestone = ( function( $ ) {
 		};
 
 		this.getMonthsLabel = function() {
-			return ( 1 === this.number ) ? labels.month : labels.months;
+			if ( this.isCountingDown() ) {
+				return ( 1 === this.number ) ? labels.monthToGo : labels.monthsToGo;
+			}
+
+			return ( 1 === this.number ) ? labels.monthAgo : labels.monthsAgo;
 		};
 
 		this.getDays = function() {
@@ -44,7 +56,11 @@ var Milestone = ( function( $ ) {
 		};
 
 		this.getDaysLabel = function() {
-			return ( 1 === this.number ) ? labels.day : labels.days;
+			if ( this.isCountingDown() ) {
+				return ( 1 === this.number ) ? labels.dayToGo : labels.daysToGo;
+			}
+
+			return ( 1 === this.number ) ? labels.dayAgo : labels.daysAgo;
 		};
 
 		this.getHours = function() {
@@ -52,7 +68,11 @@ var Milestone = ( function( $ ) {
 		};
 
 		this.getHoursLabel = function() {
-			return ( 1 === this.number ) ? labels.hour : labels.hours;
+			if ( this.isCountingDown() ) {
+				return ( 1 === this.number ) ? labels.hourToGo : labels.hoursToGo;
+			}
+
+			return ( 1 === this.number ) ? labels.hourAgo : labels.hoursAgo;
 		};
 
 		this.getMinutes = function() {
@@ -60,7 +80,11 @@ var Milestone = ( function( $ ) {
 		};
 
 		this.getMinutesLabel = function() {
-			return ( 1 === this.number ) ? labels.minute : labels.minutes;
+			if ( this.isCountingDown() ) {
+				return ( 1 === this.number ) ? labels.minuteToGo : labels.minutesToGo;
+			}
+
+			return ( 1 === this.number ) ? labels.minuteAgo : labels.minutesAgo;
 		};
 
 		this.getSeconds = function() {
@@ -68,11 +92,15 @@ var Milestone = ( function( $ ) {
 		};
 
 		this.getSecondsLabel = function() {
-			return ( 1 === this.number ) ? labels.second : labels.seconds;
+			if ( this.isCountingDown() ) {
+				return ( 1 === this.number ) ? labels.secondToGo : labels.secondsToGo;
+			}
+
+			return ( 1 === this.number ) ? labels.secondAgo : labels.secondsAgo;
 		};
 
 		this.timer = function() {
-			if ( 'until' === this.type ) {
+			if ( this.isCountingDown() ) {
 				this.diff = this.diff - 1;
 			} else {
 				this.diff = this.diff + 1;
@@ -154,8 +182,8 @@ var Milestone = ( function( $ ) {
 
 			// Milestone has been reached.
 			if ( 1 > this.diff ) {
-				// Message is not applicable when counting up to future date.
-				if ( this.type === 'since' ) {
+				// Message is only applicable when counting down.
+				if ( ! this.isCountingDown() ) {
 					this.widget.find( '.milestone-countdown' ).remove();
 				} else {
 					this.widget.find( '.milestone-countdown' ).replaceWith( '<div class="milestone-message">' + this.message + '</div>' );
