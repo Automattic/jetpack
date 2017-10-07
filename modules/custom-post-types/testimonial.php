@@ -368,7 +368,7 @@ class Jetpack_Testimonial {
 	 * Change ‘Enter Title Here’ text for the Testimonial.
 	 */
 	function change_default_title( $title ) {
-		if ( ! function_exists( 'get_current_screen' ) {
+		if ( ! function_exists( 'get_current_screen' ) ) {
 			return $title;
 		}
 		$screen = get_current_screen();
