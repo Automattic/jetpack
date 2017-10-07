@@ -89,6 +89,7 @@ class Calypso_Redirects {
 	}
 
 	public function menu_redirects() {
+		remove_menu_page( 'plugins.php' );
 		add_menu_page( __( 'Plugins' ), __( 'Plugins' ), 'manage_options', 'calypso-plugins', array( $this, 'plugins_redirect' ), 'dashicons-admin-plugins', 65 );
 
 		$this->register_user_redirects();
