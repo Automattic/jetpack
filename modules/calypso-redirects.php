@@ -9,20 +9,23 @@ class Calypso_Redirects {
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 
 		add_filter( 'allowed_redirect_hosts', array( $this, 'allow_calypso_domain' ), 10, 1 );
+
+		// register redirect handlers
+		add_action( 'load-users_page_calypso-users', array( $this, 'users_redirect' ) );
+		add_action( 'load-users_page_calypso-users-new', array( $this, 'users_new_redirect' ) );
+		add_action( 'load-users_page_calypso-users-profile', array( $this, 'users_profile_redirect' ) );
+		add_action( 'load-users_page_calypso-users-settings', array( $this, 'users_settings_redirect' ) );
 	}
 
 	private function register_user_redirects() {
-		remove_menu_page( 'users.php' );
-
-		// if the users page is loaded let's track and redirect
-		add_action( 'load-users.php', array( $this, 'load_users_redirect' ) );
+		remove_submenu_page( 'users.php', 'users.php' );
+		remove_submenu_page( 'users.php', 'user-new.php' );
+		remove_submenu_page( 'users.php', 'profile.php' );
 
 		// replace each menu item one by one with its redirect
-		add_menu_page( __( 'Users' ),  __( 'Users' ), 'list_users', 'calypso-users', array( $this, 'users_redirect' ), 'dashicons-admin-users', 70 );
-
-		add_submenu_page( 'calypso-users', __( 'All Users' ), __( 'All Users' ), 'list_users', 'calypso-users', array( $this, 'users_redirect' ) );
-		add_submenu_page( 'calypso-users', __( 'Invite New' ), __( 'Invite New' ), 'promote_users', 'calypso-users-new', array( $this, 'users_new_redirect' ) );
-		add_submenu_page( 'calypso-users', __( 'My Profile' ), __( 'My Profile' ), 'read', 'calypso-users-profile', array( $this, 'users_profile_redirect' ) );
+		add_submenu_page( 'users.php', __( 'All Users' ), __( 'All Users' ), 'list_users', 'calypso-users', array( $this, 'users_redirect' ) );
+		add_submenu_page( 'users.php', __( 'Invite New' ), __( 'Invite New' ), 'promote_users', 'calypso-users-new', array( $this, 'users_new_redirect' ) );
+		add_submenu_page( 'users.php', __( 'My Profile' ), __( 'My Profile' ), 'read', 'calypso-users-profile', array( $this, 'users_profile_redirect' ) );
 	}
 
 	private function register_track_event( $event ) {
