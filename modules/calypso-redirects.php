@@ -7,6 +7,8 @@ class Calypso_Redirects {
 	public function __construct() {
 		add_action( 'admin_menu', array( $this, 'menu_redirects' ), 30 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
+
+		add_filter( 'allowed_redirect_hosts', array( $this, 'allow_calypso_domain' ), 10, 1 );
 	}
 
 	private function register_user_redirects() {
@@ -27,6 +29,12 @@ class Calypso_Redirects {
 		// record in tracks
 		jetpack_require_lib( 'tracks/client' );
 		jetpack_tracks_record_event( wp_get_current_user(), $event );
+	}
+
+	public function allow_calypso_domain( $domains ) {
+		$domains[] = 'wordpress.com';
+
+		return $domains;
 	}
 
 	public function enqueue_scripts() {
