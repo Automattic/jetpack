@@ -3985,10 +3985,12 @@ function wpsc_feed_update( $type, $permalink ) {
 
 	update_option( 'wpsc_feed_list', array() );
 	if ( is_array( $wpsc_feed_list ) && ! empty( $wpsc_feed_list ) ) {
+		if ( ! function_exists( 'prune_super_cache' ) )
+			include_once( 'wp-cache-phase2.php' );
 		foreach( $wpsc_feed_list as $file ) {
 			wp_cache_debug( "wpsc_feed_update: deleting feed: $file" );
-			@unlink( $file );
-			@unlink( dirname( $file ) . '/meta-' . basename( $file ) );
+			prune_super_cache( $file, true );
+			prune_super_cache( dirname( $file ) . '/meta-' . basename( $file ), true );
 		}
 	}
 }
