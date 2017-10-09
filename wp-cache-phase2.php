@@ -1244,7 +1244,7 @@ function wp_cache_shutdown_callback() {
 
 			// record locations of archive feeds to be updated when the site is updated.
 			// Only record a maximum of 50 feeds to avoid bloating database.
-			if ( $is_feed && ! isset( $wp_super_cache_query[ 'is_single' ] ) ) {
+			if ( ( isset( $wp_super_cache_query[ 'is_feed' ] ) || $is_feed ) && ! isset( $wp_super_cache_query[ 'is_single' ] ) ) {
 				$wpsc_feed_list = (array) get_option( 'wpsc_feed_list' );
 				if ( count( $wpsc_feed_list ) <= 50 ) {
 					$wpsc_feed_list[] = $dir . $meta_file;
