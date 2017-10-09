@@ -15,7 +15,12 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 			'customize_selective_refresh' => true,
 		);
 
-		parent::__construct( 'jetpack_widget_social_icons', __( 'Social Icons', 'jetpack' ), $widget_ops );
+		parent::__construct(
+			'jetpack_widget_social_icons',
+			/** This filter is documented in modules/widgets/facebook-likebox.php */
+			apply_filters( 'jetpack_widget_name', __( 'Social Icons', 'jetpack' ) ),
+			$widget_ops
+		);
 
 		$this->defaults = array(
 			'title'     => __( 'Follow Us', 'jetpack' ),
@@ -23,7 +28,7 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 			'new-tab'   => false,
 			'icons'     => array(
 				array(
-					'url'   => '',
+					'url' => '',
 				),
 			),
 		);
@@ -78,7 +83,7 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 			return;
 		}
 
-		// Define SVG sprite file in Jetpack -- NEEDS TESTING
+		// Define SVG sprite file in Jetpack
 		$svg_icons = dirname( dirname( __FILE__ ) ) . '/theme-tools/social-menu/social-menu.svg';
 
 		// Define SVG sprite file in WPCOM
@@ -158,6 +163,9 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 		endif;
 
 		echo $args['after_widget'];
+
+		/** This action is documented in modules/widgets/gravatar-profile.php */
+		do_action( 'jetpack_stats_extra', 'widget_view', 'social_icons' )
 	}
 
 	/**
