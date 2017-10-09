@@ -433,7 +433,7 @@ function wp_cache_ob_callback( $buffer ) {
 	} elseif ( isset( $_GET[ 'preview' ] ) ) {
 		wp_cache_debug( 'Not caching preview post.', 2 );
 		$cache_this_page = false;
-	} elseif ( !in_array($script, $cache_acceptable_files) && wp_cache_is_rejected( $wp_cache_request_uri ) ) {
+	} elseif ( !in_array( $script, (array) $cache_acceptable_files ) && wp_cache_is_rejected( $wp_cache_request_uri ) ) {
 		wp_cache_debug( 'URI rejected. Not Caching', 2 );
 		$cache_this_page = false;
 	} elseif ( wp_cache_user_agent_is_rejected() ) {
