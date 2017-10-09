@@ -1,8 +1,5 @@
 <?php
 include_once( 'class.jetpack-admin-page.php' );
-// Load API endpoint base classes and endpoints for getting the module list fed into the JS Admin Page
-require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/class.jetpack-core-api-xmlrpc-consumer-endpoint.php';
-require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/class.jetpack-core-api-module-endpoints.php';
 
 // Builds the landing page and its menu
 class Jetpack_React_Page extends Jetpack_Admin_Page {
@@ -220,6 +217,9 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			);
 		}
 
+		// Load API endpoint base classes and endpoints for getting the module list fed into the JS Admin Page
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/class.jetpack-core-api-xmlrpc-consumer-endpoint.php';
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/class.jetpack-core-api-module-endpoints.php';
 		$moduleListEndpoint = new Jetpack_Core_API_Module_List_Endpoint();
 		$modules = $moduleListEndpoint->get_modules();
 
