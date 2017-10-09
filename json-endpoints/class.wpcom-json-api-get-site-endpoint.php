@@ -120,6 +120,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'podcasting_archive',
 		'is_domain_only',
 		'is_automated_transfer',
+		'signup_is_store',
 	);
 
 	protected static $jetpack_response_field_additions = array(
@@ -519,6 +520,14 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 				case 'blog_public':
 					$options[ $key ] = $site->get_blog_public();
+					break;
+				case 'signup_is_store':
+					$signup_is_store = $site->signup_is_store();
+
+					if ( $signup_is_store ) {
+						$options[ $key ] = $site->signup_is_store();
+					}
+
 					break;
 			}
 		}
