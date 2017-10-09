@@ -71,6 +71,7 @@ require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-autosave-v1-1-endp
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-autosave-post-v1-1-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-post-counts-v1-1-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-bulk-delete-post-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-bulk-restore-post-endpoint.php' );
 
 // Custom Menus
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-menus-v1-1-endpoint.php' );
