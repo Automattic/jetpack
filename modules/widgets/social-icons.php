@@ -165,7 +165,7 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 		echo $args['after_widget'];
 
 		/** This action is documented in modules/widgets/gravatar-profile.php */
-		do_action( 'jetpack_stats_extra', 'widget_view', 'social_icons' )
+		do_action( 'jetpack_stats_extra', 'widget_view', 'social_icons' );
 	}
 
 	/**
