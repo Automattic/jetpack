@@ -899,10 +899,10 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 					'type' => 'until',
 					'message' => 'The big day is here.',
 					'year' => date( 'Y' ) + 10,
-					'month' => '10',
+					'month' => date( 'm' ),
 					'hour' => '0',
 					'min' => '00',
-					'day' => '6'
+					'day' => date( 'd' )
 				)
 			)
 		);
@@ -917,6 +917,34 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 			),
 			$response
 		);
+	}
+
+	/**
+	 * Test fetching a widget that does not exist.
+	 *
+	 * @since 5.5.0
+	 */
+	public function test_fetch_nonexistent_widget_data() {
+		jetpack_register_widget_milestone();
+
+		$response = $this->create_and_get_request( 'widgets/some_other_slug-133', array(), 'GET' );
+
+		// Fails because user is not authenticated
+		$this->assertResponseStatus( 404, $response );
+	}
+
+	/**
+	 * Test fetching a nonexistent instance of an existing widget.
+	 *
+	 * @since 5.5.0
+	 */
+	public function test_fetch_nonexistent_widget_instance_data() {
+		jetpack_register_widget_milestone();
+
+		$response = $this->create_and_get_request( 'widgets/milestone_widget-333', array(), 'GET' );
+
+		// Fails because user is not authenticated
+		$this->assertResponseStatus( 404, $response );
 	}
 
 } // class end

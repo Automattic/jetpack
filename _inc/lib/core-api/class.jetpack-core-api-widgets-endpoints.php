@@ -17,22 +17,30 @@ class Jetpack_Core_API_Widget_Endpoint {
 	 * @return WP_REST_Response|WP_Error A REST response if the request was served successfully, otherwise an error.
 	 */
 	public function process( $request ) {
-		$widgets = get_option( 'sidebars_widgets', array() );
-
 		$widget_base = _get_widget_id_base( $request['id'] );
 		$widget_id = (int) substr( $request['id'], strlen( $widget_base ) + 1 );
 
-		$instances = get_option( 'widget_' . $widget_base, array() );
+		switch( $widget_base ) {
+			case 'milestone_widget':
+				$instances = get_option( 'widget_milestone_widget', array() );
 
-		$instance = $instances[ $widget_id ];
+				if ( isset( $instances[ $widget_id ] ) ) {
+					$instance = $instances[ $widget_id ];
+					$widget = new Milestone_Widget();
+					return $widget->get_widget_data( $instance );
+				}
+		}
 
-		$widget = new Milestone_Widget();
-
-		return $widget->get_widget_data( $instance );
+		return new WP_Error(
+			'not_found',
+			esc_html__( 'The requested widget was not found.', 'jetpack' ),
+			array( 'status' => 404 )
+		);
 	}
 
 	/**
-	 * Check that the current user has permissions to manage Jetpack modules.
+	 * Check that the current user has permissions to view widget information.
+	 * For the currently supported widget there are no permissions required.
 	 *
 	 * @since 4.3.0
 	 *
