@@ -1150,6 +1150,7 @@ function wp_cache_shutdown_callback() {
 		/* @header('Last-Modified: ' . $value); */
 		$wp_cache_meta[ 'headers' ][ 'Last-Modified' ] = "Last-Modified: $value";
 	}
+	$is_feed = false;
 	if ( !isset( $response[ 'Content-Type' ] ) && !isset( $response[ 'Content-type' ] ) ) {
 		// On some systems, headers set by PHP can't be fetched from
 		// the output buffer. This is a last ditch effort to set the
@@ -1181,6 +1182,7 @@ function wp_cache_shutdown_callback() {
 			if ( isset( $wpsc_feed_ttl ) && $wpsc_feed_ttl == 1 ) {
 				$wp_cache_meta[ 'ttl' ] = 60;
 			}
+			$is_feed = true;
 
 			wp_cache_debug( "wp_cache_shutdown_callback: feed is type: $type - $value" );
 		} elseif ( get_query_var( 'sitemap' ) || get_query_var( 'xsl' ) || get_query_var( 'xml_sitemap' ) ) {
@@ -1189,6 +1191,7 @@ function wp_cache_shutdown_callback() {
 			if ( isset( $wpsc_feed_ttl ) && $wpsc_feed_ttl == 1 ) {
 				$wp_cache_meta[ 'ttl' ] = 60;
 			}
+			$is_feed = true;
 
 		} else { // not a feed
 			$value = get_option( 'html_type' );
@@ -1238,6 +1241,16 @@ function wp_cache_shutdown_callback() {
 				wp_cache_set( $oc_key, $serial, 'supercache', $cache_max_time );
 			}
 			wp_cache_writers_exit();
+
+			// record locations of archive feeds to be updated when the site is updated.
+			// Only record a maximum of 50 feeds to avoid bloating database.
+			if ( $is_feed && ! isset( $wp_super_cache_query[ 'is_single' ] ) ) {
+				$wpsc_feed_list = (array) get_option( 'wpsc_feed_list' );
+				if ( count( $wpsc_feed_list ) <= 50 ) {
+					$wpsc_feed_list[] = $dir . $meta_file;
+					update_option( 'wpsc_feed_list', $wpsc_feed_list );
+				}
+			}
 		}
 	} else {
 		wp_cache_debug( "Did not write meta file: meta-{$meta_file} *$supercacheonly* *$wp_cache_not_logged_in* *$new_cache*", 2 );

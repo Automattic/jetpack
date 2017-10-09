@@ -3979,10 +3979,20 @@ function update_mod_rewrite_rules( $add_rules = true ) {
 	return true;
 }
 
-function wpsc_timestamp_cache_update( $type, $permalink ) {
-	wp_cache_setting( 'wpsc_last_post_update', time() );
+// Delete feeds when the site is updated so that feed files are always fresh
+function wpsc_feed_update( $type, $permalink ) {
+	$wpsc_feed_list = get_option( 'wpsc_feed_list' );
+
+	update_option( 'wpsc_feed_list', array() );
+	if ( is_array( $wpsc_feed_list ) && ! empty( $wpsc_feed_list ) ) {
+		foreach( $wpsc_feed_list as $file ) {
+			wp_cache_debug( "wpsc_feed_update: deleting feed: $file" );
+			@unlink( $file );
+			@unlink( dirname( $file ) . '/meta-' . basename( $file ) );
+		}
+	}
 }
-add_action( 'gc_cache', 'wpsc_timestamp_cache_update', 10, 2 );
+add_action( 'gc_cache', 'wpsc_feed_update', 10, 2 );
 
 function wpsc_get_plugin_list() {
 	$list = do_cacheaction( 'wpsc_filter_list' );
