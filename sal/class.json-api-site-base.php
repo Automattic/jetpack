@@ -563,4 +563,9 @@ abstract class SAL_Site {
 	function get_blog_public() {
 		return (int) get_option( 'blog_public' );
 	}
+
+	function signup_is_store() {
+		$options = get_option( 'options' );
+		return ! empty ( $options['designType'] ) ? $options['designType'] === 'store' : false;
+	}
 }
