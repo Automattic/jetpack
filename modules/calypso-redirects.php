@@ -16,7 +16,9 @@ class Calypso_Redirects {
 
 		add_action( 'load-toplevel_page_calypso-plugins', array( $this, 'plugins_redirect' ) );
 
+		if ( current_user_can( 'list_users' ) ) {
 			$this->register_user_redirect_handlers();
+		}
 	}
 
 	private function register_user_redirects() {
@@ -99,7 +101,9 @@ class Calypso_Redirects {
 		remove_menu_page( 'plugins.php' );
 		add_menu_page( __( 'Plugins' ), __( 'Plugins' ), 'manage_options', 'calypso-plugins', array( $this, 'plugins_redirect' ), 'dashicons-admin-plugins', 65 );
 
-		$this->register_user_redirects();
+		if ( current_user_can( 'list_users' ) ) {
+			$this->register_user_redirects();
+		}
 	}
 
 }
