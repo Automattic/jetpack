@@ -11,7 +11,7 @@ new WPCOM_JSON_API_Get_Comments_Tree_Endpoint( array(
 		'$site'   => '(int|string) Site ID or domain',
 	),
 	'query_parameters' => array(
-		'status' => '(string) Filter returned comments based on this value (allowed values: all, approved, pending, trash, spam).'
+		'status' => '(string) Filter returned comments based on this value (allowed values: all, approved, unapproved, pending, trash, spam).'
 	),
 	'response_format' => array(
 		'comments_count' => '(int) Total number of comments on the site',
@@ -128,7 +128,7 @@ class WPCOM_JSON_API_Get_Comments_Tree_Endpoint extends WPCOM_JSON_API_Endpoint 
 		if ( 'approved' === $status ) {
 			return '1';
 		}
-		if ( 'pending' === $status ) {
+		if ( 'pending' === $status || 'unapproved' === $status ) {
 			return '0';
 		}
 		return $status;
@@ -142,7 +142,7 @@ class WPCOM_JSON_API_Get_Comments_Tree_Endpoint extends WPCOM_JSON_API_Endpoint 
 	 * @return boolean
 	 */
 	function validate_status_param( $status ) {
-		return in_array( $status, array( 'all', 'approved', 'pending', 'spam', 'trash' ) );
+		return in_array( $status, array( 'all', 'approved', 'unapproved', 'pending', 'spam', 'trash' ) );
 	}
 
 	/**
