@@ -24,7 +24,11 @@ class Jetpack_Core_API_Widget_Endpoint {
 			case 'milestone_widget':
 				$instances = get_option( 'widget_milestone_widget', array() );
 
-				if ( isset( $instances[ $widget_id ] ) ) {
+				if (
+					class_exists( 'Milestone_Widget' )
+					&& is_active_widget( false, $widget_base . '-' . $widget_id, $widget_base )
+					&& isset( $instances[ $widget_id ] )
+				) {
 					$instance = $instances[ $widget_id ];
 					$widget = new Milestone_Widget();
 					return $widget->get_widget_data( $instance );
