@@ -46,7 +46,7 @@ class Jetpack_Core_API_Widget_Endpoint {
 	 * Check that the current user has permissions to view widget information.
 	 * For the currently supported widget there are no permissions required.
 	 *
-	 * @since 4.3.0
+	 * @since 5.5.0
 	 *
 	 * @return bool
 	 */

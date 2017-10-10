@@ -925,7 +925,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		$response = $this->create_and_get_request( 'widgets/milestone_widget-3', array(), 'GET' );
 
-		// Fails because user is not authenticated
+		// Should return the widget data
 		$this->assertResponseStatus( 200, $response );
 		$this->assertResponseData(
 			array(
@@ -934,6 +934,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 			$response
 		);
 
+		// Cleaning up the sidebars
 		$sidebars = wp_get_sidebars_widgets();
 		foreach( $sidebars as $key => $sidebar ) {
 			$sidebars[ $key ] = array_diff( $sidebar, array( 'milestone_widget-3' ) );
@@ -952,7 +953,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		$response = $this->create_and_get_request( 'widgets/some_other_slug-133', array(), 'GET' );
 
-		// Fails because user is not authenticated
+		// Fails because there is no such widget
 		$this->assertResponseStatus( 404, $response );
 
 		unregister_widget( 'Milestone_Widget' );
@@ -968,7 +969,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		$response = $this->create_and_get_request( 'widgets/milestone_widget-333', array(), 'GET' );
 
-		// Fails because user is not authenticated
+		// Fails because there is no such widget instance
 		$this->assertResponseStatus( 404, $response );
 
 		unregister_widget( 'Milestone_Widget' );
@@ -996,7 +997,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		$response = $this->create_and_get_request( 'widgets/milestone_widget-3', array(), 'GET' );
 
-		// Fails because user is not authenticated
+		// Fails because the widget is inactive
 		$this->assertResponseStatus( 404, $response );
 	}
 
