@@ -372,10 +372,10 @@ class Jetpack_PostImages {
 			$meta['height'] = (int) $image_tag->getAttribute( 'height' );
 
 			// Must be larger than 200x200 (or user-specified).
-			if ( ! empty( $meta['width'] ) || $meta['width'] < $width ) {
+			if ( empty( $meta['width'] ) || $meta['width'] < $width ) {
 				continue;
 			}
-			if ( ! empty( $meta['height'] ) || $meta['height'] < $height ) {
+			if ( empty( $meta['height'] ) || $meta['height'] < $height ) {
 				continue;
 			}
 
@@ -620,7 +620,7 @@ class Jetpack_PostImages {
 		if( function_exists( 'jetpack_photon_url' ) ) {
 			return jetpack_photon_url( $src, array( 'resize' => "$width,$height" ) );
 		}
-		
+
 		// Arg... no way to resize image using WordPress.com infrastructure!
 		return $src;
 	}
