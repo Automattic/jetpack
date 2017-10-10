@@ -5,6 +5,10 @@ if ( ! class_exists( 'Calypso_Redirects' ) ) :
 class Calypso_Redirects {
 
 	public function __construct() {
+		if ( ! is_admin() ) {
+			return;
+		}
+
 		add_action( 'admin_menu', array( $this, 'menu_redirects' ), 30 );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 
