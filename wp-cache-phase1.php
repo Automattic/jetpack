@@ -617,7 +617,7 @@ function get_current_url_supercache_dir( $post_id = 0 ) {
 			*/
 			$DONOTREMEMBER = 1;
 			wp_cache_debug( "get_current_url_supercache_dir: warning! site_url ($site_url) not found in permalink ($permalink).", 1 );
-			if ( false === strpos( $permalink, $WPSC_HTTP_HOST ) ) {
+			if ( $WPSC_HTTP_HOST == '' || false === strpos( $permalink, $WPSC_HTTP_HOST ) ) {
 				wp_cache_debug( "get_current_url_supercache_dir: WARNING! SERVER_NAME ({$WPSC_HTTP_HOST}) not found in permalink ($permalink). ", 1 );
 				$p = parse_url( $permalink );
 				if ( is_array( $p ) ) {
