@@ -31,7 +31,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 		$img_title = 'title.jpg';
 
 		$post_id = $this->factory->post->create( array(
-			'post_content' => "<img src='$img_title'>",
+			'post_content' => "<img src='$img_title' width='200' height='200'>",
 		) );
 
 		$extract = Jetpack_Media_Meta_Extractor::extract( Jetpack_Options::get_option( 'id' ), $post_id );
@@ -145,7 +145,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 	 */
 	public function test_mediaextractor_extract_images_from_content_return_correct_image_struct() {
 		$img_name = 'image.jpg';
-		$content = "<img src='$img_name'>";
+		$content = "<img src='$img_name' width='200' height='200'>";
 
 		$image_struct = Jetpack_Media_Meta_Extractor::extract_images_from_content( $content, array() );
 
@@ -257,7 +257,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 
 			An Image:
 
-			<a href="http://mrwpsandbox.files.wordpress.com/2013/03/screen-shot-2013-03-15-at-1-27-05-pm.png"><img class="alignnone size-medium wp-image-32" alt="Screen Shot 2013-03-15 at 1.27.05 PM" src="http://mrwpsandbox.files.wordpress.com/2013/03/screen-shot-2013-03-15-at-1-27-05-pm.png?w=300" width="300" height="183" /></a>
+			<a href="http://mrwpsandbox.files.wordpress.com/2013/03/screen-shot-2013-03-15-at-1-27-05-pm.png"><img class="alignnone size-full wp-image-32" alt="Screen Shot 2013-03-15 at 1.27.05 PM" src="http://mrwpsandbox.files.wordpress.com/2013/03/screen-shot-2013-03-15-at-1-27-05-pm.png?w=519" width="519" height="317" /></a>
 
 			&nbsp;
 
@@ -336,7 +336,7 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 					'host' => 'mrwpsandbox.files.wordpress.com',
 				),
 				array(
-					'url' => 'mrwpsandbox.files.wordpress.com/2013/03/screen-shot-2013-03-15-at-1-27-05-pm.png?w=300',
+					'url' => 'mrwpsandbox.files.wordpress.com/2013/03/screen-shot-2013-03-15-at-1-27-05-pm.png?w=519',
 					'host_reversed' => 'com.wordpress.files.mrwpsandbox',
 					'host' => 'mrwpsandbox.files.wordpress.com',
 				),
@@ -493,12 +493,12 @@ class WP_Test_Jetpack_MediaExtractor extends WP_UnitTestCase {
 	 */
 	function test_extract_image_from_html() {
 		$html = <<<EOT
-<p><a href="http://paulbernal.files.wordpress.com/2013/05/mr-gove-cover.jpeg"><img class="aligncenter size-full wp-image-1027" alt="Mr Gove Cover" src="http://paulbernal.files.wordpress.com/2013/05/mr-gove-cover.jpeg?w=640" /></a></p>
+<p><a href="http://paulbernal.files.wordpress.com/2013/05/mr-gove-cover.jpeg"><img class="aligncenter size-full wp-image-1027" alt="Mr Gove Cover" src="http://paulbernal.files.wordpress.com/2013/05/mr-gove-cover.jpeg" width="612" height="547" /></a></p>
 <p>Mr Gove was extraordinarily arrogant.</p>
 <p>Painfully arrogant.</p>
 <p>He believed that he knew how everything should be done. He believed that everyone else in the world was stupid and ignorant.</p>
 <p>The problem was, Mr Gove himself was the one who was ignorant.</p>
-<p><a href="http://paulbernal.files.wordpress.com/2013/05/mr-gove-close-up.jpeg"><img class="aligncenter size-full wp-image-1030" alt="Mr Gove Close up" src="http://paulbernal.files.wordpress.com/2013/05/mr-gove-close-up.jpeg?w=640" /></a></p>
+<p><a href="http://paulbernal.files.wordpress.com/2013/05/mr-gove-close-up.jpeg"><img class="aligncenter size-full wp-image-1030" alt="Mr Gove Close up" src="http://paulbernal.files.wordpress.com/2013/05/mr-gove-close-up.jpeg" width="612" height="542" /></a></p>
 <p>He got most of his information from his own, misty, memory.</p>
 <p>He thought he remembered what it had been like when he had been at school &#8211; and assumed that everyone else&#8217;s school should be the same.</p>
 <p>He remembered the good things about his own school days, and thought that everyone should have the same.</p>
