@@ -14,13 +14,9 @@ class Calypso_Redirects {
 
 		add_filter( 'allowed_redirect_hosts', array( $this, 'allow_calypso_domain' ), 10, 1 );
 
-		// register redirect handlers
-		add_action( 'load-users_page_calypso-users', array( $this, 'users_redirect' ) );
-		add_action( 'load-users_page_calypso-users-new', array( $this, 'users_new_redirect' ) );
-		add_action( 'load-users_page_calypso-users-profile', array( $this, 'users_profile_redirect' ) );
-		add_action( 'load-users_page_calypso-users-settings', array( $this, 'users_settings_redirect' ) );
-
 		add_action( 'load-toplevel_page_calypso-plugins', array( $this, 'plugins_redirect' ) );
+
+			$this->register_user_redirect_handlers();
 	}
 
 	private function register_user_redirects() {
@@ -32,6 +28,13 @@ class Calypso_Redirects {
 		add_submenu_page( 'users.php', __( 'All Users' ), __( 'All Users' ), 'list_users', 'calypso-users', array( $this, 'users_redirect' ) );
 		add_submenu_page( 'users.php', __( 'Invite New' ), __( 'Invite New' ), 'promote_users', 'calypso-users-new', array( $this, 'users_new_redirect' ) );
 		add_submenu_page( 'users.php', __( 'My Profile' ), __( 'My Profile' ), 'read', 'calypso-users-profile', array( $this, 'users_profile_redirect' ) );
+	}
+
+	private function register_user_redirect_handlers() {
+		add_action( 'load-users_page_calypso-users', array( $this, 'users_redirect' ) );
+		add_action( 'load-users_page_calypso-users-new', array( $this, 'users_new_redirect' ) );
+		add_action( 'load-users_page_calypso-users-profile', array( $this, 'users_profile_redirect' ) );
+		add_action( 'load-users_page_calypso-users-settings', array( $this, 'users_settings_redirect' ) );
 	}
 
 	private function register_track_event( $event ) {
