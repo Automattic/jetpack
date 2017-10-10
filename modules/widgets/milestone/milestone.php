@@ -246,8 +246,8 @@ class Milestone_Widget extends WP_Widget {
 					case 'years':
 						$data['message'] = sprintf(
 							_n(
-								'<span class="difference">%1$s</span> <span class="label">year ago.</span>',
-								'<span class="difference">%1$s</span> <span class="label">years ago.</span>',
+								'<span class="difference">%s</span> <span class="label">year ago.</span>',
+								'<span class="difference">%s</span> <span class="label">years ago.</span>',
 								$interval,
 								'jetpack'
 							),
@@ -257,8 +257,8 @@ class Milestone_Widget extends WP_Widget {
 					case 'months':
 						$data['message'] = sprintf(
 							_n(
-								'<span class="difference">%1$s</span> <span class="label">month ago.</span>',
-								'<span class="difference">%1$s</span> <span class="label">months ago.</span>',
+								'<span class="difference">%s</span> <span class="label">month ago.</span>',
+								'<span class="difference">%s</span> <span class="label">months ago.</span>',
 								$interval,
 								'jetpack'
 							),
@@ -268,8 +268,8 @@ class Milestone_Widget extends WP_Widget {
 					case 'days':
 						$data['message'] = sprintf(
 							_n(
-								'<span class="difference">%1$s</span> <span class="label">day ago.</span>',
-								'<span class="difference">%1$s</span> <span class="label">days ago.</span>',
+								'<span class="difference">%s</span> <span class="label">day ago.</span>',
+								'<span class="difference">%s</span> <span class="label">days ago.</span>',
 								$interval,
 								'jetpack'
 							),
@@ -279,8 +279,8 @@ class Milestone_Widget extends WP_Widget {
 					case 'hours':
 						$data['message'] = sprintf(
 							_n(
-								'<span class="difference">%1$s</span> <span class="label">hour ago.</span>',
-								'<span class="difference">%1$s</span> <span class="label">hours ago.</span>',
+								'<span class="difference">%s</span> <span class="label">hour ago.</span>',
+								'<span class="difference">%s</span> <span class="label">hours ago.</span>',
 								$interval,
 								'jetpack'
 							),
@@ -290,8 +290,8 @@ class Milestone_Widget extends WP_Widget {
 					case 'minutes':
 						$data['message'] = sprintf(
 							_n(
-								'<span class="difference">%1$s</span> <span class="label">minute ago.</span>',
-								'<span class="difference">%1$s</span> <span class="label">minutes ago.</span>',
+								'<span class="difference">%s</span> <span class="label">minute ago.</span>',
+								'<span class="difference">%s</span> <span class="label">minutes ago.</span>',
 								$interval,
 								'jetpack'
 							),
@@ -301,8 +301,8 @@ class Milestone_Widget extends WP_Widget {
 					case 'seconds':
 						$data['message'] = sprintf(
 							_n(
-								'<span class="difference">%1$s</span> <span class="label">second ago.</span>',
-								'<span class="difference">%1$s</span> <span class="label">seconds ago.</span>',
+								'<span class="difference">%s</span> <span class="label">second ago.</span>',
+								'<span class="difference">%s</span> <span class="label">seconds ago.</span>',
 								$interval,
 								'jetpack'
 							),
@@ -315,8 +315,8 @@ class Milestone_Widget extends WP_Widget {
 					case 'years':
 						$data['message'] = sprintf(
 							_n(
-								'<span class="difference">%1$s</span> <span class="label">year to go.</span>',
-								'<span class="difference">%1$s</span> <span class="label">years to go.</span>',
+								'<span class="difference">%s</span> <span class="label">year to go.</span>',
+								'<span class="difference">%s</span> <span class="label">years to go.</span>',
 								$interval,
 								'jetpack'
 							),
@@ -326,8 +326,8 @@ class Milestone_Widget extends WP_Widget {
 					case 'months':
 						$data['message'] = sprintf(
 							_n(
-								'<span class="difference">%1$s</span> <span class="label">month to go.</span>',
-								'<span class="difference">%1$s</span> <span class="label">months to go.</span>',
+								'<span class="difference">%s</span> <span class="label">month to go.</span>',
+								'<span class="difference">%s</span> <span class="label">months to go.</span>',
 								$interval,
 								'jetpack'
 							),
@@ -337,8 +337,8 @@ class Milestone_Widget extends WP_Widget {
 					case 'days':
 						$data['message'] = sprintf(
 							_n(
-								'<span class="difference">%1$s</span> <span class="label">day to go.</span>',
-								'<span class="difference">%1$s</span> <span class="label">days to go.</span>',
+								'<span class="difference">%s</span> <span class="label">day to go.</span>',
+								'<span class="difference">%s</span> <span class="label">days to go.</span>',
 								$interval,
 								'jetpack'
 							),
@@ -348,8 +348,8 @@ class Milestone_Widget extends WP_Widget {
 					case 'hours':
 						$data['message'] = sprintf(
 							_n(
-								'<span class="difference">%1$s</span> <span class="label">hour to go.</span>',
-								'<span class="difference">%1$s</span> <span class="label">hours to go.</span>',
+								'<span class="difference">%s</span> <span class="label">hour to go.</span>',
+								'<span class="difference">%s</span> <span class="label">hours to go.</span>',
 								$interval,
 								'jetpack'
 							),
@@ -359,8 +359,8 @@ class Milestone_Widget extends WP_Widget {
 					case 'minutes':
 						$data['message'] = sprintf(
 							_n(
-								'<span class="difference">%1$s</span> <span class="label">minute to go.</span>',
-								'<span class="difference">%1$s</span> <span class="label">minutes to go.</span>',
+								'<span class="difference">%s</span> <span class="label">minute to go.</span>',
+								'<span class="difference">%s</span> <span class="label">minutes to go.</span>',
 								$interval,
 								'jetpack'
 							),
@@ -370,8 +370,8 @@ class Milestone_Widget extends WP_Widget {
 					case 'seconds':
 						$data['message'] = sprintf(
 							_n(
-								'<span class="difference">%1$s</span> <span class="label">second to go.</span>',
-								'<span class="difference">%1$s</span> <span class="label">seconds to go.</span>',
+								'<span class="difference">%s</span> <span class="label">second to go.</span>',
+								'<span class="difference">%s</span> <span class="label">seconds to go.</span>',
 								$interval,
 								'jetpack'
 							),
