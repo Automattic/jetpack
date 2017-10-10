@@ -5,7 +5,7 @@ if ( ! class_exists( 'Calypso_Redirects' ) ) :
 class Calypso_Redirects {
 
 	public function __construct() {
-		if ( ! is_admin() ) {
+		if ( ! get_option( 'jetpack_calypso_redirects_active' ) || ! is_admin() ) {
 			return;
 		}
 
