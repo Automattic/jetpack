@@ -109,9 +109,10 @@ const ThemeEnhancements = moduleSettingsForm(
 
 		render() {
 			const foundInfiniteScroll = this.props.isModuleFound( 'infinite-scroll' ),
-				foundMinileven = this.props.isModuleFound( 'minileven' );
+				foundMinileven = this.props.isModuleFound( 'minileven' ),
+				foundPWA = this.props.isModuleFound( 'pwa' );
 
-			if ( ! foundInfiniteScroll && ! foundMinileven ) {
+			if ( ! foundInfiniteScroll && ! foundMinileven && ! foundPWA ) {
 				return null;
 			}
 
@@ -250,6 +251,40 @@ const ThemeEnhancements = moduleSettingsForm(
 												} )
 											}
 										</FormFieldset>
+									</SettingsGroup>
+								);
+							} )
+						)
+					}
+
+					{
+						foundPWA && (
+							[ {
+								...this.props.getModule( 'pwa' )
+							} ].map( item => {
+								const isItemActive = this.props.getOptionValue( item.module );
+
+								if ( ! this.props.isModuleFound( item.module ) ) {
+									return null;
+								}
+
+								return (
+									<SettingsGroup hasChild module={ { module: item.module } } key={ `theme_enhancement_${ item.module }` } support={ item.learn_more_button }>
+										{
+											<ModuleToggle
+												slug={ item.module }
+												activated={ isItemActive }
+												toggling={ this.props.isSavingAnyOption( item.module ) }
+												toggleModule={ this.props.toggleModuleNow }
+											>
+											<span className="jp-form-toggle-explanation">
+												{
+													item.description
+												}
+											</span>
+											</ModuleToggle>
+										}
+
 									</SettingsGroup>
 								);
 							} )

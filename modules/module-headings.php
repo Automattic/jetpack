@@ -139,6 +139,11 @@ function jetpack_get_module_i18n( $key ) {
 				'description' => _x( 'Automated social marketing.', 'Module Description', 'jetpack' ),
 			),
 
+			'pwa' => array(
+				'name' => _x( 'Progressive Web Apps', 'Module Name', 'jetpack' ),
+				'description' => _x( 'Enable mobile and offline features', 'Module Description', 'jetpack' ),
+			),
+
 			'related-posts' => array(
 				'name' => _x( 'Related posts', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Increase page views by showing related content to your visitors.', 'Module Description', 'jetpack' ),
@@ -288,6 +293,7 @@ function jetpack_get_module_i18n_tag( $key ) {
 			//  - modules/infinite-scroll.php
 			//  - modules/minileven.php
 			//  - modules/photon.php
+			//  - modules/pwa.php
 			//  - modules/seo-tools.php
 			//  - modules/shortcodes.php
 			//  - modules/widget-visibility.php
@@ -311,6 +317,7 @@ function jetpack_get_module_i18n_tag( $key ) {
 			//  - modules/photon.php
 			//  - modules/protect.php
 			//  - modules/publicize.php
+			//  - modules/pwa.php
 			//  - modules/related-posts.php
 			//  - modules/sharedaddy.php
 			//  - modules/sitemaps.php
@@ -323,6 +330,7 @@ function jetpack_get_module_i18n_tag( $key ) {
 
 			// Modules with `Mobile` tag:
 			//  - modules/minileven.php
+			//  - modules/pwa.php
 			'Mobile' =>_x( 'Mobile', 'Module Tag', 'jetpack' ),
 
 			// Modules with `Traffic` tag:
