@@ -374,12 +374,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 'foobar', $event->args[0] );
 		$this->assertEquals( $user_id, $user_data_sent_to_server->ID );
 		$this->assertFalse( isset( $user_data_sent_to_server->data->user_pass ) );
-
-		do_action( 'wp_login_failed', 'foobar' );
-		$this->sender->do_sync();
-
-		$event = $this->server_event_storage->get_most_recent_event( 'wp_login_failed' );
-		$this->assertEquals( 'foobar', $event->args[0] );
+		
 	}
 
 	public function test_syncs_user_logout_event() {
