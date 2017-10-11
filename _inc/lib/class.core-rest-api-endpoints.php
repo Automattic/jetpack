@@ -786,45 +786,67 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
+	 * Fetch site data from .com including the site's current plan.
+	 *
+	 * @since 5.5.0
+	 *
+	 * @return array Array of site properties.
+	 */
+	public static function site_data() {
+		$site_id = Jetpack_Options::get_option( 'id' );
+
+		if ( ! $site_id ) {
+			 new WP_Error( 'site_id_missing' );
+		}
+
+		$response = Jetpack_Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d', $site_id ) .'?force=wpcom', '1.1' );
+
+		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			return new WP_Error( 'site_data_fetch_failed' );
+		}
+
+		// Save plan details in the database for future use without API calls
+		$results = json_decode( $response['body'], true );
+
+		if ( is_array( $results ) && isset( $results['plan'] ) ) {
+
+			// Set flag for newly purchased plan
+			$current_plan = Jetpack::get_active_plan();
+			if ( $current_plan['product_slug'] !== $results['plan']['product_slug'] && 'jetpack_free' !== $results['plan']['product_slug'] ) {
+				update_option( 'show_welcome_for_new_plan', true ) ;
+			}
+
+			update_option( 'jetpack_active_plan', $results['plan'] );
+		}
+		$body = wp_remote_retrieve_body( $response );
+
+		return json_decode( $body );
+	}
+	/**
 	 * Get site data, including for example, the site's current plan.
 	 *
 	 * @since 4.3.0
 	 *
-	 * @return array Array of Jetpack modules.
+	 * @return array Array of site properties.
 	 */
 	public static function get_site_data() {
+		$site_data = self::site_data();
 
-		if ( $site_id = Jetpack_Options::get_option( 'id' ) ) {
-
-			$response = Jetpack_Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d', $site_id ) .'?force=wpcom', '1.1' );
-
-			if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
-				return new WP_Error( 'site_data_fetch_failed', esc_html__( 'Failed fetching site data. Try again later.', 'jetpack' ), array( 'status' => 400 ) );
-			}
-
-			// Save plan details in the database for future use without API calls
-			$results = json_decode( $response['body'], true );
-
-			if ( is_array( $results ) && isset( $results['plan'] ) ) {
-
-				// Set flag for newly purchased plan
-				$current_plan = Jetpack::get_active_plan();
-				if ( $current_plan['product_slug'] !== $results['plan']['product_slug'] && 'jetpack_free' !== $results['plan']['product_slug'] ) {
-					update_option( 'show_welcome_for_new_plan', true ) ;
-				}
-
-				update_option( 'jetpack_active_plan', $results['plan'] );
-			}
-
+		if ( ! is_wp_error( $site_data ) ) {
 			return rest_ensure_response( array(
 					'code' => 'success',
 					'message' => esc_html__( 'Site data correctly received.', 'jetpack' ),
-					'data' => wp_remote_retrieve_body( $response ),
+					'data' => json_encode( $site_data ),
 				)
 			);
 		}
+		if ( $site_data->get_error_code() === 'site_data_fetch_failed' ) {
+			return new WP_Error( 'site_data_fetch_failed', esc_html__( 'Failed fetching site data. Try again later.', 'jetpack' ), array( 'status' => 400 ) );
+		}
 
-		return new WP_Error( 'site_id_missing', esc_html__( 'The ID of this site does not exist.', 'jetpack' ), array( 'status' => 404 ) );
+		if ( $site_data->get_error_code() === 'site_id_missing' ) {
+			return new WP_Error( 'site_id_missing', esc_html__( 'The ID of this site does not exist.', 'jetpack' ), array( 'status' => 404 ) );
+		}
 	}
 
 	/**
