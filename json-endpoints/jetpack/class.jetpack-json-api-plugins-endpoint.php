@@ -46,7 +46,6 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		'network'         => '(boolean) Whether the plugin can only be activated network wide.',
 		'autoupdate'      => '(boolean) Whether the plugin is automatically updated',
 		'autoupdate_translation' => '(boolean) Whether the plugin is automatically updating translations',
-		'log'             => '(array:safehtml) An array of update log strings.',
 		'uninstallable'   => '(boolean) Whether the plugin is unistallable.',
 		'action_links'    => '(array) An array of action links that the plugin uses.',
 	);
@@ -167,21 +166,22 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		$plugin['update']          = $this->get_plugin_updates( $plugin_file );
 		$plugin['action_links']    = $this->get_plugin_action_links( $plugin_file );
 
-		$autoupdate = in_array( $plugin_file, Jetpack_Options::get_option( 'autoupdate_plugins', array() ) );
+		$autoupdate = $this->plugin_has_autoupdates_enabled( $plugin_file );
 		$plugin['autoupdate']      = $autoupdate;
-		if ( $autoupdates_disabled = $this->autoupdate_disabled() ) {
-			$plugin['autoupdate_disabled'] = $autoupdates_disabled;
-		}
 
-		$autoupdate_translation = in_array( $plugin_file, Jetpack_Options::get_option( 'autoupdate_plugins_translations', array() ) );
+		$autoupdate_translation = $this->plugin_has_translations_autoupdates_enabled( $plugin_file );
 		$plugin['autoupdate_translation'] = $autoupdate || $autoupdate_translation || Jetpack_Options::get_option( 'autoupdate_translations', false );
-
 		$plugin['uninstallable']   = is_uninstallable_plugin( $plugin_file );
 
-		if ( ! empty ( $this->log[ $plugin_file ] ) ) {
-			$plugin['log'] = $this->log[ $plugin_file ];
-		}
 		return $plugin;
+	}
+
+	protected function plugin_has_autoupdates_enabled( $plugin_file ) {
+		return (bool) in_array( $plugin_file, Jetpack_Options::get_option( 'autoupdate_plugins', array() ) );
+	}
+
+	protected function plugin_has_translations_autoupdates_enabled( $plugin_file ) {
+		return (bool) in_array( $plugin_file, Jetpack_Options::get_option( 'autoupdate_plugins_translations', array() ) );
 	}
 
 
@@ -189,36 +189,28 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		$reasons_can_not_autoupdate = array();
 		$reasons_can_not_modify_files = array();
 
-		$has_file_system_write_access = $this->replica_store->get_callable( 'has_file_system_write_access' );
+		$has_file_system_write_access = Jetpack_Sync_Functions::file_system_write_access();
 		if ( ! $has_file_system_write_access ) {
 			$reasons_can_not_modify_files['has_no_file_system_write_access'] =  __( 'The file permissions on this host prevent editing files.', 'jetpack' );
 		}
 
-		$disallow_file_mods = $this->replica_store->get_constant( 'DISALLOW_FILE_MODS' );
+		$disallow_file_mods = Jetpack_Constants::get_constant('DISALLOW_FILE_MODS' );
 		if ( $disallow_file_mods ) {
 			$reasons_can_not_modify_files['disallow_file_mods'] =  __( 'File modifications are explicitly disabled by a site administrator.', 'jetpack' );
 		}
 
-		$automatic_updater_disabled = $this->replica_store->get_constant( 'AUTOMATIC_UPDATER_DISABLED' );
+		$automatic_updater_disabled = Jetpack_Constants::get_constant( 'AUTOMATIC_UPDATER_DISABLED' );
 		if ( $automatic_updater_disabled ) {
 			$reasons_can_not_autoupdate['automatic_updater_disabled'] = __( 'Any autoupdates are explicitly disabled by a site administrator.', 'jetpack' );
 		}
 
-		// Jetpack minimum
-		if ( version_compare( get_jetpack_version(), '3.3' ) < 0 ) {
-			$reasons_can_not_modify_files['no_min_jetpack_version'] = __( 'Jetpack version is less then 3.3, please update to the latest', 'jetpack' );
-		}
-
-		// Is the site a multisite?
-		$is_multi_site = $this->replica_store->get_callable( 'is_multi_site' );
-		if ( $is_multi_site ) {
+		if ( is_multisite() ) {
 			// is it the main network ? is really is multi network
-			$is_main_network = $this->replica_store->get_callable( 'is_main_network' );
-			if ( $is_main_network ) {
+			if ( Jetpack::is_multi_network() ) {
 				$reasons_can_not_modify_files['is_multi_network'] =  __( 'Multi network install are not supported.', 'jetpack' );
 			}
 			// Is the site the main site here.
-			if ( $this->get_url_option( 'siteurl' ) !== $this->get_url_option( 'jetpack_main_network_site' ) ) {
+			if ( ! is_main_site() ) {
 				$reasons_can_not_modify_files['is_sub_site'] =  __( 'The site is not the main network site', 'jetpack' );
 			}
 		}
@@ -236,40 +228,6 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 			$file_mod_capabilities['reasons_autoupdate_disabled'] = array_merge( $reasons_can_not_autoupdate, $reasons_can_not_modify_files );
 		}
 		return $file_mod_capabilities;
-	}
-
-	protected function autoupdate_disabled() {
-		// Check if we are on multi site?
-
-		if ( is_multisite() ) {
-
-			if ( Jetpack::is_multi_network() ) {
-				return array( 'is_multi_network' => __( 'Multi Network Sites are not supported', 'jetpack' ) );
-			}
-
-			if( is_main_network() ) {
-
-			}
-		}
-		// Check if we are on multi network?
-		require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-functions.php';
-		if ( ! Jetpack_Sync_Functions::file_system_write_access() ) {
-			$reason['has_no_file_system_write_access'] = __( 'The file permissions on this host prevent editing files.', 'jetpack' );
-		}
-
-		if ( defined( 'DISALLOW_FILE_MODS' ) && DISALLOW_FILE_MODS ) {
-			$reason['disallow_file_mods'] = __( 'File modifications are explicitly disabled by a site administrator.', 'jetpack' );
-		}
-
-		if ( defined( 'AUTOMATIC_UPDATER_DISABLED' ) && AUTOMATIC_UPDATER_DISABLED ) {
-			$reason['automatic_updater_disabled'] = __( 'Any autoupdates are explicitly disabled by a site administrator.', 'jetpack' );
-		}
-
-		if ( ! empty( $reason ) ) {
-			return $reason;
-		}
-		return false; // autoupdates allowed
-
 	}
 
 	protected function get_plugins() {
