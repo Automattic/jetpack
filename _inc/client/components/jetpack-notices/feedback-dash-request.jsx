@@ -14,6 +14,7 @@ import {
 	isNoticeDismissed as _isNoticeDismissed,
 	dismissJetpackNotice
 } from 'state/jetpack-notices';
+import { JETPACK_CONTACT_SUPPORT } from 'constants';
 
 const FeedbackDashRequest = React.createClass( {
 	displayName: 'FeedbackDashRequest',
@@ -31,7 +32,7 @@ const FeedbackDashRequest = React.createClass( {
 					text={ __( 'What would you like to see on your Jetpack Dashboard?' ) }
 				>
 					<NoticeAction
-						href="https://jetpack.com/contact-support/"
+						href={ JETPACK_CONTACT_SUPPORT }
 					>
 						{ __( 'Let us know!' ) }
 					</NoticeAction>

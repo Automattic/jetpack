@@ -18,6 +18,7 @@ import DismissableNotices from './dismissable';
 import { getConnectUrl as _getConnectUrl } from 'state/connection';
 import QueryConnectUrl from 'components/data/query-connect-url';
 import JetpackBanner from 'components/jetpack-banner';
+import { JETPACK_CONTACT_BETA_SUPPORT } from 'constants';
 
 export const DevVersionNotice = React.createClass( {
 	displayName: 'DevVersionNotice',
@@ -30,7 +31,7 @@ export const DevVersionNotice = React.createClass( {
 					text={ __( 'You are currently running a development version of Jetpack.' ) }
 				>
 					<NoticeAction
-						href="https://jetpack.com/contact-support/beta-group/"
+						href={ JETPACK_CONTACT_BETA_SUPPORT }
 					>
 						{ __( 'Submit Beta feedback' ) }
 					</NoticeAction>
