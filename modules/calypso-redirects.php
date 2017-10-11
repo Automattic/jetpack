@@ -28,8 +28,8 @@ class Calypso_Redirects {
 
 		// replace each menu item one by one with its redirect
 		add_submenu_page( 'users.php', __( 'All Users' ), __( 'All Users' ), 'list_users', 'calypso-users', array( $this, 'users_redirect' ) );
-		add_submenu_page( 'users.php', __( 'Invite New' ), __( 'Invite New' ), 'promote_users', 'calypso-users-new', array( $this, 'users_new_redirect' ) );
-		add_submenu_page( 'users.php', __( 'My Profile' ), __( 'My Profile' ), 'read', 'calypso-users-profile', array( $this, 'users_profile_redirect' ) );
+		add_submenu_page( 'users.php', __( 'Add New' ), __( 'Add New' ), 'promote_users', 'calypso-users-new', array( $this, 'users_new_redirect' ) );
+		add_submenu_page( 'users.php', __( 'Your Profile' ), __( 'Your Profile' ), 'read', 'calypso-users-profile', array( $this, 'users_profile_redirect' ) );
 	}
 
 	private function register_user_redirect_handlers() {
