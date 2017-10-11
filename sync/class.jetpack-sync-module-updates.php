@@ -118,6 +118,8 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 		// ignore `last_checked`
 		unset( $a_value['last_checked'] );
 		unset( $a_value['checked'] );
+		unset( $a_value['version_checked'] );
+		unset( $a_value['updates'] );
 		if ( empty( $a_value ) ) {
 			return false;
 		}
