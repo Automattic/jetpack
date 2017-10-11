@@ -45,6 +45,9 @@ add_action( 'template_redirect', 'pwa_render_custom_assets', 2 );
 add_action( 'amp_post_template_head', 'pwa_render_amp_serviceworker_script' ); // AMP
 add_action( 'amp_post_template_footer', 'pwa_render_amp_serviceworker_element' ); // AMP
 
+// web push - flag post as web pushable
+add_filter( 'jetpack_published_post_flags', 'pwa_jetpack_published_post_flags', 10, 2 );
+
 function pwa_activate() {
 	if ( ! did_action( 'pwa_init' ) ) {
 		pwa_init();
@@ -205,4 +208,18 @@ function pwa_get_manifest_url() {
 
 function pwa_get_service_worker_url() {
 	return add_query_arg( PWA_SW_QUERY_VAR, '1', trailingslashit( site_url() ) . 'index.php' );
+}
+
+function pwa_jetpack_published_post_flags( $flags, $post ) {
+	if ( ! $this->post_type_is_publicizeable( $post->post_type ) ) {
+		return $flags;
+	}
+	/** This filter is already documented in modules/publicize/publicize-jetpack.php */
+	if ( ! apply_filters( 'pwa_should_web_push_published_post', true, $post ) ) {
+		return $flags;
+	}
+
+	$flags['web_push'] = true;
+
+	return $flags;
 }
