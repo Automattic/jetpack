@@ -83,7 +83,7 @@ class Grunion_Editor_View {
 			)
 		) );
 
-		add_editor_style( plugin_dir_url( __FILE__ ) . '/css/editor-style.css' );
+		add_editor_style( plugin_dir_url( __FILE__ ) . 'css/editor-style.css' );
 	}
 
 	/**
