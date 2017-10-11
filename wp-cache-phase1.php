@@ -283,7 +283,7 @@ function wp_cache_serve_cache_file() {
 				}
 				$local_mod_time = gmdate("D, d M Y H:i:s",filemtime( $file )).' GMT';
 				if ( !is_null($remote_mod_time) && $remote_mod_time == $local_mod_time ) {
-					header("HTTP/1.0 304 Not Modified");
+					header( $_SERVER[ 'SERVER_PROTOCOL' ] . " 304 Not Modified" );
 					exit();
 				}
 				header( 'Last-Modified: ' . $local_mod_time );
