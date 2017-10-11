@@ -612,7 +612,6 @@ abstract class WPCOM_JSON_API_Endpoint {
 			);
 			break;
 		case 'plugin' :
-		case 'plugin_v1_2' :
 			$docs = array(
 				'id'            => '(safehtml) The plugin\'s ID',
 				'slug'          => '(safehtml) The plugin\'s Slug',
@@ -629,15 +628,6 @@ abstract class WPCOM_JSON_API_Endpoint {
 				'log'           => '(array:safehtml) An array of update log strings.',
         		'action_links'  => '(array) An array of action links that the plugin uses.',
 			);
-
-			if ( 'plugin_v1_2' === $type['type'] ) {
-				unset( $docs['id'] );
-				$docs['name'] = '(safehtml) The plugin\'s ID';
-				$docs['display_name'] = '(safehtml) The name of the plugin.';
-				$docs['autoupdate_translation'] = '(boolean) Whether the plugin is automatically updating translations';
-				$docs['uninstallable'] = '(boolean) Whether the plugin is unistallable.';
-				$docs['log'] = '(array:safehtml) An array of update log strings.';
-			}
 			$return[$key] = (object) $this->cast_and_filter(
 				$value,
 				/**
@@ -653,6 +643,33 @@ abstract class WPCOM_JSON_API_Endpoint {
 				false,
 				$for_output
 			);
+			break;
+		case 'plugin_v1_2' :
+			$docs = Jetpack_JSON_API_Plugins_Endpoint::$_response_format_v1_2;
+			$return[$key] = (object) $this->cast_and_filter(
+				$value,
+				/**
+				 * Filter the documentation returned for a plugin.
+				 *
+				 * @module json-api
+				 *
+				 * @since 3.1.0
+				 *
+				 * @param array $docs Array of documentation about a plugin.
+				 */
+				apply_filters( 'wpcom_json_api_plugin_cast_and_filter', $docs ),
+				false,
+				$for_output
+			);
+			break;
+		case 'file_mod_capabilities':
+			$docs           = array(
+				'reasons_modify_files_disabled' => '(array|string) The reasons why files can\'t be modified',
+				'reasons_autoupdate_disabled'   => '(array|string) The reasons why autoupdates aren\'t allowed',
+				'modify_files'                  => '(boolean) true if files can be modified',
+				'autoupdate_files'              => '(boolean) true if autoupdates are allowed',
+			);
+			$return[ $key ] = (array) $this->cast_and_filter( $value, $docs, false, $for_output );
 			break;
 		case 'jetpackmodule' :
 			$docs = array(

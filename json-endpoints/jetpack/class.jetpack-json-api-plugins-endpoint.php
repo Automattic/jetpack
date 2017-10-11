@@ -33,21 +33,22 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 	);
 
 	static $_response_format_v1_2 = array(
-		'slug'            => '(safehtml)  The plugin\'s .org slug',
+		'slug'            => '(safehtml) The plugin\'s .org slug',
 		'active'          => '(boolean) The plugin status.',
-		'update'          => '(object)  The plugin update info.',
-		'name'            => '(safehtml)  The plugin\'s ID',
-		'display_name'    => '(safehtml)  The name of the plugin.',
-		'plugin_url'      => '(url)  Link to the plugin\'s web site.',
-		'version'         => '(safehtml)  The plugin version number.',
-		'description'     => '(safehtml)  Description of what the plugin does and/or notes from the author',
-		'author'          => '(safehtml)  The author\'s name',
-		'author_url'      => '(url)  The authors web site address',
+		'update'          => '(object) The plugin update info.',
+		'name'            => '(safehtml) The plugin\'s ID',
+		'display_name'    => '(safehtml) The name of the plugin.',
+		'version'         => '(safehtml) The plugin version number.',
+		'description'     => '(safehtml) Description of what the plugin does and/or notes from the author',
+		'author'          => '(safehtml) The author\'s name',
+		'author_url'      => '(url) The authors web site address',
+		'plugin_url'      => '(url) Link to the plugin\'s web site.',
 		'network'         => '(boolean) Whether the plugin can only be activated network wide.',
 		'autoupdate'      => '(boolean) Whether the plugin is automatically updated',
 		'autoupdate_translation' => '(boolean) Whether the plugin is automatically updating translations',
 		'uninstallable'   => '(boolean) Whether the plugin is unistallable.',
 		'action_links'    => '(array) An array of action links that the plugin uses.',
+		'log'             => '(array:safehtml) An array of update log strings.',
 	);
 
 	protected function result() {
