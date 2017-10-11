@@ -1,5 +1,4 @@
 /*jshint es5: true */
-/* global console */
 
 // detect and show offline/online status
 (function () {
@@ -7,7 +6,7 @@
 
     var body;
 
-    document.addEventListener('DOMContentLoaded', function (event) {
+    document.addEventListener('DOMContentLoaded', function () {
         body = document.querySelector('body');
         updateNetworkStatus();
 

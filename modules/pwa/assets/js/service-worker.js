@@ -1,5 +1,5 @@
 /*jshint es5: true */
-/* global self, caches, console, JSON, Promise, pwa_vars */
+/* global self, caches, console, Promise, pwa_vars_json */
 
 var CACHE = 'cache-v1';
 var pwa_vars = pwa_vars_json;
@@ -50,33 +50,29 @@ function fetchAndCache( request ) {
             // fall back to network if no response
 			return response || fetch( request )
 				.catch( function( err ) {
-					console.warn("Error fetching - offline?");
 					console.warn( err );
 					return false;
 				} )
 				.then( function( networkResponse ) {
 					// put in cache if we're allowed to
-					if ( this.shouldCacheResponse( request, networkResponse ) ) {
+					if ( shouldCacheResponse( request, networkResponse ) ) {
 						cache.put( request, networkResponse.clone() );
 					}
 					return networkResponse;
 				});
-        })
-    })
+        });
+    });
 }
 
 // having this function allows us to shortcut checking the cache,
 // but we also have shouldCacheResponse which is able to look more deeply at what was returned.
 // so it's possible that this should go away - I don't know how expensive cache checks are on most browsers.
 function shouldCacheRequest( request ) {
-	// TODO: less hacky version of this'
-
 	if ( admin_regex.test( request.url ) ) {
-		console.log("ignoring admin url pwa_vars.admin_url in request");
 		return false;
 	}
 
-    if ( request.method != 'GET' ) {
+    if ( request.method !== 'GET' ) {
         return false;
     }
 
@@ -93,15 +89,14 @@ function shouldCacheRequest( request ) {
 // for now, only cache OK responses to GET requests that are HTML, CSS, JS
 function shouldCacheResponse( request, response ) {
 	if ( false === response ) {
-		console.log("ignoring false response");
-	}
-
-	if ( admin_regex.test( request.url ) ) {
-		console.log("ignoring admin url pwa_vars.admin_url in response");
 		return false;
 	}
 
-    if ( request.method != 'GET' ) {
+	if ( admin_regex.test( request.url ) ) {
+		return false;
+	}
+
+    if ( request.method !== 'GET' ) {
         return false;
     }
 
@@ -162,11 +157,13 @@ self.addEventListener('notificationclick', function(e) {
 	var primaryKey = notification.data.primaryKey;
 	var action = e.action;
 
+	console.log('Clicked notification: ' + primaryKey);
+
 	if ( action === 'close' ) {
 		notification.close();
 	} else {
 		// TODO: actual URL
-		clients.openWindow( pwa_vars.site_url );
+		self.clients.openWindow( pwa_vars.site_url );
 		notification.close();
 	}
 });
@@ -196,7 +193,7 @@ self.addEventListener('push', function(e) {
 		{action: 'explore', title: 'Explore this new world',
 			icon: pwa_vars.images_url + 'checkmark.png'},
 		{action: 'close', title: 'Close',
-			icon: pwa_vars.images_url + 'xmark.png'},
+			icon: pwa_vars.images_url + 'xmark.png'}
 		]
 	};
 	e.waitUntil(
