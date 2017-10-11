@@ -332,6 +332,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'callback' => __CLASS__ . '::get_plugin',
 			'permission_callback' => __CLASS__ . '::activate_plugins_permission_check',
 		) );
+
+		register_rest_route( 'jetpack/v4', '/push-subscribe', array(
+			'methods'  => WP_REST_Server::CREATABLE,
+			'callback' => __CLASS__ . '::create_push_subscription',
+		) );
 	}
 
 	/**
@@ -369,6 +374,25 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		return $jitm->dismiss( $request['id'], $request['feature_class'] );
+	}
+
+	public static function create_push_subscription( $request ) {
+		$token = $request->get_json_params();
+
+		// TODO validate token
+
+		/**
+		 * Fires when the browser creates a new PUSH notification subscription
+		 *
+		 * @module pwa
+		 *
+		 * @since 5.5.0
+		 */
+		do_action( 'jetpack_web_push_subscribe', $token );
+
+		return array(
+			'success' => 'true'
+		);
 	}
 
 	/**

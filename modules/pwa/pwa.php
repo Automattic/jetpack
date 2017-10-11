@@ -17,9 +17,10 @@
   * - cache all CSS and JS
   * - show offline/online status using body class "jetpack__offline"
   * TODO:
-  * - push updates
-  * - how to cache within wp-admin?
-  * - hook WP's native cache functions to expire and push updates to sites
+  * - push updates, including UI to disable, and when/what to push (new posts? new products? posts in a taxonomy?)
+  * - push content as well as notifications?
+  * - how to cache within wp-admin? (disabled for now)
+  * - hook WP's native cache functions (or sync?) to expire and push updates to sites
   */
 
 define( 'PWA_SW_QUERY_VAR', 'jetpack_service_worker' );
@@ -79,6 +80,10 @@ function pwa_init() {
 		array(
 			'service_worker_url' => pwa_get_service_worker_url(),
 			'admin_url' => admin_url(),
+			'site_url' => site_url(),
+			'site_icon' => pwa_site_icon_url( 48 ),
+			'images_url' => plugins_url( 'assets/images/', __FILE__ ),
+			'create_subscription_api_url' => get_rest_url( get_current_blog_id(), 'jetpack/v4/push-subscribe' )
 		)
 	);
 }
@@ -89,7 +94,13 @@ function pwa_render_custom_assets() {
     if ( $wp_query->get( PWA_SW_QUERY_VAR ) ) {
 		header( 'Content-Type: application/javascript; charset=utf-8' );
 		// fake localize - service worker is not loaded in page context, so regular localize doesn't work
-        echo preg_replace( '/pwa_vars.admin_url/', admin_url(), file_get_contents( plugin_dir_path( __FILE__ ) . 'assets/js/service-worker.js' ) );
+		$pwa_vars = array(
+			'admin_url' => admin_url(),
+			'site_url' => site_url(),
+			'site_icon' => pwa_site_icon_url( 48 ),
+			'images_url' => plugins_url( 'assets/images/', __FILE__ )
+		);
+        echo preg_replace( '/pwa_vars_json/', json_encode( $pwa_vars ), file_get_contents( plugin_dir_path( __FILE__ ) . 'assets/js/service-worker.js' ) );
         exit;
     }
 
@@ -102,7 +113,8 @@ function pwa_render_custom_assets() {
             'name'       => get_bloginfo( 'name' ),
             'display'    => 'standalone',
             'background_color' => $theme_color,
-            'theme_color' => $theme_color,
+			'theme_color' => $theme_color,
+			'gcm_sender_id' => '982586443871', // For Web Push
         );
 
         $icon_48 = pwa_site_icon_url( 48 );

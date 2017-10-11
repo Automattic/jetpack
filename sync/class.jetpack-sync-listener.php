@@ -126,7 +126,7 @@ class Jetpack_Sync_Listener {
 			return;
 		}
 
-		// if we add any items to the queue, we should try to ensure that our script 
+		// if we add any items to the queue, we should try to ensure that our script
 		// can't be killed before they are sent
 		if ( function_exists( 'ignore_user_abort' ) ) {
 			ignore_user_abort( true );
@@ -166,6 +166,7 @@ class Jetpack_Sync_Listener {
 	}
 
 	function enqueue_action( $current_filter, $args, $queue ) {
+		error_log("syncing $current_filter");
 		// don't enqueue an action during the outbound http request - this prevents recursion
 		if ( Jetpack_Sync_Settings::is_sending() ) {
 			return;
@@ -191,7 +192,7 @@ class Jetpack_Sync_Listener {
 			return;
 		}
 
-		// if we add any items to the queue, we should try to ensure that our script 
+		// if we add any items to the queue, we should try to ensure that our script
 		// can't be killed before they are sent
 		if ( function_exists( 'ignore_user_abort' ) ) {
 			ignore_user_abort( true );

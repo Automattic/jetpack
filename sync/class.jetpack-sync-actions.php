@@ -112,6 +112,7 @@ class Jetpack_Sync_Actions {
 	}
 
 	static function send_data( $data, $codec_name, $sent_timestamp, $queue_id, $checkout_duration, $preprocess_duration ) {
+		error_log("sending data");
 		require_once dirname( __FILE__ ) . '/class.jetpack-sync-functions.php';
 		Jetpack::load_xml_rpc_client();
 
@@ -157,7 +158,11 @@ class Jetpack_Sync_Actions {
 		$result = $rpc->query( 'jetpack.syncActions', $data );
 
 		if ( ! $result ) {
+			error_log("got an error");
+			error_log(print_r($rpc->get_jetpack_error(),1));
 			return $rpc->get_jetpack_error();
+		} else {
+			error_log("no error");
 		}
 
 		$response = $rpc->getResponse();

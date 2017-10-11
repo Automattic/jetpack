@@ -2,7 +2,8 @@
 /* global self, caches, console, JSON, Promise, pwa_vars */
 
 var CACHE = 'cache-v1';
-var admin_regex = new RegExp( 'pwa_vars.admin_url' );
+var pwa_vars = pwa_vars_json;
+var admin_regex = new RegExp( pwa_vars.admin_url );
 
 // On install, cache some resources.
 self.addEventListener('install', function (evt) {
@@ -32,7 +33,7 @@ self.addEventListener('activate', function(event) {
 
 // On fetch, try the cache but if there's a miss try loading the content
 self.addEventListener('fetch', function (evt) {
-    console.log('The service worker is serving the asset ' + evt.request.url);
+    // console.log('The service worker is serving the asset ' + evt.request.url);
 
     if ( shouldCacheRequest( evt.request ) ) {
         evt.respondWith( fetchAndCache( evt.request ) );
@@ -144,3 +145,61 @@ function precache() {
 //         });
 //     });
 // }
+
+/**
+ * Notifications
+ */
+
+self.addEventListener('notificationclose', function(e) {
+	var notification = e.notification;
+	var primaryKey = notification.data.primaryKey;
+
+	console.log('Closed notification: ' + primaryKey);
+});
+
+self.addEventListener('notificationclick', function(e) {
+	var notification = e.notification;
+	var primaryKey = notification.data.primaryKey;
+	var action = e.action;
+
+	if ( action === 'close' ) {
+		notification.close();
+	} else {
+		// TODO: actual URL
+		clients.openWindow( pwa_vars.site_url );
+		notification.close();
+	}
+});
+
+/**
+ * Push
+ */
+self.addEventListener('push', function(e) {
+	var body;
+
+	if (e.data) {
+		console.warn(e.data);
+		body = e.data.text();
+	} else {
+		body = 'Push message no payload';
+	}
+
+	var options = {
+		body: body,
+		icon: pwa_vars.site_icon,
+		vibrate: [100, 50, 100],
+		data: {
+		dateOfArrival: Date.now(),
+		primaryKey: '2'
+		},
+		actions: [
+		{action: 'explore', title: 'Explore this new world',
+			icon: pwa_vars.images_url + 'checkmark.png'},
+		{action: 'close', title: 'Close',
+			icon: pwa_vars.images_url + 'xmark.png'},
+		]
+	};
+	e.waitUntil(
+		self.registration.showNotification('Hello world!', options)
+	);
+});
