@@ -174,6 +174,10 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		$plugin['autoupdate_translation'] = $autoupdate || $autoupdate_translation || Jetpack_Options::get_option( 'autoupdate_translations', false );
 		$plugin['uninstallable']   = is_uninstallable_plugin( $plugin_file );
 
+		if ( ! empty ( $this->log[ $plugin_file ] ) ) {
+			$plugin['log'] = $this->log[ $plugin_file ];
+		}
+
 		return $plugin;
 	}
 
