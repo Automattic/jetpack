@@ -166,7 +166,6 @@ class Jetpack_Sync_Listener {
 	}
 
 	function enqueue_action( $current_filter, $args, $queue ) {
-		error_log("syncing $current_filter");
 		// don't enqueue an action during the outbound http request - this prevents recursion
 		if ( Jetpack_Sync_Settings::is_sending() ) {
 			return;
