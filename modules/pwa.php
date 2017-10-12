@@ -13,11 +13,5 @@
  * Additional Search Queries: mobile, theme, pwa
  */
 
-// add_action( 'jetpack_modules_loaded', 'pwa_loaded' );
-
-// function pwa_loaded() {
-// 	Jetpack::enable_module_configurable( __FILE__ );
-// }
-
 include dirname( __FILE__ ) . "/pwa/pwa.php";
 Jetpack_PWA::instance();
