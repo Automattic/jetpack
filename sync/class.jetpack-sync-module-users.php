@@ -50,7 +50,6 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 
 		// user authentication
 		add_action( 'wp_login', $callable, 10, 2 );
-		add_action( 'wp_login_failed', $callable, 10, 2 );
 		add_action( 'wp_logout', $callable, 10, 0 );
 		add_action( 'wp_masterbar_logout', $callable, 10, 0 );
 	}

@@ -14,11 +14,13 @@ class JetpackTracking {
 		}
 
 		// For tracking stuff via js/ajax
-		add_action( 'admin_enqueue_scripts',         array( __CLASS__, 'enqueue_tracks_scripts' ) );
+		add_action( 'admin_enqueue_scripts',     array( __CLASS__, 'enqueue_tracks_scripts' ) );
 
 		add_action( 'jetpack_activate_module',   array( __CLASS__, 'track_activate_module'), 1, 1 );
 		add_action( 'jetpack_deactivate_module', array( __CLASS__, 'track_deactivate_module'), 1, 1 );
-		add_action( 'jetpack_user_authorized',       array( __CLASS__, 'track_user_linked' ) );
+		add_action( 'jetpack_user_authorized',   array( __CLASS__, 'track_user_linked' ) );
+		add_action( 'wp_login_failed',           array( __CLASS__, 'track_failed_login_attempts' ) );
+
 	}
 
 	static function enqueue_tracks_scripts() {
@@ -56,6 +58,12 @@ class JetpackTracking {
 	/* Deactivated module */
 	static function track_deactivate_module( $module ) {
 		self::record_user_event( 'module_deactivated', array( 'module' => $module ) );
+	}
+
+	/* Failed login attempts */
+	static function track_failed_login_attempts( $login ) {
+		require_once( JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php' );
+		self::record_user_event( 'failed_login', array( 'origin_ip' => jetpack_protect_get_ip(), 'login' => $login ) );
 	}
 
 	static function record_user_event( $event_type, $data= array(), $user = null ) {
