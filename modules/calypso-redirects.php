@@ -14,7 +14,7 @@ class Jetpack_Calypso_Redirects {
 
 		add_filter( 'allowed_redirect_hosts', array( $this, 'allow_calypso_domain' ), 10, 1 );
 
-		add_action( 'load-toplevel_page_calypso-plugins', array( $this, 'plugins_redirect' ) );
+		add_action( 'load-toplevel_page_calypso_plugins', array( $this, 'plugins_redirect' ) );
 
 		if ( current_user_can( 'list_users' ) ) {
 			$this->register_user_redirect_handlers();
@@ -27,15 +27,15 @@ class Jetpack_Calypso_Redirects {
 		remove_submenu_page( 'users.php', 'profile.php' );
 
 		// replace each menu item one by one with its redirect
-		add_submenu_page( 'users.php', __( 'All Users' ), __( 'All Users' ), 'list_users', 'calypso-users', array( $this, 'users_redirect' ) );
-		add_submenu_page( 'users.php', __( 'Add New' ), __( 'Add New' ), 'promote_users', 'calypso-users-new', array( $this, 'users_new_redirect' ) );
-		add_submenu_page( 'users.php', __( 'Your Profile' ), __( 'Your Profile' ), 'read', 'calypso-users-profile', array( $this, 'users_profile_redirect' ) );
+		add_submenu_page( 'users.php', __( 'All Users' ), __( 'All Users' ), 'list_users', 'calypso_users', array( $this, 'users_redirect' ) );
+		add_submenu_page( 'users.php', __( 'Add New' ), __( 'Add New' ), 'promote_users', 'calypso_users_new', array( $this, 'users_new_redirect' ) );
+		add_submenu_page( 'users.php', __( 'Your Profile' ), __( 'Your Profile' ), 'read', 'calypso_users_profile', array( $this, 'users_profile_redirect' ) );
 	}
 
 	private function register_user_redirect_handlers() {
-		add_action( 'load-users_page_calypso-users', array( $this, 'users_redirect' ) );
-		add_action( 'load-users_page_calypso-users-new', array( $this, 'users_new_redirect' ) );
-		add_action( 'load-users_page_calypso-users-profile', array( $this, 'users_profile_redirect' ) );
+		add_action( 'load-users_page_calypso_users', array( $this, 'users_redirect' ) );
+		add_action( 'load-users_page_calypso_users_new', array( $this, 'users_new_redirect' ) );
+		add_action( 'load-users_page_calypso_users_profile', array( $this, 'users_profile_redirect' ) );
 	}
 
 	private function register_track_event( $event ) {
@@ -98,7 +98,7 @@ class Jetpack_Calypso_Redirects {
 
 	public function menu_redirects() {
 		remove_menu_page( 'plugins.php' );
-		add_menu_page( __( 'Plugins' ), __( 'Plugins' ), 'manage_options', 'calypso-plugins', array( $this, 'plugins_redirect' ), 'dashicons-admin-plugins', 65 );
+		add_menu_page( __( 'Plugins' ), __( 'Plugins' ), 'manage_options', 'calypso_plugins', array( $this, 'plugins_redirect' ), 'dashicons-admin-plugins', 65 );
 
 		if ( current_user_can( 'list_users' ) ) {
 			$this->register_user_redirects();
