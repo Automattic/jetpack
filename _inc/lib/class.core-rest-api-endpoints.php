@@ -379,7 +379,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 	public static function create_push_subscription( $request ) {
 		$token = $request->get_json_params();
 
-		// TODO validate token
+		if ( ! is_array( $token ) || ! isset( $token['endpoint'] ) || ! is_array( $token['keys'] ) ) {
+			return new WP_Error( 'invalid_token', __( 'The token was badly formed' ) );
+		}
 
 		/**
 		 * Fires when the browser creates a new PUSH notification subscription
