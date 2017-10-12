@@ -22,12 +22,13 @@
 				}
 			});
 
+			// TODO: opt-in
+			subscribeUser();
+
         }).catch(function(error) {
             // registration failed
             console.log('Registration failed with ' + error);
 		});
-
-		subscribeUser();
 	}
 
 	// enable push - TODO hide behind a setting!
@@ -47,7 +48,6 @@
 function subscribeUser() {
 	if ('serviceWorker' in navigator) {
 		navigator.serviceWorker.getRegistration('/').then(function(reg) {
-			// console.log("serviceworker ready");
 			reg.pushManager.subscribe({
 				// TODO: set false for background updates? e.g. freshening content
 				userVisibleOnly: true
@@ -78,34 +78,3 @@ function subscribeUser() {
 		});
 	}
 }
-
-// test display notification
-// function displayNotification() {
-// 	if (Notification.permission === 'granted') {
-// 	  navigator.serviceWorker.getRegistration().then( function( reg ) {
-// 		var options = {
-// 		  body: 'Here is a notification body!',
-// 		  icon: pwa_vars.site_icon,
-// 		  vibrate: [100, 50, 100],
-// 		  data: {
-// 			dateOfArrival: Date.now(),
-// 			primaryKey: 1
-// 		  },
-// 		  // TODO: check Notification.maxActions?
-// 		  actions: [
-// 			{
-// 				action: 'explore',
-// 				title: 'Explore this new world',
-// 			  	icon: pwa_vars.images_url + 'checkmark.png'},
-// 			{
-// 				action: 'close',
-// 				title: 'Close notification',
-// 			  	icon: pwa_vars.images_url + 'xmark.png'
-// 			},
-// 		  ]
-// 		};
-// 		console.warn( options );
-// 		reg.showNotification('Hello world!', options );
-// 	  });
-// 	}
-//   }
