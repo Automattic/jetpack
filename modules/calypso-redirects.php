@@ -36,7 +36,6 @@ class Jetpack_Calypso_Redirects {
 		add_action( 'load-users_page_calypso-users', array( $this, 'users_redirect' ) );
 		add_action( 'load-users_page_calypso-users-new', array( $this, 'users_new_redirect' ) );
 		add_action( 'load-users_page_calypso-users-profile', array( $this, 'users_profile_redirect' ) );
-		add_action( 'load-users_page_calypso-users-settings', array( $this, 'users_settings_redirect' ) );
 	}
 
 	private function register_track_event( $event ) {
