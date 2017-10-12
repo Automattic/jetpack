@@ -18,7 +18,10 @@ class Jetpack_SEO {
 		 *
 		 * @param bool true Should Jetpack's SEO Meta Tags be enabled. Defaults to true.
 		 */
-		if ( apply_filters( 'jetpack_seo_meta_tags_enabled', true ) ) {
+		if (
+			apply_filters( 'jetpack_seo_meta_tags_enabled', true )
+			&& Jetpack_SEO_Utils::is_enabled_jetpack_seo()
+		) {
 			add_action( 'wp_head', array( $this, 'meta_tags' ) );
 
 			// Add support for editing page excerpts in pages, regardless of theme support.
