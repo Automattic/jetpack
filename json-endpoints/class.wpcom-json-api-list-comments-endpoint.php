@@ -173,7 +173,7 @@ class WPCOM_JSON_API_List_Comments_Endpoint extends WPCOM_JSON_API_Comment_Endpo
 			}
 			break;
 		default :
-			if ( !current_user_can( 'moderate_comments' ) ) {
+			if ( ! current_user_can( 'edit_posts' ) ) {
 				return new WP_Error( 'unauthorized', 'User cannot read non-approved comments', 403 );
 			}
 			if ( 'unapproved' === $args['status'] ) {
