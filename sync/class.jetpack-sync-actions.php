@@ -112,7 +112,6 @@ class Jetpack_Sync_Actions {
 	}
 
 	static function send_data( $data, $codec_name, $sent_timestamp, $queue_id, $checkout_duration, $preprocess_duration ) {
-		error_log("sending data");
 		require_once dirname( __FILE__ ) . '/class.jetpack-sync-functions.php';
 		Jetpack::load_xml_rpc_client();
 
