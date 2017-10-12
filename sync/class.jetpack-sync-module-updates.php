@@ -114,10 +114,14 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 	public function get_update_checksum( $value ) {
 		// Create an new array so we don't modify the object passed in.
 		$a_value = (array) $value;
-
 		// ignore `last_checked`
 		unset( $a_value['last_checked'] );
 		unset( $a_value['checked'] );
+		unset( $a_value['version_checked'] );
+		if ( empty( $a_value['updates'] ) ) {
+			unset( $a_value['updates'] );
+		}
+
 		if ( empty( $a_value ) ) {
 			return false;
 		}

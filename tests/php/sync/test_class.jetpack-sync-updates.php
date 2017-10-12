@@ -47,10 +47,20 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 			$this->markTestSkipped( 'Not compatible with multisite mode' );
 		}
 
+		$this->sender->do_sync();
+		delete_site_transient( 'update_core' );
+		$this->server_event_storage->reset();
+
 		_maybe_update_core();
 		$this->sender->do_sync();
 		$updates = $this->server_replica_storage->get_updates( 'core' );
 		$this->assertTrue( is_int( $updates->last_checked ) );
+		
+		// Since the transient gets updates twice and we only care about the
+		// last update we only want to see 1 sync event.
+		$events = $this->server_event_storage->get_all_events( 'jetpack_update_core_change' );
+		$this->assertEquals( count( $events ) , 1 );
+
 	}
 
 	public function test_sync_wp_version() {
