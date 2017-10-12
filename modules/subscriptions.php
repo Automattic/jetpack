@@ -666,7 +666,7 @@ class Jetpack_Subscriptions {
 		if ( isset( $_REQUEST['subscribe_blog'] ) )
 			$post_ids[] = 0;
 
-		Jetpack_Subscriptions::subscribe(
+		$result = Jetpack_Subscriptions::subscribe(
 									$comment->comment_author_email,
 									$post_ids,
 									true,
@@ -677,6 +677,18 @@ class Jetpack_Subscriptions {
 										'server_data'    => $_SERVER,
 									)
 		);
+
+		/**
+		 * Fires on each comment subscription form submission.
+		 *
+		 * @module subscriptions
+		 *
+		 * @since 5.5.0
+		 *
+		 * @param NULL|WP_Error $result Result of form submission: NULL on success, WP_Error otherwise.
+		 * @param Array $post_ids An array of post IDs that the user subscribed to, 0 means blog subscription.
+		 */
+		do_action( 'jetpack_subscriptions_comment_form_submission', $result, $post_ids );
 	}
 
 	/**
