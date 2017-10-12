@@ -52,7 +52,7 @@ class Jetpack_Calypso_Redirects {
 	}
 
 	public function enqueue_scripts() {
-		wp_enqueue_style( 'calypso-redirects-css', plugins_url( 'calypso-redirects/calypso-redirects.css' , __FILE__ ), array(), '20170922-1' );
+		wp_enqueue_style( 'calypso-redirects-css', plugins_url( 'calypso-redirects/calypso-redirects.css' , __FILE__ ), array(), JETPACK__VERSION );
 
 		// support rtl languages
 		wp_style_add_data( 'calypso-redirects-css', 'rtl', 'replace' );
