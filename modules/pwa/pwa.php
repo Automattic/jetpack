@@ -117,7 +117,7 @@ function pwa_render_custom_assets() {
             'display'    => 'standalone',
             'background_color' => $theme_color,
 			'theme_color' => $theme_color,
-			'gcm_sender_id' => '982586443871', // For Web Push
+			'gcm_sender_id' => '87234302238',
         );
 
         $icon_48 = pwa_site_icon_url( 48 );
