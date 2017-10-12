@@ -21,8 +21,6 @@ add_action( 'jetpack_modules_loaded', 'pwa_loaded' );
 
 function pwa_loaded() {
 	Jetpack::enable_module_configurable( __FILE__ );
-	// Jetpack::module_configuration_load( __FILE__, 'amp_configuration_load' );
-	// Jetpack::module_configuration_screen( __FILE__, 'amp_configuration_screen' );
 }
 
 jetpack_load_pwa();
