@@ -158,11 +158,7 @@ class Jetpack_Sync_Actions {
 		$result = $rpc->query( 'jetpack.syncActions', $data );
 
 		if ( ! $result ) {
-			error_log("got an error");
-			error_log(print_r($rpc->get_jetpack_error(),1));
 			return $rpc->get_jetpack_error();
-		} else {
-			error_log("no error");
 		}
 
 		$response = $rpc->getResponse();
