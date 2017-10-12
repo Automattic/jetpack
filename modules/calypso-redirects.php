@@ -1,8 +1,8 @@
 <?php
 
-if ( ! class_exists( 'Calypso_Redirects' ) ) :
+if ( ! class_exists( 'Jetpack_Calypso_Redirects' ) ) :
 
-class Calypso_Redirects {
+class Jetpack_Calypso_Redirects {
 
 	public function __construct() {
 		if ( ! get_option( 'jetpack_calypso_redirects_active' ) || ! is_admin() ) {
@@ -108,6 +108,6 @@ class Calypso_Redirects {
 
 }
 
-new Calypso_Redirects();
+new Jetpack_Calypso_Redirects();
 
 endif; // end class exists check
