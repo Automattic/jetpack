@@ -19,7 +19,7 @@ class JetpackTracking {
 		add_action( 'jetpack_activate_module',   array( __CLASS__, 'track_activate_module'), 1, 1 );
 		add_action( 'jetpack_deactivate_module', array( __CLASS__, 'track_deactivate_module'), 1, 1 );
 		add_action( 'jetpack_user_authorized',   array( __CLASS__, 'track_user_linked' ) );
-		add_action( 'wp_login_failed', array( __CLASS__, 'track_failed_login_attempts' ) );
+		add_action( 'wp_login_failed', 			 array( __CLASS__, 'track_failed_login_attempts' ) );
 
 	}
 
