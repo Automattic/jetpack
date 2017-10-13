@@ -66,7 +66,7 @@ class Jetpack_PWA_Manifest {
 
 			$manifest = array(
 				'start_url'  => get_bloginfo( 'url' ),
-				'short_name' => get_bloginfo( 'name' ),
+				'short_name' => substr( get_bloginfo( 'name' ), 0, 12 ),
 				'name'       => get_bloginfo( 'name' ),
 				'display'    => 'standalone',
 				'background_color' => $theme_color,

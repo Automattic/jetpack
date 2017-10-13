@@ -33,14 +33,14 @@
 
 	// enable push - TODO hide behind a setting!
 	// TODO - legacy shim e.g. https://github.com/nickdesaulniers/fxos-irc/blob/master/js/notification.js
-	if ('Notification' in window ) {
-		Notification.requestPermission( function( status ) {
-			if ( 'granted' === status ) {
-				console.log( 'Notification granted' );
-			}
-			console.log( 'Notification permission status:', status );
-		});
-	}
+	// if ('Notification' in window ) {
+	// 	Notification.requestPermission( function( status ) {
+	// 		if ( 'granted' === status ) {
+	// 			console.log( 'Notification granted' );
+	// 		}
+	// 		console.log( 'Notification permission status:', status );
+	// 	});
+	// }
 })();
 
 // subscribe the user to PWA push notifications

@@ -3,6 +3,7 @@
 define( 'PWA_SW_QUERY_VAR', 'jetpack_service_worker' );
 class Jetpack_PWA_Service_Worker {
 	private static $__instance = null;
+
 	/**
 	 * Singleton implementation
 	 *
@@ -72,7 +73,7 @@ class Jetpack_PWA_Service_Worker {
 	}
 
 	public function register_assets() {
-		wp_register_script( 'jetpack-register-service-worker', plugins_url( 'assets/js/register-service-worker.js', __FILE__ ), false, '1.5' );
+		Jetpack_PWA_Inline_Assets::instance()->register_inline_script( 'jetpack-register-service-worker', 'assets/js/register-service-worker.js', __FILE__, false, '1.5' );
 	}
 
 	public function enqueue_assets() {
