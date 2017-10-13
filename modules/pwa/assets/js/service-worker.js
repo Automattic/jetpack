@@ -33,8 +33,6 @@ self.addEventListener('activate', function(event) {
 
 // On fetch, try the cache but if there's a miss try loading the content
 self.addEventListener('fetch', function (evt) {
-    // console.log('The service worker is serving the asset ' + evt.request.url);
-
     if ( shouldCacheRequest( evt.request ) ) {
         evt.respondWith( fetchAndCache( evt.request ) );
     } else {
@@ -68,7 +66,8 @@ function fetchAndCache( request ) {
 // but we also have shouldCacheResponse which is able to look more deeply at what was returned.
 // so it's possible that this should go away - I don't know how expensive cache checks are on most browsers.
 function shouldCacheRequest( request ) {
-	if ( admin_regex.test( request.url ) ) {
+	// if the request is for a wp-admin asset, or made from within wp-admin, ignore!
+	if ( admin_regex.test( request.url ) || admin_regex.test( request.referrer ) ) {
 		return false;
 	}
 
