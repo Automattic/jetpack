@@ -43,13 +43,13 @@
 			var $target = $( e.target ),
 					$parent = $target.closest( 'li' );
 
-			if( ! $parent ) {
+			if ( ! $parent ) {
 				return;
 			}
 
 			var trackingId = $target.attr( 'ID' ) || $parent.attr( 'ID' );
 
-			if( $parent.hasClass( 'menupop' ) ) {
+			if ( $parent.hasClass( 'menupop' ) ) {
 				window.jpTracksAJAX.record_ajax_event( eventName, 'click', trackingId );
 			} else {
 				e.preventDefault();
