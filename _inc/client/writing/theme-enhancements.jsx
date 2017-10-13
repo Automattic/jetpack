@@ -37,7 +37,12 @@ const ThemeEnhancements = moduleSettingsForm(
 				infinite_mode: this.getInfiniteMode(),
 				wp_mobile_excerpt: this.props.getOptionValue( 'wp_mobile_excerpt', 'minileven' ),
 				wp_mobile_featured_images: this.props.getOptionValue( 'wp_mobile_featured_images', 'minileven' ),
-				wp_mobile_app_promos: this.props.getOptionValue( 'wp_mobile_app_promos', 'minileven' )
+				wp_mobile_app_promos: this.props.getOptionValue( 'wp_mobile_app_promos', 'minileven' ),
+				pwa_cache_assets: this.props.getOptionValue( 'pwa_cache_assets', 'pwa' ),
+				pwa_web_push: this.props.getOptionValue( 'pwa_web_push', 'pwa' ),
+				pwa_inline_scripts_and_styles: this.props.getOptionValue( 'pwa_inline_scripts_and_styles', 'pwa' ),
+				pwa_remove_remote_fonts: this.props.getOptionValue( 'pwa_remove_remote_fonts', 'pwa' ),
+				pwa_show_network_status: this.props.getOptionValue( 'pwa_show_network_status', 'pwa' ),
 			};
 		},
 
@@ -260,7 +265,31 @@ const ThemeEnhancements = moduleSettingsForm(
 					{
 						foundPWA && (
 							[ {
-								...this.props.getModule( 'pwa' )
+								...this.props.getModule( 'pwa' ),
+								checkboxes: [
+									{
+										key: 'pwa_cache_assets',
+										label: __( 'Enable offline browsing' )
+									},
+									// TODO: this could just be a widget
+									{
+										key: 'pwa_web_push',
+										label: __( 'Enable push notifications of new content' )
+									},
+									{
+										key: 'pwa_inline_scripts_and_styles',
+										label: __( 'Improve rendering speed by inlining javascript and CSS where possible' )
+									},
+									{
+										key: 'pwa_remove_remote_fonts',
+										label: __( 'Improve rendering speed by removing external fonts (may change site appearance)' )
+									},
+									// TODO: this could just be a widget
+									{
+										key: 'pwa_show_network_status',
+										label: __( 'Display notice on page when the browser is offline' )
+									}
+								]
 							} ].map( item => {
 								const isItemActive = this.props.getOptionValue( item.module );
 
@@ -284,6 +313,25 @@ const ThemeEnhancements = moduleSettingsForm(
 											</span>
 											</ModuleToggle>
 										}
+										<FormFieldset>
+											{
+												item.checkboxes.map( chkbx => {
+													return (
+														<CompactFormToggle
+															checked={ this.state[ chkbx.key ] }
+															disabled={ ! isItemActive || this.props.isSavingAnyOption( [ item.module, chkbx.key ] ) }
+															onChange={ () => this.updateOptions( chkbx.key, item.module ) }
+															key={ `${ item.module }_${ chkbx.key }` }>
+														<span className="jp-form-toggle-explanation">
+															{
+																chkbx.label
+															}
+														</span>
+														</CompactFormToggle>
+													);
+												} )
+											}
+										</FormFieldset>
 
 									</SettingsGroup>
 								);

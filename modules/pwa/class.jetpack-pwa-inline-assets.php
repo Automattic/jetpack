@@ -119,6 +119,11 @@ class Jetpack_PWA_Inline_Assets {
 		if ( $this->should_inline_style( $handle ) ) {
 			return "<style type='text/css' media='$media'>" . $this->get_inline_style_content( $handle ) . '</style>';
 		}
+
+		if ( $this->should_remove_style( $handle ) ) {
+			return '';
+		}
+
 		return $tag;
 	}
 
@@ -143,6 +148,21 @@ class Jetpack_PWA_Inline_Assets {
 		}
 
 		return isset( $registration->extra['jetpack-inline'] ) && $registration->extra['jetpack-inline'];
+	}
+
+	private function should_remove_style( $handle ) {
+		global $wp_styles;
+
+		// remove all google fonts
+		if ( $registration = $wp_styles->registered[$handle] ) {
+			if ( strncmp( $registration->src, 'https://fonts.googleapis.com', 28 ) === 0 ) {
+				return true;
+			}
+		}
+
+		// by default, remove external Google fonts from default themes
+		$font_handles = array( 'twentyseventeen-fonts', 'twentysixteen-fonts', 'twentyfifteen-fonts', 'twentyfourteen-fonts' );
+		return in_array( $handle, $font_handles );
 	}
 
 	private function get_inline_style_content( $handle ) {

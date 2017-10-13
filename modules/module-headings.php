@@ -141,7 +141,7 @@ function jetpack_get_module_i18n( $key ) {
 
 			'pwa' => array(
 				'name' => _x( 'Progressive Web Apps', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Enable Progressive Web App (PWA) enhancements for mobile phones and offline browsing', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Enable Progressive Web App (PWA) features', 'Module Description', 'jetpack' ),
 			),
 
 			'related-posts' => array(

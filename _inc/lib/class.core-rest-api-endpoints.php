@@ -1420,6 +1420,44 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'jp_group'          => 'protect',
 			),
 
+			// PWA
+			'pwa_cache_assets' => array(
+				'description'       => esc_html__( 'Enable offline browsing', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'pwa',
+			),
+			'pwa_web_push' => array(
+				'description'       => esc_html__( 'Enable push notifications of new content', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'pwa',
+			),
+			'pwa_inline_scripts_and_styles' => array(
+				'description'       => esc_html__( 'Improve rendering speed by inlining javascript and CSS where possible', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'pwa',
+			),
+			'pwa_remove_remote_fonts' => array(
+				'description'       => esc_html__( 'Improve rendering speed by removing external fonts (may change site appearance)', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'pwa',
+			),
+			'pwa_show_network_status' => array(
+				'description'       => esc_html__( 'Display notice on page when the browser is offline', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'pwa',
+			),
+
+
 			// Sharing
 			'sharing_services' => array(
 				'description'       => esc_html__( 'Enabled Services and those hidden behind a button', 'jetpack' ),
