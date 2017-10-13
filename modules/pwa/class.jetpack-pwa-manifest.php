@@ -75,24 +75,21 @@ class Jetpack_PWA_Manifest {
 			);
 
 			$pwa = Jetpack_PWA::instance();
-			$icon_48 = $pwa->site_icon_url( 48 );
 
-			if ( $icon_48 ) {
-				$manifest[ 'icons' ] = array(
-					array(
-						'src' => $icon_48,
-						'sizes' => '48x48'
-					),
-					array(
-						'src' => $pwa->site_icon_url( 192 ),
-						'sizes' => '192x192'
-					),
-					array(
-						'src' => $pwa->site_icon_url( 512 ),
-						'sizes' => '512x512'
-					)
-				);
-			}
+			$manifest[ 'icons' ] = array(
+				array(
+					'src' => $pwa->site_icon_url( 48 ),
+					'sizes' => '48x48'
+				),
+				array(
+					'src' => $pwa->site_icon_url( 192 ),
+					'sizes' => '192x192'
+				),
+				array(
+					'src' => $pwa->site_icon_url( 512 ),
+					'sizes' => '512x512'
+				)
+			);
 
 			wp_send_json( $manifest );
 		}

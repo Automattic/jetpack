@@ -73,6 +73,11 @@ class Jetpack_PWA {
 			$url = jetpack_site_icon_url( null, $size );
 		}
 
+		// fall back to built in logo
+		if ( ! $url && file_exists( dirname( __FILE__ ) . "/assets/images/wordpress-$size.png" ) ) {
+			$url = plugins_url( "assets/images/wordpress-$size.png", __FILE__ );
+		}
+
 		return $url;
 	}
 }
