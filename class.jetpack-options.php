@@ -532,6 +532,11 @@ class Jetpack_Options {
 			'jetpack_sso_require_two_step',
 			'jetpack_sso_remove_login_form',
 			'jetpack_last_connect_url_check',
+			'pwa_cache_assets',
+			'pwa_web_push',
+			'pwa_inline_scripts_and_styles',
+			'pwa_remove_remote_fonts',
+			'pwa_show_network_status',
 		);
 	}
 

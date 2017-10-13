@@ -1,15 +1,25 @@
 <?php
 
-class Jetpack_PWA_Inline_Assets {
+/**
+ * Optimizes page assets for unreliable networks and fast rendering, particularly with empty caches
+ * - inline scripts and styles
+ * - async external JS
+ * - remove references to external fonts
+ */
+
+class Jetpack_PWA_Optimize_Assets {
 	private static $__instance = null;
+	private $remove_remote_fonts = false;
+	private $inline_scripts_and_styles = false;
+
 	/**
 	 * Singleton implementation
 	 *
 	 * @return object
 	 */
 	public static function instance() {
-		if ( ! is_a( self::$__instance, 'Jetpack_PWA_Inline_Assets' ) ) {
-			self::$__instance = new Jetpack_PWA_Inline_Assets();
+		if ( ! is_a( self::$__instance, 'Jetpack_PWA_Optimize_Assets' ) ) {
+			self::$__instance = new Jetpack_PWA_Optimize_Assets();
 		}
 
 		return self::$__instance;
@@ -19,11 +29,18 @@ class Jetpack_PWA_Inline_Assets {
 	 * Registers actions
 	 */
 	private function __construct() {
-		add_filter( 'script_loader_src', array( $this, 'filter_inline_scripts' ), 10, 2 );
-		add_filter( 'script_loader_tag', array( $this, 'print_inline_scripts' ), 10, 3 );
+		$this->remove_remote_fonts = get_option( 'pwa_remove_remote_fonts' );
+		$this->inline_scripts_and_styles = get_option( 'pwa_inline_scripts_and_styles' );
 
-		add_filter( 'style_loader_src', array( $this, 'filter_inline_styles' ), 10, 2 );
-		add_filter( 'style_loader_tag', array( $this, 'print_inline_styles' ), 10, 4 );
+		if ( $this->inline_scripts_and_styles ) {
+			add_filter( 'script_loader_src', array( $this, 'filter_inline_scripts' ), 10, 2 );
+			add_filter( 'script_loader_tag', array( $this, 'print_inline_scripts' ), 10, 3 );
+		}
+
+		if ( $this->inline_scripts_and_styles || $this->remove_remote_fonts ) {
+			add_filter( 'style_loader_src', array( $this, 'filter_inline_styles' ), 10, 2 );
+			add_filter( 'style_loader_tag', array( $this, 'print_inline_styles' ), 10, 4 );
+		}
 	}
 
 	/** SCRIPTS **/
@@ -62,6 +79,10 @@ class Jetpack_PWA_Inline_Assets {
 	}
 
 	private function should_inline_script( $handle ) {
+		if ( ! $this->inline_scripts_and_styles ) {
+			return false;
+		}
+
 		global $wp_scripts;
 
 		if ( ! isset( $wp_scripts->registered[$handle] ) ) {
@@ -128,6 +149,10 @@ class Jetpack_PWA_Inline_Assets {
 	}
 
 	private function should_inline_style( $handle ) {
+		if ( ! $this->inline_scripts_and_styles ) {
+			return false;
+		}
+
 		global $wp_styles;
 
 		if ( ! isset( $wp_styles->registered[$handle] ) ) {
@@ -151,6 +176,10 @@ class Jetpack_PWA_Inline_Assets {
 	}
 
 	private function should_remove_style( $handle ) {
+		if ( ! $this->remove_remote_fonts ) {
+			return false;
+		}
+
 		global $wp_styles;
 
 		// remove all google fonts

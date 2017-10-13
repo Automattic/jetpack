@@ -1,5 +1,7 @@
 <?php
 
+// TODO output web push JS from this module
+
 class Jetpack_PWA_Web_Push {
 	private static $__instance = null;
 	/**
@@ -16,8 +18,9 @@ class Jetpack_PWA_Web_Push {
 	}
 
 	private function __construct() {
-		// web push - flag post as web pushable
-		add_filter( 'jetpack_published_post_flags', array( $this, 'jetpack_published_post_flags' ), 10, 2 );
+		if ( get_option( 'pwa_web_push' ) ) {
+			add_filter( 'jetpack_published_post_flags', array( $this, 'jetpack_published_post_flags' ), 10, 2 );
+		}
 	}
 
 	public function jetpack_published_post_flags( $flags, $post ) {
