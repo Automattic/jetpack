@@ -2,8 +2,10 @@
 /* global self, caches, console, Promise, pwa_vars_json */
 
 var CACHE = 'cache-v1';
+var CONFIG_KEY = 'config';
 var pwa_vars = pwa_vars_json;
 var admin_regex = new RegExp( pwa_vars.admin_url );
+var site_regex = new RegExp( pwa_vars.site_url );
 
 // On install, cache some resources.
 self.addEventListener('install', function (evt) {
@@ -14,10 +16,10 @@ self.addEventListener('install', function (evt) {
     evt.waitUntil(precache());
 });
 
-// Remove old caches on activate
 self.addEventListener('activate', function(event) {
     console.log('Service Worker activating.');
 
+	// Remove old caches
     event.waitUntil(
         caches.keys().then( function( cacheNames ) {
             return Promise.all( cacheNames.map( function( key ) {
@@ -27,7 +29,8 @@ self.addEventListener('activate', function(event) {
                 }
             } ) );
         })
-    );
+	);
+
     return self.clients.claim();
 });
 
@@ -115,13 +118,29 @@ function shouldCacheResponse( request, response ) {
 // Open a cache and use `addAll()` with an array of assets to add all of them
 // to the cache. Return a promise resolving when all the assets are added.
 function precache() {
-    return caches.open(CACHE).then(function (cache) {
-        //   console.log("caching");
-        return cache.addAll([
-            '/' // home page
-            //   './asset'
-        ]);
-    });
+	// Load configuration from server
+	console.warn("fetching config from " + pwa_vars.sw_config_url );
+	return fetch( pwa_vars.sw_config_url )
+		.then( function( response ) {
+			console.warn("success fetching config");
+			return response.json().then( function( json ) {
+				console.log(json);
+
+				// prefetch assets
+				return caches.open(CACHE).then( function( cache ) {
+					console.log("adding all");
+					console.log(json.assets);
+					var localAssets = json.assets.filter( function ( url ) {
+						return site_regex.test( url );
+					} );
+					console.log(localAssets);
+					return cache.addAll( localAssets );
+				} );
+			} );
+		})
+		.catch( function( err) {
+			console.warn(err);
+		});
 }
 
 // function refresh(response) {

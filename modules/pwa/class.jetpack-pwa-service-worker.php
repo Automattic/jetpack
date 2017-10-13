@@ -65,6 +65,7 @@ class Jetpack_PWA_Service_Worker {
 				'admin_url' => admin_url(),
 				'site_url' => site_url(),
 				'site_icon' => $pwa->site_icon_url( 48 ),
+				'sw_config_url' => get_rest_url( get_current_blog_id(), 'jetpack/v4/sw-config' ),
 				'images_url' => plugins_url( 'assets/images/', __FILE__ )
 			);
 			echo preg_replace( '/pwa_vars_json/', json_encode( $pwa_vars ), file_get_contents( plugin_dir_path( __FILE__ ) . 'assets/js/service-worker.js' ) );

@@ -337,6 +337,56 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'methods'  => WP_REST_Server::CREATABLE,
 			'callback' => __CLASS__ . '::create_push_subscription',
 		) );
+
+		register_rest_route( 'jetpack/v4', '/sw-config', array(
+			'methods'  => WP_REST_Server::READABLE,
+			'callback' => __CLASS__ . '::get_service_worker_config',
+		) );
+	}
+
+	public static function get_service_worker_config( $request ) {
+
+		// disable inlining
+		$asset_optimizer = Jetpack_PWA_Optimize_Assets::instance();
+		$asset_optimizer->disable_for_request();
+
+		// hackery!
+		ob_start(); // in case of strange notices and other output
+		do_action( 'wp_enqueue_scripts' );
+
+		$asset_urls = array();
+
+		// resolve asset dependencies and capture URLs
+		global $wp_scripts;
+		$wp_scripts->all_deps( $wp_scripts->queue, true );
+		foreach( $wp_scripts->to_do as $handle ) {
+			$registration = $wp_scripts->registered[$handle];
+			$asset_urls[] = apply_filters( 'script_loader_src', $registration->src, $handle );
+		}
+
+		global $wp_styles;
+		$wp_styles->all_deps( $wp_styles->queue, true );
+		foreach( $wp_styles->to_do as $handle ) {
+			$registration = $wp_styles->registered[$handle];
+			if ( ! $registration->args || in_array( $registration->args, array( 'all', 'screen' ) ) ) {
+				$asset_urls[] = apply_filters( 'style_loader_src', $registration->src, $handle );
+			}
+		}
+		ob_end_clean();
+
+		// remove falsy values
+		$asset_urls = array_values( array_filter( $asset_urls ) );
+
+		return array(
+			'config' => array(
+				'cache_assets'              => get_option( 'pwa_cache_assets' ),
+				'web_push'                  => get_option( 'pwa_web_push' ),
+				'inline_scripts_and_styles' => get_option( 'pwa_inline_scripts_and_styles' ),
+				'remove_remote_fonts'       => get_option( 'pwa_remove_remote_fonts' ),
+				'show_network_status'       => get_option( 'pwa_show_network_status' ),
+			),
+			'assets' => $asset_urls
+		);
 	}
 
 	/**

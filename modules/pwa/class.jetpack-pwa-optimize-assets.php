@@ -25,21 +25,33 @@ class Jetpack_PWA_Optimize_Assets {
 		return self::$__instance;
 	}
 
+	public function disable_for_request() {
+		$this->remove_remote_fonts = false;
+		$this->inline_scripts_and_styles = false;
+	}
+
 	/**
 	 * Registers actions
 	 */
 	private function __construct() {
-		$this->remove_remote_fonts = get_option( 'pwa_remove_remote_fonts' );
+		$this->remove_remote_fonts       = get_option( 'pwa_remove_remote_fonts' );
 		$this->inline_scripts_and_styles = get_option( 'pwa_inline_scripts_and_styles' );
+		$is_first_load = ! isset( $_COOKIE['jetpack_pwa_loaded'] );
 
-		if ( $this->inline_scripts_and_styles ) {
+		if ( $is_first_load && ( $this->inline_scripts_and_styles || $this->remove_remote_fonts ) ) {
 			add_filter( 'script_loader_src', array( $this, 'filter_inline_scripts' ), 10, 2 );
 			add_filter( 'script_loader_tag', array( $this, 'print_inline_scripts' ), 10, 3 );
-		}
-
-		if ( $this->inline_scripts_and_styles || $this->remove_remote_fonts ) {
 			add_filter( 'style_loader_src', array( $this, 'filter_inline_styles' ), 10, 2 );
 			add_filter( 'style_loader_tag', array( $this, 'print_inline_styles' ), 10, 4 );
+		}
+
+		add_action( 'init', array( $this, 'set_first_load_cookie' ) );
+	}
+
+	// we only inline scripts+styles on first page load for a given user
+	function set_first_load_cookie() {
+		if ( ! isset( $_COOKIE['jetpack_pwa_loaded'] ) ) {
+			setcookie( 'jetpack_pwa_loaded', '1', time() + YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
 		}
 	}
 
@@ -59,6 +71,10 @@ class Jetpack_PWA_Optimize_Assets {
 			return '<script type="text/javascript">' . $this->get_inline_script_content( $handle ) . '</script>';
 		}
 
+		if ( $this->should_remove_script( $handle ) ) {
+			return '';
+		}
+
 		if ( $this->should_async_script( $handle ) ) {
 			$tag = preg_replace( '/<script /', '<script async ', $tag );
 		}
@@ -76,6 +92,25 @@ class Jetpack_PWA_Optimize_Assets {
 		$registration = $wp_scripts->registered[$handle];
 
 		return isset( $registration->extra['jetpack-async'] ) && $registration->extra['jetpack-async'];
+	}
+
+	// typekit fonts are rendered from a script (usually), so if we find that let's throw it away
+	private function should_remove_script( $handle ) {
+		if ( ! $this->remove_remote_fonts ) {
+			return false;
+		}
+
+		global $wp_scripts;
+
+		// remove all google fonts
+		if ( $registration = $wp_scripts->registered[$handle] ) {
+			// TODO - full list (also typekit does CSS-only embedding now)
+			if ( strncmp( $registration->src, 'http://use.typekit.com/', 23 ) === 0 ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	private function should_inline_script( $handle ) {
