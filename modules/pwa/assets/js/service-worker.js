@@ -131,10 +131,20 @@ function precache() {
 					console.log("adding all");
 					console.log(json.assets);
 					var localAssets = json.assets.filter( function ( url ) {
-						return site_regex.test( url );
+						// starts with site URL or is relative path
+						return site_regex.test( url ) || url.match(/^\/[^\/]/);
 					} );
-					console.log(localAssets);
-					return cache.addAll( localAssets );
+					var remoteAssets = json.assets.filter( function ( url ) {
+						return ! site_regex.test( url ) && ! url.match(/^\/[^\/]/);
+					} );
+					// add all local assets, then remote assets
+					return cache.addAll( localAssets ).then( () => Promise.all(
+						remoteAssets.map( ( assetUrl )  => {
+							console.log("grabbing " + assetUrl );
+							const request = new Request(assetUrl, { mode: 'no-cors' });
+							return fetch( request ).then( response => cache.put( request, response ) );
+						} ) )
+					);
 				} );
 			} );
 		})
