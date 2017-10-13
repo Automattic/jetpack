@@ -2409,20 +2409,32 @@ class Jetpack {
 		// to prevent repeated DB hits on large sites hosted with multiple web servers
 		// on a single database (since all web servers might not be updated simultaneously)
 
-		$file_data_option[ JETPACK__VERSION ][ $key ] = $data;
-
-		if ( count( $file_data_option ) > 2 ) {
-			$count = 0;
-			krsort( $file_data_option );
-			foreach ( $file_data_option as $version => $values ) {
-				$count++;
-				if ( $count > 2 && JETPACK__VERSION != $version ) {
-					unset( $file_data_option[ $version ] );
-				}
-			}
+		/**
+		 * In some cases, the option returns a serialized string instead of an array.
+		 * Let's avoid any errors when that happens.
+		 *
+		 * @see https://github.com/Automattic/jetpack/issues/7097
+		 */
+		if ( ! is_array( $file_data_option ) ) {
+			$file_data_option = unserialize( $file_data_option );
 		}
 
-		Jetpack_Options::update_option( 'file_data', $file_data_option );
+		if ( isset( $file_data_option[ JETPACK__VERSION ] ) ) {
+			$file_data_option[ JETPACK__VERSION ][ $key ] = $data;
+
+			if ( count( $file_data_option ) > 2 ) {
+				$count = 0;
+				krsort( $file_data_option );
+				foreach ( $file_data_option as $version => $values ) {
+					$count++;
+					if ( $count > 2 && JETPACK__VERSION != $version ) {
+						unset( $file_data_option[ $version ] );
+					}
+				}
+			}
+
+			Jetpack_Options::update_option( 'file_data', $file_data_option );
+		}
 
 		return $data;
 	}
