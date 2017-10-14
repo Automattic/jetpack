@@ -1,6 +1,8 @@
 <?php
 
 define( 'PWA_SW_QUERY_VAR', 'jetpack_service_worker' );
+define( 'PWA_SW_CONFIG_QUERY_VAR', 'jetpack_service_worker_config' );
+
 class Jetpack_PWA_Service_Worker {
 	private static $__instance = null;
 
@@ -51,6 +53,7 @@ class Jetpack_PWA_Service_Worker {
 
 	public function register_query_vars( $vars ) {
 		$vars[] = PWA_SW_QUERY_VAR;
+		$vars[] = PWA_SW_CONFIG_QUERY_VAR;
 		return $vars;
 	}
 
@@ -65,11 +68,15 @@ class Jetpack_PWA_Service_Worker {
 				'admin_url' => admin_url(),
 				'site_url' => site_url(),
 				'site_icon' => $pwa->site_icon_url( 48 ),
-				'sw_config_url' => get_rest_url( get_current_blog_id(), 'jetpack/v4/sw-config' ),
+				'sw_config_url' => $this->get_service_worker_config_url(),
 				'images_url' => plugins_url( 'assets/images/', __FILE__ )
 			);
 			echo preg_replace( '/pwa_vars_json/', json_encode( $pwa_vars ), file_get_contents( plugin_dir_path( __FILE__ ) . 'assets/js/service-worker.js' ) );
 			exit;
+		}
+
+		if ( $wp_query->get( PWA_SW_CONFIG_QUERY_VAR ) ) {
+			wp_send_json( $this->get_service_worker_config() );
 		}
 	}
 
@@ -109,5 +116,81 @@ class Jetpack_PWA_Service_Worker {
 
 	private function get_service_worker_url() {
 		return add_query_arg( PWA_SW_QUERY_VAR, '1', trailingslashit( site_url() ) . 'index.php' );
+	}
+
+	private function get_service_worker_config_url() {
+		return add_query_arg( PWA_SW_CONFIG_QUERY_VAR, '1', trailingslashit( site_url() ) . 'index.php' );
+	}
+
+	public function get_service_worker_config() {
+
+		// disable inlining
+		$asset_optimizer = Jetpack_PWA_Optimize_Assets::instance();
+		$asset_optimizer->disable_for_request();
+
+		// we need to trigger actions for which plugins usually enqueue assets
+		// do_action( 'wp_loaded' );
+		do_action( 'wp_enqueue_scripts' );
+		Jetpack::init()->implode_frontend_css();
+		// do_action( 'wp_print_styles ');
+		// do_action( 'wp_print_footer_scripts ');
+		// add_action( 'wp_print_styles', array( $this, 'implode_frontend_css' ), -1 ); // Run first
+		// add_action( 'wp_print_footer_scripts', array( $this, 'implode_frontend_css' ), -1 ); // Run first to trigger before `print_late_styles`
+
+		// hackery!
+		// ob_start(); // in case of strange notices and other output
+		// do_action( 'wp_print_styles' );
+		// do_action( 'wp_print_footer_scripts' );
+
+		// global $wp_version;
+		$version = 'ver=' . get_bloginfo( 'version' );
+		$asset_urls = array(
+			apply_filters( 'script_loader_src', includes_url( "js/wp-emoji-release.min.js?$version" ), 'concatemoji' )
+		);
+
+		// enqueue additional scripts that are typically found on pages
+		wp_enqueue_script( 'wp-embed' );
+
+		// resolve asset dependencies and capture URLs
+		global $wp_scripts;
+		$wp_scripts->all_deps( $wp_scripts->queue, true );
+		foreach( $wp_scripts->to_do as $handle ) {
+			$registration = $wp_scripts->registered[$handle];
+			$url = apply_filters( 'script_loader_src', $registration->src, $handle );
+			if ( $registration->ver ) {
+				$url = add_query_arg( 'ver', $registration->ver, $url );
+			}
+			$asset_urls[] = $url;
+		}
+
+		global $wp_styles;
+		$wp_styles->all_deps( $wp_styles->queue, true );
+		foreach( $wp_styles->to_do as $handle ) {
+			$registration = $wp_styles->registered[$handle];
+			if ( ! $registration->args || in_array( $registration->args, array( 'all', 'screen' ) ) ) {
+				$url = apply_filters( 'style_loader_src', $registration->src, $handle );
+				if ( $registration->ver ) {
+					$url = add_query_arg( 'ver', $registration->ver, $url );
+				}
+				$asset_urls[] = $url;
+			}
+		}
+		// ob_end_clean();
+
+		// remove falsy values
+		$asset_urls = array_values( array_filter( $asset_urls ) );
+
+		error_log(print_r($asset_urls,1));
+
+		return array(
+			'config' => array(
+				'cache_assets'              => get_option( 'pwa_cache_assets' ),
+				'web_push'                  => get_option( 'pwa_web_push' ),
+				'inline_scripts_and_styles' => get_option( 'pwa_inline_scripts_and_styles' ),
+				'remove_remote_fonts'       => get_option( 'pwa_remove_remote_fonts' ),
+				'show_network_status'       => get_option( 'pwa_show_network_status' ),
+			),
+			'assets' => $asset_urls
+		);
 	}
 }

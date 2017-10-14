@@ -19,6 +19,15 @@ self.addEventListener('install', function (evt) {
 self.addEventListener('activate', function(event) {
     console.log('Service Worker activating.');
 
+	// https://developers.google.com/web/updates/2017/02/navigation-preload
+	event.waitUntil(async function() {
+		// Feature-detect
+		if (self.registration.navigationPreload) {
+			// Enable navigation preloads!
+			await self.registration.navigationPreload.enable();
+		}
+	}());
+
 	// Remove old caches
     event.waitUntil(
         caches.keys().then( function( cacheNames ) {
@@ -37,31 +46,60 @@ self.addEventListener('activate', function(event) {
 // On fetch, try the cache but if there's a miss try loading the content
 self.addEventListener('fetch', function (evt) {
     if ( shouldCacheRequest( evt.request ) ) {
-        evt.respondWith( fetchAndCache( evt.request ) );
+		if ( isExternalAsset( evt.request.url ) ) {
+			evt.request.mode = 'no-cors';
+		}
+        evt.respondWith( fetchAndCache( evt.request, evt ) );
     } else {
         evt.respondWith( fetch( evt.request ) );
     }
 });
 
-function fetchAndCache( request ) {
+function isExternalAsset( url ) {
+	return ! site_regex.test( url ) && ! url.match(/^\/[^\/]/);
+}
+
+function fetchAndCache( request, event ) {
     // open cache
     return caches.open(CACHE).then( function( cache ) {
-        // find in cache
-        return cache.match( request ).then( function( response ) {
-            // fall back to network if no response
-			return response || fetch( request )
-				.catch( function( err ) {
-					console.warn( err );
-					return false;
-				} )
-				.then( function( networkResponse ) {
-					// put in cache if we're allowed to
-					if ( shouldCacheResponse( request, networkResponse ) ) {
-						cache.put( request, networkResponse.clone() );
+		// find in cache
+
+		return cache.match( request )
+			.then( async function( cachedResponse ) {
+				if (cachedResponse) {
+					console.warn("got cached response for "+request.url);
+					return cachedResponse;
+				}
+
+				if ( event.preloadResponse ) {
+					const preloadedResponse = await event.preloadResponse;
+					if (preloadedResponse) {
+						console.warn("got preload response for "+request.url);
+						return preloadedResponse;
 					}
-					return networkResponse;
+				}
+
+				return fetch( request )
+					.catch( function( err ) {
+						console.warn("failed to fetch "+request.url);
+						console.warn( err );
+						return false;
+					} )
+					.then( function( networkResponse ) {
+						// put in cache if we're allowed to
+						if ( shouldCacheResponse( request, networkResponse ) ) {
+							console.log("caching response for "+request.url);
+							cache.put( request, networkResponse.clone() );
+						} else {
+							console.log("NOT caching response for "+request.url);
+							console.log( networkResponse );
+							for (var pair of networkResponse.headers.entries()) {
+								console.log(pair[0]+ ': '+ pair[1]);
+								}
+						}
+						return networkResponse;
 				});
-        });
+		});
     });
 }
 
@@ -70,7 +108,7 @@ function fetchAndCache( request ) {
 // so it's possible that this should go away - I don't know how expensive cache checks are on most browsers.
 function shouldCacheRequest( request ) {
 	// if the request is for a wp-admin asset, or made from within wp-admin, ignore!
-	if ( admin_regex.test( request.url ) || admin_regex.test( request.referrer ) ) {
+	if ( admin_regex.test( request.url ) || admin_regex.test( request.referrer ) || request.url === pwa_vars.sw_config_url ) {
 		return false;
 	}
 
@@ -94,6 +132,11 @@ function shouldCacheResponse( request, response ) {
 		return false;
 	}
 
+	if ( "opaque" === response.type ) {
+		// shortcut and return true for any opaque response (cross-origin)
+		return true;
+	}
+
 	if ( admin_regex.test( request.url ) ) {
 		return false;
 	}
@@ -106,7 +149,7 @@ function shouldCacheResponse( request, response ) {
         return false;
     }
 
-    var validContentTypesRegex = /^(text\/html|application\/javascript|text\/css|image\/jpeg|image\/png)/;
+    var validContentTypesRegex = /^(text\/html|application\/javascript|text\/css|image\/jpeg|image\/png|font\/woff2)/;
 
     if ( ! validContentTypesRegex.test( response.headers.get( 'content-type' ) ) ) {
         return false;
@@ -132,10 +175,10 @@ function precache() {
 					console.log(json.assets);
 					var localAssets = json.assets.filter( function ( url ) {
 						// starts with site URL or is relative path
-						return site_regex.test( url ) || url.match(/^\/[^\/]/);
+						return ! isExternalAsset( url );
 					} );
 					var remoteAssets = json.assets.filter( function ( url ) {
-						return ! site_regex.test( url ) && ! url.match(/^\/[^\/]/);
+						return isExternalAsset( url );
 					} );
 					// add all local assets, then remote assets
 					return cache.addAll( localAssets ).then( () => Promise.all(

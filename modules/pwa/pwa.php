@@ -28,6 +28,7 @@ require_once( dirname( __FILE__ ) . '/class.jetpack-pwa-manifest.php' );
 require_once( dirname( __FILE__ ) . '/class.jetpack-pwa-network-status.php' );
 require_once( dirname( __FILE__ ) . '/class.jetpack-pwa-web-push.php' );
 require_once( dirname( __FILE__ ) . '/class.jetpack-pwa-optimize-assets.php' );
+require_once( dirname( __FILE__ ) . '/class.jetpack-pwa-lazy-images.php' );
 
 class Jetpack_PWA {
 	private static $__instance = null;
@@ -51,6 +52,7 @@ class Jetpack_PWA {
 		Jetpack_PWA_Network_Status::instance();
 		Jetpack_PWA_Web_Push::instance();
 		Jetpack_PWA_Optimize_Assets::instance();
+		Jetpack_PWA_Lazy_Images::instance();
 
 		// TODO - just notify user instead
 		add_action( 'template_redirect', array( $this, 'force_https' ), 1 );
