@@ -23,6 +23,9 @@ class Jetpack_PWA_Lazy_Images {
 	 * Registers actions
 	 */
 	private function __construct() {
+		if ( ! get_option( 'pwa_lazy_images' ) ) {
+			return;
+		}
 
 		// modify content
 		add_action( 'wp_head', array( $this, 'setup_filters' ), 9999 ); // we don't really want to modify anything in <head> since it's mostly all metadata
@@ -39,12 +42,7 @@ class Jetpack_PWA_Lazy_Images {
 	}
 
 	public function add_image_placeholders( $content ) {
-		// might be more performant than check below... but also more likely to go wrong? e.g. if post-processed data got saved in DB
-		// if ( $this->has_run_on_this_request ) {
-		// 	return $content;
-		// }
-
-		// Don't lazyload for feeds, previews, mobile
+		// Don't lazyload for feeds, previews
 		if( is_feed() || is_preview() )
 			return $content;
 
@@ -59,9 +57,6 @@ class Jetpack_PWA_Lazy_Images {
 	}
 
  	function process_image( $matches ) {
-		// In case you want to change the placeholder image
-		// $placeholder_image = apply_filters( 'jetpack_pwa_lazy_load_image', plugins_url( 'assets/images/1x1.trans.gif', __FILE__ ) );
-
 		$old_attributes_str = $matches[2];
 		$old_attributes = wp_kses_hair( $old_attributes_str, wp_allowed_protocols() );
 
@@ -94,12 +89,10 @@ class Jetpack_PWA_Lazy_Images {
 	}
 
 	public function register_assets() {
-		Jetpack_PWA_Optimize_Assets::instance()->register_inline_script( 'jetpack-pwa-lazy-images', 'assets/js/lazy-images.js', __FILE__, array('jquery'), '1.5' );
-		// Jetpack_PWA_Optimize_Assets::instance()->register_inline_style( 'jetpack-pwa-lazy-images', 'assets/css/show-network-status.css', __FILE__ );
+		wp_register_script( 'jetpack-pwa-lazy-images', plugins_url( 'assets/js/lazy-images.js', __FILE__ ), array('jquery'), '1.5' );
 	}
 
 	public function enqueue_assets() {
 		wp_enqueue_script( 'jetpack-pwa-lazy-images' );
-		// wp_enqueue_style( 'jetpack-pwa-lazy-images' );
 	}
 }

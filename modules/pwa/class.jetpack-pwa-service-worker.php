@@ -81,7 +81,7 @@ class Jetpack_PWA_Service_Worker {
 	}
 
 	public function register_assets() {
-		Jetpack_PWA_Optimize_Assets::instance()->register_inline_script( 'jetpack-register-service-worker', 'assets/js/register-service-worker.js', __FILE__, false, '1.5' );
+		wp_register_script( 'jetpack-register-service-worker', plugins_url( 'assets/js/register-service-worker.js', __FILE__ ), false, '1.5' );
 	}
 
 	public function enqueue_assets() {

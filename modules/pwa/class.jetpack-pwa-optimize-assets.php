@@ -36,7 +36,7 @@ class Jetpack_PWA_Optimize_Assets {
 	private function __construct() {
 		$this->remove_remote_fonts       = get_option( 'pwa_remove_remote_fonts' );
 		$this->inline_scripts_and_styles = get_option( 'pwa_inline_scripts_and_styles' );
-		$is_first_load = true;//! isset( $_COOKIE['jetpack_pwa_loaded'] );
+		$is_first_load = ! isset( $_COOKIE['jetpack_pwa_loaded'] );
 
 		if ( $is_first_load && ( $this->inline_scripts_and_styles || $this->remove_remote_fonts ) ) {
 			add_filter( 'script_loader_src', array( $this, 'filter_inline_scripts' ), 10, 2 );
@@ -246,6 +246,7 @@ class Jetpack_PWA_Optimize_Assets {
 	/**
 	 * if inline assets are enabled, renders inline
 	 * TODO: enable this just for certain paths/patterns/filetypes
+	 * This is actually currently unused
 	 */
 	 public function register_inline_script( $handle, $file, $plugin_file, $deps = false, $ver = false, $in_footer = false ) {
 		$registered = wp_register_script( $handle, plugins_url( $file, $plugin_file ), $deps, $ver, $in_footer );
@@ -259,6 +260,11 @@ class Jetpack_PWA_Optimize_Assets {
 		return $registered;
 	}
 
+	/**
+	 * if inline assets are enabled, renders inline
+	 * TODO: enable this just for certain paths/patterns/filetypes
+	 * This is actually currently unused
+	 */
 	public function register_inline_style( $handle, $file, $plugin_file, $deps = array(), $ver = false, $media = 'all' ) {
 		$registered = wp_register_style( $handle, plugins_url( $file, $plugin_file ), $deps, $ver, $media );
 

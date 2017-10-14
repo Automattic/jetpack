@@ -537,6 +537,7 @@ class Jetpack_Options {
 			'pwa_inline_scripts_and_styles',
 			'pwa_remove_remote_fonts',
 			'pwa_show_network_status',
+			'pwa_lazy_images',
 		);
 	}
 

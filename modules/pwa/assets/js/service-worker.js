@@ -1,8 +1,7 @@
-/*jshint es5: true */
-/* global self, caches, console, Promise, pwa_vars_json */
+/* jshint esversion: 6 */
+/* global self, caches, console, Promise, Request, pwa_vars_json */
 
 var CACHE = 'cache-v1';
-var CONFIG_KEY = 'config';
 var pwa_vars = pwa_vars_json;
 var admin_regex = new RegExp( pwa_vars.admin_url );
 var site_regex = new RegExp( pwa_vars.site_url );
@@ -13,20 +12,16 @@ self.addEventListener('install', function (evt) {
 
     // Ask the service worker to keep installing until the returning promise
     // resolves.
-    evt.waitUntil(precache());
+    evt.waitUntil( precache() );
 });
 
 self.addEventListener('activate', function(event) {
     console.log('Service Worker activating.');
 
 	// https://developers.google.com/web/updates/2017/02/navigation-preload
-	event.waitUntil(async function() {
-		// Feature-detect
-		if (self.registration.navigationPreload) {
-			// Enable navigation preloads!
-			await self.registration.navigationPreload.enable();
-		}
-	}());
+	if (self.registration.navigationPreload) {
+		event.waitUntil( self.registration.navigationPreload.enable() );
+	}
 
 	// Remove old caches
     event.waitUntil(
@@ -65,33 +60,36 @@ function fetchAndCache( request, event ) {
 		// find in cache
 
 		return cache.match( request )
-			.then( async function( cachedResponse ) {
-				if (cachedResponse) {
-					console.warn("got cached response for "+request.url);
-					return cachedResponse;
+			.then( function( response ) {
+				// only do more work if we don't already have a response
+				if ( response ) {
+					console.warn('got cached response for '+request.url);
+					return response;
 				}
 
 				if ( event.preloadResponse ) {
-					const preloadedResponse = await event.preloadResponse;
-					if (preloadedResponse) {
-						console.warn("got preload response for "+request.url);
-						return preloadedResponse;
-					}
+					console.warn('attempting preloadresponse '+request.url);
+					return event.preloadResponse;
+				}
+			} )
+			.then( function( response ) {
+				if ( response ) {
+					return response;
 				}
 
 				return fetch( request )
 					.catch( function( err ) {
-						console.warn("failed to fetch "+request.url);
+						console.warn('failed to fetch '+request.url);
 						console.warn( err );
 						return false;
 					} )
 					.then( function( networkResponse ) {
 						// put in cache if we're allowed to
 						if ( shouldCacheResponse( request, networkResponse ) ) {
-							console.log("caching response for "+request.url);
+							console.log('caching response for '+request.url);
 							cache.put( request, networkResponse.clone() );
 						} else {
-							console.log("NOT caching response for "+request.url);
+							console.log('NOT caching response for '+request.url);
 							console.log( networkResponse );
 							for (var pair of networkResponse.headers.entries()) {
 								console.log(pair[0]+ ': '+ pair[1]);
@@ -132,7 +130,7 @@ function shouldCacheResponse( request, response ) {
 		return false;
 	}
 
-	if ( "opaque" === response.type ) {
+	if ( 'opaque' === response.type ) {
 		// shortcut and return true for any opaque response (cross-origin)
 		return true;
 	}
@@ -160,34 +158,34 @@ function shouldCacheResponse( request, response ) {
 
 // Open a cache and use `addAll()` with an array of assets to add all of them
 // to the cache. Return a promise resolving when all the assets are added.
+// Right now, this doesn't check if assets are in the cache - it just loads them regardless
 function precache() {
 	// Load configuration from server
-	console.warn("fetching config from " + pwa_vars.sw_config_url );
 	return fetch( pwa_vars.sw_config_url )
 		.then( function( response ) {
-			console.warn("success fetching config");
 			return response.json().then( function( json ) {
-				console.log(json);
 
 				// prefetch assets
 				return caches.open(CACHE).then( function( cache ) {
-					console.log("adding all");
-					console.log(json.assets);
 					var localAssets = json.assets.filter( function ( url ) {
 						// starts with site URL or is relative path
 						return ! isExternalAsset( url );
 					} );
+
 					var remoteAssets = json.assets.filter( function ( url ) {
 						return isExternalAsset( url );
 					} );
-					// add all local assets, then remote assets
-					return cache.addAll( localAssets ).then( () => Promise.all(
-						remoteAssets.map( ( assetUrl )  => {
-							console.log("grabbing " + assetUrl );
-							const request = new Request(assetUrl, { mode: 'no-cors' });
-							return fetch( request ).then( response => cache.put( request, response ) );
-						} ) )
-					);
+
+					// create a unified list of promises to resolve
+					var requests = remoteAssets.map( ( assetUrl )  => {
+						const request = new Request(assetUrl, { mode: 'no-cors' });
+						return fetch( request ).then( response => cache.put( request, response ) );
+					} );
+
+					requests.push( cache.addAll( localAssets ) );
+
+					// resolve all assets
+					return Promise.all( requests );
 				} );
 			} );
 		})

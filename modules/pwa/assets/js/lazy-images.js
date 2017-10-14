@@ -1,3 +1,6 @@
+/* jshint esversion: 6 */
+/* global IntersectionObserver, Promise */
+
 /**
  * Huge props to deanhume for https://github.com/deanhume/lazy-observer-load
  * TODO: IntersectionObserver polyfill: https://github.com/w3c/IntersectionObserver/tree/gh-pages/polyfill
@@ -38,7 +41,7 @@
 		 * @param {string} url
 		 */
 		function fetchImage(url) {
-			return new Promise((resolve, reject) => {
+			return new Promise( (resolve, reject) => {
 				const image = new Image();
 				image.src = url;
 				image.onload = resolve;
@@ -69,17 +72,6 @@
 				let image = images[i];
 				preloadImage(image);
 			}
-		}
-
-		/**
-		 * Disconnect the observer
-		 */
-		function disconnect() {
-			if (!observer) {
-				return;
-			}
-
-			observer.disconnect();
 		}
 
 		/**

@@ -24,8 +24,8 @@ class Jetpack_PWA_Network_Status {
 	}
 
 	public function register_assets() {
-		Jetpack_PWA_Optimize_Assets::instance()->register_inline_script( 'jetpack-show-network-status', 'assets/js/show-network-status.js', __FILE__, false, '1.5' );
-		Jetpack_PWA_Optimize_Assets::instance()->register_inline_style( 'jetpack-show-network-status', 'assets/css/show-network-status.css', __FILE__ );
+		wp_register_script( 'jetpack-show-network-status', plugins_url( 'assets/js/show-network-status.js', __FILE__ ), false, '1.5' );
+		wp_register_style( 'jetpack-show-network-status', plugins_url( 'assets/css/show-network-status.css', __FILE__ ) );
 	}
 
 	public function enqueue_assets() {

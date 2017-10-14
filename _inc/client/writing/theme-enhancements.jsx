@@ -43,6 +43,7 @@ const ThemeEnhancements = moduleSettingsForm(
 				pwa_inline_scripts_and_styles: this.props.getOptionValue( 'pwa_inline_scripts_and_styles', 'pwa' ),
 				pwa_remove_remote_fonts: this.props.getOptionValue( 'pwa_remove_remote_fonts', 'pwa' ),
 				pwa_show_network_status: this.props.getOptionValue( 'pwa_show_network_status', 'pwa' ),
+				pwa_lazy_images: this.props.getOptionValue( 'pwa_lazy_images', 'pwa' ),
 			};
 		},
 
@@ -288,6 +289,10 @@ const ThemeEnhancements = moduleSettingsForm(
 									{
 										key: 'pwa_show_network_status',
 										label: __( 'Display notice on page when the browser is offline' )
+									},
+									{
+										key: 'pwa_lazy_images',
+										label: __( 'Load images just before they scroll into view' )
 									}
 								]
 							} ].map( item => {
