@@ -121,6 +121,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 * Search: make sure module cannot be activated when the site does not use a Plan.
+* SEO Tools: do not output any custom meta tags if another SEO plugin is already active.
 * Sitemaps: wait a minute before to generate sitemaps when the feature is activated, to avoid performance issues.
 * Top Posts Widget: display the default title when it is set to empty.
 
