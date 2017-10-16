@@ -21,7 +21,6 @@ class A8C_WPCOM_Masterbar {
 	private $primary_site_slug;
 	private $user_text_direction;
 	private $user_site_count;
-	private $tracks_events;
 
 	function __construct() {
 		$this->locale  = $this->get_locale();
