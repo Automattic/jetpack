@@ -81,6 +81,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			'site_icon_url'                    => Jetpack_Sync_Functions::site_icon_url(),
 			'shortcodes'                       => Jetpack_Sync_Functions::get_shortcodes(),
 			'roles'                            => Jetpack_Sync_Functions::roles(),
+			'admin_menu_items'                 => Jetpack_Sync_Functions::get_admin_menu_items(),
 		);
 
 		if ( function_exists( 'wp_cache_is_enabled' ) ) {

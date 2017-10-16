@@ -193,6 +193,7 @@ class Jetpack_Sync_Defaults {
 		'locale'                           => 'get_locale',
 		'site_icon_url'                    => array( 'Jetpack_Sync_Functions', 'site_icon_url' ),
 		'roles'                            =>  array( 'Jetpack_Sync_Functions', 'roles' ),
+		'admin_menu_items'			       => array( 'Jetpack_Sync_Functions', 'get_admin_menu_items' )
 	);
 
 	public static function get_callable_whitelist() {

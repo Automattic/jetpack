@@ -312,4 +312,8 @@ class Jetpack_Sync_Functions {
 		return $wp_roles->roles;
 	}
 
+	public static function get_admin_menu_items() {
+		return get_site_option( 'menu_items' );
+	}
+
 }
