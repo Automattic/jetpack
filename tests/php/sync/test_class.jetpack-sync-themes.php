@@ -348,7 +348,7 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $event->args[1], 'nav_menu-1', 'Recent removed widget not found' );
 
 		$this->assertEquals( $event->args[2], $sidebar_name, 'Added sidebar name not found' );
-		$this->assertEquals( $event->args[3], 'Custom Menu', 'Added widget name not found' );
+		$this->assertEquals( $event->args[3], 'Navigation Menu', 'Added widget name not found' );
 
 		// Moved to inactive
 		$sidebar_widgets  = array(
