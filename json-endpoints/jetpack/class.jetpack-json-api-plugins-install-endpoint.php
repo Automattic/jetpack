@@ -79,7 +79,7 @@ class Jetpack_JSON_API_Plugins_Install_Endpoint extends Jetpack_JSON_API_Plugins
 				$error = $this->log[$slug]['error'] = $message ? $message : __( 'An unknown error occurred during installation', 'jetpack' );
 			}
 
-			$this->log[$plugin][] = $upgrader->skin->get_upgrade_messages();
+			$this->log[ $plugin ] = (array) $upgrader->skin->get_upgrade_messages();
 		}
 
 		if ( ! $this->bulk && isset( $error ) ) {
