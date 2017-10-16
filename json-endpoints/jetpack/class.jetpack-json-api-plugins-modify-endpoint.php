@@ -136,7 +136,11 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 			if ( $args['active'] ) {
 				return $this->activate();
 			} else {
-				return $this->deactivate();
+				if( $this->current_user_can( 'deactivate_plugins' ) ) {
+					return $this->deactivate();
+				} else {
+					return new WP_Error( 'unauthorized_error', __( 'Plugin deactivation is not allowed', 'jetpack' ), '403' );
+				}
 			}
 		}
 
@@ -178,6 +182,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 	protected function activate() {
 		$permission_error = false;
 		foreach ( $this->plugins as $plugin ) {
+
 			if ( ! $this->single_plugin_current_user_can( 'activate_plugin', $plugin ) ) {
 				$this->log[$plugin]['error'] = __( 'Sorry, you are not allowed to activate this plugin.' );
 				$has_errors                  = true;
@@ -227,10 +232,13 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 		}
 	}
 
-	protected function single_plugin_current_user_can( $capability, $plugin ) {
+	protected function current_user_can( $capability, $plugin = null ) {
 		global $wp_version;
 		if ( version_compare( $wp_version, '4.9-beta2' ) >= 0 ) {
-			return current_user_can( $capability, $plugin );
+			if ( $plugin ) {
+				return current_user_can( $capability, $plugin );
+			}
+			return current_user_can( $capability );
 		}
 		// Assume that the user has the capability...
 		return true;
@@ -245,8 +253,8 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 				continue;
 			}
 
-			if ( ! $this->single_plugin_current_user_can('deactivate_plugin', $plugin ) ) {
-				$error = $this->log[ $plugin ]['error'] = __( 'Sorry, you are not allowed to deactivate this plugin.' );
+			if ( ! $this->current_user_can('deactivate_plugin', $plugin ) ) {
+				$error = $this->log[ $plugin ]['error'] = __( 'Sorry, you are not allowed to deactivate this plugin.', 'jetpack' );
 				$permission_error = true;
 				continue;
 			}
