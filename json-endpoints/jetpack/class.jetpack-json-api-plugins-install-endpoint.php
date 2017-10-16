@@ -55,6 +55,7 @@ class Jetpack_JSON_API_Plugins_Install_Endpoint extends Jetpack_JSON_API_Plugins
 	protected $action = 'install';
 
 	protected function install() {
+		$error = '';
 		foreach ( $this->plugins as $index => $slug ) {
 
 			$skin     = new Jetpack_Automatic_Install_Skin();
@@ -70,13 +71,13 @@ class Jetpack_JSON_API_Plugins_Install_Endpoint extends Jetpack_JSON_API_Plugins
 			$plugin     = self::get_plugin_id_by_slug( $slug );
 			$error_code = 'install_error';
 			if ( ! $plugin ) {
-				$error = $this->log[$slug]['error'] = __( 'There was an error installing your plugin', 'jetpack' );
+				$error = $this->log[ $slug ][] = __( 'There was an error installing your plugin', 'jetpack' );
 			}
 
 			if ( ! $this->bulk && ! $result ) {
 				$error_code                         = $upgrader->skin->get_main_error_code();
 				$message                            = $upgrader->skin->get_main_error_message();
-				$error = $this->log[$slug]['error'] = $message ? $message : __( 'An unknown error occurred during installation', 'jetpack' );
+				$error = $this->log[ $slug ][] = $message ? $message : __( 'An unknown error occurred during installation', 'jetpack' );
 			}
 
 			$this->log[ $plugin ] = (array) $upgrader->skin->get_upgrade_messages();
@@ -89,7 +90,7 @@ class Jetpack_JSON_API_Plugins_Install_Endpoint extends Jetpack_JSON_API_Plugins
 				$error_code = 'no_package';
 			}
 
-			return new WP_Error( $error_code, $this->log[$slug]['error'], 400 );
+			return new WP_Error( $error_code, $error, 400 );
 		}
 
 		// replace the slug with the actual plugin id

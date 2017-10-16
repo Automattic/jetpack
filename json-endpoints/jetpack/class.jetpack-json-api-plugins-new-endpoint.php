@@ -125,7 +125,7 @@ class Jetpack_JSON_API_Plugins_New_Endpoint extends Jetpack_JSON_API_Plugins_End
 			}
 
 			$this->plugins         = $plugin;
-			$this->log[$plugin[0]] = $upgrader->skin->get_upgrade_messages();
+			$this->log[ $plugin[0] ] = $upgrader->skin->get_upgrade_messages();
 
 			return true;
 		}

@@ -120,7 +120,7 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 	}
 
 	protected function format_plugin( $plugin_file, $plugin_data ) {
-		if( version_compare( $this->min_version, '1.2', '>=' ) ) {
+		if ( version_compare( $this->min_version, '1.2', '>=' ) ) {
 			return $this->format_plugin_v1_2( $plugin_file, $plugin_data );
 		}
 		$plugin = array();

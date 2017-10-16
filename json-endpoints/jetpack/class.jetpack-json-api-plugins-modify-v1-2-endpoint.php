@@ -104,8 +104,8 @@ class Jetpack_JSON_API_Plugins_Modify_v1_2_Endpoint extends Jetpack_JSON_API_Plu
 			$result = activate_plugin( $plugin, '', $this->network_wide );
 
 			if ( is_wp_error( $result ) ) {
-				$this->log[$plugin]['error'] = $result->get_error_messages();
-				$has_errors                  = true;
+				$this->log[ $plugin ]['error'] = $result->get_error_messages();
+				$has_errors = true;
 				continue;
 			}
 
@@ -115,11 +115,11 @@ class Jetpack_JSON_API_Plugins_Modify_v1_2_Endpoint extends Jetpack_JSON_API_Plu
 			}
 
 			if ( ! $success ) {
-				$this->log[$plugin]['error'] = $result->get_error_messages;
-				$has_errors                  = true;
+				$this->log[ $plugin ]['error'] = $result->get_error_messages;
+				$has_errors = true;
 				continue;
 			}
-			$this->log[$plugin][] = __( 'Plugin activated.', 'jetpack' );
+			$this->log[ $plugin ][] = __( 'Plugin activated.', 'jetpack' );
 		}
 		if ( ! $this->bulk && isset( $has_errors ) ) {
 			$plugin = $this->plugins[0];
@@ -143,10 +143,10 @@ class Jetpack_JSON_API_Plugins_Modify_v1_2_Endpoint extends Jetpack_JSON_API_Plu
 			}
 
 			if ( ! $success ) {
-				$error = $this->log[$plugin]['error'] = __( 'There was an error deactivating your plugin', 'jetpack' );
+				$error = $this->log[ $plugin ]['error'] = __( 'There was an error deactivating your plugin', 'jetpack' );
 				continue;
 			}
-			$this->log[$plugin][] = __( 'Plugin deactivated.', 'jetpack' );
+			$this->log[ $plugin ][] = __( 'Plugin deactivated.', 'jetpack' );
 		}
 		if ( ! $this->bulk && isset( $error ) ) {
 			return new WP_Error( 'deactivation_error', $error );

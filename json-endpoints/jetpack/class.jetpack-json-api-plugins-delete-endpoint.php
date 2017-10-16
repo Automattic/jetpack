@@ -56,13 +56,13 @@ class Jetpack_JSON_API_Plugins_Delete_Endpoint extends Jetpack_JSON_API_Plugins_
 		foreach ( $this->plugins as $plugin ) {
 
 			if ( Jetpack::is_plugin_active( $plugin ) ) {
-				$error = $this->log[$plugin][] = __( 'You cannot delete a plugin while it is active on the main site.', 'jetpack' );
+				$error = $this->log[ $plugin ][] = __( 'You cannot delete a plugin while it is active on the main site.', 'jetpack' );
 				continue;
 			}
 
 			$result = delete_plugins( array( $plugin ) );
 			if ( is_wp_error( $result ) ) {
-				$error = $this->log[$plugin][] = $result->get_error_message();
+				$error = $this->log[ $plugin ][] = $result->get_error_message();
 			} else {
 				$this->log[ $plugin ][] = 'Plugin deleted';
 			}

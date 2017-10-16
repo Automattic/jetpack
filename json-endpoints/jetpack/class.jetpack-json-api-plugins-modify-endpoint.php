@@ -178,13 +178,13 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 	protected function activate() {
 		foreach ( $this->plugins as $plugin ) {
 			if ( ( ! $this->network_wide && Jetpack::is_plugin_active( $plugin ) ) || is_plugin_active_for_network( $plugin ) ) {
-				$this->log[$plugin]['error'] = __( 'The Plugin is already active.', 'jetpack' );
+				$this->log[ $plugin ]['error'] = __( 'The Plugin is already active.', 'jetpack' );
 				$has_errors                  = true;
 				continue;
 			}
 
 			if ( ! $this->network_wide && is_network_only_plugin( $plugin ) && is_multisite() ) {
-				$this->log[$plugin]['error'] = __( 'Plugin can only be Network Activated', 'jetpack' );
+				$this->log[ $plugin ]['error'] = __( 'Plugin can only be Network Activated', 'jetpack' );
 				$has_errors                  = true;
 				continue;
 			}
@@ -192,7 +192,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 			$result = activate_plugin( $plugin, '', $this->network_wide );
 
 			if ( is_wp_error( $result ) ) {
-				$this->log[$plugin]['error'] = $result->get_error_messages();
+				$this->log[ $plugin ]['error'] = $result->get_error_messages();
 				$has_errors                  = true;
 				continue;
 			}
@@ -203,11 +203,11 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 			}
 
 			if ( ! $success ) {
-				$this->log[$plugin]['error'] = $result->get_error_messages;
+				$this->log[ $plugin ]['error'] = $result->get_error_messages;
 				$has_errors                  = true;
 				continue;
 			}
-			$this->log[$plugin][] = __( 'Plugin activated.', 'jetpack' );
+			$this->log[ $plugin ][] = __( 'Plugin activated.', 'jetpack' );
 		}
 		if ( ! $this->bulk && isset( $has_errors ) ) {
 			$plugin = $this->plugins[0];
@@ -219,7 +219,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 	protected function deactivate() {
 		foreach ( $this->plugins as $plugin ) {
 			if ( ! Jetpack::is_plugin_active( $plugin ) ) {
-				$error = $this->log[$plugin]['error'] = __( 'The Plugin is already deactivated.', 'jetpack' );
+				$error = $this->log[ $plugin ]['error'] = __( 'The Plugin is already deactivated.', 'jetpack' );
 				continue;
 			}
 
@@ -231,10 +231,10 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 			}
 
 			if ( ! $success ) {
-				$error = $this->log[$plugin]['error'] = __( 'There was an error deactivating your plugin', 'jetpack' );
+				$error = $this->log[ $plugin ]['error'] = __( 'There was an error deactivating your plugin', 'jetpack' );
 				continue;
 			}
-			$this->log[$plugin][] = __( 'Plugin deactivated.', 'jetpack' );
+			$this->log[ $plugin ][] = __( 'Plugin deactivated.', 'jetpack' );
 		}
 		if ( ! $this->bulk && isset( $error ) ) {
 			return new WP_Error( 'deactivation_error', $error );
@@ -270,7 +270,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 		foreach ( $this->plugins as $plugin ) {
 
 			if ( ! in_array( $plugin, $plugin_updates_needed ) ) {
-				$this->log[$plugin][] = __( 'No update needed', 'jetpack' );
+				$this->log[ $plugin ][] = __( 'No update needed', 'jetpack' );
 				continue;
 			}
 
@@ -296,7 +296,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 			// Using bulk upgrade puts the site into maintenance mode during the upgrades
 			$result = $upgrader->bulk_upgrade( array( $plugin ) );
 
-			$this->log[$plugin] = $upgrader->skin->get_upgrade_messages();
+			$this->log[ $plugin ] = $upgrader->skin->get_upgrade_messages();
 		}
 
 		if ( ! $this->bulk && ! $result && $update_attempted ) {
@@ -327,7 +327,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 			$translation = array_filter( $available_updates->translations, array( $this, 'get_translation' ) );
 
 			if ( empty( $translation ) ) {
-				$this->log[$plugin][] = __( 'No update needed', 'jetpack' );
+				$this->log[ $plugin ][] = __( 'No update needed', 'jetpack' );
 				continue;
 			}
 
