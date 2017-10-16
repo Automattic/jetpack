@@ -32,6 +32,8 @@ const admincss = [
 	'modules/protect/protect-dashboard-widget.css',
 	'modules/sharedaddy/admin-sharing.css',
 	'modules/videopress/videopress-admin.css',
+	'modules/videopress/css/editor.css',
+	'modules/videopress/css/videopress-editor-style.css',
 	'modules/widget-visibility/widget-conditions/widget-conditions.css',
 	'modules/widgets/gallery/css/admin.css',
 	'modules/sso/jetpack-sso-login.css' // Displayed when logging into the site.
@@ -69,4 +71,3 @@ gulp.task( 'admincss:rtl', function() {
 			util.log( 'Admin modules RTL CSS finished.' );
 		} );
 } );
-
