@@ -167,7 +167,12 @@ class Publicize_Util {
 
 		$string = mb_convert_encoding( $string, 'HTML-ENTITIES', 'UTF-8' );
 		$dom = new DOMDocument( '1.0', 'UTF-8' );
-		@$dom->loadHTML( "<html><body>$string</body></html>" ); // suppress parser warning
+
+		// The @ is not enough to suppress errors when dealing with libxml,
+		// we have to tell it directly how we want to handle errors.
+		libxml_use_internal_errors( true );
+		@$dom->loadHTML( "<html><body>$string</body></html>" );
+		libxml_use_internal_errors( false );
 
 		// Strip comment nodes, if any
 		$comment_nodes = self::get_comment_nodes( $dom->documentElement );
