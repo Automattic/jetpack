@@ -146,7 +146,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		Jetpack::update_active_modules( array( 'stats' ) );
 
 		$this->sender->do_sync();
-		
+
 		$synced_value = $this->server_replica_storage->get_callable( 'active_modules' );
 		$this->assertEquals(  array( 'stats' ), $synced_value  );
 
@@ -394,7 +394,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_subdomain_switching_to_www_does_not_cause_sync() {
-		// a lot of sites accept www.domain.com or just domain.com, and we want to prevent lots of 
+		// a lot of sites accept www.domain.com or just domain.com, and we want to prevent lots of
 		// switching back and forth, so we force the domain to be the one in the siteurl option
 		$this->setSyncClientDefaults();
 		delete_transient( Jetpack_Sync_Module_Callables::CALLABLES_AWAIT_TRANSIENT_NAME );
@@ -429,7 +429,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		$this->sender->do_sync();
 		$this->assertEquals( null, $this->server_replica_storage->get_callable( 'site_url' ) );
-		
+
 		Jetpack_Sync_Settings::set_doing_cron( false );
 		$this->sender->do_sync();
 		$this->assertEquals( site_url(), $this->server_replica_storage->get_callable( 'site_url' ) );
@@ -481,7 +481,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_sanitize_sync_taxonomies_method() {
-		
+
 		$sanitized = Jetpack_Sync_Functions::sanitize_taxonomy( (object) array( 'meta_box_cb' => 'post_tags_meta_box' ) );
 		$this->assertEquals( $sanitized->meta_box_cb, 'post_tags_meta_box' );
 
@@ -532,6 +532,26 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals(
 			set_url_scheme( $home_option, 'http' ),
 			Jetpack_Sync_Functions::get_raw_url( 'home' )
+		);
+		unset( $_SERVER['HTTPS'] );
+	}
+
+	function test_raw_home_url_is_https_when_is_ssl() {
+		Jetpack_Constants::set_constant( 'JETPACK_SYNC_USE_RAW_URL', true );
+
+		$home_option = get_option( 'home' );
+
+		// Test without https first
+		$this->assertEquals(
+			$home_option,
+			Jetpack_Sync_Functions::home_url()
+		);
+
+		// Now, with https
+		$_SERVER['HTTPS'] = 'on';
+		$this->assertEquals(
+			set_url_scheme( $home_option, 'https' ),
+			Jetpack_Sync_Functions::home_url()
 		);
 		unset( $_SERVER['HTTPS'] );
 	}
@@ -601,7 +621,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	function __return_filtered_url() {
 		return 'http://filteredurl.com';
 	}
-	
+
 	function add_www_subdomain_to_siteurl( $url ) {
 		$parsed_url = parse_url( $url );
 

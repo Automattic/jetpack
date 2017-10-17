@@ -81,10 +81,10 @@ class Jetpack_Sync_Functions {
 		}
 		if ( defined( 'MM_BASE_DIR' ) ) {
 			return 'bh';
-		} 
+		}
 		if ( defined( 'IS_PRESSABLE' ) ) {
 			return 'pressable';
-		} 
+		}
 		if ( function_exists( 'is_wpe' ) || function_exists( 'is_wpe_snapshot' ) ) {
 			return 'wpe';
 		}
@@ -151,20 +151,22 @@ class Jetpack_Sync_Functions {
 	 * @return string
 	 */
 	public static function get_raw_or_filtered_url( $url_type ) {
+		$url_function = ( 'home' == $url_type )
+			? 'home_url'
+			: 'site_url';
+
 		if (
 			! Jetpack_Constants::is_defined( 'JETPACK_SYNC_USE_RAW_URL' ) ||
 			Jetpack_Constants::get_constant( 'JETPACK_SYNC_USE_RAW_URL' )
 		) {
+			$scheme = is_ssl() ? 'https' : 'http';
 			$url = self::get_raw_url( $url_type );
+			$url = set_url_scheme( $url, $scheme );
 		} else {
-			$url_function = ( 'home' == $url_type )
-				? 'home_url'
-				: 'site_url';
 			$url = self::normalize_www_in_url( $url_type, $url_function );
-			$url = self::get_protocol_normalized_url( $url_function, $url );
 		}
 
-		return $url;
+		return self::get_protocol_normalized_url( $url_function, $url );
 	}
 
 	public static function home_url() {
