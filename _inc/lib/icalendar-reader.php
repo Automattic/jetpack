@@ -93,6 +93,7 @@ class iCalendarReader {
 		$timezone_name = get_option( 'timezone_string' );
 		if ( $timezone_name ) {
 			$timezone = new DateTimeZone( $timezone_name );
+			$timezone_offset_interval = false;
 		} else {
 			// If the timezone isn't set then the GMT offset must be set.
 			// generate a DateInterval object from the timezone offset
