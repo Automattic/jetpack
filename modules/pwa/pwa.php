@@ -55,15 +55,15 @@ class Jetpack_PWA {
 		Jetpack_PWA_Lazy_Images::instance();
 
 		// TODO - just notify user instead
-		add_action( 'template_redirect', array( $this, 'force_https' ), 1 );
+		// add_action( 'template_redirect', array( $this, 'force_https' ), 1 );
 	}
 
-	public function force_https () {
-		if ( !is_ssl() ) {
-			wp_redirect('https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'], 301 );
-			exit();
-		}
-	}
+	// public function force_https () {
+	// 	if ( !is_ssl() ) {
+	// 		wp_redirect('https://' . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'], 301 );
+	// 		exit();
+	// 	}
+	// }
 
 	public function site_icon_url( $size ) {
 		$url = get_site_icon_url( $size );

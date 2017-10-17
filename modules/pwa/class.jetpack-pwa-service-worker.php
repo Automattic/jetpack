@@ -186,9 +186,10 @@ class Jetpack_PWA_Service_Worker {
 			'config' => array(
 				'cache_assets'              => get_option( 'pwa_cache_assets' ),
 				'web_push'                  => get_option( 'pwa_web_push' ),
-				'inline_scripts_and_styles' => get_option( 'pwa_inline_scripts_and_styles' ),
-				'remove_remote_fonts'       => get_option( 'pwa_remove_remote_fonts' ),
 				'show_network_status'       => get_option( 'pwa_show_network_status' ),
+				'inline_scripts_and_styles' => Jetpack_Perf::get_setting( 'inline_scripts_and_styles' ),
+				'inline_on_every_request'   => Jetpack_Perf::get_setting( 'inline_on_every_request' ),
+				'remove_remote_fonts'       => Jetpack_Perf::get_setting( 'remove_remote_fonts' ),
 			),
 			'assets' => $asset_urls
 		);

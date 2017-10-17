@@ -1435,20 +1435,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'pwa',
 			),
-			'pwa_inline_scripts_and_styles' => array(
-				'description'       => esc_html__( 'Improve rendering speed by inlining javascript and CSS where possible', 'jetpack' ),
-				'type'              => 'boolean',
-				'default'           => 0,
-				'validate_callback' => __CLASS__ . '::validate_boolean',
-				'jp_group'          => 'pwa',
-			),
-			'pwa_remove_remote_fonts' => array(
-				'description'       => esc_html__( 'Improve rendering speed by removing external fonts (may change site appearance)', 'jetpack' ),
-				'type'              => 'boolean',
-				'default'           => 0,
-				'validate_callback' => __CLASS__ . '::validate_boolean',
-				'jp_group'          => 'pwa',
-			),
 			'pwa_show_network_status' => array(
 				'description'       => esc_html__( 'Display notice on page when the browser is offline', 'jetpack' ),
 				'type'              => 'boolean',
@@ -1456,14 +1442,36 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'pwa',
 			),
-			'pwa_lazy_images' => array(
+
+			// Perf
+			'perf_inline_scripts_and_styles' => array(
+				'description'       => esc_html__( 'Improve rendering speed by inlining javascript and CSS where possible', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'perf',
+			),
+			'perf_inline_on_every_request' => array(
+				'description'       => esc_html__( 'Inline scripts and styles on every request, not just first request', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'perf',
+			),
+			'perf_remove_remote_fonts' => array(
+				'description'       => esc_html__( 'Improve rendering speed by removing external fonts (may change site appearance)', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'perf',
+			),
+			'perf_lazy_images' => array(
 				'description'       => esc_html__( 'Display notice on page when the browser is offline', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 0,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
-				'jp_group'          => 'pwa',
+				'jp_group'          => 'perf',
 			),
-
 
 			// Sharing
 			'sharing_services' => array(

@@ -118,6 +118,11 @@ function jetpack_get_module_i18n( $key ) {
 				'description' => _x( 'Receive instant notifications of site comments and likes.', 'Module Description', 'jetpack' ),
 			),
 
+			'perf' => array(
+				'name' => _x( 'Performance', 'Module Name', 'jetpack' ),
+				'description' => _x( 'Web site performance optimisations', 'Module Description', 'jetpack' ),
+			),
+
 			'photon' => array(
 				'name' => _x( 'Photon', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Speed up images and photos', 'Module Description', 'jetpack' ),
@@ -292,6 +297,7 @@ function jetpack_get_module_i18n_tag( $key ) {
 			//  - modules/gravatar-hovercards.php
 			//  - modules/infinite-scroll.php
 			//  - modules/minileven.php
+			//  - modules/perf.php
 			//  - modules/photon.php
 			//  - modules/pwa.php
 			//  - modules/seo-tools.php
@@ -314,6 +320,7 @@ function jetpack_get_module_i18n_tag( $key ) {
 			//  - modules/manage.php
 			//  - modules/minileven.php
 			//  - modules/monitor.php
+			//  - modules/perf.php
 			//  - modules/photon.php
 			//  - modules/protect.php
 			//  - modules/publicize.php
@@ -330,6 +337,7 @@ function jetpack_get_module_i18n_tag( $key ) {
 
 			// Modules with `Mobile` tag:
 			//  - modules/minileven.php
+			//  - modules/perf.php
 			//  - modules/pwa.php
 			'Mobile' =>_x( 'Mobile', 'Module Tag', 'jetpack' ),
 

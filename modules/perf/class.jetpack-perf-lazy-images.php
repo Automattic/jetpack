@@ -4,7 +4,7 @@
  * Props to batmoo for https://wordpress.org/plugins/lazy-load/
  * https://profiles.wordpress.org/batmoo
  */
-class Jetpack_PWA_Lazy_Images {
+class Jetpack_Perf_Lazy_Images {
 	private static $__instance = null;
 	/**
 	 * Singleton implementation
@@ -12,8 +12,8 @@ class Jetpack_PWA_Lazy_Images {
 	 * @return object
 	 */
 	public static function instance() {
-		if ( ! is_a( self::$__instance, 'Jetpack_PWA_Lazy_Images' ) ) {
-			self::$__instance = new Jetpack_PWA_Lazy_Images();
+		if ( ! is_a( self::$__instance, 'Jetpack_Perf_Lazy_Images' ) ) {
+			self::$__instance = new Jetpack_Perf_Lazy_Images();
 		}
 
 		return self::$__instance;
@@ -23,7 +23,7 @@ class Jetpack_PWA_Lazy_Images {
 	 * Registers actions
 	 */
 	private function __construct() {
-		if ( ! get_option( 'pwa_lazy_images' ) ) {
+		if ( ! get_option( 'perf_lazy_images' ) ) {
 			return;
 		}
 
@@ -89,10 +89,10 @@ class Jetpack_PWA_Lazy_Images {
 	}
 
 	public function register_assets() {
-		wp_register_script( 'jetpack-pwa-lazy-images', plugins_url( 'assets/js/lazy-images.js', __FILE__ ), array('jquery'), '1.5' );
+		wp_register_script( 'jetpack-perf-lazy-images', plugins_url( 'assets/js/lazy-images.js', __FILE__ ), array('jquery'), '1.5' );
 	}
 
 	public function enqueue_assets() {
-		wp_enqueue_script( 'jetpack-pwa-lazy-images' );
+		wp_enqueue_script( 'jetpack-perf-lazy-images' );
 	}
 }

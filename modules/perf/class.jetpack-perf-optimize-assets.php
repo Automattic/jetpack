@@ -7,7 +7,7 @@
  * - remove references to external fonts
  */
 
-class Jetpack_PWA_Optimize_Assets {
+class Jetpack_Perf_Optimize_Assets {
 	private static $__instance = null;
 	private $remove_remote_fonts = false;
 	private $inline_scripts_and_styles = false;
@@ -18,8 +18,8 @@ class Jetpack_PWA_Optimize_Assets {
 	 * @return object
 	 */
 	public static function instance() {
-		if ( ! is_a( self::$__instance, 'Jetpack_PWA_Optimize_Assets' ) ) {
-			self::$__instance = new Jetpack_PWA_Optimize_Assets();
+		if ( ! is_a( self::$__instance, 'Jetpack_Perf_Optimize_Assets' ) ) {
+			self::$__instance = new Jetpack_Perf_Optimize_Assets();
 		}
 
 		return self::$__instance;
@@ -34,11 +34,13 @@ class Jetpack_PWA_Optimize_Assets {
 	 * Registers actions
 	 */
 	private function __construct() {
-		$this->remove_remote_fonts       = get_option( 'pwa_remove_remote_fonts' );
-		$this->inline_scripts_and_styles = get_option( 'pwa_inline_scripts_and_styles' );
-		$is_first_load = ! isset( $_COOKIE['jetpack_pwa_loaded'] );
+		$this->remove_remote_fonts       = get_option( 'perf_remove_remote_fonts' );
+		$this->inline_scripts_and_styles = get_option( 'perf_inline_scripts_and_styles' );
+		$this->inline_always             = get_option( 'perf_inline_on_every_request' );
 
-		if ( $is_first_load && ( $this->inline_scripts_and_styles || $this->remove_remote_fonts ) ) {
+		$is_first_load = ! isset( $_COOKIE['jetpack_perf_loaded'] );
+
+		if ( ( $this->inline_always || $is_first_load ) && ( $this->inline_scripts_and_styles || $this->remove_remote_fonts ) ) {
 			add_filter( 'script_loader_src', array( $this, 'filter_inline_scripts' ), 10, 2 );
 			add_filter( 'script_loader_tag', array( $this, 'print_inline_scripts' ), 10, 3 );
 			add_filter( 'style_loader_src', array( $this, 'filter_inline_styles' ), 10, 2 );
@@ -50,8 +52,8 @@ class Jetpack_PWA_Optimize_Assets {
 
 	// we only inline scripts+styles on first page load for a given user
 	function set_first_load_cookie() {
-		if ( ! isset( $_COOKIE['jetpack_pwa_loaded'] ) ) {
-			setcookie( 'jetpack_pwa_loaded', '1', time() + YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
+		if ( ! isset( $_COOKIE['jetpack_perf_loaded'] ) ) {
+			setcookie( 'jetpack_perf_loaded', '1', time() + YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
 		}
 	}
 
