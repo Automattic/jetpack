@@ -81,10 +81,10 @@ class Jetpack_Sync_Functions {
 		}
 		if ( defined( 'MM_BASE_DIR' ) ) {
 			return 'bh';
-		} 
+		}
 		if ( defined( 'IS_PRESSABLE' ) ) {
 			return 'pressable';
-		} 
+		}
 		if ( function_exists( 'is_wpe' ) || function_exists( 'is_wpe_snapshot' ) ) {
 			return 'wpe';
 		}
@@ -225,7 +225,9 @@ class Jetpack_Sync_Functions {
 			? 'WP_HOME'
 			: 'WP_SITEURL';
 
-		if ( Jetpack_Constants::is_defined( $constant ) ) {
+		// Since we disregard the constant for multisites in ms-default-filters.php,
+		// let's also use the db value if this is a multisite.
+		if ( ! is_multisite() && Jetpack_Constants::is_defined( $constant ) ) {
 			$value = Jetpack_Constants::get_constant( $constant );
 		} else {
 			// Let's get the option from the database so that we can bypass filters. This will help
