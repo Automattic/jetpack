@@ -112,7 +112,7 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 
 		$local_value = get_option( 'theme_mods_' . $this->theme );
 		$remote_value = $this->server_replica_storage->get_option( 'theme_mods_' . $this->theme );
-		
+
 		if ( isset( $local_value[0] ) ) {
 			// this is a spurious value that sometimes gets set during tests, and is
 			// actively removed before sending to WPCOM
@@ -285,10 +285,11 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 
 	public function test_widgets_changes_get_synced() {
 		global $wp_registered_sidebars;
+		global $wp_version;
 
 		$sidebar_id = 'sidebar-1';
 		$sidebar_name = $wp_registered_sidebars[ $sidebar_id ]['name'];
-		
+
 		$sidebar_widgets = array(
 			'wp_inactive_widgets' => array( 'author-1' ),
 			'sidebar-1' => array( 'nav_menu-1' ),
@@ -348,7 +349,13 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $event->args[1], 'nav_menu-1', 'Recent removed widget not found' );
 
 		$this->assertEquals( $event->args[2], $sidebar_name, 'Added sidebar name not found' );
-		$this->assertEquals( $event->args[3], 'Custom Menu', 'Added widget name not found' );
+
+		// WordPress 4.9 changed the label "Custom Menu" for "Navigation menu"
+		if ( version_compare( $wp_version, '4.9-alpha', '>=' ) ) {
+			$this->assertEquals( $event->args[3], 'Navigation Menu', 'Added widget name not found' );
+		} else {
+			$this->assertEquals( $event->args[3], 'Custom Menu', 'Added widget name not found' );
+		}
 
 		// Moved to inactive
 		$sidebar_widgets  = array(
@@ -362,7 +369,7 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_widget_moved_to_inactive' );
 		$this->assertEquals( $event->args[0], array( 'calendar-1' ), 'Moved to inactive not present' );
 		$this->assertEquals( $event->args[1], array( 'Calendar' ), 'Moved to inactive not present' );
-		
+
 		// Cleared inavite
 		$sidebar_widgets  = array(
 			'wp_inactive_widgets' => array(),
