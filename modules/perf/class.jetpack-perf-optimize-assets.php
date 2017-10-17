@@ -11,6 +11,9 @@ class Jetpack_Perf_Optimize_Assets {
 	private static $__instance = null;
 	private $remove_remote_fonts = false;
 	private $inline_scripts_and_styles = false;
+	private $async_scripts = false;
+	private $scripts_to_remove;
+	private $styles_to_remove;
 
 	/**
 	 * Singleton implementation
@@ -34,23 +37,30 @@ class Jetpack_Perf_Optimize_Assets {
 	 * Registers actions
 	 */
 	private function __construct() {
+		$this->scripts_to_remove         = array();
+		$this->styles_to_remove          = array();
 		$this->remove_remote_fonts       = get_option( 'perf_remove_remote_fonts' );
 		$this->inline_scripts_and_styles = get_option( 'perf_inline_scripts_and_styles' );
 		$this->inline_always             = get_option( 'perf_inline_on_every_request' );
+		$this->async_scripts             = get_option( 'perf_async_scripts' );
+		$this->is_first_load             = ! isset( $_COOKIE['jetpack_perf_loaded'] );
 
-		$is_first_load = ! isset( $_COOKIE['jetpack_perf_loaded'] );
-
-		if ( ( $this->inline_always || $is_first_load ) && ( $this->inline_scripts_and_styles || $this->remove_remote_fonts ) ) {
-			add_filter( 'script_loader_src', array( $this, 'filter_inline_scripts' ), 10, 2 );
-			add_filter( 'script_loader_tag', array( $this, 'print_inline_scripts' ), 10, 3 );
-			add_filter( 'style_loader_src', array( $this, 'filter_inline_styles' ), 10, 2 );
-			add_filter( 'style_loader_tag', array( $this, 'print_inline_styles' ), 10, 4 );
+		// TODO: do these as filters, not some configuration array
+		if ( $this->remove_remote_fonts ) {
+			// defaults
+			$this->scripts_to_remove[] = 'http://use.typekit.com/';
+			$this->styles_to_remove[] = 'https://fonts.googleapis.com';
 		}
+
+		add_filter( 'script_loader_src', array( $this, 'filter_inline_scripts' ), 10, 2 );
+		add_filter( 'script_loader_tag', array( $this, 'print_inline_scripts' ), 10, 3 );
+		add_filter( 'style_loader_src', array( $this, 'filter_inline_styles' ), 10, 2 );
+		add_filter( 'style_loader_tag', array( $this, 'print_inline_styles' ), 10, 4 );
 
 		add_action( 'init', array( $this, 'set_first_load_cookie' ) );
 	}
 
-	// we only inline scripts+styles on first page load for a given user
+	// by default we only inline scripts+styles on first page load for a given user
 	function set_first_load_cookie() {
 		if ( ! isset( $_COOKIE['jetpack_perf_loaded'] ) ) {
 			setcookie( 'jetpack_perf_loaded', '1', time() + YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
@@ -58,7 +68,6 @@ class Jetpack_Perf_Optimize_Assets {
 	}
 
 	/** SCRIPTS **/
-
 	public function filter_inline_scripts( $src, $handle ) {
 		// reset src to empty - can't return empty string though because then it skips rendering the tag
 		if ( $this->should_inline_script( $handle ) ) {
@@ -69,16 +78,18 @@ class Jetpack_Perf_Optimize_Assets {
 	}
 
 	public function print_inline_scripts( $tag, $handle, $src ) {
-		if ( $this->should_inline_script( $handle ) ) {
-			return '<script type="text/javascript">' . $this->get_inline_script_content( $handle ) . '</script>';
-		}
-
 		if ( $this->should_remove_script( $handle ) ) {
 			return '';
 		}
 
+		if ( $this->should_inline_script( $handle ) ) {
+			$tag = '<script type="text/javascript">' . $this->get_inline_script_content( $handle ) . '</script>';
+		}
+
 		if ( $this->should_async_script( $handle ) ) {
 			$tag = preg_replace( '/<script /', '<script async ', $tag );
+		} elseif ( $this->should_defer_script( $handle ) ) {
+			$tag = preg_replace( '/<script /', '<script defer ', $tag );
 		}
 
 		return $tag;
@@ -93,26 +104,28 @@ class Jetpack_Perf_Optimize_Assets {
 
 		$registration = $wp_scripts->registered[$handle];
 
-		return isset( $registration->extra['jetpack-async'] ) && $registration->extra['jetpack-async'];
+		$should_async_script = $this->async_scripts && isset( $registration->extra['jetpack-async'] ) && $registration->extra['jetpack-async'];
+
+		return apply_filters( 'jetpack_perf_async_script', $should_async_script, $handle );
 	}
 
-	// typekit fonts are rendered from a script (usually), so if we find that let's throw it away
-	private function should_remove_script( $handle ) {
-		if ( ! $this->remove_remote_fonts ) {
+	private function should_defer_script( $handle ) {
+		global $wp_scripts;
+
+		if ( ! isset( $wp_scripts->registered[$handle] ) ) {
 			return false;
 		}
 
+		$registration = $wp_scripts->registered[$handle];
+
+		$should_async_script = $this->async_scripts && isset( $registration->extra['jetpack-defer'] ) && $registration->extra['jetpack-defer'];
+
+		return apply_filters( 'jetpack_perf_defer_script', $should_async_script, $handle );
+	}
+
+	private function should_remove_script( $handle ) {
 		global $wp_scripts;
-
-		// remove all google fonts
-		if ( $registration = $wp_scripts->registered[$handle] ) {
-			// TODO - full list (also typekit does CSS-only embedding now)
-			if ( strncmp( $registration->src, 'http://use.typekit.com/', 23 ) === 0 ) {
-				return true;
-			}
-		}
-
-		return false;
+		return apply_filters( 'jetpack_perf_remove_script', $this->should_remove_asset( $wp_scripts, $handle, $this->scripts_to_remove ), $handle );
 	}
 
 	private function should_inline_script( $handle ) {
@@ -121,31 +134,7 @@ class Jetpack_Perf_Optimize_Assets {
 		}
 
 		global $wp_scripts;
-
-		if ( ! isset( $wp_scripts->registered[$handle] ) ) {
-			return false;
-		}
-
-		// // automatically inline a script loaded on every page...
-		// if ( 'jquery' === $handle || 'jquery-migrate' === $handle || 'jquery-core' === $handle ) {
-		// 	return true;
-		// }
-
-		$registration = $wp_scripts->registered[$handle];
-
-		// inline anything local, with a src starting with /, or starting with site_url
-		$site_url = site_url();
-		// TODO: handle //, like //stats.wp.com/w.js - whoops!
-		if ( strncmp( $registration->src, '/', 1 ) === 0 ) {
-			$registration->extra['jetpack-inline'] = true;
-			$registration->extra['jetpack-inline-file'] = untrailingslashit( ABSPATH ) . $registration->src;
-		} elseif ( strpos( $registration->src, $site_url ) === 0 ) {
-			$registration->extra['jetpack-inline'] = true;
-			$raw_path = substr( $registration->src, strlen( $site_url ) );
-			$registration->extra['jetpack-inline-file'] = untrailingslashit( ABSPATH ) . $raw_path;
-		}
-
-		return isset( $registration->extra['jetpack-inline'] ) && $registration->extra['jetpack-inline'];
+		return apply_filters( 'jetpack_perf_inline_script', $this->should_inline_asset( $wp_scripts, $handle ), $handle );
 	}
 
 	private function get_inline_script_content( $handle ) {
@@ -158,14 +147,11 @@ class Jetpack_Perf_Optimize_Assets {
 			return "console.warn('failed to get script contents for " . $handle . "');";
 		}
 
-		// TODO: file_exists
 		return file_get_contents( $file_path );
 	}
 
 	/** STYLES **/
-
 	public function filter_inline_styles( $src, $handle ) {
-		// reset src to empty - can't return empty string though because then it skips rendering the tag
 		if ( $this->should_inline_style( $handle ) ) {
 			return '#';
 		}
@@ -191,44 +177,12 @@ class Jetpack_Perf_Optimize_Assets {
 		}
 
 		global $wp_styles;
-
-		if ( ! isset( $wp_styles->registered[$handle] ) ) {
-			return false;
-		}
-
-		$registration = $wp_styles->registered[$handle];
-
-		// inline anything local, with a src starting with /, or starting with site_url
-		$site_url = site_url();
-		if ( strncmp( $registration->src, '/', 1 ) === 0 ) {
-			$registration->extra['jetpack-inline'] = true;
-			$registration->extra['jetpack-inline-file'] = untrailingslashit( ABSPATH ) . $registration->src;
-		} elseif ( strpos( $registration->src, $site_url ) === 0 ) {
-			$registration->extra['jetpack-inline'] = true;
-			$raw_path = substr( $registration->src, strlen( $site_url ) );
-			$registration->extra['jetpack-inline-file'] = untrailingslashit( ABSPATH ) . $raw_path;
-		}
-
-		return isset( $registration->extra['jetpack-inline'] ) && $registration->extra['jetpack-inline'];
+		return apply_filters( 'jetpack_perf_inline_style', $this->should_inline_asset( $wp_styles, $handle ) );
 	}
 
 	private function should_remove_style( $handle ) {
-		if ( ! $this->remove_remote_fonts ) {
-			return false;
-		}
-
 		global $wp_styles;
-
-		// remove all google fonts
-		if ( $registration = $wp_styles->registered[$handle] ) {
-			if ( strncmp( $registration->src, 'https://fonts.googleapis.com', 28 ) === 0 ) {
-				return true;
-			}
-		}
-
-		// by default, remove external Google fonts from default themes
-		$font_handles = array( 'twentyseventeen-fonts', 'twentysixteen-fonts', 'twentyfifteen-fonts', 'twentyfourteen-fonts' );
-		return in_array( $handle, $font_handles );
+		return apply_filters( 'jetpack_perf_remove_style', $this->should_remove_asset( $wp_styles, $handle, $this->styles_to_remove ), $handle );
 	}
 
 	private function get_inline_style_content( $handle ) {
@@ -241,8 +195,48 @@ class Jetpack_Perf_Optimize_Assets {
 			return "/* failed to fetch CSS for " . $handle . " */";
 		}
 
-		// TODO: file_exists
 		return file_get_contents( $file_path );
+	}
+
+	/** shared code **/
+	private function should_inline_asset( $wp_dependencies, $handle ) {
+		if ( ! isset( $wp_dependencies->registered[$handle] ) ) {
+			return false;
+		}
+
+		$registration = $wp_dependencies->registered[$handle];
+
+		// inline anything local, with a src starting with /, or starting with site_url
+		$site_url = site_url();
+
+		$is_local_url = ( strncmp( $registration->src, '/', 1 ) === 0 && strncmp( $registration->src, '//', 2 ) !== 0 )
+			|| strpos( $registration->src, $site_url ) === 0;
+
+		if ( $is_local_url && ! isset( $registration->extra['jetpack-inline'] ) ) {
+			$registration->extra['jetpack-inline'] = true;
+			$registration->extra['jetpack-inline-file'] = untrailingslashit( ABSPATH ) . str_replace( $site_url, '', $registration->src );
+		}
+
+		return isset( $registration->extra['jetpack-inline'] ) && $registration->extra['jetpack-inline'];
+	}
+
+	private function should_remove_asset( $wp_dependencies, $handle, $urls_to_match ) {
+		if ( ! isset( $wp_styles->registered[$handle] ) ) {
+			return false;
+		}
+
+		$registration = $wp_styles->registered[$handle];
+
+		// for now, we just remove scripts that render remote fonts
+		$should_remove = false;
+
+		foreach( $urls_to_match as $url ) {
+			if ( strncmp( $registration->src, $url, strlen( $url ) ) === 0 ) {
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**

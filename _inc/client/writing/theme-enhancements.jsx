@@ -46,6 +46,7 @@ const ThemeEnhancements = moduleSettingsForm(
 				// perf
 				perf_inline_scripts_and_styles: this.props.getOptionValue( 'perf_inline_scripts_and_styles', 'perf' ),
 				perf_inline_on_every_request: this.props.getOptionValue( 'perf_inline_on_every_request', 'perf' ),
+				perf_async_scripts: this.props.getOptionValue( 'perf_async_scripts', 'perf' ),
 				perf_remove_remote_fonts: this.props.getOptionValue( 'perf_remove_remote_fonts', 'perf' ),
 				perf_lazy_images: this.props.getOptionValue( 'perf_lazy_images', 'perf' ),
 			};
@@ -360,6 +361,10 @@ const ThemeEnhancements = moduleSettingsForm(
 									{
 										key: 'perf_inline_on_every_request',
 										label: __( 'Inline scripts and styles on every request, not just first request' )
+									},
+									{
+										key: 'perf_async_scripts',
+										label: __( 'Mark scripts async by default so they don\'t block rendering' )
 									},
 									{
 										key: 'perf_remove_remote_fonts',

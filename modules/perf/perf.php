@@ -34,4 +34,10 @@ class Jetpack_Perf {
 		Jetpack_Perf_Optimize_Assets::instance();
 		Jetpack_Perf_Lazy_Images::instance();
 	}
+
+	static function get_setting( $name ) {
+		// by default, our settings are on
+		$default_value = ( 'inline_on_every_request' === $name ) ? false : true;
+		get_option( "perf_$name", $default_value );
+	}
 }

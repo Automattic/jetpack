@@ -19,7 +19,7 @@ self.addEventListener('activate', function(event) {
     console.log('Service Worker activating.');
 
 	// https://developers.google.com/web/updates/2017/02/navigation-preload
-	if (self.registration.navigationPreload) {
+	if ( self.registration.navigationPreload ) {
 		event.waitUntil( self.registration.navigationPreload.enable() );
 	}
 

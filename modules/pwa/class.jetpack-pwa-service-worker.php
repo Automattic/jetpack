@@ -125,8 +125,10 @@ class Jetpack_PWA_Service_Worker {
 	public function get_service_worker_config() {
 
 		// disable inlining
-		$asset_optimizer = Jetpack_PWA_Optimize_Assets::instance();
-		$asset_optimizer->disable_for_request();
+		if ( class_exists( 'Jetpack_Perf_Optimize_Assets' ) ) {
+			$asset_optimizer = Jetpack_Perf_Optimize_Assets::instance();
+			$asset_optimizer->disable_for_request();
+		}
 
 		// we need to trigger actions for which plugins usually enqueue assets
 		// do_action( 'wp_loaded' );
