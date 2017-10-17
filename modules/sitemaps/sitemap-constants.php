@@ -46,7 +46,7 @@ if ( ! defined( 'JP_NEWS_SITEMAP_MAX_ITEMS' ) ) {
  * @since 4.8.0
  */
 if ( ! defined( 'JP_SITEMAP_BATCH_SIZE' ) ) {
-	define( 'JP_SITEMAP_BATCH_SIZE', 1000 );
+	define( 'JP_SITEMAP_BATCH_SIZE', 50 );
 }
 
 /**
