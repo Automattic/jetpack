@@ -88,6 +88,7 @@ notifications:
        - allendav@automattic.com
        - beau@automattic.com
        - kraft@automattic.com
+       - oscar@automattic.com
        # Encrypted Slack notification address.
        - secure: "WQdTdmYuifSW0hiJGXpQGKystMASC50QvxHlyUL5SM3h5GP8aCgeSsHuXvKPe3dT3Pffhk0dSHBfDtdWFwSHW/upURhg0vs4dm7+nxxvGZiTPzKcuAIjgvCoqWM7teyda/XqFGNSnv+XsT34uoyPhhFgd45T3oS+QQ3aNCruFak="
 
