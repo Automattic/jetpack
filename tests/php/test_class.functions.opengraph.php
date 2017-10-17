@@ -13,7 +13,7 @@ class WP_Test_Functions_OpenGraph extends Jetpack_Attachment_Test_Case {
 	 */
 	public function setUp() {
 		parent::setUp();
-		$this->icon_id = self::_create_upload_object( dirname( __FILE__ ) . '/jetpack-icon.jpg' ); // 150 x 150
+		$this->icon_id = self::_create_upload_object( dirname( __FILE__ ) . '/jetpack-icon.jpg', 0, true ); // 500 x 500
 		require_once JETPACK__PLUGIN_DIR . 'functions.opengraph.php';
 	}
 
@@ -54,15 +54,19 @@ class WP_Test_Functions_OpenGraph extends Jetpack_Attachment_Test_Case {
 		$this->assertEquals( $default_url['src'], $image_url['src'] );
 
 		// Test Valid-sized Jetpack's Site Logo
-		$image_url = jetpack_og_get_image( 128, 128 );
-		$this->assertEquals( jetpack_get_site_logo( 'url' ), $image_url['src'] );
+		$image_url = jetpack_og_get_image( 200, 200 );
+		$image_id = jetpack_get_site_logo( 'id' );
+		$logo = wp_get_attachment_image_src( $image_id, 'full' );
+		$this->assertEquals( $logo[0], $image_url['src'] );
 
 		delete_option( 'site_logo' );
 		update_option( 'site_icon', $this->icon_id );
 
 		// Test Valid-sized core's Site Icon
-		$image_url = jetpack_og_get_image( 128, 128 );
-		$this->assertEquals( get_site_icon_url( 128 ), $image_url['src'] );
+		$image_url = jetpack_og_get_image( 200, 200 );
+		$image_id = get_option( 'site_icon' );
+		$icon = wp_get_attachment_image_src( $image_id, 'full' );
+		$this->assertEquals( $icon[0], $image_url['src'] );
 
 		delete_option( 'site_icon' );
 	}

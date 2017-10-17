@@ -167,13 +167,13 @@ function jetpack_og_tags() {
 	// Get image info and build tags
 	if ( ! post_password_required() ) {
 		$image_info       = jetpack_og_get_image( $image_width, $image_height );
-		$tags['og:image'] = $image_info['src'];
+		$tags['og:image'] = esc_url( $image_info['src'] );
 
 		if ( ! empty( $image_info['width'] ) ) {
-			$tags['og:image:width'] = $image_info['width'];
+			$tags['og:image:width'] = (int) $image_info['width'];
 		}
 		if ( ! empty( $image_info['height'] ) ) {
-			$tags['og:image:height'] = $image_info['height'];
+			$tags['og:image:height'] = (int) $image_info['height'];
 		}
 	}
 
@@ -289,7 +289,7 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 		) );
 	}
 
-	// First fall back, blavatar
+	// First fall back, blavatar.
 	if ( empty( $image ) && function_exists( 'blavatar_domain' ) ) {
 		$blavatar_domain = blavatar_domain( site_url() );
 		if ( blavatar_exists( $blavatar_domain ) ) {
@@ -323,52 +323,43 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 				$img_height = $image_size[2];
 			}
 
-			if (_jetpack_og_get_image_validate_size($img_width, $img_height, $width, $height)) {
+			if ( _jetpack_og_get_image_validate_size( $img_width, $img_height, $width, $height ) ) {
 				$image['src']    = $image_url;
-				$image['width']  = $width;
-				$image['height'] = $height;
+				$image['width']  = $img_width;
+				$image['height'] = $img_height;
 			}
 		}
 	}
 
-	// Second fall back, Site Logo
+	// Second fall back, Site Logo.
 	if ( empty( $image ) && ( function_exists( 'jetpack_has_site_logo' ) && jetpack_has_site_logo() ) ) {
-		$image_dimensions    = jetpack_get_site_logo_dimensions();
-		if ( ! empty( $image_dimensions ) ) {
-			$img_width = $image_dimensions['width'];
-			$img_height = $image_dimensions['height'];
-			if (_jetpack_og_get_image_validate_size($img_width, $img_height, $width, $height)) {
-				$image['src']    = jetpack_get_site_logo( 'url' );
-				$image['width']  = $width;
-				$image['height'] = $height;
-			}
+		$image_id = jetpack_get_site_logo( 'id' );
+		$logo = wp_get_attachment_image_src( $image_id, 'full' );
+		if (
+			isset( $logo[0], $logo[1], $logo[2] )
+			&& ( _jetpack_og_get_image_validate_size( $logo[1], $logo[2], $width, $height ) )
+		) {
+			$image['src']     = $logo[0];
+			$image['width']   = $logo[1];
+			$image['height']  = $logo[2];
 		}
 	}
 
 	// Third fall back, Core Site Icon, if valid in size. Added in WP 4.3.
-	if ( empty( $image ) && ( function_exists( 'has_site_icon') && has_site_icon() ) ) {
-		$img_width  = '';
-		$img_height = '';
-
-		$max_side = max( $width, $height );
-		$image_url = get_site_icon_url( $max_side );
+	if ( empty( $image ) && ( function_exists( 'has_site_icon' ) && has_site_icon() ) ) {
 		$image_id = get_option( 'site_icon' );
-		$image_size = wp_get_attachment_image_src( $image_id, $max_side >= 512
-			? 'full'
-			: array( $max_side, $max_side ) );
-		if ( isset( $image_size[1], $image_size[2] ) ) {
-			$img_width  = $image_size[1];
-			$img_height = $image_size[2];
-		}
-
-		if (_jetpack_og_get_image_validate_size($img_width, $img_height, $width, $height)) {
-			$image['src']     = $image_url;
-			$image['width']   = $width;
-			$image['height']  = $height;
+		$icon = wp_get_attachment_image_src( $image_id, 'full' );
+		if (
+			isset( $icon[0], $icon[1], $icon[2] )
+			&& ( _jetpack_og_get_image_validate_size( $icon[1], $icon[2], $width, $height ) )
+		) {
+			$image['src']     = $icon[0];
+			$image['width']   = $icon[1];
+			$image['height']  = $icon[2];
 		}
 	}
 
-	// Finally fall back, blank image
+	// Final fall back, blank image.
 	if ( empty( $image ) ) {
 		/**
 		 * Filter the default Open Graph Image tag, used when no Image can be found in a post.
@@ -385,22 +376,24 @@ function jetpack_og_get_image( $width = 200, $height = 200, $max_images = 4 ) { 
 
 
 /**
-* Validate the width and height against required width and height
-*
-* @param $width      int  Width of the image
-* @param $height     int  Height of the image
-* @param $req_width  int  Required width to pass validation
-* @param $req_height int  Required height to pass validation
-* @return bool - True if the image passed the required size validation
-*/
-function _jetpack_og_get_image_validate_size($width, $height, $req_width, $req_height) {
-	if (!$width || !$height) {
+ * Validate the width and height against required width and height
+ *
+ * @param int $width      Width of the image.
+ * @param int $height     Height of the image.
+ * @param int $req_width  Required width to pass validation.
+ * @param int $req_height Required height to pass validation.
+ *
+ * @return bool - True if the image passed the required size validation
+ */
+function _jetpack_og_get_image_validate_size( $width, $height, $req_width, $req_height ) {
+	if ( ! $width || ! $height ) {
 		return false;
 	}
 
 	$valid_width = ( $width >= $req_width );
 	$valid_height = ( $height >= $req_height );
 	$is_image_acceptable = $valid_width && $valid_height;
+
 	return $is_image_acceptable;
 }
 
