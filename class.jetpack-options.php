@@ -538,7 +538,6 @@ class Jetpack_Options {
 			'perf_inline_scripts_and_styles',
 			'perf_inline_on_every_request',
 			'perf_remove_remote_fonts',
-			'perf_lazy_images',
 		);
 	}
 

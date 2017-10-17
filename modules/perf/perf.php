@@ -12,7 +12,6 @@
  */
 
 require_once( dirname( __FILE__ ) . '/class.jetpack-perf-optimize-assets.php' );
-require_once( dirname( __FILE__ ) . '/class.jetpack-perf-lazy-images.php' );
 
 class Jetpack_Perf {
 	private static $__instance = null;
@@ -32,7 +31,6 @@ class Jetpack_Perf {
 	private function __construct() {
 		// enable components
 		Jetpack_Perf_Optimize_Assets::instance();
-		Jetpack_Perf_Lazy_Images::instance();
 	}
 
 	static function get_setting( $name ) {

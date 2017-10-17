@@ -47,8 +47,7 @@ const ThemeEnhancements = moduleSettingsForm(
 				perf_inline_scripts_and_styles: this.props.getOptionValue( 'perf_inline_scripts_and_styles', 'perf' ),
 				perf_inline_on_every_request: this.props.getOptionValue( 'perf_inline_on_every_request', 'perf' ),
 				perf_async_scripts: this.props.getOptionValue( 'perf_async_scripts', 'perf' ),
-				perf_remove_remote_fonts: this.props.getOptionValue( 'perf_remove_remote_fonts', 'perf' ),
-				perf_lazy_images: this.props.getOptionValue( 'perf_lazy_images', 'perf' ),
+				perf_remove_remote_fonts: this.props.getOptionValue( 'perf_remove_remote_fonts', 'perf' )
 			};
 		},
 
@@ -122,11 +121,14 @@ const ThemeEnhancements = moduleSettingsForm(
 			const foundInfiniteScroll = this.props.isModuleFound( 'infinite-scroll' ),
 				foundMinileven = this.props.isModuleFound( 'minileven' ),
 				foundPWA = this.props.isModuleFound( 'pwa' ),
-				foundPerf = this.props.isModuleFound( 'perf' );
+				foundPerf = this.props.isModuleFound( 'perf' ),
+				foundLazyImages = this.props.isModuleFound( 'lazy-images' );
 
-			if ( ! foundInfiniteScroll && ! foundMinileven && ! foundPWA && ! foundPerf ) {
+			if ( ! foundInfiniteScroll && ! foundMinileven && ! foundPWA && ! foundPerf && ! foundLazyImages ) {
 				return null;
 			}
+
+			const lazyImagesModule = this.props.getModule( 'lazy-images' );
 
 			return (
 				<SettingsCard
@@ -369,10 +371,6 @@ const ThemeEnhancements = moduleSettingsForm(
 									{
 										key: 'perf_remove_remote_fonts',
 										label: __( 'Improve rendering speed by removing external fonts (may change site appearance)' )
-									},
-									{
-										key: 'perf_lazy_images',
-										label: __( 'Load images just before they scroll into view' )
 									}
 								]
 							} ].map( item => {
@@ -420,6 +418,25 @@ const ThemeEnhancements = moduleSettingsForm(
 								);
 							} )
 						)
+					}
+
+					{ foundLazyImages &&
+						<SettingsGroup
+							hasChild
+							module={ lazyImagesModule }>
+							<ModuleToggle
+								slug="lazy-images"
+								activated={ this.props.getOptionValue( 'lazy-images' ) }
+								toggling={ this.props.isSavingAnyOption( 'lazy-images' ) }
+								toggleModule={ this.props.toggleModuleNow }
+							>
+								<span className="jp-form-toggle-explanation">
+									{
+										lazyImagesModule.description
+									}
+								</span>
+							</ModuleToggle>
+						</SettingsGroup>
 					}
 				</SettingsCard>
 			);

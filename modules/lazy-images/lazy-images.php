@@ -1,10 +1,21 @@
 <?php
+/**
+ * Plugin Name: Lazy Images
+ * Description: Load images just before they scroll into view
+ * Plugin URI: https://github.com/automattic/jetpack
+ * Author: Automattic
+ * Author URI: https://automattic.com
+ * Version: 0.1.0
+ * Text Domain: lazy-images
+ * Domain Path: /languages/
+ * License: GPLv2 or later
+ */
 
 /**
  * Props to batmoo for https://wordpress.org/plugins/lazy-load/
  * https://profiles.wordpress.org/batmoo
  */
-class Jetpack_Perf_Lazy_Images {
+class Jetpack_Lazy_Images {
 	private static $__instance = null;
 	/**
 	 * Singleton implementation
@@ -12,8 +23,8 @@ class Jetpack_Perf_Lazy_Images {
 	 * @return object
 	 */
 	public static function instance() {
-		if ( ! is_a( self::$__instance, 'Jetpack_Perf_Lazy_Images' ) ) {
-			self::$__instance = new Jetpack_Perf_Lazy_Images();
+		if ( ! is_a( self::$__instance, 'Jetpack_Lazy_Images' ) ) {
+			self::$__instance = new Jetpack_Lazy_Images();
 		}
 
 		return self::$__instance;
@@ -23,10 +34,6 @@ class Jetpack_Perf_Lazy_Images {
 	 * Registers actions
 	 */
 	private function __construct() {
-		if ( ! get_option( 'perf_lazy_images' ) ) {
-			return;
-		}
-
 		// modify content
 		add_action( 'wp_head', array( $this, 'setup_filters' ), 9999 ); // we don't really want to modify anything in <head> since it's mostly all metadata
 

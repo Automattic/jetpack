@@ -1472,13 +1472,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'perf',
 			),
-			'perf_lazy_images' => array(
-				'description'       => esc_html__( 'Display notice on page when the browser is offline', 'jetpack' ),
-				'type'              => 'boolean',
-				'default'           => 1,
-				'validate_callback' => __CLASS__ . '::validate_boolean',
-				'jp_group'          => 'perf',
-			),
 
 			// Sharing
 			'sharing_services' => array(

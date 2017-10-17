@@ -80,6 +80,11 @@ function jetpack_get_module_i18n( $key ) {
 				'description' => _x( 'Use LaTeX markup for complex equations and other geekery.', 'Module Description', 'jetpack' ),
 			),
 
+			'lazy-images' => array(
+				'name' => _x( 'Lazy Images', 'Module Name', 'jetpack' ),
+				'description' => _x( 'Improve performance by loading images just before they scroll into view', 'Module Description', 'jetpack' ),
+			),
+
 			'likes' => array(
 				'name' => _x( 'Likes', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Give visitors an easy way to show they appreciate your content.', 'Module Description', 'jetpack' ),
@@ -296,6 +301,7 @@ function jetpack_get_module_i18n_tag( $key ) {
 			//  - modules/custom-css.php
 			//  - modules/gravatar-hovercards.php
 			//  - modules/infinite-scroll.php
+			//  - modules/lazy-images.php
 			//  - modules/minileven.php
 			//  - modules/perf.php
 			//  - modules/photon.php
@@ -312,11 +318,8 @@ function jetpack_get_module_i18n_tag( $key ) {
 			//  - modules/sso.php
 			'Developers' =>_x( 'Developers', 'Module Tag', 'jetpack' ),
 
-			// Modules with `Centralized Management` tag:
-			//  - modules/manage.php
-			'Centralized Management' =>_x( 'Centralized Management', 'Module Tag', 'jetpack' ),
-
 			// Modules with `Recommended` tag:
+			//  - modules/lazy-images.php
 			//  - modules/manage.php
 			//  - modules/minileven.php
 			//  - modules/monitor.php
@@ -330,6 +333,10 @@ function jetpack_get_module_i18n_tag( $key ) {
 			//  - modules/sitemaps.php
 			//  - modules/stats.php
 			'Recommended' =>_x( 'Recommended', 'Module Tag', 'jetpack' ),
+
+			// Modules with `Centralized Management` tag:
+			//  - modules/manage.php
+			'Centralized Management' =>_x( 'Centralized Management', 'Module Tag', 'jetpack' ),
 
 			// Modules with `General` tag:
 			//  - modules/masterbar.php
