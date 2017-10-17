@@ -124,6 +124,8 @@ class A8C_WPCOM_Masterbar {
 		}
 
 		wp_enqueue_script( 'jetpack-accessible-focus', plugins_url( '_inc/accessible-focus.js', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
+		wp_enqueue_script( 'a8c_wpcom_masterbar_tracks_events', plugins_url( 'tracks-events.js', __FILE__ ), array(), JETPACK__VERSION );
+
 		wp_enqueue_script( 'a8c_wpcom_masterbar_overrides', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/masterbar-overrides/masterbar.js' ), array( 'jquery' ), JETPACK__VERSION );
 	}
 
@@ -210,7 +212,7 @@ class A8C_WPCOM_Masterbar {
 				           '</span>' .
 				           '</div>' .
 				           '</div>',
-				'class' => 'menupop',
+				'class' => 'menupop mb-trackable',
 			),
 			'parent' => 'top-secondary',
 		) );
@@ -222,6 +224,9 @@ class A8C_WPCOM_Masterbar {
 			'id'    => 'newdash',
 			'title' => esc_html__( 'Reader', 'jetpack' ),
 			'href'  => '#',
+			'meta'  => array(
+				'class' => 'mb-trackable',
+			)
 		) );
 
 		$wp_admin_bar->add_menu( array(
@@ -344,7 +349,7 @@ class A8C_WPCOM_Masterbar {
 		}
 
 		$avatar = get_avatar( $this->user_email, 32, 'mm', '', array( 'force_display' => true ) );
-		$class  = empty( $avatar ) ? '' : 'with-avatar';
+		$class  = empty( $avatar ) ? 'mb-trackable' : 'with-avatar mb-trackable';
 
 		// Add the 'Me' menu
 		$wp_admin_bar->add_menu( array(
@@ -513,6 +518,9 @@ class A8C_WPCOM_Masterbar {
 			'id' => 'ab-new-post',
 			'href' => $blog_post_page,
 			'title' => '<span>' . esc_html__( 'Write', 'jetpack' ) . '</span>',
+			'meta'  => array(
+				'class' => 'mb-trackable',
+			)
 		) );
 	}
 
@@ -534,7 +542,7 @@ class A8C_WPCOM_Masterbar {
 			'title' => _n( 'My Site', 'My Sites', $this->user_site_count, 'jetpack' ),
 			'href'  => '#',
 			'meta'  => array(
-				'class' => 'my-sites',
+				'class' => 'my-sites mb-trackable',
 			),
 		) );
 
@@ -711,7 +719,7 @@ class A8C_WPCOM_Masterbar {
 			'id'     => 'new-post',
 			'title'  => $posts_title,
 			'meta'   => array(
-				'class' => 'inline-action',
+				'class' => 'inline-action mb-trackable',
 			),
 		) );
 
