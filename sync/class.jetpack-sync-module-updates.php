@@ -69,7 +69,7 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 		 */
 		do_action( 'jetpack_sync_core_update_network', $wp_db_version, $old_wp_db_version, $wp_version );
 	}
-	
+
 	public function update_core( $new_wp_version ) {
 		global $pagenow;
 
@@ -212,5 +212,9 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 			$theme_data['name'] = $theme->name;
 		}
 		return $args;
+	}
+
+	public function reset_data() {
+		delete_option( self::UPDATES_CHECKSUM_OPTION_NAME );
 	}
 }

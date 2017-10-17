@@ -6609,74 +6609,12 @@ p {
 	 *
 	 * It is used in class.jetpack-cli.php to reset options
 	 *
+	 * @since 5.4.0 Logic moved to Jetpack_Options class. Method left in Jetpack class for backwards compat.
+	 *
 	 * @return array of options to delete.
 	 */
 	public static function get_jetpack_options_for_reset() {
-		$jetpack_options            = Jetpack_Options::get_option_names();
-		$jetpack_options_non_compat = Jetpack_Options::get_option_names( 'non_compact' );
-		$jetpack_options_private    = Jetpack_Options::get_option_names( 'private' );
-
-		$all_jp_options = array_merge( $jetpack_options, $jetpack_options_non_compat, $jetpack_options_private );
-
-		// A manual build of the wp options
-		$wp_options = array(
-			'sharing-options',
-			'disabled_likes',
-			'disabled_reblogs',
-			'jetpack_comments_likes_enabled',
-			'wp_mobile_excerpt',
-			'wp_mobile_featured_images',
-			'wp_mobile_app_promos',
-			'stats_options',
-			'stats_dashboard_widget',
-			'safecss_preview_rev',
-			'safecss_rev',
-			'safecss_revision_migrated',
-			'nova_menu_order',
-			'jetpack_portfolio',
-			'jetpack_portfolio_posts_per_page',
-			'jetpack_testimonial',
-			'jetpack_testimonial_posts_per_page',
-			'wp_mobile_custom_css',
-			'sharedaddy_disable_resources',
-			'sharing-options',
-			'sharing-services',
-			'site_icon_temp_data',
-			'featured-content',
-			'site_logo',
-			'jetpack_dismissed_notices',
-		);
-
-		// Flag some Jetpack options as unsafe
-		$unsafe_options = array(
-			'id',                           // (int)    The Client ID/WP.com Blog ID of this site.
-			'master_user',                  // (int)    The local User ID of the user who connected this site to jetpack.wordpress.com.
-			'version',                      // (string) Used during upgrade procedure to auto-activate new modules. version:time
-			'jumpstart',                    // (string) A flag for whether or not to show the Jump Start.  Accepts: new_connection, jumpstart_activated, jetpack_action_taken, jumpstart_dismissed.
-
-			// non_compact
-			'activated',
-
-			// private
-			'register',
-			'blog_token',                  // (string) The Client Secret/Blog Token of this site.
-			'user_token',                  // (string) The User Token of this site. (deprecated)
-			'user_tokens'
-		);
-
-		// Remove the unsafe Jetpack options
-		foreach ( $unsafe_options as $unsafe_option ) {
-			if ( false !== ( $key = array_search( $unsafe_option, $all_jp_options ) ) ) {
-				unset( $all_jp_options[ $key ] );
-			}
-		}
-
-		$options = array(
-			'jp_options' => $all_jp_options,
-			'wp_options' => $wp_options
-		);
-
-		return $options;
+		return Jetpack_Options::get_options_for_reset();
 	}
 
 	/**

@@ -241,7 +241,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		switch ( $action ) {
 			case 'options':
-				$options_to_reset = Jetpack::get_jetpack_options_for_reset();
+				$options_to_reset = Jetpack_Options::get_options_for_reset();
 
 				// Reset the Jetpack options
 				_e( "Resetting Jetpack Options...\n", "jetpack" );
@@ -522,7 +522,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 */
 	public function options( $args, $assoc_args ) {
 		$action = isset( $args[0] ) ? $args[0] : 'list';
-		$safe_to_modify = Jetpack::get_jetpack_options_for_reset();
+		$safe_to_modify = Jetpack_Options::get_options_for_reset();
 
 		// Jumpstart is special
 		array_push( $safe_to_modify, 'jumpstart' );
@@ -943,7 +943,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 			$redirect_uri = admin_url();
 		}
 
-		$request_body = array( 
+		$request_body = array(
 			'jp_version'    => JETPACK__VERSION,
 			'redirect_uri'  => $redirect_uri
 		);
@@ -1013,8 +1013,8 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		if ( is_wp_error( $result ) ) {
 			$this->partner_provision_error( $result );
-		} 
-		
+		}
+
 		$response_code = wp_remote_retrieve_response_code( $result );
 		$body_json     = json_decode( wp_remote_retrieve_body( $result ) );
 

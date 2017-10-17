@@ -388,6 +388,8 @@ class Jetpack_Options {
 	/**
 	 * Gets an option via $wpdb query.
 	 *
+	 * @since 5.4.0
+	 *
 	 * @param string $name Option name.
 	 * @param mixed $default Default option value if option is not found.
 	 *
@@ -435,5 +437,145 @@ class Jetpack_Options {
 		 */
 		$disabled_raw_options = apply_filters( 'jetpack_disabled_raw_options', array() );
 		return isset( $disabled_raw_options[ $name ] );
+	}
+	
+	/**
+	 * Gets all known options that are used by Jetpack and managed by Jetpack_Options.
+	 *
+	 * @since 5.4.0
+	 *
+	 * @param boolean $strip_unsafe_options If true, and by default, will strip out options necessary for the connection to WordPress.com.
+	 * @return array An array of all options managed via the Jetpack_Options class.
+	 */
+	static function get_all_jetpack_options( $strip_unsafe_options = true ) {
+		$jetpack_options            = self::get_option_names();
+		$jetpack_options_non_compat = self::get_option_names( 'non_compact' );
+		$jetpack_options_private    = self::get_option_names( 'private' );
+
+		$all_jp_options = array_merge( $jetpack_options, $jetpack_options_non_compat, $jetpack_options_private );
+
+		if ( $strip_unsafe_options ) {
+			// Flag some Jetpack options as unsafe
+			$unsafe_options = array(
+				'id',                           // (int)    The Client ID/WP.com Blog ID of this site.
+				'master_user',                  // (int)    The local User ID of the user who connected this site to jetpack.wordpress.com.
+				'version',                      // (string) Used during upgrade procedure to auto-activate new modules. version:time
+				'jumpstart',                    // (string) A flag for whether or not to show the Jump Start.  Accepts: new_connection, jumpstart_activated, jetpack_action_taken, jumpstart_dismissed.
+
+				// non_compact
+				'activated',
+
+				// private
+				'register',
+				'blog_token',                  // (string) The Client Secret/Blog Token of this site.
+				'user_token',                  // (string) The User Token of this site. (deprecated)
+				'user_tokens'
+			);
+
+			// Remove the unsafe Jetpack options
+			foreach ( $unsafe_options as $unsafe_option ) {
+				if ( false !== ( $key = array_search( $unsafe_option, $all_jp_options ) ) ) {
+					unset( $all_jp_options[ $key ] );
+				}
+			}
+		}
+
+		return $all_jp_options;
+	}
+
+	/**
+	 * Get all options that are not managed by the Jetpack_Options class that are used by Jetpack.
+	 *
+	 * @since 5.4.0
+	 *
+	 * @return array
+	 */
+	static function get_all_wp_options() {
+		// A manual build of the wp options
+		return array(
+			'sharing-options',
+			'disabled_likes',
+			'disabled_reblogs',
+			'jetpack_comments_likes_enabled',
+			'wp_mobile_excerpt',
+			'wp_mobile_featured_images',
+			'wp_mobile_app_promos',
+			'stats_options',
+			'stats_dashboard_widget',
+			'safecss_preview_rev',
+			'safecss_rev',
+			'safecss_revision_migrated',
+			'nova_menu_order',
+			'jetpack_portfolio',
+			'jetpack_portfolio_posts_per_page',
+			'jetpack_testimonial',
+			'jetpack_testimonial_posts_per_page',
+			'wp_mobile_custom_css',
+			'sharedaddy_disable_resources',
+			'sharing-options',
+			'sharing-services',
+			'site_icon_temp_data',
+			'featured-content',
+			'site_logo',
+			'jetpack_dismissed_notices',
+			'jetpack-twitter-cards-site-tag',
+			'jetpack-sitemap-state',
+			'jetpack_sitemap_post_types',
+			'jetpack_sitemap_location',
+			'jetpack_protect_key',
+			'jetpack_protect_blocked_attempts',
+			'jetpack_protect_activating',
+			'jetpack_connection_banner_ab',
+			'jetpack_active_plan',
+			'jetpack_activation_source',
+			'jetpack_sso_match_by_email',
+			'jetpack_sso_require_two_step',
+			'jetpack_sso_remove_login_form',
+			'jetpack_last_connect_url_check',
+		);
+	}
+
+	/**
+	 * Gets all options that can be safely reset by CLI.
+	 *
+	 * @since 5.4.0
+	 *
+	 * @return array array Associative array containing jp_options which are managed by the Jetpack_Options class and wp_options which are not.
+	 */
+	static function get_options_for_reset() {
+		$all_jp_options = self::get_all_jetpack_options();
+
+		$wp_options = self::get_all_wp_options();
+
+		$options = array(
+			'jp_options' => $all_jp_options,
+			'wp_options' => $wp_options
+		);
+
+		return $options;
+	}
+
+	/**
+	 * Delete all known options
+	 *
+	 * @since 5.4.0
+	 *
+	 * @return void
+	 */
+	static function delete_all_known_options() {
+		// Delete all compact options
+		foreach ( (array) self::$grouped_options as $option_name ) {
+			delete_option( $option_name );
+		}
+
+		// Delete all non-compact Jetpack options
+		foreach ( (array) self::get_option_names( 'non-compact' ) as $option_name ) {
+			Jetpack_Options::delete_option( $option_name );
+		}
+
+		// Delete all options that can be reset via CLI, that aren't Jetpack options
+		foreach ( (array) self::get_all_wp_options() as $option_name ) {
+			delete_option( $option_name );
+		}
 	}
 }
