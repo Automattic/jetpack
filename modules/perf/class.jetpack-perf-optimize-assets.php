@@ -12,8 +12,6 @@ class Jetpack_Perf_Optimize_Assets {
 	private $remove_remote_fonts = false;
 	private $inline_scripts_and_styles = false;
 	private $async_scripts = false;
-	private $scripts_to_remove;
-	private $styles_to_remove;
 
 	/**
 	 * Singleton implementation
@@ -37,19 +35,17 @@ class Jetpack_Perf_Optimize_Assets {
 	 * Registers actions
 	 */
 	private function __construct() {
+		$this->is_first_load             = ! isset( $_COOKIE['jetpack_perf_loaded'] );
 		$this->scripts_to_remove         = array();
 		$this->styles_to_remove          = array();
 		$this->remove_remote_fonts       = get_option( 'perf_remove_remote_fonts' );
-		$this->inline_scripts_and_styles = get_option( 'perf_inline_scripts_and_styles' );
 		$this->inline_always             = get_option( 'perf_inline_on_every_request' );
+		$this->inline_scripts_and_styles = get_option( 'perf_inline_scripts_and_styles' ) && ( $this->is_first_load || $this->inline_always );
 		$this->async_scripts             = get_option( 'perf_async_scripts' );
-		$this->is_first_load             = ! isset( $_COOKIE['jetpack_perf_loaded'] );
 
-		// TODO: do these as filters, not some configuration array
 		if ( $this->remove_remote_fonts ) {
-			// defaults
-			$this->scripts_to_remove[] = 'http://use.typekit.com/';
-			$this->styles_to_remove[] = 'https://fonts.googleapis.com';
+			add_filter( 'jetpack_perf_remove_script', array( $this, 'remove_external_font_scripts' ) );
+			add_filter( 'jetpack_perf_remove_style', array( $this, 'remove_external_font_styles' ) );
 		}
 
 		add_filter( 'script_loader_src', array( $this, 'filter_inline_scripts' ), 10, 2 );
@@ -65,6 +61,17 @@ class Jetpack_Perf_Optimize_Assets {
 		if ( ! isset( $_COOKIE['jetpack_perf_loaded'] ) ) {
 			setcookie( 'jetpack_perf_loaded', '1', time() + YEAR_IN_SECONDS, COOKIEPATH, COOKIE_DOMAIN );
 		}
+	}
+
+	/** FILTERS **/
+	public function remove_external_font_scripts( $should_remove, $handle, $asset_url ) {
+		$font_script_url = 'http://use.typekit.com/';
+		return strncmp( $asset_url, $font_script_url, strlen( $font_script_url ) ) === 0;
+	}
+
+	public function remove_external_font_styles( $should_remove, $handle, $asset_url ) {
+		$font_url = 'https://fonts.googleapis.com';
+		return strncmp( $asset_url, $font_url, strlen( $font_url ) ) === 0;
 	}
 
 	/** SCRIPTS **/
@@ -125,7 +132,7 @@ class Jetpack_Perf_Optimize_Assets {
 
 	private function should_remove_script( $handle ) {
 		global $wp_scripts;
-		return apply_filters( 'jetpack_perf_remove_script', $this->should_remove_asset( $wp_scripts, $handle, $this->scripts_to_remove ), $handle );
+		return $this->should_remove_asset( 'jetpack_perf_remove_script', $wp_scripts, $handle );
 	}
 
 	private function should_inline_script( $handle ) {
@@ -182,7 +189,7 @@ class Jetpack_Perf_Optimize_Assets {
 
 	private function should_remove_style( $handle ) {
 		global $wp_styles;
-		return apply_filters( 'jetpack_perf_remove_style', $this->should_remove_asset( $wp_styles, $handle, $this->styles_to_remove ), $handle );
+		return $this->should_remove_asset( 'jetpack_perf_remove_style', $wp_styles, $handle );
 	}
 
 	private function get_inline_style_content( $handle ) {
@@ -220,23 +227,14 @@ class Jetpack_Perf_Optimize_Assets {
 		return isset( $registration->extra['jetpack-inline'] ) && $registration->extra['jetpack-inline'];
 	}
 
-	private function should_remove_asset( $wp_dependencies, $handle, $urls_to_match ) {
+	private function should_remove_asset( $filter, $wp_dependencies, $handle ) {
 		if ( ! isset( $wp_styles->registered[$handle] ) ) {
 			return false;
 		}
 
 		$registration = $wp_styles->registered[$handle];
 
-		// for now, we just remove scripts that render remote fonts
-		$should_remove = false;
-
-		foreach( $urls_to_match as $url ) {
-			if ( strncmp( $registration->src, $url, strlen( $url ) ) === 0 ) {
-				return true;
-			}
-		}
-
-		return false;
+		return apply_filters( $filter, true, $handle, $registration->src );
 	}
 
 	/**
