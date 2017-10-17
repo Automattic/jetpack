@@ -1008,7 +1008,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 					if ( !current_user_can( 'read_post', $post->ID ) ) {
 						return new WP_Error( 'unauthorized', 'User cannot view post', 403 );
 					}
-				} elseif ( 'trash' === $post->post_status ) {
+				} elseif ( in_array( $post->post_status, array( 'inherit', 'trash' ) ) ) {
 					if ( !current_user_can( 'edit_post', $post->ID ) ) {
 						return new WP_Error( 'unauthorized', 'User cannot view post', 403 );
 					}
