@@ -348,10 +348,14 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $event->args[1], 'nav_menu-1', 'Recent removed widget not found' );
 
 		$this->assertEquals( $event->args[2], $sidebar_name, 'Added sidebar name not found' );
-		// WordPress 4.9 changed Custom Menu for Navigation menu
-		// so we need to get the label from core to assert this comparison
-		// Otherwise, checking againt Navigation Menu works when testing for 4.9 but fails when on 4.8.x
-		$this->assertEquals( $event->args[3], 'Navigation Menu', 'Added widget name not found' );
+
+		// WordPress 4.9 changed the label "Custom Menu" for "Navigation menu"
+		if ( version_compare( $wp_version, '4.9', '>=' ) ) {
+			$this->assertEquals( $event->args[3], 'Navigation Menu', 'Added widget name not found' );
+		}
+		if ( version_compare( $wp_version, '4.9', '<' ) ) {
+			$this->assertEquals( $event->args[3], 'Custom Menu', 'Added widget name not found' );
+		}
 
 		// Moved to inactive
 		$sidebar_widgets  = array(
