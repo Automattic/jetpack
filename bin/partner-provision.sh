@@ -3,10 +3,6 @@
 # accepts: partner client ID and secret key, and some site info
 # executes wp-cli command to provision Jetpack site for given partner
 
-# change to script directory so that wp finds the wordpress install part for this Jetpack instance
-SCRIPT_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd -P)
-cd "$SCRIPT_DIR" || exit
-
 usage () {
     echo "Usage: partner-provision.sh --partner_id=partner_id --partner_secret=partner_secret [--user=wp_user_id] [--plan=plan_name] [--onboarding=1] [--wpcom_user_id=1234] [--url=http://example.com] [--force_connect=1] [--force_register=1]"
 }
@@ -67,7 +63,7 @@ if [ ! -z "$SITE_URL" ]; then
 fi
 
 # silently ensure Jetpack is active
-wp plugin activate jetpack $ADDITIONAL_ARGS >/dev/null 2>&1 --allow-root
+wp plugin activate jetpack "$ADDITIONAL_ARGS" >/dev/null 2>&1 --allow-root
 
 # add extra args if available
 if [ ! -z "$WP_USER" ]; then
@@ -76,15 +72,15 @@ fi
 
 if [ ! -z "$ONBOARDING" ]; then
   ADDITIONAL_ARGS="$ADDITIONAL_ARGS --onboarding=$ONBOARDING"
-fi 
+fi
 
 if [ ! -z "$PLAN_NAME" ]; then
   ADDITIONAL_ARGS="$ADDITIONAL_ARGS --plan=$PLAN_NAME"
-fi 
+fi
 
 if [ ! -z "$WPCOM_USER_ID" ]; then
   ADDITIONAL_ARGS="$ADDITIONAL_ARGS --wpcom_user_id=$WPCOM_USER_ID"
-fi 
+fi
 
 if [ ! -z "$FORCE_REGISTER" ]; then
   ADDITIONAL_ARGS="$ADDITIONAL_ARGS --force_register=$FORCE_REGISTER"
@@ -92,7 +88,7 @@ fi
 
 if [ ! -z "$FORCE_CONNECT" ]; then
   ADDITIONAL_ARGS="$ADDITIONAL_ARGS --force_connect=$FORCE_CONNECT"
-fi 
+fi
 
 # provision the partner plan
-wp jetpack partner_provision "$ACCESS_TOKEN_JSON" $ADDITIONAL_ARGS --allow-root
+wp jetpack partner_provision "$ACCESS_TOKEN_JSON" "$ADDITIONAL_ARGS" --allow-root

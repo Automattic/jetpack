@@ -2,10 +2,6 @@
 
 # cancel a the plan provided for the current site using the given partner keys
 
-# change to script directory so that wp finds the wordpress install part for this Jetpack instance
-SCRIPT_DIR=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd -P)
-cd "$SCRIPT_DIR" || exit
-
 usage () {
     echo "Usage: partner-cancel.sh --partner_id=partner_id --partner_secret=partner_secret [--url=http://example.com]"
 }
@@ -37,7 +33,7 @@ fi
 # default API host that can be overridden
 if [ -z "$JETPACK_START_API_HOST" ]; then
     JETPACK_START_API_HOST='public-api.wordpress.com'
-fi 
+fi
 
 # fetch an access token using our client ID/secret
 ACCESS_TOKEN_JSON=$(curl https://$JETPACK_START_API_HOST/oauth2/token --silent --header "Host: public-api.wordpress.com" -d "grant_type=client_credentials&client_id=$CLIENT_ID&client_secret=$CLIENT_SECRET&scope=jetpack-partner")
@@ -48,7 +44,7 @@ if [ ! -z "$SITE_URL" ]; then
 fi
 
 # silently ensure Jetpack is active
-wp plugin activate jetpack $ADDITIONAL_ARGS >/dev/null 2>&1 --allow-root
+wp plugin activate jetpack "$ADDITIONAL_ARGS" >/dev/null 2>&1 --allow-root
 
 # cancel the partner plan
-wp jetpack partner_cancel "$ACCESS_TOKEN_JSON" $ADDITIONAL_ARGS --allow-root
+wp jetpack partner_cancel "$ACCESS_TOKEN_JSON" "$ADDITIONAL_ARGS" --allow-root
