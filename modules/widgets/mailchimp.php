@@ -2,11 +2,13 @@
 
 if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 
+	if ( ! class_exists( 'MailChimp_Subscriber_Popup' ) ) {
+		include_once JETPACK__PLUGIN_DIR . 'modules/shortcodes/mailchimp.php';
+	}
+
 	//register MailChimp Subscriber Popup widget
 	function jetpack_mailchimp_subscriber_popup_widget_init() {
-		if ( class_exists( 'MailChimp_Subscriber_Popup' ) ) {
-			register_widget( 'Jetpack_MailChimp_Subscriber_Popup_Widget' );
-		}
+		register_widget( 'Jetpack_MailChimp_Subscriber_Popup_Widget' );
 	}
 
 	add_action( 'widgets_init', 'jetpack_mailchimp_subscriber_popup_widget_init' );
@@ -69,7 +71,7 @@ if ( ! class_exists( 'Jetpack_MailChimp_Subscriber_Popup_Widget' ) ) {
 		 */
 		function update( $new_instance, $old_instance ) {
 			$instance         = array();
-			$instance['code'] = wp_kses_post( stripslashes( $new_instance['code'] ) );
+			$instance['code'] = MailChimp_Subscriber_Popup::reversal( $new_instance['code'] );
 
 			return $instance;
 		}
