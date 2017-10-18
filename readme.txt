@@ -127,6 +127,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * SEO Tools: do not output any custom meta tags if another SEO plugin is already active.
 * Sitemaps: wait a minute before to generate sitemaps when the feature is activated, to avoid performance issues.
 * Top Posts Widget: display the default title when it is set to empty.
+* Verification Tools: avoid notices when saving changes on a Multisite network admin page.
 
 = 5.4 =
 
