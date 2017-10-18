@@ -568,4 +568,10 @@ abstract class SAL_Site {
 		$options = get_option( 'options' );
 		return ! empty ( $options['designType'] ) ? $options['designType'] === 'store' : false;
 	}
+
+	function has_pending_automated_transfer() {
+		require_once( WP_CONTENT_DIR . '/lib/automated-transfer/utils.php' );
+
+		return A8C\Automated_Transfer\Utils\has_site_pending_automated_transfer( $this->blog_id );
+	}
 }
