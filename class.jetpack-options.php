@@ -53,6 +53,12 @@ class Jetpack_Options {
 				'migrate_for_idc',             // (bool) True if someone confirms that this site should migrate stats and subscribers from its previous URL
 				'dismissed_connection_banner', // (bool) True if the connection banner has been dismissed
 				'onboarding',                  // (string) Auth token to be used in the onboarding connection flow
+				'pwa_cache_assets',
+				'pwa_web_push',
+				'pwa_show_network_status',
+				'perf_inline_scripts_and_styles',
+				'perf_inline_on_every_request',
+				'perf_remove_remote_fonts',
 			);
 
 		case 'private' :
@@ -438,7 +444,7 @@ class Jetpack_Options {
 		$disabled_raw_options = apply_filters( 'jetpack_disabled_raw_options', array() );
 		return isset( $disabled_raw_options[ $name ] );
 	}
-	
+
 	/**
 	 * Gets all known options that are used by Jetpack and managed by Jetpack_Options.
 	 *
