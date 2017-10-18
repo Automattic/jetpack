@@ -133,6 +133,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Top Posts Widget: display the default title when it is set to empty.
 * Verification Tools: avoid notices when saving changes on a Multisite network admin page.
 * VideoPress: avoid missing file warning in the editor when using an RTL language.
+* Upcoming events Widget: avoid PHP notices on sites using a custom timezone setting.
 
 = 5.4 =
 
