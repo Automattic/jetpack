@@ -111,7 +111,7 @@
     "chai": "^3.5.0",
     "commander": "2.3.0",
     "enzyme": "^3.1.0",
-    "enzyme-adapter-react-16": "^1.0.2",
+    "enzyme-adapter-react-15": "^1.0.2",
     "glob": "^7.1.1",
     "grunt": "^0.4.2",
     "grunt-wp-i18n": "~0.4.6",
