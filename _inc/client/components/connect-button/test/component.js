@@ -29,10 +29,6 @@ describe( 'ConnectButton', () => {
 
 		const wrapper = shallow( <ConnectButton { ...testProps } /> );
 
-		it( 'queries URL to connect', () => {
-			expect( wrapper.find( 'QueryConnectUrl' ) ).to.exist;
-		} );
-
 		it( 'renders a button to connect or link', () => {
 			expect( wrapper.find( 'Button' ) ).to.have.length( 1 );
 		} );
