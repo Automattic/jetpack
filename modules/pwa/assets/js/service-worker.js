@@ -46,12 +46,20 @@ self.addEventListener('fetch', function (evt) {
 		}
         evt.respondWith( fetchAndCache( evt.request, evt ) );
     } else {
-        evt.respondWith( fetch( evt.request ) );
+        evt.respondWith( fetch( evt.request ).catch( function( err ) {
+			console.warn("error fetching without cache: ");
+			console.warn( err );
+		}) );
     }
 });
 
 function isExternalAsset( url ) {
 	return ! site_regex.test( url ) && ! url.match(/^\/[^\/]/);
+}
+
+// check if a response is expired
+function responseShouldUpdate( response ) {
+	return true; // for now, always try to update
 }
 
 function fetchAndCache( request, event ) {
@@ -63,12 +71,28 @@ function fetchAndCache( request, event ) {
 			.then( function( response ) {
 				// only do more work if we don't already have a response
 				if ( response ) {
-					console.warn('got cached response for '+request.url);
+					if ( responseShouldUpdate( response ) ) {
+						// tries to create a special request that checks eTags, last modified etc.
+						var modifiedResourceRequest = getModifiedResourceRequest( request.clone(), response );
+
+						event.waitUntil(
+							// update from site
+							fetch( modifiedResourceRequest )
+								.then( function( networkResponse ) {
+									console.log("revalidated "+modifiedResourceRequest.url);
+
+									if ( 200 === networkResponse.status ) {
+										console.log("storing modified response");
+										cache.put( modifiedResourceRequest, networkResponse );
+									}
+									// TODO - update browser window with new content
+								} )
+						);
+					}
 					return response;
 				}
 
 				if ( event.preloadResponse ) {
-					console.warn('attempting preloadresponse '+request.url);
 					return event.preloadResponse;
 				}
 			} )
@@ -86,19 +110,55 @@ function fetchAndCache( request, event ) {
 					.then( function( networkResponse ) {
 						// put in cache if we're allowed to
 						if ( shouldCacheResponse( request, networkResponse ) ) {
-							console.log('caching response for '+request.url);
 							cache.put( request, networkResponse.clone() );
 						} else {
-							console.log('NOT caching response for '+request.url);
-							console.log( networkResponse );
 							for (var pair of networkResponse.headers.entries()) {
 								console.log(pair[0]+ ': '+ pair[1]);
-								}
+							}
 						}
 						return networkResponse;
 				});
 		});
     });
+}
+
+function getModifiedResourceRequest( request, response ) {
+	// CORS messes with this because it might limit the headers we can send
+	if ( isExternalAsset( request.url ) ) {
+		return request;
+	}
+
+	var checkModifiedHeaders = new Headers();
+	for (var kv of request.headers.entries()) {
+		checkModifiedHeaders.append( kv[0], kv[1] );
+	}
+
+	var updatedHeaders = {};
+	// get eTag from previous response
+	var eTag = response.headers.get( 'ETag' );
+	if ( eTag ) {
+		checkModifiedHeaders.append( 'If-None-Match', eTag );
+	}
+
+	// check last-modified and date headers, only retrieve if changed since
+	var lastModified = response.headers.get( 'Last-Modified' );
+	if ( ! lastModified ) {
+		lastModified = response.headers.get( 'Date' );
+	}
+
+	if ( lastModified ) {
+		checkModifiedHeaders.append( 'If-Modified-Since', lastModified );
+	}
+
+	var newRequest = new Request(
+		request,
+		{
+			headers: checkModifiedHeaders,
+			mode: 'same-origin', // is no-cors by default, which discards cache control headers like If-Modified-Since
+		}
+	);
+
+	return newRequest;
 }
 
 // having this function allows us to shortcut checking the cache,
