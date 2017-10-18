@@ -116,7 +116,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Masterbar: update the "Plugins" menu item to match the updated design on WordPress.com.
 * Sharing: use Google's minified librairies to improve performance when loading Google buttons.
 * Sharing: update Open Graph Image tags appearing on the home page to offer better alternatives based on your site settings in Appearance > Customize.
-* We improve the way sitemaps are built so they do not consume too much memory when they are generated.
+* We improved the way sitemaps are built so they do not consume too much memory when they are generated.
+* Subscriptions: we added a filter so third party developers can track comment subscription activations.
 * Sync: synchronize plugin action links to add that information to WordPress.com.
 * WordPress.com REST API: improve comment management for all roles, including post authors.
 
