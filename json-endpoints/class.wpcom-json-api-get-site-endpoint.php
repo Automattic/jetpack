@@ -121,6 +121,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_domain_only',
 		'is_automated_transfer',
 		'signup_is_store',
+		'has_pending_automated_transfer',
 	);
 
 	protected static $jetpack_response_field_additions = array(
@@ -526,6 +527,14 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 					if ( $signup_is_store ) {
 						$options[ $key ] = $site->signup_is_store();
+					}
+
+					break;
+				case 'has_pending_automated_transfer':
+					$has_pending_automated_transfer = $site->has_pending_automated_transfer();
+
+					if ( $has_pending_automated_transfer ) {
+						$options[ $key ] = true;
 					}
 
 					break;
