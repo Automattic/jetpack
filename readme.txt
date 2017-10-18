@@ -118,7 +118,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Sharing: update Open Graph Image tags appearing on the home page to offer better alternatives based on your site settings in Appearance > Customize.
 * We improve the way sitemaps are built so they do not consume too much memory when they are generated.
 * Sync: synchronize plugin action links to add that information to WordPress.com.
-* WordPress.com REST API: allow post authors to moderate comments on their own posts.
+* WordPress.com REST API: improve comment management for all roles, including post authors.
 
 **Improved compatibility**
 * Top Posts Widget: avoid Fatal Errors when the widget is used on a site using WPML, and when a popular post cannot be found by WPML.
