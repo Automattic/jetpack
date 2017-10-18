@@ -112,6 +112,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 * We have improved the performance when loading the Jetpack Settings in the dashboard, by optimizing the number of calls made when loading the page.
+* We have updated the plugin to do a better job of cleaning up after itself whenever you decide to remove Jetpack from your site.
 * Masterbar: update the "Plugins" menu item to match the updated design on WordPress.com.
 * Sharing: use Google's minified librairies to improve performance when loading Google buttons.
 * Sharing: update Open Graph Image tags appearing on the home page to offer better alternatives based on your site settings in Appearance > Customize.
