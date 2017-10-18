@@ -4,6 +4,7 @@
 ### Misc
 
 - [Always] Try to connect with a brand new site, and also cycle your connections to existing sites.
+- We made some changes to reduce the number of connection issues that may happen on a site when switching from HTTP to HTTPs. To test this, if your site uses HTTPs, make sure you can still interact with your site via WordPress.com (try publishing or editing posts for example), and check to see that things like Related Posts still work on your site.
 
 ### Final Notes
 
