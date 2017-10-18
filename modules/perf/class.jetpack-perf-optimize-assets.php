@@ -12,6 +12,7 @@ class Jetpack_Perf_Optimize_Assets {
 	private $remove_remote_fonts = false;
 	private $inline_scripts_and_styles = false;
 	private $async_scripts = false;
+	private $defer_scripts = false;
 
 	/**
 	 * Singleton implementation
@@ -29,23 +30,28 @@ class Jetpack_Perf_Optimize_Assets {
 	public function disable_for_request() {
 		$this->remove_remote_fonts = false;
 		$this->inline_scripts_and_styles = false;
+		$this->async_scripts = false;
+		$this->defer_scripts = false;
 	}
+
+	/**
+	 * TODO: detect if this is worth doing for wp-admin?
+	 */
 
 	/**
 	 * Registers actions
 	 */
 	private function __construct() {
 		$this->is_first_load             = ! isset( $_COOKIE['jetpack_perf_loaded'] );
-		$this->scripts_to_remove         = array();
-		$this->styles_to_remove          = array();
 		$this->remove_remote_fonts       = get_option( 'perf_remove_remote_fonts' );
 		$this->inline_always             = get_option( 'perf_inline_on_every_request' );
 		$this->inline_scripts_and_styles = get_option( 'perf_inline_scripts_and_styles' ) && ( $this->is_first_load || $this->inline_always );
 		$this->async_scripts             = get_option( 'perf_async_scripts' );
+		$this->defer_scripts             = get_option( 'perf_defer_scripts' );
 
 		if ( $this->remove_remote_fonts ) {
-			add_filter( 'jetpack_perf_remove_script', array( $this, 'remove_external_font_scripts' ) );
-			add_filter( 'jetpack_perf_remove_style', array( $this, 'remove_external_font_styles' ) );
+			add_filter( 'jetpack_perf_remove_script', array( $this, 'remove_external_font_scripts' ), 10, 3 );
+			add_filter( 'jetpack_perf_remove_style', array( $this, 'remove_external_font_styles' ), 10, 3 );
 		}
 
 		add_filter( 'script_loader_src', array( $this, 'filter_inline_scripts' ), 10, 2 );
@@ -76,8 +82,16 @@ class Jetpack_Perf_Optimize_Assets {
 
 	/** SCRIPTS **/
 	public function filter_inline_scripts( $src, $handle ) {
+		global $wp_scripts;
+
+		if ( is_admin() || ! isset( $wp_scripts->registered[$handle] ) ) {
+			return $src;
+		}
+
+		$script = $wp_scripts->registered[$handle];
+
 		// reset src to empty - can't return empty string though because then it skips rendering the tag
-		if ( $this->should_inline_script( $handle ) ) {
+		if ( $this->should_inline_script( $script ) ) {
 			return '#';
 		}
 
@@ -85,81 +99,60 @@ class Jetpack_Perf_Optimize_Assets {
 	}
 
 	public function print_inline_scripts( $tag, $handle, $src ) {
-		if ( $this->should_remove_script( $handle ) ) {
+		global $wp_scripts;
+
+		if ( is_admin() || ! isset( $wp_scripts->registered[$handle] ) ) {
+			return $tag;
+		}
+
+		$script = $wp_scripts->registered[$handle];
+
+		if ( $this->should_remove_script( $script ) ) {
 			return '';
 		}
 
-		if ( $this->should_inline_script( $handle ) ) {
-			$tag = '<script type="text/javascript">' . $this->get_inline_script_content( $handle ) . '</script>';
+		if ( $this->should_inline_script( $script ) ) {
+			$tag = '<script type="text/javascript">' . file_get_contents( $script->extra['jetpack-inline-file'] ) . '</script>';
 		}
 
-		if ( $this->should_async_script( $handle ) ) {
+		if ( $this->should_async_script( $script ) ) {
 			$tag = preg_replace( '/<script /', '<script async ', $tag );
-		} elseif ( $this->should_defer_script( $handle ) ) {
+		} elseif ( $this->should_defer_script( $script ) ) {
 			$tag = preg_replace( '/<script /', '<script defer ', $tag );
 		}
 
 		return $tag;
 	}
 
-	private function should_async_script( $handle ) {
-		global $wp_scripts;
-
-		if ( ! isset( $wp_scripts->registered[$handle] ) ) {
-			return false;
-		}
-
-		$registration = $wp_scripts->registered[$handle];
-
-		$should_async_script = $this->async_scripts && isset( $registration->extra['jetpack-async'] ) && $registration->extra['jetpack-async'];
-
-		return apply_filters( 'jetpack_perf_async_script', $should_async_script, $handle );
+	private function should_async_script( $script ) {
+		$should_async_script = isset( $script->extra['jetpack-async'] ) && $script->extra['jetpack-async'];
+		return $this->async_scripts && apply_filters( 'jetpack_perf_async_script', $should_async_script, $script->handle, $script->src );
 	}
 
-	private function should_defer_script( $handle ) {
-		global $wp_scripts;
-
-		if ( ! isset( $wp_scripts->registered[$handle] ) ) {
-			return false;
-		}
-
-		$registration = $wp_scripts->registered[$handle];
-
-		$should_async_script = $this->async_scripts && isset( $registration->extra['jetpack-defer'] ) && $registration->extra['jetpack-defer'];
-
-		return apply_filters( 'jetpack_perf_defer_script', $should_async_script, $handle );
+	private function should_defer_script( $script ) {
+		$should_defer_script = isset( $script->extra['jetpack-defer'] ) && $script->extra['jetpack-defer'];
+		return $this->defer_scripts && apply_filters( 'jetpack_perf_defer_script', $should_defer_script, $script->handle, $script->src );
 	}
 
-	private function should_remove_script( $handle ) {
-		global $wp_scripts;
-		return $this->should_remove_asset( 'jetpack_perf_remove_script', $wp_scripts, $handle );
+	private function should_remove_script( $script ) {
+		return $this->should_remove_asset( 'jetpack_perf_remove_script', $script );
 	}
 
-	private function should_inline_script( $handle ) {
-		if ( ! $this->inline_scripts_and_styles ) {
-			return false;
-		}
-
-		global $wp_scripts;
-		return apply_filters( 'jetpack_perf_inline_script', $this->should_inline_asset( $wp_scripts, $handle ), $handle );
-	}
-
-	private function get_inline_script_content( $handle ) {
-		global $wp_scripts;
-		$registration = $wp_scripts->registered[$handle];
-
-		if ( isset( $registration->extra['jetpack-inline-file'] ) && file_exists( $registration->extra['jetpack-inline-file'] ) ) {
-			$file_path = $registration->extra['jetpack-inline-file'];
-		} else {
-			return "console.warn('failed to get script contents for " . $handle . "');";
-		}
-
-		return file_get_contents( $file_path );
+	private function should_inline_script( $script ) {
+		return $this->inline_scripts_and_styles && $this->should_inline_asset( 'jetpack_perf_inline_script', $script );
 	}
 
 	/** STYLES **/
 	public function filter_inline_styles( $src, $handle ) {
-		if ( $this->should_inline_style( $handle ) ) {
+		global $wp_styles;
+
+		if ( is_admin() || ! isset( $wp_scripts->registered[$handle] ) ) {
+			return $src;
+		}
+
+		$style = $wp_scripts->registered[$handle];
+
+		if ( $this->should_inline_style( $style ) ) {
 			return '#';
 		}
 
@@ -167,74 +160,54 @@ class Jetpack_Perf_Optimize_Assets {
 	}
 
 	public function print_inline_styles( $tag, $handle, $href, $media ) {
-		if ( $this->should_inline_style( $handle ) ) {
-			return "<style type='text/css' media='$media'>" . $this->get_inline_style_content( $handle ) . '</style>';
+		global $wp_styles;
+
+		if ( is_admin() || ! isset( $wp_scripts->registered[$handle] ) ) {
+			return $tag;
 		}
 
-		if ( $this->should_remove_style( $handle ) ) {
+		$style = $wp_scripts->registered[$handle];
+
+		if ( $this->should_inline_style( $style ) ) {
+			return "<style type='text/css' media='$media'>" . file_get_contents( $style->extra['jetpack-inline-file'] ) . '</style>';
+		}
+
+		if ( $this->should_remove_style( $style ) ) {
 			return '';
 		}
 
 		return $tag;
 	}
 
-	private function should_inline_style( $handle ) {
-		if ( ! $this->inline_scripts_and_styles ) {
-			return false;
-		}
-
-		global $wp_styles;
-		return apply_filters( 'jetpack_perf_inline_style', $this->should_inline_asset( $wp_styles, $handle ) );
+	private function should_inline_style( $style ) {
+		return $this->inline_scripts_and_styles && $this->should_inline_asset( 'jetpack_perf_inline_style', $style );
 	}
 
-	private function should_remove_style( $handle ) {
-		global $wp_styles;
-		return $this->should_remove_asset( 'jetpack_perf_remove_style', $wp_styles, $handle );
-	}
-
-	private function get_inline_style_content( $handle ) {
-		global $wp_styles;
-		$registration = $wp_styles->registered[$handle];
-
-		if ( isset( $registration->extra['jetpack-inline-file'] ) && file_exists( $registration->extra['jetpack-inline-file'] ) ) {
-			$file_path = $registration->extra['jetpack-inline-file'];
-		} else {
-			return "/* failed to fetch CSS for " . $handle . " */";
-		}
-
-		return file_get_contents( $file_path );
+	private function should_remove_style( $style ) {
+		return $this->should_remove_asset( 'jetpack_perf_remove_style', $style );
 	}
 
 	/** shared code **/
-	private function should_inline_asset( $wp_dependencies, $handle ) {
-		if ( ! isset( $wp_dependencies->registered[$handle] ) ) {
-			return false;
-		}
 
-		$registration = $wp_dependencies->registered[$handle];
-
+	private function should_inline_asset( $filter, $dependency ) {
 		// inline anything local, with a src starting with /, or starting with site_url
 		$site_url = site_url();
 
-		$is_local_url = ( strncmp( $registration->src, '/', 1 ) === 0 && strncmp( $registration->src, '//', 2 ) !== 0 )
-			|| strpos( $registration->src, $site_url ) === 0;
+		$is_local_url = ( strncmp( $dependency->src, '/', 1 ) === 0 && strncmp( $dependency->src, '//', 2 ) !== 0 )
+			|| strpos( $dependency->src, $site_url ) === 0;
 
-		if ( $is_local_url && ! isset( $registration->extra['jetpack-inline'] ) ) {
-			$registration->extra['jetpack-inline'] = true;
-			$registration->extra['jetpack-inline-file'] = untrailingslashit( ABSPATH ) . str_replace( $site_url, '', $registration->src );
+		if ( $is_local_url && ! isset( $dependency->extra['jetpack-inline'] ) ) {
+			$dependency->extra['jetpack-inline'] = true;
+			$dependency->extra['jetpack-inline-file'] = untrailingslashit( ABSPATH ) . str_replace( $site_url, '', $dependency->src );
 		}
 
-		return isset( $registration->extra['jetpack-inline'] ) && $registration->extra['jetpack-inline'];
+		$should_inline = isset( $dependency->extra['jetpack-inline'] ) && $dependency->extra['jetpack-inline'];
+
+		return apply_filters( $filter, $should_inline, $dependency->handle, $dependency->src ) && file_exists( $dependency->extra['jetpack-inline-file'] );
 	}
 
-	private function should_remove_asset( $filter, $wp_dependencies, $handle ) {
-		if ( ! isset( $wp_styles->registered[$handle] ) ) {
-			return false;
-		}
-
-		$registration = $wp_styles->registered[$handle];
-
-		return apply_filters( $filter, true, $handle, $registration->src );
+	private function should_remove_asset( $filter, $dependency ) {
+		return apply_filters( $filter, true, $dependency->handle, $dependency->src );
 	}
 
 	/**

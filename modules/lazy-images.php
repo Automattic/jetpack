@@ -10,7 +10,7 @@
  * Auto Activate: No
  * Module Tags: Appearance, Recommended
  * Feature: Appearance
- * Additional Search Queries: mobile, theme, pwa, performance, push
+ * Additional Search Queries: mobile, theme, performance
  */
 
 include dirname( __FILE__ ) . "/lazy-images/lazy-images.php";
