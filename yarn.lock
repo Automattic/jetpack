@@ -11,7 +11,7 @@
 
 "@automattic/dops-components@automattic/dops-components":
   version "0.0.2"
-  resolved "https://codeload.github.com/automattic/dops-components/tar.gz/c2f80512ae85baff922676cd3886006942fb8c58"
+  resolved "https://codeload.github.com/automattic/dops-components/tar.gz/7fb8ec64d369c6373aa1ecf4af261d230de5e4d4"
   dependencies:
     bounding-client-rect "^1.0.5"
     classnames "^2.1.3"
@@ -7278,8 +7278,8 @@ simple-swizzle@^0.2.2:
     is-arrayish "^0.3.1"
 
 sinon-chai@^2.8.0:
-  version "2.13.0"
-  resolved "https://registry.yarnpkg.com/sinon-chai/-/sinon-chai-2.13.0.tgz#b9a42e801c20234bfc2f43b29e6f4f61b60990c4"
+  version "2.14.0"
+  resolved "https://registry.yarnpkg.com/sinon-chai/-/sinon-chai-2.14.0.tgz#da7dd4cc83cd6a260b67cca0f7a9fdae26a1205d"
 
 sinon-qunit@~2.0.0:
   version "2.0.0"
