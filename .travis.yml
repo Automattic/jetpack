@@ -62,7 +62,7 @@ before_script:
     - export PATH="$HOME/.composer/vendor/bin:$PATH"
     - |
         set -e
-        ./tests/install-php-phpunit.sh
+        source ./tests/install-php-phpunit.sh
         set +e
     - nvm install 6
     - nvm use 6
