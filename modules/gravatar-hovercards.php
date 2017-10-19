@@ -239,7 +239,7 @@ function grofiles_hovercards_data_html( $author ) {
 		if ( $user ) {
 			$hash = md5( $user->user_email );
 		}
-	} else {
+	} elseif ( is_email( $author ) ) {
 		$hash = md5( $author );
 	}
 	
