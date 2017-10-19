@@ -83,8 +83,7 @@ class Jetpack_JSON_API_Plugins_Install_Endpoint extends Jetpack_JSON_API_Plugins
 			$this->log[ $plugin ] = (array) $upgrader->skin->get_upgrade_messages();
 		}
 
-		if ( ! $this->bulk && isset( $error ) ) {
-
+		if ( ! $this->bulk && ! empty( $error ) ) {
 			if ( 'download_failed' === $error_code ) {
 				// For backwards compatibility: versions prior to 3.9 would return no_package instead of download_failed.
 				$error_code = 'no_package';
