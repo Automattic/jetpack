@@ -31,8 +31,8 @@ cache:
 
 matrix:
   include:
-  - php: "7.1"
-    env: "SWITCH_TO_PHP=5.3"
+  - php: "7.0"
+    env: "SWITCH_TO_PHP=5.2"
   # - env: WP_TRAVISCI="yarn lint"
   # - env: WP_TRAVISCI="yarn test-client"
   # - env: WP_TRAVISCI="yarn test-gui"
@@ -70,10 +70,9 @@ before_script:
     - mysql -e "set global wait_timeout = 3600;"
 
 script:
-    - |
-        echo Running with the following versions:
-        php -v
-        phpunit -v
+    - echo "Running with the following versions:"
+    - php -v
+    - phpunit -v
     - ./tests/run-travis.sh
 
 sudo: false
