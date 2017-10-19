@@ -72,7 +72,7 @@ before_script:
 script:
     - echo "Running with the following versions:"
     - php -v
-    - phpunit -v
+    - phpunit --version
     - ./tests/run-travis.sh
 
 sudo: false
