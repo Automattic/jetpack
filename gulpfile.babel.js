@@ -527,8 +527,8 @@ gulp.task( 'gutenpack', function() {
 			plugins: [
 				[
 					'transform-react-jsx', {
-					pragma: 'wp.element.createElement'
-				}
+						pragma: 'wp.element.createElement'
+					}
 				]
 			],
 		} ) )

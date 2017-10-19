@@ -198,15 +198,9 @@ jetpack_load_shortcodes();
 /**
  * Load Gutenberg blocks
  *
- * @since 5.4
+ * @since 5.5
  */
 function gutenpack_editor_assets_fold() {
-	wp_enqueue_style(
-		'gutenpack-editor',
-		plugins_url( 'modules/shortcodes/css/gutenpack.css', JETPACK__PLUGIN_FILE ),
-		array( 'wp-edit-blocks' ),
-		JETPACK__VERSION
-	);
 	wp_enqueue_script(
 		'gutenpack',
 		plugins_url( 'shortcodes/js/blocks/index.js', __FILE__ ),
@@ -218,7 +212,7 @@ function gutenpack_editor_assets_fold() {
 /**
  * Maybe load Gutenberg editor assets.
  *
- * @since 5.4
+ * @since 5.5
  *
  * @param object $screen
  */
