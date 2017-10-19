@@ -3,36 +3,41 @@
 # cancel a the plan provided for the current site using the given partner keys
 
 usage () {
-    echo "Usage: partner-cancel.sh --partner_id=partner_id --partner_secret=partner_secret [--url=http://example.com]"
+	echo "Usage: partner-cancel.sh --partner_id=partner_id --partner_secret=partner_secret [--url=http://example.com] [--allow-root]"
 }
 
+GLOBAL_ARGS=""
+
 for i in "$@"; do
-    case $i in
-        -c=* | --partner_id=* )     CLIENT_ID="${i#*=}"
-                                    shift
-                                    ;;
-        -s=* | --partner_secret=* ) CLIENT_SECRET="${i#*=}"
-                                    shift
-                                    ;;
-        -u=* | --url=* )            SITE_URL="${i#*=}"
-                                    shift
-                                    ;;
-        -h | --help )               usage
-                                    exit
-                                    ;;
-        * )                         usage
-                                    exit 1
-    esac
+	case $i in
+		-c=* | --partner_id=* )     CLIENT_ID="${i#*=}"
+			shift
+			;;
+		-s=* | --partner_secret=* ) CLIENT_SECRET="${i#*=}"
+			shift
+			;;
+		-u=* | --url=* )            SITE_URL="${i#*=}"
+			shift
+			;;
+		--allow-root )              GLOBAL_ARGS="--allow-root"
+			shift
+			;;
+		-h | --help )               usage
+			exit
+			;;
+		* )                         usage
+			exit 1
+	esac
 done
 
 if [ "$CLIENT_ID" = "" ] || [ "$CLIENT_SECRET" = "" ]; then
-    usage
-    exit 1
+	usage
+	exit 1
 fi
 
 # default API host that can be overridden
 if [ -z "$JETPACK_START_API_HOST" ]; then
-    JETPACK_START_API_HOST='public-api.wordpress.com'
+	JETPACK_START_API_HOST='public-api.wordpress.com'
 fi
 
 # fetch an access token using our client ID/secret
@@ -40,11 +45,16 @@ ACCESS_TOKEN_JSON=$(curl https://$JETPACK_START_API_HOST/oauth2/token --silent -
 
 # set URL arg for multisite compatibility
 if [ ! -z "$SITE_URL" ]; then
-  ADDITIONAL_ARGS="--url=$SITE_URL"
+	GLOBAL_ARGS=" --url=$SITE_URL"
 fi
 
+# Remove leading whitespace
+GLOBAL_ARGS=$(echo "$GLOBAL_ARGS" | xargs echo)
+
+# Intentionally not quoting $GLOBAL_ARGS below so that words in the string are split
+
 # silently ensure Jetpack is active
-wp plugin activate jetpack "$ADDITIONAL_ARGS" >/dev/null 2>&1 --allow-root
+wp $GLOBAL_ARGS plugin activate jetpack >/dev/null 2>&1
 
 # cancel the partner plan
-wp jetpack partner_cancel "$ACCESS_TOKEN_JSON" "$ADDITIONAL_ARGS" --allow-root
+wp $GLOBAL_ARGS jetpack partner_cancel "$ACCESS_TOKEN_JSON"
