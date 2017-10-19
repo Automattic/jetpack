@@ -522,9 +522,7 @@ function gutenShortcode() {
 }
 
 gulp.task( 'gutenpack', function() {
-	gutenShortcode();
-
-	return gulp.src( '**/*/*block.jsx' )
+	gulp.src( '**/*/*block.jsx' )
 		.pipe( babel( {
 			plugins: [
 				[
@@ -538,6 +536,8 @@ gulp.task( 'gutenpack', function() {
 			util.log( util.colors.red( err ) );
 		} )
 		.pipe( gulp.dest( './' ) );
+
+	gutenShortcode();
 } );
 
 gulp.task( 'gutenpack:watch', function() {
