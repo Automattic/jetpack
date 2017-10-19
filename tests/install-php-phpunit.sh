@@ -29,7 +29,7 @@ fi
 
 export PATH=$HOME/phpunit-bin/:$PATH
 
-if [[ ${SWITCH_TO_PHP:0:3} == "5.2" ]] || [[ ${SWITCH_TO_PHP:0:3} == "5.3" ]]; then
+if [[ ${SWITCH_TO_PHP:0:3} == "5.2" ]]; then
   PHPBREW_BUILT_CHECK=$HOME/.phpbrew/bashrc
 
   # directory to store phpbrew and old phpunit in
@@ -53,13 +53,6 @@ if [[ ${SWITCH_TO_PHP:0:3} == "5.2" ]] || [[ ${SWITCH_TO_PHP:0:3} == "5.3" ]]; t
     tail -F $HOME/.phpbrew/build/php-5.2.17/build.log &
     TAIL_PID=$!
     $HOME/php-utils-bin/phpbrew install --patch ${THIS_DIR}/patches/node.patch --patch ${THIS_DIR}/patches/openssl.patch 5.2 +default +mysql +pdo \
-    +gettext +phar +openssl -- --with-openssl-dir=/usr/include/openssl --enable-spl --with-mysql --with-mysqli=/usr/bin/mysql_config --with-pdo-mysql=/usr
-    kill -TERM $TAIL_PID
-
-    # build PHP5.3
-    tail -F $HOME/.phpbrew/build/php-5.3.29/build.log &
-    TAIL_PID=$!
-    $HOME/php-utils-bin/phpbrew install --patch ${THIS_DIR}/patches/node.patch --patch ${THIS_DIR}/patches/openssl.patch 5.3 +default +mysql +pdo \
     +gettext +phar +openssl -- --with-openssl-dir=/usr/include/openssl --enable-spl --with-mysql --with-mysqli=/usr/bin/mysql_config --with-pdo-mysql=/usr
     kill -TERM $TAIL_PID
 
@@ -115,6 +108,10 @@ if [[ ${SWITCH_TO_PHP:0:3} == "5.2" ]] || [[ ${SWITCH_TO_PHP:0:3} == "5.3" ]]; t
   cd $HOME
   export PHPBREW_RC_ENABLE=1
   source $HOME/.phpbrew/bashrc
+
+  if [[ ${SWITCH_TO_PHP:0:3} == "5.2" ]]; then
+      phpbrew use 5.2.17
+  fi
 fi
 
 cd $ORIG_DIR
