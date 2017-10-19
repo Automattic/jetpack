@@ -31,11 +31,11 @@ cache:
 
 matrix:
   include:
+  - php: "7.1"
+    env: "SWITCH_TO_PHP=5.3"
   # - env: WP_TRAVISCI="yarn lint"
   # - env: WP_TRAVISCI="yarn test-client"
   # - env: WP_TRAVISCI="yarn test-gui"
-  - php: "7.1"
-    env: "SWITCH_TO_PHP=5.3"
   # - php: "5.3"
   #   dist: precise
   # - php: "5.5"
@@ -59,11 +59,11 @@ before_script:
     - phpenv config-rm xdebug.ini
     - export PLUGIN_SLUG=$(basename $(pwd))
     - source ~/.nvm/nvm.sh
-    - export PATH="$HOME/.composer/vendor/bin:$PATH" 
+    - export PATH="$HOME/.composer/vendor/bin:$PATH"
     - |
         set -e
-	./tests/install-php-phpunit.sh
-	set +e
+        ./tests/install-php-phpunit.sh
+        set +e
     - nvm install 6
     - nvm use 6
     - ./tests/prepare-wordpress.sh
