@@ -15,6 +15,7 @@ cache:
   directories:
    - $HOME/.composer/cache/files
    - $HOME/.cache/yarn
+   - $HOME/.phpbrew
 
 # Next we define our matrix of additional build configurations to test against.
 # The versions listed above will automatically create our first configuration,
@@ -30,15 +31,17 @@ cache:
 
 matrix:
   include:
-  - env: WP_TRAVISCI="yarn lint"
-  - env: WP_TRAVISCI="yarn test-client"
-  - env: WP_TRAVISCI="yarn test-gui"
-  - php: "5.3"
-    dist: precise
-  - php: "5.5"
-  - php: "5.6"
   - php: "7.0"
-  - php: "7.1"
+    env: "SWITCH_TO_PHP=5.2"
+  # - env: WP_TRAVISCI="yarn lint"
+  # - env: WP_TRAVISCI="yarn test-client"
+  # - env: WP_TRAVISCI="yarn test-gui"
+  # - php: "5.3"
+  #   dist: precise
+  # - php: "5.5"
+  # - php: "5.6"
+  # - php: "7.0"
+  # - php: "7.1"
 
   allow_failures:
 #  - php: "nightly"
@@ -56,19 +59,20 @@ before_script:
     - phpenv config-rm xdebug.ini
     - export PLUGIN_SLUG=$(basename $(pwd))
     - source ~/.nvm/nvm.sh
-    - export PATH="$HOME/.composer/vendor/bin:$PATH" 
+    - export PATH="$HOME/.composer/vendor/bin:$PATH"
     - |
-        if [[ ${TRAVIS_PHP_VERSION:0:2} == "7." ]]; then 
-            composer global require "phpunit/phpunit=5.7.*" 
-        elif [[ ${TRAVIS_PHP_VERSION:0:3} != "5.2" ]]; then 
-            composer global require "phpunit/phpunit=4.8.*" 
-        fi 
+        set -e
+        source ./tests/install-php-phpunit.sh
+        set +e
     - nvm install 6
     - nvm use 6
     - ./tests/prepare-wordpress.sh
     - mysql -e "set global wait_timeout = 3600;"
 
 script:
+    - echo "Running with the following versions:"
+    - php -v
+    - phpunit --version
     - ./tests/run-travis.sh
 
 sudo: false
