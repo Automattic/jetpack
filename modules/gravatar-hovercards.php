@@ -229,7 +229,7 @@ function grofiles_extra_data() {
 /**
  * Echoes the data from grofiles_hovercards_data() as HTML elements.
  *
- * @param int|string $author User ID or email address
+ * @param int|string|WP_User $author User ID, email address, or a WP_User object
  */
 function grofiles_hovercards_data_html( $author ) {
 	$data = grofiles_hovercards_data( $author );
@@ -241,6 +241,8 @@ function grofiles_hovercards_data_html( $author ) {
 		}
 	} elseif ( is_email( $author ) ) {
 		$hash = md5( $author );
+	} elseif ( is_a( $author, 'WP_User' ) {
+		$hash = md5( $author->user_email );
 	}
 	
 	if ( ! $hash ) {
