@@ -235,7 +235,7 @@ function grofiles_hovercards_data_html( $author ) {
 	$data = grofiles_hovercards_data( $author );
 	if ( is_numeric( $author ) ) {
 		$user = get_userdata( $author );
-		$hash = md5( $user->user_email );
+		$hash = is_object( $user ) ? md5($user->user_email) : md5( $author );
 	} else {
 		$hash = md5( $author );
 	}
