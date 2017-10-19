@@ -1030,13 +1030,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 			// authorize user and enable SSO
 			Jetpack::update_user_token( $user->ID, sprintf( '%s.%d', $body_json->access_token, $user->ID ), true );
 
-			if ( $active_modules = Jetpack_Options::get_option( 'active_modules' ) ) {
-				Jetpack::delete_active_modules();
-				Jetpack::activate_default_modules( 999, 1, $active_modules, false );
-			} else {
-				Jetpack::activate_default_modules( false, false, array(), false );
-			}
-
 			/**
 			 * Auto-enable SSO module for new Jetpack Start connections
 			 *
@@ -1044,8 +1037,15 @@ class Jetpack_CLI extends WP_CLI_Command {
 			 *
 			 * @param bool $enable_sso Whether to enable the SSO module. Default to true.
 			 */
-			if ( apply_filters( 'jetpack_start_enable_sso', true ) ) {
-				Jetpack::activate_module( 'sso', false, false );
+			$other_modules = apply_filters( 'jetpack_start_enable_sso', true )
+				? array( 'sso' )
+				: array();
+
+			if ( $active_modules = Jetpack_Options::get_option( 'active_modules' ) ) {
+				Jetpack::delete_active_modules();
+				Jetpack::activate_default_modules( 999, 1, array_merge( $active_modules, $other_modules ), false );
+			} else {
+				Jetpack::activate_default_modules( false, false, $other_modules, false );
 			}
 		}
 
