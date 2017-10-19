@@ -244,7 +244,6 @@ class Jetpack_JITM {
 		// build our jitm request
 		$path = add_query_arg( array(
 			'external_user_id' => urlencode_deep( $user->ID ),
-			'user_roles'       => urlencode_deep( implode( ',', $user->roles ) ),
 			'query_string'     => urlencode_deep( $query ),
 		), sprintf( '/sites/%d/jitm/%s', $site_id, $message_path ) );
 
