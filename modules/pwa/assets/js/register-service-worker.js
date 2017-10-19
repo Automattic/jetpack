@@ -29,6 +29,11 @@
             // registration failed
             console.log('Registration failed with ' + error);
 		});
+
+		// listen for messages, e.g. when a stale resource has been updated
+		navigator.serviceWorker.addEventListener('message', function( event ) {
+			console.log(event.data.msg, event.data.url);
+		});
 	}
 
 	// enable push - TODO hide behind a setting!

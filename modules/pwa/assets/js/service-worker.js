@@ -1,5 +1,5 @@
 /* jshint esversion: 6 */
-/* global self, caches, console, Promise, Request, pwa_vars_json */
+/* global self, caches, console, Promise, Request, Headers, pwa_vars_json */
 
 var CACHE = 'cache-v1';
 var pwa_vars = pwa_vars_json;
@@ -7,15 +7,20 @@ var admin_regex = new RegExp( pwa_vars.admin_url );
 var site_regex = new RegExp( pwa_vars.site_url );
 
 // On install, cache some resources.
-self.addEventListener('install', function (evt) {
-    console.log('The service worker is being installed.');
+self.addEventListener('install', function( event ) {
+	console.log('The service worker is being installed.');
+
+	// https://developer.mozilla.org/en-US/docs/Web/API/ServiceWorkerGlobalScope/skipWaiting
+	// no need for a waiting worker to wait for a running one to
+	// complete - let's just take over
+	self.skipWaiting();
 
     // Ask the service worker to keep installing until the returning promise
     // resolves.
-    evt.waitUntil( precache() );
+    event.waitUntil( precache() );
 });
 
-self.addEventListener('activate', function(event) {
+self.addEventListener('activate', function( event ) {
     console.log('Service Worker activating.');
 
 	// https://developers.google.com/web/updates/2017/02/navigation-preload
@@ -35,6 +40,9 @@ self.addEventListener('activate', function(event) {
         })
 	);
 
+	// this claims any clients, EVEN ones which were loaded before this service
+	// worker started (as long as they're in scope), so that subsequent requests
+	// go through our fetch listener
     return self.clients.claim();
 });
 
@@ -44,13 +52,8 @@ self.addEventListener('fetch', function (evt) {
 		if ( isExternalAsset( evt.request.url ) ) {
 			evt.request.mode = 'no-cors';
 		}
-        evt.respondWith( fetchAndCache( evt.request, evt ) );
-    } else {
-        evt.respondWith( fetch( evt.request ).catch( function( err ) {
-			console.warn("error fetching without cache: ");
-			console.warn( err );
-		}) );
-    }
+        evt.respondWith( fetchAndCacheAndRevalidate( evt ) );
+	}
 });
 
 function isExternalAsset( url ) {
@@ -59,10 +62,16 @@ function isExternalAsset( url ) {
 
 // check if a response is expired
 function responseShouldUpdate( response ) {
+	var contentTypesNotUpdateRegex = /^(font\/woff2)/;
+	var contentType = response.headers.get('content-type');
+	if ( contentType && contentType.match( contentTypesNotUpdateRegex ) ) {
+		return false;
+	}
 	return true; // for now, always try to update
 }
 
-function fetchAndCache( request, event ) {
+function fetchAndCacheAndRevalidate( event ) {
+	const request = event.request;
     // open cache
     return caches.open(CACHE).then( function( cache ) {
 		// find in cache
@@ -79,11 +88,11 @@ function fetchAndCache( request, event ) {
 							// update from site
 							fetch( modifiedResourceRequest )
 								.then( function( networkResponse ) {
-									console.log("revalidated "+modifiedResourceRequest.url);
-
 									if ( 200 === networkResponse.status ) {
-										console.log("storing modified response");
 										cache.put( modifiedResourceRequest, networkResponse );
+
+										// notify all clients running the page to update
+										updateAllClients( modifiedResourceRequest.url, networkResponse );
 									}
 									// TODO - update browser window with new content
 								} )
@@ -95,6 +104,8 @@ function fetchAndCache( request, event ) {
 				if ( event.preloadResponse ) {
 					return event.preloadResponse;
 				}
+
+				return false;
 			} )
 			.then( function( response ) {
 				if ( response ) {
@@ -102,24 +113,49 @@ function fetchAndCache( request, event ) {
 				}
 
 				return fetch( request )
-					.catch( function( err ) {
-						console.warn('failed to fetch '+request.url);
-						console.warn( err );
-						return false;
-					} )
 					.then( function( networkResponse ) {
 						// put in cache if we're allowed to
 						if ( shouldCacheResponse( request, networkResponse ) ) {
 							cache.put( request, networkResponse.clone() );
-						} else {
-							for (var pair of networkResponse.headers.entries()) {
-								console.log(pair[0]+ ': '+ pair[1]);
-							}
 						}
 						return networkResponse;
-				});
-		});
+					})
+					.catch( function( err ) {
+						console.warn('failed to fetch '+request.url);
+						console.warn( err );
+						return err;
+					});
+			})
+			.catch( function( err ) {
+				console.warn('failed to fetch '+request.url);
+				console.warn( err );
+				return err;
+			} );
     });
+}
+
+function updateAllClients( url, response ) {
+	// inject a page and/or resource into any page displaying it
+
+	// for now, just HTML documents!
+
+	self.clients.matchAll({
+		type: 'window'
+	}).then( ( allClients ) => {
+		for (const client of allClients) {
+			const clientUrl = new URL( client.url );
+			const responseUrl = new URL( url );
+
+			if ( clientUrl.pathname === responseUrl.pathname ) {
+				client.focus();
+				client.postMessage({
+					msg: 'Hey I just got a fetch from you!',
+					url: response.url
+				});
+				break;
+			}
+		}
+	} );
 }
 
 function getModifiedResourceRequest( request, response ) {
@@ -133,7 +169,6 @@ function getModifiedResourceRequest( request, response ) {
 		checkModifiedHeaders.append( kv[0], kv[1] );
 	}
 
-	var updatedHeaders = {};
 	// get eTag from previous response
 	var eTag = response.headers.get( 'ETag' );
 	if ( eTag ) {

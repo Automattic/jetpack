@@ -131,20 +131,12 @@ class Jetpack_PWA_Service_Worker {
 		}
 
 		// we need to trigger actions for which plugins usually enqueue assets
-		// do_action( 'wp_loaded' );
 		do_action( 'wp_enqueue_scripts' );
 		Jetpack::init()->implode_frontend_css();
-		// do_action( 'wp_print_styles ');
-		// do_action( 'wp_print_footer_scripts ');
-		// add_action( 'wp_print_styles', array( $this, 'implode_frontend_css' ), -1 ); // Run first
-		// add_action( 'wp_print_footer_scripts', array( $this, 'implode_frontend_css' ), -1 ); // Run first to trigger before `print_late_styles`
 
 		// hackery!
-		// ob_start(); // in case of strange notices and other output
-		// do_action( 'wp_print_styles' );
-		// do_action( 'wp_print_footer_scripts' );
+		ob_start(); // in case of strange notices and other output
 
-		// global $wp_version;
 		$version = 'ver=' . get_bloginfo( 'version' );
 		$asset_urls = array(
 			apply_filters( 'script_loader_src', includes_url( "js/wp-emoji-release.min.js?$version" ), 'concatemoji' )
@@ -177,12 +169,10 @@ class Jetpack_PWA_Service_Worker {
 				$asset_urls[] = $url;
 			}
 		}
-		// ob_end_clean();
+		ob_end_clean();
 
 		// remove falsy values
 		$asset_urls = array_values( array_filter( $asset_urls ) );
-
-		error_log(print_r($asset_urls,1));
 
 		return array(
 			'config' => array(
