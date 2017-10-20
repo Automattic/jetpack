@@ -24,7 +24,7 @@ class Jetpack_Tiled_Gallery {
 	public function core_media_widget_compat( $schema ) {
 		$schema['type'] = array(
 			'type' => 'string',
-			'enum' => array( 'default', 'rectangular', 'square', 'circle', 'columns' ),
+			'enum' => array( 'default', 'rectangular', 'square', 'circle', 'columns', 'slideshow' ),
 			'description' => __( 'Type of gallery.', 'jetpack' ),
 			'default' => 'default',
 		);
