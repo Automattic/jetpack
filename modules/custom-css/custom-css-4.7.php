@@ -66,7 +66,7 @@ class Jetpack_Custom_CSS_Enhancements {
 		}
 		wp_register_style( 'jetpack-customizer-css',  plugins_url( 'custom-css/css/customizer-control.css', __FILE__ ), $deps, '20140728' );
 		wp_register_script( 'jetpack-codemirror',     plugins_url( 'custom-css/js/codemirror.min.js', __FILE__ ), array(), '3.16', true );
-		$deps = array( 'customize-controls', 'underscore', 'jetpack-codemirror' );
+		$deps = array( 'customize-controls', 'underscore' );
 		if ( ! function_exists( 'wp_enqueue_code_editor' ) ) {
 			// If Core < 4.9
 			$deps[] = 'jetpack-codemirror';
