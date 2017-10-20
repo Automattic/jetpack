@@ -136,6 +136,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Search: make sure module cannot be activated when the site does not use a Plan.
 * SEO Tools: do not output any custom meta tags if another SEO plugin is already active.
 * Sitemaps: wait a minute before to generate sitemaps when the feature is activated, to avoid performance issues.
+* Sync: avoid synchronization issues on Multisite networks using custom domains.
 * Top Posts Widget: display the default title when it is set to empty.
 * Verification Tools: avoid notices when saving changes on a Multisite network admin page.
 * VideoPress: avoid missing file warning in the editor when using an RTL language.
