@@ -39,7 +39,7 @@
 	function addTitle( controlId, title ) {
 		var control = _getControl( controlId );
 		if ( control ) {
-			$( control ).prepend( '<span class="customize-control-title">' + title + '<span>' );
+			control.prepend( '<span class="customize-control-title">' + title + '<span>' );
 		}
 	}
 
@@ -51,7 +51,7 @@
 	function addDesc( controlId, desc ) {
 		var control = _getControl( controlId );
 		if ( control ) {
-			$( control ).append( '<span class="description">' + desc + '<span>' );
+			control.append( '<span class="description">' + desc + '<span>' );
 		}
 	}
 
