@@ -61,7 +61,7 @@ class Jetpack_Custom_CSS_Enhancements {
 		wp_register_style( 'jetpack-codemirror',      plugins_url( 'custom-css/css/codemirror.css', __FILE__ ), array(), '20120905' );
 		$deps = array();
 		if ( ! function_exists( 'wp_enqueue_code_editor' ) ) {
-		    // If Core < 4.9
+			// If Core < 4.9
 			$deps[] = 'jetpack-codemirror';
 		}
 		wp_register_style( 'jetpack-customizer-css',  plugins_url( 'custom-css/css/customizer-control.css', __FILE__ ), $deps, '20140728' );
@@ -705,7 +705,7 @@ class Jetpack_Custom_CSS_Enhancements {
 					)
 				) ) );
 			} else {
-                // Core < 4.9 Fallback
+				// Core < 4.9 Fallback
 				$core_custom_css->type = 'jetpackCss';
 			}
 		}
