@@ -8,8 +8,10 @@
 	text-align: left;
 	border-top: 1px solid #ddd;
 	border-bottom: 1px solid #ddd;
+}
+.customize-control-code_editor .CodeMirror {
 	height: 300px;
-	height: calc( 100vh - 244px );
+	height: calc( 100vh - 260px );
 }
 .for-codemirror {
 	width: 98%;
