@@ -129,8 +129,9 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Top Posts Widget: avoid Fatal Errors when the widget is used on a site using WPML, and when a popular post cannot be found by WPML.
 
 **Bug fixes**
-* We now avoid dislaying notices to user roles that cannot benefit or act based on the info in the notices.
-* Maichimp: make sure subscription forms can still be embedded in posts and pages.
+* We now avoid displaying notices to user roles that cannot benefit or act based on the info in the notices.
+* Infinite Scroll: avoid PHP notices when a site customizes galleries thanks to the `post_gallery` filter.
+* Mailchimp: make sure subscription forms can still be embedded in posts and pages.
 * Mailchimp: do not require the use of the shortcodes feature to use the Mailchimp widget.
 * Mailchimp: fix issue where Mailchimp form code could not be added to the Mailchimp widget.
 * Publicize: avoid errors when DOMDocument is not available.
