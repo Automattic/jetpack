@@ -694,7 +694,7 @@ class Jetpack_Custom_CSS_Enhancements {
 
 				require_once( dirname( __FILE__ ) . '/class-jetpack-css-editor-customize-control.php' );
 				$wp_customize->register_control_type( 'Jetpack_CSS_Editor_Customize_Control' );
-				$c = $wp_customize->add_control( new Jetpack_CSS_Editor_Customize_Control( $wp_customize, $core_custom_css->id, array_merge(
+				$wp_customize->add_control( new Jetpack_CSS_Editor_Customize_Control( $wp_customize, $core_custom_css->id, array_merge(
 					get_object_vars( $core_custom_css ),
 					array(
 						'section' => $core_custom_css->section,
