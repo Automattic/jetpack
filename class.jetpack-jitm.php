@@ -190,7 +190,12 @@ class Jetpack_JITM {
 	 * @return bool Always true
 	 */
 	function dismiss( $id, $feature_class ) {
-		// todo: track dismissal of id and feature class?
+		JetpackTracking::record_user_event( 'jitm_dismiss_client', array(
+			'jitm_id' => $id,
+			'feature_class' => $feature_class,
+		) );
+
+
 		$hide_jitm = Jetpack_Options::get_option( 'hide_jitm' );
 		if ( ! is_array( $hide_jitm ) ) {
 			$hide_jitm = array();
