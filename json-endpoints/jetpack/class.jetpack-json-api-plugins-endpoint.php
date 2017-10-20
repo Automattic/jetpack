@@ -226,11 +226,11 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		);
 
 		if ( ! empty( $reasons_can_not_modify_files ) ) {
-			$file_mod_capabilities['reasons_modify_files_disabled'] = $reasons_can_not_modify_files;
+			$file_mod_capabilities['reasons_modify_files_unavailable'] = $reasons_can_not_modify_files;
 		}
 
 		if ( ! $file_mod_capabilities['autoupdate_files'] ) {
-			$file_mod_capabilities['reasons_autoupdate_disabled'] = array_merge( $reasons_can_not_autoupdate, $reasons_can_not_modify_files );
+			$file_mod_capabilities['reasons_autoupdate_unavailable'] = array_merge( $reasons_can_not_autoupdate, $reasons_can_not_modify_files );
 		}
 		return $file_mod_capabilities;
 	}
