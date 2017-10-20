@@ -499,7 +499,7 @@ gulp.task( 'languages:extract', function( done ) {
  * Gutenpack!
  */
 gulp.task( 'gutenpack', function() {
-	gulp.src( '**/*/*block.jsx' )
+	return gulp.src( '**/*/*block.jsx' )
 		.pipe( babel( {
 			plugins: [
 				[
@@ -516,7 +516,7 @@ gulp.task( 'gutenpack', function() {
 } );
 
 gulp.task( 'gutenpack:watch', function() {
-	gulp.watch( [ '**/*/*block.jsx' ], [ 'gutenpack' ] );
+	return gulp.watch( [ '**/*/*block.jsx' ], [ 'gutenpack' ] );
 } );
 
 // Default task
