@@ -50,10 +50,6 @@ registerBlockType( 'jetpack/subscription-form', {
 			// Keep this in sync with server defaults
 			default: false,
 		},
-		subscribersCount: {
-			type: 'number',
-			default: -1,
-		},
 	},
 
 	edit: function( { attributes, setAttributes, focus, setFocus } ) {
@@ -63,21 +59,10 @@ registerBlockType( 'jetpack/subscription-form', {
 			show_subscribers_total,
 			subscribe_button,
 			success_message,
-			subscribersCount,
 		} = attributes;
 
 		const toggleshow_subscribers_total = () =>
 			setAttributes( { show_subscribers_total: ! show_subscribers_total } );
-
-		const getSubscriberCount = () => {
-			const restRootUrl = wp.api.utils.getRootUrl();
-
-			return jQuery.getJSON( `${ restRootUrl }wp-json/jetpack/get_subscriber_count` );
-		};
-
-		if ( subscribersCount === -1 ) {
-			getSubscriberCount().then( data => setAttributes( { subscribersCount: data[ 'value' ] } ) );
-		}
 
 		return [
 			<div key="subscription-form" className="subscription-form">
@@ -99,9 +84,9 @@ registerBlockType( 'jetpack/subscription-form', {
 								/>
 							</div> }
 						{ !! show_subscribers_total &&
-							subscribersCount > 0 &&
+							i18n.subscriberCount > 0 &&
 							<p className="subscription-form__subscribers">
-								{ i18n[ 'Join %s other subscribers' ].replace( '%s', subscribersCount ) }
+								{ i18n[ 'Join %s other subscribers' ] }
 							</p> }
 						<div id="subscribe-email">
 							<label id="jetpack-subscribe-label" className="subscription-form__email-label">

@@ -81,17 +81,6 @@ class Jetpack_Subscriptions {
 		// Gutenberg!
 		add_action( 'init', array( __CLASS__, 'register_block_type' ) );
 		add_action( 'enqueue_block_editor_assets', array( __CLASS__, 'enqueue_block_editor_assets' ) );
-
-		// Add REST API route to get the total number of subscribers.
-		add_action( 'rest_api_init', array( $this, 'rest_api_get_subscriber_count' ) );
-	}
-
-	function rest_api_get_subscriber_count() {
-		register_rest_route( 'jetpack', '/get_subscriber_count', array(
-			'methods' => 'GET',
-			'callback' => array( 'Jetpack_Subscriptions_Widget', 'fetch_subscriber_count' ),
-		) );
-
 	}
 
 	/**
@@ -766,6 +755,8 @@ class Jetpack_Subscriptions {
 	}
 
 	public static function enqueue_block_editor_assets() {
+		$subscriber_count = Jetpack_Subscriptions_Widget::fetch_subscriber_count();
+
 		wp_register_script(
 			'jetpack-block-subscription-form',
 			plugins_url( 'subscriptions/block.js', __FILE__ ),
@@ -781,7 +772,8 @@ class Jetpack_Subscriptions {
 			'Subscribe' => __( 'Subscribe', 'jetpack' ),
 			"Success! An email was just sent to confirm your subscription. Please find the email now and click 'Confirm Follow' to start subscribing."
 				=> __( "Success! An email was just sent to confirm your subscription. Please find the email now and click 'Confirm Follow' to start subscribing.", 'jetpack' ),
-			'Join %s other subscribers' => __( 'Join %s other subscribers', 'jetpack' ),
+			'subscriberCount' => $subscriber_count['value'],
+			'Join %s other subscribers' => sprintf( _n( 'Join %s other subscriber', 'Join %s other subscribers', $subscriber_count['value'], 'jetpack' ), number_format_i18n( $subscriber_count['value'] ) ),
 			'Widget title:' => __( 'Widget title:', 'jetpack' ),
 			'Subscription Form settings' => __( 'Subscription Form settings', 'jetpack' ),
 			'Optional text to display to your readers:' => __( 'Optional text to display to your readers:', 'jetpack' ),
