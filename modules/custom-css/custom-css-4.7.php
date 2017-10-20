@@ -702,6 +702,7 @@ class Jetpack_Custom_CSS_Enhancements {
 						'section' => $core_custom_css->section,
 						'code_type' => 'text/css', // @todo Switch to LESS or SCSS upon initialization?
 						'settings' => $core_custom_css->settings['default']->id,
+						'type' => 'jetpackCss',
 					)
 				) ) );
 			} else {
