@@ -130,6 +130,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 * We now avoid displaying notices to user roles that cannot benefit or act based on the info in the notices.
+* Gravatar Hovercards: avoid PHP Notices when the user info is an object.
 * Infinite Scroll: avoid PHP notices when a site customizes galleries thanks to the `post_gallery` filter.
 * Mailchimp: make sure subscription forms can still be embedded in posts and pages.
 * Mailchimp: do not require the use of the shortcodes feature to use the Mailchimp widget.
