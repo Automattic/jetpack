@@ -147,7 +147,6 @@ function updateAllClients( url, response ) {
 			const responseUrl = new URL( url );
 
 			if ( clientUrl.pathname === responseUrl.pathname ) {
-				client.focus();
 				client.postMessage({
 					msg: 'Hey I just got a fetch from you!',
 					url: response.url
@@ -185,13 +184,32 @@ function getModifiedResourceRequest( request, response ) {
 		checkModifiedHeaders.append( 'If-Modified-Since', lastModified );
 	}
 
-	var newRequest = new Request(
-		request,
-		{
-			headers: checkModifiedHeaders,
-			mode: 'same-origin', // is no-cors by default, which discards cache control headers like If-Modified-Since
-		}
-	);
+	var newRequest;
+
+	if ( 'navigate' === request.mode ) {
+		// "full clone" of the request, since it won't let us use a mode=navigate request in the constructor
+		newRequest = new Request(
+			request.url,
+			{
+				method: request.method,
+				headers: checkModifiedHeaders,
+				mode: 'same-origin', // need to set this properly
+				credentials: request.credentials,
+				referrer: request.referrer,
+				redirect: 'manual'
+			}
+		);
+	} else {
+		newRequest = new Request(
+			request,
+			{
+				headers: checkModifiedHeaders,
+				mode: 'same-origin', // is no-cors by default, which discards cache control headers like If-Modified-Since
+			}
+		);
+	}
+
+
 
 	return newRequest;
 }
@@ -227,6 +245,7 @@ function shouldCacheResponse( request, response ) {
 
 	if ( 'opaque' === response.type ) {
 		// shortcut and return true for any opaque response (cross-origin)
+		// since we can't tell what response code it was
 		return true;
 	}
 
@@ -262,12 +281,12 @@ function precache() {
 
 				// prefetch assets
 				return caches.open(CACHE).then( function( cache ) {
-					var localAssets = json.assets.filter( function ( url ) {
+					var localAssets = json.preload.filter( function ( url ) {
 						// starts with site URL or is relative path
 						return ! isExternalAsset( url );
 					} );
 
-					var remoteAssets = json.assets.filter( function ( url ) {
+					var remoteAssets = json.preload.filter( function ( url ) {
 						return isExternalAsset( url );
 					} );
 
