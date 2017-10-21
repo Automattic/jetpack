@@ -130,6 +130,41 @@ class Jetpack_PWA_Service_Worker {
 			$asset_optimizer->disable_for_request();
 		}
 
+		return array(
+			'config' => array(
+				'cache_assets'              => get_option( 'pwa_cache_assets' ),
+				'web_push'                  => get_option( 'pwa_web_push' ),
+				'show_network_status'       => get_option( 'pwa_show_network_status' ),
+				'inline_scripts_and_styles' => Jetpack_Perf::get_setting( 'inline_scripts_and_styles' ),
+				'inline_on_every_request'   => Jetpack_Perf::get_setting( 'inline_on_every_request' ),
+				'remove_remote_fonts'       => Jetpack_Perf::get_setting( 'remove_remote_fonts' ),
+			),
+			'preload' => $this->get_preload_urls()
+		);
+	}
+
+	private function get_preload_urls() {
+		return apply_filters( 'jetpack_pwa_preload_urls',
+			array_merge(
+				$this->get_page_preload_urls(),
+				$this->get_theme_preload_urls()
+			)
+		);
+	}
+
+	/**
+	 * TODO: what pages should be preloaded? What about for performance vs offline?
+	 */
+	private function get_page_preload_urls() {
+		// list of pages to preload
+		return array();
+	}
+
+	/**
+	 * Sheer hackery to figure out which common assets to preload for a theme
+	 */
+	private function get_theme_preload_urls() {
+		// list of theme assets to preload
 		// we need to trigger actions for which plugins usually enqueue assets
 		do_action( 'wp_enqueue_scripts' );
 		Jetpack::init()->implode_frontend_css();
@@ -172,18 +207,6 @@ class Jetpack_PWA_Service_Worker {
 		ob_end_clean();
 
 		// remove falsy values
-		$asset_urls = array_values( array_filter( $asset_urls ) );
-
-		return array(
-			'config' => array(
-				'cache_assets'              => get_option( 'pwa_cache_assets' ),
-				'web_push'                  => get_option( 'pwa_web_push' ),
-				'show_network_status'       => get_option( 'pwa_show_network_status' ),
-				'inline_scripts_and_styles' => Jetpack_Perf::get_setting( 'inline_scripts_and_styles' ),
-				'inline_on_every_request'   => Jetpack_Perf::get_setting( 'inline_on_every_request' ),
-				'remove_remote_fonts'       => Jetpack_Perf::get_setting( 'remove_remote_fonts' ),
-			),
-			'assets' => $asset_urls
-		);
+		return array_values( array_filter( $asset_urls ) );
 	}
 }
