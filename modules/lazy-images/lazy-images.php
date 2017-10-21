@@ -96,10 +96,13 @@ class Jetpack_Lazy_Images {
 	}
 
 	public function register_assets() {
-		wp_register_script( 'jetpack-perf-lazy-images', plugins_url( 'assets/js/lazy-images.js', __FILE__ ), array('jquery'), '1.5' );
+		wp_register_script( 'jetpack-lazy-images', plugins_url( 'assets/js/lazy-images.js', __FILE__ ), array('jquery'), '1.5' );
+		wp_register_script( 'jetpack-intersection-observer-polyfill', plugins_url( 'assets/js/intersection-observer.js', __FILE__ ), array('jquery'), '1.5' );
+		wp_style_add_data( 'jetpack-intersection-observer-polyfill', 'conditional', 'IE' );
 	}
 
 	public function enqueue_assets() {
-		wp_enqueue_script( 'jetpack-perf-lazy-images' );
+		wp_enqueue_script( 'jetpack-lazy-images' );
+		wp_enqueue_script( 'jetpack-intersection-observer-polyfill' );
 	}
 }
