@@ -192,7 +192,7 @@ class Milestone_Widget extends WP_Widget {
 		echo '<span class="date">' . esc_html( date_i18n( get_option( 'date_format' ), $data['milestone'] ) ) . '</span>';
 		echo '</div>';
 
-		echo '<div class="milestone-message">' . $data['message'] . '</div>';
+		echo $data['message'];
 
 		echo '</div><!--milestone-content-->';
 
@@ -234,7 +234,7 @@ class Milestone_Widget extends WP_Widget {
 		$data['milestone'] = $milestone;
 
 		if ( ( 1 > $diff ) && ( 'until' === $type ) ) {
-			$data['message'] = $instance['message'];
+			$data['message'] = '<div class="milestone-message">' . $instance['message'] . '</div>';
 			$data['refresh'] = 0; // No need to refresh, the milestone has been reached
 		} else {
 			$interval_text = $this->get_interval_in_units( $diff, $data['unit'] );
@@ -380,6 +380,7 @@ class Milestone_Widget extends WP_Widget {
 					break;
 				}
 			}
+			$data['message'] = '<div class="milestone-countdown">' . $data['message'] . '</div>';
 		}
 
 		return $data;

@@ -12,7 +12,7 @@ var Milestone = ( function( $ ) {
 			$.ajax( {
 				url: MilestoneConfig.api_root + 'jetpack/v4/widgets/' + id,
 				success: function( result ) {
-					$widget.find( '.milestone-message' ).html( result.message );
+					$widget.find( '.milestone-countdown' ).replaceWith( result.message );
 					refresh = result.refresh * 1000;
 
 					if ( ! refresh ) {
