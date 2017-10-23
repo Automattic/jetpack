@@ -134,9 +134,11 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 
 		if ( isset( $args['active'] ) && is_bool( $args['active'] ) ) {
 			if ( $args['active'] ) {
+				// We don't have to check for activate_plugins permissions since we assume that the user has those
+				// Since we set them via $needed_capabilities.
 				return $this->activate();
 			} else {
-				if( $this->current_user_can( 'deactivate_plugins' ) ) {
+				if ( $this->current_user_can( 'deactivate_plugins' ) ) {
 					return $this->deactivate();
 				} else {
 					return new WP_Error( 'unauthorized_error', __( 'Plugin deactivation is not allowed', 'jetpack' ), '403' );
@@ -183,7 +185,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 		$permission_error = false;
 		foreach ( $this->plugins as $plugin ) {
 
-			if ( ! $this->single_plugin_current_user_can( 'activate_plugin', $plugin ) ) {
+			if ( ! $this->current_user_can( 'activate_plugin', $plugin ) ) {
 				$this->log[$plugin]['error'] = __( 'Sorry, you are not allowed to activate this plugin.' );
 				$has_errors                  = true;
 				$permission_error            = true;
@@ -226,7 +228,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 		if ( ! $this->bulk && isset( $has_errors )  ) {
 			$plugin = $this->plugins[0];
 			if ( $permission_error ) {
-				return new WP_Error( 'unauthorized_error', $this->log[ $plugin ]['error'], 404 );
+				return new WP_Error( 'unauthorized_error', $this->log[ $plugin ]['error'], 403 );
 			}
 			return new WP_Error( 'activation_error', $this->log[ $plugin ]['error'] );
 		}
@@ -240,22 +242,22 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 			}
 			return current_user_can( $capability );
 		}
-		// Assume that the user has the capability...
-		return true;
+		// Assume that the user has the activate plugins capability.
+		return current_user_can( 'activate_plugins' );
 
 	}
 
 	protected function deactivate() {
 		$permission_error = false;
 		foreach ( $this->plugins as $plugin ) {
-			if ( ! Jetpack::is_plugin_active( $plugin ) ) {
-				$error = $this->log[ $plugin ]['error'] = __( 'The Plugin is already deactivated.', 'jetpack' );
-				continue;
-			}
-
 			if ( ! $this->current_user_can('deactivate_plugin', $plugin ) ) {
 				$error = $this->log[ $plugin ]['error'] = __( 'Sorry, you are not allowed to deactivate this plugin.', 'jetpack' );
 				$permission_error = true;
+				continue;
+			}
+
+			if ( ! Jetpack::is_plugin_active( $plugin ) ) {
+				$error = $this->log[ $plugin ]['error'] = __( 'The Plugin is already deactivated.', 'jetpack' );
 				continue;
 			}
 
