@@ -221,6 +221,10 @@ class Jetpack_Sync_Defaults {
 		'secupress_log_action',
 		'snitch',
 		'wp_automatic',
+		'dn_wp_yt_log',
+		'wpephpcompat_jobs',
+		'wprss_feed_item',
+		'sg_optimizer_jobs',
 	);
 
 	static $default_post_checksum_columns = array(
