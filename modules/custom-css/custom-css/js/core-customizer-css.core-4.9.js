@@ -68,25 +68,32 @@
 		return null;
 	}
 
-	var BaseControl = api.CodeEditorControl || api.Control;
+	$('#customize-controls').on( 'change', '#_customize-input-jetpack_css_preprocessors_control', function(){
+		var preprocessor_modes = {
+				default : 'text/css',
+				less    : 'text/x-less',
+				sass    : 'text/x-scss'
+			},
+			curr = $(this).val(),
+			new_mode = 'text/css';
 
-	api.controlConstructor.jetpackCss = BaseControl.extend({
-
-		modes: {
-			'default': 'text/css',
-			'less': 'text/x-less',
-			'sass': 'text/x-scss'
-		},
-
-		/**
-		 * Fires when our control is ready for action. Gets everything set up.
-		 * @return {null}
-		 */
-		ready: function() {
-			console.log( 'hi' );
-			addLabels();
+		if ( 'undefined' !== typeof preprocessor_modes[ curr ] ) {
+			new_mode = preprocessor_modes[ curr ];
 		}
 
+		api.control( 'custom_css' ).deferred.codemirror.done( function( cm ) {
+			cm.setOption( 'mode', new_mode );
+			if ( 'text/css' === new_mode ) {
+				cm.setOption( 'lint', true );
+				cm.setOption( 'gutters', [ 'CodeMirror-lint-markers' ] );
+			} else {
+				cm.setOption( 'lint', false );
+				cm.setOption( 'gutters', [] );
+			}
+		} );
 	});
+
+	// Find the right thing to listen to to call this:
+	// addLabels();
 
 })( this.wp, jQuery, this.wp.customize );
