@@ -26,7 +26,11 @@ $jetpack_seo_conflicting_plugins = array(
 
 foreach( $jetpack_seo_conflicting_plugins as $seo_plugin ) {
 	if ( Jetpack::is_plugin_active( $seo_plugin ) ) {
+		// Disable all custom meta tags that SEO tools manages.
 		add_filter( 'jetpack_disable_seo_tools', '__return_true' );
+
+		// Also disable default meta tags.
+		add_filter( 'jetpack_seo_meta_tags_enabled', '__return_false' );
 		break;
 	}
 }
