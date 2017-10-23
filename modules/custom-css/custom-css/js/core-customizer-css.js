@@ -12,7 +12,6 @@
 		 */
 		ready: function() {
 			this.opts = window._jp_css_settings;
-
 			// add our textarea
 			this.$input = $( '<textarea />', {
 				name: this.setting.id,
