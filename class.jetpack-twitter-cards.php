@@ -38,6 +38,12 @@ class Jetpack_Twitter_Cards {
 		if ( ! is_singular() || ! empty( $og_tags['twitter:card'] ) ) {
 			return $og_tags;
 		}
+		
+		$the_title = get_the_title();
+		if ( ! $the_title ) {
+			$the_title = get_bloginfo( 'name' );
+		}
+		$og_tags['twitter:text:title'] = $the_title;
 
 		/*
 		 * The following tags only apply to single pages.
