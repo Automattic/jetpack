@@ -688,23 +688,20 @@ class Jetpack_Custom_CSS_Enhancements {
 		 * CONTROLS.
 		 */
 
-		// Overwrite the Core Control.
+		// Overwrite or Tweak the Core Control.
 		$core_custom_css = $wp_customize->get_control( 'custom_css' );
 		if ( $core_custom_css ) {
 			if ( $core_custom_css instanceof WP_Customize_Code_Editor_Control ) {
-				$wp_customize->remove_control( $core_custom_css->id );
-
-				require_once( dirname( __FILE__ ) . '/class-jetpack-css-editor-customize-control.php' );
-				$wp_customize->register_control_type( 'Jetpack_CSS_Editor_Customize_Control' );
-				$wp_customize->add_control( new Jetpack_CSS_Editor_Customize_Control( $wp_customize, $core_custom_css->id, array_merge(
-					get_object_vars( $core_custom_css ),
-					array(
-						'section' => $core_custom_css->section,
-						'code_type' => 'text/css', // @todo Switch to LESS or SCSS upon initialization?
-						'settings' => $core_custom_css->settings['default']->id,
-						'type' => 'jetpackCss',
-					)
-				) ) );
+				// In WP 4.9, we let the Core CodeMirror control keep running the show, but hook into it to tweak stuff.
+				$types = array(
+					'default' => 'text/css',
+					'less'    => 'text/x-less',
+					'sass'    => 'text/x-scss',
+				);
+				$preprocessor = $wp_customize->get_setting( 'jetpack_custom_css[preprocessor]' )->value();
+				if ( isset( $types[ $preprocessor ] ) ) {
+					$core_custom_css->code_type = $types[ $preprocessor ];
+				}
 			} else {
 				// Core < 4.9 Fallback
 				$core_custom_css->type = 'jetpackCss';
