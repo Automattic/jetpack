@@ -55,19 +55,19 @@
 		}).appendTo( _getControl( 'custom_css' ) );
 
 		$( '<a />', {
-			id: 'help-link',
-			target: '_blank',
-			href: window._jp_css_settings.cssHelpUrl,
-			text: window._jp_css_settings.l10n.css_help_title
+			id     : 'help-link',
+			target : '_blank',
+			href   : window._jp_css_settings.cssHelpUrl,
+			text   : window._jp_css_settings.l10n.css_help_title
 		}).prependTo( '#css-help-links' );
 
 		// Only show the revisions link if there are revisions
 		if ( window._jp_css_settings.areThereCssRevisions ) {
 			$( '<a />', {
-				id: 'revisions-link',
-				target: '_blank',
-				href: window._jp_css_settings.revisionsUrl,
-				text: window._jp_css_settings.l10n.revisions
+				id     : 'revisions-link',
+				target : '_blank',
+				href   : window._jp_css_settings.revisionsUrl,
+				text   : window._jp_css_settings.l10n.revisions
 			}).prependTo( '#css-help-links' );
 		}
 	});
