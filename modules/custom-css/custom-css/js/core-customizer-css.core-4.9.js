@@ -49,6 +49,11 @@
 			widthControl.find( 'input' ).after( '<span>px</span>' );
 		}
 
+		$( '<div />', {
+			id      : 'css-help-links',
+			'class' : 'css-help'
+		}).appendTo( _getControl( 'custom_css' ) );
+
 		$( '<a />', {
 			id: 'help-link',
 			target: '_blank',
