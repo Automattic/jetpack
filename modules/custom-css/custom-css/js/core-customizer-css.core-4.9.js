@@ -1,34 +1,15 @@
 (function( wp, $, api ){
-
 	/**
-	 * Add some labels that the default checkbox controls don't allow.
-	 * Add CSS Revisions and CSS Help links.
+	 * Helper function to qet a control by ID
+	 * @param  {string} controlId Control ID
+	 * @return {object}           jQuery object of the container
 	 */
-	function addLabels() {
-		addTitle( 'jetpack_css_mode_control', window._jp_css_settings.l10n.mode );
-		addTitle( 'jetpack_mobile_css_control', window._jp_css_settings.l10n.mobile );
-		addDesc( 'wpcom_custom_css_content_width_control', window._jp_css_settings.l10n.contentWidth );
-		var widthControl = _getControl( 'wpcom_custom_css_content_width_control' );
-		if ( widthControl ) {
-			widthControl.find( 'input' ).after( '<span>px</span>' );
+	function _getControl ( controlId ) {
+		var control = api.control.value( controlId );
+		if ( control ) {
+			return control.container;
 		}
-
-		$( '<a />', {
-			id: 'help-link',
-			target: '_blank',
-			href: window._jp_css_settings.cssHelpUrl,
-			text: window._jp_css_settings.l10n.css_help_title
-		}).prependTo( '#css-help-links' );
-
-		// Only show the revisions link if there are revisions
-		if ( window._jp_css_settings.areThereCssRevisions ) {
-			$( '<a />', {
-				id: 'revisions-link',
-				target: '_blank',
-				href: window._jp_css_settings.revisionsUrl,
-				text: window._jp_css_settings.l10n.revisions
-			}).prependTo( '#css-help-links' );
-		}
+		return null;
 	}
 
 	/**
@@ -56,17 +37,35 @@
 	}
 
 	/**
-	 * Helper function to qet a control by ID
-	 * @param  {string} controlId Control ID
-	 * @return {object}           jQuery object of the container
+	 * Add some labels that the default checkbox controls don't allow.
+     * Add CSS Revisions and CSS Help links.
 	 */
-	function _getControl ( controlId ) {
-		var control = api.control.value( controlId );
-		if ( control ) {
-			return control.container;
+	$(document).ready( function(){
+		addTitle( 'jetpack_css_mode_control', window._jp_css_settings.l10n.mode );
+		addTitle( 'jetpack_mobile_css_control', window._jp_css_settings.l10n.mobile );
+		addDesc( 'wpcom_custom_css_content_width_control', window._jp_css_settings.l10n.contentWidth );
+		var widthControl = _getControl( 'wpcom_custom_css_content_width_control' );
+		if ( widthControl ) {
+			widthControl.find( 'input' ).after( '<span>px</span>' );
 		}
-		return null;
-	}
+
+		$( '<a />', {
+			id: 'help-link',
+			target: '_blank',
+			href: window._jp_css_settings.cssHelpUrl,
+			text: window._jp_css_settings.l10n.css_help_title
+		}).prependTo( '#css-help-links' );
+
+		// Only show the revisions link if there are revisions
+		if ( window._jp_css_settings.areThereCssRevisions ) {
+			$( '<a />', {
+				id: 'revisions-link',
+				target: '_blank',
+				href: window._jp_css_settings.revisionsUrl,
+				text: window._jp_css_settings.l10n.revisions
+			}).prependTo( '#css-help-links' );
+		}
+	});
 
 	$('#customize-controls').on( 'change', '#_customize-input-jetpack_css_preprocessors_control', function(){
 		var preprocessor_modes = {
@@ -91,10 +90,6 @@
 				cm.setOption( 'gutters', [] );
 			}
 		} );
-	});
-
-	$(document).ready( function(){
-		addLabels();
 	});
 
 })( this.wp, jQuery, this.wp.customize );
