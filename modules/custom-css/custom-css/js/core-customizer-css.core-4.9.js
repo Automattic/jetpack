@@ -38,7 +38,7 @@
 
 	/**
 	 * Add some labels that the default checkbox controls don't allow.
-     * Add CSS Revisions and CSS Help links.
+	 * Add CSS Revisions and CSS Help links.
 	 */
 	$(document).ready( function(){
 		addTitle( 'jetpack_css_mode_control', window._jp_css_settings.l10n.mode );
