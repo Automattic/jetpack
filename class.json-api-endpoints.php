@@ -664,10 +664,10 @@ abstract class WPCOM_JSON_API_Endpoint {
 			break;
 		case 'file_mod_capabilities':
 			$docs           = array(
-				'reasons_modify_files_disabled' => '(array|string) The reasons why files can\'t be modified',
-				'reasons_autoupdate_disabled'   => '(array|string) The reasons why autoupdates aren\'t allowed',
-				'modify_files'                  => '(boolean) true if files can be modified',
-				'autoupdate_files'              => '(boolean) true if autoupdates are allowed',
+				'reasons_modify_files_unavailable' => '(array) The reasons why files can\'t be modified',
+				'reasons_autoupdate_unavailable'   => '(array) The reasons why autoupdates aren\'t allowed',
+				'modify_files'                     => '(boolean) true if files can be modified',
+				'autoupdate_files'                 => '(boolean) true if autoupdates are allowed',
 			);
 			$return[ $key ] = (array) $this->cast_and_filter( $value, $docs, false, $for_output );
 			break;
