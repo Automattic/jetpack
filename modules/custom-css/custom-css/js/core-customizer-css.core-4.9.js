@@ -93,7 +93,8 @@
 		} );
 	});
 
-	// Find the right thing to listen to to call this:
-	// addLabels();
+	$(document).ready( function(){
+		addLabels();
+	});
 
 })( this.wp, jQuery, this.wp.customize );
