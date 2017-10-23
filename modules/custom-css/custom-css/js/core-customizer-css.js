@@ -1,7 +1,5 @@
 (function( wp, $, api ){
-	var BaseControl = api.CodeEditorControl || api.Control;
-
-	api.controlConstructor.jetpackCss = BaseControl.extend({
+	api.controlConstructor.jetpackCss = api.Control.extend({
 		modes: {
 			'default': 'text/css',
 			'less': 'text/x-less',
@@ -13,14 +11,7 @@
 		 * @return {null}
 		 */
 		ready: function() {
-			api.bind( 'ready', _.bind( this.addLabels, this ) );
-
-			this.opts = window._jp_css_settings; // @todo When api.CodeEditorControl, this could be grabbed from this.params.jetpack_css_settings
-
-			if ( this.extended( api.CodeEditorControl ) ) {
-				api.CodeEditorControl.prototype.ready.call( this );
-				return null;
-			}
+			this.opts = window._jp_css_settings;
 
 			// add our textarea
 			this.$input = $( '<textarea />', {
@@ -43,6 +34,8 @@
 			} else {
 				this.$input.removeClass( 'hidden' );
 			}
+
+			api.bind( 'ready', _.bind( this.addLabels, this ) );
 		},
 		/**
 		 * Set up our CodeMirror instance
