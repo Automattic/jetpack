@@ -126,6 +126,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Sync: synchronize plugin action links to add that information to WordPress.com.
 * WordPress.com REST API: improve comment management for all roles, including post authors.
 * WordPress.com REST API: allow site owners to manage comments on attachment pages from WordPress.com.
+* WordPress.com REST API: improve the response from the API when WordPress' autoupdates are disabled.
 
 **Improved compatibility**
 * Top Posts Widget: avoid Fatal Errors when the widget is used on a site using WPML, and when a popular post cannot be found by WPML.
