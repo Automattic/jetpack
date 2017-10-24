@@ -929,7 +929,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$this->assertResponseStatus( 200, $response );
 		$this->assertResponseData(
 			array(
-				'message' => '<span class="difference">10</span> <span class="label">years to go.</span>'
+				'message' => '<div class="milestone-countdown"><span class="difference">10</span> <span class="label">years to go.</span></div>'
 			),
 			$response
 		);
