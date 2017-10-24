@@ -199,7 +199,7 @@ class Jetpack_Perf_Optimize_Assets {
 
 	/** STYLES **/
 	public function filter_inline_styles( $src, $handle ) {
-		global $wp_styles;
+		global $wp_scripts;
 
 		if ( is_admin() || ! isset( $wp_scripts->registered[$handle] ) ) {
 			return $src;
