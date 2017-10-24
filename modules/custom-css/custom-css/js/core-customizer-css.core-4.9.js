@@ -74,9 +74,9 @@
 		api( 'jetpack_custom_css[preprocessor]', function( preprocessorSetting ) {
 			preprocessorSetting.bind( function( curr ) {
 				var preprocessor_modes = {
-						default : 'text/css',
-						less    : 'text/x-less',
-						sass    : 'text/x-scss'
+						'default' : 'text/css',
+						less      : 'text/x-less',
+						sass      : 'text/x-scss'
 					},
 					new_mode = 'text/css';
 
