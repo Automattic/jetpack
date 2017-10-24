@@ -2178,37 +2178,56 @@ function wp_cache_replace_line($old, $new, $my_file) {
 	}
 
 	$found = false;
-	$lines = file($my_file);
-	foreach( (array)$lines as $line ) {
+	$loaded = false;
+	$c = 0;
+	$lines = array();
+	while( ! $loaded ) {
+		$lines = file( $my_file );
+		if ( ! empty( $lines ) && is_array( $lines ) ) {
+			$loaded = true;
+		} else {
+			$c++;
+			if ( $c > 100 ) {
+				trigger_error( "wp_cache_replace_line: Error  - file $my_file could not be loaded." );
+				return false;
+			}
+		}
+	}
+	foreach( (array) $lines as $line ) {
 		if ( preg_match("/$old/", $line)) {
 			$found = true;
 			break;
 		}
 	}
-	if ($found) {
-		$fd = fopen($my_file, 'w');
-		foreach( (array)$lines as $line ) {
-			if ( !preg_match( "/$old/", $line ) ) {
-				fputs($fd, $line);
+
+	$tmp_file = dirname( $my_file ) . '/' . mt_rand() . '.php';
+	$fd = fopen( $tmp_file, 'w' );
+	if ( ! $fd ) {
+		trigger_error( "wp_cache_replace_line: Error  - could not write to $tmp_file" );
+		return false;
+	}
+	if ( $found ) {
+		foreach( (array) $lines as $line ) {
+			if ( ! preg_match( "/$old/", $line ) ) {
+				fputs( $fd, $line );
 			} elseif ( $new != '' ) {
-				fputs($fd, "$new //Added by WP-Cache Manager\n");
+				fputs( $fd, "$new\n" );
 			}
 		}
-		fclose($fd);
-		return true;
-	}
-	$fd = fopen($my_file, 'w');
-	$done = false;
-	foreach( (array)$lines as $line ) {
-		if ( $done || !preg_match('/^(if\ \(\ \!\ )?define|\$|\?>/', $line) ) {
-			fputs($fd, $line);
-		} else {
-			fputs($fd, "$new //Added by WP-Cache Manager\n");
-			fputs($fd, $line);
-			$done = true;
+	} else {
+		$done = false;
+		foreach( (array) $lines as $line ) {
+			if ( $done || ! preg_match( '/^(if\ \(\ \!\ )?define|\$|\?>/', $line ) ) {
+				fputs($fd, $line);
+			} else {
+				fputs($fd, "$new\n");
+				fputs($fd, $line);
+				$done = true;
+			}
 		}
 	}
-	fclose($fd);
+	fclose( $fd );
+	@rename( $tmp_file, $my_file );
 	return true;
 }
 
