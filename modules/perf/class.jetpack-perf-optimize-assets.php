@@ -310,12 +310,33 @@ class Jetpack_Perf_Optimize_Assets {
 
 		if ( $is_local_url && ! isset( $dependency->extra['jetpack-inline'] ) ) {
 			$dependency->extra['jetpack-inline'] = true;
-			$dependency->extra['jetpack-inline-file'] = untrailingslashit( ABSPATH ) . str_replace( $site_url, '', $dependency->src );
+
+			$path = untrailingslashit( ABSPATH ) . str_replace( $site_url, '', $dependency->src );
+
+			if ( ! file_exists( $path ) ) {
+				$is_windows = strtoupper( substr( php_uname( 's' ), 0, 3 ) ) === 'WIN';
+				$path       = $is_windows
+					? str_replace( '/', '\\', str_replace( $site_url, '', $dependency->src ) )
+					: str_replace( $site_url, '', $dependency->src );
+
+				$glue = $is_windows ? '\\' : '/';
+
+				//var_dump(explode( $glue, untrailingslashit( WP_CONTENT_DIR ) ), explode( $glue, $path ));
+
+				$prefix = explode( $glue, untrailingslashit( WP_CONTENT_DIR ) );
+				$prefix = array_slice( $prefix, 0, array_search( $path[1], $prefix ) - 1 );
+
+				$path = implode( $glue, $prefix ) . $path;
+			}
+
+			$dependency->extra['jetpack-inline-file'] = $path;
 		}
 
 		$should_inline = isset( $dependency->extra['jetpack-inline'] ) && $dependency->extra['jetpack-inline'];
 
-		return apply_filters( $filter, $should_inline, $dependency->handle, $dependency->src ) && file_exists( $dependency->extra['jetpack-inline-file'] );
+		$will_inline = apply_filters( $filter, $should_inline, $dependency->handle, $dependency->src ) && file_exists( $dependency->extra['jetpack-inline-file'] );
+
+		return $will_inline;
 	}
 
 	private function should_remove_asset( $filter, $dependency ) {
