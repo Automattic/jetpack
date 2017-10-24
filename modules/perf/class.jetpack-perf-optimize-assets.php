@@ -194,7 +194,7 @@ class Jetpack_Perf_Optimize_Assets {
 	}
 
 	private function should_inline_script( $script ) {
-		return $this->inline_scripts_and_styles && $this->should_inline_asset( 'jetpack_perf_inline_script', $script );
+		return ( $this->inline_scripts_and_styles || $this->inline_always ) && $this->should_inline_asset( 'jetpack_perf_inline_script', $script );
 	}
 
 	/** STYLES **/
@@ -235,7 +235,7 @@ class Jetpack_Perf_Optimize_Assets {
 	}
 
 	private function should_inline_style( $style ) {
-		return $this->inline_scripts_and_styles && $this->should_inline_asset( 'jetpack_perf_inline_style', $style );
+		return ( $this->inline_scripts_and_styles || $this->inline_always ) && $this->should_inline_asset( 'jetpack_perf_inline_style', $style );
 	}
 
 	private function should_remove_style( $style ) {
