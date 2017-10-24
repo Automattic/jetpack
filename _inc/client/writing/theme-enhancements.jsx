@@ -47,6 +47,8 @@ const ThemeEnhancements = moduleSettingsForm(
 				perf_inline_scripts_and_styles: this.props.getOptionValue( 'perf_inline_scripts_and_styles', 'perf' ),
 				perf_inline_on_every_request: this.props.getOptionValue( 'perf_inline_on_every_request', 'perf' ),
 				perf_async_scripts: this.props.getOptionValue( 'perf_async_scripts', 'perf' ),
+				perf_defer_scripts: this.props.getOptionValue( 'perf_defer_scripts', 'perf' ),
+				perf_defer_inline_scripts: this.props.getOptionValue( 'perf_defer_inline_scripts', 'perf' ),
 				perf_remove_remote_fonts: this.props.getOptionValue( 'perf_remove_remote_fonts', 'perf' )
 			};
 		},
@@ -369,8 +371,16 @@ const ThemeEnhancements = moduleSettingsForm(
 										label: __( 'Mark scripts async by default so they don\'t block rendering' )
 									},
 									{
+										key: 'perf_defer_scripts',
+										label: __('Mark scripts deferred by default so they don\'t block rendering')
+									},
+									{
 										key: 'perf_remove_remote_fonts',
 										label: __( 'Improve rendering speed by removing external fonts (may change site appearance)' )
+									},
+									{
+										key: 'perf_defer_inline_scripts',
+										label: __( 'Improve rendering speed by deferring inline scripts')
 									}
 								]
 							} ].map( item => {

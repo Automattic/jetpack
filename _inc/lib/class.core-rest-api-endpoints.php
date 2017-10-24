@@ -1458,15 +1458,29 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'perf',
 			),
-			'perf_async_scripts' => array(
+			'perf_async_scripts'        => array(
 				'description'       => esc_html__( 'Mark scripts async by default so they don\'t block rendering', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 1,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
 				'jp_group'          => 'perf',
 			),
-			'perf_remove_remote_fonts' => array(
+			'perf_defer_scripts'        => array(
+				'description'       => esc_html__( 'Mark scripts deferred by default so they don\'t block rendering', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 1,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'perf',
+			),
+			'perf_remove_remote_fonts'  => array(
 				'description'       => esc_html__( 'Improve rendering speed by removing external fonts (may change site appearance)', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 1,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'perf',
+			),
+			'perf_defer_inline_scripts' => array(
+				'description'       => esc_html__( 'Improve rendering speed by deferring inline scripts', 'jetpack' ),
 				'type'              => 'boolean',
 				'default'           => 1,
 				'validate_callback' => __CLASS__ . '::validate_boolean',
@@ -1474,7 +1488,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			),
 
 			// Sharing
-			'sharing_services' => array(
+			'sharing_services'          => array(
 				'description'       => esc_html__( 'Enabled Services and those hidden behind a button', 'jetpack' ),
 				'type'              => 'object',
 				'default'           => array(
@@ -1484,7 +1498,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_services',
 				'jp_group'          => 'sharedaddy',
 			),
-			'button_style' => array(
+			'button_style'              => array(
 				'description'       => esc_html__( 'Button Style', 'jetpack' ),
 				'type'              => 'string',
 				'default'           => 'icon',

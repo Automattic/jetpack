@@ -13,6 +13,7 @@ class Jetpack_Perf_Optimize_Assets {
 	private $inline_scripts_and_styles = false;
 	private $async_scripts = false;
 	private $defer_scripts = false;
+	private $defer_inline_scripts = false;
 
 	/**
 	 * Singleton implementation
@@ -32,6 +33,7 @@ class Jetpack_Perf_Optimize_Assets {
 		$this->inline_scripts_and_styles = false;
 		$this->async_scripts = false;
 		$this->defer_scripts = false;
+		$this->defer_inline_scripts = false;
 	}
 
 	/**
@@ -48,6 +50,7 @@ class Jetpack_Perf_Optimize_Assets {
 		$this->inline_scripts_and_styles = get_option( 'perf_inline_scripts_and_styles' ) && ( $this->is_first_load || $this->inline_always );
 		$this->async_scripts             = get_option( 'perf_async_scripts' );
 		$this->defer_scripts             = get_option( 'perf_defer_scripts' );
+		$this->defer_inline_scripts      = get_option( 'perf_defer_inline_scripts' );
 
 		if ( $this->remove_remote_fonts ) {
 			add_filter( 'jetpack_perf_remove_script', array( $this, 'remove_external_font_scripts' ), 10, 3 );
@@ -59,11 +62,47 @@ class Jetpack_Perf_Optimize_Assets {
 		add_filter( 'style_loader_src', array( $this, 'filter_inline_styles' ), 10, 2 );
 		add_filter( 'style_loader_tag', array( $this, 'print_inline_styles' ), 10, 4 );
 
+		if ( $this->defer_inline_scripts ) {
+			add_filter( 'wp_head', array( $this, 'content_start' ), - 1000 );
+			add_filter( 'wp_footer', array( $this, 'content_end' ), 1000 );
+		}
+
 		add_action( 'init', array( $this, 'set_first_load_cookie' ) );
 
 		// remove emoji detection - TODO a setting for this
 		add_action( 'init', array( $this, 'disable_emojis' ) );
 
+	}
+
+	function content_start() {
+		ob_start( array( $this, 'defer_inline_scripts' ) );
+	}
+
+	function content_end() {
+		ob_end_flush();
+	}
+
+	function defer_inline_scripts( $content ) {
+		preg_match_all( '#<script.*?>(.*?)<\/script>#is', $content, $matches, PREG_OFFSET_CAPTURE );
+		$original_length = mb_strlen( $content );
+		$offset          = 0;
+		$counter         = 0;
+		$rewrite         = "";
+		foreach ( $matches[1] as $value ) {
+			if ( ! empty( $value[0] ) && strpos( $value[0], 'CDATA' ) === false ) {
+				$length    = mb_strlen( $matches[0][ $counter ][0] );
+				$script    = base64_encode( $value[0] );
+				$beginning = $matches[0][ $counter ][1];
+				$rewrite   .= mb_substr( $content, $offset, $beginning );
+				$rewrite   .= "<script defer src='data:text/javascript;base64,$script'></script>";
+				$offset    += $beginning + $length;
+				unset( $length, $script, $beginning );
+			}
+			$counter ++;
+		}
+		$rewrite .= mb_substr( $content, $offset, $original_length );
+
+		return $rewrite;
 	}
 
 	/** Disabling Emojis **/
@@ -181,7 +220,8 @@ class Jetpack_Perf_Optimize_Assets {
 
 	private function should_async_script( $script ) {
 		$should_async_script = isset( $script->extra['jetpack-async'] ) && $script->extra['jetpack-async'];
-		return $this->async_scripts && apply_filters( 'jetpack_perf_async_script', $should_async_script, $script->handle, $script->src );
+
+		return $this->async_scripts && apply_filters( 'jetpack_perf_async_script', ! $should_async_script, $script->handle, $script->src );
 	}
 
 	private function should_defer_script( $script ) {
