@@ -87,8 +87,8 @@
 				api.control( 'custom_css' ).deferred.codemirror.done( function ( cm ) {
 					cm.setOption( 'mode', new_mode );
 					if ( 'text/css' === new_mode ) {
-						cm.setOption( 'lint', true );
 						cm.setOption( 'gutters', [ 'CodeMirror-lint-markers' ] );
+						cm.setOption( 'lint', true );
 					} else {
 						cm.setOption( 'lint', false );
 						cm.setOption( 'gutters', [] );
