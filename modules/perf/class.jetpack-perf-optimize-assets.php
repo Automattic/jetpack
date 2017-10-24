@@ -57,10 +57,10 @@ class Jetpack_Perf_Optimize_Assets {
 			add_filter( 'jetpack_perf_remove_style', array( $this, 'remove_external_font_styles' ), 10, 3 );
 		}
 
-		add_filter( 'script_loader_src', array( $this, 'filter_inline_scripts' ), 10, 2 );
-		add_filter( 'script_loader_tag', array( $this, 'print_inline_scripts' ), 10, 3 );
-		add_filter( 'style_loader_src', array( $this, 'filter_inline_styles' ), 10, 2 );
-		add_filter( 'style_loader_tag', array( $this, 'print_inline_styles' ), 10, 4 );
+		add_filter( 'script_loader_src', array( $this, 'filter_inline_scripts' ), - 100, 2 );
+		add_filter( 'script_loader_tag', array( $this, 'print_inline_scripts' ), - 100, 3 );
+		add_filter( 'style_loader_src', array( $this, 'filter_inline_styles' ), - 100, 2 );
+		add_filter( 'style_loader_tag', array( $this, 'print_inline_styles' ), - 100, 4 );
 
 		if ( $this->defer_inline_scripts ) {
 			add_filter( 'wp_head', array( $this, 'content_start' ), - 1000 );
