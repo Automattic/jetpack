@@ -262,7 +262,7 @@ class Jetpack_Perf_Optimize_Assets {
 	}
 
 	private function should_remove_asset( $filter, $dependency ) {
-		return apply_filters( $filter, true, $dependency->handle, $dependency->src );
+		return apply_filters( $filter, false, $dependency->handle, $dependency->src );
 	}
 
 	/**
