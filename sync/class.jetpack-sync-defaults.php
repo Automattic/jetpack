@@ -210,22 +210,22 @@ class Jetpack_Sync_Defaults {
 
 	static $blacklisted_post_types = array(
 		'ai1ec_event',
-		'snitch',
-		'secupress_log_action',
-		'http',
-		'bwg_gallery',
 		'bwg_album',
-		'idx_page',
-		'postman_sent_mail',
-		'rssmi_feed_item',
-		'rssap-feed',
-		'wp_automatic',
-		'jetpack_migration',
+		'bwg_gallery',
 		'customize_changeset', // WP built-in post type for Customizer changesets
 		'dn_wp_yt_log',
+		'http',
+		'idx_page',
+		'jetpack_migration',
+		'postman_sent_mail',
+		'rssap-feed',
+		'rssmi_feed_item',
+		'secupress_log_action',
+		'sg_optimizer_jobs',
+		'snitch',
 		'wpephpcompat_jobs',
 		'wprss_feed_item',
-		'sg_optimizer_jobs',
+		'wp_automatic',
 	);
 
 	static $default_post_checksum_columns = array(
