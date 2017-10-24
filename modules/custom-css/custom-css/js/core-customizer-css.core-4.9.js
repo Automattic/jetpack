@@ -70,31 +70,32 @@
 				text   : window._jp_css_settings.l10n.revisions
 			}).prependTo( '#css-help-links' );
 		}
-	});
 
-	$('#customize-controls').on( 'change', '#_customize-input-jetpack_css_preprocessors_control', function(){
-		var preprocessor_modes = {
-				default : 'text/css',
-				less    : 'text/x-less',
-				sass    : 'text/x-scss'
-			},
-			curr = $(this).val(),
-			new_mode = 'text/css';
+		api( 'jetpack_custom_css[preprocessor]', function( preprocessorSetting ) {
+			preprocessorSetting.bind( function( curr ) {
+				var preprocessor_modes = {
+						default : 'text/css',
+						less    : 'text/x-less',
+						sass    : 'text/x-scss'
+					},
+					new_mode = 'text/css';
 
-		if ( 'undefined' !== typeof preprocessor_modes[ curr ] ) {
-			new_mode = preprocessor_modes[ curr ];
-		}
+				if ( 'undefined' !== typeof preprocessor_modes[ curr ] ) {
+					new_mode = preprocessor_modes[ curr ];
+				}
 
-		api.control( 'custom_css' ).deferred.codemirror.done( function( cm ) {
-			cm.setOption( 'mode', new_mode );
-			if ( 'text/css' === new_mode ) {
-				cm.setOption( 'lint', true );
-				cm.setOption( 'gutters', [ 'CodeMirror-lint-markers' ] );
-			} else {
-				cm.setOption( 'lint', false );
-				cm.setOption( 'gutters', [] );
-			}
-		} );
+				api.control( 'custom_css' ).deferred.codemirror.done( function ( cm ) {
+					cm.setOption( 'mode', new_mode );
+					if ( 'text/css' === new_mode ) {
+						cm.setOption( 'lint', true );
+						cm.setOption( 'gutters', [ 'CodeMirror-lint-markers' ] );
+					} else {
+						cm.setOption( 'lint', false );
+						cm.setOption( 'gutters', [] );
+					}
+				});
+			});
+		});
 	});
 
 })( this.wp, jQuery, this.wp.customize );
