@@ -138,6 +138,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Mailchimp: make sure subscription forms can still be embedded in posts and pages.
 * Mailchimp: do not require the use of the shortcodes feature to use the Mailchimp widget.
 * Mailchimp: fix issue where Mailchimp form code could not be added to the Mailchimp widget.
+* Masterbar: avoid JavaScript errors by always loading jQuery.
 * Publicize: avoid errors when DOMDocument is not available.
 * Search: make sure module cannot be activated when the site does not use a Plan.
 * SEO Tools: do not output any custom meta tags if another SEO plugin is already active.
