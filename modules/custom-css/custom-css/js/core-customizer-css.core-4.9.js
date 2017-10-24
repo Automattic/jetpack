@@ -87,11 +87,11 @@
 				api.control( 'custom_css' ).deferred.codemirror.done( function ( cm ) {
 					cm.setOption( 'mode', new_mode );
 					if ( 'text/css' === new_mode ) {
-						cm.setOption( 'gutters', [ 'CodeMirror-lint-markers' ] );
+						cm.setOption( 'gutters', ( [ 'CodeMirror-lint-markers' ] ).concat( cm.getOption( 'gutters' ) || [] ) );
 						cm.setOption( 'lint', true );
 					} else {
 						cm.setOption( 'lint', false );
-						cm.setOption( 'gutters', [] );
+						cm.setOption( 'gutters', _.without( cm.getOption( 'gutters' ) || [], 'CodeMirror-lint-markers' ) );
 					}
 				});
 			});
