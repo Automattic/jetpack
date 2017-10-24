@@ -219,9 +219,26 @@ class Jetpack_Perf_Optimize_Assets {
 	}
 
 	private function should_async_script( $script ) {
-		$should_async_script = isset( $script->extra['jetpack-async'] ) && $script->extra['jetpack-async'];
+		global $wp_scripts;
+		$should_async_script = empty( $script->deps );
 
-		return $this->async_scripts && apply_filters( 'jetpack_perf_async_script', ! $should_async_script, $script->handle, $script->src );
+		$skip_self = true;
+		// only make scripts async if nothing depends on them and they don't depend on anything else
+		foreach ( $wp_scripts->to_do as $other_script_handle ) {
+			if ( $skip_self ) {
+				$skip_self = false;
+				continue;
+			}
+			$other_script = $wp_scripts->registered[ $other_script_handle ];
+			if ( array_intersect( array( $script->handle ), $other_script->deps ) ) {
+				$should_async_script = false;
+				break;
+			}
+		}
+
+		$script->extra['jetpack-defer'] = ! $should_async_script;
+
+		return $this->async_scripts && apply_filters( 'jetpack_perf_async_script', $should_async_script, $script->handle, $script->src );
 	}
 
 	private function should_defer_script( $script ) {
