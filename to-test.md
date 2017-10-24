@@ -1,5 +1,10 @@
 ## 5.5
 
+### Gallery Widget
+
+The next version of WordPress will now include its own [Gallery Widget](https://make.wordpress.org/core/2017/09/25/introducing-the-gallery-widget/). We've added the option to choose a Tiled Gallery type in that new widget.
+
+To test this, make sure you are running WordPress 4.9 Beta. You can use [this plugin](https://wordpress.org/plugins/wordpress-beta-tester/) to update WordPress on your site. Once you have done so you should see the new widget under Appearance > Widgets and Appearance > Customize. Try to use one the Tiled Gallery types when the Jetpack feature is active, and make sure it is displayed properly.
 
 ### Misc
 

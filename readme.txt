@@ -110,6 +110,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Major Enhancements**
 
+* We've added the option to choose a Tiled Gallery type when using WordPress's [new Gallery Widget](https://make.wordpress.org/core/2017/09/25/introducing-the-gallery-widget/).
+
 **Enhancements**
 * We have improved the performance when loading the Jetpack Settings in the dashboard, by optimizing the number of calls made when loading the page.
 * We have updated the plugin to do a better job of cleaning up after itself whenever you decide to remove Jetpack from your site.
