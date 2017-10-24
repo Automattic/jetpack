@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "c0f9a261d53a8d90b3efa69eb65f904f",
-    "content-hash": "280682fcd5600a3583a3a2874dc77751",
+    "hash": "d5c02a5d2635f9b73e9b10ed58faf1ee",
+    "content-hash": "8ce988c911969ff0db073471d09abb39",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -124,17 +124,39 @@
             "time": "2017-06-20 23:34:19"
         },
         {
-            "name": "woocommerce/wc-api-dev",
-            "version": "v0.8.9",
+            "name": "automattic/wc-calypso-bridge",
+            "version": "v0.1.0",
             "source": {
                 "type": "git",
-                "url": "https://github.com/woocommerce/wc-api-dev.git",
-                "reference": "d46a3303ccfc8bee05646887074bcff1556dde73"
+                "url": "https://github.com/Automattic/wc-calypso-bridge.git",
+                "reference": "532c50b0314bf7bb8cd804ef843af1b505adf686"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/woocommerce/wc-api-dev/zipball/d46a3303ccfc8bee05646887074bcff1556dde73",
-                "reference": "d46a3303ccfc8bee05646887074bcff1556dde73",
+                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/532c50b0314bf7bb8cd804ef843af1b505adf686",
+                "reference": "532c50b0314bf7bb8cd804ef843af1b505adf686",
+                "shasum": ""
+            },
+            "type": "library",
+            "autoload": {
+                "files": [
+                    "wc-calypso-bridge.php"
+                ]
+            },
+            "time": "2017-10-24 19:26:57"
+        },
+        {
+            "name": "woocommerce/wc-api-dev",
+            "version": "v0.9.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/woocommerce/wc-api-dev.git",
+                "reference": "aef3791740e2b493758824d2dd918f5156ee6b44"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/woocommerce/wc-api-dev/zipball/aef3791740e2b493758824d2dd918f5156ee6b44",
+                "reference": "aef3791740e2b493758824d2dd918f5156ee6b44",
                 "shasum": ""
             },
             "type": "library",
@@ -143,7 +165,7 @@
                     "wc-api-dev.php"
                 ]
             },
-            "time": "2017-10-12 17:36:02"
+            "time": "2017-10-20 22:11:30"
         }
     ],
     "packages-dev": [],
