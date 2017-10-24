@@ -45,12 +45,12 @@ class Jetpack_Perf_Optimize_Assets {
 	 */
 	private function __construct() {
 		$this->is_first_load             = ! isset( $_COOKIE['jetpack_perf_loaded'] );
-		$this->remove_remote_fonts       = get_option( 'perf_remove_remote_fonts' );
-		$this->inline_always             = get_option( 'perf_inline_on_every_request' );
-		$this->inline_scripts_and_styles = get_option( 'perf_inline_scripts_and_styles' ) && ( $this->is_first_load || $this->inline_always );
-		$this->async_scripts             = get_option( 'perf_async_scripts' );
-		$this->defer_scripts             = get_option( 'perf_defer_scripts' );
-		$this->defer_inline_scripts      = get_option( 'perf_defer_inline_scripts' );
+		$this->remove_remote_fonts       = get_option( 'perf_remove_remote_fonts', true );
+		$this->inline_always             = get_option( 'perf_inline_on_every_request', false );
+		$this->inline_scripts_and_styles = get_option( 'perf_inline_scripts_and_styles', true ) && ( $this->is_first_load || $this->inline_always );
+		$this->async_scripts             = get_option( 'perf_async_scripts', true );
+		$this->defer_scripts             = get_option( 'perf_defer_scripts', true );
+		$this->defer_inline_scripts      = get_option( 'perf_defer_inline_scripts', true );
 
 		if ( $this->remove_remote_fonts ) {
 			add_filter( 'jetpack_perf_remove_script', array( $this, 'remove_external_font_scripts' ), 10, 3 );
