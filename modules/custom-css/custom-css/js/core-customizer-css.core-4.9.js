@@ -13,24 +13,19 @@
 	}
 
 	/**
-	 * Add a title to a control
-	 * @param {string} controlId Control ID
-	 * @param {string} title     A title to add
-	 */
-	function addTitle( controlId, title ) {
-		var control = _getControl( controlId );
-		if ( control ) {
-			control.prepend( '<span class="customize-control-title">' + title + '<span>' );
-		}
-	}
-
-	/**
 	 * Add some labels that the default checkbox controls don't allow.
 	 * Add CSS Revisions and CSS Help links.
 	 */
 	$(document).ready( function(){
-		addTitle( 'jetpack_css_mode_control', window._jp_css_settings.l10n.mode );
-		addTitle( 'jetpack_mobile_css_control', window._jp_css_settings.l10n.mobile );
+		var cssModeControl = _getControl( 'jetpack_css_mode_control' );
+		if ( cssModeControl ) {
+			cssModeControl.prepend( '<span class="customize-control-title">' + window._jp_css_settings.l10n.mode + '</span>' );
+		}
+
+		var mobileCssControl = _getControl( 'jetpack_mobile_css_control' );
+		if ( mobileCssControl ) {
+			mobileCssControl.prepend( '<span class="customize-control-title">' + window._jp_css_settings.l10n.mobile + '</span>' );
+		}
 
 		var widthControl = _getControl( 'wpcom_custom_css_content_width_control' );
 		if ( widthControl ) {
