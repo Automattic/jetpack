@@ -541,9 +541,12 @@ class Jetpack_Options {
 			'pwa_cache_assets',
 			'pwa_web_push',
 			'pwa_show_network_status',
-			'perf_inline_scripts_and_styles',
-			'perf_inline_on_every_request',
 			'perf_remove_remote_fonts',
+			'perf_inline_on_every_request',
+			'perf_inline_scripts_and_styles',
+			'perf_async_scripts',
+			'perf_defer_scripts',
+			'perf_defer_inline_scripts'
 		);
 	}
 
