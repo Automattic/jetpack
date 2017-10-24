@@ -206,7 +206,7 @@ class Jetpack_Perf_Optimize_Assets {
 		}
 
 		if ( $this->should_inline_script( $script ) ) {
-			$tag = '<script type="text/javascript">' . file_get_contents( $script->extra['jetpack-inline-file'] ) . '</script>';
+			$tag = '<script type="text/javascript" src="data:text/javascript;base64,' . base64_encode( file_get_contents( $script->extra['jetpack-inline-file'] ) ) . '"></script>';
 		}
 
 		if ( $this->should_async_script( $script ) ) {
