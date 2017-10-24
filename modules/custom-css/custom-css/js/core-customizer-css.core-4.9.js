@@ -25,27 +25,16 @@
 	}
 
 	/**
-	 * Add a description to a control
-	 * @param {string} controlId Control ID
-	 * @param {string} desc      A description to add
-	 */
-	function addDesc( controlId, desc ) {
-		var control = _getControl( controlId );
-		if ( control ) {
-			control.append( '<span class="description">' + desc + '<span>' );
-		}
-	}
-
-	/**
 	 * Add some labels that the default checkbox controls don't allow.
 	 * Add CSS Revisions and CSS Help links.
 	 */
 	$(document).ready( function(){
 		addTitle( 'jetpack_css_mode_control', window._jp_css_settings.l10n.mode );
 		addTitle( 'jetpack_mobile_css_control', window._jp_css_settings.l10n.mobile );
-		addDesc( 'wpcom_custom_css_content_width_control', window._jp_css_settings.l10n.contentWidth );
+
 		var widthControl = _getControl( 'wpcom_custom_css_content_width_control' );
 		if ( widthControl ) {
+			widthControl.append( '<span class="description">' + window._jp_css_settings.l10n.contentWidth + '<span>' );
 			widthControl.find( 'input' ).after( '<span>px</span>' );
 		}
 
