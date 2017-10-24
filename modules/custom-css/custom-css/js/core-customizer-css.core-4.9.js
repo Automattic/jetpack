@@ -1,11 +1,11 @@
-(function( wp, $, api ){
+(function( $, customize ){
 	/**
 	 * Helper function to qet a control by ID
 	 * @param  {string} controlId Control ID
 	 * @return {object}           jQuery object of the container
 	 */
 	function _getControl ( controlId ) {
-		var control = api.control.value( controlId );
+		var control = customize.control.value( controlId );
 		if ( control ) {
 			return control.container;
 		}
@@ -71,7 +71,7 @@
 			}).prependTo( '#css-help-links' );
 		}
 
-		api( 'jetpack_custom_css[preprocessor]', function( preprocessorSetting ) {
+		customize( 'jetpack_custom_css[preprocessor]', function( preprocessorSetting ) {
 			preprocessorSetting.bind( function( curr ) {
 				var preprocessor_modes = {
 						'default' : 'text/css',
@@ -84,7 +84,7 @@
 					new_mode = preprocessor_modes[ curr ];
 				}
 
-				api.control( 'custom_css' ).deferred.codemirror.done( function ( cm ) {
+				customize.control( 'custom_css' ).deferred.codemirror.done( function ( cm ) {
 					cm.setOption( 'mode', new_mode );
 					if ( 'text/css' === new_mode ) {
 						cm.setOption( 'gutters', ( [ 'CodeMirror-lint-markers' ] ).concat( cm.getOption( 'gutters' ) || [] ) );
@@ -98,4 +98,4 @@
 		});
 	});
 
-})( this.wp, jQuery, this.wp.customize );
+})( jQuery, this.wp.customize );
