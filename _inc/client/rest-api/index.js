@@ -20,11 +20,11 @@ function createCustomError( name ) {
 	return CustomError;
 }
 
-const JsonParseError = createCustomError( 'JsonParseError' );
-const JsonParseAfterRedirectError = createCustomError( 'JsonParseAfterRedirectError' );
-const Api404Error = createCustomError( 'Api404Error' );
-const Api404AfterRedirectError = createCustomError( 'Api404AfterRedirectError' );
-const FetchNetworkError = createCustomError( 'FetchNetworkError' );
+export const JsonParseError = createCustomError( 'JsonParseError' );
+export const JsonParseAfterRedirectError = createCustomError( 'JsonParseAfterRedirectError' );
+export const Api404Error = createCustomError( 'Api404Error' );
+export const Api404AfterRedirectError = createCustomError( 'Api404AfterRedirectError' );
+export const FetchNetworkError = createCustomError( 'FetchNetworkError' );
 
 function JetpackRestApiClient( root, nonce ) {
 	let apiRoot = root,
