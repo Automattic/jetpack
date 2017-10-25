@@ -933,11 +933,10 @@ class Jetpack_CLI extends WP_CLI_Command {
 			? get_site_icon_url()
 			: false;
 
+		$auto_enable_sso = ( ! Jetpack::is_active() || Jetpack::is_module_active( 'sso' ) );
+
 		/** This filter is documented in class.jetpack-cli.php */
-		if (
-			( ! Jetpack::is_active() || Jetpack::is_module_active( 'sso' ) ) &&
-			apply_filters( 'jetpack_start_enable_sso', true )
-		) {
+		if ( apply_filters( 'jetpack_start_enable_sso', $auto_enable_sso ) ) {
 			$redirect_uri = add_query_arg(
 				array( 'action' => 'jetpack-sso', 'redirect_to' => urlencode( admin_url() ) ),
 				wp_login_url() // TODO: come back to Jetpack dashboard?
