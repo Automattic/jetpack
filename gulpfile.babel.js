@@ -2,6 +2,7 @@
  * External dependencies
  */
 import autoprefixer from 'gulp-autoprefixer';
+import babel from 'gulp-babel';
 import banner from 'gulp-banner';
 import check from 'gulp-check';
 import cleanCSS from 'gulp-clean-css';
@@ -324,7 +325,8 @@ gulp.task( 'js:hint', function() {
 		'modules/**/*.js',
 		'!_inc/*.min.js',
 		'!modules/*.min.',
-		'!modules/**/*.min.js'
+		'!modules/**/*.min.js',
+		'!**/*/*block.js',
 	] )
 		.pipe( jshint( '.jshintrc' ) )
 		.pipe( jshint.reporter( 'jshint-stylish' ) )
@@ -493,14 +495,38 @@ gulp.task( 'languages:extract', function( done ) {
 		} );
 } );
 
+/*
+ * Gutenpack!
+ */
+gulp.task( 'gutenpack', function() {
+	return gulp.src( '**/*/*block.jsx' )
+		.pipe( babel( {
+			plugins: [
+				[
+					'transform-react-jsx', {
+						pragma: 'wp.element.createElement'
+					}
+				]
+			],
+		} ) )
+		.on( 'error', function( err ) {
+			util.log( util.colors.red( err ) );
+		} )
+		.pipe( gulp.dest( './' ) );
+} );
+
+gulp.task( 'gutenpack:watch', function() {
+	return gulp.watch( [ '**/*/*block.jsx' ], [ 'gutenpack' ] );
+} );
+
 // Default task
 gulp.task(
 	'default',
-	[ 'react:build', 'old-styles', 'checkstrings', 'php:lint', 'js:hint', 'php:module-headings' ]
+	[ 'react:build', 'old-styles', 'checkstrings', 'php:lint', 'js:hint', 'php:module-headings', 'gutenpack' ]
 );
 gulp.task(
 	'watch',
-	[ 'react:watch', 'sass:watch', 'old-styles:watch' ]
+	[ 'react:watch', 'sass:watch', 'old-styles:watch', 'gutenpack:watch' ]
 );
 
 gulp.task( 'jshint', [ 'js:hint' ] );
