@@ -1437,9 +1437,13 @@ function wp_cache_post_id_gc( $post_id, $all = 'all' ) {
 
 	$post_id = intval( $post_id );
 	if( $post_id == 0 )
-		return;
+		return true;
 
 	$permalink = trailingslashit( str_replace( get_option( 'home' ), '', get_permalink( $post_id ) ) );
+	if ( false !== strpos( $permalink, '?' ) ) {
+		wp_cache_debug( 'wp_cache_post_id_gc: NOT CLEARING CACHE. Permalink has a "?". ' . $permalink );
+		return false;
+	}
 	$dir = get_current_url_supercache_dir( $post_id );
 	wp_cache_debug( "wp_cache_post_id_gc post_id: $post_id " . get_permalink( $post_id ) . " clearing cache in $dir.", 4 );
 	if ( $all ) {
@@ -1455,6 +1459,7 @@ function wp_cache_post_id_gc( $post_id, $all = 'all' ) {
 		prune_super_cache( $dir, true, true );
 		do_action( 'gc_cache', 'prune', $permalink );
 	}
+	return true;
 }
 
 function wp_cache_post_change( $post_id ) {
@@ -1500,7 +1505,11 @@ function wp_cache_post_change( $post_id ) {
 	// Delete supercache files whenever a post change event occurs, even if supercache is currently disabled.
 	$dir = get_supercache_dir();
 	// make sure the front page has a rebuild file
-	wp_cache_post_id_gc( $post_id, $all );
+	if ( false == wp_cache_post_id_gc( $post_id, $all ) ) {
+		wp_cache_debug( "wp_cache_post_change: not deleting any cache files as GC of post returned false" );
+		wp_cache_writers_exit();
+		return false;
+	}
 	if ( $all == true ) {
 		wp_cache_debug( "Post change: supercache enabled: deleting cache files in " . $dir );
 		wpsc_rebuild_files( $dir );
