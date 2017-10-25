@@ -171,9 +171,9 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 
 	public function check_upgrader( $upgrader, $details) {
 		if ( ! isset( $details['type'] ) ||
-			'theme' !== $details['type'] ||
-			is_wp_error( $upgrader->skin->result ) ||
-			! method_exists( $upgrader, 'theme_info' )
+		     'theme' !== $details['type'] ||
+		     is_wp_error( $upgrader->skin->result ) ||
+		     ! method_exists( $upgrader, 'theme_info' )
 		) {
 			return;
 		}
@@ -248,7 +248,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 	public function estimate_full_sync_actions( $config ) {
 		return 1;
 	}
-	
+
 	public function init_before_send() {
 		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_theme_data', array( $this, 'expand_theme_data' ) );
 	}
@@ -366,7 +366,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		if (
 			( isset( $old_value['array_version'] ) && $old_value['array_version'] !== 3 ) ||
 			( isset( $new_value['array_version'] ) && $new_value['array_version'] !== 3 )
-			) {
+		) {
 			return;
 		}
 
@@ -421,7 +421,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 			 * @since 4.9.0
 			 */
 			do_action( 'jetpack_cleared_inactive_widgets' );
-		} 
+		}
 	}
 
 	private function get_theme_support_info() {
@@ -459,12 +459,6 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 	}
 
 	private function is_theme_switch() {
-		$backtrace = debug_backtrace();
-		foreach ( $backtrace as $call ) {
-			if ( isset( $call['args'][0] ) && 'after_switch_theme' === $call['args'][0] ) {
-				return true;
-			}
-		}
-		return false;
+		return did_action( 'after_switch_theme' );
 	}
 }
