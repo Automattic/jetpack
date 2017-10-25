@@ -3072,11 +3072,14 @@ if( get_option( 'gzipcompression' ) )
 // Catch 404 requests. Themes that use query_posts() destroy $wp_query->is_404
 function wp_cache_catch_404() {
 	global $wp_cache_404;
+	if ( function_exists( '_deprecated_function' ) )
+		_deprecated_function( __FUNCTION__, 'WP Super Cache 1.5.6' );
 	$wp_cache_404 = false;
 	if( is_404() )
 		$wp_cache_404 = true;
 }
-add_action( 'template_redirect', 'wp_cache_catch_404' );
+//More info - https://github.com/Automattic/wp-super-cache/pull/373
+//add_action( 'template_redirect', 'wp_cache_catch_404' );
 
 function wp_cache_favorite_action( $actions ) {
 	if ( false == wpsupercache_site_admin() )
