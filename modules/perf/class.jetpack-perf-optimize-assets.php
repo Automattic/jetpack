@@ -75,14 +75,14 @@ class Jetpack_Perf_Optimize_Assets {
 	}
 
 	function content_start() {
-		ob_start( array( $this, 'defer_inline_scripts' ) );
+		ob_start( array( $this, 'do_defer_inline_scripts' ) );
 	}
 
 	function content_end() {
 		ob_end_flush();
 	}
 
-	function defer_inline_scripts( $content ) {
+	function do_defer_inline_scripts( $content ) {
 		preg_match_all( '#<script.*?>(.*?)<\/script>#is', $content, $matches, PREG_OFFSET_CAPTURE );
 		$original_length = mb_strlen( $content );
 		$offset          = 0;
