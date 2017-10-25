@@ -831,10 +831,10 @@ class Jetpack_CLI extends WP_CLI_Command {
 			$this->partner_provision_error( new WP_Error( 'missing_access_token', __( 'Missing or invalid access token', 'jetpack' ) ) );
 		}
 
-		$blog_id    = Jetpack_Options::get_option( 'id' );
+		$site_identifier = Jetpack_Options::get_option( 'id' );
 
-		if ( ! $blog_id ) {
-			$this->partner_provision_error( new WP_Error( 'site_not_registered',  __( 'This site is not connected to Jetpack', 'jetpack' ) ) );
+		if ( ! $site_identifier ) {
+			$site_identifier = Jetpack::build_raw_urls( get_home_url() );
 		}
 
 		$request = array(
@@ -844,10 +844,9 @@ class Jetpack_CLI extends WP_CLI_Command {
 			),
 			'timeout' => 60,
 			'method'  => 'POST',
-			'body'    => json_encode( array( 'site_id' => $blog_id ) )
 		);
 
-		$url = sprintf( 'https://%s/rest/v1.3/jpphp/%d/partner-cancel', $this->get_api_host(), $blog_id );
+		$url = sprintf( 'https://%s/rest/v1.3/jpphp/%s/partner-cancel', $this->get_api_host(), $site_identifier );
 
 		$result = Jetpack_Client::_wp_remote_request( $url, $request );
 
