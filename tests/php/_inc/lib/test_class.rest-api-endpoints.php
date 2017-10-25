@@ -891,23 +891,22 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		global $_wp_sidebars_widgets, $wp_registered_widgets;
 
-		update_option(
-			'widget_milestone_widget',
-			array(
-				3 => array(
-					'title' => 'Ouou',
-					'event' => 'The Biog Day',
-					'unit' => 'years',
-					'type' => 'until',
-					'message' => 'The big day is here.',
-					'year' => date( 'Y' ) + 10,
-					'month' => date( 'm' ),
-					'hour' => '0',
-					'min' => '00',
-					'day' => date( 'd' )
-				)
+		$widget_instances = array(
+			3 => array(
+				'title' => 'Ouou',
+				'event' => 'The Biog Day',
+				'unit' => 'years',
+				'type' => 'until',
+				'message' => 'The big day is here.',
+				'year' => date( 'Y' ) + 10,
+				'month' => date( 'm' ),
+				'hour' => '0',
+				'min' => '00',
+				'day' => date( 'd' )
 			)
 		);
+
+		update_option( 'widget_milestone_widget', $widget_instances );
 
 		$sidebars = wp_get_sidebars_widgets();
 		foreach( $sidebars as $key => $sidebar ) {
@@ -930,6 +929,24 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 		$this->assertResponseData(
 			array(
 				'message' => '<div class="milestone-countdown"><span class="difference">10</span> <span class="label">years to go.</span></div>'
+			),
+			$response
+		);
+
+		$widget_instances[3] = array_merge(
+			$widget_instances[3],
+			array(
+				'year' => date( 'Y' ) + 1,
+				'unit' => 'months',
+			)
+		);
+		update_option( 'widget_milestone_widget', $widget_instances );
+		$response = $this->create_and_get_request( 'widgets/milestone_widget-3', array(), 'GET' );
+
+		$this->assertResponseStatus( 200, $response );
+		$this->assertResponseData(
+			array(
+				'message' => '<div class="milestone-countdown"><span class="difference">12</span> <span class="label">months to go.</span></div>'
 			),
 			$response
 		);

@@ -396,17 +396,44 @@ class Milestone_Widget extends WP_Widget {
 	protected function get_unit( $seconds, $maximum_unit = 'automatic' ) {
 		$unit = '';
 
-		if ( $seconds >= 63113852 ) { // more than 2 years - show in years, one decimal point
+		if ( $seconds >= YEAR_IN_SECONDS * 2 ) {
+			// more than 2 years - show in years, one decimal point
 			$unit = 'years';
-		} else if ( $seconds >= 7775999 ) { // fewer than 2 years - show in months
+
+		} else if ( $seconds >= YEAR_IN_SECONDS ) {
+			if ( 'years' === $maximum_unit ) {
+				$unit = 'years';
+			} else {
+				// automatic mode - showing months even if it's between one and two years
+				$unit = 'months';
+			}
+
+		} else if ( $seconds >= MONTH_IN_SECONDS * 3 ) {
+			// fewer than 2 years - show in months
 			$unit = 'months';
-		} else if ( $seconds >= DAY_IN_SECONDS - 1 ) { // fewer than 3 months - show in days
+
+		} else if ( $seconds >= MONTH_IN_SECONDS ) {
+			if ( 'months' === $maximum_unit ) {
+				$unit = 'months';
+			} else {
+				// automatic mode - showing days even if it's between one and three months
+				$unit = 'days';
+			}
+
+		} else if ( $seconds >= DAY_IN_SECONDS - 1 ) {
+			// fewer than a month - show in days
 			$unit = 'days';
-		} else if ( $seconds >= HOUR_IN_SECONDS - 1 ) { // less than 1 day - show in hours
+
+		} else if ( $seconds >= HOUR_IN_SECONDS - 1 ) {
+			// less than 1 day - show in hours
 			$unit = 'hours';
-		} else if ( $seconds >= MINUTE_IN_SECONDS - 1 ) { // less than 1 hour - show in minutes
+
+		} else if ( $seconds >= MINUTE_IN_SECONDS - 1 ) {
+			// less than 1 hour - show in minutes
 			$unit = 'minutes';
-		} else { // less than 1 minute - show in seconds
+
+		} else {
+			// less than 1 minute - show in seconds
 			$unit = 'seconds';
 		}
 
@@ -432,7 +459,9 @@ class Milestone_Widget extends WP_Widget {
 	protected function get_interval_in_units( $seconds, $units ) {
 		switch ( $units ) {
 			case 'years':
-				return (int) ( $seconds / 60 / 60 / 24 / 365 );
+				$years = $seconds / YEAR_IN_SECONDS;
+				$decimals = abs( round( $years, 1 ) - round( $years ) ) > 0 ? 1 : 0;
+				return number_format_i18n( $years, $decimals );
 			case 'months':
 				return (int) ( $seconds / 60 / 60 / 24 / 30 );
 			case 'days':
@@ -526,10 +555,11 @@ class Milestone_Widget extends WP_Widget {
 		$instance = $this->sanitize_instance( $instance );
 
 		$units = array(
-			'automatic' => __( 'Automatic', 'jetpack' ),
-			'months' => __( 'Months', 'jetpack' ),
-			'days' => __( 'Days', 'jetpack' ),
-			'hours' => __( 'Hours', 'jetpack' ),
+			'automatic' => _x( 'Automatic', 'Milestone widget: mode in which the date unit is determined automatically', 'jetpack' ),
+			'years' => _x( 'Years', 'Milestone widget: mode in which the date unit is set to years', 'jetpack' ),
+			'months' => _x( 'Months', 'Milestone widget: mode in which the date unit is set to months', 'jetpack' ),
+			'days' => _x( 'Days', 'Milestone widget: mode in which the date unit is set to days', 'jetpack' ),
+			'hours' => _x( 'Hours', 'Milestone widget: mode in which the date unit is set to hours', 'jetpack' ),
 		);
 		?>
 
