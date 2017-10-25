@@ -314,17 +314,12 @@ class Jetpack_Perf_Optimize_Assets {
 			$path = untrailingslashit( ABSPATH ) . str_replace( $site_url, '', $dependency->src );
 
 			if ( ! file_exists( $path ) ) {
-				$is_windows = strtoupper( substr( php_uname( 's' ), 0, 3 ) ) === 'WIN';
-				$path       = $is_windows
-					? str_replace( '/', '\\', str_replace( $site_url, '', $dependency->src ) )
-					: str_replace( $site_url, '', $dependency->src );
+				$path = str_replace('/', DIRECTORY_SEPARATOR, str_replace( $site_url, '', $dependency->src ));
 
-				$glue = $is_windows ? '\\' : '/';
-
-				$prefix = explode( $glue, untrailingslashit( WP_CONTENT_DIR ) );
+				$prefix = explode( DIRECTORY_SEPARATOR, untrailingslashit( WP_CONTENT_DIR ) );
 				$prefix = array_slice( $prefix, 0, array_search( $path[1], $prefix ) - 1 );
 
-				$path = implode( $glue, $prefix ) . $path;
+				$path = implode( DIRECTORY_SEPARATOR, $prefix ) . $path;
 			}
 
 			$dependency->extra['jetpack-inline-file'] = $path;
