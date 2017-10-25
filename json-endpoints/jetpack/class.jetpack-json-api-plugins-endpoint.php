@@ -285,8 +285,25 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 
 	protected function get_plugin_updates( $plugin_file ) {
 		$plugin_updates = get_plugin_updates();
-		if ( isset( $plugin_updates[ $plugin_file ] ) ){
-			return $plugin_updates[ $plugin_file ]->update;
+		if ( isset( $plugin_updates[ $plugin_file ] ) ) {
+			$update = $plugin_updates[ $plugin_file ]->update;
+			$cleaned_update = array();
+			foreach( (array) $update as $update_key => $update_value ) {
+				switch ( $update_key ) {
+					case 'id':
+					case 'slug':
+					case 'plugin':
+					case 'new_version':
+					case 'tested':
+						$cleaned_update[ $update_key ] = wp_kses( $update_value, array() );
+						break;
+					case 'url':
+					case 'package':
+						$cleaned_update[ $update_key ] = esc_url( $update_value );
+						break;
+				}
+			}
+			return (object) $cleaned_update;
 		}
 		return null;
 	}
