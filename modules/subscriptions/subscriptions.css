@@ -1,7 +1,47 @@
-#subscribe-email input {
-	width: 95%;
+.subscription-form {
+	margin: 0 0 0;
+	padding: 20px;
+	border: 4px solid black;
+	background: rgba( 255, 255, 255, .9 );
 }
 
-.comment-subscription-form .subscribe-label {
-	display: inline !important;
+.subscription-form__title {
+	margin: 0;
+}
+
+.subscription-form__title.subscription-form__title input,
+.subscription-form__text.subscription-form__text textarea  {
+	width: 100%;
+	margin: 0 0 0;
+	outline: 0;
+	box-shadow: none;
+	margin-bottom: 16px;
+}
+
+.subscription-form__title.subscription-form__title input {
+	font-size: 20px;
+	font-weight: 600;
+}
+
+.subscription-form__text p {
+	font-size: 14px;
+}
+
+p.subscription-form__subscribers {
+	font-size: 12px;
+	color: #555d66;
+}
+
+.subscription-form__email-label {
+	font-size: 14px;
+	font-weight: 600;
+	margin-left: 2px;
+}
+
+#subscribe-email input {
+	width: 100%;
+}
+
+#subscribe-submit {
+	margin: 16px 0 0;
 }
