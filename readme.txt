@@ -130,6 +130,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Improved compatibility**
 * Top Posts Widget: avoid Fatal Errors when the widget is used on a site using WPML, and when a popular post cannot be found by WPML.
+* Sync: add more Custom Post Types from third-party plugins to the list of things we do not synchronize with WordPress.com, to improve sync performance.
 
 **Bug fixes**
 * We now avoid displaying notices to user roles that cannot benefit or act based on the info in the notices.
