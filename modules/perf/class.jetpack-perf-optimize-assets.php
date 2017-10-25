@@ -89,7 +89,7 @@ class Jetpack_Perf_Optimize_Assets {
 		$counter         = 0;
 		$rewrite         = "";
 		foreach ( $matches[1] as $value ) {
-			if ( ! empty( $value[0] ) && strpos( $value[0], 'CDATA' ) === false ) {
+			if ( ! empty( $value[0] ) && strpos( $value[0], "<![CDATA" ) === false ) {
 				$length    = mb_strlen( $matches[0][ $counter ][0] );
 				$script    = base64_encode( $value[0] );
 				$beginning = $matches[0][ $counter ][1];
