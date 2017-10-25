@@ -9,26 +9,21 @@ OR if you're looking to change now SVGs get output, you'll need to edit strings 
 /**
  * External dependencies
  */
-import React, { PropTypes } from 'react';
-import PureRenderMixin from 'react-pure-render/mixin';
+import React, { PureComponent } from 'react';
+import PropTypes from 'prop-types';
 
-export default React.createClass( {
-	displayName: 'SocialLogo',
-	mixins: [ PureRenderMixin ],
+class SocialLogo extends PureComponent {
+	static defaultProps = {
+		className: '',
+		size: 24
+	};
 
-	getDefaultProps() {
-		return {
-			className: '',
-			size: 24
-		};
-	},
-
-	propTypes: {
+	static propTypes = {
 		icon: PropTypes.string.isRequired,
 		size: PropTypes.number,
 		onClick: PropTypes.func,
 		className: PropTypes.string
-	},
+	};
 
 	render() {
 

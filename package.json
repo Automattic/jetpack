@@ -1,6 +1,6 @@
 {
   "name": "social-logos",
-  "version": "1.0.2-alpha.1",
+  "version": "2.0.0",
   "main": "build/index.js",
   "repository": {
     "type": "git",
@@ -12,7 +12,8 @@
     "prepublish": "npm run build"
   },
   "peerDependencies": {
-    "react": ">=14.x"
+    "prop-types": "^15.5.0",
+    "react": "^15.5.0 || ^16.0.0"
   },
   "files": [
     "build/index.js",

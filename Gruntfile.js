@@ -283,17 +283,17 @@ module.exports = function( grunt ) {
 					"/**\n" +
 					" * External dependencies\n" +
 					" */\n" +
-					"import React from 'react';\n\n" +
+					"import React, { PureComponent } from 'react';\n\n" +
 					"/**\n" +
 					" * Internal dependencies\n" +
 					" */\n" +
 					"import SocialLogo from './index.js';\n\n" +
-					"export default React.createClass( {\n" +
-					"	displayName: 'SocialLogos',\n\n" +
-					"	handleClick( icon ) {\n" +
+					"export default class extends PureComponent {\n" +
+					"	static displayName = 'SocialLogos';\n\n" +
+					"	handleClick = icon => {\n" +
 					"		const toCopy = '<SocialLogo icon=\"' + icon + '\" />';\n" +
 					"		window.prompt( 'Copy component code:', toCopy );\n" +
-					"	},\n\n" +
+					"	};\n\n" +
 					"	render() {\n" +
 					'		return (\n' +
 					'			<div>\n';
@@ -313,8 +313,8 @@ module.exports = function( grunt ) {
 		designContent +=	'			</div>\n' +
 							'		);\n' +
 							'	}\n' +
-							'} );\n';
-		
+							'}\n';
+
 		// Write the React component to social-logo/index.jsx
 		grunt.file.write( 'build/index.jsx', content );
 		grunt.file.write( 'build/example.jsx', designContent );
