@@ -321,8 +321,6 @@ class Jetpack_Perf_Optimize_Assets {
 
 				$glue = $is_windows ? '\\' : '/';
 
-				//var_dump(explode( $glue, untrailingslashit( WP_CONTENT_DIR ) ), explode( $glue, $path ));
-
 				$prefix = explode( $glue, untrailingslashit( WP_CONTENT_DIR ) );
 				$prefix = array_slice( $prefix, 0, array_search( $path[1], $prefix ) - 1 );
 
