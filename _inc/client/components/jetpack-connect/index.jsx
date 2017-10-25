@@ -10,7 +10,7 @@ import { translate as __ } from 'i18n-calypso';
  * Internal dependencies
  */
 import ConnectButton from 'components/connect-button';
-import { getConnectUrl as _getConnectUrl } from 'state/connection';
+import { getConnectUrl as getConnectUrl } from 'state/connection';
 import { imagePath } from 'constants';
 
 const JetpackConnect = React.createClass( {
@@ -214,7 +214,7 @@ const JetpackConnect = React.createClass( {
 export default connect(
 	state => {
 		return {
-			connectUrl: _getConnectUrl( state )
+			connectUrl: getConnectUrl( state )
 		}
 	}
 )( JetpackConnect );

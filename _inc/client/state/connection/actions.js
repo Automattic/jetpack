@@ -85,6 +85,8 @@ export const disconnectSite = () => {
 				disconnectingSite: disconnectingSite
 			} );
 			dispatch( removeNotice( 'disconnect-jetpack' ) );
+		} ).then( () => {
+			dispatch( fetchConnectUrl() );
 		} ).catch( error => {
 			dispatch( {
 				type: DISCONNECT_SITE_FAIL,
