@@ -102,7 +102,7 @@ class Jetpack_Perf_Optimize_Assets {
 		}
 		$rewrite .= mb_substr( $content, $offset, $original_length );
 
-		return $rewrite;
+		return $rewrite . "\n<!-- This is The End: All Inline Scripts Deferred -->";
 	}
 
 	/** Disabling Emojis **/
