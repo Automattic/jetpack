@@ -1403,6 +1403,58 @@ function wp_cache_clear_cache( $blog_id = 0 ) {
 	}
 }
 
+function wpsc_delete_post_archives( $post ) {
+	$post = get_post( $post );
+	if ( ! is_object( $post ) ) {
+		return;
+	}
+
+	// Taxonomies - categories, tags, custom taxonomies
+	foreach( get_object_taxonomies( $post, 'objects' ) as $taxonomy ) {
+
+		if ( ! $taxonomy->public || ! $taxonomy->rewrite ) {
+			continue;
+		}
+
+		$terms = get_the_terms( $post->ID, $taxonomy->name );
+		if ( empty( $terms ) ) {
+			continue;
+		}
+
+		foreach( $terms as $term ) {
+
+			$term_url = get_term_link( $term, $taxonomy->name );
+			if ( is_wp_error( $term_url ) ) {
+				continue;
+			}
+
+			wpsc_delete_url_cache( $term_url );
+			wp_cache_debug( "wpsc_delete_post_archives: deleting cache of taxonomies: " . $term_url );
+		}
+	}
+
+	// Post type archive page
+	if ( $post->post_type === 'page' ) {
+		$archive_url = false;
+	} elseif ( $post->post_type === 'post' && get_option( 'show_on_front' ) !== 'posts' && ! get_option( 'page_for_posts' ) ) {
+		$archive_url = false;
+	} else {
+		$archive_url = get_post_type_archive_link( $post->post_type );
+	}
+
+	if ( $archive_url ) {
+		wpsc_delete_url_cache( $archive_url );
+		wp_cache_debug( "wpsc_delete_post_archives: deleting cache of post type archive: " . $archive_url );
+	}
+
+	// Author archive page
+	$author_url = get_author_posts_url( $post->post_author );
+	if ( $author_url ) {
+		wpsc_delete_url_cache( $author_url );
+		wp_cache_debug( "wpsc_delete_post_archives: deleting cache of author archive: " . $author_url );
+	}
+}
+
 function wpsc_delete_cats_tags( $post ) {
 	$post = get_post($post);
 	$categories = get_the_category($post->ID);
@@ -1435,9 +1487,11 @@ function wpsc_post_transition( $new_status, $old_status, $post ) {
 		||
 		($old_status != 'publish' && $new_status == 'publish') // post published
 	) {
-		wpsc_delete_cats_tags( $post );
-		prune_super_cache( get_supercache_dir() . '/' . $post->post_name . '/', true );
-		wp_cache_debug( "wpsc_post_transition: deleting post: " . get_supercache_dir() . '/' . $post->post_name . '/' );
+		//wpsc_delete_cats_tags( $post );
+		wpsc_delete_post_archives( $post );
+		$post_url = get_permalink( $post->ID );
+		wpsc_delete_url_cache( $post_url );
+		wp_cache_debug( "wpsc_post_transition: deleting cache of post: " . $post_url );
 	}
 }
 
