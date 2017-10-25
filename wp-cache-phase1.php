@@ -873,7 +873,7 @@ function get_oc_key( $url = false ) {
 }
 
 function wp_supercache_cache_for_admins() {
-	if ( isset( $_GET[ 'preview' ] ) || function_exists( "is_admin" ) && is_admin() )
+	if ( isset( $_GET[ 'preview' ] ) || function_exists( "is_admin" ) && is_admin() || defined( 'DOING_AJAX' ) )
 		return true;
 
 	if ( false == do_cacheaction( 'wp_supercache_remove_cookies', true ) )
