@@ -1,7 +1,7 @@
 defaults: &defaults
     working_directory: /wp-e2e-tests
     docker:
-      - image: automattic/wp-e2e-tests:0.0.5
+      - image: automattic/wp-e2e-tests:0.0.7
         environment:
                 JETPACKHOST: CI
                 NODE_ENV: test
