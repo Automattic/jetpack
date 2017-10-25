@@ -1052,6 +1052,10 @@ foreach( $debug_log as $line ) {
 }
 
 function wpsc_delete_url_cache( $url ) {
+	if ( false !== strpos( $url, '?' ) ) {
+		wp_cache_debug( 'wpsc_delete_url_cache: URL contains the character "?". Not deleting URL: ' . $url );
+		return false;
+	}
 	$dir = str_replace( get_option( 'home' ), '', $url );
 	if ( $dir != '' ) {
 		$supercachedir = get_supercache_dir();
