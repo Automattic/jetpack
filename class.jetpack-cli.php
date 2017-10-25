@@ -856,7 +856,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 			$this->partner_provision_error( $result );
 		}
 
-		WP_CLI::log( json_encode( $result ) );
+		WP_CLI::log( wp_remote_retrieve_body( $result ) );
 	}
 
 	/**
