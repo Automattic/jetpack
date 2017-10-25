@@ -1,7 +1,7 @@
 defaults: &defaults
     working_directory: /wp-e2e-tests
     docker:
-      - image: automattic/wp-e2e-tests:0.0.5
+      - image: automattic/wp-e2e-tests:0.0.7
         environment:
                 JETPACKHOST: CI
                 NODE_ENV: test
@@ -52,7 +52,7 @@ jobs:
           command: ./scripts/randomize.sh specs
       - run:
           name: Run e2e tests
-          command: ./run.sh -R -j -H CI -p -x
+          command: xvfb-run ./run.sh -R -j -H CI -p
       - store_test_results:
           path: reports/
       - store_artifacts:
