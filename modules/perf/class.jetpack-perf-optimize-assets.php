@@ -63,8 +63,8 @@ class Jetpack_Perf_Optimize_Assets {
 		add_filter( 'style_loader_tag', array( $this, 'print_inline_styles' ), - 100, 4 );
 
 		if ( $this->defer_inline_scripts ) {
-			add_filter( 'wp_head', array( $this, 'content_start' ), - 1000 );
-			add_filter( 'wp_footer', array( $this, 'content_end' ), 1000 );
+			add_filter( 'wp_head', array( $this, 'content_start' ), - 2000 );
+			add_filter( 'wp_footer', array( $this, 'content_end' ), 2000 );
 		}
 
 		add_action( 'init', array( $this, 'set_first_load_cookie' ) );
