@@ -42,11 +42,10 @@ class WP_Super_Cache_Rest_Get_Settings extends WP_REST_Controller {
 				$settings[ $name ] = get_option( $map['option'] );
 
 			} elseif ( isset( $map['global'] ) ) {
-				$global_var = $map['global'];
-				if ( false == isset( $$global_var ) ) {
+				if ( false == isset( $GLOBALS[ $map[ 'global' ] ] ) ) {
 					$settings[ $name ] = false;
 				} else {
-					$settings[ $name ] = $$global_var;
+					$settings[ $name ] = $GLOBALS[ $map[ 'global' ] ];
 				}
 			}
 		}

@@ -502,9 +502,7 @@ class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 		);
 
 		foreach ( $advanced_settings as $setting ) {
-			global ${$setting};
-
-			$value = ( isset( $$setting ) && $$setting == 1 ) ? 1 : 0;
+			$value = ( isset( $GLOBALS[ $setting ] ) && $GLOBALS[ $setting ] == 1 ) ? 1 : 0;
 			$this->set_value_by_key( $value, $setting );
 		}
 	}
@@ -529,9 +527,8 @@ class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 		);
 
 		foreach ( $all_time_settings as $time_setting ) {
-			global ${$time_setting};
-			if ( false == isset( $_POST[ $time_setting ] ) || $$time_setting == $_POST[ $time_setting ] ) {
-				$_POST[ $time_setting ] = $$time_setting; // fill in the potentially missing fields before updating GC settings.
+			if ( false == isset( $_POST[ $time_setting ] ) || $GLOBALS[ $time_setting ] == $_POST[ $time_setting ] ) {
+				$_POST[ $time_setting ] = $GLOBALS[ $time_setting ]; // fill in the potentially missing fields before updating GC settings.
 			}
 		}
 
@@ -590,8 +587,7 @@ class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 
 		foreach ( $all_preload_settings as $key => $original ) {
 			if ( ! isset( $_POST[ $key ] ) ) {
-				global ${$original};
-				$_POST[ $original ] = $$original;
+				$_POST[ $original ] = $GLOBALS[ $original ];
 			} else {
 				$_POST[ $original ] = $_POST[ $key ];
 				if ( $key !== 'preload_interval' && ( $_POST[ $key ] === 0 || $_POST[ $key ] === false ) ) {
@@ -649,8 +645,7 @@ class WP_Super_Cache_Rest_Update_Settings extends WP_REST_Controller {
 				}
 				$_POST[ 'wp_cache_debug' ] = 1;
 			} else {
-				global $$setting;
-				$_POST[ $setting ] = $$setting;
+				$_POST[ $setting ] = $GLOBALS[ $setting ];
 			}
 		}
 		global $valid_nonce;

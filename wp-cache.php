@@ -525,7 +525,7 @@ function wp_cache_manager_updates() {
 		}
 		$advanced_settings = array( 'wp_super_cache_late_init', 'wp_cache_disable_utf8', 'wp_cache_no_cache_for_get', 'wp_supercache_304', 'wp_cache_mfunc_enabled', 'wp_cache_mobile_enabled', 'wp_cache_front_page_checks', 'wp_supercache_cache_list', 'wp_cache_hello_world', 'wp_cache_clear_on_post_edit', 'wp_cache_not_logged_in', 'wp_cache_make_known_anon','wp_cache_object_cache', 'wp_cache_refresh_single_only', 'cache_compression' );
 		foreach( $advanced_settings as $setting ) {
-			if ( isset( $$setting ) && $$setting == 1 ) {
+			if ( isset( $GLOBALS[ $setting ] ) && $GLOBALS[ $setting ] == 1 ) {
 				$_POST[ $setting ] = 1;
 			}
 		}
@@ -2162,8 +2162,8 @@ function wp_cache_is_enabled() {
 
 function wp_cache_setting( $field, $value ) {
 	global $wp_cache_config_file;
-	global ${$field};
-	$$field = $value;
+
+	$GLOBALS[ $field ] = $value;
 	if ( is_numeric( $value ) ) {
 		wp_cache_replace_line( '^ *\$' . $field, "\$$field = $value;", $wp_cache_config_file );
 	} elseif ( is_object( $value ) || is_array( $value ) ) {
@@ -3991,8 +3991,7 @@ function wpsc_get_plugin_list() {
 	$list = do_cacheaction( 'wpsc_filter_list' );
 	foreach( $list as $t => $details ) {
 		$key = "cache_" . $details[ 'key' ];
-		global $$key;
-		if ( isset( $$key ) && $$key == 1 ) {
+		if ( isset( $GLOBALS[ $key ] ) && $GLOBALS[ $key ] == 1 ) {
 			$list[ $t ][ 'enabled' ] = true;
 		} else {
 			$list[ $t ][ 'enabled' ] = false;
@@ -4008,8 +4007,7 @@ function wpsc_update_plugin_list( $update ) {
 	$list = do_cacheaction( 'wpsc_filter_list' );
 	foreach( $update as $key => $enabled ) {
 		$plugin_toggle = "cache_{$key}";
-		global $$plugin_toggle;
-		if ( isset( $$plugin_toggle ) || isset( $list[ $key ] ) ) {
+		if ( isset( $GLOBALS[ $plugin_toggle ] ) || isset( $list[ $key ] ) ) {
 			wp_cache_setting( $plugin_toggle, (int)$enabled );
 		}
 	}
