@@ -1966,6 +1966,11 @@ function wpsc_update_debug_settings() {
 	global $wp_super_cache_front_page_check, $wp_super_cache_front_page_clear, $wp_super_cache_front_page_text, $wp_super_cache_front_page_notification, $wp_super_cache_advanced_debug;
 	global $wp_cache_debug_username;
 
+	if ( ! isset( $wp_super_cache_comments ) ) {
+		$wp_super_cache_comments = 1; // defaults to "enabled".
+		wp_cache_setting( 'wp_super_cache_comments', $wp_super_cache_comments );
+	}
+
 	if ( false == $valid_nonce ) {
 		return array (
 			'wp_super_cache_debug' => $wp_super_cache_debug,
