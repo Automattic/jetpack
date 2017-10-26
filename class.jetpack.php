@@ -2397,7 +2397,7 @@ class Jetpack {
 		//Get just the filename from $file (i.e. exclude full path) so that a consistent hash is generated
 		$file_name = basename( $file );
 
-		$cache_key = 'jetpack_file_data_' + JETPACK_VERSION;
+		$cache_key = 'jetpack_file_data_' . JETPACK__VERSION;
 
 		$file_data_option = get_transient( $cache_key );
 
