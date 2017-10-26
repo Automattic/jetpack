@@ -44,7 +44,7 @@ export const status = ( state = { siteConnected: window.Initial_State.connection
 export const connectUrl = ( state = '', action ) => {
 	switch ( action.type ) {
 		case JETPACK_SET_INITIAL_STATE:
-			return action.initialState.connectUrl;
+			return get( action, 'initialState.connectUrl', state );
 		case CONNECT_URL_FETCH_SUCCESS:
 			return action.connectUrl;
 		default:
