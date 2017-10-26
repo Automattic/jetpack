@@ -1,23 +1,15 @@
-NAME					:= wpcomsh
+NAME				:= wpcomsh
 SHELL 				:= /bin/bash
 UNAME 				:= $(shell uname -s)
-REQUIRED_BINS := zip git rsync composer
+REQUIRED_BINS 		:= zip git rsync composer
 
 ## check required bins can be found in $PATH
 $(foreach bin,$(REQUIRED_BINS),\
 	$(if $(shell command -v $(bin) 2> /dev/null),, $(error `$(bin)` not found in $$PATH)))
 
 ## handle version info from git tags
-ifeq ($(shell git describe --tags > /dev/null 2>&1 ; echo $$?), 0)
-	VERSION := $(shell git describe --tags --long --always \
-		| sed 's/v\([0-9]*\)\.\([0-9]*\)\.\([0-9]*\)-\?.*-\([0-9]*\)-\(.*\)/\1 \2 \3 \4 \5/g')
-	VERSION_MAJOR := $(word 1, $(VERSION))
-	VERSION_MINOR := $(word 2, $(VERSION))
-	VERSION_POINT := $(word 3, $(VERSION))
-	VERSION_REVISION := $(word 4, $(VERSION))
-	VERSION_HASH := $(word 5, $(VERSION))
-	VERSION_STRING := \
-		$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_POINT)
+ifeq ($(shell git describe --tags --always > /dev/null 2>&1 ; echo $$?), 0)
+	VERSION_STRING := $(shell git describe --tags --always | sed -e 's/^v//')
 endif
 
 ## set paths from the location of the makefile
