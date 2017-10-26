@@ -2417,7 +2417,7 @@ class Jetpack {
 
 		$file_data_option[ $key ] = $data;
 
-		set_transient( $cache_key, $file_data_option, 25 * DAY_IN_SECONDS );
+		set_transient( $cache_key, $file_data_option, 29 * DAY_IN_SECONDS );
 
 		return $data;
 	}
