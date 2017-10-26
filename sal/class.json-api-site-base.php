@@ -574,4 +574,8 @@ abstract class SAL_Site {
 
 		return A8C\Automated_Transfer\Utils\has_site_pending_automated_transfer( $this->blog_id );
 	}
+
+	function get_roles() {
+		return new WP_Roles();
+	}
 }
