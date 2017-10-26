@@ -151,7 +151,9 @@ function wpsupercache_uninstall() {
 	wp_cache_disable_plugin();
 	delete_site_option( 'wp_super_cache_index_detected' );
 }
-register_uninstall_hook( __FILE__, 'wpsupercache_uninstall' );
+if ( is_admin() ) {
+	register_uninstall_hook( __FILE__, 'wpsupercache_uninstall' );
+}
 
 function wpsupercache_deactivate() {
 	global $wp_cache_config_file, $wp_cache_link, $cache_path;
