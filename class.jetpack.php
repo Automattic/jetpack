@@ -2396,37 +2396,28 @@ class Jetpack {
 	public static function get_file_data( $file, $headers ) {
 		//Get just the filename from $file (i.e. exclude full path) so that a consistent hash is generated
 		$file_name = basename( $file );
-		$file_data_option = Jetpack_Options::get_option( 'file_data', array() );
-		$key              = md5( $file_name . serialize( $headers ) );
-		$refresh_cache    = is_admin() && isset( $_GET['page'] ) && 'jetpack' === substr( $_GET['page'], 0, 7 );
+
+		$cache_key = 'jetpack_file_data_' . JETPACK__VERSION;
+
+		$file_data_option = get_transient( $cache_key );
+
+		if ( false === $file_data_option ) {
+			$file_data_option = array();
+		}
+
+		$key           = md5( $file_name . serialize( $headers ) );
+		$refresh_cache = is_admin() && isset( $_GET['page'] ) && 'jetpack' === substr( $_GET['page'], 0, 7 );
 
 		// If we don't need to refresh the cache, and already have the value, short-circuit!
-		if ( ! $refresh_cache && isset( $file_data_option[ JETPACK__VERSION ][ $key ] ) ) {
-			return $file_data_option[ JETPACK__VERSION ][ $key ];
+		if ( ! $refresh_cache && isset( $file_data_option[ $key ] ) ) {
+			return $file_data_option[ $key ];
 		}
 
 		$data = get_file_data( $file, $headers );
 
-		// Strip out any old Jetpack versions that are cluttering the option.
-		//
-		// We maintain the data for the current version of Jetpack plus the previous version
-		// to prevent repeated DB hits on large sites hosted with multiple web servers
-		// on a single database (since all web servers might not be updated simultaneously)
+		$file_data_option[ $key ] = $data;
 
-		$file_data_option[ JETPACK__VERSION ][ $key ] = $data;
-
-		if ( count( $file_data_option ) > 2 ) {
-			$count = 0;
-			krsort( $file_data_option );
-			foreach ( $file_data_option as $version => $values ) {
-				$count++;
-				if ( $count > 2 && JETPACK__VERSION != $version ) {
-					unset( $file_data_option[ $version ] );
-				}
-			}
-		}
-
-		Jetpack_Options::update_option( 'file_data', $file_data_option );
+		set_transient( $cache_key, $file_data_option, 29 * DAY_IN_SECONDS );
 
 		return $data;
 	}
