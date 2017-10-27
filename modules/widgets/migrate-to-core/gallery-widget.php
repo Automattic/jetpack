@@ -1,0 +1,161 @@
+<?php
+/**
+ * Migration from Jetpack's Gallery Widget to WordPress' Core Gallery Widget.
+ *
+ * @since 5.5
+ *
+ * @package Jetpack
+ */
+/**
+ * Migrates all active instances of Jetpack's Gallery widget to Core's Media Gallery widget.
+ */
+function jetpack_migrate_gallery_widget() {
+	// Only trigger the migration from wp-admin and outside unit tests
+	if ( ! is_admin() || defined( 'PHPUNIT_JETPACK_TESTSUITE' ) ) {
+		return;
+	}
+
+	// Only migrate if the new widget is available and we haven't yet migrated
+	if ( ! class_exists( 'WP_Widget_Media_Gallery' ) || Jetpack_Options::get_option( 'gallery_widget_migration' ) ) {
+		return;
+	}
+
+	$old_widgets = get_option( 'widget_gallery', array() );
+	$media_gallery = get_option( 'widget_media_gallery', array() );
+	$sidebars_widgets = wp_get_sidebars_widgets();
+
+	// Array to store legacy widget ids in to unregister on success.
+	$widgets_to_unregister = array();
+
+	foreach ( $old_widgets as $id => $widget ) {
+		$new_id = $id;
+		// Try to get an unique id for the new type of widget.
+		// It may be the case that the user has already created a core Gallery Widget
+		// before the migration begins. (Maybe Jetpack was deactivated during core's upgrade).
+		for( $i = 0; $i < 10 && in_array( $new_id, array_keys( $media_gallery ) ); $i++, $new_id++ );
+
+		$widget_copy = jetpack_migrate_gallery_widget_upgrade_widget( $widget );
+
+		if ( null === $widget_copy ) {
+			continue;
+		}
+
+		$media_gallery[ $new_id ] = $widget_copy;
+
+		$sidebars_widgets = jetpack_migrate_gallery_widget_update_sidebars( $sidebars_widgets, $id, $new_id );
+
+		$widgets_to_unregister[ $id ] = $new_id;
+	}
+
+	if ( update_option( 'widget_media_gallery', $media_gallery ) ) {
+		delete_option( 'widget_gallery' );
+
+		// Now un-register old widgets and register new.
+		foreach ( $widgets_to_unregister as $id => $new_id ) {
+			wp_unregister_sidebar_widget( "gallery-${id}" );
+
+			// register new widget.
+			$media_gallery_widget = new WP_Widget_Media_Gallery();
+			$media_gallery_widget->_set( $new_id );
+			$media_gallery_widget->_register_one( $new_id );
+		}
+
+		wp_set_sidebars_widgets( $sidebars_widgets );
+
+		// We need to refresh on widgets page for changes to take effect.
+		// The jetpack_refresh_on_widget_page function is already defined in migrate-to-core/image-widget.php
+		add_action( 'current_screen', 'jetpack_refresh_on_widget_page' );
+	} else {
+		$widget_media_gallery = get_option( 'widget_media_gallery' );
+		if ( is_array( $widget_media_gallery ) ) {
+			delete_option( 'widget_gallery' );
+		}
+	}
+
+	Jetpack_Options::update_option( 'gallery_widget_migration', true );
+}
+
+/**
+ * Returns a transformed version of the Gallery Widget.
+ * Will return null if the widget is either empty, is not an array or has more keys than expected
+ *
+ * @param $widget   One of the Jetpack Gallery widgets to be transformed into a new Core Media Gallery Widget
+ *
+ * @return array|null
+ */
+function jetpack_migrate_gallery_widget_upgrade_widget( $widget ) {
+	$whitelisted_keys = array(
+		'ids' => '',
+		'link' => '',
+		'title' => '',
+		'type' => '',
+		'random' => '',
+		'conditions' => '',
+	);
+
+	$default_data = array(
+		'columns' => 3,
+		'ids' => array(),
+		'link_type' => '',
+		'orderby_random' => false,
+		'size' => 'thumbnail',
+		'title' => '',
+		'type' => '',
+	);
+
+	// Can be caused by instantiating but not populating a widget in the Customizer.
+	if ( empty( $widget ) ) {
+		return null;
+	}
+	// The array as stored in the option constains two keys and one
+	// is a string `_multiwidget` which does not represent a widget, so we skip it
+	if ( ! is_array( $widget ) ) {
+		return null;
+	}
+
+	// Ensure widget has no keys other than those expected.
+	// Not all widgets have conditions, so lets add it in.
+	$widget_copy = array_merge( array( 'conditions' => null ), $widget );
+	if ( count( array_diff_key( $widget_copy, $whitelisted_keys ) ) > 0 ) {
+		return null;
+	}
+
+	$widget_copy = array_merge( $default_data, $widget, array(
+		// ids in Jetpack's Gallery are a string of comma-separated values.
+		// Core's Media Gallery Widget stores ids in an array
+		'ids'            => explode( ',', $widget['ids'] ),
+		'link_type'      => $widget['link'],
+		'orderby_random' => isset( $widget['random'] ) && $widget['random'] === 'on',
+	) );
+
+	// Unsetting old widget fields
+	$widget_copy = array_diff_key( $widget_copy, array(
+		'link' => false,
+		'random' => false,
+	) );
+
+	return $widget_copy;
+}
+
+/**
+ * Replaces the references to Jetpack Gallery Widget in the sidebars for references to the new version of the widget
+ *
+ * @param $sidebars_widgets   The sidebar widgets array to update
+ * @param $id                 Old id of the widget (basically its index in the array )
+ * @param $new_id             New id that will be using on the sidebar as a new widget
+ *
+ * @return mixed              Updated sidebar widgets array
+ */
+function jetpack_migrate_gallery_widget_update_sidebars( $sidebars_widgets, $id, $new_id ) {
+	foreach ( $sidebars_widgets as $sidebar => $widgets ) {
+		if (
+			is_array( $widgets )
+			&& false !== ( $key = array_search( "gallery-{$id}", $widgets, true ) )
+		) {
+			$sidebars_widgets[ $sidebar ][ $key ] = "media_gallery-{$new_id}";
+		}
+	}
+	return $sidebars_widgets;
+}
+
+add_action( 'widgets_init', 'jetpack_migrate_gallery_widget' );
