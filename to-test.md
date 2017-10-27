@@ -19,6 +19,16 @@ We have made some performance improvements to the Carousel feature. It would be 
 - Does it work well with Tiled Galleries?
 - Are you able to comment on a Carousel image, whether you are logged in or logged out of your WordPress account?
 
+### Custom CSS
+
+The next version of WordPress, 4.9, will be released very soon and will include [a lot of changes to its code editors](https://make.wordpress.org/core/2017/10/22/code-editing-improvements-in-wordpress-4-9/). As part of those changes, the CSS editor will now have its own syntax highlighter. Until now, there was no syntax highlighting in the CSS editor unless you used Jetpack and its Custom CSS module.
+
+You will consequently want to test 4 things:
+- What happens when you use the current version of WordPress (4.8.2) with the new version of Jetpack? Does syntax highlighting still work? Can you save CSS changes?
+- What happens when you then use [this plugin](https://wordpress.org/plugins/wordpress-beta-tester/) to update WordPress to the 4.9 Beta version on your site? Does your CSS remain? Are there any issues during the migration? I would suggest to try this update after having added a lot of CSS to the editor.
+- What happens when you use the CSS editor with WP 4.9 Beta? Does syntax highlighting work well?
+- Does everything work regardless of whether the Custom CSS module is active or not?
+
 ### Gallery Widget
 
 The next version of WordPress will now include its own [Gallery Widget](https://make.wordpress.org/core/2017/09/25/introducing-the-gallery-widget/). We've added the option to choose a Tiled Gallery type in that new widget.
