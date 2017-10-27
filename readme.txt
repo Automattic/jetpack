@@ -126,6 +126,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * We improved the way sitemaps are built so they do not consume too much memory when they are generated.
 * Subscriptions: we added a filter so third party developers can track comment subscription activations.
 * Sync: synchronize plugin action links to add that information to WordPress.com.
+* Sync: improvements to better track theme and widget changes.
 * WordPress.com REST API: improve comment management for all roles, including post authors.
 * WordPress.com REST API: allow site owners to manage comments on attachment pages from WordPress.com.
 * WordPress.com REST API: improve the response from the API when WordPress' autoupdates are disabled.
