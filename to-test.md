@@ -1,5 +1,16 @@
 ## 5.5
 
+### Connection process
+
+We made some changes to reduce the number of connection issues that may happen on a site when switching from HTTP to HTTPs. To test this, if your site uses HTTPs, make sure you can still interact with your site via WordPress.com (try publishing or editing posts for example), and check to see that things like Related Posts still work on your site.
+
+We have also improved the connection process to make sure other plugins can't interfere with the connection. To test this, try the following:
+
+1. Start with a disconnected site and user, and multiple other plugins active.
+2. Visit the dashboard and confirm that the Connect button has an appropriate URL and that you can connect
+3. After connecting, login in with a non-admin user and confirm that the banner button that reads "Connect to WordPress.com" works and has a good href.
+4. Confirm that you can cycle the connection. Connect Jetpack, get back to the admin page. Disconnect, and try to connect again without refreshing the page.
+
 ### Carousel
 
 We have made some performance improvements to the Carousel feature. It would be great if everyone could test every aspect of Carousel in this release:
@@ -17,7 +28,6 @@ To test this, make sure you are running WordPress 4.9 Beta. You can use [this pl
 ### Misc
 
 - [Always] Try to connect with a brand new site, and also cycle your connections to existing sites.
-- We made some changes to reduce the number of connection issues that may happen on a site when switching from HTTP to HTTPs. To test this, if your site uses HTTPs, make sure you can still interact with your site via WordPress.com (try publishing or editing posts for example), and check to see that things like Related Posts still work on your site.
 
 ### Final Notes
 
