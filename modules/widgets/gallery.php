@@ -426,6 +426,9 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 add_action( 'widgets_init', 'jetpack_gallery_widget_init' );
 
 function jetpack_gallery_widget_init() {
+	if ( class_exists( 'WP_Widget_Media_Gallery' ) && Jetpack_Options::get_option( 'gallery_widget_migration' ) ) {
+		return;
+ 	}
 	if ( ! method_exists( 'Jetpack', 'is_module_active' ) || Jetpack::is_module_active( 'tiled-gallery' ) )
 		register_widget( 'Jetpack_Gallery_Widget' );
 }
