@@ -97,7 +97,10 @@ class Grunion_Contact_Form_Plugin {
 		add_filter( 'widget_text', array( $this, 'widget_atts' ), 0 );
 
 		// If Text Widgets don't get shortcode processed, hack ours into place.
-		if ( ! has_filter( 'widget_text', 'do_shortcode' ) ) {
+		if (
+			version_compare( get_bloginfo( 'version' ), '4.9-z', '<=' )
+			&& ! has_filter( 'widget_text', 'do_shortcode' )
+		) {
 			add_filter( 'widget_text', array( $this, 'widget_shortcode_hack' ), 5 );
 		}
 
