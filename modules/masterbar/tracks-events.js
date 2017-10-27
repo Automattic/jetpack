@@ -24,6 +24,10 @@
 		'wp-admin-bar-edit-attachment'             : 'my_sites_manage_media',
 		'wp-admin-bar-new-attachment-badge'        : 'my_sites_manage_add_media',
 		'wp-admin-bar-comments'                    : 'my_sites_manage_comments',
+		'wp-admin-bar-edit-testimonial'            : 'my_sites_manage_testimonials',
+		'wp-admin-bar-new-testimonial'             : 'my_sites_manage_add_testimonial',
+		'wp-admin-bar-edit-portfolio'              : 'my_sites_manage_portfolio',
+		'wp-admin-bar-new-portfolio'               : 'my_sites_manage_add_portfolio',
 		//my sites - personalize
 		'wp-admin-bar-themes'                      : 'my_sites_personalize_themes',
 		'wp-admin-bar-cmz'                         : 'my_sites_personalize_themes_customize',
