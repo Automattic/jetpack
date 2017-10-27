@@ -116,6 +116,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * We have improved the performance when loading the Jetpack Settings in the dashboard, by optimizing the number of calls made when loading the page.
 * We have updated the plugin to do a better job of cleaning up after itself whenever you decide to remove Jetpack from your site.
 * We made some changes to reduce the number of connection issues that may happen on a site when switching from HTTP to HTTPs.
+* We have made some performance improvements to the Carousel feature.
 * Contact Form: we have improved the "website" field to display better error messages when you don't supply a URL. We have also improved the look of the date picker for the date field.
 * Contact Form: avoid duplicate slash when loading editor style.
 * Masterbar: update the "Plugins" menu item to match the updated design on WordPress.com.

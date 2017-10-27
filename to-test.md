@@ -1,5 +1,13 @@
 ## 5.5
 
+### Carousel
+
+We have made some performance improvements to the Carousel feature. It would be great if everyone could test every aspect of Carousel in this release:
+- Does it work well on single images when the image is set to link to an attachment page?
+- Does it work well with standard WordPress galleries?
+- Does it work well with Tiled Galleries?
+- Are you able to comment on a Carousel image, whether you are logged in or logged out of your WordPress account?
+
 ### Gallery Widget
 
 The next version of WordPress will now include its own [Gallery Widget](https://make.wordpress.org/core/2017/09/25/introducing-the-gallery-widget/). We've added the option to choose a Tiled Gallery type in that new widget.
