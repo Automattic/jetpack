@@ -13,7 +13,6 @@ class Jetpack_Perf_Optimize_Assets {
 	private $inline_scripts_and_styles = false;
 	private $async_scripts = false;
 	private $defer_scripts = false;
-	private $defer_inline_scripts = false;
 
 	/**
 	 * Singleton implementation
@@ -33,7 +32,6 @@ class Jetpack_Perf_Optimize_Assets {
 		$this->inline_scripts_and_styles = false;
 		$this->async_scripts = false;
 		$this->defer_scripts = false;
-		$this->defer_inline_scripts = false;
 	}
 
 	/**
@@ -50,22 +48,16 @@ class Jetpack_Perf_Optimize_Assets {
 		$this->inline_scripts_and_styles = get_option( 'perf_inline_scripts_and_styles', true ) && ( $this->is_first_load || $this->inline_always );
 		$this->async_scripts             = get_option( 'perf_async_scripts', true );
 		$this->defer_scripts             = get_option( 'perf_defer_scripts', true );
-		$this->defer_inline_scripts      = get_option( 'perf_defer_inline_scripts', true );
 
 		if ( $this->remove_remote_fonts ) {
 			add_filter( 'jetpack_perf_remove_script', array( $this, 'remove_external_font_scripts' ), 10, 3 );
 			add_filter( 'jetpack_perf_remove_style', array( $this, 'remove_external_font_styles' ), 10, 3 );
 		}
 
-		add_filter( 'script_loader_src', array( $this, 'filter_inline_scripts' ), - 100, 2 );
-		add_filter( 'script_loader_tag', array( $this, 'print_inline_scripts' ), - 100, 3 );
-		add_filter( 'style_loader_src', array( $this, 'filter_inline_styles' ), - 100, 2 );
-		add_filter( 'style_loader_tag', array( $this, 'print_inline_styles' ), - 100, 4 );
-
-		if ( $this->defer_inline_scripts ) {
-			add_filter( 'wp_head', array( $this, 'content_start' ), - 2000 );
-			add_filter( 'wp_footer', array( $this, 'content_end' ), 2000 );
-		}
+		add_filter( 'script_loader_src', array( $this, 'filter_inline_scripts' ), -100, 2 );
+		add_filter( 'script_loader_tag', array( $this, 'print_inline_scripts' ), -100, 3 );
+		add_filter( 'style_loader_src', array( $this, 'filter_inline_styles' ), -100, 2 );
+		add_filter( 'style_loader_tag', array( $this, 'print_inline_styles' ), -100, 4 );
 
 		add_action( 'init', array( $this, 'set_first_load_cookie' ) );
 
@@ -77,37 +69,6 @@ class Jetpack_Perf_Optimize_Assets {
 
 		// inline/defer/async stuff for Jetpack
 		add_action( 'init', array( $this, 'optimize_jetpack' ) );
-	}
-
-	function content_start() {
-		ob_start( array( $this, 'do_defer_inline_scripts' ) );
-	}
-
-	function content_end() {
-		ob_end_flush();
-	}
-
-	function do_defer_inline_scripts( $content ) {
-		preg_match_all( '#<script.*?>(.*?)<\/script>#is', $content, $matches, PREG_OFFSET_CAPTURE );
-		$original_length = mb_strlen( $content );
-		$offset          = 0;
-		$counter         = 0;
-		$rewrite         = "";
-		foreach ( $matches[1] as $value ) {
-			if ( ! empty( $value[0] ) && strpos( $value[0], "<![CDATA" ) === false ) {
-				$length    = mb_strlen( $matches[0][ $counter ][0] );
-				$script    = base64_encode( $value[0] );
-				$beginning = $matches[0][ $counter ][1];
-				$rewrite   .= mb_substr( $content, $offset, $beginning );
-				$rewrite   .= "<script defer src='data:text/javascript;base64,$script'></script>";
-				$offset    += $beginning + $length;
-				unset( $length, $script, $beginning );
-			}
-			$counter ++;
-		}
-		$rewrite .= mb_substr( $content, $offset, $original_length );
-
-		return $rewrite . "\n<!-- This is The End: All Inline Scripts Deferred -->";
 	}
 
 	/** Disabling Emojis **/
@@ -215,13 +176,20 @@ class Jetpack_Perf_Optimize_Assets {
 		}
 
 		if ( $this->should_inline_script( $script ) ) {
-			$tag = '<script type="text/javascript" src="data:text/javascript;base64,' . base64_encode( file_get_contents( $script->extra['jetpack-inline-file'] ) ) . '"></script>';
-		}
-
-		if ( $this->should_async_script( $script ) ) {
-			$tag = preg_replace( '/<script /', '<script async ', $tag );
-		} elseif ( $this->should_defer_script( $script ) ) {
-			$tag = preg_replace( '/<script /', '<script defer ', $tag );
+			if ( $this->should_async_script( $script ) ) {
+				// base64-encoding a script into the src URL only makes sense if we intend to async or defer it
+				$tag = '<script async type="text/javascript" src="data:text/javascript;base64,' . base64_encode( file_get_contents( $script->extra['jetpack-inline-file'] ) ) . '"></script>';
+			} elseif ( $this->should_defer_script( $script ) ) {
+				$tag = '<script defer type="text/javascript" src="data:text/javascript;base64,' . base64_encode( file_get_contents( $script->extra['jetpack-inline-file'] ) ) . '"></script>';
+			} else {
+				$tag = '<script type="text/javascript">' . file_get_contents( $script->extra['jetpack-inline-file'] ) . '</script>';
+			}
+		} else {
+			if ( $this->should_async_script( $script ) ) {
+				$tag = preg_replace( '/<script /', '<script async ', $tag );
+			} elseif ( $this->should_defer_script( $script ) ) {
+				$tag = preg_replace( '/<script /', '<script defer ', $tag );
+			}
 		}
 
 		return $tag;

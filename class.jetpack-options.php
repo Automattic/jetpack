@@ -546,7 +546,6 @@ class Jetpack_Options {
 			'perf_inline_scripts_and_styles',
 			'perf_async_scripts',
 			'perf_defer_scripts',
-			'perf_defer_inline_scripts',
 		);
 	}
 
