@@ -352,7 +352,13 @@ class Jetpack_PostImages {
 
 		// Let's grab all image tags from the HTML.
 		$dom_doc = new DOMDocument;
+
+		// The @ is not enough to suppress errors when dealing with libxml,
+		// we have to tell it directly how we want to handle errors.
+		libxml_use_internal_errors( true );
 		$dom_doc->loadHTML( $html );
+		libxml_use_internal_errors( false );
+
 		$image_tags = $dom_doc->getElementsByTagName( 'img' );
 
 		// For each image Tag, make sure it can be added to the $images array, and add it.
