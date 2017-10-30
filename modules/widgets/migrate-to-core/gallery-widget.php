@@ -27,6 +27,7 @@ function jetpack_migrate_gallery_widget() {
 	// Array to store legacy widget ids in to unregister on success.
 	$widgets_to_unregister = array();
 
+	$old_widgets = array_filter( $old_widgets, 'jetpack_migrate_gallery_widget_is_importable' );
 	foreach ( $old_widgets as $id => $widget ) {
 		$new_id = $id;
 		// Try to get an unique id for the new type of widget.
@@ -37,6 +38,7 @@ function jetpack_migrate_gallery_widget() {
 		$widget_copy = jetpack_migrate_gallery_widget_upgrade_widget( $widget );
 
 		if ( null === $widget_copy ) {
+			jetpack_migrate_gallery_widget_bump_stats( 'gallery-widget-skipped' );
 			continue;
 		}
 
@@ -62,6 +64,11 @@ function jetpack_migrate_gallery_widget() {
 
 		wp_set_sidebars_widgets( $sidebars_widgets );
 
+		// Log if we migrated all, or some for this site.
+		foreach ( $widgets_to_unregister as $w ) {
+			jetpack_migrate_gallery_widget_bump_stats( 'gallery-widget-migrated' );
+		}
+
 		// We need to refresh on widgets page for changes to take effect.
 		// The jetpack_refresh_on_widget_page function is already defined in migrate-to-core/image-widget.php
 		add_action( 'current_screen', 'jetpack_refresh_on_widget_page' );
@@ -71,8 +78,20 @@ function jetpack_migrate_gallery_widget() {
 			delete_option( 'widget_gallery' );
 		}
 	}
-
 	Jetpack_Options::update_option( 'gallery_widget_migration', true );
+}
+
+function jetpack_migrate_gallery_widget_is_importable( $widget ) {
+	// Can be caused by instantiating but not populating a widget in the Customizer.
+	if ( empty( $widget ) ) {
+		return false;
+	}
+	// The array as stored in the option constains two keys and one
+	// is a string `_multiwidget` which does not represent a widget, so we skip it
+	if ( ! is_array( $widget ) ) {
+		return false;
+	}
+	return true;
 }
 
 /**
@@ -103,16 +122,9 @@ function jetpack_migrate_gallery_widget_upgrade_widget( $widget ) {
 		'type' => '',
 	);
 
-	// Can be caused by instantiating but not populating a widget in the Customizer.
-	if ( empty( $widget ) ) {
+	if ( ! jetpack_migrate_gallery_widget_is_importable( $widget ) ) {
 		return null;
 	}
-	// The array as stored in the option constains two keys and one
-	// is a string `_multiwidget` which does not represent a widget, so we skip it
-	if ( ! is_array( $widget ) ) {
-		return null;
-	}
-
 	// Ensure widget has no keys other than those expected.
 	// Not all widgets have conditions, so lets add it in.
 	$widget_copy = array_merge( array( 'conditions' => null ), $widget );
@@ -156,6 +168,25 @@ function jetpack_migrate_gallery_widget_update_sidebars( $sidebars_widgets, $id,
 		}
 	}
 	return $sidebars_widgets;
+}
+
+/**
+ * Will bump stat in jetpack_gallery_widget_migration group.
+ *
+ * @param string $bin  The bin to log into.
+ */
+function jetpack_migrate_gallery_widget_bump_stats( $bin ) {
+	// If this is being run on .com bumps_stats_extra exists, but using the filter looks more elegant.
+	if ( function_exists( 'bump_stats_extras' ) ) {
+		$group = 'jetpack-widget-migration';
+		do_action( 'jetpack_bump_stats_extra', $group, $bin );
+	} else {
+		// $group is prepended with 'jetpack-'
+		$group = 'widget-migration';
+		$jetpack = Jetpack::init();
+		$jetpack->stat( $group, $bin ) ;
+	}
+
 }
 
 add_action( 'widgets_init', 'jetpack_migrate_gallery_widget' );
