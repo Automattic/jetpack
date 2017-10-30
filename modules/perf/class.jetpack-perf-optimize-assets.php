@@ -69,9 +69,14 @@ class Jetpack_Perf_Optimize_Assets {
 
 		add_action( 'init', array( $this, 'set_first_load_cookie' ) );
 
+		/**
+		 * Feature, theme and plugin-specific hacks
+		 */
 		// remove emoji detection - TODO a setting for this
 		add_action( 'init', array( $this, 'disable_emojis' ) );
 
+		// inline/defer/async stuff for Jetpack
+		add_action( 'init', array( $this, 'optimize_jetpack' ) );
 	}
 
 	function content_start() {
@@ -122,6 +127,10 @@ class Jetpack_Perf_Optimize_Assets {
 
 		add_filter( 'tiny_mce_plugins', array( $this, 'disable_emojis_tinymce' ) );
 		add_filter( 'wp_resource_hints', array( $this, 'disable_emojis_remove_dns_prefetch' ), 10, 2 );
+	}
+
+	function optimize_jetpack() {
+
 	}
 
 	/**
@@ -327,9 +336,7 @@ class Jetpack_Perf_Optimize_Assets {
 
 		$should_inline = isset( $dependency->extra['jetpack-inline'] ) && $dependency->extra['jetpack-inline'];
 
-		$will_inline = apply_filters( $filter, $should_inline, $dependency->handle, $dependency->src ) && file_exists( $dependency->extra['jetpack-inline-file'] );
-
-		return $will_inline;
+		return apply_filters( $filter, $should_inline, $dependency->handle, $dependency->src ) && file_exists( $dependency->extra['jetpack-inline-file'] );
 	}
 
 	private function should_remove_asset( $filter, $dependency ) {
