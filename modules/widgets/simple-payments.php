@@ -163,7 +163,7 @@ class Simple_Payments_Widget extends WP_Widget {
 			$product_id = 0;
 		}
 
-		if ( isset( $new_instance['name'] ) ) {
+		if ( isset( $new_instance['name'] ) && $new_instance['name'] ) {
 			$product_id = wp_insert_post( array(
 				'ID' => $product_id,
 				'post_type' => Jetpack_Simple_Payments::$post_type_product,
