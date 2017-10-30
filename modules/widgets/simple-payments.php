@@ -14,8 +14,9 @@ function jetpack_register_widget_simple_payments() {
 add_action( 'widgets_init', 'jetpack_register_widget_simple_payments' );
 
 class Simple_Payments_Widget extends WP_Widget {
-	private static $dir       = null;
-	private static $url       = null;
+	private static $dir              = null;
+	private static $url              = null;
+	private static $product_defaults = null;
 
 	function __construct() {
 		$widget = array(
@@ -25,7 +26,6 @@ class Simple_Payments_Widget extends WP_Widget {
 
 		parent::__construct(
 			'Simple_Payments_Widget',
-			/** This filter is documented in modules/widgets/facebook-likebox.php */
 			apply_filters( 'jetpack_widget_name', __( 'Simple Payments', 'jetpack' ) ),
 			$widget
 		);
@@ -46,10 +46,32 @@ class Simple_Payments_Widget extends WP_Widget {
 	}
 
 	public static function enqueue_widget_styles() {
-		// This would be nice, but I don't know how this function works.
+		// TODO: This would be nice, but I don't know how this function works.
 		// if ( is_active_widget( false, false, $this->id_base, true ) ) {
 			wp_enqueue_style( 'simple-payments-widget', self::$url . '/simple-payments/style.css', array() );
 		// }
+	}
+
+	protected static function get_product_defaults() {
+		if ( ! isset( self::$product_defaults ) ) {
+			$products = get_posts( array(
+				'numberposts' => 1,
+				'orderby' => 'date',
+				'post_type' => Jetpack_Simple_Payments::$post_type_product,
+			) );
+			$current_user = wp_get_current_user();
+			$default_email = $current_user->user_email;
+			$default_multiple = '0';
+			$default_currency = 'USD';
+			// Get the default email, currency and "multiple" flag from the last product created, for user's convenience
+			if ( ! empty( $products ) ) {
+				$default_email = get_post_meta( $products[0]->ID, 'spay_email', true );
+				$default_multiple = get_post_meta( $products[0]->ID, 'spay_multiple', true );
+				$default_currency = get_post_meta( $products[0]->ID, 'spay_currency', true );
+			}
+			self::$product_defaults = array( $default_email, $default_multiple, $default_currency );
+		}
+		return self::$product_defaults;
 	}
 
 	protected function get_product_args( $product_id ) {
@@ -64,8 +86,6 @@ class Simple_Payments_Widget extends WP_Widget {
 				'multiple' => get_post_meta( $product->ID, 'spay_multiple', true ),
 				'email' => get_post_meta( $product->ID, 'spay_email', true ),
 			);
-		} else {
-			$product_id = null;
 		}
 
 		$product_args = wp_parse_args( $product_args, array(
@@ -78,22 +98,11 @@ class Simple_Payments_Widget extends WP_Widget {
 		) );
 
 		if ( isset( $product_args['currency'] ) && isset( $product_args['multiple'] ) && isset( $product_args['email'] ) ) {
+			// All fields are present, no need to "fill the blanks"
 			return $product_args;
 		}
-		$products = get_posts( array(
-			'numberposts' => 1,
-			'orderby' => 'date',
-			'post_type' => Jetpack_Simple_Payments::$post_type_product,
-		) );
-		$current_user = wp_get_current_user();
-		$default_email = $current_user->user_email;
-		$default_multiple = '0';
-		$default_currency = 'USD';
-		if ( ! empty( $products ) ) {
-			$default_email = get_post_meta( $products[0]->ID, 'spay_email', true );
-			$default_multiple = get_post_meta( $products[0]->ID, 'spay_multiple', true );
-			$default_currency = get_post_meta( $products[0]->ID, 'spay_currency', true );
-		}
+
+		list( $default_email, $default_multiple, $default_currency ) = self::get_product_defaults();
 		if ( ! isset( $product_args['email'] ) ) {
 			$product_args['email'] = $default_email;
 		}
@@ -114,8 +123,6 @@ class Simple_Payments_Widget extends WP_Widget {
 			'title' => '',
 			'product_id' => null,
 		) );
-
-		$product_args = $this->get_product_args( $instance['product_id'] );
 
 		echo $args['before_widget'];
 
@@ -179,6 +186,104 @@ class Simple_Payments_Widget extends WP_Widget {
 		);
     }
 
+	protected function render_products_list( $products ) {
+		?>
+		<div class="simple-payments-product-list">
+			<div>
+				<span class="simple-payments-product-count"><?php printf( _n( '%d product', '%d products', count( $products ), 'Jetpack' ), number_format_i18n( count( $products ) ) ) ?></span>
+				<button class="button simple-payments-add-product"><?php esc_html_e( 'Add New', 'jetpack' ); ?></button>
+			</div>
+			<ul class="simple-payments-products">
+				<?php
+				foreach ( $products as $product ):
+					$product_args = $this->get_product_args( $product->ID );
+					$image = '';
+					if ( has_post_thumbnail( $product->ID ) ) {
+						$image = get_the_post_thumbnail( $product->ID, 'thumbnail' );
+						$image_id = get_post_thumbnail_id( $product->ID );
+					}
+					$field_id = $this->get_field_id( 'product_id' ) . '_' . esc_attr( $product->ID );
+					?>
+					<li>
+						<input type="radio" id="<?php echo $field_id; ?>" name="<?php echo $this->get_field_name( 'product_id' ); ?>" value="<?php esc_html_e( $product->ID ); ?>">
+						<label for="<?php echo $field_id; ?>">
+							<div class="product-info">
+								<?php esc_html_e( $product_args['name'] ); ?><br>
+								<?php esc_html_e( Jetpack_Money_Format::format_price( $product_args['currency'], $product_args['price'] ) ); ?>
+							</div>
+							<div class="image"><?php echo $image; ?></div>
+							<button class="button simple-payments-edit-product"
+									data-name="<?php esc_attr_e( $product_args['name'] ); ?>"
+									data-description="<?php esc_attr_e( $product_args['description'] ); ?>"
+									data-currency="<?php esc_attr_e( $product_args['currency'] ); ?>"
+									data-price="<?php esc_attr_e( Jetpack_Money_Format::format_price_amount( $product_args['currency'], $product_args['price'] ) ); ?>"
+									data-multiple="<?php esc_attr_e( $product_args['multiple'] ); ?>"
+									data-email="<?php esc_attr_e( $product_args['email'] ); ?>"
+								<?php if ( ! empty( $image ) ) { ?>
+									data-image-url="<?php echo esc_url( wp_get_attachment_image_url( $image_id, 'full' ) ); ?>"
+									data-image-id="<?php echo $image_id; ?>"
+								<?php } ?>
+							>
+								<span class="screen-reader-text"><?php _e( 'Edit', 'jetpack' ); ?></span>
+							</button>
+						</label>
+					</li>
+				<?php endforeach; ?>
+			</ul>
+		</div>
+		<?php
+	}
+
+	protected function render_product_form( $product_id, $hide ) {
+		$product_args = $this->get_product_args( $product_id );
+		$price = ( $product_args['price'] ) ? esc_attr( Jetpack_Money_Format::format_price_amount( $product_args['currency'], $product_args['price'] ) ) : '';
+		?>
+		<div class="simple-payments-form" <?php if ( $hide ) echo 'style="display:none;"'; ?>>
+			<p>
+				<label for="<?php esc_attr_e( $this->get_field_id( 'name' ) ); ?>"><?php esc_html_e( 'What are you selling?', 'jetpack' ); ?></label>
+				<input <?php echo empty( $products ) ? '' : 'disabled'; ?> class="widefat field-name" id="<?php esc_attr_e( $this->get_field_id( 'name' ) ); ?>" name="<?php esc_attr_e( $this->get_field_name( 'name' ) ); ?>" type="text" placeholder="<?php esc_attr_e( 'Product name', 'jetpack' ); ?>" value="<?php esc_attr_e( $product_args['name'] ); ?>" />
+			</p>
+			<div class="simple-payments-image-fieldset">
+				<label><?php esc_html_e( 'Product image', 'jetpack' ); ?></label>
+				<div class="placeholder" <?php if ( has_post_thumbnail( $product_id ) ) echo 'style="display:none;"'; ?>><?php esc_html_e( 'Select an image', 'jetpack' ); ?></div> <!-- TODO: actual placeholder -->
+				<div class="simple-payments-image" data-image-field="<?php esc_attr_e( $this->get_field_name( 'image' ) ); ?>"> <!-- TODO: hide if empty, CSS? -->
+					<?php
+					if ( has_post_thumbnail( $product_id ) ) {
+						$image_id = get_post_thumbnail_id( $product_id );
+						echo '<img src="' . esc_url( wp_get_attachment_image_url( $image_id, 'full' ) ) . '" />';
+						echo '<input type="hidden" name="' . $this->get_field_name( 'image' ) . '" value="' . esc_attr( $image_id ) . '" />';
+					}
+					?>
+					<button class="button simple-payments-remove-image"><span class="screen-reader-text"><?php esc_html_e( 'Remove image', 'jetpack' ); ?></span></button>
+				</div>
+			</div>
+			<p>
+				<label for="<?php esc_attr_e( $this->get_field_id( 'description' ) ); ?>"><?php esc_html_e( 'Description', 'jetpack' ); ?></label>
+				<textarea class="field-description widefat" rows=5 id="<?php esc_attr_e( $this->get_field_id( 'description' ) ); ?>" name="<?php esc_attr_e( $this->get_field_name( 'description' ) ); ?>"><?php  esc_html_e( $product_args['description'] ); ?></textarea>
+			</p>
+			<p class="cost">
+				<label for="<?php esc_attr_e( $this->get_field_id( 'price' ) ); ?>"><?php esc_html_e( 'Price', 'jetpack' ); ?></label>
+				<select class="field-currency widefat" id="<?php esc_attr_e( $this->get_field_id( 'currency' ) ); ?>" name="<?php esc_attr_e( $this->get_field_name( 'currency' ) ); ?>">
+					<?php foreach( Jetpack_Money_Format::get_currencies_map() as $code => $currency ) { ?>
+						<option value="<?php esc_attr_e( $code ) ?>"<?php selected( $product_args['currency'], $code ); ?>>
+							<?php esc_html_e( $currency ) ?>
+						</option>
+					<?php } ?>
+				</select>
+				<input class="field-price widefat" id="<?php esc_attr_e( $this->get_field_id( 'price' ) ); ?>" name="<?php esc_attr_e( $this->get_field_name( 'price' ) ); ?>" type="text" value="<?php esc_attr_e( $price ); ?>" />
+			</p>
+			<p>
+				<input class="field-multiple" id="<?php esc_attr_e( $this->get_field_id( 'multiple' ) ); ?>" name="<?php esc_attr_e( $this->get_field_name( 'multiple' ) ); ?>" type="checkbox" value="1"<?php checked( $product_args['multiple'], '1' ); ?>/>
+				<label for="<?php esc_attr_e( $this->get_field_id( 'multiple' ) ); ?>"><?php esc_html_e( 'Allow people to buy more than one item at a time.', 'jetpack' ); ?></label>
+			</p>
+			<p>
+				<label for="<?php esc_attr_e( $this->get_field_id( 'email' ) ); ?>"><?php esc_html_e( 'Email', 'jetpack' ); ?></label>
+				<input class="field-email widefat" id="<?php esc_attr_e( $this->get_field_id( 'email' ) ); ?>" name="<?php esc_attr_e( $this->get_field_name( 'email' ) ); ?>" type="email" value="<?php  esc_attr_e( $product_args['email'] ); ?>" />
+				<em><?php printf( esc_html__( 'This is where PayPal will send your money. To claim a payment, you\'ll need a %1$sPayPal account%2$s connected to a bank account.', 'jetpack' ), '<a href="https://paypal.com" target="_blank">', '</a>' ) ?></em>
+			</p>
+		</div>
+		<?php
+	}
 
     /**
      * Form
@@ -199,7 +304,6 @@ class Simple_Payments_Widget extends WP_Widget {
 			<?php
 				$products = null;
 				if ( ! $instance['product_id'] ) {
-					// list existing products + add button
 					$args = array(
 						'numberposts' => -1,
 						'orderby' => 'date',
@@ -208,107 +312,18 @@ class Simple_Payments_Widget extends WP_Widget {
 
 					$products = get_posts( $args );
 					if ( ! empty( $products ) ) {
-						?>
-						<div class="simple-payments-product-list">
-							<div>
-								<span class="simple-payments-product-count"><?php printf( _n( '%d product', '%d products', count( $products ), 'Jetpack' ), number_format_i18n( count( $products ) ) ) ?></span>
-								<button class="button simple-payments-add-product"><?php esc_html_e( 'Add New', 'jetpack' ); ?></button>
-							</div>
-							<ul class="simple-payments-products">
-								<?php
-								foreach ( $products as $product ):
-									$product_args = $this->get_product_args( $product->ID );
-									$image = '';
-									if ( has_post_thumbnail( $product->ID ) ) {
-										$image = get_the_post_thumbnail( $product->ID, 'thumbnail' );
-										$image_id = get_post_thumbnail_id( $product->ID );
-									}
-									$field_id = $this->get_field_id( 'product_id' ) . '_' . esc_attr( $product->ID );
-								?>
-								<li>
-									<input type="radio" id="<?php echo $field_id; ?>" name="<?php echo $this->get_field_name( 'product_id' ); ?>" value="<?php esc_html_e( $product->ID ); ?>">
-									<label for="<?php echo $field_id; ?>">
-										<div class="product-info">
-											<?php esc_html_e( $product_args['name'] ); ?><br>
-											<?php esc_html_e( Jetpack_Money_Format::format_price( $product_args['currency'], $product_args['price'] ) ); ?>
-										</div>
-										<div class="image"><?php echo $image; ?></div>
-										<button class="button simple-payments-edit-product"
-												data-name="<?php esc_attr_e( $product_args['name'] ); ?>"
-												data-description="<?php esc_attr_e( $product_args['description'] ); ?>"
-												data-currency="<?php esc_attr_e( $product_args['currency'] ); ?>"
-												data-price="<?php esc_attr_e( Jetpack_Money_Format::format_price_amount( $product_args['currency'], $product_args['price'] ) ); ?>"
-												data-multiple="<?php esc_attr_e( $product_args['multiple'] ); ?>"
-												data-email="<?php esc_attr_e( $product_args['email'] ); ?>"
-												<?php if ( ! empty( $image ) ) { ?>
-													data-image-url="<?php echo esc_url( wp_get_attachment_image_url( $image_id, 'full' ) ); ?>"
-													data-image-id="<?php echo $image_id; ?>"
-												<?php } ?>
-										>
-											<span class="screen-reader-text"><?php _e( 'Edit', 'jetpack' ); ?></span>
-										</button>
-									</label>
-								</li>
-								<?php endforeach; ?>
-							</ul>
-						</div>
-						<?php
+						$this->render_products_list( $products );
 					}
 				}
 
-				// form code for adding a new product
-				$product_args = $this->get_product_args( $instance['product_id'] );
-
-				$price = ( $product_args['price'] ) ? esc_attr( Jetpack_Money_Format::format_price_amount( $product_args['currency'], $product_args['price'] ) ) : '';
-				?>
-
-				<?php if ( ! empty( $products ) ) { ?>
+				if ( ! empty( $products ) ) {
+					?>
 					<button class="button simple-payments-back-product-list" style="display:none;"><?php _e( 'Cancel', 'jetpack' ); ?></button>
-				<?php } ?>
-				<div class="simple-payments-form" <?php if ( ! empty( $products ) ) echo 'style="display:none;"'; ?>>
-					<p>
-						<label for="<?php esc_attr_e( $this->get_field_id( 'name' ) ); ?>"><?php esc_html_e( 'What are you selling?', 'jetpack' ); ?></label>
-						<input <?php echo empty( $products ) ? '' : 'disabled'; ?> class="widefat field-name" id="<?php esc_attr_e( $this->get_field_id( 'name' ) ); ?>" name="<?php esc_attr_e( $this->get_field_name( 'name' ) ); ?>" type="text" placeholder="<?php esc_attr_e( 'Product name', 'jetpack' ); ?>" value="<?php esc_attr_e( $product_args['name'] ); ?>" />
-					</p>
-					<div class="simple-payments-image-fieldset">
-						<label><?php esc_html_e( 'Product image', 'jetpack' ); ?></label>
-						<div class="placeholder" <?php if ( has_post_thumbnail( $instance['product_id'] ) ) echo 'style="display:none;"'; ?>><?php esc_html_e( 'Select an image', 'jetpack' ); ?></div> <!-- TODO: actual placeholder -->
-						<div class="simple-payments-image" data-image-field="<?php esc_attr_e( $this->get_field_name( 'image' ) ); ?>"> <!-- TODO: hide if empty, CSS? -->
-							<?php
-								if ( has_post_thumbnail( $instance['product_id'] ) ) {
-									$image_id = get_post_thumbnail_id( $instance['product_id'] );
-									echo '<img src="' . esc_url( wp_get_attachment_image_url( $image_id, 'full' ) ) . '" />';
-									echo '<input type="hidden" name="' . $this->get_field_name( 'image' ) . '" value="' . esc_attr( $image_id ) . '" />';
-								}
-							?>
-							<button class="button simple-payments-remove-image"><span class="screen-reader-text"><?php esc_html_e( 'Remove image', 'jetpack' ); ?></span></button>
-						</div>
-					</div>
-					<p>
-						<label for="<?php esc_attr_e( $this->get_field_id( 'description' ) ); ?>"><?php esc_html_e( 'Description', 'jetpack' ); ?></label>
-						<textarea class="field-description widefat" rows=5 id="<?php esc_attr_e( $this->get_field_id( 'description' ) ); ?>" name="<?php esc_attr_e( $this->get_field_name( 'description' ) ); ?>"><?php  esc_html_e( $product_args['description'] ); ?></textarea>
-					</p>
-					<p class="cost">
-						<label for="<?php esc_attr_e( $this->get_field_id( 'price' ) ); ?>"><?php esc_html_e( 'Price', 'jetpack' ); ?></label>
-						<select class="field-currency widefat" id="<?php esc_attr_e( $this->get_field_id( 'currency' ) ); ?>" name="<?php esc_attr_e( $this->get_field_name( 'currency' ) ); ?>">
-							<?php foreach( Jetpack_Money_Format::get_currencies_map() as $code => $currency ) { ?>
-								<option value="<?php esc_attr_e( $code ) ?>"<?php selected( $product_args['currency'], $code ); ?>>
-									<?php esc_html_e( $currency ) ?>
-								</option>
-							<?php } ?>
-						</select>
-						<input class="field-price widefat" id="<?php esc_attr_e( $this->get_field_id( 'price' ) ); ?>" name="<?php esc_attr_e( $this->get_field_name( 'price' ) ); ?>" type="text" value="<?php esc_attr_e( $price ); ?>" />
-					</p>
-					<p>
-						<input class="field-multiple" id="<?php esc_attr_e( $this->get_field_id( 'multiple' ) ); ?>" name="<?php esc_attr_e( $this->get_field_name( 'multiple' ) ); ?>" type="checkbox" value="1"<?php checked( $product_args['multiple'], '1' ); ?>/>
-						<label for="<?php esc_attr_e( $this->get_field_id( 'multiple' ) ); ?>"><?php esc_html_e( 'Allow people to buy more than one item at a time.', 'jetpack' ); ?></label>
-					</p>
-					<p>
-						<label for="<?php esc_attr_e( $this->get_field_id( 'email' ) ); ?>"><?php esc_html_e( 'Email', 'jetpack' ); ?></label>
-						<input class="field-email widefat" id="<?php esc_attr_e( $this->get_field_id( 'email' ) ); ?>" name="<?php esc_attr_e( $this->get_field_name( 'email' ) ); ?>" type="email" value="<?php  esc_attr_e( $product_args['email'] ); ?>" />
-						<em><?php printf( esc_html__( 'This is where PayPal will send your money. To claim a payment, you\'ll need a %1$sPayPal account%2$s connected to a bank account.', 'jetpack' ), '<a href="https://paypal.com" target="_blank">', '</a>' ) ?></em>
-					</p>
-				</div>
+					<?php
+				}
+				$hide_form = ! empty( $products ); // If there are existing products, the list is displayed by default, not the form
+				$this->render_product_form( $instance['product_id'], $hide_form );
+				?>
 			</div>
 		<?php
 	}
