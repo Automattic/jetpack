@@ -655,6 +655,11 @@ class Jetpack {
 		 * These are sync actions that we need to keep track of for jitms
 		 */
 		add_filter( 'jetpack_sync_before_send_updated_option', array( $this, 'jetpack_track_last_sync_callback' ), 99 );
+
+		// Actually push the stats on shutdown.
+		if ( ! has_action( 'shutdown', array( $this, 'push_stats' ) ) ) {
+			add_action( 'shutdown', array( $this, 'push_stats' ) );
+		}
 	}
 
 	function point_edit_links_to_calypso( $default_url, $post_id ) {
@@ -808,7 +813,7 @@ class Jetpack {
 	/**
 	 * If there are any stats that need to be pushed, but haven't been, push them now.
 	 */
-	function __destruct() {
+	function push_stats() {
 		if ( ! empty( $this->stats ) ) {
 			$this->do_stats( 'server_side' );
 		}
