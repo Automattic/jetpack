@@ -243,7 +243,7 @@ class Jetpack_Beta_Admin {
 		$pr         = '';
 		if ( isset( $branch->pr ) && is_int( $branch->pr ) ) {
 			$pr        = sprintf( 'data-pr="%s"', esc_attr( $branch->pr ) );
-			$more_info = sprintf( __( '<a href="%s">more info #%s</a> - ', 'jetpack-beta' ), Jetpack_Beta::get_url( $branch_key, $section ), $branch->pr );
+			$more_info = sprintf( __( '<a target="_blank" rel="external noopener noreferrer" href="%s">more info #%s</a> - ', 'jetpack-beta' ), Jetpack_Beta::get_url( $branch_key, $section ), $branch->pr );
 		}
 
 		$update_time = ( isset( $branch->update_date )
