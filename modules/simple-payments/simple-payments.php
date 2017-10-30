@@ -1,6 +1,6 @@
 <?php
 
-require_once( __DIR__ . '/money-format.php' );
+require_once( dirname( __FILE__ ) . '/money-format.php' );
 
 /*
  * Simple Payments lets users embed a PayPal button fully integrated with wpcom to sell products on the site.
