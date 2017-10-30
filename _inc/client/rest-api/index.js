@@ -6,8 +6,25 @@ import 'whatwg-fetch';
 import assign from 'lodash/assign';
 
 /**
- * External dependencies
+ * Helps create new custom error classes to better notify upper layers.
+ * @param {String} name the Error name that will be availble in Error.name
+ * @return {Error}      a new custom error class.
  */
+function createCustomError( name ) {
+	class CustomError extends Error {
+		constructor( ...args ) {
+			super( ...args );
+			this.name = name;
+		}
+	}
+	return CustomError;
+}
+
+export const JsonParseError = createCustomError( 'JsonParseError' );
+export const JsonParseAfterRedirectError = createCustomError( 'JsonParseAfterRedirectError' );
+export const Api404Error = createCustomError( 'Api404Error' );
+export const Api404AfterRedirectError = createCustomError( 'Api404AfterRedirectError' );
+export const FetchNetworkError = createCustomError( 'FetchNetworkError' );
 
 function JetpackRestApiClient( root, nonce ) {
 	let apiRoot = root,
@@ -48,26 +65,26 @@ function JetpackRestApiClient( root, nonce ) {
 		},
 
 		fetchSiteConnectionStatus: () => getRequest( `${ apiRoot }jetpack/v4/connection`, getParams )
-			.then( response => response.json() ),
+			.then( parseJsonResponse ),
 
 		fetchUserConnectionData: () => getRequest( `${ apiRoot }jetpack/v4/connection/data`, getParams )
-			.then( response => response.json() ),
+			.then( parseJsonResponse ),
 
 		disconnectSite: () => postRequest( `${ apiRoot }jetpack/v4/connection`, postParams, {
 			body: JSON.stringify( { isActive: false } )
 		} )
 			.then( checkStatus )
-			.then( response => response.json() ),
+			.then( parseJsonResponse ),
 
 		fetchConnectUrl: () => getRequest( `${ apiRoot }jetpack/v4/connection/url`, getParams )
 			.then( checkStatus )
-			.then( response => response.json() ),
+			.then( parseJsonResponse ),
 
 		unlinkUser: () => postRequest( `${ apiRoot }jetpack/v4/connection/user`, postParams, {
 			body: JSON.stringify( { linked: false } )
 		} )
 			.then( checkStatus )
-			.then( response => response.json() ),
+			.then( parseJsonResponse ),
 
 		jumpStart: ( action ) => {
 			let active;
@@ -81,16 +98,16 @@ function JetpackRestApiClient( root, nonce ) {
 				body: JSON.stringify( { active } )
 			} )
 				.then( checkStatus )
-				.then( response => response.json() );
+				.then( parseJsonResponse );
 		},
 
 		fetchModules: () => getRequest( `${ apiRoot }jetpack/v4/module/all`, getParams )
 			.then( checkStatus )
-			.then( response => response.json() ),
+			.then( parseJsonResponse ),
 
 		fetchModule: ( slug ) => getRequest( `${ apiRoot }jetpack/v4/module/${ slug }`, getParams )
 			.then( checkStatus )
-			.then( response => response.json() ),
+			.then( parseJsonResponse ),
 
 		activateModule: ( slug ) => postRequest(
 			`${ apiRoot }jetpack/v4/module/${ slug }/active`,
@@ -100,7 +117,7 @@ function JetpackRestApiClient( root, nonce ) {
 			}
 		)
 			.then( checkStatus )
-			.then( response => response.json() ),
+			.then( parseJsonResponse ),
 
 		deactivateModule: ( slug ) => postRequest(
 			`${ apiRoot }jetpack/v4/module/${ slug }/active`,
@@ -118,7 +135,7 @@ function JetpackRestApiClient( root, nonce ) {
 			}
 		)
 			.then( checkStatus )
-			.then( response => response.json() ),
+			.then( parseJsonResponse ),
 
 		updateSettings: ( newOptionValues ) => postRequest(
 			`${ apiRoot }jetpack/v4/settings`,
@@ -128,11 +145,11 @@ function JetpackRestApiClient( root, nonce ) {
 			}
 		)
 			.then( checkStatus )
-			.then( response => response.json() ),
+			.then( parseJsonResponse ),
 
 		getProtectCount: () => getRequest( `${ apiRoot }jetpack/v4/module/protect/data`, getParams )
 			.then( checkStatus )
-			.then( response => response.json() ),
+			.then( parseJsonResponse ),
 
 		resetOptions: ( options ) => postRequest(
 			`${ apiRoot }jetpack/v4/options/${ options }`,
@@ -142,19 +159,19 @@ function JetpackRestApiClient( root, nonce ) {
 			}
 		)
 			.then( checkStatus )
-			.then( response => response.json() ),
+			.then( parseJsonResponse ),
 
 		getVaultPressData: () => getRequest( `${ apiRoot }jetpack/v4/module/vaultpress/data`, getParams )
 			.then( checkStatus )
-			.then( response => response.json() ),
+			.then( parseJsonResponse ),
 
 		getAkismetData: () => getRequest( `${ apiRoot }jetpack/v4/module/akismet/data`, getParams )
 			.then( checkStatus )
-			.then( response => response.json() ),
+			.then( parseJsonResponse ),
 
 		checkAkismetKey: () => getRequest( `${ apiRoot }jetpack/v4/module/akismet/key/check`, getParams )
 			.then( checkStatus )
-			.then( response => response.json() ),
+			.then( parseJsonResponse ),
 
 		checkAkismetKeyTyped: apiKey => postRequest(
 			`${ apiRoot }jetpack/v4/module/akismet/key/check`,
@@ -164,34 +181,34 @@ function JetpackRestApiClient( root, nonce ) {
 			}
 		)
 			.then( checkStatus )
-			.then( response => response.json() ),
+			.then( parseJsonResponse ),
 
 		fetchStatsData: ( range ) => getRequest( statsDataUrl( range ), getParams )
 			.then( checkStatus )
-			.then( response => response.json() ),
+			.then( parseJsonResponse ),
 
 		getPluginUpdates: () => getRequest( `${ apiRoot }jetpack/v4/updates/plugins`, getParams )
 			.then( checkStatus )
-			.then( response => response.json() ),
+			.then( parseJsonResponse ),
 
 		fetchSettings: () => getRequest( `${ apiRoot }jetpack/v4/settings`, getParams )
 			.then( checkStatus )
-			.then( response => response.json() ),
+			.then( parseJsonResponse ),
 
 		updateSetting: ( updatedSetting ) => postRequest( `${ apiRoot }jetpack/v4/settings`, postParams, {
 			body: JSON.stringify( updatedSetting )
 		} )
 			.then( checkStatus )
-			.then( response => response.json() ),
+			.then( parseJsonResponse ),
 
 		fetchSiteData: () => getRequest( `${ apiRoot }jetpack/v4/site`, getParams )
 			.then( checkStatus )
-			.then( response => response.json() )
+			.then( parseJsonResponse )
 			.then( body => JSON.parse( body.data ) ),
 
 		fetchSiteFeatures: () => getRequest( `${ apiRoot }jetpack/v4/site/features`, getParams )
 			.then( checkStatus )
-			.then( response => response.json() )
+			.then( parseJsonResponse )
 			.then( body => JSON.parse( body.data ) ),
 
 		dismissJetpackNotice: ( notice ) => postRequest(
@@ -202,11 +219,11 @@ function JetpackRestApiClient( root, nonce ) {
 			}
 		)
 			.then( checkStatus )
-			.then( response => response.json() ),
+			.then( parseJsonResponse ),
 
 		fetchPluginsData: () => getRequest( `${ apiRoot }jetpack/v4/plugins`, getParams )
 			.then( checkStatus )
-			.then( response => response.json() )
+			.then( parseJsonResponse )
 	};
 
 	function addCacheBuster( route ) {
@@ -228,7 +245,7 @@ function JetpackRestApiClient( root, nonce ) {
 	}
 
 	function postRequest( route, params, body ) {
-		return fetch( route, assign( {}, params, body ) );
+		return fetch( route, assign( {}, params, body ) ).catch( catchNetworkErrors );
 	}
 
 	function statsDataUrl( range ) {
@@ -249,12 +266,42 @@ const restApi = new JetpackRestApiClient();
 export default restApi;
 
 function checkStatus( response ) {
+	// Regular success responses
 	if ( response.status >= 200 && response.status < 300 ) {
 		return response;
 	}
+
+	if ( response.status === 404 ) {
+		return new Promise( () => {
+			const err = response.redirected
+				? new Api404AfterRedirectError( response.redirected )
+				: new Api404Error();
+			throw err;
+		} );
+	}
+
 	return response.json().then( json => {
-		const error = new Error( json.message );
+		const error = new Error( `${ json.message } (Status ${ response.status })` );
 		error.response = json;
 		throw error;
 	} );
+}
+
+function parseJsonResponse( response ) {
+	return response.json().catch( e => catchJsonParseError( e, response.redirected, response.url ) );
+}
+
+function catchJsonParseError( e, redirected, url ) {
+	const err = redirected
+		? new JsonParseAfterRedirectError( url )
+		: new JsonParseError();
+	throw err;
+}
+
+// Catches TypeError coming from the Fetch API implementation
+function catchNetworkErrors() {
+	//Either one of:
+	// * A preflight error like a redirection to an external site (which results in a CORS)
+	// * A preflight error like ERR_TOO_MANY_REDIRECTS
+	throw new FetchNetworkError();
 }
