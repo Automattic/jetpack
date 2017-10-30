@@ -186,20 +186,20 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 		foreach ( $this->plugins as $plugin ) {
 
 			if ( ! $this->current_user_can( 'activate_plugin', $plugin ) ) {
-				$this->log[$plugin]['error'] = __( 'Sorry, you are not allowed to activate this plugin.' );
+				$this->log[ $plugin ]['error'] = __( 'Sorry, you are not allowed to activate this plugin.' );
 				$has_errors                  = true;
 				$permission_error            = true;
 				continue;
 			}
 
 			if ( ( ! $this->network_wide && Jetpack::is_plugin_active( $plugin ) ) || is_plugin_active_for_network( $plugin ) ) {
-				$this->log[$plugin]['error'] = __( 'The Plugin is already active.', 'jetpack' );
+				$this->log[ $plugin ]['error'] = __( 'The Plugin is already active.', 'jetpack' );
 				$has_errors                  = true;
 				continue;
 			}
 
 			if ( ! $this->network_wide && is_network_only_plugin( $plugin ) && is_multisite() ) {
-				$this->log[$plugin]['error'] = __( 'Plugin can only be Network Activated', 'jetpack' );
+				$this->log[ $plugin ]['error'] = __( 'Plugin can only be Network Activated', 'jetpack' );
 				$has_errors                  = true;
 				continue;
 			}
@@ -207,7 +207,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 			$result = activate_plugin( $plugin, '', $this->network_wide );
 
 			if ( is_wp_error( $result ) ) {
-				$this->log[$plugin]['error'] = $result->get_error_messages();
+				$this->log[ $plugin ]['error'] = $result->get_error_messages();
 				$has_errors                  = true;
 				continue;
 			}
@@ -218,7 +218,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 			}
 
 			if ( ! $success ) {
-				$this->log[$plugin]['error'] = $result->get_error_messages;
+				$this->log[ $plugin ]['error'] = $result->get_error_messages;
 				$has_errors                  = true;
 				continue;
 			}
