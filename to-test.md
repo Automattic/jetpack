@@ -6,7 +6,7 @@ We made some changes to reduce the number of connection issues that may happen o
 
 We have also improved the connection process to make sure other plugins can't interfere with the connection. To test this, try the following:
 
-1. Start with a disconnected site and user, and multiple other plugins active.
+1. Start with a disconnected site and user, and multiple other plugins active. If you'd like, you can use [jurassic.ninja](https://jurassic.ninja/) to get a brand new site quickly.
 2. Visit the dashboard and confirm that the Connect button has an appropriate URL and that you can connect
 3. After connecting, login in with a non-admin user and confirm that the banner button that reads "Connect to WordPress.com" works and has a good href.
 4. Confirm that you can cycle the connection. Connect Jetpack, get back to the admin page. Disconnect, and try to connect again without refreshing the page.
