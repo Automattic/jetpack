@@ -374,8 +374,10 @@ class Jetpack_PostImages {
 				continue;
 			}
 
-			$meta['width']  = (int) $image_tag->getAttribute( 'width' );
-			$meta['height'] = (int) $image_tag->getAttribute( 'height' );
+			$meta = array(
+				'width'  => (int) $image_tag->getAttribute( 'width' ),
+				'height' => (int) $image_tag->getAttribute( 'height' ),
+			);
 
 			// Must be larger than 200x200 (or user-specified).
 			if ( empty( $meta['width'] ) || $meta['width'] < $width ) {
