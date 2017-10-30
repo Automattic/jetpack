@@ -117,6 +117,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * We have updated the plugin to do a better job of cleaning up after itself whenever you decide to remove Jetpack from your site.
 * We made some changes to reduce the number of connection issues that may happen on a site when switching from HTTP to HTTPs.
 * We made some performance improvements to the Jetpack dashboard interface, to make sure your options and settings are loaded faster there.
+* Error messages are also better in the Jetpack Dashboard; whenever you can't update settings, Jetpack will provide you more information about why.
 * We improved the Jetpack update process to make sure updating Jetpack does not stress your database during the update process, even on high-traffic sites.
 * The next version of WordPress, 4.9, will be released very soon and will include [a lot of changes to its code editors](https://make.wordpress.org/core/2017/10/22/code-editing-improvements-in-wordpress-4-9/). Jetpack's Custom CSS will be fully compatible with the new editors and their syntax highlighting feature.
 * We have made some performance improvements to the Carousel feature.
