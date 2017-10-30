@@ -9,7 +9,7 @@
 				} ).val(),
 				price: root.find( '.field-price' ).prop( 'defaultValue' ),
 				multiple: root.find( '.field-multiple' ).prop( 'defaultChecked' ),
-				email: root.find( '.field-email' ).prop( 'defaultValue' ),
+				email: root.find( '.field-email' ).prop( 'defaultValue' )
 			};
 		}
 		root.find( '.simple-payments-back-product-list' ).show();
@@ -29,12 +29,12 @@
 			root.find( '.simple-payments-image-fieldset .placeholder' ).hide();
 			imageContainer.show()
 				.append( $( '<img/>', {
-					src: values.image,
+					src: values.image
 				} ) )
 				.append( $( '<input/>', {
 					type: 'hidden',
 					name: imageContainer.data( 'image-field' ),
-					value: values.image,
+					value: values.image
 				} ) );
 		} else {
 			root.find( '.simple-payments-image-fieldset .placeholder' ).show();
@@ -64,7 +64,7 @@
 				price: $( this ).data( 'price' ),
 				multiple: String( $( this ).data( 'multiple' ) ) === '1',
 				email: $( this ).data( 'email' ),
-				image: $( this ).data( 'image-url' ),
+				image: $( this ).data( 'image-url' )
 			} );
 		} );
 
@@ -121,12 +121,12 @@
 					.append( $( '<img/>', {
 						src: selection.url,
 						alt: selection.caption,
-						title: selection.title,
+						title: selection.title
 					} ) )
 					.append( $( '<input/>', {
 						type: 'hidden',
 						name: imageContainer.data( 'image-field' ),
-						value: selection.id,
+						value: selection.id
 					} ) );
 			} );
 
