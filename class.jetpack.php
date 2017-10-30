@@ -318,6 +318,11 @@ class Jetpack {
 	public $json_api_authorization_request = array();
 
 	/**
+	 * @var string Transient key used to prevent multiple simultaneous plugin upgrades
+	 */
+	public static $plugin_upgrade_lock_key = 'jetpack_upgrade_lock';
+
+	/**
 	 * Holds the singleton instance of this class
 	 * @since 2.3.3
 	 * @var Jetpack
@@ -345,6 +350,14 @@ class Jetpack {
 		if ( Jetpack::is_active() ) {
 			list( $version ) = explode( ':', Jetpack_Options::get_option( 'version' ) );
 			if ( JETPACK__VERSION != $version ) {
+				// Prevent multiple upgrades at once - only a single process should trigger
+				// an upgrade to avoid stampedes
+				if ( false !== get_transient( self::$plugin_upgrade_lock_key ) ) {
+					return;
+				}
+
+				// Set a short lock to prevent multiple instances of the upgrade
+				set_transient( self::$plugin_upgrade_lock_key, 1, 10 );
 
 				// check which active modules actually exist and remove others from active_modules list
 				$unfiltered_modules = Jetpack::get_active_modules();
@@ -387,6 +400,8 @@ class Jetpack {
 		// being initialized late during the page load. In this case we wait
 		// until the next proper admin page load with Jetpack active.
 		if ( ! did_action( 'jetpack_modules_loaded' ) ) {
+			delete_transient( self::$plugin_upgrade_lock_key );
+
 			return;
 		}
 
@@ -402,6 +417,8 @@ class Jetpack {
 		) {
 			do_action( 'jetpack_sitemaps_purge_data' );
 		}
+
+		delete_transient( self::$plugin_upgrade_lock_key );
 	}
 
 	static function activate_manage( ) {
