@@ -133,7 +133,8 @@ class Jetpack_JSON_API_Plugins_Modify_v1_2_Endpoint extends Jetpack_JSON_API_Plu
 			}
 			$this->log[ $plugin ][] = __( 'Plugin activated.', 'jetpack' );
 		}
-		if ( ! $this->bulk && isset( $has_errors ) ) {
+
+		if ( ! $this->bulk && $has_errors ) {
 			$plugin = $this->plugins[0];
 			if ( $permission_error ) {
 				return new WP_Error( 'unauthorized_error', $this->log[ $plugin ]['error'], 403 );
