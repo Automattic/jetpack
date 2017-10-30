@@ -87,7 +87,7 @@ new WPCOM_JSON_API_Update_Post_v1_2_Endpoint( array(
 		'$post_ID' => '(int) The post ID',
 	),
 	'query_parameters' => array(
-		'autosave' => '(bool) True if the post was save automatically.',
+		'autosave' => '(bool) True if the post was saved automatically.',
 	),
 
 	'request_format' => array(
