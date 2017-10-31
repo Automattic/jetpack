@@ -124,7 +124,10 @@ function jetpack_migrate_gallery_widget_upgrade_widget( $widget ) {
 	$widget_copy = array_merge( array( 'conditions' => null ), $widget );
 	$non_whitelisted_keys = array_diff_key( $widget_copy, $whitelisted_keys );
 	if ( count( $non_whitelisted_keys ) > 0 ) {
-		foreach( $non_whitelisted_keys as $key => $value ) {
+		jetpack_migrate_gallery_widget_bump_stats( 'extra-key' );
+
+		// Log the names of the keys not in our whitelist.
+		foreach ( $non_whitelisted_keys as $key => $value ) {
 			jetpack_migrate_gallery_widget_bump_stats( "extra-key-$key", "migration-extra-key" );
 		}
 	}
@@ -170,16 +173,16 @@ function jetpack_migrate_gallery_widget_update_sidebars( $sidebars_widgets, $id,
 /**
  * Will bump stat in jetpack_gallery_widget_migration group.
  *
- * @param string $bin  The bin to log into.
+ * @param string $bin   The bin to log into.
+ * @param string $group The group name. Defaults to "widget-migration".
  */
-function jetpack_migrate_gallery_widget_bump_stats( $bin, $group = '' ) {
+function jetpack_migrate_gallery_widget_bump_stats( $bin, $group = 'widget-migration' ) {
 	// If this is being run on .com bumps_stats_extra exists, but using the filter looks more elegant.
 	if ( function_exists( 'bump_stats_extras' ) ) {
-		$group = empty( $group  ) ? 'jetpack-widget-migration' : "jetpack-$group";
+		$group = "jetpack-$group";
 		do_action( 'jetpack_bump_stats_extra', $group, $bin );
 	} else {
 		// $group is prepended with 'jetpack-'
-		$group = empty( $group ) ? 'widget-migration' : $group;
 		$jetpack = Jetpack::init();
 		$jetpack->stat( $group, $bin ) ;
 	}
