@@ -187,12 +187,13 @@ class Jetpack_Sync_Defaults {
 		'sso_bypass_default_login_form'    => array( 'Jetpack_SSO_Helpers', 'bypass_login_forward_wpcom' ),
 		'wp_version'                       => array( 'Jetpack_Sync_Functions', 'wp_version' ),
 		'get_plugins'                      => array( 'Jetpack_Sync_Functions', 'get_plugins' ),
-		'get_plugins_action_links'		   => array( 'Jetpack_Sync_functions', 'get_plugins_action_links' ),
+		'get_plugins_action_links'         => array( 'Jetpack_Sync_Functions', 'get_plugins_action_links' ),
+		'get_plugin_org_info'              => array( 'Jetpack_Sync_Functions', 'get_plugin_org_info' ),
 		'active_modules'                   => array( 'Jetpack', 'get_active_modules' ),
 		'hosting_provider'                 => array( 'Jetpack_Sync_Functions', 'get_hosting_provider' ),
 		'locale'                           => 'get_locale',
 		'site_icon_url'                    => array( 'Jetpack_Sync_Functions', 'site_icon_url' ),
-		'roles'                            =>  array( 'Jetpack_Sync_Functions', 'roles' ),
+		'roles'                            => array( 'Jetpack_Sync_Functions', 'roles' ),
 	);
 
 	public static function get_callable_whitelist() {
