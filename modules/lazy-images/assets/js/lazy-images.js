@@ -59,7 +59,9 @@
 				return;
 			}
 
-			return fetchImage(src).then(() => { applyImage(image, src); });
+			const srcset = image.dataset.lazySrcset;
+
+			return fetchImage(src).then(() => { applyImage(image, src, srcset); });
 		}
 
 		/**
@@ -103,10 +105,11 @@
 		 * @param {object} img
 		 * @param {string} src
 		 */
-		function applyImage(img, src) {
+		function applyImage(img, src, srcset) {
 			// Prevent this from being lazy loaded a second time.
 			img.classList.add('jetpack-lazy-image--handled');
 			img.src = src;
+			img.srcset = srcset;
 			img.classList.add('fade-in');
 		}
 	});

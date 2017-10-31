@@ -73,13 +73,19 @@ class Jetpack_Lazy_Images {
 
 		$image_src = $old_attributes['src']['value'];
 
-		// Remove src and lazy-src since we manually add them
+		if ( isset( $old_attributes['srcset'] ) ) {
+			$image_srcset = $old_attributes['srcset']['value'];
+		} else {
+			$image_srcset = '';
+		}
+
+		// Remove src, lazy-src, srcset and lazy-srcset since we manually add them
 		$new_attributes = $old_attributes;
-		unset( $new_attributes['src'], $new_attributes['data-lazy-src'] );
+		unset( $new_attributes['src'], $new_attributes['srcset'], $new_attributes['data-lazy-src'], $new_attributes['data-lazy-srcset'] );
 
 		$new_attributes_str = $this->build_attributes_string( $new_attributes );
 
-		return sprintf( '<img data-lazy-src="%1$s" %2$s><noscript>%3$s</noscript>', esc_url( $image_src ), $new_attributes_str, $matches[0] );
+		return sprintf( '<img data-lazy-src="%1$s" data-lazy-srcset="%2$s" %3$s><noscript>%4$s</noscript>', esc_url( $image_src ), esc_attr( $image_srcset ), $new_attributes_str, $matches[0] );
 	}
 
 	private function build_attributes_string( $attributes ) {
@@ -96,7 +102,7 @@ class Jetpack_Lazy_Images {
 	}
 
 	public function register_assets() {
-		wp_register_script( 'jetpack-lazy-images', plugins_url( 'assets/js/lazy-images.js', __FILE__ ), array('jquery'), '1.5' );
+		wp_register_script( 'jetpack-lazy-images', plugins_url( 'assets/js/lazy-images.js', __FILE__ ), array('jquery'), '1.5', true );
 		wp_register_script( 'jetpack-intersection-observer-polyfill', plugins_url( 'assets/js/intersection-observer.js', __FILE__ ), array('jquery'), '1.5' );
 		wp_script_add_data( 'jetpack-intersection-observer-polyfill', 'conditional', 'IE' );
 	}
