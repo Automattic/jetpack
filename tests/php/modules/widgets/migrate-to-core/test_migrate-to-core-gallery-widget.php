@@ -17,19 +17,6 @@ class WP_Test_Jetpack_Migrate_Gallery_Widget extends WP_UnitTestCase {
 	function test_jetpack_migrate_gallery_widget_upgrade_widget_with_empty() {
 		$this->assertEquals( null, jetpack_migrate_gallery_widget_upgrade_widget( array() ) );
 	}
-	/**
-	 * Test jetpack_migrate_gallery_widget_upgrade_widget when called with an widget with extra keys
-	 */
-	function test_jetpack_migrate_gallery_widget_upgrade_widget_with_extra_keys() {
-		$input = array(
-			'title' => 'Jetpack Gallery',
-			'ids' => '13,21,41,61,63,83',
-			'link' => 'carousel',
-			'type' => 'rectangular',
-			'extra' => 'extra',
-		);
-		$this->assertEquals( null, jetpack_migrate_gallery_widget_upgrade_widget( $input ) );
-	}
 
 	/**
 	 * Test jetpack_migrate_gallery_widget_upgrade_widget when called with valid widgets
