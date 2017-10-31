@@ -59,6 +59,10 @@ class Jetpack_Perf_Optimize_Assets {
 			add_filter( 'jetpack_perf_asset_group', array( $this, 'set_asset_groups' ), 10, 2 );
 		}
 
+		if ( $this->inline_scripts_and_styles ) {
+			add_filter( 'jetpack_implode_frontend_css', '__return_false' );
+		}
+
 		add_action( 'wp_enqueue_scripts', array( $this, 'send_scripts_to_footer' ), PHP_INT_MAX );
 		add_filter( 'script_loader_src', array( $this, 'filter_inline_scripts' ), -100, 2 );
 		add_filter( 'script_loader_tag', array( $this, 'print_inline_scripts' ), -100, 3 );
