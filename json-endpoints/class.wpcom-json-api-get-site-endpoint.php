@@ -120,6 +120,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'podcasting_archive',
 		'is_domain_only',
 		'is_automated_transfer',
+		'is_wpcom_store',
 		'signup_is_store',
 		'has_pending_automated_transfer',
 	);
@@ -137,6 +138,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'publicize_permanently_disabled',
 		'ak_vp_bundle_enabled',
 		'is_automated_transfer',
+		'is_wpcom_store',
 		'frame_nonce'
 	);
 
@@ -521,6 +523,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 				case 'blog_public':
 					$options[ $key ] = $site->get_blog_public();
+					break;
+				case 'is_wpcom_store':
+					$options[ $key ] = $site->is_wpcom_store();
 					break;
 				case 'signup_is_store':
 					$signup_is_store = $site->signup_is_store();
