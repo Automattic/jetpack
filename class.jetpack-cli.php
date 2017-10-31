@@ -1023,7 +1023,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 			if ( isset( $body_json->error ) ) {
 				$this->partner_provision_error( new WP_Error( $body_json->error, $body_json->message ) );
 			} else {
-				$this->partner_provision_error( new WP_Error( 'server_error', sprintf( __( "Request failed with code %s" ), $response_code ) ) );
+				$this->partner_provision_error( new WP_Error( 'server_error', sprintf( __( "Request failed with code %s", 'jetpack' ), $response_code ) ) );
 			}
 		}
 

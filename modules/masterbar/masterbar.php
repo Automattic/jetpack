@@ -728,7 +728,7 @@ class A8C_WPCOM_Masterbar {
 			$wp_admin_bar->add_menu( array(
 				'parent' => 'publish',
 				'id'     => 'comments',
-				'title'  => __( 'Comments' ),
+				'title'  => __( 'Comments', 'jetpack' ),
 				'href'   => 'https://wordpress.com/comments/' . esc_attr( $this->primary_site_slug ),
 				'meta'   => array(
 					'class' => 'mb-icon',
