@@ -48,12 +48,18 @@ class Jetpack_Perf_Optimize_Assets {
 		$this->inline_scripts_and_styles = get_option( 'perf_inline_scripts_and_styles', true ) && ( $this->is_first_load || $this->inline_always );
 		$this->async_scripts             = get_option( 'perf_async_scripts', true );
 		$this->defer_scripts             = get_option( 'perf_defer_scripts', true );
+		$this->move_scripts_to_footer    = true;
 
 		if ( $this->remove_remote_fonts ) {
 			add_filter( 'jetpack_perf_remove_script', array( $this, 'remove_external_font_scripts' ), 10, 3 );
 			add_filter( 'jetpack_perf_remove_style', array( $this, 'remove_external_font_styles' ), 10, 3 );
 		}
 
+		if ( $this->move_scripts_to_footer ) {
+			add_filter( 'jetpack_perf_asset_group', array( $this, 'set_asset_groups' ), 10, 2 );
+		}
+
+		add_action( 'wp_enqueue_scripts', array( $this, 'send_scripts_to_footer' ), PHP_INT_MAX );
 		add_filter( 'script_loader_src', array( $this, 'filter_inline_scripts' ), -100, 2 );
 		add_filter( 'script_loader_tag', array( $this, 'print_inline_scripts' ), -100, 3 );
 		add_filter( 'style_loader_src', array( $this, 'filter_inline_styles' ), -100, 2 );
@@ -133,6 +139,34 @@ class Jetpack_Perf_Optimize_Assets {
 		}
 	}
 
+	// this code essentially sets the default asset location to the footer rather than the head
+	function send_scripts_to_footer() {
+		global $wp_scripts;
+
+		// fetch all deps for head
+		$wp_scripts->all_deps( $wp_scripts->queue, true, 1 );
+		foreach( $wp_scripts->to_do as $handle ) {
+			$registration = $wp_scripts->registered[$handle];
+			if ( $registration->args !== NULL ) {
+				// skip, this asset has an explicit location
+				continue;
+			}
+
+			$asset_group = apply_filters( 'jetpack_perf_asset_group', 1, $handle );
+			$registration->args = $asset_group;
+			$wp_scripts->groups[$handle] = $asset_group;
+		}
+	}
+
+	function set_asset_groups( $group, $handle ) {
+		// force jquery into header, everything else can go in footer unless filtered elsewhere
+		if ( in_array( $handle, array( 'jquery-core', 'jquery-migrate', 'jquery' ) ) ) {
+			return 0;
+		}
+
+		return $group;
+	}
+
 	/** FILTERS **/
 	public function remove_external_font_scripts( $should_remove, $handle, $asset_url ) {
 		$font_script_url = 'http://use.typekit.com/';
@@ -176,19 +210,20 @@ class Jetpack_Perf_Optimize_Assets {
 		}
 
 		if ( $this->should_inline_script( $script ) ) {
-			if ( $this->should_async_script( $script ) ) {
-				// base64-encoding a script into the src URL only makes sense if we intend to async or defer it
-				$tag = '<script async type="text/javascript" src="data:text/javascript;base64,' . base64_encode( file_get_contents( $script->extra['jetpack-inline-file'] ) ) . '"></script>';
-			} elseif ( $this->should_defer_script( $script ) ) {
-				$tag = '<script defer type="text/javascript" src="data:text/javascript;base64,' . base64_encode( file_get_contents( $script->extra['jetpack-inline-file'] ) ) . '"></script>';
+			$label = '<!-- ' . $script->src . '-->';
+			// base64-encoding a script into the src URL only makes sense if we intend to async or defer it
+			if ( $this->should_defer_script( $script ) ) {
+				$tag = $label . '<script defer type="text/javascript" src="data:text/javascript;base64,' . base64_encode( file_get_contents( $script->extra['jetpack-inline-file'] ) ) . '"></script>';
+			} elseif ( $this->should_async_script( $script ) ) {
+				$tag = $label . '<script async type="text/javascript" src="data:text/javascript;base64,' . base64_encode( file_get_contents( $script->extra['jetpack-inline-file'] ) ) . '"></script>';
 			} else {
-				$tag = '<script type="text/javascript">' . file_get_contents( $script->extra['jetpack-inline-file'] ) . '</script>';
+				$tag = $label . '<script type="text/javascript">' . file_get_contents( $script->extra['jetpack-inline-file'] ) . '</script>';
 			}
 		} else {
-			if ( $this->should_async_script( $script ) ) {
-				$tag = preg_replace( '/<script /', '<script async ', $tag );
-			} elseif ( $this->should_defer_script( $script ) ) {
+			if ( $this->should_defer_script( $script ) ) {
 				$tag = preg_replace( '/<script /', '<script defer ', $tag );
+			} elseif ( $this->should_async_script( $script ) ) {
+				$tag = preg_replace( '/<script /', '<script async ', $tag );
 			}
 		}
 
@@ -258,7 +293,8 @@ class Jetpack_Perf_Optimize_Assets {
 		$style = $wp_styles->registered[$handle];
 
 		if ( $this->should_inline_style( $style ) ) {
-			return "<style type='text/css' media='$media'>" . file_get_contents( $style->extra['jetpack-inline-file'] ) . '</style>';
+			$label = '<!-- ' . $style->src . '-->';
+			return "$label<style type='text/css' media='$media'>" . file_get_contents( $style->extra['jetpack-inline-file'] ) . '</style>';
 		}
 
 		if ( $this->should_remove_style( $style ) ) {
@@ -302,7 +338,8 @@ class Jetpack_Perf_Optimize_Assets {
 			$dependency->extra['jetpack-inline-file'] = $path;
 		}
 
-		$should_inline = isset( $dependency->extra['jetpack-inline'] ) && $dependency->extra['jetpack-inline'];
+		// only inline if we don't have a conditional
+		$should_inline = ! isset( $dependency->extra['conditional'] ) && isset( $dependency->extra['jetpack-inline'] ) && $dependency->extra['jetpack-inline'];
 
 		return apply_filters( $filter, $should_inline, $dependency->handle, $dependency->src ) && file_exists( $dependency->extra['jetpack-inline-file'] );
 	}
