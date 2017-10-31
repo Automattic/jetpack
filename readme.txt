@@ -113,21 +113,21 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Jetpack is now fully compatible with WordPress's [new Gallery Widget](https://make.wordpress.org/core/2017/09/25/introducing-the-gallery-widget/). Your old Gallery widgets powered by Jetpack will switch to the new Widget when you update to WordPress 4.9.
 
 **Enhancements**
-* We have improved the performance when loading the Jetpack Settings in the dashboard, by optimizing the number of calls made when loading the page.
+* We have improved the performance when loading the Jetpack Settings in the dashboard by optimizing the number of calls made when loading the page.
 * We have updated the plugin to do a better job of cleaning up after itself whenever you decide to remove Jetpack from your site.
 * We made some changes to reduce the number of connection issues that may happen on a site when switching from HTTP to HTTPs.
 * We made some performance improvements to the Jetpack dashboard interface, to make sure your options and settings are loaded faster there.
-* Error messages are also better in the Jetpack Dashboard; whenever you can't update settings, Jetpack will provide you more information about why.
-* We improved the Jetpack update process to make sure updating Jetpack does not stress your database during the update process, even on high-traffic sites.
+* Error messages are also better in the Jetpack Dashboard; whenever you can't update settings, Jetpack will provide you with more information about why.
+* We improved the Jetpack update process to make sure updating Jetpack does not stress your database during it, even on high-traffic sites.
 * The next version of WordPress, 4.9, will be released very soon and will include [a lot of changes to its code editors](https://make.wordpress.org/core/2017/10/22/code-editing-improvements-in-wordpress-4-9/). Jetpack's Custom CSS will be fully compatible with the new editors and their syntax highlighting feature.
 * We also made changes to make sure Jetpack was fully compatible with the [role and capability changes](https://make.wordpress.org/core/2017/10/15/improvements-for-roles-and-capabilities-in-4-9/) in WordPress 4.9.
 * We have made some performance improvements to the Carousel feature.
 * Contact Form: do not process shortcodes in widgets when WordPress itself does, starting in 4.9.
 * Contact Form: we have improved the "website" field to display better error messages when you don't supply a URL. We have also improved the look of the date picker for the date field.
-* Contact Form: avoid duplicate slash when loading editor style.
+* Contact Form: avoid duplicate slashes when loading editor style.
 * Masterbar: update the "Plugins" menu item to match the updated design on WordPress.com.
 * Open Graph: do not display images smaller than Facebook's required size.
-* Sharing: use Google's minified librairies to improve performance when loading Google buttons.
+* Sharing: use Google's minified libraries to improve performance when loading Google buttons.
 * Sharing: update Open Graph Image tags appearing on the home page to offer better alternatives based on your site settings in Appearance > Customize.
 * We improved the way sitemaps are built so they do not consume too much memory when they are generated.
 * WP.me Shorlinks: those links will now always use HTTPS.
