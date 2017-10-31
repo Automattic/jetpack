@@ -348,7 +348,6 @@ class Jetpack_Carousel {
 		foreach( $matches[0] as $image_html ) {
 			if ( preg_match( '/wp-image-([0-9]+)/i', $image_html, $class_id ) &&
 				( $attachment_id = absint( $class_id[1] ) ) ) {
-
 				/*
 				 * If exactly the same image tag is used more than once, overwrite it.
 				 * All identical tags will be replaced later with 'str_replace()'.
@@ -359,6 +358,9 @@ class Jetpack_Carousel {
 
 		$find        = array();
 		$replace     = array();
+		if ( empty( $selected_images ) ) {
+			return $content;
+		}
 		$attachments = get_posts( array(
 			'include' => array_keys( $selected_images ),
 		) );
