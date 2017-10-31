@@ -120,6 +120,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Error messages are also better in the Jetpack Dashboard; whenever you can't update settings, Jetpack will provide you more information about why.
 * We improved the Jetpack update process to make sure updating Jetpack does not stress your database during the update process, even on high-traffic sites.
 * The next version of WordPress, 4.9, will be released very soon and will include [a lot of changes to its code editors](https://make.wordpress.org/core/2017/10/22/code-editing-improvements-in-wordpress-4-9/). Jetpack's Custom CSS will be fully compatible with the new editors and their syntax highlighting feature.
+* We also made changes to make sure Jetpack was fully compatible with the [role and capability changes](https://make.wordpress.org/core/2017/10/15/improvements-for-roles-and-capabilities-in-4-9/) in WordPress 4.9.
 * We have made some performance improvements to the Carousel feature.
 * Contact Form: do not process shortcodes in widgets when WordPress itself does, starting in 4.9.
 * Contact Form: we have improved the "website" field to display better error messages when you don't supply a URL. We have also improved the look of the date picker for the date field.
