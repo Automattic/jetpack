@@ -12,6 +12,7 @@ import includes from 'lodash/includes';
  */
 import {
 	JETPACK_CONNECTION_STATUS_FETCH,
+	JETPACK_SET_INITIAL_STATE,
 	CONNECT_URL_FETCH,
 	CONNECT_URL_FETCH_FAIL,
 	CONNECT_URL_FETCH_SUCCESS,
@@ -42,9 +43,10 @@ export const status = ( state = { siteConnected: window.Initial_State.connection
 
 export const connectUrl = ( state = '', action ) => {
 	switch ( action.type ) {
+		case JETPACK_SET_INITIAL_STATE:
+			return get( action, 'initialState.connectUrl', state );
 		case CONNECT_URL_FETCH_SUCCESS:
 			return action.connectUrl;
-
 		default:
 			return state;
 	}

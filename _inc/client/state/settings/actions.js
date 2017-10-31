@@ -87,7 +87,7 @@ export const updateSettings = ( newOptionValues, type = '' ) => {
 		let messages = {
 				progress: __( 'Updating settings…' ),
 				success: __( 'Updated settings.' ),
-				error: error => __( 'Error updating settings. %(error)s', { args: { error: error } } )
+				error: error => __( 'Error updating settings. (%(error)s)', { args: { error: error.name || error } } )
 			},
 			updatedOptionsSuccess = () => newOptionValues;
 

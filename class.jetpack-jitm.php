@@ -311,8 +311,8 @@ class Jetpack_JITM {
 
 			$dismissed_feature = isset( $hidden_jitms[ $envelope->feature_class ] ) && is_array( $hidden_jitms[ $envelope->feature_class ] ) ? $hidden_jitms[ $envelope->feature_class ] : null;
 
-			// if the this feature class has been dismissed and the request has not expired from the cache, skip it as it's been dismissed
-			if ( is_array( $dismissed_feature ) && $from_cache && time() - $dismissed_feature['last_dismissal'] < $expiration + 60 ) {
+			// if the this feature class has been dismissed and the request has not passed the ttl, skip it as it's been dismissed
+			if ( is_array( $dismissed_feature ) && ( time() - $dismissed_feature['last_dismissal'] < $envelope->expires || $dismissed_feature['number'] >= $envelope->max_dismissal ) ) {
 				unset( $envelopes[ $idx ] );
 				continue;
 			}

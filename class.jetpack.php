@@ -318,6 +318,11 @@ class Jetpack {
 	public $json_api_authorization_request = array();
 
 	/**
+	 * @var string Transient key used to prevent multiple simultaneous plugin upgrades
+	 */
+	public static $plugin_upgrade_lock_key = 'jetpack_upgrade_lock';
+
+	/**
 	 * Holds the singleton instance of this class
 	 * @since 2.3.3
 	 * @var Jetpack
@@ -345,6 +350,14 @@ class Jetpack {
 		if ( Jetpack::is_active() ) {
 			list( $version ) = explode( ':', Jetpack_Options::get_option( 'version' ) );
 			if ( JETPACK__VERSION != $version ) {
+				// Prevent multiple upgrades at once - only a single process should trigger
+				// an upgrade to avoid stampedes
+				if ( false !== get_transient( self::$plugin_upgrade_lock_key ) ) {
+					return;
+				}
+
+				// Set a short lock to prevent multiple instances of the upgrade
+				set_transient( self::$plugin_upgrade_lock_key, 1, 10 );
 
 				// check which active modules actually exist and remove others from active_modules list
 				$unfiltered_modules = Jetpack::get_active_modules();
@@ -387,6 +400,8 @@ class Jetpack {
 		// being initialized late during the page load. In this case we wait
 		// until the next proper admin page load with Jetpack active.
 		if ( ! did_action( 'jetpack_modules_loaded' ) ) {
+			delete_transient( self::$plugin_upgrade_lock_key );
+
 			return;
 		}
 
@@ -402,6 +417,8 @@ class Jetpack {
 		) {
 			do_action( 'jetpack_sitemaps_purge_data' );
 		}
+
+		delete_transient( self::$plugin_upgrade_lock_key );
 	}
 
 	static function activate_manage( ) {
@@ -638,6 +655,11 @@ class Jetpack {
 		 * These are sync actions that we need to keep track of for jitms
 		 */
 		add_filter( 'jetpack_sync_before_send_updated_option', array( $this, 'jetpack_track_last_sync_callback' ), 99 );
+
+		// Actually push the stats on shutdown.
+		if ( ! has_action( 'shutdown', array( $this, 'push_stats' ) ) ) {
+			add_action( 'shutdown', array( $this, 'push_stats' ) );
+		}
 	}
 
 	function point_edit_links_to_calypso( $default_url, $post_id ) {
@@ -791,7 +813,7 @@ class Jetpack {
 	/**
 	 * If there are any stats that need to be pushed, but haven't been, push them now.
 	 */
-	function __destruct() {
+	function push_stats() {
 		if ( ! empty( $this->stats ) ) {
 			$this->do_stats( 'server_side' );
 		}
@@ -2397,37 +2419,28 @@ class Jetpack {
 	public static function get_file_data( $file, $headers ) {
 		//Get just the filename from $file (i.e. exclude full path) so that a consistent hash is generated
 		$file_name = basename( $file );
-		$file_data_option = Jetpack_Options::get_option( 'file_data', array() );
-		$key              = md5( $file_name . serialize( $headers ) );
-		$refresh_cache    = is_admin() && isset( $_GET['page'] ) && 'jetpack' === substr( $_GET['page'], 0, 7 );
+
+		$cache_key = 'jetpack_file_data_' . JETPACK__VERSION;
+
+		$file_data_option = get_transient( $cache_key );
+
+		if ( false === $file_data_option ) {
+			$file_data_option = array();
+		}
+
+		$key           = md5( $file_name . serialize( $headers ) );
+		$refresh_cache = is_admin() && isset( $_GET['page'] ) && 'jetpack' === substr( $_GET['page'], 0, 7 );
 
 		// If we don't need to refresh the cache, and already have the value, short-circuit!
-		if ( ! $refresh_cache && isset( $file_data_option[ JETPACK__VERSION ][ $key ] ) ) {
-			return $file_data_option[ JETPACK__VERSION ][ $key ];
+		if ( ! $refresh_cache && isset( $file_data_option[ $key ] ) ) {
+			return $file_data_option[ $key ];
 		}
 
 		$data = get_file_data( $file, $headers );
 
-		// Strip out any old Jetpack versions that are cluttering the option.
-		//
-		// We maintain the data for the current version of Jetpack plus the previous version
-		// to prevent repeated DB hits on large sites hosted with multiple web servers
-		// on a single database (since all web servers might not be updated simultaneously)
+		$file_data_option[ $key ] = $data;
 
-		$file_data_option[ JETPACK__VERSION ][ $key ] = $data;
-
-		if ( count( $file_data_option ) > 2 ) {
-			$count = 0;
-			krsort( $file_data_option );
-			foreach ( $file_data_option as $version => $values ) {
-				$count++;
-				if ( $count > 2 && JETPACK__VERSION != $version ) {
-					unset( $file_data_option[ $version ] );
-				}
-			}
-		}
-
-		Jetpack_Options::update_option( 'file_data', $file_data_option );
+		set_transient( $cache_key, $file_data_option, 29 * DAY_IN_SECONDS );
 
 		return $data;
 	}

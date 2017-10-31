@@ -213,13 +213,18 @@ class Jetpack_Sync_Defaults {
 		'bwg_album',
 		'bwg_gallery',
 		'customize_changeset', // WP built-in post type for Customizer changesets
+		'dn_wp_yt_log',
 		'http',
 		'idx_page',
+		'jetpack_migration',
 		'postman_sent_mail',
 		'rssap-feed',
 		'rssmi_feed_item',
 		'secupress_log_action',
+		'sg_optimizer_jobs',
 		'snitch',
+		'wpephpcompat_jobs',
+		'wprss_feed_item',
 		'wp_automatic',
 	);
 

@@ -8,7 +8,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	 * @since 2.7
 	 */
 	public function test_from_html_single_quotes() {
-		$s = '<imgANYTHINGATALLHEREsrc="bob.jpg"MOREANYTHINGHERE/>';
+		$s = '<img ANYTHINGATALLHERE src="bob.jpg" MOREANYTHINGHERE width="200" height="200" />';
 
 		$result = Jetpack_PostImages::from_html( $s );
 
@@ -22,7 +22,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	 * @since 2.7
 	 */
 	public function test_from_html_double_quotes() {
-		$s = "<imgANYTHINGATALLHEREsrc='bob.jpg'MOREANYTHINGHERE/>";
+		$s = "<img ANYTHINGATALLHERE src='bob.jpg' MOREANYTHINGHERE width='200' height='200' />";
 
 		$result = Jetpack_PostImages::from_html( $s );
 
@@ -73,7 +73,7 @@ class WP_Test_Jetpack_PostImages extends WP_UnitTestCase {
 	public function test_from_attachment_is_correct_array() {
 		$img_name = 'image.jpg';
 		$img_url = 'http://' . WP_TESTS_DOMAIN . '/wp-content/uploads/' . $img_name;
-		$img_html = '<img src="' . $img_url . '"/>';
+		$img_html = '<img src="' . $img_url . '" width="250" height="250"/>';
 		$img_dimensions = array( 'width' => 250, 'height' => 250 );
 
 		$post_id = $this->factory->post->create( array(

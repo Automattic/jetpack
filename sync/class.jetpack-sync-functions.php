@@ -293,7 +293,7 @@ class Jetpack_Sync_Functions {
 			if ( is_null( $plugin_file_singular ) ) {
 				return $plugins_action_links;
 			}
-			return ( isset( $plugins_action_links[ $plugin_file_singular ] ) ? $plugins_action_links[ $plugin_file_singular ] : array() );
+			return ( isset( $plugins_action_links[ $plugin_file_singular ] ) ? $plugins_action_links[ $plugin_file_singular ] : null );
 		}
 		return array();
 	}

@@ -357,21 +357,26 @@ class Jetpack_Carousel {
 			}
 		}
 
-		foreach ( $selected_images as $attachment_id => $image_html ) {
-			$attachment = get_post( $attachment_id );
+		$find        = array();
+		$replace     = array();
+		$attachments = get_posts( array(
+			'include' => array_keys( $selected_images ),
+		) );
 
-			if ( ! $attachment ) {
-				continue;
-			}
+		foreach ( $attachments as $attachment ) {
+			$image_html = $selected_images[ $attachment->ID ];
 
 			$attributes = $this->add_data_to_images( array(), $attachment );
 			$attributes_html = '';
 			foreach( $attributes as $k => $v ) {
 				$attributes_html .= esc_attr( $k ) . '="' . esc_attr( $v ) . '" ';
 			}
-			$image_html_with_data = str_replace( '<img ', "<img $attributes_html", $image_html );
-			$content = str_replace( $image_html, $image_html_with_data, $content );
+
+			$find[]    = $image_html;
+			$replace[] = str_replace( '<img ', "<img $attributes_html", $image_html );
 		}
+
+		$content = str_replace( $find, $replace, $content );
 		$this->enqueue_assets();
 		return $content;
 	}

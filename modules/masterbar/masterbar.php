@@ -668,7 +668,7 @@ class A8C_WPCOM_Masterbar {
 			),
 			array(
 				'url'   => 'https://wordpress.com/page/' . esc_attr( $this->primary_site_slug ),
-				'id'    => 'wp-admin-bar-new-page',
+				'id'    => 'wp-admin-bar-new-page-badge',
 				'label' => esc_html_x( 'Add', 'admin bar menu new item label', 'jetpack' ),
 			)
 		);
@@ -700,7 +700,7 @@ class A8C_WPCOM_Masterbar {
 			),
 			array(
 				'url'   => 'https://wordpress.com/post/' . esc_attr( $this->primary_site_slug ),
-				'id'    => 'wp-admin-bar-new-post',
+				'id'    => 'wp-admin-bar-new-post-badge',
 				'label' => esc_html_x( 'Add', 'admin bar menu new item label', 'jetpack' ),
 			)
 		);

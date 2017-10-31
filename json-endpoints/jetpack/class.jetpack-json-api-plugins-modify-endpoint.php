@@ -134,9 +134,15 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 
 		if ( isset( $args['active'] ) && is_bool( $args['active'] ) ) {
 			if ( $args['active'] ) {
+				// We don't have to check for activate_plugins permissions since we assume that the user has those
+				// Since we set them via $needed_capabilities.
 				return $this->activate();
 			} else {
-				return $this->deactivate();
+				if ( $this->current_user_can( 'deactivate_plugins' ) ) {
+					return $this->deactivate();
+				} else {
+					return new WP_Error( 'unauthorized_error', __( 'Plugin deactivation is not allowed', 'jetpack' ), '403' );
+				}
 			}
 		}
 
@@ -176,7 +182,16 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 	}
 
 	protected function activate() {
+		$permission_error = false;
 		foreach ( $this->plugins as $plugin ) {
+
+			if ( ! $this->current_user_can( 'activate_plugin', $plugin ) ) {
+				$this->log[ $plugin ]['error'] = __( 'Sorry, you are not allowed to activate this plugin.' );
+				$has_errors                  = true;
+				$permission_error            = true;
+				continue;
+			}
+
 			if ( ( ! $this->network_wide && Jetpack::is_plugin_active( $plugin ) ) || is_plugin_active_for_network( $plugin ) ) {
 				$this->log[ $plugin ]['error'] = __( 'The Plugin is already active.', 'jetpack' );
 				$has_errors                  = true;
@@ -209,15 +224,38 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 			}
 			$this->log[ $plugin ][] = __( 'Plugin activated.', 'jetpack' );
 		}
-		if ( ! $this->bulk && isset( $has_errors ) ) {
-			$plugin = $this->plugins[0];
 
-			return new WP_Error( 'activation_error', $this->log[$plugin]['error'] );
+		if ( ! $this->bulk && isset( $has_errors )  ) {
+			$plugin = $this->plugins[0];
+			if ( $permission_error ) {
+				return new WP_Error( 'unauthorized_error', $this->log[ $plugin ]['error'], 403 );
+			}
+			return new WP_Error( 'activation_error', $this->log[ $plugin ]['error'] );
 		}
 	}
 
+	protected function current_user_can( $capability, $plugin = null ) {
+		global $wp_version;
+		if ( version_compare( $wp_version, '4.9-beta2' ) >= 0 ) {
+			if ( $plugin ) {
+				return current_user_can( $capability, $plugin );
+			}
+			return current_user_can( $capability );
+		}
+		// Assume that the user has the activate plugins capability.
+		return current_user_can( 'activate_plugins' );
+
+	}
+
 	protected function deactivate() {
+		$permission_error = false;
 		foreach ( $this->plugins as $plugin ) {
+			if ( ! $this->current_user_can('deactivate_plugin', $plugin ) ) {
+				$error = $this->log[ $plugin ]['error'] = __( 'Sorry, you are not allowed to deactivate this plugin.', 'jetpack' );
+				$permission_error = true;
+				continue;
+			}
+
 			if ( ! Jetpack::is_plugin_active( $plugin ) ) {
 				$error = $this->log[ $plugin ]['error'] = __( 'The Plugin is already deactivated.', 'jetpack' );
 				continue;
@@ -237,6 +275,9 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 			$this->log[ $plugin ][] = __( 'Plugin deactivated.', 'jetpack' );
 		}
 		if ( ! $this->bulk && isset( $error ) ) {
+			if ( $permission_error ) {
+				return new WP_Error( 'unauthorized_error', $error, 403 );
+			}
 			return new WP_Error( 'deactivation_error', $error );
 		}
 	}

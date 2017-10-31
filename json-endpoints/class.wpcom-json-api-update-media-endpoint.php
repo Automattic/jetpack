@@ -7,6 +7,7 @@ new WPCOM_JSON_API_Update_Media_Endpoint( array(
 	'method'      => 'POST',
 	'path'        => '/sites/%s/media/%d',
 	'deprecated'  => true,
+	'max_version' => '1',
 	'new_version' => '1.1',
 	'path_labels' => array(
 		'$site'    => '(int|string) Site ID or domain',

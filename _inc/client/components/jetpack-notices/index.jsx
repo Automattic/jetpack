@@ -16,7 +16,6 @@ import { getSiteConnectionStatus, getSiteDevMode, isStaging, isInIdentityCrisis,
 import { isDevVersion, userCanManageModules, userIsSubscriber } from 'state/initial-state';
 import DismissableNotices from './dismissable';
 import { getConnectUrl as _getConnectUrl } from 'state/connection';
-import QueryConnectUrl from 'components/data/query-connect-url';
 import JetpackBanner from 'components/jetpack-banner';
 import { JETPACK_CONTACT_BETA_SUPPORT } from 'constants';
 
@@ -192,7 +191,6 @@ const JetpackNotices = React.createClass( {
 	render() {
 		return (
 			<div aria-live="polite">
-				<QueryConnectUrl />
 				<NoticesList />
 				<JetpackStateNotices />
 				<DevVersionNotice isDevVersion={ this.props.isDevVersion } userIsSubscriber={ this.props.userIsSubscriber } />

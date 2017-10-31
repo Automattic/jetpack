@@ -317,10 +317,16 @@ class Jetpack_PostImages {
 
 	/**
 	 * Very raw -- just parse the HTML and pull out any/all img tags and return their src
-	 * @param  mixed $html_or_id The HTML string to parse for images, or a post id
+	 *
+	 * @param mixed $html_or_id The HTML string to parse for images, or a post id.
+	 * @param int   $width      Minimum Image width.
+	 * @param int   $height     Minimum Image height.
+	 *
+	 * @uses DOMDocument
+	 *
 	 * @return Array containing images
 	 */
-	static function from_html( $html_or_id ) {
+	static function from_html( $html_or_id, $width = 200, $height = 200 ) {
 		$images = array();
 
 		if ( is_numeric( $html_or_id ) ) {
@@ -330,7 +336,7 @@ class Jetpack_PostImages {
 				return $images;
 			}
 
-			$html = $post->post_content; // DO NOT apply the_content filters here, it will cause loops
+			$html = $post->post_content; // DO NOT apply the_content filters here, it will cause loops.
 		} else {
 			$html = $html_or_id;
 		}
@@ -339,21 +345,57 @@ class Jetpack_PostImages {
 			return $images;
 		}
 
-		preg_match_all( '!<img.*src=[\'"]([^"]+)[\'"].*/?>!iUs', $html, $matches );
-		if ( !empty( $matches[1] ) ) {
-			foreach ( $matches[1] as $match ) {
-				if ( stristr( $match, '/smilies/' ) )
-					continue;
-
-				$images[] = array(
-					'type'  => 'image',
-					'from'  => 'html',
-					'src'   => html_entity_decode( $match ),
-					'href'  => '', // No link to apply to these. Might potentially parse for that as well, but not for now
-				);
-			}
+		// Do not go any further if DOMDocument is disabled on the server.
+		if ( ! class_exists( 'DOMDocument' ) ) {
+			return $images;
 		}
 
+		// Let's grab all image tags from the HTML.
+		$dom_doc = new DOMDocument;
+
+		// The @ is not enough to suppress errors when dealing with libxml,
+		// we have to tell it directly how we want to handle errors.
+		libxml_use_internal_errors( true );
+		@$dom_doc->loadHTML( $html );
+		libxml_use_internal_errors( false );
+
+		$image_tags = $dom_doc->getElementsByTagName( 'img' );
+
+		// For each image Tag, make sure it can be added to the $images array, and add it.
+		foreach ( $image_tags as $image_tag ) {
+			$img_src = $image_tag->getAttribute( 'src' );
+
+			if ( empty( $img_src ) ) {
+				continue;
+			}
+
+			// Do not grab smiley images that were automatically created by WP when entering text smilies.
+			if ( stripos( $img_src, '/smilies/' ) ) {
+				continue;
+			}
+
+			$meta = array(
+				'width'  => (int) $image_tag->getAttribute( 'width' ),
+				'height' => (int) $image_tag->getAttribute( 'height' ),
+			);
+
+			// Must be larger than 200x200 (or user-specified).
+			if ( empty( $meta['width'] ) || $meta['width'] < $width ) {
+				continue;
+			}
+			if ( empty( $meta['height'] ) || $meta['height'] < $height ) {
+				continue;
+			}
+
+			$images[] = array(
+				'type'  => 'image',
+				'from'  => 'html',
+				'src'   => $img_src,
+				'src_width'  => $meta['width'],
+				'src_height' => $meta['height'],
+				'href'  => '', // No link to apply to these. Might potentially parse for that as well, but not for now.
+			);
+		}
 		return $images;
 	}
 
@@ -586,7 +628,7 @@ class Jetpack_PostImages {
 		if( function_exists( 'jetpack_photon_url' ) ) {
 			return jetpack_photon_url( $src, array( 'resize' => "$width,$height" ) );
 		}
-		
+
 		// Arg... no way to resize image using WordPress.com infrastructure!
 		return $src;
 	}
