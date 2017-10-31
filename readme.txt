@@ -132,6 +132,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Subscriptions: we added a filter so third party developers can track comment subscription activations.
 * Sync: synchronize plugin action links to add that information to WordPress.com.
 * Sync: improvements to better track theme and widget changes.
+* We added a new filter (`jetpack_google_translate_widget_layout`) to the Google Translate Widget to allow you to change its layout.
 * WordPress.com REST API: improve comment management for all roles, including post authors.
 * WordPress.com REST API: allow site owners to manage comments on attachment pages from WordPress.com.
 * WordPress.com REST API: improve the response from the API when WordPress' autoupdates are disabled.
