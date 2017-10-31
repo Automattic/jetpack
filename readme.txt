@@ -1,8 +1,8 @@
 === WP Super Cache ===
 Contributors: donncha, automattic, kraftbj
 Tags: performance,caching,wp-cache,wp-super-cache,cache
-Tested up to: 4.8.2
-Stable tag: 1.5.7.1
+Tested up to: 4.8.3
+Stable tag: 1.5.8
 Requires at least: 3.0
 
 A very fast caching engine for WordPress that produces static html files.
@@ -53,9 +53,24 @@ Interested in translating WP Super Cache to your language? See the [translation 
 The cache directory, usually wp-content/cache/ is only for temporary files. Do not ever put important files or symlinks to important files or directories in that directory. They will be deleted if the plugin has write access to them.
 
 == Upgrade Notice ==
-Fixes fatal error for older versions of WP and corrupted config file issues.
+Many bug fixes
 
 == Changelog ==
+= 1.5.8 =
+* PHP 7 fixes. (#429)
+* Fix debug comments checkbox. (#433)
+* Only register uninstall function in admin pages to save queries. (#430)
+* Check that wp-cache-phase1.php is loaded before saving settings page. (#428)
+* If a url has a "?" in it then don't delete the associated cache. It'll delete the whole cache after stripping out ?... part. (#427 & #420)
+* Allow static functions in classes to be used in cacheactions. (#425)
+* Don't make AJAX requests anonymous. (#423)
+* Fixed link to chmod explanation. (#421)
+* Add more escaping to the CDN settings page. (#416)
+* Use SERVER_PROTOCOL to determine http protocol. (#412 & #413)
+* If preload stalls only send one email per day, but do display an admin notice. (#432)
+* Fixed more PHP warnings in #438 and #437
+* Hide mod_rewrite warnings for Nginx users. #434
+
 = 1.5.7.1 =
 * If the HTTP HOST is empty then don't use it in strpos to avoid a PHP warning. (#408)
 * Don't preload posts with permalinks that contain rejected strings. (#407)
