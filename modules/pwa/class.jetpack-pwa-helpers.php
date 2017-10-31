@@ -1,11 +1,7 @@
 <?php
 class Jetpack_PWA_Helpers {
-	public static function site_icon_url( $size ) {
-		$url = function_exists( 'get_site_icon_url' )
-			? get_site_icon_url( $size )
-			: false;
-
-		$default_sizes = array(
+	public static function get_default_manifest_icon_sizes() {
+		return array(
 			48,
 			72,
 			96,
@@ -14,9 +10,15 @@ class Jetpack_PWA_Helpers {
 			192,
 			512,
 		);
+	}
+
+	public static function site_icon_url( $size ) {
+		$url = function_exists( 'get_site_icon_url' )
+			? get_site_icon_url( $size )
+			: false;
 
 		// Fall back to built-in WordPress icon
-		if ( ! $url && in_array( $size, $default_sizes ) ) {
+		if ( ! $url && in_array( $size, self::get_default_manifest_icon_sizes() ) ) {
 			$url = esc_url_raw(
 				plugins_url( "modules/pwa/images/wp-$size.png", JETPACK__PLUGIN_FILE )
 			);

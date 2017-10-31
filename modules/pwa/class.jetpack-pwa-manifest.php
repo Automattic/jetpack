@@ -66,17 +66,10 @@ class Jetpack_PWA_Manifest {
 				$manifest['description'] = $description;
 			}
 
-			$icon_sizes = array(
-				48,
-				72,
-				96,
-				144,
-				168,
-				192,
-				512,
+			$manifest['icons'] = array_map(
+				array( $this, 'build_icon_object' ),
+				Jetpack_PWA_Helpers::get_default_manifest_icon_sizes()
 			);
-
-			$manifest['icons'] = array_map( array( $this, 'build_icon_object' ), $icon_sizes );
 
 			/**
 			 * Allow overriding the manifest.
