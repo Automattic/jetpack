@@ -530,12 +530,15 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 		global $wpdb;
 
 		if ( is_array( $tt_ids ) && ! empty( $tt_ids ) ) {
+			// escape
+			$tt_ids_sanitized = array_map( 'intval', $tt_ids );
+
 			$taxonomies = array();
-			foreach ( $tt_ids as $tt_id ) {
+			foreach ( $tt_ids_sanitized as $tt_id ) {
 				$term                            = get_term_by( 'term_taxonomy_id', $tt_id );
 				$taxonomies[ $term->taxonomy ][] = $tt_id;
 			}
-			$in_tt_ids = "'" . implode( "', '", $tt_ids ) . "'";
+			$in_tt_ids = implode( ", ", $tt_ids_sanitized );
 
 			/**
 			 * Fires immediately before an object-term relationship is deleted.
@@ -545,9 +548,10 @@ class Jetpack_Sync_WP_Replicastore implements iJetpack_Sync_Replicastore {
 			 * @param int $object_id Object ID.
 			 * @param array $tt_ids An array of term taxonomy IDs.
 			 */
-			do_action( 'delete_term_relationships', $object_id, $tt_ids );
+			do_action( 'delete_term_relationships', $object_id, $tt_ids_sanitized );
 			$deleted = $wpdb->query( $wpdb->prepare( "DELETE FROM $wpdb->term_relationships WHERE object_id = %d AND term_taxonomy_id IN ($in_tt_ids)", $object_id ) );
 			foreach ( $taxonomies as $taxonomy => $taxonomy_tt_ids ) {
+				$this->ensure_taxonomy( $taxonomy );
 				wp_cache_delete( $object_id, $taxonomy . '_relationships' );
 				/**
 				 * Fires immediately after an object-term relationship is deleted.
