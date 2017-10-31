@@ -126,6 +126,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Contact Form: we have improved the "website" field to display better error messages when you don't supply a URL. We have also improved the look of the date picker for the date field.
 * Contact Form: avoid duplicate slash when loading editor style.
 * Masterbar: update the "Plugins" menu item to match the updated design on WordPress.com.
+* Open Graph: do not display images smaller than Facebook's required size.
 * Sharing: use Google's minified librairies to improve performance when loading Google buttons.
 * Sharing: update Open Graph Image tags appearing on the home page to offer better alternatives based on your site settings in Appearance > Customize.
 * We improved the way sitemaps are built so they do not consume too much memory when they are generated.
