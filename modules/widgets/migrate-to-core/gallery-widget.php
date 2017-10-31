@@ -50,7 +50,6 @@ function jetpack_migrate_gallery_widget() {
 	}
 
 	if ( update_option( 'widget_media_gallery', $media_gallery ) ) {
-		delete_option( 'widget_gallery' );
 
 		// Now un-register old widgets and register new.
 		foreach ( $widgets_to_unregister as $id => $new_id ) {
@@ -72,11 +71,6 @@ function jetpack_migrate_gallery_widget() {
 		// We need to refresh on widgets page for changes to take effect.
 		// The jetpack_refresh_on_widget_page function is already defined in migrate-to-core/image-widget.php
 		add_action( 'current_screen', 'jetpack_refresh_on_widget_page' );
-	} else {
-		$widget_media_gallery = get_option( 'widget_media_gallery' );
-		if ( is_array( $widget_media_gallery ) ) {
-			delete_option( 'widget_gallery' );
-		}
 	}
 	Jetpack_Options::update_option( 'gallery_widget_migration', true );
 }
