@@ -108,6 +108,10 @@ abstract class SAL_Site {
 		return false;
 	}
 
+	public function is_wpcom_store() {
+		return false;
+	}
+
 	public function get_post_by_id( $post_id, $context ) {
 		$post = get_post( $post_id, OBJECT, $context );
 
