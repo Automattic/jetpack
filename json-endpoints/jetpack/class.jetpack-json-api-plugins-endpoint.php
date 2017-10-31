@@ -6,6 +6,7 @@
 abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoint {
 
 	protected $plugins = array();
+	protected $more_plugin_data = array();
 
 	protected $network_wide = false;
 
@@ -48,6 +49,8 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		'autoupdate_translation' => '(boolean) Whether the plugin is automatically updating translations',
 		'uninstallable'   => '(boolean) Whether the plugin is unistallable.',
 		'action_links'    => '(array) An array of action links that the plugin uses.',
+		'is_org'		  => '(boolean) Whether the plugin is in the .org plugin reposetory.',
+		'icons'			  => '(array) An array of icon links',
 		'log'             => '(array:safehtml) An array of update log strings.',
 	);
 
@@ -153,6 +156,13 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 	}
 
 	protected function format_plugin_v1_2( $plugin_file, $plugin_data ) {
+		$more_plugin_info = isset( $this->more_plugin_data[ $plugin_file ] )
+			? $this->more_plugin_data[ $plugin_file ] :
+			array(
+				'is_org' => false,
+				'icons' => null,
+			);
+
 		$plugin = array();
 		$plugin['slug']            = Jetpack_Autoupdate::get_plugin_slug( $plugin_file );
 		$plugin['active']          = Jetpack::is_plugin_active( $plugin_file );
@@ -173,6 +183,8 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		$autoupdate_translation = $this->plugin_has_translations_autoupdates_enabled( $plugin_file );
 		$plugin['autoupdate_translation'] = $autoupdate || $autoupdate_translation || Jetpack_Options::get_option( 'autoupdate_translations', false );
 		$plugin['uninstallable']   = is_uninstallable_plugin( $plugin_file );
+		$plugin['is_org']          = $more_plugin_info['is_org'];
+		$plugin['icons']		   = $more_plugin_info['icons'];
 
 		if ( ! empty ( $this->log[ $plugin_file ] ) ) {
 			$plugin['log'] = $this->log[ $plugin_file ];
@@ -239,6 +251,9 @@ abstract class Jetpack_JSON_API_Plugins_Endpoint extends Jetpack_JSON_API_Endpoi
 		$plugins = array();
 		/** This filter is documented in wp-admin/includes/class-wp-plugins-list-table.php */
 		$installed_plugins = apply_filters( 'all_plugins', get_plugins() );
+		if ( version_compare( $this->min_version, '1.2', '>=' ) ) {
+			$this->more_plugin_data = Jetpack_Sync_Functions::get_plugin_org_info();
+		}
 		foreach( $this->plugins as $plugin ) {
 			if ( ! isset( $installed_plugins[ $plugin ] ) )
 				continue;
