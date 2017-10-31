@@ -29,6 +29,7 @@ class Jetpack_PWA_Helpers {
 
 	public static function get_theme_color() {
 		$theme_color = '#fff';
+
 		// if we have AMP enabled, use those colors?
 		if ( class_exists( 'AMP_Customizer_Settings' ) ) {
 			/* This filter is documented in wp-content/plugins/amp/includes/class-amp-post-template.php */
