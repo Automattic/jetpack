@@ -1,5 +1,42 @@
 == Changelog ==
 
+= 5.4 =
+
+* Release date: October 3, 2017
+* Release post: http://wp.me/p1moTy-67V
+
+**Major Enhancements**
+* Multiple improvements to the connection process, to allow more people to use the Jetpack plugin, even on very specific server configurations.
+* Add a new Welcome screen to guide site owners after they have purchased a Jetpack plan.
+
+**Enhancements**
+* Add Schema.org markup to the Contact Info Widget.
+* Add a new "Date" field to the Contact Form.
+* Do not show any update notices when in [development mode](http://jetpack.com/support/development-mode).
+* Improve our documentation to help contributors set up a unit testing environment.
+* Avoid conflicts between Jetpack's Infinite Scroll and other Infinite Scroll plugins.
+* Improvements to the WordPress.com REST API to avoid issues when interacting with your site's categories and tags on WordPress.com.
+* Allow third party plugin and theme authors to add new menu items to the WordPress.com toolbar.
+* Improve the Content Options panel displayed in the Customizer with certain themes.
+* Add architecture for the Jetpack Search feature, available for Jetpack Professional users.
+* Simple Payments: improve the display of the payment items when used on your site.
+* Ensure a proper display of the Recipe shortcode on sites using an RTL language.
+* Improve the display of the Facebook posts, images, and all other Facebook embeds in your posts.
+* Synchronize the author information for all published posts.
+* Record how Jetpack was discovered and activated to better understand how site owners first discover Jetpack.
+* Improve the display and options offered with the Milestone Widget.
+
+**Bug fixes**
+* We fixed layout issues appearing in the admin interface for IE11 users.
+* Comment Form: avoid whitespace sometimes appearing below the form with some themes.
+* Contact Form: avoid errors in the post editor on sites using RTL languages.
+* Toolbar: always display the Toolbar when it's active, regardless of other admin bar settings.
+* Widget Visibility: make sure rules are correctly migrated from the old Jetpack image widget to the new WordPress Image Widget.
+* Avoid errors showing that Jetpack is out of date on WordPress.com, when running a Multisite network.
+* WP CLI: avoid warnings when using the `wp jetpack protect whitelist list` command to list the whitelisted IP addresses in the Protect feature.
+* Avoid displaying raw HTML in the Stats Configuration screen.
+* Comment edits are reflected properly in wordpress.com.
+
 = 5.3 =
 
 * Release date: September 5, 2017
