@@ -34,8 +34,8 @@ if ($arr_of_cnames[0] == '') $arr_of_cnames = array();
  * @return Boolean true if to exclude given match from rewriting
  */
 function scossdl_off_exclude_match($match, $excludes) {
-	foreach ($excludes as $badword) {
-		if (stristr($match, $badword) != false) {
+	foreach( $excludes as $badword ) {
+		if ( ! empty( $badword ) && stripos( $match, $badword ) !== false ) {
 			return true;
 		}
 	}
