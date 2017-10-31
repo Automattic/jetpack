@@ -110,7 +110,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Major Enhancements**
 
-* We've added the option to choose a Tiled Gallery type when using WordPress's [new Gallery Widget](https://make.wordpress.org/core/2017/09/25/introducing-the-gallery-widget/).
+* Jetpack is now fully compatible with WordPress's [new Gallery Widget](https://make.wordpress.org/core/2017/09/25/introducing-the-gallery-widget/). Your old Gallery widgets powered by Jetpack will switch to the new Widget when you update to WordPress 4.9.
 
 **Enhancements**
 * We have improved the performance when loading the Jetpack Settings in the dashboard, by optimizing the number of calls made when loading the page.

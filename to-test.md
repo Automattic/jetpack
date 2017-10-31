@@ -31,9 +31,9 @@ You will consequently want to test 4 things:
 
 ### Gallery Widget
 
-The next version of WordPress will now include its own [Gallery Widget](https://make.wordpress.org/core/2017/09/25/introducing-the-gallery-widget/). We've added the option to choose a Tiled Gallery type in that new widget.
+The next version of WordPress will now include its own [Gallery Widget](https://make.wordpress.org/core/2017/09/25/introducing-the-gallery-widget/). If you previously used a Jetpack Gallery Widget on your site, that widget will disappear and will be replaced by the new WordPress gallery widget.
 
-To test this, make sure you are running WordPress 4.9 Beta. You can use [this plugin](https://wordpress.org/plugins/wordpress-beta-tester/) to update WordPress on your site. Once you have done so you should see the new widget under Appearance > Widgets and Appearance > Customize. Try to use one the Tiled Gallery types when the Jetpack feature is active, and make sure it is displayed properly.
+To test this, start by adding a Jetpack Gallery Widget on your site, Then, update to WordPress 4.9 Beta. You can use [this plugin](https://wordpress.org/plugins/wordpress-beta-tester/) to update WordPress on your site. Once you have done so you should see the new WordPress widget under Appearance > Widgets and Appearance > Customize. Try to use one the Tiled Gallery types, and make sure it is displayed properly.
 
 ### Misc
 
