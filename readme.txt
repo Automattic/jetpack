@@ -158,6 +158,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Sitemaps: wait a minute before to generate sitemaps when the feature is activated, to avoid performance issues.
 * Sync: avoid synchronization issues on Multisite networks using custom domains.
 * Top Posts Widget: display the default title when it is set to empty.
+* Milestone Widget: make sure the widget is displayed properly and can easily be translated into other languages.
 * Verification Tools: avoid notices when saving changes on a Multisite network admin page.
 * VideoPress: avoid missing file warning in the editor when using an RTL language.
 * Upcoming events Widget: avoid PHP notices on sites using a custom timezone setting.
