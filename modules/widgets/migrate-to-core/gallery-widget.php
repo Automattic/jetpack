@@ -122,8 +122,11 @@ function jetpack_migrate_gallery_widget_upgrade_widget( $widget ) {
 	// Ensure widget has no keys other than those expected.
 	// Not all widgets have conditions, so lets add it in.
 	$widget_copy = array_merge( array( 'conditions' => null ), $widget );
-	if ( count( array_diff_key( $widget_copy, $whitelisted_keys ) ) > 0 ) {
-		return null;
+	$non_whitelisted_keys = array_diff_key( $widget_copy, $whitelisted_keys );
+	if ( count( $non_whitelisted_keys ) > 0 ) {
+		foreach( $non_whitelisted_keys as $key => $value ) {
+			jetpack_migrate_gallery_widget_bump_stats( "widget_had_extra_key_$key" );
+		}
 	}
 
 	$widget_copy = array_merge( $default_data, $widget, array(
