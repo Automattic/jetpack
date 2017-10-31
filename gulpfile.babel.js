@@ -75,6 +75,15 @@ function onBuild( done ) {
 				} );
 		}
 
+		// uglify some other random files
+		gulp.src( [ '_inc/*.js', '!_inc/*.min.js' ] )
+			.pipe( uglify() )
+			.pipe( rename( { suffix: '.min' } ) )
+			.pipe( gulp.dest( '_inc/build' ) )
+			.on( 'end', function() {
+				util.log( 'Your other JS is now uglified!' );
+			} );
+
 		doSass( function() {
 			if ( done ) {
 				doStatic( done );
