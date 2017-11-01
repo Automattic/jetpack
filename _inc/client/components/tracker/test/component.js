@@ -39,8 +39,8 @@ describe( 'Tracker component', () => {
 
 		it( 'records a jetpack_wpa_search_term event', () => {
 			expect( theSpy.calledOnce ).to.be.true;
-			expect( theSpy.args[0][0] ).to.equal( 'jetpack_wpa_search_term' );
-			expect( theSpy.args[0][1] ).to.eql( { term: 'new term' } );
+			expect( theSpy.args[ 0 ][ 0 ] ).to.equal( 'jetpack_wpa_search_term' );
+			expect( theSpy.args[ 0 ][ 1 ] ).to.eql( { term: 'new term' } );
 		} );
 	} );
 } );
