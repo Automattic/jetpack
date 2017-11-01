@@ -56,15 +56,15 @@ before_script:
     - phpenv config-rm xdebug.ini
     - export PLUGIN_SLUG=$(basename $(pwd))
     - source ~/.nvm/nvm.sh
-    - export PATH="$HOME/.composer/vendor/bin:$PATH" 
+    - export PATH="$HOME/.composer/vendor/bin:$PATH"
     - |
-        if [[ ${TRAVIS_PHP_VERSION:0:2} == "7." ]]; then 
-            composer global require "phpunit/phpunit=5.7.*" 
-        elif [[ ${TRAVIS_PHP_VERSION:0:3} != "5.2" ]]; then 
-            composer global require "phpunit/phpunit=4.8.*" 
-        fi 
-    - nvm install 6
-    - nvm use 6
+        if [[ ${TRAVIS_PHP_VERSION:0:2} == "7." ]]; then
+            composer global require "phpunit/phpunit=5.7.*"
+        elif [[ ${TRAVIS_PHP_VERSION:0:3} != "5.2" ]]; then
+            composer global require "phpunit/phpunit=4.8.*"
+        fi
+    - nvm install lts/carbon
+    - nvm use lts/carbon
     - ./tests/prepare-wordpress.sh
     - mysql -e "set global wait_timeout = 3600;"
 
