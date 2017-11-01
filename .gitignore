@@ -21,3 +21,4 @@ tests/php/files/jetpack-150x150.jpg
 /modules/**/*-rtl.css
 /css
 _inc/jetpack-strings.php
+/modules/**/*/block.js

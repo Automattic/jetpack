@@ -227,7 +227,9 @@ class Jetpack_Sync_Functions {
 			? 'WP_HOME'
 			: 'WP_SITEURL';
 
-		if ( Jetpack_Constants::is_defined( $constant ) ) {
+		// Since we disregard the constant for multisites in ms-default-filters.php,
+		// let's also use the db value if this is a multisite.
+		if ( ! is_multisite() && Jetpack_Constants::is_defined( $constant ) ) {
 			$value = Jetpack_Constants::get_constant( $constant );
 		} else {
 			// Let's get the option from the database so that we can bypass filters. This will help
@@ -291,7 +293,7 @@ class Jetpack_Sync_Functions {
 			if ( is_null( $plugin_file_singular ) ) {
 				return $plugins_action_links;
 			}
-			return ( isset( $plugins_action_links[ $plugin_file_singular ] ) ? $plugins_action_links[ $plugin_file_singular ] : array() );
+			return ( isset( $plugins_action_links[ $plugin_file_singular ] ) ? $plugins_action_links[ $plugin_file_singular ] : null );
 		}
 		return array();
 	}

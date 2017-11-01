@@ -513,8 +513,13 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		add_filter( 'option_home', array( $this, '__return_filtered_url' ) );
 		add_filter( 'option_siteurl', array( $this, '__return_filtered_url' ) );
 
-		$this->assertEquals( 'http://constanturl.com', Jetpack_Sync_Functions::get_raw_url( 'home' ) );
-		$this->assertEquals( 'http://constanturl.com', Jetpack_Sync_Functions::get_raw_url( 'siteurl' ) );
+		if ( is_multisite() ) {
+			$this->assertTrue( $this->__return_filtered_url() !== Jetpack_Sync_Functions::get_raw_url( 'home' ) );
+			$this->assertTrue( $this->__return_filtered_url() !== Jetpack_Sync_Functions::get_raw_url( 'siteurl' ) );
+		} else {
+			$this->assertEquals( 'http://constanturl.com', Jetpack_Sync_Functions::get_raw_url( 'home' ) );
+			$this->assertEquals( 'http://constanturl.com', Jetpack_Sync_Functions::get_raw_url( 'siteurl' ) );
+		}
 
 		remove_filter( 'option_home', array( $this, '__return_filtered_url' ) );
 		remove_filter( 'option_siteurl', array( $this, '__return_filtered_url' ) );

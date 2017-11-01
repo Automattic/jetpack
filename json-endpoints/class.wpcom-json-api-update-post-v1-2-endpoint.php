@@ -86,6 +86,9 @@ new WPCOM_JSON_API_Update_Post_v1_2_Endpoint( array(
 		'$site'    => '(int|string) Site ID or domain',
 		'$post_ID' => '(int) The post ID',
 	),
+	'query_parameters' => array(
+		'autosave' => '(bool) True if the post was saved automatically.',
+	),
 
 	'request_format' => array(
 		'date'      => "(ISO 8601 datetime) The post's creation time.",
@@ -154,6 +157,10 @@ class WPCOM_JSON_API_Update_Post_v1_2_Endpoint extends WPCOM_JSON_API_Update_Pos
 
 		$new  = $this->api->ends_with( $path, '/new' );
 		$args = $this->query_args();
+
+		if ( ! empty( $args['autosave'] ) ) {
+			define( 'DOING_AUTOSAVE', true );
+		}
 
 		// unhook publicize, it's hooked again later -- without this, skipping services is impossible
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {

@@ -255,7 +255,7 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 				<p>
 					<label for="<?php echo esc_attr( $this->get_field_id( $service . '_username' ) ); ?>">
 					<?php
-						/* Translators: %s is a social network name, e.g. Facebook. */
+						/* translators: %s is a social network name, e.g. Facebook. */
 						printf( __( '%s username:', 'jetpack' ), $service_name );
 					?>
 				</label>

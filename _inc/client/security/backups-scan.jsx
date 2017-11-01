@@ -3,7 +3,7 @@
  */
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { translate as __ } from 'i18n-calypso';
+import { numberFormat, translate as __ } from 'i18n-calypso';
 import Card from 'components/card';
 import analytics from 'lib/analytics';
 import get from 'lodash/get';
@@ -18,7 +18,11 @@ import {
 } from 'components/module-settings/module-settings-form';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import { getVaultPressData, isFetchingVaultPressData } from 'state/at-a-glance';
+import {
+	getVaultPressData,
+	isFetchingVaultPressData,
+	getVaultPressScanThreatCount,
+} from 'state/at-a-glance';
 import { getSitePlan, isFetchingSiteData } from 'state/site';
 import includes from 'lodash/includes';
 
@@ -49,7 +53,27 @@ export const BackupsScan = moduleSettingsForm(
 			// We check if the features are active first, rather than the plan because it's possible the site is on a
 			// VP-only plan, purchased before Jetpack plans existed.
 			if ( backupsEnabled && scanEnabled ) {
-				return __( 'Your site is backed up and threat-free.' );
+				const threats = this.props.hasThreats;
+				if ( threats ) {
+					return <div>
+						<strong>
+							{ __( 'Uh oh, %(number)s threat found.', 'Uh oh, %(number)s threats found.',
+								{
+									count: threats,
+									args: {
+										number: numberFormat( threats )
+									}
+								}
+							) }
+						</strong>
+						<br /><br />
+						{ __( '{{a}}View details{{/a}}', { components: { a: <a href="https://dashboard.vaultpress.com/" /> } } ) }
+						<br />
+						{ __( '{{a}}Contact Support{{/a}}', { components: { a: <a href="https://jetpack.com/support" /> } } ) }
+					</div>;
+				} else {
+					return __( 'Your site is backed up and threat-free.' );
+				}
 			}
 
 			// Only return here if backups enabled and site on on free/personal plan.  If they're on a higher plan,
@@ -108,5 +132,6 @@ export default connect( state => {
 		isFetchingSiteData: isFetchingSiteData( state ),
 		vaultPressData: getVaultPressData( state ),
 		isFetchingVaultPressData: isFetchingVaultPressData( state ),
+		hasThreats: getVaultPressScanThreatCount( state ),
 	};
 } )( BackupsScan );

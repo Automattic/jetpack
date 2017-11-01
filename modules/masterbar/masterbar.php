@@ -124,7 +124,7 @@ class A8C_WPCOM_Masterbar {
 		}
 
 		wp_enqueue_script( 'jetpack-accessible-focus', plugins_url( '_inc/accessible-focus.js', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
-		wp_enqueue_script( 'a8c_wpcom_masterbar_tracks_events', plugins_url( 'tracks-events.js', __FILE__ ), array(), JETPACK__VERSION );
+		wp_enqueue_script( 'a8c_wpcom_masterbar_tracks_events', plugins_url( 'tracks-events.js', __FILE__ ), array( 'jquery' ), JETPACK__VERSION );
 
 		wp_enqueue_script( 'a8c_wpcom_masterbar_overrides', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/masterbar-overrides/masterbar.js' ), array( 'jquery' ), JETPACK__VERSION );
 	}
@@ -668,7 +668,7 @@ class A8C_WPCOM_Masterbar {
 			),
 			array(
 				'url'   => 'https://wordpress.com/page/' . esc_attr( $this->primary_site_slug ),
-				'id'    => 'wp-admin-bar-new-page',
+				'id'    => 'wp-admin-bar-new-page-badge',
 				'label' => esc_html_x( 'Add', 'admin bar menu new item label', 'jetpack' ),
 			)
 		);
@@ -700,7 +700,7 @@ class A8C_WPCOM_Masterbar {
 			),
 			array(
 				'url'   => 'https://wordpress.com/post/' . esc_attr( $this->primary_site_slug ),
-				'id'    => 'wp-admin-bar-new-post',
+				'id'    => 'wp-admin-bar-new-post-badge',
 				'label' => esc_html_x( 'Add', 'admin bar menu new item label', 'jetpack' ),
 			)
 		);

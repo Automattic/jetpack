@@ -59,9 +59,21 @@ class Jetpack_Custom_CSS_Enhancements {
 		}
 
 		wp_register_style( 'jetpack-codemirror',      plugins_url( 'custom-css/css/codemirror.css', __FILE__ ), array(), '20120905' );
-		wp_register_style( 'jetpack-customizer-css',  plugins_url( 'custom-css/css/customizer-control.css', __FILE__ ), array( 'jetpack-codemirror' ), '20140728' );
+		$deps = array();
+		if ( ! function_exists( 'wp_enqueue_code_editor' ) ) {
+			// If Core < 4.9
+			$deps[] = 'jetpack-codemirror';
+		}
+		wp_register_style( 'jetpack-customizer-css',  plugins_url( 'custom-css/css/customizer-control.css', __FILE__ ), $deps, '20140728' );
 		wp_register_script( 'jetpack-codemirror',     plugins_url( 'custom-css/js/codemirror.min.js', __FILE__ ), array(), '3.16', true );
-		wp_register_script( 'jetpack-customizer-css', plugins_url( 'custom-css/js/core-customizer-css.js', __FILE__ ), array( 'customize-controls', 'underscore', 'jetpack-codemirror' ), JETPACK__VERSION, true );
+		$deps = array( 'customize-controls', 'underscore' );
+		$src  = plugins_url( 'custom-css/js/core-customizer-css.core-4.9.js', __FILE__ );
+		if ( ! function_exists( 'wp_enqueue_code_editor' ) ) {
+			// If Core < 4.9
+			$deps[] = 'jetpack-codemirror';
+			$src = plugins_url( 'custom-css/js/core-customizer-css.js', __FILE__ );
+		}
+		wp_register_script( 'jetpack-customizer-css', $src, $deps, JETPACK__VERSION, true );
 
 		wp_register_script( 'jetpack-customizer-css-preview', plugins_url( 'custom-css/js/core-customizer-css-preview.js', __FILE__ ), array( 'customize-selective-refresh' ), JETPACK__VERSION, true );
 
@@ -676,12 +688,24 @@ class Jetpack_Custom_CSS_Enhancements {
 		 * CONTROLS.
 		 */
 
-		// Overwrite the Core Control.
+		// Overwrite or Tweak the Core Control.
 		$core_custom_css = $wp_customize->get_control( 'custom_css' );
 		if ( $core_custom_css ) {
-			$wp_customize->remove_control( 'custom_css' );
-			$core_custom_css->type = 'jetpackCss';
-			$wp_customize->add_control( $core_custom_css );
+			if ( $core_custom_css instanceof WP_Customize_Code_Editor_Control ) {
+				// In WP 4.9, we let the Core CodeMirror control keep running the show, but hook into it to tweak stuff.
+				$types = array(
+					'default' => 'text/css',
+					'less'    => 'text/x-less',
+					'sass'    => 'text/x-scss',
+				);
+				$preprocessor = $wp_customize->get_setting( 'jetpack_custom_css[preprocessor]' )->value();
+				if ( isset( $types[ $preprocessor ] ) ) {
+					$core_custom_css->code_type = $types[ $preprocessor ];
+				}
+			} else {
+				// Core < 4.9 Fallback
+				$core_custom_css->type = 'jetpackCss';
+			}
 		}
 
 		$wp_customize->selective_refresh->add_partial( 'custom_css', array(

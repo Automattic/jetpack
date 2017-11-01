@@ -48,6 +48,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		// Load API endpoints
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/class.jetpack-core-api-module-endpoints.php';
 		require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/class.jetpack-core-api-site-endpoints.php';
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/class.jetpack-core-api-widgets-endpoints.php';
 
 		self::$user_permissions_error_msg = esc_html__(
 			'You do not have the correct user permissions to perform this action.
@@ -64,6 +65,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$module_data_endpoint = new Jetpack_Core_API_Module_Data_Endpoint();
 		$module_toggle_endpoint = new Jetpack_Core_API_Module_Toggle_Endpoint( new Jetpack_IXR_Client() );
 		$site_endpoint = new Jetpack_Core_API_Site_Endpoint();
+		$widget_endpoint = new Jetpack_Core_API_Widget_Endpoint();
 
 		register_rest_route( 'jetpack/v4', '/jitm', array(
 			'methods'  => WP_REST_Server::READABLE,
@@ -331,6 +333,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'methods' => WP_REST_Server::READABLE,
 			'callback' => __CLASS__ . '::get_plugin',
 			'permission_callback' => __CLASS__ . '::activate_plugins_permission_check',
+		) );
+
+		// Widgets: get information about a widget that supports it.
+		register_rest_route( 'jetpack/v4', '/widgets/(?P<id>[0-9a-z\-_]+)', array(
+			'methods' => WP_REST_Server::READABLE,
+			'callback' => array( $widget_endpoint, 'process' ),
+			'permission_callback' => array( $widget_endpoint, 'can_request' ),
 		) );
 	}
 
@@ -2343,19 +2352,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return $options;
 		}
 
-		foreach ( $options as $key => $value ) {
-
-			if ( isset( $options[ $key ]['validate_callback'] ) ) {
-				unset( $options[ $key ]['validate_callback'] );
-			}
-
-			$default_value = isset( $options[ $key ]['default'] ) ? $options[ $key ]['default'] : '';
-
-			$current_value = get_option( $key, $default_value );
-
-			$options[ $key ]['current_value'] = self::cast_value( $current_value, $options[ $key ] );
-		}
-
 		// Some modules need special treatment.
 		switch ( $module ) {
 
@@ -2405,6 +2401,12 @@ class Jetpack_Core_Json_Api_Endpoints {
 				$sharer = new Sharing_Service();
 				$options = self::split_options( $options, $sharer->get_global_options() );
 				$options['sharing_services']['current_value'] = $sharer->get_blog_services();
+				$other_sharedaddy_options = array( 'jetpack-twitter-cards-site-tag', 'sharedaddy_disable_resources', 'sharing_delete_service' );
+				foreach ( $other_sharedaddy_options as $key ) {
+					$default_value = isset( $options[ $key ]['default'] ) ? $options[ $key ]['default'] : '';
+					$current_value = get_option( $key, $default_value );
+					$options[ $key ]['current_value'] = self::cast_value( $current_value, $options[ $key ] );
+				}
 				break;
 
 			case 'after-the-deadline':
@@ -2429,8 +2431,26 @@ class Jetpack_Core_Json_Api_Endpoints {
 				}
 				$options = self::split_options( $options, stats_get_options() );
 				break;
+			default:
+				// These option are just stored as plain WordPress options.
+				foreach ( $options as $key => $value ) {
+					$default_value = isset( $options[ $key ]['default'] ) ? $options[ $key ]['default'] : '';
+					$current_value = get_option( $key, $default_value );
+					$options[ $key ]['current_value'] = self::cast_value( $current_value, $options[ $key ] );
+				}
 		}
-
+		// At this point some options have current_value not set because they're options
+		// that only get written on update, so we set current_value to the default one.
+		foreach ( $options as $key => $value ) {
+			// We don't need validate_callback in the response
+			if ( isset( $options[ $key ]['validate_callback'] ) ) {
+				unset( $options[ $key ]['validate_callback'] );
+			}
+			$default_value = isset( $options[ $key ]['default'] ) ? $options[ $key ]['default'] : '';
+			if ( ! isset( $options[ $key ]['current_value'] ) ) {
+				$options[ $key ]['current_value'] = self::cast_value( $default_value, $options[ $key ] );
+			}
+		}
 		return $options;
 	}
 

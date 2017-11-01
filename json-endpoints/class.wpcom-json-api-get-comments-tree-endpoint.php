@@ -2,6 +2,8 @@
 
 new WPCOM_JSON_API_Get_Comments_Tree_Endpoint( array(
 	'description' => 'Get a comments tree for site.',
+	'max_version' => '1',
+	'new_version' => '1.1',
 	'group'       => 'comments-tree',
 	'stat'        => 'comments-tree:1',
 

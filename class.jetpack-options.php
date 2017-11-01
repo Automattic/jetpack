@@ -88,6 +88,7 @@ class Jetpack_Options {
 			'hide_jitm',                    // (array)  A list of just in time messages that we should not show because they have been dismissed by the user
 			'custom_css_4.7_migration',     // (bool)   Whether Custom CSS has scanned for and migrated any legacy CSS CPT entries to the new Core format.
 			'image_widget_migration',       // (bool)   Whether any legacy Image Widgets have been converted to the new Core widget
+			'gallery_widget_migration',     // (bool)   Whether any legacy Gallery Widgets have been converted to the new Core widget
 		);
 	}
 
@@ -438,7 +439,7 @@ class Jetpack_Options {
 		$disabled_raw_options = apply_filters( 'jetpack_disabled_raw_options', array() );
 		return isset( $disabled_raw_options[ $name ] );
 	}
-	
+
 	/**
 	 * Gets all known options that are used by Jetpack and managed by Jetpack_Options.
 	 *

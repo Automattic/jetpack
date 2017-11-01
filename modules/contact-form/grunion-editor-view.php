@@ -83,7 +83,7 @@ class Grunion_Editor_View {
 			)
 		) );
 
-		add_editor_style( plugin_dir_url( __FILE__ ) . '/css/editor-style.css' );
+		add_editor_style( plugin_dir_url( __FILE__ ) . 'css/editor-style.css' );
 	}
 
 	/**
@@ -179,6 +179,13 @@ class Grunion_Editor_View {
 	<div>
 		<label for='{{ data.id }}' class='grunion-field-label {{ data.type }}'>{{ data.label }}<# if ( data.required ) print( " <span>" + data.required + "</span>" ) #></label>
 		<input type='text' name='{{ data.id }}' id='{{ data.id }}' value='{{ data.value }}' class='{{ data.class }}' placeholder='{{ data.placeholder }}' />
+	</div>
+</script>
+
+<script type="text/html" id="tmpl-grunion-field-url">
+	<div>
+		<label for='{{ data.id }}' class='grunion-field-label {{ data.type }}'>{{ data.label }}<# if ( data.required ) print( " <span>" + data.required + "</span>" ) #></label>
+		<input type='url' name='{{ data.id }}' id='{{ data.id }}' value='{{ data.value }}' class='{{ data.class }}' placeholder='{{ data.placeholder }}' />
 	</div>
 </script>
 

@@ -21,7 +21,6 @@ import {
 	isUnlinkingUser as _isUnlinkingUser
 } from 'state/connection';
 import { getSiteRawUrl } from 'state/initial-state';
-import QueryConnectUrl from 'components/data/query-connect-url';
 import onKeyDownCallback from 'utils/onkeydown-callback';
 import JetpackDisconnectDialog from 'components/jetpack-disconnect-dialog';
 
@@ -136,14 +135,13 @@ export const ConnectButton = React.createClass( {
 	render() {
 		return (
 			<div>
-				<QueryConnectUrl />
 				{ this.renderContent() }
 				{ this.props.children }
-				{ ! this.props.isSiteConnected && 
+				{ ! this.props.isSiteConnected &&
 					<p className="jp-banner__tos-blurb">
-					{ __( 
+					{ __(
 						'By connecting your site you agree to our fascinating {{tosLink}}Terms of Service{{/tosLink}} and to {{shareDetailsLink}}share details{{/shareDetailsLink}} with WordPress.com',
-						{ 
+						{
 							components: {
 								tosLink: <a href="https://wordpress.com/tos" rel="noopener noreferrer" target="_blank"/>,
 								shareDetailsLink: <a href="https://jetpack.com/support/what-data-does-jetpack-sync" rel="noopener noreferrer" target="_blank"/>
