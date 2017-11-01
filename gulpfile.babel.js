@@ -97,11 +97,7 @@ function onBuild( done ) {
 }
 
 function getWebpackConfig() {
-	// clone and extend webpackConfig
-	const config = Object.create( require( './webpack.config.js' ) );
-	config.debug = true;
-
-	return config;
+	return Object.create( require( './webpack.config.js' ) );
 }
 
 function doSass( done ) {
@@ -154,8 +150,12 @@ gulp.task( 'sass:watch', function() {
 gulp.task( 'react:build', function( done ) {
 	const config = getWebpackConfig();
 
-	if ( 'production' === process.env.NODE_ENV ) {
-		config.debug = false;
+	if ( 'production' !== process.env.NODE_ENV ) {
+		config.plugins.push(
+			new webpack.LoaderOptionsPlugin( {
+				debug: true
+			} )
+		);
 	}
 
 	webpack( config ).run( onBuild( done ) );

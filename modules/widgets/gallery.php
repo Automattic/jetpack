@@ -435,7 +435,11 @@ function jetpack_gallery_widget_init() {
 	 *
 	 * @param bool false Whether to force-enable the gallery widget
 	 */
-	if ( apply_filters( 'jetpack_force_enable_gallery_widget', false ) || ( class_exists( 'WP_Widget_Media_Gallery' ) && Jetpack_Options::get_option( 'gallery_widget_migration' ) ) ) {
+	if (
+		! apply_filters( 'jetpack_force_enable_gallery_widget', false )
+		&& class_exists( 'WP_Widget_Media_Gallery' )
+		&& Jetpack_Options::get_option( 'gallery_widget_migration' )
+	) {
 		return;
  	}
 	if ( ! method_exists( 'Jetpack', 'is_module_active' ) || Jetpack::is_module_active( 'tiled-gallery' ) )

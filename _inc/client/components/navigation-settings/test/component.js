@@ -17,16 +17,6 @@ describe( 'NavigationSettings', () => {
 		options;
 
 	before( () => {
-		// Mock the required context type
-		NavigationSettings.contextTypes = {
-			router: () => {
-				return {
-					goBack: () => {},
-					listen: () => {}
-				};
-			}
-		};
-
 		testProps = {
 			userCanManageModules: false,
 			isSubscriber: true,
@@ -50,7 +40,10 @@ describe( 'NavigationSettings', () => {
 
 		options = {
 			context: {
-				router: NavigationSettings.contextTypes.router()
+				router: {
+					goBack: () => {},
+					listen: () => {}
+				},
 			},
 			moduleList: []
 		};
@@ -93,7 +86,14 @@ describe( 'NavigationSettings', () => {
 		} );
 
 		it( 'renders tabs with Writing and Sharing', () => {
-			expect( wrapper.find( 'NavItem' ).children().nodes.filter( item => 'string' === typeof item ).every( item => [ 'Writing', 'Sharing' ].includes( item ) ) ).to.be.true;
+			expect(
+				wrapper
+					.find( 'NavItem' )
+					.children()
+					.getElements()
+					.filter( item => 'string' === typeof item )
+					.every( item => [ 'Writing', 'Sharing' ].includes( item ) )
+			).to.be.true;
 		} );
 
 		it( 'show only Writing if Publicize is disabled', () => {
@@ -103,7 +103,14 @@ describe( 'NavigationSettings', () => {
 				userCanPublish: true,
 				isModuleActivated: m => 'sharedaddy' === m
 			} );
-			expect( shallow( <NavigationSettings { ...publicizeProps } />, options ).find( 'NavItem' ).children().nodes.filter( item => 'string' === typeof item ).every( item => [ 'Writing' ].includes( item ) ) ).to.be.true;
+			expect(
+				shallow( <NavigationSettings { ...publicizeProps } />, options )
+					.find( 'NavItem' )
+					.children()
+					.getElements()
+					.filter( item => 'string' === typeof item )
+					.every( item => [ 'Writing' ].includes( item ) )
+			).to.be.true;
 		} );
 
 		it( 'has /writing as selected navigation item, accessing through /settings', () => {
@@ -122,7 +129,14 @@ describe( 'NavigationSettings', () => {
 				isContributor: true,
 				isModuleActivated: m => 'sharedaddy' === m
 			} );
-			expect( shallow( <NavigationSettings { ...publicizeProps } />, options ).find( 'NavItem' ).children().nodes.filter( item => 'string' === typeof item ).every( item => [ 'Writing' ].includes( item ) ) ).to.be.true;
+			expect(
+				shallow( <NavigationSettings { ...publicizeProps } />, options )
+					.find( 'NavItem' )
+					.children()
+					.getElements()
+					.filter( item => 'string' === typeof item )
+					.every( item => [ 'Writing' ].includes( item ) )
+			).to.be.true;
 		} );
 
 		describe( 'if Publicize is active', () => {
@@ -138,11 +152,17 @@ describe( 'NavigationSettings', () => {
 					isModuleActivated: m => 'publicize' === m
 				} );
 				it( 'show Sharing if user is linked', () => {
-					expect( shallow( <NavigationSettings { ...publicizeProps } />, options ).find( 'NavItem' ).children().nodes.filter( item => 'string' === typeof item ).every( item => [ 'Writing', 'Sharing' ].includes( item ) ) ).to.be.true;
+					expect(
+						shallow( <NavigationSettings { ...publicizeProps } />, options )
+							.find( 'NavItem' )
+							.children()
+							.getElements()
+							.filter( item => 'string' === typeof item )
+							.every( item => [ 'Writing', 'Sharing' ].includes( item ) )
+					).to.be.true;
 				} );
 			} );
 		} );
-
 	} );
 
 	describe( 'for an Admin user', () => {
@@ -160,7 +180,7 @@ describe( 'NavigationSettings', () => {
 				wrapper
 					.find( 'NavItem' )
 					.children()
-					.nodes
+					.getElements()
 					.filter( item => 'string' === typeof item )
 					.every(
 						item => [
