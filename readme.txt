@@ -1,7 +1,7 @@
 === Jetpack by WordPress.com ===
 Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, blobaugh, cainm, cena, cfinke, chaselivingston, chellycat, csonnek, danielbachhuber, davoraltman, daniloercoli, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, eliorivero, enej, eoigal, erania-pinnera, ethitter, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jacobshere, jblz, jeherve, jenhooks, jenia, jgs, jkudish, jmdodd, Joen, johnjamesjacoby, jshreve, koke, kraftbj, lamdayap, lancewillett, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, michael-arestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, scarstocea, sdquirk, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Jetpack, WordPress.com, backup, security, related posts, CDN, speed, anti-spam, social sharing, SEO, video, stats
-Stable tag: 5.3
+Stable tag: 5.4
 Requires at least: 4.7
 Tested up to: 4.8
 
@@ -103,6 +103,68 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
+= 5.5 =
+
+* Release date: November 7, 2017
+* Release post: https://wp.me/p1moTy-6rk
+
+**Major Enhancements**
+
+* Jetpack is now fully compatible with WordPress's [new Gallery Widget](https://make.wordpress.org/core/2017/09/25/introducing-the-gallery-widget/). Your old Gallery widgets powered by Jetpack will switch to the new Widget when you update to WordPress 4.9.
+
+**Enhancements**
+* We have improved the performance when loading the Jetpack Settings in the dashboard by optimizing the number of calls made when loading the page.
+* We have updated the plugin to do a better job of cleaning up after itself whenever you decide to remove Jetpack from your site.
+* We made some changes to reduce the number of connection issues that may happen on a site when switching from HTTP to HTTPs.
+* We made some performance improvements to the Jetpack dashboard interface, to make sure your options and settings are loaded faster there.
+* Error messages are also better in the Jetpack Dashboard; whenever you can't update settings, Jetpack will provide you with more information about why.
+* We improved the Jetpack update process to make sure updating Jetpack does not stress your database during it, even on high-traffic sites.
+* The next version of WordPress, 4.9, will be released very soon and will include [a lot of changes to its code editors](https://make.wordpress.org/core/2017/10/22/code-editing-improvements-in-wordpress-4-9/). Jetpack's Custom CSS will be fully compatible with the new editors and their syntax highlighting feature.
+* We also made changes to make sure Jetpack was fully compatible with the [role and capability changes](https://make.wordpress.org/core/2017/10/15/improvements-for-roles-and-capabilities-in-4-9/) in WordPress 4.9.
+* We have made some performance improvements to the Carousel feature.
+* Contact Form: do not process shortcodes in widgets when WordPress itself does, starting in 4.9.
+* Contact Form: we have improved the "website" field to display better error messages when you don't supply a URL. We have also improved the look of the date picker for the date field.
+* Contact Form: avoid duplicate slashes when loading editor style.
+* Masterbar: update the "Plugins" menu item to match the updated design on WordPress.com.
+* Open Graph: do not display images smaller than Facebook's required size.
+* Sharing: use Google's minified libraries to improve performance when loading Google buttons.
+* Sharing: update Open Graph Image tags appearing on the home page to offer better alternatives based on your site settings in Appearance > Customize.
+* We improved the way sitemaps are built so they do not consume too much memory when they are generated.
+* WP.me Shorlinks: those links will now always use HTTPS.
+* Subscriptions: we added a filter so third party developers can track comment subscription activations.
+* Sync: synchronize plugin action links to add that information to WordPress.com.
+* Sync: improvements to better track theme and widget changes.
+* We added a new filter (`jetpack_google_translate_widget_layout`) to the Google Translate Widget to allow you to change its layout.
+* WordPress.com REST API: improve comment management for all roles, including post authors.
+* WordPress.com REST API: allow site owners to manage comments on attachment pages from WordPress.com.
+* WordPress.com REST API: improve the response from the API when WordPress' autoupdates are disabled.
+
+**Improved compatibility**
+* Top Posts Widget: avoid Fatal Errors when the widget is used on a site using WPML, and when a popular post cannot be found by WPML.
+* Sync: add more Custom Post Types from third-party plugins to the list of things we do not synchronize with WordPress.com, to improve sync performance.
+
+**Bug fixes**
+* We now avoid displaying notices to user roles that cannot benefit or act based on the info in the notices.
+* Gravatar Hovercards: avoid PHP Notices when the user info is an object.
+* Infinite Scroll: avoid PHP notices when a site customizes galleries thanks to the `post_gallery` filter.
+* Mailchimp: make sure subscription forms can still be embedded in posts and pages.
+* Mailchimp: do not require the use of the shortcodes feature to use the Mailchimp widget.
+* Mailchimp: fix issue where Mailchimp form code could not be added to the Mailchimp widget.
+* Masterbar: avoid JavaScript errors by always loading jQuery.
+* Publicize: avoid errors when DOMDocument is not available.
+* Search: make sure module cannot be activated when the site does not use a Plan.
+* SEO Tools: do not output any custom meta tags if another SEO plugin is already active.
+* Sharing: make sure Twitter Cards can be displayed even when a post does not include a title.
+* Sharing: fix alignment of sharing buttons in the admin preview when using custom sharing buttons.
+* Sitemaps: wait a minute before to generate sitemaps when the feature is activated, to avoid performance issues.
+* Sync: avoid synchronization issues on Multisite networks using custom domains.
+* Top Posts Widget: display the default title when it is set to empty.
+* Milestone Widget: make sure the widget is displayed properly and can easily be translated into other languages.
+* Verification Tools: avoid notices when saving changes on a Multisite network admin page.
+* VideoPress: avoid missing file warning in the editor when using an RTL language.
+* Upcoming events Widget: avoid PHP notices on sites using a custom timezone setting.
+* WordPress.com REST API: avoid errors when installing plugins via the WordPress.com API.
+
 = 5.4 =
 
 * Release date: October 3, 2017
@@ -114,7 +176,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 * Add Schema.org markup to the Contact Info Widget.
-* Add a new "Date" field to the Contact Form. 
+* Add a new "Date" field to the Contact Form.
 * Do not show any update notices when in [development mode](http://jetpack.com/support/development-mode).
 * Improve our documentation to help contributors set up a unit testing environment.
 * Avoid conflicts between Jetpack's Infinite Scroll and other Infinite Scroll plugins.
@@ -177,30 +239,3 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Cleaned up our markup to avoid XHTML validation errors.
 * Brought back a filter for the Widget Visibility feature that was accidentally removed.
 * Managing your comments and comment authors more reliable from WordPress.com.
-
-
-= 5.2.1 =
-
-* Release date: August 2, 2017
-* Release post: https://jetpack.com/?p=22686
-
-**Bug fixes**
-* Solves an issue that caused widgets to lose their content when saved in WP Admin or Customizer.
-
-= 5.2 =
-
-* Release date: August 1, 2017
-* Release post: https://jetpack.com/?p=22509
-
-**Major Enhancements**
-* Contact Forms now sports a fancy new interface that allows you to visually compose your form in the editor.
-* We have a new and slick way to showcase and explain the features we recommend to activate to new users.
-
-**Enhancements**
-* Reduced 500kb from plugin zip file, which means faster updates.
-* Refactored and reduced code for Comment Likes so it's faster and lighter.
-
-**Bug fixes**
-* An inconsistency experienced in WordPress.com dashboard when Related Posts settings were set in the local site's WP Admin is now fixed.
-* Fixed a 404 when loading Open Sans font from a stylesheet plus now it's only enqueued if it will be used.
-* Solve PHP warnings when Image widget wasn't migrated.
