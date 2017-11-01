@@ -12,7 +12,7 @@ class Jetpack_PWA_Helpers {
 		);
 	}
 
-	public static function site_icon_url( $size ) {
+	public static function site_icon_url( $size = 512 ) {
 		$url = function_exists( 'get_site_icon_url' )
 			? get_site_icon_url( $size )
 			: false;
@@ -28,7 +28,7 @@ class Jetpack_PWA_Helpers {
 	}
 
 	public static function get_theme_color() {
-		$theme_color = '#fff';
+		$theme_color = false;
 
 		// if we have AMP enabled, use those colors?
 		if ( class_exists( 'AMP_Customizer_Settings' ) ) {
@@ -42,11 +42,17 @@ class Jetpack_PWA_Helpers {
 			if ( isset( $amp_settings['header_background_color'] ) ) {
 				$theme_color = $amp_settings['header_background_color'];
 			}
-		} else if ( current_theme_supports( 'custom-background' ) ) {
+		}
+
+		if ( ! $theme_color && current_theme_supports( 'custom-background' ) ) {
 			$background_color = get_background_color(); // Returns hex key without hash or empty string
 			if ( $background_color ) {
 				$theme_color = "#$background_color";
 			}
+		}
+
+		if ( ! $theme_color ) {
+			$theme_color = '#fff';
 		}
 
 		/**
