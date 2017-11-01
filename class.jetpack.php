@@ -1033,7 +1033,7 @@ class Jetpack {
 	function devicepx() {
 		if ( Jetpack::is_active() ) {
 			wp_enqueue_script( 'devicepx', 'https://s0.wp.com/wp-content/js/devicepx-jetpack.js', array(), gmdate( 'oW' ), true );
-			wp_script_add_data( 'devicepx', 'jetpack-defer', true );
+			wp_script_add_data( 'devicepx', 'jetpack-async', true );
 		}
 	}
 
