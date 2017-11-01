@@ -5,6 +5,7 @@
  * - inline scripts and styles
  * - async external JS
  * - remove references to external fonts
+ * - move CSS links below scripts in head (scripts after CSS blocks render until script finishes downloading)
  */
 
 class Jetpack_Perf_Optimize_Assets {
@@ -49,6 +50,8 @@ class Jetpack_Perf_Optimize_Assets {
 		$this->async_scripts             = get_option( 'perf_async_scripts', true );
 		$this->defer_scripts             = get_option( 'perf_defer_scripts', true );
 		$this->move_scripts_to_footer    = true;
+		$this->move_scripts_above_css_in_header = true;
+		$this->remove_core_emojis        = true;
 
 		if ( $this->remove_remote_fonts ) {
 			add_filter( 'jetpack_perf_remove_script', array( $this, 'remove_external_font_scripts' ), 10, 3 );
@@ -57,6 +60,10 @@ class Jetpack_Perf_Optimize_Assets {
 
 		if ( $this->move_scripts_to_footer ) {
 			add_filter( 'jetpack_perf_asset_group', array( $this, 'set_asset_groups' ), 10, 2 );
+		}
+
+		if ( $this->move_scripts_above_css_in_header ) {
+			add_action( 'init', array( $this, 'move_styles_to_bottom_of_header' ), PHP_INT_MAX );
 		}
 
 		if ( $this->inline_scripts_and_styles ) {
@@ -74,8 +81,11 @@ class Jetpack_Perf_Optimize_Assets {
 		/**
 		 * Feature, theme and plugin-specific hacks
 		 */
+
 		// remove emoji detection - TODO a setting for this
-		add_action( 'init', array( $this, 'disable_emojis' ) );
+		if ( $this->remove_core_emojis ) {
+			add_action( 'init', array( $this, 'disable_emojis' ) );
+		}
 
 		// inline/defer/async stuff for Jetpack
 		add_action( 'init', array( $this, 'optimize_jetpack' ) );
@@ -162,6 +172,14 @@ class Jetpack_Perf_Optimize_Assets {
 		}
 	}
 
+	// scripts that run after CSS <link>s in the header block waiting for the CSS to load
+	// so we move styles as late as possible in the wp_head action to maximise the chance
+	// of non-blocking rendering
+	function move_styles_to_bottom_of_header() {
+		remove_action( 'wp_head', 'wp_print_styles', 8 );
+		add_action( 'wp_head', 'wp_print_styles', 999 );
+	}
+
 	function set_asset_groups( $group, $handle ) {
 		// force jquery into header, everything else can go in footer unless filtered elsewhere
 		if ( in_array( $handle, array( 'jquery-core', 'jquery-migrate', 'jquery' ) ) ) {
@@ -236,29 +254,40 @@ class Jetpack_Perf_Optimize_Assets {
 
 	private function should_async_script( $script ) {
 		global $wp_scripts;
-		$should_async_script = empty( $script->deps );
 
-		$skip_self = true;
-		// only make scripts async if nothing depends on them and they don't depend on anything else
+		// explicitly in the header (scripts aren't affected much by async)
+		$should_async_script = $script->args === 0;
+
+		// only make scripts async if nothing depends on them
 		foreach ( $wp_scripts->to_do as $other_script_handle ) {
-			if ( $skip_self ) {
-				$skip_self = false;
-				continue;
-			}
 			$other_script = $wp_scripts->registered[ $other_script_handle ];
-			if ( array_intersect( array( $script->handle ), $other_script->deps ) ) {
+			if ( in_array( $script->handle, $other_script->deps ) ) {
 				$should_async_script = false;
 				break;
 			}
 		}
 
-		$script->extra['jetpack-defer'] = ! $should_async_script;
-
+		// you can override this logic by setting jetpack-async
+		$should_async_script = $should_async_script || ( isset( $script->extra['jetpack-async'] ) && $script->extra['jetpack-async'] );
 		return $this->async_scripts && apply_filters( 'jetpack_perf_async_script', $should_async_script, $script->handle, $script->src );
 	}
 
 	private function should_defer_script( $script ) {
-		$should_defer_script = isset( $script->extra['jetpack-defer'] ) && $script->extra['jetpack-defer'];
+		global $wp_scripts;
+
+		// if it's explicitly not in the footer, or we have Jetpack Defer set, and has no dependencies
+		$should_defer_script = $script->args === 0;
+
+		// only make scripts deferred if nothing depends on them
+		foreach ( $wp_scripts->to_do as $other_script_handle ) {
+			$other_script = $wp_scripts->registered[ $other_script_handle ];
+			if ( in_array( $script->handle, $other_script->deps ) ) {
+				$should_defer_script = false;
+				break;
+			}
+		}
+
+		$should_defer_script = $should_defer_script || ( isset( $script->extra['jetpack-defer'] ) && $script->extra['jetpack-defer'] );
 		return $this->defer_scripts && apply_filters( 'jetpack_perf_defer_script', $should_defer_script, $script->handle, $script->src );
 	}
 
