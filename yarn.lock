@@ -6369,6 +6369,10 @@ path-to-regexp@0.1.7:
   version "0.1.7"
   resolved "https://registry.yarnpkg.com/path-to-regexp/-/path-to-regexp-0.1.7.tgz#df604178005f522f15eb4490e7247a1bfaa67f8c"
 
+path-to-regexp@^2.1.0:
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/path-to-regexp/-/path-to-regexp-2.1.0.tgz#7e30f9f5b134bd6a28ffc2e3ef1e47075ac5259b"
+
 path-to-regexp@~1.2.1:
   version "1.2.1"
   resolved "https://registry.yarnpkg.com/path-to-regexp/-/path-to-regexp-1.2.1.tgz#b33705c140234d873c8721c7b9fd8b541ed3aff9"
