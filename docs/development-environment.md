@@ -4,7 +4,7 @@ The javascript and CSS components of this plugin's admin interface need to be bu
 
 **Recommended Environment**
 
-* node 8.x, aka `lts/carbon`
+* Node 6.x
 * npm 3.8.x
 * yarn 0.24.4
 

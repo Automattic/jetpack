@@ -9,6 +9,8 @@ import NavItem from 'components/section-nav/item';
 import Search from 'components/search';
 import { translate as __ } from 'i18n-calypso';
 import noop from 'lodash/noop';
+import injectTapEventPlugin from 'react-tap-event-plugin';
+injectTapEventPlugin();
 import UrlSearch from 'mixins/url-search';
 import analytics from 'lib/analytics';
 import intersection from 'lodash/intersection';

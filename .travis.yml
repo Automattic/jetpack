@@ -66,8 +66,8 @@ before_script:
         set -e
         source ./tests/install-php-phpunit.sh
         set +e
-    - nvm install 8
-    - nvm use 8
+    - nvm install 6
+    - nvm use 6
     - ./tests/prepare-wordpress.sh
     - mysql -e "set global wait_timeout = 3600;"
 
