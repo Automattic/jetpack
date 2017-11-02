@@ -52,6 +52,7 @@ class Jetpack_Perf_Optimize_Assets {
 		$this->move_scripts_to_footer    = true;
 		$this->move_scripts_above_css_in_header = true;
 		$this->remove_core_emojis        = true;
+		$this->prevent_jetpack_implode_css = true;
 
 		if ( $this->remove_remote_fonts ) {
 			add_filter( 'jetpack_perf_remove_script', array( $this, 'remove_external_font_scripts' ), 10, 3 );
@@ -66,7 +67,7 @@ class Jetpack_Perf_Optimize_Assets {
 			add_action( 'init', array( $this, 'move_styles_to_bottom_of_header' ), PHP_INT_MAX );
 		}
 
-		if ( $this->inline_scripts_and_styles ) {
+		if ( $this->prevent_jetpack_implode_css ) {
 			add_filter( 'jetpack_implode_frontend_css', '__return_false' );
 		}
 
