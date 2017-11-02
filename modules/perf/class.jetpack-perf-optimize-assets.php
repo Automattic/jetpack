@@ -328,7 +328,8 @@ class Jetpack_Perf_Optimize_Assets {
 
 		if ( $this->should_inline_style( $style ) ) {
 			$label = '<!-- ' . $style->src . '-->';
-			return "$label<style type='text/css' media='$media'>" . file_get_contents( $style->extra['jetpack-inline-file'] ) . '</style>';
+			$css = $this->fix_css_urls( file_get_contents( $style->extra['jetpack-inline-file'] ), $style->src ); 
+			return "$label<style type='text/css' media='$media'>$css</style>";
 		}
 
 		if ( $this->should_remove_style( $style ) ) {
@@ -336,6 +337,42 @@ class Jetpack_Perf_Optimize_Assets {
 		}
 
 		return $tag;
+	}
+
+	public function fix_css_urls( $css, $css_url ) {
+		$base = trailingslashit( dirname( $css_url ) );
+		$base = str_replace( site_url(), '', $base );
+		
+		// reject absolute site_url 
+		if ( 'http' === substr( $base, 0, 4 ) ) {
+			return $css;
+		}
+		return preg_replace_callback( '/url[\s]*\([\s]*["\']?[\s]*(?!https?:\/\/)(?!data:)(?!#)([^\)"\']*)["\']?\)/i', function( $matches ) use ( $base ) {
+			// TODO: embed data-encoded file, for files smaller than certain size?
+			return 'url('.$this->rel2abspath( $matches[1], $base ).')';
+		}, $css );
+	}
+
+	// see: http://stackoverflow.com/questions/4444475/transfrom-relative-path-into-absolute-url-using-php
+	private function rel2abspath( $rel, $path) {
+		/* remove non-directory element from path */
+		$path = preg_replace( '#/[^/]*$#', '', $path );
+
+		/* destroy path if relative url points to root */
+		if( $rel[0] == '/' )
+			$path = '';
+
+		/* dirty absolute URL */
+		$abs = '';
+
+		$abs .= $path . '/' . $rel;
+
+		/* replace '//' or '/./' or '/foo/../' with '/' */
+		$re = array('#(/\.?/)#', '#/(?!\.\.)[^/]+/\.\./#');
+		for( $n=1; $n>0; $abs = preg_replace( $re, '/', $abs, -1, $n ) ) {}
+
+		/* absolute path is ready! */
+		return $abs;
 	}
 
 	private function should_inline_style( $style ) {
