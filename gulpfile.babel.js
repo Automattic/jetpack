@@ -78,10 +78,11 @@ function onBuild( done ) {
 
 		const is_prod = 'production' === process.env.NODE_ENV;
 
-		// uglify some other random files
+		// Uglify other JS in _inc directory
 		gulp.src( [ '_inc/*.js', '!_inc/*.min.js' ] )
 			.pipe( gulpif( ! is_prod, sourcemaps.init() ) )
 			.pipe( uglify() )
+			.pipe( banner( '/* Do not modify this file directly. It is compiled from other files. */\n' ) )
 			.pipe( rename( { suffix: '.min' } ) )
 			.pipe( gulpif( ! is_prod, sourcemaps.write( './' ) ) )
 			.pipe( gulp.dest( '_inc/build' ) )
