@@ -1,12 +1,9 @@
 <?php
 class Jetpack_PWA_Helpers {
 	public static function get_default_manifest_icon_sizes() {
+		// These icon sizes based on conversation here:
+		// https://github.com/GoogleChrome/lighthouse/issues/291
 		return array(
-			48,
-			72,
-			96,
-			144,
-			168,
 			192,
 			512,
 		);
