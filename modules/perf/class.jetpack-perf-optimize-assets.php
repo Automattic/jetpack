@@ -14,6 +14,7 @@ class Jetpack_Perf_Optimize_Assets {
 	private $inline_scripts_and_styles = false;
 	private $async_scripts = false;
 	private $defer_scripts = false;
+	const INLINE_ASSET_MAX_SIZE_BYTES = 50 * 1024; // 50kb
 
 	/**
 	 * Singleton implementation
@@ -233,7 +234,7 @@ class Jetpack_Perf_Optimize_Assets {
 		}
 
 		if ( $this->should_inline_script( $script ) ) {
-			$label = '<!-- ' . $script->src . '-->';
+			$label = '<!-- ' . $script->src . ' -->';
 			// base64-encoding a script into the src URL only makes sense if we intend to async or defer it
 			if ( $this->should_defer_script( $script ) ) {
 				$tag = $label . '<script defer type="text/javascript" src="data:text/javascript;base64,' . base64_encode( file_get_contents( $script->extra['jetpack-inline-file'] ) ) . '"></script>';
@@ -327,8 +328,8 @@ class Jetpack_Perf_Optimize_Assets {
 		$style = $wp_styles->registered[$handle];
 
 		if ( $this->should_inline_style( $style ) ) {
-			$label = '<!-- ' . $style->src . '-->';
-			$css = $this->fix_css_urls( file_get_contents( $style->extra['jetpack-inline-file'] ), $style->src ); 
+			$label = '<!-- ' . $style->src . ' -->';
+			$css = $this->fix_css_urls( file_get_contents( $style->extra['jetpack-inline-file'] ), $style->src );
 			return "$label<style type='text/css' media='$media'>$css</style>";
 		}
 
@@ -342,8 +343,8 @@ class Jetpack_Perf_Optimize_Assets {
 	public function fix_css_urls( $css, $css_url ) {
 		$base = trailingslashit( dirname( $css_url ) );
 		$base = str_replace( site_url(), '', $base );
-		
-		// reject absolute site_url 
+
+		// reject absolute site_url
 		if ( 'http' === substr( $base, 0, 4 ) ) {
 			return $css;
 		}
@@ -409,10 +410,20 @@ class Jetpack_Perf_Optimize_Assets {
 			$dependency->extra['jetpack-inline-file'] = $path;
 		}
 
-		// only inline if we don't have a conditional
-		$should_inline = ! isset( $dependency->extra['conditional'] ) && isset( $dependency->extra['jetpack-inline'] ) && $dependency->extra['jetpack-inline'];
+		// early exit if the file doesn't exist or is too large
+		if ( ! isset( $dependency->extra['jetpack-inline-file'] )
+			||
+			! file_exists( $dependency->extra['jetpack-inline-file'] ) ) {
+				return false;
+		}
 
-		return apply_filters( $filter, $should_inline, $dependency->handle, $dependency->src ) && file_exists( $dependency->extra['jetpack-inline-file'] );
+		// only inline if we don't have a conditional
+		$should_inline = ! isset( $dependency->extra['conditional'] )
+			&& isset( $dependency->extra['jetpack-inline'] )
+			&& $dependency->extra['jetpack-inline']
+			&& filesize( $dependency->extra['jetpack-inline-file'] ) < self::INLINE_ASSET_MAX_SIZE_BYTES;
+
+		return apply_filters( $filter, $should_inline, $dependency->handle, $dependency->src );
 	}
 
 	private function should_remove_asset( $filter, $dependency ) {
