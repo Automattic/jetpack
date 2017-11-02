@@ -17,25 +17,23 @@ To install the Jetpack plugin on your site, [follow the instructions on this pag
 
 ### Installation From Git Repo
 
-The `master-stable` branch of this repo contains an stable version with every JS and CSS file pre-built.
+To use this plugin on your own site, you will need to build every JS and CSS first. To do so, [follow the instructions here](./docs/development-environment.md).
 
-CD into your Plugins directory
+### Installation from the Jetpack Beta plugin
 
-```
-$ git clone git@github.com:Automattic/jetpack.git
-$ cd jetpack
-$ git checkout master-stable
-```
+If you cannot build the Jetpack plugin yourself, you can rely on [the Jetpack Beta plugin](https://github.com/Automattic/jetpack-beta/archive/master.zip) to install pre-built versions of Jetpack for you. To use the plugin, follow the instructions here:
+1. Go to Plugins > Add New in your dashboard.
+2. Install the Jetpack plugin.
+3. Go to Plugins > Add New > Upload Plugin.
+4. Upload and activate [this plugin](https://github.com/Automattic/jetpack-beta/archive/master.zip).
+5. Go to Jetpack > Beta and pick the version of Jetpack you would like to run on your site.
 
-### Development
-
-To build your own version of Jetpack, you can [follow the instructions here.](./docs/development-environment.md)
 
 ## Contribute
 
 Developers of all levels can help — whether you can barely recognize a filter (or don’t know what that means) or you’ve already authored your own plugins, there are ways for you to pitch in. Blast off:
 
-- [Join our Jetpack Beta program](https://jetpack.com/beta/).
+- [Join our Jetpack Beta program](./docs/testing/beta-testing.md).
 - If you found a bug, [file a report here](https://github.com/Automattic/jetpack/issues/new). You can [check our recommendations to create great bug reports here](./docs/guides/report-bugs.md).
 - [Translate Jetpack in your language](./docs/translations.md).
 - [Write and submit patches](./.github/CONTRIBUTING.md#write-and-submit-a-patch).
@@ -56,11 +54,11 @@ Jetpack is licensed under [GNU General Public License v2 (or later)](./LICENSE.t
 
 ## Team
 
-The Jetpack Pit Crew is comprised of @briancolinger, @dereksmart, @eliorivero, @georgestephanis, @rcoll, @samhotchkiss, @singerb, @thingalon, and @zinigor.
+The Jetpack Pit Crew is comprised of @briancolinger, @dereksmart, @eliorivero, @georgestephanis, @oskosk, @rcoll, @samhotchkiss, @singerb, @thingalon, and @zinigor.
 
 Contributions have been and continue to be made by dozens of other Automatticians, like:
 
-@jeffgolenski, @jessefriedman, @richardmuscat, @justinkropp, @aliso, @allendav, @alternatekev, @apeatling, @azaozz, @bazza, @beaulebens, @cfinke, @daniloercoli, @enejb, @eoigal, @ethitter, @gibrown, @hugobaeta, @jasmussen, @jblz, @jkudish, @johnjamesjacoby, @justinshreve, @koke, @kovshenin, @lancewillett, @lezama, @martinremy, @MichaelArestad, @mtias, @mcsf, @mdawaffe, @nickmomrik, @obenland, @oskosk, @pento, @rase-, @roccotripaldi, @skeltoac, @stephdau, @tmoorewp, @Viper007Bond, @xyu and @yoavf.
+@jeffgolenski, @jessefriedman, @richardmuscat, @justinkropp, @aliso, @allendav, @alternatekev, @apeatling, @azaozz, @bazza, @beaulebens, @cfinke, @daniloercoli, @enejb, @eoigal, @ethitter, @gibrown, @hugobaeta, @jasmussen, @jblz, @jkudish, @johnjamesjacoby, @justinshreve, @koke, @kovshenin, @lancewillett, @lezama, @martinremy, @MichaelArestad, @mtias, @mcsf, @mdawaffe, @nickmomrik, @obenland, @pento, @rase-, @roccotripaldi, @skeltoac, @stephdau, @tmoorewp, @Viper007Bond, @xyu and @yoavf.
 
 Our _awesome_ happiness engineers are @aheckler, @annezazuu, @bikedorkjon, @cena, @chaselivingston, @codestor4, @csonnek, @danjjohnson, @davoraltman, @drpottex, @gaurav1984, @gregwp, @jamilabreu, @jeherve, @jenhooks, @joendotcom, @kraftbj, @lamdayap, @lschuyler, @macmanx2,  @madhattermattic, @mbhthompson, @NujabesSoul, @ntpixels, @pmciano, @rachelsquirrel, @rcowles, @richardmtl, @seejacobscott, @stefmattana, and @tmmbecker.
 
