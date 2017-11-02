@@ -81,9 +81,9 @@ export const SettingsCard = props => {
 
 		switch ( feature ) {
 			case FEATURE_VIDEO_HOSTING_JETPACK:
-				if (
+				if ( 
 					'is-premium-plan' === planClass ||
-					'is-business-plan' === planClass
+					'is-business-plan' === planClass 
 				) {
 					return '';
 				}

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React, { Component } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 
 /**
@@ -9,19 +9,19 @@ import { connect } from 'react-redux';
  */
 import { getSearchTerm } from 'state/search';
 
-export class Tracker extends Component {
+export const Tracker = React.createClass( {
 	componentWillReceiveProps( nextProps ) {
 		const record = this.props.analytics.tracks.recordEvent;
 
 		if ( nextProps.searchTerm !== this.props.searchTerm ) {
 			record( 'jetpack_wpa_search_term', { term: nextProps.searchTerm } );
 		}
-	}
+	},
 
 	render() {
 		return null;
 	}
-}
+} );
 
 Tracker.propTypes = {
 	analytics: React.PropTypes.object,
