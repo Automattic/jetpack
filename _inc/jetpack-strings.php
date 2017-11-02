@@ -18,9 +18,6 @@ __( "Disconnecting Jetpack", "jetpack" ), // _inc/client/state/connection/action
 __( "Options failed to reset.", "jetpack" ), // _inc/client/state/dev-version/actions.js:40
 __( "Options reset.", "jetpack" ), // _inc/client/state/dev-version/actions.js:33
 __( "Resetting Jetpack options…", "jetpack" ), // _inc/client/state/dev-version/actions.js:27
-__( "Recommended features failed to activate. %(error)s", "jetpack" ), // _inc/client/state/jumpstart/actions.js:49
-__( "Recommended features active.", "jetpack" ), // _inc/client/state/jumpstart/actions.js:38
-__( "Activating recommended features…", "jetpack" ), // _inc/client/state/jumpstart/actions.js:30
 __( "Error regenerating %(slug)s address. %(error)s", "jetpack" ), // _inc/client/state/modules/actions.js:299
 __( "Regenerated %(slug)s address .", "jetpack" ), // _inc/client/state/modules/actions.js:281
 __( "Updating %(slug)s address…", "jetpack" ), // _inc/client/state/modules/actions.js:261
@@ -33,6 +30,9 @@ __( "Deactivating %(slug)s…", "jetpack" ), // _inc/client/state/modules/action
 __( "%(slug)s failed to activate. %(error)s", "jetpack" ), // _inc/client/state/modules/actions.js:117
 __( "%(slug)s has been activated.", "jetpack" ), // _inc/client/state/modules/actions.js:97
 __( "Activating %(slug)s…", "jetpack" ), // _inc/client/state/modules/actions.js:81
+__( "Recommended features failed to activate. %(error)s", "jetpack" ), // _inc/client/state/jumpstart/actions.js:49
+__( "Recommended features active.", "jetpack" ), // _inc/client/state/jumpstart/actions.js:38
+__( "Activating recommended features…", "jetpack" ), // _inc/client/state/jumpstart/actions.js:30
 __( "Updated settings. Refreshing page…", "jetpack" ), // _inc/client/state/settings/actions.js:115
 __( "Error regenerating Post by Email address. %(error)s", "jetpack" ), // _inc/client/state/settings/actions.js:99
 __( "Regenerated Post by Email address.", "jetpack" ), // _inc/client/state/settings/actions.js:98
@@ -108,6 +108,15 @@ __( "Show a \"follow comments\" option in the comment form", "jetpack" ), // _in
 __( "Show a \"follow blog\" option in the comment form", "jetpack" ), // _inc/client/discussion/subscriptions.jsx:93
 __( "Connect your user account to WordPress.com to view your email followers", "jetpack" ), // _inc/client/discussion/subscriptions.jsx:64
 __( "View your Email Followers", "jetpack" ), // _inc/client/discussion/subscriptions.jsx:63
+_x( "Set up", "Caption for a button to set up a feature.", "jetpack" ), // _inc/client/pro-status/index.jsx:131
+__( "ACTIVE", "jetpack" ), // _inc/client/pro-status/index.jsx:98
+_x( "Invalid key", "Short warning message about an invalid key being used for Akismet.", "jetpack" ), // _inc/client/pro-status/index.jsx:94
+_x( "Secure", "Short message informing user that the site is secure.", "jetpack" ), // _inc/client/pro-status/index.jsx:90
+_x( "Upgrade", "Caption for a button to purchase a paid feature.", "jetpack" ), // _inc/client/pro-status/index.jsx:85
+_x( "No scanning", "Short warning message about site having no security scan.", "jetpack" ), // _inc/client/pro-status/index.jsx:83
+_x( "FIX", "A caption for a small button to fix security issues.", "jetpack" ), // _inc/client/pro-status/index.jsx:74
+_x( "Threats found!", "Short warning message about new threats found.", "jetpack" ), // _inc/client/pro-status/index.jsx:73
+_x( "Threats", "A caption for a small button to fix security issues.", "jetpack" ), // _inc/client/pro-status/index.jsx:71
 __( "Compare Plans", "jetpack" ), // _inc/client/plans/plan-body.jsx:399
 __( "We support all Jetpack users, regardless of plan. But customers on a paid subscription enjoy priority support so that security issues are identified and fixed for you as soon as possible. ", "jetpack" ), // _inc/client/plans/plan-body.jsx:392
 __( "Enjoy priority support", "jetpack" ), // _inc/client/plans/plan-body.jsx:391
@@ -194,15 +203,6 @@ __( "For less than the price of a coffee a month you can rest easy knowing your 
 __( "How much is your website worth?", "jetpack" ), // _inc/client/plans/plan-header.jsx:42
 __( "Jetpack Personal keeps your data, site, and hard work safe.", "jetpack" ), // _inc/client/plans/plan-header.jsx:38
 __( "Introducing our most affordable backups and security plan yet", "jetpack" ), // _inc/client/plans/plan-header.jsx:35
-_x( "Set up", "Caption for a button to set up a feature.", "jetpack" ), // _inc/client/pro-status/index.jsx:131
-__( "ACTIVE", "jetpack" ), // _inc/client/pro-status/index.jsx:98
-_x( "Invalid key", "Short warning message about an invalid key being used for Akismet.", "jetpack" ), // _inc/client/pro-status/index.jsx:94
-_x( "Secure", "Short message informing user that the site is secure.", "jetpack" ), // _inc/client/pro-status/index.jsx:90
-_x( "Upgrade", "Caption for a button to purchase a paid feature.", "jetpack" ), // _inc/client/pro-status/index.jsx:85
-_x( "No scanning", "Short warning message about site having no security scan.", "jetpack" ), // _inc/client/pro-status/index.jsx:83
-_x( "FIX", "A caption for a small button to fix security issues.", "jetpack" ), // _inc/client/pro-status/index.jsx:74
-_x( "Threats found!", "Short warning message about new threats found.", "jetpack" ), // _inc/client/pro-status/index.jsx:73
-_x( "Threats", "A caption for a small button to fix security issues.", "jetpack" ), // _inc/client/pro-status/index.jsx:71
 __( "Activate", "jetpack" ), // _inc/client/searchable-modules/index.jsx:71
 __( "If you don't already have an API key, then {{a}}get your API key here{{/a}}, and you'll be guided through the process of getting one.", "jetpack" ), // _inc/client/security/antispam.jsx:149
 __( "Your API key", "jetpack" ), // _inc/client/security/antispam.jsx:143
@@ -410,6 +410,8 @@ _x( "Debug", "Navigation item. Noun. Links to a debugger tool for Jetpack.", "je
 __( "Test your site’s compatibility with Jetpack.", "jetpack" ), // _inc/client/components/footer/index.jsx:97
 _x( "Reset Options (dev only)", "Navigation item.", "jetpack" ), // _inc/client/components/footer/index.jsx:82
 __( "This will reset all Jetpack options, are you sure?", "jetpack" ), // _inc/client/components/footer/index.jsx:32
+__( "Jupiter", "jetpack" ), // _inc/client/components/jetpack-dialogue/index.jsx:27
+__( "Stars", "jetpack" ), // _inc/client/components/jetpack-dialogue/index.jsx:26
 __( "No account? Create one for free", "jetpack" ), // _inc/client/components/jetpack-connect/index.jsx:204
 __( "Join the millions of users who rely on Jetpack to enhance and secure their sites. We're passionate about WordPress and here to make your life easier.", "jetpack" ), // _inc/client/components/jetpack-connect/index.jsx:196
 __( "Jetpack utilizes the state-of-the-art WordPress.com content delivery network to load your gorgeous imagery super fast. Optimized for any device, and its completely free.", "jetpack" ), // _inc/client/components/jetpack-connect/index.jsx:181
@@ -441,8 +443,6 @@ __( "Drive more traffic to your site", "jetpack" ), // _inc/client/components/je
 __( "No account? Create one for free", "jetpack" ), // _inc/client/components/jetpack-connect/index.jsx:35
 __( "Please connect to or create a WordPress.com account to start using Jetpack. This will enable powerful security, traffic, and customization services.", "jetpack" ), // _inc/client/components/jetpack-connect/index.jsx:30
 __( "Welcome to Jetpack", "jetpack" ), // _inc/client/components/jetpack-connect/index.jsx:25
-__( "Jupiter", "jetpack" ), // _inc/client/components/jetpack-dialogue/index.jsx:27
-__( "Stars", "jetpack" ), // _inc/client/components/jetpack-dialogue/index.jsx:26
 __( "Read more about Jetpack benefits", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:188
 _x( "Disconnect", "A caption for a button to disconnect.", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:181
 _x( "Stay connected", "A caption for a button to cancel disconnection.", "jetpack" ), // _inc/client/components/jetpack-disconnect-dialog/index.jsx:173
