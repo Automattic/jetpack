@@ -30,7 +30,7 @@ class Grunion_Editor_View {
 		$title = __( 'Add Contact Form', 'jetpack' );
 		?>
 
-		<button id="insert-jetpack-contact-form" class="button" title="<?php echo esc_attr( $title ); ?>" href="javascript:;">
+		<button type="button" id="insert-jetpack-contact-form" class="button" title="<?php echo esc_attr( $title ); ?>" href="javascript:;">
 			<span class="jetpack-contact-form-icon"></span>
 			<?php echo esc_html( $title ); ?>
 		</button>
