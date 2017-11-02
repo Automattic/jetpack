@@ -125,7 +125,7 @@ var webpackConfig = {
 
 if ( NODE_ENV === 'production' ) {
 
-	webpack.DefinePlugin( {
+	new webpack.DefinePlugin( {
 		// This has effect on the react lib size
 		'process.env.NODE_ENV': JSON.stringify( process.env.NODE_ENV ) // TODO switch depending on actual environment
 	} );
