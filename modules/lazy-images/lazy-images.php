@@ -19,18 +19,31 @@ class Jetpack_Lazy_Images {
 	 * Registers actions
 	 */
 	private function __construct() {
+		if ( is_admin() ) {
+			return;
+		}
+
 		// modify content
 		add_action( 'wp_head', array( $this, 'setup_filters' ), 9999 ); // we don't really want to modify anything in <head> since it's mostly all metadata
 
 		// js to do lazy loading
 		add_action( 'init', array( $this, 'register_assets' ) );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
+
+		// Do not lazy load avatar in admin bar
+		add_action( 'admin_bar_menu', array( $this, 'remove_filters' ), 0 );
 	}
 
 	public function setup_filters() {
 		add_filter( 'the_content', array( $this, 'add_image_placeholders' ), 99 ); // run this later, so other content filters have run, including image_add_wh on WP.com
 		add_filter( 'post_thumbnail_html', array( $this, 'add_image_placeholders' ), 11 );
 		add_filter( 'get_avatar', array( $this, 'add_image_placeholders' ), 11 );
+	}
+
+	public function remove_filters() {
+		remove_filter( 'the_content', array( $this, 'add_image_placeholders' ), 99 );
+		remove_filter( 'post_thumbnail_html', array( $this, 'add_image_placeholders' ), 11 );
+		remove_filter( 'get_avatar', array( $this, 'add_image_placeholders' ), 11 );
 	}
 
 	public function add_image_placeholders( $content ) {
