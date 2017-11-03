@@ -974,7 +974,7 @@ function wpsc_create_debug_log( $filename = '', $username = '' ) {
 	$msg = '
 if ( !isset( $_SERVER[ "PHP_AUTH_USER" ] ) || ( $_SERVER[ "PHP_AUTH_USER" ] != "' . $wp_cache_debug_username . '" && $_SERVER[ "PHP_AUTH_PW" ] != "' . $wp_cache_debug_username . '" ) ) {
 	header( "WWW-Authenticate: Basic realm=\"WP-Super-Cache Debug Log\"" );
-	header("HTTP/1.0 401 Unauthorized");
+	header( $_SERVER[ "SERVER_PROTOCOL" ] . " 401 Unauthorized" );
 	echo "You must login to view the debug log";
 	exit;
 }' . PHP_EOL;
