@@ -28,7 +28,8 @@ export const Publicize = moduleSettingsForm(
 				isLinked = this.props.isLinked,
 				connectUrl = this.props.connectUrl,
 				siteRawUrl = this.props.siteRawUrl,
-				isActive = this.props.getOptionValue( 'publicize' );
+				isActive = this.props.getOptionValue( 'publicize' ),
+				userCanManageModules = this.props.userCanManageModules;
 
 			const configCard = () => {
 				if ( unavailableInDevMode ) {
@@ -55,24 +56,34 @@ export const Publicize = moduleSettingsForm(
 					);
 			};
 
+			if ( ! userCanManageModules && ! isActive ) {
+				return null;
+			}
+
 			return (
 				<SettingsCard
 					{ ...this.props }
 					header={ __( 'Publicize connections', { context: 'Settings header' } ) }
 					module="publicize"
 					hideButton>
-					<SettingsGroup disableInDevMode module={ { module: 'publicize' } } support="https://jetpack.com/support/publicize/">
-						<ModuleToggle
-							slug="publicize"
-							disabled={ unavailableInDevMode }
-							activated={ isActive }
-							toggling={ this.props.isSavingAnyOption( 'publicize' ) }
-							toggleModule={ this.props.toggleModuleNow }>
-							{
-								__( 'Automatically share your posts to social networks' )
-							}
-							</ModuleToggle>
-					</SettingsGroup>
+					{
+						userCanManageModules && (
+							<SettingsGroup disableInDevMode module={ { module: 'publicize' } }
+								support="https://jetpack.com/support/publicize/"
+							>
+								<ModuleToggle
+									slug="publicize"
+									disabled={ unavailableInDevMode }
+									activated={ isActive }
+									toggling={ this.props.isSavingAnyOption( 'publicize' ) }
+									toggleModule={ this.props.toggleModuleNow }>
+									{
+										__( 'Automatically share your posts to social networks' )
+									}
+								</ModuleToggle>
+							</SettingsGroup>
+						)
+					}
 					{
 						isActive && configCard()
 					}
