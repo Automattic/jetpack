@@ -17,7 +17,8 @@ class Jetpack_Sync_Module_Protect extends Jetpack_Sync_Module {
 	}
 
 	function maybe_log_failed_login_attempt( $ip ) {
-		if ( Jetpack_Protect_Module::check_login_ability() ) {
+		$protect = Jetpack_Protect_Module::instance();
+		if ( $protect->check_login_ability() ) {
 			do_action( 'jetpack_valid_failed_login_attempt', $ip );
 		}
 	}
