@@ -1088,7 +1088,7 @@ class Share_PressThis extends Sharing_Source {
 		parent::process_request( $post, $post_data );
 
 		// Redirect to Press This
-		wp_safe_redirect( $url );
+		wp_redirect( $url );
 		die();
 	}
 
