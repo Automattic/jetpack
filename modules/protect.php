@@ -736,7 +736,7 @@ class Jetpack_Protect_Module {
 		$response_json           = wp_remote_post( $this->get_api_host(), $args );
 		$this->last_response_raw = $response_json;
 
-		$transient_name = $this->get_transien_name();
+		$transient_name = $this->get_transient_name();
 		$this->delete_transient( $transient_name );
 
 		if ( is_array( $response_json ) ) {
