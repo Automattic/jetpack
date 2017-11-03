@@ -29,6 +29,7 @@ class Jetpack_Protect_Module {
 	public $last_response_raw;
 	public $last_response;
 	private $block_login_with_math;
+	private $valid_blocked_user_id;
 
 	/**
 	 * Singleton implementation
@@ -344,6 +345,10 @@ class Jetpack_Protect_Module {
 			Jetpack_Protect_Math_Authenticate::math_authenticate();
 		}
 
+		if ( $this->valid_blocked_user_id && $this->valid_blocked_user_id !==  $user->ID ) {
+		    return new WP_Error( 'invalid_recovery_token', __( 'The recovery token is not valid for this user.', 'jetpack' ) );
+        }
+
 		return $user;
 	}
 
@@ -541,6 +546,11 @@ class Jetpack_Protect_Module {
 	 * Kill a login attempt
 	 */
 	function kill_login() {
+
+	    if ( $this->blocked_user_is_validated ) {
+	        return;
+        }
+
 		$ip = jetpack_protect_get_ip();
 		/**
 		 * Fires before every killed login.
@@ -552,19 +562,25 @@ class Jetpack_Protect_Module {
 		 * @param string $ip IP flagged by Protect.
 		 */
 		do_action( 'jpp_kill_login', $ip );
-		$help_url = 'https://jetpack.com/support/security-features/#unblock';
-
-		$die_string = sprintf( __( 'Your IP (%1$s) has been flagged for potential security violations.  <a href="%2$s">Find out more...</a>', 'jetpack' ), str_replace( 'http://', '', esc_url( 'http://' . $ip ) ), esc_url( $help_url ) );
 
 		if( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST ) {
 			$die_string = sprintf( __( 'Your IP (%1$s) has been flagged for potential security violations.', 'jetpack' ), str_replace( 'http://', '', esc_url( 'http://' . $ip ) ) );
+			wp_die(
+				$die_string,
+				__( 'Login Blocked by Jetpack', 'jetpack' ),
+				array ( 'response' => 403 )
+			);
 		}
 
-		wp_die(
-			$die_string,
-			__( 'Login Blocked by Jetpack', 'jetpack' ),
-			array ( 'response' => 403 )
-		);
+		require_once dirname( __FILE__ ) . '/protect/blocked-login-page.php';
+        $blocked_login_page = new Jetpack_Protect_Blocked_Login_Page( $ip, $this->valid_blocked_user_id );
+
+        if ( $blocked_login_page->is_blocked_user_valid() ) {
+            $this->valid_blocked_user_id = $blocked_login_page->valid_blocked_user_id;
+            return;
+        }
+
+        $blocked_login_page->render_and_die();
 	}
 
 	/*
@@ -862,8 +878,9 @@ class Jetpack_Protect_Module {
 
 }
 
-Jetpack_Protect_Module::instance();
+$jetpack_protect = Jetpack_Protect_Module::instance();
 
+global $pagenow;
 if ( isset( $pagenow ) && 'wp-login.php' == $pagenow ) {
-	Jetpack_Protect_Module::check_login_ability();
+	$jetpack_protect->check_login_ability();
 }
