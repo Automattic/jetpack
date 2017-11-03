@@ -681,7 +681,7 @@ class Jetpack_Protect_Module {
 	 * @return array
 	 */
 	function protect_call( $action = 'check_ip', $request = array () ) {
-		global $wp_version, $wpdb, $current_user;
+		global $wp_version;
 
 		$api_key = $this->maybe_get_protect_key();
 
