@@ -140,6 +140,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * WordPress.com REST API: improve the response from the API when WordPress' autoupdates are disabled.
 
 **Improved compatibility**
+* You can now use Jetpack's contact form and Yoast SEO's Focus keywords on the same page without any issues in the editor.
 * Top Posts Widget: avoid Fatal Errors when the widget is used on a site using WPML, and when a popular post cannot be found by WPML.
 * Sync: add more Custom Post Types from third-party plugins to the list of things we do not synchronize with WordPress.com, to improve sync performance.
 
