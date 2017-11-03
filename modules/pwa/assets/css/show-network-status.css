@@ -1,0 +1,7 @@
+#jetpack-network-status {
+    display: none;
+}
+
+body.jetpack__offline #jetpack-network-status {
+    display: block;
+}

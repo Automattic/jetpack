@@ -35,9 +35,20 @@ const ThemeEnhancements = moduleSettingsForm(
 		getInitialState() {
 			return {
 				infinite_mode: this.getInfiniteMode(),
+				//minileven
 				wp_mobile_excerpt: this.props.getOptionValue( 'wp_mobile_excerpt', 'minileven' ),
 				wp_mobile_featured_images: this.props.getOptionValue( 'wp_mobile_featured_images', 'minileven' ),
-				wp_mobile_app_promos: this.props.getOptionValue( 'wp_mobile_app_promos', 'minileven' )
+				wp_mobile_app_promos: this.props.getOptionValue( 'wp_mobile_app_promos', 'minileven' ),
+				// pwa
+				pwa_cache_assets: this.props.getOptionValue( 'pwa_cache_assets', 'pwa' ),
+				pwa_web_push: this.props.getOptionValue( 'pwa_web_push', 'pwa' ),
+				pwa_show_network_status: this.props.getOptionValue( 'pwa_show_network_status', 'pwa' ),
+				// perf
+				perf_inline_scripts_and_styles: this.props.getOptionValue( 'perf_inline_scripts_and_styles', 'perf' ),
+				perf_inline_on_every_request: this.props.getOptionValue( 'perf_inline_on_every_request', 'perf' ),
+				perf_async_scripts: this.props.getOptionValue( 'perf_async_scripts', 'perf' ),
+				perf_defer_scripts: this.props.getOptionValue( 'perf_defer_scripts', 'perf' ),
+				perf_remove_remote_fonts: this.props.getOptionValue( 'perf_remove_remote_fonts', 'perf' )
 			};
 		},
 
@@ -109,11 +120,16 @@ const ThemeEnhancements = moduleSettingsForm(
 
 		render() {
 			const foundInfiniteScroll = this.props.isModuleFound( 'infinite-scroll' ),
-				foundMinileven = this.props.isModuleFound( 'minileven' );
+				foundMinileven = this.props.isModuleFound( 'minileven' ),
+				foundPWA = this.props.isModuleFound( 'pwa' ),
+				foundPerf = this.props.isModuleFound( 'perf' ),
+				foundLazyImages = this.props.isModuleFound( 'lazy-images' );
 
-			if ( ! foundInfiniteScroll && ! foundMinileven ) {
+			if ( ! foundInfiniteScroll && ! foundMinileven && ! foundPWA && ! foundPerf && ! foundLazyImages ) {
 				return null;
 			}
+
+			const lazyImagesModule = this.props.getModule( 'lazy-images' );
 
 			return (
 				<SettingsCard
@@ -254,6 +270,178 @@ const ThemeEnhancements = moduleSettingsForm(
 								);
 							} )
 						)
+					}
+
+					{
+						foundPWA && (
+							[ {
+								...this.props.getModule( 'pwa' ),
+								checkboxes: [
+									{
+										key: 'pwa_cache_assets',
+										label: __( 'Enable offline browsing' )
+									},
+									// TODO: this could just be a widget
+									{
+										key: 'pwa_web_push',
+										label: __( 'Enable push notifications of new content' )
+									},
+									// TODO: this could just be a widget
+									{
+										key: 'pwa_show_network_status',
+										label: __( 'Display notice on page when the browser is offline' )
+									},
+								]
+							} ].map( item => {
+								const isItemActive = this.props.getOptionValue( item.module );
+								const isSSL = 'https:' === document.location.protocol;
+
+								if ( ! this.props.isModuleFound( item.module ) ) {
+									return null;
+								}
+
+								// if the toggle isn't activated, and the site isn't on SSL, don't let them activate it
+								const moduleToggleDisabled = ! isSSL && ! isItemActive;
+
+								return (
+									<SettingsGroup hasChild module={ { module: item.module } } key={ `theme_enhancement_${ item.module }` } support={ item.learn_more_button }>
+										<ModuleToggle
+											slug={ item.module }
+											activated={ isItemActive }
+											disabled={ moduleToggleDisabled }
+											toggling={ this.props.isSavingAnyOption( item.module ) }
+											toggleModule={ this.props.toggleModuleNow }
+										>
+											<span className="jp-form-toggle-explanation">
+												{
+													item.description
+												}
+											</span>
+										</ModuleToggle>
+										{
+											moduleToggleDisabled
+											&&
+											<FormFieldset>
+												<span className="jp-form-setting-explanation">
+													{ __( 'SSL not detected. Progressive Web Apps require that your web site is served using HTTPS.') }
+												</span>
+											</FormFieldset>
+										}
+										<FormFieldset>
+											{
+												item.checkboxes.map( chkbx => {
+													return (
+														<CompactFormToggle
+															checked={ this.state[ chkbx.key ] }
+															disabled={ ! isItemActive || this.props.isSavingAnyOption( [ item.module, chkbx.key ] ) }
+															onChange={ () => this.updateOptions( chkbx.key, item.module ) }
+															key={ `${ item.module }_${ chkbx.key }` }>
+														<span className="jp-form-toggle-explanation">
+															{
+																chkbx.label
+															}
+														</span>
+														</CompactFormToggle>
+													);
+												} )
+											}
+										</FormFieldset>
+
+									</SettingsGroup>
+								);
+							} )
+						)
+					}
+					{
+						foundPerf && (
+							[ {
+								...this.props.getModule( 'perf' ),
+								checkboxes: [
+									{
+										key: 'perf_inline_scripts_and_styles',
+										label: __( 'Improve rendering speed by inlining javascript and CSS where possible' )
+									},
+									{
+										key: 'perf_inline_on_every_request',
+										label: __( 'Inline scripts and styles on every request, not just first request' )
+									},
+									{
+										key: 'perf_async_scripts',
+										label: __( 'Mark scripts async by default so they don\'t block rendering' )
+									},
+									{
+										key: 'perf_defer_scripts',
+										label: __('Mark scripts deferred by default so they don\'t block rendering')
+									},
+									{
+										key: 'perf_remove_remote_fonts',
+										label: __( 'Improve rendering speed by removing external fonts (may change site appearance)' )
+									},
+								]
+							} ].map( item => {
+								const isItemActive = this.props.getOptionValue( item.module );
+
+								if ( ! this.props.isModuleFound( item.module ) ) {
+									return null;
+								}
+
+								return (
+									<SettingsGroup hasChild module={ { module: item.module } } key={ `theme_enhancement_${ item.module }` } support={ item.learn_more_button }>
+										<ModuleToggle
+											slug={ item.module }
+											activated={ isItemActive }
+											toggling={ this.props.isSavingAnyOption( item.module ) }
+											toggleModule={ this.props.toggleModuleNow }
+										>
+											<span className="jp-form-toggle-explanation">
+												{
+													item.description
+												}
+											</span>
+										</ModuleToggle>
+										<FormFieldset>
+											{
+												item.checkboxes.map( chkbx => {
+													return (
+														<CompactFormToggle
+															checked={ this.state[ chkbx.key ] }
+															disabled={ ! isItemActive || this.props.isSavingAnyOption( [ item.module, chkbx.key ] ) }
+															onChange={ () => this.updateOptions( chkbx.key, item.module ) }
+															key={ `${ item.module }_${ chkbx.key }` }>
+														<span className="jp-form-toggle-explanation">
+															{
+																chkbx.label
+															}
+														</span>
+														</CompactFormToggle>
+													);
+												} )
+											}
+										</FormFieldset>
+
+									</SettingsGroup>
+								);
+							} )
+						)
+					}
+
+					{ foundLazyImages &&
+						<SettingsGroup
+							hasChild
+							module={ lazyImagesModule }>
+							<ModuleToggle
+								slug="lazy-images"
+								activated={ this.props.getOptionValue( 'lazy-images' ) }
+								toggling={ this.props.isSavingAnyOption( 'lazy-images' ) }
+								toggleModule={ this.props.toggleModuleNow }
+							>
+								<span className="jp-form-toggle-explanation">
+									{
+										lazyImagesModule.description
+									}
+								</span>
+							</ModuleToggle>
+						</SettingsGroup>
 					}
 				</SettingsCard>
 			);

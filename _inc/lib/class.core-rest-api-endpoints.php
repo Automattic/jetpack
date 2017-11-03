@@ -335,6 +335,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'permission_callback' => __CLASS__ . '::activate_plugins_permission_check',
 		) );
 
+		register_rest_route( 'jetpack/v4', '/push-subscribe', array(
+			'methods'  => WP_REST_Server::CREATABLE,
+			'callback' => __CLASS__ . '::create_push_subscription',
+    ) );
+
 		// Widgets: get information about a widget that supports it.
 		register_rest_route( 'jetpack/v4', '/widgets/(?P<id>[0-9a-z\-_]+)', array(
 			'methods' => WP_REST_Server::READABLE,
@@ -378,6 +383,27 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		return $jitm->dismiss( $request['id'], $request['feature_class'] );
+	}
+
+	public static function create_push_subscription( $request ) {
+		$token = $request->get_json_params();
+
+		if ( ! is_array( $token ) || ! isset( $token['endpoint'] ) || ! is_array( $token['keys'] ) ) {
+			return new WP_Error( 'invalid_token', __( 'The token was badly formed' ) );
+		}
+
+		/**
+		 * Fires when the browser creates a new PUSH notification subscription
+		 *
+		 * @module pwa
+		 *
+		 * @since 5.5.0
+		 */
+		do_action( 'jetpack_web_push_subscribe', $token );
+
+		return array(
+			'success' => 'true'
+		);
 	}
 
 	/**
@@ -1403,8 +1429,75 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'jp_group'          => 'protect',
 			),
 
+			// PWA
+			'pwa_cache_assets' => array(
+				'description'       => esc_html__( 'Enable offline browsing', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'pwa',
+			),
+			'pwa_web_push' => array(
+				'description'       => esc_html__( 'Enable push notifications of new content', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'pwa',
+			),
+			'pwa_show_network_status' => array(
+				'description'       => esc_html__( 'Display notice on page when the browser is offline', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'pwa',
+			),
+
+			// Perf
+			'perf_inline_scripts_and_styles' => array(
+				'description'       => esc_html__( 'Improve rendering speed by inlining javascript and CSS where possible', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 1,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'perf',
+			),
+			'perf_inline_on_every_request' => array(
+				'description'       => esc_html__( 'Inline scripts and styles on every request, not just first request', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'perf',
+			),
+			'perf_async_scripts'        => array(
+				'description'       => esc_html__( 'Mark scripts async by default so they don\'t block rendering', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 1,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'perf',
+			),
+			'perf_defer_scripts'        => array(
+				'description'       => esc_html__( 'Mark scripts deferred by default so they don\'t block rendering', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 1,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'perf',
+			),
+			'perf_remove_remote_fonts'  => array(
+				'description'       => esc_html__( 'Improve rendering speed by removing external fonts (may change site appearance)', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 1,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'perf',
+			),
+			'perf_defer_inline_scripts' => array(
+				'description'       => esc_html__( 'Improve rendering speed by deferring inline scripts', 'jetpack' ),
+				'type'              => 'boolean',
+				'default'           => 1,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'perf',
+			),
+
 			// Sharing
-			'sharing_services' => array(
+			'sharing_services'          => array(
 				'description'       => esc_html__( 'Enabled Services and those hidden behind a button', 'jetpack' ),
 				'type'              => 'object',
 				'default'           => array(
@@ -1414,7 +1507,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'validate_callback' => __CLASS__ . '::validate_services',
 				'jp_group'          => 'sharedaddy',
 			),
-			'button_style' => array(
+			'button_style'              => array(
 				'description'       => esc_html__( 'Button Style', 'jetpack' ),
 				'type'              => 'string',
 				'default'           => 'icon',

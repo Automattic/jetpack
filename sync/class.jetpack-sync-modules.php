@@ -22,6 +22,7 @@ require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-terms.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-plugins.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-full-sync.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-stats.php';
+require_once dirname( __FILE__ ) . '/class.jetpack-sync-module-web-push.php';
 
 class Jetpack_Sync_Modules {
 
@@ -42,6 +43,7 @@ class Jetpack_Sync_Modules {
 		'Jetpack_Sync_Module_Plugins',
 		'Jetpack_Sync_Module_Full_Sync',
 		'Jetpack_Sync_Module_Stats',
+		'Jetpack_Sync_Module_Web_Push',
 	);
 
 	private static $initialized_modules = null;

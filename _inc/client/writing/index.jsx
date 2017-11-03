@@ -47,6 +47,7 @@ export const Writing = React.createClass( {
 			'post-by-email',
 			'infinite-scroll',
 			'minileven',
+			'pwa',
 			'videopress'
 		].some( this.props.isModuleFound );
 

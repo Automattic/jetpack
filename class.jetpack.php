@@ -618,9 +618,7 @@ class Jetpack {
 		add_action( 'plugins_loaded', array( $this, 'check_twitter_tags' ),     999 );
 		add_action( 'plugins_loaded', array( $this, 'check_rest_api_compat' ), 1000 );
 
-		add_filter( 'plugins_url',      array( 'Jetpack', 'maybe_min_asset' ),     1, 3 );
 		add_action( 'style_loader_src', array( 'Jetpack', 'set_suffix_on_min' ), 10, 2  );
-		add_filter( 'style_loader_tag', array( 'Jetpack', 'maybe_inline_style' ), 10, 2 );
 
 		add_filter( 'map_meta_cap', array( $this, 'jetpack_custom_caps' ), 1, 4 );
 
@@ -916,23 +914,23 @@ class Jetpack {
 	 */
 	public function register_assets() {
 		if ( ! wp_script_is( 'spin', 'registered' ) ) {
-			wp_register_script( 'spin', plugins_url( '_inc/spin.js', JETPACK__PLUGIN_FILE ), false, '1.3' );
+			wp_register_script( 'spin', plugins_url( '_inc/build/spin.min.js', JETPACK__PLUGIN_FILE ), false, '1.3' );
 		}
 
 		if ( ! wp_script_is( 'jquery.spin', 'registered' ) ) {
-			wp_register_script( 'jquery.spin', plugins_url( '_inc/jquery.spin.js', JETPACK__PLUGIN_FILE ) , array( 'jquery', 'spin' ), '1.3' );
+			wp_register_script( 'jquery.spin', plugins_url( '_inc/build/jquery.spin.min.js', JETPACK__PLUGIN_FILE ) , array( 'jquery', 'spin' ), '1.3' );
 		}
 
 		if ( ! wp_script_is( 'jetpack-gallery-settings', 'registered' ) ) {
-			wp_register_script( 'jetpack-gallery-settings', plugins_url( '_inc/gallery-settings.js', JETPACK__PLUGIN_FILE ), array( 'media-views' ), '20121225' );
+			wp_register_script( 'jetpack-gallery-settings', plugins_url( '_inc/build/gallery-settings.min.js', JETPACK__PLUGIN_FILE ), array( 'media-views' ), '20121225' );
 		}
 
 		if ( ! wp_script_is( 'jetpack-twitter-timeline', 'registered' ) ) {
-			wp_register_script( 'jetpack-twitter-timeline', plugins_url( '_inc/twitter-timeline.js', JETPACK__PLUGIN_FILE ) , array( 'jquery' ), '4.0.0', true );
+			wp_register_script( 'jetpack-twitter-timeline', plugins_url( '_inc/build/twitter-timeline.min.js', JETPACK__PLUGIN_FILE ) , array( 'jquery' ), '4.0.0', true );
 		}
 
 		if ( ! wp_script_is( 'jetpack-facebook-embed', 'registered' ) ) {
-			wp_register_script( 'jetpack-facebook-embed', plugins_url( '_inc/facebook-embed.js', __FILE__ ), array( 'jquery' ), null, true );
+			wp_register_script( 'jetpack-facebook-embed', plugins_url( '_inc/build/facebook-embed.min.js', __FILE__ ), array( 'jquery' ), null, true );
 
 			/** This filter is documented in modules/sharedaddy/sharing-sources.php */
 			$fb_app_id = apply_filters( 'jetpack_sharing_facebook_app_id', '249643311490' );
@@ -1035,6 +1033,7 @@ class Jetpack {
 	function devicepx() {
 		if ( Jetpack::is_active() ) {
 			wp_enqueue_script( 'devicepx', 'https://s0.wp.com/wp-content/js/devicepx-jetpack.js', array(), gmdate( 'oW' ), true );
+			wp_script_add_data( 'devicepx', 'jetpack-async', true );
 		}
 	}
 
@@ -6185,54 +6184,6 @@ p {
 	}
 
 	/**
-	 * Maybe Use a .min.css stylesheet, maybe not.
-	 *
-	 * Hooks onto `plugins_url` filter at priority 1, and accepts all 3 args.
-	 */
-	public static function maybe_min_asset( $url, $path, $plugin ) {
-		// Short out on things trying to find actual paths.
-		if ( ! $path || empty( $plugin ) ) {
-			return $url;
-		}
-
-		$path = ltrim( $path, '/' );
-
-		// Strip out the abspath.
-		$base = dirname( plugin_basename( $plugin ) );
-
-		// Short out on non-Jetpack assets.
-		if ( 'jetpack/' !== substr( $base, 0, 8 ) ) {
-			return $url;
-		}
-
-		// File name parsing.
-		$file              = "{$base}/{$path}";
-		$full_path         = JETPACK__PLUGIN_DIR . substr( $file, 8 );
-		$file_name         = substr( $full_path, strrpos( $full_path, '/' ) + 1 );
-		$file_name_parts_r = array_reverse( explode( '.', $file_name ) );
-		$extension         = array_shift( $file_name_parts_r );
-
-		if ( in_array( strtolower( $extension ), array( 'css', 'js' ) ) ) {
-			// Already pointing at the minified version.
-			if ( 'min' === $file_name_parts_r[0] ) {
-				return $url;
-			}
-
-			$min_full_path = preg_replace( "#\.{$extension}$#", ".min.{$extension}", $full_path );
-			if ( file_exists( $min_full_path ) ) {
-				$url = preg_replace( "#\.{$extension}$#", ".min.{$extension}", $url );
-				// If it's a CSS file, stash it so we can set the .min suffix for rtl-ing.
-				if ( 'css' === $extension ) {
-					$key = str_replace( JETPACK__PLUGIN_DIR, 'jetpack/', $min_full_path );
-					self::$min_assets[ $key ] = $path;
-				}
-			}
-		}
-
-		return $url;
-	}
-
-	/**
 	 * If the asset is minified, let's flag .min as the suffix.
 	 *
 	 * Attached to `style_loader_src` filter.
@@ -6256,70 +6207,6 @@ p {
 		}
 
 		return $src;
-	}
-
-	/**
-	 * Maybe inlines a stylesheet.
-	 *
-	 * If you'd like to inline a stylesheet instead of printing a link to it,
-	 * wp_style_add_data( 'handle', 'jetpack-inline', true );
-	 *
-	 * Attached to `style_loader_tag` filter.
-	 *
-	 * @param string $tag The tag that would link to the external asset.
-	 * @param string $handle The registered handle of the script in question.
-	 *
-	 * @return string
-	 */
-	public static function maybe_inline_style( $tag, $handle ) {
-		global $wp_styles;
-		$item = $wp_styles->registered[ $handle ];
-
-		if ( ! isset( $item->extra['jetpack-inline'] ) || ! $item->extra['jetpack-inline'] ) {
-			return $tag;
-		}
-
-		if ( preg_match( '# href=\'([^\']+)\' #i', $tag, $matches ) ) {
-			$href = $matches[1];
-			// Strip off query string
-			if ( $pos = strpos( $href, '?' ) ) {
-				$href = substr( $href, 0, $pos );
-			}
-			// Strip off fragment
-			if ( $pos = strpos( $href, '#' ) ) {
-				$href = substr( $href, 0, $pos );
-			}
-		} else {
-			return $tag;
-		}
-
-		$plugins_dir = plugin_dir_url( JETPACK__PLUGIN_FILE );
-		if ( $plugins_dir !== substr( $href, 0, strlen( $plugins_dir ) ) ) {
-			return $tag;
-		}
-
-		// If this stylesheet has a RTL version, and the RTL version replaces normal...
-		if ( isset( $item->extra['rtl'] ) && 'replace' === $item->extra['rtl'] && is_rtl() ) {
-			// And this isn't the pass that actually deals with the RTL version...
-			if ( false === strpos( $tag, " id='$handle-rtl-css' " ) ) {
-				// Short out, as the RTL version will deal with it in a moment.
-				return $tag;
-			}
-		}
-
-		$file = JETPACK__PLUGIN_DIR . substr( $href, strlen( $plugins_dir ) );
-		$css  = Jetpack::absolutize_css_urls( file_get_contents( $file ), $href );
-		if ( $css ) {
-			$tag = "<!-- Inline {$item->handle} -->\r\n";
-			if ( empty( $item->extra['after'] ) ) {
-				wp_add_inline_style( $handle, $css );
-			} else {
-				array_unshift( $item->extra['after'], $css );
-				wp_style_add_data( $handle, 'after', $item->extra['after'] );
-			}
-		}
-
-		return $tag;
 	}
 
 	/**

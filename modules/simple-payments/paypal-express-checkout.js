@@ -7,7 +7,7 @@
 /* global paypal */
 /* global jQuery */
 /* exported PaypalExpressCheckout */
-/* jshint unused:false, es3:false, esversion:5 */
+/* jshint unused:false, es3:false */
 var PaypalExpressCheckout = {
 	primaryCssClassName: 'jetpack-simple-payments',
 	messageCssClassName: 'jetpack-simple-payments-purchase-message',

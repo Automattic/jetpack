@@ -126,7 +126,7 @@ class Jetpack_Sync_Listener {
 			return;
 		}
 
-		// if we add any items to the queue, we should try to ensure that our script 
+		// if we add any items to the queue, we should try to ensure that our script
 		// can't be killed before they are sent
 		if ( function_exists( 'ignore_user_abort' ) ) {
 			ignore_user_abort( true );
@@ -191,7 +191,7 @@ class Jetpack_Sync_Listener {
 			return;
 		}
 
-		// if we add any items to the queue, we should try to ensure that our script 
+		// if we add any items to the queue, we should try to ensure that our script
 		// can't be killed before they are sent
 		if ( function_exists( 'ignore_user_abort' ) ) {
 			ignore_user_abort( true );
