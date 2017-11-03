@@ -279,8 +279,8 @@ class Jetpack_Likes {
 	* Register scripts
 	*/
 	function register_scripts() {
-		wp_register_script( 'postmessage', plugins_url( '_inc/postmessage.js', dirname(__FILE__) ), array( 'jquery' ), JETPACK__VERSION, false );
-		wp_register_script( 'jetpack_resize', plugins_url( '_inc/jquery.jetpack-resize.js' , dirname(__FILE__) ), array( 'jquery' ), JETPACK__VERSION, false );
+		wp_register_script( 'postmessage', plugins_url( '_inc/build/postmessage.min.js', dirname(__FILE__) ), array( 'jquery' ), JETPACK__VERSION, false );
+		wp_register_script( 'jetpack_resize', plugins_url( '_inc/build/jquery.jetpack-resize.min.js' , dirname(__FILE__) ), array( 'jquery' ), JETPACK__VERSION, false );
 		wp_register_script( 'jetpack_likes_queuehandler', plugins_url( 'likes/queuehandler.js' , __FILE__ ), array( 'jquery', 'postmessage', 'jetpack_resize' ), JETPACK__VERSION, true );
 	}
 

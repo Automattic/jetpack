@@ -29,6 +29,7 @@ import tap from 'gulp-tap';
 import uglify from 'gulp-uglify';
 import util from 'gulp-util';
 import webpack from 'webpack';
+import gulpif from 'gulp-if';
 
 /**
  * Internal dependencies
@@ -74,6 +75,20 @@ function onBuild( done ) {
 					util.log( 'Your JS is now uglified!' );
 				} );
 		}
+
+		const is_prod = 'production' === process.env.NODE_ENV;
+
+		// Uglify other JS in _inc directory
+		gulp.src( [ '_inc/*.js', '!_inc/*.min.js' ] )
+			.pipe( gulpif( ! is_prod, sourcemaps.init() ) )
+			.pipe( uglify() )
+			.pipe( banner( '/* Do not modify this file directly. It is compiled from other files. */\n' ) )
+			.pipe( rename( { suffix: '.min' } ) )
+			.pipe( gulpif( ! is_prod, sourcemaps.write( './' ) ) )
+			.pipe( gulp.dest( '_inc/build' ) )
+			.on( 'end', function() {
+				util.log( 'Your other JS is now uglified!' );
+			} );
 
 		doSass( function() {
 			if ( done ) {
