@@ -493,7 +493,7 @@ class Jetpack_Protect_Module {
 		}
 
 		if ( 'blocked' == $response['status'] ) {
-			return $this->block_with_math();
+			$this->block_with_math();
 		}
 
 		if ( 'blocked-hard' == $response['status'] ) {
