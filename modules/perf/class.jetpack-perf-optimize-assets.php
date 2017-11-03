@@ -14,7 +14,8 @@ class Jetpack_Perf_Optimize_Assets {
 	private $inline_scripts_and_styles = false;
 	private $async_scripts = false;
 	private $defer_scripts = false;
-	const INLINE_ASSET_MAX_SIZE_BYTES = 50 * 1024; // 50kb
+	const INLINE_ASSET_MAX_SIZE_BYTES = 10 * 1024; // 10kb
+	const INLINE_CSS_URL_MAX_SIZE_BYTES = 5 * 1024; // 5kb
 
 	/**
 	 * Singleton implementation
@@ -50,7 +51,7 @@ class Jetpack_Perf_Optimize_Assets {
 		$this->inline_scripts_and_styles = get_option( 'perf_inline_scripts_and_styles', true ) && ( $this->is_first_load || $this->inline_always );
 		$this->async_scripts             = get_option( 'perf_async_scripts', true );
 		$this->defer_scripts             = get_option( 'perf_defer_scripts', true );
-		$this->move_scripts_to_footer    = true;
+		$this->move_scripts_to_footer    = false;//true;
 		$this->move_scripts_above_css_in_header = true;
 		$this->remove_core_emojis        = true;
 		$this->prevent_jetpack_implode_css = true;
@@ -60,9 +61,14 @@ class Jetpack_Perf_Optimize_Assets {
 			add_filter( 'jetpack_perf_remove_style', array( $this, 'remove_external_font_styles' ), 10, 3 );
 		}
 
-		if ( $this->move_scripts_to_footer ) {
-			add_filter( 'jetpack_perf_asset_group', array( $this, 'set_asset_groups' ), 10, 2 );
-		}
+//		if ( $this->move_scripts_to_footer ) {
+			add_filter( 'jetpack_perf_script_group', array( $this, 'set_script_groups' ), 10, 2 );
+//		}
+		
+		add_action( 'wp_enqueue_scripts', array( $this, 'relocate_assets' ), PHP_INT_MAX );
+
+		// relocate assets
+		add_filter( 'jetpack_perf_style_group', array( $this, 'set_style_groups' ), 10, 2 );
 
 		if ( $this->move_scripts_above_css_in_header ) {
 			add_action( 'init', array( $this, 'move_styles_to_bottom_of_header' ), PHP_INT_MAX );
@@ -72,7 +78,6 @@ class Jetpack_Perf_Optimize_Assets {
 			add_filter( 'jetpack_implode_frontend_css', '__return_false' );
 		}
 
-		add_action( 'wp_enqueue_scripts', array( $this, 'send_scripts_to_footer' ), PHP_INT_MAX );
 		add_filter( 'script_loader_src', array( $this, 'filter_inline_scripts' ), -100, 2 );
 		add_filter( 'script_loader_tag', array( $this, 'print_inline_scripts' ), -100, 3 );
 		add_filter( 'style_loader_src', array( $this, 'filter_inline_styles' ), -100, 2 );
@@ -156,22 +161,36 @@ class Jetpack_Perf_Optimize_Assets {
 	}
 
 	// this code essentially sets the default asset location to the footer rather than the head
-	function send_scripts_to_footer() {
+	function relocate_assets() {
 		global $wp_scripts;
 
 		// fetch all deps for head
 		$wp_scripts->all_deps( $wp_scripts->queue, true, 1 );
 		foreach( $wp_scripts->to_do as $handle ) {
 			$registration = $wp_scripts->registered[$handle];
-			if ( $registration->args !== NULL ) {
-				// skip, this asset has an explicit location
-				continue;
-			}
+			$asset_group = apply_filters( 'jetpack_perf_script_group', $registration->args, $handle );
 
-			$asset_group = apply_filters( 'jetpack_perf_asset_group', 1, $handle );
-			$registration->args = $asset_group;
-			$wp_scripts->groups[$handle] = $asset_group;
+			if ( $asset_group !== NULL ) {
+				$registration->args = $asset_group;
+				$wp_scripts->groups[$handle] = $asset_group;
+			} 
 		}
+
+
+		global $wp_styles;
+
+                // fetch all deps for head
+                $wp_styles->all_deps( $wp_styles->queue, true );
+                foreach( $wp_styles->to_do as $handle ) {
+                        $registration = $wp_styles->registered[$handle];
+                        $asset_group = apply_filters( 'jetpack_perf_style_group', $registration->args, $handle );
+
+                        if ( $asset_group !== NULL ) {
+                                $registration->args = $asset_group;
+                                $wp_styles->groups[$handle] = $asset_group;
+                        }
+                }
+
 	}
 
 	// scripts that run after CSS <link>s in the header block waiting for the CSS to load
@@ -182,14 +201,34 @@ class Jetpack_Perf_Optimize_Assets {
 		add_action( 'wp_head', 'wp_print_styles', 999 );
 	}
 
-	function set_asset_groups( $group, $handle ) {
+	function set_script_groups( $group, $handle ) {
 		// force jquery into header, everything else can go in footer unless filtered elsewhere
 		if ( in_array( $handle, array( 'jquery-core', 'jquery-migrate', 'jquery' ) ) ) {
 			return 0;
 		}
 
+		// force scripts with deps into header
+		if ( $this->script_has_deps( $handle ) ) {
+			return 0;
+		}
+
+		if ( $group === NULL ) {
+			// set default location to footer
+			return 1;
+		}
+
 		return $group;
 	}
+
+	function set_style_groups( $group, $handle ) {
+		if ( in_array( $handle, array( 'genericons' ) ) ) {
+			return 0;
+		}
+
+		return $group;
+	}
+
+	
 
 	/** FILTERS **/
 	public function remove_external_font_scripts( $should_remove, $handle, $asset_url ) {
@@ -255,23 +294,25 @@ class Jetpack_Perf_Optimize_Assets {
 	}
 
 	private function should_async_script( $script ) {
-		global $wp_scripts;
-
-		// explicitly in the header (scripts aren't affected much by async)
-		$should_async_script = $script->args === 0;
-
+		// this could be dangerous if scripts have undeclared dependencies
 		// only make scripts async if nothing depends on them
-		foreach ( $wp_scripts->to_do as $other_script_handle ) {
-			$other_script = $wp_scripts->registered[ $other_script_handle ];
-			if ( in_array( $script->handle, $other_script->deps ) ) {
-				$should_async_script = false;
-				break;
-			}
-		}
+		$should_async_script = ! $this->script_has_deps( $script->handle );
 
 		// you can override this logic by setting jetpack-async
 		$should_async_script = $should_async_script || ( isset( $script->extra['jetpack-async'] ) && $script->extra['jetpack-async'] );
 		return $this->async_scripts && apply_filters( 'jetpack_perf_async_script', $should_async_script, $script->handle, $script->src );
+	}
+
+	private function script_has_deps( $handle ) {
+		global $wp_scripts;
+                foreach ( $wp_scripts->to_do as $other_script_handle ) {
+                        $other_script = $wp_scripts->registered[ $other_script_handle ];
+                        if ( in_array( $handle, $other_script->deps ) ) {
+				return true;
+                        }
+                }
+
+		return false;
 	}
 
 	private function should_defer_script( $script ) {
@@ -348,9 +389,18 @@ class Jetpack_Perf_Optimize_Assets {
 		if ( 'http' === substr( $base, 0, 4 ) ) {
 			return $css;
 		}
+
 		return preg_replace_callback( '/url[\s]*\([\s]*["\']?[\s]*(?!https?:\/\/)(?!data:)(?!#)([^\)"\']*)["\']?\)/i', function( $matches ) use ( $base ) {
 			// TODO: embed data-encoded file, for files smaller than certain size?
-			return 'url('.$this->rel2abspath( $matches[1], $base ).')';
+			$url = $this->rel2abspath( $matches[1], $base );
+
+			// sneaky - see if it's small enough that it should be encoded and placed inline
+			$local_path = $this->local_url_to_file_path( $url );
+			if ( file_exists( $local_path ) && filesize( $local_path ) < self::INLINE_CSS_URL_MAX_SIZE_BYTES && ( $mime_type = wp_check_filetype( $url )['type'] ) ) {
+				$url = 'data:' . $mime_type . ';base64,' . base64_encode( file_get_contents( $local_path ) );
+			} 
+
+			return 'url('.$url.')';
 		}, $css );
 	}
 
@@ -395,26 +445,12 @@ class Jetpack_Perf_Optimize_Assets {
 
 		if ( $is_local_url && ! isset( $dependency->extra['jetpack-inline'] ) ) {
 			$dependency->extra['jetpack-inline'] = true;
-
-			$path = untrailingslashit( ABSPATH ) . str_replace( $site_url, '', $dependency->src );
-
-			if ( ! file_exists( $path ) ) {
-				$path = str_replace('/', DIRECTORY_SEPARATOR, str_replace( $site_url, '', $dependency->src ));
-
-				$prefix = explode( DIRECTORY_SEPARATOR, untrailingslashit( WP_CONTENT_DIR ) );
-				$prefix = array_slice( $prefix, 0, array_search( $path[1], $prefix ) - 1 );
-
-				$path = implode( DIRECTORY_SEPARATOR, $prefix ) . $path;
-			}
-
-			$dependency->extra['jetpack-inline-file'] = $path;
+			$dependency->extra['jetpack-inline-file'] = $this->local_url_to_file_path( $dependency->src );
 		}
 
 		// early exit if the file doesn't exist or is too large
-		if ( ! isset( $dependency->extra['jetpack-inline-file'] )
-			||
-			! file_exists( $dependency->extra['jetpack-inline-file'] ) ) {
-				return false;
+		if ( ! isset( $dependency->extra['jetpack-inline-file'] ) || ! file_exists( $dependency->extra['jetpack-inline-file'] ) ) {
+			return false;
 		}
 
 		// only inline if we don't have a conditional
@@ -424,6 +460,13 @@ class Jetpack_Perf_Optimize_Assets {
 			&& filesize( $dependency->extra['jetpack-inline-file'] ) < self::INLINE_ASSET_MAX_SIZE_BYTES;
 
 		return apply_filters( $filter, $should_inline, $dependency->handle, $dependency->src );
+	}
+
+	private function local_url_to_file_path( $url ) {
+		$path = untrailingslashit( ABSPATH ) . parse_url( $url )['path'];
+		if ( '/' !== DIRECTORY_SEPARATOR )
+	             	$path = str_replace( '/', DIRECTORY_SEPARATOR, $path );
+		return $path;
 	}
 
 	private function should_remove_asset( $filter, $dependency ) {
