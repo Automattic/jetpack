@@ -289,7 +289,7 @@ class Jetpack_Beta {
 			'id'    => 'jetpack-beta_admin_bar',
 			'title' => 'Jetpack Beta',
 			'parent' => 'top-secondary',
-			'href'  => self::admin_url()
+			'href'  => current_user_can( 'update_plugins' ) ? self::admin_url() : ''
 		);
 		$wp_admin_bar->add_node( $args );
 
