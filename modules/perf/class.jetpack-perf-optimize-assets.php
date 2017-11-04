@@ -14,6 +14,7 @@ class Jetpack_Perf_Optimize_Assets {
 	private $inline_scripts_and_styles = false;
 	private $async_scripts = false;
 	private $defer_scripts = false;
+	private $inject_critical_css = false;
 	const INLINE_ASSET_MAX_SIZE_BYTES = 10 * 1024; // 10kb
 	const INLINE_CSS_URL_MAX_SIZE_BYTES = 5 * 1024; // 5kb
 
@@ -45,31 +46,48 @@ class Jetpack_Perf_Optimize_Assets {
 	 * Registers actions
 	 */
 	private function __construct() {
+//		global $concatenate_scripts;
+//		$concatenate_scripts = true;
 		$this->is_first_load             = ! isset( $_COOKIE['jetpack_perf_loaded'] );
 		$this->remove_remote_fonts       = get_option( 'perf_remove_remote_fonts', true );
 		$this->inline_always             = get_option( 'perf_inline_on_every_request', false );
-		$this->inline_scripts_and_styles = get_option( 'perf_inline_scripts_and_styles', true ) && ( $this->is_first_load || $this->inline_always );
+		$this->inline_scripts_and_styles = false;//get_option( 'perf_inline_scripts_and_styles', true ) && ( $this->is_first_load || $this->inline_always );
 		$this->async_scripts             = get_option( 'perf_async_scripts', true );
 		$this->defer_scripts             = get_option( 'perf_defer_scripts', true );
-		$this->move_scripts_to_footer    = false;//true;
 		$this->move_scripts_above_css_in_header = true;
 		$this->remove_core_emojis        = true;
 		$this->prevent_jetpack_implode_css = true;
+		$this->inject_critical_css       = true;
+		$this->preload_scripts           = true;
 
 		if ( $this->remove_remote_fonts ) {
 			add_filter( 'jetpack_perf_remove_script', array( $this, 'remove_external_font_scripts' ), 10, 3 );
 			add_filter( 'jetpack_perf_remove_style', array( $this, 'remove_external_font_styles' ), 10, 3 );
 		}
 
-//		if ( $this->move_scripts_to_footer ) {
-			add_filter( 'jetpack_perf_script_group', array( $this, 'set_script_groups' ), 10, 2 );
-//		}
-		
 		add_action( 'wp_enqueue_scripts', array( $this, 'relocate_assets' ), PHP_INT_MAX );
 
 		// relocate assets
-		add_filter( 'jetpack_perf_style_group', array( $this, 'set_style_groups' ), 10, 2 );
+//		add_filter( 'jetpack_perf_style_group', array( $this, 'set_style_groups' ), 10, 2 );
+//		add_filter( 'jetpack_perf_script_group', array( $this, 'set_script_groups' ), 10, 2 );
 
+		if ( $this->inject_critical_css ) {
+			add_action( 'wp_head', array( $this, 'render_critical_css' ), 0 );
+		}
+
+		if ( $this->preload_scripts ) {
+			add_action( 'wp_print_scripts', array( $this, 'preload_scripts' ) );	
+		}
+
+
+		// munge footer scripts
+		//add_filter( 'wp_footer', array( $this, 'encode_footer_scripts' ), -PHP_INT_MAX );
+		
+		// necessary to catch some woocommerce scripts that get localized inside wp_print_scripts at pri 5
+		//add_filter( 'wp_print_footer_scripts', array( $this, 'encode_footer_scripts' ), 9 );
+
+		// in modern browsers (post-2008) there is a small performance win from
+		// loading CSS after external scripts in the header, rather than before
 		if ( $this->move_scripts_above_css_in_header ) {
 			add_action( 'init', array( $this, 'move_styles_to_bottom_of_header' ), PHP_INT_MAX );
 		}
@@ -153,6 +171,25 @@ class Jetpack_Perf_Optimize_Assets {
 		return $urls;
 	}
 
+	// preload scripts we expect to find in the footer
+	function preload_scripts() {
+		global $wp_scripts;
+		$wp_scripts->all_deps( $wp_scripts->queue, false );
+                foreach( $wp_scripts->to_do as $handle ) {
+                        $registration = $wp_scripts->registered[$handle];
+			// preload anything not async'd, since these scripts are likely to be a higher priority
+			$is_footer_script = isset( $registration->extra['group'] ) && 1 == $registration->extra['group'];
+			error_log("$handle is footer: $is_footer_script");
+			if ( ! $this->should_async_script( $registration ) && $is_footer_script ) {
+				echo '<link rel="preload" as="script" href="'. esc_attr( $registration->src )  .'" />';
+			}
+                }	
+	}
+
+	function render_critical_css() {
+		echo '<!-- critical.css --><style type="text/css">' . file_get_contents( plugin_dir_path( __FILE__ ) . 'critical.css' ) . '</style>';
+	}
+
 	// by default we only inline scripts+styles on first page load for a given user
 	function set_first_load_cookie() {
 		if ( ! isset( $_COOKIE['jetpack_perf_loaded'] ) ) {
@@ -164,28 +201,31 @@ class Jetpack_Perf_Optimize_Assets {
 	function relocate_assets() {
 		global $wp_scripts;
 
+		//error_log(print_r($wp_scripts,1));
+
 		// fetch all deps for head
-		$wp_scripts->all_deps( $wp_scripts->queue, true, 1 );
+		$wp_scripts->all_deps( $wp_scripts->queue, false );
 		foreach( $wp_scripts->to_do as $handle ) {
 			$registration = $wp_scripts->registered[$handle];
 			$asset_group = apply_filters( 'jetpack_perf_script_group', $registration->args, $handle );
 
-			if ( $asset_group !== NULL ) {
+			if ( $asset_group !== $registration->args ) {
 				$registration->args = $asset_group;
 				$wp_scripts->groups[$handle] = $asset_group;
 			} 
 		}
 
+		//$wp_scripts->done = array();
 
 		global $wp_styles;
 
                 // fetch all deps for head
-                $wp_styles->all_deps( $wp_styles->queue, true );
+                $wp_styles->all_deps( $wp_styles->queue, false,1 );
                 foreach( $wp_styles->to_do as $handle ) {
                         $registration = $wp_styles->registered[$handle];
-                        $asset_group = apply_filters( 'jetpack_perf_style_group', $registration->args, $handle );
+                        $asset_group = apply_filters( 'jetpack_perf_style_group', $wp_styles->groups[$handle], $handle );
 
-                        if ( $asset_group !== NULL ) {
+                        if ( $asset_group !== $wp_styles->groups[$handle] ) {
                                 $registration->args = $asset_group;
                                 $wp_styles->groups[$handle] = $asset_group;
                         }
@@ -202,6 +242,7 @@ class Jetpack_Perf_Optimize_Assets {
 	}
 
 	function set_script_groups( $group, $handle ) {
+		//error_log("set script for $handle in group $group");
 		// force jquery into header, everything else can go in footer unless filtered elsewhere
 		if ( in_array( $handle, array( 'jquery-core', 'jquery-migrate', 'jquery' ) ) ) {
 			return 0;
@@ -213,9 +254,12 @@ class Jetpack_Perf_Optimize_Assets {
 		}
 
 		if ( $group === NULL ) {
-			// set default location to footer
+		//	error_log("force set $handle to 0");
+			// set default location to header
 			return 1;
 		}
+
+		//error_log("set $handle to $group");
 
 		return $group;
 	}
@@ -224,11 +268,41 @@ class Jetpack_Perf_Optimize_Assets {
 		if ( in_array( $handle, array( 'genericons' ) ) ) {
 			return 0;
 		}
+		
+		if ( $group === NULL ) {
+			return 1;
+		}
 
 		return $group;
 	}
 
-	
+	// this is wild: inline scripts in the footer can block rendering, but we don't have a chance to intercept them in the header
+	// so let's mark them as defer (which guarantees order) - which also requires adding deps with the localize script base64-encoded
+
+	// so, I don't think this is a performance win - stuff in the footer is already "deferred" and forcing the defer attribute
+	// only makes them load one after the other, rather than allowing the browser to do paralellisation
+	function encode_footer_scripts() {
+		global $wp_scripts;
+		$queued = $wp_scripts->all_deps( $wp_scripts->queue, false );
+
+                foreach( $wp_scripts->to_do as $handle ) {
+                        $registration = $wp_scripts->registered[$handle];
+			//error_log(print_r($registration,1));
+			if ( isset( $registration->extra['data'] ) && $registration->extra['data'] ) {
+				//register artificial dependency with param of defer
+				$encoded_src = 'data:text/javascript;base64,' . base64_encode( $registration->extra['data'] );
+				$data_handle = $handle . '_jp_data';
+				$wp_scripts->add( $data_handle, $encoded_src, array(), false );
+				$wp_scripts->add_data( $data_handle, 'jetpack-defer', true );
+				$registration->deps[] = $data_handle;
+				unset( $registration->extra['data'] );
+			}
+
+			$registration->extra['jetpack-defer'] = true;
+			$registration->extra['jetpack-async'] = false;
+                }
+		$wp_scripts->to_do = array();
+	}	
 
 	/** FILTERS **/
 	public function remove_external_font_scripts( $should_remove, $handle, $asset_url ) {
@@ -296,7 +370,9 @@ class Jetpack_Perf_Optimize_Assets {
 	private function should_async_script( $script ) {
 		// this could be dangerous if scripts have undeclared dependencies
 		// only make scripts async if nothing depends on them
-		$should_async_script = ! $this->script_has_deps( $script->handle );
+		// turns out this is a problem - lots of plugins import (say) jquery extensions and then use them in the page from inline scripts. Bah.	
+		// but if a script has been declared in the footer? hm maybe that's ok........
+		$should_async_script = isset( $script->extra['group'] ) && $script->extra['group'] === 1; // ! $this->script_has_deps( $script->handle );
 
 		// you can override this logic by setting jetpack-async
 		$should_async_script = $should_async_script || ( isset( $script->extra['jetpack-async'] ) && $script->extra['jetpack-async'] );
@@ -368,6 +444,15 @@ class Jetpack_Perf_Optimize_Assets {
 
 		$style = $wp_styles->registered[$handle];
 
+		if ( $this->should_async_style( $style ) ) {
+			// we async all styles if inline-critical-css is enabled
+			$existing_tag = $tag;
+			$tag = preg_replace( '/rel=[\'"]stylesheet[\'"]/', 'rel="preload"', $tag );
+			$tag = preg_replace( '/<link /', '<link onload="this.rel=\'stylesheet\'" as="style" ', $tag );
+			$tag .= '<noscript>' . $existing_tag . '</noscript>';
+			return $tag;
+		}
+
 		if ( $this->should_inline_style( $style ) ) {
 			$label = '<!-- ' . $style->src . ' -->';
 			$css = $this->fix_css_urls( file_get_contents( $style->extra['jetpack-inline-file'] ), $style->src );
@@ -379,6 +464,11 @@ class Jetpack_Perf_Optimize_Assets {
 		}
 
 		return $tag;
+	}
+
+	// we can async styles if we load critical CSS in the header
+	private function should_async_style( $style ) {
+		return $this->inject_critical_css;
 	}
 
 	public function fix_css_urls( $css, $css_url ) {
