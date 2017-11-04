@@ -160,17 +160,8 @@ function stats_template_redirect() {
 	add_action( 'wp_head', 'stats_add_shutdown_action' );
 
 	$script = 'https://stats.wp.com/e-' . gmdate( 'YW' ) . '.js';
-	$data = stats_build_view_data();
-	$data_stats_array = stats_array( $data );
-
 	$stats_footer = <<<END
 <script type='text/javascript' src='{$script}' async defer></script>
-<script type='text/javascript'>
-	_stq = window._stq || [];
-	_stq.push([ 'view', {{$data_stats_array}} ]);
-	_stq.push([ 'clickTrackerInit', '{$data['blog']}', '{$data['post']}' ]);
-</script>
-
 END;
 }
 
@@ -219,6 +210,17 @@ function stats_build_view_data() {
 function stats_add_shutdown_action() {
 	// Just in case wp_footer isn't in your theme.
 	add_action( 'shutdown',  'stats_footer', 101 );
+	
+	$data = stats_build_view_data();
+	$data_stats_array = stats_array( $data );
+
+	echo <<<END
+<script type='text/javascript'>
+	_stq = window._stq || [];
+	_stq.push([ 'view', {{$data_stats_array}} ]);
+	_stq.push([ 'clickTrackerInit', '{$data['blog']}', '{$data['post']}' ]);
+</script>
+END;
 }
 
 /**
