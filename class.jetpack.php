@@ -6128,32 +6128,35 @@ p {
 	 * @return array Array of the local urls, wpcom urls, and error code
 	 */
 	public static function get_sync_error_idc_option( $response = array() ) {
-		$returned_values = get_transient( 'jetpack_idc_option' );
-		if ( false === $returned_values ) {
+		// Since the local options will hit the database directly, store the values
+		// in a transient to allow for autoloading and caching on subsequent views.
+		$local_options = get_transient( 'jetpack_idc_local' );
+		if ( false === $local_options ) {
 			require_once JETPACK__PLUGIN_DIR . 'sync/class.jetpack-sync-functions.php';
 			$local_options = array(
 				'home'    => Jetpack_Sync_Functions::home_url(),
 				'siteurl' => Jetpack_Sync_Functions::site_url(),
 			);
+			set_transient( 'jetpack_idc_local', $local_options, MINUTE_IN_SECONDS );
+		}
 
-			$options = array_merge( $local_options, $response );
+		$options = array_merge( $local_options, $response );
 
-			$returned_values = array();
-			foreach( $options as $key => $option ) {
-				if ( 'error_code' === $key ) {
-					$returned_values[ $key ] = $option;
-					continue;
-				}
-
-				if ( is_wp_error( $normalized_url = self::normalize_url_protocol_agnostic( $option ) ) ) {
-					continue;
-				}
-
-				$returned_values[ $key ] = $normalized_url;
+		$returned_values = array();
+		foreach( $options as $key => $option ) {
+			if ( 'error_code' === $key ) {
+				$returned_values[ $key ] = $option;
+				continue;
 			}
 
-			set_transient( 'jetpack_idc_option', $returned_values, MINUTE_IN_SECONDS );
+			if ( is_wp_error( $normalized_url = self::normalize_url_protocol_agnostic( $option ) ) ) {
+				continue;
+			}
+
+			$returned_values[ $key ] = $normalized_url;
 		}
+
+		set_transient( 'jetpack_idc_option', $returned_values, MINUTE_IN_SECONDS );
 
 		return $returned_values;
 	}
