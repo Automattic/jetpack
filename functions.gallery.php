@@ -26,6 +26,26 @@ class Jetpack_Gallery_Settings {
 			add_action( 'wp_enqueue_media', array( $this, 'wp_enqueue_media' ) );
 			add_action( 'print_media_templates', array( $this, 'print_media_templates' ) );
 		}
+		// Add Slideshow and Galleries functionality to core's media gallery widget.
+		add_filter( 'widget_media_gallery_instance_schema', array( $this, 'core_media_widget_compat' ) );
+	}
+
+	/**
+	 * Updates the schema of the core gallery widget so we can save the
+	 * fields that we add to Gallery Widgets, like `type` and `conditions`
+	 *
+	 * @param $schema The current schema for the core gallery widget
+	 *
+	 * @return array  the updated schema
+	 */
+	public function core_media_widget_compat( $schema ) {
+		$schema['type'] = array(
+			'type' => 'string',
+			'enum' => array_keys( $this->gallery_types ),
+			'description' => __( 'Type of gallery.', 'jetpack' ),
+			'default' => 'default',
+		);
+		return $schema;
 	}
 
 	/**
