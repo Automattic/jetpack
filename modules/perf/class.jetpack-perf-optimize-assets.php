@@ -15,7 +15,7 @@ class Jetpack_Perf_Optimize_Assets {
 	private $async_scripts = false;
 	private $defer_scripts = false;
 	private $inject_critical_css = false;
-	const INLINE_ASSET_MAX_SIZE_BYTES = 10 * 1024; // 10kb
+	const INLINE_ASSET_MAX_SIZE_BYTES = 50 * 1024; // 10kb
 	const INLINE_CSS_URL_MAX_SIZE_BYTES = 5 * 1024; // 5kb
 
 	/**
@@ -51,7 +51,7 @@ class Jetpack_Perf_Optimize_Assets {
 		$this->is_first_load             = ! isset( $_COOKIE['jetpack_perf_loaded'] );
 		$this->remove_remote_fonts       = get_option( 'perf_remove_remote_fonts', true );
 		$this->inline_always             = get_option( 'perf_inline_on_every_request', false );
-		$this->inline_scripts_and_styles = false;//get_option( 'perf_inline_scripts_and_styles', true ) && ( $this->is_first_load || $this->inline_always );
+		$this->inline_scripts_and_styles = get_option( 'perf_inline_scripts_and_styles', true ) && ( $this->is_first_load || $this->inline_always );
 		$this->async_scripts             = get_option( 'perf_async_scripts', true );
 		$this->defer_scripts             = get_option( 'perf_defer_scripts', true );
 		$this->move_scripts_above_css_in_header = true;
@@ -95,6 +95,21 @@ class Jetpack_Perf_Optimize_Assets {
 		if ( $this->prevent_jetpack_implode_css ) {
 			add_filter( 'jetpack_implode_frontend_css', '__return_false' );
 		}
+
+		// ensure dashicons is loading inline
+		add_filter( 'jetpack_perf_async_style', function( $should_async, $style ) { 
+			if ( 'dashicons' === $style->handle ) {
+				return false;
+			}
+			return $should_async;
+		}, 10, 2 );
+
+		add_filter( 'jetpack_perf_inline_style', function( $should_inline, $style) {
+			if ( 'dashicons' === $style->handle ) {
+                                return true;
+                        }
+                        return $should_inline;
+		}, 10, 2 );
 
 		add_filter( 'script_loader_src', array( $this, 'filter_inline_scripts' ), -100, 2 );
 		add_filter( 'script_loader_tag', array( $this, 'print_inline_scripts' ), -100, 3 );
@@ -180,6 +195,7 @@ class Jetpack_Perf_Optimize_Assets {
 			// preload anything not async'd, since these scripts are likely to be a higher priority
 			$is_footer_script = isset( $registration->extra['group'] ) && 1 == $registration->extra['group'];
 			error_log("$handle is footer: $is_footer_script");
+			// TODO: this doesn't currently affect any scripts - will it ever?
 			if ( ! $this->should_async_script( $registration ) && $is_footer_script ) {
 				echo '<link rel="preload" as="script" href="'. esc_attr( $registration->src )  .'" />';
 			}
@@ -415,7 +431,7 @@ class Jetpack_Perf_Optimize_Assets {
 	}
 
 	private function should_inline_script( $script ) {
-		return ( $this->inline_scripts_and_styles || $this->inline_always ) && $this->should_inline_asset( 'jetpack_perf_inline_script', $script );
+		return $this->inline_scripts_and_styles && $this->should_inline_asset( 'jetpack_perf_inline_script', $script );
 	}
 
 	/** STYLES **/
@@ -468,7 +484,7 @@ class Jetpack_Perf_Optimize_Assets {
 
 	// we can async styles if we load critical CSS in the header
 	private function should_async_style( $style ) {
-		return $this->inject_critical_css;
+		return apply_filters( 'jetpack_perf_async_style', $this->inject_critical_css, $style );
 	}
 
 	public function fix_css_urls( $css, $css_url ) {
@@ -517,7 +533,7 @@ class Jetpack_Perf_Optimize_Assets {
 	}
 
 	private function should_inline_style( $style ) {
-		return ( $this->inline_scripts_and_styles || $this->inline_always ) && $this->should_inline_asset( 'jetpack_perf_inline_style', $style );
+		return $this->inline_scripts_and_styles && $this->should_inline_asset( 'jetpack_perf_inline_style', $style );
 	}
 
 	private function should_remove_style( $style ) {
@@ -526,7 +542,7 @@ class Jetpack_Perf_Optimize_Assets {
 
 	/** shared code **/
 
-	private function should_inline_asset( $filter, $dependency ) {
+	private function should_inline_asset( $filter, $dependency, $default ) {
 		// inline anything local, with a src starting with /, or starting with site_url
 		$site_url = site_url();
 
@@ -544,7 +560,8 @@ class Jetpack_Perf_Optimize_Assets {
 		}
 
 		// only inline if we don't have a conditional
-		$should_inline = ! isset( $dependency->extra['conditional'] )
+		$should_inline = $default 
+			&& ! isset( $dependency->extra['conditional'] )
 			&& isset( $dependency->extra['jetpack-inline'] )
 			&& $dependency->extra['jetpack-inline']
 			&& filesize( $dependency->extra['jetpack-inline-file'] ) < self::INLINE_ASSET_MAX_SIZE_BYTES;
