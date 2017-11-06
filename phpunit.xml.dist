@@ -92,6 +92,9 @@
 		<testsuite name="pwa">
 			<directory prefix="test_" suffix=".php">tests/php/pwa</directory>
 		</testsuite>
+		<testsuite name="lazy-images">
+			<directory prefix="test_" suffix=".php">tests/php/modules/lazy-images</directory>
+		</testsuite>
 	</testsuites>
 	<groups>
 		<exclude>
