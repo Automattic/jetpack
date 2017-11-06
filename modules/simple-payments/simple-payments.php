@@ -18,11 +18,14 @@ class Jetpack_Simple_Payments {
 
 	// Classic singleton pattern:
 	private static $instance;
+
 	private function __construct() {}
+
 	static function getInstance() {
 		if ( ! self::$instance ) {
 			self::$instance = new self();
 			self::$instance->register_init_hook();
+			self::$instance->register_gutenberg_block();
 		}
 		return self::$instance;
 	}
@@ -36,9 +39,11 @@ class Jetpack_Simple_Payments {
 		wp_register_script( 'paypal-express-checkout', plugins_url( '/paypal-express-checkout.js', __FILE__ ),
 			array( 'jquery', 'paypal-checkout-js' ), self::$version );
 	}
+
 	private function register_init_hook() {
 		add_action( 'init', array( $this, 'init_hook_action' ) );
 	}
+
 	private function register_shortcode() {
 		add_shortcode( self::$shortcode, array( $this, 'parse_shortcode' ) );
 	}
@@ -51,6 +56,18 @@ class Jetpack_Simple_Payments {
 		$this->setup_cpts();
 
 		add_filter( 'the_content', array( $this, 'remove_auto_paragraph_from_product_description' ), 0 );
+	}
+
+	private function register_gutenberg_block() {
+		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_editor_assets' ) );
+	}
+
+	public function enqueue_block_editor_assets() {
+		wp_enqueue_script(
+			'gutenberg-simple-payments-button',
+			plugins_url( 'block.js', __FILE__ ),
+			array( 'wp-blocks', 'wp-element' )
+		);
 	}
 
 	function remove_auto_paragraph_from_product_description( $content ) {
