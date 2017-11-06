@@ -139,6 +139,11 @@ function jetpack_get_module_i18n( $key ) {
 				'description' => _x( 'Automated social marketing.', 'Module Description', 'jetpack' ),
 			),
 
+			'pwa' => array(
+				'name' => _x( 'Progressive Web Apps', 'Module Name', 'jetpack' ),
+				'description' => _x( 'Speed up and improve the reliability of your site using the latest in web technology.', 'Module Description', 'jetpack' ),
+			),
+
 			'related-posts' => array(
 				'name' => _x( 'Related posts', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Increase page views by showing related content to your visitors.', 'Module Description', 'jetpack' ),
@@ -297,6 +302,7 @@ function jetpack_get_module_i18n_tag( $key ) {
 
 			// Modules with `Developers` tag:
 			//  - modules/json-api.php
+			//  - modules/pwa.php
 			//  - modules/sso.php
 			'Developers' =>_x( 'Developers', 'Module Tag', 'jetpack' ),
 
