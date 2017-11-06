@@ -68,6 +68,13 @@ class Jetpack_Simple_Payments {
 			plugins_url( 'simple-payments-block.js', __FILE__ ),
 			array( 'wp-blocks', 'wp-element' )
 		);
+
+		wp_enqueue_style(
+			'gutenberg-simple-payments-button-styles',
+			plugins_url( 'simple-payments-block.css', __FILE__ ),
+			array(),
+			JETPACK__VERSION
+		);
 	}
 
 	function remove_auto_paragraph_from_product_description( $content ) {
