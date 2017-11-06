@@ -73,7 +73,7 @@ class Sharing_Service {
 			$services['email'] = 'Share_Email';
 		}
 
-		if ( is_multisite() && ( version_compare( $wp_version, '4.9', '<' ) || is_plugin_active( 'press-this/press-this-plugin.php' ) ) ) {
+		if ( is_multisite() && ( version_compare( $wp_version, '4.9-RC1-42107', '<' ) || is_plugin_active( 'press-this/press-this-plugin.php' ) ) ) {
 			$services['press-this'] = 'Share_PressThis';
 		}
 
