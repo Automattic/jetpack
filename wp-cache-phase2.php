@@ -10,7 +10,7 @@ function wp_cache_phase2() {
 
 	wp_cache_debug( 'In WP Cache Phase 2', 5 );
 
-	$wp_cache_gmt_offset = get_option( 'gmt_offset' ); // caching for later use when wpdb is gone. http://wordpress.org/support/topic/224349
+	$wp_cache_gmt_offset = get_option( 'gmt_offset' ); // caching for later use when wpdb is gone. https://wordpress.org/support/topic/224349
 	$wp_cache_blog_charset = get_option( 'blog_charset' );
 
 	wp_cache_mutex_init();

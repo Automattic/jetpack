@@ -474,7 +474,7 @@ function wp_cache_mobile_group( $user_agent ) {
 	return "mobile";
 }
 
-// From http://wordpress.org/plugins/wordpress-mobile-edition/ by Alex King
+// From https://wordpress.org/plugins/wordpress-mobile-edition/ by Alex King
 function wp_cache_check_mobile( $cache_key ) {
 	global $wp_cache_mobile_enabled, $wp_cache_mobile_browsers, $wp_cache_mobile_prefixes;
 	if ( !isset( $wp_cache_mobile_enabled ) || false == $wp_cache_mobile_enabled )
@@ -618,7 +618,7 @@ function get_current_url_supercache_dir( $post_id = 0 ) {
 		$permalink = get_permalink( $post_id );
 		if ( false === strpos( $permalink, $site_url ) ) {
 			/*
-			 * Sometimes site_url doesn't return the siteurl. See http://wordpress.org/support/topic/wp-super-cache-not-refreshing-post-after-comments-made
+			 * Sometimes site_url doesn't return the siteurl. See https://wordpress.org/support/topic/wp-super-cache-not-refreshing-post-after-comments-made
 			*/
 			$DONOTREMEMBER = 1;
 			wp_cache_debug( "get_current_url_supercache_dir: warning! site_url ($site_url) not found in permalink ($permalink).", 1 );

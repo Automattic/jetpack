@@ -31,7 +31,7 @@ function wp_super_cache_jetpack_admin() {
 		<label><input type="radio" name="cache_jetpack" value="1" <?php if( $cache_jetpack ) { echo 'checked="checked" '; } ?>/> <?php _e( 'Enabled', 'wp-super-cache' ); ?></label>
 		<label><input type="radio" name="cache_jetpack" value="0" <?php if( !$cache_jetpack ) { echo 'checked="checked" '; } ?>/> <?php _e( 'Disabled', 'wp-super-cache' ); ?></label>
 		<?php
-		echo '<p>' . __( 'Provides support for the <a href="http://wordpress.org/extend/plugins/jetpack/">Jetpack</a> mobile theme and plugin. PHP caching mode and mobile support will be enabled too.', 'wp-super-cache' ) . '</p>';
+		echo '<p>' . __( 'Provides support for the <a href="https://wordpress.org/plugins/jetpack/">Jetpack</a> mobile theme and plugin. PHP caching mode and mobile support will be enabled too.', 'wp-super-cache' ) . '</p>';
 		if ( isset( $changed ) && $changed ) {
 			if ( $cache_jetpack )
 				$status = __( "enabled", 'wp-super-cache' );
@@ -79,7 +79,7 @@ if ( isset( $cache_jetpack ) && $cache_jetpack == 1 ) {
 function wpsc_cache_jetpack_list( $list ) {
 	$list[ 'jetpack' ] = array(
 		'key'   => 'jetpack',
-		'url'   => 'http://wordpress.org/extend/plugins/jetpack/',
+		'url'   => 'https://wordpress.org/plugins/jetpack/',
 		'title' => __( 'Jetpack Mobile Theme', 'wp-super-cache' ),
 		'desc'  => __( 'Provides support for the Jetpack mobile theme and plugin. PHP caching mode and mobile support will be enabled too.', 'wp-super-cache' ),
 	);

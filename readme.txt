@@ -503,7 +503,7 @@ A tiny proportion of websites will have problems with the following configuratio
 1. Uses a static page for the front page.
 2. Uses /%category%/%postname%/ permalink structure.
 
-Sometimes a category page is cached as the homepage of the site instead of the static page. I can't [replicate the problem](http://wordpress.org/support/topic/237415/page/2?replies=38) but a simple solution is to use the "Simple" mode. You can also enable "Extra homepage checks" on the Advanced Settings page.
+Sometimes a category page is cached as the homepage of the site instead of the static page. I can't [replicate the problem](https://wordpress.org/support/topic/237415/page/2?replies=38) but a simple solution is to use the "Simple" mode. You can also enable "Extra homepage checks" on the Advanced Settings page.
 
 = Why do I get warnings about caching from http://ismyblogworking.com/ =
 
@@ -511,7 +511,7 @@ Sometimes a category page is cached as the homepage of the site instead of the s
 "Your feed doesn't support caching (no 304 response to If-modified-since)"
 
 Supercache doesn't support 304 header checks in Expert mode but does support it in Simple mode. This is caching done by your browser, not the server. It is a check your browser does to ask the server if an updated version of the current page is available. If not, it doesn't download the old version again. The page is still cached by your server, just not by your visitors' browsers.
-Try the Cacheability Engine at http://www.ircache.net/cgi-bin/cacheability.py or http://redbot.org/ for further analysis.
+Try the Cacheability Engine at http://www.ircache.net/cgi-bin/cacheability.py or https://redbot.org/ for further analysis.
 
 = How should I best use the utm_source tracking tools in Google Analytics with this plugin? =
 
@@ -519,7 +519,7 @@ That tracking adds a query string to each url linked from various sources like T
 
 = The plugin complains that wp-content is writable! htdocs is writable! =
 
-It's not good when the web server can write to these directories but sometimes shared hosting accounts are set up in this way to make administration easier. Use `chmod 755 directory` to fix the permissions or find the permissions section of your ftp client. This [Google search](http://www.google.ie/search?sourceid=chrome&ie=UTF-8&q=ftp+fix+directory+permissions+755) will lead you to more information on this topic and there's also [this codex page](http://codex.wordpress.org/Changing_File_Permissions) too. Unfortunately some hosts require that those directories be writable. If that's the case just ignore this warning.
+It's not good when the web server can write to these directories but sometimes shared hosting accounts are set up in this way to make administration easier. Use `chmod 755 directory` to fix the permissions or find the permissions section of your ftp client. This [Google search](https://www.google.com/search?sourceid=chrome&ie=UTF-8&q=ftp+fix+directory+permissions+755) will lead you to more information on this topic and there's also [this codex page](https://codex.wordpress.org/Changing_File_Permissions) too. Unfortunately some hosts require that those directories be writable. If that's the case just ignore this warning.
 
 = How do I delete the WP_CACHE define from wp-config.php? =
 
@@ -531,7 +531,7 @@ Load your desktop ftp client and connect to your site. You may need to enable "S
 
 = How do I change file permissions? =
 
-This [page](http://codex.wordpress.org/Changing_File_Permissions) on the WordPress Codex explains everything you need to know about file permissions on your server and various ways of changing them.
+This [page](https://codex.wordpress.org/Changing_File_Permissions) on the WordPress Codex explains everything you need to know about file permissions on your server and various ways of changing them.
 
 = Why do I get load spikes when new posts are made? =
 
@@ -546,10 +546,10 @@ The only real limit are limits defined by your server. For example, EXT2 and EXT
 
 Your theme is probably responsive which means it resizes the page to suit whatever device is displaying the page. If it's not responsive, you'll have to use a separate mobile plugin to render a page formatted for those visitors. The following plugins have been tested but YMMV depending on mobile client. You'll have to enable mobile browser support as well on the Advanced settings page.
 
-* [Jetpack's Mobile Theme Module](http://wordpress.org/plugins/jetpack)
-* [WPTouch](http://wordpress.org/plugins/wptouch/)
-* [WordPress Mobile Edition](http://wordpress.org/plugins/wordpress-mobile-edition/)
-* [WordPress Mobile Pack](http://wordpress.org/plugins/wordpress-mobile-pack/) (can't have "Don't cache pages for known users." enabled)
+* [Jetpack's Mobile Theme Module](https://wordpress.org/plugins/jetpack/)
+* [WPTouch](https://wordpress.org/plugins/wptouch/)
+* [WordPress Mobile Edition](https://wordpress.org/plugins/wordpress-mobile-edition/)
+* [WordPress Mobile Pack](https://wordpress.org/plugins/wordpress-mobile-pack/) (can't have "Don't cache pages for known users." enabled)
 
 = Troubleshooting =
 
@@ -568,7 +568,7 @@ If things don't work when you installed the plugin here are a few things to chec
 9.  If your browser keeps asking you to save the file after the super cache is installed you must disable Super Cache compression. Go to the Settings->WP Super Cache page and disable it there.
 10. The plugin does not work very well when PHP's safe mode is active. This must be disabled by your administrator.
 11. If pages are randomly super cached and sometimes not, your blog can probably be viewed with and without the "www" prefix on the URL. You should choose one way and install the [Enforce www preference](http://txfx.net/code/wordpress/enforce-www-preference/) plugin if you are using an old WordPress install. The latest versions redirect themselves (you should always be running the latest version of WordPress anyway!)
-12. Private Server users at Dreamhost should edit wp-content/wp-cache-config.php and set the cache dir to "/tmp/" if they are getting errors about increasing CPU usage. See this [discussion](http://wordpress.org/support/topic/145895?replies=42) for more.
+12. Private Server users at Dreamhost should edit wp-content/wp-cache-config.php and set the cache dir to "/tmp/" if they are getting errors about increasing CPU usage. See this [discussion](https://wordpress.org/support/topic/145895?replies=42) for more.
 13. File locking errors such as "failed to acquire key 0x152b: Permission denied in..." or "Page not cached by WP Super Cache. Could not get mutex lock." are a sign that you may have to use file locking. Edit wp-content/wp-cache-config.php and uncomment "$use_flock = true" or set $sem_id to a different value. You can also disable file locking from the Admin screen as a last resort.
 14. Make sure cache/wp_cache_mutex.lock is writable by the web server if using coarse file locking.
 15. The cache folder cannot be put on an NFS or Samba or NAS share. It has to be on a local disk. File locking and deleting expired files will not work properly unless the cache folder is on the local machine.
@@ -594,7 +594,7 @@ If that doesn't work, add this line to your wp-config.php:
 26. If certain characters do not appear correctly on your website your server may not be configured correctly. You need to tell visitors what character set is used. Go to Settings->Reading and copy the 'Encoding for pages and feeds' value. Edit the .htaccess file with all your Supercache and WordPress rewrite rules and add this at the top, replacing CHARSET with the copied value. (for example, 'UTF-8')
 
 	`AddDefaultCharset CHARSET`
-27. Use [Cron View](http://wordpress.org/plugins/cron-view/) to help diagnose garbage collection and preload problems. Use the plugin to make sure jobs are scheduled and for what time. Look for the wp_cache_gc and wp_cache_full_preload_hook jobs.
+27. Use [Cron View](https://wordpress.org/plugins/cron-view/) to help diagnose garbage collection and preload problems. Use the plugin to make sure jobs are scheduled and for what time. Look for the wp_cache_gc and wp_cache_full_preload_hook jobs.
 18. The error message, "WP Super Cache is installed but broken. The constant WPCACHEHOME must be set in the file wp-config.php and point at the WP Super Cache plugin directory." appears at the end of every page. You can delete wp-content/advanced-cache.php and reload the plugin settings page or edit wp-config.php and look for WPCACHEHOME and make sure it points at the wp-super-cache folder. This will normally be wp-content/plugins/wp-super-cache/ but you'll likely need the full path to that file (so it's easier to let the settings page fix it). If it is not correct the caching engine will not load.
 19. If your server is running into trouble because of the number of semaphores used by the plugin it's because your users are using file locking which is not recommended (but is needed by a small number of users). You can globally disable file locking by defining the constant WPSC_DISABLE_LOCKING, or defining the constant WPSC_REMOVE_SEMAPHORE so that sem_remove() is called after every page is cached but that seems to cause problems for other processes requesting the same semaphore. Best to disable it.
 
@@ -617,7 +617,7 @@ If your site is mostly static you can disable garbage collection by entering 0 a
 
 A Content Delivery Network (CDN) is usually a network of computers situated around the world that will serve the content of your website faster by using servers close to you. Static files like images, Javascript and CSS files can be served through these networks to speed up how fast your site loads. You can also create a "poor man's CDN" by using a sub domain of your domain to serve static files too.
 
-[OSSDL CDN off-linker](http://wordpress.org/plugins/ossdl-cdn-off-linker/) has been integrated into WP Super Cache to provide basic CDN support. It works by rewriting the URLs of files (excluding .php files) in wp-content and wp-includes on your server so they point at a different hostname. Many CDNs support [origin pull](http://www.google.com/search?hl=en&q=%22origin+pull%22). This means the CDN will download the file automatically from your server when it's first requested, and will continue to serve it for a configurable length of time before downloading it again from your server.
+[OSSDL CDN off-linker](https://wordpress.org/plugins/ossdl-cdn-off-linker/) has been integrated into WP Super Cache to provide basic CDN support. It works by rewriting the URLs of files (excluding .php files) in wp-content and wp-includes on your server so they point at a different hostname. Many CDNs support [origin pull](https://www.google.com/search?hl=en&q=%22origin+pull%22). This means the CDN will download the file automatically from your server when it's first requested, and will continue to serve it for a configurable length of time before downloading it again from your server.
 
 Configure this on the "CDN" tab of the plugin settings page. This is an advanced technique and requires a basic understanding of how your webserver or CDNs work. Please be sure to clear the file cache after you configure the CDN.
 

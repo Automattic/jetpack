@@ -22,7 +22,7 @@ function wp_super_cache_wptouch_admin() {
 		<label><input type="radio" name="cache_wptouch" value="1" <?php if( $cache_wptouch ) { echo 'checked="checked" '; } ?>/> <?php _e( 'Enabled', 'wp-super-cache' ); ?></label>
 		<label><input type="radio" name="cache_wptouch" value="0" <?php if( !$cache_wptouch ) { echo 'checked="checked" '; } ?>/> <?php _e( 'Disabled', 'wp-super-cache' ); ?></label>
 		<?php
-		echo '<p>' . __( 'Provides support for <a href="http://wordpress.org/extend/plugins/wptouch/">WPTouch</a> mobile theme and plugin.', 'wp-super-cache' ) . '</p>';
+		echo '<p>' . __( 'Provides support for <a href="https://wordpress.org/plugins/wptouch/">WPTouch</a> mobile theme and plugin.', 'wp-super-cache' ) . '</p>';
 		if ( isset( $changed ) && $changed ) {
 			if ( $cache_wptouch )
 				$status = __( "enabled", 'wp-super-cache' );
@@ -123,7 +123,7 @@ if ( isset( $cache_wptouch ) && $cache_wptouch == 1 ) {
 function wpsc_wptouch_list( $list ) {
 	$list[ 'wptouch' ] = array(
 		'key'   => 'wptouch',
-		'url'   => 'http://wordpress.org/extend/plugins/wptouch/',
+		'url'   => 'https://wordpress.org/plugins/wptouch/',
 		'title' => __( 'WPTouch', 'wp-super-cache' ),
 		'desc'  => __( 'Provides support for WPTouch mobile theme and plugin.', 'wp-super-cache' ),
 	);
