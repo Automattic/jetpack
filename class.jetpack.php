@@ -204,6 +204,11 @@ class Jetpack {
 			'XML Sitemaps'                         => 'xml-sitemaps/xml-sitemaps.php',
 			'MSM Sitemaps'                         => 'msm-sitemap/msm-sitemap.php',
 		),
+		'lazy-images' => array(
+			'Lazy Load'              => 'lazy-load/lazy-load.php',
+			'BJ Lazy Load'           => 'bj-lazy-load/bj-lazy-load.php',
+			'Lazy Load by WP Rocket' => 'rocket-lazy-load/rocket-lazy-load.php',
+		),
 	);
 
 	/**
