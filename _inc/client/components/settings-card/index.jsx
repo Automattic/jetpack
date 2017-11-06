@@ -256,7 +256,6 @@ export const SettingsCard = props => {
 						<Button
 							primary
 							compact
-							isSubmitting={ isSaving }
 							onClick={ isSaving ? () => {} : props.onSubmit }
 							disabled={ isSaving || ! props.isDirty() }>
 							{
