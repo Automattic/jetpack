@@ -1076,9 +1076,9 @@ class Share_PressThis extends Sharing_Source {
 
 		} else { // Remove once 4.9 is the minimum.
 			$args['t'] = rawurlencode( $this->get_share_title( $post->ID ) );
-				if ( isset( $_GET['sel'] ) ) {
-					$args['s'] = rawurlencode( $_GET['sel'] );
-				}
+			if ( isset( $_GET['sel'] ) ) {
+				$args['s'] = rawurlencode( $_GET['sel'] );
+			}
 		}
 
 		$url = $blog->siteurl . '/wp-admin/press-this.php';
