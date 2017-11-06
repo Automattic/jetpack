@@ -1,2 +1,2 @@
 _inc/client/**/test/*.js
-modules/lazy-images/assets/lazy-images.js
+modules/lazy-images/js/lazy-images.js

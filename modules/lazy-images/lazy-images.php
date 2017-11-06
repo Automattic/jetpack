@@ -1,7 +1,9 @@
 <?php
 
 class Jetpack_Lazy_Images {
+	const version = '0.7';
 	private static $__instance = null;
+
 	/**
 	 * Singleton implementation
 	 *
@@ -23,11 +25,20 @@ class Jetpack_Lazy_Images {
 			return;
 		}
 
-		// modify content
-		add_action( 'wp_head', array( $this, 'setup_filters' ), 9999 ); // we don't really want to modify anything in <head> since it's mostly all metadata
+		/**
+		 * Whether the lazy-images module should load.
+		 *
+		 * @module lazy-images
+		 *
+		 * @since 5.6.0
+		 *
+		 * @param bool true Whether lazy image loading should occur.
+		 */
+		if ( ! apply_filters( 'lazyload_is_enabled', true ) ) {
+			return;
+		}
 
-		// js to do lazy loading
-		add_action( 'init', array( $this, 'register_assets' ) );
+		add_action( 'wp_head', array( $this, 'setup_filters' ), 9999 ); // we don't really want to modify anything in <head> since it's mostly all metadata
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_assets' ) );
 
 		// Do not lazy load avatar in admin bar
@@ -50,11 +61,15 @@ class Jetpack_Lazy_Images {
 		// Don't lazyload for feeds, previews
 		if ( is_feed() || is_preview() ) {
 			return $content;
-
 		}
 
 		// Don't lazy-load if the content has already been run through previously
 		if ( false !== strpos( $content, 'data-lazy-src' ) ) {
+			return $content;
+		}
+
+		// Don't lazyload for amp-wp content
+		if ( function_exists( 'is_amp_endpoint' ) && is_amp_endpoint() ) {
 			return $content;
 		}
 
@@ -64,41 +79,56 @@ class Jetpack_Lazy_Images {
 		return $content;
 	}
 
- 	function process_image( $matches ) {
+	static function process_image( $matches ) {
 		$old_attributes_str = $matches[2];
-		$old_attributes = wp_kses_hair( $old_attributes_str, wp_allowed_protocols() );
+		$old_attributes_kses_hair = wp_kses_hair( $old_attributes_str, wp_allowed_protocols() );
 
-		if ( empty( $old_attributes['src'] ) ) {
+		if ( empty( $old_attributes_kses_hair['src'] ) ) {
 			return $matches[0];
 		}
 
-		$image_src = $old_attributes['src']['value'];
+		$old_attributes = self::flatten_kses_hair_data( $old_attributes_kses_hair );
+		$new_attributes = $old_attributes;
 
-		if ( isset( $old_attributes['srcset'] ) ) {
-			$image_srcset = $old_attributes['srcset']['value'];
-		} else {
-			$image_srcset = '';
+		// Set placeholder and lazy-src
+		$new_attributes['src'] = self::get_placeholder_image();
+		$new_attributes['data-lazy-src'] = $old_attributes['src'];
+
+		// Handle `srcset`
+		if ( ! empty( $new_attributes['srcset'] ) ) {
+			$new_attributes['data-lazy-srcset'] = $old_attributes['srcset'];
+			unset( $new_attributes['srcset'] );
 		}
 
-		// Remove src, lazy-src, srcset and lazy-srcset since we manually add them
-		$new_attributes = $old_attributes;
-		unset( $new_attributes['src'], $new_attributes['srcset'], $new_attributes['data-lazy-src'], $new_attributes['data-lazy-srcset'] );
+		// Handle `sizes`
+		if ( ! empty( $new_attributes['sizes'] ) ) {
+			$new_attributes['data-lazy-sizes'] = $old_attributes['sizes'];
+			unset( $new_attributes['sizes'] );
+		}
 
-		$new_attributes_str = $this->build_attributes_string( $new_attributes );
+		$new_attributes_str = self::build_attributes_string( $new_attributes );
 
-		return sprintf(
-			'<img data-lazy-src="%1$s" data-lazy-srcset="%2$s" %3$s><noscript>%4$s</noscript>',
-			esc_url( $image_src ),
-			esc_attr( $image_srcset ),
-			$new_attributes_str,
-			$matches[0]
+		return sprintf( '<img %1$s><noscript>%2$s</noscript>', $new_attributes_str, $matches[0] );
+	}
+
+	private static function get_placeholder_image() {
+		return apply_filters(
+			'lazyload_images_placeholder_image',
+			plugins_url( 'modules/lazy-images/images/1x1.trans.gif', JETPACK__PLUGIN_FILE )
 		);
 	}
 
-	private function build_attributes_string( $attributes ) {
-		$string = array();
+	private static function flatten_kses_hair_data( $attributes ) {
+		$flattened_attributes = array();
 		foreach ( $attributes as $name => $attribute ) {
-			$value = $attribute['value'];
+			$flattened_attributes[ $name ] = $attribute['value'];
+		}
+		return $flattened_attributes;
+	}
+
+	private static function build_attributes_string( $attributes ) {
+		$string = array();
+		foreach ( $attributes as $name => $value ) {
 			if ( '' === $value ) {
 				$string[] = sprintf( '%s', $name );
 			} else {
@@ -108,17 +138,24 @@ class Jetpack_Lazy_Images {
 		return implode( ' ', $string );
 	}
 
-	public function register_assets() {
+	public function enqueue_assets() {
+		$file_url = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG )
+			? plugins_url( 'modules/lazy-images/js/jquery.sonar.js', JETPACK__PLUGIN_FILE )
+			: plugins_url( 'modules/lazy-images/js/jquery.sonar.min.js', JETPACK__PLUGIN_FILE );
+
 		wp_register_script(
+			'jquery-sonar',
+			$file_url,
+			array( 'jquery' ),
+			self::version, true
+		);
+
+		wp_enqueue_script(
 			'jetpack-lazy-images',
-			plugins_url( 'modules/lazy-images/assets/lazy-images.js', JETPACK__PLUGIN_FILE ),
-			array(),
+			plugins_url( 'modules/lazy-images/js/lazy-images.js', JETPACK__PLUGIN_FILE ),
+			array( 'jquery', 'jquery-sonar' ),
 			'1.5',
 			true
 		);
-	}
-
-	public function enqueue_assets() {
-		wp_enqueue_script( 'jetpack-lazy-images' );
 	}
 }
