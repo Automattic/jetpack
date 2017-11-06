@@ -1,7 +1,6 @@
 <?php
 
 class Jetpack_Lazy_Images {
-	const version = '0.7';
 	private static $__instance = null;
 
 	/**
