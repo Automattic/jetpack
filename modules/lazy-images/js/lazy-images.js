@@ -22,8 +22,8 @@
 ( function( $ ) {
 	var images,
 		config = {
-			// If the image gets within 50px in the Y axis, start the download.
-			rootMargin: '50px 0px',
+			// If the image gets within 200px in the Y axis, start the download.
+			rootMargin: '200px 0px',
 			threshold: 0.01
 		},
 		imageCount = 0,
