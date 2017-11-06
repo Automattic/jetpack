@@ -361,8 +361,11 @@ class Jetpack_Carousel {
 		if ( empty( $selected_images ) ) {
 			return $content;
 		}
+
 		$attachments = get_posts( array(
 			'include' => array_keys( $selected_images ),
+			'post_type' => 'any',
+			'post_status' => 'any'
 		) );
 
 		foreach ( $attachments as $attachment ) {
