@@ -1,4 +1,6 @@
-/* globals IntersectionObserver */
+/* globals IntersectionObserver, jQuery */
+
+
 
 /**
  * Copyright 2016 Google Inc. All Rights Reserved.
@@ -22,33 +24,50 @@
 /**
  * Huge props to deanhume for https://github.com/deanhume/lazy-observer-load
  */
-( function() {
-	var images = document.querySelectorAll( 'img[data-lazy-src]' ),
+( function( $ ) {
+	var images,
 		config = {
 			// If the image gets within 50px in the Y axis, start the download.
 			rootMargin: '50px 0px',
 			threshold: 0.01
 		},
-		imageCount = images.length,
+		imageCount = 0,
 		observer,
 		image,
 		i;
 
-	// If we don't have support for intersection observer, loads the images immediately
-	if ( ! ( 'IntersectionObserver' in window ) ) {
-		loadImagesImmediately( images );
-	} else {
-		// It is supported, load the images
-		observer = new IntersectionObserver( onIntersection, config );
+	$( document ).ready( function() {
+		lazy_load_init();
 
-		// foreach() is not supported in IE
-		for ( i = 0; i < images.length; i++ ) {
-			image = images[ i ];
-			if ( image.getAttribute( 'data-lazy-loaded' ) ) {
-				continue;
+		// Lazy load images that are brought in from Infinite Scroll
+		$( 'body' ).bind( 'post-load', lazy_load_init );
+	} );
+
+	function lazy_load_init() {
+		images = document.querySelectorAll( 'img[data-lazy-src]' );
+		imageCount = images.length;
+
+		// If initialized, then disconnect the observer
+		if ( observer ) {
+			observer.disconnect();
+		}
+
+		// If we don't have support for intersection observer, loads the images immediately
+		if ( ! ( 'IntersectionObserver' in window ) ) {
+			loadImagesImmediately( images );
+		} else {
+			// It is supported, load the images
+			observer = new IntersectionObserver( onIntersection, config );
+
+			// foreach() is not supported in IE
+			for ( i = 0; i < images.length; i++ ) {
+				image = images[ i ];
+				if ( image.getAttribute( 'data-lazy-loaded' ) ) {
+					continue;
+				}
+
+				observer.observe( image );
 			}
-
-			observer.observe( image );
 		}
 	}
 
@@ -117,4 +136,4 @@
 			image.removeAttribute( 'data-lazy-srcset' );
 		}
 	}
-} )();
+} )( jQuery );

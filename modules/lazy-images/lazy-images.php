@@ -150,7 +150,7 @@ class Jetpack_Lazy_Images {
 		wp_enqueue_script(
 			'jetpack-lazy-images',
 			plugins_url( 'modules/lazy-images/js/lazy-images.js', JETPACK__PLUGIN_FILE ),
-			array(),
+			array( 'jquery' ),
 			JETPACK__VERSION,
 			true
 		);
