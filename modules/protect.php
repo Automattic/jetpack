@@ -546,12 +546,7 @@ class Jetpack_Protect_Module {
 	 * Kill a login attempt
 	 */
 	function kill_login() {
-
-	    if ( $this->blocked_user_is_validated ) {
-	        return;
-        }
-
-		$ip = jetpack_protect_get_ip();
+        $ip = jetpack_protect_get_ip();
 		/**
 		 * Fires before every killed login.
 		 *
