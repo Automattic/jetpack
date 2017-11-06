@@ -153,6 +153,9 @@ const Composing = moduleSettingsForm(
 								: []
 							}
 							onChange={ this.props.onOptionChange } />
+						<span className="jp-form-setting-explanation">
+							{ __( 'Confirm each new phrase you add by pressing enter.' ) }
+						</span>
 					</FormFieldset>
 				</SettingsGroup>
 			);
