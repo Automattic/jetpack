@@ -112,6 +112,15 @@ class Jetpack_Lazy_Images {
 	}
 
 	private static function get_placeholder_image() {
+		/**
+		 * Allows plugins and themes to modify the placeholder image.
+		 *
+		 * @module lazy-images
+		 *
+		 * @since 5.6.0
+		 *
+		 * @param string The URL to the placeholder image
+		 */
 		return apply_filters(
 			'lazyload_images_placeholder_image',
 			plugins_url( 'modules/lazy-images/images/1x1.trans.gif', JETPACK__PLUGIN_FILE )
