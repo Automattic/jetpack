@@ -11,7 +11,7 @@ import { getModule } from 'state/modules';
 import { getSettings } from 'state/settings';
 import { isDevMode, isUnavailableInDevMode, isCurrentUserLinked, getConnectUrl } from 'state/connection';
 import { isModuleFound as _isModuleFound } from 'state/search';
-import { getSiteRawUrl, getSiteAdminUrl } from 'state/initial-state';
+import { getSiteRawUrl, getSiteAdminUrl, userCanManageModules } from 'state/initial-state';
 import QuerySite from 'components/data/query-site';
 import { Publicize } from './publicize';
 import { ShareButtons } from './share-buttons';
@@ -28,7 +28,8 @@ class Sharing extends Component {
 			isLinked: this.props.isLinked,
 			connectUrl: this.props.connectUrl,
 			siteRawUrl: this.props.siteRawUrl,
-			siteAdminUrl: this.props.siteAdminUrl
+			siteAdminUrl: this.props.siteAdminUrl,
+			userCanManageModules: this.props.userCanManageModules,
 		};
 
 		const foundPublicize = this.props.isModuleFound( 'publicize' ),
@@ -87,7 +88,8 @@ export default connect(
 			isLinked: isCurrentUserLinked( state ),
 			connectUrl: getConnectUrl( state ),
 			siteRawUrl: getSiteRawUrl( state ),
-			siteAdminUrl: getSiteAdminUrl( state )
+			siteAdminUrl: getSiteAdminUrl( state ),
+			userCanManageModules: userCanManageModules( state ),
 		};
 	}
 )( Sharing );
