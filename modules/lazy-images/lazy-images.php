@@ -139,22 +139,11 @@ class Jetpack_Lazy_Images {
 	}
 
 	public function enqueue_assets() {
-		$file_url = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG )
-			? plugins_url( 'modules/lazy-images/js/jquery.sonar.js', JETPACK__PLUGIN_FILE )
-			: plugins_url( 'modules/lazy-images/js/jquery.sonar.min.js', JETPACK__PLUGIN_FILE );
-
-		wp_register_script(
-			'jquery-sonar',
-			$file_url,
-			array( 'jquery' ),
-			self::version, true
-		);
-
 		wp_enqueue_script(
 			'jetpack-lazy-images',
 			plugins_url( 'modules/lazy-images/js/lazy-images.js', JETPACK__PLUGIN_FILE ),
-			array( 'jquery', 'jquery-sonar' ),
-			'1.5',
+			array(),
+			JETPACK__VERSION,
 			true
 		);
 	}

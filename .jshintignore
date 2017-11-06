@@ -8,7 +8,7 @@ modules/shortcodes/js/jmpress.js
 modules/shortcodes/js/jmpress.min.js
 modules/shortcodes/js/jquery.cycle.min.js
 modules/theme-tools/responsive-videos/responsive-videos.min.js
-modules/lazy-images/js/jquery.sonar.js
+modules/lazy-images/js/intersection-observer.js
 
 todo:
 modules/infinite-scroll/infinity.js
