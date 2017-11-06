@@ -60,7 +60,7 @@ class Jetpack_Perf_Optimize_Assets {
 		$this->prevent_jetpack_implode_css = true;
 		$this->inject_critical_css       = true;
 		$this->preload_scripts           = true;
-		$this->minify_html               = true;
+		$this->minify_html               = false;
 
 		if ( $this->minify_html ) {
 			require_once dirname( __FILE__ ) . '/class.jetpack-perf-optimize-html.php';

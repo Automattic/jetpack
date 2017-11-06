@@ -29,7 +29,9 @@ class Jetpack_Perf_Optimize_HTML {
 	}
 
 	function end_buffer_html( $content ) {
-		require_once dirname( __FILE__ ) . '/external/HTML.php';
+		if ( ! class_exists( 'Minify_HTML' ) ) {
+			require_once dirname( __FILE__ ) . '/external/HTML.php';
+		}
 		return Minify_HTML::minify( $content );
 	}
 }
