@@ -2,9 +2,9 @@ const { registerBlockType } = wp.blocks;
 const blockStyle = { backgroundColor: '#900', color: '#fff', padding: '20px' };
 
 registerBlockType( 'jetpack/simple-payments-button', {
-	title: 'Simple payment title',
+	title: 'Payment Button',
 
-	icon: 'universal-access-alt',
+	icon: 'cart',
 
 	category: 'layout',
 
