@@ -37,8 +37,7 @@ const PostByEmail = moduleSettingsForm(
 			const currentValue = this.props.getOptionValue( 'post_by_email_address' );
 			// If the module Post-by-email is enabled BUT it's configured as disabled
 			// Its value is set to false
-			// At some point the API started returning noop here, so we check for that too.
-			if ( false === currentValue || '1' === currentValue || 'noop' === currentValue ) {
+			if ( false === currentValue || '1' === currentValue ) {
 				return '';
 			}
 			return currentValue;
