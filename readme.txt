@@ -131,17 +131,21 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Sharing: update Open Graph Image tags appearing on the home page to offer better alternatives based on your site settings in Appearance > Customize.
 * We improved the way sitemaps are built so they do not consume too much memory when they are generated.
 * WP.me Shorlinks: those links will now always use HTTPS.
+* Spellchecker: we improved the admin interface to make it more clear when adding ignored phrases and saving them.
 * Subscriptions: we added a filter so third party developers can track comment subscription activations.
 * Sync: synchronize plugin action links to add that information to WordPress.com.
 * Sync: improvements to better track theme and widget changes.
+* VideoPress: we removed Jetpack version locking for directly embedded VideoPress videos to ensure all users receive the newest version of the player.
 * We added a new filter (`jetpack_google_translate_widget_layout`) to the Google Translate Widget to allow you to change its layout.
 * WordPress.com REST API: improve comment management for all roles, including post authors.
 * WordPress.com REST API: allow site owners to manage comments on attachment pages from WordPress.com.
 * WordPress.com REST API: improve the response from the API when WordPress' autoupdates are disabled.
 
 **Improved compatibility**
+* You can now use Jetpack's contact form and Yoast SEO's Focus keywords on the same page without any issues in the editor.
 * Top Posts Widget: avoid Fatal Errors when the widget is used on a site using WPML, and when a popular post cannot be found by WPML.
 * Sync: add more Custom Post Types from third-party plugins to the list of things we do not synchronize with WordPress.com, to improve sync performance.
+* Sharing: since [Press This is now a plugin and not part of WordPress itself](https://make.wordpress.org/core/2017/11/02/press-this-in-4-9/), we removed the Press This sharing button if you are not using the plugin.
 
 **Bug fixes**
 * We now avoid displaying notices to user roles that cannot benefit or act based on the info in the notices.
@@ -151,7 +155,9 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Mailchimp: do not require the use of the shortcodes feature to use the Mailchimp widget.
 * Mailchimp: fix issue where Mailchimp form code could not be added to the Mailchimp widget.
 * Masterbar: avoid JavaScript errors by always loading jQuery.
+* Post By Email: do not display any content in the email address field if no email address has ever been set before.
 * Publicize: avoid errors when DOMDocument is not available.
+* Publicize: we now hide the feature activation toggle if you are not allowed to manage Jetpack features.
 * Search: make sure module cannot be activated when the site does not use a Plan.
 * SEO Tools: do not output any custom meta tags if another SEO plugin is already active.
 * Sharing: make sure Twitter Cards can be displayed even when a post does not include a title.
