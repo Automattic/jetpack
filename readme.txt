@@ -154,6 +154,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Mailchimp: do not require the use of the shortcodes feature to use the Mailchimp widget.
 * Mailchimp: fix issue where Mailchimp form code could not be added to the Mailchimp widget.
 * Masterbar: avoid JavaScript errors by always loading jQuery.
+* Post By Email: do not display any content in the email address field if no email address has ever been set before.
 * Publicize: avoid errors when DOMDocument is not available.
 * Publicize: we now hide the feature activation toggle if you are not allowed to manage Jetpack features.
 * Search: make sure module cannot be activated when the site does not use a Plan.
