@@ -52,11 +52,45 @@ class Jetpack_Protect_Blocked_Login_Page {
         $this->ip_address = $ip_address;
 
 		add_filter( 'wp_authenticate_user', array( $this, 'check_valid_blocked_user' ), 10, 1 );
-		add_filter( 'site_url', array( $this, 'add_args_to_login_url' ), 10, 3 );
+		add_filter( 'site_url', array( $this, 'add_args_to_login_post_url' ), 10, 3 );
+		add_filter( 'network_site_url', array( $this, 'add_args_to_login_post_url' ), 10, 3 );
+        add_filter( 'lostpassword_url', array( $this, 'add_args_to_lostpassword_url' ), 10, 2 );
+        add_filter( 'login_url', array( $this, 'add_args_to_login_url' ), 10,3 );
+        add_filter( 'lostpassword_redirect', array( $this, 'add_args_to_lostpassword_redirect_url' ), 10, 1 );
     }
 
-    public function add_args_to_login_url( $url, $path, $scheme ) {
-	    if ( $this->valid_blocked_user_id && 'login_post' === $scheme ) {
+    public function add_args_to_lostpassword_redirect_url( $url ) {
+	    if ( $this->valid_blocked_user_id ) {
+		    $url = ( empty( $url ) ) ? wp_login_url() : $url;
+		    $url = add_query_arg(
+			    array(
+				    'validate_jetpack_protect_recovery' => $_GET['validate_jetpack_protect_recovery'],
+				    'user_id' => $_GET['user_id'],
+				    'checkemail' => 'confirm',
+			    ),
+			    $url
+		    );
+	    }
+	    return $url;
+    }
+
+    public function add_args_to_lostpassword_url( $url, $redirect ) {
+	    if ( $this->valid_blocked_user_id ) {
+	        $args = array(
+		        'validate_jetpack_protect_recovery' => $_GET['validate_jetpack_protect_recovery'],
+		        'user_id' => $_GET['user_id'],
+		        'action' => 'lostpassword',
+	        );
+	        if ( ! empty( $redirect ) ) {
+	            $args['redirect_to'] = $redirect;
+            }
+            $url = add_query_arg( $args, $url );
+        }
+        return $url;
+    }
+
+    public function add_args_to_login_post_url( $url, $path, $scheme ) {
+	    if ( $this->valid_blocked_user_id && ( 'login_post' === $scheme || 'login' === $scheme ) ) {
 	       $url = add_query_arg(
                array(
                    'validate_jetpack_protect_recovery' => $_GET['validate_jetpack_protect_recovery'],
@@ -64,6 +98,26 @@ class Jetpack_Protect_Blocked_Login_Page {
                ),
                $url
            );
+
+        }
+        return $url;
+    }
+
+    public function add_args_to_login_url( $url, $redirect, $force_reauth ) {
+	    if ( $this->valid_blocked_user_id ) {
+		    $args = array(
+			    'validate_jetpack_protect_recovery' => $_GET['validate_jetpack_protect_recovery'],
+			    'user_id' => $_GET['user_id'],
+		    );
+
+		    if ( ! empty( $redirect ) ) {
+		        $args['redirect_to'] = $redirect;
+            }
+
+		    if ( ! empty( $force_reauth ) ) {
+			    $args['reauth'] = '1';
+		    }
+		    $url = add_query_arg( $args, $url );
         }
         return $url;
     }
