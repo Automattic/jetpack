@@ -29,7 +29,6 @@ class Jetpack_Protect_Module {
 	public $last_response_raw;
 	public $last_response;
 	private $block_login_with_math;
-	private $valid_blocked_user_id;
 
 	/**
 	 * Singleton implementation
@@ -59,7 +58,7 @@ class Jetpack_Protect_Module {
 		add_action( 'admin_init', array ( $this, 'maybe_display_security_warning' ) );
 
 		// This is a backup in case $pagenow fails for some reason
-		add_action( 'login_head', array ( $this, 'check_login_ability' ) );
+		add_action( 'login_head', array ( $this, 'check_login_ability' ), 100, 3 );
 
 		// Runs a script every day to clean up expired transients so they don't
 		// clog up our users' databases
@@ -345,10 +344,6 @@ class Jetpack_Protect_Module {
 			Jetpack_Protect_Math_Authenticate::math_authenticate();
 		}
 
-		if ( $this->valid_blocked_user_id && $this->valid_blocked_user_id !==  $user->ID ) {
-		    return new WP_Error( 'invalid_recovery_token', __( 'The recovery token is not valid for this user.', 'jetpack' ) );
-        }
-
 		return $user;
 	}
 
@@ -568,10 +563,9 @@ class Jetpack_Protect_Module {
 		}
 
 		require_once dirname( __FILE__ ) . '/protect/blocked-login-page.php';
-        $blocked_login_page = new Jetpack_Protect_Blocked_Login_Page( $ip, $this->valid_blocked_user_id );
+        $blocked_login_page = Jetpack_Protect_Blocked_Login_Page::instance( $ip );
 
         if ( $blocked_login_page->is_blocked_user_valid() ) {
-            $this->valid_blocked_user_id = $blocked_login_page->valid_blocked_user_id;
             return;
         }
 

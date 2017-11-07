@@ -13,6 +13,7 @@
  */
 class Jetpack_Protect_Blocked_Login_Page {
 
+	private static $__instance = null;
     public $can_send_recovery_emails;
     public $ip_address;
 	public $valid_blocked_user_id;
@@ -20,8 +21,21 @@ class Jetpack_Protect_Blocked_Login_Page {
     public $email_address;
     public $help_url = 'https://jetpack.com/support/security-features/#unblock';
 
+	/**
+	 * Singleton implementation
+	 *
+	 * @return object
+	 */
+	public static function instance( $ip_address ) {
+		if ( ! is_a( self::$__instance, 'Jetpack_Protect_Blocked_Login_Page' ) ) {
+			self::$__instance = new Jetpack_Protect_Blocked_Login_Page( $ip_address );
+		}
 
-	function __construct( $ip_address, $valid_blocked_user_id ) {
+		return self::$__instance;
+	}
+
+
+	function __construct( $ip_address ) {
 	    /**
 	     * Filter controls if an email recovery form is shown to blocked IPs.
          *
@@ -36,8 +50,30 @@ class Jetpack_Protect_Blocked_Login_Page {
 	     */
         $this->can_send_recovery_emails = apply_filters( 'jetpack_protect_can_send_recovery_emails', true );
         $this->ip_address = $ip_address;
-        $this->valid_blocked_user_id = $valid_blocked_user_id;
+
+		add_filter( 'wp_authenticate_user', array( $this, 'check_valid_blocked_user' ), 10, 1 );
+		add_filter( 'site_url', array( $this, 'add_args_to_login_url' ), 10, 3 );
     }
+
+    public function add_args_to_login_url( $url, $path, $scheme ) {
+	    if ( $this->valid_blocked_user_id && 'login_post' === $scheme ) {
+	       $url = add_query_arg(
+               array(
+                   'validate_jetpack_protect_recovery' => $_GET['validate_jetpack_protect_recovery'],
+                   'user_id' => $_GET['user_id'],
+               ),
+               $url
+           );
+        }
+        return $url;
+    }
+
+	public function check_valid_blocked_user( $user ) {
+		if ( $this->valid_blocked_user_id && $this->valid_blocked_user_id != $user->ID ) {
+			return new WP_Error( 'invalid_recovery_token', __( 'The recovery token is not valid for this user.', 'jetpack' ) );
+		}
+		return $user;
+	}
 
     public function is_blocked_user_valid() {
         if ( ! $this->can_send_recovery_emails ) {
@@ -56,7 +92,7 @@ class Jetpack_Protect_Blocked_Login_Page {
             return false;
         }
 
-        $this->valid_blocked_user_id = $_GET['user_id'];
+        $this->valid_blocked_user_id = (int) $_GET['user_id'];
         return true;
     }
 
