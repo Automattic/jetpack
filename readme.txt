@@ -131,6 +131,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Sharing: update Open Graph Image tags appearing on the home page to offer better alternatives based on your site settings in Appearance > Customize.
 * We improved the way sitemaps are built so they do not consume too much memory when they are generated.
 * WP.me Shorlinks: those links will now always use HTTPS.
+* Spellchecker: we improved the admin interface to make it more clear when adding ignored phrases and saving them.
 * Subscriptions: we added a filter so third party developers can track comment subscription activations.
 * Sync: synchronize plugin action links to add that information to WordPress.com.
 * Sync: improvements to better track theme and widget changes.
