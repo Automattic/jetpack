@@ -113,7 +113,8 @@
 	 */
 	function applyImage( image ) {
 		var src = image.getAttribute( 'data-lazy-src' ),
-			srcset = image.getAttribute( 'data-lazy-srcset' );
+			srcset = image.getAttribute( 'data-lazy-srcset' ),
+			sizes = image.getAttribute( 'data-lazy-sizes' );
 
 		if ( ! src ) {
 			return;
@@ -129,6 +130,11 @@
 		if ( srcset ) {
 			image.setAttribute( 'srcset', srcset );
 			image.removeAttribute( 'data-lazy-srcset' );
+		}
+
+		if ( sizes ) {
+			image.setAttribute( 'sizes', sizes );
+			image.removeAttribute( 'data-lazy-sizes' );
 		}
 	}
 } )( jQuery );
