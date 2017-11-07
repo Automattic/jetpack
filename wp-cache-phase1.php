@@ -1106,7 +1106,7 @@ function wp_cache_setting( $field, $value ) {
 	}
 }
 
-function wp_cache_replace_line($old, $new, $my_file) {
+function wp_cache_replace_line( $old, $new, $my_file ) {
 	if ( @is_file( $my_file ) == false ) {
 		return false;
 	}
@@ -1166,6 +1166,11 @@ function wp_cache_replace_line($old, $new, $my_file) {
 	}
 	fclose( $fd );
 	@rename( $tmp_file, $my_file );
+
+	if ( function_exists( "opcache_invalidate" ) ) {
+		opcache_invalidate( $my_file );
+	}
+
 	return true;
 }
 
