@@ -1617,18 +1617,16 @@ function wp_cache_post_change( $post_id ) {
 		wp_cache_debug( "Post change: supercache enabled: deleting cache files in " . $dir );
 		wpsc_rebuild_files( $dir );
 		do_action( 'gc_cache', 'prune', 'homepage' );
+		if ( get_option( 'show_on_front' ) == 'page' ) {
+			wp_cache_debug( "Post change: deleting page_on_front and page_for_posts pages.", 4 );
+			wp_cache_debug( "Post change: page_on_front " . get_option( 'page_on_front' ), 4 );
+			$permalink = trailingslashit( str_replace( get_option( 'home' ), '', get_permalink( get_option( 'page_for_posts' ) ) ) );
+			wp_cache_debug( "Post change: Deleting files in: " . str_replace( '//', '/', $dir . $permalink ) );
+			wpsc_rebuild_files( $dir . $permalink );
+			do_action( 'gc_cache', 'prune', $permalink );
+		}
 	} else {
 		wp_cache_debug( "wp_cache_post_change: not deleting all pages.", 4 );
-	}
-	if( $all == true && get_option( 'show_on_front' ) == 'page' ) {
-		wp_cache_debug( "Post change: deleting page_on_front and page_for_posts pages.", 4 );
-		wp_cache_debug( "Post change: page_on_front " . get_option( 'page_on_front' ), 4 );
-		$permalink = trailingslashit( str_replace( get_option( 'home' ), '', get_permalink( get_option( 'page_for_posts' ) ) ) );
-		wp_cache_debug( "Post change: Deleting files in: " . str_replace( '//', '/', $dir . $permalink ) );
-		wpsc_rebuild_files( $dir . $permalink );
-		do_action( 'gc_cache', 'prune', $permalink );
-	} else {
-		wp_cache_debug( "wp_cache_post_change: not deleting front static page.", 4 );
 	}
 
 	wp_cache_debug( "wp_cache_post_change: checking {$blog_cache_dir}meta/", 4 );
