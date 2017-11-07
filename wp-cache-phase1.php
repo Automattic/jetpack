@@ -754,7 +754,7 @@ function wpsc_delete_files( $dir, $delete = true ) {
 
 	$dir = wpsc_get_realpath( $dir );
 	if ( ! $dir ) {
-		wp_cache_debug( "wpsc_delete_files: directory does not exist" );
+		wp_cache_debug( "wpsc_delete_files: directory does not exist: " . $dir );
 		return false;
 	}
 
