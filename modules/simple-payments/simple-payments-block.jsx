@@ -35,12 +35,9 @@ registerBlockType( 'jetpack/simple-payments-button', {
 	edit( { attributes, className, setAttributes, focus, setFocus } ) {
 		const { price, showIcons, multipleItems } = attributes;
 
+		const onChangePrice = ( { target: { value } } ) => setAttributes( { price: value } );
 		const toggleShowIcons = () => setAttributes( { showIcons: ! showIcons } );
 		const toggleMultipleItems = () => setAttributes( { multipleItems: ! multipleItems } );
-
-		function onChangePrice( { target: { value } } ) {
-			setAttributes( { price: value } );
-		}
 
 		return [
 			focus && (
