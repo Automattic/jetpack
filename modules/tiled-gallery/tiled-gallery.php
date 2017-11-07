@@ -17,18 +17,7 @@ class Jetpack_Tiled_Gallery {
 		add_filter( 'jetpack_gallery_types', array( $this, 'jetpack_gallery_types' ), 9 );
 		add_filter( 'jetpack_default_gallery_type', array( $this, 'jetpack_default_gallery_type' ) );
 
-		// Add Tiled Galleries functionality to core's media gallery widget.
-		add_filter( 'widget_media_gallery_instance_schema', array( $this, 'core_media_widget_compat' ) );
-	}
 
-	public function core_media_widget_compat( $schema ) {
-		$schema['type'] = array(
-			'type' => 'string',
-			'enum' => array( 'default', 'rectangular', 'square', 'circle', 'columns', 'slideshow' ),
-			'description' => __( 'Type of gallery.', 'jetpack' ),
-			'default' => 'default',
-		);
-		return $schema;
 	}
 
 	public function tiles_enabled() {

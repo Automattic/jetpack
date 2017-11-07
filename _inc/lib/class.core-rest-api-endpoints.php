@@ -2447,7 +2447,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				unset( $options[ $key ]['validate_callback'] );
 			}
 			$default_value = isset( $options[ $key ]['default'] ) ? $options[ $key ]['default'] : '';
-			if ( ! isset( $options[ $key ]['current_value'] ) ) {
+			if ( ! array_key_exists( 'current_value', $options[ $key ] ) ) {
 				$options[ $key ]['current_value'] = self::cast_value( $default_value, $options[ $key ] );
 			}
 		}
