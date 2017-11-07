@@ -154,6 +154,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Mailchimp: fix issue where Mailchimp form code could not be added to the Mailchimp widget.
 * Masterbar: avoid JavaScript errors by always loading jQuery.
 * Publicize: avoid errors when DOMDocument is not available.
+* Publicize: we now hide the feature activation toggle if you are not allowed to manage Jetpack features.
 * Search: make sure module cannot be activated when the site does not use a Plan.
 * SEO Tools: do not output any custom meta tags if another SEO plugin is already active.
 * Sharing: make sure Twitter Cards can be displayed even when a post does not include a title.
