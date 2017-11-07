@@ -143,6 +143,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * You can now use Jetpack's contact form and Yoast SEO's Focus keywords on the same page without any issues in the editor.
 * Top Posts Widget: avoid Fatal Errors when the widget is used on a site using WPML, and when a popular post cannot be found by WPML.
 * Sync: add more Custom Post Types from third-party plugins to the list of things we do not synchronize with WordPress.com, to improve sync performance.
+* Sharing: since [Press This is now a plugin and not part of WordPress itself](https://make.wordpress.org/core/2017/11/02/press-this-in-4-9/), we removed the Press This sharing button if you are not using the plugin.
 
 **Bug fixes**
 * We now avoid displaying notices to user roles that cannot benefit or act based on the info in the notices.
