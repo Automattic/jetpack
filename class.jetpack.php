@@ -263,7 +263,8 @@ class Jetpack {
 		'wp-facebook-open-graph-protocol/wp-facebook-ogp.php',   // WP Facebook Open Graph protocol
 		'wp-ogp/wp-ogp.php',                                     // WP-OGP
 		'zoltonorg-social-plugin/zosp.php',                      // Zolton.org Social Plugin
-		'wp-fb-share-like-button/wp_fb_share-like_widget.php'    // WP Facebook Like Button
+		'wp-fb-share-like-button/wp_fb_share-like_widget.php',   // WP Facebook Like Button
+		'open-graph-metabox/open-graph-metabox.php'              // Open Graph Metabox
 	);
 
 	/**
