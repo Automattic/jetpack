@@ -1,4 +1,5 @@
-const { registerBlockType } = wp.blocks;
+const { registerBlockType, source } = wp.blocks;
+const { text } = source;
 
 registerBlockType( 'jetpack/simple-payments-button', {
 	title: 'Payment Button',
@@ -7,27 +8,63 @@ registerBlockType( 'jetpack/simple-payments-button', {
 
 	category: 'widgets',
 
-	edit( { className } ) {
+	attributes: {
+		price: {
+			type: 'number',
+			source: text( 'span' )
+		},
+	},
+
+	edit( { attributes, className, setAttributes } ) {
+		const { price } = attributes;
+
+		function onChangePrice( { target: { value } } ) {
+			setAttributes( { price: value } );
+		}
+
 		return (
 			<div className={ className }>
 				<div>
-					USD $ <input type="text" placeholder="0.00" />
+					USD $
+					<input
+						type="number"
+						onChange={ onChangePrice }
+						value={ price }
+					/>
 				</div>
 
-				<div className={ `${ className }__paypal-button` }>
+				<div className="paypal-button">
 					Pay with
 				</div>
-				<div className={ `${ className }__payment-options` }>
-					<div className={ `${ className }__visa` }></div>
-					<div className={ `${ className }__mastercard` }></div>
-					<div className={ `${ className }__amex` }></div>
-					<div className={ `${ className }__discover` }></div>
+				<div className="payment-options">
+					<div className="visa"></div>
+					<div className="mastercard"></div>
+					<div className="amex"></div>
+					<div className="discover"></div>
 				</div>
 			</div>
 		);
 	},
 
-	save( { className } ) {
-		return <div className={ className }>Simple payment button saved content.</div>;
+	save( { attributes, className } ) {
+		const { price } = attributes;
+
+		return (
+			<div className={ className }>
+				<div>
+					USD $ <span>{ price }</span>
+				</div>
+
+				<div className="paypal-button">
+					Pay with
+				</div>
+				<div className="payment-options">
+					<div className="visa"></div>
+					<div className="mastercard"></div>
+					<div className="amex"></div>
+					<div className="discover"></div>
+				</div>
+			</div>
+		);
 	},
 } );
