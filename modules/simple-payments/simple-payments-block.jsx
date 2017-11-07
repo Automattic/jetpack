@@ -1,4 +1,15 @@
-const { registerBlockType, source, InspectorControls, BlockDescription } = wp.blocks;
+const {
+	registerBlockType,
+	source,
+	InspectorControls,
+	BlockDescription
+} = wp.blocks;
+
+const {
+	PanelBody
+} = wp.components;
+
+const { ToggleControl } = InspectorControls;
 const { text } = source;
 
 const i18n = jpPaymentButtonI18n;
@@ -13,12 +24,18 @@ registerBlockType( 'jetpack/simple-payments-button', {
 	attributes: {
 		price: {
 			type: 'number',
-			source: text( 'span' )
+			source: text( 'span' ),
 		},
+		showIcons: {
+			type: 'boolean',
+			default: true,
+		}
 	},
 
 	edit( { attributes, className, setAttributes, focus, setFocus } ) {
-		const { price } = attributes;
+		const { price, showIcons } = attributes;
+
+		const toggleShowIcons = () => setAttributes( { showIcons: ! showIcons } );
 
 		function onChangePrice( { target: { value } } ) {
 			setAttributes( { price: value } );
@@ -28,8 +45,15 @@ registerBlockType( 'jetpack/simple-payments-button', {
 			focus && (
 				<InspectorControls key="inspector">
 					<BlockDescription>
-						<p>{ i18n[ 'Description' ] }</p>
+						<p>{ i18n[ 'description' ] }</p>
 					</BlockDescription>
+					<PanelBody title={ i18n[ 'settings' ] }>
+						<ToggleControl
+							label={ i18n[ 'icons toggle' ]  }
+							checked={ !! showIcons }
+							onChange={ toggleShowIcons }
+						/>
+					</PanelBody>
 				</InspectorControls>
 			),
 			<div className={ className }>
@@ -45,18 +69,21 @@ registerBlockType( 'jetpack/simple-payments-button', {
 				<div className="paypal-button">
 					Pay with
 				</div>
-				<div className="payment-options">
-					<div className="visa"></div>
-					<div className="mastercard"></div>
-					<div className="amex"></div>
-					<div className="discover"></div>
-				</div>
+
+				{ showIcons &&
+					<div className="payment-options">
+						<div className="visa"></div>
+						<div className="mastercard"></div>
+						<div className="amex"></div>
+						<div className="discover"></div>
+					</div>
+				}
 			</div>
 		];
 	},
 
 	save( { attributes, className } ) {
-		const { price } = attributes;
+		const { price, showIcons } = attributes;
 
 		return (
 			<div className={ className }>
@@ -67,12 +94,14 @@ registerBlockType( 'jetpack/simple-payments-button', {
 				<div className="paypal-button">
 					Pay with
 				</div>
-				<div className="payment-options">
-					<div className="visa"></div>
-					<div className="mastercard"></div>
-					<div className="amex"></div>
-					<div className="discover"></div>
-				</div>
+				{ showIcons &&
+					<div className="payment-options">
+						<div className="visa"></div>
+						<div className="mastercard"></div>
+						<div className="amex"></div>
+						<div className="discover"></div>
+					</div>
+				}
 			</div>
 		);
 	},

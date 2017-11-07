@@ -71,7 +71,9 @@ class Jetpack_Simple_Payments {
 		);
 
 		wp_localize_script( 'gutenberg-simple-payments-button', 'jpPaymentButtonI18n', array(
-			'Description' => __( 'Simple Payment Button settings', 'jetpack' ),
+			'description' => __( 'A payment button. Sell tickets, collect donations, accept tips, and more.', 'jetpack' ),
+			'settings' => __( 'Payment button settings', 'jetpack' ),
+			'icons toggle' => __( 'Show credit card icons', 'jetpack' ),
 		) );
 	}
 
