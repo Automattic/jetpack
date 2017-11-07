@@ -74,6 +74,8 @@ class Jetpack_Simple_Payments {
 			'description' => __( 'A payment button. Sell tickets, collect donations, accept tips, and more.', 'jetpack' ),
 			'settings' => __( 'Payment button settings', 'jetpack' ),
 			'icons toggle' => __( 'Show credit card icons', 'jetpack' ),
+			'allow multiple items' => __( 'Allow people to buy more than one item at a time', 'jetpack' ),
+			'quantity' => __( 'Quantity', 'jetpack' ),
 		) );
 	}
 

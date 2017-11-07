@@ -33,9 +33,10 @@ registerBlockType( 'jetpack/simple-payments-button', {
 	},
 
 	edit( { attributes, className, setAttributes, focus, setFocus } ) {
-		const { price, showIcons } = attributes;
+		const { price, showIcons, multipleItems } = attributes;
 
 		const toggleShowIcons = () => setAttributes( { showIcons: ! showIcons } );
+		const toggleMultipleItems = () => setAttributes( { multipleItems: ! multipleItems } );
 
 		function onChangePrice( { target: { value } } ) {
 			setAttributes( { price: value } );
@@ -50,14 +51,19 @@ registerBlockType( 'jetpack/simple-payments-button', {
 					<PanelBody title={ i18n[ 'settings' ] }>
 						<ToggleControl
 							label={ i18n[ 'icons toggle' ]  }
-							checked={ !! showIcons }
+							checked={ showIcons }
 							onChange={ toggleShowIcons }
+						/>
+						<ToggleControl
+							label={ i18n[ 'allow multiple items' ]  }
+							checked={ multipleItems }
+							onChange={ toggleMultipleItems }
 						/>
 					</PanelBody>
 				</InspectorControls>
 			),
 			<div className={ className }>
-				<div>
+				<div className="price-box">
 					USD $
 					<input
 						type="number"
@@ -65,6 +71,17 @@ registerBlockType( 'jetpack/simple-payments-button', {
 						value={ price }
 					/>
 				</div>
+
+				{ multipleItems &&
+					<div>
+						<label> { i18n[ 'quantity' ] } </label>
+						<input
+							type="number"
+							placeholder="1"
+							className="quantity"
+						/>
+					</div>
+				}
 
 				<div className="paypal-button">
 					Pay with
@@ -83,17 +100,29 @@ registerBlockType( 'jetpack/simple-payments-button', {
 	},
 
 	save( { attributes, className } ) {
-		const { price, showIcons } = attributes;
+		const { price, showIcons, multipleItems } = attributes;
 
 		return (
 			<div className={ className }>
-				<div>
+				<div className="price-box">
 					USD $ <span>{ price }</span>
 				</div>
+
+				{ multipleItems &&
+					<div>
+						<label> { i18n[ 'quantity' ] } </label>
+						<input
+							type="number"
+							placeholder="1"
+							className="quantity"
+						/>
+					</div>
+				}
 
 				<div className="paypal-button">
 					Pay with
 				</div>
+
 				{ showIcons &&
 					<div className="payment-options">
 						<div className="visa"></div>
