@@ -131,14 +131,19 @@ class WP_Test_Jetpack_Migrate_Gallery_Widget extends WP_UnitTestCase {
 			)
 		);
 		$output1 = array(
-			'wp_inactive_widgets' => array(),
+			'wp_inactive_widgets' => array(
+				'gallery-1',
+			),
 			'sidebar-1' => array(
 				'media_gallery-1',
 				'gallery-2',
 			)
 		);
 		$output2 = array(
-			'wp_inactive_widgets' => array(),
+			'wp_inactive_widgets' => array(
+				'gallery-1',
+				'gallery-2',
+			),
 			'sidebar-1' => array(
 				'media_gallery-1',
 				'media_gallery-2',

@@ -165,6 +165,12 @@ function jetpack_migrate_gallery_widget_update_sidebars( $sidebars_widgets, $id,
 			&& false !== ( $key = array_search( "gallery-{$id}", $widgets, true ) )
 		) {
 			$sidebars_widgets[ $sidebar ][ $key ] = "media_gallery-{$new_id}";
+			// Check if the inactive widgets sidebar exists
+			// Related: https://core.trac.wordpress.org/ticket/14893
+			if ( ! isset( $sidebars_widgets['wp_inactive_widgets'] ) || ! is_array( $sidebars_widgets['wp_inactive_widgets'] ) ) {
+				$sidebars_widgets['wp_inactive_widgets'] = array();
+			}
+			$sidebars_widgets['wp_inactive_widgets'][ $key ] = "gallery-{$id}";
 		}
 	}
 	return $sidebars_widgets;
