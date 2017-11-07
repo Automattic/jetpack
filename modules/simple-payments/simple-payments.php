@@ -69,6 +69,10 @@ class Jetpack_Simple_Payments {
 			plugins_url( 'simple-payments-block.js', __FILE__ ),
 			array( 'wp-blocks', 'wp-element' )
 		);
+
+		wp_localize_script( 'gutenberg-simple-payments-button', 'jpPaymentButtonI18n', array(
+			'Description' => __( 'Simple Payment Button settings', 'jetpack' ),
+		) );
 	}
 
 	public function enqueue_block_assets() {

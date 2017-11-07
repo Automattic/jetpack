@@ -1,5 +1,7 @@
-const { registerBlockType, source } = wp.blocks;
+const { registerBlockType, source, InspectorControls, BlockDescription } = wp.blocks;
 const { text } = source;
+
+const i18n = jpPaymentButtonI18n;
 
 registerBlockType( 'jetpack/simple-payments-button', {
 	title: 'Payment Button',
@@ -15,14 +17,21 @@ registerBlockType( 'jetpack/simple-payments-button', {
 		},
 	},
 
-	edit( { attributes, className, setAttributes } ) {
+	edit( { attributes, className, setAttributes, focus, setFocus } ) {
 		const { price } = attributes;
 
 		function onChangePrice( { target: { value } } ) {
 			setAttributes( { price: value } );
 		}
 
-		return (
+		return [
+			focus && (
+				<InspectorControls key="inspector">
+					<BlockDescription>
+						<p>{ i18n[ 'Description' ] }</p>
+					</BlockDescription>
+				</InspectorControls>
+			),
 			<div className={ className }>
 				<div>
 					USD $
@@ -43,7 +52,7 @@ registerBlockType( 'jetpack/simple-payments-button', {
 					<div className="discover"></div>
 				</div>
 			</div>
-		);
+		];
 	},
 
 	save( { attributes, className } ) {
