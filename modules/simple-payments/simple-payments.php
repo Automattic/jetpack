@@ -60,6 +60,7 @@ class Jetpack_Simple_Payments {
 
 	private function register_gutenberg_block() {
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_editor_assets' ) );
+		add_action( 'enqueue_block_assets', array( $this, 'enqueue_block_assets' ) );
 	}
 
 	public function enqueue_block_editor_assets() {
@@ -68,7 +69,9 @@ class Jetpack_Simple_Payments {
 			plugins_url( 'simple-payments-block.js', __FILE__ ),
 			array( 'wp-blocks', 'wp-element' )
 		);
+	}
 
+	public function enqueue_block_assets() {
 		wp_enqueue_style(
 			'gutenberg-simple-payments-button-styles',
 			plugins_url( 'simple-payments-block.css', __FILE__ ),

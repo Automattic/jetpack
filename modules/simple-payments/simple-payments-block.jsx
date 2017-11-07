@@ -5,29 +5,29 @@ registerBlockType( 'jetpack/simple-payments-button', {
 
 	icon: 'cart',
 
-	category: 'layout',
+	category: 'widgets',
 
-	edit() {
+	edit( { className } ) {
 		return (
-			<div className="jetpack-payments-button__container">
+			<div className={ className }>
 				<div>
 					USD $ <input type="text" placeholder="0.00" />
 				</div>
 
-				<div className="jetpack-payments-button__paypal-button">
+				<div className={ `${ className }__paypal-button` }>
 					Pay with
 				</div>
-				<div className="jetpack-payments-button__payment-options">
-					<div className="jetpack-payments-button__card-image jetpack-payments-button__visa"></div>
-					<div className="jetpack-payments-button__card-image jetpack-payments-button__mastercard"></div>
-					<div className="jetpack-payments-button__card-image jetpack-payments-button__amex"></div>
-					<div className="jetpack-payments-button__card-image jetpack-payments-button__discover"></div>
+				<div className={ `${ className }__payment-options` }>
+					<div className={ `${ className }__visa` }></div>
+					<div className={ `${ className }__mastercard` }></div>
+					<div className={ `${ className }__amex` }></div>
+					<div className={ `${ className }__discover` }></div>
 				</div>
 			</div>
 		);
 	},
 
-	save() {
-		return <p className="jetpack-payments-button__container">Simple payment button saved content.</p>;
+	save( { className } ) {
+		return <div className={ className }>Simple payment button saved content.</div>;
 	},
 } );
