@@ -8,7 +8,7 @@
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '2.1.1' );
+define( 'WPCOMSH_VERSION', '2.1.2' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -158,6 +158,10 @@ function wpcomsh_hide_wpcomsh_plugin_links() {
 }
 
 function wpcomsh_hide_plugin_deactivate_edit_links( $links ) {
+	if ( ! is_array( $links ) ) {
+		return array();
+	}
+
 	unset( $links['deactivate'] );
 	unset( $links['edit'] );
 
