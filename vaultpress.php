@@ -1760,7 +1760,8 @@ JS;
 
 		if ( !class_exists( 'VaultPress_IXR_SSL_Client' ) )
 			require_once( dirname( __FILE__ ) . '/class.vaultpress-ixr-ssl-client.php' );
-		$client = new VaultPress_IXR_SSL_Client( $hostname, '/xmlrpc.php', 80, $timeout );
+		$useragent = 'VaultPress/' . $this->plugin_version . '; ' . $this->site_url();
+		$client = new VaultPress_IXR_SSL_Client( $hostname, '/xmlrpc.php', 80, $timeout, $useragent );
 
 		if ( 'vaultpress.com' == $hostname )
 			$client->ssl();
