@@ -1,13 +1,18 @@
+/**
+ * WordPress dependencies
+ */
+const { PanelBody } = wp.components;
+const { __ } = wp.i18n;
+
+/**
+ * Internal dependencies
+ */
 const {
 	registerBlockType,
 	source,
 	InspectorControls,
 	BlockDescription
 } = wp.blocks;
-
-const { PanelBody } = wp.components;
-const { __ } = wp.i18n;
-
 const { ToggleControl, SelectControl } = InspectorControls;
 const { text } = source;
 
