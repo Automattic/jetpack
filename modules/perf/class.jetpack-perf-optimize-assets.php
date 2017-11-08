@@ -16,6 +16,9 @@ class Jetpack_Perf_Optimize_Assets {
 	private $defer_scripts = false;
 	private $inject_critical_css = false;
 	private $minify_html = false;
+	private $concat_local_styles = false;
+	private $concat_style_groups = array();
+
 	const INLINE_ASSET_MAX_SIZE_BYTES = 50 * 1024; // 10kb
 	const INLINE_CSS_URL_MAX_SIZE_BYTES = 5 * 1024; // 5kb
 
@@ -61,6 +64,8 @@ class Jetpack_Perf_Optimize_Assets {
 		$this->inject_critical_css       = true;
 		$this->preload_scripts           = true;
 		$this->minify_html               = false;
+		$this->concat_local_styles       = true;
+		$this->cdn_server                = 'https://wordpress.com';
 
 		if ( $this->minify_html ) {
 			require_once dirname( __FILE__ ) . '/class.jetpack-perf-optimize-html.php';
@@ -80,6 +85,13 @@ class Jetpack_Perf_Optimize_Assets {
 
 		if ( $this->inject_critical_css ) {
 			add_action( 'wp_head', array( $this, 'render_critical_css' ), 0 );
+		}
+
+		if ( $this->concat_local_styles ) {
+			//hooo boy
+			add_filter( 'jetpack_perf_concat_style', '__return_true', 10  );
+			add_action( 'wp_head', array( $this, 'render_concatenated_styles_head' ), PHP_INT_MAX );
+			add_action( 'wp_footer', array( $this, 'render_concatenated_styles_footer' ), PHP_INT_MAX );
 		}
 
 		if ( $this->preload_scripts ) {
@@ -159,6 +171,30 @@ class Jetpack_Perf_Optimize_Assets {
 
 	function optimize_jetpack() {
 
+	}
+
+	function render_concatenated_styles_head() {
+		if ( isset( $this->concat_style_groups[0] ) ) {
+			$this->render_concatenated_styles( $this->concat_style_groups[0] );
+		}
+	}
+
+	function render_concatenated_styles_footer() {
+		if ( isset( $this->concat_style_groups[1] ) ) {
+			$this->render_concatenated_styles( $this->concat_style_groups[1] );
+		}
+	}
+
+	private function render_concatenated_styles( $styles ) {
+		// special URL to concatenation service
+		foreach( $styles as $media => $urls ) {
+			$cdn_url = $this->cdn_server . '/css?files=' . implode( ',', array_map( 'urlencode', $urls ) );
+			if ( $this->inject_critical_css ) {
+				echo '<!-- jetpack concat --><link rel="preload" onload="this.rel=\'stylesheet\'" as="style" type="text/css" media="' . $media . '" src="' . $cdn_url . '"/>';
+			} else {
+				echo '<!-- jetpack concat --><link rel="stylesheet" type="text/css" media="' . $media . '" src="' . $cdn_url . '"/>';
+			}
+		}
 	}
 
 	/**
@@ -368,6 +404,11 @@ class Jetpack_Perf_Optimize_Assets {
 
 		$script = $wp_scripts->registered[$handle];
 
+		// if ( $this->should_concat_script( $script ) ) {
+		// 	$this->buffer_script( $script );
+		// 	return '';
+		// }
+
 		if ( $this->should_remove_script( $script ) ) {
 			return '';
 		}
@@ -470,6 +511,11 @@ class Jetpack_Perf_Optimize_Assets {
 
 		$style = $wp_styles->registered[$handle];
 
+		if ( $this->should_concat_style( $style ) ) {
+			$this->buffer_style( $style );
+			return '';
+		}
+
 		// async styles use the new(-ish) preload syntax - should only be done if
 		// critical CSS is enabled, since otherwise we'll end up with flash of unstyled content (FOUC)
 		if ( $this->should_async_style( $style ) ) {
@@ -492,6 +538,34 @@ class Jetpack_Perf_Optimize_Assets {
 		}
 
 		return $tag;
+	}
+
+	private function buffer_style( $style ) {
+		$group = isset( $style->extra['group'] ) ? $style->extra['group'] : 0;
+		$media = $style->args;
+
+		if ( ! $media ) {
+			$media = 'all';
+		}
+
+		if ( ! isset( $this->concat_style_groups[$group] ) ) {
+			$this->concat_style_groups[$group] = array();
+		}
+
+		if ( ! isset( $this->concat_style_groups[$group][$media] ) ) {
+			$this->concat_style_groups[$group][$media] = array();
+		}
+
+		$local_url = str_replace( untrailingslashit( site_url() ), '', $style->src );
+		$this->concat_style_groups[$group][$media][] = $local_url;
+	}
+
+	private function should_concat_style( $style ) {
+		// only concat local styles
+		$is_local       = $this->is_local_url( $style->src );
+		// don't concat conditional styles
+		$is_conditional = isset( $style->extra['conditional'] );
+		return apply_filters( 'jetpack_perf_concat_style', $this->concat_local_styles && $is_local && ! $is_conditional, $style->handle, $style->src );
 	}
 
 	// we can async styles if we load critical CSS in the header
@@ -555,12 +629,16 @@ class Jetpack_Perf_Optimize_Assets {
 
 	/** shared code **/
 
+	private function is_local_url( $url ) {
+		$site_url = site_url();
+		return ( strncmp( $url, '/', 1 ) === 0 && strncmp( $url, '//', 2 ) !== 0 )
+			|| strpos( $url, $site_url ) === 0;
+	}
+
 	private function should_inline_asset( $filter, $dependency ) {
 		// inline anything local, with a src starting with /, or starting with site_url
-		$site_url = site_url();
 
-		$is_local_url = ( strncmp( $dependency->src, '/', 1 ) === 0 && strncmp( $dependency->src, '//', 2 ) !== 0 )
-			|| strpos( $dependency->src, $site_url ) === 0;
+		$is_local_url = $this->is_local_url( $dependency->src );
 
 		if ( $is_local_url && ! isset( $dependency->extra['jetpack-inline'] ) ) {
 			$dependency->extra['jetpack-inline'] = true;
