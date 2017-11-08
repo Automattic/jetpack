@@ -17,13 +17,13 @@ const { ToggleControl, SelectControl } = InspectorControls;
 const { text } = source;
 
 const availableCurrencies = [
-	{ value: 'US', label: 'USD $'},
-	{ value: 'CA', label: 'CAD $'},
-	{ value: 'EU', label: 'EUR €'},
+	{ value: 'US', label: 'USD', symbol: '$' },
+	{ value: 'CA', label: 'CAD', symbol: '$' },
+	{ value: 'EU', label: 'EUR', symbol: '€' },
 ];
 
-const getCurrencyLabel = ( value ) =>
-	availableCurrencies.find( item => item.value === value ).label;
+const getCurrencySymbol = ( value ) =>
+	availableCurrencies.find( item => item.value === value ).symbol;
 
 registerBlockType( 'jetpack/simple-payments-button', {
 	title: 'Payment Button',
@@ -96,7 +96,7 @@ registerBlockType( 'jetpack/simple-payments-button', {
 			),
 			<div className={ className }>
 				<div className="price-box">
-					{ getCurrencyLabel( currency ) }
+					{ getCurrencySymbol( currency ) }
 					<input
 						type="number"
 						onChange={ updatePrice }
@@ -132,22 +132,44 @@ registerBlockType( 'jetpack/simple-payments-button', {
 		];
 	},
 
-	save( { attributes, className } ) {
+	save( { attributes } ) {
 		const {
 			price,
 			currency,
+			multipleItems
 		} = attributes;
 
 		// PayPal button will be rendered on the server with
 		// paypal-express-checkout inline script
 		return (
-			<div className={ className }>
-				<div className="price-box">
-					{ getCurrencyLabel( currency ) }
-					<span>{ price }</span>
-				</div>
+			<div className="jetpack-simple-payments-wrapper">
+				<div className="jetpack-simple-payments-product">
+					<div className="jetpack-simple-payments-details">
+						<div className="jetpack-simple-payments-price">
+							<p>
+								{ getCurrencySymbol( currency ) + price }
+							</p>
+						</div>
 
-				<div id="paypal-express-checkout_button">
+						<div className="jetpack-simple-payments-purchase-box">
+							{ multipleItems &&
+								<div class="jetpack-simple-payments-items">
+									<label> { __( 'Quantity' ) } </label>
+									<input
+										type="number"
+										placeholder="1"
+										min="1"
+										className="jetpack-simple-payments-items-number"
+									/>
+								</div>
+							}
+
+							<div
+								id="paypal-express-checkout_button"
+								className="jetpack-simple-payments-button"
+							></div>
+						</div>
+					</div>
 				</div>
 			</div>
 		);

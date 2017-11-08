@@ -111,7 +111,6 @@ class Jetpack_Simple_Payments {
 			esc_js( $multiple )
 		) );
 
-
 		return $content;
 	}
 
