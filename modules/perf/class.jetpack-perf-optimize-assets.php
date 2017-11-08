@@ -76,7 +76,7 @@ class Jetpack_Perf_Optimize_Assets {
 
 		// relocate assets
 //		add_filter( 'jetpack_perf_style_group', array( $this, 'set_style_groups' ), 10, 2 );
-		add_filter( 'jetpack_perf_script_group', array( $this, 'set_script_groups' ), 10, 2 );
+//		add_filter( 'jetpack_perf_script_group', array( $this, 'set_script_groups' ), 10, 2 );
 
 		if ( $this->inject_critical_css ) {
 			add_action( 'wp_head', array( $this, 'render_critical_css' ), 0 );
@@ -202,7 +202,7 @@ class Jetpack_Perf_Optimize_Assets {
 			// preload anything not async'd, since these scripts are likely to be a higher priority
 			$is_footer_script = isset( $registration->extra['group'] ) && 1 == $registration->extra['group'];
 			// TODO: this doesn't currently affect any scripts - will it ever?
-			if ( ! $this->should_async_script( $registration ) && $is_footer_script ) {
+			if ( ! $this->should_async_script( $registration ) && $is_footer_script && ! $this->should_inline_script( $registration ) ) {
 				echo '<link rel="preload" as="script" href="'. esc_attr( $registration->src )  .'" />';
 			}
 		}
@@ -264,8 +264,8 @@ class Jetpack_Perf_Optimize_Assets {
 	}
 
 	function set_script_groups( $group, $handle ) {
+		return $group;
 		// move everything to the footer
-		return 1;
 		//error_log("set script for $handle in group $group");
 		// force jquery into header, everything else can go in footer unless filtered elsewhere
 		if ( in_array( $handle, array( 'jquery-core', 'jquery-migrate', 'jquery' ) ) ) {
@@ -398,7 +398,7 @@ class Jetpack_Perf_Optimize_Assets {
 		// only make scripts async if nothing depends on them
 		// turns out this is a problem - lots of plugins import (say) jquery extensions and then use them in the page from inline scripts. Bah.
 		// but if a script has been declared in the footer? hm maybe that's ok........
-		$should_async_script = ! $this->script_has_deps( $script->handle ); //isset( $script->extra['group'] ) && $script->extra['group'] === 1;
+		$should_async_script = ! $this->script_has_deps( $script->handle ) && isset( $script->extra['group'] ) && $script->extra['group'] === 1;
 
 		// you can override this logic by setting jetpack-async
 		$should_async_script = $should_async_script || ( isset( $script->extra['jetpack-async'] ) && $script->extra['jetpack-async'] );
