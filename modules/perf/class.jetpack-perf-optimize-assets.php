@@ -89,7 +89,7 @@ class Jetpack_Perf_Optimize_Assets {
 
 		if ( $this->concat_local_styles ) {
 			//hooo boy
-			add_filter( 'jetpack_perf_concat_style', '__return_true', 10  );
+			// add_filter( 'jetpack_perf_concat_style', '__return_true', 10  );
 			add_action( 'wp_head', array( $this, 'render_concatenated_styles_head' ), PHP_INT_MAX );
 			add_action( 'wp_footer', array( $this, 'render_concatenated_styles_footer' ), PHP_INT_MAX );
 		}
@@ -190,9 +190,9 @@ class Jetpack_Perf_Optimize_Assets {
 		foreach( $styles as $media => $urls ) {
 			$cdn_url = $this->cdn_server . '/css?files=' . implode( ',', array_map( 'urlencode', $urls ) );
 			if ( $this->inject_critical_css ) {
-				echo '<!-- jetpack concat --><link rel="preload" onload="this.rel=\'stylesheet\'" as="style" type="text/css" media="' . $media . '" src="' . $cdn_url . '"/>';
+				echo '<!-- jetpack concat --><link rel="preload" onload="this.rel=\'stylesheet\'" as="style" type="text/css" media="' . $media . '" href="' . $cdn_url . '"/>';
 			} else {
-				echo '<!-- jetpack concat --><link rel="stylesheet" type="text/css" media="' . $media . '" src="' . $cdn_url . '"/>';
+				echo '<!-- jetpack concat --><link rel="stylesheet" type="text/css" media="' . $media . '" href="' . $cdn_url . '"/>';
 			}
 		}
 	}
