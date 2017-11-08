@@ -61,6 +61,10 @@ class Jetpack_Simple_Payments {
 	private function register_gutenberg_block() {
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_editor_assets' ) );
 		add_action( 'enqueue_block_assets', array( $this, 'enqueue_block_assets' ) );
+
+		register_block_type( 'jetpack/simple-payments-button', array(
+			'render_callback' => array( $this, 'render_gutenberg_block' ),
+		) );
 	}
 
 	public function enqueue_block_editor_assets() {
@@ -72,12 +76,43 @@ class Jetpack_Simple_Payments {
 	}
 
 	public function enqueue_block_assets() {
-		wp_enqueue_style(
-			'gutenberg-simple-payments-button-styles',
-			plugins_url( 'simple-payments-block.css', __FILE__ ),
-			array(),
-			JETPACK__VERSION
-		);
+		if ( is_admin() ) {
+			// Load the styles just in admin area and rely on custom PayPal
+			// styles on front end
+			wp_enqueue_style(
+				'gutenberg-simple-payments-button-styles',
+				plugins_url( 'simple-payments-block.css', __FILE__ ),
+				array(),
+				JETPACK__VERSION
+			);
+		}
+	}
+
+	public function render_gutenberg_block( $attributes, $content ) {
+		$blog_id = $this->get_blog_id();
+		$dom_id = 'paypal-express-checkout';
+		$multiple = $attributes[ 'multipleItems' ];
+		// mock id for now
+		// $id = $attributes['id'];
+		$id = 357;
+
+		if ( ! wp_script_is( 'paypal-express-checkout', 'enqueued' ) ) {
+			wp_enqueue_script( 'paypal-express-checkout' );
+		}
+		if ( ! wp_style_is( 'simple-payments', 'enqueued' ) ) {
+			wp_enqueue_style( 'simple-payments', plugins_url( 'simple-payments.css', __FILE__ ), array( 'dashicons' ) );
+		}
+
+		wp_add_inline_script( 'paypal-express-checkout', sprintf(
+			"try{PaypalExpressCheckout.renderButton( '%d', '%d', '%s', '%d' );}catch(e){}",
+			esc_js( $blog_id ),
+			esc_js( $id ),
+			esc_js( $dom_id ),
+			esc_js( $multiple )
+		) );
+
+
+		return $content;
 	}
 
 	function remove_auto_paragraph_from_product_description( $content ) {

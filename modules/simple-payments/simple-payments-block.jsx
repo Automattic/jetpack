@@ -111,6 +111,7 @@ registerBlockType( 'jetpack/simple-payments-button', {
 							type="number"
 							placeholder="1"
 							className="quantity"
+							disabled={ true }
 						/>
 					</div>
 				}
@@ -135,10 +136,10 @@ registerBlockType( 'jetpack/simple-payments-button', {
 		const {
 			price,
 			currency,
-			showIcons,
-			multipleItems
 		} = attributes;
 
+		// PayPal button will be rendered on the server with
+		// paypal-express-checkout inline script
 		return (
 			<div className={ className }>
 				<div className="price-box">
@@ -146,29 +147,8 @@ registerBlockType( 'jetpack/simple-payments-button', {
 					<span>{ price }</span>
 				</div>
 
-				{ multipleItems &&
-					<div>
-						<label> { __( 'Quantity' ) } </label>
-						<input
-							type="number"
-							placeholder="1"
-							className="quantity"
-						/>
-					</div>
-				}
-
-				<div className="paypal-button">
-					Pay with
+				<div id="paypal-express-checkout_button">
 				</div>
-
-				{ showIcons &&
-					<div className="payment-options">
-						<div className="visa"></div>
-						<div className="mastercard"></div>
-						<div className="amex"></div>
-						<div className="discover"></div>
-					</div>
-				}
 			</div>
 		);
 	},
