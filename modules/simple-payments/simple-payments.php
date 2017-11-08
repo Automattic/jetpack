@@ -69,14 +69,6 @@ class Jetpack_Simple_Payments {
 			plugins_url( 'simple-payments-block.js', __FILE__ ),
 			array( 'wp-blocks', 'wp-element' )
 		);
-
-		wp_localize_script( 'gutenberg-simple-payments-button', 'jpPaymentButtonI18n', array(
-			'description' => __( 'A payment button. Sell tickets, collect donations, accept tips, and more.', 'jetpack' ),
-			'settings' => __( 'Payment button settings', 'jetpack' ),
-			'icons toggle' => __( 'Show credit card icons', 'jetpack' ),
-			'allow multiple items' => __( 'Allow people to buy more than one item at a time', 'jetpack' ),
-			'quantity' => __( 'Quantity', 'jetpack' ),
-		) );
 	}
 
 	public function enqueue_block_assets() {

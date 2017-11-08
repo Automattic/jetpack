@@ -5,14 +5,11 @@ const {
 	BlockDescription
 } = wp.blocks;
 
-const {
-	PanelBody
-} = wp.components;
+const { PanelBody } = wp.components;
+const { __ } = wp.i18n;
 
 const { ToggleControl } = InspectorControls;
 const { text } = source;
-
-const i18n = jpPaymentButtonI18n;
 
 registerBlockType( 'jetpack/simple-payments-button', {
 	title: 'Payment Button',
@@ -29,30 +26,42 @@ registerBlockType( 'jetpack/simple-payments-button', {
 		showIcons: {
 			type: 'boolean',
 			default: true,
+		},
+		multipleItems: {
+			type: 'boolean',
+			default: false,
 		}
 	},
 
-	edit( { attributes, className, setAttributes, focus, setFocus } ) {
-		const { price, showIcons, multipleItems } = attributes;
+	edit( { attributes, className, setAttributes, focus } ) {
+		const {
+			price,
+			showIcons,
+			multipleItems
+		} = attributes;
 
 		const onChangePrice = ( { target: { value } } ) => setAttributes( { price: value } );
+
 		const toggleShowIcons = () => setAttributes( { showIcons: ! showIcons } );
+
 		const toggleMultipleItems = () => setAttributes( { multipleItems: ! multipleItems } );
 
 		return [
 			focus && (
 				<InspectorControls key="inspector">
 					<BlockDescription>
-						<p>{ i18n[ 'description' ] }</p>
+						<p>
+							{ __( 'A payment button. Sell tickets, collect donations, accept tips, and more.' ) }
+						</p>
 					</BlockDescription>
-					<PanelBody title={ i18n[ 'settings' ] }>
+					<PanelBody title={ __( 'Payment button settings' ) }>
 						<ToggleControl
-							label={ i18n[ 'icons toggle' ]  }
+							label={ __( 'Show credit card icons' )  }
 							checked={ showIcons }
 							onChange={ toggleShowIcons }
 						/>
 						<ToggleControl
-							label={ i18n[ 'allow multiple items' ]  }
+							label={ __( 'Allow multiple items' )  }
 							checked={ multipleItems }
 							onChange={ toggleMultipleItems }
 						/>
@@ -71,7 +80,7 @@ registerBlockType( 'jetpack/simple-payments-button', {
 
 				{ multipleItems &&
 					<div>
-						<label> { i18n[ 'quantity' ] } </label>
+						<label> { __( 'Quantity' ) } </label>
 						<input
 							type="number"
 							placeholder="1"
@@ -97,7 +106,11 @@ registerBlockType( 'jetpack/simple-payments-button', {
 	},
 
 	save( { attributes, className } ) {
-		const { price, showIcons, multipleItems } = attributes;
+		const {
+			price,
+			showIcons,
+			multipleItems
+		} = attributes;
 
 		return (
 			<div className={ className }>
@@ -107,7 +120,7 @@ registerBlockType( 'jetpack/simple-payments-button', {
 
 				{ multipleItems &&
 					<div>
-						<label> { i18n[ 'quantity' ] } </label>
+						<label> { __( 'Quantity' ) } </label>
 						<input
 							type="number"
 							placeholder="1"
