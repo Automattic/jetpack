@@ -8,8 +8,17 @@ const {
 const { PanelBody } = wp.components;
 const { __ } = wp.i18n;
 
-const { ToggleControl } = InspectorControls;
+const { ToggleControl, SelectControl } = InspectorControls;
 const { text } = source;
+
+const availableCurrencies = [
+	{ value: 'US', label: 'USD $'},
+	{ value: 'CA', label: 'CAD $'},
+	{ value: 'EU', label: 'EUR €'},
+];
+
+const getCurrencyLabel = ( value ) =>
+	availableCurrencies.find( item => item.value === value ).label;
 
 registerBlockType( 'jetpack/simple-payments-button', {
 	title: 'Payment Button',
@@ -22,6 +31,10 @@ registerBlockType( 'jetpack/simple-payments-button', {
 		price: {
 			type: 'number',
 			source: text( 'span' ),
+		},
+		currency: {
+			type: 'string',
+			default: 'US',
 		},
 		showIcons: {
 			type: 'boolean',
@@ -36,11 +49,14 @@ registerBlockType( 'jetpack/simple-payments-button', {
 	edit( { attributes, className, setAttributes, focus } ) {
 		const {
 			price,
+			currency,
 			showIcons,
 			multipleItems
 		} = attributes;
 
-		const onChangePrice = ( { target: { value } } ) => setAttributes( { price: value } );
+		const updatePrice = ( { target: { value } } ) => setAttributes( { price: value } );
+
+		const updateCurrency = ( value ) => setAttributes( { currency: value } );
 
 		const toggleShowIcons = () => setAttributes( { showIcons: ! showIcons } );
 
@@ -55,6 +71,11 @@ registerBlockType( 'jetpack/simple-payments-button', {
 						</p>
 					</BlockDescription>
 					<PanelBody title={ __( 'Payment button settings' ) }>
+						<SelectControl
+							label={ __( 'Currency' ) }
+							options={ availableCurrencies }
+							onChange={ updateCurrency }
+						/>
 						<ToggleControl
 							label={ __( 'Show credit card icons' )  }
 							checked={ showIcons }
@@ -70,10 +91,10 @@ registerBlockType( 'jetpack/simple-payments-button', {
 			),
 			<div className={ className }>
 				<div className="price-box">
-					USD $
+					{ getCurrencyLabel( currency ) }
 					<input
 						type="number"
-						onChange={ onChangePrice }
+						onChange={ updatePrice }
 						value={ price }
 					/>
 				</div>
@@ -108,6 +129,7 @@ registerBlockType( 'jetpack/simple-payments-button', {
 	save( { attributes, className } ) {
 		const {
 			price,
+			currency,
 			showIcons,
 			multipleItems
 		} = attributes;
@@ -115,7 +137,8 @@ registerBlockType( 'jetpack/simple-payments-button', {
 		return (
 			<div className={ className }>
 				<div className="price-box">
-					USD $ <span>{ price }</span>
+					{ getCurrencyLabel( currency ) }
+					<span>{ price }</span>
 				</div>
 
 				{ multipleItems &&
