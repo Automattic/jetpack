@@ -27,6 +27,9 @@ class Jetpack_Lazy_Images {
 		/**
 		 * Whether the lazy-images module should load.
 		 *
+		 * This filter is not prefixed with jetpack_ to provide a smoother migration
+		 * process from the WordPress Lazy Load plugin.
+		 *
 		 * @module lazy-images
 		 *
 		 * @since 5.6.0
@@ -113,6 +116,9 @@ class Jetpack_Lazy_Images {
 	private static function get_placeholder_image() {
 		/**
 		 * Allows plugins and themes to modify the placeholder image.
+		 *
+		 * This filter is not prefixed with jetpack_ to provide a smoother migration
+		 * process from the WordPress Lazy Load plugin.
 		 *
 		 * @module lazy-images
 		 *
