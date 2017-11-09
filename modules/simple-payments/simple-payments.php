@@ -152,6 +152,7 @@ class Jetpack_Simple_Payments {
 		$css_prefix = self::$css_classname_prefix;
 		$display_price = $currency_symbols[ $data['currency'] ] . $data['price'];
 
+		$item = '';
 		if ( $data['multiple'] ) {
 			$items = "
 				<div class='${css_prefix}-items'>
