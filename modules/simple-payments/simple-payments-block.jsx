@@ -35,7 +35,7 @@ registerBlockType( 'jetpack/simple-payments-button', {
 	attributes: {
 		price: {
 			type: 'number',
-			source: text( 'span' ),
+			default: 1,
 		},
 		currency: {
 			type: 'string',

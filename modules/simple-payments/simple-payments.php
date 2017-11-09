@@ -102,11 +102,18 @@ class Jetpack_Simple_Payments {
 		$data = array();
 		// mock product ID for now since we don't have CPT support in Gutenberg yet
 		$data['id'] = 111;
-		$data['multiple'] = $attributes[ 'multiple' ];
+		$data['multiple'] = $attributes['multiple'];
 		$data['dom_id'] = uniqid( self::$css_classname_prefix . '-' . $data['id'] . '_', true );
 		$data['class'] = self::$css_classname_prefix . '-' . $data['id'];
 		$data['price'] = $attributes['price'];
 		$data['blog_id'] = $this->get_blog_id();
+		$data['currency'] = $attributes['currency'];
+
+		$currency_symbols = array(
+			'US' => '$',
+			'EU' => '€',
+			'CA' => '$',
+		);
 
 		if ( ! wp_script_is( 'paypal-express-checkout', 'enqueued' ) ) {
 			wp_enqueue_script( 'paypal-express-checkout' );
@@ -124,6 +131,7 @@ class Jetpack_Simple_Payments {
 		) );
 
 		$css_prefix = self::$css_classname_prefix;
+		$display_price = $currency_symbols[ $data['currency'] ] . $data['price'];
 
 		if ( $data['multiple'] ) {
 			$items = "
@@ -137,7 +145,7 @@ class Jetpack_Simple_Payments {
 			<div class='{$data['class']} ${css_prefix}-wrapper'>
 				<div class='${css_prefix}-product'>
 					<div class='${css_prefix}-details'>
-						<div class='${css_prefix}-price'><p>{$data['price']}</p></div>
+						<div class='${css_prefix}-price'><p>{$display_price}</p></div>
 						<div class='${css_prefix}-purchase-message' id='{$data['dom_id']}-message-container'></div>
 						<div class='${css_prefix}-purchase-box'>
 							{$items}
