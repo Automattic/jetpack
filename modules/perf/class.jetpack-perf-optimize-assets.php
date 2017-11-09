@@ -65,7 +65,10 @@ class Jetpack_Perf_Optimize_Assets {
 		$this->preload_scripts           = true;
 		$this->minify_html               = false;
 		$this->concat_local_styles       = true;
-		$this->cdn_server                = 'https://wordpress.com';
+		// $this->cdn_server                = 'http://localhost:8090';
+		// $this->cdn_server                = 'https://presidential.bid';
+		$this->cdn_server                = '//165.227.184.165';
+
 
 		if ( $this->minify_html ) {
 			require_once dirname( __FILE__ ) . '/class.jetpack-perf-optimize-html.php';
@@ -188,11 +191,12 @@ class Jetpack_Perf_Optimize_Assets {
 	private function render_concatenated_styles( $styles ) {
 		// special URL to concatenation service
 		foreach( $styles as $media => $urls ) {
-			$cdn_url = $this->cdn_server . '/css?files=' . implode( ',', array_map( 'urlencode', $urls ) );
+			$cdn_url = $this->cdn_server . '/css?b=' . urlencode( site_url() ) . '&' . http_build_query( array( 'f' => $urls ) );
+			// if we are injecting critical CSS, load the full CSS async
 			if ( $this->inject_critical_css ) {
-				echo '<!-- jetpack concat --><link rel="preload" onload="this.rel=\'stylesheet\'" as="style" type="text/css" media="' . $media . '" href="' . $cdn_url . '"/>';
+				echo '<!-- jetpack concat --><link rel="preload" onload="this.rel=\'stylesheet\'" as="style" type="text/css" media="' . $media . '" href="' . esc_attr( $cdn_url ) . '"/>';
 			} else {
-				echo '<!-- jetpack concat --><link rel="stylesheet" type="text/css" media="' . $media . '" href="' . $cdn_url . '"/>';
+				echo '<!-- jetpack concat --><link rel="stylesheet" type="text/css" media="' . $media . '" href="' . esc_attr( $cdn_url ) . '"/>';
 			}
 		}
 	}
