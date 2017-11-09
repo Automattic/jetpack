@@ -30,6 +30,9 @@ registerBlockType( 'jetpack/simple-payments-button', {
 	category: 'widgets',
 
 	attributes: {
+		id: {
+			type: 'number',
+		},
 		price: {
 			type: 'number',
 			default: 1,
@@ -69,7 +72,13 @@ registerBlockType( 'jetpack/simple-payments-button', {
 
 			this.setState( { productModel: model } );
 
-			model.save();
+			const { setAttributes } = this.props;
+
+			model.save().then( productCPT => {
+				if ( productCPT && productCPT.id ) {
+					setAttributes( { id: productCPT.id } );
+				}
+			} );
 		},
 		componentWillReceiveProps( nextProps ) {
 			const { price, currency, multiple } = this.props.attributes;
@@ -166,14 +175,6 @@ registerBlockType( 'jetpack/simple-payments-button', {
 					</div>
 				</div>,
 			];
-		},
-
-		componentWillUnmount() {
-			const { productModel } = this.state;
-
-			if ( productModel.state() === 'pending' ) {
-				productModel.abort();
-			}
 		},
 	} ),
 

@@ -108,7 +108,7 @@ class Jetpack_Simple_Payments {
 	public function render_gutenberg_block( $attributes ) {
 		$data = array();
 		// mock product ID for now since we don't have CPT support in Gutenberg yet
-		$data['id'] = 111;
+		$data['id'] = $attributes['id'];
 		$data['multiple'] = $attributes['multiple'];
 		$data['dom_id'] = uniqid( self::$css_classname_prefix . '-' . $data['id'] . '_', true );
 		$data['class'] = self::$css_classname_prefix . '-' . $data['id'];
