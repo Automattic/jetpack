@@ -542,8 +542,14 @@ class Jetpack_Protect_Module {
 	 * Kill a login attempt
 	 */
 	function kill_login() {
-		if( isset( $_GET['action'], $_GET['_wpnonce'] ) && 'logout' === $_GET['action'] ) {
-			return wp_verify_nonce(  $_GET['_wpnonce'], 'log-out' );
+		// Allow users to logout
+		if ( isset( $_GET['action'], $_GET['_wpnonce'] ) &&
+			'logout' === $_GET['action'] &&
+			wp_verify_nonce(  $_GET['_wpnonce'], 'log-out' ) &&
+			wp_get_current_user()
+
+		) {
+			return;
 		}
 
         $ip = jetpack_protect_get_ip();
