@@ -22,6 +22,18 @@ const availableCurrencies = [
 
 const getCurrencySymbol = value => availableCurrencies.find( item => item.value === value ).symbol;
 
+const createNewProductCPT = ( { price, currency, multiple } ) => {
+	return new wp.api.models.Jp_pay_product( {
+		title: 'Untitled payment product',
+		meta: {
+			spay_price: price,
+			spay_currency: currency,
+			spay_multiple: multiple,
+		},
+		status: 'publish',
+	} );
+};
+
 registerBlockType( 'jetpack/simple-payments-button', {
 	title: 'Payment Button',
 
@@ -58,27 +70,24 @@ registerBlockType( 'jetpack/simple-payments-button', {
 			};
 		},
 		componentDidMount() {
-			const { price, currency, multiple } = this.props.attributes;
+			const { attributes, setAttributes } = this.props;
+			const { price, currency, multiple, id } = attributes;
 
-			const model = new wp.api.models.Jp_pay_product( {
-				title: 'Untitled payment product',
-				meta: {
-					spay_price: price,
-					spay_currency: currency,
-					spay_multiple: multiple,
-				},
-				status: 'publish',
-			} );
+			if ( id ) {
+				let model = new wp.api.models.Jp_pay_product( { id } );
 
-			this.setState( { productModel: model } );
+				model.fetch().then( _ => this.setState( { productModel: model } ) );
+			} else {
+				let model = createNewProductCPT( { price, currency, multiple } );
 
-			const { setAttributes } = this.props;
+				this.setState( { productModel: model } );
 
-			model.save().then( productCPT => {
-				if ( productCPT && productCPT.id ) {
-					setAttributes( { id: productCPT.id } );
-				}
-			} );
+				model.save().then( productCPT => {
+					if ( productCPT && productCPT.id ) {
+						setAttributes( { id: productCPT.id } );
+					}
+				} );
+			}
 		},
 		componentWillReceiveProps( nextProps ) {
 			const { price, currency, multiple } = this.props.attributes;
@@ -175,6 +184,14 @@ registerBlockType( 'jetpack/simple-payments-button', {
 					</div>
 				</div>,
 			];
+		},
+
+		componentWillUnmount() {
+			const { productModel } = this.state;
+
+			if ( productModel.state && productModel.state() === 'pending' ) {
+				productModel.abort();
+			}
 		},
 	} ),
 
