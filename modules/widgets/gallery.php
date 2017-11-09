@@ -220,7 +220,7 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 		}
 
 		$widget_tiled_gallery = new Jetpack_Tiled_Gallery();
-		$widget_tiled_gallery->default_scripts_and_styles();
+		$widget_tiled_gallery::default_scripts_and_styles();
 
 		$layout = new Jetpack_Tiled_Gallery_Layout_Circle( $instance['attachments'], $instance['link'], false, 3 );
 		return $layout->HTML();
