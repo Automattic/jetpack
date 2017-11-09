@@ -1,18 +1,15 @@
+/** @format */
 /**
  * WordPress dependencies
  */
 const { PanelBody } = wp.components;
 const { __ } = wp.i18n;
+const { createClass } = wp.element;
 
 /**
  * Internal dependencies
  */
-const {
-	registerBlockType,
-	source,
-	InspectorControls,
-	BlockDescription
-} = wp.blocks;
+const { registerBlockType, source, InspectorControls, BlockDescription } = wp.blocks;
 const { ToggleControl, SelectControl } = InspectorControls;
 const { text } = source;
 
@@ -22,8 +19,7 @@ const availableCurrencies = [
 	{ value: 'EU', label: 'EUR', symbol: '€' },
 ];
 
-const getCurrencySymbol = ( value ) =>
-	availableCurrencies.find( item => item.value === value ).symbol;
+const getCurrencySymbol = value => availableCurrencies.find( item => item.value === value ).symbol;
 
 registerBlockType( 'jetpack/simple-payments-button', {
 	title: 'Payment Button',
@@ -48,100 +44,91 @@ registerBlockType( 'jetpack/simple-payments-button', {
 		multiple: {
 			type: 'boolean',
 			default: false,
-		}
+		},
 	},
 
-	edit( { attributes, className, setAttributes, focus } ) {
-		const {
-			price,
-			currency,
-			showIcons,
-			multiple
-		} = attributes;
+	edit: createClass( {
+		render() {
+			const { className, attributes, setAttributes } = this.props;
+			const { price, currency, showIcons, multiple } = attributes;
 
-		const updatePrice = ( { target: { value } } ) => setAttributes( { price: value } );
+			const updatePrice = ( { target: { value } } ) => setAttributes( { price: value } );
 
-		const updateCurrency = ( value ) => setAttributes( { currency: value } );
+			const updateCurrency = value => setAttributes( { currency: value } );
 
-		const toggleShowIcons = () => setAttributes( { showIcons: ! showIcons } );
+			const toggleShowIcons = () => setAttributes( { showIcons: ! showIcons } );
 
-		const toggleMultiple = () => setAttributes( { multiple: ! multiple } );
+			const toggleMultiple = () => setAttributes( { multiple: ! multiple } );
 
-		return [
-			focus && (
-				<InspectorControls key="inspector">
-					<BlockDescription>
-						<p>
-							{ __( 'A payment button. Sell tickets, collect donations, accept tips, and more.' ) }
-						</p>
-					</BlockDescription>
-					<PanelBody title={ __( 'Payment button settings' ) }>
-						<SelectControl
-							label={ __( 'Currency' ) }
-							options={ availableCurrencies }
-							onChange={ updateCurrency }
-						/>
-						<ToggleControl
-							label={ __( 'Show credit card icons' )  }
-							checked={ showIcons }
-							onChange={ toggleShowIcons }
-						/>
-						<ToggleControl
-							label={ __( 'Allow multiple items' )  }
-							checked={ multiple }
-							onChange={ toggleMultiple }
-						/>
-					</PanelBody>
-				</InspectorControls>
-			),
-			<div className={ className }>
-				<div class="jetpack-simple-payments jetpack-simple-payments-wrapper">
-					<div class="jetpack-simple-payments-product">
-						<div class="jetpack-simple-payments-details">
-							<div class="jetpack-simple-payments-price">
-								<p>
-									{ getCurrencySymbol( currency ) }
-									<input
-										type="number"
-										onChange={ updatePrice }
-										value={ price }
-									/>
-								</p>
-							</div>
-							<div class="jetpack-simple-payments-purchase-box">
-								{ multiple &&
-									<div class="jetpack-simple-payments-items">
-										<input
-											class="jetpack-simple-payments-items-number"
-											type="number"
-											placeholder="1"
-											disabled={ true }
-										/>
+			return [
+				focus &&
+					<InspectorControls key="inspector">
+						<BlockDescription>
+							<p>
+								{ __(
+									'A payment button. Sell tickets, collect donations, accept tips, and more.'
+								) }
+							</p>
+						</BlockDescription>
+						<PanelBody title={ __( 'Payment button settings' ) }>
+							<SelectControl
+								label={ __( 'Currency' ) }
+								options={ availableCurrencies }
+								onChange={ updateCurrency }
+							/>
+							<ToggleControl
+								label={ __( 'Show credit card icons' ) }
+								checked={ showIcons }
+								onChange={ toggleShowIcons }
+							/>
+							<ToggleControl
+								label={ __( 'Allow multiple items' ) }
+								checked={ multiple }
+								onChange={ toggleMultiple }
+							/>
+						</PanelBody>
+					</InspectorControls>,
+				<div className={ className }>
+					<div class="jetpack-simple-payments jetpack-simple-payments-wrapper">
+						<div class="jetpack-simple-payments-product">
+							<div class="jetpack-simple-payments-details">
+								<div class="jetpack-simple-payments-price">
+									<p>
+										{ getCurrencySymbol( currency ) }
+										<input type="number" onChange={ updatePrice } value={ price } />
+									</p>
+								</div>
+								<div class="jetpack-simple-payments-purchase-box">
+									{ multiple &&
+										<div class="jetpack-simple-payments-items">
+											<input
+												class="jetpack-simple-payments-items-number"
+												type="number"
+												placeholder="1"
+												disabled={ true }
+											/>
+										</div> }
+									<div class="jetpack-simple-payments-button">
+										<div className="paypal-button">Pay with</div>
+
+										{ showIcons &&
+											<div className="payment-options">
+												<div className="visa" />
+												<div className="mastercard" />
+												<div className="amex" />
+												<div className="discover" />
+											</div> }
 									</div>
-								}
-								<div class="jetpack-simple-payments-button">
-									<div className="paypal-button">
-										Pay with
-									</div>
-
-									{ showIcons &&
-									<div className="payment-options">
-										<div className="visa"></div>
-										<div className="mastercard"></div>
-										<div className="amex"></div>
-										<div className="discover"></div>
-									</div>
-									}
 								</div>
 							</div>
 						</div>
 					</div>
-				</div>
-			</div>
-		];
-	},
+				</div>,
+			];
+		},
+	} ),
 
 	save() {
 		return null;
-	}
+	},
 } );
