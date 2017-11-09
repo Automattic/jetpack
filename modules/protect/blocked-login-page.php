@@ -266,6 +266,10 @@ class Jetpack_Protect_Blocked_Login_Page {
 	    // hack to get around default wp_die_handler. https://core.trac.wordpress.org/browser/tags/4.8.1/src/wp-includes/functions.php#L2698
 	    $content = $image . '</p> ' . $content . '<p>';
 
+    	if ( isset( $_GET['interim-login'] ) ) {
+    		$content = "<style>html{ background-color: #fff; } #error-page { margin:0 auto; padding: 1em; box-shadow: none; } </style>" . $content;
+		}
+
     	wp_die( $content, $this->page_title, array( 'back_link' => $back_link ) );
     }
 
