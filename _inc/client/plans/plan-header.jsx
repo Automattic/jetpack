@@ -10,7 +10,7 @@ import { getPlanClass } from 'lib/plans/constants';
 /**
  * Internal dependencies
  */
-import { imagePath } from 'constants';
+import { imagePath } from 'constants/urls';
 
 const PlanHeader = React.createClass( {
 	trackLearnMore() {

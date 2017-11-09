@@ -17,7 +17,7 @@ import includes from 'lodash/includes';
 /**
  * Internal dependencies
  */
-import { imagePath } from 'constants';
+import { imagePath } from 'constants/urls';
 import { isDevMode, isCurrentUserLinked, getConnectUrl } from 'state/connection';
 import {
 	getInitialStateStatsData

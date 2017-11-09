@@ -11,7 +11,7 @@ import analytics from 'lib/analytics';
 /**
  * Internal dependencies
  */
-import { imagePath } from 'constants';
+import { imagePath } from 'constants/urls';
 
 const ThemesPromoCard = React.createClass( {
 	displayName: 'ThemesPromoCard',

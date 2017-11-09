@@ -10,7 +10,7 @@ import Button from 'components/button';
  * Internal dependencies
  */
 import JetpackDialogue from 'components/jetpack-dialogue';
-import { imagePath } from 'constants';
+import { imagePath } from 'constants/urls';
 
 class UpgradeNoticeContent extends Component {
 	renderInnerContent() {

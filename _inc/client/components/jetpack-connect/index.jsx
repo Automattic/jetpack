@@ -11,7 +11,7 @@ import { translate as __ } from 'i18n-calypso';
  */
 import ConnectButton from 'components/connect-button';
 import { getConnectUrl as getConnectUrl } from 'state/connection';
-import { imagePath } from 'constants';
+import { imagePath } from 'constants/urls';
 
 const JetpackConnect = React.createClass( {
 	displayName: 'JetpackConnect',
