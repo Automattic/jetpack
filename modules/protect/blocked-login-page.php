@@ -196,6 +196,10 @@ class Jetpack_Protect_Blocked_Login_Page {
 			return;
 		}
 
+		if ( isset( $_GET['loggedout'] ) && 'true' === $_GET['loggedout'] ) {
+		    $this->protect_die( __( 'You successfully logged out.', 'jetpack' ) );
+        }
+
 		$this->render_recovery_form();
     }
 
