@@ -25,7 +25,6 @@ class Jetpack_Simple_Payments {
 		if ( ! self::$instance ) {
 			self::$instance = new self();
 			self::$instance->register_init_hook();
-			self::$instance->register_gutenberg_block();
 		}
 		return self::$instance;
 	}
@@ -53,6 +52,7 @@ class Jetpack_Simple_Payments {
 		add_filter( 'jetpack_sync_post_meta_whitelist', array( $this, 'allow_sync_post_meta' ) );
 		$this->register_scripts();
 		$this->register_shortcode();
+		$this->register_gutenberg_block();
 		$this->setup_cpts();
 		$this->setup_meta_fields_for_rest();
 
@@ -63,9 +63,11 @@ class Jetpack_Simple_Payments {
 		add_action( 'enqueue_block_editor_assets', array( $this, 'enqueue_block_editor_assets' ) );
 		add_action( 'enqueue_block_assets', array( $this, 'enqueue_block_assets' ) );
 
-		register_block_type( 'jetpack/simple-payments-button', array(
-			'render_callback' => array( $this, 'render_gutenberg_block' ),
-		) );
+		if ( ! is_admin() ) {
+			register_block_type( 'jetpack/simple-payments-button', array(
+				'render_callback' => array( $this, 'render_gutenberg_block' ),
+			) );
+		}
 	}
 
 	public function enqueue_block_editor_assets() {
