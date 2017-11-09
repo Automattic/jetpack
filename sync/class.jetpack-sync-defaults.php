@@ -195,6 +195,39 @@ class Jetpack_Sync_Defaults {
 		'roles'                            =>  array( 'Jetpack_Sync_Functions', 'roles' ),
 	);
 
+
+	static $default_post_type_attributes = array(
+		'name'				  => '',
+		'label'               => '',
+		'labels'              => array(),
+		'description'         => '',
+		'public'              => false,
+		'hierarchical'        => false,
+		'exclude_from_search' => true,
+		'publicly_queryable'  => null,
+		'show_ui'             => false,
+		'show_in_menu'        => null,
+		'show_in_nav_menus'   => null,
+		'show_in_admin_bar'   => false,
+		'menu_position'       => null,
+		'menu_icon'           => null,
+		'supports'			  => array(),
+		'capability_type'     => 'post',
+		'capabilities'        => array(),
+		'cap'				  => array(),
+		'map_meta_cap'        => true,
+		'taxonomies'          => array(),
+		'has_archive'         => false,
+		'rewrite'             => true,
+		'query_var'           => true,
+		'can_export'          => true,
+		'delete_with_user'    => null,
+		'show_in_rest'        => false,
+		'rest_base'           => false,
+		'_builtin'            => false,
+		'_edit_link'          => 'post.php?post=%d',
+	);
+
 	public static function get_callable_whitelist() {
 		/**
 		 * Filter the list of callables that are manageable via the JSON API.
