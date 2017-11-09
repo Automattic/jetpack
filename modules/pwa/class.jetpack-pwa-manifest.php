@@ -51,6 +51,8 @@ class Jetpack_PWA_Manifest {
 	function render_manifest_json() {
 		// Do not load manifest in multiple locations
 		if ( is_front_page() && isset( $_GET[ self::PWA_MANIFEST_QUERY_VAR ] ) && $_GET[ self::PWA_MANIFEST_QUERY_VAR ] ) {
+			@ini_set( 'display_errors', false ); // Display errors can cause the XML to be not well formed.
+
 			$theme_color = Jetpack_PWA_Helpers::get_theme_color();
 
 			$manifest = array(
