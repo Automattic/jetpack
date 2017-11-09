@@ -89,13 +89,24 @@ class Jetpack_Simple_Payments {
 		}
 	}
 
-	public function render_gutenberg_block( $attributes, $content ) {
-		$blog_id = $this->get_blog_id();
-		$dom_id = 'paypal-express-checkout';
-		$multiple = $attributes[ 'multipleItems' ];
-		// mock id for now
-		// $id = $attributes['id'];
-		$id = 357;
+	/**
+	 * This function is mostly similar on existing output_shortcode(),
+	 * with some elements like product title and description removed,
+	 * since we don't want to include these as part of the block.
+	 *
+	 * @param array $attributes Array of Gutenberg block attributes
+	 *
+	 * @return string HTML to be rendered on front end
+	 */
+	public function render_gutenberg_block( $attributes ) {
+		$data = array();
+		// mock product ID for now since we don't have CPT support in Gutenberg yet
+		$data['id'] = 111;
+		$data['multiple'] = $attributes[ 'multiple' ];
+		$data['dom_id'] = uniqid( self::$css_classname_prefix . '-' . $data['id'] . '_', true );
+		$data['class'] = self::$css_classname_prefix . '-' . $data['id'];
+		$data['price'] = $attributes['price'];
+		$data['blog_id'] = $this->get_blog_id();
 
 		if ( ! wp_script_is( 'paypal-express-checkout', 'enqueued' ) ) {
 			wp_enqueue_script( 'paypal-express-checkout' );
@@ -106,13 +117,36 @@ class Jetpack_Simple_Payments {
 
 		wp_add_inline_script( 'paypal-express-checkout', sprintf(
 			"try{PaypalExpressCheckout.renderButton( '%d', '%d', '%s', '%d' );}catch(e){}",
-			esc_js( $blog_id ),
-			esc_js( $id ),
-			esc_js( $dom_id ),
-			esc_js( $multiple )
+			esc_js( $data['blog_id'] ),
+			esc_js( $data['id'] ),
+			esc_js( $data['dom_id'] ),
+			esc_js( $data['multiple'] )
 		) );
 
-		return $content;
+		$css_prefix = self::$css_classname_prefix;
+
+		if ( $data['multiple'] ) {
+			$items = "
+				<div class='${css_prefix}-items'>
+					<input class='${css_prefix}-items-number' type='number' value='1' min='1' id='{$data['dom_id']}_number' />
+				</div>
+				";
+		}
+
+		return "
+			<div class='{$data['class']} ${css_prefix}-wrapper'>
+				<div class='${css_prefix}-product'>
+					<div class='${css_prefix}-details'>
+						<div class='${css_prefix}-price'><p>{$data['price']}</p></div>
+						<div class='${css_prefix}-purchase-message' id='{$data['dom_id']}-message-container'></div>
+						<div class='${css_prefix}-purchase-box'>
+							{$items}
+							<div class='${css_prefix}-button' id='{$data['dom_id']}_button'></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		";
 	}
 
 	function remove_auto_paragraph_from_product_description( $content ) {

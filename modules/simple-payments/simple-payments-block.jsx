@@ -45,7 +45,7 @@ registerBlockType( 'jetpack/simple-payments-button', {
 			type: 'boolean',
 			default: true,
 		},
-		multipleItems: {
+		multiple: {
 			type: 'boolean',
 			default: false,
 		}
@@ -56,7 +56,7 @@ registerBlockType( 'jetpack/simple-payments-button', {
 			price,
 			currency,
 			showIcons,
-			multipleItems
+			multiple
 		} = attributes;
 
 		const updatePrice = ( { target: { value } } ) => setAttributes( { price: value } );
@@ -65,7 +65,7 @@ registerBlockType( 'jetpack/simple-payments-button', {
 
 		const toggleShowIcons = () => setAttributes( { showIcons: ! showIcons } );
 
-		const toggleMultipleItems = () => setAttributes( { multipleItems: ! multipleItems } );
+		const toggleMultiple = () => setAttributes( { multiple: ! multiple } );
 
 		return [
 			focus && (
@@ -88,8 +88,8 @@ registerBlockType( 'jetpack/simple-payments-button', {
 						/>
 						<ToggleControl
 							label={ __( 'Allow multiple items' )  }
-							checked={ multipleItems }
-							onChange={ toggleMultipleItems }
+							checked={ multiple }
+							onChange={ toggleMultiple }
 						/>
 					</PanelBody>
 				</InspectorControls>
@@ -104,7 +104,7 @@ registerBlockType( 'jetpack/simple-payments-button', {
 					/>
 				</div>
 
-				{ multipleItems &&
+				{ multiple &&
 					<div>
 						<label> { __( 'Quantity' ) } </label>
 						<input
@@ -132,46 +132,7 @@ registerBlockType( 'jetpack/simple-payments-button', {
 		];
 	},
 
-	save( { attributes } ) {
-		const {
-			price,
-			currency,
-			multipleItems
-		} = attributes;
-
-		// PayPal button will be rendered on the server with
-		// paypal-express-checkout inline script
-		return (
-			<div className="jetpack-simple-payments-wrapper">
-				<div className="jetpack-simple-payments-product">
-					<div className="jetpack-simple-payments-details">
-						<div className="jetpack-simple-payments-price">
-							<p>
-								{ getCurrencySymbol( currency ) + price }
-							</p>
-						</div>
-
-						<div className="jetpack-simple-payments-purchase-box">
-							{ multipleItems &&
-								<div class="jetpack-simple-payments-items">
-									<label> { __( 'Quantity' ) } </label>
-									<input
-										type="number"
-										placeholder="1"
-										min="1"
-										className="jetpack-simple-payments-items-number"
-									/>
-								</div>
-							}
-
-							<div
-								id="paypal-express-checkout_button"
-								className="jetpack-simple-payments-button"
-							></div>
-						</div>
-					</div>
-				</div>
-			</div>
-		);
-	},
+	save() {
+		return null;
+	}
 } );
