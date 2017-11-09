@@ -86,6 +86,13 @@ class Jetpack_Simple_Payments {
 				array(),
 				JETPACK__VERSION
 			);
+
+			// Reuse some front end styles in editor
+			wp_enqueue_style(
+				'simple-payments',
+				plugins_url( 'simple-payments.css', __FILE__ ),
+				array( 'dashicons' )
+			);
 		}
 	}
 

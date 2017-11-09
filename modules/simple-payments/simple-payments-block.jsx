@@ -95,39 +95,48 @@ registerBlockType( 'jetpack/simple-payments-button', {
 				</InspectorControls>
 			),
 			<div className={ className }>
-				<div className="price-box">
-					{ getCurrencySymbol( currency ) }
-					<input
-						type="number"
-						onChange={ updatePrice }
-						value={ price }
-					/>
-				</div>
+				<div class="jetpack-simple-payments jetpack-simple-payments-wrapper">
+					<div class="jetpack-simple-payments-product">
+						<div class="jetpack-simple-payments-details">
+							<div class="jetpack-simple-payments-price">
+								<p>
+									{ getCurrencySymbol( currency ) }
+									<input
+										type="number"
+										onChange={ updatePrice }
+										value={ price }
+									/>
+								</p>
+							</div>
+							<div class="jetpack-simple-payments-purchase-box">
+								{ multiple &&
+									<div class="jetpack-simple-payments-items">
+										<input
+											class="jetpack-simple-payments-items-number"
+											type="number"
+											placeholder="1"
+											disabled={ true }
+										/>
+									</div>
+								}
+								<div class="jetpack-simple-payments-button">
+									<div className="paypal-button">
+										Pay with
+									</div>
 
-				{ multiple &&
-					<div>
-						<label> { __( 'Quantity' ) } </label>
-						<input
-							type="number"
-							placeholder="1"
-							className="quantity"
-							disabled={ true }
-						/>
+									{ showIcons &&
+									<div className="payment-options">
+										<div className="visa"></div>
+										<div className="mastercard"></div>
+										<div className="amex"></div>
+										<div className="discover"></div>
+									</div>
+									}
+								</div>
+							</div>
+						</div>
 					</div>
-				}
-
-				<div className="paypal-button">
-					Pay with
 				</div>
-
-				{ showIcons &&
-					<div className="payment-options">
-						<div className="visa"></div>
-						<div className="mastercard"></div>
-						<div className="amex"></div>
-						<div className="discover"></div>
-					</div>
-				}
 			</div>
 		];
 	},
