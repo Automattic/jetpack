@@ -99,7 +99,7 @@ registerBlockType( 'jetpack/simple-payments-button', {
 			}
 		},
 		render() {
-			const { className, attributes, setAttributes } = this.props;
+			const { className, attributes, setAttributes, focus } = this.props;
 			const { price, currency, showIcons, multiple } = attributes;
 
 			const updatePrice = ( { target: { value } } ) => setAttributes( { price: value } );
