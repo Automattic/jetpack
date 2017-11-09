@@ -66,8 +66,7 @@ class Jetpack_Perf_Optimize_Assets {
 		$this->minify_html               = false;
 		$this->concat_local_styles       = true;
 		// $this->cdn_server                = 'http://localhost:8090';
-		// $this->cdn_server                = 'https://presidential.bid';
-		$this->cdn_server                = '//165.227.184.165';
+		$this->cdn_server                = '//cdn.wpvm.io';
 
 
 		if ( $this->minify_html ) {
