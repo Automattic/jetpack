@@ -72,9 +72,10 @@ const Media = moduleSettingsForm(
 		render() {
 			const foundPhoton = this.props.isModuleFound( 'photon' ),
 				foundCarousel = this.props.isModuleFound( 'carousel' ),
-				foundVideoPress = this.props.isModuleFound( 'videopress' );
+				foundVideoPress = this.props.isModuleFound( 'videopress' ),
+				foundAssetCDN = this.props.isModuleFound( 'asset-cdn' );
 
-			if ( ! foundCarousel && ! foundPhoton && ! foundVideoPress ) {
+			if ( ! foundCarousel && ! foundPhoton && ! foundVideoPress && ! foundAssetCDN ) {
 				return null;
 			}
 
@@ -82,6 +83,7 @@ const Media = moduleSettingsForm(
 				carousel = this.props.module( 'carousel' ),
 				isCarouselActive = this.props.getOptionValue( 'carousel' ),
 				videoPress = this.props.module( 'videopress' ),
+				assetCDN = this.props.module( 'asset-cdn' ),
 				planClass = getPlanClass( this.props.sitePlan.product_slug );
 
 			const photonSettings = (
@@ -173,6 +175,34 @@ const Media = moduleSettingsForm(
 				</SettingsGroup>
 			);
 
+			const assetCDNSettings = (
+				<SettingsGroup
+					hasChild
+					disableInDevMode
+					module={ assetCDN }>
+					<ModuleToggle
+						slug="asset-cdn"
+						disabled={ this.props.isUnavailableInDevMode( 'asset-cdn' ) }
+						activated={ this.props.getOptionValue( 'asset-cdn' ) }
+						toggling={ this.props.isSavingAnyOption( 'asset-cdn' ) }
+						toggleModule={ this.toggleModule }
+					>
+						<span className="jp-form-toggle-explanation">
+							{
+								assetCDN.description
+							}
+						</span>
+					</ModuleToggle>
+					<FormFieldset>
+						<span className="jp-form-setting-explanation">
+							{
+								__( 'TODO' )
+							}
+						</span>
+					</FormFieldset>
+				</SettingsGroup>
+			);
+
 			return (
 				<SettingsCard
 					{ ...this.props }
@@ -182,6 +212,7 @@ const Media = moduleSettingsForm(
 					saveDisabled={ this.props.isSavingAnyOption( 'carousel_background_color' ) }
 				>
 					{ foundPhoton && photonSettings }
+					{ foundAssetCDN && assetCDNSettings }
 					{ foundCarousel && carouselSettings }
 					{ foundVideoPress && videoPressSettings }
 				</SettingsCard>
