@@ -274,24 +274,40 @@ class Jetpack_Protect_Blocked_Login_Page {
     	$this->protect_die( sprintf( __( 'An email with recovery instructions was sent to %s.', 'jetpack' ), $this->email_address ) );
     }
 
+
     function get_html_blocked_login_message() {
-    	return sprintf(
-    		__( '<p>Your IP (%1$s) has been flagged for potential security violations.</p>', 'jetpack' ),
-		        str_replace( 'http://', '', esc_url( 'http://' . $this->ip_address )
-		    ) );
+		//
+		$icon = '<svg class="gridicon gridicons-spam" style="fill:#d94f4f" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M17 2H7L2 7v10l5 5h10l5-5V7l-5-5zm-4 15h-2v-2h2v2zm0-4h-2l-.5-6h3l-.5 6z"/></g></svg>';
+
+		ob_start(); ?>
+		<h3><?php printf( __( 'Jetpack Protect has locked your site\'s login page.', 'jetpack' ) ); ?></h3>
+    	<?php printf(
+    		__( '<p><span style="float:left; display:block; margin-right:10px;">%1$s</span>Your IP (%2$s) has been flagged for potential security violations. <a href="%3$s">Learn More</a></p>', 'jetpack' ),
+		        $icon,
+		        str_replace( 'http://', '', esc_url( 'http://' . $this->ip_address ) ),
+				'https://jetpack.com/support/protect'
+		    );
+
+		$contents = ob_get_contents();
+		ob_end_clean();
+		return $contents;
     }
 
     function get_html_recovery_form() {
 	    ob_start(); ?>
-	    <p><?php _e( 'Email yourself a special link to regain access the login form.', 'jetpack' ); ?></p>
-	    <form method="post" action="?jetpack-protect-recovery=true">
-		    <?php echo wp_nonce_field( 'bypass-protect' ); ?>
-		    <label for="email">Email Address:</label>
-		    <input type="email" name="email" />
-		    <input type="submit" value="<?php echo esc_attr( __( 'Send', 'jetpack' ) ); ?>" />
-	    </form>
+		<div style="margin-top:100px;">
+			<p><?php _e( 'Email yourself a special link to regain access the login form.', 'jetpack' ); ?></p>
+			<form method="post" action="?jetpack-protect-recovery=true">
+				<?php echo wp_nonce_field( 'bypass-protect' ); ?>
+				<p><label for="email" style="font-size:12px;">Email Address<br /></label>
+					<input type="email" name="email" style="font-size:24px; padding:3px; margin: 2px 6px 16px 0; width:100%; border: 1px solid #ddd;
+    box-shadow: inset 0 1px 2px rgba(0,0,0,.07);"  />
+					<input type="submit" class="button button-primary button-large" value="<?php echo esc_attr( __( 'Send', 'jetpack' ) ); ?>" />
+				</p>
+			</form>
+		</div>
 
-	    <?php
+		<?php
 	    $contents = ob_get_contents();
 	    ob_end_clean();
 	    return $contents;
