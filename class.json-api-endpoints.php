@@ -1856,7 +1856,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 		// see if WordPress supports this file as an image. If neither, then it is not supported.
 		if ( ! $this->is_file_supported_for_sideloading( $tmp ) || 'image' === $type && ! file_is_displayable_image( $tmp ) ) {
 			@unlink( $tmp );
-			return false;
+			return new WP_Error( 'invalid_input', 'Invalid file type.', 403 );
 		}
 
 		// emulate a $_FILES entry
