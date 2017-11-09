@@ -1,4 +1,5 @@
 /** @format */
+
 /**
  * WordPress dependencies
  */
@@ -48,6 +49,46 @@ registerBlockType( 'jetpack/simple-payments-button', {
 	},
 
 	edit: createClass( {
+		getInitialState() {
+			return {
+				productModel: null,
+			};
+		},
+		componentDidMount() {
+			const { price, currency, multiple } = this.props.attributes;
+
+			const model = new wp.api.models.Jp_pay_product( {
+				title: 'Untitled payment product',
+				meta: {
+					spay_price: price,
+					spay_currency: currency,
+					spay_multiple: multiple,
+				},
+				status: 'publish',
+			} );
+
+			this.setState( { productModel: model } );
+
+			model.save();
+		},
+		componentWillReceiveProps( nextProps ) {
+			const { price, currency, multiple } = this.props.attributes;
+			const {
+				price: newPrice,
+				currency: newCurrency,
+				multiple: newMultiple,
+			} = nextProps.attributes;
+
+			const { productModel } = this.state;
+
+			if ( newPrice !== price || newCurrency !== currency || newMultiple !== multiple ) {
+				productModel.set( {
+					meta: { spay_price: newPrice, spay_currency: newCurrency, spay_multiple: newMultiple },
+				} );
+
+				productModel.save();
+			}
+		},
 		render() {
 			const { className, attributes, setAttributes } = this.props;
 			const { price, currency, showIcons, multiple } = attributes;
@@ -125,6 +166,14 @@ registerBlockType( 'jetpack/simple-payments-button', {
 					</div>
 				</div>,
 			];
+		},
+
+		componentWillUnmount() {
+			const { productModel } = this.state;
+
+			if ( productModel.state() === 'pending' ) {
+				productModel.abort();
+			}
 		},
 	} ),
 
