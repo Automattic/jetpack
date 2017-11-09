@@ -108,8 +108,18 @@ class Jetpack_Simple_Payments {
 	 * @return string HTML to be rendered on front end
 	 */
 	public function render_gutenberg_block( $attributes ) {
+		$attribute_defaults = array(
+			'price' => 1,
+			'currency' => 'US',
+			'showIcons' => true,
+			'multiple' => false,
+		);
+
+		// Gutenberg won't persist attribute default values so we
+		// have to provide defaults here again.
+		$attributes = array_merge( $attribute_defaults, $attributes );
+
 		$data = array();
-		// mock product ID for now since we don't have CPT support in Gutenberg yet
 		$data['id'] = $attributes['id'];
 		$data['multiple'] = $attributes['multiple'];
 		$data['dom_id'] = uniqid( self::$css_classname_prefix . '-' . $data['id'] . '_', true );
