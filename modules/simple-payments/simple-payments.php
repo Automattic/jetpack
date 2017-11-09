@@ -54,6 +54,7 @@ class Jetpack_Simple_Payments {
 		$this->register_scripts();
 		$this->register_shortcode();
 		$this->setup_cpts();
+		$this->setup_meta_fields_for_rest();
 
 		add_filter( 'the_content', array( $this, 'remove_auto_paragraph_from_product_description' ), 0 );
 	}
@@ -335,6 +336,25 @@ class Jetpack_Simple_Payments {
 			'show_in_rest'          => true,
 		);
 		register_post_type( self::$post_type_product, $product_args );
+	}
+
+	public function update_post_meta_for_api( $meta_arr, $object ) {
+		//get the id of the post object array
+		$post_id = $object->ID;
+
+		foreach( $meta_arr as $meta_key => $meta_val ) {
+			update_post_meta( $post_id, $meta_key, $meta_val );
+		}
+
+		return true;
+	}
+
+	function setup_meta_fields_for_rest() {
+		$args = array(
+		   'update_callback' => array( $this, 'update_post_meta_for_api'),
+		);
+
+		register_rest_field( self::$post_type_product, 'meta', $args );
 	}
 
 }
