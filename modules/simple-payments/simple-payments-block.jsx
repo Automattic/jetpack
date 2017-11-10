@@ -186,26 +186,26 @@ registerBlockType( 'jetpack/simple-payments-button', {
 						</PanelBody>
 					</InspectorControls>,
 				<div className={ className }>
-					<div class="jetpack-simple-payments jetpack-simple-payments-wrapper">
-						<div class="jetpack-simple-payments-product">
-							<div class="jetpack-simple-payments-details">
-								<div class="jetpack-simple-payments-price">
+					<div className="jetpack-simple-payments jetpack-simple-payments-wrapper">
+						<div className="jetpack-simple-payments-product">
+							<div className="jetpack-simple-payments-details">
+								<div className="jetpack-simple-payments-price">
 									<p>
 										{ getCurrencySymbol( currency ) }
 										<input type="number" onChange={ updatePrice } value={ price } />
 									</p>
 								</div>
-								<div class="jetpack-simple-payments-purchase-box">
+								<div className="jetpack-simple-payments-purchase-box">
 									{ multiple &&
-										<div class="jetpack-simple-payments-items">
+										<div className="jetpack-simple-payments-items">
 											<input
-												class="jetpack-simple-payments-items-number"
+												className="jetpack-simple-payments-items-number"
 												type="number"
 												placeholder="1"
 												disabled={ true }
 											/>
 										</div> }
-									<div class="jetpack-simple-payments-button">
+									<div className="jetpack-simple-payments-button">
 										<div className="paypal-button">Pay with</div>
 
 										{ showIcons &&
