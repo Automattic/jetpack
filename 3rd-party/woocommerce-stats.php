@@ -49,6 +49,23 @@ class WC_Stats {
 		return $item[ 'quantity' ];
 	}
 
+	public function get_funnel_step( $post_id, $post_type ) {
+		switch ( $post_id ) {
+			case get_option( 'woocommerce_cart_page_id' ):
+				return 'cart_view';
+			case get_option( 'woocommerce_checkout_page_id' ):
+				global $wp;
+				if ( strpos( $wp->request, 'order-received' ) !== false ) {
+					return 'checkout_complete';
+				}
+				return 'checkout_view';
+			case get_option( 'woocommerce_view_order_page_id' ):
+				return 'view_order';
+			default:
+				return $post_type === 'product' ? 'product_view' : 'page_view';
+		}
+	}
+
 	public function track() {
 		// Does tracks take care of this?
 		$user_id = get_current_user_id();
@@ -61,8 +78,9 @@ class WC_Stats {
 		$post_id = $post->ID;
 		$post_type = get_post_type( $post_id );
 		$post_name = $post->post_name;
+		$funnel_step = $this->get_funnel_step( $post_id, $post_type );
 
-		echo "<pre>";
+		echo "<pre style=\"font-size: 12px;\">";
 		echo "user id: ";
 		print_r( $user_id );
 		echo "<br/>";
@@ -75,6 +93,9 @@ class WC_Stats {
 		echo "post id: ";
 		print_r( $post_id );
 		echo "<br/>";
+		echo "funnel step: ";
+		print_r( $funnel_step );
+		echo "<br/>";
 		echo "store id: ";
 		print_r( $store_id );
 		echo "<br/>";
@@ -83,19 +104,13 @@ class WC_Stats {
 		echo "<br/>";
 		echo "cart quantities: ";
 		print_r( $cart_quantities );
+		if ( isset( $_GET[ 'key' ] ) ) {
+			echo "<br/>";
+			echo "order number: ";
+			print_r( $_GET[ 'key' ] );
+		}
 		echo "</pre>";
 	}
 }
 
 WC_Stats::init();
-
-// Use these to track funnel steps
-//get_option( 'woocommerce_shop_page_id' );
-//get_option( 'woocommerce_cart_page_id' );
-//get_option( 'woocommerce_checkout_page_id' );
-//get_option( 'woocommerce_pay_page_id' );
-//get_option( 'woocommerce_thanks_page_id' );
-//get_option( 'woocommerce_myaccount_page_id' );
-//get_option( 'woocommerce_edit_address_page_id' );
-//get_option( 'woocommerce_view_order_page_id' );
-//get_option( 'woocommerce_terms_page_id' );
