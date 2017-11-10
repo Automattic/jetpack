@@ -89,6 +89,9 @@
 		<testsuite name="3rd-party">
 			<directory prefix="test_" suffix=".php">tests/php/3rd-party</directory>
 		</testsuite>
+		<testsuite name="pwa">
+			<directory prefix="test_" suffix=".php">tests/php/pwa</directory>
+		</testsuite>
 	</testsuites>
 	<groups>
 		<exclude>
