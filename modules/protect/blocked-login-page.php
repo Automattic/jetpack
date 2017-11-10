@@ -296,7 +296,6 @@ class Jetpack_Protect_Blocked_Login_Page {
 
 
 	function get_html_blocked_login_message() {
-		//
 		$icon = '<svg class="gridicon gridicons-spam" style="fill:#d94f4f" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M17 2H7L2 7v10l5 5h10l5-5V7l-5-5zm-4 15h-2v-2h2v2zm0-4h-2l-.5-6h3l-.5 6z"/></g></svg>';
 		$ip = str_replace( 'http://', '', esc_url( 'http://' . $this->ip_address ) );
 		ob_start(); ?>
