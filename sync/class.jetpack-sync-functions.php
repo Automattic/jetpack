@@ -21,15 +21,17 @@ class Jetpack_Sync_Functions {
 			$sanitized_taxonomy = self::sanitize_taxonomy( $taxonomy );
 			if ( ! empty( $sanitized_taxonomy ) ) {
 				$wp_taxonomies_without_callbacks[ $taxonomy_name ] = $sanitized_taxonomy;
-	 		} else {
+			} else {
 				error_log( 'Jetpack: Encountered a recusive taxonomy:' . $taxonomy_name );
 			}
 		}
+
 		return $wp_taxonomies_without_callbacks;
 	}
 
 	public static function get_shortcodes() {
 		global $shortcode_tags;
+
 		return array_keys( $shortcode_tags );
 	}
 
@@ -47,19 +49,23 @@ class Jetpack_Sync_Functions {
 		}
 		// Remove any meta_box_cb if they are not the default wp ones.
 		if ( isset( $cloned_taxonomy->meta_box_cb ) &&
-		     ! in_array( $cloned_taxonomy->meta_box_cb, array( 'post_tags_meta_box', 'post_categories_meta_box' ) ) ) {
+		     ! in_array( $cloned_taxonomy->meta_box_cb, array( 'post_tags_meta_box', 'post_categories_meta_box' ) )
+		) {
 			$cloned_taxonomy->meta_box_cb = null;
 		}
 		// Remove update call back
 		if ( isset( $cloned_taxonomy->update_count_callback ) &&
-		     ! is_null( $cloned_taxonomy->update_count_callback ) ) {
+		     ! is_null( $cloned_taxonomy->update_count_callback )
+		) {
 			$cloned_taxonomy->update_count_callback = null;
 		}
 		// Remove rest_controller_class if it something other then the default.
-		if ( isset( $cloned_taxonomy->rest_controller_class )  &&
-		     'WP_REST_Terms_Controller' !== $cloned_taxonomy->rest_controller_class ) {
+		if ( isset( $cloned_taxonomy->rest_controller_class ) &&
+		     'WP_REST_Terms_Controller' !== $cloned_taxonomy->rest_controller_class
+		) {
 			$cloned_taxonomy->rest_controller_class = null;
 		}
+
 		return $cloned_taxonomy;
 	}
 
@@ -91,6 +97,7 @@ class Jetpack_Sync_Functions {
 		if ( defined( 'VIP_GO_ENV' ) && false !== VIP_GO_ENV ) {
 			return 'vip-go';
 		}
+
 		return 'unknown';
 	}
 
@@ -130,7 +137,7 @@ class Jetpack_Sync_Functions {
 		require_once( ABSPATH . 'wp-admin/includes/template.php' );
 
 		$filesystem_method = get_filesystem_method();
-		if ( 'direct' === $filesystem_method  ) {
+		if ( 'direct' === $filesystem_method ) {
 			return true;
 		}
 
@@ -160,8 +167,8 @@ class Jetpack_Sync_Functions {
 			Jetpack_Constants::get_constant( 'JETPACK_SYNC_USE_RAW_URL' )
 		) {
 			$scheme = is_ssl() ? 'https' : 'http';
-			$url = self::get_raw_url( $url_type );
-			$url = set_url_scheme( $url, $scheme );
+			$url    = self::get_raw_url( $url_type );
+			$url    = set_url_scheme( $url, $scheme );
 		} else {
 			$url = self::normalize_www_in_url( $url_type, $url_function );
 		}
@@ -203,26 +210,26 @@ class Jetpack_Sync_Functions {
 		$option_key = self::HTTPS_CHECK_OPTION_PREFIX . $callable;
 
 		$parsed_url = wp_parse_url( $new_value );
-		if ( ! $parsed_url ) {
+		if ( empty ( $parsed_url['scheme'] ) ) {
 			return $new_value;
 		}
 
-		$scheme = $parsed_url['scheme'];
-		$scheme_history = get_option( $option_key, array() );
+		$scheme           = $parsed_url['scheme'];
+		$scheme_history   = get_option( $option_key, array() );
 		$scheme_history[] = $scheme;
 
 		// Limit length to self::HTTPS_CHECK_HISTORY
-		$scheme_history = array_slice( $scheme_history, ( self::HTTPS_CHECK_HISTORY * -1 ) );
+		$scheme_history = array_slice( $scheme_history, ( self::HTTPS_CHECK_HISTORY * - 1 ) );
 
 		update_option( $option_key, $scheme_history );
 
-		$forced_scheme =  in_array( 'https', $scheme_history ) ? 'https' : 'http';
+		$forced_scheme = in_array( 'https', $scheme_history ) ? 'https' : 'http';
 
 		return set_url_scheme( $new_value, $forced_scheme );
 	}
 
 	public static function get_raw_url( $option_name ) {
-		$value = null;
+		$value    = null;
 		$constant = ( 'home' == $option_name )
 			? 'WP_HOME'
 			: 'WP_SITEURL';
@@ -248,13 +255,13 @@ class Jetpack_Sync_Functions {
 			return $url;
 		}
 
-		if ( $url[ 'host' ] === "www.{$option_url[ 'host' ]}" ) {
+		if ( $url['host'] === "www.{$option_url[ 'host' ]}" ) {
 			// remove www if not present in option URL
-			$url[ 'host' ] = $option_url[ 'host' ];
+			$url['host'] = $option_url['host'];
 		}
-		if ( $option_url[ 'host' ] === "www.{$url[ 'host' ]}" ) {
+		if ( $option_url['host'] === "www.{$url[ 'host' ]}" ) {
 			// add www if present in option URL
-			$url[ 'host' ] = $option_url[ 'host' ];
+			$url['host'] = $option_url['host'];
 		}
 
 		$normalized_url = "{$url['scheme']}://{$url['host']}";
@@ -293,13 +300,16 @@ class Jetpack_Sync_Functions {
 			if ( is_null( $plugin_file_singular ) ) {
 				return $plugins_action_links;
 			}
+
 			return ( isset( $plugins_action_links[ $plugin_file_singular ] ) ? $plugins_action_links[ $plugin_file_singular ] : null );
 		}
+
 		return array();
 	}
 
 	public static function wp_version() {
 		global $wp_version;
+
 		return $wp_version;
 	}
 
@@ -313,6 +323,7 @@ class Jetpack_Sync_Functions {
 
 	public static function roles() {
 		$wp_roles = wp_roles();
+
 		return $wp_roles->roles;
 	}
 
