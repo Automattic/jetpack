@@ -89,7 +89,7 @@ class Asset_CDN {
 
 			$cdn_url = $this->cdn_server . '/css?b=' .
 				urlencode( $site_url ) . '&' .
-				$this->encode_files_param( http_build_query( array( 'f' => $urls ) ) ) . '&' .
+				http_build_query( array( 'f' => $urls ) ) . '&' .
 				http_build_query( array( 'v' => $vers ) );
 			// if we are injecting critical CSS, load the full CSS async
 
@@ -130,7 +130,7 @@ class Asset_CDN {
 
 		$cdn_url = $this->cdn_server . '/js?b=' .
 			urlencode( $site_url ) . '&' .
-			$this->encode_files_param( http_build_query( array( 'f' => $urls ) ) ). '&' .
+			http_build_query( array( 'f' => $urls ) ) . '&' .
 			http_build_query( array( 'v' => $vers ) );
 		// TODO: if there is NO inline or external script tags in the body, render async (maybe?)
 		echo '<script type="text/javascript" src="' . esc_attr( $cdn_url ) . '"></script>';
@@ -233,22 +233,5 @@ class Asset_CDN {
 		$site_url = site_url();
 		return ( strncmp( $url, '/', 1 ) === 0 && strncmp( $url, '//', 2 ) !== 0 )
 			|| strpos( $url, $site_url ) === 0;
-	}
-
-	/**
-	 * The files param can get pretty long. We can compress it by converting common WP path elements
-	 * into HTML entities. The shortest entity expression is something like &#x00; - i.e. 6 chars
-	 */
-	private function encode_files_param( $files_param ) {
-		$encoding = array(
-			'%2Fwp-content%2Fplugins%2F' => '&#xA1;',// inverted exclamation
-			'%2Fwp-content%2Fthemes%2F' => '&#xA2;', // cents
-			'%2Fwp-content%2Fmu-plugins%2F' => '&#xA3;', // pound
-			'%2Fwp-includes%2Fcss%2F' => '&#xA4;', // currency sign
-			'%2Fwp-includes%2Fjs%2F' => '&#xA5;', // yen sign
-			'%2Fwp-includes%2Ffonts%2F' => '&#xA6;' // broken bar
-		);
-
-		return strtr( $files_param, $encoding );
 	}
 }
