@@ -12,7 +12,7 @@ import analytics from 'lib/analytics';
 /**
  * Internal dependencies
  */
-import { imagePath } from 'constants';
+import { imagePath } from 'constants/urls';
 import { updateSettings, appsCardDismissed } from 'state/settings';
 import { arePromotionsActive } from 'state/initial-state';
 

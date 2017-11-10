@@ -11,7 +11,7 @@ import analytics from 'lib/analytics';
  * Internal dependencies
  */
 import JetpackDialogue from 'components/jetpack-dialogue';
-import { imagePath } from 'constants';
+import { imagePath } from 'constants/urls';
 
 class WelcomePremium extends Component {
 	constructor( props ) {

@@ -14,7 +14,7 @@ import {
 	isNoticeDismissed as _isNoticeDismissed,
 	dismissJetpackNotice
 } from 'state/jetpack-notices';
-import { JETPACK_CONTACT_SUPPORT } from 'constants';
+import { JETPACK_CONTACT_SUPPORT } from 'constants/urls';
 
 const FeedbackDashRequest = React.createClass( {
 	displayName: 'FeedbackDashRequest',

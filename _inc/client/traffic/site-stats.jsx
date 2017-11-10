@@ -10,7 +10,7 @@ import Card from 'components/card';
 import includes from 'lodash/includes';
 import filter from 'lodash/filter';
 import classNames from 'classnames';
-import { imagePath } from 'constants';
+import { imagePath } from 'constants/urls';
 import analytics from 'lib/analytics';
 
 /**

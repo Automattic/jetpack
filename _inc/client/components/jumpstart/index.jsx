@@ -19,7 +19,7 @@ import {
 } from 'state/jumpstart';
 import { getModulesByFeature as _getModulesByFeature } from 'state/modules';
 import onKeyDownCallback from 'utils/onkeydown-callback';
-import { imagePath } from 'constants';
+import { imagePath } from 'constants/urls';
 
 const JumpStart = React.createClass( {
 

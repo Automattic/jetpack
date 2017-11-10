@@ -13,7 +13,7 @@ import classNames from 'classnames';
  */
 import Gridicon from 'components/gridicon';
 import onKeyDownCallback from 'utils/onkeydown-callback';
-import { imagePath } from 'constants';
+import { imagePath } from 'constants/urls';
 
 class JetpackDialogue extends Component {
 	render() {
