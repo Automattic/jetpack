@@ -118,7 +118,7 @@ var jetpackLazyImagesModule = function( $ ) {
 			image.removeAttribute( 'data-lazy-sizes' );
 		}
 	}
-}
+};
 
 /**
  * The following is an Intersection observer polyfill which is licensed under MIT
