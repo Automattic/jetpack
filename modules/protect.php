@@ -427,7 +427,6 @@ class Jetpack_Protect_Module {
 	 * @return bool Either returns true, fires $this->kill_login, or includes a math fallback and returns false
 	 */
 	function check_login_ability( $preauth = false ) {
-	    $this->kill_login();
 		$ip = jetpack_protect_get_ip();
 
 		// Server is misconfigured and we can't get an IP
@@ -542,17 +541,18 @@ class Jetpack_Protect_Module {
 	 * Kill a login attempt
 	 */
 	function kill_login() {
-		// Allow users to logout
-		if ( isset( $_GET['action'], $_GET['_wpnonce'] ) &&
+		if (
+			isset( $_GET['action'], $_GET['_wpnonce'] ) &&
 			'logout' === $_GET['action'] &&
-			wp_verify_nonce(  $_GET['_wpnonce'], 'log-out' ) &&
+			wp_verify_nonce( $_GET['_wpnonce'], 'log-out' ) &&
 			wp_get_current_user()
 
 		) {
+			// Allow users to logout
 			return;
 		}
 
-        $ip = jetpack_protect_get_ip();
+		$ip = jetpack_protect_get_ip();
 		/**
 		 * Fires before every killed login.
 		 *
@@ -574,13 +574,13 @@ class Jetpack_Protect_Module {
 		}
 
 		require_once dirname( __FILE__ ) . '/protect/blocked-login-page.php';
-        $blocked_login_page = Jetpack_Protect_Blocked_Login_Page::instance( $ip );
+		$blocked_login_page = Jetpack_Protect_Blocked_Login_Page::instance( $ip );
 
-        if ( $blocked_login_page->is_blocked_user_valid() ) {
-            return;
-        }
+		if ( $blocked_login_page->is_blocked_user_valid() ) {
+			return;
+		}
 
-        $blocked_login_page->render_and_die();
+		$blocked_login_page->render_and_die();
 	}
 
 	/*
