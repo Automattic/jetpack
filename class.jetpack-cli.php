@@ -1070,6 +1070,9 @@ class Jetpack_CLI extends WP_CLI_Command {
 		if ( ! Jetpack::is_active() ) {
 			WP_CLI::error( __( 'Jetpack is not currently connected to WordPress.com', 'jetpack' ) );
 		}
+		if ( ! Jetpack::is_module_active( 'sitemaps' ) ) {
+			WP_CLI::error( __( 'Jetpack Sitemaps module is not currently active. Activate it if first if you want to work with sitemaps.', 'jetpack' ) );
+		}
 		$sitemap_builder = new Jetpack_Sitemap_Builder();
 		$sitemap_builder->update_sitemap();
 	}
