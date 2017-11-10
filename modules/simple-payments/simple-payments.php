@@ -76,6 +76,21 @@ class Jetpack_Simple_Payments {
 			plugins_url( 'simple-payments-block.js', __FILE__ ),
 			array( 'wp-blocks', 'wp-element' )
 		);
+
+		$current_user = wp_get_current_user();
+		$user_email = '';
+
+		if ( $current_user instanceof WP_User ) {
+			$user_email = $current_user->user_email;
+		}
+
+		wp_localize_script(
+			'gutenberg-simple-payments-button',
+			'simplePaymentsBlockGlobals',
+			array(
+				'email' => $user_email,
+			)
+		);
 	}
 
 	public function enqueue_block_assets() {
@@ -109,6 +124,7 @@ class Jetpack_Simple_Payments {
 	 */
 	public function render_gutenberg_block( $attributes ) {
 		$attribute_defaults = array(
+			'id' => 0,
 			'price' => 1,
 			'currency' => 'US',
 			'showIcons' => true,
@@ -152,7 +168,8 @@ class Jetpack_Simple_Payments {
 		$css_prefix = self::$css_classname_prefix;
 		$display_price = $currency_symbols[ $data['currency'] ] . $data['price'];
 
-		$item = '';
+		$items = '';
+
 		if ( $data['multiple'] ) {
 			$items = "
 				<div class='${css_prefix}-items'>

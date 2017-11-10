@@ -11,13 +11,13 @@ const { createClass } = wp.element;
  * Internal dependencies
  */
 const { registerBlockType, InspectorControls, BlockDescription } = wp.blocks;
-const { ToggleControl, SelectControl } = InspectorControls;
+const { ToggleControl, SelectControl, TextControl } = InspectorControls;
 
 // https://github.com/Automattic/gridicons/blob/master/sources/svg/gridicons-money.svg
 const moneyGridicon = (
 	<svg viewBox="0 0 24 24" width="20" height="20">
 		<g id="money">
-			<path d="M2,5v14h20V5H2z M7,17c0-1.657-1.343-3-3-3v-4c1.657,0,3-1.343,3-3h10c0,1.657,1.343,3,3,3v4c-1.657,0-3,1.343-3,3H7z M12,9c1.1,0,2,1.3,2,3s-0.9,3-2,3s-2-1.3-2-3S10.9,9,12,9z"/>
+			<path d="M2,5v14h20V5H2z M7,17c0-1.657-1.343-3-3-3v-4c1.657,0,3-1.343,3-3h10c0,1.657,1.343,3,3,3v4c-1.657,0-3,1.343-3,3H7z M12,9c1.1,0,2,1.3,2,3s-0.9,3-2,3s-2-1.3-2-3S10.9,9,12,9z" />
 		</g>
 	</svg>
 );
@@ -30,17 +30,21 @@ const availableCurrencies = [
 
 const getCurrencySymbol = value => availableCurrencies.find( item => item.value === value ).symbol;
 
-const createNewProductCPT = ( { price, currency, multiple } ) => {
+const createNewProductCPT = ( { price, currency, multiple, email } ) => {
 	return new wp.api.models.Jp_pay_product( {
 		title: 'Untitled payment product',
 		meta: {
 			spay_price: price,
 			spay_currency: currency,
 			spay_multiple: multiple,
+			spay_email: email,
 		},
 		status: 'publish',
 	} );
 };
+
+// Global variable from wp_localize_script.
+const userEmail = simplePaymentsBlockGlobals.email;
 
 registerBlockType( 'jetpack/simple-payments-button', {
 	title: 'Payment Button',
@@ -69,6 +73,10 @@ registerBlockType( 'jetpack/simple-payments-button', {
 			type: 'boolean',
 			default: false,
 		},
+		email: {
+			type: 'string',
+			default: userEmail,
+		},
 	},
 
 	edit: createClass( {
@@ -79,14 +87,14 @@ registerBlockType( 'jetpack/simple-payments-button', {
 		},
 		componentDidMount() {
 			const { attributes, setAttributes } = this.props;
-			const { price, currency, multiple, id } = attributes;
+			const { price, currency, multiple, id, email } = attributes;
 
 			if ( id ) {
 				let model = new wp.api.models.Jp_pay_product( { id } );
 
 				model.fetch().then( _ => this.setState( { productModel: model } ) );
 			} else {
-				let model = createNewProductCPT( { price, currency, multiple } );
+				let model = createNewProductCPT( { price, currency, multiple, email } );
 
 				this.setState( { productModel: model } );
 
@@ -98,18 +106,29 @@ registerBlockType( 'jetpack/simple-payments-button', {
 			}
 		},
 		componentWillReceiveProps( nextProps ) {
-			const { price, currency, multiple } = this.props.attributes;
+			const { price, currency, multiple, email } = this.props.attributes;
 			const {
 				price: newPrice,
 				currency: newCurrency,
 				multiple: newMultiple,
+				email: newEmail,
 			} = nextProps.attributes;
 
 			const { productModel } = this.state;
 
-			if ( newPrice !== price || newCurrency !== currency || newMultiple !== multiple ) {
+			if (
+				newPrice !== price ||
+				newCurrency !== currency ||
+				newMultiple !== multiple ||
+				newEmail !== email
+			) {
 				productModel.set( {
-					meta: { spay_price: newPrice, spay_currency: newCurrency, spay_multiple: newMultiple },
+					meta: {
+						spay_price: newPrice,
+						spay_currency: newCurrency,
+						spay_multiple: newMultiple,
+						spay_email: newEmail,
+					},
 				} );
 
 				productModel.save();
@@ -117,7 +136,7 @@ registerBlockType( 'jetpack/simple-payments-button', {
 		},
 		render() {
 			const { className, attributes, setAttributes, focus } = this.props;
-			const { price, currency, showIcons, multiple } = attributes;
+			const { price, currency, showIcons, multiple, email } = attributes;
 
 			const updatePrice = ( { target: { value } } ) => setAttributes( { price: value } );
 
@@ -126,6 +145,8 @@ registerBlockType( 'jetpack/simple-payments-button', {
 			const toggleShowIcons = () => setAttributes( { showIcons: ! showIcons } );
 
 			const toggleMultiple = () => setAttributes( { multiple: ! multiple } );
+
+			const updateEmail = value => setAttributes( { email: value } );
 
 			return [
 				focus &&
@@ -152,6 +173,15 @@ registerBlockType( 'jetpack/simple-payments-button', {
 								label={ __( 'Allow multiple items' ) }
 								checked={ multiple }
 								onChange={ toggleMultiple }
+							/>
+							<TextControl
+								label={ __( 'Email' ) }
+								value={ email }
+								onChange={ updateEmail }
+								help={ __(
+									"This is where PayPal will send your money. To claim a payment, you'll need " +
+										'a PayPal account connected to a bank account.'
+								) }
 							/>
 						</PanelBody>
 					</InspectorControls>,
