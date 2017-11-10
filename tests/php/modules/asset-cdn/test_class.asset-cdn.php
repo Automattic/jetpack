@@ -85,23 +85,23 @@ class WP_Test_Asset_CDN extends WP_UnitTestCase {
 		), $print_media_url->query['f'] );
 	}
 
+	// TODO: minifies CSS rendered in the footer
+
 	/**
 	 * JS minification/concatenation
 	 */
 
 	// TODO: footer, too
 	public function test_concatenates_js() {
-		// $this->markTestIncomplete();
 		wp_enqueue_script( 'my-script', plugins_url( 'js/my-script.js', JETPACK__PLUGIN_FILE ), false, '1.0' );
 		wp_enqueue_script( 'other-script', plugins_url( 'js/other-script.js', JETPACK__PLUGIN_FILE ), false, '2.0' );
+		wp_enqueue_script( 'footer-script', plugins_url( 'js/footer-script.js', JETPACK__PLUGIN_FILE ), false, '3.0', true );
 
-		$content = $this->get_head_content();
+		$header_cdn_js_urls = $this->get_cdn_js_urls( $this->get_head_content() );
 
-		$cdn_js_urls = $this->get_cdn_js_urls( $content );
+		$this->assertEquals( 1, count( $header_cdn_js_urls ) );
 
-		$this->assertEquals( 1, count( $cdn_js_urls ) );
-
-		$query = $cdn_js_urls[0]->query;
+		$query = $header_cdn_js_urls[0]->query;
 
 		$this->assertTrue( isset( $query['b'] ) ); // base URL
 		$this->assertTrue( isset( $query['f'] ) ); // files
@@ -120,9 +120,31 @@ class WP_Test_Asset_CDN extends WP_UnitTestCase {
 		$this->assertEquals( array(
 			'1.0', '2.0'
 		), $query['v'] );
+
+		// now get the footer URLs
+		$footer_cdn_js_urls = $this->get_cdn_js_urls( $this->get_footer_content() );
+
+		$this->assertEquals( 1, count( $footer_cdn_js_urls ) );
+
+		$query = $footer_cdn_js_urls[0]->query;
+
+		// includes base hostname
+		$this->assertEquals( 'http://example.org', $query['b'] );
+
+		// should include URLs without hostname
+		$this->assertEquals( array(
+			$this->strip_host( plugins_url( 'js/footer-script.js', JETPACK__PLUGIN_FILE ) )
+		), $query['f'] );
+
+		// includes versions
+		$this->assertEquals( array(
+			'3.0'
+		), $query['v'] );
 	}
 
-	// breaks on non-concatenated assets (only for scripts, not for CSS?)
+
+
+	// TODO: breaks on non-concatenated assets (only for scripts, not for CSS?)
 
 
 	/**
@@ -132,6 +154,15 @@ class WP_Test_Asset_CDN extends WP_UnitTestCase {
 	private function get_head_content() {
 		ob_start();
 		do_action( 'wp_head' );
+		$content = ob_get_contents();
+		ob_end_clean();
+
+		return $content;
+	}
+
+	private function get_footer_content() {
+		ob_start();
+		do_action( 'wp_footer' );
 		$content = ob_get_contents();
 		ob_end_clean();
 
