@@ -41,6 +41,10 @@ class Asset_CDN {
 		return self::$__instance;
 	}
 
+	public static function reset() {
+		self::$__instance = null;
+	}
+
 	private function __construct() {
 		$this->cdn_server = apply_filters( 'jetpack_asset_cdn_url', 'https://cdn.wpvm.io' );
 		// $this->cdn_server = 'http://localhost:8090';
