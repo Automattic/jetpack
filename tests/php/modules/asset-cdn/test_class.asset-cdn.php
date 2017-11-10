@@ -20,8 +20,8 @@ class WP_Test_Asset_CDN extends WP_UnitTestCase {
 	 * @since 4.6.0
 	 */
 	public function test_concatenates_css() {
-		wp_enqueue_style( 'my-style', plugins_url( 'css/my-style.css', JETPACK__PLUGIN_FILE ), false, JETPACK__VERSION );
-		wp_enqueue_style( 'other-style', plugins_url( 'css/other-style.css', JETPACK__PLUGIN_FILE ), false, JETPACK__VERSION );
+		wp_enqueue_style( 'my-style', plugins_url( 'css/my-style.css', JETPACK__PLUGIN_FILE ), false, '1.0' );
+		wp_enqueue_style( 'other-style', plugins_url( 'css/other-style.css', JETPACK__PLUGIN_FILE ), false, '2.0' );
 
 		ob_start();
 		do_action( 'wp_head' );
@@ -51,7 +51,7 @@ class WP_Test_Asset_CDN extends WP_UnitTestCase {
 
 		// includes versions
 		$this->assertEquals( array(
-			JETPACK__VERSION, JETPACK__VERSION
+			'1.0', '2.0'
 		), $query['v'] );
 	}
 
