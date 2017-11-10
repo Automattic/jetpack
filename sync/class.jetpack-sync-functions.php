@@ -206,8 +206,11 @@ class Jetpack_Sync_Functions {
 		if ( ! $parsed_url ) {
 			return $new_value;
 		}
-
-		$scheme = $parsed_url['scheme'];
+		if ( array_key_exists ( 'scheme' , $parsed_url ) ) {
+			$scheme = $parsed_url['scheme'];
+		} else {
+			$scheme = '';
+		}
 		$scheme_history = get_option( $option_key, array() );
 		$scheme_history[] = $scheme;
 

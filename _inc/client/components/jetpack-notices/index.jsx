@@ -17,7 +17,7 @@ import { isDevVersion, userCanManageModules, userIsSubscriber } from 'state/init
 import DismissableNotices from './dismissable';
 import { getConnectUrl as _getConnectUrl } from 'state/connection';
 import JetpackBanner from 'components/jetpack-banner';
-import { JETPACK_CONTACT_BETA_SUPPORT } from 'constants';
+import { JETPACK_CONTACT_BETA_SUPPORT } from 'constants/urls';
 
 export const DevVersionNotice = React.createClass( {
 	displayName: 'DevVersionNotice',

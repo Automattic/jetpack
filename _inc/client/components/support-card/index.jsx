@@ -25,7 +25,7 @@ import {
 } from 'state/site';
 import { getSiteConnectionStatus } from 'state/connection';
 import JetpackBanner from 'components/jetpack-banner';
-import { JETPACK_CONTACT_SUPPORT } from 'constants';
+import { JETPACK_CONTACT_SUPPORT } from 'constants/urls';
 
 const SupportCard = React.createClass( {
 	displayName: 'SupportCard',

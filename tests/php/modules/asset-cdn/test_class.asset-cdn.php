@@ -152,8 +152,6 @@ class WP_Test_Asset_CDN extends WP_UnitTestCase {
 		wp_enqueue_script( 'next-cdn-script', plugins_url( 'js/next-cdn-script.js', JETPACK__PLUGIN_FILE ), false, '3.0' );
 		wp_enqueue_script( 'another-cdn-script', plugins_url( 'js/another-cdn-script.js', JETPACK__PLUGIN_FILE ), false, '4.0' );
 
-		add_filter( )
-
 		$header_cdn_js_urls = $this->get_cdn_js_urls( $this->get_head_content() );
 	}
 
