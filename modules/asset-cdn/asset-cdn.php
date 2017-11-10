@@ -238,12 +238,6 @@ class Asset_CDN {
 	/**
 	 * The files param can get pretty long. We can compress it by converting common WP path elements
 	 * into HTML entities. The shortest entity expression is something like &#x00; - i.e. 6 chars
-	 * /wp-content/plugins/ = A1 (inverted exclamation)
-	 * /wp-content/themes/ = A2 (cents)
-	 * /wp-content/mu-plugins/ = A3 (pound)
-	 * /wp-includes/css/ = A4 (currency sign)
-	 * /wp-includes/js/ = A5 (yen sign)
-	 * /wp-includes/fonts/ = A6 (broken bar)
 	 */
 	private function encode_files_param( $files_param ) {
 		$encoding = array(
