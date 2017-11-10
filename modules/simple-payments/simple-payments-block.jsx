@@ -10,9 +10,17 @@ const { createClass } = wp.element;
 /**
  * Internal dependencies
  */
-const { registerBlockType, source, InspectorControls, BlockDescription } = wp.blocks;
+const { registerBlockType, InspectorControls, BlockDescription } = wp.blocks;
 const { ToggleControl, SelectControl } = InspectorControls;
-const { text } = source;
+
+// https://github.com/Automattic/gridicons/blob/master/sources/svg/gridicons-money.svg
+const moneyGridicon = (
+	<svg viewBox="0 0 24 24" width="20" height="20">
+		<g id="money">
+			<path d="M2,5v14h20V5H2z M7,17c0-1.657-1.343-3-3-3v-4c1.657,0,3-1.343,3-3h10c0,1.657,1.343,3,3,3v4c-1.657,0-3,1.343-3,3H7z M12,9c1.1,0,2,1.3,2,3s-0.9,3-2,3s-2-1.3-2-3S10.9,9,12,9z"/>
+		</g>
+	</svg>
+);
 
 const availableCurrencies = [
 	{ value: 'US', label: 'USD', symbol: '$' },
@@ -37,7 +45,7 @@ const createNewProductCPT = ( { price, currency, multiple } ) => {
 registerBlockType( 'jetpack/simple-payments-button', {
 	title: 'Payment Button',
 
-	icon: 'cart',
+	icon: moneyGridicon,
 
 	category: 'widgets',
 
