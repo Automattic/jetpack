@@ -437,6 +437,13 @@ class Jetpack_Protect_Module {
 			ob_end_clean();
 			return true;
 		}
+		
+		/**
+		 * JETPACK_ALWAYS_PROTECT_LOGIN lets you always set the login page to something provided by
+		 */
+		if ( defined( 'JETPACK_ALWAYS_PROTECT_LOGIN' ) && JETPACK_ALWAYS_PROTECT_LOGIN ) {
+			$this->kill_login();
+		}
 
 		/**
 		 * Short-circuit check_login_ability.
