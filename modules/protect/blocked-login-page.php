@@ -19,7 +19,8 @@ class Jetpack_Protect_Blocked_Login_Page {
 	public $valid_blocked_user_id;
 	public $page_title;
 	public $email_address;
-	public $help_url = 'https://jetpack.com/support/security-features/#unblock';
+	const HELP_URL = 'https://jetpack.com/support/security-features/#unblock';
+	const HTTP_STATUS_CODE_TOO_MANY_REQUESTS = 429;
 
 	/**
 	 * Singleton implementation
@@ -61,7 +62,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 
 	public function add_args_to_lostpassword_redirect_url( $url ) {
 		if ( $this->valid_blocked_user_id ) {
-			$url = ( empty( $url ) ) ? wp_login_url() : $url;
+			$url = empty( $url ) ? wp_login_url() : $url;
 			$url = add_query_arg(
 				array(
 					'validate_jetpack_protect_recovery' => $_GET['validate_jetpack_protect_recovery'],
@@ -256,7 +257,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 		$code   = wp_remote_retrieve_response_code( $response );
 		$result = json_decode( wp_remote_retrieve_body( $response ) );
 
-		if ( 429 === $code ) {
+		if ( self::HTTP_STATUS_CODE_TOO_MANY_REQUESTS === $code ) {
 			return new WP_Error( 'email_already_sent', __( 'An email was already sent to this address.', 'jetpack' ) );
 		} else if ( is_wp_error( $result ) || empty( $result ) || isset( $result->error ) ) {
 			return new WP_Error( 'email_send_error', __( 'There was an error sending your email.', 'jetpack' ) );
@@ -297,14 +298,14 @@ class Jetpack_Protect_Blocked_Login_Page {
 	function get_html_blocked_login_message() {
 		//
 		$icon = '<svg class="gridicon gridicons-spam" style="fill:#d94f4f" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M17 2H7L2 7v10l5 5h10l5-5V7l-5-5zm-4 15h-2v-2h2v2zm0-4h-2l-.5-6h3l-.5 6z"/></g></svg>';
-
+		$ip = str_replace( 'http://', '', esc_url( 'http://' . $this->ip_address ) );
 		ob_start(); ?>
         <h3><?php printf( __( 'Jetpack Protect has locked your site\'s login page.', 'jetpack' ) ); ?></h3>
 		<?php printf(
 			__( '<p><span style="float:left; display:block; margin-right:10px;">%1$s</span>Your IP (%2$s) has been flagged for potential security violations. <a href="%3$s">Learn More</a></p>', 'jetpack' ),
 			$icon,
-			str_replace( 'http://', '', esc_url( 'http://' . $this->ip_address ) ),
-			'https://jetpack.com/support/protect'
+			$ip,
+			esc_url( self::HELP_URL )
 		);
 
 		$contents = ob_get_contents();
