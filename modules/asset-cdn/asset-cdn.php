@@ -132,6 +132,7 @@ class Asset_CDN {
 			urlencode( $site_url ) . '&' .
 			http_build_query( array( 'f' => $urls ) ) . '&' .
 			http_build_query( array( 'v' => $vers ) );
+
 		// TODO: if there is NO inline or external script tags in the body, render async (maybe?)
 		echo '<script type="text/javascript" src="' . esc_attr( $cdn_url ) . '"></script>';
 
@@ -164,6 +165,9 @@ class Asset_CDN {
 			$this->buffer_script( $script );
 			return '';
 		}
+
+		// TODO: if this script is dependent on one that has been buffered, we need to flush the concatenated
+		// scripts and then output this script
 
 		return $tag;
 	}
