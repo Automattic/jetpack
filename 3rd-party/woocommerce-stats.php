@@ -50,16 +50,27 @@ class WC_Stats {
 	}
 
 	public function track() {
+		// Does tracks take care of this?
+		$user_id = get_current_user_id();
 		$cart = WC()->cart->get_cart();
 		$cart_ids = array_map( array( $this, 'get_cart_ids' ), $cart );
 		$cart_quantities = array_map( array( $this, 'get_cart_quantities' ), $cart );
+		// Is this the right id? Is WooCommerce id different?
 		$store_id = Jetpack::get_option( 'id' );
-		$post_id = get_the_ID();
+		$post = get_post();
+		$post_id = $post->ID;
 		$post_type = get_post_type( $post_id );
+		$post_name = $post->post_name;
 
 		echo "<pre>";
+		echo "user id: ";
+		print_r( $user_id );
+		echo "<br/>";
 		echo "post type: ";
 		print_r( $post_type );
+		echo "<br/>";
+		echo "post name: ";
+		print_r( $post_name );
 		echo "<br/>";
 		echo "post id: ";
 		print_r( $post_id );
@@ -77,3 +88,14 @@ class WC_Stats {
 }
 
 WC_Stats::init();
+
+// Use these to track funnel steps
+//get_option( 'woocommerce_shop_page_id' );
+//get_option( 'woocommerce_cart_page_id' );
+//get_option( 'woocommerce_checkout_page_id' );
+//get_option( 'woocommerce_pay_page_id' );
+//get_option( 'woocommerce_thanks_page_id' );
+//get_option( 'woocommerce_myaccount_page_id' );
+//get_option( 'woocommerce_edit_address_page_id' );
+//get_option( 'woocommerce_view_order_page_id' );
+//get_option( 'woocommerce_terms_page_id' );
