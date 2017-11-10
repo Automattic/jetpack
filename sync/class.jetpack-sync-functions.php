@@ -206,7 +206,7 @@ class Jetpack_Sync_Functions {
 		if ( ! $parsed_url ) {
 			return $new_value;
 		}
-		if( array_key_exists ( 'scheme' , $parsed_url) ) {
+		if ( array_key_exists ( 'scheme' , $parsed_url ) ) {
 			$scheme = $parsed_url['scheme'];
 		} else {
 			$scheme = '';
