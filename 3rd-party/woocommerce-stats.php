@@ -37,19 +37,41 @@ class WC_Stats {
 	public function __construct() {
 		$this->jetpack = Jetpack::init();
 
-		add_action( 'woocommerce_init', array( $this, 'track' ) );
+		// event woocommerce_init ??
+		add_action( 'wp_enqueue_scripts', array( $this, 'track' ) );
 	}
 
 	public function get_cart_ids( $item ) {
 		return $item[ 'product_id' ];
 	}
 
+	public function get_cart_quantities( $item ) {
+		return $item[ 'quantity' ];
+	}
+
 	public function track() {
 		$cart = WC()->cart->get_cart();
 		$cart_ids = array_map( array( $this, 'get_cart_ids' ), $cart );
+		$cart_quantities = array_map( array( $this, 'get_cart_quantities' ), $cart );
+		$store_id = Jetpack::get_option( 'id' );
+		$post_id = get_the_ID();
+		$post_type = get_post_type( $post_id );
 
 		echo "<pre>";
+		echo "post type: ";
+		print_r( $post_type );
+		echo "<br/>";
+		echo "post id: ";
+		print_r( $post_id );
+		echo "<br/>";
+		echo "store id: ";
+		print_r( $store_id );
+		echo "<br/>";
+		echo "cart ids: ";
 		print_r( $cart_ids );
+		echo "<br/>";
+		echo "cart quantities: ";
+		print_r( $cart_quantities );
 		echo "</pre>";
 	}
 }
