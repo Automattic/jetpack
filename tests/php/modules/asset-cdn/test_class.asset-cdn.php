@@ -22,9 +22,13 @@ class WP_Test_Asset_CDN extends WP_UnitTestCase {
 	}
 
 	/**
-	 * Test if likes are rendered correctly.
+	 * CSS minification/concatenation
+	 */
+
+	/**
+	 * Test if CSS URLs are rendered correctly
 	 *
-	 * @since 4.6.0
+	 * @since 5.6.0
 	 */
 	public function test_concatenates_css() {
 		// $this->markTestIncomplete();
@@ -58,8 +62,6 @@ class WP_Test_Asset_CDN extends WP_UnitTestCase {
 		), $query['v'] );
 	}
 
-	// splits CSS on media
-
 	public function test_separates_css_by_media() {
 		wp_enqueue_style( 'my-style', plugins_url( 'css/my-style.css', JETPACK__PLUGIN_FILE ), false, '1.0', 'all' );
 		wp_enqueue_style( 'other-style', plugins_url( 'css/other-style.css', JETPACK__PLUGIN_FILE ), false, '2.0', 'print' );
@@ -83,7 +85,44 @@ class WP_Test_Asset_CDN extends WP_UnitTestCase {
 		), $print_media_url->query['f'] );
 	}
 
-	// breaks on non-concatenated assets (only for scripts, not for CSS)
+	/**
+	 * JS minification/concatenation
+	 */
+
+	// TODO: footer, too
+	public function test_concatenates_js() {
+		// $this->markTestIncomplete();
+		wp_enqueue_script( 'my-script', plugins_url( 'js/my-script.js', JETPACK__PLUGIN_FILE ), false, '1.0' );
+		wp_enqueue_script( 'other-script', plugins_url( 'js/other-script.js', JETPACK__PLUGIN_FILE ), false, '2.0' );
+
+		$content = $this->get_head_content();
+
+		$cdn_js_urls = $this->get_cdn_js_urls( $content );
+
+		$this->assertEquals( 1, count( $cdn_js_urls ) );
+
+		$query = $cdn_js_urls[0]->query;
+
+		$this->assertTrue( isset( $query['b'] ) ); // base URL
+		$this->assertTrue( isset( $query['f'] ) ); // files
+		$this->assertTrue( isset( $query['v'] ) ); // versions
+
+		// includes base hostname
+		$this->assertEquals( 'http://example.org', $query['b'] );
+
+		// should include URLs without hostname
+		$this->assertEquals( array(
+			$this->strip_host( plugins_url( 'js/my-script.js', JETPACK__PLUGIN_FILE ) ),
+			$this->strip_host( plugins_url( 'js/other-script.js', JETPACK__PLUGIN_FILE ) )
+		), $query['f'] );
+
+		// includes versions
+		$this->assertEquals( array(
+			'1.0', '2.0'
+		), $query['v'] );
+	}
+
+	// breaks on non-concatenated assets (only for scripts, not for CSS?)
 
 
 	/**
@@ -115,6 +154,21 @@ class WP_Test_Asset_CDN extends WP_UnitTestCase {
 			$url    = html_entity_decode( $matches[2][$i] );
 			parse_str( parse_url( $url, PHP_URL_QUERY ), $query );
 			$urls[] = (object) array( 'media' => $media, 'url' => $url, 'query' => $query );
+		}
+
+		return $urls;
+	}
+
+	private function get_cdn_js_urls( $content ) {
+		// get the concatenated CSS link
+		preg_match_all( '|<script type="text/javascript" src="(http://mycdn.com/js.*?)".*?></script>|', $content, $matches );
+
+		$urls = array();
+
+		for( $i = 0; $i < count( $matches[1] ); $i++ ) {
+			$url    = html_entity_decode( $matches[1][$i] );
+			parse_str( parse_url( $url, PHP_URL_QUERY ), $query );
+			$urls[] = (object) array( 'url' => $url, 'query' => $query );
 		}
 
 		return $urls;
