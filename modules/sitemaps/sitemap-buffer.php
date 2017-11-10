@@ -22,70 +22,80 @@
  *
  * @since 4.8.0
  */
-class Jetpack_Sitemap_Buffer {
+abstract class Jetpack_Sitemap_Buffer {
 
 	/**
 	 * Largest number of items the buffer can hold.
 	 *
-	 * @access private
+	 * @access protected
 	 * @since 4.8.0
 	 * @var int $item_capacity The item capacity.
 	 */
-	private $item_capacity;
+	protected $item_capacity;
 
 	/**
 	 * Largest number of bytes the buffer can hold.
 	 *
-	 * @access private
+	 * @access protected
 	 * @since 4.8.0
 	 * @var int $byte_capacity The byte capacity.
 	 */
-	private $byte_capacity;
-
-	/**
-	 * Footer text of the buffer; stored here so it can be appended when the buffer is full.
-	 *
-	 * @access private
-	 * @since 4.8.0
-	 * @var string $footer_text The footer text.
-	 */
-	private $footer_text;
-
-	/**
-	 * The buffer contents.
-	 *
-	 * @access private
-	 * @since 4.8.0
-	 * @var string The buffer contents.
-	 */
-	private $buffer;
+	protected $byte_capacity;
 
 	/**
 	 * Flag which detects when the buffer is full.
 	 *
-	 * @access private
+	 * @access protected
 	 * @since 4.8.0
 	 * @var bool $is_full_flag The flag value. This flag is set to false on construction and only flipped to true if we've tried to add something and failed.
 	 */
-	private $is_full_flag;
+	protected $is_full_flag;
 
 	/**
 	 * Flag which detects when the buffer is empty.
 	 *
-	 * @access private
+	 * @access protected
 	 * @since 4.8.0
 	 * @var bool $is_empty_flag The flag value. This flag is set to true on construction and only flipped to false if we've tried to add something and succeeded.
 	 */
-	private $is_empty_flag;
+	protected $is_empty_flag;
 
 	/**
 	 * The most recent timestamp seen by the buffer.
 	 *
-	 * @access private
+	 * @access protected
 	 * @since 4.8.0
 	 * @var string $timestamp Must be in 'YYYY-MM-DD hh:mm:ss' format.
 	 */
-	private $timestamp;
+	protected $timestamp;
+
+	/**
+	 * The DOM document object that is currently being used to construct the XML doc.
+	 *
+	 * @access protected
+	 * @since 5.3.0
+	 * @var DOMDocument $doc
+	 */
+	protected $doc = null;
+
+	/**
+	 * The root DOM element object that holds everything inside. Do not use directly, call
+	 * the get_root_element getter method instead.
+	 *
+	 * @access protected
+	 * @since 5.3.0
+	 * @var DOMElement $doc
+	 */
+	protected $root = null;
+
+	/**
+	 * Helper class to construct sitemap paths.
+	 *
+	 * @since 5.3.0
+	 * @protected
+	 * @var Jetpack_Sitemap_Finder
+	 */
+	protected $finder;
 
 	/**
 	 * Construct a new Jetpack_Sitemap_Buffer.
@@ -94,30 +104,27 @@ class Jetpack_Sitemap_Buffer {
 	 *
 	 * @param int    $item_limit The maximum size of the buffer in items.
 	 * @param int    $byte_limit The maximum size of the buffer in bytes.
-	 * @param string $header The string to prepend to the entire buffer.
-	 * @param string $footer The string to append to the entire buffer.
 	 * @param string $time The initial datetime of the buffer. Must be in 'YYYY-MM-DD hh:mm:ss' format.
 	 */
-	public function __construct(
-		$item_limit,
-		$byte_limit,
-		$header = '',
-		$footer = '',
-		$time
-	) {
-		$this->item_capacity = max( 1, intval( $item_limit ) );
-
-		mbstring_binary_safe_encoding(); // So we can safely use strlen().
-		$this->byte_capacity = max( 1, intval( $byte_limit ) ) - strlen( $header ) - strlen( $footer );
-		reset_mbstring_encoding();
-
-		$this->footer_text = $footer;
-		$this->buffer = $header;
+	public function __construct( $item_limit, $byte_limit, $time ) {
 		$this->is_full_flag = false;
-		$this->is_empty_flag = true;
 		$this->timestamp = $time;
-		return;
+
+		$this->finder = new Jetpack_Sitemap_Finder();
+		$this->doc = new DOMDocument( '1.0', 'UTF-8' );
+
+		$this->item_capacity = max( 1, intval( $item_limit ) );
+		$this->byte_capacity = max( 1, intval( $byte_limit ) ) - strlen( $this->doc->saveXML() );
 	}
+
+	/**
+	 * Returns a DOM element that contains all sitemap elements.
+	 *
+	 * @access protected
+	 * @since 5.3.0
+	 * @return DOMElement $root
+	 */
+	abstract protected function get_root_element();
 
 	/**
 	 * Append an item to the buffer, if there is room for it,
@@ -132,24 +139,45 @@ class Jetpack_Sitemap_Buffer {
 	 * @return bool True if the append succeeded, False if not.
 	 */
 	public function try_to_add_item( $item ) {
-		if ( is_null( $item ) ) {
+		_deprecated_function(
+			'Jetpack_Sitemap_Buffer::try_to_add_item',
+			'5.3.0',
+			'Jetpack_Sitemap_Buffer::append'
+		);
+		$this->append( $item );
+	}
+
+	/**
+	 * Append an item to the buffer, if there is room for it,
+	 * and set is_empty_flag to false. If there is no room,
+	 * we set is_full_flag to true. If $item is null,
+	 * don't do anything and report success.
+	 *
+	 * @since 5.3.0
+	 *
+	 * @param array $array The item to be added.
+	 *
+	 * @return bool True if the append succeeded, False if not.
+	 */
+	public function append( $array ) {
+		if ( is_null( $array ) ) {
 			return true;
+		}
+
+		if ( $this->is_full_flag ) {
+			return false;
+		}
+
+		if ( 0 >= $this->item_capacity || 0 >= $this->byte_capacity ) {
+			$this->is_full_flag = true;
+			return false;
 		} else {
+			$this->item_capacity -= 1;
+			$added_element = $this->array_to_xml_string( $array, $this->get_root_element(), $this->doc );
 
-			mbstring_binary_safe_encoding(); // So we can safely use strlen().
-			$item_size = strlen( $item ); // Size in bytes.
-			reset_mbstring_encoding();
+			$this->byte_capacity -= strlen( $this->doc->saveXML( $added_element ) );
 
-			if ( 0 >= $this->item_capacity || 0 > $this->byte_capacity - $item_size ) {
-				$this->is_full_flag = true;
-				return false;
-			} else {
-				$this->is_empty_flag = false;
-				$this->item_capacity -= 1;
-				$this->byte_capacity -= $item_size;
-				$this->buffer .= $item;
-				return true;
-			}
+			return true;
 		}
 	}
 
@@ -161,7 +189,21 @@ class Jetpack_Sitemap_Buffer {
 	 * @return string The contents of the buffer (with the footer included).
 	 */
 	public function contents() {
-		return $this->buffer . $this->footer_text;
+		if( $this->is_empty() ) {
+			// The sitemap should have at least the root element added to the DOM
+			$this->get_root_element();
+		}
+		return $this->doc->saveXML();
+	}
+
+	/**
+	 * Retrieve the document object.
+	 *
+	 * @since 5.3.0
+	 * @return DOMDocument $doc
+	 */
+	public function get_document() {
+		return $this->doc;
 	}
 
 	/**
@@ -183,7 +225,10 @@ class Jetpack_Sitemap_Buffer {
 	 * @return bool True if the buffer is empty, false otherwise.
 	 */
 	public function is_empty() {
-		return $this->is_empty_flag;
+		return (
+			! isset( $this->root )
+			|| ! $this->root->hasChildNodes()
+		);
 	}
 
 	/**
@@ -195,7 +240,6 @@ class Jetpack_Sitemap_Buffer {
 	 */
 	public function view_time( $new_time ) {
 		$this->timestamp = max( $this->timestamp, $new_time );
-		return;
 	}
 
 	/**
@@ -231,56 +275,52 @@ class Jetpack_Sitemap_Buffer {
 	 *   ),                                  |</html>
 	 * )
 	 *
-	 * @access public
+	 * @access protected
 	 * @since 3.9.0
 	 * @since 4.8.0 Rename, add $depth parameter, and change return type.
+	 * @since 5.3.0 Refactor, remove $depth parameter, add $parent and $root, make access protected.
 	 *
 	 * @param array  $array A recursive associative array of tag/child relationships.
-	 * @param string $depth String to prepend to each line. For internal use only.
+	 * @param DOMElement $parent (optional) an element to which new children should be added.
+	 * @param DOMDocument $root (optional) the parent document.
 	 *
-	 * @return string The rendered XML string.
+	 * @return string|DOMDocument The rendered XML string or an object if root element is specified.
 	 */
-	public static function array_to_xml_string( $array, $depth = '' ) {
-		$string = '';
+	protected function array_to_xml_string( $array, $parent = null, $root = null ) {
+		$return_string = false;
 
-		foreach ( $array as $key => $value ) {
+		if ( null === $parent ) {
+			$return_string = true;
+			$parent = $root = new DOMDocument();
+		}
 
-			// Only allow a-z, A-Z, colon, underscore, and hyphen.
-			$tag = preg_replace( '/[^a-zA-Z:_-]/', '_', $key );
+		if ( is_array( $array ) ) {
 
-			if ( is_array( $value ) ) {
-				$string .= $depth . "<$tag>\n";
-				$string .= self::array_to_xml_string( $value, $depth . '  ' );
-				$string .= $depth . "</$tag>\n";
-			} elseif ( is_null( $value ) ) {
-				$string .= $depth . "<$tag />\n";
-			} else {
-				$string .= $depth . "<$tag>" . ent2ncr( $value ) . "</$tag>\n";
+			foreach ( $array as $key => $value ) {
+				$element = $root->createElement( $key );
+				$parent->appendChild( $element );
+
+				if ( is_array( $value ) ) {
+					foreach ( $value as $child_key => $child_value ) {
+						$child = $root->createElement( $child_key );
+						$element->appendChild( $child );
+						$child->appendChild( self::array_to_xml_string( $child_value, $child, $root ) );
+					}
+				} else {
+					$element->appendChild(
+						$root->createTextNode( $value )
+					);
+				}
 			}
+		} else {
+			$element = $root->createTextNode( $array );
+			$parent->appendChild( $element );
 		}
 
-		return $string;
-	}
-
-	/**
-	 * Render an associative array of XML attribute key/value pairs.
-	 *
-	 * @access public
-	 * @since 4.8.0
-	 *
-	 * @param array $array Key/value array of attributes.
-	 *
-	 * @return string The rendered attribute string.
-	 */
-	public static function array_to_xml_attr_string( $array ) {
-		$string = '';
-
-		foreach ( $array as $key => $value ) {
-			$key = preg_replace( '/[^a-zA-Z:_-]/', '_', $key );
-			$string .= ' ' . $key . '="' . esc_attr( $value ) . '"';
+		if ( $return_string ) {
+			return $root->saveHTML();
+		} else {
+			return $element;
 		}
-
-		return $string;
 	}
-
 }

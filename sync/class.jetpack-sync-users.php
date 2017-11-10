@@ -27,8 +27,8 @@ class Jetpack_Sync_Users {
 	}
 
 	static function get_role( $user_id ) {
-		if ( isset( $user_roles[ $user_id ] ) ) {
-			return $user_roles[ $user_id ];
+		if ( isset( self::$user_roles[ $user_id ] ) ) {
+			return self::$user_roles[ $user_id ];
 		}
 
 		$current_user_id = get_current_user_id();
@@ -41,7 +41,7 @@ class Jetpack_Sync_Users {
 	}
 
 	static function get_signed_role( $user_id ) {
-		return Jetpack::sign_role( self::get_role( $user_id ) );
+		return Jetpack::sign_role( self::get_role( $user_id ), $user_id );
 	}
 
 	static function update_role_on_com( $user_id ) {

@@ -6,7 +6,7 @@
  * [mailchimp_subscriber_popup baseUrl="mc.us11.list-manage.com" uuid="1ca7856462585a934b8674c71" lid="2d24f1898b"]
  *
  * Embed code example:
- * <script type="text/javascript" src="//s3.amazonaws.com/downloads.mailchimp.com/js/signup-forms/popup/embed.js" data-dojo-config="usePlainJson: true, isDebug: false"></script><script type="text/javascript">require(["mojo/signup-forms/Loader"], function(L) { L.start({"baseUrl":"mc.us11.list-manage.com","uuid":"1ca7856462585a934b8674c71","lid":"2d24f1898b"}) })</script>
+ * <script type="text/javascript" src="//downloads.mailchimp.com/js/signup-forms/popup/embed.js" data-dojo-config="usePlainJson: true, isDebug: false"></script><script type="text/javascript">require(["mojo/signup-forms/Loader"], function(L) { L.start({"baseUrl":"mc.us11.list-manage.com","uuid":"1ca7856462585a934b8674c71","lid":"2d24f1898b"}) })</script>
  *
  */
 
@@ -46,9 +46,9 @@ class MailChimp_Subscriber_Popup {
 	 */
 	static $reversal_regexes = array(
 		/* raw examplejs */
-		'/<script type="text\/javascript" src="(https?:)?\/\/s3\.amazonaws.com\/downloads\.mailchimp\.com\/js\/signup-forms\/popup\/embed\.js" data-dojo-config="([^"]*?)"><\/script><script type="text\/javascript">require\(\["mojo\/signup-forms\/Loader"\]\, function\(L\) { L\.start\({([^}]*?)}\) }\)<\/script>/s',
+		'/<script type="text\/javascript" src="(https?:)?\/\/downloads\.mailchimp\.com\/js\/signup-forms\/popup\/embed\.js" data-dojo-config="([^"]*?)"><\/script><script type="text\/javascript">require\(\["mojo\/signup-forms\/Loader"\]\, function\(L\) { L\.start\({([^}]*?)}\) }\)<\/script>/s',
 		/* visual editor */
-		'/&lt;script type="text\/javascript" src="(https?:)?\/\/s3\.amazonaws.com\/downloads\.mailchimp\.com\/js\/signup-forms\/popup\/embed\.js" data-dojo-config="([^"]*?)"&gt;&lt;\/script&gt;&lt;script type="text\/javascript"&gt;require\(\["mojo\/signup-forms\/Loader"]\, function\(L\) { L\.start\({([^}]*?)}\) }\)&lt;\/script&gt;/s',
+		'/&lt;script type="text\/javascript" src="(https?:)?\/\/downloads\.mailchimp\.com\/js\/signup-forms\/popup\/embed\.js" data-dojo-config="([^"]*?)"&gt;&lt;\/script&gt;&lt;script type="text\/javascript"&gt;require\(\["mojo\/signup-forms\/Loader"]\, function\(L\) { L\.start\({([^}]*?)}\) }\)&lt;\/script&gt;/s',
 	);
 
 	/**
@@ -199,6 +199,6 @@ class MailChimp_Subscriber_Popup {
 
 		$displayed_once = true;
 
-		return "\n\n" . '<script type="text/javascript" data-dojo-config="' . esc_attr( implode( ', ', $config_vars ) ) . '">jQuery.getScript( "//s3.amazonaws.com/downloads.mailchimp.com/js/signup-forms/popup/embed.js", function( data, textStatus, jqxhr ) { require(["mojo/signup-forms/Loader"], function(L) { L.start(' . wp_json_encode( $js_vars ) . ') }); } );</script>' . "\n\n";
+		return "\n\n" . '<script type="text/javascript" data-dojo-config="' . esc_attr( implode( ', ', $config_vars ) ) . '">jQuery.getScript( "//downloads.mailchimp.com/js/signup-forms/popup/embed.js", function( data, textStatus, jqxhr ) { require(["mojo/signup-forms/Loader"], function(L) { L.start(' . wp_json_encode( $js_vars ) . ') }); } );</script>' . "\n\n";
 	}
 }

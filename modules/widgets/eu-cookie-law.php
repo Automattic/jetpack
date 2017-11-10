@@ -206,24 +206,6 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 		}
 
 		/**
-		 * Set the EU Cookie Law cookie.
-		 */
-		public static function add_consent_cookie() {
-			if ( ! isset( $_POST['eucookielaw'] ) || 'accept' !== $_POST['eucookielaw'] ) {
-				return;
-			}
-
-			if ( ! isset( $_POST['_wpnonce'] ) || ! wp_verify_nonce( $_POST['_wpnonce'], 'eucookielaw' ) ) {
-				return;
-			}
-
-			// Cookie is valid for 30 days, so the user will be shown the banner again after 30 days.
-			setcookie( self::$cookie_name, current_time( 'timestamp' ), time() + self::$cookie_validity, '/' );
-
-			wp_safe_redirect( $_POST['redirect_url'] );
-		}
-
-		/**
 		 * Check if the value is allowed and not empty.
 		 *
 		 * @param  string $value Value to check.
@@ -245,9 +227,5 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 		register_widget( 'Jetpack_EU_Cookie_Law_Widget' );
 	};
 
-  // Only load the widget if we're inside the admin or the user has not given their consent to accept cookies.
-	if ( is_admin() || empty( $_COOKIE[ Jetpack_EU_Cookie_Law_Widget::$cookie_name ] ) ) {
-		add_action( 'widgets_init', 'jetpack_register_eu_cookie_law_widget' );
-		add_action( 'init', array( 'Jetpack_EU_Cookie_Law_Widget', 'add_consent_cookie' ) );
-	}
+	add_action( 'widgets_init', 'jetpack_register_eu_cookie_law_widget' );
 }

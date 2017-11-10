@@ -217,8 +217,11 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 			);
 		}
 
-		$response = rest_do_request( new WP_REST_Request( 'GET', '/jetpack/v4/module/all' ) );
-		$modules = $response->get_data();
+		// Load API endpoint base classes and endpoints for getting the module list fed into the JS Admin Page
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/class.jetpack-core-api-xmlrpc-consumer-endpoint.php';
+		require_once JETPACK__PLUGIN_DIR . '_inc/lib/core-api/class.jetpack-core-api-module-endpoints.php';
+		$moduleListEndpoint = new Jetpack_Core_API_Module_List_Endpoint();
+		$modules = $moduleListEndpoint->get_modules();
 
 		// Preparing translated fields for JSON encoding by transforming all HTML entities to
 		// respective characters.
@@ -263,6 +266,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				'isPublic'	=> '1' == get_option( 'blog_public' ),
 				'isInIdentityCrisis' => Jetpack::validate_sync_error_idc_option(),
 			),
+			'connectUrl' => Jetpack::init()->build_connect_url( true, false, false ),
 			'dismissedNotices' => $this->get_dismissed_jetpack_notices(),
 			'isDevVersion' => Jetpack::is_development_version(),
 			'currentVersion' => JETPACK__VERSION,
@@ -302,7 +306,7 @@ class Jetpack_React_Page extends Jetpack_Admin_Page {
 				 * @param bool $are_promotions_active Status of promotions visibility. True by default.
 				 */
 				'showPromotions' => apply_filters( 'jetpack_show_promotions', true ),
-				'isAutomatedTransfer' => jetpack_is_automated_transfer_site(),
+				'isAtomicSite' => jetpack_is_atomic_site(),
 			),
 			'themeData' => array(
 				'name'      => $current_theme->get( 'Name' ),

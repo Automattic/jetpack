@@ -133,7 +133,7 @@ class Jetpack_Protect_Module {
 				require_once( ABSPATH . '/wp-admin/includes/plugin.php' );
 			}
 
-			if ( ! is_plugin_active_for_network( 'jetpack/jetpack.php' ) ) {
+			if ( ! ( is_plugin_active_for_network( 'jetpack/jetpack.php' ) || is_plugin_active_for_network( 'jetpack-dev/jetpack.php' ) ) ) {
 				add_action( 'load-index.php', array ( $this, 'prepare_jetpack_protect_multisite_notice' ) );
 			}
 		}
@@ -597,6 +597,7 @@ class Jetpack_Protect_Module {
 			// If it fails we need access to $this->api_key_error
 			if ( $result ) {
 				wp_safe_redirect( Jetpack::module_configuration_url( 'protect' ) );
+				exit;
 			}
 		}
 

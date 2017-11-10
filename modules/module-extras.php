@@ -23,13 +23,24 @@ $tools = array(
 	'seo-tools/jetpack-seo-utils.php',
 	'seo-tools/jetpack-seo-titles.php',
 	'seo-tools/jetpack-seo-posts.php',
+	'simple-payments/simple-payments.php',
 	'verification-tools/verification-tools-utils.php',
 );
+
+// Not every tool needs to be included if Jetpack is inactive and not in development mode
+if ( ! Jetpack::is_active() && ! Jetpack::is_development_mode() ) {
+	$tools = array(
+		'seo-tools/jetpack-seo-utils.php',
+		'seo-tools/jetpack-seo-titles.php',
+		'seo-tools/jetpack-seo-posts.php',
+	);
+}
 
 /**
  * Filter extra tools (not modules) to include.
  *
  * @since 2.4.0
+ * @since 5.4.0 can be used in multisite when Jetpack is not connected to WordPress.com and not in development mode.
  *
  * @param array $tools Array of extra tools to include.
  */

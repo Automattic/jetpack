@@ -3,7 +3,7 @@
     margin-left: 0;
 }
 
-.widget_wpcom_social_media_icons_widget li {
+.widget_wpcom_social_media_icons_widget ul li {
     border: 0 none;
     display: inline;
     margin-right: 0.5em;

@@ -2,11 +2,11 @@
 
 /*
  * Plugin Name: Jetpack by WordPress.com
- * Plugin URI: http://jetpack.com
+ * Plugin URI: https://jetpack.com
  * Description: Bring the power of the WordPress.com cloud to your self-hosted WordPress. Jetpack enables you to connect your blog to a WordPress.com account to use the powerful features normally only available to WordPress.com users.
  * Author: Automattic
- * Version: 5.0-alpha
- * Author URI: http://jetpack.com
+ * Version: 5.6-alpha
+ * Author URI: https://jetpack.com
  * License: GPL2+
  * Text Domain: jetpack
  * Domain Path: /languages/
@@ -14,7 +14,7 @@
 
 define( 'JETPACK__MINIMUM_WP_VERSION', '4.7' );
 
-define( 'JETPACK__VERSION',            '5.0-alpha' );
+define( 'JETPACK__VERSION',            '5.6-alpha' );
 define( 'JETPACK_MASTER_USER',         true );
 define( 'JETPACK__API_VERSION',        1 );
 define( 'JETPACK__PLUGIN_DIR',         plugin_dir_path( __FILE__ ) );
@@ -26,31 +26,6 @@ defined( 'JETPACK__GLOTPRESS_LOCALES_PATH' ) or define( 'JETPACK__GLOTPRESS_LOCA
 defined( 'JETPACK__API_BASE' )               or define( 'JETPACK__API_BASE', 'https://jetpack.wordpress.com/jetpack.' );
 defined( 'JETPACK_PROTECT__API_HOST' )       or define( 'JETPACK_PROTECT__API_HOST', 'https://api.bruteprotect.com/' );
 defined( 'JETPACK__WPCOM_JSON_API_HOST' )    or define( 'JETPACK__WPCOM_JSON_API_HOST', 'public-api.wordpress.com' );
-
-add_filter( 'rest_url_prefix', 'jetpack_index_permalinks_rest_api_url', 999 );
-/**
- * Fix the REST API URL for sites using index permalinks
- *
- * @todo   Remove when 4.7 is minimum version
- * @see    https://core.trac.wordpress.org/ticket/38182
- * @see    https://github.com/Automattic/jetpack/issues/5216
- * @author kraftbj
- *
- * @param string $prefix REST API endpoint URL base prefix.
- *
- * @return string
- */
-function jetpack_index_permalinks_rest_api_url( $prefix ){
-	global $wp_rewrite, $wp_version;
-	if ( version_compare( $wp_version, '4.7-alpha-38790', '<' )
-		&& isset( $wp_rewrite ) && $wp_rewrite instanceof WP_Rewrite
-		&& method_exists( $wp_rewrite, 'using_index_permalinks' )
-		&& $wp_rewrite->using_index_permalinks() ) {
-		$prefix = $wp_rewrite->index . '/' . $prefix;
-	}
-
-	return $prefix;
-}
 
 /**
  * Returns the location of Jetpack's lib directory. This filter is applied

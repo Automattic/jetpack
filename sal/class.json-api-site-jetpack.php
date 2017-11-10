@@ -30,6 +30,14 @@ class Jetpack_Site extends Abstract_Jetpack_Site {
 		return wp_max_upload_size();
 	}
 
+	protected function wp_memory_limit() {
+		return wp_convert_hr_to_bytes( WP_MEMORY_LIMIT );
+	}
+
+	protected function wp_max_memory_limit() {
+		return wp_convert_hr_to_bytes( WP_MAX_MEMORY_LIMIT );
+	}
+
 	protected function is_main_network() {
 		return Jetpack::is_multi_network();
 	}

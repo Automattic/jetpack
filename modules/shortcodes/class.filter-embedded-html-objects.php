@@ -54,7 +54,7 @@ class Filter_Embedded_HTML_Objects {
 	}
 
 	static public function filter( $html ) {
-		if ( ! $html ) {
+		if ( ! $html || ! is_string( $html ) ) {
 			return $html;
 		}
 
@@ -242,6 +242,10 @@ class Filter_Embedded_HTML_Objects {
 	}
 
 	static function get_attrs( $html ) {
+		if ( ! ( function_exists( 'libxml_use_internal_errors' ) && function_exists( 'simplexml_load_string' ) ) ) {
+			trigger_error( __( "PHP's XML extension is not available. Please contact your hosting provider to enable PHP's XML extension." ) );
+			return array();
+		}
 		// We have to go through DOM, since it can load non-well-formed XML (i.e. HTML).  SimpleXML cannot.
 		$dom = new DOMDocument;
 		// The @ is not enough to suppress errors when dealing with libxml,

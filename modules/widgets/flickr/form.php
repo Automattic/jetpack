@@ -23,7 +23,7 @@
 </p>
 <p>
 	<small>
-		<?php esc_html_e( 'To find your Flickr RSS URL, go to your photostream, open the "More" menu and click on "Edit". Scroll down until you see the RSS icon or the "Latest" link. Right click on either and copy the URL. Paste into the box above.', 'jetpack' ); ?>
+		<?php esc_html_e( 'To find your Flickr RSS URL, go to your photostream, add "?details=1" to the URL, and hit enter. Scroll down until you see the RSS icon or the "Latest" link. Right-click on either options and copy the URL. Paste into the box above.', 'jetpack' ); ?>
 	</small>
 </p>
 <p>

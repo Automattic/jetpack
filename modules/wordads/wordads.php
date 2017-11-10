@@ -5,6 +5,7 @@ define( 'WORDADS_BASENAME', plugin_basename( __FILE__ ) );
 define( 'WORDADS_FILE_PATH', WORDADS_ROOT . '/' . basename( __FILE__ ) );
 define( 'WORDADS_URL', plugins_url( '/', __FILE__ ) );
 define( 'WORDADS_API_TEST_ID', '26942' );
+define( 'WORDADS_API_TEST_ID2', '114160' );
 
 require_once( WORDADS_ROOT . '/php/widgets.php' );
 require_once( WORDADS_ROOT . '/php/api.php' );
@@ -91,7 +92,6 @@ class WordAds {
 		}
 
 		$this->insert_adcode();
-		$this->insert_extras();
 	}
 
 	/**
@@ -128,15 +128,6 @@ class WordAds {
 					break;
 			}
 		}
-	}
-
-	/**
-	 * Add the actions/filters to insert extra-network features.
-	 *
-	 * @since 4.5.0
-	 */
-	private function insert_extras() {
-		require_once( WORDADS_ROOT . '/php/networks/amazon.php' );
 	}
 
 	/**
@@ -181,7 +172,27 @@ HTML;
 	 */
 	function insert_head_iponweb() {
 		$data_tags = ( $this->params->cloudflare ) ? ' data-cfasync="false"' : '';
-		echo "<script$data_tags type='text/javascript' src='//s.pubmine.com/head.js'></script>";
+		echo <<<HTML
+		<link rel='dns-prefetch' href='//s.pubmine.com' />
+		<link rel='dns-prefetch' href='//x.bidswitch.net' />
+		<link rel='dns-prefetch' href='//static.criteo.net' />
+		<link rel='dns-prefetch' href='//ib.adnxs.com' />
+		<link rel='dns-prefetch' href='//aax.amazon-adsystem.com' />
+		<link rel='dns-prefetch' href='//bidder.criteo.com' />
+		<link rel='dns-prefetch' href='//cas.criteo.com' />
+		<link rel='dns-prefetch' href='//gum.criteo.com' />
+		<link rel='dns-prefetch' href='//ads.pubmatic.com' />
+		<link rel='dns-prefetch' href='//gads.pubmatic.com' />
+		<link rel='dns-prefetch' href='//tpc.googlesyndication.com' />
+		<link rel='dns-prefetch' href='//ad.doubleclick.net' />
+		<link rel='dns-prefetch' href='//googleads.g.doubleclick.net' />
+		<link rel='dns-prefetch' href='//www.googletagservices.com' />
+		<link rel='dns-prefetch' href='//cdn.switchadhub.com' />
+		<link rel='dns-prefetch' href='//delivery.g.switchadhub.com' />
+		<link rel='dns-prefetch' href='//delivery.swid.switchadhub.com' />
+		<script$data_tags type="text/javascript" src="//s.pubmine.com/head.js"></script>
+		<script$data_tags type="text/javascript" src="//static.criteo.net/js/ld/publishertag.js"></script>
+HTML;
 	}
 
 	/**
@@ -283,42 +294,119 @@ HTML;
 	 */
 	function get_ad( $spot, $type = 'iponweb' ) {
 		$snippet = '';
+		$blocker_unit = 'mrec';
 		if ( 'iponweb' == $type ) {
 			$section_id = WORDADS_API_TEST_ID;
 			$width = 300;
 			$height = 250;
+			$second_belowpost = '';
 			if ( 'top' == $spot ) {
 				// mrec for mobile, leaderboard for desktop
 				$section_id = 0 === $this->params->blog_id ? WORDADS_API_TEST_ID : $this->params->blog_id . '2';
 				$width = $this->params->mobile_device ? 300 : 728;
 				$height = $this->params->mobile_device ? 250 : 90;
-			} else if ( 'belowpost' ) {
+				$blocker_unit = $this->params->mobile_device ? 'top_mrec' : 'top';
+			} else if ( 'belowpost' == $spot ) {
 				$section_id = 0 === $this->params->blog_id ? WORDADS_API_TEST_ID : $this->params->blog_id . '1';
 				$width = 300;
 				$height = 250;
+				if ( $this->option( 'wordads_second_belowpost', true ) ) {
+					$section_id2 = 0 === $this->params->blog_id ? WORDADS_API_TEST_ID2 : $this->params->blog_id . '4';
+					$second_belowpost =
+						"g.__ATA.initAd({collapseEmpty:'after', sectionId:$section_id2, width:$width, height:$height});";
+				}
 			}
+
 			$data_tags = ( $this->params->cloudflare ) ? ' data-cfasync="false"' : '';
 			$snippet = <<<HTML
-			<script$data_tags type='text/javascript'>
-				(function(g){g.__ATA.initAd({sectionId:$section_id, width:$width, height:$height});})(window);
+			<script$data_tags id='s$section_id' type='text/javascript'>
+				(function(g){if('undefined'!=typeof g.__ATA){
+					g.__ATA.initAd({collapseEmpty:'after', sectionId:$section_id, width:$width, height:$height});
+					$second_belowpost
+				}})(window);
 			</script>
 HTML;
 		} else if ( 'house' == $type ) {
 			$leaderboard = 'top' == $spot && ! $this->params->mobile_device;
 			$snippet = $this->get_house_ad( $leaderboard ? 'leaderboard' : 'mrec' );
+			if ( 'belowpost' == $spot && $this->option( 'wordads_second_belowpost', true ) ) {
+				$snippet .= $this->get_house_ad( $leaderboard ? 'leaderboard' : 'mrec' );
+			}
+		}
+
+		$ad_blocker_ad = 'iponweb' == $type ? $this->get_adblocker_ad( $blocker_unit ) : '';
+		$second_belowpost_css = '';
+		$double_mrec = '';
+		if ( 'belowpost' == $spot && $this->option( 'wordads_second_belowpost', true ) ) {
+			if ( 'iponweb' == $type ) {
+				$ad_blocker_ad .= $this->get_adblocker_ad( 'mrec2' );
+			}
+
+			$double_mrec = 'wpmrec2x';
+			$second_belowpost_css = <<<HTML
+			<style type="text/css">
+			div.wpmrec2x{max-width:610px;}
+			div.wpmrec2x div.u > div{float:left;margin-right:10px;}
+			div.wpmrec2x div.u > div:nth-child(3n){margin-right:0px;}
+			</style>
+HTML;
 		}
 
 		$header = 'top' == $spot ? 'wpcnt-header' : '';
 		$about = __( 'Advertisements', 'jetpack' );
 		return <<<HTML
-		<div class="wpcnt $header">
+		$second_belowpost_css
+		<div class="wpcnt $header $double_mrec">
 			<div class="wpa">
 				<span class="wpa-about">$about</span>
 				<div class="u $spot">
 					$snippet
 				</div>
+				$ad_blocker_ad
 			</div>
 		</div>
+HTML;
+	}
+
+	/**
+	 * Get Criteo Acceptable Ad unit
+	 * @param  string $unit mrec, mrec2, widesky, top, top_mrec
+	 *
+	 * @since 5.3
+	 */
+	public function get_adblocker_ad( $unit = 'mrec' ) {
+		$criteo_id = mt_rand();
+		$height = 250;
+		$width = 300;
+		$zone_id = 388248;
+		if ( 'mrec2' == $unit ) { // 2nd belowpost
+			$zone_id = 837497;
+		} else if ( 'widesky' == $unit ) { // sidebar
+			$zone_id = 563902;
+			$width = 160;
+			$height= 600;
+		} else if ( 'top' == $unit ) { // top leaderboard
+			$zone_id = 563903;
+			$width = 728;
+			$height = 90;
+		} else if ( 'top_mrec' == $unit ) { // top mrec
+			$zone_id = 563903;
+		}
+
+		return <<<HTML
+		<div id="crt-$criteo_id" style="width:{$width}px;height:{$height}px;"></div>
+		<script type="text/javascript">
+		var o = document.getElementById('crt-$criteo_id');
+		if ("undefined"!=typeof Criteo) {
+			var p = o.parentNode;
+			p.style.setProperty('display', 'inline-block', 'important');
+			o.style.setProperty('display', 'block', 'important');
+			Criteo.DisplayAcceptableAdIfAdblocked({zoneid:$zone_id,containerid:"crt-$criteo_id",collapseContainerIfNotAdblocked:true,"callifnotadblocked": function () {var o = document.getElementById('crt-$criteo_id'); o.style.setProperty('display','none','important');o.style.setProperty('visbility','hidden','important'); } });
+		} else {
+			o.style.setProperty('display', 'none', 'important');
+			o.style.setProperty('visibility', 'hidden', 'important');
+		}
+		</script>
 HTML;
 	}
 

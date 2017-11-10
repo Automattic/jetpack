@@ -1,5 +1,27 @@
 <?php
 
+new WPCOM_JSON_API_Get_Term_Endpoint( array(
+	'description' => 'Get information about a single term.',
+	'group'       => 'taxonomy',
+	'stat'        => 'terms:1',
+	'method'      => 'GET',
+	'path'        => '/sites/%s/taxonomies/%s/terms/slug:%s',
+	'path_labels' => array(
+		'$site'     => '(int|string) Site ID or domain',
+		'$taxonomy' => '(string) Taxonomy',
+		'$slug'     => '(string) Term slug',
+	),
+	'response_format' => array(
+		'ID'          => '(int) The term ID.',
+		'name'        => '(string) The name of the term.',
+		'slug'        => '(string) The slug of the term.',
+		'description' => '(string) The description of the term.',
+		'post_count'  => '(int) The number of posts using this term.',
+		'parent'      => '(int) The parent ID for the term, if hierarchical.',
+	),
+	'example_request'  => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/taxonomies/post_tag/terms/slug:wordpresscom'
+) );
+
 class WPCOM_JSON_API_Get_Term_Endpoint extends WPCOM_JSON_API_Endpoint {
 	// /sites/%s/taxonomies/%s/terms/slug:%s -> $blog_id, $taxonomy, $slug
 	function callback( $path = '', $blog_id = 0, $taxonomy = 'category', $slug = 0 ) {

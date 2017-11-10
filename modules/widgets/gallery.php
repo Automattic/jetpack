@@ -417,11 +417,8 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 			);
 
 			wp_localize_script( 'gallery-widget-admin', '_wpGalleryWidgetAdminSettings', $js_settings );
-			if( is_rtl() ) {
-				wp_enqueue_style( 'gallery-widget-admin', plugins_url( '/gallery/css/rtl/admin-rtl.css', __FILE__ ) );
-			} else {
-				wp_enqueue_style( 'gallery-widget-admin', plugins_url( '/gallery/css/admin.css', __FILE__ ) );
-			}
+			wp_enqueue_style( 'gallery-widget-admin', plugins_url( '/gallery/css/admin.css', __FILE__ ) );
+			wp_style_add_data( 'gallery-widget-admin', 'rtl', 'replace' );
 		}
 	}
 }
@@ -429,6 +426,22 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 add_action( 'widgets_init', 'jetpack_gallery_widget_init' );
 
 function jetpack_gallery_widget_init() {
+	/**
+	 * Allow the Gallery Widget to be enabled even when Core supports the Media Gallery Widget
+	 *
+	 * @module widgets
+	 *
+	 * @since 5.5.0
+	 *
+	 * @param bool false Whether to force-enable the gallery widget
+	 */
+	if (
+		! apply_filters( 'jetpack_force_enable_gallery_widget', false )
+		&& class_exists( 'WP_Widget_Media_Gallery' )
+		&& Jetpack_Options::get_option( 'gallery_widget_migration' )
+	) {
+		return;
+ 	}
 	if ( ! method_exists( 'Jetpack', 'is_module_active' ) || Jetpack::is_module_active( 'tiled-gallery' ) )
 		register_widget( 'Jetpack_Gallery_Widget' );
 }

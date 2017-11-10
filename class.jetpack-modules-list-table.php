@@ -31,19 +31,19 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 
 		wp_register_script(
 			'models.jetpack-modules',
-			plugins_url( '_inc/jetpack-modules.models.js', JETPACK__PLUGIN_FILE ),
+			plugins_url( '_inc/build/jetpack-modules.models.min.js', JETPACK__PLUGIN_FILE ),
 			array( 'backbone', 'underscore' ),
 			JETPACK__VERSION
 		);
 		wp_register_script(
 			'views.jetpack-modules',
-			plugins_url( '_inc/jetpack-modules.views.js', JETPACK__PLUGIN_FILE ),
+			plugins_url( '_inc/build/jetpack-modules.views.min.js', JETPACK__PLUGIN_FILE ),
 			array( 'backbone', 'underscore', 'wp-util' ),
 			JETPACK__VERSION
 		);
 		wp_register_script(
 			'jetpack-modules-list-table',
-			plugins_url( '_inc/jetpack-modules.js', JETPACK__PLUGIN_FILE ),
+			plugins_url( '_inc/build/jetpack-modules.min.js', JETPACK__PLUGIN_FILE ),
 			array(
 				'views.jetpack-modules',
 				'models.jetpack-modules',
@@ -82,7 +82,7 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 			<# var i = 0;
 			if ( data.items.length ) {
 			_.each( data.items, function( item, key, list ) {
-				if ( item === undefined || 'search' == item.module ) return; #>
+				if ( item === undefined ) return; #>
 				<tr class="jetpack-module <# if ( ++i % 2 ) { #> alternate<# } #><# if ( item.activated ) { #> active<# } #><# if ( ! item.available ) { #> unavailable<# } #>" id="{{{ item.module }}}">
 					<th scope="row" class="check-column">
 						<# if ( 'videopress' !== item.module ) { #>
@@ -95,9 +95,9 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 						<# if ( item.configurable ) { #>
 							<span class='configure'>{{{ item.configurable }}}</span>
 						<# } #>
-						<# if ( item.activated && 'vaultpress' !== item.module && item.available && 'videopress' !== item.module ) { #>
+						<# if ( item.activated && 'vaultpress' !== item.module && 'search' !== item.module && item.available && 'videopress' !== item.module ) { #>
 							<span class='delete'><a href="<?php echo admin_url( 'admin.php' ); ?>?page=jetpack&#038;action=deactivate&#038;module={{{ item.module }}}&#038;_wpnonce={{{ item.deactivate_nonce }}}"><?php _e( 'Deactivate', 'jetpack' ); ?></a></span>
-						<# } else if ( item.available && 'videopress' !== item.module ) { #>
+						<# } else if ( item.available && 'videopress' !== item.module && 'search' !== item.module ) { #>
 							<span class='activate'><a href="<?php echo admin_url( 'admin.php' ); ?>?page=jetpack&#038;action=activate&#038;module={{{ item.module }}}&#038;_wpnonce={{{ item.activate_nonce }}}"><?php _e( 'Activate', 'jetpack' ); ?></a></span>
 						<# } #>
 						</div>

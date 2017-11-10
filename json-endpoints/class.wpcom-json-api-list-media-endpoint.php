@@ -1,5 +1,39 @@
 <?php
 
+new WPCOM_JSON_API_List_Media_Endpoint( array(
+	'description' => 'Get a list of items in the media library.',
+	'group'       => 'media',
+	'stat'        => 'media',
+
+	'method'      => 'GET',
+	'path'        => '/sites/%s/media/',
+	'deprecated'  => true,
+	'new_version' => '1.1',
+	'max_version' => '1',
+	'path_labels' => array(
+		'$site' => '(int|string) Site ID or domain',
+	),
+
+	'query_parameters' => array(
+		'number'    => '(int=20) The number of media items to return. Limit: 100.',
+		'offset'    => '(int=0) 0-indexed offset.',
+		'parent_id' => '(int) Default is showing all items. The post where the media item is attached. 0 shows unattached media items.',
+		'mime_type' => "(string) Default is empty. Filter by mime type (e.g., 'image/jpeg', 'application/pdf'). Partial searches also work (e.g. passing 'image' will search for all image files).",
+	),
+
+	'response_format' => array(
+		'media' => '(array) Array of media',
+		'found' => '(int) The number of total results found'
+	),
+
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/82974409/media/?number=2',
+	'example_request_data' =>  array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		)
+	)
+) );
+
 class WPCOM_JSON_API_List_Media_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 	function callback( $path = '', $blog_id = 0 ) {

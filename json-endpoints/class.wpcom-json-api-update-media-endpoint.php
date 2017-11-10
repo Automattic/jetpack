@@ -1,5 +1,46 @@
 <?php
 
+new WPCOM_JSON_API_Update_Media_Endpoint( array(
+	'description' => 'Edit basic information about a media item.',
+	'group'       => 'media',
+	'stat'        => 'media:1:POST',
+	'method'      => 'POST',
+	'path'        => '/sites/%s/media/%d',
+	'deprecated'  => true,
+	'max_version' => '1',
+	'new_version' => '1.1',
+	'path_labels' => array(
+		'$site'    => '(int|string) Site ID or domain',
+		'$media_ID' => '(int) The ID of the media item',
+	),
+
+	'request_format' => array(
+		'title'       => '(string) The file name.',
+		'caption'     => '(string) File caption.',
+		'description' => '(HTML) Description of the file.',
+	),
+
+	'response_format' => array(
+		'id'          => '(int) The ID of the media item',
+		'date'        =>  '(ISO 8601 datetime) The date the media was uploaded',
+		'parent'      => '(int) ID of the post this media is attached to',
+		'link'        => '(string) URL to the file',
+		'title'       => '(string) File name',
+		'caption'     => '(string) User provided caption of the file',
+		'description' => '(string) Description of the file',
+		'metadata'    => '(array) Array of metadata about the file, such as Exif data or sizes',
+	),
+	'example_request'      => 'https://public-api.wordpress.com/rest/v1.1/sites/82974409/media/446',
+	'example_request_data' =>  array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+		'body' => array(
+			'title' => 'Updated Title'
+		)
+	)
+) );
+
 class WPCOM_JSON_API_Update_Media_Endpoint extends WPCOM_JSON_API_Endpoint {
 	function callback( $path = '', $blog_id = 0, $media_id = 0 ) {
 		$blog_id = $this->api->switch_to_blog_and_validate_user( $this->api->get_blog_id( $blog_id ) );

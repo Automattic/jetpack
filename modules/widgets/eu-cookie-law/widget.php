@@ -5,9 +5,6 @@
 	id="eu-cookie-law"
 >
 	<form method="post">
-		<?php wp_nonce_field( 'eucookielaw' ); ?>
-		<input type="hidden" name="eucookielaw" value="accept" />
-		<input type="hidden" name="redirect_url" value="<?php echo esc_attr( $_SERVER['REQUEST_URI'] ); ?>" />
 		<input type="submit" value="<?php echo esc_attr( $instance['button'] ); ?>" class="accept" />
 	</form>
 

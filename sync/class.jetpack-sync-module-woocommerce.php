@@ -81,7 +81,8 @@ class Jetpack_Sync_Module_WooCommerce extends Jetpack_Sync_Module {
 	}
 
 	public function filter_order_item( $args ) {
-		$args[1] = $this->build_order_item( $args[1] );
+		// Make sure we always have all the data - prior to WooCommerce 3.0 we only have the user supplied data in the second argument and not the full details
+		$args[1] = $this->build_order_item( $args[0] );
 		return $args;
 	}
 
@@ -102,20 +103,9 @@ class Jetpack_Sync_Module_WooCommerce extends Jetpack_Sync_Module {
 		);
 	}
 
-	public function build_order_item( $order_item ) {
-		if ( is_numeric( $order_item ) ) {
-			global $wpdb;
-			return $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $this->order_item_table_name WHERE order_item_id = %d", $order_item ) );
-		} elseif ( is_array( $order_item ) ) {
-			return $order_item;
-		} else {
-			return (object)array(
-				'order_item_id'   => $order_item->get_id(),
-				'order_item_type' => $order_item->get_type(),
-				'order_item_name' => $order_item->get_name(),
-				'order_id'        => $order_item->get_order_id(),
-			);
-		}
+	public function build_order_item( $order_item_id ) {
+		global $wpdb;
+		return $wpdb->get_row( $wpdb->prepare( "SELECT * FROM $this->order_item_table_name WHERE order_item_id = %d", $order_item_id ) );
 	}
 
 	public function enqueue_full_sync_actions( $config, $max_items_to_enqueue, $state ) {

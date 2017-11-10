@@ -1,4 +1,25 @@
 <?php
+
+new WPCOM_JSON_API_List_Embeds_Endpoint( array(
+	'description' => "Get a list of embeds available on a site. Note: The current user must have publishing access.",
+	'group'       => 'sites',
+	'stat'        => 'embeds',
+	'method'      => 'GET',
+	'path'        => '/sites/%s/embeds',
+	'path_labels' => array(
+		'$site'    => '(int|string) Site ID or domain',
+	),
+	'response_format' => array(
+		'embeds' => '(array) A list of supported embeds by their regex pattern.',
+	),
+	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/82974409/embeds',
+	'example_request_data' => array(
+		'headers' => array(
+			'authorization' => 'Bearer YOUR_API_TOKEN'
+		),
+	)
+) );
+
 class WPCOM_JSON_API_List_Embeds_Endpoint extends WPCOM_JSON_API_Endpoint {
 	// /sites/%s/embeds -> $blog_id
 	function callback( $path = '', $blog_id = 0 ) {
@@ -14,11 +35,11 @@ class WPCOM_JSON_API_List_Embeds_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 		// list em
 		$output = array( 'embeds' => array() );
-	
+
 		if ( ! function_exists( '_wp_oembed_get_object' ) ) {
 			require_once( ABSPATH . WPINC . '/class-oembed.php' );
 		}
-				
+
 		global $wp_embed;
 		$oembed = _wp_oembed_get_object();
 

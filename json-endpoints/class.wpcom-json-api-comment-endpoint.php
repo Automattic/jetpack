@@ -4,14 +4,15 @@
 abstract class WPCOM_JSON_API_Comment_Endpoint extends WPCOM_JSON_API_Endpoint {
 	public $comment_object_format = array(
 		// explicitly document and cast all output
-		'ID'        => '(int) The comment ID.',
-		'post'      => "(object>post_reference) A reference to the comment's post.",
-		'author'    => '(object>author) The author of the comment.',
-		'date'      => "(ISO 8601 datetime) The comment's creation time.",
-		'URL'       => '(URL) The full permalink URL to the comment.',
-		'short_URL' => '(URL) The wp.me short URL.',
-		'content'   => '(HTML) <code>context</code> dependent.',
-		'status'    => array(
+		'ID'          => '(int) The comment ID.',
+		'post'        => "(object>post_reference) A reference to the comment's post.",
+		'author'      => '(object>author) The author of the comment.',
+		'date'        => "(ISO 8601 datetime) The comment's creation time.",
+		'URL'         => '(URL) The full permalink URL to the comment.',
+		'short_URL'   => '(URL) The wp.me short URL.',
+		'content'     => '(HTML) <code>context</code> dependent.',
+		'raw_content' => '(string) Raw comment content.',
+		'status'      => array(
 			'approved'   => 'The comment has been approved.',
 			'unapproved' => 'The comment has been held for review in the moderation queue.',
 			'spam'       => 'The comment has been marked as spam.',
@@ -73,9 +74,9 @@ abstract class WPCOM_JSON_API_Comment_Endpoint extends WPCOM_JSON_API_Endpoint {
 		case 'display' :
 			if ( 'approved' !== $status ) {
 				$current_user_id = get_current_user_id();
-				$user_can_read_coment = false;
+				$user_can_read_comment = false;
 				if ( $current_user_id && $comment->user_id && $current_user_id == $comment->user_id ) {
-					$user_can_read_coment = true;
+					$user_can_read_comment = true;
 				} elseif (
 					$comment->comment_author_email && $comment->comment_author
 				&&
@@ -87,12 +88,12 @@ abstract class WPCOM_JSON_API_Comment_Endpoint extends WPCOM_JSON_API_Endpoint {
 				&&
 					$this->api->token_details['user']['display_name'] === $comment->comment_author
 				) {
-					$user_can_read_coment = true;
+					$user_can_read_comment = true;
 				} else {
-					$user_can_read_coment = current_user_can( 'edit_comment', $comment->comment_ID );
+					$user_can_read_comment = current_user_can( 'edit_posts' );
 				}
 
-				if ( !$user_can_read_coment ) {
+				if ( !$user_can_read_comment ) {
 					return new WP_Error( 'unauthorized', 'User cannot read unapproved comment', 403 );
 				}
 			}
@@ -127,7 +128,7 @@ abstract class WPCOM_JSON_API_Comment_Endpoint extends WPCOM_JSON_API_Endpoint {
 				);
 				break;
 			case 'author' :
-				$response[$key] = (object) $this->get_author( $comment, 'edit' === $context && current_user_can( 'edit_comment', $comment->comment_ID ) );
+				$response[$key] = (object) $this->get_author( $comment, current_user_can( 'edit_comment', $comment->comment_ID ) );
 				break;
 			case 'date' :
 				$response[$key] = (string) $this->format_date( $comment->comment_date_gmt, $comment->comment_date );
@@ -147,6 +148,9 @@ abstract class WPCOM_JSON_API_Comment_Endpoint extends WPCOM_JSON_API_Endpoint {
 				} else {
 					$response[$key] = (string) $comment->comment_content;
 				}
+				break;
+			case 'raw_content':
+				$response[$key] = (string) $comment->comment_content;
 				break;
 			case 'status' :
 				$response[$key] = (string) $status;

@@ -59,7 +59,7 @@ function sharing_email_send_post( $data ) {
 /* Return $data as it if email about to be send out is not spam. */
 function sharing_email_check_for_spam_via_akismet( $data ) {
 
-	if ( ! function_exists( 'akismet_http_post' ) && ! method_exists( 'Akismet', 'http_post' ) )
+	if ( ! Jetpack::is_akismet_active() )
 		return $data;
 
 	// Prepare the body_request for akismet
@@ -217,15 +217,6 @@ function sharing_add_plugin_settings($links, $file) {
 	return $links;
 }
 
-function sharing_restrict_to_single( $services ) {
-	// This removes Press This from non-multisite blogs - doesn't make much sense
-	if ( is_multisite() === false ) {
-		unset( $services['press-this'] );
-	}
-
-	return $services;
-}
-
 function sharing_init() {
 	if ( Jetpack_Options::get_option_and_ensure_autoload( 'sharedaddy_disable_resources', '0' ) ) {
 		add_filter( 'sharing_js', 'sharing_disable_js' );
@@ -277,7 +268,6 @@ add_action( 'sharing_email_send_post', 'sharing_email_send_post' );
 add_filter( 'sharing_email_can_send', 'sharing_email_check_for_spam_via_akismet' );
 add_action( 'sharing_global_options', 'sharing_global_resources', 30 );
 add_action( 'sharing_admin_update', 'sharing_global_resources_save' );
-add_filter( 'sharing_services', 'sharing_restrict_to_single' );
 add_action( 'plugin_action_links_'.basename( dirname( __FILE__ ) ).'/'.basename( __FILE__ ), 'sharing_plugin_settings', 10, 4 );
 add_filter( 'plugin_row_meta', 'sharing_add_plugin_settings', 10, 2 );
 

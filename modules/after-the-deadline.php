@@ -274,11 +274,8 @@ function AtD_is_allowed() {
 
 function AtD_load_css() {
 	if ( AtD_should_load_on_page() ) {
-		if( is_rtl() ) {
-			wp_enqueue_style( 'AtD_style', plugins_url( '/after-the-deadline/rtl/atd-rtl.css', __FILE__ ), null, ATD_VERSION, 'screen' );
-		} else {
-			wp_enqueue_style( 'AtD_style', plugins_url( '/after-the-deadline/atd.css', __FILE__ ), null, ATD_VERSION, 'screen' );
-		}
+		wp_enqueue_style( 'AtD_style', plugins_url( '/after-the-deadline/atd.css', __FILE__ ), null, ATD_VERSION, 'screen' );
+		wp_style_add_data( 'AtD_style', 'rtl', 'replace' );
 	}
 }
 

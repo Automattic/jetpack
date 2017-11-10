@@ -146,6 +146,8 @@ class Jetpack_Sync_Defaults {
 		'ALTERNATE_WP_CRON',
 		'WP_CRON_LOCK_TIMEOUT',
 		'PHP_VERSION',
+		'WP_MEMORY_LIMIT',
+		'WP_MAX_MEMORY_LIMIT'
 	);
 
 	public static function get_constants_whitelist() {
@@ -185,10 +187,12 @@ class Jetpack_Sync_Defaults {
 		'sso_bypass_default_login_form'    => array( 'Jetpack_SSO_Helpers', 'bypass_login_forward_wpcom' ),
 		'wp_version'                       => array( 'Jetpack_Sync_Functions', 'wp_version' ),
 		'get_plugins'                      => array( 'Jetpack_Sync_Functions', 'get_plugins' ),
+		'get_plugins_action_links'		   => array( 'Jetpack_Sync_functions', 'get_plugins_action_links' ),
 		'active_modules'                   => array( 'Jetpack', 'get_active_modules' ),
 		'hosting_provider'                 => array( 'Jetpack_Sync_Functions', 'get_hosting_provider' ),
 		'locale'                           => 'get_locale',
 		'site_icon_url'                    => array( 'Jetpack_Sync_Functions', 'site_icon_url' ),
+		'roles'                            =>  array( 'Jetpack_Sync_Functions', 'roles' ),
 	);
 
 	public static function get_callable_whitelist() {
@@ -206,15 +210,21 @@ class Jetpack_Sync_Defaults {
 
 	static $blacklisted_post_types = array(
 		'ai1ec_event',
-		'snitch',
-		'secupress_log_action',
-		'http',
-		'bwg_gallery',
 		'bwg_album',
+		'bwg_gallery',
+		'customize_changeset', // WP built-in post type for Customizer changesets
+		'dn_wp_yt_log',
+		'http',
 		'idx_page',
+		'jetpack_migration',
 		'postman_sent_mail',
-		'rssmi_feed_item',
 		'rssap-feed',
+		'rssmi_feed_item',
+		'secupress_log_action',
+		'sg_optimizer_jobs',
+		'snitch',
+		'wpephpcompat_jobs',
+		'wprss_feed_item',
 		'wp_automatic',
 	);
 
@@ -355,6 +365,78 @@ class Jetpack_Sync_Defaults {
 		}
 
 		return false;
+	}
+
+	static $default_capabilities_whitelist = array(
+		'switch_themes',
+		'edit_themes',
+		'edit_theme_options',
+		'install_themes',
+		'activate_plugins',
+		'edit_plugins',
+		'install_plugins',
+		'edit_users',
+		'edit_files',
+		'manage_options',
+		'moderate_comments',
+		'manage_categories',
+		'manage_links',
+		'upload_files',
+		'import',
+		'unfiltered_html',
+		'edit_posts',
+		'edit_others_posts',
+		'edit_published_posts',
+		'publish_posts',
+		'edit_pages',
+		'read',
+		'publish_pages',
+		'edit_others_pages',
+		'edit_published_pages',
+		'delete_pages',
+		'delete_others_pages',
+		'delete_published_pages',
+		'delete_posts',
+		'delete_others_posts',
+		'delete_published_posts',
+		'delete_private_posts',
+		'edit_private_posts',
+		'read_private_posts',
+		'delete_private_pages',
+		'edit_private_pages',
+		'read_private_pages',
+		'delete_users',
+		'create_users',
+		'unfiltered_upload',
+		'edit_dashboard',
+		'customize',
+		'delete_site',
+		'update_plugins',
+		'delete_plugins',
+		'update_themes',
+		'update_core',
+		'list_users',
+		'remove_users',
+		'add_users',
+		'promote_users',
+		'delete_themes',
+		'export',
+		'edit_comment',
+		'upload_plugins',
+		'upload_themes',
+	);
+
+	public static function get_capabilities_whitelist() {
+		/**
+		 * Filter the list of capabilities that we care about
+		 *
+		 * @module sync
+		 *
+		 * @since 5.5.0
+		 *
+		 * @param array The default list of capabilities.
+		 */
+		return apply_filters( 'jetpack_sync_capabilities_whitelist', self::$default_capabilities_whitelist );
 	}
 
 	static function get_max_sync_execution_time() {

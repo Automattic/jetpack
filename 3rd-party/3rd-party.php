@@ -10,6 +10,8 @@ require_once( JETPACK__PLUGIN_DIR . '3rd-party/wpml.php' );
 require_once( JETPACK__PLUGIN_DIR . '3rd-party/bitly.php' );
 require_once( JETPACK__PLUGIN_DIR . '3rd-party/bbpress.php' );
 require_once( JETPACK__PLUGIN_DIR . '3rd-party/woocommerce.php' );
+require_once( JETPACK__PLUGIN_DIR . '3rd-party/domain-mapping.php' );
+require_once( JETPACK__PLUGIN_DIR . '3rd-party/qtranslate-x.php' );
 
 // We can't load this conditionally since polldaddy add the call in class constuctor.
 require_once( JETPACK__PLUGIN_DIR . '3rd-party/polldaddy.php' );

@@ -40,17 +40,16 @@ class Sharing_Service {
 	 * Gets a list of all available service names and classes
 	 */
 	public function get_all_services( $include_custom = true ) {
+		global $wp_version;
 		// Default services
 		// if you update this list, please update the REST API tests
 		// in bin/tests/api/suites/SharingTest.php
 		$services = array(
-			'email'             => 'Share_Email',
 			'print'             => 'Share_Print',
 			'facebook'          => 'Share_Facebook',
 			'linkedin'          => 'Share_LinkedIn',
 			'reddit'            => 'Share_Reddit',
 			'twitter'           => 'Share_Twitter',
-			'press-this'        => 'Share_PressThis',
 			'google-plus-1'     => 'Share_GooglePlus1',
 			'tumblr'            => 'Share_Tumblr',
 			'pinterest'         => 'Share_Pinterest',
@@ -59,6 +58,24 @@ class Sharing_Service {
 			'jetpack-whatsapp'  => 'Jetpack_Share_WhatsApp',
 			'skype'             => 'Share_Skype',
 		);
+
+		/**
+		 * Filters if Email Sharing is enabled.
+		 *
+		 * E-Mail sharing is often problematic due to spam concerns, so this filter enables it to be quickly and simply toggled.
+		 * @module sharedaddy
+		 *
+		 * @since 5.1.0
+		 *
+		 * @param bool $email Is e-mail sharing enabled? Default false if Akismet is not active or true if Akismet is active.
+		 */
+		if ( apply_filters( 'sharing_services_email', Jetpack::is_akismet_active() ) ) {
+			$services['email'] = 'Share_Email';
+		}
+
+		if ( is_multisite() && ( version_compare( $wp_version, '4.9-RC1-42107', '<' ) || is_plugin_active( 'press-this/press-this-plugin.php' ) ) ) {
+			$services['press-this'] = 'Share_PressThis';
+		}
 
 		if ( $include_custom ) {
 			// Add any custom services in
@@ -176,8 +193,10 @@ class Sharing_Service {
 		 * @see https://github.com/Automattic/jetpack/issues/6121
 		 */
 		if ( ! is_array( $options ) || ! isset( $options['button_style'], $options['global'] ) ) {
-			$global_options = $this->get_global_options();
-			$options = array_merge( is_array( $options ) ? $options : array(), $global_options );
+			$global_options = array( 'global' => $this->get_global_options() );
+			$options = is_array( $options )
+				? array_merge( $options, $global_options )
+				: $global_options;
 		}
 
 		$global = $options['global'];

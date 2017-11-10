@@ -2,19 +2,65 @@
 
 include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 include_once ABSPATH . 'wp-admin/includes/file.php';
+// POST /sites/%s/plugins/%s/install
+new Jetpack_JSON_API_Plugins_Install_Endpoint(
+	array(
+		'description'          => 'Install a plugin to your jetpack blog',
+		'group'                => '__do_not_document',
+		'stat'                 => 'plugins:1:install',
+		'min_version'          => '1',
+		'max_version'          => '1.1',
+		'method'               => 'POST',
+		'path'                 => '/sites/%s/plugins/%s/install',
+		'path_labels'          => array(
+			'$site'   => '(int|string) The site ID, The site domain',
+			'$plugin' => '(int|string) The plugin slug to install',
+		),
+		'response_format'      => Jetpack_JSON_API_Plugins_Endpoint::$_response_format,
+		'example_request_data' => array(
+			'headers' => array(
+				'authorization' => 'Bearer YOUR_API_TOKEN'
+			),
+		),
+		'example_request'      => 'https://public-api.wordpress.com/rest/v1/sites/example.wordpress.org/plugins/akismet/install'
+	)
+);
+
+new Jetpack_JSON_API_Plugins_Install_Endpoint(
+	array(
+		'description'          => 'Install a plugin to your jetpack blog',
+		'group'                => '__do_not_document',
+		'stat'                 => 'plugins:1:install',
+		'min_version'          => '1.2',
+		'method'               => 'POST',
+		'path'                 => '/sites/%s/plugins/%s/install',
+		'path_labels'          => array(
+			'$site'   => '(int|string) The site ID, The site domain',
+			'$plugin' => '(int|string) The plugin slug to install',
+		),
+		'response_format'      => Jetpack_JSON_API_Plugins_Endpoint::$_response_format_v1_2,
+		'example_request_data' => array(
+			'headers' => array(
+				'authorization' => 'Bearer YOUR_API_TOKEN'
+			),
+		),
+		'example_request'      => 'https://public-api.wordpress.com/rest/v1.2/sites/example.wordpress.org/plugins/akismet/install'
+	)
+);
 
 class Jetpack_JSON_API_Plugins_Install_Endpoint extends Jetpack_JSON_API_Plugins_Endpoint {
 
 	// POST /sites/%s/plugins/%s/install
 	protected $needed_capabilities = 'install_plugins';
-	protected $action              = 'install';
+	protected $action = 'install';
 
 	protected function install() {
+		$error = '';
 		foreach ( $this->plugins as $index => $slug ) {
 
-			$skin      = new Jetpack_Automatic_Install_Skin();
-			$upgrader  = new Plugin_Upgrader( $skin );
-			$zip_url   = self::generate_wordpress_org_plugin_download_link( $slug );
+			$skin     = new Jetpack_Automatic_Install_Skin();
+			$upgrader = new Plugin_Upgrader( $skin );
+			$zip_url  = self::generate_wordpress_org_plugin_download_link( $slug );
 
 			$result = $upgrader->install( $zip_url );
 
@@ -22,33 +68,32 @@ class Jetpack_JSON_API_Plugins_Install_Endpoint extends Jetpack_JSON_API_Plugins
 				return $result;
 			}
 
-			$plugin = self::get_plugin_id_by_slug( $slug );
+			$plugin     = self::get_plugin_id_by_slug( $slug );
 			$error_code = 'install_error';
 			if ( ! $plugin ) {
-				$error = $this->log[ $slug ]['error'] = __( 'There was an error installing your plugin', 'jetpack' );
+				$error = $this->log[ $slug ][] = __( 'There was an error installing your plugin', 'jetpack' );
 			}
 
 			if ( ! $this->bulk && ! $result ) {
-				$error_code = $upgrader->skin->get_main_error_code();
-				$message = $upgrader->skin->get_main_error_message();
-				$error = $this->log[ $slug ]['error'] = $message ? $message : __( 'An unknown error occurred during installation' , 'jetpack' );
+				$error_code                         = $upgrader->skin->get_main_error_code();
+				$message                            = $upgrader->skin->get_main_error_message();
+				$error = $this->log[ $slug ][] = $message ? $message : __( 'An unknown error occurred during installation', 'jetpack' );
 			}
 
-			$this->log[ $plugin ][] = $upgrader->skin->get_upgrade_messages();
+			$this->log[ $plugin ] = (array) $upgrader->skin->get_upgrade_messages();
 		}
 
-		if ( ! $this->bulk && isset( $error ) ) {
-
+		if ( ! $this->bulk && ! empty( $error ) ) {
 			if ( 'download_failed' === $error_code ) {
 				// For backwards compatibility: versions prior to 3.9 would return no_package instead of download_failed.
 				$error_code = 'no_package';
 			}
 
-			return new WP_Error( $error_code, $this->log[ $slug ]['error'], 400 );
+			return new WP_Error( $error_code, $error, 400 );
 		}
 
 		// replace the slug with the actual plugin id
-		$this->plugins[ $index ] = $plugin;
+		$this->plugins[$index] = $plugin;
 
 		return true;
 	}
@@ -57,13 +102,14 @@ class Jetpack_JSON_API_Plugins_Install_Endpoint extends Jetpack_JSON_API_Plugins
 		if ( empty( $this->plugins ) || ! is_array( $this->plugins ) ) {
 			return new WP_Error( 'missing_plugins', __( 'No plugins found.', 'jetpack' ) );
 		}
-		foreach( $this->plugins as $index => $slug ) {
+		foreach ( $this->plugins as $index => $slug ) {
 			// make sure it is not already installed
 			if ( self::get_plugin_id_by_slug( $slug ) ) {
 				return new WP_Error( 'plugin_already_installed', __( 'The plugin is already installed', 'jetpack' ) );
 			}
 
 		}
+
 		return true;
 	}
 
@@ -77,11 +123,12 @@ class Jetpack_JSON_API_Plugins_Install_Endpoint extends Jetpack_JSON_API_Plugins
 		if ( ! is_array( $plugins ) ) {
 			return false;
 		}
-		foreach( $plugins as $plugin_file => $plugin_data ) {
+		foreach ( $plugins as $plugin_file => $plugin_data ) {
 			if ( self::get_slug_from_file_path( $plugin_file ) === $slug ) {
 				return $plugin_file;
 			}
 		}
+
 		return false;
 	}
 
@@ -89,11 +136,13 @@ class Jetpack_JSON_API_Plugins_Install_Endpoint extends Jetpack_JSON_API_Plugins
 		// Simular to get_plugin_slug() method.
 		$slug = dirname( $plugin_file );
 		if ( '.' === $slug ) {
-			$slug = preg_replace("/(.+)\.php$/", "$1", $plugin_file );
+			$slug = preg_replace( "/(.+)\.php$/", "$1", $plugin_file );
 		}
+
 		return $slug;
 	}
 }
+
 /**
  * Allows us to capture that the site doesn't have proper file system access.
  * In order to update the plugin.
@@ -138,7 +187,7 @@ class Jetpack_Automatic_Install_Skin extends Automatic_Upgrader_Skin {
 
 	private function set_main_error_code( $code ) {
 		// Don't set the process_failed as code since it is not that helpful unless we don't have one already set.
-		$this->main_error_code = ( $code === 'process_failed' && $this->main_error_code  ? $this->main_error_code : $code );
+		$this->main_error_code = ( $code === 'process_failed' && $this->main_error_code ? $this->main_error_code : $code );
 	}
 
 	private function set_main_error_message( $message, $code ) {
@@ -169,29 +218,32 @@ class Jetpack_Automatic_Install_Skin extends Automatic_Upgrader_Skin {
 			$string = $data;
 		}
 
-		if ( ! empty( $this->upgrader->strings[ $string ] ) ) {
+		if ( ! empty( $this->upgrader->strings[$string] ) ) {
 			$this->set_main_error_code( $string );
 
 			$current_error = $string;
-			$string = $this->upgrader->strings[ $string ];
+			$string        = $this->upgrader->strings[$string];
 		}
 
 		if ( strpos( $string, '%' ) !== false ) {
 			$args = func_get_args();
 			$args = array_splice( $args, 1 );
-			if ( ! empty( $args ) )
+			if ( ! empty( $args ) ) {
 				$string = vsprintf( $string, $args );
+			}
 		}
 
 		$string = trim( $string );
-		$string = wp_kses( $string, array(
-			'a' => array(
+		$string = wp_kses(
+			$string, array(
+			'a'      => array(
 				'href' => true
 			),
-			'br' => true,
-			'em' => true,
+			'br'     => true,
+			'em'     => true,
 			'strong' => true,
-		) );
+		)
+		);
 
 		$this->set_main_error_message( $string, $current_error );
 		$this->messages[] = $string;

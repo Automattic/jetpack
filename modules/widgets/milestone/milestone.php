@@ -16,9 +16,21 @@ add_action( 'widgets_init', 'jetpack_register_widget_milestone' );
 class Milestone_Widget extends WP_Widget {
 	private static $dir       = null;
 	private static $url       = null;
-	private static $labels    = null;
 	private static $defaults  = null;
 	private static $config_js = null;
+
+	/**
+	 * Available time units sorted in descending order.
+	 * @var Array
+	 */
+	protected $available_units = array(
+		'years',
+		'months',
+		'days',
+		'hours',
+		'minutes',
+		'seconds'
+	);
 
 	function __construct() {
 		$widget = array(
@@ -35,20 +47,6 @@ class Milestone_Widget extends WP_Widget {
 
 		self::$dir = trailingslashit( dirname( __FILE__ ) );
 		self::$url = plugin_dir_url( __FILE__ );
-		self::$labels = array(
-			'year'    => __( 'year', 'jetpack' ),
-			'years'   => __( 'years', 'jetpack' ),
-			'month'   => __( 'month', 'jetpack' ),
-			'months'  => __( 'months', 'jetpack' ),
-			'day'     => __( 'day', 'jetpack' ),
-			'days'    => __( 'days', 'jetpack' ),
-			'hour'    => __( 'hour', 'jetpack' ),
-			'hours'   => __( 'hours', 'jetpack' ),
-			'minute'  => __( 'minute', 'jetpack' ),
-			'minutes' => __( 'minutes', 'jetpack' ),
-			'second'  => __( 'second', 'jetpack' ),
-			'seconds' => __( 'seconds', 'jetpack' ),
-		);
 
 		add_action( 'wp_enqueue_scripts', array( __class__, 'enqueue_template' ) );
 		add_action( 'admin_enqueue_scripts', array( __class__, 'enqueue_admin' ) );
@@ -62,6 +60,7 @@ class Milestone_Widget extends WP_Widget {
 	public static function enqueue_admin( $hook_suffix ) {
 		if ( 'widgets.php' == $hook_suffix ) {
 			wp_enqueue_style( 'milestone-admin', self::$url . 'style-admin.css', array(), '20161215' );
+			wp_enqueue_script( 'milestone-admin-js', self::$url . 'admin.js', array( 'jquery' ), '20170915', true );
 		}
 	}
 
@@ -162,88 +161,326 @@ class Milestone_Widget extends WP_Widget {
 			wp_dequeue_script( 'milestone' );
 			return;
 		}
-		self::$config_js['labels'] = self::$labels;
+		self::$config_js['api_root'] = esc_url_raw( rest_url() );
 		wp_localize_script( 'milestone', 'MilestoneConfig', self::$config_js );
 	}
 
-    /**
-     * Widget
-     */
-    function widget( $args, $instance ) {
-		$instance = $this->sanitize_instance( $instance );
-
-		$milestone = mktime( $instance['hour'], $instance['min'], 0, $instance['month'], $instance['day'], $instance['year'] );
-		$now  = (int) current_time( 'timestamp' );
-		$diff = (int) floor( $milestone - $now );
-
-		$number = 0;
-		$label  = '';
-
-		if ( 63113852 < $diff ) { // more than 2 years - show in years, one decimal point
-			$number = round( $diff / 60 / 60 / 24 / 365, 1 );
-			$label  = self::$labels['years'];
-		} else if ( 7775999 < $diff ) { // fewer than 2 years - show in months
-			$number = floor( $diff / 60 / 60 / 24 / 30 );
-			$label  = ( 1 == $number ) ? self::$labels['month'] : self::$labels['months'];
-		} else if ( 86399 < $diff ) { // fewer than 3 months - show in days
-			$number = floor( $diff / 60 / 60 / 24 ) + 1;
-			$label  = ( 1 == $number ) ? self::$labels['day'] : self::$labels['days'];
-		} else if ( 3599 < $diff ) { // less than 1 day - show in hours
-			$number = floor( $diff / 60 / 60 );
-			$label  = ( 1 == $number ) ? self::$labels['hour'] : self::$labels['hours'];
-		} else if ( 59 < $diff ) { // less than 1 hour - show in minutes
-			$number = floor( $diff / 60 ) + 1;
-			$label = ( 1 == $number ) ? self::$labels['minute'] : self::$labels['minutes'];
-		} else { // less than 1 minute - show in seconds
-			$number = $diff;
-			$label = ( 1 == $number ) ? self::$labels['second'] : self::$labels['seconds'] ;
-		}
-
+	/**
+	 * Widget
+	 */
+	function widget( $args, $instance ) {
 		echo $args['before_widget'];
 
+		/** This filter is documented in wp-includes/widgets/class-wp-widget-pages.php */
 		$title = apply_filters( 'widget_title', $instance['title'] );
 		if ( ! empty( $title ) ) {
 			echo $args['before_title'] . $title . $args['after_title'];
 		}
 
+		$data = $this->get_widget_data( $instance );
+
+		self::$config_js['instances'][] = array(
+			'id'      => $args['widget_id'],
+			'message' => $data['message'],
+			'refresh' => $data['refresh']
+		);
+
 		echo '<div class="milestone-content">';
 
 		echo '<div class="milestone-header">';
 		echo '<strong class="event">' . esc_html( $instance['event'] ) . '</strong>';
-		echo '<span class="date">' . esc_html( date_i18n( __( 'F jS, Y', 'jetpack' ), $milestone ) ) . '</span>';
+		echo '<span class="date">' . esc_html( date_i18n( get_option( 'date_format' ), $data['milestone'] ) ) . '</span>';
 		echo '</div>';
 
-		if ( 1 > $diff ) {
-			/* Milestone has past. */
-			echo '<div class="milestone-message">' . $instance['message'] . '</div>';
-		} else {
-			/* Countdown to the milestone. */
-			echo '<div class="milestone-countdown">' . sprintf( __( '%1$s %2$s to go.', 'jetpack' ),
-				'<span class="difference">' . esc_html( $number ) . '</span>',
-				'<span class="label">' . esc_html( $label ) . '</span>'
-			) . '</div>';
-
-			self::$config_js['instances'][] = array(
-				'id'      => $args['widget_id'],
-				'diff'    => $diff,
-				'message' => $instance['message'],
-			);
-		}
+		echo $data['message'];
 
 		echo '</div><!--milestone-content-->';
 
 		echo $args['after_widget'];
 
-	    /** This action is documented in modules/widgets/gravatar-profile.php */
-	    do_action( 'jetpack_stats_extra', 'widget_view', 'milestone' );
-    }
+		/** This action is documented in modules/widgets/gravatar-profile.php */
+		do_action( 'jetpack_stats_extra', 'widget_view', 'milestone' );
+	}
 
-    /**
-     * Update
-     */
-    function update( $new_instance, $old_instance ) {
+	function get_widget_data( $instance ) {
+		$data = array();
+
+		$instance = $this->sanitize_instance( $instance );
+
+		$milestone = mktime( $instance['hour'], $instance['min'], 0, $instance['month'], $instance['day'], $instance['year'] );
+		$now  = (int) current_time( 'timestamp' );
+		$type = $instance['type'];
+
+		if ( 'since' === $type ) {
+			$diff = (int) floor( $now - $milestone );
+		} else {
+			$diff = (int) floor( $milestone - $now );
+		}
+
+		$data['diff'] = $diff;
+		$data['unit'] = $this->get_unit( $diff, $instance['unit'] );
+
+		// Setting the refresh counter to equal the number of seconds it takes to flip a unit
+		$refresh_intervals = array(
+			0, // should be YEAR_IN_SECONDS, but doing setTimeout for a year doesn't seem to be logical
+			0, // same goes for MONTH_IN_SECONDS,
+			DAY_IN_SECONDS,
+			HOUR_IN_SECONDS,
+			MINUTE_IN_SECONDS,
+			1
+		);
+
+		$data['refresh'] = $refresh_intervals[ array_search( $data['unit'], $this->available_units ) ];
+		$data['milestone'] = $milestone;
+
+		if ( ( 1 > $diff ) && ( 'until' === $type ) ) {
+			$data['message'] = '<div class="milestone-message">' . $instance['message'] . '</div>';
+			$data['refresh'] = 0; // No need to refresh, the milestone has been reached
+		} else {
+			$interval_text = $this->get_interval_in_units( $diff, $data['unit'] );
+			$interval = intval( $interval_text );
+
+			if ( 'since' === $type ) {
+
+				switch ( $data['unit'] ) {
+					case 'years':
+						$data['message'] = sprintf(
+							_n(
+								'<span class="difference">%s</span> <span class="label">year ago.</span>',
+								'<span class="difference">%s</span> <span class="label">years ago.</span>',
+								$interval,
+								'jetpack'
+							),
+							$interval_text
+						);
+					break;
+					case 'months':
+						$data['message'] = sprintf(
+							_n(
+								'<span class="difference">%s</span> <span class="label">month ago.</span>',
+								'<span class="difference">%s</span> <span class="label">months ago.</span>',
+								$interval,
+								'jetpack'
+							),
+							$interval_text
+						);
+					break;
+					case 'days':
+						$data['message'] = sprintf(
+							_n(
+								'<span class="difference">%s</span> <span class="label">day ago.</span>',
+								'<span class="difference">%s</span> <span class="label">days ago.</span>',
+								$interval,
+								'jetpack'
+							),
+							$interval_text
+						);
+					break;
+					case 'hours':
+						$data['message'] = sprintf(
+							_n(
+								'<span class="difference">%s</span> <span class="label">hour ago.</span>',
+								'<span class="difference">%s</span> <span class="label">hours ago.</span>',
+								$interval,
+								'jetpack'
+							),
+							$interval_text
+						);
+					break;
+					case 'minutes':
+						$data['message'] = sprintf(
+							_n(
+								'<span class="difference">%s</span> <span class="label">minute ago.</span>',
+								'<span class="difference">%s</span> <span class="label">minutes ago.</span>',
+								$interval,
+								'jetpack'
+							),
+							$interval_text
+						);
+					break;
+					case 'seconds':
+						$data['message'] = sprintf(
+							_n(
+								'<span class="difference">%s</span> <span class="label">second ago.</span>',
+								'<span class="difference">%s</span> <span class="label">seconds ago.</span>',
+								$interval,
+								'jetpack'
+							),
+							$interval_text
+						);
+					break;
+				}
+			} else {
+				switch ( $this->get_unit( $diff, $instance['unit'] ) ) {
+					case 'years':
+						$data['message'] = sprintf(
+							_n(
+								'<span class="difference">%s</span> <span class="label">year to go.</span>',
+								'<span class="difference">%s</span> <span class="label">years to go.</span>',
+								$interval,
+								'jetpack'
+							),
+							$interval_text
+						);
+					break;
+					case 'months':
+						$data['message'] = sprintf(
+							_n(
+								'<span class="difference">%s</span> <span class="label">month to go.</span>',
+								'<span class="difference">%s</span> <span class="label">months to go.</span>',
+								$interval,
+								'jetpack'
+							),
+							$interval_text
+						);
+					break;
+					case 'days':
+						$data['message'] = sprintf(
+							_n(
+								'<span class="difference">%s</span> <span class="label">day to go.</span>',
+								'<span class="difference">%s</span> <span class="label">days to go.</span>',
+								$interval,
+								'jetpack'
+							),
+							$interval_text
+						);
+					break;
+					case 'hours':
+						$data['message'] = sprintf(
+							_n(
+								'<span class="difference">%s</span> <span class="label">hour to go.</span>',
+								'<span class="difference">%s</span> <span class="label">hours to go.</span>',
+								$interval,
+								'jetpack'
+							),
+							$interval_text
+						);
+					break;
+					case 'minutes':
+						$data['message'] = sprintf(
+							_n(
+								'<span class="difference">%s</span> <span class="label">minute to go.</span>',
+								'<span class="difference">%s</span> <span class="label">minutes to go.</span>',
+								$interval,
+								'jetpack'
+							),
+							$interval_text
+						);
+					break;
+					case 'seconds':
+						$data['message'] = sprintf(
+							_n(
+								'<span class="difference">%s</span> <span class="label">second to go.</span>',
+								'<span class="difference">%s</span> <span class="label">seconds to go.</span>',
+								$interval,
+								'jetpack'
+							),
+							$interval_text
+						);
+					break;
+				}
+			}
+			$data['message'] = '<div class="milestone-countdown">' . $data['message'] . '</div>';
+		}
+
+		return $data;
+	}
+
+	/**
+	 * Return the largest possible time unit that the difference will be displayed in.
+	 *
+	 * @param Integer $seconds the interval in seconds
+	 * @param String $maximum_unit the maximum unit that will be used. Optional.
+	 * @return String $calculated_unit
+	 */
+	protected function get_unit( $seconds, $maximum_unit = 'automatic' ) {
+		$unit = '';
+
+		if ( $seconds >= YEAR_IN_SECONDS * 2 ) {
+			// more than 2 years - show in years, one decimal point
+			$unit = 'years';
+
+		} else if ( $seconds >= YEAR_IN_SECONDS ) {
+			if ( 'years' === $maximum_unit ) {
+				$unit = 'years';
+			} else {
+				// automatic mode - showing months even if it's between one and two years
+				$unit = 'months';
+			}
+
+		} else if ( $seconds >= MONTH_IN_SECONDS * 3 ) {
+			// fewer than 2 years - show in months
+			$unit = 'months';
+
+		} else if ( $seconds >= MONTH_IN_SECONDS ) {
+			if ( 'months' === $maximum_unit ) {
+				$unit = 'months';
+			} else {
+				// automatic mode - showing days even if it's between one and three months
+				$unit = 'days';
+			}
+
+		} else if ( $seconds >= DAY_IN_SECONDS - 1 ) {
+			// fewer than a month - show in days
+			$unit = 'days';
+
+		} else if ( $seconds >= HOUR_IN_SECONDS - 1 ) {
+			// less than 1 day - show in hours
+			$unit = 'hours';
+
+		} else if ( $seconds >= MINUTE_IN_SECONDS - 1 ) {
+			// less than 1 hour - show in minutes
+			$unit = 'minutes';
+
+		} else {
+			// less than 1 minute - show in seconds
+			$unit = 'seconds';
+		}
+
+		$maximum_unit_index = array_search( $maximum_unit, $this->available_units );
+		$unit_index = array_search( $unit, $this->available_units );
+
+		if (
+			false === $maximum_unit_index // the maximum unit parameter is automatic
+			|| $unit_index > $maximum_unit_index // there is not enough seconds for even one maximum time unit
+		) {
+			return $unit;
+		}
+		return $maximum_unit;
+	}
+
+	/**
+	 * Returns a time difference value in specified units.
+	 *
+	 * @param Integer $seconds
+	 * @param String $units
+	 * @return Integer|String $time_in_units
+	 */
+	protected function get_interval_in_units( $seconds, $units ) {
+		switch ( $units ) {
+			case 'years':
+				$years = $seconds / YEAR_IN_SECONDS;
+				$decimals = abs( round( $years, 1 ) - round( $years ) ) > 0 ? 1 : 0;
+				return number_format_i18n( $years, $decimals );
+			case 'months':
+				return (int) ( $seconds / 60 / 60 / 24 / 30 );
+			case 'days':
+				return (int) ( $seconds / 60 / 60 / 24 + 1 );
+			case 'hours':
+				return (int) ( $seconds / 60 / 60 );
+			case 'minutes':
+				return (int) ( $seconds / 60 + 1 );
+			default:
+				return $seconds;
+		}
+	}
+
+	/**
+	 * Update
+	 */
+	function update( $new_instance, $old_instance ) {
 		return $this->sanitize_instance( $new_instance );
-    }
+	}
 
 	/*
 	 * Make sure that a number is within a certain range.
@@ -278,6 +515,8 @@ class Milestone_Widget extends WP_Widget {
 		$dirty = wp_parse_args( $dirty, array(
 			'title'   => '',
 			'event'   => __( 'The Big Day', 'jetpack' ),
+			'unit'    => 'automatic',
+			'type'    => 'until',
 			'message' => __( 'The big day is here.', 'jetpack' ),
 			'day'     => date( 'd', $now ),
 			'month'   => date( 'm', $now ),
@@ -295,6 +534,8 @@ class Milestone_Widget extends WP_Widget {
 		$clean = array(
 			'title'   => trim( strip_tags( stripslashes( $dirty['title'] ) ) ),
 			'event'   => trim( strip_tags( stripslashes( $dirty['event'] ) ) ),
+			'unit'    => $dirty['unit'],
+			'type'    => $dirty['type'],
 			'message' => wp_kses( $dirty['message'], $allowed_tags ),
 			'year'    => $this->sanitize_range( $dirty['year'],  1901, 2037 ),
 			'month'   => $this->sanitize_range( $dirty['month'], 1, 12 ),
@@ -307,12 +548,20 @@ class Milestone_Widget extends WP_Widget {
 		return $clean;
 	}
 
-    /**
-     * Form
-     */
-    function form( $instance ) {
+	/**
+	 * Form
+	 */
+	function form( $instance ) {
 		$instance = $this->sanitize_instance( $instance );
-        ?>
+
+		$units = array(
+			'automatic' => _x( 'Automatic', 'Milestone widget: mode in which the date unit is determined automatically', 'jetpack' ),
+			'years' => _x( 'Years', 'Milestone widget: mode in which the date unit is set to years', 'jetpack' ),
+			'months' => _x( 'Months', 'Milestone widget: mode in which the date unit is set to months', 'jetpack' ),
+			'days' => _x( 'Days', 'Milestone widget: mode in which the date unit is set to days', 'jetpack' ),
+			'hours' => _x( 'Hours', 'Milestone widget: mode in which the date unit is set to hours', 'jetpack' ),
+		);
+		?>
 
 	<div class="milestone-widget">
         <p>
@@ -321,7 +570,7 @@ class Milestone_Widget extends WP_Widget {
         </p>
 
         <p>
-        	<label for="<?php echo $this->get_field_id( 'event' ); ?>"><?php _e( 'Event', 'jetpack' ); ?></label>
+        	<label for="<?php echo $this->get_field_id( 'event' ); ?>"><?php _e( 'Description', 'jetpack' ); ?></label>
         	<input class="widefat" id="<?php echo $this->get_field_id( 'event' ); ?>" name="<?php echo $this->get_field_name( 'event' ); ?>" type="text" value="<?php echo esc_attr( $instance['event'] ); ?>" />
         </p>
 
@@ -357,8 +606,48 @@ class Milestone_Widget extends WP_Widget {
 			<input id="<?php echo $this->get_field_id( 'min' ); ?>" class="minutes" name="<?php echo $this->get_field_name( 'min' ); ?>" type="text" value="<?php echo esc_attr( $instance['min'] ); ?>">
 		</fieldset>
 
-		<p>
-			<label for="<?php echo $this->get_field_id( 'message' ); ?>"><?php _e( 'Message', 'jetpack' ); ?></label>
+		<fieldset class="jp-ms-data-unit">
+			<legend><?php esc_html_e( 'Time Unit', 'jetpack' ); ?></legend>
+
+			<label for="<?php echo $this->get_field_id( 'unit' ); ?>" class="assistive-text">
+				<?php _e( 'Time Unit', 'jetpack' ); ?>
+			</label>
+			<select id="<?php echo $this->get_field_id( 'unit' ); ?>" class="unit" name="<?php echo $this->get_field_name( 'unit' ); ?>">
+			<?php
+				foreach ( $units as $key => $unit ) {
+					echo '<option value="' . esc_attr( $key ) . '"' . selected( $key, $instance['unit'], false ) . '>' . $unit . '</option>';
+				}
+			?></select>
+		</fieldset>
+
+		<ul class="milestone-type">
+			<li>
+				<label>
+					<input
+						<?php checked( $instance['type'], 'until' ); ?>
+						name="<?php echo esc_attr( $this->get_field_name( 'type' ) ); ?>"
+						type="radio"
+						value="until"
+					/>
+					<?php esc_html_e( 'Until your milestone', 'jetpack' ); ?>
+				</label>
+			</li>
+
+			<li>
+				<label>
+					<input
+						<?php checked( $instance['type'], 'since' ); ?>
+						name="<?php echo esc_attr( $this->get_field_name( 'type' ) ); ?>"
+						type="radio"
+						value="since"
+					/>
+					<?php esc_html_e( 'Since your milestone', 'jetpack' ); ?>
+				</label>
+			</li>
+		</ul>
+
+		<p class="milestone-message-wrapper">
+			<label for="<?php echo $this->get_field_id( 'message' ); ?>"><?php _e( 'Milestone Reached Message', 'jetpack' ); ?></label>
 			<textarea id="<?php echo $this->get_field_id( 'message' ); ?>" name="<?php echo $this->get_field_name( 'message' ); ?>" class="widefat" rows="3"><?php echo esc_textarea( $instance['message'] ); ?></textarea>
 		</p>
 	</div>

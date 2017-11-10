@@ -93,6 +93,8 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 			 */
 			do_action( 'jetpack_contact_info_widget_start' );
 
+			echo '<div itemscope itemtype="http://schema.org/LocalBusiness">';
+
 			if ( '' != $instance['address'] ) {
 
 				$showmap = $instance['showmap'];
@@ -112,15 +114,15 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 
 				$map_link = $this->build_map_link( $instance['address'] );
 
-				echo '<div class="confit-address"><a href="' . esc_url( $map_link ) . '" target="_blank">' . str_replace( "\n", "<br/>", esc_html( $instance['address'] ) ) . "</a></div>";
+				echo '<div class="confit-address" itemscope itemtype="http://schema.org/PostalAddress" itemprop="address"><a href="' . esc_url( $map_link ) . '" target="_blank">' . str_replace( "\n", "<br/>", esc_html( $instance['address'] ) ) . "</a></div>";
 			}
 
 			if ( '' != $instance['phone'] ) {
 				if ( wp_is_mobile() ) {
-					echo '<div class="confit-phone"><a href="' . esc_url( 'tel:' . $instance['phone'] ) . '">' . esc_html( $instance['phone'] ) . "</a></div>";
+					echo '<div class="confit-phone"><span itemprop="telephone"><a href="' . esc_url( 'tel:' . $instance['phone'] ) . '">' . esc_html( $instance['phone'] ) . "</a></span></div>";
 				}
 				else {
-					echo '<div class="confit-phone">' . esc_html( $instance['phone'] ) . '</div>';
+					echo '<div class="confit-phone"><span itemprop="telephone">' . esc_html( $instance['phone'] ) . '</span></div>';
 				}
 			}
 
@@ -132,8 +134,10 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 			}
 
 			if ( '' != $instance['hours'] ) {
-				echo '<div class="confit-hours">' . str_replace( "\n", "<br/>", esc_html( $instance['hours'] ) ) . "</div>";
+				echo '<div class="confit-hours" itemprop="openingHours">' . str_replace( "\n", "<br/>", esc_html( $instance['hours'] ) ) . "</div>";
 			}
+
+			echo '</div>';
 
 			/**
 			 * Fires at the end of Contact Info widget.

@@ -15,9 +15,21 @@ class Jetpack_JITM {
 	/**
 	 * Initializes the class, or returns the singleton
 	 *
-	 * @return Jetpack_JITM
+	 * @return Jetpack_JITM | false
 	 */
 	static function init() {
+		/**
+		 * Filter to turn off all just in time messages
+		 *
+		 * @since 3.7.0
+		 * @since 5.4.0 Correct docblock to reflect default arg value
+		 *
+		 * @param bool false Whether to show just in time messages.
+		 */
+		if ( ! apply_filters( 'jetpack_just_in_time_msgs', false ) ) {
+			return false;
+		}
+
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new Jetpack_JITM;
 		}
@@ -29,7 +41,7 @@ class Jetpack_JITM {
 	 * Jetpack_JITM constructor.
 	 */
 	private function __construct() {
-		if ( ! Jetpack::is_active() ) {
+		if ( ! Jetpack::is_active() || Jetpack::is_development_mode() ) {
 			return;
 		}
 		add_action( 'current_screen', array( $this, 'prepare_jitms' ) );
@@ -40,8 +52,7 @@ class Jetpack_JITM {
 	 *
 	 * @return string The Jetpack emblem
 	 */
-	function get_emblem()
-	{
+	function get_emblem() {
 		return '<div class="jp-emblem">' . Jetpack::get_jp_emblem() . '</div>';
 	}
 
@@ -55,9 +66,16 @@ class Jetpack_JITM {
 	 * @param object $screen
 	 */
 	function prepare_jitms( $screen ) {
-		add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
-		add_action( 'admin_notices', array( $this, 'ajax_message' ) );
-		add_action( 'edit_form_top', array( $this, 'ajax_message' ) );
+		if ( ! in_array( $screen->id, array(
+			'toplevel_page_jetpack',
+			'jetpack_page_stats',
+			'jetpack_page_akismet-key-config',
+			'admin_page_jetpack_modules'
+		) ) ) {
+			add_action( 'admin_enqueue_scripts', array( $this, 'jitm_enqueue_files' ) );
+			add_action( 'admin_notices', array( $this, 'ajax_message' ) );
+			add_action( 'edit_form_top', array( $this, 'ajax_message' ) );
+		}
 	}
 
 	/**
@@ -79,7 +97,7 @@ class Jetpack_JITM {
 				$content->message = esc_html__( 'New free service: Show USPS shipping rates on your store! Added bonus: print shipping labels without leaving WooCommerce.', 'jetpack' );
 				break;
 			case 'CA':
-				 $content->message = esc_html__( 'New free service: Show Canada Post shipping rates on your store!', 'jetpack' );
+				$content->message = esc_html__( 'New free service: Show Canada Post shipping rates on your store!', 'jetpack' );
 				break;
 			default:
 				$content->message = '';
@@ -142,8 +160,8 @@ class Jetpack_JITM {
 	}
 
 	/**
-	* Function to enqueue jitm css and js
-	*/
+	 * Function to enqueue jitm css and js
+	 */
 	function jitm_enqueue_files() {
 		$min = ( defined( 'SCRIPT_DEBUG' ) && SCRIPT_DEBUG ) ? '' : '.min';
 		wp_register_style(
@@ -157,9 +175,9 @@ class Jetpack_JITM {
 		wp_style_add_data( 'jetpack-jitm-css', 'suffix', $min );
 		wp_enqueue_style( 'jetpack-jitm-css' );
 
-		wp_enqueue_script( 'jetpack-jitm-new', plugins_url( '_inc/jetpack-jitm.js', JETPACK__PLUGIN_FILE ), array( 'jquery' ), JETPACK__VERSION, true );
-		wp_localize_script('jetpack-jitm-new', 'jitm_config', array(
-				'api_root' => esc_url_raw( rest_url() ),
+		wp_enqueue_script( 'jetpack-jitm-new', plugins_url( '_inc/build/jetpack-jitm.min.js', JETPACK__PLUGIN_FILE ), array( 'jquery' ), JETPACK__VERSION, true );
+		wp_localize_script( 'jetpack-jitm-new', 'jitm_config', array(
+			'api_root' => esc_url_raw( rest_url() ),
 		) );
 	}
 
@@ -172,7 +190,12 @@ class Jetpack_JITM {
 	 * @return bool Always true
 	 */
 	function dismiss( $id, $feature_class ) {
-		// todo: track dismissal of id and feature class?
+		JetpackTracking::record_user_event( 'jitm_dismiss_client', array(
+			'jitm_id' => $id,
+			'feature_class' => $feature_class,
+		) );
+
+
 		$hide_jitm = Jetpack_Options::get_option( 'hide_jitm' );
 		if ( ! is_array( $hide_jitm ) ) {
 			$hide_jitm = array();
@@ -203,7 +226,7 @@ class Jetpack_JITM {
 	 *
 	 * @return array The JITM's to show, or an empty array if there is nothing to show
 	 */
-	static function get_messages( $message_path, $query ) {
+	function get_messages( $message_path, $query ) {
 		// custom filters go here
 		add_filter( 'jitm_woocommerce_services_msg', array( 'Jetpack_JITM', 'jitm_woocommerce_services_msg' ) );
 		add_filter( 'jitm_jetpack_woo_services_install', array( 'Jetpack_JITM', 'jitm_jetpack_woo_services_install' ) );
@@ -225,21 +248,26 @@ class Jetpack_JITM {
 
 		// build our jitm request
 		$path = add_query_arg( array(
-			'force'                => 'wpcom',
-			'external_user_id'     => urlencode_deep( $user->ID ),
-			'user_roles'           => urlencode_deep( implode( ',', $user->roles ) ),
-			'query_string'         => urlencode_deep( $query ),
+			'external_user_id' => urlencode_deep( $user->ID ),
+			'query_string'     => urlencode_deep( $query ),
 		), sprintf( '/sites/%d/jitm/%s', $site_id, $message_path ) );
 
 		// attempt to get from cache
-		$envelopes  = get_transient( 'jetpack_jitm_' . $path );
-		$from_cache = false;
+		$envelopes = get_transient( 'jetpack_jitm_' . substr( md5( $path ), 0, 31 ) );
 
-		// if something is in the cache and it was put in the cache after the last heartbeat or sync, use it
-		$last_heartbeat = Jetpack_Options::get_option( 'last_heartbeat', time() );
-		$last_sync      = Jetpack_Options::get_option( 'last_sync', time() );
-		if ( $envelopes && $last_heartbeat < $envelopes['response_time'] || $last_sync < $envelopes['response_time'] ) {
-			$from_cache = true;
+		// if something is in the cache and it was put in the cache after the last sync we care about, use it
+		$use_cache = false;
+
+		/** This filter is documented in class.jetpack.php */
+		if ( apply_filters( 'jetpack_just_in_time_msg_cache', false ) ) {
+			$use_cache = true;
+		}
+
+		if ( $use_cache ) {
+			$last_sync  = (int) get_transient( 'jetpack_last_plugin_sync' );
+			$from_cache = $envelopes && $last_sync > 0 && $last_sync < $envelopes['last_response_time'];
+		} else {
+			$from_cache = false;
 		}
 
 		// otherwise, ask again
@@ -250,7 +278,9 @@ class Jetpack_JITM {
 				array(
 					'user_id'    => $user->ID,
 					'user_roles' => implode( ',', $user->roles ),
-				)
+				),
+				null,
+				'wpcom'
 			);
 
 			// silently fail...might be helpful to track it?
@@ -264,31 +294,39 @@ class Jetpack_JITM {
 				return array();
 			}
 
-			$expiration                 = isset( $envelopes[0] ) ? $envelopes[0]->ttl : 300;
-			$envelopes['response_time'] = time();
+			$expiration = isset( $envelopes[0] ) ? $envelopes[0]->ttl : 300;
 
-			set_transient( 'jetpack_jitm_' . $path, $envelopes, $expiration );
+			// do not cache if expiration is 0 or we're not using the cache
+			if ( 0 != $expiration && $use_cache ) {
+				$envelopes['last_response_time'] = time();
+
+				set_transient( 'jetpack_jitm_' . substr( md5( $path ), 0, 31 ), $envelopes, $expiration );
+			}
 		}
 
 		$hidden_jitms = Jetpack_Options::get_option( 'hide_jitm' );
-		unset( $envelopes['response_time'] );
+		unset( $envelopes['last_response_time'] );
 
 		foreach ( $envelopes as $idx => &$envelope ) {
 
 			$dismissed_feature = isset( $hidden_jitms[ $envelope->feature_class ] ) && is_array( $hidden_jitms[ $envelope->feature_class ] ) ? $hidden_jitms[ $envelope->feature_class ] : null;
 
-			// if the this feature class has been dismissed and the request has not expired from the cache, skip it as it's been dismissed
-			if ( is_array( $dismissed_feature ) && $from_cache && time() - $dismissed_feature['last_dismissal'] < $expiration + 60 ) {
+			// if the this feature class has been dismissed and the request has not passed the ttl, skip it as it's been dismissed
+			if ( is_array( $dismissed_feature ) && ( time() - $dismissed_feature['last_dismissal'] < $envelope->expires || $dismissed_feature['number'] >= $envelope->max_dismissal ) ) {
 				unset( $envelopes[ $idx ] );
 				continue;
 			}
 
+			JetpackTracking::record_user_event( 'jitm_view_client', array(
+				'jitm_id' => $envelope->id,
+			) );
+
 			$normalized_site_url      = Jetpack::build_raw_urls( get_home_url() );
-			$envelope->url            = 'https://jetpack.com/redirect/?source=jitm-' . $envelope->id . '&site=' . $normalized_site_url;
+			$envelope->url            = 'https://jetpack.com/redirect/?source=jitm-' . $envelope->id . '&site=' . $normalized_site_url . '&u=' . $user->ID;
 			$envelope->jitm_stats_url = Jetpack::build_stats_url( array( 'x_jetpack-jitm' => $envelope->id ) );
 
 			if ( $envelope->CTA->hook ) {
-				$envelope->url = apply_filters( 'jitm_' . $envelope->CTA->hook, $envelope->url ) ;
+				$envelope->url = apply_filters( 'jitm_' . $envelope->CTA->hook, $envelope->url );
 				unset( $envelope->CTA->hook );
 			}
 
@@ -330,15 +368,5 @@ class Jetpack_JITM {
 		return $envelopes;
 	}
 }
-if (
-	/**
-	 * Filter to turn off all just in time messages
-	 *
-	 * @since 3.7.0
-	 *
-	 * @param bool true Whether to show just in time messages.
-	 */
-	apply_filters( 'jetpack_just_in_time_msgs', false )
-) {
-	Jetpack_JITM::init();
-}
+
+add_action( 'init', array( 'Jetpack_JITM', 'init' ) );

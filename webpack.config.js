@@ -8,14 +8,6 @@ var ExtractTextPlugin = require( 'extract-text-webpack-plugin' );
 
 var IS_HOT_UPDATE = ( process.env.NODE_ENV !== 'production' );
 
-var jsLoader = IS_HOT_UPDATE ?
-	[ require.resolve( 'react-hot-loader' ), require.resolve( 'babel-loader' ), require.resolve( 'eslint-loader' ) ] :
-	[ require.resolve( 'babel-loader' ), require.resolve( "eslint-loader" ) ];
-
-var cssLoader = IS_HOT_UPDATE ?
-	'style!css?sourceMap!autoprefixer!' :
-	ExtractTextPlugin.extract( 'css?sourceMap!autoprefixer!' );
-
 // This file is written in ES5 because it is run via Node.js and is not transpiled by babel. We want to support various versions of node, so it is best to not use any ES6 features even if newer versions support ES6 features out of the box.
 var webpackConfig = {
 
@@ -32,11 +24,33 @@ var webpackConfig = {
 	module: {
 
 		// Webpack loaders are applied when a resource is matches the test case
-		loaders: [
+		rules: [
 			{
 				test: /\.jsx?$/,
-				loaders: jsLoader,
+				use: [
+					// {
+					// 	loader: 'eslint-loader',
+					// 	query: {
+					// 		configFile: path.join(__dirname, '.eslintrc'),
+					// 		quiet: true
+					// 	},
+					// },
+					{
+						loader: 'babel-loader',
+						options: {
+							presets: ['es2015', 'stage-1', 'react'],
+							plugins: [
+								"transform-runtime",
+								"add-module-exports",
+								"transform-es3-member-expression-literals",
+								"transform-export-extensions"
+							]
 
+						}
+					},
+				],
+
+				// exclude: /node_modules/,
 				// include both typical npm-linked locations and default module locations to handle both cases
 				include: [
 					path.join( __dirname, 'test' ),
@@ -51,7 +65,10 @@ var webpackConfig = {
 			},
 			{
 				test: /\.css$/,
-				loader: cssLoader
+				use: ExtractTextPlugin.extract({
+					fallback: "style-loader",
+					use: [ "css-loader", "autoprefixer-loader" ]
+				})
 			},
 			{
 				test: /\.html$/,
@@ -59,7 +76,10 @@ var webpackConfig = {
 			},
 			{
 				test: /\.scss$/,
-				loader: ExtractTextPlugin.extract( 'style-loader', 'css!sass' )
+				use: ExtractTextPlugin.extract({
+				  fallback: "style-loader",
+				  use: [ "css-loader", "sass-loader" ]
+				})
 			},
 			{
 				test: /\.svg/,
@@ -68,36 +88,32 @@ var webpackConfig = {
 		]
 	},
 	resolve: {
-		extensions: [ '', '.js', '.jsx' ],
+		extensions: [ '.js', '.jsx' ],
 		alias: {
 			"react": path.join(__dirname, "/node_modules/react")
 		},
-		root: [
+		modules: [
+			path.resolve( __dirname, 'node_modules' ),
 			path.resolve( __dirname, '_inc/client' ),
 			fs.realpathSync( path.join(__dirname, 'node_modules/@automattic/dops-components/client') )
 		]
 	},
 	resolveLoader: {
-		root: path.join( __dirname, 'node_modules' )
+		modules: [ path.join( __dirname, 'node_modules' ) ]
 	},
 	node: {
 		fs: "empty",
 		process: true
-	},
-	eslint: {
-		configFile: path.join(__dirname, '.eslintrc'),
-		quiet: true
 	},
 	plugins: [
 		new webpack.DefinePlugin({
 
 			// NODE_ENV is used inside React to enable/disable features that should only
 			// be used in development
-			'process.env': {
-				NODE_ENV: JSON.stringify( NODE_ENV )
-			}
+			'process.env.NODE_ENV': JSON.stringify( NODE_ENV )
 		}),
-		new ExtractTextPlugin( '[name].dops-style.css' )
+		new ExtractTextPlugin( '[name].dops-style.css' ),
+		// new webpack.optimize.UglifyJsPlugin(),
 	],
 	externals: {
 		'react/addons': true,
@@ -109,11 +125,9 @@ var webpackConfig = {
 
 if ( NODE_ENV === 'production' ) {
 
-	webpack.DefinePlugin( {
-		"process.env": {
-			// This has effect on the react lib size
-			"NODE_ENV": JSON.stringify(process.env.NODE_ENV) // TODO switch depending on actual environment
-		}
+	new webpack.DefinePlugin( {
+		// This has effect on the react lib size
+		'process.env.NODE_ENV': JSON.stringify( process.env.NODE_ENV ) // TODO switch depending on actual environment
 	} );
 }
 

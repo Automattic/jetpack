@@ -189,4 +189,29 @@
 			}
 		} );
 	} );
+
+	// Post Details: Comment link.
+	wp.customize( 'jetpack_content_post_details_comment', function( value ) {
+		value.bind( function( to ) {
+			if ( false === to ) {
+				$( postDetails.comment ).css( {
+					'clip': 'rect(1px, 1px, 1px, 1px)',
+					'height': '1px',
+					'overflow': 'hidden',
+					'position': 'absolute',
+					'width': '1px'
+				} );
+				$( 'body' ).addClass( 'comment-hidden' );
+			} else {
+				$( postDetails.comment ).css( {
+					'clip': 'auto',
+					'height': 'auto',
+					'overflow': 'auto',
+					'position': 'relative',
+					'width': 'auto'
+				} );
+				$( 'body' ).removeClass( 'comment-hidden' );
+			}
+		} );
+	} );
 } )( jQuery );

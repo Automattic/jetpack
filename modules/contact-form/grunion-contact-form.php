@@ -97,7 +97,10 @@ class Grunion_Contact_Form_Plugin {
 		add_filter( 'widget_text', array( $this, 'widget_atts' ), 0 );
 
 		// If Text Widgets don't get shortcode processed, hack ours into place.
-		if ( ! has_filter( 'widget_text', 'do_shortcode' ) ) {
+		if (
+			version_compare( get_bloginfo( 'version' ), '4.9-z', '<=' )
+			&& ! has_filter( 'widget_text', 'do_shortcode' )
+		) {
 			add_filter( 'widget_text', array( $this, 'widget_shortcode_hack' ), 5 );
 		}
 
@@ -186,11 +189,8 @@ class Grunion_Contact_Form_Plugin {
 		 *	}
 		 *	add_action('wp_print_styles', 'remove_grunion_style');
 		 */
-		if ( is_rtl() ) {
-			wp_register_style( 'grunion.css', GRUNION_PLUGIN_URL . 'css/rtl/grunion-rtl.css', array(), JETPACK__VERSION );
-		} else {
-			wp_register_style( 'grunion.css', GRUNION_PLUGIN_URL . 'css/grunion.css', array(), JETPACK__VERSION );
-		}
+		wp_register_style( 'grunion.css', GRUNION_PLUGIN_URL . 'css/grunion.css', array(), JETPACK__VERSION );
+		wp_style_add_data( 'grunion.css', 'rtl', 'replace' );
 	}
 
 	/**
@@ -252,6 +252,8 @@ class Grunion_Contact_Form_Plugin {
 		add_filter( 'contact_form_subject', array( $this, 'replace_tokens_with_input' ), 10, 2 );
 
 		$id = stripslashes( $_POST['contact-form-id'] );
+		$hash = isset( $_POST['contact-form-hash'] ) ? $_POST['contact-form-hash'] : null;
+		$hash = preg_replace( '/[^\da-f]/i', '', $hash );
 
 		if ( is_user_logged_in() ) {
 			check_admin_referer( "contact-form_{$id}" );
@@ -295,20 +297,20 @@ class Grunion_Contact_Form_Plugin {
 			apply_filters( 'the_content', $post->post_content );
 		}
 
-		$form = Grunion_Contact_Form::$last;
+		$form = isset( Grunion_Contact_Form::$forms[ $hash ] ) ? Grunion_Contact_Form::$forms[ $hash ] : null;
 
 		// No form may mean user is using do_shortcode, grab the form using the stored post meta
 		if ( ! $form ) {
 
 			// Get shortcode from post meta
-			$shortcode = get_post_meta( $_POST['contact-form-id'], '_g_feedback_shortcode', true );
+			$shortcode = get_post_meta( $_POST['contact-form-id'], "_g_feedback_shortcode_{$hash}", true );
 
 			// Format it
 			if ( $shortcode != '' ) {
 
 				// Get attributes from post meta.
 				$parameters = '';
-				$attributes = get_post_meta( $_POST['contact-form-id'], '_g_feedback_shortcode_atts', true );
+				$attributes = get_post_meta( $_POST['contact-form-id'], "_g_feedback_shortcode_atts_{$hash}", true );
 				if ( ! empty( $attributes ) && is_array( $attributes ) ) {
 					foreach( array_filter( $attributes ) as $param => $value  ) {
 						$parameters .= " $param=\"$value\"";
@@ -576,9 +578,9 @@ class Grunion_Contact_Form_Plugin {
 			$query_string = http_build_query( $form );
 		}
 		if ( method_exists( 'Akismet', 'http_post' ) ) {
-		    $response = Akismet::http_post( $query_string, "submit-{$as}" );
+			$response = Akismet::http_post( $query_string, "submit-{$as}" );
 		} else {
-		    $response = akismet_http_post( $query_string, $akismet_api_host, "/1.1/submit-{$as}", $akismet_api_port );
+			$response = akismet_http_post( $query_string, $akismet_api_host, "/1.1/submit-{$as}", $akismet_api_port );
 		}
 
 		return trim( $response[1] );
@@ -1291,6 +1293,11 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	public $errors;
 
 	/**
+	 * @var string The SHA1 hash of the attributes that comprise the form.
+	 */
+	public $hash;
+
+	/**
 	 * @var Grunion_Contact_Form The most recent (inclusive) contact-form shortcode processed
 	 */
 	static $last;
@@ -1301,12 +1308,20 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	static $current_form;
 
 	/**
+	 * @var array All found forms, indexed by hash.
+	 */
+	static $forms = array();
+
+	/**
 	 * @var bool Whether to print the grunion.css style when processing the contact-form shortcode
 	 */
 	static $style = false;
 
 	function __construct( $attributes, $content = null ) {
 		global $post;
+
+		$this->hash = sha1( json_encode( $attributes ) . $content );
+		self::$forms[ $this->hash ] = $this;
 
 		// Set up the default subject and recipient for this form
 		$default_to = '';
@@ -1365,10 +1380,10 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$this->parse_content( $default_form );
 
 			// Store the shortcode
-			$this->store_shortcode( $default_form, $attributes );
+			$this->store_shortcode( $default_form, $attributes, $this->hash );
 		} else {
 			// Store the shortcode
-			$this->store_shortcode( $content, $attributes );
+			$this->store_shortcode( $content, $attributes, $this->hash );
 		}
 
 		// $this->body and $this->fields have been setup.  We no longer need the contact-field shortcode.
@@ -1380,18 +1395,24 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	 *	- used to receate shortcode when user uses do_shortcode
 	 *
 	 * @param string $content
+	 * @param array $attributes
+	 * @param string $hash
 	 */
-	static function store_shortcode( $content = null, $attributes = null ) {
+	static function store_shortcode( $content = null, $attributes = null, $hash = null ) {
 
 		if ( $content != null and isset( $attributes['id'] ) ) {
 
-			$shortcode_meta = get_post_meta( $attributes['id'], '_g_feedback_shortcode', true );
+			if ( empty( $hash ) ) {
+				$hash = sha1( json_encode( $attributes ) . $content );
+			}
+
+			$shortcode_meta = get_post_meta( $attributes['id'], "_g_feedback_shortcode_{$hash}", true );
 
 			if ( $shortcode_meta != '' or $shortcode_meta != $content ) {
-				update_post_meta( $attributes['id'], '_g_feedback_shortcode', $content );
+				update_post_meta( $attributes['id'], "_g_feedback_shortcode_{$hash}", $content );
 
 				// Save attributes to post_meta for later use. They're not available later in do_shortcode situations.
-				update_post_meta( $attributes['id'], '_g_feedback_shortcode_atts', $attributes );
+				update_post_meta( $attributes['id'], "_g_feedback_shortcode_atts_{$hash}", $attributes );
 			}
 		}
 	}
@@ -1443,17 +1464,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			return '[contact-form]';
 		}
 
-		// Only allow one contact form per post/widget
-		if ( self::$last && $id == self::$last->get_attribute( 'id' ) ) {
-			// We're processing the same post
-			if ( self::$last->attributes != $form->attributes || self::$last->content != $form->content ) {
-				// And we're processing a different shortcode;
-				return '';
-			} // else, we're processing the same shortcode - probably a separate run of do_shortcode() - let it through
-
-		} else {
-			self::$last = $form;
-		}
+		self::$last = $form;
 
 		// Enqueue the grunion.css stylesheet if self::$style allows it
 		if ( self::$style && ( empty( $_REQUEST['action'] ) || $_REQUEST['action'] != 'grunion_shortcode_to_json' ) ) {
@@ -1475,7 +1486,10 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			$r .= "</ul>\n</div>\n\n";
 		}
 
-		if ( isset( $_GET['contact-form-id'] ) && $_GET['contact-form-id'] == self::$last->get_attribute( 'id' ) && isset( $_GET['contact-form-sent'] ) ) {
+		if ( isset( $_GET['contact-form-id'] )
+			&& $_GET['contact-form-id'] == self::$last->get_attribute( 'id' )
+			&& isset( $_GET['contact-form-sent'], $_GET['contact-form-hash'] )
+			&& hash_equals( $form->hash, $_GET['contact-form-hash'] ) ) {
 			// The contact form was submitted.  Show the success message/results
 			$feedback_id = (int) $_GET['contact-form-sent'];
 
@@ -1492,7 +1506,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			}
 
 			/**
-			 * Filter the message returned after a successfull contact form submission.
+			 * Filter the message returned after a successful contact form submission.
 			 *
 			 * @module contact-form
 			 *
@@ -1537,6 +1551,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			}
 			$r .= "\t\t<input type='hidden' name='contact-form-id' value='$id' />\n";
 			$r .= "\t\t<input type='hidden' name='action' value='grunion-contact-form' />\n";
+			$r .= "\t\t<input type='hidden' name='contact-form-hash' value='" . esc_attr( $form->hash ) . "' />\n";
 			$r .= "\t</p>\n";
 			$r .= "</form>\n";
 		}
@@ -1695,6 +1710,8 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 			isset( $_POST['action'] ) && 'grunion-contact-form' === $_POST['action']
 		&&
 			isset( $_POST['contact-form-id'] ) && $form->get_attribute( 'id' ) == $_POST['contact-form-id']
+		&&
+			isset( $_POST['contact-form-hash'] ) && hash_equals( $form->hash, $_POST['contact-form-hash'] )
 		) {
 			// If we're processing a POST submission for this contact form, validate the field value so we can show errors as necessary.
 			$field->validate();
@@ -2116,7 +2133,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		$message = join( $message, '' );
 
 		/**
-		 * Filters the message sent via email after a successfull form submission.
+		 * Filters the message sent via email after a successful form submission.
 		 *
 		 * @module contact-form
 		 *
@@ -2153,7 +2170,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		if (
 			$is_spam !== true &&
 			/**
-			 * Filter to choose whether an email should be sent after each successfull contact form submission.
+			 * Filter to choose whether an email should be sent after each successful contact form submission.
 			 *
 			 * @module contact-form
 			 *
@@ -2193,6 +2210,7 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 		$redirect = add_query_arg( urlencode_deep( array(
 			'contact-form-id'   => $id,
 			'contact-form-sent' => $post_id,
+			'contact-form-hash' => $this->hash,
 			'_wpnonce'          => wp_create_nonce( "contact-form-sent-{$post_id}" ), // wp_nonce_url HTMLencodes :(
 		) ), $redirect );
 
@@ -2249,7 +2267,8 @@ class Grunion_Contact_Form extends Crunion_Contact_Form_Shortcode {
 	function add_name_to_address( $address ) {
 		// If it's just the address, without a display name
 		if ( is_email( $address ) ) {
-			$address = sprintf( '"%s" <%s>', $address, $address );
+			$address_parts = explode( '@', $address );
+			$address = sprintf( '"%s" <%s>', $address_parts[0], $address );
 		}
 
 		return $address;
@@ -2534,7 +2553,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 		$field_label       = $this->get_attribute( 'label' );
 		$field_required    = $this->get_attribute( 'required' );
 		$placeholder       = $this->get_attribute( 'placeholder' );
-		$class             = $this->get_attribute( 'class' );
+		$class             = 'date' === $field_type ? 'jp-contact-form-date' : $this->get_attribute( 'class' );
 		$field_placeholder = ( ! empty( $placeholder ) ) ? "placeholder='" . esc_attr( $placeholder ) . "'" : '';
 		$field_class       = "class='" . trim( esc_attr( $field_type ) . ' ' . esc_attr( $class ) ) . "' ";
 
@@ -2605,6 +2624,12 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 				$r .= "\t\t<label for='" . esc_attr( $field_id ) . "' class='grunion-field-label telephone" . ( $this->is_error() ? ' form-error' : '' ) . "'>" . esc_html( $field_label ) . ( $field_required ? '<span>' . $required_field_text . '</span>' : '' ) . "</label>\n";
 				$r .= "\t\t<input type='tel' name='" . esc_attr( $field_id ) . "' id='" . esc_attr( $field_id ) . "' value='" . esc_attr( $field_value ) . "' " . $field_class . $field_placeholder . "/>\n";
 			break;
+			case 'url' :
+				$r .= "\n<div>\n";
+				$r .= "\t\t<label for='" . esc_attr( $field_id ) . "' class='grunion-field-label url" . ( $this->is_error() ? ' form-error' : '' ) . "'>" . esc_html( $field_label ) . ( $field_required ? '<span>' . $required_field_text . '</span>' : '' ) . "</label>\n";
+				$r .= "\t\t<input type='url' name='" . esc_attr( $field_id ) . "' id='" . esc_attr( $field_id ) . "' value='" . esc_attr( $field_value ) . "' " . $field_class . $field_placeholder . ' ' . ( $field_required ? "required aria-required='true'" : '' ) . "/>\n";
+				$r .= "\t</div>\n";
+			break;
 			case 'textarea' :
 				$r .= "\n<div>\n";
 				$r .= "\t\t<label for='contact-form-comment-" . esc_attr( $field_id ) . "' class='grunion-field-label textarea" . ( $this->is_error() ? ' form-error' : '' ) . "'>" . esc_html( $field_label ) . ( $field_required ? '<span>' . $required_field_text . '</span>' : '' ) . "</label>\n";
@@ -2655,10 +2680,14 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 			case 'date' :
 				$r .= "\n<div>\n";
 				$r .= "\t\t<label for='" . esc_attr( $field_id ) . "' class='grunion-field-label " . esc_attr( $field_type ) . ( $this->is_error() ? ' form-error' : '' ) . "'>" . esc_html( $field_label ) . ( $field_required ? '<span>' . $required_field_text . '</span>' : '' ) . "</label>\n";
-				$r .= "\t\t<input type='date' name='" . esc_attr( $field_id ) . "' id='" . esc_attr( $field_id ) . "' value='" . esc_attr( $field_value ) . "' " . $field_class . ( $field_required ? "required aria-required='true'" : '' ) . "/>\n";
+				$r .= "\t\t<input type='text' name='" . esc_attr( $field_id ) . "' id='" . esc_attr( $field_id ) . "' value='" . esc_attr( $field_value ) . "' " . $field_class . ( $field_required ? "required aria-required='true'" : '' ) . "/>\n";
 				$r .= "\t</div>\n";
 
 				wp_enqueue_script( 'grunion-frontend', plugins_url( 'js/grunion-frontend.js', __FILE__ ), array( 'jquery', 'jquery-ui-datepicker' ) );
+				wp_enqueue_style( 'jp-jquery-ui-datepicker', plugins_url( 'css/jquery-ui-datepicker.css', __FILE__ ), array( 'dashicons' ), '1.0' );
+
+				// Using Core's built-in datepicker localization routine
+				wp_localize_jquery_ui_datepicker();
 			break;
 			default : // text field
 				// note that any unknown types will produce a text input, so we can use arbitrary type names to handle

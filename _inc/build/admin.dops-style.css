@@ -932,8 +932,6 @@
   background-color: white;
   transition: all .15s ease-in-out;
   box-shadow: none; }
-  .dops-text-input.dops-text-input::-webkit-input-placeholder {
-    color: #87a6bc; }
   .dops-text-input.dops-text-input:-ms-input-placeholder {
     color: #87a6bc; }
   .dops-text-input.dops-text-input::placeholder {
@@ -953,8 +951,6 @@
     -webkit-text-fill-color: #a8bece; }
     .dops-text-input.dops-text-input:disabled:hover {
       cursor: default; }
-    .dops-text-input.dops-text-input:disabled::-webkit-input-placeholder {
-      color: #a8bece; }
     .dops-text-input.dops-text-input:disabled:-ms-input-placeholder {
       color: #a8bece; }
     .dops-text-input.dops-text-input:disabled::placeholder {
@@ -1031,7 +1027,7 @@
 .form-toggle + .form-toggle__label .form-toggle__switch {
   background: #a8bece; }
 
-.form-toggle:not(:disabled) + .form-toggle__label .form-toggle__switch:hover {
+.form-toggle:not(:disabled) + .form-toggle__label:hover .form-toggle__switch {
   background: #c8d7e1; }
 
 .form-toggle:checked + .form-toggle__label .form-toggle__switch {
@@ -1039,7 +1035,7 @@
   .form-toggle:checked + .form-toggle__label .form-toggle__switch:after {
     left: 16px; }
 
-.form-toggle:checked:not(:disabled) + .form-toggle__label .form-toggle__switch:hover {
+.form-toggle:checked:not(:disabled) + .form-toggle__label:hover .form-toggle__switch {
   background: #78dcfa; }
 
 .form-toggle:disabled + label.form-toggle__label span.form-toggle__switch {
@@ -1562,6 +1558,8 @@ a.dops-notice__action {
     color: white;
     display: none;
     padding: 3px 4px 4px 3px; }
+    .dops-banner__icons .dops-banner__icon-circle .gridicon {
+      margin-bottom: -7px; }
   @media (min-width: 481px) {
     .dops-banner__icons {
       -ms-flex-align: center;
@@ -2076,8 +2074,6 @@ button.dops-foldable-card__action {
   background-color: white;
   transition: all .15s ease-in-out;
   box-shadow: none; }
-  .dops-textarea::-webkit-input-placeholder {
-    color: #87a6bc; }
   .dops-textarea:-ms-input-placeholder {
     color: #87a6bc; }
   .dops-textarea::placeholder {
@@ -2097,8 +2093,6 @@ button.dops-foldable-card__action {
     -webkit-text-fill-color: #a8bece; }
     .dops-textarea:disabled:hover {
       cursor: default; }
-    .dops-textarea:disabled::-webkit-input-placeholder {
-      color: #a8bece; }
     .dops-textarea:disabled:-ms-input-placeholder {
       color: #a8bece; }
     .dops-textarea:disabled::placeholder {

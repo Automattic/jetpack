@@ -858,8 +858,25 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					break;
 
 				case 'dismiss_dash_app_card':
+				case 'dismiss_empty_stats_card':
 					// If option value was the same, consider it done.
 					$updated = get_option( $option ) != $value ? update_option( $option, (bool) $value ) : true;
+					break;
+
+				case 'onboarding':
+					// Break apart and set Jetpack onboarding options.
+					$result = $this->_process_onboarding( (array) $value );
+					if ( empty( $result ) ) {
+						$updated = true;
+					} else {
+						$error = sprintf( esc_html__( 'Onboarding failed to process: %s', 'jetpack' ), $result );
+						$updated = false;
+					}
+					break;
+
+				case 'show_welcome_for_new_plan':
+					// If option value was the same, consider it done.
+					$updated = get_option( $option ) !== $value ? update_option( $option, (bool) $value ) : true;
 					break;
 
 				default:
@@ -913,6 +930,118 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 	}
 
 	/**
+	 * Perform tasks in the site based on onboarding choices.
+	 *
+	 * @since 5.4.0
+	 *
+	 * @param array $data Onboarding choices made by user.
+	 *
+	 * @return string Result of onboarding processing and, if there is one, an error message.
+	 */
+	private function _process_onboarding( $data ) {
+		if ( isset( $data['end'] ) && $data['end'] ) {
+			return Jetpack::invalidate_onboarding_token()
+				? ''
+				: esc_html__( "The onboarding token couldn't be deleted.", 'jetpack' );
+		}
+
+		$error = array();
+
+		if ( ! empty( $data['siteTitle'] ) ) {
+			// If option value was the same, consider it done.
+			if ( ! ( update_option( 'blogname', $data['siteTitle'] ) || get_option( 'blogname' ) == $data['siteTitle'] ) ) {
+				$error[] = 'siteTitle';
+			}
+		}
+
+		if ( ! empty( $data['siteDescription'] ) ) {
+			// If option value was the same, consider it done.
+			if ( ! ( update_option( 'blogdescription', $data['siteDescription'] ) || get_option( 'blogdescription' ) == $data['siteDescription'] ) ) {
+				$error[] = 'siteDescription';
+			}
+		}
+
+		$site_title = get_option( 'blogname' );
+		$author = get_current_user_id() || 1;
+
+		// If $data['homepageFormat'] is 'posts', we have nothing to do since it's WordPress' default
+		if ( isset( $data['homepageFormat'] ) && 'page' === $data['homepageFormat'] ) {
+			if ( ! ( update_option( 'show_on_front', 'page' ) || get_option( 'show_on_front' ) == 'page' ) ) {
+				$error[] = 'homepageFormat';
+			}
+
+			$home = wp_insert_post( array(
+				'post_type'     => 'page',
+				/* translators: this references the home page of a site, also called front page. */
+				'post_title'    => esc_html_x( 'Home Page', 'The home page of a website.', 'jetpack' ),
+				'post_content'  => sprintf( esc_html__( 'Welcome to %s.', 'jetpack' ), $site_title ),
+				'post_status'   => 'publish',
+				'post_author'   => $author,
+			) );
+			if ( 0 == $home ) {
+				$error[] = 'home insert: 0';
+			} elseif ( is_wp_error( $home ) ) {
+				$error[] = 'home creation: '. $home->get_error_message();
+			}
+			if ( ! ( update_option( 'page_on_front', $home ) || get_option( 'page_on_front' ) == $home ) ) {
+				$error[] = 'home set';
+			}
+
+			$blog = wp_insert_post( array(
+				'post_type'     => 'page',
+				/* translators: this references the page where blog posts are listed. */
+				'post_title'    => esc_html_x( 'Blog', 'The blog of a website.', 'jetpack' ),
+				'post_content'  => sprintf( esc_html__( 'These are the latest posts in %s.', 'jetpack' ), $site_title ),
+				'post_status'   => 'publish',
+				'post_author'   => $author,
+			) );
+			if ( 0 == $blog ) {
+				$error[] = 'blog insert: 0';
+			} elseif ( is_wp_error( $blog ) ) {
+				$error[] = 'blog creation: '. $blog->get_error_message();
+			}
+			if ( ! ( update_option( 'page_for_posts', $blog ) || get_option( 'page_for_posts' ) == $blog ) ) {
+				$error[] = 'blog set';
+			}
+		}
+
+		// Setup contact page and add a form and/or business info
+		$contact_page = '';
+
+		if ( isset( $data['addContactForm'] ) && $data['addContactForm'] ) {
+			if ( Jetpack::is_module_active( 'contact-form' ) ) {
+				$contact_page = '[contact-form][contact-field label="' . esc_html__( 'Name', 'jetpack' ) . '" type="name" required="true" /][contact-field label="' . esc_html__( 'Email', 'jetpack' ) . '" type="email" required="true" /][contact-field label="' . esc_html__( 'Website', 'jetpack' ) . '" type="url" /][contact-field label="' . esc_html__( 'Message', 'jetpack' ) . '" type="textarea" /][/contact-form]';
+			} else {
+				$error[] = 'contact-form activate';
+			}
+		}
+
+		if ( isset( $data['businessPersonal'] ) && 'business' === $data['businessPersonal'] ) {
+			$contact_page .= "\n" . join( "\n", $data['businessInfo'] );
+		}
+
+		if ( ! empty( $contact_page ) ) {
+			$form = wp_insert_post( array(
+				'post_type'     => 'page',
+				/* translators: this references a page with contact details and possibly a form. */
+				'post_title'    => esc_html_x( 'Contact us', 'Contact page for your website.', 'jetpack' ),
+				'post_content'  => esc_html__( 'Send us a message!', 'jetpack' ) . "\n" . $contact_page,
+				'post_status'   => 'publish',
+				'post_author'   => $author,
+			) );
+			if ( 0 == $form ) {
+				$error[] = 'form insert: 0';
+			} elseif ( is_wp_error( $form ) ) {
+				$error[] = 'form creation: '. $form->get_error_message();
+			}
+		}
+
+		return empty( $error )
+			? ''
+			: join( ', ', $error );
+	}
+
+	/**
 	 * Calls WPCOM through authenticated request to create, regenerate or delete the Post by Email address.
 	 * @todo: When all settings are updated to use endpoints, move this to the Post by Email module and replace __process_ajax_proxy_request.
 	 *
@@ -955,6 +1084,11 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 	 * @return bool
 	 */
 	public function can_request( $request ) {
+		$req_params = $request->get_params();
+		if ( ! empty( $req_params['onboarding']['token'] ) && isset( $req_params['rest_route'] ) ) {
+			return Jetpack::validate_onboarding_token_action( $req_params['onboarding']['token'], $req_params['rest_route'] );
+		}
+
 		if ( 'GET' === $request->get_method() ) {
 			return current_user_can( 'jetpack_admin_page' );
 		} else {
@@ -1329,7 +1463,12 @@ class Jetpack_Core_API_Module_Data_Endpoint {
 		}
 
 		$data = json_decode( base64_decode( $vaultpress->contact_service( 'plugin_data' ) ) );
-		if ( is_wp_error( $data ) || ! isset( $data->backups->last_backup ) ) {
+		if ( false == $data ) {
+			return rest_ensure_response( array(
+				'code'    => 'not_registered',
+				'message' => esc_html__( 'Could not connect to VaultPress.', 'jetpack' )
+			) );
+		} else if ( is_wp_error( $data ) || ! isset( $data->backups->last_backup ) ) {
 			return $data;
 		} else if ( empty( $data->backups->last_backup ) ) {
 			return rest_ensure_response( array(

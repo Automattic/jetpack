@@ -8,12 +8,30 @@ class WordAds_Params {
 	 * @since 4.5.0
 	 */
 	public function __construct() {
-		$this->options = array(
-			'wordads_approved' => (bool) get_option( 'wordads_approved', false ),
-			'wordads_active'   => (bool) get_option( 'wordads_active',   false ),
-			'wordads_house'    => (bool) get_option( 'wordads_house',    true ),
-			'enable_header_ad' => (bool) get_option( 'enable_header_ad', false )
+		// WordAds setting => default
+		$settings = array(
+			'wordads_approved'           => false,
+			'wordads_active'             => false,
+			'wordads_house'              => true,
+			'enable_header_ad'           => false,
+			'wordads_second_belowpost'   => true,
+			'wordads_display_front_page' => true,
+			'wordads_display_post'       => true,
+			'wordads_display_page'       => true,
+			'wordads_display_archive'    => true,
 		);
+
+		// grab settings, or set as default if it doesn't exist
+		$this->options = array();
+		foreach ( $settings as $setting => $default ) {
+			$option = get_option( $setting, null );
+			if ( is_null( $option ) ) {
+				update_option( $setting, $default, true );
+				$option = $default;
+			}
+
+			$this->options[$setting] = (bool) $option;
+		}
 
 		$host = 'localhost';
 		if ( isset( $_SERVER['HTTP_HOST'] ) ) {
@@ -146,29 +164,21 @@ class WordAds_Params {
 	 *
 	 * @since 4.5.0
 	 */
-	public static function should_show() {
+	public function should_show() {
 		global $wp_query;
-		if ( is_single() || ( is_page() && ! is_home() ) ) {
-			return true;
+		if ( ( is_front_page() || is_home() ) && ! $this->options['wordads_display_front_page'] ) {
+			return false;
 		}
 
-		// TODO this would be a good place for allowing the user to specify
-		if ( ( is_home() || is_archive() || is_search() ) && 0 == $wp_query->current_post ) {
-			return true;
+		if ( is_single() && ! $this->options['wordads_display_post'] ) {
+			return false;
 		}
 
-		return false;
-	}
+		if ( is_page() && ! $this->options['wordads_display_page'] ) {
+			return false;
+		}
 
-	/**
-	 * Logic for if we should show a mobile ad
-	 *
-	 * @since 4.5.0
-	 */
-	public static function should_show_mobile() {
-		global $wp_query;
-
-		if ( ! in_the_loop() || ! did_action( 'wp_head' ) ) {
+		if ( is_archive() && ! $this->options['wordads_display_archive'] ) {
 			return false;
 		}
 
@@ -176,7 +186,8 @@ class WordAds_Params {
 			return true;
 		}
 
-		if ( ( is_home() || is_archive() ) && 0 == $wp_query->current_post ) {
+		// TODO this would be a good place for allowing the user to specify
+		if ( ( is_home() || is_archive() || is_search() ) && 0 == $wp_query->current_post ) {
 			return true;
 		}
 
