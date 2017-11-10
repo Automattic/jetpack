@@ -98,9 +98,9 @@ class Asset_CDN {
 			// if we are injecting critical CSS, load the full CSS async
 
 			if ( $this->inject_critical_css ) {
-				echo '<!-- jetpack concat --><link rel="preload" onload="this.rel=\'stylesheet\'" as="style" type="text/css" media="' . $media . '" href="' . esc_attr( $cdn_url ) . '"/>';
+				echo '<link rel="preload" onload="this.rel=\'stylesheet\'" as="style" type="text/css" media="' . $media . '" href="' . esc_attr( $cdn_url ) . '"/>';
 			} else {
-				echo '<!-- jetpack concat --><link rel="stylesheet" type="text/css" media="' . $media . '" href="' . esc_attr( $cdn_url ) . '"/>';
+				echo '<link rel="stylesheet" type="text/css" media="' . $media . '" href="' . esc_attr( $cdn_url ) . '"/>';
 			}
 		}
 	}

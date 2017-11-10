@@ -86,12 +86,13 @@ class WP_Test_Asset_CDN extends WP_UnitTestCase {
 	}
 
 	// TODO: minifies CSS rendered in the footer
+	// TODO: skipping conditional
+	// TODO: critical CSS
 
 	/**
 	 * JS minification/concatenation
 	 */
 
-	// TODO: footer, too
 	public function test_concatenates_js() {
 		wp_enqueue_script( 'my-script', plugins_url( 'js/my-script.js', JETPACK__PLUGIN_FILE ), false, '1.0' );
 		wp_enqueue_script( 'other-script', plugins_url( 'js/other-script.js', JETPACK__PLUGIN_FILE ), false, '2.0' );
@@ -145,6 +146,19 @@ class WP_Test_Asset_CDN extends WP_UnitTestCase {
 
 
 	// TODO: breaks on non-concatenated assets (only for scripts, not for CSS?)
+	public function test_breaks_js_on_intervening_non_CDN_script() {
+		wp_enqueue_script( 'my-script', plugins_url( 'js/my-script.js', JETPACK__PLUGIN_FILE ), false, '1.0' );
+		wp_enqueue_script( 'non-cdn-script', plugins_url( 'js/non-cdn-script.js', JETPACK__PLUGIN_FILE ), false, '2.0' );
+		wp_enqueue_script( 'next-cdn-script', plugins_url( 'js/next-cdn-script.js', JETPACK__PLUGIN_FILE ), false, '3.0' );
+		wp_enqueue_script( 'another-cdn-script', plugins_url( 'js/another-cdn-script.js', JETPACK__PLUGIN_FILE ), false, '4.0' );
+
+		add_filter( )
+
+		$header_cdn_js_urls = $this->get_cdn_js_urls( $this->get_head_content() );
+	}
+
+	// TODO: localization
+	// TODO: skipping conditional
 
 
 	/**
