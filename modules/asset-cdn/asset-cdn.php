@@ -106,18 +106,24 @@ class Asset_CDN {
 	}
 
 	function render_concatenated_scripts_head() {
-		if ( isset( $this->concat_script_groups[0] ) ) {
-			$this->render_concatenated_scripts( $this->concat_script_groups[0] );
-		}
+		$this->flush_concatenated_scripts( 0 );
 	}
 
 	function render_concatenated_scripts_footer() {
-		if ( isset( $this->concat_script_groups[1] ) ) {
-			$this->render_concatenated_scripts( $this->concat_script_groups[1] );
-		}
+		$this->flush_concatenated_scripts( 1 );
 	}
 
-	private function render_concatenated_scripts( $scripts ) {
+	private function flush_concatenated_scripts( $group ) {
+		if ( ! isset( $this->concat_script_groups[ $group ] ) ) {
+			return;
+		}
+
+		$scripts = $this->concat_script_groups[ $group ];
+
+		if ( empty( $scripts ) ) {
+			return;
+		}
+
 		// special URL to concatenation service
 		global $wp_scripts;
 		$site_url = site_url();
@@ -145,6 +151,8 @@ class Asset_CDN {
 				echo sprintf( "<script type='text/javascript'>\n%s\n</script>\n", $script->extra['after'] );
 			}
 		}
+
+		$this->concat_script_groups[ $group ] = array();
 	}
 
 	/**
@@ -170,8 +178,10 @@ class Asset_CDN {
 			return '';
 		}
 
-		// TODO: if this script is dependent on one that has been buffered, we need to flush the concatenated
-		// scripts and then output this script
+		// if this is a non-CDN script, and there are existing CDN scripts in this group, print them and reset the
+		// array
+		$group = isset( $script->extra['group'] ) ? $script->extra['group'] : 0;
+		$this->flush_concatenated_scripts( $group );
 
 		return $tag;
 	}

@@ -152,7 +152,27 @@ class WP_Test_Asset_CDN extends WP_UnitTestCase {
 		wp_enqueue_script( 'next-cdn-script', plugins_url( 'js/next-cdn-script.js', JETPACK__PLUGIN_FILE ), false, '3.0' );
 		wp_enqueue_script( 'another-cdn-script', plugins_url( 'js/another-cdn-script.js', JETPACK__PLUGIN_FILE ), false, '4.0' );
 
+		add_filter( 'jetpack_perf_concat_script', array( $this, 'dont_concat_non_cdn_script' ), 10, 3 );
+
 		$header_cdn_js_urls = $this->get_cdn_js_urls( $this->get_head_content() );
+
+		$this->assertEquals( 2, count( $header_cdn_js_urls ) );
+
+		// first URL should contain one script
+		$this->assertEquals( array(
+			$this->strip_host( plugins_url( 'js/my-script.js', JETPACK__PLUGIN_FILE ) )
+		), $header_cdn_js_urls[0]->query['f'] );
+
+		$this->assertEquals( array(
+			'1.0'
+		), $header_cdn_js_urls[0]->query['v'] );
+	}
+
+	public function dont_concat_non_cdn_script( $should_concat, $handle, $src ) {
+		if ( 'non-cdn-script' === $handle ) {
+			return false;
+		}
+		return $should_concat;
 	}
 
 	// TODO: localization
