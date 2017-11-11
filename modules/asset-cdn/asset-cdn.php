@@ -71,6 +71,7 @@ class Asset_CDN {
 	}
 
 	function render_concatenated_styles_footer() {
+		$this->flush_concatenated_styles(0);
 		$this->flush_concatenated_styles(1);
 	}
 
@@ -101,8 +102,8 @@ class Asset_CDN {
 				urlencode( $site_url ) . '&' .
 				http_build_query( array( 'f' => $urls ) ) . '&' .
 				http_build_query( array( 'v' => $vers ) );
-			// if we are injecting critical CSS, load the full CSS async
 
+			// if we are injecting critical CSS, load the full CSS async
 			if ( $this->inject_critical_css ) {
 				echo '<link rel="preload" onload="this.rel=\'stylesheet\'" as="style" type="text/css" media="' . $media . '" href="' . esc_attr( $cdn_url ) . '"/>';
 			} else {
@@ -124,6 +125,7 @@ class Asset_CDN {
 	}
 
 	function render_concatenated_scripts_footer() {
+		$this->flush_concatenated_scripts( 0 ); // in case of late-enqueud header styles
 		$this->flush_concatenated_scripts( 1 );
 	}
 

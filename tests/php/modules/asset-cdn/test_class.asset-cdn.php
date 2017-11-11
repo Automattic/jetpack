@@ -31,7 +31,6 @@ class WP_Test_Asset_CDN extends WP_UnitTestCase {
 	 * @since 5.6.0
 	 */
 	public function test_concatenates_css() {
-		// $this->markTestIncomplete();
 		wp_enqueue_style( 'my-style', plugins_url( 'css/my-style.css', JETPACK__PLUGIN_FILE ), false, '1.0' );
 		wp_enqueue_style( 'other-style', plugins_url( 'css/other-style.css', JETPACK__PLUGIN_FILE ), false, '2.0' );
 
@@ -64,11 +63,18 @@ class WP_Test_Asset_CDN extends WP_UnitTestCase {
 		// enqueue more media, render in footer
 		wp_enqueue_style( 'footer-style', plugins_url( 'css/footer-style.css', JETPACK__PLUGIN_FILE ), false, '3.0' );
 		wp_enqueue_style( 'footer-style-too', plugins_url( 'css/footer-style-too.css', JETPACK__PLUGIN_FILE ), false, '4.0' );
-		$content = $this->get_footer_content();
-		print_r($content);
-		print_late_styles();
-		$cdn_css_urls = $this->get_cdn_css_urls( $content );
-		print_r( $cdn_css_urls );
+		$cdn_css_urls = $this->get_cdn_css_urls( $this->get_footer_content() );
+		$query = $cdn_css_urls[0]->query;
+
+		$this->assertEquals( array(
+			$this->strip_host( plugins_url( 'css/footer-style.css', JETPACK__PLUGIN_FILE ) ),
+			$this->strip_host( plugins_url( 'css/footer-style-too.css', JETPACK__PLUGIN_FILE ) )
+		), $query['f'] );
+
+		// includes versions
+		$this->assertEquals( array(
+			'3.0', '4.0'
+		), $query['v'] );
 	}
 
 	public function test_separates_css_by_media() {
