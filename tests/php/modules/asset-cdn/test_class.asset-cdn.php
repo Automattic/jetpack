@@ -85,6 +85,19 @@ class WP_Test_Asset_CDN extends WP_UnitTestCase {
 		), $print_media_url->query['f'] );
 	}
 
+	public function test_doesnt_concat_conditional_css() {
+		wp_enqueue_style( 'my-style', plugins_url( 'css/my-style.css', JETPACK__PLUGIN_FILE ), false, '1.0', 'all' );
+		wp_enqueue_style( 'conditional-style', plugins_url( 'css/other-style.css', JETPACK__PLUGIN_FILE ), false, '2.0', 'print' );
+		wp_style_add_data( 'conditional-style', 'conditional', 'IE' );
+
+		$cdn_urls = $this->get_cdn_css_urls( $this->get_head_content() );
+
+		$this->assertEquals( 1, count( $cdn_urls ) );
+		$this->assertEquals( array(
+			$this->strip_host( plugins_url( 'css/my-style.css', JETPACK__PLUGIN_FILE ) )
+		), $cdn_urls[0]->query['f'] );
+	}
+
 	// TODO: minifies CSS rendered in the footer
 	// TODO: skipping conditional
 	// TODO: critical CSS
@@ -143,9 +156,6 @@ class WP_Test_Asset_CDN extends WP_UnitTestCase {
 		), $query['v'] );
 	}
 
-
-
-	// TODO: breaks on non-concatenated assets (only for scripts, not for CSS?)
 	public function test_breaks_js_on_intervening_non_CDN_script() {
 		wp_enqueue_script( 'my-script', plugins_url( 'js/my-script.js', JETPACK__PLUGIN_FILE ), false, '1.0' );
 		wp_enqueue_script( 'non-cdn-script', plugins_url( 'js/non-cdn-script.js', JETPACK__PLUGIN_FILE ), false, '2.0' );
