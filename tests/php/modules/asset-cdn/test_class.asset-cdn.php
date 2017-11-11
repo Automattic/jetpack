@@ -159,13 +159,25 @@ class WP_Test_Asset_CDN extends WP_UnitTestCase {
 		$this->assertEquals( 2, count( $header_cdn_js_urls ) );
 
 		// first URL should contain one script
+		$first_cdn_url = $header_cdn_js_urls[0];
 		$this->assertEquals( array(
 			$this->strip_host( plugins_url( 'js/my-script.js', JETPACK__PLUGIN_FILE ) )
-		), $header_cdn_js_urls[0]->query['f'] );
+		), $first_cdn_url->query['f'] );
 
 		$this->assertEquals( array(
 			'1.0'
-		), $header_cdn_js_urls[0]->query['v'] );
+		), $first_cdn_url->query['v'] );
+
+		// second URL should contain remaining scripts
+		$second_cdn_url = $header_cdn_js_urls[1];
+		$this->assertEquals( array(
+			$this->strip_host( plugins_url( 'js/next-cdn-script.js', JETPACK__PLUGIN_FILE ) ),
+			$this->strip_host( plugins_url( 'js/another-cdn-script.js', JETPACK__PLUGIN_FILE ) )
+		), $second_cdn_url->query['f'] );
+
+		$this->assertEquals( array(
+			'3.0', '4.0'
+		), $second_cdn_url->query['v'] );
 	}
 
 	public function dont_concat_non_cdn_script( $should_concat, $handle, $src ) {
