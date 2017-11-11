@@ -67,18 +67,24 @@ class Asset_CDN {
 	 */
 
 	function render_concatenated_styles_head() {
-		if ( isset( $this->concat_style_groups[0] ) ) {
-			$this->render_concatenated_styles( $this->concat_style_groups[0] );
-		}
+		$this->flush_concatenated_styles(0);
 	}
 
 	function render_concatenated_styles_footer() {
-		if ( isset( $this->concat_style_groups[1] ) ) {
-			$this->render_concatenated_styles( $this->concat_style_groups[1] );
-		}
+		$this->flush_concatenated_styles(1);
 	}
 
-	private function render_concatenated_styles( $style_groups ) {
+	private function flush_concatenated_styles( $group ) {
+		if ( ! isset( $this->concat_style_groups[ $group ] ) ) {
+			return;
+		}
+
+		$style_groups = $this->concat_style_groups[ $group ];
+
+		if ( empty( $style_groups ) ) {
+			return;
+		}
+
 		// special URL to concatenation service
 		global $wp_styles;
 		$site_url = site_url();
@@ -102,7 +108,15 @@ class Asset_CDN {
 			} else {
 				echo '<link rel="stylesheet" type="text/css" media="' . $media . '" href="' . esc_attr( $cdn_url ) . '"/>';
 			}
+
+			foreach( $styles as $style ) {
+				if ( isset( $style->extra['concat-after'] ) && $style->extra['concat-after'] ) {
+					printf( "<style id='%s-inline-css' type='text/css'>\n%s\n</style>\n", esc_attr( $style->handle ), implode( "\n", $style->extra['concat-after'] ) );
+				}
+			}
 		}
+
+		$this->concat_style_groups[ $group ] = array();
 	}
 
 	function render_concatenated_scripts_head() {
@@ -227,15 +241,25 @@ class Asset_CDN {
 	private function buffer_style( $style ) {
 		$group = isset( $style->extra['group'] ) ? $style->extra['group'] : 0;
 		$media = $style->args;
+
+		// rename the 'after' code so that we can output it separately
+		if ( isset( $style->extra['after'] ) ) {
+			$style->extra['concat-after'] = $style->extra['after'];
+			unset( $style->extra['after'] );
+		}
+
 		if ( ! $media ) {
 			$media = 'all';
 		}
+
 		if ( ! isset( $this->concat_style_groups[$group] ) ) {
 			$this->concat_style_groups[$group] = array();
 		}
+
 		if ( ! isset( $this->concat_style_groups[$group][$media] ) ) {
 			$this->concat_style_groups[$group][$media] = array();
 		}
+
 		$this->concat_style_groups[$group][$media][] = $style;
 	}
 

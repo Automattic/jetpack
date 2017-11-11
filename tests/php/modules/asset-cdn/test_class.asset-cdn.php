@@ -60,6 +60,15 @@ class WP_Test_Asset_CDN extends WP_UnitTestCase {
 		$this->assertEquals( array(
 			'1.0', '2.0'
 		), $query['v'] );
+
+		// enqueue more media, render in footer
+		wp_enqueue_style( 'footer-style', plugins_url( 'css/footer-style.css', JETPACK__PLUGIN_FILE ), false, '3.0' );
+		wp_enqueue_style( 'footer-style-too', plugins_url( 'css/footer-style-too.css', JETPACK__PLUGIN_FILE ), false, '4.0' );
+		$content = $this->get_footer_content();
+		print_r($content);
+		print_late_styles();
+		$cdn_css_urls = $this->get_cdn_css_urls( $content );
+		print_r( $cdn_css_urls );
 	}
 
 	public function test_separates_css_by_media() {
@@ -98,9 +107,27 @@ class WP_Test_Asset_CDN extends WP_UnitTestCase {
 		), $cdn_urls[0]->query['f'] );
 	}
 
+	public function test_adds_inline_styles_after_tag() {
+		wp_enqueue_style( 'my-style', plugins_url( 'css/my-style.css', JETPACK__PLUGIN_FILE ), false, '1.0', 'all' );
+		wp_add_inline_style( 'my-style', "h2 { font-family: 'Helvetica'; }" );
+
+		$content = $this->get_head_content();
+
+		preg_match_all( "|font-family: 'Helvetica';|", $content, $matches );
+		$this->assertEquals( 1, count( $matches[0] ), 'should only print once in the head' );
+
+		// assert that it's after the CDN URL
+		$cdn_url_pos = strpos( $content, 'mycdn.com' );
+		$custom_css_pos = strpos( $content, "font-family: 'Helvetica';" );
+		$this->assertTrue( $cdn_url_pos < $custom_css_pos, 'CDN link must be before inline CSS' );
+
+		$cdn_css_urls = $this->get_cdn_css_urls( $content );
+	}
+
 	// TODO: minifies CSS rendered in the footer
-	// TODO: skipping conditional
 	// TODO: critical CSS
+	// TODO: handle 'alt' data
+	// TODO: handle rtl
 
 	/**
 	 * JS minification/concatenation
@@ -197,8 +224,20 @@ class WP_Test_Asset_CDN extends WP_UnitTestCase {
 		return $should_concat;
 	}
 
+	public function test_doesnt_concat_conditional_js() {
+		wp_enqueue_script( 'my-script', plugins_url( 'js/my-script.js', JETPACK__PLUGIN_FILE ), false, '1.0' );
+		wp_enqueue_script( 'conditional-script', plugins_url( 'js/other-script.js', JETPACK__PLUGIN_FILE ), false, '2.0' );
+		wp_script_add_data( 'conditional-script', 'conditional', 'IE' );
+
+		$cdn_urls = $this->get_cdn_js_urls( $this->get_head_content() );
+
+		$this->assertEquals( 1, count( $cdn_urls ) );
+		$this->assertEquals( array(
+			$this->strip_host( plugins_url( 'js/my-script.js', JETPACK__PLUGIN_FILE ) )
+		), $cdn_urls[0]->query['f'] );
+	}
+
 	// TODO: localization
-	// TODO: skipping conditional
 
 
 	/**
