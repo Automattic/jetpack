@@ -151,7 +151,6 @@ class WP_Test_Asset_CDN extends WP_UnitTestCase {
 		), $cdn_urls[0]->query['v'] );
 	}
 
-	// TODO: minifies CSS rendered in the footer
 	// TODO: critical CSS
 	// TODO: handle 'alt' data
 	// TODO: handle rtl
@@ -293,8 +292,7 @@ class WP_Test_Asset_CDN extends WP_UnitTestCase {
 		), $cdn_urls[0]->query['v'] );
 	}
 
-	// TODO: localization
-
+	// TODO: localization tests
 
 	/**
 	 * Utility functions
