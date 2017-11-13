@@ -36,8 +36,6 @@ class WP_Test_Asset_CDN extends WP_UnitTestCase {
 
 		$cdn_css_urls = $this->get_cdn_css_urls( $this->get_head_content() );
 
-		$this->assertEquals( 1, count( $cdn_css_urls ) );
-
 		$query = $cdn_css_urls[0]->query;
 
 		$this->assertTrue( isset( $query['b'] ) ); // base URL
@@ -48,13 +46,13 @@ class WP_Test_Asset_CDN extends WP_UnitTestCase {
 		$this->assertEquals( 'http://example.org', $query['b'] );
 
 		// should include URLs without hostname
-		$this->assertEquals( array(
+		$this->assertArraySubset( array(
 			$this->strip_host( plugins_url( 'css/my-style.css', JETPACK__PLUGIN_FILE ) ),
 			$this->strip_host( plugins_url( 'css/other-style.css', JETPACK__PLUGIN_FILE ) )
 		), $query['f'] );
 
 		// includes versions
-		$this->assertEquals( array(
+		$this->assertArraySubset( array(
 			'1.0', '2.0'
 		), $query['v'] );
 
@@ -64,13 +62,13 @@ class WP_Test_Asset_CDN extends WP_UnitTestCase {
 		$cdn_css_urls = $this->get_cdn_css_urls( $this->get_footer_content() );
 		$query = $cdn_css_urls[0]->query;
 
-		$this->assertEquals( array(
+		$this->assertArraySubset( array(
 			$this->strip_host( plugins_url( 'css/footer-style.css', JETPACK__PLUGIN_FILE ) ),
 			$this->strip_host( plugins_url( 'css/footer-style-too.css', JETPACK__PLUGIN_FILE ) )
 		), $query['f'] );
 
 		// includes versions
-		$this->assertEquals( array(
+		$this->assertArraySubset( array(
 			'3.0', '4.0'
 		), $query['v'] );
 	}
@@ -82,18 +80,16 @@ class WP_Test_Asset_CDN extends WP_UnitTestCase {
 
 		$cdn_urls = $this->get_cdn_css_urls( $this->get_head_content() );
 
-		$this->assertEquals( 2, count( $cdn_urls ) );
-
 		$all_media_url = $cdn_urls[0];
 		$this->assertEquals( 'all', $all_media_url->media );
-		$this->assertEquals( array(
+		$this->assertArraySubset( array(
 			$this->strip_host( plugins_url( 'css/my-style.css', JETPACK__PLUGIN_FILE ) ),
 			$this->strip_host( plugins_url( 'css/yet-other-style.css', JETPACK__PLUGIN_FILE ) )
 		), $all_media_url->query['f'] );
 
 		$print_media_url = $cdn_urls[1];
 		$this->assertEquals( 'print', $print_media_url->media );
-		$this->assertEquals( array(
+		$this->assertArraySubset( array(
 			$this->strip_host( plugins_url( 'css/other-style.css', JETPACK__PLUGIN_FILE ) )
 		), $print_media_url->query['f'] );
 	}
@@ -105,10 +101,14 @@ class WP_Test_Asset_CDN extends WP_UnitTestCase {
 
 		$cdn_urls = $this->get_cdn_css_urls( $this->get_head_content() );
 
-		$this->assertEquals( 1, count( $cdn_urls ) );
-		$this->assertEquals( array(
+		$this->assertArraySubset( array(
 			$this->strip_host( plugins_url( 'css/my-style.css', JETPACK__PLUGIN_FILE ) )
 		), $cdn_urls[0]->query['f'] );
+
+		$this->assertNotContains(
+			$this->strip_host( plugins_url( 'css/other-style.css', JETPACK__PLUGIN_FILE ) ),
+			$cdn_urls[0]->query['f']
+		);
 	}
 
 	public function test_adds_inline_styles_after_tag() {
@@ -141,12 +141,12 @@ class WP_Test_Asset_CDN extends WP_UnitTestCase {
 
 		$cdn_urls = $this->get_cdn_css_urls( $this->get_head_content() );
 
-		$this->assertEquals( array(
+		$this->assertArraySubset( array(
 			$this->strip_host( plugins_url( 'css/my-style.css', JETPACK__PLUGIN_FILE ) ),
 			'http://mysite.com/css/style.css'
 		), $cdn_urls[0]->query['f'] );
 
-		$this->assertEquals( array(
+		$this->assertArraySubset( array(
 			'1.0', '2.0'
 		), $cdn_urls[0]->query['v'] );
 	}
@@ -155,6 +155,7 @@ class WP_Test_Asset_CDN extends WP_UnitTestCase {
 	// TODO: critical CSS
 	// TODO: handle 'alt' data
 	// TODO: handle rtl
+	// TODO: bundle IDs and optimisation - common JS vs page-specific JS
 
 	/**
 	 * JS minification/concatenation
@@ -177,9 +178,6 @@ class WP_Test_Asset_CDN extends WP_UnitTestCase {
 
 		$header_cdn_js_urls = $this->get_cdn_js_urls( $content );
 
-		// assert that scripts got turned into a single URL
-		$this->assertEquals( 1, count( $header_cdn_js_urls ) );
-
 		$query = $header_cdn_js_urls[0]->query;
 
 		$this->assertTrue( isset( $query['b'] ) ); // base URL
@@ -190,20 +188,20 @@ class WP_Test_Asset_CDN extends WP_UnitTestCase {
 		$this->assertEquals( 'http://example.org', $query['b'] );
 
 		// should include URLs without hostname
-		$this->assertEquals( array(
+		$this->assertArraySubset( array(
 			$this->strip_host( plugins_url( 'js/my-script.js', JETPACK__PLUGIN_FILE ) ),
 			$this->strip_host( plugins_url( 'js/other-script.js', JETPACK__PLUGIN_FILE ) )
 		), $query['f'] );
 
 		// includes versions
-		$this->assertEquals( array(
+		$this->assertArraySubset( array(
 			'1.0', '2.0'
 		), $query['v'] );
 
+		$this->assertNotContains( 'http://mysite.com/js/script.js', $query['f'] );
+
 		// now get the footer URLs
 		$footer_cdn_js_urls = $this->get_cdn_js_urls( $this->get_footer_content() );
-
-		$this->assertEquals( 1, count( $footer_cdn_js_urls ) );
 
 		$query = $footer_cdn_js_urls[0]->query;
 
@@ -211,12 +209,12 @@ class WP_Test_Asset_CDN extends WP_UnitTestCase {
 		$this->assertEquals( 'http://example.org', $query['b'] );
 
 		// should include URLs without hostname
-		$this->assertEquals( array(
+		$this->assertArraySubset( array(
 			$this->strip_host( plugins_url( 'js/footer-script.js', JETPACK__PLUGIN_FILE ) )
 		), $query['f'] );
 
 		// includes versions
-		$this->assertEquals( array(
+		$this->assertArraySubset( array(
 			'3.0'
 		), $query['v'] );
 	}
@@ -231,26 +229,24 @@ class WP_Test_Asset_CDN extends WP_UnitTestCase {
 
 		$header_cdn_js_urls = $this->get_cdn_js_urls( $this->get_head_content() );
 
-		$this->assertEquals( 2, count( $header_cdn_js_urls ) );
-
 		// first URL should contain one script
 		$first_cdn_url = $header_cdn_js_urls[0];
-		$this->assertEquals( array(
+		$this->assertArraySubset( array(
 			$this->strip_host( plugins_url( 'js/my-script.js', JETPACK__PLUGIN_FILE ) )
 		), $first_cdn_url->query['f'] );
 
-		$this->assertEquals( array(
+		$this->assertArraySubset( array(
 			'1.0'
 		), $first_cdn_url->query['v'] );
 
 		// second URL should contain remaining scripts
 		$second_cdn_url = $header_cdn_js_urls[1];
-		$this->assertEquals( array(
+		$this->assertArraySubset( array(
 			$this->strip_host( plugins_url( 'js/next-cdn-script.js', JETPACK__PLUGIN_FILE ) ),
 			$this->strip_host( plugins_url( 'js/another-cdn-script.js', JETPACK__PLUGIN_FILE ) )
 		), $second_cdn_url->query['f'] );
 
-		$this->assertEquals( array(
+		$this->assertArraySubset( array(
 			'3.0', '4.0'
 		), $second_cdn_url->query['v'] );
 	}
@@ -269,8 +265,7 @@ class WP_Test_Asset_CDN extends WP_UnitTestCase {
 
 		$cdn_urls = $this->get_cdn_js_urls( $this->get_head_content() );
 
-		$this->assertEquals( 1, count( $cdn_urls ) );
-		$this->assertEquals( array(
+		$this->assertArraySubset( array(
 			$this->strip_host( plugins_url( 'js/my-script.js', JETPACK__PLUGIN_FILE ) )
 		), $cdn_urls[0]->query['f'] );
 	}
@@ -288,12 +283,12 @@ class WP_Test_Asset_CDN extends WP_UnitTestCase {
 
 		$cdn_urls = $this->get_cdn_js_urls( $this->get_head_content() );
 
-		$this->assertEquals( array(
+		$this->assertArraySubset( array(
 			$this->strip_host( plugins_url( 'js/my-script.js', JETPACK__PLUGIN_FILE ) ),
 			'http://mysite.com/js/script.js'
 		), $cdn_urls[0]->query['f'] );
 
-		$this->assertEquals( array(
+		$this->assertArraySubset( array(
 			'1.0', '2.0'
 		), $cdn_urls[0]->query['v'] );
 	}
@@ -315,7 +310,6 @@ class WP_Test_Asset_CDN extends WP_UnitTestCase {
 	}
 
 	private function get_footer_content() {
-		// hack so that this doesn't interfere with our setup
 		wp_dequeue_script( 'wp-embed' );
 		ob_start();
 		do_action( 'wp_footer' );
