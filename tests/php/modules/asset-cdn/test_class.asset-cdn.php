@@ -128,6 +128,29 @@ class WP_Test_Asset_CDN extends WP_UnitTestCase {
 		$cdn_css_urls = $this->get_cdn_css_urls( $content );
 	}
 
+	public function test_optionally_include_external_css() {
+		// hook to include external assets
+		add_filter( 'jetpack_asset_cdn_external_assets', '__return_true' );
+
+		// re-initialize module
+		Asset_CDN::reset();
+		Asset_CDN::instance();
+
+		wp_enqueue_style( 'my-style', plugins_url( 'css/my-style.css', JETPACK__PLUGIN_FILE ), false, '1.0' );
+		wp_enqueue_style( 'external-style', 'http://mysite.com/css/style.css', false, '2.0' );
+
+		$cdn_urls = $this->get_cdn_css_urls( $this->get_head_content() );
+
+		$this->assertEquals( array(
+			$this->strip_host( plugins_url( 'css/my-style.css', JETPACK__PLUGIN_FILE ) ),
+			'http://mysite.com/css/style.css'
+		), $cdn_urls[0]->query['f'] );
+
+		$this->assertEquals( array(
+			'1.0', '2.0'
+		), $cdn_urls[0]->query['v'] );
+	}
+
 	// TODO: minifies CSS rendered in the footer
 	// TODO: critical CSS
 	// TODO: handle 'alt' data
