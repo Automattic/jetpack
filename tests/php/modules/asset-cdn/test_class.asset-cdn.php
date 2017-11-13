@@ -34,9 +34,7 @@ class WP_Test_Asset_CDN extends WP_UnitTestCase {
 		wp_enqueue_style( 'my-style', plugins_url( 'css/my-style.css', JETPACK__PLUGIN_FILE ), false, '1.0' );
 		wp_enqueue_style( 'other-style', plugins_url( 'css/other-style.css', JETPACK__PLUGIN_FILE ), false, '2.0' );
 
-		$content = $this->get_head_content();
-
-		$cdn_css_urls = $this->get_cdn_css_urls( $content );
+		$cdn_css_urls = $this->get_cdn_css_urls( $this->get_head_content() );
 
 		$this->assertEquals( 1, count( $cdn_css_urls ) );
 
@@ -260,6 +258,8 @@ class WP_Test_Asset_CDN extends WP_UnitTestCase {
 	}
 
 	private function get_footer_content() {
+		// hack so that this doesn't interfere with our setup
+		wp_dequeue_script( 'wp-embed' );
 		ob_start();
 		do_action( 'wp_footer' );
 		$content = ob_get_contents();
