@@ -289,8 +289,9 @@ class WP_Test_Asset_CDN extends WP_UnitTestCase {
 		return $urls;
 	}
 
+	// conveniently turn CDN links into objects we can query
 	private function get_cdn_js_urls( $content ) {
-		// get the concatenated CSS link
+		// get the concatenated JS link
 		preg_match_all( '|<script type="text/javascript" src="(http://mycdn.com/js.*?)".*?></script>|', $content, $matches );
 
 		$urls = array();
