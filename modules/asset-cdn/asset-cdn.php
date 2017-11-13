@@ -27,6 +27,7 @@ class Asset_CDN {
 	private $concat_style_groups = array();
 	private $concat_script_groups = array();
 	private $inject_critical_css = false;
+	private $include_external_assets = false;
 
 	/**
 	 * Singleton implementation
@@ -42,20 +43,38 @@ class Asset_CDN {
 	}
 
 	public static function reset() {
+		if ( null === self::$__instance ) {
+			return;
+		}
+
+		// allow smaller CSS by only minifying assets on the page
+		remove_filter( 'jetpack_implode_frontend_css', '__return_false' );
+
+		// buffer selected CSS and JS tags
+		remove_filter( 'script_loader_tag', array( self::$__instance, 'register_concat_scripts' ), -100 );
+		remove_filter( 'style_loader_tag', array( self::$__instance, 'register_concat_styles' ), -100 );
+
+		// render buffered assets
+		remove_action( 'wp_head', array( self::$__instance, 'render_concatenated_styles_head' ), PHP_INT_MAX );
+		remove_action( 'wp_head', array( self::$__instance, 'render_concatenated_scripts_head' ), PHP_INT_MAX );
+		remove_action( 'wp_footer', array( self::$__instance, 'render_concatenated_styles_footer' ), PHP_INT_MAX );
+		remove_action( 'wp_footer', array( self::$__instance, 'render_concatenated_scripts_footer' ), PHP_INT_MAX );
+
 		self::$__instance = null;
 	}
 
 	private function __construct() {
 		$this->cdn_server = apply_filters( 'jetpack_asset_cdn_url', 'https://cdn.wpvm.io' );
-		// $this->cdn_server = 'http://localhost:8090';
+		$this->include_external_assets = apply_filters( 'jetpack_asset_cdn_external_assets', false );
 
 		// allow smaller CSS by only minifying assets on the page
 		add_filter( 'jetpack_implode_frontend_css', '__return_false' );
 
-		// rewrite CSS tags
+		// buffer selected CSS and JS tags
 		add_filter( 'script_loader_tag', array( $this, 'register_concat_scripts' ), -100, 3 );
 		add_filter( 'style_loader_tag', array( $this, 'register_concat_styles' ), -100, 4 );
 
+		// render buffered assets
 		add_action( 'wp_head', array( $this, 'render_concatenated_styles_head' ), PHP_INT_MAX );
 		add_action( 'wp_head', array( $this, 'render_concatenated_scripts_head' ), PHP_INT_MAX );
 		add_action( 'wp_footer', array( $this, 'render_concatenated_styles_footer' ), PHP_INT_MAX );
@@ -203,11 +222,10 @@ class Asset_CDN {
 	}
 
 	private function should_concat_script( $script ) {
-		// only concat local scripts
-		$is_local       = $this->is_local_url( $script->src );
-		// don't concat conditional scripts
-		$is_conditional = isset( $script->extra['conditional'] );
-		return apply_filters( 'jetpack_perf_concat_script', $is_local && ! $is_conditional, $script->handle, $script->src );
+		$should_concat =
+			( $this->include_external_assets || $this->is_local_url( $script->src ) )
+			&& ! isset( $script->extra['conditional'] );
+		return apply_filters( 'jetpack_perf_concat_script', $should_concat, $script->handle, $script->src );
 	}
 
 	private function buffer_script( $script ) {
@@ -266,11 +284,11 @@ class Asset_CDN {
 	}
 
 	private function should_concat_style( $style ) {
-		// only concat local styles
-		$is_local       = $this->is_local_url( $style->src );
-		// don't concat conditional styles
-		$is_conditional = isset( $style->extra['conditional'] );
-		return apply_filters( 'jetpack_perf_concat_style', $is_local && ! $is_conditional, $style->handle, $style->src );
+		$should_concat =
+		( $this->include_external_assets || $this->is_local_url( $style->src ) )
+		&& ! isset( $style->extra['conditional'] );
+
+		return apply_filters( 'jetpack_perf_concat_style', $should_concat, $style->handle, $style->src );
 	}
 
 	private function is_local_url( $url ) {

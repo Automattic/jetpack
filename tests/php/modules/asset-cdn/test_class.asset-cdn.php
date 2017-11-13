@@ -138,12 +138,23 @@ class WP_Test_Asset_CDN extends WP_UnitTestCase {
 	 */
 
 	public function test_concatenates_js() {
+		wp_enqueue_script( 'external-script', 'http://mysite.com/js/script.js', false, '8.0' ); // should not be present
 		wp_enqueue_script( 'my-script', plugins_url( 'js/my-script.js', JETPACK__PLUGIN_FILE ), false, '1.0' );
 		wp_enqueue_script( 'other-script', plugins_url( 'js/other-script.js', JETPACK__PLUGIN_FILE ), false, '2.0' );
 		wp_enqueue_script( 'footer-script', plugins_url( 'js/footer-script.js', JETPACK__PLUGIN_FILE ), false, '3.0', true );
 
-		$header_cdn_js_urls = $this->get_cdn_js_urls( $this->get_head_content() );
+		$content = $this->get_head_content();
 
+		// assert old script tags are not there
+		$existingScriptPath = plugins_url( 'js/my-script.js', JETPACK__PLUGIN_FILE ) . '?ver=1.0';
+		$this->assertEquals( false, strpos( $content, $existingScriptPath ) );
+
+		// ... but the external JS is still there
+		$this->assertNotEquals( false, strpos( $content, 'http://mysite.com/js/script.js' ) );
+
+		$header_cdn_js_urls = $this->get_cdn_js_urls( $content );
+
+		// assert that scripts got turned into a single URL
 		$this->assertEquals( 1, count( $header_cdn_js_urls ) );
 
 		$query = $header_cdn_js_urls[0]->query;
@@ -239,6 +250,29 @@ class WP_Test_Asset_CDN extends WP_UnitTestCase {
 		$this->assertEquals( array(
 			$this->strip_host( plugins_url( 'js/my-script.js', JETPACK__PLUGIN_FILE ) )
 		), $cdn_urls[0]->query['f'] );
+	}
+
+	public function test_optionally_include_external_js() {
+		// hook to include external assets
+		add_filter( 'jetpack_asset_cdn_external_assets', '__return_true' );
+
+		// re-initialize module
+		Asset_CDN::reset();
+		Asset_CDN::instance();
+
+		wp_enqueue_script( 'my-script', plugins_url( 'js/my-script.js', JETPACK__PLUGIN_FILE ), false, '1.0' );
+		wp_enqueue_script( 'external-script', 'http://mysite.com/js/script.js', false, '2.0' );
+
+		$cdn_urls = $this->get_cdn_js_urls( $this->get_head_content() );
+
+		$this->assertEquals( array(
+			$this->strip_host( plugins_url( 'js/my-script.js', JETPACK__PLUGIN_FILE ) ),
+			'http://mysite.com/js/script.js'
+		), $cdn_urls[0]->query['f'] );
+
+		$this->assertEquals( array(
+			'1.0', '2.0'
+		), $cdn_urls[0]->query['v'] );
 	}
 
 	// TODO: localization
