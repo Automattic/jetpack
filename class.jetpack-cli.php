@@ -1053,6 +1053,35 @@ class Jetpack_CLI extends WP_CLI_Command {
 		WP_CLI::log( json_encode( $body_json ) );
 	}
 
+	/**
+	 * Manages your Jetpack sitemap
+	 *
+	 * ## OPTIONS
+	 *
+	 * rebuild : Rebuild all sitemaps
+	 *
+	 * ## EXAMPLES
+	 *
+	 * wp jetpack sitemap rebuild
+	 *
+	 * @subcommand sitemap
+	 * @synopsis <rebuild>
+	 */
+	public function sitemap( $args, $assoc_args ) {
+		if ( ! Jetpack::is_active() ) {
+			WP_CLI::error( __( 'Jetpack is not currently connected to WordPress.com', 'jetpack' ) );
+		}
+		if ( ! Jetpack::is_module_active( 'sitemaps' ) ) {
+			WP_CLI::error( __( 'Jetpack Sitemaps module is not currently active. Activate it first if you want to work with sitemaps.', 'jetpack' ) );
+		}
+		if ( ! class_exists( 'Jetpack_Sitemap_Builder' ) ) {
+			WP_CLI::error( __( 'Jetpack Sitemaps module is active, but unavailable. This can happen if your site is set to discourage search engine indexing. Please enable search engine indexing to allow sitemap generation.', 'jetpack' ) );
+		}
+
+		$sitemap_builder = new Jetpack_Sitemap_Builder();
+		$sitemap_builder->update_sitemap();
+	}
+
 	private function get_api_host() {
 		$env_api_host = getenv( 'JETPACK_START_API_HOST', true );
 		return $env_api_host ? $env_api_host : JETPACK__WPCOM_JSON_API_HOST;

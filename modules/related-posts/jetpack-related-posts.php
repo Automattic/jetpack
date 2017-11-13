@@ -772,9 +772,9 @@ EOT;
 		 */
 		$args['exclude_post_ids'] = apply_filters( 'jetpack_relatedposts_filter_exclude_post_ids', $args['exclude_post_ids'], $post_id );
 		if ( !empty( $args['exclude_post_ids'] ) && is_array( $args['exclude_post_ids'] ) ) {
+			$excluded_post_ids = array();
 			foreach ( $args['exclude_post_ids'] as $exclude_post_id) {
 				$exclude_post_id = (int)$exclude_post_id;
-				$excluded_post_ids = array();
 				if ( $exclude_post_id > 0 )
 					$excluded_post_ids[] = $exclude_post_id;
 			}
