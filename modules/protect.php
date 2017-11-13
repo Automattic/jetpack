@@ -58,7 +58,7 @@ class Jetpack_Protect_Module {
 		add_action( 'admin_init', array ( $this, 'maybe_display_security_warning' ) );
 
 		// This is a backup in case $pagenow fails for some reason
-		add_action( 'login_head', array ( $this, 'check_login_ability' ) );
+		add_action( 'login_head', array ( $this, 'check_login_ability' ), 100, 3 );
 
 		// Runs a script every day to clean up expired transients so they don't
 		// clog up our users' databases
@@ -437,6 +437,13 @@ class Jetpack_Protect_Module {
 			ob_end_clean();
 			return true;
 		}
+		
+		/**
+		 * JETPACK_ALWAYS_PROTECT_LOGIN will always disable the login page, and use a page provided by Jetpack.
+		 */
+		if ( defined( 'JETPACK_ALWAYS_PROTECT_LOGIN' ) && JETPACK_ALWAYS_PROTECT_LOGIN ) {
+			$this->kill_login();
+		}
 
 		/**
 		 * Short-circuit check_login_ability.
@@ -541,6 +548,17 @@ class Jetpack_Protect_Module {
 	 * Kill a login attempt
 	 */
 	function kill_login() {
+		if (
+			isset( $_GET['action'], $_GET['_wpnonce'] ) &&
+			'logout' === $_GET['action'] &&
+			wp_verify_nonce( $_GET['_wpnonce'], 'log-out' ) &&
+			wp_get_current_user()
+
+		) {
+			// Allow users to logout
+			return;
+		}
+
 		$ip = jetpack_protect_get_ip();
 		/**
 		 * Fires before every killed login.
@@ -552,19 +570,24 @@ class Jetpack_Protect_Module {
 		 * @param string $ip IP flagged by Protect.
 		 */
 		do_action( 'jpp_kill_login', $ip );
-		$help_url = 'https://jetpack.com/support/security-features/#unblock';
-
-		$die_string = sprintf( __( 'Your IP (%1$s) has been flagged for potential security violations.  <a href="%2$s">Find out more...</a>', 'jetpack' ), str_replace( 'http://', '', esc_url( 'http://' . $ip ) ), esc_url( $help_url ) );
 
 		if( defined( 'XMLRPC_REQUEST' ) && XMLRPC_REQUEST ) {
 			$die_string = sprintf( __( 'Your IP (%1$s) has been flagged for potential security violations.', 'jetpack' ), str_replace( 'http://', '', esc_url( 'http://' . $ip ) ) );
+			wp_die(
+				$die_string,
+				__( 'Login Blocked by Jetpack', 'jetpack' ),
+				array ( 'response' => 403 )
+			);
 		}
 
-		wp_die(
-			$die_string,
-			__( 'Login Blocked by Jetpack', 'jetpack' ),
-			array ( 'response' => 403 )
-		);
+		require_once dirname( __FILE__ ) . '/protect/blocked-login-page.php';
+		$blocked_login_page = Jetpack_Protect_Blocked_Login_Page::instance( $ip );
+
+		if ( $blocked_login_page->is_blocked_user_valid() ) {
+			return;
+		}
+
+		$blocked_login_page->render_and_die();
 	}
 
 	/*
@@ -862,8 +885,9 @@ class Jetpack_Protect_Module {
 
 }
 
-Jetpack_Protect_Module::instance();
+$jetpack_protect = Jetpack_Protect_Module::instance();
 
+global $pagenow;
 if ( isset( $pagenow ) && 'wp-login.php' == $pagenow ) {
-	Jetpack_Protect_Module::check_login_ability();
+	$jetpack_protect->check_login_ability();
 }
