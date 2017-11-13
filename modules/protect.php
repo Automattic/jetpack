@@ -439,7 +439,7 @@ class Jetpack_Protect_Module {
 		}
 		
 		/**
-		 * JETPACK_ALWAYS_PROTECT_LOGIN lets you always set the login page to something provided by
+		 * JETPACK_ALWAYS_PROTECT_LOGIN will always disable the login page, and use a page provided by Jetpack.
 		 */
 		if ( defined( 'JETPACK_ALWAYS_PROTECT_LOGIN' ) && JETPACK_ALWAYS_PROTECT_LOGIN ) {
 			$this->kill_login();
