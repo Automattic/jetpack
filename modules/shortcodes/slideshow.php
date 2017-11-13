@@ -270,7 +270,13 @@ class Jetpack_Slideshow_Shortcode {
 	function enqueue_scripts() {
 
 		wp_enqueue_script( 'jquery-cycle', plugins_url( '/js/jquery.cycle.min.js', __FILE__ ), array( 'jquery' ), '20161231', true );
-		wp_enqueue_script( 'jetpack-slideshow', plugins_url( '/js/slideshow-shortcode.js', __FILE__ ), array( 'jquery-cycle' ), '20160119.1', true );
+		wp_enqueue_script(
+			'jetpack-slideshow',
+			Jetpack::get_file_url_for_environment( '_inc/build/shortcodes/js/slideshow-shortcode.min.js', 'modules/shortcodes/js/slideshow-shortcode.js' ),
+			array( 'jquery-cycle' ),
+			'20160119.1',
+			true
+		);
 		wp_enqueue_style( 'jetpack-slideshow', plugins_url( '/css/slideshow-shortcode.css', __FILE__ ) );
 		wp_style_add_data( 'jetpack-slideshow', 'rtl', 'replace' );
 
