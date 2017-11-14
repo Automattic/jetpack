@@ -1,7 +1,7 @@
 <?php
 require dirname( __FILE__ ) . '/../../../../modules/asset-cdn/asset-cdn.php';
 
-class WP_Test_Asset_CDN extends WP_UnitTestCase {
+class WP_Test_Jetpack_Asset_CDN extends WP_UnitTestCase {
 
 	public function setUp() {
 		parent::setUp();
@@ -13,8 +13,8 @@ class WP_Test_Asset_CDN extends WP_UnitTestCase {
 		$wp_styles = new WP_Styles();
 
 		add_filter( 'jetpack_asset_cdn_url', array( $this, 'cdn_url' ) );
-		Asset_CDN::reset();
-		Asset_CDN::instance();
+		Jetpack_Asset_CDN::reset();
+		Jetpack_Asset_CDN::instance();
 	}
 
 	public function cdn_url( $url ) {
@@ -133,8 +133,8 @@ class WP_Test_Asset_CDN extends WP_UnitTestCase {
 		add_filter( 'jetpack_asset_cdn_external_assets', '__return_true' );
 
 		// re-initialize module
-		Asset_CDN::reset();
-		Asset_CDN::instance();
+		Jetpack_Asset_CDN::reset();
+		Jetpack_Asset_CDN::instance();
 
 		wp_enqueue_style( 'my-style', plugins_url( 'css/my-style.css', JETPACK__PLUGIN_FILE ), false, '1.0' );
 		wp_enqueue_style( 'external-style', 'http://mysite.com/css/style.css', false, '2.0' );
@@ -274,8 +274,8 @@ class WP_Test_Asset_CDN extends WP_UnitTestCase {
 		add_filter( 'jetpack_asset_cdn_external_assets', '__return_true' );
 
 		// re-initialize module
-		Asset_CDN::reset();
-		Asset_CDN::instance();
+		Jetpack_Asset_CDN::reset();
+		Jetpack_Asset_CDN::instance();
 
 		wp_enqueue_script( 'my-script', plugins_url( 'js/my-script.js', JETPACK__PLUGIN_FILE ), false, '1.0' );
 		wp_enqueue_script( 'external-script', 'http://mysite.com/js/script.js', false, '2.0' );

@@ -20,7 +20,7 @@
  * - non-enqueued assets?
  */
 
-class Asset_CDN {
+class Jetpack_Asset_CDN {
 	private static $__instance = null;
 
 	private $cdn_server;
@@ -35,8 +35,8 @@ class Asset_CDN {
 	 * @return object
 	 */
 	public static function instance() {
-		if ( ! is_a( self::$__instance, 'Asset_CDN' ) ) {
-			self::$__instance = new Asset_CDN();
+		if ( ! is_a( self::$__instance, 'Jetpack_Asset_CDN' ) ) {
+			self::$__instance = new Jetpack_Asset_CDN();
 		}
 
 		return self::$__instance;

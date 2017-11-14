@@ -13,4 +13,4 @@
  */
 
 require_once( JETPACK__PLUGIN_DIR . 'modules/asset-cdn/asset-cdn.php' );
-Asset_CDN::instance();
+Jetpack_Asset_CDN::instance();
