@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import classNames from 'classnames';
 
 export class LoadingPlaceholder extends React.Component {
-    static displayName = 'LoadingPlaceholder';
+	static displayName = 'LoadingPlaceholder';
 
 	render() {
 		const classes = classNames(

@@ -17,7 +17,7 @@ import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 
-export const Ads = moduleSettingsForm(class extends React.Component {
+export const Ads = moduleSettingsForm( class extends React.Component {
     /**
 	 * Get options for initial state.
 	 *
@@ -149,4 +149,4 @@ export const Ads = moduleSettingsForm(class extends React.Component {
 			</SettingsCard>
 		);
 	}
-});
+} );

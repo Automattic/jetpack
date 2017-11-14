@@ -46,7 +46,7 @@ export function ModuleSettingsForm( InnerComponent ) {
 		 * @param   {*}             optionValue
 		 * @returns {boolean}
 		 */
-		updateFormStateOptionValue = (optionMaybeOptions, optionValue = undefined) => {
+		updateFormStateOptionValue = ( optionMaybeOptions, optionValue = undefined ) => {
 			if ( 'string' === typeof optionMaybeOptions ) {
 				optionMaybeOptions = { [ optionMaybeOptions ]: optionValue };
 			}
@@ -67,13 +67,12 @@ export function ModuleSettingsForm( InnerComponent ) {
 		 * @param {String}  moduleOption
 		 * @param {Boolean} deactivate
 		 */
-		updateFormStateModuleOption = (module, moduleOption, deactivate = false) => {
+		updateFormStateModuleOption = ( module, moduleOption, deactivate = false ) => {
 			this.trackSettingsToggle( module, moduleOption, ! this.getOptionValue( moduleOption ) );
 
 			// If the module is active, check if we're going to update the option or update and deactivate.
 			if ( this.getOptionValue( module ) ) {
 				if ( deactivate ) {
-
 					// If after toggling the option the module is no longer needed to be active, deactivate it.
 					this.props.updateOptions( {
 						[ module ]: false,
@@ -86,7 +85,6 @@ export function ModuleSettingsForm( InnerComponent ) {
 					} );
 				}
 			} else {
-
 				// If the module is inactive, we pass the module to activate and the value to set.
 				this.props.updateOptions( {
 					[ module ]: true,
@@ -114,7 +112,6 @@ export function ModuleSettingsForm( InnerComponent ) {
 			event.preventDefault();
 			this.props.updateOptions( this.state.options )
 				.then( () => {
-
 					// Track it
 					this.trackFormSubmission( this.state.options );
 
@@ -129,7 +126,7 @@ export function ModuleSettingsForm( InnerComponent ) {
 		 * Retrieves an option from an existing module, or from an array of modules
 		 * if the form was initialized with an array
 		 */
-		getOptionValue = (settingName, module = '') => {
+		getOptionValue = ( settingName, module = '' ) => {
 			return get( this.state.options, settingName, this.props.getSettingCurrentValue( settingName, module ) );
 		};
 
@@ -154,7 +151,7 @@ export function ModuleSettingsForm( InnerComponent ) {
 		 *
 		 * @returns {Boolean} True if specified settings are being saved, false otherwise.
 		 */
-		isSavingAnyOption = (settings = '') => {
+		isSavingAnyOption = ( settings = '' ) => {
 			return this.props.isUpdating( settings );
 		};
 
@@ -173,7 +170,7 @@ export function ModuleSettingsForm( InnerComponent ) {
 		 * Tracks settings toggles
 		 * @param options
 		 */
-		trackSettingsToggle = (module, setting, activated) => {
+		trackSettingsToggle = ( module, setting, activated ) => {
 			analytics.tracks.recordEvent(
 				'jetpack_wpa_settings_toggle',
 				{

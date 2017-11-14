@@ -16,7 +16,7 @@ import {
 } from 'state/jetpack-notices';
 
 export class StaticWarning extends React.Component {
-    static displayName = 'StaticWarning';
+	static displayName = 'StaticWarning';
 
 	render() {
 		return (

@@ -19,7 +19,7 @@ export const FormFieldset = props => {
 };
 
 export class FormLabel extends React.Component {
-    static displayName = 'FormLabel';
+	static displayName = 'FormLabel';
 
 	render() {
 		const { className, htmlFor, ...otherProps } = this.props;
@@ -32,7 +32,7 @@ export class FormLabel extends React.Component {
 }
 
 export class FormLegend extends React.Component {
-    static displayName = 'FormLegend';
+	static displayName = 'FormLegend';
 
 	render() {
 		return (
@@ -44,10 +44,10 @@ export class FormLegend extends React.Component {
 }
 
 export class FormCheckbox extends React.Component {
-    static displayName = 'FormInputCheckbox';
+	static displayName = 'FormInputCheckbox';
 
 	render() {
-		var otherProps = omit( this.props, [ 'className', 'type' ] );
+		const otherProps = omit( this.props, [ 'className', 'type' ] );
 
 		return (
 			<input { ...otherProps } type="checkbox" className={ classNames( this.props.className, 'jp-form-checkbox' ) } />
@@ -56,7 +56,7 @@ export class FormCheckbox extends React.Component {
 }
 
 export class FormTextInput extends React.Component {
-    static displayName = 'FormTextInput';
+	static displayName = 'FormTextInput';
 
 	static defaultProps = {
 		isError: false,
@@ -92,7 +92,7 @@ export class FormTextInput extends React.Component {
 }
 
 export class FormTextarea extends React.Component {
-    static displayName = 'FormTextarea';
+	static displayName = 'FormTextarea';
 
 	render() {
 		return (
@@ -104,10 +104,10 @@ export class FormTextarea extends React.Component {
 }
 
 export class FormRadio extends React.Component {
-    static displayName = 'FormRadio';
+	static displayName = 'FormRadio';
 
 	render() {
-		var otherProps = omit( this.props, [ 'className', 'type' ] );
+		const otherProps = omit( this.props, [ 'className', 'type' ] );
 
 		return (
 			<input
@@ -119,7 +119,7 @@ export class FormRadio extends React.Component {
 }
 
 export class FormButton extends React.Component {
-    static displayName = 'FormsButton';
+	static displayName = 'FormsButton';
 
 	static defaultProps = {
 		isSubmitting: false,
@@ -132,7 +132,7 @@ export class FormButton extends React.Component {
 	};
 
 	render() {
-		var buttonClasses = classNames( {
+		const buttonClasses = classNames( {
 			'jp-form-button': true
 		} );
 
@@ -148,7 +148,7 @@ export class FormButton extends React.Component {
 }
 
 export class FormSelect extends React.Component {
-    handleOnSelect = option => {
+	handleOnSelect = option => {
 		this.props.onOptionChange( {
 			target: {
 				type: 'select',
@@ -159,7 +159,7 @@ export class FormSelect extends React.Component {
 	};
 
 	render() {
-		let validValues = [];
+		const validValues = [];
 		forOwn( this.props.validValues, ( label, value ) => {
 			validValues.push( { label: label, value: value } );
 		} );

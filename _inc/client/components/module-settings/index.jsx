@@ -24,7 +24,7 @@ import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-sett
 import ExternalLink from 'components/external-link';
 
 export class VideoPressSettings extends React.Component {
-    render() {
+	render() {
 		return (
 			<div>
 				<p className="jp-form-setting-explanation">
@@ -34,14 +34,14 @@ export class VideoPressSettings extends React.Component {
 					{ __( 'To get started, click on Add Media in your post editor and upload a video; we’ll take care of the rest!' ) }
 				</p>
 			</div>
-		)
+		);
 	}
 }
 
 VideoPressSettings = moduleSettingsForm( VideoPressSettings );
 
 export class SharedaddySettings extends React.Component {
-    render() {
+	render() {
 		return (
 			<form onSubmit={ this.props.onSubmit } >
 				<FormFieldset>
@@ -52,14 +52,14 @@ export class SharedaddySettings extends React.Component {
 						disabled={ this.props.shouldSaveButtonBeDisabled() } />
 				</FormFieldset>
 			</form>
-		)
+		);
 	}
 }
 
 SharedaddySettings = moduleSettingsForm( SharedaddySettings );
 
 export class RelatedPostsSettings extends React.Component {
-    renderPreviews = () => {
+	renderPreviews = () => {
 		const show_headline = this.props.getOptionValue( 'show_headline' );
 		const show_thumbnails = this.props.getOptionValue( 'show_thumbnails' );
 		const previews = [ {
@@ -136,7 +136,7 @@ export class RelatedPostsSettings extends React.Component {
 RelatedPostsSettings = moduleSettingsForm( RelatedPostsSettings );
 
 export class LikesSettings extends React.Component {
-    render() {
+	render() {
 		const old_sharing_settings_url = this.props.module.configure_url;
 		return (
 			<form onSubmit={ this.props.onSubmit } >
@@ -161,33 +161,33 @@ export class LikesSettings extends React.Component {
 					}
 				</p>
 			</form>
-		)
+		);
 	}
 }
 
 LikesSettings = moduleSettingsForm( LikesSettings );
 
 export class MonitorSettings extends React.Component {
-    render() {
+	render() {
 		return (
 			<span className="jp-form-setting-explanation"><span>
 				{
 
 					__( '{{link}}Configure your Monitor notification settings on WordPress.com{{/link}}', {
 						components: {
-							link: <ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href={  'https://wordpress.com/settings/security/' + this.props.module.raw_url } />,
+							link: <ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href={ 'https://wordpress.com/settings/security/' + this.props.module.raw_url } />,
 						}
 					} )
 				}
 			</span></span>
-		)
+		);
 	}
 }
 
 MonitorSettings = moduleSettingsForm( MonitorSettings );
 
 export class WordAdsSettings extends React.Component {
-    render() {
+	render() {
 		return (
 			<div>
 				<p>{ __( 'By default ads are shown at the end of every page, post, or the first article on your front page. You can also add them to the top of your site and to any widget area to increase your earnings!' ) }</p>

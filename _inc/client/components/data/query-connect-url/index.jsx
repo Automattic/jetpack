@@ -14,7 +14,7 @@ import {
 import { isDevMode } from 'state/connection';
 
 export class QueryConnectUrl extends React.Component {
-    componentWillMount() {
+	componentWillMount() {
 		if ( ! ( this.props.isFetchingConnectUrl || this.props.isDevMode ) ) {
 			this.props.fetchConnectUrl();
 		}
@@ -35,6 +35,6 @@ export default connect(
 	( dispatch ) => {
 		return {
 			fetchConnectUrl: () => dispatch( fetchConnectUrl() )
-		}
+		};
 	}
 )( QueryConnectUrl );

@@ -23,11 +23,11 @@ import {
 } from 'state/connection';
 import { getSiteRawUrl } from 'state/initial-state';
 
-export const JetpackDisconnectDialog = React.createClass( {
+export class JetpackDisconnectDialog extends React.Component {
 	static propTypes = {
 		show: PropTypes.bool,
 		toggleModal: PropTypes.func,
-		disconnectSite: PropTypes.func,
+		disconnectSite: PropTypes.func
 	};
 
 	static defaultProps = {

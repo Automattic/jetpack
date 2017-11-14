@@ -20,7 +20,7 @@ import SearchableSettings from 'settings/index.jsx';
 import { getSiteConnectionStatus } from 'state/connection';
 
 class NonAdminView extends React.Component {
-    shouldComponentUpdate( nextProps ) {
+	shouldComponentUpdate( nextProps ) {
 		return nextProps.siteConnectionStatus !== this.props.siteConnectionStatus ||
 			nextProps.route.path !== this.props.route.path;
 	}

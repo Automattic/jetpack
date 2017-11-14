@@ -17,7 +17,7 @@ import { Subscriptions } from './subscriptions';
 import { getConnectUrl } from 'state/connection';
 
 export class Discussion extends React.Component {
-    static displayName = 'DiscussionSettings';
+	static displayName = 'DiscussionSettings';
 
 	render() {
 		const commonProps = {

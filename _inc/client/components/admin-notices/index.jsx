@@ -4,7 +4,7 @@
 import React from 'react';
 
 class AdminNotices extends React.Component {
-    componentDidMount() {
+	componentDidMount() {
 		const $adminNotices = jQuery( this.refs.adminNotices );
 
 		const $vpNotice = jQuery( '.vp-notice' );
@@ -33,7 +33,7 @@ class AdminNotices extends React.Component {
 				$notice.find( '.button-primary' ).addClass( 'dops-notice__action' ).removeClass( 'button-primary' ).detach().appendTo( $notice );
 				$notice.find( 'p' ).not( '.submit' ).wrapAll( '<span class="dops-notice__text"/>' );
 				const $dopsNotice = $notice.find( '.dops-notice__text' );
-				$dopsNotice.find( 'p' ).replaceWith( function() { return jQuery( '<div/>', { html: this.innerHTML, class: 'dops-notice__moved_text' } ); } );
+				$dopsNotice.find( 'p' ).replaceWith( function() { return jQuery( '<div/>', { html: this.innerHTML, 'class': 'dops-notice__moved_text' } ); } );
 				$dopsNotice.find( 'br' ).remove();
 				$notice.find( '.button-secondary' ).removeClass( 'button-secondary' ).detach().appendTo( $dopsNotice );
 				$notice.find( '.submit' ).remove();

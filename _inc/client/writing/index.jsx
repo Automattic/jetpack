@@ -28,7 +28,7 @@ import { isAtomicSite } from 'state/initial-state';
 import SpeedUpSite from './speed-up-site';
 
 export class Writing extends React.Component {
-    static displayName = 'WritingSettings';
+	static displayName = 'WritingSettings';
 
 	render() {
 		const commonProps = {

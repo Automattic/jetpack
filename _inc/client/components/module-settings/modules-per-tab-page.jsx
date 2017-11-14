@@ -21,14 +21,14 @@ import {
 } from 'state/initial-state';
 
 class AllModuleSettingsComponent extends React.Component {
-    render() {
-		let { module } = this.props;
+	render() {
+		const { module } = this.props;
 		switch ( module.module ) {
 			case 'videopress':
 				return ( <VideoPressSettings module={ module } /> );
 			case 'monitor':
 				module.raw_url = this.props.siteRawUrl;
-				return ( <MonitorSettings module={ module }  /> );
+				return ( <MonitorSettings module={ module } /> );
 			case 'scan':
 				return '' === module.configure_url ? (
 					<div>
@@ -68,7 +68,7 @@ class AllModuleSettingsComponent extends React.Component {
 					);
 				}
 			case 'likes':
-				return ( <LikesSettings module={ module }  /> );
+				return ( <LikesSettings module={ module } /> );
 			case 'wordads':
 				return ( <WordAdsSettings module={ module } /> );
 			case 'google-analytics':

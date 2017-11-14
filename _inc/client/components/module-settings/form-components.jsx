@@ -15,7 +15,7 @@ import {
 import Checkbox from 'components/checkbox';
 
 export class ModuleSettingCheckbox extends React.Component {
-    render() {
+	render() {
 		const props = this.props;
 		return (
 			<FormLabel>
@@ -32,14 +32,14 @@ export class ModuleSettingCheckbox extends React.Component {
 }
 
 export class ModuleSettingRadios extends React.Component {
-    render() {
-		let props = this.props;
-		let validValues = this.props.validValues;
+	render() {
+		const props = this.props;
+		const validValues = this.props.validValues;
 		return (
 			<div>
 				{
 				Object.keys( validValues ).map( ( key ) => (
-					<FormLabel key={ `option-${ props.option_name }-${key}` } >
+					<FormLabel key={ `option-${ props.option_name }-${ key }` } >
 						<FormRadio
 							name={ props.name }
 							checked={ key === props.getOptionValue( props.name ) }
@@ -56,13 +56,13 @@ export class ModuleSettingRadios extends React.Component {
 }
 
 export class ModuleSettingSelect extends React.Component {
-    render() {
-		let validValues = this.props.validValues;
+	render() {
+		const validValues = this.props.validValues;
 		return (
 			<select name={ this.props.name } value={ this.props.value } onBlur={ this.props.onOptionChange }>
 				{
 					Object.keys( validValues ).map( key => {
-						return <option value={ key } key={ `option-${ this.props.option_name }-${key}` } >{ validValues[ key ] }</option>;
+						return <option value={ key } key={ `option-${ this.props.option_name }-${ key }` } >{ validValues[ key ] }</option>;
 					} )
 				}
 			</select>
@@ -71,7 +71,7 @@ export class ModuleSettingSelect extends React.Component {
 }
 
 export class ModuleSettingMultipleSelectCheckboxes extends React.Component {
-    static defaultProps = {
+	static defaultProps = {
 		always_checked: []
 	};
 
@@ -99,13 +99,13 @@ export class ModuleSettingMultipleSelectCheckboxes extends React.Component {
 	};
 
 	render() {
-		let props = this.props;
-		let validValues = this.props.validValues;
+		const props = this.props;
+		const validValues = this.props.validValues;
 		return (
 			<div>
 				{
 				Object.keys( validValues ).map( ( key ) => (
-					<FormLabel key={ `option-${ props.option_name }-${key}` } >
+					<FormLabel key={ `option-${ props.option_name }-${ key }` } >
 						<Checkbox
 							name={ props.name }
 							checked= { this.shouldBeChecked( key ) }

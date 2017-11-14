@@ -19,7 +19,7 @@ import {
 } from 'state/jetpack-notices';
 
 class DismissableNotices extends React.Component {
-    static displayName = 'DismissableNotices';
+	static displayName = 'DismissableNotices';
 
 	renderNotices = () => {
 		const notices = this.props.jetpackNotices;
@@ -57,7 +57,7 @@ class DismissableNotices extends React.Component {
 			<div>
 				{ this.renderNotices() }
 			</div>
-		)
+		);
 	}
 }
 

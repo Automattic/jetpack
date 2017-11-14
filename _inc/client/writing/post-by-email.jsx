@@ -25,7 +25,7 @@ import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 
 class PostByEmail extends React.Component {
-    regeneratePostByEmailAddress = event => {
+	regeneratePostByEmailAddress = event => {
 		analytics.tracks.recordJetpackClick( 'pbe-regenerage-email' );
 		event.preventDefault();
 		this.props.regeneratePostByEmailAddress();

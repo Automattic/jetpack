@@ -16,7 +16,7 @@ import { getSiteConnectionStatus } from 'state/connection';
 import { getCurrentVersion, userCanEditPosts } from 'state/initial-state';
 
 export class Masthead extends React.Component {
-    static defaultProps = {
+	static defaultProps = {
 		route: { path: '' }
 	};
 

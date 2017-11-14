@@ -17,13 +17,13 @@ import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 
 export class CustomContentTypes extends React.Component {
-    state = {
+	state = {
 		testimonial: this.props.getOptionValue( 'jetpack_testimonial', 'custom-content-types' ),
 		portfolio: this.props.getOptionValue( 'jetpack_portfolio', 'custom-content-types' )
 	};
 
 	updateCPTs = type => {
-		let deactivate = 'testimonial' === type
+		const deactivate = 'testimonial' === type
 			? ! ( ( ! this.state.testimonial ) || this.state.portfolio )
 			: ! ( ( ! this.state.portfolio ) || this.state.testimonial );
 
@@ -45,7 +45,7 @@ export class CustomContentTypes extends React.Component {
 			return null;
 		}
 
-		let module = this.props.module( 'custom-content-types' );
+		const module = this.props.module( 'custom-content-types' );
 		return (
 			<SettingsCard
 				{ ...this.props }
@@ -65,7 +65,7 @@ export class CustomContentTypes extends React.Component {
 					<FormFieldset>
 						<p className="jp-form-setting-explanation">
 							{
-								__( "Add, organize, and display {{testimonialLink}}testimonials{{/testimonialLink}}. If your theme doesn’t support testimonials yet, you can display them using the shortcode	( [testimonials] ).",
+								__( 'Add, organize, and display {{testimonialLink}}testimonials{{/testimonialLink}}. If your theme doesn’t support testimonials yet, you can display them using the shortcode	( [testimonials] ).',
 									{
 										components: {
 											testimonialLink: this.linkIfActiveCPT( 'testimonial' )
@@ -88,7 +88,7 @@ export class CustomContentTypes extends React.Component {
 					<FormFieldset>
 						<p className="jp-form-setting-explanation">
 							{
-								__( "Add, organize, and display {{portfolioLink}}portfolios{{/portfolioLink}}. If your theme doesn’t support portfolios yet, you can display them using the shortcode ( [portfolio] ).",
+								__( 'Add, organize, and display {{portfolioLink}}portfolios{{/portfolioLink}}. If your theme doesn’t support portfolios yet, you can display them using the shortcode ( [portfolio] ).',
 									{
 										components: {
 											portfolioLink: this.linkIfActiveCPT( 'portfolio' )
@@ -109,6 +109,6 @@ export default connect(
 		return {
 			module: ( module_name ) => getModule( state, module_name ),
 			isModuleFound: ( module_name ) => _isModuleFound( state, module_name )
-		}
+		};
 	}
 )( moduleSettingsForm( CustomContentTypes ) );

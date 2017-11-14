@@ -95,7 +95,7 @@ class CommentsComponent extends React.Component {
 										disabled={ ! isCommentsActive || commentsUnavailableInDevMode || this.props.isSavingAnyOption( 'jetpack_comment_form_color_scheme' ) }
 										onChange={ this.props.onOptionChange }
 										{ ...this.props }
-										validValues={ this.props.validValues( 'jetpack_comment_form_color_scheme', 'comments' ) }/>
+										validValues={ this.props.validValues( 'jetpack_comment_form_color_scheme', 'comments' ) } />
 								</FormLabel>
 							</FormFieldset>
 						</SettingsGroup>

@@ -29,7 +29,7 @@ import JetpackBanner from 'components/jetpack-banner';
 import { JETPACK_CONTACT_SUPPORT } from 'constants/urls';
 
 class SupportCard extends React.Component {
-    static displayName = 'SupportCard';
+	static displayName = 'SupportCard';
 
 	static defaultProps = {
 		className: '',

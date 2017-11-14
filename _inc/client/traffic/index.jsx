@@ -23,7 +23,7 @@ import Sitemaps from './sitemaps';
 import { getLastPostUrl } from 'state/initial-state';
 
 export class Traffic extends React.Component {
-    static displayName = 'TrafficSettings';
+	static displayName = 'TrafficSettings';
 
 	render() {
 		const commonProps = {

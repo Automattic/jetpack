@@ -11,8 +11,7 @@ import classNames from 'classnames';
  */
 import onKeyDownCallback from 'utils/onkeydown-callback';
 
-export const InlineExpand = React.createClass( {
-
+export class InlineExpand extends React.Component {
 	static propTypes = {
 		label: PropTypes.string.isRequired,
 		icon: PropTypes.string,
@@ -21,7 +20,7 @@ export const InlineExpand = React.createClass( {
 		expanded: PropTypes.bool,
 		onClick: PropTypes.func,
 		onClose: PropTypes.func,
-		onOpen: PropTypes.func,
+		onOpen: PropTypes.func
 	};
 
 	static defaultProps = {

@@ -81,7 +81,7 @@ export class Composing extends React.Component {
 	 * @param {string} label   text label to be displayed with the toggle
 	 * @returns {object} React element object
 	 */
-	getToggle = (setting, label) => {
+	getToggle = ( setting, label ) => {
 		return (
 			<CompactFormToggle
 				checked={ this.state[ setting ] }

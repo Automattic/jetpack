@@ -19,7 +19,7 @@ import SettingsGroup from 'components/settings-group';
 import JetpackBanner from 'components/jetpack-banner';
 
 class VerificationServicesComponent extends React.Component {
-    activateVerificationTools = () => {
+	activateVerificationTools = () => {
 		return this.props.updateOptions( { 'verification-tools': true } );
 	};
 
@@ -119,7 +119,7 @@ class VerificationServicesComponent extends React.Component {
 										placeholder={ item.placeholder }
 										className="code"
 										disabled={ this.props.isUpdating( item.id ) }
-										onChange={ this.props.onOptionChange} />
+										onChange={ this.props.onOptionChange } />
 								</FormLabel>
 							) )
 						}

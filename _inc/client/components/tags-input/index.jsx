@@ -2,7 +2,7 @@ import React from 'react';
 import TagsInput from 'react-tagsinput';
 
 class JetpackTagsInput extends React.Component {
-    state = {
+	state = {
 		tags: this.props.value || []
 	};
 

@@ -21,7 +21,7 @@ import SettingsGroup from 'components/settings-group';
 import { getSiteAdminUrl, isSiteVisibleToSearchEngines } from 'state/initial-state';
 
 export class Sitemaps extends React.Component {
-    trackSitemapUrl = () => {
+	trackSitemapUrl = () => {
 		analytics.tracks.recordJetpackClick( 'sitemap-url-link' );
 	};
 

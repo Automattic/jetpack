@@ -69,7 +69,7 @@ class ThemeEnhancements extends React.Component {
 	 * @param {string} optionName option slug
 	 * @param {string} module module slug
 	 */
-	updateOptions = (optionName, module) => {
+	updateOptions = ( optionName, module ) => {
 		this.setState(
 			{
 				[ optionName ]: ! this.state[ optionName ]

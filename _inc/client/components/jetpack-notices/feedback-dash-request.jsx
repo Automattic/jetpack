@@ -17,7 +17,7 @@ import {
 import { JETPACK_CONTACT_SUPPORT } from 'constants/urls';
 
 class FeedbackDashRequest extends React.Component {
-    static displayName = 'FeedbackDashRequest';
+	static displayName = 'FeedbackDashRequest';
 
 	renderContent = () => {
 		if ( this.props.isDismissed( 'feedback_dash_request' ) ) {

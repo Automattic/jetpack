@@ -14,7 +14,7 @@ import {
 } from 'state/site/plugins';
 
 export class QuerySitePlugins extends React.Component {
-    componentWillMount() {
+	componentWillMount() {
 		if ( ! this.props.isFetchingPluginsData ) {
 			this.props.fetchPluginsData();
 		}
@@ -34,6 +34,6 @@ export default connect(
 	( dispatch ) => {
 		return {
 			fetchPluginsData: () => dispatch( fetchPluginsData() )
-		}
+		};
 	}
 )( QuerySitePlugins );

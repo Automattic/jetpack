@@ -22,7 +22,7 @@ import onKeyDownCallback from 'utils/onkeydown-callback';
 import { imagePath } from 'constants/urls';
 
 class JumpStart extends React.Component {
-    static displayName = 'JumpStart';
+	static displayName = 'JumpStart';
 
 	activateButton = () => {
 		return <Button

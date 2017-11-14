@@ -18,7 +18,7 @@ import { userCanManageModules as _userCanManageModules } from 'state/initial-sta
 import { userCanViewStats as _userCanViewStats } from 'state/initial-state';
 
 export class Navigation extends React.Component {
-    trackNavClick = target => {
+	trackNavClick = target => {
 		analytics.tracks.recordJetpackClick( {
 			target: 'nav_item',
 			path: target
@@ -56,7 +56,7 @@ export class Navigation extends React.Component {
 			);
 		}
 		return (
-			<div className='dops-navigation'>
+			<div className="dops-navigation">
 				<SectionNav selectedText={ this.props.route.name }>
 					{ navTabs }
 				</SectionNav>

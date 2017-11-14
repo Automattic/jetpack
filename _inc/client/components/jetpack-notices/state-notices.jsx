@@ -21,7 +21,7 @@ import UpgradeNoticeContent from 'components/upgrade-notice-content';
 import { getSiteAdminUrl } from 'state/initial-state';
 
 class JetpackStateNotices extends React.Component {
-    static displayName = 'JetpackStateNotices';
+	static displayName = 'JetpackStateNotices';
 	state = { showNotice: true };
 
 	/**
@@ -45,7 +45,7 @@ class JetpackStateNotices extends React.Component {
 					{
 						components: {
 							a: <a href="https://jetpack.com/cancelled-connection/" target="_blank" rel="noopener noreferrer" />,
-							p: <p/>
+							p: <p />
 						}
 					}
 				);
@@ -191,7 +191,7 @@ class JetpackStateNotices extends React.Component {
 				status = 'is-success';
 				break;
 			case 'protect_misconfigured_ip' :
-				message = __( "Your server is misconfigured, which means that Jetpack Protect is unable to effectively protect your site." );
+				message = __( 'Your server is misconfigured, which means that Jetpack Protect is unable to effectively protect your site.' );
 				status = 'is-info';
 				action = (
 					<NoticeAction

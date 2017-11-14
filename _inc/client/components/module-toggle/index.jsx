@@ -23,11 +23,11 @@ export class ModuleToggle extends React.Component {
 	};
 
 	toggleModule = () => {
-		this.trackModuleToggle( this.props.slug, this.props.activated  );
+		this.trackModuleToggle( this.props.slug, this.props.activated );
 		return this.props.toggleModule( this.props.slug, this.props.activated );
 	};
 
-	trackModuleToggle = (slug, activated) => {
+	trackModuleToggle = ( slug, activated ) => {
 		// The stats check is a hack around the fact that we're using <ModuleToggle for the settings there...
 		'stats' !== slug && analytics.tracks.recordEvent(
 			'jetpack_wpa_module_toggle',

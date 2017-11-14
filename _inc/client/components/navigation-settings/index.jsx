@@ -33,16 +33,16 @@ import { isPluginActive } from 'state/site/plugins';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 
 export const NavigationSettings = createReactClass( {
-    displayName: 'NavigationSettings',
-    mixins: [ UrlSearch ],
-    moduleList: [],
+	displayName: 'NavigationSettings',
+	mixins: [ UrlSearch ],
+	moduleList: [],
 
-    componentWillMount() {
+	componentWillMount() {
 		this.context.router.listen( this.onRouteChange );
 		this.moduleList = Object.keys( this.props.moduleList );
 	},
 
-    onRouteChange( newRoute ) {
+	onRouteChange( newRoute ) {
 		const search = newRoute.search || '',
 			pairs = search.substr( 1 ).split( '&' ),
 			term = pairs.filter( item => {
@@ -58,7 +58,7 @@ export const NavigationSettings = createReactClass( {
 		this.props.searchForTerm( decodeURIComponent( keyword ) );
 	},
 
-    maybeShowSearch() {
+	maybeShowSearch() {
 		if ( this.props.userCanManageModules ) {
 			return (
 				<Search
@@ -76,7 +76,7 @@ export const NavigationSettings = createReactClass( {
 		}
 	},
 
-    trackNavClick( target ) {
+	trackNavClick( target ) {
 		analytics.tracks.recordJetpackClick( {
 			target: 'nav_item',
 			path: target
@@ -109,7 +109,7 @@ export const NavigationSettings = createReactClass( {
 		return 0 < intersection( this.moduleList, modules ).length;
 	},
 
-    render: function() {
+	render: function() {
 		let navItems, sharingTab;
 		if ( this.props.userCanManageModules ) {
 			navItems = (

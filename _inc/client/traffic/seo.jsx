@@ -15,7 +15,7 @@ import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 
 class SeoComponent extends React.Component {
-    trackConfigureClick = () => {
+	trackConfigureClick = () => {
 		analytics.tracks.recordJetpackClick( 'configure-seo' );
 	};
 
