@@ -112,6 +112,10 @@ abstract class SAL_Site {
 		return false;
 	}
 
+	public function woocommerce_is_active() {
+		return false;
+	}
+
 	public function get_post_by_id( $post_id, $context ) {
 		$post = get_post( $post_id, OBJECT, $context );
 
