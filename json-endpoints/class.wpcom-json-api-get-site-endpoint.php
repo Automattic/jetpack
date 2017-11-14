@@ -123,6 +123,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_wpcom_store',
 		'signup_is_store',
 		'has_pending_automated_transfer',
+		'woocommerce_is_active'
 	);
 
 	protected static $jetpack_response_field_additions = array(
@@ -139,6 +140,7 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'ak_vp_bundle_enabled',
 		'is_automated_transfer',
 		'is_wpcom_store',
+		'woocommerce_is_active',
 		'frame_nonce'
 	);
 
@@ -542,6 +544,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 						$options[ $key ] = true;
 					}
 
+					break;
+				case 'woocommerce_is_active':
+					$options[ $key ] = $site->woocommerce_is_active();
 					break;
 			}
 		}
