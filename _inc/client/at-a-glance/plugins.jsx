@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import DashItem from 'components/dash-item';
@@ -105,10 +106,10 @@ class DashPluginUpdates extends Component {
 }
 
 DashPluginUpdates.propTypes = {
-	isDevMode: React.PropTypes.bool.isRequired,
-	siteRawUrl: React.PropTypes.string.isRequired,
-	siteAdminUrl: React.PropTypes.string.isRequired,
-	pluginUpdates: React.PropTypes.any.isRequired
+	isDevMode: PropTypes.bool.isRequired,
+	siteRawUrl: PropTypes.string.isRequired,
+	siteAdminUrl: PropTypes.string.isRequired,
+	pluginUpdates: PropTypes.any.isRequired
 };
 
 export default connect(

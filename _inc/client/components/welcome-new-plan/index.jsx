@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import { Component } from 'react';
@@ -63,9 +64,9 @@ class WelcomeNewPlan extends Component {
 }
 
 WelcomeNewPlan.propTypes = {
-	dismiss: React.PropTypes.func,
-	newPlanActivated: React.PropTypes.bool,
-	userCanManageModules: React.PropTypes.bool,
+	dismiss: PropTypes.func,
+	newPlanActivated: PropTypes.bool,
+	userCanManageModules: PropTypes.bool,
 };
 
 WelcomeNewPlan.defaultProps = {

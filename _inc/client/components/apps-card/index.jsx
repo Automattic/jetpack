@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
@@ -85,7 +86,7 @@ const AppsCard = React.createClass( {
 } );
 
 AppsCard.propTypes = {
-	className: React.PropTypes.string
+	className: PropTypes.string
 };
 
 export default connect(

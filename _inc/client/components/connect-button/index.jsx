@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
@@ -28,9 +29,9 @@ export const ConnectButton = React.createClass( {
 	displayName: 'ConnectButton',
 
 	propTypes: {
-		connectUser: React.PropTypes.bool,
-		from: React.PropTypes.string,
-		asLink: React.PropTypes.bool
+		connectUser: PropTypes.bool,
+		from: PropTypes.string,
+		asLink: PropTypes.bool
 	},
 
 	getDefaultProps() {

@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { numberFormat, translate as __ } from 'i18n-calypso';
@@ -143,11 +144,11 @@ class DashScan extends Component {
 }
 
 DashScan.propTypes = {
-	vaultPressData: React.PropTypes.any.isRequired,
-	scanThreats: React.PropTypes.any.isRequired,
-	isDevMode: React.PropTypes.bool.isRequired,
-	siteRawUrl: React.PropTypes.string.isRequired,
-	sitePlan: React.PropTypes.object.isRequired
+	vaultPressData: PropTypes.any.isRequired,
+	scanThreats: PropTypes.any.isRequired,
+	isDevMode: PropTypes.bool.isRequired,
+	siteRawUrl: PropTypes.string.isRequired,
+	sitePlan: PropTypes.object.isRequired
 };
 
 export default connect(

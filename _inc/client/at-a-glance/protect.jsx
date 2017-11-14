@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import DashItem from 'components/dash-item';
@@ -84,8 +85,8 @@ class DashProtect extends Component {
 }
 
 DashProtect.propTypes = {
-	isDevMode: React.PropTypes.bool.isRequired,
-	protectCount: React.PropTypes.any.isRequired
+	isDevMode: PropTypes.bool.isRequired,
+	protectCount: PropTypes.any.isRequired
 };
 
 export default connect(

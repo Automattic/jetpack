@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import PropTypes from 'prop-types';
 import React from 'react';
 import { Component } from 'react';
 import { translate as __ } from 'i18n-calypso';
@@ -55,21 +56,21 @@ class JetpackDialogue extends Component {
 }
 
 JetpackDialogue.propTypes = {
-	content: React.PropTypes.oneOfType( [
-		React.PropTypes.string,
-		React.PropTypes.object,
+	content: PropTypes.oneOfType( [
+		PropTypes.string,
+		PropTypes.object,
 	] ).isRequired,
-	belowContent: React.PropTypes.oneOfType( [
-		React.PropTypes.string,
-		React.PropTypes.object,
+	belowContent: PropTypes.oneOfType( [
+		PropTypes.string,
+		PropTypes.object,
 	] ).isRequired,
-	svg: React.PropTypes.oneOfType( [
-		React.PropTypes.bool,
-		React.PropTypes.object,
+	svg: PropTypes.oneOfType( [
+		PropTypes.bool,
+		PropTypes.object,
 	] ),
-	dismissOnClick: React.PropTypes.func,
-	showDismiss: React.PropTypes.bool,
-	title: React.PropTypes.string
+	dismissOnClick: PropTypes.func,
+	showDismiss: PropTypes.bool,
+	title: PropTypes.string
 };
 
 JetpackDialogue.defaultProps = {

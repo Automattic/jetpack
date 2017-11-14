@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import SimpleNotice from 'components/notice';
@@ -44,8 +45,8 @@ export const DevVersionNotice = React.createClass( {
 } );
 
 DevVersionNotice.propTypes = {
-	isDevVersion: React.PropTypes.bool.isRequired,
-	userIsSubscriber: React.PropTypes.bool.isRequired
+	isDevVersion: PropTypes.bool.isRequired,
+	userIsSubscriber: PropTypes.bool.isRequired
 };
 
 export const StagingSiteNotice = React.createClass( {
@@ -77,8 +78,8 @@ export const StagingSiteNotice = React.createClass( {
 } );
 
 StagingSiteNotice.propTypes = {
-	isStaging: React.PropTypes.bool.isRequired,
-	isInIdentityCrisis: React.PropTypes.bool.isRequired
+	isStaging: PropTypes.bool.isRequired,
+	isInIdentityCrisis: PropTypes.bool.isRequired
 };
 
 export const DevModeNotice = React.createClass( {
@@ -144,13 +145,13 @@ export const DevModeNotice = React.createClass( {
 } );
 
 DevModeNotice.propTypes = {
-	siteConnectionStatus: React.PropTypes.oneOfType( [
-		React.PropTypes.string,
-		React.PropTypes.bool
+	siteConnectionStatus: PropTypes.oneOfType( [
+		PropTypes.string,
+		PropTypes.bool
 	] ).isRequired,
-	siteDevMode: React.PropTypes.oneOfType( [
-		React.PropTypes.bool,
-		React.PropTypes.object
+	siteDevMode: PropTypes.oneOfType( [
+		PropTypes.bool,
+		PropTypes.object
 	] ).isRequired
 };
 
@@ -181,8 +182,8 @@ export const UserUnlinked = React.createClass( {
 } );
 
 UserUnlinked.propTypes = {
-	connectUrl: React.PropTypes.string.isRequired,
-	siteConnected: React.PropTypes.bool.isRequired
+	connectUrl: PropTypes.string.isRequired,
+	siteConnected: PropTypes.bool.isRequired
 };
 
 const JetpackNotices = React.createClass( {

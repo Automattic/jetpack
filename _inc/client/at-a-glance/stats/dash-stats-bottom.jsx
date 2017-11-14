@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import Button from 'components/button';
 import analytics from 'lib/analytics';
@@ -141,10 +142,10 @@ class DashStatsBottom extends Component {
 }
 
 DashStatsBottom.propTypes = {
-	siteRawUrl: React.PropTypes.string.isRequired,
-	siteAdminUrl: React.PropTypes.string.isRequired,
-	statsData: React.PropTypes.object.isRequired,
-	isLinked: React.PropTypes.bool.isRequired
+	siteRawUrl: PropTypes.string.isRequired,
+	siteAdminUrl: PropTypes.string.isRequired,
+	statsData: PropTypes.object.isRequired,
+	isLinked: PropTypes.bool.isRequired
 };
 
 DashStatsBottom.defaultProps = {
