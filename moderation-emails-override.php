@@ -1,6 +1,6 @@
 <?php
 
-if ( ! function_exists('wp_notify_postauthor') ) :
+if ( ! function_exists('wp_notify_postauthor') && Jetpack::is_active() ) :
 /**
  * Notify an author (and/or others) of a comment/trackback/pingback on a post.
  *
@@ -134,15 +134,14 @@ function wp_notify_postauthor( $comment_id, $deprecated = null ) {
 	$notify_message .= sprintf( __('Permalink: %s'), get_comment_link( $comment ) ) . "\r\n";
 
 	$primary_site_slug = Jetpack::build_raw_urls( get_home_url() );
-	$site_id = Jetpack_Options::get_option( 'id' );
 
 	if ( user_can( $post->post_author, 'edit_comment', $comment->comment_ID ) ) {
 		if ( EMPTY_TRASH_DAYS ) {
-			$notify_message .= sprintf( __( 'Trash it: %s' ), "https://wordpress.com/comment/{$primary_site_slug}/{$comment_id}?action=trash&site_id={$site_id}&post_id={$post->ID}" ) . "\r\n";
+			$notify_message .= sprintf( __( 'Trash it: %s' ), "https://wordpress.com/comment/{$primary_site_slug}/{$comment_id}?action=trash" ) . "\r\n";
 		} else {
-			$notify_message .= sprintf( __( 'Delete it: %s' ), "https://wordpress.com/comment/{$primary_site_slug}/{$comment_id}?action=delete&site_id={$site_id}&post_id={$post->ID}" ) . "\r\n";
+			$notify_message .= sprintf( __( 'Delete it: %s' ), "https://wordpress.com/comment/{$primary_site_slug}/{$comment_id}?action=delete" ) . "\r\n";
 		}
-		$notify_message .= sprintf( __( 'Spam it: %s' ), "https://wordpress.com/comment/{$primary_site_slug}/{$comment_id}?action=spam&site_id={$site_id}&post_id={$post->ID}" ) . "\r\n";
+		$notify_message .= sprintf( __( 'Spam it: %s' ), "https://wordpress.com/comment/{$primary_site_slug}/{$comment_id}?action=spam" ) . "\r\n";
 	}
 
 	$wp_email = 'wordpress@' . preg_replace('#^www\.#', '', strtolower($_SERVER['SERVER_NAME']));
@@ -205,7 +204,7 @@ function wp_notify_postauthor( $comment_id, $deprecated = null ) {
 }
 endif;
 
-if ( ! function_exists('wp_notify_moderator') ) :
+if ( ! function_exists('wp_notify_moderator') && Jetpack::is_active() ) :
 /**
  * Notifies the moderator of the site about a new comment that is awaiting approval.
  *
@@ -295,20 +294,19 @@ function wp_notify_moderator($comment_id) {
 	}
 
 	$primary_site_slug = Jetpack::build_raw_urls( get_home_url() );
-	$site_id = Jetpack_Options::get_option( 'id' );
 
 	/* translators: Comment moderation. 1: Comment action URL */
-	$notify_message .= sprintf( __( 'Approve it: %s' ), "https://wordpress.com/comment/{$primary_site_slug}/{$comment_id}?action=approve&site_id={$site_id}&post_id={$post->ID}" ) . "\r\n";
+	$notify_message .= sprintf( __( 'Approve it: %s' ), "https://wordpress.com/comment/{$primary_site_slug}/{$comment_id}?action=approve" ) . "\r\n";
 	if ( EMPTY_TRASH_DAYS ) {
 		/* translators: Comment moderation. 1: Comment action URL */
-		$notify_message .= sprintf( __( 'Trash it: %s' ), "https://wordpress.com/comment/{$primary_site_slug}/{$comment_id}?action=trash&site_id={$site_id}&post_id={$post->ID}" ) . "\r\n";
+		$notify_message .= sprintf( __( 'Trash it: %s' ), "https://wordpress.com/comment/{$primary_site_slug}/{$comment_id}?action=trash" ) . "\r\n";
 	} else {
 		/* translators: Comment moderation. 1: Comment action URL */
-		$notify_message .= sprintf( __( 'Delete it: %s' ), "https://wordpress.com/comment/{$primary_site_slug}/{$comment_id}?action=delete&site_id={$site_id}&post_id={$post->ID}" ) . "\r\n";
+		$notify_message .= sprintf( __( 'Delete it: %s' ), "https://wordpress.com/comment/{$primary_site_slug}/{$comment_id}?action=delete" ) . "\r\n";
 	}
 
 	/* translators: Comment moderation. 1: Comment action URL */
-	$notify_message .= sprintf( __( 'Spam it: %s' ), "https://wordpress.com/comment/{$primary_site_slug}/{$comment_id}?action=spam&site_id={$site_id}&post_id={$post->ID}" ) . "\r\n";
+	$notify_message .= sprintf( __( 'Spam it: %s' ), "https://wordpress.com/comment/{$primary_site_slug}/{$comment_id}?action=spam" ) . "\r\n";
 
 	/* translators: Comment moderation. 1: Number of comments awaiting approval */
 	$notify_message .= sprintf( _n('Currently %s comment is waiting for approval. Please visit the moderation panel:',
