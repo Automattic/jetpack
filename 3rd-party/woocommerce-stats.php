@@ -37,7 +37,6 @@ class WC_Stats {
 	public function __construct() {
 		$this->jetpack = Jetpack::init();
 
-		// event woocommerce_init ??
 		add_action( 'wp_enqueue_scripts', array( $this, 'track' ) );
 	}
 
@@ -49,7 +48,8 @@ class WC_Stats {
 		return $item[ 'quantity' ];
 	}
 
-	public function get_funnel_step( $post_id, $post_type ) {
+	public function get_uncachable_page_type( $post_id ) {
+
 		switch ( $post_id ) {
 			case get_option( 'woocommerce_cart_page_id' ):
 				return 'cart_view';
@@ -62,13 +62,11 @@ class WC_Stats {
 			case get_option( 'woocommerce_view_order_page_id' ):
 				return 'view_order';
 			default:
-				return $post_type === 'product' ? 'product_view' : 'page_view';
+				null;
 		}
 	}
 
 	public function track() {
-		// Does tracks take care of this?
-		$user_id = get_current_user_id();
 		$cart = WC()->cart->get_cart();
 		$cart_ids = array_map( array( $this, 'get_cart_ids' ), $cart );
 		$cart_quantities = array_map( array( $this, 'get_cart_quantities' ), $cart );
@@ -78,38 +76,38 @@ class WC_Stats {
 		$post_id = $post->ID;
 		$post_type = get_post_type( $post_id );
 		$post_name = $post->post_name;
-		$funnel_step = $this->get_funnel_step( $post_id, $post_type );
-
-		echo "<pre style=\"font-size: 12px;\">";
-		echo "user id: ";
-		print_r( $user_id );
-		echo "<br/>";
-		echo "post type: ";
-		print_r( $post_type );
-		echo "<br/>";
-		echo "post name: ";
-		print_r( $post_name );
-		echo "<br/>";
-		echo "post id: ";
-		print_r( $post_id );
-		echo "<br/>";
-		echo "funnel step: ";
-		print_r( $funnel_step );
-		echo "<br/>";
-		echo "store id: ";
-		print_r( $store_id );
-		echo "<br/>";
-		echo "cart ids: ";
-		print_r( $cart_ids );
-		echo "<br/>";
-		echo "cart quantities: ";
-		print_r( $cart_quantities );
-		if ( isset( $_GET[ 'key' ] ) ) {
+		$uncachable_page_type = $this->get_uncachable_page_type( $post_id );
+		if ( $uncachable_page_type ) {
+			echo "<pre style=\"font-size: 12px;\">";
+			echo "Tracks properties sent by PHP:";
 			echo "<br/>";
-			echo "order number: ";
-			print_r( $_GET[ 'key' ] );
+			echo "post type: ";
+			print_r( $post_type );
+			echo "<br/>";
+			echo "post name: ";
+			print_r( $post_name );
+			echo "<br/>";
+			echo "post id: ";
+			print_r( $post_id );
+			echo "<br/>";
+			echo "store id: ";
+			print_r( $store_id );
+			echo "<br/>";
+			echo "page type: ";
+			print_r( $uncachable_page_type );
+			echo "<br/>";
+			echo "cart ids: ";
+			print_r( $cart_ids );
+			echo "<br/>";
+			echo "cart quantities: ";
+			print_r( $cart_quantities );
+			if ( isset( $_GET[ 'key' ] ) ) {
+				echo "<br/>";
+				echo "order number: ";
+				print_r( $_GET[ 'key' ] );
+			}
+			echo "</pre>";
 		}
-		echo "</pre>";
 	}
 }
 
