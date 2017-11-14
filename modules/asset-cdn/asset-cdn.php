@@ -1,15 +1,4 @@
 <?php
-/**
- * Plugin Name: Asset CDN
- * Description: Speed up Javascript and CSS
- * Plugin URI: https://github.com/automattic/jetpack
- * Author: Automattic
- * Author URI: https://automattic.com
- * Version: 0.1.0
- * Text Domain: asset-cdn
- * Domain Path: /languages/
- * License: GPLv2 or later
- */
 
 /**
  * TODO
