@@ -2,8 +2,6 @@
 
 /**
  * TODO
- * - versioning (combine ver hashes) and cachebusting
- * - concat/minify/serve JS too
  * - asset inlining for smaller styles?
  * - critical CSS support?
  * - non-enqueued assets?
@@ -63,7 +61,7 @@ class Jetpack_Asset_CDN {
 		add_filter( 'script_loader_tag', array( $this, 'register_concat_scripts' ), -100, 3 );
 		add_filter( 'style_loader_tag', array( $this, 'register_concat_styles' ), -100, 4 );
 
-		// render buffered assets
+		// flush remaining un-printed CDN assets
 		add_action( 'wp_head', array( $this, 'render_concatenated_styles_head' ), PHP_INT_MAX );
 		add_action( 'wp_head', array( $this, 'render_concatenated_scripts_head' ), PHP_INT_MAX );
 		add_action( 'wp_footer', array( $this, 'render_concatenated_styles_footer' ), PHP_INT_MAX );
@@ -148,7 +146,6 @@ class Jetpack_Asset_CDN {
 			return;
 		}
 
-		// special URL to concatenation service
 		global $wp_scripts;
 		$site_url = site_url();
 		$urls = array();
@@ -167,7 +164,6 @@ class Jetpack_Asset_CDN {
 			http_build_query( array( 'f' => $urls ) ) . '&' .
 			http_build_query( array( 'v' => $vers ) );
 
-		// TODO: if there is NO inline or external script tags in the body, render async (maybe?)
 		echo '<script type="text/javascript" src="' . esc_attr( $cdn_url ) . '"></script>';
 
 		foreach( $scripts as $script ) {
@@ -202,8 +198,8 @@ class Jetpack_Asset_CDN {
 			return '';
 		}
 
-		// if this is a non-CDN script, and there are existing CDN scripts in this group, print them and reset the
-		// array
+		// we flush buffered scripts when we encounter a tag which
+		// is not eligible for concatenation, so that ordering is preserved
 		$group = isset( $script->extra['group'] ) ? $script->extra['group'] : 0;
 		$this->flush_concatenated_scripts( $group );
 
