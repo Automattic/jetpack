@@ -427,6 +427,14 @@ class Jetpack_Protect_Module {
 	 * @return bool Either returns true, fires $this->kill_login, or includes a math fallback and returns false
 	 */
 	function check_login_ability( $preauth = false ) {
+
+		/**
+		 * JETPACK_ALWAYS_PROTECT_LOGIN will always disable the login page, and use a page provided by Jetpack.
+		 */
+		if ( defined( 'JETPACK_ALWAYS_PROTECT_LOGIN' ) && JETPACK_ALWAYS_PROTECT_LOGIN ) {
+			$this->kill_login();
+		}
+
 		if ( $this->is_current_ip_whitelisted() ) {
 		    return true;
         }
@@ -469,13 +477,6 @@ class Jetpack_Protect_Module {
 			Jetpack::state( 'message', 'protect_misconfigured_ip' );
 			ob_end_clean();
 			return true;
-		}
-		
-		/**
-		 * JETPACK_ALWAYS_PROTECT_LOGIN will always disable the login page, and use a page provided by Jetpack.
-		 */
-		if ( defined( 'JETPACK_ALWAYS_PROTECT_LOGIN' ) && JETPACK_ALWAYS_PROTECT_LOGIN ) {
-			$this->kill_login();
 		}
 
 		/**
