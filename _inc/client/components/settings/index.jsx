@@ -17,19 +17,19 @@ import {
 } from 'state/settings';
 import { SettingToggle } from 'components/setting-toggle';
 
-export const Settings = React.createClass( {
-	propTypes: {
+export class Settings extends React.Component {
+	static propTypes = {
 		slug: PropTypes.string,
 		activated: PropTypes.bool,
 		toggleSetting: PropTypes.func,
 		disabled: PropTypes.bool
-	},
+	};
 
 	componentDidMount() {
 		if ( ! this.props.isFetchingSettingsList ) {
 			this.props.fetchSettings();
 		}
-	},
+	}
 
 	render() {
 		// The snow setting requires special care since the option name has a WP filter applied.
@@ -45,7 +45,7 @@ export const Settings = React.createClass( {
 			</div>
 		);
 	}
-} );
+}
 
 export default connect(
 	( state ) => {

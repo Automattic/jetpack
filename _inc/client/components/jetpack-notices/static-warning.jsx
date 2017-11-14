@@ -15,8 +15,8 @@ import {
 	isNoticeDismissed as _isNoticeDismissed
 } from 'state/jetpack-notices';
 
-export const StaticWarning = React.createClass( {
-	displayName: 'StaticWarning',
+export class StaticWarning extends React.Component {
+    static displayName = 'StaticWarning';
 
 	render() {
 		return (
@@ -29,7 +29,7 @@ export const StaticWarning = React.createClass( {
 			</SimpleNotice>
 		);
 	}
-} );
+}
 
 export default connect(
 	state => {

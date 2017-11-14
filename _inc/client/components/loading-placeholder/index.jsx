@@ -5,8 +5,8 @@ import React from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
 
-export const LoadingPlaceholder = React.createClass( {
-	displayName: 'LoadingPlaceholder',
+export class LoadingPlaceholder extends React.Component {
+    static displayName = 'LoadingPlaceholder';
 
 	render() {
 		const classes = classNames(
@@ -20,7 +20,7 @@ export const LoadingPlaceholder = React.createClass( {
 			</div>
 		);
 	}
-} );
+}
 
 export default connect(
 	state => {

@@ -3,6 +3,7 @@
  */
 import PropTypes from 'prop-types';
 import React from 'react';
+import createReactClass from 'create-react-class';
 import { connect } from 'react-redux';
 import SectionNav from 'components/section-nav';
 import NavTabs from 'components/section-nav/tabs';
@@ -31,16 +32,17 @@ import { isModuleActivated, getModules } from 'state/modules';
 import { isPluginActive } from 'state/site/plugins';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 
-export const NavigationSettings = React.createClass( {
-	mixins: [ UrlSearch ],
-	moduleList: [],
+export const NavigationSettings = createReactClass( {
+    displayName: 'NavigationSettings',
+    mixins: [ UrlSearch ],
+    moduleList: [],
 
-	componentWillMount() {
+    componentWillMount() {
 		this.context.router.listen( this.onRouteChange );
 		this.moduleList = Object.keys( this.props.moduleList );
 	},
 
-	onRouteChange( newRoute ) {
+    onRouteChange( newRoute ) {
 		const search = newRoute.search || '',
 			pairs = search.substr( 1 ).split( '&' ),
 			term = pairs.filter( item => {
@@ -56,7 +58,7 @@ export const NavigationSettings = React.createClass( {
 		this.props.searchForTerm( decodeURIComponent( keyword ) );
 	},
 
-	maybeShowSearch() {
+    maybeShowSearch() {
 		if ( this.props.userCanManageModules ) {
 			return (
 				<Search
@@ -74,14 +76,14 @@ export const NavigationSettings = React.createClass( {
 		}
 	},
 
-	trackNavClick( target ) {
+    trackNavClick( target ) {
 		analytics.tracks.recordJetpackClick( {
 			target: 'nav_item',
 			path: target
 		} );
 	},
 
-	/**
+    /**
 	 * The UrlSearch mixin callback to form a new location href string.
 	 *
 	 * @param {string} href the current location string
@@ -96,7 +98,7 @@ export const NavigationSettings = React.createClass( {
 		return '#' + splitHash[ 0 ] + ( keyword ? '?term=' + keyword : '' );
 	},
 
-	/**
+    /**
 	 * Check that the module list includes at least one of these modules.
 	 *
 	 * @param  {array}   modules Modules that are probably included in the module list.
@@ -107,7 +109,7 @@ export const NavigationSettings = React.createClass( {
 		return 0 < intersection( this.moduleList, modules ).length;
 	},
 
-	render: function() {
+    render: function() {
 		let navItems, sharingTab;
 		if ( this.props.userCanManageModules ) {
 			navItems = (

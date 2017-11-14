@@ -12,14 +12,14 @@ import { getPlanClass } from 'lib/plans/constants';
  */
 import { imagePath } from 'constants/urls';
 
-const PlanHeader = React.createClass( {
-	trackLearnMore() {
+class PlanHeader extends React.Component {
+    trackLearnMore = () => {
 		analytics.tracks.recordJetpackClick( {
 			target: 'learn-more',
 			plan: 'free',
 			page: 'plans'
 		} );
-	},
+	};
 
 	render() {
 		let starrySky = '',
@@ -149,6 +149,6 @@ const PlanHeader = React.createClass( {
 			</div>
 		);
 	}
-} );
+}
 
 export default PlanHeader;

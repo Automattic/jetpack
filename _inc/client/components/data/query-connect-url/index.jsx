@@ -13,17 +13,17 @@ import {
 } from 'state/connection';
 import { isDevMode } from 'state/connection';
 
-export const QueryConnectUrl = React.createClass( {
-	componentWillMount() {
+export class QueryConnectUrl extends React.Component {
+    componentWillMount() {
 		if ( ! ( this.props.isFetchingConnectUrl || this.props.isDevMode ) ) {
 			this.props.fetchConnectUrl();
 		}
-	},
+	}
 
 	render() {
 		return null;
 	}
-} );
+}
 
 export default connect(
 	( state ) => {

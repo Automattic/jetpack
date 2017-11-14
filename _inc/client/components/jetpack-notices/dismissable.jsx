@@ -18,10 +18,10 @@ import {
 	dismissJetpackActionNotice
 } from 'state/jetpack-notices';
 
-const DismissableNotices = React.createClass( {
-	displayName: 'DismissableNotices',
+class DismissableNotices extends React.Component {
+    static displayName = 'DismissableNotices';
 
-	renderNotices: function() {
+	renderNotices = () => {
 		const notices = this.props.jetpackNotices;
 
 		switch ( notices ) {
@@ -50,7 +50,7 @@ const DismissableNotices = React.createClass( {
 			default:
 				return false;
 		}
-	},
+	};
 
 	render() {
 		return (
@@ -59,7 +59,7 @@ const DismissableNotices = React.createClass( {
 			</div>
 		)
 	}
-} );
+}
 
 export default connect(
 	state => {

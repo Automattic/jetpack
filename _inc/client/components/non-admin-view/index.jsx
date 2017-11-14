@@ -19,13 +19,13 @@ import AtAGlance from 'at-a-glance/index.jsx';
 import SearchableSettings from 'settings/index.jsx';
 import { getSiteConnectionStatus } from 'state/connection';
 
-const NonAdminView = React.createClass( {
-	shouldComponentUpdate: function( nextProps ) {
+class NonAdminView extends React.Component {
+    shouldComponentUpdate( nextProps ) {
 		return nextProps.siteConnectionStatus !== this.props.siteConnectionStatus ||
 			nextProps.route.path !== this.props.route.path;
-	},
+	}
 
-	renderMainContent: function( route ) {
+	renderMainContent = route => {
 		let pageComponent,
 			navComponent = <Navigation { ...this.props } />;
 		switch ( route ) {
@@ -55,15 +55,14 @@ const NonAdminView = React.createClass( {
 				{ pageComponent }
 			</div>
 		);
-	},
+	};
 
-	render: function() {
+	render() {
 		return (
 			this.renderMainContent( this.props.route.path )
 		);
 	}
-
-} );
+}
 
 NonAdminView.propTypes = {
 	userCanViewStats: PropTypes.bool.isRequired,

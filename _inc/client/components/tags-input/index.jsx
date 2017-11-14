@@ -1,14 +1,12 @@
 import React from 'react';
 import TagsInput from 'react-tagsinput';
 
-const JetpackTagsInput = React.createClass( {
-	getInitialState() {
-		return {
-			tags: this.props.value || []
-		};
-	},
+class JetpackTagsInput extends React.Component {
+    state = {
+		tags: this.props.value || []
+	};
 
-	handleChange( tags ) {
+	handleChange = tags => {
 		this.setState( { tags } );
 		if ( this.props.onChange ) {
 			this.props.onChange( {
@@ -18,7 +16,7 @@ const JetpackTagsInput = React.createClass( {
 				}
 			} );
 		}
-	},
+	};
 
 	render() {
 		return (
@@ -29,6 +27,6 @@ const JetpackTagsInput = React.createClass( {
 				value={ this.state.tags } />
 		);
 	}
-} );
+}
 
 export default JetpackTagsInput;

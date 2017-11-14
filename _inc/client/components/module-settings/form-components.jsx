@@ -14,8 +14,8 @@ import {
 } from 'components/forms';
 import Checkbox from 'components/checkbox';
 
-export const ModuleSettingCheckbox = React.createClass( {
-	render() {
+export class ModuleSettingCheckbox extends React.Component {
+    render() {
 		const props = this.props;
 		return (
 			<FormLabel>
@@ -29,10 +29,10 @@ export const ModuleSettingCheckbox = React.createClass( {
 			</FormLabel>
 		);
 	}
-} );
+}
 
-export const ModuleSettingRadios = React.createClass( {
-	render() {
+export class ModuleSettingRadios extends React.Component {
+    render() {
 		let props = this.props;
 		let validValues = this.props.validValues;
 		return (
@@ -53,10 +53,10 @@ export const ModuleSettingRadios = React.createClass( {
 			</div>
 		);
 	}
-} );
+}
 
-export const ModuleSettingSelect = React.createClass( {
-	render() {
+export class ModuleSettingSelect extends React.Component {
+    render() {
 		let validValues = this.props.validValues;
 		return (
 			<select name={ this.props.name } value={ this.props.value } onBlur={ this.props.onOptionChange }>
@@ -68,33 +68,36 @@ export const ModuleSettingSelect = React.createClass( {
 			</select>
 		);
 	}
-} );
+}
 
-export const ModuleSettingMultipleSelectCheckboxes = React.createClass( {
-	getDefaultProps() {
-		return {
-			always_checked: []
-		}
-	},
-	onOptionChange( event ) {
+export class ModuleSettingMultipleSelectCheckboxes extends React.Component {
+    static defaultProps = {
+		always_checked: []
+	};
+
+	onOptionChange = event => {
 		const justUpdated = event.target.value;
 		const currentValue = this.props.getOptionValue( this.props.name );
 		const newValue = currentValue.indexOf( justUpdated ) === -1 ?
 			concat( currentValue, justUpdated ) :
 			without( currentValue, justUpdated );
 		this.props.updateFormStateOptionValue( this.props.name, newValue );
-	},
-	isAlwaysChecked( key ) {
+	};
+
+	isAlwaysChecked = key => {
 		return this.props.always_checked.indexOf( key ) !== -1;
-	},
-	shouldBeChecked( key ) {
+	};
+
+	shouldBeChecked = key => {
 		return this.isAlwaysChecked( key ) ||
 			this.props.getOptionValue( this.props.name ).indexOf( key ) !== -1;
-	},
-	shouldBeDisabled( key ) {
+	};
+
+	shouldBeDisabled = key => {
 		return this.isAlwaysChecked( key ) ||
 			this.props.isUpdating( this.props.name );
-	},
+	};
+
 	render() {
 		let props = this.props;
 		let validValues = this.props.validValues;
@@ -116,4 +119,4 @@ export const ModuleSettingMultipleSelectCheckboxes = React.createClass( {
 			</div>
 		);
 	}
-} );
+}

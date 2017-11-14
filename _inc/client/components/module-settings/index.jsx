@@ -23,8 +23,8 @@ import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-sett
 
 import ExternalLink from 'components/external-link';
 
-export let VideoPressSettings = React.createClass( {
-	render() {
+export class VideoPressSettings extends React.Component {
+    render() {
 		return (
 			<div>
 				<p className="jp-form-setting-explanation">
@@ -36,12 +36,12 @@ export let VideoPressSettings = React.createClass( {
 			</div>
 		)
 	}
-} );
+}
 
 VideoPressSettings = moduleSettingsForm( VideoPressSettings );
 
-export let SharedaddySettings = React.createClass( {
-	render() {
+export class SharedaddySettings extends React.Component {
+    render() {
 		return (
 			<form onSubmit={ this.props.onSubmit } >
 				<FormFieldset>
@@ -54,12 +54,12 @@ export let SharedaddySettings = React.createClass( {
 			</form>
 		)
 	}
-} );
+}
 
 SharedaddySettings = moduleSettingsForm( SharedaddySettings );
 
-export let RelatedPostsSettings = React.createClass( {
-	renderPreviews() {
+export class RelatedPostsSettings extends React.Component {
+    renderPreviews = () => {
 		const show_headline = this.props.getOptionValue( 'show_headline' );
 		const show_thumbnails = this.props.getOptionValue( 'show_thumbnails' );
 		const previews = [ {
@@ -92,7 +92,8 @@ export let RelatedPostsSettings = React.createClass( {
 				}
 			</div>
 		);
-	},
+	};
+
 	render() {
 		return (
 			<form onSubmit={ this.props.onSubmit } >
@@ -130,12 +131,12 @@ export let RelatedPostsSettings = React.createClass( {
 			</form>
 		);
 	}
-} );
+}
 
 RelatedPostsSettings = moduleSettingsForm( RelatedPostsSettings );
 
-export let LikesSettings = React.createClass( {
-	render() {
+export class LikesSettings extends React.Component {
+    render() {
 		const old_sharing_settings_url = this.props.module.configure_url;
 		return (
 			<form onSubmit={ this.props.onSubmit } >
@@ -162,12 +163,12 @@ export let LikesSettings = React.createClass( {
 			</form>
 		)
 	}
-} );
+}
 
 LikesSettings = moduleSettingsForm( LikesSettings );
 
-export let MonitorSettings = React.createClass( {
-	render() {
+export class MonitorSettings extends React.Component {
+    render() {
 		return (
 			<span className="jp-form-setting-explanation"><span>
 				{
@@ -181,12 +182,12 @@ export let MonitorSettings = React.createClass( {
 			</span></span>
 		)
 	}
-} );
+}
 
 MonitorSettings = moduleSettingsForm( MonitorSettings );
 
-export let WordAdsSettings = React.createClass( {
-	render() {
+export class WordAdsSettings extends React.Component {
+    render() {
 		return (
 			<div>
 				<p>{ __( 'By default ads are shown at the end of every page, post, or the first article on your front page. You can also add them to the top of your site and to any widget area to increase your earnings!' ) }</p>
@@ -205,6 +206,6 @@ export let WordAdsSettings = React.createClass( {
 			</div>
 		);
 	}
-} );
+}
 
 WordAdsSettings = moduleSettingsForm( WordAdsSettings );

@@ -25,42 +25,42 @@ import {
 import DevCard from 'components/dev-card';
 import onKeyDownCallback from 'utils/onkeydown-callback';
 
-export const Footer = React.createClass( {
-	displayName: 'Footer',
+export class Footer extends React.Component {
+    static displayName = 'Footer';
 
-	resetOnClick() {
+	resetOnClick = () => {
 		if ( window.confirm( __( 'This will reset all Jetpack options, are you sure?' ) ) ) {
 			this.props.resetOptions();
 		}
-	},
+	};
 
-	trackVersionClick() {
+	trackVersionClick = () => {
 		analytics.tracks.recordJetpackClick( {
 			target: 'footer_link',
 			link: 'version'
 		} );
-	},
+	};
 
-	trackTermsClick() {
+	trackTermsClick = () => {
 		analytics.tracks.recordJetpackClick( {
 			target: 'footer_link',
 			link: 'terms'
 		} );
-	},
+	};
 
-	trackPrivacyClick() {
+	trackPrivacyClick = () => {
 		analytics.tracks.recordJetpackClick( {
 			target: 'footer_link',
 			link: 'privacy'
 		} );
-	},
+	};
 
-	trackDebugClick() {
+	trackDebugClick = () => {
 		analytics.tracks.recordJetpackClick( {
 			target: 'footer_link',
 			link: 'debug'
 		} );
-	},
+	};
 
 	render() {
 		const classes = classNames(
@@ -186,7 +186,7 @@ export const Footer = React.createClass( {
 			</div>
 		);
 	}
-} );
+}
 
 export default connect(
 	state => {

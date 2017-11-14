@@ -13,12 +13,12 @@ import LoadingPlaceholder from 'components/loading-placeholder';
 import { setInitialState } from 'state/initial-state';
 import Footer from 'components/footer';
 
-const StaticMain = React.createClass( {
-	componentWillMount: function() {
+class StaticMain extends React.Component {
+    componentWillMount() {
 		this.props.setInitialState();
-	},
+	}
 
-	render: function() {
+	render() {
 		return (
 			<div id="jp-plugin-container">
 				<Masthead { ...this.props } />
@@ -27,8 +27,7 @@ const StaticMain = React.createClass( {
 			</div>
 		);
 	}
-
-} );
+}
 
 export default connect(
 	state => {

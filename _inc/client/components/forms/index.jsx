@@ -18,11 +18,10 @@ export const FormFieldset = props => {
 	);
 };
 
-export const FormLabel = React.createClass( {
+export class FormLabel extends React.Component {
+    static displayName = 'FormLabel';
 
-	displayName: 'FormLabel',
-
-	render: function() {
+	render() {
 		const { className, htmlFor, ...otherProps } = this.props;
 		return (
 			<label { ...otherProps } htmlFor={ htmlFor } className={ classNames( className, 'jp-form-label' ) } >
@@ -30,50 +29,45 @@ export const FormLabel = React.createClass( {
 			</label>
 		);
 	}
-} );
+}
 
-export const FormLegend = React.createClass( {
+export class FormLegend extends React.Component {
+    static displayName = 'FormLegend';
 
-	displayName: 'FormLegend',
-
-	render: function() {
+	render() {
 		return (
 			<legend { ...omit( this.props, 'className' ) } className={ classNames( this.props.className, 'jp-form-legend' ) } >
 				{ this.props.children }
 			</legend>
 		);
 	}
-} );
+}
 
-export const FormCheckbox = React.createClass( {
+export class FormCheckbox extends React.Component {
+    static displayName = 'FormInputCheckbox';
 
-	displayName: 'FormInputCheckbox',
-
-	render: function() {
+	render() {
 		var otherProps = omit( this.props, [ 'className', 'type' ] );
 
 		return (
 			<input { ...otherProps } type="checkbox" className={ classNames( this.props.className, 'jp-form-checkbox' ) } />
 		);
 	}
-} );
+}
 
-export const FormTextInput = React.createClass( {
+export class FormTextInput extends React.Component {
+    static displayName = 'FormTextInput';
 
-	displayName: 'FormTextInput',
+	static defaultProps = {
+		isError: false,
+		isValid: false,
+		selectOnFocus: false,
+		type: 'text'
+	};
 
-	getDefaultProps() {
-		return {
-			isError: false,
-			isValid: false,
-			selectOnFocus: false,
-			type: 'text'
-		};
-	},
-
-	focus() {
+	focus = () => {
 		this.refs.textField.focus();
-	},
+	};
 
 	render() {
 		const { className, selectOnFocus } = this.props;
@@ -90,32 +84,29 @@ export const FormTextInput = React.createClass( {
 				className={ classes }
 				onClick={ selectOnFocus ? this.selectOnFocus : null } />
 		);
-	},
-
-	selectOnFocus( event ) {
-		event.target.select();
 	}
 
-} );
+	selectOnFocus = event => {
+		event.target.select();
+	};
+}
 
-export const FormTextarea = React.createClass( {
+export class FormTextarea extends React.Component {
+    static displayName = 'FormTextarea';
 
-	displayName: 'FormTextarea',
-
-	render: function() {
+	render() {
 		return (
 			<textarea { ...omit( this.props, 'className' ) } className={ classNames( this.props.className, 'jp-form-textarea' ) } >
 				{ this.props.children }
 			</textarea>
 		);
 	}
-} );
+}
 
-export const FormRadio = React.createClass( {
+export class FormRadio extends React.Component {
+    static displayName = 'FormRadio';
 
-	displayName: 'FormRadio',
-
-	render: function() {
+	render() {
 		var otherProps = omit( this.props, [ 'className', 'type' ] );
 
 		return (
@@ -125,25 +116,22 @@ export const FormRadio = React.createClass( {
 				className={ classNames( this.props.className, 'jp-form-radio' ) } />
 		);
 	}
-} );
+}
 
-export const FormButton = React.createClass( {
+export class FormButton extends React.Component {
+    static displayName = 'FormsButton';
 
-	displayName: 'FormsButton',
+	static defaultProps = {
+		isSubmitting: false,
+		isPrimary: true,
+		type: 'submit'
+	};
 
-	getDefaultProps: function() {
-		return {
-			isSubmitting: false,
-			isPrimary: true,
-			type: 'submit'
-		};
-	},
-
-	getDefaultButtonAction: function() {
+	getDefaultButtonAction = () => {
 		return this.props.isSubmitting ? __( 'Saving…' ) : __( 'Save Settings' );
-	},
+	};
 
-	render: function() {
+	render() {
 		var buttonClasses = classNames( {
 			'jp-form-button': true
 		} );
@@ -157,10 +145,10 @@ export const FormButton = React.createClass( {
 			</Button>
 		);
 	}
-} );
+}
 
-export const FormSelect = React.createClass( {
-	handleOnSelect: function( option ) {
+export class FormSelect extends React.Component {
+    handleOnSelect = option => {
 		this.props.onOptionChange( {
 			target: {
 				type: 'select',
@@ -168,7 +156,7 @@ export const FormSelect = React.createClass( {
 				value: option.value
 			}
 		} );
-	},
+	};
 
 	render() {
 		let validValues = [];
@@ -181,4 +169,4 @@ export const FormSelect = React.createClass( {
 			disabled={ this.props.disabled }
 			initialSelected={ this.props.value } />;
 	}
-} );
+}

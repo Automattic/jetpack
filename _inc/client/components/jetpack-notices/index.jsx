@@ -20,8 +20,8 @@ import { getConnectUrl as _getConnectUrl } from 'state/connection';
 import JetpackBanner from 'components/jetpack-banner';
 import { JETPACK_CONTACT_BETA_SUPPORT } from 'constants/urls';
 
-export const DevVersionNotice = React.createClass( {
-	displayName: 'DevVersionNotice',
+export class DevVersionNotice extends React.Component {
+    static displayName = 'DevVersionNotice';
 
 	render() {
 		if ( this.props.isDevVersion && ! this.props.userIsSubscriber ) {
@@ -41,16 +41,15 @@ export const DevVersionNotice = React.createClass( {
 
 		return false;
 	}
-
-} );
+}
 
 DevVersionNotice.propTypes = {
 	isDevVersion: PropTypes.bool.isRequired,
 	userIsSubscriber: PropTypes.bool.isRequired
 };
 
-export const StagingSiteNotice = React.createClass( {
-	displayName: 'StagingSiteNotice',
+export class StagingSiteNotice extends React.Component {
+    static displayName = 'StagingSiteNotice';
 
 	render() {
 		if ( this.props.isStaging && ! this.props.isInIdentityCrisis ) {
@@ -74,16 +73,15 @@ export const StagingSiteNotice = React.createClass( {
 
 		return false;
 	}
-
-} );
+}
 
 StagingSiteNotice.propTypes = {
 	isStaging: PropTypes.bool.isRequired,
 	isInIdentityCrisis: PropTypes.bool.isRequired
 };
 
-export const DevModeNotice = React.createClass( {
-	displayName: 'DevModeNotice',
+export class DevModeNotice extends React.Component {
+    static displayName = 'DevModeNotice';
 
 	render() {
 		if ( this.props.siteConnectionStatus === 'dev' ) {
@@ -141,8 +139,7 @@ export const DevModeNotice = React.createClass( {
 
 		return false;
 	}
-
-} );
+}
 
 DevModeNotice.propTypes = {
 	siteConnectionStatus: PropTypes.oneOfType( [
@@ -155,8 +152,8 @@ DevModeNotice.propTypes = {
 	] ).isRequired
 };
 
-export const UserUnlinked = React.createClass( {
-	displayName: 'UserUnlinked',
+export class UserUnlinked extends React.Component {
+    static displayName = 'UserUnlinked';
 
 	render() {
 		if (
@@ -178,16 +175,15 @@ export const UserUnlinked = React.createClass( {
 
 		return false;
 	}
-
-} );
+}
 
 UserUnlinked.propTypes = {
 	connectUrl: PropTypes.string.isRequired,
 	siteConnected: PropTypes.bool.isRequired
 };
 
-const JetpackNotices = React.createClass( {
-	displayName: 'JetpackNotices',
+class JetpackNotices extends React.Component {
+    static displayName = 'JetpackNotices';
 
 	render() {
 		return (
@@ -218,7 +214,7 @@ const JetpackNotices = React.createClass( {
 			</div>
 		);
 	}
-} );
+}
 
 export default connect(
 	state => {

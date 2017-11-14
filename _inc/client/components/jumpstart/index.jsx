@@ -21,11 +21,10 @@ import { getModulesByFeature as _getModulesByFeature } from 'state/modules';
 import onKeyDownCallback from 'utils/onkeydown-callback';
 import { imagePath } from 'constants/urls';
 
-const JumpStart = React.createClass( {
+class JumpStart extends React.Component {
+    static displayName = 'JumpStart';
 
-	displayName: 'JumpStart',
-
-	activateButton: function() {
+	activateButton = () => {
 		return <Button
 			primary={ true }
 			onClick={ this.props.jumpStartActivate }
@@ -33,9 +32,9 @@ const JumpStart = React.createClass( {
 		>
 			{ this.props.isJumpstarting ? __( 'Activating recommended features…' ) : __( 'Activate recommended features' ) }
 		</Button>;
-	},
+	};
 
-	render: function() {
+	render() {
 		const jumpstartModules = this.props.jumpstartFeatures.map( ( module ) => (
 			<div
 				className="jp-jumpstart__feature-list-column"
@@ -99,7 +98,7 @@ const JumpStart = React.createClass( {
 			</div>
 		);
 	}
-} );
+}
 
 export default connect(
 	state => {

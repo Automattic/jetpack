@@ -15,35 +15,33 @@ import analytics from 'lib/analytics';
 import { getSiteConnectionStatus } from 'state/connection';
 import { getCurrentVersion, userCanEditPosts } from 'state/initial-state';
 
-export const Masthead = React.createClass( {
-	getDefaultProps: function() {
-		return {
-			route: { path: '' }
-		};
-	},
+export class Masthead extends React.Component {
+    static defaultProps = {
+		route: { path: '' }
+	};
 
-	trackDashClick() {
+	trackDashClick = () => {
 		analytics.tracks.recordJetpackClick( {
 			target: 'masthead',
 			path: 'nav_dashboard'
 		} );
-	},
+	};
 
-	trackSettingsClick() {
+	trackSettingsClick = () => {
 		analytics.tracks.recordJetpackClick( {
 			target: 'masthead',
 			path: 'nav_settings'
 		} );
-	},
+	};
 
-	trackLogoClick() {
+	trackLogoClick = () => {
 		analytics.tracks.recordJetpackClick( {
 			target: 'masthead',
 			path: 'logo'
 		} );
-	},
+	};
 
-	render: function() {
+	render() {
 		const devNotice = this.props.siteConnectionStatus === 'dev'
 			? <code>Dev Mode</code>
 			: '',
@@ -98,7 +96,7 @@ export const Masthead = React.createClass( {
 			</div>
 		);
 	}
-} );
+}
 
 export default connect(
 	state => {

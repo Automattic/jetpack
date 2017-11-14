@@ -45,8 +45,8 @@ import WelcomeNewPlan from 'components/welcome-new-plan';
 import QueryRewindStatus from 'components/data/query-rewind-status';
 import { getRewindStatus } from 'state/rewind';
 
-const Main = React.createClass( {
-	componentWillMount: function() {
+class Main extends React.Component {
+    componentWillMount() {
 		this.props.setInitialState();
 		restApi.setApiRoot( this.props.apiRoot );
 		restApi.setApiNonce( this.props.apiNonce );
@@ -56,13 +56,13 @@ const Main = React.createClass( {
 		window.addEventListener( 'beforeunload', this.onBeforeUnload );
 		// Handles transition between routes handled by react-router
 		this.props.router.listenBefore( this.routerWillLeave );
-	},
+	}
 
 	/*
 	 * Returns a string if there are unsaved module settings thus showing a confirm dialog to the user
 	 * according to the `beforeunload` event handling specification
 	 */
-	onBeforeUnload() {
+	onBeforeUnload = () => {
 		if ( this.props.areThereUnsavedSettings ) {
 			if ( confirm( __( 'There are unsaved settings in this tab that will be lost if you leave it. Proceed?' ) ) ) {
 				this.props.clearUnsavedSettingsFlag();
@@ -70,14 +70,14 @@ const Main = React.createClass( {
 				return false;
 			}
 		}
-	},
+	};
 
 	/*
  	 * Shows a confirmation dialog if there are unsaved module settings.
  	 *
  	 * Return true or false according to the history.listenBefore specification which is part of react-router
 	 */
-	routerWillLeave() {
+	routerWillLeave = () => {
 		if ( this.props.areThereUnsavedSettings ) {
 			if ( confirm( __( 'There are unsaved settings in this tab that will be lost if you leave it. Proceed?' ) ) ) {
 				window.setTimeout( this.props.clearUnsavedSettingsFlag, 10 );
@@ -85,9 +85,9 @@ const Main = React.createClass( {
 				return false;
 			}
 		}
-	},
+	};
 
-	initializeAnalyitics() {
+	initializeAnalyitics = () => {
 		const tracksUser = this.props.tracksUserData;
 		if ( tracksUser ) {
 			analytics.initialize(
@@ -95,9 +95,9 @@ const Main = React.createClass( {
 				tracksUser.username
 			);
 		}
-	},
+	};
 
-	shouldComponentUpdate: function( nextProps ) {
+	shouldComponentUpdate( nextProps ) {
 		// If user triggers Skip to main content or Skip to toolbar with keyboard navigation, stay in the same tab.
 		if ( includes( [ '/wpbody-content', '/wp-toolbar' ], nextProps.route.path ) ) {
 			return false;
@@ -110,7 +110,7 @@ const Main = React.createClass( {
 			nextProps.searchTerm !== this.props.searchTerm ||
 			nextProps.newPlanActivated !== this.props.newPlanActivated ||
 			nextProps.rewindStatus !== this.props.rewindStatus;
-	},
+	}
 
 	componentDidUpdate( prevProps ) {
 		// Not taking into account development mode here because changing the connection
@@ -121,14 +121,14 @@ const Main = React.createClass( {
 			$items.find( 'a[href$="#/settings"]' ).hide();
 			$items.find( 'a[href$="admin.php?page=stats"]' ).hide();
 		}
-	},
+	}
 
-	componentWillReceiveProps( nextProps ) {
+	componentWillReceiveProps(nextProps) {
 		if ( nextProps.jumpStartStatus !== this.props.jumpStartStatus ||
 			nextProps.isJumpstarting !== this.props.isJumpstarting ) {
 			this.handleJumpstart( nextProps );
 		}
-	},
+	}
 
 	/**
 	 *
@@ -137,7 +137,7 @@ const Main = React.createClass( {
 	 * - the jumpstart is complete
 	 * @param  {Object} nextProps The next props as received by componentWillReceiveProps
 	 */
-	handleJumpstart( nextProps ) {
+	handleJumpstart = nextProps => {
 		const history = createHistory();
 		const willShowJumpStart = nextProps.jumpStartStatus;
 		const willBeJumpstarting = nextProps.isJumpstarting;
@@ -150,9 +150,9 @@ const Main = React.createClass( {
 			window.location.hash = 'dashboard';
 			history.push( window.location.pathname + '?page=jetpack#/dashboard' );
 		}
-	},
+	};
 
-	renderMainContent: function( route ) {
+	renderMainContent = route => {
 		// Track page views
 		this.props.isSiteConnected && analytics.tracks.recordEvent( 'jetpack_wpa_page_view', { path: route } );
 
@@ -246,9 +246,9 @@ const Main = React.createClass( {
 				/>
 			</div>
 		);
-	},
+	};
 
-	render: function() {
+	render() {
 		return (
 			<div>
 				<Masthead route={ this.props.route } />
@@ -265,8 +265,7 @@ const Main = React.createClass( {
 			</div>
 		);
 	}
-
-} );
+}
 
 export default connect(
 	state => {

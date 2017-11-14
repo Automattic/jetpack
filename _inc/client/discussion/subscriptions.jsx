@@ -16,102 +16,99 @@ import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-sett
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 
-export const Subscriptions = moduleSettingsForm(
-	React.createClass( {
+class SubscriptionsComponent extends React.Component {
+    /**
+	 * Get options for initial state.
+	 *
+	 * @returns {{stb_enabled: *, stc_enabled: *}}
+	 */
+	state = {
+		stb_enabled: this.props.getOptionValue( 'stb_enabled', 'subscriptions' ),
+		stc_enabled: this.props.getOptionValue( 'stc_enabled', 'subscriptions' )
+	};
 
-		/**
-		 * Get options for initial state.
-		 *
-		 * @returns {{stb_enabled: *, stc_enabled: *}}
-		 */
-		getInitialState() {
-			return {
-				stb_enabled: this.props.getOptionValue( 'stb_enabled', 'subscriptions' ),
-				stc_enabled: this.props.getOptionValue( 'stc_enabled', 'subscriptions' )
-			};
-		},
+	/**
+	 * Update state so toggles are updated.
+	 *
+	 * @param {string} optionName
+	 */
+	updateOptions = optionName => {
+		this.setState(
+			{
+				[ optionName ]: ! this.state[ optionName ]
+			},
+			this.props.updateFormStateModuleOption( 'subscriptions', optionName )
+		);
+	};
 
-		/**
-		 * Update state so toggles are updated.
-		 *
-		 * @param {string} optionName
-		 */
-		updateOptions( optionName ) {
-			this.setState(
-				{
-					[ optionName ]: ! this.state[ optionName ]
-				},
-				this.props.updateFormStateModuleOption( 'subscriptions', optionName )
-			);
-		},
+	trackConfigureClick = () => {
+		analytics.tracks.recordJetpackClick( 'view-followers' );
+	};
 
-		trackConfigureClick() {
-			analytics.tracks.recordJetpackClick( 'view-followers' );
-		},
+	render() {
+		const subscriptions = this.props.getModule( 'subscriptions' ),
+			isSubscriptionsActive = this.props.getOptionValue( 'subscriptions' ),
+			unavailableInDevMode = this.props.isUnavailableInDevMode( 'subscriptions' );
 
-		render() {
-			const subscriptions = this.props.getModule( 'subscriptions' ),
-				isSubscriptionsActive = this.props.getOptionValue( 'subscriptions' ),
-				unavailableInDevMode = this.props.isUnavailableInDevMode( 'subscriptions' );
+		const getSubClickableCard = () => {
+			if ( unavailableInDevMode || ! isSubscriptionsActive ) {
+				return '';
+			}
 
-			const getSubClickableCard = () => {
-				if ( unavailableInDevMode || ! isSubscriptionsActive ) {
-					return '';
-				}
+			return this.props.isLinked
+				? <Card compact className="jp-settings-card__configure-link" onClick={ this.trackConfigureClick } href={ 'https://wordpress.com/people/email-followers/' + this.props.siteRawUrl }>{ __( 'View your Email Followers' ) }</Card>
+				: <Card compact className="jp-settings-card__configure-link" href={ `${ this.props.connectUrl }&from=unlinked-user-connect-masterbar` }>{ __( 'Connect your user account to WordPress.com to view your email followers' ) } </Card>;
+		};
 
-				return this.props.isLinked
-					? <Card compact className="jp-settings-card__configure-link" onClick={ this.trackConfigureClick } href={ 'https://wordpress.com/people/email-followers/' + this.props.siteRawUrl }>{ __( 'View your Email Followers' ) }</Card>
-					: <Card compact className="jp-settings-card__configure-link" href={ `${ this.props.connectUrl }&from=unlinked-user-connect-masterbar` }>{ __( 'Connect your user account to WordPress.com to view your email followers' ) } </Card>;
-			};
-
-			return (
-				<SettingsCard
-					{ ...this.props }
-					hideButton
-					module="subscriptions">
-					<SettingsGroup hasChild disableInDevMode module={ subscriptions }>
-						<ModuleToggle
-							slug="subscriptions"
-							disabled={ unavailableInDevMode }
-							activated={ isSubscriptionsActive }
-							toggling={ this.props.isSavingAnyOption( 'subscriptions' ) }
-							toggleModule={ this.props.toggleModuleNow }>
-						<span className="jp-form-toggle-explanation">
-							{
-								subscriptions.description
-							}
-						</span>
-						</ModuleToggle>
+		return (
+			<SettingsCard
+				{ ...this.props }
+				hideButton
+				module="subscriptions">
+				<SettingsGroup hasChild disableInDevMode module={ subscriptions }>
+					<ModuleToggle
+						slug="subscriptions"
+						disabled={ unavailableInDevMode }
+						activated={ isSubscriptionsActive }
+						toggling={ this.props.isSavingAnyOption( 'subscriptions' ) }
+						toggleModule={ this.props.toggleModuleNow }>
+					<span className="jp-form-toggle-explanation">
 						{
-							<FormFieldset>
-								<CompactFormToggle
-									checked={ this.state.stb_enabled }
-									disabled={ ! isSubscriptionsActive || unavailableInDevMode || this.props.isSavingAnyOption( [ 'subscriptions', 'stb_enabled' ] ) }
-									onChange={ () => this.updateOptions( 'stb_enabled' ) }>
-									<span className="jp-form-toggle-explanation">
-										{
-											__( 'Show a "follow blog" option in the comment form' )
-										}
-									</span>
-								</CompactFormToggle>
-								<CompactFormToggle
-									checked={ this.state.stc_enabled }
-									disabled={ ! isSubscriptionsActive || unavailableInDevMode || this.props.isSavingAnyOption( [ 'subscriptions', 'stc_enabled' ] ) }
-									onChange={ () => this.updateOptions( 'stc_enabled' ) }>
-									<span className="jp-form-toggle-explanation">
-										{
-											__( 'Show a "follow comments" option in the comment form' )
-										}
-									</span>
-								</CompactFormToggle>
-							</FormFieldset>
+							subscriptions.description
 						}
-					</SettingsGroup>
+					</span>
+					</ModuleToggle>
 					{
-						getSubClickableCard()
+						<FormFieldset>
+							<CompactFormToggle
+								checked={ this.state.stb_enabled }
+								disabled={ ! isSubscriptionsActive || unavailableInDevMode || this.props.isSavingAnyOption( [ 'subscriptions', 'stb_enabled' ] ) }
+								onChange={ () => this.updateOptions( 'stb_enabled' ) }>
+								<span className="jp-form-toggle-explanation">
+									{
+										__( 'Show a "follow blog" option in the comment form' )
+									}
+								</span>
+							</CompactFormToggle>
+							<CompactFormToggle
+								checked={ this.state.stc_enabled }
+								disabled={ ! isSubscriptionsActive || unavailableInDevMode || this.props.isSavingAnyOption( [ 'subscriptions', 'stc_enabled' ] ) }
+								onChange={ () => this.updateOptions( 'stc_enabled' ) }>
+								<span className="jp-form-toggle-explanation">
+									{
+										__( 'Show a "follow comments" option in the comment form' )
+									}
+								</span>
+							</CompactFormToggle>
+						</FormFieldset>
 					}
-				</SettingsCard>
-			);
-		}
-	} )
-);
+				</SettingsGroup>
+				{
+					getSubClickableCard()
+				}
+			</SettingsCard>
+		);
+	}
+}
+
+export const Subscriptions = moduleSettingsForm( SubscriptionsComponent );

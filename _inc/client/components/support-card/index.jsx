@@ -28,43 +28,41 @@ import { getSiteConnectionStatus } from 'state/connection';
 import JetpackBanner from 'components/jetpack-banner';
 import { JETPACK_CONTACT_SUPPORT } from 'constants/urls';
 
-const SupportCard = React.createClass( {
-	displayName: 'SupportCard',
+class SupportCard extends React.Component {
+    static displayName = 'SupportCard';
 
-	getDefaultProps: function() {
-		return {
-			className: '',
-			siteConnectionStatus: false
-		};
-	},
+	static defaultProps = {
+		className: '',
+		siteConnectionStatus: false
+	};
 
-	trackBannerClick() {
+	trackBannerClick = () => {
 		analytics.tracks.recordJetpackClick( {
 			target: 'banner-click',
 			feature: 'support',
 			page: this.props.path
 		} );
-	},
+	};
 
 	shouldComponentUpdate( nextProps ) {
 		return nextProps.sitePlan.product_slug !== this.props.sitePlan.product_slug;
-	},
+	}
 
-	trackAskQuestionClick() {
+	trackAskQuestionClick = () => {
 		analytics.tracks.recordJetpackClick( {
 			target: 'support-card',
 			button: 'support-ask',
 			page: this.props.path
 		} );
-	},
+	};
 
-	trackSearchClick() {
+	trackSearchClick = () => {
 		analytics.tracks.recordJetpackClick( {
 			target: 'support-card',
 			button: 'support-search',
 			page: this.props.path
 		} );
-	},
+	};
 
 	render() {
 		if ( 'undefined' === typeof this.props.sitePlan.product_slug && this.props.isFetchingSiteData ) {
@@ -127,7 +125,7 @@ const SupportCard = React.createClass( {
 			</div>
 		);
 	}
-} );
+}
 
 SupportCard.propTypes = {
 	siteConnectionStatus: PropTypes.any.isRequired,

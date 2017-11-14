@@ -24,21 +24,19 @@ import {
 import { getSiteRawUrl } from 'state/initial-state';
 
 export const JetpackDisconnectDialog = React.createClass( {
-	propTypes: {
+	static propTypes = {
 		show: PropTypes.bool,
 		toggleModal: PropTypes.func,
-		disconnectSite: PropTypes.func
-	},
+		disconnectSite: PropTypes.func,
+	};
 
-	getDefaultProps() {
-		return {
-			show: false,
-			toggleModal: noop,
-			disconnectSite: noop
-		};
-	},
+	static defaultProps = {
+		show: false,
+		toggleModal: noop,
+		disconnectSite: noop
+	};
 
-	getPlanFeatures() {
+	getPlanFeatures = () => {
 		switch ( getPlanClass( this.props.sitePlan.product_slug ) ) {
 			case 'is-personal-plan':
 				return [
@@ -115,25 +113,25 @@ export const JetpackDisconnectDialog = React.createClass( {
 					}
 				];
 		}
-	},
+	};
 
-	closeModal() {
+	closeModal = () => {
 		analytics.tracks.recordJetpackClick( {
 			target: 'manage_site_connection',
 			button: 'stay-connected'
 		} );
 
 		this.props.toggleModal();
-	},
+	};
 
-	disconnectSiteTrack() {
+	disconnectSiteTrack = () => {
 		analytics.tracks.recordJetpackClick( {
 			target: 'manage_site_connection',
 			button: 'disconnect-site'
 		} );
 
 		this.props.disconnectSite();
-	},
+	};
 
 	render() {
 		return this.props.show && (
@@ -194,7 +192,7 @@ export const JetpackDisconnectDialog = React.createClass( {
 			</Modal>
 		);
 	}
-} );
+}
 
 export default connect(
 	state => {

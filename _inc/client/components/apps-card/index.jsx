@@ -17,25 +17,25 @@ import { imagePath } from 'constants/urls';
 import { updateSettings, appsCardDismissed } from 'state/settings';
 import { arePromotionsActive } from 'state/initial-state';
 
-const AppsCard = React.createClass( {
-	displayName: 'AppsCard',
+class AppsCard extends React.Component {
+    static displayName = 'AppsCard';
 
-	trackDownloadClick() {
+	trackDownloadClick = () => {
 		analytics.tracks.recordJetpackClick( {
 			target: 'apps-card',
 			button: 'apps-download',
 			page: this.props.path
 		} );
-	},
+	};
 
-	dismissCard() {
+	dismissCard = () => {
 		this.props.dismissAppCard();
 		analytics.tracks.recordJetpackClick( {
 			target: 'apps-card',
 			button: 'dismiss',
 			page: this.props.path
 		} );
-	},
+	};
 
 	render() {
 		if ( ! this.props.arePromotionsActive || this.props.isAppsCardDismissed ) {
@@ -83,7 +83,7 @@ const AppsCard = React.createClass( {
 			</div>
 		);
 	}
-} );
+}
 
 AppsCard.propTypes = {
 	className: PropTypes.string

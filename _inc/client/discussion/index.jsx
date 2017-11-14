@@ -16,8 +16,8 @@ import { Comments } from './comments';
 import { Subscriptions } from './subscriptions';
 import { getConnectUrl } from 'state/connection';
 
-export const Discussion = React.createClass( {
-	displayName: 'DiscussionSettings',
+export class Discussion extends React.Component {
+    static displayName = 'DiscussionSettings';
 
 	render() {
 		const commonProps = {
@@ -61,7 +61,7 @@ export const Discussion = React.createClass( {
 			</div>
 		);
 	}
-} );
+}
 
 export default connect(
 	( state ) => {

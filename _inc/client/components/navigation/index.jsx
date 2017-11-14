@@ -17,15 +17,15 @@ import { isModuleActivated as _isModuleActivated } from 'state/modules';
 import { userCanManageModules as _userCanManageModules } from 'state/initial-state';
 import { userCanViewStats as _userCanViewStats } from 'state/initial-state';
 
-export const Navigation = React.createClass( {
-	trackNavClick( target ) {
+export class Navigation extends React.Component {
+    trackNavClick = target => {
 		analytics.tracks.recordJetpackClick( {
 			target: 'nav_item',
 			path: target
 		} );
-	},
+	};
 
-	render: function() {
+	render() {
 		let navTabs;
 		if ( this.props.userCanManageModules ) {
 			navTabs = (
@@ -63,7 +63,7 @@ export const Navigation = React.createClass( {
 			</div>
 		);
 	}
-} );
+}
 
 Navigation.propTypes = {
 	route: PropTypes.object.isRequired

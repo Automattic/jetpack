@@ -14,26 +14,26 @@ import analytics from 'lib/analytics';
  */
 import { imagePath } from 'constants/urls';
 
-const ThemesPromoCard = React.createClass( {
-	displayName: 'ThemesPromoCard',
+class ThemesPromoCard extends React.Component {
+    static displayName = 'ThemesPromoCard';
 
-	trackGetStarted() {
+	trackGetStarted = () => {
 		analytics.tracks.recordJetpackClick( {
 			target: 'themes-card',
 			button: 'themes-get-started',
 			plan: this.props.plan,
 			type: 'upgrade'
 		} );
-	},
+	};
 
-	trackComparePlans() {
+	trackComparePlans = () => {
 		analytics.tracks.recordJetpackClick( {
 			target: 'themes-card',
 			button: 'themes-compare-all',
 			plan: this.props.plan,
 			type: 'upgrade'
 		} );
-	},
+	};
 
 	render() {
 		const classes = classNames(
@@ -90,7 +90,7 @@ const ThemesPromoCard = React.createClass( {
 			</div>
 						);
 	}
-} );
+}
 
 ThemesPromoCard.propTypes = {
 	className: PropTypes.string,

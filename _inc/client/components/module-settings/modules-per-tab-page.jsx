@@ -20,8 +20,8 @@ import {
 	getSiteRawUrl
 } from 'state/initial-state';
 
-const AllModuleSettingsComponent = React.createClass( {
-	render() {
+class AllModuleSettingsComponent extends React.Component {
+    render() {
 		let { module } = this.props;
 		switch ( module.module ) {
 			case 'videopress':
@@ -154,7 +154,7 @@ const AllModuleSettingsComponent = React.createClass( {
 				);
 		}
 	}
-} );
+}
 
 export const AllModuleSettings = connect(
 	( state ) => {
