@@ -376,7 +376,12 @@ class A8C_WPCOM_Masterbar {
 		$user_info  = get_avatar( $this->user_email, 128, 'mm', '', array( 'force_display' => true ) );
 		$user_info .= '<span class="display-name">' . $this->display_name . '</span>';
 		$user_info .= '<a class="username" href="http://gravatar.com/' . $this->user_login . '">@' . $this->user_login . '</a>';
-		$user_info .= '<form action="' . $logout_url . '" method="post"><button class="ab-sign-out" type="submit">' . esc_html__( 'Sign Out', 'jetpack' ) . '</button></form>';
+
+		$user_info .= sprintf(
+			'<div><a href="%s" class="ab-sign-out">%s</a></div>',
+			$logout_url,
+			esc_html__( 'Sign Out', 'jetpack' )
+		);
 
 		$wp_admin_bar->add_menu( array(
 			'parent' => $id,
