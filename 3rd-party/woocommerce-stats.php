@@ -38,6 +38,16 @@ class WC_Stats {
 		$this->jetpack = Jetpack::init();
 
 		add_action( 'wp_enqueue_scripts', array( $this, 'track' ) );
+		add_action( 'rest_api_init', function() {
+			register_rest_route( 'jetpack/v4', '/tracks', array(
+				'methods' => 'POST',
+				'callback' => array( $this, 'handle_client_tracks' ),
+			) );
+		} );
+	}
+
+	public function handle_client_tracks( $request ) {
+		return json_encode( $request->get_params() );
 	}
 
 	public function get_cart_ids( $item ) {
@@ -107,6 +117,21 @@ class WC_Stats {
 				print_r( $_GET[ 'key' ] );
 			}
 			echo "</pre>";
+		} else {
+			wc_enqueue_js(
+				"var data = {
+					'post_type': '" . $post_type . "',
+					'post_id': " . $post_id . ",
+					'post_name': '" . $post_name . "',
+					'store_id': " . $store_id . ",
+					'cart_ids': " . json_encode( $cart_ids ) . ",
+					'cart_quantities': " . json_encode( $cart_quantities ) . "
+				};
+				jQuery.post( 'wp-json/jetpack/v4/tracks', data, function(response) {
+					console.log( 'Tracks properties sent by PHP:' );
+					console.log( JSON.parse( response ) );
+				});"
+			);
 		}
 	}
 }
