@@ -11,11 +11,11 @@
 var isReferrerCurrentDomain = document.referrer.indexOf( location.protocol + '//' + location.host ) === 0;
 if ( document.referrer && isReferrerCurrentDomain ) {
 	date = new Date();
-	var expDate = date.setTime( date.getTime() + 15768E4 * 1E3 );
+	var expDate = 31536000000; // 1 year
 	// Check if tk_ro cookie exists
 	if ( ! tkCookie.get( 'tk_ro' ) ) {
 		// 1. Original Referrer - tk_ro
-		tkCookie.set( 'tk_ro', document.referrer, { maxage: expDate } );
+		tkCookie.set( 'tk_ro', document.referrer, { maxage: expDate * 5 } );
 	}
 	// 2. Latest Referrer - tk_rl
 	tkCookie.set( 'tk_rl', document.referrer, { maxage: expDate } );
