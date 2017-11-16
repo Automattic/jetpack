@@ -71,7 +71,7 @@ class Jetpack_Sync_Module_Comments extends Jetpack_Sync_Module {
 		return $new_comment;
 	}
 
-	public function init_full_sync_listeners( $callable ) {
+	public function init_full_sync_listeners_comments( $callable ) {
 		add_action( 'jetpack_full_sync_comments', $callable ); // also send comments meta
 	}
 

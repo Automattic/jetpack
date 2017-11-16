@@ -54,7 +54,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		add_action( 'wp_masterbar_logout', $callable, 10, 0 );
 	}
 
-	public function init_full_sync_listeners( $callable ) {
+	public function init_full_sync_listeners_users( $callable ) {
 		add_action( 'jetpack_full_sync_users', $callable );
 	}
 

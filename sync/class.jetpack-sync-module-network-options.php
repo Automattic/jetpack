@@ -23,7 +23,7 @@ class Jetpack_Sync_Module_Network_Options extends Jetpack_Sync_Module {
 		add_filter( 'jetpack_sync_before_enqueue_update_site_option', $whitelist_network_option_handler );
 	}
 
-	public function init_full_sync_listeners( $callable ) {
+	public function init_full_sync_listeners_network_options( $callable ) {
 		add_action( 'jetpack_full_sync_network_options', $callable );
 	}
 

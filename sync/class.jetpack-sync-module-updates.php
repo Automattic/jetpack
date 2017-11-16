@@ -46,7 +46,7 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 
 	}
 
-	public function init_full_sync_listeners( $callable ) {
+	public function init_full_sync_listeners_updates( $callable ) {
 		add_action( 'jetpack_full_sync_updates', $callable );
 	}
 

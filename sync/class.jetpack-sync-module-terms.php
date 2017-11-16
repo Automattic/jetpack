@@ -17,7 +17,7 @@ class Jetpack_Sync_Module_Terms extends Jetpack_Sync_Module {
 		add_action( 'deleted_term_relationships', $callable, 10, 2 );
 	}
 
-	public function init_full_sync_listeners( $callable ) {
+	public function init_full_sync_listeners_terms( $callable ) {
 		add_action( 'jetpack_full_sync_terms', $callable, 10, 2 );
 	}
 

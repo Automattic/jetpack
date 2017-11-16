@@ -116,7 +116,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		return false;
 	}
 
-	public function init_full_sync_listeners( $callable ) {
+	public function init_full_sync_listeners_posts( $callable ) {
 		add_action( 'jetpack_full_sync_posts', $callable ); // also sends post meta
 	}
 
