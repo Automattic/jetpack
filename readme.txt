@@ -103,6 +103,26 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
+= 5.6 =
+
+* Release date: December 5, 2017
+* Release post: https://wp.me/p1moTy-6zt
+
+**Major Enhancements**
+
+
+
+**Enhancements**
+
+
+
+**Improved compatibility**
+
+
+
+**Bug fixes**
+
+
 = 5.5.1 =
 
 * Release date: November 21, 2017
