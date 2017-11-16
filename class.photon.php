@@ -344,8 +344,15 @@ class Jetpack_Photon {
 							unset( $placeholder_src );
 						}
 
-						// Remove the width and height arguments from the tag to prevent distortion
-						$new_tag = preg_replace( '#(?<=\s)(width|height)=["|\']?[\d%]+["|\']?\s?#i', '', $new_tag );
+						// If we do not have both width and height, then we should remove the width and height arguments
+						// from the image to prevent distortion. Otherwise, let's update the height and width arguments
+						// to what we're going to resize the image to.
+						if ( ! $width || ! $height ) {
+							$new_tag = preg_replace( '#(?<=\s)(width|height)=["|\']?[\d%]+["|\']?\s?#i', '', $new_tag );
+						} else {
+							$new_tag = preg_replace( '#(?<=\s)(width=["|\']?)[\d%]+(["|\']?)\s?#i', sprintf( '${1}%d${2} ', $width ), $new_tag );
+							$new_tag = preg_replace( '#(?<=\s)(height=["|\']?)[\d%]+(["|\']?)\s?#i', sprintf( '${1}%d${2} ', $height ), $new_tag );
+						}
 
 						// Tag an image for dimension checking
 						$new_tag = preg_replace( '#(\s?/)?>(\s*</a>)?$#i', ' data-recalc-dims="1"\1>\2', $new_tag );

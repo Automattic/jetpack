@@ -755,4 +755,37 @@ class WP_Test_Jetpack_Photon extends Jetpack_Attachment_Test_Case {
 		wp_delete_attachment( $test_image );
 		$this->_remove_image_sizes();
 	}
+
+	/**
+	 * @author ebinnion
+	 * @covers Jetpack_Photon::filter_the_content
+	 * @since 5.6.0
+	 */
+	public function test_photon_filter_the_content_does_not_remove_width_height_when_both_known() {
+		list( $sample_html ) = $this->get_photon_sample_content( 'a-tags-without-images.html' );
+		$filtered_content = Jetpack_Photon::filter_the_content( $sample_html );
+		$first_line = strtok( $filtered_content, "\n" ); // Should contain an image tag on the first line
+		$attributes = wp_kses_hair( $first_line, wp_allowed_protocols() );
+
+		$this->assertArrayHasKey( 'width', $attributes );
+		$this->assertArrayHasKey( 'height', $attributes );
+
+		// These values obtained from first image in sample content
+		$this->assertEquals( 631, $attributes['width']['value'] );
+		$this->assertEquals( 376, $attributes['height']['value'] );
+	}
+
+	/**
+	 * @author ebinnion
+	 * @covers Jetpack_Photon::filter_the_content
+	 * @since 5.6.0
+	 */
+	public function test_photon_filter_the_content_does_not_have_width_height_when_at_least_one_not_known() {
+		$sample_html = '<img class="aligncenter  wp-image-6372" title="Tube Bomber salmon dry fly" alt="Tube Bomber salmon dry fly" src="http://www.fishmadman.com/pages/wp-content/uploads/2012/02/Rav-fra-2004-2009-11-1024x611.jpg" width="631" />';
+		$filtered_content = Jetpack_Photon::filter_the_content( $sample_html );
+		$attributes = wp_kses_hair( $filtered_content, wp_allowed_protocols() );
+
+		$this->assertArrayNotHasKey( 'width', $attributes );
+		$this->assertArrayNotHasKey( 'height', $attributes );
+	}
 }
