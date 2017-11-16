@@ -45,13 +45,13 @@ var Cookie = function() {
 			var str;
 		  try {
 		    str = document.cookie;
+			  return parse( str );
 		  } catch ( err ) {
 		    if ( typeof console !== 'undefined' && typeof console.error === 'function' ) {
 		      console.error( err.stack || err );
 		    }
 		    return {};
 		  }
-		  return parse( str );
 		},
 		get: function( name ) {
 			return this.all()[ name ];
