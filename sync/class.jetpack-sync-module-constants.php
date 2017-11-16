@@ -14,7 +14,7 @@ class Jetpack_Sync_Module_Constants extends Jetpack_Sync_Module {
 		add_action( 'jetpack_sync_constant', $callable, 10, 2 );
 	}
 
-	public function init_full_sync_listeners( $callable ) {
+	public function init_full_sync_listeners_constants( $callable ) {
 		add_action( 'jetpack_full_sync_constants', $callable );
 	}
 

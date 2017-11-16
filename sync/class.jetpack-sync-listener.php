@@ -39,8 +39,13 @@ class Jetpack_Sync_Listener {
 		$full_sync_handler = array( $this, 'full_sync_action_handler' );
 
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
+			$get_module_name = explode('Jetpack_Sync_Module',get_class($module));
+			$init_full_sync_listeners = 'init_full_sync_listeners';
+			if ( !empty( $get_module_name['1'] ) ) {
+				$init_full_sync_listeners = "init_full_sync_listeners".strtolower($get_module_name['1']);
+			}
 			$module->init_listeners( $handler );
-			$module->init_full_sync_listeners( $full_sync_handler );
+			$module->$init_full_sync_listeners( $full_sync_handler );
 		}
 
 		// Module Activation

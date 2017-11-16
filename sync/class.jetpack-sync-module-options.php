@@ -24,7 +24,7 @@ class Jetpack_Sync_Module_Options extends Jetpack_Sync_Module {
 		add_filter( 'jetpack_sync_before_enqueue_updated_option', $whitelist_option_handler );
 	}
 
-	public function init_full_sync_listeners( $callable ) {
+	public function init_full_sync_listeners_options( $callable ) {
 		add_action( 'jetpack_full_sync_options', $callable );
 	}
 

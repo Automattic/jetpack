@@ -45,7 +45,7 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 		add_action( 'update_option_active_plugins', array( $this, 'unlock_plugin_action_link_and_callables' ) );
 	}
 
-	public function init_full_sync_listeners( $callable ) {
+	public function init_full_sync_listeners_callables( $callable ) {
 		add_action( 'jetpack_full_sync_callables', $callable );
 	}
 

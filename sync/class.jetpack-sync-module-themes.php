@@ -215,7 +215,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		}
 	}
 
-	public function init_full_sync_listeners( $callable ) {
+	public function init_full_sync_listeners_themes( $callable ) {
 		add_action( 'jetpack_full_sync_theme_data', $callable );
 	}
 
