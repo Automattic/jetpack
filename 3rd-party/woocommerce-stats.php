@@ -24,7 +24,11 @@ class WC_Stats {
 		if ( ! Jetpack::is_active() ) {
 			return;
 		}
-		// Make sure WooCommerce is installed and active
+		/**
+		 * Make sure WooCommerce is installed and active
+		 *
+		 * This action is documented in https://docs.woocommerce.com/document/create-a-plugin
+		 */
 		if ( ! in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) ) {
 			return;
 		}
@@ -38,12 +42,6 @@ class WC_Stats {
 		$this->jetpack = Jetpack::init();
 
 		add_action( 'wp_enqueue_scripts', array( $this, 'track' ) );
-		add_action( 'rest_api_init', function() {
-			register_rest_route( 'jetpack/v4', '/tracks', array(
-				'methods' => 'POST',
-				'callback' => array( $this, 'handle_client_tracks' ),
-			) );
-		} );
 	}
 
 	public function handle_client_tracks( $request ) {
@@ -51,11 +49,11 @@ class WC_Stats {
 	}
 
 	public function get_cart_ids( $item ) {
-		return $item[ 'product_id' ];
+		return $item['product_id'];
 	}
 
 	public function get_cart_quantities( $item ) {
-		return $item[ 'quantity' ];
+		return $item['quantity'];
 	}
 
 	public function get_uncachable_page_type( $post_id ) {
@@ -65,7 +63,7 @@ class WC_Stats {
 				return 'cart_view';
 			case get_option( 'woocommerce_checkout_page_id' ):
 				global $wp;
-				if ( strpos( $wp->request, 'order-received' ) !== false ) {
+				if ( false !== strpos( $wp->request, 'order-received' ) ) {
 					return 'checkout_complete';
 				}
 				return 'checkout_view';
@@ -111,27 +109,12 @@ class WC_Stats {
 			echo "<br/>";
 			echo "cart quantities: ";
 			print_r( $cart_quantities );
-			if ( isset( $_GET[ 'key' ] ) ) {
+			if ( isset( $_GET['key'] ) ) {
 				echo "<br/>";
 				echo "order number: ";
-				print_r( $_GET[ 'key' ] );
+				print_r( $_GET['key'] );
 			}
 			echo "</pre>";
-		} else {
-			wc_enqueue_js(
-				"var data = {
-					'post_type': '" . $post_type . "',
-					'post_id': " . $post_id . ",
-					'post_name': '" . $post_name . "',
-					'store_id': " . $store_id . ",
-					'cart_ids': " . json_encode( $cart_ids ) . ",
-					'cart_quantities': " . json_encode( $cart_quantities ) . "
-				};
-				jQuery.post( 'wp-json/jetpack/v4/tracks', data, function(response) {
-					console.log( 'Tracks properties sent by PHP:' );
-					console.log( JSON.parse( response ) );
-				});"
-			);
 		}
 	}
 }
