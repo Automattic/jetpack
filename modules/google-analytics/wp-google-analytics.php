@@ -35,6 +35,8 @@ class Jetpack_Google_Analytics {
 	 * @return void
 	 */
 	private function __construct() {
+		// TODO - support both legacy/classic (ga.js) and universal analytics (analytics.js)
+
 		add_filter( 'jetpack_wga_classic_custom_vars', array( $this, 'jetpack_wga_classic_anonymize_ip' ) );
 		add_filter( 'jetpack_wga_classic_custom_vars', array( $this, 'jetpack_wga_classic_track_purchases' ) );
 		add_action( 'wp_footer', array( $this, 'insert_code' ) );
