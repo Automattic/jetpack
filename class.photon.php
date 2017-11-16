@@ -347,11 +347,24 @@ class Jetpack_Photon {
 						// If we do not have both width and height, then we should remove the width and height arguments
 						// from the image to prevent distortion. Otherwise, let's update the height and width arguments
 						// to what we're going to resize the image to.
-						if ( ! $width || ! $height ) {
+						if ( empty( $args['resize'] ) && empty( $args['fit'] ) && empty( $args['lb'] ) ) {
 							$new_tag = preg_replace( '#(?<=\s)(width|height)=["|\']?[\d%]+["|\']?\s?#i', '', $new_tag );
 						} else {
-							$new_tag = preg_replace( '#(?<=\s)(width=["|\']?)[\d%]+(["|\']?)\s?#i', sprintf( '${1}%d${2} ', $width ), $new_tag );
-							$new_tag = preg_replace( '#(?<=\s)(height=["|\']?)[\d%]+(["|\']?)\s?#i', sprintf( '${1}%d${2} ', $height ), $new_tag );
+							$resize_args = isset( $args['resize'] ) ? $args['resize'] : false;
+							if ( false == $resize_args ) {
+								$resize_args = ( ! $resize_args && isset( $args['fit'] ) )
+									? $args['fit']
+									: false;
+							}
+							if ( false == $resize_args ) {
+								$resize_args = ( ! $resize_args && isset( $args['lb'] ) )
+									? $args['lb']
+									: false;
+							}
+
+							$resize_args = array_map( 'trim', explode( ',', $resize_args ) );
+							$new_tag = preg_replace( '#(?<=\s)(width=["|\']?)[\d%]+(["|\']?)\s?#i', sprintf( '${1}%d${2} ', $resize_args[0] ), $new_tag );
+							$new_tag = preg_replace( '#(?<=\s)(height=["|\']?)[\d%]+(["|\']?)\s?#i', sprintf( '${1}%d${2} ', $resize_args[1] ), $new_tag );
 						}
 
 						// Tag an image for dimension checking
