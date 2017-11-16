@@ -15,6 +15,7 @@ class Jetpack_Asset_CDN {
 	private $concat_script_groups = array();
 	private $inject_critical_css = false;
 	private $include_external_assets = false;
+	private $max_assets_per_tag = 1;
 
 	/**
 	 * Singleton implementation
@@ -37,7 +38,7 @@ class Jetpack_Asset_CDN {
 		// allow smaller CSS by only minifying assets on the page
 		remove_filter( 'jetpack_implode_frontend_css', '__return_false' );
 
-		// buffer selected CSS and JS tags
+		// concatenate selected CSS and JS tags
 		remove_filter( 'script_loader_tag', array( self::$__instance, 'register_concat_scripts' ), -100 );
 		remove_filter( 'style_loader_tag', array( self::$__instance, 'register_concat_styles' ), -100 );
 
@@ -57,15 +58,83 @@ class Jetpack_Asset_CDN {
 		// allow smaller CSS by only minifying assets on the page
 		add_filter( 'jetpack_implode_frontend_css', '__return_false' );
 
-		// buffer selected CSS and JS tags
+		// concatenate selected CSS and JS tags
 		add_filter( 'script_loader_tag', array( $this, 'register_concat_scripts' ), -100, 3 );
 		add_filter( 'style_loader_tag', array( $this, 'register_concat_styles' ), -100, 4 );
+
+		// rewrite URLs for selected CSS and JS tags
+		// XXX TEMP
+		add_filter( 'jetpack_perf_concat_script', '__return_false' );
+		add_filter( 'jetpack_perf_concat_style', '__return_false' );
+		add_filter( 'script_loader_src', array( $this, 'rewrite_script_src' ), -100, 2 );
+		add_filter( 'style_loader_src', array( $this, 'rewrite_style_src' ), -100, 2 );
 
 		// flush remaining un-printed CDN assets
 		add_action( 'wp_head', array( $this, 'render_concatenated_styles_head' ), PHP_INT_MAX );
 		add_action( 'wp_head', array( $this, 'render_concatenated_scripts_head' ), PHP_INT_MAX );
 		add_action( 'wp_footer', array( $this, 'render_concatenated_styles_footer' ), PHP_INT_MAX );
 		add_action( 'wp_footer', array( $this, 'render_concatenated_scripts_footer' ), PHP_INT_MAX );
+	}
+
+	/**
+	 * Rewrite script or style src optionally, if not being concatenated,
+	 * so they're still served from the CDN
+	 */
+
+	function rewrite_script_src( $src, $handle ) {
+		global $wp_scripts;
+
+		if ( is_admin() || ! isset( $wp_scripts->registered[$handle] ) ) {
+			return $src;
+		}
+
+		$script = $wp_scripts->registered[$handle];
+
+		if ( ! $this->should_concat_script( $script ) && $this->should_cdn_script( $script ) ) {
+			// serve this script from the CDN
+			$parts = parse_url( $src );
+			$url = $this->cdn_server . '/js';
+			$url = add_query_arg( array(
+				'b' => "{$parts['scheme']}://{$parts['host']}",
+				'f' => array( $parts['path'] ),
+				'v' => array( $script->ver )
+			), $url );
+			return $url;
+		}
+
+		return $src;
+	}
+
+	function should_cdn_script( $script ) {
+		return true;
+	}
+
+	function rewrite_style_src( $src, $handle ) {
+		global $wp_styles;
+
+		if ( is_admin() || ! isset( $wp_styles->registered[$handle] ) ) {
+			return $src;
+		}
+
+		$style = $wp_styles->registered[$handle];
+
+		if ( ! $this->should_concat_style( $style ) && $this->should_cdn_style( $style ) ) {
+			// serve this style from the CDN
+			$parts = parse_url( $src );
+			$url = $this->cdn_server . '/js';
+			$url = add_query_arg( array(
+				'b' => "{$parts['scheme']}://{$parts['host']}",
+				'f' => array( $parts['path'] ),
+				'v' => array( $style->ver )
+			), $url );
+			return $url;
+		}
+
+		return $src;
+	}
+
+	function should_cdn_style( $style ) {
+		return true;
 	}
 
 	/**
