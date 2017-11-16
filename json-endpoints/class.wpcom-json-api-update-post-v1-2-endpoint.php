@@ -11,6 +11,9 @@ new WPCOM_JSON_API_Update_Post_v1_2_Endpoint( array(
 	'path_labels' => array(
 		'$site' => '(int|string) Site ID or domain',
 	),
+	'query_parameters' => array(
+		'autosave' => '(bool) True if the post was saved automatically.',
+	),
 
 	'request_format' => array(
 		// explicitly document all input
