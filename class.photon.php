@@ -344,9 +344,11 @@ class Jetpack_Photon {
 							unset( $placeholder_src );
 						}
 
-						// If we do not have both width and height, then we should remove the width and height arguments
-						// from the image to prevent distortion. Otherwise, let's update the height and width arguments
-						// to what we're going to resize the image to.
+						// If we are not transforming the image with resize, fit, or letterbox (lb), then we should remove
+						// the width and height arguments from the image to prevent distortion. Even if $args['w'] and $args['h']
+						// are present, Photon does not crop to those dimensions. Instead, it appears to favor height.
+						//
+						// If we are transforming the image via one of those methods, let's update the width and height attributes.
 						if ( empty( $args['resize'] ) && empty( $args['fit'] ) && empty( $args['lb'] ) ) {
 							$new_tag = preg_replace( '#(?<=\s)(width|height)=["|\']?[\d%]+["|\']?\s?#i', '', $new_tag );
 						} else {
