@@ -2,8 +2,8 @@
 
 class Jetpack_JSON_API_Check_Capabilities_Endpoint extends Jetpack_JSON_API_Modules_Endpoint {
 	// GET /sites/%s/me/capability
-	// The unused $post_id parameter is for making the method signature compatible with its parent class method.
-	public function callback( $path = '', $_blog_id = 0, $post_id = 0 ) {
+	// The unused $object_id parameter is for making the method signature compatible with its parent class method.
+	public function callback( $path = '', $_blog_id = 0, $object_id = 0 ) {
 		// Check minimum capability and blog membership first
 		if ( is_wp_error( $error = $this->validate_call( $_blog_id, 'read', false ) ) ) {
 			return $error;
