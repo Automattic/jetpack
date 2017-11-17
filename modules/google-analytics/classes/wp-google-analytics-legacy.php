@@ -4,7 +4,8 @@
 * Jetpack_Google_Analytics_Legacy hooks and enqueues support for ga.js
 * https://developers.google.com/analytics/devguides/collection/gajs/
 *
-* @author allendav 
+* @author Aaron D. Campbell (original)
+* @author allendav
 */
 
 /**
