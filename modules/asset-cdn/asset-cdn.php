@@ -89,12 +89,9 @@ class Jetpack_Asset_CDN {
 
 		if ( ! $this->should_concat_script( $script ) && $this->should_cdn_script( $script ) ) {
 			// serve this script from the CDN
-			$parts = parse_url( $src );
 			$url = $this->cdn_server . '/js';
 			$url = add_query_arg( array(
-				'b' => "{$parts['scheme']}://{$parts['host']}",
-				'f' => array( $parts['path'] ),
-				'v' => array( $script->ver )
+				'f' => array( $src )
 			), $url );
 			return $url;
 		}
@@ -118,12 +115,9 @@ class Jetpack_Asset_CDN {
 
 		if ( ! $this->should_concat_style( $style ) && $this->should_cdn_style( $style ) ) {
 			// serve this style from the CDN
-			$parts = parse_url( $src );
-			$url = $this->cdn_server . '/js';
+			$url = $this->cdn_server . '/css';
 			$url = add_query_arg( array(
-				'b' => "{$parts['scheme']}://{$parts['host']}",
-				'f' => array( $parts['path'] ),
-				'v' => array( $style->ver )
+				'f' => array( $src )
 			), $url );
 			return $url;
 		}
@@ -261,7 +255,7 @@ class Jetpack_Asset_CDN {
 
 		$script = $wp_scripts->registered[$handle];
 
-		if ( $this->should_concat_script( $script ) ) {
+		if ( $this->should_concat_script( $script ) && ! $this->should_cdn_script( $script ) ) {
 			$this->buffer_script( $script );
 			return '';
 		}
@@ -303,7 +297,7 @@ class Jetpack_Asset_CDN {
 
 		$style = $wp_styles->registered[$handle];
 
-		if ( $this->should_concat_style( $style ) ) {
+		if ( $this->should_concat_style( $style ) && ! $this->should_cdn_style( $style ) ) {
 			$this->buffer_style( $style );
 			return '';
 		}
