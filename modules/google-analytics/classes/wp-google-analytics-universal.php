@@ -57,7 +57,10 @@ class Jetpack_Google_Analytics_Universal {
 			<script>
 				window.ga = window.ga || function(){ ( ga.q = ga.q || [] ).push( arguments ) }; ga.l=+new Date;
 				ga( 'create', '%tracking_id%', 'auto' );
+<<<<<<< HEAD
 				ga( 'require', 'ec' );
+=======
+>>>>>>> Add header and footer script; support universal anonymiz and order tracking
 				%universal_commands%
 			</script>
 			<script async src='https://www.google-analytics.com/analytics.js'></script>
