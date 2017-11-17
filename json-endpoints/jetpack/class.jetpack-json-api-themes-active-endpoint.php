@@ -3,7 +3,8 @@
 class Jetpack_JSON_API_Themes_Active_Endpoint extends Jetpack_JSON_API_Themes_Endpoint {
 	// GET  /sites/%s/themes/mine => current theme
 	// POST /sites/%s/themes/mine => switch theme
-	public function callback( $path = '', $blog_id = 0  ) {
+	// The unused $post_id parameter is for making the method signature compatible with its parent class method.
+	public function callback( $path = '', $blog_id = 0, $post_id = 0 ) {
 
 		if ( is_wp_error( $error = $this->validate_call( $blog_id, 'switch_themes', true ) ) ) {
 			return $error;
