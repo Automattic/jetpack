@@ -63,9 +63,6 @@ class Jetpack_Asset_CDN {
 		add_filter( 'style_loader_tag', array( $this, 'register_concat_styles' ), -100, 4 );
 
 		// rewrite URLs for selected CSS and JS tags
-		// XXX TEMP
-		add_filter( 'jetpack_perf_concat_script', '__return_false' );
-		add_filter( 'jetpack_perf_concat_style', '__return_false' );
 		add_filter( 'script_loader_src', array( $this, 'rewrite_script_src' ), -100, 2 );
 		add_filter( 'style_loader_src', array( $this, 'rewrite_style_src' ), -100, 2 );
 
@@ -106,7 +103,8 @@ class Jetpack_Asset_CDN {
 	}
 
 	function should_cdn_script( $script ) {
-		return true;
+		$should_cdn = ( $this->include_external_assets || $this->is_local_url( $script->src ) );
+		return apply_filters( 'jetpack_perf_cdn_script', $should_cdn, $script->handle, $script->src );
 	}
 
 	function rewrite_style_src( $src, $handle ) {
@@ -134,7 +132,8 @@ class Jetpack_Asset_CDN {
 	}
 
 	function should_cdn_style( $style ) {
-		return true;
+		$should_cdn = ( $this->include_external_assets || $this->is_local_url( $style->src ) );
+		return apply_filters( 'jetpack_perf_cdn_style', $should_cdn, $style->handle, $style->src );
 	}
 
 	/**
