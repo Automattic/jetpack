@@ -1,6 +1,5 @@
 <?php
 
-
 /**
 * Jetpack_Google_Analytics_Options provides a single interface to module options
 *

@@ -195,7 +195,7 @@ class Jetpack_Google_Analytics_Legacy {
 										(string) $order->get_order_number(),
 										(string) $product_sku_or_id,
 										$item['name'],
-										self::get_product_categories_concatenated( $product ),
+										Jetpack_Google_Analytics_Utils::get_product_categories_concatenated( $product ),
 										(string) $order->get_item_total( $item ),
 										(string) $item['qty']
 									)
@@ -212,28 +212,6 @@ class Jetpack_Google_Analytics_Legacy {
 		} // is order received page
 
 		return $custom_vars;
-	}
-
-	/**
-	 * Gets product categories or varation attributes as a formatted concatenated string
-	 * @param WC_Product
-	 * @return string
-	 */
-	public function get_product_categories_concatenated( $product ) {
-		$variation_data = $product->is_type( 'variation' ) ? wc_get_product_variation_attributes( $product->get_id() ) : '';
-		if ( is_array( $variation_data ) && ! empty( $variation_data ) ) {
-			$line = wc_get_formatted_variation( $variation_data, true );
-		} else {
-			$out = array();
-			$categories = get_the_terms( $product->get_id(), 'product_cat' );
-			if ( $categories ) {
-				foreach ( $categories as $category ) {
-					$out[] = $category->name;
-				}
-			}
-			$line = join( "/", $out );
-		}
-		return $line;
 	}
 
 	/**

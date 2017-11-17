@@ -27,6 +27,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
+require_once( plugin_basename( 'classes/wp-google-analytics-utils.php' ) );
 require_once( plugin_basename( 'classes/wp-google-analytics-options.php' ) );
 require_once( plugin_basename( 'classes/wp-google-analytics-legacy.php' ) );
 require_once( plugin_basename( 'classes/wp-google-analytics-universal.php' ) );
