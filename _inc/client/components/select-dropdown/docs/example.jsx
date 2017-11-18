@@ -112,13 +112,9 @@ var SelectDropdownDemo = React.createClass( {
 			childSelected: childSelected,
 			selectedCount: count
 		} );
-
-		console.log( 'Select Dropdown Item (selected):', childSelected );
 	},
 
-	onDropdownSelect: function( option ) {
-		console.log( 'Select Dropdown (selected):', option );
-	}
+	onDropdownSelect: function() {}
 } );
 
 module.exports = SelectDropdownDemo;
