@@ -84,10 +84,4 @@ describe( 'Count', function() {
 
 		expect( result.props.children ).to.equal( '3' );
 	} );
-
-	it( 'should warn when passing something that is not a number', sinon.test( function() {
-		this.stub( console, 'error' );
-		renderer.render( <Count count={ "17" } /> );
-		expect( console.error ).to.have.been.called;
-	} ) );
 } );
