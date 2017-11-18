@@ -3,6 +3,7 @@
 /**
 * Jetpack_Google_Analytics_Universal hooks and and enqueues support for analytics.js
 * https://developers.google.com/analytics/devguides/collection/analyticsjs/
+* https://developers.google.com/analytics/devguides/collection/analyticsjs/enhanced-ecommerce
 *
 * @author allendav 
 */
@@ -21,17 +22,11 @@ class Jetpack_Google_Analytics_Universal {
 
 		add_action( 'wp_head', array( $this, 'wp_head' ), 999999 );
 
-		//TODO add_action( 'woocommerce_after_add_to_cart_button', array( $this, 'add_to_cart' ) );
-		//TODO add_action( 'wp_footer', array( $this, 'loop_add_to_cart' ) );
-		//TODO add_action( 'woocommerce_after_cart', array( $this, 'remove_from_cart' ) );
-		//TODO add_action( 'woocommerce_after_mini_cart', array( $this, 'remove_from_cart' ) );
+		// For attaching to a button click on a single product view
+		add_action( 'woocommerce_after_add_to_cart_button', array( $this, 'add_to_cart' ) );
 
-		//TODO add_filter( 'woocommerce_cart_item_remove_link', array( $this, 'remove_from_cart_attributes' ), 10, 2 );
-
-		//TODO add_action( 'woocommerce_after_shop_loop_item', array( $this, 'listing_impression' ) );
-		//TODO add_action( 'woocommerce_after_shop_loop_item', array( $this, 'listing_click' ) );
-		//TODO add_action( 'woocommerce_after_single_product', array( $this, 'product_detail' ) );
-		//TODO add_action( 'woocommerce_after_checkout_form', array( $this, 'checkout_process' ) );
+		// For attaching to button clicks on multi-product views
+		add_action( 'wp_footer', array( $this, 'loop_add_to_cart' ) );
 
 		add_action( 'wp_footer', array( $this, 'wp_footer' ) );
 	}
@@ -62,6 +57,7 @@ class Jetpack_Google_Analytics_Universal {
 			<script>
 				window.ga = window.ga || function(){ ( ga.q = ga.q || [] ).push( arguments ) }; ga.l=+new Date;
 				ga( 'create', '%tracking_id%', 'auto' );
+				ga( 'require', 'ec' );
 				%universal_commands%
 			</script>
 			<script async src='https://www.google-analytics.com/analytics.js'></script>
@@ -122,7 +118,7 @@ class Jetpack_Google_Analytics_Universal {
 		if ( $order->get_items() ) {
 			foreach ( $order->get_items() as $item ) {
 				$product = $order->get_product_from_item( $item );
-				$sku_or_id = $product->get_sku() ? $product->get_sku() : $product->get_id();
+				$sku_or_id = $product->get_sku() ? $product->get_sku() : '#' . $product->get_id();
 
 				$item_details = array(
 					'id' => $sku_or_id,
@@ -150,6 +146,69 @@ class Jetpack_Google_Analytics_Universal {
 		update_post_meta( $order_id, '_ga_tracked', 1 );
 
 		return $command_array;
+	}
+
+	public function add_to_cart() {
+		if ( ! Jetpack_Google_Analytics_Options::track_add_to_cart_is_enabled() ) {
+			return;
+		}
+
+		if ( ! is_single() ) {
+			return;
+		}
+
+		global $product;
+
+		$product_sku_or_id = $product->get_sku() ? $product->get_sku() : '#' . $product->get_id();
+		$selector = ".single_add_to_cart_button";
+
+		wc_enqueue_js(
+			"jQuery( function( $ ) {
+				$( '" . esc_js( $selector ) . "' ).click( function() {
+					var productDetails = {
+						'id': '" . esc_js( $product_sku_or_id ) . "',
+						'name' : '" . esc_js( $product->get_title() ) . "',
+						'quantity': $( 'input.qty' ).val() ? $( 'input.qty' ).val() : '1',
+					};
+					ga( 'ec:addProduct', productDetails );
+					ga( 'ec:setAction', 'add' );
+					ga( 'send', 'event', 'UX', 'click', 'add to cart' );
+				} );
+			} );"
+		);
+	}
+
+	public function loop_add_to_cart() {
+		if ( ! Jetpack_Google_Analytics_Options::track_add_to_cart_is_enabled() ) {
+			return;
+		}
+
+		if ( ! class_exists( 'WooCommerce' ) ) {
+			return;
+		}
+
+		$minimum_woocommerce_active = class_exists( 'WooCommerce' ) && version_compare( WC_VERSION, '3.0', '>=' );
+		if ( ! $minimum_woocommerce_active ) {
+			return;
+		}
+
+		$selector = ".add_to_cart_button:not(.product_type_variable, .product_type_grouped)";
+
+		wc_enqueue_js(
+			"jQuery( function( $ ) {
+				$( '" . esc_js( $selector ) . "' ).click( function() {
+					var productSku = $( this ).data( 'product_sku' );
+					var productID = $( this ).data( 'product_id' );
+					var productDetails = {
+						'id': productSku ? productSku : '#' + productID,
+						'quantity': $( this ).data( 'quantity' ),
+					};
+					ga( 'ec:addProduct', productDetails );
+					ga( 'ec:setAction', 'add' );
+					ga( 'send', 'event', 'UX', 'click', 'add to cart' );
+				} );
+			} );"
+		);
 	}
 
 	public function wp_footer() {
