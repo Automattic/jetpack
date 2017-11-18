@@ -1,3 +1,4 @@
+/* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint jsx-a11y/no-onchange: 0 */
 /**
  * External dependencies
