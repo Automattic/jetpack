@@ -41,13 +41,15 @@ class GlobalNotices extends Component {
 	}
 
 	render() {
+		const id = 'example-formcheckbox';
 		return (
 			<div className="design-assets__group">
 				<h2>
 					<a href="/devdocs/design/global-notices">Global Notices</a>
 				</h2>
-				<label>
+				<label htmlFor={ id }>
 					<FormCheckbox
+						id={ id }
 						onChange={ this.toggleUseState }
 						checked={ this.state.useState } />
 					Use global application state
@@ -64,7 +66,7 @@ class GlobalNotices extends Component {
 }
 
 GlobalNotices.propTypes = {
-	createNotice: PropTypes.func
+	createNotice: PropTypes.func,
 };
 
 const ConnectedGlobalNotices = connect( null, { createNotice } )( GlobalNotices );
