@@ -1,4 +1,4 @@
-
+/* eslint jsx-a11y/no-onchange: 0 */
 /**
  * External dependencies
  */
@@ -295,13 +295,14 @@ const Popovers = React.createClass( {
 	},
 
 	render() {
+		const id = 'example-select';
 		return (
 			<div className="docs__design-assets-group">
 				<h2>
 					<a href="/devdocs/design/popovers">Popovers</a>
 				</h2>
-				<label>Position
-					<select
+				<label htmlFor={ id } >Position
+					<select id={ id }
 						value={ this.state.popoverPosition }
 						onChange={ this.changePopoverPosition }
 					>
