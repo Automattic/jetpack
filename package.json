@@ -28,7 +28,6 @@
   },
   "dependencies": {
     "@automattic/custom-colors-loader": "automattic/custom-colors-loader",
-    "@automattic/dops-components": "automattic/dops-components",
     "babel-core": "6.8.0",
     "babel-eslint": "6.1.2",
     "babel-loader": "7.1.2",
