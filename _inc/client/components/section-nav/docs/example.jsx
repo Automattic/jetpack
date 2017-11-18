@@ -184,9 +184,7 @@ var SectionNavigation = React.createClass( {
 		}.bind( this );
 	},
 
-	demoSearch: function( keywords ) {
-		console.log( 'Section Nav Search (keywords):', keywords );
-	}
+	demoSearch: function() {}
 } );
 
 module.exports = SectionNavigation;
