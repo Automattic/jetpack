@@ -40,6 +40,7 @@
     "babel-preset-react": "^6.5.0",
     "babel-preset-stage-1": "^6.5.0",
     "babel-runtime": "^6.6.1",
+    "bounding-client-rect": "^1.0.5",
     "classnames": "2.2.1",
     "clipboard": "^1.7.1",
     "cross-env": "^5.0.1",
