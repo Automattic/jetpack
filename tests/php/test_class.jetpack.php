@@ -688,6 +688,37 @@ EXPECTED;
 		$this->assertEquals( array( 'unknown', null ), Jetpack::get_activation_source( $unknown_url ) );
 	}
 
+	/**
+	 * @author ebinnion
+	 * @dataProvider get_file_url_for_environment_data_provider
+	 */
+	function test_get_file_url_for_environment( $min_path, $non_min_path, $is_script_debug, $expected, $not_expected ) {
+		Jetpack_Constants::set_constant( 'SCRIPT_DEBUG', $is_script_debug );
+		$file_url = Jetpack::get_file_url_for_environment( $min_path, $non_min_path );
+
+		$this->assertContains( $$expected, $file_url );
+		$this->assertNotContains( $$not_expected, $file_url );
+	}
+
+	function get_file_url_for_environment_data_provider() {
+		return array(
+			'script-debug-true' => array(
+				'_inc/build/shortcodes/js/instagram.js',
+				'modules/shortcodes/js/instagram.js',
+				true,
+				'non_min_path',
+				'min_path'
+			),
+			'script-debug-false' => array(
+				'_inc/build/shortcodes/js/instagram.js',
+				'modules/shortcodes/js/instagram.js',
+				false,
+				'min_path',
+				'non_min_path'
+			),
+		);
+	}
+
 	static function __cyrillic_salt( $password ) {
 		return 'ленка' . $password . 'пенка';
 	}

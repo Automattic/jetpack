@@ -106,6 +106,7 @@
     "redux-thunk": "^2.0.1",
     "sass-loader": "6.0.6",
     "style-loader": "0.13",
+    "uglify-save-license": "^0.4.1",
     "url-loader": "^0.5.7",
     "webpack": "3.8.1",
     "whatwg-fetch": "^1.0.0"

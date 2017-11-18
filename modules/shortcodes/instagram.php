@@ -145,7 +145,13 @@ function jetpack_instagram_handler( $matches, $atts, $url ) {
 	}
 
 	if ( ! empty( $response_body->html ) ) {
-		wp_enqueue_script( 'jetpack-instagram-embed', plugins_url( 'js/instagram.js', __FILE__ ), array( 'jquery' ), false, true );
+		wp_enqueue_script(
+			'jetpack-instagram-embed',
+			Jetpack::get_file_url_for_environment( '_inc/build/shortcodes/js/instagram.min.js', 'modules/shortcodes/js/instagram.js' ),
+			array( 'jquery' ),
+			false,
+			true
+		);
 		// there's a script in the response, which we strip on purpose since it's added by this ^ script
 		$ig_embed = preg_replace( '@<(script)[^>]*?>.*?</\\1>@si', '', $response_body->html );
 
