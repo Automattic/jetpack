@@ -2,6 +2,7 @@
  * External dependencies
  */
 var React = require( 'react' ),
+	noop = require( 'lodash/noop' ),
 	classnames = require( 'classnames' );
 
 var MenuItem = React.createClass( {
@@ -21,6 +22,7 @@ var MenuItem = React.createClass( {
 					disabled={ this.props.disabled }
 					onClick={ this.props.onClick }
 					onMouseOver={ onMouseOver }
+					onFocus={ noop }
 					tabIndex="-1">
 				{ this.props.children }
 			</button>
