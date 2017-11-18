@@ -21,10 +21,11 @@ var InfoPopoverExample = React.createClass( {
 	},
 
 	render: function() {
+		const id = 'example-select';
 		return (
 			<div>
-				<label>Position
-					<select value={ this.state.popoverPosition } onChange={ this._changePopoverPosition }>
+				<label htmlFor={ id }>Position
+					<select id={ id } value={ this.state.popoverPosition } onChange={ this._changePopoverPosition }>
 						<option value="top">top</option>
 						<option value="top left">top left</option>
 						<option value="top right">top right</option>
