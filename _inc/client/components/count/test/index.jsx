@@ -2,7 +2,6 @@
  * External dependencies
  */
 var expect = require( 'chai' ).expect,
-	sinon = require( 'sinon' ),
 	useMockery = require( 'test/helpers/use-mockery' );
 
 /**
