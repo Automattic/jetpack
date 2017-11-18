@@ -9,8 +9,7 @@ var assert = require( 'assert' ),
 /**
  * Internal dependencies
  */
-var FormToggle = require( 'components/forms/form-toggle' ),
-	CompactFormToggle = require( 'components/forms/form-toggle/compact' );
+var CompactFormToggle = require( 'components/forms/form-toggle/compact' );
 
 require( 'lib/react-test-env-setup' )();
 
