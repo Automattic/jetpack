@@ -921,23 +921,50 @@ class Jetpack {
 	 */
 	public function register_assets() {
 		if ( ! wp_script_is( 'spin', 'registered' ) ) {
-			wp_register_script( 'spin', plugins_url( '_inc/build/spin.min.js', JETPACK__PLUGIN_FILE ), false, '1.3' );
+			wp_register_script(
+				'spin',
+				self::get_file_url_for_environment( '_inc/build/spin.min.js', '_inc/spin.js' ),
+				false,
+				'1.3'
+			);
 		}
 
 		if ( ! wp_script_is( 'jquery.spin', 'registered' ) ) {
-			wp_register_script( 'jquery.spin', plugins_url( '_inc/build/jquery.spin.min.js', JETPACK__PLUGIN_FILE ) , array( 'jquery', 'spin' ), '1.3' );
+			wp_register_script(
+				'jquery.spin',
+				self::get_file_url_for_environment( '_inc/build/jquery.spin.min.js', '_inc/jquery.spin.js' ),
+				array( 'jquery', 'spin' ),
+				'1.3'
+			);
 		}
 
 		if ( ! wp_script_is( 'jetpack-gallery-settings', 'registered' ) ) {
-			wp_register_script( 'jetpack-gallery-settings', plugins_url( '_inc/build/gallery-settings.min.js', JETPACK__PLUGIN_FILE ), array( 'media-views' ), '20121225' );
+			wp_register_script(
+				'jetpack-gallery-settings',
+				self::get_file_url_for_environment( '_inc/build/gallery-settings.min.js', '_inc/gallery-settings.js' ),
+				array( 'media-views' ),
+				'20121225'
+			);
 		}
 
 		if ( ! wp_script_is( 'jetpack-twitter-timeline', 'registered' ) ) {
-			wp_register_script( 'jetpack-twitter-timeline', plugins_url( '_inc/build/twitter-timeline.min.js', JETPACK__PLUGIN_FILE ) , array( 'jquery' ), '4.0.0', true );
+			wp_register_script(
+				'jetpack-twitter-timeline',
+				self::get_file_url_for_environment( '_inc/build/twitter-timeline.min.js', '_inc/twitter-timeline.js' ),
+				array( 'jquery' ),
+				'4.0.0',
+				true
+			);
 		}
 
 		if ( ! wp_script_is( 'jetpack-facebook-embed', 'registered' ) ) {
-			wp_register_script( 'jetpack-facebook-embed', plugins_url( '_inc/build/facebook-embed.min.js', __FILE__ ), array( 'jquery' ), null, true );
+			wp_register_script(
+				'jetpack-facebook-embed',
+				self::get_file_url_for_environment( '_inc/build/facebook-embed.min.js', '_inc/facebook-embed.js' ),
+				array( 'jquery' ),
+				null,
+				true
+			);
 
 			/** This filter is documented in modules/sharedaddy/sharing-sources.php */
 			$fb_app_id = apply_filters( 'jetpack_sharing_facebook_app_id', '249643311490' );

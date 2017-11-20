@@ -141,7 +141,10 @@ class Jetpack_Connection_Banner {
 	function enqueue_banner_scripts() {
 		wp_enqueue_script(
 			'jetpack-connection-banner-js',
-			plugins_url( '_inc/build/jetpack-connection-banner.min.js', JETPACK__PLUGIN_FILE ),
+			Jetpack::get_file_url_for_environment(
+				'_inc/build/jetpack-connection-banner.min.js',
+				'_inc/jetpack-connection-banner.js'
+			),
 			array( 'jquery' ),
 			JETPACK__VERSION,
 			true

@@ -246,7 +246,7 @@ class Jetpack_IDC {
 
 		wp_enqueue_script(
 			'jetpack-idc-js',
-			plugins_url( '_inc/build/idc-notice.min.js', JETPACK__PLUGIN_FILE ),
+			Jetpack::get_file_url_for_environment( '_inc/build/idc-notice.min.js', '_inc/idc-notice.js' ),
 			array( 'jquery' ),
 			JETPACK__VERSION,
 			true
