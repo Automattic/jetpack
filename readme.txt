@@ -112,6 +112,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * In Jetpack 5.5 we made some changes that created errors if you were using other plugins that added custom links to the Plugins menu. This is now fixed.
 * We have fixed a problem that did not allow to upload plugins using API requests.
 * Open Graph links in post headers are no longer invalid in some special cases.
+* We fixed warnings happening when syncing users with WordPress.com.
 
 = 5.5 =
 
