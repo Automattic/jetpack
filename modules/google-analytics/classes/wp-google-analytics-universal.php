@@ -28,6 +28,8 @@ class Jetpack_Google_Analytics_Universal {
 		// For attaching to button clicks on multi-product views
 		add_action( 'wp_footer', array( $this, 'loop_add_to_cart' ) );
 
+		// TODO - add remaining events we want to track
+
 		add_action( 'wp_footer', array( $this, 'wp_footer' ) );
 	}
 
