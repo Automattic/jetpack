@@ -170,6 +170,8 @@ function stats_template_redirect() {
 	_stq.push([ 'view', {{$data_stats_array}} ]);
 	_stq.push([ 'clickTrackerInit', '{$data['blog']}', '{$data['post']}' ]);
 </script>
+<!-- Temporarily put this here until we can sort this one out -->
+<script type='text/javascript' src='https://stats.wp.com/s.js'></script>
 
 END;
 }
