@@ -105,11 +105,11 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 = 5.5.1 =
 
-* Release date: November 7, 2017
-* Release post: https://wp.me/p1moTy-6zt
+* Release date: November 21, 2017
+* Release post: https://wp.me/p1moTy-6Bd
 
 **Bug fixes**
-* We have fixed a problem that did not allow to upload plugins usinge API requests.
+* We have fixed a problem that did not allow to upload plugins using API requests.
 * Open Graph links in post headers are no longer invalid in some special cases.
 
 = 5.5 =
