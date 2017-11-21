@@ -32,7 +32,9 @@ class Jetpack_Google_Analytics_Universal {
 		add_action( 'woocommerce_after_single_product', array( $this, 'product_detail' ) );
 		add_action( 'woocommerce_after_checkout_form', array( $this, 'checkout_process' ) );
 
-		add_action( 'wp_footer', array( $this, 'wp_footer' ) );
+		// we need to send a pageview command last - so we use priority 24 to add
+		// this command's JavaScript just before wc_print_js is called (pri 25)
+		add_action( 'wp_footer', array( $this, 'send_pageview_in_footer' ), 24 );
 	}
 
 	public function wp_head() {
@@ -377,7 +379,7 @@ class Jetpack_Google_Analytics_Universal {
 		wc_enqueue_js( implode( "\r\n", $universal_commands ) );
 	}
 
-	public function wp_footer() {
+	public function send_pageview_in_footer() {
 		if ( ! Jetpack_Google_Analytics_Options::has_tracking_code() ) {
 			return;
 		}
@@ -386,14 +388,6 @@ class Jetpack_Google_Analytics_Universal {
 			return;
 		}
 
-		$async_code = "
-			<!-- Jetpack Google Analytics -->
-			<script>
-				ga( 'send', 'pageview' );
-			</script>
-			<!-- End Jetpack Google Analytics -->
-		";
-
-		echo "$async_code\r\n";
+		wc_enqueue_js( "ga( 'send', 'pageview' );" );
 	}
 }
