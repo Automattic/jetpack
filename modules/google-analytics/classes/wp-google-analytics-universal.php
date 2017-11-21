@@ -22,13 +22,15 @@ class Jetpack_Google_Analytics_Universal {
 
 		add_action( 'wp_head', array( $this, 'wp_head' ), 999999 );
 
-		// For attaching to a button click on a single product view
 		add_action( 'woocommerce_after_add_to_cart_button', array( $this, 'add_to_cart' ) );
-
-		// For attaching to button clicks on multi-product views
 		add_action( 'wp_footer', array( $this, 'loop_add_to_cart' ) );
-
-		// TODO - add remaining events we want to track
+		add_action( 'woocommerce_after_cart', array( $this, 'remove_from_cart' ) );
+		add_action( 'woocommerce_after_mini_cart', array( $this, 'remove_from_cart' ) );
+		add_filter( 'woocommerce_cart_item_remove_link', array( $this, 'remove_from_cart_attributes' ), 10, 2 );
+		add_action( 'woocommerce_after_shop_loop_item', array( $this, 'listing_impression' ) );
+		add_action( 'woocommerce_after_shop_loop_item', array( $this, 'listing_click' ) );
+		add_action( 'woocommerce_after_single_product', array( $this, 'product_detail' ) );
+		add_action( 'woocommerce_after_checkout_form', array( $this, 'checkout_process' ) );
 
 		add_action( 'wp_footer', array( $this, 'wp_footer' ) );
 	}
@@ -165,17 +167,15 @@ class Jetpack_Google_Analytics_Universal {
 		$selector = ".single_add_to_cart_button";
 
 		wc_enqueue_js(
-			"jQuery( function( $ ) {
-				$( '" . esc_js( $selector ) . "' ).click( function() {
-					var productDetails = {
-						'id': '" . esc_js( $product_sku_or_id ) . "',
-						'name' : '" . esc_js( $product->get_title() ) . "',
-						'quantity': $( 'input.qty' ).val() ? $( 'input.qty' ).val() : '1',
-					};
-					ga( 'ec:addProduct', productDetails );
-					ga( 'ec:setAction', 'add' );
-					ga( 'send', 'event', 'UX', 'click', 'add to cart' );
-				} );
+			"$( '" . esc_js( $selector ) . "' ).click( function() {
+				var productDetails = {
+					'id': '" . esc_js( $product_sku_or_id ) . "',
+					'name' : '" . esc_js( $product->get_title() ) . "',
+					'quantity': $( 'input.qty' ).val() ? $( 'input.qty' ).val() : '1',
+				};
+				ga( 'ec:addProduct', productDetails );
+				ga( 'ec:setAction', 'add' );
+				ga( 'send', 'event', 'UX', 'click', 'add to cart' );
 			} );"
 		);
 	}
@@ -197,20 +197,187 @@ class Jetpack_Google_Analytics_Universal {
 		$selector = ".add_to_cart_button:not(.product_type_variable, .product_type_grouped)";
 
 		wc_enqueue_js(
-			"jQuery( function( $ ) {
-				$( '" . esc_js( $selector ) . "' ).click( function() {
-					var productSku = $( this ).data( 'product_sku' );
-					var productID = $( this ).data( 'product_id' );
-					var productDetails = {
-						'id': productSku ? productSku : '#' + productID,
-						'quantity': $( this ).data( 'quantity' ),
-					};
-					ga( 'ec:addProduct', productDetails );
-					ga( 'ec:setAction', 'add' );
-					ga( 'send', 'event', 'UX', 'click', 'add to cart' );
-				} );
+			"$( '" . esc_js( $selector ) . "' ).click( function() {
+				var productSku = $( this ).data( 'product_sku' );
+				var productID = $( this ).data( 'product_id' );
+				var productDetails = {
+					'id': productSku ? productSku : '#' + productID,
+					'quantity': $( this ).data( 'quantity' ),
+				};
+				ga( 'ec:addProduct', productDetails );
+				ga( 'ec:setAction', 'add' );
+				ga( 'send', 'event', 'UX', 'click', 'add to cart' );
 			} );"
 		);
+	}
+
+	public function remove_from_cart() {
+		if ( ! Jetpack_Google_Analytics_Options::enhanced_ecommerce_tracking_is_enabled() ) {
+			return;
+		}
+
+		if ( ! Jetpack_Google_Analytics_Options::track_remove_from_cart_is_enabled() ) {
+			return;
+		}
+
+		wc_enqueue_js(
+			"$( '.remove' ).click( function() {
+				var productSku = $( this ).data( 'product_sku' );
+				var productID = $( this ).data( 'product_id' );
+				var quantity = $( this ).parent().parent().find( '.qty' ).val()
+				var productDetails = {
+					'id': productSku ? productSku : '#' + productID,
+					'quantity': quantity ? quantity : '1',
+				};
+				ga( 'ec:addProduct', productDetails );
+				ga( 'ec:setAction', 'remove' );
+				ga( 'send', 'event', 'UX', 'click', 'remove from cart' );
+			} );"
+		);
+	}
+
+	/**
+	* Adds the product ID and SKU to the remove product link (for use by remove_from_cart above) if not present
+	*/
+	public function remove_from_cart_attributes( $url, $key ) {
+		if ( false !== strpos( $url, 'data-product_id' ) ) {
+			return $url;
+		}
+
+		$item = WC()->cart->get_cart_item( $key );
+		$product = $item[ 'data' ];
+
+		$new_attributes = sprintf( 'href="%s" data-product_id="%s" data-product_sku="%s"',
+			esc_attr( $url ),
+			esc_attr( $product->get_id() ),
+			esc_attr( $product->get_sku() )
+			);
+		$url = str_replace( 'href=', $new_attributes );
+		return $url;
+	}
+
+	public function listing_impression() {
+		if ( ! Jetpack_Google_Analytics_Options::enhanced_ecommerce_tracking_is_enabled() ) {
+			return;
+		}
+
+		if ( ! Jetpack_Google_Analytics_Options::track_product_impressions_is_enabled() ) {
+			return;
+		}
+
+		global $product, $woocommerce_loop;
+		if ( isset( $_GET['s'] ) ) {
+			$list = "Search Results";
+		} else {
+			$list = "Product List";
+		}
+
+		$item_details = array(
+			'id' => $product->get_id(),
+			'name' => $product->get_title(),
+			'category' => Jetpack_Google_Analytics_Utils::get_product_categories_concatenated( $product ),
+			'list' => $list,
+			'position' => $woocommerce_loop['loop']
+		);
+		wc_enqueue_js( "ga( 'ec:addImpression', " . wp_json_encode( $item_details ) . " );" );
+	}
+
+	public function listing_click() {
+		if ( ! Jetpack_Google_Analytics_Options::enhanced_ecommerce_tracking_is_enabled() ) {
+			return;
+		}
+
+		if ( ! Jetpack_Google_Analytics_Options::track_product_clicks_is_enabled() ) {
+			return;
+		}
+
+		if ( isset( $_GET['s'] ) ) {
+			$list = "Search Results";
+		} else {
+			$list = "Product List";
+		}
+
+		global $product, $woocommerce_loop;
+
+		$selector = ".products .post-" . esc_js( $product->get_id() ) . " a";
+
+		$item_details = array(
+			'id' => $product->get_id(),
+			'name' => $product->get_title(),
+			'category' => Jetpack_Google_Analytics_Utils::get_product_categories_concatenated( $product ),
+			'position' => $woocommerce_loop['loop']
+		);
+
+		wc_enqueue_js(
+			"$( '" . esc_js( $selector ) . "' ).click( function() {
+				if ( true === $( this ).hasClass( 'add_to_cart_button' ) ) {
+					return;
+				}
+
+				ga( 'ec:addProduct', " . wp_json_encode( $item_details ) . " );
+				ga( 'ec:setAction', 'click', { list: '" . esc_js( $list ) . "' } );
+				ga( 'send', 'event', 'UX', 'click', { list: '" . esc_js( $list ) . "' } );
+			} );"
+		);
+	}
+
+	public function product_detail( $product ) {
+		if ( empty( $product ) ) {
+			return;
+		}
+
+		if ( ! Jetpack_Google_Analytics_Options::enhanced_ecommerce_tracking_is_enabled() ) {
+			return;
+		}
+
+		if ( ! Jetpack_Google_Analytics_Options::track_product_detail_view_is_enabled() ) {
+			return;
+		}
+
+		$sku_or_id = $product->get_sku() ? $product->get_sku() : '#' . $product->get_id();
+
+		$item_details = array(
+			'id' => $sku_or_id,
+			'name' => $product->get_title(),
+			'category' => Jetpack_Google_Analytics_Utils::get_product_categories_concatenated( $product ),
+			'price' => $product->get_price()
+		);
+		wc_enqueue_js(
+			"ga( 'ec:addProduct', " . wp_json_encode( $item_details ) . " );" .
+			"ga( 'ec:setAction', 'detail' );"
+		);
+	}
+
+	public function checkout_process() {
+		if ( ! Jetpack_Google_Analytics_Options::enhanced_ecommerce_tracking_is_enabled() ) {
+			return;
+		}
+
+		if ( ! Jetpack_Google_Analytics_Options::track_checkout_started_is_enabled() ) {
+			return;
+		}
+
+		$universal_commands = array();
+		$cart = WC()->cart->get_cart();
+
+		foreach ( $cart as $cart_item_key => $cart_item ) {
+			$product = apply_filters( 'woocommerce_cart_item_product', $cart_item['data'], $cart_item, $cart_item_key );
+			$sku_or_id = $product->get_sku() ? $product->get_sku() : '#' . $product->get_id();
+
+			$item_details = array(
+				'id' => $sku_or_id,
+				'name' => $product->get_title(),
+				'category' => Jetpack_Google_Analytics_Utils::get_product_categories_concatenated( $product ),
+				'price' => $product->get_price(),
+				'quantity' => $cart_item[ 'quantity' ]
+			);
+
+			array_push( $universal_commands, "ga( 'ec:addProduct', " . wp_json_encode( $item_details ) . " );" );
+		}
+
+		array_push( $universal_commands, "ga( 'ec:setAction','checkout' )" );
+
+		wc_enqueue_js( implode( "\r\n", $universal_commands ) );
 	}
 
 	public function wp_footer() {
