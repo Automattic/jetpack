@@ -113,6 +113,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * We have fixed a problem that did not allow to upload plugins using API requests.
 * Open Graph links in post headers are no longer invalid in some special cases.
 * We fixed warnings happening when syncing users with WordPress.com.
+* We updated the way the Google+ button is loaded to match changes made by Google, to ensure the button is always displayed properly.
 
 = 5.5 =
 
