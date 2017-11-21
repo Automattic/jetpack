@@ -1175,7 +1175,7 @@ class Share_GooglePlus1 extends Sharing_Source {
 
 			(function() {
 				var po = document.createElement('script'); po.type = 'text/javascript'; po.async = true;
-				po.src = 'https://apis.google.com/js/plusone.min.js';
+				po.src = 'https://apis.google.com/js/platform.js';
 				po.innerHTML = '{"parsetags": "explicit"}';
 				po.onload = renderGooglePlus1;
 				var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(po, s);
