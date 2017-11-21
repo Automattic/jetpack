@@ -321,11 +321,7 @@ class Jetpack_Google_Analytics_Universal {
 		);
 	}
 
-	public function product_detail( $product ) {
-		if ( empty( $product ) ) {
-			return;
-		}
-
+	public function product_detail() {
 		if ( ! Jetpack_Google_Analytics_Options::enhanced_ecommerce_tracking_is_enabled() ) {
 			return;
 		}
@@ -334,6 +330,7 @@ class Jetpack_Google_Analytics_Universal {
 			return;
 		}
 
+		global $product;
 		$sku_or_id = $product->get_sku() ? $product->get_sku() : '#' . $product->get_id();
 
 		$item_details = array(
@@ -375,7 +372,7 @@ class Jetpack_Google_Analytics_Universal {
 			array_push( $universal_commands, "ga( 'ec:addProduct', " . wp_json_encode( $item_details ) . " );" );
 		}
 
-		array_push( $universal_commands, "ga( 'ec:setAction','checkout' )" );
+		array_push( $universal_commands, "ga( 'ec:setAction','checkout' );" );
 
 		wc_enqueue_js( implode( "\r\n", $universal_commands ) );
 	}
