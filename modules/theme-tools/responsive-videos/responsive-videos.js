@@ -54,6 +54,15 @@
 	}
 
 	$( document ).ready( function() {
+		// With WordPress 4.9, the default settings for MediaElement.js already make videos responsive
+		// Global settings for MediaElement are present in window._wpmejsSettings
+		if (
+			typeof window !== undefined &&
+			window._wpmejsSettings &&
+			window._wpmejsSettings.stretching === 'responsive'
+		) {
+			return;
+		}
 		$( window )
 			.on( 'load.jetpack', responsiveVideos )
 			.on( 'resize.jetpack', function() {
