@@ -29,6 +29,9 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 *
 	 */
 	public function status( $args, $assoc_args ) {
+
+		WP_CLI::line( sprintf( __( 'Checking status for %s', 'jetpack' ), esc_url( get_site_url() ) ) );
+
 		if ( ! Jetpack::is_active() ) {
 			WP_CLI::error( __( 'Jetpack is not currently connected to WordPress.com', 'jetpack' ) );
 		}
@@ -103,6 +106,9 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * @subcommand test-connection
 	 */
 	public function test_connection( $args, $assoc_args ) {
+
+		WP_CLI::line( sprintf( __( 'Testing connection for %s', 'jetpack' ), esc_url( get_site_url() ) ) );
+
 		if ( ! Jetpack::is_active() ) {
 			WP_CLI::error( __( 'Jetpack is not currently connected to WordPress.com', 'jetpack' ) );
 		}
@@ -191,7 +197,10 @@ class Jetpack_CLI extends WP_CLI_Command {
 			case 'blog':
 				Jetpack::log( 'disconnect' );
 				Jetpack::disconnect();
-				WP_CLI::success( __( 'Jetpack has been successfully disconnected.', 'jetpack' ) );
+				WP_CLI::success( sprintf(
+					__( 'Jetpack has been successfully disconnected for %s.', 'jetpack' ),
+					esc_url( get_site_url() )
+				) );
 				break;
 			case 'user':
 				if ( Jetpack::unlink_user( $user->ID ) ) {
@@ -244,7 +253,10 @@ class Jetpack_CLI extends WP_CLI_Command {
 				$options_to_reset = Jetpack_Options::get_options_for_reset();
 
 				// Reset the Jetpack options
-				_e( "Resetting Jetpack Options...\n", "jetpack" );
+				WP_CLI::line( sprintf(
+					__( "Resetting Jetpack Options for %s...\n", "jetpack" ),
+					esc_url( get_site_url() )
+				) );
 				sleep(1); // Take a breath
 				foreach ( $options_to_reset['jp_options'] as $option_to_reset ) {
 					Jetpack_Options::delete_option( $option_to_reset );
@@ -254,7 +266,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				}
 
 				// Reset the WP options
-				_e( "Resetting the jetpack options stored in wp_options...\n", "jetpack" );
+				WP_CLI::line( __( "Resetting the jetpack options stored in wp_options...\n", "jetpack" ) );
 				usleep( 500000 ); // Take a breath
 				foreach ( $options_to_reset['wp_options'] as $option_to_reset ) {
 					delete_option( $option_to_reset );
@@ -264,7 +276,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				}
 
 				// Reset to default modules
-				_e( "Resetting default modules...\n", "jetpack" );
+				WP_CLI::line( __( "Resetting default modules...\n", "jetpack" ) );
 				usleep( 500000 ); // Take a breath
 				$default_modules = Jetpack::get_default_modules();
 				Jetpack::update_active_modules( $default_modules );
