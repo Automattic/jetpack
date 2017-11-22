@@ -52,6 +52,7 @@ class DashActivity extends Component {
 			<div className="jp-dash-item__interior">
 				<DashItem
 					label={ __( 'Activity' ) }
+					isModule={ false }
 					className={ classNames( {
 						'jp-dash-item__is-inactive': inDevMode
 					} ) }

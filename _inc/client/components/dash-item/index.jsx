@@ -110,7 +110,9 @@ export class DashItem extends Component {
 				</Button>
 			;
 
-			toggle = <ProStatus proFeature={ this.props.module } siteAdminUrl={ this.props.siteAdminUrl } />;
+			if ( this.props.isModule ) {
+				toggle = <ProStatus proFeature={ this.props.module } siteAdminUrl={ this.props.siteAdminUrl } />;
+			}
 		}
 
 		return (
@@ -137,13 +139,15 @@ DashItem.propTypes = {
 	statusText: React.PropTypes.string,
 	disabled: React.PropTypes.bool,
 	module: React.PropTypes.string,
-	pro: React.PropTypes.bool
+	pro: React.PropTypes.bool,
+	isModule: React.PropTypes.bool,
 };
 
 DashItem.defaultProps = {
 	label: '',
 	module: '',
-	pro: false
+	pro: false,
+	isModule: true,
 };
 
 export default connect(
