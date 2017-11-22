@@ -130,6 +130,7 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 			return;
 		}
 
+		$plugins_action_links = array();
 		// Is the transient lock in place?
 		$plugins_lock = get_transient( 'jetpack_plugin_api_action_links_refresh', false );
 		if ( ! empty( $plugins_lock ) ) {
@@ -137,10 +138,21 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 		}
 		$plugins = array_keys( Jetpack_Sync_Functions::get_plugins() );
 		foreach ( $plugins as $plugin_file ) {
+			/**
+			 *  Plugins often like to unset things but things break if they are not able to.
+			 */
+			$action_links = array(
+				'deactivate' => '',
+				'activate' => '',
+				'details' => '',
+				'delete' => '',
+				'edit' => ''
+			);
 			/** This filter is documented in src/wp-admin/includes/class-wp-plugins-list-table.php */
-			$action_links = apply_filters( 'plugin_action_links', array(), $plugin_file, null, 'all' );
+			$action_links = apply_filters( 'plugin_action_links', $action_links, $plugin_file, null, 'all' );
 			/** This filter is documented in src/wp-admin/includes/class-wp-plugins-list-table.php */
 			$action_links = apply_filters( "plugin_action_links_{$plugin_file}", $action_links, $plugin_file, null, 'all' );
+			$action_links = array_filter( $action_links );
 			$formatted_action_links = null;
 			if ( ! empty( $action_links ) && count( $action_links ) > 0 ) {
 				$dom_doc = new DOMDocument;

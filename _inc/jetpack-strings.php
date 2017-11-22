@@ -203,9 +203,6 @@ _x( "No scanning", "Short warning message about site having no security scan.", 
 _x( "FIX", "A caption for a small button to fix security issues.", "jetpack" ), // _inc/client/pro-status/index.jsx:74
 _x( "Threats found!", "Short warning message about new threats found.", "jetpack" ), // _inc/client/pro-status/index.jsx:73
 _x( "Threats", "A caption for a small button to fix security issues.", "jetpack" ), // _inc/client/pro-status/index.jsx:71
-__( "Activate", "jetpack" ), // _inc/client/searchable-modules/index.jsx:71
-__( "Enter a search term to find settings or close search.", "jetpack" ), // _inc/client/settings/index.jsx:38
-__( "No search results found for %(term)s", "jetpack" ), // _inc/client/settings/index.jsx:30
 __( "If you don't already have an API key, then {{a}}get your API key here{{/a}}, and you'll be guided through the process of getting one.", "jetpack" ), // _inc/client/security/antispam.jsx:149
 __( "Your API key", "jetpack" ), // _inc/client/security/antispam.jsx:143
 _x( "Spam filtering", "Settings header", "jetpack" ), // _inc/client/security/antispam.jsx:135
@@ -238,6 +235,9 @@ _x( "Brute force attack protection", "Settings header", "jetpack" ), // _inc/cli
 __( "Require accounts to use WordPress.com Two-Step Authentication", "jetpack" ), // _inc/client/security/sso.jsx:94
 __( "Match accounts using email addresses", "jetpack" ), // _inc/client/security/sso.jsx:81
 _x( "WordPress.com log in", "Settings header", "jetpack" ), // _inc/client/security/sso.jsx:56
+__( "Activate", "jetpack" ), // _inc/client/searchable-modules/index.jsx:71
+__( "Enter a search term to find settings or close search.", "jetpack" ), // _inc/client/settings/index.jsx:38
+__( "No search results found for %(term)s", "jetpack" ), // _inc/client/settings/index.jsx:30
 __( "Allow readers to show their appreciation of your posts by adding a like button to your content", "jetpack" ), // _inc/client/sharing/likes.jsx:34
 _x( "Like buttons", "Settings header", "jetpack" ), // _inc/client/sharing/likes.jsx:24
 __( "Automatically share your posts to social networks", "jetpack" ), // _inc/client/sharing/publicize.jsx:81
