@@ -222,8 +222,11 @@ class Jetpack_Google_Analytics_Universal {
 			return;
 		}
 
+		// We listen at div.woocommerce because the cart 'form' contents get forcibly
+		// updated and subsequent removals from cart would then not have this click
+		// handler attached
 		wc_enqueue_js(
-			"$( '.remove' ).click( function() {
+			"$( 'div.woocommerce' ).on( 'click', 'a.remove', function() {
 				var productSku = $( this ).data( 'product_sku' );
 				var productID = $( this ).data( 'product_id' );
 				var quantity = $( this ).parent().parent().find( '.qty' ).val()
