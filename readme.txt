@@ -115,6 +115,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * We fixed warnings happening when syncing users with WordPress.com.
 * We updated the way the Google+ button is loaded to match changes made by Google, to ensure the button is always displayed properly.
 * We fixed conflicts between Jetpack's Responsive Videos and the updates made to Video players in WordPress 4.9.
+* We updated Publicize's message length to match Twitter's new 280 character limit.
 
 = 5.5 =
 
