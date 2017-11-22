@@ -60,6 +60,21 @@ class WP_Test_Lazy_Images extends WP_UnitTestCase {
 		);
 	}
 
+	function test_process_image_attribute_filter() {
+		add_filter( 'jetpack_lazy_images_new_attributes', array( $this, '__set_height_attribute' ) );
+
+		$html = Jetpack_Lazy_Images::process_image( array(
+			'<img src="image.jpg" height="100px" />',
+			'img',
+			' src="image.jpg" height="100px"',
+
+		) );
+
+		remove_filter( 'jetpack_lazy_images_new_attributes', array( $this, '__set_height_attribute' ) );
+
+		$expected_html = '<img src="placeholder.jpg" data-lazy-src="image.jpg" style="height: 100px;"><noscript><img src="image.jpg" sizes="(min-width: 36em) 33.3vw, 100vw" /></noscript>';
+	}
+
 	/**
 	 * @dataProvider get_process_image_test_data
 	 */
@@ -79,6 +94,13 @@ class WP_Test_Lazy_Images extends WP_UnitTestCase {
 
 	public function __override_image_placeholder() {
 		return 'placeholder.jpg';
+	}
+
+	public function __set_height_attribute( $attributes ) {
+		if ( ! empty( $attributes['height'] ) ) {
+			$attributes['style'] = sprintf( 'height: %d;', $attributes['height'] );
+		}
+		return $attributes;
 	}
 
 	public function __get_input_content() {
