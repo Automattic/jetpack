@@ -108,6 +108,20 @@ class Jetpack_Lazy_Images {
 			unset( $new_attributes['sizes'] );
 		}
 
+		/**
+		 * Allow plugins and themes to override the attributes on the image before the content is updated.
+		 *
+		 * One potential use of this filter is for themes that set `height:auto` on the `img` tag.
+		 * With this filter, the theme could get the width and height attributes from the
+		 * $new_attributes array and then add a style tag that sets those values as well, which could
+		 * minimize reflow as images load.
+		 *
+		 * @since 5.6.0
+		 *
+		 * @param array An array containing the attributes for the image, where the key is the attribute name
+		 *              and the value is the attribute value.
+		 */
+		$new_attributes = apply_filters( 'jetpack_lazy_images_new_attributes', $new_attributes );
 		$new_attributes_str = self::build_attributes_string( $new_attributes );
 
 		return sprintf( '<img %1$s><noscript>%2$s</noscript>', $new_attributes_str, $matches[0] );
