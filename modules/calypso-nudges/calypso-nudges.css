@@ -1,0 +1,17 @@
+.jetpack-calypso-nudge {
+  position: relative;
+  padding-right: 24px;
+}
+
+.jetpack-calypso-nudge .noticon-close {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 12px 10px;
+  white-space: nowrap;
+}
+
+.jetpack-calypso-nudge .dashicons-external {
+  margin-left: 0.2em;
+  text-decoration: none;
+}
