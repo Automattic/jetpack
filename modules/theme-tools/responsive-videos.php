@@ -33,6 +33,18 @@ function jetpack_responsive_videos_embed_html( $html ) {
 		return $html;
 	}
 
+	// The customizer video widget wraps videos with a class of wp-video
+	// mejs as of 4.9 apparently resizes videos too which causes issues
+	// skip the video if it is wrapped in wp-video.
+	$video_widget_wrapper = 'class="wp-video"';
+
+	$mejs_wrapped = strpos( $html, $video_widget_wrapper );
+
+	// If this is a video widget wrapped by mejs, return the html.
+	if ( false !== $mejs_wrapped ) {
+		return $html;
+	}
+
 	if ( defined( 'SCRIPT_DEBUG' ) && true == SCRIPT_DEBUG ) {
 		wp_enqueue_script( 'jetpack-responsive-videos-script', plugins_url( 'responsive-videos/responsive-videos.js', __FILE__ ), array( 'jquery' ), '1.2', true );
 	} else {
