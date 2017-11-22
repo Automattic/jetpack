@@ -78,7 +78,7 @@ class AtAGlance extends Component {
 					}
 					<div className="jp-at-a-glance__item-grid">
 						<div className="jp-at-a-glance__left">
-							<DashActivity { ...settingsProps } { ...urls } />
+							<DashActivity { ...settingsProps } siteRawUrl={ this.props.siteRawUrl } />
 						</div>
 						<div className="jp-at-a-glance__right">
 							<DashProtect { ...settingsProps } />
