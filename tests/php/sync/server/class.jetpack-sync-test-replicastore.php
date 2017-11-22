@@ -259,13 +259,25 @@ class Jetpack_Sync_Test_Replicastore implements iJetpack_Sync_Replicastore {
 
 	// this is just here to support checksum histograms
 	function get_post_meta_by_id( $meta_id ) {
-		$matching_metas = array_filter( $this->meta[ get_current_blog_id() ][ 'post' ], create_function( '$m', 'return $m->meta_id == '.$meta_id.';' ) );
+		$matching_metas = array();
+		$metas = $this->meta[ get_current_blog_id() ]['post'];
+		foreach ( $metas as $m ) {
+			if ( $m->meta_id === $meta_id ) {
+				$matching_metas[] = $m;
+			}
+		}
 		return reset( $matching_metas );
 	}
 
 	// this is just here to support checksum histograms
 	function get_comment_meta_by_id( $meta_id ) {
-		$matching_metas = array_filter( $this->meta[ get_current_blog_id() ][ 'comment' ], create_function( '$m', 'return $m->meta_id == '.$meta_id.';' ) );
+		$matching_metas = array();
+		$metas = $this->meta[ get_current_blog_id() ]['comment'];
+		foreach ( $metas as $m ) {
+			if ( $m->meta_id === $meta_id ) {
+				$matching_metas[] = $m;
+			}
+		}
 		return reset( $matching_metas );
 	}
 
