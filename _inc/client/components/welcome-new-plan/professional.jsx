@@ -109,7 +109,7 @@ class WelcomeProfessional extends Component {
 		return (
 			<JetpackDialogue
 				svg={ <img src={ imagePath + 'people-around-page.svg' } width="250" alt={ __( 'Welcome Professional' ) } /> }
-				title={ __( 'Your Professional Jetpack plan is taking care of business!' ) }
+				title={ __( 'Your Jetpack Professional plan is taking care of business!' ) }
 				content={ this.renderInnerContent() }
 				belowContent={ this.renderBelowContent() }
 				dismiss={ this.props.dismiss }
