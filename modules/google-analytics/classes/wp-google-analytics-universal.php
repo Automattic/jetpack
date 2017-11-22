@@ -124,10 +124,10 @@ class Jetpack_Google_Analytics_Universal {
 		if ( $order->get_items() ) {
 			foreach ( $order->get_items() as $item ) {
 				$product = $order->get_product_from_item( $item );
-				$sku_or_id = $product->get_sku() ? $product->get_sku() : '#' . $product->get_id();
+				$product_sku_or_id = Jetpack_Google_Analytics_Utils::get_product_sku_or_id( $product );
 
 				$item_details = array(
-					'id' => $sku_or_id,
+					'id' => $product_sku_or_id,
 					'name' => $item['name'],
 					'category' => Jetpack_Google_Analytics_Utils::get_product_categories_concatenated( $product ),
 					'price' => $order->get_item_total( $item ),
@@ -165,7 +165,7 @@ class Jetpack_Google_Analytics_Universal {
 
 		global $product;
 
-		$product_sku_or_id = $product->get_sku() ? $product->get_sku() : '#' . $product->get_id();
+		$product_sku_or_id = Jetpack_Google_Analytics_Utils::get_product_sku_or_id( $product );
 		$selector = ".single_add_to_cart_button";
 
 		wc_enqueue_js(
@@ -267,15 +267,17 @@ class Jetpack_Google_Analytics_Universal {
 			return;
 		}
 
-		global $product, $woocommerce_loop;
 		if ( isset( $_GET['s'] ) ) {
 			$list = "Search Results";
 		} else {
 			$list = "Product List";
 		}
 
+		global $product, $woocommerce_loop;
+		$product_sku_or_id = Jetpack_Google_Analytics_Utils::get_product_sku_or_id( $product );
+
 		$item_details = array(
-			'id' => $product->get_id(),
+			'id' => $product_sku_or_id,
 			'name' => $product->get_title(),
 			'category' => Jetpack_Google_Analytics_Utils::get_product_categories_concatenated( $product ),
 			'list' => $list,
@@ -300,11 +302,12 @@ class Jetpack_Google_Analytics_Universal {
 		}
 
 		global $product, $woocommerce_loop;
+		$product_sku_or_id = Jetpack_Google_Analytics_Utils::get_product_sku_or_id( $product );
 
 		$selector = ".products .post-" . esc_js( $product->get_id() ) . " a";
 
 		$item_details = array(
-			'id' => $product->get_id(),
+			'id' => $product_sku_or_id,
 			'name' => $product->get_title(),
 			'category' => Jetpack_Google_Analytics_Utils::get_product_categories_concatenated( $product ),
 			'position' => $woocommerce_loop['loop']
@@ -333,10 +336,10 @@ class Jetpack_Google_Analytics_Universal {
 		}
 
 		global $product;
-		$sku_or_id = $product->get_sku() ? $product->get_sku() : '#' . $product->get_id();
+		$product_sku_or_id = Jetpack_Google_Analytics_Utils::get_product_sku_or_id( $product );
 
 		$item_details = array(
-			'id' => $sku_or_id,
+			'id' => $product_sku_or_id,
 			'name' => $product->get_title(),
 			'category' => Jetpack_Google_Analytics_Utils::get_product_categories_concatenated( $product ),
 			'price' => $product->get_price()
@@ -361,10 +364,10 @@ class Jetpack_Google_Analytics_Universal {
 
 		foreach ( $cart as $cart_item_key => $cart_item ) {
 			$product = apply_filters( 'woocommerce_cart_item_product', $cart_item['data'], $cart_item, $cart_item_key );
-			$sku_or_id = $product->get_sku() ? $product->get_sku() : '#' . $product->get_id();
+			$product_sku_or_id = Jetpack_Google_Analytics_Utils::get_product_sku_or_id( $product );
 
 			$item_details = array(
-				'id' => $sku_or_id,
+				'id' => $product_sku_or_id,
 				'name' => $product->get_title(),
 				'category' => Jetpack_Google_Analytics_Utils::get_product_categories_concatenated( $product ),
 				'price' => $product->get_price(),
