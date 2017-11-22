@@ -1,9 +1,9 @@
 === Jetpack by WordPress.com ===
 Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, blobaugh, cainm, cena, cfinke, chaselivingston, chellycat, csonnek, danielbachhuber, davoraltman, daniloercoli, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, eliorivero, enej, eoigal, erania-pinnera, ethitter, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jacobshere, jblz, jeherve, jenhooks, jenia, jgs, jkudish, jmdodd, Joen, johnjamesjacoby, jshreve, koke, kraftbj, lamdayap, lancewillett, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, michael-arestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, scarstocea, sdquirk, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Jetpack, WordPress.com, backup, security, related posts, CDN, speed, anti-spam, social sharing, SEO, video, stats
-Stable tag: 5.4
+Stable tag: 5.5
 Requires at least: 4.7
-Tested up to: 4.8
+Tested up to: 4.9
 
 The one plugin you need for stats, related posts, search engine optimization, social sharing, protection, backups, speed, and email list management.
 
@@ -102,6 +102,20 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 5. Traffic: SEO Tools for Google, Twitter, Facebook and more.
 
 == Changelog ==
+
+= 5.5.1 =
+
+* Release date: November 21, 2017
+* Release post: https://wp.me/p1moTy-6Bd
+
+**Bug fixes**
+* In Jetpack 5.5 we made some changes that created errors if you were using other plugins that added custom links to the Plugins menu. This is now fixed.
+* We have fixed a problem that did not allow to upload plugins using API requests.
+* Open Graph links in post headers are no longer invalid in some special cases.
+* We fixed warnings happening when syncing users with WordPress.com.
+* We updated the way the Google+ button is loaded to match changes made by Google, to ensure the button is always displayed properly.
+* We fixed conflicts between Jetpack's Responsive Videos and the updates made to Video players in WordPress 4.9.
+* We updated Publicize's message length to match Twitter's new 280 character limit.
 
 = 5.5 =
 
