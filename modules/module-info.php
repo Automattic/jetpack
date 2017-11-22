@@ -650,3 +650,18 @@ function jetpack_google_analytics_more_info() {
 		, 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_google-analytics', 'jetpack_google_analytics_more_info' );
+
+/**
+ * Calypso Redirects and Nudges
+ */
+function jetpack_learn_more_calypso_redirects() {
+	echo 'https://jetpack.com/support/wordpresscom-admin';
+}
+add_action( 'jetpack_learn_more_button_calypso-nudges', 'jetpack_learn_more_calypso_redirects' );
+
+function jetpack_calypso_redirects_more_info() {
+	esc_html_e(
+		'Update WP Admin links to point to the new WordPress.com admin interface, with helpful tips to remind users.'
+		, 'jetpack' );
+}
+add_action( 'jetpack_module_more_info_calypso-nudges', 'jetpack_calypso_redirects_more_info' );

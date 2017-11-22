@@ -17,6 +17,12 @@ function jetpack_get_module_i18n( $key ) {
 				'description' => _x( 'Check your spelling, style, and grammar', 'Module Description', 'jetpack' ),
 			),
 
+			'calypso-nudges' => array(
+				'name' => _x( 'Calypso Nudges', 'Module Name', 'jetpack' ),
+				'description' => _x( 'Display admin tips that nudge the user to equivalent admin pages in Calypso.', 'Module Description', 'jetpack' ),
+				'recommended description' => _x( 'Display admin tips that nudge the user to equivalent admin pages in Calypso.', 'Jumpstart Description', 'jetpack' ),
+			),
+
 			'carousel' => array(
 				'name' => _x( 'Carousel', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Display images and galleries in a gorgeous, full-screen browsing experience', 'Module Description', 'jetpack' ),
@@ -255,6 +261,7 @@ function jetpack_get_module_i18n_tag( $key ) {
 	if ( ! isset( $module_tags ) ) {
 		$module_tags = array(
 			// Modules with `Other` tag:
+			//  - modules/calypso-nudges.php
 			//  - modules/contact-form.php
 			//  - modules/notes.php
 			'Other' =>_x( 'Other', 'Module Tag', 'jetpack' ),

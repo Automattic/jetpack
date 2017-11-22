@@ -16,9 +16,9 @@ const admincss = [
 	'modules/custom-post-types/comics/comics.css',
 	'modules/shortcodes/css/recipes.css',
 	'modules/shortcodes/css/recipes-print.css',
-
 	'modules/after-the-deadline/atd.css',
 	'modules/after-the-deadline/tinymce/css/content.css',
+	'modules/calypso-nudges/calypso-nudges.css',
 	'modules/contact-form/css/editor-inline-editing-style.css',
 	'modules/contact-form/css/editor-style.css',
 	'modules/contact-form/css/editor-ui.css',
