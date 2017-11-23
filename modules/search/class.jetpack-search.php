@@ -340,6 +340,12 @@ class Jetpack_Search {
 			return;
 		}
 
+		// If we have aggregations, fix the ordering to match the input order (ES doesn't
+		// guarantee the return order)
+		if ( isset( $this->search_result['results']['aggregations'] ) && ! empty( $this->search_result['results']['aggregations'] ) ) {
+			$this->search_result['results']['aggregations'] = $this->fix_aggregation_ordering( $this->search_result['results']['aggregations'], $this->aggregations );
+		}
+
 		// Total number of results for paging purposes. Capped at $this->>max_offset + $posts_per_page, as deep paging
 		// gets quite expensive
 		$this->found_posts = min( $this->search_result['results']['total'], $this->max_offset + $posts_per_page );
@@ -1334,5 +1340,35 @@ class Jetpack_Search {
 		 * @param string $taxonomy_name The taxonomy name
 		 */
 		return apply_filters( 'jetpack_search_taxonomy_query_var', $taxonomy->query_var, $taxonomy_name );
+	}
+
+	/**
+	 * Takes an array of aggregation results, and ensures the array key ordering matches the key order in $desired
+	 * which is the input order
+	 *
+	 * Necessary because ES does not always return Aggs in the same order that you pass them in, and it should be possible
+	 * to control the display order easily
+	 *
+	 * @module search
+	 *
+	 * @param array $aggregations Agg results to be reordered
+	 * @param array $desired Array with keys representing the desired ordering
+	 *
+	 * @return array A new array with reordered keys, matching those in $desired
+	 */
+	public function fix_aggregation_ordering( array $aggregations, array $desired ) {
+		if ( empty( $aggregations ) || empty( $desired ) ) {
+			return $aggregations;
+		}
+
+		$reordered = array();
+
+		foreach( array_keys( $desired ) as $agg_name ) {
+			if ( isset( $aggregations[ $agg_name ] ) ) {
+				$reordered[ $agg_name ] = $aggregations[ $agg_name ];
+			}
+		}
+
+		return $reordered;
 	}
 }
