@@ -1,19 +1,13 @@
 <?php
-/*
- * WARNING: This file is distributed verbatim in Jetpack.
- * There should be nothing WordPress.com specific in this file.
- *
- * @hide-in-jetpack
- */
 
 new WPCOM_JSON_API_GET_Comment_Counts_Endpoint( array(
-	'description'   => 'Get comment counts for each available status',
-	'group'         => 'comments',
-	'stat'          => 'comments:1:comment-counts',
-	'method'        => 'GET',
-	'path'          => '/sites/%s/comment-counts',
-	'path_labels'   => array(
-		'$site'       => '(int|string) Site ID or domain',
+	'description' => 'Get comment counts for each available status',
+	'group'       => 'comments',
+	'stat'        => 'comments:1:comment-counts',
+	'method'      => 'GET',
+	'path'        => '/sites/%s/comment-counts',
+	'path_labels' => array(
+		'$site' => '(int|string) Site ID or domain',
 	),
 
 	'query_parameters' => array(
@@ -23,14 +17,14 @@ new WPCOM_JSON_API_GET_Comment_Counts_Endpoint( array(
 	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/comment-counts',
 
 	'response_format' => array(
-		'counts' => array(
-			'approved' => '(int) Number of approved comments',
-			'awaiting_moderation' => '(int) Number of unapproved comments',
-			'trash' => '(int) Number of trash comments',
-			'spam' => '(int) Number of spam comments',
-			'post-trashed' => '(int) Number of comments whose parent post has been trashed',
+		'comment_counts' => array(
+			'all'            => '(int) Combined number of approved and unapproved comments',
+			'approved'       => '(int) Number of approved comments',
+			'pending'        => '(int) Number of unapproved comments',
+			'trash'          => '(int) Number of trash comments',
+			'spam'           => '(int) Number of spam comments',
+			'post_trashed'   => '(int) Number of comments whose parent post has been trashed',
 			'total_comments' => '(int) Combined number of comments in each category',
-			'all' => '(int) Combined number of approved and awaiting_moderation comments',
 		)
 	)
 ) );
@@ -49,24 +43,32 @@ class WPCOM_JSON_API_GET_Comment_Counts_Endpoint extends WPCOM_JSON_API_Endpoint
 			return new WP_Error( 'authorization_required', 'An active access token must be used to retrieve comment counts.', 403 );
 		}
 
-		if ( ! current_user_can_for_blog( $blog_id, 'moderate_comments' ) ) {
+		if ( ! current_user_can_for_blog( $blog_id, 'edit_posts' ) ) {
 			return new WP_Error( 'authorization_required', 'You are not authorized to view comment counts for this blog.', 403 );
 		}
 
 		$args = $this->query_args();
 
 		// If 0 is passed wp_count_comments will default to fetching counts for the whole site.
-		$post_id = 0;
+		$post_id = ! empty( $args['post_id'] ) ? intval( $args['post_id'] ) : 0;
 
-		if ( isset( $args['post_id'] ) ) {
-			$post_id = intval( $args['post_id'] );
-
-			// Check if post with given id exists.
-			if ( ! is_object( get_post( $post_id ) ) ) {
-				return new WP_Error( 'invalid_input', 'Provided post_id does not exist', 400 );
-			}
+		// Check if post with given id exists.
+		if ( ! empty( $post_id ) && ! is_object( get_post( $post_id ) ) ) {
+			return new WP_Error( 'invalid_input', 'Provided post_id does not exist', 400 );
 		}
 
-		return wp_count_comments( $post_id );
+		$comment_counts = get_object_vars( wp_count_comments( $post_id ) );
+
+		// Keys coming from wp_count_comments don't match the ones that we use in
+		// wp-admin and Calypso and are not consistent. Let's normalize the response.
+		return array(
+			'all'            => $comment_counts['all'],
+			'approved'       => $comment_counts['approved'],
+			'pending'        => $comment_counts['moderated'],
+			'trash'          => $comment_counts['trash'],
+			'spam'           => $comment_counts['spam'],
+			'post_trashed'   => $comment_counts['post-trashed'],
+			'total_comments' => $comment_counts['total_comments']
+		);
 	}
 }
