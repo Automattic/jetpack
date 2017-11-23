@@ -23,7 +23,7 @@ $ yarn distclean
 
 **Start Development**
 
-1. Make sure you have `git`, `node`, and `npm` installed and a working WordPress installation.
+1. Make sure you have `git`, `node`, `npm`, and a working WordPress installation.
 2. Clone this repository inside your Plugins directory.
 
 	```
@@ -56,10 +56,10 @@ $ yarn build
 
 ## Development build with changes monitoring (watch)
 
-You can ran a watch process which will continuously watch the front-end JS and CSS/Sass for changes and rebuild accordingly.
+You can run a watch process, which will continuously watch the front-end JS and CSS/Sass for changes and rebuild accordingly.
 Instead of `yarn build` you'd use `yarn watch`.
 
-Before running the watch process you may need to `npm install` the npm dependencies first if you didn't do it already.
+Before running the watch process you may need to `npm install` the npm dependencies first, if you didn't do it already.
 
 ```
 $ yarn
@@ -68,7 +68,7 @@ $ yarn watch
 
 ## Production build
 
-The production build will generate minified files without duplicated code (resulting from dependencies) and also will generate the matching sourcemap files and language files.
+The production build will generate minified files without duplicated code (resulting from dependencies) and will also generate the matching sourcemap and language files.
 
 ```
 $ yarn build-production
@@ -76,7 +76,7 @@ $ yarn build-production
 
 ## Unit-testing
 
-Jetpack includes several [unit tests](https://github.com/Automattic/jetpack/tree/master/tests) that you can run in your local environment before to submit a new Pull Request.
+Jetpack includes several [unit tests](https://github.com/Automattic/jetpack/tree/master/tests) that you can run in your local environment before submitting a new Pull Request.
 
 To get started, you can follow the instructions [here](https://phpunit.de/getting-started.html) to install PHPUnit on your machine. If you are running a recent version of [VVV](https://github.com/Varying-Vagrant-Vagrants/VVV) then Jetpack will automatically detect your wordpress-develop install and you can just run `phpunit` directly.
 
