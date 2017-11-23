@@ -4020,6 +4020,14 @@ p {
 					wp_safe_redirect( Jetpack::admin_url( array( 'page' => $redirect ) ) );
 				}
 				exit;
+			case 'get-onboarding-token' :
+				if ( ! current_user_can( 'manage_options' ) ) {
+					wp_safe_redirect( Jetpack::admin_url( 'page=jetpack' ) );
+				} else {
+					$token = Jetpack::create_onboarding_token();
+					wp_redirect( 'http://calypso.localhost:3000/onboarding/token?token=' . $token );
+				}
+				exit;
 			default:
 				/**
 				 * Fires when a Jetpack admin page is loaded with an unrecognized parameter.
