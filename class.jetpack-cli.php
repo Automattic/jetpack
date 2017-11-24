@@ -1059,13 +1059,14 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * ## OPTIONS
 	 *
 	 * rebuild : Rebuild all sitemaps
+	 * --purge : if set, will remove all existing sitemap data before rebuilding
 	 *
 	 * ## EXAMPLES
 	 *
 	 * wp jetpack sitemap rebuild
 	 *
 	 * @subcommand sitemap
-	 * @synopsis <rebuild>
+	 * @synopsis <rebuild> [--purge]
 	 */
 	public function sitemap( $args, $assoc_args ) {
 		if ( ! Jetpack::is_active() ) {
@@ -1076,6 +1077,11 @@ class Jetpack_CLI extends WP_CLI_Command {
 		}
 		if ( ! class_exists( 'Jetpack_Sitemap_Builder' ) ) {
 			WP_CLI::error( __( 'Jetpack Sitemaps module is active, but unavailable. This can happen if your site is set to discourage search engine indexing. Please enable search engine indexing to allow sitemap generation.', 'jetpack' ) );
+		}
+
+		if ( isset( $assoc_args['purge'] ) && $assoc_args['purge'] ) {
+			$librarian = new Jetpack_Sitemap_Librarian();
+			$librarian->delete_all_stored_sitemap_data();
 		}
 
 		$sitemap_builder = new Jetpack_Sitemap_Builder();
