@@ -11,6 +11,21 @@ Follow the instructions below to test the feature:
 3. After receiving the email you should be able to login again or change your password.
 4. The token that you get in the email is only valid for 15 minutes.
 
+### Shortcodes
+
+In this release we started using minified JavaScript files for all the shortcodes that rely on JavaScript in the plugin. You will consequently want to try testing the following shortcodes:
+- Brightcove
+- Gist
+- Instagram
+- Presentations
+- Quizzes
+- Recipes
+- Slideshows
+
+You can find instructions on how to use each shortcode [here](https://jetpack.com/support/shortcode-embeds/).
+
+For each shortcode, you will want to make sure they work as expected, and that [no JavaScript error appears in your browser console](http://codex.wordpress.org/Using_Your_Browser_to_Diagnose_JavaScript_Errors).
+
 ### Final Notes
 
 During your tests, we encourage you to open your browser's Development Tools and keep the Console open, checking for any errors in the Console and the Network tabs.
