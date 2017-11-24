@@ -113,7 +113,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 
 **Enhancements**
-
+* Sitemaps: add CLI commands to purge and built the sitemaps.
 
 
 **Improved compatibility**
