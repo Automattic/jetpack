@@ -8,7 +8,7 @@
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '2.1.3' );
+define( 'WPCOMSH_VERSION', '2.1.4' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -599,6 +599,16 @@ function wpcomsh_wporg_to_wpcom_locale_mo_file( $mofile ) {
 	}
 
 	$possible_locale_slug = basename( $mofile, '.mo' );
+
+	// For some languages we have a different slug than WordPress.org.
+	$locale_mappings = array(
+		'nb' => 'no', // Norwegian Bokmål
+	);
+
+	if ( isset( $locale_mappings[ $possible_locale_slug ] ) ) {
+		$possible_locale_slug = $locale_mappings[ $possible_locale_slug ];
+	}
+
 	$locale_object = GP_Locales::by_field( 'wp_locale', $possible_locale_slug );
 
 	if ( ! $locale_object ) {
