@@ -1,5 +1,11 @@
 ## 5.6
 
+### Photon
+
+Until now, when filtering content, Photon removed `width` and `height` attributes from image tags. This was done to make sure images were never distorted, regardless of how they were inserted in a post.
+
+We've now improved this process and avoid removing those attributes when we can. To test, try inserting images in test posts. Use multiple methods to insert your images: slideshows, galleries, custom (non Jetpack) galleries, single images, images hosted somewhere else. You will want to make sure no image gets distorted, and that the `width` and `height` attributes are there. Ensure that you're "viewing source" to check this as opposed to using your browser's dev tools.
+
 ### Protect
 
 We've created a new setting one can use to change the default WordPress log in form, and add a new field with an option to send yourself an email with a link to log in when you got locked out of your site.
