@@ -100,6 +100,9 @@ require_once( $json_endpoints_dir . 'class.wpcom-json-api-add-widget-endpoint.ph
 // v1.2
 // **********
 
+// Comments
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-comments-tree-v1-2-endpoint.php' );
+
 // Media
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-list-media-v1-2-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-media-v1-2-endpoint.php' );
