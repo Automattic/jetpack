@@ -109,7 +109,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Release post: https://wp.me/p1moTy-6zt
 
 **Major Enhancements**
-
+* Performance: minify all JavaScript files used in the plugin.
 
 
 **Enhancements**
