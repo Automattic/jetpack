@@ -110,7 +110,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Major Enhancements**
 * Performance: minify all JavaScript files used in the plugin.
-
+* Protect: add new mechanism allowing you to send yourself an email with a link to the form when you are locked out of your site.
 
 **Enhancements**
 * Sitemaps: add CLI commands to purge and built the sitemaps.
