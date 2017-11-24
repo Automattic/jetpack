@@ -123,6 +123,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 * Related Posts: allow site owners to exclude mutliple blog posts from the list of Related Posts.
+* Sharing: remove inline JavaScript used in the email sharing form.
 * Search: Maintain ordering of the search filters in the widget.
 * Sync: avoid PHP notices during the synchronization process.
 
