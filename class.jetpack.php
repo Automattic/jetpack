@@ -4025,7 +4025,11 @@ p {
 					wp_safe_redirect( Jetpack::admin_url( 'page=jetpack' ) );
 				} else {
 					$token = Jetpack::create_onboarding_token();
-					wp_redirect( 'http://calypso.localhost:3000/onboarding/token?token=' . $token );
+					$redirect = add_query_arg( array(
+						'url' => Jetpack::build_raw_urls( home_url() ),
+						'token' => $token,
+					), 'http://calypso.localhost:3000/onboarding/token' );
+					wp_redirect( $redirect );
 				}
 				exit;
 			default:
