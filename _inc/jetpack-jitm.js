@@ -69,6 +69,10 @@ jQuery( document ).ready( function( $ ) {
 			query: query,
 			_wpnonce: $el.data( 'nonce' )
 		} ).then( function( response ) {
+			if ( 'object' === typeof response && response['1'] ) {
+				response = [ response['1'] ];
+			}
+
 			// properly handle the case of an empty array or no content set
 			if ( 0 === response.length || ! response[ 0 ].content ) {
 				return;
