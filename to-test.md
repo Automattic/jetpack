@@ -1,5 +1,15 @@
 ## 5.6
 
+### Lazy images
+
+We've added a new module, Lazy Images, to improve page load times by only loading an image when it is visible in the viewport.
+
+To test, try the following:
+
+1. Go to `https://yoursite.com/wp-admin/admin.php?page=jetpack_modules` and enable the "Lazy Images" module.
+2. Visit pages when you have inserted single images, galleries, slideshows. You'll want to test this on pages where the images are at the top of the page, but also on pages where you have to scroll to see the images. You will want to make sure that images get loaded as you scroll down the page, and that [no JavaScript error appears in your browser console](http://codex.wordpress.org/Using_Your_Browser_to_Diagnose_JavaScript_Errors).
+3. Try in as many browsers as possible.
+
 ### Photon
 
 Until now, when filtering content, Photon removed `width` and `height` attributes from image tags. This was done to make sure images were never distorted, regardless of how they were inserted in a post.

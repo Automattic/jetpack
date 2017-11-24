@@ -110,6 +110,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Major Enhancements**
 * Performance: minify all JavaScript files used in the plugin.
+* Performance: add new Lazy Images module.
 * Protect: add new mechanism allowing you to send yourself an email with a link to the form when you are locked out of your site.
 
 **Enhancements**
