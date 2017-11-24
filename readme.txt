@@ -126,6 +126,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Sharing: remove inline JavaScript used in the email sharing form.
 * Search: Maintain ordering of the search filters in the widget.
 * Sync: avoid PHP notices during the synchronization process.
+* WordPress.com Toolbar: avoid broken link when using the sign out button.
 
 = 5.5.1 =
 
