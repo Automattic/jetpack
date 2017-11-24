@@ -115,7 +115,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Enhancements**
 * Custom CSS: add new set of font properties that can be used in the CSS editor.
 * Sitemaps: add CLI commands to purge and built the sitemaps.
-
+* Sitemaps: only display the reporter log success messages if `JETPACK_DEV_DEBUG` is defined.
 
 **Improved compatibility**
 
