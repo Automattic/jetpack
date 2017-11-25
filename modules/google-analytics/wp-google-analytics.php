@@ -50,10 +50,6 @@ class Jetpack_Google_Analytics {
 	 * @return void
 	 */
 	private function __construct() {
-		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			error_log( print_r( Jetpack_Google_Analytics_Options::debug_dump(), true ) );
-		}
-
 		if ( Jetpack_Google_Analytics_Options::enhanced_ecommerce_tracking_is_enabled() ) {
 			$analytics = new Jetpack_Google_Analytics_Universal();
 		} else {
