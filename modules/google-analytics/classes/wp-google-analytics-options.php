@@ -67,3 +67,4 @@ class Jetpack_Google_Analytics_Options {
 		return self::get_option( 'enh_ec_track_checkout_started' );
 	}
 }
+
