@@ -46,6 +46,7 @@ export const Writing = React.createClass( {
 			'carousel',
 			'post-by-email',
 			'infinite-scroll',
+			'lazy-images',
 			'minileven',
 			'videopress'
 		].some( this.props.isModuleFound );
