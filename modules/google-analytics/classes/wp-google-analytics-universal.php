@@ -366,6 +366,9 @@ class Jetpack_Google_Analytics_Universal {
 		$cart = WC()->cart->get_cart();
 
 		foreach ( $cart as $cart_item_key => $cart_item ) {
+			/**
+			* This filter is already documented in woocommerce/templates/cart/cart.php
+			*/
 			$product = apply_filters( 'woocommerce_cart_item_product', $cart_item['data'], $cart_item, $cart_item_key );
 			$product_sku_or_id = Jetpack_Google_Analytics_Utils::get_product_sku_or_id( $product );
 
