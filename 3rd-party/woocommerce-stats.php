@@ -41,22 +41,23 @@ class WC_Stats {
 	public function __construct() {
 		$this->jetpack = Jetpack::init();
 
-		add_action( 'wp_enqueue_scripts', array( $this, 'track' ) );
+		add_action( 'wp_enqueue_scripts', array( $this, 'writeDataToDom' ) );
 	}
 
-	public function handle_client_tracks( $request ) {
-		return json_encode( $request->get_params() );
+	public function get_cart_ids( $result, $item ) {
+		$comma = strlen( $result ) > 0 ? ',' : '';
+		return $result . $comma . $item['product_id'];
 	}
 
-	public function get_cart_ids( $item ) {
-		return $item['product_id'];
+	public function get_cart_quantities( $result, $item ) {
+		$comma = strlen( $result ) > 0 ? ',' : '';
+		return $result . $comma . $item['quantity'];
 	}
 
-	public function get_cart_quantities( $item ) {
-		return $item['quantity'];
-	}
-
-	public function get_uncachable_page_type( $post_id ) {
+	public function get_store_page( $post_type, $post_id ) {
+		if ( 'product' === $post_type ) {
+			return 'product';
+		}
 
 		switch ( $post_id ) {
 			case get_option( 'woocommerce_cart_page_id' ):
@@ -70,52 +71,35 @@ class WC_Stats {
 			case get_option( 'woocommerce_view_order_page_id' ):
 				return 'view_order';
 			default:
-				null;
+				return $post_type;
 		}
 	}
 
-	public function track() {
+	public function writeDataToDom() {
 		$cart = WC()->cart->get_cart();
-		$cart_ids = array_map( array( $this, 'get_cart_ids' ), $cart );
-		$cart_quantities = array_map( array( $this, 'get_cart_quantities' ), $cart );
+		$cart_ids = array_reduce( $cart, array( $this, 'get_cart_ids' ), '' );
+		$cart_quantities = array_reduce( $cart, array( $this, 'get_cart_quantities' ), '' );
 		// Is this the right id? Is WooCommerce id different?
 		$store_id = Jetpack::get_option( 'id' );
 		$post = get_post();
 		$post_id = $post->ID;
 		$post_type = get_post_type( $post_id );
-		$post_name = $post->post_name;
-		$uncachable_page_type = $this->get_uncachable_page_type( $post_id );
-		if ( $uncachable_page_type ) {
-			echo "<pre style=\"font-size: 12px;\">";
-			echo "Tracks properties sent by PHP:";
-			echo "<br/>";
-			echo "post type: ";
-			print_r( $post_type );
-			echo "<br/>";
-			echo "post name: ";
-			print_r( $post_name );
-			echo "<br/>";
-			echo "post id: ";
-			print_r( $post_id );
-			echo "<br/>";
-			echo "store id: ";
-			print_r( $store_id );
-			echo "<br/>";
-			echo "page type: ";
-			print_r( $uncachable_page_type );
-			echo "<br/>";
-			echo "cart ids: ";
-			print_r( $cart_ids );
-			echo "<br/>";
-			echo "cart quantities: ";
-			print_r( $cart_quantities );
-			if ( isset( $_GET['key'] ) ) {
-				echo "<br/>";
-				echo "order number: ";
-				print_r( $_GET['key'] );
-			}
-			echo "</pre>";
-		}
+		$store_page = $this->get_store_page( $post_type, $post_id );
+		$order_number = $_GET['key'];
+
+		echo "
+			<div 
+				id='store_data'
+				style='display: none;' 
+				data-store_id='" . $store_id . "'
+				data-post_type='" . $post_type . "'
+				data-post_id='" . $post_id . "'
+				data-store_page='" . $store_page . "'
+				data-cart_ids='" . $cart_ids . "'
+				data-cart_quantities='" . $cart_quantities . "'
+				data-order_number='" . $order_number . "'>
+			</div>
+		";
 	}
 }
 
