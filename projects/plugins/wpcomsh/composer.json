@@ -10,7 +10,7 @@
     "automattic/jetpack-social-icons": "~1.0",
     "automattic/text-media-widget-styles": "~1.0",
     "automattic/wc-calypso-bridge": "0.1.2",
-    "woocommerce/wc-api-dev": "0.9.1"
+    "woocommerce/wc-api-dev": "0.9.2"
   },
   "require-dev": {
     "php": ">=7.0.0"

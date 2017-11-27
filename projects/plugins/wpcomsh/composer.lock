@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "68582a8d104fad54f6537b77a1462921",
-    "content-hash": "9694bb7316c32115c198d822a7f6f893",
+    "hash": "2f4ca3b1afb9d73ed7765edc41cc4a82",
+    "content-hash": "076f84b2893ed1e9744399abb3787395",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -147,16 +147,16 @@
         },
         {
             "name": "woocommerce/wc-api-dev",
-            "version": "v0.9.1",
+            "version": "v0.9.2",
             "source": {
                 "type": "git",
                 "url": "https://github.com/woocommerce/wc-api-dev.git",
-                "reference": "28f896d1a53a00ca8dd8056c90e46f918bbf1fce"
+                "reference": "8f7689bb978685c6ee84b8d1c12d5a83cf5f6025"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/woocommerce/wc-api-dev/zipball/28f896d1a53a00ca8dd8056c90e46f918bbf1fce",
-                "reference": "28f896d1a53a00ca8dd8056c90e46f918bbf1fce",
+                "url": "https://api.github.com/repos/woocommerce/wc-api-dev/zipball/8f7689bb978685c6ee84b8d1c12d5a83cf5f6025",
+                "reference": "8f7689bb978685c6ee84b8d1c12d5a83cf5f6025",
                 "shasum": ""
             },
             "type": "library",
@@ -165,7 +165,7 @@
                     "wc-api-dev.php"
                 ]
             },
-            "time": "2017-11-17 21:00:10"
+            "time": "2017-11-27 18:36:55"
         }
     ],
     "packages-dev": [],
