@@ -31,6 +31,15 @@ class A8C_WPCOM_Masterbar {
 			return;
 		}
 
+		Jetpack::dns_prefetch( array(
+			'//s0.wp.com',
+			'//s1.wp.com',
+			'//s2.wp.com',
+			'//0.gravatar.com',
+			'//1.gravatar.com',
+			'//2.gravatar.com',
+		) );
+
 		// Atomic only - override user setting that hides masterbar from site's front.
 		// https://github.com/Automattic/jetpack/issues/7667
 		if ( jetpack_is_atomic_site() ) {
