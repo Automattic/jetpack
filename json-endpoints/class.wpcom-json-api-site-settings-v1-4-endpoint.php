@@ -7,11 +7,11 @@
  * @autounit api-v1 site-settings
  */
 
-new WPCOM_JSON_API_Site_Settings_V1_3_Endpoint( array(
+new WPCOM_JSON_API_Site_Settings_V1_4_Endpoint( array(
 	'description' => 'Get detailed settings information about a site.',
 	'group'       => '__do_not_document',
 	'stat'        => 'sites:X',
-	'min_version' => '1.3',
+	'min_version' => '1.4',
 	'method'      => 'GET',
 	'path'        => '/sites/%s/settings',
 	'path_labels' => array(
@@ -24,14 +24,14 @@ new WPCOM_JSON_API_Site_Settings_V1_3_Endpoint( array(
 
 	'response_format' => WPCOM_JSON_API_Site_Settings_Endpoint::$site_format,
 
-	'example_request' => 'https://public-api.wordpress.com/rest/v1.3/sites/en.blog.wordpress.com/settings?pretty=1',
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.4/sites/en.blog.wordpress.com/settings?pretty=1',
 ) );
 
-new WPCOM_JSON_API_Site_Settings_V1_3_Endpoint( array(
+new WPCOM_JSON_API_Site_Settings_V1_4_Endpoint( array(
 	'description' => 'Update settings for a site.',
 	'group'       => '__do_not_document',
 	'stat'        => 'sites:X',
-	'min_version' => '1.3',
+	'min_version' => '1.4',
 	'method'      => 'POST',
 	'path'        => '/sites/%s/settings',
 	'path_labels' => array(
@@ -97,7 +97,7 @@ new WPCOM_JSON_API_Site_Settings_V1_3_Endpoint( array(
 		'jetpack_portfolio'                    => '(bool) Whether portfolio custom post type is enabled for the site',
 		'jetpack_portfolio_posts_per_page'     => '(int) Number of portfolio projects to show per page',
 		Jetpack_SEO_Utils::FRONT_PAGE_META_OPTION => '(string) The SEO meta description for the site.',
-		Jetpack_SEO_Titles::TITLE_FORMATS_OPTION => '(array) SEO meta title formats. Allowed keys: front_page, posts, pages, groups, archives',
+		Jetpack_SEO_Titles::TITLE_FORMATS_OPTION  => '(array) SEO meta title formats. Allowed keys: front_page, posts, pages, groups, archives',
 		'verification_services_codes'          => '(array) Website verification codes. Allowed keys: google, pinterest, bing, yandex',
 		'amp_is_enabled'                       => '(bool) Whether AMP is enabled for this site',
 		'podcasting_archive'                   => '(string) The post category, if any, used for publishing podcasts',
@@ -110,50 +110,22 @@ new WPCOM_JSON_API_Site_Settings_V1_3_Endpoint( array(
 		'updated' => '(array)'
 	),
 
-	'example_request' => 'https://public-api.wordpress.com/rest/v1/sites/en.blog.wordpress.com/settings?pretty=1',
+	'example_request' => 'https://public-api.wordpress.com/rest/v1.4/sites/en.blog.wordpress.com/settings?pretty=1',
 ) );
 
-class WPCOM_JSON_API_Site_Settings_V1_3_Endpoint extends WPCOM_JSON_API_Site_Settings_V1_2_Endpoint {
-	public static $wga_defaults = array(
-		'code'                 => '',
-		'anonymize_ip'         => false,
-		'ec_track_purchases'   => false,
-		'ec_track_add_to_cart' => false
-	);
-
-	function callback( $path = '', $blog_id = 0 ) {
-		add_filter( 'site_settings_endpoint_get', array( $this, 'filter_site_settings_endpoint_get' ) );
-		add_filter( 'site_settings_update_wga', array( $this, 'filter_update_google_analytics' ), 10, 2 );
-		return parent::callback( $path, $blog_id );
-	}
-
-	/**
-	 * Filter the parent's response to include the fields
-	 * added to 1.3 (and their defaults)
-	 */
-	public function filter_site_settings_endpoint_get( $settings ) {
-		$option_name = defined( 'IS_WPCOM' ) && IS_WPCOM ? 'wga' : 'jetpack_wga';
-		$option = get_option( $option_name, array() );
-		$settings[ 'wga' ] = wp_parse_args( $option, $this->get_defaults() );
-		return $settings;
-	}
-
-	/**
-	 * Filter the parent's response to consume our new fields
-	 */
-	public function filter_update_google_analytics( $wga, $new_values ) {
-		$wga_keys = array_keys( $this->get_defaults() );
-		foreach ( $wga_keys as $wga_key ) {
-			// Skip code since the parent class has handled it
-			if ( 'code' === $wga_key ) {
-				continue;
-			}
-			// All our new keys are booleans, so let's coerce each key's value
-			// before updating the value in settings
-			if ( array_key_exists( $wga_key, $new_values ) ) {
-				$wga[ $wga_key ] = WPCOM_JSON_API::is_truthy( $new_values[ $wga_key ] );
-			}
-		}
-		return $wga;
+class WPCOM_JSON_API_Site_Settings_V1_4_Endpoint extends WPCOM_JSON_API_Site_Settings_V1_3_Endpoint {
+	protected function get_defaults() {
+		return array(
+			'code'                          => '',
+			'anonymize_ip'                  => false,
+			'ec_track_purchases'            => false,
+			'ec_track_add_to_cart'          => false,
+			'enh_ec_tracking'               => false,
+			'enh_ec_track_remove_from_cart' => false,
+			'enh_ec_track_prod_impression'  => false,
+			'enh_ec_track_prod_click'       => false,
+			'enh_ec_track_prod_detail_view' => false,
+			'enh_ec_track_checkout_started' => false,
+		);
 	}
 }
