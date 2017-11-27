@@ -302,7 +302,7 @@ function jetpackLoadLikeWidgetIframe( wrapperID ) {
 		commentLikesFrame.name = $wrapper.data( 'name' );
 		commentLikesFrame.src = $wrapper.data( 'src' );
 		commentLikesFrame.height = '18px';
-		commentLikesFrame.width = '200px';
+		commentLikesFrame.width = '100%';
 		commentLikesFrame.frameBorder = '0';
 		commentLikesFrame.scrolling = 'no';
 
