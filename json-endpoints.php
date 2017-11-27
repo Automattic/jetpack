@@ -22,6 +22,7 @@ require_once( $json_endpoints_dir . 'class.wpcom-json-api-render-endpoint.php' )
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-delete-media-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-comment-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-comments-tree-endpoint.php' );
+require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-comment-history-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-media-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-post-endpoint.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-render-shortcode-endpoint.php' );
