@@ -31,19 +31,28 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 
 		wp_register_script(
 			'models.jetpack-modules',
-			plugins_url( '_inc/build/jetpack-modules.models.min.js', JETPACK__PLUGIN_FILE ),
+			Jetpack::get_file_url_for_environment(
+				'_inc/build/jetpack-modules.models.min.js',
+				'_inc/jetpack-modules.models.js'
+			),
 			array( 'backbone', 'underscore' ),
 			JETPACK__VERSION
 		);
 		wp_register_script(
 			'views.jetpack-modules',
-			plugins_url( '_inc/build/jetpack-modules.views.min.js', JETPACK__PLUGIN_FILE ),
+			Jetpack::get_file_url_for_environment(
+				'_inc/build/jetpack-modules.views.min.js',
+				'_inc/jetpack-modules.views.js'
+			),
 			array( 'backbone', 'underscore', 'wp-util' ),
 			JETPACK__VERSION
 		);
 		wp_register_script(
 			'jetpack-modules-list-table',
-			plugins_url( '_inc/build/jetpack-modules.min.js', JETPACK__PLUGIN_FILE ),
+			Jetpack::get_file_url_for_environment(
+				'_inc/build/jetpack-modules.min.js',
+				'_inc/jetpack-modules.js'
+			),
 			array(
 				'views.jetpack-modules',
 				'models.jetpack-modules',
