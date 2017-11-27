@@ -1,7 +1,8 @@
 /**
  * External dependencies
  */
-import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { Component } from 'react';
 import { connect } from 'react-redux';
 
 /**
@@ -24,8 +25,8 @@ export class Tracker extends Component {
 }
 
 Tracker.propTypes = {
-	analytics: React.PropTypes.object,
-	searchTerm: React.PropTypes.string
+	analytics: PropTypes.object,
+	searchTerm: PropTypes.string
 };
 
 export default connect(

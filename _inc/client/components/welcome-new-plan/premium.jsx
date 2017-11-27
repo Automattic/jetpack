@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import PropTypes from 'prop-types';
 import React from 'react';
 import { Component } from 'react';
 import { translate as __ } from 'i18n-calypso';
@@ -110,7 +111,7 @@ class WelcomePremium extends Component {
 }
 
 WelcomePremium.propTypes = {
-	dismiss: React.PropTypes.func
+	dismiss: PropTypes.func
 };
 
 export default WelcomePremium;

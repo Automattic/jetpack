@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import PropTypes from 'prop-types';
 import React from 'react';
 import classNames from 'classnames';
 import { translate as __ } from 'i18n-calypso';
@@ -99,8 +100,8 @@ const ThemesPromoCard = React.createClass( {
 } );
 
 ThemesPromoCard.propTypes = {
-	className: React.PropTypes.string,
-	plan: React.PropTypes.string
+	className: PropTypes.string,
+	plan: PropTypes.string
 };
 
 export default ThemesPromoCard;

@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import PropTypes from 'prop-types';
 import React from 'react';
 import { Component } from 'react';
 import { connect } from 'react-redux';
@@ -88,7 +89,7 @@ export const SearchableModules = moduleSettingsForm(
 );
 
 SearchableModules.propTypes = {
-	searchTerm: React.PropTypes.string
+	searchTerm: PropTypes.string
 };
 
 SearchableModules.defaultProps = {

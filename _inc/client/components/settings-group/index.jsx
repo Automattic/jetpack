@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
@@ -89,14 +90,14 @@ export const SettingsGroup = props => {
 };
 
 SettingsGroup.propTypes = {
-	support: React.PropTypes.string,
-	module: React.PropTypes.object,
-	disableInDevMode: React.PropTypes.bool.isRequired,
-	isDevMode: React.PropTypes.bool.isRequired,
-	isSitePublic: React.PropTypes.bool.isRequired,
-	userCanManageModules: React.PropTypes.bool.isRequired,
-	isLinked: React.PropTypes.bool.isRequired,
-	isUnavailableInDevMode: React.PropTypes.func.isRequired
+	support: PropTypes.string,
+	module: PropTypes.object,
+	disableInDevMode: PropTypes.bool.isRequired,
+	isDevMode: PropTypes.bool.isRequired,
+	isSitePublic: PropTypes.bool.isRequired,
+	userCanManageModules: PropTypes.bool.isRequired,
+	isLinked: PropTypes.bool.isRequired,
+	isUnavailableInDevMode: PropTypes.func.isRequired
 };
 
 SettingsGroup.defaultProps = {

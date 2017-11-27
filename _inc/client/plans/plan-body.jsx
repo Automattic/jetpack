@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import Button from 'components/button';
@@ -30,7 +31,7 @@ import QuerySitePlugins from 'components/data/query-site-plugins';
 
 const PlanBody = React.createClass( {
 	propTypes: {
-		plan: React.PropTypes.string
+		plan: PropTypes.string
 	},
 
 	getDefaultProps: function() {

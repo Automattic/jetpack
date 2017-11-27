@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import classNames from 'classnames';
 import { connect } from 'react-redux';
@@ -134,13 +135,13 @@ export class DashItem extends Component {
 }
 
 DashItem.propTypes = {
-	label: React.PropTypes.string,
-	status: React.PropTypes.string,
-	statusText: React.PropTypes.string,
-	disabled: React.PropTypes.bool,
-	module: React.PropTypes.string,
-	pro: React.PropTypes.bool,
-	isModule: React.PropTypes.bool,
+	label: PropTypes.string,
+	status: PropTypes.string,
+	statusText: PropTypes.string,
+	disabled: PropTypes.bool,
+	module: PropTypes.string,
+	pro: PropTypes.bool,
+	isModule: PropTypes.bool,
 };
 
 DashItem.defaultProps = {

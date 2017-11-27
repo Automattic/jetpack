@@ -2,18 +2,19 @@
 /**
  * External dependencies
  */
+import PropTypes from 'prop-types';
 import React from 'react';
 import CompactFormToggle from 'components/form/form-toggle/compact';
 import analytics from 'lib/analytics';
 
 export const ModuleToggle = React.createClass( {
 	propTypes: {
-		toggleModule: React.PropTypes.func,
-		activated: React.PropTypes.bool,
-		disabled: React.PropTypes.bool,
-		className: React.PropTypes.string,
-		compact: React.PropTypes.bool,
-		id: React.PropTypes.string
+		toggleModule: PropTypes.func,
+		activated: PropTypes.bool,
+		disabled: PropTypes.bool,
+		className: PropTypes.string,
+		compact: PropTypes.bool,
+		id: PropTypes.string
 	},
 
 	getDefaultProps: function() {

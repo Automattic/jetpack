@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 
@@ -18,10 +19,10 @@ import { SettingToggle } from 'components/setting-toggle';
 
 export const Settings = React.createClass( {
 	propTypes: {
-		slug: React.PropTypes.string,
-		activated: React.PropTypes.bool,
-		toggleSetting: React.PropTypes.func,
-		disabled: React.PropTypes.bool
+		slug: PropTypes.string,
+		activated: PropTypes.bool,
+		toggleSetting: PropTypes.func,
+		disabled: PropTypes.bool
 	},
 
 	componentDidMount() {

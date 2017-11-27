@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
@@ -40,8 +41,8 @@ import {
 
 const ProStatus = React.createClass( {
 	propTypes: {
-		isCompact: React.PropTypes.bool,
-		proFeature: React.PropTypes.string
+		isCompact: PropTypes.bool,
+		proFeature: PropTypes.string
 	},
 
 	getDefaultProps: function() {

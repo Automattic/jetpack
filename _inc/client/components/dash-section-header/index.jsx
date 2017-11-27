@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import PropTypes from 'prop-types';
 import React from 'react';
 import classNames from 'classnames';
 import Gridicon from 'components/gridicon';
@@ -11,11 +12,11 @@ export const DashSectionHeader = React.createClass( {
 	displayName: 'DashSectionHeader',
 
 	propTypes: {
-		label: React.PropTypes.string.isRequired,
-		settingsPath: React.PropTypes.string,
-		externalLinkPath: React.PropTypes.string,
-		externalLink: React.PropTypes.string,
-		externalLinkClick: React.PropTypes.func
+		label: PropTypes.string.isRequired,
+		settingsPath: PropTypes.string,
+		externalLinkPath: PropTypes.string,
+		externalLink: PropTypes.string,
+		externalLinkClick: PropTypes.func
 	},
 
 	getDefaultProps() {
