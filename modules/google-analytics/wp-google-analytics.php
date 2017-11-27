@@ -55,6 +55,7 @@ class Jetpack_Google_Analytics {
 		} else {
 			$analytics = new Jetpack_Google_Analytics_Legacy();
 		}
+
 	}
 
 	/**
