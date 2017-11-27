@@ -654,7 +654,15 @@ function stats_convert_image_urls( $html ) {
 	return $html;
 }
 
-function stats_convert_chart_urls_preg_replace_callback( $matches ) {
+/**
+ * Callback for preg_replace_callback used in stats_convert_chart_urls()
+ *
+ * @since 5.6.0
+ *
+ * @param  array  $matches The matches resulting from the preg_replace_callback call.
+ * @return string          The admin url for the chart.
+ */
+function jetpack_stats_convert_chart_urls_callback( $matches ) {
 	// If there is a query string, change the beginning '?' to a '&' so it fits into the middle of this query string.
 	return 'admin.php?page=stats&noheader&chart=' . $matches[1] . str_replace( '?', '&', $matches[2] );
 }
@@ -669,7 +677,7 @@ function stats_convert_chart_urls_preg_replace_callback( $matches ) {
 function stats_convert_chart_urls( $html ) {
 	$html = preg_replace_callback(
 		'|https?://[-.a-z0-9]+/wp-includes/charts/([-.a-z0-9]+).php(\??)|',
-		'stats_convert_chart_urls_preg_replace_callback',
+		'jetpack_stats_convert_chart_urls_callback',
 		$html
 	);
 	return $html;
