@@ -14,6 +14,8 @@
  * @package Jetpack
  */
 
+require_once( dirname(JETPACK__PLUGIN_DIR).'/jetpack/3rd-party/woocommerce-stats.php' );
+
 if ( defined( 'STATS_VERSION' ) ) {
 	return;
 }
@@ -162,6 +164,7 @@ function stats_template_redirect() {
 	$script = 'https://stats.wp.com/e-' . gmdate( 'YW' ) . '.js';
 	$data = stats_build_view_data();
 	$data_stats_array = stats_array( $data );
+	$store_stats_script = WC_Stats::getScriptTag();
 
 	$stats_footer = <<<END
 <script type='text/javascript' src='{$script}' async defer></script>
@@ -170,9 +173,7 @@ function stats_template_redirect() {
 	_stq.push([ 'view', {{$data_stats_array}} ]);
 	_stq.push([ 'clickTrackerInit', '{$data['blog']}', '{$data['post']}' ]);
 </script>
-<!-- Temporarily put this here until we can sort this one out -->
-<script type='text/javascript' src='https://stats.wp.com/s.js'></script>
-
+{ $store_stats_script }
 END;
 }
 

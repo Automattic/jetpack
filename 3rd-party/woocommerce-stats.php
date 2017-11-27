@@ -16,26 +16,44 @@ class WC_Stats {
 	private static $instance = null;
 
 	static function init() {
+		if ( ! WC_Stats::isActiveStore() ) {
+			return;
+		}
+
+		if ( is_null( self::$instance ) ) {
+			self::$instance = new WC_Stats();
+		}
+		return self::$instance;
+	}
+
+	static function getScriptTag() {
+		if ( WC_Stats::isActiveStore() ) {
+			return "
+				<script type='text/javascript' src='https://stats.wp.com/s.js'></script>
+			";
+		}
+	}
+
+	public function isActiveStore() {
 		// Tracking only Site pages
 		if ( is_admin() ) {
-			return;
+			return false;
 		}
 		// Make sure Jetpack is installed and active
 		if ( ! Jetpack::is_active() ) {
-			return;
+			return false;
 		}
+
 		/**
 		 * Make sure WooCommerce is installed and active
 		 *
 		 * This action is documented in https://docs.woocommerce.com/document/create-a-plugin
 		 */
 		if ( ! in_array( 'woocommerce/woocommerce.php', apply_filters( 'active_plugins', get_option( 'active_plugins' ) ) ) ) {
-			return;
+			return false;
 		}
-		if ( is_null( self::$instance ) ) {
-			self::$instance = new WC_Stats();
-		}
-		return self::$instance;
+
+		return true;
 	}
 
 	public function __construct() {
