@@ -116,6 +116,8 @@ class Jetpack_Lazy_Images {
 		 * $new_attributes array and then add a style tag that sets those values as well, which could
 		 * minimize reflow as images load.
 		 *
+		 * @module lazy-images
+		 *
 		 * @since 5.6.0
 		 *
 		 * @param array An array containing the attributes for the image, where the key is the attribute name
