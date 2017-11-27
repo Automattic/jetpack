@@ -603,6 +603,8 @@ function wpcomsh_wporg_to_wpcom_locale_mo_file( $mofile ) {
 	// For some languages we have a different slug than WordPress.org.
 	$locale_mappings = array(
 		'nb' => 'no', // Norwegian Bokmål
+		'de_DE_formal' => 'de', // formal German
+		'en_UK' => 'en-gb', // Accept wrong slug
 	);
 
 	if ( isset( $locale_mappings[ $possible_locale_slug ] ) ) {
