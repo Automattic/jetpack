@@ -173,7 +173,7 @@ function stats_template_redirect() {
 	_stq.push([ 'view', {{$data_stats_array}} ]);
 	_stq.push([ 'clickTrackerInit', '{$data['blog']}', '{$data['post']}' ]);
 </script>
-{ $store_stats_script }
+$store_stats_script
 END;
 }
 

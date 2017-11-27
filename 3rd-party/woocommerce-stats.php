@@ -104,18 +104,20 @@ class WC_Stats {
 		$post_type = get_post_type( $post_id );
 		$store_page = $this->get_store_page( $post_type, $post_id );
 		$order_number = $_GET['key'];
+		$tracks_identity = jetpack_tracks_get_identity( get_current_user_id() );
 
 		echo "
 			<div 
 				id='store_data'
 				style='display: none;' 
-				data-store_id='" . $store_id . "'
-				data-post_type='" . $post_type . "'
-				data-post_id='" . $post_id . "'
-				data-store_page='" . $store_page . "'
-				data-cart_ids='" . $cart_ids . "'
-				data-cart_quantities='" . $cart_quantities . "'
-				data-order_number='" . $order_number . "'>
+				data-si='" . $store_id . "'
+				data-pt='" . $post_type . "'
+				data-pi='" . $post_id . "'
+				data-sp='" . $store_page . "'
+				data-ci='" . $cart_ids . "'
+				data-cq='" . $cart_quantities . "'
+				data-on='" . $order_number . "'
+				data-ti='" . $tracks_identity[ '_ui' ] . "'>
 			</div>
 		";
 	}
