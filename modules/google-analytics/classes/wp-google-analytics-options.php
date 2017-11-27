@@ -46,4 +46,25 @@ class Jetpack_Google_Analytics_Options {
 	public static function enhanced_ecommerce_tracking_is_enabled() {
 		return self::get_option( 'enh_ec_tracking' );
 	}
+
+	public static function track_remove_from_cart_is_enabled() {
+		return self::get_option( 'enh_ec_track_remove_from_cart' );
+	}
+
+	public static function track_product_impressions_is_enabled() {
+		return self::get_option( 'enh_ec_track_prod_impression' );
+	}
+
+	public static function track_product_clicks_is_enabled() {
+		return self::get_option( 'enh_ec_track_prod_click' );
+	}
+
+	public static function track_product_detail_view_is_enabled() {
+		return self::get_option( 'enh_ec_track_prod_detail_view' );
+	}
+
+	public static function track_checkout_started_is_enabled() {
+		return self::get_option( 'enh_ec_track_checkout_started' );
+	}
 }
+

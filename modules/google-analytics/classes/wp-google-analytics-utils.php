@@ -24,6 +24,10 @@ class Jetpack_Google_Analytics_Utils {
 			return '';
 		}
 
+		if ( ! $product ) {
+			return '';
+		}
+
 		$variation_data = $product->is_type( 'variation' ) ? wc_get_product_variation_attributes( $product->get_id() ) : '';
 		if ( is_array( $variation_data ) && ! empty( $variation_data ) ) {
 			$line = wc_get_formatted_variation( $variation_data, true );
@@ -38,5 +42,22 @@ class Jetpack_Google_Analytics_Utils {
 			$line = join( "/", $out );
 		}
 		return $line;
+	}
+
+	/**
+	 * Gets a product's SKU with fallback to just ID. IDs are prepended with a hash symbol.
+	 * @param WC_Product
+	 * @return string
+	 */
+	public static function get_product_sku_or_id( $product ) {
+		if ( ! class_exists( 'WooCommerce' ) ) {
+			return '';
+		}
+
+		if ( ! $product ) {
+			return '';
+		}
+
+		return $product->get_sku() ? $product->get_sku() : '#' . $product->get_id();
 	}
 }
