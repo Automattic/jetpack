@@ -118,6 +118,9 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 
 	public function get_real_user_capabilities( $user ) {
 		$user_capabilities = array();
+		if ( is_wp_error( $user ) ) {
+			return $user_capabilities;
+		}
 		foreach( Jetpack_Sync_Defaults::get_capabilities_whitelist() as $capability ) {
 			if ( $user_has_capabilities = user_can( $user , $capability ) ) {
 				$user_capabilities[ $capability ] = true;
