@@ -120,6 +120,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Photon: do not remove `width` and `height` attributes from image tags when known.
 * Sitemaps: add CLI commands to purge and built the sitemaps.
 * Sitemaps: only display the reporter log success messages if `JETPACK_DEV_DEBUG` is defined.
+* WordPress.com API: add new endpoints to allow for better comment management in third party interfaces like WordPress.com.
 * WordPress.com Toolbar: prevent dns prefetching for logged out users.
 
 **Improved compatibility**
