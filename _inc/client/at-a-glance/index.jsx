@@ -12,7 +12,6 @@ import analytics from 'lib/analytics';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 import DashSectionHeader from 'components/dash-section-header';
 import DashStats from './stats/index.jsx';
-import DashActivity from './activity';
 import DashProtect from './protect';
 import DashMonitor from './monitor';
 import DashScan from './scan';
@@ -78,15 +77,7 @@ class AtAGlance extends Component {
 					}
 					<div className="jp-at-a-glance__item-grid">
 						<div className="jp-at-a-glance__left">
-							<DashActivity { ...settingsProps } siteRawUrl={ this.props.siteRawUrl } />
-						</div>
-						<div className="jp-at-a-glance__right">
 							<DashProtect { ...settingsProps } />
-						</div>
-					</div>
-					<div className="jp-at-a-glance__item-grid">
-						<div className="jp-at-a-glance__left">
-							<DashBackups { ...settingsProps } siteRawUrl={ this.props.siteRawUrl } />
 						</div>
 						<div className="jp-at-a-glance__right">
 							<DashScan { ...settingsProps } siteRawUrl={ this.props.siteRawUrl } />
@@ -94,7 +85,7 @@ class AtAGlance extends Component {
 					</div>
 					<div className="jp-at-a-glance__item-grid">
 						<div className="jp-at-a-glance__left">
-							<DashAkismet { ...urls } />
+							<DashBackups { ...settingsProps } siteRawUrl={ this.props.siteRawUrl } />
 						</div>
 						<div className="jp-at-a-glance__right">
 							<DashMonitor { ...settingsProps } />
@@ -102,9 +93,13 @@ class AtAGlance extends Component {
 					</div>
 					<div className="jp-at-a-glance__item-grid">
 						<div className="jp-at-a-glance__left">
+							<DashAkismet { ...urls } />
+						</div>
+						<div className="jp-at-a-glance__right">
 							<DashPluginUpdates { ...settingsProps } { ...urls } />
 						</div>
 					</div>
+
 					{
 						<DashSectionHeader
 							label={ __( 'Performance' ) }
