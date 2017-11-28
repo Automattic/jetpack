@@ -114,10 +114,12 @@ class WC_Stats {
 				data-pt='" . $post_type . "'
 				data-pi='" . $post_id . "'
 				data-sp='" . $store_page . "'
+				data-ch='" . $_COOKIE[ 'woocommerce_cart_hash' ] . "'
 				data-ci='" . $cart_ids . "'
 				data-cq='" . $cart_quantities . "'
 				data-on='" . $order_number . "'
-				data-ti='" . $tracks_identity[ '_ui' ] . "'>
+				data-ut='" . $tracks_identity[ '_ut' ] . "'
+				data-ui='" . $tracks_identity[ '_ui' ] . "'>
 			</div>
 		";
 	}
