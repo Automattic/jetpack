@@ -49,6 +49,12 @@ class Jetpack_Google_Analytics_Universal {
 			return;
 		}
 
+		// At this time, we only leverage universal analytics for enhanced ecommerce. If WooCommerce is not
+		// present, don't bother emitting the tracking ID or fetching analytics.js
+		if ( ! class_exists( 'WooCommerce' ) ) {
+			return;
+		}
+
 		/**
 		 * Allow for additional elements to be added to the universal Google Analytics queue (ga) array
 		 *
@@ -394,6 +400,10 @@ class Jetpack_Google_Analytics_Universal {
 		}
 
 		if ( is_admin() ) {
+			return;
+		}
+
+		if ( ! class_exists( 'WooCommerce' ) ) {
 			return;
 		}
 
