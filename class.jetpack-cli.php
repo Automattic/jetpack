@@ -892,13 +892,17 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * : Whether to force a site to register
 	 * [--force_connect=<force_connect>]
 	 * : Force JPS to not reuse existing credentials
+	 * [--home_url=<home_url>]
+	 * : Overrides the home option via the home_url filter, or the WP_HOME constant
+	 * [--site_url=<site_url>]
+	 * : Overrides the siteurl option via the site_url filter, or the WP_SITEURL constant
 	 *
 	 * ## EXAMPLES
 	 *
 	 *     $ wp jetpack partner_provision '{ some: "json" }' premium 1
 	 *     { success: true }
 	 *
-	 * @synopsis <token_json> [--wpcom_user_id=<user_id>] [--plan=<plan_name>] [--onboarding=<onboarding>] [--force_register=<register>] [--force_connect=<force_connect>]
+	 * @synopsis <token_json> [--wpcom_user_id=<user_id>] [--plan=<plan_name>] [--onboarding=<onboarding>] [--force_register=<register>] [--force_connect=<force_connect>] [--home_url=<home_url>] [--site_url=<site_url>]
 	 */
 	public function partner_provision( $args, $named_args ) {
 		list( $token_json ) = $args;
@@ -916,6 +920,28 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		if ( ! isset( $token->access_token ) ) {
 			$this->partner_provision_error( new WP_Error( 'missing_access_token', __( 'Missing or invalid access token', 'jetpack' ) ) );
+		}
+
+		$url_args = array(
+			'home_url' => 'WP_HOME',
+			'site_url' => 'WP_SITEURL',
+		);
+
+		foreach ( $url_args as $url_arg => $constant_name ) {
+			// Anonymous functions were introduced in 5.3.0. So, if we're running on
+			// >= 5.3.0, use an anonymous function to set the home/siteurl values.
+			//
+			// Otherwise, fallback to setting the home/siteurl value via the WP_HOME and
+			// WP_SITEURL constants if the constant hasn't already been defined.
+			if ( isset( $named_args[ $url_arg ] ) ) {
+				if ( version_compare( phpversion(), '5.3.0', '>=') ) {
+					add_filter( $url_arg, function( $url ) use ( $url_arg, $named_args ) {
+						return $named_args[ $url_arg ];
+					}, 11 );
+				} else if ( ! defined( $constant_name ) ) {
+					define( $constant_name, $named_args[ $url_arg ] );
+				}
+			}
 		}
 
 		$blog_id    = Jetpack_Options::get_option( 'id' );

@@ -4,7 +4,7 @@
 # executes wp-cli command to provision Jetpack site for given partner
 
 usage () {
-	echo "Usage: partner-provision.sh --partner_id=partner_id --partner_secret=partner_secret [--user=wp_user_id] [--plan=plan_name] [--onboarding=1] [--wpcom_user_id=1234] [--url=http://example.com] [--force_connect=1] [--force_register=1] [--allow-root]"
+	echo "Usage: partner-provision.sh --partner_id=partner_id --partner_secret=partner_secret [--user=wp_user_id] [--plan=plan_name] [--onboarding=1] [--wpcom_user_id=1234] [--url=http://example.com] [--force_connect=1] [--force_register=1] [--allow-root] [--home_url] [--site_url]"
 }
 
 GLOBAL_ARGS=""
@@ -36,6 +36,12 @@ for i in "$@"; do
 			shift
 			;;
 		--force_connect=* )         FORCE_CONNECT="${i#*=}"
+			shift
+			;;
+		--site_url=* )              WP_SITEURL="${i#*=}"
+			shift
+			;;
+		--home_url=* )              WP_HOME="${i#*=}"
 			shift
 			;;
 		--allow-root )              GLOBAL_ARGS="--allow-root"
@@ -98,6 +104,14 @@ fi
 
 if [ ! -z "$FORCE_CONNECT" ]; then
 	ADDITIONAL_ARGS="$ADDITIONAL_ARGS --force_connect=$FORCE_CONNECT"
+fi
+
+if [ ! -z "$WP_SITEURL" ]; then
+	ADDITIONAL_ARGS="$ADDITIONAL_ARGS --site_url=$WP_SITEURL"
+fi
+
+if [ ! -z "$WP_HOME" ]; then
+	ADDITIONAL_ARGS="$ADDITIONAL_ARGS --home_url=$WP_HOME"
 fi
 
 # Remove leading whitespace
