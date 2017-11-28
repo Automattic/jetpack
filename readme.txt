@@ -128,7 +128,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 * Comment Likes: make sure Like text is properly translated.
-* Related Posts: allow site owners to exclude mutliple blog posts from the list of Related Posts.
+* General: only load stats code when necessary.
+* Related Posts: allow site owners to exclude multiple blog posts from the list of Related Posts.
 * Sharing: remove inline JavaScript used in the email sharing form.
 * Search: Maintain ordering of the search filters in the widget.
 * Sync: avoid PHP notices during the synchronization process.
