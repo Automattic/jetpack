@@ -116,7 +116,6 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 
 	public function unlock_sync_callable() {
 		add_filter( 'jetpack_check_and_send_callables', '__return_true' );
-		error_log('unlock_sync_callable    ' . getmypid() );
 		delete_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME );
 	}
 
