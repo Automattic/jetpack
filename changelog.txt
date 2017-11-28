@@ -1,5 +1,19 @@
 == Changelog ==
 
+= 5.5.1 =
+
+* Release date: November 21, 2017
+* Release post: https://wp.me/p1moTy-6Bd
+
+**Bug fixes**
+* In Jetpack 5.5 we made some changes that created errors if you were using other plugins that added custom links to the Plugins menu. This is now fixed.
+* We have fixed a problem that did not allow to upload plugins using API requests.
+* Open Graph links in post headers are no longer invalid in some special cases.
+* We fixed warnings happening when syncing users with WordPress.com.
+* We updated the way the Google+ button is loaded to match changes made by Google, to ensure the button is always displayed properly.
+* We fixed conflicts between Jetpack's Responsive Videos and the updates made to Video players in WordPress 4.9.
+* We updated Publicize's message length to match Twitter's new 280 character limit.
+
 = 5.5 =
 
 * Release date: November 7, 2017

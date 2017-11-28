@@ -1,7 +1,7 @@
 === Jetpack by WordPress.com ===
 Contributors: automattic, adamkheckler, aduth, akirk, allendav, alternatekev, andy, annezazu, apeatling, azaozz, batmoo, barry, beaulebens, blobaugh, cainm, cena, cfinke, chaselivingston, chellycat, csonnek, danielbachhuber, davoraltman, daniloercoli, designsimply, dllh, drawmyface, dsmart, dzver, ebinnion, eliorivero, enej, eoigal, erania-pinnera, ethitter, gcorne, georgestephanis, gibrown, goldsounds, hew, hugobaeta, hypertextranch, iammattthomas, iandunn, jacobshere, jblz, jeherve, jenhooks, jenia, jgs, jkudish, jmdodd, Joen, johnjamesjacoby, jshreve, koke, kraftbj, lamdayap, lancewillett, lschuyler, macmanx, martinremy, matt, matveb, mattwiebe, maverick3x6, mcsf, mdawaffe, michael-arestad, migueluy, mikeyarce, mkaz, nancythanki, nickmomrik, obenland, pento, professor44, rachelsquirrel, rdcoll, ryancowles, richardmuscat, richardmtl, roccotripaldi, samhotchkiss, scarstocea, sdquirk, stephdau, tmoorewp, tyxla, Viper007Bond, westi, yoavf, zinigor
 Tags: Jetpack, WordPress.com, backup, security, related posts, CDN, speed, anti-spam, social sharing, SEO, video, stats
-Stable tag: 5.5
+Stable tag: 5.5.1
 Requires at least: 4.7
 Tested up to: 4.9
 
@@ -102,6 +102,37 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 5. Traffic: SEO Tools for Google, Twitter, Facebook and more.
 
 == Changelog ==
+
+= 5.6 =
+
+* Release date: December 5, 2017
+* Release post: https://wp.me/p1moTy-6zt
+
+**Major Enhancements**
+* Google Analytics: Add support for universal analytics for WooCommerce.
+* Performance: minify all JavaScript files used in the plugin.
+* Performance: add new Lazy Images module.
+* Protect: add new mechanism allowing you to send yourself an email with a link to the form when you are locked out of your site.
+
+**Enhancements**
+* Custom CSS: add new set of font properties that can be used in the CSS editor.
+* Photon: do not remove `width` and `height` attributes from image tags when known.
+* Sitemaps: add CLI commands to purge and built the sitemaps.
+* Sitemaps: only display the reporter log success messages if `JETPACK_DEV_DEBUG` is defined.
+* WordPress.com API: add new endpoints to allow for better comment management in third party interfaces like WordPress.com.
+* WordPress.com Toolbar: prevent dns prefetching for logged out users.
+
+**Improved compatibility**
+* Stats: remove function deprecated in PHP 7.2.
+
+**Bug fixes**
+* Comment Likes: make sure Like text is properly translated.
+* General: only load stats code when necessary.
+* Related Posts: allow site owners to exclude multiple blog posts from the list of Related Posts.
+* Sharing: remove inline JavaScript used in the email sharing form.
+* Search: Maintain ordering of the search filters in the widget.
+* Sync: avoid PHP notices during the synchronization process.
+* WordPress.com Toolbar: avoid broken link when using the sign out button.
 
 = 5.5.1 =
 
