@@ -35,6 +35,8 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 			add_action( "update_option_{$option}", array( $this, 'unlock_sync_callable' ) );
 		}
 
+		add_action( 'jetpack_post_plugin_upgrade', array( $this, 'unlock_plugin_upgrade_callables' ), 10 );
+
 		// Provide a hook so that hosts can send changes to certain callables right away.
 		// Especially useful when a host uses constants to change home and siteurl.
 		add_action( 'jetpack_sync_unlock_sync_callable', array( $this, 'unlock_sync_callable' ) );
@@ -113,6 +115,7 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 	}
 
 	public function unlock_sync_callable() {
+		add_filter( 'jetpack_check_and_send_callables', '__return_true' );
 		delete_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME );
 	}
 
@@ -205,12 +208,17 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 	}
 
 	public function maybe_sync_callables() {
-		if ( ! is_admin() || Jetpack_Sync_Settings::is_doing_cron() ) {
-			return;
-		}
+		error_log('maybe_sync callables   ' . getmypid() );
+		if ( ! apply_filters( 'jetpack_check_and_send_callables', false ) ) {
+			if ( ! is_admin() || Jetpack_Sync_Settings::is_doing_cron() ) {
+				return;
+			}
 
-		if ( get_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME ) ) {
-			return;
+			if ( get_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME ) ) {
+				error_log( 'AWAITING CALLABLES_AWAIT_TRANSIENT_NAME   ' . getmypid() );
+
+				return;
+			}
 		}
 
 		set_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME, microtime( true ), Jetpack_Sync_Defaults::$default_sync_callables_wait_time );
@@ -222,6 +230,8 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 		}
 
 		$callable_checksums = (array) Jetpack_Options::get_raw_option( self::CALLABLES_CHECKSUM_OPTION_NAME, array() );
+
+		error_log( 'CALCULATING CALLABLES' );
 
 		// only send the callables that have changed
 		foreach ( $callables as $name => $value ) {
@@ -237,6 +247,7 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 				 * @param mixed The value of the callable
 				 */
 				do_action( 'jetpack_sync_callable', $name, $value );
+				error_log( 'jetpack_sync_callable   ' .  $name );
 				$callable_checksums[ $name ] = $checksum;
 			} else {
 				$callable_checksums[ $name ] = $checksum;

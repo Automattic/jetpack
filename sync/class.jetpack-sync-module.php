@@ -52,9 +52,11 @@ abstract class Jetpack_Sync_Module {
 
 	protected function still_valid_checksum( $sums_to_check, $name, $new_sum ) {
 		if ( isset( $sums_to_check[ $name ] ) && $sums_to_check[ $name ] === $new_sum ) {
+			error_log( 'EQUAL');
 			return true;
 		}
 
+		error_log('CHECKSUMS  ARE DIFFERENT ' . getmypid() . '  ' . $sums_to_check[$name] .'     ' .$name.'     ' . $new_sum );
 		return false;
 	}
 

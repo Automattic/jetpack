@@ -340,6 +340,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 			$this->log[ $plugin ] = $upgrader->skin->get_upgrade_messages();
 		}
 
+		error_log( 'after upgrade    ' .  getmypid() );
 		if ( ! $this->bulk && ! $result && $update_attempted ) {
 			return new WP_Error( 'update_fail', __( 'There was an error updating your plugin', 'jetpack' ), 400 );
 		}

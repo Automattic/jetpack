@@ -44,6 +44,7 @@ class Jetpack_Sync_Sender {
 	}
 
 	private function init() {
+		error_log( 'init sender' . getmypid() );
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
 			$module->init_before_send();
 		}
@@ -208,6 +209,7 @@ class Jetpack_Sync_Sender {
 		 * @param string $queue The queue used to send ('sync' or 'full_sync')
 		 */
 		Jetpack_Sync_Settings::set_is_sending( true );
+		error_log( 'sending   '. getmypid());
 		$processed_item_ids = apply_filters( 'jetpack_sync_send_data', $items_to_send, $this->codec->name(), microtime( true ), $queue->id, $checkout_duration, $preprocess_duration );
 		Jetpack_Sync_Settings::set_is_sending( false );
 

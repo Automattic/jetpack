@@ -8,7 +8,7 @@ require_once dirname( __FILE__ ) . '/class.jetpack-sync-actions.php';
 /**
  * This class monitors actions and logs them to the queue to be sent
  */
-class Jetpack_Sync_Listener {
+class Jetpack_S ync_Listener {
 	const QUEUE_STATE_CHECK_TRANSIENT = 'jetpack_sync_last_checked_queue_state';
 	const QUEUE_STATE_CHECK_TIMEOUT = 300; // 5 minutes
 
