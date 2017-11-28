@@ -1,0 +1,486 @@
+/*!
+* Do not modify this file directly.  It is compiled SASS code.
+*/
+@charset "UTF-8";
+/*
+The MIT License (MIT)
+
+Copyright © 2011–2015 thoughtbot, inc.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+documentation files (the “Software”), to deal in the Software without restriction, including without limitation the
+rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit
+persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial
+portions of the Software.
+
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+https://github.com/thoughtbot/bourbon
+*/
+.jitm-button {
+  background: white;
+  border-color: #c8d7e1;
+  border-style: solid;
+  border-width: 1px 1px 2px;
+  color: #2e4453;
+  cursor: pointer;
+  display: inline-block;
+  margin: 0;
+  outline: 0;
+  overflow: hidden;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  text-decoration: none;
+  vertical-align: top;
+  box-sizing: border-box;
+  font-size: 0.875rem;
+  line-height: 1.3125rem;
+  border-radius: 0.25rem;
+  padding: 0.4375rem 0.875rem 0.5625rem;
+  -webkit-appearance: none;
+     -moz-appearance: none;
+          appearance: none;
+}
+
+.jitm-button:hover {
+  border-color: #a8bece;
+  color: #2e4453;
+}
+
+.jitm-button:active {
+  border-width: 2px 1px 1px;
+}
+
+.jitm-button:visited {
+  color: #2e4453;
+}
+
+.jitm-button[disabled], .jitm-button:disabled {
+  color: #e9eff3;
+  background: white;
+  border-color: #e9eff3;
+  cursor: default;
+}
+
+.jitm-button[disabled]:active, .jitm-button:disabled:active {
+  border-width: 1px 1px 2px;
+}
+
+.jitm-button:focus {
+  outline: 0;
+  border-color: #00aadc;
+  box-shadow: 0 0 0 2px #78dcfa;
+}
+
+.jitm-button.is-compact {
+  padding: 0.4375rem;
+  color: #668eaa;
+  font-size: 0.6875rem;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.jitm-button.is-compact:disabled {
+  color: #e9eff3;
+}
+
+.jitm-button.hidden {
+  display: none;
+}
+
+.jitm-button.is-primary {
+  background: #00aadc;
+  border-color: #0087be;
+  color: white;
+}
+
+.jitm-button.is-primary:hover, .jitm-button.is-primary:focus {
+  border-color: #005082;
+  color: white;
+}
+
+.jitm-button.is-primary[disabled], .jitm-button.is-primary:disabled {
+  background: #bceefd;
+  border-color: #8cc9e2;
+  color: white;
+}
+
+.jitm-button.is-primary.is-compact {
+  color: white;
+}
+
+#screen-meta-links + .jitm-card {
+  margin: 2.5rem 1.5385em 0 auto;
+}
+
+.jitm-card {
+  display: block;
+  position: relative;
+  margin: 1rem 0 0 auto;
+  padding: 1rem;
+  box-sizing: border-box;
+  background: white;
+  box-shadow: 0 0 0 1px rgba(200, 215, 225, 0.5), 0 1px 2px #e9eff3;
+}
+
+.jitm-card:after {
+  content: ".";
+  display: block;
+  height: 0;
+  clear: both;
+  visibility: hidden;
+}
+
+@media (min-width: 481px) {
+  .jitm-card {
+    margin-bottom: 1rem;
+    padding: 1.5rem;
+  }
+}
+
+.jitm-card.is-compact {
+  margin-bottom: 0.0625rem;
+}
+
+@media (min-width: 481px) {
+  .jitm-card.is-compact {
+    margin-bottom: 1px;
+    padding: 1rem 1.5rem;
+  }
+}
+
+.jitm-card.is-card-link {
+  padding-right: 3rem;
+}
+
+.post-php .jitm-card {
+  margin-right: 0;
+}
+
+.jitm-banner.jitm-card {
+  border-left: 4px solid;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  padding: 0.75rem 0.375rem 0.75rem 0.75rem;
+  position: relative;
+  z-index: 2;
+  border-left-color: #4ab866;
+}
+
+@media (max-width: 480px) {
+  .jitm-banner.jitm-card {
+    display: block;
+  }
+}
+
+.jitm-banner.jitm-card.is-card-link {
+  padding: 0.75rem 3rem 0.75rem 1rem;
+}
+
+.jitm-banner.jitm-card.is-dismissible {
+  padding-right: 3rem;
+}
+
+.jitm-banner.jitm-card .jitm-banner__icon {
+  color: #4ab866;
+}
+
+.jitm-banner.jitm-card .jitm-banner__icon-circle {
+  background-color: #4ab866;
+}
+
+.jitm-banner.jitm-card.is-upgrade-personal {
+  border-left-color: #f0b849;
+}
+
+.jitm-banner.jitm-card.is-upgrade-personal .jitm-banner__icon {
+  color: #f0b849;
+}
+
+.jitm-banner.jitm-card.is-upgrade-personal .jitm-banner__icon-circle {
+  background-color: #f0b849;
+}
+
+.jitm-banner.jitm-card.is-upgrade-premium {
+  border-left-color: #4ab866;
+}
+
+.jitm-banner.jitm-card.is-upgrade-premium .jitm-banner__icon {
+  color: #4ab866;
+}
+
+.jitm-banner.jitm-card.is-upgrade-premium .jitm-banner__icon-circle {
+  background-color: #4ab866;
+}
+
+.jitm-banner.jitm-card.is-upgrade-business, .jitm-banner.jitm-card.woo-jitm {
+  border-left-color: #855DA6;
+}
+
+.jitm-banner.jitm-card.is-upgrade-business .jitm-banner__icon, .jitm-banner.jitm-card.woo-jitm .jitm-banner__icon {
+  color: #855DA6;
+}
+
+.jitm-banner.jitm-card.is-upgrade-business .jitm-banner__icon-circle, .jitm-banner.jitm-card.woo-jitm .jitm-banner__icon-circle {
+  background-color: #855DA6;
+}
+
+.jitm-banner.jitm-card .jitm-card__link-indicator {
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  color: #0087be;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.jitm-banner.jitm-card:hover {
+  transition: all 100ms ease-in-out;
+}
+
+.jitm-banner.jitm-card:hover.is-card-link {
+  box-shadow: 0 0 0 1px #87a6bc, 0 2px 4px #c8d7e1;
+}
+
+.jitm-banner.jitm-card:hover .jitm-card__link-indicator {
+  color: #005082;
+}
+
+@media (min-width: 481px) {
+  .jitm-banner.jitm-card {
+    padding: 0.75rem 1rem;
+  }
+  .jitm-banner.jitm-card.is-dismissible {
+    padding-right: 1rem;
+  }
+}
+
+.jitm-banner__icons {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+}
+
+.jitm-banner__icons .jitm-banner__icon,
+.jitm-banner__icons .jitm-banner__icon-circle {
+  border-radius: 50%;
+  -ms-flex-negative: 0;
+      flex-shrink: 0;
+  height: 1.5rem;
+  width: 1.5rem;
+  margin-right: 1rem;
+  margin-top: -0.125rem;
+  text-align: center;
+  top: 0.25rem;
+}
+
+.jitm-banner__icons .jitm-banner__icon {
+  -ms-flex-item-align: center;
+      -ms-grid-row-align: center;
+      align-self: center;
+  color: white;
+  display: block;
+}
+
+.jitm-banner__icons .jitm-banner__icon-circle {
+  color: white;
+  display: none;
+  padding: 0.1875rem 0.25rem 0.25rem 0.1875rem;
+}
+
+@media (min-width: 481px) {
+  .jitm-banner__icons {
+    -webkit-box-align: center;
+        -ms-flex-align: center;
+            align-items: center;
+  }
+  .jitm-banner__icons .jitm-banner__icon {
+    display: none;
+  }
+  .jitm-banner__icons .jitm-banner__icon-circle {
+    display: block;
+  }
+}
+
+.jitm-banner__icon-plan {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  margin-right: 1rem;
+}
+
+.jitm-banner__icon-plan .dops-plan-icon {
+  height: 2rem;
+  width: 2rem;
+}
+
+.jitm-banner__icon-plan .jp-emblem {
+  position: relative;
+  top: 0.125rem;
+}
+
+@media (max-width: 480px) {
+  .jitm-banner__icon-plan .jp-emblem {
+    margin-bottom: 0.75rem;
+  }
+}
+
+.jitm-banner__icon-plan .jp-emblem svg {
+  height: 2rem;
+  width: 2rem;
+  fill: #8cc258;
+}
+
+@media (min-width: 481px) {
+  .jitm-banner__icon-plan {
+    -webkit-box-align: center;
+        -ms-flex-align: center;
+            align-items: center;
+  }
+}
+
+.jitm-banner__content {
+  -webkit-box-align: center;
+      -ms-flex-align: center;
+          align-items: center;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-flex: 1;
+      -ms-flex-positive: 1;
+          flex-grow: 1;
+  -ms-flex-wrap: wrap;
+      flex-wrap: wrap;
+}
+
+@media (min-width: 481px) {
+  .jitm-banner__content {
+    -ms-flex-wrap: nowrap;
+        flex-wrap: nowrap;
+  }
+}
+
+.jitm-banner__info {
+  -webkit-box-flex: 1;
+      -ms-flex-positive: 1;
+          flex-grow: 1;
+  line-height: 1.4;
+}
+
+@media (min-width: 481px) {
+  .jitm-banner__info {
+    -ms-flex-preferred-size: 50%;
+        flex-basis: 50%;
+  }
+}
+
+@media (min-width: 961px) {
+  .jitm-banner__info {
+    -ms-flex-preferred-size: 70%;
+        flex-basis: 70%;
+  }
+}
+
+.jitm-banner__info .jitm-banner__title,
+.jitm-banner__info .jitm-banner__description {
+  color: #2e4453;
+}
+
+.jitm-banner__info .jitm-banner__title {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.jitm-banner__info .jitm-banner__description {
+  font-size: 0.75rem;
+  line-height: 1.5;
+  margin-top: 0.375rem;
+}
+
+.jitm-banner__action {
+  -ms-flex-item-align: center;
+      -ms-grid-row-align: center;
+      align-self: center;
+  font-size: 0.75rem;
+  margin: 0.5rem 0 0;
+  text-align: left;
+  width: 100%;
+}
+
+.jitm-banner__action .jitm-banner__prices {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: start;
+      -ms-flex-pack: start;
+          justify-content: flex-start;
+}
+
+.jitm-banner__action .jitm-banner__prices .dops-plan-price {
+  margin-bottom: 0;
+}
+
+.jitm-banner__action .jitm-banner__prices .dops-plan-price.is-discounted,
+.jitm-banner__action .jitm-banner__prices .dops-plan-price.is-discounted .dops-plan-price__currency-symbol {
+  color: #2e4453;
+}
+
+.has-call-to-action .jitm-banner__action .jitm-banner__prices .dops-plan-price {
+  margin-bottom: 0.5rem;
+}
+
+@media (min-width: 481px) {
+  .jitm-banner__action {
+    margin: 0 0.25rem 0 0.5rem;
+    text-align: center;
+    width: auto;
+  }
+  .jitm-banner__action .is-dismissible {
+    margin-top: 2.5rem;
+  }
+  .jitm-banner__action .jitm-banner__prices {
+    -webkit-box-pack: end;
+        -ms-flex-pack: end;
+            justify-content: flex-end;
+    text-align: right;
+  }
+}
+
+.jitm-banner__dismiss {
+  display: block;
+  text-decoration: none;
+  line-height: .5;
+}
+
+.jitm-banner__dismiss:before {
+  color: #4f748e;
+  font: 400 16px/1 dashicons;
+  content: '\f158';
+}
+
+@media (min-width: 661px) {
+  .jitm-banner__dismiss {
+    margin-right: -0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .jitm-banner__dismiss {
+    position: absolute;
+    top: 0.875rem;
+    right: 0.875rem;
+  }
+}
+
+.jitm-banner__action + .jitm-banner__dismiss {
+  margin-left: 0.625rem;
+}
+
+/*# sourceMappingURL=jetpack-admin-jitm.css.map */
