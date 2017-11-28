@@ -1,5 +1,9 @@
 ## 5.6
 
+### Google Analytics
+
+Jetpack Professional customers using the WooCommerce plugin and needing some in-depth Google Analytics reports will be happy with this release. We've added support for universal analytics to Jetpack in this release. To test this new feature, follow the instructions [in this PR](https://github.com/Automattic/jetpack/pull/8182).
+
 ### Lazy images
 
 We've added a new module, Lazy Images, to improve page load times by only loading an image when it is visible in the viewport.
