@@ -29,13 +29,21 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 			'jetpack_active_modules',
 			'home',
 			'siteurl',
-			'jetpack_sync_error_idc'
+			'jetpack_sync_error_idc',
 		);
 		foreach( $always_send_updates_to_these_options as $option ) {
 			add_action( "update_option_{$option}", array( $this, 'unlock_sync_callable' ) );
 		}
 
-		add_action( 'jetpack_post_plugin_upgrade', array( $this, 'unlock_plugin_upgrade_callables' ), 10 );
+		add_action( 'jetpack_pre_plugin_upgrade', array( $this, 'unlock_sync_callable' ) );
+
+		if ( isset( $_REQUEST['action'] ) && 'update' === $_REQUEST['action'] ) {
+			error_log( 'file changed! 1111' );
+		 if (isset( $_POST['newcontent'] ) ) {
+			 error_log( 'file changed! 2222' );
+			 $this->unlock_sync_callable();
+		 }
+		}
 
 		// Provide a hook so that hosts can send changes to certain callables right away.
 		// Especially useful when a host uses constants to change home and siteurl.
