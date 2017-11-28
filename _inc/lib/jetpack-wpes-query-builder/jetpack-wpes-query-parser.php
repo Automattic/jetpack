@@ -392,9 +392,9 @@ class Jetpack_WPES_Search_Query_Parser extends Jetpack_WPES_Query_Builder {
 			$phrase_prefix = $matches[1][0];
 			$this->current_query = preg_replace( '/"([^"]+)$/', '', $this->current_query );
 		}
-		if ( preg_match_all( "/'([^']+)$/", $this->current_query, $matches ) ) {
+		if ( preg_match_all( "/(?:'\B|\B')([^']+)$/", $this->current_query, $matches ) ) {
 			$phrase_prefix = $matches[1][0];
-			$this->current_query = preg_replace( "/'([^']+)$/", '', $this->current_query );
+			$this->current_query = preg_replace( "/(?:'\B|\B')([^']+)$/", '', $this->current_query );
 		}
 
 		if ( $phrase_prefix ) {
