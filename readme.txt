@@ -124,8 +124,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * WordPress.com Toolbar: prevent dns prefetching for logged out users.
 
 **Improved compatibility**
-
-
+* Stats: remove function deprecated in PHP 7.2.
 
 **Bug fixes**
 * Comment Likes: make sure Like text is properly translated.
