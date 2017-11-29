@@ -35,8 +35,6 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 			add_action( "update_option_{$option}", array( $this, 'unlock_sync_callable' ) );
 		}
 
-		add_action( 'jetpack_pre_plugin_upgrade', array( $this, 'unlock_sync_callable' ) );
-
 		// Provide a hook so that hosts can send changes to certain callables right away.
 		// Especially useful when a host uses constants to change home and siteurl.
 		add_action( 'jetpack_sync_unlock_sync_callable', array( $this, 'unlock_sync_callable' ) );
@@ -115,13 +113,13 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 	}
 
 	public function unlock_sync_callable() {
-		add_filter( 'jetpack_check_and_send_callables', '__return_true' );
 		delete_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME );
 	}
 
 	public function unlock_plugin_action_link_and_callables() {
 		delete_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME );
 		delete_transient( 'jetpack_plugin_api_action_links_refresh' );
+		add_filter( 'jetpack_check_and_send_callables', '__return_true' );
 	}
 
 	public function set_plugin_action_links() {
