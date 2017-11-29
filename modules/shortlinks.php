@@ -85,5 +85,11 @@ function wpme_get_shortlink( $id = 0, $context = 'post', $allow_slugs = true ) {
 }
 
 function wpme_get_shortlink_handler( $shortlink, $id, $context, $allow_slugs ) {
-	return wpme_get_shortlink( $id, $context, $allow_slugs );
+	if ( $shortlink === false ) {	// do not change the value (if any) from previous filter hooks
+		$shortlink = wpme_get_shortlink( $id, $context, $allow_slugs );	// returns wp.me shortlink or empty string
+		if ( $shortlink === '' ) {	// unrecognized context, empty post object, or no post type support for shortlinks
+			$shortlink = false;	// allow wp_get_shortlink() to continue and return a its own shortlink
+		}
+	}
+	return $shortlink;	// return false, original shortlink, or wp.me shortlink
 }
