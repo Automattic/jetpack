@@ -222,7 +222,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 		$sent = $this->send_recovery_email();
 
 		if ( is_wp_error( $sent ) ) {
-			$this->protect_die( $sent, true );
+			$this->protect_die( $sent,  null,true );
 		} else {
 			$this->render_recovery_success();
 		}
@@ -266,23 +266,23 @@ class Jetpack_Protect_Blocked_Login_Page {
 		return true;
 	}
 
-	function protect_die( $content, $back_link = false ) {
-		$image = sprintf(
-			'<img src="%s" width="180" style="display: block; margin: 0 auto;" />',
-			plugins_url( 'modules/protect/jetpack-security.png', JETPACK__PLUGIN_FILE )
-		);
-
+	function protect_die( $content, $title = null, $back_link = false ) {
+		if( empty( $title ) ) {
+			$title = __( 'Jetpack has locked your site\'s login page.', 'jetpack' );
+		}
 		if ( is_wp_error( $content ) ) {
 			$content = $content->get_error_message();
 		}
 		// hack to get around default wp_die_handler. https://core.trac.wordpress.org/browser/tags/4.8.1/src/wp-includes/functions.php#L2698
-		$content = $image . '</p> ' . $content . '<p>';
+		$content =  '<p>'. $content .'</p>';
 
 		if ( isset( $_GET['interim-login'] ) ) {
 			$content = "<style>html{ background-color: #fff; } #error-page { margin:0 auto; padding: 1em; box-shadow: none; } </style>" . $content;
 		}
 
-		wp_die( $content, $this->page_title, array( 'back_link' => $back_link, 'response' => 200 ) );
+		$this->display_page( $title, $content, 'error message goes here', $back_link );
+		wp_die( $content, $this->page_title, array( 'back_link' => $back_link ) );
+
 	}
 
 	function render_recovery_form() {
@@ -298,32 +298,23 @@ class Jetpack_Protect_Blocked_Login_Page {
 	function get_html_blocked_login_message() {
 		$icon = '<svg class="gridicon gridicons-spam" style="fill:#d94f4f" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M17 2H7L2 7v10l5 5h10l5-5V7l-5-5zm-4 15h-2v-2h2v2zm0-4h-2l-.5-6h3l-.5 6z"/></g></svg>';
 		$ip = str_replace( 'http://', '', esc_url( 'http://' . $this->ip_address ) );
-		ob_start(); ?>
-        <h3><?php printf( __( 'Jetpack Protect has locked your site\'s login page.', 'jetpack' ) ); ?></h3>
-		<?php printf(
-			__( '<p><span style="float:left; display:block; margin-right:10px;">%1$s</span>Your IP (%2$s) has been flagged for potential security violations. <a href="%3$s">Learn More</a></p>', 'jetpack' ),
+		return sprintf(
+			__( '<p>Your IP address <code>%2$s</code> has been flagged for potential security violations. You can unlock your login by sending yourself a special link via email. <a href="%3$s">Learn More</a></p>', 'jetpack' ),
 			$icon,
 			$ip,
 			esc_url( self::HELP_URL )
 		);
-
-		$contents = ob_get_contents();
-		ob_end_clean();
-
-		return $contents;
 	}
 
 	function get_html_recovery_form() {
 		ob_start(); ?>
-        <div style="margin-top:100px;">
-            <p><?php _e( 'Email yourself a special link to regain access the login form.', 'jetpack' ); ?></p>
+        <div>
             <form method="post" action="?jetpack-protect-recovery=true">
 				<?php echo wp_nonce_field( 'bypass-protect' ); ?>
-                <p><label for="email" style="font-size:12px;">Email Address<br/></label>
-                    <input type="email" name="email" style="font-size:24px; padding:3px; margin: 2px 6px 16px 0; width:100%; border: 1px solid #ddd;
-    box-shadow: inset 0 1px 2px rgba(0,0,0,.07);"/>
-                    <input type="submit" class="button button-primary button-large"
-                           value="<?php echo esc_attr( __( 'Send', 'jetpack' ) ); ?>"/>
+                <p><label for="email">Your email<br/></label>
+                    <input type="email" name="email" class="text-input"/>
+                    <input type="submit" class="button"
+                           value="<?php echo esc_attr( __( 'Send email', 'jetpack' ) ); ?>"/>
                 </p>
             </form>
         </div>
@@ -333,5 +324,223 @@ class Jetpack_Protect_Blocked_Login_Page {
 		ob_end_clean();
 
 		return $contents;
+	}
+
+	function display_page( $title, $message, $error, $back_button = false ) {
+
+		if ( ! headers_sent() ) {
+			status_header( 500 );
+			nocache_headers();
+			header( 'Content-Type: text/html; charset=utf-8' );
+		}
+
+		$text_direction = 'ltr';
+		if ( is_rtl() ) {
+			$text_direction = 'rtl';
+		}
+		?>
+		<!DOCTYPE html>
+		<html xmlns="http://www.w3.org/1999/xhtml" <?php if ( function_exists( 'language_attributes' ) && function_exists( 'is_rtl' ) ) {
+			language_attributes();
+		} else {
+			echo "dir='$text_direction'";
+		} ?>>
+		<head>
+			<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+			<meta name="viewport" content="width=device-width">
+			<?php
+			if ( function_exists( 'wp_no_robots' ) ) {
+				wp_no_robots();
+			}
+			?>
+			<title><?php echo $title ?></title>
+			<style type="text/css">
+				html {
+					background: #f3f6f8;
+				}
+
+				body {
+					color: #2e4453;
+					font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+					margin: 2em auto;
+					padding: 1em 2em;
+					max-width: 460px;
+					}
+
+				h1 {
+					clear: both;
+					color: #3d596d;
+					font-size: 24px;
+					margin:0 0 24px 0;
+					padding: 0;
+					font-weight: 400;
+				}
+
+				#error-message {
+					box-sizing: border-box;
+					background: white;
+					box-shadow: 0 0 0 1px rgba(200, 215, 225, 0.5), 0 1px 2px #e9eff3;
+					padding:32px;
+				}
+
+				#error-message img {
+					margin: 0 auto;
+					display: block;
+				}
+
+				#error-page {
+					margin-top: 50px;
+				}
+
+				#error-page p {
+					font-size: 14px;
+					line-height: 1.5;
+					margin: 25px 0 20px;
+				}
+
+				#error-page code {
+					font-family: Consolas, Monaco, monospace;
+				}
+
+				ul li {
+					margin-bottom: 10px;
+					font-size: 14px;
+				}
+
+				a {
+					color: #00aadc;
+				}
+
+				label {
+					font-weight: bold;
+					font-size:16px;
+				}
+
+				a:hover,
+				a:active {
+					color: #0085be;
+				}
+
+				a:focus {
+					color: #124964;
+					-webkit-box-shadow: 0 0 0 1px #5b9dd9,
+					0 0 2px 1px rgba(30, 140, 190, .8);
+					box-shadow: 0 0 0 1px #5b9dd9,
+					0 0 2px 1px rgba(30, 140, 190, .8);
+					outline: none;
+				}
+
+				.button {
+					background: #00aadc;
+					color: white;
+					border-color: #008ab3;
+					border-style: solid;
+					border-width: 1px 1px 2px;
+					cursor: pointer;
+					display: inline-block;
+					margin: 0;
+					margin-right: 0px;
+					outline: 0;
+					overflow: hidden;
+					font-weight: 500;
+					text-overflow: ellipsis;
+					text-decoration: none;
+					vertical-align: top;
+					box-sizing: border-box;
+					font-size: 14px;
+					line-height: 21px;
+					border-radius: 4px;
+					padding: 7px 14px 9px;
+					-webkit-appearance: none;
+					-moz-appearance: none;
+					appearance: none;
+					font-size: 14px;
+					width: 100%;
+				}
+
+				.button:hover,
+				.button:focus {
+					border-color: #005082;
+					outline: none;
+				}
+
+				.button:focus {
+					border-color: #005082;
+					-webkit-box-shadow: 0 0 3px rgba(0, 115, 170, .8);
+					box-shadow: 0 0 3px rgba(0, 115, 170, .8);
+					outline: none;
+				}
+				.button::-moz-focus-inner {
+					border: 0;
+				}
+
+				.button:active {
+					border-width: 2px 1px 1px;
+				}
+				.gridicon {
+					fill: currentColor;
+					vertical-align: middle;
+				}
+				#error-footer {
+					padding: 16px;
+				}
+				#error-footer a {
+					text-decoration: none;
+					line-height:20px;
+					font-size: 14px;
+					color: #4f748e;
+				}
+				#error-footer a:hover {
+					color: #2e4453;
+				}
+				#error-footer .gridicon{
+					width: 16px;
+				}
+				#error-footer .gridicons-help {
+					width: 24px;
+					margin-right:8px;
+				}
+
+				.text-input {
+					margin: 0;
+					padding: 7px 14px;
+					width: 100%;
+					color: #2e4453;
+					font-size: 16px;
+					line-height: 1.5;
+					border: 1px solid #c8d7e1;
+					background-color: white;
+					transition: all .15s ease-in-out;
+					box-sizing: border-box;
+					margin: 8px 0 16px;
+				}
+
+				<?php
+				if ( 'rtl' == $text_direction ) {
+					echo 'body { font-family: Tahoma, Arial; }';
+				}
+				?>
+			</style>
+		</head>
+		<body id="error-page">
+			<h1 id="error-title"><?php echo esc_html( $title ); ?></h1>
+			<div id="error-message">
+				<img src="<?php echo esc_url( plugins_url( 'modules/protect/protect.png', JETPACK__PLUGIN_FILE ) ); ?>?"/>
+				<?php echo $message; ?>
+			</div>
+			<div id="error-footer">
+			<?php if ( $back_button ) {
+				$back_button_icon = '<svg class="gridicon gridicons-arrow-left" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></g></svg>';
+			?>
+				<a href='javascript:history.back()'><?php printf( __( '%s Back' ), $back_button_icon ); ?></a>
+			<?php } else {
+				$help_icon = '<svg class="gridicon gridicons-help" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm1 16h-2v-2h2v2zm0-4.14V15h-2v-2c0-.552.448-1 1-1 1.103 0 2-.897 2-2s-.897-2-2-2-2 .897-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 1.862-1.278 3.413-3 3.86z"/></g></svg>';?>
+					<a href="<?php echo esc_url( self::HELP_URL ); ?>" target="_blank"><?php printf( __( '%s Get help unlocking your site' ), $help_icon );?></a>
+			<?php } ?>
+			</div>
+		</body>
+		</html>
+		<?php
+		die();
 	}
 }
