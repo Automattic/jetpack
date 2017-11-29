@@ -19,6 +19,10 @@ class Jetpack_Search {
 	protected $aggregations = array();
 	protected $max_aggregations_count = 100;
 
+	// used to output query meta into page
+	protected $last_query_info;
+	protected $last_query_failure_response_code;
+
 	protected static $instance;
 
 	//Languages with custom analyzers, other languages are supported,
@@ -89,6 +93,35 @@ class Jetpack_Search {
 			add_filter( 'posts_pre_query', array( $this, 'filter__posts_pre_query' ), 10, 2 );
 
 			add_filter( 'jetpack_search_es_wp_query_args', array( $this, 'filter__add_date_filter_to_query' ),  10, 2 );
+
+			add_action( 'did_jetpack_search_query', array( $this, 'store_query_success' ) );
+			add_action( 'failed_jetpack_search_query', array( $this, 'store_query_failure' ) );
+		}
+	}
+
+	/**
+	 * Print query info as a HTML comment in the footer
+	 */
+
+	public function store_query_failure( $response_code ) {
+		$this->last_query_failure_response_code = $response_code;
+		add_action( 'wp_footer', array( $this, 'print_query_failure' ) );
+	}
+
+	public function print_query_failure() {
+		if ( $this->last_query_failure_response_code ) {
+			echo '<!-- Jetpack Search failed with code ' . $this->last_query_failure_response_code . ', used MySQL fallback -->';
+		}
+	}
+
+	public function store_query_success( $meta ) {
+		$this->last_query_info = $meta;
+		add_action( 'wp_footer', array( $this, 'print_query_success' ) );
+	}
+
+	public function print_query_success() {
+		if ( $this->last_query_info ) {
+			echo '<!-- Jetpack Search took ' . intval( $this->last_query_info['elapsed_time'] ) . ' ms, ES time ' . $this->last_query_info['es_time'] . ' ms -->';
 		}
 	}
 
@@ -148,6 +181,7 @@ class Jetpack_Search {
 		$response_code = wp_remote_retrieve_response_code( $request );
 
 		if ( ! $response_code || $response_code < 200 || $response_code >= 300 ) {
+			do_action( 'failed_jetpack_search_query', $response_code );
 			return new WP_Error( 'invalid_search_api_response', 'Invalid response from API - ' . $response_code );
 		}
 
