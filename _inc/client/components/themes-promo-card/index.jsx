@@ -85,13 +85,6 @@ const ThemesPromoCard = React.createClass( {
 								{ __( 'Compare All Plans' ) }
 							</Button>
 						</p>
-
-						<a
-							onClick={ this.trackGetStarted }
-							href={ 'https://jetpack.com/redirect/?source=upgrade-pro-' + urlFriendlyPlan + '&site=' + this.props.siteRawUrl }
-						>
-							{ __( 'Limited time 50% introductory discount on Jetpack Professional.' ) }
-						</a>
 					</div>
 				</Card>
 			</div>
