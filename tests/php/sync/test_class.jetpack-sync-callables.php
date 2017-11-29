@@ -684,8 +684,44 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		}
 
 	}
+
+	function test_force_sync_callabled_on_plugin_update() {
+		// fake the cron so that we really prevent the callables from being called
+		Jetpack_Sync_Settings::$is_doing_cron = true;
+
+		$this->callable_module->set_callable_whitelist( array( 'jetpack_foo' => 'jetpack_foo_is_callable_random' ) );
+		$this->sender->do_sync();
+		$synced_value = $this->server_replica_storage->get_callable( 'jetpack_foo' );
+
+		$this->server_replica_storage->reset();
+
+		$synced_value2 = $this->server_replica_storage->get_callable( 'jetpack_foo' );
+		$this->assertEmpty( $synced_value2 );
+
+		$upgrader = (object) array(
+			'skin' => (object) array(
+				'result' => new WP_Error( 'fail' )
+			)
+		);
+
+		do_action( 'upgrader_process_complete', $upgrader, array(
+			'action' => 'update',
+			'type' => 'plugin',
+			'bulk' => true,
+			'plugins' => 'the/the.php',
+		) );
+
+		$this->sender->do_sync();
+		$synced_value3 = $this->server_replica_storage->get_callable( 'jetpack_foo' );
+		Jetpack_Sync_Settings::$is_doing_cron = false;
+		$this->assertNotEmpty( $synced_value3, 'value is empty!' );
+
+	}
 }
 
+function jetpack_foo_is_callable_random() {
+	return rand();
+}
 /* Example Test Taxonomy */
 class ABC_FOO_TEST_Taxonomy_Example {
 	function __construct() {
