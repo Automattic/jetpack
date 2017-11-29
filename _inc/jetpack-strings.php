@@ -112,6 +112,15 @@ __( "Show a \"follow comments\" option in the comment form", "jetpack" ), // _in
 __( "Show a \"follow blog\" option in the comment form", "jetpack" ), // _inc/client/discussion/subscriptions.jsx:93
 __( "Connect your user account to WordPress.com to view your email followers", "jetpack" ), // _inc/client/discussion/subscriptions.jsx:64
 __( "View your Email Followers", "jetpack" ), // _inc/client/discussion/subscriptions.jsx:63
+_x( "Set up", "Caption for a button to set up a feature.", "jetpack" ), // _inc/client/pro-status/index.jsx:132
+__( "ACTIVE", "jetpack" ), // _inc/client/pro-status/index.jsx:99
+_x( "Invalid key", "Short warning message about an invalid key being used for Akismet.", "jetpack" ), // _inc/client/pro-status/index.jsx:95
+_x( "Secure", "Short message informing user that the site is secure.", "jetpack" ), // _inc/client/pro-status/index.jsx:91
+_x( "Upgrade", "Caption for a button to purchase a paid feature.", "jetpack" ), // _inc/client/pro-status/index.jsx:86
+_x( "No scanning", "Short warning message about site having no security scan.", "jetpack" ), // _inc/client/pro-status/index.jsx:84
+_x( "FIX", "A caption for a small button to fix security issues.", "jetpack" ), // _inc/client/pro-status/index.jsx:75
+_x( "Threats found!", "Short warning message about new threats found.", "jetpack" ), // _inc/client/pro-status/index.jsx:74
+_x( "Threats", "A caption for a small button to fix security issues.", "jetpack" ), // _inc/client/pro-status/index.jsx:72
 __( "Compare Plans", "jetpack" ), // _inc/client/plans/plan-body.jsx:400
 __( "We support all Jetpack users, regardless of plan. But customers on a paid subscription enjoy priority support so that security issues are identified and fixed for you as soon as possible. ", "jetpack" ), // _inc/client/plans/plan-body.jsx:393
 __( "Enjoy priority support", "jetpack" ), // _inc/client/plans/plan-body.jsx:392
@@ -198,50 +207,7 @@ __( "For less than the price of a coffee a month you can rest easy knowing your 
 __( "How much is your website worth?", "jetpack" ), // _inc/client/plans/plan-header.jsx:42
 __( "Jetpack Personal keeps your data, site, and hard work safe.", "jetpack" ), // _inc/client/plans/plan-header.jsx:38
 __( "Introducing our most affordable backups and security plan yet", "jetpack" ), // _inc/client/plans/plan-header.jsx:35
-_x( "Set up", "Caption for a button to set up a feature.", "jetpack" ), // _inc/client/pro-status/index.jsx:132
-__( "ACTIVE", "jetpack" ), // _inc/client/pro-status/index.jsx:99
-_x( "Invalid key", "Short warning message about an invalid key being used for Akismet.", "jetpack" ), // _inc/client/pro-status/index.jsx:95
-_x( "Secure", "Short message informing user that the site is secure.", "jetpack" ), // _inc/client/pro-status/index.jsx:91
-_x( "Upgrade", "Caption for a button to purchase a paid feature.", "jetpack" ), // _inc/client/pro-status/index.jsx:86
-_x( "No scanning", "Short warning message about site having no security scan.", "jetpack" ), // _inc/client/pro-status/index.jsx:84
-_x( "FIX", "A caption for a small button to fix security issues.", "jetpack" ), // _inc/client/pro-status/index.jsx:75
-_x( "Threats found!", "Short warning message about new threats found.", "jetpack" ), // _inc/client/pro-status/index.jsx:74
-_x( "Threats", "A caption for a small button to fix security issues.", "jetpack" ), // _inc/client/pro-status/index.jsx:72
 __( "Activate", "jetpack" ), // _inc/client/searchable-modules/index.jsx:72
-__( "If you don't already have an API key, then {{a}}get your API key here{{/a}}, and you'll be guided through the process of getting one.", "jetpack" ), // _inc/client/security/antispam.jsx:149
-__( "Your API key", "jetpack" ), // _inc/client/security/antispam.jsx:143
-_x( "Spam filtering", "Settings header", "jetpack" ), // _inc/client/security/antispam.jsx:135
-__( "Checking key…", "jetpack" ), // _inc/client/security/antispam.jsx:126
-__( "Your site is protected from spam.", "jetpack" ), // _inc/client/security/antispam.jsx:120
-__( "Your Antispam key is valid.", "jetpack" ), // _inc/client/security/antispam.jsx:118
-__( "Your site is not protected from spam.", "jetpack" ), // _inc/client/security/antispam.jsx:116
-__( "There's a problem with your Antispam API key. {{a}}Learn more{{/a}}.", "jetpack" ), // _inc/client/security/antispam.jsx:108
-__( "Your site needs an Antispam key.", "jetpack" ), // _inc/client/security/antispam.jsx:102
-__( "Fetching key…", "jetpack" ), // _inc/client/security/antispam.jsx:97
-__( "Checking your spam protection…", "jetpack" ), // _inc/client/security/antispam.jsx:93
-__( "Configure your Security Scans", "jetpack" ), // _inc/client/security/backups-scan.jsx:120
-_x( "Backups and security scanning", "Settings header", "jetpack" ), // _inc/client/security/backups-scan.jsx:107
-__( "Click \"Set Up\" to finish installation.", "jetpack" ), // _inc/client/security/backups-scan.jsx:94
-__( "You have paid for backups and security scanning but they’re not yet active.", "jetpack" ), // _inc/client/security/backups-scan.jsx:93
-__( "Click \"Set Up\" to finish installation.", "jetpack" ), // _inc/client/security/backups-scan.jsx:89
-__( "You have paid for backups but they're not yet active.", "jetpack" ), // _inc/client/security/backups-scan.jsx:88
-__( "Your site is backed up.", "jetpack" ), // _inc/client/security/backups-scan.jsx:82
-__( "Your site is backed up and threat-free.", "jetpack" ), // _inc/client/security/backups-scan.jsx:75
-__( "{{a}}Contact Support{{/a}}", "jetpack" ), // _inc/client/security/backups-scan.jsx:72
-__( "{{a}}View details{{/a}}", "jetpack" ), // _inc/client/security/backups-scan.jsx:70
-_n( "Uh oh, %(number)s threat found.", "Uh oh, %(number)s threats found.", 1, "jetpack" ), // _inc/client/security/backups-scan.jsx:60
-__( "Unavailable in Dev Mode.", "jetpack" ), // _inc/client/security/backups-scan.jsx:50
-__( "Checking site status…", "jetpack" ), // _inc/client/security/backups-scan.jsx:46
-__( "You may whitelist an IP address or series of addresses preventing them from ever being blocked by Jetpack. IPv4 and IPv6 are acceptable. To specify a range, enter the low value and high value separated by a dash. Example: 12.12.12.1-12.12.12.100", "jetpack" ), // _inc/client/security/protect.jsx:146
-__( "Whitelisted IP addresses", "jetpack" ), // _inc/client/security/protect.jsx:130
-__( "Add to whitelist", "jetpack" ), // _inc/client/security/protect.jsx:125
-__( "Your current IP: %(ip)s", "jetpack" ), // _inc/client/security/protect.jsx:111
-_x( "Brute force attack protection", "Settings header", "jetpack" ), // _inc/client/security/protect.jsx:98
-__( "Require accounts to use WordPress.com Two-Step Authentication", "jetpack" ), // _inc/client/security/sso.jsx:94
-__( "Match accounts using email addresses", "jetpack" ), // _inc/client/security/sso.jsx:81
-_x( "WordPress.com log in", "Settings header", "jetpack" ), // _inc/client/security/sso.jsx:56
-__( "Enter a search term to find settings or close search.", "jetpack" ), // _inc/client/settings/index.jsx:38
-__( "No search results found for %(term)s", "jetpack" ), // _inc/client/settings/index.jsx:30
 __( "Allow readers to show their appreciation of your posts by adding a like button to your content", "jetpack" ), // _inc/client/sharing/likes.jsx:34
 _x( "Like buttons", "Settings header", "jetpack" ), // _inc/client/sharing/likes.jsx:24
 __( "Automatically share your posts to social networks", "jetpack" ), // _inc/client/sharing/publicize.jsx:81
@@ -361,6 +327,40 @@ __( "Load more posts as the reader scrolls down", "jetpack" ), // _inc/client/wr
 __( "Load more posts in page with a button", "jetpack" ), // _inc/client/writing/theme-enhancements.jsx:135
 __( "Load more posts using the default theme behavior", "jetpack" ), // _inc/client/writing/theme-enhancements.jsx:131
 __( "Theme enhancements", "jetpack" ), // _inc/client/writing/theme-enhancements.jsx:121
+__( "Enter a search term to find settings or close search.", "jetpack" ), // _inc/client/settings/index.jsx:38
+__( "No search results found for %(term)s", "jetpack" ), // _inc/client/settings/index.jsx:30
+__( "If you don't already have an API key, then {{a}}get your API key here{{/a}}, and you'll be guided through the process of getting one.", "jetpack" ), // _inc/client/security/antispam.jsx:149
+__( "Your API key", "jetpack" ), // _inc/client/security/antispam.jsx:143
+_x( "Spam filtering", "Settings header", "jetpack" ), // _inc/client/security/antispam.jsx:135
+__( "Checking key…", "jetpack" ), // _inc/client/security/antispam.jsx:126
+__( "Your site is protected from spam.", "jetpack" ), // _inc/client/security/antispam.jsx:120
+__( "Your Antispam key is valid.", "jetpack" ), // _inc/client/security/antispam.jsx:118
+__( "Your site is not protected from spam.", "jetpack" ), // _inc/client/security/antispam.jsx:116
+__( "There's a problem with your Antispam API key. {{a}}Learn more{{/a}}.", "jetpack" ), // _inc/client/security/antispam.jsx:108
+__( "Your site needs an Antispam key.", "jetpack" ), // _inc/client/security/antispam.jsx:102
+__( "Fetching key…", "jetpack" ), // _inc/client/security/antispam.jsx:97
+__( "Checking your spam protection…", "jetpack" ), // _inc/client/security/antispam.jsx:93
+__( "Configure your Security Scans", "jetpack" ), // _inc/client/security/backups-scan.jsx:120
+_x( "Backups and security scanning", "Settings header", "jetpack" ), // _inc/client/security/backups-scan.jsx:107
+__( "Click \"Set Up\" to finish installation.", "jetpack" ), // _inc/client/security/backups-scan.jsx:94
+__( "You have paid for backups and security scanning but they’re not yet active.", "jetpack" ), // _inc/client/security/backups-scan.jsx:93
+__( "Click \"Set Up\" to finish installation.", "jetpack" ), // _inc/client/security/backups-scan.jsx:89
+__( "You have paid for backups but they're not yet active.", "jetpack" ), // _inc/client/security/backups-scan.jsx:88
+__( "Your site is backed up.", "jetpack" ), // _inc/client/security/backups-scan.jsx:82
+__( "Your site is backed up and threat-free.", "jetpack" ), // _inc/client/security/backups-scan.jsx:75
+__( "{{a}}Contact Support{{/a}}", "jetpack" ), // _inc/client/security/backups-scan.jsx:72
+__( "{{a}}View details{{/a}}", "jetpack" ), // _inc/client/security/backups-scan.jsx:70
+_n( "Uh oh, %(number)s threat found.", "Uh oh, %(number)s threats found.", 1, "jetpack" ), // _inc/client/security/backups-scan.jsx:60
+__( "Unavailable in Dev Mode.", "jetpack" ), // _inc/client/security/backups-scan.jsx:50
+__( "Checking site status…", "jetpack" ), // _inc/client/security/backups-scan.jsx:46
+__( "You may whitelist an IP address or series of addresses preventing them from ever being blocked by Jetpack. IPv4 and IPv6 are acceptable. To specify a range, enter the low value and high value separated by a dash. Example: 12.12.12.1-12.12.12.100", "jetpack" ), // _inc/client/security/protect.jsx:146
+__( "Whitelisted IP addresses", "jetpack" ), // _inc/client/security/protect.jsx:130
+__( "Add to whitelist", "jetpack" ), // _inc/client/security/protect.jsx:125
+__( "Your current IP: %(ip)s", "jetpack" ), // _inc/client/security/protect.jsx:111
+_x( "Brute force attack protection", "Settings header", "jetpack" ), // _inc/client/security/protect.jsx:98
+__( "Require accounts to use WordPress.com Two-Step Authentication", "jetpack" ), // _inc/client/security/sso.jsx:94
+__( "Match accounts using email addresses", "jetpack" ), // _inc/client/security/sso.jsx:81
+_x( "WordPress.com log in", "Settings header", "jetpack" ), // _inc/client/security/sso.jsx:56
 __( "Connect your account to WordPress.com to view more stats", "jetpack" ), // _inc/client/at-a-glance/stats/dash-stats-bottom.jsx:134
 __( "{{button}}View more stats on WordPress.com {{/button}}", "jetpack" ), // _inc/client/at-a-glance/stats/dash-stats-bottom.jsx:112
 __( "{{button}}View detailed stats{{/button}}", "jetpack" ), // _inc/client/at-a-glance/stats/dash-stats-bottom.jsx:101
