@@ -330,7 +330,6 @@ class Jetpack_Protect_Blocked_Login_Page {
 	function display_page( $title, $message, $back_button = false, $recovery_form = false ) {
 
 		if ( ! headers_sent() ) {
-			status_header( 500 );
 			nocache_headers();
 			header( 'Content-Type: text/html; charset=utf-8' );
 		}
