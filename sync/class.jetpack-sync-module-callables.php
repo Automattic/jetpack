@@ -29,7 +29,7 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 			'jetpack_active_modules',
 			'home',
 			'siteurl',
-			'jetpack_sync_error_idc'
+			'jetpack_sync_error_idc',
 		);
 		foreach( $always_send_updates_to_these_options as $option ) {
 			add_action( "update_option_{$option}", array( $this, 'unlock_sync_callable' ) );
@@ -119,6 +119,7 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 	public function unlock_plugin_action_link_and_callables() {
 		delete_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME );
 		delete_transient( 'jetpack_plugin_api_action_links_refresh' );
+		add_filter( 'jetpack_check_and_send_callables', '__return_true' );
 	}
 
 	public function set_plugin_action_links() {
@@ -205,12 +206,14 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 	}
 
 	public function maybe_sync_callables() {
-		if ( ! is_admin() || Jetpack_Sync_Settings::is_doing_cron() ) {
-			return;
-		}
+		if ( ! apply_filters( 'jetpack_check_and_send_callables', false ) ) {
+			if ( ! is_admin() || Jetpack_Sync_Settings::is_doing_cron() ) {
+				return;
+			}
 
-		if ( get_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME ) ) {
-			return;
+			if ( get_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME ) ) {
+				return;
+			}
 		}
 
 		set_transient( self::CALLABLES_AWAIT_TRANSIENT_NAME, microtime( true ), Jetpack_Sync_Defaults::$default_sync_callables_wait_time );
