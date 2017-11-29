@@ -292,7 +292,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 	}
 
 	function render_recovery_success() {
-		$this->protect_die( sprintf( __( 'An email with recovery instructions was sent to %s.', 'jetpack' ), $this->email_address ) );
+		$this->protect_die( sprintf( __( 'Recovery instructions were sent to %s. Check your inbox!', 'jetpack' ), $this->email_address ) );
 	}
 
 
