@@ -380,7 +380,7 @@ class Jetpack_Search {
 
 		foreach ( $the_tax_query->queries as $tax_query ) {
 			// Right now we only support slugs...see note above
-			if ( 'slug' !== $tax_query['field'] ) {
+			if ( ! is_array( $tax_query ) || 'slug' !== $tax_query['field'] ) {
 				continue;
 			}
 
@@ -1053,7 +1053,7 @@ class Jetpack_Search {
 
 				if ( ! empty( $query->tax_query ) && ! empty( $query->tax_query->queries ) && is_array( $query->tax_query->queries ) ) {
 					foreach( $query->tax_query->queries as $tax_query ) {
-						if ( $this->aggregations[ $label ]['taxonomy'] === $tax_query['taxonomy'] &&
+						if ( is_array( $tax_query ) && $this->aggregations[ $label ]['taxonomy'] === $tax_query['taxonomy'] &&
 						     'slug' === $tax_query['field'] &&
 						     is_array( $tax_query['terms'] ) ) {
 							$existing_term_slugs = array_merge( $existing_term_slugs, $tax_query['terms'] );
@@ -1286,7 +1286,7 @@ class Jetpack_Search {
 		}
 
 		foreach( $filters as $filter ) {
-			if ( isset( $filters['buckets'] ) && is_array( $filter['buckets'] ) ) {
+			if ( isset( $filter['buckets'] ) && is_array( $filter['buckets'] ) ) {
 				foreach( $filter['buckets'] as $item ) {
 					if ( isset( $item['active'] ) && $item['active'] ) {
 						$active_buckets[] = $item;
