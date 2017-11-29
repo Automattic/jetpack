@@ -276,7 +276,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 		if ( is_wp_error( $content ) ) {
 			$content = $content->get_error_message();
 		}
-		$content =  '<p>'. esc_html( $content ) .'</p>';
+		$content =  '<p>'. $content .'</p>';
 
 		// If for some reason the login pop up box show up in the wp-admin.
 		if ( isset( $_GET['interim-login'] ) ) {
