@@ -192,7 +192,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 		}
 
 		if ( isset( $_GET['validate_jetpack_protect_recovery'] ) && $_GET['user_id'] ) {
-			$this->protect_die( __( 'Could not validate recovery token.', 'jetpack' ) );
+			$this->protect_die( __( 'Oops, we couldn’t validate the recovery recovery token.', 'jetpack' ) );
 
 			return;
 		}
@@ -220,9 +220,12 @@ class Jetpack_Protect_Blocked_Login_Page {
 
 	function process_recovery_email() {
 		$sent = $this->send_recovery_email();
-
+		$show_recovery_form = true;
 		if ( is_wp_error( $sent ) ) {
-			$this->protect_die( $sent,  null,true );
+			if( $sent->get_error_code() !== 'email_already_sent' ) {
+				$show_recovery_form = true;
+			}
+			$this->protect_die( $sent,  null,true, $show_recovery_form );
 		} else {
 			$this->render_recovery_success();
 		}
@@ -236,7 +239,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 		$user = get_user_by( 'email', trim( $email ) );
 
 		if ( ! $user ) {
-			return new WP_Error( 'invalid_user', __( 'Oops, could not find a user with that email address.', 'jetpack' ) );
+			return new WP_Error( 'invalid_user', __( 'Oops, we couldn’t find a user with that email. Please try again!', 'jetpack' ) );
 		}
 		$this->email_address = $email;
 		$path                = sprintf( '/sites/%d/protect/recovery/request', Jetpack::get_option( 'id' ) );
@@ -258,36 +261,34 @@ class Jetpack_Protect_Blocked_Login_Page {
 		$result = json_decode( wp_remote_retrieve_body( $response ) );
 
 		if ( self::HTTP_STATUS_CODE_TOO_MANY_REQUESTS === $code ) {
-			return new WP_Error( 'email_already_sent', __( 'An email was already sent to this address.', 'jetpack' ) );
+			return new WP_Error( 'email_already_sent', sprintf( __( 'Recovery instructions were sent to %s. Check your inbox!', 'jetpack' ), $this->email_address ) );
 		} else if ( is_wp_error( $result ) || empty( $result ) || isset( $result->error ) ) {
-			return new WP_Error( 'email_send_error', __( 'There was an error sending your email.', 'jetpack' ) );
+			return new WP_Error( 'email_send_error', __( 'Oops, we were unable to send a recovery email. Try again.', 'jetpack' ) );
 		}
 
 		return true;
 	}
 
-	function protect_die( $content, $title = null, $back_link = false ) {
+	function protect_die( $content, $title = null, $back_link = false, $recovery_form = false ) {
 		if( empty( $title ) ) {
 			$title = __( 'Jetpack has locked your site\'s login page.', 'jetpack' );
 		}
 		if ( is_wp_error( $content ) ) {
 			$content = $content->get_error_message();
 		}
-		// hack to get around default wp_die_handler. https://core.trac.wordpress.org/browser/tags/4.8.1/src/wp-includes/functions.php#L2698
-		$content =  '<p>'. $content .'</p>';
+		$content =  '<p>'. esc_html( $content ) .'</p>';
 
+		// If for some reason the login pop up box show up in the wp-admin.
 		if ( isset( $_GET['interim-login'] ) ) {
-			$content = "<style>html{ background-color: #fff; } #error-page { margin:0 auto; padding: 1em; box-shadow: none; } </style>" . $content;
+			$content = "<style>html{ background-color: #fff; } #error-message { margin:0 auto; padding: 1em; box-shadow: none; } </style>" . $content;
 		}
 
-		$this->display_page( $title, $content, 'error message goes here', $back_link );
-		wp_die( $content, $this->page_title, array( 'back_link' => $back_link ) );
-
+		$this->display_page( $title, $content, 'error message goes here', $back_link, $recovery_form );
 	}
 
 	function render_recovery_form() {
-		$content = $this->get_html_blocked_login_message() . $this->get_html_recovery_form();
-		$this->protect_die( $content );
+		$content = $this->get_html_blocked_login_message();
+		$this->protect_die( $content, null, null, true );
 	}
 
 	function render_recovery_success() {
@@ -326,7 +327,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 		return $contents;
 	}
 
-	function display_page( $title, $message, $error, $back_button = false ) {
+	function display_page( $title, $message, $error, $back_button = false, $recovery_form = false ) {
 
 		if ( ! headers_sent() ) {
 			status_header( 500 );
@@ -527,6 +528,9 @@ class Jetpack_Protect_Blocked_Login_Page {
 			<div id="error-message">
 				<img src="<?php echo esc_url( plugins_url( 'modules/protect/protect.png', JETPACK__PLUGIN_FILE ) ); ?>?"/>
 				<?php echo $message; ?>
+				<?php if ( $recovery_form ) {
+					echo $this->get_html_recovery_form();
+				} ?>
 			</div>
 			<div id="error-footer">
 			<?php if ( $back_button ) {
