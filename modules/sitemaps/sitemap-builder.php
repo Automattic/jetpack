@@ -123,8 +123,7 @@ class Jetpack_Sitemap_Builder {
 						. 'XML support is highly recommended for WordPress and Jetpack, please enable '
 						. 'it or contact your hosting provider about it.',
 						'jetpack'
-					),
-					true
+					)
 				);
 			}
 		}

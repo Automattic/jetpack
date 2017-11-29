@@ -149,16 +149,18 @@ class WordAds {
 	 * @return [type] [description]
 	 */
 	function insert_head_meta() {
-		$themename = esc_js( get_stylesheet() );
-		$pagetype = intval( $this->params->get_page_type_ipw() );
+		$domain = $this->params->targeting_tags['Domain'];
+		$pageURL = $this->params->targeting_tags['PageURL'];
+		$adsafe = $this->params->targeting_tags['AdSafe'];
 		$data_tags = ( $this->params->cloudflare ) ? ' data-cfasync="false"' : '';
 		echo <<<HTML
 		<script$data_tags type="text/javascript">
-			var __ATA_PP = { pt: $pagetype, ht: 2, tn: '$themename', amp: false };
-			var __ATA = __ATA || {};
-			__ATA.cmd = __ATA.cmd || [];
-			__ATA.criteo = __ATA.criteo || {};
-			__ATA.criteo.cmd = __ATA.criteo.cmd || [];
+			var _ipw_custom = {
+				wordAds: '1',
+				domain: '$domain',
+				pageURL: '$pageURL',
+				adSafe: '$adsafe'
+			};
 		</script>
 HTML;
 	}

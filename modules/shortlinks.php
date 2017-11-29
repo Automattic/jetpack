@@ -85,11 +85,11 @@ function wpme_get_shortlink( $id = 0, $context = 'post', $allow_slugs = true ) {
 }
 
 function wpme_get_shortlink_handler( $shortlink, $id, $context, $allow_slugs ) {
-	if ( false === $shortlink ) {	// respect / do not change the value from a previous filter
-		$shortlink = wpme_get_shortlink( $id, $context, $allow_slugs );	// returns an wp.me shortlink or an empty string
-		if ( '' === $shortlink ) {	// empty string signals empty post object, or missing post type support for shortlinks
-			$shortlink = false;	// allows wp_get_shortlink() to continue and return its own shortlink
+	if ( $shortlink === false ) {	// respect / do not change the value from previous filter hooks
+		$shortlink = wpme_get_shortlink( $id, $context, $allow_slugs );	// returns wp.me shortlink or empty string
+		if ( $shortlink === '' ) {	// empty string for empty post object or no post type support for shortlinks
+			$shortlink = false;	// allow wp_get_shortlink() to continue and return its own shortlink
 		}
 	}
-	return $shortlink;	// return false, previous filter shortlink, or wp.me shortlink (if no previous filter shortlink)
+	return $shortlink;	// return false, previous shortlink, or wp.me shortlink (if no previous shortlink)
 }
