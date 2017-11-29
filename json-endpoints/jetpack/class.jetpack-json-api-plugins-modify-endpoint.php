@@ -186,7 +186,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 		foreach ( $this->plugins as $plugin ) {
 
 			if ( ! $this->current_user_can( 'activate_plugin', $plugin ) ) {
-				$this->log[ $plugin ]['error'] = __( 'Sorry, you are not allowed to activate this plugin.' );
+				$this->log[ $plugin ]['error'] = __( 'Sorry, you are not allowed to activate this plugin.', 'jetpack' );
 				$has_errors                  = true;
 				$permission_error            = true;
 				continue;

@@ -31,15 +31,6 @@ class A8C_WPCOM_Masterbar {
 			return;
 		}
 
-		Jetpack::dns_prefetch( array(
-			'//s0.wp.com',
-			'//s1.wp.com',
-			'//s2.wp.com',
-			'//0.gravatar.com',
-			'//1.gravatar.com',
-			'//2.gravatar.com',
-		) );
-
 		// Atomic only - override user setting that hides masterbar from site's front.
 		// https://github.com/Automattic/jetpack/issues/7667
 		if ( jetpack_is_atomic_site() ) {
@@ -132,12 +123,7 @@ class A8C_WPCOM_Masterbar {
 			wp_enqueue_style( 'noticons', $this->wpcom_static_url( '/i/noticons/noticons.css' ), array(), JETPACK__VERSION . '-' . gmdate( 'oW' ) );
 		}
 
-		wp_enqueue_script(
-			'jetpack-accessible-focus',
-			Jetpack::get_file_url_for_environment( '_inc/build/accessible-focus.min.js', '_inc/accessible-focus.js' ),
-			array(),
-			JETPACK__VERSION
-		);
+		wp_enqueue_script( 'jetpack-accessible-focus', plugins_url( '_inc/accessible-focus.js', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
 		wp_enqueue_script( 'a8c_wpcom_masterbar_tracks_events', plugins_url( 'tracks-events.js', __FILE__ ), array( 'jquery' ), JETPACK__VERSION );
 
 		wp_enqueue_script( 'a8c_wpcom_masterbar_overrides', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/masterbar-overrides/masterbar.js' ), array( 'jquery' ), JETPACK__VERSION );
@@ -390,12 +376,7 @@ class A8C_WPCOM_Masterbar {
 		$user_info  = get_avatar( $this->user_email, 128, 'mm', '', array( 'force_display' => true ) );
 		$user_info .= '<span class="display-name">' . $this->display_name . '</span>';
 		$user_info .= '<a class="username" href="http://gravatar.com/' . $this->user_login . '">@' . $this->user_login . '</a>';
-
-		$user_info .= sprintf(
-			'<div><a href="%s" class="ab-sign-out">%s</a></div>',
-			$logout_url,
-			esc_html__( 'Sign Out', 'jetpack' )
-		);
+		$user_info .= '<form action="' . $logout_url . '" method="post"><button class="ab-sign-out" type="submit">' . esc_html__( 'Sign Out', 'jetpack' ) . '</button></form>';
 
 		$wp_admin_bar->add_menu( array(
 			'parent' => $id,
@@ -747,7 +728,7 @@ class A8C_WPCOM_Masterbar {
 			$wp_admin_bar->add_menu( array(
 				'parent' => 'publish',
 				'id'     => 'comments',
-				'title'  => __( 'Comments' ),
+				'title'  => __( 'Comments', 'jetpack' ),
 				'href'   => 'https://wordpress.com/comments/' . esc_attr( $this->primary_site_slug ),
 				'meta'   => array(
 					'class' => 'mb-icon',

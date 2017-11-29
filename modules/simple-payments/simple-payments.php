@@ -258,7 +258,7 @@ class Jetpack_Simple_Payments {
 		$product_args = array(
 			'label'                 => esc_html__( 'Product', 'jetpack' ),
 			'description'           => esc_html__( 'Simple Payments products', 'jetpack' ),
-			'supports'              => array( 'title', 'editor','thumbnail', 'custom-fields', 'author' ),
+			'supports'              => array( 'title', 'editor','thumbnail', 'custom-fields' ),
 			'hierarchical'          => false,
 			'public'                => false,
 			'show_ui'               => false,

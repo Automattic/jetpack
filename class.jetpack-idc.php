@@ -246,7 +246,7 @@ class Jetpack_IDC {
 
 		wp_enqueue_script(
 			'jetpack-idc-js',
-			Jetpack::get_file_url_for_environment( '_inc/build/idc-notice.min.js', '_inc/idc-notice.js' ),
+			plugins_url( '_inc/idc-notice.js', JETPACK__PLUGIN_FILE ),
 			array( 'jquery' ),
 			JETPACK__VERSION,
 			true
@@ -440,7 +440,7 @@ class Jetpack_IDC {
 		$html = wp_kses(
 			sprintf(
 				__(
-					'Please confirm Safe Mode or fix the Jetpack connection. Select one of the options below or <a href="%1$s">learn
+					'Please confirm Safe Mode or fix the Jetpack connection. Select one of the options below or <a href="%1$s">learn 
 					more about Safe Mode</a>.',
 					'jetpack'
 				),
@@ -463,7 +463,7 @@ class Jetpack_IDC {
 		$html = wp_kses(
 			sprintf(
 				__(
-					'Is this website a temporary duplicate of <a href="%1$s">%2$s</a> for the purposes
+					'Is this website a temporary duplicate of <a href="%1$s">%2$s</a> for the purposes 
 					of testing, staging or development? If so, we recommend keeping it in Safe Mode.',
 					'jetpack'
 				),
@@ -500,7 +500,7 @@ class Jetpack_IDC {
 		$html = wp_kses(
 			sprintf(
 				__(
-					'If this is a separate and new website, or the new home of <a href="%1$s">%2$s</a>,
+					'If this is a separate and new website, or the new home of <a href="%1$s">%2$s</a>, 
 					we recommend turning Safe Mode off, and re-establishing your connection to WordPress.com.',
 					'jetpack'
 				),
@@ -596,7 +596,7 @@ class Jetpack_IDC {
 		$html = wp_kses(
 			sprintf(
 				__(
-					'No. <a href="%1$s">%2$s</a> is a new and different website that\'s separate from
+					'No. <a href="%1$s">%2$s</a> is a new and different website that\'s separate from 
 					<a href="%3$s">%4$s</a>. It requires  a new connection to WordPress.com for new stats and subscribers.',
 					'jetpack'
 				),

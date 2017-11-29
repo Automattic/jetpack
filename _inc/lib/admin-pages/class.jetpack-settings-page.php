@@ -179,11 +179,6 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 
 	// Javascript logic specific to the list table
 	function page_admin_scripts() {
-		wp_enqueue_script(
-			'jetpack-admin-js',
-			Jetpack::get_file_url_for_environment( '_inc/build/jetpack-admin.min.js', '_inc/jetpack-admin.js' ),
-			array( 'jquery' ),
-			JETPACK__VERSION
-		);
+		wp_enqueue_script( 'jetpack-admin-js', plugins_url( '_inc/jetpack-admin.js', JETPACK__PLUGIN_FILE ), array( 'jquery' ), JETPACK__VERSION );
 	}
 }
