@@ -862,11 +862,17 @@ class Jetpack_Search {
 	 * @param Jetpack_WPES_Query_Builder $builder The builder instance that is creating the ES query
 	 */
 	public function add_date_histogram_aggregation_to_es_query_builder( array $aggregation, $label, Jetpack_WPES_Query_Builder $builder ) {
+		$args = array(
+			'interval' => $aggregation['interval'],
+			'field'    => ( ! empty( $aggregation['field'] ) && 'post_date_gmt' == $aggregation['field'] ) ? 'date_gmt' : 'date',
+		);
+
+		if ( isset( $aggregation['min_doc_count'] ) ) {
+			$args['min_doc_count'] = intval( $aggregation['min_doc_count'] );
+		}
+
 		$builder->add_aggs( $label, array(
-			'date_histogram' => array(
-				'interval' => $aggregation['interval'],
-				'field'    => ( ! empty( $aggregation['field'] ) && 'post_date_gmt' == $aggregation['field'] ) ? 'date_gmt' : 'date',
-			),
+			'date_histogram' => $args,
 		));
 	}
 
