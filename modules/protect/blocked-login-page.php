@@ -526,7 +526,6 @@ class Jetpack_Protect_Blocked_Login_Page {
 		<body id="error-page">
 			<h1 id="error-title"><?php echo esc_html( $title ); ?></h1>
 			<div id="error-message">
-				<img src="<?php echo esc_url( plugins_url( 'modules/protect/protect.png', JETPACK__PLUGIN_FILE ) ); ?>?"/>
 				<?php echo $message; ?>
 				<?php if ( $recovery_form ) {
 					echo $this->get_html_recovery_form();
