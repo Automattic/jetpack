@@ -192,7 +192,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 		}
 
 		if ( isset( $_GET['validate_jetpack_protect_recovery'] ) && $_GET['user_id'] ) {
-			$this->protect_die( __( 'Could not validate recovery token.', 'jetpack' ) );
+			$this->protect_die( __( 'Oops, we couldn’t validate the recovery recovery token.' , 'jetpack' ) ) . $this->get_html_recovery_form() );
 
 			return;
 		}
@@ -236,7 +236,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 		$user = get_user_by( 'email', trim( $email ) );
 
 		if ( ! $user ) {
-			return new WP_Error( 'invalid_user', __( 'Oops, could not find a user with that email address.', 'jetpack' ) );
+			return new WP_Error( 'invalid_user', __( "Oops, we couldn't find a user with that email address.", 'jetpack' ) );
 		}
 		$this->email_address = $email;
 		$path                = sprintf( '/sites/%d/protect/recovery/request', Jetpack::get_option( 'id' ) );
@@ -258,11 +258,10 @@ class Jetpack_Protect_Blocked_Login_Page {
 		$result = json_decode( wp_remote_retrieve_body( $response ) );
 
 		if ( self::HTTP_STATUS_CODE_TOO_MANY_REQUESTS === $code ) {
-			return new WP_Error( 'email_already_sent', __( 'An email was already sent to this address.', 'jetpack' ) );
+			return new WP_Error( 'email_already_sent', sprintf( __( 'An email was already sent to %s. Check your inbox!', 'jetpack' ), $this->email_address ) );
 		} else if ( is_wp_error( $result ) || empty( $result ) || isset( $result->error ) ) {
-			return new WP_Error( 'email_send_error', __( 'There was an error sending your email.', 'jetpack' ) );
+			return new WP_Error( 'email_send_error', __( 'Oops, we were unable to send a recovery email. Try again', 'jetpack' ) );
 		}
-
 		return true;
 	}
 
@@ -291,7 +290,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 	}
 
 	function render_recovery_success() {
-		$this->protect_die( sprintf( __( 'An email with recovery instructions was sent to %s.', 'jetpack' ), $this->email_address ) );
+		$this->protect_die( sprintf( __( 'Recovery instructions were sent to %s. Check your inbox!', 'jetpack' ), $this->email_address ) );
 	}
 
 
