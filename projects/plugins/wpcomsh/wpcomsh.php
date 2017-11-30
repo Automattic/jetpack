@@ -8,7 +8,7 @@
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '2.1.5' );
+define( 'WPCOMSH_VERSION', '2.1.6' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -598,26 +598,35 @@ function wpcomsh_wporg_to_wpcom_locale_mo_file( $mofile ) {
 		require JETPACK__GLOTPRESS_LOCALES_PATH;
 	}
 
-	$possible_locale_slug = basename( $mofile, '.mo' );
+	$locale_slug = basename( $mofile, '.mo' );
+	$actual_locale_slug = $locale_slug;
 
-	// For some languages we have a different slug than WordPress.org.
+	// These locales are not in our GP_Locales file, so rewrite them.
 	$locale_mappings = array(
-		'nb_NO' => 'no', // Norwegian Bokmål
-		'de_DE_formal' => 'de', // formal German
-		'en_UK' => 'en-gb', // Accept wrong slug
+		'de_DE_formal' => 'de_DE', // formal German
 	);
 
-	if ( isset( $locale_mappings[ $possible_locale_slug ] ) ) {
-		$possible_locale_slug = $locale_mappings[ $possible_locale_slug ];
+	if ( isset( $locale_mappings[ $locale_slug ] ) ) {
+		$locale_slug = $locale_mappings[ $locale_slug ];
 	}
 
-	$locale_object = GP_Locales::by_field( 'wp_locale', $possible_locale_slug );
-
+	$locale_object = GP_Locales::by_field( 'wp_locale', $locale_slug );
 	if ( ! $locale_object ) {
 		return $mofile;
 	}
 
-	$mofile = preg_replace( '/' . preg_quote( $possible_locale_slug ) . '\.mo$/', $locale_object->slug . '.mo', $mofile );
+	$locale_slug = $locale_object->slug;
+
+	// For these languages we have a different slug than WordPress.org.
+	$locale_mappings = array(
+		'nb' => 'no', // Norwegian Bokmål
+	);
+
+	if ( isset( $locale_mappings[ $locale_slug ] ) ) {
+		$locale_slug = $locale_mappings[ $locale_slug ];
+	}
+
+	$mofile = preg_replace( '/' . preg_quote( $actual_locale_slug ) . '\.mo$/', $locale_slug . '.mo', $mofile );
 	return $mofile;
 }
 add_filter( 'load_textdomain_mofile', 'wpcomsh_wporg_to_wpcom_locale_mo_file', 9999 );
