@@ -282,7 +282,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 			$content = "<style>html{ background-color: #fff; } #error-page { margin:0 auto; padding: 1em; box-shadow: none; } </style>" . $content;
 		}
 
-		wp_die( $content, $this->page_title, array( 'back_link' => $back_link ) );
+		wp_die( $content, $this->page_title, array( 'back_link' => $back_link, 'response' => 200 ) );
 	}
 
 	function render_recovery_form() {
