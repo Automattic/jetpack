@@ -159,7 +159,7 @@ class WP_Super_Cache_Rest_Get_Settings extends WP_REST_Controller {
 	 * @return int
 	 */
 	protected function get_is_preload_active() {
-		if ( wp_next_scheduled( 'wp_cache_preload_hook' ) || wp_next_scheduled( 'wp_cache_full_preload_hook' ) ) { 
+		if ( wp_next_scheduled( 'wp_cache_preload_hook' ) || wp_next_scheduled( 'wp_cache_full_preload_hook' ) ) {
 			return true;
 		} else {
 			return false;

@@ -63,7 +63,7 @@
  * 4. The wp_footer action fires and the TAG is printed to the page.
  * 5. Processing continues and the page is created.
  * 6. The output buffer finishes. A WP Super Cache callback function runs
- *    and saves the output buffer to a cache file. The wpsc_cachedata 
+ *    and saves the output buffer to a cache file. The wpsc_cachedata
  *    filter is called.
  * 7. The function dynamic_cache_test_filter() runs and replaces the TAG in
  *    the buffer with the "Hello world" string.

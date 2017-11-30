@@ -33,11 +33,6 @@ require_once( dirname( __FILE__ ) . '/wp-cache-phase2.php');
 
 function wpsc_init() {
 	global $wp_cache_config_file, $wp_cache_config_file_sample, $wp_cache_file, $wp_cache_check_wp_config, $wp_cache_link;
-	// Pre-2.6 compatibility
-	if ( !defined('WP_CONTENT_URL') )
-		define( 'WP_CONTENT_URL', get_option( 'siteurl' ) . '/wp-content');
-	if ( !defined('WP_CONTENT_DIR') )
-		define( 'WP_CONTENT_DIR', ABSPATH . 'wp-content' );
 
 	$wp_cache_config_file = WP_CONTENT_DIR . '/wp-cache-config.php';
 

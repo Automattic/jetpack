@@ -1,4 +1,4 @@
-# Copyright (C) 2013 
+# Copyright (C) 2013
 # This file is distributed under the same license as the  package.
 msgid ""
 msgstr ""
