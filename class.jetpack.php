@@ -4563,7 +4563,7 @@ p {
 					remove_action( 'jetpack_pre_activate_module',   array( Jetpack_Admin::init(), 'fix_redirect' ) );
 
 					// Don't redirect form the Jetpack Setting Page
-					$referer_parsed = parse_url ( wp_get_referer() );
+					$referer_parsed = wp_parse_url ( wp_get_referer() );
 					// check that we do have a wp_get_referer and the query paramater is set orderwise go to the Jetpack Home
 					if ( isset( $referer_parsed['query'] ) && false !== strpos( $referer_parsed['query'], 'page=jetpack_modules' ) ) {
 						// Take the user to Jetpack home except when on the setting page
@@ -5615,7 +5615,7 @@ p {
 		if ( ! isset( $path ) ) {
 			require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 			$admin_url = Jetpack::admin_url();
-			$bits      = parse_url( $admin_url );
+			$bits      = wp_parse_url( $admin_url );
 
 			if ( is_array( $bits ) ) {
 				$path   = ( isset( $bits['path'] ) ) ? dirname( $bits['path'] ) : null;
