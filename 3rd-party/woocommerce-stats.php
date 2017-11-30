@@ -26,14 +26,6 @@ class WC_Stats {
 		return self::$instance;
 	}
 
-	static function getScriptTag() {
-		if ( WC_Stats::isActiveStore() ) {
-			return "
-				<script type='text/javascript' src='https://stats.wp.com/s.js'></script>
-			";
-		}
-	}
-
 	public function isActiveStore() {
 		// Tracking only Site pages
 		if ( is_admin() ) {
@@ -58,8 +50,11 @@ class WC_Stats {
 
 	public function __construct() {
 		$this->jetpack = Jetpack::init();
+		// add store analytics parameters
+		add_action( 'wp_enqueue_scripts', array( $this, 'register_params_scripts' ), 1 );
 
-		add_action( 'wp_enqueue_scripts', array( $this, 'writeDataToDom' ) );
+		// add s.js at the end
+		add_action( 'wp_enqueue_scripts', array( $this, 'register_s_script' ), 10 );
 	}
 
 	public function get_cart_ids( $result, $item ) {
@@ -99,34 +94,35 @@ class WC_Stats {
 		return $session ? $session[ 0 ] : null;
 	}
 
-	public function writeDataToDom() {
-		$cart = WC()->cart->get_cart();
-		$cart_ids = array_reduce( $cart, array( $this, 'get_cart_ids' ), '' );
-		$cart_quantities = array_reduce( $cart, array( $this, 'get_cart_quantities' ), '' );
-		// Is this the right id? Is WooCommerce id different?
-		$blog_id = Jetpack::get_option( 'id' );
-		$post = get_post();
-		$post_id = $post->ID;
-		$post_type = get_post_type( $post_id );
-		$store_page = $this->get_store_page( $post_type, $post_id );
-		$order_number = $_GET['key'];
-		$tracks_identity = jetpack_tracks_get_identity( get_current_user_id() );
-//		data-ut='" . $tracks_identity[ '_ut' ] . "'
-//		data-ui='" . $tracks_identity[ '_ui' ] . "'>
-		$session_id = $this->get_session_id();
+	public function register_s_script() {
+		if ( ! is_admin() ) {
+			wp_register_script( 'wc_tk_s', 'https://stats.wp.com/s.js', null, null, true );
+			wp_enqueue_script( 'wc_tk_s' );
+		}
+	}
 
-		echo "
-			<div 
-				id='store_data'
-				style='display: none;' 
-				data-blog_id='" . $blog_id . "'
-				data-post='" . $post_id . "'
-				data-cart='" . $session_id . "'
-				data-cart_i='" . $cart_ids . "'
-				data-cart_q='" . $cart_quantities . "'>
-				
-			</div>
-		";
+	public function register_params_scripts() {
+		if ( ! is_admin() ) {
+			$event_params = $this->collect_params();
+			wp_register_script( 'wc_tk', null, null, '1.0', true );
+			wp_localize_script( 'wc_tk', 'tk_params', $event_params );
+			wp_enqueue_script( 'wc_tk' );
+		}
+	}
+
+	public function collect_params( $params = array() ) {
+		if ( is_product() ) {
+			$params[ 'blog_id' ] = Jetpack::get_option( 'id' );
+			$post = get_post();
+			$params[ 'product_id' ] = $post->ID;
+		}
+		if ( is_cart() ) {
+			$cart = WC()->cart->get_cart();
+			$params[ 'cart_id' ] = $this->get_session_id();
+			$params[ 'cart_products' ] = array_reduce( $cart, array( $this, 'get_cart_ids' ), '' );
+			$params[ 'cart_quantities' ] = array_reduce( $cart, array( $this, 'get_cart_quantities' ), '' );
+		}
+		return $params;
 	}
 }
 
