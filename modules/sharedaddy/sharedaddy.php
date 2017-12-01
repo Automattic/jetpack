@@ -51,7 +51,9 @@ function sharing_email_send_post( $data ) {
 	// Make sure to pass the title through the normal sharing filters.
 	$title = $data['sharing_source']->get_share_title( $data['post']->ID );
 
-	wp_mail( $data['target'], '[' . __( 'Shared Post', 'jetpack' ) . '] ' . $title, $content, $headers );
+	$subject = apply_filters('wp_sharing_email_send_post_subject',sprintf(__('Shared Post','jetpack')));
+
+	wp_mail( $data['target'], $subject, $title, $content, $headers );
 }
 
 
