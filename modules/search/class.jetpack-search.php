@@ -232,7 +232,14 @@ class Jetpack_Search {
 	 * @return array Array of matching posts
 	 */
 	public function filter__posts_pre_query( $posts, $query ) {
-		if ( ! $query->is_main_query() || ! $query->is_search() ) {
+		/**
+		 * Determine whether a given WP_Query should be handled by ElasticSearch
+		 *
+		 * @since 5.6
+		 * @param bool $should_handle Should be handled by Jetpack Search
+		 * @param WP_Query $query The wp_query object
+		 */
+		if ( ! apply_filters( 'jetpack_search_should_handle_query', ( $query->is_main_query() && $query->is_search() ), $query ) ) {
 			return $posts;
 		}
 
@@ -276,10 +283,6 @@ class Jetpack_Search {
 	 * @param WP_Query $query The original WP_Query to use for the parameters of our search
 	 */
 	public function do_search( WP_Query $query ) {
-		if ( ! $query->is_main_query() || ! $query->is_search() ) {
-			return;
-		}
-
 		$page = ( $query->get( 'paged' ) ) ? absint( $query->get( 'paged' ) ) : 1;
 
 		$posts_per_page = $query->get( 'posts_per_page' );
@@ -466,7 +469,6 @@ class Jetpack_Search {
 			}
 
 			$post_type_object = get_post_type_object( $post_type );
-
 			if ( ! $post_type_object || $post_type_object->exclude_from_search ) {
 				continue;
 			}
