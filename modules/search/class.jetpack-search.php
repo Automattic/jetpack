@@ -182,6 +182,15 @@ class Jetpack_Search {
 		$response = json_decode( wp_remote_retrieve_body( $request ), true );
 
 		if ( ! $response_code || $response_code < 200 || $response_code >= 300 ) {
+			/**
+			 * Fires after a search query request has failed
+			 *
+			 * @module search
+			 *
+			 * @since 5.6.0
+			 *
+			 * @param array Array containing the response code and response from the failed search query
+			 */
 			do_action( 'failed_jetpack_search_query', array( 'response_code' => $response_code, 'json' => $response ) );
 			return new WP_Error( 'invalid_search_api_response', 'Invalid response from API - ' . $response_code );
 		}
@@ -209,7 +218,9 @@ class Jetpack_Search {
 		 * float es_time Amount of time Elasticsearch spent running the request, in milliseconds
 		 * string url API url that was queried
 		 *
-		 * @since 5.0
+		 * @module search
+		 *
+		 * @since 5.0.0
 		 *
 		 * @param array $query Array of information about the query performed
 		 */
@@ -234,7 +245,9 @@ class Jetpack_Search {
 		/**
 		 * Determine whether a given WP_Query should be handled by ElasticSearch
 		 *
-		 * @since 5.6
+		 * @module search
+		 *
+		 * @since 5.6.0
 		 * @param bool $should_handle Should be handled by Jetpack Search
 		 * @param WP_Query $query The wp_query object
 		 */
