@@ -50,11 +50,16 @@ class WC_Stats {
 
 	public function __construct() {
 		$this->jetpack = Jetpack::init();
-		// add store analytics parameters
-		add_action( 'wp_enqueue_scripts', array( $this, 'register_params_scripts' ), 1 );
+		// add store analytics for product views and add-to-cart events
+		add_action( 'wp_enqueue_scripts', array( $this, 'product_and_add_to_cart_events' ), 1 );
+
+		// add store analytics for purchase events
+		add_action( 'woocommerce_payment_complete', array( $this, 'handle_purchase_event' ), 10, 1 );
 
 		// add s.js at the end
 		add_action( 'wp_enqueue_scripts', array( $this, 'register_s_script' ), 10 );
+
+		add_action( 'woocommerce_add_to_cart', array( $this, 'capture_add_to_cart_from_product_page' ), 10, 6 );
 	}
 
 	public function get_cart_ids( $result, $item ) {
@@ -67,28 +72,8 @@ class WC_Stats {
 		return $result . $comma . $item['quantity'];
 	}
 
-	public function get_store_page( $post_type, $post_id ) {
-		if ( 'product' === $post_type ) {
-			return 'product';
-		}
-
-		switch ( $post_id ) {
-			case get_option( 'woocommerce_cart_page_id' ):
-				return 'cart_view';
-			case get_option( 'woocommerce_checkout_page_id' ):
-				global $wp;
-				if ( false !== strpos( $wp->request, 'order-received' ) ) {
-					return 'checkout_complete';
-				}
-				return 'checkout_view';
-			case get_option( 'woocommerce_view_order_page_id' ):
-				return 'view_order';
-			default:
-				return $post_type;
-		}
-	}
-
 	public function get_session_id() {
+		// NOTE: one session can have multiple id's, this method is not sufficient
 		$session_handler = new WC_Session_Handler();
 		$session = $session_handler->get_session_cookie();
 		return $session ? $session[ 0 ] : null;
@@ -101,28 +86,68 @@ class WC_Stats {
 		}
 	}
 
-	public function register_params_scripts() {
-		if ( ! is_admin() ) {
-			$event_params = $this->collect_params();
-			wp_register_script( 'wc_tk', null, null, '1.0', true );
-			wp_localize_script( 'wc_tk', 'tk_params', $event_params );
-			wp_enqueue_script( 'wc_tk' );
+	public function product_and_add_to_cart_events() {
+		$blogid = Jetpack::get_option( 'id' );
+		$post_id = get_post()->ID;
+
+		if ( is_product() ) {
+			wc_enqueue_js( "
+				window._sta = window._sta || [];
+				_sta.push( { 
+					_en: 'woocommerce_analytics_product_view',
+					blog_id: " . $blogid . ",
+					product_id: " . $post_id . ",
+				} );
+			" );
+		} else {
+			// How to get cart information here? Switch to using cart hash?
+			wc_enqueue_js( "
+				window._sta = window._sta || [];
+				jQuery('body').on('added_to_cart',function(){
+					_sta.push( {
+						_en: 'woocommerce_analytics_product_view',
+						blog_id: " . $blogid . ",
+						product_id: " . $post_id . ",
+					} );
+					_sta.push( {
+						_en: 'woocommerce_analytics_add_to_cart',
+						blog_id: " . $blogid . ",
+						cart_id: 'get_cart_id_from_somwhere??',
+					} );
+				});
+			" );
 		}
 	}
 
-	public function collect_params( $params = array() ) {
-		if ( is_product() ) {
-			$params[ 'blog_id' ] = Jetpack::get_option( 'id' );
-			$post = get_post();
-			$params[ 'product_id' ] = $post->ID;
-		}
-		if ( is_cart() ) {
-			$cart = WC()->cart->get_cart();
-			$params[ 'cart_id' ] = $this->get_session_id();
-			$params[ 'cart_products' ] = array_reduce( $cart, array( $this, 'get_cart_ids' ), '' );
-			$params[ 'cart_quantities' ] = array_reduce( $cart, array( $this, 'get_cart_quantities' ), '' );
-		}
-		return $params;
+	// this is when added from product page post request
+	public function capture_add_to_cart_from_product_page() {
+		$cart = WC()->cart->get_cart();
+		wc_enqueue_js( "
+			jQuery( function( $ ) {
+				_sta.push( {
+					_en: 'woocommerce_analytics_add_to_cart',
+					blog_id: " . $blogid . ",
+					cart_id: " . $this->get_session_id() . ",
+					cart_products: " . array_reduce( $cart, array( $this, 'get_cart_ids' ), '' ) . ",
+					cart_quantities: " . array_reduce( $cart, array( $this, 'get_cart_quantities' ), '' ) . "
+				} );
+			} );
+		" );
+	}
+
+	public function handle_purchase_event() {
+		$cart = WC()->cart->get_cart();
+		// this one not working yet
+		wc_enqueue_js( "
+			window._sta = window._sta || [];
+			_sta.push( {
+				_en: 'woocommerce_analytics_purchase',
+				blog_id: " . Jetpack::get_option( 'id' ) . ",
+				cart_id: '" . $this->get_session_id() . "',
+				cart_products: " . array_reduce( $cart, array( $this, 'get_cart_ids' ), '' ) . ",
+				cart_quantities: " . array_reduce( $cart, array( $this, 'get_cart_quantities' ), '' ) . "
+			} );
+		" );
 	}
 }
 
