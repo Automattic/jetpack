@@ -21,7 +21,7 @@ class Jetpack_Search {
 
 	// used to output query meta into page
 	protected $last_query_info;
-	protected $last_query_failure_response_code;
+	protected $last_query_failure_info;
 
 	protected static $instance;
 
@@ -103,14 +103,14 @@ class Jetpack_Search {
 	 * Print query info as a HTML comment in the footer
 	 */
 
-	public function store_query_failure( $response_code ) {
-		$this->last_query_failure_response_code = $response_code;
+	public function store_query_failure( $meta ) {
+		$this->last_query_failure_info = $meta;
 		add_action( 'wp_footer', array( $this, 'print_query_failure' ) );
 	}
 
 	public function print_query_failure() {
-		if ( $this->last_query_failure_response_code ) {
-			echo '<!-- Jetpack Search failed with code ' . $this->last_query_failure_response_code . ', used MySQL fallback -->';
+		if ( $this->last_query_failure_info ) {
+			echo '<!-- Jetpack Search failed with code ' . $this->last_query_failure_info['response_code'] . ': ' . $this->last_query_failure_info['json']['error'] . ' - ' . $this->last_query_failure_info['json']['message'] . ' -->';
 		}
 	}
 
@@ -179,13 +179,12 @@ class Jetpack_Search {
 		}
 
 		$response_code = wp_remote_retrieve_response_code( $request );
+		$response = json_decode( wp_remote_retrieve_body( $request ), true );
 
 		if ( ! $response_code || $response_code < 200 || $response_code >= 300 ) {
-			do_action( 'failed_jetpack_search_query', $response_code );
+			do_action( 'failed_jetpack_search_query', array( 'response_code' => $response_code, 'json' => $response ) );
 			return new WP_Error( 'invalid_search_api_response', 'Invalid response from API - ' . $response_code );
 		}
-
-		$response = json_decode( wp_remote_retrieve_body( $request ), true );
 
 		$took = is_array( $response ) && $response['took'] ? $response['took'] : null;
 
@@ -905,6 +904,8 @@ class Jetpack_Search {
 
 		if ( isset( $aggregation['min_doc_count'] ) ) {
 			$args['min_doc_count'] = intval( $aggregation['min_doc_count'] );
+		} else {
+			$args['min_doc_count'] = 1;
 		}
 
 		$builder->add_aggs( $label, array(
