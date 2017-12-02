@@ -51,7 +51,14 @@ function sharing_email_send_post( $data ) {
 	// Make sure to pass the title through the normal sharing filters.
 	$title = $data['sharing_source']->get_share_title( $data['post']->ID );
 
-	$subject = apply_filters('wp_sharing_email_send_post_subject',sprintf(__('Shared Post','jetpack')));
+	/**
+	 * Filter the Sharing Email Send Post Subject.
+	 *
+	 * @module sharedaddy
+	 *
+	 * @param string $var Sharing Email Send Post Subject. Default is "Shared Post".
+	 */
+	$subject = apply_filters( 'wp_sharing_email_send_post_subject', __( 'Shared Post', 'jetpack' ) );
 
 	wp_mail( $data['target'], $subject, $title, $content, $headers );
 }
