@@ -5,6 +5,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import analytics from 'lib/analytics';
+import chunk from 'lodash/chunk';
 
 /**
  * Internal dependencies
@@ -29,6 +30,18 @@ import {
 } from 'state/initial-state';
 import { isDevMode } from 'state/connection';
 
+const renderPairs = layout => layout.map( item => (
+	[
+		item.header,
+		chunk( item.cards, 2 ).map( ( [ left, right ] ) => (
+			<div className="jp-at-a-glance__item-grid">
+				<div className="jp-at-a-glance__left">{ left }</div>
+				<div className="jp-at-a-glance__right">{ right }</div>
+			</div>
+		) )
+	]
+) );
+
 class AtAGlance extends Component {
 	render() {
 		const settingsProps = {
@@ -36,13 +49,12 @@ class AtAGlance extends Component {
 			getOptionValue: this.props.getOptionValue,
 			isUpdating: this.props.isUpdating
 		};
-
 		const urls = {
-				siteAdminUrl: this.props.siteAdminUrl,
-				siteRawUrl: this.props.siteRawUrl
-			},
-			trackSecurityClick = () => analytics.tracks.recordJetpackClick( 'aag_manage_security_wpcom' ),
-			securityHeader = <DashSectionHeader
+			siteAdminUrl: this.props.siteAdminUrl,
+			siteRawUrl: this.props.siteRawUrl
+		};
+		const trackSecurityClick = () => analytics.tracks.recordJetpackClick( 'aag_manage_security_wpcom' );
+		const securityHeader = <DashSectionHeader
 					label={ __( 'Security' ) }
 					settingsPath={ this.props.userCanManageModules && '#security' }
 					externalLink={
@@ -55,13 +67,21 @@ class AtAGlance extends Component {
 						: 'https://wordpress.com/settings/security/' + this.props.siteRawUrl
 					}
 					externalLinkClick={ trackSecurityClick }
-				/>,
-			connections = (
+				/>;
+		const connections = (
 				<div>
 					<DashSectionHeader label={ __( 'Connections' ) } />
 					<DashConnections />
 				</div>
 			);
+		const securityCards = [
+			<DashProtect { ...settingsProps } />,
+			<DashScan { ...settingsProps } siteRawUrl={ this.props.siteRawUrl } />,
+			<DashBackups { ...settingsProps } siteRawUrl={ this.props.siteRawUrl } />,
+			<DashMonitor { ...settingsProps } />,
+			<DashAkismet { ...urls } />,
+			<DashPluginUpdates { ...settingsProps } { ...urls } />
+		];
 
 		// If user can manage modules, we're in an admin view, otherwise it's a non-admin view.
 		if ( this.props.userCanManageModules ) {
@@ -72,48 +92,19 @@ class AtAGlance extends Component {
 					<DashStats { ...settingsProps } { ...urls } />
 
 					{
-						// Site Security
-						securityHeader
+						renderPairs( [
+							{
+								header: securityHeader,
+								cards: securityCards
+							},
+							{
+								header: <DashSectionHeader label={ __( 'Performance' ) } />,
+								cards: [ <DashPhoton { ...settingsProps } /> ]
+							}
+						] )
 					}
-					<div className="jp-at-a-glance__item-grid">
-						<div className="jp-at-a-glance__left">
-							<DashProtect { ...settingsProps } />
-						</div>
-						<div className="jp-at-a-glance__right">
-							<DashScan { ...settingsProps } siteRawUrl={ this.props.siteRawUrl } />
-						</div>
-					</div>
-					<div className="jp-at-a-glance__item-grid">
-						<div className="jp-at-a-glance__left">
-							<DashBackups { ...settingsProps } siteRawUrl={ this.props.siteRawUrl } />
-						</div>
-						<div className="jp-at-a-glance__right">
-							<DashMonitor { ...settingsProps } />
-						</div>
-					</div>
-					<div className="jp-at-a-glance__item-grid">
-						<div className="jp-at-a-glance__left">
-							<DashAkismet { ...urls } />
-						</div>
-						<div className="jp-at-a-glance__right">
-							<DashPluginUpdates { ...settingsProps } { ...urls } />
-						</div>
-					</div>
 
-					{
-						<DashSectionHeader
-							label={ __( 'Performance' ) }
-						/>
-					}
-					<div className="jp-at-a-glance__item-grid">
-						<div className="jp-at-a-glance__left">
-							<DashPhoton { ...settingsProps } />
-						</div>
-					</div>
-
-					{
-						connections
-					}
+					{ connections }
 				</div>
 			);
 		}
