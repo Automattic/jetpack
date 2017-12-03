@@ -66,7 +66,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 			$url = add_query_arg(
 				array(
 					'validate_jetpack_protect_recovery' => $_GET['validate_jetpack_protect_recovery'],
-					'user_id'                           => $_GET['user_id'],
+					'user_id'                           => (int) $_GET['user_id'],
 					'checkemail'                        => 'confirm',
 				),
 				$url
@@ -80,7 +80,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 		if ( $this->valid_blocked_user_id ) {
 			$args = array(
 				'validate_jetpack_protect_recovery' => $_GET['validate_jetpack_protect_recovery'],
-				'user_id'                           => $_GET['user_id'],
+				'user_id'                           => (int) $_GET['user_id'],
 				'action'                            => 'lostpassword',
 			);
 			if ( ! empty( $redirect ) ) {
@@ -97,7 +97,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 			$url = add_query_arg(
 				array(
 					'validate_jetpack_protect_recovery' => $_GET['validate_jetpack_protect_recovery'],
-					'user_id'                           => $_GET['user_id'],
+					'user_id'                           => (int) $_GET['user_id'],
 				),
 				$url
 			);
@@ -111,7 +111,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 		if ( $this->valid_blocked_user_id ) {
 			$args = array(
 				'validate_jetpack_protect_recovery' => $_GET['validate_jetpack_protect_recovery'],
-				'user_id'                           => $_GET['user_id'],
+				'user_id'                           => (int) $_GET['user_id'],
 			);
 
 			if ( ! empty( $redirect ) ) {
@@ -168,7 +168,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 			),
 			array(
 				'token'   => $key,
-				'user_id' => $user_id,
+				'user_id' => (int) $user_id,
 				'ip'      => $this->ip_address,
 			)
 		);
@@ -249,7 +249,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 				'method' => 'post'
 			),
 			array(
-				'user_id' => $user->ID,
+				'user_id' => (int) $user->ID,
 				'ip'      => $this->ip_address
 			)
 		);
