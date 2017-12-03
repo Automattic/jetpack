@@ -78,7 +78,7 @@ class AtAGlance extends Component {
 					<DashConnections />
 				</div>
 			);
-		let securityCards = [
+		const securityCards = [
 			<DashProtect { ...settingsProps } />,
 			<DashScan { ...settingsProps } siteRawUrl={ this.props.siteRawUrl } />,
 			<DashBackups { ...settingsProps } siteRawUrl={ this.props.siteRawUrl } />,
