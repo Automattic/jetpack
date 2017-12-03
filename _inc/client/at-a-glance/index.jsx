@@ -6,6 +6,7 @@ import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import analytics from 'lib/analytics';
 import chunk from 'lodash/chunk';
+import includes from 'lodash/includes';
 
 /**
  * Internal dependencies
@@ -13,6 +14,7 @@ import chunk from 'lodash/chunk';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 import DashSectionHeader from 'components/dash-section-header';
 import DashStats from './stats/index.jsx';
+import DashActivity from './activity';
 import DashProtect from './protect';
 import DashMonitor from './monitor';
 import DashScan from './scan';
@@ -28,7 +30,9 @@ import {
 	userCanViewStats,
 	userIsSubscriber
 } from 'state/initial-state';
+import { getActiveFeatures } from 'state/site';
 import { isDevMode } from 'state/connection';
+import { FEATURE_REWIND } from 'lib/plans/constants';
 
 const renderPairs = layout => layout.map( item => (
 	[
@@ -82,6 +86,9 @@ class AtAGlance extends Component {
 			<DashAkismet { ...urls } />,
 			<DashPluginUpdates { ...settingsProps } { ...urls } />
 		];
+		if ( includes( this.props.activeFeatures, FEATURE_REWIND ) ) {
+			securityCards.unshift( <DashActivity { ...settingsProps } siteRawUrl={ this.props.siteRawUrl } /> );
+		}
 
 		// If user can manage modules, we're in an admin view, otherwise it's a non-admin view.
 		if ( this.props.userCanManageModules ) {
@@ -146,6 +153,7 @@ class AtAGlance extends Component {
 export default connect(
 	( state ) => {
 		return {
+			activeFeatures: getActiveFeatures( state ),
 			userCanManageModules: userCanManageModules( state ),
 			userCanViewStats: userCanViewStats( state ),
 			userIsSubscriber: userIsSubscriber( state ),
