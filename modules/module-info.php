@@ -667,3 +667,18 @@ function jetpack_google_analytics_more_info() {
 		, 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_google-analytics', 'jetpack_google_analytics_more_info' );
+
+/**
+ * WooCommerce Analytics
+ */
+function jetpack_woocommerce_analytics_more_link() {
+	echo 'https://jetpack.com/support/';
+}
+add_action( 'jetpack_learn_more_button_woocommerce-analytics', 'jetpack_woocommerce_analytics_more_link' );
+
+function jetpack_woocommerce_analytics_more_info() {
+	esc_html_e(
+		'Enhanced analytics for WooCommerce and Jetpack users.'
+		, 'jetpack' );
+}
+add_action( 'jetpack_module_more_info_woocommerce-analytics', 'jetpack_woocommerce_analytics_more_info' );
