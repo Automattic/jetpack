@@ -6840,7 +6840,7 @@ p {
 	 * @return string
 	 */
 	public static function get_jp_emblem() {
-		return '<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="Layer_1" x="0" y="0" width="20" height="20" viewBox="0 0 172.9 172.9" enable-background="new 0 0 172.9 172.9" xml:space="preserve"><path d="M86.4 0C38.7 0 0 38.7 0 86.4c0 47.7 38.7 86.4 86.4 86.4s86.4-38.7 86.4-86.4C172.9 38.7 134.2 0 86.4 0zM83.1 106.6l-27.1-6.9C49 98 45.7 90.1 49.3 84l33.8-58.5V106.6zM124.9 88.9l-33.8 58.5V66.3l27.1 6.9C125.1 74.9 128.4 82.8 124.9 88.9z" /></svg>';
+		return '<svg version="1.1" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 20 20"><path d="M10,2c-4.4,0-8,3.6-8,8s3.6,8,8,8c4.4,0,8-3.6,8-8S14.4,2,10,2z M9,11H5l4-7V11z M11,16V9h4L11,16z" /></svg>';
 	}
 
 	/*
