@@ -6,12 +6,14 @@ import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import analytics from 'lib/analytics';
 import chunk from 'lodash/chunk';
+import includes from 'lodash/includes';
 
 /**
  * Internal dependencies
  */
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 import DashSectionHeader from 'components/dash-section-header';
+import DashActivity from './activity';
 import DashStats from './stats/index.jsx';
 import DashProtect from './protect';
 import DashMonitor from './monitor';
@@ -29,6 +31,7 @@ import {
 	userIsSubscriber
 } from 'state/initial-state';
 import { isDevMode } from 'state/connection';
+import { getActiveFeatures } from 'state/site';
 
 const renderPairs = layout => layout.map( item => (
 	[
@@ -53,6 +56,7 @@ class AtAGlance extends Component {
 			siteAdminUrl: this.props.siteAdminUrl,
 			siteRawUrl: this.props.siteRawUrl
 		};
+		const isRewindActive = includes( this.props.activeFeatures, 'jetpack-rewind' );
 		const trackSecurityClick = () => analytics.tracks.recordJetpackClick( 'aag_manage_security_wpcom' );
 		const securityHeader = <DashSectionHeader
 					label={ __( 'Security' ) }
@@ -82,6 +86,9 @@ class AtAGlance extends Component {
 			<DashAkismet { ...urls } />,
 			<DashPluginUpdates { ...settingsProps } { ...urls } />
 		];
+
+		// Maybe add the activity log card
+		isRewindActive && securityCards.unshift( <DashActivity { ...settingsProps } siteRawUrl={ this.props.siteRawUrl } /> );
 
 		// If user can manage modules, we're in an admin view, otherwise it's a non-admin view.
 		if ( this.props.userCanManageModules ) {
@@ -149,7 +156,8 @@ export default connect(
 			userCanManageModules: userCanManageModules( state ),
 			userCanViewStats: userCanViewStats( state ),
 			userIsSubscriber: userIsSubscriber( state ),
-			isDevMode: isDevMode( state )
+			isDevMode: isDevMode( state ),
+			activeFeatures: getActiveFeatures( state ),
 		};
 	}
 )( moduleSettingsForm( AtAGlance ) );
