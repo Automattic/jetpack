@@ -170,8 +170,9 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		$update       = $args[2];
 		$is_auto_save = isset( $args[3] ) ? $args[3] : false; //See https://github.com/Automattic/jetpack/issues/7372
 		$just_published = isset( $args[4] ) ? $args[4] : false; //Preventative in light of above issue
+		$just_trashed = isset( $args[5] ) ? $args[5] : false;
 
-		return array( $post_id, $this->filter_post_content_and_add_links( $post ), $update, $is_auto_save, $just_published );
+		return array( $post_id, $this->filter_post_content_and_add_links( $post ), $update, $is_auto_save, $just_published, $just_trashed );
 	}
 
 	function filter_blacklisted_post_types( $args ) {
@@ -227,7 +228,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		global $post;
 		$post = $post_object;
 
-		// return non existant post 
+		// return non existant post
 		$post_type = get_post_type_object( $post->post_type );
 		if ( empty( $post_type ) || ! is_object( $post_type ) ) {
 			$non_existant_post                    = new stdClass();
@@ -345,7 +346,14 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 			$just_published = true;
 		}
 
-		call_user_func( $this->action_handler, $post_ID, $post, $update, $is_auto_save, $just_published );
+		if ( ! in_array( $post_ID, $this->just_trashed ) ) {
+			$just_trashed = false;
+		} else {
+			$just_trashed = true;
+		}
+
+		call_user_func( $this->action_handler, $post_ID, $post, $update, $is_auto_save, $just_published, $just_trashed );
+
 		$this->send_published( $post_ID, $post );
 		$this->send_trashed( $post_ID, $post );
 	}

@@ -61,14 +61,19 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 	public function test_trash_post_trashes_data() {
 		$this->assertEquals( 1, $this->server_replica_storage->post_count( 'publish' ) );
+		$this->server_event_storage->reset();
 
 		wp_delete_post( $this->post->ID );
 
 		$this->sender->do_sync();
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_trashed_post' );
+		$insert_event = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' );
 
 		$this->assertEquals( 'post', $event->args[1] );
 		$this->assertTrue( (bool) $event );
+		$this->assertTrue( $insert_event->args[5], 'wp_insert_post set to false as trashed' );
+		$this->assertEquals( $insert_event->args[0], $this->post->ID );
+
 		$this->server_event_storage->reset();
 
 		$this->assertEquals( 0, $this->server_replica_storage->post_count( 'publish' ) );
@@ -76,7 +81,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		wp_delete_post( $this->post->ID );
 		$this->sender->do_sync();
-		
+
 		// Since the post status is not changing here we don't expect the post to be trashed again.
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_trashed_post' );
 		$this->assertFalse( (bool) $event );
@@ -211,9 +216,8 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		// Insert the attachment.
 		$attach_id = wp_insert_attachment( $attachment, $filename, $this->post->ID );
-		
+
 		$this->sender->do_sync();
-		
 		// Test that the first event is add_attachment
 		$update_attachment_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_update_attachment' );
 		$add_attachment_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_add_attachment' );
@@ -221,7 +225,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertFalse( (bool) $update_attachment_event );
 
 		$this->server_event_storage->reset();
-		
+
 
 		$this->assertAttachmentSynced( $attach_id );
 
@@ -252,7 +256,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_broken_do_wp_insert_post_does_not_break_sync() {
-		// Some plugins do unexpected things see pet-manager 
+		// Some plugins do unexpected things see pet-manager
 		$this->server_event_storage->reset();
 		do_action('wp_insert_post', 'wp_insert_post' );
 		$this->sender->do_sync();
@@ -368,7 +372,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 	function test_sync_post_filtered_excerpt_was_filtered() {
 		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 1 ) );
-		
+
 		add_shortcode( 'foo', array( $this, 'foo_shortcode' ) );
 		$this->post->post_excerpt = "[foo]";
 
@@ -391,7 +395,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		wp_update_post( $this->post );
 		$this->sender->do_sync();
-		
+
 		remove_filter( 'jetpack_sync_do_not_expand_shortcode', array( $this, 'do_not_expand_shortcode' ) );
 
 		$post_on_server = $this->server_replica_storage->get_post( $this->post->ID );
