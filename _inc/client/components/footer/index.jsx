@@ -147,9 +147,9 @@ export const Footer = React.createClass( {
 							target="_blank"
 							rel="noopener noreferrer"
 							className="jp-footer__link"
-							title={ version }
+							title={ __( 'Jetpack version' ) }
 						>
-							{ version }
+							{ __( 'Jetpack version ' ) + version }
 						</a>
 					</li>
 					<li className="jp-footer__link-item">
