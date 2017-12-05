@@ -19,6 +19,10 @@ class Jetpack_Search {
 	protected $aggregations = array();
 	protected $max_aggregations_count = 100;
 
+	// used to output query meta into page
+	protected $last_query_info;
+	protected $last_query_failure_info;
+
 	protected static $instance;
 
 	//Languages with custom analyzers, other languages are supported,
@@ -89,6 +93,35 @@ class Jetpack_Search {
 			add_filter( 'posts_pre_query', array( $this, 'filter__posts_pre_query' ), 10, 2 );
 
 			add_filter( 'jetpack_search_es_wp_query_args', array( $this, 'filter__add_date_filter_to_query' ),  10, 2 );
+
+			add_action( 'did_jetpack_search_query', array( $this, 'store_query_success' ) );
+			add_action( 'failed_jetpack_search_query', array( $this, 'store_query_failure' ) );
+		}
+	}
+
+	/**
+	 * Print query info as a HTML comment in the footer
+	 */
+
+	public function store_query_failure( $meta ) {
+		$this->last_query_failure_info = $meta;
+		add_action( 'wp_footer', array( $this, 'print_query_failure' ) );
+	}
+
+	public function print_query_failure() {
+		if ( $this->last_query_failure_info ) {
+			echo '<!-- Jetpack Search failed with code ' . $this->last_query_failure_info['response_code'] . ': ' . $this->last_query_failure_info['json']['error'] . ' - ' . $this->last_query_failure_info['json']['message'] . ' -->';
+		}
+	}
+
+	public function store_query_success( $meta ) {
+		$this->last_query_info = $meta;
+		add_action( 'wp_footer', array( $this, 'print_query_success' ) );
+	}
+
+	public function print_query_success() {
+		if ( $this->last_query_info ) {
+			echo '<!-- Jetpack Search took ' . intval( $this->last_query_info['elapsed_time'] ) . ' ms, ES time ' . $this->last_query_info['es_time'] . ' ms -->';
 		}
 	}
 
@@ -146,12 +179,21 @@ class Jetpack_Search {
 		}
 
 		$response_code = wp_remote_retrieve_response_code( $request );
+		$response = json_decode( wp_remote_retrieve_body( $request ), true );
 
 		if ( ! $response_code || $response_code < 200 || $response_code >= 300 ) {
+			/**
+			 * Fires after a search query request has failed
+			 *
+			 * @module search
+			 *
+			 * @since 5.6.0
+			 *
+			 * @param array Array containing the response code and response from the failed search query
+			 */
+			do_action( 'failed_jetpack_search_query', array( 'response_code' => $response_code, 'json' => $response ) );
 			return new WP_Error( 'invalid_search_api_response', 'Invalid response from API - ' . $response_code );
 		}
-
-		$response = json_decode( wp_remote_retrieve_body( $request ), true );
 
 		$took = is_array( $response ) && $response['took'] ? $response['took'] : null;
 
@@ -176,7 +218,9 @@ class Jetpack_Search {
 		 * float es_time Amount of time Elasticsearch spent running the request, in milliseconds
 		 * string url API url that was queried
 		 *
-		 * @since 5.0
+		 * @module search
+		 *
+		 * @since 5.0.0
 		 *
 		 * @param array $query Array of information about the query performed
 		 */
@@ -198,7 +242,16 @@ class Jetpack_Search {
 	 * @return array Array of matching posts
 	 */
 	public function filter__posts_pre_query( $posts, $query ) {
-		if ( ! $query->is_main_query() || ! $query->is_search() ) {
+		/**
+		 * Determine whether a given WP_Query should be handled by ElasticSearch
+		 *
+		 * @module search
+		 *
+		 * @since 5.6.0
+		 * @param bool $should_handle Should be handled by Jetpack Search
+		 * @param WP_Query $query The wp_query object
+		 */
+		if ( ! apply_filters( 'jetpack_search_should_handle_query', ( $query->is_main_query() && $query->is_search() ), $query ) ) {
 			return $posts;
 		}
 
@@ -242,10 +295,6 @@ class Jetpack_Search {
 	 * @param WP_Query $query The original WP_Query to use for the parameters of our search
 	 */
 	public function do_search( WP_Query $query ) {
-		if ( ! $query->is_main_query() || ! $query->is_search() ) {
-			return;
-		}
-
 		$page = ( $query->get( 'paged' ) ) ? absint( $query->get( 'paged' ) ) : 1;
 
 		$posts_per_page = $query->get( 'posts_per_page' );
@@ -380,7 +429,7 @@ class Jetpack_Search {
 
 		foreach ( $the_tax_query->queries as $tax_query ) {
 			// Right now we only support slugs...see note above
-			if ( 'slug' !== $tax_query['field'] ) {
+			if ( ! is_array( $tax_query ) || 'slug' !== $tax_query['field'] ) {
 				continue;
 			}
 
@@ -432,7 +481,6 @@ class Jetpack_Search {
 			}
 
 			$post_type_object = get_post_type_object( $post_type );
-
 			if ( ! $post_type_object || $post_type_object->exclude_from_search ) {
 				continue;
 			}
@@ -862,11 +910,19 @@ class Jetpack_Search {
 	 * @param Jetpack_WPES_Query_Builder $builder The builder instance that is creating the ES query
 	 */
 	public function add_date_histogram_aggregation_to_es_query_builder( array $aggregation, $label, Jetpack_WPES_Query_Builder $builder ) {
+		$args = array(
+			'interval' => $aggregation['interval'],
+			'field'    => ( ! empty( $aggregation['field'] ) && 'post_date_gmt' == $aggregation['field'] ) ? 'date_gmt' : 'date',
+		);
+
+		if ( isset( $aggregation['min_doc_count'] ) ) {
+			$args['min_doc_count'] = intval( $aggregation['min_doc_count'] );
+		} else {
+			$args['min_doc_count'] = 1;
+		}
+
 		$builder->add_aggs( $label, array(
-			'date_histogram' => array(
-				'interval' => $aggregation['interval'],
-				'field'    => ( ! empty( $aggregation['field'] ) && 'post_date_gmt' == $aggregation['field'] ) ? 'date_gmt' : 'date',
-			),
+			'date_histogram' => $args,
 		));
 	}
 
@@ -1053,7 +1109,7 @@ class Jetpack_Search {
 
 				if ( ! empty( $query->tax_query ) && ! empty( $query->tax_query->queries ) && is_array( $query->tax_query->queries ) ) {
 					foreach( $query->tax_query->queries as $tax_query ) {
-						if ( $this->aggregations[ $label ]['taxonomy'] === $tax_query['taxonomy'] &&
+						if ( is_array( $tax_query ) && $this->aggregations[ $label ]['taxonomy'] === $tax_query['taxonomy'] &&
 						     'slug' === $tax_query['field'] &&
 						     is_array( $tax_query['terms'] ) ) {
 							$existing_term_slugs = array_merge( $existing_term_slugs, $tax_query['terms'] );
@@ -1286,7 +1342,7 @@ class Jetpack_Search {
 		}
 
 		foreach( $filters as $filter ) {
-			if ( isset( $filters['buckets'] ) && is_array( $filter['buckets'] ) ) {
+			if ( isset( $filter['buckets'] ) && is_array( $filter['buckets'] ) ) {
 				foreach( $filter['buckets'] as $item ) {
 					if ( isset( $item['active'] ) && $item['active'] ) {
 						$active_buckets[] = $item;

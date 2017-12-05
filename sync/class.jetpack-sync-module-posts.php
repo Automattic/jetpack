@@ -227,7 +227,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		global $post;
 		$post = $post_object;
 
-		// return non existant post 
+		// return non existant post
 		$post_type = get_post_type_object( $post->post_type );
 		if ( empty( $post_type ) || ! is_object( $post_type ) ) {
 			$non_existant_post                    = new stdClass();
@@ -343,6 +343,11 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 			$just_published = false;
 		} else {
 			$just_published = true;
+		}
+
+		// workaround for https://github.com/woocommerce/woocommerce/issues/18007
+		if ( $post && 'shop_order' === $post->post_type ) {
+			$post = get_post( $post_ID );
 		}
 
 		call_user_func( $this->action_handler, $post_ID, $post, $update, $is_auto_save, $just_published );

@@ -380,7 +380,7 @@ https://github.com/thoughtbot/bourbon
     color: #2e4453;
   }
   .vertical-menu__feature-item-is-selected.jp-feature-intro {
-    border-right: 3px solid #8CC258;
+    border-right: 3px solid #00BE28;
   }
   .vertical-menu__feature-item-icon {
     width: 1.25rem;
@@ -395,7 +395,7 @@ https://github.com/thoughtbot/bourbon
     fill: #3D596D;
   }
   .vertical-menu__feature-item-is-selected.jp-feature-intro svg {
-    fill: #8CC258;
+    fill: #00BE28;
   }
   .vertical-menu__feature-item-is-selected.wp-app-logo svg path {
     fill: #3D596D;
