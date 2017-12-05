@@ -22,12 +22,12 @@ Created by FontForge 20170925 at Mon Dec  4 15:18:51 2017
     bbox="51.2002 -12.7998 460.8 396.8"
     underline-thickness="25.6"
     underline-position="-51.2"
-    unicode-range="U+0020-F102"
+    unicode-range="U+0020-F100"
   />
     <missing-glyph />
     <glyph glyph-name="space" unicode=" " 
  />
-    <glyph glyph-name="jetpack-logo__icon" unicode="&#xf102;" horiz-adv-x="512"
+    <glyph glyph-name="jetpack-logo__icon" unicode="&#xf100;" horiz-adv-x="512" 
 d="M256 396.8c112.64 0 204.8 -92.1602 204.8 -204.8s-92.1602 -204.8 -204.8 -204.8s-204.8 92.1602 -204.8 204.8s92.1602 204.8 204.8 204.8zM230.4 166.4v179.199l-102.4 -179.199h102.4zM281.6 38.4004l102.4 179.199h-102.4v-179.199z" />
   </font>
 </defs></svg>
