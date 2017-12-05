@@ -35,18 +35,25 @@ class DashActivity extends Component {
 		const sitePlan = get( this.props.sitePlan, 'product_slug', 'jetpack_free' );
 		const activityLogLink = <a href={ `https://wordpress.com/stats/activity/${ siteRawUrl }` } />;
 		const hasBackups = includes( [ PLAN_JETPACK_BUSINESS, PLAN_JETPACK_BUSINESS_MONTHLY ], sitePlan );
-		const maybeUpgrade = hasBackups
-			? __( "{{a}}View your site's activity{{/a}} in a single feed where you can see when events occur and rewind them if you need to.", {
-				components: {
-					a: activityLogLink
-				}
-			} )
-			: __( "{{a}}View your site's activity{{/a}} in a single feed where you can see when events occur and, {{plan}}with a plan{{/plan}}, rewind them if you need to.", {
-				components: {
-					a: activityLogLink,
-					plan: <a href={ `https://jetpack.com/redirect/?source=plans-main-bottom&site=${ siteRawUrl }` } />
-				}
-			} );
+		// const maybeUpgrade = hasBackups
+		// 	? __( "{{a}}View your site's activity{{/a}} in a single feed where you can see when events occur and rewind them if you need to.", {
+		// 		components: {
+		// 			a: activityLogLink
+		// 		}
+		// 	} )
+		// 	: __( "{{a}}View your site's activity{{/a}} in a single feed where you can see when events occur and, {{plan}}with a plan{{/plan}}, rewind them if you need to.", {
+		// 		components: {
+		// 			a: activityLogLink,
+		// 			plan: <a href={ `https://jetpack.com/redirect/?source=plans-main-bottom&site=${ siteRawUrl }` } />
+		// 		}
+		// 	} );
+
+		// @todo: update this to use rewind text/CTA when available
+		const activityLogOnlyText = __( "{{a}}View your site's activity{{/a}} in a single feed where you can see when events occur.", {
+			components: {
+				a: activityLogLink
+			}
+		} );
 
 		return (
 			<div className="jp-dash-item__interior">
@@ -62,7 +69,7 @@ class DashActivity extends Component {
 						{
 							inDevMode
 								? __( 'Unavailable in Dev Mode.' )
-								: maybeUpgrade
+								: activityLogOnlyText
 						}
 					</p>
 				</DashItem>
