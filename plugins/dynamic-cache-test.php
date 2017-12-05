@@ -69,20 +69,20 @@
  *    the buffer with the "Hello world" string.
  * 8. The output buffer is pushed to the browser to be displayed.
  */
-define( 'DYNAMIC_CACHE_TEST_TAG', '' ); // Change this to a secret placeholder tag
-if ( DYNAMIC_CACHE_TEST_TAG != '' ) {
+define( 'DYNAMIC_CACHE_TEST_TAG', '' ); // Change this to a secret placeholder tag.
+if ( '' !== DYNAMIC_CACHE_TEST_TAG ) {
 	function dynamic_cache_test_safety( $safety ) {
 		return 1;
 	}
 	add_cacheaction( 'wpsc_cachedata_safety', 'dynamic_cache_test_safety' );
 
-	function dynamic_cache_test_filter( &$cachedata) {
-		return str_replace( DYNAMIC_CACHE_TEST_TAG, "<!-- Hello world at " . date( 'H:i:s' ) . " -->", $cachedata );
+	function dynamic_cache_test_filter( &$cachedata ) {
+		return str_replace( DYNAMIC_CACHE_TEST_TAG, '<!-- Hello world at ' . date( 'H:i:s' ) . ' -->', $cachedata );
 	}
 	add_cacheaction( 'wpsc_cachedata', 'dynamic_cache_test_filter' );
 
 	function dynamic_cache_test_template_tag() {
-		echo DYNAMIC_CACHE_TEST_TAG; // This is the template tag
+		echo DYNAMIC_CACHE_TEST_TAG; // This is the template tag.
 	}
 
 	function dynamic_cache_test_init() {
@@ -145,23 +145,25 @@ if ( DYNAMIC_CACHE_TEST_TAG != '' ) {
  *
  */
 
-define( 'DYNAMIC_OUTPUT_BUFFER_TAG', '' ); // Change this to a secret placeholder tag
+define( 'DYNAMIC_OUTPUT_BUFFER_TAG', '' ); // Change this to a secret placeholder tag.
 
-if ( DYNAMIC_OUTPUT_BUFFER_TAG != '' ) {
+if ( '' !== DYNAMIC_OUTPUT_BUFFER_TAG ) {
 	function dynamic_output_buffer_test( &$cachedata = 0 ) {
-		if ( defined( 'DYNAMIC_OB_TEXT' ) )
+		if ( defined( 'DYNAMIC_OB_TEXT' ) ) {
 			return str_replace( DYNAMIC_OUTPUT_BUFFER_TAG, DYNAMIC_OB_TEXT, $cachedata );
+		}
 
 		ob_start();
 		// call the sidebar function, do something dynamic
-		echo "<p>This is a test. The current time on the server is: " . date( 'H:i:s' ) . "</p>";
+		echo '<p>This is a test. The current time on the server is: ' . date( 'H:i:s' ) . '</p>';
 		$text = ob_get_contents();
 		ob_end_clean();
 
-		if ( $cachedata === 0 ) { // called directly from the theme so store the output
+		if ( 0 === $cachedata ) { // called directly from the theme so store the output.
 			define( 'DYNAMIC_OB_TEXT', $text );
-		} else // called via the wpsc_cachedata filter. We only get here in cached pages in wp-cache-phase1.php
+		} else { // called via the wpsc_cachedata filter. We only get here in cached pages in wp-cache-phase1.php.
 			return str_replace( DYNAMIC_OUTPUT_BUFFER_TAG, $text, $cachedata );
+		}
 
 	}
 	add_cacheaction( 'wpsc_cachedata', 'dynamic_output_buffer_test' );
@@ -172,10 +174,11 @@ if ( DYNAMIC_OUTPUT_BUFFER_TAG != '' ) {
 	add_cacheaction( 'add_cacheaction', 'dynamic_output_buffer_init' );
 
 	function dynamic_output_buffer_test_safety( $safety ) {
-		if ( defined( 'DYNAMIC_OB_TEXT' ) ) // this is set when you call dynamic_output_buffer_test() from the theme
+		if ( defined( 'DYNAMIC_OB_TEXT' ) ) {// this is set when you call dynamic_output_buffer_test() from the theme.
 			return 1; // ready to replace tag with dynamic content.
-		else
+		} else {
 			return 0; // tag cannot be replaced.
+		}
 	}
 	add_cacheaction( 'wpsc_cachedata_safety', 'dynamic_output_buffer_test_safety' );
 }
