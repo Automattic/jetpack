@@ -6,8 +6,8 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import DashItem from 'components/dash-item';
 import { translate as __ } from 'i18n-calypso';
-import get from 'lodash/get';
-import includes from 'lodash/includes';
+// import get from 'lodash/get';
+// import includes from 'lodash/includes';
 import classNames from 'classnames';
 
 /**
@@ -15,7 +15,7 @@ import classNames from 'classnames';
  */
 import { getSitePlan } from 'state/site';
 import { isDevMode } from 'state/connection';
-import { PLAN_JETPACK_BUSINESS, PLAN_JETPACK_BUSINESS_MONTHLY } from 'lib/plans/constants';
+//import { PLAN_JETPACK_BUSINESS, PLAN_JETPACK_BUSINESS_MONTHLY } from 'lib/plans/constants';
 
 class DashActivity extends Component {
 	static propTypes = {
