@@ -56,7 +56,6 @@ class AtAGlance extends Component {
 			siteAdminUrl: this.props.siteAdminUrl,
 			siteRawUrl: this.props.siteRawUrl
 		};
-		const isRewindActive = includes( this.props.activeFeatures, 'jetpack-rewind' );
 		const trackSecurityClick = () => analytics.tracks.recordJetpackClick( 'aag_manage_security_wpcom' );
 		const securityHeader = <DashSectionHeader
 					label={ __( 'Security' ) }
@@ -87,8 +86,12 @@ class AtAGlance extends Component {
 			<DashPluginUpdates { ...settingsProps } { ...urls } />
 		];
 
+		// @todo: determine if rewind is active or not rather than just activity log
+		// const isRewindActive = includes( this.props.activeFeatures, 'jetpack-rewind' );
+		const showActivityLogCard = includes( this.props.activeFeatures, 'activity-log' );
+		
 		// Maybe add the activity log card
-		isRewindActive && securityCards.unshift( <DashActivity { ...settingsProps } siteRawUrl={ this.props.siteRawUrl } /> );
+		showActivityLogCard && securityCards.unshift( <DashActivity { ...settingsProps } siteRawUrl={ this.props.siteRawUrl } /> );
 
 		// If user can manage modules, we're in an admin view, otherwise it's a non-admin view.
 		if ( this.props.userCanManageModules ) {
