@@ -12,7 +12,7 @@ Created by FontForge 20170925 at Mon Dec  4 15:18:51 2017
 <defs>
 <font id="jetpack" horiz-adv-x="200" >
   <font-face 
-    font-family="Jetpack"
+    font-family="jetpack"
     font-weight="400"
     font-stretch="normal"
     units-per-em="512"
