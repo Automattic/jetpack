@@ -177,7 +177,7 @@ class Jetpack_Connection_Banner {
 					<div class="jp-wpcom-connect__vertical-nav-container">
 						<div class="vertical-menu__feature-item jp-feature-intro vertical-menu__feature-item-is-selected">
 							<div class="vertical-menu__feature-item-icon">
-								<svg class="jp-wpcom-connect__svg-jetpack" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 1 20 20" version="1.1"><path d="M10,2c-4.4,0-8,3.6-8,8s3.6,8,8,8c4.4,0,8-3.6,8-8S14.4,2,10,2z M9,11H5l4-7V11z M11,16V9h4L11,16z" /></svg>
+								<svg class="jp-wpcom-connect__svg-jetpack" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" version="1.1"><path d="M12,2C6.5,2,2,6.5,2,12s4.5,10,10,10s10-4.5,10-10S17.5,2,12,2z M11,14H6l5-10V14z M13,20V10h5L13,20z"/></svg>
 							</div>
 							<span class="vertical-menu__feature-item-label"><?php esc_html_e( 'Welcome to Jetpack', 'jetpack' ); ?></span>
 						</div>
