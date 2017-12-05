@@ -14,6 +14,8 @@
  * @package Jetpack
  */
 
+require_once( dirname(JETPACK__PLUGIN_DIR).'/jetpack/3rd-party/woocommerce-stats.php' );
+
 if ( defined( 'STATS_VERSION' ) ) {
 	return;
 }
@@ -149,12 +151,12 @@ function stats_template_redirect() {
 	}
 
 	// Should we be counting this user's views?
-	if ( ! empty( $current_user->ID ) ) {
-		$count_roles = stats_get_option( 'count_roles' );
-		if ( ! is_array( $count_roles ) || ! array_intersect( $current_user->roles, $count_roles ) ) {
-			return;
-		}
-	}
+	// if ( ! empty( $current_user->ID ) ) {
+	// 	$count_roles = stats_get_option( 'count_roles' );
+	// 	if ( ! is_array( $count_roles ) || ! array_intersect( $current_user->roles, $count_roles ) ) {
+	// 		return;
+	// 	}
+	// }
 
 	add_action( 'wp_footer', 'stats_footer', 101 );
 	add_action( 'wp_head', 'stats_add_shutdown_action' );
@@ -162,6 +164,7 @@ function stats_template_redirect() {
 	$script = 'https://stats.wp.com/e-' . gmdate( 'YW' ) . '.js';
 	$data = stats_build_view_data();
 	$data_stats_array = stats_array( $data );
+	// $store_stats_script = WC_Stats::getScriptTag();
 
 	$stats_footer = <<<END
 <script type='text/javascript' src='{$script}' async defer></script>
@@ -170,7 +173,7 @@ function stats_template_redirect() {
 	_stq.push([ 'view', {{$data_stats_array}} ]);
 	_stq.push([ 'clickTrackerInit', '{$data['blog']}', '{$data['post']}' ]);
 </script>
-
+$store_stats_script
 END;
 }
 
