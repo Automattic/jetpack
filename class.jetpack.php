@@ -1481,6 +1481,7 @@ class Jetpack {
 			'jetpack_business',
 			'jetpack_business_monthly',
 			'business-bundle',
+			'vip',
 		);
 
 		if ( in_array( $plan['product_slug'], $business_plans ) ) {
