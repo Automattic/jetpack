@@ -75,7 +75,7 @@ function wp_super_cache_jetpack_cookie_check( $cache_key ) {
 	}
 }
 
-if ( '1' === isset( $cache_jetpack ) && $cache_jetpack ) {
+if ( isset( $cache_jetpack ) && '1' === $cache_jetpack ) {
 	add_cacheaction( 'wp_cache_check_mobile', 'wp_super_cache_jetpack_cookie_check' );
 }
 
