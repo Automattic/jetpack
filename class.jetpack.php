@@ -6882,7 +6882,7 @@ p {
 					height: 20px;
 				}
 				.jp-emblem-user-admin path {
-					fill: #8cc258;
+					fill: #00BE28;
 				}
 			</style>
 		<?php }

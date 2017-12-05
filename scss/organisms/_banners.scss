@@ -83,7 +83,7 @@
 		};
 }
 
-// dismiss 
+// dismiss
 .jp-connect-full__svg-dismiss {
 	position: absolute;
 		right: 0;
@@ -319,7 +319,7 @@
 		color: #87a6bc;
 		cursor: pointer;
 
-		// trick to hide the bottom border of the last menu item when the menu is the tallest element, 
+		// trick to hide the bottom border of the last menu item when the menu is the tallest element,
 		// but display the border when the overall container is taller than the menu
 		&:last-of-type {
 			position: relative;
@@ -334,7 +334,7 @@
 		color: #2e4453;
 
 		&.jp-feature-intro {
-			border-left: 3px solid #8CC258;
+			border-left: 3px solid #00BE28;
 		}
 	}
 
@@ -360,7 +360,7 @@
 
 		&.jp-feature-intro {
 			svg {
-				fill: #8CC258;
+				fill: #00BE28;
 			}
 		}
 
