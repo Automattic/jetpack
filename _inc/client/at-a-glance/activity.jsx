@@ -14,6 +14,7 @@ import classNames from 'classnames';
  * Internal dependencies
  */
 import { getSitePlan } from 'state/site';
+import { isAtomicSite } from 'state/initial-state';
 import { isDevMode } from 'state/connection';
 import { PLAN_JETPACK_BUSINESS, PLAN_JETPACK_BUSINESS_MONTHLY } from 'lib/plans/constants';
 
@@ -31,10 +32,10 @@ class DashActivity extends Component {
 	};
 
 	render() {
-		const { siteRawUrl, inDevMode } = this.props;
+		const { siteRawUrl, inDevMode, isAtomicSite } = this.props;
 		const sitePlan = get( this.props.sitePlan, 'product_slug', 'jetpack_free' );
 		const activityLogLink = <a href={ `https://wordpress.com/stats/activity/${ siteRawUrl }` } />;
-		const hasBackups = includes( [ PLAN_JETPACK_BUSINESS, PLAN_JETPACK_BUSINESS_MONTHLY ], sitePlan );
+		const hasBackups = isAtomicSite || includes( [ PLAN_JETPACK_BUSINESS, PLAN_JETPACK_BUSINESS_MONTHLY ], sitePlan );
 		const maybeUpgrade = hasBackups
 			? __( "{{a}}View your site's activity{{/a}} in a single feed where you can see when events occur and rewind them if you need to.", {
 				components: {
@@ -75,5 +76,6 @@ export default connect(
 	state => ( {
 		sitePlan: getSitePlan( state ),
 		inDevMode: isDevMode( state ),
+		isAtomicSite: isAtomicSite( state ),
 	} )
 )( DashActivity );
