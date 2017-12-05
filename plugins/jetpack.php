@@ -52,7 +52,7 @@ function wp_super_cache_jetpack_admin() {
 add_cacheaction( 'cache_admin_page', 'wp_super_cache_jetpack_admin' );
 
 function wp_super_cache_jetpack_cookie_check( $cache_key ) {
-	if ( fasle === function_exists( 'jetpack_is_mobile' ) ) {
+	if ( false === function_exists( 'jetpack_is_mobile' ) ) {
 
 		if ( file_exists( dirname( WPCACHEHOME ) . '/jetpack-dev/class.jetpack-user-agent.php' ) ) {
 			wp_cache_debug( "wp_super_cache_jetpack_cookie_check: jetpack dev detected. Returning 'normal' to avoid loading Jetpack." );
