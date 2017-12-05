@@ -55,7 +55,7 @@ export const Masthead = React.createClass( {
 				<div className="jp-masthead__inside-container">
 					<div className="jp-masthead__logo-container">
 						<a onClick={ this.trackLogoClick } className="jp-masthead__logo-link" href="#dashboard">
-							<svg className="jetpack-logo__masthead" xmlns="http://www.w3.org/2000/svg" width="118" height="32" viewBox="0 0 118 32">
+							<svg className="jetpack-logo__masthead" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" height="32" viewBox="0 0 118 32">
 								<path fill="#00BE28" d="M16,0C7.2,0,0,7.2,0,16s7.2,16,16,16s16-7.2,16-16S24.8,0,16,0z M15,19H7l8-16V19z M17,29V13h8L17,29z" />
 								<path d="M41.3,26.6c-0.5-0.7-0.9-1.4-1.3-2.1c2.3-1.4,3-2.5,3-4.6V8h-3V6h6v13.4C46,22.8,45,24.8,41.3,26.6z" />
 								<path d="M65,18.4c0,1.1,0.8,1.3,1.4,1.3c0.5,0,2-0.2,2.6-0.4v2.1c-0.9,0.3-2.5,0.5-3.7,0.5c-1.5,0-3.2-0.5-3.2-3.1V12H60v-2h2.1V7.1 H65V10h4v2h-4V18.4z" />
