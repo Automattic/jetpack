@@ -49,7 +49,7 @@ class DashActivity extends Component {
 		// 	} );
 
 		// @todo: update this to use rewind text/CTA when available
-		const activityLogOnlyText = __( "{{a}}View your site's activity{{/a}} in a single feed where you can see when events occur.", {
+		const activityLogOnlyText = __( "{{a}}View your site's activity{{/a}} in a single feed.", {
 			components: {
 				a: activityLogLink
 			}
@@ -63,7 +63,7 @@ class DashActivity extends Component {
 					className={ classNames( {
 						'jp-dash-item__is-inactive': inDevMode
 					} ) }
-					pro={ ! hasBackups }
+					pro={ false }
 					>
 					<p className="jp-dash-item__description">
 						{
