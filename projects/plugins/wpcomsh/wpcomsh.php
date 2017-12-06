@@ -8,7 +8,7 @@
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '2.1.6' );
+define( 'WPCOMSH_VERSION', '2.1.7' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -58,6 +58,8 @@ if ( class_exists( 'Jetpack_Plugin_Compatibility' ) ) {
 		'advanced-wp-reset/advanced-wp-reset.php' => 'advanced-wp-reset and other WordPress reset plugins delete data necessary to manage your site and are not supported on WordPress.com. advanced-wp-reset has been deactivated.',
 		'better-wp-security/better-wp-security.php' => 'better-wp-security and similar reset security delete data necessary to manage your site and are not supported on Wordpress.com. better-wp-security has been deactivated.',
 		'bwp-minify/bwp-minify.php' => 'bwp-minify and similar minification plugins delete data necessary to manage your site and are not supported on Wordpress.com. bwp-minify has been deactivated.',
+		'e-mail-broadcasting/e-mail-broadcasting.php' => 'The use of "E-Mail Broadcasting" is not allowed.',
+		'send-email-from-admin/send-email-from-admin.php' => 'The use of "Send Email From Admin" is not allowed.',
 		'file-manager/file-manager.php' => 'file-manager and similar manager plugins delete data necessary to manage your site and are not supported on Wordpress.com. file-manager has been deactivated.',
 		'mailit/mailit.php' => 'The use of "Mail It!" is not allowed.',
 		'nginx-helper/nginx-helper.php' => 'nginx-helper and similar caching plugins delete data necessary to manage your site and are not supported on Wordpress.com. nginx-helper has been deactivated.',
