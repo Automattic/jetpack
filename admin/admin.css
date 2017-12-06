@@ -50,13 +50,13 @@ html {
 .jetpack-beta__master-head span {
     font-weight: 300;
     display: inline-block;
-    font-size: 21px;
+    font-size: 20px;
     vertical-align: super;
     color: #a8bece;
     line-height: 25px;
     position: relative;
-    top: -2px;
-    left: 8px;
+    top: -5px;
+    left: 5px;
 }
 .jetpack-beta__master-head .jetpack-beta-container {
     padding: 11px 0 6px;
