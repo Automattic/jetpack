@@ -243,6 +243,11 @@ Cached pages have to be refreshed when posts are made. Perhaps your server just 
 ### How many pages can I cache? ###
 The only real limit are limits defined by your server. For example, EXT2 and EXT3 allow a maximum of 31,999 sub directories so if you have a flat permalink structure (like /%POSTNAME%/) and more than 32,000 posts you may run into problems. Likewise, if you run a multisite network and have more than 31,999 sites (blogs) you won't be able to cache all of them. Realistically if you had that many active sites you wouldn't be running on one server.
 
+### I can see that the www version of my site is cached separately. How do I stop that? ###
+WordPress should redirect to the canonical URL of your site but if it doesn't, add this to your .htaccess above the Supercache and WordPress rules. Change example.com to your own hostname.
+`RewriteCond %{HTTP_HOST} www.example.com$ [NC]`
+`RewriteRule ^(.*)$ https://example.com/$1 [L,R=301]`
+
 ### How do I serve cached mobile pages to clients on small screens like phones and tablets? ###
 Your theme is probably responsive which means it resizes the page to suit whatever device is displaying the page. If it's not responsive, you'll have to use a separate mobile plugin to render a page formatted for those visitors. The following plugins have been tested but YMMV depending on mobile client. You'll have to enable mobile browser support as well on the Advanced settings page.
 
