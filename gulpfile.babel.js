@@ -91,7 +91,8 @@ function onBuild( done ) {
 			'contact-form',
 			'photon',
 			'carousel',
-			'related-posts'
+			'related-posts',
+			'tiled-gallery'
 		];
 
 		// Source any JS for whitelisted modules, which will minimize us shipping much
