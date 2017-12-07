@@ -934,7 +934,7 @@ class Jetpack_Custom_CSS {
 			'custom-css-editor',
 			Jetpack::get_file_url_for_environment(
 				'_inc/build/custom-css/custom-css/js/css-editor.min.js',
-				'modules/custom-css/js/css-editor.js'
+				'modules/custom-css/custom-css/js/css-editor.js'
 			),
 			'jquery',
 			'20130325',
@@ -951,7 +951,7 @@ class Jetpack_Custom_CSS {
 				'jetpack-css-use-codemirror',
 				Jetpack::get_file_url_for_environment(
 					'_inc/build/custom-css/custom-css/js/use-codemirror.min.js',
-					'modules/custom-css/js/use-codemirror.js'
+					'modules/custom-css/custom-css/js/use-codemirror.js'
 				),
 				array( 'jquery', 'underscore', 'jetpack-css-codemirror' ),
 				'20131009',
