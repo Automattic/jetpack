@@ -446,7 +446,7 @@ class Nova_Restaurant {
 			'nova-menu-checkboxes',
 			Jetpack::get_file_url_for_environment(
 				'_inc/build/custom-post-types/js/menu-checkboxes.min.js',
-				plugins_url( 'js/menu-checkboxes.js', __FILE__ )
+				'modules/custom-post-types/js/menu-checkboxes.js'
 			),
 			array( 'jquery' ),
 			$this->version,
@@ -623,7 +623,7 @@ class Nova_Restaurant {
 			'nova-drag-drop',
 			Jetpack::get_file_url_for_environment(
 				'_inc/build/custom-post-types/js/nova-drag-drop.min.js',
-				plugins_url( 'js/nova-drag-drop.js', __FILE__ )
+				'modules/custom-post-types/js/nova-drag-drop.js'
 			),
 			array( 'jquery-ui-sortable' ),
 			$this->version,
@@ -870,7 +870,7 @@ class Nova_Restaurant {
 			'nova-many-items',
 			Jetpack::get_file_url_for_environment(
 				'_inc/build/custom-post-types/js/many-items.min.js',
-				plugins_url( 'js/many-items.js', __FILE__ )
+				'modules/custom-post-types/js/many-items.js'
 			),
 			array( 'jquery' ),
 			$this->version,

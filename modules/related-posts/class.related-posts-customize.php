@@ -239,7 +239,7 @@ class Jetpack_Related_Posts_Customize {
 			'jetpack_related-posts-customizer',
 			Jetpack::get_file_url_for_environment(
 				'_inc/build/related-posts/related-posts-customizer.min.js',
-				plugins_url( 'related-posts-customizer.js', __FILE__ )
+				'modules/related-posts/related-posts-customizer.js'
 			),
 			array( 'customize-controls' ),
 			JETPACK__VERSION

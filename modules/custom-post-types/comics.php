@@ -180,7 +180,7 @@ class Jetpack_Comic {
 			'jetpack-comics',
 			Jetpack::get_file_url_for_environment(
 				'_inc/build/custom-post-types/comics/comics.min.js',
-				plugins_url( 'comics/comics.js', __FILE__ )
+				'modules/custom-post-types/comics/comics.js'
 			),
 			array( 'jquery', 'jquery.spin' )
 		);

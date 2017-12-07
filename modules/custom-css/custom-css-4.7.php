@@ -69,14 +69,14 @@ class Jetpack_Custom_CSS_Enhancements {
 		$deps = array( 'customize-controls', 'underscore' );
 		$src  = Jetpack::get_file_url_for_environment(
 			'_inc/build/custom-css/custom-css/js/core-customizer-css.core-4.9.min.js',
-			plugins_url( 'custom-css/js/core-customizer-css.core-4.9.js', __FILE__ )
+			'modules/custom-css/js/core-customizer-css.core-4.9.js'
 		);
 		if ( ! function_exists( 'wp_enqueue_code_editor' ) ) {
 			// If Core < 4.9
 			$deps[] = 'jetpack-codemirror';
 			$src = Jetpack::get_file_url_for_environment(
 				'_inc/build/custom-css/custom-css/js/core-customizer-css.min.js',
-				plugins_url( 'custom-css/js/core-customizer-css.js', __FILE__ )
+				'modules/custom-css/js/core-customizer-css.js'
 			);
 		}
 		wp_register_script( 'jetpack-customizer-css', $src, $deps, JETPACK__VERSION, true );
@@ -85,7 +85,7 @@ class Jetpack_Custom_CSS_Enhancements {
 			'jetpack-customizer-css-preview',
 			Jetpack::get_file_url_for_environment(
 				'_inc/build/custom-css/custom-css/js/core-customizer-css-preview.min.js',
-				plugins_url( 'custom-css/js/core-customizer-css-preview.js', __FILE__ )
+				'modules/custom-css/js/core-customizer-css-preview.js'
 			),
 			array( 'customize-selective-refresh' ),
 			JETPACK__VERSION,

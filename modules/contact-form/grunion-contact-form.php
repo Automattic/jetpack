@@ -2687,7 +2687,7 @@ class Grunion_Contact_Form_Field extends Crunion_Contact_Form_Shortcode {
 					'grunion-frontend',
 					Jetpack::get_file_url_for_environment(
 						'_inc/build/contact-form/js/grunion-frontend.min.js',
-						plugins_url( 'js/grunion-frontend.js', __FILE__ )
+						'modules/contact-form/js/grunion-frontend.js'
 					),
 					array( 'jquery', 'jquery-ui-datepicker' )
 				);

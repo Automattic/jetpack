@@ -107,7 +107,7 @@ class Jetpack_Comment_Likes {
 			'comment-like-count',
 			Jetpack::get_file_url_for_environment(
 				'_inc/build/comment-likes/comment-like-count.min.js',
-				plugins_url( 'comment-likes/comment-like-count.js', __FILE__ )
+				'modules/comment-likes/comment-like-count.js'
 			),
 			array( 'jquery' ),
 			JETPACK__VERSION

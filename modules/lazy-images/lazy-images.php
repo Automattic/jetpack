@@ -173,7 +173,7 @@ class Jetpack_Lazy_Images {
 			'jetpack-lazy-images',
 			Jetpack::get_file_url_for_environment(
 				'_inc/build/lazy-images/js/lazy-images.min.js',
-				plugins_url( 'modules/lazy-images/js/lazy-images.js', JETPACK__PLUGIN_FILE )
+				'modules/lazy-images/js/lazy-images.js'
 			),
 			array( 'jquery' ),
 			JETPACK__VERSION,

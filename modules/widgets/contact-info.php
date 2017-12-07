@@ -250,7 +250,7 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 				'contact-info-admin',
 				Jetpack::get_file_url_for_environment(
 					'_inc/build/widgets/contact-info/contact-info-admin.min.js',
-					plugins_url( 'contact-info/contact-info-admin.js', __FILE__ )
+					'modules/widgets/contact-info/contact-info-admin.js'
 				),
 				array( 'jquery' ),
 				20160727

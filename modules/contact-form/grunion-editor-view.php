@@ -41,7 +41,7 @@ class Grunion_Editor_View {
 	public static function mce_external_plugins( $plugin_array ) {
 		$plugin_array['grunion_form'] = Jetpack::get_file_url_for_environment(
 			'_inc/build/contact-form/js/tinymce-plugin-form-button.min.js',
-			plugins_url( 'js/tinymce-plugin-form-button.js', __FILE__ )
+			'modules/contact-form/js/tinymce-plugin-form-button.js'
 		);
 		return $plugin_array;
 	}
@@ -71,7 +71,7 @@ class Grunion_Editor_View {
 			'grunion-editor-view',
 			Jetpack::get_file_url_for_environment(
 				'_inc/build/contact-form/js/editor-view.min.js',
-				plugins_url( 'js/editor-view.js', __FILE__ )
+				'modules/contact-form/js/editor-view.js'
 			),
 			array( 'wp-util', 'jquery', 'quicktags' ),
 			false,

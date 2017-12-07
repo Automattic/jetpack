@@ -1453,7 +1453,7 @@ EOT;
 				'jetpack_related-posts',
 				Jetpack::get_file_url_for_environment(
 					'_inc/build/related-posts/related-posts.min.js',
-					plugins_url( 'related-posts.js', __FILE__ )
+					'modules/related-posts/related-posts.js'
 				),
 				$dependencies,
 				self::VERSION

@@ -795,7 +795,7 @@ function sharing_display( $text = '', $echo = false ) {
 				'sharing-js',
 				Jetpack::get_file_url_for_environment(
 					'_inc/build/sharedaddy/sharing.min.js',
-					plugin_dir_url( __FILE__ ).'sharing.js'
+					'modules/sharedaddy/sharing.js'
 				),
 				array( 'jquery' ),
 				$ver

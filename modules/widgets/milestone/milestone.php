@@ -64,7 +64,7 @@ class Milestone_Widget extends WP_Widget {
 				'milestone-admin-js',
 				Jetpack::get_file_url_for_environment(
 					'_inc/build/widgets/milestone/admin.min.js',
-					self::$url . 'admin.js'
+					'modules/widgets/milestone/admin.js'
 				),
 				array( 'jquery' ),
 				'20170915',
@@ -78,7 +78,7 @@ class Milestone_Widget extends WP_Widget {
 			'milestone',
 			Jetpack::get_file_url_for_environment(
 				'_inc/build/widgets/milestone/milestone.min.js',
-				self::$url . 'milestone.js'
+				'modules/widgets/milestone/milestone.js'
 			),
 			array( 'jquery' ),
 			'20160520',

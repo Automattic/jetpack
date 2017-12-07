@@ -95,7 +95,7 @@ class Jetpack_Tiled_Gallery {
 			'tiled-gallery',
 			Jetpack::get_file_url_for_environment(
 				'_inc/build/tiled-gallery/tiled-gallery/tiled-gallery.min.js',
-				plugins_url( 'tiled-gallery/tiled-gallery.js', __FILE__ )
+				'modules/tiled-gallery/tiled-gallery/tiled-gallery.js'
 			),
 			array( 'jquery' )
 		);

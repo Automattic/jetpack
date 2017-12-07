@@ -410,7 +410,7 @@ class The_Neverending_Home_Page {
 			'the-neverending-homepage',
 			Jetpack::get_file_url_for_environment(
 				'_inc/build/infinite-scroll/infinity.min.js',
-				plugins_url( 'infinity.js', __FILE__ )
+				'modules/infinite-scroll/infinity.js'
 			),
 			array( 'jquery' ),
 			'4.0.0',

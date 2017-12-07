@@ -300,7 +300,7 @@ class Jetpack_Likes {
 			'jetpack_likes_queuehandler',
 			Jetpack::get_file_url_for_environment(
 				'_inc/build/likes/queuehandler.min.js',
-				plugins_url( 'likes/queuehandler.js' , __FILE__ )
+				'modules/likes/queuehandler.js'
 			),
 			array( 'jquery', 'postmessage', 'jetpack_resize' ),
 			JETPACK__VERSION,
@@ -361,7 +361,7 @@ class Jetpack_Likes {
 					'likes-post-count',
 					Jetpack::get_file_url_for_environment(
 						'_inc/build/likes/post-count.min.js',
-						plugins_url( 'modules/likes/post-count.js', dirname( __FILE__ ) )
+						'modules/likes/post-count.js'
 					),
 					array( 'jquery' ),
 					JETPACK__VERSION
@@ -370,9 +370,8 @@ class Jetpack_Likes {
 					'likes-post-count-jetpack',
 					Jetpack::get_file_url_for_environment(
 						'_inc/build/likes/post-count-jetpack.min.js',
-						plugins_url( 'modules/likes/post-count-jetpack.js'
+						'modules/likes/post-count-jetpack.js'
 					),
-					dirname( __FILE__ ) ),
 					array( 'likes-post-count' ),
 					JETPACK__VERSION
 				);

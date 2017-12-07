@@ -27,7 +27,7 @@ class Jetpack_Widget_Conditions {
 			'widget-conditions',
 			Jetpack::get_file_url_for_environment(
 				'_inc/build/widget-visibility/widget-conditions/widget-conditions.min.js',
-				plugins_url( 'widget-conditions/widget-conditions.js', __FILE__ )
+				'modules/widget-visibility/widget-conditions/widget-conditions.js'
 			),
 			array( 'jquery', 'jquery-ui-core' ),
 			20140721,

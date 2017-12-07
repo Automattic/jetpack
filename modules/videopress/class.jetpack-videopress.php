@@ -132,7 +132,7 @@ class Jetpack_VideoPress {
 				'videopress-plupload',
 				Jetpack::get_file_url_for_environment(
 					'_inc/build/videopress/js/videopress-plupload.min.js',
-					plugins_url( 'js/videopress-plupload.js', __FILE__ )
+					'modules/videopress/js/videopress-plupload.js'
 				),
 				array(
 					'jquery',
@@ -145,7 +145,7 @@ class Jetpack_VideoPress {
 				'videopress-uploader',
 				Jetpack::get_file_url_for_environment(
 					'_inc/build/videopress/js/videopress-uploader.min.js',
-					plugins_url( 'js/videopress-uploader.js', __FILE__ )
+					'modules/videopress/js/videopress-uploader.js'
 				),
 				array(
 					'videopress-plupload'
@@ -157,7 +157,7 @@ class Jetpack_VideoPress {
 				'media-video-widget-extensions',
 				Jetpack::get_file_url_for_environment(
 					'_inc/build/videopress/js/media-video-widget-extensions.min.js',
-					plugins_url( 'js/media-video-widget-extensions.js', __FILE__ )
+					'modules/videopress/js/media-video-widget-extensions.js'
 				),
 				array(),
 				$this->version,

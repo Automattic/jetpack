@@ -83,7 +83,7 @@ function minileven_scripts() {
 		'small-menu',
 		Jetpack::get_file_url_for_environment(
 			'_inc/build/minileven/theme/pub/minileven/js/small-menu.min.js',
-			get_template_directory_uri() . '/js/small-menu.js'
+			'modules/minileven/theme/pub/minileven/js/small-menu.js'
 		),
 		array( 'jquery' ),
 		'20120206',

@@ -75,7 +75,7 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 				'googleplus-widget-admin',
 				Jetpack::get_file_url_for_environment(
 					'_inc/build/widgets/google-plus/js/admin.min.js',
-					plugins_url( '/google-plus/js/admin.js', __FILE__ )
+					'modules/widgets/google-plus/js/admin.js'
 				),
 				array( 'jquery' )
 			);

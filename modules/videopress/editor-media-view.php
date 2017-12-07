@@ -17,7 +17,7 @@ function videopress_handle_editor_view_js() {
 		'videopress-editor-view',
 		Jetpack::get_file_url_for_environment(
 			'_inc/build/videopress/js/editor-view.min.js',
-			plugins_url( 'js/editor-view.js', __FILE__ )
+			'modules/videopress/js/editor-view.js'
 		),
 		array( 'wp-util', 'jquery' ),
 		false,

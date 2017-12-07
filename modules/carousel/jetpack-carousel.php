@@ -201,7 +201,7 @@ class Jetpack_Carousel {
 				'jetpack-carousel',
 				Jetpack::get_file_url_for_environment(
 					'_inc/build/carousel/jetpack-carousel.min.js',
-					plugins_url( 'jetpack-carousel.js', __FILE__ )
+					'modules/carousel/jetpack-carousel.js'
 				),
 				array( 'jquery.spin' ),
 				$this->asset_version( '20170209' ),

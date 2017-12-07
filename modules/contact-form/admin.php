@@ -791,7 +791,7 @@ function grunion_enable_spam_recheck() {
 		'grunion-admin',
 		Jetpack::get_file_url_for_environment(
 			'_inc/build/contact-form/js/grunion-admin.min.js',
-			plugin_dir_url( __FILE__ ) . 'js/grunion-admin.js'
+			'modules/contact-form/js/grunion-admin.js'
 		),
 		array( 'jquery' )
 	);

@@ -80,7 +80,7 @@ class Publicize_UI {
 			'publicize',
 			Jetpack::get_file_url_for_environment(
 				'_inc/build/publicize/assets/publicize.min.js',
-				plugins_url( 'assets/publicize.js', __FILE__ )
+				'modules/publicize/assets/publicize.js'
 			),
 			array( 'jquery', 'thickbox' ),
 			'20121019'

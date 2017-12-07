@@ -200,7 +200,7 @@ function AtD_load_javascripts() {
 			'AtD_core',
 			Jetpack::get_file_url_for_environment(
 				'_inc/build/after-the-deadline/atd.core.min.js',
-				plugins_url( '/after-the-deadline/atd.core.js', __FILE__ )
+				'modules/after-the-deadline/atd.core.js'
 			),
 			array(),
 			ATD_VERSION
@@ -209,7 +209,7 @@ function AtD_load_javascripts() {
 			'AtD_quicktags',
 			Jetpack::get_file_url_for_environment(
 				'_inc/build/after-the-deadline/atd-nonvis-editor-plugin.min.js',
-				plugins_url( '/after-the-deadline/atd-nonvis-editor-plugin.js', __FILE__ )
+				'modules/after-the-deadline/atd-nonvis-editor-plugin.js'
 			),
 			array('quicktags'),
 			ATD_VERSION
@@ -218,7 +218,7 @@ function AtD_load_javascripts() {
 			'AtD_jquery',
 			Jetpack::get_file_url_for_environment(
 				'_inc/build/after-the-deadline/jquery.atd.min.js',
-				plugins_url( '/after-the-deadline/jquery.atd.js', __FILE__ )
+				'modules/after-the-deadline/jquery.atd.js'
 			),
 			array('jquery'),
 			ATD_VERSION
@@ -228,7 +228,7 @@ function AtD_load_javascripts() {
 			'AtD_autoproofread',
 			Jetpack::get_file_url_for_environment(
 				'_inc/build/after-the-deadline/atd-autoproofread.min.js',
-				plugins_url( '/after-the-deadline/atd-autoproofread.js', __FILE__ )
+				'modules/after-the-deadline/atd-autoproofread.js'
 			),
 			array('AtD_jquery'),
 			ATD_VERSION

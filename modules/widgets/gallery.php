@@ -398,7 +398,7 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 			'gallery-widget',
 			Jetpack::get_file_url_for_environment(
 				'_inc/build/widgets/gallery/js/gallery.min.js',
-				plugins_url( '/gallery/js/gallery.js', __FILE__ )
+				'modules/widgets/gallery/js/gallery.js'
 			)
 		);
 

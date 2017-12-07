@@ -67,9 +67,8 @@ class Jetpack_Twitter_Timeline_Widget extends WP_Widget {
 				'twitter-timeline-admin',
 				Jetpack::get_file_url_for_environment(
 					'_inc/build/widgets/twitter-timeline-admin.min.js',
-					plugins_url( 'twitter-timeline-admin.js'
-				),
-				__FILE__ )
+					'modules/widgets/twitter-timeline-admin.js'
+				)
 			);
 		}
 	}

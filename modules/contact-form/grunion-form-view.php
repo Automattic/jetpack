@@ -18,7 +18,7 @@ wp_register_script(
 	'grunion',
 	Jetpack::get_file_url_for_environment(
 		'_inc/build/contact-form/js/grunion.min.js',
-		GRUNION_PLUGIN_URL . 'js/grunion.js'
+		'modules/contact-form/js/grunion.js'
 	),
 	array( 'jquery-ui-sortable', 'jquery-ui-draggable' ),
 	JETPACK__VERSION
