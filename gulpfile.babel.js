@@ -95,7 +95,8 @@ function onBuild( done ) {
 			'tiled-gallery',
 			'likes',
 			'minileven',
-			'infinite-scroll'
+			'infinite-scroll',
+			'masterbar'
 		];
 
 		// Source any JS for whitelisted modules, which will minimize us shipping much
