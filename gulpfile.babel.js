@@ -93,7 +93,8 @@ function onBuild( done ) {
 			'carousel',
 			'related-posts',
 			'tiled-gallery',
-			'likes'
+			'likes',
+			'minileven'
 		];
 
 		// Source any JS for whitelisted modules, which will minimize us shipping much
