@@ -642,6 +642,10 @@ class Jetpack {
 		if ( Jetpack::get_option( 'edit_links_calypso_redirect' ) && ! is_admin() ) {
 			add_filter( 'get_edit_post_link', array( $this, 'point_edit_post_links_to_calypso' ), 1, 2 );
 			add_filter( 'get_edit_comment_link', array( $this, 'point_edit_comment_links_to_calypso' ), 1 );
+
+			//we'll override wp_notify_postauthor and wp_notify_moderator pluggable functions
+			//so they point moderation links on emails to Calypso
+			require_once( JETPACK__PLUGIN_DIR . 'moderation-emails-override.php' );
 		}
 
 		// Update the Jetpack plan from API on heartbeats
