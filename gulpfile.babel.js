@@ -87,7 +87,8 @@ function onBuild( done ) {
 			'custom-css',
 			'publicize',
 			'custom-post-types',
-			'sharedaddy'
+			'sharedaddy',
+			'contact-form'
 		];
 
 		// Source any JS for whitelisted modules, which will minimize us shipping much
