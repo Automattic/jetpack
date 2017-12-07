@@ -40,8 +40,8 @@ Garbage collection is the act of cleaning up cache files that are out of date an
 
 Consider deleting the contents of the "Rejected User Agents" text box and allow search engines to cache files for you.
 
-Likewise, preload as many posts as you can and enable "Preload Mode". Garbage collection will still occur but it won't affect the preloaded files. If you don't care about sidebar widgets updating often set the preload interval to 2880 minutes (2 days) so all your posts aren't recached very often. When the preload occurs the cache files for the post being refreshed is deleted and then regenerated. Afterwards a garbage collection of all old files is performed to clean out stale cache files.
-Cached files will still be deleted when posts are made or edited or comments made when preloading is enabled.
+Preload as many posts as you can and enable "Preload Mode". Garbage collection of old cached files will be disabled. If you don't care about sidebar widgets updating often set the preload interval to 2880 minutes (2 days) so all your posts aren't recached very often. When the preload occurs the cache files for the post being refreshed is deleted and then regenerated. Afterwards a garbage collection of all old files is performed to clean out stale cache files.
+Even with preload mode enabled cached files will still be deleted when posts are modified or comments made.
 
 ### Development ###
 * Active development of this plugin is handled [on GitHub](https://github.com/Automattic/wp-super-cache).
