@@ -130,7 +130,10 @@ class Jetpack_VideoPress {
 		if ( $this->should_override_media_uploader() ) {
 			wp_enqueue_script(
 				'videopress-plupload',
-				plugins_url( 'js/videopress-plupload.js', __FILE__ ),
+				Jetpack::get_file_url_for_environment(
+					'_inc/build/videopress/js/videopress-plupload.min.js',
+					plugins_url( 'js/videopress-plupload.js', __FILE__ )
+				),
 				array(
 					'jquery',
 					'wp-plupload'
@@ -140,7 +143,10 @@ class Jetpack_VideoPress {
 
 			wp_enqueue_script(
 				'videopress-uploader',
-				plugins_url( 'js/videopress-uploader.js', __FILE__ ),
+				Jetpack::get_file_url_for_environment(
+					'_inc/build/videopress/js/videopress-uploader.min.js',
+					plugins_url( 'js/videopress-uploader.js', __FILE__ )
+				),
 				array(
 					'videopress-plupload'
 				),
@@ -149,7 +155,10 @@ class Jetpack_VideoPress {
 
 			wp_enqueue_script(
 				'media-video-widget-extensions',
-				plugins_url( 'js/media-video-widget-extensions.js', __FILE__ ),
+				Jetpack::get_file_url_for_environment(
+					'_inc/build/videopress/js/media-video-widget-extensions.min.js',
+					plugins_url( 'js/media-video-widget-extensions.js', __FILE__ )
+				),
 				array(),
 				$this->version,
 				true
