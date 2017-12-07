@@ -51,16 +51,16 @@ class Jetpack_Lazy_Images {
 		add_filter( 'the_content', array( $this, 'add_image_placeholders' ), PHP_INT_MAX ); // run this later, so other content filters have run, including image_add_wh on WP.com
 		add_filter( 'post_thumbnail_html', array( $this, 'add_image_placeholders' ), PHP_INT_MAX );
 		add_filter( 'get_avatar', array( $this, 'add_image_placeholders' ), PHP_INT_MAX );
-		add_filter( 'widget_text', array($this, 'add_image_placeholders' ), PHP_INT_MAX );
-		add_filter( 'get_image_tag', array($this, 'add_image_placeholders' ), PHP_INT_MAX);
+		add_filter( 'widget_text', array( $this, 'add_image_placeholders' ), PHP_INT_MAX );
+		add_filter( 'get_image_tag', array( $this, 'add_image_placeholders' ), PHP_INT_MAX);
 	}
 
 	public function remove_filters() {
 		remove_filter( 'the_content', array( $this, 'add_image_placeholders' ), PHP_INT_MAX );
 		remove_filter( 'post_thumbnail_html', array( $this, 'add_image_placeholders' ), PHP_INT_MAX );
 		remove_filter( 'get_avatar', array( $this, 'add_image_placeholders' ), PHP_INT_MAX );
-		remove_filter( 'widget_text', array($this, 'add_image_placeholders' ), PHP_INT_MAX );
-		remove_filter( 'get_image_tag', array($this, 'add_image_placeholders' ), PHP_INT_MAX);		
+		remove_filter( 'widget_text', array( $this, 'add_image_placeholders' ), PHP_INT_MAX );
+		remove_filter( 'get_image_tag', array( $this, 'add_image_placeholders' ), PHP_INT_MAX);		
 	}
 
 	public function add_image_placeholders( $content ) {
