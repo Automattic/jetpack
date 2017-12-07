@@ -1018,7 +1018,7 @@ class Jetpack_Photon {
 			'jetpack-photon',
 			Jetpack::get_file_url_for_environment(
 				'_inc/build/photon/photon.min.js',
-				plugins_url( 'modules/photon/photon.js', JETPACK__PLUGIN_FILE )
+				'modules/photon/photon.js'
 			),
 			array( 'jquery' ),
 			20130122,
