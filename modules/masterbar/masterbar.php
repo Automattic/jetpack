@@ -142,7 +142,7 @@ class A8C_WPCOM_Masterbar {
 			'a8c_wpcom_masterbar_tracks_events',
 			Jetpack::get_file_url_for_environment(
 				'_inc/build/masterbar/tracks-events.min.js',
-				plugins_url( 'tracks-events.js', __FILE__ )
+				'modules/masterbar/tracks-events.js'
 			),
 			array( 'jquery' ),
 			JETPACK__VERSION

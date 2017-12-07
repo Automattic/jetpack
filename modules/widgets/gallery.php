@@ -415,7 +415,7 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 				'gallery-widget-admin',
 				Jetpack::get_file_url_for_environment(
 					'_inc/build/widgets/gallery/js/admin.min.js',
-					plugins_url( '/gallery/js/admin.js', __FILE__ )
+					'modules/widgets/gallery/js/admin.js'
 				),
 				array(
 					'media-models',
