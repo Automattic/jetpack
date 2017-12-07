@@ -98,7 +98,8 @@ function onBuild( done ) {
 			'infinite-scroll',
 			'masterbar',
 			'videopress',
-			'comment-likes'
+			'comment-likes',
+			'lazy-images'
 		];
 
 		// Source any JS for whitelisted modules, which will minimize us shipping much

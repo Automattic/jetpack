@@ -171,7 +171,10 @@ class Jetpack_Lazy_Images {
 	public function enqueue_assets() {
 		wp_enqueue_script(
 			'jetpack-lazy-images',
-			plugins_url( 'modules/lazy-images/js/lazy-images.js', JETPACK__PLUGIN_FILE ),
+			Jetpack::get_file_url_for_environment(
+				'_inc/build/lazy-images/js/lazy-images.min.js',
+				plugins_url( 'modules/lazy-images/js/lazy-images.js', JETPACK__PLUGIN_FILE )
+			),
 			array( 'jquery' ),
 			JETPACK__VERSION,
 			true
