@@ -89,7 +89,8 @@ function onBuild( done ) {
 			'custom-post-types',
 			'sharedaddy',
 			'contact-form',
-			'photon'
+			'photon',
+			'carousel'
 		];
 
 		// Source any JS for whitelisted modules, which will minimize us shipping much
