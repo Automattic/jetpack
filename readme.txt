@@ -1,9 +1,10 @@
 # WP Super Cache #
 * Contributors: donncha, automattic, kraftbj
 * Tags: performance, caching, wp-cache, wp-super-cache, cache
-* Tested up to: 4.9
+* Tested up to: 4.9.1
 * Stable tag: 1.5.8
 * Requires at least: 3.0
+* Requires PHP: 5.2.4
 * License: GPLv2 or later
 * License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
