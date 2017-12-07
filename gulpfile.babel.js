@@ -86,7 +86,8 @@ function onBuild( done ) {
 			'widget-visibility',
 			'custom-css',
 			'publicize',
-			'custom-post-types'
+			'custom-post-types',
+			'sharedaddy'
 		];
 
 		// Source any JS for whitelisted modules, which will minimize us shipping much
