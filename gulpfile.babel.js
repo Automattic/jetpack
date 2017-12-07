@@ -85,6 +85,7 @@ function onBuild( done ) {
 			'after-the-deadline',
 			'widget-visibility',
 			'custom-css',
+			'publicize'
 		];
 
 		// Source any JS for whitelisted modules, which will minimize us shipping much
