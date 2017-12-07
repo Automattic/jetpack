@@ -92,7 +92,8 @@ function onBuild( done ) {
 			'photon',
 			'carousel',
 			'related-posts',
-			'tiled-gallery'
+			'tiled-gallery',
+			'likes'
 		];
 
 		// Source any JS for whitelisted modules, which will minimize us shipping much
