@@ -82,7 +82,8 @@ function onBuild( done ) {
 		const supportedModules = [
 			'shortcodes',
 			'widgets',
-			'after-the-deadline'
+			'after-the-deadline',
+			'widget-visibility'
 		];
 
 		// Source any JS for whitelisted modules, which will minimize us shipping much
