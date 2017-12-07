@@ -246,7 +246,15 @@ if ( ! class_exists( 'Jetpack_Contact_Info_Widget' ) ) {
 		 */
 		function form( $instance ) {
 			$instance = wp_parse_args( $instance, $this->defaults() );
-			wp_enqueue_script( 'contact-info-admin', plugins_url( 'contact-info/contact-info-admin.js', __FILE__ ), array( 'jquery' ), 20160727 );
+			wp_enqueue_script(
+				'contact-info-admin',
+				Jetpack::get_file_url_for_environment(
+					'_inc/build/widgets/contact-info/contact-info-admin.min.js',
+					'modules/widgets/contact-info/contact-info-admin.js'
+				),
+				array( 'jquery' ),
+				20160727
+			);
 
 			?>
 			<p>

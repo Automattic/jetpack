@@ -787,7 +787,14 @@ function grunion_enable_spam_recheck() {
 	}
 
 	// Add the scripts that handle the spam check event.
-	wp_register_script( 'grunion-admin', plugin_dir_url( __FILE__ ) . 'js/grunion-admin.js', array( 'jquery' ) );
+	wp_register_script(
+		'grunion-admin',
+		Jetpack::get_file_url_for_environment(
+			'_inc/build/contact-form/js/grunion-admin.min.js',
+			'modules/contact-form/js/grunion-admin.js'
+		),
+		array( 'jquery' )
+	);
 	wp_enqueue_script( 'grunion-admin' );
 
 	wp_enqueue_style( 'grunion.css' );

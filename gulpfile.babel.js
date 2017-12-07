@@ -80,7 +80,26 @@ function onBuild( done ) {
 		const is_prod = 'production' === process.env.NODE_ENV;
 
 		const supportedModules = [
-			'shortcodes'
+			'shortcodes',
+			'widgets',
+			'after-the-deadline',
+			'widget-visibility',
+			'custom-css',
+			'publicize',
+			'custom-post-types',
+			'sharedaddy',
+			'contact-form',
+			'photon',
+			'carousel',
+			'related-posts',
+			'tiled-gallery',
+			'likes',
+			'minileven',
+			'infinite-scroll',
+			'masterbar',
+			'videopress',
+			'comment-likes',
+			'lazy-images'
 		];
 
 		// Source any JS for whitelisted modules, which will minimize us shipping much
