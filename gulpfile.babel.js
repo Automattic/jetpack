@@ -97,7 +97,8 @@ function onBuild( done ) {
 			'minileven',
 			'infinite-scroll',
 			'masterbar',
-			'videopress'
+			'videopress',
+			'comment-likes'
 		];
 
 		// Source any JS for whitelisted modules, which will minimize us shipping much
