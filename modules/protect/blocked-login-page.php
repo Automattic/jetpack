@@ -382,7 +382,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 					box-sizing: border-box;
 					background: white;
 					box-shadow: 0 0 0 1px rgba(200, 215, 225, 0.5), 0 1px 2px #e9eff3;
-					padding: 32px;
+					padding: 24px;
 				}
 
 				#error-message img {
@@ -397,7 +397,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 				#error-page p {
 					font-size: 14px;
 					line-height: 1.5;
-					margin: 25px 0 20px;
+					margin: 24px 0 0;
 				}
 
 				#error-page code {
