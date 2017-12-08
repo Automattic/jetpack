@@ -534,13 +534,12 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $label, $sanitized->name );
 		$this->assertEquals( 'Posts', $sanitized->label );
 		$this->assertEquals( '', $sanitized->description );
-		$this->assertEquals( $label, $sanitized->rewrite->slug );
+		$this->assertEquals( $label, $sanitized->rewrite['slug'] );
 		$this->assertEquals( $label, $sanitized->query_var );
 		$this->assertEquals( 'post', $sanitized->capability_type );
 		$this->assertEquals( array(), $sanitized->taxonomies );
 		$this->assertEquals( array(), $sanitized->supports );
 		$this->assertEquals( '', $sanitized->_edit_link );
-
 
 		$this->assertFalse( $sanitized->public );
 		$this->assertFalse( $sanitized->has_archive );
@@ -557,7 +556,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( $sanitized->can_export );
 		$this->assertTrue( $sanitized->map_meta_cap );
 		$this->assertTrue( is_object( $sanitized->labels ) );
-		$this->assertTrue( is_object( $sanitized->rewrite ) );
+		$this->assertTrue( is_array( $sanitized->rewrite ) );
 		$this->assertTrue( is_object( $sanitized->cap ) );
 
 	}
