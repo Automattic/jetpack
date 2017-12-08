@@ -17,7 +17,6 @@ class Jetpack_Protect_Blocked_Login_Page {
 	public $can_send_recovery_emails;
 	public $ip_address;
 	public $valid_blocked_user_id;
-	public $page_title;
 	public $email_address;
 	const HELP_URL = 'https://jetpack.com/support/security-features/#unblock';
 	const HTTP_STATUS_CODE_TOO_MANY_REQUESTS = 429;
@@ -183,8 +182,6 @@ class Jetpack_Protect_Blocked_Login_Page {
 	}
 
 	public function render_and_die() {
-		$this->page_title = __( 'Login Blocked by Jetpack', 'jetpack' );
-
 		if ( ! $this->can_send_recovery_emails ) {
 			$this->render_blocked_login_message();
 
@@ -192,7 +189,8 @@ class Jetpack_Protect_Blocked_Login_Page {
 		}
 
 		if ( isset( $_GET['validate_jetpack_protect_recovery'] ) && $_GET['user_id'] ) {
-			$this->protect_die( __( "Oops, we couldn't validate the recovery token.", 'jetpack' ) );
+			$error = new WP_Error( 'invalid_token', __( "Oops, we couldn't validate the recovery token.", 'jetpack' ) );
+			$this->protect_die( $error );
 
 			return;
 		}
@@ -222,8 +220,8 @@ class Jetpack_Protect_Blocked_Login_Page {
 		$sent = $this->send_recovery_email();
 		$show_recovery_form = true;
 		if ( is_wp_error( $sent ) ) {
-			if ( 'email_already_sent' !== $sent->get_error_code() ) {
-				$show_recovery_form = true;
+			if ( 'email_already_sent' === $sent->get_error_code() ) {
+				$show_recovery_form = false;
 			}
 			$this->protect_die( $sent,null,true, $show_recovery_form );
 		} else {
@@ -274,7 +272,8 @@ class Jetpack_Protect_Blocked_Login_Page {
 			$title = __( 'Jetpack has locked your site\'s login page.', 'jetpack' );
 		}
 		if ( is_wp_error( $content ) ) {
-			$content = $content->get_error_message();
+			$svg = '<svg class="gridicon gridicons-notice" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M12 2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm1 15h-2v-2h2v2zm0-4h-2l-.5-6h3l-.5 6z"/></g></svg>';
+			$content = '<span class="error"> '. $svg . $content->get_error_message() . '</span>';
 		}
 		$content =  '<p>'. $content .'</p>';
 
@@ -335,7 +334,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 		}
 
 		$text_direction = 'ltr';
-		if ( is_rtl() ) {
+		if ( is_rtl() || true ) {
 			$text_direction = 'rtl';
 		}
 		?>
@@ -365,8 +364,11 @@ class Jetpack_Protect_Blocked_Login_Page {
 					margin: 2em auto;
 					padding: 1em 2em;
 					max-width: 460px;
-					}
-
+					text-align: left;
+				}
+				body.is-rtl {
+					text-align: right;
+				}
 				h1 {
 					clear: both;
 					color: #3d596d;
@@ -380,7 +382,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 					box-sizing: border-box;
 					background: white;
 					box-shadow: 0 0 0 1px rgba(200, 215, 225, 0.5), 0 1px 2px #e9eff3;
-					padding:32px;
+					padding: 32px;
 				}
 
 				#error-message img {
@@ -501,6 +503,32 @@ class Jetpack_Protect_Blocked_Login_Page {
 					margin-right:8px;
 				}
 
+				.is-rtl #error-footer .gridicons-help {
+					margin-left:8px;
+				}
+
+				.error {
+					background: #d94f4f;
+					color:#FFF;
+					display: block;
+					border-radius: 3px;
+					line-height: 1.5;
+					padding: 16px;
+					padding-left: 42px;
+				}
+				.is-rtl .error {
+					padding-right: 42px;
+				}
+				.error .gridicon {
+					float: left;
+					margin-left: -32px;
+				}
+
+				.is-rtl .error .gridicon {
+					float: right;
+					margin-right: -32px;
+				}
+
 				.text-input {
 					margin: 0;
 					padding: 7px 14px;
@@ -520,13 +548,15 @@ class Jetpack_Protect_Blocked_Login_Page {
 					margin: 0 auto;
 				}
 				<?php
+				$rtl_class = '';
 				if ( 'rtl' == $text_direction ) {
+					$rtl_class = 'class="is-rtl"';
 					echo 'body { font-family: Tahoma, Arial; }';
 				}
 				?>
 			</style>
 		</head>
-		<body id="error-page">
+		<body id="error-page" <?php echo $rtl_class; ?>>
 			<h1 id="error-title"><?php echo esc_html( $title ); ?></h1>
 			<div id="error-message">
 				<svg id="image" xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 250 134">
@@ -561,7 +591,11 @@ class Jetpack_Protect_Blocked_Login_Page {
 			</div>
 			<div id="error-footer">
 			<?php if ( $back_button && ! $recovery_form ) {
-				$back_button_icon = '<svg class="gridicon gridicons-arrow-left" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></g></svg>';
+				if (  'rtl' == $text_direction ) {
+					$back_button_icon = '<svg class="gridicon gridicons-arrow-right" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8-8-8z"/></g></svg>';
+				} else {
+					$back_button_icon = '<svg class="gridicon gridicons-arrow-left" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></g></svg>';
+				}
 			?>
 				<a href='javascript:history.back()'><?php printf( __( '%s Back' ), $back_button_icon ); ?></a>
 			<?php } else {
