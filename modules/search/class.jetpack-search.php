@@ -1250,7 +1250,7 @@ class Jetpack_Search {
 								     ! empty( $current_month ) && (int) $current_month === $month ) {
 									$active = true;
 
-									$remove_url = remove_query_arg( array( 'monthnum', 'day' ) );
+									$remove_url = remove_query_arg( array( 'year', 'monthnum' ) );
 								}
 
 								break;
