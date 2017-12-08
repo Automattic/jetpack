@@ -197,7 +197,7 @@ class Jetpack_Sync_Defaults {
 
 
 	static $default_post_type_attributes = array(
-		'name'				  => '',
+		'name'                => '',
 		'label'               => '',
 		'labels'              => array(),
 		'description'         => '',
@@ -211,10 +211,10 @@ class Jetpack_Sync_Defaults {
 		'show_in_admin_bar'   => false,
 		'menu_position'       => null,
 		'menu_icon'           => null,
-		'supports'			  => array(),
+		'supports'            => array(),
 		'capability_type'     => 'post',
 		'capabilities'        => array(),
-		'cap'				  => array(),
+		'cap'                 => array(),
 		'map_meta_cap'        => true,
 		'taxonomies'          => array(),
 		'has_archive'         => false,
