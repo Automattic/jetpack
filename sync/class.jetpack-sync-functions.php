@@ -80,14 +80,13 @@ class Jetpack_Sync_Functions {
 
 	public static function sanitize_post_type( $post_type ) {
 		// Lets clone the post type object instead of modifing the global one.
-		$cloned_post_type = json_decode( wp_json_encode( $post_type ) );
-		$cleaned_cloned_post_type = array();
+		$sanitized_post_type = array();
 		foreach ( Jetpack_Sync_Defaults::$default_post_type_attributes as $attribute_key => $default_value ) {
-			if ( isset( $cloned_post_type->{ $attribute_key } ) ) {
-				$cleaned_cloned_post_type[ $attribute_key ] = $cloned_post_type->{ $attribute_key };
+			if ( isset( $post_type->{ $attribute_key } ) ) {
+				$sanitized_post_type[ $attribute_key ] = $post_type->{ $attribute_key };
 			}
 		}
-		return (object) $cleaned_cloned_post_type;
+		return (object) $sanitized_post_type;
 	}
 
 	public static function expand_synced_post_type( $sanitized_post_type, $post_type ) {

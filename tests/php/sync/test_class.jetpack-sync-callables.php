@@ -512,6 +512,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$post_type_object->register_taxonomies();
 
 		$sanitized = Jetpack_Sync_Functions::sanitize_post_type( $post_type_object );
+		var_dump( $sanitized );
 		$this->assert_sanitized_post_type_default( $sanitized, $label );
 
 	}
