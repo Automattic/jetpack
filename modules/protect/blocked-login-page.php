@@ -334,7 +334,7 @@ class Jetpack_Protect_Blocked_Login_Page {
 		}
 
 		$text_direction = 'ltr';
-		if ( is_rtl() || true ) {
+		if ( is_rtl() ) {
 			$text_direction = 'rtl';
 		}
 		?>
