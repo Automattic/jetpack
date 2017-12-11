@@ -60,6 +60,64 @@ class WP_Test_Lazy_Images extends WP_UnitTestCase {
 		);
 	}
 
+	function get_process_image_attributes_data() {
+		return array(
+			'img_with_no_src' => array(
+				array(
+					'width' => 10,
+					'height' => 10
+				),
+				array(
+					'width' => 10,
+					'height' => 10,
+				)
+			),
+			'img_simple' => array(
+				array(
+					'src' => 'image.jpg',
+					'width' => 10,
+					'height' => 10,
+				),
+				array(
+					'src' => 'placeholder.jpg',
+					'width' => 10,
+					'height' => 10,
+					'data-lazy-src' => 'image.jpg',
+				),
+			),
+			'img_with_srcset' => array(
+				array(
+					'src' => 'image.jpg',
+					'width' => 10,
+					'height' => 10,
+					'srcset' => 'medium.jpg 1000w, large.jpg 2000w'
+				),
+				array(
+					'src' => 'placeholder.jpg',
+					'width' => 10,
+					'height' => 10,
+					'data-lazy-src' => 'image.jpg',
+					'data-lazy-srcset' => 'medium.jpg 1000w, large.jpg 2000w'
+				)
+			),
+			'img_with_sizes' => array(
+				array(
+					'src' => 'image.jpg',
+					'width' => 10,
+					'height' => 10,
+					'sizes' => '(min-width: 36em) 33.3vw, 100vw'
+				),
+				array(
+					'src' => 'placeholder.jpg',
+					'width' => 10,
+					'height' => 10,
+					'data-lazy-src' => 'image.jpg',
+					'data-lazy-sizes' => '(min-width: 36em) 33.3vw, 100vw'
+				)
+			),
+		);
+	}
+
 	function test_process_image_attribute_filter() {
 		add_filter( 'jetpack_lazy_images_new_attributes', array( $this, '__set_height_attribute' ) );
 
@@ -75,6 +133,18 @@ class WP_Test_Lazy_Images extends WP_UnitTestCase {
 		$expected_html = '<img src="placeholder.jpg" data-lazy-src="image.jpg" style="height: 100px;"><noscript><img src="image.jpg" sizes="(min-width: 36em) 33.3vw, 100vw" /></noscript>';
 	}
 
+	function test_wp_get_attachment_image_gets_lazy_treatment() {
+		$attachment_id = $this->factory->attachment->create_upload_object( JETPACK__PLUGIN_DIR . 'tests/php/jetpack-icon.jpg', 0 );
+		add_filter( 'wp_get_attachment_image_attributes', array( 'Jetpack_Lazy_Images', 'process_image_attributes' ), PHP_INT_MAX );
+		$image = wp_get_attachment_image( $attachment_id );
+		remove_filter( 'wp_get_attachment_image_attributes', array( 'Jetpack_Lazy_Images', 'process_image_attributes' ), PHP_INT_MAX );
+
+		$image_src = wp_get_attachment_image_src( $attachment_id );
+
+		$this->assertContains( 'src="placeholder.jpg"', $image );
+		$this->assertContains( sprintf( 'data-lazy-src="%s"', $image_src[0] ), $image );
+	}
+
 	/**
 	 * @dataProvider get_process_image_test_data
 	 */
@@ -86,6 +156,13 @@ class WP_Test_Lazy_Images extends WP_UnitTestCase {
 
 	function test_add_image_placeholders() {
 		$this->assertSame( $this->__get_output_content(), Jetpack_Lazy_Images::instance()->add_image_placeholders( $this->__get_input_content() ) );
+	}
+
+	/**
+	 * @dataProvider get_process_image_attributes_data
+	 */
+	function test_process_image_attributes( $input, $expected_output ) {
+		$this->assertSame( Jetpack_Lazy_Images::process_image_attributes( $input ), $expected_output );
 	}
 
 	/*
