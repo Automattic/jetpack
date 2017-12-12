@@ -341,6 +341,8 @@ class Jetpack_Sync_Defaults {
 		 *
 		 * @module sync
 		 *
+		 * @since 5.7
+		 *
 		 * @param array The default list of comment meta data keys.
 		 */
 		return apply_filters( 'jetpack_sync_comment_meta_whitelist', self::$comment_meta_whitelist );
