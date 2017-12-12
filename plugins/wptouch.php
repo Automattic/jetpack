@@ -141,5 +141,3 @@ function wpsc_wptouch_list( $list ) {
 	return $list;
 }
 add_cacheaction( 'wpsc_filter_list', 'wpsc_wptouch_list' );
-
-?>

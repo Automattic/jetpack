@@ -89,5 +89,3 @@ function wpsc_cache_jetpack_list( $list ) {
 	return $list;
 }
 add_cacheaction( 'wpsc_filter_list', 'wpsc_cache_jetpack_list' );
-
-?>

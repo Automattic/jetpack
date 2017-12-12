@@ -186,4 +186,3 @@ if ( '' !== DYNAMIC_OUTPUT_BUFFER_TAG ) {
 	}
 	add_cacheaction( 'wpsc_cachedata_safety', 'dynamic_output_buffer_test_safety' );
 }
-?>

@@ -130,5 +130,3 @@ function wpsc_domain_mapping_list( $list ) {
 	return $list;
 }
 add_cacheaction( 'wpsc_filter_list', 'wpsc_domain_mapping_list' );
-
-?>

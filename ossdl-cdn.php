@@ -3,19 +3,19 @@
 /* Taken from OSSDL CDN off-linker, a plugin by W-Mark Kubacki (http://mark.ossdl.de/) and used with permission */
 
 /* Set up some defaults */
-if ( get_option( 'ossdl_off_cdn_url' ) == false ) {
+if ( get_option( 'ossdl_off_cdn_url' ) === false ) {
 	add_option( 'ossdl_off_cdn_url', get_option( 'siteurl' ) );
 }
-if ( get_option( 'ossdl_off_blog_url' ) == false ) {
+if ( get_option( 'ossdl_off_blog_url' ) === false ) {
 	add_option( 'ossdl_off_blog_url', apply_filters( 'ossdl_off_blog_url', untrailingslashit( get_option( 'siteurl' ) ) ) );
 }
 $ossdl_off_blog_url = get_option( 'ossdl_off_blog_url' );
 $ossdl_off_cdn_url  = trim( get_option( 'ossdl_off_cdn_url' ) );
-if ( get_option( 'ossdl_off_include_dirs' ) == false ) {
+if ( get_option( 'ossdl_off_include_dirs' ) === false ) {
 	add_option( 'ossdl_off_include_dirs', 'wp-content,wp-includes' );
 }
 $ossdl_off_include_dirs = trim( get_option( 'ossdl_off_include_dirs' ) );
-if ( get_option( 'ossdl_off_exclude' ) == false ) {
+if ( get_option( 'ossdl_off_exclude' ) === false ) {
 	add_option( 'ossdl_off_exclude', '.php' );
 }
 $ossdl_off_exclude = trim( get_option( 'ossdl_off_exclude' ) );
@@ -37,9 +37,10 @@ if ( $arr_of_cnames[0] == '' ) {
 /**
  * Determines whether to exclude a match.
  *
- * @param String $match URI to examine
- * @param Array  $excludes array of "badwords"
- * @return Boolean true if to exclude given match from rewriting
+ * @param string $match    URI to examine.
+ * @param array  $excludes Array of "badwords".
+ *
+ * @return boolean true if to exclude given match from rewriting.
  */
 function scossdl_off_exclude_match( $match, $excludes ) {
 	foreach ( $excludes as $badword ) {
@@ -50,15 +51,19 @@ function scossdl_off_exclude_match( $match, $excludes ) {
 	return false;
 }
 
- /**
-  * Compute string modulo, based on SHA1 hash
-  */
-function scossdl_string_mod( $s, $mod ) {
-	/*
-	 The full SHA1 is too large for PHP integer types. This should be
+/**
+ * Compute string modulo, based on SHA1 hash
+ *
+ * @param string $str
+ * @param int    $mod
+ *
+ * @return int
+ */
+function scossdl_string_mod( $str, $mod ) {
+	/* The full SHA1 is too large for PHP integer types. This should be
 	 * enough for our purpose */
-	$n = hexdec( substr( sha1( $s ), 0, 5 ) );
-	return $n % $mod;
+	$num = hexdec( substr( sha1( $str ), 0, 5 ) );
+	return $num % $mod;
 }
 
 /**
@@ -73,25 +78,25 @@ function scossdl_off_rewriter( $match ) {
 		return $match[0];
 	}
 
-	if ( $ossdl_https && substr( $match[0], 0, 5 ) == 'https' ) {
+	if ( $ossdl_https && 0 === strncmp( $match[0], 'https', 5 ) ) {
 		return $match[0];
 	}
 
-	if ( false == in_array( $ossdl_off_cdn_url, $arr_of_cnames ) ) {
+	if ( false === in_array( $ossdl_off_cdn_url, $arr_of_cnames ) ) {
 		$arr_of_cnames[] = $ossdl_off_cdn_url;
 	}
 
 	if ( scossdl_off_exclude_match( $match[0], $arr_of_excludes ) ) {
 		return $match[0];
-	} else {
-		$include_dirs = scossdl_off_additional_directories();
-		if ( preg_match( '/' . $include_dirs . '/', $match[0] ) ) {
-			$offset = scossdl_string_mod( $match[1], count( $arr_of_cnames ) );
-			return str_replace( $ossdl_off_blog_url, $arr_of_cnames[ $offset ], $match[0] );
-		} else {
-			return $match[0];
-		}
 	}
+
+	$include_dirs = scossdl_off_additional_directories();
+	if ( preg_match( '/' . $include_dirs . '/', $match[0] ) ) {
+		$offset = scossdl_string_mod( $match[1], count( $arr_of_cnames ) );
+		return str_replace( $ossdl_off_blog_url, $arr_of_cnames[ $offset ], $match[0] );
+	}
+
+	return $match[0];
 }
 
 /**
@@ -100,13 +105,14 @@ function scossdl_off_rewriter( $match ) {
  * @return String with the pattern with {@literal |} as prefix, or empty
  */
 function scossdl_off_additional_directories() {
-	global $ossdl_off_include_dirs;
-	$input = explode( ',', $ossdl_off_include_dirs );
-	if ( $ossdl_off_include_dirs == '' || count( $input ) < 1 ) {
-		return 'wp\-content|wp\-includes';
-	} else {
-		return implode( '|', array_map( 'quotemeta', array_map( 'trim', $input ) ) );
-	}
+        global $ossdl_off_include_dirs;
+
+        $arr_dirs = explode( ',', $ossdl_off_include_dirs );
+        if ( $ossdl_off_include_dirs == '' || count( $arr_dirs ) < 1 ) {
+               return 'wp\-content|wp\-includes';
+        }
+
+        return implode( '|', array_map( 'preg_quote', array_map( 'trim', $arr_dirs ) ) );
 }
 
 /**
@@ -114,13 +120,14 @@ function scossdl_off_additional_directories() {
  */
 function scossdl_off_filter( $content ) {
 	global $ossdl_off_blog_url, $ossdl_off_cdn_url;
+
 	if ( $ossdl_off_blog_url == $ossdl_off_cdn_url ) { // no rewrite needed
 		return $content;
-	} else {
-		$dirs  = scossdl_off_additional_directories();
-		$regex = '#(?<=[(\"\'])' . quotemeta( $ossdl_off_blog_url ) . '/(?:((?:' . $dirs . ')[^\"\')]+)|([^/\"\']+\.[^/\"\')]+))(?=[\"\')])#';
-		return preg_replace_callback( $regex, 'scossdl_off_rewriter', $content );
 	}
+
+	$dirs  = scossdl_off_additional_directories();
+	$regex = '#(?<=[(\"\'])' . preg_quote( $ossdl_off_blog_url ) . '/(?:((?:' . $dirs . ')[^\"\')]+)|([^/\"\']+\.[^/\"\')]+))(?=[\"\')])#';
+	return preg_replace_callback( $regex, 'scossdl_off_rewriter', $content );
 }
 
 /**
@@ -140,31 +147,27 @@ if ( $ossdlcdn == 1 ) {
 }
 
 function scossdl_off_update() {
-	global $ossdlcdn, $wp_cache_config_file;
 
-	$valid_nonce = isset( $_REQUEST['_wpnonce'] ) ? wp_verify_nonce( $_REQUEST['_wpnonce'], 'wp-cache' ) : false;
-
-	if ( $valid_nonce && isset( $_POST['action'] ) && ( $_POST['action'] == 'update_ossdl_off' ) ) {
+	if ( isset( $_POST['action'], $_POST['_wpnonce'] )
+		&& 'update_ossdl_off' === $_POST['action']
+		&& wp_verify_nonce( $_POST['_wpnonce'], 'wp-cache' )
+	) {
 		update_option( 'ossdl_off_cdn_url', untrailingslashit( $_POST['ossdl_off_cdn_url'] ) );
 		update_option( 'ossdl_off_blog_url', untrailingslashit( $_POST['ossdl_off_blog_url'] ) );
 		update_option( 'ossdl_off_include_dirs', $_POST['ossdl_off_include_dirs'] == '' ? 'wp-content,wp-includes' : $_POST['ossdl_off_include_dirs'] );
 		update_option( 'ossdl_off_exclude', $_POST['ossdl_off_exclude'] );
 		update_option( 'ossdl_cname', $_POST['ossdl_cname'] );
-		if ( ! isset( $_POST['ossdl_https'] ) ) {
-			$_POST['ossdl_https'] = 0;
-		}
-		update_option( 'ossdl_https', (int) $_POST['ossdl_https'] );
-		if ( isset( $_POST['ossdlcdn'] ) ) {
-			$ossdlcdn = 1;
-		} else {
-			$ossdlcdn = 0;
-		}
-		wp_cache_replace_line( '^ *\$ossdlcdn', "\$ossdlcdn = $ossdlcdn;", $wp_cache_config_file );
+
+		$ossdl_https = empty( $_POST['ossdl_https'] ) ? 0 : 1;
+		$ossdlcdn    = empty( $_POST['ossdlcdn'] ) ? 0 : 1;
+
+		update_option( 'ossdl_https', $ossdl_https );
+		wp_cache_setting( 'ossdlcdn', $ossdlcdn );
 	}
 }
 
 function scossdl_off_options() {
-	global $ossdlcdn, $wp_cache_config_file, $ossdl_off_blog_url;
+	global $ossdlcdn, $ossdl_off_blog_url;
 
 	scossdl_off_update();
 
@@ -239,4 +242,3 @@ function scossdl_off_options() {
 		<p><?php _e( 'CDN functionality provided by <a href="https://wordpress.org/plugins/ossdl-cdn-off-linker/">OSSDL CDN Off Linker</a> by <a href="http://mark.ossdl.de/">Mark Kubacki</a>', 'wp-super-cache' ); ?></p>
 	<?php
 }
-?>

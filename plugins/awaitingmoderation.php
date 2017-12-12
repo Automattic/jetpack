@@ -63,4 +63,3 @@ function wpsc_awaiting_moderation_list( $list ) {
 	return $list;
 }
 add_cacheaction( 'wpsc_filter_list', 'wpsc_awaiting_moderation_list' );
-?>

@@ -101,5 +101,3 @@ function wpsc_badbehaviour_list( $list ) {
 	return $list;
 }
 add_cacheaction( 'wpsc_filter_list', 'wpsc_badbehaviour_list' );
-
-?>

@@ -20,11 +20,13 @@ function wp_super_cache_blogs_field( $name, $blog_id ) {
 		return false;
 	}
 
-	if ( isset( $_GET['id'] ) && $blog_id === $_GET['id'] ) {
-		$valid_nonce = isset( $_GET['_wpnonce'] ) ? wp_verify_nonce( $_GET['_wpnonce'], 'wp-cache' . $_GET['id'] ) : false;
-		if ( $valid_nonce && isset( $_GET['action'] ) && 'disable_cache' === $_GET['action'] ) {
+	if ( isset( $_GET['id'], $_GET['action'], $_GET['_wpnonce'] )
+		&& $blog_id === intval( $_GET['id'] )
+		&& wp_verify_nonce( $_GET['_wpnonce'], 'wp-cache' . $blog_id )
+	) {
+		if ( 'disable_cache' === $_GET['action'] ) {
 			add_blog_option( $_GET['id'], 'wp_super_cache_disabled', 1 );
-		} elseif ( $valid_nonce && isset( $_GET['action'] ) && 'enable_cache' ===  $_GET['action'] ) {
+		} elseif ( 'enable_cache' ===  $_GET['action'] ) {
 			delete_blog_option( $_GET['id'], 'wp_super_cache_disabled' );
 		}
 	}
@@ -58,5 +60,3 @@ function wp_super_cache_override_on_flag() {
 		}
 	}
 }
-
-?>
