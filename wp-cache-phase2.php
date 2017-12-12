@@ -1922,8 +1922,9 @@ function wp_cache_get_ob(&$buffer) {
 			wp_cache_set( $oc_key, $buffer, 'supercache', $cache_max_time );
 		}
 		$wp_cache_meta[ 'dynamic' ] = true;
-		if ( do_cacheaction( 'wpsc_cachedata_safety', 0 ) === 1 )
+		if ( $wp_cache_mfunc_enabled == 1 && do_cacheaction( 'wpsc_cachedata_safety', 0 ) === 1 ) {
 			$buffer = do_cacheaction( 'wpsc_cachedata', $buffer ); // dynamic content for display
+		}
 
 		if ( $cache_compression && $wp_cache_gzip_encoding ) {
 			wp_cache_debug( "Gzipping dynamic buffer for display.", 5 );
