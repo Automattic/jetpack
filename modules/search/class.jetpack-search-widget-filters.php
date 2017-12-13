@@ -138,7 +138,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			<?php $this->render_active_buckets( $active_buckets ); ?>
 			<?php if ( count( $active_buckets ) > 1 ) : ?>
 				<li>
-					<a href="<?php esc_url( add_query_arg( 's', get_query_var( 's' ), home_url() ) ); ?>">
+					<a href="<?php echo esc_url( add_query_arg( 's', get_query_var( 's' ), home_url() ) ); ?>">
 						<?php echo esc_html__( 'x Remove All Filters', 'jetpack' ); ?>
 					</a>
 				</li>
