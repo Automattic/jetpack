@@ -4032,6 +4032,23 @@ p {
 					wp_safe_redirect( Jetpack::admin_url( array( 'page' => $redirect ) ) );
 				}
 				exit;
+			case 'onboard' :
+				if ( ! current_user_can( 'manage_options' ) ) {
+					wp_safe_redirect( Jetpack::admin_url( 'page=jetpack' ) );
+				} else {
+					$user = wp_get_current_user();
+					$client_id = $user->user_email;
+					$token = Jetpack::create_onboarding_token();
+					$redirect = add_query_arg( array(
+						'site'         => Jetpack::build_raw_urls( home_url() ),
+						'client_id'   => $client_id,
+						'token'       => $token,
+						// TODO: Remove calypso_env when we enable JPO in Calypso staging
+						'calypso_env' => 'development',
+					), Jetpack::api_url( 'onboard' ) );
+					wp_redirect( $redirect );
+				}
+				exit;
 			default:
 				/**
 				 * Fires when a Jetpack admin page is loaded with an unrecognized parameter.
