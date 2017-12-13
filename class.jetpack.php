@@ -4033,7 +4033,11 @@ p {
 				}
 				exit;
 			case 'onboard' :
-				if ( ! current_user_can( 'manage_options' ) ) {
+				$user_can = is_multisite()
+					? current_user_can_for_blog( get_current_blog_id(), 'manage_options' )
+					: current_user_can( 'manage_options' );
+
+				if ( ! $user_can ) {
 					wp_safe_redirect( Jetpack::admin_url( 'page=jetpack' ) );
 				} else {
 					$user = wp_get_current_user();
