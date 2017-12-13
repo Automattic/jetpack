@@ -194,7 +194,7 @@ abstract class WPCOM_JSON_API_Comment_Endpoint extends WPCOM_JSON_API_Endpoint {
 				);
 				break;
 			case 'can_moderate':
-				$response[$key] = (bool) current_user_can( 'edit_comment', $comment_id );
+				$response[ $key ] = (bool) current_user_can( 'edit_comment', $comment_id );
 				break;
 			}
 		}
