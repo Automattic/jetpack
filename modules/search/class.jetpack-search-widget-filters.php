@@ -14,10 +14,10 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		parent::__construct(
 			'jetpack-search-filters',
 			/** This filter is documented in modules/widgets/facebook-likebox.php */
-			apply_filters( 'jetpack_widget_name', esc_html__( 'Search Filters', 'jetpack' ) ),
+			apply_filters( 'jetpack_widget_name', esc_html__( 'Search Facets & Filters', 'jetpack' ) ),
 			array(
 				'classname'   => 'jetpack-filters',
-				'description' => __( 'Displays search result filters when viewing search results.', 'jetpack' ),
+				'description' => __( 'Displays search result faceting and filters when viewing search results.', 'jetpack' ),
 			)
 		);
 	}
@@ -53,23 +53,26 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 
 		$title = $instance['title'];
 
-		if ( empty( $title ) ) {
-			$title = __( 'Filter By', 'jetpack' );
-		}
-
 		/** This filter is documented in core/src/wp-includes/default-widgets.php */
 		$title = apply_filters( 'widget_title', $title, $instance, $this->id_base );
 
 		echo $args['before_widget'];
 
-		echo $args['before_title'] . esc_html( $title ) . $args['after_title'];
+		if ( !empty( $title ) ) {
+			echo $args['before_title'] . esc_html( $title ) . $args['after_title'];
+		}
 
 		if ( ! empty( $active_buckets ) ) {
-			echo '<h3>' . esc_html__( 'Current Filters', 'jetpack' ) . '</h3>';
+			//TODO: add config option
+			$current_filters_header = '';
+			if ( !empty( $current_filters_header ) ) {
+				echo '<h4>' . esc_html( $current_filters_header ) . '</h4>';
+			}
 
 			echo '<ul>';
 
 			foreach ( $active_buckets as $item ) {
+				//TODO: add a button with a Genericon close. Similar styling to like buttons
 				echo '<li><a href="' . esc_url( $item['remove_url'] ) . '">' . sprintf( _x( '(X) %1$s: %2$s', 'aggregation widget: active filter type and name', 'jetpack' ), esc_html( $item['type_label'] ), esc_html( $item['name'] ) ) . '</a></li>';
 			}
 
@@ -77,7 +80,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 				echo '<li><a href="' . esc_url( add_query_arg( 's', get_query_var( 's' ), home_url() ) ) . '">' . esc_html__( 'Remove All Filters', 'jetpack' ) . '</a></li>';
 			}
 
-			echo '</ul>';
+			echo '</ul><br />';
 		}
 
 		foreach ( $filters as $label => $filter ) {
@@ -85,7 +88,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 				continue;
 			}
 
-			echo '<h3>' . esc_html( $label ) . '</h3>';
+			echo '<h4>' . esc_html( $label ) . '</h4>';
 
 			echo '<ul>';
 
@@ -97,7 +100,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 				echo '<li><a href="' . esc_url( $item['url'] ) . '">' . esc_html( $item['name'] ) . '</a> (' . number_format_i18n( absint( $item['count'] ) ) . ')</li>';
 			}
 
-			echo '</ul>';
+			echo '</ul><br />';
 		}
 
 		echo $args['after_widget'];
