@@ -53,6 +53,10 @@ class Jetpack_Carousel {
 			add_action( 'wp_ajax_nopriv_get_attachment_comments', array( $this, 'get_attachment_comments' ) );
 			add_action( 'wp_ajax_post_attachment_comment', array( $this, 'post_attachment_comment' ) );
 			add_action( 'wp_ajax_nopriv_post_attachment_comment', array( $this, 'post_attachment_comment' ) );
+
+			// Enqueue admin-only scripts
+			add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_admin_assets' ), 1 );
+			add_action( 'print_media_templates', array( $this, 'print_carousel_media_template' ) );
 		} else {
 			if ( ! $this->in_jetpack ) {
 				if ( 0 == $this->test_1or0_option( get_option( 'carousel_enable_it' ), true ) )
@@ -193,6 +197,24 @@ class Jetpack_Carousel {
 		$this->enqueue_assets();
 
 		return $output;
+	}
+
+	function enqueue_admin_assets() {
+		wp_enqueue_script(
+			'jetpack-carousel',
+			plugins_url( 'modules/carousel/carousel-media-modal.js', JETPACK__PLUGIN_FILE ),
+			array( 'media-views', 'jquery', 'media-widgets' )
+		);
+	}
+
+	function print_carousel_media_template() {
+		?>
+		<script type="text/html" id="tmpl-jetpack-carousel-media-notice">
+			<div style="background-color: white;">
+				Clicking thumbnails will always open a <a href="#">Carousel</a>
+			</div>
+		</script>
+		<?php
 	}
 
 	function enqueue_assets() {
