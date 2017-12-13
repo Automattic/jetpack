@@ -341,7 +341,7 @@ class Jetpack_Sync_Defaults {
 		 *
 		 * @module sync
 		 *
-		 * @since 5.7
+		 * @since 5.7.0
 		 *
 		 * @param array The default list of comment meta data keys.
 		 */
