@@ -100,7 +100,10 @@ function vp_is_interesting_file($file) {
  * @return array An array with 3 arrays of lines
  */
 function split_file_to_php_html( $file ) {
-	$source = file_get_contents( $file );
+	$source = @file_get_contents( $file );
+	if ( $source === false ) {
+		$source = '';
+	}
 	return split_to_php_html( $source );
 }
 
@@ -252,7 +255,11 @@ function vp_scan_file( $file, $tmp_file = null, $use_parser = false ) {
 		// if there is no filename_regex, we assume it's the same of vp_is_interesting_file().
 		if ( empty( $signature->filename_regex ) || preg_match( '#' . addcslashes( $signature->filename_regex, '#' ) . '#i', $file ) ) {
 			if ( null === $file_content || !is_array( $file_content ) ) {
-				$file_content = file( $real_file );
+				$file_content = @file( $real_file );
+
+				if ( $file_content === false ) {
+					return false;
+				}
 
 				if ( $use_parser ) {
 					$file_parsed = split_file_to_php_html( $real_file );
