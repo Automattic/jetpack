@@ -713,9 +713,9 @@ class Share_Twitter extends Sharing_Source {
 		$suffix_length = $this->short_url_length + $strlen( $sig );
 		// $sig is handled by twitter in their 'via' argument.
 		// $post_link is handled by twitter in their 'url' argument.
-		if ( 140 < $strlen( $post_title ) + $suffix_length ) {
+		if ( 280 < $strlen( $post_title ) + $suffix_length ) {
 			// The -1 is for "\xE2\x80\xA6", a UTF-8 ellipsis.
-			$text = $substr( $post_title, 0, 140 - $suffix_length - 1 ) . "\xE2\x80\xA6";
+			$text = $substr( $post_title, 0, 280 - $suffix_length - 1 ) . "\xE2\x80\xA6";
 		} else {
 			$text = $post_title;
 		}

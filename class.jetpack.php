@@ -4032,6 +4032,20 @@ p {
 					wp_safe_redirect( Jetpack::admin_url( array( 'page' => $redirect ) ) );
 				}
 				exit;
+			case 'onboard' :
+				if ( ! current_user_can( 'manage_options' ) ) {
+					wp_safe_redirect( Jetpack::admin_url( 'page=jetpack' ) );
+				} else {
+					Jetpack::create_onboarding_token();
+					$url = $this->build_connect_url( true );
+					$calypso_env = ! empty( $_GET[ 'calypso_env' ] ) ? $_GET[ 'calypso_env' ] : false;
+					if ( $calypso_env ) {
+						$url = add_query_arg( 'calypso_env', $calypso_env, $url );
+					}
+					wp_redirect( $url );
+					exit;
+				}
+				exit;
 			default:
 				/**
 				 * Fires when a Jetpack admin page is loaded with an unrecognized parameter.
