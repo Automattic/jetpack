@@ -28,10 +28,6 @@
 }
 
 /* When post type is selected, remove the other controls */
-.jetpack-search-filters-widget__filter.is-post_type .jetpack-search-filters-widget__post-type-select {
-	display: inline;
-}
-
 .jetpack-search-filters-widget__filter.is-post_type .jetpack-search-filters-widget__taxonomy-select {
 	display: none;
 }

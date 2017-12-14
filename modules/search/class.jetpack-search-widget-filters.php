@@ -225,19 +225,6 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 				</label>
 			</p>
 
-			<p class="jetpack-search-filters-widget__post-type-select">
-				<label>
-					<?php esc_html_e( 'Choose a post type:', 'jetpack' ); ?>
-					<select name="<?php echo esc_attr( $this->get_field_name( 'post_type' ) ); ?>[]" class="widefat">
-						<?php foreach ( get_post_types( false, 'objects' ) as $post_type ) : ?>
-							<option value="<?php echo esc_attr( $post_type->name ); ?>" <?php selected( $post_type->name, $args['post_type'] ); ?>>
-								<?php echo esc_html( $post_type->label ); ?>
-							</option>
-						<?php endforeach; ?>
-					</select>
-				</label>
-			</p>
-
 			<p>
 				<label>
 					<?php esc_html_e( 'Number of filters to display:', 'jetpack' ); ?>
