@@ -106,7 +106,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 = 5.6.1 =
 
 * Release date: December 14, 2017
-* Release post:
+* Release post: https://wp.me/p1moTy-6Jk
 
 * Contact Forms: Hardened security in Contact Form processing.
 * Sharing: Bumped the character limit to 280 when sharing a post to Twitter.
