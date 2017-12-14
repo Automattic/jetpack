@@ -123,7 +123,6 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 					$filters[] = array(
 						'name' => sanitize_text_field( $new_instance['filter_name'][ $index ] ),
 						'type' => 'post_type',
-						'post_type' => sanitize_key( $new_instance['post_type'][ $index ] ),
 						'count' => intval( $new_instance['num_filters'][ $index ] ),
 					);
 					break;
