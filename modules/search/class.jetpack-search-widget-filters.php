@@ -220,7 +220,6 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 							</option>
 						<?php endforeach; ?>
 					</select>
-				</select>
 				</label>
 			</p>
 
