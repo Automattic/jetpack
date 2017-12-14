@@ -156,6 +156,13 @@ class Jetpack_Related_Posts_Customize {
 			restore_previous_locale();
 		}
 
+		/**
+		 * Filter that is used to customize related posts option.
+		 *
+		 * @since 4.4.0
+		 *
+		 * @param mixed array post customize option.
+		 */
 		return apply_filters(
 			'jetpack_related_posts_customize_options', array(
 				'enabled'       => array(
