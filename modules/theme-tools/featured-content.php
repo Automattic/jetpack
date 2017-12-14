@@ -459,7 +459,7 @@ class Featured_Content {
 	 */
 	public static function customize_register( $wp_customize ) {
 		$wp_customize->add_section( 'featured_content', array(
-			'title'          => __( 'Featured Content', 'jetpack' ),
+			'title'          => esc_html__( 'Featured Content', 'jetpack' ),
 			'description'    => sprintf( __( 'Easily feature all posts with the <a href="%1$s">"featured" tag</a> or a tag of your choice. Your theme supports up to %2$s posts in its featured content area.', 'jetpack' ), admin_url( '/edit.php?tag=featured' ), absint( self::$max_posts ) ),
 			'priority'       => 130,
 			'theme_supports' => 'featured-content',
@@ -487,20 +487,20 @@ class Featured_Content {
 
 		// Add Featured Content controls.
 		$wp_customize->add_control( 'featured-content[tag-name]', array(
-			'label'          => __( 'Tag name', 'jetpack' ),
+			'label'          => esc_html__( 'Tag name', 'jetpack' ),
 			'section'        => 'featured_content',
 			'theme_supports' => 'featured-content',
 			'priority'       => 20,
 		) );
 		$wp_customize->add_control( 'featured-content[hide-tag]', array(
-			'label'          => __( 'Do not display tag in post details and tag clouds.', 'jetpack' ),
+			'label'          => esc_html__( 'Do not display tag in post details and tag clouds.', 'jetpack' ),
 			'section'        => 'featured_content',
 			'theme_supports' => 'featured-content',
 			'type'           => 'checkbox',
 			'priority'       => 30,
 		) );
 		$wp_customize->add_control( 'featured-content[show-all]', array(
-			'label'          => __( 'Also display tagged posts outside the Featured Content area.', 'jetpack' ),
+			'label'          => esc_html__( 'Also display tagged posts outside the Featured Content area.', 'jetpack' ),
 			'section'        => 'featured_content',
 			'theme_supports' => 'featured-content',
 			'type'           => 'checkbox',
