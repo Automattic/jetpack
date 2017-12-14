@@ -1,5 +1,5 @@
 ( function( $ ) {
-	$( document ).ready( function() {
+	var setListeners = function() {
 		var widget = $( '.jetpack-search-filters-widget' );
 
 		widget.on( 'change', '.filter-select', function() {
@@ -30,5 +30,18 @@
 			e.preventDefault();
 			$( this ).closest( '.jetpack-search-filters-widget__filter' ).remove();
 		} );
+	};
+
+	$( document ).ready( function() {
+		setListeners();
+	} );
+
+	// When widgets are updated, remove and re-add listeners
+	$( document ).on( 'widget-updated', function() {
+		var widget = $( '.jetpack-search-filters-widget' );
+		widget.off( 'change', '.filter-select' );
+		widget.off( 'click', '.jetpack-search-filters-widget__controls .add' );
+		widget.off( 'click', '.jetpack-search-filters-widget__controls .delete' );
+		setListeners();
 	} );
 } )( jQuery );
