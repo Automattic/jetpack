@@ -157,11 +157,13 @@ class Jetpack_Related_Posts_Customize {
 		}
 
 		/**
-		 * Filter that is used to customize related posts option.
+		 * The filter allows you to change the options used to display Related Posts in the Customizer.
+		 *
+		 * @module related-posts
 		 *
 		 * @since 4.4.0
 		 *
-		 * @param mixed array post customize option.
+		 * @param array $options Array of options used to display Related Posts in the Customizer.
 		 */
 		return apply_filters(
 			'jetpack_related_posts_customize_options', array(
