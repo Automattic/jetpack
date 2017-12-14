@@ -4033,11 +4033,7 @@ p {
 				}
 				exit;
 			case 'onboard' :
-				$user_can = is_multisite()
-					? current_user_can_for_blog( get_current_blog_id(), 'manage_options' )
-					: current_user_can( 'manage_options' );
-
-				if ( ! $user_can ) {
+				if ( ! current_user_can( 'manage_options' ) ) {
 					wp_safe_redirect( Jetpack::admin_url( 'page=jetpack' ) );
 				} else {
 					$token = Jetpack::create_onboarding_token();
