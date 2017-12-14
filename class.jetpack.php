@@ -4040,29 +4040,14 @@ p {
 				if ( ! $user_can ) {
 					wp_safe_redirect( Jetpack::admin_url( 'page=jetpack' ) );
 				} else {
-					$user = wp_get_current_user();
-					$client_id = $user->user_email;
 					$token = Jetpack::create_onboarding_token();
-
+					$url = $this->build_connect_url( true );
 					$calypso_env = ! empty( $_GET[ 'calypso_env' ] ) ? $_GET[ 'calypso_env' ] : false;
-					$allowed_envs = array(
-						'development',
-						'wpcalypso',
-						'horizon',
-						'stage',
-						'production',
-					);
-					if ( ! in_array( $calypso_env, $allowed_envs, true ) ) {
-						$calypso_env = 'production';
+					if ( $calypso_env ) {
+						$url = add_query_arg( 'calypso_env', $calypso_env, $url );
 					}
-
-					$redirect = add_query_arg( array(
-						'site'         => Jetpack::build_raw_urls( home_url() ),
-						'client_id'   => $client_id,
-						'token'       => $token,
-						'calypso_env' => $calypso_env,
-					), Jetpack::api_url( 'onboard' ) );
-					wp_redirect( $redirect );
+					wp_redirect( $url );
+					exit;
 				}
 				exit;
 			default:
