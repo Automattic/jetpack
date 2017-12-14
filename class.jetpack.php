@@ -4036,7 +4036,7 @@ p {
 				if ( ! current_user_can( 'manage_options' ) ) {
 					wp_safe_redirect( Jetpack::admin_url( 'page=jetpack' ) );
 				} else {
-					$token = Jetpack::create_onboarding_token();
+					Jetpack::create_onboarding_token();
 					$url = $this->build_connect_url( true );
 					$calypso_env = ! empty( $_GET[ 'calypso_env' ] ) ? $_GET[ 'calypso_env' ] : false;
 					if ( $calypso_env ) {
