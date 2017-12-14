@@ -103,6 +103,15 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
+= 5.6.1 =
+
+* Release date: December 14, 2017
+* Release post:
+
+* Contact Forms: Hardened security in Contact Form processing.
+* Sharing: Bumped the character limit to 280 when sharing a post to Twitter.
+* Widget Visibility: Fixed a bug that disabled "saving" the widget when removing a Widget Visibility rule.
+
 = 5.6 =
 
 * Release date: December 5, 2017
