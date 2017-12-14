@@ -96,10 +96,6 @@ class Jetpack_Search {
 
 			add_action( 'did_jetpack_search_query', array( $this, 'store_query_success' ) );
 			add_action( 'failed_jetpack_search_query', array( $this, 'store_query_failure' ) );
-
-			// add_action( 'init', array( $this, 'set_filters_from_widget' ) );
-			add_action( 'wp_register_sidebar_widget', array( $this, 'set_filters_from_widget' ) );
-			add_filter( 'widget_update_callback', array( $this, 'widget_update' ), 10, 3 );
 		}
 	}
 
@@ -127,16 +123,6 @@ class Jetpack_Search {
 		if ( $this->last_query_info ) {
 			echo '<!-- Jetpack Search took ' . intval( $this->last_query_info['elapsed_time'] ) . ' ms, ES time ' . $this->last_query_info['es_time'] . ' ms -->';
 		}
-	}
-
-	public function set_filters_from_widget( $widget ) {
-		// error_log( wp_json_encode( $widget ) );
-	}
-
-	public function widget_update( $instance, $new_instance, $old_instance ) {
-		error_log( print_r( $new_instance, true ) );
-
-		return $instance;
 	}
 
 	/*
