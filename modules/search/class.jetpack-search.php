@@ -140,6 +140,15 @@ class Jetpack_Search {
 		}
 	}
 
+	/**
+	 * When a Jetpack Search Filters widget is updated, stash the widget ID in an option
+	 * for easy retrieval later by this class.
+	 *
+	 * @since 5.7.0
+	 *
+	 * @param string $widget_id The widget ID
+	 * @return void
+	 */
 	function handle_filters_widget_update( $widget_id ) {
 		$widgets = get_option( self::KNOWN_WIDGETS_OPTION_NAME, array() );
 		if ( ! in_array( $widget_id, $widgets ) ) {
@@ -148,6 +157,14 @@ class Jetpack_Search {
 		}
 	}
 
+	/**
+	 * Retrives a list of known Jetpack search filters widget IDs, gets the filters for each widget,
+	 * and applies those filters to this Jetpack_Search object.
+	 *
+	 * @since 5.7.0
+	 *
+	 * @return void
+	 */
 	function set_filters_from_widgets() {
 		$widget_ids = get_option( self::KNOWN_WIDGETS_OPTION_NAME, array() );
 
