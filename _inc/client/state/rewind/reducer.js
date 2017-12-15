@@ -17,7 +17,7 @@ import {
 export const data = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case REWIND_STATUS_FETCH_RECEIVE:
-			return assign( {}, state, { action.siteData } );
+			return assign( {}, state, { status: action.status } );
 		default:
 			return state;
 	}
