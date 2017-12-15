@@ -95,6 +95,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'callback' => __CLASS__ . '::jetpack_connection_status',
 		) );
 
+		register_rest_route( 'jetpack/v4', '/rewind', array(
+			'methods' => WP_REST_Server::READABLE,
+			'callback' => __CLASS__ . '::jetpack_rewind_status',
+		) );
+
 		// Fetches a fresh connect URL
 		register_rest_route( 'jetpack/v4', '/connection/url', array(
 			'methods' => WP_REST_Server::READABLE,
@@ -643,6 +648,15 @@ class Jetpack_Core_Json_Api_Endpoints {
 					'url'      => site_url() && false === strpos( site_url(), '.' ),
 					'filter'   => apply_filters( 'jetpack_development_mode', false ),
 				),
+			)
+		);
+	}
+
+	public static function jetpack_rewind_status() {
+		error_log( 'HELLO FROM API POINT');
+		return rest_ensure_response( array(
+				'isActive'  => true,
+				'stuff' => 'foo'
 			)
 		);
 	}

@@ -21,6 +21,7 @@ import {
 export const data = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case JETPACK_SITE_DATA_FETCH_RECEIVE:
+			console.log( action );
 			return assign( {}, state, action.siteData );
 		case JETPACK_SITE_FEATURES_FETCH_RECEIVE:
 			return merge( {}, state, { siteFeatures: action.siteFeatures } );
