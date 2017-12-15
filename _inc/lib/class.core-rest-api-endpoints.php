@@ -700,6 +700,12 @@ class Jetpack_Core_Json_Api_Endpoints {
 				)
 			);
 		}
+
+		return new WP_Error(
+			'error_get_rewind_data',
+			esc_html__( 'Could not retrieve Rewind data.', 'jetpack' ),
+			array( 'status' => 500 )
+		);
 	}
 
 	/**
