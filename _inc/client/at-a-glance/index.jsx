@@ -7,7 +7,6 @@ import { translate as __ } from 'i18n-calypso';
 import analytics from 'lib/analytics';
 import chunk from 'lodash/chunk';
 import includes from 'lodash/includes';
-import get from 'lodash/get';
 
 /**
  * Internal dependencies
@@ -25,7 +24,6 @@ import DashPluginUpdates from './plugins';
 import DashPhoton from './photon';
 import DashConnections from './connections';
 import QuerySitePlugins from 'components/data/query-site-plugins';
-import QueryRewindStatus from 'components/data/query-rewind-status';
 import QuerySite from 'components/data/query-site';
 import {
 	userCanManageModules,
@@ -33,7 +31,7 @@ import {
 	userIsSubscriber
 } from 'state/initial-state';
 import { isDevMode } from 'state/connection';
-import { getRewindStatus } from 'state/rewind';
+import { getActiveFeatures } from 'state/site';
 
 const renderPairs = layout => layout.map( item => (
 	[
@@ -88,11 +86,12 @@ class AtAGlance extends Component {
 			<DashPluginUpdates { ...settingsProps } { ...urls } />
 		];
 
-		const rewindState = get( this.props.rewindStatus, [ 'state' ], false );
-		const showRewindCard = 'active' === rewindState;
-
-		// Maybe add the rewind card
-		showRewindCard && securityCards.unshift( <DashActivity { ...settingsProps } siteRawUrl={ this.props.siteRawUrl } /> );
+		// @todo: determine if rewind is active or not rather than just activity log
+		// const isRewindActive = includes( this.props.activeFeatures, 'jetpack-rewind' );
+		const showActivityLogCard = includes( this.props.activeFeatures, 'activity-log' );
+		
+		// Maybe add the activity log card
+		showActivityLogCard && securityCards.unshift( <DashActivity { ...settingsProps } siteRawUrl={ this.props.siteRawUrl } /> );
 
 		// If user can manage modules, we're in an admin view, otherwise it's a non-admin view.
 		if ( this.props.userCanManageModules ) {
@@ -100,7 +99,6 @@ class AtAGlance extends Component {
 				<div className="jp-at-a-glance">
 					<QuerySitePlugins />
 					<QuerySite />
-					<QueryRewindStatus />
 					<DashStats { ...settingsProps } { ...urls } />
 
 					{
@@ -162,7 +160,7 @@ export default connect(
 			userCanViewStats: userCanViewStats( state ),
 			userIsSubscriber: userIsSubscriber( state ),
 			isDevMode: isDevMode( state ),
-			rewindStatus: getRewindStatus( state ),
+			activeFeatures: getActiveFeatures( state ),
 		};
 	}
 )( moduleSettingsForm( AtAGlance ) );
