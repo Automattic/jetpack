@@ -14,7 +14,6 @@ import QueryVaultPressData from 'components/data/query-vaultpress-data';
 import { getSitePlan } from 'state/site';
 import { isPluginInstalled } from 'state/site/plugins';
 import { getVaultPressData } from 'state/at-a-glance';
-import { getRewindStatus } from 'state/rewind'
 import { isDevMode } from 'state/connection';
 
 class DashBackups extends Component {
