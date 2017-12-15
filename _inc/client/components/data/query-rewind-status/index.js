@@ -32,8 +32,8 @@ class QueryRewindStatus extends Component {
 	};
 
 	componentWillMount() {
-		if ( ! this.props.isFetchingRewindStatus  && isEmpty( this.props.sitePlan ) ) {
-			this.props.fetchRewindStatus();
+		if ( ! this.props.isFetchingRewindStatus ) {
+			this.props.fetchRewind();
 		}
 	}
 
@@ -52,7 +52,7 @@ export default connect(
 	},
 	( dispatch ) => {
 		return {
-			fetchRewindStatus: () => dispatch( fetchRewindStatus() )
+			fetchRewind: () => dispatch( fetchRewindStatus() )
 		};
 	}
 )( QueryRewindStatus );

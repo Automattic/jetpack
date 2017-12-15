@@ -97,7 +97,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 		register_rest_route( 'jetpack/v4', '/rewind', array(
 			'methods' => WP_REST_Server::READABLE,
-			'callback' => __CLASS__ . '::jetpack_rewind_status',
+			'callback' => __CLASS__ . '::get_rewind_data',
 		) );
 
 		// Fetches a fresh connect URL
@@ -652,13 +652,52 @@ class Jetpack_Core_Json_Api_Endpoints {
 		);
 	}
 
-	public static function jetpack_rewind_status() {
-		error_log( 'HELLO FROM API POINT');
-		return rest_ensure_response( array(
-				'isActive'  => true,
-				'stuff' => 'foo'
-			)
-		);
+	public static function rewind_data() {
+		$site_id = Jetpack_Options::get_option( 'id' );
+
+		if ( ! $site_id ) {
+			new WP_Error( 'site_id_missing' );
+		}
+
+		$response = Jetpack_Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d/rewind', $site_id ) .'?force=wpcom', '2', array(), null, 'wpcom' );
+
+		error_log( print_r( $response, 1 ) );
+
+		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			return new WP_Error( 'rewind_data_fetch_failed' );
+		}
+
+		$body = wp_remote_retrieve_body( $response );
+
+//		EXAMPLE RESPONSE
+//		$body = array(
+//			'reason' => 'host_not_supported',
+//			'state' => 'unavailable',
+//			'downloads' => array(),
+//			'last_updated' => 1513366050
+//		);
+
+		return json_decode( $body );
+	}
+
+	/**
+	 * Get rewind data
+	 *
+	 * @since 5.7.0
+	 *
+	 * @return array Array of rewind properties.
+	 */
+	public static function get_rewind_data() {
+		$rewind_data = self::rewind_data();
+
+		if ( ! is_wp_error( $rewind_data ) ) {
+			return rest_ensure_response( array(
+					'code' => 'success',
+					'message' => esc_html__( 'Rewind data correctly received.', 'jetpack' ),
+					'data' => json_encode( $rewind_data ),
+				)
+			);
+		}
 	}
 
 	/**

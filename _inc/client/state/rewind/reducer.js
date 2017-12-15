@@ -67,7 +67,6 @@ export function isFetchingRewindStatus( state ) {
  * @return {Object}  Features
  */
 export function getRewindStatus( state ) {
-	console.log( 'get REWIND STATE', state );
 	return get( state.jetpack.rewind, [ 'data', 'status' ], {} );
 }
 

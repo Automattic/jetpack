@@ -11,7 +11,6 @@ import { translate as __ } from 'i18n-calypso';
  * Internal dependencies
  */
 import QueryVaultPressData from 'components/data/query-vaultpress-data';
-import QueryRewindStatus from 'components/data/query-rewind-status';
 import { getSitePlan } from 'state/site';
 import { isPluginInstalled } from 'state/site/plugins';
 import { getVaultPressData } from 'state/at-a-glance';
@@ -24,7 +23,6 @@ class DashBackups extends Component {
 			hasSitePlan = false !== this.props.sitePlan && 'jetpack_free' !== this.props.sitePlan.product_slug,
 			inactiveOrUninstalled = this.props.isPluginInstalled( 'vaultpress/vaultpress.php' ) ? 'pro-inactive' : 'pro-uninstalled';
 
-		console.log( 'rewind', this.props.rewindStatus );
 		if ( this.props.getOptionValue( 'vaultpress' ) ) {
 			const vpData = this.props.vaultPressData;
 
@@ -101,7 +99,6 @@ class DashBackups extends Component {
 		return (
 			<div className="jp-dash-item__interior">
 				<QueryVaultPressData />
-				<QueryRewindStatus />
 				{ this.getContent() }
 			</div>
 		);
@@ -110,7 +107,6 @@ class DashBackups extends Component {
 
 DashBackups.propTypes = {
 	vaultPressData: PropTypes.any.isRequired,
-	rewindStatus: PropTypes.any.isRequired,
 	isDevMode: PropTypes.bool.isRequired,
 	siteRawUrl: PropTypes.string.isRequired,
 	sitePlan: PropTypes.object.isRequired
@@ -119,7 +115,6 @@ DashBackups.propTypes = {
 export default connect(
 	( state ) => {
 		return {
-			rewindStatus: getRewindStatus( state ),
 			vaultPressData: getVaultPressData( state ),
 			sitePlan: getSitePlan( state ),
 			isDevMode: isDevMode( state ),
