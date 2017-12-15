@@ -37,7 +37,7 @@
 	} );
 
 	// When widgets are updated, remove and re-add listeners
-	$( document ).on( 'widget-updated', function() {
+	$( document ).on( 'widget-updated widget-added', function() {
 		var widget = $( '.jetpack-search-filters-widget' );
 		widget.off( 'change', '.filter-select' );
 		widget.off( 'click', '.jetpack-search-filters-widget__controls .add' );
