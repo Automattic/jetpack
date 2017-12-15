@@ -33,7 +33,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		wp_enqueue_script( 'widget-jetpack-search-filters', plugins_url( 'js/search-widget-filters-admin.js', __FILE__ ), array( 'jquery' ) );
 	}
 
-	function filter_for_widget_id( $item ) {
+	function is_for_current_widget( $item ) {
 		return isset( $item['widget_id'] ) && $this->id == $item['widget_id'];
 	}
 
@@ -44,9 +44,9 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 
 		$search = Jetpack_Search::instance();
 
-		$filters = array_filter( $search->get_filters(), array( $this, 'filter_for_widget_id' ) );
+		$filters = array_filter( $search->get_filters(), array( $this, 'is_for_current_widget' ) );
 
-		$active_buckets = array_filter( $search->get_active_filter_buckets(), array( $this, 'filter_for_widget_id' ) );
+		$active_buckets = array_filter( $search->get_active_filter_buckets(), array( $this, 'is_for_current_widget' ) );
 
 		if ( empty( $filters ) && empty( $active_buckets ) ) {
 			return;
