@@ -100,6 +100,7 @@ class Jetpack_Search {
 	 */
 	public function init_hooks() {
 		add_action( 'widgets_init', array( $this, 'action__widgets_init' ) );
+		add_action( 'delete_widget', array( $this, 'handle_widget_deletion' ), 10, 3 );
 		add_action( 'jetpack_search_widget_filters_updated', array( $this, 'handle_filters_widget_update' ) );
 
 		if ( ! is_admin() ) {
@@ -137,6 +138,28 @@ class Jetpack_Search {
 	public function print_query_success() {
 		if ( $this->last_query_info ) {
 			echo '<!-- Jetpack Search took ' . intval( $this->last_query_info['elapsed_time'] ) . ' ms, ES time ' . $this->last_query_info['es_time'] . ' ms -->';
+		}
+	}
+
+	/**
+	 * When a Jetpack Search Filters widget is deleted, this method handles removing the
+	 * widget ID from the known widgets list.
+	 *
+	 * @param string $widget_id
+	 * @param string $sidebar_id
+	 * @param string $id_base
+	 * @return void
+	 */
+	function handle_widget_deletion( $widget_id, $sidebar_id, $id_base ) {
+		if ( 'jetpack-search-filters' != $id_base ) {
+			return;
+		}
+
+		$widgets = get_option( self::KNOWN_WIDGETS_OPTION_NAME, array() );
+		$key = array_search( $widget_id, $widgets );
+		if ( false !== $key ) {
+			unset( $widgets[ $key ] );
+			update_option( self::KNOWN_WIDGETS_OPTION_NAME, $widgets );
 		}
 	}
 
