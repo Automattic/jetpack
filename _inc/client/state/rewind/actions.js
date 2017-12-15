@@ -18,7 +18,7 @@ export const fetchRewindStatus = () => {
 				type: REWIND_STATUS_FETCH_RECEIVE,
 				status: status
 			} );
-			return siteData;
+			return status;
 		} ).catch( error => {
 			dispatch( {
 				type: REWIND_STATUS_FETCH_FAIL,
