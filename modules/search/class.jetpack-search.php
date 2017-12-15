@@ -101,7 +101,7 @@ class Jetpack_Search {
 	public function init_hooks() {
 		add_action( 'widgets_init', array( $this, 'action__widgets_init' ) );
 		add_action( 'delete_widget', array( $this, 'handle_widget_deletion' ), 10, 3 );
-		add_action( 'jetpack_search_widget_filters_updated', array( $this, 'handle_filters_widget_update' ) );
+		add_action( 'jetpack_search_widget_filters_updated', array( $this, 'handle_filters_widget_update' ), 10, 2 );
 
 		if ( ! is_admin() ) {
 			add_filter( 'posts_pre_query', array( $this, 'filter__posts_pre_query' ), 10, 2 );
@@ -161,6 +161,8 @@ class Jetpack_Search {
 			unset( $widgets[ $key ] );
 			update_option( self::KNOWN_WIDGETS_OPTION_NAME, $widgets );
 		}
+
+		delete_option( self::get_widget_filters_option_name( $widget_id ) );
 	}
 
 	/**
@@ -172,12 +174,14 @@ class Jetpack_Search {
 	 * @param string $widget_id The widget ID
 	 * @return void
 	 */
-	function handle_filters_widget_update( $widget_id ) {
+	function handle_filters_widget_update( $widget_id, $filters ) {
 		$widgets = get_option( self::KNOWN_WIDGETS_OPTION_NAME, array() );
 		if ( ! in_array( $widget_id, $widgets ) ) {
 			$widgets[] = $widget_id;
 			update_option( self::KNOWN_WIDGETS_OPTION_NAME, $widgets );
 		}
+
+		update_option( self::get_widget_filters_option_name( $widget_id ), $filters );
 	}
 
 	/**

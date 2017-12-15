@@ -133,10 +133,6 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			}
 		}
 
-		if ( ! empty( $filters ) ) {
-			update_option( Jetpack_Search::get_widget_filters_option_name( $this->id ), $filters );
-		}
-
 		/**
 		 * Fires after a Jetpack search filters widget is updated.
 		 *
@@ -145,9 +141,10 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		 * @since 5.7.0
 		 *
 		 * @param string $this->id The current widget's ID
+		 * @param array  $filters  The filters for this widget
 		 *
 		 */
-		do_action( 'jetpack_search_widget_filters_updated', $this->id );
+		do_action( 'jetpack_search_widget_filters_updated', $this->id , $filters );
 
 		return $instance;
 	}
