@@ -661,8 +661,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 		$response = Jetpack_Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d/rewind', $site_id ) .'?force=wpcom', '2', array(), null, 'wpcom' );
 
-		error_log( print_r( $response, 1 ) );
-
 		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
 			return new WP_Error( 'rewind_data_fetch_failed' );
 		}
