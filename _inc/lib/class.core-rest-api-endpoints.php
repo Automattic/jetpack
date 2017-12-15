@@ -98,6 +98,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		register_rest_route( 'jetpack/v4', '/rewind', array(
 			'methods' => WP_REST_Server::READABLE,
 			'callback' => __CLASS__ . '::get_rewind_data',
+			'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
 		) );
 
 		// Fetches a fresh connect URL
@@ -666,9 +667,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		$body = wp_remote_retrieve_body( $response );
-
-		error_log( print_r( $body, 1 ) );
-
+		
 		return json_decode( $body );
 	}
 
