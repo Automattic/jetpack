@@ -2,7 +2,7 @@
 * Contributors: donncha, automattic, kraftbj
 * Tags: performance, caching, wp-cache, wp-super-cache, cache
 * Tested up to: 4.9.1
-* Stable tag: 1.5.8
+* Stable tag: 1.5.9
 * Requires at least: 3.0
 * Requires PHP: 5.2.4
 * License: GPLv2 or later
@@ -260,6 +260,13 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 
 
 ## Changelog ##
+
+### 1.5.9 ###
+* Fixed fatal error if the debug log was deleted while debugging was enabled and a visitor came to the site.
+* Fixed the dynamic caching test plugin because of PHP7 changes. Dynamic cache mode must be enabled now.
+* Lots of WordPress coding style formatting fixes to the code.
+* All changes: https://github.com/Automattic/wp-super-cache/compare/1.5.8...1.5.9
+
 ### 1.5.8 ###
 * PHP 7 fixes. (#429)
 * Fix debug comments checkbox. (#433)
@@ -621,4 +628,4 @@ Your theme is probably responsive which means it resizes the page to suit whatev
 
 
 ## Upgrade Notice ##
-Many bug fixes
+Fixes rare fatal error when using debug log
