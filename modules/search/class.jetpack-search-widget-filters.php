@@ -133,18 +133,11 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			}
 		}
 
-		/**
-		 * Fires after a Jetpack search filters widget is updated.
-		 *
-		 * @module search
-		 *
-		 * @since 5.7.0
-		 *
-		 * @param string $this->id The current widget's ID
-		 * @param array  $filters  The filters for this widget
-		 *
-		 */
-		do_action( 'jetpack_search_widget_filters_updated', $this->id , $filters );
+		if ( ! empty( $filters ) ) {
+			$instance['filters'] = $filters;
+		}
+
+		error_log( print_r( $instance, true ) );
 
 		return $instance;
 	}
@@ -152,11 +145,8 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 	function form( $instance ) {
 		$instance = wp_parse_args( (array) $instance, array(
 			'title' => '',
+			'filters' => array( array() )
 		) );
-		$instance['filters'] = get_option(
-			Jetpack_Search::get_widget_filters_option_name( $this->id ),
-			array( array() )
-		);
 
 		$title = strip_tags( $instance['title'] );
 		?>

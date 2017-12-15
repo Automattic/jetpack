@@ -25,11 +25,11 @@ class Jetpack_Search {
 
 	protected static $instance;
 
-	const KNOWN_WIDGETS_OPTION_NAME = 'jetpack_search_known_widgets';
-
 	//Languages with custom analyzers, other languages are supported,
 	// but are analyzed with the default analyzer.
 	public static $analyzed_langs = array( 'ar', 'bg', 'ca', 'cs', 'da', 'de', 'el', 'en', 'es', 'eu', 'fa', 'fi', 'fr', 'he', 'hi', 'hu', 'hy', 'id', 'it', 'ja', 'ko', 'nl', 'no', 'pt', 'ro', 'ru', 'sv', 'tr', 'zh' );
+
+	const FILTER_WIDGET_BASE = 'jetpack-search-filters';
 
 	protected function __construct() {
 		/* Don't do anything, needs to be initialized via instance() method */
@@ -63,16 +63,6 @@ class Jetpack_Search {
 	}
 
 	/**
-	 * Given a widget ID, returns the option name to store a widget's filters.
-	 *
-	 * @param string $widget_id The widget ID
-	 * @return string           The option name
-	 */
-	public static function get_widget_filters_option_name( $widget_id = '' ) {
-		return sprintf( 'jetpack_filters_%s', $widget_id );
-	}
-
-	/**
 	 * Perform various setup tasks for the class
 	 *
 	 * Checks various pre-requisites and adds hooks
@@ -100,8 +90,6 @@ class Jetpack_Search {
 	 */
 	public function init_hooks() {
 		add_action( 'widgets_init', array( $this, 'action__widgets_init' ) );
-		add_action( 'delete_widget', array( $this, 'handle_widget_deletion' ), 10, 3 );
-		add_action( 'jetpack_search_widget_filters_updated', array( $this, 'handle_filters_widget_update' ), 10, 2 );
 
 		if ( ! is_admin() ) {
 			add_filter( 'posts_pre_query', array( $this, 'filter__posts_pre_query' ), 10, 2 );
@@ -142,49 +130,6 @@ class Jetpack_Search {
 	}
 
 	/**
-	 * When a Jetpack Search Filters widget is deleted, this method handles removing the
-	 * widget ID from the known widgets list.
-	 *
-	 * @param string $widget_id
-	 * @param string $sidebar_id
-	 * @param string $id_base
-	 * @return void
-	 */
-	function handle_widget_deletion( $widget_id, $sidebar_id, $id_base ) {
-		if ( 'jetpack-search-filters' != $id_base ) {
-			return;
-		}
-
-		$widgets = get_option( self::KNOWN_WIDGETS_OPTION_NAME, array() );
-		$key = array_search( $widget_id, $widgets );
-		if ( false !== $key ) {
-			unset( $widgets[ $key ] );
-			update_option( self::KNOWN_WIDGETS_OPTION_NAME, $widgets );
-		}
-
-		delete_option( self::get_widget_filters_option_name( $widget_id ) );
-	}
-
-	/**
-	 * When a Jetpack Search Filters widget is updated, stash the widget ID in an option
-	 * for easy retrieval later by this class.
-	 *
-	 * @since 5.7.0
-	 *
-	 * @param string $widget_id The widget ID
-	 * @return void
-	 */
-	function handle_filters_widget_update( $widget_id, $filters ) {
-		$widgets = get_option( self::KNOWN_WIDGETS_OPTION_NAME, array() );
-		if ( ! in_array( $widget_id, $widgets ) ) {
-			$widgets[] = $widget_id;
-			update_option( self::KNOWN_WIDGETS_OPTION_NAME, $widgets );
-		}
-
-		update_option( self::get_widget_filters_option_name( $widget_id ), $filters );
-	}
-
-	/**
 	 * Retrives a list of known Jetpack search filters widget IDs, gets the filters for each widget,
 	 * and applies those filters to this Jetpack_Search object.
 	 *
@@ -193,25 +138,29 @@ class Jetpack_Search {
 	 * @return void
 	 */
 	function set_filters_from_widgets() {
-		$widget_ids = get_option( self::KNOWN_WIDGETS_OPTION_NAME, array() );
+		$widget_options = get_option( sprintf( 'widget_%s', self::FILTER_WIDGET_BASE ) );
 
-		if ( empty( $widget_ids ) ) {
+		if ( empty( $widget_options ) ) {
 			return;
+		}
+
+		// We don't need this
+		if ( isset( $widget_options['_multiwidget'] ) ) {
+			unset( $widget_options['_multiwidget'] );
 		}
 
 		$filters = array();
 
-		foreach ( (array) $widget_ids as $widget_id ) {
-			if ( is_active_widget( false, $widget_id, 'jetpack-search-filters' ) ) {
-				$widget_filters = get_option( self::get_widget_filters_option_name( $widget_id ), array() );
-				if ( ! empty( $widget_filters ) ) {
-					foreach ( (array) $widget_filters as $widget_filter ) {
-						$widget_filter['widget_id'] = $widget_id;
+		foreach ( (array) $widget_options as $number => $settings ) {
+			$widget_id = sprintf( '%s-%d', self::FILTER_WIDGET_BASE, $number );
+			if ( ! is_active_widget( false, $widget_id, self::FILTER_WIDGET_BASE ) || empty( $settings['filters'] ) ) {
+				continue;
+			}
 
-						$key = sprintf( '%s_%d', $widget_filter['type'], count( $filters ) );
-						$filters[ $key ] = $widget_filter;
-					}
-				}
+			foreach ( (array) $settings['filters'] as $widget_filter ) {
+				$widget_filter['widget_id'] = $widget_id;
+				$key = sprintf( '%s_%d', $widget_filter['type'], count( $filters ) );
+				$filters[ $key ] = $widget_filter;
 			}
 		}
 
