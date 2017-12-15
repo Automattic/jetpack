@@ -33,6 +33,10 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		wp_enqueue_script( 'widget-jetpack-search-filters', plugins_url( 'js/search-widget-filters-admin.js', __FILE__ ), array( 'jquery' ) );
 	}
 
+	function filter_for_widget_id( $item ) {
+		return isset( $item['widget_id'] ) && $this->id == $item['widget_id'];
+	}
+
 	function widget( $args, $instance ) {
 		if ( ! class_exists( 'Jetpack_Search' ) || ! is_search() ) {
 			return;
@@ -40,9 +44,9 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 
 		$search = Jetpack_Search::instance();
 
-		$filters = $search->get_filters();
+		$filters = array_filter( $search->get_filters(), array( $this, 'filter_for_widget_id' ) );
 
-		$active_buckets = $search->get_active_filter_buckets();
+		$active_buckets = array_filter( $search->get_active_filter_buckets(), array( $this, 'filter_for_widget_id' ) );
 
 		if ( empty( $filters ) && empty( $active_buckets ) ) {
 			return;
@@ -130,8 +134,20 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		}
 
 		if ( ! empty( $filters ) ) {
-			$instance['filters'] = $filters;
+			update_option( Jetpack_Search::get_widget_filters_option_name( $this->id ), $filters );
 		}
+
+		/**
+		 * Fires after a Jetpack search filters widget is updated.
+		 *
+		 * @module search
+		 *
+		 * @since 5.7.0
+		 *
+		 * @param string $this->id The current widget's ID
+		 *
+		 */
+		do_action( 'jetpack_search_widget_filters_updated', $this->id );
 
 		return $instance;
 	}
@@ -139,10 +155,11 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 	function form( $instance ) {
 		$instance = wp_parse_args( (array) $instance, array(
 			'title' => '',
-			'filters' => array(
-				array()
-			)
 		) );
+		$instance['filters'] = get_option(
+			Jetpack_Search::get_widget_filters_option_name( $this->id ),
+			array( array() )
+		);
 
 		$title = strip_tags( $instance['title'] );
 		?>
@@ -248,12 +265,12 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			$this->render_current_filters( $active_buckets );
 		}
 
-		foreach ( $filters as $label => $filter ) {
+		foreach ( $filters as $filter ) {
 			if ( count( $filter['buckets'] ) < 2 ) {
 				continue;
 			}
 
-			$this->render_filter( $label, $filter );
+			$this->render_filter( $filter );
 		}
 	}
 
@@ -291,8 +308,8 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		<?php endforeach;
 	}
 
-	function render_filter( $label, $filter ) { ?>
-		<h3><?php echo esc_html( $label ); ?></h3>
+	function render_filter( $filter ) { ?>
+		<h3><?php echo esc_html( $filter['name'] ); ?></h3>
 		<ul>
 			<?php foreach ( $filter['buckets'] as $item ) : ?>
 				<li>
