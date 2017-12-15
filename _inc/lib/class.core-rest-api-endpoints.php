@@ -674,7 +674,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 //		EXAMPLE RESPONSE -- Use everything above to call the real endpoint
 		$body = array(
 			'reason' => 'host_not_supported',
-			'state' => 'active', // Can also be 'available' or 'active'
+			'state' => 'active', // Can also be 'available' or 'unavailable'
 			'downloads' => array(),
 			'last_updated' => 1513366050
 		);
