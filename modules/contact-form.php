@@ -28,3 +28,5 @@ include dirname( __FILE__ ) . '/contact-form/grunion-contact-form.php';
 if ( is_admin() && apply_filters( 'tmp_grunion_allow_editor_view', true ) ) {
 	require_once dirname( __FILE__ ) . '/contact-form/grunion-editor-view.php';
 }
+
+include dirname( __FILE__ ) . '/contact-form/gutenberg-blocks.php';
