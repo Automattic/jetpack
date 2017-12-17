@@ -1041,9 +1041,9 @@ class Jetpack_Search {
 	 * @param array $aggregations Array of filters (aggregations) to apply to the search
 	 */
 	public function set_filters( array $aggregations ) {
-		foreach ( (array) $aggregations as $key => &$agg ) {
+		foreach ( (array) $aggregations as $key => $agg ) {
 			if ( empty( $agg['name'] ) ) {
-				$agg['name'] = $key;
+				$aggregations[ $key ]['name'] = $key;
 			}
 		}
 		$this->aggregations = $aggregations;
