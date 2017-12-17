@@ -137,8 +137,6 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			$instance['filters'] = $filters;
 		}
 
-		error_log( print_r( $instance, true ) );
-
 		return $instance;
 	}
 
