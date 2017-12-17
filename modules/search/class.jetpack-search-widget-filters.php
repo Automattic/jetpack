@@ -130,6 +130,15 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 						'count' => intval( $new_instance['num_filters'][ $index ] ),
 					);
 					break;
+				case 'date_histogram':
+					$filters[] = array(
+						'name' => sanitize_text_field( $new_instance['filter_name'][ $index ] ),
+						'type' => 'date_histogram',
+						'count' => intval( $new_instance['num_filters'][ $index ] ),
+						'field' => sanitize_key( $new_instance['date_histogram_field'][ $index ] ),
+						'interval' => sanitize_key( $new_instance['date_histogram_interval'][ $index ] ),
+					);
+					break;
 			}
 		}
 
@@ -174,6 +183,8 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			'type' => 'taxonomy',
 			'taxonomy' => '',
 			'post_type' => '',
+			'date_histogram_field' => '',
+			'date_histogram_interval' => '',
 			'count' => 10,
 		) );
 
@@ -221,6 +232,43 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 								<?php echo esc_html( $taxonomy->label ); ?>
 							</option>
 						<?php endforeach; ?>
+					</select>
+				</label>
+			</p>
+
+			<p class="jetpack-search-filters-widget__date-histogram-select">
+				<label>
+					<?php esc_html_e( 'Choose a field:', 'jetpack' ); ?>
+					<select name="<?php echo esc_attr( $this->get_field_name( 'date_histogram_field' ) ); ?>[]" class="widefat">
+						<option value="post_date" <?php selected( 'post_date', $args['date_histogram_field'] ); ?>>
+							<?php esc_html_e( 'Date', 'jetpack' ); ?>
+						</option>
+						<option value="post_date_gmt" <?php selected( 'post_date_gmt', $args['date_histogram_field'] ); ?>>
+							<?php esc_html_e( 'Date GMT', 'jetpack' ); ?>
+						</option>
+						<option value="post_modified" <?php selected( 'post_modified', $args['date_histogram_field'] ); ?>>
+							<?php esc_html_e( 'Modified', 'jetpack' ); ?>
+						</option>
+						<option value="post_modified" <?php selected( 'post_modified_gmt', $args['date_histogram_field'] ); ?>>
+							<?php esc_html_e( 'Modified GMT', 'jetpack' ); ?>
+						</option>
+					</select>
+				</label>
+			</p>
+
+			<p class="jetpack-search-filters-widget__date-histogram-select">
+				<label>
+					<?php esc_html_e( 'Choose an interval:' ); ?>
+					<select name="<?php echo esc_attr( $this->get_field_name( 'date_histogram_interval' ) ); ?>[]" class="widefat">
+					<option value="day" <?php selected( 'day', $args['date_histogram_interval'] ); ?>>
+							<?php esc_html_e( 'Day', 'jetpack' ); ?>
+						</option>
+						<option value="month" <?php selected( 'month', $args['date_histogram_interval'] ); ?>>
+							<?php esc_html_e( 'Month', 'jetpack' ); ?>
+						</option>
+						<option value="year" <?php selected( 'year', $args['date_histogram_interval'] ); ?>>
+							<?php esc_html_e( 'Year', 'jetpack' ); ?>
+						</option>
 					</select>
 				</label>
 			</p>

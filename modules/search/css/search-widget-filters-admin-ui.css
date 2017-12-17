@@ -27,12 +27,20 @@
 	display: none;
 }
 
+.jetpack-search-filters-widget__date-histogram-select {
+	display: none;
+}
+
 /* When post type is selected, remove the other controls */
 .jetpack-search-filters-widget__filter.is-post_type .jetpack-search-filters-widget__taxonomy-select {
 	display: none;
 }
 
 /* When date is selected, remove the other controls */
+.jetpack-search-filters-widget__filter.is-date_histogram .jetpack-search-filters-widget__date-histogram-select {
+	display: inline;
+}
+
 .jetpack-search-filters-widget__filter.is-date_histogram .jetpack-search-filters-widget__taxonomy-select {
 	display: none;
 }
