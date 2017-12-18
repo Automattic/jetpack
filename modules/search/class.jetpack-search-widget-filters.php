@@ -147,39 +147,40 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		$instance['title'] = sanitize_text_field( $new_instance['title'] );
 		$instance['use_filters'] = empty( $new_instance['use_filters'] ) ? '0' : '1';
 
-		$filters = array();
-
-		foreach ( (array) $new_instance['filter_type'] as $index => $type ) {
-			switch ( $type ) {
-				case 'taxonomy':
-					$filters[] = array(
-						'name' => sanitize_text_field( $new_instance['filter_name'][ $index ] ),
-						'type' => 'taxonomy',
-						'taxonomy' => sanitize_key( $new_instance['taxonomy_type'][ $index ] ),
-						'count' => intval( $new_instance['num_filters'][ $index ] ),
-					);
-					break;
-				case 'post_type':
-					$filters[] = array(
-						'name' => sanitize_text_field( $new_instance['filter_name'][ $index ] ),
-						'type' => 'post_type',
-						'count' => intval( $new_instance['num_filters'][ $index ] ),
-					);
-					break;
-				case 'date_histogram':
-					$filters[] = array(
-						'name' => sanitize_text_field( $new_instance['filter_name'][ $index ] ),
-						'type' => 'date_histogram',
-						'count' => intval( $new_instance['num_filters'][ $index ] ),
-						'field' => sanitize_key( $new_instance['date_histogram_field'][ $index ] ),
-						'interval' => sanitize_key( $new_instance['date_histogram_interval'][ $index ] ),
-					);
-					break;
+		if ( $instance['use_filters'] ) {
+			$filters = array();
+			foreach ( (array) $new_instance['filter_type'] as $index => $type ) {
+				switch ( $type ) {
+					case 'taxonomy':
+						$filters[] = array(
+							'name' => sanitize_text_field( $new_instance['filter_name'][ $index ] ),
+							'type' => 'taxonomy',
+							'taxonomy' => sanitize_key( $new_instance['taxonomy_type'][ $index ] ),
+							'count' => intval( $new_instance['num_filters'][ $index ] ),
+						);
+						break;
+					case 'post_type':
+						$filters[] = array(
+							'name' => sanitize_text_field( $new_instance['filter_name'][ $index ] ),
+							'type' => 'post_type',
+							'count' => intval( $new_instance['num_filters'][ $index ] ),
+						);
+						break;
+					case 'date_histogram':
+						$filters[] = array(
+							'name' => sanitize_text_field( $new_instance['filter_name'][ $index ] ),
+							'type' => 'date_histogram',
+							'count' => intval( $new_instance['num_filters'][ $index ] ),
+							'field' => sanitize_key( $new_instance['date_histogram_field'][ $index ] ),
+							'interval' => sanitize_key( $new_instance['date_histogram_interval'][ $index ] ),
+						);
+						break;
+				}
 			}
-		}
 
-		if ( ! empty( $filters ) ) {
-			$instance['filters'] = $filters;
+			if ( ! empty( $filters ) ) {
+				$instance['filters'] = $filters;
+			}
 		}
 
 		return $instance;
