@@ -56,6 +56,8 @@ function sharing_email_send_post( $data ) {
 	 *
 	 * @module sharedaddy
 	 *
+	 * @since 5.7.0
+	 *
 	 * @param string $var Sharing Email Send Post Subject. Default is "Shared Post".
 	 */
 	$subject = apply_filters( 'wp_sharing_email_send_post_subject', '[' . __( 'Shared Post', 'jetpack' ) . '] ' );
