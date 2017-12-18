@@ -260,9 +260,6 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 				<label>
 					<?php esc_html_e( 'Choose an interval:' ); ?>
 					<select name="<?php echo esc_attr( $this->get_field_name( 'date_histogram_interval' ) ); ?>[]" class="widefat">
-					<option value="day" <?php selected( 'day', $args['date_histogram_interval'] ); ?>>
-							<?php esc_html_e( 'Day', 'jetpack' ); ?>
-						</option>
 						<option value="month" <?php selected( 'month', $args['date_histogram_interval'] ); ?>>
 							<?php esc_html_e( 'Month', 'jetpack' ); ?>
 						</option>
