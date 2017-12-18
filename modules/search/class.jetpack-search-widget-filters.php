@@ -5,6 +5,8 @@
  */
 class Jetpack_Search_Widget_Filters extends WP_Widget {
 
+	protected $jetpack_search;
+
 	function __construct() {
 		if ( ! class_exists( 'Jetpack_Search' ) ) {
 			return;
@@ -19,6 +21,8 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 				'description' => __( 'Displays search result filters when viewing search results.', 'jetpack' ),
 			)
 		);
+
+		$this->jetpack_search = Jetpack_Search::instance();
 
 		if ( is_admin() ) {
 			add_action( 'sidebar_admin_setup', array( $this, 'widget_admin_setup' ) );
@@ -67,20 +71,18 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 	}
 
 	function widget( $args, $instance ) {
-		if ( ! class_exists( 'Jetpack_Search' ) || ! is_search() ) {
+		if ( ! is_search() ) {
 			return;
 		}
 
-		$search = Jetpack_Search::instance();
-
-		$filters = $search->get_filters();
-		$active_buckets = $search->get_active_filter_buckets();
+		$filters = $this->jetpack_search->get_filters();
+		$active_buckets = $this->jetpack_search->get_active_filter_buckets();
 
 		if ( empty( $filters ) && empty( $active_buckets ) ) {
 			return;
 		}
 
-		if ( ! $this->should_display_sitewide_filters() ) {
+		if ( ! $this->jetpack_search->are_filters_by_widget_disabled() && ! $this->should_display_sitewide_filters() ) {
 			$filters = array_filter( $filters, array( $this, 'is_for_current_widget' ) );
 			$active_buckets = array_filter( $active_buckets, array( $this, 'is_for_current_widget' ) );
 		}
@@ -130,11 +132,11 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		 *
 		 * @since 5.7.0
 		 *
-		 * @param array $filters         The possible filters for the current query
-		 * @param array $active_buckets  The selected filters for the current query
-		 * @param Jetpack_Search $search The Jetpack_Search instance
+		 * @param array $filters                       The possible filters for the current query
+		 * @param array $active_buckets                The selected filters for the current query
+		 * @param Jetpack_Search $this->jetpack_search The Jetpack_Search instance
 		 */
-		do_action( 'jetpack_search_render_filters_widget_contents', $filters, $active_buckets, $search );
+		do_action( 'jetpack_search_render_filters_widget_contents', $filters, $active_buckets, $this->jetpack_search );
 
 		echo $args['after_widget'];
 	}
@@ -190,7 +192,9 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		) );
 
 		$title = strip_tags( $instance['title'] );
-		$use_filters = ! empty( $instance['use_filters'] );
+
+		$hide_filters = $this->jetpack_search->are_filters_by_widget_disabled();
+		$use_filters = ! empty( $instance['use_filters'] ) && ! $hide_filters;
 		$classes = sprintf(
 			'jetpack-search-filters-widget %s',
 			$use_filters ? '' : 'hide-filters'
@@ -210,20 +214,22 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 				/>
 			</p>
 
-			<p>
-				<label>
-					<input
-						type="checkbox"
-						class="jetpack-search-filters-widget__use-filters"
-						name="<?php echo esc_attr( $this->get_field_name( 'use_filters' ) ); ?>"
-						<?php checked( $use_filters ); ?>
-					/>
-					<?php esc_html_e( 'Add filters?' ); ?>
-				</label>
-			</p>
-			<?php foreach ( (array) $instance['filters'] as $filter ) : ?>
-				<?php $this->render_widget_filter( $filter ); ?>
-			<?php endforeach; ?>
+			<?php if ( ! $hide_filters ): ?>
+				<p>
+					<label>
+						<input
+							type="checkbox"
+							class="jetpack-search-filters-widget__use-filters"
+							name="<?php echo esc_attr( $this->get_field_name( 'use_filters' ) ); ?>"
+							<?php checked( $use_filters ); ?>
+						/>
+						<?php esc_html_e( 'Add filters?' ); ?>
+					</label>
+				</p>
+				<?php foreach ( (array) $instance['filters'] as $filter ) : ?>
+					<?php $this->render_widget_filter( $filter ); ?>
+				<?php endforeach; ?>
+			<?php endif; ?>
 		</div>
 		<?php
 	}
