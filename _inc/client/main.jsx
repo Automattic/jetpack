@@ -42,6 +42,8 @@ import analytics from 'lib/analytics';
 import restApi from 'rest-api';
 import { getTracksUserData } from 'state/initial-state';
 import WelcomeNewPlan from 'components/welcome-new-plan';
+import QueryRewindStatus from 'components/data/query-rewind-status';
+import { getRewindStatus } from 'state/rewind';
 
 const Main = React.createClass( {
 	componentWillMount: function() {
@@ -106,7 +108,8 @@ const Main = React.createClass( {
 			nextProps.isLinked !== this.props.isLinked ||
 			nextProps.route.path !== this.props.route.path ||
 			nextProps.searchTerm !== this.props.searchTerm ||
-			nextProps.newPlanActivated !== this.props.newPlanActivated;
+			nextProps.newPlanActivated !== this.props.newPlanActivated ||
+			nextProps.rewindStatus !== this.props.rewindStatus;
 	},
 
 	componentDidUpdate( prevProps ) {
@@ -192,10 +195,16 @@ const Main = React.createClass( {
 
 		switch ( route ) {
 			case '/dashboard':
-				pageComponent = <AtAGlance siteRawUrl={ this.props.siteRawUrl } siteAdminUrl={ this.props.siteAdminUrl } />;
+				pageComponent = <AtAGlance
+					siteRawUrl={ this.props.siteRawUrl }
+					siteAdminUrl={ this.props.siteAdminUrl }
+					rewindStatus={ this.props.rewindStatus } />;
 				break;
 			case '/plans':
-				pageComponent = <Plans siteRawUrl={ this.props.siteRawUrl } siteAdminUrl={ this.props.siteAdminUrl } />;
+				pageComponent = <Plans
+					siteRawUrl={ this.props.siteRawUrl }
+					siteAdminUrl={ this.props.siteAdminUrl }
+					rewindStatus={ this.props.rewindStatus } />;
 				break;
 			case '/settings':
 			case '/general':
@@ -210,14 +219,18 @@ const Main = React.createClass( {
 					route={ this.props.route }
 					siteAdminUrl={ this.props.siteAdminUrl }
 					siteRawUrl={ this.props.siteRawUrl }
-					searchTerm={ this.props.searchTerm } />;
+					searchTerm={ this.props.searchTerm }
+					rewindStatus={ this.props.rewindStatus } />;
 				break;
 
 			default:
 				// If no route found, kick them to the dashboard and do some url/history trickery
 				const history = createHistory();
 				history.replace( window.location.pathname + '?page=jetpack#/dashboard' );
-				pageComponent = <AtAGlance siteRawUrl={ this.props.siteRawUrl } siteAdminUrl={ this.props.siteAdminUrl } />;
+				pageComponent = <AtAGlance
+					siteRawUrl={ this.props.siteRawUrl }
+					siteAdminUrl={ this.props.siteAdminUrl }
+					rewindStatus={ this.props.rewindStatus } />;
 		}
 
 		window.wpNavMenuClassChange();
@@ -240,6 +253,7 @@ const Main = React.createClass( {
 			<div>
 				<Masthead route={ this.props.route } />
 					<div className="jp-lower">
+						<QueryRewindStatus />
 						<AdminNotices />
 						<JetpackNotices />
 						{ this.renderMainContent( this.props.route.path ) }
@@ -271,6 +285,7 @@ export default connect(
 			userCanManageModules: userCanManageModules( state ),
 			isSiteConnected: isSiteConnected( state ),
 			newPlanActivated: showWelcomeForNewPlan( state ),
+			rewindStatus: getRewindStatus( state ),
 		};
 	},
 	( dispatch ) => ( {

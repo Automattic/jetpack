@@ -24,7 +24,6 @@ import DashPluginUpdates from './plugins';
 import DashPhoton from './photon';
 import DashConnections from './connections';
 import QuerySitePlugins from 'components/data/query-site-plugins';
-import QueryRewindStatus from 'components/data/query-rewind-status';
 import QuerySite from 'components/data/query-site';
 import {
 	userCanManageModules,
@@ -32,7 +31,6 @@ import {
 	userIsSubscriber
 } from 'state/initial-state';
 import { isDevMode } from 'state/connection';
-import { getRewindStatus } from 'state/rewind';
 
 const renderPairs = layout => layout.map( item => (
 	[
@@ -99,7 +97,6 @@ class AtAGlance extends Component {
 				<div className="jp-at-a-glance">
 					<QuerySitePlugins />
 					<QuerySite />
-					<QueryRewindStatus />
 					<DashStats { ...settingsProps } { ...urls } />
 
 					{
@@ -161,7 +158,6 @@ export default connect(
 			userCanViewStats: userCanViewStats( state ),
 			userIsSubscriber: userIsSubscriber( state ),
 			isDevMode: isDevMode( state ),
-			rewindStatus: getRewindStatus( state ),
 		};
 	}
 )( moduleSettingsForm( AtAGlance ) );
