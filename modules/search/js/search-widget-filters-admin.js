@@ -30,6 +30,10 @@
 			e.preventDefault();
 			$( this ).closest( '.jetpack-search-filters-widget__filter' ).remove();
 		} );
+
+		widget.on( 'change', '.jetpack-search-filters-widget__use-filters', function() {
+			$( this ).closest( '.jetpack-search-filters-widget' ).toggleClass( 'hide-filters' );
+		} );
 	};
 
 	$( document ).ready( function() {
@@ -42,6 +46,7 @@
 		widget.off( 'change', '.filter-select' );
 		widget.off( 'click', '.jetpack-search-filters-widget__controls .add' );
 		widget.off( 'click', '.jetpack-search-filters-widget__controls .delete' );
+		widget.off( 'change', '.jetpack-search-filters-widget__use-filters' );
 		setListeners();
 	} );
 } )( jQuery );

@@ -129,6 +129,20 @@ class Jetpack_Search {
 		}
 	}
 
+	function are_filters_by_widget_disabled() {
+		/**
+		 * Allows developers to disable filters being set by widget, in favor of manually
+		 * setting filters via `Jetpack_Search::set_filters()`.
+		 *
+		 * @module search
+		 *
+		 * @since 5.7.0
+		 *
+		 * @param bool false
+		 */
+		return apply_filters( 'jetpack_search_disable_widget_filters', false );
+	}
+
 	/**
 	 * Retrives a list of known Jetpack search filters widget IDs, gets the filters for each widget,
 	 * and applies those filters to this Jetpack_Search object.
@@ -138,6 +152,10 @@ class Jetpack_Search {
 	 * @return void
 	 */
 	function set_filters_from_widgets() {
+		if ( $this->are_filters_by_widget_disabled() ) {
+			return;
+		}
+
 		$widget_options = get_option( sprintf( 'widget_%s', self::FILTER_WIDGET_BASE ) );
 
 		if ( empty( $widget_options ) ) {
@@ -154,6 +172,10 @@ class Jetpack_Search {
 		foreach ( (array) $widget_options as $number => $settings ) {
 			$widget_id = sprintf( '%s-%d', self::FILTER_WIDGET_BASE, $number );
 			if ( ! is_active_widget( false, $widget_id, self::FILTER_WIDGET_BASE ) || empty( $settings['filters'] ) ) {
+				continue;
+			}
+
+			if ( empty( $settings['use_filters'] ) ) {
 				continue;
 			}
 

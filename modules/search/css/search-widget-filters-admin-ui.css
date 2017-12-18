@@ -13,6 +13,10 @@
 	color: #a00;
 }
 
+.jetpack-search-filters-widget.hide-filters .jetpack-search-filters-widget__filter {
+	display: none;
+}
+
 /* If there's only one filter, do not show the control to delete it */
 .jetpack-search-filters-widget__filter:only-of-type .jetpack-search-filters-widget__controls .delete {
 	display: none;
