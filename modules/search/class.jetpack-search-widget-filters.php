@@ -37,6 +37,35 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		return isset( $item['widget_id'] ) && $this->id == $item['widget_id'];
 	}
 
+	/**
+	 * This method returns a boolean for whether the widget should show site-wide filters for the site.
+	 *
+	 * This is meant to provide backwards-compatibility for VIP, and other professional plan users, that manually
+	 * configured filters via `Jetpack_Search::set_filters()`.
+	 *
+	 * @since 5.7.0
+	 *
+	 * @return bool Whether the widget should display site-wide filters or not
+	 */
+	function should_display_sitewide_filters() {
+		$filter_widgets = get_option( 'widget_jetpack-search-filters' );
+
+		// This shouldn't be empty, but just for sanity
+		if ( empty( $filter_widgets ) )  {
+			return false;
+		}
+
+		// If any widget has checked add filters, return false
+		foreach ( $filter_widgets as $number => $widget ) {
+			$widget_id = sprintf( 'jetpack-search-filters-%d', $number );
+			if ( ! empty( $widget['use_filters'] ) && is_active_widget( false, $widget_id, 'jetpack-search-filters' ) ) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
 	function widget( $args, $instance ) {
 		if ( ! class_exists( 'Jetpack_Search' ) || ! is_search() ) {
 			return;
@@ -44,12 +73,16 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 
 		$search = Jetpack_Search::instance();
 
-		$filters = array_filter( $search->get_filters(), array( $this, 'is_for_current_widget' ) );
-
-		$active_buckets = array_filter( $search->get_active_filter_buckets(), array( $this, 'is_for_current_widget' ) );
+		$filters = $search->get_filters();
+		$active_buckets = $search->get_active_filter_buckets();
 
 		if ( empty( $filters ) && empty( $active_buckets ) ) {
 			return;
+		}
+
+		if ( ! $this->should_display_sitewide_filters() ) {
+			$filters = array_filter( $filters, array( $this, 'is_for_current_widget' ) );
+			$active_buckets = array_filter( $active_buckets, array( $this, 'is_for_current_widget' ) );
 		}
 
 		$buckets_found = false;
@@ -110,6 +143,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		$instance = array();
 
 		$instance['title'] = sanitize_text_field( $new_instance['title'] );
+		$instance['use_filters'] = empty( $new_instance['use_filters'] ) ? '0' : '1';
 
 		$filters = array();
 
@@ -156,8 +190,13 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		) );
 
 		$title = strip_tags( $instance['title'] );
+		$use_filters = ! empty( $instance['use_filters'] );
+		$classes = sprintf(
+			'jetpack-search-filters-widget %s',
+			$use_filters ? '' : 'hide-filters'
+		 );
 		?>
-		<div class="jetpack-search-filters-widget">
+		<div class="<?php echo esc_attr( $classes ); ?>">
 			<p>
 				<label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>">
 					<?php esc_html_e( 'Title:', 'jetpack' ); ?>
@@ -169,6 +208,18 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 					type="text"
 					value="<?php echo esc_attr( $title ); ?>"
 				/>
+			</p>
+
+			<p>
+				<label>
+					<input
+						type="checkbox"
+						class="jetpack-search-filters-widget__use-filters"
+						name="<?php echo esc_attr( $this->get_field_name( 'use_filters' ) ); ?>"
+						<?php checked( $use_filters ); ?>
+					/>
+					<?php esc_html_e( 'Add filters?' ); ?>
+				</label>
 			</p>
 			<?php foreach ( (array) $instance['filters'] as $filter ) : ?>
 				<?php $this->render_widget_filter( $filter ); ?>
@@ -188,8 +239,13 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			'count' => 10,
 		) );
 
+		$classes = sprintf(
+			'jetpack-search-filters-widget__filter is-%s',
+			sanitize_key( $args['type'] )
+		);
+
 		?>
-		<div class="<?php echo sprintf( 'jetpack-search-filters-widget__filter is-%s', sanitize_key( $args['type'] ) ); ?>">
+		<div class="<?php echo esc_attr( $classes ); ?>">
 			<p>
 				<label>
 					<?php esc_html_e( 'Filter Name:', 'jetpack' ); ?>
