@@ -329,7 +329,8 @@ function wpcom_social_media_icons_widget_load_widget() {
 	$has_widget = get_transient( $transient );
 
 	if ( false === $has_widget ) {
-		$has_widget = (int) ! empty( is_active_widget( false, false, 'wpcom_social_media_icons_widget', false ) );
+		$is_active_widget = is_active_widget( false, false, 'wpcom_social_media_icons_widget', false );
+		$has_widget       = (int) ! empty( $is_active_widget );
 		set_transient( $transient, $has_widget, 1 * HOUR_IN_SECONDS );
 	}
 
