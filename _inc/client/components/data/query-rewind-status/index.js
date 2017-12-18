@@ -31,7 +31,7 @@ class QueryRewindStatus extends Component {
 	};
 
 	componentWillMount() {
-		if ( ! this.props.isFetchingRewindStatus ) {
+		if ( ! this.props.isFetchingRewindStatus && ! this.props.isDevMode ) {
 			this.props.fetchRewind();
 		}
 	}
