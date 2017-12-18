@@ -657,7 +657,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$site_id = Jetpack_Options::get_option( 'id' );
 
 		if ( ! $site_id ) {
-			new WP_Error( 'site_id_missing' );
+			return new WP_Error( 'site_id_missing' );
 		}
 
 		$response = Jetpack_Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d/rewind', $site_id ) .'?force=wpcom', '2', array(), null, 'wpcom' );
@@ -685,9 +685,17 @@ class Jetpack_Core_Json_Api_Endpoints {
 			return rest_ensure_response( array(
 					'code' => 'success',
 					'message' => esc_html__( 'Rewind data correctly received.', 'jetpack' ),
-					'data' => json_encode( $rewind_data ),
+					'data' => wp_json_encode( $rewind_data ),
 				)
 			);
+		}
+
+		if ( $site_data->get_error_code() === 'rewind_data_fetch_failed' ) {
+			return new WP_Error( 'rewind_data_fetch_failed', esc_html__( 'Failed fetching site data. Try again later.', 'jetpack' ), array( 'status' => 400 ) );
+		}
+
+		if ( $site_data->get_error_code() === 'site_id_missing' ) {
+			return new WP_Error( 'site_id_missing', esc_html__( 'The ID of this site does not exist.', 'jetpack' ), array( 'status' => 404 ) );
 		}
 
 		return new WP_Error(
