@@ -6967,4 +6967,23 @@ p {
 
 		return plugins_url( $path, JETPACK__PLUGIN_FILE );
 	}
+
+	/**
+	 * Checks for whether Jetpack Rewind is enabled.
+	 * @return bool|int|mixed
+	 */
+	public static function is_rewind_enabled() {
+		if ( ! Jetpack::is_active() ) {
+			return false;
+		}
+
+		$rewind_enabled = get_transient( 'jetpack_rewind_enabled' );
+		if ( false === $rewind_enabled ) {
+			jetpack_require_lib( 'core-api/class.jetpack-core-api-site-endpoints.php' );
+			$features = Jetpack_Core_API_Site_Endpoint::get_features();
+			$rewind_enabled = ! empty( $features['rewind'] ) ? 1 : 0;
+			set_transient( 'jetpack_rewind_enabled', $rewind_enabled, 10 * MINUTE_IN_SECONDS );
+		}
+		return $rewind_enabled;
+	}
 }
