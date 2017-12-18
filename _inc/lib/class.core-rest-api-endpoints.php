@@ -95,6 +95,12 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'callback' => __CLASS__ . '::jetpack_connection_status',
 		) );
 
+		register_rest_route( 'jetpack/v4', '/rewind', array(
+			'methods' => WP_REST_Server::READABLE,
+			'callback' => __CLASS__ . '::get_rewind_data',
+			'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
+		) );
+
 		// Fetches a fresh connect URL
 		register_rest_route( 'jetpack/v4', '/connection/url', array(
 			'methods' => WP_REST_Server::READABLE,
@@ -644,6 +650,58 @@ class Jetpack_Core_Json_Api_Endpoints {
 					'filter'   => apply_filters( 'jetpack_development_mode', false ),
 				),
 			)
+		);
+	}
+
+	public static function rewind_data() {
+		$site_id = Jetpack_Options::get_option( 'id' );
+
+		if ( ! $site_id ) {
+			return new WP_Error( 'site_id_missing' );
+		}
+
+		$response = Jetpack_Client::wpcom_json_api_request_as_blog( sprintf( '/sites/%d/rewind', $site_id ) .'?force=wpcom', '2', array(), null, 'wpcom' );
+
+		if ( 200 !== wp_remote_retrieve_response_code( $response ) ) {
+			return new WP_Error( 'rewind_data_fetch_failed' );
+		}
+
+		$body = wp_remote_retrieve_body( $response );
+		
+		return json_decode( $body );
+	}
+
+	/**
+	 * Get rewind data
+	 *
+	 * @since 5.7.0
+	 *
+	 * @return array Array of rewind properties.
+	 */
+	public static function get_rewind_data() {
+		$rewind_data = self::rewind_data();
+
+		if ( ! is_wp_error( $rewind_data ) ) {
+			return rest_ensure_response( array(
+					'code' => 'success',
+					'message' => esc_html__( 'Rewind data correctly received.', 'jetpack' ),
+					'data' => wp_json_encode( $rewind_data ),
+				)
+			);
+		}
+
+		if ( $rewind_data->get_error_code() === 'rewind_data_fetch_failed' ) {
+			return new WP_Error( 'rewind_data_fetch_failed', esc_html__( 'Failed fetching rewind data. Try again later.', 'jetpack' ), array( 'status' => 400 ) );
+		}
+
+		if ( $rewind_data->get_error_code() === 'site_id_missing' ) {
+			return new WP_Error( 'site_id_missing', esc_html__( 'The ID of this site does not exist.', 'jetpack' ), array( 'status' => 404 ) );
+		}
+
+		return new WP_Error(
+			'error_get_rewind_data',
+			esc_html__( 'Could not retrieve Rewind data.', 'jetpack' ),
+			array( 'status' => 500 )
 		);
 	}
 

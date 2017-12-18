@@ -15,6 +15,7 @@ import { reducer as connection } from 'state/connection/reducer';
 import { reducer as jumpstart } from 'state/jumpstart/reducer';
 import { reducer as settings } from 'state/settings/reducer';
 import { reducer as siteData } from 'state/site/reducer';
+import { reducer as rewind } from 'state/rewind/reducer';
 import { reducer as pluginsData } from 'state/site/plugins/reducer';
 import { reducer as jetpackNotices } from 'state/jetpack-notices/reducer';
 import { reducer as search } from 'state/search/reducer';
@@ -28,6 +29,7 @@ const jetpackReducer = combineReducers( {
 	jumpstart,
 	settings,
 	siteData,
+	rewind,
 	jetpackNotices,
 	pluginsData,
 	search,

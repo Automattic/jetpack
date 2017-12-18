@@ -211,6 +211,11 @@ function JetpackRestApiClient( root, nonce ) {
 			.then( parseJsonResponse )
 			.then( body => JSON.parse( body.data ) ),
 
+		fetchRewindStatus: () => getRequest( `${ apiRoot }jetpack/v4/rewind`, getParams )
+			.then( checkStatus )
+			.then( parseJsonResponse )
+			.then( body => JSON.parse( body.data ) ),
+
 		dismissJetpackNotice: ( notice ) => postRequest(
 			`${ apiRoot }jetpack/v4/notice/${ notice }`,
 			postParams,
