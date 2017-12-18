@@ -691,7 +691,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		if ( $site_data->get_error_code() === 'rewind_data_fetch_failed' ) {
-			return new WP_Error( 'rewind_data_fetch_failed', esc_html__( 'Failed fetching site data. Try again later.', 'jetpack' ), array( 'status' => 400 ) );
+			return new WP_Error( 'rewind_data_fetch_failed', esc_html__( 'Failed fetching rewind data. Try again later.', 'jetpack' ), array( 'status' => 400 ) );
 		}
 
 		if ( $site_data->get_error_code() === 'site_id_missing' ) {
