@@ -690,11 +690,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 			);
 		}
 
-		if ( $site_data->get_error_code() === 'rewind_data_fetch_failed' ) {
+		if ( $rewind_data->get_error_code() === 'rewind_data_fetch_failed' ) {
 			return new WP_Error( 'rewind_data_fetch_failed', esc_html__( 'Failed fetching rewind data. Try again later.', 'jetpack' ), array( 'status' => 400 ) );
 		}
 
-		if ( $site_data->get_error_code() === 'site_id_missing' ) {
+		if ( $rewind_data->get_error_code() === 'site_id_missing' ) {
 			return new WP_Error( 'site_id_missing', esc_html__( 'The ID of this site does not exist.', 'jetpack' ), array( 'status' => 404 ) );
 		}
 
