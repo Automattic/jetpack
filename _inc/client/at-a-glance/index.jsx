@@ -59,8 +59,7 @@ class AtAGlance extends Component {
 		const securityHeader = <DashSectionHeader
 					label={ __( 'Security' ) }
 					settingsPath={ this.props.userCanManageModules && '#security' }
-					externalLink={
-						this.props.isDevMode || ! this.props.userCanManageModules
+					externalLink={ this.props.isDevMode || ! this.props.userCanManageModules
 						? ''
 						: __( 'Manage security on WordPress.com' )
 					}
@@ -76,20 +75,26 @@ class AtAGlance extends Component {
 					<DashConnections />
 				</div>
 			);
+		const isRewindActive = 'active' === get( this.props.rewindStatus, [ 'state' ], false );
 		const securityCards = [
 			<DashProtect { ...settingsProps } />,
-			<DashScan { ...settingsProps } siteRawUrl={ this.props.siteRawUrl } />,
-			<DashBackups { ...settingsProps } siteRawUrl={ this.props.siteRawUrl } />,
+			<DashScan
+				{ ...settingsProps }
+				siteRawUrl={ this.props.siteRawUrl }
+				isRewindActive={ isRewindActive }
+			/>,
+			<DashBackups
+				{ ...settingsProps }
+				siteRawUrl={ this.props.siteRawUrl }
+				isRewindActive={ isRewindActive }
+			/>,
 			<DashMonitor { ...settingsProps } />,
 			<DashAkismet { ...urls } />,
 			<DashPluginUpdates { ...settingsProps } { ...urls } />
 		];
 
-		const rewindState = get( this.props.rewindStatus, [ 'state' ], false );
-		const showRewindCard = 'active' === rewindState;
-
 		// Maybe add the rewind card
-		showRewindCard && securityCards.unshift( <DashActivity { ...settingsProps } siteRawUrl={ this.props.siteRawUrl } /> );
+		isRewindActive && securityCards.unshift( <DashActivity { ...settingsProps } siteRawUrl={ this.props.siteRawUrl } /> );
 
 		// If user can manage modules, we're in an admin view, otherwise it's a non-admin view.
 		if ( this.props.userCanManageModules ) {
