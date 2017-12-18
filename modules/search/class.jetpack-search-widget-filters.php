@@ -20,8 +20,21 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			)
 		);
 
+		if ( is_admin() ) {
+			add_action( 'sidebar_admin_setup', array( $this, 'widget_admin_setup' ) );
+		}
+
 		add_action( 'jetpack_search_render_filters_widget_title', array( $this, 'render_widget_title' ), 10, 3 );
 		add_action( 'jetpack_search_render_filters_widget_contents', array( $this, 'render_widget_contents' ), 10, 2 );
+	}
+
+	function widget_admin_setup() {
+		wp_enqueue_style( 'widget-jetpack-search-filters', plugins_url( 'css/search-widget-filters-admin-ui.css', __FILE__ ) );
+		wp_enqueue_script( 'widget-jetpack-search-filters', plugins_url( 'js/search-widget-filters-admin.js', __FILE__ ), array( 'jquery' ) );
+	}
+
+	function is_for_current_widget( $item ) {
+		return isset( $item['widget_id'] ) && $this->id == $item['widget_id'];
 	}
 
 	function widget( $args, $instance ) {
@@ -31,9 +44,9 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 
 		$search = Jetpack_Search::instance();
 
-		$filters = $search->get_filters();
+		$filters = array_filter( $search->get_filters(), array( $this, 'is_for_current_widget' ) );
 
-		$active_buckets = $search->get_active_filter_buckets();
+		$active_buckets = array_filter( $search->get_active_filter_buckets(), array( $this, 'is_for_current_widget' ) );
 
 		if ( empty( $filters ) && empty( $active_buckets ) ) {
 			return;
@@ -98,33 +111,196 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 
 		$instance['title'] = sanitize_text_field( $new_instance['title'] );
 
+		$filters = array();
+
+		foreach ( (array) $new_instance['filter_type'] as $index => $type ) {
+			switch ( $type ) {
+				case 'taxonomy':
+					$filters[] = array(
+						'name' => sanitize_text_field( $new_instance['filter_name'][ $index ] ),
+						'type' => 'taxonomy',
+						'taxonomy' => sanitize_key( $new_instance['taxonomy_type'][ $index ] ),
+						'count' => intval( $new_instance['num_filters'][ $index ] ),
+					);
+					break;
+				case 'post_type':
+					$filters[] = array(
+						'name' => sanitize_text_field( $new_instance['filter_name'][ $index ] ),
+						'type' => 'post_type',
+						'count' => intval( $new_instance['num_filters'][ $index ] ),
+					);
+					break;
+				case 'date_histogram':
+					$filters[] = array(
+						'name' => sanitize_text_field( $new_instance['filter_name'][ $index ] ),
+						'type' => 'date_histogram',
+						'count' => intval( $new_instance['num_filters'][ $index ] ),
+						'field' => sanitize_key( $new_instance['date_histogram_field'][ $index ] ),
+						'interval' => sanitize_key( $new_instance['date_histogram_interval'][ $index ] ),
+					);
+					break;
+			}
+		}
+
+		if ( ! empty( $filters ) ) {
+			$instance['filters'] = $filters;
+		}
+
 		return $instance;
 	}
 
 	function form( $instance ) {
 		$instance = wp_parse_args( (array) $instance, array(
 			'title' => '',
+			'filters' => array( array() )
 		) );
 
 		$title = strip_tags( $instance['title'] );
-
 		?>
-		<p><label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"><?php esc_html_e( 'Title:', 'jetpack' ); ?></label>
-			<input class="widefat" id="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>" name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>" type="text" value="<?php echo esc_attr( $title ); ?>" /></p>
+		<div class="jetpack-search-filters-widget">
+			<p>
+				<label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>">
+					<?php esc_html_e( 'Title:', 'jetpack' ); ?>
+				</label>
+				<input
+					class="widefat"
+					id="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"
+					name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>"
+					type="text"
+					value="<?php echo esc_attr( $title ); ?>"
+				/>
+			</p>
+			<?php foreach ( (array) $instance['filters'] as $filter ) : ?>
+				<?php $this->render_widget_filter( $filter ); ?>
+			<?php endforeach; ?>
+		</div>
 		<?php
 	}
+
+	function render_widget_filter( $filter ) {
+		$args = wp_parse_args( $filter, array(
+			'name' => '',
+			'type' => 'taxonomy',
+			'taxonomy' => '',
+			'post_type' => '',
+			'date_histogram_field' => '',
+			'date_histogram_interval' => '',
+			'count' => 10,
+		) );
+
+		?>
+		<div class="<?php echo sprintf( 'jetpack-search-filters-widget__filter is-%s', sanitize_key( $args['type'] ) ); ?>">
+			<p>
+				<label>
+					<?php esc_html_e( 'Filter Name:', 'jetpack' ); ?>
+					<input
+						class="widefat"
+						type="text"
+						name="<?php echo esc_attr( $this->get_field_name( 'filter_name' ) ); ?>[]"
+						value="<?php
+							echo ! empty( $args['name'] )
+								? esc_attr( $args['name'] )
+								: '';
+						?>"
+					/>
+				</label>
+			</p>
+
+			<p>
+				<label>
+					<?php esc_html_e( 'Filter Type:', 'jetpack' ); ?>
+					<select name="<?php echo esc_attr( $this->get_field_name( 'filter_type' ) ); ?>[]" class="widefat filter-select">
+						<option value="taxonomy" <?php selected( $args['type'], 'taxonomy' ); ?>>
+							<?php esc_html_e( 'Taxonomy', 'jetpack' ); ?>
+						</option>
+						<option value="post_type" <?php selected( $args['type'], 'post_type' ); ?>>
+							<?php esc_html_e( 'Post Type', 'jetpack' ); ?>
+						</option>
+						<option value="date_histogram" <?php selected( $args['type'], 'date_histogram' ); ?>>
+							<?php esc_html_e( 'Date', 'jetpack' ); ?>
+						</option>
+					</select>
+				</label>
+			</p>
+
+			<p class="jetpack-search-filters-widget__taxonomy-select">
+				<label>
+					<?php esc_html_e( 'Choose a taxonomy:', 'jetpack' ); ?>
+					<select name="<?php echo esc_attr( $this->get_field_name( 'taxonomy_type' ) ); ?>[]" class="widefat">
+						<?php foreach ( get_taxonomies( false, 'objects' ) as $taxonomy ) : ?>
+							<option value="<?php echo esc_attr( $taxonomy->name ); ?>" <?php selected( $taxonomy->name, $args['taxonomy'] ); ?>>
+								<?php echo esc_html( $taxonomy->label ); ?>
+							</option>
+						<?php endforeach; ?>
+					</select>
+				</label>
+			</p>
+
+			<p class="jetpack-search-filters-widget__date-histogram-select">
+				<label>
+					<?php esc_html_e( 'Choose a field:', 'jetpack' ); ?>
+					<select name="<?php echo esc_attr( $this->get_field_name( 'date_histogram_field' ) ); ?>[]" class="widefat">
+						<option value="post_date" <?php selected( 'post_date', $args['date_histogram_field'] ); ?>>
+							<?php esc_html_e( 'Date', 'jetpack' ); ?>
+						</option>
+						<option value="post_date_gmt" <?php selected( 'post_date_gmt', $args['date_histogram_field'] ); ?>>
+							<?php esc_html_e( 'Date GMT', 'jetpack' ); ?>
+						</option>
+						<option value="post_modified" <?php selected( 'post_modified', $args['date_histogram_field'] ); ?>>
+							<?php esc_html_e( 'Modified', 'jetpack' ); ?>
+						</option>
+						<option value="post_modified" <?php selected( 'post_modified_gmt', $args['date_histogram_field'] ); ?>>
+							<?php esc_html_e( 'Modified GMT', 'jetpack' ); ?>
+						</option>
+					</select>
+				</label>
+			</p>
+
+			<p class="jetpack-search-filters-widget__date-histogram-select">
+				<label>
+					<?php esc_html_e( 'Choose an interval:' ); ?>
+					<select name="<?php echo esc_attr( $this->get_field_name( 'date_histogram_interval' ) ); ?>[]" class="widefat">
+						<option value="month" <?php selected( 'month', $args['date_histogram_interval'] ); ?>>
+							<?php esc_html_e( 'Month', 'jetpack' ); ?>
+						</option>
+						<option value="year" <?php selected( 'year', $args['date_histogram_interval'] ); ?>>
+							<?php esc_html_e( 'Year', 'jetpack' ); ?>
+						</option>
+					</select>
+				</label>
+			</p>
+
+			<p>
+				<label>
+					<?php esc_html_e( 'Number of filters to display:', 'jetpack' ); ?>
+					<input
+						class="widefat"
+						name="<?php echo esc_attr( $this->get_field_name( 'num_filters' ) ); ?>[]"
+						type="number"
+						value="<?php echo intval( $args['count'] ); ?>"
+					/>
+				</label>
+			</p>
+
+			<p class="jetpack-search-filters-widget__controls">
+				<a href="#" class="delete"><?php esc_html_e( 'Remove', 'jetpack' ); ?></a>
+				<span class="control-separator">|</span>
+				<a href="#" class="add"><?php esc_html_e( 'Add', 'jetpack' ); ?></a>
+			</p>
+		</div>
+	<?php }
 
 	function render_widget_contents( $filters, $active_buckets ) {
 		if ( ! empty( $active_buckets ) ) {
 			$this->render_current_filters( $active_buckets );
 		}
 
-		foreach ( $filters as $label => $filter ) {
+		foreach ( $filters as $filter ) {
 			if ( count( $filter['buckets'] ) < 2 ) {
 				continue;
 			}
 
-			$this->render_filter( $label, $filter );
+			$this->render_filter( $filter );
 		}
 	}
 
@@ -162,8 +338,8 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		<?php endforeach;
 	}
 
-	function render_filter( $label, $filter ) { ?>
-		<h3><?php echo esc_html( $label ); ?></h3>
+	function render_filter( $filter ) { ?>
+		<h3><?php echo esc_html( $filter['name'] ); ?></h3>
 		<ul>
 			<?php foreach ( $filter['buckets'] as $item ) : ?>
 				<li>

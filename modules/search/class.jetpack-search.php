@@ -29,6 +29,8 @@ class Jetpack_Search {
 	// but are analyzed with the default analyzer.
 	public static $analyzed_langs = array( 'ar', 'bg', 'ca', 'cs', 'da', 'de', 'el', 'en', 'es', 'eu', 'fa', 'fi', 'fr', 'he', 'hi', 'hu', 'hy', 'id', 'it', 'ja', 'ko', 'nl', 'no', 'pt', 'ro', 'ru', 'sv', 'tr', 'zh' );
 
+	const FILTER_WIDGET_BASE = 'jetpack-search-filters';
+
 	protected function __construct() {
 		/* Don't do anything, needs to be initialized via instance() method */
 	}
@@ -96,6 +98,8 @@ class Jetpack_Search {
 
 			add_action( 'did_jetpack_search_query', array( $this, 'store_query_success' ) );
 			add_action( 'failed_jetpack_search_query', array( $this, 'store_query_failure' ) );
+
+			add_action( 'init', array( $this, 'set_filters_from_widgets' ) );
 		}
 	}
 
@@ -122,6 +126,46 @@ class Jetpack_Search {
 	public function print_query_success() {
 		if ( $this->last_query_info ) {
 			echo '<!-- Jetpack Search took ' . intval( $this->last_query_info['elapsed_time'] ) . ' ms, ES time ' . $this->last_query_info['es_time'] . ' ms -->';
+		}
+	}
+
+	/**
+	 * Retrives a list of known Jetpack search filters widget IDs, gets the filters for each widget,
+	 * and applies those filters to this Jetpack_Search object.
+	 *
+	 * @since 5.7.0
+	 *
+	 * @return void
+	 */
+	function set_filters_from_widgets() {
+		$widget_options = get_option( sprintf( 'widget_%s', self::FILTER_WIDGET_BASE ) );
+
+		if ( empty( $widget_options ) ) {
+			return;
+		}
+
+		// We don't need this
+		if ( isset( $widget_options['_multiwidget'] ) ) {
+			unset( $widget_options['_multiwidget'] );
+		}
+
+		$filters = array();
+
+		foreach ( (array) $widget_options as $number => $settings ) {
+			$widget_id = sprintf( '%s-%d', self::FILTER_WIDGET_BASE, $number );
+			if ( ! is_active_widget( false, $widget_id, self::FILTER_WIDGET_BASE ) || empty( $settings['filters'] ) ) {
+				continue;
+			}
+
+			foreach ( (array) $settings['filters'] as $widget_filter ) {
+				$widget_filter['widget_id'] = $widget_id;
+				$key = sprintf( '%s_%d', $widget_filter['type'], count( $filters ) );
+				$filters[ $key ] = $widget_filter;
+			}
+		}
+
+		if ( ! empty( $filters ) ) {
+			$this->set_filters( $filters );
 		}
 	}
 
@@ -997,6 +1041,11 @@ class Jetpack_Search {
 	 * @param array $aggregations Array of filters (aggregations) to apply to the search
 	 */
 	public function set_filters( array $aggregations ) {
+		foreach ( (array) $aggregations as $key => $agg ) {
+			if ( empty( $agg['name'] ) ) {
+				$aggregations[ $key ]['name'] = $key;
+			}
+		}
 		$this->aggregations = $aggregations;
 	}
 
@@ -1300,7 +1349,8 @@ class Jetpack_Search {
 					'active'     => $active,
 					'remove_url' => $remove_url,
 					'type'       => $type,
-					'type_label' => $label,
+					'type_label' => $aggregation_data[ $label ]['name'],
+					'widget_id'  => ! empty( $aggregation_data[ $label ]['widget_id'] ) ? $aggregation_data[ $label ]['widget_id'] : 0
 				);
 			} // End foreach().
 		} // End foreach().
