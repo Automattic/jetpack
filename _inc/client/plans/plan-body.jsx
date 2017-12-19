@@ -12,6 +12,7 @@ import {
 	FEATURE_UNLIMITED_PREMIUM_THEMES
 } from 'lib/plans/constants';
 import includes from 'lodash/includes';
+import get from 'lodash/get';
 
 /**
  * Internal dependencies
@@ -78,7 +79,57 @@ const PlanBody = React.createClass( {
 		const planClass = 'dev' !== this.props.plan
 			? getPlanClass( this.props.plan )
 			: 'dev';
-		const premiumThemesActive = includes( this.props.activeFeatures, FEATURE_UNLIMITED_PREMIUM_THEMES );
+		const premiumThemesActive = includes( this.props.activeFeatures, FEATURE_UNLIMITED_PREMIUM_THEMES ),
+			rewindActive = 'active' === get( this.props.rewindStatus, [ 'state' ], false );
+
+		const getRewindVaultPressCard = () => {
+			let description = '';
+
+			switch ( planClass ) {
+				case 'is-personal-plan':
+					description = __( 'Daily backup of all your site data with unlimited space and one-click restores' );
+					break;
+				case 'is-premium-plan':
+					description = __( 'Daily backup of all your site data with unlimited space, one-click restores, automated security scanning, and priority support' );
+					break;
+				case 'is-business-plan':
+					description = __( 'Real-time backup of all your site data with unlimited space, one-click restores, automated security scanning, one-click threat resolution, and priority support' );
+					break;
+				default:
+					description = '';
+			}
+
+			if ( rewindActive ) {
+				return (
+					<div className="jp-landing__plan-features-card">
+						<h3 className="jp-landing__plan-features-title">{ __( 'Backups' ) }</h3>
+						<p>{ __( 'Real-time backup of all your site data with unlimited space, one-click restores, automated security scanning, and one-click threat resolution.' ) }</p>
+						<Button onClick={ () => this.trackPlansClick( 'view_security_dash_rewind' ) } href={ 'https://wordpress.com/stats/activity/' + this.props.siteRawUrl } className="is-primary">
+							{ __( 'View your security activity' ) }
+						</Button>
+					</div>
+				);
+			}
+
+			return (
+				<div className="jp-landing__plan-features-card">
+					<h3 className="jp-landing__plan-features-title">{ __( 'Backups' ) }</h3>
+					<p>{ description + __( ' (powered by VaultPress).' ) }</p>
+					{
+						this.props.isPluginInstalled( 'vaultpress/vaultpress.php' ) && this.props.isPluginActive( 'vaultpress/vaultpress.php' ) ? (
+							<Button onClick={ () => this.trackPlansClick( 'view_security_dash' ) } href="https://dashboard.vaultpress.com/" className="is-primary">
+								{ __( 'View your security dashboard' ) }
+							</Button>
+						)
+							: (
+							<Button onClick={ () => this.trackPlansClick( 'configure_vault' ) } href={ 'https://wordpress.com/plugins/setup/' + this.props.siteRawUrl + '?only=vaultpress' } className="is-primary">
+								{ __( 'Configure VaultPress' ) }
+							</Button>
+						)
+					}
+				</div>
+			);
+		};
 
 		switch ( planClass ) {
 			case 'is-personal-plan':
@@ -118,66 +169,15 @@ const PlanBody = React.createClass( {
 						</div>
 
 					{
-						'is-personal-plan' === planClass && (
-							<div className="jp-landing__plan-features-card">
-								<h3 className="jp-landing__plan-features-title">{ __( 'Backups' ) }</h3>
-								<p>{ __( 'Daily backup of all your site data with unlimited space and one-click restores (powered by VaultPress).' ) }</p>
-								{
-									this.props.isPluginInstalled( 'vaultpress/vaultpress.php' ) && this.props.isPluginActive( 'vaultpress/vaultpress.php' ) ? (
-										<Button onClick={ () => this.trackPlansClick( 'view_security_dash' ) } href="https://dashboard.vaultpress.com/" className="is-primary">
-											{ __( 'View your security dashboard' ) }
-										</Button>
-									)
-									: (
-										<Button onClick={ () => this.trackPlansClick( 'configure_vault' ) } href={ 'https://wordpress.com/plugins/setup/' + this.props.siteRawUrl + '?only=vaultpress' } className="is-primary">
-											{ __( 'Configure VaultPress' ) }
-										</Button>
-									)
-								}
-							</div>
-						)
+						'is-personal-plan' === planClass && getRewindVaultPressCard()
 					}
 
 					{
-						'is-premium-plan' === planClass && (
-							<div className="jp-landing__plan-features-card">
-								<h3 className="jp-landing__plan-features-title">{ __( 'Backups & Security Scanning' ) }</h3>
-								<p>{ __( 'Daily backup of all your site data with unlimited space, one-click restores, automated security scanning, and priority support (powered by VaultPress).' ) }</p>
-								{
-									this.props.isPluginInstalled( 'vaultpress/vaultpress.php' ) && this.props.isPluginActive( 'vaultpress/vaultpress.php' ) ? (
-										<Button onClick={ () => this.trackPlansClick( 'view_security_dash' ) } href="https://dashboard.vaultpress.com/" className="is-primary">
-											{ __( 'View your security dashboard' ) }
-										</Button>
-									)
-									: (
-										<Button onClick={ () => this.trackPlansClick( 'configure_vault' ) } href={ 'https://wordpress.com/plugins/setup/' + this.props.siteRawUrl + '?only=vaultpress' } className="is-primary">
-											{ __( 'Configure VaultPress' ) }
-										</Button>
-									)
-								}
-							</div>
-						)
+						'is-premium-plan' === planClass && getRewindVaultPressCard()
 					}
 
 					{
-						'is-business-plan' === planClass && (
-							<div className="jp-landing__plan-features-card">
-								<h3 className="jp-landing__plan-features-title">{ __( 'Backups & Security Scanning' ) }</h3>
-								<p>{ __( 'Real-time backup of all your site data with unlimited space, one-click restores, automated security scanning, one-click threat resolution, and priority support (powered by VaultPress).' ) }</p>
-								{
-									this.props.isPluginInstalled( 'vaultpress/vaultpress.php' ) && this.props.isPluginActive( 'vaultpress/vaultpress.php' ) ? (
-										<Button onClick={ () => this.trackPlansClick( 'view_security_dash' ) } href="https://dashboard.vaultpress.com/" className="is-primary">
-											{ __( 'View your security dashboard' ) }
-										</Button>
-									)
-									: (
-										<Button onClick={ () => this.trackPlansClick( 'configure_vault' ) } href={ 'https://wordpress.com/plugins/setup/' + this.props.siteRawUrl + '?only=vaultpress' } className="is-primary">
-											{ __( 'Configure VaultPress' ) }
-										</Button>
-									)
-								}
-							</div>
-						)
+						'is-business-plan' === planClass && getRewindVaultPressCard()
 					}
 
 					{
