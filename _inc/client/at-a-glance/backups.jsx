@@ -142,18 +142,12 @@ class DashBackups extends Component {
 				<QueryVaultPressData />
 				{
 					this.props.isRewindActive
-						? (
-							<div className="jp-dash-item__interior">
-								{
-									renderCard( {
-										className: 'jp-dash-item__is-active',
-										status: 'is-working',
-										content: __( 'Your site is being backed up in real-time.' ),
-										feature: 'rewind',
-									} )
-								}
-							</div>
-						)
+						? renderCard( {
+							className: 'jp-dash-item__is-active',
+							status: 'is-working',
+							content: __( 'Your site is being backed up in real-time.' ),
+							feature: 'rewind',
+						} )
 						: this.getVPContent()
 				}
 			</div>

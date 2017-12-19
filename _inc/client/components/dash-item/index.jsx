@@ -32,7 +32,7 @@ import {
  *
  * @returns {undefined}
  */
-const trackMonitorSettingsClick = () =>	analytics.tracks.recordJetpackClick( {
+const trackMonitorSettingsClick = () => analytics.tracks.recordJetpackClick( {
 	target: 'monitor-settings',
 	page: 'aag'
 } );
