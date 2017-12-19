@@ -3,6 +3,7 @@
  */
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import get from 'lodash/get';
 
 /**
  * Internal dependencies
@@ -58,12 +59,15 @@ export class Security extends Component {
 			getModule: this.props.module,
 			isDevMode: this.props.isDevMode,
 			isUnavailableInDevMode: this.props.isUnavailableInDevMode,
+			rewindStatus: this.props.rewindStatus,
+			siteRawUrl: this.props.siteRawUrl,
 		};
 
 		const foundProtect = this.props.isModuleFound( 'protect' ),
 			foundSso = this.props.isModuleFound( 'sso' ),
 			foundAkismet = this.isAkismetFound(),
-			foundBackups = this.props.isModuleFound( 'vaultpress' );
+			rewindActive = 'unavailable' === get( this.props.rewindStatus, [ 'state' ], false ),
+			foundBackups = this.props.isModuleFound( 'vaultpress' ) || rewindActive;
 
 		if ( ! this.props.searchTerm && ! this.props.active ) {
 			return null;
