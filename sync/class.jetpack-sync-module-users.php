@@ -70,23 +70,39 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	}
 
 	public function sanitize_user_and_expand( $user ) {
+		$user = $this->get_user( $user );
 		$user = $this->add_to_user( $user );
 		return $this->sanitize_user( $user );
 	}
 
+	private function get_user( $user ) {
+		if ( $user && ! is_object( $user ) && is_numeric( $user ) ) {
+			$user = get_user_by( 'id', $user );
+		}
+		if ( $user instanceof WP_User ) {
+			return $user;
+		}
+		return null;
+	}
+
 	public function sanitize_user( $user ) {
+		$user = $this->get_user( $user );
 		// this create a new user object and stops the passing of the object by reference.
 		$user = unserialize( serialize( $user ) );
 
 		if ( is_object( $user ) && is_object( $user->data ) ) {
 			unset( $user->data->user_pass );
 		}
-
-		$user->allcaps = $this->get_real_user_capabilities( $user );
+		if ( $user ) {
+			$user->allcaps = $this->get_real_user_capabilities( $user );
+		}
 		return $user;
 	}
 
 	public function add_to_user( $user ) {
+		if ( ! is_object( $user ) ) {
+			return null;
+		}
 		$user->allowed_mime_types = get_allowed_mime_types( $user );
 
 		if ( function_exists( 'get_user_locale' ) ) {
@@ -102,6 +118,9 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 
 	public function get_real_user_capabilities( $user ) {
 		$user_capabilities = array();
+		if ( is_wp_error( $user ) ) {
+			return $user_capabilities;
+		}
 		foreach( Jetpack_Sync_Defaults::get_capabilities_whitelist() as $capability ) {
 			if ( $user_has_capabilities = user_can( $user , $capability ) ) {
 				$user_capabilities[ $capability ] = true;
@@ -130,9 +149,14 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	public function expand_logout_username( $args, $user_id ) {
 		$user  = get_userdata( $user_id );
 		$user  = $this->sanitize_user( $user );
+		
 		$login = '';
 		if ( is_object( $user ) && is_object( $user->data ) ) {
 			$login = $user->data->user_login;
+		}
+		// if we don't have a user here lets not send anything.
+		if ( empty( $login ) ) {
+			return false;
 		}
 
 		return array( $login, $user );

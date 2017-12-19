@@ -1,6 +1,6 @@
 {
   "name": "Jetpack",
-  "version": "5.6.0-alpha",
+  "version": "5.7.0-alpha",
   "description": "[Jetpack](http://jetpack.com/) is a WordPress plugin that supercharges your self-hosted WordPress site with the awesome cloud power of [WordPress.com](https://wordpress.com).",
   "homepage": "http://jetpack.com",
   "author": "Automattic",
@@ -13,10 +13,11 @@
     "url": "https://github.com/Automattic/jetpack/issues"
   },
   "scripts": {
-    "watch": "./node_modules/.bin/gulp watch",
+    "watch": "yarn install-if-deps-outdated && ./node_modules/.bin/gulp watch",
     "clean-client": "rm -rf _inc/build/*.js _inc/build/*.css _inc/build/*.map _inc/build/*.html",
+    "install-if-deps-outdated": "yarn check 2> /dev/null || yarn install --check-files",
     "distclean": "rm -rf node_modules && yarn cache clean",
-    "build": "yarn && yarn build-client",
+    "build": "yarn install-if-deps-outdated && yarn build-client",
     "build-client": "gulp",
     "build-production": "yarn distclean && yarn --prod && gulp languages:extract && NODE_ENV=production BABEL_ENV=production yarn build-client",
     "build-languages": "gulp languages",
@@ -94,6 +95,7 @@
     "json-loader": "^0.5.7",
     "lodash": "^4.9.0",
     "node-sass": "4.5.3",
+    "prop-types": "15.5.10",
     "react": "^15.6.1",
     "react-dom": "^15.6.1",
     "react-hot-loader": "^1.3.0",
@@ -106,6 +108,7 @@
     "redux-thunk": "^2.0.1",
     "sass-loader": "6.0.6",
     "style-loader": "0.13",
+    "uglify-save-license": "^0.4.1",
     "url-loader": "^0.5.7",
     "webpack": "3.8.1",
     "whatwg-fetch": "^1.0.0"

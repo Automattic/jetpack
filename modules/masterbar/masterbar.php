@@ -31,6 +31,15 @@ class A8C_WPCOM_Masterbar {
 			return;
 		}
 
+		Jetpack::dns_prefetch( array(
+			'//s0.wp.com',
+			'//s1.wp.com',
+			'//s2.wp.com',
+			'//0.gravatar.com',
+			'//1.gravatar.com',
+			'//2.gravatar.com',
+		) );
+
 		// Atomic only - override user setting that hides masterbar from site's front.
 		// https://github.com/Automattic/jetpack/issues/7667
 		if ( jetpack_is_atomic_site() ) {
@@ -123,8 +132,21 @@ class A8C_WPCOM_Masterbar {
 			wp_enqueue_style( 'noticons', $this->wpcom_static_url( '/i/noticons/noticons.css' ), array(), JETPACK__VERSION . '-' . gmdate( 'oW' ) );
 		}
 
-		wp_enqueue_script( 'jetpack-accessible-focus', plugins_url( '_inc/build/accessible-focus.min.js', JETPACK__PLUGIN_FILE ), array(), JETPACK__VERSION );
-		wp_enqueue_script( 'a8c_wpcom_masterbar_tracks_events', plugins_url( 'tracks-events.js', __FILE__ ), array( 'jquery' ), JETPACK__VERSION );
+		wp_enqueue_script(
+			'jetpack-accessible-focus',
+			Jetpack::get_file_url_for_environment( '_inc/build/accessible-focus.min.js', '_inc/accessible-focus.js' ),
+			array(),
+			JETPACK__VERSION
+		);
+		wp_enqueue_script(
+			'a8c_wpcom_masterbar_tracks_events',
+			Jetpack::get_file_url_for_environment(
+				'_inc/build/masterbar/tracks-events.min.js',
+				'modules/masterbar/tracks-events.js'
+			),
+			array( 'jquery' ),
+			JETPACK__VERSION
+		);
 
 		wp_enqueue_script( 'a8c_wpcom_masterbar_overrides', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/masterbar-overrides/masterbar.js' ), array( 'jquery' ), JETPACK__VERSION );
 	}
@@ -376,7 +398,12 @@ class A8C_WPCOM_Masterbar {
 		$user_info  = get_avatar( $this->user_email, 128, 'mm', '', array( 'force_display' => true ) );
 		$user_info .= '<span class="display-name">' . $this->display_name . '</span>';
 		$user_info .= '<a class="username" href="http://gravatar.com/' . $this->user_login . '">@' . $this->user_login . '</a>';
-		$user_info .= '<form action="' . $logout_url . '" method="post"><button class="ab-sign-out" type="submit">' . esc_html__( 'Sign Out', 'jetpack' ) . '</button></form>';
+
+		$user_info .= sprintf(
+			'<div><a href="%s" class="ab-sign-out">%s</a></div>',
+			$logout_url,
+			esc_html__( 'Sign Out', 'jetpack' )
+		);
 
 		$wp_admin_bar->add_menu( array(
 			'parent' => $id,
@@ -833,7 +860,7 @@ class A8C_WPCOM_Masterbar {
 
 			$theme_title = $this->create_menu_item_pair(
 				array(
-					'url'   => 'https://wordpress.com/design/' . esc_attr( $this->primary_site_slug ),
+					'url'   => 'https://wordpress.com/themes/' . esc_attr( $this->primary_site_slug ),
 					'id'    => 'wp-admin-bar-themes',
 					'label' => esc_html__( 'Themes', 'jetpack' ),
 				),

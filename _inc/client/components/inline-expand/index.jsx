@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import PropTypes from 'prop-types';
 import React from 'react';
 import Gridicon from 'components/gridicon';
 import classNames from 'classnames';
@@ -13,14 +14,14 @@ import onKeyDownCallback from 'utils/onkeydown-callback';
 export const InlineExpand = React.createClass( {
 
 	propTypes: {
-		label: React.PropTypes.string.isRequired,
-		icon: React.PropTypes.string,
-		cardKey: React.PropTypes.string,
-		disabled: React.PropTypes.bool,
-		expanded: React.PropTypes.bool,
-		onClick: React.PropTypes.func,
-		onClose: React.PropTypes.func,
-		onOpen: React.PropTypes.func
+		label: PropTypes.string.isRequired,
+		icon: PropTypes.string,
+		cardKey: PropTypes.string,
+		disabled: PropTypes.bool,
+		expanded: PropTypes.bool,
+		onClick: PropTypes.func,
+		onClose: PropTypes.func,
+		onOpen: PropTypes.func
 	},
 
 	getInitialState: function() {

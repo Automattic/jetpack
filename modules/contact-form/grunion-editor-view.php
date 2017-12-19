@@ -39,7 +39,10 @@ class Grunion_Editor_View {
 	}
 
 	public static function mce_external_plugins( $plugin_array ) {
-		$plugin_array['grunion_form'] =  plugins_url( 'js/tinymce-plugin-form-button.js', __FILE__ );
+		$plugin_array['grunion_form'] = Jetpack::get_file_url_for_environment(
+			'_inc/build/contact-form/js/tinymce-plugin-form-button.min.js',
+			'modules/contact-form/js/tinymce-plugin-form-button.js'
+		);
 		return $plugin_array;
 	}
 
@@ -64,7 +67,16 @@ class Grunion_Editor_View {
 
 		wp_enqueue_style( 'grunion-editor-ui', plugins_url( 'css/editor-ui.css', __FILE__ ) );
 		wp_style_add_data( 'grunion-editor-ui', 'rtl', 'replace' );
-		wp_enqueue_script( 'grunion-editor-view', plugins_url( 'js/editor-view.js', __FILE__ ), array( 'wp-util', 'jquery', 'quicktags' ), false, true );
+		wp_enqueue_script(
+			'grunion-editor-view',
+			Jetpack::get_file_url_for_environment(
+				'_inc/build/contact-form/js/editor-view.min.js',
+				'modules/contact-form/js/editor-view.js'
+			),
+			array( 'wp-util', 'jquery', 'quicktags' ),
+			false,
+			true
+		);
 		wp_localize_script( 'grunion-editor-view', 'grunionEditorView', array(
 			'inline_editing_style' => plugins_url( 'css/editor-inline-editing-style.css', __FILE__ ),
 			'inline_editing_style_rtl' => plugins_url( 'css/editor-inline-editing-style-rtl.css', __FILE__ ),

@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import forEach from 'lodash/forEach';
 import get from 'lodash/get';
@@ -288,10 +289,10 @@ class DashStats extends Component {
 }
 
 DashStats.propTypes = {
-	isDevMode: React.PropTypes.bool.isRequired,
-	siteRawUrl: React.PropTypes.string.isRequired,
-	siteAdminUrl: React.PropTypes.string.isRequired,
-	statsData: React.PropTypes.any.isRequired
+	isDevMode: PropTypes.bool.isRequired,
+	siteRawUrl: PropTypes.string.isRequired,
+	siteAdminUrl: PropTypes.string.isRequired,
+	statsData: PropTypes.any.isRequired
 };
 
 export default connect(

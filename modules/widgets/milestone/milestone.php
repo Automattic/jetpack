@@ -60,12 +60,30 @@ class Milestone_Widget extends WP_Widget {
 	public static function enqueue_admin( $hook_suffix ) {
 		if ( 'widgets.php' == $hook_suffix ) {
 			wp_enqueue_style( 'milestone-admin', self::$url . 'style-admin.css', array(), '20161215' );
-			wp_enqueue_script( 'milestone-admin-js', self::$url . 'admin.js', array( 'jquery' ), '20170915', true );
+			wp_enqueue_script(
+				'milestone-admin-js',
+				Jetpack::get_file_url_for_environment(
+					'_inc/build/widgets/milestone/admin.min.js',
+					'modules/widgets/milestone/admin.js'
+				),
+				array( 'jquery' ),
+				'20170915',
+				true
+			);
 		}
 	}
 
 	public static function enqueue_template() {
-		wp_enqueue_script( 'milestone', self::$url . 'milestone.js', array( 'jquery' ), '20160520', true );
+		wp_enqueue_script(
+			'milestone',
+			Jetpack::get_file_url_for_environment(
+				'_inc/build/widgets/milestone/milestone.min.js',
+				'modules/widgets/milestone/milestone.js'
+			),
+			array( 'jquery' ),
+			'20160520',
+			true
+		);
 	}
 
 	public static function styles_template() {

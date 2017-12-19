@@ -791,7 +791,15 @@ function sharing_display( $text = '', $echo = false ) {
 			} else {
 				$ver = '20141212';
 			}
-			wp_register_script( 'sharing-js', plugin_dir_url( __FILE__ ).'sharing.js', array( 'jquery' ), $ver );
+			wp_register_script(
+				'sharing-js',
+				Jetpack::get_file_url_for_environment(
+					'_inc/build/sharedaddy/sharing.min.js',
+					'modules/sharedaddy/sharing.js'
+				),
+				array( 'jquery' ),
+				$ver
+			);
 
 			// Enqueue scripts for the footer
 			add_action( 'wp_footer', 'sharing_add_footer' );

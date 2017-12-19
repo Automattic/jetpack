@@ -58,12 +58,18 @@ class Jetpack_Sitemap_Logger {
 	 * @access public
 	 * @since 4.8.0
 	 *
-	 * @param string $message The string to be written to the log.
+	 * @param string  $message  The string to be written to the log.
+	 * @param boolean $is_error If true, $message will be logged even if JETPACK_DEV_DEBUG is not enabled
 	 */
-	public function report( $message ) {
-		if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-			error_log( 'jp-sitemap-' . $this->key . ': ' . $message );
+	public function report( $message, $is_error = false ) {
+		$message = 'jp-sitemap-' . $this->key . ': ' . $message;
+		if ( ! ( defined( 'WP_DEBUG' ) && WP_DEBUG ) ) {
+			return;
 		}
+		if ( ! $is_error && ! ( defined( 'JETPACK_DEV_DEBUG' ) && JETPACK_DEV_DEBUG ) ) {
+			return;
+		}
+		error_log( $message );
 		return;
 	}
 

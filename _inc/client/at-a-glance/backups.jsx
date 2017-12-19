@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import DashItem from 'components/dash-item';
@@ -104,10 +105,10 @@ class DashBackups extends Component {
 }
 
 DashBackups.propTypes = {
-	vaultPressData: React.PropTypes.any.isRequired,
-	isDevMode: React.PropTypes.bool.isRequired,
-	siteRawUrl: React.PropTypes.string.isRequired,
-	sitePlan: React.PropTypes.object.isRequired
+	vaultPressData: PropTypes.any.isRequired,
+	isDevMode: PropTypes.bool.isRequired,
+	siteRawUrl: PropTypes.string.isRequired,
+	sitePlan: PropTypes.object.isRequired
 };
 
 export default connect(

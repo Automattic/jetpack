@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 
@@ -65,9 +66,9 @@ const NonAdminView = React.createClass( {
 } );
 
 NonAdminView.propTypes = {
-	userCanViewStats: React.PropTypes.bool.isRequired,
-	isSubscriber: React.PropTypes.bool.isRequired,
-	siteConnectionStatus: React.PropTypes.any.isRequired
+	userCanViewStats: PropTypes.bool.isRequired,
+	isSubscriber: PropTypes.bool.isRequired,
+	siteConnectionStatus: PropTypes.any.isRequired
 };
 
 export default connect(

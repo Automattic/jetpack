@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
@@ -24,9 +25,9 @@ import { getSiteRawUrl } from 'state/initial-state';
 
 export const JetpackDisconnectDialog = React.createClass( {
 	propTypes: {
-		show: React.PropTypes.bool,
-		toggleModal: React.PropTypes.func,
-		disconnectSite: React.PropTypes.func
+		show: PropTypes.bool,
+		toggleModal: PropTypes.func,
+		disconnectSite: PropTypes.func
 	},
 
 	getDefaultProps() {

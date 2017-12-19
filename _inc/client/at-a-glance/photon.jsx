@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import DashItem from 'components/dash-item';
@@ -64,7 +65,7 @@ class DashPhoton extends Component {
 }
 
 DashPhoton.propTypes = {
-	isDevMode: React.PropTypes.bool.isRequired
+	isDevMode: PropTypes.bool.isRequired
 };
 
 export default connect(

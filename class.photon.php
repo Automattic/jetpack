@@ -344,8 +344,36 @@ class Jetpack_Photon {
 							unset( $placeholder_src );
 						}
 
-						// Remove the width and height arguments from the tag to prevent distortion
-						$new_tag = preg_replace( '#(?<=\s)(width|height)=["|\']?[\d%]+["|\']?\s?#i', '', $new_tag );
+						// If we are not transforming the image with resize, fit, or letterbox (lb), then we should remove
+						// the width and height arguments from the image to prevent distortion. Even if $args['w'] and $args['h']
+						// are present, Photon does not crop to those dimensions. Instead, it appears to favor height.
+						//
+						// If we are transforming the image via one of those methods, let's update the width and height attributes.
+						if ( empty( $args['resize'] ) && empty( $args['fit'] ) && empty( $args['lb'] ) ) {
+							$new_tag = preg_replace( '#(?<=\s)(width|height)=["|\']?[\d%]+["|\']?\s?#i', '', $new_tag );
+						} else {
+							$resize_args = isset( $args['resize'] ) ? $args['resize'] : false;
+							if ( false == $resize_args ) {
+								$resize_args = ( ! $resize_args && isset( $args['fit'] ) )
+									? $args['fit']
+									: false;
+							}
+							if ( false == $resize_args ) {
+								$resize_args = ( ! $resize_args && isset( $args['lb'] ) )
+									? $args['lb']
+									: false;
+							}
+
+							$resize_args = array_map( 'trim', explode( ',', $resize_args ) );
+
+							// (?<=\s)         - Ensure width or height attribute is preceded by a space
+							// (width=["|\']?) - Matches, and captures, width=, width=", or width='
+							// [\d%]+          - Matches 1 or more digits
+							// (["|\']?)       - Matches, and captures, ", ', or empty string
+							// \s              - Ensures there's a space after the attribute
+							$new_tag = preg_replace( '#(?<=\s)(width=["|\']?)[\d%]+(["|\']?)\s?#i', sprintf( '${1}%d${2} ', $resize_args[0] ), $new_tag );
+							$new_tag = preg_replace( '#(?<=\s)(height=["|\']?)[\d%]+(["|\']?)\s?#i', sprintf( '${1}%d${2} ', $resize_args[1] ), $new_tag );
+						}
 
 						// Tag an image for dimension checking
 						$new_tag = preg_replace( '#(\s?/)?>(\s*</a>)?$#i', ' data-recalc-dims="1"\1>\2', $new_tag );
@@ -986,6 +1014,15 @@ class Jetpack_Photon {
 	 * @return null
 	 */
 	public function action_wp_enqueue_scripts() {
-		wp_enqueue_script( 'jetpack-photon', plugins_url( 'modules/photon/photon.js', JETPACK__PLUGIN_FILE ), array( 'jquery' ), 20130122, true );
+		wp_enqueue_script(
+			'jetpack-photon',
+			Jetpack::get_file_url_for_environment(
+				'_inc/build/photon/photon.min.js',
+				'modules/photon/photon.js'
+			),
+			array( 'jquery' ),
+			20130122,
+			true
+		);
 	}
 }

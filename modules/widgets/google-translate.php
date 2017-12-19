@@ -44,7 +44,13 @@ class Jetpack_Google_Translate_Widget extends WP_Widget {
 	 * Enqueue frontend JS scripts.
 	 */
 	public function enqueue_scripts() {
-		wp_register_script( 'google-translate-init', plugins_url( 'google-translate/google-translate.js', __FILE__ ) );
+		wp_register_script(
+			'google-translate-init',
+			Jetpack::get_file_url_for_environment(
+				'_inc/build/widgets/google-translate/google-translate.min.js',
+				'modules/widgets/google-translate/google-translate.js'
+			)
+		);
 		wp_register_script( 'google-translate', '//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit', array( 'google-translate-init' ) );
 		// Admin bar is also displayed on top of the site which causes google translate bar to hide beneath.
 		// This is a hack to show google translate bar a bit lower.

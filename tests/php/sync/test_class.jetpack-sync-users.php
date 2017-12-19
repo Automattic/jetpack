@@ -400,6 +400,19 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$this->assertFalse( isset( $user_data_sent_to_server->data->user_pass ) );
 	}
 
+	public function test_syncs_user_logout_event_without_user() {
+		$current_user_id = get_current_user_id();
+		wp_set_current_user( 0 );
+		do_action( 'wp_logout' );
+
+		$this->sender->do_sync();
+
+		wp_set_current_user( $current_user_id );
+
+		$event = $this->server_event_storage->get_most_recent_event( 'wp_logout' );
+		$this->assertFalse( $event );
+	}
+
 	public function test_deleted_user_during_sync_doesnt_cause_error() {
 		$this->server_event_storage->reset();
 

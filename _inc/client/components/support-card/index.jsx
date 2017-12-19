@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import classNames from 'classnames';
@@ -129,8 +130,8 @@ const SupportCard = React.createClass( {
 } );
 
 SupportCard.propTypes = {
-	siteConnectionStatus: React.PropTypes.any.isRequired,
-	className: React.PropTypes.string
+	siteConnectionStatus: PropTypes.any.isRequired,
+	className: PropTypes.string
 };
 
 export default connect(

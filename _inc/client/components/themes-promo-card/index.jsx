@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import PropTypes from 'prop-types';
 import React from 'react';
 import classNames from 'classnames';
 import { translate as __ } from 'i18n-calypso';
@@ -84,13 +85,6 @@ const ThemesPromoCard = React.createClass( {
 								{ __( 'Compare All Plans' ) }
 							</Button>
 						</p>
-
-						<a
-							onClick={ this.trackGetStarted }
-							href={ 'https://jetpack.com/redirect/?source=upgrade-pro-' + urlFriendlyPlan + '&site=' + this.props.siteRawUrl }
-						>
-							{ __( 'Limited time 50% introductory discount on Jetpack Professional.' ) }
-						</a>
 					</div>
 				</Card>
 			</div>
@@ -99,8 +93,8 @@ const ThemesPromoCard = React.createClass( {
 } );
 
 ThemesPromoCard.propTypes = {
-	className: React.PropTypes.string,
-	plan: React.PropTypes.string
+	className: PropTypes.string,
+	plan: PropTypes.string
 };
 
 export default ThemesPromoCard;

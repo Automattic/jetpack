@@ -225,10 +225,12 @@ class Jetpack_Sitemap_Librarian {
 				"SELECT *
 					FROM $wpdb->posts
 					WHERE post_type=%s
+						AND post_status=%s
 						AND ID>%d
 					ORDER BY ID ASC
 					LIMIT %d;",
 				$type,
+				'draft',
 				$from_id,
 				$num_posts
 			),

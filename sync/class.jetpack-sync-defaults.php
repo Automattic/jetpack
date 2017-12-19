@@ -335,6 +335,19 @@ class Jetpack_Sync_Defaults {
 		'hc_foreign_user_id'
 	);
 
+	public static function get_comment_meta_whitelist() {
+		/**
+		 * Filter the list of comment meta data that are manageable via the JSON API.
+		 *
+		 * @module sync
+		 *
+		 * @since 5.7.0
+		 *
+		 * @param array The default list of comment meta data keys.
+		 */
+		return apply_filters( 'jetpack_sync_comment_meta_whitelist', self::$comment_meta_whitelist );
+	}
+
 	// TODO: move this to server? - these are theme support values
 	// that should be synced as jetpack_current_theme_supports_foo option values
 	static $default_theme_support_whitelist = array(

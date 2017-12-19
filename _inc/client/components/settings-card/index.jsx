@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
@@ -277,8 +278,8 @@ export const SettingsCard = props => {
 };
 
 SettingsCard.propTypes = {
-	action: React.PropTypes.string,
-	saveDisabled: React.PropTypes.bool
+	action: PropTypes.string,
+	saveDisabled: PropTypes.bool
 };
 
 SettingsCard.defaultProps = {

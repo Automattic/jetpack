@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import PropTypes from 'prop-types';
 import React from 'react';
 import { Component } from 'react';
 import { translate as __ } from 'i18n-calypso';
@@ -99,7 +100,7 @@ class WelcomePremium extends Component {
 		return (
 			<JetpackDialogue
 				svg={ <img src={ imagePath + 'generating-cash-2.svg' } width="250" alt={ __( 'Welcome Premium' ) } /> }
-				title={ __( 'Your Premium Jetpack plan is powering up!' ) }
+				title={ __( 'Your Jetpack Premium plan is powering up!' ) }
 				content={ this.renderInnerContent() }
 				belowContent={ this.renderBelowContent() }
 				dismiss={ this.props.dismiss }
@@ -110,7 +111,7 @@ class WelcomePremium extends Component {
 }
 
 WelcomePremium.propTypes = {
-	dismiss: React.PropTypes.func
+	dismiss: PropTypes.func
 };
 
 export default WelcomePremium;

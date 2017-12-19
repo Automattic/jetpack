@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import DashItem from 'components/dash-item';
@@ -131,8 +132,8 @@ class DashAkismet extends Component {
 }
 
 DashAkismet.propTypes = {
-	siteRawUrl: React.PropTypes.string.isRequired,
-	siteAdminUrl: React.PropTypes.string.isRequired
+	siteRawUrl: PropTypes.string.isRequired,
+	siteAdminUrl: PropTypes.string.isRequired
 };
 
 export default connect(

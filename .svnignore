@@ -29,5 +29,6 @@ _inc/client
 _inc/*.js
 _inc/build/*.js.map
 _inc/build/*.css.map
+_inc/build/maps
 .codeclimate.yml
 yarn.lock

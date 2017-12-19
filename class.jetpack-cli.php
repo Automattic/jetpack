@@ -29,6 +29,9 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 *
 	 */
 	public function status( $args, $assoc_args ) {
+
+		WP_CLI::line( sprintf( __( 'Checking status for %s', 'jetpack' ), esc_url( get_site_url() ) ) );
+
 		if ( ! Jetpack::is_active() ) {
 			WP_CLI::error( __( 'Jetpack is not currently connected to WordPress.com', 'jetpack' ) );
 		}
@@ -103,6 +106,9 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * @subcommand test-connection
 	 */
 	public function test_connection( $args, $assoc_args ) {
+
+		WP_CLI::line( sprintf( __( 'Testing connection for %s', 'jetpack' ), esc_url( get_site_url() ) ) );
+
 		if ( ! Jetpack::is_active() ) {
 			WP_CLI::error( __( 'Jetpack is not currently connected to WordPress.com', 'jetpack' ) );
 		}
@@ -191,7 +197,10 @@ class Jetpack_CLI extends WP_CLI_Command {
 			case 'blog':
 				Jetpack::log( 'disconnect' );
 				Jetpack::disconnect();
-				WP_CLI::success( __( 'Jetpack has been successfully disconnected.', 'jetpack' ) );
+				WP_CLI::success( sprintf(
+					__( 'Jetpack has been successfully disconnected for %s.', 'jetpack' ),
+					esc_url( get_site_url() )
+				) );
 				break;
 			case 'user':
 				if ( Jetpack::unlink_user( $user->ID ) ) {
@@ -244,7 +253,10 @@ class Jetpack_CLI extends WP_CLI_Command {
 				$options_to_reset = Jetpack_Options::get_options_for_reset();
 
 				// Reset the Jetpack options
-				_e( "Resetting Jetpack Options...\n", "jetpack" );
+				WP_CLI::line( sprintf(
+					__( "Resetting Jetpack Options for %s...\n", "jetpack" ),
+					esc_url( get_site_url() )
+				) );
 				sleep(1); // Take a breath
 				foreach ( $options_to_reset['jp_options'] as $option_to_reset ) {
 					Jetpack_Options::delete_option( $option_to_reset );
@@ -254,7 +266,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				}
 
 				// Reset the WP options
-				_e( "Resetting the jetpack options stored in wp_options...\n", "jetpack" );
+				WP_CLI::line( __( "Resetting the jetpack options stored in wp_options...\n", "jetpack" ) );
 				usleep( 500000 ); // Take a breath
 				foreach ( $options_to_reset['wp_options'] as $option_to_reset ) {
 					delete_option( $option_to_reset );
@@ -264,7 +276,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 				}
 
 				// Reset to default modules
-				_e( "Resetting default modules...\n", "jetpack" );
+				WP_CLI::line( __( "Resetting default modules...\n", "jetpack" ) );
 				usleep( 500000 ); // Take a breath
 				$default_modules = Jetpack::get_default_modules();
 				Jetpack::update_active_modules( $default_modules );
@@ -880,13 +892,17 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * : Whether to force a site to register
 	 * [--force_connect=<force_connect>]
 	 * : Force JPS to not reuse existing credentials
+	 * [--home_url=<home_url>]
+	 * : Overrides the home option via the home_url filter, or the WP_HOME constant
+	 * [--site_url=<site_url>]
+	 * : Overrides the siteurl option via the site_url filter, or the WP_SITEURL constant
 	 *
 	 * ## EXAMPLES
 	 *
 	 *     $ wp jetpack partner_provision '{ some: "json" }' premium 1
 	 *     { success: true }
 	 *
-	 * @synopsis <token_json> [--wpcom_user_id=<user_id>] [--plan=<plan_name>] [--onboarding=<onboarding>] [--force_register=<register>] [--force_connect=<force_connect>]
+	 * @synopsis <token_json> [--wpcom_user_id=<user_id>] [--plan=<plan_name>] [--onboarding=<onboarding>] [--force_register=<register>] [--force_connect=<force_connect>] [--home_url=<home_url>] [--site_url=<site_url>]
 	 */
 	public function partner_provision( $args, $named_args ) {
 		list( $token_json ) = $args;
@@ -904,6 +920,28 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		if ( ! isset( $token->access_token ) ) {
 			$this->partner_provision_error( new WP_Error( 'missing_access_token', __( 'Missing or invalid access token', 'jetpack' ) ) );
+		}
+
+		$url_args = array(
+			'home_url' => 'WP_HOME',
+			'site_url' => 'WP_SITEURL',
+		);
+
+		foreach ( $url_args as $url_arg => $constant_name ) {
+			// Anonymous functions were introduced in 5.3.0. So, if we're running on
+			// >= 5.3.0, use an anonymous function to set the home/siteurl values.
+			//
+			// Otherwise, fallback to setting the home/siteurl value via the WP_HOME and
+			// WP_SITEURL constants if the constant hasn't already been defined.
+			if ( isset( $named_args[ $url_arg ] ) ) {
+				if ( version_compare( phpversion(), '5.3.0', '>=') ) {
+					add_filter( $url_arg, function( $url ) use ( $url_arg, $named_args ) {
+						return $named_args[ $url_arg ];
+					}, 11 );
+				} else if ( ! defined( $constant_name ) ) {
+					define( $constant_name, $named_args[ $url_arg ] );
+				}
+			}
 		}
 
 		$blog_id    = Jetpack_Options::get_option( 'id' );
@@ -1059,13 +1097,14 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * ## OPTIONS
 	 *
 	 * rebuild : Rebuild all sitemaps
+	 * --purge : if set, will remove all existing sitemap data before rebuilding
 	 *
 	 * ## EXAMPLES
 	 *
 	 * wp jetpack sitemap rebuild
 	 *
 	 * @subcommand sitemap
-	 * @synopsis <rebuild>
+	 * @synopsis <rebuild> [--purge]
 	 */
 	public function sitemap( $args, $assoc_args ) {
 		if ( ! Jetpack::is_active() ) {
@@ -1076,6 +1115,11 @@ class Jetpack_CLI extends WP_CLI_Command {
 		}
 		if ( ! class_exists( 'Jetpack_Sitemap_Builder' ) ) {
 			WP_CLI::error( __( 'Jetpack Sitemaps module is active, but unavailable. This can happen if your site is set to discourage search engine indexing. Please enable search engine indexing to allow sitemap generation.', 'jetpack' ) );
+		}
+
+		if ( isset( $assoc_args['purge'] ) && $assoc_args['purge'] ) {
+			$librarian = new Jetpack_Sitemap_Librarian();
+			$librarian->delete_all_stored_sitemap_data();
 		}
 
 		$sitemap_builder = new Jetpack_Sitemap_Builder();

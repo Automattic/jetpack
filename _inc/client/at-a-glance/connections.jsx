@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
@@ -194,15 +195,15 @@ export class DashConnections extends Component {
 }
 
 DashConnections.propTypes = {
-	siteConnectionStatus: React.PropTypes.any.isRequired,
-	isDevMode: React.PropTypes.bool.isRequired,
-	userCanDisconnectSite: React.PropTypes.bool.isRequired,
-	userIsMaster: React.PropTypes.bool.isRequired,
-	isLinked: React.PropTypes.bool.isRequired,
-	userWpComLogin: React.PropTypes.any.isRequired,
-	userWpComEmail: React.PropTypes.any.isRequired,
-	userWpComAvatar: React.PropTypes.any.isRequired,
-	username: React.PropTypes.any.isRequired
+	siteConnectionStatus: PropTypes.any.isRequired,
+	isDevMode: PropTypes.bool.isRequired,
+	userCanDisconnectSite: PropTypes.bool.isRequired,
+	userIsMaster: PropTypes.bool.isRequired,
+	isLinked: PropTypes.bool.isRequired,
+	userWpComLogin: PropTypes.any.isRequired,
+	userWpComEmail: PropTypes.any.isRequired,
+	userWpComAvatar: PropTypes.any.isRequired,
+	username: PropTypes.any.isRequired
 };
 
 export default connect(

@@ -71,7 +71,14 @@ class WPCOM_Widget_GooglePlus_Badge extends WP_Widget {
 		global $pagenow;
 
 		if ( 'widgets.php' == $pagenow || 'customize.php' == $pagenow ) {
-			wp_enqueue_script( 'googleplus-widget-admin', plugins_url( '/google-plus/js/admin.js', __FILE__ ), array( 'jquery' ) );
+			wp_enqueue_script(
+				'googleplus-widget-admin',
+				Jetpack::get_file_url_for_environment(
+					'_inc/build/widgets/google-plus/js/admin.min.js',
+					'modules/widgets/google-plus/js/admin.js'
+				),
+				array( 'jquery' )
+			);
 		}
 	}
 

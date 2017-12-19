@@ -1,2 +1,3 @@
 _inc/client/**/test/*.js
 modules/lazy-images/js/lazy-images.js
+modules/search/js/search-widget-filters-admin.js

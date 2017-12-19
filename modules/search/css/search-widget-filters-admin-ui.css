@@ -1,0 +1,50 @@
+.jetpack-search-filters-widget__filter {
+	background: #f9f9f9;
+	border: 1px solid #dfdfdf;
+	padding: 0 12px;
+	margin-bottom: 12px;
+}
+
+.jetpack-search-filters-widget__controls {
+	text-align: right;
+}
+
+.jetpack-search-filters-widget__controls .delete {
+	color: #a00;
+}
+
+.jetpack-search-filters-widget.hide-filters .jetpack-search-filters-widget__filter {
+	display: none;
+}
+
+/* If there's only one filter, do not show the control to delete it */
+.jetpack-search-filters-widget__filter:only-of-type .jetpack-search-filters-widget__controls .delete {
+	display: none;
+}
+
+.jetpack-search-filters-widget__filter:only-of-type .jetpack-search-filters-widget__controls .control-separator {
+	display: none;
+}
+
+/* Assume that taxonomy select is the default selected. Other controls should be hidden here. */
+.jetpack-search-filters-widget__post-type-select {
+	display: none;
+}
+
+.jetpack-search-filters-widget__date-histogram-select {
+	display: none;
+}
+
+/* When post type is selected, remove the other controls */
+.jetpack-search-filters-widget__filter.is-post_type .jetpack-search-filters-widget__taxonomy-select {
+	display: none;
+}
+
+/* When date is selected, remove the other controls */
+.jetpack-search-filters-widget__filter.is-date_histogram .jetpack-search-filters-widget__date-histogram-select {
+	display: inline;
+}
+
+.jetpack-search-filters-widget__filter.is-date_histogram .jetpack-search-filters-widget__taxonomy-select {
+	display: none;
+}

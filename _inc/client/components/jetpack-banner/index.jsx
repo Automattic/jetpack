@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import noop from 'lodash/noop';
@@ -15,18 +16,18 @@ import { userCanManageModules } from 'state/initial-state';
 class JetpackBanner extends Banner {
 
 	static propTypes = {
-		callToAction: React.PropTypes.string,
-		className: React.PropTypes.string,
-		description: React.PropTypes.string,
-		event: React.PropTypes.string,
-		feature: React.PropTypes.string,
-		href: React.PropTypes.string,
-		icon: React.PropTypes.string,
-		list: React.PropTypes.arrayOf( React.PropTypes.string ),
-		onClick: React.PropTypes.func,
-		plan: React.PropTypes.string,
-		siteSlug: React.PropTypes.string,
-		title: React.PropTypes.string.isRequired
+		callToAction: PropTypes.string,
+		className: PropTypes.string,
+		description: PropTypes.string,
+		event: PropTypes.string,
+		feature: PropTypes.string,
+		href: PropTypes.string,
+		icon: PropTypes.string,
+		list: PropTypes.arrayOf( PropTypes.string ),
+		onClick: PropTypes.func,
+		plan: PropTypes.string,
+		siteSlug: PropTypes.string,
+		title: PropTypes.string.isRequired
 	};
 
 	static defaultProps = {

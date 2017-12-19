@@ -196,11 +196,43 @@ function AtD_settings() {
 
 function AtD_load_javascripts() {
 	if ( AtD_should_load_on_page() ) {
-		wp_enqueue_script( 'AtD_core', plugins_url( '/after-the-deadline/atd.core.js', __FILE__ ), array(), ATD_VERSION );
-		wp_enqueue_script( 'AtD_quicktags', plugins_url( '/after-the-deadline/atd-nonvis-editor-plugin.js', __FILE__ ), array('quicktags'), ATD_VERSION );
-		wp_enqueue_script( 'AtD_jquery', plugins_url( '/after-the-deadline/jquery.atd.js', __FILE__ ), array('jquery'), ATD_VERSION );
+		wp_enqueue_script(
+			'AtD_core',
+			Jetpack::get_file_url_for_environment(
+				'_inc/build/after-the-deadline/atd.core.min.js',
+				'modules/after-the-deadline/atd.core.js'
+			),
+			array(),
+			ATD_VERSION
+		);
+		wp_enqueue_script(
+			'AtD_quicktags',
+			Jetpack::get_file_url_for_environment(
+				'_inc/build/after-the-deadline/atd-nonvis-editor-plugin.min.js',
+				'modules/after-the-deadline/atd-nonvis-editor-plugin.js'
+			),
+			array('quicktags'),
+			ATD_VERSION
+		);
+		wp_enqueue_script(
+			'AtD_jquery',
+			Jetpack::get_file_url_for_environment(
+				'_inc/build/after-the-deadline/jquery.atd.min.js',
+				'modules/after-the-deadline/jquery.atd.js'
+			),
+			array('jquery'),
+			ATD_VERSION
+		);
 		wp_enqueue_script( 'AtD_settings', admin_url() . 'admin-ajax.php?action=atd_settings', array('AtD_jquery'), ATD_VERSION );
-		wp_enqueue_script( 'AtD_autoproofread', plugins_url( '/after-the-deadline/atd-autoproofread.js', __FILE__ ), array('AtD_jquery'), ATD_VERSION );
+		wp_enqueue_script(
+			'AtD_autoproofread',
+			Jetpack::get_file_url_for_environment(
+				'_inc/build/after-the-deadline/atd-autoproofread.min.js',
+				'modules/after-the-deadline/atd-autoproofread.js'
+			),
+			array('AtD_jquery'),
+			ATD_VERSION
+		);
 
 		/* load localized strings for AtD */
 		wp_localize_script( 'AtD_core', 'AtD_l10n_r0ar', array (

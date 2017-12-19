@@ -78,7 +78,10 @@ class Publicize_UI {
 	function load_assets() {
 		wp_enqueue_script(
 			'publicize',
-			plugins_url( 'assets/publicize.js', __FILE__ ),
+			Jetpack::get_file_url_for_environment(
+				'_inc/build/publicize/assets/publicize.min.js',
+				'modules/publicize/assets/publicize.js'
+			),
 			array( 'jquery', 'thickbox' ),
 			'20121019'
 		);
@@ -326,7 +329,7 @@ jQuery( function($) {
 		wpasTitle = $('#wpas-title').keyup( function() {
 		var length = wpasTitle.val().length;
 		wpasTitleCounter.text( length );
-		if ( wpasTwitterCheckbox && length > 116 ) {
+		if ( wpasTwitterCheckbox && length > 256 ) {
 			wpasTitleCounter.addClass( 'wpas-twitter-length-limit' );
 		} else {
 			wpasTitleCounter.removeClass( 'wpas-twitter-length-limit' );

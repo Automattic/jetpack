@@ -167,7 +167,7 @@ function jetpack_og_tags() {
 	// Get image info and build tags
 	if ( ! post_password_required() ) {
 		$image_info       = jetpack_og_get_image( $image_width, $image_height );
-		$tags['og:image'] = esc_url( $image_info['src'] );
+		$tags['og:image'] = $image_info['src'];
 
 		if ( ! empty( $image_info['width'] ) ) {
 			$tags['og:image:width'] = (int) $image_info['width'];

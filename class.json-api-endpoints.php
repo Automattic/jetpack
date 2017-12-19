@@ -77,6 +77,9 @@ abstract class WPCOM_JSON_API_Endpoint {
 	// Is this endpoint allowed if the site is red flagged?
 	public $allowed_if_red_flagged = false;
 
+	// Is this endpoint allowed if the site is deleted?
+	public $allowed_if_deleted = false;
+
 	/**
 	 * @var string Version of the API
 	 */
@@ -127,6 +130,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 			'in_testing'           => false,
 			'allowed_if_flagged'   => false,
 			'allowed_if_red_flagged' => false,
+			'allowed_if_deleted'	=> false,
 			'description'          => '',
 			'group'	               => '',
 			'method'               => 'GET',
@@ -160,6 +164,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 		$this->allowed_if_flagged = $args['allowed_if_flagged'];
 		$this->allowed_if_red_flagged = $args['allowed_if_red_flagged'];
+		$this->allowed_if_deleted = $args['allowed_if_deleted'];
 
 		$this->description = $args['description'];
 		$this->group       = $args['group'];

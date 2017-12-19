@@ -5,7 +5,6 @@ _inc/spin.js
 modules/custom-css/custom-css/js/codemirror.min.js
 modules/holiday-snow/snowstorm.js
 modules/shortcodes/js/jmpress.js
-modules/shortcodes/js/jmpress.min.js
 modules/shortcodes/js/jquery.cycle.min.js
 modules/theme-tools/responsive-videos/responsive-videos.min.js
 

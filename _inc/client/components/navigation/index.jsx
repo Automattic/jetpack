@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import SectionNav from 'components/section-nav';
@@ -65,7 +66,7 @@ export const Navigation = React.createClass( {
 } );
 
 Navigation.propTypes = {
-	route: React.PropTypes.object.isRequired
+	route: PropTypes.object.isRequired
 };
 
 export default connect(
