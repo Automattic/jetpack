@@ -6979,9 +6979,9 @@ p {
 
 		$rewind_enabled = get_transient( 'jetpack_rewind_enabled' );
 		if ( false === $rewind_enabled ) {
-			jetpack_require_lib( 'core-api/class.jetpack-core-api-site-endpoints.php' );
-			$features = Jetpack_Core_API_Site_Endpoint::get_features();
-			$rewind_enabled = ! empty( $features['rewind'] ) ? 1 : 0;
+			jetpack_require_lib( 'class.core-rest-api-endpoints.php' );
+			$rewind_data = Jetpack_Core_Json_Api_Endpoints::get_rewind_data();
+			$rewind_enabled = ( ! is_wp_error( $rewind_data ) && 'success' === $rewind_data['code'] ) ? 1 : 0;
 			set_transient( 'jetpack_rewind_enabled', $rewind_enabled, 10 * MINUTE_IN_SECONDS );
 		}
 		return $rewind_enabled;
