@@ -58,7 +58,7 @@ class BackupsScanRewind extends Component {
 			title={ __( 'Connected' ) }
 			icon="checkmark-circle"
 			feature={ 'rewind' }
-			description={ __( 'Your site is being backed up in real time and regularly scanned for securtiy threats.' ) }
+			description={ __( 'Your site is being backed up in real time and regularly scanned for security threats.' ) }
 			className="is-upgrade-premium jp-banner__no-border"
 			href={ 'https://wordpress.com/stats/activity/' + this.props.siteRawUrl }
 		/>;
