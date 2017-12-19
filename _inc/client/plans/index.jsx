@@ -79,6 +79,7 @@ export const Plans = React.createClass( {
 						activeFeatures={ activeFeatures }
 						siteRawUrl={ this.props.siteRawUrl }
 						siteAdminUrl={ this.props.siteAdminUrl }
+						rewindStatus={ this.props.rewindStatus }
 					/>
 				</div>
 			</div>
