@@ -76,5 +76,5 @@ export function isPluginActive( state, plugin ) {
  * @return {Boolean} True if plugin is installed, false otherwise.
  */
 export function isPluginInstalled( state, plugin ) {
-	return state.jetpack.pluginsData.items[ plugin ];
+	return !! state.jetpack.pluginsData.items[ plugin ];
 }
