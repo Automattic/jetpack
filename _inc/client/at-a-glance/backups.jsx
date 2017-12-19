@@ -28,10 +28,11 @@ import { isDevMode } from 'state/connection';
 const renderCard = ( props ) => (
 	<DashItem
 		label={ __( 'Backups' ) }
-		module="backups"
+		module={ props.feature || 'backups' }
 		className={ props.className }
 		status={ props.status }
-		pro={ true } >
+		pro={ true }
+	>
 		<p className="jp-dash-item__description">
 			{ props.content }
 		</p>
@@ -148,6 +149,7 @@ class DashBackups extends Component {
 										className: 'jp-dash-item__is-active',
 										status: 'is-working',
 										content: __( 'Your site is being backed up in real-time.' ),
+										feature: 'rewind',
 									} )
 								}
 							</div>
