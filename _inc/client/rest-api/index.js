@@ -161,10 +161,6 @@ function JetpackRestApiClient( root, nonce ) {
 			.then( checkStatus )
 			.then( parseJsonResponse ),
 
-		getVaultPressData: () => getRequest( `${ apiRoot }jetpack/v4/module/vaultpress/data`, getParams )
-			.then( checkStatus )
-			.then( parseJsonResponse ),
-
 		getAkismetData: () => getRequest( `${ apiRoot }jetpack/v4/module/akismet/data`, getParams )
 			.then( checkStatus )
 			.then( parseJsonResponse ),
