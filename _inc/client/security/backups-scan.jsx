@@ -148,7 +148,7 @@ export const BackupsScan = moduleSettingsForm(
 
 		render() {
 			const scanEnabled = get( this.props.vaultPressData, [ 'data', 'features', 'security' ], false );
-			const rewindActive = 'unavailable' === get( this.props.rewindStatus, [ 'state' ], false );
+			const rewindActive = 'active' === get( this.props.rewindStatus, [ 'state' ], false );
 			const isFetchingData = this.props.isFetchingSiteData || this.props.isFetchingVaultPressData || this.props.isFetchingRewindData;
 
 			if ( isFetchingData ) {
@@ -161,10 +161,10 @@ export const BackupsScan = moduleSettingsForm(
 
 			return (
 				<SettingsCard
-					feature={ rewindActive ? 'rewind' : FEATURE_SECURITY_SCANNING_JETPACK }
+					feature={ FEATURE_SECURITY_SCANNING_JETPACK }
 					{ ...this.props }
 					header={ __( 'Backups and security scanning', { context: 'Settings header' } ) }
-					action={ rewindActive ? 'rewind' : 'scan' }
+					action={ 'scan' }
 					hideButton>
 					<SettingsGroup
 						disableInDevMode
