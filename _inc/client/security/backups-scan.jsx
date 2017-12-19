@@ -164,7 +164,7 @@ export const BackupsScan = moduleSettingsForm(
 					feature={ FEATURE_SECURITY_SCANNING_JETPACK }
 					{ ...this.props }
 					header={ __( 'Backups and security scanning', { context: 'Settings header' } ) }
-					action={ 'scan' }
+					action="scan"
 					hideButton>
 					<SettingsGroup
 						disableInDevMode

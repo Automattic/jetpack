@@ -66,7 +66,7 @@ export class Security extends Component {
 		const foundProtect = this.props.isModuleFound( 'protect' ),
 			foundSso = this.props.isModuleFound( 'sso' ),
 			foundAkismet = this.isAkismetFound(),
-			rewindActive = 'unavailable' === get( this.props.rewindStatus, [ 'state' ], false ),
+			rewindActive = 'active' === get( this.props.rewindStatus, [ 'state' ], false ),
 			foundBackups = this.props.isModuleFound( 'vaultpress' ) || rewindActive;
 
 		if ( ! this.props.searchTerm && ! this.props.active ) {
