@@ -20,7 +20,8 @@ export default React.createClass( {
 	render() {
 		const commonProps = {
 			route: this.props.route,
-			searchTerm: this.props.searchTerm
+			searchTerm: this.props.searchTerm,
+			rewindStatus: this.props.rewindStatus,
 		};
 
 		return (
@@ -45,6 +46,7 @@ export default React.createClass( {
 				/>
 				<Security
 					siteAdminUrl={ this.props.siteAdminUrl }
+					siteRawUrl={ this.props.siteRawUrl }
 					active={ ( '/security' === this.props.route.path ) }
 					{ ...commonProps }
 				/>
