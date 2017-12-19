@@ -14,20 +14,42 @@ import QueryVaultPressData from 'components/data/query-vaultpress-data';
 import { getSitePlan } from 'state/site';
 import { isPluginInstalled } from 'state/site/plugins';
 import {
-	getVaultPressScanThreatCount as _getVaultPressScanThreatCount,
-	getVaultPressData as _getVaultPressData
+	getVaultPressScanThreatCount,
+	getVaultPressData
 } from 'state/at-a-glance';
 import { isDevMode } from 'state/connection';
 import { isFetchingSiteData } from 'state/site';
 import DashItem from 'components/dash-item';
 
 class DashScan extends Component {
+	static propTypes = {
+		siteRawUrl: PropTypes.string.isRequired,
+
+		// Connected props
+		vaultPressData: PropTypes.any.isRequired,
+		scanThreats: PropTypes.any.isRequired,
+		sitePlan: PropTypes.object.isRequired,
+		isDevMode: PropTypes.bool.isRequired,
+		isPluginInstalled: PropTypes.fund.isRequired,
+		fetchingSiteData: PropTypes.bool.isRequired
+	};
+
+	static defaultProps = {
+		siteRawUrl: '',
+		vaultPressData: '',
+		scanThreats: 0,
+		sitePlan: '',
+		isDevMode: false,
+		isPluginInstalled: false,
+		fetchingSiteData: false
+	};
+
 	getContent() {
 		const planClass = getPlanClass( this.props.sitePlan.product_slug ),
 			labelName = __( 'Security Scanning' ),
 			hasSitePlan = false !== this.props.sitePlan,
 			vpData = this.props.vaultPressData,
-			inactiveOrUninstalled = this.props.isPluginInstalled( 'vaultpress/vaultpress.php' ) ? 'pro-inactive' : 'pro-uninstalled',
+			inactiveOrUninstalled = this.props.isVaultPressInstalled ? 'pro-inactive' : 'pro-uninstalled',
 			scanEnabled = (
 				'undefined' !== typeof vpData.data &&
 				'undefined' !== typeof vpData.data.features &&
@@ -143,22 +165,14 @@ class DashScan extends Component {
 	}
 }
 
-DashScan.propTypes = {
-	vaultPressData: PropTypes.any.isRequired,
-	scanThreats: PropTypes.any.isRequired,
-	isDevMode: PropTypes.bool.isRequired,
-	siteRawUrl: PropTypes.string.isRequired,
-	sitePlan: PropTypes.object.isRequired
-};
-
 export default connect(
 	( state ) => {
 		return {
-			vaultPressData: _getVaultPressData( state ),
-			scanThreats: _getVaultPressScanThreatCount( state ),
+			vaultPressData: getVaultPressData( state ),
+			scanThreats: getVaultPressScanThreatCount( state ),
 			sitePlan: getSitePlan( state ),
 			isDevMode: isDevMode( state ),
-			isPluginInstalled: ( plugin_slug ) => isPluginInstalled( state, plugin_slug ),
+			isVaultPressInstalled: isPluginInstalled( state, 'vaultpress/vaultpress.php' ),
 			fetchingSiteData: isFetchingSiteData( state )
 		};
 	}
