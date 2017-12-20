@@ -151,7 +151,7 @@ export const Footer = React.createClass( {
 						>
 							{
 								version
-									? __( 'Jetpack version %(version)s', { args: { version: version } } )
+									? __( 'Jetpack version %(version)s', { args: { version } } )
 									: __( 'Jetpack' )
 							}
 						</a>
