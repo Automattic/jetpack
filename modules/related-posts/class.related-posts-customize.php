@@ -156,6 +156,15 @@ class Jetpack_Related_Posts_Customize {
 			restore_previous_locale();
 		}
 
+		/**
+		 * The filter allows you to change the options used to display Related Posts in the Customizer.
+		 *
+		 * @module related-posts
+		 *
+		 * @since 4.4.0
+		 *
+		 * @param array $options Array of options used to display Related Posts in the Customizer.
+		 */
 		return apply_filters(
 			'jetpack_related_posts_customize_options', array(
 				'enabled'       => array(
