@@ -48,7 +48,7 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 		);
 		$this->defaults = array(
 			'title'               => __( 'Social', 'jetpack' ),
-			'new_tab'             => 1,
+			'new_tab'             => 0,
 			'icon_size'           => '16px',
 			'icon_color'          => '',
 			'facebook_username'   => '',
