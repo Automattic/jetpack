@@ -26,6 +26,7 @@ describe( 'SettingsGroup', () => {
 			'markdown',
 			'infinite-scroll',
 			'gravatar-hovercards',
+			'lazy-images',
 			'custom-css',
 			'sharedaddy',
 			'widgets',

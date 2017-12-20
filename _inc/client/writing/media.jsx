@@ -72,9 +72,10 @@ const Media = moduleSettingsForm(
 		render() {
 			const foundPhoton = this.props.isModuleFound( 'photon' ),
 				foundCarousel = this.props.isModuleFound( 'carousel' ),
+				foundLazyImages = this.props.isModuleFound( 'lazy-images' ),
 				foundVideoPress = this.props.isModuleFound( 'videopress' );
 
-			if ( ! foundCarousel && ! foundPhoton && ! foundVideoPress ) {
+			if ( ! foundCarousel && ! foundPhoton && ! foundVideoPress && ! foundLazyImages ) {
 				return null;
 			}
 
@@ -82,6 +83,7 @@ const Media = moduleSettingsForm(
 				carousel = this.props.module( 'carousel' ),
 				isCarouselActive = this.props.getOptionValue( 'carousel' ),
 				videoPress = this.props.module( 'videopress' ),
+				lazyImages = this.props.module( 'lazy-images' ),
 				planClass = getPlanClass( this.props.sitePlan.product_slug );
 
 			const photonSettings = (
@@ -172,6 +174,27 @@ const Media = moduleSettingsForm(
 					</ModuleToggle>
 				</SettingsGroup>
 			);
+			const lazyImagesSettings = (
+
+				<SettingsGroup
+					hasChild
+					disableInDevMode
+					module={ lazyImages }>
+					<ModuleToggle
+						slug="lazy-images"
+						disabled={ this.props.isUnavailableInDevMode( 'lazy-images' ) }
+						activated={ this.props.getOptionValue( 'lazy-images' ) }
+						toggling={ this.props.isSavingAnyOption( 'lazy-images' ) }
+						toggleModule={ this.props.toggleModuleNow }
+					>
+						<span className="jp-form-toggle-explanation">
+							{
+								lazyImages.description
+							}
+						</span>
+					</ModuleToggle>
+				</SettingsGroup>
+			)
 
 			return (
 				<SettingsCard
@@ -183,6 +206,7 @@ const Media = moduleSettingsForm(
 				>
 					{ foundPhoton && photonSettings }
 					{ foundCarousel && carouselSettings }
+					{ foundLazyImages && lazyImagesSettings }
 					{ foundVideoPress && videoPressSettings }
 				</SettingsCard>
 			);
