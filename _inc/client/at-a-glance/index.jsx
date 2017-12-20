@@ -76,6 +76,7 @@ class AtAGlance extends Component {
 				</div>
 			);
 		const isRewindActive = 'active' === get( this.props.rewindStatus, [ 'state' ], false );
+		const hideVaultPressCards = ! isRewindActive && 'unavailable' !== get( this.props.rewindStatus, [ 'state' ], false );
 		const securityCards = [
 			<DashProtect { ...settingsProps } />,
 			<DashScan
@@ -92,6 +93,10 @@ class AtAGlance extends Component {
 			<DashAkismet { ...urls } />,
 			<DashPluginUpdates { ...settingsProps } { ...urls } />
 		];
+
+		// Hack to remove VP cards if rewind is in a weird state; not active but available.
+		// @todo we need some actual messaging here.
+		hideVaultPressCards && securityCards.splice( 1, 2 );
 
 		// Maybe add the rewind card
 		isRewindActive && securityCards.unshift( <DashActivity { ...settingsProps } siteRawUrl={ this.props.siteRawUrl } /> );

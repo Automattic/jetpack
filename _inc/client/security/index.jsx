@@ -67,7 +67,9 @@ export class Security extends Component {
 			foundSso = this.props.isModuleFound( 'sso' ),
 			foundAkismet = this.isAkismetFound(),
 			rewindActive = 'active' === get( this.props.rewindStatus, [ 'state' ], false ),
-			foundBackups = this.props.isModuleFound( 'vaultpress' ) || rewindActive;
+			foundBackups = this.props.isModuleFound( 'vaultpress' ) || rewindActive,
+			// hideVaultPressCards = ! rewindActive && 'unavailable' !== get( this.props.rewindStatus, [ 'state' ], false );
+			hideVaultPressCards = ! rewindActive && 'unavailable' !== get( this.props.rewindStatus, [ 'state' ], false );
 
 		if ( ! this.props.searchTerm && ! this.props.active ) {
 			return null;
@@ -80,7 +82,7 @@ export class Security extends Component {
 		return (
 			<div>
 				<QuerySite />
-				{ foundBackups && <BackupsScan { ...commonProps } /> }
+				{ foundBackups && ! hideVaultPressCards && <BackupsScan { ...commonProps } /> }
 				{ foundAkismet &&
 					<div>
 						<Antispam { ...commonProps } />

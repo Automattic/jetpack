@@ -80,9 +80,14 @@ const PlanBody = React.createClass( {
 			? getPlanClass( this.props.plan )
 			: 'dev';
 		const premiumThemesActive = includes( this.props.activeFeatures, FEATURE_UNLIMITED_PREMIUM_THEMES ),
-			rewindActive = 'active' === get( this.props.rewindStatus, [ 'state' ], false );
+			rewindActive = 'active' === get( this.props.rewindStatus, [ 'state' ], false ),
+			hideVaultPressCard = ! rewindActive && 'unavailable' !== get( this.props.rewindStatus, [ 'state' ], false );
 
 		const getRewindVaultPressCard = () => {
+			if ( hideVaultPressCard ) {
+				return;
+			}
+
 			let description = '';
 
 			switch ( planClass ) {
