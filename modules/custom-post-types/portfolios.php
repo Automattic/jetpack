@@ -252,6 +252,7 @@ class Jetpack_Portfolio {
 				'comments',
 				'publicize',
 				'wpcom-markdown',
+				'revisions',
 			),
 			'rewrite' => array(
 				'slug'       => 'portfolio',
