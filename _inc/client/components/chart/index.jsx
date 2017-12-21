@@ -2,6 +2,7 @@
  * External dependencies
  */
 var React = require( 'react' ),
+	PropTypes = require( 'prop-types' ),
 	noop = require( 'lodash/noop' ),
 	throttle = require( 'lodash/throttle' );
 
@@ -17,11 +18,11 @@ module.exports = React.createClass( {
 	displayName: 'ModuleChart',
 
 	propTypes: {
-		loading: React.PropTypes.bool,
-		data: React.PropTypes.array,
-		minTouchBarWidth: React.PropTypes.number,
-		minBarWidth: React.PropTypes.number,
-		barClick: React.PropTypes.func
+		loading: PropTypes.bool,
+		data: PropTypes.array,
+		minTouchBarWidth: PropTypes.number,
+		minBarWidth: PropTypes.number,
+		barClick: PropTypes.func
 	},
 
 	getInitialState: function() {
