@@ -188,8 +188,7 @@ HTML;
 		<link rel='dns-prefetch' href='//cdn.switchadhub.com' />
 		<link rel='dns-prefetch' href='//delivery.g.switchadhub.com' />
 		<link rel='dns-prefetch' href='//delivery.swid.switchadhub.com' />
-		<script$data_tags type="text/javascript" src="//s.pubmine.com/head.js"></script>
-		<script$data_tags type="text/javascript" src="//static.criteo.net/js/ld/publishertag.js"></script>
+		<script$data_tags async type="text/javascript" src="//s.pubmine.com/head.js"></script>
 HTML;
 	}
 
