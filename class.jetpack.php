@@ -3018,6 +3018,7 @@ p {
 			// Setting up jetpack manage
 			Jetpack::activate_manage();
 		}
+		
 	}
 
 	/**

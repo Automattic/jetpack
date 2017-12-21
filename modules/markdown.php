@@ -6,7 +6,7 @@
  * Sort Order: 31
  * First Introduced: 2.8
  * Requires Connection: No
- * Auto Activate: No
+ * Auto Activate: Yes
  * Module Tags: Writing
  * Feature: Writing
  * Additional Search Queries: md, markdown
