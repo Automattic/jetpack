@@ -24,6 +24,7 @@ import CustomContentTypes from './custom-content-types';
 import ThemeEnhancements from './theme-enhancements';
 import PostByEmail from './post-by-email';
 import { Masterbar } from './masterbar';
+import { isAtomicSite } from 'state/initial-state';
 
 export const Writing = React.createClass( {
 	displayName: 'WritingSettings',
@@ -67,7 +68,7 @@ export const Writing = React.createClass( {
 			<div>
 				<QuerySite />
 				{
-					this.props.isModuleFound( 'masterbar' ) && (
+					this.props.isModuleFound( 'masterbar' ) && ! this.props.masterbarIsAlwaysActive && (
 						<Masterbar connectUrl={ this.props.connectUrl } { ...commonProps } />
 					)
 				}
@@ -108,6 +109,7 @@ export default connect(
 		return {
 			module: module_name => getModule( state, module_name ),
 			settings: getSettings( state ),
+			masterbarIsAlwaysActive: isAtomicSite( state ),
 			isDevMode: isDevMode( state ),
 			isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name ),
 			userCanEditPosts: userCanEditPosts( state ),
