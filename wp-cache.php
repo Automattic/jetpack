@@ -59,6 +59,13 @@ function wpsc_init() {
 
 wpsc_init();
 
+/**
+ * WP-CLI requires explicit declaration of global variables.
+ * It's minimal list of global variables.
+ */
+global $super_cache_enabled, $cache_enabled, $wp_cache_home_path, $cache_path;
+global $wp_cache_config_file, $wp_cache_config_file_sample;
+
 if( !@include($wp_cache_config_file) ) {
 	get_wpcachehome();
 	$wp_cache_config_file_sample = WPCACHEHOME . 'wp-cache-config-sample.php';
@@ -112,7 +119,7 @@ function wpsupercache_uninstall() {
 
 	wp_cache_remove_index();
 
-	if ( null !== $cache_path && '' !== $cache_path ) {
+	if ( ! empty( $cache_path ) ) {
 		@unlink( $cache_path . '.htaccess' );
 		@unlink( $cache_path . 'meta' );
 		@unlink( $cache_path . 'supercache' );
@@ -130,13 +137,19 @@ if ( is_admin() ) {
 
 function wpsupercache_deactivate() {
 	global $wp_cache_config_file, $wp_cache_link, $cache_path;
-	if ( file_exists( $wp_cache_link ) )
+
+	if ( file_exists( $wp_cache_link ) ) {
 		unlink( $wp_cache_link );
-	prune_super_cache( $cache_path, true );
-	wp_cache_remove_index();
-	@unlink( $cache_path . '.htaccess' );
-	@unlink( $cache_path . 'meta' );
-	@unlink( $cache_path . 'supercache' );
+	}
+
+	if ( ! empty( $cache_path ) ) {
+		prune_super_cache( $cache_path, true );
+		wp_cache_remove_index();
+		@unlink( $cache_path . '.htaccess' );
+		@unlink( $cache_path . 'meta' );
+		@unlink( $cache_path . 'supercache' );
+	}
+
 	wp_clear_scheduled_hook( 'wp_cache_check_site_hook' );
 	wp_clear_scheduled_hook( 'wp_cache_gc' );
 	wp_clear_scheduled_hook( 'wp_cache_gc_watcher' );
@@ -2153,7 +2166,7 @@ function wp_cache_is_enabled() {
 function wp_cache_remove_index() {
 	global $cache_path;
 
-	if ( null === $cache_path || '' === $cache_path ) {
+	if ( empty( $cache_path ) ) {
 		return;
 	}
 
@@ -2266,6 +2279,9 @@ function wp_cache_add_index_protection() {
 				&& stripos( $page[ 'body' ], 'index of' ) ) {
 				add_site_option( 'wp_super_cache_index_detected', 1 ); // only show this once
 			}
+		}
+		if ( ! function_exists( 'insert_with_markers' ) ) {
+                        include_once( ABSPATH . 'wp-admin/includes/misc.php' );
 		}
 		insert_with_markers( $cache_path . '.htaccess', "INDEX", array( 'Options -Indexes' ) );
 	}
