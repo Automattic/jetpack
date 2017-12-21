@@ -622,8 +622,9 @@ class A8C_WPCOM_Masterbar {
 				'title'  => __( 'View Site', 'jetpack' ),
 				'href'   => home_url(),
 				'meta'   => array(
-					'class' => 'mb-icon',
+					'class'  => 'mb-icon',
 					'target' => '_blank',
+					'rel'    => 'noopener noreferrer',
 				),
 			) );
 		}

@@ -151,7 +151,7 @@ function jetpack_verification_tool_box() {
 	$last = array_pop( $list );
 
 	if ( current_user_can( 'manage_options' ) ) {
-		echo '<div class="jp-verification-tools card"><h3 class="title">' . __( 'Website Verification Services' , 'jetpack' ) . ' <a href="http://support.wordpress.com/webmaster-tools/" target="_blank">(?)</a></h3>';
+		echo '<div class="jp-verification-tools card"><h3 class="title">' . __( 'Website Verification Services' , 'jetpack' ) . ' <a href="http://support.wordpress.com/webmaster-tools/" rel="noopener noreferrer" target="_blank">(?)</a></h3>';
 		echo '<p>' . sprintf( esc_html( __( 'Enter your meta key "content" value to verify your blog with %s' , 'jetpack' ) ), implode( ', ', $list ) ) . ' ' . __( 'and' , 'jetpack' ) . ' ' . $last . '.</p>';
 		jetpack_verification_options_form();
 		echo '</div>';

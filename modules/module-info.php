@@ -139,7 +139,7 @@ function latex_more_info() { ?>
 		in math blogging platforms. Use $latex your latex code here$ or [latex]your latex code here[/latex]
 		to include  in your posts and comments. Enjoy all sorts of options and embrace your inner nerd.'
 		, 'jetpack' )
-		, '<a href="http://www.latex-project.org/" target="_blank"><img src="//s0.wp.com/latex.php?latex=%5CLaTeX&amp;bg=transparent&amp;fg=000&amp;s=-1" alt="LaTeX logo" title="LaTeX" style="vertical-align: -25%" /></a>'
+		, '<a href="http://www.latex-project.org/" rel="noopener noreferrer" target="_blank"><img src="//s0.wp.com/latex.php?latex=%5CLaTeX&amp;bg=transparent&amp;fg=000&amp;s=-1" alt="LaTeX logo" title="LaTeX" style="vertical-align: -25%" /></a>'
 	); ?>
 <?php
 }

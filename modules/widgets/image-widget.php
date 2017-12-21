@@ -97,7 +97,7 @@ class Jetpack_Image_Widget extends WP_Widget {
 
 			if ( '' != $instance['link'] ) {
 				$target = ! empty( $instance['link_target_blank'] )
-					? 'target="_blank"'
+					? 'rel="noopener noreferrer" target="_blank"'
 					: '';
 				$output = '<a ' . $target . ' href="' . esc_url( $instance['link'] ) . '">' . $output . '</a>';
 			}

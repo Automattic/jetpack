@@ -57,7 +57,7 @@ class WPCOM_Widget_Goodreads extends WP_Widget {
 			if ( current_user_can('edit_theme_options') ) {
 				echo $args['before_widget'];
 				echo '<p>' . sprintf(
-					__( 'You need to enter your numeric user ID for the <a href="%1$s">Goodreads Widget</a> to work correctly. <a href="%2$s" target="_blank">Full instructions</a>.', 'jetpack' ),
+					__( 'You need to enter your numeric user ID for the <a href="%1$s">Goodreads Widget</a> to work correctly. <a href="%2$s" rel="noopener noreferrer" target="_blank">Full instructions</a>.', 'jetpack' ),
 					esc_url( admin_url( 'widgets.php' ) ),
 					'https://support.wordpress.com/widgets/goodreads-widget/#goodreads-user-id'
 				) . '</p>';
@@ -122,7 +122,7 @@ class WPCOM_Widget_Goodreads extends WP_Widget {
 		<input class="widefat" id="' . esc_attr( $this->get_field_id( 'title' ) ) . '" name="' . esc_attr( $this->get_field_name( 'title' ) ) . '" type="text" value="' . esc_attr( $instance['title'] ) . '" />
 		</label></p>
 		<p><label for="' . esc_attr( $this->get_field_id( 'user_id' ) ) . '">';
-		printf( __( 'Goodreads numeric user ID <a href="%s" target="_blank">(instructions)</a>:', 'jetpack' ), 'https://en.support.wordpress.com/widgets/goodreads-widget/#goodreads-user-id' );
+		printf( __( 'Goodreads numeric user ID <a href="%s" rel="noopener noreferrer" target="_blank">(instructions)</a>:', 'jetpack' ), 'https://en.support.wordpress.com/widgets/goodreads-widget/#goodreads-user-id' );
 		if ( 'invalid' === $instance['user_id'] ) {
 			printf( '<br /><small class="error">%s</small>&nbsp;', __( 'Invalid User ID, please verify and re-enter your Goodreads numeric user ID.', 'jetpack' ) );
 			$instance['user_id'] = '';
