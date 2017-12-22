@@ -41,7 +41,7 @@
 		$( '<a />', {
 			id     : 'help-link',
 			target : '_blank',
-			rel: 'noopener noreferrer',
+			rel    : 'noopener noreferrer',
 			href   : window._jp_css_settings.cssHelpUrl,
 			text   : window._jp_css_settings.l10n.css_help_title
 		}).prependTo( '#css-help-links' );
@@ -51,7 +51,7 @@
 			$( '<a />', {
 				id     : 'revisions-link',
 				target : '_blank',
-				rel="noopener noreferrer",
+				rel    : 'noopener noreferrer',
 				href   : window._jp_css_settings.revisionsUrl,
 				text   : window._jp_css_settings.l10n.revisions
 			}).prependTo( '#css-help-links' );
