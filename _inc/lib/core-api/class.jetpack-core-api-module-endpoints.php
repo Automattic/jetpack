@@ -418,7 +418,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 						$response[ $setting ] = '';
 					} else {
 						if ( ! class_exists( 'Akismet' ) ) {
-							if ( file_exists( WP_PLUGIN_DIR . '/akismet/class.akismet.php' ) ) {
+							if ( is_readable( WP_PLUGIN_DIR . '/akismet/class.akismet.php' ) ) {
 								require_once WP_PLUGIN_DIR . '/akismet/class.akismet.php';
 							}
 						}
