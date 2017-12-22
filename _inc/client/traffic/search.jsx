@@ -34,14 +34,14 @@ const Search = moduleSettingsForm(
 						module="search"
 						hideButton
 					>
-						<SettingsGroup module={ { module: 'search' } } hasChild support={ search.learn_more_button }>
+						<SettingsGroup module={ { module: 'search' } } hasChild support="https://jetpack.com/support/search">
 							<ModuleToggle
 								slug="search"
 								compact
 								activated={ this.props.getOptionValue( 'search' ) }
 								toggling={ this.props.isSavingAnyOption( 'search' ) }
 								toggleModule={ this.props.toggleModuleNow }>
-								{ __( 'Enhanced site-wide search, powered by Elasticsearch (Beta)' ) }
+								{ __( 'Replace WordPress built-in search with an improved search experience (Beta)' ) }
 							</ModuleToggle>
 						</SettingsGroup>
 					</SettingsCard>
