@@ -16,6 +16,7 @@ import { getSiteAdminUrl } from 'state/initial-state';
 import { getPlanClass } from 'lib/plans/constants';
 import { getSitePlan } from 'state/site';
 import { isFetchingSiteData } from 'state/site';
+import { FormFieldset } from 'components/forms';
 
 const Search = moduleSettingsForm(
 	React.createClass( {
@@ -43,6 +44,17 @@ const Search = moduleSettingsForm(
 								toggleModule={ this.props.toggleModuleNow }>
 								{ __( 'Replace WordPress built-in search with an improved search experience (Beta)' ) }
 							</ModuleToggle>
+							{ this.props.getOptionValue( 'search' ) && (
+								<FormFieldset>
+									<p className="jp-form-setting-explanation">
+										{ __( 'To configure search filters add the {{link}}Jetpack Search widget to your sidebar{{/link}}.', {
+											components: {
+												link: <a href="widgets.php" />
+											}
+										} ) }
+									</p>
+									</FormFieldset>
+							) }
 						</SettingsGroup>
 					</SettingsCard>
 				);
