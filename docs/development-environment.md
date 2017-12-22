@@ -5,8 +5,18 @@ The javascript and CSS components of this plugin's admin interface need to be bu
 **Recommended Environment**
 
 * node 8.x, aka `lts/carbon`
-* npm 3.8.x
-* yarn 0.24.4
+* npm latest that comes with node (eg 5.5.1 comes with 8.9.3)
+* yarn 1.3.2
+
+**Installation Example**
+
+We recommend using nvm to install node, and these instructions are based off of nvm 0.33.8 from [the install directions](https://github.com/creationix/nvm)
+
+```
+> wget -qO- https://raw.githubusercontent.com/creationix/nvm/v0.33.8/install.sh | bash
+> nvm install --lts=carbon
+> npm install -g yarn@1.3.2
+```
 
 ## A note on Node versions used for the build tasks
 
@@ -33,7 +43,7 @@ $ yarn distclean
 
 3. Install [yarn](https://www.npmjs.com/package/yarn) package.
     ```
-    npm install -g yarn@0.24.4
+    npm install -g yarn@1.3.2
     ```
 
 4. Make sure the Jetpack plugin is active and run
