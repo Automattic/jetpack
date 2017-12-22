@@ -1197,6 +1197,11 @@ class Jetpack_Search {
 				$buckets = (array) $aggregation['buckets'];
 			}
 
+			if ( 'date_histogram' == $type ) {
+				//re-order newest to oldest
+				$buckets = array_reverse( $buckets );
+			}
+
 			// Some aggregation types like date_histogram don't support the max results parameter
 			if ( is_int( $this->aggregations[ $label ]['count'] ) && count( $buckets ) > $this->aggregations[ $label ]['count'] ) {
 				$buckets = array_slice( $buckets, 0, $this->aggregations[ $label ]['count'] );
