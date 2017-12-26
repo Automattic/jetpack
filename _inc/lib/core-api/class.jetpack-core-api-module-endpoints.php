@@ -1009,7 +1009,12 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 		$contact_page = '';
 
 		if ( isset( $data['addContactForm'] ) && $data['addContactForm'] ) {
-			if ( Jetpack::is_module_active( 'contact-form' ) ) {
+			$contact_form_module_active = Jetpack::is_module_active( 'contact-form' );
+			if ( ! $contact_form_module_active ) {
+				$contact_form_module_active = Jetpack::activate_module( 'contact-form', false, false );
+			}
+
+			if ( $contact_form_module_active ) {
 				$contact_page = '[contact-form][contact-field label="' . esc_html__( 'Name', 'jetpack' ) . '" type="name" required="true" /][contact-field label="' . esc_html__( 'Email', 'jetpack' ) . '" type="email" required="true" /][contact-field label="' . esc_html__( 'Website', 'jetpack' ) . '" type="url" /][contact-field label="' . esc_html__( 'Message', 'jetpack' ) . '" type="textarea" /][/contact-form]';
 			} else {
 				$error[] = 'contact-form activate';
