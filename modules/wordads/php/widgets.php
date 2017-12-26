@@ -47,12 +47,7 @@ class WordAds_Sidebar_Widget extends WP_Widget {
 			$snippet = $wordads->get_house_ad( $unit );
 		} else {
 			$section_id = 0 === $wordads->params->blog_id ? WORDADS_API_TEST_ID : $wordads->params->blog_id . '3';
-			$data_tags = ( $wordads->params->cloudflare ) ? ' data-cfasync="false"' : '';
-			$snippet = <<<HTML
-			<script$data_tags type='text/javascript'>
-				(function(g){g.__ATA.initAd({sectionId:$section_id, width:$width, height:$height});})(window);
-			</script>
-HTML;
+			$snippet = $wordads->get_ad_snippet( $section_id, $height, $width );
 		}
 
 		echo <<< HTML
