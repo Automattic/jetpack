@@ -113,6 +113,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Added ability to create revisions of Portfolio Projects.
 * Users hosting their sites with our Pressable partner who have Rewind access can now jump from the new Activity card in the Jetpack dashboard to the Activity Log in WordPress.com and restore or download backups for the site.
 * Comments: Edit links for comments in the frontend can redirect to calypso if the Jetpack option `edit_links_calypso_redirect` is enabled.
+* Protect: Updated the styling of the Protect page for recovering access to your site when you're locked out of it.
 
 **Improved compatibility**
 
