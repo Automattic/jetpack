@@ -115,7 +115,6 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Enhancements**
 
 * Contact Forms: The Contact Form module is now activated when you try to add a form from calypso and the module was inactive.
-* Markdown: Fixed markdown rendering when there's markdown code in Shorctodes content.
 
 **Improved compatibility**
 
@@ -126,6 +125,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Bug fixes**
 
 * REST API: Added a check for avoiding a fatal error when attempting to include Akismet class files in case the Akismet plugin files are present but the permissions on the files there are set to be not readable
+* Markdown: Fixed bug where code inside shortcodes isn't correctly restored from the hash.
 
 = 5.6.1 =
 
