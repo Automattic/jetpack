@@ -110,7 +110,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Major Enhancements**
 
-* We added revisions for Portfolios.
+* Added ability to create revisions of Portfolio Projects.
 
 **Enhancements**
 
