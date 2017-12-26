@@ -28,12 +28,26 @@ To test, try the following:
 
 ### Comments
 
+#### Hooking on comments
+
 Now, other plugins hooking on `comment_form_after` for showing content will work seamlessly with Jetpack.
 
 To test:
 
 1. Add a plugin that hooks in after the comment form, such as Webmentions ( https://wordpress.org/plugins/webmention/ ).
 2. Visit any given post for which comments are enabled an expect to see the content that the other plugin outputs.
+
+#### WordPress.com comments editor
+
+Edit links for comments will be redirected to WordPress.com comment editor if the Jetpack option `edit_links_calypso_redirect` is enabled.
+
+To test:
+
+1. Ensure the option is enabled. One way is to run the following `wp` cli command:
+	```sh
+	wp jetpack options update edit_links_calypso_redirect 1
+	```
+2. Verify that the frontend Edit link for a comment points to WordPress.com.
 
 ### Final Notes
 
