@@ -15,10 +15,10 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		parent::__construct(
 			'jetpack-search-filters',
 			/** This filter is documented in modules/widgets/facebook-likebox.php */
-			apply_filters( 'jetpack_widget_name', esc_html__( 'Search Filters', 'jetpack' ) ),
+			apply_filters( 'jetpack_widget_name', esc_html__( 'Search', 'jetpack' ) ),
 			array(
-				'classname'   => 'jetpack-filters',
-				'description' => __( 'Displays search result filters when viewing search results.', 'jetpack' ),
+				'classname'   => 'jetpack-filters widget_search',
+				'description' => __( 'Displays Jetpack Search box and filters.', 'jetpack' ),
 			)
 		);
 
@@ -71,40 +71,41 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 	}
 
 	function widget( $args, $instance ) {
-		if ( ! is_search() ) {
-			return;
-		}
 
-		$filters = $this->jetpack_search->get_filters();
-		$active_buckets = $this->jetpack_search->get_active_filter_buckets();
+		$display_filters = false;
+		if ( is_search() ) {
+			$filters = $this->jetpack_search->get_filters();
+			$active_buckets = $this->jetpack_search->get_active_filter_buckets();
 
-		if ( empty( $filters ) && empty( $active_buckets ) ) {
-			return;
-		}
+			if ( ! empty( $filters ) || ! empty( $active_buckets ) ) {
 
-		if ( ! $this->jetpack_search->are_filters_by_widget_disabled() && ! $this->should_display_sitewide_filters() ) {
-			$filters = array_filter( $filters, array( $this, 'is_for_current_widget' ) );
-			$active_buckets = array_filter( $active_buckets, array( $this, 'is_for_current_widget' ) );
-		}
+				if ( ! $this->jetpack_search->are_filters_by_widget_disabled() && ! $this->should_display_sitewide_filters() ) {
+					$filters = array_filter( $filters, array( $this, 'is_for_current_widget' ) );
+					$active_buckets = array_filter( $active_buckets, array( $this, 'is_for_current_widget' ) );
+				}
 
-		$buckets_found = false;
+				foreach ( $filters as $filter ) {
+					if ( isset( $filter['buckets'] ) && count( $filter['buckets'] ) > 1 ) {
+						$display_filters = true;
 
-		foreach ( $filters as $filter ) {
-			if ( isset( $filter['buckets'] ) && count( $filter['buckets'] ) > 1 ) {
-				$buckets_found = true;
+						break;
+					}
+				}
 
-				break;
+				if ( ! empty( $active_buckets ) ) {
+					$display_filters = true;
+				}
 			}
 		}
 
-		if ( ! $buckets_found && empty( $active_buckets ) ) {
+		if ( ! $display_filters && empty( $instance['search_box_enabled'] ) ) {
 			return;
 		}
 
 		$title = $instance['title'];
 
 		if ( empty( $title ) ) {
-			$title = __( 'Filter By', 'jetpack' );
+			$title = '';
 		}
 
 		/** This filter is documented in core/src/wp-includes/default-widgets.php */
@@ -125,18 +126,27 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		 */
 		do_action( 'jetpack_search_render_filters_widget_title', esc_html( $title ), $args['before_title'], $args['after_title'] );
 
-		/**
-		 * Responsible for displaying the contents of the Jetpack Search filters widget.
-		 *
-		 * @module search
-		 *
-		 * @since 5.7.0
-		 *
-		 * @param array $filters                       The possible filters for the current query
-		 * @param array $active_buckets                The selected filters for the current query
-		 * @param Jetpack_Search $this->jetpack_search The Jetpack_Search instance
-		 */
-		do_action( 'jetpack_search_render_filters_widget_contents', $filters, $active_buckets, $this->jetpack_search );
+		if ( ! empty( $instance['search_box_enabled'] ) ) {
+			get_search_form();
+			echo '<br />';
+		}
+
+		if ( $display_filters ) {
+
+			/**
+			 * Responsible for displaying the contents of the Jetpack Search filters widget.
+			 *
+			 * @module search
+			 *
+			 * @since 5.7.0
+			 *
+			 * @param array $filters                       The possible filters for the current query
+			 * @param array $active_buckets                The selected filters for the current query
+			 * @param Jetpack_Search $this->jetpack_search The Jetpack_Search instance
+			 */
+			do_action( 'jetpack_search_render_filters_widget_contents', $filters, $active_buckets, $this->jetpack_search );
+
+		}
 
 		echo $args['after_widget'];
 	}
@@ -146,6 +156,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 
 		$instance['title'] = sanitize_text_field( $new_instance['title'] );
 		$instance['use_filters'] = empty( $new_instance['use_filters'] ) ? '0' : '1';
+		$instance['search_box_enabled'] = empty( $new_instance['search_box_enabled'] ) ? '0' : '1';
 
 		if ( $instance['use_filters'] ) {
 			$filters = array();
@@ -196,6 +207,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 
 		$hide_filters = $this->jetpack_search->are_filters_by_widget_disabled();
 		$use_filters = ! empty( $instance['use_filters'] ) && ! $hide_filters;
+		$search_box_enabled = ! empty( $instance['search_box_enabled'] );
 		$classes = sprintf(
 			'jetpack-search-filters-widget %s',
 			$use_filters ? '' : 'hide-filters'
@@ -213,6 +225,17 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 					type="text"
 					value="<?php echo esc_attr( $title ); ?>"
 				/>
+			</p>
+			<p>
+				<label>
+					<input
+						type="checkbox"
+						class="jetpack-search-filters-widget__search-box-enabled"
+						name="<?php echo esc_attr( $this->get_field_name( 'search_box_enabled' ) ); ?>"
+						<?php checked( $search_box_enabled ); ?>
+					/>
+					<?php esc_html_e( 'Show Search Box' ); ?>
+				</label>
 			</p>
 
 			<?php if ( ! $hide_filters ): ?>
@@ -243,7 +266,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			'post_type' => '',
 			'date_histogram_field' => '',
 			'date_histogram_interval' => '',
-			'count' => 10,
+			'count' => 5,
 		) );
 
 		$classes = sprintf(
@@ -372,7 +395,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 	}
 
 	function render_current_filters( $active_buckets ) { ?>
-		<h3><?php echo esc_html__( 'Current Filters', 'jetpack' ); ?></h3>
+		<h4 class="widget-title"><?php echo esc_html__( 'Current Filters', 'jetpack' ); ?></h4>
 		<ul>
 			<?php $this->render_active_buckets( $active_buckets ); ?>
 			<?php if ( count( $active_buckets ) > 1 ) : ?>
@@ -383,6 +406,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 				</li>
 			<?php endif; ?>
 		</ul>
+		<br />
 	<?php }
 
 	function render_active_buckets( $active_buckets ) {
@@ -402,7 +426,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 	}
 
 	function render_filter( $filter ) { ?>
-		<h3><?php echo esc_html( $filter['name'] ); ?></h3>
+		<h4  class="widget-title"><?php echo esc_html( $filter['name'] ); ?></h4>
 		<ul>
 			<?php foreach ( $filter['buckets'] as $item ) : ?>
 				<li>
@@ -414,5 +438,6 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 				</li>
 			<?php endforeach;?>
 		</ul>
+		<br />
 	<?php }
 }
