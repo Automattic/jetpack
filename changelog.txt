@@ -1,5 +1,22 @@
 == Changelog ==
 
+= 5.6.1 =
+
+* Release date: December 14, 2017
+* Release post: https://wp.me/p1moTy-6Jk
+
+**Security Improvements**
+
+* Contact Forms: Hardened security in Contact Form processing.
+
+**Enhancements**
+
+* Sharing: Bumped the character limit to 280 when sharing a post to Twitter.
+
+**Bug fixes**
+
+* Widget Visibility: Fixed a bug that disabled "saving" the widget when removing a Widget Visibility rule.
+
 = 5.6 =
 
 * Release date: December 5, 2017

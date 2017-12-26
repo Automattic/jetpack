@@ -1,50 +1,72 @@
-## 5.6
+## 5.7
 
-### Google Analytics
+### Portfolio
 
-Jetpack Professional customers using the WooCommerce plugin and needing some in-depth Google Analytics reports will be happy with this release. We've added support for universal analytics to Jetpack in this release. To test this new feature, follow the instructions [in this PR](https://github.com/Automattic/jetpack/pull/8182).
-
-### Lazy images
-
-We've added a new module, Lazy Images, to improve page load times by only loading an image when it is visible in the viewport.
-
-To test, try the following:
-
-1. Go to `https://yoursite.com/wp-admin/admin.php?page=jetpack_modules` and enable the "Lazy Images" module.
-2. Visit pages when you have inserted single images, galleries, slideshows. You'll want to test this on pages where the images are at the top of the page, but also on pages where you have to scroll to see the images. You will want to make sure that images get loaded as you scroll down the page, and that [no JavaScript error appears in your browser console](http://codex.wordpress.org/Using_Your_Browser_to_Diagnose_JavaScript_Errors).
-3. Try in as many browsers as possible.
-
-### Photon
-
-Until now, when filtering content, Photon removed `width` and `height` attributes from image tags. This was done to make sure images were never distorted, regardless of how they were inserted in a post.
-
-We've now improved this process and avoid removing those attributes when we can. To test, try inserting images in test posts. Use multiple methods to insert your images: slideshows, galleries, custom (non Jetpack) galleries, single images, images hosted somewhere else. You will want to make sure no image gets distorted, and that the `width` and `height` attributes are there. Ensure that you're "viewing source" to check this as opposed to using your browser's dev tools.
-
-### Protect
-
-We've created a new setting one can use to change the default WordPress log in form, and add a new field with an option to send yourself an email with a link to log in when you got locked out of your site.
+Portfolio posts are now revisioned.
 
 Follow the instructions below to test the feature:
 
-1. Set the following constant in your `wp-config.php`: `define( 'JETPACK_ALWAYS_PROTECT_LOGIN', true );`
-2. Now when you go to wp-login.php you will be asked to enter an email.
-3. After receiving the email you should be able to login again or change your password.
-4. The token that you get in the email is only valid for 15 minutes.
+1. Create a new Portfolio entry, don't publish it.
+2. Save the draft a few times.
+3. Confirm you can see revisions, just as you would see for posts or pages.
 
-### Shortcodes
+### Markdown
 
-In this release we started using minified JavaScript files for all the shortcodes that rely on JavaScript in the plugin. You will consequently want to try testing the following shortcodes:
-- Brightcove
-- Gist
-- Instagram
-- Presentations
-- Quizzes
-- Recipes
-- Slideshows
+There used to be a bug that didn't allow you to use markdown as content for a shortcode resulting in a weird hash/number being shown in the rendered content.
 
-You can find instructions on how to use each shortcode [here](https://jetpack.com/support/shortcode-embeds/).
+To test, try the following:
 
-For each shortcode, you will want to make sure they work as expected, and that [no JavaScript error appears in your browser console](http://codex.wordpress.org/Using_Your_Browser_to_Diagnose_JavaScript_Errors).
+1. Register a test shortcode. The callback doesn't matter (it just needs to be registered so it gets added to the regex).
+	```php
+	add_shortcode( 'test', '__return_empty_string' );
+	```
+2. Create a post with the following content:
+	```
+		[test]Text with `code` in it.[/test]
+	```
+3. Save the post, and visit it expecting to see the markdown converted to html.
+
+### Comments
+
+#### Hooking on comments
+
+Now, other plugins hooking on `comment_form_after` for showing content will work seamlessly with Jetpack.
+
+To test:
+
+1. Add a plugin that hooks in after the comment form, such as Webmentions ( https://wordpress.org/plugins/webmention/ ).
+2. Visit any given post for which comments are enabled an expect to see the content that the other plugin outputs.
+
+#### WordPress.com comments editor
+
+Edit links for comments will be redirected to WordPress.com comment editor if the Jetpack option `edit_links_calypso_redirect` is enabled.
+
+To test:
+
+1. Ensure the option is enabled. One way is to run the following `wp` cli command:
+	```sh
+	wp jetpack options update edit_links_calypso_redirect 1
+	```
+2. Verify that the frontend Edit link for a comment points to WordPress.com.
+
+### Search
+
+We improved the UI for customizing the Search widget.
+
+To test the new customization UI for the widget:
+
+1. Start with a site that has Jetpack Professional Plan associated (nothing about search should show up otherwise).
+2. Turn on search from the Jetpack dashboard or from the Jetpack Traffic Settings page.
+3. Go customize your widgets (either in wp-admin or the customizer)
+4. Add the Jetpack Search widget and customize it. Things to try customizing:
+	* Add filtering by category/tags/custom-taxonomy
+	* Add filtering by post type
+	* Add filtering by date
+	* Use the widget search box, or a search box in the theme or in the Core search widget
+	* Try different themes. This is an interesting list: https://www.godaddy.com/garage/wordpress-hot-100/ Try to test with some themes that were not tested previously in https://github.com/Automattic/jetpack/pull/8412
+	* Try customizing search on a WooCommerce site.
+
+The goal with all of the above is to enable a non-technical user to configure and customize search.
 
 ### Final Notes
 
