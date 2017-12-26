@@ -108,13 +108,9 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Release date: January 2, 2018
 * Release post: https://wp.me/p1moTy-6FR
 
-**Major Enhancements**
-
-* Added ability to create revisions of Portfolio Projects.
-
 **Enhancements**
 
-* Contact Forms: The Contact Form module is now activated when you try to add a form from calypso and the module was inactive.
+* Added ability to create revisions of Portfolio Projects.
 
 **Improved compatibility**
 
