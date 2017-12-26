@@ -21,7 +21,6 @@ import { FormFieldset } from 'components/forms';
 const Search = moduleSettingsForm(
 	React.createClass( {
 		render() {
-			const search = this.props.getModule( 'search' );
 			let planClass = null;
 
 			if ( this.props.sitePlan ) {
