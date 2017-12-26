@@ -636,10 +636,11 @@ class Jetpack {
 		add_filter( 'jetpack_just_in_time_msgs', '__return_true', 9 );
 		add_filter( 'jetpack_just_in_time_msg_cache', '__return_true', 9);
 
-		// If enabled, point edit post and page links to Calypso instead of WP-Admin.
+		// If enabled, point edit post, page, and comment links to Calypso instead of WP-Admin.
 		// We should make sure to only do this for front end links.
-		if ( Jetpack_Options::get_option( 'edit_links_calypso_redirect' ) && ! is_admin() ) {
-			add_filter( 'get_edit_post_link', array( $this, 'point_edit_links_to_calypso' ), 1, 2 );
+		if ( Jetpack::get_option( 'edit_links_calypso_redirect' ) && ! is_admin() ) {
+			add_filter( 'get_edit_post_link', array( $this, 'point_edit_post_links_to_calypso' ), 1, 2 );
+			add_filter( 'get_edit_comment_link', array( $this, 'point_edit_comment_links_to_calypso' ), 1 );
 		}
 
 		// Update the Jetpack plan from API on heartbeats
@@ -667,7 +668,7 @@ class Jetpack {
 		}
 	}
 
-	function point_edit_links_to_calypso( $default_url, $post_id ) {
+	function point_edit_post_links_to_calypso( $default_url, $post_id ) {
 		$post = get_post( $post_id );
 
 		if ( empty( $post ) ) {
@@ -694,6 +695,15 @@ class Jetpack {
 		$site_slug  = Jetpack::build_raw_urls( get_home_url() );
 
 		return esc_url( sprintf( 'https://wordpress.com/%s/%s/%d', $path_prefix, $site_slug, $post_id ) );
+	}
+
+	function point_edit_comment_links_to_calypso( $url ) {
+		// Take the `query` key value from the URL, and parse its parts to the $query_args. `amp;c` matches the comment ID.
+		wp_parse_str( wp_parse_url( $url, PHP_URL_QUERY ), $query_args );
+		return esc_url( sprintf( 'https://wordpress.com/comment/%s/%d?action=edit',
+			Jetpack::build_raw_urls( get_home_url() ),
+			$query_args['amp;c']
+		) );
 	}
 
 	function jetpack_track_last_sync_callback( $params ) {
