@@ -1,3 +1,31 @@
+## 5.7
+
+### Portfolio
+
+Portfolio posts are now revisioned.
+
+Follow the instructions below to test the feature:
+
+1. Create a new Portfolio entry, don't publish it.
+2. Save the draft few times.
+3. Confirm you can see revisions, just as you would see for posts or pages.
+
+### Markdown
+
+There used to be a bug by which you wouldn't be able to use markdown as content for a shortcode resulting in a weird hash/number being shown in the rendered content.
+
+To test, try the following:
+
+1. Register a test shortcode. The callback doesn't matter (it just needs to be registered so it gets added to the regex).
+	```php
+	add_shortcode( 'test', '__return_empty_string' );
+	```
+2. Create a post with the following content:
+	```
+		[test]Text with `code` in it.[/test]
+	```
+3. Save the post, and visit it expecting to see the markdown converted to html.
+
 ## 5.6
 
 ### Google Analytics
