@@ -128,7 +128,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * REST API: Added a check for avoiding a fatal error when attempting to include Akismet class files in case the Akismet plugin files are present but the permissions on the files there are set to be not readable
 * Markdown: Fixed bug where code inside shortcodes wasn't correctly restored from the hash.
-* Search: Fixed the remove month+year filter link.
+* Search: Fixed the link that acts as a month and year filter removal toggle.
 
 = 5.6.1 =
 
