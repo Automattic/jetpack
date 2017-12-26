@@ -59,6 +59,11 @@ const PlanBody = React.createClass( {
 		this.trackPlansClick( 'activate_publicize' );
 	},
 
+	activateSearch() {
+		this.props.activateModule( 'search' );
+		this.trackPlansClick( 'activate_search' );
+	},
+
 	activateVideoPress() {
 		this.props.activateModule( 'videopress' );
 		this.trackPlansClick( 'activate_videopress' );
@@ -203,6 +208,31 @@ const PlanBody = React.createClass( {
 											disabled={ this.props.isActivatingModule( 'wordads' ) }
 										>
 											{ __( 'Activate Ads' ) }
+										</Button>
+									)
+								}
+							</div>
+						)
+					}
+
+					{
+						( 'is-business-plan' === planClass ) && (
+							<div className="jp-landing__plan-features-card">
+								<h3 className="jp-landing__plan-features-title">{ __( 'Search (Beta)' ) }</h3>
+								<p>{ __( 'Replace the default WordPress search with better results that will help your users find what they are looking for.' ) }</p>
+								{
+									this.props.isModuleActivated( 'search' ) ? (
+										<Button onClick={ () => this.trackPlansClick( 'search_customize' ) } href={ this.props.siteAdminUrl + 'widgets.php' } className="is-primary">
+											{ __( 'Customize Search Widget' ) }
+										</Button>
+									)
+										: (
+										<Button
+											onClick={ this.activateSearch }
+											className="is-primary"
+											disabled={ this.props.isActivatingModule( 'search' ) }
+										>
+											{ __( 'Activate Search' ) }
 										</Button>
 									)
 								}
