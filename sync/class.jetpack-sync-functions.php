@@ -66,7 +66,37 @@ class Jetpack_Sync_Functions {
 	public static function get_post_types() {
 		global $wp_post_types;
 
-		return $wp_post_types;
+		$post_types_without_callbacks = array();
+		foreach ( $wp_post_types as $post_type_name => $post_type ) {
+			$sanitized_post_type = self::sanitize_post_type( $post_type );
+			if ( ! empty( $sanitized_post_type ) ) {
+				$post_types_without_callbacks[ $post_type_name ] = $sanitized_post_type;
+			} else {
+				error_log( 'Jetpack: Encountered a recusive post_type:' . $post_type_name );
+			}
+		}
+		return $post_types_without_callbacks;
+	}
+
+	public static function sanitize_post_type( $post_type ) {
+		// Lets clone the post type object instead of modifing the global one.
+		$sanitized_post_type = array();
+		foreach ( Jetpack_Sync_Defaults::$default_post_type_attributes as $attribute_key => $default_value ) {
+			if ( isset( $post_type->{ $attribute_key } ) ) {
+				$sanitized_post_type[ $attribute_key ] = $post_type->{ $attribute_key };
+			}
+		}
+		return (object) $sanitized_post_type;
+	}
+
+	public static function expand_synced_post_type( $sanitized_post_type, $post_type ) {
+		$post_type = sanitize_key( $post_type );
+		$post_type_object = new WP_Post_Type( $post_type, $sanitized_post_type );
+		$post_type_object->add_supports();
+		$post_type_object->add_rewrite_rules();
+		$post_type_object->add_hooks();
+		$post_type_object->register_taxonomies();
+		return (object) $post_type_object;
 	}
 
 	public static function get_post_type_features() {
