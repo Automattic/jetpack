@@ -4038,10 +4038,16 @@ p {
 				} else {
 					Jetpack::create_onboarding_token();
 					$url = $this->build_connect_url( true );
+
+					if ( false !== ( $token = Jetpack_Options::get_option( 'onboarding' ) ) ) {
+						$url = add_query_arg( 'onboarding', $token, $url );
+					}
+
 					$calypso_env = ! empty( $_GET[ 'calypso_env' ] ) ? $_GET[ 'calypso_env' ] : false;
 					if ( $calypso_env ) {
 						$url = add_query_arg( 'calypso_env', $calypso_env, $url );
 					}
+
 					wp_redirect( $url );
 					exit;
 				}
@@ -4484,14 +4490,6 @@ p {
 
 		if ( isset( $_GET['calypso_env'] ) ) {
 			$url = add_query_arg( 'calypso_env', sanitize_key( $_GET['calypso_env'] ), $url );
-		}
-
-		if ( false !== ( $token = Jetpack_Options::get_option( 'onboarding' ) ) ) {
-			$url = add_query_arg( 'onboarding', $token, $url );
-
-			// Remove this once https://github.com/Automattic/wp-calypso/pull/17094 is merged.
-			// Uncomment for development until it's merged.
-			//$url = add_query_arg( 'calypso_env', 'development', $url );
 		}
 
 		return $raw ? $url : esc_url( $url );
