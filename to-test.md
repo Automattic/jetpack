@@ -12,7 +12,7 @@ Follow the instructions below to test the feature:
 
 ### Markdown
 
-There used to be a bug by which you wouldn't be able to use markdown as content for a shortcode resulting in a weird hash/number being shown in the rendered content.
+There used to be a bug that didn't allow you to use markdown as content for a shortcode resulting in a weird hash/number being shown in the rendered content.
 
 To test, try the following:
 
