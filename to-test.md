@@ -26,6 +26,15 @@ To test, try the following:
 	```
 3. Save the post, and visit it expecting to see the markdown converted to html.
 
+### Comments
+
+Now, other plugins hooking on `comment_form_after` for showing content will work seamlessly with Jetpack.
+
+To test:
+
+1. Add a plugin that hooks in after the comment form, such as Webmentions ( https://wordpress.org/plugins/webmention/ ).
+2. Visit any given post for which comments are enabled an expect to see the content that the other plugin outputs.
+
 ### Final Notes
 
 During your tests, we encourage you to open your browser's Development Tools and keep the Console open, checking for any errors in the Console and the Network tabs.
