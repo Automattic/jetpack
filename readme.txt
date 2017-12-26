@@ -118,7 +118,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Improved compatibility**
 
-* Comments: Updated our filtering behavior for Jetpack comments so other plugins appending html to the comments section are able to do it and not filtered out by Jetpack.
+* Comments: Updated our filtering behavior for Jetpack comments so other plugins appending html to the comments section are able to do it instead of being filtered out by Jetpack.
 * Widgets: We updated Goodreads URLs to support https schema.
 * Masterbar: We now hide the Masterbar settings card in Jetpack’s Admin Page for sites that are set to always show the Masterbar.
 
