@@ -121,7 +121,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Widgets: We updated Goodreads URLs to support https schema.
 * Masterbar: We now hide the Masterbar settings card in Jetpack’s Admin Page for sites that are set to always show the Masterbar.
 * Lazy Images: Added a callback for processing image attributes array when attempting to lazy load images are loaded via `wp_get_attachment_image`.
-
+* Search: Added hooks to the search filters widget so that other plugins/themes can hook in and change its output.
 **Bug fixes**
 
 * REST API: Added a check for avoiding a fatal error when attempting to include Akismet class files in case the Akismet plugin files are present but the permissions on the files there are set to be not readable
