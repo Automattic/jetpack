@@ -110,16 +110,22 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Major Enhancements**
 
-
+* We added revisions for Portfolios.
 
 **Enhancements**
 
-
+* Contact Forms: The Contact Form module is now activated when you try to add a form from calypso and the module was inactive.
+* Markdown: Fixed markdown rendering when there's markdown code in Shorctodes content.
 
 **Improved compatibility**
 
+* Comments: Updated our filtering behavior for Jetpack comments so other plugins appending html to the comments section are able to do it and not filtered out by Jetpack.
+* Widgets: We updated Goodreads URLs to support https schema.
+* Masterbar: We now hide the Masterbar settings card in Jetpack’s Admin Page for sites that are set to always show the Masterbar.
 
 **Bug fixes**
+
+* REST API: Added a check for avoiding a fatal error when attempting to include Akismet class files in case the Akismet plugin files are present but the permissions on the files there are set to be not readable
 
 = 5.6.1 =
 
