@@ -49,6 +49,25 @@ To test:
 	```
 2. Verify that the frontend Edit link for a comment points to WordPress.com.
 
+### Search
+
+We improved the UI for customizing the Search widget.
+
+To test the new customization UI for the widget:
+
+1. Start with a site that has Jetpack Professional Plan associated (nothing about search should show up otherwise).
+2. Turn on search from the Jetpack dashboard or from the Jetpack Traffic Settings page.
+3. Go customize your widgets (either in wp-admin or the customizer)
+4. Add the Jetpack Search widget and customize it. Things to try customizing:
+	* Add filtering by category/tags/custom-taxonomy
+	* Add filtering by post type
+	* Add filtering by date
+	* Use the widget search box, or a search box in the theme or in the Core search widget
+	* Try different themes. This is an interesting list: https://www.godaddy.com/garage/wordpress-hot-100/ Try to test with some themes that were not tested previously in https://github.com/Automattic/jetpack/pull/8412
+	* Try customizing search on a WooCommerce site.
+
+The goal with all of the above is to enable a non-technical user to configure and customize search.
+
 ### Final Notes
 
 During your tests, we encourage you to open your browser's Development Tools and keep the Console open, checking for any errors in the Console and the Network tabs.

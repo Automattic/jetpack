@@ -114,6 +114,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Users hosting their sites with our Pressable partner who have Rewind access can now jump from the new Activity card in the Jetpack dashboard to the Activity Log in WordPress.com and restore or download backups for the site.
 * Comments: Edit links for comments in the frontend can redirect to calypso if the Jetpack option `edit_links_calypso_redirect` is enabled.
 * Protect: Updated the styling of the Protect page for recovering access to your site when you're locked out of it.
+* Search: Improved the UI for customizing the Search widget.
 
 **Improved compatibility**
 
@@ -122,6 +123,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Masterbar: We now hide the Masterbar settings card in Jetpack’s Admin Page for sites that are set to always show the Masterbar.
 * Lazy Images: Added a callback for processing image attributes array when attempting to lazy load images are loaded via `wp_get_attachment_image`.
 * Search: Added hooks to the search filters widget so that other plugins/themes can hook in and change its output.
+
 **Bug fixes**
 
 * REST API: Added a check for avoiding a fatal error when attempting to include Akismet class files in case the Akismet plugin files are present but the permissions on the files there are set to be not readable
