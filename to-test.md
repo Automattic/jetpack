@@ -7,7 +7,7 @@ Portfolio posts are now revisioned.
 Follow the instructions below to test the feature:
 
 1. Create a new Portfolio entry, don't publish it.
-2. Save the draft few times.
+2. Save the draft a few times.
 3. Confirm you can see revisions, just as you would see for posts or pages.
 
 ### Markdown
