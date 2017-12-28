@@ -865,6 +865,8 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
 				case 'onboarding':
 					// Break apart and set Jetpack onboarding options.
+					jetpack_require_lib( 'widgets' );
+
 					$result = $this->_process_onboarding( (array) $value );
 					if ( empty( $result ) ) {
 						$updated = true;
@@ -1041,11 +1043,83 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			}
 		}
 
+		// Add/update business address widget
+		if ( isset( $data['businessAddress'] ) ) {
+			//grab the first sidebar and proceed if it is present
+			$first_sidebar = self::get_first_sidebar();
+
+			if( $first_sidebar ) {
+				$title = wp_unslash( $data[ 'businessAddress' ][ 'name' ] );
+				$address = wp_unslash(
+					$data[ 'businessAddress' ][ 'city' ] . ' ' .
+					$data[ 'businessAddress' ][ 'state' ] . ' ' .
+					$data[ 'businessAddress' ][ 'street' ] . ' ' .
+					$data[ 'businessAddress' ][ 'zip' ]
+				);
+				$widget_options = array(
+					'title'   => $title,
+					'address' => $address,
+					'phone'   => '',
+					'hours'   => '',
+					'showmap' => false,
+					'email' => '',
+					'apikey' => '',
+				);
+				$position = '0';
+				$id_base = 'widget_contact_info';
+
+				$has_ba_widget = self::has_business_info_widget( $first_sidebar );
+				if ( $has_ba_widget ) {
+					self::update_widget( $id_base, $first_sidebar, $position, $widget_options);
+				}	else {
+					Jetpack_Widgets::activate_widget( $id_base, $first_sidebar, $position, $widget_options);
+				}
+			}
+		}
+
 		return empty( $error )
 			? ''
 			: join( ', ', $error );
 	}
 
+	public function get_first_sidebar() {
+			$active_sidebars = Jetpack_Widgets::get_active_sidebars();
+
+			$excluded_keys = array(
+				'wp_inactive_widgets',
+				'array_version',
+			);
+			foreach ( $excluded_keys as $key ) {
+				if ( isset( $active_sidebars[ $key ] ) ) {
+					unset( $active_sidebars[ $key ] );
+				}
+			}
+			if ( empty( $active_sidebars ) ) {
+				return false;
+			}
+			return array_shift( array_keys( $active_sidebars ) );
+		}
+
+		public function has_business_info_widget( $sidebar ) {
+			$sidebars_widgets = get_option( 'sidebars_widgets', array() );
+			if ( ! isset( $sidebars_widgets[ $sidebar ] ) ) {
+				return false;
+			}
+
+			foreach ( $sidebars_widgets[ $sidebar ] as $widget ) {
+				if ( strpos( $widget, 'widget_contact_info' ) !== false ) {
+					return true;
+				}
+			}
+			return false;
+		}
+
+		public function update_widget( $id_base, $sidebar, $position, $widget_options ) {
+
+			$widget = Jetpack_Widgets::get_widget_by_id_base( $id_base );
+			$widget_id = $widget['id'];
+			Jetpack_Widgets::update_widget($widget_id,  $sidebar, $position, $widget_options );
+		}
 	/**
 	 * Calls WPCOM through authenticated request to create, regenerate or delete the Post by Email address.
 	 * @todo: When all settings are updated to use endpoints, move this to the Post by Email module and replace __process_ajax_proxy_request.
