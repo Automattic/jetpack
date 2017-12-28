@@ -67,7 +67,6 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	}
 
 	public function maybe_within_wp_insert_user() {
-		error_log('jetpack_sync_user_locale_arg');
 		if ( ! Jetpack::is_function_in_backtrace('enqueue_within_wp_insert_user_calls') ) {
 			if ( Jetpack::is_function_in_backtrace('wp_insert_user' )  ) {
 				self::$calls_within_wp_insert_user[ current_action() ][] = func_get_args();
@@ -222,7 +221,6 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	}
 
 	public function edited_user_handler( $user_id ) {
-		error_log('edited_user_handler');
 		/**
 		 * Fires when a user is edited on a site
 		 *
@@ -234,7 +232,6 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	}
 	
 	function save_user_handler( $user_id, $old_user_data = null ) {
-		error_log('save_user_handler');
 		// ensure we only sync users who are members of the current blog
 		if ( ! is_user_member_of_blog( $user_id, get_current_blog_id() ) ) {
 			return;
@@ -331,11 +328,9 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 
 	function save_user_cap_handler( $meta_id, $user_id, $meta_key, $capabilities ) {
 		//The jetpack_sync_register_user payload is identical to jetpack_sync_save_user, don't send both
-		error_log('save_user_cap_handler_1');
 		if ( $this->is_create_user() || $this->is_add_user_to_blog() ) {
 			return;
 		}
-		error_log('save_user_cap_handler_2');
 		// if a user is currently being removed as a member of this blog, we don't fire the event
 		if ( current_filter() === 'deleted_user_meta'
 		     &&
