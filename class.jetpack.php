@@ -5313,7 +5313,7 @@ p {
 		if ( isset( $this->HTTP_RAW_POST_DATA ) ) {
 			$jpo = json_decode( $this->HTTP_RAW_POST_DATA );
 		} else {
-			$jpo = json_decode( json_encode( $_GET ), FALSE );
+			$jpo = json_decode( json_encode( $_GET ), false );
 		}
 			if (
 				isset( $jpo->onboarding ) &&
