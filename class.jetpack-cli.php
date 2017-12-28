@@ -882,7 +882,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * : Slug of the requested plan, e.g. premium
 	 * [--wpcom_user_id=<user_id>]
 	 * : WordPress.com ID of user to connect as (must be whitelisted against partner key)
-	 * [--user_email=<user_email>]
+	 * [--wpcom_user_email=<wpcom_user_email>]
 	 * : Override the email we send to WordPress.com for registration
 	 * [--onboarding=<onboarding>]
 	 * : Guide the user through an onboarding wizard
@@ -1014,8 +1014,8 @@ class Jetpack_CLI extends WP_CLI_Command {
 		}
 
 		// override email of selected user
-		if ( isset( $named_args['user_email'] ) && ! empty( $named_args['user_email'] ) ) {
-			$request_body['user_email'] = $named_args['user_email'];
+		if ( isset( $named_args['wpcom_user_email'] ) && ! empty( $named_args['wpcom_user_email'] ) ) {
+			$request_body['user_email'] = $named_args['wpcom_user_email'];
 		}
 
 		if ( isset( $named_args['plan'] ) && ! empty( $named_args['plan'] ) ) {
