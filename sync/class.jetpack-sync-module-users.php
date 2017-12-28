@@ -31,7 +31,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		add_action( 'add_user_to_blog', array( $this, 'save_user_handler' ) );
 		add_action( 'jetpack_sync_add_user', $callable, 10, 2 );
 		add_action( 'jetpack_sync_register_user', $callable, 10, 2 );
-		add_action( 'jetpack_sync_save_user', $callable );
+		add_action( 'jetpack_sync_save_user', array( $this, 'maybe_within_wp_insert_user' ) );
 
 		//Edit user info, see https://github.com/WordPress/WordPress/blob/c05f1dc805bddcc0e76fd90c4aaf2d9ea76dc0fb/wp-admin/user-edit.php#L126
 		add_action( 'personal_options_update', array( $this, 'edited_user_handler' ) );
@@ -67,7 +67,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		error_log('jetpack_sync_user_locale_arg');
 		if ( ! Jetpack::is_function_in_backtrace('enqueue_within_wp_insert_user_calls') ) {
 			if ( Jetpack::is_function_in_backtrace('wp_insert_user' )  ) {
-				self::$calls_within_wp_insert_user[] = func_get_args();
+				self::$calls_within_wp_insert_user[ current_action() ][] = func_get_args();
 
 				return;
 			}
@@ -76,8 +76,10 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	}
 
 	public function enqueue_within_wp_insert_user_calls() {
-		foreach( self::$calls_within_wp_insert_user as $call ) {
-			do_action( 'jetpack_sync_user_locale', $call );
+		foreach ( self::$calls_within_wp_insert_user as $action => $calls ) {
+			foreach ( $calls as $call ) {
+				do_action( $action, $call );
+			}
 		}
 	}
 
