@@ -247,7 +247,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 							name="<?php echo esc_attr( $this->get_field_name( 'use_filters' ) ); ?>"
 							<?php checked( $use_filters ); ?>
 						/>
-						<?php esc_html_e( 'Show filters when a search has multiple matches' ); ?>
+						<?php esc_html_e( 'Show filters when a search has multiple results' ); ?>
 					</label>
 				</p>
 				<?php foreach ( (array) $instance['filters'] as $filter ) : ?>
