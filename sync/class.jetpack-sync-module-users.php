@@ -123,6 +123,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 
 		if ( is_object( $user ) && is_object( $user->data ) ) {
 			unset( $user->data->user_pass );
+			unset( $user->data->user_activation_key );
 		}
 		if ( $user ) {
 			$user->allcaps = $this->get_real_user_capabilities( $user );
