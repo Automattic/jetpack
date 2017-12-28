@@ -91,6 +91,8 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		add_filter( 'jetpack_sync_before_send_jetpack_sync_add_user', array( $this, 'expand_user' ) );
 		add_filter( 'jetpack_sync_before_send_jetpack_sync_register_user', array( $this, 'expand_user' ) );
 		add_filter( 'jetpack_sync_before_send_jetpack_sync_save_user', array( $this, 'expand_user' ), 10, 2 );
+		add_filter( 'jetpack_sync_before_send_jetpack_user_edited', array( $this, 'expand_user' ) );
+
 		add_filter( 'jetpack_sync_before_send_wp_login', array( $this, 'expand_login_username' ), 10, 1 );
 		add_filter( 'jetpack_sync_before_send_wp_logout', array( $this, 'expand_logout_username' ), 10, 2 );
 
@@ -129,6 +131,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	}
 
 	public function add_to_user( $user ) {
+		$user = $this->get_user( $user );
 		if ( ! is_object( $user ) ) {
 			return null;
 		}
@@ -162,7 +165,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		list( $user ) = $args;
 
 		if ( $user ) {
-			return array( $this->add_to_user( $user ) );
+			return array( $this->sanitize_user( $this->add_to_user( $user ) ) );
 		}
 
 		return false;
