@@ -3,6 +3,8 @@
 class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	const MAX_INITIAL_SYNC_USERS = 100;
 
+	static $callable;
+
 	// Stores things that happen inside wp_insert_user so we sync them after the wp_insert_user call
 	static $calls_within_wp_insert_user = array();
 
@@ -13,13 +15,11 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	// this is here to support the backfill API
 	public function get_object_by_id( $object_type, $id ) {
 		if ( $object_type === 'user' && $user = get_user_by( 'id', intval( $id ) ) ) {
-			return $this->sanitize_user_and_expand( $user );
+			return $user;
 		}
 
 		return false;
 	}
-
-	static $callable;
 
 	public function init_listeners( $callable ) {
 		self::$callable = $callable;
@@ -36,11 +36,6 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		add_action( 'jetpack_sync_save_user', array( $this, 'delay_if_within_wp_insert_user' ) );
 
 		add_action( 'jetpack_sync_change_role_user', array( $this, 'delay_if_within_wp_insert_user' ), 10, 3 );
-
-		//Edit user info, see https://github.com/WordPress/WordPress/blob/c05f1dc805bddcc0e76fd90c4aaf2d9ea76dc0fb/wp-admin/user-edit.php#L126
-		add_action( 'personal_options_update', array( $this, 'edited_user_handler' ) );
-		add_action( 'edit_user_profile_update', array( $this, 'edited_user_handler' ) );
-		add_action( 'jetpack_user_edited', $callable );
 
 		add_action( 'jetpack_sync_user_locale', array( $this, 'delay_if_within_wp_insert_user' ), 10, 2 );
 
@@ -75,12 +70,18 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 				return;
 			}
 		}
-		call_user_func( self::$callable, func_get_args() );
+		call_user_func_array( self::$callable, func_get_args() );
 	}
 
 	public function do_delayed_calls() {
+		// We want the save user action to be synced first
+		if ( isset( self::$calls_within_wp_insert_user['jetpack_sync_save_user'] ) ) {
+			$jetpack_sync_save_user = self::$calls_within_wp_insert_user['jetpack_sync_save_user'];
+			unset( self::$calls_within_wp_insert_user['jetpack_sync_save_user'] );
+			self::$calls_within_wp_insert_user = array_merge( array( 'jetpack_sync_save_user' => $jetpack_sync_save_user), self::$calls_within_wp_insert_user );
+		}
 		foreach ( self::$calls_within_wp_insert_user as $action => $calls ) {
-			foreach ( $calls as $call ) {
+			foreach ( $calls as $arguments ) {
 				if ( 'user_register' === current_filter() ) {
 					if ( in_array( $action,
 						array(
@@ -90,12 +91,9 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 						break;
 					}
 				}
-				if ( 'profile_update' === current_filter() ) {
-					if ( 'jetpack_sync_save_user' === $action ) {
-						break;
-					}
-				}
-				do_action( $action, $call );
+
+				//	do_action( $action, $arguments[0], $arguments[1], ... );
+				call_user_func_array( 'do_action', array_merge( array( $action ), $arguments ) );
 			}
 		}
 	}
@@ -108,7 +106,6 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		add_filter( 'jetpack_sync_before_send_jetpack_sync_add_user', array( $this, 'expand_user' ) );
 		add_filter( 'jetpack_sync_before_send_jetpack_sync_register_user', array( $this, 'expand_user' ) );
 		add_filter( 'jetpack_sync_before_send_jetpack_sync_save_user', array( $this, 'expand_user' ), 10, 2 );
-		add_filter( 'jetpack_sync_before_send_jetpack_user_edited', array( $this, 'expand_user' ) );
 
 		add_filter( 'jetpack_sync_before_send_wp_login', array( $this, 'expand_login_username' ), 10, 1 );
 		add_filter( 'jetpack_sync_before_send_wp_logout', array( $this, 'expand_logout_username' ), 10, 2 );
@@ -124,6 +121,8 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	}
 
 	private function get_user( $user ) {
+		error_log( 'get USEEEEEER');
+		error_log( print_r($user,1));
 		if ( $user && ! is_object( $user ) && is_numeric( $user ) ) {
 			$user = get_user_by( 'id', $user );
 		}
@@ -183,7 +182,10 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		list( $user ) = $args;
 
 		if ( $user ) {
-			return array( $this->sanitize_user( $this->add_to_user( $user ) ) );
+			$user = $this->add_to_user( $user );
+			$user = $this->sanitize_user( $user );
+
+			return array( $user );
 		}
 
 		return false;
@@ -356,7 +358,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 			 *
 			 * @param object The Sanitized WP_User object
 			 */
-			do_action( 'jetpack_sync_save_user', $this->sanitize_user( $user ) );
+			do_action( 'jetpack_sync_edit_user', $user );
 		}
 	}
 
