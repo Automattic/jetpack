@@ -24,8 +24,8 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	public function init_listeners( $callable ) {
 		self::$callable = $callable;
 
-		add_action( 'user_register', array( $this, 'enqueue_within_wp_insert_user_calls' ), 11 );
-		add_action( 'profile_update', array( $this, 'enqueue_within_wp_insert_user_calls' ), 11 );
+		add_action( 'user_register', array( $this, 'do_delayed_calls' ), 99 );
+		add_action( 'profile_update', array( $this, 'do_delayed_calls' ), 99 );
 
 		// users
 		add_action( 'user_register', array( $this, 'save_user_handler' ) );
@@ -33,16 +33,16 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		add_action( 'add_user_to_blog', array( $this, 'save_user_handler' ) );
 		add_action( 'jetpack_sync_add_user', $callable, 10, 2 );
 		add_action( 'jetpack_sync_register_user', $callable, 10, 2 );
-		add_action( 'jetpack_sync_save_user', array( $this, 'maybe_within_wp_insert_user' ) );
+		add_action( 'jetpack_sync_save_user', array( $this, 'delay_if_within_wp_insert_user' ) );
 
-		add_action( 'jetpack_sync_change_role_user', array( $this, 'maybe_within_wp_insert_user' ), 10, 3 );
+		add_action( 'jetpack_sync_change_role_user', array( $this, 'delay_if_within_wp_insert_user' ), 10, 3 );
 
 		//Edit user info, see https://github.com/WordPress/WordPress/blob/c05f1dc805bddcc0e76fd90c4aaf2d9ea76dc0fb/wp-admin/user-edit.php#L126
 		add_action( 'personal_options_update', array( $this, 'edited_user_handler' ) );
 		add_action( 'edit_user_profile_update', array( $this, 'edited_user_handler' ) );
 		add_action( 'jetpack_user_edited', $callable );
 
-		add_action( 'jetpack_sync_user_locale', array( $this, 'maybe_within_wp_insert_user' ), 10, 2 );
+		add_action( 'jetpack_sync_user_locale', array( $this, 'delay_if_within_wp_insert_user' ), 10, 2 );
 
 		add_action( 'jetpack_sync_user_locale_delete', $callable, 10, 1 );
 
@@ -67,8 +67,8 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		add_action( 'wp_masterbar_logout', $callable, 10, 0 );
 	}
 
-	public function maybe_within_wp_insert_user() {
-		if ( ! Jetpack::is_function_in_backtrace( 'enqueue_within_wp_insert_user_calls' ) ) {
+	public function delay_if_within_wp_insert_user() {
+		if ( ! Jetpack::is_function_in_backtrace( 'do_delayed_calls' ) ) {
 			if ( Jetpack::is_function_in_backtrace( 'wp_insert_user' ) ) {
 				self::$calls_within_wp_insert_user[ current_action() ][] = func_get_args();
 
@@ -78,11 +78,15 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		call_user_func( self::$callable, func_get_args() );
 	}
 
-	public function enqueue_within_wp_insert_user_calls() {
+	public function do_delayed_calls() {
 		foreach ( self::$calls_within_wp_insert_user as $action => $calls ) {
 			foreach ( $calls as $call ) {
 				if ( 'user_register' === current_filter() ) {
-					if ( 'jetpack_sync_change_role_user' === $action ) {
+					if ( in_array( $action,
+						array(
+							'jetpack_sync_change_role_user',
+							'jetpack_sync_user_locale',
+						), true ) ) {
 						break;
 					}
 				}
