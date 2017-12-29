@@ -116,6 +116,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	public function sanitize_user_and_expand( $user ) {
 		$user = $this->get_user( $user );
 		$user = $this->add_to_user( $user );
+
 		return $this->sanitize_user( $user );
 	}
 
@@ -126,6 +127,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		if ( $user instanceof WP_User ) {
 			return $user;
 		}
+
 		return null;
 	}
 
@@ -141,6 +143,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		if ( $user ) {
 			$user->allcaps = $this->get_real_user_capabilities( $user );
 		}
+
 		return $user;
 	}
 
@@ -167,11 +170,12 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		if ( is_wp_error( $user ) ) {
 			return $user_capabilities;
 		}
-		foreach( Jetpack_Sync_Defaults::get_capabilities_whitelist() as $capability ) {
-			if ( $user_has_capabilities = user_can( $user , $capability ) ) {
+		foreach ( Jetpack_Sync_Defaults::get_capabilities_whitelist() as $capability ) {
+			if ( $user_has_capabilities = user_can( $user, $capability ) ) {
 				$user_capabilities[ $capability ] = true;
 			}
 		}
+
 		return $user_capabilities;
 	}
 
@@ -193,9 +197,9 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	}
 
 	public function expand_logout_username( $args, $user_id ) {
-		$user  = get_userdata( $user_id );
-		$user  = $this->sanitize_user( $user );
-		
+		$user = get_userdata( $user_id );
+		$user = $this->sanitize_user( $user );
+
 		$login = '';
 		if ( is_object( $user ) && is_object( $user->data ) ) {
 			$login = $user->data->user_login;
@@ -232,7 +236,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		 */
 		do_action( 'jetpack_user_edited', $user_id );
 	}
-	
+
 	function save_user_handler( $user_id, $old_user_data = null ) {
 		// ensure we only sync users who are members of the current blog
 		if ( ! is_user_member_of_blog( $user_id, get_current_blog_id() ) ) {
@@ -329,10 +333,6 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	}
 
 	function save_user_cap_handler( $meta_id, $user_id, $meta_key, $capabilities ) {
-		//The jetpack_sync_register_user payload is identical to jetpack_sync_save_user, don't send both
-		if ( $this->is_create_user() || $this->is_add_user_to_blog() ) {
-			return;
-		}
 		// if a user is currently being removed as a member of this blog, we don't fire the event
 		if ( current_filter() === 'deleted_user_meta'
 		     &&
@@ -433,20 +433,6 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 
 	private function is_add_new_user_to_blog() {
 		return Jetpack::is_function_in_backtrace( 'add_new_user_to_blog' );
-	}
-
-	private function is_add_user_to_blog() {
-		return Jetpack::is_function_in_backtrace( 'add_user_to_blog' );
-	}
-
-	private function is_create_user() {
-		$functions = array(
-			'add_new_user_to_blog', // Used to suppress jetpack_sync_save_user in save_user_cap_handler when user registered on multi site
-			'wp_create_user', // Used to suppress jetpack_sync_save_user in save_user_role_handler when user registered on multi site
-			'wp_insert_user', // Used to suppress jetpack_sync_save_user in save_user_cap_handler and save_user_role_handler when user registered on single site
-		);
-
-		return Jetpack::is_function_in_backtrace( $functions );
 	}
 
 	private function get_reassigned_network_user_id() {
