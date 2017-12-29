@@ -19,10 +19,11 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		return false;
 	}
 
-	var $callable;
+	static $callable;
 
 	public function init_listeners( $callable ) {
-		$this->callable = $callable;
+		self::$callable = $callable;
+
 		add_action( 'user_register', array( $this, 'enqueue_within_wp_insert_user_calls' ), 11 );
 		add_action( 'profile_update', array( $this, 'enqueue_within_wp_insert_user_calls' ), 11 );
 
@@ -67,13 +68,14 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	}
 
 	public function maybe_within_wp_insert_user() {
-		if ( ! Jetpack::is_function_in_backtrace('enqueue_within_wp_insert_user_calls') ) {
-			if ( Jetpack::is_function_in_backtrace('wp_insert_user' )  ) {
+		if ( ! Jetpack::is_function_in_backtrace( 'enqueue_within_wp_insert_user_calls' ) ) {
+			if ( Jetpack::is_function_in_backtrace( 'wp_insert_user' ) ) {
 				self::$calls_within_wp_insert_user[ current_action() ][] = func_get_args();
+
 				return;
 			}
 		}
-		call_user_func( $this->callable, func_get_args() );
+		call_user_func( self::$callable, func_get_args() );
 	}
 
 	public function enqueue_within_wp_insert_user_calls() {
