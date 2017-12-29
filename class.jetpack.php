@@ -2775,7 +2775,8 @@ class Jetpack {
 		$module_data = Jetpack::get_module( $module );
 
 		if ( ! Jetpack::is_active() ) {
-			if ( !Jetpack::is_development_mode() )
+			$is_onboarding = Jetpack_Options::get_option( 'onboarding' ) !== false;
+			if ( ! Jetpack::is_development_mode() && ! $is_onboarding )
 				return false;
 
 			// If we're not connected but in development mode, make sure the module doesn't require a connection
