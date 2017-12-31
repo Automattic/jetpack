@@ -70,4 +70,44 @@ class WP_Test_Functions_OpenGraph extends Jetpack_Attachment_Test_Case {
 
 		delete_option( 'site_icon' );
 	}
+
+	/**
+	 * @author snarfed
+	 * @covers ::jetpack_og_get_tags
+	 * @since  4.5.0
+	 */
+	public function test_jetpack_og_description_post_excerpt_from_content() {
+		$post_id = $this->factory->post->create( array(
+			'post_content' => 'original content',
+			'post_excerpt' => '',
+		) );
+		$this->go_to( get_permalink( $post_id ) );
+
+		add_filter( 'the_content', array( $this, 'filtered_content' ) );
+		$this->assertContains( '<meta property="og:description" content="filtered content" />', jetpack_og_get_tags() );
+	}
+
+	function filtered_content( $content ) {
+		return 'filtered content';
+	}
+
+	/**
+	 * @author snarfed
+	 * @covers ::jetpack_og_get_tags
+	 * @since  4.5.0
+	 */
+	public function test_jetpack_og_description_post_excerpt() {
+		$post_id = $this->factory->post->create( array(
+			'post_content' => 'original content',
+			'post_excerpt' => 'original excerpt',
+		) );
+		$this->go_to( get_permalink( $post_id ) );
+
+		add_filter( 'get_the_excerpt', array( $this, 'filtered_excerpt' ) );
+		$this->assertContains( '<meta property="og:description" content="filtered excerpt" />', jetpack_og_get_tags() );
+	}
+
+	function filtered_excerpt( $excerpt ) {
+		return 'filtered excerpt';
+	}
 }
