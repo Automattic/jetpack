@@ -121,8 +121,6 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	}
 
 	private function get_user( $user ) {
-		error_log( 'get USEEEEEER');
-		error_log( print_r($user,1));
 		if ( $user && ! is_object( $user ) && is_numeric( $user ) ) {
 			$user = get_user_by( 'id', $user );
 		}
