@@ -352,7 +352,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 			 *
 			 * @param object The Sanitized WP_User object
 			 */
-			do_action( 'jetpack_sync_edit_user', $user );
+			do_action( 'jetpack_sync_save_user', $user );
 		}
 	}
 
