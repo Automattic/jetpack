@@ -23,7 +23,6 @@ modules/widgets/follow-button.php
 to-test.md
 .editorconfig
 _inc/client
-_inc/*.js
 _inc/build/*.js.map
 _inc/build/*.css.map
 _inc/build/maps
