@@ -66,7 +66,7 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 		$this->request = new WP_REST_Request( 'GET', '/jetpack/v4/module/protect' );
 		$response = $this->server->dispatch( $this->request );
 		// From https://github.com/WordPress/WordPress/blob/4.7/wp-includes/rest-api/class-wp-rest-server.php#L902
-		$this->assertErrorResponse( 'rest_forbidden', $response, 403 );
+		$this->assertErrorResponse( 'rest_forbidden', $response, 401 );
 		$this->assertEquals( 0, get_current_user_id() );
 	}
 
