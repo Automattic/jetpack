@@ -1,4 +1,10 @@
-( function( $ ) {
+/* globals jetpack_search_filter_admin, jQuery */
+
+( function( $, args ) {
+	var defaultFilterCount = ( 'undefined' !== typeof args && args.defaultFilterCount ) ?
+		args.defaultFilterCount :
+		10;
+
 	var setListeners = function() {
 		var widget = $( '.jetpack-search-filters-widget' );
 
@@ -19,7 +25,7 @@
 					.clone()
 					.attr( 'class', 'jetpack-search-filters-widget__filter' );
 
-			clone.find( 'input[type="number"]' ).val( 10 );
+			clone.find( 'input[type="number"]' ).val( defaultFilterCount );
 			clone.find( 'input[type="text"]' ).val( '' );
 			clone.find( 'select option:first-child' ).attr( 'selected', 'selected' );
 
@@ -49,4 +55,4 @@
 		widget.off( 'change', '.jetpack-search-filters-widget__use-filters' );
 		setListeners();
 	} );
-} )( jQuery );
+} )( jQuery, jetpack_search_filter_admin );
