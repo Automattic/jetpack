@@ -6,6 +6,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 
 	private $just_published = array();
 	private $just_trashed = array();
+	private $previous_status = array();
 	private $action_handler;
 	private $import_end = false;
 
@@ -33,6 +34,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		$priority = version_compare( $wp_version, '4.7-alpha', '<' ) ? 0 : 11;
 
 		add_action( 'wp_insert_post', array( $this, 'wp_insert_post' ), $priority, 3 );
+		add_action( 'jetpack_save_post', $callable, 10, 5 );
 
 		add_action( 'deleted_post', $callable, 10 );
 		add_action( 'jetpack_published_post', $callable, 10, 2 );
@@ -326,6 +328,8 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		if ( 'trash' === $new_status && 'trash' !== $old_status ) {
 			$this->just_trashed[] = $post->ID;
 		}
+
+		$this->previous_status[ $post->ID ] = $old_status;
 	}
 
 	public function wp_insert_post( $post_ID, $post = null, $update = null ) {
@@ -339,20 +343,11 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 			$is_auto_save = false;
 		}
 
-		if ( ! in_array( $post_ID, $this->just_published ) ) {
-			$just_published = false;
-		} else {
-			$just_published = true;
-		}
-
 		// workaround for https://github.com/woocommerce/woocommerce/issues/18007
 		if ( $post && 'shop_order' === $post->post_type ) {
 			$post = get_post( $post_ID );
 		}
-
-		call_user_func( $this->action_handler, $post_ID, $post, $update, $is_auto_save, $just_published );
-		$this->send_published( $post_ID, $post );
-		$this->send_trashed( $post_ID, $post );
+		do_action( 'jetpack_save_post', $post_ID, $post, $update, $is_auto_save, $this->previous_status[ $post_ID ] );
 	}
 
 	public function send_published( $post_ID, $post ) {
