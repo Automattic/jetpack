@@ -162,7 +162,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			$filters = array();
 			foreach ( (array) $new_instance['filter_type'] as $index => $type ) {
 				$count = intval( $new_instance['num_filters'][ $index ] );
-				$count = min( 20, $count ); // Set max boundary at 20
+				$count = min( 50, $count ); // Set max boundary at 20
 				$count = max( 1, $count );  // Set min boundary at 1
 
 				switch ( $type ) {
@@ -362,14 +362,14 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 
 			<p>
 				<label>
-					<?php esc_html_e( 'Maximum number of filters (1-20):', 'jetpack' ); ?>
+					<?php esc_html_e( 'Maximum number of filters (1-50):', 'jetpack' ); ?>
 					<input
 						class="widefat"
 						name="<?php echo esc_attr( $this->get_field_name( 'num_filters' ) ); ?>[]"
 						type="number"
 						value="<?php echo intval( $args['count'] ); ?>"
 						min="1"
-						max="20"
+						max="50"
 						step="1"
 						required
 					/>
