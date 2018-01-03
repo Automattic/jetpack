@@ -30,7 +30,7 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 	// This is trickier than you would expect because we only check against
 	// maximum queue size periodically (to avoid a counts on every request), and then
 	// we cache the "blocked on queue size" status.
-	// In addition, we should only enforce the queue size limit if the oldest (aka frontmost) 
+	// In addition, we should only enforce the queue size limit if the oldest (aka frontmost)
 	// item in the queue is gt 15 minutes old.
 	function test_detects_if_exceeded_queue_size_limit_and_oldest_item_gt_15_mins() {
 		$this->listener->get_sync_queue()->reset();
@@ -116,7 +116,7 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 
 		$this->sender->do_sync();
 
-		$this->assertObjectHasAttribute( 'silent', $this->server_event_storage->get_most_recent_event( 'wp_insert_post' ) );
-		$this->assertTrue( $this->server_event_storage->get_most_recent_event( 'wp_insert_post' )->silent );
+		$this->assertObjectHasAttribute( 'silent', $this->server_event_storage->get_most_recent_event( 'jetpack_save_post' ) );
+		$this->assertTrue( $this->server_event_storage->get_most_recent_event( 'jetpack_save_post' )->silent );
 	}
 }
