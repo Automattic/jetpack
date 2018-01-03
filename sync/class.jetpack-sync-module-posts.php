@@ -5,7 +5,6 @@ require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
 class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 
 	private $just_published = array();
-	private $just_trashed = array();
 	private $previous_status = array();
 	private $action_handler;
 	private $import_end = false;
@@ -38,10 +37,9 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 
 		add_action( 'deleted_post', $callable, 10 );
 		add_action( 'jetpack_published_post', $callable, 10, 2 );
-		add_action( 'jetpack_trashed_post', $callable, 10, 2 );
 
 		add_action( 'transition_post_status', array( $this, 'save_published' ), 10, 3 );
-		add_filter( 'jetpack_sync_before_enqueue_wp_insert_post', array( $this, 'filter_blacklisted_post_types' ) );
+		add_filter( 'jetpack_sync_before_enqueue_jetpack_save_post', array( $this, 'filter_blacklisted_post_types' ) );
 
 		// listen for meta changes
 		$this->init_listeners_for_meta_type( 'post', $callable );
@@ -123,7 +121,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 	}
 
 	public function init_before_send() {
-		add_filter( 'jetpack_sync_before_send_wp_insert_post', array( $this, 'expand_wp_insert_post' ) );
+		add_filter( 'jetpack_sync_before_send_jetpack_save_post', array( $this, 'expand_wp_insert_post' ) );
 
 		// full sync
 		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_posts', array( $this, 'expand_post_ids' ) );
@@ -171,9 +169,9 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		$post         = $args[1];
 		$update       = $args[2];
 		$is_auto_save = isset( $args[3] ) ? $args[3] : false; //See https://github.com/Automattic/jetpack/issues/7372
-		$just_published = isset( $args[4] ) ? $args[4] : false; //Preventative in light of above issue
+		$previous_state = isset( $args[4] ) ? $args[4] : false; //Preventative in light of above issue
 
-		return array( $post_id, $this->filter_post_content_and_add_links( $post ), $update, $is_auto_save, $just_published );
+		return array( $post_id, $this->filter_post_content_and_add_links( $post ), $update, $is_auto_save, $previous_state );
 	}
 
 	function filter_blacklisted_post_types( $args ) {
@@ -325,10 +323,6 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 			$this->just_published[] = $post->ID;
 		}
 
-		if ( 'trash' === $new_status && 'trash' !== $old_status ) {
-			$this->just_trashed[] = $post->ID;
-		}
-
 		$this->previous_status[ $post->ID ] = $old_status;
 	}
 
@@ -348,6 +342,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 			$post = get_post( $post_ID );
 		}
 		do_action( 'jetpack_save_post', $post_ID, $post, $update, $is_auto_save, $this->previous_status[ $post_ID ] );
+		$this->send_published( $post_ID, $post );
 	}
 
 	public function send_published( $post_ID, $post ) {
@@ -395,28 +390,6 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		 */
 		do_action( 'jetpack_published_post', $post_ID, $flags );
 		$this->just_published = array_diff( $this->just_published, array( $post_ID ) );
-	}
-
-	public function send_trashed( $post_ID, $post ) {
-		if ( ! in_array( $post_ID, $this->just_trashed ) ) {
-			return;
-		}
-
-		// Post revisions cause race conditions where this send_published add the action before the actual post gets synced
-		if ( wp_is_post_autosave( $post ) || wp_is_post_revision( $post ) ) {
-			return;
-		}
-
-		/**
-		 * Action that gets synced when a post type gets trashed.
-		 *
-		 * @since 4.9.0
-		 *
-		 * @param int $post_ID
-		 */
-		do_action( 'jetpack_trashed_post', $post_ID, $post->post_type );
-
-		$this->just_trashed = array_diff( $this->just_trashed, array( $post_ID ) );
 	}
 
 	public function expand_post_ids( $args ) {
