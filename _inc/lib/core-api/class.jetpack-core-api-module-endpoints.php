@@ -930,6 +930,65 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 	}
 
 	/**
+	 * Install a plugin.
+	 *
+	 * @since 5.8.0
+	 *
+	 * @param string $slug Plugin slug.
+	 *
+	 * @return bool True if installation succeeded, error object otherwise.
+	 */
+	static function _install_plugin( $slug ) {
+		if ( is_multisite() && ! current_user_can( 'manage_network' ) ) {
+			return new WP_Error( 'not_allowed', 'You are not allowed to install plugins on this site.' );
+		}
+		include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
+		include_once ABSPATH . 'wp-admin/includes/file.php';
+		$upgrader  = new Plugin_Upgrader( new Automatic_Upgrader_Skin() );
+		$zip_url = "https://downloads.wordpress.org/plugin/{$slug}.latest-stable.zip";
+		$result = $upgrader->install( $zip_url );
+		if ( is_wp_error( $result ) || ! $result ) {
+			return new WP_Error( 'install_error', 'Could not install plugin ' . $slug );
+		}
+		return true;
+	}
+
+	/**
+	 * Install the WooCommerce plugin.
+	 *
+	 * @since 5.8.0
+	 *
+	 * @return bool True if installation succeeded, error object otherwise.
+	 */
+	static function _install_woocommerce() {
+		// Check if get_plugins() function exists. This is required on the front end of the
+		// site, since it is in a file that is normally only loaded in the admin.
+		if ( ! function_exists( 'get_plugins' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+
+		$WOOCOMMERCE_ID = 'woocommerce/woocommerce.php';
+		$WOOCOMMERCE_SLUG = 'woocommerce';
+
+		$result = true;
+		if ( ! array_key_exists( $WOOCOMMERCE_ID, get_plugins() ) ) {
+			$installed = self::_install_plugin( $WOOCOMMERCE_SLUG );
+			if ( is_wp_error( $installed ) ) {
+				$result = $installed;
+			} else {
+				$result = activate_plugin( $WOOCOMMERCE_ID );
+			}
+		} else if ( ! is_plugin_active( $WOOCOMMERCE_ID ) ) {
+			$result = activate_plugin( $WOOCOMMERCE_ID );
+		}
+		if ( is_wp_error( $result ) ) {
+			wp_send_json_error( 'Could not install WooCommerce: ' . $result->get_error_message() );
+		} else {
+			wp_send_json_success();
+		}
+	}
+
+	/**
 	 * Perform tasks in the site based on onboarding choices.
 	 *
 	 * @since 5.4.0
@@ -1039,6 +1098,10 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			} elseif ( is_wp_error( $form ) ) {
 				$error[] = 'form creation: '. $form->get_error_message();
 			}
+		}
+
+		if ( isset( $data['installWooCommerce'] ) && $data['installWooCommerce'] ) {
+			self::_install_woocommerce();
 		}
 
 		return empty( $error )
