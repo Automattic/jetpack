@@ -22,6 +22,7 @@
     "build-production-client": "NODE_ENV=production BABEL_ENV=production yarn build-client",
     "build-production": "yarn distclean && yarn && gulp languages:extract && yarn build-production-client",
     "build-languages": "gulp languages",
+    "build-with-docker": "docker run  --rm -it -v $(pwd):/jetpack -w /jetpack --name jetpack-builder oskosk/jetpack-builder bash -c 'yarn build'",
     "lint": "eslint --ext .js --ext .jsx ./*.js _inc/client -c .eslintrc",
     "test-client": "NODE_ENV=test NODE_PATH=tests:_inc/client:node_modules/@automattic/dops-components/client tests/runner.js",
     "add-textdomain": "grunt addtextdomain",
