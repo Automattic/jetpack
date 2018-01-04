@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-import React from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 
@@ -17,8 +17,8 @@ import SettingsGroup from 'components/settings-group';
 import { ModuleToggle } from 'components/module-toggle';
 
 const SpeedUpSite = moduleSettingsForm(
-	React.createClass( {
-		toggleModule( name, value ) {
+	class extends Component {
+		toggleModule = ( name, value ) => {
 			if ( 'photon' === name ) {
 				// Carousel depends on Photon. Deactivate it if Photon is deactivated.
 				if ( false === ! value ) {
@@ -29,7 +29,7 @@ const SpeedUpSite = moduleSettingsForm(
 			} else {
 				this.props.updateOptions( { [ name ]: ! value } );
 			}
-		},
+		};
 
 		decodeEntities( text ) {
 			if ( 'undefined' === typeof DOMParser ) {
@@ -38,18 +38,18 @@ const SpeedUpSite = moduleSettingsForm(
 
 			const document = new DOMParser().parseFromString( text, 'text/html' );
 			return document.documentElement.textContent;
-		},
+		}
 
 		render() {
-			const foundPhoton = this.props.isModuleFound( 'photon' ),
-				foundLazyImages = this.props.isModuleFound( 'lazy-images' );
+			const foundPhoton = this.props.isModuleFound( 'photon' );
+			const foundLazyImages = this.props.isModuleFound( 'lazy-images' );
 
 			if ( ! foundPhoton && ! foundLazyImages ) {
 				return null;
 			}
 
-			const photon = this.props.module( 'photon' ),
-				lazyImages = this.props.module( 'lazy-images' );
+			const photon = this.props.module( 'photon' );
+			const lazyImages = this.props.module( 'lazy-images' );
 
 			return (
 				<SettingsCard
@@ -102,7 +102,7 @@ const SpeedUpSite = moduleSettingsForm(
 				</SettingsCard>
 			);
 		}
-	} )
+	}
 );
 
 export default connect(
