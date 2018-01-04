@@ -533,6 +533,7 @@ class Jetpack_Options {
 			'jetpack_sso_require_two_step',
 			'jetpack_sso_remove_login_form',
 			'jetpack_last_connect_url_check',
+			'jpo_site_type',
 		);
 	}
 
