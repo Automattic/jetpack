@@ -4,6 +4,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
+import { unescape } from 'lodash';
 
 /**
  * Internal dependencies
@@ -29,6 +30,15 @@ const SpeedUpSite = moduleSettingsForm(
 			} else {
 				this.props.updateOptions( { [ name ]: ! value } );
 			}
+		},
+
+		decodeEntities( text ) {
+			if ( 'undefined' === typeof DOMParser ) {
+				return text;
+			}
+
+			const document = new DOMParser().parseFromString( text, 'text/html' );
+			return document.documentElement.textContent;
 		},
 
 		render() {
@@ -60,12 +70,12 @@ const SpeedUpSite = moduleSettingsForm(
 							toggleModule={ this.toggleModule }
 						>
 							<span className="jp-form-toggle-explanation">
-								{ photon.description }
+								{ this.decodeEntities( photon.description ) }
 							</span>
 						</ModuleToggle>
 						<FormFieldset>
 							<span className="jp-form-setting-explanation">
-								{ photon.long_description }
+								{ this.decodeEntities( photon.long_description ) }
 							</span>
 						</FormFieldset>
 					</SettingsGroup>
@@ -81,12 +91,12 @@ const SpeedUpSite = moduleSettingsForm(
 							toggleModule={ this.toggleModule }
 						>
 							<span className="jp-form-toggle-explanation">
-								{ lazyImages.description }
+								{ this.decodeEntities( lazyImages.description ) }
 							</span>
 						</ModuleToggle>
 						<FormFieldset>
 							<span className="jp-form-setting-explanation">
-								{ lazyImages.long_description }
+								{ this.decodeEntities( lazyImages.long_description ) }
 							</span>
 						</FormFieldset>
 					</SettingsGroup>

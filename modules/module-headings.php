@@ -82,7 +82,7 @@ function jetpack_get_module_i18n( $key ) {
 
 			'lazy-images' => array(
 				'name' => _x( 'Lazy Images', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Improve performance by loading images just before they scroll into view', 'Module Description', 'jetpack' ),
+				'description' => _x( '"Lazy load" images', 'Module Description', 'jetpack' ),
 			),
 
 			'likes' => array(
