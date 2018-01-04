@@ -24,6 +24,7 @@
     "build-languages": "gulp languages",
     "build-with-docker": "docker run  --rm -it -v $(pwd):/jetpack -w /jetpack --name jetpack-builder oskosk/jetpack-builder bash -c 'yarn build'",
     "lint": "eslint --ext .js --ext .jsx ./*.js _inc/client -c .eslintrc",
+    "watch-with-docker": "docker run  --rm -it -v $(pwd):/jetpack -w /jetpack --name jetpack-builder oskosk/jetpack-builder bash -c 'yarn watch'",
     "test-client": "NODE_ENV=test NODE_PATH=tests:_inc/client:node_modules/@automattic/dops-components/client tests/runner.js",
     "add-textdomain": "grunt addtextdomain",
     "build-pot": "grunt makepot",
