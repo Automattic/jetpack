@@ -970,22 +970,16 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 		$WOOCOMMERCE_ID = 'woocommerce/woocommerce.php';
 		$WOOCOMMERCE_SLUG = 'woocommerce';
 
-		$result = true;
 		if ( ! array_key_exists( $WOOCOMMERCE_ID, get_plugins() ) ) {
 			$installed = self::_install_plugin( $WOOCOMMERCE_SLUG );
 			if ( is_wp_error( $installed ) ) {
-				$result = $installed;
-			} else {
-				$result = activate_plugin( $WOOCOMMERCE_ID );
+				return $installed;
 			}
+			return activate_plugin( $WOOCOMMERCE_ID );
 		} else if ( ! is_plugin_active( $WOOCOMMERCE_ID ) ) {
-			$result = activate_plugin( $WOOCOMMERCE_ID );
+			return activate_plugin( $WOOCOMMERCE_ID );
 		}
-		if ( is_wp_error( $result ) ) {
-			wp_send_json_error( 'Could not install WooCommerce: ' . $result->get_error_message() );
-		} else {
-			wp_send_json_success();
-		}
+		return true; // Already installed and active
 	}
 
 	/**
@@ -1101,7 +1095,10 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 		}
 
 		if ( isset( $data['installWooCommerce'] ) && $data['installWooCommerce'] ) {
-			self::_install_woocommerce();
+			$wc_install_result = self::_install_woocommerce();
+			if ( is_wp_error( $wc_install_result ) ) {
+				$error[] = 'woocommerce installation';
+			}
 		}
 
 		return empty( $error )
