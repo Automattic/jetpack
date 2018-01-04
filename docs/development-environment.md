@@ -48,7 +48,7 @@ $ yarn distclean
 
 ## Development build
 
-The development build will create a build without minifying or deduping code. It will also install dependencies for you, so you don't need to `npm install` before it.
+The development build will create a build without minifying or deduping code. It will also install dependencies for you, so you don't need to `yarn` before it.
 
 ```
 $ yarn build
@@ -59,10 +59,7 @@ $ yarn build
 You can run a watch process, which will continuously watch the front-end JS and CSS/Sass for changes and rebuild accordingly.
 Instead of `yarn build` you'd use `yarn watch`.
 
-Before running the watch process you may need to `npm install` the npm dependencies first, if you didn't do it already.
-
 ```
-$ yarn
 $ yarn watch
 ```
 
