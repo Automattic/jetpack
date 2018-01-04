@@ -125,7 +125,7 @@ function jetpack_get_module_i18n( $key ) {
 
 			'photon' => array(
 				'name' => _x( 'Photon', 'Module Name', 'jetpack' ),
-				'description' => _x( 'Speed up images and photos', 'Module Description', 'jetpack' ),
+				'description' => _x( 'Serve images from our servers', 'Module Description', 'jetpack' ),
 				'recommended description' => _x( 'Mirrors and serves your images from our free and fast image CDN, improving your site’s performance with no additional load on your servers.', 'Jumpstart Description', 'jetpack' ),
 			),
 
