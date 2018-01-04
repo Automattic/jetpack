@@ -27,9 +27,12 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 
 		unset( $user->allcaps['subscriber'] );
 		unset( $user->allcaps['level_0'] );
+		unset( $user->data->user_activation_key );
+
 		$this->assertEqualsObject( $user, $server_user );
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_register_user' );
+
 
 		$user_sync_module = Jetpack_Sync_Modules::get_module( "users" );
 		$synced_user = $event->args[0];
@@ -43,6 +46,10 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 
 		// TODO: this is to address a testing bug, alas :/
 		unset( $retrieved_user->data->allowed_mime_types );
+		unset( $retrieved_user->data->user_pass );
+		unset( $retrieved_user->data->user_activation_key );
+		unset( $retrieved_user->allcaps['level_0'] );
+		unset( $retrieved_user->allcaps['subscriber'] );
 
 		$this->assertEquals( $synced_user, $retrieved_user );
 
