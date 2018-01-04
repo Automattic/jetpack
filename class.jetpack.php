@@ -5326,6 +5326,9 @@ p {
 		// Let's see if this is onboarding. In such case, use user token type and the provided user id.
 		if ( isset( $this->HTTP_RAW_POST_DATA ) ) {
 			$jpo = json_decode( $this->HTTP_RAW_POST_DATA );
+		} else {
+			$jpo = json_decode( json_encode( $_GET ), false );
+		}
 			if (
 				isset( $jpo->onboarding ) &&
 				isset( $jpo->onboarding->jpUser ) && isset( $jpo->onboarding->token ) &&
@@ -5345,7 +5348,7 @@ p {
 					}
 				}
 			}
-		}
+		//}
 
 		$this->xmlrpc_verification = array(
 			'type'    => $token_type,
