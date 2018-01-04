@@ -420,6 +420,9 @@ gulp.task( 'languages:get', function( callback ) {
 	process.on( 'exit', function( code ) {
 		if ( 0 !== code ) {
 			util.log( 'Failed getting languages: process exited with code ', code );
+			// Make the task fail if there was a problem as this could mean that we were going to ship a Jetpack version
+			// with the languages not properly built
+			return callback( new Error() );
 		}
 		callback();
 	} );

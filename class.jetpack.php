@@ -3967,7 +3967,13 @@ p {
 					'from' => $from
 				) );
 
-				wp_redirect( $this->build_connect_url( true, $redirect, $from ) );
+				$url = $this->build_connect_url( true, $redirect, $from );
+
+				if ( ! empty( $_GET['onboarding'] ) ) {
+					$url = add_query_arg( 'onboarding', sanitize_key( $_GET['onboarding'] ), $url );
+				}
+
+				wp_redirect( $url );
 				exit;
 			case 'activate' :
 				if ( ! current_user_can( 'jetpack_activate_modules' ) ) {

@@ -4,7 +4,7 @@
 # executes wp-cli command to provision Jetpack site for given partner
 
 usage () {
-	echo "Usage: partner-provision.sh --partner_id=partner_id --partner_secret=partner_secret [--user=wp_user_id] [--plan=plan_name] [--onboarding=1] [--wpcom_user_id=1234] [--url=http://example.com] [--force_connect=1] [--force_register=1] [--allow-root] [--home_url] [--site_url]"
+	echo "Usage: partner-provision.sh --partner_id=partner_id --partner_secret=partner_secret [--user=wp_user_id] [--plan=plan_name] [--onboarding=1] [--wpcom_user_id=1234] [--wpcom_user_email=wpcom_user_email] [--url=http://example.com] [--force_connect=1] [--force_register=1] [--allow-root] [--home_url] [--site_url]"
 }
 
 GLOBAL_ARGS=""
@@ -21,6 +21,9 @@ for i in "$@"; do
 			shift
 			;;
 		-w=* | --wpcom_user_id=* )  WPCOM_USER_ID="${i#*=}"
+			shift
+			;;
+		-e=* | --wpcom_user_email=* ) WPCOM_USER_EMAIL="${i#*=}"
 			shift
 			;;
 		-p=* | --plan=* )           PLAN_NAME="${i#*=}"
@@ -96,6 +99,10 @@ fi
 
 if [ ! -z "$WPCOM_USER_ID" ]; then
 	ADDITIONAL_ARGS="$ADDITIONAL_ARGS --wpcom_user_id=$WPCOM_USER_ID"
+fi
+
+if [ ! -z "$WPCOM_USER_EMAIL" ]; then
+	ADDITIONAL_ARGS="$ADDITIONAL_ARGS --wpcom_user_email=$WPCOM_USER_EMAIL"
 fi
 
 if [ ! -z "$FORCE_REGISTER" ]; then

@@ -20,6 +20,7 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 		add_action( 'jetpack_installed_plugin', $callable, 10, 2 );
 		add_action( 'admin_action_update', array( $this, 'check_plugin_edit') );
 		add_action( 'jetpack_edited_plugin', $callable, 10, 2 );
+		add_action( 'wp_ajax_edit-theme-plugin-file', array( $this, 'plugin_edit_ajax' ), 0 );
 	}
 
 	public function init_before_send() {
@@ -78,6 +79,64 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 		 *
 		 * @param string $plugin, Plugin slug
 		 * @param mixed $plugins[ $plugin ], Array of plugin data
+		 */
+		do_action( 'jetpack_edited_plugin', $plugin, $plugins[ $plugin ] );
+	}
+
+	public function plugin_edit_ajax() {
+		// this validation is based on wp_edit_theme_plugin_file()
+		$args = wp_unslash( $_POST );
+		if ( empty( $args['file'] ) ) {
+			return;
+		}
+
+		$file = $args['file'];
+		if ( 0 !== validate_file( $file ) ) {
+			return;
+		}
+
+		if ( ! isset( $args['newcontent'] ) ) {
+			return;
+		}
+
+		if ( ! isset( $args['nonce'] ) ) {
+			return;
+		}
+
+		if ( empty( $args['plugin'] ) ) {
+			return;
+		}
+
+		$plugin = $args['plugin'];
+		if ( ! current_user_can( 'edit_plugins' ) ) {
+			return;
+		}
+
+		if ( ! wp_verify_nonce( $args['nonce'], 'edit-plugin_' . $file ) ) {
+			return;
+		}
+		$plugins = get_plugins();
+		if ( ! array_key_exists( $plugin, $plugins ) ) {
+			return;
+		}
+
+		if ( 0 !== validate_file( $file, get_plugin_files( $plugin ) ) ) {
+			return;
+		}
+
+		$real_file = WP_PLUGIN_DIR . '/' . $file;
+
+		if ( ! is_writeable( $real_file ) ) {
+			return;
+		}
+
+		$file_pointer = fopen( $real_file, 'w+' );
+		if ( false === $file_pointer ) {
+			return;
+		}
+
+		/**
+		 * This action is documented already in this file
 		 */
 		do_action( 'jetpack_edited_plugin', $plugin, $plugins[ $plugin ] );
 	}

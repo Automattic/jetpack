@@ -964,6 +964,12 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 		$site_title = get_option( 'blogname' );
 		$author = get_current_user_id() || 1;
 
+		if ( ! empty( $data['siteType'] ) ) {
+			if ( ! ( update_option( 'jpo_site_type', $data['siteType'] ) || get_option( 'jpo_site_type' ) == $data['siteType'] ) ) {
+				$error[] = 'siteType';
+			}
+		}
+
 		// If $data['homepageFormat'] is 'posts', we have nothing to do since it's WordPress' default
 		if ( isset( $data['homepageFormat'] ) && 'page' === $data['homepageFormat'] ) {
 			if ( ! ( update_option( 'show_on_front', 'page' ) || get_option( 'show_on_front' ) == 'page' ) ) {

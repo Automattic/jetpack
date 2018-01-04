@@ -882,6 +882,8 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * : Slug of the requested plan, e.g. premium
 	 * [--wpcom_user_id=<user_id>]
 	 * : WordPress.com ID of user to connect as (must be whitelisted against partner key)
+	 * [--wpcom_user_email=<wpcom_user_email>]
+	 * : Override the email we send to WordPress.com for registration
 	 * [--onboarding=<onboarding>]
 	 * : Guide the user through an onboarding wizard
 	 * [--force_register=<register>]
@@ -898,7 +900,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 *     $ wp jetpack partner_provision '{ some: "json" }' premium 1
 	 *     { success: true }
 	 *
-	 * @synopsis <token_json> [--wpcom_user_id=<user_id>] [--plan=<plan_name>] [--onboarding=<onboarding>] [--force_register=<register>] [--force_connect=<force_connect>] [--home_url=<home_url>] [--site_url=<site_url>]
+	 * @synopsis <token_json> [--wpcom_user_id=<user_id>] [--plan=<plan_name>] [--onboarding=<onboarding>] [--force_register=<register>] [--force_connect=<force_connect>] [--home_url=<home_url>] [--site_url=<site_url>] [--wpcom_user_email=<wpcom_user_email>]
 	 */
 	public function partner_provision( $args, $named_args ) {
 		list( $token_json ) = $args;
@@ -1009,6 +1011,11 @@ class Jetpack_CLI extends WP_CLI_Command {
 		// optional additional params
 		if ( isset( $named_args['wpcom_user_id'] ) && ! empty( $named_args['wpcom_user_id'] ) ) {
 			$request_body['wpcom_user_id'] = $named_args['wpcom_user_id'];
+		}
+
+		// override email of selected user
+		if ( isset( $named_args['wpcom_user_email'] ) && ! empty( $named_args['wpcom_user_email'] ) ) {
+			$request_body['user_email'] = $named_args['wpcom_user_email'];
 		}
 
 		if ( isset( $named_args['plan'] ) && ! empty( $named_args['plan'] ) ) {

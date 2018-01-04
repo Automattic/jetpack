@@ -234,7 +234,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 						name="<?php echo esc_attr( $this->get_field_name( 'search_box_enabled' ) ); ?>"
 						<?php checked( $search_box_enabled ); ?>
 					/>
-					<?php esc_html_e( 'Show Search Box' ); ?>
+					<?php esc_html_e( 'Show search box' ); ?>
 				</label>
 			</p>
 
@@ -247,7 +247,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 							name="<?php echo esc_attr( $this->get_field_name( 'use_filters' ) ); ?>"
 							<?php checked( $use_filters ); ?>
 						/>
-						<?php esc_html_e( 'Add filters?' ); ?>
+						<?php esc_html_e( 'Show filters when a search has multiple results' ); ?>
 					</label>
 				</p>
 				<?php foreach ( (array) $instance['filters'] as $filter ) : ?>
@@ -358,7 +358,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 
 			<p>
 				<label>
-					<?php esc_html_e( 'Number of filters to display:', 'jetpack' ); ?>
+					<?php esc_html_e( 'Maximum number of filters:', 'jetpack' ); ?>
 					<input
 						class="widefat"
 						name="<?php echo esc_attr( $this->get_field_name( 'num_filters' ) ); ?>[]"
