@@ -25,7 +25,7 @@ class Jetpack_Plugins {
 	 */
 	public static function install_plugin( $slug ) {
 		if ( is_multisite() && ! current_user_can( 'manage_network' ) ) {
-			return new WP_Error( 'not_allowed', 'You are not allowed to install plugins on this site.' );
+			return new WP_Error( 'not_allowed', __( 'You are not allowed to install plugins on this site.', 'jetpack' ) );
 		}
 
 		$skin     = new Jetpack_Automatic_Install_Skin();
