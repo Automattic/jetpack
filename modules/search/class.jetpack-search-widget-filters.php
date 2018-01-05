@@ -169,27 +169,31 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		if ( $instance['use_filters'] ) {
 			$filters = array();
 			foreach ( (array) $new_instance['filter_type'] as $index => $type ) {
+				$count = intval( $new_instance['num_filters'][ $index ] );
+				$count = min( 50, $count ); // Set max boundary at 20
+				$count = max( 1, $count );  // Set min boundary at 1
+
 				switch ( $type ) {
 					case 'taxonomy':
 						$filters[] = array(
 							'name' => sanitize_text_field( $new_instance['filter_name'][ $index ] ),
 							'type' => 'taxonomy',
 							'taxonomy' => sanitize_key( $new_instance['taxonomy_type'][ $index ] ),
-							'count' => intval( $new_instance['num_filters'][ $index ] ),
+							'count' => $count,
 						);
 						break;
 					case 'post_type':
 						$filters[] = array(
 							'name' => sanitize_text_field( $new_instance['filter_name'][ $index ] ),
 							'type' => 'post_type',
-							'count' => intval( $new_instance['num_filters'][ $index ] ),
+							'count' => $count,
 						);
 						break;
 					case 'date_histogram':
 						$filters[] = array(
 							'name' => sanitize_text_field( $new_instance['filter_name'][ $index ] ),
 							'type' => 'date_histogram',
-							'count' => intval( $new_instance['num_filters'][ $index ] ),
+							'count' => $count,
 							'field' => sanitize_key( $new_instance['date_histogram_field'][ $index ] ),
 							'interval' => sanitize_key( $new_instance['date_histogram_interval'][ $index ] ),
 						);
@@ -366,12 +370,16 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 
 			<p>
 				<label>
-					<?php esc_html_e( 'Maximum number of filters:', 'jetpack' ); ?>
+					<?php esc_html_e( 'Maximum number of filters (1-50):', 'jetpack' ); ?>
 					<input
 						class="widefat"
 						name="<?php echo esc_attr( $this->get_field_name( 'num_filters' ) ); ?>[]"
 						type="number"
 						value="<?php echo intval( $args['count'] ); ?>"
+						min="1"
+						max="50"
+						step="1"
+						required
 					/>
 				</label>
 			</p>
