@@ -1094,7 +1094,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			}
 		}
 
-		if ( isset( $data['installWooCommerce'] ) && $data['installWooCommerce'] ) {
+		if ( ! empty( $data['installWooCommerce'] ) ) {
 			$wc_install_result = self::install_and_activate_woocommerce();
 			if ( is_wp_error( $wc_install_result ) ) {
 				$error[] = 'woocommerce installation';
