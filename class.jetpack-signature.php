@@ -243,11 +243,7 @@ class Jetpack_Signature {
 
 	function encode_3986( $string_or_array ) {
 		if ( is_array( $string_or_array ) ) {
-			$encoded = array();
-			foreach ( $string_or_array as $key => $value) {
-				$encoded[ $key ] = $this->encode_3986( $value );
-			}
-			return $encoded;
+			return array_map( array( $this, 'encode_3986' ), $string_or_array );
 		}
 
 		$string_or_array = rawurlencode( $string_or_array );
