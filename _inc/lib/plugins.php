@@ -63,7 +63,7 @@ class Jetpack_Plugins {
 	}
 
 	 protected static function generate_wordpress_org_plugin_download_link( $plugin_slug ) {
-		return "https://downloads.wordpress.org/plugin/{$plugin_slug}.latest-stable.zip";
+		return "https://downloads.wordpress.org/plugin/$plugin_slug.latest-stable.zip";
 	 }
 
 	 public static function get_plugin_id_by_slug( $slug ) {
