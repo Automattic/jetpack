@@ -936,9 +936,9 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 	 *
 	 * @param string $slug Plugin slug.
 	 *
-	 * @return bool True if installation succeeded, error object otherwise.
+	 * @return bool|WP_Error True if installation succeeded, error object otherwise.
 	 */
-	static function _install_plugin( $slug ) {
+	static function install_plugin( $slug ) {
 		if ( is_multisite() && ! current_user_can( 'manage_network' ) ) {
 			return new WP_Error( 'not_allowed', 'You are not allowed to install plugins on this site.' );
 		}
@@ -954,13 +954,13 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 	}
 
 	/**
-	 * Install the WooCommerce plugin.
+	 * Activate the WooCommerce plugin; install if it's not yet present.
 	 *
 	 * @since 5.8.0
 	 *
-	 * @return bool True if installation succeeded, error object otherwise.
+	 * @return bool|WP_Error True if the plugin could be activated, error object otherwise.
 	 */
-	static function _install_woocommerce() {
+	static function install_and_activate_woocommerce() {
 		// Check if get_plugins() function exists. This is required on the front end of the
 		// site, since it is in a file that is normally only loaded in the admin.
 		if ( ! function_exists( 'get_plugins' ) ) {
@@ -971,7 +971,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 		$WOOCOMMERCE_SLUG = 'woocommerce';
 
 		if ( ! array_key_exists( $WOOCOMMERCE_ID, get_plugins() ) ) {
-			$installed = self::_install_plugin( $WOOCOMMERCE_SLUG );
+			$installed = self::install_plugin( $WOOCOMMERCE_SLUG );
 			if ( is_wp_error( $installed ) ) {
 				return $installed;
 			}
@@ -1095,7 +1095,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 		}
 
 		if ( isset( $data['installWooCommerce'] ) && $data['installWooCommerce'] ) {
-			$wc_install_result = self::_install_woocommerce();
+			$wc_install_result = self::install_and_activate_woocommerce();
 			if ( is_wp_error( $wc_install_result ) ) {
 				$error[] = 'woocommerce installation';
 			}
