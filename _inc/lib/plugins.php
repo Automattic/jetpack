@@ -55,7 +55,7 @@ class Jetpack_Plugins {
 	}
 
 	protected static function get_slug_from_file_path( $plugin_file ) {
-		// Simular to get_plugin_slug() method.
+		// Similar to get_plugin_slug() method.
 		$slug = dirname( $plugin_file );
 		if ( '.' === $slug ) {
 			$slug = preg_replace( "/(.+)\.php$/", "$1", $plugin_file );
