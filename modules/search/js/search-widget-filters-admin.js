@@ -27,7 +27,7 @@
 
 			clone.find( 'input[type="number"]' ).val( defaultFilterCount );
 			clone.find( 'input[type="text"]' ).val( '' );
-			clone.find( 'select option:first-child' ).attr( 'selected', 'selected' );
+			clone.find( 'select option:first-child' ).prop( 'selected', true );
 
 			clone.insertAfter( closest );
 		} );
