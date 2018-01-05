@@ -100,6 +100,8 @@ class Jetpack_Search {
 			add_action( 'failed_jetpack_search_query', array( $this, 'store_query_failure' ) );
 
 			add_action( 'init', array( $this, 'set_filters_from_widgets' ) );
+
+			add_action( 'pre_get_posts', array( $this, 'maybe_add_post_type_as_var' ) );
 		}
 	}
 
@@ -197,6 +199,14 @@ class Jetpack_Search {
 
 		if ( ! empty( $filters ) ) {
 			$this->set_filters( $filters );
+		}
+	}
+
+	function maybe_add_post_type_as_var( $query ) {
+		if ( $query->is_main_query() && $query->is_search && ! empty( $_GET['post_type'] ) ) {
+			$post_type = explode( ',', $_GET['post_type'] );
+			$post_type = array_map( 'sanitize_key', $post_type );
+			$query->set('post_type', $post_type );
 		}
 	}
 
