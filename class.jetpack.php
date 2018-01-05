@@ -1560,6 +1560,19 @@ class Jetpack {
 	}
 
 	/**
+	 * Whether the site is currently onboarding or not.
+	 * A site is considered as being onboarded if it currently has an onboarding token.
+	 *
+	 * @access public
+	 * @static
+	 *
+	 * @return bool True the site is currently onboarding, false otherwise
+	 */
+	public static function is_onboarding() {
+		return Jetpack_Options::get_option( 'onboarding' ) !== false;
+	}
+
+	/**
 	* Get Jetpack development mode notice text and notice class.
 	*
 	* Mirrors the checks made in Jetpack::is_development_mode
@@ -2775,8 +2788,7 @@ class Jetpack {
 		$module_data = Jetpack::get_module( $module );
 
 		if ( ! Jetpack::is_active() ) {
-			$is_onboarding = Jetpack_Options::get_option( 'onboarding' ) !== false;
-			if ( ! Jetpack::is_development_mode() && ! $is_onboarding )
+			if ( ! Jetpack::is_development_mode() && ! Jetpack::is_onboarding() )
 				return false;
 
 			// If we're not connected but in development mode, make sure the module doesn't require a connection
