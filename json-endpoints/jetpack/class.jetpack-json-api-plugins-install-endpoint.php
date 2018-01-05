@@ -56,40 +56,23 @@ class Jetpack_JSON_API_Plugins_Install_Endpoint extends Jetpack_JSON_API_Plugins
 
 	protected function install() {
 		jetpack_require_lib( 'plugins' );
-		$error = '';
+		$result = '';
 		foreach ( $this->plugins as $index => $slug ) {
 			$result = Jetpack_Plugins::install_plugin( $slug );
-
-			if ( ! $this->bulk && is_wp_error( $result ) ) {
-				return $result;
+			if ( is_wp_error( $result ) ) {
+				$this->log[ $slug ][] = $result->get_error_message();
+				if ( ! $this->bulk ) {
+					return $result;
+				}
 			}
-
-			$plugin     = Jetpack_Plugins::get_plugin_id_by_slug( $slug );
-			$error_code = 'install_error';
-			if ( ! $plugin ) {
-				$error = $this->log[ $slug ][] = __( 'There was an error installing your plugin', 'jetpack' );
-			}
-
-			if ( ! $this->bulk && ! $result ) {
-				$error_code                         = $upgrader->skin->get_main_error_code();
-				$message                            = $upgrader->skin->get_main_error_message();
-				$error = $this->log[ $slug ][] = $message ? $message : __( 'An unknown error occurred during installation', 'jetpack' );
-			}
-
-			$this->log[ $plugin ] = (array) $upgrader->skin->get_upgrade_messages();
 		}
 
-		if ( ! $this->bulk && ! empty( $error ) ) {
-			if ( 'download_failed' === $error_code ) {
-				// For backwards compatibility: versions prior to 3.9 would return no_package instead of download_failed.
-				$error_code = 'no_package';
-			}
-
-			return new WP_Error( $error_code, $error, 400 );
+		if ( is_wp_error( $result ) ) {
+			return $result;
 		}
 
-		// replace the slug with the actual plugin id
-		$this->plugins[$index] = $plugin;
+		// No errors, install worked. Now replace the slug with the actual plugin id
+		$this->plugins[$index] = Jetpack_Plugins::get_plugin_id_by_slug( $slug );
 
 		return true;
 	}
