@@ -41,7 +41,7 @@ const Search = moduleSettingsForm(
 								activated={ this.props.getOptionValue( 'search' ) }
 								toggling={ this.props.isSavingAnyOption( 'search' ) }
 								toggleModule={ this.props.toggleModuleNow }>
-								{ __( 'Replace WordPress built-in search with an improved search experience (Beta)' ) }
+								{ __( 'Replace WordPress built-in search with an improved search experience' ) }
 							</ModuleToggle>
 							{ this.props.getOptionValue( 'search' ) && (
 								<FormFieldset>
