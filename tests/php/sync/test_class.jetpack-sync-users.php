@@ -44,12 +44,12 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 			$user_sync_module->get_object_by_id( 'user', $this->user_id )
 		) );
 
-		// TODO: this is to address a testing bug, alas :/
-		unset( $retrieved_user->data->allowed_mime_types );
 		unset( $retrieved_user->data->user_pass );
 		unset( $retrieved_user->data->user_activation_key );
 		unset( $retrieved_user->allcaps['level_0'] );
 		unset( $retrieved_user->allcaps['subscriber'] );
+		// TODO: this is to address a testing bug, alas :/
+		unset( $retrieved_user->data->allowed_mime_types );
 
 		$this->assertEquals( $synced_user, $retrieved_user );
 
@@ -477,6 +477,10 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 			$user_sync_module->get_object_by_id( 'user', $this->user_id )
 		) );
 
+		unset( $retrieved_user->data->user_pass );
+		unset( $retrieved_user->data->user_activation_key );
+		unset( $retrieved_user->allcaps['level_0'] );
+		unset( $retrieved_user->allcaps['subscriber'] );
 		// TODO: this is to address a testing bug, alas :/
 		unset( $retrieved_user->data->allowed_mime_types );
 
