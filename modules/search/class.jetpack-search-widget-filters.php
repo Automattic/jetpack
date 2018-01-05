@@ -165,6 +165,9 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		$instance['title'] = sanitize_text_field( $new_instance['title'] );
 		$instance['use_filters'] = empty( $new_instance['use_filters'] ) ? '0' : '1';
 		$instance['search_box_enabled'] = empty( $new_instance['search_box_enabled'] ) ? '0' : '1';
+		$instance['post_types'] = empty( $new_instance['post_types'] )
+			? array()
+			: array_map( 'sanitize_key', $new_instance['post_types'] );
 
 		if ( $instance['use_filters'] ) {
 			$filters = array();
@@ -223,7 +226,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		$classes = sprintf(
 			'jetpack-search-filters-widget %s',
 			$use_filters ? '' : 'hide-filters'
-		 );
+		);
 		?>
 		<div class="<?php echo esc_attr( $classes ); ?>">
 			<p>
@@ -238,6 +241,21 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 					value="<?php echo esc_attr( $title ); ?>"
 				/>
 			</p>
+
+			<p>
+				<label><?php esc_html_e( 'Post types included in results:' ); ?></label>
+				<select class="widefat" name="<?php echo esc_attr( $this->get_field_name( 'post_types' ) ); ?>[]" multiple="multiple">
+					<?php foreach ( get_post_types( array( 'exclude_from_search' => false ), 'objects' ) as $post_type ) : ?>
+						<option
+							value="<?php echo esc_attr( $post_type->name ); ?>"
+							<?php selected( empty( $instance['post_types'] ) || in_array( $post_type->name, $instance['post_types'] ) ); ?>
+						>
+							<?php echo esc_html( $post_type->label ); ?>
+						</option>
+					<?php endforeach; ?>
+				</select>
+			</p>
+
 			<p>
 				<label>
 					<input
