@@ -8,6 +8,7 @@ import { translate as __ } from 'i18n-calypso';
 /**
  * Internal dependencies
  */
+import decodeEntities from 'lib/decode-entities';
 import { FormFieldset } from 'components/forms';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 import { getModule } from 'state/modules';
@@ -30,15 +31,6 @@ const SpeedUpSite = moduleSettingsForm(
 				this.props.updateOptions( { [ name ]: ! value } );
 			}
 		};
-
-		decodeEntities( text ) {
-			if ( 'undefined' === typeof DOMParser ) {
-				return text;
-			}
-
-			const document = new DOMParser().parseFromString( text, 'text/html' );
-			return document.documentElement.textContent;
-		}
 
 		render() {
 			const foundPhoton = this.props.isModuleFound( 'photon' );
@@ -69,12 +61,12 @@ const SpeedUpSite = moduleSettingsForm(
 							toggleModule={ this.toggleModule }
 						>
 							<span className="jp-form-toggle-explanation">
-								{ this.decodeEntities( photon.description ) }
+								{ decodeEntities( photon.description ) }
 							</span>
 						</ModuleToggle>
 						<FormFieldset>
 							<span className="jp-form-setting-explanation">
-								{ this.decodeEntities( photon.long_description ) }
+								{ decodeEntities( photon.long_description ) }
 							</span>
 						</FormFieldset>
 					</SettingsGroup>
@@ -90,12 +82,12 @@ const SpeedUpSite = moduleSettingsForm(
 							toggleModule={ this.toggleModule }
 						>
 							<span className="jp-form-toggle-explanation">
-								{ this.decodeEntities( lazyImages.description ) }
+								{ decodeEntities( lazyImages.description ) }
 							</span>
 						</ModuleToggle>
 						<FormFieldset>
 							<span className="jp-form-setting-explanation">
-								{ this.decodeEntities( lazyImages.long_description ) }
+								{ decodeEntities( lazyImages.long_description ) }
 							</span>
 						</FormFieldset>
 					</SettingsGroup>
