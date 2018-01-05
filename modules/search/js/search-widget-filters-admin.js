@@ -3,7 +3,7 @@
 ( function( $, args ) {
 	var defaultFilterCount = ( 'undefined' !== typeof args && args.defaultFilterCount ) ?
 		args.defaultFilterCount :
-		10;
+		5; // Just in case we couldn't find the defaultFiltercount arg
 
 	var setListeners = function() {
 		var widget = $( '.jetpack-search-filters-widget' );
