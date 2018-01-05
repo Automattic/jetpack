@@ -135,7 +135,30 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		do_action( 'jetpack_search_render_filters_widget_title', esc_html( $title ), $args['before_title'], $args['after_title'] );
 
 		if ( ! empty( $instance['search_box_enabled'] ) ) {
-			get_search_form();
+			$form = get_search_form( false );
+
+			// If the widget has specified post types to search within and IF the post types differ
+			// from the default post types that would have been searched, set the selected post
+			// types via a hidden input.
+			if ( ! empty( $instance['post_types'] ) && is_array( $instance['post_types'] ) ) {
+				$searchable_post_types = get_post_types( array( 'exclude_from_search' => false ) );
+				$diff_of_post_types = array_diff( $searchable_post_types, $instance['post_types'] );
+				if ( ! empty( $diff_of_post_types ) ) {
+					// The form should have a closing form tag, so let's add our hidden input before that
+					$form = str_replace(
+						'</form>',
+						sprintf(
+							'<input type="hidden" name="post_type" value="%s" /></form>',
+							esc_attr( implode( ',', $instance['post_types'] ) )
+						),
+						$form
+					);
+				}
+			}
+
+			// This shouldn't need to be escaped since we escaped above when we imploded the selected post types
+			echo $form;
+
 			echo '<br />';
 		}
 
