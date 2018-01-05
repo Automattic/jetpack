@@ -1566,7 +1566,7 @@ class Jetpack {
 	 * @access public
 	 * @static
 	 *
-	 * @return bool True the site is currently onboarding, false otherwise
+	 * @return bool True if the site is currently onboarding, false otherwise
 	 */
 	public static function is_onboarding() {
 		return Jetpack_Options::get_option( 'onboarding' ) !== false;
