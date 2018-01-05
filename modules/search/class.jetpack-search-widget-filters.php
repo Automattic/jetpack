@@ -7,6 +7,8 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 
 	protected $jetpack_search;
 
+	const DEFAULT_FILTER_COUNT = 5;
+
 	function __construct() {
 		if ( ! class_exists( 'Jetpack_Search' ) ) {
 			return;
@@ -33,8 +35,14 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 	}
 
 	function widget_admin_setup() {
+		wp_register_script( 'widget-jetpack-search-filters', plugins_url( 'js/search-widget-filters-admin.js', __FILE__ ), array( 'jquery' ) );
 		wp_enqueue_style( 'widget-jetpack-search-filters', plugins_url( 'css/search-widget-filters-admin-ui.css', __FILE__ ) );
-		wp_enqueue_script( 'widget-jetpack-search-filters', plugins_url( 'js/search-widget-filters-admin.js', __FILE__ ), array( 'jquery' ) );
+
+		wp_localize_script( 'widget-jetpack-search-filters', 'jetpack_search_filter_admin', array(
+			'defaultFilterCount' => self::DEFAULT_FILTER_COUNT,
+		) );
+
+		wp_enqueue_script( 'widget-jetpack-search-filters' );
 	}
 
 	function is_for_current_widget( $item ) {
@@ -266,7 +274,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			'post_type' => '',
 			'date_histogram_field' => '',
 			'date_histogram_interval' => '',
-			'count' => 5,
+			'count' => self::DEFAULT_FILTER_COUNT,
 		) );
 
 		$classes = sprintf(
