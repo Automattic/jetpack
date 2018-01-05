@@ -5320,13 +5320,13 @@ p {
 		// Let's see if this is onboarding. In such case, use user token type and the provided user id.
 		if ( isset( $this->HTTP_RAW_POST_DATA ) || ! empty( $_GET['onboarding'] ) ) {
 			if ( ! empty( $_GET['onboarding'] ) ) {
-				$jpo_token = ! empty( $_GET['onboarding']['token'] ) ? $_GET['onboarding']['token'] : null;
-				$jpo_user = ! empty( $_GET['onboarding']['jpUser'] ) ? $_GET['onboarding']['jpUser'] : null;
+				$jpo = $_GET;
 			} else {
-				$jpo = json_decode( $this->HTTP_RAW_POST_DATA );
-				$jpo_token = ! empty( $jpo->onboarding->token ) ? $jpo->onboarding->token : null;
-				$jpo_user = ! empty( $jpo->onboarding->jpUser ) ? $jpo->onboarding->jpUser : null;
+				$jpo = json_decode( $this->HTTP_RAW_POST_DATA, true );
 			}
+
+			$jpo_token = ! empty( $jpo['onboarding']['token'] ) ? $jpo['onboarding']['token'] : null;
+			$jpo_user = ! empty( $jpo['onboarding']['jpUser'] ) ? $jpo['onboarding']['jpUser'] : null;
 
 			if (
 				isset( $jpo_user ) && isset( $jpo_token ) &&
