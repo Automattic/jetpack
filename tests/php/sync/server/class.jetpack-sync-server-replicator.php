@@ -20,7 +20,6 @@ class Jetpack_Sync_Server_Replicator {
 		switch ( $action_name ) {
 			// posts
 			case 'jetpack_save_post':
-			case 'wp_insert_post':
 				list( $post_id, $post ) = $args;
 				$this->store->upsert_post( $post, $silent );
 				break;

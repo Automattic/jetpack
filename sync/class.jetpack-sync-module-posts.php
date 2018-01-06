@@ -9,6 +9,8 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 	private $action_handler;
 	private $import_end = false;
 
+	const PREVIOUS_STATE = 'new';
+
 	public function name() {
 		return 'posts';
 	}
@@ -121,7 +123,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 	}
 
 	public function init_before_send() {
-		add_filter( 'jetpack_sync_before_send_jetpack_save_post', array( $this, 'expand_wp_insert_post' ) );
+		add_filter( 'jetpack_sync_before_send_jetpack_save_post', array( $this, 'expand_jetpack_save_post' ) );
 
 		// full sync
 		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_posts', array( $this, 'expand_post_ids' ) );
@@ -164,14 +166,9 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 	 *
 	 * @return array
 	 */
-	function expand_wp_insert_post( $args ) {
-		$post_id      = $args[0];
-		$post         = $args[1];
-		$update       = $args[2];
-		$is_auto_save = isset( $args[3] ) ? $args[3] : false; //See https://github.com/Automattic/jetpack/issues/7372
-		$previous_state = isset( $args[4] ) ? $args[4] : false; //Preventative in light of above issue
-
-		return array( $post_id, $this->filter_post_content_and_add_links( $post ), $update, $is_auto_save, $previous_state );
+	function expand_jetpack_save_post( $args ) {
+		list( $post_id, $post, $update, $previous_state ) = $args;
+		return array( $post_id, $this->filter_post_content_and_add_links( $post ), $update, $previous_state );
 	}
 
 	function filter_blacklisted_post_types( $args ) {
@@ -320,7 +317,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 
 	public function save_published( $new_status, $old_status, $post ) {
 		if ( 'publish' === $new_status && 'publish' !== $old_status ) {
-			$this->just_published[] = $post->ID;
+			$this->just_published[$post->ID] = true;
 		}
 
 		$this->previous_status[ $post->ID ] = $old_status;
@@ -331,22 +328,31 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 			return;
 		}
 
-		if ( Jetpack_Constants::get_constant( 'DOING_AUTOSAVE' ) ) {
-			$is_auto_save = true;
-		} else {
-			$is_auto_save = false;
-		}
-
 		// workaround for https://github.com/woocommerce/woocommerce/issues/18007
 		if ( $post && 'shop_order' === $post->post_type ) {
 			$post = get_post( $post_ID );
 		}
-		do_action( 'jetpack_save_post', $post_ID, $post, $update, $is_auto_save, $this->previous_status[ $post_ID ] );
+
+		$previous_status = isset( $this->previous_status[ $post_ID ] ) ?
+			$this->previous_status[ $post_ID ] :
+			self::PREVIOUS_STATE;
+
+		$just_published = isset( $this->just_published[ $post_ID ] ) ?
+			$this->just_published[ $post_ID ] :
+			false;
+
+		$state = array(
+			'is_auto_save' => (bool) Jetpack_Constants::get_constant( 'DOING_AUTOSAVE' ),
+			'previous_status' => $previous_status,
+			'just_published' => $just_published
+		);
+
+		do_action( 'jetpack_save_post', $post_ID, $post, $update, $state );
 		$this->send_published( $post_ID, $post );
 	}
 
 	public function send_published( $post_ID, $post ) {
-		if ( ! in_array( $post_ID, $this->just_published ) ) {
+		if ( ! isset( $this->just_published[ $post_ID ] ) ) {
 			return;
 		}
 
@@ -389,7 +395,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		 * @param mixed array $flags post flags that are added to the post
 		 */
 		do_action( 'jetpack_published_post', $post_ID, $flags );
-		$this->just_published = array_diff( $this->just_published, array( $post_ID ) );
+		unset( $this->just_published[ $post_ID ] );
 	}
 
 	public function expand_post_ids( $args ) {

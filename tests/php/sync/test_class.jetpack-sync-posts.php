@@ -44,9 +44,9 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	public function test_add_post_syncs_request_is_auto_save() {
 		//Sync from setup should not be auto save
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_save_post' );
-		$this->assertFalse( $event->args[3] );
+		$this->assertFalse( $event->args[3]['is_auto_save'] );
 
-		Jetpack_Constants::set_constant( 'DOING_AUTOSAVE', true );//define( 'DOING_AUTOSAVE', true );
+		Jetpack_Constants::set_constant( 'DOING_AUTOSAVE', true );
 
 		//Performing sync here (even though setup() does it) to sync REQUEST_URI
 		$user_id = $this->factory->user->create();
@@ -54,7 +54,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_save_post' );
-		$this->assertTrue( $event->args[3] );
+		$this->assertTrue( $event->args[3]['is_auto_save'] );
 	}
 
 	public function test_trash_post_trashes_data() {
@@ -83,13 +83,13 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_sync_post_event_includes_previous_state() {
-		// $this->assertEquals( 1, $this->server_replica_storage->post_count( 'publish' ) );
+		$this->assertEquals( 1, $this->server_replica_storage->post_count( 'publish' ) );
 		$this->server_event_storage->reset();
 		wp_delete_post( $this->post->ID );
 		$this->sender->do_sync();
 		$insert_event = $this->server_event_storage->get_most_recent_event( 'jetpack_save_post' );
 		$this->assertEquals( 'trash', $insert_event->args[1]->post_status ); //
-		$this->assertEquals( 'publish', $insert_event->args[4] );
+		$this->assertEquals( 'publish', $insert_event->args[3]['previous_status'] );
 	}
 
 	public function test_delete_post_deletes_data() {
