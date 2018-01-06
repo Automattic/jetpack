@@ -218,7 +218,7 @@ const PlanBody = React.createClass( {
 					{
 						( 'is-business-plan' === planClass ) && (
 							<div className="jp-landing__plan-features-card">
-								<h3 className="jp-landing__plan-features-title">{ __( 'Search (Beta)' ) }</h3>
+								<h3 className="jp-landing__plan-features-title">{ __( 'Search' ) }</h3>
 								<p>{ __( 'Replace the default WordPress search with better results that will help your users find what they are looking for.' ) }</p>
 								{
 									this.props.isModuleActivated( 'search' ) ? (
