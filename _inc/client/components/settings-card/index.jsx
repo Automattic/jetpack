@@ -24,6 +24,7 @@ import {
 	FEATURE_GOOGLE_ANALYTICS_JETPACK,
 	FEATURE_WORDADS_JETPACK,
 	FEATURE_SPAM_AKISMET_PLUS,
+	FEATURE_SEARCH_JETPACK,
 	getPlanClass
 } from 'lib/plans/constants';
 
@@ -178,6 +179,22 @@ export const SettingsCard = props => {
 					/>
 				);
 
+			case FEATURE_SEARCH_JETPACK:
+				if ( 'is-business-plan' === planClass ) {
+					return '';
+				}
+
+				return (
+					<JetpackBanner
+						callToAction={ upgradeLabel }
+						title={ __( 'Add enterprise-grade search to your site with Jetpack Search.' ) }
+						plan={ PLAN_JETPACK_BUSINESS }
+						feature={ feature }
+						onClick={ () => trackBannerClick( feature ) }
+						href={ 'https://jetpack.com/redirect/?source=settings-search&site=' + siteRawUrl }
+					/>
+				);
+
 			case FEATURE_SPAM_AKISMET_PLUS:
 				if ( props.isCheckingAkismetKey || props.isAkismetKeyValid ||
 					includes( [ 'is-personal-plan', 'is-premium-plan', 'is-business-plan' ], planClass ) ) {
@@ -232,6 +249,13 @@ export const SettingsCard = props => {
 				break;
 
 			case FEATURE_SEO_TOOLS_JETPACK:
+				if ( 'is-business-plan' !== planClass ) {
+					return false;
+				}
+
+				break;
+
+			case FEATURE_SEARCH_JETPACK:
 				if ( 'is-business-plan' !== planClass ) {
 					return false;
 				}
