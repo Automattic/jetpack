@@ -1102,18 +1102,11 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			: join( ', ', $error );
 	}
 
-	public function get_first_sidebar() {
+		public function get_first_sidebar() {
 			$active_sidebars = Jetpack_Widgets::get_active_sidebars();
 
-			$excluded_keys = array(
-				'wp_inactive_widgets',
-				'array_version',
-			);
-			foreach ( $excluded_keys as $key ) {
-				if ( isset( $active_sidebars[ $key ] ) ) {
-					unset( $active_sidebars[ $key ] );
-				}
-			}
+			unset( $active_sidebars[ 'wp_inactive_widgets' ], $active_sidebars[ 'array_version' ] );
+
 			if ( empty( $active_sidebars ) ) {
 				return false;
 			}
