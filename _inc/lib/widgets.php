@@ -121,6 +121,23 @@ class Jetpack_Widgets {
 	}
 
 	/**
+	 * Return a widget by base ID or null if nothing is found.
+	 *
+	 * @param string $id_base The id of a widget to look for.
+	 *
+	 * @return array|null The matching formatted widget (see format_widget).
+	 */
+	public static function get_widget_by_id_base( $id_base ) {
+		$found = null;
+		foreach ( self::get_all_widgets() as $widget ) {
+			if ( $widget['id_base'] === $id_base ) {
+				$found = $widget;
+			}
+		}
+		return $found;
+	}
+
+	/**
 	 * Return an array of all widgets (active and inactive) formatted for output.
 	 *
 	 * @return array An array of all widgets (see format_widget).
