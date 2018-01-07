@@ -458,7 +458,6 @@ class Jetpack_Widgets {
 		if ( ! isset( $widgets_in_sidebar ) ) {
 			return new WP_Error( 'invalid_data', 'No such sidebar exists', 400 );
 		}
-		self::move_widget_to_sidebar( $widget, $sidebar, $position );
 		$widget_save_status = self::set_widget_settings( $widget_id, $settings );
 		if ( is_wp_error( $widget_save_status ) ) {
 			return $widget_save_status;
