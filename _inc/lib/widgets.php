@@ -390,16 +390,19 @@ class Jetpack_Widgets {
 		$widget_option_name = self::get_widget_option_name( $widget_id );
 		$widget_settings = get_option( $widget_option_name );
 		$instance_key = self::get_widget_instance_key( $widget_id );
-		$old_settings = $widget_settings[ $instance_key ];
 
-		if ( ! $settings = self::sanitize_widget_settings( $widget_id, $settings, $old_settings ) ) {
-			return new WP_Error( 'invalid_data', 'Update failed.', 500 );
-		}
-		if ( is_array( $old_settings ) ) {
-			// array_filter prevents empty arguments from replacing existing ones
-			$settings = wp_parse_args( array_filter( $settings ), $old_settings );
-		}
+		// if the widget's content already exists
+		if ( isset( $widget_settings[ $instance_key ] ) ) {
+			$old_settings = $widget_settings[ $instance_key ];
 
+			if ( ! $settings = self::sanitize_widget_settings( $widget_id, $settings, $old_settings ) ) {
+				return new WP_Error( 'invalid_data', 'Update failed.', 500 );
+			}
+			if ( is_array( $old_settings ) ) {
+				// array_filter prevents empty arguments from replacing existing ones
+				$settings = wp_parse_args( array_filter( $settings ), $old_settings );
+			}
+		}
 		$widget_settings[ $instance_key ] = $settings;
 
 		return update_option( $widget_option_name, $widget_settings );
