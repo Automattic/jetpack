@@ -1045,42 +1045,48 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
 		// Add/update business address widget
 		if ( isset( $data['businessAddress'] ) ) {
+			$widgets_module_active = Jetpack::is_module_active( 'widgets' );
+			if ( ! $widgets_module_active ) {
+				$widgets_module_active = Jetpack::activate_module( 'widgets', false, false );
+			}
 			//grab the first sidebar and proceed if it is present
 			$first_sidebar = self::get_first_sidebar();
 
-			if( $first_sidebar ) {
-				$title = wp_unslash( $data[ 'businessAddress' ][ 'name' ] );
-				$address = wp_unslash(
-					$data[ 'businessAddress' ][ 'city' ] . ' ' .
-					$data[ 'businessAddress' ][ 'state' ] . ' ' .
-					$data[ 'businessAddress' ][ 'street' ] . ' ' .
-					$data[ 'businessAddress' ][ 'zip' ]
-				);
-				$widget_options = array(
-					'title'   => $title,
-					'address' => $address,
-					'phone'   => '',
-					'hours'   => '',
-					'showmap' => false,
-					'email' => '',
-					'apikey' => '',
-				);
-				$position = '0';
-				$id_base = 'widget_contact_info';
+			if ( ! $widgets_module_active ) {
+				if( $first_sidebar ) {
+					$title = wp_unslash( $data[ 'businessAddress' ][ 'name' ] );
+					$address = wp_unslash(
+						$data[ 'businessAddress' ][ 'city' ] . ' ' .
+						$data[ 'businessAddress' ][ 'state' ] . ' ' .
+						$data[ 'businessAddress' ][ 'street' ] . ' ' .
+						$data[ 'businessAddress' ][ 'zip' ]
+					);
+					$widget_options = array(
+						'title'   => $title,
+						'address' => $address,
+						'phone'   => '',
+						'hours'   => '',
+						'showmap' => false,
+						'email' => '',
+						'apikey' => '',
+					);
+					$position = '0';
+					$id_base = 'widget_contact_info';
 
-				$has_ba_widget = self::has_business_info_widget( $first_sidebar );
-				if ( $has_ba_widget ) {
-					self::update_widget( $id_base, $first_sidebar, $position, $widget_options);
-				}	else {
-					Jetpack_Widgets::activate_widget( $id_base, $first_sidebar, $position, $widget_options);
+					$has_ba_widget = self::has_business_info_widget( $first_sidebar );
+					if ( $has_ba_widget ) {
+						self::update_widget( $id_base, $first_sidebar, $position, $widget_options);
+					}	else {
+						Jetpack_Widgets::activate_widget( $id_base, $first_sidebar, $position, $widget_options);
+					}
 				}
-			}
+			} else { $error[] = 'widgets activate'; }
 		}
 
 		return empty( $error )
 			? ''
 			: join( ', ', $error );
-	}
+		}
 
 		public function get_first_sidebar() {
 			$active_sidebars = Jetpack_Widgets::get_active_sidebars();
