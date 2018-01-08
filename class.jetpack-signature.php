@@ -207,7 +207,7 @@ class Jetpack_Signature {
 		$flat_normalized_request_pieces = array();
 		foreach ($normalized_request_pieces as $piece) {
 			if ( is_array( $piece ) ) {
-				foreach ($piece as $subpiece) {
+				foreach ( $piece as $subpiece ) {
 					$flat_normalized_request_pieces[] = $subpiece;
 				}
 			} else {
