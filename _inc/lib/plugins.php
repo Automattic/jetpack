@@ -14,6 +14,37 @@ include_once( 'class.jetpack-automatic-install-skin.php' );
 class Jetpack_Plugins {
 
 	/**
+	 * Install and activate a plugin.
+	 *
+	 * @since 5.8.0
+	 *
+	 * @param string $slug Plugin slug.
+	 *
+	 * @return bool|WP_Error True if installation succeeded, error object otherwise.
+	 */
+	public static function install_and_activate_plugin( $slug ) {
+		// Check if get_plugins() function exists. This is required on the front end of the
+		// site, since it is in a file that is normally only loaded in the admin.
+		if ( ! function_exists( 'get_plugins' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+
+		$plugin_id = get_plugin_id_by_slug( $slug );
+
+		if ( ! $plugin_id ) {
+			$installed = self::install_plugin( $slug );
+			if ( is_wp_error( $installed ) ) {
+				return $installed;
+			}
+			$plugin_id = get_plugin_id_by_slug( $slug );
+			return activate_plugin( $plugin_id );
+		} else if ( ! is_plugin_active( $plugin_id ) ) {
+			return activate_plugin( $plugin_id );
+		}
+		return true; // Already installed and active
+	}
+
+	/**
 	 * Install a plugin.
 	 *
 	 * @since 5.8.0
