@@ -32,7 +32,7 @@ class Jetpack_Plugins {
 			}
 			$plugin_id = self::get_plugin_id_by_slug( $slug );
 		} else if ( is_plugin_active( $plugin_id ) ) {
-				return true;
+			return true;
 		}
 
 		if ( ! current_user_can( 'activate_plugins' ) ) {
