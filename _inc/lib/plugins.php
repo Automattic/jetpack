@@ -37,10 +37,15 @@ class Jetpack_Plugins {
 				return $installed;
 			}
 			$plugin_id = self::get_plugin_id_by_slug( $slug );
-			return activate_plugin( $plugin_id );
-		} else if ( ! is_plugin_active( $plugin_id ) ) {
-			return activate_plugin( $plugin_id );
+		} else if ( is_plugin_active( $plugin_id ) ) {
+				return true;
 		}
+
+		$activated = activate_plugin( $plugin_id );
+		if ( is_wp_error( $activated ) ) {
+			return $activated;
+		}
+
 		return true; // Already installed and active
 	}
 
