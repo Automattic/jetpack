@@ -25,6 +25,7 @@ class Jetpack_Sync_Sender {
 	private $sync_queue;
 	private $full_sync_queue;
 	private $codec;
+	private $old_user;
 
 	// singleton functions
 	private static $instance;
@@ -44,10 +45,30 @@ class Jetpack_Sync_Sender {
 	}
 
 	private function init() {
+		//
+		add_action( 'jetpack_sync_before_send_queue_sync', array( $this, 'maybe_set_user_from_token' ), 1 );
+		add_action( 'jetpack_sync_before_send_queue_sync', array( $this, 'maybe_clear_user_from_token' ), 20 );
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
 			$module->init_before_send();
 		}
 	}
+
+	public function maybe_set_user_from_token() {
+		$jetpack = Jetpack::init();
+		if ( $jetpack->verify_xml_rpc_signature() ) {
+			$verified_user = $jetpack->verify_xml_rpc_signature();
+			$old_user = wp_get_current_user();
+			$this->old_user = isset( $old_user->ID ) ? $old_user->ID : 0;
+			$this->old_user =
+			wp_set_current_user( $verified_user['user_id'] );
+		}
+	}
+
+	public function maybe_clear_user_from_token() {
+		if ( isset( $this->old_user ) ) {
+			wp_set_current_user( $this->old_user );
+		}
+ 	}
 
 	public function get_next_sync_time( $queue_name ) {
 		return (double) get_option( self::NEXT_SYNC_TIME_OPTION_NAME . '_' . $queue_name, 0 );
