@@ -45,7 +45,6 @@ class Jetpack_Sync_Sender {
 	}
 
 	private function init() {
-		//
 		add_action( 'jetpack_sync_before_send_queue_sync', array( $this, 'maybe_set_user_from_token' ), 1 );
 		add_action( 'jetpack_sync_before_send_queue_sync', array( $this, 'maybe_clear_user_from_token' ), 20 );
 		foreach ( Jetpack_Sync_Modules::get_modules() as $module ) {
@@ -59,8 +58,7 @@ class Jetpack_Sync_Sender {
 			$verified_user = $jetpack->verify_xml_rpc_signature();
 			$old_user = wp_get_current_user();
 			$this->old_user = isset( $old_user->ID ) ? $old_user->ID : 0;
-			$this->old_user =
-			wp_set_current_user( $verified_user['user_id'] );
+			$this->old_user = wp_set_current_user( $verified_user['user_id'] );
 		}
 	}
 
