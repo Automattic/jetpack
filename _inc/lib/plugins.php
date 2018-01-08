@@ -29,14 +29,14 @@ class Jetpack_Plugins {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 
-		$plugin_id = get_plugin_id_by_slug( $slug );
+		$plugin_id = self::get_plugin_id_by_slug( $slug );
 
 		if ( ! $plugin_id ) {
 			$installed = self::install_plugin( $slug );
 			if ( is_wp_error( $installed ) ) {
 				return $installed;
 			}
-			$plugin_id = get_plugin_id_by_slug( $slug );
+			$plugin_id = self::get_plugin_id_by_slug( $slug );
 			return activate_plugin( $plugin_id );
 		} else if ( ! is_plugin_active( $plugin_id ) ) {
 			return activate_plugin( $plugin_id );
