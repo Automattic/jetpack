@@ -13,7 +13,7 @@ include_once( 'class.jetpack-automatic-install-skin.php' );
 
 class Jetpack_Plugins {
 
-	 /**
+	/**
 	 * Install a plugin.
 	 *
 	 * @since 5.8.0
