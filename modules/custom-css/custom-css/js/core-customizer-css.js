@@ -140,7 +140,8 @@
 				id: 'help-link',
 				target: '_blank',
 				href: this.opts.cssHelpUrl,
-				text: this.opts.l10n.css_help_title
+				text: this.opts.l10n.css_help_title,
+				rel: 'noopener noreferrer'
 			}).prependTo( '#css-help-links' );
 
 			// Only show the revisions link if there are revisions
@@ -149,7 +150,8 @@
 					id: 'revisions-link',
 					target: '_blank',
 					href: this.opts.revisionsUrl,
-					text: this.opts.l10n.revisions
+					text: this.opts.l10n.revisions,
+					rel: 'noopener noreferrer'
 				}).prependTo( '#css-help-links' );
 			}
 		},

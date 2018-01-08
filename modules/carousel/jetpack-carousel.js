@@ -1213,7 +1213,8 @@ jQuery(document).ready(function($) {
 			var permalink = $( '<a>'+gallery.jp_carousel('format', {'text': jetpackCarouselStrings.download_original, 'replacements': origSize})+'</a>' )
 				.addClass( 'jp-carousel-image-download' )
 				.attr( 'href', original )
-				.attr( 'target', '_blank' );
+				.attr( 'target', '_blank' )
+				.attr( 'rel', 'noopener noreferrer' );
 
 			// Update (replace) the content of the anchor
 			$( 'div.jp-carousel-image-meta a.jp-carousel-image-download' ).replaceWith( permalink );

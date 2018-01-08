@@ -197,13 +197,13 @@ class Jetpack_RSS_Links_Widget extends WP_Widget {
 			 * @param string $var URL of RSS Widget icon.
 			 */
 			$link_image = apply_filters( 'jetpack_rss_widget_icon', plugins_url( 'images/rss/' . $args['imagecolor'] . '-' . $args['imagesize'] . '.png', dirname( dirname( __FILE__ ) ) ) );
-			$link_item = '<a target="' . $link_target . '" href="' . get_bloginfo( $rss_type ) . '" title="' . esc_attr( $subscribe_to ) . '"><img src="' . esc_url( $link_image ) . '" alt="RSS Feed" /></a>';
+			$link_item = '<a rel="noopener noreferrer" target="' . $link_target . '" href="' . get_bloginfo( $rss_type ) . '" title="' . esc_attr( $subscribe_to ) . '"><img src="' . esc_url( $link_image ) . '" alt="RSS Feed" /></a>';
 		}
 		if ( 'text-image' == $format ) {
-			$link_item .= '&nbsp;<a target="' . $link_target . '" href="' . get_bloginfo( $rss_type ) . '" title="' . esc_attr( $subscribe_to ) . '">' . esc_html__( 'RSS - ' . $type_text, 'jetpack' ). '</a>';
+			$link_item .= '&nbsp;<a rel="noopener noreferrer" target="' . $link_target . '" href="' . get_bloginfo( $rss_type ) . '" title="' . esc_attr( $subscribe_to ) . '">' . esc_html__( 'RSS - ' . $type_text, 'jetpack' ). '</a>';
 		}
 		if ( 'text' == $format ) {
-			$link_item = '<a target="' . $link_target . '" href="' . get_bloginfo( $rss_type ) . '" title="' . esc_attr( $subscribe_to ) . '">' . esc_html__( 'RSS - ' . $type_text, 'jetpack' ). '</a>';
+			$link_item = '<a rel="noopener noreferrer" target="' . $link_target . '" href="' . get_bloginfo( $rss_type ) . '" title="' . esc_attr( $subscribe_to ) . '">' . esc_html__( 'RSS - ' . $type_text, 'jetpack' ). '</a>';
 		}
 
 		if ( 'text' == $format )

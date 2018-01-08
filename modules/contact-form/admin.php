@@ -298,7 +298,7 @@ function grunion_manage_post_columns( $col, $post_id ) {
 
 			$author_email_line = '';
 			if ( !empty( $author_email ) ) {
-				$author_email_line = sprintf( "<a href='%1\$s' target='_blank'>%2\$s</a><br />", esc_url( "mailto:" . $author_email ) , esc_html( $author_email ) );
+				$author_email_line = sprintf( "<a href='%1\$s' rel='noopener noreferrer' target='_blank'>%2\$s</a><br />", esc_url( "mailto:" . $author_email ) , esc_html( $author_email ) );
 			}
 
 			$author_url_line = '';

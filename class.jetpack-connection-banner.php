@@ -556,7 +556,7 @@ class Jetpack_Connection_Banner {
 								'jetpack'
 							);
 							?>
-							<a href="https://jetpack.com/features" target="_blank">
+							<a href="https://jetpack.com/features" rel="noopener noreferrer" target="_blank">
 								<?php esc_html_e( 'or visit our site for the full feature list.', 'jetpack' ); ?>
 							</a>
 						</p>
@@ -879,7 +879,7 @@ class Jetpack_Connection_Banner {
 					</p>
 				</div>
 			</div>
-			<a class="jp-connect-full__help-button" href="https://jetpack.com/contact-support" target="_blank">
+			<a class="jp-connect-full__help-button" href="https://jetpack.com/contact-support" rel="noopener noreferrer" target="_blank">
 				<svg class="gridicon gridicons-help-outline" height="18" width="18" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M12 4c4.41 0 8 3.59 8 8s-3.59 8-8 8-8-3.59-8-8 3.59-8 8-8m0-2C6.477 2 2 6.477 2 12s4.477 10 10 10 10-4.477 10-10S17.523 2 12 2zm4 8c0-2.21-1.79-4-4-4s-4 1.79-4 4h2c0-1.103.897-2 2-2s2 .897 2 2-.897 2-2 2c-.552 0-1 .448-1 1v2h2v-1.14c1.722-.447 3-1.998 3-3.86zm-3 6h-2v2h2v-2z"></path></g></svg>
 				<?php esc_html_e( 'Get help connecting your site', 'jetpack' ); ?>
 			</a>
