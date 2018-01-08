@@ -83,14 +83,12 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	}
 
 	public function do_delayed_calls() {
-		var_dump( 'do delayed calls' );
 		// We want the save user action to be synced first
 		self::$calls_within_wp_insert_user = $this->prepend_event(
 			self::$calls_within_wp_insert_user, 'jetpack_sync_save_user'
 		);
 
 		foreach ( self::$calls_within_wp_insert_user as $action => $calls ) {
-			var_dump( $action );
 			foreach ( $calls as $arguments ) {
 				if ( 'user_register' === current_filter() ) {
 					if ( in_array( $action,
@@ -104,7 +102,6 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 
 				// do_action( $action, $arguments[0], $arguments[1], ... );
 				call_user_func_array( 'do_action', array_merge( array( $action ), $arguments ) );
-
 			}
 		}
 		// clear to make tests pass.
