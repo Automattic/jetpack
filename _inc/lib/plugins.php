@@ -23,12 +23,6 @@ class Jetpack_Plugins {
 	 * @return bool|WP_Error True if installation succeeded, error object otherwise.
 	 */
 	public static function install_and_activate_plugin( $slug ) {
-		// Check if get_plugins() function exists. This is required on the front end of the
-		// site, since it is in a file that is normally only loaded in the admin.
-		if ( ! function_exists( 'get_plugins' ) ) {
-			require_once ABSPATH . 'wp-admin/includes/plugin.php';
-		}
-
 		$plugin_id = self::get_plugin_id_by_slug( $slug );
 
 		if ( ! $plugin_id ) {
@@ -102,6 +96,12 @@ class Jetpack_Plugins {
 	 }
 
 	 public static function get_plugin_id_by_slug( $slug ) {
+		// Check if get_plugins() function exists. This is required on the front end of the
+		// site, since it is in a file that is normally only loaded in the admin.
+		if ( ! function_exists( 'get_plugins' ) ) {
+		 require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+
 		/** This filter is documented in wp-admin/includes/class-wp-plugins-list-table.php */
 		$plugins = apply_filters( 'all_plugins', get_plugins() );
 		if ( ! is_array( $plugins ) ) {
