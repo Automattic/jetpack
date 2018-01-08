@@ -14,7 +14,6 @@ import { ModuleToggle } from 'components/module-toggle';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import { getSiteAdminUrl } from 'state/initial-state';
-import { getPlanClass } from 'lib/plans/constants';
 import { getSitePlan } from 'state/site';
 import { isFetchingSiteData } from 'state/site';
 import { FormFieldset } from 'components/forms';
