@@ -73,14 +73,24 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		call_user_func_array( self::$callable, func_get_args() );
 	}
 
-	public function do_delayed_calls() {
-		// We want the save user action to be synced first
-		if ( isset( self::$calls_within_wp_insert_user['jetpack_sync_save_user'] ) ) {
-			$jetpack_sync_save_user = self::$calls_within_wp_insert_user['jetpack_sync_save_user'];
-			unset( self::$calls_within_wp_insert_user['jetpack_sync_save_user'] );
-			self::$calls_within_wp_insert_user = array_merge( array( 'jetpack_sync_save_user' => $jetpack_sync_save_user), self::$calls_within_wp_insert_user );
+	public function prepend_event( $events, $event_name ) {
+		if ( isset( $events[ $event_name ] ) ) {
+			$event = $events[ $event_name ];
+			unset( $events[ $event_name ] );
+			$events = array_merge( array( $event_name => $event ), $events );
 		}
+		return $events;
+	}
+
+	public function do_delayed_calls() {
+		var_dump( 'do delayed calls' );
+		// We want the save user action to be synced first
+		self::$calls_within_wp_insert_user = $this->prepend_event(
+			self::$calls_within_wp_insert_user, 'jetpack_sync_save_user'
+		);
+
 		foreach ( self::$calls_within_wp_insert_user as $action => $calls ) {
+			var_dump( $action );
 			foreach ( $calls as $arguments ) {
 				if ( 'user_register' === current_filter() ) {
 					if ( in_array( $action,
@@ -92,10 +102,13 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 					}
 				}
 
-				//	do_action( $action, $arguments[0], $arguments[1], ... );
+				// do_action( $action, $arguments[0], $arguments[1], ... );
 				call_user_func_array( 'do_action', array_merge( array( $action ), $arguments ) );
+
 			}
 		}
+		// clear to make tests pass.
+		self::$calls_within_wp_insert_user = array();
 	}
 
 	public function init_full_sync_listeners( $callable ) {
@@ -199,7 +212,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	public function expand_logout_username( $args, $user_id ) {
 		$user  = get_userdata( $user_id );
 		$user  = $this->sanitize_user( $user );
-		
+
 		$login = '';
 		if ( is_object( $user ) && is_object( $user->data ) ) {
 			$login = $user->data->user_login;
@@ -236,7 +249,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		 */
 		do_action( 'jetpack_user_edited', $user_id );
 	}
-	
+
 	function save_user_handler( $user_id, $old_user_data = null ) {
 		// ensure we only sync users who are members of the current blog
 		if ( ! is_user_member_of_blog( $user_id, get_current_blog_id() ) ) {
@@ -254,6 +267,8 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 
 		if ( $old_user !== null ) {
 			unset( $old_user->user_pass );
+			unset( $old_user->user_activation_key );
+
 			if ( serialize( $old_user ) === serialize( $user->data ) ) {
 				return;
 			}
@@ -284,7 +299,6 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 
 			return;
 		}
-
 		/**
 		 * Fires when the client needs to sync an updated user
 		 *
@@ -344,7 +358,8 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		}
 
 		$user = get_user_by( 'id', $user_id );
-		if ( $meta_key === $user->cap_key ) {
+		// we don't want to send the capabilities event when we add a new user.
+		if ( $meta_key === $user->cap_key && current_filter() !== 'added_user_meta' ) {
 			/**
 			 * Fires when the client needs to sync an updated user
 			 *
@@ -353,6 +368,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 			 * @param object The Sanitized WP_User object
 			 */
 			do_action( 'jetpack_sync_save_user', $user );
+
 		}
 	}
 

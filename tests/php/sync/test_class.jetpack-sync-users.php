@@ -6,6 +6,7 @@
  */
 class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 	protected $user_id;
+	protected $count = 0;
 
 	public function setUp() {
 		parent::setUp();
@@ -110,6 +111,16 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$this->assertNull( $this->server_replica_storage->get_user( $this->user_id ) );
 	}
 
+	public function test_dont_call_user_register_twice() {
+		add_action( 'user_register' , array( $this, 'counter_of_actions' ), 1000 );
+		do_action( 'user_register', $this->user_id );
+		$this->assertEquals( 1, $this->count );
+	}
+
+	function counter_of_actions() {
+		$this->count++;
+	}
+
 	public function test_delete_user_reassign_is_synced() {
 		$reassign = $this->factory->user->create();
 		wp_delete_user( $this->user_id, $reassign );
@@ -126,11 +137,11 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 			$this->assertFalse( $event->args[2] ); //is network delete
 		}
 	}
-	
-	// User meta not syncing 
+
+	// User meta not syncing
 	public function test_do_not_sync_user_data_on_user_meta_change() {
 		$this->server_event_storage->reset();
-		
+
 		add_user_meta( $this->user_id, 'session_tokens', 'world', 1 );
 		$this->sender->do_sync();
 		$event = $this->server_event_storage->get_most_recent_event();
@@ -339,7 +350,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		$this->assertNotNull( $this->server_replica_storage->get_user( $mu_blog_user_id ) );
-		
+
 		$add_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_add_user' );
 		$this->assertTrue( (bool) $add_event );
 
@@ -381,7 +392,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 'foobar', $event->args[0] );
 		$this->assertEquals( $user_id, $user_data_sent_to_server->ID );
 		$this->assertFalse( isset( $user_data_sent_to_server->data->user_pass ) );
-		
+
 	}
 
 	public function test_syncs_user_logout_event() {
@@ -421,8 +432,8 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_deleted_user_during_sync_doesnt_cause_error() {
-		$this->server_event_storage->reset();
 
+		$this->server_event_storage->reset();
 		do_action( 'jetpack_sync_save_user', null );
 
 		$this->sender->do_sync();
@@ -634,7 +645,6 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$this->factory->user->create();
 
 		$this->sender->do_sync();
-
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_user' );
 		$this->assertFalse( $event );
 
