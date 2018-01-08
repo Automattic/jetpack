@@ -33,23 +33,23 @@ class Jetpack_Plugins {
 
 		$result = $upgrader->install( $zip_url );
 
-    if ( is_wp_error( $result ) ) {
-      return $result;
-    }
+		if ( is_wp_error( $result ) ) {
+		  return $result;
+		}
 
-    $plugin     = Jetpack_Plugins::get_plugin_id_by_slug( $slug );
-    $error_code = 'install_error';
-    if ( ! $plugin ) {
-      $error = __( 'There was an error installing your plugin', 'jetpack' );
-    }
+		$plugin     = Jetpack_Plugins::get_plugin_id_by_slug( $slug );
+		$error_code = 'install_error';
+		if ( ! $plugin ) {
+		  $error = __( 'There was an error installing your plugin', 'jetpack' );
+		}
 
-    if ( ! $result ) {
-      $error_code                         = $upgrader->skin->get_main_error_code();
-      $message                            = $upgrader->skin->get_main_error_message();
-      $error = $message ? $message : __( 'An unknown error occurred during installation', 'jetpack' );
-    }
+		if ( ! $result ) {
+		  $error_code                         = $upgrader->skin->get_main_error_code();
+		  $message                            = $upgrader->skin->get_main_error_message();
+		  $error = $message ? $message : __( 'An unknown error occurred during installation', 'jetpack' );
+		}
 
-    if ( ! empty( $error ) ) {
+		if ( ! empty( $error ) ) {
 			if ( 'download_failed' === $error_code ) {
 				// For backwards compatibility: versions prior to 3.9 would return no_package instead of download_failed.
 				$error_code = 'no_package';
@@ -58,7 +58,7 @@ class Jetpack_Plugins {
 			return new WP_Error( $error_code, $error, 400 );
 		}
 
-    return (array) $upgrader->skin->get_upgrade_messages();
+		return (array) $upgrader->skin->get_upgrade_messages();
 	}
 
 	 protected static function generate_wordpress_org_plugin_download_link( $plugin_slug ) {
