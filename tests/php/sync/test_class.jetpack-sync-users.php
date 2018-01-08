@@ -368,8 +368,13 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		) );
 
 		// TODO: this is to address a testing bug, alas :/
+		unset( $retrieved_user->data->user_pass );
+		unset( $retrieved_user->data->user_activation_key );
+		// lets not compare all caps
+		unset( $retrieved_user->allcaps );
+		unset( $synced_user->allcaps );
+		// TODO: this is to address a testing bug, alas :/
 		unset( $retrieved_user->data->allowed_mime_types );
-
 		$this->assertEquals( $synced_user, $retrieved_user );
 	}
 
