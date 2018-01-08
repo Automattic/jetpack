@@ -35,6 +35,10 @@ class Jetpack_Plugins {
 				return true;
 		}
 
+		if ( ! current_user_can( 'activate_plugins' ) ) {
+			return new WP_Error( 'not_allowed', __( 'You are not allowed to activate plugins on this site.', 'jetpack' ) );
+		}
+
 		$activated = activate_plugin( $plugin_id );
 		if ( is_wp_error( $activated ) ) {
 			return $activated;
