@@ -23,7 +23,8 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		add_action( 'add_user_to_blog', array( $this, 'save_user_handler' ) );
 		add_action( 'jetpack_sync_add_user', $callable, 10, 2 );
 		add_action( 'jetpack_sync_register_user', $callable, 10, 2 );
-		add_action( 'jetpack_sync_save_user', $callable );
+		add_action( 'jetpack_sync_save_user', $callable, 10, 2 );
+		add_action( 'jetpack_updated_user_password', $callable );
 
 		//Edit user info, see https://github.com/WordPress/WordPress/blob/c05f1dc805bddcc0e76fd90c4aaf2d9ea76dc0fb/wp-admin/user-edit.php#L126
 		add_action( 'personal_options_update', array( $this, 'edited_user_handler' ) );
@@ -61,7 +62,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	public function init_before_send() {
 		add_filter( 'jetpack_sync_before_send_jetpack_sync_add_user', array( $this, 'expand_user' ) );
 		add_filter( 'jetpack_sync_before_send_jetpack_sync_register_user', array( $this, 'expand_user' ) );
-		add_filter( 'jetpack_sync_before_send_jetpack_sync_save_user', array( $this, 'expand_user' ), 10, 2 );
+		add_filter( 'jetpack_sync_before_send_jetpack_sync_save_user', array( $this, 'expand_user' ) );
 		add_filter( 'jetpack_sync_before_send_wp_login', array( $this, 'expand_login_username' ), 10, 1 );
 		add_filter( 'jetpack_sync_before_send_wp_logout', array( $this, 'expand_logout_username' ), 10, 2 );
 
@@ -131,8 +132,10 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 
 	public function expand_user( $args ) {
 		list( $user ) = $args;
-
 		if ( $user ) {
+			if ( isset( $args[1] ) ) { // if state is available also send state.
+				return array( $this->add_to_user( $user ), $args[1] );
+			}
 			return array( $this->add_to_user( $user ) );
 		}
 
@@ -149,7 +152,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	public function expand_logout_username( $args, $user_id ) {
 		$user  = get_userdata( $user_id );
 		$user  = $this->sanitize_user( $user );
-		
+
 		$login = '';
 		if ( is_object( $user ) && is_object( $user->data ) ) {
 			$login = $user->data->user_login;
@@ -186,14 +189,15 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		 */
 		do_action( 'jetpack_user_edited', $user_id );
 	}
-	
+
 	function save_user_handler( $user_id, $old_user_data = null ) {
 		// ensure we only sync users who are members of the current blog
 		if ( ! is_user_member_of_blog( $user_id, get_current_blog_id() ) ) {
 			return;
 		}
-
-		$user = $this->sanitize_user( get_user_by( 'id', $user_id ) );
+		$raw_user = get_user_by( 'id', $user_id );
+		$user = $this->sanitize_user( $raw_user );
+		$user_password_changed = false;
 
 		// Older versions of WP don't pass the old_user_data in ->data
 		if ( isset( $old_user_data->data ) ) {
@@ -203,8 +207,14 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		}
 
 		if ( $old_user !== null ) {
+			if ( $raw_user->user_pass !== $old_user->user_pass ) {
+				$user_password_changed = true;
+			}
 			unset( $old_user->user_pass );
 			if ( serialize( $old_user ) === serialize( $user->data ) ) {
+				if ( $user_password_changed ) {
+					do_action( 'jetpack_updated_user_password', $user );
+				}
 				return;
 			}
 		}
@@ -241,8 +251,9 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		 * @since 4.2.0
 		 *
 		 * @param object The WP_User object
+		 * @param array state
 		 */
-		do_action( 'jetpack_sync_save_user', $user );
+		do_action( 'jetpack_sync_save_user', $user, array( 'password_changed' => $user_password_changed ) );
 	}
 
 	function save_user_role_handler( $user_id, $role, $old_roles = null ) {
@@ -258,8 +269,9 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		 * @since 4.2.0
 		 *
 		 * @param object The WP_User object
+	 	 * @param array state
 		 */
-		do_action( 'jetpack_sync_save_user', $user );
+		do_action( 'jetpack_sync_save_user', $user, array( 'role_changed' => $role, 'previous_roles' => $old_roles ) );
 	}
 
 	function maybe_save_user_meta( $meta_id, $user_id, $meta_key, $value ) {
@@ -312,8 +324,12 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 			 * @since 4.2.0
 			 *
 			 * @param object The Sanitized WP_User object
+		     * @param array state Since 5.8
 			 */
-			do_action( 'jetpack_sync_save_user', $this->sanitize_user( $user ) );
+			do_action( 'jetpack_sync_save_user', $this->sanitize_user( $user ),
+				array( 'capabilities_action' => current_filter(), 'capabilities' => $capabilities )
+			);
+
 		}
 	}
 

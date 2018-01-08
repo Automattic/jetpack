@@ -62,7 +62,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $new_url, $server_user->data->user_url );
 	}
 
-	public function test_update_user_password_is_not_synced() {
+	public function test_update_user_password_is_synced_without_user_save_event() {
 		$this->server_event_storage->reset();
 		$new_password = 'New PassWord';
 
@@ -70,11 +70,37 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 			'ID'        => $this->user_id,
 			'user_pass' => $new_password
 		) );
+
 		$this->sender->do_sync();
 
 		// Don't sync the password changes since we don't track passwords
 		$events = $this->server_event_storage->get_all_events();
-		$this->assertEmpty( $events );
+		$this->assertEquals( $events[0]->action, 'jetpack_updated_user_password' );
+		$this->assertEquals( $this->user_id, $events[0]->args[0]->ID );
+		$this->assertFalse( isset( $events[1] ) );
+	}
+
+	public function test_update_user_url_is_synced_and_password_is_changed() {
+		$this->server_event_storage->reset();
+		$new_url = 'http://jetpack.com';
+
+		wp_update_user( array(
+			'ID'       => $this->user_id,
+			'user_url' => $new_url,
+			'user_pass' => 'one,two,three'
+		) );
+
+		$this->sender->do_sync();
+
+		$server_user = $this->server_replica_storage->get_user( $this->user_id );
+		$this->assertEquals( $new_url, $server_user->data->user_url );
+
+		$events = $this->server_event_storage->get_all_events( 'jetpack_updated_user_password' );
+
+		$this->assertTrue( empty( $events ) );
+
+		$events = $this->server_event_storage->get_all_events( 'jetpack_sync_save_user' );
+		$this->assertEquals( $events[0]->args[1], array( 'password_changed' => true ) );
 	}
 
 	public function test_delete_user_is_synced() {
@@ -119,11 +145,11 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 			$this->assertFalse( $event->args[2] ); //is network delete
 		}
 	}
-	
-	// User meta not syncing 
+
+	// User meta not syncing
 	public function test_do_not_sync_user_data_on_user_meta_change() {
 		$this->server_event_storage->reset();
-		
+
 		add_user_meta( $this->user_id, 'session_tokens', 'world', 1 );
 		$this->sender->do_sync();
 		$event = $this->server_event_storage->get_most_recent_event();
@@ -332,7 +358,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		$this->assertNotNull( $this->server_replica_storage->get_user( $mu_blog_user_id ) );
-		
+
 		$add_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_add_user' );
 		$this->assertTrue( (bool) $add_event );
 
@@ -374,7 +400,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 'foobar', $event->args[0] );
 		$this->assertEquals( $user_id, $user_data_sent_to_server->ID );
 		$this->assertFalse( isset( $user_data_sent_to_server->data->user_pass ) );
-		
+
 	}
 
 	public function test_syncs_user_logout_event() {
