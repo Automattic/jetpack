@@ -103,7 +103,7 @@ class Jetpack_Plugins {
 		// Check if get_plugins() function exists. This is required on the front end of the
 		// site, since it is in a file that is normally only loaded in the admin.
 		if ( ! function_exists( 'get_plugins' ) ) {
-		 require_once ABSPATH . 'wp-admin/includes/plugin.php';
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
 		}
 
 		/** This filter is documented in wp-admin/includes/class-wp-plugins-list-table.php */
