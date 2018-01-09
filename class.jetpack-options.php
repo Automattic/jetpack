@@ -535,6 +535,7 @@ class Jetpack_Options {
 			'jetpack_last_connect_url_check',
 			'jpo_site_type',
 			'jpo_contact_page',
+			'jpo_homepage_format_set',
 		);
 	}
 
