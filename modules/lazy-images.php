@@ -2,7 +2,7 @@
 
 /**
  * Module Name: Lazy Images
- * Module Description: "Lazy load" images
+ * Module Description: "Lazy-load" images
  * Sort Order: 24
  * Recommendation Order: 14
  * First Introduced: 5.6.0
