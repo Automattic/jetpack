@@ -54,12 +54,16 @@ class Jetpack_Sync_Sender {
 
 	public function maybe_set_user_from_token() {
 		$jetpack = Jetpack::init();
-		if ( $jetpack->verify_xml_rpc_signature() ) {
+		if ( defined( 'XMLRPC_REQUEST' ) &&
+		     XMLRPC_REQUEST &&
+		     $jetpack->verify_xml_rpc_signature()
+		) {
 			$verified_user = $jetpack->verify_xml_rpc_signature();
 			$old_user = wp_get_current_user();
 			$this->old_user = isset( $old_user->ID ) ? $old_user->ID : 0;
 			$this->old_user = wp_set_current_user( $verified_user['user_id'] );
 		}
+
 	}
 
 	public function maybe_clear_user_from_token() {
