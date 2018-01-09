@@ -253,7 +253,7 @@ const Main = React.createClass( {
 			<div>
 				<Masthead route={ this.props.route } />
 					<div className="jp-lower">
-						<QueryRewindStatus />
+						{ this.props.isSiteConnected && <QueryRewindStatus /> }
 						<AdminNotices />
 						<JetpackNotices />
 						{ this.renderMainContent( this.props.route.path ) }

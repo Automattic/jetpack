@@ -114,7 +114,12 @@ class Jetpack_Search {
 
 	public function print_query_failure() {
 		if ( $this->last_query_failure_info ) {
-			echo '<!-- Jetpack Search failed with code ' . $this->last_query_failure_info['response_code'] . ': ' . $this->last_query_failure_info['json']['error'] . ' - ' . $this->last_query_failure_info['json']['message'] . ' -->';
+			printf(
+				'<!-- Jetpack Search failed with code %s: %s - %s -->',
+				esc_html( $this->last_query_failure_info['response_code'] ),
+				esc_html( $this->last_query_failure_info['json']['error'] ),
+				esc_html( $this->last_query_failure_info['json']['message'] )
+			);
 		}
 	}
 
@@ -125,7 +130,11 @@ class Jetpack_Search {
 
 	public function print_query_success() {
 		if ( $this->last_query_info ) {
-			echo '<!-- Jetpack Search took ' . intval( $this->last_query_info['elapsed_time'] ) . ' ms, ES time ' . $this->last_query_info['es_time'] . ' ms -->';
+			printf(
+				'<!-- Jetpack Search took %s ms, ES time %s ms -->',
+				intval( $this->last_query_info['elapsed_time'] ),
+				esc_html( $this->last_query_info['es_time'] )
+			);
 		}
 	}
 
