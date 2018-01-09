@@ -1012,7 +1012,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 				}
 			}
 
-			update_option( 'jpo_homepage_format_set', 1 );
+			update_option( 'jpo_homepage_format', $data['homepageFormat'] );
 		}
 
 		// Setup contact page and add a form and/or business info
