@@ -13,6 +13,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		// create a user
 		$this->user_id = $this->factory->user->create();
 		$this->sender->do_sync();
+		var_dump( 'RUNing...' );
 	}
 
 	public function test_insert_user_is_synced() {
@@ -74,9 +75,12 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		// Don't sync the password changes since we don't track passwords
-		$events = $this->server_event_storage->get_all_events();
-		$this->assertEquals( $events[0]->action, 'jetpack_updated_user_password' );
+		$events = $this->server_event_storage->get_all_events( 'jetpack_sync_save_user' );
+		$this->assertTrue( $events[0]->args[1]['password_changed'] );
+		$this->assertFalse( $events[0]->args[1]['user_data_changed'] );
 		$this->assertEquals( $this->user_id, $events[0]->args[0]->ID );
+
+		// Only the sync save user event should be present.
 		$this->assertFalse( isset( $events[1] ) );
 	}
 
@@ -95,12 +99,12 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$server_user = $this->server_replica_storage->get_user( $this->user_id );
 		$this->assertEquals( $new_url, $server_user->data->user_url );
 
-		$events = $this->server_event_storage->get_all_events( 'jetpack_updated_user_password' );
-
-		$this->assertTrue( empty( $events ) );
-
 		$events = $this->server_event_storage->get_all_events( 'jetpack_sync_save_user' );
-		$this->assertEquals( $events[0]->args[1], array( 'password_changed' => true ) );
+		$this->assertTrue( $events[0]->args[1]['password_changed'] );
+		$this->assertTrue( $events[0]->args[1]['user_data_changed'] );
+
+		// Only the sync save user event should be present.
+		$this->assertFalse( isset( $events[1] ) );
 	}
 
 	public function test_delete_user_is_synced() {
@@ -110,11 +114,13 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 
 		// make sure user exists in replica
 		$this->assertUsersEqual( $user, $this->server_replica_storage->get_user( $this->user_id ) );
-
+		$this->server_event_storage->reset();
 		wp_delete_user( $this->user_id );
 		$this->sender->do_sync();
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_deleted_user' );
+		$save_user_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_user' );
+		$this->assertTrue( empty( $save_user_event ) );
 		$this->assertEquals( $this->user_id, $event->args[0] );
 		$this->assertNull( $event->args[1] ); //reassign user_id
 
@@ -135,6 +141,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_deleted_user' );
+
 		$this->assertEquals( 'jetpack_deleted_user', $event->action );
 		$this->assertEquals( $this->user_id, $event->args[0] );
 		$this->assertEquals( $reassign, $event->args[1] ); //reassign user_id
@@ -168,7 +175,6 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	// Roles syncing
-
 	public function test_user_add_role_is_synced() {
 		$user = get_user_by( 'id', $this->user_id );
 		$user->add_role( 'author' );
@@ -191,6 +197,27 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$client_user = get_user_by( 'id', $this->user_id );
 		unset( $client_user->data->user_pass );
 		$this->assertUsersEqual( $client_user, $server_user );
+	}
+
+	public function test_user_set_role_is_synced_in_wp_update_user_context() {
+		$this->server_event_storage->reset(); // reset all the events...
+		wp_update_user( array(
+			'ID'       => $this->user_id,
+			'user_url' => 'http://wordpress.com',
+			'role' => 'editor',
+		) );
+
+		$this->sender->do_sync();
+		$server_user = $this->server_replica_storage->get_user( $this->user_id );
+
+		$client_user = get_user_by( 'id', $this->user_id );
+		unset( $client_user->data->user_pass );
+		$this->assertUsersEqual( $client_user, $server_user );
+
+		$events = $this->server_event_storage->get_all_events( 'jetpack_sync_save_user' );
+		$this->assertTrue( $events[0]->args[1]['role_changed'] );
+		$this->assertEquals( $events[0]->args[1]['previous_role'], array( 'subscriber') );
+		$this->assertTrue( empty( $events[1] ) );
 	}
 
 	public function test_user_remove_role_is_synced() {

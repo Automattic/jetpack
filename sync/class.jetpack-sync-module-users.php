@@ -3,6 +3,8 @@
 class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	const MAX_INITIAL_SYNC_USERS = 100;
 
+	protected $previous_role = array();
+
 	function name() {
 		return 'users';
 	}
@@ -206,6 +208,8 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 			$old_user = $old_user_data;
 		}
 
+		$role_changed = isset( $this->previous_role[ $user_id ] ) ? $this->previous_role[ $user_id ] : false;
+
 		if ( $old_user !== null ) {
 			if ( $raw_user->user_pass !== $old_user->user_pass ) {
 				$user_password_changed = true;
@@ -213,7 +217,16 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 			unset( $old_user->user_pass );
 			if ( serialize( $old_user ) === serialize( $user->data ) ) {
 				if ( $user_password_changed ) {
-					do_action( 'jetpack_updated_user_password', $user );
+					/**
+					 * Documented already in this file
+					 * @param array state - New since 5.8.0
+					 */
+					do_action( 'jetpack_sync_save_user', $user, array(
+						'password_changed' => true,
+						'user_data_changed' => false,
+						'role_changed' => (bool) $role_changed,
+						'previous_role' => $role_changed,
+					) );
 				}
 				return;
 			}
@@ -245,20 +258,28 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 			return;
 		}
 
+
+
 		/**
 		 * Fires when the client needs to sync an updated user
 		 *
 		 * @since 4.2.0
 		 *
 		 * @param object The WP_User object
-		 * @param array state
+		 * @param array state - New since 5.8.0
 		 */
-		do_action( 'jetpack_sync_save_user', $user, array( 'password_changed' => $user_password_changed ) );
+		do_action( 'jetpack_sync_save_user', $user, array(
+			'password_changed' => $user_password_changed,
+			'user_data_changed' => true,
+			'role_changed' => (bool) $role_changed,
+			'previous_role' => $role_changed,
+			) );
 	}
 
 	function save_user_role_handler( $user_id, $role, $old_roles = null ) {
 		//The jetpack_sync_register_user payload is identical to jetpack_sync_save_user, don't send both
 		if ( $this->is_create_user() || $this->is_add_user_to_blog() ) {
+			$this->previous_role[ $user_id ] = $old_roles;
 			return;
 		}
 
@@ -271,7 +292,9 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		 * @param object The WP_User object
 	 	 * @param array state
 		 */
-		do_action( 'jetpack_sync_save_user', $user, array( 'role_changed' => $role, 'previous_roles' => $old_roles ) );
+		do_action( 'jetpack_sync_save_user', $user, array(
+			'role_changed' => true,
+			'previous_role' => $old_roles ) );
 	}
 
 	function maybe_save_user_meta( $meta_id, $user_id, $meta_key, $value ) {
@@ -301,23 +324,23 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	}
 
 	function save_user_cap_handler( $meta_id, $user_id, $meta_key, $capabilities ) {
+		// if a user is currently being removed as a member of this blog, we don't fire the event
+		if ( current_filter() === 'deleted_user_meta' ) {
+			return;
+		}
+
+		// Since we are currently only caring about capabilities at this point don't need to save the user info at this save the user info at this point.
+		if ( current_filter() === 'added_user_meta' ) {
+			return;
+		}
+
 		//The jetpack_sync_register_user payload is identical to jetpack_sync_save_user, don't send both
 		if ( $this->is_create_user() || $this->is_add_user_to_blog() ) {
 			return;
 		}
-
-		// if a user is currently being removed as a member of this blog, we don't fire the event
-		if ( current_filter() === 'deleted_user_meta'
-		     &&
-		     preg_match( '/capabilities|user_level/', $meta_key )
-		     &&
-		     ! is_user_member_of_blog( $user_id, get_current_blog_id() )
-		) {
-			return;
-		}
-
 		$user = get_user_by( 'id', $user_id );
-		if ( $meta_key === $user->cap_key ) {
+		if ( $meta_key === $user->cap_key  ) {
+
 			/**
 			 * Fires when the client needs to sync an updated user
 			 *
@@ -329,7 +352,6 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 			do_action( 'jetpack_sync_save_user', $this->sanitize_user( $user ),
 				array( 'capabilities_action' => current_filter(), 'capabilities' => $capabilities )
 			);
-
 		}
 	}
 
