@@ -20,9 +20,9 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 
 	public function init_listeners( $callable ) {
 		// users
-		add_action( 'user_register', array( $this, 'save_user_handler' ) );
+		add_action( 'user_register', array( $this, 'user_register_handler' ) );
 		add_action( 'profile_update', array( $this, 'save_user_handler' ), 10, 2 );
-		add_action( 'add_user_to_blog', array( $this, 'save_user_handler' ) );
+		add_action( 'add_user_to_blog', array( $this, 'add_user_to_blog_handler' ) );
 		add_action( 'jetpack_sync_add_user', $callable, 10, 2 );
 		add_action( 'jetpack_sync_register_user', $callable, 10, 2 );
 		add_action( 'jetpack_sync_save_user', $callable, 10, 2 );
@@ -206,6 +206,39 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		do_action( 'jetpack_user_edited', $user_id );
 	}
 
+	function user_register_handler( $user_id, $old_user_data = null ) {
+		// ensure we only sync users who are members of the current blog
+		if ( ! is_user_member_of_blog( $user_id, get_current_blog_id() ) ) {
+			return;
+		}
+		$raw_user = get_user_by( 'id', $user_id );
+		$user = $this->sanitize_user( $raw_user );
+
+		if ( 'user_register' === current_filter() ) {
+			/**
+			 * Fires when a new user is registered on a site
+			 *
+			 * @since 4.9.0
+			 *
+			 * @param object The WP_User object
+			 */
+			do_action( 'jetpack_sync_register_user', $user );
+
+			return;
+		}
+	}
+
+	function add_user_to_blog_handler( $user_id, $old_user_data = null ) {
+		// ensure we only sync users who are members of the current blog
+		if ( ! is_user_member_of_blog( $user_id, get_current_blog_id() ) ) {
+			return;
+		}
+		$raw_user = get_user_by( 'id', $user_id );
+		$user = $this->sanitize_user( $raw_user );
+
+		do_action( 'jetpack_sync_add_user', $user );
+	}
+
 	function save_user_handler( $user_id, $old_user_data = null ) {
 		// ensure we only sync users who are members of the current blog
 		if ( ! is_user_member_of_blog( $user_id, get_current_blog_id() ) ) {
@@ -226,32 +259,6 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 
 		if ( $old_user !== null && $raw_user->user_pass !== $old_user->user_pass ) {
 			$user_password_changed = true;
-		}
-
-		if ( 'user_register' === current_filter() ) {
-			/**
-			 * Fires when a new user is registered on a site
-			 *
-			 * @since 4.9.0
-			 *
-			 * @param object The WP_User object
-			 */
-			do_action( 'jetpack_sync_register_user', $user );
-
-			return;
-		}
-		/* MU Sites add users instead of register them to sites */
-		if ( 'add_user_to_blog' === current_filter() ) {
-			/**
-			 * Fires when a new user is added to a site. (WordPress Multisite)
-			 *
-			 * @since 4.9.0
-			 *
-			 * @param object The WP_User object
-			 */
-			do_action( 'jetpack_sync_add_user', $user );
-
-			return;
 		}
 
 		/**
