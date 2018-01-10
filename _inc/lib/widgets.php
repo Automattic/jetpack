@@ -111,13 +111,12 @@ class Jetpack_Widgets {
 	 * @return array|null The matching formatted widget (see format_widget).
 	 */
 	public static function get_widget_by_id( $widget_id ) {
-		$found = null;
 		foreach ( self::get_all_widgets() as $widget ) {
 			if ( $widget['id'] === $widget_id ) {
-				$found = $widget;
+				return $widget;
 			}
 		}
-		return $found;
+		return null;
 	}
 
 	/**
@@ -128,13 +127,12 @@ class Jetpack_Widgets {
 	 * @return array|null The matching formatted widget (see format_widget).
 	 */
 	public static function get_widget_by_id_base( $id_base ) {
-		$found = null;
 		foreach ( self::get_all_widgets() as $widget ) {
 			if ( $widget['id_base'] === $id_base ) {
-				$found = $widget;
+				return $widget;
 			}
 		}
-		return $found;
+		return null;
 	}
 
 	/**
@@ -221,7 +219,6 @@ class Jetpack_Widgets {
 	 */
 	public static function get_widgets_in_sidebar( $sidebar ) {
 		$sidebars = self::get_all_sidebars();
-
 
 		if ( ! $sidebars || ! is_array( $sidebars ) ) {
 			return null;
@@ -396,7 +393,7 @@ class Jetpack_Widgets {
 			$old_settings = $widget_settings[ $instance_key ];
 
 			if ( ! $settings = self::sanitize_widget_settings( $widget_id, $settings, $old_settings ) ) {
-				return new WP_Error( 'invalid_data', 'Update failed.', 500 );
+				return new WP_Error( 'invalid_data', 'Update failed.', 400 );
 			}
 			if ( is_array( $old_settings ) ) {
 				// array_filter prevents empty arguments from replacing existing ones
@@ -474,9 +471,16 @@ class Jetpack_Widgets {
 		if ( ! is_numeric( $position ) ) {
 			return new WP_Error( 'invalid_data', 'Invalid position', 400 );
 		}
+
+		// return if no widgets are present in the sidebar
 		$widgets_in_sidebar = self::get_widgets_in_sidebar( $sidebar );
 		if ( ! isset( $widgets_in_sidebar ) ) {
-			return new WP_Error( 'invalid_data', 'No such sidebar exists', 400 );
+			return new WP_Error( 'invalid_data', 'No widgets in sidebar', 400 );
+		}
+
+		// call when placing widget in a new sidebar, else obsolete
+		if ( ! self::is_widget_in_sidebar( $widgets_in_sidebar, $widget_id ) ) {
+			self::move_widget_to_sidebar( $widget, $sidebar, $position );
 		}
 		$widget_save_status = self::set_widget_settings( $widget_id, $settings );
 		if ( is_wp_error( $widget_save_status ) ) {
@@ -485,6 +489,25 @@ class Jetpack_Widgets {
 		return self::get_widget_by_id( $widget_id );
 	}
 
+	/**
+	 * Find a widget in a list of all widgets retrieved from a sidebar
+	 * using get_widgets_in_sidebar()
+	 * @param string $widget The widget we want to look up in the sidebar
+	 *
+	 * @param string $widgets_all the array of widget is' in a given sidebar
+	 *
+	 * @return bool Whether present.
+	 */
+
+	public static function is_widget_in_sidebar( $widgets_all, $widget_id ) {
+		foreach ( $widgets_all as $widget_el_id ) {
+			if ( $widget_el_id  === $widget_id ) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
 	/**
 	 * Deletes a widget entirely including all its settings. Returns a WP_Error if
 	 * the widget could not be found. Otherwise returns an empty array.
