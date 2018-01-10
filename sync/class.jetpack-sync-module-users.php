@@ -141,11 +141,17 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	}
 
 	public function expand_save_user( $args ) {
-		list( $user, $flags ) = $args;
+		$default_flags = array(
+			'password_changed' => false,
+			'role_changed'     => false,
+			'previous_role'    => false,
+		);
 
+		$flags         = ( isset( $args[1] ) && is_array( $args[1] ) ) ? $args[1] : array();
 		$expanded_user = $this->expand_user( $args );
 
 		if ( $expanded_user ) {
+			$flags           = wp_parse_args( $flags, $default_flags );
 			$expanded_user[] = $flags;
 		}
 
