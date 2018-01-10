@@ -187,7 +187,7 @@ export const SettingsCard = props => {
 				return (
 					<JetpackBanner
 						callToAction={ upgradeLabel }
-						title={ __( 'Faster, more relevant and more powerful sitewide search with Jetpack Search.' ) }
+						title={ __( 'Faster, more relevant and more powerful sitewide search.' ) }
 						plan={ PLAN_JETPACK_BUSINESS }
 						feature={ feature }
 						onClick={ () => trackBannerClick( feature ) }
