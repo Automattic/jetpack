@@ -13,7 +13,6 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		// create a user
 		$this->user_id = $this->factory->user->create();
 		$this->sender->do_sync();
-		var_dump( 'RUNing...' );
 	}
 
 	public function test_insert_user_is_synced() {
