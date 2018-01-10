@@ -5,8 +5,7 @@ The javascript and CSS components of this plugin's admin interface need to be bu
 **Recommended Environment**
 
 * node 8.x, aka `lts/carbon`
-* npm 3.8.x
-* yarn 0.24.4
+* yarn 1.3
 
 ## A note on Node versions used for the build tasks
 
@@ -31,10 +30,9 @@ $ yarn distclean
 	$ cd jetpack
 	```
 
-3. Install [yarn](https://www.npmjs.com/package/yarn) package.
-    ```
-    npm install -g yarn@0.24.4
-    ```
+3. Install yarn
+
+Please, refer to yarn's [Installation Documentation](https://yarnpkg.com/docs/install/).
 
 4. Make sure the Jetpack plugin is active and run
 
@@ -68,7 +66,7 @@ $ yarn watch
 The production build will generate minified files without duplicated code (resulting from dependencies) and will also generate the matching sourcemap and language files.
 
 ```
-$ yarn build-production
+$ NODE_ENV=production yarn build-client
 ```
 
 ## Unit-testing
