@@ -76,7 +76,6 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		// Don't sync the password changes since we don't track passwords
 		$events = $this->server_event_storage->get_all_events( 'jetpack_sync_save_user' );
 		$this->assertTrue( $events[0]->args[1]['password_changed'] );
-		$this->assertFalse( $events[0]->args[1]['user_data_changed'] );
 		$this->assertEquals( $this->user_id, $events[0]->args[0]->ID );
 
 		// Only the sync save user event should be present.
@@ -100,7 +99,6 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 
 		$events = $this->server_event_storage->get_all_events( 'jetpack_sync_save_user' );
 		$this->assertTrue( $events[0]->args[1]['password_changed'] );
-		$this->assertTrue( $events[0]->args[1]['user_data_changed'] );
 
 		// Only the sync save user event should be present.
 		$this->assertFalse( isset( $events[1] ) );

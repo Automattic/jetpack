@@ -63,7 +63,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	public function init_before_send() {
 		add_filter( 'jetpack_sync_before_send_jetpack_sync_add_user', array( $this, 'expand_user' ) );
 		add_filter( 'jetpack_sync_before_send_jetpack_sync_register_user', array( $this, 'expand_user' ) );
-		add_filter( 'jetpack_sync_before_send_jetpack_sync_save_user', array( $this, 'expand_user' ) );
+		add_filter( 'jetpack_sync_before_send_jetpack_sync_save_user', array( $this, 'expand_save_user' ) );
 		add_filter( 'jetpack_sync_before_send_wp_login', array( $this, 'expand_login_username' ), 10, 1 );
 		add_filter( 'jetpack_sync_before_send_wp_logout', array( $this, 'expand_logout_username' ), 10, 2 );
 
@@ -134,13 +134,22 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	public function expand_user( $args ) {
 		list( $user ) = $args;
 		if ( $user ) {
-			if ( isset( $args[1] ) ) { // if state is available also send state.
-				return array( $this->add_to_user( $user ), $args[1] );
-			}
 			return array( $this->add_to_user( $user ) );
 		}
 
 		return false;
+	}
+
+	public function expand_save_user( $args ) {
+		list( $user, $flags ) = $args;
+
+		$expanded_user = $this->expand_user( $args );
+
+		if ( $expanded_user ) {
+			$expanded_user[] = $flags;
+		}
+
+		return $expanded_user;
 	}
 
 	public function expand_login_username( $args ) {
