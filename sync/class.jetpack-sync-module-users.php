@@ -3,6 +3,8 @@
 class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	const MAX_INITIAL_SYNC_USERS = 100;
 
+	protected $previous_role = array();
+
 	function name() {
 		return 'users';
 	}
@@ -18,12 +20,12 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 
 	public function init_listeners( $callable ) {
 		// users
-		add_action( 'user_register', array( $this, 'save_user_handler' ) );
+		add_action( 'user_register', array( $this, 'user_register_handler' ) );
 		add_action( 'profile_update', array( $this, 'save_user_handler' ), 10, 2 );
-		add_action( 'add_user_to_blog', array( $this, 'save_user_handler' ) );
+		add_action( 'add_user_to_blog', array( $this, 'add_user_to_blog_handler' ) );
 		add_action( 'jetpack_sync_add_user', $callable, 10, 2 );
 		add_action( 'jetpack_sync_register_user', $callable, 10, 2 );
-		add_action( 'jetpack_sync_save_user', $callable );
+		add_action( 'jetpack_sync_save_user', $callable, 10, 2 );
 
 		//Edit user info, see https://github.com/WordPress/WordPress/blob/c05f1dc805bddcc0e76fd90c4aaf2d9ea76dc0fb/wp-admin/user-edit.php#L126
 		add_action( 'personal_options_update', array( $this, 'edited_user_handler' ) );
@@ -61,7 +63,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	public function init_before_send() {
 		add_filter( 'jetpack_sync_before_send_jetpack_sync_add_user', array( $this, 'expand_user' ) );
 		add_filter( 'jetpack_sync_before_send_jetpack_sync_register_user', array( $this, 'expand_user' ) );
-		add_filter( 'jetpack_sync_before_send_jetpack_sync_save_user', array( $this, 'expand_user' ), 10, 2 );
+		add_filter( 'jetpack_sync_before_send_jetpack_sync_save_user', array( $this, 'expand_save_user' ) );
 		add_filter( 'jetpack_sync_before_send_wp_login', array( $this, 'expand_login_username' ), 10, 1 );
 		add_filter( 'jetpack_sync_before_send_wp_logout', array( $this, 'expand_logout_username' ), 10, 2 );
 
@@ -131,12 +133,29 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 
 	public function expand_user( $args ) {
 		list( $user ) = $args;
-
 		if ( $user ) {
 			return array( $this->add_to_user( $user ) );
 		}
 
 		return false;
+	}
+
+	public function expand_save_user( $args ) {
+		$default_flags = array(
+			'password_changed' => false,
+			'role_changed'     => false,
+			'previous_role'    => false,
+		);
+
+		$flags         = ( isset( $args[1] ) && is_array( $args[1] ) ) ? $args[1] : array();
+		$expanded_user = $this->expand_user( $args );
+
+		if ( $expanded_user ) {
+			$flags           = wp_parse_args( $flags, $default_flags );
+			$expanded_user[] = $flags;
+		}
+
+		return $expanded_user;
 	}
 
 	public function expand_login_username( $args ) {
@@ -149,7 +168,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	public function expand_logout_username( $args, $user_id ) {
 		$user  = get_userdata( $user_id );
 		$user  = $this->sanitize_user( $user );
-		
+
 		$login = '';
 		if ( is_object( $user ) && is_object( $user->data ) ) {
 			$login = $user->data->user_login;
@@ -186,28 +205,14 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		 */
 		do_action( 'jetpack_user_edited', $user_id );
 	}
-	
-	function save_user_handler( $user_id, $old_user_data = null ) {
+
+	function user_register_handler( $user_id, $old_user_data = null ) {
 		// ensure we only sync users who are members of the current blog
 		if ( ! is_user_member_of_blog( $user_id, get_current_blog_id() ) ) {
 			return;
 		}
-
-		$user = $this->sanitize_user( get_user_by( 'id', $user_id ) );
-
-		// Older versions of WP don't pass the old_user_data in ->data
-		if ( isset( $old_user_data->data ) ) {
-			$old_user = $old_user_data->data;
-		} else {
-			$old_user = $old_user_data;
-		}
-
-		if ( $old_user !== null ) {
-			unset( $old_user->user_pass );
-			if ( serialize( $old_user ) === serialize( $user->data ) ) {
-				return;
-			}
-		}
+		$raw_user = get_user_by( 'id', $user_id );
+		$user = $this->sanitize_user( $raw_user );
 
 		if ( 'user_register' === current_filter() ) {
 			/**
@@ -221,18 +226,39 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 
 			return;
 		}
-		/* MU Sites add users instead of register them to sites */
-		if ( 'add_user_to_blog' === current_filter() ) {
-			/**
-			 * Fires when a new user is added to a site. (WordPress Multisite)
-			 *
-			 * @since 4.9.0
-			 *
-			 * @param object The WP_User object
-			 */
-			do_action( 'jetpack_sync_add_user', $user );
+	}
 
+	function add_user_to_blog_handler( $user_id, $old_user_data = null ) {
+		// ensure we only sync users who are members of the current blog
+		if ( ! is_user_member_of_blog( $user_id, get_current_blog_id() ) ) {
 			return;
+		}
+		$raw_user = get_user_by( 'id', $user_id );
+		$user = $this->sanitize_user( $raw_user );
+
+		do_action( 'jetpack_sync_add_user', $user );
+	}
+
+	function save_user_handler( $user_id, $old_user_data = null ) {
+		// ensure we only sync users who are members of the current blog
+		if ( ! is_user_member_of_blog( $user_id, get_current_blog_id() ) ) {
+			return;
+		}
+		$raw_user = get_user_by( 'id', $user_id );
+		$user = $this->sanitize_user( $raw_user );
+		$user_password_changed = false;
+
+		// Older versions of WP don't pass the old_user_data in ->data
+		if ( isset( $old_user_data->data ) ) {
+			$old_user = $old_user_data->data;
+		} else {
+			$old_user = $old_user_data;
+		}
+
+		$role_changed = isset( $this->previous_role[ $user_id ] ) ? $this->previous_role[ $user_id ] : false;
+
+		if ( $old_user !== null && $raw_user->user_pass !== $old_user->user_pass ) {
+			$user_password_changed = true;
 		}
 
 		/**
@@ -241,13 +267,19 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		 * @since 4.2.0
 		 *
 		 * @param object The WP_User object
+		 * @param array state - New since 5.8.0
 		 */
-		do_action( 'jetpack_sync_save_user', $user );
+		do_action( 'jetpack_sync_save_user', $user, array(
+			'password_changed' => $user_password_changed,
+			'role_changed' => (bool) $role_changed,
+			'previous_role' => $role_changed,
+			) );
 	}
 
 	function save_user_role_handler( $user_id, $role, $old_roles = null ) {
 		//The jetpack_sync_register_user payload is identical to jetpack_sync_save_user, don't send both
 		if ( $this->is_create_user() || $this->is_add_user_to_blog() ) {
+			$this->previous_role[ $user_id ] = $old_roles;
 			return;
 		}
 
@@ -258,8 +290,11 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		 * @since 4.2.0
 		 *
 		 * @param object The WP_User object
+	 	 * @param array state
 		 */
-		do_action( 'jetpack_sync_save_user', $user );
+		do_action( 'jetpack_sync_save_user', $user, array(
+			'role_changed' => true,
+			'previous_role' => $old_roles ) );
 	}
 
 	function maybe_save_user_meta( $meta_id, $user_id, $meta_key, $value ) {
@@ -289,31 +324,34 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	}
 
 	function save_user_cap_handler( $meta_id, $user_id, $meta_key, $capabilities ) {
+		// if a user is currently being removed as a member of this blog, we don't fire the event
+		if ( current_filter() === 'deleted_user_meta' ) {
+			return;
+		}
+
+		// Since we are currently only caring about capabilities at this point don't need to save the user info at this save the user info at this point.
+		if ( current_filter() === 'added_user_meta' ) {
+			return;
+		}
+
 		//The jetpack_sync_register_user payload is identical to jetpack_sync_save_user, don't send both
 		if ( $this->is_create_user() || $this->is_add_user_to_blog() ) {
 			return;
 		}
-
-		// if a user is currently being removed as a member of this blog, we don't fire the event
-		if ( current_filter() === 'deleted_user_meta'
-		     &&
-		     preg_match( '/capabilities|user_level/', $meta_key )
-		     &&
-		     ! is_user_member_of_blog( $user_id, get_current_blog_id() )
-		) {
-			return;
-		}
-
 		$user = get_user_by( 'id', $user_id );
-		if ( $meta_key === $user->cap_key ) {
+		if ( $meta_key === $user->cap_key  ) {
+
 			/**
 			 * Fires when the client needs to sync an updated user
 			 *
 			 * @since 4.2.0
 			 *
 			 * @param object The Sanitized WP_User object
+		     * @param array state Since 5.8
 			 */
-			do_action( 'jetpack_sync_save_user', $this->sanitize_user( $user ) );
+			do_action( 'jetpack_sync_save_user', $this->sanitize_user( $user ),
+				array( 'capabilities_action' => current_filter(), 'capabilities' => $capabilities )
+			);
 		}
 	}
 
