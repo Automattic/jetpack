@@ -54,8 +54,7 @@ class Jetpack_Sync_Sender {
 
 	public function maybe_set_user_from_token() {
 		$jetpack = Jetpack::init();
-		if ( defined( 'XMLRPC_REQUEST' ) &&
-		     XMLRPC_REQUEST &&
+		if ( Jetpack_Constants::is_true( 'XMLRPC_REQUEST' ) &&
 		     $jetpack->verify_xml_rpc_signature()
 		) {
 			$verified_user = $jetpack->verify_xml_rpc_signature();
