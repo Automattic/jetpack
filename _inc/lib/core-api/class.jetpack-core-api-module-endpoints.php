@@ -406,6 +406,10 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 		$settings = Jetpack_Core_Json_Api_Endpoints::get_updateable_data_list( 'settings' );
 		$holiday_snow_option_name = Jetpack_Core_Json_Api_Endpoints::holiday_snow_option_name();
 
+		if ( ! function_exists( 'is_plugin_active' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+
 		foreach ( $settings as $setting => $properties ) {
 			switch ( $setting ) {
 				case $holiday_snow_option_name:
@@ -426,15 +430,24 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					}
 					break;
 
+				case 'onboarding':
+					$response[ $setting ] = array(
+						'siteTitle' => get_option( 'blogname' ),
+						'siteDescription' => get_option( 'blogdescription' ),
+						'siteType' => get_option( 'jpo_site_type' ),
+						'homepageFormat' => get_option( 'jpo_homepage_format' ),
+						'contactForm' => get_option( 'jpo_contact_page' ),
+						'businessAddress' => array(), // TODO
+						'woocommerce' => is_plugin_active( 'woocommerce/woocommerce.php' ),
+					);
+					break;
+
 				default:
 					$response[ $setting ] = Jetpack_Core_Json_Api_Endpoints::cast_value( get_option( $setting ), $settings[ $setting ] );
 					break;
 			}
 		}
 
-		if ( ! function_exists( 'is_plugin_active' ) ) {
-			require_once ABSPATH . 'wp-admin/includes/plugin.php';
-		}
 		$response['akismet'] = is_plugin_active( 'akismet/akismet.php' );
 
 		return rest_ensure_response( $response );
