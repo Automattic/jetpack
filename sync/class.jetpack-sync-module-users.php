@@ -298,61 +298,26 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	}
 
 	function maybe_save_user_meta( $meta_id, $user_id, $meta_key, $value ) {
+		$flags = array();
+
 		if ( $meta_key === 'locale' ) {
-			if ( current_filter() === 'deleted_user_meta' ) {
-				/**
-				 * Allow listeners to listen for user local delete changes
-				 *
-				 * @since 4.8.0
-				 *
-				 * @param int $user_id - The ID of the user whos locale is being deleted
-				 */
-				do_action( 'jetpack_sync_user_locale_delete', $user_id );
-			} else {
-				/**
-				 * Allow listeners to listen for user local changes
-				 *
-				 * @since 4.8.0
-				 *
-				 * @param int $user_id - The ID of the user whos locale is being changed
-				 * @param int $value - The value of the new locale
-				 */
-				do_action( 'jetpack_sync_user_locale', $user_id, $value );
-			}
-		}
-		$this->save_user_cap_handler( $meta_id, $user_id, $meta_key, $value );
-	}
-
-	function save_user_cap_handler( $meta_id, $user_id, $meta_key, $capabilities ) {
-		// if a user is currently being removed as a member of this blog, we don't fire the event
-		if ( current_filter() === 'deleted_user_meta' ) {
-			return;
+			$flags[ 'locale_changed' ] = true;
 		}
 
-		// Since we are currently only caring about capabilities at this point don't need to save the user info at this save the user info at this point.
-		if ( current_filter() === 'added_user_meta' ) {
-			return;
-		}
-
-		//The jetpack_sync_register_user payload is identical to jetpack_sync_save_user, don't send both
-		if ( $this->is_create_user() || $this->is_add_user_to_blog() ) {
-			return;
-		}
 		$user = get_user_by( 'id', $user_id );
 		if ( $meta_key === $user->cap_key  ) {
-
-			/**
-			 * Fires when the client needs to sync an updated user
-			 *
-			 * @since 4.2.0
-			 *
-			 * @param object The Sanitized WP_User object
-		     * @param array state Since 5.8
-			 */
-			do_action( 'jetpack_sync_save_user', $this->sanitize_user( $user ),
-				array( 'capabilities_action' => current_filter(), 'capabilities' => $capabilities )
-			);
+			$flags[ 'capabilities_changed' ] = true;
 		}
+
+		/**
+		 * Fires when the client needs to sync an updated user
+		 *
+		 * @since 4.2.0
+		 *
+		 * @param object The Sanitized WP_User object
+		 * @param array state Since 5.8
+		 */
+		do_action( 'jetpack_sync_save_user', $this->sanitize_user( $user ), 	$flags );
 	}
 
 	public function enqueue_full_sync_actions( $config, $max_items_to_enqueue, $state ) {
