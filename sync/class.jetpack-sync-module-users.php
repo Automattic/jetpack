@@ -26,7 +26,6 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		add_action( 'jetpack_sync_add_user', $callable, 10, 2 );
 		add_action( 'jetpack_sync_register_user', $callable, 10, 2 );
 		add_action( 'jetpack_sync_save_user', $callable, 10, 2 );
-		add_action( 'jetpack_updated_user_password', $callable );
 
 		//Edit user info, see https://github.com/WordPress/WordPress/blob/c05f1dc805bddcc0e76fd90c4aaf2d9ea76dc0fb/wp-admin/user-edit.php#L126
 		add_action( 'personal_options_update', array( $this, 'edited_user_handler' ) );
