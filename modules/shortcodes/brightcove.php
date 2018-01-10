@@ -56,7 +56,7 @@ class Jetpack_Brightcove_Shortcode {
 	 * @return array
 	 */
 	static public function normalize_attributes( $atts ) {
-		if ( 1 == count( $atts ) ) { // this is the case we need to take care of.
+		if ( is_array( $atts ) && 1 == count( $atts ) ) { // this is the case we need to take care of.
 			$parsed_atts = array();
 			$params = shortcode_new_to_old_params( $atts );
 			$params = apply_filters( 'brightcove_dimensions', $params );
