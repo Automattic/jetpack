@@ -209,26 +209,8 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 
 		$role_changed = isset( $this->previous_role[ $user_id ] ) ? $this->previous_role[ $user_id ] : false;
 
-		if ( $old_user !== null ) {
-			if ( $raw_user->user_pass !== $old_user->user_pass ) {
-				$user_password_changed = true;
-			}
-			unset( $old_user->user_pass );
-			if ( serialize( $old_user ) === serialize( $user->data ) ) {
-				if ( $user_password_changed ) {
-					/**
-					 * Documented already in this file
-					 * @param array state - New since 5.8.0
-					 */
-					do_action( 'jetpack_sync_save_user', $user, array(
-						'password_changed' => true,
-						'user_data_changed' => false,
-						'role_changed' => (bool) $role_changed,
-						'previous_role' => $role_changed,
-					) );
-				}
-				return;
-			}
+		if ( $old_user !== null && $raw_user->user_pass !== $old_user->user_pass ) {
+			$user_password_changed = true;
 		}
 
 		if ( 'user_register' === current_filter() ) {
@@ -257,8 +239,6 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 			return;
 		}
 
-
-
 		/**
 		 * Fires when the client needs to sync an updated user
 		 *
@@ -269,7 +249,6 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		 */
 		do_action( 'jetpack_sync_save_user', $user, array(
 			'password_changed' => $user_password_changed,
-			'user_data_changed' => true,
 			'role_changed' => (bool) $role_changed,
 			'previous_role' => $role_changed,
 			) );
