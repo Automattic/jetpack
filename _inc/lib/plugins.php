@@ -14,6 +14,40 @@ include_once( 'class.jetpack-automatic-install-skin.php' );
 class Jetpack_Plugins {
 
 	/**
+	 * Install and activate a plugin.
+	 *
+	 * @since 5.8.0
+	 *
+	 * @param string $slug Plugin slug.
+	 *
+	 * @return bool|WP_Error True if installation succeeded, error object otherwise.
+	 */
+	public static function install_and_activate_plugin( $slug ) {
+		$plugin_id = self::get_plugin_id_by_slug( $slug );
+
+		if ( ! $plugin_id ) {
+			$installed = self::install_plugin( $slug );
+			if ( is_wp_error( $installed ) ) {
+				return $installed;
+			}
+			$plugin_id = self::get_plugin_id_by_slug( $slug );
+		} else if ( is_plugin_active( $plugin_id ) ) {
+			return true; // Already installed and active
+		}
+
+		if ( ! current_user_can( 'activate_plugins' ) ) {
+			return new WP_Error( 'not_allowed', __( 'You are not allowed to activate plugins on this site.', 'jetpack' ) );
+		}
+
+		$activated = activate_plugin( $plugin_id );
+		if ( is_wp_error( $activated ) ) {
+			return $activated;
+		}
+
+		return true;
+	}
+
+	/**
 	 * Install a plugin.
 	 *
 	 * @since 5.8.0
@@ -66,6 +100,12 @@ class Jetpack_Plugins {
 	 }
 
 	 public static function get_plugin_id_by_slug( $slug ) {
+		// Check if get_plugins() function exists. This is required on the front end of the
+		// site, since it is in a file that is normally only loaded in the admin.
+		if ( ! function_exists( 'get_plugins' ) ) {
+			require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		}
+
 		/** This filter is documented in wp-admin/includes/class-wp-plugins-list-table.php */
 		$plugins = apply_filters( 'all_plugins', get_plugins() );
 		if ( ! is_array( $plugins ) ) {
