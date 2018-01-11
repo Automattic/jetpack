@@ -41,7 +41,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		add_action( 'jetpack_published_post', $callable, 10, 2 );
 
 		add_action( 'transition_post_status', array( $this, 'save_published' ), 10, 3 );
-		add_filter( 'jetpack_sync_before_enqueue_jetpack_save_post', array( $this, 'filter_blacklisted_post_types' ) );
+		add_filter( 'jetpack_sync_before_enqueue_jetpack_sync_save_post', array( $this, 'filter_blacklisted_post_types' ) );
 
 		// listen for meta changes
 		$this->init_listeners_for_meta_type( 'post', $callable );
@@ -123,7 +123,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 	}
 
 	public function init_before_send() {
-		add_filter( 'jetpack_sync_before_send_jetpack_save_post', array( $this, 'expand_jetpack_save_post' ) );
+		add_filter( 'jetpack_sync_before_send_jetpack_sync_save_post', array( $this, 'expand_jetpack_sync_save_post' ) );
 
 		// full sync
 		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_posts', array( $this, 'expand_post_ids' ) );
@@ -166,7 +166,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 	 *
 	 * @return array
 	 */
-	function expand_jetpack_save_post( $args ) {
+	function expand_jetpack_sync_save_post( $args ) {
 		list( $post_id, $post, $update, $previous_state ) = $args;
 		return array( $post_id, $this->filter_post_content_and_add_links( $post ), $update, $previous_state );
 	}
