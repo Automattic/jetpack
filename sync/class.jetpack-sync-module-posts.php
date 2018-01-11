@@ -9,7 +9,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 	private $action_handler;
 	private $import_end = false;
 
-	const PREVIOUS_STATE = 'new';
+	const DEFAULT_PREVIOUS_STATE = 'new';
 
 	public function name() {
 		return 'posts';
@@ -317,7 +317,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 
 	public function save_published( $new_status, $old_status, $post ) {
 		if ( 'publish' === $new_status && 'publish' !== $old_status ) {
-			$this->just_published[$post->ID] = true;
+			$this->just_published[ $post->ID ] = true;
 		}
 
 		$this->previous_status[ $post->ID ] = $old_status;
@@ -335,7 +335,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 
 		$previous_status = isset( $this->previous_status[ $post_ID ] ) ?
 			$this->previous_status[ $post_ID ] :
-			self::PREVIOUS_STATE;
+			self::DEFAULT_PREVIOUS_STATE;
 
 		$just_published = isset( $this->just_published[ $post_ID ] ) ?
 			$this->just_published[ $post_ID ] :
@@ -346,8 +346,18 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 			'previous_status' => $previous_status,
 			'just_published' => $just_published
 		);
-
+		/**
+		 * Filter that is used to add to the post flags ( meta data ) when a post gets published
+		 *
+		 * @since 5.8.0
+		 *
+		 * @param int $post_ID the post ID
+		 * @param mixed $post WP_POST object
+		 * @param bool  $update Whether this is an existing post being updated or not.
+		 * @param mixed $state state
+		 */
 		do_action( 'jetpack_sync_save_post', $post_ID, $post, $update, $state );
+		unset( $this->previous_status[ $post_ID ] );
 		$this->send_published( $post_ID, $post );
 	}
 
