@@ -1069,13 +1069,13 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			$first_sidebar = Jetpack_Widgets::get_first_sidebar();
 
 			if( $first_sidebar ) {
-				$title = wp_unslash( $data[ 'businessAddress' ][ 'name' ] );
-				$address = wp_unslash(
+				$title = $data[ 'businessAddress' ][ 'name' ];
+				$address =
 					$data[ 'businessAddress' ][ 'city' ] . ' ' .
 					$data[ 'businessAddress' ][ 'state' ] . ' ' .
 					$data[ 'businessAddress' ][ 'street' ] . ' ' .
-					$data[ 'businessAddress' ][ 'zip' ]
-				);
+					$data[ 'businessAddress' ][ 'zip' ];
+
 				$widget_options = array(
 					'title'   => $title,
 					'address' => $address,
