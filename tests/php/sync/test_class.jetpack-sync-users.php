@@ -212,6 +212,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$this->assertUsersEqual( $client_user, $server_user );
 
 		$events = $this->server_event_storage->get_all_events( 'jetpack_sync_save_user' );
+
 		$this->assertTrue( $events[0]->args[1]['role_changed'] );
 		$this->assertEquals( $events[0]->args[1]['previous_role'], array( 'subscriber') );
 		$this->assertTrue( empty( $events[1] ) );
