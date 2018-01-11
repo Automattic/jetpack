@@ -1090,7 +1090,8 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
 				$has_ba_widget = self::has_business_info_widget( $first_sidebar );
 				if ( $has_ba_widget ) {
-					self::update_widget( $id_base, $first_sidebar, $position, $widget_options);
+					$widget = Jetpack_Widgets::get_widget_by_id_base( $id_base );
+					Jetpack_Widgets::update_widget( $widget['id'], $first_sidebar, $position, $widget_options );
 				}	else {
 					Jetpack_Widgets::activate_widget( $id_base, $first_sidebar, $position, $widget_options);
 				}
@@ -1116,12 +1117,6 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			return false;
 		}
 
-		public function update_widget( $id_base, $sidebar, $position, $widget_options ) {
-
-			$widget = Jetpack_Widgets::get_widget_by_id_base( $id_base );
-			$widget_id = $widget['id'];
-			Jetpack_Widgets::update_widget($widget_id,  $sidebar, $position, $widget_options );
-		}
 	/**
 	 * Calls WPCOM through authenticated request to create, regenerate or delete the Post by Email address.
 	 * @todo: When all settings are updated to use endpoints, move this to the Post by Email module and replace __process_ajax_proxy_request.
