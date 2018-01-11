@@ -115,6 +115,21 @@ class WP_Test_Lazy_Images extends WP_UnitTestCase {
 					'data-lazy-sizes' => '(min-width: 36em) 33.3vw, 100vw'
 				)
 			),
+			'gazette_theme_featured_image' => array(
+				array(
+					'src' => 'image.jpg',
+					'width' => 10,
+					'height' => 10,
+					'class' => 'attachment-gazette-featured-content-thumbnail wp-post-image'
+				),
+				// should be unmodified
+				array(
+					'src' => 'image.jpg',
+					'width' => 10,
+					'height' => 10,
+					'class' => 'attachment-gazette-featured-content-thumbnail wp-post-image'
+				)
+			),
 		);
 	}
 

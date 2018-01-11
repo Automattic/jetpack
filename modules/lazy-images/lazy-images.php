@@ -122,6 +122,11 @@ class Jetpack_Lazy_Images {
 			return $attributes;
 		}
 
+		// check for gazette featured images, which are incompatible
+		if ( isset( $attributes['class'] ) && strpos( $attributes['class'], 'gazette-featured-content-thumbnail' ) > 0 ) {
+			return $attributes;
+		}
+
 		$old_attributes = $attributes;
 
 		// Set placeholder and lazy-src
