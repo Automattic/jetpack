@@ -388,6 +388,10 @@ class Jetpack_Widgets {
 		$widget_settings = get_option( $widget_option_name );
 		$instance_key = self::get_widget_instance_key( $widget_id );
 
+		if ( ! $widget = self::get_registered_widget_object( self::get_widget_id_base( $widget_id ) ) ) {
+			return new WP_Error( 'invalid_data', 'Invalid ID base.', 400 );
+		}
+
 		// if the widget's content already exists
 		if ( isset( $widget_settings[ $instance_key ] ) ) {
 			$old_settings = $widget_settings[ $instance_key ];
@@ -507,7 +511,7 @@ class Jetpack_Widgets {
 		}
 		return false;
 	}
-	
+
 	/**
 	 * Deletes a widget entirely including all its settings. Returns a WP_Error if
 	 * the widget could not be found. Otherwise returns an empty array.
