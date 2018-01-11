@@ -1066,7 +1066,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 		// Add/update business address widget
 		if ( isset( $data['businessAddress'] ) ) {
 			//grab the first sidebar and proceed if it is present
-			$first_sidebar = self::get_first_sidebar();
+			$first_sidebar = Jetpack_Widgets::get_first_sidebar();
 
 			if( $first_sidebar ) {
 				$title = wp_unslash( $data[ 'businessAddress' ][ 'name' ] );
@@ -1100,17 +1100,6 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 		return empty( $error )
 			? ''
 			: join( ', ', $error );
-	}
-
-		public function get_first_sidebar() {
-			$active_sidebars = Jetpack_Widgets::get_active_sidebars();
-
-			unset( $active_sidebars[ 'wp_inactive_widgets' ], $active_sidebars[ 'array_version' ] );
-
-			if ( empty( $active_sidebars ) ) {
-				return false;
-			}
-			return array_shift( array_keys( $active_sidebars ) );
 		}
 
 		public function has_business_info_widget( $sidebar ) {
