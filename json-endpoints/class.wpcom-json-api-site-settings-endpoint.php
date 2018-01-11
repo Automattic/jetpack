@@ -131,6 +131,8 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 		}
 
 		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			// Source & include the infinite scroll compatibility files prior to loading theme functions
+			add_filter( 'restapi_theme_action_copy_dirs', array( 'WPCOM_JSON_API_Site_Settings_Endpoint', 'wpcom_restapi_copy_theme_plugin_actions' ) );
 			$this->load_theme_functions();
 		}
 
@@ -158,6 +160,37 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 			return new WP_Error( 'bad_request', 'An unsupported request method was used.' );
 		}
 
+	}
+
+	/**
+	 * Includes additional theme-specific files to be included in REST API theme
+	 * context loading action copying.
+	 *
+	 * @see WPCOM_JSON_API_Endpoint#load_theme_functions
+	 * @see the_neverending_home_page_theme_support
+	 */
+	function wpcom_restapi_copy_theme_plugin_actions( $copy_dirs ) {
+		$theme_name = get_stylesheet();
+		$default_file_name = WP_CONTENT_DIR . "/mu-plugins/infinity/themes/{$theme_name}.php";
+
+		/**
+		 * Filter the path to the Infinite Scroll compatibility file.
+		 *
+		 * @module infinite-scroll
+		 *
+		 * @since 2.0.0
+		 *
+		 * @param string $str IS compatibility file path.
+		 * @param string $theme_name Theme name.
+		 */
+		$customization_file = apply_filters( 'infinite_scroll_customization_file', $default_file_name, $theme_name );
+
+		if ( is_readable( $customization_file ) ) {
+			require_once $customization_file;
+			$copy_dirs[] = $customization_file;
+		}
+
+		return $copy_dirs;
 	}
 
 	/**
@@ -360,6 +393,25 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 				if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
 					$response[ $key ]['wpcom_publish_posts_with_markdown'] = (bool) WPCom_Markdown::is_posting_enabled();
 					$response[ $key ]['wpcom_publish_comments_with_markdown'] = (bool) WPCom_Markdown::is_commenting_enabled();
+
+					// WPCOM-specific Infinite Scroll Settings
+					if ( is_callable( array( 'The_Neverending_Home_Page', 'get_settings' ) ) ) {
+						/**
+						 * Clear the cached copy of widget info so it's pulled fresh from blog options.
+						 * It was primed during the initial load under the __REST API site__'s context.
+						 * @see wp_get_sidebars_widgets https://core.trac.wordpress.org/browser/trunk/src/wp-includes/widgets.php?rev=42374#L931
+						 */
+						$GLOBALS['_wp_sidebars_widgets'] = array();
+
+						$infinite_scroll_settings = The_Neverending_Home_Page::get_settings();
+						$response[ $key ]['infinite_scroll'] = get_option( 'infinite_scroll', true ) && $infinite_scroll_settings->type === 'scroll';
+						if ( $infinite_scroll_settings->footer_widgets || 'click' == $infinite_scroll_settings->requested_type ) {
+							// The blog has footer widgets -- infinite scroll is blocked
+							$response[ $key ]['infinite_scroll_blocked'] = 'footer';
+						} else {
+							$response[ $key ]['infinite_scroll_blocked'] = false;
+						}
+					}
 				}
 
 				//allow future versions of this endpoint to support additional settings keys
