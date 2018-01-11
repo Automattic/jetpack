@@ -322,7 +322,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'blacklist_keys'          => get_option( 'blacklist_keys' ),
 					'lang_id'                 => defined( 'IS_WPCOM' ) && IS_WPCOM
 						? get_lang_id_by_code( wpcom_l10n_get_blog_locale_variant( $blog_id, true ) )
-						: get_option( 'WPLANG' ),
+						: get_locale(),
 					'wga'                     => $this->get_google_analytics(),
 					'disabled_likes'          => (bool) get_option( 'disabled_likes' ),
 					'disabled_reblogs'        => (bool) get_option( 'disabled_reblogs' ),
