@@ -3,14 +3,6 @@
 class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	const MAX_INITIAL_SYNC_USERS = 100;
 
-	const DEFAULT_FLAGS = array(
-		'password_changed' => false,
-		'role_changed'     => false,
-		'previous_role'    => false,
-		'locale_changed'   => false,
-		'capabilities_changed' => false,
-	);
-
 	protected $flags = array();
 
 	function name() {
