@@ -204,6 +204,17 @@ class Jetpack_Signature {
 		);
 
 		$normalized_request_pieces = array_merge( $normalized_request_pieces, $this->normalized_query_parameters( isset( $parsed['query'] ) ? $parsed['query'] : '' ) );
+		$flat_normalized_request_pieces = array();
+		foreach ($normalized_request_pieces as $piece) {
+			if ( is_array( $piece ) ) {
+				foreach ( $piece as $subpiece ) {
+					$flat_normalized_request_pieces[] = $subpiece;
+				}
+			} else {
+				$flat_normalized_request_pieces[] = $piece;
+			}
+		}
+		$normalized_request_pieces = $flat_normalized_request_pieces;
 
 		$normalized_request_string = join( "\n", $normalized_request_pieces ) . "\n";
 
@@ -230,12 +241,23 @@ class Jetpack_Signature {
 		return $pairs;
 	}
 
-	function encode_3986( $string ) {
-		$string = rawurlencode( $string );
-		return str_replace( '%7E', '~', $string ); // prior to PHP 5.3, rawurlencode was RFC 1738
+	function encode_3986( $string_or_array ) {
+		if ( is_array( $string_or_array ) ) {
+			return array_map( array( $this, 'encode_3986' ), $string_or_array );
+		}
+
+		$string_or_array = rawurlencode( $string_or_array );
+		return str_replace( '%7E', '~', $string_or_array ); // prior to PHP 5.3, rawurlencode was RFC 1738
 	}
 
 	function join_with_equal_sign( $name, $value ) {
+		if ( is_array( $value ) ) {
+			$result = array();
+			foreach ( $value as $array_key => $array_value ) {
+				$result[] = $name . '[' . $array_key . ']' . '=' . $array_value;
+			}
+			return $result;
+		}
 		return "{$name}={$value}";
 	}
 }

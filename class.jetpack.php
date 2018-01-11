@@ -5340,16 +5340,23 @@ p {
 		}
 
 		// Let's see if this is onboarding. In such case, use user token type and the provided user id.
-		if ( isset( $this->HTTP_RAW_POST_DATA ) ) {
-			$jpo = json_decode( $this->HTTP_RAW_POST_DATA );
+		if ( isset( $this->HTTP_RAW_POST_DATA ) || ! empty( $_GET['onboarding'] ) ) {
+			if ( ! empty( $_GET['onboarding'] ) ) {
+				$jpo = $_GET;
+			} else {
+				$jpo = json_decode( $this->HTTP_RAW_POST_DATA, true );
+			}
+
+			$jpo_token = ! empty( $jpo['onboarding']['token'] ) ? $jpo['onboarding']['token'] : null;
+			$jpo_user = ! empty( $jpo['onboarding']['jpUser'] ) ? $jpo['onboarding']['jpUser'] : null;
+
 			if (
-				isset( $jpo->onboarding ) &&
-				isset( $jpo->onboarding->jpUser ) && isset( $jpo->onboarding->token ) &&
-				is_email( $jpo->onboarding->jpUser ) && ctype_alnum( $jpo->onboarding->token ) &&
+				isset( $jpo_user ) && isset( $jpo_token ) &&
+				is_email( $jpo_user ) && ctype_alnum( $jpo_token ) &&
 				isset( $_GET['rest_route'] ) &&
-				self::validate_onboarding_token_action( $jpo->onboarding->token, $_GET['rest_route'] )
+				self::validate_onboarding_token_action( $jpo_token, $_GET['rest_route'] )
 			) {
-				$jpUser = get_user_by( 'email', $jpo->onboarding->jpUser );
+				$jpUser = get_user_by( 'email', $jpo_user );
 				if ( is_a( $jpUser, 'WP_User' ) ) {
 					wp_set_current_user( $jpUser->ID );
 					$user_can = is_multisite()
