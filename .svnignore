@@ -24,6 +24,7 @@ languages/jetpack.pot
 LICENSE.txt
 modules/widgets/follow-button.php
 to-test.md
+webpack.config.js
 .editorconfig
 _inc/client
 _inc/build/*.js.map
