@@ -35,7 +35,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		$priority = version_compare( $wp_version, '4.7-alpha', '<' ) ? 0 : 11;
 
 		add_action( 'wp_insert_post', array( $this, 'wp_insert_post' ), $priority, 3 );
-		add_action( 'jetpack_save_post', $callable, 10, 4 );
+		add_action( 'jetpack_sync_save_post', $callable, 10, 4 );
 
 		add_action( 'deleted_post', $callable, 10 );
 		add_action( 'jetpack_published_post', $callable, 10, 2 );
@@ -347,7 +347,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 			'just_published' => $just_published
 		);
 
-		do_action( 'jetpack_save_post', $post_ID, $post, $update, $state );
+		do_action( 'jetpack_sync_save_post', $post_ID, $post, $update, $state );
 		$this->send_published( $post_ID, $post );
 	}
 
