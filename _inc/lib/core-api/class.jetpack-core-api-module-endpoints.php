@@ -1044,6 +1044,8 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 				$error[] = 'form insert: 0';
 			} elseif ( is_wp_error( $form ) ) {
 				$error[] = 'form creation: '. $form->get_error_message();
+			} else {
+				update_option( 'jpo_contact_page', $form );
 			}
 		}
 
