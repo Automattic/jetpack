@@ -494,6 +494,22 @@ class Jetpack_Widgets {
 	}
 
 	/**
+	 * Retrieve the first active sidebar
+	 *
+	 * @return array|false Active sidebar or false if none exists
+	 */
+	public function get_first_sidebar() {
+		$active_sidebars = Jetpack_Widgets::get_active_sidebars();
+
+		unset( $active_sidebars[ 'array_version' ] );
+
+		if ( empty( $active_sidebars ) ) {
+			return false;
+		}
+		return array_shift( array_keys( $active_sidebars ) );
+	}
+
+	/**
 	 * Find a widget in a list of all widgets retrieved from a sidebar
 	 * using get_widgets_in_sidebar()
 	 * @param string $widget The widget we want to look up in the sidebar
@@ -502,7 +518,6 @@ class Jetpack_Widgets {
 	 *
 	 * @return bool Whether present.
 	 */
-
 	public static function is_widget_in_sidebar( $widgets_all, $widget_id ) {
 		foreach ( $widgets_all as $widget_el_id ) {
 			if ( $widget_el_id  === $widget_id ) {
