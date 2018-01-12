@@ -212,6 +212,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$this->assertUsersEqual( $client_user, $server_user );
 
 		$events = $this->server_event_storage->get_all_events( 'jetpack_sync_save_user' );
+
 		$this->assertTrue( $events[0]->args[1]['role_changed'] );
 		$this->assertEquals( $events[0]->args[1]['previous_role'], array( 'subscriber') );
 		$this->assertTrue( empty( $events[1] ) );
@@ -526,7 +527,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $synced_user, $retrieved_user );
 	}
 
-	public function test_update_user_locale_is_synced() {
+	public function test_update_user_locale_changed_is_synced() {
 		global $wp_version;
 		if ( version_compare( $wp_version, 4.7, '<' ) ) {
 			$this->markTestSkipped( 'WP 4.7 and up supports user locale' );
@@ -536,8 +537,8 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		update_user_meta( $this->user_id, 'locale', 'en_GB' );
 		$this->sender->do_sync();
 
-		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_user_locale' );
-		$this->assertNotEmpty( $event );
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_user' );
+		$this->assertTrue( $event->args[1]['locale_changed'] );
 
 		$server_user_local = $this->server_replica_storage->get_user_locale( $this->user_id );
 		$this->assertEquals( get_user_locale( $this->user_id ), $server_user_local );
@@ -553,8 +554,8 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		delete_user_meta( $this->user_id, 'locale' );
 		$this->sender->do_sync();
 
-		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_user_locale_delete' );
-		$this->assertNotEmpty( $event );
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_user' );
+		$this->assertTrue( $event->args[1]['locale_changed'] );
 
 		$server_user_local = $this->server_replica_storage->get_user_locale( $this->user_id );
 		$this->assertEquals( '', $server_user_local );
