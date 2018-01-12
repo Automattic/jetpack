@@ -185,7 +185,13 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		if ( ! is_user_member_of_blog( $user_id, get_current_blog_id() ) ) {
 			return;
 		}
-
+		/**
+		 * Fires when a new user is registered on a site
+		 *
+		 * @since 4.9.0
+		 *
+		 * @param object The WP_User object
+		 */
 		do_action( 'jetpack_sync_register_user', $user_id );
 	}
 
@@ -194,7 +200,13 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		if ( ! is_user_member_of_blog( $user_id, get_current_blog_id() ) ) {
 			return;
 		}
-
+		/**
+		 * Fires when a user is added on a site
+		 *
+		 * @since 4.9.0
+		 *
+		 * @param object The WP_User object
+		 */
 		do_action( 'jetpack_sync_add_user', $user_id );
 	}
 
@@ -234,14 +246,8 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		if ( $this->is_create_user() || $this->is_add_user_to_blog() ) {
 			return;
 		}
-
 		/**
-		 * Fires when the client needs to sync an updated user
-		 *
-		 * @since 4.2.0
-		 *
-		 * @param object The WP_User object
-	 	 * @param array state
+		 * This action is documented already in this file
 		 */
 		do_action( 'jetpack_sync_save_user', $user_id, $this->get_flags( $user_id ) );
 	}
@@ -279,12 +285,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 
 		if ( isset( $this->flags[ $user_id ] ) ) {
 			/**
-			 * Fires when the client needs to sync an updated user
-			 *
-			 * @since 4.2.0
-			 *
-			 * @param object The Sanitized WP_User object
-			 * @param array state Since 5.8
+			 * This action is documented already in this file
 			 */
 			do_action( 'jetpack_sync_save_user', $user_id, $this->get_flags( $user_id ) );
 		}
