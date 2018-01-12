@@ -68,7 +68,7 @@ new WPCOM_JSON_API_Site_Settings_Endpoint( array(
 		'comment_max_links'            => '(int) Moderate comments that contain X or more links',
 		'moderation_keys'              => '(string) Words or phrases that trigger comment moderation, one per line',
 		'blacklist_keys'               => '(string) Words or phrases that mark comment spam, one per line',
-		'lang_id'                      => '(int) ID for language blog is written in',
+		'lang_id'                      => '(int|string) ID for language blog is written in',
 		'wga'                          => '(array) Google Analytics Settings',
 		'disabled_likes'               => '(bool) Are likes globally disabled (they can still be turned on per post)?',
 		'disabled_reblogs'             => '(bool) Are reblogs disabled on posts?',
