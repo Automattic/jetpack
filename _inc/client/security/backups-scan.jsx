@@ -21,11 +21,9 @@ import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import {
 	getVaultPressData,
-	isFetchingVaultPressData,
 	getVaultPressScanThreatCount,
 } from 'state/at-a-glance';
-import { getSitePlan, isFetchingSiteData } from 'state/site';
-import { isFetchingRewindStatus } from 'state/rewind';
+import { getSitePlan } from 'state/site';
 import includes from 'lodash/includes';
 
 class LoadingCard extends Component {
@@ -34,6 +32,7 @@ class LoadingCard extends Component {
 			<SettingsCard
 				header={ __( 'Backups and security scanning', { context: 'Settings header' } ) }
 				hideButton
+				action="scan"
 			>
 				<SettingsGroup
 					disableInDevMode
@@ -149,9 +148,9 @@ export const BackupsScan = moduleSettingsForm(
 		render() {
 			const scanEnabled = get( this.props.vaultPressData, [ 'data', 'features', 'security' ], false );
 			const rewindActive = 'active' === get( this.props.rewindStatus, [ 'state' ], false );
-			const isFetchingData = false !== get( this.props.rewindStatus, [ 'state' ], false ) && false !== get( this.props.vaultPressData, [ 'data' ], false );
+			const hasVpRewindData = false !== get( this.props.rewindStatus, [ 'state' ], false ) && false !== get( this.props.vaultPressData, [ 'data' ], false );
 
-			if ( isFetchingData ) {
+			if ( ! hasVpRewindData ) {
 				return <LoadingCard />;
 			}
 
@@ -188,10 +187,7 @@ export const BackupsScan = moduleSettingsForm(
 export default connect( state => {
 	return {
 		sitePlan: getSitePlan( state ),
-		isFetchingSiteData: isFetchingSiteData( state ),
 		vaultPressData: getVaultPressData( state ),
-		isFetchingVaultPressData: isFetchingVaultPressData( state ),
 		hasThreats: getVaultPressScanThreatCount( state ),
-		isFetchingRewindData: isFetchingRewindStatus( state ),
 	};
 } )( BackupsScan );
