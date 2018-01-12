@@ -101,6 +101,8 @@ new WPCOM_JSON_API_Site_Settings_Endpoint( array(
 		'api_cache'                    => '(bool) Turn on/off the Jetpack JSON API cache',
 		'posts_per_page'               => '(int) Number of posts to show on blog pages',
 		'net_neutrality'               => '(bool) Whether to show the net neutrality modal for a site',
+		'posts_per_rss'                => '(int) Number of posts to show in the RSS feed',
+		'rss_use_excerpt'              => '(bool) Whether the RSS feed will use post excerpts',
 	),
 
 	'response_format' => array(
@@ -388,6 +390,8 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'api_cache'               => $api_cache,
 					'posts_per_page'          => (int) get_option( 'posts_per_page' ),
 					'net_neutrality'          => $net_neutrality,
+					'posts_per_rss'           => (int) get_option( 'posts_per_rss' ),
+					'rss_use_excerpt'         => (bool) get_option( 'rss_use_excerpt' ),
 				);
 
 				if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
