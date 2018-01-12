@@ -813,9 +813,9 @@ class Jetpack_Protect_Module {
 	 *
 	 * @return bool False if value was not set and true if value was set.
 	 */
-	function set_transient( $transient, $value, $expiration ) {
+	public static function set_transient( $transient, $value, $expiration ) {
 		if ( is_multisite() && ! is_main_site() ) {
-			switch_to_blog( $this->get_main_blog_id() );
+			switch_to_blog( self::get_main_blog_id() );
 			$return = set_transient( $transient, $value, $expiration );
 			restore_current_blog();
 
