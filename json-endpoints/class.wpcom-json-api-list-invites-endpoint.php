@@ -43,18 +43,17 @@ class WPCOM_JSON_API_List_Invites_Endpoint extends WPCOM_JSON_API_Endpoint {
 			return $blog_id;
 		}
 
-		if ( ! is_multisite() ) {
-			return new WP_Error( 'forbidden', 'To query invites, site must be on a multisite installation.', 403 );
+		if ( ! defined( 'IS_WPCOM' ) || ! IS_WPCOM ) {
+			return new WP_Error( 'not_implemented', 'Querying WP.com endpoint data from a Jetpack site is not implemented.', 400 );
 		}
 
 		if ( ! current_user_can( 'promote_users' ) ) {
 			return new WP_Error( 'unauthorized', 'Your token must have permission to promote users on this blog.', 401 );
 		}
 
-		$this->blog_id  = $blog_id;
-		$this->args     = $this->query_args();
-		$this->is_wpcom = defined( 'IS_WPCOM' ) && IS_WPCOM;
-		$this->found    = $this->get_found();
+		$this->blog_id = $blog_id;
+		$this->args    = $this->query_args();
+		$this->found   = $this->get_found();
 
 		return array(
 			'found'   => $this->found,
@@ -67,21 +66,13 @@ class WPCOM_JSON_API_List_Invites_Endpoint extends WPCOM_JSON_API_Endpoint {
 	 * @return int
 	 */
 	function get_found() {
-		global $wpdb, $wpcom_invite_users;
+		global $wpcom_invite_users;
 
-		$total = 0;
-		if ( $this->is_wpcom ) {
-			$total = $wpcom_invite_users->count_blog_invitiations( $this->blog_id, null, 'pending' == $this->args['status'] );
-		} else {
-			$total = $invites = $wpdb->get_var(
-				$wpdb->prepare(
-					"SELECT count( option_id ) FROM $wpdb->options WHERE option_name LIKE %s",
-					'new_user_%'
-				)
-			);
-		}
-
-		return intval( $total );
+		return $wpcom_invite_users->count_blog_invitiations(
+			$this->blog_id,
+			null,
+			'pending' === $this->args['status']
+		);
 	}
 
 	/**
@@ -91,29 +82,17 @@ class WPCOM_JSON_API_List_Invites_Endpoint extends WPCOM_JSON_API_Endpoint {
 	function get_invites() {
 		global $wpdb, $wpcom_invite_users;
 
-		$invites = array();
-		if ( $this->is_wpcom ) {
-			$invites = $wpcom_invite_users->get_blog_invitations(
-				$this->blog_id,
-				null,
-				array(
-					'offset'       => intval( $this->args['offset'] ),
-					'per_page'     => intval( $this->args['number'] ),
-					'pending_only' => ( 'pending' == $this->args['status'] ),
-				)
-			);
-		} else {
-			$invites = $wpdb->get_results(
-				$wpdb->prepare(
-					"SELECT * FROM $wpdb->options WHERE option_name LIKE %s ORDER BY option_id DESC LIMIT %d, %d",
-					'new_user_%',
-					intval( $this->args['offset'] ),
-					intval( $this->args['number'] )
-				)
-			);
-		}
+		$invites = $wpcom_invite_users->get_blog_invitations(
+			$this->blog_id,
+			null,
+			array(
+				'offset'       => intval( $this->args['offset'] ),
+				'per_page'     => intval( $this->args['number'] ),
+				'pending_only' => ( 'pending' === $this->args['status'] ),
+			)
+		);
 
-		return empty( $invites ) ? array() : array_map( array( $this, 'build_invite' ), $invites );
+		return array_map( array( $this, 'build_invite' ), $invites );
 	}
 
 	/**
@@ -133,7 +112,8 @@ class WPCOM_JSON_API_List_Invites_Endpoint extends WPCOM_JSON_API_Endpoint {
 	}
 
 	/**
-	 * Given an invite, returns a user object using the get_author() method in class.json-api-endpoints.php.
+	 * Given an invite, returns a user object using the get_author() method in
+	 * class.json-api-endpoints.php.
 	 * @param  array $invite
 	 * @return array|string
 	 */
@@ -146,7 +126,7 @@ class WPCOM_JSON_API_List_Invites_Endpoint extends WPCOM_JSON_API_Endpoint {
 
 		// If a user did not exist, mock a user to pass to get_author()
 		$no_user = false === $user;
-		if( $no_user ) {
+		if ( $no_user ) {
 			$user = new stdClass();
 			$user->comment_author = '';
 			$user->comment_author_url = '';
