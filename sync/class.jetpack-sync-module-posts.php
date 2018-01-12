@@ -355,6 +355,8 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		 * @param mixed $post WP_POST object
 		 * @param bool  $update Whether this is an existing post being updated or not.
 		 * @param mixed $state state
+		 *
+		 * @module sync
 		 */
 		do_action( 'jetpack_sync_save_post', $post_ID, $post, $update, $state );
 		unset( $this->previous_status[ $post_ID ] );
