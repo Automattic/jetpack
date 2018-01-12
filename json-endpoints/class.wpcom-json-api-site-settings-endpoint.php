@@ -69,7 +69,6 @@ new WPCOM_JSON_API_Site_Settings_Endpoint( array(
 		'moderation_keys'              => '(string) Words or phrases that trigger comment moderation, one per line',
 		'blacklist_keys'               => '(string) Words or phrases that mark comment spam, one per line',
 		'lang_id'                      => '(int|string) ID for language blog is written in',
-		'wplang'                       => '(string) locale for language blog is written in',
 		'wga'                          => '(array) Google Analytics Settings',
 		'disabled_likes'               => '(bool) Are likes globally disabled (they can still be turned on per post)?',
 		'disabled_reblogs'             => '(bool) Are reblogs disabled on posts?',
@@ -322,9 +321,6 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'moderation_keys'         => get_option( 'moderation_keys' ),
 					'blacklist_keys'          => get_option( 'blacklist_keys' ),
 					'lang_id'                 => defined( 'IS_WPCOM' ) && IS_WPCOM
-						? get_lang_id_by_code( wpcom_l10n_get_blog_locale_variant( $blog_id, true ) )
-						: get_locale(),
-					'wplang'                 => defined( 'IS_WPCOM' ) && IS_WPCOM
 						? get_lang_id_by_code( wpcom_l10n_get_blog_locale_variant( $blog_id, true ) )
 						: get_locale(),
 					'wga'                     => $this->get_google_analytics(),

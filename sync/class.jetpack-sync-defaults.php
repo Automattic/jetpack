@@ -30,7 +30,6 @@ class Jetpack_Sync_Defaults {
 		'jetpack_comment_form_color_scheme',
 		'stats_options',
 		'gmt_offset',
-		'wplang',
 		'timezone_string',
 		'jetpack_sync_non_public_post_stati',
 		'jetpack_options',
