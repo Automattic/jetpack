@@ -25,6 +25,7 @@ import {
 } from 'state/at-a-glance';
 import { getSitePlan } from 'state/site';
 import includes from 'lodash/includes';
+import { isModuleActivated } from 'state/modules';
 
 class LoadingCard extends Component {
 	render() {
@@ -148,9 +149,10 @@ export const BackupsScan = moduleSettingsForm(
 		render() {
 			const scanEnabled = get( this.props.vaultPressData, [ 'data', 'features', 'security' ], false );
 			const rewindActive = 'active' === get( this.props.rewindStatus, [ 'state' ], false );
-			const hasVpRewindData = false !== get( this.props.rewindStatus, [ 'state' ], false ) && false !== get( this.props.vaultPressData, [ 'data' ], false );
+			const hasRewindData = false !== get( this.props.rewindStatus, [ 'state' ], false );
+			const hasVpData = this.props.vaultPressData !== 'N/A' && false !== get( this.props.vaultPressData, [ 'data' ], false );
 
-			if ( ! hasVpRewindData ) {
+			if ( ! hasRewindData || ( this.props.vaultPressActive && ! hasVpData ) ) {
 				return <LoadingCard />;
 			}
 
@@ -189,5 +191,6 @@ export default connect( state => {
 		sitePlan: getSitePlan( state ),
 		vaultPressData: getVaultPressData( state ),
 		hasThreats: getVaultPressScanThreatCount( state ),
+		vaultPressActive: isModuleActivated( state, 'vaultpress' ),
 	};
 } )( BackupsScan );
