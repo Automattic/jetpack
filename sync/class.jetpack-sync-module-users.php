@@ -374,7 +374,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	}
 
 	private function is_delete_user() {
-		return Jetpack::is_function_in_backtrace( 'wp_delete_user' );
+		return Jetpack::is_function_in_backtrace( array( 'wp_delete_user' , 'remove_user_from_blog' ) );
 	}
 
 	private function is_create_user() {
