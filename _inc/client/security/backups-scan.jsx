@@ -149,7 +149,7 @@ export const BackupsScan = moduleSettingsForm(
 		render() {
 			const scanEnabled = get( this.props.vaultPressData, [ 'data', 'features', 'security' ], false );
 			const rewindActive = 'active' === get( this.props.rewindStatus, [ 'state' ], false );
-			const isFetchingData = this.props.isFetchingSiteData || this.props.isFetchingVaultPressData || this.props.isFetchingRewindData;
+			const isFetchingData = false !== get( this.props.rewindStatus, [ 'state' ], false ) && false !== get( this.props.vaultPressData, [ 'data' ], false );
 
 			if ( isFetchingData ) {
 				return <LoadingCard />;
