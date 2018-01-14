@@ -1053,6 +1053,10 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			}
 		}
 
+		if ( isset( $data['businessAddress'] ) ) {
+			self::add_business_address( $data );
+		}
+
 		if ( ! empty( $data['installWooCommerce'] ) ) {
 			jetpack_require_lib( 'plugins' );
 			$wc_install_result = Jetpack_Plugins::install_and_activate_plugin( 'woocommerce' );
@@ -1064,6 +1068,126 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 		return empty( $error )
 			? ''
 			: join( ', ', $error );
+	}
+
+	static function get_first_sidebar() {
+		$active_sidebars = get_option( 'sidebars_widgets', array() );
+		unset( $active_sidebars[ 'wp_inactive_widgets' ], $active_sidebars[ 'array_version' ] );
+
+		if ( empty( $active_sidebars ) ) {
+			return false;
+		}
+		$active_sidebars_keys = array_keys( $active_sidebars );
+		return array_shift( $active_sidebars_keys );
+	}
+
+	static function add_business_address( $data ) {
+		$first_sidebar = self::get_first_sidebar();
+
+		if ( $first_sidebar ) {
+			$title = $data['businessAddress'][ 'name' ];
+			$address =
+					$data[ 'businessAddress' ][ 'city' ] . ' ' .
+					$data[ 'businessAddress' ][ 'state' ] . ' ' .
+					$data[ 'businessAddress' ][ 'street' ] . ' ' .
+					$data[ 'businessAddress' ][ 'zip' ];
+			$widget_options = array(
+				'title'   => $title,
+				'address' => $address,
+				'phone'   => '',
+				'hours'   => '',
+				'showmap' => false,
+				'email' => ''
+			);
+
+			if ( ! self::has_business_address_widget( $first_sidebar ) ) {
+				self::insert_widget_in_sidebar( 'widget_contact_info', $widget_options, $first_sidebar );
+			} else {
+				self::update_widget_in_sidebar( 'widget_contact_info', $widget_options, $first_sidebar );
+			}
+			wp_send_json_success( array( 'updated' => true ) );
+			die();
+		}
+		wp_send_json_success( array( 'updated' => false ) );
+	}
+
+	/**
+	 * Check if a given sidebar already contains a widget with a Business Address.
+	 *
+ 	 * @param string  $sidebar ID of the sidebar to which the widget will be added.
+ 	 *
+ 	 * @return bool
+	 */
+	static function has_business_address_widget( $sidebar ) {
+		$sidebars_widgets = get_option( 'sidebars_widgets', array() );
+		if ( ! isset( $sidebars_widgets[ $sidebar ] ) ) {
+			return false;
+		}
+		foreach ( $sidebars_widgets[ $sidebar ] as $widget ) {
+			if ( strpos( $widget, 'widget_contact_info' ) !== false ) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/**
+	 * Insert a new widget in a given sidebar.
+	 *
+	 * @param string $widget_id ID of the widget.
+	 *
+	 * @param array  $widget_options Content of the widget.
+ 	 *
+ 	 * @param string  $sidebar ID of the sidebar to which the widget will be added.
+	 */
+	static function insert_widget_in_sidebar( $widget_id, $widget_options, $sidebar ) {
+		// Retrieve sidebars, widgets and their instances
+		$sidebars_widgets = get_option( 'sidebars_widgets', array() );
+		$widget_instances = get_option( 'widget_' . $widget_id, array() );
+		// Retrieve the key of the next widget instance
+		$numeric_keys = array_filter( array_keys( $widget_instances ), 'is_int' );
+		$next_key = $numeric_keys ? max( $numeric_keys ) + 1 : 2;
+		// Add this widget to the sidebar
+		if ( ! isset( $sidebars_widgets[ $sidebar ] ) ) {
+			$sidebars_widgets[ $sidebar ] = array();
+		}
+		$sidebars_widgets[ $sidebar ][] = $widget_id . '-' . $next_key;
+		// Add the new widget instance
+		$widget_instances[ $next_key ] = $widget_options;
+		// Store updated sidebars, widgets and their instances
+		update_option( 'sidebars_widgets', $sidebars_widgets );
+		update_option( 'widget_' . $widget_id, $widget_instances );
+	}
+
+	/**
+	 * Update the content of an exisitng widget in a given sidebar.
+	 *
+	 * @param string $widget_id ID of the widget.
+	 *
+	 * @param array  $widget_options New content for the update.
+ 	 *
+ 	 * @param string  $sidebar ID of the sidebar to which the widget will be added.
+	 */
+	static function update_widget_in_sidebar( $widget_id, $widget_options, $sidebar ) {
+		// Retrieve sidebars, widgets and their instances
+		$sidebars_widgets = get_option( 'sidebars_widgets', array() );
+		$widget_instances = get_option( 'widget_' . $widget_id, array() );
+		// Retrieve index of first widget instance in that sidebar
+		$widget_key = false;
+		foreach ( $sidebars_widgets[ $sidebar ] as $widget ) {
+			if ( strpos( $widget, 'widget_contact_info' ) !== false ) {
+				$widget_key = absint( str_replace( 'widget_contact_info-', '', $widget ) );
+				break;
+			}
+		}
+		// There is no widget instance
+		if ( ! $widget_key ) {
+			return new WP_Error( 'invalid_data', 'No such widget.', 400 );
+		}
+		// Update the widget instance with the new data
+		$widget_instances[ $widget_key ] = array_merge( $widget_instances[ $widget_key ], $widget_options );
+		// Store updated widget instances
+		update_option( 'widget_' . $widget_id, $widget_instances );
 	}
 
 	/**
