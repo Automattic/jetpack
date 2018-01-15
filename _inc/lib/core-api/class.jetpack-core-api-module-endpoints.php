@@ -864,6 +864,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					break;
 
 				case 'onboarding':
+					jetpack_require_lib( 'widgets' );
 					// Break apart and set Jetpack onboarding options.
 					$result = $this->_process_onboarding( (array) $value );
 					if ( empty( $result ) ) {
@@ -1105,7 +1106,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 		$widgets_module_active = Jetpack::is_module_active( 'widgets' );
 		if ( ! $widgets_module_active ) {
 			$widgets_module_active = Jetpack::activate_module( 'widgets', false, false );
-		}	
+		}
 		if ( ! $widgets_module_active ) {
 			return new WP_Error( 'invalid_data', 'Failed to activate module.', 400 );
 		}
@@ -1113,10 +1114,10 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 		if ( $first_sidebar ) {
 			$title = $business_address_content['name'];
 			$address =
-					$business_address_content['city'] . ' ' .
-					$business_address_content['state'] . ' ' .
-					$business_address_content['street'] . ' ' .
-					$business_address_content['zip'];
+				$business_address_content['city'] . ' ' .
+				$business_address_content['state'] . ' ' .
+				$business_address_content['street'] . ' ' .
+				$business_address_content['zip'];
 			$widget_options = array(
 				'title'   => $title,
 				'address' => $address,
@@ -1126,12 +1127,12 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 				'email' => ''
 			);
 
-			$widget_inserted	= '';
+			$widget_inserted = '';
 			$widget_updated = '';
 			if ( ! self::has_business_address_widget( $first_sidebar ) ) {
-				$widget_inserted = self::insert_widget_in_sidebar( 'widget_contact_info', $widget_options, $first_sidebar );
+				$widget_inserted = Jetpack_Widgets::insert_widget_in_sidebar( 'widget_contact_info', $widget_options, $first_sidebar );
 			} else {
-				$widget_updated = self::update_widget_in_sidebar( 'widget_contact_info', $widget_options, $first_sidebar );
+				$widget_updated = Jetpack_Widgets::update_widget_in_sidebar( 'widget_contact_info', $widget_options, $first_sidebar );
 			}
 			if ( is_wp_error( $widget_inserted ) || is_wp_error( $widget_updated ) ) {
 				return new WP_Error( 'invalid_data', 'Invalid update.', 400 );
@@ -1161,87 +1162,6 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			}
 		}
 		return false;
-	}
-
-	/**
-	 * Insert a new widget in a given sidebar.
-	 *
-	 * @param string $widget_id ID of the widget.
-	 *
-	 * @param array $widget_options Content of the widget.
- 	 *
- 	 * @param string $sidebar ID of the sidebar to which the widget will be added.
- 	 *
- 	 * @return WP_Error|true True when data has been saved correctly,
- 	 * error otherwise.
-	*/
-	static function insert_widget_in_sidebar( $widget_id, $widget_options, $sidebar ) {
-		// Retrieve sidebars, widgets and their instances
-		$sidebars_widgets = get_option( 'sidebars_widgets', array() );
-		$widget_instances = get_option( 'widget_' . $widget_id, array() );
-
-		// Retrieve the key of the next widget instance
-		$numeric_keys = array_filter( array_keys( $widget_instances ), 'is_int' );
-		$next_key = $numeric_keys ? max( $numeric_keys ) + 1 : 2;
-
-		// Add this widget to the sidebar
-		if ( ! isset( $sidebars_widgets[ $sidebar ] ) ) {
-			$sidebars_widgets[ $sidebar ] = array();
-		}
-		$sidebars_widgets[ $sidebar ][] = $widget_id . '-' . $next_key;
-
-		// Add the new widget instance
-		$widget_instances[ $next_key ] = $widget_options;
-
-		// Store updated sidebars, widgets and their instances
-		if ( ! ( update_option( 'blogname', $data['siteTitle'] ) || get_option( 'blogname' ) == $data['siteTitle'] )
-		|| ( ! ( update_option( 'sidebars_widgets', $sidebars_widgets ) ) )
-		|| ( ! ( update_option( 'widget_' . $widget_id, $widget_instances ) ) ) ) {
-			return new WP_Error( 'invalid_data', 'Invalid update.', 400 );
-		};
-
-		return true;
-	}
-
-	/**
-	 * Update the content of an exisitng widget in a given sidebar.
-	 *
-	 * @param string $widget_id ID of the widget.
-	 *
-	 * @param array $widget_options New content for the update.
- 	 *
- 	 * @param string $sidebar ID of the sidebar to which the widget will be added.
- 	 *
- 	 * @return WP_Error|true True when data has been updated correctly,
- 	 * error otherwise.
-	*/
-	static function update_widget_in_sidebar( $widget_id, $widget_options, $sidebar ) {
-		// Retrieve sidebars, widgets and their instances
-		$sidebars_widgets = get_option( 'sidebars_widgets', array() );
-		$widget_instances = get_option( 'widget_' . $widget_id, array() );
-
-		// Retrieve index of first widget instance in that sidebar
-		$widget_key = false;
-		foreach ( $sidebars_widgets[ $sidebar ] as $widget ) {
-			if ( strpos( $widget, 'widget_contact_info' ) !== false ) {
-				$widget_key = absint( str_replace( 'widget_contact_info-', '', $widget ) );
-				break;
-			}
-		}
-
-		// There is no widget instance
-		if ( ! $widget_key ) {
-			return new WP_Error( 'invalid_data', 'No such widget.', 400 );
-		}
-
-		// Update the widget instance with the new data
-		$widget_instances[ $widget_key ] = array_merge( $widget_instances[ $widget_key ], $widget_options );
-
-		// Store updated widget instances and return Error when not successful
-		if ( ! ( update_option( 'widget_' . $widget_id, $widget_instances ) ) ) {
-			return new WP_Error( 'invalid_data', 'Invalid update.', 400 );
-		};
-		return true;
 	}
 
 	/**
