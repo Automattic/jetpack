@@ -35,7 +35,7 @@ class Jetpack_JSON_API_User_Create_Endpoint extends Jetpack_JSON_API_Endpoint {
 			$this->user_data = (object) $this->user_data;
 			$roles = (array) $this->user_data->roles;
 			$this->user_data->role = array_pop( $roles );
-			$this->user_data->url = $this->user_data->roles;
+			$this->user_data->url = isset( $this->user_data->url ) ? $this->user_data->url : '';
 			$this->user_data->display_name = $this->user_data->name;
 			$this->user_data->description = '';
 			$user = Jetpack_SSO_Helpers::generate_user( $this->user_data );
