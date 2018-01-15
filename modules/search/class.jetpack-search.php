@@ -204,9 +204,11 @@ class Jetpack_Search {
 
 	function maybe_add_post_type_as_var( $query ) {
 		if ( $query->is_main_query() && $query->is_search && ! empty( $_GET['post_type'] ) ) {
-			$post_type = explode( ',', $_GET['post_type'] );
-			$post_type = array_map( 'sanitize_key', $post_type );
-			$query->set('post_type', $post_type );
+			$post_types = ( is_string( $_GET['post_type'] ) && false !== strpos( $_GET['post_type'], ',' ) )
+				? $post_type = explode( ',', $_GET['post_type'] )
+				: (array) $_GET['post_type'];
+			$post_types = array_map( 'sanitize_key', $post_types );
+			$query->set('post_type', $post_types );
 		}
 	}
 

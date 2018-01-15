@@ -31,7 +31,8 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		}
 
 		add_action( 'jetpack_search_render_filters_widget_title', array( $this, 'render_widget_title' ), 10, 3 );
-		add_action( 'jetpack_search_render_filters_widget_contents', array( $this, 'render_widget_contents' ), 10, 2 );
+		add_action( 'jetpack_search_render_active_filters', array( $this, 'render_current_filters' ), 10, 2 );
+		add_action( 'jetpack_search_render_filters', array( $this, 'render_available_filters' ), 10, 1 );
 	}
 
 	function widget_admin_setup() {
@@ -47,6 +48,43 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 
 	function is_for_current_widget( $item ) {
 		return isset( $item['widget_id'] ) && $this->id == $item['widget_id'];
+	}
+
+	/**
+	 * Given the widget instance, will return true when selected post types differ from searchable post types.
+	 *
+	 * @since 5.8.0
+	 *
+	 * @param array $instance
+	 * @return bool
+	 */
+	function post_types_differ_searchable( $instance ) {
+		if ( empty( $instance['post_types'] ) ) {
+			return false;
+		}
+
+		$searchable_post_types = get_post_types( array( 'exclude_from_search' => false ) );
+		$diff_of_searchable = array_diff( $searchable_post_types, (array) $instance['post_types'] );
+
+		return ! empty( $diff_of_searchable );
+	}
+
+	/**
+	 * Given the widget instance, will return true when selected post types differ from the post type filters
+	 * applied to the search.
+	 *
+	 * @since 5.8.0
+	 *
+	 * @param array $instance
+	 * @return bool
+	 */
+	function post_types_differ_query( $instance ) {
+		if ( empty( $instance['post_types'] ) ) {
+			return false;
+		}
+
+		$diff_query = array_diff( (array) $instance['post_types'], (array) $_GET['post_type'] );
+		return ! empty( $diff_query );
 	}
 
 	/**
@@ -141,18 +179,30 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		if ( $display_filters ) {
 
 			/**
-			 * Responsible for displaying the contents of the Jetpack Search filters widget.
+			 * Responsible for rendering the widget's active filters that are applied to the search.
 			 *
 			 * @module search
 			 *
-			 * @since 5.7.0
+			 * @since 5.8.0
 			 *
-			 * @param array $filters                       The possible filters for the current query
-			 * @param array $active_buckets                The selected filters for the current query
+			 * @param $active_bucket                       The selected filters for the currenet query
+			 * @param $instance                            The current widget instance
 			 * @param Jetpack_Search $this->jetpack_search The Jetpack_Search instance
 			 */
-			do_action( 'jetpack_search_render_filters_widget_contents', $filters, $active_buckets, $this->jetpack_search );
+			do_action( 'jetpack_search_render_active_filters', $active_buckets, $instance, $this->jetpack_search );
 
+			/**
+			 * Responsible for rendering filters to narrow down search results.
+			 *
+			 * @module search
+			 *
+			 * @since 5.8.0
+			 *
+			 * @param array $filters                       The possible filters for the current query
+			 * @param $instance                            The current widget instance
+			 * @param Jetpack_Search $this->jetpack_search The Jetpack_Search instance
+			 */
+			do_action( 'jetpack_search_render_filters', $filters, $instance, $this->jetpack_search );
 		}
 
 		echo $args['after_widget'];
@@ -415,23 +465,18 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		// If the widget has specified post types to search within and IF the post types differ
 		// from the default post types that would have been searched, set the selected post
 		// types via hidden inputs.
-		if ( ! empty( $instance['post_types'] ) && is_array( $instance['post_types'] ) ) {
-			$searchable_post_types = get_post_types( array( 'exclude_from_search' => false ) );
-			$diff_of_post_types = array_diff( $searchable_post_types, $instance['post_types'] );
-
-			if ( ! empty( $diff_of_post_types ) ) {
-				$post_type_inputs = '';
-				foreach ( $instance['post_types'] as $post_type ) {
-					$post_type_inputs .= sprintf( '<input type="hidden" name="post_type[]" value="%s" />', esc_attr( $post_type ) );
-				}
-
-				// The form should have a closing form tag, so let's add our hidden inputs before that
-				$form = str_replace(
-					'</form>',
-					sprintf( '%s</form>', $post_type_inputs ),
-					$form
-				);
+		if ( $this->post_types_differ_searchable( $instance ) ) {
+			$post_type_inputs = '';
+			foreach ( $instance['post_types'] as $post_type ) {
+				$post_type_inputs .= sprintf( '<input type="hidden" name="post_type[]" value="%s" />', esc_attr( $post_type ) );
 			}
+
+			// The form should have a closing form tag, so let's add our hidden inputs before that
+			$form = str_replace(
+				'</form>',
+				sprintf( '%s</form>', $post_type_inputs ),
+				$form
+			);
 		}
 
 		// This shouldn't need to be escaped since we escaped above when we imploded the selected post types
@@ -440,16 +485,11 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		echo '<br />';
 	}
 
-	function render_widget_contents( $filters, $active_buckets ) {
-		if ( ! empty( $active_buckets ) ) {
-			$this->render_current_filters( $active_buckets );
-		}
-
-		foreach ( $filters as $filter ) {
+	function render_available_filters( $filters ) {
+		foreach ( (array) $filters as $filter ) {
 			if ( count( $filter['buckets'] ) < 2 ) {
 				continue;
 			}
-
 			$this->render_filter( $filter );
 		}
 	}
@@ -458,13 +498,80 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		echo $before_title . esc_html( $title ) . $after_title;
 	}
 
-	function render_current_filters( $active_buckets ) { ?>
+	function filter_post_types_from_active_buckets( $active_bucket ) {
+		return empty( $active_bucket['type'] ) || 'post_type' != $active_bucket['type'];
+	}
+
+	function ensure_post_types_on_remove_url( $active_buckets, $post_types ) {
+		$modified = array();
+
+		foreach ( (array) $active_buckets as $active_bucket ) {
+			if ( 'post_type' != $active_bucket['type'] ) {
+				$modified[] = $active_bucket;
+				continue;
+			}
+
+			$parsed = wp_parse_url( $active_bucket['remove_url'] );
+			if ( ! $parsed ) {
+				$modified[] = $active_bucket;
+			}
+
+			$query = array();
+			wp_parse_str( $parsed['query'], $query );
+
+			if ( empty( $query['post_type'] ) ) {
+				$active_bucket['remove_url'] = $this->add_post_types_to_url( $active_bucket['remove_url'], $post_types );
+			}
+
+			$modified[] = $active_bucket;
+		}
+
+		return $modified;
+	}
+
+	function add_post_types_to_url( $url, $post_types ) {
+		$url = remove_query_arg( 'post_type', $url );
+		foreach ( (array) $post_types as $post_type ) {
+			$url = add_query_arg( 'post_type[]', $post_type, $url );
+		}
+
+		return $url;
+	}
+
+	function render_current_filters( $active_buckets, $instance ) {
+		if ( ! $this->post_types_differ_query( $instance, true ) ) {
+			$active_buckets = array_filter( $active_buckets, array( $this, 'filter_post_types_from_active_buckets' ) );
+		}
+
+		if ( empty( $active_buckets ) ) {
+			return;
+		}
+
+		$remove_all_filters = add_query_arg( 's', get_query_var( 's' ), home_url() );
+		if ( $this->post_types_differ_searchable( $instance ) ) {
+			$remove_all_filters = $this->add_post_types_to_url( $remove_all_filters, $instance['post_types'] );
+			$active_buckets = $this->ensure_post_types_on_remove_url( $active_buckets, $instance['post_types'] );
+		}
+
+		?>
 		<h4 class="widget-title"><?php echo esc_html__( 'Current Filters', 'jetpack' ); ?></h4>
 		<ul>
-			<?php $this->render_active_buckets( $active_buckets ); ?>
+			<?php foreach ( $active_buckets as $item ) : ?>
+				<li>
+					<a href="<?php echo esc_url( $item['remove_url'] ); ?>">
+						<?php
+							echo sprintf(
+								_x( '&larr; %1$s: %2$s', 'aggregation widget: active filter type and name', 'jetpack' ),
+								esc_html( $item['type_label'] ),
+								esc_html( $item['name'] )
+							);
+						?>
+					</a>
+				</li>
+			<?php endforeach; ?>
 			<?php if ( count( $active_buckets ) > 1 ) : ?>
 				<li>
-					<a href="<?php echo esc_url( add_query_arg( 's', get_query_var( 's' ), home_url() ) ); ?>">
+					<a href="<?php echo esc_url( $remove_all_filters ); ?>">
 						<?php echo esc_html__( 'Remove All Filters', 'jetpack' ); ?>
 					</a>
 				</li>
@@ -472,22 +579,6 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		</ul>
 		<br />
 	<?php }
-
-	function render_active_buckets( $active_buckets ) {
-		foreach ( $active_buckets as $item ) : ?>
-			<li>
-				<a href="<?php echo esc_url( $item['remove_url'] ); ?>">
-					<?php
-						echo sprintf(
-							_x( '&larr; %1$s: %2$s', 'aggregation widget: active filter type and name', 'jetpack' ),
-							esc_html( $item['type_label'] ),
-							esc_html( $item['name'] )
-						);
-					?>
-				</a>
-			</li>
-		<?php endforeach;
-	}
 
 	function render_filter( $filter ) { ?>
 		<h4  class="widget-title"><?php echo esc_html( $filter['name'] ); ?></h4>
