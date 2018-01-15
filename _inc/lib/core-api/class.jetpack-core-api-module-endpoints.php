@@ -436,9 +436,9 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 						'siteDescription' => get_option( 'blogdescription' ),
 						'siteType' => get_option( 'jpo_site_type' ),
 						'homepageFormat' => get_option( 'jpo_homepage_format' ),
-						'contactForm' => get_option( 'jpo_contact_page' ),
+						'addContactForm' => get_option( 'jpo_contact_page' ),
 						'businessAddress' => array(), // TODO
-						'woocommerce' => is_plugin_active( 'woocommerce/woocommerce.php' ),
+						'installWooCommerce' => is_plugin_active( 'woocommerce/woocommerce.php' ),
 					);
 					break;
 
