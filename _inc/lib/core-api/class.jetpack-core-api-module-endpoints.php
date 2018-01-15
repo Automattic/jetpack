@@ -1058,6 +1058,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			if ( is_wp_error( $handled_business_address ) ) {
 				$error[] = 'BusinessAddress';
 			}
+			update_option( 'jpo_business_address', $data['businessAddress'] );
 		}
 
 		if ( ! empty( $data['installWooCommerce'] ) ) {
@@ -1127,6 +1128,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			if ( is_wp_error( $widget_inserted ) || is_wp_error( $widget_updated ) ) {
 				return new WP_Error( 'invalid_data', 'Invalid update.', 400 );
 			}
+
 			return true;
 		}
 		// No sidebar to place the widget
