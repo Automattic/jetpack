@@ -10,7 +10,7 @@
  * Auto Activate: No
  * Module Tags: Appearance, Recommended
  * Feature: Appearance
- * Additional Search Queries: mobile, theme, performance
+ * Additional Search Queries: mobile, theme, performance, image
  */
 
 /**

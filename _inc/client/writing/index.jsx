@@ -49,7 +49,8 @@ export const Writing = React.createClass( {
 			'post-by-email',
 			'infinite-scroll',
 			'minileven',
-			'videopress'
+			'videopress',
+			'lazy-images'
 		].some( this.props.isModuleFound );
 
 		if ( ! this.props.searchTerm && ! this.props.active ) {
