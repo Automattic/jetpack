@@ -682,6 +682,42 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$this->assertNotEmpty( $event );
 	}
 
+	public function test_invite_user_sync_invite_event() {
+		$this->server_event_storage->reset();
+		// Fake it till you make it
+		do_action( 'jetpack_invitation_accepted', false );
+		// We modify the input here to mimick the same call structure of the update user endpoint.
+		$user_data = (object) array();
+		$user_data->ID = 1234;
+		$user_data->first_name = '';
+		$user_data->last_name = '';
+		$user_data->url = '';
+		$user_data->login = 'test_user_invite';
+		$user_data->email = 'test_user_invite@example.com';
+		$user_data->role = 'editor';
+		$user_data->display_name = 'Gill';
+		$user_data->description = '';
+		$user = Jetpack_SSO_Helpers::generate_user( $user_data );
+		$this->sender->do_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_user' );
+		$this->assertFalse( $event );
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_register_user' );
+		$this->assertTrue( $event->args[1]['invitation_accepted'] );
+		$this->assertEquals( 'editor' , $event->args[0]->roles[0] );
+	}
+
+	public function test_invite_user_sync_invite_event_user_already_exists() {
+		$this->server_event_storage->reset();
+
+		// invite events
+		do_action( 'jetpack_invitation_accepted', get_user_by( 'id', $this->user_id ) );
+		$this->sender->do_sync();
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_invitation_accepted' );
+		$this->assertEquals( $this->user_id, $event->args[0]->ID );
+	}
+
 	protected function assertUsersEqual( $user1, $user2 ) {
 		// order-independent comparison
 		$user1_array = get_object_vars( $user1->data );
