@@ -1102,6 +1102,14 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 	static function handle_business_address( $business_address_content ) {
 		$first_sidebar = self::get_first_sidebar();
 
+		$widgets_module_active = Jetpack::is_module_active( 'widgets' );
+		if ( ! $widgets_module_active ) {
+			$widgets_module_active = Jetpack::activate_module( 'widgets', false, false );
+		}	
+		if ( ! $widgets_module_active ) {
+			return new WP_Error( 'invalid_data', 'Failed to activate module.', 400 );
+		}
+
 		if ( $first_sidebar ) {
 			$title = $business_address_content['name'];
 			$address =
