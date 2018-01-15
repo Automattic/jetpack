@@ -1054,9 +1054,9 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 		}
 
 		if ( isset( $data['businessAddress'] ) ) {
-			$handled_business_address = self::handle_business_address( $data );
-			if ( ! $handled_business_address ) ) {
-				$error[] = 'add/update BusinessAddress';
+			$handled_business_address = self::handle_business_address( $data['businessAddress'] );
+			if ( is_wp_error( $handled_business_address ) ) {
+				$error[] = 'BusinessAddress';
 			}
 		}
 
@@ -1073,27 +1073,41 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			: join( ', ', $error );
 	}
 
+	/**
+	 * Retrieve the first active sidebar.
+	 *
+	 * @return array|WP_Error First active sidebar, error if none exists.
+	*/
 	static function get_first_sidebar() {
 		$active_sidebars = get_option( 'sidebars_widgets', array() );
 		unset( $active_sidebars[ 'wp_inactive_widgets' ], $active_sidebars[ 'array_version' ] );
 
 		if ( empty( $active_sidebars ) ) {
-			return false;
+			return new WP_Error( 'invalid_data', 'Invalid data.', 400 );
 		}
 		$active_sidebars_keys = array_keys( $active_sidebars );
 		return array_shift( $active_sidebars_keys );
 	}
 
-	static function handle_business_address( $data ) {
+	/**
+	 * Add or update Business Address widget.
+	 *
+	 * @param array $business_address_content Value corresponding to the Business
+	 * Address as received from the settings endpoint.
+	 *
+	 * @return WP_Error|true True when data has been saved correctly,
+	 * error otherwise.
+	*/
+	static function handle_business_address( $business_address_content ) {
 		$first_sidebar = self::get_first_sidebar();
 
 		if ( $first_sidebar ) {
-			$title = $data['businessAddress'][ 'name' ];
+			$title = $business_address_content['name'];
 			$address =
-					$data[ 'businessAddress' ][ 'city' ] . ' ' .
-					$data[ 'businessAddress' ][ 'state' ] . ' ' .
-					$data[ 'businessAddress' ][ 'street' ] . ' ' .
-					$data[ 'businessAddress' ][ 'zip' ];
+					$business_address_content['city'] . ' ' .
+					$business_address_content['state'] . ' ' .
+					$business_address_content['street'] . ' ' .
+					$business_address_content['zip'];
 			$widget_options = array(
 				'title'   => $title,
 				'address' => $address,
@@ -1103,18 +1117,20 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 				'email' => ''
 			);
 
+			$widget_inserted	= '';
+			$widget_updated = '';
 			if ( ! self::has_business_address_widget( $first_sidebar ) ) {
 				$widget_inserted = self::insert_widget_in_sidebar( 'widget_contact_info', $widget_options, $first_sidebar );
 			} else {
 				$widget_updated = self::update_widget_in_sidebar( 'widget_contact_info', $widget_options, $first_sidebar );
 			}
 			if ( is_wp_error( $widget_inserted ) || is_wp_error( $widget_updated ) ) {
-				return new WP_Error( 'invalid_data', 'Invalid update', 400 );
+				return new WP_Error( 'invalid_data', 'Invalid update.', 400 );
 			}
 			return true;
 		}
 		// No sidebar to place the widget
-		return new WP_Error( 'invalid_data', 'Invalid data', 400 );
+		return new WP_Error( 'invalid_data', 'Invalid data.', 400 );
 	}
 
 	/**
@@ -1122,8 +1138,8 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 	 *
  	 * @param string  $sidebar ID of the sidebar to which the widget will be added.
  	 *
- 	 * @return bool
-	 */
+ 	 * @return bool Whether the widget is present in a given sidebar.
+	*/
 	static function has_business_address_widget( $sidebar ) {
 		$sidebars_widgets = get_option( 'sidebars_widgets', array() );
 		if ( ! isset( $sidebars_widgets[ $sidebar ] ) ) {
@@ -1142,30 +1158,38 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 	 *
 	 * @param string $widget_id ID of the widget.
 	 *
-	 * @param array  $widget_options Content of the widget.
+	 * @param array $widget_options Content of the widget.
  	 *
- 	 * @param string  $sidebar ID of the sidebar to which the widget will be added.
-	 */
+ 	 * @param string $sidebar ID of the sidebar to which the widget will be added.
+ 	 *
+ 	 * @return WP_Error|true True when data has been saved correctly,
+ 	 * error otherwise.
+	*/
 	static function insert_widget_in_sidebar( $widget_id, $widget_options, $sidebar ) {
 		// Retrieve sidebars, widgets and their instances
 		$sidebars_widgets = get_option( 'sidebars_widgets', array() );
 		$widget_instances = get_option( 'widget_' . $widget_id, array() );
+
 		// Retrieve the key of the next widget instance
 		$numeric_keys = array_filter( array_keys( $widget_instances ), 'is_int' );
 		$next_key = $numeric_keys ? max( $numeric_keys ) + 1 : 2;
+
 		// Add this widget to the sidebar
 		if ( ! isset( $sidebars_widgets[ $sidebar ] ) ) {
 			$sidebars_widgets[ $sidebar ] = array();
 		}
 		$sidebars_widgets[ $sidebar ][] = $widget_id . '-' . $next_key;
+
 		// Add the new widget instance
 		$widget_instances[ $next_key ] = $widget_options;
+
 		// Store updated sidebars, widgets and their instances
 		if ( ! ( update_option( 'blogname', $data['siteTitle'] ) || get_option( 'blogname' ) == $data['siteTitle'] )
 		|| ( ! ( update_option( 'sidebars_widgets', $sidebars_widgets ) ) )
 		|| ( ! ( update_option( 'widget_' . $widget_id, $widget_instances ) ) ) ) {
 			return new WP_Error( 'invalid_data', 'Invalid update.', 400 );
 		};
+
 		return true;
 	}
 
@@ -1174,14 +1198,18 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 	 *
 	 * @param string $widget_id ID of the widget.
 	 *
-	 * @param array  $widget_options New content for the update.
+	 * @param array $widget_options New content for the update.
  	 *
- 	 * @param string  $sidebar ID of the sidebar to which the widget will be added.
-	 */
+ 	 * @param string $sidebar ID of the sidebar to which the widget will be added.
+ 	 *
+ 	 * @return WP_Error|true True when data has been updated correctly,
+ 	 * error otherwise.
+	*/
 	static function update_widget_in_sidebar( $widget_id, $widget_options, $sidebar ) {
 		// Retrieve sidebars, widgets and their instances
 		$sidebars_widgets = get_option( 'sidebars_widgets', array() );
 		$widget_instances = get_option( 'widget_' . $widget_id, array() );
+
 		// Retrieve index of first widget instance in that sidebar
 		$widget_key = false;
 		foreach ( $sidebars_widgets[ $sidebar ] as $widget ) {
@@ -1190,12 +1218,15 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 				break;
 			}
 		}
+
 		// There is no widget instance
 		if ( ! $widget_key ) {
 			return new WP_Error( 'invalid_data', 'No such widget.', 400 );
 		}
+
 		// Update the widget instance with the new data
 		$widget_instances[ $widget_key ] = array_merge( $widget_instances[ $widget_key ], $widget_options );
+
 		// Store updated widget instances and return Error when not successful
 		if ( ! ( update_option( 'widget_' . $widget_id, $widget_instances ) ) ) {
 			return new WP_Error( 'invalid_data', 'Invalid update.', 400 );
