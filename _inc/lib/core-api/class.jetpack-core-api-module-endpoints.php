@@ -865,6 +865,8 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
 				case 'onboarding':
 					// Break apart and set Jetpack onboarding options.
+					jetpack_require_lib( 'widgets' );
+
 					$result = $this->_process_onboarding( (array) $value );
 					if ( empty( $result ) ) {
 						$updated = true;
@@ -1061,10 +1063,59 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			}
 		}
 
+		// Add/update business address widget
+		if ( isset( $data['businessAddress'] ) ) {
+			//grab the first sidebar and proceed if it is present
+			$first_sidebar = Jetpack_Widgets::get_first_sidebar();
+
+			if( $first_sidebar ) {
+				$title = $data[ 'businessAddress' ][ 'name' ];
+				$address =
+					$data[ 'businessAddress' ][ 'city' ] . ' ' .
+					$data[ 'businessAddress' ][ 'state' ] . ' ' .
+					$data[ 'businessAddress' ][ 'street' ] . ' ' .
+					$data[ 'businessAddress' ][ 'zip' ];
+
+				$widget_options = array(
+					'title'   => $title,
+					'address' => $address,
+					'phone'   => '',
+					'hours'   => '',
+					'showmap' => false,
+					'email' => '',
+					'apikey' => '',
+				);
+				$position = '0';
+				$id_base = 'widget_contact_info';
+
+				$has_ba_widget = self::has_business_info_widget( $first_sidebar );
+				if ( $has_ba_widget ) {
+					$widget = Jetpack_Widgets::get_widget_by_id_base( $id_base );
+					Jetpack_Widgets::update_widget( $widget['id'], $first_sidebar, $position, $widget_options );
+				}	else {
+					Jetpack_Widgets::activate_widget( $id_base, $first_sidebar, $position, $widget_options);
+				}
+			}
+		}
+
 		return empty( $error )
 			? ''
 			: join( ', ', $error );
-	}
+		}
+
+		public function has_business_info_widget( $sidebar ) {
+			$sidebars_widgets = get_option( 'sidebars_widgets', array() );
+			if ( ! isset( $sidebars_widgets[ $sidebar ] ) ) {
+				return false;
+			}
+
+			foreach ( $sidebars_widgets[ $sidebar ] as $widget ) {
+				if ( strpos( $widget, 'widget_contact_info' ) !== false ) {
+					return true;
+				}
+			}
+			return false;
+		}
 
 	/**
 	 * Calls WPCOM through authenticated request to create, regenerate or delete the Post by Email address.
