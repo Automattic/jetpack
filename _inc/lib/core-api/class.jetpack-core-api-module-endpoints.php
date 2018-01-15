@@ -1054,7 +1054,10 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 		}
 
 		if ( isset( $data['businessAddress'] ) ) {
-			self::add_business_address( $data );
+			$handled_business_address = self::handle_business_address( $data );
+			if ( ! $handled_business_address ) ) {
+				$error[] = 'add/update BusinessAddress';
+			}
 		}
 
 		if ( ! empty( $data['installWooCommerce'] ) ) {
@@ -1081,7 +1084,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 		return array_shift( $active_sidebars_keys );
 	}
 
-	static function add_business_address( $data ) {
+	static function handle_business_address( $data ) {
 		$first_sidebar = self::get_first_sidebar();
 
 		if ( $first_sidebar ) {
@@ -1101,14 +1104,17 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			);
 
 			if ( ! self::has_business_address_widget( $first_sidebar ) ) {
-				self::insert_widget_in_sidebar( 'widget_contact_info', $widget_options, $first_sidebar );
+				$widget_inserted = self::insert_widget_in_sidebar( 'widget_contact_info', $widget_options, $first_sidebar );
 			} else {
-				self::update_widget_in_sidebar( 'widget_contact_info', $widget_options, $first_sidebar );
+				$widget_updated = self::update_widget_in_sidebar( 'widget_contact_info', $widget_options, $first_sidebar );
 			}
-			wp_send_json_success( array( 'updated' => true ) );
-			die();
+			if ( is_wp_error( $widget_inserted ) || is_wp_error( $widget_updated ) ) {
+				return new WP_Error( 'invalid_data', 'Invalid update', 400 );
+			}
+			return true;
 		}
-		wp_send_json_success( array( 'updated' => false ) );
+		// No sidebar to place the widget
+		return new WP_Error( 'invalid_data', 'Invalid data', 400 );
 	}
 
 	/**
@@ -1155,8 +1161,12 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 		// Add the new widget instance
 		$widget_instances[ $next_key ] = $widget_options;
 		// Store updated sidebars, widgets and their instances
-		update_option( 'sidebars_widgets', $sidebars_widgets );
-		update_option( 'widget_' . $widget_id, $widget_instances );
+		if ( ! ( update_option( 'blogname', $data['siteTitle'] ) || get_option( 'blogname' ) == $data['siteTitle'] )
+		|| ( ! ( update_option( 'sidebars_widgets', $sidebars_widgets ) ) )
+		|| ( ! ( update_option( 'widget_' . $widget_id, $widget_instances ) ) ) ) {
+			return new WP_Error( 'invalid_data', 'Invalid update.', 400 );
+		};
+		return true;
 	}
 
 	/**
@@ -1186,8 +1196,11 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 		}
 		// Update the widget instance with the new data
 		$widget_instances[ $widget_key ] = array_merge( $widget_instances[ $widget_key ], $widget_options );
-		// Store updated widget instances
-		update_option( 'widget_' . $widget_id, $widget_instances );
+		// Store updated widget instances and return Error when not successful
+		if ( ! ( update_option( 'widget_' . $widget_id, $widget_instances ) ) ) {
+			return new WP_Error( 'invalid_data', 'Invalid update.', 400 );
+		};
+		return true;
 	}
 
 	/**
