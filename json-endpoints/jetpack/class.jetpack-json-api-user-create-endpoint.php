@@ -26,10 +26,13 @@ class Jetpack_JSON_API_User_Create_Endpoint extends Jetpack_JSON_API_Endpoint {
 
 	function create_or_get_user() {
 		require_once JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-helpers.php';
-
 		// Check for an existing user
 		$user = get_user_by( 'email', $this->user_data['email'] );
-
+		/**
+		 * Fires after a user accepts an invitation and before a user gets created.
+		 * @return WP_User|false WP_User object on success, false on failure.
+		 */
+		do_action( 'jetpack_invitation_accepted', $user );
 		if ( ! $user ) {
 			// We modify the input here to mimick the same call structure of the update user endpoint.
 			$this->user_data = (object) $this->user_data;
