@@ -409,10 +409,6 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		</div>
 	<?php }
 
-	function post_type_to_input( $post_type ) {
-
-	}
-
 	function render_widget_search_form( $instance ) {
 		$form = get_search_form( false );
 
