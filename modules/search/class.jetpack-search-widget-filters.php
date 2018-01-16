@@ -337,6 +337,13 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		<?php
 	}
 
+	/**
+	 * Responsible for rendering a single filter in the customizer or the widget administration screen in wp-admin.
+	 *
+	 * @since 5.7.0
+	 *
+	 * @param array $filter
+	 */
 	function render_widget_filter( $filter ) {
 		$args = wp_parse_args( $filter, array(
 			'name' => '',
@@ -459,6 +466,11 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		</div>
 	<?php }
 
+	/**
+	 * Responsible for rendering the search box within our widget on the frontend.
+	 *
+	 * @param array $instance
+	 */
 	function render_widget_search_form( $instance ) {
 		$form = get_search_form( false );
 
@@ -485,6 +497,11 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		echo '<br />';
 	}
 
+	/**
+	 * Renders all available filters that can be used to filter down search results on the frontend.
+	 *
+	 * @param array $filters
+	 */
 	function render_available_filters( $filters ) {
 		foreach ( (array) $filters as $filter ) {
 			if ( count( $filter['buckets'] ) < 2 ) {
@@ -498,10 +515,29 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		echo $before_title . esc_html( $title ) . $after_title;
 	}
 
+	/**
+	 * Responsible for removing all active buckets with a type of post_type.
+	 *
+	 * If the current post type filters match the post type filters that the widget has restricted the
+	 * search too, then we don't want to show the post type buckets. Otherwise, when a user first search, we
+	 * would end up showing an active filters and a post types section that look very similar.
+	 *
+	 * See: https://github.com/Automattic/jetpack/pull/8471#issuecomment-355711814
+	 *
+	 * @param array $active_bucket
+	 */
 	function filter_post_types_from_active_buckets( $active_bucket ) {
 		return empty( $active_bucket['type'] ) || 'post_type' != $active_bucket['type'];
 	}
 
+	/**
+	 * Since we provide support for the widget restricting post types by adding the selected post types as
+	 * active filters, if removing a post type filter would result in there no longer be post_type args in the URL,
+	 * we need to be sure to add them back.
+	 *
+	 * @param array $active_buckets
+	 * @param array $post_types
+	 */
 	function ensure_post_types_on_remove_url( $active_buckets, $post_types ) {
 		$modified = array();
 
@@ -529,6 +565,12 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		return $modified;
 	}
 
+	/**
+	 * Given a url and an array of post types, will ensure that the post types are properly applied to the URL as args.
+	 *
+	 * @param string $url
+	 * @param array $post_types
+	 */
 	function add_post_types_to_url( $url, $post_types ) {
 		$url = remove_query_arg( 'post_type', $url );
 		foreach ( (array) $post_types as $post_type ) {
@@ -538,6 +580,12 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		return $url;
 	}
 
+	/**
+	 * Renders the current filters applied to the search.
+	 *
+	 * @param array $active_buckets
+	 * @param array $instance
+	 */
 	function render_current_filters( $active_buckets, $instance ) {
 		if ( ! $this->post_types_differ_query( $instance, true ) ) {
 			$active_buckets = array_filter( $active_buckets, array( $this, 'filter_post_types_from_active_buckets' ) );
@@ -580,6 +628,11 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		<br />
 	<?php }
 
+	/**
+	 * Renders a single filter that can be applied to the current search.
+	 *
+	 * @param array $filter
+	 */
 	function render_filter( $filter ) { ?>
 		<h4  class="widget-title"><?php echo esc_html( $filter['name'] ); ?></h4>
 		<ul>
