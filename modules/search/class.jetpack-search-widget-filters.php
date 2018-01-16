@@ -165,6 +165,8 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		$instance['title'] = sanitize_text_field( $new_instance['title'] );
 		$instance['use_filters'] = empty( $new_instance['use_filters'] ) ? '0' : '1';
 		$instance['search_box_enabled'] = empty( $new_instance['search_box_enabled'] ) ? '0' : '1';
+		$instance['user_sort_enabled'] = empty( $new_instance['user_sort_enabled'] ) ? '0' : '1';
+		$instance['sort'] = $new_instance['sort'];
 
 		if ( $instance['use_filters'] ) {
 			$filters = array();
@@ -220,6 +222,8 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		$hide_filters = $this->jetpack_search->are_filters_by_widget_disabled();
 		$use_filters = ! empty( $instance['use_filters'] ) && ! $hide_filters;
 		$search_box_enabled = ! empty( $instance['search_box_enabled'] );
+		$user_sort_enabled = ! empty( $instance['user_sort_enabled'] );
+		$sort = isset( $instance['sort'] ) ? $instance['sort'] : 'relevance';
 		$classes = sprintf(
 			'jetpack-search-filters-widget %s',
 			$use_filters ? '' : 'hide-filters'
@@ -246,7 +250,35 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 						name="<?php echo esc_attr( $this->get_field_name( 'search_box_enabled' ) ); ?>"
 						<?php checked( $search_box_enabled ); ?>
 					/>
-					<?php esc_html_e( 'Show search box' ); ?>
+					<?php esc_html_e( 'Show search box', 'jetpack' ); ?>
+				</label>
+			</p>
+
+			<p>
+				<label>
+					<?php esc_html_e( 'Sorting:', 'jetpack' ); ?>
+					<select name="<?php echo esc_attr( $this->get_field_name( 'sort' ) ); ?>[]" class="widefat">
+						<option value="relevance" <?php selected( $sort, 'relevance' ); ?>>
+							<?php esc_html_e( 'Relevance', 'jetpack' ); ?>
+						</option>
+						<option value="date_desc" <?php selected( $sort, 'date_desc' ); ?>>
+							<?php esc_html_e( 'Newest first', 'jetpack' ); ?>
+						</option>
+						<option value="date_asc" <?php selected( $sort, 'date_asc' ); ?>>
+							<?php esc_html_e( 'Oldest first', 'jetpack' ); ?>
+						</option>
+					</select>
+				</label>
+			</p>
+
+			<p>
+			<label>
+					<input
+						type="checkbox"
+						name="<?php echo esc_attr( $this->get_field_name( 'user_sort_enabled' ) ); ?>"
+						<?php checked( $user_sort_enabled ); ?>
+					/>
+					<?php esc_html_e( 'Let the user choose sorting options', 'jetpack' ); ?>
 				</label>
 			</p>
 
@@ -259,7 +291,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 							name="<?php echo esc_attr( $this->get_field_name( 'use_filters' ) ); ?>"
 							<?php checked( $use_filters ); ?>
 						/>
-						<?php esc_html_e( 'Show filters when a search has multiple results' ); ?>
+						<?php esc_html_e( 'Show filters when a search has multiple results', 'jetpack' ); ?>
 					</label>
 				</p>
 				<?php foreach ( (array) $instance['filters'] as $filter ) : ?>
