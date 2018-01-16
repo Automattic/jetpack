@@ -103,6 +103,16 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
+= 5.7.1 =
+
+* Release date: January 16, 2018
+* Release post: https://wp.me/p1moTy-7aS
+
+**Bug Fixes**
+
+* Protect: Fixed the math problem fallback for logging into Multisite installations.
+* Settings: Made sure that the Security tab is no longer constantly updating the displayed information.
+
 = 5.7 =
 
 * Release date: January 2, 2018
