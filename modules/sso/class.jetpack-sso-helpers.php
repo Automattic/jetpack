@@ -203,11 +203,6 @@ class Jetpack_SSO_Helpers {
 
 	static function generate_user( $user_data ) {
 		$username = $user_data->login;
-		// .com user ID
-		/**
-		 * User to figure out if we are in the context of adding a new user
-		 */
-
 		/**
 		 * Determines how many times the SSO module can attempt to randomly generate a user.
 		 *
