@@ -1084,7 +1084,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 		unset( $active_sidebars[ 'wp_inactive_widgets' ], $active_sidebars[ 'array_version' ] );
 
 		if ( empty( $active_sidebars ) ) {
-			return new WP_Error( 'invalid_data', 'Invalid data.', 400 );
+			return false;
 		}
 		$active_sidebars_keys = array_keys( $active_sidebars );
 		return array_shift( $active_sidebars_keys );
