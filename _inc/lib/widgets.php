@@ -681,9 +681,7 @@ class Jetpack_Widgets {
 	 * Insert a new widget in a given sidebar.
 	 *
 	 * @param string $widget_id ID of the widget.
-	 *
 	 * @param array $widget_options Content of the widget.
- 	 *
  	 * @param string $sidebar ID of the sidebar to which the widget will be added.
  	 *
  	 * @return WP_Error|true True when data has been saved correctly,
@@ -708,10 +706,9 @@ class Jetpack_Widgets {
 		$widget_instances[ $next_key ] = $widget_options;
 
 		// Store updated sidebars, widgets and their instances
-		if ( ! ( update_option( 'blogname', $data['siteTitle'] ) || get_option( 'blogname' ) == $data['siteTitle'] )
-		|| ( ! ( update_option( 'sidebars_widgets', $sidebars_widgets ) ) )
-		|| ( ! ( update_option( 'widget_' . $widget_id, $widget_instances ) ) ) ) {
-			return new WP_Error( 'invalid_data', 'Invalid update.', 400 );
+		if ( ! ( update_option( 'sidebars_widgets', $sidebars_widgets ) )
+		|| ( ! ( update_option( 'widget_' . $widget_id, $widget_instances ) ) ) )  {
+			return new WP_Error( 'widget_update_failed', 'Failed to update widget or sidebar.', 400 );
 		};
 
 		return true;
@@ -721,9 +718,7 @@ class Jetpack_Widgets {
 	 * Update the content of an exisitng widget in a given sidebar.
 	 *
 	 * @param string $widget_id ID of the widget.
-	 *
 	 * @param array $widget_options New content for the update.
- 	 *
  	 * @param string $sidebar ID of the sidebar to which the widget will be added.
  	 *
  	 * @return WP_Error|true True when data has been updated correctly,
@@ -753,7 +748,7 @@ class Jetpack_Widgets {
 
 		// Store updated widget instances and return Error when not successful
 		if ( ! ( update_option( 'widget_' . $widget_id, $widget_instances ) ) ) {
-			return new WP_Error( 'invalid_data', 'Invalid update.', 400 );
+			return new WP_Error( 'widget_update_failed', 'Failed to update widget.', 400 );
 		};
 		return true;
 	}

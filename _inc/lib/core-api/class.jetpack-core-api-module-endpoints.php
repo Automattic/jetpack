@@ -1059,7 +1059,6 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			if ( is_wp_error( $handled_business_address ) ) {
 				$error[] = 'BusinessAddress';
 			}
-			update_option( 'jpo_business_address', $data['businessAddress'] );
 		}
 
 		if ( ! empty( $data['installWooCommerce'] ) ) {
@@ -1078,7 +1077,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 	/**
 	 * Retrieve the first active sidebar.
 	 *
-	 * @return array|WP_Error First active sidebar, error if none exists.
+	 * @return string|WP_Error First active sidebar, error if none exists.
 	*/
 	static function get_first_sidebar() {
 		$active_sidebars = get_option( 'sidebars_widgets', array() );
@@ -1094,13 +1093,11 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 	/**
 	 * Add or update Business Address widget.
 	 *
-	 * @param array $business_address_content Value corresponding to the Business
-	 * Address as received from the settings endpoint.
+	 * @param array $address Array of business address fields.
 	 *
-	 * @return WP_Error|true True when data has been saved correctly,
-	 * error otherwise.
+	 * @return WP_Error|true True if the data was saved correctly.
 	*/
-	static function handle_business_address( $business_address_content ) {
+	static function handle_business_address( $address ) {
 		$first_sidebar = self::get_first_sidebar();
 
 		$widgets_module_active = Jetpack::is_module_active( 'widgets' );
@@ -1108,19 +1105,19 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			$widgets_module_active = Jetpack::activate_module( 'widgets', false, false );
 		}
 		if ( ! $widgets_module_active ) {
-			return new WP_Error( 'invalid_data', 'Failed to activate module.', 400 );
+			return new WP_Error( 'module_activation_failed', 'Failed to activate module.', 400 );
 		}
 
 		if ( $first_sidebar ) {
-			$title = $business_address_content['name'];
-			$address =
-				$business_address_content['city'] . ' ' .
-				$business_address_content['state'] . ' ' .
-				$business_address_content['street'] . ' ' .
-				$business_address_content['zip'];
+			$title = $address['name'];
+			$business_address =
+				$address['city'] . ' ' .
+				$address['state'] . ' ' .
+				$address['street'] . ' ' .
+				$address['zip'];
 			$widget_options = array(
 				'title'   => $title,
-				'address' => $address,
+				'address' => $business_address,
 				'phone'   => '',
 				'hours'   => '',
 				'showmap' => false,
@@ -1135,17 +1132,19 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 				$widget_updated = Jetpack_Widgets::update_widget_in_sidebar( 'widget_contact_info', $widget_options, $first_sidebar );
 			}
 			if ( is_wp_error( $widget_inserted ) || is_wp_error( $widget_updated ) ) {
-				return new WP_Error( 'invalid_data', 'Invalid update.', 400 );
+				return new WP_Error( 'widget_update_failed', 'Widget could not be updated.', 400 );
 			}
 
+			update_option( 'jpo_business_address', $address );
 			return true;
 		}
+
 		// No sidebar to place the widget
-		return new WP_Error( 'invalid_data', 'Invalid data.', 400 );
+		return new WP_Error( 'sidebar_failed', 'No sidebar.', 400 );
 	}
 
 	/**
-	 * Check if a given sidebar already contains a widget with a Business Address.
+	 * Check whether "Contact Info & Map" widget is present in a given sidebar.
 	 *
  	 * @param string  $sidebar ID of the sidebar to which the widget will be added.
  	 *
