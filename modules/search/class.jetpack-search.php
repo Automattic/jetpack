@@ -80,6 +80,8 @@ class Jetpack_Search {
 			return;
 		}
 
+		require_once( dirname( __FILE__ ) . '/class.jetpack-search-helpers.php' );
+
 		$this->init_hooks();
 	}
 
@@ -1247,9 +1249,12 @@ class Jetpack_Search {
 							$slug_count = count( $existing_term_slugs );
 
 							if ( $slug_count > 1 ) {
-								$remove_url = add_query_arg( $tax_query_var, urlencode( implode( '+', array_diff( $existing_term_slugs, array( $item['key'] ) ) ) ) );
+								$remove_url = Jetpack_Search_Helpers::add_query_arg(
+									$tax_query_var,
+									urlencode( implode( '+', array_diff( $existing_term_slugs, array( $item['key'] ) ) ) )
+								);
 							} else {
-								$remove_url = remove_query_arg( $tax_query_var );
+								$remove_url = Jetpack_Search_Helpers::remove_query_arg( $tax_query_var );
 							}
 						}
 
@@ -1282,9 +1287,12 @@ class Jetpack_Search {
 
 							// For the right 'remove filter' url, we need to remove the post type from the array, or remove the param entirely if it's the only one
 							if ( $post_type_count > 1 ) {
-								$remove_url = add_query_arg( 'post_type', urlencode_deep( array_diff( $post_types, array( $item['key'] ) ) ) );
+								$remove_url = Jetpack_Search_Helpers::add_query_arg(
+									'post_type',
+									urlencode_deep( array_diff( $post_types, array( $item['key'] ) ) )
+								);
 							} else {
-								$remove_url = remove_query_arg( 'post_type' );
+								$remove_url = Jetpack_Search_Helpers::remove_query_arg( 'post_type' );
 							}
 						}
 
@@ -1313,7 +1321,7 @@ class Jetpack_Search {
 								if ( ! empty( $current_year ) && (int) $current_year === $year ) {
 									$active = true;
 
-									$remove_url = remove_query_arg( array( 'year', 'monthnum', 'day' ) );
+									$remove_url = Jetpack_Search_Helpers::remove_query_arg( array( 'year', 'monthnum', 'day' ) );
 								}
 
 								break;
@@ -1335,7 +1343,7 @@ class Jetpack_Search {
 								     ! empty( $current_month ) && (int) $current_month === $month ) {
 									$active = true;
 
-									$remove_url = remove_query_arg( array( 'year', 'monthnum' ) );
+									$remove_url = Jetpack_Search_Helpers::remove_query_arg( array( 'year', 'monthnum' ) );
 								}
 
 								break;
@@ -1359,7 +1367,7 @@ class Jetpack_Search {
 								     ! empty( $current_day ) && (int) $current_day === $day ) {
 									$active = true;
 
-									$remove_url = remove_query_arg( array( 'day' ) );
+									$remove_url = Jetpack_Search_Helpers::remove_query_arg( array( 'day' ) );
 								}
 
 								break;
@@ -1378,7 +1386,7 @@ class Jetpack_Search {
 				$url_params = urlencode_deep( $query_vars );
 
 				$aggregation_data[ $label ]['buckets'][] = array(
-					'url'        => add_query_arg( $url_params ),
+					'url'        => Jetpack_Search_Helpers::add_query_arg( $url_params ),
 					'query_vars' => $query_vars,
 					'name'       => $name,
 					'count'      => $item['doc_count'],

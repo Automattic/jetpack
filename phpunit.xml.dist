@@ -95,6 +95,9 @@
 		<testsuite name="lazy-images">
 			<directory prefix="test_" suffix=".php">tests/php/modules/lazy-images</directory>
 		</testsuite>
+		<testsuite name="search">
+			<directory prefix="test_" suffix=".php">tests/php/modules/search</directory>
+		</testsuite>
 	</testsuites>
 	<groups>
 		<exclude>
