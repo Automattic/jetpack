@@ -31,8 +31,8 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		}
 
 		add_action( 'jetpack_search_render_filters_widget_title', array( $this, 'render_widget_title' ), 10, 3 );
-		add_action( 'jetpack_search_render_active_filters', array( $this, 'render_current_filters' ), 10, 2 );
-		add_action( 'jetpack_search_render_filters', array( $this, 'render_available_filters' ), 10, 1 );
+		add_action( 'jetpack_search_render_active_filters', array( $this, 'render_remove_all_filters' ), 10, 2 );
+		add_action( 'jetpack_search_render_filters', array( $this, 'render_available_filters' ), 10, 2 );
 	}
 
 	function widget_admin_setup() {
@@ -202,7 +202,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			 * @param $instance                            The current widget instance
 			 * @param Jetpack_Search $this->jetpack_search The Jetpack_Search instance
 			 */
-			do_action( 'jetpack_search_render_filters', $filters, $instance, $this->jetpack_search );
+			do_action( 'jetpack_search_render_filters', $filters, $active_buckets, $instance, $this->jetpack_search );
 		}
 
 		echo $args['after_widget'];
@@ -502,17 +502,24 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 	 *
 	 * @param array $filters
 	 */
-	function render_available_filters( $filters ) {
+	function render_available_filters( $filters, $active_filters ) {
+		$actives = array();
+		foreach( $active_filters as $filter ) {
+			$actives[ $this->make_filter_id( $filter['query_vars'] ) ] = $filter;
+		}
+
 		foreach ( (array) $filters as $filter ) {
-			if ( count( $filter['buckets'] ) < 2 ) {
-				continue;
-			}
-			$this->render_filter( $filter );
+			$this->render_filter( $filter, $actives );
 		}
 	}
 
 	function render_widget_title( $title, $before_title, $after_title ) {
 		echo $before_title . esc_html( $title ) . $after_title;
+	}
+
+	function make_filter_id( $query_vars ) {
+		ksort( $query_vars );
+		return json_encode( $query_vars );
 	}
 
 	/**
@@ -581,12 +588,12 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 	}
 
 	/**
-	 * Renders the current filters applied to the search.
+	 * Renders link to remove all filters.
 	 *
 	 * @param array $active_buckets
 	 * @param array $instance
 	 */
-	function render_current_filters( $active_buckets, $instance ) {
+	function render_remove_all_filters( $active_buckets, $instance ) {
 		if ( ! $this->post_types_differ_query( $instance, true ) ) {
 			$active_buckets = array_filter( $active_buckets, array( $this, 'filter_post_types_from_active_buckets' ) );
 		}
@@ -598,51 +605,42 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		$remove_all_filters = add_query_arg( 's', get_query_var( 's' ), home_url() );
 		if ( $this->post_types_differ_searchable( $instance ) ) {
 			$remove_all_filters = $this->add_post_types_to_url( $remove_all_filters, $instance['post_types'] );
-			$active_buckets = $this->ensure_post_types_on_remove_url( $active_buckets, $instance['post_types'] );
 		}
 
 		?>
-		<h4 class="widget-title"><?php echo esc_html__( 'Current Filters', 'jetpack' ); ?></h4>
-		<ul>
-			<?php foreach ( $active_buckets as $item ) : ?>
-				<li>
-					<a href="<?php echo esc_url( $item['remove_url'] ); ?>">
-						<?php
-							echo sprintf(
-								_x( '&larr; %1$s: %2$s', 'aggregation widget: active filter type and name', 'jetpack' ),
-								esc_html( $item['type_label'] ),
-								esc_html( $item['name'] )
-							);
-						?>
-					</a>
-				</li>
-			<?php endforeach; ?>
-			<?php if ( count( $active_buckets ) > 1 ) : ?>
-				<li>
-					<a href="<?php echo esc_url( $remove_all_filters ); ?>">
-						<?php echo esc_html__( 'Remove All Filters', 'jetpack' ); ?>
-					</a>
-				</li>
-			<?php endif; ?>
-		</ul>
-		<br />
-	<?php }
+			<a href="<?php echo esc_url( $remove_all_filters ); ?>">
+				<?php echo esc_html__( '&larr; Remove All Filters', 'jetpack' ); ?>
+			</a>
+			<br />
+			<br />
+		<?php
+	}
 
 	/**
 	 * Renders a single filter that can be applied to the current search.
 	 *
 	 * @param array $filter
+	 * @param array $actives
 	 */
-	function render_filter( $filter ) { ?>
+	 function render_filter( $filter, $actives ) {?>
 		<h4  class="widget-title"><?php echo esc_html( $filter['name'] ); ?></h4>
 		<ul>
-			<?php foreach ( $filter['buckets'] as $item ) : ?>
+			<?php foreach ( $filter['buckets'] as $item ) :
+				$filter_id = $this->make_filter_id( $item['query_vars'] );
+				if ( isset( $actives[$filter_id] ) ) {
+					$active = true;
+					$url = $actives[$filter_id]['remove_url'];
+				} else {
+					$active = false;
+					$url = $item['url'];
+				}
+				?>
 				<li>
-					<a href="<?php echo esc_url( $item['url'] ); ?>">
+					<input type="checkbox" <?php echo $active ? 'checked' : ''; ?>/>
+					<a href="<?php echo esc_url( $url ); ?>">
 						<?php echo esc_html( $item['name'] ); ?>
+						(<?php echo number_format_i18n( absint( $item['count'] ) ); ?>)
 					</a>
-
-					(<?php echo number_format_i18n( absint( $item['count'] ) ); ?>)
 				</li>
 			<?php endforeach;?>
 		</ul>
