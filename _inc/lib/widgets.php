@@ -753,4 +753,19 @@ class Jetpack_Widgets {
 		return true;
 	}
 
+	/**
+	 * Retrieve the first active sidebar.
+	 *
+	 * @return string|WP_Error First active sidebar, error if none exists.
+	*/
+	static function get_first_sidebar() {
+		$active_sidebars = get_option( 'sidebars_widgets', array() );
+		unset( $active_sidebars[ 'wp_inactive_widgets' ], $active_sidebars[ 'array_version' ] );
+
+		if ( empty( $active_sidebars ) ) {
+			return false;
+		}
+		$active_sidebars_keys = array_keys( $active_sidebars );
+		return array_shift( $active_sidebars_keys );
+	}
 }
