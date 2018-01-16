@@ -1109,12 +1109,12 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 		}
 
 		if ( $first_sidebar ) {
-			$title = $address['name'];
+			$title = sanitize_text_field( $address['name'] );
 			$business_address =
-				$address['city'] . ' ' .
-				$address['state'] . ' ' .
-				$address['street'] . ' ' .
-				$address['zip'];
+				sanitize_text_field( $address['street'] ). ' ',
+				sanitize_text_field( $address['city'] ). ' ' .
+				sanitize_text_field( $address['state'] ). ' ' .
+				sanitize_text_field( $address['zip'] ). ' ';
 			$widget_options = array(
 				'title'   => $title,
 				'address' => $business_address,
@@ -1146,9 +1146,9 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 	/**
 	 * Check whether "Contact Info & Map" widget is present in a given sidebar.
 	 *
- 	 * @param string  $sidebar ID of the sidebar to which the widget will be added.
- 	 *
- 	 * @return bool Whether the widget is present in a given sidebar.
+	 * @param string  $sidebar ID of the sidebar to which the widget will be added.
+	 *
+	 * @return bool Whether the widget is present in a given sidebar.
 	*/
 	static function has_business_address_widget( $sidebar ) {
 		$sidebars_widgets = get_option( 'sidebars_widgets', array() );
