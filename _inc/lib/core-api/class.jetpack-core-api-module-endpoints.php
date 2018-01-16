@@ -1093,15 +1093,18 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 		}
 
 		if ( $first_sidebar ) {
-			$title = sanitize_text_field( $address['name'] );
-			$business_address =
-				sanitize_text_field( $address['street'] ). ' ',
-				sanitize_text_field( $address['city'] ). ' ' .
-				sanitize_text_field( $address['state'] ). ' ' .
-				sanitize_text_field( $address['zip'] ). ' ';
+			$title = isset( $address['name'] ) ? sanitize_text_field( $address['name'] ) : '';
+			$street = isset( $address['street'] ) ? sanitize_text_field( $address['street'] )
+			: '';
+			$city = isset( $address['city'] ) ? sanitize_text_field( $address['city'] ) : '';
+			$state = isset( $address['state'] ) ? sanitize_text_field( $address['state'] ) : '';
+			$zip = isset( $address['zip'] ) ? sanitize_text_field( $address['zip'] ) : '';
+
+			$full_address = implode( ' ', array_filter( array( $street, $city, $state, $zip ) ) );
+
 			$widget_options = array(
 				'title'   => $title,
-				'address' => $business_address,
+				'address' => $full_address,
 				'phone'   => '',
 				'hours'   => '',
 				'showmap' => false,
@@ -1119,7 +1122,14 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 				return new WP_Error( 'widget_update_failed', 'Widget could not be updated.', 400 );
 			}
 
-			update_option( 'jpo_business_address', $address );
+			$address_save = array(
+				'name' => $title,
+				'street' => $street,
+				'city' => $city,
+				'state' => $state,
+				'zip' => $zip
+			);
+			update_option( 'jpo_business_address', $address_save );
 			return true;
 		}
 
