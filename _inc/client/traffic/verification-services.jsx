@@ -86,7 +86,7 @@ export const VerificationServices = moduleSettingsForm(
 								}
 								
 								<Text>
-								  <Text> Meta key example: <meta name = 'google-site-verification' content =   </Text>
+								  <Text> Meta key example: <meta name = 'google-site-verification' content '='   </Text>
 								  <Text style={{fontWeight: "bold"}}> dBw5CvburAxi537Rp9qi5uG2174Vb6JwHwIRwPSLIK8 </Text>
 								  <Text> > </Text>
 								</Text>
