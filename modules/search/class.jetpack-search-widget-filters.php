@@ -257,7 +257,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			<p>
 				<label>
 					<?php esc_html_e( 'Sorting:', 'jetpack' ); ?>
-					<select name="<?php echo esc_attr( $this->get_field_name( 'sort' ) ); ?>[]" class="widefat">
+					<select name="<?php echo esc_attr( $this->get_field_name( 'sort' ) ); ?>" class="widefat">
 						<option value="relevance" <?php selected( $sort, 'relevance' ); ?>>
 							<?php esc_html_e( 'Relevance', 'jetpack' ); ?>
 						</option>
