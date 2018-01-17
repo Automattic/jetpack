@@ -285,7 +285,7 @@ class Jetpack_WPES_Query_Builder {
 	/**
 	 * Assemble the 'filter' portion of an ES query, from all registered filters
 	 *
-	 * @return array|null Combiled ES filters, or null if none have been defined
+	 * @return array|null Combined ES filters, or null if none have been defined
 	 */
 	public function build_filter() {
 		if ( empty( $this->es_filters ) ) {
@@ -304,7 +304,7 @@ class Jetpack_WPES_Query_Builder {
 	/**
 	 * Assemble the 'aggregation' portion of an ES query, from all general aggregations.
 	 *
-	 * @return an aggregation query as an array of topics, filters, and bucket names
+	 * @return array An aggregation query as an array of topics, filters, and bucket names
 	 */
 	function build_aggregation() {
 		if ( empty( $this->bucket_sub_aggs ) && empty( $this->aggs_query ) ) {
