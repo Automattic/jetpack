@@ -17,6 +17,11 @@ function jetpack_get_module_i18n( $key ) {
 				'description' => _x( 'Check your spelling, style, and grammar', 'Module Description', 'jetpack' ),
 			),
 
+			'asset-cdn' => array(
+				'name' => _x( 'Asset CDN', 'Module Name', 'jetpack' ),
+				'description' => _x( 'Speed up Javascript and CSS', 'Module Description', 'jetpack' ),
+			),
+
 			'carousel' => array(
 				'name' => _x( 'Carousel', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Display images and galleries in a gorgeous, full-screen browsing experience', 'Module Description', 'jetpack' ),
@@ -271,12 +276,28 @@ function jetpack_get_module_i18n_tag( $key ) {
 			'Writing' =>_x( 'Writing', 'Module Tag', 'jetpack' ),
 
 			// Modules with `Photos and Videos` tag:
+			//  - modules/asset-cdn.php
 			//  - modules/carousel.php
 			//  - modules/photon.php
 			//  - modules/shortcodes.php
 			//  - modules/tiled-gallery.php
 			//  - modules/videopress.php
 			'Photos and Videos' =>_x( 'Photos and Videos', 'Module Tag', 'jetpack' ),
+
+			// Modules with `Appearance` tag:
+			//  - modules/asset-cdn.php
+			//  - modules/custom-css.php
+			//  - modules/gravatar-hovercards.php
+			//  - modules/infinite-scroll.php
+			//  - modules/lazy-images.php
+			//  - modules/minileven.php
+			//  - modules/photon.php
+			//  - modules/seo-tools.php
+			//  - modules/shortcodes.php
+			//  - modules/widget-visibility.php
+			//  - modules/widgets.php
+			//  - modules/wordads.php
+			'Appearance' =>_x( 'Appearance', 'Module Tag', 'jetpack' ),
 
 			// Modules with `Social` tag:
 			//  - modules/comment-likes.php
@@ -291,20 +312,6 @@ function jetpack_get_module_i18n_tag( $key ) {
 			//  - modules/subscriptions.php
 			//  - modules/widgets.php
 			'Social' =>_x( 'Social', 'Module Tag', 'jetpack' ),
-
-			// Modules with `Appearance` tag:
-			//  - modules/custom-css.php
-			//  - modules/gravatar-hovercards.php
-			//  - modules/infinite-scroll.php
-			//  - modules/lazy-images.php
-			//  - modules/minileven.php
-			//  - modules/photon.php
-			//  - modules/seo-tools.php
-			//  - modules/shortcodes.php
-			//  - modules/widget-visibility.php
-			//  - modules/widgets.php
-			//  - modules/wordads.php
-			'Appearance' =>_x( 'Appearance', 'Module Tag', 'jetpack' ),
 
 			// Modules with `Developers` tag:
 			//  - modules/json-api.php
