@@ -813,7 +813,6 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		foreach ( $check_object_vars as $test ) {
 			$this->assertObjectHasAttribute( $test, $taxonomy, "Taxonomy does not have expected {$test} attribute." );
 		}
-
 	}
 
 	function test_force_sync_callabled_on_plugin_update() {
@@ -849,19 +848,22 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 	}
 
-	function test_xml_rpc_request_callables_has_() {
+	function test_xml_rpc_request_callables_has_actor() {
 		$this->server_event_storage->reset();
 		$user = wp_get_current_user();
 		wp_set_current_user( 0 ); //
+		$this->sender->do_sync();
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_callable' );
+		$this->assertEquals( $event->user_id, 0, ' Callables user_id is null' );
+
+		$this->resetCallableAndConstantTimeouts();
 		$this->mock_authenicated_xml_rpc(); // mock requet
 		$this->sender->do_sync();
-		$events = $this->server_event_storage->get_all_events();
-		foreach( $events as $e ) {
-			var_dump( $e->action );
-		}
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_callable' );
+		// clean up
 		$this->mock_autehicated_xml_rpc_cleanup( $user->ID );
+
 		$this->assertEquals( $event->user_id, self::$admin_id, ' Callables XMLRPC_Reqeust not equal to event user_id' );
 	}
 
@@ -870,13 +872,11 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			'role' => 'administrator',
 		) );
 
-		var_dump( 'mock_reques');
-
 		add_filter( 'pre_option_jetpack_private_options', array( $this, 'mock_jetpack_private_options' ), 10, 2 );
 		$_GET['token'] = 'pretend_this_is_valid:1:' . self::$admin_id;
 		$_GET['timestamp'] = (string) time();
 		$_GET['nonce'] = 'testing123';
-		var_dump( $_SERVER['REQUEST_URI'] );
+
 		$_SERVER['REQUEST_URI'] = '/xmlrpc.php';
 		$_GET['body'] = 'abc';
 		$_GET['body-hash'] = jetpack_sha1_base64( 'abc' );
