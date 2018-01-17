@@ -280,6 +280,12 @@
 
 .jp-banner__button-container .dops-button {
 	margin: rem( 5px ) 0;
+
+	&.is-primary {
+		background: $green-primary;
+		border-color: $gray;
+
+	}
 }
 
 // Connection Banner Vertical Menu

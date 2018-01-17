@@ -79,11 +79,12 @@ class Jetpack_Connection_Banner {
 	 */
 	function build_connect_url_for_slide( $jp_version_banner_added, $slide_num ) {
 		global $current_screen;
-		return Jetpack::init()->build_connect_url(
+		$url = Jetpack::init()->build_connect_url(
 			true,
 			false,
 			sprintf( 'banner-%s-slide-%s-%s', $jp_version_banner_added, $slide_num, $current_screen->base )
 		);
+		return add_query_arg( 'already_authorized', 'true', $url );
 	}
 
 	/**
@@ -261,10 +262,13 @@ class Jetpack_Connection_Banner {
 						</p>
 
 						<p class="jp-banner__button-container">
+							<span class="jp-banner__tos-blurb">
+								<?php jetpack_render_tos_blurb(); ?>
+							</span>
 							<a
 								href="<?php echo esc_url( $this->build_connect_url_for_slide( '44', 1 ) ); ?>"
 								class="dops-button is-primary">
-								<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
+								<?php esc_html_e( 'Setup Jetpack', 'jetpack' ); ?>
 							</a>
 							<a
 								href="#"
@@ -277,9 +281,6 @@ class Jetpack_Connection_Banner {
 								?>">
 								<?php esc_html_e( 'Start quick tour', 'jetpack' ); ?>
 							</a>
-							<span class="jp-banner__tos-blurb">
-								<?php jetpack_render_tos_blurb(); ?>
-							</span>
 						</p>
 					</div> <!-- end slide 1 -->
 
@@ -323,15 +324,15 @@ class Jetpack_Connection_Banner {
 						</p>
 
 						<p class="jp-banner__button-container">
+							<span class="jp-banner__tos-blurb">
+								<?php jetpack_render_tos_blurb(); ?>
+							</span>
 							<a href="<?php echo esc_url( $this->build_connect_url_for_slide( '44', 2 ) ); ?>" class="dops-button is-primary">
-								<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
+								<?php esc_html_e( 'Setup Jetpack', 'jetpack' ); ?>
 							</a>
 							<a href="#" class="dops-button next-feature" title="<?php esc_attr_e( 'Jetpack Tour: Next Feature', 'jetpack' ); ?>">
 								<?php esc_html_e( 'Next feature', 'jetpack' ); ?>
 							</a>
-							<span class="jp-banner__tos-blurb">
-								<?php jetpack_render_tos_blurb(); ?>
-							</span>
 						</p>
 					</div> <!-- end slide 2 -->
 
@@ -375,17 +376,17 @@ class Jetpack_Connection_Banner {
 						</p>
 
 						<p class="jp-banner__button-container">
+							<span class="jp-banner__tos-blurb">
+								<?php jetpack_render_tos_blurb(); ?>
+							</span>
 							<a
 								href="<?php echo esc_url( $this->build_connect_url_for_slide( '44', 3 ) ); ?>"
 								class="dops-button is-primary">
-								<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
+								<?php esc_html_e( 'Setup Jetpack', 'jetpack' ); ?>
 							</a>
 							<a href="#" class="dops-button next-feature" title="<?php esc_attr_e( 'Jetpack Tour: Next Feature', 'jetpack' ); ?>">
 								<?php esc_html_e( 'Next feature', 'jetpack' ); ?>
 							</a>
-							<span class="jp-banner__tos-blurb">
-								<?php jetpack_render_tos_blurb(); ?>
-							</span>
 						</p>
 					</div> <!-- end slide 3 -->
 
@@ -429,17 +430,17 @@ class Jetpack_Connection_Banner {
 						</p>
 
 						<p class="jp-banner__button-container">
+							<span class="jp-banner__tos-blurb">
+								<?php jetpack_render_tos_blurb(); ?>
+							</span>
 							<a
 								href="<?php echo esc_url( $this->build_connect_url_for_slide( '44', '3a' ) ); ?>"
 								class="dops-button is-primary">
-								<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
+								<?php esc_html_e( 'Setup Jetpack', 'jetpack' ); ?>
 							</a>
 							<a href="#" class="dops-button next-feature" title="<?php esc_attr_e( 'Jetpack Tour: Next Feature', 'jetpack' ); ?>">
 								<?php esc_html_e( 'Next feature', 'jetpack' ); ?>
 							</a>
-							<span class="jp-banner__tos-blurb">
-								<?php jetpack_render_tos_blurb(); ?>
-							</span>
 						</p>
 					</div> <!-- end slide 3A -->
 
@@ -475,15 +476,15 @@ class Jetpack_Connection_Banner {
 						</p>
 
 						<p class="jp-banner__button-container">
+							<span class="jp-banner__tos-blurb">
+								<?php jetpack_render_tos_blurb(); ?>
+							</span>
 							<a href="<?php echo esc_url( $this->build_connect_url_for_slide( '44', 4 ) ); ?>" class="dops-button is-primary">
-								<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
+								<?php esc_html_e( 'Setup Jetpack', 'jetpack' ); ?>
 							</a>
 							<a href="#" class="dops-button next-feature" title="<?php esc_attr_e( 'Jetpack Tour: Next Feature', 'jetpack' ); ?>">
 								<?php esc_html_e( 'Next feature', 'jetpack' ); ?>
 							</a>
-							<span class="jp-banner__tos-blurb">
-								<?php jetpack_render_tos_blurb(); ?>
-							</span>
 						</p>
 					</div> <!-- end slide 4 -->
 
@@ -518,15 +519,15 @@ class Jetpack_Connection_Banner {
 						</p>
 
 						<p class="jp-banner__button-container">
+							<span class="jp-banner__tos-blurb">
+								<?php jetpack_render_tos_blurb(); ?>
+							</span>
 							<a href="<?php echo esc_url( $this->build_connect_url_for_slide( '44', 5 ) ); ?>" class="dops-button is-primary">
-								<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
+								<?php esc_html_e( 'Setup Jetpack', 'jetpack' ); ?>
 							</a>
 							<a href="#" class="dops-button next-feature" title="<?php esc_attr_e( 'Jetpack Tour: Next Feature', 'jetpack' ); ?>">
 								<?php esc_html_e( 'Next feature', 'jetpack' ); ?>
 							</a>
-							<span class="jp-banner__tos-blurb">
-								<?php jetpack_render_tos_blurb(); ?>
-							</span>
 						</p>
 					</div> <!-- end slide 5 -->
 
@@ -562,14 +563,14 @@ class Jetpack_Connection_Banner {
 						</p>
 
 						<p class="jp-banner__button-container">
-							<a
-								href="<?php echo esc_url( $this->build_connect_url_for_slide( '44', 6 ) ); ?>"
-								class="dops-button is-primary">
-								<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
-							</a>
 							<span class="jp-banner__tos-blurb">
 								<?php jetpack_render_tos_blurb(); ?>
 							</span>
+							<a
+								href="<?php echo esc_url( $this->build_connect_url_for_slide( '44', 6 ) ); ?>"
+								class="dops-button is-primary">
+								<?php esc_html_e( 'Setup Jetpack', 'jetpack' ); ?>
+							</a>
 						</p>
 					</div> <!-- end slide 6 -->
 				</div>
@@ -657,10 +658,13 @@ class Jetpack_Connection_Banner {
 						</p>
 
 						<p class="jp-banner__button-container">
+							<span class="jp-banner__tos-blurb">
+								<?php jetpack_render_tos_blurb(); ?>
+							</span>
 							<a
 								href="<?php echo esc_url( $this->build_connect_url_for_slide( '53', 1 ) ); ?>"
 								class="dops-button is-primary">
-								<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
+								<?php esc_html_e( 'Setup Jetpack', 'jetpack' ); ?>
 							</a>
 							<a
 								href="#"
@@ -673,9 +677,6 @@ class Jetpack_Connection_Banner {
 								?>">
 								<?php esc_html_e( 'Start quick tour', 'jetpack' ); ?>
 							</a>
-							<span class="jp-banner__tos-blurb">
-								<?php jetpack_render_tos_blurb(); ?>
-							</span>
 						</p>
 					</div> <!-- end slide 1 -->
 
@@ -715,15 +716,15 @@ class Jetpack_Connection_Banner {
 						</p>
 
 						<p class="jp-banner__button-container">
+							<span class="jp-banner__tos-blurb">
+								<?php jetpack_render_tos_blurb(); ?>
+							</span>
 							<a href="<?php echo esc_url( $this->build_connect_url_for_slide( '53', 2 ) ); ?>" class="dops-button is-primary">
-								<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
+								<?php esc_html_e( 'Setup Jetpack', 'jetpack' ); ?>
 							</a>
 							<a href="#" class="dops-button next-feature" title="<?php esc_attr_e( 'Jetpack Tour: Next Feature', 'jetpack' ); ?>">
 								<?php esc_html_e( 'Next feature', 'jetpack' ); ?>
 							</a>
-							<span class="jp-banner__tos-blurb">
-								<?php jetpack_render_tos_blurb(); ?>
-							</span>
 						</p>
 					</div> <!-- end slide 2 -->
 
@@ -763,17 +764,17 @@ class Jetpack_Connection_Banner {
 						</p>
 
 						<p class="jp-banner__button-container">
+							<span class="jp-banner__tos-blurb">
+								<?php jetpack_render_tos_blurb(); ?>
+							</span>
 							<a
 								href="<?php echo esc_url( $this->build_connect_url_for_slide( '53', 3 ) ); ?>"
 								class="dops-button is-primary">
-								<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
+								<?php esc_html_e( 'Setup Jetpack', 'jetpack' ); ?>
 							</a>
 							<a href="#" class="dops-button next-feature" title="<?php esc_attr_e( 'Jetpack Tour: Next Feature', 'jetpack' ); ?>">
 								<?php esc_html_e( 'Next feature', 'jetpack' ); ?>
 							</a>
-							<span class="jp-banner__tos-blurb">
-								<?php jetpack_render_tos_blurb(); ?>
-							</span>
 						</p>
 					</div> <!-- end slide 3 -->
 
@@ -810,14 +811,14 @@ class Jetpack_Connection_Banner {
 						</p>
 
 						<p class="jp-banner__button-container">
-							<a
-								href="<?php echo esc_url( $this->build_connect_url_for_slide( '53', 4 ) ); ?>"
-								class="dops-button is-primary">
-								<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
-							</a>
 							<span class="jp-banner__tos-blurb">
 								<?php jetpack_render_tos_blurb(); ?>
 							</span>
+							<a
+								href="<?php echo esc_url( $this->build_connect_url_for_slide( '53', 4 ) ); ?>"
+								class="dops-button is-primary">
+								<?php esc_html_e( 'Setup Jetpack', 'jetpack' ); ?>
+							</a>
 						</p>
 					</div> <!-- end slide 4 -->
 				</div>
