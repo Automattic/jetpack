@@ -29,8 +29,6 @@ class Jetpack_Search {
 	// but are analyzed with the default analyzer.
 	public static $analyzed_langs = array( 'ar', 'bg', 'ca', 'cs', 'da', 'de', 'el', 'en', 'es', 'eu', 'fa', 'fi', 'fr', 'he', 'hi', 'hu', 'hy', 'id', 'it', 'ja', 'ko', 'nl', 'no', 'pt', 'ro', 'ru', 'sv', 'tr', 'zh' );
 
-	const FILTER_WIDGET_BASE = 'jetpack-search-filters';
-
 	protected function __construct() {
 		/* Don't do anything, needs to be initialized via instance() method */
 	}
@@ -169,35 +167,7 @@ class Jetpack_Search {
 			return;
 		}
 
-		$widget_options = get_option( sprintf( 'widget_%s', self::FILTER_WIDGET_BASE ) );
-
-		if ( empty( $widget_options ) ) {
-			return;
-		}
-
-		// We don't need this
-		if ( isset( $widget_options['_multiwidget'] ) ) {
-			unset( $widget_options['_multiwidget'] );
-		}
-
-		$filters = array();
-
-		foreach ( (array) $widget_options as $number => $settings ) {
-			$widget_id = sprintf( '%s-%d', self::FILTER_WIDGET_BASE, $number );
-			if ( ! is_active_widget( false, $widget_id, self::FILTER_WIDGET_BASE ) || empty( $settings['filters'] ) ) {
-				continue;
-			}
-
-			if ( empty( $settings['use_filters'] ) ) {
-				continue;
-			}
-
-			foreach ( (array) $settings['filters'] as $widget_filter ) {
-				$widget_filter['widget_id'] = $widget_id;
-				$key = sprintf( '%s_%d', $widget_filter['type'], count( $filters ) );
-				$filters[ $key ] = $widget_filter;
-			}
-		}
+		$filters = Jetpack_Search_Helpers::get_filters_from_widgets();
 
 		if ( ! empty( $filters ) ) {
 			$this->set_filters( $filters );
