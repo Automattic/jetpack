@@ -56,6 +56,9 @@ jQuery( document ).ready( function( $ ) {
 		$template.find( '.jitm-banner__dismiss' ).click( render( $template ) );
 
 		$el.replaceWith( $template );
+
+		// Add to Jetpack notices within the Jetpack settings app.
+		$template.prependTo( $( '#jp-admin-notices' ) );
 	};
 
 	$( '.jetpack-jitm-message' ).each( function() {
