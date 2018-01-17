@@ -268,7 +268,7 @@ class Jetpack_Connection_Banner {
 							<a
 								href="<?php echo esc_url( $this->build_connect_url_for_slide( '44', 1 ) ); ?>"
 								class="dops-button is-primary">
-								<?php esc_html_e( 'Setup Jetpack', 'jetpack' ); ?>
+								<?php esc_html_e( 'Set up Jetpack', 'jetpack' ); ?>
 							</a>
 							<a
 								href="#"
@@ -328,7 +328,7 @@ class Jetpack_Connection_Banner {
 								<?php jetpack_render_tos_blurb(); ?>
 							</span>
 							<a href="<?php echo esc_url( $this->build_connect_url_for_slide( '44', 2 ) ); ?>" class="dops-button is-primary">
-								<?php esc_html_e( 'Setup Jetpack', 'jetpack' ); ?>
+								<?php esc_html_e( 'Set up Jetpack', 'jetpack' ); ?>
 							</a>
 							<a href="#" class="dops-button next-feature" title="<?php esc_attr_e( 'Jetpack Tour: Next Feature', 'jetpack' ); ?>">
 								<?php esc_html_e( 'Next feature', 'jetpack' ); ?>
@@ -382,7 +382,7 @@ class Jetpack_Connection_Banner {
 							<a
 								href="<?php echo esc_url( $this->build_connect_url_for_slide( '44', 3 ) ); ?>"
 								class="dops-button is-primary">
-								<?php esc_html_e( 'Setup Jetpack', 'jetpack' ); ?>
+								<?php esc_html_e( 'Set up Jetpack', 'jetpack' ); ?>
 							</a>
 							<a href="#" class="dops-button next-feature" title="<?php esc_attr_e( 'Jetpack Tour: Next Feature', 'jetpack' ); ?>">
 								<?php esc_html_e( 'Next feature', 'jetpack' ); ?>
@@ -436,7 +436,7 @@ class Jetpack_Connection_Banner {
 							<a
 								href="<?php echo esc_url( $this->build_connect_url_for_slide( '44', '3a' ) ); ?>"
 								class="dops-button is-primary">
-								<?php esc_html_e( 'Setup Jetpack', 'jetpack' ); ?>
+								<?php esc_html_e( 'Set up Jetpack', 'jetpack' ); ?>
 							</a>
 							<a href="#" class="dops-button next-feature" title="<?php esc_attr_e( 'Jetpack Tour: Next Feature', 'jetpack' ); ?>">
 								<?php esc_html_e( 'Next feature', 'jetpack' ); ?>
@@ -480,7 +480,7 @@ class Jetpack_Connection_Banner {
 								<?php jetpack_render_tos_blurb(); ?>
 							</span>
 							<a href="<?php echo esc_url( $this->build_connect_url_for_slide( '44', 4 ) ); ?>" class="dops-button is-primary">
-								<?php esc_html_e( 'Setup Jetpack', 'jetpack' ); ?>
+								<?php esc_html_e( 'Set up Jetpack', 'jetpack' ); ?>
 							</a>
 							<a href="#" class="dops-button next-feature" title="<?php esc_attr_e( 'Jetpack Tour: Next Feature', 'jetpack' ); ?>">
 								<?php esc_html_e( 'Next feature', 'jetpack' ); ?>
@@ -523,7 +523,7 @@ class Jetpack_Connection_Banner {
 								<?php jetpack_render_tos_blurb(); ?>
 							</span>
 							<a href="<?php echo esc_url( $this->build_connect_url_for_slide( '44', 5 ) ); ?>" class="dops-button is-primary">
-								<?php esc_html_e( 'Setup Jetpack', 'jetpack' ); ?>
+								<?php esc_html_e( 'Set up Jetpack', 'jetpack' ); ?>
 							</a>
 							<a href="#" class="dops-button next-feature" title="<?php esc_attr_e( 'Jetpack Tour: Next Feature', 'jetpack' ); ?>">
 								<?php esc_html_e( 'Next feature', 'jetpack' ); ?>
@@ -569,7 +569,7 @@ class Jetpack_Connection_Banner {
 							<a
 								href="<?php echo esc_url( $this->build_connect_url_for_slide( '44', 6 ) ); ?>"
 								class="dops-button is-primary">
-								<?php esc_html_e( 'Setup Jetpack', 'jetpack' ); ?>
+								<?php esc_html_e( 'Set up Jetpack', 'jetpack' ); ?>
 							</a>
 						</p>
 					</div> <!-- end slide 6 -->
@@ -664,7 +664,7 @@ class Jetpack_Connection_Banner {
 							<a
 								href="<?php echo esc_url( $this->build_connect_url_for_slide( '53', 1 ) ); ?>"
 								class="dops-button is-primary">
-								<?php esc_html_e( 'Setup Jetpack', 'jetpack' ); ?>
+								<?php esc_html_e( 'Set up Jetpack', 'jetpack' ); ?>
 							</a>
 							<a
 								href="#"
@@ -720,7 +720,7 @@ class Jetpack_Connection_Banner {
 								<?php jetpack_render_tos_blurb(); ?>
 							</span>
 							<a href="<?php echo esc_url( $this->build_connect_url_for_slide( '53', 2 ) ); ?>" class="dops-button is-primary">
-								<?php esc_html_e( 'Setup Jetpack', 'jetpack' ); ?>
+								<?php esc_html_e( 'Set up Jetpack', 'jetpack' ); ?>
 							</a>
 							<a href="#" class="dops-button next-feature" title="<?php esc_attr_e( 'Jetpack Tour: Next Feature', 'jetpack' ); ?>">
 								<?php esc_html_e( 'Next feature', 'jetpack' ); ?>
@@ -770,7 +770,7 @@ class Jetpack_Connection_Banner {
 							<a
 								href="<?php echo esc_url( $this->build_connect_url_for_slide( '53', 3 ) ); ?>"
 								class="dops-button is-primary">
-								<?php esc_html_e( 'Setup Jetpack', 'jetpack' ); ?>
+								<?php esc_html_e( 'Set up Jetpack', 'jetpack' ); ?>
 							</a>
 							<a href="#" class="dops-button next-feature" title="<?php esc_attr_e( 'Jetpack Tour: Next Feature', 'jetpack' ); ?>">
 								<?php esc_html_e( 'Next feature', 'jetpack' ); ?>
@@ -817,7 +817,7 @@ class Jetpack_Connection_Banner {
 							<a
 								href="<?php echo esc_url( $this->build_connect_url_for_slide( '53', 4 ) ); ?>"
 								class="dops-button is-primary">
-								<?php esc_html_e( 'Setup Jetpack', 'jetpack' ); ?>
+								<?php esc_html_e( 'Set up Jetpack', 'jetpack' ); ?>
 							</a>
 						</p>
 					</div> <!-- end slide 4 -->
