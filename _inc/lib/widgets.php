@@ -714,7 +714,7 @@ class Jetpack_Widgets {
 	}
 
 	/**
-	 * Update the content of an exisiting widget in a given sidebar.
+	 * Update the content of an existing widget in a given sidebar.
 	 *
 	 * @param string $widget_id ID of the widget.
 	 * @param array $widget_options New content for the update.
