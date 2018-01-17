@@ -48,3 +48,7 @@
 .jetpack-search-filters-widget__filter.is-date_histogram .jetpack-search-filters-widget__taxonomy-select {
 	display: none;
 }
+
+.jetpack-search-filters-widget.hide-post-types .jetpack-search-filters-widget__post-types-select {
+	display: none;
+}
