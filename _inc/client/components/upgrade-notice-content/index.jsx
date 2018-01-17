@@ -57,8 +57,8 @@ class UpgradeNoticeContent extends Component {
 	render() {
 		return (
 			<JetpackDialogue
-				svg={ <img src={ imagePath + 'people-around-page.svg' } width="250" alt={ __( 'People around page' ) } /> }
-				title={ __( 'A new contact form is here at last!' ) }
+				svg={ <img src={ imagePath + 'jetpack-search.svg' } width="250" alt={ __( 'Jetpack Search' ) } /> }
+				title={ __( 'Jetpack Search improvements' ) }
 				content={ this.renderInnerContent() }
 				dismiss={ this.props.dismiss }
 			/>
