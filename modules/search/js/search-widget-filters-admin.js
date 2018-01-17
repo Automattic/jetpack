@@ -30,11 +30,14 @@
 			clone.find( 'select option:first-child' ).prop( 'selected', true );
 
 			clone.insertAfter( closest );
+			clone.find( 'input, textarea, select' ).change();
 		} );
 
 		widget.on( 'click', '.jetpack-search-filters-widget__controls .delete', function( e ) {
 			e.preventDefault();
-			$( this ).closest( '.jetpack-search-filters-widget__filter' ).remove();
+			var filter = $( this ).closest( '.jetpack-search-filters-widget__filter' );
+			filter.find( 'input, textarea, select' ).change();
+			filter.remove();
 		} );
 
 		widget.on( 'change', '.jetpack-search-filters-widget__use-filters', function() {
