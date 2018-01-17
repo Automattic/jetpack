@@ -5,6 +5,8 @@ import React from 'react';
 import { translate as __ } from 'i18n-calypso';
 import TextInput from 'components/text-input';
 import ExternalLink from 'components/external-link';
+import Text from 'react-native';
+
 
 /**
  * Internal dependencies
