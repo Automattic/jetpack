@@ -404,11 +404,28 @@ add_action( 'jetpack_learn_more_button_photon', 'jetpack_photon_more_link' );
 
 function jetpack_photon_more_info() {
 	esc_html_e(
-		"Your images are automatically optimized for different display resolutions to serve the best
-		possible image quality. We also cache and serve them from our fast, global network (CDN)."
+		'Jetpack will optimize your images and serve them from the server location nearest
+		to your visitors. Using our global content delivery network will boost the loading speed of your site.'
 		, 'jetpack' );
 }
 add_action( 'jetpack_module_more_info_photon', 'jetpack_photon_more_info' );
+
+/**
+ * Lazy Images
+ */
+function jetpack_lazy_images_more_link() {
+	echo 'https://jetpack.com/support/lazy-images/';
+}
+add_action( 'jetpack_learn_more_button_lazy-images', 'jetpack_lazy_images_more_link' );
+
+function jetpack_lazy_images_more_info() {
+	esc_html_e(
+		'Improve your site\'s speed by only loading images visible on the screen.
+		New images will load just before they scroll into view. This prevents viewers
+		from having to download all the images on a page all at once, even ones they can\'t see.'
+		, 'jetpack' );
+}
+add_action( 'jetpack_module_more_info_lazy-images', 'jetpack_lazy_images_more_info' );
 
 /**
  * Tiled Galleries

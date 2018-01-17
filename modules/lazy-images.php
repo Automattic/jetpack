@@ -2,7 +2,7 @@
 
 /**
  * Module Name: Lazy Images
- * Module Description: Improve performance by loading images just before they scroll into view
+ * Module Description: "Lazy-load" images
  * Sort Order: 24
  * Recommendation Order: 14
  * First Introduced: 5.6.0
@@ -10,7 +10,7 @@
  * Auto Activate: No
  * Module Tags: Appearance, Recommended
  * Feature: Appearance
- * Additional Search Queries: mobile, theme, performance
+ * Additional Search Queries: mobile, theme, performance, image
  */
 
 /**
