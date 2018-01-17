@@ -83,7 +83,11 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			return false;
 		}
 
-		$diff_query = array_diff( (array) $instance['post_types'], (array) $_GET['post_type'] );
+		$post_types_from_query = isset( $_GET['post_type' ] )
+			? (array) $_GET['post_type']
+			: array();
+
+		$diff_query = array_diff( (array) $instance['post_types'], $post_types_from_query );
 		return ! empty( $diff_query );
 	}
 
