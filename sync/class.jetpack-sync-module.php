@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Basic methods implemented by Jetpack Sync extensions
  */
