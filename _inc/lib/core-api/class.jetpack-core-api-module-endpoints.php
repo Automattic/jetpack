@@ -1089,13 +1089,12 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			$widgets_module_active = Jetpack::activate_module( 'widgets', false, false );
 		}
 		if ( ! $widgets_module_active ) {
-			return new WP_Error( 'module_activation_failed', 'Failed to activate module.', 400 );
+			return new WP_Error( 'module_activation_failed', 'Failed to activate the widgets module.', 400 );
 		}
 
 		if ( $first_sidebar ) {
 			$title = isset( $address['name'] ) ? sanitize_text_field( $address['name'] ) : '';
-			$street = isset( $address['street'] ) ? sanitize_text_field( $address['street'] )
-			: '';
+			$street = isset( $address['street'] ) ? sanitize_text_field( $address['street'] ) : '';
 			$city = isset( $address['city'] ) ? sanitize_text_field( $address['city'] ) : '';
 			$state = isset( $address['state'] ) ? sanitize_text_field( $address['state'] ) : '';
 			$zip = isset( $address['zip'] ) ? sanitize_text_field( $address['zip'] ) : '';
@@ -1111,14 +1110,13 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 				'email' => ''
 			);
 
-			$widget_inserted = '';
 			$widget_updated = '';
 			if ( ! self::has_business_address_widget( $first_sidebar ) ) {
-				$widget_inserted = Jetpack_Widgets::insert_widget_in_sidebar( 'widget_contact_info', $widget_options, $first_sidebar );
+				$widget_updated  = Jetpack_Widgets::insert_widget_in_sidebar( 'widget_contact_info', $widget_options, $first_sidebar );
 			} else {
 				$widget_updated = Jetpack_Widgets::update_widget_in_sidebar( 'widget_contact_info', $widget_options, $first_sidebar );
 			}
-			if ( is_wp_error( $widget_inserted ) || is_wp_error( $widget_updated ) ) {
+			if ( is_wp_error( $widget_updated ) ) {
 				return new WP_Error( 'widget_update_failed', 'Widget could not be updated.', 400 );
 			}
 
@@ -1134,7 +1132,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 		}
 
 		// No sidebar to place the widget
-		return new WP_Error( 'sidebar_failed', 'No sidebar.', 400 );
+		return new WP_Error( 'sidebar_not_found', 'No sidebar.', 400 );
 	}
 
 	/**

@@ -684,8 +684,7 @@ class Jetpack_Widgets {
 	 * @param array $widget_options Content of the widget.
  	 * @param string $sidebar ID of the sidebar to which the widget will be added.
  	 *
- 	 * @return WP_Error|true True when data has been saved correctly,
- 	 * error otherwise.
+ 	 * @return WP_Error|true True when data has been saved correctly, error otherwise.
 	*/
 	static function insert_widget_in_sidebar( $widget_id, $widget_options, $sidebar ) {
 		// Retrieve sidebars, widgets and their instances
@@ -715,14 +714,13 @@ class Jetpack_Widgets {
 	}
 
 	/**
-	 * Update the content of an exisitng widget in a given sidebar.
+	 * Update the content of an exisiting widget in a given sidebar.
 	 *
 	 * @param string $widget_id ID of the widget.
 	 * @param array $widget_options New content for the update.
  	 * @param string $sidebar ID of the sidebar to which the widget will be added.
  	 *
- 	 * @return WP_Error|true True when data has been updated correctly,
- 	 * error otherwise.
+ 	 * @return WP_Error|true True when data has been updated correctly, error otherwise.
 	*/
 	static function update_widget_in_sidebar( $widget_id, $widget_options, $sidebar ) {
 		// Retrieve sidebars, widgets and their instances
@@ -732,8 +730,8 @@ class Jetpack_Widgets {
 		// Retrieve index of first widget instance in that sidebar
 		$widget_key = false;
 		foreach ( $sidebars_widgets[ $sidebar ] as $widget ) {
-			if ( strpos( $widget, 'widget_contact_info' ) !== false ) {
-				$widget_key = absint( str_replace( 'widget_contact_info-', '', $widget ) );
+			if ( strpos( $widget, $widget_id ) !== false ) {
+				$widget_key = absint( str_replace( $widget_id . '-', '', $widget ) );
 				break;
 			}
 		}
