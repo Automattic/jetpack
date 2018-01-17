@@ -14,7 +14,7 @@ var EXPORTED_SYMBOLS = ['AtDCore'];
 
 function AtDCore() {
 	/* these are the categories of errors AtD should ignore */
-	this.ignore_types = ['Bias Language', 'Cliches', 'Complex Expression', 'Diacritical Marks', 'Double Negatives', 'Hidden Verbs', 'Jargon Language', 'Passive voice', 'Phrases to Avoid', 'Redundant Expression'];
+	this.ignore_types = ['Biased Language', 'Cliches', 'Complex Expression', 'Diacritical Marks', 'Double Negatives', 'Hidden Verbs', 'Jargon Language', 'Passive voice', 'Phrases to Avoid', 'Redundant Expression'];
 
 	/* these are the phrases AtD should ignore */
 	this.ignore_strings = {};
@@ -59,7 +59,7 @@ AtDCore.prototype.showTypes = function(string) {
 	types['Double Negatives']     = 1;
 	types['Hidden Verbs']         = 1;
 	types['Passive voice']        = 1;
-	types['Bias Language']        = 1;
+	types['Biased Language']        = 1;
 
 		/* style checker options */
 	types['Cliches']              = 1;
