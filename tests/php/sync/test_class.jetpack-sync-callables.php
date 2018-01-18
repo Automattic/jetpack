@@ -857,17 +857,17 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $event->user_id, 0, ' Callables user_id is null' );
 
 		$this->resetCallableAndConstantTimeouts();
-		$this->mock_authenicated_xml_rpc(); // mock requet
+		$this->mock_authenticated_xml_rpc(); // mock requet
 		$this->sender->do_sync();
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_callable' );
-		// clean up
-		$this->mock_autehicated_xml_rpc_cleanup( $user->ID );
+		// clean up by unsetting globals, etc. set previously by $this->mock_authenticated_xml_rpc()
+		$this->mock_authenticated_xml_rpc_cleanup( $user->ID );
 
 		$this->assertEquals( $event->user_id, self::$admin_id, ' Callables XMLRPC_Reqeust not equal to event user_id' );
 	}
 
-	function mock_authenicated_xml_rpc() {
+	function mock_authenticated_xml_rpc() {
 		self::$admin_id = $this->factory->user->create( array(
 			'role' => 'administrator',
 		) );
@@ -897,7 +897,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		$_GET['signature'] = base64_encode( hash_hmac( 'sha1', $normalize , 'secret', true ) );
 
-		// call one of the autheticad endpoints
+		// call one of the authenticated endpoints
 		Jetpack_Constants::set_constant( 'XMLRPC_REQUEST', true );
 		$jetpack = Jetpack::init();
 		$jetpack->xmlrpc_methods( array() );
@@ -905,7 +905,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$jetpack->verify_xml_rpc_signature();
 	}
 
-	function mock_autehicated_xml_rpc_cleanup( $user_id ) {
+	function mock_authenticated_xml_rpc_cleanup( $user_id ) {
 		Jetpack_Constants::clear_constants();
 		remove_filter( 'pre_option_jetpack_private_options', array( $this, 'mock_jetpack_private_options' ), 10 );
 
