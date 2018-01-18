@@ -623,9 +623,9 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		}
 
 		// This shouldn't need to be escaped since we escaped above when we imploded the selected post types
-    echo '<div class="jetpack-search-form">';
+		echo '<div class="jetpack-search-form">';
 		echo $form;
-    echo '</div>';
+		echo '</div>';
 	}
 
 	/**
