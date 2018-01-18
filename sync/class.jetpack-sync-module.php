@@ -1,5 +1,6 @@
 <?php
 /**
+ *
  * Basic methods implemented by Jetpack Sync extensions
  */
 abstract class Jetpack_Sync_Module {
