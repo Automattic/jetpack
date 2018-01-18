@@ -413,7 +413,8 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 						// We can't affect this setting, so don't include it in the response
 						break;
 					}
-					$response[ $setting ] = get_option( 'WPLANG' );
+					$value = get_option( 'WPLANG' );
+					$response[ $setting ] = empty( $value ) ? 'en_US' : $value;
 					break;
 				case $holiday_snow_option_name:
 					$response[ $setting ] = get_option( $holiday_snow_option_name ) === 'letitsnow';
