@@ -367,7 +367,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 
 			<p>
 				<label>
-					<?php esc_html_e( 'Default results order', 'jetpack' ); ?>
+					<?php esc_html_e( 'Default sort order:', 'jetpack' ); ?>
 					<select name="<?php echo esc_attr( $this->get_field_name( 'sort' ) ); ?>" class="widefat">
 		 				<?php foreach( $this->get_sort_types() as $sort_type => $label ) { ?>
 							<option value="<?php echo $sort_type; ?>" <?php selected( $sort, $sort_type ); ?>>
