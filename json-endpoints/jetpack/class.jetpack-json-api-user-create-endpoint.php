@@ -29,33 +29,24 @@ class Jetpack_JSON_API_User_Create_Endpoint extends Jetpack_JSON_API_Endpoint {
 		require_once JETPACK__PLUGIN_DIR . 'modules/sso/class.jetpack-sso-helpers.php';
 		// Check for an existing user
 		$user = get_user_by( 'email', $this->user_data['email'] );
-
-		$query_args = $this->query_args();
-		if ( isset( $query_args['invite_accepted'] ) && $query_args['invite_accepted'] ) {
-			/**
-			 * Fires after a user accepts an invitation and before a user gets created.
-			 *
-			 * @module sync
-			 *
-			 * @since  5.8.0
-			 *
-			 * @props  WP_User|false WP_User object on success, false on failure.
-			 */
-			do_action( 'jetpack_invitation_accepted', $user );
-		}
-
+		$roles = (array) $this->user_data['roles'];
+		$role = array_pop( $roles );
 		if ( ! $user ) {
 			// We modify the input here to mimick the same call structure of the update user endpoint.
 			$this->user_data = (object) $this->user_data;
-			$roles = (array) $this->user_data->roles;
-			$this->user_data->role = array_pop( $roles );
-			$this->user_data->url = isset( $this->user_data->url ) ? $this->user_data->url : '';
+			$this->user_data->role = $role;
+			$this->user_data->url = isset( $this->user_data->URL ) ? $this->user_data->URL : '';
 			$this->user_data->display_name = $this->user_data->name;
 			$this->user_data->description = '';
 			$user = Jetpack_SSO_Helpers::generate_user( $this->user_data );
 		}
 
+		if ( is_multisite() ) {
+			add_user_to_blog( get_current_blog_id(), $user->ID, $role );
+		}
+
 		if ( ! $user ) {
+
 			return false;
 		}
 
