@@ -29,8 +29,6 @@ class Jetpack_Search {
 	// but are analyzed with the default analyzer.
 	public static $analyzed_langs = array( 'ar', 'bg', 'ca', 'cs', 'da', 'de', 'el', 'en', 'es', 'eu', 'fa', 'fi', 'fr', 'he', 'hi', 'hu', 'hy', 'id', 'it', 'ja', 'ko', 'nl', 'no', 'pt', 'ro', 'ru', 'sv', 'tr', 'zh' );
 
-	const FILTER_WIDGET_BASE = 'jetpack-search-filters';
-
 	protected function __construct() {
 		/* Don't do anything, needs to be initialized via instance() method */
 	}
@@ -80,6 +78,8 @@ class Jetpack_Search {
 			return;
 		}
 
+		require_once( dirname( __FILE__ ) . '/class.jetpack-search-helpers.php' );
+
 		$this->init_hooks();
 	}
 
@@ -100,6 +100,8 @@ class Jetpack_Search {
 			add_action( 'failed_jetpack_search_query', array( $this, 'store_query_failure' ) );
 
 			add_action( 'init', array( $this, 'set_filters_from_widgets' ) );
+
+			add_action( 'pre_get_posts', array( $this, 'maybe_add_post_type_as_var' ) );
 		}
 	}
 
@@ -165,38 +167,20 @@ class Jetpack_Search {
 			return;
 		}
 
-		$widget_options = get_option( sprintf( 'widget_%s', self::FILTER_WIDGET_BASE ) );
-
-		if ( empty( $widget_options ) ) {
-			return;
-		}
-
-		// We don't need this
-		if ( isset( $widget_options['_multiwidget'] ) ) {
-			unset( $widget_options['_multiwidget'] );
-		}
-
-		$filters = array();
-
-		foreach ( (array) $widget_options as $number => $settings ) {
-			$widget_id = sprintf( '%s-%d', self::FILTER_WIDGET_BASE, $number );
-			if ( ! is_active_widget( false, $widget_id, self::FILTER_WIDGET_BASE ) || empty( $settings['filters'] ) ) {
-				continue;
-			}
-
-			if ( empty( $settings['use_filters'] ) ) {
-				continue;
-			}
-
-			foreach ( (array) $settings['filters'] as $widget_filter ) {
-				$widget_filter['widget_id'] = $widget_id;
-				$key = sprintf( '%s_%d', $widget_filter['type'], count( $filters ) );
-				$filters[ $key ] = $widget_filter;
-			}
-		}
+		$filters = Jetpack_Search_Helpers::get_filters_from_widgets();
 
 		if ( ! empty( $filters ) ) {
 			$this->set_filters( $filters );
+		}
+	}
+
+	function maybe_add_post_type_as_var( $query ) {
+		if ( $query->is_main_query() && $query->is_search && ! empty( $_GET['post_type'] ) ) {
+			$post_types = ( is_string( $_GET['post_type'] ) && false !== strpos( $_GET['post_type'], ',' ) )
+				? $post_type = explode( ',', $_GET['post_type'] )
+				: (array) $_GET['post_type'];
+			$post_types = array_map( 'sanitize_key', $post_types );
+			$query->set('post_type', $post_types );
 		}
 	}
 
@@ -1247,9 +1231,12 @@ class Jetpack_Search {
 							$slug_count = count( $existing_term_slugs );
 
 							if ( $slug_count > 1 ) {
-								$remove_url = add_query_arg( $tax_query_var, urlencode( implode( '+', array_diff( $existing_term_slugs, array( $item['key'] ) ) ) ) );
+								$remove_url = Jetpack_Search_Helpers::add_query_arg(
+									$tax_query_var,
+									urlencode( implode( '+', array_diff( $existing_term_slugs, array( $item['key'] ) ) ) )
+								);
 							} else {
-								$remove_url = remove_query_arg( $tax_query_var );
+								$remove_url = Jetpack_Search_Helpers::remove_query_arg( $tax_query_var );
 							}
 						}
 
@@ -1282,9 +1269,12 @@ class Jetpack_Search {
 
 							// For the right 'remove filter' url, we need to remove the post type from the array, or remove the param entirely if it's the only one
 							if ( $post_type_count > 1 ) {
-								$remove_url = add_query_arg( 'post_type', urlencode_deep( array_diff( $post_types, array( $item['key'] ) ) ) );
+								$remove_url = Jetpack_Search_Helpers::add_query_arg(
+									'post_type',
+									urlencode_deep( array_diff( $post_types, array( $item['key'] ) ) )
+								);
 							} else {
-								$remove_url = remove_query_arg( 'post_type' );
+								$remove_url = Jetpack_Search_Helpers::remove_query_arg( 'post_type' );
 							}
 						}
 
@@ -1313,7 +1303,7 @@ class Jetpack_Search {
 								if ( ! empty( $current_year ) && (int) $current_year === $year ) {
 									$active = true;
 
-									$remove_url = remove_query_arg( array( 'year', 'monthnum', 'day' ) );
+									$remove_url = Jetpack_Search_Helpers::remove_query_arg( array( 'year', 'monthnum', 'day' ) );
 								}
 
 								break;
@@ -1335,7 +1325,7 @@ class Jetpack_Search {
 								     ! empty( $current_month ) && (int) $current_month === $month ) {
 									$active = true;
 
-									$remove_url = remove_query_arg( array( 'year', 'monthnum' ) );
+									$remove_url = Jetpack_Search_Helpers::remove_query_arg( array( 'year', 'monthnum' ) );
 								}
 
 								break;
@@ -1359,7 +1349,7 @@ class Jetpack_Search {
 								     ! empty( $current_day ) && (int) $current_day === $day ) {
 									$active = true;
 
-									$remove_url = remove_query_arg( array( 'day' ) );
+									$remove_url = Jetpack_Search_Helpers::remove_query_arg( array( 'day' ) );
 								}
 
 								break;
@@ -1378,7 +1368,7 @@ class Jetpack_Search {
 				$url_params = urlencode_deep( $query_vars );
 
 				$aggregation_data[ $label ]['buckets'][] = array(
-					'url'        => add_query_arg( $url_params ),
+					'url'        => Jetpack_Search_Helpers::add_query_arg( $url_params ),
 					'query_vars' => $query_vars,
 					'name'       => $name,
 					'count'      => $item['doc_count'],
