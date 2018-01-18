@@ -8,7 +8,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 	protected $jetpack_search;
 
 	const DEFAULT_FILTER_COUNT = 5;
-	const DEFAULT_SORT = 'relevance';
+	const DEFAULT_SORT = 'relevance_desc';
 
 	function __construct() {
 		if ( ! class_exists( 'Jetpack_Search' ) ) {
@@ -48,7 +48,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 
 	private function get_sort_types() {
 		return array(
-			'relevance' => esc_html( 'Relevance' ),
+			'relevance_desc' => esc_html( 'Relevance' ),
 			'date_desc' => esc_html( 'Newest first' ),
 			'date_asc' => esc_html( 'Oldest first' )
 		);
@@ -151,17 +151,17 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			echo '</div>';
 		}
 
-		$sort = isset( $instance['sort'] ) ? $instance['sort'] : self::DEFAULT_SORT;
-		list( $order, $orderby ) = $this->sorting_to_wp_query_param( $instance['sort'] );
+		$default_sort = isset( $instance['sort'] ) ? $instance['sort'] : self::DEFAULT_SORT;
+		list( $orderby, $order ) = $this->sorting_to_wp_query_param( $default_sort );
+		$current_sort = strtolower("{$orderby}_{$order}");
 
-		// TODO: user selected sort OR default
-		if ( ! empty( $instance['user_sort_enabled'] ) ) {
+		if ( ! empty( $instance['search_box_enabled'] ) && ! empty( $instance['user_sort_enabled'] ) ) {
 			?>
-			<label>
+			<label class="jetpack-search-sort-wrapper">
 				<?php esc_html_e('Sort by', 'jetpack'); ?>
 				<select name="<?php echo esc_attr( $this->get_field_name( 'sort' ) ); ?>" class="jetpack-search-sort">
-					<?php foreach( $this->get_sort_types() as $sort_type => $label ) { ?>
-						<option value="<?php echo $sort_type; ?>" <?php selected( $order, $sort_type ); ?>>
+					<?php foreach( $this->get_sort_types() as $sort => $label ) { ?>
+						<option value="<?php echo $sort; ?>" <?php selected( $current_sort, $sort ); ?>>
 							<?php echo $label; ?>
 						</option>
 					<?php } ?>
@@ -172,20 +172,19 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		/*
 		 * this JS is a bit complicated, but here's what it's trying to do:
 		 * - find or create a search form
-		 * - find or create the orderby/order fields
-		 * - detect changes to the sort field, and use it to set the order field values
+		 * - find or create the orderby/order fields with default values
+		 * - detect changes to the sort field, if it exists, and use it to set the order field values
 		 */
 		?>
 		<script type="text/javascript">
 			jQuery( document ).ready( function( $ ) {
-				console.log('widget ready');
-				var actionUrl      = <?php echo json_encode( home_url( '/' ) ); ?>;
-				var orderDefault   = <?php echo json_encode( $order ); ?>;
-				var orderByDefault = <?php echo json_encode( $orderby ); ?>;
-				var widgetId       = <?php echo json_encode( $this->id ); ?>;
+				var actionUrl      = <?php echo json_encode( home_url( '/' ) ); ?>,
+					orderByDefault = <?php echo json_encode( $orderby ); ?>,
+					orderDefault   = <?php echo json_encode( $order ); ?>,
+					widgetId       = <?php echo json_encode( $this->id ); ?>,
+					currentSearch  = <?php echo json_encode( isset( $_GET['s'] ) ? $_GET['s'] : '' ); ?>
 
 				var container = $('#' + widgetId);
-
 				var form = container.find('.jetpack-search-form form');
 				if ( form.length === 0 ) {
 					form = $('<form></form>')
@@ -199,6 +198,16 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 				}
 
 				// create hidden fields if necessary
+				var orderBy = form.find( 'input[name=orderby]');
+				if ( orderBy.length === 0 ) {
+					orderBy = $('<input>')
+						.attr({
+							'name': 'orderby',
+							'type': 'hidden'
+						});
+					form.append(orderBy);
+				}
+
 				var order = form.find( 'input[name=order]');
 				if ( order.length === 0 ) {
 					order = $('<input>')
@@ -209,29 +218,17 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 					form.append(order);
 				}
 
-				var orderBy = $(form).find( 'input[name=orderby]');
-				if ( orderBy.length === 0 ) {
-					orderBy = $('<input>')
-						.attr({
-							'name': 'orderby',
-							'type': 'hidden'
-						});
-					form.append(orderBy);
-				}
+				orderBy.val(orderByDefault);
+				order.val(orderDefault);
 
-				order.attr( 'value', orderDefault );
-				orderBy.attr( 'value', orderByDefault );
-
-				// initialize events
 				container.find( '.jetpack-search-sort' ).change( function( event ) {
-					console.log("select changed", event);
 					var values  = event.target.value.split( '_' );
-					var orderValue   = values[0];
-					var orderByValue = values[1] || 'DESC';
+					orderBy.val( values[0] );
+					order.val( values[1] );
 
-					order.attr( 'value', orderValue );
-					orderBy.attr( 'value', orderByValue );
-					form.submit();
+					if ( currentSearch ) {
+						form.submit();
+					}
 				});
 			} );
 		</script>
@@ -257,9 +254,9 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 	}
 
 	private function sorting_to_wp_query_param( $sort ) {
-		$orderby = ( substr( $sort, -4 ) === '_asc' ) ? 'ASC' : 'DESC';
-		$order   = explode( '_', $sort )[0];
-		return array( $order, $orderby );
+		$orderby = isset( $_GET['orderby'] ) ? $_GET['orderby'] : explode( '_', $sort )[0];
+		$order   = isset( $_GET['order'] )   ? $_GET['order']   : ( substr( $sort, -4 ) === '_asc' ) ? 'ASC' : 'DESC';
+		return array( $orderby, $order );
 	}
 
 	function update( $new_instance, $old_instance ) {
