@@ -705,8 +705,10 @@ class Jetpack_Widgets {
 		$widget_instances[ $next_key ] = $widget_options;
 
 		// Store updated sidebars, widgets and their instances
-		if ( ! ( update_option( 'sidebars_widgets', $sidebars_widgets ) )
-		|| ( ! ( update_option( 'widget_' . $widget_id, $widget_instances ) ) ) )  {
+		if (
+			! ( update_option( 'sidebars_widgets', $sidebars_widgets ) )
+			|| ( ! ( update_option( 'widget_' . $widget_id, $widget_instances ) ) )
+		) {
 			return new WP_Error( 'widget_update_failed', 'Failed to update widget or sidebar.', 400 );
 		};
 
