@@ -18,6 +18,25 @@
 				.addClass( 'is-' + selectVal );
 		} );
 
+		// enable showing sort controls only if showing search box is enabled
+		widget.on( 'change', '.jetpack-search-filters-widget__search-box-enabled', function() {
+			var checkbox = $( this ),
+				checkboxVal = checkbox.is(':checked');
+
+			var sortControl = checkbox.closest( '.jetpack-search-filters-widget' ).find( '.jetpack-search-filters-widget__sort-controls-enabled' );
+
+			console.log("got checkbox val", checkboxVal);
+
+			if ( checkboxVal ) {
+				console.log("enabling sort control");
+				sortControl.removeAttr( 'disabled' );
+			} else {
+				console.log("disabling sort control");
+				sortControl.prop( 'checked', false );
+				sortControl.prop( 'disabled', true );
+			}
+		} );
+
 		widget.on( 'click', '.jetpack-search-filters-widget__controls .add', function( e ) {
 			e.preventDefault();
 			var closest = $( this ).closest( '.jetpack-search-filters-widget__filter' ),

@@ -188,7 +188,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 				var form = container.find('.jetpack-search-form form');
 				if ( form.length === 0 ) {
 					form = $('<form></form>')
-						.attr({
+						.prop({
 							'action': actionUrl,
 							'role': 'search',
 							'method': 'get',
@@ -201,7 +201,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 				var orderBy = form.find( 'input[name=orderby]');
 				if ( orderBy.length === 0 ) {
 					orderBy = $('<input>')
-						.attr({
+						.prop({
 							'name': 'orderby',
 							'type': 'hidden'
 						});
@@ -211,7 +211,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 				var order = form.find( 'input[name=order]');
 				if ( order.length === 0 ) {
 					order = $('<input>')
-						.attr({
+						.prop({
 							'name': 'order',
 							'type': 'hidden'
 						});
@@ -353,10 +353,21 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 					<?php esc_html_e( 'Show search box', 'jetpack' ); ?>
 				</label>
 			</p>
+			<p>
+				<label>
+					<input
+						type="checkbox"
+						class="jetpack-search-filters-widget__sort-controls-enabled"
+						name="<?php echo esc_attr( $this->get_field_name( 'user_sort_enabled' ) ); ?>"
+						<?php checked( $user_sort_enabled ); ?>
+					/>
+					<?php esc_html_e( 'Show sorting controls', 'jetpack' ); ?>
+				</label>
+			</p>
 
 			<p>
 				<label>
-					<?php esc_html_e( 'Sorting:', 'jetpack' ); ?>
+					<?php esc_html_e( 'Default results order', 'jetpack' ); ?>
 					<select name="<?php echo esc_attr( $this->get_field_name( 'sort' ) ); ?>" class="widefat">
 		 				<?php foreach( $this->get_sort_types() as $sort_type => $label ) { ?>
 							<option value="<?php echo $sort_type; ?>" <?php selected( $sort, $sort_type ); ?>>
@@ -364,17 +375,6 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 							</option>
 						<?php } ?>
 					</select>
-				</label>
-			</p>
-
-			<p>
-			<label>
-					<input
-						type="checkbox"
-						name="<?php echo esc_attr( $this->get_field_name( 'user_sort_enabled' ) ); ?>"
-						<?php checked( $user_sort_enabled ); ?>
-					/>
-					<?php esc_html_e( 'Let the user choose sorting options', 'jetpack' ); ?>
 				</label>
 			</p>
 
