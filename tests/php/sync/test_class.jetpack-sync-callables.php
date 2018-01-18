@@ -879,7 +879,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		$_SERVER['REQUEST_URI'] = '/xmlrpc.php';
 		$_GET['body'] = 'abc';
-		$_GET['body-hash'] = jetpack_sha1_base64( 'abc' );
+		$_GET['body-hash'] = base64_encode( sha1( 'abc', true ) );
 		$GLOBALS['HTTP_RAW_POST_DATA'] = 'abc';
 		$_SERVER['REQUEST_METHOD']  = 'POST';
 
