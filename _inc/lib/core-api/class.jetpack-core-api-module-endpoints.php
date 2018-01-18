@@ -408,14 +408,13 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
 		foreach ( $settings as $setting => $properties ) {
 			switch ( $setting ) {
-				case 'WPLANG':
-					if ( defined( 'WPLANG' ) ) {
+				case 'lang_id':
+					if ( defined( 'WPLANG' ) || ! current_user_can( 'install_languages' ) ) {
 						// We can't affect this setting, so don't include it in the response
-						// @TODO maybe also bail if:
-						//   the user has no capabilities to install language files &
-						//   they already have the only available locale selected
 						break;
 					}
+					$response[ $setting ] = get_option( 'WPLANG' );
+					break;
 				case $holiday_snow_option_name:
 					$response[ $setting ] = get_option( $holiday_snow_option_name ) === 'letitsnow';
 					break;
@@ -602,18 +601,20 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			$value = Jetpack_Core_Json_Api_Endpoints::cast_value( $value, $option_attrs );
 
 			switch ( $option ) {
-				case 'WPLANG':
-					if ( defined( 'WPLANG' ) ) {
+				case 'lang_id':
+					if ( defined( 'WPLANG' ) || ! current_user_can( 'install_languages' ) ) {
 						// We can't affect this setting
 						$updated = false;
 						break;
 					}
 
-					$language = current_user_can( 'install_languages' )
-						? wp_download_language_pack( $value )
-						: $value;
+					if ( $value === 'en_US' || empty( $value ) ) {
+						return delete_option( 'WPLANG' );
+					}
 
-					$updated = get_option( $option ) != $value ? update_option( $option, $value ) : true;
+					// `wp_download_language_pack` only tries to download packs if they're not already available
+					$language = wp_download_language_pack( $value );
+					$updated = get_option( 'WPLANG' ) === $language ? true : update_option( 'WPLANG', $language );
 					break;
 
 				case 'monitor_receive_notifications':

@@ -1889,7 +1889,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'jp_group'          => 'settings',
 			),
 
-			'WPLANG' => array(
+			'lang_id' => array(
 				'description' => esc_html__( 'Primary language for the site.', 'jetpack' ),
 				'type' => 'string',
 				'default' => '',
