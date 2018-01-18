@@ -8,6 +8,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 	protected $jetpack_search;
 
 	const DEFAULT_FILTER_COUNT = 5;
+	const DEFAULT_SORT = 'relevance';
 
 	function __construct() {
 		if ( ! class_exists( 'Jetpack_Search' ) ) {
@@ -43,6 +44,14 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		) );
 
 		wp_enqueue_script( 'widget-jetpack-search-filters' );
+	}
+
+	private function get_sort_types() {
+		return array(
+			'relevance' => esc_html( 'Relevance' ),
+			'date_desc' => esc_html( 'Newest first' ),
+			'date_asc' => esc_html( 'Oldest first' )
+		);
 	}
 
 	function is_for_current_widget( $item ) {
@@ -106,7 +115,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			}
 		}
 
-		if ( ! $display_filters && empty( $instance['search_box_enabled'] ) ) {
+		if ( ! $display_filters && empty( $instance['search_box_enabled'] ) && empty( $instance['user_sort_enabled'] ) ) {
 			return;
 		}
 
@@ -134,11 +143,99 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		 */
 		do_action( 'jetpack_search_render_filters_widget_title', esc_html( $title ), $args['before_title'], $args['after_title'] );
 
+		// we need to dynamically inject the sort field into the search box when the search box is enabled, and display
+		// it separately when it's not.
 		if ( ! empty( $instance['search_box_enabled'] ) ) {
+			echo '<div class="jetpack-search-form">';
 			get_search_form();
-			echo '<br />';
+			echo '</div>';
 		}
 
+		$sort = isset( $instance['sort'] ) ? $instance['sort'] : self::DEFAULT_SORT;
+		list( $order, $orderby ) = $this->sorting_to_wp_query_param( $instance['sort'] );
+
+		// TODO: user selected sort OR default
+		if ( ! empty( $instance['user_sort_enabled'] ) ) {
+			?>
+			<label>
+				<?php esc_html_e('Sort by', 'jetpack'); ?>
+				<select name="<?php echo esc_attr( $this->get_field_name( 'sort' ) ); ?>" class="jetpack-search-sort">
+					<?php foreach( $this->get_sort_types() as $sort_type => $label ) { ?>
+						<option value="<?php echo $sort_type; ?>" <?php selected( $order, $sort_type ); ?>>
+							<?php echo $label; ?>
+						</option>
+					<?php } ?>
+				</select>
+			</label> <?php
+		}
+
+		/*
+		 * this JS is a bit complicated, but here's what it's trying to do:
+		 * - find or create a search form
+		 * - find or create the orderby/order fields
+		 * - detect changes to the sort field, and use it to set the order field values
+		 */
+		?>
+		<script type="text/javascript">
+			jQuery( document ).ready( function( $ ) {
+				console.log('widget ready');
+				var actionUrl      = <?php echo json_encode( home_url( '/' ) ); ?>;
+				var orderDefault   = <?php echo json_encode( $order ); ?>;
+				var orderByDefault = <?php echo json_encode( $orderby ); ?>;
+				var widgetId       = <?php echo json_encode( $this->id ); ?>;
+
+				var container = $('#' + widgetId);
+
+				var form = container.find('.jetpack-search-form form');
+				if ( form.length === 0 ) {
+					form = $('<form></form>')
+						.attr({
+							'action': actionUrl,
+							'role': 'search',
+							'method': 'get',
+							'class': 'search-form'
+						});
+					container.append(form);
+				}
+
+				// create hidden fields if necessary
+				var order = form.find( 'input[name=order]');
+				if ( order.length === 0 ) {
+					order = $('<input>')
+						.attr({
+							'name': 'order',
+							'type': 'hidden'
+						});
+					form.append(order);
+				}
+
+				var orderBy = $(form).find( 'input[name=orderby]');
+				if ( orderBy.length === 0 ) {
+					orderBy = $('<input>')
+						.attr({
+							'name': 'orderby',
+							'type': 'hidden'
+						});
+					form.append(orderBy);
+				}
+
+				order.attr( 'value', orderDefault );
+				orderBy.attr( 'value', orderByDefault );
+
+				// initialize events
+				container.find( '.jetpack-search-sort' ).change( function( event ) {
+					console.log("select changed", event);
+					var values  = event.target.value.split( '_' );
+					var orderValue   = values[0];
+					var orderByValue = values[1] || 'DESC';
+
+					order.attr( 'value', orderValue );
+					orderBy.attr( 'value', orderByValue );
+					form.submit();
+				});
+			} );
+		</script>
+		<?php
 		if ( $display_filters ) {
 
 			/**
@@ -157,6 +254,12 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		}
 
 		echo $args['after_widget'];
+	}
+
+	private function sorting_to_wp_query_param( $sort ) {
+		$orderby = ( substr( $sort, -4 ) === '_asc' ) ? 'ASC' : 'DESC';
+		$order   = explode( '_', $sort )[0];
+		return array( $order, $orderby );
 	}
 
 	function update( $new_instance, $old_instance ) {
@@ -223,7 +326,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		$use_filters = ! empty( $instance['use_filters'] ) && ! $hide_filters;
 		$search_box_enabled = ! empty( $instance['search_box_enabled'] );
 		$user_sort_enabled = ! empty( $instance['user_sort_enabled'] );
-		$sort = isset( $instance['sort'] ) ? $instance['sort'] : 'relevance';
+		$sort = isset( $instance['sort'] ) ? $instance['sort'] : self::DEFAULT_SORT;
 		$classes = sprintf(
 			'jetpack-search-filters-widget %s',
 			$use_filters ? '' : 'hide-filters'
@@ -258,15 +361,11 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 				<label>
 					<?php esc_html_e( 'Sorting:', 'jetpack' ); ?>
 					<select name="<?php echo esc_attr( $this->get_field_name( 'sort' ) ); ?>" class="widefat">
-						<option value="relevance" <?php selected( $sort, 'relevance' ); ?>>
-							<?php esc_html_e( 'Relevance', 'jetpack' ); ?>
-						</option>
-						<option value="date_desc" <?php selected( $sort, 'date_desc' ); ?>>
-							<?php esc_html_e( 'Newest first', 'jetpack' ); ?>
-						</option>
-						<option value="date_asc" <?php selected( $sort, 'date_asc' ); ?>>
-							<?php esc_html_e( 'Oldest first', 'jetpack' ); ?>
-						</option>
+		 				<?php foreach( $this->get_sort_types() as $sort_type => $label ) { ?>
+							<option value="<?php echo $sort_type; ?>" <?php selected( $sort, $sort_type ); ?>>
+								<?php echo $label; ?>
+							</option>
+						<?php } ?>
 					</select>
 				</label>
 			</p>
