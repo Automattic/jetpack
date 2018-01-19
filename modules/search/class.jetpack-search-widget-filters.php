@@ -162,7 +162,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		if ( ! empty( $instance['search_box_enabled'] ) && ! empty( $instance['user_sort_enabled'] ) ) {
 			?>
 			<label class="jetpack-search-sort-wrapper">
-				<?php esc_html_e('Sort by', 'jetpack'); ?>
+				<?php esc_html_e( 'Sort by', 'jetpack' ); ?>
 				<select name="<?php echo esc_attr( $this->get_field_name( 'sort' ) ); ?>" class="jetpack-search-sort">
 					<?php foreach( $this->get_sort_types() as $sort => $label ) { ?>
 						<option value="<?php echo esc_attr( $sort ); ?>" <?php selected( $current_sort, $sort ); ?>>
