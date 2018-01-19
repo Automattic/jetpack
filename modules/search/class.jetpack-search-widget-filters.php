@@ -163,7 +163,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			?>
 			<label class="jetpack-search-sort-wrapper">
 				<?php esc_html_e('Sort by', 'jetpack'); ?>
-				<select name="<?php echo esc_attr( $this->get_field_name( 'sort' ) ); ?>" class="jetpack-search-sort">
+				<select name="<?php esc_attr_e( $this->get_field_name( 'sort' ) ); ?>" class="jetpack-search-sort">
 					<?php foreach( $this->get_sort_types() as $sort => $label ) { ?>
 						<option value="<?php echo $sort; ?>" <?php selected( $current_sort, $sort ); ?>>
 							<?php echo $label; ?>
@@ -356,17 +356,17 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			$search_box_enabled ? '' : 'hide-post-types'
 		);
 		?>
-		<div class="<?php echo esc_attr( $classes ); ?>">
+		<div class="<?php esc_attr_e( $classes ); ?>">
 			<p>
-				<label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>">
+				<label for="<?php esc_attr_e( $this->get_field_id( 'title' ) ); ?>">
 					<?php esc_html_e( 'Title:', 'jetpack' ); ?>
 				</label>
 				<input
 					class="widefat"
-					id="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>"
-					name="<?php echo esc_attr( $this->get_field_name( 'title' ) ); ?>"
+					id="<?php esc_attr_e( $this->get_field_id( 'title' ) ); ?>"
+					name="<?php esc_attr_e( $this->get_field_name( 'title' ) ); ?>"
 					type="text"
-					value="<?php echo esc_attr( $title ); ?>"
+					value="<?php esc_attr_e( $title ); ?>"
 				/>
 			</p>
 
@@ -375,7 +375,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 					<input
 						type="checkbox"
 						class="jetpack-search-filters-widget__search-box-enabled"
-						name="<?php echo esc_attr( $this->get_field_name( 'search_box_enabled' ) ); ?>"
+						name="<?php esc_attr_e( $this->get_field_name( 'search_box_enabled' ) ); ?>"
 						<?php checked( $search_box_enabled ); ?>
 					/>
 					<?php esc_html_e( 'Show search box', 'jetpack' ); ?>
@@ -386,7 +386,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 					<input
 						type="checkbox"
 						class="jetpack-search-filters-widget__sort-controls-enabled"
-						name="<?php echo esc_attr( $this->get_field_name( 'user_sort_enabled' ) ); ?>"
+						name="<?php esc_attr_e( $this->get_field_name( 'user_sort_enabled' ) ); ?>"
 						<?php checked( $user_sort_enabled ); ?>
 					/>
 					<?php esc_html_e( 'Show sorting controls', 'jetpack' ); ?>
@@ -396,10 +396,10 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			<p>
 				<label>
 					<?php esc_html_e( 'Default sort order:', 'jetpack' ); ?>
-					<select name="<?php echo esc_attr( $this->get_field_name( 'sort' ) ); ?>" class="widefat">
+					<select name="<?php esc_attr_e( $this->get_field_name( 'sort' ) ); ?>" class="widefat">
 		 				<?php foreach( $this->get_sort_types() as $sort_type => $label ) { ?>
-							<option value="<?php echo $sort_type; ?>" <?php selected( $sort, $sort_type ); ?>>
-								<?php echo $label; ?>
+							<option value="<?php esc_attr_e( $sort_type ); ?>" <?php selected( $sort, $sort_type ); ?>>
+								<?php esc_html_e( $label ); ?>
 							</option>
 						<?php } ?>
 					</select>
@@ -411,14 +411,14 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 					<label><?php esc_html_e( 'Post types included in results:' ); ?></label>
 					<select
 						class="widefat jetpack-search-filters-widget__post-type-selector"
-						name="<?php echo esc_attr( $this->get_field_name( 'post_types' ) ); ?>[]"
+						name="<?php esc_attr_e( $this->get_field_name( 'post_types' ) ); ?>[]"
 						multiple="multiple">
 						<?php foreach ( get_post_types( array( 'exclude_from_search' => false ), 'objects' ) as $post_type ) : ?>
 							<option
-								value="<?php echo esc_attr( $post_type->name ); ?>"
+								value="<?php esc_attr_e( $post_type->name ); ?>"
 								<?php selected( empty( $instance['post_types'] ) || in_array( $post_type->name, $instance['post_types'] ) ); ?>
 							>
-								<?php echo esc_html( $post_type->label ); ?>
+								<?php esc_html_e( $post_type->label ); ?>
 							</option>
 						<?php endforeach; ?>
 					</select>
@@ -431,7 +431,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 						<input
 							type="checkbox"
 							class="jetpack-search-filters-widget__use-filters"
-							name="<?php echo esc_attr( $this->get_field_name( 'use_filters' ) ); ?>"
+							name="<?php esc_attr_e( $this->get_field_name( 'use_filters' ) ); ?>"
 							<?php checked( $use_filters ); ?>
 						/>
 						<?php esc_html_e( 'Show filters when a search has multiple results', 'jetpack' ); ?>
@@ -469,14 +469,14 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		);
 
 		?>
-		<div class="<?php echo esc_attr( $classes ); ?>">
+		<div class="<?php esc_attr_e( $classes ); ?>">
 			<p>
 				<label>
 					<?php esc_html_e( 'Filter Name:', 'jetpack' ); ?>
 					<input
 						class="widefat"
 						type="text"
-						name="<?php echo esc_attr( $this->get_field_name( 'filter_name' ) ); ?>[]"
+						name="<?php esc_attr_e( $this->get_field_name( 'filter_name' ) ); ?>[]"
 						value="<?php
 							echo ! empty( $args['name'] )
 								? esc_attr( $args['name'] )
@@ -489,7 +489,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			<p>
 				<label>
 					<?php esc_html_e( 'Filter Type:', 'jetpack' ); ?>
-					<select name="<?php echo esc_attr( $this->get_field_name( 'filter_type' ) ); ?>[]" class="widefat filter-select">
+					<select name="<?php esc_attr_e( $this->get_field_name( 'filter_type' ) ); ?>[]" class="widefat filter-select">
 						<option value="taxonomy" <?php selected( $args['type'], 'taxonomy' ); ?>>
 							<?php esc_html_e( 'Taxonomy', 'jetpack' ); ?>
 						</option>
@@ -506,10 +506,10 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			<p class="jetpack-search-filters-widget__taxonomy-select">
 				<label>
 					<?php esc_html_e( 'Choose a taxonomy:', 'jetpack' ); ?>
-					<select name="<?php echo esc_attr( $this->get_field_name( 'taxonomy_type' ) ); ?>[]" class="widefat">
+					<select name="<?php esc_attr_e( $this->get_field_name( 'taxonomy_type' ) ); ?>[]" class="widefat">
 						<?php foreach ( get_taxonomies( false, 'objects' ) as $taxonomy ) : ?>
-							<option value="<?php echo esc_attr( $taxonomy->name ); ?>" <?php selected( $taxonomy->name, $args['taxonomy'] ); ?>>
-								<?php echo esc_html( $taxonomy->label ); ?>
+							<option value="<?php esc_attr_e( $taxonomy->name ); ?>" <?php selected( $taxonomy->name, $args['taxonomy'] ); ?>>
+								<?php esc_html_e( $taxonomy->label ); ?>
 							</option>
 						<?php endforeach; ?>
 					</select>
@@ -519,7 +519,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			<p class="jetpack-search-filters-widget__date-histogram-select">
 				<label>
 					<?php esc_html_e( 'Choose a field:', 'jetpack' ); ?>
-					<select name="<?php echo esc_attr( $this->get_field_name( 'date_histogram_field' ) ); ?>[]" class="widefat">
+					<select name="<?php esc_attr_e( $this->get_field_name( 'date_histogram_field' ) ); ?>[]" class="widefat">
 						<option value="post_date" <?php selected( 'post_date', $args['date_histogram_field'] ); ?>>
 							<?php esc_html_e( 'Date', 'jetpack' ); ?>
 						</option>
@@ -539,7 +539,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			<p class="jetpack-search-filters-widget__date-histogram-select">
 				<label>
 					<?php esc_html_e( 'Choose an interval:' ); ?>
-					<select name="<?php echo esc_attr( $this->get_field_name( 'date_histogram_interval' ) ); ?>[]" class="widefat">
+					<select name="<?php esc_attr_e( $this->get_field_name( 'date_histogram_interval' ) ); ?>[]" class="widefat">
 						<option value="month" <?php selected( 'month', $args['date_histogram_interval'] ); ?>>
 							<?php esc_html_e( 'Month', 'jetpack' ); ?>
 						</option>
@@ -555,7 +555,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 					<?php esc_html_e( 'Maximum number of filters (1-50):', 'jetpack' ); ?>
 					<input
 						class="widefat"
-						name="<?php echo esc_attr( $this->get_field_name( 'num_filters' ) ); ?>[]"
+						name="<?php esc_attr_e( $this->get_field_name( 'num_filters' ) ); ?>[]"
 						type="number"
 						value="<?php echo intval( $args['count'] ); ?>"
 						min="1"
@@ -722,7 +722,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		}
 
 		?>
-		<h4 class="widget-title"><?php echo esc_html__( 'Current Filters', 'jetpack' ); ?></h4>
+		<h4 class="widget-title"><?php esc_html_e__( 'Current Filters', 'jetpack' ); ?></h4>
 		<ul>
 			<?php foreach ( $active_buckets as $item ) : ?>
 				<li>
@@ -740,7 +740,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			<?php if ( count( $active_buckets ) > 1 ) : ?>
 				<li>
 					<a href="<?php echo esc_url( $remove_all_filters ); ?>">
-						<?php echo esc_html__( 'Remove All Filters', 'jetpack' ); ?>
+						<?php esc_html_e__( 'Remove All Filters', 'jetpack' ); ?>
 					</a>
 				</li>
 			<?php endif; ?>
@@ -754,12 +754,12 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 	 * @param array $filter
 	 */
 	function render_filter( $filter ) { ?>
-		<h4  class="widget-title"><?php echo esc_html( $filter['name'] ); ?></h4>
+		<h4  class="widget-title"><?php esc_html_e( $filter['name'] ); ?></h4>
 		<ul>
 			<?php foreach ( $filter['buckets'] as $item ) : ?>
 				<li>
 					<a href="<?php echo esc_url( $item['url'] ); ?>">
-						<?php echo esc_html( $item['name'] ); ?>
+						<?php esc_html_e( $item['name'] ); ?>
 					</a>
 
 					(<?php echo number_format_i18n( absint( $item['count'] ) ); ?>)
