@@ -863,7 +863,7 @@ class Jetpack_Connection_Banner {
 					<p class="jp-connect-full__card-description">
 						<?php
 						esc_html_e(
-							'Get detailed visitor stats, state-of-the-art security services, image performance upgrades, traffic generation tools, and more. Connect to WordPress.com to get started!',
+							'Please connect to or create a WordPress.com account to start using Jetpack. This will enable powerful security, traffic, and customization services.',
 							'jetpack'
 						);
 						?>

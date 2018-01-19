@@ -167,8 +167,12 @@
 	margin: 0;
 	.dops-button.is-primary {
 		background: $green-primary;
-		border-color: $green-secondary;
+		border-color: $green-secondary;		
 
+		&:hover, &:focus {
+			background: $green-secondary;
+			border-color: $green-dark;
+		}
 	}
 }
 
@@ -291,6 +295,10 @@
 		background: $green-primary;
 		border-color: $green-secondary;
 
+		&:hover, &:focus {
+			background: $green-secondary;
+			border-color: $green-dark;
+		}
 	}
 }
 
