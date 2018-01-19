@@ -31,6 +31,12 @@ class Jetpack_JSON_API_User_Create_Endpoint extends Jetpack_JSON_API_Endpoint {
 		$user = get_user_by( 'email', $this->user_data['email'] );
 		$roles = (array) $this->user_data['roles'];
 		$role = array_pop( $roles );
+
+		$query_args = $this->query_args();
+		if ( isset( $query_args['invite_accepted'] ) && $query_args['invite_accepted'] ) {
+			Jetpack_Constants::set_constant( 'JETPACK_INVITE_ACCEPTED', true );
+		}
+
 		if ( ! $user ) {
 			// We modify the input here to mimick the same call structure of the update user endpoint.
 			$this->user_data = (object) $this->user_data;

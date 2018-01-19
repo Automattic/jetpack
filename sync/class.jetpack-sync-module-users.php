@@ -189,7 +189,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 			return;
 		}
 
-		if ( isset( $_GET['invite_accepted'] ) && 'true' === $_GET['invite_accepted'] ) {
+		if ( Jetpack_Constants::is_true( 'JETPACK_INVITE_ACCEPTED' ) ) {
 			$this->add_flags( $user_id, array( 'invitation_accepted' => true ) );
 		}
 		/**
@@ -209,7 +209,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 			return;
 		}
 
-		if ( isset( $_GET['invite_accepted'] ) && 'true' === $_GET['invite_accepted'] ) {
+		if ( Jetpack_Constants::is_true( 'JETPACK_INVITE_ACCEPTED' ) ) {
 			$this->add_flags( $user_id, array( 'invitation_accepted' => true ) );
 		}
 		/**
