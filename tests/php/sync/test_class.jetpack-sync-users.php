@@ -687,17 +687,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		// Fake it till you make it
 		$_GET['invite_accepted'] = 'true';
 		// We modify the input here to mimick the same call structure of the update user endpoint.
-		$user_data = (object) array();
-		$user_data->ID = 1234;
-		$user_data->first_name = '';
-		$user_data->last_name = '';
-		$user_data->url = '';
-		$user_data->login = 'test_user_invite';
-		$user_data->email = 'test_user_invite@example.com';
-		$user_data->role = 'editor';
-		$user_data->display_name = 'Gill';
-		$user_data->description = '';
-		$user = Jetpack_SSO_Helpers::generate_user( $user_data );
+		Jetpack_SSO_Helpers::generate_user( $this->get_invite_user_data() );
 		$this->sender->do_sync();
 
 		unset( $_GET['invite_accepted'] );
@@ -716,17 +706,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		// Fake it till we make it
 		$_GET['invite_accepted'] = 'false';
 		// We modify the input here to mimick the same call structure of the update user endpoint.
-		$user_data = (object) array();
-		$user_data->ID = 1234;
-		$user_data->first_name = '';
-		$user_data->last_name = '';
-		$user_data->url = '';
-		$user_data->login = 'test_user_invite';
-		$user_data->email = 'test_user_invite@example.com';
-		$user_data->role = 'editor';
-		$user_data->display_name = 'Gill';
-		$user_data->description = '';
-		$user = Jetpack_SSO_Helpers::generate_user( $user_data );
+		Jetpack_SSO_Helpers::generate_user( $this->get_invite_user_data() );
 		$this->sender->do_sync();
 
 		unset( $_GET['invite_accepted'] );
@@ -749,6 +729,20 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		unset( $user2_array['user_pass'] );
 
 		$this->assertTrue( array_diff( $user1_array, $user2_array ) == array_diff( $user2_array, $user1_array ) );
+	}
+
+	private function get_invite_user_data() {
+		return (object) array(
+			'ID'           => 1234,
+			'first_name'   => '',
+			'last_name'    => '',
+			'url'          => '',
+			'login'        => 'test_user_invite',
+			'email'        => 'test_user_invite@example.com',
+			'role'         => 'editor',
+			'display_name' => 'Gill',
+			'description'  => '',
+		);
 	}
 
 }
