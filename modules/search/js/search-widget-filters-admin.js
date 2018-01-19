@@ -25,13 +25,9 @@
 
 			var sortControl = checkbox.closest( '.jetpack-search-filters-widget' ).find( '.jetpack-search-filters-widget__sort-controls-enabled' );
 
-			console.log("got checkbox val", checkboxVal);
-
 			if ( checkboxVal ) {
-				console.log("enabling sort control");
 				sortControl.removeAttr( 'disabled' );
 			} else {
-				console.log("disabling sort control");
 				sortControl.prop( 'checked', false );
 				sortControl.prop( 'disabled', true );
 			}
