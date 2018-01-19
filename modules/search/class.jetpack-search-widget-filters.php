@@ -49,9 +49,9 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 
 	private function get_sort_types() {
 		return array(
-			'relevance|DESC' => esc_html( 'Relevance' ),
-			'date|DESC' => esc_html( 'Newest first' ),
-			'date|ASC' => esc_html( 'Oldest first' )
+			'relevance|DESC' => esc_html__( 'Relevance', 'jetpack' ),
+			'date|DESC' => esc_html__( 'Newest first', 'jetpack' ),
+			'date|ASC' => esc_html__( 'Oldest first', 'jetpack' )
 		);
 	}
 
@@ -165,8 +165,8 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 				<?php esc_html_e('Sort by', 'jetpack'); ?>
 				<select name="<?php esc_attr_e( $this->get_field_name( 'sort' ) ); ?>" class="jetpack-search-sort">
 					<?php foreach( $this->get_sort_types() as $sort => $label ) { ?>
-						<option value="<?php echo $sort; ?>" <?php selected( $current_sort, $sort ); ?>>
-							<?php echo $label; ?>
+						<option value="<?php esc_attr_e( $sort ); ?>" <?php selected( $current_sort, $sort ); ?>>
+							<?php esc_html_e( $label ); ?>
 						</option>
 					<?php } ?>
 				</select>
