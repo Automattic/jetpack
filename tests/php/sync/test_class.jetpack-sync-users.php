@@ -684,13 +684,9 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 
 	public function test_invite_user_sync_invite_event() {
 		$this->server_event_storage->reset();
-		// Fake it till you make it
-		$_GET['invite_accepted'] = 'true';
 		// We modify the input here to mimick the same call structure of the update user endpoint.
 		Jetpack_SSO_Helpers::generate_user( $this->get_invite_user_data() );
 		$this->sender->do_sync();
-
-		unset( $_GET['invite_accepted'] );
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_user' );
 		$this->assertFalse( $event );
@@ -703,13 +699,11 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 
 	public function test_invite_user_sync_invite_event_false() {
 		$this->server_event_storage->reset();
-		// Fake it till we make it
-		$_GET['invite_accepted'] = 'false';
 		// We modify the input here to mimick the same call structure of the update user endpoint.
-		Jetpack_SSO_Helpers::generate_user( $this->get_invite_user_data() );
+		$data = $this->get_invite_user_data();
+		$data->invite_accepted = false;
+		Jetpack_SSO_Helpers::generate_user( $data );
 		$this->sender->do_sync();
-
-		unset( $_GET['invite_accepted'] );
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_user' );
 		$this->assertFalse( $event );
@@ -742,6 +736,7 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 			'role'         => 'editor',
 			'display_name' => 'Gill',
 			'description'  => '',
+			'invite_accepted' => true
 		);
 	}
 
