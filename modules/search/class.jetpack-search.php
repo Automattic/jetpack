@@ -462,6 +462,29 @@ class Jetpack_Search {
 	}
 
 	/**
+	 * If the query has already been run before filters have been updated, then we need to re-run the query
+	 * to get the latest aggregations.
+	 *
+	 * This is especially useful for supporting widget management in the customizer.
+	 *
+	 * @return bool Whether the query was successful or not.
+	 */
+	public function update_search_results_aggregations() {
+		if ( empty( $this->last_query_info ) || empty( $this->last_query_info['args'] ) ) {
+			return false;
+		}
+
+		$es_args = $this->last_query_info['args'];
+		$builder = new Jetpack_WPES_Query_Builder();
+		$this->add_aggregations_to_es_query_builder( $this->aggregations, $builder );
+		$es_args['aggregations'] = $builder->build_aggregation();
+
+		$this->search_result = $this->search( $es_args );
+
+		return ! is_wp_error( $this->search_result );
+	}
+
+	/**
 	 * Given a WP_Query, convert its WP_Tax_Query (if present) into the WP-style ES term arguments for the search
 	 *
 	 * @module search
@@ -1271,7 +1294,7 @@ class Jetpack_Search {
 							if ( $post_type_count > 1 ) {
 								$remove_url = Jetpack_Search_Helpers::add_query_arg(
 									'post_type',
-									urlencode_deep( array_diff( $post_types, array( $item['key'] ) ) )
+									implode( ',',  array_diff( $post_types, array( $item['key'] ) ) )
 								);
 							} else {
 								$remove_url = Jetpack_Search_Helpers::remove_query_arg( 'post_type' );
