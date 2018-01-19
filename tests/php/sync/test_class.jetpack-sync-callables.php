@@ -15,6 +15,8 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	protected $post;
 	protected $callable_module;
 
+	protected static $admin_id; // used in mock_xml_rpc_request
+
 	public function setUp() {
 		parent::setUp();
 
@@ -811,7 +813,6 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		foreach ( $check_object_vars as $test ) {
 			$this->assertObjectHasAttribute( $test, $taxonomy, "Taxonomy does not have expected {$test} attribute." );
 		}
-
 	}
 
 	function test_force_sync_callabled_on_plugin_update() {
@@ -846,6 +847,90 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$this->assertNotEmpty( $synced_value3, 'value is empty!' );
 
 	}
+
+	function test_xml_rpc_request_callables_has_actor() {
+		$this->server_event_storage->reset();
+		$user = wp_get_current_user();
+		wp_set_current_user( 0 ); //
+		$this->sender->do_sync();
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_callable' );
+		$this->assertEquals( $event->user_id, 0, ' Callables user_id is null' );
+
+		$this->resetCallableAndConstantTimeouts();
+		$this->mock_authenticated_xml_rpc(); // mock requet
+		$this->sender->do_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_callable' );
+		// clean up by unsetting globals, etc. set previously by $this->mock_authenticated_xml_rpc()
+		$this->mock_authenticated_xml_rpc_cleanup( $user->ID );
+
+		$this->assertEquals( $event->user_id, self::$admin_id, ' Callables XMLRPC_Reqeust not equal to event user_id' );
+	}
+
+	function mock_authenticated_xml_rpc() {
+		self::$admin_id = $this->factory->user->create( array(
+			'role' => 'administrator',
+		) );
+
+		add_filter( 'pre_option_jetpack_private_options', array( $this, 'mock_jetpack_private_options' ), 10, 2 );
+		$_GET['token'] = 'pretend_this_is_valid:1:' . self::$admin_id;
+		$_GET['timestamp'] = (string) time();
+		$_GET['nonce'] = 'testing123';
+
+		$_SERVER['REQUEST_URI'] = '/xmlrpc.php';
+		$_GET['body'] = 'abc';
+		$_GET['body-hash'] = base64_encode( sha1( 'abc', true ) );
+		$GLOBALS['HTTP_RAW_POST_DATA'] = 'abc';
+		$_SERVER['REQUEST_METHOD']  = 'POST';
+
+		$normalized_request_pieces = array(
+			$_GET['token'],
+			$_GET['timestamp'],
+			$_GET['nonce'],
+			$_GET['body-hash'],
+			'POST',
+			'example.org',
+			'80',
+			'/xmlrpc.php',
+		);
+		$normalize = join( "\n", $normalized_request_pieces ) . "\n";
+
+		$_GET['signature'] = base64_encode( hash_hmac( 'sha1', $normalize , 'secret', true ) );
+
+		// call one of the authenticated endpoints
+		Jetpack_Constants::set_constant( 'XMLRPC_REQUEST', true );
+		$jetpack = Jetpack::init();
+		$jetpack->xmlrpc_methods( array() );
+		$jetpack->require_jetpack_authentication();
+		$jetpack->verify_xml_rpc_signature();
+	}
+
+	function mock_authenticated_xml_rpc_cleanup( $user_id ) {
+		Jetpack_Constants::clear_constants();
+		remove_filter( 'pre_option_jetpack_private_options', array( $this, 'mock_jetpack_private_options' ), 10 );
+
+		unset( $_GET['token'] );
+		unset( $_GET['timestamp'] );
+		unset( $_GET['nonce'] );
+		$_SERVER['REQUEST_URI'] = '';
+		unset( $_GET['body'] );
+		unset( $_GET['body-hash'] ) ;
+		unset( $GLOBALS['HTTP_RAW_POST_DATA'] );
+		unset( $_SERVER['REQUEST_METHOD'] );
+		$jetpack = Jetpack::init();
+		$jetpack->reset_saved_auth_state();
+		wp_set_current_user( $user_id );
+		self::$admin_id = null;
+	}
+
+	function mock_jetpack_private_options() {
+		$user_tokens = array();
+		$user_tokens[ self::$admin_id ] = 'pretend_this_is_valid.secret.' . self::$admin_id;
+		return array(
+			'user_tokens' => $user_tokens,
+		);
+	}
+
 }
 
 function jetpack_foo_is_callable_random() {
