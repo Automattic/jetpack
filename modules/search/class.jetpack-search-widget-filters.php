@@ -448,31 +448,45 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 	function render_widget_search_form( $instance ) {
 		$form = get_search_form( false );
 
+		$fields_to_inject = array();
+
 		$form_injection = '';
 
 		// If the widget has specified post types to search within and IF the post types differ
 		// from the default post types that would have been searched, set the selected post
 		// types via hidden inputs.
 		if ( Jetpack_Search_Helpers::post_types_differ_searchable( $instance ) ) {
-			$form_injection = sprintf(
-				'<input type="hidden" name="post_type" value="%s" />',
-				esc_attr( implode( ',', $instance['post_types'] ) )
-			);
+			$fields_to_inject['post_type'] = implode( ',', $instance['post_types'] );
 		}
 
-		if ( $form_injection ) {
-			// This shouldn't need to be escaped since we've escaped above as we built $form_injection
-			$form = str_replace(
-				'</form>',
-				sprintf(
-					'%s</form>',
-					$form_injection
-				),
-				$form
-			);
+		if ( count( $fields_to_inject ) > 0 ) {
+			$form = $this->inject_hidden_form_fields( $form, $fields );
 		}
 
 		echo $form;
+	}
+
+	private function inject_hidden_form_fields( $form, $fields ) {
+		$form_injection = '';
+
+		foreach( $fields as $field_name => $field_value ) {
+			$form_injection .= sprintf(
+				'<input type="hidden" name="%s" value="%s" />',
+				$field_name,
+				esc_attr( $field_value )
+			);
+		}
+
+		// This shouldn't need to be escaped since we've escaped above as we built $form_injection
+		$form = str_replace(
+			'</form>',
+			sprintf(
+				'%s</form>',
+				$form_injection
+			),
+			$form
+		);
+
 	}
 
 	/**
