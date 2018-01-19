@@ -111,3 +111,5 @@ function in_running_uninstall_group() {
 	global  $argv;
 	return is_array( $argv ) && in_array( '--group=uninstall', $argv );
 }
+
+require $test_root . '/includes/speed-trap-listener.php';
