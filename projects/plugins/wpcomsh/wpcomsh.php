@@ -8,7 +8,7 @@
  */
 
 // Increase version number if you change something in wpcomsh.
-define( 'WPCOMSH_VERSION', '2.1.9' );
+define( 'WPCOMSH_VERSION', '2.1.10' );
 
 // If true, Typekit fonts will be available in addition to Google fonts
 add_filter( 'jetpack_fonts_enable_typekit', '__return_true' );
@@ -44,6 +44,9 @@ require_once( 'widgets/twitter.php' );
 
 # autoload composer sourced plugins
 require_once( 'vendor/autoload.php' );
+
+// REST API
+require_once( 'endpoints/rest-api.php' );
 
 if ( defined( 'WP_CLI' ) && WP_CLI ) {
 	require_once WPCOMSH__PLUGIN_DIR_PATH . '/class.cli-commands.php';
@@ -652,3 +655,6 @@ function wpcomsh_jetpack_api_fix_unserializable_track_number( $exif_data ) {
 	return $exif_data;
 }
 add_filter( 'wp_get_attachment_metadata', 'wpcomsh_jetpack_api_fix_unserializable_track_number' );
+
+// Initialize REST API
+add_action( 'rest_api_init', 'wpcomsh_rest_api_init' );
