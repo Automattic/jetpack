@@ -1130,6 +1130,9 @@ new Jetpack_JSON_API_User_Create_Endpoint( array(
 	'path_labels'    => array(
 		'$site' => '(int|string) The site ID, The site domain',
 	),
+	'query_parameters' => array(
+		'invite_accepted' => '(bool=false) If the user is being created in the invite context',
+	),
 	'request_format'  => WPCOM_JSON_API_Site_User_Endpoint::$user_format,
 	'response_format' => WPCOM_JSON_API_Site_User_Endpoint::$user_format,
 	'example_request_data' => array(

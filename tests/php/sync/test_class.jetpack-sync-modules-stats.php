@@ -5,16 +5,23 @@ class WP_Test_Jetpack_Sync_Module_Stats extends WP_Test_Jetpack_Sync_Base {
 
 	function test_sends_stats_data_on_heartbeat() {
 		$heartbeat = Jetpack_Heartbeat::init();
+
+		add_filter( 'pre_http_request', array( $this, 'pre_http_request_success' ) );
 		$heartbeat->cron_exec();
+		remove_filter( 'pre_http_request', array( $this, 'pre_http_request_success' ) );
+
 		$this->sender->do_sync();
 
 		$action = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_heartbeat_stats' );
+
 		$this->assertEquals( JETPACK__VERSION, $action->args[0]['version'] );
 	}
 
 	function test_dont_send_expensive_data_on_heartbeat() {
 		$heartbeat = Jetpack_Heartbeat::init();
+		add_filter( 'pre_http_request', array( $this, 'pre_http_request_success' ) );
 		$heartbeat->cron_exec();
+		remove_filter( 'pre_http_request', array( $this, 'pre_http_request_success' ) );
 		$this->sender->do_sync();
 
 		$action = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_heartbeat_stats' );
@@ -42,7 +49,10 @@ class WP_Test_Jetpack_Sync_Module_Stats extends WP_Test_Jetpack_Sync_Base {
 		add_user_to_blog( $other_blog_id, $mu_blog_user_id, 'administrator' );
 
 		$heartbeat = Jetpack_Heartbeat::init();
+		add_filter( 'pre_http_request', array( $this, 'pre_http_request_success' ) );
 		$heartbeat->cron_exec();
+		remove_filter( 'pre_http_request', array( $this, 'pre_http_request_success' ) );
+
 		$this->sender->do_sync();
 
 		$action = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_heartbeat_stats' );
