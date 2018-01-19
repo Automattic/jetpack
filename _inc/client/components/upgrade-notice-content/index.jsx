@@ -18,8 +18,8 @@ class UpgradeNoticeContent extends Component {
 		return (
 			<div>
 				<p>
-					{ __( 'This release of Jetpaack brings major new features and big improvements to your WordPress' +
-						"site. We have a faster backup engine, real-time backups for everyone, some brand new services, " +
+					{ __( 'This release of Jetpack brings major new features and big improvements to your WordPress' +
+						" site. We have a faster backup engine, real-time backups for everyone, some brand new services, " +
 						'and search is now out of beta.' ) }
 				</p>
 
@@ -48,7 +48,7 @@ class UpgradeNoticeContent extends Component {
 
 				<p>
 					{ __( 'The activity log will be available to all Jetpack users, limited to a 7-day history' +
-						'for users on the free plan.' ) }
+						' for users on the free plan.' ) }
 				</p>
 
 				<h2>
@@ -76,7 +76,7 @@ class UpgradeNoticeContent extends Component {
 
 				<p>
 					{ __( 'Our Elasticsearch-powered search service is now out of beta and availalbe to all Professional' +
-						"plan customers. This replaces default WordPress search with a faster engine that returns more " +
+						" plan customers. This replaces default WordPress search with a faster engine that returns more " +
 						'relevant search results to your users.' ) }
 				</p>
 
