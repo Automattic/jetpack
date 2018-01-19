@@ -195,13 +195,11 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 		$upgrader = new Plugin_Upgrader(
 			new Automatic_Upgrader_Skin( compact( 'title', 'url', 'nonce', 'plugin', 'api' ) )
 		);
-		// 'https://downloads.wordpress.org/plugin/the.1.1.zip' Intsall it from local disk
+		// 'https://downloads.wordpress.org/plugin/the.1.1.zip' Install it from local disk
 		$upgrader->install( ABSPATH . 'wp-content/plugins/jetpack/tests/php/files/the.1.1.zip' );
-
 	}
 
 	function remove_plugin() {
-
 		if ( file_exists( ABSPATH .  'wp-content/plugins/the/the.php' ) ) {
 			delete_plugins( array( 'the/the.php' ) );
 			wp_cache_delete( 'plugins', 'plugins' );
@@ -210,7 +208,6 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 
 	function remove_hello_dolly( $plugins ) {
 		unset( $plugins['hello.php'] );
-
 		return $plugins;
 	}
 
