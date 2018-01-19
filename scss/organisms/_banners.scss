@@ -57,6 +57,7 @@
 		@include minbreakpoint(tablet) {
 			left: -20px; // fill gap of wp-admin sidebar right margin on large screens
 		};
+
 	}
 }
 
@@ -164,6 +165,11 @@
 
 .jp-connect-full__button-container {
 	margin: 0;
+	.dops-button.is-primary {
+		background: $green-primary;
+		border-color: $green-secondary;
+
+	}
 }
 
 .jp-connect-full__help-button {

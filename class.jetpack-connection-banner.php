@@ -875,7 +875,7 @@ class Jetpack_Connection_Banner {
 					</p>
 					<p class="jp-connect-full__button-container">
 						<a href="<?php echo esc_url( Jetpack::init()->build_connect_url( true, false, 'full-screen-prompt' ) ); ?>" class="dops-button is-primary">
-							<?php esc_html_e( 'Connect to WordPress.com', 'jetpack' ); ?>
+							<?php esc_html_e( 'Set up Jetpack', 'jetpack' ); ?>
 						</a>
 					</p>
 				</div>
