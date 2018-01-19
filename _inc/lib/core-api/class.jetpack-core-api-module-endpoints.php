@@ -409,7 +409,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 		foreach ( $settings as $setting => $properties ) {
 			switch ( $setting ) {
 				case 'lang_id':
-					if ( defined( 'WPLANG' ) && ! empty( WPLANG ) ) {
+					if ( defined( 'WPLANG' ) ) {
 						// We can't affect this setting, so warn the client
 						$response[ $setting ] = 'error_const';
 						break;
