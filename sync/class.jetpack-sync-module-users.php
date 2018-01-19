@@ -4,7 +4,6 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	const MAX_INITIAL_SYNC_USERS = 100;
 
 	protected $flags = array();
-	protected $is_accepting_invitation = false;
 
 	function name() {
 		return 'users';
@@ -42,9 +41,6 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		add_action( 'jetpack_deleted_user', $callable, 10, 3 );
 		add_action( 'remove_user_from_blog', array( $this, 'remove_user_from_blog_handler' ), 10, 2 );
 		add_action( 'jetpack_removed_user_from_blog', $callable, 10, 2 );
-
-		// invitations
-		add_action( 'jetpack_invite_accepted', array( $this, 'invite_accepted_handler' ) );
 
 		// user roles
 		add_action( 'add_user_role', array( $this, 'save_user_role_handler' ), 10, 2 );
@@ -89,10 +85,6 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 			return $user;
 		}
 		return null;
-	}
-
-	public function invite_accepted_handler() {
-		$this->is_accepting_invitation = true;
 	}
 
 	public function sanitize_user( $user ) {
@@ -197,7 +189,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 			return;
 		}
 
-		if ( $this->is_accepting_invitation ) {
+		if ( isset( $_GET['invite_accepted'] ) && 'true' === $_GET['invite_accepted'] ) {
 			$this->add_flags( $user_id, array( 'invitation_accepted' => true ) );
 		}
 		/**
@@ -217,7 +209,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 			return;
 		}
 
-		if ( $this->is_accepting_invitation ) {
+		if ( isset( $_GET['invite_accepted'] ) && 'true' === $_GET['invite_accepted'] ) {
 			$this->add_flags( $user_id, array( 'invitation_accepted' => true ) );
 		}
 		/**

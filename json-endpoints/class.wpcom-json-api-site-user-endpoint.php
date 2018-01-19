@@ -112,7 +112,6 @@ class WPCOM_JSON_API_Site_User_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'profile_URL'  => '(url) Gravatar Profile URL',
 		'site_ID'      => '(int) ID of the user\'s primary blog',
 		'roles'        => '(array|string) The role or roles of the user',
-		'invite_accepted' => '(bool:false) Is the user accepting an invite',
 	);
 
 	// /sites/%s/users/%d -> $blog_id, $user_id

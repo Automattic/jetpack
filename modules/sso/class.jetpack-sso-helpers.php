@@ -223,10 +223,6 @@ class Jetpack_SSO_Helpers {
 			return false;
 		}
 
-		if ( $user_data->invite_accepted ) {
-			do_action( 'jetpack_invite_accepted' );
-		}
-
 		$user = (object) array();
 		$user->user_pass    = wp_generate_password( 20 );
 		$user->user_login   = wp_slash( $username );
