@@ -306,8 +306,9 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 	}
 
 	private function sorting_to_wp_query_param( $sort ) {
-		$orderby = isset( $_GET['orderby'] ) ? $_GET['orderby'] : explode( '_', $sort )[0];
-		$order   = isset( $_GET['order'] )   ? $_GET['order']   : ( substr( $sort, -4 ) === '_asc' ) ? 'ASC' : 'DESC';
+		$parts = explode( '_', $sort );
+		$orderby = isset( $_GET['orderby'] ) ? $_GET['orderby']             : $parts[0];
+		$order   = isset( $_GET['order'] )   ? strtoupper( $_GET['order'] ) : ( 'asc' === $parts[1] ) ? 'ASC' : 'DESC';
 		return array( $orderby, $order );
 	}
 
