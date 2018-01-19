@@ -49,9 +49,9 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 
 	private function get_sort_types() {
 		return array(
-			'relevance_desc' => esc_html( 'Relevance' ),
-			'date_desc' => esc_html( 'Newest first' ),
-			'date_asc' => esc_html( 'Oldest first' )
+			'relevance|DESC' => esc_html( 'Relevance' ),
+			'date|DESC' => esc_html( 'Newest first' ),
+			'date|ASC' => esc_html( 'Oldest first' )
 		);
 	}
 
@@ -193,7 +193,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 
 		$default_sort = isset( $instance['sort'] ) ? $instance['sort'] : self::DEFAULT_SORT;
 		list( $orderby, $order ) = $this->sorting_to_wp_query_param( $default_sort );
-		$current_sort = strtolower("{$orderby}_{$order}");
+		$current_sort = "{$orderby}|{$order}";
 
 		if ( ! empty( $instance['search_box_enabled'] ) && ! empty( $instance['user_sort_enabled'] ) ) {
 			?>
@@ -262,7 +262,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 				order.val(orderDefault);
 
 				container.find( '.jetpack-search-sort' ).change( function( event ) {
-					var values  = event.target.value.split( '_' );
+					var values  = event.target.value.split( '|' );
 					orderBy.val( values[0] );
 					order.val( values[1] );
 
@@ -306,9 +306,9 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 	}
 
 	private function sorting_to_wp_query_param( $sort ) {
-		$parts = explode( '_', $sort );
+		$parts = explode( '|', $sort );
 		$orderby = isset( $_GET['orderby'] ) ? $_GET['orderby']             : $parts[0];
-		$order   = isset( $_GET['order'] )   ? strtoupper( $_GET['order'] ) : ( 'asc' === $parts[1] ) ? 'ASC' : 'DESC';
+		$order   = isset( $_GET['order'] )   ? $_GET['order'] : ( 'asc' === $parts[1] ) ? 'ASC' : 'DESC';
 		return array( $orderby, $order );
 	}
 
