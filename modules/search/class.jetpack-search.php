@@ -798,17 +798,11 @@ class Jetpack_Search {
 		}
 
 		if ( $args['author_name'] ) {
-			/*
-
-			@TODO!
-
-			$parser->author_field_filter( array(
-				'prefixes'           => array( '@' ),
-				'wpcom_id_field'     => 'author_id',
-				'must_query_fields'  => array( 'author.engram', 'author_login.engram' ),
-				'boost_query_fields' => array( 'author^2', 'author_login^2', 'title.default.engram' ),
+			$parser->add_filter( array(
+				'terms' => array(
+					'author_login' => $args['author_name'],
+				),
 			) );
-			*/
 		}
 
 		if ( ! empty( $args['date_range'] ) && isset( $args['date_range']['field'] ) ) {
