@@ -689,7 +689,7 @@ class Jetpack_Search {
 			 *     'Post Type' => array( 'type' => 'post_type', 'count' => 10 ) ),
 			 * );
 			 */
-			'aggregations'         => null,
+			'aggregations'   => null,
 		);
 
 		$args = wp_parse_args( $args, $defaults );
@@ -927,7 +927,7 @@ class Jetpack_Search {
 		Jetpack_Search::score_query_by_recency( $parser );
 
 		$es_query_args['filter'] = $parser->build_filter();
-		$es_query_args['query'] = $parser->build_query();
+		$es_query_args['query']  = $parser->build_query();
 
 		// Aggregations
 		if ( ! empty( $args['aggregations'] ) ) {
