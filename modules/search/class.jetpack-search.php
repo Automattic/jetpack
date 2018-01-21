@@ -734,6 +734,15 @@ class Jetpack_Search {
 			'boost_query_type'   => 'phrase',
 		) );
 
+		// Newer content gets weighted slightly higher
+		$parser->add_decay( 'gauss', array(
+			'date_gmt' => array(
+				'origin' => date( 'Y-m-d' ),
+				'scale'  => '360d',
+				'decay'  => 0.9,
+			),
+		));
+
 		$es_query_args = array(
 			'blog_id' => absint( $args['blog_id'] ),
 			'size'    => absint( $args['posts_per_page'] ),
@@ -908,8 +917,6 @@ class Jetpack_Search {
 			unset( $es_query_args['sort'] );
 		}
 
-		Jetpack_Search::score_query_by_recency( $parser );
-
 		$es_query_args['filter'] = $parser->build_filter();
 		$es_query_args['query']  = $parser->build_query();
 
@@ -1057,32 +1064,6 @@ class Jetpack_Search {
 		return array(
 			'and' => array_merge( array( $curr_filter ), $filters ),
 		);
-	}
-
-	/**
-	 * Add a recency score to a given Jetpack_WPES_Query_Builder object, for emphasizing newer posts in results
-	 *
-	 * Internally uses a gauss decay function
-	 *
-	 * @module search
-	 *
-	 * @param Jetpack_WPES_Query_Builder $builder The Jetpack_WPES_Query_Builder to add the recency score to
-	 *
-	 * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-function-score-query.html#function-decay
-	 */
-	public static function score_query_by_recency( Jetpack_WPES_Query_Builder &$builder ) {
-		//Newer content gets weighted slightly higher
-		$date_scale  = '360d';
-		$date_decay  = 0.9;
-		$date_origin = date( 'Y-m-d' );
-
-		$builder->add_decay( 'gauss', array(
-			'date_gmt' => array(
-				'origin' => $date_origin,
-				'scale'  => $date_scale,
-				'decay'  => $date_decay,
-			),
-		));
 	}
 
 	/**
