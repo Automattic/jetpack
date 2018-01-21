@@ -698,11 +698,11 @@ class Jetpack_Search {
 
 		$match_content_fields = $parser->merge_ml_fields(
 			array(
-				'title'    => 2,
-				'content'  => 2,
-				'author'   => 1,
-				'tag'      => 1,
-				'category' => 1,
+				'title'    => 0.2,
+				'content'  => 0.2,
+				'author'   => 0.1,
+				'tag'      => 0.1,
+				'category' => 0.1,
 			),
 			array()
 		);
@@ -732,16 +732,6 @@ class Jetpack_Search {
 		$parser->remaining_query( array(
 			'boost_query_fields' => $boost_content_fields,
 			'boost_query_type'   => 'phrase',
-		) );
-
-		// Other boosts
-		$parser->add_max_boost_to_functions( 20 );
-		$parser->add_function( 'field_value_factor', array(
-			'follower_count' => array(
-				'modifier' => 'sqrt',
-				'factor'   => 1,
-				'missing'  => 0,
-			)
 		) );
 
 		$es_query_args = array(
