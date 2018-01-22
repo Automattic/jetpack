@@ -113,10 +113,16 @@ class WordAds {
 		add_action( 'wp_head', array( $this, 'insert_head_meta' ), 20 );
 		add_action( 'wp_head', array( $this, 'insert_head_iponweb' ), 30 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
-		add_filter( 'the_content', array( $this, 'insert_ad' ) );
-		add_filter( 'the_excerpt', array( $this, 'insert_ad' ) );
 
-		if ( $this->option( 'enable_header_ad' ) ) {
+		if ( ! apply_filters( 'wordads_content_disable', false ) ) {
+			add_filter( 'the_content', array( $this, 'insert_ad' ) );
+		}
+
+		if ( ! apply_filters( 'wordads_excerpt_disable', false ) ) {
+			add_filter( 'the_excerpt', array( $this, 'insert_ad' ) );
+		}
+
+		if ( $this->option( 'enable_header_ad', true ) ) {
 			switch ( get_stylesheet() ) {
 				case 'twentyseventeen':
 				case 'twentyfifteen':
