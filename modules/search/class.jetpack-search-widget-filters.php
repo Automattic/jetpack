@@ -37,11 +37,38 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 	}
 
 	function widget_admin_setup() {
-		wp_register_script( 'widget-jetpack-search-filters', plugins_url( 'js/search-widget-filters-admin.js', __FILE__ ), array( 'jquery' ) );
 		wp_enqueue_style( 'widget-jetpack-search-filters', plugins_url( 'css/search-widget-filters-admin-ui.css', __FILE__ ) );
+
+		// Required for Tracks
+		wp_register_script(
+			'jp-tracks',
+			'//stats.wp.com/w.js',
+			array(),
+			gmdate( 'YW' ),
+			true
+		);
+
+		wp_register_script(
+			'jp-tracks-functions',
+			plugins_url( '_inc/lib/tracks/tracks-callables.js', JETPACK__PLUGIN_FILE ),
+			array(),
+			JETPACK__VERSION,
+			false
+		);
+
+		wp_register_script(
+			'widget-jetpack-search-filters',
+			plugins_url( 'js/search-widget-filters-admin.js', __FILE__ ),
+			array( 'jquery', 'jp-tracks', 'jp-tracks-functions' )
+
+		);
 
 		wp_localize_script( 'widget-jetpack-search-filters', 'jetpack_search_filter_admin', array(
 			'defaultFilterCount' => self::DEFAULT_FILTER_COUNT,
+			'tracksUserData'     => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
+			'tracksEventData'    => array(
+				'is_customizer'   => ( function_exists( 'is_customize_preview' ) && is_customize_preview() ) ? 1 : 0,
+			),
 		) );
 
 		wp_enqueue_script( 'widget-jetpack-search-filters' );
@@ -285,6 +312,8 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 	function update( $new_instance, $old_instance ) {
 		$instance = array();
 
+		error_log( print_r( array( $_GET, $_POST ), true ) );
+
 		$instance['title'] = sanitize_text_field( $new_instance['title'] );
 		$instance['use_filters'] = empty( $new_instance['use_filters'] ) ? '0' : '1';
 		$instance['search_box_enabled'] = empty( $new_instance['search_box_enabled'] ) ? '0' : '1';
@@ -396,7 +425,9 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			<p>
 				<label>
 					<?php esc_html_e( 'Default sort order:', 'jetpack' ); ?>
-					<select name="<?php echo esc_attr( $this->get_field_name( 'sort' ) ); ?>" class="widefat">
+					<select
+						name="<?php echo esc_attr( $this->get_field_name( 'sort' ) ); ?>"
+						class="widefat jetpack-search-filters-widget__sort-order">
 		 				<?php foreach( $this->get_sort_types() as $sort_type => $label ) { ?>
 							<option value="<?php echo esc_attr( $sort_type ); ?>" <?php selected( $sort, $sort_type ); ?>>
 								<?php echo esc_html( $label ); ?>
@@ -554,7 +585,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 				<label>
 					<?php esc_html_e( 'Maximum number of filters (1-50):', 'jetpack' ); ?>
 					<input
-						class="widefat"
+						class="widefat filter-count"
 						name="<?php echo esc_attr( $this->get_field_name( 'num_filters' ) ); ?>[]"
 						type="number"
 						value="<?php echo intval( $args['count'] ); ?>"
