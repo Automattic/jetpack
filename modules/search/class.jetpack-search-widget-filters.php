@@ -247,7 +247,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 
 		$order   = isset( $_GET['order'] )
 			? strtoupper( $_GET['order'] )
-			: ( ( 'ASC' === strtoupper( $parts[1] ) ) ? 'ASC' : 'DESC' );
+			: ( ( isset( $parts[1] ) && 'ASC' === strtoupper( $parts[1] ) ) ? 'ASC' : 'DESC' );
 
 		return array( $orderby, $order );
 	}
