@@ -123,7 +123,7 @@ class Jetpack_Lazy_Images {
 		}
 
 		// check for gazette featured images, which are incompatible
-		if ( isset( $attributes['class'] ) && strpos( $attributes['class'], 'gazette-featured-content-thumbnail' ) > 0 ) {
+		if ( isset( $attributes['class'] ) && false !== strpos( $attributes['class'], 'gazette-featured-content-thumbnail' ) ) {
 			return $attributes;
 		}
 
