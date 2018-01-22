@@ -149,15 +149,15 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			do_action( 'jetpack_search_render_filters_widget_title', $title, $args['before_title'], $args['after_title'] );
 		}
 
-		// we need to dynamically inject the sort field into the search box when the search box is enabled, and display
-		// it separately when it's not.
-		if ( ! empty( $instance['search_box_enabled'] ) ) {
-			$this->render_widget_search_form( $instance );
-		}
-
 		$default_sort = isset( $instance['sort'] ) ? $instance['sort'] : self::DEFAULT_SORT;
 		list( $orderby, $order ) = $this->sorting_to_wp_query_param( $default_sort );
 		$current_sort = "{$orderby}|{$order}";
+
+		// we need to dynamically inject the sort field into the search box when the search box is enabled, and display
+		// it separately when it's not.
+		if ( ! empty( $instance['search_box_enabled'] ) ) {
+			$this->render_widget_search_form( $instance, $orderby, $order );
+		}
 
 		if ( ! empty( $instance['search_box_enabled'] ) && ! empty( $instance['user_sort_enabled'] ) ) {
 			?>
@@ -190,38 +190,8 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 
 				var container = $('#' + widgetId);
 				var form = container.find('.jetpack-search-form form');
-				if ( form.length === 0 ) {
-					form = $('<form></form>')
-						.prop({
-							'action': actionUrl,
-							'role': 'search',
-							'method': 'get',
-							'class': 'search-form'
-						});
-					container.append(form);
-				}
-
-				// create hidden fields if necessary
 				var orderBy = form.find( 'input[name=orderby]');
-				if ( orderBy.length === 0 ) {
-					orderBy = $('<input>')
-						.prop({
-							'name': 'orderby',
-							'type': 'hidden'
-						});
-					form.append(orderBy);
-				}
-
 				var order = form.find( 'input[name=order]');
-				if ( order.length === 0 ) {
-					order = $('<input>')
-						.prop({
-							'name': 'order',
-							'type': 'hidden'
-						});
-					form.append(order);
-				}
-
 				orderBy.val(orderByDefault);
 				order.val(orderDefault);
 
@@ -276,8 +246,8 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			: $parts[0];
 
 		$order   = isset( $_GET['order'] )
-			? $_GET['order']
-			: ( ( 'ASC' === $parts[1] ) ? 'ASC' : 'DESC' );
+			? strtoupper( $_GET['order'] )
+			: ( ( 'ASC' === strtoupper( $parts[1] ) ) ? 'ASC' : 'DESC' );
 
 		return array( $orderby, $order );
 	}
@@ -579,37 +549,51 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 	 *
 	 * @param array $instance
 	 */
-	function render_widget_search_form( $instance ) {
+	function render_widget_search_form( $instance, $orderby, $order ) {
 		$form = get_search_form( false );
 
-		$form_injection = '';
+		$fields_to_inject = array(
+			'orderby' => $orderby,
+			'order' => $order
+		);
 
 		// If the widget has specified post types to search within and IF the post types differ
 		// from the default post types that would have been searched, set the selected post
 		// types via hidden inputs.
 		if ( Jetpack_Search_Helpers::post_types_differ_searchable( $instance ) ) {
-			$form_injection = sprintf(
-				'<input type="hidden" name="post_type" value="%s" />',
-				esc_attr( implode( ',', $instance['post_types'] ) )
-			);
+			$fields_to_inject['post_type'] = implode( ',', $instance['post_types'] );
 		}
 
-		if ( $form_injection ) {
-			// This shouldn't need to be escaped since we've escaped above as we built $form_injection
-			$form = str_replace(
-				'</form>',
-				sprintf(
-					'%s</form>',
-					$form_injection
-				),
-				$form
-			);
-		}
+		$form = $this->inject_hidden_form_fields( $form, $fields_to_inject );
 
 		// This shouldn't need to be escaped since we escaped above when we imploded the selected post types
 		echo '<div class="jetpack-search-form">';
 		echo $form;
 		echo '</div>';
+	}
+
+	private function inject_hidden_form_fields( $form, $fields ) {
+		$form_injection = '';
+
+		foreach( $fields as $field_name => $field_value ) {
+			$form_injection .= sprintf(
+				'<input type="hidden" name="%s" value="%s" />',
+				$field_name,
+				esc_attr( $field_value )
+			);
+		}
+
+		// This shouldn't need to be escaped since we've escaped above as we built $form_injection
+		$form = str_replace(
+			'</form>',
+			sprintf(
+				'%s</form>',
+				$form_injection
+			),
+			$form
+		);
+
+		return $form;
 	}
 
 	/**
