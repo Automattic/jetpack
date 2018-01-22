@@ -149,15 +149,15 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			do_action( 'jetpack_search_render_filters_widget_title', $title, $args['before_title'], $args['after_title'] );
 		}
 
-		// we need to dynamically inject the sort field into the search box when the search box is enabled, and display
-		// it separately when it's not.
-		if ( ! empty( $instance['search_box_enabled'] ) ) {
-			$this->render_widget_search_form( $instance );
-		}
-
 		$default_sort = isset( $instance['sort'] ) ? $instance['sort'] : self::DEFAULT_SORT;
 		list( $orderby, $order ) = $this->sorting_to_wp_query_param( $default_sort );
 		$current_sort = "{$orderby}|{$order}";
+
+		// we need to dynamically inject the sort field into the search box when the search box is enabled, and display
+		// it separately when it's not.
+		if ( ! empty( $instance['search_box_enabled'] ) ) {
+			$this->render_widget_search_form( $instance, $orderby, $order );
+		}
 
 		if ( ! empty( $instance['search_box_enabled'] ) && ! empty( $instance['user_sort_enabled'] ) ) {
 			?>
@@ -276,8 +276,8 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			: $parts[0];
 
 		$order   = isset( $_GET['order'] )
-			? $_GET['order']
-			: ( ( 'ASC' === $parts[1] ) ? 'ASC' : 'DESC' );
+			? strtoupper( $_GET['order'] )
+			: ( ( 'ASC' === strtoupper( $parts[1] ) ) ? 'ASC' : 'DESC' );
 
 		return array( $orderby, $order );
 	}
@@ -579,12 +579,13 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 	 *
 	 * @param array $instance
 	 */
-	function render_widget_search_form( $instance ) {
+	function render_widget_search_form( $instance, $orderby, $order ) {
 		$form = get_search_form( false );
 
-		$fields_to_inject = array();
-
-		$form_injection = '';
+		$fields_to_inject = array(
+			'orderby' => $orderby,
+			'order' => $order
+		);
 
 		// If the widget has specified post types to search within and IF the post types differ
 		// from the default post types that would have been searched, set the selected post
@@ -593,9 +594,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			$fields_to_inject['post_type'] = implode( ',', $instance['post_types'] );
 		}
 
-		if ( count( $fields_to_inject ) > 0 ) {
-			$form = $this->inject_hidden_form_fields( $form, $fields );
-		}
+		$form = $this->inject_hidden_form_fields( $form, $fields_to_inject );
 
 		// This shouldn't need to be escaped since we escaped above when we imploded the selected post types
 		echo '<div class="jetpack-search-form">';
@@ -624,6 +623,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			$form
 		);
 
+		return $form;
 	}
 
 	/**
