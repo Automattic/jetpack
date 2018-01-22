@@ -190,38 +190,8 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 
 				var container = $('#' + widgetId);
 				var form = container.find('.jetpack-search-form form');
-				if ( form.length === 0 ) {
-					form = $('<form></form>')
-						.prop({
-							'action': actionUrl,
-							'role': 'search',
-							'method': 'get',
-							'class': 'search-form'
-						});
-					container.append(form);
-				}
-
-				// create hidden fields if necessary
 				var orderBy = form.find( 'input[name=orderby]');
-				if ( orderBy.length === 0 ) {
-					orderBy = $('<input>')
-						.prop({
-							'name': 'orderby',
-							'type': 'hidden'
-						});
-					form.append(orderBy);
-				}
-
 				var order = form.find( 'input[name=order]');
-				if ( order.length === 0 ) {
-					order = $('<input>')
-						.prop({
-							'name': 'order',
-							'type': 'hidden'
-						});
-					form.append(order);
-				}
-
 				orderBy.val(orderByDefault);
 				order.val(orderDefault);
 
