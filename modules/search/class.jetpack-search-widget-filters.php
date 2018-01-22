@@ -404,12 +404,15 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 							name="<?php echo esc_attr( $this->get_field_name( 'use_filters' ) ); ?>"
 							<?php checked( $use_filters ); ?>
 						/>
-						<?php esc_html_e( 'Show filters when a search has multiple results', 'jetpack' ); ?>
+						<?php esc_html_e( 'Show extra filtering options', 'jetpack' ); ?>
 					</label>
 				</p>
 				<?php foreach ( (array) $instance['filters'] as $filter ) : ?>
 					<?php $this->render_widget_filter( $filter ); ?>
 				<?php endforeach; ?>
+				<div class="jetpack-search-filters-help">
+					<a href="https://jetpack.com/support/search/#filters-not-showing-up"><?php esc_html_e( 'Why aren\'t my filters appearing?', 'jetpack' ); ?></a>
+				</div>
 			<?php endif; ?>
 		</div>
 		<?php
