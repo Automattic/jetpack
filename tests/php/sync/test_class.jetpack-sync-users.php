@@ -682,6 +682,43 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		$this->assertNotEmpty( $event );
 	}
 
+	public function test_invite_user_sync_invite_event() {
+		$this->server_event_storage->reset();
+		// Fake it till you make it
+		Jetpack_Constants::set_constant( 'JETPACK_INVITE_ACCEPTED', true );
+		// We modify the input here to mimick the same call structure of the update user endpoint.
+		Jetpack_SSO_Helpers::generate_user( $this->get_invite_user_data() );
+		$this->sender->do_sync();
+
+		Jetpack_Constants::clear_constants();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_user' );
+		$this->assertFalse( $event );
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_register_user' );
+
+		$this->assertTrue( $event->args[1]['invitation_accepted'] );
+		$this->assertEquals( 'editor' , $event->args[0]->roles[0] );
+	}
+
+	public function test_invite_user_sync_invite_event_false() {
+		$this->server_event_storage->reset();
+		// Fake it till we make it
+		Jetpack_Constants::set_constant( 'JETPACK_INVITE_ACCEPTED', false );
+		// We modify the input here to mimick the same call structure of the update user endpoint.
+		Jetpack_SSO_Helpers::generate_user( $this->get_invite_user_data() );
+		$this->sender->do_sync();
+
+		Jetpack_Constants::clear_constants();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_user' );
+		$this->assertFalse( $event );
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_register_user' );
+		$this->assertFalse( isset( $event->args[1]['invitation_accepted'] ) );
+		$this->assertEquals( 'editor' , $event->args[0]->roles[0] );
+	}
+
 	protected function assertUsersEqual( $user1, $user2 ) {
 		// order-independent comparison
 		$user1_array = get_object_vars( $user1->data );
@@ -692,6 +729,20 @@ class WP_Test_Jetpack_Sync_Users extends WP_Test_Jetpack_Sync_Base {
 		unset( $user2_array['user_pass'] );
 
 		$this->assertTrue( array_diff( $user1_array, $user2_array ) == array_diff( $user2_array, $user1_array ) );
+	}
+
+	private function get_invite_user_data() {
+		return (object) array(
+			'ID'           => 1234,
+			'first_name'   => '',
+			'last_name'    => '',
+			'url'          => '',
+			'login'        => 'test_user_invite',
+			'email'        => 'test_user_invite@example.com',
+			'role'         => 'editor',
+			'display_name' => 'Gill',
+			'description'  => '',
+		);
 	}
 
 }
