@@ -9,8 +9,8 @@
 	text-align: right;
 }
 
-.jetpack-search-filters-widget__sort-controls-enabled {
-	margin-left: 20px !important;
+.jetpack-search-filters-widget .jetpack-search-filters-widget__sort-controls-enabled {
+	margin-left: 24px;
 }
 
 .jetpack-search-filters-widget__controls .delete {
