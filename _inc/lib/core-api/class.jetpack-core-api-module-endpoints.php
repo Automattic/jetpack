@@ -412,6 +412,23 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
 		foreach ( $settings as $setting => $properties ) {
 			switch ( $setting ) {
+				case 'lang_id':
+					if ( defined( 'WPLANG' ) ) {
+						// We can't affect this setting, so warn the client
+						$response[ $setting ] = 'error_const';
+						break;
+					}
+
+					if ( ! current_user_can( 'install_languages' ) ) {
+						// The user doesn't have caps to install language packs, so warn the client
+						$response[ $setting ] = 'error_cap';
+						break;
+					}
+
+					$value = get_option( 'WPLANG' );
+					$response[ $setting ] = empty( $value ) ? 'en_US' : $value;
+					break;
+
 				case $holiday_snow_option_name:
 					$response[ $setting ] = get_option( $holiday_snow_option_name ) === 'letitsnow';
 					break;
@@ -607,6 +624,27 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			$value = Jetpack_Core_Json_Api_Endpoints::cast_value( $value, $option_attrs );
 
 			switch ( $option ) {
+				case 'lang_id':
+					if ( defined( 'WPLANG' ) || ! current_user_can( 'install_languages' ) ) {
+						// We can't affect this setting
+						$updated = false;
+						break;
+					}
+
+					if ( $value === 'en_US' || empty( $value ) ) {
+						return delete_option( 'WPLANG' );
+					}
+
+					// `wp_download_language_pack` only tries to download packs if they're not already available
+					$language = wp_download_language_pack( $value );
+					if ( $language === false ) {
+						// The language pack download failed.
+						$updated = false;
+						break;
+					}
+					$updated = get_option( 'WPLANG' ) === $language ? true : update_option( 'WPLANG', $language );
+					break;
+
 				case 'monitor_receive_notifications':
 					$monitor = new Jetpack_Monitor();
 
