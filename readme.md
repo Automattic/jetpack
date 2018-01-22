@@ -2,6 +2,7 @@
 
 [![License](https://poser.pugx.org/automattic/jetpack/license.svg)](https://www.gnu.org/licenses/gpl-2.0.html)
 [![Code Climate](https://codeclimate.com/github/Automattic/jetpack/badges/gpa.svg)](https://codeclimate.com/github/Automattic/jetpack)
+[![Build Status](https://travis-ci.org/Automattic/jetpack.svg?branch=master)](https://travis-ci.org/Automattic/jetpack)
 
 [Jetpack](https://jetpack.com/) is a WordPress plugin that supercharges your self-hosted WordPress site with the awesome cloud power of WordPress.com.
 
