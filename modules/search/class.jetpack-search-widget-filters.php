@@ -434,7 +434,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 							name="<?php echo esc_attr( $this->get_field_name( 'use_filters' ) ); ?>"
 							<?php checked( $use_filters ); ?>
 						/>
-						<?php esc_html_e( 'Show extra filtering options', 'jetpack ); ?>
+						<?php esc_html_e( 'Show extra filtering options', 'jetpack' ); ?>
 					</label>
 				</p>
 				<?php foreach ( (array) $instance['filters'] as $filter ) : ?>
