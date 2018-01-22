@@ -322,7 +322,10 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->set_sync_wait_threshold( 2 ); // wait no matter what
 
 		$this->factory->post->create();
+
+		add_filter( 'pre_http_request', array( $this, 'pre_http_request_success' ) );
 		$this->sender->do_sync();
+		remove_filter( 'pre_http_request', array( $this, 'pre_http_request_success' ) );
 
 		$this->assertTrue( $this->sender->get_next_sync_time( 'sync' ) > time() + 9 );
 	}

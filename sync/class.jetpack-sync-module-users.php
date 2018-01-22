@@ -26,6 +26,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 
 		add_action( 'add_user_to_blog', array( $this, 'add_user_to_blog_handler' ) );
 		add_action( 'jetpack_sync_add_user', $callable, 10, 2 );
+		add_action( 'jetpack_sync_add_user', array( $this, 'clear_flags' ), 11 );
 
 		add_action( 'jetpack_sync_register_user', $callable, 10, 2 );
 		add_action( 'jetpack_sync_register_user', array( $this, 'clear_flags' ), 11 );
@@ -55,6 +56,11 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		add_action( 'wp_login', $callable, 10, 2 );
 		add_action( 'wp_logout', $callable, 10, 0 );
 		add_action( 'wp_masterbar_logout', $callable, 10, 0 );
+
+		// Add on init
+		add_filter( 'jetpack_sync_before_enqueue_jetpack_sync_add_user', array( $this, 'expand_action' ) );
+		add_filter( 'jetpack_sync_before_enqueue_jetpack_sync_register_user', array( $this, 'expand_action' ) );
+		add_filter( 'jetpack_sync_before_enqueue_jetpack_sync_save_user', array( $this, 'expand_action' ) );
 	}
 
 	public function init_full_sync_listeners( $callable ) {
@@ -62,10 +68,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	}
 
 	public function init_before_send() {
-		add_filter( 'jetpack_sync_before_enqueue_jetpack_sync_add_user', array( $this, 'expand_action' ) );
-		add_filter( 'jetpack_sync_before_enqueue_jetpack_sync_register_user', array( $this, 'expand_action' ) );
 
-		add_filter( 'jetpack_sync_before_enqueue_jetpack_sync_save_user', array( $this, 'expand_action' ) );
 
 		add_filter( 'jetpack_sync_before_send_wp_login', array( $this, 'expand_login_username' ), 10, 1 );
 		add_filter( 'jetpack_sync_before_send_wp_logout', array( $this, 'expand_logout_username' ), 10, 2 );
@@ -185,6 +188,10 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		if ( ! is_user_member_of_blog( $user_id, get_current_blog_id() ) ) {
 			return;
 		}
+
+		if ( Jetpack_Constants::is_true( 'JETPACK_INVITE_ACCEPTED' ) ) {
+			$this->add_flags( $user_id, array( 'invitation_accepted' => true ) );
+		}
 		/**
 		 * Fires when a new user is registered on a site
 		 *
@@ -192,13 +199,18 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		 *
 		 * @param object The WP_User object
 		 */
-		do_action( 'jetpack_sync_register_user', $user_id );
+		do_action( 'jetpack_sync_register_user', $user_id, $this->get_flags( $user_id ) );
+
 	}
 
 	function add_user_to_blog_handler( $user_id, $old_user_data = null ) {
 		// ensure we only sync users who are members of the current blog
 		if ( ! is_user_member_of_blog( $user_id, get_current_blog_id() ) ) {
 			return;
+		}
+
+		if ( Jetpack_Constants::is_true( 'JETPACK_INVITE_ACCEPTED' ) ) {
+			$this->add_flags( $user_id, array( 'invitation_accepted' => true ) );
 		}
 		/**
 		 * Fires when a user is added on a site
@@ -207,7 +219,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		 *
 		 * @param object The WP_User object
 		 */
-		do_action( 'jetpack_sync_add_user', $user_id );
+		do_action( 'jetpack_sync_add_user', $user_id, $this->get_flags( $user_id ) );
 	}
 
 	function save_user_handler( $user_id, $old_user_data = null ) {

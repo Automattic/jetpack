@@ -412,6 +412,23 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
 		foreach ( $settings as $setting => $properties ) {
 			switch ( $setting ) {
+				case 'lang_id':
+					if ( defined( 'WPLANG' ) ) {
+						// We can't affect this setting, so warn the client
+						$response[ $setting ] = 'error_const';
+						break;
+					}
+
+					if ( ! current_user_can( 'install_languages' ) ) {
+						// The user doesn't have caps to install language packs, so warn the client
+						$response[ $setting ] = 'error_cap';
+						break;
+					}
+
+					$value = get_option( 'WPLANG' );
+					$response[ $setting ] = empty( $value ) ? 'en_US' : $value;
+					break;
+
 				case $holiday_snow_option_name:
 					$response[ $setting ] = get_option( $holiday_snow_option_name ) === 'letitsnow';
 					break;
@@ -437,7 +454,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 						'siteType' => get_option( 'jpo_site_type' ),
 						'homepageFormat' => get_option( 'jpo_homepage_format' ),
 						'addContactForm' => intval( get_option( 'jpo_contact_page' ) ),
-						'businessAddress' => array(), // TODO
+						'businessAddress' => get_option( 'jpo_business_address' ),
 						'installWooCommerce' => is_plugin_active( 'woocommerce/woocommerce.php' ),
 					);
 					break;
@@ -607,6 +624,27 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			$value = Jetpack_Core_Json_Api_Endpoints::cast_value( $value, $option_attrs );
 
 			switch ( $option ) {
+				case 'lang_id':
+					if ( defined( 'WPLANG' ) || ! current_user_can( 'install_languages' ) ) {
+						// We can't affect this setting
+						$updated = false;
+						break;
+					}
+
+					if ( $value === 'en_US' || empty( $value ) ) {
+						return delete_option( 'WPLANG' );
+					}
+
+					// `wp_download_language_pack` only tries to download packs if they're not already available
+					$language = wp_download_language_pack( $value );
+					if ( $language === false ) {
+						// The language pack download failed.
+						$updated = false;
+						break;
+					}
+					$updated = get_option( 'WPLANG' ) === $language ? true : update_option( 'WPLANG', $language );
+					break;
+
 				case 'monitor_receive_notifications':
 					$monitor = new Jetpack_Monitor();
 
@@ -877,6 +915,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					break;
 
 				case 'onboarding':
+					jetpack_require_lib( 'widgets' );
 					// Break apart and set Jetpack onboarding options.
 					$result = $this->_process_onboarding( (array) $value );
 					if ( empty( $result ) ) {
@@ -1066,6 +1105,13 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			}
 		}
 
+		if ( isset( $data['businessAddress'] ) ) {
+			$handled_business_address = self::handle_business_address( $data['businessAddress'] );
+			if ( is_wp_error( $handled_business_address ) ) {
+				$error[] = 'BusinessAddress';
+			}
+		}
+
 		if ( ! empty( $data['installWooCommerce'] ) ) {
 			jetpack_require_lib( 'plugins' );
 			$wc_install_result = Jetpack_Plugins::install_and_activate_plugin( 'woocommerce' );
@@ -1077,6 +1123,87 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 		return empty( $error )
 			? ''
 			: join( ', ', $error );
+	}
+
+	/**
+	 * Add or update Business Address widget.
+	 *
+	 * @param array $address Array of business address fields.
+	 *
+	 * @return WP_Error|true True if the data was saved correctly.
+	*/
+	static function handle_business_address( $address ) {
+		$first_sidebar = Jetpack_Widgets::get_first_sidebar();
+
+		$widgets_module_active = Jetpack::is_module_active( 'widgets' );
+		if ( ! $widgets_module_active ) {
+			$widgets_module_active = Jetpack::activate_module( 'widgets', false, false );
+		}
+		if ( ! $widgets_module_active ) {
+			return new WP_Error( 'module_activation_failed', 'Failed to activate the widgets module.', 400 );
+		}
+
+		if ( $first_sidebar ) {
+			$title = isset( $address['name'] ) ? sanitize_text_field( $address['name'] ) : '';
+			$street = isset( $address['street'] ) ? sanitize_text_field( $address['street'] ) : '';
+			$city = isset( $address['city'] ) ? sanitize_text_field( $address['city'] ) : '';
+			$state = isset( $address['state'] ) ? sanitize_text_field( $address['state'] ) : '';
+			$zip = isset( $address['zip'] ) ? sanitize_text_field( $address['zip'] ) : '';
+
+			$full_address = implode( ' ', array_filter( array( $street, $city, $state, $zip ) ) );
+
+			$widget_options = array(
+				'title'   => $title,
+				'address' => $full_address,
+				'phone'   => '',
+				'hours'   => '',
+				'showmap' => false,
+				'email' => ''
+			);
+
+			$widget_updated = '';
+			if ( ! self::has_business_address_widget( $first_sidebar ) ) {
+				$widget_updated  = Jetpack_Widgets::insert_widget_in_sidebar( 'widget_contact_info', $widget_options, $first_sidebar );
+			} else {
+				$widget_updated = Jetpack_Widgets::update_widget_in_sidebar( 'widget_contact_info', $widget_options, $first_sidebar );
+			}
+			if ( is_wp_error( $widget_updated ) ) {
+				return new WP_Error( 'widget_update_failed', 'Widget could not be updated.', 400 );
+			}
+
+			$address_save = array(
+				'name' => $title,
+				'street' => $street,
+				'city' => $city,
+				'state' => $state,
+				'zip' => $zip
+			);
+			update_option( 'jpo_business_address', $address_save );
+			return true;
+		}
+
+		// No sidebar to place the widget
+		return new WP_Error( 'sidebar_not_found', 'No sidebar.', 400 );
+	}
+
+	/**
+	 * Check whether "Contact Info & Map" widget is present in a given sidebar.
+	 *
+	 * @param string  $sidebar ID of the sidebar to which the widget will be added.
+	 *
+	 * @return bool Whether the widget is present in a given sidebar.
+	*/
+	static function has_business_address_widget( $sidebar ) {
+		$sidebars_widgets = get_option( 'sidebars_widgets', array() );
+		if ( ! isset( $sidebars_widgets[ $sidebar ] ) ) {
+			return false;
+		}
+		foreach ( $sidebars_widgets[ $sidebar ] as $widget ) {
+			if ( strpos( $widget, 'widget_contact_info' ) !== false ) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
