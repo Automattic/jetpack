@@ -18,7 +18,7 @@ function jetpack_require_lib( $slug ) {
 	 *
 	 * @since 2.5.0
 	 *
-	 * @param str $lib_dir Path to the library directory.
+	 * @param string $lib_dir Path to the library directory.
 	 */
 	$lib_dir = apply_filters( 'jetpack_require_lib_dir', $lib_dir );
 	$choices = array(

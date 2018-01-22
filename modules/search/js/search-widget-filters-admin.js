@@ -18,6 +18,21 @@
 				.addClass( 'is-' + selectVal );
 		} );
 
+		// enable showing sort controls only if showing search box is enabled
+		widget.on( 'change', '.jetpack-search-filters-widget__search-box-enabled', function() {
+			var checkbox = $( this ),
+				checkboxVal = checkbox.is(':checked');
+
+			var sortControl = checkbox.closest( '.jetpack-search-filters-widget' ).find( '.jetpack-search-filters-widget__sort-controls-enabled' );
+
+			if ( checkboxVal ) {
+				sortControl.removeAttr( 'disabled' );
+			} else {
+				sortControl.prop( 'checked', false );
+				sortControl.prop( 'disabled', true );
+			}
+		} );
+
 		widget.on( 'click', '.jetpack-search-filters-widget__controls .add', function( e ) {
 			e.preventDefault();
 			var closest = $( this ).closest( '.jetpack-search-filters-widget__filter' ),
@@ -30,15 +45,22 @@
 			clone.find( 'select option:first-child' ).prop( 'selected', true );
 
 			clone.insertAfter( closest );
+			clone.find( 'input, textarea, select' ).change();
 		} );
 
 		widget.on( 'click', '.jetpack-search-filters-widget__controls .delete', function( e ) {
 			e.preventDefault();
-			$( this ).closest( '.jetpack-search-filters-widget__filter' ).remove();
+			var filter = $( this ).closest( '.jetpack-search-filters-widget__filter' );
+			filter.find( 'input, textarea, select' ).change();
+			filter.remove();
 		} );
 
 		widget.on( 'change', '.jetpack-search-filters-widget__use-filters', function() {
 			$( this ).closest( '.jetpack-search-filters-widget' ).toggleClass( 'hide-filters' );
+		} );
+
+		widget.on( 'change', '.jetpack-search-filters-widget__search-box-enabled', function() {
+			$( this ).closest( '.jetpack-search-filters-widget' ).toggleClass( 'hide-post-types' );
 		} );
 	};
 
@@ -53,6 +75,7 @@
 		widget.off( 'click', '.jetpack-search-filters-widget__controls .add' );
 		widget.off( 'click', '.jetpack-search-filters-widget__controls .delete' );
 		widget.off( 'change', '.jetpack-search-filters-widget__use-filters' );
+		widget.off( 'change', '.jetpack-search-filters-widget__search-box-enabled' );
 		setListeners();
 	} );
 } )( jQuery, jetpack_search_filter_admin );

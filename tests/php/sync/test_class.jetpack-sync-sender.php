@@ -203,7 +203,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->factory->post->create();
 		$this->sender->do_sync();
 
-		$event = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' );
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
 
 		$this->assertTrue( $event->timestamp > $beginning_of_test );
 		$this->assertTrue( $event->timestamp < microtime( true ) );
@@ -216,7 +216,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->factory->post->create();
 		$this->sender->do_sync();
 
-		$event = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' );
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
 
 		$this->assertEquals( $user_id, $event->user_id );
 	}
@@ -232,7 +232,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 
 		$after_sync = microtime( true );
 
-		$event = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' );
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
 
 		$this->assertTrue( $event->sent_timestamp > $beginning_of_test );
 		$this->assertTrue( $event->sent_timestamp > $before_sync );
@@ -267,7 +267,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( $full_sync->is_started() );
 
 		$full_sync->reset_data();
-		
+
 		$this->assertFalse( $full_sync->is_started() );
 	}
 
@@ -296,7 +296,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$processed_item_ids = $this->server->receive( $data, null, $sent_timestamp );
 
 		// add an error at the end
-		$processed_item_ids[] = new WP_Error( 'an_error', 'An Error Occurred' );		
+		$processed_item_ids[] = new WP_Error( 'an_error', 'An Error Occurred' );
 
 		return $processed_item_ids;
 	}
@@ -322,9 +322,12 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->set_sync_wait_threshold( 2 ); // wait no matter what
 
 		$this->factory->post->create();
-		$this->sender->do_sync();
 
-		$this->assertTrue( $this->sender->get_next_sync_time( 'sync' ) > time() + 9 );	
+		add_filter( 'pre_http_request', array( $this, 'pre_http_request_success' ) );
+		$this->sender->do_sync();
+		remove_filter( 'pre_http_request', array( $this, 'pre_http_request_success' ) );
+
+		$this->assertTrue( $this->sender->get_next_sync_time( 'sync' ) > time() + 9 );
 	}
 
 	function test_default_value_for_max_execution_time() {
@@ -384,7 +387,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		register_post_type( 'http_listener', $args );
 
 		// register a trivial action we use to force sync
-		add_action( 'my_action', array( $this->listener, 'action_handler' ) ); 
+		add_action( 'my_action', array( $this->listener, 'action_handler' ) );
 
 		// log http_listener during send data, since in test we're not sending real HTTP requests
 		add_filter( 'jetpack_sync_send_data', array( $this, 'create_http_listener_post_and_return_processed_ids' ), 10, 1 );

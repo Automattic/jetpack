@@ -29,8 +29,6 @@ class Jetpack_Search {
 	// but are analyzed with the default analyzer.
 	public static $analyzed_langs = array( 'ar', 'bg', 'ca', 'cs', 'da', 'de', 'el', 'en', 'es', 'eu', 'fa', 'fi', 'fr', 'he', 'hi', 'hu', 'hy', 'id', 'it', 'ja', 'ko', 'nl', 'no', 'pt', 'ro', 'ru', 'sv', 'tr', 'zh' );
 
-	const FILTER_WIDGET_BASE = 'jetpack-search-filters';
-
 	protected function __construct() {
 		/* Don't do anything, needs to be initialized via instance() method */
 	}
@@ -80,6 +78,8 @@ class Jetpack_Search {
 			return;
 		}
 
+		require_once( dirname( __FILE__ ) . '/class.jetpack-search-helpers.php' );
+
 		$this->init_hooks();
 	}
 
@@ -100,6 +100,8 @@ class Jetpack_Search {
 			add_action( 'failed_jetpack_search_query', array( $this, 'store_query_failure' ) );
 
 			add_action( 'init', array( $this, 'set_filters_from_widgets' ) );
+
+			add_action( 'pre_get_posts', array( $this, 'maybe_add_post_type_as_var' ) );
 		}
 	}
 
@@ -153,7 +155,7 @@ class Jetpack_Search {
 	}
 
 	/**
-	 * Retrives a list of known Jetpack search filters widget IDs, gets the filters for each widget,
+	 * Retrieves a list of known Jetpack search filters widget IDs, gets the filters for each widget,
 	 * and applies those filters to this Jetpack_Search object.
 	 *
 	 * @since 5.7.0
@@ -165,38 +167,20 @@ class Jetpack_Search {
 			return;
 		}
 
-		$widget_options = get_option( sprintf( 'widget_%s', self::FILTER_WIDGET_BASE ) );
-
-		if ( empty( $widget_options ) ) {
-			return;
-		}
-
-		// We don't need this
-		if ( isset( $widget_options['_multiwidget'] ) ) {
-			unset( $widget_options['_multiwidget'] );
-		}
-
-		$filters = array();
-
-		foreach ( (array) $widget_options as $number => $settings ) {
-			$widget_id = sprintf( '%s-%d', self::FILTER_WIDGET_BASE, $number );
-			if ( ! is_active_widget( false, $widget_id, self::FILTER_WIDGET_BASE ) || empty( $settings['filters'] ) ) {
-				continue;
-			}
-
-			if ( empty( $settings['use_filters'] ) ) {
-				continue;
-			}
-
-			foreach ( (array) $settings['filters'] as $widget_filter ) {
-				$widget_filter['widget_id'] = $widget_id;
-				$key = sprintf( '%s_%d', $widget_filter['type'], count( $filters ) );
-				$filters[ $key ] = $widget_filter;
-			}
-		}
+		$filters = Jetpack_Search_Helpers::get_filters_from_widgets();
 
 		if ( ! empty( $filters ) ) {
 			$this->set_filters( $filters );
+		}
+	}
+
+	function maybe_add_post_type_as_var( WP_Query $query ) {
+		if ( $query->is_main_query() && $query->is_search && ! empty( $_GET['post_type'] ) ) {
+			$post_types = ( is_string( $_GET['post_type'] ) && false !== strpos( $_GET['post_type'], ',' ) )
+				? $post_type = explode( ',', $_GET['post_type'] )
+				: (array) $_GET['post_type'];
+			$post_types = array_map( 'sanitize_key', $post_types );
+			$query->set('post_type', $post_types );
 		}
 	}
 
@@ -349,15 +333,23 @@ class Jetpack_Search {
 
 		// Query all posts now
 		$args = array(
-			'post__in'  => $post_ids,
-			'perm'      => 'readable',
-			'post_type' => 'any',
+			'post__in'            => $post_ids,
+			'perm'                => 'readable',
+			'post_type'           => 'any',
+			'ignore_sticky_posts' => true,
 		);
+
+		if ( isset( $query->query_vars['order'] ) ) {
+			$args['order'] = $query->query_vars['order'];
+		}
+
+		if ( isset( $query->query_vars['orderby'] ) ) {
+			$args['orderby'] = $query->query_vars['orderby'];
+		}
 
 		$posts_query = new WP_Query( $args );
 
-		// WP Core doesn't call the set_found_posts and its filters when filtering posts_pre_query like we do, so need to
-		// do these manually
+		// WP Core doesn't call the set_found_posts and its filters when filtering posts_pre_query like we do, so need to do these manually.
 		$query->found_posts   = $this->found_posts;
 		$query->max_num_pages = ceil( $this->found_posts / $query->get( 'posts_per_page' ) );
 
@@ -464,8 +456,7 @@ class Jetpack_Search {
 			return;
 		}
 
-		// If we have aggregations, fix the ordering to match the input order (ES doesn't
-		// guarantee the return order)
+		// If we have aggregations, fix the ordering to match the input order (ES doesn't guarantee the return order)
 		if ( isset( $this->search_result['results']['aggregations'] ) && ! empty( $this->search_result['results']['aggregations'] ) ) {
 			$this->search_result['results']['aggregations'] = $this->fix_aggregation_ordering( $this->search_result['results']['aggregations'], $this->aggregations );
 		}
@@ -475,6 +466,29 @@ class Jetpack_Search {
 		$this->found_posts = min( $this->search_result['results']['total'], $this->max_offset + $posts_per_page );
 
 		return;
+	}
+
+	/**
+	 * If the query has already been run before filters have been updated, then we need to re-run the query
+	 * to get the latest aggregations.
+	 *
+	 * This is especially useful for supporting widget management in the customizer.
+	 *
+	 * @return bool Whether the query was successful or not.
+	 */
+	public function update_search_results_aggregations() {
+		if ( empty( $this->last_query_info ) || empty( $this->last_query_info['args'] ) ) {
+			return false;
+		}
+
+		$es_args = $this->last_query_info['args'];
+		$builder = new Jetpack_WPES_Query_Builder();
+		$this->add_aggregations_to_es_query_builder( $this->aggregations, $builder );
+		$es_args['aggregations'] = $builder->build_aggregation();
+
+		$this->search_result = $this->search( $es_args );
+
+		return ! is_wp_error( $this->search_result );
 	}
 
 	/**
@@ -567,7 +581,7 @@ class Jetpack_Search {
 	}
 
 	/**
-	 * Initialze widgets for the Search module
+	 * Initialize widgets for the Search module
 	 *
 	 * @module search
 	 */
@@ -645,15 +659,13 @@ class Jetpack_Search {
 	 * @return array Array of ES style query arguments
 	 */
 	function convert_wp_es_to_es_args( array $args ) {
-		jetpack_require_lib( 'jetpack-wpes-query-builder' );
-
-		$builder = new Jetpack_WPES_Query_Builder();
+		jetpack_require_lib( 'jetpack-wpes-query-builder/jetpack-wpes-query-parser' );
 
 		$defaults = array(
 			'blog_id'        => get_current_blog_id(),
 
 			'query'          => null,    // Search phrase
-			'query_fields'   => array( 'title', 'content', 'author', 'tag', 'category' ),
+			'query_fields'   => array( 'title', 'content', 'author', 'tag.name', 'category.name' ),
 
 			'post_type'      => null,  // string or an array
 			'terms'          => array(), // ex: array( 'taxonomy-1' => array( 'slug' ), 'taxonomy-2' => array( 'slug-a', 'slug-b' ) )
@@ -678,10 +690,59 @@ class Jetpack_Search {
 			 *     'Post Type' => array( 'type' => 'post_type', 'count' => 10 ) ),
 			 * );
 			 */
-			'aggregations'         => null,
+			'aggregations'   => null,
 		);
 
 		$args = wp_parse_args( $args, $defaults );
+
+		$parser = new Jetpack_WPES_Search_Query_Parser( $args['query'], array( get_locale() ) );
+
+		$match_content_fields = $parser->merge_ml_fields(
+			array(
+				'title'    => 0.2,
+				'content'  => 0.2,
+				'author'   => 0.1,
+				'tag'      => 0.1,
+				'category' => 0.1,
+			),
+			array()
+		);
+
+		$boost_content_fields = $parser->merge_ml_fields(
+			array(
+				'title'       => 2,
+				'description' => 1,
+				'tags'        => 1,
+			),
+			array(
+				'author_login^2',
+				'author^2',
+			)
+		);
+
+		$parser->phrase_filter( array(
+			'must_query_fields'  => $match_content_fields,
+			'boost_query_fields' => $boost_content_fields,
+		) );
+		$parser->remaining_query( array(
+			'must_query_fields'  => $match_content_fields,
+			'boost_query_fields' => $boost_content_fields,
+		) );
+
+		// Boost on phrases
+		$parser->remaining_query( array(
+			'boost_query_fields' => $boost_content_fields,
+			'boost_query_type'   => 'phrase',
+		) );
+
+		// Newer content gets weighted slightly higher
+		$parser->add_decay( 'gauss', array(
+			'date_gmt' => array(
+				'origin' => date( 'Y-m-d' ),
+				'scale'  => '360d',
+				'decay'  => 0.9,
+			),
+		));
 
 		$es_query_args = array(
 			'blog_id' => absint( $args['blog_id'] ),
@@ -723,26 +784,25 @@ class Jetpack_Search {
 		// Filters rock because they are cached from one query to the next
 		// but they are cached as individual filters, rather than all combined together.
 		// May get performance boost by also caching the top level boolean filter too.
-		$filters = array();
 
 		if ( $args['post_type'] ) {
 			if ( ! is_array( $args['post_type'] ) ) {
 				$args['post_type'] = array( $args['post_type'] );
 			}
 
-			$filters[] = array(
+			$parser->add_filter( array(
 				'terms' => array(
 					'post_type' => $args['post_type'],
 				),
-			);
+			) );
 		}
 
 		if ( $args['author_name'] ) {
-			$filters[] = array(
+			$parser->add_filter( array(
 				'terms' => array(
 					'author_login' => $args['author_name'],
 				),
-			);
+			) );
 		}
 
 		if ( ! empty( $args['date_range'] ) && isset( $args['date_range']['field'] ) ) {
@@ -750,11 +810,11 @@ class Jetpack_Search {
 
 			unset( $args['date_range']['field'] );
 
-			$filters[] = array(
+			$parser->add_filter( array(
 				'range' => array(
 					$field => $args['date_range'],
 				),
-			);
+			) );
 		}
 
 		if ( is_array( $args['terms'] ) ) {
@@ -780,35 +840,20 @@ class Jetpack_Search {
 					}
 
 					foreach ( $terms as $term ) {
-						$filters[] = array(
+						$parser->add_filter( array(
 							'term' => array(
 								$tax_fld => $term,
 							),
-						);
+						) );
 					}
 				}
 			}
 		}
 
-		if ( $args['query'] ) {
-			$query = array(
-				'multi_match' => array(
-					'query'    => $args['query'],
-					'fields'   => $args['query_fields'],
-					'operator' => 'and',
-					'type'     => 'cross_fields',
-				),
-			);
-
-			$builder->add_query( $query );
-
-			Jetpack_Search::score_query_by_recency( $builder );
-
-			if ( ! $args['orderby'] ) {
+		if ( ! $args['orderby'] ) {
+			if ( $args['query'] ) {
 				$args['orderby'] = array( 'relevance' );
-			}
-		} else {
-			if ( ! $args['orderby'] ) {
+			} else {
 				$args['orderby'] = array( 'date' );
 			}
 		}
@@ -873,21 +918,14 @@ class Jetpack_Search {
 			unset( $es_query_args['sort'] );
 		}
 
-		if ( ! empty( $filters ) && is_array( $filters ) ) {
-			foreach ( $filters as $filter ) {
-				$builder->add_filter( $filter );
-			}
-
-			$es_query_args['filter'] = $builder->build_filter();
-		}
-
-		$es_query_args['query'] = $builder->build_query();
+		$es_query_args['filter'] = $parser->build_filter();
+		$es_query_args['query']  = $parser->build_query();
 
 		// Aggregations
 		if ( ! empty( $args['aggregations'] ) ) {
-			$this->add_aggregations_to_es_query_builder( $args['aggregations'], $builder );
+			$this->add_aggregations_to_es_query_builder( $args['aggregations'], $parser );
 
-			$es_query_args['aggregations'] = $builder->build_aggregation();
+			$es_query_args['aggregations'] = $parser->build_aggregation();
 		}
 
 		return $es_query_args;
@@ -1027,32 +1065,6 @@ class Jetpack_Search {
 		return array(
 			'and' => array_merge( array( $curr_filter ), $filters ),
 		);
-	}
-
-	/**
-	 * Add a recency score to a given Jetpack_WPES_Query_Builder object, for emphasizing newer posts in results
-	 *
-	 * Internally uses a gauss decay function
-	 *
-	 * @module search
-	 *
-	 * @param Jetpack_WPES_Query_Builder $builder The Jetpack_WPES_Query_Builder to add the recency score to
-	 *
-	 * @see https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-function-score-query.html#function-decay
-	 */
-	public static function score_query_by_recency( Jetpack_WPES_Query_Builder &$builder ) {
-		//Newer content gets weighted slightly higher
-		$date_scale  = '360d';
-		$date_decay  = 0.9;
-		$date_origin = date( 'Y-m-d' );
-
-		$builder->add_decay( 'gauss', array(
-			'date_gmt' => array(
-				'origin' => $date_origin,
-				'scale'  => $date_scale,
-				'decay'  => $date_decay,
-			),
-		));
 	}
 
 	/**
@@ -1247,9 +1259,12 @@ class Jetpack_Search {
 							$slug_count = count( $existing_term_slugs );
 
 							if ( $slug_count > 1 ) {
-								$remove_url = add_query_arg( $tax_query_var, urlencode( implode( '+', array_diff( $existing_term_slugs, array( $item['key'] ) ) ) ) );
+								$remove_url = Jetpack_Search_Helpers::add_query_arg(
+									$tax_query_var,
+									urlencode( implode( '+', array_diff( $existing_term_slugs, array( $item['key'] ) ) ) )
+								);
 							} else {
-								$remove_url = remove_query_arg( $tax_query_var );
+								$remove_url = Jetpack_Search_Helpers::remove_query_arg( $tax_query_var );
 							}
 						}
 
@@ -1282,9 +1297,12 @@ class Jetpack_Search {
 
 							// For the right 'remove filter' url, we need to remove the post type from the array, or remove the param entirely if it's the only one
 							if ( $post_type_count > 1 ) {
-								$remove_url = add_query_arg( 'post_type', urlencode_deep( array_diff( $post_types, array( $item['key'] ) ) ) );
+								$remove_url = Jetpack_Search_Helpers::add_query_arg(
+									'post_type',
+									implode( ',',  array_diff( $post_types, array( $item['key'] ) ) )
+								);
 							} else {
-								$remove_url = remove_query_arg( 'post_type' );
+								$remove_url = Jetpack_Search_Helpers::remove_query_arg( 'post_type' );
 							}
 						}
 
@@ -1313,7 +1331,7 @@ class Jetpack_Search {
 								if ( ! empty( $current_year ) && (int) $current_year === $year ) {
 									$active = true;
 
-									$remove_url = remove_query_arg( array( 'year', 'monthnum', 'day' ) );
+									$remove_url = Jetpack_Search_Helpers::remove_query_arg( array( 'year', 'monthnum', 'day' ) );
 								}
 
 								break;
@@ -1335,7 +1353,7 @@ class Jetpack_Search {
 								     ! empty( $current_month ) && (int) $current_month === $month ) {
 									$active = true;
 
-									$remove_url = remove_query_arg( array( 'year', 'monthnum' ) );
+									$remove_url = Jetpack_Search_Helpers::remove_query_arg( array( 'year', 'monthnum' ) );
 								}
 
 								break;
@@ -1359,7 +1377,7 @@ class Jetpack_Search {
 								     ! empty( $current_day ) && (int) $current_day === $day ) {
 									$active = true;
 
-									$remove_url = remove_query_arg( array( 'day' ) );
+									$remove_url = Jetpack_Search_Helpers::remove_query_arg( array( 'day' ) );
 								}
 
 								break;
@@ -1378,7 +1396,7 @@ class Jetpack_Search {
 				$url_params = urlencode_deep( $query_vars );
 
 				$aggregation_data[ $label ]['buckets'][] = array(
-					'url'        => add_query_arg( $url_params ),
+					'url'        => Jetpack_Search_Helpers::add_query_arg( $url_params ),
 					'query_vars' => $query_vars,
 					'name'       => $name,
 					'count'      => $item['doc_count'],

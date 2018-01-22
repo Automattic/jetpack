@@ -22,9 +22,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 	public function test_add_post_syncs_event() {
 		// event stored by server should event fired by client
-		$event = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' );
-
-		$this->assertEquals( 'wp_insert_post', $event->action );
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
 		$this->assertEquals( $this->post->ID, $event->args[0] );
 
 		$post_sync_module = Jetpack_Sync_Modules::get_module( "posts" );
@@ -45,41 +43,53 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 	public function test_add_post_syncs_request_is_auto_save() {
 		//Sync from setup should not be auto save
-		$event = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' );
-		$this->assertFalse( $event->args[3] );
-		
-		Jetpack_Constants::set_constant( 'DOING_AUTOSAVE', true );//define( 'DOING_AUTOSAVE', true );
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
+		$this->assertFalse( $event->args[3]['is_auto_save'] );
+
+		Jetpack_Constants::set_constant( 'DOING_AUTOSAVE', true );
 
 		//Performing sync here (even though setup() does it) to sync REQUEST_URI
 		$user_id = $this->factory->user->create();
 		$this->factory->post->create( array( 'post_author' => $user_id ) );
 		$this->sender->do_sync();
 
-		$event = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' );
-		$this->assertTrue( $event->args[3] );
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
+		$this->assertTrue( $event->args[3]['is_auto_save'] );
 	}
 
 	public function test_trash_post_trashes_data() {
 		$this->assertEquals( 1, $this->server_replica_storage->post_count( 'publish' ) );
-
+		$this->server_event_storage->reset();
 		wp_delete_post( $this->post->ID );
 
 		$this->sender->do_sync();
-		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_trashed_post' );
+		$insert_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
 
-		$this->assertEquals( 'post', $event->args[1] );
-		$this->assertTrue( (bool) $event );
+		$this->assertEquals( $insert_event->args[1]->post_status, 'trash' );
+		$this->assertEquals( $insert_event->args[0], $this->post->ID );
+
 		$this->server_event_storage->reset();
 
 		$this->assertEquals( 0, $this->server_replica_storage->post_count( 'publish' ) );
 		$this->assertEquals( 1, $this->server_replica_storage->post_count( 'trash' ) );
-
 		wp_delete_post( $this->post->ID );
 		$this->sender->do_sync();
-		
+
 		// Since the post status is not changing here we don't expect the post to be trashed again.
-		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_trashed_post' );
-		$this->assertFalse( (bool) $event );
+		$delete_event = $this->server_event_storage->get_most_recent_event( 'deleted_post' );
+		$save_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
+		$this->assertFalse( $save_event );
+		$this->assertTrue( (bool) $delete_event );
+	}
+
+	public function test_sync_post_event_includes_previous_state() {
+		$this->assertEquals( 1, $this->server_replica_storage->post_count( 'publish' ) );
+		$this->server_event_storage->reset();
+		wp_delete_post( $this->post->ID );
+		$this->sender->do_sync();
+		$insert_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
+		$this->assertEquals( 'trash', $insert_event->args[1]->post_status ); //
+		$this->assertEquals( 'publish', $insert_event->args[3]['previous_status'] );
 	}
 
 	public function test_delete_post_deletes_data() {
@@ -211,9 +221,9 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		// Insert the attachment.
 		$attach_id = wp_insert_attachment( $attachment, $filename, $this->post->ID );
-		
+
 		$this->sender->do_sync();
-		
+
 		// Test that the first event is add_attachment
 		$update_attachment_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_update_attachment' );
 		$add_attachment_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_add_attachment' );
@@ -221,7 +231,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertFalse( (bool) $update_attachment_event );
 
 		$this->server_event_storage->reset();
-		
+
 
 		$this->assertAttachmentSynced( $attach_id );
 
@@ -252,7 +262,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_broken_do_wp_insert_post_does_not_break_sync() {
-		// Some plugins do unexpected things see pet-manager 
+		// Some plugins do unexpected things see pet-manager
 		$this->server_event_storage->reset();
 		do_action('wp_insert_post', 'wp_insert_post' );
 		$this->sender->do_sync();
@@ -368,7 +378,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 	function test_sync_post_filtered_excerpt_was_filtered() {
 		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 1 ) );
-		
+
 		add_shortcode( 'foo', array( $this, 'foo_shortcode' ) );
 		$this->post->post_excerpt = "[foo]";
 
@@ -391,7 +401,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		wp_update_post( $this->post );
 		$this->sender->do_sync();
-		
+
 		remove_filter( 'jetpack_sync_do_not_expand_shortcode', array( $this, 'do_not_expand_shortcode' ) );
 
 		$post_on_server = $this->server_replica_storage->get_post( $this->post->ID );
@@ -422,7 +432,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_sync_post_includes_permalink_and_shortlink() {
-		$insert_post_event = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' );
+		$insert_post_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
 		$post              = $insert_post_event->args[1];
 
 		$this->assertObjectHasAttribute( 'permalink', $post );
@@ -443,7 +453,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		$this->sender->do_sync();
 
-		$post_on_server = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' )->args[1];
+		$post_on_server = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' )->args[1];
 		$this->assertObjectHasAttribute( 'featured_image', $post_on_server );
 		$this->assertInternalType( 'string', $post_on_server->featured_image );
 		$this->assertContains( 'test_image.png', $post_on_server->featured_image );
@@ -454,7 +464,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		$this->sender->do_sync();
 
-		$post_on_server = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' )->args[1];
+		$post_on_server = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' )->args[1];
 		$this->assertObjectNotHasAttribute( 'featured_image', $post_on_server );
 	}
 
@@ -498,7 +508,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		remove_filter( 'jetpack_sync_prevent_sending_post_data', '__return_true' );
 
 		$this->assertEquals( 2, $this->server_replica_storage->post_count() ); // the post and its revision
-		$insert_post_event = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' );
+		$insert_post_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
 		$post              = $insert_post_event->args[1];
 		// Instead of sending all the data we just send the post_id so that we can remove it on our end.
 
@@ -601,7 +611,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		// get the synced object
-		$event = $this->server_event_storage->get_most_recent_event( 'wp_insert_post' );
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
 		$synced_post = $event->args[1];
 
 		// grab the codec - we need to simulate the stripping of types that comes with encoding/decoding
@@ -786,8 +796,6 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	function test_embed_shortcode_is_disabled_on_the_content_filter_during_sync() {
 		// this only applies to rendered content, which is off by default
 		Jetpack_Sync_Settings::update_settings( array( 'render_filtered_content' => 1 ) );
-
-		global $wp_version;
 
 		$content =
 			'Check out this cool video:
@@ -983,11 +991,11 @@ That was a cool video.';
 		$events = array_slice( $events, -4);
 
 		$this->assertEquals( $events[0]->args[0], $events[1]->args[0] );
-		$this->assertEquals( $events[0]->action, 'wp_insert_post' );
+		$this->assertEquals( $events[0]->action, 'jetpack_sync_save_post' );
 		$this->assertEquals( $events[1]->action, 'jetpack_published_post' );
 
 		$this->assertEquals( $events[2]->args[0], $events[3]->args[0] );
-		$this->assertEquals( $events[2]->action, 'wp_insert_post' );
+		$this->assertEquals( $events[2]->action, 'jetpack_sync_save_post' );
 		$this->assertEquals( $events[3]->action, 'jetpack_published_post' );
 	}
 

@@ -9,6 +9,10 @@
 	text-align: right;
 }
 
+.jetpack-search-filters-widget .jetpack-search-filters-widget__sort-controls-enabled {
+	margin-left: 24px;
+}
+
 .jetpack-search-filters-widget__controls .delete {
 	color: #a00;
 }
@@ -47,4 +51,22 @@
 
 .jetpack-search-filters-widget__filter.is-date_histogram .jetpack-search-filters-widget__taxonomy-select {
 	display: none;
+}
+
+.jetpack-search-filters-widget.hide-post-types .jetpack-search-filters-widget__post-types-select {
+	display: none;
+}
+
+.jetpack-search-filters-help:before {
+	display: inline-block;
+	position: relative;
+	font-family: dashicons;
+	font-size: 20px;
+	top: 5px;
+	line-height: 1px;
+	content:"\f223";
+}
+.jetpack-search-filters-help {
+	padding: 5px;
+	padding-bottom: 15px;
 }

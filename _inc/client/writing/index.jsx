@@ -25,6 +25,7 @@ import ThemeEnhancements from './theme-enhancements';
 import PostByEmail from './post-by-email';
 import { Masterbar } from './masterbar';
 import { isAtomicSite } from 'state/initial-state';
+import SpeedUpSite from './speed-up-site';
 
 export const Writing = React.createClass( {
 	displayName: 'WritingSettings',
@@ -48,7 +49,8 @@ export const Writing = React.createClass( {
 			'post-by-email',
 			'infinite-scroll',
 			'minileven',
-			'videopress'
+			'videopress',
+			'lazy-images'
 		].some( this.props.isModuleFound );
 
 		if ( ! this.props.searchTerm && ! this.props.active ) {
@@ -78,6 +80,7 @@ export const Writing = React.createClass( {
 					)
 				}
 				<Media { ...commonProps } />
+				<SpeedUpSite { ...commonProps } />
 				{
 					this.props.isModuleFound( 'custom-content-types' ) && (
 						<CustomContentTypes { ...commonProps } />
