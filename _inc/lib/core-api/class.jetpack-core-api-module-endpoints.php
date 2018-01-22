@@ -624,6 +624,11 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
 					// `wp_download_language_pack` only tries to download packs if they're not already available
 					$language = wp_download_language_pack( $value );
+					if ( $language === false ) {
+						// The language pack download failed.
+						$updated = false;
+						break;
+					}
 					$updated = get_option( 'WPLANG' ) === $language ? true : update_option( 'WPLANG', $language );
 					break;
 

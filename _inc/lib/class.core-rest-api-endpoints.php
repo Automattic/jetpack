@@ -1892,7 +1892,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'lang_id' => array(
 				'description' => esc_html__( 'Primary language for the site.', 'jetpack' ),
 				'type' => 'string',
-				'default' => '',
+				'default' => 'en_US',
 				'jp_group' => 'settings',
 			),
 
