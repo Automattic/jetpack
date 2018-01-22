@@ -665,7 +665,7 @@ class Jetpack_Search {
 			'blog_id'        => get_current_blog_id(),
 
 			'query'          => null,    // Search phrase
-			'query_fields'   => array( 'title', 'content', 'author', 'tag', 'category' ),
+			'query_fields'   => array( 'title', 'content', 'author', 'tag.name', 'category.name' ),
 
 			'post_type'      => null,  // string or an array
 			'terms'          => array(), // ex: array( 'taxonomy-1' => array( 'slug' ), 'taxonomy-2' => array( 'slug-a', 'slug-b' ) )
