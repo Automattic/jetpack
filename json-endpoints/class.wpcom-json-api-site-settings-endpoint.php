@@ -68,7 +68,7 @@ new WPCOM_JSON_API_Site_Settings_Endpoint( array(
 		'comment_max_links'            => '(int) Moderate comments that contain X or more links',
 		'moderation_keys'              => '(string) Words or phrases that trigger comment moderation, one per line',
 		'blacklist_keys'               => '(string) Words or phrases that mark comment spam, one per line',
-		'lang_id'                      => '(int) ID for language blog is written in',
+		'lang_id'                      => '(int|string) ID for language blog is written in',
 		'wga'                          => '(array) Google Analytics Settings',
 		'disabled_likes'               => '(bool) Are likes globally disabled (they can still be turned on per post)?',
 		'disabled_reblogs'             => '(bool) Are reblogs disabled on posts?',
@@ -322,7 +322,7 @@ class WPCOM_JSON_API_Site_Settings_Endpoint extends WPCOM_JSON_API_Endpoint {
 					'blacklist_keys'          => get_option( 'blacklist_keys' ),
 					'lang_id'                 => defined( 'IS_WPCOM' ) && IS_WPCOM
 						? get_lang_id_by_code( wpcom_l10n_get_blog_locale_variant( $blog_id, true ) )
-						: get_option( 'lang_id' ),
+						: get_locale(),
 					'wga'                     => $this->get_google_analytics(),
 					'disabled_likes'          => (bool) get_option( 'disabled_likes' ),
 					'disabled_reblogs'        => (bool) get_option( 'disabled_reblogs' ),
