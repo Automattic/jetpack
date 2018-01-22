@@ -335,8 +335,16 @@ class Jetpack_Search {
 		$args = array(
 			'post__in'  => $post_ids,
 			'perm'      => 'readable',
-			'post_type' => 'any',
+			'post_type' => 'any'
 		);
+
+		if ( isset( $query->query_vars['order'] ) ) {
+			$args['order'] = $query->query_vars['order'];
+		}
+
+		if ( isset( $query->query_vars['orderby'] ) ) {
+			$args['orderby'] = $query->query_vars['orderby'];
+		}
 
 		$posts_query = new WP_Query( $args );
 
