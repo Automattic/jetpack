@@ -6,10 +6,10 @@
 
 .jp-jetpack-connect__button {
 	background: $green-primary;
-    border-color: $green-secondary;
-    color: $white;
+	border-color: $green-secondary;
+	color: $white;
 
-    &:hover, &:focus {
+	&:hover, &:focus {
 		background: $green-secondary;
 		border-color: $green-dark;
 		color: $white;
