@@ -6512,9 +6512,9 @@ p-try@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/p-try/-/p-try-1.0.0.tgz#cbc79cdbaf8fd4228e13f621f2b1a237c1b207b3"
 
-page@^1.7.1:
-  version "1.8.0"
-  resolved "https://registry.yarnpkg.com/page/-/page-1.8.0.tgz#ffba61d2b32a7ce79a23e7d9a2b8a17a9ca437a2"
+page@1.7.1:
+  version "1.7.1"
+  resolved "https://registry.yarnpkg.com/page/-/page-1.7.1.tgz#3886c147b895487783759b37e800a11213bc38ed"
   dependencies:
     path-to-regexp "~1.2.1"
 
