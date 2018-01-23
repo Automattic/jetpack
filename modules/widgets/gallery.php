@@ -34,8 +34,7 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend_scripts' ) );
 
 			if ( class_exists( 'Jetpack_Tiled_Gallery' ) ) {
-				$tiled_gallery = new Jetpack_Tiled_Gallery();
-				add_action( 'wp_enqueue_scripts', array( $tiled_gallery, 'default_scripts_and_styles' ) );
+				add_action( 'wp_enqueue_scripts', array( 'Jetpack_Tiled_Gallery', 'default_scripts_and_styles' ) );
 			}
 
 			if ( class_exists( 'Jetpack_Slideshow_Shortcode' ) ) {
@@ -179,8 +178,7 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 			return;
 		}
 
-		$widget_tiled_gallery = new Jetpack_Tiled_Gallery();
-		$widget_tiled_gallery->default_scripts_and_styles();
+		Jetpack_Tiled_Gallery::default_scripts_and_styles();
 
 		$layout = new Jetpack_Tiled_Gallery_Layout_Rectangular( $instance['attachments'], $instance['link'], false, 3 );
 		return $layout->HTML();
@@ -199,8 +197,7 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 			return;
 		}
 
-		$widget_tiled_gallery = new Jetpack_Tiled_Gallery();
-		$widget_tiled_gallery->default_scripts_and_styles();
+		Jetpack_Tiled_Gallery::default_scripts_and_styles();
 
 		$layout = new Jetpack_Tiled_Gallery_Layout_Square( $instance['attachments'], $instance['link'], false, 3 );
 		return $layout->HTML();
@@ -219,8 +216,7 @@ class Jetpack_Gallery_Widget extends WP_Widget {
 			return;
 		}
 
-		$widget_tiled_gallery = new Jetpack_Tiled_Gallery();
-		$widget_tiled_gallery->default_scripts_and_styles();
+		Jetpack_Tiled_Gallery::default_scripts_and_styles();
 
 		$layout = new Jetpack_Tiled_Gallery_Layout_Circle( $instance['attachments'], $instance['link'], false, 3 );
 		return $layout->HTML();
