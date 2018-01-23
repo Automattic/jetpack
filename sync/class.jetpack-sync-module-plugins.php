@@ -18,6 +18,7 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 		add_action( 'delete_plugin',  array( $this, 'delete_plugin') );
 		add_action( 'upgrader_process_complete', array( $this, 'check_upgrader' ), 10, 2 );
 		add_action( 'jetpack_installed_plugin', $callable, 10, 2 );
+		add_action( 'jetpack_plugin_update_failed', $callable, 10, 1 );
 		add_action( 'admin_action_update', array( $this, 'check_plugin_edit') );
 		add_action( 'jetpack_edited_plugin', $callable, 10, 2 );
 		add_action( 'wp_ajax_edit-theme-plugin-file', array( $this, 'plugin_edit_ajax' ), 0 );
@@ -30,6 +31,14 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 	}
 
 	public function check_upgrader( $upgrader, $details) {
+		if (
+			isset( $details['type'] ) &&
+			'plugin' == $details['type'] &&
+			is_wp_error( $upgrader->skin->result )
+		) {
+			do_action( 'jetpack_plugin_update_failed', $details );
+			return;
+		}
 
 		if ( ! isset( $details['type'] ) ||
 			'plugin' !== $details['type'] ||
