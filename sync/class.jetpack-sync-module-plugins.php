@@ -36,7 +36,7 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 			'plugin' == $details['type'] &&
 			is_wp_error( $upgrader->skin->result )
 		) {
-			do_action( 'jetpack_plugin_update_failed', $details );
+			do_action( 'jetpack_plugin_update_failed', $details, $upgrader->skin->result->errors, $upgrader->skin->result->error_data );
 			return;
 		}
 
