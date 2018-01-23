@@ -267,32 +267,7 @@ const PlanBody = React.createClass( {
 					}
 
 					{
-						'is-premium-plan' === planClass && (
-							<div className="jp-landing__plan-features-card">
-								<h3 className="jp-landing__plan-features-title">{ __( 'Video Hosting' ) }</h3>
-								<p>{ __( '13Gb of fast, optimized, and ad-free video hosting for your site (powered by VideoPress).' ) }</p>
-								{
-									this.props.isModuleActivated( 'videopress' ) ? (
-										<Button onClick={ () => this.trackPlansClick( 'upload_videos' ) } href={ this.props.siteAdminUrl + 'upload.php' } className="is-primary">
-											{ __( 'Upload Videos Now' ) }
-										</Button>
-									)
-										: (
-										<Button
-											onClick={ this.activateVideoPress }
-											className="is-primary"
-											disabled={ this.props.isActivatingModule( 'videopress' ) }
-										>
-											{ __( 'Activate VideoPress' ) }
-										</Button>
-									)
-								}
-							</div>
-						)
-					}
-
-					{
-						'is-business-plan' === planClass && (
+						( 'is-business-plan' === planClass || 'is-premium-plan' === planClass ) && (
 							<div className="jp-landing__plan-features-card">
 								<h3 className="jp-landing__plan-features-title">{ __( 'Video Hosting' ) }</h3>
 								<p>{ __( 'Fast, optimized, ad-free, and unlimited video hosting for your site (powered by VideoPress).' ) }</p>
@@ -317,7 +292,7 @@ const PlanBody = React.createClass( {
 					}
 
 					{
-						'is-business-plan' === planClass && (
+						( 'is-business-plan' === planClass || 'is-premium-plan' === planClass ) && (
 							<div className="jp-landing__plan-features-card">
 								<h3 className="jp-landing__plan-features-title">{ __( 'SEO Tools' ) }</h3>
 								<p>{ __( 'Advanced SEO tools to help your site get found when people search for relevant content.' ) }</p>
@@ -342,7 +317,7 @@ const PlanBody = React.createClass( {
 					}
 
 					{
-						'is-business-plan' === planClass && (
+						( 'is-business-plan' === planClass || 'is-premium-plan' === planClass ) && (
 							<div className="jp-landing__plan-features-card">
 								<h3 className="jp-landing__plan-features-title">{ __( 'Google Analytics' ) }</h3>
 								<p>{ __( 'Track website statistics with Google Analytics for a deeper understanding of your website visitors and customers.' ) }</p>
@@ -394,9 +369,6 @@ const PlanBody = React.createClass( {
 								<p>{ __( 'Jetpack Professional is the tool used by WordPress professionals. On top of the services you already enjoy, you also benefit from:' ) }</p>
 								<p> &bull; { __( 'Over 200 Premium themes to explore' ) }</p>
 								<p> &bull; { __( 'Business class security: real-time backups and threat resolution' ) }</p>
-								<p> &bull; { __( 'SEO and social media previewing tools' ) }</p>
-								<p> &bull; { __( 'Unlimited ad-free video hosting' ) }</p>
-								<p> &bull; { __( 'Google Analytics integration' ) }</p>
 								<p>
 									<Button onClick={ () => this.trackPlansClick( 'compare_plans' ) } href={ 'https://jetpack.com/redirect/?source=plans-compare-premium&site=' + this.props.siteRawUrl } className="is-primary">
 										{ __( 'Explore Jetpack Professional' ) }
