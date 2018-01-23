@@ -7,9 +7,11 @@
 * @automattic/jetpack
 
 # Individual Modules:
-modules/contact-form*    @georgestephanis
-modules/custom-css*      @georgestephanis
+/modules/contact-form/    @georgestephanis
+/modules/custom-css/      @georgestephanis
+/modules/search/          @Automattic/jetpack-search
 
 # Other bits of the Codebase
-class.jetpack-debugger.php @kraftbj
-docs/* @jeherve
+/class.jetpack-debugger.php @kraftbj
+docs/ @jeherve
+/_inc/lib/jetpack-wpes-query-builder/ @gibrown
