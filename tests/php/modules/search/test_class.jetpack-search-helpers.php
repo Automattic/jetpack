@@ -225,6 +225,27 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 	}
 
 	/**
+	 * @dataProvider get_filter_properties_for_tracks_data
+	 */
+	function test_get_filter_properties_for_tracks( $expected, $filters ) {
+		$this->assertSame( $expected, Jetpack_Search_Helpers::get_filter_properties_for_tracks( $filters ) );
+	}
+
+	/**
+	 * @dataProvider get_widget_properties_for_tracks_data
+	 */
+	function test_get_widget_properties_for_tracks( $expected, $widget ) {
+		$this->assertSame( $expected, Jetpack_Search_Helpers::get_widget_properties_for_tracks( $widget ) );
+	}
+
+	/**
+	 * @dataProvider get_widget_tracks_value_data
+	 */
+	function test_get_widget_tracks_value( $expected, $old_value, $new_value ) {
+		$this->assertSame( $expected, Jetpack_Search_Helpers::get_widget_tracks_value( $old_value, $new_value ) );
+	}
+
+	/**
 	 * Data providers
 	 */
 	function get_build_widget_id_data() {
@@ -400,6 +421,163 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 		);
 	}
 
+	function get_filter_properties_for_tracks_data() {
+		return array(
+			'empty_filters' => array(
+				array(),
+				array()
+			),
+			'single_filter' => array(
+				array(
+					'widget_filter_count' => 1,
+					'widget_filter_type_taxonomy' => 1,
+				),
+				array(
+					$this->get_cat_filter()
+				)
+			),
+			'multiple_filters' => array(
+				array(
+					'widget_filter_count' => 3,
+					'widget_filter_type_taxonomy' => 2,
+					'widget_filter_type_post_type' => 1,
+				),
+				array(
+					$this->get_cat_filter(),
+					$this->get_post_type_filter(),
+					$this->get_tag_filter()
+				)
+			)
+		);
+	}
+
+	function get_widget_properties_for_tracks_data() {
+		return array(
+			'empty_instance' => array(
+				array(),
+				array()
+			),
+			'instance_with_only_multiwidet' => array(
+				array(),
+				array(
+					'_multiwidget' => 1,
+				),
+			),
+			'instance_with_no_filters' => array(
+				array(
+					'widget_title' => 'Search',
+					'widget_use_filters' => 0,
+					'widget_search_box_enabled' => 1,
+				),
+				$this->get_sample_widget_instance( 0 )
+			),
+			'instance_with_filters' => array(
+				array(
+					'widget_title' => 'Search',
+					'widget_use_filters' => 1,
+					'widget_search_box_enabled' => 1,
+					'widget_filter_count' => 1,
+					'widget_filter_type_taxonomy' => 1,
+				),
+				$this->get_sample_widget_instance( 1 )
+			),
+		);
+	}
+
+	function get_widget_tracks_value_data() {
+		return array(
+			'widget_updated_added_filters' => array(
+				false,
+				array( $this->get_sample_widget_instance( 0 ) ),
+				array( $this->get_sample_widget_instance( 1 ) ),
+			),
+			'widget_updated_title_changed' => array(
+				false,
+				array( $this->get_sample_widget_instance() ),
+				array( array_merge( $this->get_sample_widget_instance(), array( 'title' => 'changed' ) ) ),
+			),
+			'widget_update_removed_filters' => array(
+				false,
+				array( $this->get_sample_widget_instance( 2 ) ),
+				array( $this->get_sample_widget_instance( 0 ) ),
+			),
+			'widget_added_from_empty' => array(
+				array(
+					'action' => 'widget_added',
+					'widget' => array(
+						'widget_title' => 'Search',
+						'widget_use_filters' => 1,
+						'widget_search_box_enabled' => 1,
+						'widget_filter_count' => 2,
+						'widget_filter_type_taxonomy' => 1,
+						'widget_filter_type_post_type' => 1,
+					)
+				),
+				array( '_multiwidget' => 1 ),
+				array(
+					array_merge( $this->get_sample_widget_instance(), array( '_multiwidget' => 1 ) )
+				),
+			),
+			'widget_removed_none_to_empty' => array(
+				array(
+					'action' => 'widget_deleted',
+					'widget' => array(
+						'widget_title' => 'Search',
+						'widget_use_filters' => 1,
+						'widget_search_box_enabled' => 1,
+						'widget_filter_count' => 2,
+						'widget_filter_type_taxonomy' => 1,
+						'widget_filter_type_post_type' => 1,
+					)
+				),
+				array(
+					array_merge( $this->get_sample_widget_instance(), array( '_multiwidget' => 1 ) )
+				),
+				array( '_multiwidget' => 1 ),
+			),
+			'widget_added_one_to_two' => array(
+				array(
+					'action' => 'widget_added',
+					'widget' => array(
+						'widget_title' => 'Search',
+						'widget_use_filters' => 1,
+						'widget_search_box_enabled' => 1,
+						'widget_filter_count' => 1,
+						'widget_filter_type_taxonomy' => 1,
+					)
+				),
+				array(
+					$this->get_sample_widget_instance(),
+					'_multiwidget' => 1,
+				),
+				array(
+					$this->get_sample_widget_instance(),
+					$this->get_sample_widget_instance( 1 ),
+					'_multiwidget' => 1,
+				)
+			),
+			'widget_added_two_to_one' => array(
+				array(
+					'action' => 'widget_deleted',
+					'widget' => array(
+						'widget_title' => 'Search',
+						'widget_use_filters' => 0,
+						'widget_search_box_enabled' => 1,
+					)
+				),
+				array(
+					'1' => $this->get_sample_widget_instance( 0 ),
+					'2' => $this->get_sample_widget_instance( 1 ),
+					'_multiwidget' => 1,
+				),
+				array(
+					'2' => $this->get_sample_widget_instance( 1 ),
+					'_multiwidget' => 1,
+				),
+			),
+		);
+	}
+
 	/**
 	 * Helpers
 	 */
@@ -469,12 +647,19 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 	}
 
 	function get_sample_widget_instance( $count_filters = 2, $count_cat = 4 ) {
-		return array(
+		$instance = array(
 			'title' => 'Search',
-			'use_filters' => 1,
+			'use_filters' => 0,
 			'search_box_enabled' => 1,
-			'filters' => $this->get_sample_filters( $count_filters, $count_cat )
+
 		);
+
+		if ( $count_filters > 0 ) {
+			$instance['use_filters'] = 1;
+			$instance['filters'] = $this->get_sample_filters( $count_filters, $count_cat );
+		}
+
+		return $instance;
 	}
 
 	function get_cat_filter( $count = 4 ) {
@@ -483,6 +668,15 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 			'type' => 'taxonomy',
 			'taxonomy' => 'category',
 			'count' => $count,
+		);
+	}
+
+	function get_tag_filter() {
+		return array(
+			'name' => 'Tags',
+			'type' => 'taxonomy',
+			'taxonomy' => 'tag',
+			'count' => 2,
 		);
 	}
 

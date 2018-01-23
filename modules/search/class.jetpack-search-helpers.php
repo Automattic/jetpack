@@ -172,4 +172,90 @@ class Jetpack_Search_Helpers {
 		$diff_query = self::array_diff( (array) $instance['post_types'], $post_types_from_query );
 		return ! empty( $diff_query );
 	}
+
+	static function get_widget_tracks_value( $old_value, $new_value ) {
+		$old_value = (array) $old_value;
+		if ( isset( $old_value['_multiwidget'] ) ) {
+			unset( $old_value['_multiwidget'] );
+		}
+
+		$new_value = (array) $new_value;
+		if ( isset( $new_value['_multiwidget'] ) ) {
+			unset( $new_value['_multiwidget'] );
+		}
+
+		$action = '';
+		$old_keys = array_keys( $old_value );
+		$new_keys = array_keys( $new_value );
+
+		if ( count( $new_keys ) > count( $old_keys ) ) { // This is the case for a widget being added
+			$diff = self::array_diff( $new_keys, $old_keys );
+			$action = 'widget_added';
+			$widget = empty( $diff ) || ! isset( $new_value[ $diff[0] ] )
+				? false
+				: $new_value[ $diff[0] ];
+		} else if ( count( $old_keys ) > count( $new_keys ) ) { // This is the case for a widget being deleted
+			$diff = self::array_diff( $old_keys, $new_keys );
+
+			$action = 'widget_deleted';
+			$widget = empty( $diff ) || ! isset( $old_value[ $diff[0] ] )
+				? false
+				: $old_value[ $diff[0] ];
+		}
+
+		if ( empty( $action ) || empty( $diff ) || empty( $widget ) ) {
+			return false;
+		}
+
+		return array(
+			'action' => $action,
+			'widget' => self::get_widget_properties_for_tracks( $widget ),
+		);
+	}
+
+	static function get_widget_properties_for_tracks( $widget ) {
+		$sanitized = array();
+
+		foreach ( (array) $widget as $key => $value ) {
+			if ( '_multiwidget' == $key ) {
+				continue;
+			}
+			if ( is_scalar( $value ) ) {
+				$key = str_replace( '-', '_', sanitize_key( $key ) );
+				$key = "widget_{$key}";
+				$sanitized[ $key ] = $value;
+			}
+		}
+
+		$filters_properties = ! empty( $widget['filters'] )
+			? self::get_filter_properties_for_tracks( $widget['filters'] )
+			: array();
+
+		return array_merge( $sanitized, $filters_properties );
+	}
+
+	static function get_filter_properties_for_tracks( $filters ) {
+		if ( empty( $filters ) ) {
+			return $filters;
+		}
+
+		$filters_properties = array(
+			'widget_filter_count' => count( $filters ),
+		);
+
+		foreach ( $filters as $filter ) {
+			if ( empty( $filter['type'] ) ) {
+				continue;
+			}
+
+			$key = sprintf( 'widget_filter_type_%s', $filter['type'] );
+			if ( isset( $filters_properties[ $key ] ) ) {
+				$filters_properties[ $key ]++;
+			} else {
+				$filters_properties[ $key ] = 1;
+			}
+		}
+
+		return $filters_properties;
+	}
 }
