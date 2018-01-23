@@ -1,4 +1,4 @@
-/* globals jetpack_search_filter_admin, jQuery */
+/* globals jetpack_search_filter_admin, jQuery, analytics */
 
 ( function( $, args ) {
 	var defaultFilterCount = ( 'undefined' !== typeof args && args.defaultFilterCount ) ?
@@ -15,9 +15,9 @@
 	} );
 
 	var setListeners = function( widget ) {
-		widget = ( 'undefined' === typeof widget )
-			? $( '.jetpack-search-filters-widget' )
-			: widget;
+		widget = ( 'undefined' === typeof widget ) ?
+			$( '.jetpack-search-filters-widget' ):
+			widget;
 
 		widget.on( 'change', '.filter-select', function() {
 			var select = $( this ),
@@ -205,7 +205,7 @@
 		widget.off( 'change', '.jetpack-search-filters-widget__sort-order' );
 		widget.off( 'change', '.jetpack-search-filters-widget__taxonomy-select' );
 		widget.off( 'change', '.jetpack-search-filters-widget__date-histogram-select:first select' );
-		widget.off( 'change', '.jetpack-search-filters-widget__date-histogram-select:eq(1) select' )
+		widget.off( 'change', '.jetpack-search-filters-widget__date-histogram-select:eq(1) select' );
 
 		setListeners( widget );
 	} );
