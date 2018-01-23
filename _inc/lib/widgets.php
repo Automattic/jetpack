@@ -743,12 +743,17 @@ class Jetpack_Widgets {
 			return new WP_Error( 'invalid_data', 'No such widget.', 400 );
 		}
 
-		// Update the widget instance with the new data
-		$widget_instances[ $widget_key ] = array_merge( $widget_instances[ $widget_key ], $widget_options );
+		// Update the widget instance and option if the data has changed
+		if ( $widget_instances[ $widget_key ]['title'] !== $widget_options['title']
+			|| $widget_instances[ $widget_key ]['address'] !== $widget_options['address']
+		) {
 
-		// Store updated widget instances and return Error when not successful
-		if ( ! ( update_option( 'widget_' . $widget_id, $widget_instances ) ) ) {
-			return new WP_Error( 'widget_update_failed', 'Failed to update widget.', 400 );
+			$widget_instances[ $widget_key ] = array_merge( $widget_instances[ $widget_key ], $widget_options );
+
+			// Store updated widget instances and return Error when not successful
+			if ( ! ( update_option( 'widget_' . $widget_id, $widget_instances ) ) ) {
+				return new WP_Error( 'widget_update_failed', 'Failed to update widget.', 400 );
+			};
 		};
 		return true;
 	}
