@@ -196,14 +196,15 @@ class Jetpack_Search_Helpers {
 				: $new_value[ $diff[0] ];
 		} else if ( count( $old_keys ) > count( $new_keys ) ) { // This is the case for a widget being deleted
 			$diff = self::array_diff( $old_keys, $new_keys );
-
 			$action = 'widget_deleted';
 			$widget = empty( $diff ) || ! isset( $old_value[ $diff[0] ] )
 				? false
 				: $old_value[ $diff[0] ];
+		} else {
+			$action = 'widget_updated';
 		}
 
-		if ( empty( $action ) || empty( $diff ) || empty( $widget ) ) {
+		if ( empty( $action ) || empty( $widget ) ) {
 			return false;
 		}
 

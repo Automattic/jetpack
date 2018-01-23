@@ -487,17 +487,42 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 	function get_widget_tracks_value_data() {
 		return array(
 			'widget_updated_added_filters' => array(
-				false,
+				array(
+					'action' => 'widget_added',
+					'widget' => array(
+						'widget_title' => 'Search',
+						'widget_use_filters' => 1,
+						'widget_search_box_enabled' => 1,
+						'widget_filter_count' => 1,
+						'widget_filter_type_taxonomy' => 1,
+					)
+				),
 				array( $this->get_sample_widget_instance( 0 ) ),
 				array( $this->get_sample_widget_instance( 1 ) ),
 			),
 			'widget_updated_title_changed' => array(
-				false,
+				array(
+					'action' => 'widget_added',
+					'widget' => array(
+						'widget_title' => 'changed',
+						'widget_use_filters' => 1,
+						'widget_search_box_enabled' => 1,
+						'widget_filter_count' => 1,
+						'widget_filter_type_taxonomy' => 1,
+					)
+				),
 				array( $this->get_sample_widget_instance() ),
 				array( array_merge( $this->get_sample_widget_instance(), array( 'title' => 'changed' ) ) ),
 			),
 			'widget_update_removed_filters' => array(
-				false,
+				array(
+					'action' => 'widget_added',
+					'widget' => array(
+						'widget_title' => 'Search',
+						'widget_use_filters' => 0,
+						'widget_search_box_enabled' => 1,
+					)
+				),
 				array( $this->get_sample_widget_instance( 2 ) ),
 				array( $this->get_sample_widget_instance( 0 ) ),
 			),
