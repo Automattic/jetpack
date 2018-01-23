@@ -312,8 +312,6 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 	function update( $new_instance, $old_instance ) {
 		$instance = array();
 
-		error_log( print_r( array( $_GET, $_POST ), true ) );
-
 		$instance['title'] = sanitize_text_field( $new_instance['title'] );
 		$instance['use_filters'] = empty( $new_instance['use_filters'] ) ? '0' : '1';
 		$instance['search_box_enabled'] = empty( $new_instance['search_box_enabled'] ) ? '0' : '1';
