@@ -485,10 +485,13 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 	}
 
 	function get_widget_tracks_value_data() {
+		$instance_with_filter_updated = $this->get_sample_widget_instance();
+		$instance_with_filter_updated['filters'][1] = $this->get_tag_filter();
+
 		return array(
 			'widget_updated_added_filters' => array(
 				array(
-					'action' => 'widget_added',
+					'action' => 'widget_updated',
 					'widget' => array(
 						'widget_title' => 'Search',
 						'widget_use_filters' => 1,
@@ -502,13 +505,14 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 			),
 			'widget_updated_title_changed' => array(
 				array(
-					'action' => 'widget_added',
+					'action' => 'widget_updated',
 					'widget' => array(
 						'widget_title' => 'changed',
 						'widget_use_filters' => 1,
 						'widget_search_box_enabled' => 1,
-						'widget_filter_count' => 1,
+						'widget_filter_count' => 2,
 						'widget_filter_type_taxonomy' => 1,
+						'widget_filter_type_post_type' => 1
 					)
 				),
 				array( $this->get_sample_widget_instance() ),
@@ -516,7 +520,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 			),
 			'widget_update_removed_filters' => array(
 				array(
-					'action' => 'widget_added',
+					'action' => 'widget_updated',
 					'widget' => array(
 						'widget_title' => 'Search',
 						'widget_use_filters' => 0,
@@ -525,6 +529,86 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 				),
 				array( $this->get_sample_widget_instance( 2 ) ),
 				array( $this->get_sample_widget_instance( 0 ) ),
+			),
+			'multiple_widgets_one_title_changed' => array(
+				array(
+					'action' => 'widget_updated',
+					'widget' => array(
+						'widget_title' => 'updated',
+						'widget_use_filters' => 0,
+						'widget_search_box_enabled' => 1,
+					)
+				),
+				array(
+					'0' => $this->get_sample_widget_instance( 0 ),
+					'1' => $this->get_sample_widget_instance( 1 ),
+					'2' => $this->get_sample_widget_instance( 2 ),
+					'_multiwidget' => 1
+				),
+				array(
+					'0' => array_merge( $this->get_sample_widget_instance( 0 ), array( 'title' => 'updated' ) ),
+					'1' => $this->get_sample_widget_instance( 1 ),
+					'2' => $this->get_sample_widget_instance( 2 ),
+					'_multiwidget' => 1
+				),
+				array(
+					'_multiwidget' => 1
+				)
+			),
+			'multiple_widgets_filter_added' => array(
+				array(
+					'action' => 'widget_updated',
+					'widget' => array(
+						'widget_title' => 'Search',
+						'widget_use_filters' => 1,
+						'widget_search_box_enabled' => 1,
+						'widget_filter_count' => 2,
+						'widget_filter_type_taxonomy' => 1,
+						'widget_filter_type_post_type' => 1
+					)
+				),
+				array(
+					'0' => $this->get_sample_widget_instance( 0 ),
+					'1' => $this->get_sample_widget_instance( 1 ),
+					'2' => $this->get_sample_widget_instance( 2 ),
+					'_multiwidget' => 1
+				),
+				array(
+					'0' => $this->get_sample_widget_instance( 0 ),
+					'1' => $this->get_sample_widget_instance( 2 ),
+					'2' => $this->get_sample_widget_instance( 2 ),
+					'_multiwidget' => 1
+				),
+				array(
+					'_multiwidget' => 1
+				)
+			),
+			'multiple_widgets_filter_updated' => array(
+				array(
+					'action' => 'widget_updated',
+					'widget' => array(
+						'widget_title' => 'Search',
+						'widget_use_filters' => 1,
+						'widget_search_box_enabled' => 1,
+						'widget_filter_count' => 2,
+						'widget_filter_type_taxonomy' => 2,
+					)
+				),
+				array(
+					'0' => $this->get_sample_widget_instance( 0 ),
+					'1' => $this->get_sample_widget_instance( 1 ),
+					'2' => $this->get_sample_widget_instance( 2 ),
+					'_multiwidget' => 1
+				),
+				array(
+					'0' => $this->get_sample_widget_instance( 0 ),
+					'1' => $this->get_sample_widget_instance( 1 ),
+					'2' => $instance_with_filter_updated,
+					'_multiwidget' => 1
+				),
+				array(
+					'_multiwidget' => 1
+				)
 			),
 			'widget_added_from_empty' => array(
 				array(
@@ -540,7 +624,8 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 				),
 				array( '_multiwidget' => 1 ),
 				array(
-					array_merge( $this->get_sample_widget_instance(), array( '_multiwidget' => 1 ) )
+					'0' => $this->get_sample_widget_instance(),
+					'_multiwidget' => 1,
 				),
 			),
 			'widget_removed_none_to_empty' => array(
@@ -556,7 +641,8 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 					)
 				),
 				array(
-					array_merge( $this->get_sample_widget_instance(), array( '_multiwidget' => 1 ) )
+					'0' => $this->get_sample_widget_instance(),
+					'_multiwidget' => 1
 				),
 				array( '_multiwidget' => 1 ),
 			),

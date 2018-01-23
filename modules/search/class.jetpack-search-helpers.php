@@ -202,6 +202,46 @@ class Jetpack_Search_Helpers {
 				: $old_value[ $diff[0] ];
 		} else {
 			$action = 'widget_updated';
+			$widget = false;
+
+			// This is a bit crazy. Since there can be multiple widgets stored in a single option,
+			// we need to diff the old and new values to figure out which widget was updated.
+			foreach ( $new_value as $key => $new_instance ) {
+				if ( ! isset( $old_value[ $key ] ) ) {
+					continue;
+				}
+				$old_instance = $old_value[ $key ];
+
+				// First, let's test the keys of each instance
+				$diff = self::array_diff( array_keys( $new_instance ), array_keys( $old_instance ) );
+				if ( ! empty( $diff ) ) {
+					$widget = $new_instance;
+					break;
+				}
+
+				// Next, lets's loop over each value and compare it
+				foreach ( $new_instance as $k => $v ) {
+					if ( is_scalar( $v ) && (string) $v !== (string) $old_instance[ $k ] ) {
+						$widget = $new_instance;
+						break;
+					}
+
+					if ( 'filters' == $k ) {
+						if ( count( $new_instance['filters'] ) != count( $old_instance['filters'] ) ) {
+							$widget = $new_instance;
+							break;
+						}
+
+						foreach ( $v as $filter_key => $new_filter_value ) {
+							$diff = self::array_diff( $new_filter_value, $old_instance[ 'filters' ][ $filter_key ] );
+							if ( ! empty( $diff ) ) {
+								$widget = $new_instance;
+								break;
+							}
+						}
+					}
+				}
+			}
 		}
 
 		if ( empty( $action ) || empty( $widget ) ) {
