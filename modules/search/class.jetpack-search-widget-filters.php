@@ -460,8 +460,8 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			'type' => 'taxonomy',
 			'taxonomy' => '',
 			'post_type' => '',
-			'date_histogram_field' => '',
-			'date_histogram_interval' => '',
+			'field' => '',
+			'interval' => '',
 			'count' => self::DEFAULT_FILTER_COUNT,
 		) );
 
@@ -526,16 +526,16 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 				<label>
 					<?php esc_html_e( 'Choose a field:', 'jetpack' ); ?>
 					<select name="<?php echo esc_attr( $this->get_field_name( 'date_histogram_field' ) ); ?>[]" class="widefat">
-						<option value="post_date" <?php selected( 'post_date', $args['date_histogram_field'] ); ?>>
+						<option value="post_date" <?php selected( 'post_date', $args['field'] ); ?>>
 							<?php esc_html_e( 'Date', 'jetpack' ); ?>
 						</option>
-						<option value="post_date_gmt" <?php selected( 'post_date_gmt', $args['date_histogram_field'] ); ?>>
+						<option value="post_date_gmt" <?php selected( 'post_date_gmt', $args['field'] ); ?>>
 							<?php esc_html_e( 'Date GMT', 'jetpack' ); ?>
 						</option>
-						<option value="post_modified" <?php selected( 'post_modified', $args['date_histogram_field'] ); ?>>
+						<option value="post_modified" <?php selected( 'post_modified', $args['field'] ); ?>>
 							<?php esc_html_e( 'Modified', 'jetpack' ); ?>
 						</option>
-						<option value="post_modified" <?php selected( 'post_modified_gmt', $args['date_histogram_field'] ); ?>>
+						<option value="post_modified_gmt" <?php selected( 'post_modified_gmt', $args['field'] ); ?>>
 							<?php esc_html_e( 'Modified GMT', 'jetpack' ); ?>
 						</option>
 					</select>
@@ -546,10 +546,10 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 				<label>
 					<?php esc_html_e( 'Choose an interval:' ); ?>
 					<select name="<?php echo esc_attr( $this->get_field_name( 'date_histogram_interval' ) ); ?>[]" class="widefat">
-						<option value="month" <?php selected( 'month', $args['date_histogram_interval'] ); ?>>
+						<option value="month" <?php selected( 'month', $args['interval'] ); ?>>
 							<?php esc_html_e( 'Month', 'jetpack' ); ?>
 						</option>
-						<option value="year" <?php selected( 'year', $args['date_histogram_interval'] ); ?>>
+						<option value="year" <?php selected( 'year', $args['interval'] ); ?>>
 							<?php esc_html_e( 'Year', 'jetpack' ); ?>
 						</option>
 					</select>
