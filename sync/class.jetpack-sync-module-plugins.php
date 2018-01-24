@@ -31,7 +31,21 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 	}
 
 	public function check_upgrader( $upgrader, $details) {
-		$errors = $upgrader->skin->get_errors();
+
+		if (
+			isset( $details['type'] ) &&
+			'plugin' == $details['type']
+		) {
+			$errors = $upgrader->skin->get_errors();
+			if ( ! empty ( $errors ) ) {
+				do_action( 'jetpack_plugin_update_failed', $details, $errors->errors, $errors->error_data );
+
+				return;
+			}
+		}
+
+		/*
+
 		if (
 			isset( $details['type'] ) &&
 			'plugin' == $details['type'] &&
@@ -41,7 +55,8 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 
 			return;
 		}
-
+*/
+		
 		if ( ! isset( $details['type'] ) ||
 			'plugin' !== $details['type'] ||
 			is_wp_error( $upgrader->skin->result ) ||
