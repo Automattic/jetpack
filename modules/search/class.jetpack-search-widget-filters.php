@@ -211,7 +211,8 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 						</option>
 					<?php endforeach; ?>
 				</select>
-			</label> <?php
+			</label>
+			<?php
 		}
 
 		/*
@@ -436,20 +437,21 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 
 			<div class="jetpack-search-filters-widget__post-types-select">
 				<p class="jetpack-search">
-					<label><?php esc_html_e( 'Post types included in results:', 'jetpack' ); ?></label>
-					<select
-						class="widefat jetpack-search-filters-widget__post-type-selector"
-						name="<?php echo esc_attr( $this->get_field_name( 'post_types' ) ); ?>[]"
-						multiple="multiple">
-						<?php foreach ( get_post_types( array( 'exclude_from_search' => false ), 'objects' ) as $post_type ) : ?>
-							<option
-								value="<?php echo esc_attr( $post_type->name ); ?>"
-								<?php selected( empty( $instance['post_types'] ) || in_array( $post_type->name, $instance['post_types'] ) ); ?>
-							>
-								<?php echo esc_html( $post_type->label ); ?>
-							</option>
-						<?php endforeach; ?>
-					</select>
+					<label><?php esc_html_e( 'Post types included in results:', 'jetpack' ); ?>
+						<select
+							class="widefat jetpack-search-filters-widget__post-type-selector"
+							name="<?php echo esc_attr( $this->get_field_name( 'post_types' ) ); ?>[]"
+							multiple="multiple">
+							<?php foreach ( get_post_types( array( 'exclude_from_search' => false ), 'objects' ) as $post_type ) : ?>
+								<option
+									value="<?php echo esc_attr( $post_type->name ); ?>"
+									<?php selected( empty( $instance['post_types'] ) || in_array( $post_type->name, $instance['post_types'] ) ); ?>
+								>
+									<?php echo esc_html( $post_type->label ); ?>
+								</option>
+							<?php endforeach; ?>
+						</select>
+					</label>
 				</p>
 			</div>
 
@@ -517,15 +519,20 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 				<label>
 					<?php esc_html_e( 'Filter Type:', 'jetpack' ); ?>
 					<select name="<?php echo esc_attr( $this->get_field_name( 'filter_type' ) ); ?>[]" class="widefat filter-select">
-						<option value="taxonomy" <?php selected( $args['type'], 'taxonomy' ); ?>>
-							<?php esc_html_e( 'Taxonomy', 'jetpack' ); ?>
-						</option>
-						<option value="post_type" <?php selected( $args['type'], 'post_type' ); ?>>
-							<?php esc_html_e( 'Post Type', 'jetpack' ); ?>
-						</option>
-						<option value="date_histogram" <?php selected( $args['type'], 'date_histogram' ); ?>>
-							<?php esc_html_e( 'Date', 'jetpack' ); ?>
-						</option>
+						<?php
+
+						$filter_types = array(
+							'taxonomy'       => esc_html__( 'Taxonomy', 'jetpack' ),
+							'post_type'      => esc_html__( 'Post Type', 'jetpack' ),
+							'date_histogram' => esc_html__( 'Date', 'jetpack' ),
+							'author'         => esc_html__( 'Author', 'jetpack' ),
+						);
+
+						foreach ( $filter_types as $filter_type_slug => $filter_type_label ) {
+							echo '<option value="' . esc_attr( $filter_type_slug ) . '"' . selected( $args['type'], $filter_type_slug, false ) . '>' . $filter_type_label . '</option>';
+						}
+
+						?>
 					</select>
 				</label>
 			</p>
