@@ -31,18 +31,24 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 	}
 
 	public function check_upgrader( $upgrader, $details) {
-		$errors = $upgrader->skin->get_errors();
+		/*
+		 * Handle plugin update errors
+		 */
 		if (
-			'WP_Error' == get_class( $errors ) &&
+			'WP_Ajax_Upgrader_Skin' == get_class( $upgrader->skin ) &&
 			isset( $details['type'] ) &&
-			'plugin' == $details['type'] &&
-			! empty ( $errors )
+			'plugin' == $details['type']
 		) {
-			do_action( 'jetpack_plugin_update_failed', $details, $errors->errors, $errors->error_data );
+			$errors = $upgrader->skin->get_errors();
+			if (
+				'WP_Error' == get_class( $errors ) &&
+			     ! empty ( $errors )
+			) {
+				do_action( 'jetpack_plugin_update_failed', $details, $errors->errors, $errors->error_data );
 
-			return;
+				return;
+			}
 		}
-
 
 		if ( ! isset( $details['type'] ) ||
 			'plugin' !== $details['type'] ||
