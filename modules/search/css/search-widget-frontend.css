@@ -1,0 +1,19 @@
+.jetpack-search-filters-widget__sub-heading {
+	font-size: inherit;
+	font-weight: bold;
+	margin: 0 0 .5em;
+	padding: 0;
+}
+
+/* The first heading after the form */
+.jetpack-search-form + .jetpack-search-filters-widget__sub-heading {
+	margin-top: 1.5em;
+}
+
+.jetpack-search-sort-wrapper {
+	margin-bottom: 1.5em;
+}
+
+ul.jetpack-search-filters-widget__filer-list {
+	margin-bottom: 1.5em;
+}
