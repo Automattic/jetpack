@@ -156,31 +156,136 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 
 	function test_get_filters_from_widgets() {
 		$raw_option = $this->get_sample_widgets_option();
+		$filters = $raw_option[22]['filters'];
+		$additional_filters = array(
+			$this->get_cat_filter(),
+			$this->get_tag_filter(),
+			$this->get_post_type_filter(),
+			$this->get_date_histogram_posts_by_month_filter(),
+			$this->get_date_histogram_posts_by_year_filter(),
+			$this->get_date_histogram_posts_modified_by_month_filter(),
+			$this->get_date_histogram_posts_modified_by_year_filter(),
+			$this->get_date_histogram_posts_by_month_gmt__filter(),
+			$this->get_date_histogram_posts_by_year_gmt__filter(),
+			$this->get_date_histogram_posts_modified_by_month_gmt_filter(),
+			$this->get_date_histogram_posts_modified_by_year_gmt_filter(),
+		);
+
+		// Let's remove the name of the additional filters that way we can test our default name generation
+		foreach ( $additional_filters as $filter ) {
+			if ( isset( $filter['name'] ) ) {
+				unset( $filter['name'] );
+			}
+
+			$filters[] = $filter;
+		}
+
+		$raw_option[22]['filters'] = $filters;
+
 		update_option( Jetpack_Search_Helpers::get_widget_option_name(), $raw_option );
 		$this->register_fake_widgets();
 
-		$filters = Jetpack_Search_Helpers::get_filters_from_widgets();
+		$expected = array(
+			'taxonomy_0' => array(
+				'name' => 'Categories',
+				'type' => 'taxonomy',
+				'taxonomy' => 'category',
+				'count' => 4,
+				'widget_id' => 'jetpack-search-filters-22',
+			),
+			'post_type_1' => array(
+				'name' => 'Post Type',
+				'type' => 'post_type',
+				'count' => 5,
+				'widget_id' => 'jetpack-search-filters-22',
+			),
+			'taxonomy_2' => array(
+				'type' => 'taxonomy',
+				'taxonomy' => 'category',
+				'count' => 4,
+				'widget_id' => 'jetpack-search-filters-22',
+				'name' => 'Categories',
+			),
+			'taxonomy_3' => array(
+				'type' => 'taxonomy',
+				'taxonomy' => 'post_tag',
+				'count' => 2,
+				'widget_id' => 'jetpack-search-filters-22',
+				'name' => 'Tags',
+			),
+			'post_type_4' => array(
+				'type' => 'post_type',
+				'count' => 5,
+				'widget_id' => 'jetpack-search-filters-22',
+				'name' => 'Post Types',
+			),
+			'date_histogram_5' => array(
+				'type' => 'date_histogram',
+				'field' => 'post_date',
+				'interval' => 'month',
+				'count' => 10,
+				'widget_id' => 'jetpack-search-filters-22',
+				'name' => 'Month',
+			),
+			'date_histogram_6' => array(
+				'type' => 'date_histogram',
+				'field' => 'post_date',
+				'interval' => 'year',
+				'count' => 10,
+				'widget_id' => 'jetpack-search-filters-22',
+				'name' => 'Year',
+			),
+			'date_histogram_7' => array(
+				'type' => 'date_histogram',
+				'field' => 'post_modified',
+				'interval' => 'month',
+				'count' => 10,
+				'widget_id' => 'jetpack-search-filters-22',
+				'name' => 'Month Updated',
+			),
+			'date_histogram_8' => array(
+				'type' => 'date_histogram',
+				'field' => 'post_modified',
+				'interval' => 'year',
+				'count' => 10,
+				'widget_id' => 'jetpack-search-filters-22',
+				'name' => 'Year Updated',
+			),
+			'date_histogram_9' => array(
+				'type' => 'date_histogram',
+				'field' => 'post_date_gmt',
+				'interval' => 'month',
+				'count' => 10,
+				'widget_id' => 'jetpack-search-filters-22',
+				'name' => 'Month',
+			),
+			'date_histogram_10' => array(
+				'type' => 'date_histogram',
+				'field' => 'post_date_gmt',
+				'interval' => 'year',
+				'count' => 10,
+				'widget_id' => 'jetpack-search-filters-22',
+				'name' => 'Year',
+			),
+			'date_histogram_11' => array(
+				'type' => 'date_histogram',
+				'field' => 'post_modified_gmt',
+				'interval' => 'month',
+				'count' => 10,
+				'widget_id' => 'jetpack-search-filters-22',
+				'name' => 'Month Updated',
+			),
+			'date_histogram_12' => array(
+				'type' => 'date_histogram',
+				'field' => 'post_modified_gmt',
+				'interval' => 'year',
+				'count' => 10,
+				'widget_id' => 'jetpack-search-filters-22',
+				'name' => 'Year Updated',
+			),
+		);
 
-		$this->assertCount( count( $raw_option['22']['filters'] ), $filters );
-
-		$this->assertArrayHasKey( 'taxonomy_0', $filters );
-		foreach ( array( 'name', 'type', 'taxonomy', 'count', 'widget_id'  ) as $key ) {
-			$this->assertArrayHasKey( $key, $filters['taxonomy_0'], sprintf( 'Could not find %s key in taxonomy_0', $key ) );
-		}
-
-		$this->assertSame( 'taxonomy', $filters['taxonomy_0']['type'] );
-		$this->assertSame( 'category', $filters['taxonomy_0']['taxonomy'] );
-		$this->assertSame( 4, (int) $filters['taxonomy_0']['count'] );
-		$this->assertSame( 'jetpack-search-filters-22', $filters['taxonomy_0']['widget_id'] );
-
-		$this->assertArrayHasKey( 'post_type_1', $filters );
-		foreach ( array( 'name', 'type', 'count', 'widget_id'  ) as $key ) {
-			$this->assertArrayHasKey( $key, $filters['post_type_1'], sprintf( 'Could not find %s key in post_type_1', $key ) );
-		}
-
-		$this->assertSame( 'post_type', $filters['post_type_1']['type'] );
-		$this->assertSame( 5, (int) $filters['post_type_1']['count'] );
-		$this->assertSame( 'jetpack-search-filters-22', $filters['post_type_1']['widget_id'] );
+		$this->assertSame( $expected, Jetpack_Search_Helpers::get_filters_from_widgets() );
 	}
 
 	/**
@@ -786,7 +891,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 		return array(
 			'name' => 'Tags',
 			'type' => 'taxonomy',
-			'taxonomy' => 'tag',
+			'taxonomy' => 'post_tag',
 			'count' => 2,
 		);
 	}
@@ -796,6 +901,78 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 			'name' => 'Post Type',
 			'type' => 'post_type',
 			'count' => 5,
+		);
+	}
+
+	function get_date_histogram_posts_by_month_filter() {
+		return array(
+			'type'     => 'date_histogram',
+			'field'    => 'post_date',
+			'interval' => 'month',
+			'count'    => 10,
+		);
+	}
+
+	function get_date_histogram_posts_by_year_filter() {
+		return array(
+			'type'     => 'date_histogram',
+			'field'    => 'post_date',
+			'interval' => 'year',
+			'count'    => 10,
+		);
+	}
+
+	function get_date_histogram_posts_modified_by_month_filter() {
+		return array(
+			'type'     => 'date_histogram',
+			'field'    => 'post_modified',
+			'interval' => 'month',
+			'count'    => 10,
+		);
+	}
+
+	function get_date_histogram_posts_modified_by_year_filter() {
+		return array(
+			'type'     => 'date_histogram',
+			'field'    => 'post_modified',
+			'interval' => 'year',
+			'count'    => 10,
+		);
+	}
+
+	function get_date_histogram_posts_by_month_gmt__filter() {
+		return array(
+			'type'     => 'date_histogram',
+			'field'    => 'post_date_gmt',
+			'interval' => 'month',
+			'count'    => 10,
+		);
+	}
+
+	function get_date_histogram_posts_by_year_gmt__filter() {
+		return array(
+			'type'     => 'date_histogram',
+			'field'    => 'post_date_gmt',
+			'interval' => 'year',
+			'count'    => 10,
+		);
+	}
+
+	function get_date_histogram_posts_modified_by_month_gmt_filter() {
+		return array(
+			'type'     => 'date_histogram',
+			'field'    => 'post_modified_gmt',
+			'interval' => 'month',
+			'count'    => 10,
+		);
+	}
+
+	function get_date_histogram_posts_modified_by_year_gmt_filter() {
+		return array(
+			'type'     => 'date_histogram',
+			'field'    => 'post_modified_gmt',
+			'interval' => 'year',
+			'count'    => 10,
 		);
 	}
 }
