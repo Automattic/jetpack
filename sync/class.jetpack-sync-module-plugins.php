@@ -35,6 +35,7 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 		 * Handle plugin update errors
 		 */
 		if (
+			'Plugin_Upgrader' == get_class( $upgrader ) &&
 			'WP_Ajax_Upgrader_Skin' == get_class( $upgrader->skin ) &&
 			isset( $details['type'] ) &&
 			'plugin' == $details['type']
