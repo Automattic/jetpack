@@ -281,12 +281,13 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 	}
 
 	private function sorting_to_wp_query_param( $sort ) {
-		$parts   = explode( '|', $sort );
+		$parts = explode( '|', $sort );
+
 		$orderby = isset( $_GET['orderby'] )
 			? $_GET['orderby']
 			: $parts[0];
 
-		$order   = isset( $_GET['order'] )
+		$order = isset( $_GET['order'] )
 			? strtoupper( $_GET['order'] )
 			: ( ( isset( $parts[1] ) && 'ASC' === strtoupper( $parts[1] ) ) ? 'ASC' : 'DESC' );
 
@@ -436,20 +437,21 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 
 			<div class="jetpack-search-filters-widget__post-types-select">
 				<p class="jetpack-search">
-					<label><?php esc_html_e( 'Post types included in results:', 'jetpack' ); ?></label>
-					<select
-						class="widefat jetpack-search-filters-widget__post-type-selector"
-						name="<?php echo esc_attr( $this->get_field_name( 'post_types' ) ); ?>[]"
-						multiple="multiple">
-						<?php foreach ( get_post_types( array( 'exclude_from_search' => false ), 'objects' ) as $post_type ) : ?>
-							<option
-								value="<?php echo esc_attr( $post_type->name ); ?>"
-								<?php selected( empty( $instance['post_types'] ) || in_array( $post_type->name, $instance['post_types'] ) ); ?>
-							>
-								<?php echo esc_html( $post_type->label ); ?>
-							</option>
-						<?php endforeach; ?>
-					</select>
+					<label><?php esc_html_e( 'Post types included in results:', 'jetpack' ); ?>
+						<select
+							class="widefat jetpack-search-filters-widget__post-type-selector"
+							name="<?php echo esc_attr( $this->get_field_name( 'post_types' ) ); ?>[]"
+							multiple="multiple">
+							<?php foreach ( get_post_types( array( 'exclude_from_search' => false ), 'objects' ) as $post_type ) : ?>
+								<option
+									value="<?php echo esc_attr( $post_type->name ); ?>"
+									<?php selected( empty( $instance['post_types'] ) || in_array( $post_type->name, $instance['post_types'] ) ); ?>
+								>
+									<?php echo esc_html( $post_type->label ); ?>
+								</option>
+							<?php endforeach; ?>
+						</select>
+					</label>
 				</p>
 			</div>
 
