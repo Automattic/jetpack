@@ -60,29 +60,25 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			'widget-jetpack-search-filters',
 			plugins_url( 'js/search-widget-filters-admin.js', __FILE__ ),
 			array( 'jquery', 'jp-tracks', 'jp-tracks-functions' )
+
 		);
 
 		wp_localize_script( 'widget-jetpack-search-filters', 'jetpack_search_filter_admin', array(
 			'defaultFilterCount' => self::DEFAULT_FILTER_COUNT,
 			'tracksUserData'     => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
 			'tracksEventData'    => array(
-				'is_customizer' => ( function_exists( 'is_customize_preview' ) && is_customize_preview() ) ? 1 : 0,
+				'is_customizer'   => ( function_exists( 'is_customize_preview' ) && is_customize_preview() ) ? 1 : 0,
 			),
 		) );
 
 		wp_enqueue_script( 'widget-jetpack-search-filters' );
 	}
 
-	/**
-	 * Returns the list of valid sort types.
-	 *
-	 * @return array
-	 */
 	private function get_sort_types() {
 		return array(
 			'relevance|DESC' => esc_html__( 'Relevance', 'jetpack' ),
-			'date|DESC'      => esc_html__( 'Newest first', 'jetpack' ),
-			'date|ASC'       => esc_html__( 'Oldest first', 'jetpack' )
+			'date|DESC' => esc_html__( 'Newest first', 'jetpack' ),
+			'date|ASC' => esc_html__( 'Oldest first', 'jetpack' )
 		);
 	}
 
@@ -104,7 +100,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		$filter_widgets = get_option( 'widget_jetpack-search-filters' );
 
 		// This shouldn't be empty, but just for sanity
-		if ( empty( $filter_widgets ) ) {
+		if ( empty( $filter_widgets ) )  {
 			return false;
 		}
 
@@ -119,30 +115,20 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		return true;
 	}
 
-	/**
-	 * Echoes the widget content.
-	 *
-	 * @since 5.7.0
-	 *
-	 * @param array $args     Display arguments including 'before_title', 'after_title',
-	 *                        'before_widget', and 'after_widget'.
-	 * @param array $instance The settings for the particular instance of the widget.
-	 */
 	function widget( $args, $instance ) {
 		$display_filters = false;
 
 		if ( is_search() ) {
-			if ( Jetpack_Search_Helpers::should_rerun_search_in_customizer_preview() ) {
+			if ( Jetpack_Search_Helpers::should_rerun_search_in_customizer_preview( $instance, $this->id ) ) {
 				$this->jetpack_search->update_search_results_aggregations();
 			}
-
-			$filters        = $this->jetpack_search->get_filters();
+			$filters = $this->jetpack_search->get_filters();
 			$active_buckets = $this->jetpack_search->get_active_filter_buckets();
 
 			if ( ! empty( $filters ) || ! empty( $active_buckets ) ) {
 
 				if ( ! $this->jetpack_search->are_filters_by_widget_disabled() && ! $this->should_display_sitewide_filters() ) {
-					$filters        = array_filter( $filters, array( $this, 'is_for_current_widget' ) );
+					$filters = array_filter( $filters, array( $this, 'is_for_current_widget' ) );
 					$active_buckets = array_filter( $active_buckets, array( $this, 'is_for_current_widget' ) );
 				}
 
@@ -181,7 +167,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			 *
 			 * @module search
 			 *
-			 * @since  5.7.0
+			 * @since 5.7.0
 			 *
 			 * @param string $title                The widget's title
 			 * @param string $args['before_title'] The HTML tag to display before the title
@@ -205,14 +191,13 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			<label class="jetpack-search-sort-wrapper">
 				<?php esc_html_e( 'Sort by', 'jetpack' ); ?>
 				<select name="<?php echo esc_attr( $this->get_field_name( 'sort' ) ); ?>" class="jetpack-search-sort">
-					<?php foreach ( $this->get_sort_types() as $sort => $label ) : ?>
+					<?php foreach( $this->get_sort_types() as $sort => $label ) { ?>
 						<option value="<?php echo esc_attr( $sort ); ?>" <?php selected( $current_sort, $sort ); ?>>
 							<?php echo esc_html( $label ); ?>
 						</option>
-					<?php endforeach; ?>
+					<?php } ?>
 				</select>
-			</label>
-			<?php
+			</label> <?php
 		}
 
 		/*
@@ -223,30 +208,30 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		 */
 		?>
 		<script type="text/javascript">
-			jQuery(document).ready(function ($) {
-				var actionUrl = <?php echo json_encode( home_url( '/' ) ); ?>,
+			jQuery( document ).ready( function( $ ) {
+				var actionUrl      = <?php echo json_encode( home_url( '/' ) ); ?>,
 					orderByDefault = <?php echo json_encode( $orderby ); ?>,
-					orderDefault = <?php echo json_encode( $order ); ?>,
-					widgetId = <?php echo json_encode( $this->id ); ?>,
-					currentSearch = <?php echo json_encode( isset( $_GET['s'] ) ? $_GET['s'] : '' ); ?>
+					orderDefault   = <?php echo json_encode( $order ); ?>,
+					widgetId       = <?php echo json_encode( $this->id ); ?>,
+					currentSearch  = <?php echo json_encode( isset( $_GET['s'] ) ? $_GET['s'] : '' ); ?>
 
 				var container = $('#' + widgetId);
 				var form = container.find('.jetpack-search-form form');
-				var orderBy = form.find('input[name=orderby]');
-				var order = form.find('input[name=order]');
+				var orderBy = form.find( 'input[name=orderby]');
+				var order = form.find( 'input[name=order]');
 				orderBy.val(orderByDefault);
 				order.val(orderDefault);
 
-				container.find('.jetpack-search-sort').change(function (event) {
-					var values = event.target.value.split('|');
-					orderBy.val(values[0]);
-					order.val(values[1]);
+				container.find( '.jetpack-search-sort' ).change( function( event ) {
+					var values  = event.target.value.split( '|' );
+					orderBy.val( values[0] );
+					order.val( values[1] );
 
-					if (currentSearch) {
+					if ( currentSearch ) {
 						form.submit();
 					}
 				});
-			});
+			} );
 		</script>
 		<?php
 		if ( $display_filters ) {
@@ -256,10 +241,10 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			 *
 			 * @module search
 			 *
-			 * @since  5.8.0
+			 * @since 5.8.0
 			 *
-			 * @param array          $active_bucket        The selected filters for the current query
-			 * @param array          $instance             The current widget instance
+			 * @param $active_bucket                       The selected filters for the currenet query
+			 * @param $instance                            The current widget instance
 			 * @param Jetpack_Search $this->jetpack_search The Jetpack_Search instance
 			 */
 			do_action( 'jetpack_search_render_active_filters', $active_buckets, $instance, $this->jetpack_search );
@@ -269,10 +254,10 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			 *
 			 * @module search
 			 *
-			 * @since  5.8.0
+			 * @since 5.8.0
 			 *
-			 * @param array          $filters              The possible filters for the current query
-			 * @param array          $instance             The current widget instance
+			 * @param array $filters                       The possible filters for the current query
+			 * @param $instance                            The current widget instance
 			 * @param Jetpack_Search $this->jetpack_search The Jetpack_Search instance
 			 */
 			do_action( 'jetpack_search_render_filters', $filters, $instance, $this->jetpack_search );
@@ -282,7 +267,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 	}
 
 	private function sorting_to_wp_query_param( $sort ) {
-		$parts   = explode( '|', $sort );
+		$parts = explode( '|', $sort );
 		$orderby = isset( $_GET['orderby'] )
 			? $_GET['orderby']
 			: $parts[0];
@@ -294,25 +279,17 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		return array( $orderby, $order );
 	}
 
-	/**
-	 * Updates a particular instance of a widget.
-	 *
-	 * @since 5.7.0
-	 *
-	 * @param array $new_instance New settings for this instance as input by the user via Jetpack_Search_Widget_Filters::form().
-	 * @param array $old_instance Old settings for this instance.
-	 *
-	 * @return array Settings to save.
-	 */
 	function update( $new_instance, $old_instance ) {
 		$instance = array();
 
-		$instance['title']              = sanitize_text_field( $new_instance['title'] );
-		$instance['use_filters']        = empty( $new_instance['use_filters'] ) ? '0' : '1';
+		$instance['title'] = sanitize_text_field( $new_instance['title'] );
+		$instance['use_filters'] = empty( $new_instance['use_filters'] ) ? '0' : '1';
 		$instance['search_box_enabled'] = empty( $new_instance['search_box_enabled'] ) ? '0' : '1';
-		$instance['user_sort_enabled']  = empty( $new_instance['user_sort_enabled'] ) ? '0' : '1';
-		$instance['sort']               = $new_instance['sort'];
-		$instance['post_types']         = ( empty( $new_instance['post_types'] ) || empty( $instance['search_box_enabled'] ) ) ? array() : array_map( 'sanitize_key', $new_instance['post_types'] );
+		$instance['user_sort_enabled'] = empty( $new_instance['user_sort_enabled'] ) ? '0' : '1';
+		$instance['sort'] = $new_instance['sort'];
+		$instance['post_types'] = empty( $new_instance['post_types'] ) || empty( $instance['search_box_enabled'] )
+			? array()
+			: array_map( 'sanitize_key', $new_instance['post_types'] );
 
 		if ( $instance['use_filters'] ) {
 			$filters = array();
@@ -324,25 +301,25 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 				switch ( $type ) {
 					case 'taxonomy':
 						$filters[] = array(
-							'name'     => sanitize_text_field( $new_instance['filter_name'][ $index ] ),
-							'type'     => 'taxonomy',
+							'name' => sanitize_text_field( $new_instance['filter_name'][ $index ] ),
+							'type' => 'taxonomy',
 							'taxonomy' => sanitize_key( $new_instance['taxonomy_type'][ $index ] ),
-							'count'    => $count,
+							'count' => $count,
 						);
 						break;
 					case 'post_type':
 						$filters[] = array(
-							'name'  => sanitize_text_field( $new_instance['filter_name'][ $index ] ),
-							'type'  => 'post_type',
+							'name' => sanitize_text_field( $new_instance['filter_name'][ $index ] ),
+							'type' => 'post_type',
 							'count' => $count,
 						);
 						break;
 					case 'date_histogram':
 						$filters[] = array(
-							'name'     => sanitize_text_field( $new_instance['filter_name'][ $index ] ),
-							'type'     => 'date_histogram',
-							'count'    => $count,
-							'field'    => sanitize_key( $new_instance['date_histogram_field'][ $index ] ),
+							'name' => sanitize_text_field( $new_instance['filter_name'][ $index ] ),
+							'type' => 'date_histogram',
+							'count' => $count,
+							'field' => sanitize_key( $new_instance['date_histogram_field'][ $index ] ),
 							'interval' => sanitize_key( $new_instance['date_histogram_interval'][ $index ] ),
 						);
 						break;
@@ -357,27 +334,20 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		return $instance;
 	}
 
-	/**
-	 * Outputs the settings update form.
-	 *
-	 * @since 5.7.0
-	 *
-	 * @param array $instance Current settings.
-	 */
 	function form( $instance ) {
 		$instance = wp_parse_args( (array) $instance, array(
-			'title'   => '',
+			'title' => '',
 			'filters' => array( array() )
 		) );
 
 		$title = strip_tags( $instance['title'] );
 
-		$hide_filters       = $this->jetpack_search->are_filters_by_widget_disabled();
-		$use_filters        = ! empty( $instance['use_filters'] ) && ! $hide_filters;
+		$hide_filters = $this->jetpack_search->are_filters_by_widget_disabled();
+		$use_filters = ! empty( $instance['use_filters'] ) && ! $hide_filters;
 		$search_box_enabled = ! empty( $instance['search_box_enabled'] );
-		$user_sort_enabled  = ! empty( $instance['user_sort_enabled'] );
-		$sort               = isset( $instance['sort'] ) ? $instance['sort'] : self::DEFAULT_SORT;
-		$classes            = sprintf(
+		$user_sort_enabled = ! empty( $instance['user_sort_enabled'] );
+		$sort = isset( $instance['sort'] ) ? $instance['sort'] : self::DEFAULT_SORT;
+		$classes = sprintf(
 			'jetpack-search-filters-widget %s %s',
 			$use_filters ? '' : 'hide-filters',
 			$search_box_enabled ? '' : 'hide-post-types'
@@ -426,32 +396,31 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 					<select
 						name="<?php echo esc_attr( $this->get_field_name( 'sort' ) ); ?>"
 						class="widefat jetpack-search-filters-widget__sort-order">
-						<?php foreach ( $this->get_sort_types() as $sort_type => $label ) : ?>
+		 				<?php foreach( $this->get_sort_types() as $sort_type => $label ) { ?>
 							<option value="<?php echo esc_attr( $sort_type ); ?>" <?php selected( $sort, $sort_type ); ?>>
 								<?php echo esc_html( $label ); ?>
 							</option>
-						<?php endforeach; ?>
+						<?php } ?>
 					</select>
 				</label>
 			</p>
 
 			<div class="jetpack-search-filters-widget__post-types-select">
 				<p class="jetpack-search">
-					<label><?php esc_html_e( 'Post types included in results:', 'jetpack' ); ?>
-						<select
-							class="widefat jetpack-search-filters-widget__post-type-selector"
-							name="<?php echo esc_attr( $this->get_field_name( 'post_types' ) ); ?>[]"
-							multiple="multiple">
-							<?php foreach ( get_post_types( array( 'exclude_from_search' => false ), 'objects' ) as $post_type ) : ?>
-								<option
-									value="<?php echo esc_attr( $post_type->name ); ?>"
-									<?php selected( empty( $instance['post_types'] ) || in_array( $post_type->name, $instance['post_types'] ) ); ?>
-								>
-									<?php echo esc_html( $post_type->label ); ?>
-								</option>
-							<?php endforeach; ?>
-						</select>
-					</label>
+					<label><?php esc_html_e( 'Post types included in results:', 'jetpack' ); ?></label>
+					<select
+						class="widefat jetpack-search-filters-widget__post-type-selector"
+						name="<?php echo esc_attr( $this->get_field_name( 'post_types' ) ); ?>[]"
+						multiple="multiple">
+						<?php foreach ( get_post_types( array( 'exclude_from_search' => false ), 'objects' ) as $post_type ) : ?>
+							<option
+								value="<?php echo esc_attr( $post_type->name ); ?>"
+								<?php selected( empty( $instance['post_types'] ) || in_array( $post_type->name, $instance['post_types'] ) ); ?>
+							>
+								<?php echo esc_html( $post_type->label ); ?>
+							</option>
+						<?php endforeach; ?>
+					</select>
 				</p>
 			</div>
 
@@ -487,13 +456,13 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 	 */
 	function render_widget_filter( $filter ) {
 		$args = wp_parse_args( $filter, array(
-			'name'                    => '',
-			'type'                    => 'taxonomy',
-			'taxonomy'                => '',
-			'post_type'               => '',
-			'date_histogram_field'    => '',
+			'name' => '',
+			'type' => 'taxonomy',
+			'taxonomy' => '',
+			'post_type' => '',
+			'date_histogram_field' => '',
 			'date_histogram_interval' => '',
-			'count'                   => self::DEFAULT_FILTER_COUNT,
+			'count' => self::DEFAULT_FILTER_COUNT,
 		) );
 
 		$classes = sprintf(
@@ -510,7 +479,11 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 						class="widefat"
 						type="text"
 						name="<?php echo esc_attr( $this->get_field_name( 'filter_name' ) ); ?>[]"
-						value="<?php echo ( ! empty( $args['name'] ) ) ? esc_attr( $args['name'] ) : ''; ?>"
+						value="<?php
+							echo ! empty( $args['name'] )
+								? esc_attr( $args['name'] )
+								: '';
+						?>"
 					/>
 				</label>
 			</p>
@@ -539,17 +512,14 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 
 			<p class="jetpack-search-filters-widget__taxonomy-select">
 				<label>
-					<?php
-					esc_html_e( 'Choose a taxonomy:', 'jetpack' );
-					$seen_taxonomy_labels = array();
-					?>
+					<?php esc_html_e( 'Choose a taxonomy:', 'jetpack' ); $seen_taxonomy_labels = array(); ?>
 					<select name="<?php echo esc_attr( $this->get_field_name( 'taxonomy_type' ) ); ?>[]" class="widefat">
 						<?php foreach ( get_taxonomies( false, 'objects' ) as $taxonomy ) : ?>
 							<option value="<?php echo esc_attr( $taxonomy->name ); ?>" <?php selected( $taxonomy->name, $args['taxonomy'] ); ?>>
 								<?php
-								$label = in_array( $taxonomy->label, $seen_taxonomy_labels ) ? "{$taxonomy->label} ({$taxonomy->name})" : $taxonomy->label;
-								echo esc_html( $label );
-								$seen_taxonomy_labels[] = $taxonomy->label;
+									$label = in_array( $taxonomy->label, $seen_taxonomy_labels ) ? "{$taxonomy->label} ({$taxonomy->name})" : $taxonomy->label;
+									echo esc_html( $label );
+									$seen_taxonomy_labels[] = $taxonomy->label;
 								?>
 							</option>
 						<?php endforeach; ?>
@@ -625,7 +595,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 
 		$fields_to_inject = array(
 			'orderby' => $orderby,
-			'order'   => $order
+			'order' => $order
 		);
 
 		// If the widget has specified post types to search within and IF the post types differ
@@ -646,7 +616,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 	private function inject_hidden_form_fields( $form, $fields ) {
 		$form_injection = '';
 
-		foreach ( $fields as $field_name => $field_value ) {
+		foreach( $fields as $field_name => $field_value ) {
 			$form_injection .= sprintf(
 				'<input type="hidden" name="%s" value="%s" />',
 				$field_name,
@@ -739,7 +709,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 	 * Given a url and an array of post types, will ensure that the post types are properly applied to the URL as args.
 	 *
 	 * @param string $url
-	 * @param array  $post_types
+	 * @param array $post_types
 	 */
 	function add_post_types_to_url( $url, $post_types ) {
 		$url = Jetpack_Search_Helpers::remove_query_arg( 'post_type', $url );
@@ -773,7 +743,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		$remove_all_filters = add_query_arg( 's', get_query_var( 's' ), home_url() );
 		if ( Jetpack_Search_Helpers::post_types_differ_searchable( $instance ) ) {
 			$remove_all_filters = $this->add_post_types_to_url( $remove_all_filters, $instance['post_types'] );
-			$active_buckets     = $this->ensure_post_types_on_remove_url( $active_buckets, $instance['post_types'] );
+			$active_buckets = $this->ensure_post_types_on_remove_url( $active_buckets, $instance['post_types'] );
 		}
 
 		?>
@@ -783,11 +753,11 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 				<li>
 					<a href="<?php echo esc_url( $item['remove_url'] ); ?>">
 						<?php
-						echo sprintf(
-							_x( '&larr; %1$s: %2$s', 'aggregation widget: active filter type and name', 'jetpack' ),
-							esc_html( $item['type_label'] ),
-							esc_html( $item['name'] )
-						);
+							echo sprintf(
+								_x( '&larr; %1$s: %2$s', 'aggregation widget: active filter type and name', 'jetpack' ),
+								esc_html( $item['type_label'] ),
+								esc_html( $item['name'] )
+							);
 						?>
 					</a>
 				</li>
@@ -809,7 +779,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 	 * @param array $filter
 	 */
 	function render_filter( $filter ) { ?>
-		<h4 class="widget-title"><?php echo esc_html( $filter['name'] ); ?></h4>
+		<h4  class="widget-title"><?php echo esc_html( $filter['name'] ); ?></h4>
 		<ul>
 			<?php foreach ( $filter['buckets'] as $item ) : ?>
 				<li>
@@ -819,7 +789,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 
 					(<?php echo number_format_i18n( absint( $item['count'] ) ); ?>)
 				</li>
-			<?php endforeach; ?>
+			<?php endforeach;?>
 		</ul>
 		<br />
 	<?php }
