@@ -512,7 +512,14 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 						<?php foreach ( get_taxonomies( false, 'objects' ) as $taxonomy ) : ?>
 							<option value="<?php echo esc_attr( $taxonomy->name ); ?>" <?php selected( $taxonomy->name, $args['taxonomy'] ); ?>>
 								<?php
-									$label = in_array( $taxonomy->label, $seen_taxonomy_labels ) ? "{$taxonomy->label} ({$taxonomy->name})" : $taxonomy->label;
+									$label = in_array( $taxonomy->label, $seen_taxonomy_labels )
+										? sprintf(
+											/* translators: %1$s is the taxonomy name, %2s is the name of its type to help distinguish between several taxonomies with the same name, e.g. category and tag. */
+											_x( '%1$s (%2$s)', 'A label for a taxonomy selector option', 'jetpack' ),
+											$taxonomy->label,
+											$taxonomy->name
+										)
+										: $taxonomy->label;
 									echo esc_html( $label );
 									$seen_taxonomy_labels[] = $taxonomy->label;
 								?>
