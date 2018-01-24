@@ -515,7 +515,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 									$label = in_array( $taxonomy->label, $seen_taxonomy_labels )
 										? sprintf(
 											/* translators: %1$s is the taxonomy name, %2s is the name of its type to help distinguish between several taxonomies with the same name, e.g. category and tag. */
-											__( '%1$s (%2$s)', 'jetpack' ),
+											_x( '%1$s (%2$s)', 'A label for a taxonomy selector option', 'jetpack' ),
 											$taxonomy->label,
 											$taxonomy->name
 										)
