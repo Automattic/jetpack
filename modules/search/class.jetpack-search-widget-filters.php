@@ -691,7 +691,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			wp_parse_str( $parsed['query'], $query );
 
 			if ( empty( $query['post_type'] ) ) {
-				$active_bucket['remove_url'] = $this->add_post_types_to_url( $active_bucket['remove_url'], $post_types );
+				$active_bucket['remove_url'] = $this->add_post_types_to_url( $post_types );
 			}
 
 			$modified[] = $active_bucket;
@@ -703,18 +703,24 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 	/**
 	 * Given a url and an array of post types, will ensure that the post types are properly applied to the URL as args.
 	 *
+	 * @param array  $post_types
 	 * @param string $url
-	 * @param array $post_types
+	 *
+	 * @return string
 	 */
-	function add_post_types_to_url( $url, $post_types ) {
-		$url = Jetpack_Search_Helpers::remove_query_arg( 'post_type', $url );
+	function add_post_types_to_url( $post_types, $url = false ) {
+		if ( ! $url ) {
+			$url = Jetpack_Search_Helpers::remove_query_arg( 'post_type' );
+		}
+
 		if ( empty( $post_types ) ) {
 			return $url;
 		}
 
-		$url = Jetpack_Search_Helpers::add_query_arg(
+		$url = add_query_arg(
 			'post_type',
-			implode( ',', $post_types )
+			implode( ',', $post_types ),
+			$url
 		);
 
 		return $url;
@@ -727,7 +733,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 	 * @param array $instance
 	 */
 	function render_current_filters( $active_buckets, $instance ) {
-		if ( ! Jetpack_Search_Helpers::post_types_differ_query( $instance, true ) ) {
+		if ( ! Jetpack_Search_Helpers::post_types_differ_query( $instance ) ) {
 			$active_buckets = array_filter( $active_buckets, array( $this, 'filter_post_types_from_active_buckets' ) );
 		}
 
@@ -737,7 +743,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 
 		$remove_all_filters = add_query_arg( 's', get_query_var( 's' ), home_url() );
 		if ( Jetpack_Search_Helpers::post_types_differ_searchable( $instance ) ) {
-			$remove_all_filters = $this->add_post_types_to_url( $remove_all_filters, $instance['post_types'] );
+			$remove_all_filters = $this->add_post_types_to_url( $instance['post_types'], $remove_all_filters );
 			$active_buckets = $this->ensure_post_types_on_remove_url( $active_buckets, $instance['post_types'] );
 		}
 
