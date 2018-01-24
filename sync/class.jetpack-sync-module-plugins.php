@@ -31,12 +31,12 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 	}
 
 	public function check_upgrader( $upgrader, $details) {
+		$errors = $upgrader->skin->get_errors();
 		if (
 			isset( $details['type'] ) &&
 			'plugin' == $details['type'] &&
-			! empty ( $upgrader->skin->get_errors() )
+			! empty ( $errors )
 		) {
-			$errors = $upgrader->skin->get_errors();
 			do_action( 'jetpack_plugin_update_failed', $details, $errors->errors, $errors->error_data );
 
 			return;
