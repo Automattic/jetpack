@@ -102,6 +102,8 @@ class Jetpack_Search {
 			add_action( 'init', array( $this, 'set_filters_from_widgets' ) );
 
 			add_action( 'pre_get_posts', array( $this, 'maybe_add_post_type_as_var' ) );
+		} else {
+			add_action( 'update_option', array( $this, 'track_widget_updates' ), 10, 3 );
 		}
 	}
 
@@ -1530,5 +1532,22 @@ class Jetpack_Search {
 		}
 
 		return $reordered;
+	}
+
+	public function track_widget_updates( $option, $old_value, $new_value ) {
+		if ( 'widget_jetpack-search-filters' !== $option ) {
+			return;
+		}
+
+		$event = Jetpack_Search_Helpers::get_widget_tracks_value( $old_value, $new_value );
+		if ( ! $event ) {
+			return;
+		}
+
+		jetpack_tracks_record_event(
+			wp_get_current_user(),
+			sprintf( 'jetpack_search_widget_%s', $event['action'] ),
+			$event['widget']
+		);
 	}
 }
