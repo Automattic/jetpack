@@ -36,14 +36,19 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 		 */
 		if (
 			'Plugin_Upgrader' == get_class( $upgrader ) &&
+			isset( $details['type'] ) &&
+			'plugin' == $details['type']
 			(
 				'WP_Ajax_Upgrader_Skin' == get_class( $upgrader->skin ) ||
 			    'Bulk_Plugin_Upgrader_Skin' == get_class( $upgrader->skin )
-			) &&
-			isset( $details['type'] ) &&
-			'plugin' == $details['type']
+			)
 		) {
-			$errors = $upgrader->skin->get_errors();
+			if ( 'WP_Ajax_Upgrader_Skin' == get_class( $upgrader->skin ) ) {
+				$errors = $upgrader->skin->get_errors();
+			} else {
+				$errors = $upgrader->skin->result;
+			}
+
 			if ( is_wp_error( $errors) ) {
 				do_action( 'jetpack_plugin_update_failed', $details, $errors->errors, $errors->error_data );
 
