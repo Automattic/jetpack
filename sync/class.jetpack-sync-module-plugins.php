@@ -50,8 +50,9 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 			}
 
 			if ( is_wp_error( $errors) ) {
-				do_action( 'jetpack_plugin_update_failed', $details, $errors->errors, $errors->error_data );
-
+				foreach ( $details['plugins'] as $slug ) {
+					do_action( 'jetpack_plugin_update_failed', $slug, $errors->errors, $errors->error_data );
+				}
 				return;
 			}
 		}
