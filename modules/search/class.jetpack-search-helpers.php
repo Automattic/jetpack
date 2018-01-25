@@ -19,16 +19,18 @@ class Jetpack_Search_Helpers {
 		return home_url( "?{$query}" );
 	}
 
-	static function add_query_arg( $key, $value = false ) {
+	static function add_query_arg( $key, $value = false, $url = false ) {
+		$url = empty( $url ) ? self::get_search_url() : $url;
 		if ( is_array( $key ) ) {
-			return add_query_arg( $key, self::get_search_url() );
+			return add_query_arg( $key, $url );
 		}
 
-		return add_query_arg( $key, $value, self::get_search_url() );
+		return add_query_arg( $key, $value, $url );
 	}
 
-	static function remove_query_arg( $key ) {
-		return remove_query_arg( $key, self::get_search_url() );
+	static function remove_query_arg( $key, $url = false ) {
+		$url = empty( $url ) ? self::get_search_url() : $url;
+		return remove_query_arg( $key, $url );
 	}
 
 	static function get_widget_option_name() {
@@ -75,6 +77,53 @@ class Jetpack_Search_Helpers {
 			foreach ( (array) $settings['filters'] as $widget_filter ) {
 				$widget_filter['widget_id'] = $widget_id;
 				$key = sprintf( '%s_%d', $widget_filter['type'], count( $filters ) );
+
+				if ( empty( $widget_filter['name'] ) ) {
+					switch ( $widget_filter['type'] ) {
+						case 'post_type':
+							$widget_filter['name'] = _x( 'Post Types', 'label for filtering posts', 'jetpack' );
+							break;
+						case 'date_histogram':
+							switch ( $widget_filter['field'] ) {
+								case 'post_date':
+								case 'post_date_gmt':
+									switch ( $widget_filter['interval'] ) {
+										case 'month':
+											$widget_filter['name'] = _x( 'Month', 'label for filtering posts', 'jetpack' );
+											break;
+										case 'year':
+											$widget_filter['name'] = _x( 'Year', 'label for filtering posts', 'jetpack' );
+											break;
+									}
+									break;
+								case 'post_modified':
+								case 'post_modified_gmt':
+									switch ( $widget_filter['interval'] ) {
+										case 'month':
+											$widget_filter['name'] = _x( 'Month Updated', 'label for filtering posts', 'jetpack' );
+											break;
+										case 'year':
+											$widget_filter['name'] = _x( 'Year Updated', 'label for filtering posts', 'jetpack' );
+											break;
+									}
+									break;
+							}
+							break;
+						case 'taxonomy':
+							$tax = get_taxonomy( $widget_filter['taxonomy'] );
+							if ( ! $tax ) {
+								break;
+							}
+
+							if ( isset( $tax->label ) ) {
+								$widget_filter['name'] = $tax->label;
+							} else if ( isset( $tax->labels ) && isset( $tax->labels->name ) ) {
+								$widget_filter['name'] = $tax->labels->name;
+							}
+							break;
+					}
+				}
+
 				$filters[ $key ] = $widget_filter;
 			}
 		}

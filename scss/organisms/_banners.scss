@@ -57,6 +57,7 @@
 		@include minbreakpoint(tablet) {
 			left: -20px; // fill gap of wp-admin sidebar right margin on large screens
 		};
+
 	}
 }
 
@@ -164,6 +165,15 @@
 
 .jp-connect-full__button-container {
 	margin: 0;
+	.dops-button.is-primary {
+		background: $green-primary;
+		border-color: $green-secondary;		
+
+		&:hover, &:focus {
+			background: $green-secondary;
+			border-color: $green-dark;
+		}
+	}
 }
 
 .jp-connect-full__help-button {
@@ -280,6 +290,16 @@
 
 .jp-banner__button-container .dops-button {
 	margin: rem( 5px ) 0;
+
+	&.is-primary {
+		background: $green-primary;
+		border-color: $green-secondary;
+
+		&:hover, &:focus {
+			background: $green-secondary;
+			border-color: $green-dark;
+		}
+	}
 }
 
 // Connection Banner Vertical Menu

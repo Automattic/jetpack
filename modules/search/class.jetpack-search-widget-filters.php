@@ -29,6 +29,8 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 
 		if ( is_admin() ) {
 			add_action( 'sidebar_admin_setup', array( $this, 'widget_admin_setup' ) );
+		} else {
+			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend_scripts' ) );
 		}
 
 		add_action( 'jetpack_search_render_filters_widget_title', array( $this, 'render_widget_title' ), 10, 3 );
@@ -72,6 +74,10 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		) );
 
 		wp_enqueue_script( 'widget-jetpack-search-filters' );
+	}
+
+	function enqueue_frontend_scripts() {
+		wp_enqueue_style( 'jetpack-search-widget', plugins_url( 'modules/search/css/search-widget-frontend.css', JETPACK__PLUGIN_FILE ) );
 	}
 
 	private function get_sort_types() {
@@ -186,54 +192,19 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			$this->render_widget_search_form( $instance, $orderby, $order );
 		}
 
-		if ( ! empty( $instance['search_box_enabled'] ) && ! empty( $instance['user_sort_enabled'] ) ) {
-			?>
-			<label class="jetpack-search-sort-wrapper">
-				<?php esc_html_e( 'Sort by', 'jetpack' ); ?>
-				<select name="<?php echo esc_attr( $this->get_field_name( 'sort' ) ); ?>" class="jetpack-search-sort">
+		if ( ! empty( $instance['search_box_enabled'] ) && ! empty( $instance['user_sort_enabled'] ) ): ?>
+			<h4 class="jetpack-search-filters-widget__sub-heading"><?php esc_html_e( 'Sort by', 'jetpack' ); ?></h4>
+			<div class="jetpack-search-sort-wrapper">
+				<select class="jetpack-search-sort">
 					<?php foreach( $this->get_sort_types() as $sort => $label ) { ?>
 						<option value="<?php echo esc_attr( $sort ); ?>" <?php selected( $current_sort, $sort ); ?>>
 							<?php echo esc_html( $label ); ?>
 						</option>
 					<?php } ?>
 				</select>
-			</label> <?php
-		}
+			</div>
+		<?php endif;
 
-		/*
-		 * this JS is a bit complicated, but here's what it's trying to do:
-		 * - find or create a search form
-		 * - find or create the orderby/order fields with default values
-		 * - detect changes to the sort field, if it exists, and use it to set the order field values
-		 */
-		?>
-		<script type="text/javascript">
-			jQuery( document ).ready( function( $ ) {
-				var actionUrl      = <?php echo json_encode( home_url( '/' ) ); ?>,
-					orderByDefault = <?php echo json_encode( $orderby ); ?>,
-					orderDefault   = <?php echo json_encode( $order ); ?>,
-					widgetId       = <?php echo json_encode( $this->id ); ?>,
-					currentSearch  = <?php echo json_encode( isset( $_GET['s'] ) ? $_GET['s'] : '' ); ?>
-
-				var container = $('#' + widgetId);
-				var form = container.find('.jetpack-search-form form');
-				var orderBy = form.find( 'input[name=orderby]');
-				var order = form.find( 'input[name=order]');
-				orderBy.val(orderByDefault);
-				order.val(orderDefault);
-
-				container.find( '.jetpack-search-sort' ).change( function( event ) {
-					var values  = event.target.value.split( '|' );
-					orderBy.val( values[0] );
-					order.val( values[1] );
-
-					if ( currentSearch ) {
-						form.submit();
-					}
-				});
-			} );
-		</script>
-		<?php
 		if ( $display_filters ) {
 
 			/**
@@ -263,7 +234,46 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			do_action( 'jetpack_search_render_filters', $filters, $instance, $this->jetpack_search );
 		}
 
+		$this->maybe_render_javascript( $instance, $order, $orderby );
+
 		echo $args['after_widget'];
+	}
+
+	private function maybe_render_javascript( $instance, $order, $orderby ) {
+		if ( ! empty( $instance['user_sort_enabled'] ) ): ?>
+		<!--
+		This JS is a bit complicated, but here's what it's trying to do:
+		- find or create a search form
+		- find or create the orderby/order fields with default values
+		- detect changes to the sort field, if it exists, and use it to set the order field values
+		-->
+		<script type="text/javascript">
+				jQuery( document ).ready( function( $ ) {
+					var actionUrl      = <?php echo json_encode( home_url( '/' ) ); ?>,
+						orderByDefault = <?php echo json_encode( $orderby ); ?>,
+						orderDefault   = <?php echo json_encode( $order ); ?>,
+						widgetId       = <?php echo json_encode( $this->id ); ?>,
+						currentSearch  = <?php echo json_encode( isset( $_GET['s'] ) ? $_GET['s'] : '' ); ?>
+
+					var container = $('#' + widgetId);
+					var form = container.find('.jetpack-search-form form');
+					var orderBy = form.find( 'input[name=orderby]');
+					var order = form.find( 'input[name=order]');
+					orderBy.val(orderByDefault);
+					order.val(orderDefault);
+
+					container.find( '.jetpack-search-sort' ).change( function( event ) {
+						var values  = event.target.value.split( '|' );
+						orderBy.val( values[0] );
+						order.val( values[1] );
+
+						if ( currentSearch ) {
+							form.submit();
+						}
+					});
+				} );
+			</script>
+		<?php endif;
 	}
 
 	private function sorting_to_wp_query_param( $sort ) {
@@ -390,6 +400,21 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 				</label>
 			</p>
 
+			<p class="jetpack-search-filters-widget__post-types-select">
+				<label><?php esc_html_e( 'Post types included in results:', 'jetpack' ); ?></label>
+				<?php foreach ( get_post_types( array( 'exclude_from_search' => false ), 'objects' ) as $post_type ) : ?>
+					<label>
+						<input
+							type="checkbox"
+							value="<?php echo esc_attr( $post_type->name ); ?>"
+							name="<?php echo esc_attr( $this->get_field_name( 'post_types' ) ); ?>[]"
+							<?php checked( empty( $instance['post_types'] ) || in_array( $post_type->name, $instance['post_types'] ) ); ?>
+						/>&nbsp;
+						<?php echo esc_html( $post_type->label ); ?>
+					</label>
+				<?php endforeach; ?>
+			</p>
+
 			<p>
 				<label>
 					<?php esc_html_e( 'Default sort order:', 'jetpack' ); ?>
@@ -404,25 +429,6 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 					</select>
 				</label>
 			</p>
-
-			<div class="jetpack-search-filters-widget__post-types-select">
-				<p class="jetpack-search">
-					<label><?php esc_html_e( 'Post types included in results:', 'jetpack' ); ?></label>
-					<select
-						class="widefat jetpack-search-filters-widget__post-type-selector"
-						name="<?php echo esc_attr( $this->get_field_name( 'post_types' ) ); ?>[]"
-						multiple="multiple">
-						<?php foreach ( get_post_types( array( 'exclude_from_search' => false ), 'objects' ) as $post_type ) : ?>
-							<option
-								value="<?php echo esc_attr( $post_type->name ); ?>"
-								<?php selected( empty( $instance['post_types'] ) || in_array( $post_type->name, $instance['post_types'] ) ); ?>
-							>
-								<?php echo esc_html( $post_type->label ); ?>
-							</option>
-						<?php endforeach; ?>
-					</select>
-				</p>
-			</div>
 
 			<?php if ( ! $hide_filters ): ?>
 				<p>
@@ -460,8 +466,8 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			'type' => 'taxonomy',
 			'taxonomy' => '',
 			'post_type' => '',
-			'date_histogram_field' => '',
-			'date_histogram_interval' => '',
+			'field' => '',
+			'interval' => '',
 			'count' => self::DEFAULT_FILTER_COUNT,
 		) );
 
@@ -517,7 +523,14 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 						<?php foreach ( get_taxonomies( false, 'objects' ) as $taxonomy ) : ?>
 							<option value="<?php echo esc_attr( $taxonomy->name ); ?>" <?php selected( $taxonomy->name, $args['taxonomy'] ); ?>>
 								<?php
-									$label = in_array( $taxonomy->label, $seen_taxonomy_labels ) ? "{$taxonomy->label} ({$taxonomy->name})" : $taxonomy->label;
+									$label = in_array( $taxonomy->label, $seen_taxonomy_labels )
+										? sprintf(
+											/* translators: %1$s is the taxonomy name, %2s is the name of its type to help distinguish between several taxonomies with the same name, e.g. category and tag. */
+											_x( '%1$s (%2$s)', 'A label for a taxonomy selector option', 'jetpack' ),
+											$taxonomy->label,
+											$taxonomy->name
+										)
+										: $taxonomy->label;
 									echo esc_html( $label );
 									$seen_taxonomy_labels[] = $taxonomy->label;
 								?>
@@ -531,16 +544,16 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 				<label>
 					<?php esc_html_e( 'Choose a field:', 'jetpack' ); ?>
 					<select name="<?php echo esc_attr( $this->get_field_name( 'date_histogram_field' ) ); ?>[]" class="widefat">
-						<option value="post_date" <?php selected( 'post_date', $args['date_histogram_field'] ); ?>>
+						<option value="post_date" <?php selected( 'post_date', $args['field'] ); ?>>
 							<?php esc_html_e( 'Date', 'jetpack' ); ?>
 						</option>
-						<option value="post_date_gmt" <?php selected( 'post_date_gmt', $args['date_histogram_field'] ); ?>>
+						<option value="post_date_gmt" <?php selected( 'post_date_gmt', $args['field'] ); ?>>
 							<?php esc_html_e( 'Date GMT', 'jetpack' ); ?>
 						</option>
-						<option value="post_modified" <?php selected( 'post_modified', $args['date_histogram_field'] ); ?>>
+						<option value="post_modified" <?php selected( 'post_modified', $args['field'] ); ?>>
 							<?php esc_html_e( 'Modified', 'jetpack' ); ?>
 						</option>
-						<option value="post_modified" <?php selected( 'post_modified_gmt', $args['date_histogram_field'] ); ?>>
+						<option value="post_modified_gmt" <?php selected( 'post_modified_gmt', $args['field'] ); ?>>
 							<?php esc_html_e( 'Modified GMT', 'jetpack' ); ?>
 						</option>
 					</select>
@@ -551,10 +564,10 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 				<label>
 					<?php esc_html_e( 'Choose an interval:' ); ?>
 					<select name="<?php echo esc_attr( $this->get_field_name( 'date_histogram_interval' ) ); ?>[]" class="widefat">
-						<option value="month" <?php selected( 'month', $args['date_histogram_interval'] ); ?>>
+						<option value="month" <?php selected( 'month', $args['interval'] ); ?>>
 							<?php esc_html_e( 'Month', 'jetpack' ); ?>
 						</option>
-						<option value="year" <?php selected( 'year', $args['date_histogram_interval'] ); ?>>
+						<option value="year" <?php selected( 'year', $args['interval'] ); ?>>
 							<?php esc_html_e( 'Year', 'jetpack' ); ?>
 						</option>
 					</select>
@@ -719,7 +732,8 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 
 		$url = Jetpack_Search_Helpers::add_query_arg(
 			'post_type',
-			implode( ',', $post_types )
+			implode( ',', $post_types ),
+			$url
 		);
 
 		return $url;
@@ -747,8 +761,9 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		}
 
 		?>
-		<h4 class="widget-title"><?php esc_html_e( 'Current Filters', 'jetpack' ); ?></h4>
-		<ul>
+
+		<h4 class="jetpack-search-filters-widget__sub-heading"><?php esc_html_e( 'Current Filters', 'jetpack' ); ?></h4>
+		<ul class="jetpack-search-filters-widget__filer-list">
 			<?php foreach ( $active_buckets as $item ) : ?>
 				<li>
 					<a href="<?php echo esc_url( $item['remove_url'] ); ?>">
@@ -770,7 +785,6 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 				</li>
 			<?php endif; ?>
 		</ul>
-		<br />
 	<?php }
 
 	/**
@@ -779,8 +793,10 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 	 * @param array $filter
 	 */
 	function render_filter( $filter ) { ?>
-		<h4  class="widget-title"><?php echo esc_html( $filter['name'] ); ?></h4>
-		<ul>
+		<h4 class="jetpack-search-filters-widget__sub-heading">
+			<?php echo esc_html( $filter['name'] ); ?>
+		</h4>
+		<ul class="jetpack-search-filters-widget__filer-list">
 			<?php foreach ( $filter['buckets'] as $item ) : ?>
 				<li>
 					<a href="<?php echo esc_url( $item['url'] ); ?>">
@@ -791,6 +807,5 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 				</li>
 			<?php endforeach;?>
 		</ul>
-		<br />
 	<?php }
 }
