@@ -142,6 +142,14 @@ class Jetpack_Search {
 		}
 	}
 
+	public function get_last_query_info() {
+		return empty( $this->last_query_info ) ? false : $this->last_query_info;
+	}
+
+	public function get_last_query_failure_info() {
+		return empty( $this->last_query_failure_info ) ? false : $this->last_query_failure_info;
+	}
+
 	function are_filters_by_widget_disabled() {
 		/**
 		 * Allows developers to disable filters being set by widget, in favor of manually
