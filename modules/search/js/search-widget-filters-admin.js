@@ -63,14 +63,18 @@
 			}
 		} );
 
-		widget.on( 'change', '.jetpack-search-filters-widget__post-type-selector', function() {
+		widget.on( 'change', '.jetpack-search-filters-widget__post-types-select input[type="checkbox"]', function() {
+			var t = $( this );
 			var eventArgs = {
-				is_customizer: args.tracksEventData.is_customizer
+				is_customizer: args.tracksEventData.is_customizer,
+				post_type:  t.val()
 			};
 
-			eventArgs.post_types = $( this ).val();
-
-			trackAndBumpMCStats( 'changed_post_types', eventArgs );
+			if ( t.is( ':checked' ) ) {
+				trackAndBumpMCStats( 'added_post_type', eventArgs );
+			} else {
+				trackAndBumpMCStats( 'removed_post_type', eventArgs );
+			}
 		} );
 
 		widget.on( 'change', '.jetpack-search-filters-widget__sort-order', function() {
