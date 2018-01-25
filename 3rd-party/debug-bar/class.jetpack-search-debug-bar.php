@@ -53,7 +53,15 @@ class Jetpack_Search_Debug_Bar extends Debug_Bar_Panel {
 	 * @return void
 	 */
 	public function enqueue_scripts() {
-		wp_enqueue_style( 'jetpack-search-debug-bar', plugins_url( '3rd-party/debug-bar/debug-bar.css', JETPACK__PLUGIN_FILE ) );
+		wp_enqueue_style(
+			'jetpack-search-debug-bar',
+			plugins_url( '3rd-party/debug-bar/debug-bar.css', JETPACK__PLUGIN_FILE )
+		);
+		wp_enqueue_script(
+			'jetpack-search-debug-bar',
+			plugins_url( '3rd-party/debug-bar/debug-bar.js', JETPACK__PLUGIN_FILE ),
+			array( 'jquery' )
+		);
 	}
 
 	/**
@@ -110,7 +118,21 @@ class Jetpack_Search_Debug_Bar extends Debug_Bar_Panel {
 					foreach ( $last_query_info as $key => $info ) :
 					?>
 						<h3><?php echo esc_html( $key ); ?></h3>
+					<?php
+					if ( 'response' !== $key && 'args' !== $key ) :
+					?>
 						<pre><?php print_r( $info ); ?></pre>
+					<?php
+					else :
+					?>
+						<div class="json-toggle-wrap">
+							<pre class="json"><?php echo wp_json_encode( $info ); ?></pre>
+							<span class="pretty toggle"><?php echo esc_html_x( 'Pretty', 'label for formatting JSON', 'jetpack' ); ?></span>
+							<span class="ugly toggle"><?php echo esc_html_x( 'Minify', 'label for formatting JSON', 'jetpack' ); ?></span>
+						</div>
+					<?php
+					endif;
+					?>
 					<?php
 					endforeach;
 			endif;
