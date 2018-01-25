@@ -101,12 +101,7 @@ class Jetpack_Search_Debug_Bar extends Debug_Bar_Panel {
 				<?php echo esc_html_x( 'None', 'Text displayed when there is no information', 'jetpack' ); ?>
 			<?php
 				else :
-					foreach ( $last_query_failure_info as $key => $info ) :
-					?>
-						<h3><?php echo esc_html( $key ); ?></h3>
-						<pre><?php print_r( $info ); ?></pre>
-					<?php
-					endforeach;
+					$this->render_json_toggle( $last_query_failure_info );
 			endif;
 			?>
 
@@ -124,13 +119,7 @@ class Jetpack_Search_Debug_Bar extends Debug_Bar_Panel {
 						<pre><?php print_r( $info ); ?></pre>
 					<?php
 					else :
-					?>
-						<div class="json-toggle-wrap">
-							<pre class="json"><?php echo wp_json_encode( $info ); ?></pre>
-							<span class="pretty toggle"><?php echo esc_html_x( 'Pretty', 'label for formatting JSON', 'jetpack' ); ?></span>
-							<span class="ugly toggle"><?php echo esc_html_x( 'Minify', 'label for formatting JSON', 'jetpack' ); ?></span>
-						</div>
-					<?php
+						$this->render_json_toggle( $info );
 					endif;
 					?>
 					<?php
@@ -139,5 +128,21 @@ class Jetpack_Search_Debug_Bar extends Debug_Bar_Panel {
 			?>
 		</div><!-- Closes .jetpack-search-debug-bar -->
 		<?php
+	}
+
+	/**
+	 * Responsible for rendering the HTML necessary for the JSON toggle
+	 *
+	 * @param array $value The resonse from the API as an array.
+	 * @return void
+	 */
+	public function render_json_toggle( $value ) {
+	?>
+		<div class="json-toggle-wrap">
+			<pre class="json"><?php echo wp_json_encode( $value ); ?></pre>
+			<span class="pretty toggle"><?php echo esc_html_x( 'Pretty', 'label for formatting JSON', 'jetpack' ); ?></span>
+			<span class="ugly toggle"><?php echo esc_html_x( 'Minify', 'label for formatting JSON', 'jetpack' ); ?></span>
+		</div>
+	<?php
 	}
 }
