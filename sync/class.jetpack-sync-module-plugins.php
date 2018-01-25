@@ -37,7 +37,7 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 		if (
 			'Plugin_Upgrader' == get_class( $upgrader ) &&
 			isset( $details['type'] ) &&
-			'plugin' == $details['type']
+			'plugin' == $details['type'] &&
 			(
 				'WP_Ajax_Upgrader_Skin' == get_class( $upgrader->skin ) ||
 			    'Bulk_Plugin_Upgrader_Skin' == get_class( $upgrader->skin )
