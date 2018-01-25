@@ -70,3 +70,12 @@
 	padding: 5px;
 	padding-bottom: 15px;
 }
+
+.jetpack-search-filters-widget__post-types-select label {
+	display: block;
+	margin-bottom: 4px;
+}
+
+.jetpack-search-filters-widget__post-types-select input[type="checkbox"] {
+	margin-left: 24px;
+}
