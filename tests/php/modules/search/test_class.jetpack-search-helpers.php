@@ -117,6 +117,25 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 		$this->assertNotContains( 'post_type=', $url );
 	}
 
+	function test_add_query_arg_respects_url_passed() {
+		$input_url = 'http://example.com/page/2/?s=test';
+		$_SERVER['REQUEST_URI'] = $input_url;
+		$_GET['s'] = 'test';
+
+		$url = Jetpack_Search_Helpers::add_query_arg( 'post_type', 'page', $input_url );
+		$this->assertSame( 'http://example.com/page/2/?s=test&post_type=page', $url );
+	}
+
+	function test_remove_query_arg_respects_url_passed() {
+		$input_url = 'http://example.com/page/2/?s=test&post_type=post,page';
+		$_SERVER['REQUEST_URI'] = $input_url;
+		$_GET['s'] = 'test';
+		$_GET['post_type'] = 'post,page';
+
+		$url = Jetpack_Search_Helpers::remove_query_arg( 'post_type', $input_url );
+		$this->assertSame( 'http://example.com/page/2/?s=test', $url );
+	}
+
 	function test_get_widget_option_name() {
 		$this->assertSame( 'widget_jetpack-search-filters', Jetpack_Search_Helpers::get_widget_option_name() );
 	}
