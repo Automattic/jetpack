@@ -125,6 +125,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Bug fixes**
 
 * Carousel: fix PHP Notice with images using custom meta.
+* Security: only deactivate the VaultPress plugin if the Rewind feature is active instead.
 * Widgets: Mailchimp - avoid conflicts with jQuery UI.
 
 = 5.7.1 =
