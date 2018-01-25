@@ -24,8 +24,6 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 			add_action( "jetpack_update_{$type}_change", $callable );
 		}
 
-		// before enqueue
-		$this->callable = $callable;
 		foreach ( $update_types as $type ) {
 			add_action( "jetpack_sync_before_enqueue_jetpack_update_{$type}_change", array( $this, "expand_before_enqueue_{$type}" ) );
 		}
