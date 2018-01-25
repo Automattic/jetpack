@@ -51,6 +51,15 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 
 			if ( is_wp_error( $errors) ) {
 				foreach ( $details['plugins'] as $slug ) {
+					/**
+					 * Sync that a plugin update failed
+					 *
+					 * @since 5.8.0
+					 *
+					 * @param string $plugin, Plugin slug
+					 * @param string Error code
+					 * @param string Error message
+					 */
 					do_action( 'jetpack_plugin_update_failed', $slug, $errors->get_error_code(), $errors->get_error_message() );
 				}
 				return;
