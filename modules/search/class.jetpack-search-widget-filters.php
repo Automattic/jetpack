@@ -731,7 +731,8 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 
 		$url = Jetpack_Search_Helpers::add_query_arg(
 			'post_type',
-			implode( ',', $post_types )
+			implode( ',', $post_types ),
+			$url
 		);
 
 		return $url;
@@ -744,7 +745,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 	 * @param array $instance
 	 */
 	function render_current_filters( $active_buckets, $instance ) {
-		if ( ! Jetpack_Search_Helpers::post_types_differ_query( $instance, true ) ) {
+		if ( ! Jetpack_Search_Helpers::post_types_differ_query( $instance ) ) {
 			$active_buckets = array_filter( $active_buckets, array( $this, 'filter_post_types_from_active_buckets' ) );
 		}
 

@@ -19,16 +19,18 @@ class Jetpack_Search_Helpers {
 		return home_url( "?{$query}" );
 	}
 
-	static function add_query_arg( $key, $value = false ) {
+	static function add_query_arg( $key, $value = false, $url = false ) {
+		$url = empty( $url ) ? self::get_search_url() : $url;
 		if ( is_array( $key ) ) {
-			return add_query_arg( $key, self::get_search_url() );
+			return add_query_arg( $key, $url );
 		}
 
-		return add_query_arg( $key, $value, self::get_search_url() );
+		return add_query_arg( $key, $value, $url );
 	}
 
-	static function remove_query_arg( $key ) {
-		return remove_query_arg( $key, self::get_search_url() );
+	static function remove_query_arg( $key, $url = false ) {
+		$url = empty( $url ) ? self::get_search_url() : $url;
+		return remove_query_arg( $key, $url );
 	}
 
 	static function get_widget_option_name() {
