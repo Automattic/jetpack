@@ -142,10 +142,20 @@ class Jetpack_Search {
 		}
 	}
 
+	/**
+	 * Returns the last query information, or false if no information was stored.
+	 *
+	 * @return bool|array
+	 */
 	public function get_last_query_info() {
 		return empty( $this->last_query_info ) ? false : $this->last_query_info;
 	}
 
+	/**
+	 * Returns the last query failure information, or false if no failure information was stored.
+	 *
+	 * @return bool|array
+	 */
 	public function get_last_query_failure_info() {
 		return empty( $this->last_query_failure_info ) ? false : $this->last_query_failure_info;
 	}
