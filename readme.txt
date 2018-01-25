@@ -106,6 +106,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Enhancements**
 
 * Development mode: improve the display of the development notice.
+* Notices: add rel tags to notice links to avoid issues when links open in a new window.
 * Sync: improve synchronization of user actions.
 
 **Improved compatibility**
