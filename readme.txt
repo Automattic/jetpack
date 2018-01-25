@@ -101,7 +101,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Major Enhancements**
 
-
+* Lazy Images: after a Beta period, you can now enable this new feature from Jetpack > Settings in your dashboard.
 
 **Enhancements**
 
