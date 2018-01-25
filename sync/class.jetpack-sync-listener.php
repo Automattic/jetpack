@@ -256,11 +256,19 @@ class Jetpack_Sync_Listener {
 			'is_xmlrpc'        => defined( 'XMLRPC_REQUEST' ) ? XMLRPC_REQUEST : false,
 			'is_wp_rest'       => defined( 'REST_REQUEST' ) ? REST_REQUEST : false,
 			'is_ajax'          => defined( 'DOING_AJAX' ) ? DOING_AJAX : false,
-			'ip'               => isset( $_SERVER['REMOTE_ADDR'] ) ? $_SERVER['REMOTE_ADDR'] : null,
 			'is_wp_admin'      => is_admin(),
 		);
 
+		if ( $this->should_send_ip_address_with_actor() ) {
+			require_once( JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php' );
+			$actor['ip'] = jetpack_protect_get_ip();
+		}
+
 		return $actor;
+	}
+
+	function should_send_ip_address_with_actor() {
+		return false;
 	}
 
 	function set_defaults() {

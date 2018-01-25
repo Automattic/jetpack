@@ -93,7 +93,6 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 			'user_email'       => $current_user->user_email,
 			'user_roles'       => $current_user->roles,
 			'translated_role'  => Jetpack::translate_current_user_to_role(),
-			'ip'               => $_SERVER['REMOTE_ADDR'],
 			'is_cron'          => defined( 'DOING_CRON' ) ? DOING_CRON : false,
 			'is_wp_admin'      => is_admin(),
 			'is_rest'          => defined( 'REST_API_REQUEST' ) ? REST_API_REQUEST : false,
