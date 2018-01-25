@@ -29,6 +29,8 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 
 		if ( is_admin() ) {
 			add_action( 'sidebar_admin_setup', array( $this, 'widget_admin_setup' ) );
+		} else {
+			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend_scripts' ) );
 		}
 
 		add_action( 'jetpack_search_render_filters_widget_title', array( $this, 'render_widget_title' ), 10, 3 );
@@ -72,6 +74,10 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		) );
 
 		wp_enqueue_script( 'widget-jetpack-search-filters' );
+	}
+
+	function enqueue_frontend_scripts() {
+		wp_enqueue_style( 'jetpack-search-widget', plugins_url( 'modules/search/css/search-widget-frontend.css', JETPACK__PLUGIN_FILE ) );
 	}
 
 	private function get_sort_types() {
@@ -186,54 +192,19 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			$this->render_widget_search_form( $instance, $orderby, $order );
 		}
 
-		if ( ! empty( $instance['search_box_enabled'] ) && ! empty( $instance['user_sort_enabled'] ) ) {
-			?>
-			<label class="jetpack-search-sort-wrapper">
-				<?php esc_html_e( 'Sort by', 'jetpack' ); ?>
-				<select name="<?php echo esc_attr( $this->get_field_name( 'sort' ) ); ?>" class="jetpack-search-sort">
+		if ( ! empty( $instance['search_box_enabled'] ) && ! empty( $instance['user_sort_enabled'] ) ): ?>
+			<h4 class="jetpack-search-filters-widget__sub-heading"><?php esc_html_e( 'Sort by', 'jetpack' ); ?></h4>
+			<div class="jetpack-search-sort-wrapper">
+				<select class="jetpack-search-sort">
 					<?php foreach( $this->get_sort_types() as $sort => $label ) { ?>
 						<option value="<?php echo esc_attr( $sort ); ?>" <?php selected( $current_sort, $sort ); ?>>
 							<?php echo esc_html( $label ); ?>
 						</option>
 					<?php } ?>
 				</select>
-			</label> <?php
-		}
+			</div>
+		<?php endif;
 
-		/*
-		 * this JS is a bit complicated, but here's what it's trying to do:
-		 * - find or create a search form
-		 * - find or create the orderby/order fields with default values
-		 * - detect changes to the sort field, if it exists, and use it to set the order field values
-		 */
-		?>
-		<script type="text/javascript">
-			jQuery( document ).ready( function( $ ) {
-				var actionUrl      = <?php echo json_encode( home_url( '/' ) ); ?>,
-					orderByDefault = <?php echo json_encode( $orderby ); ?>,
-					orderDefault   = <?php echo json_encode( $order ); ?>,
-					widgetId       = <?php echo json_encode( $this->id ); ?>,
-					currentSearch  = <?php echo json_encode( isset( $_GET['s'] ) ? $_GET['s'] : '' ); ?>
-
-				var container = $('#' + widgetId);
-				var form = container.find('.jetpack-search-form form');
-				var orderBy = form.find( 'input[name=orderby]');
-				var order = form.find( 'input[name=order]');
-				orderBy.val(orderByDefault);
-				order.val(orderDefault);
-
-				container.find( '.jetpack-search-sort' ).change( function( event ) {
-					var values  = event.target.value.split( '|' );
-					orderBy.val( values[0] );
-					order.val( values[1] );
-
-					if ( currentSearch ) {
-						form.submit();
-					}
-				});
-			} );
-		</script>
-		<?php
 		if ( $display_filters ) {
 
 			/**
@@ -263,7 +234,46 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			do_action( 'jetpack_search_render_filters', $filters, $instance, $this->jetpack_search );
 		}
 
+		$this->maybe_render_javascript( $instance, $order, $orderby );
+
 		echo $args['after_widget'];
+	}
+
+	private function maybe_render_javascript( $instance, $order, $orderby ) {
+		if ( ! empty( $instance['user_sort_enabled'] ) ): ?>
+		<!--
+		This JS is a bit complicated, but here's what it's trying to do:
+		- find or create a search form
+		- find or create the orderby/order fields with default values
+		- detect changes to the sort field, if it exists, and use it to set the order field values
+		-->
+		<script type="text/javascript">
+				jQuery( document ).ready( function( $ ) {
+					var actionUrl      = <?php echo json_encode( home_url( '/' ) ); ?>,
+						orderByDefault = <?php echo json_encode( $orderby ); ?>,
+						orderDefault   = <?php echo json_encode( $order ); ?>,
+						widgetId       = <?php echo json_encode( $this->id ); ?>,
+						currentSearch  = <?php echo json_encode( isset( $_GET['s'] ) ? $_GET['s'] : '' ); ?>
+
+					var container = $('#' + widgetId);
+					var form = container.find('.jetpack-search-form form');
+					var orderBy = form.find( 'input[name=orderby]');
+					var order = form.find( 'input[name=order]');
+					orderBy.val(orderByDefault);
+					order.val(orderDefault);
+
+					container.find( '.jetpack-search-sort' ).change( function( event ) {
+						var values  = event.target.value.split( '|' );
+						orderBy.val( values[0] );
+						order.val( values[1] );
+
+						if ( currentSearch ) {
+							form.submit();
+						}
+					});
+				} );
+			</script>
+		<?php endif;
 	}
 
 	private function sorting_to_wp_query_param( $sort ) {
@@ -749,8 +759,9 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		}
 
 		?>
-		<h4 class="widget-title"><?php esc_html_e( 'Current Filters', 'jetpack' ); ?></h4>
-		<ul>
+
+		<h4 class="jetpack-search-filters-widget__sub-heading"><?php esc_html_e( 'Current Filters', 'jetpack' ); ?></h4>
+		<ul class="jetpack-search-filters-widget__filer-list">
 			<?php foreach ( $active_buckets as $item ) : ?>
 				<li>
 					<a href="<?php echo esc_url( $item['remove_url'] ); ?>">
@@ -772,7 +783,6 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 				</li>
 			<?php endif; ?>
 		</ul>
-		<br />
 	<?php }
 
 	/**
@@ -781,8 +791,10 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 	 * @param array $filter
 	 */
 	function render_filter( $filter ) { ?>
-		<h4  class="widget-title"><?php echo esc_html( $filter['name'] ); ?></h4>
-		<ul>
+		<h4 class="jetpack-search-filters-widget__sub-heading">
+			<?php echo esc_html( $filter['name'] ); ?>
+		</h4>
+		<ul class="jetpack-search-filters-widget__filer-list">
 			<?php foreach ( $filter['buckets'] as $item ) : ?>
 				<li>
 					<a href="<?php echo esc_url( $item['url'] ); ?>">
@@ -793,6 +805,5 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 				</li>
 			<?php endforeach;?>
 		</ul>
-		<br />
 	<?php }
 }
