@@ -2,14 +2,14 @@
 
 if ( ! function_exists( 'wp_notify_postauthor' ) && Jetpack::is_active() ) :
 	/**
- * Notify an author (and/or others) of a comment/trackback/pingback on a post.
- *
- * @since 1.0.0
- *
- * @param int|WP_Comment  $comment_id Comment ID or WP_Comment object.
- * @param string          $deprecated Not used
- * @return bool True on completion. False if no email addresses were specified.
- */
+	 * Notify an author (and/or others) of a comment/trackback/pingback on a post.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @param int|WP_Comment  $comment_id Comment ID or WP_Comment object.
+	 * @param string          $deprecated Not used
+	 * @return bool True on completion. False if no email addresses were specified.
+	 */
 	function wp_notify_postauthor( $comment_id, $deprecated = null ) {
 		if ( null !== $deprecated ) {
 			_deprecated_argument( __FUNCTION__, '3.8.0' );
@@ -66,22 +66,23 @@ if ( ! function_exists( 'wp_notify_postauthor' ) && Jetpack::is_active() ) :
 			$emails = array_flip( $emails );
 		}
 
-			$switched_locale = switch_to_locale( get_locale() );
+		$switched_locale = switch_to_locale( get_locale() );
 
-			$comment_author_domain = @gethostbyaddr( $comment->comment_author_IP );
+		$comment_author_domain = @gethostbyaddr( $comment->comment_author_IP );
 
-			// The blogname option is escaped with esc_html on the way into the database in sanitize_option
-			// we want to reverse this for the plain text arena of emails.
-			$blogname        = wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES );
-			$comment_content = wp_specialchars_decode( $comment->comment_content );
+		// The blogname option is escaped with esc_html on the way into the database in sanitize_option
+		// we want to reverse this for the plain text arena of emails.
+		$blogname        = wp_specialchars_decode( get_option( 'blogname' ), ENT_QUOTES );
+		$comment_content = wp_specialchars_decode( $comment->comment_content );
 
 		function is_user_connected( $email ) {
 			$user = get_user_by( 'email', $email );
 			return Jetpack::is_user_connected( $user->ID );
 		}
-			$moderate_on_wpcom = ! in_array( false, array_map( 'is_user_connected', $emails ) );
 
-			$primary_site_slug = Jetpack::build_raw_urls( get_home_url() );
+		$moderate_on_wpcom = ! in_array( false, array_map( 'is_user_connected', $emails ) );
+
+		$primary_site_slug = Jetpack::build_raw_urls( get_home_url() );
 
 		switch ( $comment->comment_type ) {
 			case 'trackback':
@@ -119,11 +120,11 @@ if ( ! function_exists( 'wp_notify_postauthor' ) && Jetpack::is_active() ) :
 				break;
 		}
 
-			$notify_message .= $moderate_on_wpcom
+		$notify_message .= $moderate_on_wpcom
 			? "https://wordpress.com/comments/all/{$primary_site_slug}/{$comment->comment_post_ID}/\r\n\r\n"
 			: get_permalink( $comment->comment_post_ID ) . "#comments\r\n\r\n";
 
-			$notify_message .= sprintf( __( 'Permalink: %s' ), get_comment_link( $comment ) ) . "\r\n";
+		$notify_message .= sprintf( __( 'Permalink: %s' ), get_comment_link( $comment ) ) . "\r\n";
 
 		if ( user_can( $post->post_author, 'edit_comment', $comment->comment_ID ) ) {
 			if ( EMPTY_TRASH_DAYS ) {
@@ -146,7 +147,7 @@ if ( ! function_exists( 'wp_notify_postauthor' ) && Jetpack::is_active() ) :
 			) . "\r\n";
 		}
 
-			$wp_email = 'wordpress@' . preg_replace( '#^www\.#', '', strtolower( $_SERVER['SERVER_NAME'] ) );
+		$wp_email = 'wordpress@' . preg_replace( '#^www\.#', '', strtolower( $_SERVER['SERVER_NAME'] ) );
 
 		if ( '' == $comment->comment_author ) {
 			$from = "From: \"$blogname\" <$wp_email>";
@@ -160,21 +161,21 @@ if ( ! function_exists( 'wp_notify_postauthor' ) && Jetpack::is_active() ) :
 			}
 		}
 
-			$message_headers = "$from\n"
+		$message_headers = "$from\n"
 			. 'Content-Type: text/plain; charset="' . get_option( 'blog_charset' ) . "\"\n";
 
 		if ( isset( $reply_to ) ) {
 			$message_headers .= $reply_to . "\n";
 		}
 
-			/** This filter is documented in core/src/wp-includes/pluggable.php */
-			$notify_message = apply_filters( 'comment_notification_text', $notify_message, $comment->comment_ID );
+		/** This filter is documented in core/src/wp-includes/pluggable.php */
+		$notify_message = apply_filters( 'comment_notification_text', $notify_message, $comment->comment_ID );
 
-			/** This filter is documented in core/src/wp-includes/pluggable.php */
-			$subject = apply_filters( 'comment_notification_subject', $subject, $comment->comment_ID );
+		/** This filter is documented in core/src/wp-includes/pluggable.php */
+		$subject = apply_filters( 'comment_notification_subject', $subject, $comment->comment_ID );
 
-			/** This filter is documented in core/src/wp-includes/pluggable.php */
-			$message_headers = apply_filters( 'comment_notification_headers', $message_headers, $comment->comment_ID );
+		/** This filter is documented in core/src/wp-includes/pluggable.php */
+		$message_headers = apply_filters( 'comment_notification_headers', $message_headers, $comment->comment_ID );
 
 		foreach ( $emails as $email ) {
 			@wp_mail( $email, wp_specialchars_decode( $subject ), $notify_message, $message_headers );
@@ -184,24 +185,24 @@ if ( ! function_exists( 'wp_notify_postauthor' ) && Jetpack::is_active() ) :
 			restore_previous_locale();
 		}
 
-			return true;
+		return true;
 	}
 endif;
 
 if ( ! function_exists( 'wp_notify_moderator' ) && Jetpack::is_active() ) :
 	/**
- * Notifies the moderator of the site about a new comment that is awaiting approval.
- *
- * @since 1.0.0
- *
- * @global wpdb $wpdb WordPress database abstraction object.
- *
- * Uses the {@see 'notify_moderator'} filter to determine whether the site moderator
- * should be notified, overriding the site setting.
- *
- * @param int $comment_id Comment ID.
- * @return true Always returns true.
- */
+	 * Notifies the moderator of the site about a new comment that is awaiting approval.
+	 *
+	 * @since 1.0.0
+	 *
+	 * @global wpdb $wpdb WordPress database abstraction object.
+	 *
+	 * Uses the {@see 'notify_moderator'} filter to determine whether the site moderator
+	 * should be notified, overriding the site setting.
+	 *
+	 * @param int $comment_id Comment ID.
+	 * @return true Always returns true.
+	 */
 	function wp_notify_moderator( $comment_id ) {
 		global $wpdb;
 
@@ -306,37 +307,37 @@ if ( ! function_exists( 'wp_notify_moderator' ) && Jetpack::is_active() ) :
 			) . "\r\n";
 		}
 
-			/* translators: Comment moderation. 1: Comment action URL */
-			$notify_message .= sprintf(
-				__( 'Spam it: %s' ), $moderate_on_wpcom
-				? "https://wordpress.com/comment/{$primary_site_slug}/{$comment_id}?action=spam"
-				: admin_url( "comment.php?action=spam&c={$comment_id}#wpbody-content" )
-			) . "\r\n";
+		/* translators: Comment moderation. 1: Comment action URL */
+		$notify_message .= sprintf(
+			__( 'Spam it: %s' ), $moderate_on_wpcom
+			? "https://wordpress.com/comment/{$primary_site_slug}/{$comment_id}?action=spam"
+			: admin_url( "comment.php?action=spam&c={$comment_id}#wpbody-content" )
+		) . "\r\n";
 
-			/* translators: Comment moderation. 1: Number of comments awaiting approval */
-			$notify_message .= sprintf(
-				_n(
-					'Currently %s comment is waiting for approval. Please visit the moderation panel:',
-					'Currently %s comments are waiting for approval. Please visit the moderation panel:', $comments_waiting
-				), number_format_i18n( $comments_waiting )
-			) . "\r\n";
+		/* translators: Comment moderation. 1: Number of comments awaiting approval */
+		$notify_message .= sprintf(
+			_n(
+				'Currently %s comment is waiting for approval. Please visit the moderation panel:',
+				'Currently %s comments are waiting for approval. Please visit the moderation panel:', $comments_waiting
+			), number_format_i18n( $comments_waiting )
+		) . "\r\n";
 
-			$notify_message .= $moderate_on_wpcom
+		$notify_message .= $moderate_on_wpcom
 			? "https://wordpress.com/comments/pending/{$primary_site_slug}/"
 			: admin_url( 'edit-comments.php?comment_status=moderated#wpbody-content' ) . "\r\n";
 
-			/* translators: Comment moderation notification email subject. 1: Site name, 2: Post title */
-			$subject         = sprintf( __( '[%1$s] Please moderate: "%2$s"' ), $blogname, $post->post_title );
-			$message_headers = '';
+		/* translators: Comment moderation notification email subject. 1: Site name, 2: Post title */
+		$subject         = sprintf( __( '[%1$s] Please moderate: "%2$s"' ), $blogname, $post->post_title );
+		$message_headers = '';
 
-			/** This filter is documented in core/src/wp-includes/pluggable.php */
-			$notify_message = apply_filters( 'comment_moderation_text', $notify_message, $comment_id );
+		/** This filter is documented in core/src/wp-includes/pluggable.php */
+		$notify_message = apply_filters( 'comment_moderation_text', $notify_message, $comment_id );
 
-			/** This filter is documented in core/src/wp-includes/pluggable.php */
-			$subject = apply_filters( 'comment_moderation_subject', $subject, $comment_id );
+		/** This filter is documented in core/src/wp-includes/pluggable.php */
+		$subject = apply_filters( 'comment_moderation_subject', $subject, $comment_id );
 
-			/** This filter is documented in core/src/wp-includes/pluggable.php */
-			$message_headers = apply_filters( 'comment_moderation_headers', $message_headers, $comment_id );
+		/** This filter is documented in core/src/wp-includes/pluggable.php */
+		$message_headers = apply_filters( 'comment_moderation_headers', $message_headers, $comment_id );
 
 		foreach ( $emails as $email ) {
 			@wp_mail( $email, wp_specialchars_decode( $subject ), $notify_message, $message_headers );
@@ -346,6 +347,6 @@ if ( ! function_exists( 'wp_notify_moderator' ) && Jetpack::is_active() ) :
 			restore_previous_locale();
 		}
 
-			return true;
+		return true;
 	}
 endif;
