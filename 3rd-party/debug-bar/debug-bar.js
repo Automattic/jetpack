@@ -1,4 +1,4 @@
-/* global jQuery */
+/* global jQuery, JSON */
 
 ( function( $ ) {
 	$( document ).ready( function() {
