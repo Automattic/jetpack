@@ -16,6 +16,7 @@ if ( ! function_exists( 'wp_notify_postauthor' ) && Jetpack::is_active() ) :
 		}
 
 		$comment = get_comment( $comment_id );
+
 		if ( empty( $comment ) || empty( $comment->comment_post_ID ) ) {
 			return false;
 		}

@@ -645,7 +645,7 @@ class Jetpack {
 
 			//we'll override wp_notify_postauthor and wp_notify_moderator pluggable functions
 			//so they point moderation links on emails to Calypso
-			require_once( JETPACK__PLUGIN_DIR . 'moderation-emails-override.php' );
+			jetpack_require_lib( 'functions.wp-notify' );
 		}
 
 		// Update the Jetpack plan from API on heartbeats
