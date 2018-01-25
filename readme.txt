@@ -105,6 +105,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
+* Dashboard: update list of features available in Paid plans.
 * Development mode: improve the display of the development notice.
 * Notices: add rel tags to notice links to avoid issues when links open in a new window.
 * Onboarding: add functionality for saving Business Address in the Contact Info widget.
