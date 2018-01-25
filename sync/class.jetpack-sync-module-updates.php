@@ -5,6 +5,7 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 	const UPDATES_CHECKSUM_OPTION_NAME = 'jetpack_updates_sync_checksum';
 
 	private $old_wp_version = null;
+	private $update_changed = array();
 
 	function name() {
 		return 'updates';
@@ -129,24 +130,47 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 		return $this->get_check_sum( $a_value );
 	}
 
-	public function validate_update_change( $value, $expiration, $transient ) {
+	public function maybe_sync_update_changes() {
+		if ( empty( $this->update_changed ) ) {
+			return;
+		}
 
+		foreach ( $this->update_changed as $transient_name ) {
+			$value = get_site_transient( $transient_name );
+			if ( ! $this->should_send_change( $value, $transient_name ) ) {
+				continue;
+			}
+			/**
+			 * 'jetpack_update_core_change', 'jetpack_update_plugins_change', jetpack_update_themes_change
+			 */
+			do_action( "jetpack_{$transient_name}_change", $value );
+		}
+	}
+
+	function should_send_change( $value, $transient_name ) {
 		$new_checksum = $this->get_update_checksum( $value );
 		if ( false === $new_checksum  ) {
-			return;
+			return false;
 		}
-
 		$checksums = get_option( self::UPDATES_CHECKSUM_OPTION_NAME, array() );
-
-		if ( isset( $checksums[ $transient ] ) && $checksums[ $transient ] === $new_checksum ) {
-			return;
+		if ( isset( $checksums[ $transient_name ] ) && $checksums[ $transient_name ] === $new_checksum ) {
+			return false;
 		}
-
-		$checksums[ $transient ] = $new_checksum;
-
+		$checksums[ $transient_name ] = $new_checksum;
 		update_option( self::UPDATES_CHECKSUM_OPTION_NAME, $checksums );
+
+		return true;
+	}
+
+	public function validate_update_change( $value, $expiration, $transient ) {
+		// set the shutdown value.
+		if ( empty( $this->update_changed ) ) {
+			add_action( 'shutdown', array( $this,'maybe_sync_update_changes' ), 9 );
+		}
 		// possible $transient value are update_plugins, update_themes, update_core
-		do_action( "jetpack_{$transient}_change", $value );
+		if ( ! in_array( $transient, $this->update_changed ) ) {
+			$this->update_changed[] = $transient;
+		}
 	}
 
 	public function enqueue_full_sync_actions( $config, $max_items_to_enqueue, $state ) {
@@ -182,7 +206,6 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 	// removes unnecessary keys from synced updates data
 	function filter_update_keys( $args ) {
 		$updates = $args[0];
-
 		if ( isset( $updates->no_update ) ) {
 			unset( $updates->no_update );
 		}
