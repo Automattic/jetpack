@@ -115,6 +115,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Improved compatibility**
 
 * Lazy Images: fix issues with the Gazette theme.
+* Masterbar: fix incompatibility with BeaverBuilder plugin.
 
 **Bug fixes**
 
