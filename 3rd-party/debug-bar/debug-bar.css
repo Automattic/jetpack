@@ -13,6 +13,10 @@
 	margin-top: .5em !important;
 }
 
+.debug-menu-target h3 {
+	padding-top: 0
+}
+
 .jetpack-search-debug-output-toggle .print-r {
 	display: none;
 }
