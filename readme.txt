@@ -119,6 +119,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Improved compatibility**
 
 * Lazy Images: fix issues with the Gazette theme.
+* Open Graph: add Open Graph Metabox to the list of conflicting plugins.
 * Masterbar: fix incompatibility with BeaverBuilder plugin.
 
 **Bug fixes**
