@@ -113,6 +113,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 
+* Carousel: fix PHP Notice with images using custom meta.
+
 = 5.7.1 =
 
 * Release date: January 16, 2018
