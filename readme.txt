@@ -107,6 +107,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Development mode: improve the display of the development notice.
 * Notices: add rel tags to notice links to avoid issues when links open in a new window.
+* Onboarding: add functionality for saving Business Address in the Contact Info widget.
 * Sync: improve synchronization of user actions.
 
 **Improved compatibility**
