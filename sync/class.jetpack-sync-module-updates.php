@@ -5,7 +5,6 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 	const UPDATES_CHECKSUM_OPTION_NAME = 'jetpack_updates_sync_checksum';
 
 	private $old_wp_version = null;
-	private $callable = null;
 
 	function name() {
 		return 'updates';
@@ -21,7 +20,6 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 			add_action( "set_site_transient_update_{$type}", array( $this, 'validate_update_change' ), 10, 3 );
 		}
 
-		$this->callable = $callable;
 		foreach ( $update_types as $type ) {
 			add_action( "jetpack_update_{$type}_change", $callable );
 		}
@@ -154,9 +152,10 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 		update_option( self::UPDATES_CHECKSUM_OPTION_NAME, $checksums );
 		// possible $transient value are update_plugins, update_themes, update_core
 
-		do_action( "jetpack_{$transient}_change", $value );
-		// only send one change notice per request
-		remove_filter( "jetpack_{$transient}_change", $this->callable );
+		if ( ! did_action( "jetpack_{$transient}_change" ) ) {
+			// only send one change notice per request
+			do_action( "jetpack_{$transient}_change", $value );
+		}
 	}
 
 	public function enqueue_full_sync_actions( $config, $max_items_to_enqueue, $state ) {
