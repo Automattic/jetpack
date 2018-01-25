@@ -112,6 +112,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Onboarding: add functionality for saving Business Address in the Contact Info widget.
 * Onboarding: save site type during site setup process.
 * Sharing: make sure the Whatsapp button works on mobile and on desktop.
+* Sharing: add new filter, `wp_sharing_email_send_post_subject`, to allow modifying the email sharing subject line.
 * Sync: improve synchronization of user actions.
 
 **Improved compatibility**
