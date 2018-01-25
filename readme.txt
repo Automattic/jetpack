@@ -105,7 +105,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
-
+* Sync: improve synchronization of user actions.
 
 **Improved compatibility**
 
