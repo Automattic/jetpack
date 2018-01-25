@@ -1,0 +1,10 @@
+.jetpack-search-debug-bar h2 {
+	float: none !important;
+	padding: 0 !important;
+	text-align: left !important;
+	margin-top: 1em !important;
+}
+
+.jetpack-search-debug-bar h2:first-child {
+	margin-top: .5 !important;
+}

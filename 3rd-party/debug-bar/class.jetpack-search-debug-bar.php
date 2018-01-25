@@ -32,6 +32,7 @@ class Jetpack_Search_Debug_Bar extends Debug_Bar_Panel {
 	public function __construct() {
 		$this->title( esc_html__( 'Jetpack Search', 'jetpack' ) );
 		$this->jetpack_search = Jetpack_Search::instance();
+		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 	}
 
 	/**
@@ -44,6 +45,15 @@ class Jetpack_Search_Debug_Bar extends Debug_Bar_Panel {
 			self::$instance = new Jetpack_Search_Debug_Bar();
 		}
 		return self::$instance;
+	}
+
+	/**
+	 * Enqueues styles for our panel in the debug bar
+	 *
+	 * @return void
+	 */
+	public function enqueue_scripts() {
+		wp_enqueue_style( 'jetpack-search-debug-bar', plugins_url( '3rd-party/debug-bar/debug-bar.css', JETPACK__PLUGIN_FILE ) );
 	}
 
 	/**
@@ -77,31 +87,35 @@ class Jetpack_Search_Debug_Bar extends Debug_Bar_Panel {
 			$last_query_info['args'] = $args;
 		}
 		?>
-		<h3><?php esc_html_e( 'Last query failure information:', 'jetpack' ); ?></h3>
-		<?php if ( empty( $last_query_failure_info ) ) : ?>
-			<?php echo esc_html_x( 'None', 'Text displayed when there is no information', 'jetpack' ); ?>
-		<?php
-			else :
-				foreach ( $last_query_failure_info as $key => $info ) :
-				?>
-					<h4><?php echo esc_html( $key ); ?></h4>
-					<pre><?php print_r( $info ); ?></pre>
-				<?php
-				endforeach;
-		endif;
-		?>
-
-		<h3><?php esc_html_e( 'Last query information:', 'jetpack' ); ?></h3>
-		<?php if ( empty( $last_query_info ) ) : ?>
+		<div class="jetpack-search-debug-bar">
+			<h2><?php esc_html_e( 'Last query failure information:', 'jetpack' ); ?></h2>
+			<?php if ( empty( $last_query_failure_info ) ) : ?>
 				<?php echo esc_html_x( 'None', 'Text displayed when there is no information', 'jetpack' ); ?>
+			<?php
+				else :
+					foreach ( $last_query_failure_info as $key => $info ) :
+					?>
+						<h3><?php echo esc_html( $key ); ?></h3>
+						<pre><?php print_r( $info ); ?></pre>
+					<?php
+					endforeach;
+			endif;
+			?>
+
+			<h2><?php esc_html_e( 'Last query information:', 'jetpack' ); ?></h2>
+			<?php if ( empty( $last_query_info ) ) : ?>
+					<?php echo esc_html_x( 'None', 'Text displayed when there is no information', 'jetpack' ); ?>
+			<?php
+				else :
+					foreach ( $last_query_info as $key => $info ) :
+					?>
+						<h3><?php echo esc_html( $key ); ?></h3>
+						<pre><?php print_r( $info ); ?></pre>
+					<?php
+					endforeach;
+			endif;
+			?>
+		</div><!-- Closes .jetpack-search-debug-bar -->
 		<?php
-			else :
-				foreach ( $last_query_info as $key => $info ) :
-				?>
-					<h4><?php echo esc_html( $key ); ?></h4>
-					<pre><?php print_r( $info ); ?></pre>
-				<?php
-				endforeach;
-		endif;
 	}
 }
