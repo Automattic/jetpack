@@ -188,9 +188,6 @@
 			placeholder: 'jetpack-search-filters-widget__filter-placeholder',
 			axis: 'y',
 			revert: true,
-			// containment: 'parent',
-			// forceHelperSize: true,
-			// forceContainerSize: true,
 			change: function( ev ) {
 				wp.customize.state( 'saved' ).set( false );
 			}
