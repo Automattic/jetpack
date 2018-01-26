@@ -137,8 +137,10 @@
 			clone.find( 'input[type="number"]' ).val( defaultFilterCount );
 			clone.find( 'input[type="text"]' ).val( '' );
 			clone.find( 'select option:first-child' ).prop( 'selected', true );
+			clone.css( 'display', 'none' );
 
 			clone.insertAfter( closest );
+			clone.slideDown();
 			clone.find( 'input, textarea, select' ).change();
 
 			trackAndBumpMCStats( 'added_filter', args.tracksEventData );
@@ -168,7 +170,9 @@
 			trackAndBumpMCStats( 'deleted_filter', eventArgs );
 
 			filter.find( 'input, textarea, select' ).change();
-			filter.remove();
+			filter.slideUp( 400, function() {
+				$( this ).remove();
+			} );
 		} );
 
 		widget.on( 'change', '.jetpack-search-filters-widget__use-filters', function() {
