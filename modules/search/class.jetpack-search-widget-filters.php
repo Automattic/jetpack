@@ -412,7 +412,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 						name="<?php echo esc_attr( $this->get_field_name( 'user_sort_enabled' ) ); ?>"
 						<?php checked( $user_sort_enabled ); ?>
 					/>
-					<?php esc_html_e( 'Show sorting controls', 'jetpack' ); ?>
+					<?php esc_html_e( 'Show sort selection dropdown', 'jetpack' ); ?>
 				</label>
 			</p>
 
