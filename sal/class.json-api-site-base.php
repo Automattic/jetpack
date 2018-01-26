@@ -573,8 +573,7 @@ abstract class SAL_Site {
 	}
 
 	function signup_is_store() {
-		$options = get_option( 'options' );
-		return ! empty ( $options['designType'] ) ? $options['designType'] === 'store' : false;
+		return $this->get_design_type() === 'store';
 	}
 
 	function has_pending_automated_transfer() {
@@ -585,5 +584,10 @@ abstract class SAL_Site {
 
 	function get_roles() {
 		return new WP_Roles();
+	}
+
+	function get_design_type() {
+		$options = get_option( 'options' );
+		return empty( $options[ 'designType'] ) ? null : $options[ 'designType' ];
 	}
 }
