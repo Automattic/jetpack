@@ -60,7 +60,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		wp_register_script(
 			'widget-jetpack-search-filters',
 			plugins_url( 'js/search-widget-filters-admin.js', __FILE__ ),
-			array( 'jquery', 'jp-tracks', 'jp-tracks-functions' )
+			array( 'jquery', 'jquery-ui-sortable', 'jp-tracks', 'jp-tracks-functions' )
 
 		);
 
@@ -476,9 +476,11 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 						<?php esc_html_e( 'Show extra filtering options', 'jetpack' ); ?>
 					</label>
 				</p>
-				<?php foreach ( (array) $instance['filters'] as $filter ) : ?>
-					<?php $this->render_widget_filter( $filter ); ?>
-				<?php endforeach; ?>
+				<div class="jetpack-search-filters-widget__filters">
+					<?php foreach ( (array) $instance['filters'] as $filter ) : ?>
+						<?php $this->render_widget_filter( $filter ); ?>
+					<?php endforeach; ?>
+				</div>
 				<div class="jetpack-search-filters-help">
 					<a href="https://jetpack.com/support/search/#filters-not-showing-up" target="_blank"><?php esc_html_e( "Why aren't my filters appearing?", 'jetpack' ); ?></a>
 				</div>
