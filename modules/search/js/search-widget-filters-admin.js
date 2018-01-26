@@ -189,7 +189,9 @@
 			axis: 'y',
 			revert: true,
 			change: function( ev ) {
-				wp.customize.state( 'saved' ).set( false );
+				if ( wp && wp.customize ) {
+					wp.customize.state( 'saved' ).set( false );
+				}
 			}
 		})
 		.disableSelection();
