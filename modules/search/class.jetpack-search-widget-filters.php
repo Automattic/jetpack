@@ -514,7 +514,12 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 						);
 
 						foreach ( $filter_types as $filter_type_slug => $filter_type_label ) {
-							echo '<option value="' . esc_attr( $filter_type_slug ) . '"' . selected( $args['type'], $filter_type_slug, false ) . '>' . esc_html( $filter_type_label ) . '</option>';
+							printf(
+								'<option value="%s" %s>%s</option>',
+								esc_attr( $filter_type_slug ),
+								selected( $args['type'], $filter_type_slug, false ),
+								esc_html( $filter_type_label )
+							);
 						}
 
 						?>
