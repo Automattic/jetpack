@@ -435,7 +435,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			</p>
 
 			<p class="jetpack-search-filters-widget__post-types-select">
-				<label><?php esc_html_e( 'Post types included in results:', 'jetpack' ); ?></label>
+				<label><?php esc_html_e( 'Post types to search (minimum of 1):', 'jetpack' ); ?></label>
 				<?php foreach ( get_post_types( array( 'exclude_from_search' => false ), 'objects' ) as $post_type ) : ?>
 					<label>
 						<input

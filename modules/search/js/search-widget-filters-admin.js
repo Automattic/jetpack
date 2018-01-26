@@ -63,6 +63,19 @@
 			}
 		} );
 
+		widget.on( 'click', '.jetpack-search-filters-widget__post-types-select input[type="checkbox"]', function( e ) {
+			var t = $( this );
+			var siblingsChecked = t.closest( '.jetpack-search-filters-widget' )
+				.find( '.jetpack-search-filters-widget__post-types-select input[type="checkbox"]:checked' );
+
+			if ( 0 === siblingsChecked.length ) {
+				e.preventDefault();
+				e.stopPropagation();
+
+				trackAndBumpMCStats( 'attempted_no_post_types', args.tracksEventData );
+			}
+		} );
+
 		widget.on( 'change', '.jetpack-search-filters-widget__post-types-select input[type="checkbox"]', function() {
 			var t = $( this );
 			var eventArgs = {
