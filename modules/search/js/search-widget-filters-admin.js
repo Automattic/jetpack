@@ -63,6 +63,19 @@
 			}
 		} );
 
+		widget.on( 'click', '.jetpack-search-filters-widget__post-types-select input[type="checkbox"]', function( e ) {
+			var t = $( this );
+			var siblingsChecked = t.closest( '.jetpack-search-filters-widget' )
+				.find( '.jetpack-search-filters-widget__post-types-select input[type="checkbox"]:checked' );
+
+			if ( 0 === siblingsChecked.length ) {
+				e.preventDefault();
+				e.stopPropagation();
+
+				trackAndBumpMCStats( 'attempted_no_post_types', args.tracksEventData );
+			}
+		} );
+
 		widget.on( 'change', '.jetpack-search-filters-widget__post-types-select input[type="checkbox"]', function() {
 			var t = $( this );
 			var eventArgs = {
@@ -224,6 +237,7 @@
 		widget.off( 'change', '.jetpack-search-filters-widget__taxonomy-select' );
 		widget.off( 'change', '.jetpack-search-filters-widget__date-histogram-select:first select' );
 		widget.off( 'change', '.jetpack-search-filters-widget__date-histogram-select:eq(1) select' );
+		widget.off( 'click', '.jetpack-search-filters-widget__post-types-select input[type="checkbox"]' );
 
 		setListeners( widget );
 	} );
