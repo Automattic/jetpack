@@ -622,7 +622,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			<p class="jetpack-search-filters-widget__controls">
 				<a href="#" class="delete"><?php esc_html_e( 'Remove', 'jetpack' ); ?></a>
 				<span class="control-separator">|</span>
-				<a href="#" class="add"><?php esc_html_e( 'Add', 'jetpack' ); ?></a>
+				<a href="#" class="add"><?php esc_html_e( 'Add another', 'jetpack' ); ?></a>
 			</p>
 		</div>
 	<?php }
