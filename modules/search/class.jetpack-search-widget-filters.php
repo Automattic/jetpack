@@ -738,6 +738,10 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 	 * @param array $filter The filter to render.
 	 */
 	public function render_filter( $filter ) {
+		if ( empty( $filter ) || empty( $filter['buckets'] ) ) {
+			return;
+		}
+
 		?>
 		<h4 class="jetpack-search-filters-widget__sub-heading">
 			<?php echo esc_html( $filter['name'] ); ?>
