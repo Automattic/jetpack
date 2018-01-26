@@ -184,17 +184,17 @@
 		} );
 
 		// make the filters sortable
-		$( '.jetpack-search-filters-widget__filters' ).sortable({
+		$( '.jetpack-search-filters-widget__filters' ).sortable( {
 			placeholder: 'jetpack-search-filters-widget__filter-placeholder',
 			axis: 'y',
 			revert: true,
 			cancel: 'input,textarea,button,select,option,.jetpack-search-filters-widget__controls a',
-			change: function( ev ) {
+			change: function() {
 				if ( wp && wp.customize ) {
 					wp.customize.state( 'saved' ).set( false );
 				}
 			}
-		})
+		} )
 		.disableSelection();
 	};
 
