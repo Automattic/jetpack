@@ -533,7 +533,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 				<label>
 					<?php esc_html_e( 'Choose a taxonomy:', 'jetpack' ); $seen_taxonomy_labels = array(); ?>
 					<select name="<?php echo esc_attr( $this->get_field_name( 'taxonomy_type' ) ); ?>[]" class="widefat">
-						<?php foreach ( get_taxonomies( false, 'objects' ) as $taxonomy ) : ?>
+						<?php foreach ( get_taxonomies( array( 'public' => true ), 'objects' ) as $taxonomy ) : ?>
 							<option value="<?php echo esc_attr( $taxonomy->name ); ?>" <?php selected( $taxonomy->name, $args['taxonomy'] ); ?>>
 								<?php
 									$label = in_array( $taxonomy->label, $seen_taxonomy_labels )
