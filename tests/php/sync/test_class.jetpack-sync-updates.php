@@ -59,10 +59,7 @@ class WP_Test_Jetpack_Sync_Updates extends WP_Test_Jetpack_Sync_Base {
 		// Since the transient gets updates twice and we only care about the
 		// last update we only want to see 1 sync event.
 		$events = $this->server_event_storage->get_all_events( 'jetpack_update_core_change' );
-
-		var_dump( $events );
 		$this->assertEquals( count( $events ) , 1 );
-
 	}
 
 	public function test_sync_wp_version() {

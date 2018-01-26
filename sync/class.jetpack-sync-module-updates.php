@@ -173,7 +173,6 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 		if ( empty( $updates ) && empty( $no_updated ) ) {
 			return false;
 		}
-		error_log( print_r( array( $no_updated, $updates ), 1 ) );
 		return $this->get_check_sum( array( $no_updated, $updates ) );
 	}
 
@@ -193,9 +192,6 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 		$checksums[ $transient ] = $new_checksum;
 
 		update_option( self::UPDATES_CHECKSUM_OPTION_NAME, $checksums );
-		// possible $transient value are update_plugins, update_themes, update_core
-		error_log( 'MARK TRNASIANT AS CHANGED :' . $transient );
-		error_log( print_r( $value,1 ) );
 		do_action( "jetpack_{$transient}_change", $value );
 	}
 
