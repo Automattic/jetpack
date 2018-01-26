@@ -94,6 +94,14 @@ class Jetpack_Search_Debug_Bar extends Debug_Bar_Panel {
 			unset( $last_query_info['response'] );
 			unset( $last_query_info['response_code'] );
 
+			if ( is_null( $last_query_info['es_time'] ) ) {
+				$last_query_info['es_time'] = esc_html_x(
+					'cache hit',
+					'displayed in search results when results are cached',
+					'jetpack'
+				);
+			}
+
 			$temp = array_merge(
 				array( 'response_code' => $response_code ),
 				array( 'args' => $args ),
@@ -116,7 +124,7 @@ class Jetpack_Search_Debug_Bar extends Debug_Bar_Panel {
 					<?php
 					if ( 'response' !== $key && 'args' !== $key ) :
 					?>
-						<pre><?php print_r( $info ); ?></pre>
+						<pre><?php print_r( esc_html( $info ) ); ?></pre>
 					<?php
 					else :
 						$this->render_json_toggle( $info );
