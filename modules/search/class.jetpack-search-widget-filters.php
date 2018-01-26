@@ -295,7 +295,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 				var checkboxSelector = '.jetpack-search-filters-widget__filter-list input[type="checkbox"]',
 					checkboxes = jQuery( checkboxSelector );
 
-				jQuery( checkboxSelector ) .prop( 'disabled', false );
+				jQuery( checkboxSelector ).prop( 'disabled', false ).css( 'cursor', 'inherit' );
 				jQuery( checkboxSelector ).on( 'click change', function( e ) {
 					var anchor;
 					e.preventDefault();

@@ -31,10 +31,6 @@ ul.jetpack-search-filters-widget__filter-list li label {
 	font-weight: inherit;
 }
 
-ul.jetpack-search-filters-widget__filter-list li input[type="checkbox"] {
-	cursor: inherit;
-}
-
 .jetpack-search-filters-widget__filter-list {
 	list-style: none;
 }
