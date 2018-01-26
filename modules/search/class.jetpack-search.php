@@ -4,13 +4,6 @@ class Jetpack_Search {
 
 	protected $found_posts = 0;
 
-	/**
-	 * The maximum offset ('from' param), since deep pages get exponentially slower.
-	 *
-	 * @see https://www.elastic.co/guide/en/elasticsearch/guide/current/pagination.html
-	 */
-	protected $max_offset = 200;
-
 	protected $search_result;
 
 	protected $original_blog_id;
@@ -361,20 +354,22 @@ class Jetpack_Search {
 	/**
 	 * Build up the search, then run it against the Jetpack servers
 	 *
-	 * @param WP_Query $query The original WP_Query to use for the parameters of our search
+	 * @param WP_Query $query The original WP_Query to use for the parameters of our search.
 	 */
 	public function do_search( WP_Query $query ) {
 		$page = ( $query->get( 'paged' ) ) ? absint( $query->get( 'paged' ) ) : 1;
 
-		$posts_per_page = $query->get( 'posts_per_page' );
+		// Get maximum allowed offset and posts per page values for the API.
+		$max_offset = Jetpack_Search_Helpers::get_max_offset();
+		$max_posts_per_page = Jetpack_Search_Helpers::get_max_posts_per_page();
 
-		// ES API does not allow more than 15 results at a time
-		if ( $posts_per_page > 15 ) {
-			$posts_per_page = 15;
+		$posts_per_page = $query->get( 'posts_per_page' );
+		if ( $posts_per_page > $max_posts_per_page ) {
+			$posts_per_page = $max_posts_per_page;
 		}
 
-		// Start building the WP-style search query args
-		// They'll be translated to ES format args later
+		// Start building the WP-style search query args.
+		// They'll be translated to ES format args later.
 		$es_wp_query_args = array(
 			'query'          => $query->get( 's' ),
 			'posts_per_page' => $posts_per_page,
@@ -393,9 +388,7 @@ class Jetpack_Search {
 		}
 
 		$es_wp_query_args['post_type'] = $this->get_es_wp_query_post_type_for_query( $query );
-
 		$es_wp_query_args['terms']     = $this->get_es_wp_query_terms_for_query( $query );
-
 
 		/**
 		 * Modify the search query parameters, such as controlling the post_type.
@@ -412,22 +405,22 @@ class Jetpack_Search {
 		$es_wp_query_args = apply_filters( 'jetpack_search_es_wp_query_args', $es_wp_query_args, $query );
 
 		// If page * posts_per_page is greater than our max offset, send a 404. This is necessary because the offset is
-		// capped at $this->max_offset, so a high page would always return the last page of results otherwise
-		if ( ( $es_wp_query_args['paged'] * $es_wp_query_args['posts_per_page'] ) > $this->max_offset ) {
+		// capped at Jetpack_Search_Helpers::get_max_offset(), so a high page would always return the last page of results otherwise.
+		if ( ( $es_wp_query_args['paged'] * $es_wp_query_args['posts_per_page'] ) > $max_offset ) {
 			$query->set_404();
 
 			return;
 		}
 
 		// If there were no post types returned, then 404 to avoid querying against non-public post types, which could
-		// happen if we don't add the post type restriction to the ES query
+		// happen if we don't add the post type restriction to the ES query.
 		if ( empty( $es_wp_query_args['post_type'] ) ) {
 			$query->set_404();
 
 			return;
 		}
 
-		// Convert the WP-style args into ES args
+		// Convert the WP-style args into ES args.
 		$es_query_args = $this->convert_wp_es_to_es_args( $es_wp_query_args );
 
 		//Only trust ES to give us IDs, not the content since it is a mirror
@@ -458,14 +451,13 @@ class Jetpack_Search {
 			return;
 		}
 
-		// If we have aggregations, fix the ordering to match the input order (ES doesn't guarantee the return order)
+		// If we have aggregations, fix the ordering to match the input order (ES doesn't guarantee the return order).
 		if ( isset( $this->search_result['results']['aggregations'] ) && ! empty( $this->search_result['results']['aggregations'] ) ) {
 			$this->search_result['results']['aggregations'] = $this->fix_aggregation_ordering( $this->search_result['results']['aggregations'], $this->aggregations );
 		}
 
-		// Total number of results for paging purposes. Capped at $this->>max_offset + $posts_per_page, as deep paging
-		// gets quite expensive
-		$this->found_posts = min( $this->search_result['results']['total'], $this->max_offset + $posts_per_page );
+		// Total number of results for paging purposes. Capped at $max_offset + $posts_per_page, as deep paging gets quite expensive.
+		$this->found_posts = min( $this->search_result['results']['total'], $max_offset + $posts_per_page );
 
 		return;
 	}
@@ -838,9 +830,7 @@ class Jetpack_Search {
 			$es_query_args['from'] = max( 0, ( absint( $args['paged'] ) - 1 ) * $es_query_args['size'] );
 		}
 
-		// Limit the offset to $this->max_offset posts, as deep pages get exponentially slower
-		// See https://www.elastic.co/guide/en/elasticsearch/guide/current/pagination.html
-		$es_query_args['from'] = min( $es_query_args['from'], $this->max_offset );
+		$es_query_args['from'] = min( $es_query_args['from'], Jetpack_Search_Helpers::get_max_offset() );
 
 		if ( ! is_array( $args['author_name'] ) ) {
 			$args['author_name'] = array( $args['author_name'] );
