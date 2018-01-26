@@ -55,6 +55,8 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 					 * Sync that a plugin update failed
 					 *
 					 * @since 5.8.0
+					 * 
+					 * @module sync
 					 *
 					 * @param string $plugin, Plugin slug
 					 * @param string Error code
