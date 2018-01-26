@@ -1,5 +1,34 @@
 <?php
 
+define( 'JETPACK_SEARCH_VIP_INDEX', true );
+
+add_filter( 'jetpack_search_es_query_args', function( $es_query_args, $query ) {
+	if ( ! is_user_logged_in() ) {
+		//return $es_query_args;
+	}
+
+	echo '<div style="background-color:white;padding:10px;">';
+	var_dump( $es_query_args );
+	echo '</div>';
+
+	return $es_query_args;
+}, 10, 2 );
+
+
+//add_filter( 'jetpack_search_es_wp_query_args', function ( $args ) {
+//
+//	// set of default query fields
+//	$args[ 'query_fields' ] = [
+//		'title',
+//		'content',
+//		'author',
+//		'tag',
+//		'category',
+//	];
+//
+//	return $args;
+//}, 10, 2 );
+
 class Jetpack_Search {
 
 	protected $found_posts = 0;
@@ -667,7 +696,7 @@ class Jetpack_Search {
 			'blog_id'        => get_current_blog_id(),
 
 			'query'          => null,    // Search phrase
-			'query_fields'   => array( 'title', 'content', 'author', 'tag.name', 'category.name' ),
+			'query_fields'   => array( ), //list of fields to search
 
 			'post_type'      => null,  // string or an array
 			'terms'          => array(), // ex: array( 'taxonomy-1' => array( 'slug' ), 'taxonomy-2' => array( 'slug-a', 'slug-b' ) )
@@ -699,52 +728,132 @@ class Jetpack_Search {
 
 		$parser = new Jetpack_WPES_Search_Query_Parser( $args['query'], array( get_locale() ) );
 
-		$match_content_fields = $parser->merge_ml_fields(
-			array(
-				'title'    => 0.2,
-				'content'  => 0.2,
-				'author'   => 0.1,
-				'tag'      => 0.1,
-				'category' => 0.1,
-			),
-			array()
-		);
+		if ( empty( $args['query_fields'] ) ) {
 
-		$boost_content_fields = $parser->merge_ml_fields(
-			array(
-				'title'       => 2,
-				'description' => 1,
-				'tags'        => 1,
-			),
-			array(
-				'author_login^2',
-				'author^2',
-			)
-		);
+			if ( defined( 'JETPACK_SEARCH_VIP_INDEX' ) && JETPACK_SEARCH_VIP_INDEX ) {
+				//VIP indices do not have per language fields
+				$match_fields = array(
+					'title^0.1',
+					'content^0.1',
+					'excerpt^0.1',
+					'tag.name^0.1',
+					'category.name^0.1',
+					'author_login^0.1',
+					'author^0.1',
+				);
+				$boost_fields = array(
+					'title^2',
+					'tag.name',
+					'category.name',
+					'author_login',
+					'author',
+				);
+				$boost_phrase_fields = array(
+					'title',
+					'content',
+					'excerpt',
+					'tag.name',
+					'category.name',
+					'author',
+				);
+			} else {
+				$match_fields = $parser->merge_ml_fields(
+					array(
+						'title'    => 0.1,
+						'content'  => 0.1,
+						'excerpt'  => 0.1,
+						'tag.name'      => 0.1,
+						'category.name' => 0.1,
+					),
+					array(
+						'author_login^0.1',
+						'author^0.1',
+					)
+				);
+
+				$boost_fields = $parser->merge_ml_fields(
+					array(
+						'title'            => 2,
+						'tag.name'         => 1,
+						'category.name'    => 1,
+					),
+					array(
+						'author_login',
+						'author',
+					)
+				);
+
+				$boost_phrase_fields = $parser->merge_ml_fields(
+					array(
+						'title'            => 1,
+						'content'          => 1,
+						'excerpt'          => 1,
+						'tag.name'         => 1,
+						'category.name'    => 1,
+					),
+					array(
+						'author',
+					)
+				);
+			}
+		} else {
+			//If code is overriding the fields, then use that
+			// important for backwards compat
+			$match_fields = $args['query_fields'];
+			$boost_phrase_fields = $match_content_fields;
+			$boost_fields = null;
+		}
 
 		$parser->phrase_filter( array(
-			'must_query_fields'  => $match_content_fields,
-			'boost_query_fields' => $boost_content_fields,
+			'must_query_fields'  => $match_fields,
+			'boost_query_fields' => null,
 		) );
 		$parser->remaining_query( array(
-			'must_query_fields'  => $match_content_fields,
-			'boost_query_fields' => $boost_content_fields,
+			'must_query_fields'  => $match_fields,
+			'boost_query_fields' => $boost_fields,
 		) );
 
-		// Boost on phrases
+		// Boost on phrase matches
 		$parser->remaining_query( array(
-			'boost_query_fields' => $boost_content_fields,
+			'boost_query_fields' => $boost_phrase_fields,
 			'boost_query_type'   => 'phrase',
 		) );
 
-		// Newer content gets weighted slightly higher
-		$parser->add_decay( 'gauss', array(
-			'date_gmt' => array(
+		/**
+		 * Modify the recency decay parameters for the search query.
+		 *
+		 * The recency decay lowers the search scores based on the age of a post
+		 * relative to an origin date. Basic adjustments:
+		 *  origin: A date. Posts with this date will have the highest score and no decay applied. Default is today.
+		 *  offset: Number of days/months/years (eg 30d). All posts within this time range of the origin (before and after) will have no decay applied. Default is no offet.
+		 *  scale: The number of days/months/years from the origin+offset at which the decay will equay the decay param. Default 360d
+		 *  decay: The amount of decay applied at offset+scale. Default 0.9
+		 *
+		 * The curve applied is a Gaussian. More details available at https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-function-score-query.html#function-decay
+		 *
+		 * @module search
+		 *
+		 * @since 5.8.0
+		 *
+		 * @param array $decay_params The decay parameters
+		 * @param array $args The WP query parameters
+		 */
+		$decay_params = apply_filters(
+			'jetpack_search_recency_score_decay',
+			array(
 				'origin' => date( 'Y-m-d' ),
 				'scale'  => '360d',
 				'decay'  => 0.9,
 			),
-		));
+			$args
+		);
+
+		if ( ! empty( $decay_params ) ) {
+			// Newer content gets weighted slightly higher
+			$parser->add_decay( 'gauss', array(
+				'date_gmt' => $decay_params
+			) );
+		}
 
 		$es_query_args = array(
 			'blog_id' => absint( $args['blog_id'] ),
@@ -920,15 +1029,13 @@ class Jetpack_Search {
 			unset( $es_query_args['sort'] );
 		}
 
-		$es_query_args['filter'] = $parser->build_filter();
-		$es_query_args['query']  = $parser->build_query();
-
-		// Aggregations
 		if ( ! empty( $args['aggregations'] ) ) {
 			$this->add_aggregations_to_es_query_builder( $args['aggregations'], $parser );
-
-			$es_query_args['aggregations'] = $parser->build_aggregation();
 		}
+
+		$es_query_args['filter'] = $parser->build_filter();
+		$es_query_args['query']  = $parser->build_query();
+		$es_query_args['aggregations'] = $parser->build_aggregation();
 
 		return $es_query_args;
 	}
