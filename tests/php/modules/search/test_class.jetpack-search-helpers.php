@@ -380,7 +380,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 	}
 
 	/**
-	 * @dataProvider  get_add_post_types_to_url_data(
+	 * @dataProvider get_add_post_types_to_url_data
 	 */
 	function test_add_post_types_to_url( $expected, $url, $post_types ) {
 		$this->assertSame(
