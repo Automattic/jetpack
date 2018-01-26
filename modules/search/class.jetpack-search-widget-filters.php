@@ -507,14 +507,14 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 						<?php
 
 						$filter_types = array(
-							'taxonomy'       => esc_html__( 'Taxonomy', 'jetpack' ),
-							'post_type'      => esc_html__( 'Post Type', 'jetpack' ),
-							'date_histogram' => esc_html__( 'Date', 'jetpack' ),
-							'author'         => esc_html__( 'Author', 'jetpack' ),
+							'taxonomy'       => __( 'Taxonomy', 'jetpack' ),
+							'post_type'      => __( 'Post Type', 'jetpack' ),
+							'date_histogram' => __( 'Date', 'jetpack' ),
+							'author'         => __( 'Author', 'jetpack' ),
 						);
 
 						foreach ( $filter_types as $filter_type_slug => $filter_type_label ) {
-							echo '<option value="' . esc_attr( $filter_type_slug ) . '"' . selected( $args['type'], $filter_type_slug, false ) . '>' . $filter_type_label . '</option>';
+							echo '<option value="' . esc_attr( $filter_type_slug ) . '"' . selected( $args['type'], $filter_type_slug, false ) . '>' . esc_html( $filter_type_label ) . '</option>';
 						}
 
 						?>
