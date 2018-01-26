@@ -1409,6 +1409,11 @@ class Jetpack_Search {
 
 						break;
 
+					case 'author':
+						var_dump( $item );
+
+						break;
+
 					default:
 						//continue 2; // switch() is considered a looping structure
 				} // End switch().
