@@ -408,7 +408,7 @@ class Jetpack_Search_Helpers {
 
 		foreach ( (array) $filters as $filter_key => $filter ) {
 			if ( 'post_type' !== $filter['type'] || empty( $filter['buckets'] ) ) {
-				$modified[] = $filter;
+				$modified[ $filter_key ] = $filter;
 				continue;
 			}
 
@@ -423,7 +423,9 @@ class Jetpack_Search_Helpers {
 				}
 
 				$query = array();
-				wp_parse_str( $parsed['query'], $query );
+				if ( ! empty( $parsed['query'] ) ) {
+					wp_parse_str( $parsed['query'], $query );
+				}
 
 				if ( empty( $query['post_type'] ) ) {
 					$modified[ $filter_key ]['buckets'][ $bucket_key ]['remove_url'] = self::add_post_types_to_url(
