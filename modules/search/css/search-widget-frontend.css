@@ -17,6 +17,7 @@
 ul.jetpack-search-filters-widget__filter-list li {
 	border: none;
 	padding: 0;
+	list-style: none;
 }
 
 ul.jetpack-search-filters-widget__filter-list li a {

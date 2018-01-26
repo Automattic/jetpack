@@ -697,7 +697,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			$active_buckets = Jetpack_Search_Helpers::filter_post_types( $active_buckets );
 		}
 
-		$remove_all_filters           = ( count( $active_buckets ) > 1 )
+		$remove_all_filters           = ( count( $active_buckets ) > 0 )
 			? add_query_arg( 's', get_query_var( 's' ), home_url() )
 			: '';
 
@@ -717,7 +717,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		?>
 			<p>
 				<a href="<?php echo esc_url( $remove_all_filters ); ?>">
-					<?php esc_html_e( 'Remove All Filters', 'jetpack' ); ?>
+					<?php esc_html_e( '&larr;Remove All Filters', 'jetpack' ); ?>
 				</a>
 			</p>
 		<?php
