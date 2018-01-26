@@ -60,7 +60,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		wp_register_script(
 			'jetpack-search-widget-filters-admin',
 			plugins_url( 'js/search-widget-filters-admin.js', __FILE__ ),
-			array( 'jquery', 'jp-tracks', 'jp-tracks-functions' ),
+			array( 'jquery', 'jquery-ui-sortable', 'jp-tracks', 'jp-tracks-functions' ),
 			JETPACK__VERSION
 		);
 
@@ -417,7 +417,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			</p>
 
 			<p class="jetpack-search-filters-widget__post-types-select">
-				<label><?php esc_html_e( 'Post types included in results:', 'jetpack' ); ?></label>
+				<label><?php esc_html_e( 'Post types to search (minimum of 1):', 'jetpack' ); ?></label>
 				<?php foreach ( get_post_types( array( 'exclude_from_search' => false ), 'objects' ) as $post_type ) : ?>
 					<label>
 						<input
@@ -458,9 +458,11 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 						<?php esc_html_e( 'Show extra filtering options', 'jetpack' ); ?>
 					</label>
 				</p>
-				<?php foreach ( (array) $instance['filters'] as $filter ) : ?>
-					<?php $this->render_widget_filter( $filter ); ?>
-				<?php endforeach; ?>
+				<div class="jetpack-search-filters-widget__filters">
+					<?php foreach ( (array) $instance['filters'] as $filter ) : ?>
+						<?php $this->render_widget_filter( $filter ); ?>
+					<?php endforeach; ?>
+				</div>
 				<div class="jetpack-search-filters-help">
 					<a href="https://jetpack.com/support/search/#filters-not-showing-up" target="_blank"><?php esc_html_e( "Why aren't my filters appearing?", 'jetpack' ); ?></a>
 				</div>
@@ -604,7 +606,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			<p class="jetpack-search-filters-widget__controls">
 				<a href="#" class="delete"><?php esc_html_e( 'Remove', 'jetpack' ); ?></a>
 				<span class="control-separator">|</span>
-				<a href="#" class="add"><?php esc_html_e( 'Add', 'jetpack' ); ?></a>
+				<a href="#" class="add"><?php esc_html_e( 'Add another', 'jetpack' ); ?></a>
 			</p>
 		</div>
 	<?php }
