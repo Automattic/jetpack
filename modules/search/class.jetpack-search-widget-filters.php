@@ -697,31 +697,13 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			$active_buckets = Jetpack_Search_Helpers::filter_post_types( $active_buckets );
 		}
 
-		$remove_all_filters           = ( count( $active_buckets ) > 0 )
-			? add_query_arg( 's', get_query_var( 's' ), home_url() )
-			: '';
-
 		if ( $post_types_differ_searchable ) {
-			$remove_all_filters = empty( $remove_all_filters )
-				? ''
-				: Jetpack_Search_Helpers::add_post_types_to_url( $remove_all_filters, $instance['post_types'] );
-
 			if ( $post_types_differ_query ) {
 				$filters = Jetpack_Search_Helpers::ensure_post_types_on_remove_url( $filters, $instance['post_types'] );
 			} else {
 				$filters = Jetpack_Search_Helpers::remove_active_from_post_type_buckets( $filters );
 			}
 		}
-
-		if ( $remove_all_filters ) :
-		?>
-			<p>
-				<a href="<?php echo esc_url( $remove_all_filters ); ?>">
-					<?php esc_html_e( '&larr;Remove All Filters', 'jetpack' ); ?>
-				</a>
-			</p>
-		<?php
-		endif;
 
 		foreach ( (array) $filters as $filter ) {
 			$this->render_filter( $filter );
@@ -742,11 +724,33 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			return;
 		}
 
+		$query_vars = null;
+		foreach( $filter['buckets'] as $item ) {
+			if ( $item['active'] ) {
+				$query_vars = array_keys( $item['query_vars'] );
+				break;
+			}
+		}
+		$clear_url = null;
+		if ( ! empty( $query_vars ) ) {
+			$clear_url = Jetpack_Search_Helpers::remove_query_arg( $query_vars );
+		}
+
 		?>
 		<h4 class="jetpack-search-filters-widget__sub-heading">
 			<?php echo esc_html( $filter['name'] ); ?>
 		</h4>
 		<ul class="jetpack-search-filters-widget__filter-list">
+		<?php if ( $clear_url ) : ?>
+				<li><a href="<?php echo esc_url( $clear_url ); ?>">
+					<img
+						src="<?php echo esc_url( plugins_url( 'images/search-cross-circle.svg', dirname( dirname( __FILE__ ) ) ) ); ?>"
+						width="20"
+						height="20"
+					/>
+					<?php esc_html_e( 'Clear Filters', 'jetpack' ); ?>
+				</a></li>
+		<?php endif; ?>
 			<?php foreach ( $filter['buckets'] as $item ) : ?>
 				<li>
 					<label>
