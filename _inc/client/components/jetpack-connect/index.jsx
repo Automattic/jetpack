@@ -40,7 +40,7 @@ const JetpackConnect = React.createClass( {
 
 				<Card className="jp-jetpack-connect__feature jp-jetpack-connect__design">
 					<header className="jp-jetpack-connect__header">
-						<h2 className="jp-jetpack-connect__container-subtitle" title="lightning fast optimized images with Jetpack Photon">
+						<h2 className="jp-jetpack-connect__container-subtitle" title={ __( 'WordPress themes and customization tools for designing your site.' ) }>
 							{ __( 'Design the perfect website' ) }
 						</h2>
 						<p className="jp-jetpack-connect__description">
@@ -53,12 +53,12 @@ const JetpackConnect = React.createClass( {
 
 					<div className="jp-jetpack-connect__interior-container">
 						<img src={ imagePath + 'feature-photon-med.jpg' }
-							srcSet={ `${imagePath}feature-photon-sm.jpg 600w, ${imagePath}feature-photon-med.jpg 770w, ${imagePath}feature-photon-lrg.jpg 1200w` }
-							className="jp-jetpack-connect__feature-image" alt="Jetpacks photon serves up lightning fast, optimized images" />
+							srcSet={ `${ imagePath }feature-photon-sm.jpg 600w, ${ imagePath }feature-photon-med.jpg 770w, ${ imagePath }feature-photon-lrg.jpg 1200w` }
+							className="jp-jetpack-connect__feature-image" alt={ __( "Jetpack's photon serves up lightning fast, optimized images" ) } />
 
 						<div className="jp-jetpack-connect__feature-list">
 							<div className="jp-jetpack-connect__feature-list-column">
-								<h3 title="Jetpack's WordPress themes" className="dops-section-header__label">
+								<h3 title={ __( "Jetpack's WordPress themes" ) } className="dops-section-header__label">
 									{ __( 'Professional themes' ) }
 								</h3>
 								<div className="jp-jetpack-connect__feature-content">
@@ -68,7 +68,7 @@ const JetpackConnect = React.createClass( {
 								</div>
 							</div>
 							<div className="jp-jetpack-connect__feature-list-column">
-								<h3 title="Jetpack's customization tools" className="dops-section-header__label">
+								<h3 title={ __( "Jetpack's customization tools" ) } className="dops-section-header__label">
 									{ __( 'Code-free customization' ) }
 								</h3>
 								<div className="jp-jetpack-connect__feature-content">
@@ -78,7 +78,7 @@ const JetpackConnect = React.createClass( {
 								</div>
 							</div>
 							<div className="jp-jetpack-connect__feature-list-column">
-								<h3 title="Jetpack's performance features" className="dops-section-header__label">
+								<h3 title={ __( "Jetpack's performance features" ) } className="dops-section-header__label">
 									{ __( 'Speed up your site' ) }
 								</h3>
 								<div className="jp-jetpack-connect__feature-content">
@@ -94,22 +94,32 @@ const JetpackConnect = React.createClass( {
 				<Card className="jp-jetpack-connect__feature jp-jetpack-connect__traffic">
 
 					<header className="jp-jetpack-connect__header">
-						<h2 className="jp-jetpack-connect__container-subtitle" title="Drive more traffic to your site with Jetpack">
+						<h2 className="jp-jetpack-connect__container-subtitle" title={ __( 'Drive more traffic to your site with Jetpack' ) }>
 							{ __( 'Increase traffic and revenue' ) }
 						</h2>
 						<p className="jp-jetpack-connect__description">
 							{ __( 'Reach more people and earn money with automated marketing tools.' ) }
 						</p>
 						<div className="jp-jetpack-connect__header-img-container">
-							<img src={ imagePath + 'long-clouds.svg' } width="1160" height="63" alt="Decoration: Jetpack clouds" className="jp-jetpack-connect__header-img" /> {/* defining width and height for IE here */}
-							<img src={ imagePath + 'stat-bars.svg' } width="400" alt="Decoration: Jetpack bar graph" className="jp-jetpack-connect__header-img" />
+							<img
+								src={ imagePath + 'long-clouds.svg' }
+								width="1160" height="63"
+								alt={ __( 'Decoration: Jetpack clouds', { context: 'Image alternate text.' } ) }
+								className="jp-jetpack-connect__header-img"
+							/> {/* defining width and height for IE here */}
+							<img
+								src={ imagePath + 'stat-bars.svg' }
+								width="400"
+								alt={ __( 'Decoration: Jetpack bar graph', { context: 'Image alternate text.' } ) }
+								className="jp-jetpack-connect__header-img"
+							/>
 						</div>
 					</header>
 
 					<div className="jp-jetpack-connect__interior-container">
 						<div className="jp-jetpack-connect__feature-list">
 							<div className="jp-jetpack-connect__feature-list-column">
-								<h3 title="Jetpack's site stats feature" className="dops-section-header__label">
+								<h3 title={ __( "Jetpack's site stats feature" ) } className="dops-section-header__label">
 									{ __( 'Track your growth' ) }
 								</h3>
 								<div className="jp-jetpack-connect__feature-content">
@@ -119,7 +129,7 @@ const JetpackConnect = React.createClass( {
 								</div>
 							</div>
 							<div className="jp-jetpack-connect__feature-list-column">
-								<h3 title="Jetpack's publicize features" className="dops-section-header__label">
+								<h3 title={ __( "Jetpack's publicize features" ) } className="dops-section-header__label">
 									{ __( 'Automated marketing' ) }
 								</h3>
 								<div className="jp-jetpack-connect__feature-content">
@@ -129,7 +139,7 @@ const JetpackConnect = React.createClass( {
 								</div>
 							</div>
 							<div className="jp-jetpack-connect__feature-list-column">
-								<h3 title="Jetpack's ads and PayPal features" className="dops-section-header__label">
+								<h3 title={ __( "Jetpack's ads and PayPal features" ) } className="dops-section-header__label">
 									{ __( 'Generate revenue' ) }
 								</h3>
 								<div className="jp-jetpack-connect__feature-content">
@@ -146,7 +156,7 @@ const JetpackConnect = React.createClass( {
 				<Card className="jp-jetpack-connect__feature jp-jetpack-connect__security">
 
 					<header className="jp-jetpack-connect__header">
-						<h2 className="jp-jetpack-connect__container-subtitle" title="Keep your site safe, 24/7">
+						<h2 className="jp-jetpack-connect__container-subtitle" title={ __( 'Keep your site safe, 24/7' ) }>
 							{ __( 'Keep your site safe, 24/7' ) }
 						</h2>
 						<p className="jp-jetpack-connect__description">
@@ -159,7 +169,7 @@ const JetpackConnect = React.createClass( {
 					<div className="jp-jetpack-connect__interior-container">
 						<div className="jp-jetpack-connect__feature-list">
 							<div className="jp-jetpack-connect__feature-list-column">
-								<h3 title="Jetpack's monitor feature" className="dops-section-header__label">
+								<h3 title={ __( "Jetpack's monitor feature" ) } className="dops-section-header__label">
 									{ __( 'Monitor', { context: 'Header. Noun: Monitor is a module of Jetpack.' } ) }
 								</h3>
 								<div className="jp-jetpack-connect__feature-content">
@@ -171,7 +181,7 @@ const JetpackConnect = React.createClass( {
 								</div>
 							</div>
 							<div className="jp-jetpack-connect__feature-list-column">
-								<h3 title="Jetpack's Protect features" className="dops-section-header__label">
+								<h3 title={ __( "Jetpack's Protect features" ) } className="dops-section-header__label">
 									{ __( 'Protect', { context: 'Header. Noun: Protect is a module of Jetpack.' } ) }
 								</h3>
 								<div className="jp-jetpack-connect__feature-content">
@@ -224,6 +234,6 @@ export default connect(
 	state => {
 		return {
 			connectUrl: getConnectUrl( state )
-		}
+		};
 	}
 )( JetpackConnect );
