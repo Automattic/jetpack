@@ -121,6 +121,9 @@ class Jetpack_Search_Helpers {
 								$widget_filter['name'] = $tax->labels->name;
 							}
 							break;
+						case 'author':
+							$widget_filter['name'] = _x( 'Authors', 'label for filtering posts', 'jetpack' );
+							break;
 					}
 				}
 

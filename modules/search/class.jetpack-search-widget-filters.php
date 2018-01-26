@@ -62,7 +62,6 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			'widget-jetpack-search-filters',
 			plugins_url( 'js/search-widget-filters-admin.js', __FILE__ ),
 			array( 'jquery', 'jp-tracks', 'jp-tracks-functions' )
-
 		);
 
 		wp_localize_script( 'widget-jetpack-search-filters', 'jetpack_search_filter_admin', array(
@@ -311,26 +310,33 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 				switch ( $type ) {
 					case 'taxonomy':
 						$filters[] = array(
-							'name' => sanitize_text_field( $new_instance['filter_name'][ $index ] ),
-							'type' => 'taxonomy',
+							'name'     => sanitize_text_field( $new_instance['filter_name'][ $index ] ),
+							'type'     => 'taxonomy',
 							'taxonomy' => sanitize_key( $new_instance['taxonomy_type'][ $index ] ),
-							'count' => $count,
+							'count'    => $count,
 						);
 						break;
 					case 'post_type':
 						$filters[] = array(
-							'name' => sanitize_text_field( $new_instance['filter_name'][ $index ] ),
-							'type' => 'post_type',
+							'name'  => sanitize_text_field( $new_instance['filter_name'][ $index ] ),
+							'type'  => 'post_type',
 							'count' => $count,
 						);
 						break;
 					case 'date_histogram':
 						$filters[] = array(
-							'name' => sanitize_text_field( $new_instance['filter_name'][ $index ] ),
-							'type' => 'date_histogram',
-							'count' => $count,
-							'field' => sanitize_key( $new_instance['date_histogram_field'][ $index ] ),
+							'name'     => sanitize_text_field( $new_instance['filter_name'][ $index ] ),
+							'type'     => 'date_histogram',
+							'count'    => $count,
+							'field'    => sanitize_key( $new_instance['date_histogram_field'][ $index ] ),
 							'interval' => sanitize_key( $new_instance['date_histogram_interval'][ $index ] ),
+						);
+						break;
+					case 'author':
+						$filters[] = array(
+							'name'  => sanitize_text_field( $new_instance['filter_name'][ $index ] ),
+							'type'  => 'author',
+							'count' => $count,
 						);
 						break;
 				}

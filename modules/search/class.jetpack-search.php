@@ -947,17 +947,18 @@ class Jetpack_Search {
 			switch ( $aggregation['type'] ) {
 				case 'taxonomy':
 					$this->add_taxonomy_aggregation_to_es_query_builder( $aggregation, $label, $builder );
-
 					break;
 
 				case 'post_type':
 					$this->add_post_type_aggregation_to_es_query_builder( $aggregation, $label, $builder );
-
 					break;
 
 				case 'date_histogram':
 					$this->add_date_histogram_aggregation_to_es_query_builder( $aggregation, $label, $builder );
+					break;
 
+				case 'author':
+					$this->add_author_aggregation_to_es_query_builder( $aggregation, $label, $builder );
 					break;
 			}
 		}
@@ -1038,6 +1039,24 @@ class Jetpack_Search {
 
 		$builder->add_aggs( $label, array(
 			'date_histogram' => $args,
+		));
+	}
+
+	/**
+	 * Given an individual author aggregation, add it to the Jetpack_WPES_Query_Builder object for use in ES
+	 *
+	 * @module search
+	 *
+	 * @param array                      $aggregation The aggregation to add to the query builder
+	 * @param string                     $label       The 'label' (unique id) for this aggregation
+	 * @param Jetpack_WPES_Query_Builder $builder     The builder instance that is creating the ES query
+	 */
+	public function add_author_aggregation_to_es_query_builder( array $aggregation, $label, Jetpack_WPES_Query_Builder $builder ) {
+		$builder->add_aggs( $label, array(
+			'terms' => array(
+				'field' => 'author_login',
+				'size'  => min( (int) $aggregation['count'], $this->max_aggregations_count ),
+			),
 		));
 	}
 
