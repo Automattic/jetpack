@@ -370,6 +370,162 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 	}
 
 	/**
+	 * @dataProvider get_remove_active_from_post_type_buckets_data
+	 */
+	public function test_remove_active_from_post_type_buckets( $expected, $input ) {
+		$this->assertSame(
+			$expected,
+			Jetpack_Search_Helpers::remove_active_from_post_type_buckets( $input )
+		);
+	}
+
+	/**
+	 * @dataProvider get_add_post_types_to_url_data
+	 */
+	function test_add_post_types_to_url( $expected, $url, $post_types ) {
+		$this->assertSame(
+			$expected,
+			Jetpack_Search_Helpers::add_post_types_to_url( $url, $post_types )
+		);
+	}
+
+	/**
+	 * @dataProvider get_ensure_post_types_on_remove_url_data
+	 */
+	function test_ensure_post_types_on_remove_url( $expected, $filters, $post_types ) {
+		$this->assertSame(
+			$expected,
+			Jetpack_Search_Helpers::ensure_post_types_on_remove_url( $filters, $post_types )
+		);
+	}
+
+	/**
+	 * @dataProvider get_filter_post_types_data
+	 */
+	function test_filter_post_types( $expected, $filters ) {
+		$this->assertSame( $expected, Jetpack_Search_Helpers::filter_post_types( $filters ) );
+	}
+
+	function get_filter_post_types_data() {
+		return array(
+			'unchanged_active_buckets_no_post_types' => array(
+				array(
+					array(
+						'type' => 'date_histogram',
+					),
+					array(
+						'type' => 'taxonomy',
+					),
+				),
+				array(
+					array(
+						'type' => 'date_histogram',
+					),
+					array(
+						'type' => 'taxonomy',
+					),
+				),
+			),
+			'active_bucket_no_post_types' => array(
+				array(
+					array(
+						'type' => 'date_histogram',
+					),
+					array(
+						'type' => 'taxonomy',
+					),
+				),
+				array(
+					array(
+						'type' => 'date_histogram',
+					),
+					array(
+						'type' => 'post_type',
+					),
+					array(
+						'type' => 'taxonomy',
+					),
+				),
+			),
+			'unchaged_filters_no_post_type' => array(
+				array(
+					'taxonomy_0' => array(
+						'type' => 'taxonomy',
+						'buckets' => array(
+							array(
+								'name' => 'test',
+								'remove_url' => 'http://jetpack.com?post_type=post,page',
+							),
+						),
+					),
+				),
+				array(
+					'taxonomy_0' => array(
+						'type' => 'taxonomy',
+						'buckets' => array(
+							array(
+								'name' => 'test',
+								'remove_url' => 'http://jetpack.com?post_type=post,page',
+							),
+						),
+					),
+				),
+			),
+			'filters_no_post_type' => array(
+				array(
+					'taxonomy_0' => array(
+						'type' => 'taxonomy',
+						'buckets' => array(
+							array(
+								'name' => 'test',
+								'remove_url' => 'http://jetpack.com?post_type=post,page',
+							),
+						),
+					),
+					'date_histogram_2' => array(
+						'type' => 'date_histogram',
+						'buckets' => array(
+							array(
+								'name' => 'test',
+								'remove_url' => 'http://jetpack.com?post_type=post,page',
+							),
+						),
+					),
+				),
+				array(
+					'taxonomy_0' => array(
+						'type' => 'taxonomy',
+						'buckets' => array(
+							array(
+								'name' => 'test',
+								'remove_url' => 'http://jetpack.com?post_type=post,page',
+							),
+						),
+					),
+					'post_type_1' => array(
+						'type' => 'post_type',
+						'buckets' => array(
+							array(
+								'name' => 'test',
+								'remove_url' => 'http://jetpack.com?post_type=post,page',
+							),
+						),
+					),
+					'date_histogram_2' => array(
+						'type' => 'date_histogram',
+						'buckets' => array(
+							array(
+								'name' => 'test',
+								'remove_url' => 'http://jetpack.com?post_type=post,page',
+							),
+						),
+					),
+				),
+			),
+		);
+	}
+
+	/**
 	 * Data providers
 	 */
 	function get_build_widget_id_data() {
@@ -809,6 +965,241 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 					'2' => $this->get_sample_widget_instance( 1 ),
 					'_multiwidget' => 1,
 				),
+			),
+		);
+	}
+
+	public function get_remove_active_from_post_type_buckets_data() {
+		return array(
+			'empty_array' => array(
+				array(),
+				array(),
+			),
+			'unchanged_if_not_post_type_filter' => array(
+				array(
+					'taxonomy_0' => array(
+						'type' => 'taxonomy',
+					),
+				),
+				array(
+					'taxonomy_0' => array(
+						'type' => 'taxonomy',
+					),
+				),
+			),
+			'unchanged_if_post_type_but_no_buckets' => array(
+				array(
+					'post_type_0' => array(
+						'type' => 'post_type',
+					),
+				),
+				array(
+					'post_type_0' => array(
+						'type' => 'post_type',
+					),
+				),
+			),
+			'active_false_on_post_type_buckets' => array(
+				array(
+					'post_type_0' => array(
+						'type' => 'post_type',
+						'buckets' => array(
+							array(
+								'active' => false,
+							),
+							array(
+								'active' => false,
+							),
+						),
+					),
+				),
+				array(
+					'post_type_0' => array(
+						'type' => 'post_type',
+						'buckets' => array(
+							array(
+								'active' => true,
+							),
+							array(
+								'active' => true,
+							),
+						),
+					),
+				),
+			),
+		);
+	}
+
+	function get_add_post_types_to_url_data() {
+		return array(
+			'same_url_empty_post_types' => array(
+				'http://jetpack.com?s=test',
+				'http://jetpack.com?s=test',
+				array(),
+			),
+			'no_post_types_on_url' => array(
+				'http://jetpack.com?s=test&post_type=post,page',
+				'http://jetpack.com?s=test',
+				array( 'post', 'page' ),
+			),
+			'overwrite_existing_post_types' => array(
+				'http://jetpack.com?s=test&post_type=post,page',
+				'http://jetpack.com?s=test&post_type=jetpack-testimonial',
+				array( 'post', 'page' ),
+			),
+		);
+	}
+
+	function get_ensure_post_types_on_remove_url_data() {
+		return array(
+			'unmodified_if_no_post_types' => array(
+				array(
+					'taxonomy_0' => array(
+						'type' => 'taxonomy',
+					),
+				),
+				array(
+					'taxonomy_0' => array(
+						'type' => 'taxonomy',
+					),
+				),
+				array(),
+			),
+			'unmodified_if_post_type_no_buckets' => array(
+				array(
+					'post_type_0' => array(
+						'type' => 'post_type',
+					),
+				),
+				array(
+					'post_type_0' => array(
+						'type' => 'post_type',
+					),
+				),
+				array(),
+			),
+			'unmodified_if_remove_url_not_on_bucket' => array(
+				array(
+					'post_type_0' => array(
+						'type' => 'post_type',
+						'buckets' => array(
+							array(
+								'name' => 'test',
+							),
+						),
+					),
+				),
+				array(
+					'post_type_0' => array(
+						'type' => 'post_type',
+						'buckets' => array(
+							array(
+								'name' => 'test',
+							),
+						),
+					),
+				),
+				array(),
+			),
+			'unmodified_if_remove_url_bad' => array(
+				array(
+					'post_type_0' => array(
+						'type' => 'post_type',
+						'buckets' => array(
+							array(
+								'name' => 'test',
+								'remove_url' => 'http://:80',
+							),
+						),
+					),
+				),
+				array(
+					'post_type_0' => array(
+						'type' => 'post_type',
+						'buckets' => array(
+							array(
+								'name' => 'test',
+								'remove_url' => 'http://:80',
+							),
+						),
+					),
+				),
+				array(),
+			),
+			'unmodified_if_no_query' => array(
+				array(
+					'post_type_0' => array(
+						'type' => 'post_type',
+						'buckets' => array(
+							array(
+								'name' => 'test',
+								'remove_url' => 'http://jetpack.com',
+							),
+						),
+					),
+				),
+				array(
+					'post_type_0' => array(
+						'type' => 'post_type',
+						'buckets' => array(
+							array(
+								'name' => 'test',
+								'remove_url' => 'http://jetpack.com',
+							),
+						),
+					),
+				),
+				array(),
+			),
+			'unmodified_if_query_has_post_type' => array(
+				array(
+					'post_type_0' => array(
+						'type' => 'post_type',
+						'buckets' => array(
+							array(
+								'name' => 'test',
+								'remove_url' => 'http://jetpack.com?post_type=post,page',
+							),
+						),
+					),
+				),
+				array(
+					'post_type_0' => array(
+						'type' => 'post_type',
+						'buckets' => array(
+							array(
+								'name' => 'test',
+								'remove_url' => 'http://jetpack.com?post_type=post,page',
+							),
+						),
+					),
+				),
+				array(),
+			),
+			'adds_post_types_if_no_post_types_on_remove_url' => array(
+				array(
+					'post_type_0' => array(
+						'type' => 'post_type',
+						'buckets' => array(
+							array(
+								'name' => 'test',
+								'remove_url' => 'http://jetpack.com?post_type=post,page',
+							),
+						),
+					),
+				),
+				array(
+					'post_type_0' => array(
+						'type' => 'post_type',
+						'buckets' => array(
+							array(
+								'name' => 'test',
+								'remove_url' => 'http://jetpack.com',
+							),
+						),
+					),
+				),
+				array( 'post', 'page' ),
 			),
 		);
 	}

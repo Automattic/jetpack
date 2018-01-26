@@ -348,4 +348,116 @@ class Jetpack_Search_Helpers {
 
 		return $filters_properties;
 	}
+
+	/**
+	 * Sets active to false on all post type buckets.
+	 *
+	 * @param array $filters The available filters for the current query.
+	 *
+	 * @return array $modified The filters for the current query with modified active field.
+	 */
+	public static function remove_active_from_post_type_buckets( $filters ) {
+		$modified = $filters;
+		foreach ( $filters as $key => $filter ) {
+			if ( 'post_type' === $filter['type'] && ! empty( $filter['buckets'] ) ) {
+				foreach ( $filter['buckets'] as $k => $bucket ) {
+					$bucket['active']                  = false;
+					$modified[ $key ]['buckets'][ $k ] = $bucket;
+				}
+			}
+		}
+
+		return $modified;
+	}
+
+	/**
+	 * Given a url and an array of post types, will ensure that the post types are properly applied to the URL as args.
+	 *
+	 * @param string $url        The URL to add post types to.
+	 * @param array  $post_types An array of post types that should be added to the URL.
+	 *
+	 * @return string $url The URL with added post types.
+	 */
+	public static function add_post_types_to_url( $url, $post_types ) {
+		$url = Jetpack_Search_Helpers::remove_query_arg( 'post_type', $url );
+		if ( empty( $post_types ) ) {
+			return $url;
+		}
+
+		$url = Jetpack_Search_Helpers::add_query_arg(
+			'post_type',
+			implode( ',', $post_types ),
+			$url
+		);
+
+		return $url;
+	}
+
+	/**
+	 * Since we provide support for the widget restricting post types by adding the selected post types as
+	 * active filters, if removing a post type filter would result in there no longer be post_type args in the URL,
+	 * we need to be sure to add them back.
+	 *
+	 * @param array $filters    An array of possible filters for the current query.
+	 * @param array $post_types The post types to ensure are on the link.
+	 *
+	 * @return array $modified The updated array of filters with post typed added to the remove URLs.
+	 */
+	public static function ensure_post_types_on_remove_url( $filters, $post_types ) {
+		$modified = $filters;
+
+		foreach ( (array) $filters as $filter_key => $filter ) {
+			if ( 'post_type' !== $filter['type'] || empty( $filter['buckets'] ) ) {
+				$modified[ $filter_key ] = $filter;
+				continue;
+			}
+
+			foreach ( (array) $filter['buckets'] as $bucket_key => $bucket ) {
+				if ( empty( $bucket['remove_url'] ) ) {
+					continue;
+				}
+
+				$parsed = wp_parse_url( $bucket['remove_url'] );
+				if ( ! $parsed ) {
+					continue;
+				}
+
+				$query = array();
+				if ( ! empty( $parsed['query'] ) ) {
+					wp_parse_str( $parsed['query'], $query );
+				}
+
+				if ( empty( $query['post_type'] ) ) {
+					$modified[ $filter_key ]['buckets'][ $bucket_key ]['remove_url'] = self::add_post_types_to_url(
+						$bucket['remove_url'],
+						$post_types
+					);
+				}
+			}
+		}
+
+		return $modified;
+	}
+
+	/**
+	 * Given an array of filters or active buckets, will filter out any that are post types.
+	 *
+	 * @param array $filters The array of filters or active buckets.
+	 * @return array
+	 */
+	public static function filter_post_types( $filters ) {
+		$no_post_types = array();
+
+		foreach ( (array) $filters as $key => $filter ) {
+			if ( empty( $filter['type'] ) || 'post_type' !== $filter['type'] ) {
+				if ( is_int( $key ) ) {
+					$no_post_types[] = $filter;
+				} else {
+					$no_post_types[ $key ] = $filter;
+				}
+			}
+		}
+
+		return $no_post_types;
+	}
 }
