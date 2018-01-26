@@ -688,15 +688,23 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 	 * @return void
 	 */
 	public function render_available_filters( $filters, $instance ) {
-		$active_buckets               = $this->jetpack_search->get_active_filter_buckets();
 		$post_types_differ_searchable = Jetpack_Search_Helpers::post_types_differ_searchable( $instance );
 		$post_types_differ_query      = Jetpack_Search_Helpers::post_types_differ_query( $instance );
+		$this->jetpack_search->get_active_filter_buckets();
+		$active_buckets               = $this->jetpack_search->get_active_filter_buckets();
+
+		if ( ! $post_types_differ_query ) {
+			$active_buckets = Jetpack_Search_Helpers::filter_post_types( $active_buckets );
+		}
+
 		$remove_all_filters           = ( count( $active_buckets ) > 1 )
 			? add_query_arg( 's', get_query_var( 's' ), home_url() )
 			: '';
 
 		if ( $post_types_differ_searchable ) {
-			$remove_all_filters = empty( $remove_all_filters ) ? '' : Jetpack_Search_Helpers::add_post_types_to_url( $remove_all_filters, $instance['post_types'] );
+			$remove_all_filters = empty( $remove_all_filters )
+				? ''
+				: Jetpack_Search_Helpers::add_post_types_to_url( $remove_all_filters, $instance['post_types'] );
 
 			if ( $post_types_differ_query ) {
 				$filters = Jetpack_Search_Helpers::ensure_post_types_on_remove_url( $filters, $instance['post_types'] );

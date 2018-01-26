@@ -438,4 +438,26 @@ class Jetpack_Search_Helpers {
 
 		return $modified;
 	}
+
+	/**
+	 * Given an array of filters or active buckets, will filter out any that are post types.
+	 *
+	 * @param array $filters The array of filters or active buckets.
+	 * @return array
+	 */
+	public static function filter_post_types( $filters ) {
+		$no_post_types = array();
+
+		foreach ( (array) $filters as $key => $filter ) {
+			if ( empty( $filter['type'] ) || 'post_type' !== $filter['type'] ) {
+				if ( is_int( $key ) ) {
+					$no_post_types[] = $filter;
+				} else {
+					$no_post_types[ $key ] = $filter;
+				}
+			}
+		}
+
+		return $no_post_types;
+	}
 }
