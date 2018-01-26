@@ -1,34 +1,5 @@
 <?php
 
-define( 'JETPACK_SEARCH_VIP_INDEX', true );
-
-add_filter( 'jetpack_search_es_query_args', function( $es_query_args, $query ) {
-	if ( ! is_user_logged_in() ) {
-		//return $es_query_args;
-	}
-
-	echo '<div style="background-color:white;padding:10px;">';
-	var_dump( $es_query_args );
-	echo '</div>';
-
-	return $es_query_args;
-}, 10, 2 );
-
-
-//add_filter( 'jetpack_search_es_wp_query_args', function ( $args ) {
-//
-//	// set of default query fields
-//	$args[ 'query_fields' ] = [
-//		'title',
-//		'content',
-//		'author',
-//		'tag',
-//		'category',
-//	];
-//
-//	return $args;
-//}, 10, 2 );
-
 class Jetpack_Search {
 
 	protected $found_posts = 0;
