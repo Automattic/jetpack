@@ -463,9 +463,13 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 						<?php $this->render_widget_filter( $filter ); ?>
 					<?php endforeach; ?>
 				</div>
-				<div class="jetpack-search-filters-help">
-					<a href="https://jetpack.com/support/search/#filters-not-showing-up" target="_blank"><?php esc_html_e( "Why aren't my filters appearing?", 'jetpack' ); ?></a>
-				</div>
+				<?php if ( is_customize_preview() ) : ?>
+					<div class="jetpack-search-filters-help">
+						<a href="https://jetpack.com/support/search/#filters-not-showing-up" target="_blank">
+							<?php esc_html_e( "Why aren't my filters appearing?", 'jetpack' ); ?>
+						</a>
+					</div>
+				<?php endif; ?>
 			<?php endif; ?>
 		</div>
 		<?php
