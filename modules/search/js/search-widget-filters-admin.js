@@ -223,6 +223,7 @@
 		widget.off( 'change', '.jetpack-search-filters-widget__taxonomy-select' );
 		widget.off( 'change', '.jetpack-search-filters-widget__date-histogram-select:first select' );
 		widget.off( 'change', '.jetpack-search-filters-widget__date-histogram-select:eq(1) select' );
+		widget.off( 'click', '.jetpack-search-filters-widget__post-types-select input[type="checkbox"]' );
 
 		setListeners( widget );
 	} );
