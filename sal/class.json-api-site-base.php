@@ -295,6 +295,7 @@ abstract class SAL_Site {
 			'name' => $name,
 			'numberposts' => 1,
 			'post_type' => $this->get_whitelisted_post_types(),
+		    'suppress_filters' => false,
 		) );
 
 		if ( ! $posts || ! isset( $posts[0]->ID ) || ! $posts[0]->ID ) {

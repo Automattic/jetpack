@@ -702,6 +702,7 @@ function stats_convert_post_titles( $html ) {
 			'post_type' => 'any',
 			'post_status' => 'any',
 			'numberposts' => -1,
+			'suppress_filters' => false,
 		)
 	);
 	foreach ( $posts as $post ) {
