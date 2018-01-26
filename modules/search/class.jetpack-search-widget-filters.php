@@ -58,13 +58,13 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		);
 
 		wp_register_script(
-			'widget-jetpack-search-filters',
+			'jetpack-search-widget-filters-admin',
 			plugins_url( 'js/search-widget-filters-admin.js', __FILE__ ),
-			array( 'jquery', 'jquery-ui-sortable', 'jp-tracks', 'jp-tracks-functions' )
-
+			array( 'jquery', 'jquery-ui-sortable', 'jp-tracks', 'jp-tracks-functions' ),
+			JETPACK__VERSION
 		);
 
-		wp_localize_script( 'widget-jetpack-search-filters', 'jetpack_search_filter_admin', array(
+		wp_localize_script( 'jetpack-search-widget-filters-admin', 'jetpack_search_filter_admin', array(
 			'defaultFilterCount' => self::DEFAULT_FILTER_COUNT,
 			'tracksUserData'     => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
 			'tracksEventData'    => array(
@@ -72,14 +72,25 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			),
 		) );
 
-		wp_enqueue_script( 'widget-jetpack-search-filters' );
+		wp_enqueue_script( 'jetpack-search-widget-filters-admin' );
 	}
 
 	/**
 	 * Enqueue scripts and styles for the frontend
 	 */
 	public function enqueue_frontend_scripts() {
-		wp_enqueue_script( 'jquery' );
+		if ( ! is_active_widget( false, false, $this->id_base, true ) ) {
+			return;
+		}
+
+		wp_enqueue_script(
+			'jetpack-search-widget-filters',
+			plugins_url( 'js/search-widget-filters.js', __FILE__ ),
+			array( 'jquery' ),
+			JETPACK__VERSION,
+			true
+		);
+
 		wp_enqueue_style( 'jetpack-search-widget', plugins_url( 'modules/search/css/search-widget-frontend.css', JETPACK__PLUGIN_FILE ) );
 	}
 
@@ -232,13 +243,17 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		}
 
 		$this->maybe_render_sort_javascript( $instance, $order, $orderby );
-		$this->render_filter_interaction_javascript();
 
 		echo $args['after_widget'];
 	}
 
 	/**
-	 * Renders JavaScript for the sorting controls on the frontend
+	 * Renders JavaScript for the sorting controls on the frontend.
+	 *
+	 * This JS is a bit complicated, but here's what it's trying to do:
+	 * - find or create a search form
+	 * - find or create the orderby/order fields with default values
+	 * - detect changes to the sort field, if it exists, and use it to set the order field values
 	 *
 	 * @param array  $instance The current widget instance.
 	 * @param string $order   The order to initialize the select with.
@@ -248,19 +263,12 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 	private function maybe_render_sort_javascript( $instance, $order, $orderby ) {
 		if ( ! empty( $instance['user_sort_enabled'] ) ) :
 		?>
-		<!--
-		This JS is a bit complicated, but here's what it's trying to do:
-		- find or create a search form
-		- find or create the orderby/order fields with default values
-		- detect changes to the sort field, if it exists, and use it to set the order field values
-		-->
 		<script type="text/javascript">
 				jQuery( document ).ready( function( $ ) {
-					var actionUrl      = <?php echo json_encode( home_url( '/' ) ); ?>,
-						orderByDefault = <?php echo json_encode( $orderby ); ?>,
+					var orderByDefault = <?php echo json_encode( $orderby ); ?>,
 						orderDefault   = <?php echo json_encode( $order ); ?>,
 						widgetId       = <?php echo json_encode( $this->id ); ?>,
-						currentSearch  = <?php echo json_encode( isset( $_GET['s'] ) ? $_GET['s'] : '' ); ?>
+						currentSearch  = <?php echo json_encode( isset( $_GET['s'] ) ? $_GET['s'] : '' ); ?>;
 
 					var container = $('#' + widgetId);
 					var form = container.find('.jetpack-search-form form');
@@ -283,32 +291,6 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		<?php endif;
 	}
 
-	/**
-	 * Renders JavaScript to support checkbox filters.
-	 *
-	 * @return void
-	 */
-	private function render_filter_interaction_javascript() {
-		?>
-		<script type="text/javascript">
-			jQuery( document ).ready( function() {
-				var checkboxSelector = '.jetpack-search-filters-widget__filter-list input[type="checkbox"]',
-					checkboxes = jQuery( checkboxSelector );
-
-				jQuery( checkboxSelector ).prop( 'disabled', false ).css( 'cursor', 'inherit' );
-				jQuery( checkboxSelector ).on( 'click change', function( e ) {
-					var anchor;
-					e.preventDefault();
-
-					anchor = jQuery( this ).closest( 'a' );
-					if ( anchor.length ) {
-						window.location.href = anchor.prop( 'href' );
-					}
-				} );
-			} );
-		</script>
-		<?php
-	}
 
 	private function sorting_to_wp_query_param( $sort ) {
 		$parts = explode( '|', $sort );
