@@ -123,7 +123,8 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_wpcom_store',
 		'signup_is_store',
 		'has_pending_automated_transfer',
-		'woocommerce_is_active'
+		'woocommerce_is_active',
+		'design_type'
 	);
 
 	protected static $jetpack_response_field_additions = array(
@@ -141,7 +142,8 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_automated_transfer',
 		'is_wpcom_store',
 		'woocommerce_is_active',
-		'frame_nonce'
+		'frame_nonce',
+		'design_type'
 	);
 
 	private $site;
@@ -547,6 +549,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 				case 'woocommerce_is_active':
 					$options[ $key ] = $site->woocommerce_is_active();
+					break;
+				case 'design_type':
+					$options[ $key ] = $site->get_design_type();
 					break;
 			}
 		}
