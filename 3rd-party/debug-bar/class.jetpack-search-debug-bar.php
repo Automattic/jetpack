@@ -82,29 +82,29 @@ class Jetpack_Search_Debug_Bar extends Debug_Bar_Panel {
 	 * @return void
 	 */
 	public function render() {
-		$last_query_failure_info = $this->jetpack_search->get_last_query_failure_info();
 		$last_query_info = $this->jetpack_search->get_last_query_info();
 
 		// If not empty, let's reshuffle the order of some things.
 		if ( ! empty( $last_query_info ) ) {
-			$args = $last_query_info['args'];
+			$args     = $last_query_info['args'];
 			$response = $last_query_info['response'];
+			$response_code = $last_query_info['response_code'];
+
 			unset( $last_query_info['args'] );
 			unset( $last_query_info['response'] );
-			$last_query_info['response'] = $response;
-			$last_query_info['args'] = $args;
+			unset( $last_query_info['response_code'] );
+
+			$temp = array_merge(
+				array( 'response_code' => $response_code ),
+				array( 'args' => $args ),
+				$last_query_info,
+				array( 'response' => $response )
+			);
+
+			$last_query_info = $temp;
 		}
 		?>
 		<div class="jetpack-search-debug-bar">
-			<h2><?php esc_html_e( 'Last query failure information:', 'jetpack' ); ?></h2>
-			<?php if ( empty( $last_query_failure_info ) ) : ?>
-				<?php echo esc_html_x( 'None', 'Text displayed when there is no information', 'jetpack' ); ?>
-			<?php
-				else :
-					$this->render_json_toggle( $last_query_failure_info );
-			endif;
-			?>
-
 			<h2><?php esc_html_e( 'Last query information:', 'jetpack' ); ?></h2>
 			<?php if ( empty( $last_query_info ) ) : ?>
 					<?php echo esc_html_x( 'None', 'Text displayed when there is no information', 'jetpack' ); ?>
