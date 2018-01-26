@@ -5,6 +5,8 @@ import React from 'react';
 import { translate as __ } from 'i18n-calypso';
 import TextInput from 'components/text-input';
 import ExternalLink from 'components/external-link';
+import Text from 'react-native';
+
 
 /**
  * Internal dependencies
@@ -49,7 +51,7 @@ export const VerificationServices = moduleSettingsForm(
 					<SettingsGroup module={ verification } support={ verification.learn_more_button }>
 						<p>
 							{ __(
-								'Note that {{b}}verifying your site with these services is not necessary{{/b}} in order for your site to be indexed by search engines. To use these advanced search engine tools and verify your site with a service, paste the HTML Tag code below. Read the {{support}}full instructions{{/support}} if you are having trouble. Supported verification services: {{google}}Google Search Console{{/google}}, {{bing}}Bing Webmaster Center{{/bing}}, {{pinterest}}Pinterest Site Verification{{/pinterest}}, and {{yandex}}Yandex.Webmaster{{/yandex}}.',
+								'Note that {{b}}verifying your site with these services is not necessary{{/b}} in order for your site to be indexed by search engines. To use these advanced search engine tools and verify your site with a service, paste the {{b}}content{{/b}} value of your meta key below. Read the {{support}}full instructions{{/support}} if you are having trouble. Supported verification services: {{google}}Google Search Console{{/google}}, {{bing}}Bing Webmaster Center{{/bing}}, {{pinterest}}Pinterest Site Verification{{/pinterest}}, and {{yandex}}Yandex.Webmaster{{/yandex}}.',
 								{
 									components: {
 										b: <strong />,
@@ -84,6 +86,11 @@ export const VerificationServices = moduleSettingsForm(
 										)
 									}
 								}
+								
+								      <p>		
+									Meta key example: <meta name="google-site-verification" content="{{b}}dBw5CvburAxi537Rp9qi5uG2174Vb6JwHwIRwPSLIK8{{/b}}" />
+								      </p>
+								
 							) }
 						</p>
 						<FormFieldset>
