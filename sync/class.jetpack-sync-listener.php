@@ -259,7 +259,7 @@ class Jetpack_Sync_Listener {
 			'is_wp_admin'      => is_admin(),
 		);
 
-		if ( $this->should_send_ip_address_with_actor() ) {
+		if ( $this->should_send_ip_address_with_actor( $current_filter ) ) {
 			require_once( JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php' );
 			$actor['ip'] = jetpack_protect_get_ip();
 		}
@@ -267,8 +267,23 @@ class Jetpack_Sync_Listener {
 		return $actor;
 	}
 
-	function should_send_ip_address_with_actor() {
-		return false;
+	function should_send_ip_address_with_actor( $current_filter ) {
+		if ( ! in_array( $current_filter, array( 'wp_login', 'wp_logout', 'jetpack_valid_failed_login_attempt' ) ) ) {
+			// Only send IP Address with login-related events
+			return false;
+		}
+
+		/**
+		 * Allow or deny sending actor's IP Address during a sync event
+		 *
+		 * @since 5.8.0
+		 *
+		 * @param bool True if we should send the IP Address
+		 */
+		if ( ! apply_filters( 'jetpack_sync_actor_ip_address', true ) ) {
+			return false;
+		}
+		return true;
 	}
 
 	function set_defaults() {
