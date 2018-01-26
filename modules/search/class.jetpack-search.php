@@ -94,9 +94,9 @@ class Jetpack_Search {
 		if ( ! is_admin() ) {
 			add_filter( 'posts_pre_query', array( $this, 'filter__posts_pre_query' ), 10, 2 );
 
-			add_filter( 'jetpack_search_es_wp_query_args', array( $this, 'filter__add_date_filter_to_query' ),  10, 2 );
+			add_filter( 'jetpack_search_es_wp_query_args', array( $this, 'filter__add_date_filter_to_query' ), 10, 2 );
 
-			add_action( 'did_jetpack_search_query', array( $this, 'store_query_success' ) );
+			add_action( 'did_jetpack_search_query', array( $this, 'store_last_query_info' ) );
 			add_action( 'failed_jetpack_search_query', array( $this, 'store_query_failure' ) );
 
 			add_action( 'init', array( $this, 'set_filters_from_widgets' ) );
@@ -127,7 +127,7 @@ class Jetpack_Search {
 		}
 	}
 
-	public function store_query_success( $meta ) {
+	public function store_last_query_info( $meta ) {
 		$this->last_query_info = $meta;
 		add_action( 'wp_footer', array( $this, 'print_query_success' ) );
 	}
@@ -258,29 +258,17 @@ class Jetpack_Search {
 		}
 
 		$response_code = wp_remote_retrieve_response_code( $request );
-		$response = json_decode( wp_remote_retrieve_body( $request ), true );
+		$response      = json_decode( wp_remote_retrieve_body( $request ), true );
 
-		if ( ! $response_code || $response_code < 200 || $response_code >= 300 ) {
-			/**
-			 * Fires after a search query request has failed
-			 *
-			 * @module search
-			 *
-			 * @since 5.6.0
-			 *
-			 * @param array Array containing the response code and response from the failed search query
-			 */
-			do_action( 'failed_jetpack_search_query', array( 'response_code' => $response_code, 'json' => $response ) );
-			return new WP_Error( 'invalid_search_api_response', 'Invalid response from API - ' . $response_code );
-		}
-
-		$took = is_array( $response ) && $response['took'] ? $response['took'] : null;
+		$took = is_array( $response ) && ! empty( $response['took'] )
+			? $response['took']
+			: null;
 
 		$query = array(
 			'args'          => $es_args,
 			'response'      => $response,
 			'response_code' => $response_code,
-			'elapsed_time'   => ( $end_time - $start_time ) * 1000, // Convert from float seconds to ms
+			'elapsed_time'  => ( $end_time - $start_time ) * 1000, // Convert from float seconds to ms.
 			'es_time'       => $took,
 			'url'           => $service_url,
 		);
@@ -300,10 +288,28 @@ class Jetpack_Search {
 		 * @module search
 		 *
 		 * @since 5.0.0
+		 * @since 5.8.0 This action now fires on all queries instead of just successful queries.
 		 *
 		 * @param array $query Array of information about the query performed
 		 */
 		do_action( 'did_jetpack_search_query', $query );
+
+		if ( ! $response_code || $response_code < 200 || $response_code >= 300 ) {
+			/**
+			 * Fires after a search query request has failed
+			 *
+			 * @module search
+			 *
+			 * @since 5.6.0
+			 *
+			 * @param array Array containing the response code and response from the failed search query
+			 */
+			do_action( 'failed_jetpack_search_query', array(
+				'response_code' => $response_code,
+				'json'          => $response,
+			) );
+			return new WP_Error( 'invalid_search_api_response', 'Invalid response from API - ' . $response_code );
+		}
 
 		return $response;
 	}
