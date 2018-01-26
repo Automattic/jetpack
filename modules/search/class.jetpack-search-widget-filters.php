@@ -382,7 +382,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		<div class="<?php echo esc_attr( $classes ); ?>">
 			<p>
 				<label for="<?php echo esc_attr( $this->get_field_id( 'title' ) ); ?>">
-					<?php esc_html_e( 'Title:', 'jetpack' ); ?>
+					<?php esc_html_e( 'Title (optional):', 'jetpack' ); ?>
 				</label>
 				<input
 					class="widefat"
