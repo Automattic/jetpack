@@ -57,7 +57,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			false
 		);
 
-		wp_enqueue_script(
+		wp_register_script(
 			'jetpack-search-widget-filters-admin',
 			plugins_url( 'js/search-widget-filters-admin.js', __FILE__ ),
 			array( 'jquery', 'jp-tracks', 'jp-tracks-functions' ),
