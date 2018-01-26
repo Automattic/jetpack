@@ -3,6 +3,7 @@
 	border: 1px solid #dfdfdf;
 	padding: 0 12px;
 	margin-bottom: 12px;
+	cursor: move;
 }
 
 .jetpack-search-filters-widget__controls {
@@ -37,6 +38,13 @@
 
 .jetpack-search-filters-widget__date-histogram-select {
 	display: none;
+}
+
+.jetpack-search-filters-widget__filter-placeholder {
+	border: 1px #555 dashed;
+	background-color: #eee;
+	height: 150px;
+	margin-bottom: 12px;
 }
 
 /* When post type is selected, remove the other controls */
