@@ -697,7 +697,9 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			$active_buckets = Jetpack_Search_Helpers::filter_post_types( $active_buckets );
 		}
 
+		$default_post_types = array();
 		if ( $post_types_differ_searchable ) {
+			$default_post_types = $instance['post_types'];
 			if ( $post_types_differ_query ) {
 				$filters = Jetpack_Search_Helpers::ensure_post_types_on_remove_url( $filters, $instance['post_types'] );
 			} else {
@@ -706,7 +708,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		}
 
 		foreach ( (array) $filters as $filter ) {
-			$this->render_filter( $filter );
+			$this->render_filter( $filter, $default_post_types );
 		}
 	}
 
@@ -719,7 +721,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 	 *
 	 * @param array $filter The filter to render.
 	 */
-	public function render_filter( $filter ) {
+	public function render_filter( $filter, $default_post_types ) {
 		if ( empty( $filter ) || empty( $filter['buckets'] ) ) {
 			return;
 		}
@@ -734,6 +736,9 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		$clear_url = null;
 		if ( ! empty( $query_vars ) ) {
 			$clear_url = Jetpack_Search_Helpers::remove_query_arg( $query_vars );
+			if ( ! empty( $default_post_types ) ) {
+				$clear_url = Jetpack_Search_Helpers::add_post_types_to_url( $clear_url, $default_post_types );
+			}
 		}
 
 		?>
