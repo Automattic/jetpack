@@ -370,7 +370,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 
 		$hide_filters = $this->jetpack_search->are_filters_by_widget_disabled();
 		$use_filters = ! empty( $instance['use_filters'] ) && ! $hide_filters;
-		$search_box_enabled = ! empty( $instance['search_box_enabled'] );
+		$search_box_enabled = ! isset( $instance['search_box_enabled'] ) || ! empty( $instance['search_box_enabled'] );
 		$user_sort_enabled = ! empty( $instance['user_sort_enabled'] );
 		$sort = isset( $instance['sort'] ) ? $instance['sort'] : self::DEFAULT_SORT;
 		$classes = sprintf(
