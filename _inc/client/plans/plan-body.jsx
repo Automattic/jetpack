@@ -103,7 +103,7 @@ const PlanBody = React.createClass( {
 					description = __( 'Daily backup of all your site data with unlimited space, one-click restores, automated security scanning, and priority support' );
 					break;
 				case 'is-business-plan':
-					description = __( 'Real-time backup of all your site data with unlimited space, one-click restores, automated security scanning, one-click threat resolution, and priority support' );
+					description = __( 'Real-time backup of all your site data with unlimited space, one-click restores, automated security scanning, and priority support' );
 					break;
 				default:
 					description = '';
@@ -113,7 +113,7 @@ const PlanBody = React.createClass( {
 				return (
 					<div className="jp-landing__plan-features-card">
 						<h3 className="jp-landing__plan-features-title">{ __( 'Backups' ) }</h3>
-						<p>{ __( 'Real-time backup of all your site data with unlimited space, one-click restores, automated security scanning, and one-click threat resolution.' ) }</p>
+						<p>{ __( 'Real-time backup of all your site data with unlimited space, one-click restores, and automated security scanning.' ) }</p>
 						<Button onClick={ () => this.trackPlansClick( 'view_security_dash_rewind' ) } href={ 'https://wordpress.com/stats/activity/' + this.props.siteRawUrl } className="is-primary">
 							{ __( 'View your security activity' ) }
 						</Button>
