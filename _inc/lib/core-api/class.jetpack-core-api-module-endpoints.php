@@ -1069,8 +1069,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
 		// Setup contact page and add a form and/or business info
 		$contact_page = '';
-		if ( isset( $data['addContactForm'] ) && $data['addContactForm'] &&
-			! get_option( 'jpo_contact_page' ) ) {
+		if ( ! empty( $data['addContactForm'] ) && ! get_option( 'jpo_contact_page' ) ) {
 			$contact_form_module_active = Jetpack::is_module_active( 'contact-form' );
 			if ( ! $contact_form_module_active ) {
 				$contact_form_module_active = Jetpack::activate_module( 'contact-form', false, false );
