@@ -350,6 +350,24 @@ class Jetpack_Search_Helpers {
 	}
 
 	/**
+	 * Gets the active post types given a set of filters.
+	 *
+	 * @param array $filters The active filters for the current query.
+	 * @param array $default_post_types The default post types.
+	 *
+	 * @return boolean
+	 */
+	public static function get_active_post_types( $filters, $default_post_types ) {
+		$active_post_types = array();
+		foreach( $filters as $item ) {
+			if ( ( 'post_type' == $item['type'] ) && isset( $item['query_vars']['post_type'] ) ) {
+				$active_post_types[] = $item['query_vars']['post_type'];
+			}
+		}
+		return $active_post_types;
+	}
+
+	/**
 	 * Sets active to false on all post type buckets.
 	 *
 	 * @param array $filters The available filters for the current query.

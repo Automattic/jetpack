@@ -690,7 +690,6 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 	public function render_available_filters( $filters, $instance ) {
 		$post_types_differ_searchable = Jetpack_Search_Helpers::post_types_differ_searchable( $instance );
 		$post_types_differ_query      = Jetpack_Search_Helpers::post_types_differ_query( $instance );
-		$this->jetpack_search->get_active_filter_buckets();
 		$active_buckets               = $this->jetpack_search->get_active_filter_buckets();
 
 		if ( ! $post_types_differ_query ) {
@@ -698,17 +697,27 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		}
 
 		$default_post_types = array();
+		$active_post_types = array();
 		if ( $post_types_differ_searchable ) {
 			$default_post_types = $instance['post_types'];
+			$active_post_types = Jetpack_Search_Helpers::get_active_post_types( $active_buckets, $default_post_types );
+			if ( empty( $active_post_types ) ) {
+				$active_post_types = $default_post_types;
+			}
+
 			if ( $post_types_differ_query ) {
-				$filters = Jetpack_Search_Helpers::ensure_post_types_on_remove_url( $filters, $instance['post_types'] );
+				$filters = Jetpack_Search_Helpers::ensure_post_types_on_remove_url( $filters, $default_post_types );
 			} else {
 				$filters = Jetpack_Search_Helpers::remove_active_from_post_type_buckets( $filters );
 			}
 		}
 
 		foreach ( (array) $filters as $filter ) {
-			$this->render_filter( $filter, $default_post_types );
+			if ( 'post_type' == $filter['type'] ) {
+				$this->render_filter( $filter, $default_post_types );
+			} else {
+				$this->render_filter( $filter, $active_post_types );
+			}
 		}
 	}
 
@@ -720,6 +729,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 	 * Renders a single filter that can be applied to the current search.
 	 *
 	 * @param array $filter The filter to render.
+	 * @param array $default_post_types The default post types for this filter.
 	 */
 	public function render_filter( $filter, $default_post_types ) {
 		if ( empty( $filter ) || empty( $filter['buckets'] ) ) {
