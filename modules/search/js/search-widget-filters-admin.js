@@ -8,11 +8,22 @@
 	$( document ).ready( function() {
 		setListeners();
 
+		window.JetpackSearch = window.JetpackSearch || {};
+		window.JetpackSearch.addFilter = addFilter;
+
 		// Initialize Tracks
 		if ( 'undefined' !== typeof analytics && args.tracksUserData ) {
 			analytics.initialize( args.tracksUserData.userid, args.tracksUserData.username );
 		}
 	} );
+
+	var addFilter = function( filtersContainer, args ) {
+		// render using underscore
+		var template = _.template( $('.jetpack-search-filters-widget__filter-template').html() );
+		var filter = $('<div></div>');
+		filter.html( template( args ) );
+		filtersContainer.append( filter );
+	}
 
 	var setListeners = function( widget ) {
 		widget = ( 'undefined' === typeof widget ) ?
@@ -140,19 +151,21 @@
 			trackAndBumpMCStats( 'changed_filter_count', eventArgs );
 		} );
 
-		widget.on( 'click', '.jetpack-search-filters-widget__controls .add', function( e ) {
+		// add filter button
+		widget.on( 'click', '.jetpack-search-filters-widget__add-filter', function( e ) {
 			e.preventDefault();
-			var closest = $( this ).closest( '.jetpack-search-filters-widget__filter' ),
-				clone = closest
-					.clone()
-					.attr( 'class', 'jetpack-search-filters-widget__filter' );
+			addFilter( widget.find('.jetpack-search-filters-widget__filters'), {
+				type: 'taxonomy',
+				taxonomy: '',
+				post_type: '',
+				field: '',
+				interval: '',
+				count: defaultFilterCount
+			} );
 
-			clone.find( 'input[type="number"]' ).val( defaultFilterCount );
-			clone.find( 'input[type="text"]' ).val( '' );
-			clone.find( 'select option:first-child' ).prop( 'selected', true );
-
-			clone.insertAfter( closest );
-			clone.find( 'input, textarea, select' ).change();
+			if ( wp && wp.customize ) {
+				wp.customize.state( 'saved' ).set( false );
+			}
 
 			trackAndBumpMCStats( 'added_filter', args.tracksEventData );
 		} );
@@ -182,18 +195,6 @@
 
 			filter.find( 'input, textarea, select' ).change();
 			filter.remove();
-		} );
-
-		widget.on( 'change', '.jetpack-search-filters-widget__use-filters', function() {
-			var selector = $( this ).closest( '.jetpack-search-filters-widget' );
-
-			if ( $( this ).is(':checked') ) {
-				trackAndBumpMCStats( 'enabled_filters', args.tracksEventData );
-			} else {
-				trackAndBumpMCStats( 'disabled_filters', args.tracksEventData );
-			}
-
-			selector.toggleClass( 'hide-filters' );
 		} );
 
 		// make the filters sortable
@@ -238,6 +239,7 @@
 		widget.off( 'change', '.jetpack-search-filters-widget__date-histogram-select:first select' );
 		widget.off( 'change', '.jetpack-search-filters-widget__date-histogram-select:eq(1) select' );
 		widget.off( 'click', '.jetpack-search-filters-widget__post-types-select input[type="checkbox"]' );
+		widget.off( 'click', '.jetpack-search-filters-widget__add-filter');
 
 		setListeners( widget );
 	} );

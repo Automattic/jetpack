@@ -70,10 +70,6 @@ class Jetpack_Search_Helpers {
 				continue;
 			}
 
-			if ( empty( $settings['use_filters'] ) ) {
-				continue;
-			}
-
 			foreach ( (array) $settings['filters'] as $widget_filter ) {
 				$widget_filter['widget_id'] = $widget_id;
 				$key = sprintf( '%s_%d', $widget_filter['type'], count( $filters ) );
