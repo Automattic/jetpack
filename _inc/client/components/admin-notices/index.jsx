@@ -8,7 +8,6 @@ const AdminNotices = React.createClass( {
 		const $adminNotices = jQuery( this.refs.adminNotices );
 
 		const $vpNotice = jQuery( '.vp-notice' );
-
 		if ( $vpNotice.length > 0 ) {
 			$vpNotice.each( function() {
 				const $success = jQuery( this ).hasClass( 'vp-registered' );
@@ -47,7 +46,7 @@ const AdminNotices = React.createClass( {
 	},
 
 	render() {
-		return ( <div ref="adminNotices" aria-live="polite"></div> );
+		return ( <div id="jp-admin-notices" ref="adminNotices" aria-live="polite"></div> );
 	}
 } );
 

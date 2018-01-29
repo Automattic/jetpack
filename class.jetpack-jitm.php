@@ -67,7 +67,6 @@ class Jetpack_JITM {
 	 */
 	function prepare_jitms( $screen ) {
 		if ( ! in_array( $screen->id, array(
-			'toplevel_page_jetpack',
 			'jetpack_page_stats',
 			'jetpack_page_akismet-key-config',
 			'admin_page_jetpack_modules'
