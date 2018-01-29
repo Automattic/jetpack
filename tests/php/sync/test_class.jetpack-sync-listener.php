@@ -108,7 +108,8 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 		}
 	}
 
-	function test_does_listener_add_actor_ip_for_login_events() {
+	function test_does_listener_add_actor_user_data_for_login_events() {
+		$_SERVER['user_agent'] = 'test';
 		$user_id = $this->factory->user->create( array( 'role' => 'administrator' ) );
 		wp_set_current_user( $user_id );
 		$this->listener->get_sync_queue()->reset();
@@ -130,7 +131,8 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 			'is_xmlrpc'        => defined( 'XMLRPC_REQUEST' ) ? XMLRPC_REQUEST : false,
 			'is_wp_rest'       => defined( 'REST_REQUEST' ) ? REST_REQUEST : false,
 			'is_ajax'          => defined( 'DOING_AJAX' ) ? DOING_AJAX : false,
-			'ip'               => jetpack_protect_get_ip()
+			'ip'               => jetpack_protect_get_ip(),
+			'user_agent'       => 'test',
 		);
 
 		$all = $queue->get_all();
@@ -138,6 +140,7 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 			list( $current_filter, $args, $current_user_id, $microtime, $is_importing, $actor ) = $queue_item->value;
 			$this->assertEquals( $actor, $example_actor );
 		}
+		unset( $_SERVER['user_agent'] );
 	}
 
 	function test_does_listener_exclude_actor_ip_if_filter_is_present() {
@@ -147,9 +150,9 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 		$queue = $this->listener->get_sync_queue();
 		$queue->reset(); // remove any actions that already got queued
 		$current_user = wp_get_current_user();
-		add_filter( 'jetpack_sync_actor_ip_address', '__return_false' );
+		add_filter( 'jetpack_sync_actor_user_data', '__return_false' );
 		wp_signon( array( 'user_login' => $current_user->data->user_login, 'user_password' => 'password' ) );
-		remove_filter( 'jetpack_sync_actor_ip_address', '__return_false' );
+		remove_filter( 'jetpack_sync_actor_user_data', '__return_false' );
 		$example_actor = array(
 			'wpcom_user_id'    => null,
 			'external_user_id' => $current_user->ID,
@@ -170,7 +173,6 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 			list( $current_filter, $args, $current_user_id, $microtime, $is_importing, $actor ) = $queue_item->value;
 			$this->assertEquals( $actor, $example_actor );
 		}
-
 	}
 
 	function test_does_set_silent_flag_true_while_importing() {
