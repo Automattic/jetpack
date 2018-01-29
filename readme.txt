@@ -115,7 +115,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Sharing: make sure the Whatsapp button works on mobile and on desktop.
 * Sharing: add new filter, `wp_sharing_email_send_post_subject`, to allow modifying the email sharing subject line.
 * Site Settings: add support for site language and timezone settings.
-* Sync: improve synchronization of user actions, theme and plugin edits, and post status.
+* Sync: improve synchronization of user actions, theme and plugin edits, post status, and updates on Multisite networks.
 
 **Improved compatibility**
 
