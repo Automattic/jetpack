@@ -4,9 +4,11 @@
  */
 class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 	protected $theme;
+	const PLUGIN_ZIP = 'wp-content/plugins/jetpack/tests/php/files/the.1.1.zip';
 
 	public function setUp() {
 		parent::setUp();
+
 	}
 
 	public function tearDown() {
@@ -23,28 +25,28 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 		$this->server_event_storage->reset();
 		$this->resetCallableAndConstantTimeouts();
 
-		$this->remove_plugin(); // make sure that we start with no plugin.
+		self::remove_plugin(); // make sure that we start with no plugin.
 
 		$this->server_event_storage->reset();
 
-		$this->install_the_plugin();
+		self::install_the_plugin();
 		$this->sender->do_sync();
 		//Determine which action came first as between jetpack_installed_plugin and jetpack_sync_callable
 		$events = $this->server_event_storage->get_all_events();
 
 		$first_action = false;
 		foreach( $events as $event ) {
-			if ( 'jetpack_installed_plugin' === $event->action ||
+			if ( 'jetpack_plugin_installed' === $event->action ||
 			'jetpack_sync_callable' === $event->action ) {
 				$first_action = $event->action;
 				break;
 			}
 		}
-		$this->assertEquals( 'jetpack_installed_plugin', $first_action, 'First action is not jetpack plugin installed' );
+		$this->assertEquals( 'jetpack_plugin_installed', $first_action, 'First action is not jetpack plugin installed' );
 
-		$installed_plugin = $this->server_event_storage->get_most_recent_event( 'jetpack_installed_plugin' );
-		$this->assertEquals( 'the/the.php', $installed_plugin->args[0] );
-		$this->assertEquals( 'The', $installed_plugin->args[1]['Name'] );
+		$installed_plugin = $this->server_event_storage->get_most_recent_event( 'jetpack_plugin_installed' );
+		$this->assertEquals( 'the/the.php', $installed_plugin->args[0][0]['slug'] );
+		$this->assertEquals( 'The', $installed_plugin->args[0][0]['Name'] );
 
 		$plugins = $this->server_replica_storage->get_callable( 'get_plugins' );
 		$this->assertEquals( get_plugins(), $plugins );
@@ -54,7 +56,7 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 
 
 		// Remove plugin
-		$this->remove_plugin();
+		self::remove_plugin();
 		$this->sender->do_sync();
 		$plugins = $this->server_replica_storage->get_callable( 'get_plugins' );
 		$this->assertEquals( get_plugins(), $plugins );
@@ -188,7 +190,7 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 		$this->assertTrue( isset( $not_synced['hello.php'] ) );
 	}
 
-	function install_the_plugin() {
+	static function install_the_plugin() {
 		require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
 		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
 
@@ -196,10 +198,20 @@ class WP_Test_Jetpack_Sync_Plugins extends WP_Test_Jetpack_Sync_Base {
 			new Automatic_Upgrader_Skin( compact( 'title', 'url', 'nonce', 'plugin', 'api' ) )
 		);
 		// 'https://downloads.wordpress.org/plugin/the.1.1.zip' Install it from local disk
-		$upgrader->install( ABSPATH . 'wp-content/plugins/jetpack/tests/php/files/the.1.1.zip' );
+		$upgrader->install( ABSPATH . self::PLUGIN_ZIP );
 	}
 
-	function remove_plugin() {
+	function set_update_plugin_transient( $transient ) {
+		return (object) array(
+			'response' => array(
+				'the/the.php' => (object) array(
+					'package' => ABSPATH . self::PLUGIN_ZIP
+				)
+			)
+		);
+	}
+
+	static function remove_plugin() {
 		if ( file_exists( ABSPATH .  'wp-content/plugins/the/the.php' ) ) {
 			delete_plugins( array( 'the/the.php' ) );
 			wp_cache_delete( 'plugins', 'plugins' );

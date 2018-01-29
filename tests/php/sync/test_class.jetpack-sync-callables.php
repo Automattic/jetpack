@@ -830,7 +830,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 
 		$upgrader = (object) array(
 			'skin' => (object) array(
-				'result' => new WP_Error( 'fail' )
+				'result' => new WP_Error( 'fail', 'Fail' )
 			)
 		);
 
@@ -838,7 +838,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 			'action' => 'update',
 			'type' => 'plugin',
 			'bulk' => true,
-			'plugins' => 'the/the.php',
+			'plugins' => array( 'the/the.php' ),
 		) );
 
 		$this->sender->do_sync();
