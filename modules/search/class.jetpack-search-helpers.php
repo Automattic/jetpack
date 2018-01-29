@@ -460,4 +460,45 @@ class Jetpack_Search_Helpers {
 
 		return $no_post_types;
 	}
+
+	/**
+	 * Returns a boolen for whether the current site has a VIP index.
+	 *
+	 * @return bool
+	 */
+	public static function site_has_vip_index() {
+		$has_vip_index = (
+			Jetpack_Constants::is_defined( 'JETPACK_SEARCH_VIP_INDEX' ) &&
+			Jetpack_Constants::get_constant( 'JETPACK_SEARCH_VIP_INDEX' )
+		);
+
+		/**
+		 * Allows developers to filter whether the current site has a VIP index.
+		 *
+		 * @module search
+		 *
+		 * @since 5.8.0
+		 *
+		 * @param bool $has_vip_index Whether the current site has a VIP index.
+		 */
+		return apply_filters( 'jetpack_search_has_vip_index', $has_vip_index );
+	}
+
+	/**
+	 * Returns the maximum posts per page for a search query
+	 *
+	 * @return int
+	 */
+	public static function get_max_posts_per_page() {
+		return self::site_has_vip_index() ? 1000 : 100;
+	}
+
+	/**
+	 * Returns the maximum offset for a search query
+	 *
+	 * @return int
+	 */
+	public static function get_max_offset() {
+		return self::site_has_vip_index() ? 9000 : 1000;
+	}
 }
