@@ -113,6 +113,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Onboarding: save site type during site setup process.
 * Post Images: allow passing size when searching for images in HTML.
 * REST API: update the plugin installation process to use a new library.
+* REST API: allow changing the number of posts displayed in the RSS feed, and whether feeds display full text or a summary.
 * Sharing: make sure the Whatsapp button works on mobile and on desktop.
 * Sharing: add new filter, `wp_sharing_email_send_post_subject`, to allow modifying the email sharing subject line.
 * Site Settings: add support for site language and timezone settings.
