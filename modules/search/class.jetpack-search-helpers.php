@@ -75,49 +75,7 @@ class Jetpack_Search_Helpers {
 				$key = sprintf( '%s_%d', $widget_filter['type'], count( $filters ) );
 
 				if ( empty( $widget_filter['name'] ) ) {
-					switch ( $widget_filter['type'] ) {
-						case 'post_type':
-							$widget_filter['name'] = _x( 'Post Types', 'label for filtering posts', 'jetpack' );
-							break;
-						case 'date_histogram':
-							switch ( $widget_filter['field'] ) {
-								case 'post_date':
-								case 'post_date_gmt':
-									switch ( $widget_filter['interval'] ) {
-										case 'month':
-											$widget_filter['name'] = _x( 'Month', 'label for filtering posts', 'jetpack' );
-											break;
-										case 'year':
-											$widget_filter['name'] = _x( 'Year', 'label for filtering posts', 'jetpack' );
-											break;
-									}
-									break;
-								case 'post_modified':
-								case 'post_modified_gmt':
-									switch ( $widget_filter['interval'] ) {
-										case 'month':
-											$widget_filter['name'] = _x( 'Month Updated', 'label for filtering posts', 'jetpack' );
-											break;
-										case 'year':
-											$widget_filter['name'] = _x( 'Year Updated', 'label for filtering posts', 'jetpack' );
-											break;
-									}
-									break;
-							}
-							break;
-						case 'taxonomy':
-							$tax = get_taxonomy( $widget_filter['taxonomy'] );
-							if ( ! $tax ) {
-								break;
-							}
-
-							if ( isset( $tax->label ) ) {
-								$widget_filter['name'] = $tax->label;
-							} else if ( isset( $tax->labels ) && isset( $tax->labels->name ) ) {
-								$widget_filter['name'] = $tax->labels->name;
-							}
-							break;
-					}
+					$widget_filter['name'] = self::generate_widget_filter_name( $widget_filter );
 				}
 
 				$filters[ $key ] = $widget_filter;
@@ -125,6 +83,56 @@ class Jetpack_Search_Helpers {
 		}
 
 		return $filters;
+	}
+
+	static function generate_widget_filter_name( $widget_filter ) {
+		$name = '';
+
+		switch ( $widget_filter['type'] ) {
+			case 'post_type':
+				$name = _x( 'Post Types', 'label for filtering posts', 'jetpack' );
+				break;
+			case 'date_histogram':
+				switch ( $widget_filter['field'] ) {
+					case 'post_date':
+					case 'post_date_gmt':
+						switch ( $widget_filter['interval'] ) {
+							case 'month':
+								$name = _x( 'Month', 'label for filtering posts', 'jetpack' );
+								break;
+							case 'year':
+								$name = _x( 'Year', 'label for filtering posts', 'jetpack' );
+								break;
+						}
+						break;
+					case 'post_modified':
+					case 'post_modified_gmt':
+						switch ( $widget_filter['interval'] ) {
+							case 'month':
+								$name = _x( 'Month Updated', 'label for filtering posts', 'jetpack' );
+								break;
+							case 'year':
+								$name = _x( 'Year Updated', 'label for filtering posts', 'jetpack' );
+								break;
+						}
+						break;
+				}
+				break;
+			case 'taxonomy':
+				$tax = get_taxonomy( $widget_filter['taxonomy'] );
+				if ( ! $tax ) {
+					break;
+				}
+
+				if ( isset( $tax->label ) ) {
+					$name = $tax->label;
+				} else if ( isset( $tax->labels ) && isset( $tax->labels->name ) ) {
+					$name = $tax->labels->name;
+				}
+				break;
+		}
+
+		return $name;
 	}
 
 	/**

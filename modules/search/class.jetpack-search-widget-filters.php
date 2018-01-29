@@ -445,18 +445,6 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			<?php if ( ! $hide_filters ): ?>
 				<script class="jetpack-search-filters-widget__filter-template" type="text/template">
 					<div class="jetpack-search-filters-widget__filter is-<%= type %>">
-						<p>
-							<label>
-								<?php esc_html_e( 'Filter Name:', 'jetpack' ); ?>
-								<input
-									class="widefat"
-									type="text"
-									name="<?php echo esc_attr( $this->get_field_name( 'filter_name' ) ); ?>[]"
-									value="<%= name %>"
-								/>
-							</label>
-						</p>
-
 						<p class="jetpack-search-filters-widget__type-select">
 							<label>
 								<?php esc_html_e( 'Filter Type:', 'jetpack' ); ?>
@@ -477,7 +465,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 						<p class="jetpack-search-filters-widget__taxonomy-select">
 							<label>
 								<?php esc_html_e( 'Choose a taxonomy:', 'jetpack' ); $seen_taxonomy_labels = array(); ?>
-								<select name="<?php echo esc_attr( $this->get_field_name( 'taxonomy_type' ) ); ?>[]" class="widefat">
+								<select name="<?php echo esc_attr( $this->get_field_name( 'taxonomy_type' ) ); ?>[]" class="widefat taxonomy-select">
 									<?php foreach ( get_taxonomies( false, 'objects' ) as $taxonomy ) : ?>
 										<option value="<?php echo esc_attr( $taxonomy->name ); ?>" <%= <?php echo json_encode( $taxonomy->name ); ?> === taxonomy ? 'selected="selected"' : '' %>>
 											<?php
@@ -501,7 +489,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 						<p class="jetpack-search-filters-widget__date-histogram-select">
 							<label>
 								<?php esc_html_e( 'Choose a field:', 'jetpack' ); ?>
-								<select name="<?php echo esc_attr( $this->get_field_name( 'date_histogram_field' ) ); ?>[]" class="widefat">
+								<select name="<?php echo esc_attr( $this->get_field_name( 'date_histogram_field' ) ); ?>[]" class="widefat date-field-select">
 									<option value="post_date" <%= 'post_date' === field ? 'selected="selected"' : '' %>>
 										<?php esc_html_e( 'Date', 'jetpack' ); ?>
 									</option>
@@ -521,7 +509,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 						<p class="jetpack-search-filters-widget__date-histogram-select">
 							<label>
 								<?php esc_html_e( 'Choose an interval:' ); ?>
-								<select name="<?php echo esc_attr( $this->get_field_name( 'date_histogram_interval' ) ); ?>[]" class="widefat">
+								<select name="<?php echo esc_attr( $this->get_field_name( 'date_histogram_interval' ) ); ?>[]" class="widefat date-interval-select">
 									<option value="month" <%= 'month' === interval ? 'selected="selected"' : '' %>>
 										<?php esc_html_e( 'Month', 'jetpack' ); ?>
 									</option>
@@ -529,6 +517,19 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 										<?php esc_html_e( 'Year', 'jetpack' ); ?>
 									</option>
 								</select>
+							</label>
+						</p>
+
+						<p class="jetpack-search-filters-widget__title">
+							<label>
+								<?php esc_html_e( 'Title:', 'jetpack' ); ?>
+								<input
+									class="widefat"
+									type="text"
+									name="<?php echo esc_attr( $this->get_field_name( 'filter_name' ) ); ?>[]"
+									value="<%= name %>"
+									placeholder="<%= name_placeholder %>"
+								/>
 							</label>
 						</p>
 
@@ -588,6 +589,8 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			'interval' => '',
 			'count' => self::DEFAULT_FILTER_COUNT,
 		) );
+
+		$args['name_placeholder'] = Jetpack_Search_Helpers::generate_widget_filter_name( $args );
 
 		?>
 		<script type="text/javascript">

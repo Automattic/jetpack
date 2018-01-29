@@ -17,12 +17,49 @@
 		}
 	} );
 
+	// auto-generate title
+	function capitalize( str ) {
+		return str.charAt(0).toUpperCase() + str.slice(1);
+	}
+
+	function titleize( str ) {
+		var string_array = str.split(' ');
+		string_array = string_array.map(function(str) {
+		   return str.capitalize();
+		});
+
+		return string_array.join(' ');
+	}
+
+	function generateFilterTitlePlaceholder( container ) {
+		var placeholder = null;
+
+		var type = container.find('.filter-select').val();
+
+		if ( 'taxonomy' === type ) {
+			placeholder = container.find('.taxonomy-select option:selected').text().trim();
+		} else if ( 'date' === type ) {
+			placeholder = container.find('.date-interval-select option:selected').text().trim();
+			if ( container.find( '.date-field-select' ).val().indexOf('updated') >= 0 ) {
+				placeholder = placeholder + ' Updated';
+			}
+		} else {
+			placeholder = container.find('.filter-select option:selected').text().trim();
+		}
+		// if ( 'taxonomy' === args.type ) {
+			// placeholder = titleize( args.type );
+		// }
+		$( container ).find('.jetpack-search-filters-widget__title input').prop( 'placeholder', placeholder );
+	}
+
 	var addFilter = function( filtersContainer, args ) {
 		// render using underscore
 		var template = _.template( $('.jetpack-search-filters-widget__filter-template').html() );
 		var filter = $('<div></div>');
+
 		filter.html( template( args ) );
 		filtersContainer.append( filter );
+		generateFilterTitlePlaceholder( filter );
 	}
 
 	var setListeners = function( widget ) {
@@ -43,6 +80,8 @@
 				.closest( '.jetpack-search-filters-widget__filter' )
 				.attr( 'class', 'jetpack-search-filters-widget__filter' )
 				.addClass( 'is-' + selectVal );
+
+			generateFilterTitlePlaceholder( $( this ).closest('.jetpack-search-filters-widget__filter') );
 
 			trackAndBumpMCStats( 'changed_filter_type', eventArgs );
 		} );
@@ -118,6 +157,8 @@
 
 			eventArgs.taxonomy = $( this ).val();
 
+			generateFilterTitlePlaceholder( $( this ).closest('.jetpack-search-filters-widget__filter') );
+
 			trackAndBumpMCStats( 'changed_taxonomy', eventArgs );
 		} );
 
@@ -160,7 +201,8 @@
 				post_type: '',
 				field: '',
 				interval: '',
-				count: defaultFilterCount
+				count: defaultFilterCount,
+				name_placeholder: ''
 			} );
 
 			if ( wp && wp.customize ) {
@@ -195,6 +237,10 @@
 
 			filter.find( 'input, textarea, select' ).change();
 			filter.remove();
+
+			if ( wp && wp.customize ) {
+				wp.customize.state( 'saved' ).set( false );
+			}
 		} );
 
 		// make the filters sortable
