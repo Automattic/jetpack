@@ -755,17 +755,12 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		<h4 class="jetpack-search-filters-widget__sub-heading">
 			<?php echo esc_html( $filter['name'] ); ?>
 		</h4>
-		<ul class="jetpack-search-filters-widget__filter-list">
 		<?php if ( $clear_url ) : ?>
-				<li><a href="<?php echo esc_url( $clear_url ); ?>">
-					<img
-						src="<?php echo esc_url( plugins_url( 'images/search-cross-circle.svg', dirname( dirname( __FILE__ ) ) ) ); ?>"
-						width="20"
-						height="20"
-					/>
-					<?php esc_html_e( 'Clear Filters', 'jetpack' ); ?>
-				</a></li>
+		<div class="jetpack-search-filters-widget__clear"><a href="<?php echo esc_url( $clear_url ); ?>">
+					<?php esc_html_e( '< Clear Filters', 'jetpack' ); ?>
+		</a></div>
 		<?php endif; ?>
+		<ul class="jetpack-search-filters-widget__filter-list">
 			<?php foreach ( $filter['buckets'] as $item ) : ?>
 				<li>
 					<label>

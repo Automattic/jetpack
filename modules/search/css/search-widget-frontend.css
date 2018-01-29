@@ -8,6 +8,12 @@
 /* The first heading after the form */
 .jetpack-search-form + .jetpack-search-filters-widget__sub-heading {
 	margin-top: 1.5em;
+	margin-bottom: 0.5em !important;
+}
+
+.jetpack-search-filters-widget__clear {
+	margin-top: 0.5em;
+	margin-bottom: 0.5em;
 }
 
 .jetpack-search-sort-wrapper {
