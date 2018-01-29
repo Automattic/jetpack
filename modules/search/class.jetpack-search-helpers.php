@@ -499,6 +499,6 @@ class Jetpack_Search_Helpers {
 	 * @return int
 	 */
 	public static function get_max_offset() {
-		return self::site_has_vip_index() ? 10000 : 1000;
+		return self::site_has_vip_index() ? 9000 : 1000;
 	}
 }

@@ -1271,7 +1271,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 				false,
 			),
 			'has_vip_index' => array(
-				10000,
+				9000,
 				true,
 			),
 		);
