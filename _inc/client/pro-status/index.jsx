@@ -95,6 +95,12 @@ const ProStatus = React.createClass( {
 				action = __( 'Invalid key', { context: 'Short warning message about an invalid key being used for Akismet.' } );
 				actionUrl = this.props.siteAdminUrl + 'admin.php?page=akismet-key-config';
 				break;
+			case 'rewind_connected':
+				return (
+					<SimpleNotice showDismiss={ false } status="is-success" isCompact>
+						{ __( 'Connected' ) }
+					</SimpleNotice>
+				);
 			case 'active':
 				return <span className="jp-dash-item__active-label">{ __( 'ACTIVE' ) }</span>;
 		}
@@ -149,6 +155,10 @@ const ProStatus = React.createClass( {
 		const getStatus = ( feature, active, installed ) => {
 			if ( this.props.isDevMode ) {
 				return '';
+			}
+
+			if ( 'rewind' === feature ) {
+				return this.getProActions( 'rewind_connected', 'rewind' );
 			}
 
 			if ( 'backups' === feature ) {

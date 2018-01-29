@@ -42,10 +42,10 @@ export function isDevVersion( state ) {
  * by JETPACK__VERSION
  *
  * @param  {Object}  state  Global state tree
- * @return {string}         Version number
+ * @return {string}         Version number. Empty string if the data is not yet available.
  */
 export function getCurrentVersion( state ) {
-	return state.jetpack.initialState.currentVersion;
+	return get( state.jetpack.initialState, 'currentVersion', '' );
 }
 
 export function getSiteRoles( state ) {

@@ -15,6 +15,8 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 	protected $post;
 	protected $callable_module;
 
+	protected static $admin_id; // used in mock_xml_rpc_request
+
 	public function setUp() {
 		parent::setUp();
 
@@ -500,7 +502,136 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$sanitized = Jetpack_Sync_Functions::sanitize_taxonomy( (object) array( 'rest_controller_class' => 'WP_REST_Terms_Controller' ) );
 
 		$this->assertEquals( $sanitized->rest_controller_class, 'WP_REST_Terms_Controller' );
-}
+	}
+
+	function test_sanitize_sync_post_type_method_default() {
+		$label = 'foo_default';
+		$post_type_object = new WP_Post_Type( $label );
+		$post_type_object->add_supports();
+		$post_type_object->add_rewrite_rules();
+		$post_type_object->register_meta_boxes();
+		$post_type_object->add_hooks();
+		$post_type_object->register_taxonomies();
+
+		$sanitized = Jetpack_Sync_Functions::sanitize_post_type( $post_type_object );
+		$this->assert_sanitized_post_type_default( $sanitized, $label );
+
+	}
+
+	function test_sanitize_sync_post_type_method_remove_unknown_values_set() {
+		$label = 'foo_strange';
+		$post_type_object = new WP_Post_Type( $label, array( 'foo' => 'bar' ) );
+		$post_type_object->add_supports();
+		$post_type_object->add_rewrite_rules();
+		$post_type_object->register_meta_boxes();
+		$post_type_object->add_hooks();
+		$post_type_object->register_taxonomies();
+
+		$sanitized = Jetpack_Sync_Functions::sanitize_post_type( $post_type_object );
+		$this->assert_sanitized_post_type_default( $sanitized, $label );
+	}
+
+	function assert_sanitized_post_type_default( $sanitized, $label ) {
+		$this->assertEquals( $label, $sanitized->name );
+		$this->assertEquals( 'Posts', $sanitized->label );
+		$this->assertEquals( '', $sanitized->description );
+		$this->assertEquals( $label, $sanitized->rewrite['slug'] );
+		$this->assertEquals( $label, $sanitized->query_var );
+		$this->assertEquals( 'post', $sanitized->capability_type );
+		$this->assertEquals( array(), $sanitized->taxonomies );
+		$this->assertEquals( array(), $sanitized->supports );
+		$this->assertEquals( '', $sanitized->_edit_link );
+
+		$this->assertFalse( $sanitized->public );
+		$this->assertFalse( $sanitized->has_archive );
+		$this->assertFalse( $sanitized->publicly_queryable );
+		$this->assertFalse( $sanitized->hierarchical );
+		$this->assertFalse( $sanitized->show_ui );
+		$this->assertFalse( $sanitized->show_in_menu );
+		$this->assertFalse( $sanitized->show_in_nav_menus );
+		$this->assertFalse( $sanitized->show_in_admin_bar );
+		$this->assertFalse( $sanitized->rest_base );
+		$this->assertFalse( $sanitized->_builtin );
+
+		$this->assertTrue( $sanitized->exclude_from_search );
+		$this->assertTrue( $sanitized->can_export );
+		$this->assertTrue( $sanitized->map_meta_cap );
+		$this->assertTrue( is_object( $sanitized->labels ) );
+		$this->assertTrue( is_array( $sanitized->rewrite ) );
+		$this->assertTrue( is_object( $sanitized->cap ) );
+
+	}
+
+	function test_sanitize_sync_post_type_method_all_values_set() {
+		$args = array(
+			'labels'                => array(
+				'stuff' => 'apple',
+			),
+			'description'           => 'banana',
+			'public'                => true,
+			'hierarchical'          => true,
+			'exclude_from_search'   => false,
+			'publicly_queryable'    => true,
+			'show_ui'               => true,
+			'show_in_menu'          => true,
+			'show_in_nav_menus'     => true,
+			'show_in_admin_bar'     => true,
+			'menu_position'         => 10,
+			'menu_icon'             => 'jetpack',
+			'capability_type'       => 'foo',
+			'capabilities'          => array( 'banana' => true ),
+			'map_meta_cap'          => false,
+			'supports'              => array( 'everything' ),
+			'taxonomies'            => array( 'orange'),
+			'has_archive'           => true,
+			'rewrite'               => false,
+			'query_var'             => 'foo_all_stuff',
+			'can_export'            => false,
+			'delete_with_user'      => true,
+			'show_in_rest'          => true,
+			'rest_base'             => 'foo_all_stuffing',
+		);
+		$post_type_object = new WP_Post_Type( 'foo_all', $args );
+		$post_type_object->add_supports();
+		$post_type_object->add_rewrite_rules();
+		$post_type_object->register_meta_boxes();
+		$post_type_object->add_hooks();
+		$post_type_object->register_taxonomies();
+
+		$sanitized = Jetpack_Sync_Functions::sanitize_post_type( $post_type_object );
+		foreach( $args as $arg_key => $arg_value ) {
+			//
+			if ( in_array( $arg_key, array( 'labels', 'capabilities', 'supports' ) ) ) {
+				continue;
+			}
+			$this->assertEquals( $arg_value, $sanitized->{ $arg_key }, 'Value for ' . $arg_key . 'not as expected' );
+		}
+	}
+
+	function test_get_post_types_method() {
+		global $wp_post_types;
+		$synced = Jetpack_Sync_Functions::get_post_types();
+		foreach( $wp_post_types as $post_type => $post_type_object ) {
+			$post_type_object->rest_controller_class = false;
+			if ( ! isset( $post_type_object->supports ) ) {
+				$post_type_object->supports = array();
+			}
+			$synced_post_type = Jetpack_Sync_Functions::expand_synced_post_type( $synced[ $post_type ], $post_type );
+			$this->assertEqualsObject( $post_type_object, $synced_post_type, 'POST TYPE :'. $post_type . ' not equal' );
+		}
+	}
+
+	function test_register_post_types_callback_error() {
+		if ( version_compare(PHP_VERSION, '5.4', '<' ) ) {
+			$this->markTestSkipped( 'Callbacks are only available in PHP 5.4 and greater' );
+		}
+		register_post_type( 'testing', array( 'register_meta_box_cb' => function() {} ) );
+		$this->sender->do_sync();
+
+		$post_types =  $this->server_replica_storage->get_callable( 'post_types' );
+		$this->assertTrue( isset( $post_types['testing'] ) );
+	}
+
 	function test_get_raw_url_by_option_bypasses_filters() {
 		add_filter( 'option_home', array( $this, '__return_filtered_url' ) );
 		$this->assertTrue( 'http://filteredurl.com' !== Jetpack_Sync_Functions::get_raw_url( 'home' ) );
@@ -682,7 +813,6 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		foreach ( $check_object_vars as $test ) {
 			$this->assertObjectHasAttribute( $test, $taxonomy, "Taxonomy does not have expected {$test} attribute." );
 		}
-
 	}
 
 	function test_force_sync_callabled_on_plugin_update() {
@@ -717,6 +847,90 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$this->assertNotEmpty( $synced_value3, 'value is empty!' );
 
 	}
+
+	function test_xml_rpc_request_callables_has_actor() {
+		$this->server_event_storage->reset();
+		$user = wp_get_current_user();
+		wp_set_current_user( 0 ); //
+		$this->sender->do_sync();
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_callable' );
+		$this->assertEquals( $event->user_id, 0, ' Callables user_id is null' );
+
+		$this->resetCallableAndConstantTimeouts();
+		$this->mock_authenticated_xml_rpc(); // mock requet
+		$this->sender->do_sync();
+
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_callable' );
+		// clean up by unsetting globals, etc. set previously by $this->mock_authenticated_xml_rpc()
+		$this->mock_authenticated_xml_rpc_cleanup( $user->ID );
+
+		$this->assertEquals( $event->user_id, self::$admin_id, ' Callables XMLRPC_Reqeust not equal to event user_id' );
+	}
+
+	function mock_authenticated_xml_rpc() {
+		self::$admin_id = $this->factory->user->create( array(
+			'role' => 'administrator',
+		) );
+
+		add_filter( 'pre_option_jetpack_private_options', array( $this, 'mock_jetpack_private_options' ), 10, 2 );
+		$_GET['token'] = 'pretend_this_is_valid:1:' . self::$admin_id;
+		$_GET['timestamp'] = (string) time();
+		$_GET['nonce'] = 'testing123';
+
+		$_SERVER['REQUEST_URI'] = '/xmlrpc.php';
+		$_GET['body'] = 'abc';
+		$_GET['body-hash'] = base64_encode( sha1( 'abc', true ) );
+		$GLOBALS['HTTP_RAW_POST_DATA'] = 'abc';
+		$_SERVER['REQUEST_METHOD']  = 'POST';
+
+		$normalized_request_pieces = array(
+			$_GET['token'],
+			$_GET['timestamp'],
+			$_GET['nonce'],
+			$_GET['body-hash'],
+			'POST',
+			'example.org',
+			'80',
+			'/xmlrpc.php',
+		);
+		$normalize = join( "\n", $normalized_request_pieces ) . "\n";
+
+		$_GET['signature'] = base64_encode( hash_hmac( 'sha1', $normalize , 'secret', true ) );
+
+		// call one of the authenticated endpoints
+		Jetpack_Constants::set_constant( 'XMLRPC_REQUEST', true );
+		$jetpack = Jetpack::init();
+		$jetpack->xmlrpc_methods( array() );
+		$jetpack->require_jetpack_authentication();
+		$jetpack->verify_xml_rpc_signature();
+	}
+
+	function mock_authenticated_xml_rpc_cleanup( $user_id ) {
+		Jetpack_Constants::clear_constants();
+		remove_filter( 'pre_option_jetpack_private_options', array( $this, 'mock_jetpack_private_options' ), 10 );
+
+		unset( $_GET['token'] );
+		unset( $_GET['timestamp'] );
+		unset( $_GET['nonce'] );
+		$_SERVER['REQUEST_URI'] = '';
+		unset( $_GET['body'] );
+		unset( $_GET['body-hash'] ) ;
+		unset( $GLOBALS['HTTP_RAW_POST_DATA'] );
+		unset( $_SERVER['REQUEST_METHOD'] );
+		$jetpack = Jetpack::init();
+		$jetpack->reset_saved_auth_state();
+		wp_set_current_user( $user_id );
+		self::$admin_id = null;
+	}
+
+	function mock_jetpack_private_options() {
+		$user_tokens = array();
+		$user_tokens[ self::$admin_id ] = 'pretend_this_is_valid.secret.' . self::$admin_id;
+		return array(
+			'user_tokens' => $user_tokens,
+		);
+	}
+
 }
 
 function jetpack_foo_is_callable_random() {

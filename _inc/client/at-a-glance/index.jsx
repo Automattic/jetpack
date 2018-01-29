@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import analytics from 'lib/analytics';
 import chunk from 'lodash/chunk';
-import includes from 'lodash/includes';
+import get from 'lodash/get';
 
 /**
  * Internal dependencies
@@ -31,7 +31,6 @@ import {
 	userIsSubscriber
 } from 'state/initial-state';
 import { isDevMode } from 'state/connection';
-import { getActiveFeatures } from 'state/site';
 
 const renderPairs = layout => layout.map( item => (
 	[
@@ -60,8 +59,7 @@ class AtAGlance extends Component {
 		const securityHeader = <DashSectionHeader
 					label={ __( 'Security' ) }
 					settingsPath={ this.props.userCanManageModules && '#security' }
-					externalLink={
-						this.props.isDevMode || ! this.props.userCanManageModules
+					externalLink={ this.props.isDevMode || ! this.props.userCanManageModules
 						? ''
 						: __( 'Manage security on WordPress.com' )
 					}
@@ -77,21 +75,31 @@ class AtAGlance extends Component {
 					<DashConnections />
 				</div>
 			);
+		const isRewindActive = 'active' === get( this.props.rewindStatus, [ 'state' ], false );
+		const hideVaultPressCards = ! isRewindActive && 'unavailable' !== get( this.props.rewindStatus, [ 'state' ], false );
 		const securityCards = [
 			<DashProtect { ...settingsProps } />,
-			<DashScan { ...settingsProps } siteRawUrl={ this.props.siteRawUrl } />,
-			<DashBackups { ...settingsProps } siteRawUrl={ this.props.siteRawUrl } />,
+			<DashScan
+				{ ...settingsProps }
+				siteRawUrl={ this.props.siteRawUrl }
+				isRewindActive={ isRewindActive }
+			/>,
+			<DashBackups
+				{ ...settingsProps }
+				siteRawUrl={ this.props.siteRawUrl }
+				isRewindActive={ isRewindActive }
+			/>,
 			<DashMonitor { ...settingsProps } />,
 			<DashAkismet { ...urls } />,
 			<DashPluginUpdates { ...settingsProps } { ...urls } />
 		];
 
-		// @todo: determine if rewind is active or not rather than just activity log
-		// const isRewindActive = includes( this.props.activeFeatures, 'jetpack-rewind' );
-		const showActivityLogCard = includes( this.props.activeFeatures, 'activity-log' );
-		
-		// Maybe add the activity log card
-		showActivityLogCard && securityCards.unshift( <DashActivity { ...settingsProps } siteRawUrl={ this.props.siteRawUrl } /> );
+		// Hack to remove VP cards if rewind is in a weird state; not active but available.
+		// @todo we need some actual messaging here.
+		hideVaultPressCards && securityCards.splice( 1, 2 );
+
+		// Maybe add the rewind card
+		isRewindActive && securityCards.unshift( <DashActivity { ...settingsProps } siteRawUrl={ this.props.siteRawUrl } /> );
 
 		// If user can manage modules, we're in an admin view, otherwise it's a non-admin view.
 		if ( this.props.userCanManageModules ) {
@@ -160,7 +168,6 @@ export default connect(
 			userCanViewStats: userCanViewStats( state ),
 			userIsSubscriber: userIsSubscriber( state ),
 			isDevMode: isDevMode( state ),
-			activeFeatures: getActiveFeatures( state ),
 		};
 	}
 )( moduleSettingsForm( AtAGlance ) );

@@ -149,7 +149,11 @@ export const Footer = React.createClass( {
 							className="jp-footer__link"
 							title={ __( 'Jetpack version' ) }
 						>
-							{ __( 'Jetpack version ' ) + version }
+							{
+								version
+									? __( 'Jetpack version %(version)s', { args: { version } } )
+									: __( 'Jetpack' )
+							}
 						</a>
 					</li>
 					<li className="jp-footer__link-item">
@@ -193,7 +197,7 @@ export default connect(
 			siteAdminUrl: getSiteAdminUrl( state ),
 			isInIdentityCrisis: isInIdentityCrisis( state ),
 			displayDevCard: canDisplayDevCard( state )
-		}
+		};
 	},
 	( dispatch ) => {
 		return {

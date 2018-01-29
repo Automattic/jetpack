@@ -14,7 +14,7 @@ jQuery( document ).ready( function( $ ) {
 			html += '</div>';
 			if ( envelope.CTA.message ) {
 				html += '<div class="jitm-banner__action">';
-				html += '<a href="' + envelope.url + '" target="_blank" title="' + envelope.CTA.message + '" data-module="' + envelope.feature_class + '" type="button" class="jitm-button is-compact ' + ( envelope.CTA.primary ? 'is-primary' : '' ) + ' jptracks" data-jptracks-name="nudge_click" data-jptracks-prop="jitm-' + envelope.id + '">' + envelope.CTA.message + '</a>';
+				html += '<a href="' + envelope.url + '" target="_blank" rel="noopener noreferrer" title="' + envelope.CTA.message + '" data-module="' + envelope.feature_class + '" type="button" class="jitm-button is-compact ' + ( envelope.CTA.primary ? 'is-primary' : '' ) + ' jptracks" data-jptracks-name="nudge_click" data-jptracks-prop="jitm-' + envelope.id + '">' + envelope.CTA.message + '</a>';
 				html += '</div>';
 			}
 			html += '<a href="#" data-module="' + envelope.feature_class + '" class="jitm-banner__dismiss"></a>';
@@ -56,6 +56,9 @@ jQuery( document ).ready( function( $ ) {
 		$template.find( '.jitm-banner__dismiss' ).click( render( $template ) );
 
 		$el.replaceWith( $template );
+
+		// Add to Jetpack notices within the Jetpack settings app.
+		$template.prependTo( $( '#jp-admin-notices' ) );
 	};
 
 	$( '.jetpack-jitm-message' ).each( function() {
@@ -69,6 +72,10 @@ jQuery( document ).ready( function( $ ) {
 			query: query,
 			_wpnonce: $el.data( 'nonce' )
 		} ).then( function( response ) {
+			if ( 'object' === typeof response && response['1'] ) {
+				response = [ response['1'] ];
+			}
+
 			// properly handle the case of an empty array or no content set
 			if ( 0 === response.length || ! response[ 0 ].content ) {
 				return;

@@ -195,6 +195,39 @@ class Jetpack_Sync_Defaults {
 		'roles'                            =>  array( 'Jetpack_Sync_Functions', 'roles' ),
 	);
 
+
+	static $default_post_type_attributes = array(
+		'name'                => '',
+		'label'               => '',
+		'labels'              => array(),
+		'description'         => '',
+		'public'              => false,
+		'hierarchical'        => false,
+		'exclude_from_search' => true,
+		'publicly_queryable'  => null,
+		'show_ui'             => false,
+		'show_in_menu'        => null,
+		'show_in_nav_menus'   => null,
+		'show_in_admin_bar'   => false,
+		'menu_position'       => null,
+		'menu_icon'           => null,
+		'supports'            => array(),
+		'capability_type'     => 'post',
+		'capabilities'        => array(),
+		'cap'                 => array(),
+		'map_meta_cap'        => true,
+		'taxonomies'          => array(),
+		'has_archive'         => false,
+		'rewrite'             => true,
+		'query_var'           => true,
+		'can_export'          => true,
+		'delete_with_user'    => null,
+		'show_in_rest'        => false,
+		'rest_base'           => false,
+		'_builtin'            => false,
+		'_edit_link'          => 'post.php?post=%d',
+	);
+
 	public static function get_callable_whitelist() {
 		/**
 		 * Filter the list of callables that are manageable via the JSON API.
@@ -334,6 +367,19 @@ class Jetpack_Sync_Defaults {
 		'hc_wpcom_id_sig',
 		'hc_foreign_user_id'
 	);
+
+	public static function get_comment_meta_whitelist() {
+		/**
+		 * Filter the list of comment meta data that are manageable via the JSON API.
+		 *
+		 * @module sync
+		 *
+		 * @since 5.7.0
+		 *
+		 * @param array The default list of comment meta data keys.
+		 */
+		return apply_filters( 'jetpack_sync_comment_meta_whitelist', self::$comment_meta_whitelist );
+	}
 
 	// TODO: move this to server? - these are theme support values
 	// that should be synced as jetpack_current_theme_supports_foo option values

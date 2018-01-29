@@ -188,8 +188,7 @@ HTML;
 		<link rel='dns-prefetch' href='//cdn.switchadhub.com' />
 		<link rel='dns-prefetch' href='//delivery.g.switchadhub.com' />
 		<link rel='dns-prefetch' href='//delivery.swid.switchadhub.com' />
-		<script$data_tags type="text/javascript" src="//s.pubmine.com/head.js"></script>
-		<script$data_tags type="text/javascript" src="//static.criteo.net/js/ld/publishertag.js"></script>
+		<script$data_tags async type="text/javascript" src="//s.pubmine.com/head.js"></script>
 HTML;
 	}
 
@@ -298,32 +297,25 @@ HTML;
 			$width = 300;
 			$height = 250;
 			$second_belowpost = '';
+			$snippet = '';
 			if ( 'top' == $spot ) {
 				// mrec for mobile, leaderboard for desktop
 				$section_id = 0 === $this->params->blog_id ? WORDADS_API_TEST_ID : $this->params->blog_id . '2';
 				$width = $this->params->mobile_device ? 300 : 728;
 				$height = $this->params->mobile_device ? 250 : 90;
 				$blocker_unit = $this->params->mobile_device ? 'top_mrec' : 'top';
+				$snippet = $this->get_ad_snippet( $section_id, $height, $width, $blocker_unit );
 			} else if ( 'belowpost' == $spot ) {
 				$section_id = 0 === $this->params->blog_id ? WORDADS_API_TEST_ID : $this->params->blog_id . '1';
 				$width = 300;
 				$height = 250;
+
+				$snippet = $this->get_ad_snippet( $section_id, $height, $width, 'mrec', 'float:left;margin-right:5px;margin-top:0px;' );
 				if ( $this->option( 'wordads_second_belowpost', true ) ) {
 					$section_id2 = 0 === $this->params->blog_id ? WORDADS_API_TEST_ID2 : $this->params->blog_id . '4';
-					$second_belowpost =
-						"g.__ATA.initAd({collapseEmpty:'after', sectionId:$section_id2, width:$width, height:$height});";
+					$snippet .= $this->get_ad_snippet( $section_id2, $height, $width, 'mrec2', 'float:left;margin-top:0px;' );
 				}
 			}
-
-			$data_tags = ( $this->params->cloudflare ) ? ' data-cfasync="false"' : '';
-			$snippet = <<<HTML
-			<script$data_tags id='s$section_id' type='text/javascript'>
-				(function(g){if('undefined'!=typeof g.__ATA){
-					g.__ATA.initAd({collapseEmpty:'after', sectionId:$section_id, width:$width, height:$height});
-					$second_belowpost
-				}})(window);
-			</script>
-HTML;
 		} else if ( 'house' == $type ) {
 			$leaderboard = 'top' == $spot && ! $this->params->mobile_device;
 			$snippet = $this->get_house_ad( $leaderboard ? 'leaderboard' : 'mrec' );
@@ -332,35 +324,50 @@ HTML;
 			}
 		}
 
-		$ad_blocker_ad = 'iponweb' == $type ? $this->get_adblocker_ad( $blocker_unit ) : '';
-		$second_belowpost_css = '';
-		$double_mrec = '';
-		if ( 'belowpost' == $spot && $this->option( 'wordads_second_belowpost', true ) ) {
-			if ( 'iponweb' == $type ) {
-				$ad_blocker_ad .= $this->get_adblocker_ad( 'mrec2' );
-			}
-
-			$double_mrec = 'wpmrec2x';
-			$second_belowpost_css = <<<HTML
-			<style type="text/css">
-			div.wpmrec2x{max-width:610px;}
-			div.wpmrec2x div.u > div{float:left;margin-right:10px;}
-			div.wpmrec2x div.u > div:nth-child(3n){margin-right:0px;}
-			</style>
-HTML;
-		}
-
 		$header = 'top' == $spot ? 'wpcnt-header' : '';
 		$about = __( 'Advertisements', 'jetpack' );
 		return <<<HTML
-		$second_belowpost_css
-		<div class="wpcnt $header $double_mrec">
+		<div class="wpcnt $header">
 			<div class="wpa">
 				<span class="wpa-about">$about</span>
 				<div class="u $spot">
 					$snippet
 				</div>
-				$ad_blocker_ad
+			</div>
+		</div>
+HTML;
+	}
+
+
+	/**
+	 * Returns the snippet to be inserted into the ad unit
+	 * @param  int $section_id
+	 * @param  int $height
+	 * @param  int $width
+	 * @param  string $css
+	 * @return string
+	 *
+	 * @since 5.7
+	 */
+	function get_ad_snippet( $section_id, $height, $width, $adblock_unit = 'mrec', $css = '' ) {
+		$this->ads[] = array( 'id' => $section_id, 'width' => $width, 'height' => $height );
+		$data_tags = $this->params->cloudflare ? ' data-cfasync="false"' : '';
+		$adblock_ad = $this->get_adblocker_ad( $adblock_unit );
+
+		return <<<HTML
+		<div style="padding-bottom:15px;width:{$width}px;height:{$height}px;$css">
+			<div id="atatags-{$section_id}">
+				<script$data_tags type="text/javascript">
+				__ATA.cmd.push(function() {
+					__ATA.initSlot('atatags-{$section_id}',  {
+						collapseEmpty: 'before',
+						sectionId: '{$section_id}',
+						width: {$width},
+						height: {$height}
+					});
+				});
+				</script>
+				$adblock_ad
 			</div>
 		</div>
 HTML;
@@ -373,6 +380,7 @@ HTML;
 	 * @since 5.3
 	 */
 	public function get_adblocker_ad( $unit = 'mrec' ) {
+		$data_tags = $this->params->cloudflare ? ' data-cfasync="false"' : '';
 		$criteo_id = mt_rand();
 		$height = 250;
 		$width = 300;
@@ -392,18 +400,9 @@ HTML;
 		}
 
 		return <<<HTML
-		<div id="crt-$criteo_id" style="width:{$width}px;height:{$height}px;"></div>
-		<script type="text/javascript">
-		var o = document.getElementById('crt-$criteo_id');
-		if ("undefined"!=typeof Criteo) {
-			var p = o.parentNode;
-			p.style.setProperty('display', 'inline-block', 'important');
-			o.style.setProperty('display', 'block', 'important');
-			Criteo.DisplayAcceptableAdIfAdblocked({zoneid:$zone_id,containerid:"crt-$criteo_id",collapseContainerIfNotAdblocked:true,"callifnotadblocked": function () {var o = document.getElementById('crt-$criteo_id'); o.style.setProperty('display','none','important');o.style.setProperty('visbility','hidden','important'); } });
-		} else {
-			o.style.setProperty('display', 'none', 'important');
-			o.style.setProperty('visibility', 'hidden', 'important');
-		}
+		<div id="crt-$criteo_id" style="width:{$width}px;height:{$height}px;display:none !important;"></div>
+		<script$data_tags type="text/javascript">
+		(function(){var c=function(){var a=document.getElementById("crt-{$criteo_id}");window.Criteo?(a.parentNode.style.setProperty("display","inline-block","important"),a.style.setProperty("display","block","important"),window.Criteo.DisplayAcceptableAdIfAdblocked({zoneid:{$zone_id},containerid:"crt-{$criteo_id}",collapseContainerIfNotAdblocked:!0,callifnotadblocked:function(){a.style.setProperty("display","none","important");a.style.setProperty("visbility","hidden","important")}})):(a.style.setProperty("display","none","important"),a.style.setProperty("visibility","hidden","important"))};if(window.Criteo)c();else{if(!__ATA.criteo.script){var b=document.createElement("script");b.src="//static.criteo.net/js/ld/publishertag.js";b.onload=function(){for(var a=0;a<__ATA.criteo.cmd.length;a++){var b=__ATA.criteo.cmd[a];"function"===typeof b&&b()}};(document.head||document.getElementsByTagName("head")[0]).appendChild(b);__ATA.criteo.script=b}__ATA.criteo.cmd.push(c)}})();
 		</script>
 HTML;
 	}

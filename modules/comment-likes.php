@@ -103,7 +103,15 @@ class Jetpack_Comment_Likes {
 
 	function enqueue_admin_styles_scripts() {
 		wp_enqueue_style( 'comment-like-count', plugins_url( 'comment-likes/admin-style.css', __FILE__ ), array(), JETPACK__VERSION );
-		wp_enqueue_script( 'comment-like-count', plugins_url( 'comment-likes/comment-like-count.js', __FILE__ ), array( 'jquery' ), JETPACK__VERSION );
+		wp_enqueue_script(
+			'comment-like-count',
+			Jetpack::get_file_url_for_environment(
+				'_inc/build/comment-likes/comment-like-count.min.js',
+				'modules/comment-likes/comment-like-count.js'
+			),
+			array( 'jquery' ),
+			JETPACK__VERSION
+		);
 	}
 
 	public function add_like_count_column( $columns ) {

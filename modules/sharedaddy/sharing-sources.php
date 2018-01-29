@@ -713,9 +713,9 @@ class Share_Twitter extends Sharing_Source {
 		$suffix_length = $this->short_url_length + $strlen( $sig );
 		// $sig is handled by twitter in their 'via' argument.
 		// $post_link is handled by twitter in their 'url' argument.
-		if ( 140 < $strlen( $post_title ) + $suffix_length ) {
+		if ( 280 < $strlen( $post_title ) + $suffix_length ) {
 			// The -1 is for "\xE2\x80\xA6", a UTF-8 ellipsis.
-			$text = $substr( $post_title, 0, 140 - $suffix_length - 1 ) . "\xE2\x80\xA6";
+			$text = $substr( $post_title, 0, 280 - $suffix_length - 1 ) . "\xE2\x80\xA6";
 		} else {
 			$text = $post_title;
 		}
@@ -1699,7 +1699,7 @@ class Jetpack_Share_WhatsApp extends Sharing_Source {
 	}
 
 	public function get_display( $post ) {
-		return $this->get_link( 'whatsapp://send?text=' . rawurlencode( $this->get_share_title( $post->ID ) ) . ' ' . rawurlencode( $this->get_share_url( $post->ID ) ), _x( 'WhatsApp', 'share to', 'jetpack' ), __( 'Click to share on WhatsApp', 'jetpack' ) );
+		return $this->get_link( 'https://api.whatsapp.com/send?text=' . rawurlencode( $this->get_share_title( $post->ID ) ) . ' ' . rawurlencode( $this->get_share_url( $post->ID ) ), _x( 'WhatsApp', 'share to', 'jetpack' ), __( 'Click to share on WhatsApp', 'jetpack' ) );
 	}
 }
 

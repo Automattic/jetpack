@@ -116,6 +116,7 @@ jQuery( function( $ ) {
 			$( this ).closest( 'div.widget' ).find( 'a.display-options' ).click();
 			$condition.find( 'select.conditions-rule-major' ).val( '' ).change();
 		} else {
+			$condition.find( 'select.conditions-rule-major' ).change();
 			$condition.detach();
 		}
 

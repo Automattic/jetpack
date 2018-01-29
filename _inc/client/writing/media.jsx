@@ -56,61 +56,18 @@ const Media = moduleSettingsForm(
 			);
 		},
 
-		toggleModule( name, value ) {
-			if ( 'photon' === name ) {
-				// Carousel depends on Photon. Deactivate it if Photon is deactivated.
-				if ( false === ! value ) {
-					this.props.updateOptions( { photon: false, 'tiled-gallery': false, tiled_galleries: false } );
-				} else {
-					this.props.updateOptions( { photon: true, 'tiled-gallery': true, tiled_galleries: true } );
-				}
-			} else {
-				this.props.updateFormStateOptionValue( name, ! value );
-			}
-		},
-
 		render() {
-			const foundPhoton = this.props.isModuleFound( 'photon' ),
-				foundCarousel = this.props.isModuleFound( 'carousel' ),
+			const foundCarousel = this.props.isModuleFound( 'carousel' ),
 				foundVideoPress = this.props.isModuleFound( 'videopress' );
 
-			if ( ! foundCarousel && ! foundPhoton && ! foundVideoPress ) {
+			if ( ! foundCarousel && ! foundVideoPress ) {
 				return null;
 			}
 
-			const photon = this.props.module( 'photon' ),
-				carousel = this.props.module( 'carousel' ),
+			const carousel = this.props.module( 'carousel' ),
 				isCarouselActive = this.props.getOptionValue( 'carousel' ),
 				videoPress = this.props.module( 'videopress' ),
 				planClass = getPlanClass( this.props.sitePlan.product_slug );
-
-			const photonSettings = (
-				<SettingsGroup
-					hasChild
-					disableInDevMode
-					module={ photon }>
-					<ModuleToggle
-						slug="photon"
-						disabled={ this.props.isUnavailableInDevMode( 'photon' ) }
-						activated={ this.props.getOptionValue( 'photon' ) }
-						toggling={ this.props.isSavingAnyOption( 'photon' ) }
-						toggleModule={ this.toggleModule }
-					>
-						<span className="jp-form-toggle-explanation">
-							{
-								photon.description
-							}
-						</span>
-					</ModuleToggle>
-					<FormFieldset>
-						<span className="jp-form-setting-explanation">
-							{
-								__( 'Must be enabled to use tiled galleries.' )
-							}
-						</span>
-					</FormFieldset>
-				</SettingsGroup>
-			);
 
 			const carouselSettings = (
 				<SettingsGroup module={ { module: 'carousel' } } hasChild support={ carousel.learn_more_button }>
@@ -181,7 +138,6 @@ const Media = moduleSettingsForm(
 					feature={ FEATURE_VIDEO_HOSTING_JETPACK }
 					saveDisabled={ this.props.isSavingAnyOption( 'carousel_background_color' ) }
 				>
-					{ foundPhoton && photonSettings }
 					{ foundCarousel && carouselSettings }
 					{ foundVideoPress && videoPressSettings }
 				</SettingsCard>

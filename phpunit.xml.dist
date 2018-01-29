@@ -13,7 +13,9 @@
 			<file>tests/php/test_class.jetpack-constants.php</file>
 			<file>tests/php/test_class.jetpack-connection-banner.php</file>
 			<file>tests/php/test_class.jetpack-options.php</file>
-			<file>tests/php/test_php-lint.php</file>
+		</testsuite>
+		<testsuite name="php-lint">
+			<file phpVersion="5.3.0" phpVersionOperator="lte">tests/php/test_php-lint.php</file>
 		</testsuite>
 		<testsuite name="core-api">
 			<directory phpVersion="5.6.0" phpVersionOperator=">=" prefix="test_" suffix=".php">tests/php/core-api</directory>
@@ -95,6 +97,9 @@
 		<testsuite name="lazy-images">
 			<directory prefix="test_" suffix=".php">tests/php/modules/lazy-images</directory>
 		</testsuite>
+		<testsuite name="search">
+			<directory prefix="test_" suffix=".php">tests/php/modules/search</directory>
+		</testsuite>
 	</testsuites>
 	<groups>
 		<exclude>
@@ -110,4 +115,15 @@
 			</exclude>
 		</whitelist>
 	</filter>
+	<listeners>
+		<listener class="SpeedTrapListener">
+			<arguments>
+				<array>
+					<element key="slowThreshold">
+						<integer>150</integer>
+					</element>
+				</array>
+			</arguments>
+		</listener>
+	</listeners>
 </phpunit>

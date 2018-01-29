@@ -105,5 +105,9 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 	function serverReceive( $data, $codec, $sent_timestamp, $queue_id ) {
 		return $this->server->receive( $data, null, $sent_timestamp, $queue_id );
 	}
+
+	function pre_http_request_success() {
+		return array( 'body' => json_encode( array( 'success' => true ) ) );
+	}
 }
 

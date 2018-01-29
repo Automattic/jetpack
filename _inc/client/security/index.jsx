@@ -3,6 +3,7 @@
  */
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import get from 'lodash/get';
 
 /**
  * Internal dependencies
@@ -58,12 +59,16 @@ export class Security extends Component {
 			getModule: this.props.module,
 			isDevMode: this.props.isDevMode,
 			isUnavailableInDevMode: this.props.isUnavailableInDevMode,
+			rewindStatus: this.props.rewindStatus,
+			siteRawUrl: this.props.siteRawUrl,
 		};
 
 		const foundProtect = this.props.isModuleFound( 'protect' ),
 			foundSso = this.props.isModuleFound( 'sso' ),
 			foundAkismet = this.isAkismetFound(),
-			foundBackups = this.props.isModuleFound( 'vaultpress' );
+			rewindActive = 'active' === get( this.props.rewindStatus, [ 'state' ], false ),
+			foundBackups = this.props.isModuleFound( 'vaultpress' ) || rewindActive,
+			hideVaultPressCards = ! rewindActive && 'unavailable' !== get( this.props.rewindStatus, [ 'state' ], false );
 
 		if ( ! this.props.searchTerm && ! this.props.active ) {
 			return null;
@@ -76,7 +81,7 @@ export class Security extends Component {
 		return (
 			<div>
 				<QuerySite />
-				{ foundBackups && <BackupsScan { ...commonProps } /> }
+				{ foundBackups && ! hideVaultPressCards && <BackupsScan { ...commonProps } /> }
 				{ foundAkismet &&
 					<div>
 						<Antispam { ...commonProps } />

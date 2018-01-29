@@ -34,7 +34,7 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 
 
 		if ( is_multisite() ) {
-			add_action( 'update_site_option_wpmu_upgrade_site', array ( $this, 'update_core_network_event' ), 10, 3 );
+			add_filter( 'pre_update_site_option_wpmu_upgrade_site', array ( $this, 'update_core_network_event' ), 10, 2 );
 			add_action( 'jetpack_sync_core_update_network', $callable, 10, 3 );
 		}
 
@@ -55,7 +55,7 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 		add_filter( 'jetpack_sync_before_send_jetpack_update_themes_change', array( $this, 'expand_themes' ) );
 	}
 
-	public function update_core_network_event( $option, $wp_db_version, $old_wp_db_version ) {
+	public function update_core_network_event( $wp_db_version, $old_wp_db_version ) {
 		global $wp_version;
 		/**
 		 * Sync event for when core wp network updates to a new db version
@@ -68,6 +68,7 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 		 *
 		 */
 		do_action( 'jetpack_sync_core_update_network', $wp_db_version, $old_wp_db_version, $wp_version );
+		return $wp_db_version;
 	}
 
 	public function update_core( $new_wp_version ) {

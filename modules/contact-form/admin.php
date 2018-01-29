@@ -26,7 +26,9 @@ function grunion_media_button( ) {
 add_action( 'wp_ajax_grunion_form_builder', 'grunion_display_form_view' );
 
 function grunion_display_form_view() {
-	require_once GRUNION_PLUGIN_DIR . 'grunion-form-view.php';
+	if ( current_user_can( 'edit_posts' ) ) {
+		require_once GRUNION_PLUGIN_DIR . 'grunion-form-view.php';
+	}
 	exit;
 }
 
@@ -507,6 +509,10 @@ function grunion_sort_objects( $a, $b ) {
 function grunion_ajax_shortcode() {
 	check_ajax_referer( 'grunion_shortcode' );
 
+	if ( ! current_user_can( 'edit_posts' ) ) {
+		die( '-1' );
+	}
+
 	$attributes = array();
 
 	foreach ( array( 'subject', 'to' ) as $attribute ) {
@@ -549,6 +555,12 @@ function grunion_ajax_shortcode_to_json() {
 	global $post, $grunion_form;
 
 	check_ajax_referer( 'grunion_shortcode_to_json' );
+
+	if ( ! empty( $_POST['post_id'] ) && ! current_user_can( 'edit_post', $_POST['post_id'] ) ) {
+		die( '-1' );
+	} elseif ( ! current_user_can( 'edit_posts' ) ) {
+		die( '-1' );
+	}
 
 	if ( !isset( $_POST['content'] ) || !is_numeric( $_POST['post_id'] ) ) {
 		die( '-1' );
@@ -787,7 +799,14 @@ function grunion_enable_spam_recheck() {
 	}
 
 	// Add the scripts that handle the spam check event.
-	wp_register_script( 'grunion-admin', plugin_dir_url( __FILE__ ) . 'js/grunion-admin.js', array( 'jquery' ) );
+	wp_register_script(
+		'grunion-admin',
+		Jetpack::get_file_url_for_environment(
+			'_inc/build/contact-form/js/grunion-admin.min.js',
+			'modules/contact-form/js/grunion-admin.js'
+		),
+		array( 'jquery' )
+	);
 	wp_enqueue_script( 'grunion-admin' );
 
 	wp_enqueue_style( 'grunion.css' );

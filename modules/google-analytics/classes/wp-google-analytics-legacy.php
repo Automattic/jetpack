@@ -102,22 +102,19 @@ class Jetpack_Google_Analytics_Legacy {
 		$custom_vars = apply_filters( 'jetpack_wga_classic_custom_vars', $custom_vars );
 
 		// Ref: https://developers.google.com/analytics/devguides/collection/gajs/gaTrackingEcommerce#Example
-		$async_code = "<!-- Jetpack Google Analytics -->
+		printf(
+			"<!-- Jetpack Google Analytics -->
 			<script type='text/javascript'>
 				var _gaq = _gaq || [];
-				%custom_vars%
-
+				%s
 				(function() {
 					var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-					ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+					ga.src = ('https:' === document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
 					var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
 				})();
-			</script>";
-
-		$custom_vars_string = implode( "\r\n", $custom_vars );
-		$async_code = str_replace( '%custom_vars%', $custom_vars_string, $async_code );
-
-		echo "$async_code\r\n";
+			</script>\r\n",
+			implode( "\r\n", $custom_vars )
+		);
 	}
 
 	/**

@@ -25,6 +25,8 @@ import { getSiteRawUrl } from 'state/initial-state';
 import onKeyDownCallback from 'utils/onkeydown-callback';
 import JetpackDisconnectDialog from 'components/jetpack-disconnect-dialog';
 
+require( './style.scss' );
+
 export const ConnectButton = React.createClass( {
 	displayName: 'ConnectButton',
 
@@ -122,11 +124,11 @@ export const ConnectButton = React.createClass( {
 		}
 
 		const buttonProps = {
-				className: 'is-primary jp-jetpack-connect__button',
+				className: 'jp-jetpack-connect__button',
 				href: connectUrl,
 				disabled: this.props.fetchingConnectUrl
 			},
-			connectLegend = __( 'Connect Jetpack' );
+			connectLegend = __( 'Set up Jetpack' );
 
 		return this.props.asLink
 			? <a { ...buttonProps }>{ connectLegend }</a>

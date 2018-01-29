@@ -63,10 +63,16 @@ class WP_Test_Jetpack_REST_API_Authentication extends WP_Test_Jetpack_REST_Testc
 	 * @requires PHP 5.2
 	 */
 	public function test_jetpack_rest_api_authentication_fail_no_token_or_signature() {
+		global $wp_version;
 		$this->request = new WP_REST_Request( 'GET', '/jetpack/v4/module/protect' );
 		$response = $this->server->dispatch( $this->request );
+		// Starting with https://core.trac.wordpress.org/ticket/42828, Core uses rest_authorization_required_code()
+		// to get the appropriate status code instead of a hardcoded 403.
+		$expected_status_code = version_compare( $wp_version, '4.9.1', '>=' )
+			? rest_authorization_required_code() :
+			403;
 		// From https://github.com/WordPress/WordPress/blob/4.7/wp-includes/rest-api/class-wp-rest-server.php#L902
-		$this->assertErrorResponse( 'rest_forbidden', $response, 403 );
+		$this->assertErrorResponse( 'rest_forbidden', $response, $expected_status_code );
 		$this->assertEquals( 0, get_current_user_id() );
 	}
 

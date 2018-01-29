@@ -27,13 +27,33 @@ import {
 	userCanManageModules
 } from 'state/initial-state';
 
+/**
+ * Track clicks on monitor settings
+ *
+ * @returns {undefined}
+ */
+const trackMonitorSettingsClick = () => analytics.tracks.recordJetpackClick( {
+	target: 'monitor-settings',
+	page: 'aag'
+} );
+
 export class DashItem extends Component {
-	trackMonitorSettingsClick() {
-		analytics.tracks.recordJetpackClick( {
-			target: 'monitor-settings',
-			page: 'aag'
-		} );
-	}
+	static propTypes = {
+		label: PropTypes.string,
+		status: PropTypes.string,
+		statusText: PropTypes.string,
+		disabled: PropTypes.bool,
+		module: PropTypes.string,
+		pro: PropTypes.bool,
+		isModule: PropTypes.bool,
+	};
+
+	static defaultProps = {
+		label: '',
+		module: '',
+		pro: false,
+		isModule: true,
+	};
 
 	render() {
 		let toggle, proButton = '';
@@ -89,7 +109,7 @@ export class DashItem extends Component {
 			if ( 'monitor' === this.props.module ) {
 				toggle = ! this.props.isDevMode && this.props.getOptionValue( this.props.module ) && (
 					<Button
-						onClick={ this.trackMonitorSettingsClick }
+						onClick={ trackMonitorSettingsClick }
 						href={ 'https://wordpress.com/settings/security/' + this.props.siteRawUrl }
 						compact>
 						{
@@ -97,6 +117,10 @@ export class DashItem extends Component {
 						}
 					</Button>
 				);
+			}
+
+			if ( 'rewind' === this.props.module ) {
+				toggle = null;
 			}
 		}
 
@@ -133,23 +157,6 @@ export class DashItem extends Component {
 		);
 	}
 }
-
-DashItem.propTypes = {
-	label: PropTypes.string,
-	status: PropTypes.string,
-	statusText: PropTypes.string,
-	disabled: PropTypes.bool,
-	module: PropTypes.string,
-	pro: PropTypes.bool,
-	isModule: PropTypes.bool,
-};
-
-DashItem.defaultProps = {
-	label: '',
-	module: '',
-	pro: false,
-	isModule: true,
-};
 
 export default connect(
 	( state ) => {

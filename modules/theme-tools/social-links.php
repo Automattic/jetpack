@@ -118,7 +118,7 @@ class Social_Links {
 	 */
 	public function customize_register( $wp_customize ) {
 		$wp_customize->add_section( 'jetpack_social_links', array(
-			'title'    => __( 'Connect', 'jetpack' ),
+			'title'    => esc_html__( 'Connect', 'jetpack' ),
 			'priority' => 35,
 		) );
 

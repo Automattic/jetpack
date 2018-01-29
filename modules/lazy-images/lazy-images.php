@@ -53,6 +53,7 @@ class Jetpack_Lazy_Images {
 		add_filter( 'get_avatar', array( $this, 'add_image_placeholders' ), PHP_INT_MAX );
 		add_filter( 'widget_text', array( $this, 'add_image_placeholders' ), PHP_INT_MAX );
 		add_filter( 'get_image_tag', array( $this, 'add_image_placeholders' ), PHP_INT_MAX);
+    add_filter( 'wp_get_attachment_image_attributes', array( __CLASS__, 'process_image_attributes' ), PHP_INT_MAX );
 	}
 
 	public function remove_filters() {
@@ -61,6 +62,7 @@ class Jetpack_Lazy_Images {
 		remove_filter( 'get_avatar', array( $this, 'add_image_placeholders' ), PHP_INT_MAX );
 		remove_filter( 'widget_text', array( $this, 'add_image_placeholders' ), PHP_INT_MAX );
 		remove_filter( 'get_image_tag', array( $this, 'add_image_placeholders' ), PHP_INT_MAX);		
+    remove_filter( 'wp_get_attachment_image_attributes', array( __CLASS__, 'process_image_attributes' ), PHP_INT_MAX );
 	}
 
 	public function add_image_placeholders( $content ) {
@@ -85,6 +87,15 @@ class Jetpack_Lazy_Images {
 		return $content;
 	}
 
+	/**
+	 * Processes images in content by acting as the preg_replace_callback
+	 *
+	 * @since 5.6.0
+	 *
+	 * @param array $matches
+	 *
+	 * @return string The image with updated lazy attributes
+	 */
 	static function process_image( $matches ) {
 		$old_attributes_str = $matches[2];
 		$old_attributes_kses_hair = wp_kses_hair( $old_attributes_str, wp_allowed_protocols() );
@@ -94,22 +105,48 @@ class Jetpack_Lazy_Images {
 		}
 
 		$old_attributes = self::flatten_kses_hair_data( $old_attributes_kses_hair );
-		$new_attributes = $old_attributes;
+		$new_attributes = self::process_image_attributes( $old_attributes );
+		$new_attributes_str = self::build_attributes_string( $new_attributes );
+
+		return sprintf( '<img %1$s><noscript>%2$s</noscript>', $new_attributes_str, $matches[0] );
+	}
+
+	/**
+	 * Given an array of image attributes, updates the `src`, `srcset`, and `sizes` attributes so
+	 * that they load lazily.
+	 *
+	 * @since 5.7.0
+	 *
+	 * @param array $attributes
+	 *
+	 * @return array The updated image attributes array with lazy load attributes
+	 */
+	static function process_image_attributes( $attributes ) {
+		if ( empty( $attributes['src'] ) ) {
+			return $attributes;
+		}
+
+		// check for gazette featured images, which are incompatible
+		if ( isset( $attributes['class'] ) && false !== strpos( $attributes['class'], 'gazette-featured-content-thumbnail' ) ) {
+			return $attributes;
+		}
+
+		$old_attributes = $attributes;
 
 		// Set placeholder and lazy-src
-		$new_attributes['src'] = self::get_placeholder_image();
-		$new_attributes['data-lazy-src'] = $old_attributes['src'];
+		$attributes['src'] = self::get_placeholder_image();
+		$attributes['data-lazy-src'] = $old_attributes['src'];
 
 		// Handle `srcset`
-		if ( ! empty( $new_attributes['srcset'] ) ) {
-			$new_attributes['data-lazy-srcset'] = $old_attributes['srcset'];
-			unset( $new_attributes['srcset'] );
+		if ( ! empty( $attributes['srcset'] ) ) {
+			$attributes['data-lazy-srcset'] = $old_attributes['srcset'];
+			unset( $attributes['srcset'] );
 		}
 
 		// Handle `sizes`
-		if ( ! empty( $new_attributes['sizes'] ) ) {
-			$new_attributes['data-lazy-sizes'] = $old_attributes['sizes'];
-			unset( $new_attributes['sizes'] );
+		if ( ! empty( $attributes['sizes'] ) ) {
+			$attributes['data-lazy-sizes'] = $old_attributes['sizes'];
+			unset( $attributes['sizes'] );
 		}
 
 		/**
@@ -117,7 +154,7 @@ class Jetpack_Lazy_Images {
 		 *
 		 * One potential use of this filter is for themes that set `height:auto` on the `img` tag.
 		 * With this filter, the theme could get the width and height attributes from the
-		 * $new_attributes array and then add a style tag that sets those values as well, which could
+		 * $attributes array and then add a style tag that sets those values as well, which could
 		 * minimize reflow as images load.
 		 *
 		 * @module lazy-images
@@ -127,10 +164,7 @@ class Jetpack_Lazy_Images {
 		 * @param array An array containing the attributes for the image, where the key is the attribute name
 		 *              and the value is the attribute value.
 		 */
-		$new_attributes = apply_filters( 'jetpack_lazy_images_new_attributes', $new_attributes );
-		$new_attributes_str = self::build_attributes_string( $new_attributes );
-
-		return sprintf( '<img %1$s><noscript>%2$s</noscript>', $new_attributes_str, $matches[0] );
+		return apply_filters( 'jetpack_lazy_images_new_attributes', $attributes );
 	}
 
 	private static function get_placeholder_image() {
@@ -175,7 +209,10 @@ class Jetpack_Lazy_Images {
 	public function enqueue_assets() {
 		wp_enqueue_script(
 			'jetpack-lazy-images',
-			plugins_url( 'modules/lazy-images/js/lazy-images.js', JETPACK__PLUGIN_FILE ),
+			Jetpack::get_file_url_for_environment(
+				'_inc/build/lazy-images/js/lazy-images.min.js',
+				'modules/lazy-images/js/lazy-images.js'
+			),
 			array( 'jquery' ),
 			JETPACK__VERSION,
 			true

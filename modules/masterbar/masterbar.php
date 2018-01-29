@@ -138,7 +138,15 @@ class A8C_WPCOM_Masterbar {
 			array(),
 			JETPACK__VERSION
 		);
-		wp_enqueue_script( 'a8c_wpcom_masterbar_tracks_events', plugins_url( 'tracks-events.js', __FILE__ ), array( 'jquery' ), JETPACK__VERSION );
+		wp_enqueue_script(
+			'a8c_wpcom_masterbar_tracks_events',
+			Jetpack::get_file_url_for_environment(
+				'_inc/build/masterbar/tracks-events.min.js',
+				'modules/masterbar/tracks-events.js'
+			),
+			array( 'jquery' ),
+			JETPACK__VERSION
+		);
 
 		wp_enqueue_script( 'a8c_wpcom_masterbar_overrides', $this->wpcom_static_url( '/wp-content/mu-plugins/admin-bar/masterbar-overrides/masterbar.js' ), array( 'jquery' ), JETPACK__VERSION );
 	}
@@ -852,7 +860,7 @@ class A8C_WPCOM_Masterbar {
 
 			$theme_title = $this->create_menu_item_pair(
 				array(
-					'url'   => 'https://wordpress.com/design/' . esc_attr( $this->primary_site_slug ),
+					'url'   => 'https://wordpress.com/themes/' . esc_attr( $this->primary_site_slug ),
 					'id'    => 'wp-admin-bar-themes',
 					'label' => esc_html__( 'Themes', 'jetpack' ),
 				),

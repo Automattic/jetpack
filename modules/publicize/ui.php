@@ -78,7 +78,10 @@ class Publicize_UI {
 	function load_assets() {
 		wp_enqueue_script(
 			'publicize',
-			plugins_url( 'assets/publicize.js', __FILE__ ),
+			Jetpack::get_file_url_for_environment(
+				'_inc/build/publicize/assets/publicize.min.js',
+				'modules/publicize/assets/publicize.js'
+			),
 			array( 'jquery', 'thickbox' ),
 			'20121019'
 		);

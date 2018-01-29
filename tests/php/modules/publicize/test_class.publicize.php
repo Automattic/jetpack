@@ -68,6 +68,8 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		wp_insert_post( $this->post->to_array() );
 
 		$this->assertPublicized( false, $this->post );
+
+		unregister_post_type( 'foo' );
 	}
 
 	function assertPublicized( $should_have_publicized, $post ) {
@@ -127,6 +129,8 @@ class WP_Test_Publicize extends WP_UnitTestCase {
 		$this->assertTrue(
 			$publicize->post_type_is_publicizeable( 'pub-post-type-2' )
 		);
+
+		unregister_post_type( 'pub-post-type-2' );
 	}
 
 }
