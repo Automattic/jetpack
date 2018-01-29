@@ -17,20 +17,6 @@
 		}
 	} );
 
-	// auto-generate title
-	function capitalize( str ) {
-		return str.charAt(0).toUpperCase() + str.slice(1);
-	}
-
-	function titleize( str ) {
-		var string_array = str.split(' ');
-		string_array = string_array.map(function(str) {
-		   return str.capitalize();
-		});
-
-		return string_array.join(' ');
-	}
-
 	function generateFilterTitlePlaceholder( container ) {
 		var placeholder = null;
 
@@ -46,9 +32,7 @@
 		} else {
 			placeholder = container.find('.filter-select option:selected').text().trim();
 		}
-		// if ( 'taxonomy' === args.type ) {
-			// placeholder = titleize( args.type );
-		// }
+
 		$( container ).find('.jetpack-search-filters-widget__title input').prop( 'placeholder', placeholder );
 	}
 
@@ -60,7 +44,7 @@
 		filter.html( template( args ) );
 		filtersContainer.append( filter );
 		generateFilterTitlePlaceholder( filter );
-	}
+	};
 
 	var setListeners = function( widget ) {
 		widget = ( 'undefined' === typeof widget ) ?
