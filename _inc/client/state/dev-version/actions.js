@@ -15,7 +15,8 @@ import {
 	DEV_CARD_DISPLAY,
 	DEV_CARD_HIDE,
 	MOCK_SWITCH_USER_PERMISSIONS,
-	MOCK_SWITCH_THREATS
+	MOCK_SWITCH_THREATS,
+	MOCK_SWITCH_REWIND_STATE,
 } from 'state/action-types';
 import restApi from 'rest-api';
 
@@ -200,6 +201,15 @@ export const switchThreats = count => {
 		dispatch( {
 			type: MOCK_SWITCH_THREATS,
 			mockCount: count
+		} );
+	};
+};
+
+export const switchRewindState = state => {
+	return ( dispatch ) => {
+		dispatch( {
+			type: MOCK_SWITCH_REWIND_STATE,
+			rewindState: { state: state },
 		} );
 	};
 };
