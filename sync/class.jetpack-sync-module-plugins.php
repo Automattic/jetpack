@@ -18,6 +18,7 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 		add_action( 'delete_plugin',  array( $this, 'delete_plugin') );
 		add_action( 'upgrader_process_complete', array( $this, 'check_upgrader' ), 10, 2 );
 		add_action( 'jetpack_installed_plugin', $callable, 10, 2 );
+		add_action( 'jetpack_plugin_update_failed', $callable, 10, 3 );
 		add_action( 'admin_action_update', array( $this, 'check_plugin_edit') );
 		add_action( 'jetpack_edited_plugin', $callable, 10, 2 );
 		add_action( 'wp_ajax_edit-theme-plugin-file', array( $this, 'plugin_edit_ajax' ), 0 );
@@ -30,6 +31,42 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 	}
 
 	public function check_upgrader( $upgrader, $details) {
+		/*
+		 * Handle plugin update errors
+		 */
+		if (
+			'Plugin_Upgrader' == get_class( $upgrader ) &&
+			isset( $details['type'] ) &&
+			'plugin' == $details['type'] &&
+			(
+				'WP_Ajax_Upgrader_Skin' == get_class( $upgrader->skin ) ||
+			    'Bulk_Plugin_Upgrader_Skin' == get_class( $upgrader->skin )
+			)
+		) {
+			if ( 'WP_Ajax_Upgrader_Skin' == get_class( $upgrader->skin ) ) {
+				$errors = $upgrader->skin->get_errors();
+			} else {
+				$errors = $upgrader->skin->result;
+			}
+
+			if ( is_wp_error( $errors) ) {
+				foreach ( $details['plugins'] as $slug ) {
+					/**
+					 * Sync that a plugin update failed
+					 *
+					 * @since 5.8.0
+					 * 
+					 * @module sync
+					 *
+					 * @param string $plugin, Plugin slug
+					 * @param string Error code
+					 * @param string Error message
+					 */
+					do_action( 'jetpack_plugin_update_failed', $slug, $errors->get_error_code(), $errors->get_error_message() );
+				}
+				return;
+			}
+		}
 
 		if ( ! isset( $details['type'] ) ||
 			'plugin' !== $details['type'] ||
