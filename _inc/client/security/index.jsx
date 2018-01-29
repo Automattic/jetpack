@@ -80,7 +80,7 @@ export class Security extends Component {
 		return (
 			<div>
 				<QuerySite />
-				{ foundBackups && ! rewindActive && <BackupsScan { ...commonProps } /> }
+				{ foundBackups && <BackupsScan { ...commonProps } /> }
 				{ foundAkismet &&
 					<div>
 						<Antispam { ...commonProps } />

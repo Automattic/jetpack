@@ -93,10 +93,6 @@ class AtAGlance extends Component {
 			<DashPluginUpdates { ...settingsProps } { ...urls } />
 		];
 
-		// Hack to remove VP cards if rewind is active.
-		// @todo we need some actual messaging here.
-		isRewindActive && securityCards.splice( 1, 2 );
-
 		// Maybe add the rewind card
 		isRewindActive && securityCards.unshift( <DashActivity { ...settingsProps } siteRawUrl={ this.props.siteRawUrl } /> );
 
