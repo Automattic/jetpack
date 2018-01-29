@@ -13,6 +13,13 @@ We've made some changes to the way post status was synchronized with WordPress.c
 3. Try publishing posts from a third-party app like [Stackedit](https://stackedit.io/editor).
 4. Try bulk-editing posts in your editor, and make sure no posts get sent to subscribers by mistake.
 
+### WordPress.com
+
+We've made some changes to the way plugins can be installed via Jetpack. To test this, head over to [WordPress.com/plugins](https://wordpress.com/plugins) and try the following:
+1. Install a new plugin by clicking on [Upload Plugin](https://wordpress.com/plugins/upload).
+2. Install a new theme by going to [Upload Theme](https://wordpress.com/themes/upload).
+3. Update plugins and themes.
+
 ### Final Notes
 
 During your tests, we encourage you to open your browser's Development Tools and keep the Console open, checking for any errors in the Console and the Network tabs.
