@@ -53,7 +53,7 @@ class Jetpack_Lazy_Images {
 		add_filter( 'get_avatar', array( $this, 'add_image_placeholders' ), PHP_INT_MAX );
 		add_filter( 'widget_text', array( $this, 'add_image_placeholders' ), PHP_INT_MAX );
 		add_filter( 'get_image_tag', array( $this, 'add_image_placeholders' ), PHP_INT_MAX);
-    add_filter( 'wp_get_attachment_image_attributes', array( __CLASS__, 'process_image_attributes' ), PHP_INT_MAX );
+		add_filter( 'wp_get_attachment_image_attributes', array( __CLASS__, 'process_image_attributes' ), PHP_INT_MAX );
 	}
 
 	public function remove_filters() {
@@ -62,7 +62,7 @@ class Jetpack_Lazy_Images {
 		remove_filter( 'get_avatar', array( $this, 'add_image_placeholders' ), PHP_INT_MAX );
 		remove_filter( 'widget_text', array( $this, 'add_image_placeholders' ), PHP_INT_MAX );
 		remove_filter( 'get_image_tag', array( $this, 'add_image_placeholders' ), PHP_INT_MAX);		
-    remove_filter( 'wp_get_attachment_image_attributes', array( __CLASS__, 'process_image_attributes' ), PHP_INT_MAX );
+		remove_filter( 'wp_get_attachment_image_attributes', array( __CLASS__, 'process_image_attributes' ), PHP_INT_MAX );
 	}
 
 	public function add_image_placeholders( $content ) {
