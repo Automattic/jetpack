@@ -355,7 +355,7 @@ class Jetpack_Search_Helpers {
 	 * @param array $filters The active filters for the current query.
 	 * @param array $default_post_types The default post types.
 	 *
-	 * @return boolean
+	 * @return array
 	 */
 	public static function get_active_post_types( $filters, $default_post_types ) {
 		$active_post_types = array();

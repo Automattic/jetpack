@@ -756,9 +756,11 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			<?php echo esc_html( $filter['name'] ); ?>
 		</h4>
 		<?php if ( $clear_url ) : ?>
-		<div class="jetpack-search-filters-widget__clear"><a href="<?php echo esc_url( $clear_url ); ?>">
+			<div class="jetpack-search-filters-widget__clear">
+				<a href="<?php echo esc_url( $clear_url ); ?>">
 					<?php esc_html_e( '< Clear Filters', 'jetpack' ); ?>
-		</a></div>
+				</a>
+			</div>
 		<?php endif; ?>
 		<ul class="jetpack-search-filters-widget__filter-list">
 			<?php foreach ( $filter['buckets'] as $item ) : ?>
