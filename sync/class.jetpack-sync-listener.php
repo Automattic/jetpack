@@ -262,7 +262,7 @@ class Jetpack_Sync_Listener {
 		if ( $this->should_send_user_data_with_actor( $current_filter ) ) {
 			require_once( JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php' );
 			$actor['ip'] = jetpack_protect_get_ip();
-			$actor['user_agent'] = $_SERVER['user_agent'];
+			$actor['user_agent'] = isset( $_SERVER['user_agent'] ) ? $_SERVER['user_agent'] : 'unknown';
 		}
 
 		return $actor;
@@ -279,7 +279,7 @@ class Jetpack_Sync_Listener {
 		 *
 		 * @since 5.8.0
 		 *
-		 * @param bool True if we should send the IP Address
+		 * @param bool True if we should send user data
 		 */
 		if ( ! apply_filters( 'jetpack_sync_actor_user_data', true ) ) {
 			return false;
