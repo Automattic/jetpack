@@ -97,6 +97,8 @@ new WPCOM_JSON_API_Site_Settings_V1_2_Endpoint( array(
 		'site_icon'                            => '(int) Media attachment ID to use as site icon. Set to zero or an otherwise empty value to clear',
 		'api_cache'                            => '(bool) Turn on/off the Jetpack JSON API cache',
 		'posts_per_page'                       => '(int) Number of posts to show on blog pages',
+		'posts_per_rss'                        => '(int) Number of posts to show in the RSS feed',
+		'rss_use_excerpt'                      => '(bool) Whether the RSS feed will use post excerpts',
 	),
 
 	'response_format' => array(
