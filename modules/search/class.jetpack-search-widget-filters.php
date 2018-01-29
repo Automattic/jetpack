@@ -457,7 +457,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 							</label>
 						</p>
 
-						<p>
+						<p class="jetpack-search-filters-widget__type-select">
 							<label>
 								<?php esc_html_e( 'Filter Type:', 'jetpack' ); ?>
 								<select name="<?php echo esc_attr( $this->get_field_name( 'filter_type' ) ); ?>[]" class="widefat filter-select">
@@ -479,7 +479,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 								<?php esc_html_e( 'Choose a taxonomy:', 'jetpack' ); $seen_taxonomy_labels = array(); ?>
 								<select name="<?php echo esc_attr( $this->get_field_name( 'taxonomy_type' ) ); ?>[]" class="widefat">
 									<?php foreach ( get_taxonomies( false, 'objects' ) as $taxonomy ) : ?>
-										<option value="<?php echo esc_attr( $taxonomy->name ); ?>" <%= <?php echo json_encode($taxonomy->name); ?> === taxonomy ? 'selected="selected"' : '' %>>
+										<option value="<?php echo esc_attr( $taxonomy->name ); ?>" <%= <?php echo json_encode( $taxonomy->name ); ?> === taxonomy ? 'selected="selected"' : '' %>>
 											<?php
 												$label = in_array( $taxonomy->label, $seen_taxonomy_labels )
 													? sprintf(
@@ -589,16 +589,8 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			'count' => self::DEFAULT_FILTER_COUNT,
 		) );
 
-		$classes = sprintf(
-			'jetpack-search-filters-widget__filter is-%s',
-			sanitize_key( $args['type'] )
-		);
-
 		?>
 		<script type="text/javascript">
-			// window.JetpackSearch = window.JetpackSearch || {};
-			// window.JetpackSearch.filters = window.JetpackSearch.filters || [];
-
 			// output as JSON and render
 			jQuery( document ).ready( function( $ ) {
 				window.JetpackSearch.addFilter( $('.jetpack-search-filters-widget__filters'), <?php echo json_encode($args) ?> );
