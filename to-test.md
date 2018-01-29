@@ -3,6 +3,7 @@
 ### Lazy images
 
 Jetpack 5.8 introduces a new module, Lazy Images. This feature, once activated under Jetpack > Settings, improves performance by loading images just before they scroll into view, and not before. To test it, activate the feature and make sure that all your images are still displayed properly, regardless of how they were inserted into your posts or pages.
+You will also want to make sure the feature does not get activated by default when you update.
 
 ### Final Notes
 
