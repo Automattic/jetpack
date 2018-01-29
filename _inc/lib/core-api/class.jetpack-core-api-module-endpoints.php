@@ -1113,6 +1113,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 		}
 
 		if ( ! empty( $data['installWooCommerce'] ) ) {
+			add_filter( 'woocommerce_prevent_automatic_wizard_redirect', '__return_true' );
 			jetpack_require_lib( 'plugins' );
 			$wc_install_result = Jetpack_Plugins::install_and_activate_plugin( 'woocommerce' );
 			if ( is_wp_error( $wc_install_result ) ) {
