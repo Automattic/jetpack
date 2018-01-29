@@ -107,6 +107,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Custom CSS: add CSS Grid Layout support.
 * Dashboard: update list of features available in Paid plans.
+* Dashboard: improve the display of notices inside the Jetpack dashboard.
 * Development mode: improve the display of the development notice.
 * Notices: add rel tags to notice links to avoid issues when links open in a new window.
 * Onboarding: add functionality for saving Business Address in the Contact Info widget.
