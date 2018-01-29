@@ -123,6 +123,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Lazy Images: fix issues with the Gazette theme.
 * Open Graph: add Open Graph Metabox to the list of conflicting plugins.
 * Masterbar: fix incompatibility with BeaverBuilder plugin.
+* PHP 7.2: fix issues when running Jetpack with PHP 7.2.
 
 **Bug fixes**
 
