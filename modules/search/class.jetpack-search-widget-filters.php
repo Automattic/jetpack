@@ -96,7 +96,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 
 	private function get_sort_types() {
 		return array(
-			'relevance|DESC' => esc_html__( 'Relevance (recommended)', 'jetpack' ),
+			'relevance|DESC' => is_admin() ? esc_html__( 'Relevance (recommended)', 'jetpack' ) : esc_html__( 'Relevance', 'jetpack' ),
 			'date|DESC' => esc_html__( 'Newest first', 'jetpack' ),
 			'date|ASC' => esc_html__( 'Oldest first', 'jetpack' )
 		);
