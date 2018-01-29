@@ -114,6 +114,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Post Images: allow passing size when searching for images in HTML.
 * Sharing: make sure the Whatsapp button works on mobile and on desktop.
 * Sharing: add new filter, `wp_sharing_email_send_post_subject`, to allow modifying the email sharing subject line.
+* Site Settings: add support for site language and timezone settings.
 * Sync: improve synchronization of user actions.
 
 **Improved compatibility**
