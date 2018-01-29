@@ -144,6 +144,8 @@ class Jetpack_Sync_Listener {
 			 *
 			 * @since 4.2.0
 			 *
+			 * @module sync 
+			 *
 			 * @param array The action parameters
 			 */
 			$args = apply_filters( "jetpack_sync_before_enqueue_$action_name", $args );
