@@ -5,6 +5,14 @@
 Jetpack 5.8 introduces a new module, Lazy Images. This feature, once activated under Jetpack > Settings, improves performance by loading images just before they scroll into view, and not before. To test it, activate the feature and make sure that all your images are still displayed properly, regardless of how they were inserted into your posts or pages.
 You will also want to make sure the feature does not get activated by default when you update.
 
+### Publicize / Subscriptions
+
+We've made some changes to the way post status was synchronized with WordPress.com in this release. You will want to make sure Publicize and Subscriptions still work properly:
+1. Try scheduling posts and see if they get sent to subscribers.
+2. Try unpublishing a post that's already been publicized, and then publish it again; it should not be sent to subscribers.
+3. Try publishing posts from a third-party app like [Stackedit](https://stackedit.io/editor).
+4. Try bulk-editing posts in your editor, and make sure no posts get sent to subscribers by mistake.
+
 ### Final Notes
 
 During your tests, we encourage you to open your browser's Development Tools and keep the Console open, checking for any errors in the Console and the Network tabs.
