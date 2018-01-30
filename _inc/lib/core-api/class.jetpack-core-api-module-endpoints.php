@@ -449,7 +449,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
 				case 'onboarding':
 					$business_address = get_option( 'jpo_business_address' );
-					$business_address = ! empty( $business_address ) ? array_map( array( $this, 'decode_special_characters' ), $business_address ) : $business_address;
+					$business_address = is_array( $business_address ) ? array_map( array( $this, 'decode_special_characters' ), $business_address ) : $business_address;
 
 					$response[ $setting ] = array(
 						'siteTitle' => $this->decode_special_characters( get_option( 'blogname' ) ),
