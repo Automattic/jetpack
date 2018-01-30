@@ -1,72 +1,51 @@
-## 5.7
-
-### Portfolio
-
-Portfolio posts are now revisioned.
-
-Follow the instructions below to test the feature:
-
-1. Create a new Portfolio entry, don't publish it.
-2. Save the draft a few times.
-3. Confirm you can see revisions, just as you would see for posts or pages.
-
-### Markdown
-
-There used to be a bug that didn't allow you to use markdown as content for a shortcode resulting in a weird hash/number being shown in the rendered content.
-
-To test, try the following:
-
-1. Register a test shortcode. The callback doesn't matter (it just needs to be registered so it gets added to the regex).
-	```php
-	add_shortcode( 'test', '__return_empty_string' );
-	```
-2. Create a post with the following content:
-	```
-		[test]Text with `code` in it.[/test]
-	```
-3. Save the post, and visit it expecting to see the markdown converted to html.
-
-### Comments
-
-#### Hooking on comments
-
-Now, other plugins hooking on `comment_form_after` for showing content will work seamlessly with Jetpack.
-
-To test:
-
-1. Add a plugin that hooks in after the comment form, such as Webmentions ( https://wordpress.org/plugins/webmention/ ).
-2. Visit any given post for which comments are enabled an expect to see the content that the other plugin outputs.
-
-#### WordPress.com comments editor
-
-Edit links for comments will be redirected to WordPress.com comment editor if the Jetpack option `edit_links_calypso_redirect` is enabled.
-
-To test:
-
-1. Ensure the option is enabled. One way is to run the following `wp` cli command:
-	```sh
-	wp jetpack options update edit_links_calypso_redirect 1
-	```
-2. Verify that the frontend Edit link for a comment points to WordPress.com.
+## 5.8
 
 ### Search
 
-We improved the UI for customizing the Search widget.
+Jetpack's [Search feature](https://jetpack.com/support/search/) is now out of Beta! We've made quite a few improvements to the feature in Jetpack 5.8, and we will need your help to test it all.
 
-To test the new customization UI for the widget:
+**The features are only available to sites using a Jetpack Professional Plan, so you will want to make sure you don't see the features on sites that do not use that plan, or that were downgraded.**
 
-1. Start with a site that has Jetpack Professional Plan associated (nothing about search should show up otherwise).
-2. Turn on search from the Jetpack dashboard or from the Jetpack Traffic Settings page.
-3. Go customize your widgets (either in wp-admin or the customizer)
-4. Add the Jetpack Search widget and customize it. Things to try customizing:
-	* Add filtering by category/tags/custom-taxonomy
-	* Add filtering by post type
-	* Add filtering by date
-	* Use the widget search box, or a search box in the theme or in the Core search widget
-	* Try different themes. This is an interesting list: https://www.godaddy.com/garage/wordpress-hot-100/ Try to test with some themes that were not tested previously in https://github.com/Automattic/jetpack/pull/8412
-	* Try customizing search on a WooCommerce site.
+#### Search Widget
 
-The goal with all of the above is to enable a non-technical user to configure and customize search.
+To start testing (on a site using Jetpack Professional), drag the Jetpack's Search Widget into one of your widget areas, and interact with its options.
+- The Widget options should work and get saved whether you are using the Customizer to interact with your widgets or the old Appearance > Widgets menu.
+- There should be no JavaScript errors or PHP notices when loading the widget or making changes to it.
+- The number of filters should always be set to 5 by default.
+- Filtering should work as expected: do not hesitate to play with all Filtering options.
+- You should be able to rearrange filters by dragging and dropping.
+- When adjusting filters in the customizer, the preview should still work.
+- If possible, test the widget on a site with multiple post types. WooCommerce sites make good test sites for example.
+- Make sure the Help links are working.
+- The widget should never display private data, such as private post types or taxonomies.
+
+#### Search Results
+
+- When using the Search Widget to exclude or include a specific Post Type in search results, make sure that works.
+- Sorting results should work as expected.
+- You should be able to adjust filters when looking at the search results page.
+- Make sure the filters interface works and looks good with your theme. It should look similar to your other widgets.
+- Make sure the results are relevant :)
+
+### Lazy images
+
+Jetpack 5.8 introduces a new module, Lazy Images. This feature, once activated under Jetpack > Settings, improves performance by loading images just before they scroll into view, and not before. To test it, activate the feature and make sure that all your images are still displayed properly, regardless of how they were inserted into your posts or pages.
+You will also want to make sure the feature does not get activated by default when you update.
+
+### Publicize / Subscriptions
+
+We've made some changes to the way post status was synchronized with WordPress.com in this release. You will want to make sure Publicize and Subscriptions still work properly:
+1. Try scheduling posts and see if they get sent to subscribers.
+2. Try unpublishing a post that's already been publicized, and then publish it again; it should not be sent to subscribers.
+3. Try publishing posts from a third-party app like [Stackedit](https://stackedit.io/editor).
+4. Try bulk-editing posts in your editor, and make sure no posts get sent to subscribers by mistake.
+
+### WordPress.com
+
+We've made some changes to the way plugins can be installed via Jetpack. To test this, head over to [WordPress.com/plugins](https://wordpress.com/plugins) and try the following:
+1. Install a new plugin by clicking on [Upload Plugin](https://wordpress.com/plugins/upload).
+2. Install a new theme by going to [Upload Theme](https://wordpress.com/themes/upload).
+3. Update plugins and themes.
 
 ### Final Notes
 

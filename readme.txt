@@ -9,52 +9,42 @@ The one plugin you need for stats, related posts, search engine optimization, so
 
 == Description ==
 
-Keep any WordPress site secure, increase traffic, and engage your readers.
+Hassle-free design, marketing, and security — all in one place.
 
-= Traffic and SEO Tools =
-Traffic is the lifeblood of any website. Jetpack includes:
+= Design Services =
+Create and customize your WordPress site from start to finish. Jetpack helps you with:
+* Hundreds of professional themes for any kind of site
+* Intuitive and powerful customization tools
+* Unlimited and high-speed image and video content delivery network
+* Lazy image loading for a faster mobile experience
+* Integration with the official WordPress mobile apps
 
-* [free] Site stats and analytics
-* [free] Automatic sharing on Facebook, Twitter, LinkedIn, Tumblr, Reddit, and WhatsApp
-* [free] Related posts
-* [paid] Search engine optimization tools for Google, Bing, Twitter, Facebook, and WordPress.com
-* [paid] Advertising program that includes the best of AdSense, Facebook Ads, AOL, Amazon, Google AdX, and Yahoo
+= Marketing Services =
+Measure, promote, and earn moment from your site. Jetpack helps you with:
 
-= Security and Backup Services =
-Stop worrying about data loss, downtime, and hacking. Jetpack provides:
+* Site stats and analytics
+* Automated social media posting and scheduling in advance
+* Elasticsearch-powered related content and site search
+* SEO tools for Google, Bing, Twitter, Facebook, and WordPress.com
+* Advertising program that includes the best of AdSense, Facebook Ads, AOL, Amazon, Google AdX, and Yahoo
+* Simple PayPal payment buttons
 
-* [free] Brute force attack protection
-* [free] Downtime and uptime monitoring
-* [free] Secured logins and two-factor authentication
-* [paid] Malware scanning, code scanning, and threat resolution
-* [paid] Site backups, restores, and migrations
+= Security Services =
+Stop worrying about data loss, downtime, and hacking. Jetpack helps you with:
 
-= Content Creation =
-Add rich, beautifully-presented media -- no graphic design expertise necessary:
-
-* [free] A high-speed CDN for your images
-* [free] Carousels, slideshows, and tiled galleries
-* [free] Simple embeds from YouTube, Google Documents, Spotify and more
-* [free] Sidebar customization including Facebook, Twitter, and RSS feeds
-* [free] Extra sidebar widgets including blog stats, calendar, and author widgets
-* [paid] High-speed, ad-free, and high-definition video hosting
-
-= Discussion and Community =
-Create a connection with your readers and keep them coming back to your site with:
-
-* [free] Email subscriptions
-* [free] Comment login with Facebook, Twitter, and Google
-* [free] Fully-customizable contact forms
-* [free] Infinite scroll for your posts
+* Brute force attack protection, spam filtering, and downtime monitoring
+* Secure logins with optional two-factor authentication
+* Malware scanning, code scanning, and automated threat resolution
+* Fast, priority support from WordPress experts
 
 = Expert Support =
-We have an entire team of Happiness Engineers ready to help you. Ask your questions in the support forum, or [contact us directly](https://jetpack.com/contact-support).
+We have a global team of Happiness Engineers ready to help you. Ask your questions in the support forum, or [contact us directly](https://jetpack.com/contact-support).
 
 = Paid Services =
-Most of Jetpack's features and services are free. Jetpack also provides advanced security and backup services, video hosting, site monetization, priority support, and more SEO tools in three [simple and affordable plans](https://jetpack.com/pricing?from=wporg).
+Compare our [simple and affordable plans](https://jetpack.com/pricing?from=wporg) or take a [product tour](https://jetpack.com/features?from=wporg) to learn more.
 
 = Get Started =
-Installation is free, quick, and easy. Set up <a href="https://jetpack.com/install?from=wporg">the free plan</a> in minutes.
+Installation is free, quick, and easy. [Install Jetpack from our site](https://jetpack.com/install?from=wporg) in minutes.
 
 == Installation ==
 
@@ -72,9 +62,9 @@ Yes! Jetpack's core features are and always will be free.
 These include: [site stats](https://jetpack.com/features/traffic/site-stats), a [high-speed CDN](https://jetpack.com/features/writing/content-delivery-network/) for images, [related posts](https://jetpack.com/features/traffic/related-posts), [downtime monitoring](https://jetpack.com/features/security/downtime-monitoring), brute force [attack protection](https://jetpack.com/features/security/brute-force-attack-protection), [automated sharing](https://jetpack.com/features/traffic/automatic-publishing/) to social networks, [sidebar customization](https://jetpack.com/features/writing/sidebar-customization/), and many more.
 
 = Should I purchase a paid plan? =
-Jetpack's paid services include automated backups, security scanning, spam filtering, video hosting, site monetization, SEO tools, and priority support.
+Jetpack's paid services include real-time backups, security scanning, premium themes, spam filtering, video hosting, site monetization, SEO tools, search, priority support, and more.
 
-If you're interested in learning more about the extra layers of protection and advanced tools available, learn more about our [paid plans](https://jetpack.com/pricing?from=wporg).
+To learn more about the essential security and WordPress services we provide, vist our [plan comparison page](https://jetpack.com/pricing?from=wporg).
 
 = Why do I need a WordPress.com account? =
 
@@ -102,6 +92,58 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 5. Traffic: SEO Tools for Google, Twitter, Facebook and more.
 
 == Changelog ==
+
+= 5.8 =
+
+* Release date: February 6, 2018
+* Release post: https://wp.me/p1moTy-731
+
+**Major Enhancements**
+
+* [Lazy Images](https://jetpack.com/support/lazy-images/): after a Beta period, you can now enable this new feature from Jetpack > Settings in your dashboard.
+* Search: Jetpack's [Search feature](https://jetpack.com/support/search/) is now out of Beta! We've improved the way data is indexed behind the scenes, and made changes to the Search widget and its filters.
+
+**Enhancements**
+
+* Comment moderation tools: moderation emails now point to WordPress.com when using the `edit_links_calypso_redirect` option.
+* Custom CSS: add CSS Grid Layout support.
+* Dashboard: update list of features available in Paid plans.
+* Dashboard: improve the display of notices inside the Jetpack dashboard.
+* Dashboard: update content displayed in the Jetpack dashboard when not connected to WordPress.com.
+* Development mode: improve the display of the development notice.
+* General: add a new filter, `jetpack_active_modules`, allowing site owners to filter the list of active modules.
+* Notices: add rel tags to notice links to avoid issues when links open in a new window.
+* Onboarding: add functionality for saving Business Address in the Contact Info widget.
+* Onboarding: save site type during site setup process.
+* Onboarding: enable loading of specific modules when using the Onboarding process.
+* Post Images: allow passing size when searching for images in HTML.
+* REST API: update the plugin installation process to use a new library.
+* REST API: allow changing the number of posts displayed in the RSS feed, and whether feeds display full text or a summary.
+* REST API: simplify our invites endpoint.
+* Sharing: make sure the Whatsapp button works on mobile and on desktop.
+* Sharing: add new filter, `wp_sharing_email_send_post_subject`, to allow modifying the email sharing subject line.
+* Shortcodes: update the GettyImages shortcode to use the new format required by GettyImages.
+* Site Settings: add support for site language and timezone settings.
+* Sync: improve synchronization of user actions, theme and plugin edits / updates, post status, updates on Multisite networks, Protect events, and WooCommerce's meta data.
+* WordAds: enable the Ads in the header by default.
+* WordAds: add filters so site owners can control the display of the ads via code as well.
+
+**Improved compatibility**
+
+* Lazy Images: fix issues with the Gazette theme.
+* Open Graph: add Open Graph Metabox to the list of conflicting plugins.
+* Masterbar: fix incompatibility with BeaverBuilder plugin.
+* PHP 7.2: fix issues when running Jetpack with PHP 7.2.
+
+**Bug fixes**
+
+* Carousel: fix PHP Notice with images using custom meta.
+* Dashboard: make sure all links to WordPress.com point to the right site's settings on WordPress.com.
+* Dashboard: update links to the plugin interface on WordPress.com to load the full plugin management page.
+* General: fix images shown in the dashboard when Jetpack is installed in a directory different than `jetpack`.
+* Lazy Images: make sure Lazy Load can be triggered even when images are added to the content very late.
+* Stats: make sure the Stats script is XHTML compliant.
+* Widgets: Mailchimp - avoid conflicts with jQuery UI.
 
 = 5.7.1 =
 
