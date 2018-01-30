@@ -28,6 +28,7 @@ export const Traffic = React.createClass( {
 	render() {
 		const commonProps = {
 			settings: this.props.settings,
+			siteRawUrl: this.props.siteRawUrl,
 			getModule: this.props.module,
 			isDevMode: this.props.isDevMode,
 			isUnavailableInDevMode: this.props.isUnavailableInDevMode
