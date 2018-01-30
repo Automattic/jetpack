@@ -43,7 +43,7 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 			return;
 		}
 
-		$plugins =  ( isset( $details['plugins'] ) ? $details['plugins'] : null );
+		$plugins = ( isset( $details['plugins'] ) ? $details['plugins'] : null );
 		if ( empty( $plugins ) ) {
 			$plugins = ( isset( $details['plugin'] ) ? array( $details['plugin'] ) : null );
 		}
@@ -59,7 +59,7 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 
 		switch ( $details['action'] ) {
 			case 'update':
-				$state = array(
+				$state  = array(
 					'is_autoupdate' => Jetpack_Constants::is_true( 'JETPACK_PLUGIN_AUTOUPDATE' ),
 				);
 				$errors = $this->get_errors( $upgrader->skin );
@@ -68,26 +68,27 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 						/**
 						 * Sync that a plugin update failed
 						 *
-						 * @since 5.8.0
+						 * @since  5.8.0
 						 *
 						 * @module sync
 						 *
-						 * @param string $plugin, Plugin slug
-						 * @param string Error code
-						 * @param string Error message
+						 * @param string $plugin , Plugin slug
+						 * @param        string  Error code
+						 * @param        string  Error message
 						 */
 						do_action( 'jetpack_plugin_update_failed', $this->get_plugin_info( $slug ), $errors['code'], $errors['message'], $state );
 					}
+
 					return;
 				}
 				/**
 				 * Sync that a plugin update
 				 *
-				 * @since 5.8.0
+				 * @since  5.8.0
 				 *
 				 * @module sync
 				 *
-				 * @param array() $plugin, Plugin Data
+				 * @param array () $plugin, Plugin Data
 				 */
 				do_action( 'jetpack_plugins_updated', array_map( array( $this, 'get_plugin_info' ), $plugins ), $state );
 				break;
@@ -102,29 +103,31 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 					/**
 					 * Sync that a plugin update failed
 					 *
-					 * @since 5.8.0
+					 * @since  5.8.0
 					 *
 					 * @module sync
 					 *
-					 * @param string $plugin, Plugin slug
-					 * @param string Error code
-					 * @param string Error message
+					 * @param string $plugin , Plugin slug
+					 * @param        string  Error code
+					 * @param        string  Error message
 					 */
 					do_action( 'jetpack_plugin_install_failed', $this->get_plugin_info( $slug ), $errors['code'], $errors['message'] );
 				}
+
 				return;
 			}
 			/**
 			 * Signals to the sync listener that a plugin was installed and a sync action
 			 * reflecting the installation and the plugin info should be sent
 			 *
-			 * @since 5.8.0
+			 * @since  5.8.0
 			 *
 			 * @module sync
 			 *
-			 * @param array() $plugin, Plugin Data
+			 * @param array () $plugin, Plugin Data
 			 */
-			do_action( 'jetpack_plugin_installed',  array_map( array( $this, 'get_plugin_info' ), $plugins ) );
+			do_action( 'jetpack_plugin_installed', array_map( array( $this, 'get_plugin_info' ), $plugins ) );
+
 			return;
 		}
 	}

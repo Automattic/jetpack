@@ -16,7 +16,7 @@ new Jetpack_JSON_API_Plugins_Modify_v1_2_Endpoint(
 			'active'       => '(bool) Activate or deactivate the plugin',
 			'network_wide' => '(bool) Do action network wide (default value: false)',
 		),
-		'query_parameters' => array(
+		'query_parameters'     => array(
 			'autoupdate' => '(bool=false) If the update is happening as a result of autoupdate event',
 		),
 		'response_format'      => Jetpack_JSON_API_Plugins_Endpoint::$_response_format_v1_2,
@@ -49,7 +49,7 @@ new Jetpack_JSON_API_Plugins_Modify_v1_2_Endpoint(
 			'network_wide' => '(bool) Do action network wide (default value: false)',
 			'plugins'      => '(array) A list of plugin ids to modify',
 		),
-		'query_parameters' => array(
+		'query_parameters'     => array(
 			'autoupdate' => '(bool=false) If the update is happening as a result of autoupdate event',
 		),
 		'response_format'      => array(
@@ -85,7 +85,7 @@ new Jetpack_JSON_API_Plugins_Modify_v1_2_Endpoint(
 			'$site'   => '(int|string) The site ID, The site domain',
 			'$plugin' => '(string) The plugin ID',
 		),
-		'query_parameters' => array(
+		'query_parameters'     => array(
 			'autoupdate' => '(bool=false) If the update is happening as a result of autoupdate event',
 		),
 		'response_format'      => Jetpack_JSON_API_Plugins_Endpoint::$_response_format_v1_2,
@@ -102,7 +102,7 @@ class Jetpack_JSON_API_Plugins_Modify_v1_2_Endpoint extends Jetpack_JSON_API_Plu
 
 	protected function activate() {
 		$permission_error = false;
-		$has_errors = false;
+		$has_errors       = false;
 		foreach ( $this->plugins as $plugin ) {
 
 			if ( ! $this->current_user_can( 'activate_plugin', $plugin ) ) {
@@ -125,8 +125,8 @@ class Jetpack_JSON_API_Plugins_Modify_v1_2_Endpoint extends Jetpack_JSON_API_Plu
 			$result = activate_plugin( $plugin, '', $this->network_wide );
 
 			if ( is_wp_error( $result ) ) {
-				$this->log[ $plugin ]['error'] = $result->get_error_messages();
-				$has_errors = true;
+				$this->log[$plugin]['error'] = $result->get_error_messages();
+				$has_errors                  = true;
 				continue;
 			}
 
@@ -136,18 +136,19 @@ class Jetpack_JSON_API_Plugins_Modify_v1_2_Endpoint extends Jetpack_JSON_API_Plu
 			}
 
 			if ( ! $success ) {
-				$this->log[ $plugin ]['error'] = $result->get_error_messages;
-				$has_errors = true;
+				$this->log[$plugin]['error'] = $result->get_error_messages;
+				$has_errors                  = true;
 				continue;
 			}
-			$this->log[ $plugin ][] = __( 'Plugin activated.', 'jetpack' );
+			$this->log[$plugin][] = __( 'Plugin activated.', 'jetpack' );
 		}
 
 		if ( ! $this->bulk && $has_errors ) {
 			$plugin = $this->plugins[0];
 			if ( $permission_error ) {
-				return new WP_Error( 'unauthorized_error', $this->log[ $plugin ]['error'], 403 );
+				return new WP_Error( 'unauthorized_error', $this->log[$plugin]['error'], 403 );
 			}
+
 			return new WP_Error( 'activation_error', $this->log[$plugin]['error'] );
 		}
 	}
@@ -156,9 +157,9 @@ class Jetpack_JSON_API_Plugins_Modify_v1_2_Endpoint extends Jetpack_JSON_API_Plu
 	protected function deactivate() {
 		$permission_error = false;
 		foreach ( $this->plugins as $plugin ) {
-			if ( ! $this->current_user_can('deactivate_plugin', $plugin ) ) {
-				$error = $this->log[ $plugin ]['error'] = __( 'Sorry, you are not allowed to deactivate this plugin.', 'jetpack' );
-				$permission_error = true;
+			if ( ! $this->current_user_can( 'deactivate_plugin', $plugin ) ) {
+				$error = $this->log[$plugin]['error'] = __( 'Sorry, you are not allowed to deactivate this plugin.', 'jetpack' );
+				$permission_error                     = true;
 				continue;
 			}
 
@@ -174,15 +175,16 @@ class Jetpack_JSON_API_Plugins_Modify_v1_2_Endpoint extends Jetpack_JSON_API_Plu
 			}
 
 			if ( ! $success ) {
-				$error = $this->log[ $plugin ]['error'] = __( 'There was an error deactivating your plugin', 'jetpack' );
+				$error = $this->log[$plugin]['error'] = __( 'There was an error deactivating your plugin', 'jetpack' );
 				continue;
 			}
-			$this->log[ $plugin ][] = __( 'Plugin deactivated.', 'jetpack' );
+			$this->log[$plugin][] = __( 'Plugin deactivated.', 'jetpack' );
 		}
 		if ( ! $this->bulk && isset( $error ) ) {
 			if ( $permission_error ) {
 				return new WP_Error( 'unauthorized_error', $error, 403 );
 			}
+
 			return new WP_Error( 'deactivation_error', $error );
 		}
 	}
