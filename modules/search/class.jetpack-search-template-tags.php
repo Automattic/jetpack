@@ -13,10 +13,16 @@ class Jetpack_Search_Template_Tags {
 	 *
 	 * @return void
 	 */
-	public static function render_available_filters( $filters, $post_types = null ) {
+	public static function render_available_filters( $filters = null, $post_types = null ) {
+		if ( is_null( $filters ) ) {
+			$filters = Jetpack_Search::instance()->get_filters();
+		}
+
 		if ( is_null( $post_types ) ) {
 			$post_types = get_post_types( array( 'exclude_from_search' => false ) );
 		}
+
+		error_log(print_r($filters,1));
 
 		/**
 		 * If the post types specified by the widget differ from the default set of searchable post types,
@@ -55,62 +61,6 @@ class Jetpack_Search_Template_Tags {
 				self::render_filter( $filter, $active_post_types );
 			}
 		}
-	}
-
-	public static function render_widget_title( $title, $before_title, $after_title ) {
-		echo $before_title . esc_html( $title ) . $after_title;
-	}
-
-	/**
-	 * Responsible for rendering the search box within our widget on the frontend.
-	 *
-	 * @param array $instance
-	 */
-	public static function render_widget_search_form( $instance, $orderby, $order ) {
-		$form = get_search_form( false );
-
-		$fields_to_inject = array(
-			'orderby' => $orderby,
-			'order' => $order
-		);
-
-		// If the widget has specified post types to search within and IF the post types differ
-		// from the default post types that would have been searched, set the selected post
-		// types via hidden inputs.
-		if ( Jetpack_Search_Helpers::post_types_differ_searchable( $instance['post_types'] ) ) {
-			$fields_to_inject['post_type'] = implode( ',', $instance['post_types'] );
-		}
-
-		$form = self::inject_hidden_form_fields( $form, $fields_to_inject );
-
-		// This shouldn't need to be escaped since we escaped above when we imploded the selected post types
-		echo '<div class="jetpack-search-form">';
-		echo $form;
-		echo '</div>';
-	}
-
-	private static function inject_hidden_form_fields( $form, $fields ) {
-		$form_injection = '';
-
-		foreach( $fields as $field_name => $field_value ) {
-			$form_injection .= sprintf(
-				'<input type="hidden" name="%s" value="%s" />',
-				$field_name,
-				esc_attr( $field_value )
-			);
-		}
-
-		// This shouldn't need to be escaped since we've escaped above as we built $form_injection
-		$form = str_replace(
-			'</form>',
-			sprintf(
-				'%s</form>',
-				$form_injection
-			),
-			$form
-		);
-
-		return $form;
 	}
 
 	/**
@@ -177,5 +127,61 @@ class Jetpack_Search_Template_Tags {
 			<?php endforeach; ?>
 		</ul>
 	<?php
+	}
+
+	public static function render_widget_title( $title, $before_title, $after_title ) {
+		echo $before_title . esc_html( $title ) . $after_title;
+	}
+
+	/**
+	 * Responsible for rendering the search box within our widget on the frontend.
+	 *
+	 * @param array $instance
+	 */
+	public static function render_widget_search_form( $post_types, $orderby, $order ) {
+		$form = get_search_form( false );
+
+		$fields_to_inject = array(
+			'orderby' => $orderby,
+			'order' => $order
+		);
+
+		// If the widget has specified post types to search within and IF the post types differ
+		// from the default post types that would have been searched, set the selected post
+		// types via hidden inputs.
+		if ( Jetpack_Search_Helpers::post_types_differ_searchable( $post_types ) ) {
+			$fields_to_inject['post_type'] = implode( ',', $post_types );
+		}
+
+		$form = self::inject_hidden_form_fields( $form, $fields_to_inject );
+
+		// This shouldn't need to be escaped since we escaped above when we imploded the selected post types
+		echo '<div class="jetpack-search-form">';
+		echo $form;
+		echo '</div>';
+	}
+
+	private static function inject_hidden_form_fields( $form, $fields ) {
+		$form_injection = '';
+
+		foreach( $fields as $field_name => $field_value ) {
+			$form_injection .= sprintf(
+				'<input type="hidden" name="%s" value="%s" />',
+				$field_name,
+				esc_attr( $field_value )
+			);
+		}
+
+		// This shouldn't need to be escaped since we've escaped above as we built $form_injection
+		$form = str_replace(
+			'</form>',
+			sprintf(
+				'%s</form>',
+				$form_injection
+			),
+			$form
+		);
+
+		return $form;
 	}
 }

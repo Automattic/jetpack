@@ -150,22 +150,15 @@ class Jetpack_Search_Widget extends WP_Widget {
 			if ( Jetpack_Search_Helpers::should_rerun_search_in_customizer_preview( $instance, $this->id ) ) {
 				$this->jetpack_search->update_search_results_aggregations();
 			}
+
 			$filters = $this->jetpack_search->get_filters();
+
+			if ( ! $this->jetpack_search->are_filters_by_widget_disabled() && ! $this->should_display_sitewide_filters() ) {
+				$filters = array_filter( $filters, array( $this, 'is_for_current_widget' ) );
+			}
 
 			if ( ! empty( $filters ) ) {
 				$display_filters = true;
-
-				if ( ! $this->jetpack_search->are_filters_by_widget_disabled() && ! $this->should_display_sitewide_filters() ) {
-					$filters = array_filter( $filters, array( $this, 'is_for_current_widget' ) );
-				}
-
-				foreach ( $filters as $filter ) {
-					if ( isset( $filter['buckets'] ) && count( $filter['buckets'] ) > 1 ) {
-						$display_filters = true;
-
-						break;
-					}
-				}
 			}
 		}
 
@@ -206,7 +199,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 		// we need to dynamically inject the sort field into the search box when the search box is enabled, and display
 		// it separately when it's not.
 		if ( ! empty( $instance['search_box_enabled'] ) ) {
-			Jetpack_Search_Template_Tags::render_widget_search_form( $instance, $orderby, $order );
+			Jetpack_Search_Template_Tags::render_widget_search_form( $instance['post_types'], $orderby, $order );
 		}
 
 		if ( ! empty( $instance['search_box_enabled'] ) && ! empty( $instance['user_sort_enabled'] ) ): ?>
@@ -249,8 +242,8 @@ class Jetpack_Search_Widget extends WP_Widget {
 	 * Renders JavaScript for the sorting controls on the frontend.
 	 *
 	 * This JS is a bit complicated, but here's what it's trying to do:
-	 * - find or create a search form
-	 * - find or create the orderby/order fields with default values
+	 * - find the search form
+	 * - find the orderby/order fields and set default values
 	 * - detect changes to the sort field, if it exists, and use it to set the order field values
 	 *
 	 * @param array  $instance The current widget instance.
