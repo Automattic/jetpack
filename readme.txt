@@ -5,7 +5,7 @@ Stable tag: 5.7.1
 Requires at least: 4.7
 Tested up to: 4.9
 
-Hassle-free design, marketing, and security — all in one place.
+The one plugin you need for stats, related posts, search engine optimization, social sharing, protection, backups, speed, and email list management.
 
 == Description ==
 
@@ -34,7 +34,6 @@ Stop worrying about data loss, downtime, and hacking. Jetpack helps you with:
 
 * Brute force attack protection, spam filtering, and downtime monitoring
 * Secure logins with optional two-factor authentication
-* Full site backups in real-time with unlimited storage space
 * Malware scanning, code scanning, and automated threat resolution
 * Fast, priority support from WordPress experts
 
