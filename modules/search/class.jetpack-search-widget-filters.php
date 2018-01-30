@@ -370,9 +370,10 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		$user_sort_enabled = ! empty( $instance['user_sort_enabled'] );
 		$sort = isset( $instance['sort'] ) ? $instance['sort'] : self::DEFAULT_SORT;
 		$classes = sprintf(
-			'jetpack-search-filters-widget %s %s',
+			'jetpack-search-filters-widget %s %s %s',
 			$hide_filters ? 'hide-filters' : '',
-			$search_box_enabled ? '' : 'hide-post-types'
+			$search_box_enabled ? '' : 'hide-post-types',
+			$this->id
 		);
 		?>
 		<div class="<?php echo esc_attr( $classes ); ?>">
@@ -592,11 +593,19 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 
 		$args['name_placeholder'] = Jetpack_Search_Helpers::generate_widget_filter_name( $args );
 
+		$filter_selector = sprintf(
+			'.jetpack-search-filters-widget.%s .jetpack-search-filters-widget__filters',
+			sanitize_key( $this->id )
+		);
+
 		?>
 		<script type="text/javascript">
 			// output as JSON and render
 			jQuery( document ).ready( function( $ ) {
-				window.JetpackSearch.addFilter( $('.jetpack-search-filters-widget__filters'), <?php echo json_encode($args) ?> );
+				window.JetpackSearch.addFilter(
+					$( '<?php echo esc_js( $filter_selector ); ?>' ),
+					<?php echo json_encode($args) ?>
+				);
 			});
 		</script>
 	<?php }

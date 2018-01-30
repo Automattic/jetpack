@@ -37,8 +37,12 @@
 	}
 
 	var addFilter = function( filtersContainer, args ) {
-		// render using underscore
-		var template = _.template( $('.jetpack-search-filters-widget__filter-template').html() );
+		var template = _.template(
+			filtersContainer
+				.closest( '.jetpack-search-filters-widget' )
+				.find( '.jetpack-search-filters-widget__filter-template' )
+				.html()
+		);
 		var filter = $('<div></div>');
 
 		filter.html( template( args ) );
@@ -211,7 +215,12 @@
 		// add filter button
 		widget.on( 'click', '.jetpack-search-filters-widget__add-filter', function( e ) {
 			e.preventDefault();
-			addFilter( widget.find('.jetpack-search-filters-widget__filters'), {
+
+			var filtersContainer = $( this )
+				.closest( '.jetpack-search-filters-widget' )
+				.find( '.jetpack-search-filters-widget__filters' );
+
+			addFilter( filtersContainer, {
 				type: 'taxonomy',
 				taxonomy: '',
 				post_type: '',
@@ -224,6 +233,12 @@
 			if ( wp && wp.customize ) {
 				wp.customize.state( 'saved' ).set( false );
 			}
+
+			// Trigger change event to let legacy widget admin know the widget state is "dirty"
+			filtersContainer
+				.find( '.jetpack-search-filters-widget__filter' )
+				.find( 'input, textarea, select' )
+				.change();
 
 			trackAndBumpMCStats( 'added_filter', args.tracksEventData );
 		} );
