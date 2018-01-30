@@ -473,6 +473,15 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 		return rest_ensure_response( $response );
 	}
 
+	/**
+	 * Decode the special HTML characters in a certain value.
+	 *
+	 * @since 5.8
+	 *
+	 * @param string $value Value to decode.
+	 *
+	 * @return string Value with decoded HTML characters.
+	 */
 	private function decode_special_characters( $value ) {
 		return (string) htmlspecialchars_decode( $value, ENT_QUOTES );
 	}
