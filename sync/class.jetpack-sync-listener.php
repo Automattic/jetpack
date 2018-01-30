@@ -271,8 +271,7 @@ class Jetpack_Sync_Listener {
 	}
 
 	function should_send_user_data_with_actor( $current_filter ) {
-		$should_send = in_array( $current_filter, array( 'wp_login', 'wp_logout', 'jetpack_valid_failed_login_attempt' ) ) ?
-			true : false;
+		$should_send = in_array( $current_filter, array( 'wp_login', 'wp_logout', 'jetpack_valid_failed_login_attempt' ) );
 		/**
 		 * Allow or deny sending actor's user data ( IP and UA ) during a sync event
 		 *
