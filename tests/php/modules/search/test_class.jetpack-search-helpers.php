@@ -780,7 +780,6 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 			'instance_with_no_filters' => array(
 				array(
 					'widget_title' => 'Search',
-					'widget_use_filters' => 0,
 					'widget_search_box_enabled' => 1,
 				),
 				$this->get_sample_widget_instance( 0 )
@@ -788,7 +787,6 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 			'instance_with_filters' => array(
 				array(
 					'widget_title' => 'Search',
-					'widget_use_filters' => 1,
 					'widget_search_box_enabled' => 1,
 					'widget_filter_count' => 1,
 					'widget_filter_type_taxonomy' => 1,
@@ -808,7 +806,6 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 					'action' => 'widget_updated',
 					'widget' => array(
 						'widget_title' => 'Search',
-						'widget_use_filters' => 1,
 						'widget_search_box_enabled' => 1,
 						'widget_filter_count' => 1,
 						'widget_filter_type_taxonomy' => 1,
@@ -822,7 +819,6 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 					'action' => 'widget_updated',
 					'widget' => array(
 						'widget_title' => 'changed',
-						'widget_use_filters' => 1,
 						'widget_search_box_enabled' => 1,
 						'widget_filter_count' => 2,
 						'widget_filter_type_taxonomy' => 1,
@@ -837,7 +833,6 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 					'action' => 'widget_updated',
 					'widget' => array(
 						'widget_title' => 'Search',
-						'widget_use_filters' => 0,
 						'widget_search_box_enabled' => 1,
 					)
 				),
@@ -849,7 +844,6 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 					'action' => 'widget_updated',
 					'widget' => array(
 						'widget_title' => 'updated',
-						'widget_use_filters' => 0,
 						'widget_search_box_enabled' => 1,
 					)
 				),
@@ -874,7 +868,6 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 					'action' => 'widget_updated',
 					'widget' => array(
 						'widget_title' => 'Search',
-						'widget_use_filters' => 1,
 						'widget_search_box_enabled' => 1,
 						'widget_filter_count' => 2,
 						'widget_filter_type_taxonomy' => 1,
@@ -902,7 +895,7 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 					'action' => 'widget_updated',
 					'widget' => array(
 						'widget_title' => 'Search',
-						'widget_use_filters' => 1,
+
 						'widget_search_box_enabled' => 1,
 						'widget_filter_count' => 2,
 						'widget_filter_type_taxonomy' => 2,
@@ -929,7 +922,6 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 					'action' => 'widget_added',
 					'widget' => array(
 						'widget_title' => 'Search',
-						'widget_use_filters' => 1,
 						'widget_search_box_enabled' => 1,
 						'widget_filter_count' => 2,
 						'widget_filter_type_taxonomy' => 1,
@@ -947,7 +939,6 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 					'action' => 'widget_deleted',
 					'widget' => array(
 						'widget_title' => 'Search',
-						'widget_use_filters' => 1,
 						'widget_search_box_enabled' => 1,
 						'widget_filter_count' => 2,
 						'widget_filter_type_taxonomy' => 1,
@@ -965,7 +956,6 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 					'action' => 'widget_added',
 					'widget' => array(
 						'widget_title' => 'Search',
-						'widget_use_filters' => 1,
 						'widget_search_box_enabled' => 1,
 						'widget_filter_count' => 1,
 						'widget_filter_type_taxonomy' => 1,
@@ -986,7 +976,6 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 					'action' => 'widget_deleted',
 					'widget' => array(
 						'widget_title' => 'Search',
-						'widget_use_filters' => 0,
 						'widget_search_box_enabled' => 1,
 					)
 				),
@@ -1328,7 +1317,6 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 		return array(
 			'15' => array(
 				'title' => 'Search',
-				'use_filters' => 1,
 				'search_box_enabled' => 0,
 				'filters' => array(
 					array(
@@ -1361,13 +1349,10 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 	function get_sample_widget_instance( $count_filters = 2, $count_cat = 4 ) {
 		$instance = array(
 			'title' => 'Search',
-			'use_filters' => 0,
 			'search_box_enabled' => 1,
-
 		);
 
 		if ( $count_filters > 0 ) {
-			$instance['use_filters'] = 1;
 			$instance['filters'] = $this->get_sample_filters( $count_filters, $count_cat );
 		}
 

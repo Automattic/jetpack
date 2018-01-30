@@ -22,13 +22,8 @@
 	display: none;
 }
 
-/* If there's only one filter, do not show the control to delete it */
-.jetpack-search-filters-widget__filter:only-of-type .jetpack-search-filters-widget__controls .delete {
-	display: none;
-}
-
-.jetpack-search-filters-widget__filter:only-of-type .jetpack-search-filters-widget__controls .control-separator {
-	display: none;
+.button.jetpack-search-filters-widget__add-filter {
+	margin-bottom: 10px;
 }
 
 /* Assume that taxonomy select is the default selected. Other controls should be hidden here. */

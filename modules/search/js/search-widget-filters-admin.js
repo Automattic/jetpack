@@ -8,16 +8,52 @@
 	$( document ).ready( function() {
 		setListeners();
 
+		window.JetpackSearch = window.JetpackSearch || {};
+		window.JetpackSearch.addFilter = addFilter;
+
 		// Initialize Tracks
 		if ( 'undefined' !== typeof analytics && args.tracksUserData ) {
 			analytics.initialize( args.tracksUserData.userid, args.tracksUserData.username );
 		}
 	} );
 
+	function generateFilterTitlePlaceholder( container ) {
+		var placeholder = null;
+
+		var type = container.find('.filter-select').val();
+
+		if ( 'taxonomy' === type ) {
+			placeholder = container.find('.taxonomy-select option:selected').text().trim();
+		} else if ( 'date_histogram' === type ) {
+			placeholder = container.find('.date-interval-select option:selected').text().trim();
+			if ( container.find( '.date-field-select' ).val().indexOf('modified') >= 0 ) {
+				placeholder = placeholder + ' Updated';
+			}
+		} else {
+			placeholder = container.find('.filter-select option:selected').text().trim();
+		}
+
+		$( container ).find('.jetpack-search-filters-widget__title input').prop( 'placeholder', placeholder );
+	}
+
+	var addFilter = function( filtersContainer, args ) {
+		// render using underscore
+		var template = _.template( $('.jetpack-search-filters-widget__filter-template').html() );
+		var filter = $('<div></div>');
+
+		filter.html( template( args ) );
+		filtersContainer.append( filter );
+		generateFilterTitlePlaceholder( filter );
+	};
+
 	var setListeners = function( widget ) {
 		widget = ( 'undefined' === typeof widget ) ?
 			$( '.jetpack-search-filters-widget' ):
 			widget;
+
+		var getContainer = function( el ) {
+			return $( el ).closest('.jetpack-search-filters-widget__filter');
+		};
 
 		widget.on( 'change', '.filter-select', function() {
 			var select = $( this ),
@@ -32,6 +68,8 @@
 				.closest( '.jetpack-search-filters-widget__filter' )
 				.attr( 'class', 'jetpack-search-filters-widget__filter' )
 				.addClass( 'is-' + selectVal );
+
+			generateFilterTitlePlaceholder( getContainer( this ) );
 
 			trackAndBumpMCStats( 'changed_filter_type', eventArgs );
 		} );
@@ -83,6 +121,10 @@
 				post_type:  t.val()
 			};
 
+			if ( wp && wp.customize ) {
+				wp.customize.state( 'saved' ).set( false );
+			}
+
 			if ( t.is( ':checked' ) ) {
 				trackAndBumpMCStats( 'added_post_type', eventArgs );
 			} else {
@@ -97,6 +139,10 @@
 
 			eventArgs.order = $( this ).val();
 
+			if ( wp && wp.customize ) {
+				wp.customize.state( 'saved' ).set( false );
+			}
+
 			trackAndBumpMCStats( 'changed_sort_order', eventArgs );
 		} );
 
@@ -107,52 +153,77 @@
 
 			eventArgs.taxonomy = $( this ).val();
 
+			generateFilterTitlePlaceholder( getContainer( this ) );
+
+			if ( wp && wp.customize ) {
+				wp.customize.state( 'saved' ).set( false );
+			}
+
 			trackAndBumpMCStats( 'changed_taxonomy', eventArgs );
 		} );
 
-		widget.on( 'change', '.jetpack-search-filters-widget__date-histogram-select:first select', function() {
+		widget.on( 'change', 'select.date-field-select', function() {
 			var eventArgs = {
 				is_customizer: args.tracksEventData.is_customizer
 			};
 
 			eventArgs.field = $( this ).val();
 
+			generateFilterTitlePlaceholder( getContainer( this ) );
+
+			if ( wp && wp.customize ) {
+				wp.customize.state( 'saved' ).set( false );
+			}
+
 			trackAndBumpMCStats( 'changed_date_field', eventArgs );
 		} );
 
-		widget.on( 'change', '.jetpack-search-filters-widget__date-histogram-select:eq(1) select', function() {
+		widget.on( 'change', 'select.date-interval-select', function() {
 			var eventArgs = {
 				is_customizer: args.tracksEventData.is_customizer
 			};
 
 			eventArgs.interval = $( this ).val();
 
+			generateFilterTitlePlaceholder( getContainer( this ) );
+
+			if ( wp && wp.customize ) {
+				wp.customize.state( 'saved' ).set( false );
+			}
+
 			trackAndBumpMCStats( 'changed_date_interval', eventArgs );
 		} );
 
-		widget.on( 'change', '.filter-count', function() {
+		widget.on( 'change', 'input.filter-count', function() {
 			var eventArgs = {
 				is_customizer: args.tracksEventData.is_customizer
 			};
 
 			eventArgs.count = $( this ).val();
 
+			if ( wp && wp.customize ) {
+				wp.customize.state( 'saved' ).set( false );
+			}
+
 			trackAndBumpMCStats( 'changed_filter_count', eventArgs );
 		} );
 
-		widget.on( 'click', '.jetpack-search-filters-widget__controls .add', function( e ) {
+		// add filter button
+		widget.on( 'click', '.jetpack-search-filters-widget__add-filter', function( e ) {
 			e.preventDefault();
-			var closest = $( this ).closest( '.jetpack-search-filters-widget__filter' ),
-				clone = closest
-					.clone()
-					.attr( 'class', 'jetpack-search-filters-widget__filter' );
+			addFilter( widget.find('.jetpack-search-filters-widget__filters'), {
+				type: 'taxonomy',
+				taxonomy: '',
+				post_type: '',
+				field: '',
+				interval: '',
+				count: defaultFilterCount,
+				name_placeholder: ''
+			} );
 
-			clone.find( 'input[type="number"]' ).val( defaultFilterCount );
-			clone.find( 'input[type="text"]' ).val( '' );
-			clone.find( 'select option:first-child' ).prop( 'selected', true );
-
-			clone.insertAfter( closest );
-			clone.find( 'input, textarea, select' ).change();
+			if ( wp && wp.customize ) {
+				wp.customize.state( 'saved' ).set( false );
+			}
 
 			trackAndBumpMCStats( 'added_filter', args.tracksEventData );
 		} );
@@ -182,18 +253,10 @@
 
 			filter.find( 'input, textarea, select' ).change();
 			filter.remove();
-		} );
 
-		widget.on( 'change', '.jetpack-search-filters-widget__use-filters', function() {
-			var selector = $( this ).closest( '.jetpack-search-filters-widget' );
-
-			if ( $( this ).is(':checked') ) {
-				trackAndBumpMCStats( 'enabled_filters', args.tracksEventData );
-			} else {
-				trackAndBumpMCStats( 'disabled_filters', args.tracksEventData );
+			if ( wp && wp.customize ) {
+				wp.customize.state( 'saved' ).set( false );
 			}
-
-			selector.toggleClass( 'hide-filters' );
 		} );
 
 		// make the filters sortable
@@ -241,6 +304,7 @@
 		widget.off( 'change', '.jetpack-search-filters-widget__date-histogram-select:first select' );
 		widget.off( 'change', '.jetpack-search-filters-widget__date-histogram-select:eq(1) select' );
 		widget.off( 'click', '.jetpack-search-filters-widget__post-types-select input[type="checkbox"]' );
+		widget.off( 'click', '.jetpack-search-filters-widget__add-filter');
 
 		setListeners( widget );
 	} );
