@@ -704,7 +704,7 @@ class Jetpack {
 	function point_edit_comment_links_to_calypso( $url ) {
 		// Take the `query` key value from the URL, and parse its parts to the $query_args. `amp;c` matches the comment ID.
 		wp_parse_str( wp_parse_url( $url, PHP_URL_QUERY ), $query_args );
-		return esc_url( sprintf( 'https://wordpress.com/comment/%s/%d?action=edit',
+		return esc_url( sprintf( 'https://wordpress.com/comment/%s/%d',
 			Jetpack::build_raw_urls( get_home_url() ),
 			$query_args['amp;c']
 		) );
