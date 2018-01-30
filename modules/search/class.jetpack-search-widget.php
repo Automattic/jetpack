@@ -669,6 +669,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 		 */
 		$active_post_types = array();
 		if ( Jetpack_Search_Helpers::post_types_differ_searchable( $post_types ) ) {
+			error_log("post types in widget differ from what's searchable");
 			// get the active filter buckets from the query
 			$active_buckets = $this->jetpack_search->get_active_filter_buckets();
 			error_log("active buckets");
@@ -691,6 +692,9 @@ class Jetpack_Search_Widget extends WP_Widget {
 			} else {
 				$filters = Jetpack_Search_Helpers::remove_active_from_post_type_buckets( $filters );
 			}
+		} else {
+			$post_types = array();
+			error_log("post types do not differ from what is searchable");
 		}
 
 		foreach ( (array) $filters as $filter ) {
@@ -716,6 +720,9 @@ class Jetpack_Search_Widget extends WP_Widget {
 		if ( empty( $filter ) || empty( $filter['buckets'] ) ) {
 			return;
 		}
+
+		error_log("rendering filter ".print_r($filter,1));
+		error_log("with default post types ".print_r($default_post_types,1));
 
 		$query_vars = null;
 		foreach( $filter['buckets'] as $item ) {
