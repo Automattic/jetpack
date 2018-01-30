@@ -34,5 +34,6 @@ scss
 tests
 to-test.md
 tools
+vendor
 webpack.config.js
 yarn.lock
