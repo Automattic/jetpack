@@ -8,7 +8,6 @@ class Jetpack_Search_Performance_Logger {
 
 	private $current_query = null;
 	private $query_started = null;
-	private $was_jetpack_search = false;
 	private $stats = null;
 
 	static function init() {
@@ -23,8 +22,8 @@ class Jetpack_Search_Performance_Logger {
 		$this->stats = array();
 		// add_filter( 'jetpack_search_should_handle_query', '__return_false' );
 		add_action( 'pre_get_posts', array( $this, 'begin_log_query' ), 10, 1 );
-		add_action( 'did_jetpack_search_query', array( $this, 'mark_as_jetpack_search_query' ) );
-		add_filter( 'found_posts', array( $this, 'end_log_query' ), 10, 2 );
+		add_action( 'did_jetpack_search_query', array( $this, 'log_jetpack_search_query' ) );
+		add_filter( 'found_posts', array( $this, 'log_mysql_query' ), 10, 2 );
 		add_action( 'wp_footer', array( $this, 'print_stats' ) );
 	}
 
@@ -35,35 +34,33 @@ class Jetpack_Search_Performance_Logger {
 		}
 	}
 
-	public function end_log_query( $found_posts, $query ) {
+	public function log_mysql_query( $found_posts, $query ) {
 		if ( $this->current_query === $query ) {
 			$duration = microtime( true ) - $this->query_started;
-			$this->record_query_time( $duration );
+			$this->record_query_time( $duration, false );
 			$this->reset_query_state();
 		}
 
 		return $found_posts;
 	}
 
-	public function mark_as_jetpack_search_query() {
-		$this->was_jetpack_search = true;
+	public function log_jetpack_search_query() {
 		$duration = microtime( true ) - $this->query_started;
-		$this->record_query_time( $duration );
+		$this->record_query_time( $duration, true );
 		$this->reset_query_state();
 	}
 
 	private function reset_query_state() {
 		$this->query_started = null;
 		$this->current_query = null;
-		$this->was_jetpack_search = false;
 	}
 
 	private function should_log_query( $query ) {
 		return $query->is_main_query() && $query->is_search();
 	}
 
-	private function record_query_time( $duration ) {
-		$this->stats[] = array( $this->was_jetpack_search, $duration * 1000 );
+	private function record_query_time( $duration, $was_jetpack_search ) {
+		$this->stats[] = array( $was_jetpack_search, $duration * 1000 );
 	}
 
 	public function print_stats() {
