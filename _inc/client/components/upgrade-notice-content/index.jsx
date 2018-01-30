@@ -18,36 +18,47 @@ class UpgradeNoticeContent extends Component {
 		return (
 			<div>
 				<p>
-					{ __( 'With this release, your contact form just got a bit sweeter. We moved the big old button ' +
-						"right down into your editor's toolbar on the right. Yes, it's a little smaller, but it fits " +
-						"in a bit better, don't you think? Oh and all your forms now have a preview that can be edited " +
-						'all right inside the editor.' ) }
+					{ __( 'This release of Jetpack brings major new features and big improvements to your WordPress site.' ) }
 				</p>
 
-				<img src={ imagePath + 'cf-ss.png' } alt={ __( 'Contact Form screen shot' ) } />
+				<h2>
+					{ __( 'Speed up your site and its content' ) }
+				</h2>
 
 				<p>
-					{ __( "To use it, just open up a post or page to the visual editor. From there, you'll find a button " +
-						'inside the toolbar with an icon that looks a bit like the contact form. It is usually furthest ' +
-						'to the right. Then just click the button and, voila, a contact form has been created!' ) }
+					{ __( 'Sites that have large numbers of images can turn on Lazy Loading Images which significantly ' +
+						"speeds up the site loading times for the end user. Instead of waiting for the entire site to load " +
+						'Jetpack will instead show the site instantly and only download additional images when scrolling.' ) }
 				</p>
 
 				<p>
-					{ __( 'You will likely want to customize it to properly encourage folks to contact you. To do that, ' +
-						"simply select the contact form preview and then click or tap the edit button. It's the one that " +
-						'looks like a pencil.' ) }
+					{ __( 'We have also upgraded all our Premium plan customers to unlimited high-speed video storage ' +
+						"(up from 13Gb) and significantly reduced the assets (CSS and JavaScript) that Jetpack downloads " +
+						'when using features like infinite scroll and embedding rich content with shortcodes.' ) }
+				</p>
+
+				<h2>
+					{ __( 'Fast and relevant search results' ) }
+				</h2>
+
+				<img src={ imagePath + 'Jetpack-Search-Placeholder.png' } alt={ __( 'Elasticsearch' ) } />
+
+				<p>
+					{ __( 'Our Elasticsearch-powered search service is now out of beta and availalbe to all Professional' +
+						" plan customers. This replaces default WordPress search with a faster engine that returns more " +
+						'relevant search results to your users.' ) }
 				</p>
 
 				<div className="jp-dialogue__cta-container">
 					<Button
 						primary={ true }
-						href={ this.props.adminUrl + 'post-new.php' }
+						href="https://jetpack.com/?p=27095"
 					>
-						{ __( 'Try it out!' ) }
+						{ __( 'Read the full announcement!' ) }
 					</Button>
 
 					<p className="jp-dialogue__note">
-						<a href="https://jetpack.com/?p=22509">{ __( 'Read the full release post' ) }</a>
+						<a href="https://jetpack.com/pricing">{ __( 'Compare paid plans' ) }</a>
 					</p>
 				</div>
 			</div>
@@ -57,8 +68,8 @@ class UpgradeNoticeContent extends Component {
 	render() {
 		return (
 			<JetpackDialogue
-				svg={ <img src={ imagePath + 'people-around-page.svg' } width="250" alt={ __( 'People around page' ) } /> }
-				title={ __( 'A new contact form is here at last!' ) }
+				svg={ <img src={ imagePath + 'jetpack-search.svg' } width="250" alt={ __( 'Jetpack Search' ) } /> }
+				title={ __( 'Major new features from Jetpack' ) }
 				content={ this.renderInnerContent() }
 				dismiss={ this.props.dismiss }
 			/>
