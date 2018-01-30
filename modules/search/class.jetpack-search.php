@@ -356,6 +356,7 @@ class Jetpack_Search {
 			'perm'                => 'readable',
 			'post_type'           => 'any',
 			'ignore_sticky_posts' => true,
+			'suppress_filters'    => true,
 		);
 
 		if ( isset( $query->query_vars['order'] ) ) {
