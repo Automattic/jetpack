@@ -59,7 +59,7 @@ class Jetpack_Search_Performance_Logger {
 	}
 
 	private function record_query_time( $duration, $was_jetpack_search ) {
-		$this->stats[] = array( $was_jetpack_search, $duration * 1000 );
+		$this->stats[] = array( $was_jetpack_search, intval( $duration * 1000 ) );
 	}
 
 	public function print_stats() {
@@ -67,12 +67,13 @@ class Jetpack_Search_Performance_Logger {
 		if ( ! empty( $this->stats ) ) {
 			foreach( $this->stats as $stat ) {
 				$search_type = $stat[0] ? 'es' : 'mysql';
-				$beacons[] = "jetpack.search.{$search_type}.duration:{$stat[1]}|ms";
+				$beacons[] = "%22jetpack.search.{$search_type}.duration:{$stat[1]}|ms%22";
 			}
+
+			$encoded_json = '{%22beacons%22:[' . implode(',', $beacons ) . ']}';
+			$encoded_site_url = urlencode( site_url() );
+			$url = "https://pixel.wp.com/boom.gif?v=0.9&u={$encoded_site_url}&json={$encoded_json}";
+			echo '<img src="' . $url . '" width="1" height="1" style="display:none;" />';
 		}
-		$encoded_json = urlencode( json_encode( array( 'beacons' => $beacons ) ) );
-		$encoded_site_url = urlencode( site_url() );
-		$url = "https://pixel.wp.com/boom.gif?v=0.9&u={$encoded_site_url}&json={$encoded_json}";
-		echo '<img src="' . esc_url( $url ) . '" width="1" height="1" style="display:none;" />';
 	}
 }
