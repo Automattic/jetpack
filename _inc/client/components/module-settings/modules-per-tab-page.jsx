@@ -20,15 +20,15 @@ import {
 	getSiteRawUrl
 } from 'state/initial-state';
 
-const AllModuleSettingsComponent = React.createClass( {
+class AllModuleSettingsComponent extends React.Component {
 	render() {
-		let { module } = this.props;
+		const { module } = this.props;
 		switch ( module.module ) {
 			case 'videopress':
 				return ( <VideoPressSettings module={ module } /> );
 			case 'monitor':
 				module.raw_url = this.props.siteRawUrl;
-				return ( <MonitorSettings module={ module }  /> );
+				return ( <MonitorSettings module={ module } /> );
 			case 'scan':
 				return '' === module.configure_url ? (
 					<div>
@@ -68,7 +68,7 @@ const AllModuleSettingsComponent = React.createClass( {
 					);
 				}
 			case 'likes':
-				return ( <LikesSettings module={ module }  /> );
+				return ( <LikesSettings module={ module } /> );
 			case 'wordads':
 				return ( <WordAdsSettings module={ module } /> );
 			case 'google-analytics':
@@ -154,7 +154,7 @@ const AllModuleSettingsComponent = React.createClass( {
 				);
 		}
 	}
-} );
+}
 
 export const AllModuleSettings = connect(
 	( state ) => {

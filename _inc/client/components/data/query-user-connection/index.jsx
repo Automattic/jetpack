@@ -13,17 +13,17 @@ import {
 } from 'state/connection';
 import { isDevMode } from 'state/connection';
 
-export const QueryUserConnectionData = React.createClass( {
+export class QueryUserConnectionData extends React.Component {
 	componentWillMount() {
 		if ( ! ( this.props.isFetchingUserData || this.props.isDevMode ) ) {
 			this.props.fetchUserConnectionData();
 		}
-	},
+	}
 
 	render() {
 		return null;
 	}
-} );
+}
 
 export default connect(
 	( state ) => {
@@ -35,6 +35,6 @@ export default connect(
 	( dispatch ) => {
 		return {
 			fetchUserConnectionData: () => dispatch( fetchUserConnectionData() )
-		}
+		};
 	}
 )( QueryUserConnectionData );

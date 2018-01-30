@@ -18,42 +18,40 @@ import { getSitePlan } from 'state/site';
 import { isFetchingSiteData } from 'state/site';
 import { FormFieldset } from 'components/forms';
 
-const Search = moduleSettingsForm(
-	React.createClass( {
-		render() {
-			return (
-				<SettingsCard
-					{ ...this.props }
-					module="search"
-					feature={ FEATURE_SEARCH_JETPACK }
-					hideButton
-				>
-					<SettingsGroup module={ { module: 'search' } } hasChild support="https://jetpack.com/support/search">
-						<ModuleToggle
-							slug="search"
-							compact
-							activated={ this.props.getOptionValue( 'search' ) }
-							toggling={ this.props.isSavingAnyOption( 'search' ) }
-							toggleModule={ this.props.toggleModuleNow }>
-							{ __( 'Replace WordPress built-in search with an improved search experience' ) }
-						</ModuleToggle>
-						{ this.props.getOptionValue( 'search' ) && (
-							<FormFieldset>
-								<p className="jp-form-setting-explanation">
-									{ __( 'To configure search filters add the {{link}}Jetpack Search widget to your sidebar{{/link}}.', {
-										components: {
-											link: <a href="widgets.php" />
-										}
-									} ) }
-								</p>
-								</FormFieldset>
-						) }
-					</SettingsGroup>
-				</SettingsCard>
-			);
-		}
-	} )
-);
+class Search extends React.Component {
+	render() {
+		return (
+			<SettingsCard
+				{ ...this.props }
+				module="search"
+				feature={ FEATURE_SEARCH_JETPACK }
+				hideButton
+			>
+				<SettingsGroup module={ { module: 'search' } } hasChild support="https://jetpack.com/support/search">
+					<ModuleToggle
+						slug="search"
+						compact
+						activated={ this.props.getOptionValue( 'search' ) }
+						toggling={ this.props.isSavingAnyOption( 'search' ) }
+						toggleModule={ this.props.toggleModuleNow }>
+						{ __( 'Replace WordPress built-in search with an improved search experience' ) }
+					</ModuleToggle>
+					{ this.props.getOptionValue( 'search' ) && (
+						<FormFieldset>
+							<p className="jp-form-setting-explanation">
+								{ __( 'To configure search filters add the {{link}}Jetpack Search widget to your sidebar{{/link}}.', {
+									components: {
+										link: <a href="widgets.php" />
+									}
+								} ) }
+							</p>
+						</FormFieldset>
+					) }
+				</SettingsGroup>
+			</SettingsCard>
+		);
+	}
+}
 
 export default connect(
 	state => {
@@ -63,4 +61,5 @@ export default connect(
 			fetchingSiteData: isFetchingSiteData( state )
 		};
 	}
-)( Search );
+)( moduleSettingsForm( Search ) );
+
