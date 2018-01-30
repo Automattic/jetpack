@@ -13,12 +13,19 @@ To start testing (on a site using Jetpack Professional), drag the Jetpack's Sear
 - There should be no JavaScript errors or PHP notices when loading the widget or making changes to it.
 - The number of filters should always be set to 5 by default.
 - Filtering should work as expected: do not hesitate to play with all Filtering options.
+- You should be able to rearrange filters by dragging and dropping.
+- When adjusting filters in the customizer, the preview should still work.
 - If possible, test the widget on a site with multiple post types. WooCommerce sites make good test sites for example.
+- Make sure the Help links are working.
+- The widget should never display private data, such as private post types or taxonomies.
 
 #### Search Results
 
 - When using the Search Widget to exclude or include a specific Post Type in search results, make sure that works.
 - Sorting results should work as expected.
+- You should be able to adjust filters when looking at the search results page.
+- Make sure the filters interface works and looks good with your theme. It should look similar to your other widgets.
+- Make sure the results are relevant :)
 
 ### Lazy images
 
