@@ -329,15 +329,19 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 			$update_attempted = true;
 
 			// Object created inside the for loop to clean the messages for each plugin
-			$skin = new Automatic_Upgrader_Skin();
+			$skin = new WP_Ajax_Upgrader_Skin();
 			// The Automatic_Upgrader_Skin skin shouldn't output anything.
 			$upgrader = new Plugin_Upgrader( $skin );
 			$upgrader->init();
 			// This avoids the plugin to be deactivated.
 			// Using bulk upgrade puts the site into maintenance mode during the upgrades
 			$result = $upgrader->bulk_upgrade( array( $plugin ) );
-
+			$errors = $upgrader->skin->get_errors();
 			$this->log[ $plugin ] = $upgrader->skin->get_upgrade_messages();
+
+			if ( is_wp_error( $errors ) ) {
+				return $errors;
+			}
 		}
 
 		if ( ! $this->bulk && ! $result && $update_attempted ) {
