@@ -15,7 +15,10 @@ _inc/client
 .npmrc
 .nvmrc
 .sass-cache
+.svnignore
 .travis.yml
+composer.json
+composer.lock
 docs
 Gruntfile.js
 gulpfile.babel.js
@@ -27,6 +30,7 @@ node_modules
 package.json
 phpunit.xml.dist
 readme.md
+scss
 tests
 to-test.md
 tools
