@@ -53,7 +53,7 @@
 
 		var getContainer = function( el ) {
 			return $( el ).closest('.jetpack-search-filters-widget__filter');
-		}
+		};
 
 		widget.on( 'change', '.filter-select', function() {
 			var select = $( this ),
