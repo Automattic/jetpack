@@ -114,10 +114,32 @@ class WordAds {
 		add_action( 'wp_head', array( $this, 'insert_head_iponweb' ), 30 );
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 
+		/**
+		 * Filters enabling ads in `the_content` filter
+		 *
+		 * @see https://jetpack.com/support/ads/
+		 *
+		 * @module wordads
+		 *
+		 * @since 5.8.0
+		 *
+		 * @param bool True to disable ads in `the_content`
+		 */
 		if ( ! apply_filters( 'wordads_content_disable', false ) ) {
 			add_filter( 'the_content', array( $this, 'insert_ad' ) );
 		}
 
+		/**
+		 * Filters enabling ads in `the_excerpt` filter
+		 *
+		 * @see https://jetpack.com/support/ads/
+		 *
+		 * @module wordads
+		 *
+		 * @since 5.8.0
+		 *
+		 * @param bool True to disable ads in `the_excerpt`
+		 */
 		if ( ! apply_filters( 'wordads_excerpt_disable', false ) ) {
 			add_filter( 'the_excerpt', array( $this, 'insert_ad' ) );
 		}
