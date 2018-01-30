@@ -101,7 +101,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Major Enhancements**
 
-* Lazy Images: after a Beta period, you can now enable this new feature from Jetpack > Settings in your dashboard.
+* [Lazy Images](https://jetpack.com/support/lazy-images/): after a Beta period, you can now enable this new feature from Jetpack > Settings in your dashboard.
+* Search: Jetpack's [Search feature](https://jetpack.com/support/search/) is now out of Beta! We've improved the way data is indexed behind the scenes, and made changes to the Search widget and its filters.
 
 **Enhancements**
 
