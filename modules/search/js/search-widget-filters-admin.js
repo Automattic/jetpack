@@ -292,7 +292,6 @@
 		// seem noisy in the customizer. We'll track those via PHP.
 
 		widget.off( 'change', '.filter-select' );
-		widget.off( 'click', '.jetpack-search-filters-widget__controls .add' );
 		widget.off( 'click', '.jetpack-search-filters-widget__controls .delete' );
 		widget.off( 'change', '.jetpack-search-filters-widget__use-filters' );
 		widget.off( 'change', '.jetpack-search-filters-widget__search-box-enabled' );
