@@ -13,13 +13,6 @@ class Jetpack_Search_Debug_Bar extends Debug_Bar_Panel {
 	protected static $instance = null;
 
 	/**
-	 * Holds an instance of Jetpack_Search
-	 *
-	 * @var Jetpack_Search
-	 */
-	private $jetpack_search;
-
-	/**
 	 * The title to use in the debug bar navigation
 	 *
 	 * @var string
@@ -31,7 +24,6 @@ class Jetpack_Search_Debug_Bar extends Debug_Bar_Panel {
 	 */
 	public function __construct() {
 		$this->title( esc_html__( 'Jetpack Search', 'jetpack' ) );
-		$this->jetpack_search = Jetpack_Search::instance();
 		add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 	}
 
@@ -82,7 +74,12 @@ class Jetpack_Search_Debug_Bar extends Debug_Bar_Panel {
 	 * @return void
 	 */
 	public function render() {
-		$last_query_info = $this->jetpack_search->get_last_query_info();
+		if ( ! class_exists( 'Jetpack_Search' ) ) {
+			return;
+		}
+
+		$jetpack_search = Jetpack_Search::instance();
+		$last_query_info = $jetpack_search->get_last_query_info();
 
 		// If not empty, let's reshuffle the order of some things.
 		if ( ! empty( $last_query_info ) ) {
