@@ -89,7 +89,7 @@ export class DashItem extends Component {
 					toggle = (
 						<a href={ this.props.isDevMode
 							? this.props.siteAdminUrl + 'update-core.php'
-							: 'https://wordpress.com/plugins/' + this.props.siteRawUrl
+							: 'https://wordpress.com/plugins/manage/' + this.props.siteRawUrl
 						} >
 							<SimpleNotice
 								showDismiss={ false }
