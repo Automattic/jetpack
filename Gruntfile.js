@@ -11,7 +11,8 @@ module.exports = function(grunt) {
                         exclude: [
                             'node_modules',
                             'tests',
-                            'tools'
+                            'tools',
+                            'vendor'
                         ],
                         mainFile:    'jetpack.php',
                         potFilename: 'jetpack.pot'
@@ -29,7 +30,8 @@ module.exports = function(grunt) {
                             '**/*.php',
                             '!node_modules/**',
                             '!tests/**',
-                            '!tools/**'
+                            '!tools/**',
+                            '!vendor/**'
                         ]
                     }
                 }

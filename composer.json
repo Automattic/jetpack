@@ -3,8 +3,17 @@
     "description": "Jetpack supercharges your self‑hosted WordPress site with the awesome cloud power of WordPress.com",
     "homepage"   : "http://jetpack.com/",
     "type"       : "wordpress-plugin",
-    "license"    : "GPL-2.0+",
+    "license"    : "GPL-2.0-or-later",
+    "support": {
+        "issues": "https://github.com/Automattic/jetpack/issues"
+    },
     "require"    : {
         "composer/installers": "~1.0"
+    },
+    "require-dev": {
+        "dealerdirect/phpcodesniffer-composer-installer": "^0.4.4",
+        "wp-coding-standards/wpcs": "^0.14.0",
+        "sirbrillig/phpcs-variable-analysis": "^2.0",
+        "wimg/php-compatibility": "^8.1"
     }
 }
