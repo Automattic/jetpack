@@ -231,14 +231,12 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			 * @since 5.8.0
 			 *
 			 * @param array $filters                       The possible filters for the current query.
-			 * @param $instance                            The current widget instance.
-			 * @param Jetpack_Search $this->jetpack_search The Jetpack_Search instance.
+			 * @param array $post_types                    An array of post types to limit filtering to.
 			 */
 			do_action(
 				'jetpack_search_render_filters',
 				$filters,
-				$instance,
-				$this->jetpack_search
+				$instance['post_types']
 			);
 		}
 
@@ -617,7 +615,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		// If the widget has specified post types to search within and IF the post types differ
 		// from the default post types that would have been searched, set the selected post
 		// types via hidden inputs.
-		if ( Jetpack_Search_Helpers::post_types_differ_searchable( $instance ) ) {
+		if ( Jetpack_Search_Helpers::post_types_differ_searchable( $instance['post_types'] ) ) {
 			$fields_to_inject['post_type'] = implode( ',', $instance['post_types'] );
 		}
 
@@ -657,13 +655,13 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 	 * Renders all available filters that can be used to filter down search results on the frontend.
 	 *
 	 * @param array $filters  The available filters for the current query.
-	 * @param array $instance The current widget instance.
+	 * @param array $post_types An array of post types to make filterable
 	 *
 	 * @return void
 	 */
-	public function render_available_filters( $filters, $instance ) {
-		$post_types_differ_searchable = Jetpack_Search_Helpers::post_types_differ_searchable( $instance );
-		$post_types_differ_query      = Jetpack_Search_Helpers::post_types_differ_query( $instance );
+	public function render_available_filters( $filters, $post_types ) {
+		$post_types_differ_searchable = Jetpack_Search_Helpers::post_types_differ_searchable( $post_types );
+		$post_types_differ_query      = Jetpack_Search_Helpers::post_types_differ_query( $post_types );
 		$active_buckets               = $this->jetpack_search->get_active_filter_buckets();
 
 		if ( ! $post_types_differ_query ) {
@@ -673,14 +671,13 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		$default_post_types = array();
 		$active_post_types = array();
 		if ( $post_types_differ_searchable ) {
-			$default_post_types = $instance['post_types'];
-			$active_post_types = Jetpack_Search_Helpers::get_active_post_types( $active_buckets, $default_post_types );
+			$active_post_types = Jetpack_Search_Helpers::get_active_post_types( $active_buckets, $post_types );
 			if ( empty( $active_post_types ) ) {
-				$active_post_types = $default_post_types;
+				$active_post_types = $post_types;
 			}
 
 			if ( $post_types_differ_query ) {
-				$filters = Jetpack_Search_Helpers::ensure_post_types_on_remove_url( $filters, $default_post_types );
+				$filters = Jetpack_Search_Helpers::ensure_post_types_on_remove_url( $filters, $post_types );
 			} else {
 				$filters = Jetpack_Search_Helpers::remove_active_from_post_type_buckets( $filters );
 			}
@@ -688,7 +685,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 
 		foreach ( (array) $filters as $filter ) {
 			if ( 'post_type' == $filter['type'] ) {
-				$this->render_filter( $filter, $default_post_types );
+				$this->render_filter( $filter, $post_types );
 			} else {
 				$this->render_filter( $filter, $active_post_types );
 			}

@@ -187,13 +187,13 @@ class Jetpack_Search_Helpers {
 	 * @param array $instance
 	 * @return bool
 	 */
-	static function post_types_differ_searchable( $instance ) {
-		if ( empty( $instance['post_types'] ) ) {
+	static function post_types_differ_searchable( $post_types ) {
+		if ( empty( $post_types ) ) {
 			return false;
 		}
 
 		$searchable_post_types = get_post_types( array( 'exclude_from_search' => false ) );
-		$diff_of_searchable = self::array_diff( $searchable_post_types, (array) $instance['post_types'] );
+		$diff_of_searchable = self::array_diff( $searchable_post_types, (array) $post_types );
 
 		return ! empty( $diff_of_searchable );
 	}
@@ -207,8 +207,8 @@ class Jetpack_Search_Helpers {
 	 * @param array $instance
 	 * @return bool
 	 */
-	static function post_types_differ_query( $instance ) {
-		if ( empty( $instance['post_types'] ) ) {
+	static function post_types_differ_query( $post_types ) {
+		if ( empty( $post_types ) ) {
 			return false;
 		}
 
@@ -222,7 +222,7 @@ class Jetpack_Search_Helpers {
 
 		$post_types_from_query = array_map( 'trim', $post_types_from_query );
 
-		$diff_query = self::array_diff( (array) $instance['post_types'], $post_types_from_query );
+		$diff_query = self::array_diff( (array) $post_types, $post_types_from_query );
 		return ! empty( $diff_query );
 	}
 
