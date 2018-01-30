@@ -24,9 +24,9 @@
 
 		if ( 'taxonomy' === type ) {
 			placeholder = container.find('.taxonomy-select option:selected').text().trim();
-		} else if ( 'date' === type ) {
+		} else if ( 'date_histogram' === type ) {
 			placeholder = container.find('.date-interval-select option:selected').text().trim();
-			if ( container.find( '.date-field-select' ).val().indexOf('updated') >= 0 ) {
+			if ( container.find( '.date-field-select' ).val().indexOf('modified') >= 0 ) {
 				placeholder = placeholder + ' Updated';
 			}
 		} else {
@@ -51,6 +51,10 @@
 			$( '.jetpack-search-filters-widget' ):
 			widget;
 
+		var getContainer = function( el ) {
+			return $( el ).closest('.jetpack-search-filters-widget__filter');
+		}
+
 		widget.on( 'change', '.filter-select', function() {
 			var select = $( this ),
 				selectVal = select.val(),
@@ -65,7 +69,7 @@
 				.attr( 'class', 'jetpack-search-filters-widget__filter' )
 				.addClass( 'is-' + selectVal );
 
-			generateFilterTitlePlaceholder( $( this ).closest('.jetpack-search-filters-widget__filter') );
+			generateFilterTitlePlaceholder( getContainer( this ) );
 
 			trackAndBumpMCStats( 'changed_filter_type', eventArgs );
 		} );
@@ -117,6 +121,10 @@
 				post_type:  t.val()
 			};
 
+			if ( wp && wp.customize ) {
+				wp.customize.state( 'saved' ).set( false );
+			}
+
 			if ( t.is( ':checked' ) ) {
 				trackAndBumpMCStats( 'added_post_type', eventArgs );
 			} else {
@@ -131,6 +139,10 @@
 
 			eventArgs.order = $( this ).val();
 
+			if ( wp && wp.customize ) {
+				wp.customize.state( 'saved' ).set( false );
+			}
+
 			trackAndBumpMCStats( 'changed_sort_order', eventArgs );
 		} );
 
@@ -141,37 +153,57 @@
 
 			eventArgs.taxonomy = $( this ).val();
 
-			generateFilterTitlePlaceholder( $( this ).closest('.jetpack-search-filters-widget__filter') );
+			generateFilterTitlePlaceholder( getContainer( this ) );
+
+			if ( wp && wp.customize ) {
+				wp.customize.state( 'saved' ).set( false );
+			}
 
 			trackAndBumpMCStats( 'changed_taxonomy', eventArgs );
 		} );
 
-		widget.on( 'change', '.jetpack-search-filters-widget__date-histogram-select:first select', function() {
+		widget.on( 'change', 'select.date-field-select', function() {
 			var eventArgs = {
 				is_customizer: args.tracksEventData.is_customizer
 			};
 
 			eventArgs.field = $( this ).val();
 
+			generateFilterTitlePlaceholder( getContainer( this ) );
+
+			if ( wp && wp.customize ) {
+				wp.customize.state( 'saved' ).set( false );
+			}
+
 			trackAndBumpMCStats( 'changed_date_field', eventArgs );
 		} );
 
-		widget.on( 'change', '.jetpack-search-filters-widget__date-histogram-select:eq(1) select', function() {
+		widget.on( 'change', 'select.date-interval-select', function() {
 			var eventArgs = {
 				is_customizer: args.tracksEventData.is_customizer
 			};
 
 			eventArgs.interval = $( this ).val();
 
+			generateFilterTitlePlaceholder( getContainer( this ) );
+
+			if ( wp && wp.customize ) {
+				wp.customize.state( 'saved' ).set( false );
+			}
+
 			trackAndBumpMCStats( 'changed_date_interval', eventArgs );
 		} );
 
-		widget.on( 'change', '.filter-count', function() {
+		widget.on( 'change', 'input.filter-count', function() {
 			var eventArgs = {
 				is_customizer: args.tracksEventData.is_customizer
 			};
 
 			eventArgs.count = $( this ).val();
+
+			if ( wp && wp.customize ) {
+				wp.customize.state( 'saved' ).set( false );
+			}
 
 			trackAndBumpMCStats( 'changed_filter_count', eventArgs );
 		} );
