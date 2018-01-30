@@ -71,7 +71,7 @@ class Jetpack_Search_Performance_Logger {
 		if ( ! empty( $this->stats ) ) {
 			foreach( $this->stats as $stat ) {
 				$search_type = $stat[0] ? 'es' : 'mysql';
-				$beacons[] = "jetpack.".JETPACK__VERSION.".search.{$search_type}.duration:{$stat[1]}|ms";
+				$beacons[] = "jetpack.search.{$search_type}.duration:{$stat[1]}|ms";
 			}
 		}
 		$encoded_json = urlencode( json_encode( array( 'beacons' => $beacons ) ) );
