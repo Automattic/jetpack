@@ -134,6 +134,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Carousel: fix PHP Notice with images using custom meta.
 * General: fix images shown in the dashboard when Jetpack is installed in a directory different than `jetpack`.
+* Lazy Images: make sure Lazy Load can be triggered even when images are added to the content very late.
 * Widgets: Mailchimp - avoid conflicts with jQuery UI.
 
 = 5.7.1 =
