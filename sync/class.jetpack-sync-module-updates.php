@@ -141,7 +141,14 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 				continue;
 			}
 			/**
-			 * 'jetpack_update_core_change', 'jetpack_update_plugins_change', jetpack_update_themes_change
+			 * Fires any time one of the following transients changes:
+			 * 'update_core', 'update_plugins', 'update_themes'
+			 *
+			 * @module sync
+			 *
+			 * @since 5.8
+			 *
+			 * @param array The transient value.
 			 */
 			do_action( "jetpack_{$transient_name}_change", $value );
 		}
@@ -176,6 +183,8 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 	public function enqueue_full_sync_actions( $config, $max_items_to_enqueue, $state ) {
 		/**
 		 * Tells the client to sync all updates to the server
+		 *
+		 * @module sync
 		 *
 		 * @since 4.2.0
 		 *
