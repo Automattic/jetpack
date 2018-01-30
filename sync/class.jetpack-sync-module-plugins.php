@@ -138,7 +138,7 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 		$errors = method_exists( $skin, 'get_errors' ) ? $skin->get_errors() : null;
 		if ( is_wp_error( $errors ) ) {
 
-			if ( ! empty( $errors->get_error_code() ) ) {
+			if ( $errors->get_error_code() ) {
 				return array( 'code' => $errors->get_error_code(), 'message' => $errors->get_error_message() );
 			}
 		}
