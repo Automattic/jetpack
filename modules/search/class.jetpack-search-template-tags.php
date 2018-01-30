@@ -22,8 +22,6 @@ class Jetpack_Search_Template_Tags {
 			$post_types = get_post_types( array( 'exclude_from_search' => false ) );
 		}
 
-		error_log(print_r($filters,1));
-
 		/**
 		 * If the post types specified by the widget differ from the default set of searchable post types,
 		 * then we need to track their state.
