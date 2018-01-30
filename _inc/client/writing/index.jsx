@@ -27,8 +27,8 @@ import { Masterbar } from './masterbar';
 import { isAtomicSite } from 'state/initial-state';
 import SpeedUpSite from './speed-up-site';
 
-export const Writing = React.createClass( {
-	displayName: 'WritingSettings',
+export class Writing extends React.Component {
+	static displayName = 'WritingSettings';
 
 	render() {
 		const commonProps = {
@@ -105,7 +105,7 @@ export const Writing = React.createClass( {
 			</div>
 		);
 	}
-} );
+}
 
 export default connect(
 	( state ) => {

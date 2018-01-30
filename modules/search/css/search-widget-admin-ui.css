@@ -70,8 +70,7 @@
 	content:"\f223";
 }
 .jetpack-search-filters-help {
-	padding: 5px;
-	padding-bottom: 15px;
+	padding: 5px 5px 15px 0;
 }
 
 .jetpack-search-filters-widget__post-types-select label {
@@ -81,4 +80,8 @@
 
 .jetpack-search-filters-widget__post-types-select input[type="checkbox"] {
 	margin-left: 24px;
+}
+
+body.no-js .jetpack-search-filters-widget__add-filter-wrapper {
+	display: none;
 }

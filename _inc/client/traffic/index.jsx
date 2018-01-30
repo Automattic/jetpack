@@ -22,8 +22,8 @@ import { VerificationServices } from './verification-services';
 import Sitemaps from './sitemaps';
 import { getLastPostUrl } from 'state/initial-state';
 
-export const Traffic = React.createClass( {
-	displayName: 'TrafficSettings',
+export class Traffic extends React.Component {
+	static displayName = 'TrafficSettings';
 
 	render() {
 		const commonProps = {
@@ -129,7 +129,7 @@ export const Traffic = React.createClass( {
 			</div>
 		);
 	}
-} );
+}
 
 export default connect(
 	( state ) => {

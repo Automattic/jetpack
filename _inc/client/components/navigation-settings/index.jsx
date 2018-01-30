@@ -3,6 +3,7 @@
  */
 import PropTypes from 'prop-types';
 import React from 'react';
+import createReactClass from 'create-react-class';
 import { connect } from 'react-redux';
 import SectionNav from 'components/section-nav';
 import NavTabs from 'components/section-nav/tabs';
@@ -31,7 +32,8 @@ import { isModuleActivated, getModules } from 'state/modules';
 import { isPluginActive } from 'state/site/plugins';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 
-export const NavigationSettings = React.createClass( {
+export const NavigationSettings = createReactClass( {
+	displayName: 'NavigationSettings',
 	mixins: [ UrlSearch ],
 	moduleList: [],
 
@@ -81,7 +83,7 @@ export const NavigationSettings = React.createClass( {
 		} );
 	},
 
-	/**
+    /**
 	 * The UrlSearch mixin callback to form a new location href string.
 	 *
 	 * @param {string} href the current location string
@@ -96,7 +98,7 @@ export const NavigationSettings = React.createClass( {
 		return '#' + splitHash[ 0 ] + ( keyword ? '?term=' + keyword : '' );
 	},
 
-	/**
+    /**
 	 * Check that the module list includes at least one of these modules.
 	 *
 	 * @param  {array}   modules Modules that are probably included in the module list.

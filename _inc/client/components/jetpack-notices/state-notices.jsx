@@ -20,20 +20,18 @@ import NoticeAction from 'components/notice/notice-action.jsx';
 import UpgradeNoticeContent from 'components/upgrade-notice-content';
 import { getSiteAdminUrl } from 'state/initial-state';
 
-const JetpackStateNotices = React.createClass( {
-	displayName: 'JetpackStateNotices',
-	getInitialState: function() {
-		return { showNotice: true };
-	},
+class JetpackStateNotices extends React.Component {
+	static displayName = 'JetpackStateNotices';
+	state = { showNotice: true };
 
 	/**
 	 * Only need to hide.  They will not appear on next page load.
 	 */
-	dismissJetpackStateNotice: function() {
+	dismissJetpackStateNotice = () => {
 		this.setState( { showNotice: false } );
-	},
+	};
 
-	getErrorFromKey: function( key ) {
+	getErrorFromKey = key => {
 		const errorDesc = this.props.jetpackStateNoticesErrorDescription || false;
 		let message = '';
 
@@ -47,7 +45,7 @@ const JetpackStateNotices = React.createClass( {
 					{
 						components: {
 							a: <a href="https://jetpack.com/cancelled-connection/" target="_blank" rel="noopener noreferrer" />,
-							p: <p/>
+							p: <p />
 						}
 					}
 				);
@@ -160,9 +158,9 @@ const JetpackStateNotices = React.createClass( {
 				{ message }
 			</div>
 		);
-	},
+	};
 
-	getMessageFromKey: function( key ) {
+	getMessageFromKey = key => {
 		let message = '',
 			status = 'is-info',
 			action;
@@ -193,7 +191,7 @@ const JetpackStateNotices = React.createClass( {
 				status = 'is-success';
 				break;
 			case 'protect_misconfigured_ip' :
-				message = __( "Your server is misconfigured, which means that Jetpack Protect is unable to effectively protect your site." );
+				message = __( 'Your server is misconfigured, which means that Jetpack Protect is unable to effectively protect your site.' );
 				status = 'is-info';
 				action = (
 					<NoticeAction
@@ -209,9 +207,9 @@ const JetpackStateNotices = React.createClass( {
 		}
 
 		return [ message, status, action ];
-	},
+	};
 
-	renderContent: function() {
+	renderContent = () => {
 		let status = 'is-info',
 			noticeText = '',
 			action;
@@ -254,7 +252,7 @@ const JetpackStateNotices = React.createClass( {
 				{ action }
 			</SimpleNotice>
 		);
-	},
+	};
 
 	render() {
 		return (
@@ -263,7 +261,7 @@ const JetpackStateNotices = React.createClass( {
 			</div>
 		);
 	}
-} );
+}
 
 export default connect(
 	( state ) => {
