@@ -1731,7 +1731,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'enable_header_ad' => array(
 				'description'        => esc_html__( 'Display an ad unit at the top of each page.', 'jetpack' ),
 				'type'               => 'boolean',
-				'default'            => 0,
+				'default'            => 1,
 				'validate_callback'  => __CLASS__ . '::validate_boolean',
 				'jp_group'           => 'wordads',
 			),

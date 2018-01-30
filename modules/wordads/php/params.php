@@ -13,7 +13,7 @@ class WordAds_Params {
 			'wordads_approved'           => false,
 			'wordads_active'             => false,
 			'wordads_house'              => true,
-			'enable_header_ad'           => false,
+			'enable_header_ad'           => true,
 			'wordads_second_belowpost'   => true,
 			'wordads_display_front_page' => true,
 			'wordads_display_post'       => true,

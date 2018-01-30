@@ -8,6 +8,7 @@
 class WordAds_Sidebar_Widget extends WP_Widget {
 
 	private static $allowed_tags = array( 'mrec', 'wideskyscraper' );
+	private static $num_widgets = 0;
 
 	function __construct() {
 		parent::__construct(
@@ -31,9 +32,14 @@ class WordAds_Sidebar_Widget extends WP_Widget {
 			$instance['unit'] = 'mrec';
 		}
 
+		self::$num_widgets++;
 		$about = __( 'Advertisements', 'jetpack' );
 		$width = WordAds::$ad_tag_ids[$instance['unit']]['width'];
 		$height = WordAds::$ad_tag_ids[$instance['unit']]['height'];
+		$unit_id = 1 == self::$num_widgets ? 3 : self::$num_widgets + 3; // 2nd belowpost is '4'
+		$section_id = 0 === $wordads->params->blog_id ?
+			WORDADS_API_TEST_ID :
+			$wordads->params->blog_id . $unit_id;
 
 		$snippet = '';
 		if ( $wordads->option( 'wordads_house', true ) ) {
@@ -46,7 +52,6 @@ class WordAds_Sidebar_Widget extends WP_Widget {
 
 			$snippet = $wordads->get_house_ad( $unit );
 		} else {
-			$section_id = 0 === $wordads->params->blog_id ? WORDADS_API_TEST_ID : $wordads->params->blog_id . '3';
 			$snippet = $wordads->get_ad_snippet( $section_id, $height, $width );
 		}
 
