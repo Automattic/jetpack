@@ -60,7 +60,6 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 		switch ( $details['action'] ) {
 			case 'update':
 				$errors = $this->get_errors( $upgrader->skin );
-				var_dump( $plugins );
 				if ( $errors ) {
 					foreach ( $plugins as $slug ) {
 						/**
