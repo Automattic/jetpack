@@ -179,7 +179,7 @@ describe( 'DashItem', () => {
 		} );
 
 		it( 'when it is activated, the warning badge is linked to Plugins screen in WordPress.com', () => {
-			expect( wrapper.find( 'SectionHeader' ).find( 'a' ).props().href ).to.be.equal( 'https://wordpress.com/plugins/' + manageProps.siteRawUrl );
+			expect( wrapper.find( 'SectionHeader' ).find( 'a' ).props().href ).to.be.equal( 'https://wordpress.com/plugins/manage/' + manageProps.siteRawUrl );
 		} );
 
 		it( "when status is 'is-working', the warning badge has an 'active' label", () => {

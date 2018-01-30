@@ -20,7 +20,7 @@ class DashPluginUpdates extends Component {
 	activateAndRedirect( e ) {
 		e.preventDefault();
 		this.props.activateManage()
-			.then( window.location = 'https://wordpress.com/plugins/' + this.props.siteRawUrl );
+			.then( window.location = 'https://wordpress.com/plugins/manage/' + this.props.siteRawUrl );
 	}
 
 	getContent() {
@@ -69,7 +69,7 @@ class DashPluginUpdates extends Component {
 						{
 							this.props.isDevMode
 								? ''
-								: __( '{{a}}Turn on plugin auto updates{{/a}}', { components: { a: <a href={ 'https://wordpress.com/plugins/' + this.props.siteRawUrl } /> } } )
+								: __( '{{a}}Turn on plugin auto updates{{/a}}', { components: { a: <a href={ 'https://wordpress.com/plugins/manage/' + this.props.siteRawUrl } /> } } )
 						}
 					</p>
 				</DashItem>
