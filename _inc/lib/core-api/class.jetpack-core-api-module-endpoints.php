@@ -448,13 +448,16 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					break;
 
 				case 'onboarding':
+					$business_address = get_option( 'jpo_business_address' );
+					$business_address = is_array( $business_address ) ? array_map( array( $this, 'decode_special_characters' ), $business_address ) : $business_address;
+
 					$response[ $setting ] = array(
-						'siteTitle' => get_option( 'blogname' ),
-						'siteDescription' => get_option( 'blogdescription' ),
+						'siteTitle' => $this->decode_special_characters( get_option( 'blogname' ) ),
+						'siteDescription' => $this->decode_special_characters( get_option( 'blogdescription' ) ),
 						'siteType' => get_option( 'jpo_site_type' ),
 						'homepageFormat' => get_option( 'jpo_homepage_format' ),
 						'addContactForm' => intval( get_option( 'jpo_contact_page' ) ),
-						'businessAddress' => get_option( 'jpo_business_address' ),
+						'businessAddress' => $business_address,
 						'installWooCommerce' => is_plugin_active( 'woocommerce/woocommerce.php' ),
 					);
 					break;
@@ -468,6 +471,19 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 		$response['akismet'] = is_plugin_active( 'akismet/akismet.php' );
 
 		return rest_ensure_response( $response );
+	}
+
+	/**
+	 * Decode the special HTML characters in a certain value.
+	 *
+	 * @since 5.8
+	 *
+	 * @param string $value Value to decode.
+	 *
+	 * @return string Value with decoded HTML characters.
+	 */
+	private function decode_special_characters( $value ) {
+		return (string) htmlspecialchars_decode( $value, ENT_QUOTES );
 	}
 
 	/**
