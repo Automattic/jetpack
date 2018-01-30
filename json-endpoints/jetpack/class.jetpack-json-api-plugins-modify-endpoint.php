@@ -351,7 +351,7 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 			$errors = $upgrader->skin->get_errors();
 			$this->log[ $plugin ] = $upgrader->skin->get_upgrade_messages();
 
-			if ( is_wp_error( $errors ) ) {
+			if ( is_wp_error( $errors ) && $errors->get_error_code() ) {
 				return $errors;
 			}
 		}
