@@ -3,7 +3,7 @@
 /**
  * Provides a widget to show available/selected filters on searches
  */
-class Jetpack_Search_Widget_Filters extends WP_Widget {
+class Jetpack_Search_Widget extends WP_Widget {
 
 	protected $jetpack_search;
 
@@ -33,12 +33,12 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_frontend_scripts' ) );
 		}
 
-		add_action( 'jetpack_search_render_filters_widget_title', array( $this, 'render_widget_title' ), 10, 3 );
-		add_action( 'jetpack_search_render_filters', array( $this, 'render_available_filters' ), 10, 2 );
+		add_action( 'jetpack_search_render_filters_widget_title', array( 'Jetpack_Search_Template_Tags', 'render_widget_title' ), 10, 3 );
+		add_action( 'jetpack_search_render_filters', array( 'Jetpack_Search_Template_Tags', 'render_available_filters' ), 10, 2 );
 	}
 
 	function widget_admin_setup() {
-		wp_enqueue_style( 'widget-jetpack-search-filters', plugins_url( 'css/search-widget-filters-admin-ui.css', __FILE__ ) );
+		wp_enqueue_style( 'widget-jetpack-search-filters', plugins_url( 'css/search-widget-admin-ui.css', __FILE__ ) );
 
 		// Required for Tracks
 		wp_register_script(
@@ -58,13 +58,13 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		);
 
 		wp_register_script(
-			'jetpack-search-widget-filters-admin',
-			plugins_url( 'js/search-widget-filters-admin.js', __FILE__ ),
+			'jetpack-search-widget-admin',
+			plugins_url( 'js/search-widget-admin.js', __FILE__ ),
 			array( 'jquery', 'jquery-ui-sortable', 'jp-tracks', 'jp-tracks-functions' ),
 			JETPACK__VERSION
 		);
 
-		wp_localize_script( 'jetpack-search-widget-filters-admin', 'jetpack_search_filter_admin', array(
+		wp_localize_script( 'jetpack-search-widget-admin', 'jetpack_search_filter_admin', array(
 			'defaultFilterCount' => self::DEFAULT_FILTER_COUNT,
 			'tracksUserData'     => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
 			'tracksEventData'    => array(
@@ -72,7 +72,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			),
 		) );
 
-		wp_enqueue_script( 'jetpack-search-widget-filters-admin' );
+		wp_enqueue_script( 'jetpack-search-widget-admin' );
 	}
 
 	/**
@@ -84,8 +84,8 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		}
 
 		wp_enqueue_script(
-			'jetpack-search-widget-filters',
-			plugins_url( 'js/search-widget-filters.js', __FILE__ ),
+			'jetpack-search-widget',
+			plugins_url( 'js/search-widget.js', __FILE__ ),
 			array( 'jquery' ),
 			JETPACK__VERSION,
 			true
@@ -150,22 +150,15 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			if ( Jetpack_Search_Helpers::should_rerun_search_in_customizer_preview( $instance, $this->id ) ) {
 				$this->jetpack_search->update_search_results_aggregations();
 			}
+
 			$filters = $this->jetpack_search->get_filters();
+
+			if ( ! $this->jetpack_search->are_filters_by_widget_disabled() && ! $this->should_display_sitewide_filters() ) {
+				$filters = array_filter( $filters, array( $this, 'is_for_current_widget' ) );
+			}
 
 			if ( ! empty( $filters ) ) {
 				$display_filters = true;
-
-				if ( ! $this->jetpack_search->are_filters_by_widget_disabled() && ! $this->should_display_sitewide_filters() ) {
-					$filters = array_filter( $filters, array( $this, 'is_for_current_widget' ) );
-				}
-
-				foreach ( $filters as $filter ) {
-					if ( isset( $filter['buckets'] ) && count( $filter['buckets'] ) > 1 ) {
-						$display_filters = true;
-
-						break;
-					}
-				}
 			}
 		}
 
@@ -173,7 +166,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			return;
 		}
 
-		$title = $instance['title'];
+		$title = isset( $instance['title'] ) ? $instance['title'] : '';
 
 		if ( empty( $title ) ) {
 			$title = '';
@@ -206,7 +199,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		// we need to dynamically inject the sort field into the search box when the search box is enabled, and display
 		// it separately when it's not.
 		if ( ! empty( $instance['search_box_enabled'] ) ) {
-			$this->render_widget_search_form( $instance, $orderby, $order );
+			Jetpack_Search_Template_Tags::render_widget_search_form( $instance['post_types'], $orderby, $order );
 		}
 
 		if ( ! empty( $instance['search_box_enabled'] ) && ! empty( $instance['user_sort_enabled'] ) ): ?>
@@ -231,14 +224,12 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			 * @since 5.8.0
 			 *
 			 * @param array $filters                       The possible filters for the current query.
-			 * @param $instance                            The current widget instance.
-			 * @param Jetpack_Search $this->jetpack_search The Jetpack_Search instance.
+			 * @param array $post_types                    An array of post types to limit filtering to.
 			 */
 			do_action(
 				'jetpack_search_render_filters',
 				$filters,
-				$instance,
-				$this->jetpack_search
+				isset( $instance['post_types'] ) ? $instance['post_types'] : null
 			);
 		}
 
@@ -251,8 +242,8 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 	 * Renders JavaScript for the sorting controls on the frontend.
 	 *
 	 * This JS is a bit complicated, but here's what it's trying to do:
-	 * - find or create a search form
-	 * - find or create the orderby/order fields with default values
+	 * - find the search form
+	 * - find the orderby/order fields and set default values
 	 * - detect changes to the sort field, if it exists, and use it to set the order field values
 	 *
 	 * @param array  $instance The current widget instance.
@@ -290,7 +281,6 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			</script>
 		<?php endif;
 	}
-
 
 	private function sorting_to_wp_query_param( $sort ) {
 		$parts = explode( '|', $sort );
@@ -557,7 +547,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 				</script>
 				<div class="jetpack-search-filters-widget__filters">
 					<?php foreach ( (array) $instance['filters'] as $filter ) : ?>
-						<?php $this->render_widget_filter( $filter ); ?>
+						<?php $this->render_widget_edit_filter( $filter ); ?>
 					<?php endforeach; ?>
 				</div>
 				<p class="jetpack-search-filters-widget__add-filter-wrapper">
@@ -589,7 +579,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 	 *
 	 * @param array $filter
 	 */
-	function render_widget_filter( $filter ) {
+	function render_widget_edit_filter( $filter ) {
 		$args = wp_parse_args( $filter, array(
 			'name' => '',
 			'type' => 'taxonomy',
@@ -618,168 +608,4 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			});
 		</script>
 	<?php }
-
-	/**
-	 * Responsible for rendering the search box within our widget on the frontend.
-	 *
-	 * @param array $instance
-	 */
-	function render_widget_search_form( $instance, $orderby, $order ) {
-		$form = get_search_form( false );
-
-		$fields_to_inject = array(
-			'orderby' => $orderby,
-			'order' => $order
-		);
-
-		// If the widget has specified post types to search within and IF the post types differ
-		// from the default post types that would have been searched, set the selected post
-		// types via hidden inputs.
-		if ( Jetpack_Search_Helpers::post_types_differ_searchable( $instance ) ) {
-			$fields_to_inject['post_type'] = implode( ',', $instance['post_types'] );
-		}
-
-		$form = $this->inject_hidden_form_fields( $form, $fields_to_inject );
-
-		// This shouldn't need to be escaped since we escaped above when we imploded the selected post types
-		echo '<div class="jetpack-search-form">';
-		echo $form;
-		echo '</div>';
-	}
-
-	private function inject_hidden_form_fields( $form, $fields ) {
-		$form_injection = '';
-
-		foreach( $fields as $field_name => $field_value ) {
-			$form_injection .= sprintf(
-				'<input type="hidden" name="%s" value="%s" />',
-				$field_name,
-				esc_attr( $field_value )
-			);
-		}
-
-		// This shouldn't need to be escaped since we've escaped above as we built $form_injection
-		$form = str_replace(
-			'</form>',
-			sprintf(
-				'%s</form>',
-				$form_injection
-			),
-			$form
-		);
-
-		return $form;
-	}
-
-	/**
-	 * Renders all available filters that can be used to filter down search results on the frontend.
-	 *
-	 * @param array $filters  The available filters for the current query.
-	 * @param array $instance The current widget instance.
-	 *
-	 * @return void
-	 */
-	public function render_available_filters( $filters, $instance ) {
-		$post_types_differ_searchable = Jetpack_Search_Helpers::post_types_differ_searchable( $instance );
-		$post_types_differ_query      = Jetpack_Search_Helpers::post_types_differ_query( $instance );
-		$active_buckets               = $this->jetpack_search->get_active_filter_buckets();
-
-		if ( ! $post_types_differ_query ) {
-			$active_buckets = Jetpack_Search_Helpers::filter_post_types( $active_buckets );
-		}
-
-		$default_post_types = array();
-		$active_post_types = array();
-		if ( $post_types_differ_searchable ) {
-			$default_post_types = $instance['post_types'];
-			$active_post_types = Jetpack_Search_Helpers::get_active_post_types( $active_buckets, $default_post_types );
-			if ( empty( $active_post_types ) ) {
-				$active_post_types = $default_post_types;
-			}
-
-			if ( $post_types_differ_query ) {
-				$filters = Jetpack_Search_Helpers::ensure_post_types_on_remove_url( $filters, $default_post_types );
-			} else {
-				$filters = Jetpack_Search_Helpers::remove_active_from_post_type_buckets( $filters );
-			}
-		}
-
-		foreach ( (array) $filters as $filter ) {
-			if ( 'post_type' == $filter['type'] ) {
-				$this->render_filter( $filter, $default_post_types );
-			} else {
-				$this->render_filter( $filter, $active_post_types );
-			}
-		}
-	}
-
-	function render_widget_title( $title, $before_title, $after_title ) {
-		echo $before_title . esc_html( $title ) . $after_title;
-	}
-
-	/**
-	 * Renders a single filter that can be applied to the current search.
-	 *
-	 * @param array $filter The filter to render.
-	 * @param array $default_post_types The default post types for this filter.
-	 */
-	public function render_filter( $filter, $default_post_types ) {
-		if ( empty( $filter ) || empty( $filter['buckets'] ) ) {
-			return;
-		}
-
-		$query_vars = null;
-		foreach( $filter['buckets'] as $item ) {
-			if ( $item['active'] ) {
-				$query_vars = array_keys( $item['query_vars'] );
-				break;
-			}
-		}
-		$clear_url = null;
-		if ( ! empty( $query_vars ) ) {
-			$clear_url = Jetpack_Search_Helpers::remove_query_arg( $query_vars );
-			if ( ! empty( $default_post_types ) ) {
-				$clear_url = Jetpack_Search_Helpers::add_post_types_to_url( $clear_url, $default_post_types );
-			}
-		}
-
-		?>
-		<h4 class="jetpack-search-filters-widget__sub-heading">
-			<?php echo esc_html( $filter['name'] ); ?>
-		</h4>
-		<?php if ( $clear_url ) : ?>
-			<div class="jetpack-search-filters-widget__clear">
-				<a href="<?php echo esc_url( $clear_url ); ?>">
-					<?php esc_html_e( '< Clear Filters', 'jetpack' ); ?>
-				</a>
-			</div>
-		<?php endif; ?>
-		<ul class="jetpack-search-filters-widget__filter-list">
-			<?php foreach ( $filter['buckets'] as $item ) : ?>
-				<li>
-					<label>
-					<?php if ( empty( $item['active'] ) ) : ?>
-						<a href="<?php echo esc_url( $item['url'] ); ?>">
-					<?php else : ?>
-						<a href="<?php echo esc_url( $item['remove_url'] ); ?>">
-					<?php endif; ?>
-							<input
-								type="checkbox"
-								<?php checked( ! empty( $item['active'] ) ); ?>
-								disabled
-							/>&nbsp;
-							<?php echo esc_html( $item['name'] ); ?>&nbsp;
-							<?php
-								echo esc_html( sprintf(
-									'(%s)',
-									number_format_i18n( absint( $item['count'] ) )
-								) );
-							?>
-						</a>
-					</label>
-				</li>
-			<?php endforeach; ?>
-		</ul>
-	<?php
-	}
 }

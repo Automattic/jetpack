@@ -187,28 +187,27 @@ class Jetpack_Search_Helpers {
 	 * @param array $instance
 	 * @return bool
 	 */
-	static function post_types_differ_searchable( $instance ) {
-		if ( empty( $instance['post_types'] ) ) {
+	static function post_types_differ_searchable( $post_types ) {
+		if ( empty( $post_types ) ) {
 			return false;
 		}
 
 		$searchable_post_types = get_post_types( array( 'exclude_from_search' => false ) );
-		$diff_of_searchable = self::array_diff( $searchable_post_types, (array) $instance['post_types'] );
+		$diff_of_searchable = self::array_diff( $searchable_post_types, (array) $post_types );
 
 		return ! empty( $diff_of_searchable );
 	}
 
 	/**
-	 * Given the widget instance, will return true when selected post types differ from the post type filters
-	 * applied to the search.
+	 * Given the array of post types, will return true when these differ from the current search query
 	 *
 	 * @since 5.8.0
 	 *
 	 * @param array $instance
 	 * @return bool
 	 */
-	static function post_types_differ_query( $instance ) {
-		if ( empty( $instance['post_types'] ) ) {
+	static function post_types_differ_query( $post_types ) {
+		if ( empty( $post_types ) ) {
 			return false;
 		}
 
@@ -222,7 +221,7 @@ class Jetpack_Search_Helpers {
 
 		$post_types_from_query = array_map( 'trim', $post_types_from_query );
 
-		$diff_query = self::array_diff( (array) $instance['post_types'], $post_types_from_query );
+		$diff_query = self::array_diff( (array) $post_types, $post_types_from_query );
 		return ! empty( $diff_query );
 	}
 
@@ -459,28 +458,6 @@ class Jetpack_Search_Helpers {
 		}
 
 		return $modified;
-	}
-
-	/**
-	 * Given an array of filters or active buckets, will filter out any that are post types.
-	 *
-	 * @param array $filters The array of filters or active buckets.
-	 * @return array
-	 */
-	public static function filter_post_types( $filters ) {
-		$no_post_types = array();
-
-		foreach ( (array) $filters as $key => $filter ) {
-			if ( empty( $filter['type'] ) || 'post_type' !== $filter['type'] ) {
-				if ( is_int( $key ) ) {
-					$no_post_types[] = $filter;
-				} else {
-					$no_post_types[ $key ] = $filter;
-				}
-			}
-		}
-
-		return $no_post_types;
 	}
 
 	/**

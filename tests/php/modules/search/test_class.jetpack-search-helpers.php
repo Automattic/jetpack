@@ -334,21 +334,21 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 	/**
 	 * @dataProvider get_post_types_differ_searchable_data
 	 */
-	function test_post_types_differ_searchable( $expected, $instance = array() ) {
+	function test_post_types_differ_searchable( $expected, $post_types = array() ) {
 		$GLOBALS['wp_post_types'] = array(
 			'post'       => array( 'name' => 'post', 'exclude_from_search' => false ),
 			'page'       => array( 'name' => 'page', 'exclude_from_search' => false ),
 			'attachment' => array( 'name' => 'attachment', 'exclude_from_search' => false )
 		);
-		$this->assertSame( $expected, Jetpack_Search_Helpers::post_types_differ_searchable( $instance ) );
+		$this->assertSame( $expected, Jetpack_Search_Helpers::post_types_differ_searchable( $post_types ) );
 	}
 
 	/**
 	 * @dataProvider get_post_types_differ_query_data
 	 */
-	function test_post_types_differ_query( $expected, $instance = array(), $get = array() ) {
+	function test_post_types_differ_query( $expected, $post_types = array(), $get = array() ) {
 		$_GET = $get;
-		$this->assertSame( $expected, Jetpack_Search_Helpers::post_types_differ_query( $instance ) );
+		$this->assertSame( $expected, Jetpack_Search_Helpers::post_types_differ_query( $post_types ) );
 	}
 
 	/**
@@ -399,132 +399,6 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 		$this->assertSame(
 			$expected,
 			Jetpack_Search_Helpers::ensure_post_types_on_remove_url( $filters, $post_types )
-		);
-	}
-
-	/**
-	 * @dataProvider get_filter_post_types_data
-	 */
-	function test_filter_post_types( $expected, $filters ) {
-		$this->assertSame( $expected, Jetpack_Search_Helpers::filter_post_types( $filters ) );
-	}
-
-	function get_filter_post_types_data() {
-		return array(
-			'unchanged_active_buckets_no_post_types' => array(
-				array(
-					array(
-						'type' => 'date_histogram',
-					),
-					array(
-						'type' => 'taxonomy',
-					),
-				),
-				array(
-					array(
-						'type' => 'date_histogram',
-					),
-					array(
-						'type' => 'taxonomy',
-					),
-				),
-			),
-			'active_bucket_no_post_types' => array(
-				array(
-					array(
-						'type' => 'date_histogram',
-					),
-					array(
-						'type' => 'taxonomy',
-					),
-				),
-				array(
-					array(
-						'type' => 'date_histogram',
-					),
-					array(
-						'type' => 'post_type',
-					),
-					array(
-						'type' => 'taxonomy',
-					),
-				),
-			),
-			'unchaged_filters_no_post_type' => array(
-				array(
-					'taxonomy_0' => array(
-						'type' => 'taxonomy',
-						'buckets' => array(
-							array(
-								'name' => 'test',
-								'remove_url' => 'http://jetpack.com?post_type=post,page',
-							),
-						),
-					),
-				),
-				array(
-					'taxonomy_0' => array(
-						'type' => 'taxonomy',
-						'buckets' => array(
-							array(
-								'name' => 'test',
-								'remove_url' => 'http://jetpack.com?post_type=post,page',
-							),
-						),
-					),
-				),
-			),
-			'filters_no_post_type' => array(
-				array(
-					'taxonomy_0' => array(
-						'type' => 'taxonomy',
-						'buckets' => array(
-							array(
-								'name' => 'test',
-								'remove_url' => 'http://jetpack.com?post_type=post,page',
-							),
-						),
-					),
-					'date_histogram_2' => array(
-						'type' => 'date_histogram',
-						'buckets' => array(
-							array(
-								'name' => 'test',
-								'remove_url' => 'http://jetpack.com?post_type=post,page',
-							),
-						),
-					),
-				),
-				array(
-					'taxonomy_0' => array(
-						'type' => 'taxonomy',
-						'buckets' => array(
-							array(
-								'name' => 'test',
-								'remove_url' => 'http://jetpack.com?post_type=post,page',
-							),
-						),
-					),
-					'post_type_1' => array(
-						'type' => 'post_type',
-						'buckets' => array(
-							array(
-								'name' => 'test',
-								'remove_url' => 'http://jetpack.com?post_type=post,page',
-							),
-						),
-					),
-					'date_histogram_2' => array(
-						'type' => 'date_histogram',
-						'buckets' => array(
-							array(
-								'name' => 'test',
-								'remove_url' => 'http://jetpack.com?post_type=post,page',
-							),
-						),
-					),
-				),
-			),
 		);
 	}
 
@@ -636,100 +510,74 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 	}
 
 	function get_post_types_differ_searchable_data() {
-		$empty_post_types_instance = $this->get_sample_widget_instance();
 		return array(
-			'no_post_types_on_instance' => array(
+			'no_post_types' => array(
 				false,
-				$empty_post_types_instance,
+				array(),
 			),
 			'post_types_same' => array(
 				false,
-				array_merge( $empty_post_types_instance, array(
-					'post_types' => array( 'post', 'page', 'attachment' )
-				) ),
+				array( 'post', 'page', 'attachment' )
 			),
 			'post_types_same_count_different_types' => array(
 				true,
-				array_merge( $empty_post_types_instance, array(
-					'post_types' => array( 'post', 'page', 'jetpack-testimonial' )
-				) ),
+				array( 'post', 'page', 'jetpack-testimonial' )
 			),
-			'post_types_instance_has_fewer' => array(
+			'post_types_has_fewer' => array(
 				true,
-				array_merge( $empty_post_types_instance, array(
-					'post_types' => array( 'post' )
-				) )
+				'post_types' => array( 'post' )
 			),
-			'post_types_instance_has_more' => array(
+			'post_types_has_more' => array(
 				true,
-				array_merge( $empty_post_types_instance, array(
-					'post_types' => array( 'post', 'page', 'attachment', 'jetpack-testimonial' )
-				) )
+				array( 'post', 'page', 'attachment', 'jetpack-testimonial' )
 			),
 		);
 	}
 
 	function get_post_types_differ_query_data() {
-		$empty_post_types_instance = $this->get_sample_widget_instance();
 		return array(
 			'no_post_types_on_instance' => array(
 				false,
-				$empty_post_types_instance,
+				array(),
 			),
 			'post_types_same' => array(
 				false,
-				array_merge( $empty_post_types_instance, array(
-					'post_types' => array( 'post', 'page', 'attachment' )
-				) ),
+				array( 'post', 'page', 'attachment' ),
 				array( 'post_type' => array( 'post', 'page', 'attachment' ) )
 			),
 			'post_types_same_count_different_types' => array(
 				true,
-				array_merge( $empty_post_types_instance, array(
-					'post_types' => array( 'post', 'page', 'jetpack-testimonial' )
-				) ),
+				array( 'post', 'page', 'jetpack-testimonial' ),
 				array( 'post_type' => array( 'post', 'page', 'attachment' ) )
 			),
 			'post_types_instance_has_fewer' => array(
 				true,
-				array_merge( $empty_post_types_instance, array(
-					'post_types' => array( 'post' )
-				) ),
+				array( 'post' ),
 				array( 'post_type' => array( 'post', 'page' ) )
 			),
 			'post_types_instance_has_more' => array(
 				true,
-				array_merge( $empty_post_types_instance, array(
-					'post_types' => array( 'post', 'page', 'attachment', 'jetpack-testimonial' )
-				) ),
+				array( 'post', 'page', 'attachment', 'jetpack-testimonial' ),
 				array( 'post_type' => 'post,page' )
 			),
 			'post_types_same_csv' => array(
 				false,
-				array_merge( $empty_post_types_instance, array(
-					'post_types' => array( 'post', 'page', 'attachment' )
-				) ),
+				array( 'post', 'page', 'attachment' ),
 				array( 'post_type' => 'post, page, attachment' )
 			),
 			'post_types_same_count_different_types_csv' => array(
 				true,
-				array_merge( $empty_post_types_instance, array(
-					'post_types' => array( 'post', 'page', 'jetpack-testimonial' )
-				) ),
+				array( 'post', 'page', 'jetpack-testimonial' ),
 				array( 'post_type' => 'post, page, attachment' )
 			),
 			'post_types_instance_has_fewer_csv' => array(
 				true,
-				array_merge( $empty_post_types_instance, array(
-					'post_types' => array( 'post' )
-				) ),
+				array( 'post' ),
 				array( 'post_type' => 'post, page' )
 			),
 			'post_types_instance_has_more_csv' => array(
 				true,
-				array_merge( $empty_post_types_instance, array(
-					'post_types' => array( 'post', 'page', 'attachment', 'jetpack-testimonial' )
-				) ),
+				array( 'post', 'page', 'attachment', 'jetpack-testimonial' ),
 				array( 'post_type' => 'post, page' )
 			),
 		);

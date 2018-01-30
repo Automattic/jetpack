@@ -72,6 +72,7 @@ class Jetpack_Search {
 		}
 
 		require_once( dirname( __FILE__ ) . '/class.jetpack-search-helpers.php' );
+		require_once( dirname( __FILE__ ) . '/class.jetpack-search-template-tags.php' );
 
 		$this->init_hooks();
 	}
@@ -605,9 +606,9 @@ class Jetpack_Search {
 	 * @module search
 	 */
 	public function action__widgets_init() {
-		require_once( dirname( __FILE__ ) . '/class.jetpack-search-widget-filters.php' );
+		require_once( dirname( __FILE__ ) . '/class.jetpack-search-widget.php' );
 
-		register_widget( 'Jetpack_Search_Widget_Filters' );
+		register_widget( 'Jetpack_Search_Widget' );
 	}
 
 	/**
@@ -1165,7 +1166,7 @@ class Jetpack_Search {
 	/**
 	 * Set the available filters for the search
 	 *
-	 * These get rendered via the Jetpack_Search_Widget_Filters() widget
+	 * These get rendered via the Jetpack_Search_Widget() widget
 	 *
 	 * Behind the scenes, these are implemented using Elasticsearch Aggregations.
 	 *
