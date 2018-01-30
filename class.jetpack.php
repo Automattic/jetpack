@@ -2567,6 +2567,18 @@ class Jetpack {
 			$active[] = 'protect';
 		}
 
+		/**
+		 * Allow filtering of the active modules.
+		 *
+		 * Gives theme and plugin developers the power to alter the modules that
+		 * are activated on the fly.
+		 *
+		 * @since 5.8.0
+		 *
+		 * @param array $active Array of active module slugs.
+		 */
+		$active = apply_filters( 'jetpack_active_modules', $active );
+
 		return array_unique( $active );
 	}
 
