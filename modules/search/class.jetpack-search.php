@@ -72,6 +72,7 @@ class Jetpack_Search {
 		}
 
 		require_once( dirname( __FILE__ ) . '/class.jetpack-search-helpers.php' );
+		require_once( dirname( __FILE__ ) . '/class.jetpack-search-template-tags.php' );
 
 		$this->init_hooks();
 	}
