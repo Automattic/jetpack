@@ -112,26 +112,73 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 
 	}
 
-	public function get_update_checksum( $value ) {
-		// Create an new array so we don't modify the object passed in.
-		$a_value = (array) $value;
-		// ignore `last_checked`
-		unset( $a_value['last_checked'] );
-		unset( $a_value['checked'] );
-		unset( $a_value['version_checked'] );
-		if ( empty( $a_value['updates'] ) ) {
-			unset( $a_value['updates'] );
-		}
 
-		if ( empty( $a_value ) ) {
+	public function get_update_checksum( $update, $transient ) {
+		$updates = array();
+		$no_updated = array();
+		switch ( $transient ) {
+			case 'update_plugins':
+				if ( ! empty( $update->response ) ) {
+					foreach ( $update->response as $plugin_slug => $response ) {
+						if ( ! empty( $plugin_slug ) && isset( $response->new_version ) ) {
+							$updates[] = array( $plugin_slug => $response->new_version );
+						}
+					}
+				}
+				if ( ! empty( $update->no_update ) ) {
+					$no_updated = array_keys( $update->no_update );
+				}
+
+				if ( ! isset( $no_updated[ 'jetpack/jetpack.php' ] ) && isset( $updates[ 'jetpack/jetpack.php' ] ) ) {
+					return false;
+				}
+
+				break;
+			case 'update_themes':
+				if ( ! empty( $update->response ) ) {
+					foreach ( $update->response as $theme_slug => $response ) {
+						if ( ! empty( $theme_slug ) && isset( $response['new_version'] ) ) {
+							$updates[] = array( $theme_slug => $response['new_version'] );
+						}
+					}
+				}
+
+				if ( ! empty( $update->checked ) ) {
+					$no_updated = $update->checked;
+				}
+
+				break;
+			case 'update_core':
+				if ( ! empty( $update->updates ) ) {
+					foreach ( $update->updates as $response ) {
+						if( ! empty( $response->response ) && $response->response === 'latest' ) {
+							continue;
+						}
+						if ( ! empty( $response->response ) && isset( $response->packages->full ) ) {
+							$updates[] = array( $response->response => $response->packages->full );
+						}
+					}
+				}
+
+				if (  ! empty( $update->version_checked ) ) {
+					$no_updated = $update->version_checked;
+				}
+
+				if ( empty( $updates ) ) {
+					return false;
+				}
+				break;
+
+		}
+		if ( empty( $updates ) && empty( $no_updated ) ) {
 			return false;
 		}
-		return $this->get_check_sum( $a_value );
+		return $this->get_check_sum( array( $no_updated, $updates ) );
 	}
 
 	public function validate_update_change( $value, $expiration, $transient ) {
 
-		$new_checksum = $this->get_update_checksum( $value );
+		$new_checksum = $this->get_update_checksum( $value, $transient );
 		if ( false === $new_checksum  ) {
 			return;
 		}
@@ -145,7 +192,6 @@ class Jetpack_Sync_Module_Updates extends Jetpack_Sync_Module {
 		$checksums[ $transient ] = $new_checksum;
 
 		update_option( self::UPDATES_CHECKSUM_OPTION_NAME, $checksums );
-		// possible $transient value are update_plugins, update_themes, update_core
 		do_action( "jetpack_{$transient}_change", $value );
 	}
 
