@@ -466,7 +466,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 							<label>
 								<?php esc_html_e( 'Choose a taxonomy:', 'jetpack' ); $seen_taxonomy_labels = array(); ?>
 								<select name="<?php echo esc_attr( $this->get_field_name( 'taxonomy_type' ) ); ?>[]" class="widefat taxonomy-select">
-									<?php foreach ( get_taxonomies( false, 'objects' ) as $taxonomy ) : ?>
+									<?php foreach ( get_taxonomies( array( 'public' => true ), 'objects' ) as $taxonomy ) : ?>
 										<option value="<?php echo esc_attr( $taxonomy->name ); ?>" <%= <?php echo json_encode( $taxonomy->name ); ?> === taxonomy ? 'selected="selected"' : '' %>>
 											<?php
 												$label = in_array( $taxonomy->label, $seen_taxonomy_labels )
@@ -664,41 +664,34 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 	public function render_available_filters( $filters, $instance ) {
 		$post_types_differ_searchable = Jetpack_Search_Helpers::post_types_differ_searchable( $instance );
 		$post_types_differ_query      = Jetpack_Search_Helpers::post_types_differ_query( $instance );
-		$this->jetpack_search->get_active_filter_buckets();
 		$active_buckets               = $this->jetpack_search->get_active_filter_buckets();
 
 		if ( ! $post_types_differ_query ) {
 			$active_buckets = Jetpack_Search_Helpers::filter_post_types( $active_buckets );
 		}
 
-		$remove_all_filters           = ( count( $active_buckets ) > 1 )
-			? add_query_arg( 's', get_query_var( 's' ), home_url() )
-			: '';
-
+		$default_post_types = array();
+		$active_post_types = array();
 		if ( $post_types_differ_searchable ) {
-			$remove_all_filters = empty( $remove_all_filters )
-				? ''
-				: Jetpack_Search_Helpers::add_post_types_to_url( $remove_all_filters, $instance['post_types'] );
+			$default_post_types = $instance['post_types'];
+			$active_post_types = Jetpack_Search_Helpers::get_active_post_types( $active_buckets, $default_post_types );
+			if ( empty( $active_post_types ) ) {
+				$active_post_types = $default_post_types;
+			}
 
 			if ( $post_types_differ_query ) {
-				$filters = Jetpack_Search_Helpers::ensure_post_types_on_remove_url( $filters, $instance['post_types'] );
+				$filters = Jetpack_Search_Helpers::ensure_post_types_on_remove_url( $filters, $default_post_types );
 			} else {
 				$filters = Jetpack_Search_Helpers::remove_active_from_post_type_buckets( $filters );
 			}
 		}
 
-		if ( $remove_all_filters ) :
-		?>
-			<p>
-				<a href="<?php echo esc_url( $remove_all_filters ); ?>">
-					<?php esc_html_e( 'Remove All Filters', 'jetpack' ); ?>
-				</a>
-			</p>
-		<?php
-		endif;
-
 		foreach ( (array) $filters as $filter ) {
-			$this->render_filter( $filter );
+			if ( 'post_type' == $filter['type'] ) {
+				$this->render_filter( $filter, $default_post_types );
+			} else {
+				$this->render_filter( $filter, $active_post_types );
+			}
 		}
 	}
 
@@ -710,16 +703,39 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 	 * Renders a single filter that can be applied to the current search.
 	 *
 	 * @param array $filter The filter to render.
+	 * @param array $default_post_types The default post types for this filter.
 	 */
-	public function render_filter( $filter ) {
+	public function render_filter( $filter, $default_post_types ) {
 		if ( empty( $filter ) || empty( $filter['buckets'] ) ) {
 			return;
+		}
+
+		$query_vars = null;
+		foreach( $filter['buckets'] as $item ) {
+			if ( $item['active'] ) {
+				$query_vars = array_keys( $item['query_vars'] );
+				break;
+			}
+		}
+		$clear_url = null;
+		if ( ! empty( $query_vars ) ) {
+			$clear_url = Jetpack_Search_Helpers::remove_query_arg( $query_vars );
+			if ( ! empty( $default_post_types ) ) {
+				$clear_url = Jetpack_Search_Helpers::add_post_types_to_url( $clear_url, $default_post_types );
+			}
 		}
 
 		?>
 		<h4 class="jetpack-search-filters-widget__sub-heading">
 			<?php echo esc_html( $filter['name'] ); ?>
 		</h4>
+		<?php if ( $clear_url ) : ?>
+			<div class="jetpack-search-filters-widget__clear">
+				<a href="<?php echo esc_url( $clear_url ); ?>">
+					<?php esc_html_e( '< Clear Filters', 'jetpack' ); ?>
+				</a>
+			</div>
+		<?php endif; ?>
 		<ul class="jetpack-search-filters-widget__filter-list">
 			<?php foreach ( $filter['buckets'] as $item ) : ?>
 				<li>

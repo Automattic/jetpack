@@ -354,6 +354,24 @@ class Jetpack_Search_Helpers {
 	}
 
 	/**
+	 * Gets the active post types given a set of filters.
+	 *
+	 * @param array $filters The active filters for the current query.
+	 * @param array $default_post_types The default post types.
+	 *
+	 * @return array
+	 */
+	public static function get_active_post_types( $filters, $default_post_types ) {
+		$active_post_types = array();
+		foreach( $filters as $item ) {
+			if ( ( 'post_type' == $item['type'] ) && isset( $item['query_vars']['post_type'] ) ) {
+				$active_post_types[] = $item['query_vars']['post_type'];
+			}
+		}
+		return $active_post_types;
+	}
+
+	/**
 	 * Sets active to false on all post type buckets.
 	 *
 	 * @param array $filters The available filters for the current query.
@@ -463,5 +481,46 @@ class Jetpack_Search_Helpers {
 		}
 
 		return $no_post_types;
+	}
+
+	/**
+	 * Returns a boolen for whether the current site has a VIP index.
+	 *
+	 * @return bool
+	 */
+	public static function site_has_vip_index() {
+		$has_vip_index = (
+			Jetpack_Constants::is_defined( 'JETPACK_SEARCH_VIP_INDEX' ) &&
+			Jetpack_Constants::get_constant( 'JETPACK_SEARCH_VIP_INDEX' )
+		);
+
+		/**
+		 * Allows developers to filter whether the current site has a VIP index.
+		 *
+		 * @module search
+		 *
+		 * @since 5.8.0
+		 *
+		 * @param bool $has_vip_index Whether the current site has a VIP index.
+		 */
+		return apply_filters( 'jetpack_search_has_vip_index', $has_vip_index );
+	}
+
+	/**
+	 * Returns the maximum posts per page for a search query
+	 *
+	 * @return int
+	 */
+	public static function get_max_posts_per_page() {
+		return self::site_has_vip_index() ? 1000 : 100;
+	}
+
+	/**
+	 * Returns the maximum offset for a search query
+	 *
+	 * @return int
+	 */
+	public static function get_max_offset() {
+		return self::site_has_vip_index() ? 9000 : 1000;
 	}
 }

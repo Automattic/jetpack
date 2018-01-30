@@ -48,6 +48,9 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 		remove_filter( 'sidebars_widgets', array( $this, '_fake_out_search_widget' ) );
 
 		unset( $GLOBALS['wp_customize'] );
+
+		Jetpack_Constants::clear_constants();
+		remove_all_filters( 'jetpack_search_has_vip_index' );
 	}
 
 	function test_get_search_url_removes_page_when_no_query_s() {
@@ -523,6 +526,37 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 				),
 			),
 		);
+	}
+
+	/**
+	 * @dataProvider get_site_has_vip_index_data
+	 */
+	public function test_site_has_vip_index( $expected, $constant = null, $filter = false ) {
+		if ( ! is_null( $constant ) ) {
+			Jetpack_Constants::set_constant( 'JETPACK_SEARCH_VIP_INDEX', $constant );
+		}
+
+		if ( $filter ) {
+			add_filter( 'jetpack_search_has_vip_index', $filter );
+		}
+
+		$this->assertSame( $expected, Jetpack_Search_Helpers::site_has_vip_index() );
+	}
+
+	/**
+	 * @dataProvider get_max_posts_per_page_data
+	 */
+	public function test_get_max_posts_per_page( $expected, $has_vip_index ) {
+		Jetpack_Constants::set_constant( 'JETPACK_SEARCH_VIP_INDEX', $has_vip_index );
+		$this->assertSame( $expected, Jetpack_Search_Helpers::get_max_posts_per_page() );
+	}
+
+	/**
+	 * @dataProvider get_max_offset_data
+	 */
+	public function test_get_max_offset( $expected, $has_vip_index ) {
+		Jetpack_Constants::set_constant( 'JETPACK_SEARCH_VIP_INDEX', $has_vip_index );
+		$this->assertSame( $expected, Jetpack_Search_Helpers::get_max_offset() );
 	}
 
 	/**
@@ -1189,6 +1223,58 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 					),
 				),
 				array( 'post', 'page' ),
+			),
+		);
+	}
+
+	public function get_site_has_vip_index_data() {
+		return array(
+			'default_constants_filter' => array(
+				false,
+			),
+			'constant_false_no_filter' => array(
+				false,
+				false,
+			),
+			'constant_true_no_filter' => array(
+				true,
+				true,
+			),
+			'constant_false_filter_true' => array(
+				true,
+				false,
+				'__return_true',
+			),
+			'constant_true_filter_false' => array(
+				false,
+				true,
+				'__return_false',
+			),
+		);
+	}
+
+	public function get_max_offset_data() {
+		return array (
+			'not_vip_index' => array(
+				1000,
+				false,
+			),
+			'has_vip_index' => array(
+				9000,
+				true,
+			),
+		);
+	}
+
+	public function get_max_posts_per_page_data() {
+		return array (
+			'not_vip_index' => array(
+				100,
+				false,
+			),
+			'has_vip_index' => array(
+				1000,
+				true,
 			),
 		);
 	}
