@@ -16,6 +16,9 @@ new Jetpack_JSON_API_Plugins_Modify_v1_2_Endpoint(
 			'active'       => '(bool) Activate or deactivate the plugin',
 			'network_wide' => '(bool) Do action network wide (default value: false)',
 		),
+		'query_parameters' => array(
+			'autoupdate' => '(bool=false) If the update is happening as a result of autoupdate event',
+		),
 		'response_format'      => Jetpack_JSON_API_Plugins_Endpoint::$_response_format_v1_2,
 		'example_request_data' => array(
 			'headers' => array(
@@ -45,6 +48,9 @@ new Jetpack_JSON_API_Plugins_Modify_v1_2_Endpoint(
 			'active'       => '(bool) Activate or deactivate the plugin',
 			'network_wide' => '(bool) Do action network wide (default value: false)',
 			'plugins'      => '(array) A list of plugin ids to modify',
+		),
+		'query_parameters' => array(
+			'autoupdate' => '(bool=false) If the update is happening as a result of autoupdate event',
 		),
 		'response_format'      => array(
 			'plugins'     => '(array:plugin_v1_2) An array of plugin objects.',
@@ -78,6 +84,9 @@ new Jetpack_JSON_API_Plugins_Modify_v1_2_Endpoint(
 		'path_labels'          => array(
 			'$site'   => '(int|string) The site ID, The site domain',
 			'$plugin' => '(string) The plugin ID',
+		),
+		'query_parameters' => array(
+			'autoupdate' => '(bool=false) If the update is happening as a result of autoupdate event',
 		),
 		'response_format'      => Jetpack_JSON_API_Plugins_Endpoint::$_response_format_v1_2,
 		'example_request_data' => array(

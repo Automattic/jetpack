@@ -22,6 +22,7 @@ class WP_Test_Jetpack_Sync_Plugins_Updates extends WP_Test_Jetpack_Sync_Base {
 
 	public function tearDown() {
 		parent::tearDown();
+		Jetpack_Constants::clear_constants();
 	}
 
 	public static function setUpBeforeClass() {
@@ -119,6 +120,35 @@ class WP_Test_Jetpack_Sync_Plugins_Updates extends WP_Test_Jetpack_Sync_Base {
 			$this->assertEquals(  'the/the.php', $updated_plugin->args[0]['slug'], get_class( $skin ) . ' Wasn\'t able to sync failed login attempt' );
 			$this->server_event_storage->reset();
 		}
+	}
+
+	function test_updating_error_with_autoupdate_constant_results_in_proper_state() {
+		if ( defined( 'PHP_VERSION_ID' ) && PHP_VERSION_ID < 50300 ) {
+			$this->markTestIncomplete("Right now this doesn't work on PHP 5.2");
+		}
+
+		Jetpack_Constants::set_constant( 'JETPACK_PLUGIN_AUTOUPDATE', true );
+
+		$this->set_error();
+		$this->update_bulk_plugins( new WP_Ajax_Upgrader_Skin( compact( 'title', 'url', 'nonce', 'plugin', 'api' ) ) );
+		$this->remove_error();
+		$this->sender->do_sync();
+		$updated_plugin = $this->server_event_storage->get_most_recent_event( 'jetpack_plugin_update_failed' );
+		$this->assertTrue( $updated_plugin->args[3]['is_autoupdate'] );
+		$this->server_event_storage->reset();
+	}
+
+	function test_updating_with_autoupdate_constant_results_in_proper_state() {
+		if ( defined( 'PHP_VERSION_ID' ) && PHP_VERSION_ID < 50300 ) {
+			$this->markTestIncomplete("Right now this doesn't work on PHP 5.2");
+		}
+
+		Jetpack_Constants::set_constant( 'JETPACK_PLUGIN_AUTOUPDATE', true );
+		$this->update_bulk_plugins( new WP_Ajax_Upgrader_Skin( compact( 'title', 'url', 'nonce', 'plugin', 'api' ) ) );
+		$this->sender->do_sync();
+		$updated_plugin = $this->server_event_storage->get_most_recent_event( 'jetpack_plugins_updated' );
+		$this->assertTrue( $updated_plugin->args[1]['is_autoupdate'] );
+		$this->server_event_storage->reset();
 	}
 
 	function update_the_plugin( $skin ) {

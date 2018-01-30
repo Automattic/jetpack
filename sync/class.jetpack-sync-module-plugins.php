@@ -18,8 +18,8 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 		add_action( 'delete_plugin',  array( $this, 'delete_plugin') );
 		add_action( 'upgrader_process_complete', array( $this, 'on_upgrader_completion' ), 10, 2 );
 		add_action( 'jetpack_plugin_installed', $callable, 10, 1 );
-		add_action( 'jetpack_plugin_update_failed', $callable, 10, 3 );
-		add_action( 'jetpack_plugins_updated', $callable, 10, 1 );
+		add_action( 'jetpack_plugin_update_failed', $callable, 10, 4 );
+		add_action( 'jetpack_plugins_updated', $callable, 10, 2 );
 		add_action( 'admin_action_update', array( $this, 'check_plugin_edit') );
 		add_action( 'jetpack_edited_plugin', $callable, 10, 2 );
 		add_action( 'wp_ajax_edit-theme-plugin-file', array( $this, 'plugin_edit_ajax' ), 0 );
@@ -59,6 +59,9 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 
 		switch ( $details['action'] ) {
 			case 'update':
+				$state = array(
+					'is_autoupdate' => Jetpack_Constants::is_true( 'JETPACK_PLUGIN_AUTOUPDATE' ),
+				);
 				$errors = $this->get_errors( $upgrader->skin );
 				if ( $errors ) {
 					foreach ( $plugins as $slug ) {
@@ -73,7 +76,7 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 						 * @param string Error code
 						 * @param string Error message
 						 */
-						do_action( 'jetpack_plugin_update_failed', $this->get_plugin_info( $slug ), $errors['code'], $errors['message'] );
+						do_action( 'jetpack_plugin_update_failed', $this->get_plugin_info( $slug ), $errors['code'], $errors['message'], $state );
 					}
 					return;
 				}
@@ -86,7 +89,7 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 				 *
 				 * @param array() $plugin, Plugin Data
 				 */
-				do_action( 'jetpack_plugins_updated', array_map( array( $this, 'get_plugin_info' ), $plugins ) );
+				do_action( 'jetpack_plugins_updated', array_map( array( $this, 'get_plugin_info' ), $plugins ), $state );
 				break;
 			case 'install':
 

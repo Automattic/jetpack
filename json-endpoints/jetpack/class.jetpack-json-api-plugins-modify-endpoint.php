@@ -17,6 +17,9 @@ new Jetpack_JSON_API_Plugins_Modify_Endpoint(
 			'active'       => '(bool) Activate or deactivate the plugin',
 			'network_wide' => '(bool) Do action network wide (default value: false)',
 		),
+		'query_parameters' => array(
+			'autoupdate' => '(bool=false) If the update is happening as a result of autoupdate event',
+		),
 		'response_format'      => Jetpack_JSON_API_Plugins_Endpoint::$_response_format,
 		'example_request_data' => array(
 			'headers' => array(
@@ -47,6 +50,9 @@ new Jetpack_JSON_API_Plugins_Modify_Endpoint(
 			'active'       => '(bool) Activate or deactivate the plugin',
 			'network_wide' => '(bool) Do action network wide (default value: false)',
 			'plugins'      => '(array) A list of plugin ids to modify',
+		),
+		'query_parameters' => array(
+			'autoupdate' => '(bool=false) If the update is happening as a result of autoupdate event',
 		),
 		'response_format'      => array(
 			'plugins'     => '(array:plugin) An array of plugin objects.',
@@ -81,6 +87,9 @@ new Jetpack_JSON_API_Plugins_Modify_Endpoint(
 		'path_labels'          => array(
 			'$site'   => '(int|string) The site ID, The site domain',
 			'$plugin' => '(string) The plugin ID',
+		),
+		'query_parameters' => array(
+			'invite_accepted' => '(bool=false) If the user is being created in the invite context',
 		),
 		'response_format'      => Jetpack_JSON_API_Plugins_Endpoint::$_response_format,
 		'example_request_data' => array(
@@ -283,7 +292,10 @@ class Jetpack_JSON_API_Plugins_Modify_Endpoint extends Jetpack_JSON_API_Plugins_
 	}
 
 	protected function update() {
-
+		$query_args = $this->query_args();
+		if ( isset( $query_args['autoupdate'] ) && $query_args['autoupdate'] ) {
+			Jetpack_Constants::set_constant( 'JETPACK_PLUGIN_AUTOUPDATE', true );
+		}
 		wp_clean_plugins_cache();
 		ob_start();
 		wp_update_plugins(); // Check for Plugin updates
