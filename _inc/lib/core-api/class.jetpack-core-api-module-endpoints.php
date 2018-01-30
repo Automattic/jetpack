@@ -1024,46 +1024,60 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
 		if ( isset( $data['homepageFormat'] ) ) {
 			// If $data['homepageFormat'] is 'posts', we have nothing to do since it's WordPress' default
-			if ( 'page' === $data['homepageFormat'] ) {
-				if ( ! ( update_option( 'show_on_front', 'page' ) || get_option( 'show_on_front' ) == 'page' ) ) {
-					$error[] = 'homepageFormat';
-				}
+			// if it exists, just update
+			$homepage_format = get_option( 'jpo_homepage_format' );
+			if ( ! $homepage_format || $homepage_format !== $data['homepageFormat'] ) {
+				if ( 'page' === $data['homepageFormat'] ) {
+					if ( ! ( update_option( 'show_on_front', 'page' ) || get_option( 'show_on_front' ) == 'page' ) ) {
+						$error[] = 'homepageFormat';
+					}
 
-				$home = wp_insert_post( array(
-					'post_type'     => 'page',
-					/* translators: this references the home page of a site, also called front page. */
-					'post_title'    => esc_html_x( 'Home Page', 'The home page of a website.', 'jetpack' ),
-					'post_content'  => sprintf( esc_html__( 'Welcome to %s.', 'jetpack' ), $site_title ),
-					'post_status'   => 'publish',
-					'post_author'   => $author,
-				) );
-				if ( 0 == $home ) {
-					$error[] = 'home insert: 0';
-				} elseif ( is_wp_error( $home ) ) {
-					$error[] = 'home creation: '. $home->get_error_message();
-				}
-				if ( ! ( update_option( 'page_on_front', $home ) || get_option( 'page_on_front' ) == $home ) ) {
-					$error[] = 'home set';
-				}
+					$home = wp_insert_post( array(
+						'post_type'     => 'page',
+						/* translators: this references the home page of a site, also called front page. */
+						'post_title'    => esc_html_x( 'Home Page', 'The home page of a website.', 'jetpack' ),
+						'post_content'  => sprintf( esc_html__( 'Welcome to %s.', 'jetpack' ), $site_title ),
+						'post_status'   => 'publish',
+						'post_author'   => $author,
+					) );
+					if ( 0 == $home ) {
+						$error[] = 'home insert: 0';
+					} elseif ( is_wp_error( $home ) ) {
+						$error[] = 'home creation: '. $home->get_error_message();
+					}
+					if ( ! ( update_option( 'page_on_front', $home ) || get_option( 'page_on_front' ) == $home ) ) {
 
-				$blog = wp_insert_post( array(
-					'post_type'     => 'page',
-					/* translators: this references the page where blog posts are listed. */
-					'post_title'    => esc_html_x( 'Blog', 'The blog of a website.', 'jetpack' ),
-					'post_content'  => sprintf( esc_html__( 'These are the latest posts in %s.', 'jetpack' ), $site_title ),
-					'post_status'   => 'publish',
-					'post_author'   => $author,
-				) );
-				if ( 0 == $blog ) {
-					$error[] = 'blog insert: 0';
-				} elseif ( is_wp_error( $blog ) ) {
-					$error[] = 'blog creation: '. $blog->get_error_message();
-				}
-				if ( ! ( update_option( 'page_for_posts', $blog ) || get_option( 'page_for_posts' ) == $blog ) ) {
-					$error[] = 'blog set';
+						$error[] = 'home set';
+					}
+
+					$blog = wp_insert_post( array(
+						'post_type'     => 'page',
+						/* translators: this references the page where blog posts are listed. */
+						'post_title'    => esc_html_x( 'Blog', 'The blog of a website.', 'jetpack' ),
+						'post_content'  => sprintf( esc_html__( 'These are the latest posts in %s.', 'jetpack' ), $site_title ),
+						'post_status'   => 'publish',
+						'post_author'   => $author,
+					) );
+					if ( 0 == $blog ) {
+						$error[] = 'blog insert: 0';
+					} elseif ( is_wp_error( $blog ) ) {
+						$error[] = 'blog creation: '. $blog->get_error_message();
+					}
+					if ( ! ( update_option( 'page_for_posts', $blog ) || get_option( 'page_for_posts' ) == $blog ) ) {
+						$error[] = 'blog set';
+					}
+				} else {
+					$front_page = get_option( 'page_on_front' );
+					$posts_page = get_option( 'page_for_posts' );
+					if ( $posts_page && get_post( $posts_page ) ) {
+						wp_delete_post( $posts_page );
+					}
+					if ( $front_page && get_post( $front_page ) ) {
+						wp_delete_post( $front_page );
+					}
+					update_option( 'show_on_front', 'posts' );
 				}
 			}
-
 			update_option( 'jpo_homepage_format', $data['homepageFormat'] );
 		}
 
