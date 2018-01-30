@@ -206,6 +206,9 @@
 				if ( wp && wp.customize ) {
 					wp.customize.state( 'saved' ).set( false );
 				}
+			},
+			update: function( e, ui ) {
+				$( ui.item ).find( 'input, textarea, select' ).change();
 			}
 		} )
 		.disableSelection();
