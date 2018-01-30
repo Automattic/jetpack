@@ -1144,6 +1144,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 		if ( ! empty( $data['installWooCommerce'] ) ) {
 			jetpack_require_lib( 'plugins' );
 			$wc_install_result = Jetpack_Plugins::install_and_activate_plugin( 'woocommerce' );
+			delete_transient( '_wc_activation_redirect' ); // Redirecting to WC setup would kill our users' flow
 			if ( is_wp_error( $wc_install_result ) ) {
 				$error[] = 'woocommerce installation';
 			}
