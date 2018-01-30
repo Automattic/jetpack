@@ -140,6 +140,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Carousel: fix PHP Notice with images using custom meta.
 * Dashboard: make sure all links to WordPress.com point to the right site's settings on WordPress.com.
+* Dashboard: update links to the plugin interface on WordPress.com to load the full plugin management page.
 * General: fix images shown in the dashboard when Jetpack is installed in a directory different than `jetpack`.
 * Lazy Images: make sure Lazy Load can be triggered even when images are added to the content very late.
 * Stats: make sure the Stats script is XHTML compliant.
