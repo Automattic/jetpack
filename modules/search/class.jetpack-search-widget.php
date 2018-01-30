@@ -166,7 +166,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 			return;
 		}
 
-		$title = $instance['title'];
+		$title = isset( $instance['title'] ) ? $instance['title'] : '';
 
 		if ( empty( $title ) ) {
 			$title = '';
@@ -229,7 +229,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 			do_action(
 				'jetpack_search_render_filters',
 				$filters,
-				$instance['post_types']
+				isset( $instance['post_types'] ) ? $instance['post_types'] : null
 			);
 		}
 
