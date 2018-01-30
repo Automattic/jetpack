@@ -2,6 +2,7 @@
  * External dependencies
  */
 var React = require( 'react' ),
+	PropTypes = require( 'prop-types' ),
 	throttle = require( 'lodash/throttle' );
 
 /**
@@ -13,8 +14,8 @@ module.exports = React.createClass( {
 	displayName: 'ModuleChartXAxis',
 
 	propTypes: {
-		labelWidth: React.PropTypes.number.isRequired,
-		data: React.PropTypes.array.isRequired
+		labelWidth: PropTypes.number.isRequired,
+		data: PropTypes.array.isRequired
 	},
 
 	getInitialState: function() {
@@ -44,40 +45,38 @@ module.exports = React.createClass( {
 	},
 
 	resize: function( nextProps ) {
-		if ( this.isMounted() ) {
-			var node,
-				props = this.props,
-				width,
-				dataCount,
-				spacing,
-				labelWidth,
-				divisor;
+		var node,
+			props = this.props,
+			width,
+			dataCount,
+			spacing,
+			labelWidth,
+			divisor;
 
-			node = this.refs.axis;
+		node = this.refs.axis;
 
-			if ( nextProps && ! ( nextProps instanceof Event ) ) {
-				props = nextProps;
-			}
-
-			/**
-			 * Overflow needs to be hidden to calculate the desired width,
-			 * but visible to display each labels' overflow :/
-			 */
-
-			node.style.overflow = 'hidden';
-			width = node.clientWidth;
-			node.style.overflow = 'visible';
-
-			dataCount = props.data.length || 1;
-			spacing = width / dataCount;
-			labelWidth = props.labelWidth;
-			divisor = Math.ceil( labelWidth / spacing );
-
-			this.setState( {
-				divisor: divisor,
-				spacing: spacing
-			} );
+		if ( nextProps && ! ( nextProps instanceof Event ) ) {
+			props = nextProps;
 		}
+
+		/**
+		 * Overflow needs to be hidden to calculate the desired width,
+		 * but visible to display each labels' overflow :/
+		 */
+
+		node.style.overflow = 'hidden';
+		width = node.clientWidth;
+		node.style.overflow = 'visible';
+
+		dataCount = props.data.length || 1;
+		spacing = width / dataCount;
+		labelWidth = props.labelWidth;
+		divisor = Math.ceil( labelWidth / spacing );
+
+		this.setState( {
+			divisor: divisor,
+			spacing: spacing
+		} );
 	},
 
 	render: function() {

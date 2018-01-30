@@ -2,6 +2,7 @@
  * External dependencies
  */
 var React = require( 'react' ),
+	PropTypes = require( 'prop-types' ),
 	noop = require( 'lodash/noop' ),
 	throttle = require( 'lodash/throttle' );
 
@@ -17,11 +18,11 @@ module.exports = React.createClass( {
 	displayName: 'ModuleChart',
 
 	propTypes: {
-		loading: React.PropTypes.bool,
-		data: React.PropTypes.array,
-		minTouchBarWidth: React.PropTypes.number,
-		minBarWidth: React.PropTypes.number,
-		barClick: React.PropTypes.func
+		loading: PropTypes.bool,
+		data: PropTypes.array,
+		minTouchBarWidth: PropTypes.number,
+		minBarWidth: PropTypes.number,
+		barClick: PropTypes.func
 	},
 
 	getInitialState: function() {
@@ -58,23 +59,21 @@ module.exports = React.createClass( {
 	},
 
 	resize: function() {
-		if ( this.isMounted() ) {
-			var node = this.refs.chart,
-				width = node.clientWidth - 82,
-				maxBars;
+		var node = this.refs.chart,
+			width = node.clientWidth - 82,
+			maxBars;
 
-			if ( touchDetect.hasTouch() ) {
-				width = ( width <= 0 ) ? 350 : width; // mobile safari bug with zero width
-				maxBars = Math.floor( width / this.props.minTouchBarWidth );
-			} else {
-				maxBars = Math.floor( width / this.props.minBarWidth );
-			}
-
-			this.setState( {
-				maxBars: maxBars,
-				width: width
-			} );
+		if ( touchDetect.hasTouch() ) {
+			width = ( width <= 0 ) ? 350 : width; // mobile safari bug with zero width
+			maxBars = Math.floor( width / this.props.minTouchBarWidth );
+		} else {
+			maxBars = Math.floor( width / this.props.minBarWidth );
 		}
+
+		this.setState( {
+			maxBars: maxBars,
+			width: width
+		} );
 	},
 
 	getYAxisMax: function( values ) {

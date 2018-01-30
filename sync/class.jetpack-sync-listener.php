@@ -144,6 +144,8 @@ class Jetpack_Sync_Listener {
 			 *
 			 * @since 4.2.0
 			 *
+			 * @module sync 
+			 *
 			 * @param array The action parameters
 			 */
 			$args = apply_filters( "jetpack_sync_before_enqueue_$action_name", $args );
@@ -259,31 +261,28 @@ class Jetpack_Sync_Listener {
 			'is_wp_admin'      => is_admin(),
 		);
 
-		if ( $this->should_send_ip_address_with_actor( $current_filter ) ) {
+		if ( $this->should_send_user_data_with_actor( $current_filter ) ) {
 			require_once( JETPACK__PLUGIN_DIR . 'modules/protect/shared-functions.php' );
 			$actor['ip'] = jetpack_protect_get_ip();
+			$actor['user_agent'] = isset( $_SERVER['HTTP_USER_AGENT'] ) ? $_SERVER['HTTP_USER_AGENT'] : 'unknown';
 		}
 
 		return $actor;
 	}
 
-	function should_send_ip_address_with_actor( $current_filter ) {
-		if ( ! in_array( $current_filter, array( 'wp_login', 'wp_logout', 'jetpack_valid_failed_login_attempt' ) ) ) {
-			// Only send IP Address with login-related events
-			return false;
-		}
-
+	function should_send_user_data_with_actor( $current_filter ) {
+		$should_send = in_array( $current_filter, array( 'wp_login', 'wp_logout', 'jetpack_valid_failed_login_attempt' ) );
 		/**
-		 * Allow or deny sending actor's IP Address during a sync event
+		 * Allow or deny sending actor's user data ( IP and UA ) during a sync event
 		 *
 		 * @since 5.8.0
 		 *
-		 * @param bool True if we should send the IP Address
+		 * @module sync
+		 *
+		 * @param bool True if we should send user data
+		 * @param string The current filter that is performing the sync action
 		 */
-		if ( ! apply_filters( 'jetpack_sync_actor_ip_address', true ) ) {
-			return false;
-		}
-		return true;
+		return apply_filters( 'jetpack_sync_actor_user_data', $should_send, $current_filter );
 	}
 
 	function set_defaults() {

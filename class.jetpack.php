@@ -645,6 +645,10 @@ class Jetpack {
 		if ( Jetpack::get_option( 'edit_links_calypso_redirect' ) && ! is_admin() ) {
 			add_filter( 'get_edit_post_link', array( $this, 'point_edit_post_links_to_calypso' ), 1, 2 );
 			add_filter( 'get_edit_comment_link', array( $this, 'point_edit_comment_links_to_calypso' ), 1 );
+
+			//we'll override wp_notify_postauthor and wp_notify_moderator pluggable functions
+			//so they point moderation links on emails to Calypso
+			jetpack_require_lib( 'functions.wp-notify' );
 		}
 
 		// Update the Jetpack plan from API on heartbeats
@@ -704,7 +708,7 @@ class Jetpack {
 	function point_edit_comment_links_to_calypso( $url ) {
 		// Take the `query` key value from the URL, and parse its parts to the $query_args. `amp;c` matches the comment ID.
 		wp_parse_str( wp_parse_url( $url, PHP_URL_QUERY ), $query_args );
-		return esc_url( sprintf( 'https://wordpress.com/comment/%s/%d?action=edit',
+		return esc_url( sprintf( 'https://wordpress.com/comment/%s/%d',
 			Jetpack::build_raw_urls( get_home_url() ),
 			$query_args['amp;c']
 		) );
@@ -1746,6 +1750,7 @@ class Jetpack {
 		if (
 			! self::is_active()
 			&& ! self::is_development_mode()
+			&& ! self::is_onboarding()
 			&& (
 				! is_multisite()
 				|| ! get_site_option( 'jetpack_protect_active' )
@@ -2561,6 +2566,18 @@ class Jetpack {
 		if ( ! in_array( 'protect', $active ) && is_multisite() && get_site_option( 'jetpack_protect_active' ) ) {
 			$active[] = 'protect';
 		}
+
+		/**
+		 * Allow filtering of the active modules.
+		 *
+		 * Gives theme and plugin developers the power to alter the modules that
+		 * are activated on the fly.
+		 *
+		 * @since 5.8.0
+		 *
+		 * @param array $active Array of active module slugs.
+		 */
+		$active = apply_filters( 'jetpack_active_modules', $active );
 
 		return array_unique( $active );
 	}
