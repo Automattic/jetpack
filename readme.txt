@@ -122,6 +122,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * REST API: simplify our invites endpoint.
 * Sharing: make sure the Whatsapp button works on mobile and on desktop.
 * Sharing: add new filter, `wp_sharing_email_send_post_subject`, to allow modifying the email sharing subject line.
+* Shortcodes: update the GettyImages shortcode to use the new format required by GettyImages.
 * Site Settings: add support for site language and timezone settings.
 * Sync: improve synchronization of user actions, theme and plugin edits / updates, post status, updates on Multisite networks, Protect events, and WooCommerce's meta data.
 * WordAds: enable the Ads in the header by default.
