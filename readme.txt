@@ -106,6 +106,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
+* Comment moderation tools: moderation emails now point to WordPress.com when using the `edit_links_calypso_redirect` option.
 * Custom CSS: add CSS Grid Layout support.
 * Dashboard: update list of features available in Paid plans.
 * Dashboard: improve the display of notices inside the Jetpack dashboard.
