@@ -116,6 +116,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Notices: add rel tags to notice links to avoid issues when links open in a new window.
 * Onboarding: add functionality for saving Business Address in the Contact Info widget.
 * Onboarding: save site type during site setup process.
+* Onboarding: enable loading of specific modules when using the Onboarding process.
 * Post Images: allow passing size when searching for images in HTML.
 * REST API: update the plugin installation process to use a new library.
 * REST API: allow changing the number of posts displayed in the RSS feed, and whether feeds display full text or a summary.
