@@ -3,7 +3,7 @@
 /**
  * Provides a widget to show available/selected filters on searches
  */
-class Jetpack_Search_Widget_Filters extends WP_Widget {
+class Jetpack_Search_Widget extends WP_Widget {
 
 	protected $jetpack_search;
 
@@ -38,7 +38,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 	}
 
 	function widget_admin_setup() {
-		wp_enqueue_style( 'widget-jetpack-search-filters', plugins_url( 'css/search-widget-filters-admin-ui.css', __FILE__ ) );
+		wp_enqueue_style( 'widget-jetpack-search-filters', plugins_url( 'css/search-widget-admin-ui.css', __FILE__ ) );
 
 		// Required for Tracks
 		wp_register_script(
@@ -58,13 +58,13 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		);
 
 		wp_register_script(
-			'jetpack-search-widget-filters-admin',
-			plugins_url( 'js/search-widget-filters-admin.js', __FILE__ ),
+			'jetpack-search-widget-admin',
+			plugins_url( 'js/search-widget-admin.js', __FILE__ ),
 			array( 'jquery', 'jquery-ui-sortable', 'jp-tracks', 'jp-tracks-functions' ),
 			JETPACK__VERSION
 		);
 
-		wp_localize_script( 'jetpack-search-widget-filters-admin', 'jetpack_search_filter_admin', array(
+		wp_localize_script( 'jetpack-search-widget-admin', 'jetpack_search_filter_admin', array(
 			'defaultFilterCount' => self::DEFAULT_FILTER_COUNT,
 			'tracksUserData'     => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
 			'tracksEventData'    => array(
@@ -72,7 +72,7 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			),
 		) );
 
-		wp_enqueue_script( 'jetpack-search-widget-filters-admin' );
+		wp_enqueue_script( 'jetpack-search-widget-admin' );
 	}
 
 	/**
@@ -84,8 +84,8 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		}
 
 		wp_enqueue_script(
-			'jetpack-search-widget-filters',
-			plugins_url( 'js/search-widget-filters.js', __FILE__ ),
+			'jetpack-search-widget',
+			plugins_url( 'js/search-widget.js', __FILE__ ),
 			array( 'jquery' ),
 			JETPACK__VERSION,
 			true
@@ -288,7 +288,6 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 			</script>
 		<?php endif;
 	}
-
 
 	private function sorting_to_wp_query_param( $sort ) {
 		$parts = explode( '|', $sort );
@@ -672,6 +671,8 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		if ( Jetpack_Search_Helpers::post_types_differ_searchable( $post_types ) ) {
 			// get the active filter buckets from the query
 			$active_buckets = $this->jetpack_search->get_active_filter_buckets();
+			error_log("active buckets");
+			error_log(print_r( $active_buckets, 1));
 			$post_types_differ_query = Jetpack_Search_Helpers::post_types_differ_query( $post_types );
 
 			// remove any post_type filters from display if the current query
