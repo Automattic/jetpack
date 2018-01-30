@@ -32,7 +32,7 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 
 	public function setUp() {
 
-		$_SERVER['user_agent'] = 'Jetpack Unit Tests';
+		$_SERVER['HTTP_USER_AGENT'] = 'Jetpack Unit Tests';
 		$this->listener = Jetpack_Sync_Listener::get_instance();
 		$this->sender   = Jetpack_Sync_Sender::get_instance();
 
@@ -57,7 +57,7 @@ class WP_Test_Jetpack_Sync_Base extends WP_UnitTestCase {
 
 	public function tearDown() {
 		parent::tearDown();
-		unset( $_SERVER['user_agent'] );
+		unset( $_SERVER['HTTP_USER_AGENT'] );
 	}
 
 	public function setSyncClientDefaults() {
