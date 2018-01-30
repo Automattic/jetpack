@@ -20,7 +20,6 @@ class Jetpack_Search_Performance_Logger {
 
 	private function __construct() {
 		$this->stats = array();
-		// add_filter( 'jetpack_search_should_handle_query', '__return_false' );
 		add_action( 'pre_get_posts', array( $this, 'begin_log_query' ), 10, 1 );
 		add_action( 'did_jetpack_search_query', array( $this, 'log_jetpack_search_query' ) );
 		add_filter( 'found_posts', array( $this, 'log_mysql_query' ), 10, 2 );
