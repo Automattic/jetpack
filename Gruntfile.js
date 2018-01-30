@@ -31,7 +31,7 @@ module.exports = function(grunt) {
                             '!node_modules/**',
                             '!tests/**',
                             '!tools/**',
-							'!vendor/**'
+                            '!vendor/**'
                         ]
                     }
                 }
