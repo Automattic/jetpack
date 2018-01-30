@@ -35,7 +35,7 @@ class Jetpack_Search_Template_Tags {
 			// remove any post_type filters from display if the current query
 			// already specifies to match all post types
 			if ( ! $post_types_differ_query ) {
-				$active_buckets = array_filter( $active_buckets, array( 'Jetpack_Search_Helpers', 'is_not_post_type_filter' ) );
+				$active_buckets = array_filter( $active_buckets, array( __CLASS__, 'is_not_post_type_filter' ) );
 			}
 
 			$active_post_types = Jetpack_Search_Helpers::get_active_post_types( $active_buckets, $post_types );
