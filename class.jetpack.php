@@ -1746,6 +1746,7 @@ class Jetpack {
 		if (
 			! self::is_active()
 			&& ! self::is_development_mode()
+			&& ! self::is_onboarding()
 			&& (
 				! is_multisite()
 				|| ! get_site_option( 'jetpack_protect_active' )
