@@ -2532,6 +2532,17 @@ class Jetpack {
 			$active = array();
 		}
 
+		if ( class_exists( 'VaultPress' ) || function_exists( 'vaultpress_contact_service' ) ) {
+			$active[] = 'vaultpress';
+		} else {
+			$active = array_diff( $active, array( 'vaultpress' ) );
+		}
+
+		//If protect is active on the main site of a multisite, it should be active on all sites.
+		if ( ! in_array( 'protect', $active ) && is_multisite() && get_site_option( 'jetpack_protect_active' ) ) {
+			$active[] = 'protect';
+		}
+
 		/**
 		 * Allow filtering of the active modules.
 		 *
@@ -2543,17 +2554,6 @@ class Jetpack {
 		 * @param array $active Array of active module slugs.
 		 */
 		$active = apply_filters( 'jetpack_active_modules', $active );
-
-		if ( class_exists( 'VaultPress' ) || function_exists( 'vaultpress_contact_service' ) ) {
-			$active[] = 'vaultpress';
-		} else {
-			$active = array_diff( $active, array( 'vaultpress' ) );
-		}
-
-		//If protect is active on the main site of a multisite, it should be active on all sites.
-		if ( ! in_array( 'protect', $active ) && is_multisite() && get_site_option( 'jetpack_protect_active' ) ) {
-			$active[] = 'protect';
-		}
 
 		return array_unique( $active );
 	}
