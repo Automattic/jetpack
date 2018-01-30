@@ -651,6 +651,10 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 		return $form;
 	}
 
+	public function is_not_post_type_filter( $filter ) {
+		return 'post_type' !== $filter['type'];
+	}
+
 	/**
 	 * Renders all available filters that can be used to filter down search results on the frontend.
 	 *
@@ -660,17 +664,22 @@ class Jetpack_Search_Widget_Filters extends WP_Widget {
 	 * @return void
 	 */
 	public function render_available_filters( $filters, $post_types ) {
-		$post_types_differ_searchable = Jetpack_Search_Helpers::post_types_differ_searchable( $post_types );
-		$post_types_differ_query      = Jetpack_Search_Helpers::post_types_differ_query( $post_types );
-		$active_buckets               = $this->jetpack_search->get_active_filter_buckets();
-
-		if ( ! $post_types_differ_query ) {
-			$active_buckets = Jetpack_Search_Helpers::filter_post_types( $active_buckets );
-		}
-
-		$default_post_types = array();
+		/**
+		 * If the post types specified by the widget differ from the default set of searchable post types,
+		 * then we need to track their state.
+		 */
 		$active_post_types = array();
-		if ( $post_types_differ_searchable ) {
+		if ( Jetpack_Search_Helpers::post_types_differ_searchable( $post_types ) ) {
+			// get the active filter buckets from the query
+			$active_buckets = $this->jetpack_search->get_active_filter_buckets();
+			$post_types_differ_query = Jetpack_Search_Helpers::post_types_differ_query( $post_types );
+
+			// remove any post_type filters from display if the current query
+			// already specifies to match all post types
+			if ( ! $post_types_differ_query ) {
+				$active_buckets = array_filter( $active_buckets, array( $this, 'is_not_post_type_filter' ) );
+			}
+
 			$active_post_types = Jetpack_Search_Helpers::get_active_post_types( $active_buckets, $post_types );
 			if ( empty( $active_post_types ) ) {
 				$active_post_types = $post_types;
