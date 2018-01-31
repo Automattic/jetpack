@@ -435,115 +435,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 
 			<?php if ( ! $hide_filters ): ?>
 				<script class="jetpack-search-filters-widget__filter-template" type="text/template">
-					<div class="jetpack-search-filters-widget__filter is-<%= type %>">
-						<p class="jetpack-search-filters-widget__type-select">
-							<label>
-								<?php esc_html_e( 'Filter Type:', 'jetpack' ); ?>
-								<select name="<?php echo esc_attr( $this->get_field_name( 'filter_type' ) ); ?>[]" class="widefat filter-select">
-									<option value="taxonomy" <%= 'taxonomy' === type ? 'selected="selected"' : '' %>>
-										<?php esc_html_e( 'Taxonomy', 'jetpack' ); ?>
-									</option>
-									<option value="post_type" <%= 'post_type' === type ? 'selected="selected"' : '' %>>
-										<?php esc_html_e( 'Post Type', 'jetpack' ); ?>
-									</option>
-									<option value="date_histogram" <%= 'date_histogram' === type ? 'selected="selected"' : '' %>>
-										<?php esc_html_e( 'Date', 'jetpack' ); ?>
-									</option>
-								</select>
-							</label>
-						</p>
-
-						<p class="jetpack-search-filters-widget__taxonomy-select">
-							<label>
-								<?php esc_html_e( 'Choose a taxonomy:', 'jetpack' ); $seen_taxonomy_labels = array(); ?>
-								<select name="<?php echo esc_attr( $this->get_field_name( 'taxonomy_type' ) ); ?>[]" class="widefat taxonomy-select">
-									<?php foreach ( get_taxonomies( array( 'public' => true ), 'objects' ) as $taxonomy ) : ?>
-										<option value="<?php echo esc_attr( $taxonomy->name ); ?>" <%= <?php echo json_encode( $taxonomy->name ); ?> === taxonomy ? 'selected="selected"' : '' %>>
-											<?php
-												$label = in_array( $taxonomy->label, $seen_taxonomy_labels )
-													? sprintf(
-														/* translators: %1$s is the taxonomy name, %2s is the name of its type to help distinguish between several taxonomies with the same name, e.g. category and tag. */
-														_x( '%1$s (%2$s)', 'A label for a taxonomy selector option', 'jetpack' ),
-														$taxonomy->label,
-														$taxonomy->name
-													)
-													: $taxonomy->label;
-												echo esc_html( $label );
-												$seen_taxonomy_labels[] = $taxonomy->label;
-											?>
-										</option>
-									<?php endforeach; ?>
-								</select>
-							</label>
-						</p>
-
-						<p class="jetpack-search-filters-widget__date-histogram-select">
-							<label>
-								<?php esc_html_e( 'Choose a field:', 'jetpack' ); ?>
-								<select name="<?php echo esc_attr( $this->get_field_name( 'date_histogram_field' ) ); ?>[]" class="widefat date-field-select">
-									<option value="post_date" <%= 'post_date' === field ? 'selected="selected"' : '' %>>
-										<?php esc_html_e( 'Date', 'jetpack' ); ?>
-									</option>
-									<option value="post_date_gmt" <%= 'post_date_gmt' === field ? 'selected="selected"' : '' %>>
-										<?php esc_html_e( 'Date GMT', 'jetpack' ); ?>
-									</option>
-									<option value="post_modified" <%= 'post_modified' === field ? 'selected="selected"' : '' %>>
-										<?php esc_html_e( 'Modified', 'jetpack' ); ?>
-									</option>
-									<option value="post_modified_gmt" <%= 'post_modified_gmt' === field ? 'selected="selected"' : '' %>>
-										<?php esc_html_e( 'Modified GMT', 'jetpack' ); ?>
-									</option>
-								</select>
-							</label>
-						</p>
-
-						<p class="jetpack-search-filters-widget__date-histogram-select">
-							<label>
-								<?php esc_html_e( 'Choose an interval:' ); ?>
-								<select name="<?php echo esc_attr( $this->get_field_name( 'date_histogram_interval' ) ); ?>[]" class="widefat date-interval-select">
-									<option value="month" <%= 'month' === interval ? 'selected="selected"' : '' %>>
-										<?php esc_html_e( 'Month', 'jetpack' ); ?>
-									</option>
-									<option value="year" <%= 'year' === interval ? 'selected="selected"' : '' %>>
-										<?php esc_html_e( 'Year', 'jetpack' ); ?>
-									</option>
-								</select>
-							</label>
-						</p>
-
-						<p class="jetpack-search-filters-widget__title">
-							<label>
-								<?php esc_html_e( 'Title:', 'jetpack' ); ?>
-								<input
-									class="widefat"
-									type="text"
-									name="<?php echo esc_attr( $this->get_field_name( 'filter_name' ) ); ?>[]"
-									value="<%= name %>"
-									placeholder="<%= name_placeholder %>"
-								/>
-							</label>
-						</p>
-
-						<p>
-							<label>
-								<?php esc_html_e( 'Maximum number of filters (1-50):', 'jetpack' ); ?>
-								<input
-									class="widefat filter-count"
-									name="<?php echo esc_attr( $this->get_field_name( 'num_filters' ) ); ?>[]"
-									type="number"
-									value="<%= count %>"
-									min="1"
-									max="50"
-									step="1"
-									required
-								/>
-							</label>
-						</p>
-
-						<p class="jetpack-search-filters-widget__controls">
-							<a href="#" class="delete"><?php esc_html_e( 'Remove', 'jetpack' ); ?></a>
-						</p>
-					</div>
+					<?php echo $this->render_widget_edit_filter( array(), true ); ?>
 				</script>
 				<div class="jetpack-search-filters-widget__filters">
 					<?php foreach ( (array) $instance['filters'] as $filter ) : ?>
@@ -573,13 +465,34 @@ class Jetpack_Search_Widget extends WP_Widget {
 	}
 
 	/**
+	 * We basically render the values in two formats:
+	 * - underscore template
+	 * - native PHP
+	 *
+	 * This is so we can use the same code to render a client-side and server-side template.
+	 */
+	private function render_widget_attr( $name, $value, $is_template ) {
+		echo $is_template ? "<%= $name %>" : esc_attr( $value );
+	}
+
+	/**
+	 * See above ^^
+	 */
+	private function render_widget_option_selected( $name, $value, $compare, $is_template ) {
+		$compare_json = json_encode( $compare );
+		echo $is_template ? "<%= $compare_json === $name ? 'selected=\"selected\"' : '' %>" : selected( $value, $compare );
+	}
+
+	/**
 	 * Responsible for rendering a single filter in the customizer or the widget administration screen in wp-admin.
+	 *
+	 * We use this method for two purposes - rendering the fields server-side, and also rendering a script template for underscore.
 	 *
 	 * @since 5.7.0
 	 *
 	 * @param array $filter
 	 */
-	function render_widget_edit_filter( $filter ) {
+	function render_widget_edit_filter( $filter, $is_template = false ) {
 		$args = wp_parse_args( $filter, array(
 			'name' => '',
 			'type' => 'taxonomy',
@@ -592,20 +505,115 @@ class Jetpack_Search_Widget extends WP_Widget {
 
 		$args['name_placeholder'] = Jetpack_Search_Helpers::generate_widget_filter_name( $args );
 
-		$filter_selector = sprintf(
-			'.jetpack-search-filters-widget.%s .jetpack-search-filters-widget__filters',
-			sanitize_key( $this->id )
-		);
-
 		?>
-		<script type="text/javascript">
-			// output as JSON and render
-			jQuery( document ).ready( function( $ ) {
-				window.JetpackSearch.addFilter(
-					$( '<?php echo esc_js( $filter_selector ); ?>' ),
-					<?php echo json_encode($args) ?>
-				);
-			});
-		</script>
+		<div class="jetpack-search-filters-widget__filter is-<?php $this->render_widget_attr( 'type', $args['type'], $is_template ); ?>">
+			<p class="jetpack-search-filters-widget__type-select">
+				<label>
+					<?php esc_html_e( 'Filter Type:', 'jetpack' ); ?>
+					<select name="<?php echo esc_attr( $this->get_field_name( 'filter_type' ) ); ?>[]" class="widefat filter-select">
+						<option value="taxonomy" <?php $this->render_widget_option_selected( 'type', $args['type'], 'taxonomy', $is_template ); ?>>
+							<?php esc_html_e( 'Taxonomy', 'jetpack' ); ?>
+						</option>
+						<option value="post_type" <?php $this->render_widget_option_selected( 'type', $args['type'], 'post_type', $is_template ); ?>>
+							<?php esc_html_e( 'Post Type', 'jetpack' ); ?>
+						</option>
+						<option value="date_histogram" <?php $this->render_widget_option_selected( 'type', $args['type'], 'date_histogram', $is_template ); ?>>
+							<?php esc_html_e( 'Date', 'jetpack' ); ?>
+						</option>
+					</select>
+				</label>
+			</p>
+
+			<p class="jetpack-search-filters-widget__taxonomy-select">
+				<label>
+					<?php esc_html_e( 'Choose a taxonomy:', 'jetpack' ); $seen_taxonomy_labels = array(); ?>
+					<select name="<?php echo esc_attr( $this->get_field_name( 'taxonomy_type' ) ); ?>[]" class="widefat taxonomy-select">
+						<?php foreach ( get_taxonomies( array( 'public' => true ), 'objects' ) as $taxonomy ) : ?>
+							<option value="<?php echo esc_attr( $taxonomy->name ); ?>" <?php $this->render_widget_option_selected( 'taxonomy', $args['taxonomy'], $taxonomy->name, $is_template ); ?>>
+								<?php
+									$label = in_array( $taxonomy->label, $seen_taxonomy_labels )
+										? sprintf(
+											/* translators: %1$s is the taxonomy name, %2s is the name of its type to help distinguish between several taxonomies with the same name, e.g. category and tag. */
+											_x( '%1$s (%2$s)', 'A label for a taxonomy selector option', 'jetpack' ),
+											$taxonomy->label,
+											$taxonomy->name
+										)
+										: $taxonomy->label;
+									echo esc_html( $label );
+									$seen_taxonomy_labels[] = $taxonomy->label;
+								?>
+							</option>
+						<?php endforeach; ?>
+					</select>
+				</label>
+			</p>
+
+			<p class="jetpack-search-filters-widget__date-histogram-select">
+				<label>
+					<?php esc_html_e( 'Choose a field:', 'jetpack' ); ?>
+					<select name="<?php echo esc_attr( $this->get_field_name( 'date_histogram_field' ) ); ?>[]" class="widefat date-field-select">
+						<option value="post_date" <?php $this->render_widget_option_selected( 'field', $args['field'], 'post_date', $is_template ); ?>>
+							<?php esc_html_e( 'Date', 'jetpack' ); ?>
+						</option>
+						<option value="post_date_gmt" <?php $this->render_widget_option_selected( 'field', $args['field'], 'post_date_gmt', $is_template ); ?>>
+							<?php esc_html_e( 'Date GMT', 'jetpack' ); ?>
+						</option>
+						<option value="post_modified" <?php $this->render_widget_option_selected( 'field', $args['field'], 'post_modified', $is_template ); ?>>
+							<?php esc_html_e( 'Modified', 'jetpack' ); ?>
+						</option>
+						<option value="post_modified_gmt" <?php $this->render_widget_option_selected( 'field', $args['field'], 'post_modified_gmt', $is_template ); ?>>
+							<?php esc_html_e( 'Modified GMT', 'jetpack' ); ?>
+						</option>
+					</select>
+				</label>
+			</p>
+
+			<p class="jetpack-search-filters-widget__date-histogram-select">
+				<label>
+					<?php esc_html_e( 'Choose an interval:' ); ?>
+					<select name="<?php echo esc_attr( $this->get_field_name( 'date_histogram_interval' ) ); ?>[]" class="widefat date-interval-select">
+						<option value="month" <?php $this->render_widget_option_selected( 'interval', $args['interval'], 'month', $is_template ); ?>>
+							<?php esc_html_e( 'Month', 'jetpack' ); ?>
+						</option>
+						<option value="year" <?php $this->render_widget_option_selected( 'interval', $args['interval'], 'year', $is_template ); ?>>
+							<?php esc_html_e( 'Year', 'jetpack' ); ?>
+						</option>
+					</select>
+				</label>
+			</p>
+
+			<p class="jetpack-search-filters-widget__title">
+				<label>
+					<?php esc_html_e( 'Title:', 'jetpack' ); ?>
+					<input
+						class="widefat"
+						type="text"
+						name="<?php echo esc_attr( $this->get_field_name( 'filter_name' ) ); ?>[]"
+						value="<?php $this->render_widget_attr( 'name', $args['name'], $is_template ); ?>"
+						placeholder="<?php $this->render_widget_attr( 'name_placeholder', $args['name_placeholder'], $is_template ); ?>"
+					/>
+				</label>
+			</p>
+
+			<p>
+				<label>
+					<?php esc_html_e( 'Maximum number of filters (1-50):', 'jetpack' ); ?>
+					<input
+						class="widefat filter-count"
+						name="<?php echo esc_attr( $this->get_field_name( 'num_filters' ) ); ?>[]"
+						type="number"
+						value="<?php $this->render_widget_attr( 'count', $args['count'], $is_template ); ?>"
+						min="1"
+						max="50"
+						step="1"
+						required
+					/>
+				</label>
+			</p>
+
+			<p class="jetpack-search-filters-widget__controls">
+				<a href="#" class="delete"><?php esc_html_e( 'Remove', 'jetpack' ); ?></a>
+			</p>
+		</div>
 	<?php }
 }
