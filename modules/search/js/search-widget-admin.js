@@ -18,16 +18,25 @@
 	} );
 
 	function generateFilterTitlePlaceholder( container ) {
-		var placeholder = null;
-
-		var type = container.find('.filter-select').val();
+		var placeholder = null,
+			isModified = null,
+			isMonth = null,
+			type = container.find( '.filter-select' ).val();
 
 		if ( 'taxonomy' === type ) {
 			placeholder = container.find('.taxonomy-select option:selected').text().trim();
-		} else if ( 'date_histogram' === type ) {
-			placeholder = container.find('.date-interval-select option:selected').text().trim();
-			if ( container.find( '.date-field-select' ).val().indexOf('modified') >= 0 ) {
-				placeholder = placeholder + ' Updated';
+		} else if ( 'date_histogram' === type && args && args.i18n ) {
+			isModified = ( -1 !== container.find( '.date-field-select' ).val().indexOf( 'modified' ) );
+			isMonth = ( 'month' === container.find( '.date-interval-select' ).val() );
+
+			if ( isMonth ) {
+				placeholder = isModified ?
+					args.i18n.monthUpdated :
+					args.i18n.month;
+			} else {
+				placeholder = isModified ?
+					args.i18n.yearUpdated :
+					args.i18n.year;
 			}
 		} else {
 			placeholder = container.find('.filter-select option:selected').text().trim();
