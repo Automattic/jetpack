@@ -434,6 +434,48 @@ class WP_Test_Jetpack_Search_Helpers extends WP_UnitTestCase {
 	}
 
 	/**
+	 * @dataProvider get_date_filter_type_name_data
+	 */
+	public function test_get_date_filter_type_name( $expected, $type, $is_updated ) {
+		$this->assertSame(
+			$expected, Jetpack_Search_Helpers::get_date_filter_type_name(
+				$type,
+				$is_updated
+			)
+		);
+	}
+
+	public function get_date_filter_type_name_data() {
+		return array(
+			'default' => array(
+				'Month',
+				'something',
+				null,
+			),
+			'month' => array(
+				'Month',
+				'month',
+				false,
+			),
+			'month_update' => array(
+				'Month Updated',
+				'month',
+				true,
+			),
+			'year' => array(
+				'Year',
+				'year',
+				false,
+			),
+			'year_updated' => array(
+				'Year Updated',
+				'year',
+				true,
+			),
+		);
+	}
+
+	/**
 	 * Data providers
 	 */
 	function get_build_widget_id_data() {
