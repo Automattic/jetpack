@@ -324,9 +324,8 @@ class Jetpack_Search_Widget extends WP_Widget {
 		<script type="text/javascript">
 				jQuery( document ).ready( function( $ ) {
 					var orderByDefault = <?php echo wp_json_encode( $orderby ); ?>,
-						orderDefault   = <?php echo wp_json_encode( $order ); ?>,
-						widgetId       = <?php echo wp_json_encode( $this->id ); ?>,
-						currentSearch  = <?php echo wp_json_encode( isset( $_GET['s'] ) ? $_GET['s'] : '' ); ?>;
+						orderDefault     = <?php echo wp_json_encode( $order ); ?>,
+						widgetId         = <?php echo wp_json_encode( $this->id ); ?>;
 
 					var container = $('#' + widgetId);
 					var form = container.find('.jetpack-search-form form');
@@ -340,13 +339,12 @@ class Jetpack_Search_Widget extends WP_Widget {
 						orderBy.val( values[0] );
 						order.val( values[1] );
 
-						if ( currentSearch ) {
-							form.submit();
-						}
-					} );
+						form.submit();
+					});
 				} );
 			</script>
-		<?php endif;
+		<?php
+		endif;
 	}
 
 	/**
