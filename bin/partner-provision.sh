@@ -4,7 +4,7 @@
 # executes wp-cli command to provision Jetpack site for given partner
 
 usage () {
-	echo "Usage: partner-provision.sh --partner_id=partner_id --partner_secret=partner_secret [--user=wp_user_id] [--plan=plan_name] [--onboarding=1] [--wpcom_user_id=1234] [--wpcom_user_email=wpcom_user_email] [--url=http://example.com] [--force_connect=1] [--force_register=1] [--allow-root] [--home_url] [--site_url]"
+	echo "Usage: partner-provision.sh --partner_id=partner_id --partner_secret=partner_secret [--user=wp_user_id] [--plan=plan_name] [--onboarding=1] [--wpcom_user_id=1234] [--wpcom_user_email=wpcom_user_email] [--url=http://example.com] [--force_connect=1] [--force_register=1] [--allow-root] [--home_url] [--site_url] [--host_tracking_id]"
 }
 
 GLOBAL_ARGS=""
@@ -45,6 +45,9 @@ for i in "$@"; do
 			shift
 			;;
 		--home_url=* )              WP_HOME="${i#*=}"
+			shift
+			;;
+		--host_tracking_id=* )      HOST_TRACKING_ID="${i#*=}"
 			shift
 			;;
 		--allow-root )              GLOBAL_ARGS="--allow-root"
@@ -119,6 +122,10 @@ fi
 
 if [ ! -z "$WP_HOME" ]; then
 	ADDITIONAL_ARGS="$ADDITIONAL_ARGS --home_url=$WP_HOME"
+fi
+
+if [ ! -z "$HOST_TRACKING_ID" ]; then
+	ADDITIONAL_ARGS="$ADDITIONAL_ARGS --host_tracking_id=$HOST_TRACKING_ID"
 fi
 
 # Remove leading whitespace
