@@ -71,8 +71,11 @@ class Jetpack_Search_Widget extends WP_Widget {
 				'is_customizer'  => ( function_exists( 'is_customize_preview' ) && is_customize_preview() ) ? 1 : 0,
 			),
 			'i18n'               => array(
-				'updated' =>     __( 'Updated', 'jetpack' )
-			)
+				'month'        => Jetpack_Search_Helpers::get_date_filter_type_name( 'month', false ),
+				'year'         => Jetpack_Search_Helpers::get_date_filter_type_name( 'year', false ),
+				'monthUpdated' => Jetpack_Search_Helpers::get_date_filter_type_name( 'month', true ),
+				'yearUpdated'  => Jetpack_Search_Helpers::get_date_filter_type_name( 'year', true ),
+			),
 		) );
 
 		wp_enqueue_script( 'jetpack-search-widget-admin' );

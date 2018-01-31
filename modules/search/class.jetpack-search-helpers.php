@@ -85,6 +85,25 @@ class Jetpack_Search_Helpers {
 		return $filters;
 	}
 
+	static function get_date_filter_type_name( $type, $is_updated = false ) {
+		$string = '';
+		switch ( $type ) {
+			case 'year':
+				$string = ( $is_updated )
+					? esc_html_x( 'Year Updated', 'label for filtering posts', 'jetpack' )
+					: esc_html_x( 'Year', 'label for filtering posts', 'jetpack' );
+				break;
+			case 'month':
+			default:
+				$string = ( $is_updated )
+					? esc_html_x( 'Month Updated', 'label for filtering posts', 'jetpack' )
+					: esc_html_x( 'Month', 'label for filtering posts', 'jetpack' );
+				break;
+		}
+
+		return $string;
+	}
+
 	static function generate_widget_filter_name( $widget_filter ) {
 		$name = '';
 
@@ -93,28 +112,23 @@ class Jetpack_Search_Helpers {
 				$name = _x( 'Post Types', 'label for filtering posts', 'jetpack' );
 				break;
 			case 'date_histogram':
-				switch ( $widget_filter['field'] ) {
-					case 'post_date':
-					case 'post_date_gmt':
-						switch ( $widget_filter['interval'] ) {
-							case 'month':
-								$name = _x( 'Month', 'label for filtering posts', 'jetpack' );
-								break;
-							case 'year':
-								$name = _x( 'Year', 'label for filtering posts', 'jetpack' );
-								break;
-						}
+				$modified_fields = array(
+					'post_modified',
+					'post_modified_gmt',
+				);
+				switch ( $widget_filter['interval'] ) {
+					case 'year':
+						$name = self::get_date_filter_type_name(
+							'year',
+							in_array( $widget_filter['field'], $modified_fields )
+						);
 						break;
-					case 'post_modified':
-					case 'post_modified_gmt':
-						switch ( $widget_filter['interval'] ) {
-							case 'month':
-								$name = _x( 'Month Updated', 'label for filtering posts', 'jetpack' );
-								break;
-							case 'year':
-								$name = _x( 'Year Updated', 'label for filtering posts', 'jetpack' );
-								break;
-						}
+					case 'month':
+					default:
+						$name = self::get_date_filter_type_name(
+							'month',
+							in_array( $widget_filter['field'], $modified_fields )
+						);
 						break;
 				}
 				break;
