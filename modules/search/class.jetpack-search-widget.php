@@ -51,7 +51,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 		}
 
 		parent::__construct(
-			'jetpack-search-filters',
+			Jetpack_Search_Helpers::FILTER_WIDGET_BASE,
 			/** This filter is documented in modules/widgets/facebook-likebox.php */
 			apply_filters( 'jetpack_widget_name', esc_html__( 'Search', 'jetpack' ) ),
 			array(
@@ -192,7 +192,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 
 		// If any widget has any filters, return false
 		foreach ( $filter_widgets as $number => $widget ) {
-			$widget_id = Jetpack_Search_Helpers::FILTER_WIDGET_BASE . $number;
+			$widget_id = sprintf( '%s-%d', $this->id_base, $number );
 			if ( ! empty( $widget['filters'] ) && is_active_widget( false, $widget_id, $this->id_base ) ) {
 				return false;
 			}
