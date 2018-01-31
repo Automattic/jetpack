@@ -43,7 +43,7 @@ class JetpackDialogue extends Component {
 			'jp-dialogue'
 		);
 		return (
-			<div className="jp-dialogue-full__container" role="button" onClick={ this.maybeDismiss } onKeyDown={ onKeyDownCallback( this.maybeDismiss ) }>
+			<div className="jp-dialogue-full__container" role="button" onClick={ this.maybeDismiss.bind(this) } onKeyDown={ onKeyDownCallback( this.maybeDismiss ) }>
 				<img src={ imagePath + 'stars-full.svg' } width="60" height="60" alt={ __( 'Stars' ) } className="jp-jumpstart-full__svg-stars" />
 				<img src={ imagePath + 'jupiter.svg' } width="50" height="100" alt={ __( 'Jupiter' ) } className="jp-jumpstart-full__svg-jupiter" />
 
