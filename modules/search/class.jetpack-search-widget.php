@@ -335,7 +335,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 						if ( currentSearch ) {
 							form.submit();
 						}
-					});
+					} );
 				});
 			</script>
 		<?php endif;
