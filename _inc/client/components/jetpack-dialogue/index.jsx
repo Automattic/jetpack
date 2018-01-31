@@ -18,7 +18,7 @@ import { imagePath } from 'constants/urls';
 
 class JetpackDialogue extends Component {
 	maybeDismiss( e ) {
-		if ( this.props.showDismiss && ( ! e.keyCode || e.keyCode == 27 ) ) {
+		if ( this.props.showDismiss && ( ! e.keyCode || e.keyCode === 27 ) ) {
 			this.props.dismiss( e );
 		}
 	}
