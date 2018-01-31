@@ -68,8 +68,11 @@ class Jetpack_Search_Widget extends WP_Widget {
 			'defaultFilterCount' => self::DEFAULT_FILTER_COUNT,
 			'tracksUserData'     => Jetpack_Tracks_Client::get_connected_user_tracks_identity(),
 			'tracksEventData'    => array(
-				'is_customizer'   => ( function_exists( 'is_customize_preview' ) && is_customize_preview() ) ? 1 : 0,
+				'is_customizer'  => ( function_exists( 'is_customize_preview' ) && is_customize_preview() ) ? 1 : 0,
 			),
+			'i18n'               => array(
+				'updated' =>     __( 'Updated', 'jetpack' )
+			)
 		) );
 
 		wp_enqueue_script( 'jetpack-search-widget-admin' );

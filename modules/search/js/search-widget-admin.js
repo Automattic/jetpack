@@ -27,7 +27,7 @@
 		} else if ( 'date_histogram' === type ) {
 			placeholder = container.find('.date-interval-select option:selected').text().trim();
 			if ( container.find( '.date-field-select' ).val().indexOf('modified') >= 0 ) {
-				placeholder = placeholder + ' Updated';
+				placeholder = placeholder + ' ' + args.i18n.updated;
 			}
 		} else {
 			placeholder = container.find('.filter-select option:selected').text().trim();
