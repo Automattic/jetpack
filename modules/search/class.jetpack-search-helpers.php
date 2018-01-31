@@ -435,7 +435,7 @@ class Jetpack_Search_Helpers {
 			}
 		}
 
-		if ( empty( $widget ) ) {
+		if ( empty( $action ) || empty( $widget ) ) {
 			return false;
 		}
 
