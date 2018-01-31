@@ -26,27 +26,27 @@ class UpgradeNoticeContent extends Component {
 				</h2>
 
 				<p>
-					{ __( 'Sites that have large numbers of images can turn on Lazy Loading Images which significantly ' +
-						"speeds up the site loading times for the end user. Instead of waiting for the entire site to load " +
-						'Jetpack will instead show the site instantly and only download additional images when scrolling.' ) }
+					{ __( 'Sites with large numbers of images can now activate the Lazy Loading Images feature, which significantly ' +
+						"speeds up loading times for visitors. Instead of waiting for the entire page to load, " +
+						'Jetpack will instead show pages instantly, and only download additional images when they are about to come into view.' ) }
 				</p>
 
 				<p>
 					{ __( 'We have also upgraded all our Premium plan customers to unlimited high-speed video storage ' +
-						"(up from 13Gb) and significantly reduced the assets (CSS and JavaScript) that Jetpack downloads " +
-						'when using features like infinite scroll and embedding rich content with shortcodes.' ) }
+						"(up from 13GB), and significantly reduced the CSS and JavaScript assets that Jetpack downloads " +
+						'when using features like infinite scroll and embedding rich content.' ) }
 				</p>
 
 				<h2>
-					{ __( 'Fast and relevant search results' ) }
+					{ __( 'Faster, more relevant search results' ) }
 				</h2>
 
 				<img src={ imagePath + 'Jetpack-Search-Placeholder.png' } alt={ __( 'Elasticsearch' ) } />
 
 				<p>
-					{ __( 'Our Elasticsearch-powered search service is now out of beta and availalbe to all Professional' +
-						" plan customers. This replaces default WordPress search with a faster engine that returns more " +
-						'relevant search results to your users.' ) }
+					{ __( 'Our faster site search is now available to all Professional' +
+						" plan customers. This replaces the default WordPress search with an Elasticsearch-powered infrastructure that returns faster, more " +
+						'relevant results to users.' ) }
 				</p>
 
 				<div className="jp-dialogue__cta-container">
