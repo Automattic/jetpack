@@ -324,8 +324,8 @@ class Jetpack_Search_Widget extends WP_Widget {
 		<script type="text/javascript">
 				jQuery( document ).ready( function( $ ) {
 					var orderByDefault = <?php echo wp_json_encode( $orderby ); ?>,
-						orderDefault     = <?php echo wp_json_encode( $order ); ?>,
-						widgetId         = <?php echo wp_json_encode( $this->id ); ?>;
+						orderDefault   = <?php echo wp_json_encode( $order ); ?>,
+						widgetId       = <?php echo wp_json_encode( $this->id ); ?>;
 
 					var container = $('#' + widgetId);
 					var form = container.find('.jetpack-search-form form');
