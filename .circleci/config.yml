@@ -41,6 +41,12 @@ jobs:
       - run:
           name: Run Jetpack activation spec
           command: source $HOME/.nvm/nvm.sh && xvfb-run ./node_modules/.bin/mocha scripts/jetpack/wp-jetpack-activate.js
+      - store_test_results:
+          path: reports/
+      - store_artifacts:
+          path: reports/
+      - store_artifacts:
+          path: screenshots/
   test:
     <<: *defaults          
     parallelism: 2
