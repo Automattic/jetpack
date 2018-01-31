@@ -1,8 +1,34 @@
 <?php
+/**
+ * Jetpack Search: Jetpack_Search_Helpers class
+ *
+ * @package    Jetpack
+ * @subpackage Jetpack Search
+ * @since      5.8.0
+ */
 
+/**
+ * Various helper functions for reuse throughout the Jetpack Search code.
+ *
+ * @since 5.8.0
+ */
 class Jetpack_Search_Helpers {
+
+	/**
+	 * The search widget's base ID.
+	 *
+	 * @since 5.8.0
+	 * @var string
+	 */
 	const FILTER_WIDGET_BASE = 'jetpack-search-filters';
 
+	/**
+	 * Create a URL for the current search that doesn't include the "paged" parameter.
+	 *
+	 * @since 5.8.0
+	 *
+	 * @return string The search URL.
+	 */
 	static function get_search_url() {
 		$query_args = $_GET;
 
@@ -16,9 +42,23 @@ class Jetpack_Search_Helpers {
 		}
 
 		$query = http_build_query( $query_args );
+
 		return home_url( "?{$query}" );
 	}
 
+	/**
+	 * Wraps add_query_arg() with the URL defaulting to the current search URL.
+	 *
+	 * @see   add_query_arg()
+	 *
+	 * @since 5.8.0
+	 *
+	 * @param string|array $key   Either a query variable key, or an associative array of query variables.
+	 * @param string       $value Optional. A query variable value.
+	 * @param bool|string  $url   Optional. A URL to act upon. Defaults to the current search URL.
+	 *
+	 * @return string New URL query string (unescaped).
+	 */
 	static function add_query_arg( $key, $value = false, $url = false ) {
 		$url = empty( $url ) ? self::get_search_url() : $url;
 		if ( is_array( $key ) ) {
@@ -28,15 +68,42 @@ class Jetpack_Search_Helpers {
 		return add_query_arg( $key, $value, $url );
 	}
 
+	/**
+	 * Wraps remove_query_arg() with the URL defaulting to the current search URL.
+	 *
+	 * @see   remove_query_arg()
+	 *
+	 * @since 5.8.0
+	 *
+	 * @param string|array $key   Query key or keys to remove.
+	 * @param bool|string  $query Optional. A URL to act upon.  Defaults to the current search URL.
+	 *
+	 * @return string New URL query string (unescaped).
+	 */
 	static function remove_query_arg( $key, $url = false ) {
 		$url = empty( $url ) ? self::get_search_url() : $url;
+
 		return remove_query_arg( $key, $url );
 	}
 
+	/**
+	 * Returns the name of the search widget's option.
+	 *
+	 * @since 5.8.0
+	 *
+	 * @return string The search widget option name.
+	 */
 	static function get_widget_option_name() {
 		return sprintf( 'widget_%s', self::FILTER_WIDGET_BASE );
 	}
 
+	/**
+	 * Returns the search widget instances from the widget's option.
+	 *
+	 * @since 5.8.0
+	 *
+	 * @return array The widget options.
+	 */
 	static function get_widgets_from_option() {
 		$widget_options = get_option( self::get_widget_option_name(), array() );
 
@@ -48,14 +115,39 @@ class Jetpack_Search_Helpers {
 		return $widget_options;
 	}
 
+	/**
+	 * Returns the widget ID (widget base plus the numeric ID).
+	 *
+	 * @param int $number The widget's numeric ID.
+	 *
+	 * @return string The widget's numeric ID prefixed with the search widget base.
+	 */
 	static function build_widget_id( $number ) {
 		return sprintf( '%s-%d', self::FILTER_WIDGET_BASE, $number );
 	}
 
+	/**
+	 * Wrapper for is_active_widget() with the other parameters automatically supplied.
+	 *
+	 * @see   is_active_widget()
+	 *
+	 * @since 5.8.0
+	 *
+	 * @param int $widget_id Widget ID.
+	 *
+	 * @return bool Whether the widget is active or not.
+	 */
 	static function is_active_widget( $widget_id ) {
-		return (bool) is_active_widget( false, $widget_id, self::FILTER_WIDGET_BASE );
+		return (bool) is_active_widget( false, $widget_id, self::FILTER_WIDGET_BASE, true );
 	}
 
+	/**
+	 * Returns an array of the filters from all active search widgets.
+	 *
+	 * @since 5.8.0
+	 *
+	 * @return array Active filters.
+	 */
 	static function get_filters_from_widgets() {
 		$filters = array();
 
@@ -72,11 +164,12 @@ class Jetpack_Search_Helpers {
 
 			foreach ( (array) $settings['filters'] as $widget_filter ) {
 				$widget_filter['widget_id'] = $widget_id;
-				$key = sprintf( '%s_%d', $widget_filter['type'], count( $filters ) );
 
 				if ( empty( $widget_filter['name'] ) ) {
 					$widget_filter['name'] = self::generate_widget_filter_name( $widget_filter );
 				}
+
+				$key = sprintf( '%s_%d', $widget_filter['type'], count( $filters ) );
 
 				$filters[ $key ] = $widget_filter;
 			}
@@ -85,6 +178,15 @@ class Jetpack_Search_Helpers {
 		return $filters;
 	}
 
+	/**
+	 * Creates a default name for a filter. Used when the filter label is blank.
+	 *
+	 * @since 5.8.0
+	 *
+	 * @param array $widget_filter The filter to generate the title for.
+	 *
+	 * @return string The suggested filter name.
+	 */
 	static function generate_widget_filter_name( $widget_filter ) {
 		$name = '';
 
@@ -92,6 +194,7 @@ class Jetpack_Search_Helpers {
 			case 'post_type':
 				$name = _x( 'Post Types', 'label for filtering posts', 'jetpack' );
 				break;
+
 			case 'date_histogram':
 				switch ( $widget_filter['field'] ) {
 					case 'post_date':
@@ -105,6 +208,7 @@ class Jetpack_Search_Helpers {
 								break;
 						}
 						break;
+
 					case 'post_modified':
 					case 'post_modified_gmt':
 						switch ( $widget_filter['interval'] ) {
@@ -118,6 +222,7 @@ class Jetpack_Search_Helpers {
 						break;
 				}
 				break;
+
 			case 'taxonomy':
 				$tax = get_taxonomy( $widget_filter['taxonomy'] );
 				if ( ! $tax ) {
@@ -126,7 +231,7 @@ class Jetpack_Search_Helpers {
 
 				if ( isset( $tax->label ) ) {
 					$name = $tax->label;
-				} else if ( isset( $tax->labels ) && isset( $tax->labels->name ) ) {
+				} elseif ( isset( $tax->labels ) && isset( $tax->labels->name ) ) {
 					$name = $tax->labels->name;
 				}
 				break;
@@ -169,8 +274,8 @@ class Jetpack_Search_Helpers {
 		// If the array counts are the same, then the order doesn't matter. If the count of
 		// $array_1 is higher than $array_2, that's also fine. If the count of $array_2 is higher,
 		// we need to swap the array order though.
-		if ( count( $array_1 ) != count( $array_2 ) && count( $array_2 ) > count( $array_1 ) ) {
-			$temp = $array_1;
+		if ( count( $array_1 ) !== count( $array_2 ) && count( $array_2 ) > count( $array_1 ) ) {
+			$temp    = $array_1;
 			$array_1 = $array_2;
 			$array_2 = $temp;
 		}
@@ -184,7 +289,8 @@ class Jetpack_Search_Helpers {
 	 *
 	 * @since 5.8.0
 	 *
-	 * @param array $instance
+	 * @param array $post_types An array of post types.
+	 *
 	 * @return bool
 	 */
 	static function post_types_differ_searchable( $post_types ) {
@@ -193,17 +299,18 @@ class Jetpack_Search_Helpers {
 		}
 
 		$searchable_post_types = get_post_types( array( 'exclude_from_search' => false ) );
-		$diff_of_searchable = self::array_diff( $searchable_post_types, (array) $post_types );
+		$diff_of_searchable    = self::array_diff( $searchable_post_types, (array) $post_types );
 
 		return ! empty( $diff_of_searchable );
 	}
 
 	/**
-	 * Given the array of post types, will return true when these differ from the current search query
+	 * Given the array of post types, will return true when these differ from the current search query.
 	 *
 	 * @since 5.8.0
 	 *
-	 * @param array $instance
+	 * @param array $post_types An array of post types.
+	 *
 	 * @return bool
 	 */
 	static function post_types_differ_query( $post_types ) {
@@ -213,18 +320,29 @@ class Jetpack_Search_Helpers {
 
 		if ( empty( $_GET['post_type'] ) ) {
 			$post_types_from_query = array();
-		} else if ( is_array( $_GET['post_type'] ) ) {
+		} elseif ( is_array( $_GET['post_type'] ) ) {
 			$post_types_from_query = $_GET['post_type'];
 		} else {
-			$post_types_from_query = (array) explode( ',',  $_GET['post_type'] );
+			$post_types_from_query = (array) explode( ',', $_GET['post_type'] );
 		}
 
 		$post_types_from_query = array_map( 'trim', $post_types_from_query );
 
 		$diff_query = self::array_diff( (array) $post_types, $post_types_from_query );
+
 		return ! empty( $diff_query );
 	}
 
+	/**
+	 * Determine what Tracks value should be used when updating a widget.
+	 *
+	 * @since 5.8.0
+	 *
+	 * @param mixed $old_value The old option value.
+	 * @param mixed $new_value The new option value.
+	 *
+	 * @return array|false False if the widget wasn't updated, otherwise an array of the Tracks action and widget properties.
+	 */
 	static function get_widget_tracks_value( $old_value, $new_value ) {
 		$old_value = (array) $old_value;
 		if ( isset( $old_value['_multiwidget'] ) ) {
@@ -236,18 +354,17 @@ class Jetpack_Search_Helpers {
 			unset( $new_value['_multiwidget'] );
 		}
 
-		$action = '';
 		$old_keys = array_keys( $old_value );
 		$new_keys = array_keys( $new_value );
 
 		if ( count( $new_keys ) > count( $old_keys ) ) { // This is the case for a widget being added
-			$diff = self::array_diff( $new_keys, $old_keys );
+			$diff   = self::array_diff( $new_keys, $old_keys );
 			$action = 'widget_added';
 			$widget = empty( $diff ) || ! isset( $new_value[ $diff[0] ] )
 				? false
 				: $new_value[ $diff[0] ];
-		} else if ( count( $old_keys ) > count( $new_keys ) ) { // This is the case for a widget being deleted
-			$diff = self::array_diff( $old_keys, $new_keys );
+		} elseif ( count( $old_keys ) > count( $new_keys ) ) { // This is the case for a widget being deleted
+			$diff   = self::array_diff( $old_keys, $new_keys );
 			$action = 'widget_deleted';
 			$widget = empty( $diff ) || ! isset( $old_value[ $diff[0] ] )
 				? false
@@ -285,7 +402,7 @@ class Jetpack_Search_Helpers {
 						}
 
 						foreach ( $v as $filter_key => $new_filter_value ) {
-							$diff = self::array_diff( $new_filter_value, $old_instance[ 'filters' ][ $filter_key ] );
+							$diff = self::array_diff( $new_filter_value, $old_instance['filters'][ $filter_key ] );
 							if ( ! empty( $diff ) ) {
 								$widget = $new_instance;
 								break;
@@ -296,7 +413,7 @@ class Jetpack_Search_Helpers {
 			}
 		}
 
-		if ( empty( $action ) || empty( $widget ) ) {
+		if ( empty( $widget ) ) {
 			return false;
 		}
 
@@ -306,6 +423,15 @@ class Jetpack_Search_Helpers {
 		);
 	}
 
+	/**
+	 * Creates the widget properties for sending to Tracks.
+	 *
+	 * @since 5.8.0
+	 *
+	 * @param array $widget The widget instance.
+	 *
+	 * @return array The widget properties.
+	 */
 	static function get_widget_properties_for_tracks( $widget ) {
 		$sanitized = array();
 
@@ -313,9 +439,10 @@ class Jetpack_Search_Helpers {
 			if ( '_multiwidget' == $key ) {
 				continue;
 			}
+
 			if ( is_scalar( $value ) ) {
-				$key = str_replace( '-', '_', sanitize_key( $key ) );
-				$key = "widget_{$key}";
+				$key               = str_replace( '-', '_', sanitize_key( $key ) );
+				$key               = "widget_{$key}";
 				$sanitized[ $key ] = $value;
 			}
 		}
@@ -327,6 +454,15 @@ class Jetpack_Search_Helpers {
 		return array_merge( $sanitized, $filters_properties );
 	}
 
+	/**
+	 * Creates the filter properties for sending to Tracks.
+	 *
+	 * @since 5.8.0
+	 *
+	 * @param array $filters An array of filters.
+	 *
+	 * @return array The filter properties.
+	 */
 	static function get_filter_properties_for_tracks( $filters ) {
 		if ( empty( $filters ) ) {
 			return $filters;
@@ -343,7 +479,7 @@ class Jetpack_Search_Helpers {
 
 			$key = sprintf( 'widget_filter_type_%s', $filter['type'] );
 			if ( isset( $filters_properties[ $key ] ) ) {
-				$filters_properties[ $key ]++;
+				$filters_properties[ $key ] ++;
 			} else {
 				$filters_properties[ $key ] = 1;
 			}
@@ -355,27 +491,32 @@ class Jetpack_Search_Helpers {
 	/**
 	 * Gets the active post types given a set of filters.
 	 *
-	 * @param array $filters The active filters for the current query.
-	 * @param array $default_post_types The default post types.
+	 * @since 5.8.0
 	 *
-	 * @return array
+	 * @param array $filters The active filters for the current query.
+	 *
+	 * @return array The active post types.
 	 */
-	public static function get_active_post_types( $filters, $default_post_types ) {
+	public static function get_active_post_types( $filters ) {
 		$active_post_types = array();
-		foreach( $filters as $item ) {
+
+		foreach ( $filters as $item ) {
 			if ( ( 'post_type' == $item['type'] ) && isset( $item['query_vars']['post_type'] ) ) {
 				$active_post_types[] = $item['query_vars']['post_type'];
 			}
 		}
+
 		return $active_post_types;
 	}
 
 	/**
 	 * Sets active to false on all post type buckets.
 	 *
+	 * @since 5.8.0
+	 *
 	 * @param array $filters The available filters for the current query.
 	 *
-	 * @return array $modified The filters for the current query with modified active field.
+	 * @return array The filters for the current query with modified active field.
 	 */
 	public static function remove_active_from_post_type_buckets( $filters ) {
 		$modified = $filters;
@@ -394,10 +535,12 @@ class Jetpack_Search_Helpers {
 	/**
 	 * Given a url and an array of post types, will ensure that the post types are properly applied to the URL as args.
 	 *
+	 * @since 5.8.0
+	 *
 	 * @param string $url        The URL to add post types to.
 	 * @param array  $post_types An array of post types that should be added to the URL.
 	 *
-	 * @return string $url The URL with added post types.
+	 * @return string The URL with added post types.
 	 */
 	public static function add_post_types_to_url( $url, $post_types ) {
 		$url = Jetpack_Search_Helpers::remove_query_arg( 'post_type', $url );
@@ -419,10 +562,12 @@ class Jetpack_Search_Helpers {
 	 * active filters, if removing a post type filter would result in there no longer be post_type args in the URL,
 	 * we need to be sure to add them back.
 	 *
+	 * @since 5.8.0
+	 *
 	 * @param array $filters    An array of possible filters for the current query.
 	 * @param array $post_types The post types to ensure are on the link.
 	 *
-	 * @return array $modified The updated array of filters with post typed added to the remove URLs.
+	 * @return array The updated array of filters with post typed added to the remove URLs.
 	 */
 	public static function ensure_post_types_on_remove_url( $filters, $post_types ) {
 		$modified = $filters;
@@ -461,7 +606,9 @@ class Jetpack_Search_Helpers {
 	}
 
 	/**
-	 * Returns a boolen for whether the current site has a VIP index.
+	 * Returns a boolean for whether the current site has a VIP index.
+	 *
+	 * @since 5.8.0
 	 *
 	 * @return bool
 	 */
@@ -476,7 +623,7 @@ class Jetpack_Search_Helpers {
 		 *
 		 * @module search
 		 *
-		 * @since 5.8.0
+		 * @since  5.8.0
 		 *
 		 * @param bool $has_vip_index Whether the current site has a VIP index.
 		 */
@@ -484,7 +631,9 @@ class Jetpack_Search_Helpers {
 	}
 
 	/**
-	 * Returns the maximum posts per page for a search query
+	 * Returns the maximum posts per page for a search query.
+	 *
+	 * @since 5.8.0
 	 *
 	 * @return int
 	 */
@@ -493,7 +642,9 @@ class Jetpack_Search_Helpers {
 	}
 
 	/**
-	 * Returns the maximum offset for a search query
+	 * Returns the maximum offset for a search query.
+	 *
+	 * @since 5.8.0
 	 *
 	 * @return int
 	 */

@@ -48,7 +48,7 @@ class Jetpack_Search_Template_Tags {
 				$active_buckets = array_filter( $active_buckets, array( __CLASS__, 'is_not_post_type_filter' ) );
 			}
 
-			$active_post_types = Jetpack_Search_Helpers::get_active_post_types( $active_buckets, $post_types );
+			$active_post_types = Jetpack_Search_Helpers::get_active_post_types( $active_buckets );
 			if ( empty( $active_post_types ) ) {
 				$active_post_types = $post_types;
 			}
