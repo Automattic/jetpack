@@ -186,8 +186,8 @@ class Jetpack_Search_Widget extends WP_Widget {
 
 		// If any widget has any filters, return false
 		foreach ( $filter_widgets as $number => $widget ) {
-			$widget_id = sprintf( 'jetpack-search-filters-%d', $number );
-			if ( ! empty( $widget['filters'] ) && is_active_widget( false, $widget_id, 'jetpack-search-filters' ) ) {
+			$widget_id = Jetpack_Search_Helpers::FILTER_WIDGET_BASE . $number;
+			if ( ! empty( $widget['filters'] ) && is_active_widget( false, $widget_id, $this->id_base ) ) {
 				return false;
 			}
 		}
@@ -207,7 +207,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 		$display_filters = false;
 
 		if ( is_search() ) {
-			if ( Jetpack_Search_Helpers::should_rerun_search_in_customizer_preview( $instance, $this->id ) ) {
+			if ( Jetpack_Search_Helpers::should_rerun_search_in_customizer_preview() ) {
 				$this->jetpack_search->update_search_results_aggregations();
 			}
 
