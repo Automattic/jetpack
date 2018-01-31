@@ -17,13 +17,31 @@ import onKeyDownCallback from 'utils/onkeydown-callback';
 import { imagePath } from 'constants/urls';
 
 class JetpackDialogue extends Component {
+	clickBackground( e ) {
+		this.props.dismiss( e );
+	}
+
+	// capture the ESC key globally
+	componentDidMount(){
+		document.addEventListener('keydown', this.props.dismiss, false);
+	}
+
+	componentWillUnmount(){
+		document.removeEventListener('keydown', this.props.dismiss, false);
+	}
+
+	// prevent foreground clicks going through to the background
+	clickForeground( e ) {
+		e.stopPropagation();
+	}
+
 	render() {
 		const classes = classNames(
 			this.props.className,
 			'jp-dialogue'
 		);
 		return (
-			<div className="jp-dialogue-full__container">
+			<div className="jp-dialogue-full__container" onClick={this.clickBackground.bind(this)}>
 				<img src={ imagePath + 'stars-full.svg' } width="60" height="60" alt={ __( 'Stars' ) } className="jp-jumpstart-full__svg-stars" />
 				<img src={ imagePath + 'jupiter.svg' } width="50" height="100" alt={ __( 'Jupiter' ) } className="jp-jumpstart-full__svg-jupiter" />
 				{
@@ -36,7 +54,7 @@ class JetpackDialogue extends Component {
 					/>
 				}
 
-				<div className={ classes }>
+				<div className={ classes } onClick={this.clickForeground.bind(this)}>
 					{ this.props.svg }
 
 					<h1 className="jp-dialogue__title">
