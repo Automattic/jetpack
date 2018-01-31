@@ -562,7 +562,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 	 * See above ^^
 	 */
 	private function render_widget_option_selected( $name, $value, $compare, $is_template ) {
-		$compare_json = json_encode( $compare );
+		$compare_json = wp_json_encode( $compare );
 		echo $is_template ? "<%= $compare_json === $name ? 'selected=\"selected\"' : '' %>" : selected( $value, $compare );
 	}
 
@@ -577,13 +577,13 @@ class Jetpack_Search_Widget extends WP_Widget {
 	 */
 	function render_widget_edit_filter( $filter, $is_template = false ) {
 		$args = wp_parse_args( $filter, array(
-			'name' => '',
-			'type' => 'taxonomy',
-			'taxonomy' => '',
+			'name'      => '',
+			'type'      => 'taxonomy',
+			'taxonomy'  => '',
 			'post_type' => '',
-			'field' => '',
-			'interval' => '',
-			'count' => self::DEFAULT_FILTER_COUNT,
+			'field'     => '',
+			'interval'  => '',
+			'count'     => self::DEFAULT_FILTER_COUNT,
 		) );
 
 		$args['name_placeholder'] = Jetpack_Search_Helpers::generate_widget_filter_name( $args );
@@ -609,7 +609,10 @@ class Jetpack_Search_Widget extends WP_Widget {
 
 			<p class="jetpack-search-filters-widget__taxonomy-select">
 				<label>
-					<?php esc_html_e( 'Choose a taxonomy:', 'jetpack' ); $seen_taxonomy_labels = array(); ?>
+					<?php
+						esc_html_e( 'Choose a taxonomy:', 'jetpack' );
+						$seen_taxonomy_labels = array();
+					?>
 					<select name="<?php echo esc_attr( $this->get_field_name( 'taxonomy_type' ) ); ?>[]" class="widefat taxonomy-select">
 						<?php foreach ( get_taxonomies( array( 'public' => true ), 'objects' ) as $taxonomy ) : ?>
 							<option value="<?php echo esc_attr( $taxonomy->name ); ?>" <?php $this->render_widget_option_selected( 'taxonomy', $args['taxonomy'], $taxonomy->name, $is_template ); ?>>
