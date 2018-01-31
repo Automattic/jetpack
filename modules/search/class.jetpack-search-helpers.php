@@ -178,6 +178,16 @@ class Jetpack_Search_Helpers {
 		return $filters;
 	}
 
+	/**
+	 * Get the localized default label for a date filter.
+	 *
+	 * @since 5.8.0
+	 *
+	 * @param string $type       Date type, either year or month.
+	 * @param bool   $is_updated Whether the filter was updated or not (adds "Updated" to the end).
+	 *
+	 * @return string The filter label.
+	 */
 	static function get_date_filter_type_name( $type, $is_updated = false ) {
 		switch ( $type ) {
 			case 'year':

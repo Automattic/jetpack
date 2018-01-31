@@ -312,6 +312,8 @@ class Jetpack_Search_Widget extends WP_Widget {
 	 * - find the orderby/order fields and set default values
 	 * - detect changes to the sort field, if it exists, and use it to set the order field values
 	 *
+	 * @since 5.8.0
+	 *
 	 * @param array  $instance The current widget instance.
 	 * @param string $order    The order to initialize the select with.
 	 * @param string $orderby  The orderby to initialize the select with.
@@ -349,6 +351,8 @@ class Jetpack_Search_Widget extends WP_Widget {
 
 	/**
 	 * Convert a sort string into the separate order by and order parts.
+	 *
+	 * @since 5.8.0
 	 *
 	 * @param string $sort A sort string.
 	 *
@@ -554,18 +558,31 @@ class Jetpack_Search_Widget extends WP_Widget {
 	}
 
 	/**
-	 * We basically render the values in two formats:
-	 * - underscore template
-	 * - native PHP
+	 * We need to render HTML in two formats: an Underscore template (client-size)
+	 * and native PHP (server-side). This helper function allows for easy rendering
+	 * of attributes in both formats.
 	 *
-	 * This is so we can use the same code to render a client-side and server-side template.
+	 * @since 5.8.0
+	 *
+	 * @param string $name        Attribute name.
+	 * @param string $value       Attribute value.
+	 * @param bool   $is_template Whether this is for an Underscore template or not.
 	 */
 	private function render_widget_attr( $name, $value, $is_template ) {
 		echo $is_template ? "<%= $name %>" : esc_attr( $value );
 	}
 
 	/**
-	 * See above ^^
+	 * We need to render HTML in two formats: an Underscore template (client-size)
+	 * and native PHP (server-side). This helper function allows for easy rendering
+	 * of the "selected" attribute in both formats.
+	 *
+	 * @since 5.8.0
+	 *
+	 * @param string $name        Attribute name.
+	 * @param string $value       Attribute value.
+	 * @param string $compare     Value to compare to the attribute value to decide if it should be selected.
+	 * @param bool   $is_template Whether this is for an Underscore template or not.
 	 */
 	private function render_widget_option_selected( $name, $value, $compare, $is_template ) {
 		$compare_json = wp_json_encode( $compare );
@@ -575,11 +592,12 @@ class Jetpack_Search_Widget extends WP_Widget {
 	/**
 	 * Responsible for rendering a single filter in the customizer or the widget administration screen in wp-admin.
 	 *
-	 * We use this method for two purposes - rendering the fields server-side, and also rendering a script template for underscore.
+	 * We use this method for two purposes - rendering the fields server-side, and also rendering a script template for Underscore.
 	 *
 	 * @since 5.7.0
 	 *
-	 * @param array $filter
+	 * @param array $filter      The filter to render.
+	 * @param bool  $is_template Whether this is for an Underscore template or not.
 	 */
 	function render_widget_edit_filter( $filter, $is_template = false ) {
 		$args = wp_parse_args( $filter, array(
