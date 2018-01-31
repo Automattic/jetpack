@@ -52,11 +52,7 @@
 				.find( '.jetpack-search-filters-widget__filter-template' )
 				.html()
 		);
-		var filter = $('<div></div>');
-
-		filter.html( template( args ) );
-		filtersContainer.append( filter );
-		generateFilterTitlePlaceholder( filter );
+		generateFilterTitlePlaceholder( filtersContainer.append( template( args ) ) );
 	};
 
 	var setListeners = function( widget ) {
@@ -236,7 +232,8 @@
 				field: '',
 				interval: '',
 				count: defaultFilterCount,
-				name_placeholder: ''
+				name_placeholder: '',
+				name: ''
 			} );
 
 			if ( wp && wp.customize ) {
