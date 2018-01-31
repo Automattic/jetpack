@@ -17,17 +17,19 @@ import onKeyDownCallback from 'utils/onkeydown-callback';
 import { imagePath } from 'constants/urls';
 
 class JetpackDialogue extends Component {
-	clickBackground( e ) {
-		this.props.dismiss( e );
+	maybeDismiss( e ) {
+		if ( this.props.showDismiss ) {
+			this.props.dismiss( e );
+		}
 	}
 
 	// capture the ESC key globally
 	componentDidMount(){
-		document.addEventListener('keydown', this.props.dismiss, false);
+		document.addEventListener('keydown', this.maybeDismiss, false);
 	}
 
 	componentWillUnmount(){
-		document.removeEventListener('keydown', this.props.dismiss, false);
+		document.removeEventListener('keydown', this.maybeDismiss, false);
 	}
 
 	// prevent foreground clicks going through to the background
@@ -41,18 +43,9 @@ class JetpackDialogue extends Component {
 			'jp-dialogue'
 		);
 		return (
-			<div className="jp-dialogue-full__container" onClick={this.clickBackground.bind(this)}>
+			<div className="jp-dialogue-full__container" onClick={this.maybeDismiss.bind(this)}>
 				<img src={ imagePath + 'stars-full.svg' } width="60" height="60" alt={ __( 'Stars' ) } className="jp-jumpstart-full__svg-stars" />
 				<img src={ imagePath + 'jupiter.svg' } width="50" height="100" alt={ __( 'Jupiter' ) } className="jp-jumpstart-full__svg-jupiter" />
-				{
-					this.props.showDismiss && <Gridicon
-						icon="cross-small"
-						className="jp-dialogue-full__dismiss"
-						tabIndex="0"
-						onKeyDown={ onKeyDownCallback( this.props.dismiss ) }
-						onClick={ this.props.dismiss }
-					/>
-				}
 
 				<div className={ classes } onClick={this.clickForeground.bind(this)}>
 					{ this.props.svg }
@@ -62,6 +55,15 @@ class JetpackDialogue extends Component {
 					</h1>
 
 					<Card>
+						{
+							this.props.showDismiss && <Gridicon
+								icon="cross-circle"
+								className="jp-dialogue-full__dismiss"
+								tabIndex="0"
+								onKeyDown={ onKeyDownCallback( this.props.dismiss ) }
+								onClick={ this.props.dismiss }
+							/>
+						}
 						{ this.props.content }
 					</Card>
 					<div>
