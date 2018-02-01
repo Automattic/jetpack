@@ -550,8 +550,7 @@ class Jetpack_Beta {
 			$org_data = self::get_org_data();
 			return $org_data->download_link;
 		}
-
-		$manifest = Jetpack_Beta::get_beta_manifest();
+		$manifest = Jetpack_Beta::get_beta_manifest( true );
 
 		if ( 'master' === $section && isset( $manifest->{$section}->download_url ) ) {
 			return $manifest->{$section}->download_url;
@@ -609,18 +608,18 @@ class Jetpack_Beta {
 		self::replace_active_plugin( JETPACK_DEV_PLUGIN_FILE, JETPACK_PLUGIN_FILE );
 	}
 
-	static function get_beta_manifest() {
-		return self::get_remote_data( JETPACK_BETA_MANIFEST_URL, 'manifest' );
+	static function get_beta_manifest( $force_refresh = false ) {
+		return self::get_remote_data( JETPACK_BETA_MANIFEST_URL, 'manifest', $force_refresh );
 	}
 
 	static function get_org_data() {
 		return self::get_remote_data( JETPACK_ORG_API_URL, 'org_data' );
 	}
 
-	static function get_remote_data( $url, $transient ) {
+	static function get_remote_data( $url, $transient, $bypass = false) {
 		$prefix = 'jetpack_beta_';
 		$cache  = get_site_transient( $prefix . $transient );
-		if ( $cache ) {
+		if ( $cache && ! $bypass ) {
 			return $cache;
 		}
 
