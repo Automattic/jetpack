@@ -6,6 +6,21 @@ import React from 'react';
 class AdminNotices extends React.Component {
 	componentDidMount() {
 		const $adminNotices = jQuery( this.refs.adminNotices );
+		const dismiss = '<span role="button" tabindex="0" class="dops-notice__dismiss"><svg class="gridicon gridicons-cross" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"></path></g></svg><span class="screen-reader-text"></span></span>';
+
+		const $vpDeactivationNotice = jQuery( '.vp-deactivated' );
+		if ( $vpDeactivationNotice.length > 0 ) {
+			$vpDeactivationNotice.each( function() {
+				const $notice = jQuery( this ).addClass( 'dops-notice is-success is-dismissable' ).removeClass( 'wrap vp-notice notice notice-success' );
+				const icon = '<svg class="gridicon gridicons-notice dops-notice__icon" height="24" width="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M9 19.414l-6.707-6.707 1.414-1.414L9 16.586 20.293 5.293l1.414 1.414"/></g></svg>';
+				$notice.wrapInner( '<span class="dops-notice__content">' );
+				$notice.find( '.dops-notice__content' ).before( icon ).css( 'display', 'block' );
+				$notice.find( '.dops-notice__content' ).after( dismiss );
+				$notice.find( 'h2' ).replaceWith( function() { return jQuery( '<strong />', { html: this.innerHTML } ); } );
+				$notice.find( 'p' ).replaceWith( function() { return jQuery( '<div/>', { html: this.innerHTML } ); } );
+				$notice.prependTo( $adminNotices ).css( 'display', 'flex' );
+			} );
+		}
 
 		const $vpNotice = jQuery( '.vp-notice' );
 		if ( $vpNotice.length > 0 ) {
@@ -41,6 +56,12 @@ class AdminNotices extends React.Component {
 				$notice.wrapInner( '<span class="dops-notice__content">' ).prependTo( $adminNotices ).css( 'display', 'flex' );
 				$notice.find( '.dops-notice__action' ).not( ':first' ).removeClass( 'dops-notice__action' ).detach().appendTo( $notice.find( '.dops-notice__text' ) );
 				$notice.find( '.dops-notice__action:first' ).detach().appendTo( $notice );
+			} );
+		}
+
+		if ( $adminNotices.length > 0 ) {
+			jQuery( '.dops-notice__dismiss' ).click( function() {
+				jQuery( this ).parent().closest( 'div' ).hide();
 			} );
 		}
 	}
