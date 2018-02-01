@@ -555,8 +555,17 @@ class Jetpack_Beta {
 			return $manifest->{$section}->download_url;
 		}
 
-		if ( 'rc' === $section && isset( $manifest->{$section}->download_url ) ) {
-			return $manifest->{$section}->download_url;
+		if ( 'rc' === $section ) {
+			if ( isset( $manifest->{$section}->download_url ) ) {
+				return $manifest->{$section}->download_url;
+			}
+			$branches = array_keys( (array) $manifest->{$section} );
+			foreach ( $branches as $branch ) {
+				if ( isset( $manifest->{$section}->{$branch}->download_url ) ) {
+					return $manifest->{$section}->{$branch}->download_url;
+				}
+			}
+			return null;
 		}
 
 		if ( isset( $manifest->{$section}->{$branch}->download_url ) ) {
