@@ -41,14 +41,14 @@ class WelcomePremium extends Component {
 		return (
 			<div>
 				<p>
-					{ __( 'Thanks for choosing a Jetpack Premium plan. Jetpack is now backing up your site, scanning for' +
+					{ __( 'Thanks for choosing Jetpack Premium. Jetpack is now backing up your site, scanning for ' +
 						' security threats, and enabling monetization features.'
 					) }
 				</p>
 				<img src={ imagePath + 'customize-theme.svg' } className="jp-welcome__svg" alt={ __( 'Themes' ) } />
 				<p>
 					{ __( 'With Jetpack Premium, you can create the perfect site, no matter its purpose. Customize your site’s' +
-						' appearance with one of more than 200 free themes, or enhance your content with up to 13 GB of HD video ' +
+						' appearance with one of more than 100 free themes, or enhance your content with unlmited HD video ' +
 						'-- all hosted free of ads or watermarks.'
 					) }
 				</p>
