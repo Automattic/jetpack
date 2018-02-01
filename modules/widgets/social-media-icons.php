@@ -335,7 +335,7 @@ function wpcom_social_media_icons_widget_load_widget() {
 	}
 
 	// [DEPRECATION]: Only register widget if active widget exists already
-	if ( 1 === $has_widget ) {
+	if ( $has_widget ) {
 		register_widget( 'wpcom_social_media_icons_widget' );
 	}
 }
