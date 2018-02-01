@@ -1,48 +1,48 @@
 {
   "name": "social-logos",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "main": "build/index.js",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/Automattic/social-logos"
-  },
-  "license": "GPL-2.0+",
   "scripts": {
     "build": "grunt --verbose",
     "prepublish": "npm run build"
   },
   "peerDependencies": {
-    "prop-types": "^15.5.0",
-    "react": "^15.5.0 || ^16.0.0"
+    "react": "^15.3.0 || ^16.0.0 "
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Automattic/social-logos"
+  },
+  "license": "GPL-2.0+",
   "files": [
     "build/index.js",
     "build/example.js"
   ],
+  "dependencies": {
+    "prop-types": "^15.5.7"
+  },
   "devDependencies": {
-    "babel-plugin-add-module-exports": "0.2.1",
-    "babel-plugin-syntax-jsx": "6.8.0",
-    "babel-plugin-transform-class-properties": "6.9.1",
-    "babel-plugin-transform-export-extensions": "6.8.0",
-    "babel-plugin-transform-react-display-name": "6.8.0",
-    "babel-plugin-transform-react-jsx": "6.8.0",
-    "babel-plugin-transform-runtime": "6.9.0",
-    "babel-preset-es2015": "6.9.0",
-    "babel-preset-stage-2": "6.5.0",
-    "babili": "0.0.8",
-    "grunt": "~0.4.1",
+    "babel-plugin-add-module-exports": "^0.2.1",
+    "babel-plugin-syntax-jsx": "^6.18.0",
+    "babel-plugin-transform-class-properties": "^6.19.0",
+    "babel-plugin-transform-export-extensions": "^6.8.0",
+    "babel-plugin-transform-react-display-name": "^6.8.0",
+    "babel-plugin-transform-react-jsx": "^6.8.0",
+    "babel-preset-es2015": "^6.18.0",
+    "babel-preset-stage-2": "^6.18.0",
+    "babili": "0.0.10",
+    "grunt": "^0.4.5",
     "grunt-babel": "^6.0.0",
-    "grunt-cli": "^0.1.13",
+    "grunt-cli": "^1.2.0",
     "grunt-contrib-clean": "^1.0.0",
     "grunt-contrib-copy": "^0.6.0",
-    "grunt-contrib-cssmin": "^0.14.0",
     "grunt-rename": "^0.1.4",
-    "grunt-svg2png": "^0.2.7",
     "grunt-svgmin": "^2.0.1",
-    "grunt-svgstore": "^0.3.6",
     "grunt-webfont": "^1.6.0",
+    "grunt-svgstore": "^1.0.0",
+    "jit-grunt": "^0.10.0",
     "load-grunt-tasks": "^3.5.2",
-    "multiline": "^0.3.4",
-    "xml2js": "^0.4.17"
+    "xml2js": "^0.4.17",
+    "svg-to-pdfkit": "0.1.3"
   }
 }
