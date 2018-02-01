@@ -46,7 +46,7 @@ const UpgradeNoticeContent = moduleSettingsForm(
 						{ __( 'If this sounds like a great improvement (and it is) you can enable it now by clicking the toggle below.' ) }
 					</p>
 
-					<p className="jp-upgrade-notice__enable-module">
+					<div className="jp-upgrade-notice__enable-module">
 
 						<SettingsGroup
 							hasChild
@@ -65,7 +65,7 @@ const UpgradeNoticeContent = moduleSettingsForm(
 								</span>
 							</ModuleToggle>
 						</SettingsGroup>
-					</p>
+					</div>
 
 					<p>
 						{ __( 'We have also upgraded all our Premium plan customers to unlimited high-speed video storage ' +
