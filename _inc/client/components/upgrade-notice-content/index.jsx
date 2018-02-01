@@ -52,7 +52,7 @@ class UpgradeNoticeContent extends Component {
 				<div className="jp-dialogue__cta-container">
 					<Button
 						primary={ true }
-						href="https://jetpack.com/?p=27095"
+						href="https://jetpack.com/?p=27697"
 					>
 						{ __( 'Read the full announcement!' ) }
 					</Button>
