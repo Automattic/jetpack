@@ -48,7 +48,7 @@ class WelcomePremium extends Component {
 				<img src={ imagePath + 'customize-theme.svg' } className="jp-welcome__svg" alt={ __( 'Themes' ) } />
 				<p>
 					{ __( 'With Jetpack Premium, you can create the perfect site, no matter its purpose. Customize your site’s' +
-						' appearance with one of more than 100 free themes, or enhance your content with unlmited HD video ' +
+						' appearance with one of more than 100 free themes, or enhance your content with unlimited HD video ' +
 						'-- all hosted free of ads or watermarks.'
 					) }
 				</p>
