@@ -6,7 +6,6 @@ import ReactDom from 'react-dom';
  * External dependencies
  */
 import PropTypes from 'prop-types';
-
 import React from 'react';
 import { Provider as ReduxProvider } from 'react-redux';
 

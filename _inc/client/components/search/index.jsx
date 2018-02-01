@@ -4,7 +4,6 @@ import ReactDom from 'react-dom';
  * External dependencies
  */
 import PropTypes from 'prop-types';
-
 import React from 'react';
 import classNames from 'classnames';
 import debounce from 'lodash/debounce';

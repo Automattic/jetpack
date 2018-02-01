@@ -6,7 +6,6 @@ import ReactDom from 'react-dom';
  * External Dependencies
  */
 import PropTypes from 'prop-types';
-
 import React from 'react';
 import find from 'lodash/find';
 import filter from 'lodash/filter';
