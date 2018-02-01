@@ -36,9 +36,6 @@
 	&:active {
 		border-width: 2px 1px 1px;
 	}
-	&:visited {
-		color: $gray-dark;
-	}
 	&[disabled],
 	&:disabled {
 		color: lighten( $gray, 30% );
