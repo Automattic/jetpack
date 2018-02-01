@@ -87,3 +87,20 @@
 .jp-dialogue__cta-container {
 	padding: rem( 8px ) 0 0;
 }
+
+.jp-upgrade-notice__enable-module {
+	.jp-form-settings-group {
+		margin: 0px auto;
+		max-width: 300px;
+		text-align: left;
+	}
+
+	.jp-form-has-child {
+		padding: 10px;
+	}
+
+	.jp-module-settings__learn-more {
+		top: rem( 15px );
+		right: rem( 15px );
+	}
+}

@@ -47,7 +47,7 @@ const UpgradeNoticeContent = moduleSettingsForm(
 						{ __( 'If this sounds like a great improvement (and it is) you can enable it now by clicking the toggle below.' ) }
 					</p>
 
-					<p>
+					<p className="jp-upgrade-notice__enable-module">
 
 						<SettingsGroup
 							hasChild
