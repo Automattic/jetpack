@@ -46,8 +46,8 @@
 .jp-dialogue-full__dismiss {
 	cursor: pointer;
 	position: absolute;
-	right: 0;
-	top: 0;
+	right: -10px;
+	top: -10px;
 	fill: $gray;
 	padding: rem( 16px );
 	height: rem( 24px );
