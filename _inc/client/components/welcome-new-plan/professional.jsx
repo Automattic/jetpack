@@ -43,14 +43,14 @@ class WelcomeProfessional extends Component {
 		return (
 			<div>
 				<p>
-					{ __( 'Thanks for choosing a Jetpack Professional plan. Jetpack is now backing up your content,' +
+					{ __( 'Thanks for choosing Jetpack Professional. Jetpack is now backing up your content in real-time,' +
 						' scanning for security threats, and granting access to premium themes.'
 					) }
 				</p>
 				<img src={ imagePath + 'customize-theme.svg' } className="jp-welcome__svg" alt={ __( 'Themes' ) } />
 				<p>
 					{ __( 'With Jetpack Professional, you can create the perfect site with one of over 300 professionally-designed' +
-						' WordPress themes, including more than 100 premium themes. Customize your content with a variety of ' +
+						' WordPress themes, including more than 200 premium themes. Customize your content with a variety of ' +
 						'widgets, or add unlimited videos to your posts and pages -- displayed free of ads or watermarks.'
 					) }
 				</p>
