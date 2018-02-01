@@ -45,3 +45,11 @@ ul.jetpack-search-filters-widget__filter-list li label {
 ul.jetpack-search-filters-widget__filter-list {
 	margin-bottom: 1.5em;
 }
+
+body.search .jetpack-search-form input[name="s"]::placeholder {
+	color: transparent;
+}
+
+body.search .jetpack-search-form input[name="s"].show-placeholder::placeholder {
+	color: inherit;
+}

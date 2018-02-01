@@ -345,6 +345,8 @@ class Jetpack_Search_Widget extends WP_Widget {
 						searchInput.val( searchQuery );
 					}
 
+					searchInput.addClass( 'show-placeholder' );
+
 					container.find( '.jetpack-search-sort' ).change( function( event ) {
 						var values  = event.target.value.split( '|' );
 						orderBy.val( values[0] );
