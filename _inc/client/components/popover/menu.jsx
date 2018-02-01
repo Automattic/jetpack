@@ -1,3 +1,4 @@
+const PropTypes = require('prop-types');
 /**
 * External dependencies
 */
@@ -11,10 +12,10 @@ var Popover = require( 'components/popover' );
 
 var PopoverMenu = React.createClass( {
 	propTypes: {
-		isVisible: React.PropTypes.bool.isRequired,
-		onClose: React.PropTypes.func.isRequired,
-		position: React.PropTypes.string,
-		className: React.PropTypes.string
+		isVisible: PropTypes.bool.isRequired,
+		onClose: PropTypes.func.isRequired,
+		position: PropTypes.string,
+		className: PropTypes.string
 	},
 
 	getDefaultProps: function() {

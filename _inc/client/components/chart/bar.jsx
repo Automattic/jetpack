@@ -1,3 +1,4 @@
+const PropTypes = require('prop-types');
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable jsx-a11y/onclick-has-role */
 /**
@@ -16,13 +17,13 @@ module.exports = React.createClass( {
 	displayName: 'ModuleChartBar',
 
 	propTypes: {
-		isTouch: React.PropTypes.bool,
-		tooltipPosition: React.PropTypes.string,
-		className: React.PropTypes.string,
-		clickHandler: React.PropTypes.func,
-		data: React.PropTypes.object.isRequired,
-		max: React.PropTypes.number,
-		count: React.PropTypes.number
+		isTouch: PropTypes.bool,
+		tooltipPosition: PropTypes.string,
+		className: PropTypes.string,
+		clickHandler: PropTypes.func,
+		data: PropTypes.object.isRequired,
+		max: PropTypes.number,
+		count: PropTypes.number
 	},
 
 	getInitialState: function() {

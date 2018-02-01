@@ -1,6 +1,8 @@
 /**
  * External dependencies
  */
+import PropTypes from 'prop-types';
+
 import React from 'react';
 import PureRenderMixin from 'react-pure-render/mixin';
 import classnames from 'classnames';
@@ -21,11 +23,11 @@ export default React.createClass( {
 	mixins: [ PureRenderMixin ],
 
 	propTypes: {
-		className: React.PropTypes.string,
-		href: React.PropTypes.string,
-		onClick: React.PropTypes.func,
-		icon: React.PropTypes.bool,
-		iconSize: React.PropTypes.number
+		className: PropTypes.string,
+		href: PropTypes.string,
+		onClick: PropTypes.func,
+		icon: PropTypes.bool,
+		iconSize: PropTypes.number
 	},
 
 	getDefaultProps() {

@@ -1,3 +1,4 @@
+var PropTypes = require('prop-types');
 /** @ssr-ready **/
 
 /**
@@ -20,14 +21,14 @@ var NavItem = React.createClass( {
 	mixins: [ PureRenderMixin ],
 
 	propTypes: {
-		itemType: React.PropTypes.string,
-		path: React.PropTypes.string,
-		selected: React.PropTypes.bool,
-		tabIndex: React.PropTypes.number,
-		onClick: React.PropTypes.func,
-		isExternalLink: React.PropTypes.bool,
-		disabled: React.PropTypes.bool,
-		count: React.PropTypes.number
+		itemType: PropTypes.string,
+		path: PropTypes.string,
+		selected: PropTypes.bool,
+		tabIndex: PropTypes.number,
+		onClick: PropTypes.func,
+		isExternalLink: PropTypes.bool,
+		disabled: PropTypes.bool,
+		count: PropTypes.number
 	},
 
 	render: function() {

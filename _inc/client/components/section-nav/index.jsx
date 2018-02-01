@@ -1,3 +1,4 @@
+var PropTypes = require('prop-types');
 /** @ssr-ready **/
 
 /**
@@ -22,11 +23,11 @@ require( './style.scss' );
 var SectionNav = React.createClass( {
 
 	propTypes: {
-		children: React.PropTypes.node,
-		selectedText: React.PropTypes.node,
-		selectedCount: React.PropTypes.number,
-		hasPinnedItems: React.PropTypes.bool,
-		onMobileNavPanelOpen: React.PropTypes.func
+		children: PropTypes.node,
+		selectedText: PropTypes.node,
+		selectedCount: PropTypes.number,
+		hasPinnedItems: PropTypes.bool,
+		onMobileNavPanelOpen: PropTypes.func
 	},
 
 	getInitialState: function() {

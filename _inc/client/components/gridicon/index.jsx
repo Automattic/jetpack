@@ -1,3 +1,4 @@
+const PropTypes = require('prop-types');
 /** @ssr-ready **/
 
 /* !!!
@@ -28,10 +29,10 @@ const Gridicon = React.createClass( {
 	},
 
 	propTypes: {
-		icon: React.PropTypes.string.isRequired,
-		size: React.PropTypes.number,
-		onClick: React.PropTypes.func,
-		className: React.PropTypes.string
+		icon: PropTypes.string.isRequired,
+		size: PropTypes.number,
+		onClick: PropTypes.func,
+		className: PropTypes.string
 	},
 
 	needsOffset: function( icon, size ) {

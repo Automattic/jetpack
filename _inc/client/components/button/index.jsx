@@ -1,6 +1,8 @@
 /**
  * External dependencies
  */
+import PropTypes from 'prop-types';
+
 import React from 'react';
 import classNames from 'classnames';
 import noop from 'lodash/noop';
@@ -12,15 +14,15 @@ export default React.createClass( {
 	displayName: 'Button',
 
 	propTypes: {
-		disabled: React.PropTypes.bool,
-		compact: React.PropTypes.bool,
-		primary: React.PropTypes.bool,
-		scary: React.PropTypes.bool,
-		type: React.PropTypes.string,
-		href: React.PropTypes.string,
-		onClick: React.PropTypes.func,
-		borderless: React.PropTypes.bool,
-		className: React.PropTypes.string
+		disabled: PropTypes.bool,
+		compact: PropTypes.bool,
+		primary: PropTypes.bool,
+		scary: PropTypes.bool,
+		type: PropTypes.string,
+		href: PropTypes.string,
+		onClick: PropTypes.func,
+		borderless: PropTypes.bool,
+		className: PropTypes.string
 	},
 
 	getDefaultProps() {

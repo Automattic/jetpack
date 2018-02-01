@@ -1,9 +1,12 @@
+import ReactDom from 'react-dom';
+
 /** @ssr-ready **/
 
 /**
  * External Dependencies
  */
-import ReactDom from 'react-dom';
+import PropTypes from 'prop-types';
+
 import React from 'react';
 import find from 'lodash/find';
 import filter from 'lodash/filter';
@@ -25,7 +28,9 @@ require( './style.scss' );
 /**
  * Module variables
  */
-const { Component, PropTypes } = React;
+const {
+    Component
+} = React;
 var noop = () => {};
 
 /**
@@ -369,7 +374,7 @@ class SelectDropdown extends Component {
 			this.closeDropdown();
 		}
 	}
-};
+}
 
 SelectDropdown.defaultProps = {
 	options: [],

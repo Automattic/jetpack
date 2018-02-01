@@ -1,3 +1,4 @@
+var PropTypes = require('prop-types');
 /**
  * External dependencies
  */
@@ -17,10 +18,10 @@ module.exports = React.createClass( {
 	displayName: 'ClipboardButton',
 
 	propTypes: {
-		className: React.PropTypes.string,
-		text: React.PropTypes.string,
-		prompt: React.PropTypes.string,
-		onCopy: React.PropTypes.func
+		className: PropTypes.string,
+		text: PropTypes.string,
+		prompt: PropTypes.string,
+		onCopy: PropTypes.func
 	},
 
 	getDefaultProps: function() {

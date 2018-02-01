@@ -1,7 +1,9 @@
 /**
  * External dependencies
  */
-import React, { PropTypes } from 'react';
+import PropTypes from 'prop-types';
+
+import React from 'react';
 import classnames from 'classnames';
 import noop from 'lodash/noop';
 import onKeyDownCallback from 'utils/onkeydown-callback';
@@ -32,7 +34,7 @@ export default React.createClass( {
 		status: PropTypes.string,
 		showDismiss: PropTypes.bool,
 		isCompact: PropTypes.bool,
-		duration: React.PropTypes.number,
+		duration: PropTypes.number,
 		text: PropTypes.oneOfType( [
 			PropTypes.oneOfType( [ PropTypes.string, PropTypes.node ] ),
 			PropTypes.arrayOf( PropTypes.oneOfType( [ PropTypes.string, PropTypes.node ] ) )

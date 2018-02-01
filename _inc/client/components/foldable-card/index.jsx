@@ -1,3 +1,4 @@
+const PropTypes = require('prop-types');
 /**
  * External Dependencies
  */
@@ -18,20 +19,20 @@ require( './style.scss' );
 var FoldableCard = React.createClass( {
 
 	propTypes: {
-		actionButton: React.PropTypes.element,
-		actionButtonExpanded: React.PropTypes.element,
-		cardKey: React.PropTypes.string,
-		compact: React.PropTypes.bool,
-		disabled: React.PropTypes.bool,
-		expandedSummary: React.PropTypes.oneOfType( [ React.PropTypes.string, React.PropTypes.element ] ),
-		expanded: React.PropTypes.bool,
-		icon: React.PropTypes.string,
-		onClick: React.PropTypes.func,
-		onClose: React.PropTypes.func,
-		onOpen: React.PropTypes.func,
-		summary: React.PropTypes.oneOfType( [ React.PropTypes.string, React.PropTypes.element ] ),
-		clickableHeader: React.PropTypes.bool,
-		clickableHeaderText: React.PropTypes.bool
+		actionButton: PropTypes.element,
+		actionButtonExpanded: PropTypes.element,
+		cardKey: PropTypes.string,
+		compact: PropTypes.bool,
+		disabled: PropTypes.bool,
+		expandedSummary: PropTypes.oneOfType( [ PropTypes.string, PropTypes.element ] ),
+		expanded: PropTypes.bool,
+		icon: PropTypes.string,
+		onClick: PropTypes.func,
+		onClose: PropTypes.func,
+		onOpen: PropTypes.func,
+		summary: PropTypes.oneOfType( [ PropTypes.string, PropTypes.element ] ),
+		clickableHeader: PropTypes.bool,
+		clickableHeaderText: PropTypes.bool
 	},
 
 	getInitialState: function() {

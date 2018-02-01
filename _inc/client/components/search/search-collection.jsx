@@ -1,13 +1,15 @@
 /**
 * External dependencies
 */
+import PropTypes from 'prop-types';
+
 import React from 'react';
 
 const Hider = React.createClass( {
 	displayName: 'Hider',
 
 	propTypes: {
-		hide: React.PropTypes.bool,
+		hide: PropTypes.bool,
 	},
 
 	render() {
@@ -30,7 +32,7 @@ const FilterSummary = React.createClass( {
 	},
 
 	propTypes: {
-		noResultsText: React.PropTypes.string
+		noResultsText: PropTypes.string
 	},
 
 	render() {

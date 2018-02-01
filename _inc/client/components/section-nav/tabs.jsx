@@ -1,9 +1,12 @@
+import ReactDom from 'react-dom';
+
 /** @ssr-ready **/
 
 /**
  * External Dependencies
  */
-import ReactDom from 'react-dom';
+import PropTypes from 'prop-types';
+
 import React from 'react';
 import debounce from 'lodash/debounce';
 import classNames from 'classnames';
@@ -26,10 +29,10 @@ var MOBILE_PANEL_THRESHOLD = 480;
 var NavTabs = React.createClass( {
 
 	propTypes: {
-		selectedText: React.PropTypes.string,
-		selectedCount: React.PropTypes.number,
-		label: React.PropTypes.string,
-		hasSiblingControls: React.PropTypes.bool
+		selectedText: PropTypes.string,
+		selectedCount: PropTypes.number,
+		label: PropTypes.string,
+		hasSiblingControls: PropTypes.bool
 	},
 
 	getDefaultProps: function() {

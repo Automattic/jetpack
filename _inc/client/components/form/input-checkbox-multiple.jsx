@@ -1,3 +1,4 @@
+var PropTypes = require('prop-types');
 /** External Dependencies **/
 var React = require( 'react' ),
 	isArray = require( 'lodash/isArray' ),
@@ -16,15 +17,15 @@ module.exports = React.createClass( {
 	mixins: [ Formsy.Mixin ],
 
 	propTypes: {
-		name: React.PropTypes.string.isRequired,
-		description: React.PropTypes.string,
-		className: React.PropTypes.any,
-		choices: React.PropTypes.any,
-		defaultValue: React.PropTypes.array,
-		validations: React.PropTypes.string,
-		onChange: React.PropTypes.func,
-		showSelectAll: React.PropTypes.bool,
-		selectAllLabel: React.PropTypes.string,
+		name: PropTypes.string.isRequired,
+		description: PropTypes.string,
+		className: PropTypes.any,
+		choices: PropTypes.any,
+		defaultValue: PropTypes.array,
+		validations: PropTypes.string,
+		onChange: PropTypes.func,
+		showSelectAll: PropTypes.bool,
+		selectAllLabel: PropTypes.string,
 	},
 
 	getDefaultProps: function() {

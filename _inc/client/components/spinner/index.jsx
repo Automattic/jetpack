@@ -1,3 +1,4 @@
+const PropTypes = require('prop-types');
 /** @ssr-ready **/
 
 /**
@@ -15,9 +16,9 @@ var Spinner;
 
 Spinner = React.createClass( {
 	propTypes: {
-		className: React.PropTypes.string,
-		size: React.PropTypes.number,
-		duration: React.PropTypes.number
+		className: PropTypes.string,
+		size: PropTypes.number,
+		duration: PropTypes.number
 	},
 
 	statics: {

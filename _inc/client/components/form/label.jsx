@@ -1,3 +1,4 @@
+var PropTypes = require('prop-types');
 /** External Dependencies **/
 var React = require( 'react' ),
 	classNames = require( 'classnames' );
@@ -6,14 +7,14 @@ module.exports = React.createClass( {
 	displayName: 'Label',
 
 	propTypes: {
-		style: React.PropTypes.any,
-		label: React.PropTypes.any,
-		labelSuffix: React.PropTypes.any,
-		labelClassName: React.PropTypes.string,
-		description: React.PropTypes.string,
-		htmlFor: React.PropTypes.string,
-		required: React.PropTypes.any,
-		inline: React.PropTypes.any
+		style: PropTypes.any,
+		label: PropTypes.any,
+		labelSuffix: PropTypes.any,
+		labelClassName: PropTypes.string,
+		description: PropTypes.string,
+		htmlFor: PropTypes.string,
+		required: PropTypes.any,
+		inline: PropTypes.any
 	},
 
 	render: function() {

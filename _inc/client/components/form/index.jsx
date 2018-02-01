@@ -1,3 +1,4 @@
+var PropTypes = require('prop-types');
 /** External Dependencies **/
 var React = require( 'react' ),
 	isArray = require( 'lodash/isArray' ),
@@ -23,12 +24,12 @@ require( './style.scss' );
 let Form = React.createClass( {
 
 	propTypes: {
-		style: React.PropTypes.object,
-		onValidSubmit: React.PropTypes.func,
-		onInvalidSubmit: React.PropTypes.func,
-		onValid: React.PropTypes.func,
-		onInvalid: React.PropTypes.func,
-		validationErrors: React.PropTypes.object
+		style: PropTypes.object,
+		onValidSubmit: PropTypes.func,
+		onInvalidSubmit: PropTypes.func,
+		onValid: PropTypes.func,
+		onInvalid: PropTypes.func,
+		validationErrors: PropTypes.object
 	},
 
 	getInitialState: function() {

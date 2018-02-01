@@ -1,3 +1,4 @@
+const PropTypes = require('prop-types');
 /**
  * External dependencies
  */
@@ -12,10 +13,10 @@ module.exports = React.createClass( {
 	displayName: 'FormInputValidation',
 
 	propTypes: {
-		isError: React.PropTypes.bool,
-		isWarning: React.PropTypes.bool,
-		text: React.PropTypes.node,
-		icon: React.PropTypes.string
+		isError: PropTypes.bool,
+		isWarning: PropTypes.bool,
+		text: PropTypes.node,
+		icon: PropTypes.string
 	},
 
 	getDefaultProps: function() {

@@ -1,3 +1,4 @@
+var PropTypes = require('prop-types');
 /** @ssr-ready **/
 
 /**
@@ -13,11 +14,11 @@ var Count = require( 'components/count' );
 
 var SelectDropdownItem = React.createClass( {
 	propTypes: {
-		children: React.PropTypes.string.isRequired,
-		path: React.PropTypes.string,
-		selected: React.PropTypes.bool,
-		onClick: React.PropTypes.func,
-		count: React.PropTypes.number
+		children: PropTypes.string.isRequired,
+		path: PropTypes.string,
+		selected: PropTypes.bool,
+		onClick: PropTypes.func,
+		count: PropTypes.number
 	},
 
 	getDefaultProps: function() {

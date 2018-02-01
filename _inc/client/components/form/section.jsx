@@ -1,3 +1,4 @@
+var PropTypes = require('prop-types');
 /** External Dependencies **/
 var React = require( 'react' );
 
@@ -5,8 +6,8 @@ module.exports = React.createClass( {
 	displayName: 'Section',
 
 	propTypes: {
-		title: React.PropTypes.any,
-		id: React.PropTypes.string
+		title: PropTypes.any,
+		id: PropTypes.string
 	},
 
 	render: function() {

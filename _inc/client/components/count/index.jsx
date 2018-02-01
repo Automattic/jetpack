@@ -3,6 +3,8 @@
 /**
  * External dependencies
  */
+import PropTypes from 'prop-types';
+
 import React from 'react';
 import PureRenderMixin from 'react-pure-render/mixin';
 
@@ -15,7 +17,7 @@ export default React.createClass( {
 	mixins: [ PureRenderMixin ],
 
 	propTypes: {
-		count: React.PropTypes.number.isRequired,
+		count: PropTypes.number.isRequired,
 	},
 
 	render() {
