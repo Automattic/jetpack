@@ -41,17 +41,17 @@ echo ""
 
 echo "Building Jetpack"
 
-# Checking for yarn
-hash yarn 2>/dev/null || {
-    echo >&2 "This script requires you to have yarn package manager installed."
-    echo >&2 "Please install it following the instructions on https://yarnpkg.com. Aborting.";
+# Checking for npm 
+hash npm  2>/dev/null || {
+    echo >&2 "This script requires you to have Node package manager installed."
+    echo >&2 "Please install it following the instructions on https://www.npmjs.com/get-npm . Aborting.";
     exit 1;
 }
 
-yarn run distclean
-yarn cache clean
-yarn
-NODE_ENV=production yarn run build-client
+npm run distclean
+npm cache clean
+npm install
+NODE_ENV=production npm run build-client
 echo "Done"
 
 # Prep a home to drop our new files in. Just make it in /tmp so we can start fresh each time.
