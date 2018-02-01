@@ -26,7 +26,7 @@ class Jetpack_Settings_Page extends Jetpack_Admin_Page {
 		if ( false === $static_html ) {
 			echo '<p>';
 			esc_html_e( 'Error fetching static.html. Try running: ', 'jetpack' );
-			echo '<code>yarn distclean && yarn build</code>';
+			echo '<code>npm run distclean && npm run build</code>';
 			echo '</p>';
 			return;
 		}
