@@ -55,14 +55,14 @@ if [[ $ADD_BETA_VERSION -eq 1 ]]; then
     echo "Now at version $CURRENT_VERSION!"
 fi
 
-# Checking for yarn
-hash yarn 2>/dev/null || {
-    echo >&2 "This script requires you to have yarn package manager installed."
-    echo >&2 "Please install it following the instructions on https://yarnpkg.com. Aborting.";
+# Checking for npm
+hash npm 2>/dev/null || {
+    echo >&2 "This script requires you to have Node package manager installed."
+    echo >&2 "Please install it following the instructions on https://www.npmjs.com/package/get-npm . Aborting.";
     exit 1;
 }
 
-yarn --modules-folder=$TARGET_DIR/node_modules
+NODE_PATH=$TARGET_DIR/node_modules npm install
 NODE_ENV=production BABEL_ENV=production $TARGET_DIR/node_modules/.bin/gulp
 
 echo "Purging paths included in .svnignore, .gitignore and .git itself"
