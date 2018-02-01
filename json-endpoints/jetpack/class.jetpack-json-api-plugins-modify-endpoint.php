@@ -89,7 +89,7 @@ new Jetpack_JSON_API_Plugins_Modify_Endpoint(
 			'$plugin' => '(string) The plugin ID',
 		),
 		'query_parameters'     => array(
-			'autoupdate' => '(bool=false) If the user is being created in the invite context',
+			'autoupdate' => '(bool=false) If the update is happening as a result of autoupdate event',
 		),
 		'response_format'      => Jetpack_JSON_API_Plugins_Endpoint::$_response_format,
 		'example_request_data' => array(
