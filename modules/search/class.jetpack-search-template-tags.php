@@ -1,17 +1,27 @@
 <?php
+/**
+ * Jetpack Search: Jetpack_Search_Template_Tags class
+ *
+ * @package    Jetpack
+ * @subpackage Jetpack Search
+ * @since      5.8.0
+ */
 
+/**
+ * Class that has various methods for outputting functionality into a theme that doesn't support widgets.
+ * Additionally the widget itself makes use of these class.
+ *
+ * @since 5.8.0
+ */
 class Jetpack_Search_Template_Tags {
-	public static function is_not_post_type_filter( $filter ) {
-		return 'post_type' !== $filter['type'];
-	}
 
 	/**
 	 * Renders all available filters that can be used to filter down search results on the frontend.
 	 *
-	 * @param array $filters  The available filters for the current query.
-	 * @param array $post_types An array of post types to make filterable
+	 * @since 5.8.0
 	 *
-	 * @return void
+	 * @param array $filters    The available filters for the current query.
+	 * @param array $post_types An array of post types to make filterable
 	 */
 	public static function render_available_filters( $filters = null, $post_types = null ) {
 		if ( is_null( $filters ) ) {
@@ -29,7 +39,7 @@ class Jetpack_Search_Template_Tags {
 		$active_post_types = array();
 		if ( Jetpack_Search_Helpers::post_types_differ_searchable( $post_types ) ) {
 			// get the active filter buckets from the query
-			$active_buckets = Jetpack_Search::instance()->get_active_filter_buckets();
+			$active_buckets          = Jetpack_Search::instance()->get_active_filter_buckets();
 			$post_types_differ_query = Jetpack_Search_Helpers::post_types_differ_query( $post_types );
 
 			// remove any post_type filters from display if the current query
@@ -38,7 +48,7 @@ class Jetpack_Search_Template_Tags {
 				$active_buckets = array_filter( $active_buckets, array( __CLASS__, 'is_not_post_type_filter' ) );
 			}
 
-			$active_post_types = Jetpack_Search_Helpers::get_active_post_types( $active_buckets, $post_types );
+			$active_post_types = Jetpack_Search_Helpers::get_active_post_types( $active_buckets );
 			if ( empty( $active_post_types ) ) {
 				$active_post_types = $post_types;
 			}
@@ -64,7 +74,9 @@ class Jetpack_Search_Template_Tags {
 	/**
 	 * Renders a single filter that can be applied to the current search.
 	 *
-	 * @param array $filter The filter to render.
+	 * @since 5.8.0
+	 *
+	 * @param array $filter             The filter to render.
 	 * @param array $default_post_types The default post types for this filter.
 	 */
 	public static function render_filter( $filter, $default_post_types ) {
@@ -73,7 +85,7 @@ class Jetpack_Search_Template_Tags {
 		}
 
 		$query_vars = null;
-		foreach( $filter['buckets'] as $item ) {
+		foreach ( $filter['buckets'] as $item ) {
 			if ( $item['active'] ) {
 				$query_vars = array_keys( $item['query_vars'] );
 				break;
@@ -102,11 +114,11 @@ class Jetpack_Search_Template_Tags {
 			<?php foreach ( $filter['buckets'] as $item ) : ?>
 				<li>
 					<label>
-					<?php if ( empty( $item['active'] ) ) : ?>
+						<?php if ( empty( $item['active'] ) ) : ?>
 						<a href="<?php echo esc_url( $item['url'] ); ?>">
-					<?php else : ?>
+						<?php else : ?>
 						<a href="<?php echo esc_url( $item['remove_url'] ); ?>">
-					<?php endif; ?>
+						<?php endif; ?>
 							<input
 								type="checkbox"
 								<?php checked( ! empty( $item['active'] ) ); ?>
@@ -114,19 +126,28 @@ class Jetpack_Search_Template_Tags {
 							/>&nbsp;
 							<?php echo esc_html( $item['name'] ); ?>&nbsp;
 							<?php
-								echo esc_html( sprintf(
-									'(%s)',
-									number_format_i18n( absint( $item['count'] ) )
-								) );
+							echo esc_html( sprintf(
+								'(%s)',
+								number_format_i18n( absint( $item['count'] ) )
+							) );
 							?>
 						</a>
 					</label>
 				</li>
 			<?php endforeach; ?>
 		</ul>
-	<?php
+		<?php
 	}
 
+	/**
+	 * Outputs the search widget's title.
+	 *
+	 * @since 5.8.0
+	 *
+	 * @param string $title        The widget's title
+	 * @param string $before_title The HTML tag to display before the title
+	 * @param string $after_title  The HTML tag to display after the title
+	 */
 	public static function render_widget_title( $title, $before_title, $after_title ) {
 		echo $before_title . esc_html( $title ) . $after_title;
 	}
@@ -134,14 +155,18 @@ class Jetpack_Search_Template_Tags {
 	/**
 	 * Responsible for rendering the search box within our widget on the frontend.
 	 *
-	 * @param array $instance
+	 * @since 5.8.0
+	 *
+	 * @param array  $post_types Array of post types to limit search results to.
+	 * @param string $orderby    How to order the search results.
+	 * @param string $order      In what direction to order the search results.
 	 */
 	public static function render_widget_search_form( $post_types, $orderby, $order ) {
 		$form = get_search_form( false );
 
 		$fields_to_inject = array(
 			'orderby' => $orderby,
-			'order' => $order
+			'order'   => $order
 		);
 
 		// If the widget has specified post types to search within and IF the post types differ
@@ -153,19 +178,28 @@ class Jetpack_Search_Template_Tags {
 
 		$form = self::inject_hidden_form_fields( $form, $fields_to_inject );
 
-		// This shouldn't need to be escaped since we escaped above when we imploded the selected post types
 		echo '<div class="jetpack-search-form">';
 		echo $form;
 		echo '</div>';
 	}
 
+	/**
+	 * Modifies an HTML form to add some additional hidden fields.
+	 *
+	 * @since 5.8.0
+	 *
+	 * @param string $form   The form HTML to modify.
+	 * @param array  $fields Array of hidden fields to add. Key is field name and value is the field value.
+	 *
+	 * @return string The modified form HTML.
+	 */
 	private static function inject_hidden_form_fields( $form, $fields ) {
 		$form_injection = '';
 
-		foreach( $fields as $field_name => $field_value ) {
+		foreach ( $fields as $field_name => $field_value ) {
 			$form_injection .= sprintf(
 				'<input type="hidden" name="%s" value="%s" />',
-				$field_name,
+				esc_attr( $field_name ),
 				esc_attr( $field_value )
 			);
 		}
@@ -173,13 +207,23 @@ class Jetpack_Search_Template_Tags {
 		// This shouldn't need to be escaped since we've escaped above as we built $form_injection
 		$form = str_replace(
 			'</form>',
-			sprintf(
-				'%s</form>',
-				$form_injection
-			),
+			$form_injection . '</form>',
 			$form
 		);
 
 		return $form;
+	}
+
+	/**
+	 * Internal method for filtering out non-post_type filters.
+	 *
+	 * @since 5.8.0
+	 *
+	 * @param array $filter
+	 *
+	 * @return bool
+	 */
+	private static function is_not_post_type_filter( $filter ) {
+		return 'post_type' !== $filter['type'];
 	}
 }

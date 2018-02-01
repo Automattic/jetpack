@@ -124,4 +124,4 @@ export default connect(
 			module: ( module_name ) => getModule( state, module_name ),
 		};
 	}
-)(UpgradeNoticeContent);
+)( UpgradeNoticeContent );

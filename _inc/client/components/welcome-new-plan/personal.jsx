@@ -25,7 +25,7 @@ class WelcomePersonal extends Component {
 		return (
 			<div>
 				<p>
-					{ __( 'Thanks for choosing a Jetpack Personal plan. Jetpack is now backing up your site and ' +
+					{ __( 'Thanks for choosing Jetpack Personal. Jetpack is now backing up your site and ' +
 						'scanning for security threats.'
 					) }
 				</p>
