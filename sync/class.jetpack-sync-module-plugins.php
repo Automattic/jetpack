@@ -97,25 +97,6 @@ class Jetpack_Sync_Module_Plugins extends Jetpack_Sync_Module {
 		}
 
 		if ( 'install' === $details['action'] ) {
-			$errors = $this->get_errors( $upgrader->skin );
-			if ( $errors ) {
-				foreach ( $plugins as $slug ) {
-					/**
-					 * Sync that a plugin update failed
-					 *
-					 * @since  5.8.0
-					 *
-					 * @module sync
-					 *
-					 * @param string $plugin , Plugin slug
-					 * @param        string  Error code
-					 * @param        string  Error message
-					 */
-					do_action( 'jetpack_plugin_install_failed', $this->get_plugin_info( $slug ), $errors['code'], $errors['message'] );
-				}
-
-				return;
-			}
 			/**
 			 * Signals to the sync listener that a plugin was installed and a sync action
 			 * reflecting the installation and the plugin info should be sent
