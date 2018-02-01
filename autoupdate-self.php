@@ -183,14 +183,13 @@ class Jetpack_Beta_Autoupdate_Self {
 	}
 
 	public function auto_update_jetpack_beta( $update, $item ) {
-		if ( 'sure' !== get_option( 'jp_beta_autoupdate') ) {
+		if ( ! Jetpack_Beta::is_set_to_autoupdate() ) {
 			return $update;
 		}
 
 		if ( $item->slug === $this->config['slug'] ) {
 			return true;
-		} else {
-			return $update; // Else, use the normal API response to decide whether to update or not
 		}
+		return $update; // Else, use the normal API response to decide whether to update or not
 	}
 }

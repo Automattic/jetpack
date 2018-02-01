@@ -383,7 +383,7 @@ class Jetpack_Beta_Admin {
 	}
 
 	static function show_toggle_autoupdates() {
-		$autoupdate = (bool) get_option( 'jp_beta_autoupdate' );
+		$autoupdate = (bool) Jetpack_Beta::is_set_to_autoupdate();
 
 		$query = array(
 			'page'          => 'jetpack-beta',

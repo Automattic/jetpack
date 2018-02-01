@@ -356,7 +356,9 @@ class Jetpack_Beta {
 			unset( $transient->no_update[ JETPACK_DEV_PLUGIN_FILE ] );
 		} else {
 			unset( $transient->response[ JETPACK_DEV_PLUGIN_FILE ] );
-			$transient->no_update[ JETPACK_DEV_PLUGIN_FILE ] = self::get_jepack_dev_update_response();
+			if ( isset( $transient->no_update ) ) {
+				$transient->no_update[ JETPACK_DEV_PLUGIN_FILE ] = self::get_jepack_dev_update_response();
+			}
 		}
 
 		return $transient;
@@ -635,7 +637,7 @@ class Jetpack_Beta {
 	}
 
 	function auto_update_jetpack_beta( $update, $item ) {
-		if ( 'sure' !== get_option( 'jp_beta_autoupdate' ) ) {
+		if ( ! self::is_set_to_autoupdate() ) {
 			return $update;
 		}
 
@@ -645,9 +647,8 @@ class Jetpack_Beta {
 		);
 		if ( in_array( $item->slug, $plugins ) ) {
 			return true; // Always update plugins in this array
-		} else {
-			return $update; // Else, use the normal API response to decide whether to update or not
 		}
+		return $update; // Else, use the normal API response to decide whether to update or not
 	}
 
 	static function install_and_activate( $branch, $section ) {
@@ -847,7 +848,11 @@ class Jetpack_Beta {
 		         && $org_data->version !== $plugin_data['Version'] );
 	}
 
-
+	/**
+	 * Here we are checking if the DEV branch that we are currenly on is not something that is available in the manifest
+	 * Meaning that the DEV branch was merged into master and so we need to update it.
+	 * @return bool
+	 */
 	static function should_update_dev_to_master() {
 		list( $branch, $section ) = self::get_branch_and_section_dev();
 
@@ -856,6 +861,10 @@ class Jetpack_Beta {
 		}
 		$manifest = self::get_beta_manifest();
 		return ! isset( $manifest->{$section}->{$branch} );
+	}
+
+	static function is_set_to_autoupdate() {
+		return (bool) get_option( 'jp_beta_autoupdate', false );
 	}
 }
 
