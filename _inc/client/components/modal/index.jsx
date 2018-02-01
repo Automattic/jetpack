@@ -6,7 +6,8 @@
 var React = require( 'react' ),
 	ReactDOM = require( 'react-dom' ),
 	classNames = require( 'classnames' ),
-	assign = require( 'lodash/assign' );
+	assign = require( 'lodash/assign' ),
+	omit = require( 'lodash/omit' );
 
 var focusTrap = require( 'focus-trap' );
 
@@ -111,7 +112,7 @@ let Modal = React.createClass( {
 		var containerStyle, combinedStyle;
 
 		var { style, className, width, title, ...other } = this.props;
-
+		var { forwardedProps } = omit( other, 'onRequestClose' );
 		switch ( width ) {
 			case 'wide':
 				containerStyle = { maxWidth: 'inherit', width: 'inherit' };
@@ -133,7 +134,7 @@ let Modal = React.createClass( {
 					onMouseUp={this.handleMouseEventModal}
 					role="dialog"
 					aria-label={title}
-					{ ...other }>
+					{ ...forwardedProps }>
 					{this.props.children}
 				</div>
 			</div>
