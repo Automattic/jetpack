@@ -24,6 +24,9 @@ class StaticMain extends React.Component {
 				<Masthead { ...this.props } />
 				<LoadingPlaceholder { ...this.props } />
 				<Footer { ...this.props } />
+				<style type="text/css">
+					{ '.vp-deactivated{ display: none; }' }
+				</style>
 			</div>
 		);
 	}
