@@ -17,7 +17,7 @@ import onKeyDownCallback from 'utils/onkeydown-callback';
 import { imagePath } from 'constants/urls';
 
 class JetpackDialogue extends Component {
-	maybeDismiss( e ) {
+	maybeDismiss = ( e ) => {
 		if ( this.props.showDismiss && ( ! e.keyCode || e.keyCode === 27 ) ) {
 			this.props.dismiss( e );
 		}
@@ -43,11 +43,11 @@ class JetpackDialogue extends Component {
 			'jp-dialogue'
 		);
 		return (
-			<div className="jp-dialogue-full__container" role="dialog" onClick={ this.maybeDismiss.bind( this ) } onKeyDown={ onKeyDownCallback( this.maybeDismiss.bind( this ) ) }>
+			<div className="jp-dialogue-full__container" role="dialog" onClick={ this.maybeDismiss } onKeyDown={ onKeyDownCallback( this.maybeDismiss ) }>
 				<img src={ imagePath + 'stars-full.svg' } width="60" height="60" alt={ __( 'Stars' ) } className="jp-jumpstart-full__svg-stars" />
 				<img src={ imagePath + 'jupiter.svg' } width="50" height="100" alt={ __( 'Jupiter' ) } className="jp-jumpstart-full__svg-jupiter" />
 
-				<div className={ classes } role="dialog" onClick={ this.clickForeground }  onKeyDown={ onKeyDownCallback( this.clickForeground ) }>
+				<div className={ classes } role="dialog" onClick={ this.clickForeground } onKeyDown={ onKeyDownCallback( this.clickForeground ) }>
 					{ this.props.svg }
 
 					<h1 className="jp-dialogue__title">
