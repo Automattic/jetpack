@@ -1,5 +1,5 @@
-var PropTypes = require( 'prop-types' );
 /** External Dependencies **/
+var PropTypes = require( 'prop-types' );
 var React = require( 'react' ),
 	isArray = require( 'lodash/isArray' ),
 	map = require( 'lodash/map' ),

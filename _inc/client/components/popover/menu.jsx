@@ -1,7 +1,7 @@
-const PropTypes = require( 'prop-types' );
 /**
 * External dependencies
 */
+const PropTypes = require( 'prop-types' );
 var ReactDom = require( 'react-dom' ),
 	React = require( 'react' );
 

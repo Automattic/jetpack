@@ -1,7 +1,7 @@
-var PropTypes = require( 'prop-types' );
 /**
  * External dependencies
  */
+var PropTypes = require( 'prop-types' );
 var React = require( 'react' );
 
 module.exports = React.createClass( {

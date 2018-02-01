@@ -1,7 +1,7 @@
-const PropTypes = require( 'prop-types' );
 /**
  * External dependencies
  */
+const PropTypes = require( 'prop-types' );
 const React = require( 'react' ),
 	classNames = require( 'classnames' ),
 	Gridicon = require( 'components/gridicon' );

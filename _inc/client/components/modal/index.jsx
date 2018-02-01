@@ -1,9 +1,9 @@
-var PropTypes = require( 'prop-types' );
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable jsx-a11y/onclick-has-role */
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 
+var PropTypes = require( 'prop-types' );
 var React = require( 'react' ),
 	ReactDOM = require( 'react-dom' ),
 	classNames = require( 'classnames' ),

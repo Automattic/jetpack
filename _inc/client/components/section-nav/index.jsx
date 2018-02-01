@@ -1,9 +1,9 @@
-var PropTypes = require( 'prop-types' );
 /** @ssr-ready **/
 
 /**
  * External Dependencies
  */
+var PropTypes = require( 'prop-types' );
 var React = require( 'react' ),
 	isEqual = require( 'lodash/isEqual' ),
 	classNames = require( 'classnames' );

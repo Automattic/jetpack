@@ -1,7 +1,7 @@
-var PropTypes = require( 'prop-types' );
 /* eslint-disable jsx-a11y/no-onchange */
 
 /** External Dependencies **/
+var PropTypes = require( 'prop-types' );
 var React = require( 'react' ),
 	classNames = require( 'classnames' ),
 	Formsy = require( 'formsy-react' );

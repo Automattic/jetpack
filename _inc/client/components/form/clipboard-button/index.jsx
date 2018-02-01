@@ -1,7 +1,7 @@
-var PropTypes = require( 'prop-types' );
 /**
  * External dependencies
  */
+var PropTypes = require( 'prop-types' );
 var ReactDom = require( 'react-dom' ),
 	React = require( 'react' ),
 	Clipboard = require( 'clipboard' ),

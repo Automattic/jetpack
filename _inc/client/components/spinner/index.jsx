@@ -1,9 +1,9 @@
-const PropTypes = require( 'prop-types' );
 /** @ssr-ready **/
 
 /**
  * External dependencies
  */
+const PropTypes = require( 'prop-types' );
 var React = require( 'react' ),
 	classNames = require( 'classnames' );
 

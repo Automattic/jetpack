@@ -1,7 +1,7 @@
-const PropTypes = require( 'prop-types' );
 /**
  * External Dependencies
  */
+const PropTypes = require( 'prop-types' );
 var React = require( 'react' ),
 	classNames = require( 'classnames' ),
 	noop = require( 'lodash/noop' );
