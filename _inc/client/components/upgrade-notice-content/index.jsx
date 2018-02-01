@@ -18,7 +18,6 @@ import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-sett
 import { getModule } from 'state/modules';
 import { ModuleToggle } from 'components/module-toggle';
 import SettingsGroup from 'components/settings-group';
-import { isDevMode, isUnavailableInDevMode, isCurrentUserLinked } from 'state/connection';
 const UpgradeNoticeContent = moduleSettingsForm(
 	class extends Component {
 		toggleModule = ( name, value ) => {
