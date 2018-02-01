@@ -5,19 +5,19 @@ The javascript and CSS components of this plugin's admin interface need to be bu
 **Recommended Environment**
 
 * node 8.x, aka `lts/carbon`
-* yarn 1.3
+* The npm version that ships with Node lts/carbon
 
 ## A note on Node versions used for the build tasks
 
-We try to frequently keep the Node version we use up to date. So, eventually you may need to refresh your package dependencies (i.e., the `node_modules` directories). This is because some dependencies are built specifically for the Node version you used when you installed them (either by running `yarn build` or `yarn`).
+We try to frequently keep the Node version we use up to date. So, eventually you may need to refresh your package dependencies (i.e., the `node_modules` directories). This is because some dependencies are built specifically for the Node version you used when you installed them (either by running `npm run build` or `npm install`).
 
 We recommend usage of [nvm](https://www.npmjs.com/package/nvm) for managing different Node versions on the same environment.
 
-**Note:** If you have previously run the Jetpack build tasks (e.g. `yarn build`), and didn't come back to it for a long time, you can
+**Note:** If you have previously run the Jetpack build tasks (e.g. `npm run build`), and didn't come back to it for a long time, you can
 run this command before building again. Otherwise you may experience errors on the command line while trying to build.
 
 ```
-$ yarn distclean
+$ npm run distclean
 ```
 
 **Start Development**
@@ -30,14 +30,10 @@ $ yarn distclean
 	$ cd jetpack
 	```
 
-3. Install yarn
-
-Please, refer to yarn's [Installation Documentation](https://yarnpkg.com/docs/install/).
-
 4. Make sure the Jetpack plugin is active and run
 
 	```
-	$ yarn build
+	$ npm run build
 	```
 
 	This will install npm dependencies and then build the files.
@@ -46,19 +42,19 @@ Please, refer to yarn's [Installation Documentation](https://yarnpkg.com/docs/in
 
 ## Development build
 
-The development build will create a build without minifying or deduping code. It will also install dependencies for you, so you don't need to `yarn` before it.
+The development build will create a build without minifying or deduping code. It will also install dependencies for you, so you don't need to `npm install` before it.
 
 ```
-$ yarn build
+$ npm run build
 ```
 
 ## Development build with changes monitoring (watch)
 
 You can run a watch process, which will continuously watch the front-end JS and CSS/Sass for changes and rebuild accordingly.
-Instead of `yarn build` you'd use `yarn watch`.
+Instead of `npm run build` you'd use `npm run watch`.
 
 ```
-$ yarn watch
+$ npm run watch
 ```
 
 ## Production build
@@ -66,7 +62,7 @@ $ yarn watch
 The production build will generate minified files without duplicated code (resulting from dependencies) and will also generate the matching sourcemap and language files.
 
 ```
-$ NODE_ENV=production yarn build-client
+$ NODE_ENV=production npm run build-client
 ```
 
 ## Unit-testing
@@ -114,9 +110,9 @@ You can run [Mocha](https://mochajs.org/) based tests for the Admin Page source 
 Standing on your jetpack directory, run
 
 ```
-$ yarn
-$ yarn test-client
-$ yarn test-gui
+$ npm install
+$ npm run test-client
+$ npm run test-gui
 ```
 
 ## Use PHP CodeSniffer and ESLint to make sure your code respects coding standards
