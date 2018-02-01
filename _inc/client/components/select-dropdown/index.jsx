@@ -1,11 +1,10 @@
-import ReactDom from 'react-dom';
-
 /** @ssr-ready **/
 
 /**
  * External Dependencies
  */
 import PropTypes from 'prop-types';
+import ReactDom from 'react-dom';
 import React from 'react';
 import find from 'lodash/find';
 import filter from 'lodash/filter';

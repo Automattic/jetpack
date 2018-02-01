@@ -1,10 +1,9 @@
-import ReactDom from 'react-dom';
-
 /** @ssr-ready **/
 
 /**
  * External dependencies
  */
+import ReactDom from 'react-dom';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { Provider as ReduxProvider } from 'react-redux';
