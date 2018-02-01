@@ -1,4 +1,4 @@
-var PropTypes = require('prop-types');
+var PropTypes = require( 'prop-types' );
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable jsx-a11y/onclick-has-role */
 /* eslint-disable jsx-a11y/no-static-element-interactions */

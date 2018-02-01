@@ -1,4 +1,4 @@
-var PropTypes = require('prop-types');
+var PropTypes = require( 'prop-types' );
 /** External Dependencies **/
 var React = require( 'react' ),
 	Formsy = require( 'formsy-react' );

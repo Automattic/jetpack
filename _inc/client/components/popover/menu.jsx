@@ -1,4 +1,4 @@
-const PropTypes = require('prop-types');
+const PropTypes = require( 'prop-types' );
 /**
 * External dependencies
 */

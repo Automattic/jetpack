@@ -1,4 +1,4 @@
-var PropTypes = require('prop-types');
+var PropTypes = require( 'prop-types' );
 /* eslint-disable jsx-a11y/no-onchange */
 
 /** External Dependencies **/
