@@ -17,7 +17,12 @@
 }
 
 .jetpack-search-sort-wrapper {
+	margin-top: 1em;
 	margin-bottom: 1.5em;
+}
+
+.widget_search .jetpack-search-filters-widget__filter-list input[type="checkbox"] {
+	height: auto;
 }
 
 ul.jetpack-search-filters-widget__filter-list li {
@@ -44,4 +49,12 @@ ul.jetpack-search-filters-widget__filter-list li label {
 
 ul.jetpack-search-filters-widget__filter-list {
 	margin-bottom: 1.5em;
+}
+
+body.search .jetpack-search-form input[name="s"]::placeholder {
+	color: transparent;
+}
+
+body.search .jetpack-search-form input[name="s"].show-placeholder::placeholder {
+	color: inherit;
 }

@@ -45,6 +45,8 @@ class Jetpack_Lazy_Images {
 
 		// Do not lazy load avatar in admin bar
 		add_action( 'admin_bar_menu', array( $this, 'remove_filters' ), 0 );
+
+		add_filter( 'wp_kses_allowed_html', array( $this, 'allow_lazy_attributes' ) );
 	}
 
 	public function setup_filters() {
@@ -61,8 +63,31 @@ class Jetpack_Lazy_Images {
 		remove_filter( 'post_thumbnail_html', array( $this, 'add_image_placeholders' ), PHP_INT_MAX );
 		remove_filter( 'get_avatar', array( $this, 'add_image_placeholders' ), PHP_INT_MAX );
 		remove_filter( 'widget_text', array( $this, 'add_image_placeholders' ), PHP_INT_MAX );
-		remove_filter( 'get_image_tag', array( $this, 'add_image_placeholders' ), PHP_INT_MAX);		
+		remove_filter( 'get_image_tag', array( $this, 'add_image_placeholders' ), PHP_INT_MAX);
 		remove_filter( 'wp_get_attachment_image_attributes', array( __CLASS__, 'process_image_attributes' ), PHP_INT_MAX );
+	}
+
+	/**
+	 * Ensure that our lazy image attributes are not filtered out of image tags.
+	 *
+	 * @param array $allowed_tags The allowed tags and their attributes.
+	 * @return array
+	 */
+	public function allow_lazy_attributes( $allowed_tags ) {
+		if ( ! isset( $allowed_tags['img'] ) ) {
+			return $allowed_tags;
+		}
+
+		// But, if images are allowed, ensure that our attributes are allowed!
+		$img_attributes = array_merge( $allowed_tags['img'], array(
+			'data-lazy-src' => 1,
+			'data-lazy-srcset' => 1,
+			'data-lazy-sizes' => 1,
+		) );
+
+		$allowed_tags['img'] = $img_attributes;
+
+		return $allowed_tags;
 	}
 
 	public function add_image_placeholders( $content ) {

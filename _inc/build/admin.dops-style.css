@@ -27,8 +27,6 @@
     color: #2e4453; }
   .dops-button:active {
     border-width: 2px 1px 1px; }
-  .dops-button:visited {
-    color: #2e4453; }
   .dops-button[disabled], .dops-button:disabled {
     color: #e9eff3;
     background: white;

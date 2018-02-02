@@ -5,7 +5,7 @@ Stable tag: 5.7.1
 Requires at least: 4.7
 Tested up to: 4.9
 
-The one plugin you need for stats, related posts, search engine optimization, social sharing, protection, backups, speed, and email list management.
+The one plugin you need for stats, related posts, search engine optimization, Elasticsearch-powered search, social sharing, protection, backups, speed, and email list management.
 
 == Description ==
 
@@ -33,6 +33,7 @@ Measure, promote, and earn moment from your site. Jetpack helps you with:
 Stop worrying about data loss, downtime, and hacking. Jetpack helps you with:
 
 * Brute force attack protection, spam filtering, and downtime monitoring
+* Daily or real-time backups of your entire site
 * Secure logins with optional two-factor authentication
 * Malware scanning, code scanning, and automated threat resolution
 * Fast, priority support from WordPress experts
@@ -56,7 +57,7 @@ Alternatively, install Jetpack via the plugin directory, or upload the files man
 
 == Frequently Asked Questions ==
 
-= Is Jetpack Free? =
+= Is Jetpack free? =
 Yes! Jetpack's core features are and always will be free.
 
 These include: [site stats](https://jetpack.com/features/traffic/site-stats), a [high-speed CDN](https://jetpack.com/features/writing/content-delivery-network/) for images, [related posts](https://jetpack.com/features/traffic/related-posts), [downtime monitoring](https://jetpack.com/features/security/downtime-monitoring), brute force [attack protection](https://jetpack.com/features/security/brute-force-attack-protection), [automated sharing](https://jetpack.com/features/traffic/automatic-publishing/) to social networks, [sidebar customization](https://jetpack.com/features/writing/sidebar-customization/), and many more.
@@ -101,7 +102,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Major Enhancements**
 
 * [Lazy Images](https://jetpack.com/support/lazy-images/): after a Beta period, you can now enable this new feature from Jetpack > Settings in your dashboard.
-* Search: Jetpack's [Search feature](https://jetpack.com/support/search/) is now out of Beta! We've improved the way data is indexed behind the scenes, and made changes to the Search widget and its filters.
+* [Elasticsearch-powered search](https://jetpack.com/features/design/elasticsearch-powered-search/): also out of Beta! We've improved the way data is indexed behind the scenes, and made changes to the Search widget and its filters. (Elasticsearch is a trademark of Elasticsearch BV, registered in the U.S. and in other countries.)
 
 **Enhancements**
 
