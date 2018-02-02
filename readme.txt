@@ -102,7 +102,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Major Enhancements**
 
 * [Lazy Images](https://jetpack.com/support/lazy-images/): after a Beta period, you can now enable this new feature from Jetpack > Settings in your dashboard.
-* Search: [Elasticsearch-powered search](https://jetpack.com/features/design/elasticsearch-powered-search/) is now out of Beta! We've improved the way data is indexed behind the scenes, and made changes to the Search widget and its filters.
+* [Elasticsearch-powered search](https://jetpack.com/features/design/elasticsearch-powered-search/): also out of Beta! We've improved the way data is indexed behind the scenes, and made changes to the Search widget and its filters. (Elasticsearch is a trademark of Elasticsearch BV, registered in the U.S. and in other countries.)
 
 **Enhancements**
 
