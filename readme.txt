@@ -5,7 +5,7 @@ Stable tag: 5.7.1
 Requires at least: 4.7
 Tested up to: 4.9
 
-The one plugin you need for stats, related posts, search engine optimization, Elasticsearch, social sharing, protection, backups, speed, and email list management.
+The one plugin you need for stats, related posts, search engine optimization, Elasticsearch-powered search, social sharing, protection, backups, speed, and email list management.
 
 == Description ==
 
@@ -102,7 +102,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Major Enhancements**
 
 * [Lazy Images](https://jetpack.com/support/lazy-images/): after a Beta period, you can now enable this new feature from Jetpack > Settings in your dashboard.
-* Search: [Elasticsearch](https://jetpack.com/features/design/elasticsearch/) is now out of Beta! We've improved the way data is indexed behind the scenes, and made changes to the Search widget and its filters.
+* Search: [Elasticsearch-powered search](https://jetpack.com/features/design/elasticsearch-powered-search/) is now out of Beta! We've improved the way data is indexed behind the scenes, and made changes to the Search widget and its filters.
 
 **Enhancements**
 
