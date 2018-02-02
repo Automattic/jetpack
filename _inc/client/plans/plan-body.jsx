@@ -149,12 +149,12 @@ class PlanBody extends React.Component {
 							premiumThemesActive && (
 								<div className="jp-landing__plan-features-card">
 									<h3 className="jp-landing__plan-features-title">{ __( 'Unlimited Premium Themes' ) }</h3>
-									<p>{ __( "Exclusive hand-crafted designs you will love with dedicated support directly from the themes' authors." ) }</p>
+									<p>{ __( "Exclusive hand-crafted designs you will love with dedicated support directly from the theme authors." ) }</p>
 									<Button
 										onClick={ () => this.trackPlansClick( 'premium_themes' ) }
 										href={ 'https://wordpress.com/themes/premium/' + this.props.siteRawUrl }
 										className="is-primary">
-										{ __( 'Explore' ) }
+										{ __( 'Browse Themes' ) }
 									</Button>
 								</div>
 							)
@@ -268,7 +268,7 @@ class PlanBody extends React.Component {
 						( 'is-business-plan' === planClass || 'is-premium-plan' === planClass ) && (
 							<div className="jp-landing__plan-features-card">
 								<h3 className="jp-landing__plan-features-title">{ __( 'Video Hosting' ) }</h3>
-								<p>{ __( 'Fast, optimized, ad-free, and unlimited video hosting for your site (powered by VideoPress).' ) }</p>
+								<p>{ __( 'Fast, optimized, ad-free, and unlimited video hosting for your site.' ) }</p>
 								{
 									this.props.isModuleActivated( 'videopress' ) ? (
 										<Button onClick={ () => this.trackPlansClick( 'upload_videos' ) } href={ this.props.siteAdminUrl + 'upload.php' } className="is-primary">
@@ -281,7 +281,7 @@ class PlanBody extends React.Component {
 											className="is-primary"
 											disabled={ this.props.isActivatingModule( 'videopress' ) }
 										>
-											{ __( 'Activate VideoPress' ) }
+											{ __( 'Activate Video Hosting' ) }
 										</Button>
 									)
 								}
@@ -342,15 +342,10 @@ class PlanBody extends React.Component {
 					{
 						'is-personal-plan' === planClass && (
 							<div className="jp-landing__plan-features-card">
-								<h3 className="jp-landing__plan-features-title">{ __( 'Explore Premium and Professional Options' ) }</h3>
-								<p>{ __( 'Learn about Jetpack services used by WordPress professionals. On top of the security essentials you currently enjoy, Jetpack offers you:' ) }</p>
-								<p> &bull; { __( 'Over 200 Premium themes to explore' ) }</p>
-								<p> &bull; { __( 'Business class security: malware scanning, real-time backups, and threat resolution' ) }</p>
-								<p> &bull; { __( 'Social media automation and scheduling' ) }</p>
-								<p> &bull; { __( 'Unlimited and ad-free video hosting' ) }</p>
-								<p> &bull; { __( 'SEO and social media previewing tools' ) }</p>
-								<p> &bull; { __( 'Income generation from a WordPress ad program' ) }</p>
-								<p> &bull; { __( 'Google Analytics integration' ) }</p>
+								<h3 className="jp-landing__plan-features-title">{ __( 'Three great reasons to go Pro' ) }</h3>
+								<p>{ __( 'Design the perfect site with unlimited access to hundreds of themes and unlimited, high-speed, and ad-free video hosting.' ) }</p>
+								<p>{ __( 'Always-on security including real-time backups, malware scanning, and automatic threat resolution.' ) }</p>
+								<p>{ __( 'Grow your traffic and revenue with social media scheduling, enhanced site search, SEO tools, PayPal payments, and an ad program.' ) }</p>
 								<p>
 									<Button onClick={ () => this.trackPlansClick( 'compare_plans' ) } href={ 'https://jetpack.com/redirect/?source=plans-compare-personal&site=' + this.props.siteRawUrl } className="is-primary">
 										{ __( 'Compare Plans' ) }
@@ -363,10 +358,9 @@ class PlanBody extends React.Component {
 					{
 						'is-premium-plan' === planClass && (
 							<div className="jp-landing__plan-features-card">
-								<h3 className="jp-landing__plan-features-title">{ __( 'Explore Jetpack Professional' ) }</h3>
-								<p>{ __( 'Jetpack Professional is the tool used by WordPress professionals. On top of the services you already enjoy, you also benefit from:' ) }</p>
-								<p> &bull; { __( 'Over 200 Premium themes to explore' ) }</p>
-								<p> &bull; { __( 'Business class security: real-time backups and threat resolution' ) }</p>
+								<h3 className="jp-landing__plan-features-title">{ __( 'Two great reasons to go Pro' ) }</h3>
+								<p>{ __( 'Unlimited access to hundreds of premium WordPress themes with dedicated support directly from the theme authors.' ) }</p>
+								<p>{ __( 'A superior search experience powered by Elasticsearch providing your users with faster and more relevant search results. Previously only available to WordPress.com VIP customers and trusted by industry-leading brands.' ) }</p>
 								<p>
 									<Button onClick={ () => this.trackPlansClick( 'compare_plans' ) } href={ 'https://jetpack.com/redirect/?source=plans-compare-premium&site=' + this.props.siteRawUrl } className="is-primary">
 										{ __( 'Explore Jetpack Professional' ) }
@@ -384,18 +378,23 @@ class PlanBody extends React.Component {
 				planCard = (
 					<div className="jp-landing__plan-features">
 						<div className="jp-landing__plan-features-card">
-							<h3 className="jp-landing__plan-features-title">{ __( 'Maximum grade security' ) }</h3>
-							<p>{ __( 'Real-time backup with unlimited space, one-click restores, bulletproof spam monitoring, malware defense, and brute-force login protection - all in one place and optimized for WordPress.' ) }</p>
-							<p>{ __( 'Bulletproof spam filtering protects your brand, your readers, and improves SEO. Malware scanning helps maintain peace of mind and keeps your backend safe from intruders.' ) }</p>
+							<h3 className="jp-landing__plan-features-title">{ __( 'Design the perfect website' ) }</h3>
+							<p>{ __( 'Get unlimited access to hundreds of professional themes, a superior search experience for your users, and unlimited high-speed, and ad-free video hosting.' ) }</p>
 						</div>
+
 						<div className="jp-landing__plan-features-card">
-							<h3 className="jp-landing__plan-features-title">{ __( 'Premium traffic and monetization tools' ) }</h3>
-							<p>{ __( 'The Jetpack Premium plan now offers you the ability to generate income from your site by showing high-quality paid ads to your visitors. Professional plan customers also benefit from SEO tools to help optimize search engine traffic.' ) }</p>
+							<h3 className="jp-landing__plan-features-title">{ __( 'Increase traffic and revenue' ) }</h3>
+							<p>{ __( 'Reach more people and earn money with automated social media scheduling, better search results, SEO preview tools, PayPal payments, and an ad program.' ) }</p>
+						</div>
+
+						<div className="jp-landing__plan-features-card">
+							<h3 className="jp-landing__plan-features-title">{ __( 'Always-on Security' ) }</h3>
+							<p>{ __( 'Automatic defense against hacks, malware, spam, data loss, and downtime with automated backups, unlimited storage, and malware scanning.' ) }</p>
 						</div>
 
 						<div className="jp-landing__plan-features-card">
 							<h3 className="jp-landing__plan-features-title">{ __( 'Enjoy priority support' ) }</h3>
-							<p>{ __( 'We support all Jetpack users, regardless of plan. But customers on a paid subscription enjoy priority support so that security issues are identified and fixed for you as soon as possible. ' ) }</p>
+							<p>{ __( 'We support all Jetpack users, regardless of plan. But customers on a paid subscription enjoy priority support so that security issues are identified and fixed for you as soon as possible.' ) }</p>
 						</div>
 
 						<p>
