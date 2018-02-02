@@ -30,6 +30,10 @@
 		+ .dops-card {
 			margin-top: rem( 16px );
 		}
+
+		a {
+			text-decoration: underline;
+		}
 	}
 	.dops-foldable-card & {
 		padding-bottom: 16px;
