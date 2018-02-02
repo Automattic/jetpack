@@ -32,7 +32,7 @@ class JetpackBanner extends Banner {
 
 	static defaultProps = {
 		onClick: noop,
-		plan: false,
+		plan: '',
 	};
 
 	render() {
