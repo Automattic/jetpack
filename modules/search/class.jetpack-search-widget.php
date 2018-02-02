@@ -325,14 +325,27 @@ class Jetpack_Search_Widget extends WP_Widget {
 				jQuery( document ).ready( function( $ ) {
 					var orderByDefault = <?php echo wp_json_encode( $orderby ); ?>,
 						orderDefault   = <?php echo wp_json_encode( $order ); ?>,
-						widgetId       = <?php echo wp_json_encode( $this->id ); ?>;
+						widgetId       = <?php echo wp_json_encode( $this->id ); ?>,
+						searchQuery    = <?php echo wp_json_encode( get_query_var( 's', '' ) ); ?>,
+						isSearch       = <?php echo wp_json_encode( is_search() ); ?>;
 
-					var container = $('#' + widgetId);
-					var form = container.find('.jetpack-search-form form');
-					var orderBy = form.find( 'input[name=orderby]');
-					var order = form.find( 'input[name=order]');
-					orderBy.val(orderByDefault);
-					order.val(orderDefault);
+					var container = $( '#' + widgetId ),
+						form = container.find('.jetpack-search-form form'),
+						orderBy = form.find( 'input[name=orderby]'),
+						order = form.find( 'input[name=order]'),
+						searchInput = form.find( 'input[name="s"]' );
+
+					orderBy.val( orderByDefault );
+					order.val( orderDefault );
+
+					// Some themes don't set the search query, which results in the query being lost
+					// when doing a sort selection. So, if the query isn't set, let's set it now. This approach
+					// is chosen over running a regex over HTML for every search query performed.
+					if ( isSearch && ! searchInput.val() ) {
+						searchInput.val( searchQuery );
+					}
+
+					searchInput.addClass( 'show-placeholder' );
 
 					container.find( '.jetpack-search-sort' ).change( function( event ) {
 						var values  = event.target.value.split( '|' );
