@@ -32,10 +32,10 @@ class PlanHeader extends React.Component {
 				starrySky = (
 					<div className="jp-landing-plans__header">
 						<h2 className="jp-landing-plans__header-title">
-							{ __( 'Introducing our most affordable backups and security plan yet' ) }
+							{ __( 'Jetpack Premium now includes our full security suite' ) }
 						</h2>
 						<p className="jp-landing-plans__header-description">
-							{ __( 'Jetpack Personal keeps your data, site, and hard work safe.' ) }
+							{ __( 'Automated backups, one-click restores, spam filtering, and malware scanning.' ) }
 						</p>
 						<div className="jp-landing-plans__header-img-container">
 							<div className="jp-landing-plans__header-col-left">
@@ -43,7 +43,7 @@ class PlanHeader extends React.Component {
 								<p className="jp-landing-plans__header-text">
 									{ __( 'For less than the price of a coffee a month you can rest easy knowing your hard work (or livelihood) is backed up.' ) }
 									<br /><br />
-									{ __( "Hackers, botnets and spammers attack websites indiscriminately. Their goal is to attack everywhere and often. Our goal is to help you prepare by blocking these threats, and in worst-case-scenarios we'll be here to help you restore your site to its former glory." ) }
+									{ __( "Upgrade to a weekly coffee and fully protect your site from malware, infiltrations, and security loopholes with automated malware scanning." ) }
 								</p>
 								<p className="jp-landing-plans__header-btn-container">
 									<Button href={ 'https://jetpack.com/redirect/?source=plans-main-top&site=' + this.props.siteRawUrl } className="is-primary">
@@ -66,8 +66,8 @@ class PlanHeader extends React.Component {
 							<img src={ imagePath + '/plans/plan-free.svg' } className="jp-landing__plan-icon" alt="" />
 						</div>
 						<div className="jp-landing__plan-card-current">
-							<h3 className="jp-landing__plan-features-title">{ __( 'Your site is on the Free Jetpack Plan' ) }</h3>
-							<p className="jp-landing__plan-features-text">{ __( 'Upgrade to a paid plan to unlock world-class security, spam protection tools, priority support, SEO and monetization tools.' ) }</p>
+							<h3 className="jp-landing__plan-features-title">{ __( 'Powerful services for your site' ) }</h3>
+							<p className="jp-landing__plan-features-text">{ __( 'Always-on security, a better search experience, unlimited CDN use, advanced marketing tools, and monetization services.' ) }</p>
 						</div>
 					</div>
 				);
@@ -81,7 +81,7 @@ class PlanHeader extends React.Component {
 						</div>
 						<div className="jp-landing__plan-card-current">
 							<h3 className="jp-landing__plan-features-title">{ __( 'Welcome to Jetpack Personal' ) }</h3>
-							<p className="jp-landing__plan-features-text">{ __( 'Security essentials (daily backups, spam filtering), and priority support.' ) }</p>
+							<p className="jp-landing__plan-features-text">{ __( 'Daily backups, spam filtering, and priority support.' ) }</p>
 						</div>
 					</div>
 				);
@@ -93,9 +93,9 @@ class PlanHeader extends React.Component {
 						<div className="jp-landing__plan-card-img">
 							<img src={ imagePath + '/plans/plan-premium.svg' } className="jp-landing__plan-icon" alt="" />
 						</div>
-						<div className="jp-landing__plan-card-current">
+						<div className="jp-landing__plan-iconcard-current">
 							<h3 className="jp-landing__plan-features-title">{ __( 'Welcome to Jetpack Premium' ) }</h3>
-							<p className="jp-landing__plan-features-text">{ __( 'Enhanced security (backups, scanning, spam filtering), marketing automation (social scheduling, ad program), 13Gb video hosting, and priority support.' ) }</p>
+							<p className="jp-landing__plan-features-text">{ __( 'Full security suite, marketing and revenue automation tools, unlimited video hosting, and priority support.' ) }</p>
 						</div>
 					</div>
 				);
@@ -109,7 +109,7 @@ class PlanHeader extends React.Component {
 						</div>
 						<div className="jp-landing__plan-card-current">
 							<h3 className="jp-landing__plan-features-title">{ __( 'Welcome to Jetpack Professional' ) }</h3>
-							<p className="jp-landing__plan-features-text">{ __( 'Unlimited Premium themes, business class security (backups, scanning, spam filtering), marketing automation (social scheduling, SEO tools, ad program), video hosting, and priority support.' ) }</p>
+							<p className="jp-landing__plan-features-text">{ __( 'Full security suite, marketing and revenue automation tools, unlimited video hosting, unlimited themes, enhanced search, and priority support.' ) }</p>
 						</div>
 					</div>
 				);
