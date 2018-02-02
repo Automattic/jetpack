@@ -242,7 +242,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 		$title = apply_filters( 'widget_title', $title, $instance, $this->id_base );
 
 		echo $args['before_widget'];
-		?><div id="jetpack-search__<?php echo esc_attr( $this->id ); ?>"><?php
+		?><div id="<?php echo esc_attr( $this->id ); ?>-wrapper"><?php
 
 		if ( ! empty( $title ) ) {
 			/**
@@ -331,7 +331,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 						searchQuery    = <?php echo wp_json_encode( get_query_var( 's', '' ) ); ?>,
 						isSearch       = <?php echo wp_json_encode( is_search() ); ?>;
 
-					var container = $( '#jetpack-search__' + widgetId ),
+					var container = $( '#' + widgetId + '-wrapper' ),
 						form = container.find('.jetpack-search-form form'),
 						orderBy = form.find( 'input[name=orderby]'),
 						order = form.find( 'input[name=order]'),
