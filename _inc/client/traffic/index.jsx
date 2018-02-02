@@ -71,6 +71,13 @@ export class Traffic extends React.Component {
 					)
 				}
 				{
+					foundSearch && (
+						<Search
+							{ ...commonProps }
+						/>
+					)
+				}
+				{
 					foundAds && (
 						<Ads
 							{ ...commonProps }
@@ -115,13 +122,6 @@ export class Traffic extends React.Component {
 				{
 					foundVerification && (
 						<VerificationServices
-							{ ...commonProps }
-						/>
-					)
-				}
-				{
-					foundSearch && (
-						<Search
 							{ ...commonProps }
 						/>
 					)
