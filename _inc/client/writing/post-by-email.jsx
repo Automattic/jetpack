@@ -34,8 +34,9 @@ class PostByEmail extends React.Component {
 	address = () => {
 		const currentValue = this.props.getOptionValue( 'post_by_email_address' );
 		// If the module Post-by-email is enabled BUT it's configured as disabled
-		// Its value is set to false
-		if ( false === currentValue || '1' === currentValue ) {
+		// the post_by_email_address value is set to false.
+		// If there's no address generated yet, post_by_email_address is null.
+		if ( false === currentValue || '1' === currentValue || null === currentValue ) {
 			return '';
 		}
 		return currentValue;
