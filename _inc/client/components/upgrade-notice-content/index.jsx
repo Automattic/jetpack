@@ -13,6 +13,7 @@ import { connect } from 'react-redux';
  */
 import JetpackDialogue from 'components/jetpack-dialogue';
 import decodeEntities from 'lib/decode-entities';
+import { FormFieldset } from 'components/forms';
 import { imagePath } from 'constants/urls';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 import { getModule } from 'state/modules';
@@ -64,6 +65,11 @@ const UpgradeNoticeContent = moduleSettingsForm(
 									{ decodeEntities( lazyImages.description ) }
 								</span>
 							</ModuleToggle>
+							<FormFieldset>
+								<span className="jp-form-setting-explanation">
+									{ decodeEntities( lazyImages.long_description ) }
+								</span>
+							</FormFieldset>
 						</SettingsGroup>
 					</div>
 
