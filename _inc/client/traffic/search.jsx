@@ -39,7 +39,7 @@ class Search extends React.Component {
 					{ this.props.getOptionValue( 'search' ) && (
 						<FormFieldset>
 							<p className="jp-form-setting-explanation">
-								{ __( 'To configure search filters add the {{link}}Jetpack Search widget to your sidebar{{/link}}.', {
+								{ __( 'To configure search filters add the {{link}}"Search (Jetpack)" widget to your sidebar{{/link}}.', {
 									components: {
 										link: <a href="widgets.php" />
 									}
