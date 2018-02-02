@@ -20,7 +20,7 @@
 	margin-bottom: 1.5em;
 }
 
-.widget_search input[type="checkbox"] {
+.widget_search .jetpack-search-filters-widget__filter-list input[type="checkbox"] {
 	height: auto;
 }
 
