@@ -3,7 +3,7 @@
  * Plugin Name: VaultPress
  * Plugin URI: http://vaultpress.com/?utm_source=plugin-uri&amp;utm_medium=plugin-description&amp;utm_campaign=1.0
  * Description: Protect your content, themes, plugins, and settings with <strong>realtime backup</strong> and <strong>automated security scanning</strong> from <a href="http://vaultpress.com/?utm_source=wp-admin&amp;utm_medium=plugin-description&amp;utm_campaign=1.0" rel="nofollow">VaultPress</a>. Activate, enter your registration key, and never worry again. <a href="http://vaultpress.com/help/?utm_source=wp-admin&amp;utm_medium=plugin-description&amp;utm_campaign=1.0" rel="nofollow">Need some help?</a>
- * Version: 1.9.4
+ * Version: 1.9.5
  * Author: Automattic
  * Author URI: http://vaultpress.com/?utm_source=author-uri&amp;utm_medium=plugin-description&amp;utm_campaign=1.0
  * License: GPL2+
@@ -18,7 +18,7 @@ class VaultPress {
 	var $option_name          = 'vaultpress';
 	var $auto_register_option = 'vaultpress_auto_register';
 	var $db_version           = 4;
-	var $plugin_version       = '1.9.4';
+	var $plugin_version       = '1.9.5';
 
 	function __construct() {
 		register_activation_hook( __FILE__, array( $this, 'activate' ) );
@@ -354,11 +354,6 @@ class VaultPress {
 		// key and secret already exist in db
 		} elseif ( $this->is_registered() ) {
 			if ( $this->check_connection() ) {
-				$message = sprintf(
-					__( 'VaultPress has been registered and is currently backing up your site. <a href="%1$s">View Backup Status</a>', 'vaultpress' ),
-					admin_url( 'admin.php?page=vaultpress' )
-				);
-				$this->ui_message( $message, 'registered',  __( 'VaultPress has been activated!', 'vaultpress' ) );
 			}
 		}
 
