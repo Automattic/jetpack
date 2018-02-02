@@ -77,7 +77,7 @@ const UpgradeNoticeContent = moduleSettingsForm(
 						{ __( 'Faster, more relevant search results' ) }
 					</h2>
 
-					<a href="https://jetpack.com/features/design/elasticsearch-powered-search/" rel="noopener noreferrer" target="_blank">
+					<a href="https://wp.me/p1moTy-731" rel="noopener noreferrer" target="_blank">
 						<img src="https://jetpackme.files.wordpress.com/2018/02/jetpack-elasticsearch-powered-search.png" width="700" alt={ __( 'Elasticsearch' ) } />
 					</a>
 
