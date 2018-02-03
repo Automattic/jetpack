@@ -21,6 +21,10 @@
 	margin-bottom: 1.5em;
 }
 
+.jetpack-search-sort-wrapper label {
+	display: inherit;
+}
+
 .widget_search .jetpack-search-filters-widget__filter-list input[type="checkbox"] {
 	height: auto;
 }
@@ -41,6 +45,7 @@ ul.jetpack-search-filters-widget__filter-list li a:hover {
 
 ul.jetpack-search-filters-widget__filter-list li label {
 	font-weight: inherit;
+	display: inherit;
 }
 
 .jetpack-search-filters-widget__filter-list {
