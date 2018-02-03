@@ -26,6 +26,7 @@
 }
 
 .widget_search .jetpack-search-filters-widget__filter-list input[type="checkbox"] {
+	width: auto;
 	height: auto;
 }
 
