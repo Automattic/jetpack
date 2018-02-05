@@ -40,8 +40,17 @@ class WP_Test_Jetpack_Sync_Plugins_Updates extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_updating_a_plugin_is_synced() {
+		require ABSPATH . 'wp-includes/version.php';
 		if ( defined( 'PHP_VERSION_ID' ) && PHP_VERSION_ID < 50300 ) {
 			$this->markTestIncomplete( "Right now this doesn't work on PHP 5.2");
+		}
+
+		if (
+			version_compare( $wp_version, '4.9.0', '<' )
+			&& defined( 'PHP_VERSION_ID' )
+			&& PHP_VERSION_ID >= 70200
+		) {
+			$this->markTestIncomplete( "Right now this doesn't work on PHP 7.2 with WordPress < 4.9" );
 		}
 		$skins = array(
 			new Plugin_Upgrader_Skin( compact( 'title', 'url', 'nonce', 'plugin', 'api' ) ),
@@ -59,8 +68,17 @@ class WP_Test_Jetpack_Sync_Plugins_Updates extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_updating_plugin_in_bulk_is_synced() {
+		require ABSPATH . 'wp-includes/version.php';
 		if ( defined( 'PHP_VERSION_ID' ) && PHP_VERSION_ID < 50300 ) {
-			$this->markTestIncomplete("Right now this doesn't work on PHP 5.2");
+			$this->markTestIncomplete( "Right now this doesn't work on PHP 5.2");
+		}
+
+		if (
+			version_compare( $wp_version, '4.9.0', '<' )
+			&& defined( 'PHP_VERSION_ID' )
+			&& PHP_VERSION_ID >= 70200
+		) {
+			$this->markTestIncomplete( "Right now this doesn't work on PHP 7.2 with WordPress < 4.9" );
 		}
 		$skins = array(
 			new Plugin_Upgrader_Skin( compact( 'title', 'url', 'nonce', 'plugin', 'api' ) ),
