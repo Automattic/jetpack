@@ -137,12 +137,13 @@ class Jetpack_JITM {
 	function ajax_message() {
 		$message_path = $this->get_message_path();
 		$query_string = _http_build_query( $_GET, '', ',' );
-
+		$current_screen = wp_unslash( $_SERVER['REQUEST_URI'] );
 		?>
 		<div class="jetpack-jitm-message"
 		     data-nonce="<?php echo wp_create_nonce( 'wp_rest' ) ?>"
 		     data-message-path="<?php echo esc_attr( $message_path ) ?>"
 		     data-query="<?php echo urlencode_deep( $query_string ) ?>"
+		     data-redirect="<?php echo urlencode_deep( $current_screen ) ?>"
 		></div>
 		<?php
 	}
