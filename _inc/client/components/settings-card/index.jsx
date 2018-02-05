@@ -150,7 +150,7 @@ export const SettingsCard = props => {
 				);
 
 			case FEATURE_GOOGLE_ANALYTICS_JETPACK:
-				if ( 'is-business-plan' === planClass ) {
+				if ( 'is-business-plan' === planClass || 'is-premium-plan' === planClass ) {
 					return '';
 				}
 				return (
@@ -164,7 +164,7 @@ export const SettingsCard = props => {
 					/>
 				);
 			case FEATURE_SEO_TOOLS_JETPACK:
-				if ( 'is-business-plan' === planClass ) {
+				if ( 'is-business-plan' === planClass || 'is-premium-plan' === planClass ) {
 					return '';
 				}
 
@@ -242,14 +242,14 @@ export const SettingsCard = props => {
 				break;
 
 			case FEATURE_GOOGLE_ANALYTICS_JETPACK:
-				if ( 'is-business-plan' !== planClass ) {
+				if ( 'is-business-plan' !== planClass && 'is-premium-plan' !== planClass ) {
 					return false;
 				}
 
 				break;
 
 			case FEATURE_SEO_TOOLS_JETPACK:
-				if ( 'is-business-plan' !== planClass ) {
+				if ( 'is-business-plan' !== planClass && 'is-premium-plan' !== planClass ) {
 					return false;
 				}
 
