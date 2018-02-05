@@ -58,7 +58,7 @@ class AtAGlance extends Component {
 		const trackSecurityClick = () => analytics.tracks.recordJetpackClick( 'aag_manage_security_wpcom' );
 		const securityHeader = <DashSectionHeader
 					label={ __( 'Security' ) }
-					settingsPath={ this.props.userCanManageModules && '#security' }
+					settingsPath={ this.props.userCanManageModules ? '#security' : undefined }
 					externalLink={ this.props.isDevMode || ! this.props.userCanManageModules
 						? ''
 						: __( 'Manage security on WordPress.com' )
