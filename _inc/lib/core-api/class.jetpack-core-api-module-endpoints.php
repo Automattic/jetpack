@@ -651,6 +651,14 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 						return delete_option( 'WPLANG' );
 					}
 
+					if ( ! function_exists( 'request_filesystem_credentials' ) ) {
+						require_once( ABSPATH . 'wp-admin/includes/file.php' );
+					}
+
+					if ( ! function_exists( 'wp_download_language_pack' ) ) {
+						require_once ABSPATH . 'wp-admin/includes/translation-install.php';
+					}
+
 					// `wp_download_language_pack` only tries to download packs if they're not already available
 					$language = wp_download_language_pack( $value );
 					if ( $language === false ) {
