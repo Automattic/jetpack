@@ -45,6 +45,8 @@ class Jetpack_Beta_Admin {
 	}
 
 	static function render() {
+		// Always grab the latest version
+		Jetpack_Beta::get_beta_manifest( true );
 		require_once JPBETA__PLUGIN_DIR . 'admin/main.php';
 	}
 
@@ -86,6 +88,10 @@ class Jetpack_Beta_Admin {
 			$autoupdate = (bool) get_option( 'jp_beta_autoupdate' );
 
 			update_option( 'jp_beta_autoupdate', ! $autoupdate );
+
+			if ( Jetpack_Beta::is_set_to_autoupdate() ) {
+				Jetpack_Beta::maybe_schedule_autoupdate();
+			}
 			wp_safe_redirect( Jetpack_Beta::admin_url() );
 		}
 
@@ -407,7 +413,7 @@ class Jetpack_Beta_Admin {
 		$should_update_dev_version = Jetpack_Beta::should_update_dev_version();
 		$should_update_dev_to_master = Jetpack_Beta::should_update_dev_to_master();
 
-		if ( ! $should_update_dev_to_master
+		if ( ! $should_update_stable_version
 			&& ! $should_update_dev_version
 			&& ! $should_update_dev_to_master ) {
 			return;
