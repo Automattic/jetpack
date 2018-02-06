@@ -14,7 +14,7 @@ class WP_Test_Jetpack_Sync_Plugins_Updates extends WP_Test_Jetpack_Sync_Base {
 
 		require ABSPATH . 'wp-includes/version.php';
 		if ( defined( 'PHP_VERSION_ID' ) && PHP_VERSION_ID < 50300 ) {
-			$this->markTestIncomplete( "Right now this doesn't work on PHP 5.2");
+			$this->markTestIncomplete( "Right now this doesn't work on PHP 5.2" );
 		}
 
 		if (
