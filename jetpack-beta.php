@@ -328,11 +328,8 @@ class Jetpack_Beta {
 	}
 
 	public function maybe_plugins_update_transient( $transient ) {
-		// Check if the transient contains the 'checked' information
-		// If not, just return its value without hacking it
-		if ( empty( $transient->checked ) ) {
-			$transient->no_update[ JETPACK_DEV_PLUGIN_FILE ] = self::should_update_dev_to_master()
-				? self::get_jepack_dev_master_update_response() : self::get_jepack_dev_update_response();
+
+		if ( !isset( $transient->no_update ) ) {
 			return $transient;
 		}
 
@@ -572,7 +569,6 @@ class Jetpack_Beta {
 		if ( isset( $manifest->{$section}->{$branch}->download_url ) ) {
 			return $manifest->{$section}->{$branch}->download_url;
 		}
-
 		return null;
 	}
 
@@ -862,8 +858,56 @@ class Jetpack_Beta {
 		return ! isset( $manifest->{$section}->{$branch} );
 	}
 
-	static function is_set_to_autoupdate() {
-		return (bool) get_option( 'jp_beta_autoupdate', false );
+	static function run_autoupdate() {
+		if ( ! get_option( 'jp_beta_autoupdate', false ) ) {
+			return;
+		}
+
+		wp_clean_plugins_cache();
+		ob_start();
+		wp_update_plugins(); // Check for Plugin updates
+		ob_end_clean();
+		$plugins = array();
+		if ( self::should_update_dev_to_master() || self::should_update_dev_version() ) {
+			// If response is false, don't alter the transient
+			$plugins[] = JETPACK_DEV_PLUGIN_FILE;
+		}
+		$autupdate = Jetpack_Beta_Autoupdate_Self::instance();
+		if ( $autupdate->has_never_version() ) {
+			$plugins[] = JPBETA__PLUGIN_FOLDER . '/jetpack-beta.php';
+		}
+
+		if ( empty( $plugins ) ) {
+			return;
+		}
+
+		include_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
+
+		// unhook this functions that output things before we send our response header.
+		remove_action( 'upgrader_process_complete', array( 'Language_Pack_Upgrader', 'async_upgrade' ), 20 );
+		remove_action( 'upgrader_process_complete', 'wp_version_check' );
+		remove_action( 'upgrader_process_complete', 'wp_update_themes' );
+
+		$skin = new WP_Ajax_Upgrader_Skin();
+		// The Automatic_Upgrader_Skin skin shouldn't output anything.
+		$upgrader = new Plugin_Upgrader( $skin );
+		$upgrader->init();
+		// This avoids the plugin to be deactivated.
+		// Using bulk upgrade puts the site into maintenance mode during the upgrades
+		$result             = $upgrader->bulk_upgrade( $plugins );
+		$errors             = $upgrader->skin->get_errors();
+		$log[] = $upgrader->skin->get_upgrade_messages();
+
+		if ( is_wp_error( $errors ) && $errors->get_error_code() ) {
+			return $errors;
+		}
+
+		if ( $result ) {
+			$admin_email = get_site_option( 'admin_email', 'support@' . get_network()->domain );
+			$message = '';
+
+			wp_mail( $admin_email, 'Update Jetpack Beta', $message );
+		}
 	}
 }
 
