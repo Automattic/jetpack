@@ -3,7 +3,7 @@ var React = require( 'react' ),
 	Formsy = require( 'formsy-react' ),
 	classNames = require( 'classnames' ),
 	Payment = require( 'payment' );
-
+var PropTypes = require( 'prop-types' );
 /** Internal Dependencies **/
 var Label = require( './label' ),
 	getUniqueId = require( './counter' ),
@@ -16,22 +16,22 @@ module.exports = React.createClass( {
 	mixins: [Formsy.Mixin],
 
 	propTypes: {
-		name: React.PropTypes.string.isRequired,
-		description: React.PropTypes.string,
-		className: React.PropTypes.any,
-		style: React.PropTypes.any,
-		floatingLabel: React.PropTypes.any,
-		label: React.PropTypes.any,
-		type: React.PropTypes.string,
-		formatter: React.PropTypes.oneOf( ['cardNumber', 'cardExpiry', 'cardCVV', 'cardCVC'] ),
-		labelSuffix: React.PropTypes.any,
-		required: React.PropTypes.any,
-		validations: React.PropTypes.oneOfType( [
-			React.PropTypes.string,
-			React.PropTypes.object
+		name: PropTypes.string.isRequired,
+		description: PropTypes.string,
+		className: PropTypes.any,
+		style: PropTypes.any,
+		floatingLabel: PropTypes.any,
+		label: PropTypes.any,
+		type: PropTypes.string,
+		formatter: PropTypes.oneOf( ['cardNumber', 'cardExpiry', 'cardCVV', 'cardCVC'] ),
+		labelSuffix: PropTypes.any,
+		required: PropTypes.any,
+		validations: PropTypes.oneOfType( [
+			PropTypes.string,
+			PropTypes.object
 		] ),
-		validationError: React.PropTypes.string,
-		onChange: React.PropTypes.func
+		validationError: PropTypes.string,
+		onChange: PropTypes.func
 	},
 
 	getInitialState: function() {
