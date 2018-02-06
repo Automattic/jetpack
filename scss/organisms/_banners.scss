@@ -354,7 +354,7 @@
 		color: #2e4453;
 
 		&.jp-feature-intro {
-			border-left: 3px solid #00BE28;
+			border-left: 3px solid $green-primary;
 		}
 	}
 
@@ -380,7 +380,7 @@
 
 		&.jp-feature-intro {
 			svg {
-				fill: #00BE28;
+				fill: $green-primary;
 			}
 		}
 
