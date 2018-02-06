@@ -40,7 +40,7 @@ else
 
     gem install sass
     gem install compass
-    yarn
+    npm install 
 
     if $WP_TRAVISCI; then
 	# Everything is fine

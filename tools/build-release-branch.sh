@@ -197,22 +197,22 @@ echo ""
 
 echo "Building Jetpack"
 
-# Checking for yarn
-hash yarn 2>/dev/null || {
-    echo >&2 "This script requires you to have yarn package manager installed."
-    echo >&2 "Please install it following the instructions on https://yarnpkg.com. Aborting.";
+# Checking for npm 
+hash npm 2>/dev/null || {
+    echo >&2 "This script requires you to have Node package manager installed."
+    echo >&2 "Please install it following the instructions on https://www.npmjs.com/package/get-npm . Aborting.";
     exit 1;
 }
 
 # Start clean by removing previously installed dependencies and built files
-yarn run distclean
-yarn run clean-client
-# Clean yarn's cache
-yarn cache clean
+npm run distclean
+npm run clean-client
+# Clean npm's cache
+npm cache clean
 # Install dependencies
-yarn
+npm install
 # Build the Admin Page
-NODE_ENV=production yarn run build-client
+NODE_ENV=production npm run build-client
 echo "Done"
 
 # Prep a home to drop our new files in. Just make it in /tmp so we can start fresh each time.
