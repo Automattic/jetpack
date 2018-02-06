@@ -10,6 +10,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Jetpack_Beta_Autoupdate_Self {
 	protected static $_instance = null;
 
+	const TRANSIENT_NAME = 'JETPACK_BETA_LATEST_TAG';
+
 	/**
 	 * Main Instance
 	 */
@@ -34,6 +36,8 @@ class Jetpack_Beta_Autoupdate_Self {
 			'requires'           => '4.7',
 			'tested'             => '4.7'
 		);
+
+
 
 		add_filter( 'pre_set_site_transient_update_plugins', array( $this, 'api_check' ) );
 		add_filter( 'plugins_api', array( $this, 'get_plugin_info' ), 10, 3 );
@@ -132,8 +136,8 @@ class Jetpack_Beta_Autoupdate_Self {
 		if ( ! isset( $transient->no_update ) ) {
 			return $transient;
 		}
-		// Clear our transient
-		delete_site_transient( md5( $this->config['slug'] ) . '_latest_tag' );
+		// get the latest version
+		delete_site_transient( self::TRANSIENT_NAME );
 
 		if ( $this->has_never_version() ) {
 			$response              = new stdClass;
