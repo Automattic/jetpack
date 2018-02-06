@@ -12,9 +12,17 @@ class WP_Test_Jetpack_Sync_Plugins_Updates extends WP_Test_Jetpack_Sync_Base {
 	public function setUp() {
 		parent::setUp();
 
-
+		require ABSPATH . 'wp-includes/version.php';
 		if ( defined( 'PHP_VERSION_ID' ) && PHP_VERSION_ID < 50300 ) {
-			$this->markTestIncomplete("Right now this doesn't work on PHP 5.2");
+			$this->markTestIncomplete( "Right now this doesn't work on PHP 5.2" );
+		}
+
+		if (
+			version_compare( $wp_version, '4.9.0', '<' )
+			&& defined( 'PHP_VERSION_ID' )
+			&& PHP_VERSION_ID >= 70200
+		) {
+			$this->markTestIncomplete( "Right now this doesn't work on PHP 7.2 with WordPress < 4.9" );
 		}
 
 		$this->server_event_storage->reset();
@@ -40,9 +48,6 @@ class WP_Test_Jetpack_Sync_Plugins_Updates extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_updating_a_plugin_is_synced() {
-		if ( defined( 'PHP_VERSION_ID' ) && PHP_VERSION_ID < 50300 ) {
-			$this->markTestIncomplete( "Right now this doesn't work on PHP 5.2");
-		}
 		$skins = array(
 			new Plugin_Upgrader_Skin( compact( 'title', 'url', 'nonce', 'plugin', 'api' ) ),
 			new Automatic_Upgrader_Skin( compact( 'title', 'url', 'nonce', 'plugin', 'api' ) ),
@@ -59,9 +64,6 @@ class WP_Test_Jetpack_Sync_Plugins_Updates extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_updating_plugin_in_bulk_is_synced() {
-		if ( defined( 'PHP_VERSION_ID' ) && PHP_VERSION_ID < 50300 ) {
-			$this->markTestIncomplete("Right now this doesn't work on PHP 5.2");
-		}
 		$skins = array(
 			new Plugin_Upgrader_Skin( compact( 'title', 'url', 'nonce', 'plugin', 'api' ) ),
 			new Automatic_Upgrader_Skin( compact( 'title', 'url', 'nonce', 'plugin', 'api' ) ),
@@ -102,9 +104,6 @@ class WP_Test_Jetpack_Sync_Plugins_Updates extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_updating_plugin_error_in_bulk_is_synced() {
-		if ( defined( 'PHP_VERSION_ID' ) && PHP_VERSION_ID < 50300 ) {
-			$this->markTestIncomplete("Right now this doesn't work on PHP 5.2");
-		}
 		$skins = array(
 			new Plugin_Upgrader_Skin( compact( 'title', 'url', 'nonce', 'plugin', 'api' ) ),
 			new Automatic_Upgrader_Skin( compact( 'title', 'url', 'nonce', 'plugin', 'api' ) ),
@@ -123,10 +122,6 @@ class WP_Test_Jetpack_Sync_Plugins_Updates extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_updating_error_with_autoupdate_constant_results_in_proper_state() {
-		if ( defined( 'PHP_VERSION_ID' ) && PHP_VERSION_ID < 50300 ) {
-			$this->markTestIncomplete("Right now this doesn't work on PHP 5.2");
-		}
-
 		Jetpack_Constants::set_constant( 'JETPACK_PLUGIN_AUTOUPDATE', true );
 
 		$this->set_error();
@@ -139,10 +134,6 @@ class WP_Test_Jetpack_Sync_Plugins_Updates extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_updating_with_autoupdate_constant_results_in_proper_state() {
-		if ( defined( 'PHP_VERSION_ID' ) && PHP_VERSION_ID < 50300 ) {
-			$this->markTestIncomplete("Right now this doesn't work on PHP 5.2");
-		}
-
 		Jetpack_Constants::set_constant( 'JETPACK_PLUGIN_AUTOUPDATE', true );
 		$this->update_bulk_plugins( new WP_Ajax_Upgrader_Skin( compact( 'title', 'url', 'nonce', 'plugin', 'api' ) ) );
 		$this->sender->do_sync();
