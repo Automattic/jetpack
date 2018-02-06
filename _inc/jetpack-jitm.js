@@ -25,7 +25,7 @@ jQuery( document ).ready( function( $ ) {
 		}
 	};
 
-	var setJITMContent = function( $el, response ) {
+	var setJITMContent = function( $el, response, redirect ) {
 		var template;
 
 		var render = function( $my_template ) {
@@ -52,6 +52,8 @@ jQuery( document ).ready( function( $ ) {
 			template = 'default';
 		}
 
+		response.url = response.url + '&redirect=' + redirect;
+
 		var $template = templates[ template ]( response );
 		$template.find( '.jitm-banner__dismiss' ).click( render( $template ) );
 
@@ -66,6 +68,7 @@ jQuery( document ).ready( function( $ ) {
 
 		var message_path = $el.data( 'message-path' );
 		var query = $el.data( 'query' );
+		var redirect = $el.data( 'redirect' );
 
 		$.get( window.jitm_config.api_root + 'jetpack/v4/jitm', {
 			message_path: message_path,
@@ -82,7 +85,7 @@ jQuery( document ).ready( function( $ ) {
 			}
 
 			// for now, always take the first response
-			setJITMContent( $el, response[ 0 ] );
+			setJITMContent( $el, response[ 0 ], redirect );
 		} );
 	} );
 } );

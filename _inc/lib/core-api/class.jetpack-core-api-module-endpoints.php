@@ -1022,7 +1022,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			}
 		}
 
-		if ( ! empty( $data['siteDescription'] ) ) {
+		if ( isset( $data['siteDescription'] ) ) {
 			// If option value was the same, consider it done.
 			if ( ! ( update_option( 'blogdescription', $data['siteDescription'] ) || get_option( 'blogdescription' ) == $data['siteDescription'] ) ) {
 				$error[] = 'siteDescription';
