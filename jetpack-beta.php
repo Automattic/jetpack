@@ -960,7 +960,7 @@ class Jetpack_Beta {
 			return $errors;
 		}
 
-		if ( $result ) {
+		if ( $result && ! defined( 'JETPACK_BETA_SKIP_EMAIL' ) ) {
 			$admin_email = get_site_option( 'admin_email' );
 			$log = array_map( 'html_entity_decode', $log );
 			$message = implode( "\n", $log );
