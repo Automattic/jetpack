@@ -893,6 +893,9 @@ class Jetpack_Beta {
 	}
 
 	static function clear_autoupdate_cron() {
+		if ( ! is_main_site() ) {
+			return;
+		}
 		wp_clear_scheduled_hook( Jetpack_Beta::$auto_update_cron_hook );
 
 		if ( function_exists( 'wp_unschedule_hook' ) ) { // new in WP 4.9
@@ -909,6 +912,10 @@ class Jetpack_Beta {
 		if ( ! Jetpack_Beta::is_set_to_autoupdate() ) {
 			return;
 		}
+
+		if ( ! is_main_site() ) {
+			return;
+		}
 		$has_schedule_already = wp_get_schedule( Jetpack_Beta::$auto_update_cron_hook );
 		if ( ! $has_schedule_already ) {
 			Jetpack_Beta::schedule_hourly_autoupdate();
@@ -917,6 +924,10 @@ class Jetpack_Beta {
 
 	static function run_autoupdate() {
 		if ( ! Jetpack_Beta::is_set_to_autoupdate() ) {
+			return;
+		}
+
+		if ( ! is_main_site() ) {
 			return;
 		}
 
