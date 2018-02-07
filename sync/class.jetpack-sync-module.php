@@ -1,6 +1,7 @@
 <?php
 /**
  * Basic methods implemented by Jetpack Sync extensions
+ *
  */
 abstract class Jetpack_Sync_Module {
 	const ARRAY_CHUNK_SIZE = 10;
