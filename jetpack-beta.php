@@ -3,7 +3,7 @@
  * Plugin Name: Jetpack Beta Tester
  * Plugin URI: https://jetpack.com/beta/
  * Description: Use the Beta plugin to get a sneak peek at new features and test them on your site.
- * Version: 2.0.8
+ * Version: 2.1.0
  * Author: Automattic
  * Author URI: https://jetpack.com/
  * License: GPLv2 or later
@@ -68,6 +68,8 @@ class Jetpack_Beta {
 	static $option = 'jetpack_beta_active';
 	static $option_dev_installed = 'jetpack_beta_dev_currently_installed';
 
+	static $auto_update_cron_hook = 'jetpack_beta_autoupdate_hourly_cron';
+
 	/**
 	 * Main Instance
 	 */
@@ -82,7 +84,7 @@ class Jetpack_Beta {
 		if ( isset( $_GET['delete'] ) ) {
 			delete_site_transient( 'update_plugins' );
 		}
-		add_filter( 'auto_update_plugin', array( $this, 'auto_update_jetpack_beta' ), 10, 2 );
+
 		add_filter( 'pre_set_site_transient_update_plugins', array( $this, 'maybe_plugins_update_transient' ) );
 		add_filter( 'upgrader_post_install', array( $this, 'upgrader_post_install' ), 10, 3 );
 
@@ -101,8 +103,11 @@ class Jetpack_Beta {
 
 		add_filter( 'plugins_api', array( $this, 'get_plugin_info' ), 10, 3 );
 
+		add_action( 'jetpack_beta_autoupdate_hourly_cron', array( 'Jetpack_Beta', 'run_autoupdate' ) );
+
 		if ( is_admin() ) {
 			require JPBETA__PLUGIN_DIR . 'jetpack-beta-admin.php';
+			Jetpack_Beta::maybe_schedule_autoupdate();
 			Jetpack_Beta_Admin::init();
 		}
 	}
@@ -225,6 +230,10 @@ class Jetpack_Beta {
 	 * Run on activation to flush update cache
 	 */
 	public static function activate() {
+		// don't do anyting funnly
+		if ( defined('DOING_CRON')  ) {
+			return;
+		}
 		delete_site_transient( 'update_plugins' );
 	}
 
@@ -241,14 +250,25 @@ class Jetpack_Beta {
 	}
 
 	public static function deactivate() {
-		add_action( 'shutdown', array( __CLASS__, 'switch_active' ) );
-		delete_option( self::$option );
+		// don't do anyting funnly
+		if ( defined('DOING_CRON')  ) {
+			return;
+		}
 
+		Jetpack_Beta::clear_autoupdate_cron();
+		Jetpack_Beta::delete_all_transiants();
+		add_action( 'shutdown', array( __CLASS__, 'switch_active' ), 5 );
+		add_action( 'shutdown', array( __CLASS__, 'remove_dev_plugin' ), 20 );
+		delete_option( self::$option );
+	}
+
+	static function remove_dev_plugin() {
 		if ( is_multisite() ) {
 			return;
 		}
 
 		// Delete the jetpack dev plugin
+		require_once ABSPATH . 'wp-admin/includes/file.php';
 		$creds = request_filesystem_credentials( site_url() . '/wp-admin/', '', false, false, array() );
 		if ( ! WP_Filesystem( $creds ) ) {
 			/* any problems and we exit */
@@ -328,11 +348,7 @@ class Jetpack_Beta {
 	}
 
 	public function maybe_plugins_update_transient( $transient ) {
-		// Check if the transient contains the 'checked' information
-		// If not, just return its value without hacking it
-		if ( empty( $transient->checked ) ) {
-			$transient->no_update[ JETPACK_DEV_PLUGIN_FILE ] = self::should_update_dev_to_master()
-				? self::get_jepack_dev_master_update_response() : self::get_jepack_dev_update_response();
+		if ( !isset( $transient->no_update ) ) {
 			return $transient;
 		}
 
@@ -341,8 +357,14 @@ class Jetpack_Beta {
 			return $transient;
 		}
 
+		// Do not look for update if we are stable branch
+		if ( self::is_on_stable() ) {
+			return $transient;
+		}
+
 		// Lets always grab the latest
 		delete_site_transient( 'jetpack_beta_manifest' );
+
 		// check if there is a new version
 		if ( self::should_update_dev_to_master() ) {
 			// If response is false, don't alter the transient
@@ -356,7 +378,9 @@ class Jetpack_Beta {
 			unset( $transient->no_update[ JETPACK_DEV_PLUGIN_FILE ] );
 		} else {
 			unset( $transient->response[ JETPACK_DEV_PLUGIN_FILE ] );
-			$transient->no_update[ JETPACK_DEV_PLUGIN_FILE ] = self::get_jepack_dev_update_response();
+			if ( isset( $transient->no_update ) ) {
+				$transient->no_update[ JETPACK_DEV_PLUGIN_FILE ] = self::get_jepack_dev_update_response();
+			}
 		}
 
 		return $transient;
@@ -441,6 +465,14 @@ class Jetpack_Beta {
 		}
 		// branch and section
 		return $option;
+	}
+
+	static function is_on_stable() {
+		$branch_and_section = self::get_branch_and_section();
+		if ( empty( $branch_and_section[0] ) || $branch_and_section[0] == 'stable' ) {
+			return true;
+		}
+		return false;
 	}
 
 	static function get_branch_and_section_dev() {
@@ -548,8 +580,7 @@ class Jetpack_Beta {
 			$org_data = self::get_org_data();
 			return $org_data->download_link;
 		}
-
-		$manifest = Jetpack_Beta::get_beta_manifest();
+		$manifest = Jetpack_Beta::get_beta_manifest( true );
 
 		if ( 'master' === $section && isset( $manifest->{$section}->download_url ) ) {
 			return $manifest->{$section}->download_url;
@@ -571,7 +602,6 @@ class Jetpack_Beta {
 		if ( isset( $manifest->{$section}->{$branch}->download_url ) ) {
 			return $manifest->{$section}->{$branch}->download_url;
 		}
-
 		return null;
 	}
 
@@ -607,18 +637,18 @@ class Jetpack_Beta {
 		self::replace_active_plugin( JETPACK_DEV_PLUGIN_FILE, JETPACK_PLUGIN_FILE );
 	}
 
-	static function get_beta_manifest() {
-		return self::get_remote_data( JETPACK_BETA_MANIFEST_URL, 'manifest' );
+	static function get_beta_manifest( $force_refresh = false ) {
+		return self::get_remote_data( JETPACK_BETA_MANIFEST_URL, 'manifest', $force_refresh );
 	}
 
 	static function get_org_data() {
 		return self::get_remote_data( JETPACK_ORG_API_URL, 'org_data' );
 	}
 
-	static function get_remote_data( $url, $transient ) {
+	static function get_remote_data( $url, $transient, $bypass = false) {
 		$prefix = 'jetpack_beta_';
 		$cache  = get_site_transient( $prefix . $transient );
-		if ( $cache ) {
+		if ( $cache && ! $bypass ) {
 			return $cache;
 		}
 
@@ -634,20 +664,14 @@ class Jetpack_Beta {
 		return $cache;
 	}
 
-	function auto_update_jetpack_beta( $update, $item ) {
-		if ( 'sure' !== get_option( 'jp_beta_autoupdate' ) ) {
-			return $update;
-		}
+	static function delete_all_transiants() {
+		$prefix = 'jetpack_beta_';
 
-		// Array of plugin slugs to always auto-update
-		$plugins = array(
-			JETPACK_DEV_PLUGIN_FILE,
-		);
-		if ( in_array( $item->slug, $plugins ) ) {
-			return true; // Always update plugins in this array
-		} else {
-			return $update; // Else, use the normal API response to decide whether to update or not
-		}
+		delete_site_transient( $prefix. 'org_data' );
+		delete_site_transient( $prefix. 'manifest' );
+
+		delete_site_transient( Jetpack_Beta_Autoupdate_Self::TRANSIENT_NAME );
+
 	}
 
 	static function install_and_activate( $branch, $section ) {
@@ -655,6 +679,7 @@ class Jetpack_Beta {
 		// Clean up previous version of the beta plugin
 		if ( file_exists( WP_PLUGIN_DIR . DIRECTORY_SEPARATOR . 'jetpack-pressable-beta' ) ) {
 			// Delete the jetpack dev plugin
+			require_once ABSPATH . 'wp-admin/includes/file.php';
 			$creds = request_filesystem_credentials( site_url() . '/wp-admin/', '', false, false, array() );
 			if ( ! WP_Filesystem( $creds ) ) {
 				/* any problems and we exit */
@@ -758,7 +783,7 @@ class Jetpack_Beta {
 		if ( is_wp_error( $temp_path ) ) {
 			wp_die( sprintf( __( 'Error Downloading: <a href="%1$s">%1$s</a> - Error: %2$s', 'jetpack-beta' ), $url, $temp_path->get_error_message() ) );
 		}
-
+		require_once ABSPATH . 'wp-admin/includes/file.php';
 		$creds = request_filesystem_credentials( site_url() . '/wp-admin/', '', false, false, array() );
 		/* initialize the API */
 		if ( ! WP_Filesystem( $creds ) ) {
@@ -835,6 +860,7 @@ class Jetpack_Beta {
 			return false;
 		}
 
+
 		$updates = get_site_transient( 'update_plugins' );
 
 		if ( isset( $updates->response, $updates->response[ JETPACK_PLUGIN_FILE ] ) ) {
@@ -847,7 +873,11 @@ class Jetpack_Beta {
 		         && $org_data->version !== $plugin_data['Version'] );
 	}
 
-
+	/**
+	 * Here we are checking if the DEV branch that we are currenly on is not something that is available in the manifest
+	 * Meaning that the DEV branch was merged into master and so we need to update it.
+	 * @return bool
+	 */
 	static function should_update_dev_to_master() {
 		list( $branch, $section ) = self::get_branch_and_section_dev();
 
@@ -856,6 +886,120 @@ class Jetpack_Beta {
 		}
 		$manifest = self::get_beta_manifest();
 		return ! isset( $manifest->{$section}->{$branch} );
+	}
+
+	static function is_set_to_autoupdate() {
+		return get_option( 'jp_beta_autoupdate', false );
+	}
+
+	static function clear_autoupdate_cron() {
+		if ( ! is_main_site() ) {
+			return;
+		}
+		wp_clear_scheduled_hook( Jetpack_Beta::$auto_update_cron_hook );
+
+		if ( function_exists( 'wp_unschedule_hook' ) ) { // new in WP 4.9
+			wp_unschedule_hook( Jetpack_Beta::$auto_update_cron_hook );
+		}
+	}
+
+	static function schedule_hourly_autoupdate() {
+		wp_clear_scheduled_hook(  Jetpack_Beta::$auto_update_cron_hook );
+		wp_schedule_event( time(), 'hourly',  Jetpack_Beta::$auto_update_cron_hook );
+	}
+
+	static function maybe_schedule_autoupdate() {
+		if ( ! Jetpack_Beta::is_set_to_autoupdate() ) {
+			return;
+		}
+
+		if ( ! is_main_site() ) {
+			return;
+		}
+		$has_schedule_already = wp_get_schedule( Jetpack_Beta::$auto_update_cron_hook );
+		if ( ! $has_schedule_already ) {
+			Jetpack_Beta::schedule_hourly_autoupdate();
+		}
+	}
+
+	static function run_autoupdate() {
+		if ( ! Jetpack_Beta::is_set_to_autoupdate() ) {
+			return;
+		}
+
+		if ( ! is_main_site() ) {
+			return;
+		}
+
+		require_once ABSPATH . 'wp-admin/includes/file.php';
+		require_once ABSPATH . 'wp-admin/includes/plugin.php';
+		require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
+		wp_clean_plugins_cache();
+		ob_start();
+		wp_update_plugins(); // Check for Plugin updates
+		ob_end_clean();
+		$plugins = array();
+		if (
+			! Jetpack_Beta::is_on_stable() &&
+			( Jetpack_Beta::should_update_dev_to_master() || Jetpack_Beta::should_update_dev_version() )
+		) {
+			// If response is false, don't alter the transient
+			$plugins[] = JETPACK_DEV_PLUGIN_FILE;
+		}
+		$autupdate = Jetpack_Beta_Autoupdate_Self::instance();
+		if ( $autupdate->has_never_version() ) {
+			$plugins[] = JPBETA__PLUGIN_FOLDER . '/jetpack-beta.php';
+		}
+
+		if ( empty( $plugins ) ) {
+			return;
+		}
+
+		// unhook this functions that output things before we send our response header.
+		remove_action( 'upgrader_process_complete', array( 'Language_Pack_Upgrader', 'async_upgrade' ), 20 );
+		remove_action( 'upgrader_process_complete', 'wp_version_check' );
+		remove_action( 'upgrader_process_complete', 'wp_update_themes' );
+
+		$skin = new WP_Ajax_Upgrader_Skin();
+		// The Automatic_Upgrader_Skin skin shouldn't output anything.
+		$upgrader = new Plugin_Upgrader( $skin );
+		$upgrader->init();
+		// This avoids the plugin to be deactivated.
+		// Using bulk upgrade puts the site into maintenance mode during the upgrades
+		$result             = $upgrader->bulk_upgrade( $plugins );
+		$errors             = $upgrader->skin->get_errors();
+		$log = $upgrader->skin->get_upgrade_messages();
+
+		if ( is_wp_error( $errors ) && $errors->get_error_code() ) {
+			return $errors;
+		}
+
+		if ( $result && ! defined( 'JETPACK_BETA_SKIP_EMAIL' ) ) {
+			$admin_email = get_site_option( 'admin_email' );
+			$log = array_map( 'html_entity_decode', $log );
+			$message = implode( "\n", $log );
+
+			if ( empty( $admin_email ) ) {
+				return;
+			}
+			$subject = 'Updated Jetpack Beta Tester';
+			if ( in_array( JETPACK_DEV_PLUGIN_FILE, $plugins ) ) {
+				$subject = sprintf( 'Updated Jetpack %s | %s',
+					Jetpack_Beta::get_jetpack_plugin_pretty_version(),
+					Jetpack_Beta::get_jetpack_plugin_version()
+				);
+
+				if ( count( $plugins ) > 1 ) {
+					$subject = sprintf( 'Updated Jetpack %s | %s and the Jetpack Beta Tester',
+						Jetpack_Beta::get_jetpack_plugin_pretty_version(),
+						Jetpack_Beta::get_jetpack_plugin_version()
+					);
+				}
+			}
+
+			wp_mail( $admin_email, $subject, $message );
+
+		}
 	}
 }
 

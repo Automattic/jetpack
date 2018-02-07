@@ -10,6 +10,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 class Jetpack_Beta_Autoupdate_Self {
 	protected static $_instance = null;
 
+	const TRANSIENT_NAME = 'JETPACK_BETA_LATEST_TAG';
+
 	/**
 	 * Main Instance
 	 */
@@ -35,11 +37,11 @@ class Jetpack_Beta_Autoupdate_Self {
 			'tested'             => '4.7'
 		);
 
+
+
 		add_filter( 'pre_set_site_transient_update_plugins', array( $this, 'api_check' ) );
 		add_filter( 'plugins_api', array( $this, 'get_plugin_info' ), 10, 3 );
 		add_filter( 'upgrader_source_selection', array( $this, 'upgrader_source_selection' ), 10, 3 );
-
-		add_filter( 'auto_update_plugin', array( $this, 'auto_update_jetpack_beta' ), 10, 2 );
 
 	}
 
@@ -56,7 +58,7 @@ class Jetpack_Beta_Autoupdate_Self {
 	}
 
 	public function get_latest_prerelease() {
-		$tagged_version = get_site_transient( md5( $this->config['slug'] ) . '_latest_tag' );
+		$tagged_version = get_site_transient( self::TRANSIENT_NAME );
 		if ( $this->overrule_transients() || empty( $tagged_version ) ) {
 			$raw_response = wp_remote_get( trailingslashit( $this->config['api_url'] ) . 'releases' );
 			if ( is_wp_error( $raw_response ) ) {
@@ -75,7 +77,7 @@ class Jetpack_Beta_Autoupdate_Self {
 			}
 			// refresh every 6 hours
 			if ( ! empty( $tagged_version ) ) {
-				set_site_transient( md5( $this->config['slug'] ) . '_latest_tag', $tagged_version, 60*60*6 );
+				set_site_transient( self::TRANSIENT_NAME, $tagged_version, 60*60*6 );
 			}
 		}
 		return $tagged_version;
@@ -115,23 +117,29 @@ class Jetpack_Beta_Autoupdate_Self {
 		return ! empty( $_description->description ) ? $_description->description : false;
 	}
 
+
 	public function get_plugin_data() {
 		return get_plugin_data( WP_PLUGIN_DIR . '/' . $this->config['plugin_file'] );
+	}
+
+	public function has_never_version() {
+		if ( ! isset( $this->config['new_version'] ) ) {
+			$this->set_update_args();
+		}
+		return version_compare( $this->config['new_version'], $this->config['version'], '>' );
+
 	}
 
 	public function api_check( $transient ) {
 		// Check if the transient contains the 'checked' information
 		// If not, just return its value without hacking it
-		if ( empty( $transient->checked ) ) {
+		if ( ! isset( $transient->no_update ) ) {
 			return $transient;
 		}
-		// Clear our transient
-		delete_site_transient( md5( $this->config['slug'] ) . '_latest_tag' );
-		// Update tags
-		$this->set_update_args();
-		// check the version and decide if it's new
-		$update = version_compare( $this->config['new_version'], $this->config['version'], '>' );
-		if ( $update ) {
+		// get the latest version
+		delete_site_transient( self::TRANSIENT_NAME );
+
+		if ( $this->has_never_version() ) {
 			$response              = new stdClass;
 			$response->plugin      = $this->config['slug'];
 			$response->new_version = $this->config['new_version'];
@@ -180,17 +188,5 @@ class Jetpack_Beta_Autoupdate_Self {
 			}
 		}
 		return $source;
-	}
-
-	public function auto_update_jetpack_beta( $update, $item ) {
-		if ( 'sure' !== get_option( 'jp_beta_autoupdate') ) {
-			return $update;
-		}
-
-		if ( $item->slug === $this->config['slug'] ) {
-			return true;
-		} else {
-			return $update; // Else, use the normal API response to decide whether to update or not
-		}
 	}
 }
