@@ -257,9 +257,12 @@ class Jetpack_Beta {
 
 		Jetpack_Beta::clear_autoupdate_cron();
 		Jetpack_Beta::delete_all_transiants();
-		add_action( 'shutdown', array( __CLASS__, 'switch_active' ) );
+		add_action( 'shutdown', array( __CLASS__, 'switch_active' ), 5 );
+		add_action( 'shutdown', array( __CLASS__, 'remove_dev_plugin' ), 20 );
 		delete_option( self::$option );
+	}
 
+	static function remove_dev_plugin() {
 		if ( is_multisite() ) {
 			return;
 		}
