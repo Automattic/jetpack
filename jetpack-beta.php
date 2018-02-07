@@ -255,6 +255,8 @@ class Jetpack_Beta {
 			return;
 		}
 
+		Jetpack_Beta::clear_autoupdate_cron();
+		Jetpack_Beta::delete_all_transiants();
 		add_action( 'shutdown', array( __CLASS__, 'switch_active' ) );
 		delete_option( self::$option );
 
@@ -659,6 +661,16 @@ class Jetpack_Beta {
 		return $cache;
 	}
 
+	static function delete_all_transiants() {
+		$prefix = 'jetpack_beta_';
+
+		delete_site_transient( $prefix. 'org_data' );
+		delete_site_transient( $prefix. 'manifest' );
+
+		delete_site_transient( Jetpack_Beta_Autoupdate_Self::TRANSIENT_NAME );
+
+	}
+
 	static function install_and_activate( $branch, $section ) {
 
 		// Clean up previous version of the beta plugin
@@ -878,7 +890,6 @@ class Jetpack_Beta {
 	}
 
 	static function clear_autoupdate_cron() {
-		error_log( 'clear_autoupdate_cron' );
 		wp_clear_scheduled_hook( Jetpack_Beta::$auto_update_cron_hook );
 
 		if ( function_exists( 'wp_unschedule_hook' ) ) { // new in WP 4.9
@@ -887,7 +898,6 @@ class Jetpack_Beta {
 	}
 
 	static function schedule_hourly_autoupdate() {
-		error_log( 'schedule_hourly_autoupdate' );
 		wp_clear_scheduled_hook(  Jetpack_Beta::$auto_update_cron_hook );
 		wp_schedule_event( time(), 'hourly',  Jetpack_Beta::$auto_update_cron_hook );
 	}
@@ -903,9 +913,7 @@ class Jetpack_Beta {
 	}
 
 	static function run_autoupdate() {
-		error_log( 'RAN autoupdate!' );
 		if ( ! Jetpack_Beta::is_set_to_autoupdate() ) {
-			error_log('NO is_set_to_autoupdate' );
 			return;
 		}
 
@@ -930,7 +938,6 @@ class Jetpack_Beta {
 		}
 
 		if ( empty( $plugins ) ) {
-			error_log('NO plugins' );
 			return;
 		}
 
@@ -954,7 +961,6 @@ class Jetpack_Beta {
 		}
 
 		if ( $result ) {
-			error_log('Worked!');
 			$admin_email = get_site_option( 'admin_email' );
 			$log = array_map( 'html_entity_decode', $log );
 			$message = implode( "\n", $log );
