@@ -124,7 +124,8 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'signup_is_store',
 		'has_pending_automated_transfer',
 		'woocommerce_is_active',
-		'design_type'
+		'design_type',
+		'site_goals'
 	);
 
 	protected static $jetpack_response_field_additions = array(
@@ -552,6 +553,9 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 					break;
 				case 'design_type':
 					$options[ $key ] = $site->get_design_type();
+					break;
+				case 'site_goals':
+					$options[ $key ] = $site->get_site_goals();
 					break;
 			}
 		}
