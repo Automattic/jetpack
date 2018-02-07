@@ -590,4 +590,9 @@ abstract class SAL_Site {
 		$options = get_option( 'options' );
 		return empty( $options[ 'designType'] ) ? null : $options[ 'designType' ];
 	}
+
+	function get_site_goals() {
+		$options = get_option( 'options' );
+		return empty( $options[ 'siteGoals'] ) ? null : $options[ 'siteGoals' ];
+	}
 }
