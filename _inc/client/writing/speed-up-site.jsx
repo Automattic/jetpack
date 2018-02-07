@@ -49,48 +49,52 @@ const SpeedUpSite = moduleSettingsForm(
 					header={ __( 'Speed up your site' ) }
 					hideButton>
 
-					<SettingsGroup
-						hasChild
-						disableInDevMode
-						module={ photon }>
-						<ModuleToggle
-							slug="photon"
-							disabled={ this.props.isUnavailableInDevMode( 'photon' ) }
-							activated={ this.props.getOptionValue( 'photon' ) }
-							toggling={ this.props.isSavingAnyOption( 'photon' ) }
-							toggleModule={ this.toggleModule }
-						>
-							<span className="jp-form-toggle-explanation">
-								{ decodeEntities( photon.description ) }
-							</span>
-						</ModuleToggle>
-						<FormFieldset>
-							<span className="jp-form-setting-explanation">
-								{ decodeEntities( photon.long_description ) }
-							</span>
-						</FormFieldset>
-					</SettingsGroup>
+					{ foundPhoton &&
+						<SettingsGroup
+							hasChild
+							disableInDevMode
+							module={ photon }>
+							<ModuleToggle
+								slug="photon"
+								disabled={ this.props.isUnavailableInDevMode( 'photon' ) }
+								activated={ this.props.getOptionValue( 'photon' ) }
+								toggling={ this.props.isSavingAnyOption( 'photon' ) }
+								toggleModule={ this.toggleModule }
+							>
+								<span className="jp-form-toggle-explanation">
+									{ decodeEntities( photon.description ) }
+								</span>
+							</ModuleToggle>
+							<FormFieldset>
+								<span className="jp-form-setting-explanation">
+									{ decodeEntities( photon.long_description ) }
+								</span>
+							</FormFieldset>
+						</SettingsGroup>
+					}
 
-					<SettingsGroup
-						hasChild
-						module={ lazyImages }>
-						<ModuleToggle
-							slug="lazy-images"
-							disabled={ this.props.isUnavailableInDevMode( 'lazy-images' ) }
-							activated={ this.props.getOptionValue( 'lazy-images' ) }
-							toggling={ this.props.isSavingAnyOption( 'lazy-images' ) }
-							toggleModule={ this.toggleModule }
-						>
-							<span className="jp-form-toggle-explanation">
-								{ decodeEntities( lazyImages.description ) }
-							</span>
-						</ModuleToggle>
-						<FormFieldset>
-							<span className="jp-form-setting-explanation">
-								{ decodeEntities( lazyImages.long_description ) }
-							</span>
-						</FormFieldset>
-					</SettingsGroup>
+					{ foundLazyImages &&
+						<SettingsGroup
+							hasChild
+							module={ lazyImages }>
+							<ModuleToggle
+								slug="lazy-images"
+								disabled={ this.props.isUnavailableInDevMode( 'lazy-images' ) }
+								activated={ this.props.getOptionValue( 'lazy-images' ) }
+								toggling={ this.props.isSavingAnyOption( 'lazy-images' ) }
+								toggleModule={ this.toggleModule }
+							>
+								<span className="jp-form-toggle-explanation">
+									{ decodeEntities( lazyImages.description ) }
+								</span>
+							</ModuleToggle>
+							<FormFieldset>
+								<span className="jp-form-setting-explanation">
+									{ decodeEntities( lazyImages.long_description ) }
+								</span>
+							</FormFieldset>
+						</SettingsGroup>
+					}
 				</SettingsCard>
 			);
 		}
