@@ -168,30 +168,14 @@ class Jetpack_Lazy_Images {
 			return $matches[0];
 		}
 
-		if (
-			! empty( $old_attributes_kses_hair['class'] ) &&
-			! empty( $old_attributes_kses_hair['class']['value'] ) &&
-			self::should_skip_image_with_blacklisted_class( $old_attributes_kses_hair['class']['value'] )
-		) {
-			return $matches[0];
-		}
-
-		/**
-		 * Allow plugins and themes to conditionally skip processing an image via its attributes.
-		 *
-		 * @module-lazy-images
-		 *
-		 * @since 5.9.0
-		 *
-		 * @param bool  Default to not skip processing the current image.
-		 * @param array An array of attributes via wp_kses_hair() for the current image.
-		 */
-		if ( apply_filters( 'jetpack_lazy_images_skip_image_with_atttributes', false, $old_attributes_kses_hair ) ) {
-			return $matches[0];
-		}
-
 		$old_attributes = self::flatten_kses_hair_data( $old_attributes_kses_hair );
 		$new_attributes = self::process_image_attributes( $old_attributes );
+
+		// If we didn't add lazy attributes, just return the original image source.
+		if ( empty( $new_attributes['data-lazy-src'] ) ) {
+			return $matches[0];
+		}
+
 		$new_attributes_str = self::build_attributes_string( $new_attributes );
 
 		return sprintf( '<img %1$s><noscript>%2$s</noscript>', $new_attributes_str, $matches[0] );
@@ -209,6 +193,24 @@ class Jetpack_Lazy_Images {
 	 */
 	static function process_image_attributes( $attributes ) {
 		if ( empty( $attributes['src'] ) ) {
+			return $attributes;
+		}
+
+		if ( ! empty( $attributes['class'] ) && self::should_skip_image_with_blacklisted_class( $attributes['class'] ) ) {
+			return $attributes;
+		}
+
+		/**
+		 * Allow plugins and themes to conditionally skip processing an image via its attributes.
+		 *
+		 * @module-lazy-images
+		 *
+		 * @since 5.9.0
+		 *
+		 * @param bool  Default to not skip processing the current image.
+		 * @param array An array of attributes via wp_kses_hair() for the current image.
+		 */
+		if ( apply_filters( 'jetpack_lazy_images_skip_image_with_atttributes', false, $attributes ) ) {
 			return $attributes;
 		}
 
