@@ -49,12 +49,12 @@ function jetpack_author_bio() {
 			<h2 class="author-title"><?php printf( esc_html__( 'Published by %s', 'jetpack' ), '<span class="author-name">' . get_the_author() . '</span>' ); ?></h2>
 		</div><!-- .author-heading -->
 
-		<p class="author-bio">
+		<div class="author-bio">
 			<?php the_author_meta( 'description' ); ?>
 			<a class="author-link" href="<?php echo esc_url( get_author_posts_url( get_the_author_meta( 'ID' ) ) ); ?>" rel="author">
 				<?php printf( esc_html__( 'View all posts by %s', 'jetpack' ), get_the_author() ); ?>
 			</a>
-		</p><!-- .author-bio -->
+		</div><!-- .author-bio -->
 	</div><!-- .entry-auhtor -->
 <?php
 }
