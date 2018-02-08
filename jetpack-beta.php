@@ -927,8 +927,8 @@ class Jetpack_Beta {
 			$html = '';
 			$commit_data = Jetpack_Beta::get_commit_data_from_github( $commit );
 			if ( isset( $commit_data->commit->message ) ) {
-				$html .= "\n". sprintf(
-					__( '%s [Commit](%s)', 'jetpack-beta' ),
+				$html .= sprintf(
+					__( "\n %s \n\n[Commit](%s)", 'jetpack-beta' ),
 						esc_html( $commit_data->commit->message ),
 						esc_url( $commit_data->html_url )
 					);
