@@ -927,17 +927,17 @@ class Jetpack_Beta {
 			$html = '';
 			$commit_data = Jetpack_Beta::get_commit_data_from_github( $commit );
 			if ( isset( $commit_data->commit->message ) ) {
-				$html .= '<p>'. sprintf(
-					__( '%s <a target="_blank" href="%s">Commit</a>', 'jetpack-beta' ),
+				$html .= "\n". sprintf(
+					__( '%s [Commit](%s)', 'jetpack-beta' ),
 						esc_html( $commit_data->commit->message ),
 						esc_url( $commit_data->html_url )
 					);
-				'</p> ';
+				"\n\n";
 			}
 			if ( $commit_data->files ) {
-				$html .= '<p>';
+				$html .= "\n\n";
 				$html .= sprintf( _n( 'One file changed ', '%d files changed',  count( $commit_data->files ), 'jetpack-beta' ), count( $commit_data->files ) );
-				$html .= '<br />';
+				$html .= "\n";
 				foreach(  $commit_data->files as $file ) {
 					$added_deleted_changed = array();
 					if( $file->additions ) {
@@ -946,9 +946,9 @@ class Jetpack_Beta {
 					if ( $file->deletions ) {
 						$added_deleted_changed[] = '-'. $file->deletions;
 					}
-					$html .= sprintf( '- %s &hellip; (%s %s)<br />',  esc_html( $file->filename ), esc_html( $file->status ), implode( ' ', $added_deleted_changed ) );
+					$html .= sprintf( "- %s ... (%s %s) \n",  esc_html( $file->filename ), esc_html( $file->status ), implode( ' ', $added_deleted_changed ) );
 				}
-				$html .= '</p>';
+				$html .= "\n\n";
 			}
 			if ( ! empty( $html ) ) {
 				return $html;
@@ -1054,23 +1054,16 @@ class Jetpack_Beta {
 			$message  = sprintf( __( 'Howdy! Your site at %1$s has autoupdated %2$s.', 'jetpack-beta' ), home_url(), $what_updated );
 			$message .= "\n\n";
 
-			;
 			if ( $what_changed = Jetpack_Beta::what_changed() ) {
 				$message .= __( 'What changed?', 'jetpack-beta' );
-				$message .= "\n\n";
-				$message .= str_replace( '<br />', "\n", $what_changed );
-				$message .= str_replace( '<p>', "", $what_changed );
-				$message .= str_replace( '</p>', "\n\n", $what_changed );
 				$message .= strip_tags( $what_changed );
-				$message .= "\n\n";
 			}
 
-			$message .= "\n\n";
 			$message  .= __( 'During the autoupdate the following happened:', 'jetpack-beta' );
 			$message .= "\n\n";
 			// Can only reference the About screen if their update was successful.
 			$log = array_map( 'html_entity_decode', $log );
-			$message .= implode( "\n -", $log );
+			$message .= ' - ' . implode( "\n - ", $log );
 
 			$message .= "\n\n";
 
