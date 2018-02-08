@@ -40,6 +40,7 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 		$widget = array(
 			'name' => $widget_object->name,
 			'id' => $widget_object->id,
+			'title' => isset( $new_instance['title'] ) ? $new_instance['title'] : '',
 		);
 		/**
 		 * Trigger action to alert $callable sync listener that a widget was edited
