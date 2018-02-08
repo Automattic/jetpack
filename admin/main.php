@@ -31,11 +31,6 @@
 			<div class="dops-foldable-card__content">
 				<p><?php echo Jetpack_Beta::get_jetpack_plugin_pretty_version(); ?>
 					| <?php echo Jetpack_Beta::get_jetpack_plugin_version(); ?></p>
-
-				<?php if ( $what_changed = Jetpack_Beta::what_changed() ) { ?>
-					<h2><?php _e("What changed in the last commit?", 'jetpack-beta' ); ?></h2>
-					<?php echo Jetpack_Beta_Admin::render_markdown( Jetpack_Beta::what_changed() ); ?>
-				<?php } ?>
 			</div>
 		</div>
 		<div class="dops-foldable-card has-expanded-summary dops-card">
@@ -71,17 +66,32 @@
 	</div>
 
 	<?php if ( $to_test = Jetpack_Beta_Admin::to_test_content() ) { ?>
-	<div class="dops-foldable-card is-expanded has-expanded-summary dops-card is-compact">
-		<div class="dops-foldable-card__header has-border">
+		<div class="dops-foldable-card is-expanded has-expanded-summary dops-card is-compact">
+			<div class="dops-foldable-card__header has-border">
 				<span class="dops-foldable-card__main">
 					<div class="dops-foldable-card__header-text">
 						<div class="dops-foldable-card__header-text"><?php _e( 'To Test', 'jetpack-beta' ); ?></div>
 					</div>
 				</span>
+			</div>
+			<div class="dops-foldable-card__content">
+				<?php echo $to_test ; ?>
+			</div>
 		</div>
-		<div class="dops-foldable-card__content">
-			<?php echo $to_test ; ?>
+	<?php } ?>
+
+	<?php if ( $what_changed = Jetpack_Beta::what_changed()  ) { ?>
+		<div class="dops-foldable-card is-expanded has-expanded-summary dops-card is-compact">
+			<div class="dops-foldable-card__header has-border">
+				<span class="dops-foldable-card__main">
+					<div class="dops-foldable-card__header-text">
+						<div class="dops-foldable-card__header-text"><?php _e( 'What changed', 'jetpack-beta' ); ?></div>
+					</div>
+				</span>
+			</div>
+			<div class="dops-foldable-card__content">
+				<?php echo Jetpack_Beta_Admin::render_markdown( $what_changed ); ?>
+			</div>
 		</div>
-	</div>
 	<?php } ?>
 </div>
