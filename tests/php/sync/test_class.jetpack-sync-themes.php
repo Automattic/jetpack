@@ -391,13 +391,14 @@ class WP_Test_Jetpack_Sync_Themes extends WP_Test_Jetpack_Sync_Base {
 		/**
 		 * This filter is already documented in wp-includes/class-wp-widget.php
 		 */
-		do_action( 'widget_update_callback', array(), array(), array( 'dummy' => 'data' ), $object);
+		do_action( 'widget_update_callback', array(), array( 'title' => 'My Widget' ), array( 'dummy' => 'data' ), $object);
 
 		$this->sender->do_sync();
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_widget_edited' );
 		$this->assertEquals( $event->args[0]['name'], 'Search' );
 		$this->assertEquals( $event->args[0]['id'], 'search-1' );
+		$this->assertEquals( $event->args[0]['title'], 'My Widget' );
 	}
 
 	private function install_theme( $slug ) {
