@@ -3,7 +3,7 @@
  * Plugin Name: Jetpack Beta Tester
  * Plugin URI: https://jetpack.com/beta/
  * Description: Use the Beta plugin to get a sneak peek at new features and test them on your site.
- * Version: 2.1.0
+ * Version: 2.1.1
  * Author: Automattic
  * Author URI: https://jetpack.com/
  * License: GPLv2 or later
@@ -1027,31 +1027,38 @@ class Jetpack_Beta {
 			if ( empty( $admin_email ) ) {
 				return;
 			}
+			$site_title = ! empty( get_bloginfo( 'name' ) ) ? get_bloginfo( 'name' ) : get_site_url();
 			$what_updated = 'Jetpack Beta Tester Plugin';
-			$subject = 'Autoupdated Jetpack Beta Tester';
+			$subject = sprintf( __( '[%s] Autoupdated Jetpack Beta Tester', 'jetpack-beta' ), $site_title );
 			if ( in_array( JETPACK_DEV_PLUGIN_FILE, $plugins ) ) {
-				$subject = sprintf( 'Autoupdated Jetpack %s ',
+				$subject = sprintf(  __( '[%s] Autoupdated Jetpack %s ', 'jetpack-beta' ),
+					$site_title,
 					Jetpack_Beta::get_jetpack_plugin_pretty_version()
 				);
 
-				$what_updated = sprintf( 'Jetpack %s (%s)',
+				$what_updated = sprintf( __( 'Jetpack %s (%s)', 'jetpack-beta' ),
 					Jetpack_Beta::get_jetpack_plugin_pretty_version(),
 					Jetpack_Beta::get_jetpack_plugin_version()
 				);
 
 				if ( count( $plugins ) > 1 ) {
-					$subject = sprintf( 'Autoupdated Jetpack %s and the Jetpack Beta Tester',
+					$subject = sprintf( __( '[%s] Autoupdated Jetpack %s and the Jetpack Beta Tester', 'jetpack-beta' ),
+						$site_title,
 						Jetpack_Beta::get_jetpack_plugin_pretty_version()
 					);
 
-					$what_updated = sprintf( 'Jetpack %s (%s) and the Jetpack Beta Tester',
+					$what_updated = sprintf( __(  'Jetpack %s (%s) and the Jetpack Beta Tester', 'jetpack-beta' ),
 						Jetpack_Beta::get_jetpack_plugin_pretty_version(),
 						Jetpack_Beta::get_jetpack_plugin_version()
 					);
 				}
 			}
 
-			$message  = sprintf( __( 'Howdy! Your site at %1$s has autoupdated %2$s.', 'jetpack-beta' ), home_url(), $what_updated );
+			$message  = sprintf(
+				__( 'Howdy! Your site at %1$s has autoupdated %2$s.', 'jetpack-beta' ),
+				home_url(),
+				$what_updated
+			);
 			$message .= "\n\n";
 
 			if ( $what_changed = Jetpack_Beta::what_changed() ) {
