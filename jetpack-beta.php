@@ -609,7 +609,7 @@ class Jetpack_Beta {
 		return self::get_jetpack_plugin_info( JETPACK_PLUGIN_FILE );
 	}
 
-	static function get_jetpack_plugin_info_dev( ) {
+	static function get_jetpack_plugin_info_dev() {
 		return self::get_jetpack_plugin_info( JETPACK_DEV_PLUGIN_FILE );
 	}
 
@@ -922,6 +922,53 @@ class Jetpack_Beta {
 		}
 	}
 
+	static function what_changed() {
+		if ( $commit = Jetpack_Beta::get_version_commit() ) {
+			$html = '';
+			$commit_data = Jetpack_Beta::get_commit_data_from_github( $commit );
+			if ( isset( $commit_data->commit->message ) ) {
+				$html .= '<p>'. sprintf(
+					__( '%s <a target="_blank" href="%s">Commit</a>', 'jetpack-beta' ),
+						esc_html( $commit_data->commit->message ),
+						esc_url( $commit_data->html_url )
+					);
+				'</p> ';
+			}
+			if ( $commit_data->files ) {
+				$html .= '<p>';
+				$html .= sprintf( _n( 'One file changed ', '%d files changed',  count( $commit_data->files ), 'jetpack-beta' ), count( $commit_data->files ) );
+				$html .= '<br />';
+				foreach(  $commit_data->files as $file ) {
+					$added_deleted_changed = array();
+					if( $file->additions ) {
+						$added_deleted_changed[] = '+'. $file->additions;
+					}
+					if ( $file->deletions ) {
+						$added_deleted_changed[] = '-'. $file->deletions;
+					}
+					$html .= sprintf( '- %s &hellip; (%s %s)<br />',  esc_html( $file->filename ), esc_html( $file->status ), implode( ' ', $added_deleted_changed ) );
+				}
+				$html .= '</p>';
+			}
+			if ( ! empty( $html ) ) {
+				return $html;
+			}
+		}
+		return false;
+	}
+
+	static function get_version_commit() {
+		$split_version = explode( '-', Jetpack_Beta::get_jetpack_plugin_version() );
+		if ( isset( $split_version[3] )) {
+			return $split_version[3];
+		}
+		return false;
+	}
+
+	static function get_commit_data_from_github( $commit ) {
+		return self::get_remote_data( JETPACK_GITHUB_API_URL.'commits/'.$commit, 'github_commits_' . $commit );
+	}
+
 	static function run_autoupdate() {
 		if ( ! Jetpack_Beta::is_set_to_autoupdate() ) {
 			return;
@@ -976,26 +1023,56 @@ class Jetpack_Beta {
 
 		if ( $result && ! defined( 'JETPACK_BETA_SKIP_EMAIL' ) ) {
 			$admin_email = get_site_option( 'admin_email' );
-			$log = array_map( 'html_entity_decode', $log );
-			$message = implode( "\n", $log );
 
 			if ( empty( $admin_email ) ) {
 				return;
 			}
-			$subject = 'Updated Jetpack Beta Tester';
+			$what_updated = 'Jetpack Beta Tester Plugin';
+			$subject = 'Autoupdated Jetpack Beta Tester';
 			if ( in_array( JETPACK_DEV_PLUGIN_FILE, $plugins ) ) {
-				$subject = sprintf( 'Updated Jetpack %s | %s',
+				$subject = sprintf( 'Autoupdated Jetpack %s ',
+					Jetpack_Beta::get_jetpack_plugin_pretty_version()
+				);
+
+				$what_updated = sprintf( 'Jetpack %s (%s)',
 					Jetpack_Beta::get_jetpack_plugin_pretty_version(),
 					Jetpack_Beta::get_jetpack_plugin_version()
 				);
 
 				if ( count( $plugins ) > 1 ) {
-					$subject = sprintf( 'Updated Jetpack %s | %s and the Jetpack Beta Tester',
+					$subject = sprintf( 'Autoupdated Jetpack %s and the Jetpack Beta Tester',
+						Jetpack_Beta::get_jetpack_plugin_pretty_version()
+					);
+
+					$what_updated = sprintf( 'Jetpack %s (%s) and the Jetpack Beta Tester',
 						Jetpack_Beta::get_jetpack_plugin_pretty_version(),
 						Jetpack_Beta::get_jetpack_plugin_version()
 					);
 				}
 			}
+
+			$message  = sprintf( __( 'Howdy! Your site at %1$s has autoupdated %2$s.', 'jetpack-beta' ), home_url(), $what_updated );
+			$message .= "\n\n";
+
+			;
+			if ( $what_changed = Jetpack_Beta::what_changed() ) {
+				$message .= __( 'What changed?', 'jetpack-beta' );
+				$message .= "\n\n";
+				$message .= str_replace( '<br />', "\n", $what_changed );
+				$message .= str_replace( '<p>', "", $what_changed );
+				$message .= str_replace( '</p>', "\n\n", $what_changed );
+				$message .= strip_tags( $what_changed );
+				$message .= "\n\n";
+			}
+
+			$message .= "\n\n";
+			$message  .= __( 'During the autoupdate the following happened:', 'jetpack-beta' );
+			$message .= "\n\n";
+			// Can only reference the About screen if their update was successful.
+			$log = array_map( 'html_entity_decode', $log );
+			$message .= implode( "\n -", $log );
+
+			$message .= "\n\n";
 
 			wp_mail( $admin_email, $subject, $message );
 
