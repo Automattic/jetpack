@@ -16,29 +16,25 @@
 </div>
 <div class="jetpack-beta-container" >
 	<?php Jetpack_Beta_Admin::show_needed_updates(); ?>
-	<?php if ( Jetpack_Beta::get_option() ) {?>
-	<div class="dops-foldable-card is-expanded has-expanded-summary dops-card is-compact">
-		<div class="dops-foldable-card__header has-border">
-			<span class="dops-foldable-card__main">
-				<div class="dops-foldable-card__header-text">
-					<div class="dops-foldable-card__header-text">Currently Running </div>
-				</div>
-			</span>
-			<span class="dops-foldable-card__secondary">
-					<?php Jetpack_Beta_Admin::show_toggle_autoupdates(); ?>
-			</span>
+	<?php if ( Jetpack_Beta::get_option() ) { ?>
+		<div class="dops-foldable-card is-expanded has-expanded-summary dops-card is-compact">
+			<div class="dops-foldable-card__header has-border">
+				<span class="dops-foldable-card__main">
+					<div class="dops-foldable-card__header-text">
+						<div class="dops-foldable-card__header-text">Currently Running </div>
+					</div>
+				</span>
+				<span class="dops-foldable-card__secondary">
+						<?php Jetpack_Beta_Admin::show_toggle_autoupdates(); ?>
+				</span>
+			</div>
+			<div class="dops-foldable-card__content">
+				<p><?php echo Jetpack_Beta::get_jetpack_plugin_pretty_version(); ?>
+					| <?php echo Jetpack_Beta::get_jetpack_plugin_version(); ?></p>
+			</div>
 		</div>
-		<div class="dops-foldable-card__content">
-			<p><?php echo Jetpack_Beta::get_jetpack_plugin_pretty_version(); ?>
-				| <?php echo Jetpack_Beta::get_jetpack_plugin_version(); ?></p>
-		</div>
-	</div>
-	<?php } else {
-		Jetpack_Beta_Admin::start_notice();
-	}
-	?>
-	<div class="dops-foldable-card has-expanded-summary dops-card">
-		<div class="dops-foldable-card__header has-border">
+		<div class="dops-foldable-card has-expanded-summary dops-card">
+			<div class="dops-foldable-card__header has-border">
 			<span class="dops-foldable-card__main">
 				<div class="dops-foldable-card__header-text">
 					<div class="dops-foldable-card__header-text"><?php _e( 'Found a bug?', 'jetpack-beta' ); ?></div>
@@ -52,30 +48,50 @@
 					</a>
 				</span>
 			</span>
+			</div>
 		</div>
-	</div>
-	<?php
-	echo '<div class="jetpack-beta__wrap">';
-		Jetpack_Beta_Admin::show_stable_branch();
 
+	<?php } else {
+		Jetpack_Beta_Admin::start_notice();
+	}
+	?>
+	<div class="jetpack-beta__wrap">
+	<?php
+		Jetpack_Beta_Admin::show_stable_branch();
 		Jetpack_Beta_Admin::show_branch( __( 'Release Candidate' ), 'rc', null, 'rc' );
 		Jetpack_Beta_Admin::show_branch( __( 'Bleeding Edge' ), 'master', null, 'master' );
 		Jetpack_Beta_Admin::show_search_prs();
 		Jetpack_Beta_Admin::show_branches( 'pr' );
-	echo '</div>';
+	?>
+	</div>
 
-	if ( $to_test = Jetpack_Beta_Admin::to_test_content() ) { ?>
-	<div class="dops-foldable-card is-expanded has-expanded-summary dops-card is-compact">
-		<div class="dops-foldable-card__header has-border">
+	<?php if ( $to_test = Jetpack_Beta_Admin::to_test_content() ) { ?>
+		<div class="dops-foldable-card is-expanded has-expanded-summary dops-card is-compact">
+			<div class="dops-foldable-card__header has-border">
 				<span class="dops-foldable-card__main">
 					<div class="dops-foldable-card__header-text">
 						<div class="dops-foldable-card__header-text"><?php _e( 'To Test', 'jetpack-beta' ); ?></div>
 					</div>
 				</span>
+			</div>
+			<div class="dops-foldable-card__content">
+				<?php echo $to_test ; ?>
+			</div>
 		</div>
-		<div class="dops-foldable-card__content">
-			<?php echo $to_test ; ?>
+	<?php } ?>
+
+	<?php if ( $what_changed = Jetpack_Beta::what_changed()  ) { ?>
+		<div class="dops-foldable-card is-expanded has-expanded-summary dops-card is-compact">
+			<div class="dops-foldable-card__header has-border">
+				<span class="dops-foldable-card__main">
+					<div class="dops-foldable-card__header-text">
+						<div class="dops-foldable-card__header-text"><?php _e( 'What changed', 'jetpack-beta' ); ?></div>
+					</div>
+				</span>
+			</div>
+			<div class="dops-foldable-card__content">
+				<?php echo Jetpack_Beta_Admin::render_markdown( $what_changed ); ?>
+			</div>
 		</div>
-	</div>
 	<?php } ?>
 </div>
