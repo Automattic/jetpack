@@ -48,7 +48,7 @@ jobs:
           command: ./scripts/randomize.sh specs
       - run:
           name: Run e2e tests
-          command: xvfb-run ./run.sh -R -j -H CI -p
+          command: xvfb-run ./run.sh -R -j -H JN -p
       - store_test_results:
           path: reports/
       - store_artifacts:
