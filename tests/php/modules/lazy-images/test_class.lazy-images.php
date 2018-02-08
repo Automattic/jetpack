@@ -278,6 +278,22 @@ class WP_Test_Lazy_Images extends WP_UnitTestCase {
 		);
 	}
 
+	function test_jetpack_lazy_images_skip_image_with_atttributes_filter() {
+		$instance = Jetpack_Lazy_Images::instance();
+		$src = '<img src="image.jpg" srcset="medium.jpg 1000w, large.jpg 2000w" class="wp-post-image"/>';
+
+		$this->assertContains( 'src="placeholder.jpg"', $instance->add_image_placeholders( $src ) );
+
+		add_filter( 'jetpack_lazy_images_skip_image_with_atttributes', '__return_true' );
+		$this->assertNotContains( 'src="placeholder.jpg"', $instance->add_image_placeholders( $src ) );
+		remove_filter( 'jetpack_lazy_images_skip_image_with_atttributes', '__return_true' );
+
+		add_filter( 'jetpack_lazy_images_skip_image_with_atttributes', array( $this, '__skip_if_srcset' ), 10, 2 );
+		$this->assertNotContains( 'src="placeholder.jpg"', $instance->add_image_placeholders( $src ) );
+		$this->assertContains( 'src="placeholder.jpg"', $instance->add_image_placeholders( '<img src="image.jpg" />' ) );
+		remove_filter( 'jetpack_lazy_images_skip_image_with_atttributes', array( $this, '__skip_if_srcset' ), 10, 2 );
+	}
+
 	/*
 	 * Helpers
 	 */
@@ -313,5 +329,9 @@ class WP_Test_Lazy_Images extends WP_UnitTestCase {
 		ob_end_clean();
 
 		return trim( $contents );
+	}
+
+	public function __skip_if_srcset( $should_skip, $attributes ) {
+		return isset( $attributes['srcset'] );
 	}
 }

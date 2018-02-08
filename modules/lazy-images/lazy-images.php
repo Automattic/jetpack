@@ -176,6 +176,20 @@ class Jetpack_Lazy_Images {
 			return $matches[0];
 		}
 
+		/**
+		 * Allow plugins and themes to conditionally skip processing an image via its attributes.
+		 *
+		 * @module-lazy-images
+		 *
+		 * @since 5.9.0
+		 *
+		 * @param bool  Default to not skip processing the current image.
+		 * @param array An array of attributes via wp_kses_hair() for the current image.
+		 */
+		if ( apply_filters( 'jetpack_lazy_images_skip_image_with_atttributes', false, $old_attributes_kses_hair ) ) {
+			return $matches[0];
+		}
+
 		$old_attributes = self::flatten_kses_hair_data( $old_attributes_kses_hair );
 		$new_attributes = self::process_image_attributes( $old_attributes );
 		$new_attributes_str = self::build_attributes_string( $new_attributes );
