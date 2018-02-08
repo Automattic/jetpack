@@ -145,7 +145,8 @@ class WP_Test_Lazy_Images extends WP_UnitTestCase {
 
 		remove_filter( 'jetpack_lazy_images_new_attributes', array( $this, '__set_height_attribute' ) );
 
-		$expected_html = '<img src="placeholder.jpg" data-lazy-src="image.jpg" style="height: 100px;"><noscript><img src="image.jpg" sizes="(min-width: 36em) 33.3vw, 100vw" /></noscript>';
+		$expected_html = '<img src="placeholder.jpg" data-lazy-src="image.jpg" style="height: 100px;"><noscript><img src="image.jpg" height="100px" /></noscript>';
+		$this->assertSame( $expected_html, $html );
 	}
 
 	function test_wp_get_attachment_image_gets_lazy_treatment() {
@@ -220,7 +221,8 @@ class WP_Test_Lazy_Images extends WP_UnitTestCase {
 
 	public function __set_height_attribute( $attributes ) {
 		if ( ! empty( $attributes['height'] ) ) {
-			$attributes['style'] = sprintf( 'height: %d;', $attributes['height'] );
+			$attributes['style'] = sprintf( 'height: %dpx;', $attributes['height'] );
+			unset( $attributes['height'] );
 		}
 		return $attributes;
 	}
