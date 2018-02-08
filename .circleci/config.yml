@@ -24,13 +24,13 @@ jobs:
           paths:
             - /wp-e2e-tests/node_modules
           key: << checksum "package.json" >>
+      - run:
+          name: Run Jetpack JN activation spec
+          command: source $HOME/.nvm/nvm.sh && xvfb-run ./node_modules/.bin/mocha scripts/jetpack/wp-jetpack-jn-activate.js
       - persist_to_workspace:
           root: /wp-e2e-tests
           paths:
             - .
-      - run:
-          name: Run Jetpack JN activation spec
-          command: source $HOME/.nvm/nvm.sh && xvfb-run ./node_modules/.bin/mocha scripts/jetpack/wp-jetpack-jn-activate.js
       - store_test_results:
           path: reports/
       - store_artifacts:
