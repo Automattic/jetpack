@@ -16,7 +16,7 @@ jobs:
                   cd /
                   git clone https://github.com/Automattic/wp-e2e-tests.git
                   cd /wp-e2e-tests
-                  git checkout try/switch-jetpack-tests-to-jn
+                  git checkout origin/${E2E_BRANCH-master}
       - restore_cache:
           key: << checksum "package.json" >>
       - run: source $HOME/.nvm/nvm.sh && npm install
