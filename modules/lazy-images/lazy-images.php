@@ -113,6 +113,45 @@ class Jetpack_Lazy_Images {
 	}
 
 	/**
+	 * Returns true when a given string of classes contains a class signifying lazy images
+	 * should not process the image.
+	 *
+	 * @since 5.9.0
+	 *
+	 * @param string $classes A string of space-separated classes.
+	 * @return bool
+	 */
+	public static function should_skip_image_with_blacklisted_class( $classes ) {
+		$blacklisted_classes = array(
+			'skip-lazy',
+			'gazette-featured-content-thumbnail',
+		);
+
+		/**
+		 * Allow plugins and themes to tell lazy images to skip an image with a given class.
+		 *
+		 * @module lazy-images
+		 *
+		 * @since 5.9.0
+		 *
+		 * @param array An array of strings where each string is a class.
+		 */
+		$blacklisted_classes = apply_filters( 'jetpack_lazy_images_blacklisted_classes', $blacklisted_classes );
+
+		if ( ! is_array( $blacklisted_classes ) || empty( $blacklisted_classes ) ) {
+			return false;
+		}
+
+		foreach ( $blacklisted_classes as $class ) {
+			if ( false !== strpos( $classes, $class ) ) {
+				return true;
+			}
+		}
+
+		return false;
+	}
+
+	/**
 	 * Processes images in content by acting as the preg_replace_callback
 	 *
 	 * @since 5.6.0
@@ -126,6 +165,14 @@ class Jetpack_Lazy_Images {
 		$old_attributes_kses_hair = wp_kses_hair( $old_attributes_str, wp_allowed_protocols() );
 
 		if ( empty( $old_attributes_kses_hair['src'] ) ) {
+			return $matches[0];
+		}
+
+		if (
+			! empty( $old_attributes_kses_hair['class'] ) &&
+			! empty( $old_attributes_kses_hair['class']['value'] ) &&
+			self::should_skip_image_with_blacklisted_class( $old_attributes_kses_hair['class']['value'] )
+		) {
 			return $matches[0];
 		}
 
@@ -148,11 +195,6 @@ class Jetpack_Lazy_Images {
 	 */
 	static function process_image_attributes( $attributes ) {
 		if ( empty( $attributes['src'] ) ) {
-			return $attributes;
-		}
-
-		// check for gazette featured images, which are incompatible
-		if ( isset( $attributes['class'] ) && false !== strpos( $attributes['class'], 'gazette-featured-content-thumbnail' ) ) {
 			return $attributes;
 		}
 
