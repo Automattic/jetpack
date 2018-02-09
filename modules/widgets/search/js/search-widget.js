@@ -1,14 +1,17 @@
 jQuery( document ).ready( function() {
-	var checkboxes = jQuery( '.jetpack-search-filters-widget__filter-list input[type="checkbox"]' );
+	var filter_list = jQuery( '.jetpack-search-filters-widget__filter-list' );
 
-	checkboxes.prop( 'disabled', false ).css( 'cursor', 'inherit' );
-	checkboxes.on( 'click change', function( e ) {
-		var anchor;
-		e.preventDefault();
+	filter_list.on( 'click', 'a', function() {
+		var checkbox = jQuery( this ).children( 'input[type="checkbox"]' );
 
-		anchor = jQuery( this ).closest( 'a' );
-		if ( anchor.length ) {
-			window.location.href = anchor.prop( 'href' );
-		}
+		toggle_checkbox( checkbox );
 	} );
+
+	filter_list.find( 'input[type="checkbox"]' ).prop( 'disabled', false ).css( 'cursor', 'inherit' ).on( 'click', function() {
+		toggle_checkbox( jQuery( this ) );
+	} );
+
+	function toggle_checkbox( checkbox ) {
+		checkbox.prop( 'checked', ! checkbox.prop( 'checked' ) );
+	}
 } );
