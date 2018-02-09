@@ -27,7 +27,7 @@ class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 	 */
 	public function test_photonizing_https_image_adds_ssl_query_arg() {
 		$url = jetpack_photon_url( 'https://example.com/images/photon.jpg' );
-		parse_str( parse_url( $url, PHP_URL_QUERY ), $args );
+		parse_str( wp_parse_url( $url, PHP_URL_QUERY ), $args );
 		$this->assertEquals( '1', $args['ssl'], 'HTTPS image sources should have a ?ssl=1 query string.' );
 	}
 
@@ -38,7 +38,7 @@ class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 	 */
 	public function test_photonizing_http_image_no_ssl_query_arg() {
 		$url = jetpack_photon_url( 'http://example.com/images/photon.jpg' );
-		parse_str( parse_url( $url, PHP_URL_QUERY ), $args );
+		parse_str( wp_parse_url( $url, PHP_URL_QUERY ), $args );
 		$this->assertArrayNotHasKey( 'ssl', $args, 'HTTP image source should not have an ssl query string.' );
 	}
 
@@ -50,7 +50,7 @@ class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 	 */
 	public function test_photon_url_no_filter_http() {
 		$url = jetpack_photon_url( 'http://example.com/img.jpg' );
-		$parsed_url = parse_url( $url );
+		$parsed_url = wp_parse_url( $url );
 
 		$this->assertEquals( 'https', $parsed_url['scheme'] );
 		$this->assertMatchesPhotonHost( $parsed_url['host'] );
@@ -65,7 +65,7 @@ class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 	 */
 	public function test_photon_url_no_filter_http_to_http() {
 		$url = jetpack_photon_url( 'http://example.com/img.jpg', array(), 'http' );
-		$parsed_url = parse_url( $url );
+		$parsed_url = wp_parse_url( $url );
 
 		$this->assertEquals( 'http', $parsed_url['scheme'] );
 		$this->assertMatchesPhotonHost( $parsed_url['host'] );
@@ -343,12 +343,12 @@ class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers jetpack_photon_parse_url
+	 * @covers jetpack_photon_wp_parse_url
 	 * @since  4.5.0
-	 * @group  jetpack_photon_parse_url
+	 * @group  jetpack_photon_wp_parse_url
 	 */
-	public function test_jetpack_photon_parse_url_with_scheme() {
-		$parsed = jetpack_photon_parse_url( 'https://i0.wp.com/example.com/img.jpg' );
+	public function test_jetpack_photon_wp_parse_url_with_scheme() {
+		$parsed = jetpack_photon_wp_parse_url( 'https://i0.wp.com/example.com/img.jpg' );
 
 		$this->assertEquals( array(
 			'scheme' => 'https',
@@ -359,12 +359,12 @@ class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers jetpack_photon_parse_url
+	 * @covers jetpack_photon_wp_parse_url
 	 * @since  4.5.0
-	 * @group  jetpack_photon_parse_url
+	 * @group  jetpack_photon_wp_parse_url
 	 */
-	public function test_jetpack_photon_parse_url_without_scheme() {
-		$parsed = jetpack_photon_parse_url( '//i0.wp.com/example.com/img.jpg' );
+	public function test_jetpack_photon_wp_parse_url_without_scheme() {
+		$parsed = jetpack_photon_wp_parse_url( '//i0.wp.com/example.com/img.jpg' );
 
 		$this->assertArrayHasKey( 'scheme', $parsed );
 		$this->assertEquals( 'i0.wp.com', $parsed['host'] );
@@ -373,24 +373,24 @@ class WP_Test_Jetpack_Photon_Functions extends WP_UnitTestCase {
 
 	/**
 	 * @author aduth
-	 * @covers jetpack_photon_parse_url
+	 * @covers jetpack_photon_wp_parse_url
 	 * @since  4.5.0
-	 * @group  jetpack_photon_parse_url
+	 * @group  jetpack_photon_wp_parse_url
 	 */
-	public function test_jetpack_photon_parse_url_with_scheme_specifying_component() {
-		$host = jetpack_photon_parse_url( 'https://i0.wp.com/example.com/img.jpg', PHP_URL_HOST );
+	public function test_jetpack_photon_wp_parse_url_with_scheme_specifying_component() {
+		$host = jetpack_photon_wp_parse_url( 'https://i0.wp.com/example.com/img.jpg', PHP_URL_HOST );
 
 		$this->assertEquals( 'i0.wp.com', $host );
 	}
 
 	/**
 	 * @author aduth
-	 * @covers jetpack_photon_parse_url
+	 * @covers jetpack_photon_wp_parse_url
 	 * @since  4.5.0
-	 * @group  jetpack_photon_parse_url
+	 * @group  jetpack_photon_wp_parse_url
 	 */
-	public function test_jetpack_photon_parse_url_without_scheme_specifying_component() {
-		$host = jetpack_photon_parse_url( '//i0.wp.com/example.com/img.jpg', PHP_URL_HOST );
+	public function test_jetpack_photon_wp_parse_url_without_scheme_specifying_component() {
+		$host = jetpack_photon_wp_parse_url( '//i0.wp.com/example.com/img.jpg', PHP_URL_HOST );
 
 		$this->assertEquals( 'i0.wp.com', $host );
 	}

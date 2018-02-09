@@ -707,7 +707,7 @@ class Jetpack {
 
 	function point_edit_comment_links_to_calypso( $url ) {
 		// Take the `query` key value from the URL, and parse its parts to the $query_args. `amp;c` matches the comment ID.
-		wp_parse_str( wp_parse_url( $url, PHP_URL_QUERY ), $query_args );
+		wp_parse_str( wp_wp_parse_url( $url, PHP_URL_QUERY ), $query_args );
 		return esc_url( sprintf( 'https://wordpress.com/comment/%s/%d',
 			Jetpack::build_raw_urls( get_home_url() ),
 			$query_args['amp;c']
@@ -3008,7 +3008,7 @@ p {
 			return array( 'wp-cli', null );
 		}
 
-		$referer = parse_url( $referer_url );
+		$referer = wp_parse_url( $referer_url );
 
 		$source_type = 'unknown';
 		$source_query = null;
@@ -3017,8 +3017,8 @@ p {
 			return array( $source_type, $source_query );
 		}
 
-		$plugins_path = parse_url( admin_url( 'plugins.php' ), PHP_URL_PATH );
-		$plugins_install_path = parse_url( admin_url( 'plugin-install.php' ), PHP_URL_PATH );// /wp-admin/plugin-install.php
+		$plugins_path = wp_parse_url( admin_url( 'plugins.php' ), PHP_URL_PATH );
+		$plugins_install_path = wp_parse_url( admin_url( 'plugin-install.php' ), PHP_URL_PATH );// /wp-admin/plugin-install.php
 
 		if ( isset( $referer['query'] ) ) {
 			parse_str( $referer['query'], $query_parts );
@@ -3212,8 +3212,8 @@ p {
 		if ( self::is_development_version() && defined( 'PHP_URL_HOST' ) ) {
 			// Before attempting to connect, let's make sure that the domains are viable.
 			$domains_to_check = array_unique( array(
-				'siteurl' => parse_url( get_site_url(), PHP_URL_HOST ),
-				'homeurl' => parse_url( get_home_url(), PHP_URL_HOST ),
+				'siteurl' => wp_parse_url( get_site_url(), PHP_URL_HOST ),
+				'homeurl' => wp_parse_url( get_home_url(), PHP_URL_HOST ),
 			) );
 			foreach ( $domains_to_check as $domain ) {
 				$result = Jetpack_Data::is_usable_domain( $domain );
@@ -4628,7 +4628,7 @@ p {
 					remove_action( 'jetpack_pre_activate_module',   array( Jetpack_Admin::init(), 'fix_redirect' ) );
 
 					// Don't redirect form the Jetpack Setting Page
-					$referer_parsed = parse_url ( wp_get_referer() );
+					$referer_parsed = wp_parse_url ( wp_get_referer() );
 					// check that we do have a wp_get_referer and the query paramater is set orderwise go to the Jetpack Home
 					if ( isset( $referer_parsed['query'] ) && false !== strpos( $referer_parsed['query'], 'page=jetpack_modules' ) ) {
 						// Take the user to Jetpack home except when on the setting page
@@ -5687,7 +5687,7 @@ p {
 		if ( ! isset( $path ) ) {
 			require_once( ABSPATH . 'wp-admin/includes/plugin.php' );
 			$admin_url = Jetpack::admin_url();
-			$bits      = parse_url( $admin_url );
+			$bits      = wp_parse_url( $admin_url );
 
 			if ( is_array( $bits ) ) {
 				$path   = ( isset( $bits['path'] ) ) ? dirname( $bits['path'] ) : null;
@@ -5821,7 +5821,7 @@ p {
 	public static function staticize_subdomain( $url ) {
 
 		// Extract hostname from URL
-		$host = parse_url( $url, PHP_URL_HOST );
+		$host = wp_parse_url( $url, PHP_URL_HOST );
 
 		// Explode hostname on '.'
 		$exploded_host = explode( '.', $host );
@@ -5875,7 +5875,7 @@ p {
 			return $url;
 		}
 
-		$parsed_url = parse_url( $url );
+		$parsed_url = wp_parse_url( $url );
 		$url = strtok( $url, '?' );
 		$url = "$url?{$_SERVER['QUERY_STRING']}";
 		if ( ! empty( $parsed_url['query'] ) )
@@ -6212,9 +6212,9 @@ p {
 	 * @return WP_Error|string
 	 */
 	public static function normalize_url_protocol_agnostic( $url ) {
-		$parsed_url = wp_parse_url( trailingslashit( esc_url_raw( $url ) ) );
+		$parsed_url = wp_wp_parse_url( trailingslashit( esc_url_raw( $url ) ) );
 		if ( ! $parsed_url || empty( $parsed_url['host'] ) || empty( $parsed_url['path'] ) ) {
-			return new WP_Error( 'cannot_parse_url', sprintf( esc_html__( 'Cannot parse URL %s', 'jetpack' ), $url ) );
+			return new WP_Error( 'cannot_wp_parse_url', sprintf( esc_html__( 'Cannot parse URL %s', 'jetpack' ), $url ) );
 		}
 
 		// Strip www and protocols
@@ -6524,7 +6524,7 @@ p {
 	public static function absolutize_css_urls( $css, $css_file_url ) {
 		$pattern = '#url\((?P<path>[^)]*)\)#i';
 		$css_dir = dirname( $css_file_url );
-		$p       = parse_url( $css_dir );
+		$p       = wp_parse_url( $css_dir );
 		$domain  = sprintf(
 					'%1$s//%2$s%3$s%4$s',
 					isset( $p['scheme'] )           ? "{$p['scheme']}:" : '',

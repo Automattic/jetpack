@@ -260,7 +260,7 @@ function dailymotion_channel_reversal( $content ) {
 		}
 
 		foreach ( $matches as $match ) {
-			$url_pieces = parse_url( $match[1] );
+			$url_pieces = wp_parse_url( $match[1] );
 
 			if ( 'type=carousel' === $url_pieces['query'] ) {
 				$type = 'carousel';

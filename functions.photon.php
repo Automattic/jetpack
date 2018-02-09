@@ -71,7 +71,7 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 	if ( empty( $image_url ) )
 		return $image_url;
 
-	$image_url_parts = @jetpack_photon_parse_url( $image_url );
+	$image_url_parts = @jetpack_photon_wp_parse_url( $image_url );
 
 	// Unable to parse
 	if ( ! is_array( $image_url_parts ) || empty( $image_url_parts['host'] ) || empty( $image_url_parts['path'] ) )
@@ -118,7 +118,7 @@ function jetpack_photon_url( $image_url, $args = array(), $scheme = null ) {
 	// Alternately, if it's a *.files.wordpress.com url, and the arguments are supported, keep the domain.
 	if (
 		in_array( $image_url_parts['host'], array( 'i0.wp.com', 'i1.wp.com', 'i2.wp.com' ) )
-		|| $image_url_parts['host'] === jetpack_photon_parse_url( $custom_photon_url, PHP_URL_HOST )
+		|| $image_url_parts['host'] === jetpack_photon_wp_parse_url( $custom_photon_url, PHP_URL_HOST )
 		|| $is_wpcom_image_with_safe_args
 	) {
 		$photon_url = add_query_arg( $args, $image_url );
@@ -208,7 +208,7 @@ add_filter( 'jetpack_photon_url', 'jetpack_photon_url', 10, 3 );
 add_filter( 'jetpack_photon_pre_args', 'jetpack_photon_parse_wpcom_query_args', 10, 2 );
 
 function jetpack_photon_parse_wpcom_query_args( $args, $image_url ) {
-	$parsed_url = @parse_url( $image_url );
+	$parsed_url = @wp_parse_url( $image_url );
 
 	if ( ! $parsed_url )
 		return $args;
@@ -266,21 +266,21 @@ function jetpack_photon_url_scheme( $url, $scheme ) {
 }
 
 /**
- * A wrapper for PHP's parse_url, prepending assumed scheme for network path
+ * A wrapper for PHP's wp_parse_url, prepending assumed scheme for network path
  * URLs. PHP versions 5.4.6 and earlier do not correctly parse without scheme.
  *
  * @see http://php.net/manual/en/function.parse-url.php#refsect1-function.parse-url-changelog
  *
  * @param string $url The URL to parse
  * @param integer $component Retrieve specific URL component
- * @return mixed Result of parse_url
+ * @return mixed Result of wp_parse_url
  */
-function jetpack_photon_parse_url( $url, $component = -1 ) {
+function jetpack_photon_wp_parse_url( $url, $component = -1 ) {
 	if ( 0 === strpos( $url, '//' ) ) {
 		$url = ( is_ssl() ? 'https:' : 'http:' ) . $url;
 	}
 
-	return parse_url( $url, $component );
+	return wp_parse_url( $url, $component );
 }
 
 add_filter( 'jetpack_photon_skip_for_url', 'jetpack_photon_banned_domains', 9, 2 );
@@ -292,7 +292,7 @@ function jetpack_photon_banned_domains( $skip, $image_url ) {
 		'/\.fbcdn\.net$/'
 	);
 
-	$host = jetpack_photon_parse_url( $image_url, PHP_URL_HOST );
+	$host = jetpack_photon_wp_parse_url( $image_url, PHP_URL_HOST );
 
 	foreach ( $banned_host_patterns as $banned_host_pattern ) {
 		if ( 1 === preg_match( $banned_host_pattern, $host ) ) {
