@@ -45,7 +45,7 @@ class Jetpack_Sitemap_Finder {
 		global $wp_rewrite;
 
 		// Get path fragment from home_url().
-		$home = wp_parse_url( home_url() );
+		$home = wp_wp_parse_url( home_url() );
 		if ( isset( $home['path'] ) ) {
 			$home_path = $home['path'];
 		} else {

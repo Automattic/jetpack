@@ -107,8 +107,8 @@ class Jetpack_Sync_Module_Themes extends Jetpack_Sync_Module {
 	}
 
 	public function detect_theme_edit( $redirect_url ) {
-		$url = wp_parse_url( admin_url( $redirect_url ) );
-		$theme_editor_url = wp_parse_url( admin_url( 'theme-editor.php' ) );
+		$url = wp_wp_parse_url( admin_url( $redirect_url ) );
+		$theme_editor_url = wp_wp_parse_url( admin_url( 'theme-editor.php' ) );
 
 		if ( $theme_editor_url['path'] !== $url['path'] ) {
 			return $redirect_url;

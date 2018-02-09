@@ -605,7 +605,7 @@ class Jetpack_Search_Helpers {
 					continue;
 				}
 
-				$parsed = wp_parse_url( $bucket['remove_url'] );
+				$parsed = wp_wp_parse_url( $bucket['remove_url'] );
 				if ( ! $parsed ) {
 					continue;
 				}

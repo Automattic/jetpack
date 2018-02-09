@@ -232,7 +232,7 @@ class Jetpack_Sync_Functions {
 	public static function get_protocol_normalized_url( $callable, $new_value ) {
 		$option_key = self::HTTPS_CHECK_OPTION_PREFIX . $callable;
 
-		$parsed_url = wp_parse_url( $new_value );
+		$parsed_url = wp_wp_parse_url( $new_value );
 		if ( ! $parsed_url ) {
 			return $new_value;
 		}
@@ -274,8 +274,8 @@ class Jetpack_Sync_Functions {
 	}
 
 	public static function normalize_www_in_url( $option, $url_function ) {
-		$url        = wp_parse_url( call_user_func( $url_function ) );
-		$option_url = wp_parse_url( get_option( $option ) );
+		$url        = wp_wp_parse_url( call_user_func( $url_function ) );
+		$option_url = wp_wp_parse_url( get_option( $option ) );
 
 		if ( ! $option_url || ! $url ) {
 			return $url;

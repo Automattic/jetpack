@@ -174,7 +174,7 @@ class Jetpack_Sync_Module_Callables extends Jetpack_Sync_Module {
 						$link_url = trim( $link_element->getAttribute( 'href' ) );
 
 						// Add the full admin path to the url if the plugin did not provide it
-						$link_url_scheme = wp_parse_url( $link_url, PHP_URL_SCHEME );
+						$link_url_scheme = wp_wp_parse_url( $link_url, PHP_URL_SCHEME );
 						if ( empty( $link_url_scheme ) ) {
 							$link_url = admin_url( $link_url );
 						}

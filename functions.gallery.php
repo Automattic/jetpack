@@ -89,7 +89,7 @@ class Jetpack_Gallery_Settings {
 			<label class="setting">
 				<span><?php _e( 'Type', 'jetpack' ); ?></span>
 				<select class="type" name="type" data-setting="type">
-					<?php foreach ( $this->gallery_types as $value => $caption ) : ?>
+						<?php foreach ( $this->gallery_types as $value => $caption ) : ?>
 						<input type="radio" value="<?php echo esc_attr( $value ); ?>" <?php checked( $value, $default_gallery_type ); ?>><?php echo esc_html( $caption ); ?></input>
 					<?php endforeach; ?>
 				</select>
