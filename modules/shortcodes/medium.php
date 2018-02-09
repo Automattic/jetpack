@@ -47,7 +47,7 @@ function jetpack_embed_medium_shortcode( $atts ) {
 }
 
 function jetpack_embed_medium_get_embed_type( $url ) {
-	$url_path = parse_url( $url, PHP_URL_PATH );
+	$url_path = wp_parse_url( $url, PHP_URL_PATH );
 	if ( preg_match( '/^\/@[\.\w]+$/', $url_path ) ) {
 		return 'profile';
 	} else if ( preg_match( '/^\/[\da-zA-Z-]+$/', $url_path ) ) {
