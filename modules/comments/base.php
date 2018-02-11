@@ -46,20 +46,22 @@ class Highlander_Comments_Base {
 	 * @return false|string false if it's not a Highlander POST request.  The matching credentials slug if it is.
 	 */
 	function is_highlander_comment_post() {
-		if ( empty( $_POST['hc_post_as'] ) ) {
+		$hc_post_as = filter_input( INPUT_POST, 'hc_post_as' );
+
+		if ( empty( $hc_post_as ) ) {
 			return false;
 		}
 
 		if ( func_num_args() ) {
 			foreach ( func_get_args() as $id_source ) {
-				if ( $id_source === $_POST['hc_post_as'] ) {
+				if ( $id_source === $hc_post_as ) {
 					return $id_source;
 				}
 			}
 			return false;
 		}
 
-		return is_string( $_POST['hc_post_as'] ) && in_array( $_POST['hc_post_as'], $this->id_sources ) ? $_POST['hc_post_as'] : false;
+		return is_string( $hc_post_as ) && in_array( $hc_post_as, $this->id_sources ) ? $hc_post_as : false;
 	}
 
 	/**
@@ -227,19 +229,22 @@ class Highlander_Comments_Base {
 		}
 
 		if ( get_option( 'require_name_email' ) ) {
-			if ( 6 > strlen( $_POST['email'] ) || empty( $_POST['author'] ) ) {
+			$email = filter_input( INPUT_POST, 'email', FILTER_VALIDATE_EMAIL );
+			$author = filter_input( INPUT_POST, 'author' );
+			if ( 6 > strlen( $$email ) || empty( $author ) ) {
 				wp_die( __( 'Error: please fill the required fields (name, email).', 'jetpack' ) );
-			} elseif ( ! is_email( $_POST['email'] ) ) {
+			} elseif ( ! is_email( $$email ) ) {
 				wp_die( __( 'Error: please enter a valid email address.', 'jetpack' ) );
 			}
 		}
 
 		$author_change = false;
 		foreach ( array( 'comment_author' => 'author', 'comment_author_email' => 'email', 'comment_author_url' => 'url' ) as $comment_field => $post_field ) {
-			if ( $comment_data[$comment_field] != $_POST[$post_field] && 'url' != $post_field ) {
+			$super_post_field = filter_input( INPUT_POST, $post_field );
+			if ( $comment_data[$comment_field] != $super_post_field && 'url' != $post_field ) {
 				$author_change = true;
 			}
-			$comment_data[$comment_field] = $_POST[$post_field];
+			$comment_data[$comment_field] = $super_post_field;
 		}
 
 		// Mark as guest comment if name or email were changed

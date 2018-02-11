@@ -287,8 +287,10 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 		$height           = $params['comment_registration'] || is_user_logged_in() ? '315' : '430'; // Iframe can be shorter if we're not allowing guest commenting
 		$transparent      = ( $params['color_scheme'] == 'transparent' ) ? 'true' : 'false';
 
-		if ( isset( $_GET['replytocom'] ) ) {
-			$url .= '&replytocom=' . (int) $_GET['replytocom'];
+		$reply_to_com = filter_input( INPUT_GET, 'replytocom', FILTER_VALIDATE_INT );
+		
+		if ( isset( $get_reply_to_com ) ) {
+			$url .= '&replytocom=' . $reply_to_com;
 		}
 
 		/**
@@ -493,30 +495,34 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	public function add_comment_meta( $comment_id ) {
 		$comment_meta = array();
 
+		$hc_avatar		 = filter_input( INPUT_POST, 'hc_avatar' );
+		$hc_userid		 = filter_input( INPUT_POST, 'hc_userid' );
+		$hc_wpcom_id_sig = filter_input( INPUT_POST, 'hc_wpcom_id_sig' );
+
 		switch ( $this->is_highlander_comment_post() ) {
 			case 'facebook' :
 				$comment_meta['hc_post_as']         = 'facebook';
-				$comment_meta['hc_avatar']          = stripslashes( $_POST['hc_avatar'] );
-				$comment_meta['hc_foreign_user_id'] = stripslashes( $_POST['hc_userid'] );
+				$comment_meta['hc_avatar']          = stripslashes( $hc_avatar );
+				$comment_meta['hc_foreign_user_id'] = stripslashes( $hc_userid );
 				break;
 
 			case 'twitter' :
 				$comment_meta['hc_post_as']         = 'twitter';
-				$comment_meta['hc_avatar']          = stripslashes( $_POST['hc_avatar'] );
-				$comment_meta['hc_foreign_user_id'] = stripslashes( $_POST['hc_userid'] );
+				$comment_meta['hc_avatar']          = stripslashes( $hc_avatar );
+				$comment_meta['hc_foreign_user_id'] = stripslashes( $hc_userid );
 				break;
 
 			case 'wordpress' :
 				$comment_meta['hc_post_as']         = 'wordpress';
-				$comment_meta['hc_avatar']          = stripslashes( $_POST['hc_avatar'] );
-				$comment_meta['hc_foreign_user_id'] = stripslashes( $_POST['hc_userid'] );
-				$comment_meta['hc_wpcom_id_sig']    = stripslashes( $_POST['hc_wpcom_id_sig'] ); //since 1.9
+				$comment_meta['hc_avatar']          = stripslashes( $hc_avatar );
+				$comment_meta['hc_foreign_user_id'] = stripslashes( $hc_userid );
+				$comment_meta['hc_wpcom_id_sig']    = stripslashes( $hc_wpcom_id_sig ); //since 1.9
 				break;
 
 			case 'jetpack' :
 				$comment_meta['hc_post_as']         = 'jetpack';
-				$comment_meta['hc_avatar']          = stripslashes( $_POST['hc_avatar'] );
-				$comment_meta['hc_foreign_user_id'] = stripslashes( $_POST['hc_userid'] );
+				$comment_meta['hc_avatar']          = stripslashes( $hc_avatar );
+				$comment_meta['hc_foreign_user_id'] = stripslashes( $hc_userid );
 				break;
 
 		}
@@ -533,7 +539,8 @@ class Jetpack_Comments extends Highlander_Comments_Base {
 	}
 
 	function capture_comment_post_redirect_to_reload_parent_frame( $url ) {
-		if ( ! isset( $_GET['for'] ) || 'jetpack' != $_GET['for'] ) {
+		$for = filter_input(INPUT_GET, 'for' );
+		if ( ! isset( $for ) || 'jetpack' != $for ) {
 			return $url;
 		}
 		?>
