@@ -186,7 +186,7 @@ function soundcloud_oembed_params_callback( $match ) {
 	global $soundcloud_oembed_params;
 
 	// Convert URL to array
-	$url = parse_url( urldecode( $match[1] ) );
+	$url = wp_parse_url( urldecode( $match[1] ) );
 	// Convert URL query to array
 	parse_str( $url['query'], $query_array );
 	// Build new query string
@@ -277,7 +277,7 @@ function jetpack_soundcloud_embed_reversal( $content ) {
 			// if pasted from the visual editor - prevent double encoding
 			$match[1] = str_replace( '&amp;amp;', '&amp;', $match[1] );
 
-			$args = parse_url( html_entity_decode( $match[1] ), PHP_URL_QUERY );
+			$args = wp_parse_url( html_entity_decode( $match[1] ), PHP_URL_QUERY );
 			$args = wp_parse_args( $args );
 
 			if ( ! preg_match( '#^(?:https?:)?//api\.soundcloud\.com/.+$#i', $args['url'], $url_matches ) ) {

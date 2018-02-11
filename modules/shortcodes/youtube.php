@@ -158,7 +158,7 @@ function youtube_id( $url ) {
 		return '<!--YouTube Error: bad URL entered-->';
 
 	$url = youtube_sanitize_url( $url );
-	$url = parse_url( $url );
+	$url = wp_parse_url( $url );
 
 	if ( ! isset( $url['query'] ) )
 		return false;

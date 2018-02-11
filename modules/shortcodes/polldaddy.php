@@ -396,7 +396,7 @@ CONTAINER;
 						$id = preg_replace( '/[\/\?&\{\}]/', '', $id );
 
 						$auto_src = esc_url( "http://{$domain}.polldaddy.com/s/{$id}" );
-						$auto_src = parse_url( $auto_src );
+						$auto_src = wp_parse_url( $auto_src );
 
 						if ( ! is_array( $auto_src ) || count( $auto_src ) == 0 ) {
 							return '<!-- no polldaddy output -->';

@@ -121,7 +121,7 @@ function jetpack_theme_update( $preempt, $r, $url ) {
 		if ( ! $file ) {
 			return new WP_Error( 'problem_creating_theme_file', esc_html__( 'Problem creating file for theme download', 'jetpack' ) );
 		}
-		$theme = pathinfo( parse_url( $url, PHP_URL_PATH ), PATHINFO_FILENAME );
+		$theme = pathinfo( wp_parse_url( $url, PHP_URL_PATH ), PATHINFO_FILENAME );
 
 		// Remove filter to avoid endless loop since wpcom_json_api_request_as_blog uses this too.
 		remove_filter( 'pre_http_request', 'jetpack_theme_update' );
