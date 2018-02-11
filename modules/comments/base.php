@@ -159,16 +159,20 @@ class Highlander_Comments_Base {
 		$comment_author_email = '';
 		$comment_author_url   = '';
 
-		if ( isset( $_COOKIE['comment_author_' . COOKIEHASH] ) ) {
-			$comment_author = $_COOKIE['comment_author_' . COOKIEHASH];
+		$cookie_comment_author		 = filter_input( INPUT_COOKIE, 'comment_author' . COOKIEHASH );
+		$cookie_comment_author_email = filter_input( INPUT_COOKIE, 'comment_author_email' . COOKIEHASH );
+		$cookie_comment_author_url	 = filter_input( INPUT_COOKIE, 'comment_author_url' . COOKIEHASH );
+
+		if ( isset( $cookie_comment_author ) ) {
+			$comment_author = $cookie_comment_author;
 		}
 
-		if ( isset( $_COOKIE['comment_author_email_' . COOKIEHASH] ) ) {
-			$comment_author_email = $_COOKIE['comment_author_email_' . COOKIEHASH];
+		if ( isset( $cookie_comment_author_email ) ) {
+			$comment_author_email = $cookie_comment_author_email;
 		}
 
-		if ( isset( $_COOKIE['comment_author_url_' . COOKIEHASH] ) ) {
-			$comment_author_url = $_COOKIE['comment_author_url_' . COOKIEHASH];
+		if ( isset( $cookie_comment_author_email ) ) {
+			$comment_author_url = $cookie_comment_author_url;
 		}
 
 		if ( is_user_logged_in() ) {
@@ -184,7 +188,7 @@ class Highlander_Comments_Base {
 	 * Overrides WordPress' core comment_registration option to treat these commenters as "registered" (verified) users.
 	 *
 	 * @since JetpackComments (1.4)
-	 * @return If no
+	 * @return If no$_COOKIE
 	 */
 	function allow_logged_out_user_to_comment_as_external() {
 		if ( !$this->is_highlander_comment_post( 'facebook', 'twitter', 'googleplus' ) ) {
