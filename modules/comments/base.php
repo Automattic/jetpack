@@ -17,7 +17,7 @@ class Highlander_Comments_Base {
 	protected function setup_globals() {}
 
 	/**
-	 * Setup actions for methods in this class
+	 * Setup actions for methods in this class	
 	 * @since JetpackComments (1.4)
 	 */
 	protected function setup_actions() {
@@ -208,7 +208,8 @@ class Highlander_Comments_Base {
 		}
 
 		// Bail if user is not logged in or not a post request
-		if ( 'POST' != strtoupper( $_SERVER['REQUEST_METHOD'] ) || !is_user_logged_in() ) {
+		$request_method = filter_input( INPUT_SERVER, 'REQUEST_METHOD' );
+		if ( 'POST' != strtoupper( $request_method ) || !is_user_logged_in() ) {
 			return $comment_data;
 		}
 
