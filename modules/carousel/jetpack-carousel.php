@@ -502,9 +502,12 @@ class Jetpack_Carousel {
 		 * @since 1.6.0
 		 */
 		do_action('jp_carousel_check_blog_user_privileges');
+		
+		$request_id = filter_input( INPUT_REQUEST, 'id' );
+		$request_offset = filter_input( INPUT_REQUEST, 'offset' );
 
-		$attachment_id = ( isset( $_REQUEST['id'] ) ) ? (int) $_REQUEST['id'] : 0;
-		$offset        = ( isset( $_REQUEST['offset'] ) ) ? (int) $_REQUEST['offset'] : 0;
+		$attachment_id = ( isset( $request_id ) ) ? (int) $request_id : 0;
+		$offset        = ( isset( $request_offset ) ) ? (int) $request_offset : 0;
 
 		if ( ! $attachment_id ) {
 			echo json_encode( __( 'Missing attachment ID.', 'jetpack' ) );
