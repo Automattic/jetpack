@@ -15,7 +15,7 @@ function AtD_ignore_call() {
 	check_admin_referer( 'atd_ignore' );
 
 	$ignores = explode( ',', AtD_get_setting( $user->ID, 'AtD_ignored_phrases') );
-	array_push( $ignores, $_GET['phrase'] );
+	array_push( $ignores, filter_input( INPUT_GET, 'phrase' ) );
 
 	$ignores = array_filter( array_map( 'strip_tags', $ignores ) );
 

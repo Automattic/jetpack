@@ -70,7 +70,7 @@ function AtD_redirect_call() {
 
 	check_admin_referer( 'proxy_atd' );
 
-	$url = $_GET['url'];
+	$url = filter_input( INPUT_GET, 'url', FILTER_VALIDATE_URL );
 	/**
 	 * Change the AtD service domain.
 	 *
