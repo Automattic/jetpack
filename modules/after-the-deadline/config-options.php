@@ -117,8 +117,10 @@ function AtD_get_options( $user_id, $name ) {
  */
 function AtD_update_options( $user_id, $name ) {
 	/* We should probably run $_POST[name] through an esc_*() function... */
-	if ( isset( $_POST[$name] ) && is_array( $_POST[$name] ) ) {
-		$copy = array_map( 'strip_tags', array_keys( $_POST[$name] ) );
+	$post_name = filter_input(INPUT_POST, $name, FILTER_DEFAULT , FILTER_REQUIRE_ARRAY);
+	
+	if ( isset( $post_name ) && is_array( $post_name ) ) {
+		$copy = array_map( 'strip_tags', array_keys( $post_name ) );
 		AtD_update_setting( $user_id, AtD_sanitize( $name ), implode( ',', $copy )  );
 	} else {
 		AtD_update_setting( $user_id, AtD_sanitize( $name ), '');
