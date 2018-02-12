@@ -27,6 +27,16 @@ jobs:
       - run:
           name: Run Jetpack JN activation spec
           command: source $HOME/.nvm/nvm.sh && xvfb-run ./node_modules/.bin/mocha scripts/jetpack/wp-jetpack-jn-activate.js
+      - persist_to_workspace:
+          root: /wp-e2e-tests
+          paths:
+            - .
+      - store_test_results:
+          path: reports/
+      - store_artifacts:
+          path: reports/
+      - store_artifacts:
+          path: screenshots/
   test:
     <<: *defaults
     parallelism: 2
@@ -45,3 +55,16 @@ jobs:
           path: screenshots/
       - store_artifacts:
           path: reports/
+workflows:
+  version: 2
+  build_test_destroy:
+    jobs:
+      - build:
+          filters:
+             branches:
+                only:
+                  - master
+                  - /.*e2e.*/
+      - test:
+          requires:
+            - build
