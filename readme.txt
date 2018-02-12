@@ -94,6 +94,25 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 == Changelog ==
 
+= 5.9 =
+
+* Release date: March 6, 2018
+* Release post: https://wp.me/p1moTy-7mW
+
+**Major Enhancements**
+
+
+
+**Enhancements**
+
+
+
+**Improved compatibility**
+
+
+
+**Bug fixes**
+
 = 5.8 =
 
 * Release date: February 6, 2018
