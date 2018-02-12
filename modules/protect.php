@@ -268,7 +268,13 @@ class Jetpack_Protect_Module {
 	 *
 	 * @return void
 	 */
-	function log_failed_attempt() {
+	function log_failed_attempt( $login_user = null ) {
+
+		$failed_attept = array(
+			'ip' => jetpack_protect_get_ip(),
+			'login_user' => $login_user,
+		);
+
 		/**
 		 * Fires before every failed login attempt.
 		 *
@@ -276,9 +282,13 @@ class Jetpack_Protect_Module {
 		 *
 		 * @since 3.4.0
 		 *
-		 * @param string jetpack_protect_get_ip IP stored by Protect.
+		 * @param array $failed_attept Array containing information about failed login attempt
+		 *   $failed_attept = [
+		 *     'ip' => (string) jetpack_protect_get_ip IP stored by Protect
+		 *     'user_login' => (string) User login stored by Protect
+	   *   ]
 		 */
-		do_action( 'jpp_log_failed_attempt', jetpack_protect_get_ip() );
+		do_action( 'jpp_log_failed_attempt', $failed_attept );
 
 		if ( isset( $_COOKIE['jpp_math_pass'] ) ) {
 
