@@ -64,6 +64,14 @@ function wp_super_cache_jetpack_cookie_check( $cache_key ) {
 		}
 	}
 
+	if ( isset ( $_COOKIE['akm_mobile'] ) ) {
+		if ( $_COOKIE['akm_mobile'] == 'true' ) {
+			return 'mobile';
+		} elseif ( $_COOKIE['akm_mobile'] == 'false' ) {
+			return 'normal';
+		}
+	}
+
 	if ( function_exists( 'jetpack_is_mobile' ) ) {
 		if ( jetpack_is_mobile() ) {
 			return 'mobile';
