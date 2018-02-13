@@ -270,10 +270,6 @@ class Jetpack_Protect_Module {
 	 */
 	function log_failed_attempt( $login_user = null ) {
 
-		$failed_attept = array(
-			'login_user' => $login_user,
-		);
-
 		/**
 		 * Fires before every failed login attempt.
 		 *
@@ -286,7 +282,7 @@ class Jetpack_Protect_Module {
 		 *     'user_login' => (string) Username or email used in failed login attempt
 		 *   ]
 		 */
-		do_action( 'jpp_log_failed_attempt', $failed_attept );
+		do_action( 'jpp_log_failed_attempt', array( 'login_user' => $login_user ) );
 
 		if ( isset( $_COOKIE['jpp_math_pass'] ) ) {
 
