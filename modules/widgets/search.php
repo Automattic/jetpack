@@ -7,6 +7,18 @@
  * @since      5.0.0
  */
 
+require_once JETPACK__PLUGIN_DIR . 'modules/search/class.jetpack-search-helpers.php';
+
+add_action( 'widgets_init', 'jetpack_search_widget_init' );
+
+function jetpack_search_widget_init() {
+	if ( ! Jetpack::is_active() || ! Jetpack::active_plan_supports( 'search' ) ) {
+		return;
+	}
+
+	register_widget( 'Jetpack_Search_Widget' );
+}
+
 /**
  * Provides a widget to show available/selected filters on searches.
  *
@@ -45,11 +57,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 	 *
 	 * @since 5.0.0
 	 */
-	function __construct() {
-		if ( ! class_exists( 'Jetpack_Search' ) ) {
-			return;
-		}
-
+	public function __construct() {
 		parent::__construct(
 			Jetpack_Search_Helpers::FILTER_WIDGET_BASE,
 			/** This filter is documented in modules/widgets/facebook-likebox.php */
@@ -60,7 +68,12 @@ class Jetpack_Search_Widget extends WP_Widget {
 			)
 		);
 
-		$this->jetpack_search = Jetpack_Search::instance();
+		if (
+			Jetpack_Search_Helpers::is_active_widget( $this->id ) &&
+			! Jetpack::is_module_active( 'search' )
+		) {
+			Jetpack::activate_module( 'search', false, false );
+		}
 
 		if ( is_admin() ) {
 			add_action( 'sidebar_admin_setup', array( $this, 'widget_admin_setup' ) );
@@ -77,8 +90,8 @@ class Jetpack_Search_Widget extends WP_Widget {
 	 *
 	 * @since 5.7.0
 	 */
-	function widget_admin_setup() {
-		wp_enqueue_style( 'widget-jetpack-search-filters', plugins_url( 'css/search-widget-admin-ui.css', __FILE__ ) );
+	public function widget_admin_setup() {
+		wp_enqueue_style( 'widget-jetpack-search-filters', plugins_url( 'search/css/search-widget-admin-ui.css', __FILE__ ) );
 
 		// Required for Tracks
 		wp_register_script(
@@ -99,7 +112,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 
 		wp_register_script(
 			'jetpack-search-widget-admin',
-			plugins_url( 'js/search-widget-admin.js', __FILE__ ),
+			plugins_url( 'search/js/search-widget-admin.js', __FILE__ ),
 			array( 'jquery', 'jquery-ui-sortable', 'jp-tracks', 'jp-tracks-functions' ),
 			JETPACK__VERSION
 		);
@@ -133,13 +146,13 @@ class Jetpack_Search_Widget extends WP_Widget {
 
 		wp_enqueue_script(
 			'jetpack-search-widget',
-			plugins_url( 'js/search-widget.js', __FILE__ ),
+			plugins_url( 'search/js/search-widget.js', __FILE__ ),
 			array( 'jquery' ),
 			JETPACK__VERSION,
 			true
 		);
 
-		wp_enqueue_style( 'jetpack-search-widget', plugins_url( 'modules/search/css/search-widget-frontend.css', JETPACK__PLUGIN_FILE ) );
+		wp_enqueue_style( 'jetpack-search-widget', plugins_url( 'search/css/search-widget-frontend.css', __FILE__ ) );
 	}
 
 	/**
@@ -182,7 +195,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 	 *
 	 * @return bool Whether the widget should display site-wide filters or not.
 	 */
-	function should_display_sitewide_filters() {
+	public function should_display_sitewide_filters() {
 		$filter_widgets = get_option( 'widget_jetpack-search-filters' );
 
 		// This shouldn't be empty, but just for sanity
@@ -214,12 +227,12 @@ class Jetpack_Search_Widget extends WP_Widget {
 
 		if ( is_search() ) {
 			if ( Jetpack_Search_Helpers::should_rerun_search_in_customizer_preview() ) {
-				$this->jetpack_search->update_search_results_aggregations();
+				Jetpack_Search::instance()->update_search_results_aggregations();
 			}
 
-			$filters = $this->jetpack_search->get_filters();
+			$filters = Jetpack_Search::instance()->get_filters();
 
-			if ( ! $this->jetpack_search->are_filters_by_widget_disabled() && ! $this->should_display_sitewide_filters() ) {
+			if ( ! Jetpack_Search_Helpers::are_filters_by_widget_disabled() && ! $this->should_display_sitewide_filters() ) {
 				$filters = array_filter( $filters, array( $this, 'is_for_current_widget' ) );
 			}
 
@@ -396,7 +409,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 	 *
 	 * @return array Settings to save.
 	 */
-	function update( $new_instance, $old_instance ) {
+	public function update( $new_instance, $old_instance ) {
 		$instance = array();
 
 		$instance['title']              = sanitize_text_field( $new_instance['title'] );
@@ -457,7 +470,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 	 *
 	 * @param array $instance Current settings.
 	 */
-	function form( $instance ) {
+	public function form( $instance ) {
 		$instance = wp_parse_args( (array) $instance, array(
 			'title'   => '',
 			'filters' => array( array() )
@@ -465,7 +478,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 
 		$title = strip_tags( $instance['title'] );
 
-		$hide_filters       = $this->jetpack_search->are_filters_by_widget_disabled();
+		$hide_filters       = Jetpack_Search_Helpers::are_filters_by_widget_disabled();
 		$search_box_enabled = ! isset( $instance['search_box_enabled'] ) || ! empty( $instance['search_box_enabled'] );
 		$user_sort_enabled  = ! empty( $instance['user_sort_enabled'] );
 		$sort               = isset( $instance['sort'] ) ? $instance['sort'] : self::DEFAULT_SORT;
@@ -617,7 +630,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 	 * @param array $filter      The filter to render.
 	 * @param bool  $is_template Whether this is for an Underscore template or not.
 	 */
-	function render_widget_edit_filter( $filter, $is_template = false ) {
+	public function render_widget_edit_filter( $filter, $is_template = false ) {
 		$args = wp_parse_args( $filter, array(
 			'name'      => '',
 			'type'      => 'taxonomy',

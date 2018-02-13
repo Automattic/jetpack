@@ -628,6 +628,29 @@ class Jetpack_Search_Helpers {
 	}
 
 	/**
+	 * Wraps a WordPress filter called "jetpack_search_disable_widget_filters" that allows
+	 * developers to disable filters supplied by the search widget. Useful if filters are
+	 * being defined at the code level.
+	 *
+	 * @since 5.8.0
+	 *
+	 * @return bool
+	 */
+	public static function are_filters_by_widget_disabled() {
+		/**
+		 * Allows developers to disable filters being set by widget, in favor of manually
+		 * setting filters via `Jetpack_Search::set_filters()`.
+		 *
+		 * @module search
+		 *
+		 * @since  5.7.0
+		 *
+		 * @param bool false
+		 */
+		return apply_filters( 'jetpack_search_disable_widget_filters', false );
+	}
+
+	/**
 	 * Returns a boolean for whether the current site has a VIP index.
 	 *
 	 * @since 5.8.0
