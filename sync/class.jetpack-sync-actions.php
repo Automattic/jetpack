@@ -1,5 +1,7 @@
 <?php
 
+// TODO: experimental
+require_once dirname( __FILE__ ) . '/class.jetpack-sync-files.php';
 require_once dirname( __FILE__ ) . '/class.jetpack-sync-modules.php';
 
 /**
