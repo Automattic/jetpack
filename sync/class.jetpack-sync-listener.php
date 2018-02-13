@@ -176,11 +176,11 @@ class Jetpack_Sync_Listener {
 		/**
 		 * Add an action hook to execute when anything on the whitelist gets sent to the queue to sync.
 		 *
-		 * @since 5.8
+		 * @module sync
 		 *
-		 * @param array The action parameters
+		 * @since 5.9.0
 		 */
-		do_action( "jetpack_action_before_enqueue" );
+		do_action( 'jetpack_sync_action_before_enqueue' );
 
 		/**
 		 * Modify or reject the data within an action before it is enqueued locally.
