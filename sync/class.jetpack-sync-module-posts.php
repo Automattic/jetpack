@@ -9,6 +9,8 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 	private $action_handler;
 	private $import_end = false;
 
+	private $flags = array();
+
 	const DEFAULT_PREVIOUS_STATE = 'new';
 
 	public function name() {
@@ -35,7 +37,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		$priority = version_compare( $wp_version, '4.7-alpha', '<' ) ? 0 : 11;
 
 		add_action( 'wp_insert_post', array( $this, 'wp_insert_post' ), $priority, 3 );
-		add_action( 'jetpack_sync_save_post', $callable, 10, 4 );
+		add_action( 'jetpack_sync_save_post', $callable, 10, 6 );
 
 		add_action( 'deleted_post', $callable, 10 );
 		add_action( 'jetpack_published_post', $callable, 10, 2 );
@@ -55,7 +57,22 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 
 		// WordPress, Blogger, Livejournal, woo tax rate
 		add_action( 'import_end', array( $this, 'sync_import_end' ) );
+
+		add_action( 'set_object_terms', array( $this, 'set_object_terms' ), 10, 6 );
 	}
+
+	public function set_object_terms( $object_id, $terms, $tt_ids, $taxonomy, $append, $old_tt_ids ) {
+		if ( ! $this->is_save_post() ) {
+			return;
+		}
+		$this->flags[ $object_id ] = array( $terms, $tt_ids, $taxonomy, $append, $old_tt_ids );
+		error_log( 'SET FLAGS');
+	}
+
+	private function is_save_post() {
+		return Jetpack::is_function_in_backtrace( 'wp_insert_post' );
+	}
+
 
 	public function sync_import_done( $importer ) {
 		// We already ran an send the import
@@ -167,8 +184,8 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 	 * @return array
 	 */
 	function expand_jetpack_sync_save_post( $args ) {
-		list( $post_id, $post, $update, $previous_state ) = $args;
-		return array( $post_id, $this->filter_post_content_and_add_links( $post ), $update, $previous_state );
+		list( $post_id, $post, $update, $previous_state, $a, $b ) = $args;
+		return array( $post_id, $this->filter_post_content_and_add_links( $post ), $update, $previous_state, $a, $b );
 	}
 
 	function filter_blacklisted_post_types( $args ) {
@@ -364,7 +381,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		 *
 		 * @module sync
 		 */
-		do_action( 'jetpack_sync_save_post', $post_ID, $post, $update, $state );
+		do_action( 'jetpack_sync_save_post', $post_ID, $post, $update, $state, 'hola', $this->flags );
 		unset( $this->previous_status[ $post_ID ] );
 		$this->send_published( $post_ID, $post );
 	}
