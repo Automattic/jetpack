@@ -21,6 +21,20 @@ Jetpack Start supports provisioning a single plan or bundles of plans (for resel
 
 For hosts that are bundling our Jetpack plans with their managed WordPress products, we suggest going the single plan route.
 
+### CLI Arguments Key
+
+Further in this document, you will find a few CLI commands with various arguments. Directly below, you will also find a key to explain what the most common arguments are.
+
+- `partner_id`            : Provided to you when we provision your partner account.
+- `partner_secret`        : Provided to you when we provision your partner account.
+- `user`                  : The ID, email address, or login of a valid user on the WordPress installation hosted by the partner. See: https://make.wordpress.org/cli/handbook/config/#global-parameters.
+- `plan`                  : One of `personal`, `premium`, or `professional`. The partner's account will need to have this type of plan allowed.
+- `url`                   : This optional URL value is used to select a specific subsite in a network. See: https://make.wordpress.org/cli/handbook/config/#global-parameters.
+- `onboarding`            : This optional value can be set to `1` to enabled an onboarding wizard.
+- `partner_tracking_id`   : This optional value allows us to attach specific actions to a specific site on the partner's side. This has proved useful in cases where users had multiple staging sites.
+- `home_url`              : This optional value allows overriding the `home` value when registering a site. This has been useful on hosts where the domain is set via a constant.
+- `site_url`              : This optional value allows overriding the `siteurl` value when registering a site. This has been useful on hosts where the domain is set via a constant.
+
 ### Provisioning a single plan for a given site
 
 We like to think that integrating with Jetpack Start is fairly easy. From beginning to end, the process looks like this:
@@ -29,9 +43,7 @@ We like to think that integrating with Jetpack Start is fairly easy. From beginn
 2. Ensure Jetpack is installed on the WordPress site:
     - `wp plugin install jetpack`
 3. Run the following script with the Jetpack Partner ID and token that were provided to you
-    - `./wp-content/plugins/jetpack/bin/partner-provision.sh --partner_id={partner_id} --partner_secret={partner_secret} --user_id={user_id_on_wp_installation_at_partner} --plan={plan_slug} [--url=http://example.com]`
-        - Note: The `--user_id` argument here is the ID of the user on the WordPress installation at the host. For example, on a new install, this value will likely be `1`.
-        - Tip: If you don't have the user ID, but do have the user's email, you should be able to do something like this: `--user_id=$( wp user get {email} --field=ID )`
+    - `./wp-content/plugins/jetpack/bin/partner-provision.sh --partner_id={partner_id} --partner_secret={partner_secret} --user={id_or_email} --plan={plan_slug} [--url=http://example.com]`
     - The script makes a call to our servers to register the site (if necessary) and provision the requested plan and any additional plugins such as VaultPress and Akismet
 4. If the script is successful, it will exit with code 0, and a JSON string. If any next steps are required in the browser, the JSON will include a URL to send your user to. E.g
     - `{ success: true, next_url: "http://wordpress.com/start/plans?foo=bar" }`
