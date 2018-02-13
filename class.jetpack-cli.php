@@ -883,8 +883,6 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 *
 	 * <token_json>
 	 * : JSON blob of WPCOM API token
-	 * --user_id=<user_id>
-	 * : Local ID of user to connect as (if omitted, user will be required to redirect via wp-admin)
 	 * [--plan=<plan_name>]
 	 * : Slug of the requested plan, e.g. premium
 	 * [--wpcom_user_id=<user_id>]
