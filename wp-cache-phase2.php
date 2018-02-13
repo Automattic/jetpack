@@ -267,9 +267,11 @@ function wp_cache_serve_cache_file() {
 					wp_cache_debug( 'Uncompressed gzipped cache file from wp-cache', 1 );
 					echo $uncompressed;
 				} else {
+					wp_cache_debug( 'Compressed gzipped cache file from wp-cache', 1 );
 					echo $cache;
 				}
 			} else {
+				wp_cache_debug( 'Getting legacy cache file ' . $cache_file, 1 );
 				echo( wp_cache_get_legacy_cache( $cache_file ) );
 			}
 		}
@@ -1976,16 +1978,20 @@ function wp_cache_get_ob(&$buffer) {
 			$supercacheonly = false;
 			fclose($fr);
 			if ( filesize( $tmp_wpcache_filename ) == 0 ) {
-				wp_cache_debug( "Warning! The file $tmp_wpcache_filename was empty. Did not rename to {$dir}/{$cache_filename}", 5 );
+				wp_cache_debug( "Warning! The file $tmp_wpcache_filename was empty. Did not rename to {$dir}{$cache_filename}", 5 );
 				@unlink( $tmp_wpcache_filename );
 			} else {
-				if ( !@rename( $tmp_wpcache_filename, $dir . '/' . $cache_filename ) ) {
+				if ( !@rename( $tmp_wpcache_filename, $dir . $cache_filename ) ) {
 					if ( false == is_dir( $dir ) )
 						@wp_mkdir_p( $dir );
 					@unlink( $dir . $cache_filename );
-					@rename( $tmp_wpcache_filename, $dir . '/' . $cache_filename );
+					@rename( $tmp_wpcache_filename, $dir . $cache_filename );
 				}
-				wp_cache_debug( "Renamed temp wp-cache file to {$dir}/$cache_filename", 5 );
+				if ( file_exists( $dir . $cache_filename ) ) {
+					wp_cache_debug( "Renamed temp wp-cache file to {$dir}{$cache_filename}", 5 );
+				} else {
+					wp_cache_debug( "FAILED to rename temp wp-cache file to {$dir}{$cache_filename}", 5 );
+				}
 				$added_cache = 1;
 			}
 		}
