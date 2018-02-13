@@ -3,7 +3,7 @@
 # cancel a the plan provided for the current site using the given partner keys
 
 usage () {
-	echo "Usage: partner-cancel.sh --partner_id=partner_id --partner_secret=partner_secret [--url=http://example.com] [--allow-root] [--host_tracking_id]"
+	echo "Usage: partner-cancel.sh --partner_id=partner_id --partner_secret=partner_secret [--url=http://example.com] [--allow-root] [--partner-tracking-id]"
 }
 
 GLOBAL_ARGS=""
@@ -19,7 +19,7 @@ for i in "$@"; do
 		-u=* | --url=* )            SITE_URL="${i#*=}"
 			shift
 			;;
-		--host_tracking_id=* )      HOST_TRACKING_ID="${i#*=}"
+		--partner-tracking-id=* )   PARTNER_TRACKING_ID="${i#*=}"
 			shift
 			;;
 		--allow-root )              GLOBAL_ARGS="--allow-root"
@@ -52,8 +52,8 @@ if [ ! -z "$SITE_URL" ]; then
 fi
 
 ADDITIONAL_ARGS=""
-if [ ! -z "$HOST_TRACKING_ID" ]; then
-	ADDITIONAL_ARGS="$ADDITIONAL_ARGS --host_tracking_id=$HOST_TRACKING_ID"
+if [ ! -z "$PARTNER_TRACKING_ID" ]; then
+	ADDITIONAL_ARGS="$ADDITIONAL_ARGS --partner-tracking-id=$PARTNER_TRACKING_ID"
 fi
 
 # Remove leading whitespace
