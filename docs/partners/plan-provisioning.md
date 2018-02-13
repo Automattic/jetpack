@@ -29,7 +29,9 @@ We like to think that integrating with Jetpack Start is fairly easy. From beginn
 2. Ensure Jetpack is installed on the WordPress site:
     - `wp plugin install jetpack`
 3. Run the following script with the Jetpack Partner ID and token that were provided to you
-    - `./wp-content/plugins/jetpack/bin/partner-provision.sh --partner_id={partner_id} --partner_secret={partner_secret} --user_id={wordpress_user_id} --plan={plan_slug} [--url=http://example.com]`
+    - `./wp-content/plugins/jetpack/bin/partner-provision.sh --partner_id={partner_id} --partner_secret={partner_secret} --user_id={user_id_on_wp_installation_at_partner} --plan={plan_slug} [--url=http://example.com]`
+        - Note: The `--user_id` argument here is the ID of the user on the WordPress installation at the host. For example, on a new install, this value will likely be `1`.
+        - Tip: If you don't have the user ID, but do have the user's email, you should be able to do something like this: `--user_id=$( wp user get {email} --field=ID )`
     - The script makes a call to our servers to register the site (if necessary) and provision the requested plan and any additional plugins such as VaultPress and Akismet
 4. If the script is successful, it will exit with code 0, and a JSON string. If any next steps are required in the browser, the JSON will include a URL to send your user to. E.g
     - `{ success: true, next_url: "http://wordpress.com/start/plans?foo=bar" }`
