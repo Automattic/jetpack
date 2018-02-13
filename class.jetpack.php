@@ -4957,13 +4957,24 @@ p {
 		<?php
 	}
 
+	public static function get_api_base_domain(){
+		if ( Jetpack_Options::get_option('debug' ) ) {
+			if ( $domain = Jetpack_Options::get_option( 'jetpack_api_base_domain', JETPACK__API_BASE ) ) {
+				return $domain;
+			}
+		}
+		return JETPACK__API_BASE;
+	}
+
+
 	/**
 	 * Returns the Jetpack XML-RPC API
 	 *
 	 * @return string
 	 */
 	public static function xmlrpc_api_url() {
-		$base = preg_replace( '#(https?://[^?/]+)(/?.*)?$#', '\\1', JETPACK__API_BASE );
+		$jetpack_api_base = Jetpack::get_api_base_domain();
+		$base = preg_replace( '#(https?://[^?/]+)(/?.*)?$#', '\\1', $jetpack_api_base );
 		return untrailingslashit( $base ) . '/xmlrpc.php';
 	}
 
