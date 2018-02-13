@@ -67,6 +67,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$site_endpoint = new Jetpack_Core_API_Site_Endpoint();
 		$widget_endpoint = new Jetpack_Core_API_Widget_Endpoint();
 
+		register_rest_route( 'jetpack/v4', 'plans', array(
+			'methods'             => WP_REST_Server::READABLE,
+			'callback'            => __CLASS__ . '::get_plans',
+			'permission_callback' => __CLASS__ . '::connect_url_permission_callback',
+
+		) );
+
 		register_rest_route( 'jetpack/v4', '/jitm', array(
 			'methods'  => WP_REST_Server::READABLE,
 			'callback' => __CLASS__ . '::get_jitm_message',
@@ -347,6 +354,27 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'callback' => array( $widget_endpoint, 'process' ),
 			'permission_callback' => array( $widget_endpoint, 'can_request' ),
 		) );
+	}
+
+	public static function get_plans( $request ) {
+		$data      = get_transient( 'jetpack_plans' );
+		$use_cache = apply_filters( 'cache_jetpack_plans', '__return_true', 1 );
+
+		if ( $data === false ) {
+			$path = '/plans';
+			$ip   = $_SERVER['HTTP_X_FORWARDED_FOR']; // used to calculate which currency to show
+			if ( empty( $ip ) ) {
+				// no ip list to forward, so create one:
+				$ip = $_SERVER['HTTP_CLIENT_IP'];
+			}
+			$data = Jetpack_Client::wpcom_json_api_request_as_blog( $path, '2', array( 'headers' => array( 'X-Forwarded-For' => $ip ) ), null, 'wpcom' );
+
+			if ( $use_cache ) {
+				set_transient( 'jetpack_plans', $data, DAY_IN_SECONDS );
+			}
+		}
+
+		return $data;
 	}
 
 	/**
