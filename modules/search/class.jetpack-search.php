@@ -271,7 +271,7 @@ class Jetpack_Search {
 	 * being defined at the code level.
 	 *
 	 * @since      5.7.0
-	 * @deprecated 5.8.0 Use Jetpack_Search_Helpers::are_filters_by_widget_disabled() deprecated.
+	 * @deprecated 5.8.0 Use Jetpack_Search_Helpers::are_filters_by_widget_disabled() directly.
 	 *
 	 * @return bool
 	 */
