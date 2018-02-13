@@ -259,6 +259,13 @@ class Jetpack_Sync_Defaults {
 		'wpephpcompat_jobs',
 		'wprss_feed_item',
 		'wp_automatic',
+		'jp_sitemap_master',
+		'jp_sitemap',
+		'jp_sitemap_index',
+		'jp_img_sitemap',
+		'jp_img_sitemap_index',
+		'jp_vid_sitemap',
+		'jp_vid_sitemap_index',
 	);
 
 	static $default_post_checksum_columns = array(
