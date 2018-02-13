@@ -70,6 +70,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 	}
 
 	private function is_save_post() {
+		// use `wp_insert_post_parent` instead?
 		return Jetpack::is_function_in_backtrace( 'wp_insert_post' );
 	}
 
