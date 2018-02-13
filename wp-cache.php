@@ -29,7 +29,9 @@ Text Domain: wp-super-cache
     Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 */
 
-require_once( dirname( __FILE__ ) . '/wp-cache-phase2.php');
+if ( ! function_exists( 'wp_cache_phase2' ) ) {
+	require_once( dirname( __FILE__ ) . '/wp-cache-phase2.php');
+}
 
 function wpsc_init() {
 	global $wp_cache_config_file, $wp_cache_config_file_sample, $wp_cache_file, $wp_cache_check_wp_config, $wp_cache_link;

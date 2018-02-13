@@ -1,6 +1,8 @@
 <?php
 
-require_once dirname( __FILE__ ) . '/wp-cache-phase2.php';
+if ( ! function_exists( 'wp_cache_phase2' ) ) {
+	require_once dirname( __FILE__ ) . '/wp-cache-phase2.php';
+}
 
 // error_reporting(E_ERROR | E_PARSE); // uncomment to debug this file!
 if ( ! @include WP_CONTENT_DIR . '/wp-cache-config.php' ) {
