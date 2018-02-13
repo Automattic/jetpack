@@ -271,7 +271,6 @@ class Jetpack_Protect_Module {
 	function log_failed_attempt( $login_user = null ) {
 
 		$failed_attept = array(
-			'ip' => jetpack_protect_get_ip(),
 			'login_user' => $login_user,
 		);
 
@@ -284,9 +283,8 @@ class Jetpack_Protect_Module {
 		 *
 		 * @param array $failed_attept Array containing information about failed login attempt
 		 *   $failed_attept = [
-		 *     'ip' => (string) jetpack_protect_get_ip IP stored by Protect
-		 *     'user_login' => (string) User login stored by Protect
-	   *   ]
+		 *     'user_login' => (string) Username or email used in failed login attempt
+		 *   ]
 		 */
 		do_action( 'jpp_log_failed_attempt', $failed_attept );
 
