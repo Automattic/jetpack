@@ -211,6 +211,105 @@ class WP_Test_Lazy_Images extends WP_UnitTestCase {
 		$this->assertContains( 'data-lazy-size', $with_lazy_sizes );
 	}
 
+	/**
+	 * @dataProvider get_dont_process_images_with_classes_data
+	 */
+	function test_dont_process_images_with_classes( $input, $should_skip = true ) {
+		$instance = Jetpack_Lazy_Images::instance();
+		$output = $instance->add_image_placeholders( $input );
+
+		if ( $should_skip ) {
+			$this->assertNotContains( 'src="placeholder.jpg"', $output );
+		} else {
+			$this->assertContains( 'src="placeholder.jpg"', $output );
+		}
+	}
+
+	function get_dont_process_images_with_classes_data() {
+		return array(
+			'skip_lazy' => array(
+				'<img src="image.jpg" srcset="medium.jpg 1000w, large.jpg 2000w" class="skip-lazy"/>',
+			),
+			'gazette_theme_featured_image' => array(
+				'<img src="image.jpg" srcset="medium.jpg 1000w, large.jpg 2000w" class="attachment-gazette-featured-content-thumbnail wp-post-image"/>',
+			),
+			'does_not-skip' => array(
+				'<img src="image.jpg" srcset="medium.jpg 1000w, large.jpg 2000w" class="wp-post-image"/>',
+				false,
+			),
+		);
+	}
+
+	/**
+	 * @dataProvider get_should_skip_image_with_blacklisted_class_data
+	 */
+	function test_should_skip_image_with_blacklisted_class( $expected, $input, $empty_blacklisted_classes = false ) {
+		$this->assertSame( $expected, Jetpack_Lazy_Images::should_skip_image_with_blacklisted_class( $input ) );
+	}
+
+	function get_should_skip_image_with_blacklisted_class_data() {
+		return array(
+			'wp-post-image' => array(
+				false,
+				'wp-post-image'
+			),
+			'skip-lazy' => array(
+				true,
+				'wp-post-image skip-lazy',
+			),
+			'gazette-feature' => array(
+				true,
+				'wp-post-image attachment-gazette-featured-content-thumbnail',
+			),
+		);
+	}
+
+	/**
+	 * @dataProvider get_should_skip_image_with_filtered_empty_blacklist_data
+	 */
+	function test_should_skip_image_with_filtered_empty_blacklist( $classes ) {
+		$filter_callbacks = array(
+			'__return_empty_string',
+			'__return_empty_array',
+		);
+
+		foreach ( $filter_callbacks as $callback ) {
+			add_filter( 'jetpack_lazy_images_blacklisted_classes', $callback );
+			$this->assertSame( false, Jetpack_Lazy_Images::should_skip_image_with_blacklisted_class( $classes ) );
+			remove_filter( 'jetpack_lazy_images_blacklisted_classes', $callback );
+		}
+	}
+
+	function get_should_skip_image_with_filtered_empty_blacklist_data() {
+		return array(
+			'wp-post-image' => array(
+				'wp-post-image'
+			),
+			'skip-lazy' => array(
+				'wp-post-image skip-lazy',
+			),
+			'gazette-feature' => array(
+				'wp-post-image attachment-gazette-featured-content-thumbnail',
+			),
+		);
+	}
+
+	function test_jetpack_lazy_images_skip_image_with_atttributes_filter() {
+		$instance = Jetpack_Lazy_Images::instance();
+		$src = '<img src="image.jpg" srcset="medium.jpg 1000w, large.jpg 2000w" class="wp-post-image"/>';
+
+		$this->assertContains( 'src="placeholder.jpg"', $instance->add_image_placeholders( $src ) );
+
+		add_filter( 'jetpack_lazy_images_skip_image_with_atttributes', '__return_true' );
+		$this->assertNotContains( 'src="placeholder.jpg"', $instance->add_image_placeholders( $src ) );
+		remove_filter( 'jetpack_lazy_images_skip_image_with_atttributes', '__return_true' );
+
+		add_filter( 'jetpack_lazy_images_skip_image_with_atttributes', array( $this, '__skip_if_srcset' ), 10, 2 );
+		$this->assertNotContains( 'src="placeholder.jpg"', $instance->add_image_placeholders( $src ) );
+		$this->assertContains( 'src="placeholder.jpg"', $instance->add_image_placeholders( '<img src="image.jpg" />' ) );
+		remove_filter( 'jetpack_lazy_images_skip_image_with_atttributes', array( $this, '__skip_if_srcset' ), 10, 2 );
+	}
+
 	/*
 	 * Helpers
 	 */
@@ -247,5 +346,9 @@ class WP_Test_Lazy_Images extends WP_UnitTestCase {
 		ob_end_clean();
 
 		return trim( $contents );
+	}
+
+	public function __skip_if_srcset( $should_skip, $attributes ) {
+		return isset( $attributes['srcset'] );
 	}
 }
