@@ -823,6 +823,10 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 *
 	 * <token_json>
 	 * : JSON blob of WPCOM API token
+	 *  [--partner-tracking-id=<partner_tracking_id>]
+	 * : This is an optional ID that a host can pass to help identify a site in logs on WordPress.com
+	 *
+	 *  * @synopsis <token_json> [--partner-tracking-id=<partner_tracking_id>]
 	 */
 	public function partner_cancel( $args, $named_args ) {
 		list( $token_json ) = $args;
@@ -855,6 +859,9 @@ class Jetpack_CLI extends WP_CLI_Command {
 		);
 
 		$url = sprintf( 'https://%s/rest/v1.3/jpphp/%s/partner-cancel', $this->get_api_host(), $site_identifier );
+		if ( ! empty( $named_args ) && ! empty( $named_args['partner-tracking-id'] ) ) {
+			$url = esc_url_raw( add_query_arg( 'partner_tracking_id', $named_args['partner-tracking-id'], $url ) );
+		}
 
 		$result = Jetpack_Client::_wp_remote_request( $url, $request );
 
@@ -894,13 +901,15 @@ class Jetpack_CLI extends WP_CLI_Command {
 	 * : Overrides the home option via the home_url filter, or the WP_HOME constant
 	 * [--site_url=<site_url>]
 	 * : Overrides the siteurl option via the site_url filter, or the WP_SITEURL constant
+	 * [--partner-tracking-id=<partner_tracking_id>]
+	 * : This is an optional ID that a host can pass to help identify a site in logs on WordPress.com
 	 *
 	 * ## EXAMPLES
 	 *
 	 *     $ wp jetpack partner_provision '{ some: "json" }' premium 1
 	 *     { success: true }
 	 *
-	 * @synopsis <token_json> [--wpcom_user_id=<user_id>] [--plan=<plan_name>] [--onboarding=<onboarding>] [--force_register=<register>] [--force_connect=<force_connect>] [--home_url=<home_url>] [--site_url=<site_url>] [--wpcom_user_email=<wpcom_user_email>]
+	 * @synopsis <token_json> [--wpcom_user_id=<user_id>] [--plan=<plan_name>] [--onboarding=<onboarding>] [--force_register=<register>] [--force_connect=<force_connect>] [--home_url=<home_url>] [--site_url=<site_url>] [--wpcom_user_email=<wpcom_user_email>] [--partner-tracking-id=<partner_tracking_id>]
 	 */
 	public function partner_provision( $args, $named_args ) {
 		list( $token_json ) = $args;
@@ -1045,6 +1054,9 @@ class Jetpack_CLI extends WP_CLI_Command {
 		);
 
 		$url = sprintf( 'https://%s/rest/v1.3/jpphp/%d/partner-provision', $this->get_api_host(), $blog_id );
+		if ( ! empty( $named_args['partner-tracking-id'] ) ) {
+			$url = esc_url_raw( add_query_arg( 'partner_tracking_id', $named_args['partner-tracking-id'], $url ) );
+		}
 
 		// add calypso env if set
 		if ( getenv( 'CALYPSO_ENV' ) ) {
