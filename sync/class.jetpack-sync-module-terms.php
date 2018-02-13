@@ -3,18 +3,32 @@
 class Jetpack_Sync_Module_Terms extends Jetpack_Sync_Module {
 	private $taxonomy_whitelist;
 
+	private $callable;
+
 	function name() {
 		return 'terms';
 	}
 
 	function init_listeners( $callable ) {
+		$this->callable = $callable;
 		add_action( 'created_term', array( $this, 'save_term_handler' ), 10, 3 );
 		add_action( 'edited_term', array( $this, 'save_term_handler' ), 10, 3 );
 		add_action( 'jetpack_sync_save_term', $callable );
 		add_action( 'jetpack_sync_add_term', $callable );
 		add_action( 'delete_term', $callable, 10, 4 );
-		add_action( 'set_object_terms', $callable, 10, 6 );
+		add_action( 'set_object_terms', array( $this, 'set_object_terms' ), 10, 6 );
 		add_action( 'deleted_term_relationships', $callable, 10, 2 );
+	}
+
+	public function set_object_terms() {
+		if ( $this->is_save_post() ) {
+			return;
+		}
+		call_user_func_array( $this->callable, func_get_args() );
+	}
+
+	private function is_save_post() {
+		return Jetpack::is_function_in_backtrace( 'wp_insert_post' );
 	}
 
 	public function init_full_sync_listeners( $callable ) {
