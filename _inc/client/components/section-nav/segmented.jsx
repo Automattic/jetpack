@@ -1,6 +1,7 @@
 /**
  * External Dependencies
  */
+var PropTypes = require( 'prop-types' );
 var React = require( 'react' ),
 	classNames = require( 'classnames' );
 
@@ -21,8 +22,8 @@ var _instance = 1;
 var NavSegmented = React.createClass( {
 
 	propTypes: {
-		label: React.PropTypes.string,
-		hasSiblingControls: React.PropTypes.bool
+		label: PropTypes.string,
+		hasSiblingControls: PropTypes.bool
 	},
 
 	getDefaultProps: function() {

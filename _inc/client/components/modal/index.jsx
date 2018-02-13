@@ -3,6 +3,7 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 
+var PropTypes = require( 'prop-types' );
 var React = require( 'react' ),
 	ReactDOM = require( 'react-dom' ),
 	classNames = require( 'classnames' ),
@@ -31,12 +32,12 @@ function allowClose() {
 let Modal = React.createClass( {
 
 	propTypes: {
-		style: React.PropTypes.object,
-		width: React.PropTypes.oneOf( ['wide', 'medium', 'narrow'] ),
-		className: React.PropTypes.string,
-		title: React.PropTypes.string,
-		initialFocus: React.PropTypes.string,
-		onRequestClose: React.PropTypes.func
+		style: PropTypes.object,
+		width: PropTypes.oneOf( ['wide', 'medium', 'narrow'] ),
+		className: PropTypes.string,
+		title: PropTypes.string,
+		initialFocus: PropTypes.string,
+		onRequestClose: PropTypes.func
 	},
 
 	getInitialState: function() {

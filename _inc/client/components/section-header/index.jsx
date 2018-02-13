@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+import PropTypes from 'prop-types';
 import React from 'react';
 import classNames from 'classnames';
 
@@ -15,11 +16,11 @@ export default React.createClass( {
 	displayName: 'SectionHeader',
 
 	propTypes: {
-		label: React.PropTypes.string,
-		cardBadge: React.PropTypes.oneOfType( [
-			React.PropTypes.string,
-			React.PropTypes.element,
-			React.PropTypes.object
+		label: PropTypes.string,
+		cardBadge: PropTypes.oneOfType( [
+			PropTypes.string,
+			PropTypes.element,
+			PropTypes.object
 		] )
 	},
 

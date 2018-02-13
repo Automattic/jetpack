@@ -45,7 +45,7 @@ if ( 'undefined' !== typeof Initial_State.locale[ '' ] ) {
 
 i18n.setLocale( Initial_State.locale );
 
-const hashHistory = useRouterHistory( createHashHistory )( { queryKey: false } );
+const hashHistory = useRouterHistory( createHashHistory )();
 
 const history = syncHistoryWithStore( hashHistory, store );
 

@@ -1,6 +1,7 @@
 /**
 * External dependencies
 */
+import PropTypes from 'prop-types';
 import React from 'react';
 import noop from 'lodash/noop';
 
@@ -19,15 +20,15 @@ export default React.createClass( {
 	displayName: 'InfoPopover',
 
 	propTypes: {
-		id: React.PropTypes.string,
-		position: React.PropTypes.string,
-		className: React.PropTypes.string,
-		rootClassName: React.PropTypes.string,
-		gaEventCategory: React.PropTypes.string,
-		popoverName: React.PropTypes.string,
-		onClick: React.PropTypes.func,
-		ignoreContext: React.PropTypes.shape( {
-			getDOMNode: React.PropTypes.function
+		id: PropTypes.string,
+		position: PropTypes.string,
+		className: PropTypes.string,
+		rootClassName: PropTypes.string,
+		gaEventCategory: PropTypes.string,
+		popoverName: PropTypes.string,
+		onClick: PropTypes.func,
+		ignoreContext: PropTypes.shape( {
+			getDOMNode: PropTypes.function
 		} ),
 	},
 

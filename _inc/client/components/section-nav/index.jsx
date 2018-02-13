@@ -3,6 +3,7 @@
 /**
  * External Dependencies
  */
+var PropTypes = require( 'prop-types' );
 var React = require( 'react' ),
 	isEqual = require( 'lodash/isEqual' ),
 	classNames = require( 'classnames' );
@@ -22,11 +23,11 @@ require( './style.scss' );
 var SectionNav = React.createClass( {
 
 	propTypes: {
-		children: React.PropTypes.node,
-		selectedText: React.PropTypes.node,
-		selectedCount: React.PropTypes.number,
-		hasPinnedItems: React.PropTypes.bool,
-		onMobileNavPanelOpen: React.PropTypes.func
+		children: PropTypes.node,
+		selectedText: PropTypes.node,
+		selectedCount: PropTypes.number,
+		hasPinnedItems: PropTypes.bool,
+		onMobileNavPanelOpen: PropTypes.func
 	},
 
 	getInitialState: function() {

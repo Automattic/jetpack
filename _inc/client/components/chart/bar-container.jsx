@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+var PropTypes = require( 'prop-types' );
 var React = require( 'react' );
 
 /**
@@ -13,11 +14,11 @@ module.exports = React.createClass( {
 	displayName: 'ModuleChartBarContainer',
 
 	propTypes: {
-		isTouch: React.PropTypes.bool,
-		data: React.PropTypes.array,
-		yAxisMax: React.PropTypes.number,
-		width: React.PropTypes.number,
-		barClick: React.PropTypes.func
+		isTouch: PropTypes.bool,
+		data: PropTypes.array,
+		yAxisMax: PropTypes.number,
+		width: PropTypes.number,
+		barClick: PropTypes.func
 	},
 
 	buildBars: function( max ) {

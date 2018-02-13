@@ -1,4 +1,5 @@
 /** External Dependencies **/
+var PropTypes = require( 'prop-types' );
 var React = require( 'react' ),
 	classNames = require( 'classnames' ),
 	Formsy = require( 'formsy-react' );
@@ -15,15 +16,15 @@ module.exports = React.createClass( {
 	mixins: [Formsy.Mixin],
 
 	propTypes: {
-		name: React.PropTypes.string.isRequired,
-		description: React.PropTypes.string,
-		className: React.PropTypes.any,
-		style: React.PropTypes.any,
-		label: React.PropTypes.any.isRequired,
-		labelSuffix: React.PropTypes.any,
-		required: React.PropTypes.any,
-		validations: React.PropTypes.string,
-		validationError: React.PropTypes.string
+		name: PropTypes.string.isRequired,
+		description: PropTypes.string,
+		className: PropTypes.any,
+		style: PropTypes.any,
+		label: PropTypes.any.isRequired,
+		labelSuffix: PropTypes.any,
+		required: PropTypes.any,
+		validations: PropTypes.string,
+		validationError: PropTypes.string
 	},
 
 	getInitialState: function() {

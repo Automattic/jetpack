@@ -1,6 +1,7 @@
 /* eslint-disable jsx-a11y/no-onchange */
 
 /** External Dependencies **/
+var PropTypes = require( 'prop-types' );
 var React = require( 'react' ),
 	classNames = require( 'classnames' ),
 	Formsy = require( 'formsy-react' );
@@ -17,18 +18,18 @@ module.exports = React.createClass( {
 	mixins: [Formsy.Mixin],
 
 	propTypes: {
-		name: React.PropTypes.string.isRequired,
-		description: React.PropTypes.string,
-		className: React.PropTypes.any,
-		style: React.PropTypes.any,
-		label: React.PropTypes.any,
-		floatingLabel: React.PropTypes.bool,
-		inline: React.PropTypes.any,
-		labelSuffix: React.PropTypes.any,
-		required: React.PropTypes.any,
-		validations: React.PropTypes.string,
-		validationError: React.PropTypes.string,
-		onChange: React.PropTypes.func
+		name: PropTypes.string.isRequired,
+		description: PropTypes.string,
+		className: PropTypes.any,
+		style: PropTypes.any,
+		label: PropTypes.any,
+		floatingLabel: PropTypes.bool,
+		inline: PropTypes.any,
+		labelSuffix: PropTypes.any,
+		required: PropTypes.any,
+		validations: PropTypes.string,
+		validationError: PropTypes.string,
+		onChange: PropTypes.func
 	},
 
 	getInitialState: function() {

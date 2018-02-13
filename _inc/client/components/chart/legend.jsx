@@ -3,6 +3,7 @@
 /**
  * External dependencies
  */
+var PropTypes = require( 'prop-types' );
 var React = require( 'react' ),
 	PureRenderMixin = require( 'react-pure-render/mixin' );
 
@@ -16,10 +17,10 @@ var LegendItem = React.createClass( {
 	mixins: [ PureRenderMixin ],
 
 	propTypes: {
-		checked: React.PropTypes.bool.isRequired,
-		label: React.PropTypes.oneOfType( [ React.PropTypes.object, React.PropTypes.string ] ),
-		attr: React.PropTypes.string.isRequired,
-		changeHandler: React.PropTypes.func.isRequired
+		checked: PropTypes.bool.isRequired,
+		label: PropTypes.oneOfType( [ PropTypes.object, PropTypes.string ] ),
+		attr: PropTypes.string.isRequired,
+		changeHandler: PropTypes.func.isRequired
 	},
 
 	clickHandler: function() {
@@ -43,11 +44,11 @@ var Legend = React.createClass( {
 	displayName: 'ModuleChartLegend',
 
 	propTypes: {
-		activeTab: React.PropTypes.object.isRequired,
-		tabs: React.PropTypes.array.isRequired,
-		activeCharts: React.PropTypes.array.isRequired,
-		availableCharts: React.PropTypes.array.isRequired,
-		clickHandler: React.PropTypes.func.isRequired
+		activeTab: PropTypes.object.isRequired,
+		tabs: PropTypes.array.isRequired,
+		activeCharts: PropTypes.array.isRequired,
+		availableCharts: PropTypes.array.isRequired,
+		clickHandler: PropTypes.func.isRequired
 	},
 
 	onFilterChange: function( chartItem ) {

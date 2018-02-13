@@ -1,4 +1,5 @@
 /** External Dependencies **/
+var PropTypes = require( 'prop-types' );
 var React = require( 'react' ),
 	Formsy = require( 'formsy-react' );
 
@@ -8,7 +9,7 @@ module.exports = React.createClass( {
 	mixins: [Formsy.Mixin],
 
 	propTypes: {
-		name: React.PropTypes.string.isRequired
+		name: PropTypes.string.isRequired
 	},
 
 	render: function() {

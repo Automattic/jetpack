@@ -1,6 +1,7 @@
 /**
  * External dependencies
  */
+var PropTypes = require( 'prop-types' );
 var React = require( 'react' ),
 	map = require( 'lodash/map' );
 
@@ -8,7 +9,7 @@ module.exports = React.createClass( {
 	displayName: 'ValidationErrorList',
 
 	propTypes: {
-		messages: React.PropTypes.array.isRequired
+		messages: PropTypes.array.isRequired
 	},
 
 	render: function() {

@@ -1,11 +1,12 @@
 /** External Dependencies **/
+var PropTypes = require( 'prop-types' );
 var React = require( 'react' );
 
 module.exports = React.createClass( {
 	displayName: 'ActionBar',
 
 	propTypes: {
-		style: React.PropTypes.object
+		style: PropTypes.object
 	},
 
 	render: function() {

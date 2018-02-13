@@ -1,15 +1,16 @@
 /**
  * External dependencies
  */
+var PropTypes = require( 'prop-types' );
 var React = require( 'react' );
 
 module.exports = React.createClass( {
 	displayName: 'ModuleChartLabel',
 
 	propTypes: {
-		width: React.PropTypes.number.isRequired,
-		x: React.PropTypes.number.isRequired,
-		label: React.PropTypes.string.isRequired
+		width: PropTypes.number.isRequired,
+		x: PropTypes.number.isRequired,
+		label: PropTypes.string.isRequired
 	},
 
 	render: function() {

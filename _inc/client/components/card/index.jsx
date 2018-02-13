@@ -1,3 +1,4 @@
+const PropTypes = require( 'prop-types' );
 var React = require( 'react' ),
 	Gridicon = require( '../gridicon' ),
 	classnames = require( 'classnames' );
@@ -10,11 +11,11 @@ require( './style.scss' );
 let CardSection = React.createClass( {
 
 	propTypes: {
-		title: React.PropTypes.any,
-		vertical: React.PropTypes.any,
-		style: React.PropTypes.object,
-		className: React.PropTypes.string,
-		device: React.PropTypes.oneOf( ['desktop', 'tablet', 'phone'] )
+		title: PropTypes.any,
+		vertical: PropTypes.any,
+		style: PropTypes.object,
+		className: PropTypes.string,
+		device: PropTypes.oneOf( ['desktop', 'tablet', 'phone'] )
 	},
 
 	getDefaultProps: function() {
@@ -63,18 +64,18 @@ let CardFooter = React.createClass( {
 let Card = React.createClass( {
 
 	propTypes: {
-		meta: React.PropTypes.any,
-		icon: React.PropTypes.string,
-		iconLabel: React.PropTypes.any,
-		iconColor: React.PropTypes.string,
-		style: React.PropTypes.object,
-		className: React.PropTypes.string,
-		href: React.PropTypes.string,
-		title: React.PropTypes.string,
-		tagName: React.PropTypes.string,
-		target: React.PropTypes.string,
-		compact: React.PropTypes.bool,
-		children: React.PropTypes.node
+		meta: PropTypes.any,
+		icon: PropTypes.string,
+		iconLabel: PropTypes.any,
+		iconColor: PropTypes.string,
+		style: PropTypes.object,
+		className: PropTypes.string,
+		href: PropTypes.string,
+		title: PropTypes.string,
+		tagName: PropTypes.string,
+		target: PropTypes.string,
+		compact: PropTypes.bool,
+		children: PropTypes.node
 	},
 
 	getDefaultProps() {

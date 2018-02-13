@@ -1,4 +1,5 @@
 /** External Dependencies **/
+var PropTypes = require( 'prop-types' );
 var React = require( 'react' ),
 	classNames = require( 'classnames' ),
 	Formsy = require( 'formsy-react' );
@@ -12,11 +13,11 @@ var Label = require( './label' ),
 var Radios = React.createClass( {
 
 	propTypes: {
-		name: React.PropTypes.string,
-		choices: React.PropTypes.array,
-		selected: React.PropTypes.any,
-		uniqueId: React.PropTypes.string,
-		changeValue: React.PropTypes.func,
+		name: PropTypes.string,
+		choices: PropTypes.array,
+		selected: PropTypes.any,
+		uniqueId: PropTypes.string,
+		changeValue: PropTypes.func,
 	},
 
 	getDefaultProps: function() {
@@ -56,13 +57,13 @@ module.exports = React.createClass( {
 	mixins: [ Formsy.Mixin ],
 
 	propTypes: {
-		name: React.PropTypes.string.isRequired,
-		description: React.PropTypes.string,
-		choices: React.PropTypes.any,
-		selected: React.PropTypes.any,
-		required: React.PropTypes.any,
-		validations: React.PropTypes.string,
-		validationError: React.PropTypes.string
+		name: PropTypes.string.isRequired,
+		description: PropTypes.string,
+		choices: PropTypes.any,
+		selected: PropTypes.any,
+		required: PropTypes.any,
+		validations: PropTypes.string,
+		validationError: PropTypes.string
 	},
 
 	getInitialState: function() {

@@ -10,6 +10,7 @@ OR if you're looking to change now SVGs get output, you'll need to edit strings 
 /**
  * External dependencies
  */
+const PropTypes = require( 'prop-types' );
 var React = require( 'react' ),
 	PureRenderMixin = require( 'react-pure-render/mixin' ),
 	classNames = require( 'classnames' );
@@ -28,10 +29,10 @@ const Gridicon = React.createClass( {
 	},
 
 	propTypes: {
-		icon: React.PropTypes.string.isRequired,
-		size: React.PropTypes.number,
-		onClick: React.PropTypes.func,
-		className: React.PropTypes.string
+		icon: PropTypes.string.isRequired,
+		size: PropTypes.number,
+		onClick: PropTypes.func,
+		className: PropTypes.string
 	},
 
 	needsOffset: function( icon, size ) {

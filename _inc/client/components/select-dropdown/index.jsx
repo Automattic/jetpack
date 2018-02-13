@@ -3,6 +3,7 @@
 /**
  * External Dependencies
  */
+import PropTypes from 'prop-types';
 import ReactDom from 'react-dom';
 import React from 'react';
 import find from 'lodash/find';
@@ -25,7 +26,9 @@ require( './style.scss' );
 /**
  * Module variables
  */
-const { Component, PropTypes } = React;
+const {
+    Component
+} = React;
 var noop = () => {};
 
 /**
@@ -369,7 +372,7 @@ class SelectDropdown extends Component {
 			this.closeDropdown();
 		}
 	}
-};
+}
 
 SelectDropdown.defaultProps = {
 	options: [],
