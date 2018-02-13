@@ -277,8 +277,8 @@ class Jetpack_Protect_Module {
 		 *
 		 * @since 3.4.0
 		 *
-		 * @param array $failed_attept Array containing information about failed login attempt
-		 *   $failed_attept = [
+		 * @param array Information about failed login attempt
+		 *   [
 		 *     'user_login' => (string) Username or email used in failed login attempt
 		 *   ]
 		 */
