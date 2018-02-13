@@ -277,12 +277,13 @@ class Jetpack_Protect_Module {
 		 *
 		 * @since 3.4.0
 		 *
+		 * @param string IP
 		 * @param array Information about failed login attempt
 		 *   [
 		 *     'user_login' => (string) Username or email used in failed login attempt
 		 *   ]
 		 */
-		do_action( 'jpp_log_failed_attempt', array( 'login_user' => $login_user ) );
+		do_action( 'jpp_log_failed_attempt', jetpack_protect_get_ip(), array( 'login_user' => $login_user ) );
 
 		if ( isset( $_COOKIE['jpp_math_pass'] ) ) {
 
