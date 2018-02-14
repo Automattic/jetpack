@@ -15,7 +15,7 @@ import analytics from 'lib/analytics';
  */
 import { imagePath } from 'constants/urls';
 import { updateSettings, appsCardDismissed } from 'state/settings';
-import { arePromotionsActive } from 'state/initial-state';
+import { arePromotionsActive, userCanManageOptions } from 'state/initial-state';
 
 class AppsCard extends React.Component {
 	static displayName = 'AppsCard';
@@ -74,10 +74,14 @@ class AppsCard extends React.Component {
 							{ __( 'Download the free apps' ) }
 						</Button>
 						<br />
-						<a
-							href="javascript:void(0)"
-							onClick={ this.dismissCard }
-						>{ __( 'I already use this app.' ) }</a>
+						{
+							this.props.userCanManageOptions && (
+								<a
+									href="javascript:void(0)"
+									onClick={ this.dismissCard }
+									>{ __( 'I already use this app.' ) }</a>
+							)
+						}
 					</div>
 				</Card>
 			</div>
@@ -93,7 +97,8 @@ export default connect(
 	state => {
 		return {
 			isAppsCardDismissed: appsCardDismissed( state ),
-			arePromotionsActive: arePromotionsActive( state )
+			arePromotionsActive: arePromotionsActive( state ),
+			userCanManageOptions: userCanManageOptions( state ),
 		};
 	},
 	( dispatch ) => {
