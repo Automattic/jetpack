@@ -31,9 +31,9 @@ class Jetpack_Provision {
 			Jetpack::maybe_set_version_option();
 			$registered = Jetpack::try_registration();
 			if ( is_wp_error( $registered ) ) {
-				$this->partner_provision_error( $registered );
+				self::partner_provision_error( $registered );
 			} elseif ( ! $registered ) {
-				$this->partner_provision_error( new WP_Error( 'registration_error', __( 'There was an unspecified error registering the site', 'jetpack' ) ) );
+				self::partner_provision_error( new WP_Error( 'registration_error', __( 'There was an unspecified error registering the site', 'jetpack' ) ) );
 			}
 
 			$blog_id    = Jetpack_Options::get_option( 'id' );
@@ -125,7 +125,7 @@ class Jetpack_Provision {
 			'body'    => json_encode( $request_body )
 		);
 
-		$url = sprintf( 'https://%s/rest/v1.3/jpphp/%d/partner-provision', $this->get_api_host(), $blog_id );
+		$url = sprintf( 'https://%s/rest/v1.3/jpphp/%d/partner-provision', self::get_api_host(), $blog_id );
 		if ( ! empty( $named_args['partner-tracking-id'] ) ) {
 			$url = esc_url_raw( add_query_arg( 'partner_tracking_id', $named_args['partner-tracking-id'], $url ) );
 		}
@@ -138,7 +138,7 @@ class Jetpack_Provision {
 		$result = Jetpack_Client::_wp_remote_request( $url, $request );
 
 		if ( is_wp_error( $result ) ) {
-			$this->partner_provision_error( $result );
+			self::partner_provision_error( $result );
 		}
 
 		$response_code = wp_remote_retrieve_response_code( $result );
@@ -146,9 +146,9 @@ class Jetpack_Provision {
 
 		if( 200 !== $response_code ) {
 			if ( isset( $body_json->error ) ) {
-				$this->partner_provision_error( new WP_Error( $body_json->error, $body_json->message ) );
+				self::partner_provision_error( new WP_Error( $body_json->error, $body_json->message ) );
 			} else {
-				$this->partner_provision_error( new WP_Error( 'server_error', sprintf( __( "Request failed with code %s" ), $response_code ) ) );
+				self::partner_provision_error( new WP_Error( 'server_error', sprintf( __( "Request failed with code %s" ), $response_code ) ) );
 			}
 		}
 
@@ -175,5 +175,19 @@ class Jetpack_Provision {
 			}
 		}
 		return $body_json;
+	}
+
+	private static function partner_provision_error( $error ) {
+		WP_CLI::log( json_encode( array(
+			'success'       => false,
+			'error_code'    => $error->get_error_code(),
+			'error_message' => $error->get_error_message()
+		) ) );
+		exit( 1 );
+	}
+
+	private static function get_api_host() {
+		$env_api_host = getenv( 'JETPACK_START_API_HOST', true );
+		return $env_api_host ? $env_api_host : JETPACK__WPCOM_JSON_API_HOST;
 	}
 }

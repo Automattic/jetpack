@@ -928,6 +928,7 @@ class Jetpack_CLI extends WP_CLI_Command {
 		}
 
 		require_once( '_inc/class.jetpack-provision.php' );
+
 		$body_json = Jetpack_Provision::partner_provision( $token->access_token, $named_args );
 
 		WP_CLI::log( json_encode( $body_json ) );
