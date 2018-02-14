@@ -36,10 +36,28 @@ class Jetpack_Modules_Overrides {
 	}
 
 	/**
+	 * Gets the override for a given module.
+	 *
+	 * @param string  $module_slug The module's slug.
+	 * @param boolean $use_cache   Whether or not cached overrides should be used.
+	 *
+	 * @return bool|string False if no override for module. 'active' or 'inactive' if there is an override.
+	 */
+	public static function get_module_override( $module_slug, $use_cache = true ) {
+		$overrides = self::get_overrides( $use_cache );
+
+		if ( ! isset( $overrides[ $module_slug ] ) ) {
+			return false;
+		}
+
+		return $overrides[ $module_slug ];
+	}
+
+	/**
 	 * Returns an array of module overrides where the key is the module slug and the value
 	 * is true if the module is forced on and false if the module is forced off.
 	 *
-	 * @param bool $use_cache Whether or not cached overrides should be returned if they exist.
+	 * @param bool $use_cache Whether or not cached overrides should be used.
 	 *
 	 * @return array The array of module overrides.
 	 */
@@ -77,11 +95,11 @@ class Jetpack_Modules_Overrides {
 		 */
 		$return_value = array();
 		foreach ( $forced_on as $on ) {
-			$return_value[ $on ] = true;
+			$return_value[ $on ] = 'active';
 		}
 
 		foreach ( $forced_off as $off ) {
-			$return_value[ $off ] = false;
+			$return_value[ $off ] = 'inactive';
 		}
 
 		self::$overrides = $return_value;
