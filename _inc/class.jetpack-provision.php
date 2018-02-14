@@ -178,7 +178,7 @@ class Jetpack_Provision {
 	}
 
 	private static function partner_provision_error( $error ) {
-		WP_CLI::log( json_encode( array(
+		error_log( json_encode( array(
 			'success'       => false,
 			'error_code'    => $error->get_error_code(),
 			'error_message' => $error->get_error_message()
