@@ -20,14 +20,14 @@ jobs:
                   git checkout origin/${E2E_BRANCH-master}
       - restore_cache:
           key: << checksum "package.json" >>
-      - run: source $HOME/.nvm/nvm.sh && npm install && npm run decryptconfig
+      - run: source $HOME/.nvm/nvm.sh && npm install
       - save_cache:
           paths:
             - /wp-e2e-tests/node_modules
           key: << checksum "package.json" >>
       - run:
           name: Run Jetpack JN activation spec
-          command: source $HOME/.nvm/nvm.sh && NODE_CONFIG={} xvfb-run ./node_modules/.bin/mocha scripts/jetpack/wp-jetpack-jn-activate.js
+          command: source $HOME/.nvm/nvm.sh && npm run decryptconfig && NODE_CONFIG={} xvfb-run ./node_modules/.bin/mocha scripts/jetpack/wp-jetpack-jn-activate.js
       - persist_to_workspace:
           root: /wp-e2e-tests
           paths:
