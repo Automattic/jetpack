@@ -5,6 +5,7 @@ defaults: &defaults
         environment:
                 JETPACKHOST: JN
                 NODE_ENV: test
+                TARGET: JETPACK
 version: 2
 jobs:
   build:
@@ -19,14 +20,14 @@ jobs:
                   git checkout origin/${E2E_BRANCH-master}
       - restore_cache:
           key: << checksum "package.json" >>
-      - run: source $HOME/.nvm/nvm.sh && npm install
+      - run: source $HOME/.nvm/nvm.sh && npm install && npm run decryptconfig
       - save_cache:
           paths:
             - /wp-e2e-tests/node_modules
           key: << checksum "package.json" >>
       - run:
           name: Run Jetpack JN activation spec
-          command: source $HOME/.nvm/nvm.sh && xvfb-run ./node_modules/.bin/mocha scripts/jetpack/wp-jetpack-jn-activate.js
+          command: source $HOME/.nvm/nvm.sh && NODE_CONFIG={} xvfb-run ./node_modules/.bin/mocha scripts/jetpack/wp-jetpack-jn-activate.js
       - persist_to_workspace:
           root: /wp-e2e-tests
           paths:
@@ -48,7 +49,7 @@ jobs:
           command: ./scripts/randomize.sh specs
       - run:
           name: Run e2e tests
-          command: xvfb-run ./run.sh -R -j -H JN -p
+          command: NODE_CONFIG={} xvfb-run ./run.sh -R -j -H JN -p
       - store_test_results:
           path: reports/
       - store_artifacts:
