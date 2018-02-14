@@ -353,8 +353,12 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		}
 
 		if ( wp_is_post_revision( $post ) && $this->is_saving_post( $post->post_parent ) ) {
-			error_log( 'is a revision' );
+			$post = (array) $post;
+			unset( $post['post_content'] );
+			unset( $post['post_title'] );
+			unset( $post['post_excerpt'] );
 			$this->flags[ $post->post_parent ]['revision'] = $post;
+
 			unset( $this->flags[ $post_ID ] );
 			return;
 		}
