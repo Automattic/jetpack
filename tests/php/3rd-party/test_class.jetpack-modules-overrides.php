@@ -3,6 +3,11 @@
 require_once JETPACK__PLUGIN_DIR . '3rd-party/class.jetpack-modules-overrides.php';
 
 class WP_Test_Jetpack_Modules_Overrides extends WP_UnitTestCase {
+	function tearDown() {
+		remove_all_filters( 'option_jetpack_active_modules' );
+		Jetpack_Modules_Overrides::clear_cache();
+	}
+
 	function test_do_overrides_exist() {
 		$this->assertFalse( Jetpack_Modules_Overrides::do_overrides_exist() );
 
@@ -19,7 +24,7 @@ class WP_Test_Jetpack_Modules_Overrides extends WP_UnitTestCase {
 			'photon' => true,
 			'lazy-images' => true,
 		);
-		$this->assertSame( $expected, Jetpack_Modules_Overrides::get_overrides() );
+		$this->assertSame( $expected, Jetpack_Modules_Overrides::get_overrides( false ) );
 
 		add_filter( 'option_jetpack_active_modules', array( $this, 'force_inactive_module' ) );
 		$expected = array(
@@ -27,18 +32,33 @@ class WP_Test_Jetpack_Modules_Overrides extends WP_UnitTestCase {
 			'lazy-images' => true,
 			'sitemaps' => false,
 		);
-		$this->assertSame( $expected, Jetpack_Modules_Overrides::get_overrides() );
+		$this->assertSame( $expected, Jetpack_Modules_Overrides::get_overrides( false ) );
 
 		remove_filter( 'option_jetpack_active_modules', array( $this, 'force_active_modules' ) );
 
 		$expected = array(
 			'sitemaps' => false,
 		);
-		$this->assertSame( $expected, Jetpack_Modules_Overrides::get_overrides() );
+		$this->assertSame( $expected, Jetpack_Modules_Overrides::get_overrides( false ) );
 
 		remove_filter( 'option_jetpack_active_modules', array( $this, 'force_inactive_module' ) );
 
+		$this->assertEmpty( Jetpack_Modules_Overrides::get_overrides( false ) );
+	}
+
+	function test_get_overrides_cache() {
 		$this->assertEmpty( Jetpack_Modules_Overrides::get_overrides() );
+
+		add_filter( 'option_jetpack_active_modules', array( $this, 'force_active_modules' ) );
+		$expected = array(
+			'photon' => true,
+			'lazy-images' => true,
+		);
+		$this->assertSame( $expected, Jetpack_Modules_Overrides::get_overrides() );
+
+		add_filter( 'option_jetpack_active_modules', array( $this, 'force_inactive_module' ) );
+
+		$this->assertSame( $expected, Jetpack_Modules_Overrides::get_overrides() );
 	}
 
 	/**

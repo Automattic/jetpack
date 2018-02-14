@@ -7,6 +7,26 @@
  */
 class Jetpack_Modules_Overrides {
 	/**
+	 * Used to cache module overrides so that we minimize how many times we appy the
+	 * option_jetpack_active_modules filter.
+	 *
+	 * @var null|array
+	 */
+	private static $overrides = null;
+
+	/**
+	 * Clears the $overrides member used for caching.
+	 *
+	 * Since get_overrides() can be passed a falsey value to skip caching, this is probably
+	 * most useful for clearing cache between tests.
+	 *
+	 * @return void
+	 */
+	public static function clear_cache() {
+		self::$overrides = null;
+	}
+
+	/**
 	 * Returns true if there is a filter on the jetpack_active_modules option.
 	 *
 	 * @return bool Whether there is a filter on the jetpack_active_modules option.
@@ -19,9 +39,15 @@ class Jetpack_Modules_Overrides {
 	 * Returns an array of module overrides where the key is the module slug and the value
 	 * is true if the module is forced on and false if the module is forced off.
 	 *
+	 * @param bool $use_cache Whether or not cached overrides should be returned if they exist.
+	 *
 	 * @return array The array of module overrides.
 	 */
-	public static function get_overrides() {
+	public static function get_overrides( $use_cache = true ) {
+		if ( $use_cache && ! is_null( self::$overrides ) ) {
+			return self::$overrides;
+		}
+
 		if ( ! self::do_overrides_exist() ) {
 			return array();
 		}
@@ -57,6 +83,8 @@ class Jetpack_Modules_Overrides {
 		foreach ( $forced_off as $off ) {
 			$return_value[ $off ] = false;
 		}
+
+		self::$overrides = $return_value;
 
 		return $return_value;
 	}
