@@ -39,7 +39,7 @@ class Search extends React.Component {
 				</SettingsGroup>
 				{
 					this.props.getOptionValue( 'search' ) && (
-						<Card compact className="jp-settings-card__configure-link" href="widgets.php">{ __( 'Add "Search (Jetpack)" Widget' ) }</Card>
+						<Card compact className="jp-settings-card__configure-link" href="customize.php">{ __( 'Add "Search (Jetpack)" Widget' ) }</Card>
 					)
 				}
 			</SettingsCard>
