@@ -12,7 +12,7 @@ class Jetpack_Modules_Overrides {
 	 *
 	 * @var null|array
 	 */
-	private static $overrides = null;
+	private $overrides = null;
 
 	/**
 	 * Clears the $overrides member used for caching.
@@ -22,8 +22,8 @@ class Jetpack_Modules_Overrides {
 	 *
 	 * @return void
 	 */
-	public static function clear_cache() {
-		self::$overrides = null;
+	public function clear_cache() {
+		$this->overrides = null;
 	}
 
 	/**
@@ -31,7 +31,7 @@ class Jetpack_Modules_Overrides {
 	 *
 	 * @return bool Whether there is a filter on the jetpack_active_modules option.
 	 */
-	public static function do_overrides_exist() {
+	public function do_overrides_exist() {
 		return (bool) has_filter( 'option_jetpack_active_modules' );
 	}
 
@@ -43,8 +43,8 @@ class Jetpack_Modules_Overrides {
 	 *
 	 * @return bool|string False if no override for module. 'active' or 'inactive' if there is an override.
 	 */
-	public static function get_module_override( $module_slug, $use_cache = true ) {
-		$overrides = self::get_overrides( $use_cache );
+	public function get_module_override( $module_slug, $use_cache = true ) {
+		$overrides = $this->get_overrides( $use_cache );
 
 		if ( ! isset( $overrides[ $module_slug ] ) ) {
 			return false;
@@ -61,12 +61,12 @@ class Jetpack_Modules_Overrides {
 	 *
 	 * @return array The array of module overrides.
 	 */
-	public static function get_overrides( $use_cache = true ) {
-		if ( $use_cache && ! is_null( self::$overrides ) ) {
-			return self::$overrides;
+	public function get_overrides( $use_cache = true ) {
+		if ( $use_cache && ! is_null( $this->overrides ) ) {
+			return $this->overrides;
 		}
 
-		if ( ! self::do_overrides_exist() ) {
+		if ( ! $this->do_overrides_exist() ) {
 			return array();
 		}
 
@@ -102,8 +102,36 @@ class Jetpack_Modules_Overrides {
 			$return_value[ $off ] = 'inactive';
 		}
 
-		self::$overrides = $return_value;
+		$this->overrides = $return_value;
 
 		return $return_value;
 	}
+
+	/**
+	 * A reference to an instance of this class.
+	 *
+	 * @var Jetpack_Modules_Overrides
+	 */
+	private static $instance = null;
+
+	/**
+	 * Returns the singleton instance of Jetpack_Modules_Overrides
+	 *
+	 * @return Jetpack_Modules_Overrides
+	 */
+	public static function instance() {
+		if ( is_null( self::$instance ) ) {
+			self::$instance = new Jetpack_Modules_Overrides();
+		}
+
+		return self::$instance;
+	}
+
+	/**
+	 * Private construct to enforce singleton.
+	 */
+	private function __construct() {
+	}
 }
+
+Jetpack_Modules_Overrides::instance();
