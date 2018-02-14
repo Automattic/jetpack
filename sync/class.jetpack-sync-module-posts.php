@@ -391,7 +391,6 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		if ( ! empty( $flags['just_published'] ) ) {
 			$this->send_published( $post_ID, $post, $flags );
 		} else {
-			error_log( 'SAVING');
 			/**
 			 * Filter that is used to add to the post flags ( meta data ) when a post gets published
 			 *
