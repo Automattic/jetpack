@@ -28,6 +28,9 @@ jobs:
       - run:
           name: Run Jetpack JN activation spec
           command: source $HOME/.nvm/nvm.sh && npm run decryptconfig && NODE_CONFIG={} xvfb-run ./node_modules/.bin/mocha scripts/jetpack/wp-jetpack-jn-activate.js
+      - run:
+          name: TEST: check if config in place
+          command: ls -la ./config
       - persist_to_workspace:
           root: /wp-e2e-tests
           paths:
@@ -44,6 +47,9 @@ jobs:
     steps:
       - attach_workspace:
           at: /wp-e2e-tests
+      - run:
+          name: TEST: check if config in place
+          command: ls -la ./config
       - run:
           name: Randomize spec execution order
           command: ./scripts/randomize.sh specs
