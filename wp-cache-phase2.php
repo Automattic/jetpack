@@ -2617,7 +2617,7 @@ function wpsc_post_transition( $new_status, $old_status, $post ) {
 	if (
 		($old_status == 'publish' && $new_status != 'publish' ) // post unpublished
 		||
-		($old_status != 'publish' && $new_status == 'publish') // post published
+		($new_status == 'publish') // post published or updated
 	) {
 		//wpsc_delete_cats_tags( $post );
 		wpsc_delete_post_archives( $post );
