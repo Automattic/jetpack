@@ -4,6 +4,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
+import Card from 'components/card';
 
 /**
  * Internal dependencies
@@ -16,7 +17,6 @@ import SettingsGroup from 'components/settings-group';
 import { getSiteAdminUrl } from 'state/initial-state';
 import { getSitePlan } from 'state/site';
 import { isFetchingSiteData } from 'state/site';
-import { FormFieldset } from 'components/forms';
 
 class Search extends React.Component {
 	render() {
@@ -36,18 +36,12 @@ class Search extends React.Component {
 						toggleModule={ this.props.toggleModuleNow }>
 						{ __( 'Replace WordPress built-in search with an improved search experience' ) }
 					</ModuleToggle>
-					{ this.props.getOptionValue( 'search' ) && (
-						<FormFieldset>
-							<p className="jp-form-setting-explanation">
-								{ __( 'To configure search filters add the {{link}}"Search (Jetpack)" widget to your sidebar{{/link}}.', {
-									components: {
-										link: <a href="widgets.php" />
-									}
-								} ) }
-							</p>
-						</FormFieldset>
-					) }
 				</SettingsGroup>
+				{
+					this.props.getOptionValue( 'search' ) && (
+						<Card compact className="jp-settings-card__configure-link" href="widgets.php">{ __( 'Add "Search (Jetpack)" Widget' ) }</Card>
+					)
+				}
 			</SettingsCard>
 		);
 	}
