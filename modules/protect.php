@@ -277,7 +277,7 @@ class Jetpack_Protect_Module {
 		 *
 		 * @since 3.4.0
 		 *
-		 * @param string IP
+		 * @param string jetpack_protect_get_ip IP stored by Protect
 		 * @param array Information about failed login attempt
 		 *   [
 		 *     'user_login' => (string) Username or email used in failed login attempt
