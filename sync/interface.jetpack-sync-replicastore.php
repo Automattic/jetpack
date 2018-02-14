@@ -74,6 +74,8 @@ interface iJetpack_Sync_Replicastore {
 
 	public function delete_metadata( $type, $object_id, $meta_ids );
 
+	public function delete_batch_metadata( $type, $object_ids, $meta_key );
+
 	// constants
 	public function get_constant( $constant );
 

@@ -102,7 +102,11 @@ class Jetpack_Sync_Server_Replicator {
 				$type = $matches[1];
 				$this->store->delete_metadata( $type, $object_id, $meta_ids );
 				break;
-
+			case 'jetpack_batch_delete_post_meta':
+				list( $object_ids, $meta_key ) = $args;
+				$type = 'post';
+				$this->store->delete_batch_metadata( $type, $object_ids, $meta_key );
+				break;
 			// constants
 			case 'jetpack_sync_constant':
 				list( $name, $value ) = $args;
