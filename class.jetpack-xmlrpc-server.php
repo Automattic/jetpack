@@ -74,6 +74,7 @@ class Jetpack_XMLRPC_Server {
 		return array(
 			'jetpack.verifyRegistration' => array( $this, 'verify_registration' ),
 			'jetpack.remoteAuthorize' => array( $this, 'remote_authorize' ),
+			'jetpack.remoteProvision' => array( $this, 'remote_provision' ),
 		);
 	}
 
@@ -122,6 +123,37 @@ class Jetpack_XMLRPC_Server {
 			'result' => $result,
 		);
 		return $response;
+	}
+
+	function remote_provision( $request ) {
+		$access_token = $request['access_token'];
+		$wpcom_user_id = $request['wpcom_user_id'];
+		$local_username = $request['local_username'];
+		$user = get_user_by( 'login', $local_username );
+
+		if ( ! $user ) {
+			$user = get_user_by( 'email', $local_username );
+		}
+
+		if ( ! $user ) {
+			return $this->error( 'user_not_found', "The user wasn't found - d'oh!" );
+		}
+
+		require_once JETPACK__PLUGIN_DIR . '_inc/class.jetpack-provision.php';
+
+		wp_set_current_user( $user->ID );
+
+		$args = array(
+			'wpcom_user_id' => $wpcom_user_id
+		);
+
+		$result = Jetpack_Provision::partner_provision( $access_token, $args );
+
+		if ( isset( $result->access_token ) && ! empty( $result->access_token ) ) {
+			return array( 'success' => true );
+		} else {
+			return $result;
+		}
 	}
 
 	private function tracks_record_error( $name, $error, $user = null ) {
@@ -212,7 +244,7 @@ class Jetpack_XMLRPC_Server {
 		Jetpack::delete_secrets( $action, $state );
 
 		JetpackTracking::record_user_event( 'jpc_verify_' . $action . '_success', array(), $user );
-		
+
 		return $secrets['secret_2'];
 	}
 
