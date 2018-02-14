@@ -8,7 +8,14 @@ jQuery( document ).ready( function() {
 	} );
 
 	filter_list.find( 'input[type="checkbox"]' ).prop( 'disabled', false ).css( 'cursor', 'inherit' ).on( 'click', function() {
-		toggle_checkbox( jQuery( this ) );
+		var checkbox = jQuery( this );
+
+		toggle_checkbox( checkbox );
+
+		var anchor = checkbox.parent( 'a' );
+		if ( anchor.length ) {
+			window.location.href = anchor.prop( 'href' );
+		}
 	} );
 
 	function toggle_checkbox( checkbox ) {
