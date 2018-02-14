@@ -81,10 +81,12 @@ if ( class_exists( 'WP_REST_Controller' ) ) {
 	include( dirname( __FILE__ ) . '/rest/load.php' );
 }
 
-function wp_super_cache_text_domain() {
+function wp_super_cache_init_action() {
 	load_plugin_textdomain( 'wp-super-cache', false, basename( dirname( __FILE__ ) ) . '/languages' );
+
+	wpsc_register_post_hooks();
 }
-add_action( 'init', 'wp_super_cache_text_domain' );
+add_action( 'init', 'wp_super_cache_init_action' );
 
 function wp_cache_set_home() {
 	global $wp_cache_is_home;

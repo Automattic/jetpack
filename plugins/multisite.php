@@ -7,7 +7,7 @@ if ( ( defined( 'WP_ALLOW_MULTISITE' ) && constant( 'WP_ALLOW_MULTISITE' ) === t
 function wp_super_cache_multisite_init() {
 	add_filter( 'wpmu_blogs_columns', 'wp_super_cache_blogs_col' );
 	add_action( 'manage_sites_custom_column', 'wp_super_cache_blogs_field', 10, 2 );
-	add_action( 'init', 'wp_super_cache_override_on_flag' );
+	add_action( 'init', 'wp_super_cache_override_on_flag', 9 );
 }
 
 function wp_super_cache_blogs_col( $col ) {
