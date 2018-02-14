@@ -1,6 +1,6 @@
 <?php
 
-require_once JETPACK__PLUGIN_DIR . '3rd-party/module-overrides.php';
+require_once JETPACK__PLUGIN_DIR . '3rd-party/class.jetpack-modules-overrides.php';
 
 class WP_Test_Jetpack_Modules_Overrides extends WP_UnitTestCase {
 	function test_do_overrides_exist() {
