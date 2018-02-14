@@ -4,8 +4,6 @@ require_once dirname( __FILE__ ) . '/class.jetpack-sync-settings.php';
 
 class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 
-	private $just_published = array();
-	private $previous_status = array();
 	private $action_handler;
 	private $import_end = false;
 
@@ -59,21 +57,26 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		add_action( 'import_end', array( $this, 'sync_import_end' ) );
 
 		add_action( 'set_object_terms', array( $this, 'set_object_terms' ), 10, 6 );
+
+		// `wp_insert_post_parent` happens early on `wp_insert_post`
+		add_filter( 'wp_insert_post_parent', array( $this, 'wp_insert_post_parent' ), 10, 2 );
 	}
 
 	public function set_object_terms( $object_id, $terms, $tt_ids, $taxonomy, $append, $old_tt_ids ) {
-		if ( ! $this->is_save_post() ) {
+		if ( ! self::is_saving_post( $object_id ) ) {
 			return;
 		}
-		$this->flags[ $object_id ] = array( $terms, $tt_ids, $taxonomy, $append, $old_tt_ids );
-		error_log( 'SET FLAGS');
+		$this->flags[ $object_id ]['set_object_terms'][] = array( $terms, $tt_ids, $taxonomy, $append, $old_tt_ids );
 	}
 
-	private function is_save_post() {
-		// use `wp_insert_post_parent` instead?
-		return Jetpack::is_function_in_backtrace( 'wp_insert_post' );
+	public function wp_insert_post_parent( $post_parent, $post_ID ) {
+		$this->flags[ $post_ID ] = array();
+		return $post_parent;
 	}
 
+	public function is_saving_post( $post_ID ) {
+		return isset( $this->flags[ $post_ID ] );
+	}
 
 	public function sync_import_done( $importer ) {
 		// We already ran an send the import
@@ -185,8 +188,8 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 	 * @return array
 	 */
 	function expand_jetpack_sync_save_post( $args ) {
-		list( $post_id, $post, $update, $previous_state, $a, $b ) = $args;
-		return array( $post_id, $this->filter_post_content_and_add_links( $post ), $update, $previous_state, $a, $b );
+		list( $post_id, $post, $flags ) = $args;
+		return array( $post_id, $this->filter_post_content_and_add_links( $post ), $flags );
 	}
 
 	function filter_blacklisted_post_types( $args ) {
@@ -297,7 +300,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 			 *
 			 * @since 4.5.0
 			 *
-			 * @param array of shortcode tags to remove.
+			 * @param array - of shortcode tags to remove.
 			 */
 			$shortcodes_to_remove        = apply_filters( 'jetpack_sync_do_not_expand_shortcodes', array(
 				'gallery',
@@ -340,15 +343,19 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 	}
 
 	public function save_published( $new_status, $old_status, $post ) {
-		if ( 'publish' === $new_status && 'publish' !== $old_status ) {
-			$this->just_published[ $post->ID ] = true;
-		}
-
-		$this->previous_status[ $post->ID ] = $old_status;
+		$this->flags[ $post->ID ]['just_published'] = 'publish' === $new_status && 'publish' !== $old_status;
+		$this->flags[ $post->ID ]['previous_status'] = $old_status;
 	}
 
 	public function wp_insert_post( $post_ID, $post = null, $update = null ) {
 		if ( ! is_numeric( $post_ID ) || is_null( $post ) ) {
+			return;
+		}
+
+		if ( wp_is_post_revision( $post ) && $this->is_saving_post( $post->post_parent ) ) {
+			error_log( 'is a revision' );
+			$this->flags[ $post->post_parent ]['revision'] = $post;
+			unset( $this->flags[ $post_ID ] );
 			return;
 		}
 
@@ -357,59 +364,52 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 			$post = get_post( $post_ID );
 		}
 
-		$previous_status = isset( $this->previous_status[ $post_ID ] ) ?
-			$this->previous_status[ $post_ID ] :
-			self::DEFAULT_PREVIOUS_STATE;
+		$flags = $this->flags[ $post_ID ];
 
-		$just_published = isset( $this->just_published[ $post_ID ] ) ?
-			$this->just_published[ $post_ID ] :
-			false;
-
-		$state = array(
-			'is_auto_save' => (bool) Jetpack_Constants::get_constant( 'DOING_AUTOSAVE' ),
-			'previous_status' => $previous_status,
-			'just_published' => $just_published
-		);
-		/**
-		 * Filter that is used to add to the post flags ( meta data ) when a post gets published
-		 *
-		 * @since 5.8.0
-		 *
-		 * @param int $post_ID the post ID
-		 * @param mixed $post WP_POST object
-		 * @param bool  $update Whether this is an existing post being updated or not.
-		 * @param mixed $state state
-		 *
-		 * @module sync
-		 */
-		do_action( 'jetpack_sync_save_post', $post_ID, $post, $update, $state, 'hola', $this->flags );
-		unset( $this->previous_status[ $post_ID ] );
-		$this->send_published( $post_ID, $post );
-	}
-
-	public function send_published( $post_ID, $post ) {
-		if ( ! isset( $this->just_published[ $post_ID ] ) ) {
-			return;
+		if ( ! isset( $flags['previous_status'] ) ) {
+			$flags['previous_status'] = self::DEFAULT_PREVIOUS_STATE;
 		}
 
-		// Post revisions cause race conditions where this send_published add the action before the actual post gets synced
-		if ( wp_is_post_autosave( $post ) || wp_is_post_revision( $post ) ) {
-			return;
-		}
-
-		$post_flags = array(
-			'post_type' => $post->post_type
-		);
+		$flags['is_auto_save'] = (bool) Jetpack_Constants::get_constant( 'DOING_AUTOSAVE' );
+		$flags['update'] = $update;
 
 		$author_user_object = get_user_by( 'id', $post->post_author );
 		if ( $author_user_object ) {
-			$post_flags['author'] = array(
+			$flags['author'] = array(
 				'id'              => $post->post_author,
 				'wpcom_user_id'   => get_user_meta( $post->post_author, 'wpcom_user_id', true ),
 				'display_name'    => $author_user_object->display_name,
 				'email'           => $author_user_object->user_email,
 				'translated_role' => Jetpack::translate_user_to_role( $author_user_object ),
 			);
+		}
+
+		if ( ! empty( $flags['just_published'] ) ) {
+			$this->send_published( $post_ID, $post, $flags );
+		} else {
+			error_log( 'SAVING');
+			/**
+			 * Filter that is used to add to the post flags ( meta data ) when a post gets published
+			 *
+			 * @since 5.8.0
+			 *
+			 * @param int $post_ID the post ID
+			 * @param mixed $post WP_POST object
+			 * @param bool  $update Whether this is an existing post being updated or not.
+			 * @param mixed $state state
+			 *
+			 * @module sync
+			 */
+			do_action( 'jetpack_sync_save_post', $post_ID, $post, $flags );
+		}
+
+		unset( $this->flags[ $post_ID ] );
+	}
+
+	public function send_published( $post_ID, $post, $flags ) {
+		// Post revisions cause race conditions where this send_published add the action before the actual post gets synced
+		if ( wp_is_post_autosave( $post ) || wp_is_post_revision( $post ) ) {
+			return;
 		}
 
 		/**
@@ -420,7 +420,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		 * @param mixed array post flags that are added to the post
 		 * @param mixed $post WP_POST object
 		 */
-		$flags = apply_filters( 'jetpack_published_post_flags', $post_flags, $post );
+		$flags = apply_filters( 'jetpack_published_post_flags', $flags, $post );
 
 		/**
 		 * Action that gets synced when a post type gets published.
@@ -430,8 +430,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		 * @param int $post_ID
 		 * @param mixed array $flags post flags that are added to the post
 		 */
-		do_action( 'jetpack_published_post', $post_ID, $flags );
-		unset( $this->just_published[ $post_ID ] );
+		do_action( 'jetpack_published_post', $post_ID, $flags, $post );
 	}
 
 	public function expand_post_ids( $args ) {
