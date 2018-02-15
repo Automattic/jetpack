@@ -357,7 +357,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	public static function get_plans( $request ) {
-		$data      = get_transient( 'jetpack_plans' );
+		$data = get_transient( 'jetpack_plans' );
 
 		/**
 		 * Filter to turn off caching of Jetpack plans
@@ -366,9 +366,9 @@ class Jetpack_Core_Json_Api_Endpoints {
 		 *
 		 * @param bool true Whether to cache Jetpack plans locally
 		 */
-		$use_cache = apply_filters( 'cache_jetpack_plans', true );
+		$use_cache = apply_filters( 'jetpack_cache_plans', true );
 
-		if ( $data === false ) {
+		if ( false === $data ) {
 			$path = '/plans';
 			$ip   = $_SERVER['HTTP_X_FORWARDED_FOR']; // used to calculate which currency to show
 			if ( empty( $ip ) ) {
@@ -377,7 +377,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 			}
 			$data = Jetpack_Client::wpcom_json_api_request_as_blog( $path, '2', array( 'headers' => array( 'X-Forwarded-For' => $ip ) ), null, 'wpcom' );
 
-			if ( $use_cache ) {
+			if ( true === $use_cache ) {
 				set_transient( 'jetpack_plans', $data, DAY_IN_SECONDS );
 			}
 		}
