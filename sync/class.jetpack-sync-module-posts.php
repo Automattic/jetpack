@@ -35,13 +35,15 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		$priority = version_compare( $wp_version, '4.7-alpha', '<' ) ? 0 : 11;
 
 		add_action( 'wp_insert_post', array( $this, 'wp_insert_post' ), $priority, 3 );
-		add_action( 'jetpack_sync_save_post', $callable, 10, 6 );
+		add_action( 'jetpack_sync_save_post', $callable, 10, 4 );
 
 		add_action( 'deleted_post', $callable, 10 );
-		add_action( 'jetpack_published_post', $callable, 10, 2 );
+		add_action( 'jetpack_published_post', $callable, 10, 3 );
 
 		add_action( 'transition_post_status', array( $this, 'save_published' ), 10, 3 );
 		add_filter( 'jetpack_sync_before_enqueue_jetpack_sync_save_post', array( $this, 'filter_blacklisted_post_types' ) );
+		add_filter( 'jetpack_sync_before_enqueue_jetpack_published_post', array( $this, 'filter_blacklisted_post_types' ) );
+
 
 		// listen for meta changes
 		$this->init_listeners_for_meta_type( 'post', $callable );
@@ -145,6 +147,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 
 	public function init_before_send() {
 		add_filter( 'jetpack_sync_before_send_jetpack_sync_save_post', array( $this, 'expand_jetpack_sync_save_post' ) );
+		add_filter( 'jetpack_sync_before_send_jetpack_published_post', array( $this, 'expand_jetpack_published_post' ) );
 
 		// full sync
 		add_filter( 'jetpack_sync_before_send_jetpack_full_sync_posts', array( $this, 'expand_post_ids' ) );
@@ -188,12 +191,17 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 	 * @return array
 	 */
 	function expand_jetpack_sync_save_post( $args ) {
-		list( $post_id, $post, $flags ) = $args;
-		return array( $post_id, $this->filter_post_content_and_add_links( $post ), $flags );
+		list( $post_id, $update, $post, $flags ) = $args;
+		return array( $post_id, $update, $this->filter_post_content_and_add_links( $post ), $flags );
+	}
+
+	function expand_jetpack_published_post( $args ) {
+		list( $post_id, $flags, $post ) = $args;
+		return array( $post_id, $flags, $this->filter_post_content_and_add_links( $post ) );
 	}
 
 	function filter_blacklisted_post_types( $args ) {
-		$post = $args[1];
+		$post = $args[2];
 
 		if ( in_array( $post->post_type, Jetpack_Sync_Settings::get_setting( 'post_types_blacklist' ) ) ) {
 			return false;
@@ -357,7 +365,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 			unset( $post['post_content'] );
 			unset( $post['post_title'] );
 			unset( $post['post_excerpt'] );
-			$this->flags[ $post->post_parent ]['revision'] = $post;
+			$this->flags[ $post['post_parent'] ]['revision'] = $post;
 
 			unset( $this->flags[ $post_ID ] );
 			return;
@@ -403,7 +411,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 			 *
 			 * @module sync
 			 */
-			do_action( 'jetpack_sync_save_post', $post_ID, $post, $flags );
+			do_action( 'jetpack_sync_save_post', $post_ID, $update, $post, $flags );
 		}
 
 		unset( $this->flags[ $post_ID ] );
