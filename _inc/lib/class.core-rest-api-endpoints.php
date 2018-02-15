@@ -67,6 +67,13 @@ class Jetpack_Core_Json_Api_Endpoints {
 		$site_endpoint = new Jetpack_Core_API_Site_Endpoint();
 		$widget_endpoint = new Jetpack_Core_API_Widget_Endpoint();
 
+		register_rest_route( 'jetpack/v4', 'plans', array(
+			'methods'             => WP_REST_Server::READABLE,
+			'callback'            => __CLASS__ . '::get_plans',
+			'permission_callback' => __CLASS__ . '::connect_url_permission_callback',
+
+		) );
+
 		register_rest_route( 'jetpack/v4', '/jitm', array(
 			'methods'  => WP_REST_Server::READABLE,
 			'callback' => __CLASS__ . '::get_jitm_message',
@@ -347,6 +354,35 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'callback' => array( $widget_endpoint, 'process' ),
 			'permission_callback' => array( $widget_endpoint, 'can_request' ),
 		) );
+	}
+
+	public static function get_plans( $request ) {
+		$data = get_transient( 'jetpack_plans' );
+
+		/**
+		 * Filter to turn off caching of Jetpack plans
+		 *
+		 * @since 5.9.0
+		 *
+		 * @param bool true Whether to cache Jetpack plans locally
+		 */
+		$use_cache = apply_filters( 'jetpack_cache_plans', true );
+
+		if ( false === $data ) {
+			$path = '/plans';
+			$ip   = $_SERVER['HTTP_X_FORWARDED_FOR']; // used to calculate which currency to show
+			if ( empty( $ip ) ) {
+				// no ip list to forward, so create one:
+				$ip = $_SERVER['HTTP_CLIENT_IP'];
+			}
+			$data = Jetpack_Client::wpcom_json_api_request_as_blog( $path, '2', array( 'headers' => array( 'X-Forwarded-For' => $ip ) ), null, 'wpcom' );
+
+			if ( true === $use_cache ) {
+				set_transient( 'jetpack_plans', $data, DAY_IN_SECONDS );
+			}
+		}
+
+		return $data;
 	}
 
 	/**
