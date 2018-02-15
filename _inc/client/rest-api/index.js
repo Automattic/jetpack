@@ -191,6 +191,10 @@ function JetpackRestApiClient( root, nonce ) {
 			.then( checkStatus )
 			.then( parseJsonResponse ),
 
+		getPlans: () => getRequest( `${ apiRoot }jetpack/v4/plans`, getParams )
+			.then( checkStatus )
+			.then( parseJsonResponse ),
+
 		fetchSettings: () => getRequest( `${ apiRoot }jetpack/v4/settings`, getParams )
 			.then( checkStatus )
 			.then( parseJsonResponse ),
