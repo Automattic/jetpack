@@ -358,7 +358,15 @@ class Jetpack_Core_Json_Api_Endpoints {
 
 	public static function get_plans( $request ) {
 		$data      = get_transient( 'jetpack_plans' );
-		$use_cache = apply_filters( 'cache_jetpack_plans', '__return_true', 1 );
+
+		/**
+		 * Filter to turn off caching of Jetpack plans
+		 *
+		 * @since 5.9.0
+		 *
+		 * @param bool true Whether to cache Jetpack plans locally
+		 */
+		$use_cache = apply_filters( 'cache_jetpack_plans', true );
 
 		if ( $data === false ) {
 			$path = '/plans';
