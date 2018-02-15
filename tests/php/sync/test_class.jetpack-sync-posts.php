@@ -14,7 +14,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$user_id = $this->factory->user->create();
 
 		// create a post
-		$post_id    = $this->factory->post->create( array( 'post_author' => $user_id ) );
+		$post_id    = $this->factory->post->create( array( 'post_author' => $user_id, 'post_status' => 'draft' ) );
 		$this->post = get_post( $post_id );
 
 		$this->sender->do_sync();
@@ -28,7 +28,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$post_sync_module = Jetpack_Sync_Modules::get_module( "posts" );
 
 		$this->post = $post_sync_module->filter_post_content_and_add_links( $this->post );
-		$this->assertEqualsObject( $this->post, $event->args[1] );
+		$this->assertEqualsObject( $this->post, $event->args[3] );
 	}
 
 	public function test_add_post_syncs_post_data() {
@@ -50,7 +50,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		//Performing sync here (even though setup() does it) to sync REQUEST_URI
 		$user_id = $this->factory->user->create();
-		$this->factory->post->create( array( 'post_author' => $user_id ) );
+		$this->factory->post->create( array( 'post_author' => $user_id, 'post_status' => 'draft' ) );
 		$this->sender->do_sync();
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
@@ -58,7 +58,8 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_trash_post_trashes_data() {
-		$this->assertEquals( 1, $this->server_replica_storage->post_count( 'publish' ) );
+		//
+		$this->assertEquals( 0, $this->server_replica_storage->post_count( 'publish' ) );
 		$this->server_event_storage->reset();
 		wp_delete_post( $this->post->ID );
 
@@ -433,7 +434,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 	function test_sync_post_includes_permalink_and_shortlink() {
 		$insert_post_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
-		$post              = $insert_post_event->args[1];
+		$post              = $insert_post_event->args[2];
 
 		$this->assertObjectHasAttribute( 'permalink', $post );
 		$this->assertObjectHasAttribute( 'shortlink', $post );
@@ -453,7 +454,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		$this->sender->do_sync();
 
-		$post_on_server = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' )->args[1];
+		$post_on_server = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' )->args[2];
 		$this->assertObjectHasAttribute( 'featured_image', $post_on_server );
 		$this->assertInternalType( 'string', $post_on_server->featured_image );
 		$this->assertContains( 'test_image.png', $post_on_server->featured_image );
@@ -464,7 +465,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		$this->sender->do_sync();
 
-		$post_on_server = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' )->args[1];
+		$post_on_server = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' )->args[2];
 		$this->assertObjectNotHasAttribute( 'featured_image', $post_on_server );
 	}
 
@@ -568,7 +569,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		// first, show that post is being synced
-		$this->assertTrue( !! $this->server_replica_storage->get_post( $post_id ) );
+		$this->assertTrue( !! $this->server_replica_storage->get_post( $post_id ), 'Post did not save' );
 
 		Jetpack_Sync_Settings::update_settings( array( 'post_types_blacklist' => array( 'filter_me' ) ) );
 
@@ -576,7 +577,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		$this->sender->do_sync();
 
-		$this->assertFalse( $this->server_replica_storage->get_post( $post_id ) );
+		$this->assertFalse( $this->server_replica_storage->get_post( $post_id ), 'post did not get filtered' );
 
 		// also assert that the post types blacklist still contains the hard-coded values
 		$setting = Jetpack_Sync_Settings::get_setting( 'post_types_blacklist' );
@@ -886,8 +887,9 @@ That was a cool video.';
 		$event = $this->server_event_storage->get_most_recent_event();
 
 		$this->assertEquals( 'jetpack_published_post', $event->action );
+
 		$this->assertEquals( $post_id, $event->args[0] );
-		$this->assertEquals( 'post', $event->args[1]['post_type']);
+		$this->assertEquals( 'post', $event->args[2]->post_type );
 		// We add the author information to this so that we know who the author is
 		// This information is useful when the post gets published via cron.
 		$this->assertEquals( $author->display_name, $event->args[1]['author']['display_name'] ); // since 5.4 ?

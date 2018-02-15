@@ -16,11 +16,11 @@ class Jetpack_Sync_Module_Terms extends Jetpack_Sync_Module {
 		add_action( 'jetpack_sync_save_term', $callable );
 		add_action( 'jetpack_sync_add_term', $callable );
 		add_action( 'delete_term', $callable, 10, 4 );
-		add_action( 'set_object_terms', array( $this, 'set_object_terms' ) );
+		add_action( 'set_object_terms', array( $this, 'set_object_terms' ), 10, 6 );
 		add_action( 'deleted_term_relationships', $callable, 10, 2 );
 	}
 
-	public function set_object_terms( $object_id ) {
+	public function set_object_terms( $object_id, $term_ids, $tt_ids, $taxonomy, $append ) {
 		$posts_sync_module = Jetpack_Sync_Modules::get_module( 'posts' );
 		if ( $posts_sync_module && $posts_sync_module->is_saving_post( $object_id ) ) {
 			return;

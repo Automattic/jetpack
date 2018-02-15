@@ -20,7 +20,11 @@ class Jetpack_Sync_Server_Replicator {
 		switch ( $action_name ) {
 			// posts
 			case 'jetpack_sync_save_post':
-				list( $post_id, $post ) = $args;
+				list( $post_id, $update,  $post ) = $args;
+				$this->store->upsert_post( $post, $silent );
+				break;
+			case 'jetpack_published_post':
+				list( $post_id, $flags,  $post ) = $args;
 				$this->store->upsert_post( $post, $silent );
 				break;
 			case 'deleted_post':
