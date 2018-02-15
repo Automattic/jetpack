@@ -26,9 +26,8 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $this->post->ID, $event->args[0] );
 
 		$post_sync_module = Jetpack_Sync_Modules::get_module( "posts" );
-
 		$this->post = $post_sync_module->filter_post_content_and_add_links( $this->post );
-		$this->assertEqualsObject( $this->post, $event->args[3] );
+		$this->assertEqualsObject( $this->post, $event->args[2] );
 	}
 
 	public function test_add_post_syncs_post_data() {
@@ -58,15 +57,17 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_trash_post_trashes_data() {
-		//
-		$this->assertEquals( 0, $this->server_replica_storage->post_count( 'publish' ) );
+		wp_update_post( array( 'ID'=> $this->post->ID, 'post_status' => 'publish' ) );
+		$this->sender->do_sync();
+
+		$this->assertEquals( 1, $this->server_replica_storage->post_count( 'publish' ) );
 		$this->server_event_storage->reset();
 		wp_delete_post( $this->post->ID );
 
 		$this->sender->do_sync();
 		$insert_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
 
-		$this->assertEquals( $insert_event->args[1]->post_status, 'trash' );
+		$this->assertEquals( $insert_event->args[2]->post_status, 'trash' );
 		$this->assertEquals( $insert_event->args[0], $this->post->ID );
 
 		$this->server_event_storage->reset();
@@ -84,16 +85,21 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_sync_post_event_includes_previous_state() {
+		wp_update_post( array( 'ID' => $this->post->ID, 'post_status' => 'publish' ) );
+		$this->sender->do_sync();
 		$this->assertEquals( 1, $this->server_replica_storage->post_count( 'publish' ) );
 		$this->server_event_storage->reset();
 		wp_delete_post( $this->post->ID );
 		$this->sender->do_sync();
 		$insert_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
-		$this->assertEquals( 'trash', $insert_event->args[1]->post_status ); //
+
+		$this->assertEquals( 'trash', $insert_event->args[2]->post_status ); //
 		$this->assertEquals( 'publish', $insert_event->args[3]['previous_status'] );
 	}
 
 	public function test_delete_post_deletes_data() {
+		wp_update_post( array( 'ID' => $this->post->ID, 'post_status' => 'publish' ) );
+		$this->sender->do_sync();
 		$this->assertEquals( 1, $this->server_replica_storage->post_count( 'publish' ) );
 
 		wp_delete_post( $this->post->ID, true );
@@ -138,16 +144,6 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	public function test_sync_post_status_change() {
-
-		$this->assertNotEquals( 'draft', $this->post->post_status );
-
-		wp_update_post( array(
-			'ID'          => $this->post->ID,
-			'post_status' => 'draft',
-		) );
-
-		$this->sender->do_sync();
-
 		$remote_post = $this->server_replica_storage->get_post( $this->post->ID );
 		$this->assertEquals( 'draft', $remote_post->post_status );
 
@@ -444,7 +440,8 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_sync_post_includes_feature_image_meta_when_featured_image_set() {
-		$post_id = $this->factory->post->create();
+		$this->server_event_storage->reset();
+		$post_id = $this->factory->post->create( array( 'post_title' => 'ABC', 'post_status' => 'draft' ) );
 		$attachment_id = $this->factory->post->create( array(
 			'post_type'      => 'attachment',
 			'post_mime_type' => 'image/png',
@@ -453,8 +450,24 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		set_post_thumbnail( $post_id, $attachment_id );
 
 		$this->sender->do_sync();
-
 		$post_on_server = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' )->args[2];
+		$this->assertObjectHasAttribute( 'featured_image', $post_on_server );
+		$this->assertInternalType( 'string', $post_on_server->featured_image );
+		$this->assertContains( 'test_image.png', $post_on_server->featured_image );
+	}
+
+	function test_sync_published_post_includes_feature_image_meta_when_featured_image() {
+		$this->server_event_storage->reset();
+		$post_id = $this->factory->post->create( array( 'post_title' => 'ABC', 'post_status' => 'publish' ) );
+		$attachment_id = $this->factory->post->create( array(
+			'post_type'      => 'attachment',
+			'post_mime_type' => 'image/png',
+		) );
+		add_post_meta( $attachment_id, '_wp_attached_file', '2016/09/test_image.png' );
+		set_post_thumbnail( $post_id, $attachment_id );
+
+		$this->sender->do_sync();
+		$post_on_server = $this->server_event_storage->get_most_recent_event( 'jetpack_published_post' )->args[2];
 		$this->assertObjectHasAttribute( 'featured_image', $post_on_server );
 		$this->assertInternalType( 'string', $post_on_server->featured_image );
 		$this->assertContains( 'test_image.png', $post_on_server->featured_image );
@@ -508,9 +521,9 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		remove_filter( 'jetpack_sync_prevent_sending_post_data', '__return_true' );
 
-		$this->assertEquals( 2, $this->server_replica_storage->post_count() ); // the post and its revision
+		$this->assertEquals( 1, $this->server_replica_storage->post_count() ); // the post
 		$insert_post_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
-		$post              = $insert_post_event->args[1];
+		$post              = $insert_post_event->args[2];
 		// Instead of sending all the data we just send the post_id so that we can remove it on our end.
 
 		$this->assertEquals( $this->post->ID, $post->ID );
@@ -612,8 +625,8 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		// get the synced object
-		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
-		$synced_post = $event->args[1];
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_published_post' );
+		$synced_post = $event->args[2];
 
 		// grab the codec - we need to simulate the stripping of types that comes with encoding/decoding
 		$codec = $this->sender->get_codec();
@@ -819,16 +832,15 @@ That was a cool video.';
 		wp_update_post( $this->post );
 
 		$oembeded = explode( '#DIMENSIONS#', $oembeded );
-
 		$this->assertContains(
 			$oembeded[0],
 			apply_filters( 'the_content', $this->post->post_content ),
-			'$oembeded is NOT the same as filtered $this->post->post_content'
+			'$oembeded is NOT the same as filtered $this->post->post_content *1'
 		);
 		$this->assertContains(
 			$oembeded[1],
 			apply_filters( 'the_content', $this->post->post_content ),
-			'$oembeded is NOT the same as filtered $this->post->post_content'
+			'$oembeded is NOT the same as filtered $this->post->post_content *2'
 		);
 
 		$this->sender->do_sync();
@@ -983,22 +995,18 @@ That was a cool video.';
 		$this->server_event_storage->reset();
 		$this->test_already = false;
 		add_action( 'wp_insert_post', array( $this, 'add_a_hello_post_type' ), 9 );
-		$this->factory->post->create( array( 'post_type' => 'post' ) );
+		$post_id = $this->factory->post->create( array( 'post_type' => 'post', 'post_title' => 'ABC' ) );
 		remove_action( 'wp_insert_post', array( $this, 'add_a_hello_post_type' ), 9 );
 
 		$this->sender->do_sync();
 
 		$events = $this->server_event_storage->get_all_events();
 
-		$events = array_slice( $events, -4);
-
-		$this->assertEquals( $events[0]->args[0], $events[1]->args[0] );
-		$this->assertEquals( $events[0]->action, 'jetpack_sync_save_post' );
 		$this->assertEquals( $events[1]->action, 'jetpack_published_post' );
+		$this->assertEquals( $events[1]->args[2]->post_status, 'jetpack_sync_non_registered_post_type' );
 
-		$this->assertEquals( $events[2]->args[0], $events[3]->args[0] );
-		$this->assertEquals( $events[2]->action, 'jetpack_sync_save_post' );
-		$this->assertEquals( $events[3]->action, 'jetpack_published_post' );
+		$this->assertEquals( $events[2]->action, 'jetpack_published_post' );
+		$this->assertEquals( $events[2]->args[0], $post_id );
 	}
 
 	public function test_sync_export_content_event() {
