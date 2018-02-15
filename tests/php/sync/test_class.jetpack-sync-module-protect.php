@@ -19,7 +19,7 @@ class WP_Test_Jetpack_Sync_Module_Protect extends WP_Test_Jetpack_Sync_Base {
 
 		$action = $this->server_event_storage->get_most_recent_event( 'jetpack_valid_failed_login_attempt' );
 
-		$this->assertEquals( $user->user_email, $action->args[0]['login_user'] );
+		$this->assertEquals( $user->user_email, $action->args[0]['login'] );
 	}
 
 	function test_sends_failed_login_empty_message() {
@@ -29,6 +29,6 @@ class WP_Test_Jetpack_Sync_Module_Protect extends WP_Test_Jetpack_Sync_Base {
 
 		$action = $this->server_event_storage->get_most_recent_event( 'jetpack_valid_failed_login_attempt' );
 
-		$this->assertEquals( '', $action->args[0]['login_user'] );
+		$this->assertEquals( '', $action->args[0]['login'] );
 	}
 }

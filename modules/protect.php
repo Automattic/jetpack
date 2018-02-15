@@ -279,10 +279,10 @@ class Jetpack_Protect_Module {
 		 *
 		 * @param array Information about failed login attempt
 		 *   [
-		 *     'user_login' => (string) Username or email used in failed login attempt
+		 *     'login' => (string) Username or email used in failed login attempt
 		 *   ]
 		 */
-		do_action( 'jpp_log_failed_attempt', array( 'login_user' => $login_user ) );
+		do_action( 'jpp_log_failed_attempt', array( 'login' => $login_user ) );
 
 		if ( isset( $_COOKIE['jpp_math_pass'] ) ) {
 
