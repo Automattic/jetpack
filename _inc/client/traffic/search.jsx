@@ -40,14 +40,14 @@ class Search extends React.Component {
 					{ this.props.getOptionValue( 'search' ) && (
 						<FormFieldset>
 								<p className="jp-form-setting-explanation">
-									{ __( 'Add the "Search (Jetpack)" widget to your sidebar to configure advanced search filters.' ) }
+									{ __( 'Add the Jetpack search widget to your sidebar to configure advanced search filters.' ) }
 								</p>
 							</FormFieldset>
 					) }
 				</SettingsGroup>
 				{
 					this.props.getOptionValue( 'search' ) && (
-						<Card compact className="jp-settings-card__configure-link" href="customize.php">{ __( 'Add "Search (Jetpack)" Widget' ) }</Card>
+						<Card compact className="jp-settings-card__configure-link" href="customize.php">{ __( 'Add Jetpack Search Widget' ) }</Card>
 					)
 				}
 			</SettingsCard>
