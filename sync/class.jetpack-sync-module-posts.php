@@ -196,9 +196,11 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 	}
 
 	function is_post_type_allowed( $post_id ) {
-		$post = get_post( $post_id );
-
-		return ! in_array( $post->post_type, Jetpack_Sync_Settings::get_setting( 'post_types_blacklist' ) );
+		$post = get_post( intval( $post_id ) );
+		if( $post->post_type ) {
+			return ! in_array( $post->post_type, Jetpack_Sync_Settings::get_setting( 'post_types_blacklist' ) );
+		}
+		return false;
 	}
 
 	function remove_embed() {
