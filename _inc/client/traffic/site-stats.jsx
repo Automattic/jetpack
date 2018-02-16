@@ -52,8 +52,8 @@ class SiteStatsComponent extends React.Component {
 	/**
 	 * Update state so toggles are updated.
 	 *
-	 * @param {string} optionName
-	 * @param {string} optionSet
+	 * @param {string} optionName the slug of the option to update
+	 * @param {string} optionSet  the name of a set of options ?
 	 */
 	updateOptions = ( optionName, optionSet ) => {
 		let value = this.props.getOptionValue( optionSet, 'stats' ),

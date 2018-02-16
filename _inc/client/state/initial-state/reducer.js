@@ -143,7 +143,7 @@ export function userCanViewStats( state ) {
  *
  * @param {object} state Global state tree
  *
- * @return string
+ * @return {string}        the URL of the icon
  */
 export function getSiteIcon( state ) {
 	return get( state.jetpack.initialState.siteData, [ 'icon' ] );

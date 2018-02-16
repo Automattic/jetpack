@@ -30,7 +30,7 @@ class SubscriptionsComponent extends React.Component {
 	/**
 	 * Update state so toggles are updated.
 	 *
-	 * @param {string} optionName
+	 * @param {string} optionName the slug of the option to update
 	 */
 	updateOptions = optionName => {
 		this.setState(

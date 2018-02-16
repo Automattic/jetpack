@@ -34,7 +34,7 @@ export const SSO = moduleSettingsForm(
 		/**
 		 * Update state so toggles are updated.
 		 *
-		 * @param {string} optionName
+		 * @param {string} optionName The slug of the option to update
 		 */
 		updateOptions = optionName => {
 			this.setState(

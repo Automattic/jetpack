@@ -17,7 +17,9 @@ const notices = {
 	/**
 	 * Creates a new notice
 	 * @private
-	 *
+	 * @param {String} text     the text to show
+	 * @param {Object} options  options for the notice
+	 * @param {String} status   the classname to affect the notice color.
 	 * @return {object} notice
 	 */
 	'new': function( text, options, status ) {
@@ -66,7 +68,8 @@ const notices = {
 	/**
 	 * Helper function for creating a new "Success" notice
 	 * @public
-	 *
+	 * @param {String} text     the text to show
+	 * @param {Object} options  options for the notice
 	 * @return {object} notice
 	 */
 	success: function( text, options ) {
@@ -77,7 +80,8 @@ const notices = {
 	/**
 	 * Helper function for creating a new "Error" notice
 	 * @public
-	 *
+	 * @param {String} text     the text to show
+	 * @param {Object} options  options for the notice
 	 * @return {object} notice
 	 */
 	error: function( text, options ) {
@@ -88,7 +92,8 @@ const notices = {
 	/**
 	 * Helper function for creating a new general "Info" notice
 	 * @public
-	 *
+	 * @param {String} text     the text to show
+	 * @param {Object} options  options for the notice
 	 * @return {object} notice
 	 */
 	info: function( text, options ) {
@@ -99,7 +104,8 @@ const notices = {
 	/**
 	 * Helper function for creating a new general "Info" notice
 	 * @public
-	 *
+	 * @param {String} text     the text to show
+	 * @param {Object} options  options for the notice
 	 * @return {object} notice
 	 */
 	warning: function( text, options ) {
@@ -133,6 +139,8 @@ const notices = {
 	/**
 	 * Callback handler to clear notices when a user leaves current page
 	 * @public
+	 * @param {*}        context  Not used ?
+	 * @param {Function} next     next callback to execute
 	 */
 	clearNoticesOnNavigation: function( context, next ) {
 		debug( 'clearNoticesOnNavigation' );

@@ -35,7 +35,7 @@ export const Ads = moduleSettingsForm( class extends React.Component {
 	/**
 	 * Update state so preview is updated instantly and toggle options.
 	 *
-	 * @param {string} optionName
+	 * @param {string} optionName the slug of the option to update
 	 */
 	updateOptions = optionName => {
 		this.setState(
