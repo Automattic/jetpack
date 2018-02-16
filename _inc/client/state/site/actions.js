@@ -60,14 +60,15 @@ export const fetchAvailablePlans = () => {
 			type: JETPACK_SITE_PLANS_FETCH
 		} );
 		return restApi.getPlans().then( sitePlans => {
+			const plans = JSON.parse(sitePlans.body);
 			dispatch( {
-				type: JETPACK_SITE_PLANS_RECEIVE,
-				plans: sitePlans,
+				type: JETPACK_SITE_PLANS_FETCH_RECEIVE,
+				plans,
 			} );
 			return sitePlans;
 		} ).catch( error => {
 			dispatch( {
-				type: JETPACK_SITE_PLANS_FAIL,
+				type: JETPACK_SITE_PLANS_FETCH_FAIL,
 				error: error,
 			} );
 		} );
