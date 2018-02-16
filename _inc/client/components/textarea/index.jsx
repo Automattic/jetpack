@@ -7,15 +7,14 @@ const React = require( 'react' ),
 
 require( './style.scss' );
 
-module.exports = React.createClass( {
+module.exports = class extends React.Component {
+    static displayName = 'Textarea';
 
-	displayName: 'Textarea',
-
-	render: function() {
+    render() {
 		return (
 			<textarea { ...omit( this.props, 'className' ) } className={ classnames( this.props.className, 'dops-textarea' ) } >
 				{ this.props.children }
 			</textarea>
 		);
 	}
-} );
+};

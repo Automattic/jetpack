@@ -1,14 +1,14 @@
 /** External Dependencies **/
 const React = require( 'react' );
 
-module.exports = React.createClass( {
-	displayName: 'Row',
+module.exports = class extends React.Component {
+    static displayName = 'Row';
 
-	render: function() {
+    render() {
 		return (
 			<div className="dops-form-row">
 				{this.props.children}
 			</div>
 		);
 	}
-} );
+};

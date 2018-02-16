@@ -19,25 +19,22 @@ let _instance = 1;
 /**
  * Main
  */
-const NavSegmented = React.createClass( {
-
-	propTypes: {
+class NavSegmented extends React.Component {
+    static propTypes = {
 		label: PropTypes.string,
 		hasSiblingControls: PropTypes.bool
-	},
+	};
 
-	getDefaultProps: function() {
-		return {
-			hasSiblingControls: false
-		};
-	},
+    static defaultProps = {
+        hasSiblingControls: false
+    };
 
-	componentWillMount: function() {
+    componentWillMount() {
 		this.id = _instance;
 		_instance++;
-	},
+	}
 
-	render: function() {
+    render() {
 		const segmentedClassName = classNames( {
 			'dops-section-nav-group': true,
 			'dops-section-nav__segmented': true,
@@ -56,9 +53,9 @@ const NavSegmented = React.createClass( {
 				</SegmentedControl>
 			</div>
 		);
-	},
+	}
 
-	getControlItems: function() {
+    getControlItems = () => {
 		return React.Children.map( this.props.children, function( child, index ) {
 			return (
 				<ControlItem
@@ -69,7 +66,7 @@ const NavSegmented = React.createClass( {
 				</ControlItem>
 			);
 		}, this );
-	}
-} );
+	};
+}
 
 module.exports = NavSegmented;

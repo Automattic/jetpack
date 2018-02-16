@@ -6,14 +6,14 @@ const React = require( 'react' ),
 	map = require( 'lodash/map' );
 import { translate as __ } from 'i18n-calypso';
 
-module.exports = React.createClass( {
-	displayName: 'ValidationErrorList',
+module.exports = class extends React.Component {
+    static displayName = 'ValidationErrorList';
 
-	propTypes: {
+    static propTypes = {
 		messages: PropTypes.array.isRequired
-	},
+	};
 
-	render: function() {
+    render() {
 		return (
 			<div>
 				<p>
@@ -33,4 +33,4 @@ module.exports = React.createClass( {
 			</div>
 		);
 	}
-} );
+};

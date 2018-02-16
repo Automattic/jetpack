@@ -3,10 +3,10 @@ const PropTypes = require( 'prop-types' );
 const React = require( 'react' ),
 	classNames = require( 'classnames' );
 
-module.exports = React.createClass( {
-	displayName: 'Label',
+module.exports = class extends React.Component {
+    static displayName = 'Label';
 
-	propTypes: {
+    static propTypes = {
 		style: PropTypes.any,
 		label: PropTypes.any,
 		labelSuffix: PropTypes.any,
@@ -15,9 +15,9 @@ module.exports = React.createClass( {
 		htmlFor: PropTypes.string,
 		required: PropTypes.any,
 		inline: PropTypes.any
-	},
+	};
 
-	render: function() {
+    render() {
 		const label = this.props.label,
 			className = classNames( {
 				'dops-form-label': true,
@@ -41,4 +41,4 @@ module.exports = React.createClass( {
 			</div>
 		);
 	}
-} );
+};

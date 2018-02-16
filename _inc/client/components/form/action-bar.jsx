@@ -2,18 +2,18 @@
 const PropTypes = require( 'prop-types' );
 const React = require( 'react' );
 
-module.exports = React.createClass( {
-	displayName: 'ActionBar',
+module.exports = class extends React.Component {
+    static displayName = 'ActionBar';
 
-	propTypes: {
+    static propTypes = {
 		style: PropTypes.object
-	},
+	};
 
-	render: function() {
+    render() {
 		return (
 			<div className="dops-form-actionbar" style={ this.props.style }>
 				{this.props.children}
 			</div>
 		);
 	}
-} );
+};

@@ -11,23 +11,21 @@ import Gridicon from 'components/gridicon';
 
 require( './style.scss' );
 
-export default React.createClass( {
-	displayName: 'NoticeAction',
+export default class extends React.Component {
+    static displayName = 'NoticeAction';
 
-	propTypes: {
+    static propTypes = {
 		href: PropTypes.string,
 		onClick: PropTypes.func,
 		external: PropTypes.bool,
 		icon: PropTypes.string
-	},
+	};
 
-	getDefaultProps() {
-		return {
-			external: false
-		};
-	},
+    static defaultProps = {
+        external: false
+    };
 
-	render() {
+    render() {
 		const attributes = {
 			className: 'dops-notice__action',
 			href: this.props.href,
@@ -46,4 +44,4 @@ export default React.createClass( {
 			</a>
 		);
 	}
-} );
+}

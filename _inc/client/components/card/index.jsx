@@ -13,21 +13,18 @@ const Gridicon = require( '../gridicon' );
 
 require( './style.scss' );
 
-const CardSection = React.createClass( {
-
-	propTypes: {
+class CardSection extends React.Component {
+    static propTypes = {
 		title: PropTypes.any,
 		vertical: PropTypes.any,
 		style: PropTypes.object,
 		className: PropTypes.string,
 		device: PropTypes.oneOf( [ 'desktop', 'tablet', 'phone' ] )
-	},
+	};
 
-	getDefaultProps: function() {
-		return { vertical: null };
-	},
+    static defaultProps = { vertical: null };
 
-	render: function() {
+    render() {
 		return (
 			<div className={ classnames( 'dops-card-section', this.props.className ) } style={ this.props.style }>
 				{this.props.title
@@ -36,9 +33,9 @@ const CardSection = React.createClass( {
 				}
 			</div>
 		);
-	},
+	}
 
-	_renderWithTitle: function() {
+    _renderWithTitle = () => {
 		const orientation = this.props.vertical ? 'vertical' : 'horizontal';
 		const wrapperClassName = 'dops-card-section-orient-' + orientation;
 
@@ -52,23 +49,21 @@ const CardSection = React.createClass( {
 				</div>
 			</div>
 		);
-	}
-} );
+	};
+}
 
-const CardFooter = React.createClass( {
-
-	render: function() {
+class CardFooter extends React.Component {
+    render() {
 		return (
 			<div className="dops-card-footer">
 				{this.props.children}
 			</div>
 		);
 	}
-} );
+}
 
-const Card = React.createClass( {
-
-	propTypes: {
+class Card extends React.Component {
+    static propTypes = {
 		meta: PropTypes.any,
 		icon: PropTypes.string,
 		iconLabel: PropTypes.any,
@@ -81,17 +76,15 @@ const Card = React.createClass( {
 		target: PropTypes.string,
 		compact: PropTypes.bool,
 		children: PropTypes.node
-	},
+	};
 
-	getDefaultProps() {
-		return {
-			iconColor: '#787878',
-			className: '',
-			tagName: 'div'
-		};
-	},
+    static defaultProps = {
+        iconColor: '#787878',
+        className: '',
+        tagName: 'div'
+    };
 
-	render: function() {
+    render() {
 		const className = classnames( 'dops-card', this.props.className, {
 			'is-card-link': !! this.props.href,
 			'is-compact': this.props.compact
@@ -128,17 +121,17 @@ const Card = React.createClass( {
 			fancyTitle,
 			this.props.children
 		);
-	},
+	}
 
-	_renderIcon: function() {
+    _renderIcon = () => {
 		return (
 			<span className="dops-card-icon" style={ { color: this.props.iconColor } }>
 				{ this.props.icon && <Gridicon icon={ this.props.icon } style={ { backgroundColor: this.props.iconColor } } />}
 				{ this.props.iconLabel }
 			</span>
 		);
-	}
-} );
+	};
+}
 
 Card.Section = CardSection;
 Card.Footer = CardFooter;

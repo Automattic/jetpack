@@ -3,6 +3,7 @@
  */
 import PropTypes from 'prop-types';
 import React from 'react';
+import createReactClass from 'create-react-class';
 import PureRenderMixin from 'react-pure-render/mixin';
 import classnames from 'classnames';
 import assign from 'lodash/assign';
@@ -15,7 +16,7 @@ import Gridicon from 'components/gridicon';
 
 require( './style.scss' );
 
-export default React.createClass( {
+export default createReactClass({
 
 	displayName: 'ExternalLink',
 
@@ -52,4 +53,4 @@ export default React.createClass( {
 			</a>
 		);
 	}
-} );
+});

@@ -15,27 +15,29 @@ const React = require( 'react' ),
 	PureRenderMixin = require( 'react-pure-render/mixin' ),
 	classNames = require( 'classnames' );
 
+const createReactClass = require('create-react-class');
+
 require( './style.scss' );
 
-const Gridicon = React.createClass( {
+const Gridicon = createReactClass({
+    displayName: 'Gridicon',
+    mixins: [ PureRenderMixin ],
 
-	mixins: [ PureRenderMixin ],
-
-	getDefaultProps: function() {
+    getDefaultProps: function() {
 		return {
 			className: '',
 			size: 24
 		};
 	},
 
-	propTypes: {
+    propTypes: {
 		icon: PropTypes.string.isRequired,
 		size: PropTypes.number,
 		onClick: PropTypes.func,
 		className: PropTypes.string
 	},
 
-	needsOffset: function( icon, size ) {
+    needsOffset: function( icon, size ) {
 		const iconNeedsOffset = [
 			'gridicons-add-outline',
 			'gridicons-add',
@@ -95,7 +97,7 @@ const Gridicon = React.createClass( {
 		return false;
 	},
 
-	needsOffsetX: function( icon, size ) {
+    needsOffsetX: function( icon, size ) {
 		const iconNeedsOffsetX = [
 			'gridicons-arrow-down',
 			'gridicons-arrow-up',
@@ -113,7 +115,7 @@ const Gridicon = React.createClass( {
 		return false;
 	},
 
-	needsOffsetY: function( icon, size ) {
+    needsOffsetY: function( icon, size ) {
 		const iconNeedsOffsetY = [
 			'gridicons-align-center',
 			'gridicons-align-justify',
@@ -139,7 +141,7 @@ const Gridicon = React.createClass( {
 		return false;
 	},
 
-	render: function() {
+    render: function() {
 		const icon = 'gridicons-' + this.props.icon,
 			needsOffset = this.needsOffset( icon, this.props.size ),
 			needsOffsetX = this.needsOffsetX( icon, this.props.size ),
@@ -601,7 +603,7 @@ const Gridicon = React.createClass( {
 		}
 
 		return ( svg );
-	}
-} );
+	},
+});
 
 module.exports = Gridicon;

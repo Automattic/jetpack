@@ -13,10 +13,10 @@ import ConnectButton from 'components/connect-button';
 import { getConnectUrl as getConnectUrl } from 'state/connection';
 import { imagePath } from 'constants/urls';
 
-const JetpackConnect = React.createClass( {
-	displayName: 'JetpackConnect',
+class JetpackConnect extends React.Component {
+    static displayName = 'JetpackConnect';
 
-	render: function() {
+    render() {
 		const newAccountUrl = this.props.connectUrl + '&from=new-account-button';
 
 		return (
@@ -228,7 +228,7 @@ const JetpackConnect = React.createClass( {
 			</div>
 		);
 	}
-} );
+}
 
 export default connect(
 	state => {

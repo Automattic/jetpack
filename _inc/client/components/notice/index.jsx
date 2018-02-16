@@ -14,21 +14,18 @@ import Gridicon from 'components/gridicon';
 
 require( './style.scss' );
 
-export default React.createClass( {
-	displayName: 'SimpleNotice',
-	dismissTimeout: null,
+export default class extends React.Component {
+    static displayName = 'SimpleNotice';
 
-	getDefaultProps() {
-		return {
-			duration: 0,
-			status: null,
-			showDismiss: true,
-			className: '',
-			onDismissClick: noop
-		};
-	},
+    static defaultProps = {
+        duration: 0,
+        status: null,
+        showDismiss: true,
+        className: '',
+        onDismissClick: noop
+    };
 
-	propTypes: {
+    static propTypes = {
 		// we should validate the allowed statuses
 		status: PropTypes.string,
 		showDismiss: PropTypes.bool,
@@ -40,21 +37,23 @@ export default React.createClass( {
 		] ),
 		icon: PropTypes.string,
 		className: PropTypes.string
-	},
+	};
 
-	componentDidMount() {
+    dismissTimeout = null;
+
+    componentDidMount() {
 		if ( this.props.duration > 0 ) {
 			this.dismissTimeout = setTimeout( this.props.onDismissClick, this.props.duration );
 		}
-	},
+	}
 
-	componentWillUnmount() {
+    componentWillUnmount() {
 		if ( this.dismissTimeout ) {
 			clearTimeout( this.dismissTimeout );
 		}
-	},
+	}
 
-	getIcon() {
+    getIcon = () => {
 		let icon;
 
 		switch ( this.props.status ) {
@@ -76,9 +75,9 @@ export default React.createClass( {
 		}
 
 		return icon;
-	},
+	};
 
-	render() {
+    render() {
 		const { status, className, isCompact, showDismiss } = this.props;
 		const classes = classnames( 'dops-notice', status, className, {
 			'is-compact': isCompact,
@@ -110,4 +109,4 @@ export default React.createClass( {
 			</div>
 		);
 	}
-} );
+}

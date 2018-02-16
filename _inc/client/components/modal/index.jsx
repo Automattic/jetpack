@@ -29,30 +29,25 @@ function allowClose() {
 	preventCloseFlag = false;
 }
 
-const Modal = React.createClass( {
-
-	propTypes: {
+class Modal extends React.Component {
+    static propTypes = {
 		style: PropTypes.object,
 		width: PropTypes.oneOf( [ 'wide', 'medium', 'narrow' ] ),
 		className: PropTypes.string,
 		title: PropTypes.string,
 		initialFocus: PropTypes.string,
 		onRequestClose: PropTypes.func
-	},
+	};
 
-	getInitialState: function() {
-		return {
-			overlayMouseDown: false
-		};
-	},
+    static defaultProps = {
+        style: {}
+    };
 
-	getDefaultProps: function() {
-		return {
-			style: {}
-		};
-	},
+    state = {
+        overlayMouseDown: false
+    };
 
-	componentDidMount: function() {
+    componentDidMount() {
 		jQuery( 'body' ).addClass( 'dops-modal-showing' ).on( 'touchmove.dopsmodal', false );
 		jQuery( document ).keyup( this.handleEscapeKey );
 		try {
@@ -63,9 +58,9 @@ const Modal = React.createClass( {
 		} catch ( e ) {
 			//noop
 		}
-	},
+	}
 
-	componentWillUnmount: function() {
+    componentWillUnmount() {
 		jQuery( 'body' ).removeClass( 'dops-modal-showing' ).off( 'touchmove.dopsmodal', false );
 		jQuery( document ).unbind( 'keyup', this.handleEscapeKey );
 		try {
@@ -73,43 +68,43 @@ const Modal = React.createClass( {
 		} catch ( e ) {
 			//noop
 		}
-	},
+	}
 
-	handleEscapeKey: function( e ) {
+    handleEscapeKey = (e) => {
 		if ( e.keyCode === 27 ) { // escape key maps to keycode `27`
 			this.maybeClose();
 		}
-	},
+	};
 
-	maybeClose: function() {
+    maybeClose = () => {
 		if ( this.props.onRequestClose && ! preventCloseFlag ) {
 			this.props.onRequestClose();
 		}
-	},
+	};
 
-	// this exists so we can differentiate between click events on the background
-	// which initiated there vs. drags that ended there (most notably from the slider in a modal)
-	handleMouseDownOverlay: function( e ) {
+    // this exists so we can differentiate between click events on the background
+    // which initiated there vs. drags that ended there (most notably from the slider in a modal)
+    handleMouseDownOverlay = (e) => {
 		e.preventDefault();
 		e.stopPropagation();
 		this.setState( { overlayMouseDown: true } );
-	},
+	};
 
-	handleClickOverlay: function( e ) {
+    handleClickOverlay = (e) => {
 		e.preventDefault();
 		e.stopPropagation();
 		if ( this.state.overlayMouseDown && this.props.onRequestClose && ! preventCloseFlag ) {
 			this.setState( { overlayMouseDown: false } );
 			this.props.onRequestClose();
 		}
-	},
+	};
 
-	// prevent clicks from propagating to background
-	handleMouseEventModal: function( e ) {
+    // prevent clicks from propagating to background
+    handleMouseEventModal = (e) => {
 		e.stopPropagation();
-	},
+	};
 
-	render: function() {
+    render() {
 		let containerStyle;
 
 		const { style, className, width, title, ...other } = this.props;
@@ -141,7 +136,7 @@ const Modal = React.createClass( {
 			</div>
 		);
 	}
-} );
+}
 
 Modal.preventClose = preventClose;
 Modal.allowClose = allowClose;

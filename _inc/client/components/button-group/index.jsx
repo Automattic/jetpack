@@ -6,11 +6,10 @@ import classNames from 'classnames';
 
 require( './style.scss' );
 
-export default React.createClass( {
+export default class extends React.Component {
+    static displayName = 'ButtonGroup';
 
-	displayName: 'ButtonGroup',
-
-	propTypes: {
+    static propTypes = {
 		children( props ) {
 			let error = null;
 			React.Children.forEach( props.children, ( child ) => {
@@ -20,13 +19,13 @@ export default React.createClass( {
 			} );
 			return error;
 		}
-	},
+	};
 
-	render() {
+    render() {
 		const buttonGroupClasses = classNames( 'dops-button-group', this.props.className );
 
 		return (
 			<span className={ buttonGroupClasses }>{ this.props.children }</span>
 		);
 	}
-} );
+}

@@ -4,33 +4,32 @@ const React = require( 'react' ),
 	classNames = require( 'classnames' ),
 	Formsy = require( 'formsy-react' );
 
+const createReactClass = require('create-react-class');
+
 /** Internal Dependencies **/
 const Label = require( './label' ),
 	getUniqueId = require( './counter' ),
 	FormInputValidation = require( '../form-input-validation' ),
 	requiredFieldErrorFormatter = require( './required-error-label' );
 
-const Radios = React.createClass( {
-
-	propTypes: {
+class Radios extends React.Component {
+    static propTypes = {
 		name: PropTypes.string,
 		choices: PropTypes.array,
 		selected: PropTypes.any,
 		uniqueId: PropTypes.string,
 		changeValue: PropTypes.func,
-	},
+	};
 
-	getDefaultProps: function() {
-		return {
-			choices: [],
-		};
-	},
+    static defaultProps = {
+        choices: [],
+    };
 
-	onChange: function( event ) {
+    onChange = (event) => {
 		this.props.changeValue( event );
-	},
+	};
 
-	render: function() {
+    render() {
 		const uniqueId = this.props.uniqueId,
 			choices = this.props.choices.map( function( choice, i ) {
 				const checked = this.props.selected === choice.value;
@@ -49,9 +48,9 @@ const Radios = React.createClass( {
 			</fieldset>
 		);
 	}
-} );
+}
 
-module.exports = React.createClass( {
+module.exports = createReactClass({
 	displayName: 'RadioInput',
 
 	mixins: [ Formsy.Mixin ],
@@ -111,4 +110,4 @@ module.exports = React.createClass( {
 			</div>
 		);
 	}
-} );
+});

@@ -8,22 +8,19 @@ const React = require( 'react' ),
 
 require( './style.scss' );
 
-module.exports = React.createClass( {
+module.exports = class extends React.Component {
+    static displayName = 'FormInputValidation';
 
-	displayName: 'FormInputValidation',
-
-	propTypes: {
+    static propTypes = {
 		isError: PropTypes.bool,
 		isWarning: PropTypes.bool,
 		text: PropTypes.node,
 		icon: PropTypes.string
-	},
+	};
 
-	getDefaultProps: function() {
-		return { isError: false };
-	},
+    static defaultProps = { isError: false };
 
-	render: function() {
+    render() {
 		const classes = classNames( {
 			'form-input-validation': true,
 			'is-warning': this.props.isWarning,
@@ -38,4 +35,4 @@ module.exports = React.createClass( {
 			</div>
 		);
 	}
-} );
+};

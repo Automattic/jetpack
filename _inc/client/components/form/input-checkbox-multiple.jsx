@@ -5,13 +5,15 @@ const React = require( 'react' ),
 	map = require( 'lodash/map' ),
 	Formsy = require( 'formsy-react' );
 
+const createReactClass = require('create-react-class');
+
 /** Internal Dependencies **/
 const Label = require( './label' ),
 	getUniqueId = require( './counter' ),
 	FormInputValidation = require( '../form-input-validation' ),
 	requiredFieldErrorFormatter = require( './required-error-label' );
 
-module.exports = React.createClass( {
+module.exports = createReactClass({
 	displayName: 'MultiCheckboxInput',
 
 	mixins: [ Formsy.Mixin ],
@@ -119,4 +121,4 @@ module.exports = React.createClass( {
 			</div>
 		);
 	}
-} );
+});

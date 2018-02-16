@@ -19,36 +19,33 @@ const debug = debugModule( 'calypso:notices' );
 
 require( './style.scss' );
 
-const NoticesList = React.createClass( {
+class NoticesList extends React.Component {
+    static displayName = 'NoticesList';
 
-	displayName: 'NoticesList',
-
-	propTypes: {
+    static propTypes = {
 		id: PropTypes.string,
 		notices: PropTypes.oneOfType( [
 			PropTypes.object,
 			PropTypes.array
 		] )
-	},
+	};
 
-	getDefaultProps() {
-		return {
-			id: 'overlay-notices',
-			notices: Object.freeze( [] )
-		};
-	},
+    static defaultProps = {
+        id: 'overlay-notices',
+        notices: Object.freeze( [] )
+    };
 
-	componentWillMount() {
+    componentWillMount() {
 		debug( 'Mounting Global Notices React component.' );
-	},
+	}
 
-	removeNotice( notice ) {
+    removeNotice = (notice) => {
 		if ( notice ) {
 			notices.removeNotice( notice );
 		}
-	},
+	};
 
-	render() {
+    render() {
 		const noticesRaw = this.props.notices[ this.props.id ] || [];
 		let noticesList = noticesRaw.map( function( notice, index ) {
 			return (
@@ -98,7 +95,7 @@ const NoticesList = React.createClass( {
 			</div>
 		);
 	}
-} );
+}
 
 export default connect(
 	state => {

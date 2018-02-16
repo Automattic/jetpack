@@ -21,34 +21,31 @@ const ActionBar = require( './action-bar' ),
 require( './style.scss' );
 
 // very thin wrapper for Formsy.Form
-const Form = React.createClass( {
-
-	propTypes: {
+class Form extends React.Component {
+    static propTypes = {
 		style: PropTypes.object,
 		onValidSubmit: PropTypes.func,
 		onInvalidSubmit: PropTypes.func,
 		onValid: PropTypes.func,
 		onInvalid: PropTypes.func,
 		validationErrors: PropTypes.object
-	},
+	};
 
-	getInitialState: function() {
-		return {};
-	},
+    state = {};
 
-	isValid: function() {
+    isValid = () => {
 		return this.refs.form.state.isValid;
-	},
+	};
 
-	getCurrentValues: function() {
+    getCurrentValues = () => {
 		return this.refs.form.getCurrentValues();
-	},
+	};
 
-	submit: function() {
+    submit = () => {
 		this.refs.form.submit();
-	},
+	};
 
-	render: function() {
+    render() {
 		const { style, ...other } = this.props;
 		return (
 			<div className="dops-form" style={ style }>
@@ -58,7 +55,7 @@ const Form = React.createClass( {
 			</div>
 		);
 	}
-} );
+}
 
 // from: https://gist.github.com/ShirtlessKirk/2134376
 /**
