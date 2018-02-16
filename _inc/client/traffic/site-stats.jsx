@@ -28,7 +28,7 @@ import SettingsCard from 'components/settings-card';
 class SiteStatsComponent extends React.Component {
 	constructor( props ) {
 		super( props );
-		let countRoles = props.getOptionValue( 'count_roles', 'stats' ),
+		const countRoles = props.getOptionValue( 'count_roles', 'stats' ),
 			roles = props.getOptionValue( 'roles', 'stats' );
 
 		this.state = {

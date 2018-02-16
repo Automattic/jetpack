@@ -1,8 +1,8 @@
-let assert = require( 'chai' ).assert,
+const assert = require( 'chai' ).assert,
 	sinon = require( 'sinon' ),
 	useMockery = require( 'test/helpers/use-mockery' ),
-	useFakeDom = require( 'test/helpers/use-fake-dom' ),
-	ReactDom, React, TestUtils, SectionNav;
+	useFakeDom = require( 'test/helpers/use-fake-dom' );
+let ReactDom, React, TestUtils, SectionNav;
 
 function createComponent( component, props, children ) {
 	const shallowRenderer = TestUtils.createRenderer();

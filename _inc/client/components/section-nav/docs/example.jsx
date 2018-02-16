@@ -1,14 +1,14 @@
 /**
  * External dependencies
  */
-let React = require( 'react' ),
+const React = require( 'react' ),
 	PureRenderMixin = require( 'react-pure-render/mixin' ),
 	forEach = require( 'lodash/forEach' );
 
 /**
  * Internal dependencies
  */
-let SectionNav = require( 'components/section-nav' ),
+const SectionNav = require( 'components/section-nav' ),
 	NavTabs = require( 'components/section-nav/tabs' ),
 	NavSegmented = require( 'components/section-nav/segmented' ),
 	NavItem = require( 'components/section-nav/item' ),
@@ -151,14 +151,14 @@ const SectionNavigation = React.createClass( {
 	},
 
 	getSelectedText: function( section ) {
-		let selected = this.state[ section + 'SelectedIndex' ],
+		const selected = this.state[ section + 'SelectedIndex' ],
 			text = this.props[ section ][ selected ];
 
 		return 'object' === typeof text ? text.name : text;
 	},
 
 	getSelectedCount: function( section ) {
-		let selected = this.state[ section + 'SelectedIndex' ],
+		const selected = this.state[ section + 'SelectedIndex' ],
 			selectedItem = this.props[ section ][ selected ];
 
 		return 'object' === typeof selectedItem

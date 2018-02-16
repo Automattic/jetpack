@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-let React = require( 'react' ),
+const React = require( 'react' ),
 	classNames = require( 'classnames' ),
 	omit = require( 'lodash/omit' );
 

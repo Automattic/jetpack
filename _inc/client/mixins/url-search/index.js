@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-let debug = require( 'debug' )( 'calypso:url-search' ),
+const debug = require( 'debug' )( 'calypso:url-search' ),
 	page = require( 'page' );
 
 /**

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-let React = require( 'react' ),
+const React = require( 'react' ),
 	PropTypes = require( 'prop-types' ),
 	noop = require( 'lodash/noop' ),
 	throttle = require( 'lodash/throttle' );
@@ -9,7 +9,7 @@ let React = require( 'react' ),
 /**
  * Internal dependencies
  */
-let BarContainer = require( './bar-container' ),
+const BarContainer = require( './bar-container' ),
 	touchDetect = require( 'lib/touch-detect' );
 
 require( './style.scss' );
@@ -59,8 +59,8 @@ module.exports = React.createClass( {
 	},
 
 	resize: function() {
-		let node = this.refs.chart,
-			width = node.clientWidth - 82,
+		const node = this.refs.chart;
+		let width = node.clientWidth - 82,
 			maxBars;
 
 		if ( touchDetect.hasTouch() ) {
@@ -77,9 +77,9 @@ module.exports = React.createClass( {
 	},
 
 	getYAxisMax: function( values ) {
-		let max = Math.max.apply( null, values ),
-			operand = Math.pow( 10, ( max.toString().length - 1 ) ),
-			rounded = ( Math.ceil( ( max + 1 ) / operand ) * operand );
+		const max = Math.max.apply( null, values ),
+			operand = Math.pow( 10, ( max.toString().length - 1 ) );
+		let rounded = ( Math.ceil( ( max + 1 ) / operand ) * operand );
 
 		if ( rounded < 10 ) {
 			rounded = 10;
@@ -115,10 +115,10 @@ module.exports = React.createClass( {
 	},
 
 	render: function() {
-		let values = this.getValues(),
+		const values = this.getValues(),
 			yAxisMax = this.getYAxisMax( values ),
-			data = this.getData(),
-			emptyChart;
+			data = this.getData();
+		let emptyChart;
 
 		// If we have an empty chart, show a message
 		// @todo this message needs to either use a <Notice> or make a custom "chart__notice" class

@@ -14,10 +14,8 @@ module.exports = React.createClass( {
 	},
 
 	render: function() {
-		let labelStyle,
-			dir = 'left';
-
-		labelStyle = {
+		const dir = 'left';
+		const labelStyle = {
 			width: this.props.width + 'px'
 		};
 

@@ -312,12 +312,11 @@ class SelectDropdown extends Component {
 	}
 
 	navigateItemByTabKey( event ) {
-		let direction;
 		if ( ! this.state.isOpen ) {
 			return;
 		}
 		event.preventDefault();
-		direction = ( event.shiftKey ) ? 'previous' : 'next';
+		const direction = ( event.shiftKey ) ? 'previous' : 'next';
 		this.focusSibling( direction );
 	}
 
@@ -329,7 +328,7 @@ class SelectDropdown extends Component {
 	}
 
 	focusSibling( direction ) {
-		let increment, items, focusedIndex, newIndex;
+		let items, focusedIndex;
 
 		// the initial up-arrow/down-arrow should only open the menu
 		if ( ! this.state.isOpen ) {
@@ -356,8 +355,8 @@ class SelectDropdown extends Component {
 				} );
 		}
 
-		increment = ( direction === 'previous' ) ? -1 : 1;
-		newIndex = focusedIndex + increment;
+		const increment = ( direction === 'previous' ) ? -1 : 1;
+		const newIndex = focusedIndex + increment;
 
 		if ( newIndex >= items.length || newIndex < 0 ) {
 			return;

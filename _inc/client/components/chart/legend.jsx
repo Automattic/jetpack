@@ -4,7 +4,7 @@
  * External dependencies
  */
 const PropTypes = require( 'prop-types' );
-let React = require( 'react' ),
+const React = require( 'react' ),
 	PureRenderMixin = require( 'react-pure-render/mixin' );
 
 /**
@@ -56,17 +56,13 @@ const Legend = React.createClass( {
 	},
 
 	render: function() {
-		let legendColors = [ 'dops-chart__legend-color is-dark-blue' ],
-			tab = this.props.activeTab,
-			legendItems;
-
-		legendItems = this.props.availableCharts.map( function( legendItem, index ) {
-			let colorClass = legendColors[ index ],
-				checked = ( -1 !== this.props.activeCharts.indexOf( legendItem ) ),
-				tab;
-
-			tab = this.props.tabs.filter( function( tab ) {
-				return tab.attr === legendItem;
+		const legendColors = [ 'dops-chart__legend-color is-dark-blue' ],
+			activeTab = this.props.activeTab;
+		const legendItems = this.props.availableCharts.map( function( legendItem, index ) {
+			const colorClass = legendColors[ index ],
+				checked = ( -1 !== this.props.activeCharts.indexOf( legendItem ) );
+			const tab = this.props.tabs.filter( function( currentTab ) {
+				return currentTab.attr === legendItem;
 			} ).shift();
 
 			return <LegendItem key={ index } className={ colorClass } label={ tab.label } attr={ tab.attr } changeHandler={ this.onFilterChange } checked={ checked } />;
@@ -75,7 +71,7 @@ const Legend = React.createClass( {
 		return (
 			<div className="dops-chart__legend">
 				<ul className="dops-chart__legend-options">
-					<li className="dops-chart__legend-option" key="default-tab"><span className="dops-chart__legend-label"><span className="dops-chart__legend-color is-wordpress-blue"></span>{ tab.label }</span></li>
+					<li className="dops-chart__legend-option" key="default-tab"><span className="dops-chart__legend-label"><span className="dops-chart__legend-color is-wordpress-blue"></span>{ activeTab.label }</span></li>
 					{ legendItems }
 				</ul>
 			</div>

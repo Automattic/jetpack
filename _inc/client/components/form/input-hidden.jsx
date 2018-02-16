@@ -1,6 +1,6 @@
 /** External Dependencies **/
 const PropTypes = require( 'prop-types' );
-let React = require( 'react' ),
+const React = require( 'react' ),
 	Formsy = require( 'formsy-react' );
 
 module.exports = React.createClass( {

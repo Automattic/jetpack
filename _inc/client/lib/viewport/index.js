@@ -30,7 +30,7 @@
 // [1] https://github.com/Automattic/wp-calypso/blob/master/docs/coding-guidelines/css.md#media-queries
 //
 function isWithinBreakpoint( breakpoint ) {
-	let screenWidth = getWindowInnerWidth(),
+	const screenWidth = getWindowInnerWidth(),
 		breakpoints = {
 			'<480px': function() { return screenWidth <= 480; },
 			'<660px': function() { return screenWidth <= 660; },

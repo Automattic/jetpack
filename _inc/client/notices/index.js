@@ -120,7 +120,7 @@ const notices = {
 		if ( ! notice.container ) {
 			return;
 		}
-		let containerList = list[ notice.container ],
+		const containerList = list[ notice.container ],
 			index = containerList.indexOf( notice );
 
 		if ( -1 === index ) {
@@ -137,10 +137,10 @@ const notices = {
 	clearNoticesOnNavigation: function( context, next ) {
 		debug( 'clearNoticesOnNavigation' );
 		let length, container,
-			changed = false,
-			isNoticePersistent = function( notice ) {
-				return notice.persistent;
-			};
+			changed = false;
+		const isNoticePersistent = function( notice ) {
+			return notice.persistent;
+		};
 
 		for ( container in list.containerNames ) {
 			length = list[ container ].length;

@@ -4,7 +4,7 @@
  * External dependencies
  */
 const PropTypes = require( 'prop-types' );
-let React = require( 'react' ),
+const React = require( 'react' ),
 	classNames = require( 'classnames' );
 
 require( './style.scss' );
@@ -12,9 +12,7 @@ require( './style.scss' );
 /**
  * Module variables
  */
-let Spinner;
-
-Spinner = React.createClass( {
+const Spinner = React.createClass( {
 	propTypes: {
 		className: PropTypes.string,
 		size: PropTypes.number,

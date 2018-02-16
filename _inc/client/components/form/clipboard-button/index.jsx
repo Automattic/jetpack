@@ -2,7 +2,7 @@
  * External dependencies
  */
 const PropTypes = require( 'prop-types' );
-let ReactDom = require( 'react-dom' ),
+const ReactDom = require( 'react-dom' ),
 	React = require( 'react' ),
 	Clipboard = require( 'clipboard' ),
 	omit = require( 'lodash/omit' ),

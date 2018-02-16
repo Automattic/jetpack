@@ -3,13 +3,13 @@
 /**
 * External dependencies
 */
-let React = require( 'react' ),
+const React = require( 'react' ),
 	PureRenderMixin = require( 'react-pure-render/mixin' );
 
 /**
  * Internal dependencies
  */
-let ButtonGroup = require( 'components/button-group' ),
+const ButtonGroup = require( 'components/button-group' ),
 	Button = require( 'components/button' ),
 	Card = require( 'components/card' ),
 	Gridicon = require( 'components/gridicon' );

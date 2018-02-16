@@ -2,7 +2,7 @@
 * External dependencies
 */
 const PropTypes = require( 'prop-types' );
-let ReactDom = require( 'react-dom' ),
+const ReactDom = require( 'react-dom' ),
 	React = require( 'react' );
 
 /**
@@ -52,8 +52,8 @@ const PopoverMenu = React.createClass( {
 			return child;
 		}
 
-		let boundOnClose = this._onClose.bind( this, child.props.action ),
-			onClick = boundOnClose;
+		const boundOnClose = this._onClose.bind( this, child.props.action );
+		let onClick = boundOnClose;
 
 		if ( child.props.onClick ) {
 			onClick = child.props.onClick.bind( null, boundOnClose );
@@ -110,8 +110,8 @@ const PopoverMenu = React.createClass( {
 	},
 
 	_onKeyDown: function( event ) {
+		const target = event.target;
 		let handled = false,
-			target = event.target,
 			elementToFocus;
 
 		switch ( event.keyCode ) {

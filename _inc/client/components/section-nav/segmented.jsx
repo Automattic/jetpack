@@ -2,13 +2,13 @@
  * External Dependencies
  */
 const PropTypes = require( 'prop-types' );
-let React = require( 'react' ),
+const React = require( 'react' ),
 	classNames = require( 'classnames' );
 
 /**
  * Internal Dependencies
  */
-let SegmentedControl = require( 'components/segmented-control' ),
+const SegmentedControl = require( 'components/segmented-control' ),
 	ControlItem = require( 'components/segmented-control/item' );
 
 /**

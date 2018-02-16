@@ -1,6 +1,6 @@
 /** External Dependencies **/
 const PropTypes = require( 'prop-types' );
-let React = require( 'react' ),
+const React = require( 'react' ),
 	classNames = require( 'classnames' );
 
 module.exports = React.createClass( {
@@ -18,7 +18,7 @@ module.exports = React.createClass( {
 	},
 
 	render: function() {
-		let label = this.props.label,
+		const label = this.props.label,
 			className = classNames( {
 				'dops-form-label': true,
 				'dops-form-inline': this.props.inline,

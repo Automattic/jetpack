@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-let React = require( 'react' ),
+const React = require( 'react' ),
 	assign = require( 'lodash/assign' ),
 	classnames = require( 'classnames' );
 

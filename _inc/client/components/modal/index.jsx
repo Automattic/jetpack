@@ -4,7 +4,7 @@
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 
 const PropTypes = require( 'prop-types' );
-let React = require( 'react' ),
+const React = require( 'react' ),
 	ReactDOM = require( 'react-dom' ),
 	classNames = require( 'classnames' ),
 	assign = require( 'lodash/assign' ),
@@ -110,9 +110,9 @@ const Modal = React.createClass( {
 	},
 
 	render: function() {
-		let containerStyle, combinedStyle;
+		let containerStyle;
 
-		let { style, className, width, title, ...other } = this.props;
+		const { style, className, width, title, ...other } = this.props;
 		const { forwardedProps } = omit( other, 'onRequestClose' );
 		switch ( width ) {
 			case 'wide':
@@ -125,7 +125,7 @@ const Modal = React.createClass( {
 				containerStyle = {};
 		}
 
-		combinedStyle = assign( {}, style, containerStyle );
+		const combinedStyle = assign( {}, style, containerStyle );
 		return (
 			<div className="dops-modal-wrapper" onClick={ this.handleClickOverlay } onMouseDown={ this.handleMouseDownOverlay }>
 				<div className={ classNames( 'dops-modal', className ) }

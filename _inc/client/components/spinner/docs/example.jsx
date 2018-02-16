@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-let React = require( 'react' ),
+const React = require( 'react' ),
 	PureRenderMixin = require( 'react-pure-render/mixin' );
 
 /**

@@ -7,7 +7,7 @@ const React = require( 'react' );
 /**
  * Internal dependencies
  */
-let Bar = require( './bar' ),
+const Bar = require( './bar' ),
 	XAxis = require( './x-axis' );
 
 module.exports = React.createClass( {
@@ -22,13 +22,11 @@ module.exports = React.createClass( {
 	},
 
 	buildBars: function( max ) {
-		let bars,
-			numberBars = this.props.data.length,
-			tooltipPosition = 'bottom right',
+		const numberBars = this.props.data.length,
 			width = this.props.chartWidth,
 			barWidth = ( width / numberBars );
-
-		bars = this.props.data.map( function( item, index ) {
+		let tooltipPosition = 'bottom right';
+		const bars = this.props.data.map( function( item, index ) {
 			const barOffset = barWidth * ( index + 1 );
 
 			if (

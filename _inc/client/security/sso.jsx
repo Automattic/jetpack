@@ -46,7 +46,7 @@ export const SSO = moduleSettingsForm(
 		};
 
 		render() {
-			let isSSOActive = this.props.getOptionValue( 'sso' ),
+			const isSSOActive = this.props.getOptionValue( 'sso' ),
 				unavailableInDevMode = this.props.isUnavailableInDevMode( 'sso' );
 			return (
 				<SettingsCard

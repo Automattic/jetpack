@@ -1,5 +1,5 @@
 const PropTypes = require( 'prop-types' );
-let React = require( 'react' ),
+const React = require( 'react' ),
 	Gridicon = require( '../gridicon' ),
 	classnames = require( 'classnames' );
 

@@ -4,13 +4,13 @@
  * External dependencies
  */
 const PropTypes = require( 'prop-types' );
-let React = require( 'react' ),
+const React = require( 'react' ),
 	classNames = require( 'classnames' );
 
 /**
  * Internal dependencies
  */
-let Tooltip = require( 'components/tooltip' ),
+const Tooltip = require( 'components/tooltip' ),
 	Gridicon = require( 'components/gridicon' );
 
 module.exports = React.createClass( {
@@ -31,31 +31,29 @@ module.exports = React.createClass( {
 	},
 
 	buildSections: function() {
-		let value = this.props.data.value,
+		const value = this.props.data.value,
 			max = this.props.max,
 			percentage = max ? Math.ceil( ( value / max ) * 10000 ) / 100 : 0,
 			remain = 100 - percentage,
 			remainFloor = Math.max( 1, Math.floor( remain ) ),
 			sections = [],
-			remainStyle,
-			valueStyle,
 			nestedValue = this.props.data.nestedValue,
-			nestedBar,
-			nestedPercentage,
-			nestedStyle,
 			spacerClassOptions = {
 				'dops-chart__bar-section': true,
 				'is-spacer': true,
 				'is-ghost': ( 100 === remain ) && ! this.props.active
 			};
+		let nestedBar,
+			nestedPercentage,
+			nestedStyle;
 
-		remainStyle = {
+		const remainStyle = {
 			height: remainFloor + '%'
 		};
 
 		sections.push( <div key="spacer" className={ classNames( spacerClassOptions ) } style={ remainStyle } /> );
 
-		valueStyle = {
+		const valueStyle = {
 			top: remainFloor + '%'
 		};
 
@@ -100,8 +98,8 @@ module.exports = React.createClass( {
 		const { tooltipData } = this.props.data;
 
 		const listItemElements = tooltipData.map( function( options, i ) {
-			let wrapperClasses = [ 'module-content-list-item' ],
-				gridiconSpan;
+			const wrapperClasses = [ 'module-content-list-item' ];
+			let gridiconSpan;
 
 			if ( options.icon ) {
 				gridiconSpan = ( <Gridicon icon={ options.icon } size={ 18 } /> );
@@ -136,17 +134,14 @@ module.exports = React.createClass( {
 	},
 
 	render: function() {
-		let barStyle,
-			barClass,
-			count = this.props.count || 1;
-
-		barClass = { 'dops-chart__bar': true };
+		const count = this.props.count || 1;
+		const barClass = { 'dops-chart__bar': true };
 
 		if ( this.props.className ) {
 			barClass[ this.props.className ] = true;
 		}
 
-		barStyle = {
+		const barStyle = {
 			width: ( ( 1 / count ) * 100 ) + '%'
 		};
 

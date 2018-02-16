@@ -4,7 +4,7 @@
  * External Dependencies
  */
 const PropTypes = require( 'prop-types' );
-let React = require( 'react' ),
+const React = require( 'react' ),
 	classNames = require( 'classnames' );
 
 /**

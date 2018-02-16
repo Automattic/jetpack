@@ -12,7 +12,7 @@ import classNames from 'classnames';
 /**
  * Internal Dependencies
  */
-let SelectDropdown = require( 'components/select-dropdown' ),
+const SelectDropdown = require( 'components/select-dropdown' ),
 	DropdownItem = require( 'components/select-dropdown/item' ),
 	viewport = require( 'lib/viewport' );
 

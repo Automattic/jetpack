@@ -2,14 +2,14 @@
  * External Dependencies
  */
 const PropTypes = require( 'prop-types' );
-let React = require( 'react' ),
+const React = require( 'react' ),
 	classNames = require( 'classnames' ),
 	noop = require( 'lodash/noop' );
 
 /**
  * Internal Dependencies
  */
-let Card = require( 'components/card' ),
+const Card = require( 'components/card' ),
 	CompactCard = require( 'components/card/compact' ),
 	Gridicon = require( 'components/gridicon' ),
 	onKeyDownCallback = require( 'utils/onkeydown-callback' );
@@ -112,7 +112,7 @@ const FoldableCard = React.createClass( {
 	},
 
 	renderHeader: function() {
-		let summary = this.props.summary ? <span className="dops-foldable-card__summary">{ this.props.summary } </span> : null,
+		const summary = this.props.summary ? <span className="dops-foldable-card__summary">{ this.props.summary } </span> : null,
 			expandedSummary = this.props.expandedSummary ? <span className="dops-foldable-card__summary_expanded">{ this.props.expandedSummary } </span> : null,
 			header = this.props.header ? <div className="dops-foldable-card__header-text">{ this.props.header }</div> : null,
 			subheader = this.props.subheader ? <div className="dops-foldable-card__subheader">{ this.props.subheader }</div> : null,
@@ -147,7 +147,7 @@ const FoldableCard = React.createClass( {
 	},
 
 	render: function() {
-		let Container = this.props.compact ? CompactCard : Card,
+		const Container = this.props.compact ? CompactCard : Card,
 			itemSiteClasses = classNames(
 				'dops-foldable-card',
 				this.props.className,

@@ -3,13 +3,13 @@
 /**
  * External dependencies
  */
-let React = require( 'react' ),
+const React = require( 'react' ),
 	PureRenderMixin = require( 'react-pure-render/mixin' );
 
 /**
  * Internal dependencies
  */
-let SelectDropdown = require( 'components/select-dropdown' ),
+const SelectDropdown = require( 'components/select-dropdown' ),
 	DropdownItem = require( 'components/select-dropdown/item' ),
 	DropdownLabel = require( 'components/select-dropdown/label' ),
 	DropdownSeparator = require( 'components/select-dropdown/separator' );

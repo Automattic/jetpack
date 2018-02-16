@@ -1,11 +1,11 @@
 /** External Dependencies **/
 const PropTypes = require( 'prop-types' );
-let React = require( 'react' ),
+const React = require( 'react' ),
 	isArray = require( 'lodash/isArray' ),
 	Formsy = require( 'formsy-react' );
 
 /** Internal Dependencies **/
-let ActionBar = require( './action-bar' ),
+const ActionBar = require( './action-bar' ),
 	Section = require( './section' ),
 	Row = require( './row' ),
 	Label = require( './label' ),
@@ -49,7 +49,7 @@ const Form = React.createClass( {
 	},
 
 	render: function() {
-		let { style, ...other } = this.props;
+		const { style, ...other } = this.props;
 		return (
 			<div className="dops-form" style={ style }>
 				<Formsy.Form ref="form" { ...other }>

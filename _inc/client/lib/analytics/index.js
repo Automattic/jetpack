@@ -1,14 +1,14 @@
 /**
  * External dependencies
  */
-let debug = require( 'debug' )( 'dops:analytics' ),
+const debug = require( 'debug' )( 'dops:analytics' ),
 	assign = require( 'lodash/assign' );
 
 /**
  * Internal dependencies
  */
-let config = require( 'config' ),
-	_superProps,
+const config = require( 'config' );
+let _superProps,
 	_user;
 
 // Load tracking scripts

@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-let React = require( 'react' ),
+const React = require( 'react' ),
 	noop = require( 'lodash/noop' ),
 	classnames = require( 'classnames' );
 

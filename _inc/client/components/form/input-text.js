@@ -1,11 +1,11 @@
 /** External Dependencies **/
-let React = require( 'react' ),
+const React = require( 'react' ),
 	Formsy = require( 'formsy-react' ),
 	classNames = require( 'classnames' ),
 	Payment = require( 'payment' );
 const PropTypes = require( 'prop-types' );
 /** Internal Dependencies **/
-let Label = require( './label' ),
+const Label = require( './label' ),
 	getUniqueId = require( './counter' ),
 	FormInputValidation = require( '../form-input-validation' ),
 	requiredFieldErrorFormatter = require( './required-error-label' );
@@ -89,9 +89,8 @@ module.exports = React.createClass( {
 	},
 
 	render: function() {
-		let labelClass;
-
-		let { style, labelSuffix, label, className, ...other } = this.props;
+		const { style, labelSuffix, label, ...other } = this.props;
+		let className, labelClass;
 
 		className = classNames( 'dops-field', 'dops-field-' + this.props.name, className );
 

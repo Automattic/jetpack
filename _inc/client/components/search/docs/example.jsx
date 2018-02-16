@@ -1,13 +1,13 @@
 /**
  * External dependencies
  */
-let React = require( 'react' ),
+const React = require( 'react' ),
 	PureRenderMixin = require( 'react-pure-render/mixin' );
 
 /**
  * Internal dependencies
  */
-let Search = require( 'components/search' ),
+const Search = require( 'components/search' ),
 	SearchCard = require( 'components/search-card' );
 
 /**

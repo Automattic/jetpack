@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-let url = require( 'url' ),
+const url = require( 'url' ),
 	pick = require( 'lodash/pick' );
 
 /**

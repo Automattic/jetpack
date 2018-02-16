@@ -4,14 +4,14 @@
  * External Dependencies
  */
 const PropTypes = require( 'prop-types' );
-let React = require( 'react' ),
+const React = require( 'react' ),
 	isEqual = require( 'lodash/isEqual' ),
 	classNames = require( 'classnames' );
 
 /**
  * Internal Dependencies
  */
-let NavTabs = require( './tabs' ),
+const NavTabs = require( './tabs' ),
 	NavItem = require( './item' ),
 	Search = require( 'components/search' );
 
@@ -59,8 +59,8 @@ const SectionNav = React.createClass( {
 	},
 
 	render: function() {
-		let children = this.getChildren(),
-			className;
+		const children = this.getChildren();
+		let className;
 
 		if ( ! children ) {
 			className = classNames( {

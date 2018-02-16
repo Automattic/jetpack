@@ -11,7 +11,7 @@ OR if you're looking to change now SVGs get output, you'll need to edit strings 
  * External dependencies
  */
 const PropTypes = require( 'prop-types' );
-let React = require( 'react' ),
+const React = require( 'react' ),
 	PureRenderMixin = require( 'react-pure-render/mixin' ),
 	classNames = require( 'classnames' );
 
@@ -140,18 +140,16 @@ const Gridicon = React.createClass( {
 	},
 
 	render: function() {
-		let icon = 'gridicons-' + this.props.icon,
+		const icon = 'gridicons-' + this.props.icon,
 			needsOffset = this.needsOffset( icon, this.props.size ),
 			needsOffsetX = this.needsOffsetX( icon, this.props.size ),
-			needsOffsetY = this.needsOffsetY( icon, this.props.size ),
-			svg, iconClass;
-
-		iconClass = classNames( 'gridicon', icon, this.props.className, {
+			needsOffsetY = this.needsOffsetY( icon, this.props.size );
+		const iconClass = classNames( 'gridicon', icon, this.props.className, {
 			'needs-offset': needsOffset,
 			'needs-offset-x': needsOffsetX,
 			'needs-offset-y': needsOffsetY,
 		} );
-
+		let svg;
 		switch ( icon ) {
 			default:
 				svg = <svg height={ this.props.size } width={ this.props.size } />;
