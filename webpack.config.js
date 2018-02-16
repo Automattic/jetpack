@@ -3,10 +3,6 @@ const webpack = require( 'webpack' );
 const NODE_ENV = process.env.NODE_ENV || 'development';
 const ExtractTextPlugin = require( 'extract-text-webpack-plugin' );
 
-// This file is written in ES5 because it is run via Node.js and is not
-// transpiled by babel. We want to support various versions of node,
-// so it is best to not use any ES6 features even if newer versions
-// support ES6 features out of the box.
 const webpackConfig = {
 
 	// Entry points point to the javascript module
