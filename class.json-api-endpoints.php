@@ -734,7 +734,7 @@ abstract class WPCOM_JSON_API_Endpoint {
 
 		default :
 			$method_name = $type['type'] . '_docs';
-			if ( method_exists( WPCOM_JSON_API_Jetpack_Overrides, $method_name ) ) {
+			if ( method_exists( 'WPCOM_JSON_API_Jetpack_Overrides', $method_name ) ) {
 				$docs = WPCOM_JSON_API_Jetpack_Overrides::$method_name();
 			}
 
