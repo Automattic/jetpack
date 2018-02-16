@@ -60,13 +60,12 @@ class AllModuleSettingsComponent extends React.Component {
 							{ __( 'Activate this module to use the advanced SEO tools.' ) }
 						</div>
 					);
-				} else {
-					return (
-						<div>
-							<ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href={ module.configure_url }>{ __( 'Configure your SEO settings.' ) }</ExternalLink>
-						</div>
-					);
 				}
+				return (
+					<div>
+						<ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href={ module.configure_url }>{ __( 'Configure your SEO settings.' ) }</ExternalLink>
+					</div>
+				);
 			case 'likes':
 				return ( <LikesSettings module={ module } /> );
 			case 'wordads':
@@ -87,13 +86,12 @@ class AllModuleSettingsComponent extends React.Component {
 							) }
 						</div>
 					);
-				} else {
-					return (
-						<div>
-							<ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href={ module.configure_url }>{ __( 'Configure Google Analytics settings.' ) }</ExternalLink>
-						</div>
-					);
 				}
+				return (
+					<div>
+						<ExternalLink className="jp-module-settings__external-link" icon={ true } iconSize={ 16 } href={ module.configure_url }>{ __( 'Configure Google Analytics settings.' ) }</ExternalLink>
+					</div>
+				);
 			case 'gravatar-hovercards':
 			case 'contact-form':
 			case 'latex':

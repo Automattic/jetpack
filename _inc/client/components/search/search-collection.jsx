@@ -37,9 +37,8 @@ const FilterSummary = React.createClass( {
 	render() {
 		if ( this.props.items.length === 0 ) {
 			return ( <p>{ this.props.noResultsText }</p> );
-		} else {
-			return null;
 		}
+		return null;
 	}
 } );
 
