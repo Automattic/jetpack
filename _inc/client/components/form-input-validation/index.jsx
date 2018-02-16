@@ -8,7 +8,7 @@ const React = require( 'react' ),
 
 require( './style.scss' );
 
-module.exports = class extends React.Component {
+export default class FormInputValidation extends React.Component {
 	static displayName = 'FormInputValidation';
 
 	static propTypes = {
@@ -35,4 +35,4 @@ module.exports = class extends React.Component {
 			</div>
 		);
 	}
-};
+}

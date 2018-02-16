@@ -7,7 +7,7 @@ const React = require( 'react' ),
 
 require( './style.scss' );
 
-module.exports = class extends React.Component {
+export default class Textarea extends React.Component {
 	static displayName = 'Textarea';
 
 	render() {
@@ -17,4 +17,4 @@ module.exports = class extends React.Component {
 			</textarea>
 		);
 	}
-};
+}

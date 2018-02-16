@@ -14,7 +14,7 @@ const ReactDom = require( 'react-dom' ),
  */
 import Button from 'components/button';
 
-module.exports = class extends React.Component {
+export default class ClipboardButton extends React.Component {
 	static displayName = 'ClipboardButton';
 
 	static propTypes = {
@@ -55,4 +55,4 @@ module.exports = class extends React.Component {
 				className={ classes } />
 		);
 	}
-};
+}

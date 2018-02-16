@@ -1,7 +1,7 @@
 /** External Dependencies **/
 const React = require( 'react' );
 
-module.exports = class extends React.Component {
+export default class Row extends React.Component {
 	static displayName = 'Row';
 
 	render() {
@@ -11,4 +11,4 @@ module.exports = class extends React.Component {
 			</div>
 		);
 	}
-};
+}

@@ -2,7 +2,7 @@
 const PropTypes = require( 'prop-types' );
 const React = require( 'react' );
 
-module.exports = class extends React.Component {
+export default class ActionBar extends React.Component {
 	static displayName = 'ActionBar';
 
 	static propTypes = {
@@ -16,4 +16,4 @@ module.exports = class extends React.Component {
 			</div>
 		);
 	}
-};
+}

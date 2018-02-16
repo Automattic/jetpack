@@ -76,7 +76,7 @@ class PopoverMenu extends React.Component {
 		return target.tagName === 'HR';
 	};
 
-    /*
+	/*
 	 * Warning:
 	 *
 	 * This doesn't cover crazy things like a separator at the very top or

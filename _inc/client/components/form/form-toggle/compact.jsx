@@ -10,7 +10,7 @@ const React = require( 'react' ),
  */
 const Toggle = require( 'components/form/form-toggle' );
 
-module.exports = class extends React.Component {
+export default class CompactFormToggle extends React.Component {
 	static displayName = 'CompactFormToggle';
 
 	render() {
@@ -23,4 +23,4 @@ module.exports = class extends React.Component {
 			</Toggle>
 		);
 	}
-};
+}

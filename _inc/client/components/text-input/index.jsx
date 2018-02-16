@@ -7,7 +7,7 @@ import omit from 'lodash/omit';
 
 require( './style.scss' );
 
-export default class extends React.Component {
+export default class TextInput extends React.Component {
 	static displayName = 'TextInput';
 
 	static defaultProps = {

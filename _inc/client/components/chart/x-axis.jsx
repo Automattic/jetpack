@@ -10,7 +10,7 @@ const React = require( 'react' ),
  */
 const Label = require( './label' );
 
-module.exports = class extends React.Component {
+export default class ModuleChartXAxis extends React.Component {
 	static displayName = 'ModuleChartXAxis';
 
 	static propTypes = {
@@ -90,4 +90,4 @@ module.exports = class extends React.Component {
 			<div ref="axis" className="dops-chart__x-axis">{ labels }</div>
 		);
 	}
-};
+}

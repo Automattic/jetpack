@@ -29,7 +29,7 @@ class Spinner extends React.Component {
 		} );
 	}
 
-    /**
+	/**
 	 * Returns whether the current browser supports CSS animations for SVG
 	 * elements. Specifically, this returns false for Internet Explorer
 	 * versions 11 and below.

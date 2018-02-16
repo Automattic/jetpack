@@ -82,8 +82,8 @@ class Modal extends React.Component {
 		}
 	};
 
-    // this exists so we can differentiate between click events on the background
-    // which initiated there vs. drags that ended there (most notably from the slider in a modal)
+	// this exists so we can differentiate between click events on the background
+	// which initiated there vs. drags that ended there (most notably from the slider in a modal)
 	handleMouseDownOverlay = ( e ) => {
 		e.preventDefault();
 		e.stopPropagation();
@@ -99,7 +99,7 @@ class Modal extends React.Component {
 		}
 	};
 
-    // prevent clicks from propagating to background
+	// prevent clicks from propagating to background
 	handleMouseEventModal = ( e ) => {
 		e.stopPropagation();
 	};

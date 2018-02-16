@@ -12,7 +12,7 @@ import Card from 'components/card';
 
 require( './style.scss' );
 
-export default class extends React.Component {
+export default class SectionHeader extends React.Component {
 	static displayName = 'SectionHeader';
 
 	static propTypes = {

@@ -2,7 +2,7 @@
 const PropTypes = require( 'prop-types' );
 const React = require( 'react' );
 
-module.exports = class extends React.Component {
+export default class Section extends React.Component {
 	static displayName = 'Section';
 
 	static propTypes = {
@@ -27,4 +27,4 @@ module.exports = class extends React.Component {
 			</div>
 		);
 	}
-};
+}

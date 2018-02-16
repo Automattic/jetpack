@@ -4,7 +4,7 @@
 const PropTypes = require( 'prop-types' );
 const React = require( 'react' );
 
-module.exports = class extends React.Component {
+export default class ModuleChartLabel extends React.Component {
 	static displayName = 'ModuleChartLabel';
 
 	static propTypes = {
@@ -23,4 +23,4 @@ module.exports = class extends React.Component {
 
 		return <div className="dops-chart__x-axis-label" style={ labelStyle }>{ this.props.label }</div>;
 	}
-};
+}

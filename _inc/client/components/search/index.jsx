@@ -75,8 +75,8 @@ class Search extends React.Component {
 		onSearchClose: noop,
 		onKeyDown: noop,
 		onClick: noop,
-        //undefined value for overlayStyling is an optimization that will
-        //disable overlay scrolling calculation when no overlay is provided.
+		//undefined value for overlayStyling is an optimization that will
+		//disable overlay scrolling calculation when no overlay is provided.
 		overlayStyling: undefined,
 		disableAutocorrect: false,
 		searching: false,
@@ -170,9 +170,9 @@ class Search extends React.Component {
 		} );
 	};
 
-    //This is fix for IE11. Does not work on Edge.
-    //On IE11 scrollLeft value for input is always 0.
-    //We are calculating it manually using TextRange object.
+	//This is fix for IE11. Does not work on Edge.
+	//On IE11 scrollLeft value for input is always 0.
+	//We are calculating it manually using TextRange object.
 	getScrollLeft = ( inputElement ) => {
 		//TextRange is IE11 specific so this checks if we are not on IE11.
 		if ( ! inputElement.createTextRange ) {
@@ -280,8 +280,8 @@ class Search extends React.Component {
 		this.props.onKeyDown( event );
 	};
 
-    // Puts the cursor at end of the text when starting
-    // with `initialValue` set.
+	// Puts the cursor at end of the text when starting
+	// with `initialValue` set.
 	onFocus = () => {
 		const input = ReactDom.findDOMNode( this.refs.searchInput ),
 			setValue = input.value;

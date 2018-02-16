@@ -14,7 +14,7 @@ import TextInput from 'components/text-input';
 
 require( './style.scss' );
 
-export default class extends React.Component {
+export default class ClipboardButtonInput extends React.Component {
 	static displayName = 'ClipboardButtonInput';
 
 	static propTypes = {

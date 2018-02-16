@@ -6,7 +6,7 @@ import classNames from 'classnames';
 
 require( './style.scss' );
 
-export default class extends React.Component {
+export default class ButtonGroup extends React.Component {
 	static displayName = 'ButtonGroup';
 
 	static propTypes = {

@@ -10,7 +10,7 @@ const React = require( 'react' ),
  */
 const Card = require( 'components/card' );
 
-module.exports = class extends React.Component {
+export default class CompactCard extends React.Component {
 	static displayName = 'CompactCard';
 
 	render() {
@@ -22,4 +22,4 @@ module.exports = class extends React.Component {
 			</Card>
 		);
 	}
-};
+}

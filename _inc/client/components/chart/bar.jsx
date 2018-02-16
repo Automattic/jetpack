@@ -13,7 +13,7 @@ const React = require( 'react' ),
 const Tooltip = require( 'components/tooltip' ),
 	Gridicon = require( 'components/gridicon' );
 
-module.exports = class extends React.Component {
+export default class ModuleChartBar extends React.Component {
 	static displayName = 'ModuleChartBar';
 
 	static propTypes = {
@@ -157,4 +157,4 @@ module.exports = class extends React.Component {
 			</div>
 		);
 	}
-};
+}

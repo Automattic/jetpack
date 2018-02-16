@@ -32,7 +32,7 @@ const Popovers = createReactClass( {
 		};
 	},
 
-    // set position for all popovers
+	// set position for all popovers
 	changePopoverPosition( event ) {
 		this.setState( { popoverPosition: event.target.value } );
 	},

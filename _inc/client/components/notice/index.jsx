@@ -14,7 +14,7 @@ import Gridicon from 'components/gridicon';
 
 require( './style.scss' );
 
-export default class extends React.Component {
+export default class SimpleNotice extends React.Component {
 	static displayName = 'SimpleNotice';
 
 	static defaultProps = {

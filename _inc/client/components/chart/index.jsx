@@ -14,7 +14,7 @@ const BarContainer = require( './bar-container' ),
 
 require( './style.scss' );
 
-module.exports = class extends React.Component {
+export default class ModuleChart extends React.Component {
 	static displayName = 'ModuleChart';
 
 	static propTypes = {
@@ -147,4 +147,4 @@ module.exports = class extends React.Component {
 			</div>
 		);
 	}
-};
+}

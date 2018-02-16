@@ -6,7 +6,7 @@ const React = require( 'react' ),
 	map = require( 'lodash/map' );
 import { translate as __ } from 'i18n-calypso';
 
-module.exports = class extends React.Component {
+export default class ValidationErrorList extends React.Component {
 	static displayName = 'ValidationErrorList';
 
 	static propTypes = {
@@ -33,4 +33,4 @@ module.exports = class extends React.Component {
 			</div>
 		);
 	}
-};
+}

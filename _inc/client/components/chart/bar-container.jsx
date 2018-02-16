@@ -10,7 +10,7 @@ const React = require( 'react' );
 const Bar = require( './bar' ),
 	XAxis = require( './x-axis' );
 
-module.exports = class extends React.Component {
+export default class ModuleChartBarContainer extends React.Component {
 	static displayName = 'ModuleChartBarContainer';
 
 	static propTypes = {
@@ -60,4 +60,4 @@ module.exports = class extends React.Component {
 			</div>
 		);
 	}
-};
+}

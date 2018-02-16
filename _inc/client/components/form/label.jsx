@@ -3,7 +3,7 @@ const PropTypes = require( 'prop-types' );
 const React = require( 'react' ),
 	classNames = require( 'classnames' );
 
-module.exports = class extends React.Component {
+export default class Label extends React.Component {
 	static displayName = 'Label';
 
 	static propTypes = {
@@ -41,4 +41,4 @@ module.exports = class extends React.Component {
 			</div>
 		);
 	}
-};
+}

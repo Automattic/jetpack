@@ -40,7 +40,7 @@ class FilterSummary extends React.Component {
 	}
 }
 
-export default class extends React.Component {
+export default class Collection extends React.Component {
 	static displayName = 'Collection';
 
 	shouldWeHide = ( example ) => {
