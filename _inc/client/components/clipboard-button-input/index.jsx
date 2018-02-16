@@ -15,9 +15,9 @@ import TextInput from 'components/text-input';
 require( './style.scss' );
 
 export default class extends React.Component {
-    static displayName = 'ClipboardButtonInput';
+	static displayName = 'ClipboardButtonInput';
 
-    static propTypes = {
+	static propTypes = {
 		value: PropTypes.string,
 		disabled: PropTypes.bool,
 		className: PropTypes.string,
@@ -26,21 +26,21 @@ export default class extends React.Component {
 		prompt: PropTypes.string
 	};
 
-    static defaultProps = {
-        value: ''
-    };
+	static defaultProps = {
+		value: ''
+	};
 
-    state = {
-        isCopied: false,
-        disabled: false
-    };
+	state = {
+		isCopied: false,
+		disabled: false
+	};
 
-    componentWillUnmount() {
+	componentWillUnmount() {
 		clearTimeout( this.confirmationTimeout );
 		delete this.confirmationTimeout;
 	}
 
-    showConfirmation = () => {
+	showConfirmation = () => {
 		this.setState( {
 			isCopied: true
 		} );
@@ -52,7 +52,7 @@ export default class extends React.Component {
 		}, 4000 );
 	};
 
-    render() {
+	render() {
 		const forwardedProps = omit( this.props,
 			'className',
 			'copied',

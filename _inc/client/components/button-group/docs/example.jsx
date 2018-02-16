@@ -6,7 +6,7 @@
 const React = require( 'react' ),
 	PureRenderMixin = require( 'react-pure-render/mixin' );
 
-const createReactClass = require('create-react-class');
+const createReactClass = require( 'create-react-class' );
 
 /**
  * Internal dependencies
@@ -16,7 +16,7 @@ const ButtonGroup = require( 'components/button-group' ),
 	Card = require( 'components/card' ),
 	Gridicon = require( 'components/gridicon' );
 
-const Buttons = createReactClass({
+const Buttons = createReactClass( {
 	displayName: 'ButtonGroup',
 
 	mixins: [ PureRenderMixin ],
@@ -69,6 +69,6 @@ const Buttons = createReactClass({
 			</div>
 		);
 	},
-});
+} );
 
 module.exports = Buttons;

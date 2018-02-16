@@ -6,13 +6,13 @@ const React = require( 'react' ),
 	classnames = require( 'classnames' );
 
 class MenuItem extends React.Component {
-    static defaultProps = {
-        isVisible: false,
-        className: '',
-        focusOnHover: true
-    };
+	static defaultProps = {
+		isVisible: false,
+		className: '',
+		focusOnHover: true
+	};
 
-    render() {
+	render() {
 		const onMouseOver = this.props.focusOnHover ? this._onMouseOver : null;
 		return (
 			<button className={ classnames( 'dops-popover__menu-item', this.props.className ) }
@@ -27,7 +27,7 @@ class MenuItem extends React.Component {
 		);
 	}
 
-    _onMouseOver = (event) => {
+	_onMouseOver = ( event ) => {
 		event.target.focus();
 	};
 }

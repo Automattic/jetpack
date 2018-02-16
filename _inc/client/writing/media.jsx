@@ -28,44 +28,44 @@ import { getModule } from 'state/modules';
 import { isModuleFound as _isModuleFound } from 'state/search';
 import { getSitePlan } from 'state/site';
 
-const Media = moduleSettingsForm(class extends React.Component {
+const Media = moduleSettingsForm( class extends React.Component {
     /**
      * Get options for initial state.
      *
      * @returns {Object} {{carousel_display_exif: Boolean}}
      */
-    state = {
-        carousel_display_exif: this.props.getOptionValue( 'carousel_display_exif', 'carousel' )
-    };
+	state = {
+		carousel_display_exif: this.props.getOptionValue( 'carousel_display_exif', 'carousel' )
+	};
 
     /**
      * Update state so toggles are updated.
      *
      * @param {string} optionName option slug
      */
-    updateOptions = (optionName) => {
-        this.setState(
-            {
-                [ optionName ]: ! this.state[ optionName ]
-            },
+	updateOptions = ( optionName ) => {
+		this.setState(
+			{
+				[ optionName ]: ! this.state[ optionName ]
+			},
             this.props.updateFormStateModuleOption( 'carousel', optionName )
         );
-    };
+	};
 
-    render() {
-        const foundCarousel = this.props.isModuleFound( 'carousel' ),
-            foundVideoPress = this.props.isModuleFound( 'videopress' );
+	render() {
+		const foundCarousel = this.props.isModuleFound( 'carousel' ),
+			foundVideoPress = this.props.isModuleFound( 'videopress' );
 
-        if ( ! foundCarousel && ! foundVideoPress ) {
-            return null;
-        }
+		if ( ! foundCarousel && ! foundVideoPress ) {
+			return null;
+		}
 
-        const carousel = this.props.module( 'carousel' ),
-            isCarouselActive = this.props.getOptionValue( 'carousel' ),
-            videoPress = this.props.module( 'videopress' ),
-            planClass = getPlanClass( this.props.sitePlan.product_slug );
+		const carousel = this.props.module( 'carousel' ),
+			isCarouselActive = this.props.getOptionValue( 'carousel' ),
+			videoPress = this.props.module( 'videopress' ),
+			planClass = getPlanClass( this.props.sitePlan.product_slug );
 
-        const carouselSettings = (
+		const carouselSettings = (
             <SettingsGroup module={ { module: 'carousel' } } hasChild support={ carousel.learn_more_button }>
                 <ModuleToggle
                     slug="carousel"
@@ -105,7 +105,7 @@ const Media = moduleSettingsForm(class extends React.Component {
             </SettingsGroup>
         );
 
-        const videoPressSettings = includes( [ 'is-premium-plan', 'is-business-plan' ], planClass ) && (
+		const videoPressSettings = includes( [ 'is-premium-plan', 'is-business-plan' ], planClass ) && (
             <SettingsGroup
                 hasChild
                 disableInDevMode
@@ -126,7 +126,7 @@ const Media = moduleSettingsForm(class extends React.Component {
             </SettingsGroup>
         );
 
-        return (
+		return (
             <SettingsCard
                 { ...this.props }
                 header={ __( 'Media' ) }
@@ -138,8 +138,8 @@ const Media = moduleSettingsForm(class extends React.Component {
                 { foundVideoPress && videoPressSettings }
             </SettingsCard>
         );
-    }
-});
+	}
+} );
 
 export default connect(
 	( state ) => {

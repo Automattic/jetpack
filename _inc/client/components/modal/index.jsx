@@ -30,7 +30,7 @@ function allowClose() {
 }
 
 class Modal extends React.Component {
-    static propTypes = {
+	static propTypes = {
 		style: PropTypes.object,
 		width: PropTypes.oneOf( [ 'wide', 'medium', 'narrow' ] ),
 		className: PropTypes.string,
@@ -39,15 +39,15 @@ class Modal extends React.Component {
 		onRequestClose: PropTypes.func
 	};
 
-    static defaultProps = {
-        style: {}
-    };
+	static defaultProps = {
+		style: {}
+	};
 
-    state = {
-        overlayMouseDown: false
-    };
+	state = {
+		overlayMouseDown: false
+	};
 
-    componentDidMount() {
+	componentDidMount() {
 		jQuery( 'body' ).addClass( 'dops-modal-showing' ).on( 'touchmove.dopsmodal', false );
 		jQuery( document ).keyup( this.handleEscapeKey );
 		try {
@@ -60,7 +60,7 @@ class Modal extends React.Component {
 		}
 	}
 
-    componentWillUnmount() {
+	componentWillUnmount() {
 		jQuery( 'body' ).removeClass( 'dops-modal-showing' ).off( 'touchmove.dopsmodal', false );
 		jQuery( document ).unbind( 'keyup', this.handleEscapeKey );
 		try {
@@ -70,13 +70,13 @@ class Modal extends React.Component {
 		}
 	}
 
-    handleEscapeKey = (e) => {
+	handleEscapeKey = ( e ) => {
 		if ( e.keyCode === 27 ) { // escape key maps to keycode `27`
 			this.maybeClose();
 		}
 	};
 
-    maybeClose = () => {
+	maybeClose = () => {
 		if ( this.props.onRequestClose && ! preventCloseFlag ) {
 			this.props.onRequestClose();
 		}
@@ -84,13 +84,13 @@ class Modal extends React.Component {
 
     // this exists so we can differentiate between click events on the background
     // which initiated there vs. drags that ended there (most notably from the slider in a modal)
-    handleMouseDownOverlay = (e) => {
+	handleMouseDownOverlay = ( e ) => {
 		e.preventDefault();
 		e.stopPropagation();
 		this.setState( { overlayMouseDown: true } );
 	};
 
-    handleClickOverlay = (e) => {
+	handleClickOverlay = ( e ) => {
 		e.preventDefault();
 		e.stopPropagation();
 		if ( this.state.overlayMouseDown && this.props.onRequestClose && ! preventCloseFlag ) {
@@ -100,11 +100,11 @@ class Modal extends React.Component {
 	};
 
     // prevent clicks from propagating to background
-    handleMouseEventModal = (e) => {
+	handleMouseEventModal = ( e ) => {
 		e.stopPropagation();
 	};
 
-    render() {
+	render() {
 		let containerStyle;
 
 		const { style, className, width, title, ...other } = this.props;

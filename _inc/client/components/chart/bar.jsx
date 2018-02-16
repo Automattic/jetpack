@@ -14,9 +14,9 @@ const Tooltip = require( 'components/tooltip' ),
 	Gridicon = require( 'components/gridicon' );
 
 module.exports = class extends React.Component {
-    static displayName = 'ModuleChartBar';
+	static displayName = 'ModuleChartBar';
 
-    static propTypes = {
+	static propTypes = {
 		isTouch: PropTypes.bool,
 		tooltipPosition: PropTypes.string,
 		className: PropTypes.string,
@@ -26,9 +26,9 @@ module.exports = class extends React.Component {
 		count: PropTypes.number
 	};
 
-    state = { showPopover: false };
+	state = { showPopover: false };
 
-    buildSections = () => {
+	buildSections = () => {
 		const value = this.props.data.value,
 			max = this.props.max,
 			percentage = max ? Math.ceil( ( value / max ) * 10000 ) / 100 : 0,
@@ -70,21 +70,21 @@ module.exports = class extends React.Component {
 		return sections;
 	};
 
-    clickHandler = () => {
+	clickHandler = () => {
 		if ( 'function' === typeof( this.props.clickHandler ) ) {
 			this.props.clickHandler( this.props.data );
 		}
 	};
 
-    mouseEnter = () => {
+	mouseEnter = () => {
 		this.setState( { showPopover: true } );
 	};
 
-    mouseLeave = () => {
+	mouseLeave = () => {
 		this.setState( { showPopover: false } );
 	};
 
-    renderTooltip = () => {
+	renderTooltip = () => {
 		if (
 			! this.props.data.tooltipData ||
 			! this.props.data.tooltipData.length ||
@@ -131,7 +131,7 @@ module.exports = class extends React.Component {
 		);
 	};
 
-    render() {
+	render() {
 		const count = this.props.count || 1;
 		const barClass = { 'dops-chart__bar': true };
 

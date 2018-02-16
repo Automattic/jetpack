@@ -5,9 +5,9 @@ const React = require( 'react' );
 const Button = require( '../button' );
 
 module.exports = class extends React.Component {
-    static displayName = 'Submit';
+	static displayName = 'Submit';
 
-    render() {
+	render() {
 		let { ...other } = this.props;
 
 		return (

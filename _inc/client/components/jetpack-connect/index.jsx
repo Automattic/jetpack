@@ -14,9 +14,9 @@ import { getConnectUrl as getConnectUrl } from 'state/connection';
 import { imagePath } from 'constants/urls';
 
 class JetpackConnect extends React.Component {
-    static displayName = 'JetpackConnect';
+	static displayName = 'JetpackConnect';
 
-    render() {
+	render() {
 		const newAccountUrl = this.props.connectUrl + '&from=new-account-button';
 
 		return (

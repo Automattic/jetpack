@@ -4,14 +4,14 @@
 const React = require( 'react' ),
 	PureRenderMixin = require( 'react-pure-render/mixin' );
 
-const createReactClass = require('create-react-class');
+const createReactClass = require( 'create-react-class' );
 
 /**
  * Internal dependencies
  */
 const Count = require( 'components/count' );
 
-module.exports = createReactClass({
+module.exports = createReactClass( {
 	displayName: 'Count',
 
 	mixins: [ PureRenderMixin ],
@@ -28,4 +28,4 @@ module.exports = createReactClass({
 			</div>
 		);
 	}
-});
+} );

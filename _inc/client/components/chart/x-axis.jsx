@@ -11,38 +11,38 @@ const React = require( 'react' ),
 const Label = require( './label' );
 
 module.exports = class extends React.Component {
-    static displayName = 'ModuleChartXAxis';
+	static displayName = 'ModuleChartXAxis';
 
-    static propTypes = {
+	static propTypes = {
 		labelWidth: PropTypes.number.isRequired,
 		data: PropTypes.array.isRequired
 	};
 
-    state = {
-        divisor: 1,
-        spacing: this.props.labelWidth
-    };
+	state = {
+		divisor: 1,
+		spacing: this.props.labelWidth
+	};
 
     // Add listener for window resize
-    componentDidMount() {
+	componentDidMount() {
 		this.resizeThrottled = throttle( this.resize, 400 );
 		window.addEventListener( 'resize', this.resizeThrottled );
 		this.resize();
 	}
 
     // Remove listener
-    componentWillUnmount() {
+	componentWillUnmount() {
 		if ( this.resizeThrottled.cancel ) {
 			this.resizeThrottled.cancel();
 		}
 		window.removeEventListener( 'resize', this.resizeThrottled );
 	}
 
-    componentWillReceiveProps(nextProps) {
+	componentWillReceiveProps( nextProps ) {
 		this.resize( nextProps );
 	}
 
-    resize = (nextProps) => {
+	resize = ( nextProps ) => {
 		let props = this.props;
 
 		const node = this.refs.axis;
@@ -71,7 +71,7 @@ module.exports = class extends React.Component {
 		} );
 	};
 
-    render() {
+	render() {
 		const data = this.props.data;
 
 		const labels = data.map( function( item, index ) {

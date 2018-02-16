@@ -12,20 +12,20 @@ import Gridicon from 'components/gridicon';
 require( './style.scss' );
 
 export default class extends React.Component {
-    static displayName = 'NoticeAction';
+	static displayName = 'NoticeAction';
 
-    static propTypes = {
+	static propTypes = {
 		href: PropTypes.string,
 		onClick: PropTypes.func,
 		external: PropTypes.bool,
 		icon: PropTypes.string
 	};
 
-    static defaultProps = {
-        external: false
-    };
+	static defaultProps = {
+		external: false
+	};
 
-    render() {
+	render() {
 		const attributes = {
 			className: 'dops-notice__action',
 			href: this.props.href,

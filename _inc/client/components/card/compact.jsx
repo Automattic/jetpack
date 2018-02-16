@@ -11,9 +11,9 @@ const React = require( 'react' ),
 const Card = require( 'components/card' );
 
 module.exports = class extends React.Component {
-    static displayName = 'CompactCard';
+	static displayName = 'CompactCard';
 
-    render() {
+	render() {
 		const props = assign( {}, this.props, { className: classnames( this.props.className, 'is-compact' ) } );
 
 		return (

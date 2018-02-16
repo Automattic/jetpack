@@ -3,9 +3,9 @@ const PropTypes = require( 'prop-types' );
 const React = require( 'react' ),
 	Formsy = require( 'formsy-react' );
 
-const createReactClass = require('create-react-class');
+const createReactClass = require( 'create-react-class' );
 
-module.exports = createReactClass({
+module.exports = createReactClass( {
 	displayName: 'HiddenInput',
 
 	mixins: [ Formsy.Mixin ],
@@ -19,4 +19,4 @@ module.exports = createReactClass({
 			<input type="hidden" value={ this.getValue() } />
 		);
 	}
-});
+} );

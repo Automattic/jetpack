@@ -11,9 +11,9 @@ const Bar = require( './bar' ),
 	XAxis = require( './x-axis' );
 
 module.exports = class extends React.Component {
-    static displayName = 'ModuleChartBarContainer';
+	static displayName = 'ModuleChartBarContainer';
 
-    static propTypes = {
+	static propTypes = {
 		isTouch: PropTypes.bool,
 		data: PropTypes.array,
 		yAxisMax: PropTypes.number,
@@ -21,7 +21,7 @@ module.exports = class extends React.Component {
 		barClick: PropTypes.func
 	};
 
-    buildBars = (max) => {
+	buildBars = ( max ) => {
 		const numberBars = this.props.data.length,
 			width = this.props.chartWidth,
 			barWidth = ( width / numberBars );
@@ -50,7 +50,7 @@ module.exports = class extends React.Component {
 		return bars;
 	};
 
-    render() {
+	render() {
 		return (
 			<div>
 				<div className="dops-chart__bars">

@@ -16,25 +16,22 @@ const SegmentedControl = require( 'components/segmented-control' ),
  */
 let _instance = 1;
 
-/**
- * Main
- */
 class NavSegmented extends React.Component {
-    static propTypes = {
+	static propTypes = {
 		label: PropTypes.string,
 		hasSiblingControls: PropTypes.bool
 	};
 
-    static defaultProps = {
-        hasSiblingControls: false
-    };
+	static defaultProps = {
+		hasSiblingControls: false
+	};
 
-    componentWillMount() {
+	componentWillMount() {
 		this.id = _instance;
 		_instance++;
 	}
 
-    render() {
+	render() {
 		const segmentedClassName = classNames( {
 			'dops-section-nav-group': true,
 			'dops-section-nav__segmented': true,
@@ -55,7 +52,7 @@ class NavSegmented extends React.Component {
 		);
 	}
 
-    getControlItems = () => {
+	getControlItems = () => {
 		return React.Children.map( this.props.children, function( child, index ) {
 			return (
 				<ControlItem

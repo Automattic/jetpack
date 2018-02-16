@@ -4,9 +4,9 @@ const React = require( 'react' ),
 	classNames = require( 'classnames' );
 
 module.exports = class extends React.Component {
-    static displayName = 'Label';
+	static displayName = 'Label';
 
-    static propTypes = {
+	static propTypes = {
 		style: PropTypes.any,
 		label: PropTypes.any,
 		labelSuffix: PropTypes.any,
@@ -17,7 +17,7 @@ module.exports = class extends React.Component {
 		inline: PropTypes.any
 	};
 
-    render() {
+	render() {
 		const label = this.props.label,
 			className = classNames( {
 				'dops-form-label': true,

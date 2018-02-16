@@ -5,15 +5,15 @@ const PropTypes = require( 'prop-types' );
 const React = require( 'react' );
 
 module.exports = class extends React.Component {
-    static displayName = 'ModuleChartLabel';
+	static displayName = 'ModuleChartLabel';
 
-    static propTypes = {
+	static propTypes = {
 		width: PropTypes.number.isRequired,
 		x: PropTypes.number.isRequired,
 		label: PropTypes.string.isRequired
 	};
 
-    render() {
+	render() {
 		const dir = 'left';
 		const labelStyle = {
 			width: this.props.width + 'px'

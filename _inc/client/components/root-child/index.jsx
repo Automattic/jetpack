@@ -9,27 +9,27 @@ import React from 'react';
 import { Provider as ReduxProvider } from 'react-redux';
 
 export default class extends React.Component {
-    static displayName = 'RootChild';
+	static displayName = 'RootChild';
 
-    static propTypes = {
+	static propTypes = {
 		children: PropTypes.node
 	};
 
-    static contextTypes = {
+	static contextTypes = {
 		store: PropTypes.object
 	};
 
-    componentDidMount() {
+	componentDidMount() {
 		this.container = document.createElement( 'div' );
 		document.body.appendChild( this.container );
 		this.renderChildren();
 	}
 
-    componentDidUpdate() {
+	componentDidUpdate() {
 		this.renderChildren();
 	}
 
-    componentWillUnmount() {
+	componentWillUnmount() {
 		if ( ! this.container ) {
 			return;
 		}
@@ -39,7 +39,7 @@ export default class extends React.Component {
 		delete this.container;
 	}
 
-    renderChildren = () => {
+	renderChildren = () => {
 		let content;
 
 		if ( this.props &&
@@ -63,7 +63,7 @@ export default class extends React.Component {
 		ReactDom.render( content, this.container );
 	};
 
-    render() {
+	render() {
 		return null;
 	}
 }

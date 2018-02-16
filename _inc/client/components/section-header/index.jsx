@@ -13,9 +13,9 @@ import Card from 'components/card';
 require( './style.scss' );
 
 export default class extends React.Component {
-    static displayName = 'SectionHeader';
+	static displayName = 'SectionHeader';
 
-    static propTypes = {
+	static propTypes = {
 		label: PropTypes.string,
 		cardBadge: PropTypes.oneOfType( [
 			PropTypes.string,
@@ -24,12 +24,12 @@ export default class extends React.Component {
 		] )
 	};
 
-    static defaultProps = {
-        label: '',
-        cardBadge: ''
-    };
+	static defaultProps = {
+		label: '',
+		cardBadge: ''
+	};
 
-    render() {
+	render() {
 		const classes = classNames(
 			this.props.className,
 			'dops-section-header'

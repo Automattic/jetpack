@@ -22,7 +22,7 @@ require( './style.scss' );
 
 // very thin wrapper for Formsy.Form
 class Form extends React.Component {
-    static propTypes = {
+	static propTypes = {
 		style: PropTypes.object,
 		onValidSubmit: PropTypes.func,
 		onInvalidSubmit: PropTypes.func,
@@ -31,21 +31,21 @@ class Form extends React.Component {
 		validationErrors: PropTypes.object
 	};
 
-    state = {};
+	state = {};
 
-    isValid = () => {
+	isValid = () => {
 		return this.refs.form.state.isValid;
 	};
 
-    getCurrentValues = () => {
+	getCurrentValues = () => {
 		return this.refs.form.getCurrentValues();
 	};
 
-    submit = () => {
+	submit = () => {
 		this.refs.form.submit();
 	};
 
-    render() {
+	render() {
 		const { style, ...other } = this.props;
 		return (
 			<div className="dops-form" style={ style }>

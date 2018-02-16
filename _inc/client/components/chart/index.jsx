@@ -15,9 +15,9 @@ const BarContainer = require( './bar-container' ),
 require( './style.scss' );
 
 module.exports = class extends React.Component {
-    static displayName = 'ModuleChart';
+	static displayName = 'ModuleChart';
 
-    static propTypes = {
+	static propTypes = {
 		loading: PropTypes.bool,
 		data: PropTypes.array,
 		minTouchBarWidth: PropTypes.number,
@@ -25,36 +25,36 @@ module.exports = class extends React.Component {
 		barClick: PropTypes.func
 	};
 
-    static defaultProps = {
-        minTouchBarWidth: 42,
-        minBarWidth: 15,
-        barClick: noop
-    };
+	static defaultProps = {
+		minTouchBarWidth: 42,
+		minBarWidth: 15,
+		barClick: noop
+	};
 
-    state = {
-        maxBars: 100, // arbitrarily high number. This will be calculated by resize method
-        width: 650
-    };
+	state = {
+		maxBars: 100, // arbitrarily high number. This will be calculated by resize method
+		width: 650
+	};
 
     // Add listener for window resize
-    componentDidMount() {
+	componentDidMount() {
 		this.resize = throttle( this.resize, 400 );
 		window.addEventListener( 'resize', this.resize );
 		this.resize();
 	}
 
     // Remove listener
-    componentWillUnmount() {
+	componentWillUnmount() {
 		window.removeEventListener( 'resize', this.resize );
 	}
 
-    componentWillReceiveProps(nextProps) {
+	componentWillReceiveProps( nextProps ) {
 		if ( this.props.loading && ! nextProps.loading ) {
 			this.resize();
 		}
 	}
 
-    resize = () => {
+	resize = () => {
 		const node = this.refs.chart;
 		let width = node.clientWidth - 82,
 			maxBars;
@@ -72,7 +72,7 @@ module.exports = class extends React.Component {
 		} );
 	};
 
-    getYAxisMax = (values) => {
+	getYAxisMax = ( values ) => {
 		const max = Math.max.apply( null, values ),
 			operand = Math.pow( 10, ( max.toString().length - 1 ) );
 		let rounded = ( Math.ceil( ( max + 1 ) / operand ) * operand );
@@ -84,7 +84,7 @@ module.exports = class extends React.Component {
 		return rounded;
 	};
 
-    getData = () => {
+	getData = () => {
 		let data = this.props.data;
 
 		data = data.slice( 0 - this.state.maxBars );
@@ -92,7 +92,7 @@ module.exports = class extends React.Component {
 		return data;
 	};
 
-    getValues = () => {
+	getValues = () => {
 		let data = this.getData();
 
 		data = data.map( function( item ) {
@@ -102,7 +102,7 @@ module.exports = class extends React.Component {
 		return data;
 	};
 
-    isEmptyChart = (values) => {
+	isEmptyChart = ( values ) => {
 		values = values.filter( function( value ) {
 			return value > 0;
 		}, this );
@@ -110,7 +110,7 @@ module.exports = class extends React.Component {
 		return values.length === 0;
 	};
 
-    render() {
+	render() {
 		const values = this.getValues(),
 			yAxisMax = this.getYAxisMax( values ),
 			data = this.getData();

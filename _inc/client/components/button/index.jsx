@@ -9,9 +9,9 @@ import noop from 'lodash/noop';
 require( './style.scss' );
 
 export default class extends React.Component {
-    static displayName = 'Button';
+	static displayName = 'Button';
 
-    static propTypes = {
+	static propTypes = {
 		disabled: PropTypes.bool,
 		compact: PropTypes.bool,
 		primary: PropTypes.bool,
@@ -23,14 +23,14 @@ export default class extends React.Component {
 		className: PropTypes.string
 	};
 
-    static defaultProps = {
-        disabled: false,
-        type: 'button',
-        onClick: noop,
-        borderless: false
-    };
+	static defaultProps = {
+		disabled: false,
+		type: 'button',
+		onClick: noop,
+		borderless: false
+	};
 
-    render() {
+	render() {
 		const element = this.props.href ? 'a' : 'button';
 		const { primary, compact, scary, borderless, className, ...props } = this.props;
 

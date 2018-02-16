@@ -7,13 +7,13 @@ const React = require( 'react' ),
 import { translate as __ } from 'i18n-calypso';
 
 module.exports = class extends React.Component {
-    static displayName = 'ValidationErrorList';
+	static displayName = 'ValidationErrorList';
 
-    static propTypes = {
+	static propTypes = {
 		messages: PropTypes.array.isRequired
 	};
 
-    render() {
+	render() {
 		return (
 			<div>
 				<p>

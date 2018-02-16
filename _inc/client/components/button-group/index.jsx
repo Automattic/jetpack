@@ -7,9 +7,9 @@ import classNames from 'classnames';
 require( './style.scss' );
 
 export default class extends React.Component {
-    static displayName = 'ButtonGroup';
+	static displayName = 'ButtonGroup';
 
-    static propTypes = {
+	static propTypes = {
 		children( props ) {
 			let error = null;
 			React.Children.forEach( props.children, ( child ) => {
@@ -21,7 +21,7 @@ export default class extends React.Component {
 		}
 	};
 
-    render() {
+	render() {
 		const buttonGroupClasses = classNames( 'dops-button-group', this.props.className );
 
 		return (

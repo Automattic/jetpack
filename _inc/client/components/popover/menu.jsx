@@ -11,23 +11,23 @@ const ReactDom = require( 'react-dom' ),
 const Popover = require( 'components/popover' );
 
 class PopoverMenu extends React.Component {
-    static propTypes = {
+	static propTypes = {
 		isVisible: PropTypes.bool.isRequired,
 		onClose: PropTypes.func.isRequired,
 		position: PropTypes.string,
 		className: PropTypes.string
 	};
 
-    static defaultProps = {
-        position: 'top'
-    };
+	static defaultProps = {
+		position: 'top'
+	};
 
-    componentWillUnmount() {
+	componentWillUnmount() {
 		// Make sure we don't hold on to reference to the DOM reference
 		this._previouslyFocusedElement = null;
 	}
 
-    render() {
+	render() {
 		const children = React.Children.map( this.props.children, this._setPropsOnChild, this );
 
 		return (
@@ -45,7 +45,7 @@ class PopoverMenu extends React.Component {
 		);
 	}
 
-    _setPropsOnChild = (child) => {
+	_setPropsOnChild = ( child ) => {
 		if ( child == null ) {
 			return child;
 		}
@@ -62,7 +62,7 @@ class PopoverMenu extends React.Component {
 		} );
 	};
 
-    _onShow = () => {
+	_onShow = () => {
 		const elementToFocus = ReactDom.findDOMNode( this.refs.menu );
 
 		this._previouslyFocusedElement = document.activeElement;
@@ -72,7 +72,7 @@ class PopoverMenu extends React.Component {
 		}
 	};
 
-    _isInvalidTarget = (target) => {
+	_isInvalidTarget = ( target ) => {
 		return target.tagName === 'HR';
 	};
 
@@ -82,7 +82,7 @@ class PopoverMenu extends React.Component {
 	 * This doesn't cover crazy things like a separator at the very top or
 	 * bottom.
 	 */
-    _getClosestSibling = (target, isDownwardMotion = true) => {
+	_getClosestSibling = ( target, isDownwardMotion = true ) => {
 		const menu = ReactDom.findDOMNode( this.refs.menu );
 
 		let first = menu.firstChild,
@@ -106,7 +106,7 @@ class PopoverMenu extends React.Component {
 			: sibling;
 	};
 
-    _onKeyDown = (event) => {
+	_onKeyDown = ( event ) => {
 		const target = event.target;
 		let handled = false,
 			elementToFocus;
@@ -137,7 +137,7 @@ class PopoverMenu extends React.Component {
 		}
 	};
 
-    _onClose = (action) => {
+	_onClose = ( action ) => {
 		if ( this._previouslyFocusedElement ) {
 			this._previouslyFocusedElement.focus();
 			this._previouslyFocusedElement = null;

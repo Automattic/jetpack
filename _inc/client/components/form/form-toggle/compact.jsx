@@ -11,9 +11,9 @@ const React = require( 'react' ),
 const Toggle = require( 'components/form/form-toggle' );
 
 module.exports = class extends React.Component {
-    static displayName = 'CompactFormToggle';
+	static displayName = 'CompactFormToggle';
 
-    render() {
+	render() {
 		return (
 			<Toggle
 				{ ...omit( this.props, 'className' ) }

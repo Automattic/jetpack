@@ -14,7 +14,7 @@ const Gridicon = require( '../gridicon' );
 require( './style.scss' );
 
 class CardSection extends React.Component {
-    static propTypes = {
+	static propTypes = {
 		title: PropTypes.any,
 		vertical: PropTypes.any,
 		style: PropTypes.object,
@@ -22,9 +22,9 @@ class CardSection extends React.Component {
 		device: PropTypes.oneOf( [ 'desktop', 'tablet', 'phone' ] )
 	};
 
-    static defaultProps = { vertical: null };
+	static defaultProps = { vertical: null };
 
-    render() {
+	render() {
 		return (
 			<div className={ classnames( 'dops-card-section', this.props.className ) } style={ this.props.style }>
 				{this.props.title
@@ -35,7 +35,7 @@ class CardSection extends React.Component {
 		);
 	}
 
-    _renderWithTitle = () => {
+	_renderWithTitle = () => {
 		const orientation = this.props.vertical ? 'vertical' : 'horizontal';
 		const wrapperClassName = 'dops-card-section-orient-' + orientation;
 
@@ -53,7 +53,7 @@ class CardSection extends React.Component {
 }
 
 class CardFooter extends React.Component {
-    render() {
+	render() {
 		return (
 			<div className="dops-card-footer">
 				{this.props.children}
@@ -63,7 +63,7 @@ class CardFooter extends React.Component {
 }
 
 class Card extends React.Component {
-    static propTypes = {
+	static propTypes = {
 		meta: PropTypes.any,
 		icon: PropTypes.string,
 		iconLabel: PropTypes.any,
@@ -78,13 +78,13 @@ class Card extends React.Component {
 		children: PropTypes.node
 	};
 
-    static defaultProps = {
-        iconColor: '#787878',
-        className: '',
-        tagName: 'div'
-    };
+	static defaultProps = {
+		iconColor: '#787878',
+		className: '',
+		tagName: 'div'
+	};
 
-    render() {
+	render() {
 		const className = classnames( 'dops-card', this.props.className, {
 			'is-card-link': !! this.props.href,
 			'is-compact': this.props.compact
@@ -123,7 +123,7 @@ class Card extends React.Component {
 		);
 	}
 
-    _renderIcon = () => {
+	_renderIcon = () => {
 		return (
 			<span className="dops-card-icon" style={ { color: this.props.iconColor } }>
 				{ this.props.icon && <Gridicon icon={ this.props.icon } style={ { backgroundColor: this.props.iconColor } } />}

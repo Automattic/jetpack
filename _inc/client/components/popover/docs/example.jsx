@@ -15,11 +15,11 @@ import Popover from 'components/popover';
 import PopoverMenu from 'components/popover/menu';
 import PopoverMenuItem from 'components/popover/menu-item';
 
-const Popovers = createReactClass({
-    displayName: 'Popovers',
-    mixins: [ PureRenderMixin ],
+const Popovers = createReactClass( {
+	displayName: 'Popovers',
+	mixins: [ PureRenderMixin ],
 
-    getInitialState: function() {
+	getInitialState: function() {
 		return {
 			popoverPosition: 'bottom left',
 
@@ -33,47 +33,47 @@ const Popovers = createReactClass({
 	},
 
     // set position for all popovers
-    changePopoverPosition( event ) {
+	changePopoverPosition( event ) {
 		this.setState( { popoverPosition: event.target.value } );
 	},
 
-    swapPopoverVisibility() {
+	swapPopoverVisibility() {
 		this.setState( { showPopover: ! this.state.showPopover } );
 	},
 
-    closePopover() {
+	closePopover() {
 		this.setState( { showPopover: false } );
 	},
 
-    showPopoverMenu() {
+	showPopoverMenu() {
 		this.setState( {
 			showPopoverMenu: ! this.state.showPopoverMenu
 		} );
 	},
 
-    closePopoverMenu() {
+	closePopoverMenu() {
 		this.setState( { showPopoverMenu: false } );
 	},
 
-    onPopoverMenuItemBClick( closePopover ) {
+	onPopoverMenuItemBClick( closePopover ) {
 		closePopover();
 	},
 
-    updateMultiplePopover( event ) {
+	updateMultiplePopover( event ) {
 		this.setState( {
 			currentTarget: event.currentTarget,
 			showMultiplePopover: true
 		} );
 	},
 
-    closeMultiplePopover() {
+	closeMultiplePopover() {
 		this.setState( {
 			showMultiplePopover: false,
 			currentTarget: null
 		} );
 	},
 
-    movePopovertoRandomTarget( event ) {
+	movePopovertoRandomTarget( event ) {
 		event.preventDefault();
 		const random = parseInt( Math.random() * 1 * 256 );
 		const ref = this.refs && this.refs[ `target-${ random }` ];
@@ -87,7 +87,7 @@ const Popovers = createReactClass({
 		} );
 	},
 
-    renderPopover() {
+	renderPopover() {
 		return (
 			<div>
 				<button
@@ -115,7 +115,7 @@ const Popovers = createReactClass({
 		);
 	},
 
-    renderMenuPopover() {
+	renderMenuPopover() {
 		return (
 			<div>
 				<button
@@ -143,7 +143,7 @@ const Popovers = createReactClass({
 		);
 	},
 
-    renderPopoverRubic() {
+	renderPopoverRubic() {
 		const squares = [];
 		const width = 150;
 		const positions = [
@@ -229,7 +229,7 @@ const Popovers = createReactClass({
 		);
 	},
 
-    renderMultipleTargetsPopover() {
+	renderMultipleTargetsPopover() {
 		const targets = [];
 		const targetsCount = 256;
 		for ( let n = 0; n < targetsCount; n++ ) {
@@ -280,7 +280,7 @@ const Popovers = createReactClass({
 		);
 	},
 
-    renderPopoverContent() {
+	renderPopoverContent() {
 		const { currentTarget } = this.state;
 		const targetId = currentTarget ? currentTarget.innerText : null;
 
@@ -298,7 +298,7 @@ const Popovers = createReactClass({
 		);
 	},
 
-    render() {
+	render() {
 		const id = 'example-select';
 		return (
 			<div className="docs__design-assets-group">
@@ -341,6 +341,6 @@ const Popovers = createReactClass({
 			</div>
 		);
 	},
-});
+} );
 
 export default Popovers;

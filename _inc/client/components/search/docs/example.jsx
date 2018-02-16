@@ -4,7 +4,7 @@
 const React = require( 'react' ),
 	PureRenderMixin = require( 'react-pure-render/mixin' );
 
-const createReactClass = require('create-react-class');
+const createReactClass = require( 'create-react-class' );
 
 /**
  * Internal dependencies
@@ -17,7 +17,7 @@ const Search = require( 'components/search' ),
  */
 const noop = () => {};
 
-const SearchDemo = createReactClass({
+const SearchDemo = createReactClass( {
 	displayName: 'Search',
 
 	mixins: [ PureRenderMixin ],
@@ -40,6 +40,6 @@ const SearchDemo = createReactClass({
 			</div>
 		);
 	}
-});
+} );
 
 module.exports = SearchDemo;

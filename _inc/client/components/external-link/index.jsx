@@ -16,7 +16,7 @@ import Gridicon from 'components/gridicon';
 
 require( './style.scss' );
 
-export default createReactClass({
+export default createReactClass( {
 
 	displayName: 'ExternalLink',
 
@@ -53,4 +53,4 @@ export default createReactClass({
 			</a>
 		);
 	}
-});
+} );

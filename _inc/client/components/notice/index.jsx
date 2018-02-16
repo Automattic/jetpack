@@ -15,17 +15,17 @@ import Gridicon from 'components/gridicon';
 require( './style.scss' );
 
 export default class extends React.Component {
-    static displayName = 'SimpleNotice';
+	static displayName = 'SimpleNotice';
 
-    static defaultProps = {
-        duration: 0,
-        status: null,
-        showDismiss: true,
-        className: '',
-        onDismissClick: noop
-    };
+	static defaultProps = {
+		duration: 0,
+		status: null,
+		showDismiss: true,
+		className: '',
+		onDismissClick: noop
+	};
 
-    static propTypes = {
+	static propTypes = {
 		// we should validate the allowed statuses
 		status: PropTypes.string,
 		showDismiss: PropTypes.bool,
@@ -39,21 +39,21 @@ export default class extends React.Component {
 		className: PropTypes.string
 	};
 
-    dismissTimeout = null;
+	dismissTimeout = null;
 
-    componentDidMount() {
+	componentDidMount() {
 		if ( this.props.duration > 0 ) {
 			this.dismissTimeout = setTimeout( this.props.onDismissClick, this.props.duration );
 		}
 	}
 
-    componentWillUnmount() {
+	componentWillUnmount() {
 		if ( this.dismissTimeout ) {
 			clearTimeout( this.dismissTimeout );
 		}
 	}
 
-    getIcon = () => {
+	getIcon = () => {
 		let icon;
 
 		switch ( this.props.status ) {
@@ -77,7 +77,7 @@ export default class extends React.Component {
 		return icon;
 	};
 
-    render() {
+	render() {
 		const { status, className, isCompact, showDismiss } = this.props;
 		const classes = classnames( 'dops-notice', status, className, {
 			'is-compact': isCompact,

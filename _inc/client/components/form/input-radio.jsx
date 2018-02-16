@@ -4,7 +4,7 @@ const React = require( 'react' ),
 	classNames = require( 'classnames' ),
 	Formsy = require( 'formsy-react' );
 
-const createReactClass = require('create-react-class');
+const createReactClass = require( 'create-react-class' );
 
 /** Internal Dependencies **/
 const Label = require( './label' ),
@@ -13,7 +13,7 @@ const Label = require( './label' ),
 	requiredFieldErrorFormatter = require( './required-error-label' );
 
 class Radios extends React.Component {
-    static propTypes = {
+	static propTypes = {
 		name: PropTypes.string,
 		choices: PropTypes.array,
 		selected: PropTypes.any,
@@ -21,15 +21,15 @@ class Radios extends React.Component {
 		changeValue: PropTypes.func,
 	};
 
-    static defaultProps = {
-        choices: [],
-    };
+	static defaultProps = {
+		choices: [],
+	};
 
-    onChange = (event) => {
+	onChange = ( event ) => {
 		this.props.changeValue( event );
 	};
 
-    render() {
+	render() {
 		const uniqueId = this.props.uniqueId,
 			choices = this.props.choices.map( function( choice, i ) {
 				const checked = this.props.selected === choice.value;
@@ -50,7 +50,7 @@ class Radios extends React.Component {
 	}
 }
 
-module.exports = createReactClass({
+module.exports = createReactClass( {
 	displayName: 'RadioInput',
 
 	mixins: [ Formsy.Mixin ],
@@ -110,4 +110,4 @@ module.exports = createReactClass({
 			</div>
 		);
 	}
-});
+} );

@@ -10,7 +10,7 @@ import PureRenderMixin from 'react-pure-render/mixin';
 
 require( './style.scss' );
 
-export default createReactClass({
+export default createReactClass( {
 
 	displayName: 'Count',
 
@@ -25,4 +25,4 @@ export default createReactClass({
 			<span className="dops-count">{ this.numberFormat( this.props.count ) }</span>
 		);
 	}
-});
+} );

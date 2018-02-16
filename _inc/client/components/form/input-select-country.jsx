@@ -5,9 +5,9 @@ const React = require( 'react' );
 const SelectInput = require( './input-select' );
 
 module.exports = class extends React.Component {
-    static displayName = 'CountrySelectInput';
+	static displayName = 'CountrySelectInput';
 
-    render() {
+	render() {
 		return (
 			<SelectInput { ...this.props }>
 				<option value="AFG">Afghanistan</option>

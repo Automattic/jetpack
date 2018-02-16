@@ -16,7 +16,7 @@ import analytics from 'lib/analytics';
 
 require( './style.scss' );
 
-export default createReactClass({
+export default createReactClass( {
 
 	displayName: 'InfoPopover',
 
@@ -101,4 +101,4 @@ export default createReactClass({
 			analytics.ga.recordEvent( gaEventCategory, 'InfoPopover: ' + popoverName + dialogState );
 		}
 	}
-});
+} );

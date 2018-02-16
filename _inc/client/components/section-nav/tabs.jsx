@@ -21,41 +21,38 @@ const SelectDropdown = require( 'components/select-dropdown' ),
  */
 const MOBILE_PANEL_THRESHOLD = 480;
 
-/**
- * Main
- */
 class NavTabs extends React.Component {
-    static propTypes = {
+	static propTypes = {
 		selectedText: PropTypes.string,
 		selectedCount: PropTypes.number,
 		label: PropTypes.string,
 		hasSiblingControls: PropTypes.bool
 	};
 
-    static defaultProps = {
-        hasSiblingControls: false
-    };
+	static defaultProps = {
+		hasSiblingControls: false
+	};
 
-    state = {
-        isDropdown: false
-    };
+	state = {
+		isDropdown: false
+	};
 
-    componentDidMount() {
+	componentDidMount() {
 		this.setDropdown();
 		this.debouncedAfterResize = debounce( this.setDropdown, 300 );
 
 		window.addEventListener( 'resize', this.debouncedAfterResize );
 	}
 
-    componentWillReceiveProps() {
+	componentWillReceiveProps() {
 		this.setDropdown();
 	}
 
-    componentWillUnmount() {
+	componentWillUnmount() {
 		window.removeEventListener( 'resize', this.debouncedAfterResize );
 	}
 
-    render() {
+	render() {
 		const tabs = React.Children.map( this.props.children, function( child, index ) {
 			return child && React.cloneElement( child, { ref: 'tab-' + index } );
 		} );
@@ -95,7 +92,7 @@ class NavTabs extends React.Component {
 		);
 	}
 
-    getTabWidths = () => {
+	getTabWidths = () => {
 		let totalWidth = 0;
 
 		React.Children.forEach( this.props.children, function( child, index ) {
@@ -109,7 +106,7 @@ class NavTabs extends React.Component {
 		this.tabsWidth = totalWidth;
 	};
 
-    getDropdown = () => {
+	getDropdown = () => {
 		const dropdownOptions = React.Children.map(
 		this.props.children, function( child, index ) {
 			if ( ! child ) {
@@ -133,7 +130,7 @@ class NavTabs extends React.Component {
 		);
 	};
 
-    setDropdown = () => {
+	setDropdown = () => {
 		let navGroupWidth;
 
 		if ( window.innerWidth > MOBILE_PANEL_THRESHOLD ) {
@@ -163,7 +160,7 @@ class NavTabs extends React.Component {
 		}
 	};
 
-    keyHandler = (event) => {
+	keyHandler = ( event ) => {
 		switch ( event.keyCode ) {
 			case 32: // space
 			case 13: // enter
