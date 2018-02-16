@@ -1,10 +1,15 @@
+/**
+ * External dependencies
+ */
 const PropTypes = require( 'prop-types' );
-const React = require( 'react' ),
-	Gridicon = require( '../gridicon' ),
-	classnames = require( 'classnames' );
-
+const React = require( 'react' );
+const classnames = require( 'classnames' );
 import assign from 'lodash/assign';
 import omit from 'lodash/omit';
+/**
+ * Internal dependencies
+ */
+const Gridicon = require( '../gridicon' );
 
 require( './style.scss' );
 

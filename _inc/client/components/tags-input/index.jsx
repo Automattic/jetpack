@@ -1,3 +1,6 @@
+/**
+ * External dependencies
+ */
 import React from 'react';
 import TagsInput from 'react-tagsinput';
 
