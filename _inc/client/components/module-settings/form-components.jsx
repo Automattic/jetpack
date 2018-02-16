@@ -78,9 +78,9 @@ export class ModuleSettingMultipleSelectCheckboxes extends React.Component {
 	onOptionChange = event => {
 		const justUpdated = event.target.value;
 		const currentValue = this.props.getOptionValue( this.props.name );
-		const newValue = currentValue.indexOf( justUpdated ) === -1 ?
-			concat( currentValue, justUpdated ) :
-			without( currentValue, justUpdated );
+		const newValue = currentValue.indexOf( justUpdated ) === -1
+			? concat( currentValue, justUpdated )
+			: without( currentValue, justUpdated );
 		this.props.updateFormStateOptionValue( this.props.name, newValue );
 	};
 

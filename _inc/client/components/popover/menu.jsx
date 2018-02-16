@@ -99,14 +99,13 @@ const PopoverMenu = React.createClass( {
 			return first;
 		}
 
-		const closest = target[ isDownwardMotion ?
-			'nextSibling' : 'previousSibling' ];
+		const closest = target[ isDownwardMotion ? 'nextSibling' : 'previousSibling' ];
 
 		const sibling = closest || last;
 
-		return this._isInvalidTarget( sibling ) ?
-			this._getClosestSibling( sibling, isDownwardMotion ) :
-			sibling;
+		return this._isInvalidTarget( sibling )
+			? this._getClosestSibling( sibling, isDownwardMotion )
+			: sibling;
 	},
 
 	_onKeyDown: function( event ) {

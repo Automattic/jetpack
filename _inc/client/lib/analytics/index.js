@@ -122,9 +122,7 @@ const analytics = {
 		},
 
 		recordJetpackClick: function( target ) {
-			const props = 'object' === typeof target ?
-				target :
-				{ target: target };
+			const props = 'object' === typeof target ? target : { target: target };
 
 			analytics.tracks.recordEvent( 'jetpack_wpa_click', props );
 		},

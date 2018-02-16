@@ -16,9 +16,9 @@ import {
 } from 'state/action-types';
 
 const jumpstartState = {
-	showJumpStart: typeof window !== 'undefined' && typeof window.Initial_State === 'object' ?
-		window.Initial_State.showJumpstart :
-		{},
+	showJumpStart: typeof window !== 'undefined' && typeof window.Initial_State === 'object'
+		? window.Initial_State.showJumpstart
+		: {},
 	isJumpstarting: false
 };
 

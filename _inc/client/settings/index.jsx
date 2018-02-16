@@ -59,8 +59,8 @@ export default class extends React.Component {
 				<Writing
 					siteAdminUrl={ this.props.siteAdminUrl }
 					active={ (
-						'/writing' === this.props.route.path
-						|| '/settings' === this.props.route.path
+						'/writing' === this.props.route.path ||
+						'/settings' === this.props.route.path
 					) }
 					{ ...commonProps }
 				/>

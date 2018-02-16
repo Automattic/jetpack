@@ -30,9 +30,9 @@ const CardSection = React.createClass( {
 	render: function() {
 		return (
 			<div className={ classnames( 'dops-card-section', this.props.className ) } style={ this.props.style }>
-				{this.props.title ?
-					this._renderWithTitle() :
-					this.props.children
+				{this.props.title
+					? this._renderWithTitle()
+					: this.props.children
 				}
 			</div>
 		);
