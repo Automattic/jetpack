@@ -4,7 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "708d581e6da76238f23211dcd34a22cb",
+    "hash": "ac1b8c3e4fc23f906c26fea3037368ee",
+    "content-hash": "8da2f8b82abeb54c73a475b83894f5c7",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -12,12 +13,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/automattic/at-pressable-podcasting.git",
-                "reference": "d26f6d815100f99f7eed9b5e86d560e9fb70b0cf"
+                "reference": "a6823ef7151ac8262868a4b2b33702d6250cc251"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/automattic/at-pressable-podcasting/zipball/d26f6d815100f99f7eed9b5e86d560e9fb70b0cf",
-                "reference": "d26f6d815100f99f7eed9b5e86d560e9fb70b0cf",
+                "url": "https://api.github.com/repos/automattic/at-pressable-podcasting/zipball/a6823ef7151ac8262868a4b2b33702d6250cc251",
+                "reference": "a6823ef7151ac8262868a4b2b33702d6250cc251",
                 "shasum": ""
             },
             "type": "library",
@@ -26,7 +27,7 @@
                     "podcasting.php"
                 ]
             },
-            "time": "2017-05-09T20:06:20+00:00"
+            "time": "2017-05-09 20:06:20"
         },
         {
             "name": "automattic/custom-fonts",
@@ -51,7 +52,7 @@
                     "custom-fonts.php"
                 ]
             },
-            "time": "2017-06-12T21:39:47+00:00"
+            "time": "2017-06-12 21:39:47"
         },
         {
             "name": "automattic/custom-fonts-typekit",
@@ -76,7 +77,7 @@
                     "custom-fonts-typekit.php"
                 ]
             },
-            "time": "2017-06-15T16:29:07+00:00"
+            "time": "2017-06-15 16:29:07"
         },
         {
             "name": "automattic/jetpack-social-icons",
@@ -98,7 +99,7 @@
                     "jetpack-social-icons-load.php"
                 ]
             },
-            "time": "2017-07-07T21:45:14+00:00"
+            "time": "2017-07-07 21:45:14"
         },
         {
             "name": "automattic/text-media-widget-styles",
@@ -120,20 +121,20 @@
                     "text-media-widget-styles.php"
                 ]
             },
-            "time": "2017-06-20T23:34:19+00:00"
+            "time": "2017-06-20 23:34:19"
         },
         {
             "name": "automattic/wc-calypso-bridge",
-            "version": "v0.1.5",
+            "version": "v0.1.6",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/wc-calypso-bridge.git",
-                "reference": "55d4c07291a6aec017d3bb2e70c47e4ced7b975e"
+                "reference": "c8c9ea6a62b9b18da5d9a5b7b7ba4d0ee8a0c1a8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/55d4c07291a6aec017d3bb2e70c47e4ced7b975e",
-                "reference": "55d4c07291a6aec017d3bb2e70c47e4ced7b975e",
+                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/c8c9ea6a62b9b18da5d9a5b7b7ba4d0ee8a0c1a8",
+                "reference": "c8c9ea6a62b9b18da5d9a5b7b7ba4d0ee8a0c1a8",
                 "shasum": ""
             },
             "type": "library",
@@ -142,7 +143,7 @@
                     "wc-calypso-bridge.php"
                 ]
             },
-            "time": "2018-01-28T22:36:55+00:00"
+            "time": "2018-02-15 19:44:02"
         },
         {
             "name": "woocommerce/wc-api-dev",
@@ -164,7 +165,7 @@
                     "wc-api-dev.php"
                 ]
             },
-            "time": "2018-01-10T21:45:59+00:00"
+            "time": "2018-01-10 21:45:59"
         }
     ],
     "packages-dev": [],
