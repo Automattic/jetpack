@@ -3,21 +3,21 @@
 /* eslint-disable jsx-a11y/no-static-element-interactions */
 /* eslint-disable jsx-a11y/no-noninteractive-element-interactions */
 
-var PropTypes = require( 'prop-types' );
-var React = require( 'react' ),
+const PropTypes = require( 'prop-types' );
+const React = require( 'react' ),
 	ReactDOM = require( 'react-dom' ),
 	classNames = require( 'classnames' ),
 	assign = require( 'lodash/assign' ),
 	omit = require( 'lodash/omit' );
 
-var focusTrap = require( 'focus-trap' );
+const focusTrap = require( 'focus-trap' );
 
 // this flag will prevent ANY modals from closing.
 // use with caution!
 // e.g. Modal.preventClose();
 //      Modal.allowClose();
 // this is for important processes that must not be interrupted, e.g. payments
-var preventCloseFlag = false;
+let preventCloseFlag = false;
 
 require( './style.scss' );
 
@@ -29,11 +29,11 @@ function allowClose() {
 	preventCloseFlag = false;
 }
 
-let Modal = React.createClass( {
+const Modal = React.createClass( {
 
 	propTypes: {
 		style: PropTypes.object,
-		width: PropTypes.oneOf( ['wide', 'medium', 'narrow'] ),
+		width: PropTypes.oneOf( [ 'wide', 'medium', 'narrow' ] ),
 		className: PropTypes.string,
 		title: PropTypes.string,
 		initialFocus: PropTypes.string,
@@ -82,7 +82,7 @@ let Modal = React.createClass( {
 	},
 
 	maybeClose: function() {
-		if ( this.props.onRequestClose && !preventCloseFlag ) {
+		if ( this.props.onRequestClose && ! preventCloseFlag ) {
 			this.props.onRequestClose();
 		}
 	},
@@ -98,7 +98,7 @@ let Modal = React.createClass( {
 	handleClickOverlay: function( e ) {
 		e.preventDefault();
 		e.stopPropagation();
-		if ( this.state.overlayMouseDown && this.props.onRequestClose && !preventCloseFlag ) {
+		if ( this.state.overlayMouseDown && this.props.onRequestClose && ! preventCloseFlag ) {
 			this.setState( { overlayMouseDown: false } );
 			this.props.onRequestClose();
 		}
@@ -110,10 +110,10 @@ let Modal = React.createClass( {
 	},
 
 	render: function() {
-		var containerStyle, combinedStyle;
+		let containerStyle;
 
-		var { style, className, width, title, ...other } = this.props;
-		var { forwardedProps } = omit( other, 'onRequestClose' );
+		const { style, className, width, title, ...other } = this.props;
+		const { forwardedProps } = omit( other, 'onRequestClose' );
 		switch ( width ) {
 			case 'wide':
 				containerStyle = { maxWidth: 'inherit', width: 'inherit' };
@@ -125,16 +125,16 @@ let Modal = React.createClass( {
 				containerStyle = {};
 		}
 
-		combinedStyle = assign( {}, style, containerStyle );
+		const combinedStyle = assign( {}, style, containerStyle );
 		return (
-			<div className="dops-modal-wrapper" onClick={this.handleClickOverlay} onMouseDown={this.handleMouseDownOverlay}>
-				<div className={classNames( 'dops-modal', className )}
-					style={combinedStyle}
-					onClick={this.handleMouseEventModal}
-					onMouseDown={this.handleMouseEventModal}
-					onMouseUp={this.handleMouseEventModal}
+			<div className="dops-modal-wrapper" onClick={ this.handleClickOverlay } onMouseDown={ this.handleMouseDownOverlay }>
+				<div className={ classNames( 'dops-modal', className ) }
+					style={ combinedStyle }
+					onClick={ this.handleMouseEventModal }
+					onMouseDown={ this.handleMouseEventModal }
+					onMouseUp={ this.handleMouseEventModal }
 					role="dialog"
-					aria-label={title}
+					aria-label={ title }
 					{ ...forwardedProps }>
 					{this.props.children}
 				</div>

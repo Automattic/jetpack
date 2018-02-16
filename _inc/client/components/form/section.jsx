@@ -1,6 +1,6 @@
 /** External Dependencies **/
-var PropTypes = require( 'prop-types' );
-var React = require( 'react' );
+const PropTypes = require( 'prop-types' );
+const React = require( 'react' );
 
 module.exports = React.createClass( {
 	displayName: 'Section',
@@ -12,17 +12,17 @@ module.exports = React.createClass( {
 
 	render: function() {
 		return (
-			<div id={this.props.id}>
-				{this.props.title ?
-					(
+			<div id={ this.props.id }>
+				{this.props.title
+					? (
 						<div>
 							<div className="dops-form-section-title">{this.props.title}</div>
 							<div className="dops-form-section-body">
 								{this.props.children}
 							</div>
 						</div>
-					) :
-					( this.props.children )
+					)
+					: ( this.props.children )
 				}
 			</div>
 		);

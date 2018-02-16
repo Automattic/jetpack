@@ -1,16 +1,16 @@
 /** External Dependencies **/
-var PropTypes = require( 'prop-types' );
-var React = require( 'react' ),
+const PropTypes = require( 'prop-types' );
+const React = require( 'react' ),
 	classNames = require( 'classnames' ),
 	Formsy = require( 'formsy-react' );
 
 /** Internal Dependencies **/
-var Label = require( './label' ),
+const Label = require( './label' ),
 	getUniqueId = require( './counter' ),
 	FormInputValidation = require( '../form-input-validation' ),
 	requiredFieldErrorFormatter = require( './required-error-label' );
 
-var Radios = React.createClass( {
+const Radios = React.createClass( {
 
 	propTypes: {
 		name: PropTypes.string,
@@ -31,13 +31,13 @@ var Radios = React.createClass( {
 	},
 
 	render: function() {
-		var uniqueId = this.props.uniqueId,
+		const uniqueId = this.props.uniqueId,
 			choices = this.props.choices.map( function( choice, i ) {
-				var checked = this.props.selected === choice.value;
+				const checked = this.props.selected === choice.value;
 				return (
-					<div className='dops-form-checkbox' key={ i }>
+					<div className="dops-form-checkbox" key={ i }>
 						<Label inline label={ choice.label } htmlFor={ uniqueId + i }>
-							<input type='radio' id={ uniqueId + i } value={ choice.value } name={ this.props.name } checked={ checked } onChange={ this.onChange } />
+							<input type="radio" id={ uniqueId + i } value={ choice.value } name={ this.props.name } checked={ checked } onChange={ this.onChange } />
 						</Label>
 					</div>
 				);
@@ -87,7 +87,7 @@ module.exports = React.createClass( {
 	},
 
 	render: function() {
-		var errorMessage;
+		let errorMessage;
 
 		if ( ! this.isPristine() ) {
 			errorMessage = this.showError() ? this.getErrorMessage() : null;
@@ -96,7 +96,7 @@ module.exports = React.createClass( {
 			}
 		}
 
-		let className = classNames( {
+		const className = classNames( {
 			'dops-field': true,
 			'dops-form-radio': true,
 			'dops-form-error': errorMessage,

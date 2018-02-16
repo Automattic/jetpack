@@ -1,6 +1,6 @@
 /**
-* External dependencies
-*/
+ * External dependencies
+ */
 import PropTypes from 'prop-types';
 import React from 'react';
 
@@ -37,9 +37,8 @@ const FilterSummary = React.createClass( {
 	render() {
 		if ( this.props.items.length === 0 ) {
 			return ( <p>{ this.props.noResultsText }</p> );
-		} else {
-			return null;
 		}
+		return null;
 	}
 } );
 
@@ -47,11 +46,8 @@ export default React.createClass( {
 	displayName: 'Collection',
 
 	shouldWeHide: function( example ) {
-		let filter, searchString;
-
-		filter = this.props.filter || '';
-
-		searchString = example.props.searchTerms;
+		const filter = this.props.filter || '';
+		let searchString = example.props.searchTerms;
 
 		if ( this.props.component ) {
 			return example.type.displayName.toLowerCase() !== this.props.component.replace( /-([a-z])/g, '$1' );
@@ -66,20 +62,19 @@ export default React.createClass( {
 
 	visibleExamples: function( examples ) {
 		return examples.filter( ( child ) => {
-			return !child.props.hide;
+			return ! child.props.hide;
 		} );
 	},
 
 	render: function() {
-		let summary, examples;
-
-		examples = React.Children.map( this.props.children, ( example ) => {
+		const examples = React.Children.map( this.props.children, ( example ) => {
 			return (
 				<Hider hide={ this.shouldWeHide( example ) } key={ 'example-' + example.type.displayName }>
 					{ example }
 				</Hider>
 			);
 		} );
+		let summary;
 
 		if ( ! this.props.component ) {
 			summary = (

@@ -13,7 +13,7 @@ import NoticeAction from 'components/notice/notice-action';
 import notices from 'notices';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { removeNotice } from './state/notices/actions'
+import { removeNotice } from './state/notices/actions';
 
 const debug = debugModule( 'calypso:notices' );
 

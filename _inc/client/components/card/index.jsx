@@ -1,21 +1,26 @@
+/**
+ * External dependencies
+ */
 const PropTypes = require( 'prop-types' );
-var React = require( 'react' ),
-	Gridicon = require( '../gridicon' ),
-	classnames = require( 'classnames' );
-
+const React = require( 'react' );
+const classnames = require( 'classnames' );
 import assign from 'lodash/assign';
 import omit from 'lodash/omit';
+/**
+ * Internal dependencies
+ */
+const Gridicon = require( '../gridicon' );
 
 require( './style.scss' );
 
-let CardSection = React.createClass( {
+const CardSection = React.createClass( {
 
 	propTypes: {
 		title: PropTypes.any,
 		vertical: PropTypes.any,
 		style: PropTypes.object,
 		className: PropTypes.string,
-		device: PropTypes.oneOf( ['desktop', 'tablet', 'phone'] )
+		device: PropTypes.oneOf( [ 'desktop', 'tablet', 'phone' ] )
 	},
 
 	getDefaultProps: function() {
@@ -24,21 +29,21 @@ let CardSection = React.createClass( {
 
 	render: function() {
 		return (
-			<div className={classnames( 'dops-card-section', this.props.className )} style={this.props.style}>
-				{this.props.title ?
-					this._renderWithTitle() :
-					this.props.children
+			<div className={ classnames( 'dops-card-section', this.props.className ) } style={ this.props.style }>
+				{this.props.title
+					? this._renderWithTitle()
+					: this.props.children
 				}
 			</div>
 		);
 	},
 
 	_renderWithTitle: function() {
-		var orientation = this.props.vertical ? 'vertical' : 'horizontal';
-		var wrapperClassName = 'dops-card-section-orient-' + orientation;
+		const orientation = this.props.vertical ? 'vertical' : 'horizontal';
+		const wrapperClassName = 'dops-card-section-orient-' + orientation;
 
 		return (
-			<div className={wrapperClassName}>
+			<div className={ wrapperClassName }>
 				<h4 ref="label" className="dops-card-section-label">
 					{this.props.title}
 				</h4>
@@ -50,7 +55,7 @@ let CardSection = React.createClass( {
 	}
 } );
 
-let CardFooter = React.createClass( {
+const CardFooter = React.createClass( {
 
 	render: function() {
 		return (
@@ -61,7 +66,7 @@ let CardFooter = React.createClass( {
 	}
 } );
 
-let Card = React.createClass( {
+const Card = React.createClass( {
 
 	propTypes: {
 		meta: PropTypes.any,
@@ -127,8 +132,8 @@ let Card = React.createClass( {
 
 	_renderIcon: function() {
 		return (
-			<span className="dops-card-icon" style={{ color: this.props.iconColor }}>
-				{ this.props.icon && <Gridicon icon={ this.props.icon } style={{ backgroundColor: this.props.iconColor }}/>}
+			<span className="dops-card-icon" style={ { color: this.props.iconColor } }>
+				{ this.props.icon && <Gridicon icon={ this.props.icon } style={ { backgroundColor: this.props.iconColor } } />}
 				{ this.props.iconLabel }
 			</span>
 		);

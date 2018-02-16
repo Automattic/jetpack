@@ -25,5 +25,5 @@ export const fetchPluginsData = () => {
 				error: error
 			} );
 		} );
-	}
+	};
 };

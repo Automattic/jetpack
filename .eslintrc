@@ -54,7 +54,7 @@
 		"quote-props": [ 1, "as-needed", { "keywords": true } ],
 		"quotes": [ 1, "single", "avoid-escape" ],
 		"react/jsx-curly-spacing": [ 1, "always" ],
-		"react/jsx-no-bind": 1,
+		"react/jsx-no-bind": 0,
 		"react/jsx-space-before-closing": 1,
 		"react/no-danger": 1,
 		"react/no-did-mount-set-state": 1,

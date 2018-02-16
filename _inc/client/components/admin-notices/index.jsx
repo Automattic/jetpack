@@ -16,8 +16,12 @@ class AdminNotices extends React.Component {
 				$notice.wrapInner( '<span class="dops-notice__content">' );
 				$notice.find( '.dops-notice__content' ).before( icon ).css( 'display', 'block' );
 				$notice.find( '.dops-notice__content' ).after( dismiss );
-				$notice.find( 'h2' ).replaceWith( function() { return jQuery( '<strong />', { html: this.innerHTML } ); } );
-				$notice.find( 'p' ).replaceWith( function() { return jQuery( '<div/>', { html: this.innerHTML } ); } );
+				$notice.find( 'h2' ).replaceWith( function() {
+					return jQuery( '<strong />', { html: this.innerHTML } );
+				} );
+				$notice.find( 'p' ).replaceWith( function() {
+					return jQuery( '<div/>', { html: this.innerHTML } );
+				} );
 				$notice.prependTo( $adminNotices ).css( 'display', 'flex' );
 			} );
 		}
@@ -34,8 +38,12 @@ class AdminNotices extends React.Component {
 				$notice.wrapInner( '<span class="dops-notice__content">' );
 				$notice.find( '.dops-notice__content' ).before( icon );
 				$notice.find( '.vp-message' ).removeClass( 'vp-message' ).addClass( 'dops-notice__text' );
-				$notice.find( 'h3' ).replaceWith( function() { return jQuery( '<strong />', { html: this.innerHTML } ); } );
-				$notice.find( 'p' ).replaceWith( function() { return jQuery( '<div/>', { html: this.innerHTML } ); } );
+				$notice.find( 'h3' ).replaceWith( function() {
+					return jQuery( '<strong />', { html: this.innerHTML } );
+				} );
+				$notice.find( 'p' ).replaceWith( function() {
+					return jQuery( '<div/>', { html: this.innerHTML } );
+				} );
 				$notice.find( 'a[href*="admin.php?page=vaultpress"]' ).remove();
 				$notice.prependTo( $adminNotices ).css( 'display', 'flex' );
 			} );
@@ -48,7 +56,9 @@ class AdminNotices extends React.Component {
 				$notice.find( '.button-primary' ).addClass( 'dops-notice__action' ).removeClass( 'button-primary' ).detach().appendTo( $notice );
 				$notice.find( 'p' ).not( '.submit' ).wrapAll( '<span class="dops-notice__text"/>' );
 				const $dopsNotice = $notice.find( '.dops-notice__text' );
-				$dopsNotice.find( 'p' ).replaceWith( function() { return jQuery( '<div/>', { html: this.innerHTML, 'class': 'dops-notice__moved_text' } ); } );
+				$dopsNotice.find( 'p' ).replaceWith( function() {
+					return jQuery( '<div/>', { html: this.innerHTML, 'class': 'dops-notice__moved_text' } );
+				} );
 				$dopsNotice.find( 'br' ).remove();
 				$notice.find( '.button-secondary' ).removeClass( 'button-secondary' ).detach().appendTo( $dopsNotice );
 				$notice.find( '.submit' ).remove();

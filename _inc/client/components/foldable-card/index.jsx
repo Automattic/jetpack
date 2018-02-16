@@ -2,21 +2,21 @@
  * External Dependencies
  */
 const PropTypes = require( 'prop-types' );
-var React = require( 'react' ),
+const React = require( 'react' ),
 	classNames = require( 'classnames' ),
 	noop = require( 'lodash/noop' );
 
 /**
  * Internal Dependencies
  */
-var Card = require( 'components/card' ),
+const Card = require( 'components/card' ),
 	CompactCard = require( 'components/card/compact' ),
 	Gridicon = require( 'components/gridicon' ),
 	onKeyDownCallback = require( 'utils/onkeydown-callback' );
 
 require( './style.scss' );
 
-var FoldableCard = React.createClass( {
+const FoldableCard = React.createClass( {
 
 	propTypes: {
 		actionButton: PropTypes.element,
@@ -93,7 +93,7 @@ var FoldableCard = React.createClass( {
 			);
 		}
 		if ( this.props.children ) {
-			let iconSize = 24;
+			const iconSize = 24;
 			return (
 				<button type="button" disabled={ this.props.disabled } className="dops-foldable-card__action dops-foldable-card__expand" onClick={ clickAction }>
 					<span className="screen-reader-text">More</span>
@@ -112,7 +112,7 @@ var FoldableCard = React.createClass( {
 	},
 
 	renderHeader: function() {
-		var summary = this.props.summary ? <span className="dops-foldable-card__summary">{ this.props.summary } </span> : null,
+		const summary = this.props.summary ? <span className="dops-foldable-card__summary">{ this.props.summary } </span> : null,
 			expandedSummary = this.props.expandedSummary ? <span className="dops-foldable-card__summary_expanded">{ this.props.expandedSummary } </span> : null,
 			header = this.props.header ? <div className="dops-foldable-card__header-text">{ this.props.header }</div> : null,
 			subheader = this.props.subheader ? <div className="dops-foldable-card__subheader">{ this.props.subheader }</div> : null,
@@ -147,7 +147,7 @@ var FoldableCard = React.createClass( {
 	},
 
 	render: function() {
-		var Container = this.props.compact ? CompactCard : Card,
+		const Container = this.props.compact ? CompactCard : Card,
 			itemSiteClasses = classNames(
 				'dops-foldable-card',
 				this.props.className,

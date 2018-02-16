@@ -1,14 +1,14 @@
 /**
  * External dependencies
  */
-var React = require( 'react' ),
+const React = require( 'react' ),
 	classNames = require( 'classnames' ),
 	omit = require( 'lodash/omit' );
 
 /**
  * Internal dependencies
  */
-var Toggle = require( 'components/form/form-toggle' );
+const Toggle = require( 'components/form/form-toggle' );
 
 module.exports = React.createClass( {
 

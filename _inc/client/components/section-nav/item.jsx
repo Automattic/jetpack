@@ -3,20 +3,20 @@
 /**
  * External Dependencies
  */
-var PropTypes = require( 'prop-types' );
-var React = require( 'react' ),
+const PropTypes = require( 'prop-types' );
+const React = require( 'react' ),
 	PureRenderMixin = require( 'react-pure-render/mixin' ),
 	classNames = require( 'classnames' );
 
 /**
  * Internal Dependencies
  */
-var Count = require( 'components/count' );
+const Count = require( 'components/count' );
 
 /**
  * Main
  */
-var NavItem = React.createClass( {
+const NavItem = React.createClass( {
 
 	mixins: [ PureRenderMixin ],
 
@@ -32,19 +32,16 @@ var NavItem = React.createClass( {
 	},
 
 	render: function() {
-		var itemClassPrefix = this.props.itemType
+		const itemClassPrefix = this.props.itemType
 			? this.props.itemType
-			: 'tab',
-
-			itemClassName, target, onClick,
-
-			itemClasses = {
-				'is-selected': this.props.selected,
-				'is-external': this.props.isExternalLink
-			};
-
+			: 'tab';
+		const itemClasses = {
+			'is-selected': this.props.selected,
+			'is-external': this.props.isExternalLink
+		};
 		itemClasses[ 'dops-section-nav-' + itemClassPrefix ] = true;
-		itemClassName = classNames( itemClasses );
+		const itemClassName = classNames( itemClasses );
+		let target, onClick;
 
 		if ( this.props.isExternalLink ) {
 			target = '_blank';

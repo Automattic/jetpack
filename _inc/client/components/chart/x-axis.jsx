@@ -1,14 +1,14 @@
 /**
  * External dependencies
  */
-var React = require( 'react' ),
+const React = require( 'react' ),
 	PropTypes = require( 'prop-types' ),
 	throttle = require( 'lodash/throttle' );
 
 /**
  * Internal dependencies
  */
-var Label = require( './label' );
+const Label = require( './label' );
 
 module.exports = React.createClass( {
 	displayName: 'ModuleChartXAxis',
@@ -34,7 +34,7 @@ module.exports = React.createClass( {
 
 	// Remove listener
 	componentWillUnmount: function() {
-		if( this.resizeThrottled.cancel ) {
+		if ( this.resizeThrottled.cancel ) {
 			this.resizeThrottled.cancel();
 		}
 		window.removeEventListener( 'resize', this.resizeThrottled );
@@ -45,15 +45,9 @@ module.exports = React.createClass( {
 	},
 
 	resize: function( nextProps ) {
-		var node,
-			props = this.props,
-			width,
-			dataCount,
-			spacing,
-			labelWidth,
-			divisor;
+		let props = this.props;
 
-		node = this.refs.axis;
+		const node = this.refs.axis;
 
 		if ( nextProps && ! ( nextProps instanceof Event ) ) {
 			props = nextProps;
@@ -65,13 +59,13 @@ module.exports = React.createClass( {
 		 */
 
 		node.style.overflow = 'hidden';
-		width = node.clientWidth;
+		const width = node.clientWidth;
 		node.style.overflow = 'visible';
 
-		dataCount = props.data.length || 1;
-		spacing = width / dataCount;
-		labelWidth = props.labelWidth;
-		divisor = Math.ceil( labelWidth / spacing );
+		const dataCount = props.data.length || 1;
+		const spacing = width / dataCount;
+		const labelWidth = props.labelWidth;
+		const divisor = Math.ceil( labelWidth / spacing );
 
 		this.setState( {
 			divisor: divisor,
@@ -80,13 +74,12 @@ module.exports = React.createClass( {
 	},
 
 	render: function() {
-		var labels,
-			data = this.props.data;
+		const data = this.props.data;
 
-		labels = data.map( function ( item, index ) {
-			var x = ( index * this.state.spacing ) + ( ( this.state.spacing - this.props.labelWidth ) / 2 ),
-				rightIndex = data.length - index - 1,
-				label;
+		const labels = data.map( function( item, index ) {
+			const x = ( index * this.state.spacing ) + ( ( this.state.spacing - this.props.labelWidth ) / 2 );
+			const rightIndex = data.length - index - 1;
+			let label;
 
 			if ( rightIndex % this.state.divisor === 0 ) {
 				label = <Label key={ index } label={ item.label } width={ this.props.labelWidth } x={ x } />;

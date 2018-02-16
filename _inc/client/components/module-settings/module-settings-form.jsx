@@ -42,9 +42,9 @@ export function ModuleSettingsForm( InnerComponent ) {
 		 * Updates the list of form values to save, usually options to set or modules to activate.
 		 * Receives an object with key => value pairs to set multiple options or a string and a value to set a single option.
 		 *
-		 * @param   {string|object} optionMaybeOptions
-		 * @param   {*}             optionValue
-		 * @returns {boolean}
+		 * @param   {string|object} optionMaybeOptions options to update.
+		 * @param   {*}             optionValue        value to set if it's a single option
+		 * @returns {boolean}       Always true
 		 */
 		updateFormStateOptionValue = ( optionMaybeOptions, optionValue = undefined ) => {
 			if ( 'string' === typeof optionMaybeOptions ) {
@@ -63,9 +63,9 @@ export function ModuleSettingsForm( InnerComponent ) {
 		 * If the module is active, only the option is added to the list of form values to send.
 		 * If it's inactive, an additional option stating that the module must be activated is added to the list.
 		 *
-		 * @param {String}  module
-		 * @param {String}  moduleOption
-		 * @param {Boolean} deactivate
+		 * @param {String}  module        the module.
+		 * @param {String}  moduleOption  the option slug for the module.
+		 * @param {Boolean} deactivate    whether to deactive the module too.
 		 */
 		updateFormStateModuleOption = ( module, moduleOption, deactivate = false ) => {
 			this.trackSettingsToggle( module, moduleOption, ! this.getOptionValue( moduleOption ) );
@@ -96,7 +96,7 @@ export function ModuleSettingsForm( InnerComponent ) {
 		/**
 		 * Instantly activate or deactivate a module.
 		 *
-		 * @param {String} module
+		 * @param {String} module	the module slug.
 		 */
 		toggleModuleNow = module => {
 			this.props.updateOptions( { [ module ]: ! this.getOptionValue( module ) } );
@@ -125,6 +125,9 @@ export function ModuleSettingsForm( InnerComponent ) {
 		/**
 		 * Retrieves an option from an existing module, or from an array of modules
 		 * if the form was initialized with an array
+		 * @param {String} settingName  the setting to get.
+		 * @param {String} module       the module related to the setting.
+		 * @returns {*}                 the current value of the settings.
 		 */
 		getOptionValue = ( settingName, module = '' ) => {
 			return get( this.state.options, settingName, this.props.getSettingCurrentValue( settingName, module ) );
@@ -138,7 +141,7 @@ export function ModuleSettingsForm( InnerComponent ) {
 		/**
 		 * Check if there are unsaved settings in the card.
 		 *
-		 * @returns {Boolean}
+		 * @returns {Boolean}  True if the form has unsaved changes.
 		 */
 		isDirty = () => {
 			return !! Object.keys( this.state.options ).length;
@@ -147,7 +150,7 @@ export function ModuleSettingsForm( InnerComponent ) {
 		/**
 		 * Checks if a setting is currently being saved.
 		 *
-		 * @param {String|Array} settings
+		 * @param {String|Array} settings  The settings to check for a current saving in progress
 		 *
 		 * @returns {Boolean} True if specified settings are being saved, false otherwise.
 		 */
@@ -157,7 +160,7 @@ export function ModuleSettingsForm( InnerComponent ) {
 
 		/**
 		 * Tracks form submissions
-		 * @param options
+		 * @param {Object } options options passed to recordEvent
 		 */
 		trackFormSubmission = options => {
 			analytics.tracks.recordEvent(
@@ -168,7 +171,9 @@ export function ModuleSettingsForm( InnerComponent ) {
 
 		/**
 		 * Tracks settings toggles
-		 * @param options
+		 * @param {String}  module    the module slug.
+		 * @param {String}  setting   the setting slug.
+		 * @param {Boolean} activated whether the settings is currently on
 		 */
 		trackSettingsToggle = ( module, setting, activated ) => {
 			analytics.tracks.recordEvent(

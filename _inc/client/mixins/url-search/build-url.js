@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-var url = require( 'url' ),
+const url = require( 'url' ),
 	pick = require( 'lodash/pick' );
 
 /**
@@ -13,7 +13,7 @@ var url = require( 'url' ),
  * @return {string}        Path including search terms
  */
 module.exports = function( uri, search ) {
-	var parsedUrl = url.parse( uri, true );
+	let parsedUrl = url.parse( uri, true );
 
 	if ( search ) {
 		parsedUrl.query.s = search;

@@ -1,11 +1,11 @@
 /** External Dependencies **/
-var PropTypes = require( 'prop-types' );
-var React = require( 'react' ),
+const PropTypes = require( 'prop-types' );
+const React = require( 'react' ),
 	isArray = require( 'lodash/isArray' ),
 	Formsy = require( 'formsy-react' );
 
 /** Internal Dependencies **/
-var ActionBar = require( './action-bar' ),
+const ActionBar = require( './action-bar' ),
 	Section = require( './section' ),
 	Row = require( './row' ),
 	Label = require( './label' ),
@@ -21,7 +21,7 @@ var ActionBar = require( './action-bar' ),
 require( './style.scss' );
 
 // very thin wrapper for Formsy.Form
-let Form = React.createClass( {
+const Form = React.createClass( {
 
 	propTypes: {
 		style: PropTypes.object,
@@ -49,10 +49,10 @@ let Form = React.createClass( {
 	},
 
 	render: function() {
-		var { style, ...other } = this.props;
+		const { style, ...other } = this.props;
 		return (
-			<div className="dops-form" style={style}>
-				<Formsy.Form ref="form" {...other}>
+			<div className="dops-form" style={ style }>
+				<Formsy.Form ref="form" { ...other }>
 					{this.props.children}
 				</Formsy.Form>
 			</div>
@@ -66,21 +66,21 @@ let Form = React.createClass( {
  * @author ShirtlessKirk. Copyright ( c ) 2012.
  * @license WTFPL ( http://www.wtfpl.net/txt/copying )
  */
-let luhnChk = ( function( arr ) {
+const luhnChk = ( function( arr ) {
 	return function( ccNum ) {
-		var len = ccNum.length,
+		let len = ccNum.length,
 			bit = 1,
 			sum = 0,
 			val;
 
 		while ( len ) {
 			val = parseInt( ccNum.charAt( --len ), 10 );
-			sum += ( bit ^= 1 ) ? arr[val] : val;
+			sum += ( bit ^= 1 ) ? arr[ val ] : val;
 		}
 
 		return sum && sum % 10 === 0;
 	};
-}( [0, 2, 4, 6, 8, 1, 3, 5, 7, 9] ) );
+}( [ 0, 2, 4, 6, 8, 1, 3, 5, 7, 9 ] ) );
 
 // To find out more about validators, see:
 // https://github.com/christianalfoni/formsy-react/blob/master/API.md#validators

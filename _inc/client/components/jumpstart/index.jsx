@@ -35,6 +35,7 @@ class JumpStart extends React.Component {
 	};
 
 	render() {
+		/* eslint-disable react/no-danger */
 		const jumpstartModules = this.props.jumpstartFeatures.map( ( module ) => (
 			<div
 				className="jp-jumpstart__feature-list-column"
@@ -49,7 +50,7 @@ class JumpStart extends React.Component {
 				</div>
 			</div>
 		) );
-
+		/* eslint-enable react/no-danger */
 		return (
 			<div className="jp-jumpstart-full__container">
 				<img src={ imagePath + 'stars-full.svg' } width="60" height="60" alt={ __( 'Stars' ) } className="jp-jumpstart-full__svg-stars" />

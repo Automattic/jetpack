@@ -4,13 +4,13 @@
  * External dependencies
  */
 const PropTypes = require( 'prop-types' );
-var React = require( 'react' ),
+const React = require( 'react' ),
 	classNames = require( 'classnames' );
 
 /**
  * Internal dependencies
  */
-var Tooltip = require( 'components/tooltip' ),
+const Tooltip = require( 'components/tooltip' ),
 	Gridicon = require( 'components/gridicon' );
 
 module.exports = React.createClass( {
@@ -31,31 +31,29 @@ module.exports = React.createClass( {
 	},
 
 	buildSections: function() {
-		var value = this.props.data.value,
+		const value = this.props.data.value,
 			max = this.props.max,
 			percentage = max ? Math.ceil( ( value / max ) * 10000 ) / 100 : 0,
 			remain = 100 - percentage,
 			remainFloor = Math.max( 1, Math.floor( remain ) ),
 			sections = [],
-			remainStyle,
-			valueStyle,
 			nestedValue = this.props.data.nestedValue,
-			nestedBar,
-			nestedPercentage,
-			nestedStyle,
 			spacerClassOptions = {
 				'dops-chart__bar-section': true,
 				'is-spacer': true,
 				'is-ghost': ( 100 === remain ) && ! this.props.active
 			};
+		let nestedBar,
+			nestedPercentage,
+			nestedStyle;
 
-		remainStyle = {
+		const remainStyle = {
 			height: remainFloor + '%'
 		};
 
 		sections.push( <div key="spacer" className={ classNames( spacerClassOptions ) } style={ remainStyle } /> );
 
-		valueStyle = {
+		const valueStyle = {
 			top: remainFloor + '%'
 		};
 
@@ -74,13 +72,13 @@ module.exports = React.createClass( {
 		return sections;
 	},
 
-	clickHandler: function(){
+	clickHandler: function() {
 		if ( 'function' === typeof( this.props.clickHandler ) ) {
 			this.props.clickHandler( this.props.data );
 		}
 	},
 
-	mouseEnter: function(){
+	mouseEnter: function() {
 		this.setState( { showPopover: true } );
 	},
 
@@ -100,8 +98,8 @@ module.exports = React.createClass( {
 		const { tooltipData } = this.props.data;
 
 		const listItemElements = tooltipData.map( function( options, i ) {
-			var wrapperClasses = [ 'module-content-list-item' ],
-				gridiconSpan;
+			const wrapperClasses = [ 'module-content-list-item' ];
+			let gridiconSpan;
 
 			if ( options.icon ) {
 				gridiconSpan = ( <Gridicon icon={ options.icon } size={ 18 } /> );
@@ -111,9 +109,9 @@ module.exports = React.createClass( {
 
 			return (
 				<li key={ i } className={ wrapperClasses.join( ' ' ) } >
-					<span className='dops-wrapper'>
-						<span className='value'>{ options.value }</span>
-						<span className='label'>{ gridiconSpan }{ options.label }</span>
+					<span className="dops-wrapper">
+						<span className="value">{ options.value }</span>
+						<span className="label">{ gridiconSpan }{ options.label }</span>
 					</span>
 				</li>
 			);
@@ -136,17 +134,14 @@ module.exports = React.createClass( {
 	},
 
 	render: function() {
-		var barStyle,
-			barClass,
-			count = this.props.count || 1;
+		const count = this.props.count || 1;
+		const barClass = { 'dops-chart__bar': true };
 
-		barClass = { 'dops-chart__bar': true };
-
-		if ( this.props.className ){
+		if ( this.props.className ) {
 			barClass[ this.props.className ] = true;
 		}
 
-		barStyle = {
+		const barStyle = {
 			width: ( ( 1 / count ) * 100 ) + '%'
 		};
 

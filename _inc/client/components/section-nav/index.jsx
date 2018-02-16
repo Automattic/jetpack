@@ -3,15 +3,15 @@
 /**
  * External Dependencies
  */
-var PropTypes = require( 'prop-types' );
-var React = require( 'react' ),
+const PropTypes = require( 'prop-types' );
+const React = require( 'react' ),
 	isEqual = require( 'lodash/isEqual' ),
 	classNames = require( 'classnames' );
 
 /**
  * Internal Dependencies
  */
-var NavTabs = require( './tabs' ),
+const NavTabs = require( './tabs' ),
 	NavItem = require( './item' ),
 	Search = require( 'components/search' );
 
@@ -20,7 +20,7 @@ require( './style.scss' );
 /**
  * Main
  */
-var SectionNav = React.createClass( {
+const SectionNav = React.createClass( {
 
 	propTypes: {
 		children: PropTypes.node,
@@ -59,8 +59,8 @@ var SectionNav = React.createClass( {
 	},
 
 	render: function() {
-		var children = this.getChildren(),
-			className;
+		const children = this.getChildren();
+		let className;
 
 		if ( ! children ) {
 			className = classNames( {
@@ -103,7 +103,7 @@ var SectionNav = React.createClass( {
 
 	getChildren: function() {
 		return React.Children.map( this.props.children, function( child ) {
-			var extraProps = {
+			const extraProps = {
 				hasSiblingControls: this.hasSiblingControls,
 				closeSectionNavMobilePanel: this.closeMobilePanel
 			};
@@ -147,7 +147,7 @@ var SectionNav = React.createClass( {
 	},
 
 	toggleMobileOpenState: function() {
-		var mobileOpen = ! this.state.mobileOpen;
+		const mobileOpen = ! this.state.mobileOpen;
 
 		this.setState( {
 			mobileOpen: mobileOpen

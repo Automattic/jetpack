@@ -3,18 +3,18 @@
 /**
 * External dependencies
 */
-var React = require( 'react' ),
+const React = require( 'react' ),
 	PureRenderMixin = require( 'react-pure-render/mixin' );
 
 /**
  * Internal dependencies
  */
-var ButtonGroup = require( 'components/button-group' ),
+const ButtonGroup = require( 'components/button-group' ),
 	Button = require( 'components/button' ),
 	Card = require( 'components/card' ),
 	Gridicon = require( 'components/gridicon' );
 
-var Buttons = React.createClass( {
+const Buttons = React.createClass( {
 	displayName: 'ButtonGroup',
 
 	mixins: [ PureRenderMixin ],
