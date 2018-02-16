@@ -4,6 +4,7 @@
 const PropTypes = require( 'prop-types' );
 const React = require( 'react' ),
 	map = require( 'lodash/map' );
+import { translate as __ } from 'i18n-calypso';
 
 module.exports = React.createClass( {
 	displayName: 'ValidationErrorList',
@@ -16,7 +17,7 @@ module.exports = React.createClass( {
 		return (
 			<div>
 				<p>
-					{ this.translate(
+					{ __(
 						'Please correct the issue below and try again.',
 						'Please correct the issues listed below and try again.',
 						{
