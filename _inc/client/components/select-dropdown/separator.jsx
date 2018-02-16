@@ -3,9 +3,9 @@
 /**
  * External Dependencies
  */
-var React = require( 'react' );
+const React = require( 'react' );
 
-var SelectDropdownSeparator = React.createClass( {
+const SelectDropdownSeparator = React.createClass( {
 
 	render: function() {
 		return (

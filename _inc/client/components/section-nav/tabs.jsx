@@ -12,19 +12,19 @@ import classNames from 'classnames';
 /**
  * Internal Dependencies
  */
-var SelectDropdown = require( 'components/select-dropdown' ),
+let SelectDropdown = require( 'components/select-dropdown' ),
 	DropdownItem = require( 'components/select-dropdown/item' ),
 	viewport = require( 'lib/viewport' );
 
 /**
  * Internal Variables
  */
-var MOBILE_PANEL_THRESHOLD = 480;
+const MOBILE_PANEL_THRESHOLD = 480;
 
 /**
  * Main
  */
-var NavTabs = React.createClass( {
+const NavTabs = React.createClass( {
 
 	propTypes: {
 		selectedText: PropTypes.string,
@@ -61,18 +61,18 @@ var NavTabs = React.createClass( {
 	},
 
 	render: function() {
-		var tabs = React.Children.map( this.props.children, function( child, index ) {
+		const tabs = React.Children.map( this.props.children, function( child, index ) {
 			return child && React.cloneElement( child, { ref: 'tab-' + index } );
 		} );
 
-		var tabsClassName = classNames( {
+		const tabsClassName = classNames( {
 			'dops-section-nav-tabs': true,
 			'is-dropdown': this.state.isDropdown,
 			'is-open': this.state.isDropdownOpen,
 			'has-siblings': this.props.hasSiblingControls
 		} );
 
-		var innerWidth = viewport.getWindowInnerWidth();
+		const innerWidth = viewport.getWindowInnerWidth();
 
 		return (
 			<div className="dops-section-nav-group" ref="navGroup">
@@ -101,13 +101,13 @@ var NavTabs = React.createClass( {
 	},
 
 	getTabWidths: function() {
-		var totalWidth = 0;
+		let totalWidth = 0;
 
 		React.Children.forEach( this.props.children, function( child, index ) {
 			if ( ! child ) {
 				return;
 			}
-			let tabWidth = ReactDom.findDOMNode( this.refs[ 'tab-' + index ] ).offsetWidth;
+			const tabWidth = ReactDom.findDOMNode( this.refs[ 'tab-' + index ] ).offsetWidth;
 			totalWidth += tabWidth;
 		}.bind( this ) );
 
@@ -115,13 +115,13 @@ var NavTabs = React.createClass( {
 	},
 
 	getDropdown: function() {
-		var dropdownOptions = React.Children.map(
+		const dropdownOptions = React.Children.map(
 		this.props.children, function( child, index ) {
 			if ( ! child ) {
 				return null;
 			}
 			return (
-				<DropdownItem {...child.props} key={ 'navTabsDropdown-' + index }>
+				<DropdownItem { ...child.props } key={ 'navTabsDropdown-' + index }>
 					{ child.props.children }
 				</DropdownItem>
 			);
@@ -139,7 +139,7 @@ var NavTabs = React.createClass( {
 	},
 
 	setDropdown: function() {
-		var navGroupWidth;
+		let navGroupWidth;
 
 		if ( window.innerWidth > MOBILE_PANEL_THRESHOLD ) {
 			if ( ! this.refs.navGroup ) {

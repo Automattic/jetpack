@@ -27,8 +27,8 @@ export const dismissJetpackNotice = ( notice ) => {
 				error: error
 			} );
 		} );
-	}
-}
+	};
+};
 
 export const dismissJetpackActionNotice = ( notice ) => {
 	return ( dispatch ) => {
@@ -36,5 +36,5 @@ export const dismissJetpackActionNotice = ( notice ) => {
 			type: JETPACK_ACTION_NOTICES_DISMISS,
 			notice: notice
 		} );
-	}
-}
+	};
+};

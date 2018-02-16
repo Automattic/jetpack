@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-var React = require( 'react' ),
+let React = require( 'react' ),
 	PropTypes = require( 'prop-types' ),
 	noop = require( 'lodash/noop' ),
 	throttle = require( 'lodash/throttle' );
@@ -9,7 +9,7 @@ var React = require( 'react' ),
 /**
  * Internal dependencies
  */
-var BarContainer = require( './bar-container' ),
+let BarContainer = require( './bar-container' ),
 	touchDetect = require( 'lib/touch-detect' );
 
 require( './style.scss' );
@@ -59,7 +59,7 @@ module.exports = React.createClass( {
 	},
 
 	resize: function() {
-		var node = this.refs.chart,
+		let node = this.refs.chart,
 			width = node.clientWidth - 82,
 			maxBars;
 
@@ -77,7 +77,7 @@ module.exports = React.createClass( {
 	},
 
 	getYAxisMax: function( values ) {
-		var max = Math.max.apply( null, values ),
+		let max = Math.max.apply( null, values ),
 			operand = Math.pow( 10, ( max.toString().length - 1 ) ),
 			rounded = ( Math.ceil( ( max + 1 ) / operand ) * operand );
 
@@ -89,7 +89,7 @@ module.exports = React.createClass( {
 	},
 
 	getData: function() {
-		var data = this.props.data;
+		let data = this.props.data;
 
 		data = data.slice( 0 - this.state.maxBars );
 
@@ -97,9 +97,9 @@ module.exports = React.createClass( {
 	},
 
 	getValues: function() {
-		var data = this.getData();
+		let data = this.getData();
 
-		data = data.map( function ( item ) {
+		data = data.map( function( item ) {
 			return item.value;
 		}, this );
 
@@ -115,7 +115,7 @@ module.exports = React.createClass( {
 	},
 
 	render: function() {
-		var values = this.getValues(),
+		let values = this.getValues(),
 			yAxisMax = this.getYAxisMax( values ),
 			data = this.getData(),
 			emptyChart;
@@ -134,7 +134,7 @@ module.exports = React.createClass( {
 		}
 
 		return (
-			<div ref="chart" className='dops-chart'>
+			<div ref="chart" className="dops-chart">
 				<div className="dops-chart__y-axis-markers">
 					<div className="dops-chart__y-axis-marker is-hundred"></div>
 					<div className="dops-chart__y-axis-marker is-fifty"></div>

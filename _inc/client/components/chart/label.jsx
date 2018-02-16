@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-var PropTypes = require( 'prop-types' );
-var React = require( 'react' );
+const PropTypes = require( 'prop-types' );
+const React = require( 'react' );
 
 module.exports = React.createClass( {
 	displayName: 'ModuleChartLabel',
@@ -14,7 +14,7 @@ module.exports = React.createClass( {
 	},
 
 	render: function() {
-		var labelStyle,
+		let labelStyle,
 			dir = 'left';
 
 		labelStyle = {

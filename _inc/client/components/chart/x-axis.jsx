@@ -1,14 +1,14 @@
 /**
  * External dependencies
  */
-var React = require( 'react' ),
+let React = require( 'react' ),
 	PropTypes = require( 'prop-types' ),
 	throttle = require( 'lodash/throttle' );
 
 /**
  * Internal dependencies
  */
-var Label = require( './label' );
+const Label = require( './label' );
 
 module.exports = React.createClass( {
 	displayName: 'ModuleChartXAxis',
@@ -34,7 +34,7 @@ module.exports = React.createClass( {
 
 	// Remove listener
 	componentWillUnmount: function() {
-		if( this.resizeThrottled.cancel ) {
+		if ( this.resizeThrottled.cancel ) {
 			this.resizeThrottled.cancel();
 		}
 		window.removeEventListener( 'resize', this.resizeThrottled );
@@ -45,7 +45,7 @@ module.exports = React.createClass( {
 	},
 
 	resize: function( nextProps ) {
-		var node,
+		let node,
 			props = this.props,
 			width,
 			dataCount,
@@ -80,11 +80,11 @@ module.exports = React.createClass( {
 	},
 
 	render: function() {
-		var labels,
+		let labels,
 			data = this.props.data;
 
-		labels = data.map( function ( item, index ) {
-			var x = ( index * this.state.spacing ) + ( ( this.state.spacing - this.props.labelWidth ) / 2 ),
+		labels = data.map( function( item, index ) {
+			let x = ( index * this.state.spacing ) + ( ( this.state.spacing - this.props.labelWidth ) / 2 ),
 				rightIndex = data.length - index - 1,
 				label;
 

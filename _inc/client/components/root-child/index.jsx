@@ -40,7 +40,7 @@ export default React.createClass( {
 	},
 
 	renderChildren: function() {
-		var content;
+		let content;
 
 		if ( this.props &&
 			( Object.keys( this.props ).length > 1 || ! this.props.children )

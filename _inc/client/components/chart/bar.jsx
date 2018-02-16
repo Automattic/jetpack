@@ -4,13 +4,13 @@
  * External dependencies
  */
 const PropTypes = require( 'prop-types' );
-var React = require( 'react' ),
+let React = require( 'react' ),
 	classNames = require( 'classnames' );
 
 /**
  * Internal dependencies
  */
-var Tooltip = require( 'components/tooltip' ),
+let Tooltip = require( 'components/tooltip' ),
 	Gridicon = require( 'components/gridicon' );
 
 module.exports = React.createClass( {
@@ -31,7 +31,7 @@ module.exports = React.createClass( {
 	},
 
 	buildSections: function() {
-		var value = this.props.data.value,
+		let value = this.props.data.value,
 			max = this.props.max,
 			percentage = max ? Math.ceil( ( value / max ) * 10000 ) / 100 : 0,
 			remain = 100 - percentage,
@@ -74,13 +74,13 @@ module.exports = React.createClass( {
 		return sections;
 	},
 
-	clickHandler: function(){
+	clickHandler: function() {
 		if ( 'function' === typeof( this.props.clickHandler ) ) {
 			this.props.clickHandler( this.props.data );
 		}
 	},
 
-	mouseEnter: function(){
+	mouseEnter: function() {
 		this.setState( { showPopover: true } );
 	},
 
@@ -100,7 +100,7 @@ module.exports = React.createClass( {
 		const { tooltipData } = this.props.data;
 
 		const listItemElements = tooltipData.map( function( options, i ) {
-			var wrapperClasses = [ 'module-content-list-item' ],
+			let wrapperClasses = [ 'module-content-list-item' ],
 				gridiconSpan;
 
 			if ( options.icon ) {
@@ -111,9 +111,9 @@ module.exports = React.createClass( {
 
 			return (
 				<li key={ i } className={ wrapperClasses.join( ' ' ) } >
-					<span className='dops-wrapper'>
-						<span className='value'>{ options.value }</span>
-						<span className='label'>{ gridiconSpan }{ options.label }</span>
+					<span className="dops-wrapper">
+						<span className="value">{ options.value }</span>
+						<span className="label">{ gridiconSpan }{ options.label }</span>
 					</span>
 				</li>
 			);
@@ -136,13 +136,13 @@ module.exports = React.createClass( {
 	},
 
 	render: function() {
-		var barStyle,
+		let barStyle,
 			barClass,
 			count = this.props.count || 1;
 
 		barClass = { 'dops-chart__bar': true };
 
-		if ( this.props.className ){
+		if ( this.props.className ) {
 			barClass[ this.props.className ] = true;
 		}
 

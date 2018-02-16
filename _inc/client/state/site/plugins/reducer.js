@@ -56,7 +56,7 @@ export const reducer = combineReducers( {
  * @return {Boolean}       Whether plugin data is being requested
  */
 export function isFetchingPluginsData( state ) {
-	return !!state.jetpack.pluginsData.requests.isFetchingPluginsData;
+	return !! state.jetpack.pluginsData.requests.isFetchingPluginsData;
 }
 
 /**

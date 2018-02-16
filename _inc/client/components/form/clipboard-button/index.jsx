@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-var PropTypes = require( 'prop-types' );
-var ReactDom = require( 'react-dom' ),
+const PropTypes = require( 'prop-types' );
+let ReactDom = require( 'react-dom' ),
 	React = require( 'react' ),
 	Clipboard = require( 'clipboard' ),
 	omit = require( 'lodash/omit' ),
@@ -31,7 +31,7 @@ module.exports = React.createClass( {
 	},
 
 	componentDidMount: function() {
-		var button = ReactDom.findDOMNode( this.refs.button );
+		const button = ReactDom.findDOMNode( this.refs.button );
 		this.clipboard = new Clipboard( button, {
 			text: () => this.props.text
 		} );
@@ -49,7 +49,7 @@ module.exports = React.createClass( {
 	},
 
 	render: function() {
-		var classes = classNames( 'dops-clipboard-button', this.props.className );
+		const classes = classNames( 'dops-clipboard-button', this.props.className );
 		return (
 			<Button
 				ref="button"

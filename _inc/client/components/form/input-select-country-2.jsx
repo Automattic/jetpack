@@ -1,8 +1,8 @@
 /** External Dependencies **/
-var React = require( 'react' );
+const React = require( 'react' );
 
 /** Internal Dependencies **/
-var SelectInput = require( './input-select' );
+const SelectInput = require( './input-select' );
 
 module.exports = React.createClass( {
 	displayName: 'CountrySelectInput2',

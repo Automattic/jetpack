@@ -66,7 +66,7 @@ export default React.createClass( {
 
 	visibleExamples: function( examples ) {
 		return examples.filter( ( child ) => {
-			return !child.props.hide;
+			return ! child.props.hide;
 		} );
 	},
 

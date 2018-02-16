@@ -3,16 +3,16 @@
 /**
  * External Dependencies
  */
-var PropTypes = require( 'prop-types' );
-var React = require( 'react' ),
+const PropTypes = require( 'prop-types' );
+let React = require( 'react' ),
 	classNames = require( 'classnames' );
 
 /**
  * Internal dependencies
  */
-var Count = require( 'components/count' );
+const Count = require( 'components/count' );
 
-var SelectDropdownItem = React.createClass( {
+const SelectDropdownItem = React.createClass( {
 	propTypes: {
 		children: PropTypes.string.isRequired,
 		path: PropTypes.string,
@@ -28,7 +28,7 @@ var SelectDropdownItem = React.createClass( {
 	},
 
 	render: function() {
-		var optionClassName = classNames( this.props.className, {
+		const optionClassName = classNames( this.props.className, {
 			'dops-select-dropdown__item': true,
 			'is-selected': this.props.selected,
 			'is-disabled': this.props.disabled

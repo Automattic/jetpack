@@ -2,15 +2,15 @@
 * External dependencies
 */
 const PropTypes = require( 'prop-types' );
-var ReactDom = require( 'react-dom' ),
+let ReactDom = require( 'react-dom' ),
 	React = require( 'react' );
 
 /**
 * Internal dependencies
 */
-var Popover = require( 'components/popover' );
+const Popover = require( 'components/popover' );
 
-var PopoverMenu = React.createClass( {
+const PopoverMenu = React.createClass( {
 	propTypes: {
 		isVisible: PropTypes.bool.isRequired,
 		onClose: PropTypes.func.isRequired,
@@ -30,7 +30,7 @@ var PopoverMenu = React.createClass( {
 	},
 
 	render: function() {
-		var children = React.Children.map( this.props.children, this._setPropsOnChild, this );
+		const children = React.Children.map( this.props.children, this._setPropsOnChild, this );
 
 		return (
 			<Popover
@@ -65,7 +65,7 @@ var PopoverMenu = React.createClass( {
 	},
 
 	_onShow: function() {
-		var elementToFocus = ReactDom.findDOMNode( this.refs.menu );
+		const elementToFocus = ReactDom.findDOMNode( this.refs.menu );
 
 		this._previouslyFocusedElement = document.activeElement;
 
@@ -110,7 +110,7 @@ var PopoverMenu = React.createClass( {
 	},
 
 	_onKeyDown: function( event ) {
-		var handled = false,
+		let handled = false,
 			target = event.target,
 			elementToFocus;
 

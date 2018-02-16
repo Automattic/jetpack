@@ -4,7 +4,7 @@
  * External dependencies
  */
 const PropTypes = require( 'prop-types' );
-var React = require( 'react' ),
+let React = require( 'react' ),
 	classNames = require( 'classnames' );
 
 require( './style.scss' );
@@ -12,7 +12,7 @@ require( './style.scss' );
 /**
  * Module variables
  */
-var Spinner;
+let Spinner;
 
 Spinner = React.createClass( {
 	propTypes: {
@@ -59,7 +59,7 @@ Spinner = React.createClass( {
 	},
 
 	renderFallback: function() {
-		var style = {
+		const style = {
 			width: this.props.size,
 			height: this.props.size
 		};
@@ -73,7 +73,7 @@ Spinner = React.createClass( {
 	},
 
 	render: function() {
-		var instanceId = parseInt( this.state.instanceId, 10 );
+		const instanceId = parseInt( this.state.instanceId, 10 );
 
 		if ( ! this.isSVGCSSAnimationSupported() ) {
 			return this.renderFallback();

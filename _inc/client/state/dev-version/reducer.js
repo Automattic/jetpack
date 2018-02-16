@@ -33,5 +33,5 @@ export const reducer = combineReducers( {
  * @return {Boolean}
  */
 export function canDisplayDevCard( state ) {
-	return !!state.jetpack.devCard.display;
+	return !! state.jetpack.devCard.display;
 }

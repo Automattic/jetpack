@@ -1,7 +1,7 @@
 /**
  * External dependencies
  */
-var expect = require( 'chai' ).expect,
+let expect = require( 'chai' ).expect,
 	useMockery = require( 'test/helpers/use-mockery' );
 
 /**
@@ -10,7 +10,7 @@ var expect = require( 'chai' ).expect,
 import useI18n from 'test/helpers/use-i18n';
 
 describe( 'Count', function() {
-	var React, ReactInjection, TestUtils, Count, renderer;
+	let React, ReactInjection, TestUtils, Count, renderer;
 
 	// really only using Mockery for the clean module cache
 	useMockery();
@@ -30,7 +30,7 @@ describe( 'Count', function() {
 	} );
 
 	it( 'should render the passed count', function() {
-		var result;
+		let result;
 
 		renderer.render( <Count count={ 23 } /> );
 		result = renderer.getRenderOutput();
@@ -40,7 +40,7 @@ describe( 'Count', function() {
 	} );
 
 	it( 'should use the correct class name', function() {
-		var result;
+		let result;
 
 		renderer.render( <Count count={ 23 } /> );
 		result = renderer.getRenderOutput();
@@ -49,7 +49,7 @@ describe( 'Count', function() {
 	} );
 
 	it( 'should internationalize the passed count', function() {
-		var result;
+		let result;
 
 		renderer.render( <Count count={ 2317 } /> );
 		result = renderer.getRenderOutput();
@@ -58,7 +58,7 @@ describe( 'Count', function() {
 	} );
 
 	it( 'should render zero', function() {
-		var result;
+		let result;
 
 		renderer.render( <Count count={ 0 } /> );
 		result = renderer.getRenderOutput();
@@ -67,7 +67,7 @@ describe( 'Count', function() {
 	} );
 
 	it( 'should render negative numbers', function() {
-		var result;
+		let result;
 
 		renderer.render( <Count count={ -1000 } /> );
 		result = renderer.getRenderOutput();
@@ -76,7 +76,7 @@ describe( 'Count', function() {
 	} );
 
 	it( 'should cut off floating point numbers', function() {
-		var result;
+		let result;
 
 		renderer.render( <Count count={ 3.1415926 } /> );
 		result = renderer.getRenderOutput();

@@ -1,8 +1,8 @@
 /**
  * External dependencies
  */
-var PropTypes = require( 'prop-types' );
-var React = require( 'react' ),
+const PropTypes = require( 'prop-types' );
+let React = require( 'react' ),
 	map = require( 'lodash/map' );
 
 module.exports = React.createClass( {

@@ -35,7 +35,7 @@ export const items = ( state = {}, action ) => {
 		case JETPACK_SETTINGS_FETCH_RECEIVE:
 			return assign( {}, action.settings );
 		case JETPACK_SETTING_UPDATE_SUCCESS:
-			let key = Object.keys( action.updatedOption )[0];
+			const key = Object.keys( action.updatedOption )[ 0 ];
 			return assign( {}, state, {
 				[ key ]: action.updatedOption[ key ]
 			} );
@@ -128,7 +128,7 @@ export function getSetting( state, key, moduleName = '' ) {
  * @return {Boolean}       Whether settings are being requested
  */
 export function isFetchingSettingsList( state ) {
-	return !!state.jetpack.settings.requests.fetchingSettingsList;
+	return !! state.jetpack.settings.requests.fetchingSettingsList;
 }
 
 /**

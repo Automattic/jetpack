@@ -73,7 +73,7 @@ export function getJetpackNotices( state ) {
  * @return {number}  An error code.
  */
 export function getJetpackStateNoticesErrorCode( state ) {
-	return get( state.jetpack.initialState, ['jetpackStateNotices', 'errorCode' ] );
+	return get( state.jetpack.initialState, [ 'jetpackStateNotices', 'errorCode' ] );
 }
 
 /**
@@ -83,7 +83,7 @@ export function getJetpackStateNoticesErrorCode( state ) {
  * @return {number}  A message code.
  */
 export function getJetpackStateNoticesMessageCode( state ) {
-	return get( state.jetpack.initialState, ['jetpackStateNotices', 'messageCode' ] );
+	return get( state.jetpack.initialState, [ 'jetpackStateNotices', 'messageCode' ] );
 }
 
 /**
@@ -93,7 +93,7 @@ export function getJetpackStateNoticesMessageCode( state ) {
  * @return {string}  An error description.
  */
 export function getJetpackStateNoticesErrorDescription( state ) {
-	return get( state.jetpack.initialState, ['jetpackStateNotices', 'errorDescription' ] );
+	return get( state.jetpack.initialState, [ 'jetpackStateNotices', 'errorDescription' ] );
 }
 
 /**

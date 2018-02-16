@@ -43,7 +43,7 @@ class PlanHeader extends React.Component {
 								<p className="jp-landing-plans__header-text">
 									{ __( 'For less than the price of a coffee a month you can rest easy knowing your hard work (or livelihood) is backed up.' ) }
 									<br /><br />
-									{ __( "Upgrade to a weekly coffee and fully protect your site from malware, infiltrations, and security loopholes with automated malware scanning." ) }
+									{ __( 'Upgrade to a weekly coffee and fully protect your site from malware, infiltrations, and security loopholes with automated malware scanning.' ) }
 								</p>
 								<p className="jp-landing-plans__header-btn-container">
 									<Button href={ 'https://jetpack.com/redirect/?source=plans-main-top&site=' + this.props.siteRawUrl } className="is-primary">

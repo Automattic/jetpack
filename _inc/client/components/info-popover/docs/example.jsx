@@ -2,15 +2,15 @@
 /**
 * External dependencies
 */
-var React = require( 'react' ),
+let React = require( 'react' ),
 	PureRenderMixin = require( 'react-pure-render/mixin' );
 
 /**
 * Internal dependencies
 */
-var InfoPopover = require( 'components/info-popover' );
+const InfoPopover = require( 'components/info-popover' );
 
-var InfoPopoverExample = React.createClass( {
+const InfoPopoverExample = React.createClass( {
 	displayName: 'InfoPopover',
 
 	mixins: [ PureRenderMixin ],
