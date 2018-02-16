@@ -2,7 +2,7 @@
 /**
  * Beaverbuilder Compatibility.
  */
-class BeaverBuilderPluginCompat {
+class Jetpack_BeaverBuilderCompat {
 
 	function __construct() {
 		add_action( 'init', array( $this, 'beaverbuilder_refresh' ) );
@@ -17,4 +17,4 @@ class BeaverBuilderPluginCompat {
 		}
 	}
 }
-new BeaverBuilderPluginCompat();
+new Jetpack_BeaverBuilderCompat();
