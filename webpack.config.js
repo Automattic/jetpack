@@ -110,6 +110,7 @@ const webpackConfig = {
 };
 
 if ( NODE_ENV === 'production' ) {
+	// Create global process.env.NODE_ENV constant available at the browser window
 	// eslint-disable-next-line no-new
 	new webpack.DefinePlugin( {
 		// This has effect on the react lib size
