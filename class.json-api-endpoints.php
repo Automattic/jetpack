@@ -686,7 +686,8 @@ abstract class WPCOM_JSON_API_Endpoint {
 				'introduced'  => '(string)   The Jetpack version when the module was introduced.',
 				'changed'     => '(string)   The Jetpack version when the module was changed.',
 				'free'        => '(boolean)  The module\'s Free or Paid status.',
-				'module_tags' => '(array)    The module\'s tags.'
+				'module_tags' => '(array)    The module\'s tags.',
+				'override'    => '(string)   The module\'s override. Empty if no override, otherwise \'active\' or \'inactive\'',
 			);
 			$return[$key] = (object) $this->cast_and_filter(
 				$value,
