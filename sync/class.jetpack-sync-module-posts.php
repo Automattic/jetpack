@@ -48,7 +48,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		add_filter( 'jetpack_sync_before_enqueue_jetpack_post_published', array( $this, 'filter_blacklisted_post_types' ) );
 
 		// listen for meta changes
-		$this->init_listeners_for_meta_type( 'post', $callable );
+		$this->init_listeners_for_meta_type( 'post', $callable, $this );
 		$this->init_meta_whitelist_handler( 'post', array( $this, 'filter_meta' ) );
 
 		add_action( 'export_wp', $callable );
