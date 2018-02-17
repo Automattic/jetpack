@@ -180,7 +180,7 @@ class WP_Test_Jetpack_Sync_Listener extends WP_Test_Jetpack_Sync_Base {
 
 		$this->sender->do_sync();
 
-		$this->assertObjectHasAttribute( 'silent', $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' ) );
-		$this->assertTrue( $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' )->silent );
+		$this->assertObjectHasAttribute( 'silent', $this->server_event_storage->get_most_recent_event( 'jetpack_post_published' ) );
+		$this->assertTrue( $this->server_event_storage->get_most_recent_event( 'jetpack_post_published' )->silent );
 	}
 }
