@@ -14,7 +14,7 @@ class WP_Test_Jetpack_Sync_Integration extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 		$event = $this->server_event_storage->get_most_recent_event();
 		$this->assertEquals( 'jetpack_post_published', $event->action );
-		$this->assertEquals( $post_id, $event->args[0] );
+		$this->assertEquals( $post_id, $event->args[0]['object']->ID );
 	}
 
 	function test_upgrading_sends_options_constants_and_callables() {
