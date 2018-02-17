@@ -52,6 +52,10 @@ class Media extends React.Component {
 		);
 	};
 
+	handleCarouselDisplayExifChange = () => {
+		this.updateOptions( 'carousel_display_exif' );
+	};
+
 	render() {
 		const foundCarousel = this.props.isModuleFound( 'carousel' ),
 			foundVideoPress = this.props.isModuleFound( 'videopress' );
@@ -83,7 +87,7 @@ class Media extends React.Component {
 					<CompactFormToggle
 						checked={ this.state.carousel_display_exif }
 						disabled={ ! isCarouselActive || this.props.isSavingAnyOption( [ 'carousel', 'carousel_display_exif' ] ) }
-						onChange={ () => this.updateOptions( 'carousel_display_exif' ) }>
+						onChange={ this.handleCarouselDisplayExifChange }>
 						<span className="jp-form-toggle-explanation">
 							{
 								__( 'Show photo metadata (Exif) in carousel, when available' )
@@ -107,22 +111,22 @@ class Media extends React.Component {
 
 		const videoPressSettings = includes( [ 'is-premium-plan', 'is-business-plan' ], planClass ) && (
 			<SettingsGroup
-				hasChild
-				disableInDevMode
-				module={ videoPress }>
-				<ModuleToggle
-					slug="videopress"
-					disabled={ this.props.isUnavailableInDevMode( 'videopress' ) }
-					activated={ this.props.getOptionValue( 'videopress' ) }
-					toggling={ this.props.isSavingAnyOption( 'videopress' ) }
-					toggleModule={ this.props.toggleModuleNow }
-					>
-					<span className="jp-form-toggle-explanation">
-						{
-							videoPress.description
-						}
-					</span>
-				</ModuleToggle>
+					hasChild
+					disableInDevMode
+					module={ videoPress }>
+					<ModuleToggle
+						slug="videopress"
+						disabled={ this.props.isUnavailableInDevMode( 'videopress' ) }
+						activated={ this.props.getOptionValue( 'videopress' ) }
+						toggling={ this.props.isSavingAnyOption( 'videopress' ) }
+						toggleModule={ this.props.toggleModuleNow }
+						>
+						<span className="jp-form-toggle-explanation">
+							{
+								videoPress.description
+							}
+						</span>
+					</ModuleToggle>
 			</SettingsGroup>
 		);
 
