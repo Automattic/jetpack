@@ -23,6 +23,10 @@ import { isDevMode, isUnavailableInDevMode } from 'state/connection';
 
 export const SearchableModules = moduleSettingsForm(
 	class extends Component {
+		handleBannerClick = module => {
+			return () => this.props.updateOptions( { [ module ]: true } );
+		}
+
 		render() {
 			// Only admins plz
 			if ( ! this.props.canManageModules ) {
@@ -73,7 +77,7 @@ export const SearchableModules = moduleSettingsForm(
 								description={ moduleData.description }
 								href="javascript:void( 0 )"
 								icon="cog"
-								onClick={ this.props.updateOptions.bind( null, { [ moduleData.module ]: true } ) }
+								onClick={ this.handleBannerClick( moduleData.module ) }
 								title={ moduleData.name }
 							/>
 						);
