@@ -58,6 +58,10 @@ class ProStatus extends React.Component {
 		} );
 	};
 
+	handleClickForTracking = ( type, feature ) => {
+		return () => this.trackProStatusClick( type, feature );
+	};
+
 	getProActions = ( type, feature ) => {
 		let status = '',
 			message = false,
@@ -112,7 +116,7 @@ class ProStatus extends React.Component {
 					message
 				}
 				{
-					action && <NoticeAction onClick={ () => this.trackProStatusClick( type, feature ) } href={ actionUrl }>{ action }</NoticeAction>
+					action && <NoticeAction onClick={ this.handleClickForTracking( type, feature ) } href={ actionUrl }>{ action }</NoticeAction>
 				}
 			</SimpleNotice>
 		);
@@ -128,7 +132,7 @@ class ProStatus extends React.Component {
 	getSetUpButton = feature => {
 		return (
 			<Button
-				onClick={ () => this.trackProStatusClick( 'set_up', feature ) }
+				onClick={ this.handleClickForTracking( 'set_up', feature ) }
 				compact={ true }
 				primary={ true }
 				href={ `https://wordpress.com/plugins/setup/${ this.props.siteRawUrl }?only=${ feature }` }
