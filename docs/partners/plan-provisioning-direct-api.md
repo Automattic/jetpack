@@ -1,6 +1,6 @@
 # Provisioning and Cancelling Jetpack Plans – Querying the API Directly
 
-In [another document](../plan-provisioning.md), we discussed how to provision and cancel plans by using the shell script that ships with Jetpack. But, for partners where running shell commands won't work, it is possible to communicate directly to the API on WordPress.com.
+In [another document](plan-provisioning.md), we discussed how to provision and cancel plans by using the shell script that ships with Jetpack. But, for partners where running shell commands won't work, it is possible to communicate directly to the API on WordPress.com.
 
 ### Provisioning a plan
 
