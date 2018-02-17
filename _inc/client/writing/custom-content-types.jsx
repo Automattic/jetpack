@@ -40,6 +40,14 @@ export class CustomContentTypes extends React.Component {
 			: <span />;
 	};
 
+	handleTestimonialToggleChange = () => {
+		this.updateCPTs( 'testimonial' );
+	}
+
+	handlePortfolioToggleChange = () => {
+		this.updateCPTs( 'portfolio' );
+	}
+
 	render() {
 		if ( ! this.props.isModuleFound( 'custom-content-types' ) ) {
 			return null;
@@ -55,7 +63,7 @@ export class CustomContentTypes extends React.Component {
 					<CompactFormToggle
 								checked={ this.state.testimonial }
 								disabled={ this.props.isSavingAnyOption( 'jetpack_testimonial' ) }
-								onChange={ () => this.updateCPTs( 'testimonial' ) }>
+								onChange={ this.handleTestimonialToggleChange }>
 						<span className="jp-form-toggle-explanation">
 							{
 								__( 'Testimonials' )
@@ -78,7 +86,7 @@ export class CustomContentTypes extends React.Component {
 					<CompactFormToggle
 								checked={ this.state.portfolio }
 								disabled={ this.props.isSavingAnyOption( 'jetpack_portfolio' ) }
-								onChange={ () => this.updateCPTs( 'portfolio' ) }>
+								onChange={ this.handlePortfolioToggleChange }>
 						<span className="jp-form-toggle-explanation">
 							{
 								__( 'Portfolios' )
