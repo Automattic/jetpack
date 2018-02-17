@@ -74,6 +74,10 @@ export class Composing extends React.Component {
 		);
 	};
 
+	handleToggleChange = setting => {
+		return () => this.updateOptions( setting );
+	};
+
 	/**
 	 * Render a toggle for a single option.
 	 *
@@ -86,7 +90,7 @@ export class Composing extends React.Component {
 			<CompactFormToggle
 				checked={ this.state[ setting ] }
 				disabled={ ! this.props.getOptionValue( 'after-the-deadline' ) || this.props.isUnavailableInDevMode( 'after-the-deadline' ) || this.props.isSavingAnyOption( [ 'after-the-deadline', setting ] ) }
-				onChange={ () => this.updateOptions( setting ) }>
+				onChange={ this.handleToggleChange( setting ) }>
 				<span className="jp-form-toggle-explanation">
 					{ label }
 				</span>
