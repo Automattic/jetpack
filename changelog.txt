@@ -1,5 +1,6 @@
 Rogue change
 Another rogue change
+Third rogue change.
 == Changelog ==
 
 = 5.7.1 =
