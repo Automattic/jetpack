@@ -2,6 +2,85 @@
 
 In [another document](plan-provisioning.md), we discussed how to provision and cancel plans by using the shell script that ships with Jetpack. But, for partners where running shell commands won't work, it is possible to communicate directly to the API on WordPress.com.
 
+### Getting a Jetpack Partner access token
+
+When you become a Jetpack partner, we will provide you with your partner ID and a secret key. Typically you just pass these values directly in to the `bin/partner-provision.sh` and `bin/partner_cancel.sh` scripts. But, when calling the WordPress.com API directly, you'll first need to get an access token with for your partner ID with a scope of `jetpack-partner`.
+
+
+To do that, you'll make a `POST` request to the `https://public-api.wordpress.com/oauth2/token` endpoint passing with the request parameters mentioned below.
+
+- `grant_type`:    Value should be `client_credentials`
+- `scope`:         Value should be `jetpack-partner`
+- `client_id`:     The partner ID that we provide you
+- `client_secret`: The partner secret that we provide you
+
+#### Endpoint Information
+
+__Method__: POST
+
+__URL__:    https://public-api.wordpress.com/oauth2/token
+
+#### Request Parameters
+
+- __grant_type__:    Value should be `client_credentials`
+- __scope__:         Value should be `jetpack-partner`
+- __client_id__:     The partner ID that we provide you
+- __client_secret__: The partner secret that we provide you
+
+#### Response Parameters
+
+__access_token__: (string) This is the access token we'll need for the API calls below.
+__token_type__:   (string) This should be `bearer`.
+__blog_id__:      (int) This should be `0`.
+__blog_url__:     (int) This should be `0`.
+__scope__:        (string) This should be `jetpack-partner`.
+
+Note: You only need to create the `access_token` once.
+
+#### Examples
+
+Here is an example using cURL in shell.
+
+```shell
+curl --request POST \
+    --url https://public-api.wordpress.com/oauth2/token \
+    --header 'cache-control: no-cache' \
+    --header 'content-type: multipart/form-data;' \
+    --form client_id={PARTNER_ID} \
+    --form client_secret={PARTNER_SECRET} \
+    --form grant_type=client_credentials \
+    --form scope=jetpack-partner
+```
+
+Here's an example using the request module in Node JS.
+
+```javascript
+var request = require("request");
+
+var options = { method: 'POST',
+    url: 'https://public-api.wordpress.com/oauth2/token',
+    headers: {
+        'cache-control': 'no-cache',
+        'content-type': 'multipart/form-data;'
+    },
+    formData: {
+        client_id: {PARTNER_ID},
+        client_secret: {PARTNER_SECRET},
+        grant_type: 'client_credentials',
+         scope: 'jetpack-partner'
+    }
+};
+
+request( options, function ( error, response, body ) {
+    if ( error ) {
+        throw new Error(error);
+    }
+
+    console.log( body );
+} );
+
+```
+
 ### Provisioning a plan
 
 TBD.
