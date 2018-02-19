@@ -92,7 +92,7 @@ Cancelling a Jetpack for a given Jetpack site, as long as the partner making the
 
 | Site URL            | $site Identifier    |
 | ------------------- | ------------------- |
-| `example.com1`      | `example.com`       |
+| `example.com`       | `example.com`       |
 | `example.com/test1` | `example.com::test` |
 
 #### Query Parameters
