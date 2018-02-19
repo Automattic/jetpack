@@ -12,7 +12,7 @@ Cancelling a Jetpack for a given Jetpack site, as long as the partner making the
 
 #### Endpoint Information
 
-__Method__: Get
+__Method__: POST
 
 __URL__:    https://public-api.wordpress.com/rest/v1.3/jpphp/{$site}/partner-cancel
 
