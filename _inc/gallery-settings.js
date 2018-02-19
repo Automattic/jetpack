@@ -5,11 +5,16 @@
 	var media = wp.media;
 
 	// Wrap the render() function to append controls.
+	// If there's some other code extending the Gallery render, let's use that...
+	// Otherwise, just extend the basic Settings render
+	var oldRender = media.view.Settings.Gallery.prototype.render ?
+		media.view.Settings.Gallery.prototype.render :
+		media.view.Settings.prototype.render;
 	media.view.Settings.Gallery = media.view.Settings.Gallery.extend({
 		render: function() {
 			var $el = this.$el;
 
-			media.view.Settings.prototype.render.apply( this, arguments );
+			oldRender.apply( this, arguments );
 
 			// Append the type template and update the settings.
 			$el.append( media.template( 'jetpack-gallery-settings' ) );
