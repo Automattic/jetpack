@@ -123,3 +123,37 @@ __error_message__: (string) Error message, if any'.
 | 403       | invalid_scope         | This token is not authorized to provision partner sites                   |
 | 403       | invalid_blog          | The blog ID %s is invalid                                                 |
 | 403       | incorrect_partner_key | Subscriptions can only be cancelled by the oAuth client that created them |
+
+### Examples
+
+Here's an example using cURL in shell.
+
+```shell
+curl --request POST \
+    --url https://public-api.wordpress.com/rest/v1.3/jpphp/{SITE_DOMAIN}/partner-cancel \
+    --header 'authorization: Bearer {ACCESS_TOKEN}' \
+    --header 'cache-control: no-cache' \
+```
+
+Here's an example using the request module in Node JS.
+
+```javascript
+var request = require( 'request ');
+
+var options = {
+    method: 'POST',
+    url: 'https://public-api.wordpress.com/rest/v1.3/jpphp/{SITE_DOMAIN}/partner-cancel',
+    headers: {
+        'cache-control': 'no-cache',
+        authorization: 'Bearer {ACCESS_TOKEN}'
+    }
+};
+
+request( options, function ( error, response, body ) {
+    if ( error ) {
+        throw new Error( error );
+    }
+
+    console.log( body );
+} );
+```
