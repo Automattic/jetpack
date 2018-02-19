@@ -10,9 +10,8 @@ To do that, you'll make a `POST` request to the `https://public-api.wordpress.co
 
 #### Endpoint Information
 
-__Method__: POST
-
-__URL__:    https://public-api.wordpress.com/oauth2/token
+- __Method__: POST
+- __URL__:    https://public-api.wordpress.com/oauth2/token
 
 #### Request Parameters
 
@@ -23,11 +22,11 @@ __URL__:    https://public-api.wordpress.com/oauth2/token
 
 #### Response Parameters
 
-__access_token__: (string) This is the access token we'll need for the API calls below.
-__token_type__:   (string) This should be `bearer`.
-__blog_id__:      (int) This should be `0`.
-__blog_url__:     (int) This should be `0`.
-__scope__:        (string) This should be `jetpack-partner`.
+- __access_token__: (string) This is the access token we'll need for the API calls below.
+- __token_type__:   (string) This should be `bearer`.
+- __blog_id__:      (int) This should be `0`.
+- __blog_url__:     (int) This should be `0`.
+- __scope__:        (string) This should be `jetpack-partner`.
 
 Note: You only need to create the `access_token` once.
 
@@ -86,9 +85,8 @@ Cancelling a Jetpack for a given Jetpack site, as long as the partner making the
 
 #### Endpoint Information
 
-__Method__: POST
-
-__URL__:    https://public-api.wordpress.com/rest/v1.3/jpphp/{$site}/partner-cancel
+- __Method__: POST
+- __URL__:    https://public-api.wordpress.com/rest/v1.3/jpphp/{$site}/partner-cancel
 
 `$site` is the site's domain and path where `/` in the path is replaced with `::`. For example:
 
@@ -99,15 +97,14 @@ __URL__:    https://public-api.wordpress.com/rest/v1.3/jpphp/{$site}/partner-can
 
 #### Query Parameters
 
-__http_envelope__: Default to `false`. Sending `true` will force the HTTP status code to always be `200`. The JSON response is wrapped in an envelope containing the "real" HTTP status code and headers.
-
-__pretty__:        Defaults to `false`. Setting to `true` will output pretty JSON.
+- __http_envelope__: Default to `false`. Sending `true` will force the HTTP status code to always be `200`. The JSON response is wrapped in an envelope containing the "real" HTTP status code and headers.
+- __pretty__:        Defaults to `false`. Setting to `true` will output pretty JSON.
 
 #### Response Parameters
 
-__success__:       (bool) Was the operation successful?.
-__error_code__:    (string) Error code, if any'.
-__error_message__: (string) Error message, if any'.
+- __success__:       (bool) Was the operation successful?.
+- __error_code__:    (string) Error code, if any'.
+- __error_message__: (string) Error message, if any'.
 
 #### Endpoint errors
 
