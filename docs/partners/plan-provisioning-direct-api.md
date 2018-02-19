@@ -6,13 +6,7 @@ In [another document](plan-provisioning.md), we discussed how to provision and c
 
 When you become a Jetpack partner, we will provide you with your partner ID and a secret key. Typically you just pass these values directly in to the `bin/partner-provision.sh` and `bin/partner_cancel.sh` scripts. But, when calling the WordPress.com API directly, you'll first need to get an access token with for your partner ID with a scope of `jetpack-partner`.
 
-
 To do that, you'll make a `POST` request to the `https://public-api.wordpress.com/oauth2/token` endpoint passing with the request parameters mentioned below.
-
-- `grant_type`:    Value should be `client_credentials`
-- `scope`:         Value should be `jetpack-partner`
-- `client_id`:     The partner ID that we provide you
-- `client_secret`: The partner secret that we provide you
 
 #### Endpoint Information
 
