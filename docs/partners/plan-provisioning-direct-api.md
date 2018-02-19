@@ -55,9 +55,10 @@ curl --request POST \
 Here's an example using the request module in Node JS.
 
 ```javascript
-var request = require("request");
+var request = require( 'request' );
 
-var options = { method: 'POST',
+var options = {
+    method: 'POST',
     url: 'https://public-api.wordpress.com/oauth2/token',
     headers: {
         'cache-control': 'no-cache',
@@ -73,7 +74,7 @@ var options = { method: 'POST',
 
 request( options, function ( error, response, body ) {
     if ( error ) {
-        throw new Error(error);
+        throw new Error( error );
     }
 
     console.log( body );
