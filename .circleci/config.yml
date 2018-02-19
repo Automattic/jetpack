@@ -17,7 +17,7 @@ jobs:
                   cd /
                   git clone https://github.com/Automattic/wp-e2e-tests.git
                   cd /wp-e2e-tests
-                  git checkout origin/${E2E_BRANCH-master}
+                  git checkout add/jn-to-https-hosts
       - restore_cache:
           key: << checksum "package.json" >>
       - run: source $HOME/.nvm/nvm.sh && npm install
