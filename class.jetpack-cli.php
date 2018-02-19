@@ -960,8 +960,8 @@ class Jetpack_CLI extends WP_CLI_Command {
 		// functions/callables so that we can test if this site is in IDC.
 		if ( Jetpack::is_active() && ! Jetpack::validate_sync_error_idc_option() ) {
 			WP_CLI::runcommand( 'jetpack sync start --modules=functions --sync_wait_time=0', array(
-				'return'     => false,
-				'exit_error' => true,
+				'return'     => true, // Capture output so that we don't output errors or successes.
+				'exit_error' => false,
 			) );
 		}
 
