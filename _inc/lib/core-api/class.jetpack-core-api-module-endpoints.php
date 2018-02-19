@@ -1187,8 +1187,9 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			$city = isset( $address['city'] ) ? sanitize_text_field( $address['city'] ) : '';
 			$state = isset( $address['state'] ) ? sanitize_text_field( $address['state'] ) : '';
 			$zip = isset( $address['zip'] ) ? sanitize_text_field( $address['zip'] ) : '';
+			$country = isset( $address['country'] ) ? sanitize_text_field( $address['country'] ) : '';
 
-			$full_address = implode( ' ', array_filter( array( $street, $city, $state, $zip ) ) );
+			$full_address = implode( ' ', array_filter( array( $street, $city, $state, $zip, $country ) ) );
 
 			$widget_options = array(
 				'title'   => $title,
@@ -1214,7 +1215,8 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 				'street' => $street,
 				'city' => $city,
 				'state' => $state,
-				'zip' => $zip
+				'zip' => $zip,
+				'country' => $country
 			);
 			update_option( 'jpo_business_address', $address_save );
 			return true;
