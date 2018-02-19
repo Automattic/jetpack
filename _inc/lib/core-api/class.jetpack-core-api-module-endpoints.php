@@ -1158,6 +1158,21 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			}
 		}
 
+		if ( ! empty( $data['stats'] ) ) {
+			if ( Jetpack::is_active() ) {
+				$stats_module_active = Jetpack::is_module_active( 'stats' );
+				if ( ! $stats_module_active ) {
+					$stats_module_active = Jetpack::activate_module( 'stats', false, false );
+				}
+
+				if ( ! $stats_module_active ) {
+					$error[] = 'stats activate';
+				}
+			} else {
+				$error[] = 'stats not connected';
+			}
+		}
+
 		return empty( $error )
 			? ''
 			: join( ', ', $error );
