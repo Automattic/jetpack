@@ -4009,6 +4009,10 @@ p {
 					$url = add_query_arg( 'onboarding', $_GET['onboarding'], $url );
 				}
 
+				if ( ! empty( $_GET['auth_approved'] ) && 'true' === $_GET['auth_approved'] ) {
+					$url = add_query_arg( 'auth_approved', 'true', $url );
+				}
+
 				wp_redirect( $url );
 				exit;
 			case 'activate' :
