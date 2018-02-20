@@ -186,6 +186,9 @@ export class Composing extends React.Component {
 			return null;
 		}
 
+		const atdOverride = this.props.getModuleOverride( 'after-the-deadline' ),
+			markdownOverride = this.props.getModuleOverride( 'markdown' );
+
 		const markdown = this.props.module( 'markdown' ),
 			atd = this.props.module( 'after-the-deadline' ),
 			unavailableInDevMode = this.props.isUnavailableInDevMode( 'after-the-deadline' ),
@@ -196,7 +199,7 @@ export class Composing extends React.Component {
 							slug="markdown"
 							activated={ !! this.props.getOptionValue( 'wpcom_publish_posts_with_markdown', 'markdown' ) }
 							toggling={ this.props.isSavingAnyOption( [ 'markdown', 'wpcom_publish_posts_with_markdown' ] ) }
-							disabled={ this.props.isSavingAnyOption( [ 'markdown', 'wpcom_publish_posts_with_markdown' ] ) }
+							disabled={ this.props.isSavingAnyOption( [ 'markdown', 'wpcom_publish_posts_with_markdown' ] ) || markdownOverride }
 							toggleModule={ this.updateFormStateByMarkdown }>
 							<span className="jp-form-toggle-explanation">
 								{ markdown.description }
@@ -215,7 +218,7 @@ export class Composing extends React.Component {
 						<ModuleToggle
 							slug="after-the-deadline"
 							compact
-							disabled={ unavailableInDevMode }
+							disabled={ unavailableInDevMode || atdOverride }
 							activated={ this.props.getOptionValue( 'after-the-deadline' ) }
 							toggling={ this.props.isSavingAnyOption( 'after-the-deadline' ) }
 							toggleModule={ this.props.toggleModuleNow }>

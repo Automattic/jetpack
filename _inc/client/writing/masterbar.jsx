@@ -18,7 +18,8 @@ export const Masterbar = moduleSettingsForm(
 		render() {
 			const isActive = this.props.getOptionValue( 'masterbar' ),
 				unavailableInDevMode = this.props.isUnavailableInDevMode( 'masterbar' ),
-				isLinked = this.props.isLinked;
+				isLinked = this.props.isLinked,
+				override = this.props.getModuleOverride( 'masterbar' );
 
 			return (
 				<SettingsCard
@@ -29,7 +30,7 @@ export const Masterbar = moduleSettingsForm(
 					<SettingsGroup disableInDevMode module={ { module: 'masterbar' } } support="https://jetpack.com/support/masterbar/">
 						<ModuleToggle
 							slug="masterbar"
-							disabled={ unavailableInDevMode || ! isLinked }
+							disabled={ unavailableInDevMode || ! isLinked || override }
 							activated={ isActive }
 							toggling={ this.props.isSavingAnyOption( 'masterbar' ) }
 							toggleModule={ this.props.toggleModuleNow }>

@@ -43,6 +43,9 @@ const SpeedUpSite = moduleSettingsForm(
 			const photon = this.props.module( 'photon' );
 			const lazyImages = this.props.module( 'lazy-images' );
 
+			const photonOverride = this.props.getModuleOverride( 'photon' );
+			const lazyImagesOverride = this.props.getModuleOverride( 'lazy-images' );
+
 			return (
 				<SettingsCard
 					{ ...this.props }
@@ -56,7 +59,7 @@ const SpeedUpSite = moduleSettingsForm(
 							module={ photon }>
 							<ModuleToggle
 								slug="photon"
-								disabled={ this.props.isUnavailableInDevMode( 'photon' ) }
+								disabled={ this.props.isUnavailableInDevMode( 'photon' ) || photonOverride }
 								activated={ this.props.getOptionValue( 'photon' ) }
 								toggling={ this.props.isSavingAnyOption( 'photon' ) }
 								toggleModule={ this.toggleModule }
@@ -79,7 +82,7 @@ const SpeedUpSite = moduleSettingsForm(
 							module={ lazyImages }>
 							<ModuleToggle
 								slug="lazy-images"
-								disabled={ this.props.isUnavailableInDevMode( 'lazy-images' ) }
+								disabled={ this.props.isUnavailableInDevMode( 'lazy-images' ) || lazyImagesOverride }
 								activated={ this.props.getOptionValue( 'lazy-images' ) }
 								toggling={ this.props.isSavingAnyOption( 'lazy-images' ) }
 								toggleModule={ this.toggleModule }

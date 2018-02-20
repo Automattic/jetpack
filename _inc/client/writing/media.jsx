@@ -65,14 +65,17 @@ class Media extends React.Component {
 			videoPress = this.props.module( 'videopress' ),
 			planClass = getPlanClass( this.props.sitePlan.product_slug );
 
+		const carouselOverride = this.props.getModuleOverride( 'carousel' ),
+			videoPressOverride = this.props.getModuleOverride( 'videopress' );
+
 		const carouselSettings = (
 			<SettingsGroup module={ { module: 'carousel' } } hasChild support={ carousel.learn_more_button }>
 				<ModuleToggle
-					slug="carousel"
-					activated={ isCarouselActive }
-					toggling={ this.props.isSavingAnyOption( 'carousel' ) }
-					toggleModule={ this.props.toggleModuleNow }
-					>
+						slug="carousel"
+						activated={ isCarouselActive }
+						toggling={ this.props.isSavingAnyOption( 'carousel' ) }
+						toggleModule={ this.props.toggleModuleNow }
+						disabled={ carouselOverride } >
 					<span className="jp-form-toggle-explanation">
 						{
 							carousel.description
@@ -112,11 +115,10 @@ class Media extends React.Component {
 				module={ videoPress }>
 				<ModuleToggle
 					slug="videopress"
-					disabled={ this.props.isUnavailableInDevMode( 'videopress' ) }
+					disabled={ this.props.isUnavailableInDevMode( 'videopress' ) || videoPressOverride }
 					activated={ this.props.getOptionValue( 'videopress' ) }
 					toggling={ this.props.isSavingAnyOption( 'videopress' ) }
-					toggleModule={ this.props.toggleModuleNow }
-					>
+					toggleModule={ this.props.toggleModuleNow }>
 					<span className="jp-form-toggle-explanation">
 						{
 							videoPress.description

@@ -219,6 +219,7 @@ class ThemeEnhancements extends React.Component {
 											activated={ isItemActive }
 											toggling={ this.props.isSavingAnyOption( item.module ) }
 											toggleModule={ this.props.toggleModuleNow }
+											disabled={ this.props.getModuleOverride( item.module ) }
 										>
 										<span className="jp-form-toggle-explanation">
 											{
