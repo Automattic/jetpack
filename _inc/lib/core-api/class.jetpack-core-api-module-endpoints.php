@@ -459,6 +459,7 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 						'addContactForm' => intval( get_option( 'jpo_contact_page' ) ),
 						'businessAddress' => $business_address,
 						'installWooCommerce' => is_plugin_active( 'woocommerce/woocommerce.php' ),
+						'stats' => Jetpack::is_active() && Jetpack::is_module_active( 'stats' ),
 					);
 					break;
 
@@ -1155,6 +1156,21 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 			delete_transient( '_wc_activation_redirect' ); // Redirecting to WC setup would kill our users' flow
 			if ( is_wp_error( $wc_install_result ) ) {
 				$error[] = 'woocommerce installation';
+			}
+		}
+
+		if ( ! empty( $data['stats'] ) ) {
+			if ( Jetpack::is_active() ) {
+				$stats_module_active = Jetpack::is_module_active( 'stats' );
+				if ( ! $stats_module_active ) {
+					$stats_module_active = Jetpack::activate_module( 'stats', false, false );
+				}
+
+				if ( ! $stats_module_active ) {
+					$error[] = 'stats activate';
+				}
+			} else {
+				$error[] = 'stats not connected';
 			}
 		}
 
