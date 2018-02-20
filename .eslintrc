@@ -1,16 +1,12 @@
 {
 	"parser": "babel-eslint",
-	"extends": "wpcalypso/react-a11y",
+	"extends": "wpcalypso/react",
 	"env": {
 		"browser": true,
 		"es6": true,
 		"mocha": true,
 		"node": true,
 		"jquery": true
-	},
-	"ecmaFeatures": {
-		"jsx": true,
-		"modules": true
 	},
 	"plugins": [
 		"eslint-plugin-react",
