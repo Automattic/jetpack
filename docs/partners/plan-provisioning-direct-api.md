@@ -8,6 +8,8 @@ When you become a Jetpack partner, we will provide you with your partner ID and 
 
 To do that, you'll make a `POST` request to the `https://public-api.wordpress.com/oauth2/token` endpoint passing with the request parameters mentioned below.
 
+For more detailed information about oAuth on WordPress.com, visit the [documentation on oAuth2 authentication](https://developer.wordpress.com/docs/oauth2/).
+
 #### Endpoint Information
 
 - __Method__: POST
