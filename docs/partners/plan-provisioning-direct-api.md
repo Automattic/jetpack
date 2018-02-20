@@ -103,8 +103,8 @@ Cancelling a Jetpack for a given Jetpack site, as long as the partner making the
 #### Response Parameters
 
 - __success__:       (bool) Was the operation successful?.
-- __error_code__:    (string) Error code, if any'.
-- __error_message__: (string) Error message, if any'.
+- __error_code__:    (string) Error code, if any.
+- __error_message__: (string) Error message, if any.
 
 #### Endpoint errors
 
