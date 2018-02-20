@@ -67,7 +67,7 @@ var options = {
         client_id: clientId,
         client_secret: clientSecret,
         grant_type: 'client_credentials',
-         scope: 'jetpack-partner'
+        scope: 'jetpack-partner'
     }
 };
 
@@ -87,7 +87,7 @@ TBD.
 
 ### Cancelling a plan
 
-Cancelling a Jetpack for a given Jetpack site, as long as the partner making the cancellation request is also the partner that provisioned that plan, is fairly straightforward. To move forward, you'll need your partner secret as well as the URL of the site that you'd like to cancel the plan for.
+Plans can be cancelled by making a request using your partner token from the step above and the URL of the site being cancelled.
 
 #### Endpoint Information
 
@@ -96,10 +96,11 @@ Cancelling a Jetpack for a given Jetpack site, as long as the partner making the
 
 `$site` is the site's domain and path where `/` in the path is replaced with `::`. For example:
 
-| Site URL            | $site Identifier    |
-| ------------------- | ------------------- |
-| `example.com`       | `example.com`       |
-| `example.com/test1` | `example.com::test` |
+| Site URL              | $site Identifier        |
+| --------------------- | -------------------     |
+| `example.com`         | `example.com`           |
+| `example.com/demo`    | `example.com::demo`     |
+| `example.com/demo/wp` | `example.com::demo::wp` |
 
 #### Query Parameters
 
