@@ -3,7 +3,6 @@
  */
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import classNames from 'classnames';
 import noop from 'lodash/noop';
 import size from 'lodash/size';
@@ -165,8 +164,5 @@ class Banner extends Component {
 
 }
 
-const mapStateToProps = () => ( {} );
+export default Banner;
 
-export default connect(
-	mapStateToProps
-)( Banner );
