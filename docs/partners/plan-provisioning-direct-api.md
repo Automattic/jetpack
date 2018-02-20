@@ -37,12 +37,14 @@ Note: You only need to create the `access_token` once.
 Here is an example using cURL in shell.
 
 ```shell
+PARTNER_ID="your_partner_id_here"
+PARTNER_SECRET="your_partner_secret_here"
 curl --request POST \
     --url https://public-api.wordpress.com/oauth2/token \
     --header 'cache-control: no-cache' \
     --header 'content-type: multipart/form-data;' \
-    --form client_id={PARTNER_ID} \
-    --form client_secret={PARTNER_SECRET} \
+    --form client_id="$PARTNER_ID" \
+    --form client_secret="$PARTNER_SECRET" \
     --form grant_type=client_credentials \
     --form scope=jetpack-partner
 ```
@@ -51,6 +53,8 @@ Here's an example using the request module in Node JS.
 
 ```javascript
 var request = require( 'request' );
+var clientId = 'your_partner_id_here';
+var clientSecret = 'your_partner_secret_here';
 
 var options = {
     method: 'POST',
@@ -60,8 +64,8 @@ var options = {
         'content-type': 'multipart/form-data;'
     },
     formData: {
-        client_id: {PARTNER_ID},
-        client_secret: {PARTNER_SECRET},
+        client_id: clientId,
+        client_secret: clientSecret,
         grant_type: 'client_credentials',
          scope: 'jetpack-partner'
     }
@@ -123,9 +127,11 @@ Cancelling a Jetpack for a given Jetpack site, as long as the partner making the
 Here's an example using cURL in shell.
 
 ```shell
+ACCESS_TOKEN="access_token_here"
+SITE_DOMAIN="example.com"
 curl --request POST \
-    --url https://public-api.wordpress.com/rest/v1.3/jpphp/{SITE_DOMAIN}/partner-cancel \
-    --header 'authorization: Bearer {ACCESS_TOKEN}' \
+    --url https://public-api.wordpress.com/rest/v1.3/jpphp/"$SITE_DOMAIN"/partner-cancel \
+    --header "authorization: Bearer $ACCESS_TOKEN" \
     --header 'cache-control: no-cache' \
 ```
 
@@ -133,13 +139,15 @@ Here's an example using the request module in Node JS.
 
 ```javascript
 var request = require( 'request ');
+var accessToken = 'access_token_here';
+var siteDomain = 'example.com';
 
 var options = {
     method: 'POST',
-    url: 'https://public-api.wordpress.com/rest/v1.3/jpphp/{SITE_DOMAIN}/partner-cancel',
+    url: 'https://public-api.wordpress.com/rest/v1.3/jpphp/' + siteDomain + '/partner-cancel',
     headers: {
         'cache-control': 'no-cache',
-        authorization: 'Bearer {ACCESS_TOKEN}'
+        authorization: 'Bearer ' + accessToken
     }
 };
 
