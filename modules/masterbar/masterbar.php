@@ -90,7 +90,7 @@ class A8C_WPCOM_Masterbar {
 		 /**
 		  * Whether we should sign out from wpcom too when signing out from the masterbar.
 		  *
-		  * @since 5.6.0
+		  * @since 5.9.0
 		  *
 		  * @param bool $masterbar_should_logout_from_wpcom False by default.
 		  */
