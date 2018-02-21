@@ -293,7 +293,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		$blogid = Jetpack::get_option( 'id' );
 
 		wc_enqueue_js( "
-			jQuery( 'input[name=update_cart]' ).on( 'click', function() {
+			jQuery( 'button[name=update_cart]' ).on( 'click', function() {
 				var cartItems = jQuery( '.cart_item' );
 				cartItems.each( function( item ) {
 					var qty = jQuery( this ).find( 'input.qty' );
