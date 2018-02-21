@@ -44,11 +44,6 @@ matrix:
   - php: "7.1"
   - php: "7.2"
 
-  allow_failures:
-#  - php: "7.0"
-#    env: "SWITCH_TO_PHP=5.2"
-#  - php: "nightly"
-
 # whitelist branches for the "push" build check.
 branches:
   only:
