@@ -123,8 +123,11 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 			$social_icons  = $this->get_supported_icons();
 			$default_icon  = $this->get_svg_icon( array( 'icon' => 'chain' ) );
 
+			// Set target attribute for the link
 			if ( true === $instance['new-tab'] ) {
-				$new_tab = ' target="_blank"';
+				$target = '_blank';
+			} else {
+				$target = '_self';				
 			}
 		?>
 
@@ -134,7 +137,7 @@ class Jetpack_Widget_Social_Icons extends WP_Widget {
 
 					<?php if ( ! empty( $icon['url'] ) ) : ?>
 						<li class="jetpack-social-widget-item">
-							<a href="<?php echo esc_url( $icon['url'], array( 'http', 'https', 'mailto', 'skype' ) ); ?>"<?php echo $new_tab; ?>>
+							<a href="<?php echo esc_url( $icon['url'], array( 'http', 'https', 'mailto', 'skype' ) ); ?>" target="<?php echo $target; ?>">
 								<?php
 									$found_icon = false;
 
