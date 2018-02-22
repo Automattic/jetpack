@@ -23,6 +23,7 @@ import ThemesPromoCard from 'components/themes-promo-card';
 
 import PlanHeader from './plan-header';
 import PlanBody from './plan-body';
+import PlanGrid from './plan-grid';
 
 export class Plans extends React.Component {
 	themesPromo = () => {
@@ -70,6 +71,7 @@ export class Plans extends React.Component {
 
 		return (
 			<div>
+				<PlanGrid />
 				{ themePromo }
 				<div className="jp-landing__plans dops-card">
 					<PlanHeader plan={ sitePlan } siteRawUrl={ this.props.siteRawUrl } />
