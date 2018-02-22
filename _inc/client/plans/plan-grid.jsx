@@ -23,6 +23,9 @@ import plansData from './plans-data';
 
 class PlanGrid extends React.Component {
 
+	/**
+	 * Memoized storage for plans to display according to highlighted features
+	 */
 	featuredPlans = false;
 
 	componentWillUpdate() {
@@ -92,6 +95,11 @@ class PlanGrid extends React.Component {
 		return featuredPlans;
 	}
 
+	/**
+	 * Create a <del> element that takes the monthly price * 12 months
+	 * @param {object} price A price object from the API response
+	 * @return {ReactElement} monthly price
+	 */
 	getYearlyPriceFromMonthly( price ) {
 		const inflatedPrice = price.html.replace( price.amount, price.amount * 12 );
 		const markup = { __html: inflatedPrice };
@@ -103,6 +111,10 @@ class PlanGrid extends React.Component {
 		);
 	}
 
+	/**
+	 * Renders our plan headers
+	 * @return {ReactElement} needed <td> headers
+	 */
 	renderPlanHeaders() {
 		return map( this.getPlans(), ( plan, type ) => {
 			const className = classNames(
@@ -122,6 +134,10 @@ class PlanGrid extends React.Component {
 		} );
 	}
 
+	/**
+	 * Render our plan prices
+	 * @return {ReactElement} needed <td>s for prices
+	 */
 	renderPrices() {
 		return map( this.getPlans(), ( plan, type ) => {
 			const className = classNames(
@@ -140,6 +156,10 @@ class PlanGrid extends React.Component {
 		} );
 	}
 
+	/**
+	 * Renders the buttons we need to buy stuff
+	 * @return {ReactElement} <td>s with buttons
+	 */
 	renderTopButtons() {
 		return map( this.getPlans(), ( properties, planType ) => {
 			const url = `https://wordpress.com/checkout/${ this.props.siteRawUrl }/${ planType }`;
@@ -167,6 +187,10 @@ class PlanGrid extends React.Component {
 		} );
 	}
 
+	/**
+	 * Get the longest features list so we know how many rows to fill our table with
+	 * @return {array} longest features list
+	*/
 	getLongestFeaturesList() {
 		return reduce( this.getPlans(), ( longest, properties ) => {
 			const currentFeatures = Object.keys( properties.features );
@@ -174,6 +198,10 @@ class PlanGrid extends React.Component {
 		}, [] );
 	}
 
+	/**
+	 * Render all of the feature rows in the table
+	 * @return {ReactElement} feature rows
+	 */
 	renderPlanFeatureRows() {
 		return map( this.getLongestFeaturesList(), ( feature, rowIndex ) => {
 			return (
@@ -184,12 +212,23 @@ class PlanGrid extends React.Component {
 		} );
 	}
 
+	/**
+	 * Render a specificially indexed feature row of <td>
+	 * @param {number} rowIndex The feature row index to render
+	 * @return {ReactElement} some <td> elements for the row
+	 */
 	renderPlanFeatureColumns( rowIndex ) {
 		return map( this.getPlans(), ( properties, planType ) => {
 			return this.renderFeatureItem( planType, rowIndex );
 		} );
 	}
 
+	/**
+	 * Render one feature item for a plan and row index
+	 * @param {string} planType The plan type column
+	 * @param {number} rowIndex The feature row index
+	 * @return {ReactElement} a <td>
+	 */
 	renderFeatureItem( planType, rowIndex ) {
 		const plan = this.getPlans()[ planType ];
 		const item = plan.features[ rowIndex ];
