@@ -13,9 +13,13 @@ import includes from 'lodash/includes';
  */
 import Button from 'components/button';
 import { getSiteRawUrl } from 'state/initial-state';
-import { getSitePlan, getAvailablePlans } from 'state/site/reducer';
+import { getSitePlan } from 'state/site/reducer';
 import analytics from 'lib/analytics';
-import { getPlanClass } from 'lib/plans/constants';
+
+/**
+ * TEMP
+ */
+import plansData from './plans-data';
 
 class PlanGrid extends React.Component {
 
@@ -45,7 +49,6 @@ class PlanGrid extends React.Component {
 							<tr>{ this.renderPrices() }</tr>
 							<tr>{ this.renderTopButtons() }</tr>
 							{ this.renderPlanFeatureRows() }
-							<tr>{ this.renderBottomButtons() }</tr>
 						</tbody>
 					</table>
 				</div>
@@ -54,35 +57,9 @@ class PlanGrid extends React.Component {
 	}
 
 	/**
-	 * We have different nomenclature around the various plans because of course we do. This normalizes it for internal use.
-	 * @return {string} plan type
-	*/
-	getCurrentPlanType() {
-		const planClass = getPlanClass( this.props.sitePlan.product_slug );
-		// these are `is-TYPE-plan` (or empty string) so easy-peasy regex-squeezy
-		return planClass.replace( /^is-/, '' ).replace( /-plan$/, '' );
-	}
-
-	/**
-	 * Is the current plan an upgraded plan?
-	 * @return {boolean} is upgraded
-	 */
-	isUpgraded() {
-		return ! includes( [ '', 'free' ], this.getCurrentPlanType() );
-	}
-
-	/**
-	 * Check if a plan type is currently active
-	 * @param {string} planType plan type to check
-	 * @return {boolean} is the current plan type
-	 */
-	isCurrentPlanType( planType ) {
-		return this.getCurrentPlanType() === planType;
-	}
-
-	/**
-	 * Get the plans we want, calculated to exclude the free plan and only contain the highlighted features we want to display
-	 * @return {object} list of plans
+	 * Get the plans we want, calculated to exclude the free plan and only
+	 * contain the highlighted features we want to display
+	 * @returns {object} list of plans
 	 */
 	getPlans() {
 		if ( this.featuredPlans ) {
@@ -167,14 +144,6 @@ class PlanGrid extends React.Component {
 				'plan-features__table-item',
 				'plan-price'
 			);
-
-			if ( this.isCurrentPlanType( type ) ) {
-				return (
-					<td key={ 'price-' + type } className={ className }>
-						<em>Your current plan</em>
-					</td>
-				);
-			}
 			// using dangerouslySetInnerHTML because formatting localized
 			// currencies is best left to our server and it includes the <abbr> element
 			/*eslint-disable react/no-danger*/
@@ -188,43 +157,19 @@ class PlanGrid extends React.Component {
 	}
 
 	/**
-	 * Should we render a button for this plan?
-	 * @param {string} planType the plan type
-	 * @return {boolean} render it
-	 */
-	shouldRenderButton( planType ) {
-		// don't show the button if we already have a higher plan type
-		const plans = Object.keys( this.props.plans );
-		const currentPlanIndex = plans.indexOf( this.getCurrentPlanType() );
-		const requestedIndex = plans.indexOf( planType );
-		return requestedIndex >= currentPlanIndex;
-	}
-
-	/**
 	 * Renders the buttons we need to buy stuff
 	 * @return {ReactElement} <td>s with buttons
 	 */
 	renderTopButtons() {
-		return map( this.getPlans(), ( plan, planType ) => {
-			const isActivePlan = this.isCurrentPlanType( planType );
-			const url = isActivePlan
-				? `https://wordpress.com/plans/my-plan/${ this.props.siteRawUrl }`
-				: `https://wordpress.com/checkout/${ this.props.siteRawUrl }/${ planType === 'personal' ? 'jetpack-personal' : planType }`;
-			const isPrimary = this.isPrimary( planType, plan );
+		return map( this.getPlans(), ( properties, planType ) => {
+			const url = `https://wordpress.com/checkout/${ this.props.siteRawUrl }/${ planType }`;
+			const isPrimary = planType === 'personal';
 			const className = classNames(
 				'plan-features__table-item',
 				'has-border-bottom',
 				'is-top-buttons'
 			);
-			if ( ! this.shouldRenderButton( planType ) ) {
-				return (
-					<td key={ 'button-' + planType } className={ className } />
-				);
-			}
 			const clickHandler = () => {
-				if ( ! isActivePlan ) {
-					return;
-				}
 				analytics.tracks.recordJetpackClick( {
 					target: `upgrade-${ planType }`,
 					type: 'upgrade',
@@ -232,48 +177,11 @@ class PlanGrid extends React.Component {
 					page: 'Plans'
 				} );
 			};
-			const text = isActivePlan
-				? 'Manage Plan'
-				: `Start with ${ plan.short_name }`;
 			return (
 				<td key={ 'button-' + planType } className={ className }>
 					<Button href={ url } primary={ isPrimary } onClick={ clickHandler }>
-						{ text }
+						Start with { properties.short_name }
 					</Button>
-				</td>
-			);
-		} );
-	}
-
-	/**
-	 * Check if a plan should be highlighted as primary in the CTAs
-	 * @param {string} planType the plan type to check for primariness
-	 * @param {objcet} plan the plan object to check for primariness
-	 * @return {boolean} plan is primary
-	 */
-	isPrimary( planType, plan ) {
-		// if we're upgraded, step it up a level
-		if ( this.isUpgraded() ) {
-			const currentPlanType = this.getCurrentPlanType();
-			const planKeys = Object.keys( this.getPlans() );
-			const currentPlanIndex = planKeys.indexOf( currentPlanType );
-			// want the next one
-			return planKeys.indexOf( planType ) === planKeys.indexOf( planKeys[ currentPlanIndex + 1 ] );
-		}
-		// not upgraded: do what the API says.
-		return plan.is_featured;
-	}
-
-	/**
-	 * Renders the buttons we need to view more features on jetpack.com
-	 * @return {ReactElement} <td>s with buttons
-	 */
-	renderBottomButtons() {
-		return map( this.getPlans(), ( plan, planType ) => {
-			const url = `https://jetpack.com/features/comparison/?site=${ this.props.siteRawUrl }`;
-			return (
-				<td key={ 'bottom-' + planType } className="plan-features__table-item is-bottom-buttons has-border-bottom">
-					<Button href={ url }>See all features</Button>
 				</td>
 			);
 		} );
@@ -342,7 +250,7 @@ class PlanGrid extends React.Component {
 
 export default connect( ( state ) => {
 	return {
-		plans: getAvailablePlans( state ),
+		plans: plansData,
 		siteRawUrl: getSiteRawUrl( state ),
 		sitePlan: getSitePlan( state )
 	};
