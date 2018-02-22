@@ -15,6 +15,7 @@ import Button from 'components/button';
 import { getSiteRawUrl } from 'state/initial-state';
 import { getSitePlan } from 'state/site/reducer';
 import analytics from 'lib/analytics';
+import { getPlanClass } from 'lib/plans/constants';
 
 /**
  * TEMP
@@ -57,9 +58,27 @@ class PlanGrid extends React.Component {
 	}
 
 	/**
-	 * Get the plans we want, calculated to exclude the free plan and only
-	 * contain the highlighted features we want to display
-	 * @returns {object} list of plans
+	 * We have different nomenclature around the various plans because of course we do. This normalizes it for internal use.
+	 * @return {string} plan type
+	*/
+	getCurrentPlanType() {
+		const planClass = getPlanClass( this.props.sitePlan.product_slug );
+		// these are `is-TYPE-plan` (or empty string) so easy-peasy regex-squeezy
+		return planClass.replace( /^is-/, '' ).replace( /-plan$/, '' );
+	}
+
+	/**
+	 * Check if a plan type is currently active
+	 * @param {string} planType plan type to check
+	 * @return {boolean} is the current plan type
+	 */
+	isCurrentPlanType( planType ) {
+		return this.getCurrentPlanType() === planType;
+	}
+
+	/**
+	 * Get the plans we want, calculated to exclude the free plan and only contain the highlighted features we want to display
+	 * @return {object} list of plans
 	 */
 	getPlans() {
 		if ( this.featuredPlans ) {
@@ -144,6 +163,14 @@ class PlanGrid extends React.Component {
 				'plan-features__table-item',
 				'plan-price'
 			);
+
+			if ( this.isCurrentPlanType( type ) ) {
+				return (
+					<td key={ 'price-' + type } className={ className }>
+						<em>Your current plan</em>
+					</td>
+				);
+			}
 			// using dangerouslySetInnerHTML because formatting localized
 			// currencies is best left to our server and it includes the <abbr> element
 			/*eslint-disable react/no-danger*/
@@ -157,19 +184,43 @@ class PlanGrid extends React.Component {
 	}
 
 	/**
+	 * Should we render a button for this plan?
+	 * @param {string} planType the plan type
+	 * @return {boolean} render it
+	 */
+	shouldRenderButton( planType ) {
+		// don't show the button if we already have a higher plan type
+		const plans = Object.keys( this.props.plans );
+		const currentPlanIndex = plans.indexOf( this.getCurrentPlanType() );
+		const requestedIndex = plans.indexOf( planType );
+		return requestedIndex >= currentPlanIndex;
+	}
+
+	/**
 	 * Renders the buttons we need to buy stuff
 	 * @return {ReactElement} <td>s with buttons
 	 */
 	renderTopButtons() {
 		return map( this.getPlans(), ( properties, planType ) => {
-			const url = `https://wordpress.com/checkout/${ this.props.siteRawUrl }/${ planType }`;
+			const isActivePlan = this.isCurrentPlanType( planType );
+			const url = isActivePlan
+				? `https://wordpress.com/plans/my-plan/${ this.props.siteRawUrl }`
+				: `https://wordpress.com/checkout/${ this.props.siteRawUrl }/${ planType }`;
 			const isPrimary = planType === 'personal';
 			const className = classNames(
 				'plan-features__table-item',
 				'has-border-bottom',
 				'is-top-buttons'
 			);
+			if ( ! this.shouldRenderButton( planType ) ) {
+				return (
+					<td key={ 'button-' + planType } className={ className } />
+				);
+			}
 			const clickHandler = () => {
+				if ( ! isActivePlan ) {
+					return;
+				}
 				analytics.tracks.recordJetpackClick( {
 					target: `upgrade-${ planType }`,
 					type: 'upgrade',
@@ -177,10 +228,13 @@ class PlanGrid extends React.Component {
 					page: 'Plans'
 				} );
 			};
+			const text = isActivePlan
+				? 'Manage Plan'
+				: `Start with ${ properties.short_name }`;
 			return (
 				<td key={ 'button-' + planType } className={ className }>
 					<Button href={ url } primary={ isPrimary } onClick={ clickHandler }>
-						Start with { properties.short_name }
+						{ text }
 					</Button>
 				</td>
 			);
