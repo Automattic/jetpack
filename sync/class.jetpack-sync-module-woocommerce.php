@@ -206,8 +206,8 @@ class Jetpack_Sync_Module_WooCommerce extends Jetpack_Sync_Module {
 		'_tax_status',
 		'_tax_class',
 		'_manage_stock',
-		'_stock',
-		'_stock_status',
+//		'_stock', // Skip
+//		'_stock_status', // Skip
 		'_backorders',
 		'_sold_individually',
 		'_weight',
