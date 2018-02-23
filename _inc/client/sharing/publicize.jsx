@@ -29,7 +29,8 @@ export const Publicize = moduleSettingsForm(
 				connectUrl = this.props.connectUrl,
 				siteRawUrl = this.props.siteRawUrl,
 				isActive = this.props.getOptionValue( 'publicize' ),
-				userCanManageModules = this.props.userCanManageModules;
+				userCanManageModules = this.props.userCanManageModules,
+				override = this.props.getModuleOverride( 'publicize' );
 
 			const configCard = () => {
 				if ( unavailableInDevMode ) {
@@ -73,7 +74,7 @@ export const Publicize = moduleSettingsForm(
 							>
 								<ModuleToggle
 									slug="publicize"
-									disabled={ unavailableInDevMode }
+									disabled={ unavailableInDevMode || !! override }
 									activated={ isActive }
 									toggling={ this.props.isSavingAnyOption( 'publicize' ) }
 									toggleModule={ this.props.toggleModuleNow }>
