@@ -65,7 +65,7 @@ class PostByEmail extends React.Component {
 								<ModuleToggle
 									slug="post-by-email"
 									compact
-									disabled={ disabledControls || postByEmailOverride }
+									disabled={ disabledControls || !! postByEmailOverride }
 									activated={ isPbeActive }
 									toggling={ this.props.isSavingAnyOption( 'post-by-email' ) }
 									toggleModule={ this.props.toggleModuleNow }>

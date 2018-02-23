@@ -75,7 +75,7 @@ class Media extends React.Component {
 						activated={ isCarouselActive }
 						toggling={ this.props.isSavingAnyOption( 'carousel' ) }
 						toggleModule={ this.props.toggleModuleNow }
-						disabled={ carouselOverride } >
+						disabled={ !! carouselOverride } >
 					<span className="jp-form-toggle-explanation">
 						{
 							carousel.description
@@ -115,7 +115,7 @@ class Media extends React.Component {
 				module={ videoPress }>
 				<ModuleToggle
 					slug="videopress"
-					disabled={ this.props.isUnavailableInDevMode( 'videopress' ) || videoPressOverride }
+					disabled={ this.props.isUnavailableInDevMode( 'videopress' ) || !! videoPressOverride }
 					activated={ this.props.getOptionValue( 'videopress' ) }
 					toggling={ this.props.isSavingAnyOption( 'videopress' ) }
 					toggleModule={ this.props.toggleModuleNow }>

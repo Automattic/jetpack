@@ -30,7 +30,7 @@ export const Masterbar = moduleSettingsForm(
 					<SettingsGroup disableInDevMode module={ { module: 'masterbar' } } support="https://jetpack.com/support/masterbar/">
 						<ModuleToggle
 							slug="masterbar"
-							disabled={ unavailableInDevMode || ! isLinked || override }
+							disabled={ unavailableInDevMode || ! isLinked || !! override }
 							activated={ isActive }
 							toggling={ this.props.isSavingAnyOption( 'masterbar' ) }
 							toggleModule={ this.props.toggleModuleNow }>
