@@ -387,7 +387,7 @@ $plan-features-sidebar-width: 272px;
 		border-bottom: solid 2px $alert-green;
 	}
 
-	&.is-professional-plan {
+	&.is-business-plan {
 		border-bottom: solid 2px $alert-purple;
 	}
 
@@ -444,6 +444,7 @@ $plan-features-sidebar-width: 272px;
 
 .plan-features__table-item.is-bottom-buttons {
 	padding-top: 33px;
+	padding-bottom: 15px;
 }
 
 .plan-features__table-item.is-top-buttons {
@@ -505,6 +506,7 @@ $plan-features-sidebar-width: 272px;
 .plan-features__item-description {
 	display: inline-block;
 	margin-left: 10px;
+	color: $gray;
  }
 
 .plan-price {
