@@ -2,6 +2,8 @@
 
 In [another document](plan-provisioning.md), we discussed how to provision and cancel plans by using the shell script that ships with Jetpack. But, for partners where running shell commands won't work, it is possible to communicate directly to the API on WordPress.com.
 
+If you have any questions or issues, our contact information can be found on the [README.md document](README.md).
+
 ### Getting a Jetpack Partner access token
 
 When you become a Jetpack partner, we will provide you with your partner ID and a secret key. Typically you just pass these values directly in to the `bin/partner-provision.sh` and `bin/partner_cancel.sh` scripts. But, when calling the WordPress.com API directly, you'll first need to get an access token with for your partner ID with a scope of `jetpack-partner`.
