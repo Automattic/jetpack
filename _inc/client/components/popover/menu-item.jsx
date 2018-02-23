@@ -5,16 +5,14 @@ const React = require( 'react' ),
 	noop = require( 'lodash/noop' ),
 	classnames = require( 'classnames' );
 
-const MenuItem = React.createClass( {
-	getDefaultProps: function() {
-		return {
-			isVisible: false,
-			className: '',
-			focusOnHover: true
-		};
-	},
+class MenuItem extends React.Component {
+	static defaultProps = {
+		isVisible: false,
+		className: '',
+		focusOnHover: true
+	};
 
-	render: function() {
+	render() {
 		const onMouseOver = this.props.focusOnHover ? this._onMouseOver : null;
 		return (
 			<button className={ classnames( 'dops-popover__menu-item', this.props.className ) }
@@ -27,11 +25,11 @@ const MenuItem = React.createClass( {
 				{ this.props.children }
 			</button>
 		);
-	},
-
-	_onMouseOver: function( event ) {
-		event.target.focus();
 	}
-} );
+
+	_onMouseOver = ( event ) => {
+		event.target.focus();
+	};
+}
 
 module.exports = MenuItem;

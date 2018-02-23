@@ -8,11 +8,10 @@ import noop from 'lodash/noop';
 
 require( './style.scss' );
 
-export default React.createClass( {
+export default class Button extends React.Component {
+	static displayName = 'Button';
 
-	displayName: 'Button',
-
-	propTypes: {
+	static propTypes = {
 		disabled: PropTypes.bool,
 		compact: PropTypes.bool,
 		primary: PropTypes.bool,
@@ -22,16 +21,14 @@ export default React.createClass( {
 		onClick: PropTypes.func,
 		borderless: PropTypes.bool,
 		className: PropTypes.string
-	},
+	};
 
-	getDefaultProps() {
-		return {
-			disabled: false,
-			type: 'button',
-			onClick: noop,
-			borderless: false
-		};
-	},
+	static defaultProps = {
+		disabled: false,
+		type: 'button',
+		onClick: noop,
+		borderless: false
+	};
 
 	render() {
 		const element = this.props.href ? 'a' : 'button';
@@ -49,4 +46,4 @@ export default React.createClass( {
 
 		return React.createElement( element, props, this.props.children );
 	}
-} );
+}

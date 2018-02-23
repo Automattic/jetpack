@@ -10,10 +10,10 @@ const React = require( 'react' ),
  */
 const Card = require( 'components/card' );
 
-module.exports = React.createClass( {
-	displayName: 'CompactCard',
+export default class CompactCard extends React.Component {
+	static displayName = 'CompactCard';
 
-	render: function() {
+	render() {
 		const props = assign( {}, this.props, { className: classnames( this.props.className, 'is-compact' ) } );
 
 		return (
@@ -22,4 +22,4 @@ module.exports = React.createClass( {
 			</Card>
 		);
 	}
-} );
+}

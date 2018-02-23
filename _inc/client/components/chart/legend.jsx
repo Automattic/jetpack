@@ -7,11 +7,13 @@ const PropTypes = require( 'prop-types' );
 const React = require( 'react' ),
 	PureRenderMixin = require( 'react-pure-render/mixin' );
 
+const createReactClass = require( 'create-react-class' );
+
 /**
  * Internal dependencies
  */
 
-const LegendItem = React.createClass( {
+const LegendItem = createReactClass( {
 	displayName: 'ModuleChartLegendItem',
 
 	mixins: [ PureRenderMixin ],
@@ -40,22 +42,22 @@ const LegendItem = React.createClass( {
 
 } );
 
-const Legend = React.createClass( {
-	displayName: 'ModuleChartLegend',
+class Legend extends React.Component {
+	static displayName = 'ModuleChartLegend';
 
-	propTypes: {
+	static propTypes = {
 		activeTab: PropTypes.object.isRequired,
 		tabs: PropTypes.array.isRequired,
 		activeCharts: PropTypes.array.isRequired,
 		availableCharts: PropTypes.array.isRequired,
 		clickHandler: PropTypes.func.isRequired
-	},
+	};
 
-	onFilterChange: function( chartItem ) {
+	onFilterChange = ( chartItem ) => {
 		this.props.clickHandler( chartItem );
-	},
+	};
 
-	render: function() {
+	render() {
 		const legendColors = [ 'dops-chart__legend-color is-dark-blue' ],
 			activeTab = this.props.activeTab;
 		const legendItems = this.props.availableCharts.map( function( legendItem, index ) {
@@ -77,6 +79,6 @@ const Legend = React.createClass( {
 			</div>
 		);
 	}
-} );
+}
 
 module.exports = Legend;

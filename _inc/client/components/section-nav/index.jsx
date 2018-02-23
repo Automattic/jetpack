@@ -8,6 +8,8 @@ const React = require( 'react' ),
 	isEqual = require( 'lodash/isEqual' ),
 	classNames = require( 'classnames' );
 
+const createReactClass = require( 'create-react-class' );
+
 /**
  * Internal Dependencies
  */
@@ -20,7 +22,8 @@ require( './style.scss' );
 /**
  * Main
  */
-const SectionNav = React.createClass( {
+const SectionNav = createReactClass( {
+	displayName: 'SectionNav',
 
 	propTypes: {
 		children: PropTypes.node,
@@ -174,7 +177,7 @@ const SectionNav = React.createClass( {
 				this.hasSiblingControls = true;
 			}
 		}.bind( this ) );
-	}
+	},
 } );
 
 module.exports = SectionNav;

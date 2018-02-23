@@ -3,6 +3,7 @@
  */
 import PropTypes from 'prop-types';
 import React from 'react';
+import createReactClass from 'create-react-class';
 import noop from 'lodash/noop';
 
 /**
@@ -15,7 +16,7 @@ import analytics from 'lib/analytics';
 
 require( './style.scss' );
 
-export default React.createClass( {
+export default createReactClass( {
 
 	displayName: 'InfoPopover',
 

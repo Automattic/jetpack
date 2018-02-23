@@ -5,6 +5,7 @@
  * External dependencies
  */
 import React from 'react';
+import createReactClass from 'create-react-class';
 import PureRenderMixin from 'react-pure-render/mixin';
 
 /**
@@ -14,7 +15,8 @@ import Popover from 'components/popover';
 import PopoverMenu from 'components/popover/menu';
 import PopoverMenuItem from 'components/popover/menu-item';
 
-const Popovers = React.createClass( {
+const Popovers = createReactClass( {
+	displayName: 'Popovers',
 	mixins: [ PureRenderMixin ],
 
 	getInitialState: function() {
@@ -338,7 +340,7 @@ const Popovers = React.createClass( {
 				{ this.renderMultipleTargetsPopover() }
 			</div>
 		);
-	}
+	},
 } );
 
 export default Popovers;

@@ -10,18 +10,18 @@ const React = require( 'react' );
 const Bar = require( './bar' ),
 	XAxis = require( './x-axis' );
 
-module.exports = React.createClass( {
-	displayName: 'ModuleChartBarContainer',
+export default class ModuleChartBarContainer extends React.Component {
+	static displayName = 'ModuleChartBarContainer';
 
-	propTypes: {
+	static propTypes = {
 		isTouch: PropTypes.bool,
 		data: PropTypes.array,
 		yAxisMax: PropTypes.number,
 		width: PropTypes.number,
 		barClick: PropTypes.func
-	},
+	};
 
-	buildBars: function( max ) {
+	buildBars = ( max ) => {
 		const numberBars = this.props.data.length,
 			width = this.props.chartWidth,
 			barWidth = ( width / numberBars );
@@ -48,9 +48,9 @@ module.exports = React.createClass( {
 		}, this );
 
 		return bars;
-	},
+	};
 
-	render: function() {
+	render() {
 		return (
 			<div>
 				<div className="dops-chart__bars">
@@ -60,4 +60,4 @@ module.exports = React.createClass( {
 			</div>
 		);
 	}
-} );
+}

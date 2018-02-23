@@ -15,10 +15,12 @@ const React = require( 'react' ),
 	PureRenderMixin = require( 'react-pure-render/mixin' ),
 	classNames = require( 'classnames' );
 
+const createReactClass = require( 'create-react-class' );
+
 require( './style.scss' );
 
-const Gridicon = React.createClass( {
-
+const Gridicon = createReactClass( {
+	displayName: 'Gridicon',
 	mixins: [ PureRenderMixin ],
 
 	getDefaultProps: function() {
@@ -601,7 +603,7 @@ const Gridicon = React.createClass( {
 		}
 
 		return ( svg );
-	}
+	},
 } );
 
 module.exports = Gridicon;

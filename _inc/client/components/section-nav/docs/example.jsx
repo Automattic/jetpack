@@ -5,6 +5,8 @@ const React = require( 'react' ),
 	PureRenderMixin = require( 'react-pure-render/mixin' ),
 	forEach = require( 'lodash/forEach' );
 
+const createReactClass = require( 'create-react-class' );
+
 /**
  * Internal dependencies
  */
@@ -17,7 +19,7 @@ const SectionNav = require( 'components/section-nav' ),
 /**
  * Main
  */
-const SectionNavigation = React.createClass( {
+const SectionNavigation = createReactClass( {
 	displayName: 'SectionNav',
 
 	mixins: [ PureRenderMixin ],

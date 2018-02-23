@@ -3,6 +3,7 @@ const React = require( 'react' ),
 	Formsy = require( 'formsy-react' ),
 	classNames = require( 'classnames' ),
 	Payment = require( 'payment' );
+const createReactClass = require( 'create-react-class' );
 const PropTypes = require( 'prop-types' );
 /** Internal Dependencies **/
 const Label = require( './label' ),
@@ -10,7 +11,7 @@ const Label = require( './label' ),
 	FormInputValidation = require( '../form-input-validation' ),
 	requiredFieldErrorFormatter = require( './required-error-label' );
 
-module.exports = React.createClass( {
+module.exports = createReactClass( {
 	displayName: 'TextInput',
 
 	mixins: [ Formsy.Mixin ],

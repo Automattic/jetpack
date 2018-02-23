@@ -9,32 +9,25 @@ const React = require( 'react' ),
 
 require( './style.scss' );
 
-/**
- * Module variables
- */
-const Spinner = React.createClass( {
-	propTypes: {
+class Spinner extends React.Component {
+	static propTypes = {
 		className: PropTypes.string,
 		size: PropTypes.number,
 		duration: PropTypes.number
-	},
+	};
 
-	statics: {
-		instances: 0
-	},
+	static instances = 0;
 
-	getDefaultProps: function() {
-		return {
-			size: 20,
-			duration: 3000
-		};
-	},
+	static defaultProps = {
+		size: 20,
+		duration: 3000
+	};
 
-	componentWillMount: function() {
+	componentWillMount() {
 		this.setState( {
 			instanceId: ++Spinner.instances
 		} );
-	},
+	}
 
 	/**
 	 * Returns whether the current browser supports CSS animations for SVG
@@ -45,18 +38,18 @@ const Spinner = React.createClass( {
 	 * @return {Boolean} True if the browser supports CSS animations for SVG
 	 *                   elements, or false otherwise.
 	 */
-	isSVGCSSAnimationSupported: function() {
+	isSVGCSSAnimationSupported = () => {
 		const navigator = global.window ? global.window.navigator.userAgent : ''; // FIXME: replace with UA from server
 		return ! /(MSIE |Trident\/)/.test( navigator );
-	},
+	};
 
-	getClassName: function() {
+	getClassName = () => {
 		return classNames( 'dops-spinner', this.props.className, {
 			'is-fallback': ! this.isSVGCSSAnimationSupported()
 		} );
-	},
+	};
 
-	renderFallback: function() {
+	renderFallback = () => {
 		const style = {
 			width: this.props.size,
 			height: this.props.size
@@ -68,9 +61,9 @@ const Spinner = React.createClass( {
 				<span className="dops-spinner__progress is-right"></span>
 			</div>
 		);
-	},
+	};
 
-	render: function() {
+	render() {
 		const instanceId = parseInt( this.state.instanceId, 10 );
 
 		if ( ! this.isSVGCSSAnimationSupported() ) {
@@ -120,6 +113,6 @@ const Spinner = React.createClass( {
 		);
 		/*eslint-enable react/no-danger*/
 	}
-} );
+}
 
 module.exports = Spinner;

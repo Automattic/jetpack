@@ -14,51 +14,47 @@ const BarContainer = require( './bar-container' ),
 
 require( './style.scss' );
 
-module.exports = React.createClass( {
-	displayName: 'ModuleChart',
+export default class ModuleChart extends React.Component {
+	static displayName = 'ModuleChart';
 
-	propTypes: {
+	static propTypes = {
 		loading: PropTypes.bool,
 		data: PropTypes.array,
 		minTouchBarWidth: PropTypes.number,
 		minBarWidth: PropTypes.number,
 		barClick: PropTypes.func
-	},
+	};
 
-	getInitialState: function() {
-		return {
-			maxBars: 100, // arbitrarily high number. This will be calculated by resize method
-			width: 650
-		};
-	},
+	static defaultProps = {
+		minTouchBarWidth: 42,
+		minBarWidth: 15,
+		barClick: noop
+	};
 
-	getDefaultProps: function() {
-		return {
-			minTouchBarWidth: 42,
-			minBarWidth: 15,
-			barClick: noop
-		};
-	},
+	state = {
+		maxBars: 100, // arbitrarily high number. This will be calculated by resize method
+		width: 650
+	};
 
-	// Add listener for window resize
-	componentDidMount: function() {
+    // Add listener for window resize
+	componentDidMount() {
 		this.resize = throttle( this.resize, 400 );
 		window.addEventListener( 'resize', this.resize );
 		this.resize();
-	},
+	}
 
-	// Remove listener
-	componentWillUnmount: function() {
+    // Remove listener
+	componentWillUnmount() {
 		window.removeEventListener( 'resize', this.resize );
-	},
+	}
 
-	componentWillReceiveProps: function( nextProps ) {
+	componentWillReceiveProps( nextProps ) {
 		if ( this.props.loading && ! nextProps.loading ) {
 			this.resize();
 		}
-	},
+	}
 
-	resize: function() {
+	resize = () => {
 		const node = this.refs.chart;
 		let width = node.clientWidth - 82,
 			maxBars;
@@ -74,9 +70,9 @@ module.exports = React.createClass( {
 			maxBars: maxBars,
 			width: width
 		} );
-	},
+	};
 
-	getYAxisMax: function( values ) {
+	getYAxisMax = ( values ) => {
 		const max = Math.max.apply( null, values ),
 			operand = Math.pow( 10, ( max.toString().length - 1 ) );
 		let rounded = ( Math.ceil( ( max + 1 ) / operand ) * operand );
@@ -86,17 +82,17 @@ module.exports = React.createClass( {
 		}
 
 		return rounded;
-	},
+	};
 
-	getData: function() {
+	getData = () => {
 		let data = this.props.data;
 
 		data = data.slice( 0 - this.state.maxBars );
 
 		return data;
-	},
+	};
 
-	getValues: function() {
+	getValues = () => {
 		let data = this.getData();
 
 		data = data.map( function( item ) {
@@ -104,17 +100,17 @@ module.exports = React.createClass( {
 		}, this );
 
 		return data;
-	},
+	};
 
-	isEmptyChart: function( values ) {
+	isEmptyChart = ( values ) => {
 		values = values.filter( function( value ) {
 			return value > 0;
 		}, this );
 
 		return values.length === 0;
-	},
+	};
 
-	render: function() {
+	render() {
 		const values = this.getValues(),
 			yAxisMax = this.getYAxisMax( values ),
 			data = this.getData();
@@ -151,4 +147,4 @@ module.exports = React.createClass( {
 			</div>
 		);
 	}
-} );
+}

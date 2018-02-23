@@ -6,6 +6,8 @@
 const React = require( 'react' ),
 	PureRenderMixin = require( 'react-pure-render/mixin' );
 
+const createReactClass = require( 'create-react-class' );
+
 /**
  * Internal dependencies
  */
@@ -14,7 +16,7 @@ const SelectDropdown = require( 'components/select-dropdown' ),
 	DropdownLabel = require( 'components/select-dropdown/label' ),
 	DropdownSeparator = require( 'components/select-dropdown/separator' );
 
-const SelectDropdownDemo = React.createClass( {
+const SelectDropdownDemo = createReactClass( {
 	displayName: 'SelectDropdown',
 
 	mixins: [ PureRenderMixin ],
