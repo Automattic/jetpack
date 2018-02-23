@@ -34,7 +34,8 @@ class Search extends React.Component {
 						compact
 						activated={ this.props.getOptionValue( 'search' ) }
 						toggling={ this.props.isSavingAnyOption( 'search' ) }
-						toggleModule={ this.props.toggleModuleNow }>
+						toggleModule={ this.props.toggleModuleNow }
+						disabled={ !! this.props.getModuleOverride( 'search' ) }>
 						{ __( 'Replace WordPress built-in search with an improved search experience' ) }
 					</ModuleToggle>
 					{ this.props.getOptionValue( 'search' ) && (
