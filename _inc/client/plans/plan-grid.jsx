@@ -13,14 +13,9 @@ import includes from 'lodash/includes';
  */
 import Button from 'components/button';
 import { getSiteRawUrl } from 'state/initial-state';
-import { getSitePlan } from 'state/site/reducer';
+import { getSitePlan, getAvailablePlans } from 'state/site/reducer';
 import analytics from 'lib/analytics';
 import { getPlanClass } from 'lib/plans/constants';
-
-/**
- * TEMP
- */
-import plansData from './plans-data';
 
 class PlanGrid extends React.Component {
 
@@ -304,7 +299,7 @@ class PlanGrid extends React.Component {
 
 export default connect( ( state ) => {
 	return {
-		plans: plansData,
+		plans: getAvailablePlans( state ),
 		siteRawUrl: getSiteRawUrl( state ),
 		sitePlan: getSitePlan( state )
 	};
