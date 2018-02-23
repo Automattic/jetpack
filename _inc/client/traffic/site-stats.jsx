@@ -107,6 +107,23 @@ class SiteStatsComponent extends React.Component {
 		} );
 	};
 
+	getNotActiveDetail() {
+		if ( this.props.isDevMode ) {
+			return __( 'Unavailable in Dev Mode' );
+		} else if ( this.props.getModuleOverride( 'stats' ) ) {
+			return __( 'Stats has been disabled by a site administrator' );
+		}
+
+		return (
+			__( '{{a}}Activate Site Stats{{/a}} to see detailed stats, likes, followers, subscribers, and more! {{a1}}Learn More{{/a1}}', {
+				components: {
+					a: <a href="javascript:void(0)" onClick={ this.activateStats } />,
+					a1: <a href="https://jetpack.com/support/wordpress-com-stats/" target="_blank" rel="noopener noreferrer" />
+				}
+			} )
+		);
+	}
+
 	render() {
 		const stats = this.props.getModule( 'stats' ),
 			isStatsActive = this.props.getOptionValue( 'stats' ),
@@ -121,19 +138,10 @@ class SiteStatsComponent extends React.Component {
 							<img src={ imagePath + 'stats.svg' } width="60" height="60" alt={ __( 'Jetpack Stats Icon' ) } className="jp-at-a-glance__stats-icon" />
 						</div>
 						<div className="jp-at-a-glance__stats-inactive-text">
-							{
-								this.props.isDevMode
-									? __( 'Unavailable in Dev Mode' )
-									: __( '{{a}}Activate Site Stats{{/a}} to see detailed stats, likes, followers, subscribers, and more! {{a1}}Learn More{{/a1}}', {
-										components: {
-											a: <a href="javascript:void(0)" onClick={ this.activateStats } />,
-											a1: <a href="https://jetpack.com/support/wordpress-com-stats/" target="_blank" rel="noopener noreferrer" />
-										}
-									} )
-							}
+							{ this.getNotActiveDetail() }
 						</div>
 						{
-							! this.props.isDevMode && (
+							! this.props.isDevMode && ! this.props.getModuleOverride( 'stats' ) && (
 								<div className="jp-at-a-glance__stats-inactive-button">
 									<Button
 										onClick={ this.activateStats }
