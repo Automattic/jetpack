@@ -3944,7 +3944,13 @@ p {
 		if ( isset( $_GET['connect_url_redirect'] ) ) {
 			// User clicked in the iframe to link their accounts
 			if ( ! Jetpack::is_user_connected() ) {
-				$connect_url = $this->build_connect_url( true, false, 'iframe' );
+				$from = ! empty( $_GET['from'] ) ? $_GET['from'] : 'iframe';
+				$redirect = ! empty( $_GET['redirect_after_auth'] ) ? $_GET['redirect_after_auth'] : false;
+
+				add_filter( 'allowed_redirect_hosts', array( &$this, 'allow_wpcom_environments' ) );
+				$connect_url = $this->build_connect_url( true, $redirect, $from );
+				remove_filter( 'allowed_redirect_hosts', array( &$this, 'allow_wpcom_environments' ) );
+
 				if ( isset( $_GET['notes_iframe'] ) )
 					$connect_url .= '&notes_iframe';
 				wp_redirect( $connect_url );
@@ -5905,6 +5911,15 @@ p {
 	// Add public-api.wordpress.com to the safe redirect whitelist - only added when someone allows API access
 	function allow_wpcom_public_api_domain( $domains ) {
 		$domains[] = 'public-api.wordpress.com';
+		return $domains;
+	}
+
+	// Add all wordpress.com environments to the safe redirect whitelist
+	function allow_wpcom_environments( $domains ) {
+		$domains[] = 'wordpress.com';
+		$domains[] = 'wpcalypso.wordpress.com';
+		$domains[] = 'horizon.wordpress.com';
+		$domains[] = 'calypso.localhost';
 		return $domains;
 	}
 
