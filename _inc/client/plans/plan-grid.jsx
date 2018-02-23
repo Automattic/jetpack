@@ -64,6 +64,14 @@ class PlanGrid extends React.Component {
 	}
 
 	/**
+	 * Is the current plan an upgraded plan?
+	 * @return {boolean} is upgraded
+	 */
+	isUpgraded() {
+		return ! includes( [ '', 'free' ], this.getCurrentPlanType() );
+	}
+
+	/**
 	 * Check if a plan type is currently active
 	 * @param {string} planType plan type to check
 	 * @return {boolean} is the current plan type
@@ -197,12 +205,12 @@ class PlanGrid extends React.Component {
 	 * @return {ReactElement} <td>s with buttons
 	 */
 	renderTopButtons() {
-		return map( this.getPlans(), ( properties, planType ) => {
+		return map( this.getPlans(), ( plan, planType ) => {
 			const isActivePlan = this.isCurrentPlanType( planType );
 			const url = isActivePlan
 				? `https://wordpress.com/plans/my-plan/${ this.props.siteRawUrl }`
 				: `https://wordpress.com/checkout/${ this.props.siteRawUrl }/${ planType }`;
-			const isPrimary = planType === 'personal';
+			const isPrimary = this.isPrimary( planType, plan );
 			const className = classNames(
 				'plan-features__table-item',
 				'has-border-bottom',
@@ -226,7 +234,7 @@ class PlanGrid extends React.Component {
 			};
 			const text = isActivePlan
 				? 'Manage Plan'
-				: `Start with ${ properties.short_name }`;
+				: `Start with ${ plan.short_name }`;
 			return (
 				<td key={ 'button-' + planType } className={ className }>
 					<Button href={ url } primary={ isPrimary } onClick={ clickHandler }>
@@ -235,6 +243,25 @@ class PlanGrid extends React.Component {
 				</td>
 			);
 		} );
+	}
+
+	/**
+	 * Check if a plan should be highlighted as primary in the CTAs
+	 * @param {string} planType the plan type to check for primariness
+	 * @param {objcet} plan the plan object to check for primariness
+	 * @return {boolean} plan is primary
+	 */
+	isPrimary( planType, plan ) {
+		// if we're upgraded, step it up a level
+		if ( this.isUpgraded() ) {
+			const currentPlanType = this.getCurrentPlanType();
+			const planKeys = Object.keys( this.getPlans() );
+			const currentPlanIndex = planKeys.indexOf( currentPlanType );
+			// want the next one
+			return planKeys.indexOf( planType ) === planKeys.indexOf( planKeys[ currentPlanIndex + 1 ] );
+		}
+		// not upgraded: do what the API says.
+		return plan.is_featured;
 	}
 
 	/**
