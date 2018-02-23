@@ -53,6 +53,11 @@ class CommentsComponent extends React.Component {
 			commentLikesUnavailable = isUnavailableInDevMode( 'comment-likes' ),
 			commentLikesActive = getOptionValue( 'comment-likes' );
 
+		const commentsOverride = this.props.getModuleOverride( 'comments' ),
+			gravatarCardsOverride = this.props.getModuleOverride( 'gravatar-hovercards' ),
+			markdownOverride = this.props.getModuleOverride( 'markdown' ),
+			commentLikesOverride = this.props.getModuleOverride( 'comment-likes' );
+
 		return (
 			<SettingsCard
 				{ ...this.props }
@@ -66,7 +71,7 @@ class CommentsComponent extends React.Component {
 							<ModuleToggle
 								slug="comments"
 								compact
-								disabled={ commentsUnavailableInDevMode }
+								disabled={ commentsUnavailableInDevMode || !! commentsOverride }
 								activated={ this.props.getOptionValue( 'comments' ) }
 								toggling={ this.props.isSavingAnyOption( 'comments' ) }
 								toggleModule={ this.props.toggleModuleNow }
@@ -113,6 +118,7 @@ class CommentsComponent extends React.Component {
 											activated={ this.props.getOptionValue( 'gravatar-hovercards' ) }
 											toggling={ this.props.isSavingAnyOption( 'gravatar-hovercards' ) }
 											toggleModule={ this.props.toggleModuleNow }
+											disabled={ !! gravatarCardsOverride }
 										>
 											<span className="jp-form-toggle-explanation">
 												{
@@ -135,6 +141,7 @@ class CommentsComponent extends React.Component {
 											activated={ !! this.props.getOptionValue( 'wpcom_publish_comments_with_markdown', 'markdown' ) }
 											toggling={ this.props.isSavingAnyOption( [ 'markdown', 'wpcom_publish_comments_with_markdown' ] ) }
 											toggleModule={ this.updateFormStateByMarkdown }
+											disabled={ 'inactive' === markdownOverride }
 										>
 											<span className="jp-form-toggle-explanation">
 												{
@@ -154,7 +161,7 @@ class CommentsComponent extends React.Component {
 										<ModuleToggle
 											slug="comment-likes"
 											compact
-											disabled={ commentLikesUnavailable }
+											disabled={ commentLikesUnavailable || !! commentLikesOverride }
 											activated={ commentLikesActive }
 											toggling={ this.props.isSavingAnyOption( 'comment-likes' ) }
 											toggleModule={ this.props.toggleModuleNow }
