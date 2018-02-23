@@ -1,6 +1,13 @@
 <?php
 class Jetpack_Provision {
 	static function partner_provision( $access_token, $named_args ) {
+		// first, verify the token
+		$verify_response = self::verify_token( $access_token );
+
+		if ( is_wp_error( $verify_response ) ) {
+			return $verify_response;
+		}
+
 		$url_args = array(
 			'home_url' => 'WP_HOME',
 			'site_url' => 'WP_SITEURL',
@@ -31,9 +38,9 @@ class Jetpack_Provision {
 			Jetpack::maybe_set_version_option();
 			$registered = Jetpack::try_registration();
 			if ( is_wp_error( $registered ) ) {
-				self::partner_provision_error( $registered );
+				return $registered;
 			} elseif ( ! $registered ) {
-				self::partner_provision_error( new WP_Error( 'registration_error', __( 'There was an unspecified error registering the site', 'jetpack' ) ) );
+				return new WP_Error( 'registration_error', __( 'There was an unspecified error registering the site', 'jetpack' ) );
 			}
 
 			$blog_id    = Jetpack_Options::get_option( 'id' );
@@ -138,7 +145,7 @@ class Jetpack_Provision {
 		$result = Jetpack_Client::_wp_remote_request( $url, $request );
 
 		if ( is_wp_error( $result ) ) {
-			self::partner_provision_error( $result );
+			return $result;
 		}
 
 		$response_code = wp_remote_retrieve_response_code( $result );
@@ -146,9 +153,9 @@ class Jetpack_Provision {
 
 		if( 200 !== $response_code ) {
 			if ( isset( $body_json->error ) ) {
-				self::partner_provision_error( new WP_Error( $body_json->error, $body_json->message ) );
+				return new WP_Error( $body_json->error, $body_json->message );
 			} else {
-				self::partner_provision_error( new WP_Error( 'server_error', sprintf( __( "Request failed with code %s" ), $response_code ) ) );
+				return new WP_Error( 'server_error', sprintf( __( "Request failed with code %s" ), $response_code ) );
 			}
 		}
 
@@ -177,13 +184,36 @@ class Jetpack_Provision {
 		return $body_json;
 	}
 
-	private static function partner_provision_error( $error ) {
-		error_log( json_encode( array(
-			'success'       => false,
-			'error_code'    => $error->get_error_code(),
-			'error_message' => $error->get_error_message()
-		) ) );
-		exit( 1 );
+	private static function verify_token( $access_token ) {
+		$request = array(
+			'headers' => array(
+				'Authorization' => "Bearer " . $access_token,
+				'Host'          => defined( 'JETPACK__WPCOM_JSON_API_HOST_HEADER' ) ? JETPACK__WPCOM_JSON_API_HOST_HEADER : 'public-api.wordpress.com',
+			),
+			'timeout' => 10,
+			'method'  => 'POST',
+			'body'    => ''
+		);
+
+		$url = sprintf( 'https://%s/rest/v1.3/jpphp/partner-keys/verify', self::get_api_host() );
+		$result = Jetpack_Client::_wp_remote_request( $url, $request );
+
+		if ( is_wp_error( $result ) ) {
+			return $result;
+		}
+
+		$response_code = wp_remote_retrieve_response_code( $result );
+		$body_json     = json_decode( wp_remote_retrieve_body( $result ) );
+
+		if( 200 !== $response_code ) {
+			if ( isset( $body_json->error ) ) {
+				return new WP_Error( $body_json->error, $body_json->message );
+			} else {
+				return new WP_Error( 'server_error', sprintf( __( "Request failed with code %s" ), $response_code ) );
+			}
+		}
+
+		return true;
 	}
 
 	private static function get_api_host() {

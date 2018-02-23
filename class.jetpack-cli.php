@@ -931,6 +931,15 @@ class Jetpack_CLI extends WP_CLI_Command {
 
 		$body_json = Jetpack_Provision::partner_provision( $token->access_token, $named_args );
 
+		if ( is_wp_error( $body_json ) ) {
+			error_log( json_encode( array(
+				'success'       => false,
+				'error_code'    => $body_json->get_error_code(),
+				'error_message' => $body_json->get_error_message()
+			) ) );
+			exit( 1 );
+		}
+
 		WP_CLI::log( json_encode( $body_json ) );
 	}
 
