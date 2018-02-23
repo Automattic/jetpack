@@ -46,7 +46,8 @@ export class Sitemaps extends React.Component {
 						compact
 						activated={ this.props.getOptionValue( 'sitemaps' ) }
 						toggling={ this.props.isSavingAnyOption( 'sitemaps' ) }
-						toggleModule={ this.props.toggleModuleNow }>
+						toggleModule={ this.props.toggleModuleNow }
+						disabled={ this.props.getModuleOverride( 'sitemaps' ) }>
 						{ __( 'Generate XML sitemaps' ) }
 					</ModuleToggle>
 					{
