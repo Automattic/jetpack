@@ -209,7 +209,7 @@ class PlanGrid extends React.Component {
 			const isActivePlan = this.isCurrentPlanType( planType );
 			const url = isActivePlan
 				? `https://wordpress.com/plans/my-plan/${ this.props.siteRawUrl }`
-				: `https://wordpress.com/checkout/${ this.props.siteRawUrl }/${ planType }`;
+				: `https://wordpress.com/checkout/${ this.props.siteRawUrl }/${ planType === 'personal' ? 'jetpack-personal' : planType }`;
 			const isPrimary = this.isPrimary( planType, plan );
 			const className = classNames(
 				'plan-features__table-item',
