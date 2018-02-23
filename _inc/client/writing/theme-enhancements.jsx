@@ -157,7 +157,10 @@ class ThemeEnhancements extends React.Component {
 														name="infinite_mode"
 														value={ radio.key }
 														checked={ radio.key === this.state.infinite_mode }
-														disabled={ this.props.isSavingAnyOption( [ item.module, radio.key ] ) }
+														disabled={
+															this.props.isSavingAnyOption( [ item.module, radio.key ] ) ||
+															'inactive' === this.props.getModuleOverride( 'infinite-scroll' )
+														}
 														onChange={ () => this.updateInfiniteMode( radio.key ) }
 													/>
 													<span className="jp-form-toggle-explanation">
