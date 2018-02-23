@@ -357,8 +357,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	public static function get_plans( $request ) {
-		$data = get_transient( 'jetpack_plans' );
-
 		/**
 		 * Filter to turn off caching of Jetpack plans
 		 *
@@ -368,13 +366,12 @@ class Jetpack_Core_Json_Api_Endpoints {
 		 */
 		$use_cache = apply_filters( 'jetpack_cache_plans', true );
 
+		$data = $use_cache ? get_transient( 'jetpack_plans' ) : false;
+
 		if ( false === $data ) {
 			$path = '/plans';
-			$ip   = $_SERVER['HTTP_X_FORWARDED_FOR']; // used to calculate which currency to show
-			if ( empty( $ip ) ) {
-				// no ip list to forward, so create one:
-				$ip = $_SERVER['HTTP_CLIENT_IP'];
-			}
+			// passing along from client to help geolocate currency
+			$ip   = $_SERVER['REMOTE_ADDR'];
 			$data = Jetpack_Client::wpcom_json_api_request_as_blog( $path, '2', array( 'headers' => array( 'X-Forwarded-For' => $ip ) ), null, 'wpcom' );
 
 			if ( true === $use_cache ) {
@@ -703,7 +700,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		$body = wp_remote_retrieve_body( $response );
-		
+
 		return json_decode( $body );
 	}
 
