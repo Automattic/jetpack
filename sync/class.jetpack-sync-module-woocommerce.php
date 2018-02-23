@@ -206,8 +206,6 @@ class Jetpack_Sync_Module_WooCommerce extends Jetpack_Sync_Module {
 		'_tax_status',
 		'_tax_class',
 		'_manage_stock',
-		'_stock',
-		'_stock_status',
 		'_backorders',
 		'_sold_individually',
 		'_weight',
@@ -234,8 +232,6 @@ class Jetpack_Sync_Module_WooCommerce extends Jetpack_Sync_Module {
 		'_product_image_gallery',
 		'_product_version',
 		'_wp_old_slug',
-//		'_edit_last', // Skip
-//		'_edit_lock', // Skip
 
 		//woocommerce orders
 		// https://github.com/woocommerce/woocommerce/blob/8ed6e7436ff87c2153ed30edd83c1ab8abbdd3e9/includes/data-stores/class-wc-order-data-store-cpt.php#L27
@@ -264,8 +260,6 @@ class Jetpack_Sync_Module_WooCommerce extends Jetpack_Sync_Module {
 		'_shipping_country',
 		'_completed_date',
 		'_paid_date',
-		'_edit_lock',
-		'_edit_last',
 		'_cart_discount',
 		'_cart_discount_tax',
 		'_order_shipping',
@@ -295,11 +289,9 @@ class Jetpack_Sync_Module_WooCommerce extends Jetpack_Sync_Module {
 		//woocommerce order refunds
 		// https://github.com/woocommerce/woocommerce/blob/b8a2815ae546c836467008739e7ff5150cb08e93/includes/data-stores/class-wc-order-refund-data-store-cpt.php#L20
 		'_order_currency',
-		'_cart_discount',
 		'_refund_amount',
 		'_refunded_by',
 		'_refund_reason',
-		'_cart_discount_tax',
 		'_order_shipping',
 		'_order_shipping_tax',
 		'_order_tax',
