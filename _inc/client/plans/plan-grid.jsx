@@ -45,6 +45,7 @@ class PlanGrid extends React.Component {
 							<tr>{ this.renderPrices() }</tr>
 							<tr>{ this.renderTopButtons() }</tr>
 							{ this.renderPlanFeatureRows() }
+							<tr>{ this.renderBottomButtons() }</tr>
 						</tbody>
 					</table>
 				</div>
@@ -231,6 +232,21 @@ class PlanGrid extends React.Component {
 					<Button href={ url } primary={ isPrimary } onClick={ clickHandler }>
 						{ text }
 					</Button>
+				</td>
+			);
+		} );
+	}
+
+	/**
+	 * Renders the buttons we need to view more features on jetpack.com
+	 * @return {ReactElement} <td>s with buttons
+	 */
+	renderBottomButtons() {
+		return map( this.getPlans(), ( plan, planType ) => {
+			const url = `https://jetpack.com/features/comparison/?site=${ this.props.siteRawUrl }`;
+			return (
+				<td key={ 'bottom-' + planType } className="plan-features__table-item is-bottom-buttons has-border-bottom">
+					<Button href={ url }>See all features</Button>
 				</td>
 			);
 		} );
