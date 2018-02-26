@@ -160,28 +160,37 @@ class Jetpack_Provision {
 		}
 
 		if ( isset( $body_json->access_token ) ) {
-			// authorize user and enable SSO
-			Jetpack::update_user_token( $user->ID, sprintf( '%s.%d', $body_json->access_token, $user->ID ), true );
-
-			/**
-			 * Auto-enable SSO module for new Jetpack Start connections
-			 *
-			 * @since 5.0.0
-			 *
-			 * @param bool $enable_sso Whether to enable the SSO module. Default to true.
-			 */
-			$other_modules = apply_filters( 'jetpack_start_enable_sso', true )
-				? array( 'sso' )
-				: array();
-
-			if ( $active_modules = Jetpack_Options::get_option( 'active_modules' ) ) {
-				Jetpack::delete_active_modules();
-				Jetpack::activate_default_modules( 999, 1, array_merge( $active_modules, $other_modules ), false );
-			} else {
-				Jetpack::activate_default_modules( false, false, $other_modules, false );
+			// check if this matches the existing token before replacing
+			$existing_token = Jetpack_Data::get_access_token( $user->ID );
+			if ( empty( $existing_token ) || $existing_token->secret !== $body_json->access_token ) {
+				self::authorize_user( $user->ID, $body_json->access_token );
 			}
 		}
+
 		return $body_json;
+	}
+
+	private static function authorize_user( $user_id, $access_token ) {
+		// authorize user and enable SSO
+		Jetpack::update_user_token( $user_id, sprintf( '%s.%d', $access_token, $user_id ), true );
+
+		/**
+		 * Auto-enable SSO module for new Jetpack Start connections
+		 *
+		 * @since 5.0.0
+		 *
+		 * @param bool $enable_sso Whether to enable the SSO module. Default to true.
+		 */
+		$other_modules = apply_filters( 'jetpack_start_enable_sso', true )
+			? array( 'sso' )
+			: array();
+
+		if ( $active_modules = Jetpack_Options::get_option( 'active_modules' ) ) {
+			Jetpack::delete_active_modules();
+			Jetpack::activate_default_modules( 999, 1, array_merge( $active_modules, $other_modules ), false );
+		} else {
+			Jetpack::activate_default_modules( false, false, $other_modules, false );
+		}
 	}
 
 	private static function verify_token( $access_token ) {
