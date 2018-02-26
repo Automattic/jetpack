@@ -81,7 +81,7 @@ export const Protect = moduleSettingsForm(
 					<ModuleToggle
 						slug="protect"
 						compact
-						disabled={ unavailableInDevMode }
+						disabled={ unavailableInDevMode || !! this.props.getModuleOverride( 'protect' ) }
 						activated={ isProtectActive }
 						toggling={ this.props.isSavingAnyOption( 'protect' ) }
 						toggleModule={ this.props.toggleModuleNow }
