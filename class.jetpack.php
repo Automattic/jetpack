@@ -3208,6 +3208,9 @@ p {
 	 * Attempts Jetpack registration.  If it fail, a state flag is set: @see ::admin_page_load()
 	 */
 	public static function try_registration() {
+		// The user has agreed to the TOS at some point by now.
+		Jetpack_Options::update_option( 'tos_agreed', true );
+
 		// Let's get some testing in beta versions and such.
 		if ( self::is_development_version() && defined( 'PHP_URL_HOST' ) ) {
 			// Before attempting to connect, let's make sure that the domains are viable.
@@ -7053,5 +7056,13 @@ p {
 			set_transient( 'jetpack_rewind_enabled', $rewind_enabled, 10 * MINUTE_IN_SECONDS );
 		}
 		return $rewind_enabled;
+	}
+
+	/**
+	 * Checks whether or not TOS has been agreed upon.
+	 * Will return true if a user has clicked to register, or is already connected.
+	 */
+	public static function jetpack_tos_agreed() {
+		return Jetpack_Options::get_option( 'tos_agreed' ) || Jetpack::is_active();
 	}
 }
