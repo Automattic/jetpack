@@ -8,7 +8,7 @@ import get from 'lodash/get';
 /**
  * Internal dependencies
  */
-import { getModule } from 'state/modules';
+import { getModule, getModuleOverride } from 'state/modules';
 import { getSettings } from 'state/settings';
 import { isDevMode, isUnavailableInDevMode } from 'state/connection';
 import { isModuleFound } from 'state/search';
@@ -61,6 +61,7 @@ export class Security extends Component {
 			isUnavailableInDevMode: this.props.isUnavailableInDevMode,
 			rewindStatus: this.props.rewindStatus,
 			siteRawUrl: this.props.siteRawUrl,
+			getModuleOverride: this.props.getModuleOverride
 		};
 
 		const foundProtect = this.props.isModuleFound( 'protect' ),
@@ -99,6 +100,7 @@ export default connect( state => {
 		settings: getSettings( state ),
 		isDevMode: isDevMode( state ),
 		isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name ),
+		getModuleOverride: module_name => getModuleOverride( state, module_name ),
 		isModuleFound: module_name => isModuleFound( state, module_name ),
 		isPluginActive: plugin_slug => isPluginActive( state, plugin_slug ),
 		isPluginInstalled: plugin_slug => isPluginInstalled( state, plugin_slug ),
