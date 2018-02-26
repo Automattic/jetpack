@@ -29,7 +29,10 @@ class PlanGrid extends React.Component {
 	}
 
 	render() {
-		// @todo something to show a placeholder while this sucka is loading
+		if ( typeof this.props.plans === 'undefined' ) {
+			return null;
+		}
+
 		const length = Object.values( this.getPlans() ).length;
 		const tableClasses = classNames(
 			'plan-features__table',
