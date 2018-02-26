@@ -67,7 +67,7 @@ export class Plans extends React.Component {
 			if ( 'is-free-plan' === planClass ) {
 				return (
 					<div>
-						<PlanGrid/>
+						<PlanGrid />
 						{ themePromo }
 					</div>
 				);
