@@ -81,9 +81,6 @@ require_once( $json_endpoints_dir . 'class.wpcom-json-api-bulk-restore-post-endp
 // Custom Menus
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-menus-v1-1-endpoint.php' );
 
-// Users
-require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-invites-endpoint.php' );
-
 // Custom CSS
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-get-customcss.php' );
 require_once( $json_endpoints_dir . 'class.wpcom-json-api-update-customcss.php' );
