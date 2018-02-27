@@ -843,6 +843,13 @@ class Jetpack_CLI extends WP_CLI_Command {
 			$this->partner_provision_error( new WP_Error( 'missing_access_token', __( 'Missing or invalid access token', 'jetpack' ) ) );
 		}
 
+		if ( Jetpack::validate_sync_error_idc_option() ) {
+			$this->partner_provision_error( new WP_Error(
+				'site_in_safe_mode',
+				esc_html__( 'Can not cancel a plan while in safe mode. See: https://jetpack.com/support/safe-mode/', 'jetpack' )
+			) );
+		}
+
 		$site_identifier = Jetpack_Options::get_option( 'id' );
 
 		if ( ! $site_identifier ) {
@@ -947,6 +954,22 @@ class Jetpack_CLI extends WP_CLI_Command {
 					define( $constant_name, $named_args[ $url_arg ] );
 				}
 			}
+		}
+
+		// If Jetpack is currently connected, and is not in Safe Mode already, kick off a sync of the current
+		// functions/callables so that we can test if this site is in IDC.
+		if ( Jetpack::is_active() && ! Jetpack::validate_sync_error_idc_option() ) {
+			WP_CLI::runcommand( 'jetpack sync start --modules=functions --sync_wait_time=0', array(
+				'return'     => true, // Capture output so that we don't output errors or successes.
+				'exit_error' => false,
+			) );
+		}
+
+		if ( Jetpack::validate_sync_error_idc_option() ) {
+			$this->partner_provision_error( new WP_Error(
+				'site_in_safe_mode',
+				esc_html__( 'Can not provision a plan while in safe mode. See: https://jetpack.com/support/safe-mode/', 'jetpack' )
+			) );
 		}
 
 		$blog_id    = Jetpack_Options::get_option( 'id' );
