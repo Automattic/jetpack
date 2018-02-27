@@ -133,6 +133,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * We fixed a problem in Jetpack Sync code when trying to get property of non-object the post syncing file.
 * We stopped synchronizing the sitemap post types to WordPress.com servers as it was an issue given the size of these.
 * We removed all linting warnings for the JS code of the Admin page. These were only shown in development builds.
+* We updated WordAds code to not use create_function which is getting deprecated in PHP 7.2.
 
 = 5.8 =
 
