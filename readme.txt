@@ -129,6 +129,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * We added the jetpack_sync_action_before_enqueue action that's done when anything gets enqueued before being synchronized to WordPress.com servers.
 * We updated the modules endpoint in Jetpack's REST API to be aware of modules that have been filtered through option_jetpack_active_modules allowing for better compatibility with custom Jetpack installation where the administrator decides to filter out specific Jetpack modules.
 * We updated the modules endpoint Jetpack's JSON API to reply with a new property `override` that indicates if a module was either enabled or disabled by a filter.
+* We updated the library used as IntersectionObserver for Lazy Images. We now use the W3C IntersectionObserver polyfill.
 
 **Bug fixes**
 
