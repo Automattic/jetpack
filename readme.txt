@@ -122,6 +122,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * We added the ability to enable the stats module when using the Onboarding functionality.
 * We removed an obsolete endpoint for updating invites.
 * Only log mysql and ES query times that are less than 60 seconds. There are some outliers that mess up our stats.
+* Move any active search widgets to the inactive list if you disable the search module.
 
 **Improved compatibility**
 
