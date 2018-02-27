@@ -115,6 +115,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * We improved the way we show failed login attempts in Jetpack's Activity Log.
 * We now implicitly activate Jetpack Search when attempting to add the Jetpack Search widget.
 * We added a plans endpoint to Jetpack's REST API to better handle the features of each Jetpack plan internally.
+* We updated the Jetpack Search settings card to be more helpful in setting up the widget.
 
 **Improved compatibility**
 
