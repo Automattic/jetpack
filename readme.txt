@@ -109,7 +109,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Improved compatibility**
 
-
+* We updated the sign out button behaviour of the Masterbar to not sign you out of WordPress.com when you sign out of your site for regular Jetpack sites.
 
 **Bug fixes**
 
