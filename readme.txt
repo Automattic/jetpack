@@ -113,6 +113,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * We now hide settings for Lazy Images and Photon in the Admin page when the modules are not enabled due to being filtered out by jetpack_get_available_modules.
 * We improved the way in which we synchronize widgettitles to WordPress.com servers when widgets are saved or updated.
 * We improved the way we show failed login attempts in Jetpack's Activity Log.
+* We now implicitly update Jetpack Search when attempting to add the Jetpack Search widget.
 
 **Improved compatibility**
 
