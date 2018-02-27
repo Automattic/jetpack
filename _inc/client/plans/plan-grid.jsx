@@ -153,6 +153,12 @@ class PlanGrid extends React.Component {
 					</td>
 				);
 			}
+			// don't show prices for a lower plan
+			if ( ! this.shouldRenderButton( type ) ) {
+				return (
+					<td key={ 'price-' + type } className={ className } />
+				);
+			}
 			// using dangerouslySetInnerHTML because formatting localized
 			// currencies is best left to our server and it includes the <abbr> element
 			/*eslint-disable react/no-danger*/
