@@ -116,6 +116,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * We now implicitly activate Jetpack Search when attempting to add the Jetpack Search widget.
 * We added a plans endpoint to Jetpack's REST API to better handle the features of each Jetpack plan internally.
 * We updated the Jetpack Search settings card to be more helpful in setting up the widget.
+* We made the "Add Jetpack Search Widget" link in the Search module settings card open the widgets section of the customizer.
 * We added a pre-commit hook for linting the Jetpack Admin Page source code. This aids in finding common syntax and style problems before having to wait for automated tests to run.
 
 **Improved compatibility**
