@@ -332,15 +332,15 @@ class Jetpack_Search {
 		$do_authenticated_request = false;
 
 		if ( class_exists( 'Jetpack_Client' ) &&
-		     isset( $es_args['authenticated_request'] ) &&
-		     true === $es_args['authenticated_request'] ) {
+			isset( $es_args['authenticated_request'] ) &&
+			true === $es_args['authenticated_request'] ) {
 			$do_authenticated_request = true;
 		}
 
 		unset( $es_args['authenticated_request'] );
 
 		$request_args = array(
-			'headers'    => array(
+			'headers' => array(
 				'Content-Type' => 'application/json',
 			),
 			'timeout'    => 10,
@@ -370,7 +370,12 @@ class Jetpack_Search {
 		}
 
 		$response_code = wp_remote_retrieve_response_code( $request );
-		$response      = json_decode( wp_remote_retrieve_body( $request ), true );
+
+		if ( ! $response_code || $response_code < 200 || $response_code >= 300 ) {
+			return new WP_Error( 'invalid_search_api_response', 'Invalid response from API - ' . $response_code );
+		}
+
+		$response = json_decode( wp_remote_retrieve_body( $request ), true );
 
 		$took = is_array( $response ) && ! empty( $response['took'] )
 			? $response['took']
@@ -505,6 +510,10 @@ class Jetpack_Search {
 	 * @param WP_Query $query The original WP_Query to use for the parameters of our search.
 	 */
 	public function do_search( WP_Query $query ) {
+		if ( ! $query->is_main_query() || ! $query->is_search() ) {
+			return;
+		}
+
 		$page = ( $query->get( 'paged' ) ) ? absint( $query->get( 'paged' ) ) : 1;
 
 		// Get maximum allowed offset and posts per page values for the API.
@@ -722,6 +731,16 @@ class Jetpack_Search {
 		return $sanitized_post_types;
 	}
 
+	/**
+	 * Initialze widgets for the Search module
+	 *
+	 * @module search
+	 */
+	public function action__widgets_init() {
+		require_once( dirname( __FILE__ ) . '/class.jetpack-search-widget-filters.php' );
+
+		register_widget( 'Jetpack_Search_Widget_Filters' );
+	}
 
 	/**
 	 * Get the Elasticsearch result.
@@ -1119,6 +1138,15 @@ class Jetpack_Search {
 			unset( $es_query_args['sort'] );
 		}
 
+		if ( ! empty( $filters ) && is_array( $filters ) ) {
+			foreach ( $filters as $filter ) {
+				$builder->add_filter( $filter );
+			}
+		}
+
+		$es_query_args['query'] = $builder->build_query();
+
+		// Aggregations
 		if ( ! empty( $args['aggregations'] ) ) {
 			$this->add_aggregations_to_es_query_builder( $args['aggregations'], $parser );
 		}
