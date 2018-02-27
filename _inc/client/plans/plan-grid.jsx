@@ -316,8 +316,14 @@ class PlanGrid extends React.Component {
 		}
 		return (
 			<td key={ key } className="plan-features__table-item has-partial-border">
-				<div className="plan-features__item">{ item.name }</div>
+				<div className="plan-features__item">{ item.info ? this.renderFeatureLink( item ) : item.name }</div>
 			</td>
+		);
+	}
+
+	renderFeatureLink( feature ) {
+		return (
+			<a href={ 'https://jetpack.com/features/' + feature.info }>{ feature.name }</a>
 		);
 	}
 
