@@ -101,7 +101,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Major Enhancements**
 
-* WooCommerce Analyticis: Added a new module for WooCommerce analytics that will use Jetpack's analytics functionality to help you track activity on your WooCommerce store.
+* WooCommerce Analytics: Added a new module for WooCommerce analytics that will use Jetpack's analytics functionality to help you track activity on your WooCommerce store.
 * Custom Content Types: Added support for excerpts on Testimonial and Portfolio.
 
 **Enhancements**
