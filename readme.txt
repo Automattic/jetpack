@@ -108,6 +108,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Activity Log: Improved the way we show failed login attempts in Jetpack's Activity Log.
 * Admin Page: We now hide settings for Lazy Images and Photon in the Admin page when the modules are not enabled due to being filtered out by jetpack_get_available_modules.
+* Admin Page: Now we only show the dismissal button in Apps card of the Jetpack Dashboard for admin users.
 * Build: Added a pre-commit hook for linting the Jetpack Admin Page source code. This aids in finding common syntax and style problems before having to wait for automated tests to run.
 * JSON API: We removed an obsolete endpoint for updating invites.
 * Onboarding: Added the ability to configure the country for a business address the using the Onboarding functionality of Jetpack.
