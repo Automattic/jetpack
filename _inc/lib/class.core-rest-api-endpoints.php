@@ -378,7 +378,14 @@ class Jetpack_Core_Json_Api_Endpoints {
 			if ( empty( $ip ) ) {
 				$ip = $_SERVER['REMOTE_ADDR']; // if we don't have an ip by now, take the closest node's ip (likely directly connected client)
 			}
-			$data = Jetpack_Client::wpcom_json_api_request_as_blog( $path, '2', array( 'headers' => array( 'X-Forwarded-For' => $ip ) ), null, 'wpcom' );
+			$request = Jetpack_Client::wpcom_json_api_request_as_blog( $path, '2', array( 'headers' => array( 'X-Forwarded-For' => $ip ) ), null, 'wpcom' );
+			$body = wp_remote_retrieve_body( $request );
+			if ( 200 === wp_remote_retrieve_response_code( $request ) ) {
+				$data = $body;
+			} else {
+				// something went wrong so we'll just return the response without caching
+				return $body;
+			}
 
 			if ( true === $use_cache ) {
 				set_transient( 'jetpack_plans', $data, DAY_IN_SECONDS );
