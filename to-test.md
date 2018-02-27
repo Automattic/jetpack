@@ -18,6 +18,17 @@ We added support for excerpts to these custom content types.
 * Attempt to create either a new Portfolio post or a Testimonial one. 
 * Expect to see the excerpt field shown.
 
+### General
+
+The suppress_filters param passed to get_posts / get_children was updated in several places. Passing this param allows plugins to filter wp query to modify behaviour.
+
+This one's hard to test.
+
+* [Advanced post cache](https://github.com/Automattic/advanced-post-cache) is an example of a plugin providing caching.
+* Out of the box, WP_Query runs a couple of queries and these are uncached. Advanced post cache, used on all WordPress.com sites (even GO VIP), hooks into WP_Query can caches the result of these queries to stop the running on every page load. With this suppress_filtersadvanced post cache doesn't not run. This means queries run unnecessarily and result in high level of traffic to database servers at peak times.
+* Test Jetpack with this plugin enabled and confirm that everything works as expected.
+
+
 ### Jetpack Connect
 
 With Jetpack 5.8 we introduced an issue that would appear sometimes when attempting to connect a site after clicking the banner for Jetpack in the WordPress Dashboard.
