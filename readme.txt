@@ -125,6 +125,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Search: Move any active search widgets to the inactive list if you disable the search module.
 * Search: Only log mysql and ES query times that are less than 60 seconds. There are some outliers that mess up our stats.
 * Sync: Improved the way widget titles are synchronized to WordPress.com servers when widgets are saved or updated.
+* Twitter Cards: Added new jetpack_twitter_image_default filter to allow themes and plugins to customize twitter:image when no suitable image is found automatically.
 * We updated the way we handle Jetpack's green color in out stylesheets for better compatibility with Jetpack's new logo.
 
 **Improved compatibility**

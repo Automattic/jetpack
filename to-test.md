@@ -131,6 +131,23 @@ We now move any active Jetpack Search widgets to the inactive list if you disabl
 3. Refresh the page and verify that the search module is still disabled.
 4. Visit the widgets configuration page and make sure that the widget you added in step one is now listed at the top of the inactive widgets list.
 
+### Twitter Cards
+
+A new filter jetpack_twitter_image_default was added  to allow themes and plugins to customize twitter:image when no suitable image is found automatically.
+
+To test:
+
+Include this snippet:
+
+    ```
+    function my_twitter_image_default ($url) {
+	    return 'http://asdf.com/89asdf.gif';
+    }
+    add_filter( 'jetpack_twitter_cards_image_default', 'my_twitter_image_default' );
+    ```
+* Fetch your site's home page, and a post page that wouldn't otherwise have a Twitter image set. Verify that they both now include `<meta name="twitter:image" content="http://asdf.com/89asdf.gif" />`.
+
+
 ### WooCommerce analytics
 
 * Use a test site which is connected with Jetpack and has WooCommerce active
