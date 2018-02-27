@@ -106,6 +106,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * We added a new module for WooCommerce analytics that will use Jetpack's analytics functionality to help you track activity on your WooCommerce store.
 * We updated scripts for partners allowing to pass a tracking ID when provisioning or cancelling a plan which will help in debugging.
+* We improved the documentation for partners so they're now able to get them right on the Jetpack's Github repository under the docs/partners directory.
 * We added support for excerpts on Testimonial and Portfolio custom post types.
 * We updated the copy-text on Jetpack's Admin page for plans to be more concise on the features of each plan.
 * We updated the way we handle Jetpack's green color in out stylesheets for better compatibility with Jetpack's new logo.
