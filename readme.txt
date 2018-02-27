@@ -145,6 +145,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Markdown: Updated WordAds code to not use create_function which is getting deprecated in PHP 7.2.
 * Sync: Fixed a problem in Jetpack Sync code when trying to get property of non-object in the post syncing file.
 * Sync: Stopped synchronizing the sitemap post types to WordPress.com servers as it was an issue given the size of these.
+* Tracks events: Track events are logged now only if the user has accepted ToS and not just if Jetpack is connected.
 * WordAds: Updated WordAds code to not use create_function which is getting deprecated in PHP 7.2.
 
 = 5.8 =

@@ -131,6 +131,19 @@ We now move any active Jetpack Search widgets to the inactive list if you disabl
 3. Refresh the page and verify that the search module is still disabled.
 4. Visit the widgets configuration page and make sure that the widget you added in step one is now listed at the top of the inactive widgets list.
 
+### Tracks events
+
+We will log events now if the user has already accepted Terms of Service instead of doing it only when Jetpack is connected.
+
+To test:
+
+* Start with a fresh site 
+* Either add some error logging in `Jetpack_Tracks_Client::record_event()`, or look at the live tracks feed in mc for your username.
+* Click on any of the connection buttons.  The option should have been set.  You can check with `Jetpack_Options::get_option( 'tos_agreed' );`
+* You're looking for the events `jetpack_jpc_register_begin`, `jetpack_jpc_register_success` events specifically.  
+* Make sure that previously connected sites are still sending tracks events. 
+* Delete the plugin. The option should have been cleared along with the other Jetpack options.  
+
 ### Twitter Cards
 
 A new filter jetpack_twitter_image_default was added  to allow themes and plugins to customize twitter:image when no suitable image is found automatically.
