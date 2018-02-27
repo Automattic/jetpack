@@ -1,0 +1,413 @@
+/*!
+* Do not modify this file directly.  It is compiled SASS code.
+*/
+@charset "UTF-8";
+/*
+The MIT License (MIT)
+
+Copyright © 2011–2015 thoughtbot, inc.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated
+documentation files (the “Software”), to deal in the Software without restriction, including without limitation the
+rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit
+persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial
+portions of the Software.
+
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE
+WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR
+OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+https://github.com/thoughtbot/bourbon
+*/
+.updated.jp-banner {
+  position: relative;
+  padding: 0;
+}
+
+.updated .jp-banner__header {
+  font-size: 1.125rem;
+  font-weight: 400;
+  margin-top: 0;
+}
+
+.updated .jp-banner__button-container {
+  padding: 0.75rem 0 0;
+}
+
+.updated .jp-banner__tos-blurb {
+  display: block;
+  padding: 0.375rem 0;
+  line-height: 1.5;
+  font-size: 0.6875rem;
+  color: #2e4453;
+}
+
+.jp-banner .notice-dismiss {
+  text-decoration: none;
+}
+
+.jp-banner__description {
+  font-size: 0.875rem;
+}
+
+.jp-banner__description-container {
+  padding: 1rem;
+}
+
+.jetpack-disconnected .jp-connect-full__container {
+  box-sizing: border-box;
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  z-index: 9999;
+  background: rgba(243, 246, 248, 0.95);
+  text-align: center;
+  padding: 2rem;
+}
+
+@media (min-width: 782px) {
+  .jetpack-disconnected .jp-connect-full__container {
+    right: -20px;
+  }
+}
+
+.jp-connect-full__svg-jupiter {
+  position: absolute;
+  left: 0;
+  top: 5rem;
+  opacity: .90;
+}
+
+@media (max-width: 782px) {
+  .jp-connect-full__svg-jupiter {
+    display: none;
+  }
+}
+
+.jp-connect-full__svg-stars {
+  position: absolute;
+  right: 6.25rem;
+  top: 6.25rem;
+  opacity: .90;
+}
+
+@media (max-width: 782px) {
+  .jp-connect-full__svg-stars {
+    display: none;
+  }
+}
+
+.jp-connect-full__svg-dismiss {
+  position: absolute;
+  left: 0;
+  top: 0;
+  fill: #87a6bc;
+  padding: 1rem;
+  height: 1.5rem;
+  width: 1.5rem;
+}
+
+@media (max-width: 600px) {
+  .jp-connect-full__svg-dismiss {
+    top: 3.125rem;
+  }
+}
+
+.jp-connect-full__step-header-logos {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-align: center;
+      align-items: center;
+  -ms-flex-direction: row;
+      flex-direction: row;
+  -ms-flex-pack: center;
+      justify-content: center;
+}
+
+.jp-connect-full__step-header-logos .jp-connect-full__svg-jetpack,
+.jp-connect-full__step-header-logos .jp-connect-full__svg-jetpack {
+  fill: #87a6bc;
+}
+
+.jp-connect-full__step-header-logos .jp-connect-full__svg-sync {
+  fill: #2e4453;
+  margin: 0 1rem;
+}
+
+@media (max-width: 600px) {
+  .jp-connect-full__step-header-logos {
+    padding-top: 2rem;
+  }
+}
+
+.jp-connect-full__step-header-title {
+  padding: 1rem;
+  font-size: 1.5rem;
+  line-height: 1.25;
+  color: #2e4453;
+  font-weight: 400;
+}
+
+.jp-connect-full__card {
+  padding: 0;
+  margin: 0 auto;
+  box-shadow: 0 0 0 1px rgba(200, 215, 225, 0.5), 0 1px 2px #e9eff3;
+  background: white;
+  max-width: 34.375rem;
+}
+
+.jp-connect-full__card-inner {
+  padding: 1rem;
+}
+
+.jp-connect-full__card-description {
+  font-size: 0.875rem;
+  color: #2e4453;
+}
+
+.jp-connect-full__card-footer {
+  background: #f3f6f8;
+  padding: 1rem;
+  box-shadow: 0 0 0 1px rgba(200, 215, 225, 0.5), 0 1px 2px #e9eff3;
+}
+
+.jp-connect-full__tos-blurb {
+  font-size: 0.6875rem;
+  margin: 0 auto 1rem;
+  max-width: 24.0625rem;
+  color: #2e4453;
+}
+
+.jp-connect-full__tos-a {
+  text-decoration: none;
+  color: #0087be;
+}
+
+.jp-connect-full__button-container {
+  margin: 0;
+}
+
+.jp-connect-full__button-container .dops-button.is-primary {
+  background: #00BE28;
+  border-color: #00a523;
+}
+
+.jp-connect-full__button-container .dops-button.is-primary:hover, .jp-connect-full__button-container .dops-button.is-primary:focus {
+  background: #00a523;
+  border-color: #008b1d;
+}
+
+.jp-connect-full__help-button {
+  display: inline-block;
+  text-decoration: none;
+  color: #87a6bc;
+  padding: 1rem;
+}
+
+.jp-connect-full__help-button .gridicon {
+  width: 1.125rem;
+  height: 1.125rem;
+  position: relative;
+  top: 4px;
+}
+
+.jp-connect-full__dismiss {
+  cursor: pointer;
+}
+
+.updated.jp-wpcom-connect__container {
+  border-right: none;
+  padding: 0;
+  box-shadow: 0 0 0 1px rgba(200, 215, 225, 0.5), 0 1px 2px #e9eff3;
+}
+
+@media screen and (max-width: 782px) {
+  .updated.jp-wpcom-connect__container {
+    padding: 0 !important;
+  }
+}
+
+.updated.jp-wpcom-connect__container .dops-button {
+  padding: 7px 14px 9px;
+}
+
+.updated .notice-dismiss {
+  z-index: 1;
+  text-decoration: none;
+}
+
+.jp-wpcom-connect__container {
+  display: block;
+  position: relative;
+  box-sizing: border-box;
+}
+
+.jp-wpcom-connect__inner-container > a:first-child {
+  z-index: 1;
+}
+
+.jp-wpcom-connect__inner-container {
+  display: -ms-flexbox;
+  display: flex;
+  -ms-flex-direction: row;
+      flex-direction: row;
+  -ms-flex-wrap: nowrap;
+      flex-wrap: nowrap;
+  -ms-flex-pack: left;
+      justify-content: left;
+}
+
+.jp-wpcom-connect__content-container {
+  max-width: 800px;
+  position: relative;
+  padding: 2rem;
+  z-index: 0;
+}
+
+@media (min-width: 782px) {
+  .jp-wpcom-connect__content-container {
+    padding: 2rem 2rem 6rem 2rem;
+  }
+}
+
+.jp-wpcom-connect__content-container p {
+  color: #4f748e;
+  font-size: 0.875rem;
+}
+
+.jp-wpcom-connect__content-container h2 {
+  margin-top: 0;
+  color: #4F748E;
+  line-height: 1.6;
+}
+
+.jp-wpcom-connect__content-icon {
+  float: left;
+  margin: 0 2.25rem 0 1.5rem;
+}
+
+@media (max-width: 782px) {
+  .jp-wpcom-connect__content-icon.jp-connect-illo {
+    float: none;
+    width: 100%;
+    text-align: center;
+    margin: 2.25rem 0 1.5rem;
+  }
+}
+
+.jp-wpcom-connect__slide {
+  display: none;
+}
+
+.jp-wpcom-connect__slide.jp__slide-is-active {
+  display: block;
+}
+
+@media (min-width: 782px) {
+  .jp-wpcom-connect__content-container .jp-banner__button-container {
+    position: absolute;
+    bottom: 0.5rem;
+  }
+}
+
+.jp-banner__button-container .dops-button {
+  margin: 0.3125rem 0;
+}
+
+.jp-banner__button-container .dops-button.is-primary {
+  background: #00BE28;
+  border-color: #00a523;
+}
+
+.jp-banner__button-container .dops-button.is-primary:hover, .jp-banner__button-container .dops-button.is-primary:focus {
+  background: #00a523;
+  border-color: #008b1d;
+}
+
+.jp-wpcom-connect__vertical-nav {
+  background-color: #F3F6F8;
+}
+
+@media (min-width: 600px) {
+  .jp-wpcom-connect__vertical-nav {
+    -ms-flex-direction: column;
+        flex-direction: column;
+    -ms-flex-pack: start;
+        justify-content: flex-start;
+  }
+}
+
+@media (max-width: 600px) {
+  .jp-wpcom-connect__vertical-nav {
+    display: none;
+  }
+}
+
+.jp-wpcom-connect__vertical-nav-container {
+  width: 15rem;
+}
+
+.vertical-menu__feature-item-label {
+  display: none;
+}
+
+@media (min-width: 600px) {
+  .vertical-menu__feature-item {
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-direction: row;
+        flex-direction: row;
+    -ms-flex-align: center;
+        align-items: center;
+    border: none;
+    padding: 0.5rem;
+    border-bottom: 1px solid #c8d7e1;
+    border-left: 1px solid #c8d7e1;
+    border-right: 3px solid #F3F6F8;
+    background-color: #F3F6F8;
+    color: #87a6bc;
+    cursor: pointer;
+  }
+  .vertical-menu__feature-item:last-of-type {
+    position: relative;
+    top: 1px;
+  }
+  .vertical-menu__feature-item-is-selected {
+    border-right: 3px solid #0087be;
+    border-left: 1px solid #fff;
+    background-color: #fff;
+    color: #2e4453;
+  }
+  .vertical-menu__feature-item-is-selected.jp-feature-intro {
+    border-right: 3px solid #00BE28;
+  }
+  .vertical-menu__feature-item-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    padding: 0.25rem;
+    text-align: center;
+  }
+  .vertical-menu__feature-item svg {
+    fill: #86A6BD;
+  }
+  .vertical-menu__feature-item-is-selected svg {
+    fill: #3D596D;
+  }
+  .vertical-menu__feature-item-is-selected.jp-feature-intro svg {
+    fill: #00BE28;
+  }
+  .vertical-menu__feature-item-is-selected.wp-app-logo svg path {
+    fill: #3D596D;
+  }
+  .vertical-menu__feature-item-label {
+    display: block;
+    padding: 0.5rem;
+  }
+}
+
+/*# sourceMappingURL=jetpack-banners-rtl.css.map */
