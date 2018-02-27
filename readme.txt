@@ -140,6 +140,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Admin Page: Removed all linting warnings for the JS code of the Admin page. These were only shown in development builds.
 * Connect: Fixed an issue that sometimes resulted in a notice being shown about another user already having connected a Jetpack site when attempting to connect your site to WordPress.com
+* Markdown: Updated WordAds code to not use create_function which is getting deprecated in PHP 7.2.
 * Sync: Fixed a problem in Jetpack Sync code when trying to get property of non-object in the post syncing file.
 * Sync: Stopped synchronizing the sitemap post types to WordPress.com servers as it was an issue given the size of these.
 * WordAds: Updated WordAds code to not use create_function which is getting deprecated in PHP 7.2.
