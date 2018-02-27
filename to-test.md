@@ -1,51 +1,152 @@
-## 5.8
+## 5.9
 
-### Search
+#### Activity Log
 
-Jetpack's [Search feature](https://jetpack.com/support/search/) is now out of Beta! We've made quite a few improvements to the feature in Jetpack 5.8, and we will need your help to test it all.
+Start with a connected site having  a Professional Plan.
 
-**The features are only available to sites using a Jetpack Professional Plan, so you will want to make sure you don't see the features on sites that do not use that plan, or that were downgraded.**
+* Log out of the site.
+* Attempt to login with wrong credentials.
+* Visit WordPress.com Activity log for the site.
+* Expect to see a login failed entry with a nice message related to a username instead of just the IP address origin of the failed attempt.
 
-#### Search Widget
+#### Custom Content Types
 
-To start testing (on a site using Jetpack Professional), drag the Jetpack's Search Widget into one of your widget areas, and interact with its options.
-- The Widget options should work and get saved whether you are using the Customizer to interact with your widgets or the old Appearance > Widgets menu.
-- There should be no JavaScript errors or PHP notices when loading the widget or making changes to it.
-- The number of filters should always be set to 5 by default.
-- Filtering should work as expected: do not hesitate to play with all Filtering options.
-- You should be able to rearrange filters by dragging and dropping.
-- When adjusting filters in the customizer, the preview should still work.
-- If possible, test the widget on a site with multiple post types. WooCommerce sites make good test sites for example.
-- Make sure the Help links are working.
-- The widget should never display private data, such as private post types or taxonomies.
+We added support for excerpts to these custom content types.
 
-#### Search Results
+* Attempt to create either a new Portfolio post or a Testimonial one. 
+* Expect to see the excerpt field shown.
 
-- When using the Search Widget to exclude or include a specific Post Type in search results, make sure that works.
-- Sorting results should work as expected.
-- You should be able to adjust filters when looking at the search results page.
-- Make sure the filters interface works and looks good with your theme. It should look similar to your other widgets.
-- Make sure the results are relevant :)
+#### Jetpack Connect
 
-### Lazy images
+With Jetpack 5.8 we introduced an issue that would appear sometimes when attempting to connect a site after clicking the banner for Jetpack in the WordPress Dashboard.
 
-Jetpack 5.8 introduces a new module, Lazy Images. This feature, once activated under Jetpack > Settings, improves performance by loading images just before they scroll into view, and not before. To test it, activate the feature and make sure that all your images are still displayed properly, regardless of how they were inserted into your posts or pages.
-You will also want to make sure the feature does not get activated by default when you update.
+* Start with a brand new site, with Jetpack active but not connected.
+* visit WordPress' Dashboard and click the Set up Jetpack button.
+* Expect to be redirected to Calypso. Then click the Back button to get to the WordPress dashboard again.
+* Click the Set Up Jetpack button.
+* Expect to be redirected to Calypso.
+* Expect to **not** see a yellow notice stating that the site is already connected to another account.
 
-### Publicize / Subscriptions
+#### Jetpack Onboarding
 
-We've made some changes to the way post status was synchronized with WordPress.com in this release. You will want to make sure Publicize and Subscriptions still work properly:
-1. Try scheduling posts and see if they get sent to subscribers.
-2. Try unpublishing a post that's already been publicized, and then publish it again; it should not be sent to subscribers.
-3. Try publishing posts from a third-party app like [Stackedit](https://stackedit.io/editor).
-4. Try bulk-editing posts in your editor, and make sure no posts get sent to subscribers by mistake.
+_The following features are only enabled in the stagin in envrironment._
 
-### WordPress.com
+We started allowing saving of a country field for the business address.
+Test with a **brand new site** that's not connected yet:
 
-We've made some changes to the way plugins can be installed via Jetpack. To test this, head over to [WordPress.com/plugins](https://wordpress.com/plugins) and try the following:
-1. Install a new plugin by clicking on [Upload Plugin](https://wordpress.com/plugins/upload).
-2. Install a new theme by going to [Upload Theme](https://wordpress.com/themes/upload).
-3. Update plugins and themes.
+* Start the onboarding flow for the Jetpack site by going to `/wp-admin/admin.php?page=jetpack&action=onboard&calypso_env=wpcalypso`
+* On the site type step, choose **Business**
+* Skip to the Business Address step.
+* Verify the country field appears properly.
+* Input some data in it, and save the step. 
+* Verify the country saves properly and goes straight to the address widget.
+* Verify a fresh load of this step loads the setting properly.
+
+We also started allowing the enabling of the stats module on this flow. 
+
+Test with a **brand new site** that's not connected yet:
+
+* Start the onboarding flow (`/wp-admin/admin.php?page=jetpack&action=onboard&calypso_env=wpcalypso`)
+* When arriving the Calypso screen, in your console, enter `dispatch( { type: 'JETPACK_ONBOARDING_SETTINGS_REQUEST', siteId: 12345678 } )`, where `12345678` is the ID of your site.
+* Verify the response contains a `stats` field in the `onboarding` option and it's disabled.
+* In your console, enter `dispatch( { type: 'JETPACK_ONBOARDING_SETTINGS_SAVE', siteId: 12345678, settings: { stats: true } } )` , where `12345678` is the ID of your site.
+* Verify you get a `stats not connected` error.
+* Connect the site.
+* In your console, enter `dispatch( { type: 'JETPACK_ONBOARDING_SETTINGS_SAVE', siteId: 12345678, settings: { stats: true } } )` , where `12345678` is the ID of your site.
+* Verify you receive a successful response, and the stats module gets enabled.
+
+#### Lazy images.
+
+We now properly hide settings for Lazy images if the modules is filtered out.
+
+* Try to filter out lazy images as a module using this snippet:
+```
+add_filter( 'jetpack_get_available_modules', function( $active ) {
+	return array_diff_key( $active, array( 'lazy-images' => 'Does not matter' ) );
+} );
+```
+* Make sure you don't see the module at all when you open the Writing tab, or search for something like `lazy`.
+
+
+We now allow images to be ignores by Lazy images if they contain a reserved class name like `skip-lazy` or a custom one you defined via the `jetpack_lazy_images_blacklisted_classes` filter.
+
+* Create a post with some images. 
+* Apply the skip-lazy class to one of them.
+* Save the post
+* Visit the post in the frontend.
+* Expect the image to not be loaded in a deferred fashion.
+
+
+#### Masterbar
+
+* Start by being signed in to WordPress.com (non-proxied).
+* Then, on a connected Jetpack site...
+* Enable the Masterbar from the Jetpack Settings Page..
+* Sign out from the Masterbar.
+* Go back to WordPress.com.
+* Expect to be logged in.
+
+Repeat steps on an AT site but expect to be logged out from WordPress.com in the end.
+
+* Start by being signed in to WordPress.com (non-proxied).
+* Then, on an AT site...
+* Enable the Masterbar from the Jetpack Settings Page..
+* Sign out from the Masterbar.
+* Go back to WordPress.com.
+* Expect to be logged out.
+
+#### Search
+
+Start with a site that has a plan that supports Jetpack Search.
+
+1. Remove any active search widgets and disable the search module via Settings -> Traffic.
+2. Verify that the widget still shows up in both the admin area and the customizer.
+3. Add the widget to your sidebar.
+4. Load the frontend of your site and verify that the widget shows up and works.
+5. Verify that the search module is now enabled again.
+
+
+We now link from the Jetpack Search settings card to the proper widgets section in the customizer
+
+* Go to Jetpack → Settings → Traffic and enable the Search module. Click on "Add Jetpack Search Widget" and verify that the widgets section of the Customizer opens once it fully loads (it'll take a moment).
+
+
+#### WooCommerce analytics
+
+* Use a test site which is connected with Jetpack and has WooCommerce active
+* As a logged out user, notice a request to  `https://stats.wp.com/s-20180821.js` on public facing pages. The `20180821` is dynamic and will change based on date
+* Notice `https://stats.wp.com/s-20180821.js` is not requested on `wp-admin` pages because this code should not run on admin facing pages. The same for logged in admin users.
+* Back to user facing pages, open the console and see `_wca` global exists and is an object. 
+
+##### Product Page View
+* Go to a product page
+* See a Network request `t.gif`
+
+##### Add to Cart via a list
+* Click "Add to Cart"
+* See a Network request `t.gif`
+
+##### Add to Cart via a Product Page
+* Go to a product page
+* Enable the Preserve log checkbox at the top of the console to persist the console history between page refreshes or changes.
+* Click "Add to Cart"
+* See a Network request `t.gif`
+
+##### Remove from Cart via click on the "X"
+* Add an item to your cart
+* Go to the cart and remove the item by clicking the "X"
+* See a Network request `t.gif`
+
+##### Remove from Cart via updating the quantity
+* Add an item to your cart
+* Go to the cart and remove the item by changing the quantity to 0
+* Click "Update"
+* See a Network request `t.gif`
+
+##### Order Received
+* "Place Order" on your cart
+* Once the page refreshes, see one event for each item in the order
+
 
 ### Final Notes
 
