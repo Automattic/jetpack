@@ -60,7 +60,8 @@ class WPCOM_JSON_API_List_Media_Endpoint extends WPCOM_JSON_API_Endpoint {
 			'post_parent' => $args['parent_id'],
 			'offset' => $args['offset'],
 			'numberposts' => $args['number'],
-			'post_mime_type' => $args['mime_type']
+			'post_mime_type' => $args['mime_type'],
+			'suppress_filters' => false,
 		) );
 
 		$response = array();
