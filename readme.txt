@@ -123,6 +123,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * We removed an obsolete endpoint for updating invites.
 * Only log mysql and ES query times that are less than 60 seconds. There are some outliers that mess up our stats.
 * Move any active search widgets to the inactive list if you disable the search module.
+* Delete the onboarding token when the site gets connected.
 
 **Improved compatibility**
 
