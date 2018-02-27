@@ -49,10 +49,10 @@ jobs:
           at: ~/wp-e2e-tests
       - run:
           name: Randomize spec execution order
-          command: ./wp-e2e-tests/scripts/randomize.sh specs
+          command: cd wp-e2e-tests && ./scripts/randomize.sh specs
       - run:
           name: Run e2e tests
-          command: ./wp-e2e-tests/run.sh -R -j -p -x
+          command: cd wp-e2e-tests && ./run.sh -R -j -p -x
       - store_test_results:
           path: wp-e2e-tests/reports/
       - store_artifacts:
