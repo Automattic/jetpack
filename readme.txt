@@ -118,6 +118,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * We updated the Jetpack Search settings card to be more helpful in setting up the widget.
 * We made the "Add Jetpack Search Widget" link in the Search module settings card open the widgets section of the customizer.
 * We added a pre-commit hook for linting the Jetpack Admin Page source code. This aids in finding common syntax and style problems before having to wait for automated tests to run.
+* We added the ability to configure the country for a business address the using the Onboarding functionality of Jetpack.
 
 **Improved compatibility**
 
