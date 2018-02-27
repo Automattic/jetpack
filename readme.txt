@@ -124,6 +124,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Bug fixes**
 
 * We fixed a problem in Jetpack Sync code when trying to get property of non-object the post syncing file.
+* We stopped synchronizing the sitemap post types to WordPress.com servers as it was an issue given the size of these.
 
 = 5.8 =
 
