@@ -1,6 +1,6 @@
 ## 5.9
 
-#### Activity Log
+### Activity Log
 
 Start with a connected site having  a Professional Plan.
 
@@ -9,14 +9,14 @@ Start with a connected site having  a Professional Plan.
 * Visit WordPress.com Activity log for the site.
 * Expect to see a login failed entry with a nice message related to a username instead of just the IP address origin of the failed attempt.
 
-#### Custom Content Types
+### Custom Content Types
 
 We added support for excerpts to these custom content types.
 
 * Attempt to create either a new Portfolio post or a Testimonial one. 
 * Expect to see the excerpt field shown.
 
-#### Jetpack Connect
+### Jetpack Connect
 
 With Jetpack 5.8 we introduced an issue that would appear sometimes when attempting to connect a site after clicking the banner for Jetpack in the WordPress Dashboard.
 
@@ -27,7 +27,7 @@ With Jetpack 5.8 we introduced an issue that would appear sometimes when attempt
 * Expect to be redirected to Calypso.
 * Expect to **not** see a yellow notice stating that the site is already connected to another account.
 
-#### Jetpack Onboarding
+### Jetpack Onboarding
 
 _The following features are only enabled in the stagin in envrironment._
 
@@ -65,7 +65,7 @@ Test with a **brand new site** that's not connected yet:
 * Go to https://wordpress.com/jetpack/connect/ and connect the site.
 * Visit `/wp-admin/options.php` again and verify `jetpack_onboarding` is not present in the list of options.
 
-#### Lazy images.
+### Lazy images.
 
 We now properly hide settings for Lazy images if the modules is filtered out.
 
@@ -78,7 +78,7 @@ add_filter( 'jetpack_get_available_modules', function( $active ) {
 * Make sure you don't see the module at all when you open the Writing tab, or search for something like `lazy`.
 
 
-We now allow images to be ignores by Lazy images if they contain a reserved class name like `skip-lazy` or a custom one you defined via the `jetpack_lazy_images_blacklisted_classes` filter.
+We now allow images to be ignored by Lazy images if they contain a reserved class name like `skip-lazy` or a custom one you defined via the `jetpack_lazy_images_blacklisted_classes` filter.
 
 * Create a post with some images. 
 * Apply the skip-lazy class to one of them.
@@ -87,7 +87,7 @@ We now allow images to be ignores by Lazy images if they contain a reserved clas
 * Expect the image to not be loaded in a deferred fashion.
 
 
-#### Masterbar
+### Masterbar
 
 * Start by being signed in to WordPress.com (non-proxied).
 * Then, on a connected Jetpack site...
@@ -96,7 +96,7 @@ We now allow images to be ignores by Lazy images if they contain a reserved clas
 * Go back to WordPress.com.
 * Expect to be logged in.
 
-Repeat steps on an AT site but expect to be logged out from WordPress.com in the end.
+Repeat steps on an Atomic site but expect to be logged out from WordPress.com in the end.
 
 * Start by being signed in to WordPress.com (non-proxied).
 * Then, on an AT site...
@@ -105,7 +105,7 @@ Repeat steps on an AT site but expect to be logged out from WordPress.com in the
 * Go back to WordPress.com.
 * Expect to be logged out.
 
-#### Search
+### Search
 
 Start with a site that has a plan that supports Jetpack Search.
 
@@ -127,39 +127,39 @@ We now move any active Jetpack Search widgets to the inactive list if you disabl
 3. Refresh the page and verify that the search module is still disabled.
 4. Visit the widgets configuration page and make sure that the widget you added in step one is now listed at the top of the inactive widgets list.
 
-#### WooCommerce analytics
+### WooCommerce analytics
 
 * Use a test site which is connected with Jetpack and has WooCommerce active
 * As a logged out user, notice a request to  `https://stats.wp.com/s-20180821.js` on public facing pages. The `20180821` is dynamic and will change based on date
 * Notice `https://stats.wp.com/s-20180821.js` is not requested on `wp-admin` pages because this code should not run on admin facing pages. The same for logged in admin users.
 * Back to user facing pages, open the console and see `_wca` global exists and is an object. 
 
-##### Product Page View
+#### Product Page View
 * Go to a product page
 * See a Network request `t.gif`
 
-##### Add to Cart via a list
+#### Add to Cart via a list
 * Click "Add to Cart"
 * See a Network request `t.gif`
 
-##### Add to Cart via a Product Page
+#### Add to Cart via a Product Page
 * Go to a product page
 * Enable the Preserve log checkbox at the top of the console to persist the console history between page refreshes or changes.
 * Click "Add to Cart"
 * See a Network request `t.gif`
 
-##### Remove from Cart via click on the "X"
+#### Remove from Cart via click on the "X"
 * Add an item to your cart
 * Go to the cart and remove the item by clicking the "X"
 * See a Network request `t.gif`
 
-##### Remove from Cart via updating the quantity
+#### Remove from Cart via updating the quantity
 * Add an item to your cart
 * Go to the cart and remove the item by changing the quantity to 0
 * Click "Update"
 * See a Network request `t.gif`
 
-##### Order Received
+#### Order Received
 * "Place Order" on your cart
 * Once the page refreshes, see one event for each item in the order
 
