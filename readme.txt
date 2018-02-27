@@ -106,43 +106,43 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
-* Admin Page: We now hide settings for Lazy Images and Photon in the Admin page when the modules are not enabled due to being filtered out by jetpack_get_available_modules.
-* Sync: Improved the way widget titles are synchronized to WordPress.com servers when widgets are saved or updated.
 * Activity Log: Improved the way we show failed login attempts in Jetpack's Activity Log.
+* Admin Page: We now hide settings for Lazy Images and Photon in the Admin page when the modules are not enabled due to being filtered out by jetpack_get_available_modules.
+* Build: Added a pre-commit hook for linting the Jetpack Admin Page source code. This aids in finding common syntax and style problems before having to wait for automated tests to run.
+* JSON API: We removed an obsolete endpoint for updating invites.
+* Onboarding: Added the ability to configure the country for a business address the using the Onboarding functionality of Jetpack.
+* Onboarding: Added the ability to enable the stats module when using the Onboarding functionality.
+* Onboarding: We now delete the onboarding token when the site gets connected.
+* Partner Scripts: Updated scripts for partners allowing to pass a tracking ID when provisioning or cancelling a plan which will help in debugging.
+* Partner Scripts: Improved the documentation for partners so they're now able to get them right on the Jetpack's Github repository under the docs/partners directory.
+* Plans: Correctly forward the client IP address for currency localization.
+* Plans: Updated the copy-text on Jetpack's Admin page for plans to be more concise on the features of each plan.
+* REST API: Added a plans endpoint to Jetpack's REST API to better handle the features of each Jetpack plan internally.
 * Search Implicitly activate Jetpack Search when attempting to add the Jetpack Search widget.
 * Search: Updated the Jetpack Search settings card to be more helpful in setting up the widget.
 * Search: We made the "Add Jetpack Search Widget" link in the Search module settings card open the widgets section of the customizer.
 * Search: Move any active search widgets to the inactive list if you disable the search module.
 * Search: Only log mysql and ES query times that are less than 60 seconds. There are some outliers that mess up our stats.
-* REST API: Added a plans endpoint to Jetpack's REST API to better handle the features of each Jetpack plan internally.
+* Sync: Improved the way widget titles are synchronized to WordPress.com servers when widgets are saved or updated.
 * We updated the way we handle Jetpack's green color in out stylesheets for better compatibility with Jetpack's new logo.
-* Build: Added a pre-commit hook for linting the Jetpack Admin Page source code. This aids in finding common syntax and style problems before having to wait for automated tests to run.
-* Onboarding: Added the ability to configure the country for a business address the using the Onboarding functionality of Jetpack.
-* Onboarding: Added the ability to enable the stats module when using the Onboarding functionality.
-* JSON API: We removed an obsolete endpoint for updating invites.
-* Onboarding: We now delete the onboarding token when the site gets connected.
-* Plans: correctly forward the client IP for currency localization.
-* Plans: Updated the copy-text on Jetpack's Admin page for plans to be more concise on the features of each plan.
-* Partner Scripts: Updated scripts for partners allowing to pass a tracking ID when provisioning or cancelling a plan which will help in debugging.
-* Partner Scripts: Improved the documentation for partners so they're now able to get them right on the Jetpack's Github repository under the docs/partners directory.
 
 **Improved compatibility**
 
-* Masterbar: Updated the sign out button behaviour of the Masterbar to not sign you out of WordPress.com when you sign out of your site for regular Jetpack sites.
 * Admin Page: Jetpack's Admin Page javascript code is now fully compatible with React 16.
-* Lazy Images: Updated the library used as IntersectionObserver for Lazy Images. We now use the W3C IntersectionObserver polyfill.
-* Lazy Images: Jetpack now allows the lazy images module to skip images with the skip-lazy css class or any give class of your choice by using the jetpack_lazy_images_blacklisted_classes filter.
-* Sync: Added the jetpack_sync_action_before_enqueue action that's done when anything gets enqueued before being synchronized to WordPress.com servers.
-* REST API: Updated the modules endpoint in Jetpack's REST API to be aware of modules that have been filtered through option_jetpack_active_modules allowing for better compatibility with custom Jetpack installation where the administrator decides to filter out specific Jetpack modules.
 * JSON API: Updated the modules endpoint Jetpack's JSON API to reply with a new property `override` that indicates if a module was either enabled or disabled by a filter.
+* Lazy Images: Updated the library used as IntersectionObserver for Lazy Images. We now use the W3C IntersectionObserver polyfill.
+* Lazy Images: Jetpack now allows the lazy images module to skip images with the skip-lazy css class or any given class of your choice by using the jetpack_lazy_images_blacklisted_classes filter.
+* Masterbar: Updated the sign out button behaviour of the Masterbar to not sign you out of WordPress.com when you sign out of your site for regular Jetpack sites.
+* REST API: Updated the modules endpoint in Jetpack's REST API to be aware of modules that have been filtered through option_jetpack_active_modules allowing for better compatibility with custom Jetpack installation where the administrator decides to filter out specific Jetpack modules.
+* Sync: Added the jetpack_sync_action_before_enqueue action that's done when anything gets enqueued before being synchronized to WordPress.com servers.
 
 **Bug fixes**
 
-* Sync: Fixed a problem in Jetpack Sync code when trying to get property of non-object the post syncing file.
-* Sync: Stopped synchronizing the sitemap post types to WordPress.com servers as it was an issue given the size of these.
 * Admin Page: Removed all linting warnings for the JS code of the Admin page. These were only shown in development builds.
-* WordAds: Updated WordAds code to not use create_function which is getting deprecated in PHP 7.2.
 * Connect: Fixed an issue that sometimes resulted in a notice being shown about another user already having connected a Jetpack site when attempting to connect your site to WordPress.com
+* Sync: Fixed a problem in Jetpack Sync code when trying to get property of non-object in the post syncing file.
+* Sync: Stopped synchronizing the sitemap post types to WordPress.com servers as it was an issue given the size of these.
+* WordAds: Updated WordAds code to not use create_function which is getting deprecated in PHP 7.2.
 
 = 5.8 =
 
