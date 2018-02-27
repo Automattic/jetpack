@@ -136,6 +136,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * We stopped synchronizing the sitemap post types to WordPress.com servers as it was an issue given the size of these.
 * We removed all linting warnings for the JS code of the Admin page. These were only shown in development builds.
 * We updated WordAds code to not use create_function which is getting deprecated in PHP 7.2.
+* We fixed an issue that sometimes resulted in a notice being shown about another user already having connected a Jetpack site when attempting to connect your site to WordPress.com
 
 = 5.8 =
 
