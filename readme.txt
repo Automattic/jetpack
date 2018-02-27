@@ -114,6 +114,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 
+* We fixed a problem in Jetpack Sync code when trying to get property of non-object the post syncing file.
+
 = 5.8 =
 
 * Release date: February 6, 2018
