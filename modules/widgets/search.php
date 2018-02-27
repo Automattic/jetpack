@@ -214,6 +214,18 @@ class Jetpack_Search_Widget extends WP_Widget {
 		return true;
 	}
 
+	public function jetpack_search_populate_defaults( $instance ) {
+		$instance = wp_parse_args( (array) $instance, array(
+			'title'              => '',
+			'search_box_enabled' => true,
+			'user_sort_enabled'  => true,
+			'sort'               => self::DEFAULT_SORT,
+			'filters'            => array( array() ),
+		) );
+
+		return $instance;
+	}
+
 	/**
 	 * Responsible for rendering the widget on the frontend.
 	 *
@@ -223,6 +235,8 @@ class Jetpack_Search_Widget extends WP_Widget {
 	 * @param array $instance The current widget instance.
 	 */
 	public function widget( $args, $instance ) {
+		$instance = $this->jetpack_search_populate_defaults( $instance );
+
 		$display_filters = false;
 
 		if ( is_search() ) {
@@ -471,21 +485,16 @@ class Jetpack_Search_Widget extends WP_Widget {
 	 * @param array $instance Current settings.
 	 */
 	public function form( $instance ) {
-		$instance = wp_parse_args( (array) $instance, array(
-			'title'   => '',
-			'filters' => array( array() )
-		) );
+		$instance = $this->jetpack_search_populate_defaults( $instance );
 
 		$title = strip_tags( $instance['title'] );
 
-		$hide_filters       = Jetpack_Search_Helpers::are_filters_by_widget_disabled();
-		$search_box_enabled = ! isset( $instance['search_box_enabled'] ) || ! empty( $instance['search_box_enabled'] );
-		$user_sort_enabled  = ! empty( $instance['user_sort_enabled'] );
-		$sort               = isset( $instance['sort'] ) ? $instance['sort'] : self::DEFAULT_SORT;
-		$classes            = sprintf(
+		$hide_filters = Jetpack_Search_Helpers::are_filters_by_widget_disabled();
+
+		$classes = sprintf(
 			'jetpack-search-filters-widget %s %s %s',
 			$hide_filters ? 'hide-filters' : '',
-			$search_box_enabled ? '' : 'hide-post-types',
+			$instance['search_box_enabled'] ? '' : 'hide-post-types',
 			$this->id
 		);
 		?>
@@ -509,7 +518,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 						type="checkbox"
 						class="jetpack-search-filters-widget__search-box-enabled"
 						name="<?php echo esc_attr( $this->get_field_name( 'search_box_enabled' ) ); ?>"
-						<?php checked( $search_box_enabled ); ?>
+						<?php checked( $instance['search_box_enabled'] ); ?>
 					/>
 					<?php esc_html_e( 'Show search box', 'jetpack' ); ?>
 				</label>
@@ -520,8 +529,8 @@ class Jetpack_Search_Widget extends WP_Widget {
 						type="checkbox"
 						class="jetpack-search-filters-widget__sort-controls-enabled"
 						name="<?php echo esc_attr( $this->get_field_name( 'user_sort_enabled' ) ); ?>"
-						<?php checked( $user_sort_enabled ); ?>
-						<?php disabled( ! $search_box_enabled ); ?>
+						<?php checked( $instance['user_sort_enabled'] ); ?>
+						<?php disabled( ! $instance['search_box_enabled'] ); ?>
 					/>
 					<?php esc_html_e( 'Show sort selection dropdown', 'jetpack' ); ?>
 				</label>
@@ -549,7 +558,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 						name="<?php echo esc_attr( $this->get_field_name( 'sort' ) ); ?>"
 						class="widefat jetpack-search-filters-widget__sort-order">
 						<?php foreach ( $this->get_sort_types() as $sort_type => $label ) { ?>
-							<option value="<?php echo esc_attr( $sort_type ); ?>" <?php selected( $sort, $sort_type ); ?>>
+							<option value="<?php echo esc_attr( $sort_type ); ?>" <?php selected( $instance['sort'], $sort_type ); ?>>
 								<?php echo esc_html( $label ); ?>
 							</option>
 						<?php } ?>
