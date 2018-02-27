@@ -130,6 +130,9 @@ class Jetpack_Client_Server {
 			return 'linked';
 		}
 
+		// If this site has been through the Jetpack Onboarding flow, delete the onboarding token
+		Jetpack::invalidate_onboarding_token();
+
 		// If redirect_uri is SSO, ensure SSO module is enabled
 		parse_str( parse_url( $data['redirect_uri'], PHP_URL_QUERY ), $redirect_options );
 
