@@ -106,7 +106,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Enhancements**
 
 * We added a new module for WooCommerce analytics that will use Jetpack's analytics functionality to help you track activity on your WooCommerce store.
-* We updated scripts for partners allowing to pass a tracking ID when provisioning or cancelling a plan which will help in debugging
+* We updated scripts for partners allowing to pass a tracking ID when provisioning or cancelling a plan which will help in debugging.
+* We added support for excerpts on Testimonial and Portfolio custom post types.
 
 **Improved compatibility**
 
