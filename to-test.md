@@ -2,6 +2,8 @@
 
 ### Activity Log
 
+We now show a better entry in the Activity Log for a failed login event.
+
 Start with a connected site having  a Professional Plan.
 
 * Log out of the site.
@@ -21,7 +23,7 @@ We added support for excerpts to these custom content types.
 With Jetpack 5.8 we introduced an issue that would appear sometimes when attempting to connect a site after clicking the banner for Jetpack in the WordPress Dashboard.
 
 * Start with a brand new site, with Jetpack active but not connected.
-* visit WordPress' Dashboard and click the Set up Jetpack button.
+* Visit the WordPress Dashboard and click the Set up Jetpack button.
 * Expect to be redirected to Calypso. Then click the Back button to get to the WordPress dashboard again.
 * Click the Set Up Jetpack button.
 * Expect to be redirected to Calypso.
