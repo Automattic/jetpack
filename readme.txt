@@ -116,6 +116,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * We updated the sign out button behaviour of the Masterbar to not sign you out of WordPress.com when you sign out of your site for regular Jetpack sites.
 * We made Jetpack's Admin Page javascript code be fully compatible with React 16.
+* We now allow lazy images to skip images with the skip-lazy css class or any give class of your choice by using the jetpack_lazy_images_blacklisted_classes filter.
 
 **Bug fixes**
 
