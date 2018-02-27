@@ -36,11 +36,11 @@ jobs:
           paths:
             - .
       - store_test_results:
-          path: reports/
+          path: wp-e2e-tests/reports/
       - store_artifacts:
-          path: reports/
+          path: wp-e2e-tests/reports/
       - store_artifacts:
-          path: screenshots/
+          path: wp-e2e-tests/screenshots/
   test:
     <<: *defaults
     parallelism: 2
@@ -49,16 +49,16 @@ jobs:
           at: ~/wp-e2e-tests
       - run:
           name: Randomize spec execution order
-          command: ./scripts/randomize.sh specs
+          command: ./wp-e2e-tests/scripts/randomize.sh specs
       - run:
           name: Run e2e tests
-          command: ./run.sh -R -j -p -x
+          command: ./wp-e2e-tests/run.sh -R -j -p -x
       - store_test_results:
-          path: reports/
+          path: wp-e2e-tests/reports/
       - store_artifacts:
-          path: screenshots/
+          path: wp-e2e-tests/screenshots/
       - store_artifacts:
-          path: reports/
+          path: wp-e2e-tests/reports/
 workflows:
   version: 2
   build_test_destroy:
