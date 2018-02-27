@@ -55,6 +55,16 @@ Test with a **brand new site** that's not connected yet:
 * In your console, enter `dispatch( { type: 'JETPACK_ONBOARDING_SETTINGS_SAVE', siteId: 12345678, settings: { stats: true } } )` , where `12345678` is the ID of your site.
 * Verify you receive a successful response, and the stats module gets enabled.
 
+
+This flow now delete the temporary token used for saving settings before the site is connected.
+Test with a **brand new site** that's not connected yet:
+
+* Make sure you are logged into WP.com and the Jetpack site.
+* Start the onboarding flow by going to `/wp-admin/admin.php?page=jetpack&action=onboard&calypso_env=wp-calypso` and get redirected to the site title step in Calypso
+* Visit `/wp-admin/options.php` and verify `jetpack_onboarding` contains the token.
+* Go to https://wordpress.com/jetpack/connect/ and connect the site.
+* Visit `/wp-admin/options.php` again and verify `jetpack_onboarding` is not present in the list of options.
+
 #### Lazy images.
 
 We now properly hide settings for Lazy images if the modules is filtered out.
@@ -110,6 +120,12 @@ We now link from the Jetpack Search settings card to the proper widgets section 
 
 * Go to Jetpack → Settings → Traffic and enable the Search module. Click on "Add Jetpack Search Widget" and verify that the widgets section of the Customizer opens once it fully loads (it'll take a moment).
 
+We now move any active Jetpack Search widgets to the inactive list if you disable the search module.
+
+1. Add the Jetpack Search widget to your sidebar. Ideally give it a custom title so you can more easily track it.
+2. Disable the search module.
+3. Refresh the page and verify that the search module is still disabled.
+4. Visit the widgets configuration page and make sure that the widget you added in step one is now listed at the top of the inactive widgets list.
 
 #### WooCommerce analytics
 
