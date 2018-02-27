@@ -53,7 +53,7 @@ class Jetpack_Tracks_Client {
 	 * @return mixed         True on success, WP_Error on failure
 	 */
 	static function record_event( $event ) {
-		if ( ! Jetpack::is_active() ) {
+		if ( ! Jetpack::jetpack_tos_agreed() ) {
 			return false;
 		}
 		
