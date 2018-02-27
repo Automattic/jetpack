@@ -113,8 +113,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Onboarding: Added the ability to configure the country for a business address the using the Onboarding functionality of Jetpack.
 * Onboarding: Added the ability to enable the stats module when using the Onboarding functionality.
 * Onboarding: We now delete the onboarding token when the site gets connected.
-* Partner Scripts: Updated scripts for partners allowing to pass a tracking ID when provisioning or cancelling a plan which will help in debugging.
-* Partner Scripts: Improved the documentation for partners so they're now able to get them right on the Jetpack's Github repository under the docs/partners directory.
+* Jetpack Start: Updated scripts for partners allowing to pass a tracking ID when provisioning or cancelling a plan which will help in debugging.
+* Jetpack Start: Improved the documentation for partners so they're now able to get them right on the Jetpack's Github repository under the docs/partners directory.
 * Plans: Correctly forward the client IP address for currency localization.
 * Plans: Updated the copy-text on Jetpack's Admin page for plans to be more concise on the features of each plan.
 * REST API: Added a plans endpoint to Jetpack's REST API to better handle the features of each Jetpack plan internally.
