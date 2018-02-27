@@ -6,7 +6,6 @@ defaults: &defaults
                 JETPACKHOST: JN
                 NODE_ENV: test
                 TARGET: JETPACK
-                E2E_BRANCH: try/generic-circleci-container
 version: 2
 jobs:
   build:
