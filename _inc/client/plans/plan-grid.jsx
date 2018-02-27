@@ -322,8 +322,16 @@ class PlanGrid extends React.Component {
 	}
 
 	renderFeatureLink( feature ) {
+		const clickHandler = () => {
+			analytics.tracks.recordJetpackClick( {
+				target: feature.id,
+				type: 'feature-discovery',
+				plan: this.props.sitePlan.product_slug,
+				page: 'Plans'
+			} );
+		};
 		return (
-			<a href={ 'https://jetpack.com/features/' + feature.info }>{ feature.name }</a>
+			<a onClick={ clickHandler } href={ 'https://jetpack.com/features/' + feature.info }>{ feature.name }</a>
 		);
 	}
 
