@@ -160,6 +160,14 @@ Include this snippet:
     ```
 * Fetch your site's home page, and a post page that wouldn't otherwise have a Twitter image set. Verify that they both now include `<meta name="twitter:image" content="http://asdf.com/89asdf.gif" />`.
 
+### Widget Visibility
+
+A decodeEntities function was added in widget-conditions.js to handle entity decoding for the minor conditions dropdown.
+
+To test:
+
+* Check the minor conditions dropdown with a category name that contains an entity (e.g. ampersand) in the widget visibility settings. 
+* Confirm that the category name is encoded properly on the dropdown.
 
 ### WooCommerce analytics
 
