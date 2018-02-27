@@ -508,25 +508,6 @@ $plan-features-sidebar-width: 272px;
 	padding-top: 15px;
 	padding-bottom: 15px;
 }
-.plan-price__monthly {
-	display: inline-block;
-	position: relative;
-	margin-right: 6px;
-	text-decoration: none;
-	abbr {
-		text-decoration: none;
-	}
-	 &::before {
-		position: absolute;
-		content: "";
-		left: 0;
-		top: 50%;
-		right: 0;
-		border-top: 2px solid rgba( $green-secondary, .8 );
-		transform: rotate(-16deg);
-		opacity: .9;
- }
-}
 .plan-price__yearly {
 	color: $gray-dark;
 }

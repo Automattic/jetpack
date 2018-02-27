@@ -113,22 +113,6 @@ class PlanGrid extends React.Component {
 	}
 
 	/**
-	 * Create a <del> element that takes the monthly price * 12 months
-	 * @param {object} price A price object from the API response
-	 * @return {ReactElement} monthly price
-	 */
-	getYearlyPriceFromMonthly( price ) {
-		const inflatedPrice = price.html.replace( price.amount, price.amount * 12 );
-		const markup = { __html: inflatedPrice };
-		// using dangerouslySetInnerHTML because formatting localized
-		// currencies is best left to our server and it includes the <abbr> element
-		/*eslint-disable react/no-danger*/
-		return (
-			<del className="plan-price__monthly" dangerouslySetInnerHTML={ markup } />
-		);
-	}
-
-	/**
 	 * Renders our plan headers
 	 * @return {ReactElement} needed <td> headers
 	 */
@@ -174,8 +158,7 @@ class PlanGrid extends React.Component {
 			/*eslint-disable react/no-danger*/
 			return (
 				<td key={ 'price-' + type } className={ className }>
-					{ this.getYearlyPriceFromMonthly( plan.price.monthly ) }
-					<span className="plan-price__yearly" dangerouslySetInnerHTML={ { __html: plan.price.yearly.html + ' per year' } } />
+					<span className="plan-price__yearly" dangerouslySetInnerHTML={ { __html: plan.price.yearly.per } } />
 				</td>
 			);
 		} );
