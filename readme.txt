@@ -110,6 +110,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * We updated the copy-text on Jetpack's Admin page for plans to be more concise on the features of each plan.
 * We updated the way we handle Jetpack's green color in out stylesheets for better compatibility with Jetpack's new logo.
 * We now hide settings for Lazy Images and Photon in the Admin page when the modules are not enabled due to being filtered out by jetpack_get_available_modules.
+* We improved the way in which we synchronize widgettitles to WordPress.com servers when widgets are saved or updated.
 
 **Improved compatibility**
 
