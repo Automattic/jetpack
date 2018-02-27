@@ -102,7 +102,6 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Major Enhancements**
 
 
-
 **Enhancements**
 
 * We added a new module for WooCommerce analytics that will use Jetpack's analytics functionality to help you track activity on your WooCommerce store.
@@ -112,6 +111,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Improved compatibility**
 
 * We updated the sign out button behaviour of the Masterbar to not sign you out of WordPress.com when you sign out of your site for regular Jetpack sites.
+* We made Jetpack's Admin Page javascript code be fully compatible with React 16.
 
 **Bug fixes**
 
