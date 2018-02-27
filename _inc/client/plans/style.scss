@@ -412,16 +412,11 @@ $plan-features-sidebar-width: 272px;
 		content: '';
 		display: block;
 		height: 1px;
-		width: calc( 100% - 48px );
+		width: calc( 100% - 24px );
 		border-bottom: 1px solid lighten( $gray, 27% );
 		position: absolute;
 		bottom: 0;
-		margin: 0 24px;
-
-		@include breakpoint( "<1040px" ) {
-			margin: 0 12px;
-			width: calc( 100% - 24px );
-		}
+		margin: 0 12px;
 	}
 }
 
@@ -488,9 +483,9 @@ $plan-features-sidebar-width: 272px;
 }
 
 .plan-features__item {
-	margin: 0 24px;
+	margin: 0 12px;
 	padding: 12px 0;
-	font-size: 14px;
+	font-size: 13px;
 	color: $gray-dark;
 	text-align: center;
 

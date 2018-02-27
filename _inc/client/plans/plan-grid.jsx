@@ -91,29 +91,20 @@ class PlanGrid extends React.Component {
 		if ( this.featuredPlans ) {
 			return this.featuredPlans;
 		}
-		let previousPlan;
 		// reduce the .features member to only the highlighted features.
 		const featuredPlans = reduce( this.props.plans, ( plans, plan, key ) => {
 			// ignore the free plan
 			if ( 'free' === key ) {
-				previousPlan = plan;
 				return plans;
 			}
 			const highlights = plan.highlight;
-			const features = reduce( plan.features, ( highlightedFeatures, feature ) => {
+			plan.features = reduce( plan.features, ( highlightedFeatures, feature ) => {
 				if ( includes( highlights, feature.id ) ) {
 					highlightedFeatures.push( feature );
 				}
 				return highlightedFeatures;
 			}, [] );
-			features.push( {
-				id: 'all-from-lower',
-				name: `All ${ previousPlan.short_name } Features`,
-				description: 'Very good things, Brett'
-			} );
-			plan.features = features;
 			plans[ key ] = plan;
-			previousPlan = plan;
 			return plans;
 		}, {} );
 
@@ -174,7 +165,7 @@ class PlanGrid extends React.Component {
 			if ( this.isCurrentPlanType( type ) ) {
 				return (
 					<td key={ 'price-' + type } className={ className }>
-						<em>Your current plan</em>
+						{ plan.strings.current }
 					</td>
 				);
 			}
@@ -236,8 +227,8 @@ class PlanGrid extends React.Component {
 				} );
 			};
 			const text = isActivePlan
-				? 'Manage Plan'
-				: `Start with ${ plan.short_name }`;
+				? plan.strings.manage
+				: plan.strings.upgrade;
 			return (
 				<td key={ 'button-' + planType } className={ className }>
 					<Button href={ url } primary={ isPrimary } onClick={ clickHandler }>
@@ -276,7 +267,7 @@ class PlanGrid extends React.Component {
 			const url = `https://jetpack.com/features/comparison/?site=${ this.props.siteRawUrl }`;
 			return (
 				<td key={ 'bottom-' + planType } className="plan-features__table-item is-bottom-buttons has-border-bottom">
-					<Button href={ url }>See all features</Button>
+					<Button href={ url }>{ plan.strings.see_all }</Button>
 				</td>
 			);
 		} );
