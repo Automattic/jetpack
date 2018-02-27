@@ -4866,10 +4866,11 @@ p {
 	 * @return boolean
 	 */
 	public static function permit_ssl( $force_recheck = false ) {
+		$api_base = Jetpack::get_api_base_domain(); //
 		// Do some fancy tests to see if ssl is being supported
 		if ( $force_recheck || false === ( $ssl = get_transient( 'jetpack_https_test' ) ) ) {
 			$message = '';
-			if ( 'https' !== substr( JETPACK__API_BASE, 0, 5 ) ) {
+			if ( 'https' !== substr( $api_base, 0, 5 ) ) {
 				$ssl = 0;
 			} else {
 				switch ( JETPACK_CLIENT__HTTPS ) {
@@ -4890,7 +4891,7 @@ p {
 						$ssl = 0;
 						$message = __( 'WordPress reports no SSL support', 'jetpack' );
 					} else {
-						$response = wp_remote_get( JETPACK__API_BASE . 'test/1/' );
+						$response = wp_remote_get( $api_base . 'test/1/' );
 						if ( is_wp_error( $response ) ) {
 							$ssl = 0;
 							$message = __( 'WordPress reports no SSL support', 'jetpack' );
@@ -4961,13 +4962,24 @@ p {
 		<?php
 	}
 
+	public static function get_api_base_domain(){
+		if ( Jetpack_Options::get_option('debug' ) ) {
+			if ( $domain = Jetpack_Options::get_option( 'jetpack_api_base_domain', JETPACK__API_BASE ) ) {
+				return $domain;
+			}
+		}
+		return JETPACK__API_BASE;
+	}
+
+
 	/**
 	 * Returns the Jetpack XML-RPC API
 	 *
 	 * @return string
 	 */
 	public static function xmlrpc_api_url() {
-		$base = preg_replace( '#(https?://[^?/]+)(/?.*)?$#', '\\1', JETPACK__API_BASE );
+		$jetpack_api_base = Jetpack::get_api_base_domain();
+		$base = preg_replace( '#(https?://[^?/]+)(/?.*)?$#', '\\1', $jetpack_api_base );
 		return untrailingslashit( $base ) . '/xmlrpc.php';
 	}
 
