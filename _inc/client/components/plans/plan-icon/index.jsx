@@ -20,6 +20,7 @@ import {
 	PLAN_JETPACK_PERSONAL,
 	PLAN_JETPACK_PERSONAL_MONTHLY,
 	PLAN_PERSONAL,
+	PLAN_VIP,
 	getPlanClass
 } from 'lib/plans/constants';
 
@@ -72,6 +73,7 @@ export default class PlanIcon extends Component {
 			case PLAN_BUSINESS:
 			case PLAN_JETPACK_BUSINESS:
 			case PLAN_JETPACK_BUSINESS_MONTHLY:
+			case PLAN_VIP:
 				return this.getBusinessIcon();
 			default:
 				return this.getDefaultIcon();
@@ -92,6 +94,7 @@ PlanIcon.propTypes = {
 		PLAN_JETPACK_PREMIUM_MONTHLY,
 		PLAN_JETPACK_PERSONAL,
 		PLAN_JETPACK_PERSONAL_MONTHLY,
-		PLAN_PERSONAL
+		PLAN_PERSONAL,
+		PLAN_VIP
 	] ).isRequired
 };
