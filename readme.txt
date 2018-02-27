@@ -125,6 +125,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * We now allow lazy images to skip images with the skip-lazy css class or any give class of your choice by using the jetpack_lazy_images_blacklisted_classes filter.
 * We added the jetpack_sync_action_before_enqueue action that's done when anything gets enqueued before being synchronized to WordPress.com servers.
 * We updated the modules endpoint in Jetpack's REST API to be aware of modules that have been filtered through option_jetpack_active_modules allowing for better compatibility with custom Jetpack installation where the administrator decides to filter out specific Jetpack modules.
+* We updated the modules endpoint Jetpack's JSON API to reply with a new property `override` that indicates if a module was either enabled or disabled by a filter.
 
 **Bug fixes**
 
