@@ -31,7 +31,7 @@ With Jetpack 5.8 we introduced an issue that would appear sometimes when attempt
 
 ### Jetpack Onboarding
 
-_The following features are only enabled in the stagin in envrironment._
+_The following features are only enabled in the staging envirronment._
 
 We started allowing saving of a country field for the business address.
 Test with a **brand new site** that's not connected yet:
@@ -58,7 +58,7 @@ Test with a **brand new site** that's not connected yet:
 * Verify you receive a successful response, and the stats module gets enabled.
 
 
-This flow now delete the temporary token used for saving settings before the site is connected.
+This flow now deletes the temporary token used for saving settings when the site is connected.
 Test with a **brand new site** that's not connected yet:
 
 * Make sure you are logged into WP.com and the Jetpack site.
@@ -69,18 +69,18 @@ Test with a **brand new site** that's not connected yet:
 
 ### Lazy images.
 
-We now properly hide settings for Lazy images if the modules is filtered out.
+We now properly hide settings for Lazy images if the module is filtered out.
 
 * Try to filter out lazy images as a module using this snippet:
-```
-add_filter( 'jetpack_get_available_modules', function( $active ) {
-	return array_diff_key( $active, array( 'lazy-images' => 'Does not matter' ) );
-} );
-```
+    ```
+    add_filter( 'jetpack_get_available_modules', function( $active ) {
+	    return array_diff_key( $active, array( 'lazy-images' => 'Does not matter' ) );
+    } );
+    ```
 * Make sure you don't see the module at all when you open the Writing tab, or search for something like `lazy`.
 
 
-We now allow images to be ignored by Lazy images if they contain a reserved class name like `skip-lazy` or a custom one you defined via the `jetpack_lazy_images_blacklisted_classes` filter.
+We now allow images to be ignored by Lazy images if they contain a reserved class name like `skip-lazy` or a custom one you define via the `jetpack_lazy_images_blacklisted_classes` filter.
 
 * Create a post with some images. 
 * Apply the skip-lazy class to one of them.
@@ -91,9 +91,9 @@ We now allow images to be ignored by Lazy images if they contain a reserved clas
 
 ### Masterbar
 
-* Start by being signed in to WordPress.com (non-proxied).
+* Start by being signed in to WordPress.com.
 * Then, on a connected Jetpack site...
-* Enable the Masterbar from the Jetpack Settings Page..
+* Enable the Masterbar from the Jetpack Settings Page.
 * Sign out from the Masterbar.
 * Go back to WordPress.com.
 * Expect to be logged in.
@@ -101,13 +101,15 @@ We now allow images to be ignored by Lazy images if they contain a reserved clas
 Repeat steps on an Atomic site but expect to be logged out from WordPress.com in the end.
 
 * Start by being signed in to WordPress.com (non-proxied).
-* Then, on an AT site...
+* Then, on an Atomic site...
 * Enable the Masterbar from the Jetpack Settings Page..
 * Sign out from the Masterbar.
 * Go back to WordPress.com.
 * Expect to be logged out.
 
 ### Search
+
+We now implicitly activate the Search Module when the Jetpack Search Widget gets added to a sidebar.
 
 Start with a site that has a plan that supports Jetpack Search.
 
