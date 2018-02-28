@@ -30,6 +30,20 @@ class Jetpack_Provision {
 			}
 		}
 
+		// If Jetpack is currently connected, and is not in Safe Mode already, kick off a sync of the current
+		// functions/callables so that we can test if this site is in IDC.
+		if ( Jetpack::is_active() && ! Jetpack::validate_sync_error_idc_option() && Jetpack_Sync_Actions::sync_allowed() ) {
+			Jetpack_Sync_Actions::do_full_sync( array( 'functions' => true ) );
+			Jetpack_Sync_Actions::$sender->do_full_sync();
+		}
+
+		if ( Jetpack::validate_sync_error_idc_option() ) {
+			return new WP_Error(
+				'site_in_safe_mode',
+				esc_html__( 'Can not provision a plan while in safe mode. See: https://jetpack.com/support/safe-mode/', 'jetpack' )
+			);
+		}
+
 		$blog_id    = Jetpack_Options::get_option( 'id' );
 		$blog_token = Jetpack_Options::get_option( 'blog_token' );
 
