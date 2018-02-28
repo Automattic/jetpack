@@ -137,7 +137,7 @@ class Jetpack_XMLRPC_Server {
 		}
 
 		if ( ! $user ) {
-			return $this->error( 'user_not_found', "The user wasn't found - d'oh!" );
+			return $this->error( new Jetpack_Error( 'user_not_found', "The user wasn't found - d'oh!" ) );
 		}
 
 		require_once JETPACK__PLUGIN_DIR . '_inc/class.jetpack-provision.php';
