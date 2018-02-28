@@ -127,17 +127,16 @@ class Jetpack_XMLRPC_Server {
 	}
 
 	function remote_provision( $request ) {
-		$access_token = $request['access_token'];
-		$wpcom_user_id = $request['wpcom_user_id'];
-		$local_username = $request['local_username'];
-		$local_username = $request['plan'];
+		if ( ! isset( $request['access_token'] ) ) {
+			return $this->error( new Jetpack_Error( 'access_token_missing', sprintf( 'The required "%s" parameter is missing.', 'access_token' ), 400 ), 'jpc_remote_provision_fail' );
+		}
 
-		$force_register = $request['force_register'];
-		$force_connect = $request['force_connect'];
-		$wpcom_user_email = $request['wpcom_user_email'];
-		$plan = $request['plan'];
-		$onboarding = $request['onboarding'];
-		$partner_tracking_id = $request['partner_tracking_id'];
+		if ( ! isset( $request['local_username'] ) ) {
+			return $this->error( new Jetpack_Error( 'local_username_missing', sprintf( 'The required "%s" parameter is missing.', 'local_username' ), 400 ), 'jpc_remote_provision_fail' );
+		}
+
+		$access_token = $request['access_token'];
+		$local_username = $request['local_username'];
 
 		$user = get_user_by( 'login', $local_username );
 
@@ -153,8 +152,11 @@ class Jetpack_XMLRPC_Server {
 
 		wp_set_current_user( $user->ID );
 
-		$args = array(
-			'wpcom_user_id' => $wpcom_user_id
+		// filter allowed parameters
+		$allowed_provision_args = array( 'access_token', 'wpcom_user_id', 'wpcom_user_email', 'local_username', 'plan', 'force_register', 'force_connect', 'onboarding', 'partner_tracking_id' );
+		$args = array_intersect_key(
+			$request,
+			array_flip( $allowed_provision_args )
 		);
 
 		$result = Jetpack_Provision::partner_provision( $access_token, $args );
