@@ -150,6 +150,10 @@ class Jetpack_XMLRPC_Server {
 
 		$result = Jetpack_Provision::partner_provision( $access_token, $args );
 
+		if ( is_wp_error( $result ) ) {
+			return $this->error( $result, 'jpc_remote_provision_fail' );
+		}
+
 		if ( isset( $result->access_token ) && ! empty( $result->access_token ) ) {
 			unset( $result->access_token );
 		}
