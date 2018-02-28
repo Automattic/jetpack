@@ -154,6 +154,7 @@ class Jetpack_XMLRPC_Server {
 			return $this->error( $result, 'jpc_remote_provision_fail' );
 		}
 
+		// this is to prevent us from returning the access_token secret via a potentially unsecured channel.
 		if ( isset( $result->access_token ) && ! empty( $result->access_token ) ) {
 			unset( $result->access_token );
 		}
