@@ -12,7 +12,7 @@ import includes from 'lodash/includes';
  * Internal dependencies
  */
 import Button from 'components/button';
-import { getSiteRawUrl } from 'state/initial-state';
+import { getSiteRawUrl, getUserId } from 'state/initial-state';
 import { getSitePlan, getAvailablePlans } from 'state/site/reducer';
 import analytics from 'lib/analytics';
 import { getPlanClass } from 'lib/plans/constants';
@@ -341,6 +341,7 @@ export default connect( ( state ) => {
 	return {
 		plans: getAvailablePlans( state ),
 		siteRawUrl: getSiteRawUrl( state ),
-		sitePlan: getSitePlan( state )
+		sitePlan: getSitePlan( state ),
+		userId: getUserId( state ),
 	};
 }, null, )( PlanGrid );
