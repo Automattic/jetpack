@@ -99,8 +99,6 @@ class Jetpack_Data {
 			return true;
 		}
 
-		return true;
-
 		// Check the IP to make sure it's pingable.
 		$ip = gethostbyname( $domain );
 
