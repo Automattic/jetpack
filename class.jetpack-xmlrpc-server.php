@@ -151,10 +151,10 @@ class Jetpack_XMLRPC_Server {
 		$result = Jetpack_Provision::partner_provision( $access_token, $args );
 
 		if ( isset( $result->access_token ) && ! empty( $result->access_token ) ) {
-			return array( 'success' => true );
-		} else {
-			return $result;
+			unset( $result->access_token );
 		}
+
+		return $result;
 	}
 
 	private function tracks_record_error( $name, $error, $user = null ) {
