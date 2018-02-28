@@ -134,6 +134,15 @@ export function getUsername( state ) {
 	return get( state.jetpack.initialState.userData.currentUser, [ 'username' ] );
 }
 
+/**
+ * Gets the current wp-admin user id
+ * @param {Object} state Global state tree
+ * @returns {int} The user id in wp-admin
+ */
+export function getUserId( state ) {
+    return get( state.jetpack.initialState.userData.currentUser, 'id' );
+}
+
 export function userCanViewStats( state ) {
 	return get( state.jetpack.initialState.userData.currentUser.permissions, 'view_stats', false );
 }
