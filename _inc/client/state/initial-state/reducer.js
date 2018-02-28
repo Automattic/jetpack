@@ -140,7 +140,7 @@ export function getUsername( state ) {
  * @returns {int} The user id in wp-admin
  */
 export function getUserId( state ) {
-    return get( state.jetpack.initialState.userData.currentUser, 'id' );
+	return get( state.jetpack.initialState.userData.currentUser, 'id' );
 }
 
 export function userCanViewStats( state ) {
