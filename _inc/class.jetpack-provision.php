@@ -147,8 +147,8 @@ class Jetpack_Provision {
 		);
 
 		$url = sprintf( 'https://%s/rest/v1.3/jpphp/%d/partner-provision', self::get_api_host(), $blog_id );
-		if ( ! empty( $named_args['partner-tracking-id'] ) ) {
-			$url = esc_url_raw( add_query_arg( 'partner_tracking_id', $named_args['partner-tracking-id'], $url ) );
+		if ( ! empty( $named_args['partner_tracking_id'] ) ) {
+			$url = esc_url_raw( add_query_arg( 'partner_tracking_id', $named_args['partner_tracking_id'], $url ) );
 		}
 
 		// add calypso env if set

@@ -130,6 +130,15 @@ class Jetpack_XMLRPC_Server {
 		$access_token = $request['access_token'];
 		$wpcom_user_id = $request['wpcom_user_id'];
 		$local_username = $request['local_username'];
+		$local_username = $request['plan'];
+
+		$force_register = $request['force_register'];
+		$force_connect = $request['force_connect'];
+		$wpcom_user_email = $request['wpcom_user_email'];
+		$plan = $request['plan'];
+		$onboarding = $request['onboarding'];
+		$partner_tracking_id = $request['partner_tracking_id'];
+
 		$user = get_user_by( 'login', $local_username );
 
 		if ( ! $user ) {
