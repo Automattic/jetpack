@@ -843,6 +843,13 @@ class Jetpack_CLI extends WP_CLI_Command {
 			$this->partner_provision_error( new WP_Error( 'missing_access_token', __( 'Missing or invalid access token', 'jetpack' ) ) );
 		}
 
+		if ( Jetpack::validate_sync_error_idc_option() ) {
+			$this->partner_provision_error( new WP_Error(
+				'site_in_safe_mode',
+				esc_html__( 'Can not cancel a plan while in safe mode. See: https://jetpack.com/support/safe-mode/', 'jetpack' )
+			) );
+		}
+
 		$site_identifier = Jetpack_Options::get_option( 'id' );
 
 		if ( ! $site_identifier ) {

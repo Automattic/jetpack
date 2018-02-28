@@ -1,19 +1,21 @@
 /** External Dependencies **/
-var PropTypes = require( 'prop-types' );
-var React = require( 'react' ),
+const PropTypes = require( 'prop-types' );
+const React = require( 'react' ),
 	classNames = require( 'classnames' ),
 	Formsy = require( 'formsy-react' );
 
+const createReactClass = require( 'create-react-class' );
+
 /** Internal Dependencies **/
-var Label = require( './label' ),
+const Label = require( './label' ),
 	getUniqueId = require( './counter' ),
 	FormInputValidation = require( '../form-input-validation' ),
 	requiredFieldErrorFormatter = require( './required-error-label' );
 
-module.exports = React.createClass( {
+module.exports = createReactClass( {
 	displayName: 'CheckboxInput',
 
-	mixins: [Formsy.Mixin],
+	mixins: [ Formsy.Mixin ],
 
 	propTypes: {
 		name: PropTypes.string.isRequired,
@@ -42,35 +44,35 @@ module.exports = React.createClass( {
 	},
 
 	render: function() {
-		var { style, labelSuffix, label, ...other } = this.props;
-		var uniqueId = this.state.uniqueId;
-		var errorMessage;
+		const { style, labelSuffix, label, ...other } = this.props;
+		const uniqueId = this.state.uniqueId;
+		let errorMessage;
 
-		if ( !this.isPristine() ) {
+		if ( ! this.isPristine() ) {
 			errorMessage = this.showError() ? this.getErrorMessage() : null;
-			if ( !errorMessage ) {
+			if ( ! errorMessage ) {
 				errorMessage = this.showRequired() ? requiredFieldErrorFormatter( this.props.label || this.props.placeholder || '' ) : null;
 			}
 		}
 
-		let className = classNames( {
+		const className = classNames( {
 			'dops-field': true,
 			'dops-form-checkbox': true,
 			'dops-form-error': errorMessage,
 		}, this.props.className );
 
 		return (
-			<div className={className} style={style}>
-				<Label inline label={label} labelSuffix={labelSuffix} htmlFor={uniqueId} required={this.props.required} description={ this.props.description }>
+			<div className={ className } style={ style }>
+				<Label inline label={ label } labelSuffix={ labelSuffix } htmlFor={ uniqueId } required={ this.props.required } description={ this.props.description }>
 					<input
 						type="checkbox"
-						id={uniqueId}
+						id={ uniqueId }
 						{ ...other }
-						onChange={this.changeValue}
-						checked={this.getValue()}
-						className='dops-form-checkbox' />
+						onChange={ this.changeValue }
+						checked={ this.getValue() }
+						className="dops-form-checkbox" />
 				</Label>
-				{errorMessage && ( <FormInputValidation text={errorMessage} isError={ true }/> )}
+				{errorMessage && ( <FormInputValidation text={ errorMessage } isError={ true } /> )}
 			</div>
 		);
 	}

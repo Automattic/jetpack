@@ -108,10 +108,9 @@ HTML;
 	}
 }
 
-add_action(
-	'widgets_init',
-	create_function(
-		'',
-		'return register_widget( "WordAds_Sidebar_Widget" );'
-	)
-);
+function jetpack_wordads_widgets_init_callback() {
+	return register_widget( 'WordAds_Sidebar_Widget' );
+}
+
+add_action( 'widgets_init', 'jetpack_wordads_widgets_init_callback' );
+

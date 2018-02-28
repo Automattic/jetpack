@@ -38,7 +38,7 @@ const UpgradeNoticeContent = moduleSettingsForm(
 
 					<p>
 						{ __( 'Sites with large numbers of images can now activate the Lazy Loading Images feature, which significantly ' +
-							"speeds up loading times for visitors. Instead of waiting for the entire page to load, " +
+							'speeds up loading times for visitors. Instead of waiting for the entire page to load, ' +
 							'Jetpack will instead show pages instantly, and only download additional images when they are about to come into view.' ) }
 					</p>
 
@@ -69,7 +69,7 @@ const UpgradeNoticeContent = moduleSettingsForm(
 
 					<p>
 						{ __( 'We have also upgraded all our Premium plan customers to unlimited high-speed video storage ' +
-							"(up from 13GB), and significantly reduced the CSS and JavaScript assets that Jetpack downloads " +
+							'(up from 13GB), and significantly reduced the CSS and JavaScript assets that Jetpack downloads ' +
 							'when using features like infinite scroll and embedding rich content.' ) }
 					</p>
 
@@ -83,7 +83,7 @@ const UpgradeNoticeContent = moduleSettingsForm(
 
 					<p>
 						{ __( 'Our faster site search is now available to all Professional' +
-							" plan customers. This replaces the default WordPress search with an Elasticsearch-powered infrastructure that returns faster, more " +
+							' plan customers. This replaces the default WordPress search with an Elasticsearch-powered infrastructure that returns faster, more ' +
 							'relevant results to users.' ) }
 					</p>
 

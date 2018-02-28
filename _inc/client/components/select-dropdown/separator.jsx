@@ -3,15 +3,14 @@
 /**
  * External Dependencies
  */
-var React = require( 'react' );
+const React = require( 'react' );
 
-var SelectDropdownSeparator = React.createClass( {
-
-	render: function() {
+class SelectDropdownSeparator extends React.Component {
+	render() {
 		return (
 			<li className="dops-select-dropdown__separator" />
 		);
 	}
-} );
+}
 
 module.exports = SelectDropdownSeparator;

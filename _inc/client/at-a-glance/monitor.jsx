@@ -27,7 +27,7 @@ class DashMonitor extends Component {
 				}
 			);
 
-			this.props.updateOptions( { 'monitor': true } );
+			this.props.updateOptions( { monitor: true } );
 		};
 
 		if ( this.props.getOptionValue( 'monitor' ) ) {

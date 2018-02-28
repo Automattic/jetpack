@@ -1,10 +1,11 @@
 defaults: &defaults
-    working_directory: /wp-e2e-tests
+    working_directory: ~
     docker:
-      - image: automattic/wp-e2e-tests:0.0.7
+      - image: circleci/node:8.9.4-browsers
         environment:
                 JETPACKHOST: JN
                 NODE_ENV: test
+                TARGET: JETPACK
 version: 2
 jobs:
   build:
@@ -13,48 +14,50 @@ jobs:
       - run:
           name: Clone wp-e2e-tests repo
           command: |
-                  cd /
                   git clone https://github.com/Automattic/wp-e2e-tests.git
-                  cd /wp-e2e-tests
+                  cd wp-e2e-tests
                   git checkout origin/${E2E_BRANCH-master}
       - restore_cache:
-          key: << checksum "package.json" >>
-      - run: source $HOME/.nvm/nvm.sh && npm install
+          key: dependency-cache-{{ checksum "wp-e2e-tests/package.json" }}
+      - run: cd wp-e2e-tests && npm install
       - save_cache:
           paths:
-            - /wp-e2e-tests/node_modules
-          key: << checksum "package.json" >>
+            - ./wp-e2e-tests/node_modules
+          key: dependency-cache-{{ checksum "wp-e2e-tests/package.json" }}
       - run:
           name: Run Jetpack JN activation spec
-          command: source $HOME/.nvm/nvm.sh && xvfb-run ./node_modules/.bin/mocha scripts/jetpack/wp-jetpack-jn-activate.js
+          command: |
+                  cd wp-e2e-tests
+                  npm run decryptconfig
+                  HEADLESS=1 ./node_modules/.bin/mocha scripts/jetpack/wp-jetpack-jn-activate.js
       - persist_to_workspace:
-          root: /wp-e2e-tests
+          root: wp-e2e-tests
           paths:
             - .
       - store_test_results:
-          path: reports/
+          path: ~/wp-e2e-tests/reports/
       - store_artifacts:
-          path: reports/
+          path: ~/wp-e2e-tests/reports/
       - store_artifacts:
-          path: screenshots/
+          path: ~/wp-e2e-tests/screenshots/
   test:
     <<: *defaults
     parallelism: 2
     steps:
       - attach_workspace:
-          at: /wp-e2e-tests
+          at: ~/wp-e2e-tests
       - run:
           name: Randomize spec execution order
-          command: ./scripts/randomize.sh specs
+          command: cd ~/wp-e2e-tests && ./scripts/randomize.sh specs
       - run:
           name: Run e2e tests
-          command: xvfb-run ./run.sh -R -j -H JN -p
+          command: cd ~/wp-e2e-tests && ./run.sh -R -j -p -x
       - store_test_results:
-          path: reports/
+          path: ~/wp-e2e-tests/reports/
       - store_artifacts:
-          path: screenshots/
+          path: ~/wp-e2e-tests/screenshots/
       - store_artifacts:
-          path: reports/
+          path: ~/wp-e2e-tests/reports/
 workflows:
   version: 2
   build_test_destroy:

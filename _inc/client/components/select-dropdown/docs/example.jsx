@@ -3,18 +3,20 @@
 /**
  * External dependencies
  */
-var React = require( 'react' ),
+const React = require( 'react' ),
 	PureRenderMixin = require( 'react-pure-render/mixin' );
+
+const createReactClass = require( 'create-react-class' );
 
 /**
  * Internal dependencies
  */
-var SelectDropdown = require( 'components/select-dropdown' ),
+const SelectDropdown = require( 'components/select-dropdown' ),
 	DropdownItem = require( 'components/select-dropdown/item' ),
 	DropdownLabel = require( 'components/select-dropdown/label' ),
 	DropdownSeparator = require( 'components/select-dropdown/separator' );
 
-var SelectDropdownDemo = React.createClass( {
+const SelectDropdownDemo = createReactClass( {
 	displayName: 'SelectDropdown',
 
 	mixins: [ PureRenderMixin ],
@@ -45,7 +47,7 @@ var SelectDropdownDemo = React.createClass( {
 	},
 
 	render: function() {
-		var toggleButtonsText = this.state.compactButtons ? 'Normal Buttons' : 'Compact Buttons';
+		const toggleButtonsText = this.state.compactButtons ? 'Normal Buttons' : 'Compact Buttons';
 
 		return (
 			<div className="design-assets__group">

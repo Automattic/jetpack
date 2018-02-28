@@ -1,23 +1,21 @@
 /**
  * External dependencies
  */
-var PropTypes = require( 'prop-types' );
-var React = require( 'react' );
+const PropTypes = require( 'prop-types' );
+const React = require( 'react' );
 
-module.exports = React.createClass( {
-	displayName: 'ModuleChartLabel',
+export default class ModuleChartLabel extends React.Component {
+	static displayName = 'ModuleChartLabel';
 
-	propTypes: {
+	static propTypes = {
 		width: PropTypes.number.isRequired,
 		x: PropTypes.number.isRequired,
 		label: PropTypes.string.isRequired
-	},
+	};
 
-	render: function() {
-		var labelStyle,
-			dir = 'left';
-
-		labelStyle = {
+	render() {
+		const dir = 'left';
+		const labelStyle = {
 			width: this.props.width + 'px'
 		};
 
@@ -25,4 +23,4 @@ module.exports = React.createClass( {
 
 		return <div className="dops-chart__x-axis-label" style={ labelStyle }>{ this.props.label }</div>;
 	}
-} );
+}

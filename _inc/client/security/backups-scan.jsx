@@ -119,9 +119,8 @@ export const BackupsScan = moduleSettingsForm(
 						<br />
 						{ __( '{{a}}Contact Support{{/a}}', { components: { a: <a href="https://jetpack.com/support" /> } } ) }
 					</div>;
-				} else {
-					return __( 'Your site is backed up and threat-free.' );
 				}
+				return __( 'Your site is backed up and threat-free.' );
 			}
 
 			// Only return here if backups enabled and site on on free/personal plan.  If they're on a higher plan,

@@ -1,4 +1,4 @@
-var data = {
+const data = {
 	i18n_default_locale_slug: 'en',
 	mc_analytics_enabled: true,
 	google_analytics_enabled: false,

@@ -1,21 +1,23 @@
 /**
  * External dependencies
  */
-var React = require( 'react' ),
+const React = require( 'react' ),
 	PureRenderMixin = require( 'react-pure-render/mixin' );
+
+const createReactClass = require( 'create-react-class' );
 
 /**
  * Internal dependencies
  */
-var Search = require( 'components/search' ),
+const Search = require( 'components/search' ),
 	SearchCard = require( 'components/search-card' );
 
 /**
  * Globals
  */
-var noop = () => {};
+const noop = () => {};
 
-var SearchDemo = React.createClass( {
+const SearchDemo = createReactClass( {
 	displayName: 'Search',
 
 	mixins: [ PureRenderMixin ],

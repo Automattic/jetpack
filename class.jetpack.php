@@ -3208,6 +3208,9 @@ p {
 	 * Attempts Jetpack registration.  If it fail, a state flag is set: @see ::admin_page_load()
 	 */
 	public static function try_registration() {
+		// The user has agreed to the TOS at some point by now.
+		Jetpack_Options::update_option( 'tos_agreed', true );
+
 		// Let's get some testing in beta versions and such.
 		if ( self::is_development_version() && defined( 'PHP_URL_HOST' ) ) {
 			// Before attempting to connect, let's make sure that the domains are viable.
@@ -3944,7 +3947,13 @@ p {
 		if ( isset( $_GET['connect_url_redirect'] ) ) {
 			// User clicked in the iframe to link their accounts
 			if ( ! Jetpack::is_user_connected() ) {
-				$connect_url = $this->build_connect_url( true, false, 'iframe' );
+				$from = ! empty( $_GET['from'] ) ? $_GET['from'] : 'iframe';
+				$redirect = ! empty( $_GET['redirect_after_auth'] ) ? $_GET['redirect_after_auth'] : false;
+
+				add_filter( 'allowed_redirect_hosts', array( &$this, 'allow_wpcom_environments' ) );
+				$connect_url = $this->build_connect_url( true, $redirect, $from );
+				remove_filter( 'allowed_redirect_hosts', array( &$this, 'allow_wpcom_environments' ) );
+
 				if ( isset( $_GET['notes_iframe'] ) )
 					$connect_url .= '&notes_iframe';
 				wp_redirect( $connect_url );
@@ -4007,6 +4016,10 @@ p {
 
 				if ( ! empty( $_GET['onboarding'] ) ) {
 					$url = add_query_arg( 'onboarding', $_GET['onboarding'], $url );
+				}
+
+				if ( ! empty( $_GET['auth_approved'] ) && 'true' === $_GET['auth_approved'] ) {
+					$url = add_query_arg( 'auth_approved', 'true', $url );
 				}
 
 				wp_redirect( $url );
@@ -5904,6 +5917,15 @@ p {
 		return $domains;
 	}
 
+	// Add all wordpress.com environments to the safe redirect whitelist
+	function allow_wpcom_environments( $domains ) {
+		$domains[] = 'wordpress.com';
+		$domains[] = 'wpcalypso.wordpress.com';
+		$domains[] = 'horizon.wordpress.com';
+		$domains[] = 'calypso.localhost';
+		return $domains;
+	}
+
 	// Add the Access Code details to the public-api.wordpress.com redirect
 	function add_token_to_login_redirect_json_api_authorization( $redirect_to, $original_redirect_to, $user ) {
 		return add_query_arg(
@@ -7049,5 +7071,13 @@ p {
 			set_transient( 'jetpack_rewind_enabled', $rewind_enabled, 10 * MINUTE_IN_SECONDS );
 		}
 		return $rewind_enabled;
+	}
+
+	/**
+	 * Checks whether or not TOS has been agreed upon.
+	 * Will return true if a user has clicked to register, or is already connected.
+	 */
+	public static function jetpack_tos_agreed() {
+		return Jetpack_Options::get_option( 'tos_agreed' ) || Jetpack::is_active();
 	}
 }

@@ -172,8 +172,6 @@ class Jetpack_Search {
 	 * @since 5.0.0
 	 */
 	public function init_hooks() {
-		add_action( 'widgets_init', array( $this, 'action__widgets_init' ) );
-
 		if ( ! is_admin() ) {
 			add_filter( 'posts_pre_query', array( $this, 'filter__posts_pre_query' ), 10, 2 );
 
@@ -188,6 +186,8 @@ class Jetpack_Search {
 		} else {
 			add_action( 'update_option', array( $this, 'track_widget_updates' ), 10, 3 );
 		}
+
+		add_action( 'jetpack_deactivate_module_search', array( $this, 'move_search_widgets_to_inactive' ) );
 	}
 
 	/**
@@ -272,22 +272,13 @@ class Jetpack_Search {
 	 * developers to disable filters supplied by the search widget. Useful if filters are
 	 * being defined at the code level.
 	 *
-	 * @since 5.7.0
+	 * @since      5.7.0
+	 * @deprecated 5.8.0 Use Jetpack_Search_Helpers::are_filters_by_widget_disabled() directly.
 	 *
 	 * @return bool
 	 */
-	function are_filters_by_widget_disabled() {
-		/**
-		 * Allows developers to disable filters being set by widget, in favor of manually
-		 * setting filters via `Jetpack_Search::set_filters()`.
-		 *
-		 * @module search
-		 *
-		 * @since  5.7.0
-		 *
-		 * @param bool false
-		 */
-		return apply_filters( 'jetpack_search_disable_widget_filters', false );
+	public function are_filters_by_widget_disabled() {
+		return Jetpack_Search_Helpers::are_filters_by_widget_disabled();
 	}
 
 	/**
@@ -296,8 +287,8 @@ class Jetpack_Search {
 	 *
 	 * @since 5.7.0
 	 */
-	function set_filters_from_widgets() {
-		if ( $this->are_filters_by_widget_disabled() ) {
+	public function set_filters_from_widgets() {
+		if ( Jetpack_Search_Helpers::are_filters_by_widget_disabled() ) {
 			return;
 		}
 
@@ -315,7 +306,7 @@ class Jetpack_Search {
 	 *
 	 * @param WP_Query $query A WP_Query instance.
 	 */
-	function maybe_add_post_type_as_var( WP_Query $query ) {
+	public function maybe_add_post_type_as_var( WP_Query $query ) {
 		if ( $query->is_main_query() && $query->is_search && ! empty( $_GET['post_type'] ) ) {
 			$post_types = ( is_string( $_GET['post_type'] ) && false !== strpos( $_GET['post_type'], ',' ) )
 				? $post_type = explode( ',', $_GET['post_type'] )
@@ -731,16 +722,6 @@ class Jetpack_Search {
 		return $sanitized_post_types;
 	}
 
-	/**
-	 * Initialize the search widget.
-	 *
-	 * @since 5.0.0
-	 */
-	public function action__widgets_init() {
-		require_once( dirname( __FILE__ ) . '/class.jetpack-search-widget.php' );
-
-		register_widget( 'Jetpack_Search_Widget' );
-	}
 
 	/**
 	 * Get the Elasticsearch result.
@@ -811,7 +792,7 @@ class Jetpack_Search {
 	 *
 	 * @return array Array of ES style query arguments.
 	 */
-	function convert_wp_es_to_es_args( array $args ) {
+	public function convert_wp_es_to_es_args( array $args ) {
 		jetpack_require_lib( 'jetpack-wpes-query-builder/jetpack-wpes-query-parser' );
 
 		$defaults = array(
@@ -1768,5 +1749,47 @@ class Jetpack_Search {
 			sprintf( 'jetpack_search_widget_%s', $event['action'] ),
 			$event['widget']
 		);
+	}
+
+	/**
+	 * Moves any active search widgets to the inactive category.
+	 *
+	 * @since 5.9.0
+	 *
+	 * @param string $module Unused. The Jetpack module being disabled.
+	 */
+	public function move_search_widgets_to_inactive( $module ) {
+		if ( ! is_active_widget( false, false, Jetpack_Search_Helpers::FILTER_WIDGET_BASE, true ) ) {
+			return;
+		}
+
+		$sidebars_widgets = wp_get_sidebars_widgets();
+
+		if ( ! is_array( $sidebars_widgets ) ) {
+			return;
+		}
+
+		$changed = false;
+
+		foreach ( $sidebars_widgets as $sidebar => $widgets ) {
+			if ( 'wp_inactive_widgets' === $sidebar || 'orphaned_widgets' === substr( $sidebar, 0, 16 ) ) {
+				continue;
+			}
+
+			if ( is_array( $widgets ) ) {
+				foreach ( $widgets as $key => $widget ) {
+					if ( _get_widget_id_base( $widget ) == Jetpack_Search_Helpers::FILTER_WIDGET_BASE ) {
+						$changed = true;
+
+						array_unshift( $sidebars_widgets['wp_inactive_widgets'], $widget );
+						unset( $sidebars_widgets[ $sidebar ][ $key ] );
+					}
+				}
+			}
+		}
+
+		if ( $changed ) {
+			wp_set_sidebars_widgets( $sidebars_widgets );
+		}
 	}
 }

@@ -2,23 +2,22 @@
  * External Dependencies
  */
 const PropTypes = require( 'prop-types' );
-var React = require( 'react' ),
+const React = require( 'react' ),
 	classNames = require( 'classnames' ),
 	noop = require( 'lodash/noop' );
 
 /**
  * Internal Dependencies
  */
-var Card = require( 'components/card' ),
+const Card = require( 'components/card' ),
 	CompactCard = require( 'components/card/compact' ),
 	Gridicon = require( 'components/gridicon' ),
 	onKeyDownCallback = require( 'utils/onkeydown-callback' );
 
 require( './style.scss' );
 
-var FoldableCard = React.createClass( {
-
-	propTypes: {
+class FoldableCard extends React.Component {
+	static propTypes = {
 		actionButton: PropTypes.element,
 		actionButtonExpanded: PropTypes.element,
 		cardKey: PropTypes.string,
@@ -33,27 +32,23 @@ var FoldableCard = React.createClass( {
 		summary: PropTypes.oneOfType( [ PropTypes.string, PropTypes.element ] ),
 		clickableHeader: PropTypes.bool,
 		clickableHeaderText: PropTypes.bool
-	},
+	};
 
-	getInitialState: function() {
-		return {
-			expanded: this.props.expanded
-		};
-	},
+	static defaultProps = {
+		onOpen: noop,
+		onClose: noop,
+		cardKey: '',
+		icon: 'chevron-down',
+		isExpanded: false,
+		clickableHeader: false,
+		clickableHeaderText: false
+	};
 
-	getDefaultProps: function() {
-		return {
-			onOpen: noop,
-			onClose: noop,
-			cardKey: '',
-			icon: 'chevron-down',
-			isExpanded: false,
-			clickableHeader: false,
-			clickableHeaderText: false
-		};
-	},
+	state = {
+		expanded: this.props.expanded
+	};
 
-	onClick: function() {
+	onClick = () => {
 		if ( this.props.children ) {
 			this.setState( { expanded: ! this.state.expanded } );
 		}
@@ -67,23 +62,23 @@ var FoldableCard = React.createClass( {
 		} else {
 			this.props.onOpen( this.props.cardKey );
 		}
-	},
+	};
 
-	getClickAction: function() {
+	getClickAction = () => {
 		if ( this.props.disabled ) {
 			return;
 		}
 		return this.onClick;
-	},
+	};
 
-	getActionButton: function() {
+	getActionButton = () => {
 		if ( this.state.expanded ) {
 			return this.props.actionButtonExpanded || this.props.actionButton;
 		}
 		return this.props.actionButton;
-	},
+	};
 
-	renderActionButton: function() {
+	renderActionButton = () => {
 		const clickAction = ! this.props.clickableHeader ? this.getClickAction() : null;
 		if ( this.props.actionButton ) {
 			return (
@@ -93,7 +88,7 @@ var FoldableCard = React.createClass( {
 			);
 		}
 		if ( this.props.children ) {
-			let iconSize = 24;
+			const iconSize = 24;
 			return (
 				<button type="button" disabled={ this.props.disabled } className="dops-foldable-card__action dops-foldable-card__expand" onClick={ clickAction }>
 					<span className="screen-reader-text">More</span>
@@ -101,18 +96,18 @@ var FoldableCard = React.createClass( {
 				</button>
 			);
 		}
-	},
+	};
 
-	renderContent: function() {
+	renderContent = () => {
 		return (
 			<div className="dops-foldable-card__content">
 				{ this.props.children }
 			</div>
 		);
-	},
+	};
 
-	renderHeader: function() {
-		var summary = this.props.summary ? <span className="dops-foldable-card__summary">{ this.props.summary } </span> : null,
+	renderHeader = () => {
+		const summary = this.props.summary ? <span className="dops-foldable-card__summary">{ this.props.summary } </span> : null,
 			expandedSummary = this.props.expandedSummary ? <span className="dops-foldable-card__summary_expanded">{ this.props.expandedSummary } </span> : null,
 			header = this.props.header ? <div className="dops-foldable-card__header-text">{ this.props.header }</div> : null,
 			subheader = this.props.subheader ? <div className="dops-foldable-card__subheader">{ this.props.subheader }</div> : null,
@@ -144,10 +139,10 @@ var FoldableCard = React.createClass( {
 				</span>
 			</div>
 		);
-	},
+	};
 
-	render: function() {
-		var Container = this.props.compact ? CompactCard : Card,
+	render() {
+		const Container = this.props.compact ? CompactCard : Card,
 			itemSiteClasses = classNames(
 				'dops-foldable-card',
 				this.props.className,
@@ -165,6 +160,6 @@ var FoldableCard = React.createClass( {
 			</Container>
 		);
 	}
-} );
+}
 
 module.exports = FoldableCard;

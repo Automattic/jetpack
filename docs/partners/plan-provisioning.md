@@ -1,8 +1,6 @@
 # Provisioning and Cancelling Jetpack Plans
 
-Hello, and welcome to the Jetpack Partners program. We’re glad to have you!
-
-In this document, we’ll briefly go over the technical concerns of the Jetpack Partnership. If you have any questions or issues, our contact information can be found at the bottom of this document.
+In this document, we’ll briefly go over how to provision and cancel Jetpack plans via the shell scripts that ship with Jetpack. If you have any questions or issues, our contact information can be found on the [README.md document](README.md).
 
 ## What is Jetpack Start?
 
@@ -104,7 +102,3 @@ After running the script above, PARTNER_KEY_INFO should contain a value like thi
 ```
 
 The client_id and client_secret values are the ones you should or your customers should use to license Jetpack plans with the partner-provision.sh script.
-
-Having trouble?
-
-If you have any technical questions, or concerns don’t hesitate to get in touch with either Dan Walmsley (@gravityrail) at dan.walmsley@automattic.com or Eric Binnion (@ebinnion) at eric.binnion@automattic.com.

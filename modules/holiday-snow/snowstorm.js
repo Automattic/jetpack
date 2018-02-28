@@ -257,6 +257,8 @@ var snowStorm = (function(window, document) {
     this.active = 1;
     this.fontSize = (10+(this.type/5)*10);
     this.o = document.createElement('div');
+    this.o.setAttribute('aria-hidden', 'true');
+    this.o.setAttribute('role', 'presentation');
     this.o.innerHTML = storm.snowCharacter;
     this.o.style.color = storm.snowColor;
     this.o.style.position = (fixedForEverything?'fixed':'absolute');

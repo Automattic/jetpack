@@ -76,9 +76,9 @@ export class RelatedPostsSettings extends React.Component {
 		return (
 			<div className="jp-related-posts-preview">
 				{
-					show_headline ?
-						<div className="jp-related-posts-preview__title">{ __( 'Related', { context: 'A header for a block of related posts.' } ) }</div> :
-						''
+					show_headline
+						? <div className="jp-related-posts-preview__title">{ __( 'Related', { context: 'A header for a block of related posts.' } ) }</div>
+						: ''
 				}
 				{
 					previews.map( ( preview, i ) => (

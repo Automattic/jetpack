@@ -12,24 +12,22 @@ import Card from 'components/card';
 
 require( './style.scss' );
 
-export default React.createClass( {
-	displayName: 'SectionHeader',
+export default class SectionHeader extends React.Component {
+	static displayName = 'SectionHeader';
 
-	propTypes: {
+	static propTypes = {
 		label: PropTypes.string,
 		cardBadge: PropTypes.oneOfType( [
 			PropTypes.string,
 			PropTypes.element,
 			PropTypes.object
 		] )
-	},
+	};
 
-	getDefaultProps() {
-		return {
-			label: '',
-			cardBadge: ''
-		};
-	},
+	static defaultProps = {
+		label: '',
+		cardBadge: ''
+	};
 
 	render() {
 		const classes = classNames(
@@ -53,4 +51,4 @@ export default React.createClass( {
 			</Card>
 		);
 	}
-} );
+}

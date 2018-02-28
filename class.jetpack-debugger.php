@@ -363,12 +363,13 @@ class Jetpack_Debugger {
 						 * (reasons why a user would contact us.)
 						 */
 						$categories = array(
-							'Connection' => esc_html__( "I'm having trouble connecting Jetpack to WordPress.com", 'jetpack' ),
-							'Billing'    => esc_html__( 'I have a billing or plans question', 'jetpack' ),
+							'Connection' => esc_html__( "I'm having trouble connecting Jetpack to WordPress.com.", 'jetpack' ),
+							'Billing'    => esc_html__( 'I have an issue with a current plan.', 'jetpack' ),
+							'Presales'   => esc_html__( 'I have questions about buying a plan.', 'jetpack' ),
 							'Backups'    => esc_html__( 'I need help with backing up my site.', 'jetpack' ),
 							'Restores'   => esc_html__( 'I have a problem restoring my site.', 'jetpack' ),
-							'Security'   => esc_html__( 'I have security concerns / my site is hacked', 'jetpack' ),
-							'Priority'   => esc_html__( "My site is down / I can't access my site", 'jetpack' ),
+							'Security'   => esc_html__( 'I have security concerns / my site is hacked.', 'jetpack' ),
+							'Priority'   => esc_html__( "My site is down / I can't access my site.", 'jetpack' ),
 							/* translators: Last item in a list of reasons to contact Jetpack support. */
 							'Other'      => esc_html__( 'Something Else', 'jetpack' ),
 						);
