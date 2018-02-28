@@ -107,7 +107,7 @@ function onBuild( done ) {
 		// Source any JS for whitelisted modules, which will minimize us shipping much
 		// more JS that we haven't pointed to in PHP yet.
 		// Example output: modules/(shortcodes|widgets)/**/*.js
-		const supportedModulesSource = `modules/@(${supportedModules.join( '|' ) })/**/*.js`;
+		const supportedModulesSource = `modules/@(${ supportedModules.join( '|' ) })/**/*.js`;
 
 		// Uglify other JS from _inc and supported modules
 		const sources = [
@@ -262,7 +262,7 @@ function doStatic( done ) {
 				} );
 		} catch ( error ) {
 			log( colors.yellow(
-				"Warning: gulp was unable to update static HTML files.\n\n" +
+				'Warning: gulp was unable to update static HTML files.\n\n' +
 				'If this is happening during watch, this warning is OK to dismiss: sometimes webpack fires watch handlers when source code is not yet built.'
 			) );
 		}

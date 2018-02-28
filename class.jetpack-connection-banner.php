@@ -84,7 +84,7 @@ class Jetpack_Connection_Banner {
 			false,
 			sprintf( 'banner-%s-slide-%s-%s', $jp_version_banner_added, $slide_num, $current_screen->base )
 		);
-		return add_query_arg( 'already_authorized', 'true', $url );
+		return add_query_arg( 'auth_approved', 'true', $url );
 	}
 
 	/**

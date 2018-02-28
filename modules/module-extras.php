@@ -25,6 +25,7 @@ $tools = array(
 	'seo-tools/jetpack-seo-posts.php',
 	'simple-payments/simple-payments.php',
 	'verification-tools/verification-tools-utils.php',
+	'woocommerce-analytics/wp-woocommerce-analytics.php',
 );
 
 // Not every tool needs to be included if Jetpack is inactive and not in development mode

@@ -4,6 +4,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
+import Card from 'components/card';
 
 /**
  * Internal dependencies
@@ -38,16 +39,17 @@ class Search extends React.Component {
 					</ModuleToggle>
 					{ this.props.getOptionValue( 'search' ) && (
 						<FormFieldset>
-							<p className="jp-form-setting-explanation">
-								{ __( 'To configure search filters add the {{link}}"Search (Jetpack)" widget to your sidebar{{/link}}.', {
-									components: {
-										link: <a href="widgets.php" />
-									}
-								} ) }
-							</p>
-						</FormFieldset>
+								<p className="jp-form-setting-explanation">
+									{ __( 'Add the Jetpack search widget to your sidebar to configure advanced search filters.' ) }
+								</p>
+							</FormFieldset>
 					) }
 				</SettingsGroup>
+				{
+					this.props.getOptionValue( 'search' ) && (
+						<Card compact className="jp-settings-card__configure-link" href="customize.php?autofocus[panel]=widgets">{ __( 'Add Jetpack Search Widget' ) }</Card>
+					)
+				}
 			</SettingsCard>
 		);
 	}

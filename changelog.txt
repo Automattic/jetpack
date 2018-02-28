@@ -1,5 +1,79 @@
 == Changelog ==
 
+= 5.8 =
+
+* Release date: February 6, 2018
+* Release post: https://wp.me/p1moTy-731
+
+**Major Enhancements**
+
+* [Lazy Images](https://jetpack.com/support/lazy-images/): after a Beta
+period, you can now enable this new feature from Jetpack > Settings in your
+dashboard.
+* [Elasticsearch-powered
+search](https://jetpack.com/features/design/elasticsearch-powered-search/):
+also out of Beta! We've improved the way data is indexed behind the scenes,
+and made changes to the Search widget and its filters. (Elasticsearch is a
+trademark of Elasticsearch BV, registered in the U.S. and in other countries.)
+
+**Enhancements**
+
+* Comment moderation tools: moderation emails now point to WordPress.com when
+using the `edit_links_calypso_redirect` option.
+* Custom CSS: add CSS Grid Layout support.
+* Dashboard: update list of features available in Paid plans.
+* Dashboard: improve the display of notices inside the Jetpack dashboard.
+* Dashboard: update content displayed in the Jetpack dashboard when not
+connected to WordPress.com.
+* Development mode: improve the display of the development notice.
+* General: add a new filter, `jetpack_active_modules`, allowing site owners to
+filter the list of active modules.
+* Notices: add rel tags to notice links to avoid issues when links open in a
+new window.
+* Onboarding: add functionality for saving Business Address in the Contact
+Info widget.
+* Onboarding: save site type during site setup process.
+* Onboarding: enable loading of specific modules when using the Onboarding
+process.
+* Post Images: allow passing size when searching for images in HTML.
+* REST API: update the plugin installation process to use a new library.
+* REST API: allow changing the number of posts displayed in the RSS feed, and
+whether feeds display full text or a summary.
+* REST API: simplify our invites endpoint.
+* Sharing: make sure the Whatsapp button works on mobile and on desktop.
+* Sharing: add new filter, `wp_sharing_email_send_post_subject`, to allow
+modifying the email sharing subject line.
+* Shortcodes: update the GettyImages shortcode to use the new format required
+by GettyImages.
+* Site Settings: add support for site language and timezone settings.
+* Sync: improve synchronization of user actions, theme and plugin edits /
+updates, post status, updates on Multisite networks, Protect events, and
+WooCommerce's meta data.
+* WordAds: enable the Ads in the header by default.
+* WordAds: add filters so site owners can control the display of the ads via
+code as well.
+
+**Improved compatibility**
+
+* Lazy Images: fix issues with the Gazette theme.
+* Open Graph: add Open Graph Metabox to the list of conflicting plugins.
+* Masterbar: fix incompatibility with BeaverBuilder plugin.
+* PHP 7.2: fix issues when running Jetpack with PHP 7.2.
+
+**Bug fixes**
+
+* Carousel: fix PHP Notice with images using custom meta.
+* Dashboard: make sure all links to WordPress.com point to the right site's
+settings on WordPress.com.
+* Dashboard: update links to the plugin interface on WordPress.com to load the
+full plugin management page.
+* General: fix images shown in the dashboard when Jetpack is installed in a
+directory different than `jetpack`.
+* Lazy Images: make sure Lazy Load can be triggered even when images are added
+to the content very late.
+* Stats: make sure the Stats script is XHTML compliant.
+* Widgets: Mailchimp - avoid conflicts with jQuery UI.
+
 = 5.7.1 =
 
 * Release date: January 16, 2018

@@ -29,7 +29,7 @@ require( './style.scss' );
 const {
     Component
 } = React;
-var noop = () => {};
+const noop = () => {};
 
 /**
  * SelectDropdown
@@ -46,7 +46,7 @@ class SelectDropdown extends Component {
 		this._onClick = this._onClick.bind( this );
 
 		// state
-		let initialState = { isOpen: false };
+		const initialState = { isOpen: false };
 
 		if ( props.options.length ) {
 			initialState.selected = this.getInitialSelectedItem( props );
@@ -109,8 +109,8 @@ class SelectDropdown extends Component {
 	}
 
 	dropdownOptions() {
-		var refIndex = 0;
-		var self = this;
+		let refIndex = 0;
+		const self = this;
 
 		if ( this.props.children ) {
 			// add keys and refs to children
@@ -119,7 +119,7 @@ class SelectDropdown extends Component {
 					return null;
 				}
 
-				let newChild = React.cloneElement( child, {
+				const newChild = React.cloneElement( child, {
 					ref: ( child.type === DropdownItem ) ? 'item-' + refIndex : null,
 					key: 'item-' + index,
 					onClick: function( event ) {
@@ -157,7 +157,7 @@ class SelectDropdown extends Component {
 				);
 			}
 
-			let dropdownItem = (
+			const dropdownItem = (
 				<DropdownItem
 					key={ 'dropdown-item-' + this.state.instanceId + '-' + item.value }
 					ref={ 'item-' + refIndex }
@@ -189,8 +189,8 @@ class SelectDropdown extends Component {
 			} );
 		}
 
-		let dropdownClassName = classNames( dropdownClasses );
-		let selectedText = this.props.selectedText
+		const dropdownClassName = classNames( dropdownClasses );
+		const selectedText = this.props.selectedText
 			? this.props.selectedText
 			: result( find(
 				this.props.options, { value: this.state.selected }
@@ -312,12 +312,11 @@ class SelectDropdown extends Component {
 	}
 
 	navigateItemByTabKey( event ) {
-		var direction;
 		if ( ! this.state.isOpen ) {
 			return;
 		}
 		event.preventDefault();
-		direction = ( event.shiftKey ) ? 'previous' : 'next';
+		const direction = ( event.shiftKey ) ? 'previous' : 'next';
 		this.focusSibling( direction );
 	}
 
@@ -329,7 +328,7 @@ class SelectDropdown extends Component {
 	}
 
 	focusSibling( direction ) {
-		var increment, items, focusedIndex, newIndex;
+		let items, focusedIndex;
 
 		// the initial up-arrow/down-arrow should only open the menu
 		if ( ! this.state.isOpen ) {
@@ -356,8 +355,8 @@ class SelectDropdown extends Component {
 				} );
 		}
 
-		increment = ( direction === 'previous' ) ? -1 : 1;
-		newIndex = focusedIndex + increment;
+		const increment = ( direction === 'previous' ) ? -1 : 1;
+		const newIndex = focusedIndex + increment;
 
 		if ( newIndex >= items.length || newIndex < 0 ) {
 			return;

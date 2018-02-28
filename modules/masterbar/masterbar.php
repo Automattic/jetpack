@@ -40,10 +40,13 @@ class A8C_WPCOM_Masterbar {
 			'//2.gravatar.com',
 		) );
 
-		// Atomic only - override user setting that hides masterbar from site's front.
-		// https://github.com/Automattic/jetpack/issues/7667
+		// Atomic only
 		if ( jetpack_is_atomic_site() ) {
+			// override user setting that hides masterbar from site's front.
+			// https://github.com/Automattic/jetpack/issues/7667
 			add_filter( 'show_admin_bar', '__return_true' );
+			// Always sign out from .com from the masterbar
+			add_filter( 'jetpack_masterbar_should_logout_from_wpcom', '__return_true' );
 		}
 
 		$this->user_data = Jetpack::get_connected_user_data( $this->user_id );
@@ -84,7 +87,19 @@ class A8C_WPCOM_Masterbar {
 	}
 
 	public function maybe_logout_user_from_wpcom() {
-		if ( isset( $_GET['context'] ) && 'masterbar' === $_GET['context'] ) {
+		/**
+		 * Whether we should sign out from wpcom too when signing out from the masterbar.
+		 *
+		 * @since 5.9.0
+		 *
+		 * @param bool $masterbar_should_logout_from_wpcom False by default.
+		 */
+		$masterbar_should_logout_from_wpcom = apply_filters( 'jetpack_masterbar_should_logout_from_wpcom', false );
+		if (
+			isset( $_GET['context'] ) &&
+			'masterbar' === $_GET['context'] &&
+			$masterbar_should_logout_from_wpcom
+		) {
 			do_action( 'wp_masterbar_logout' );
 		}
 	}

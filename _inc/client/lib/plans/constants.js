@@ -17,6 +17,7 @@ export const PLAN_JETPACK_BUSINESS_MONTHLY = 'jetpack_business_monthly';
 export const PLAN_JETPACK_PERSONAL_MONTHLY = 'jetpack_personal_monthly';
 export const PLAN_HOST_BUNDLE = 'host-bundle';
 export const PLAN_WPCOM_ENTERPRISE = 'wpcom-enterprise';
+export const PLAN_VIP = 'vip';
 export const PLAN_CHARGEBACK = 'chargeback';
 
 export const POPULAR_PLANS = [ PLAN_PREMIUM ];
@@ -117,6 +118,7 @@ export function getPlanClass( plan ) {
 		case PLAN_BUSINESS:
 		case PLAN_JETPACK_BUSINESS:
 		case PLAN_JETPACK_BUSINESS_MONTHLY:
+		case PLAN_VIP:
 			return 'is-business-plan';
 		default:
 			return '';

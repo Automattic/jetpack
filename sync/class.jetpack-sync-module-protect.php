@@ -14,10 +14,10 @@ class Jetpack_Sync_Module_Protect extends Jetpack_Sync_Module {
 		add_action( 'jetpack_valid_failed_login_attempt', $callback );
 	}
 
-	function maybe_log_failed_login_attempt( $ip ) {
+	function maybe_log_failed_login_attempt( $failed_attempt ) {
 		$protect = Jetpack_Protect_Module::instance();
 		if ( $protect->has_login_ability() ) {
-			do_action( 'jetpack_valid_failed_login_attempt', $ip );
+			do_action( 'jetpack_valid_failed_login_attempt', $failed_attempt );
 		}
 	}
 }

@@ -14,6 +14,7 @@ languages/messages.pot
 npm-debug.log
 tests/php/files/jetpack-150x150.jpg
 *.unison.tmp
+.eslintcache
 
 ## Things we will need in release branches
 /_inc/build

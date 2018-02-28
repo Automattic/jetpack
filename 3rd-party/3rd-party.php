@@ -15,6 +15,7 @@ require_once( JETPACK__PLUGIN_DIR . '3rd-party/qtranslate-x.php' );
 require_once( JETPACK__PLUGIN_DIR . '3rd-party/vaultpress.php' );
 require_once( JETPACK__PLUGIN_DIR . '3rd-party/beaverbuilder.php' );
 require_once( JETPACK__PLUGIN_DIR . '3rd-party/debug-bar.php' );
+require_once( JETPACK__PLUGIN_DIR . '3rd-party/class.jetpack-modules-overrides.php' );
 
 // We can't load this conditionally since polldaddy add the call in class constuctor.
 require_once( JETPACK__PLUGIN_DIR . '3rd-party/polldaddy.php' );

@@ -39,7 +39,7 @@ export const items = ( state = {}, action ) => {
 				[ action.module ]: assign( {}, state[ action.module ], { activated: false } )
 			} );
 		case JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS:
-			let updatedModule = assign( {}, state[ action.module ] );
+			const updatedModule = assign( {}, state[ action.module ] );
 			Object.keys( action.newOptionValues ).forEach( key => {
 				updatedModule.options[ key ].current_value = action.newOptionValues[ key ];
 			} );
@@ -61,10 +61,10 @@ export const initialRequestsState = {
 export const requests = ( state = initialRequestsState, action ) => {
 	switch ( action.type ) {
 		case JETPACK_MODULES_LIST_FETCH:
-			return assign( {}, state, { fetchingModulesList: true} );
+			return assign( {}, state, { fetchingModulesList: true } );
 		case JETPACK_MODULES_LIST_FETCH_FAIL:
 		case JETPACK_MODULES_LIST_RECEIVE:
-			return assign( {}, state, { fetchingModulesList: false} );
+			return assign( {}, state, { fetchingModulesList: false } );
 		case JETPACK_MODULE_ACTIVATE:
 			return assign( {}, state, {
 				activating: assign( {}, state.activating, {
@@ -92,7 +92,7 @@ export const requests = ( state = initialRequestsState, action ) => {
 				}
 			) } );
 		case JETPACK_MODULE_UPDATE_OPTIONS:
-			let updatingOption = assign( {}, state.updatingOption );
+			const updatingOption = assign( {}, state.updatingOption );
 			updatingOption[ action.module ] = assign( {}, updatingOption[ action.module ] );
 			Object.keys( action.newOptionValues ).forEach( ( key ) => {
 				updatingOption[ action.module ][ key ] = true;
@@ -102,7 +102,7 @@ export const requests = ( state = initialRequestsState, action ) => {
 			) } );
 		case JETPACK_MODULE_UPDATE_OPTIONS_FAIL:
 		case JETPACK_MODULE_UPDATE_OPTIONS_SUCCESS:
-			let _updatingOption = assign( {}, state.updatingOption );
+			const _updatingOption = assign( {}, state.updatingOption );
 			_updatingOption[ action.module ] = assign( {}, _updatingOption[ action.module ] );
 			Object.keys( action.newOptionValues ).forEach( ( key ) => {
 				_updatingOption[ action.module ][ key ] = false;

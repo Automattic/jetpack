@@ -1,22 +1,23 @@
 /**
  * External dependencies
  */
-var PropTypes = require( 'prop-types' );
-var React = require( 'react' ),
+const PropTypes = require( 'prop-types' );
+const React = require( 'react' ),
 	map = require( 'lodash/map' );
+import { translate as __ } from 'i18n-calypso';
 
-module.exports = React.createClass( {
-	displayName: 'ValidationErrorList',
+export default class ValidationErrorList extends React.Component {
+	static displayName = 'ValidationErrorList';
 
-	propTypes: {
+	static propTypes = {
 		messages: PropTypes.array.isRequired
-	},
+	};
 
-	render: function() {
+	render() {
 		return (
 			<div>
 				<p>
-					{ this.translate(
+					{ __(
 						'Please correct the issue below and try again.',
 						'Please correct the issues listed below and try again.',
 						{
@@ -32,4 +33,4 @@ module.exports = React.createClass( {
 			</div>
 		);
 	}
-} );
+}

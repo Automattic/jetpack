@@ -22,11 +22,12 @@
     "build-production-client": "NODE_ENV=production BABEL_ENV=production yarn build-client",
     "build-production": "yarn distclean && yarn && gulp languages:extract && yarn build-production-client",
     "build-languages": "gulp languages",
-    "lint": "yarn build && eslint --ext .js --ext .jsx _inc/client -c .eslintrc",
+    "lint": "eslint --ext .js --ext .jsx ./*.js _inc/client -c .eslintrc",
     "test-client": "NODE_ENV=test NODE_PATH=tests:_inc/client:node_modules/@automattic/dops-components/client tests/runner.js",
     "add-textdomain": "grunt addtextdomain",
     "build-pot": "grunt makepot",
-    "test-gui": "NODE_ENV=test NODE_PATH=tests:_inc/client:node_modules/@automattic/dops-components/client tests/runner.js gui"
+    "test-gui": "NODE_ENV=test NODE_PATH=tests:_inc/client:node_modules/@automattic/dops-components/client tests/runner.js gui",
+    "precommit": "node bin/pre-commit-hook.js"
   },
   "dependencies": {
     "@automattic/custom-colors-loader": "automattic/custom-colors-loader",
@@ -129,9 +130,12 @@
     "commander": "2.3.0",
     "enzyme": "^3.1.0",
     "enzyme-adapter-react-15": "^1.0.2",
+    "eslines": "^1.1.0",
+    "eslint-eslines": "^1.0.0",
     "glob": "^7.1.1",
     "grunt": "^0.4.2",
     "grunt-wp-i18n": "~0.4.6",
+    "husky": "^0.14.3",
     "mocha": "^2.4.5",
     "mockery": "^1.4.1",
     "nock": "^7.2.2",

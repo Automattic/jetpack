@@ -40,5 +40,6 @@ Plan constant from `lib/plans/constants`. Can be one of:
 - PLAN_JETPACK_BUSINESS_MONTHLY,
 - PLAN_JETPACK_PREMIUM,
 - PLAN_JETPACK_PREMIUM_MONTHLY,
-- PLAN_PERSONAL
+- PLAN_PERSONAL,
+- PLAN_VIP
 

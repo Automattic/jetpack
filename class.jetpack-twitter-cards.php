@@ -36,9 +36,23 @@ class Jetpack_Twitter_Cards {
 		}
 
 		if ( ! is_singular() || ! empty( $og_tags['twitter:card'] ) ) {
+			/**
+			 * Filter the default Twitter card image, used when no image can be found in a post.
+			 *
+			 * @module sharedaddy, publicize
+			 *
+			 * @since 5.9.0
+			 *
+			 * @param string $str Default image URL.
+			 */
+			$image = apply_filters( 'jetpack_twitter_cards_image_default', '' );
+			if ( ! empty( $image ) ) {
+				$og_tags['twitter:image'] = $image;
+			}
+
 			return $og_tags;
 		}
-		
+
 		$the_title = get_the_title();
 		if ( ! $the_title ) {
 			$the_title = get_bloginfo( 'name' );
@@ -111,6 +125,14 @@ class Jetpack_Twitter_Cards {
 			} else {
 				/* translators: %s is the post author */
 				$og_tags['twitter:description'] = ( $has_creator ) ? sprintf( __( 'Post by %s.', 'jetpack' ), $og_tags['twitter:creator'] ) : __( 'Visit the post for more.', 'jetpack');
+			}
+		}
+
+		if ( empty( $og_tags['twitter:image'] ) && empty( $og_tags['twitter:image:src'] ) ) {
+			/** This action is documented in class.jetpack-twitter-cards.php */
+			$image = apply_filters( 'jetpack_twitter_cards_image_default', '' );
+			if ( ! empty( $image ) ) {
+				$og_tags['twitter:image'] = $image;
 			}
 		}
 

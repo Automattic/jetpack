@@ -189,9 +189,9 @@ class Main extends React.Component {
 			}
 		}
 
+		const settingsNav = <NavigationSettings route={ this.props.route } siteRawUrl={ this.props.siteRawUrl } siteAdminUrl={ this.props.siteAdminUrl } />;
 		let pageComponent,
-			navComponent = <Navigation route={ this.props.route } />,
-			settingsNav = <NavigationSettings route={ this.props.route } siteRawUrl={ this.props.siteRawUrl } siteAdminUrl={ this.props.siteAdminUrl } />;
+			navComponent = <Navigation route={ this.props.route } />;
 
 		switch ( route ) {
 			case '/dashboard':
