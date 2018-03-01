@@ -13,9 +13,12 @@ services:
        MYSQL_PASSWORD: wordpress
 
    wordpress:
+     container_name: jetpack_wordpress
      depends_on:
        - db
      image: wordpress:latest
+     volumes:
+       - .:/var/www/html/wp-content/plugins/jetpack
      ports:
        - "80:80"
      restart: always
