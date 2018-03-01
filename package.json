@@ -25,6 +25,8 @@
     "build-with-docker": "docker run  --rm -it -v $(pwd):/jetpack -w /jetpack --name jetpack-builder oskosk/jetpack-builder bash -c 'yarn build'",
     "build-languages-with-docker": "docker run --rm -it -v $(pwd):/jetpack -w /jetpack --name jetpack-builder oskosk/jetpack-builder bash -c 'yarn build-languages'",
     "build-production-with-docker": "docker run  --rm -it --env NODE_ENV=production -v $(pwd):/jetpack -w /jetpack --name jetpack-builder oskosk/jetpack-builder bash -c 'yarn build'",
+    "docker:run": "docker-compose up -d",
+    "docker:stop": "docker-compose stop",
     "lint": "eslint --ext .js --ext .jsx ./*.js _inc/client -c .eslintrc",
     "watch-with-docker": "docker run  --rm -it -v $(pwd):/jetpack -w /jetpack --name jetpack-builder oskosk/jetpack-builder bash -c 'yarn watch'",
     "test-client": "NODE_ENV=test NODE_PATH=tests:_inc/client:node_modules/@automattic/dops-components/client tests/runner.js",
