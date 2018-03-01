@@ -271,7 +271,7 @@ class PlanBody extends React.Component {
 								<p>{ __( 'Fast, optimized, ad-free, and unlimited video hosting for your site.' ) }</p>
 								{
 									this.props.isModuleActivated( 'videopress' ) ? (
-										<Button onClick={ () => this.trackPlansClick( 'upload_videos' ) } href={ this.props.siteAdminUrl + 'upload.php' } className="is-primary">
+										<Button onClick={ () => this.trackPlansClick( 'upload_videos' ) } href={ this.props.siteAdminUrl + 'upload.php?mode=grid' } className="is-primary">
 											{ __( 'Upload Videos Now' ) }
 										</Button>
 									)
