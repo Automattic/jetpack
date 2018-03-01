@@ -163,7 +163,6 @@ function jetpack_get_module_i18n( $key ) {
 			'seo-tools' => array(
 				'name' => _x( 'SEO Tools', 'Module Name', 'jetpack' ),
 				'description' => _x( 'Better results on search engines and social media.', 'Module Description', 'jetpack' ),
-				'recommended description' => _x( 'Better results on search engines and social media.', 'Jumpstart Description', 'jetpack' ),
 			),
 
 			'sharedaddy' => array(
