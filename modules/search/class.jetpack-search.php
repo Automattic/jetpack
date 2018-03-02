@@ -474,19 +474,12 @@ class Jetpack_Search {
 		// Query all posts now
 		$args = array(
 			'post__in'            => $post_ids,
+			'orderby'             => 'post__in',
 			'perm'                => 'readable',
 			'post_type'           => 'any',
 			'ignore_sticky_posts' => true,
 			'suppress_filters'    => true,
 		);
-
-		if ( isset( $query->query_vars['order'] ) ) {
-			$args['order'] = $query->query_vars['order'];
-		}
-
-		if ( isset( $query->query_vars['orderby'] ) ) {
-			$args['orderby'] = $query->query_vars['orderby'];
-		}
 
 		$posts_query = new WP_Query( $args );
 
