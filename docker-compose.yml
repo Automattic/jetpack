@@ -18,7 +18,7 @@ services:
        - db
      build: .
      volumes:
-       - .:/var/www/html/wp-content/plugins/jetpack
+       - .:/var/www/wp-content/plugins/jetpack
      ports:
        - "80:80"
      restart: always
