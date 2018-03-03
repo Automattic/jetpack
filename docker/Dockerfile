@@ -27,11 +27,13 @@ RUN apt-get update && \
 	  mysql-client \
 	  vim \
 	  less \
-	  subversion
+	  subversion \
+		ssmtp
 
 COPY ./apache_default /etc/apache2/sites-available/000-default.conf
 COPY ./run.sh /usr/local/bin/run
 COPY ./php.ini /etc/php/7.0/apache2/conf.d/20-jetpack-wordpress.ini
+COPY ./ssmtp.conf /etc/ssmtp/ssmtp.conf
 RUN chmod +x /usr/local/bin/run
 RUN a2enmod rewrite
 
