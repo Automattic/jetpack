@@ -26,8 +26,9 @@ RUN apt-get update && \
       curl \
 	  mysql-client
 
-COPY docker/apache_default /etc/apache2/sites-available/000-default.conf
-COPY docker/run.sh /usr/local/bin/run
+COPY ./apache_default /etc/apache2/sites-available/000-default.conf
+COPY ./run.sh /usr/local/bin/run
+COPY ./htaccess /var/www/.htaccess
 RUN chmod +x /usr/local/bin/run
 RUN a2enmod rewrite
 
