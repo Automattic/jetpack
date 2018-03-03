@@ -24,11 +24,14 @@ RUN apt-get update && \
       php7.0-opcache \
       composer \
       curl \
-	  mysql-client
+	  mysql-client \
+	  vim \
+	  less
 
 COPY ./apache_default /etc/apache2/sites-available/000-default.conf
 COPY ./run.sh /usr/local/bin/run
 COPY ./htaccess /var/www/.htaccess
+COPY ./php.ini /etc/php/7.0/apache2/conf.d/20-jetpack-wordpress.ini
 RUN chmod +x /usr/local/bin/run
 RUN a2enmod rewrite
 
