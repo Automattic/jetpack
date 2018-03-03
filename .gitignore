@@ -26,3 +26,4 @@ _inc/jetpack-strings.php
 
 ## Things for docker-composer 
 .mysql-data
+.wordpress-develop
