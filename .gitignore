@@ -29,3 +29,5 @@ _inc/jetpack-strings.php
 !/docker/data/mysql/.gitkeep
 /docker/wordpress-develop/*
 !/docker/wordpress-develop/.gitkeep
+/docker/wordpress/*
+!/docker/wordpress/.gitkeep

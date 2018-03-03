@@ -21,6 +21,7 @@ services:
      volumes:
        - ..:/var/www/wp-content/plugins/jetpack
        - ./wordpress-develop:/tmp/wordpress-develop
+       - ./wordpress:/var/www
      ports:
        - "80:80"
      restart: always
