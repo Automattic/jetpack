@@ -12,7 +12,7 @@ import includes from 'lodash/includes';
  * Internal dependencies
  */
 import Button from 'components/button';
-import { getSiteRawUrl } from 'state/initial-state';
+import { getSiteRawUrl, getUserId } from 'state/initial-state';
 import { getSitePlan, getAvailablePlans } from 'state/site/reducer';
 import analytics from 'lib/analytics';
 import { getPlanClass } from 'lib/plans/constants';
@@ -192,7 +192,7 @@ class PlanGrid extends React.Component {
 			const isActivePlan = this.isCurrentPlanType( planType );
 			const url = isActivePlan
 				? `https://wordpress.com/plans/my-plan/${ this.props.siteRawUrl }`
-				: `https://wordpress.com/checkout/${ this.props.siteRawUrl }/${ planType === 'personal' ? 'jetpack-personal' : planType }`;
+				: `https://jetpack.com/redirect/?source=plans-${ planType }&site=${ this.props.siteRawUrl }&u=${ this.props.userId }`;
 			const isPrimary = this.isPrimary( planType, plan );
 			const className = classNames(
 				'plan-features__table-item',
@@ -253,7 +253,7 @@ class PlanGrid extends React.Component {
 	 */
 	renderBottomButtons() {
 		return map( this.getPlans(), ( plan, planType ) => {
-			const url = `https://jetpack.com/features/comparison/?site=${ this.props.siteRawUrl }`;
+			const url = `https://jetpack.com/redirect/?source=plans-learn-more&site=${ this.props.siteRawUrl }&u=${ this.props.userId }`;
 			return (
 				<td key={ 'bottom-' + planType } className="plan-features__table-item is-bottom-buttons has-border-bottom">
 					<Button href={ url }>{ plan.strings.see_all }</Button>
@@ -331,7 +331,7 @@ class PlanGrid extends React.Component {
 			} );
 		};
 		return (
-			<a onClick={ clickHandler } href={ 'https://jetpack.com/features/' + feature.info }>{ feature.name }</a>
+			<a onClick={ clickHandler } href={ `https://jetpack.com/features/${ feature.info }?site=${ this.props.siteRawUrl }&u=${ this.props.userId }` }>{ feature.name }</a>
 		);
 	}
 
@@ -341,6 +341,7 @@ export default connect( ( state ) => {
 	return {
 		plans: getAvailablePlans( state ),
 		siteRawUrl: getSiteRawUrl( state ),
-		sitePlan: getSitePlan( state )
+		sitePlan: getSitePlan( state ),
+		userId: getUserId( state ),
 	};
 }, null, )( PlanGrid );

@@ -393,6 +393,7 @@ function jetpack_current_user_data() {
 		'isConnected' => Jetpack::is_user_connected( $current_user->ID ),
 		'isMaster'    => $is_master_user,
 		'username'    => $current_user->user_login,
+		'id'          => $current_user->ID,
 		'wpcomUser'   => $dotcom_data,
 		'gravatar'    => get_avatar( $current_user->ID, 40, 'mm', '', array( 'force_display' => true ) ),
 		'permissions' => array(
