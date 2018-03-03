@@ -22,6 +22,8 @@ services:
        - ..:/var/www/wp-content/plugins/jetpack
        - ./wordpress-develop:/tmp/wordpress-develop
        - ./wordpress:/var/www
+       - ./logs/apache2/:/var/log/apache2
+       - ./logs/php:/var/log/php
      ports:
        - "80:80"
      restart: always
@@ -29,5 +31,3 @@ services:
        WORDPRESS_DB_HOST: db:3306
        WORDPRESS_DB_USER: wordpress
        WORDPRESS_DB_PASSWORD: wordpress
-volumes:
-    .mysql-data:

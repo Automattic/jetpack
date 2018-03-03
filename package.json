@@ -27,6 +27,7 @@
     "docker:build": "docker-compose -f docker/docker-compose.yml build",
     "docker:sh": "docker exec -it jetpack_wordpress bash",
     "docker:phpunit": "docker exec -it jetpack_wordpress bash -c \"cd /var/www/wp-content/plugins/jetpack && phpunit\"",
+    "docker:tail":"tail -f docker/logs/php/errors.log",
     "lint": "eslint --ext .js --ext .jsx ./*.js _inc/client -c .eslintrc",
     "test-client": "NODE_ENV=test NODE_PATH=tests:_inc/client:node_modules/@automattic/dops-components/client tests/runner.js",
     "add-textdomain": "grunt addtextdomain",
