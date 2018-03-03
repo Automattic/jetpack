@@ -5,7 +5,7 @@ services:
      container_name: jetpack_mysql
      image: mysql:5.7
      volumes:
-       - .mysql-data:/var/lib/mysql
+       - ./data/mysql:/var/lib/mysql
      restart: always
      environment:
        MYSQL_ROOT_PASSWORD: somewordpress
@@ -20,7 +20,7 @@ services:
      build: .
      volumes:
        - ..:/var/www/wp-content/plugins/jetpack
-       - ./.wordpress-develop:/tmp/wordpress-develop
+       - ./wordpress-develop:/tmp/wordpress-develop
      ports:
        - "80:80"
      restart: always
