@@ -22,6 +22,8 @@ services:
        - ..:/var/www/wp-content/plugins/jetpack
        - ./wordpress-develop:/tmp/wordpress-develop
        - ./wordpress:/var/www
+       - ./logs/apache2/:/var/log/apache2
+       - ./logs/php:/var/log/php
      ports:
        - "80:80"
      restart: always
