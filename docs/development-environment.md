@@ -138,3 +138,5 @@ We provide a standard installation of WordPress for making Jetpack development e
 Run `yarn docker:start` to get a WordPress container with Jetpack mapped into it, running.
 
 Run `yarn docker:stop` to get the container stopped.
+
+Run `yarn docker:build` go rebuild the docker container if you made changes to `Dockerfile` or the `run.sh` script.
