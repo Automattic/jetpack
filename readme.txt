@@ -13,6 +13,7 @@ Hassle-free design, marketing, and security — all in one place.
 
 = Design Services =
 Create and customize your WordPress site from start to finish. Jetpack helps you with:
+
 * Hundreds of professional themes for any kind of site
 * Intuitive and powerful customization tools
 * Unlimited and high-speed image and video content delivery network
@@ -93,6 +94,62 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 5. Traffic: SEO Tools for Google, Twitter, Facebook and more.
 
 == Changelog ==
+
+= 5.9 =
+
+* Release date: March 6, 2018
+* Release post: https://wp.me/p1moTy-7mW
+
+**Major Enhancements**
+
+* WooCommerce Analytics: Added a new module for WooCommerce analytics that will use Jetpack's analytics functionality to help you track activity on your WooCommerce store.
+* Custom Content Types: Added support for excerpts on Testimonial and Portfolio.
+
+**Enhancements**
+
+* Activity Log: Improved the way we show failed login attempts in Jetpack's Activity Log.
+* Admin Page: We now hide settings for Lazy Images and Photon in the Admin page when the modules are not enabled due to being filtered out by jetpack_get_available_modules.
+* Admin Page: Now we only show the dismissal button in Apps card of the Jetpack Dashboard for admin users.
+* Build: Added a pre-commit hook for linting the Jetpack Admin Page source code. This aids in finding common syntax and style problems before having to wait for automated tests to run.
+* JSON API: We removed an obsolete endpoint for updating invites.
+* Onboarding: Added the ability to configure the country for a business address the using the Onboarding functionality of Jetpack.
+* Onboarding: Added the ability to enable the stats module when using the Onboarding functionality.
+* Onboarding: We now delete the onboarding token when the site gets connected.
+* Jetpack Start: Updated scripts for partners allowing to pass a tracking ID when provisioning or cancelling a plan which will help in debugging.
+* Jetpack Start: Improved the documentation for partners so they're now able to get them right on the Jetpack's Github repository under the docs/partners directory.
+* Plans: Correctly forward the client IP address for currency localization.
+* Plans: Updated the copy-text on Jetpack's Admin page for plans to be more concise on the features of each plan.
+* REST API: Added a plans endpoint to Jetpack's REST API to better handle the features of each Jetpack plan internally.
+* Search Implicitly activate Jetpack Search when attempting to add the Jetpack Search widget.
+* Search: Updated the Jetpack Search settings card to be more helpful in setting up the widget.
+* Search: We made the "Add Jetpack Search Widget" link in the Search module settings card open the widgets section of the customizer.
+* Search: Move any active search widgets to the inactive list if you disable the search module.
+* Search: Only log mysql and ES query times that are less than 60 seconds. There are some outliers that mess up our stats.
+* Sync: Improved the way widget titles are synchronized to WordPress.com servers when widgets are saved or updated.
+* Twitter Cards: Added new jetpack_twitter_image_default filter to allow themes and plugins to customize twitter:image when no suitable image is found automatically.
+* We updated the way we handle Jetpack's green color in out stylesheets for better compatibility with Jetpack's new logo.
+
+**Improved compatibility**
+
+* Admin Page: Jetpack's Admin Page javascript code is now fully compatible with React 16.
+* JSON API: Updated the modules endpoint Jetpack's JSON API to reply with a new property `override` that indicates if a module was either enabled or disabled by a filter.
+* Lazy Images: Updated the library used as IntersectionObserver for Lazy Images. We now use the W3C IntersectionObserver polyfill.
+* Lazy Images: Jetpack now allows the lazy images module to skip images with the skip-lazy css class or any given class of your choice by using the jetpack_lazy_images_blacklisted_classes filter.
+* Masterbar: Updated the sign out button behaviour of the Masterbar to not sign you out of WordPress.com when you sign out of your site for regular Jetpack sites.
+* REST API: Updated the modules endpoint in Jetpack's REST API to be aware of modules that have been filtered through option_jetpack_active_modules allowing for better compatibility with custom Jetpack installation where the administrator decides to filter out specific Jetpack modules.
+* Sync: Added the jetpack_sync_action_before_enqueue action that's done when anything gets enqueued before being synchronized to WordPress.com servers.
+
+**Bug fixes**
+
+* Admin Page: Removed all linting warnings for the JS code of the Admin page. These were only shown in development builds.
+* Connect: Fixed an issue that sometimes resulted in a notice being shown about another user already having connected a Jetpack site when attempting to connect your site to WordPress.com
+* General: Added suppress_filters param to get_posts / get_children function calls.
+* Markdown: Updated WordAds code to not use create_function which is getting deprecated in PHP 7.2.
+* Sync: Fixed a problem in Jetpack Sync code when trying to get property of non-object in the post syncing file.
+* Sync: Stopped synchronizing the sitemap post types to WordPress.com servers as it was an issue given the size of these.
+* Tracks events: Track events are logged now only if the user has accepted ToS and not just if Jetpack is connected.
+* Widget Visibility: Added a decodeEntities function in widget-conditions.js to handle entity decoding for the minor conditions dropdown.
+* WordAds: Updated WordAds code to not use create_function which is getting deprecated in PHP 7.2.
 
 = 5.8 =
 
@@ -229,6 +286,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Release post: https://wp.me/p1moTy-6Bd
 
 **Bug fixes**
+
 * In Jetpack 5.5 we made some changes that created errors if you were using other plugins that added custom links to the Plugins menu. This is now fixed.
 * We have fixed a problem that did not allow to upload plugins using API requests.
 * Open Graph links in post headers are no longer invalid in some special cases.
@@ -247,6 +305,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Jetpack is now fully compatible with WordPress's [new Gallery Widget](https://make.wordpress.org/core/2017/09/25/introducing-the-gallery-widget/). Your old Gallery widgets powered by Jetpack will switch to the new Widget when you update to WordPress 4.9.
 
 **Enhancements**
+
 * We have improved the performance when loading the Jetpack Settings in the dashboard by optimizing the number of calls made when loading the page.
 * We have updated the plugin to do a better job of cleaning up after itself whenever you decide to remove Jetpack from your site.
 * We made some changes to reduce the number of connection issues that may happen on a site when switching from HTTP to HTTPs.
@@ -276,12 +335,14 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * WordPress.com REST API: improve the response from the API when WordPress' autoupdates are disabled.
 
 **Improved compatibility**
+
 * You can now use Jetpack's contact form and Yoast SEO's Focus keywords on the same page without any issues in the editor.
 * Top Posts Widget: avoid Fatal Errors when the widget is used on a site using WPML, and when a popular post cannot be found by WPML.
 * Sync: add more Custom Post Types from third-party plugins to the list of things we do not synchronize with WordPress.com, to improve sync performance.
 * Sharing: since [Press This is now a plugin and not part of WordPress itself](https://make.wordpress.org/core/2017/11/02/press-this-in-4-9/), we removed the Press This sharing button if you are not using the plugin.
 
 **Bug fixes**
+
 * We now avoid displaying notices to user roles that cannot benefit or act based on the info in the notices.
 * Gravatar Hovercards: avoid PHP Notices when the user info is an object.
 * Infinite Scroll: avoid PHP notices when a site customizes galleries thanks to the `post_gallery` filter.
@@ -311,10 +372,12 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Release post: http://wp.me/p1moTy-67V
 
 **Major Enhancements**
+
 * Multiple improvements to the connection process, to allow more people to use the Jetpack plugin, even on very specific server configurations.
 * Add a new Welcome screen to guide site owners after they have purchased a Jetpack plan.
 
 **Enhancements**
+
 * Add Schema.org markup to the Contact Info Widget.
 * Add a new "Date" field to the Contact Form.
 * Do not show any update notices when in [development mode](http://jetpack.com/support/development-mode).
@@ -332,6 +395,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Improve the display and options offered with the Milestone Widget.
 
 **Bug fixes**
+
 * We fixed layout issues appearing in the admin interface for IE11 users.
 * Comment Form: avoid whitespace sometimes appearing below the form with some themes.
 * Contact Form: avoid errors in the post editor on sites using RTL languages.
@@ -348,10 +412,12 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Release post: http://wp.me/p1moTy-5Xv
 
 **Major Enhancements**
+
 * Full PHP 7.1 compatibility.
 * It's now possible to preview your site within WordPress.com.
 
 **Enhancements**
+
 * The Ads feature now gives you more options and control over the ads displayed on your site.
 * Increased performance in the admin by cutting back on unnecessary requests.
 * Loading comment avatars from Facebook and Twitter through a more secure https.
@@ -368,6 +434,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Removed the Omnisearch feature.
 
 **Bug fixes**
+
 * Fixed compatibility issues with plugins using TinyMCE.
 * Contact Form submission emails have been fixed for sites hosted on SiteGround.
 * Updating WordPress.com themes will no longer have any problems.

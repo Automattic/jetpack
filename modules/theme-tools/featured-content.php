@@ -172,9 +172,10 @@ class Featured_Content {
 		}
 
 		$featured_posts = get_posts( array(
-			'include'        => $post_ids,
-			'posts_per_page' => count( $post_ids ),
-			'post_type'      => self::$post_types,
+			'include'          => $post_ids,
+			'posts_per_page'   => count( $post_ids ),
+			'post_type'        => self::$post_types,
+			'suppress_filters' => false,
 		) );
 
 		return $featured_posts;
@@ -230,6 +231,7 @@ class Featured_Content {
 		$featured = get_posts( array(
 			'numberposts' => $quantity,
 			'post_type'   => self::$post_types,
+			'suppress_filters' => false,
 			'tax_query'   => array(
 				array(
 					'field'    => 'term_id',

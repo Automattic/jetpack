@@ -374,7 +374,8 @@ class Jetpack_Carousel {
 		$attachments = get_posts( array(
 			'include' => array_keys( $selected_images ),
 			'post_type' => 'any',
-			'post_status' => 'any'
+			'post_status' => 'any',
+			'suppress_filters' => false,
 		) );
 
 		foreach ( $attachments as $attachment ) {

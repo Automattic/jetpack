@@ -15,6 +15,7 @@ npm-debug.log
 tests/php/files/jetpack-150x150.jpg
 *.unison.tmp
 .eslintcache
+yarn-error.log
 
 ## Things we will need in release branches
 /_inc/build

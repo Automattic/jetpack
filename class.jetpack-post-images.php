@@ -174,6 +174,7 @@ class Jetpack_PostImages {
 			'numberposts' => 5,          // No more than 5
 			'post_type' => 'attachment', // Must be attachments
 			'post_mime_type' => 'image', // Must be images
+			'suppress_filters' => false,
 		) );
 
 		if ( ! $post_images ) {

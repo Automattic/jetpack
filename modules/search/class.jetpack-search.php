@@ -186,6 +186,8 @@ class Jetpack_Search {
 		} else {
 			add_action( 'update_option', array( $this, 'track_widget_updates' ), 10, 3 );
 		}
+
+		add_action( 'jetpack_deactivate_module_search', array( $this, 'move_search_widgets_to_inactive' ) );
 	}
 
 	/**
@@ -472,19 +474,12 @@ class Jetpack_Search {
 		// Query all posts now
 		$args = array(
 			'post__in'            => $post_ids,
+			'orderby'             => 'post__in',
 			'perm'                => 'readable',
 			'post_type'           => 'any',
 			'ignore_sticky_posts' => true,
 			'suppress_filters'    => true,
 		);
-
-		if ( isset( $query->query_vars['order'] ) ) {
-			$args['order'] = $query->query_vars['order'];
-		}
-
-		if ( isset( $query->query_vars['orderby'] ) ) {
-			$args['orderby'] = $query->query_vars['orderby'];
-		}
 
 		$posts_query = new WP_Query( $args );
 
@@ -1747,5 +1742,47 @@ class Jetpack_Search {
 			sprintf( 'jetpack_search_widget_%s', $event['action'] ),
 			$event['widget']
 		);
+	}
+
+	/**
+	 * Moves any active search widgets to the inactive category.
+	 *
+	 * @since 5.9.0
+	 *
+	 * @param string $module Unused. The Jetpack module being disabled.
+	 */
+	public function move_search_widgets_to_inactive( $module ) {
+		if ( ! is_active_widget( false, false, Jetpack_Search_Helpers::FILTER_WIDGET_BASE, true ) ) {
+			return;
+		}
+
+		$sidebars_widgets = wp_get_sidebars_widgets();
+
+		if ( ! is_array( $sidebars_widgets ) ) {
+			return;
+		}
+
+		$changed = false;
+
+		foreach ( $sidebars_widgets as $sidebar => $widgets ) {
+			if ( 'wp_inactive_widgets' === $sidebar || 'orphaned_widgets' === substr( $sidebar, 0, 16 ) ) {
+				continue;
+			}
+
+			if ( is_array( $widgets ) ) {
+				foreach ( $widgets as $key => $widget ) {
+					if ( _get_widget_id_base( $widget ) == Jetpack_Search_Helpers::FILTER_WIDGET_BASE ) {
+						$changed = true;
+
+						array_unshift( $sidebars_widgets['wp_inactive_widgets'], $widget );
+						unset( $sidebars_widgets[ $sidebar ][ $key ] );
+					}
+				}
+			}
+		}
+
+		if ( $changed ) {
+			wp_set_sidebars_widgets( $sidebars_widgets );
+		}
 	}
 }
