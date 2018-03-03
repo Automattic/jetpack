@@ -23,7 +23,8 @@ RUN apt-get update && \
       php7.0-soap \
       php7.0-opcache \
       composer \
-      curl
+      curl \
+	  mysql-client
 
 COPY docker/apache_default /etc/apache2/sites-available/000-default.conf
 COPY docker/run.sh /usr/local/bin/run

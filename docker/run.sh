@@ -9,7 +9,9 @@ sed -ri "s/^error_reporting\s*=.*$//g" /etc/php/7.0/cli/php.ini
 echo "error_reporting = $PHP_ERROR_REPORTING" >> /etc/php/7.0/apache2/php.ini
 echo "error_reporting = $PHP_ERROR_REPORTING" >> /etc/php/7.0/cli/php.ini
 
-cd /var/www/ && wp --allow-root core download && chown -R www-data:www-data /var/www
+cd /var/www/ && [ -f /var/www/xmlrpc.php ] || wp --allow-root core download
+[ -f /var/www/wp-config.php ] || wp --allow-root config create --dbhost=$WORDPRESS_DB_HOST --dbname=wordpress --dbuser=$WORDPRESS_DB_USER --dbpass=$WORDPRESS_DB_PASSWORD
+#chown -R www-data:www-data /var/www
 
 echo "Starting Apache"
 apachectl -D FOREGROUND
