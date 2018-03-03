@@ -26,7 +26,7 @@
     "docker:stop": "docker-compose -f docker/docker-compose.yml stop",
     "docker:build": "docker-compose -f docker/docker-compose.yml build",
     "docker:sh": "docker exec -it jetpack_wordpress bash",
-    "docker:phpunit": "docker exec -it jetpack_wordpress bash -c \"cd /var/www/wp-content/plugins/jetpack && phpunit\"",
+    "docker:phpunit": "docker container exec jetpack_wordpress phpunit --configuration=/var/www/wp-content/plugins/jetpack/phpunit.xml.dist",
     "docker:tail":"tail -f docker/logs/php/errors.log",
     "lint": "eslint --ext .js --ext .jsx ./*.js _inc/client -c .eslintrc",
     "test-client": "NODE_ENV=test NODE_PATH=tests:_inc/client:node_modules/@automattic/dops-components/client tests/runner.js",
