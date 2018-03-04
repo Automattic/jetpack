@@ -21,7 +21,7 @@ services:
     restart: always
     ports:
       - "1080:80"
-      - "25"
+      - "25:25"
 
   wordpress:
     container_name: jetpack_wordpress
@@ -36,7 +36,7 @@ services:
       - ./logs/apache2/:/var/log/apache2
       - ./logs/php:/var/log/php
     ports:
-      - "80"
+      - "80:80"
     restart: always
     environment:
       WORDPRESS_DB_HOST: db:3306
