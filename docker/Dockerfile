@@ -63,9 +63,6 @@ RUN curl https://phar.phpunit.de/phpunit-5.7.5.phar -L -o phpunit.phar \
 RUN svn co https://develop.svn.wordpress.org/trunk/tests/phpunit/data /tmp/wordpress-develop/tests/phpunit/data --trust-server-cert --non-interactive
 RUN svn co https://develop.svn.wordpress.org/trunk/tests/phpunit/includes /tmp/wordpress-develop/tests/phpunit/includes --trust-server-cert --non-interactive
 
-
-#RUN if [ ! -e "/var/www/xmlrpc.php" ]; then chmod -x /var/www/ && cd /var/www/ && wp core download; else echo 'WordPress Installed'; fi
-
 # Run the entrypoint as root
 USER root
 CMD ["/usr/local/bin/run"]
