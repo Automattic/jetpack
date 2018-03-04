@@ -88,4 +88,10 @@ yarn docker:clean
 
 ### Using WP CLI
 
-TODO
+To run [WP CLI](https://make.wordpress.org/cli/) commands inside your container.
+
+To run e.g. [`cron event list`](https://developer.wordpress.org/cli/commands/cron/event/list/), do:
+
+```sh
+yarn docker:cli cron event list
+```
