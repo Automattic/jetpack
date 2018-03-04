@@ -16,8 +16,26 @@ echo "error_reporting = $PHP_ERROR_REPORTING" >> /etc/php/7.0/cli/php.ini
 
 # Download WordPress
 cd /var/www/ && [ -f /var/www/xmlrpc.php ] || wp --allow-root core download
-# Create a wp-config file respecting Dockerfile-forwarded environment variables
-[ -f /var/www/wp-config.php ] || wp --allow-root config create --dbhost=$WORDPRESS_DB_HOST --dbname=wordpress --dbuser=$WORDPRESS_DB_USER --dbpass=$WORDPRESS_DB_PASSWORD
+
+# Configure WordPress
+if [ ! -f /var/www/wp-config.php ]; then
+    echo "Creating wp-config.php ..."
+    wp --allow-root config create \
+      --dbhost=$WORDPRESS_DB_HOST \
+      --dbname=wordpress \
+      --dbuser=$WORDPRESS_DB_USER \
+      --dbpass=$WORDPRESS_DB_PASSWORD
+
+    echo "Setting other wp-config.php constants..."
+    wp --allow-root config set WP_DEBUG true --raw --type=constant
+    wp --allow-root config set WP_DEBUG_LOG true --raw --type=constant
+    wp --allow-root config set WP_DEBUG_DISPLAY false --raw --type=constant
+
+    # Respecting Dockerfile-forwarded environment variables
+    wp --allow-root config set DOCKER_REQUEST_URL "(\$_SERVER['HTTPS'] ? 'https://' : 'http://') . \$_SERVER['HTTP_HOST']" --raw --type=constant
+    wp --allow-root config set WP_SITEURL "\$DOCKER_REQUEST_URL" --raw --type=constant
+    wp --allow-root config set WP_HOME "\$DOCKER_REQUEST_URL" --raw --type=constant
+fi
 # Change ownership of /var/www to www-data
 # chown -R www-data:www-data /var/www
 
