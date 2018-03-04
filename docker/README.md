@@ -1,61 +1,83 @@
 # Docker environment for Jetpack Development
 
-With this directory we provide a hopefully comfortable environment for developing WordPress using a customized docker container providing the following goodies:
+With this directory we provide a hopefully comfortable environment for developing WordPress using a Docker container providing the following goodies:
 
-* An ubuntu base operating system.
-* Latest WordPress version
-	* Jetpack source code will be available as an active plugin.
+* An Ubuntu base operating system.
+* Latest WordPress version.
+	* Jetpack source code will be available as plugin from parent directory.
 * PHPUnit Installation
 	* WordPress tests and source code is provided too.
-* MailDev so it's easy to work and design emails.
-	* Maildev provides a web interface that comes in handy so everytime this WordPress site sends an email you'll be able to smoke test it with a web browser.
-* Handy npm/yarn commands like `yarn docker:up` and `yarn docker:phpunit` to simplify the usage of this.
+* MailDev to catch all the emails leaving WordPress so that you can observe them from browser.
+* Handy NPM/Yarn shorthand commands like `yarn docker:up` and `yarn docker:phpunit` to simplify the usage.
 
-## Useful commands for taking advantage of the Docker environment
+## To get started
 
-**All of these commands should be run from the base jetpack directory. Not while standing on the `docker` directory**. Like:
+**All of these commands should be run from the base jetpack directory. Not from the `docker` directory!**
 
 ```sh
-$ git clone git@github.com:Automattic/jetpack.git
+$ git clone https://github.com/Automattic/jetpack.git
 $ cd jetpack
 $ yarn docker:up
-$ #You can browse to http://localhost now
 ```
 
+Uninstalled WordPress is running in [http://localhost](http://localhost) now. You can proxy to your localhost e.g. with [Ngrok](https://ngrok.com/) to be able to connect Jetpack.
 
-### Starting the development environment
+To debug emails open [http://localhost:1080](http://localhost:1080).
 
-`yarn docker:up`
+### Start containers
 
-This will start actually three containers (WordPress, MySQL and maildev). Wrapper for `docker-composer up`.
+```sh
+yarn docker:up
+```
 
-This command will rebuild the WordPress container if you made any changes to `docker-composer.yml`. But it won't build the images again on its own if you changed any of the other files like `Dockerfile`, `run.sh` (The entrypoint) or the provisioned files for configuring Apache and PHP. See `yarn docker:build`.
+Start three containers (WordPress, MySQL and MailDev) defined in `docker-composer.yml`. Wrapper for `docker-composer up`.
 
-### Stopping the development environment
+This command will rebuild the WordPress container if you made any changes to `docker-composer.yml`. It won't build the images again on its own if you changed any of the other files like `Dockerfile`, `run.sh` (the entry-point file) or the provisioned files for configuring Apache and PHP. See "rebuilding images".
 
-`yarn docker:stop`
+### Stop containers
 
-Will stop all of the containers. Wrapper for `docker-composer stop`.
+```sh
+yarn docker:stop
+```
 
-### Rebuilding the images
+Stops all containers. Wrapper for `docker-composer stop`.
 
-`yarn docker:build`
+### Rebuild images
 
-This command comes in hand when you've updated `Dockerfile`, `docker-composer.yml`, or the provisioned files we use for configuring Apache and PHP.
+```sh
+yarn docker:build
+```
 
-This will help with building the base WordPress image before you run `yarn docker:up` again.
+You need to rebuild the WordPress image with this command if you modified `Dockerfile`, `docker-composer.yml` or the provisioned files we use for configuring Apache and PHP.
 
 ### Accessing logs
 
+Logs are stored in your filesystem under `./docker/logs` directory.
 
 #### PHP error log
 
-`yarn docker:tail`
+To `tail -f` the PHP error log, run:
 
-This will `tail -f` the PHP error log.
+```sh
+yarn docker:tail
+```
+
+### MySQL database
+
+You can see your database files via local filesystem from `./docker/data/mysql`.
 
 ### Running unit tests
 
-`yarn docker:phpunit`
+```sh
+yarn docker:phpunit
+```
 
-This will run unit tests for jetpack. You can pass arguments to `phpunit` like `--filter=protect` to it.
+This will run unit tests for Jetpack. You can pass arguments to `phpunit` like so:
+
+```sh
+yarn docker:phpunit --filter=Protect
+```
+
+### Using WP CLI
+
+TODO
