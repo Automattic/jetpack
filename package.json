@@ -24,6 +24,7 @@
     "build-languages": "gulp languages",
     "docker:up": "docker-compose -f docker/docker-compose.yml up",
     "docker:stop": "docker-compose -f docker/docker-compose.yml stop",
+    "docker:down": "docker-compose -f docker/docker-compose.yml down",
     "docker:build": "docker-compose -f docker/docker-compose.yml build",
     "docker:cli": "docker container exec jetpack_wordpress wp --allow-root --path=/var/www/",
     "docker:sh": "docker exec -it jetpack_wordpress bash",
