@@ -135,10 +135,4 @@ When working on a Windows machine, you can use [Windows Subsystem for Linux](htt
 
 We provide a standard installation of WordPress for making Jetpack development easier.
 
-Run `yarn docker:start` to get a WordPress container with Jetpack mapped into it, running.
-
-Run `yarn docker:stop` to get the container stopped.
-
-Run `yarn docker:build` go rebuild the docker container if you made changes to `Dockerfile` or the `run.sh` script.
-
-Run `yarn docker:tail` tails the php error log.
+You can read the details in [docker/README.md](../docker/README.md)
