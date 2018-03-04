@@ -43,6 +43,9 @@ services:
     build: .
     volumes:
       - ..:/var/www/wp-content/plugins/jetpack
+      ## Kludge for not having docker contain recursive stuff
+      ## You will see on your filesystem that this dir gets created
+      - ./.dumb-directory-for-mapping-docker-directory:/var/www/wp-content/plugins/jetpack/docker
       - ./wordpress-develop:/tmp/wordpress-develop
       - ./wordpress:/var/www
       - ./logs/apache2/:/var/log/apache2
