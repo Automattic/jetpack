@@ -22,7 +22,12 @@ RUN apt-get update && \
 	php7.0-xsl \
 	php7.0-zip \
 	php7.0-soap \
-	php7.0-opcache \
+	php7.0-opcache
+
+# Install a bunch of other packages as another RUN so we don't have to rebuild
+# that first essential layer every time we change this list for now
+# This may not be needed once we publish an image.
+RUN apt-get install -y \
 	composer \
 	curl \
 	mysql-client \
@@ -30,22 +35,8 @@ RUN apt-get update && \
 	nano \
 	less \
 	subversion \
-	ssmtp
-
-# Copy a defulat config file for an apache host
-COPY ./apache_default /etc/apache2/sites-available/000-default.conf
-
-# Copy our entrypoint bash script
-COPY ./run.sh /usr/local/bin/run
-
-# Copy a default set of settings for PHP (php.ini)
-COPY ./php.ini /etc/php/7.0/apache2/conf.d/20-jetpack-wordpress.ini
-
-# Copy a default set of settings for ssmtp.
-COPY ./ssmtp.conf /etc/ssmtp/ssmtp.conf
-
-# Make our entrypoing script be executable
-RUN chmod +x /usr/local/bin/run
+	ssmtp \
+	sudo
 
 # Enable mod_rewrite in Apache
 RUN a2enmod rewrite
@@ -62,6 +53,22 @@ RUN curl https://phar.phpunit.de/phpunit-5.7.5.phar -L -o phpunit.phar \
 # Get the latest WordPress source code which is needed for running Jetpack unit tests
 RUN svn co https://develop.svn.wordpress.org/trunk/tests/phpunit/data /tmp/wordpress-develop/tests/phpunit/data --trust-server-cert --non-interactive
 RUN svn co https://develop.svn.wordpress.org/trunk/tests/phpunit/includes /tmp/wordpress-develop/tests/phpunit/includes --trust-server-cert --non-interactive
+
+# Copy a default config file for an apache host
+COPY ./apache_default /etc/apache2/sites-available/000-default.conf
+
+# Copy our entrypoint bash script
+COPY ./run.sh /usr/local/bin/run
+
+# Copy a default set of settings for PHP (php.ini)
+COPY ./php.ini /etc/php/7.0/apache2/conf.d/20-jetpack-wordpress.ini
+COPY ./php.ini /etc/php/7.0/cli/conf.d/20-jetpack-wordpress.ini
+
+# Copy a default set of settings for ssmtp.
+COPY ./ssmtp.conf /etc/ssmtp/ssmtp.conf
+
+# Make our entrypoing script be executable
+RUN chmod +x /usr/local/bin/run
 
 # Run the entrypoint as root
 USER root
