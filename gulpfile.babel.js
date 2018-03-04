@@ -124,7 +124,9 @@ function onBuild( done ) {
 			.pipe( banner( '/* Do not modify this file directly. It is compiled from other files. */\n' ) )
 			.pipe( gulpif( ! is_prod, sourcemaps.init() ) )
 			.pipe( uglify( {
-				preserveComments: saveLicense
+				output: {
+					comments: saveLicense,
+				},
 			} ) )
 			.pipe( rename( { suffix: '.min' } ) )
 			.pipe( gulpif( ! is_prod, sourcemaps.write( 'maps' ) ) ) // Put the maps in _inc/build/maps so that we can easily .svnignore
@@ -217,8 +219,7 @@ gulp.task( 'react:watch', function() {
 function doStatic( done ) {
 	let path;
 
-	const jsdom = require( 'jsdom' );
-
+	const jsdom = require( 'jsdom/lib/old-api' );
 	log( 'Building static HTML from built JS…' );
 
 	jsdom.env( '', function( err, window ) {
@@ -266,6 +267,7 @@ function doStatic( done ) {
 				'If this is happening during watch, this warning is OK to dismiss: sometimes webpack fires watch handlers when source code is not yet built.'
 			) );
 		}
+		window.close();
 	} );
 }
 
