@@ -26,6 +26,7 @@ RUN apt-get update && \
 	curl \
 	mysql-client \
 	vim \
+	nano \
 	less \
 	subversion \
 	ssmtp
