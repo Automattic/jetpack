@@ -29,8 +29,7 @@ RUN apt-get update && \
 	nano \
 	less \
 	subversion \
-	ssmtp \
-	sudo
+	ssmtp
 
 COPY ./apache_default /etc/apache2/sites-available/000-default.conf
 COPY ./run.sh /usr/local/bin/run
