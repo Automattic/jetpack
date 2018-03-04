@@ -42,6 +42,10 @@ yarn docker:stop
 
 Stops all containers. Wrapper for `docker-composer stop`.
 
+`yarn docker:down`
+
+Will stop all of the containers created by this docker-compose configuration and remove them too. It won't remove the images. Just the containers that have just been stopped.
+
 ### Rebuild images
 
 ```sh
