@@ -1,33 +1,44 @@
 version: '3.3'
 
 services:
-   db:
-     container_name: jetpack_mysql
-     image: mysql:5.7
-     volumes:
-       - ./data/mysql:/var/lib/mysql
-     restart: always
-     environment:
-       MYSQL_ROOT_PASSWORD: somewordpress
-       MYSQL_DATABASE: wordpress
-       MYSQL_USER: wordpress
-       MYSQL_PASSWORD: wordpress
+  db:
+    container_name: jetpack_mysql
+    image: mysql:5.7
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: somewordpress
+      MYSQL_DATABASE: wordpress
+      MYSQL_USER: wordpress
+      MYSQL_PASSWORD: wordpress
 
-   wordpress:
-     container_name: jetpack_wordpress
-     depends_on:
-       - db
-     build: .
-     volumes:
-       - ..:/var/www/wp-content/plugins/jetpack
-       - ./wordpress-develop:/tmp/wordpress-develop
-       - ./wordpress:/var/www
-       - ./logs/apache2/:/var/log/apache2
-       - ./logs/php:/var/log/php
-     ports:
-       - "80:80"
-     restart: always
-     environment:
-       WORDPRESS_DB_HOST: db:3306
-       WORDPRESS_DB_USER: wordpress
-       WORDPRESS_DB_PASSWORD: wordpress
+  ## SMTP Server + Web Interface for viewing and testing emails during development.
+  ## http://danfarrelly.nyc/MailDev/
+  maildev:
+    image: djfarrelly/maildev
+    container_name: maildev
+    restart: always
+    ports:
+      - "1080:80"
+      - "25"
+
+  wordpress:
+    container_name: jetpack_wordpress
+    depends_on:
+      - db
+      - maildev
+    build: .
+    volumes:
+      - ..:/var/www/wp-content/plugins/jetpack
+      - ./wordpress-develop:/tmp/wordpress-develop
+      - ./wordpress:/var/www
+      - ./logs/apache2/:/var/log/apache2
+      - ./logs/php:/var/log/php
+    ports:
+      - "80"
+    restart: always
+    environment:
+      WORDPRESS_DB_HOST: db:3306
+      WORDPRESS_DB_USER: wordpress
+      WORDPRESS_DB_PASSWORD: wordpress
