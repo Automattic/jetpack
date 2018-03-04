@@ -78,6 +78,14 @@ This will run unit tests for Jetpack. You can pass arguments to `phpunit` like s
 yarn docker:phpunit --filter=Protect
 ```
 
+### Starting over
+
+To remove all docker images, all mysql data, and all docker-related files from your local machine run:
+
+```sh
+yarn docker:clean
+```
+
 ### Using WP CLI
 
 TODO
