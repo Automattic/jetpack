@@ -29,13 +29,7 @@ class JetpackConnect extends React.Component {
 					<p className="jp-jetpack-connect__description">
 						{ __( 'Hassle-free design, marketing, and security for your WordPress site. Connect Jetpack to a WordPress.com account to start building your own success story.' ) }
 					</p>
-					<ConnectButton from="landing-page-top">
-						<p>
-							<a href={ newAccountUrl } className="jp-jetpack-connect__link">
-								{ __( 'No account? Create one for free.' ) }
-							</a>
-						</p>
-					</ConnectButton>
+					<ConnectButton from="landing-page-top"></ConnectButton>
 				</Card>
 
 				<Card className="jp-jetpack-connect__feature jp-jetpack-connect__design">
@@ -217,13 +211,7 @@ class JetpackConnect extends React.Component {
 							'We\'re passionate about WordPress and here to make your life easier.'
 						) }
 					</p>
-					<ConnectButton from="landing-page-bottom">
-						<p>
-							<a href={ newAccountUrl } className="jp-jetpack-connect__link">
-								{ __( 'No account? Create one for free.' ) }
-							</a>
-						</p>
-					</ConnectButton>
+					<ConnectButton from="landing-page-bottom"></ConnectButton>
 				</Card>
 			</div>
 		);
