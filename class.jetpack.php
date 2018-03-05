@@ -1515,7 +1515,7 @@ class Jetpack {
 		// get available features
 		foreach( self::get_available_modules() as $module_slug ) {
 			$module = self::get_module( $module_slug );
-			if ( in_array( $plan['class'], $module['plan_classes'] ) ) {
+			if ( in_array( 'free', $module['plan_classes'] ) || in_array( $plan['class'], $module['plan_classes'] ) ) {
 				$supports[] = $module_slug;
 			}
 		}
@@ -2448,7 +2448,6 @@ class Jetpack {
 		if ( $mod['plan_classes'] ) {
 			$mod['plan_classes'] = explode( ',', $mod['plan_classes'] );
 			$mod['plan_classes'] = array_map( 'strtolower', array_map( 'trim', $mod['plan_classes'] ) );
-			$mod['plan_classes'][] = 'free';
 		} else {
 			$mod['plan_classes'] = array( 'free' );
 		}
