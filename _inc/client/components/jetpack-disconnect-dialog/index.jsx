@@ -149,7 +149,7 @@ export class JetpackDisconnectDialog extends React.Component {
 						{
 							__( 'By disconnecting %(siteName)s from WordPress.com you will no longer have access to the following:', {
 								args: {
-									siteName: this.props.siteRawUrl.replace( '::', '/' )
+									siteName: this.props.siteRawUrl.replace( /::/g, '/' )
 								}
 							} )
 						}
