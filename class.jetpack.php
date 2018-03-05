@@ -2448,6 +2448,7 @@ class Jetpack {
 		if ( $mod['plan_classes'] ) {
 			$mod['plan_classes'] = explode( ',', $mod['plan_classes'] );
 			$mod['plan_classes'] = array_map( 'strtolower', array_map( 'trim', $mod['plan_classes'] ) );
+			$mod['plan_classes'][] = 'free';
 		} else {
 			$mod['plan_classes'] = array( 'free' );
 		}
