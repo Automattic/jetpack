@@ -25,6 +25,7 @@ services:
     ports:
       - "1080:80"
       - "25:25"
+
   ## - The container wordpress is a very basic but custom container with WordPress and all of the tools we need
   ##   for development.
   ## - The container will be named jetpack_wordpress for easy reference when running docker/docker-compose commands
@@ -46,6 +47,7 @@ services:
       ## Kludge for not having docker contain recursive stuff
       ## You will see on your filesystem that this dir gets created
       - ./.dumb-directory-for-mapping-docker-directory:/var/www/wp-content/plugins/jetpack/docker
+       - ./mu-plugins:/var/www/wp-content/mu-plugins
       - ./wordpress-develop:/tmp/wordpress-develop
       - ./wordpress:/var/www
       - ./logs/apache2/:/var/log/apache2

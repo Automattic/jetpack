@@ -99,3 +99,7 @@ To run e.g. [`cron event list`](https://developer.wordpress.org/cli/commands/cro
 ```sh
 yarn docker:cli cron event list
 ```
+
+### Must Use Plugins directory
+
+You can add your own PHP code to `./docker/mu-plugins` directory and they will be loaded by WordPress, in alphabetical order, before normal plugins, meaning API hooks added in an mu-plugin apply to all other plugins even if they run hooked-functions in the global namespace. [Read more](https://codex.wordpress.org/Must_Use_Plugins).
