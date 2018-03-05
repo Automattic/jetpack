@@ -4052,7 +4052,7 @@ p {
 				check_admin_referer( "jetpack_activate-$module" );
 				Jetpack::log( 'activate', $module );
 				if ( ! Jetpack::activate_module( $module ) ) {
-					Jetpack::state( 'error', sprintf( __( 'Could not activated %s', 'jetpack' ), $module ) );
+					Jetpack::state( 'error', sprintf( __( 'Could not activate %s', 'jetpack' ), $module ) );
 				}
 				// The following two lines will rarely happen, as Jetpack::activate_module normally exits at the end.
 				wp_safe_redirect( Jetpack::admin_url( 'page=jetpack' ) );
