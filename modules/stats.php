@@ -1250,6 +1250,9 @@ jQuery( function($) {
 	float: left;
 	width: 50%;
 }
+#stats-info #top-posts {
+	padding-right: 3%;
+}
 #top-posts .stats-section-inner p {
 	white-space: nowrap;
 	overflow: hidden;
