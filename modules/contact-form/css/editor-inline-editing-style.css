@@ -117,7 +117,8 @@ label:first-of-type {
 
 input[type="text"],
 input[type="tel"],
-input[type="email"] {
+input[type="email"],
+input[type="url"] {
 	border-radius: 0;
 	appearance: none;
 	box-sizing: border-box;
@@ -135,19 +136,22 @@ input[type="email"] {
 
 input[type="text"]::placeholder,
 input[type="tel"]::placeholder,
-input[type="email"]::placeholder {
+input[type="email"]::placeholder,
+input[type="url"]::placeholder {
 	color: #87a6bc;
 }
 
 input[type="text"]:hover,
 input[type="tel"]:hover,
-input[type="email"]:hover {
+input[type="email"]:hover,
+input[type="url"]:hover {
 	border-color: #a8bece;
 }
 
 input[type="text"]:focus,
 input[type="tel"]:focus,
-input[type="email"]:focus {
+input[type="email"]:focus,
+input[type="url"]:focus {
 	border-color: #0087be;
 	outline: none;
 	box-shadow: 0 0 0 2px #78dcfa;
@@ -155,13 +159,15 @@ input[type="email"]:focus {
 
 input[type="text"]:focus::-ms-clear,
 input[type="tel"]:focus::-ms-clear,
-input[type="email"]:focus::-ms-clear {
+input[type="email"]:focus::-ms-clear,
+input[type="url"]:focus::-ms-clear {
 	display: none;
 }
 
 input[type="text"]:disabled,
 input[type="tel"]:disabled,
-input[type="email"]:disabled {
+input[type="email"]:disabled,
+input[type="url"]:disabled {
 	background: #f3f6f8;
 	border-color: #e9eff3;
 	color: #a8bece;
@@ -170,13 +176,15 @@ input[type="email"]:disabled {
 
 input[type="text"]:disabled:hover,
 input[type="tel"]:disabled:hover,
-input[type="email"]:disabled:hover {
+input[type="email"]:disabled:hover,
+input[type="url"]:disabled:hover {
 	cursor: default;
 }
 
 input[type="text"]:disabled::placeholder,
 input[type="tel"]:disabled::placeholder,
-input[type="email"]:disabled::placeholder {
+input[type="email"]:disabled::placeholder,
+input[type="url"]:disabled::placeholder {
 	color: #a8bece;
 }
 
