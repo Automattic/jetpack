@@ -97,7 +97,7 @@ class DashBackups extends Component {
 					status: isVaultPressInstalled ? 'pro-inactive' : 'pro-uninstalled',
 					content: __( 'To automatically back up your entire site, please {{a}}install and activate{{/a}} VaultPress.', {
 						components: {
-							a: <a href="https://wordpress.com/plugins/vaultpress" target="_blank" rel="noopener noreferrer" />
+							a: <a href={ `https://wordpress.com/plugins/setup/${ siteRawUrl }?only=backups` } target="_blank" rel="noopener noreferrer" />
 						}
 					} )
 				} );
