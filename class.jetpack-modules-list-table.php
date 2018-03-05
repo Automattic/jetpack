@@ -221,7 +221,6 @@ class Jetpack_Modules_List_Table extends WP_List_Table {
 			$row_class .= ' active';
 
 		if ( ! Jetpack_Admin::is_module_available( $item ) ) {
-			error_log($item['module']." is NOT available");
 			$row_class .= ' unavailable';
 		}
 
