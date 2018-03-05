@@ -17,8 +17,6 @@ class JetpackConnect extends React.Component {
 	static displayName = 'JetpackConnect';
 
 	render() {
-		const newAccountUrl = this.props.connectUrl + '&from=new-account-button';
-
 		return (
 			<div className="jp-jetpack-connect__container">
 				<h1 className="jp-jetpack-connect__container-title" title="Welcome to Jetpack">
