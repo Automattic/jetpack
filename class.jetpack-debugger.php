@@ -1,6 +1,6 @@
 <?php
 
-// Tracking tracking tracking, let's trigger the linter elsewhere 4!
+// Tracking tracking tracking, let's trigger the linter elsewhere 4!!
 
 class Jetpack_Debugger {
 
