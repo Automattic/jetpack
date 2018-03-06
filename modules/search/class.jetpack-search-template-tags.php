@@ -111,25 +111,21 @@ class Jetpack_Search_Template_Tags {
 			</div>
 		<?php endif; ?>
 		<ul class="jetpack-search-filters-widget__filter-list">
-			<?php foreach ( $filter['buckets'] as $item ) : ?>
+			<?php
+			foreach ( $filter['buckets'] as $item ) :
+				$url = ( empty( $item['active'] ) ) ?  $item['url'] : $item['remove_url'];
+				?>
 				<li>
 					<label>
-						<?php if ( empty( $item['active'] ) ) : ?>
-						<a href="<?php echo esc_url( $item['url'] ); ?>">
-						<?php else : ?>
-						<a href="<?php echo esc_url( $item['remove_url'] ); ?>">
-						<?php endif; ?>
-							<input
-								type="checkbox"
-								<?php checked( ! empty( $item['active'] ) ); ?>
-								disabled
-							/>&nbsp;
-							<?php echo esc_html( $item['name'] ); ?>&nbsp;
+						<input type="checkbox"<?php checked( ! empty( $item['active'] ) ); ?> disabled="disabled" />&nbsp;
+						<a href="<?php echo esc_url( $url ); ?>">
 							<?php
-							echo esc_html( sprintf(
-								'(%s)',
-								number_format_i18n( absint( $item['count'] ) )
-							) );
+								echo esc_html( $item['name'] );
+								echo '&nbsp;';
+								echo esc_html( sprintf(
+									'(%s)',
+									number_format_i18n( absint( $item['count'] ) )
+								) );
 							?>
 						</a>
 					</label>

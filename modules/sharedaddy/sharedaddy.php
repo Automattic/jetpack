@@ -143,7 +143,7 @@ function sharing_add_meta_box() {
 	$title = apply_filters( 'sharing_meta_box_title', __( 'Sharing', 'jetpack' ) );
 	if ( $post->ID !== get_option( 'page_for_posts' ) ) {
 		foreach( $post_types as $post_type ) {
-			add_meta_box( 'sharing_meta', $title, 'sharing_meta_box_content', $post_type, 'advanced', 'high' );
+			add_meta_box( 'sharing_meta', $title, 'sharing_meta_box_content', $post_type, 'side', 'default' );
 		}
 	}
 }

@@ -24,4 +24,16 @@
  */
 
 require_once( JETPACK__PLUGIN_DIR . 'modules/lazy-images/lazy-images.php' );
-Jetpack_Lazy_Images::instance();
+
+/*
+ * Initialize lazy images on the wp action so that conditional
+ * tags are safe to use.
+ *
+ * As an example, this is important if a theme wants to disable lazy images except
+ * on single posts, pages, or attachments by short-circuiting lazy images when
+ * is_singular() returns false.
+ *
+ * See: https://github.com/Automattic/jetpack/issues/8888
+ */
+
+add_action( 'wp', array( 'Jetpack_Lazy_Images', 'instance' ) );
