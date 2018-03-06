@@ -2,7 +2,7 @@ FROM ubuntu:xenial
 
 VOLUME ["/var/www"]
 
-# Install needed Ubuntu packages for having Apache PHP as a module and other utilites
+# Install required Ubuntu packages for having Apache PHP as a module
 RUN apt-get update && \
 	apt-get install -y \
 	apache2 \
@@ -50,9 +50,17 @@ RUN curl https://phar.phpunit.de/phpunit-5.7.5.phar -L -o phpunit.phar \
 	&& chmod +x phpunit.phar \
 	&& mv phpunit.phar /usr/local/bin/phpunit
 
-# Get the latest WordPress source code which is needed for running Jetpack unit tests
-RUN svn co https://develop.svn.wordpress.org/trunk/tests/phpunit/data /tmp/wordpress-develop/tests/phpunit/data --trust-server-cert --non-interactive
-RUN svn co https://develop.svn.wordpress.org/trunk/tests/phpunit/includes /tmp/wordpress-develop/tests/phpunit/includes --trust-server-cert --non-interactive
+# Get latest WordPress unit-test helper files
+RUN svn co \
+	https://develop.svn.wordpress.org/trunk/tests/phpunit/data \
+	/tmp/wordpress-develop/tests/phpunit/data \
+	--trust-server-cert \
+	--non-interactive
+RUN svn co \
+	https://develop.svn.wordpress.org/trunk/tests/phpunit/includes \
+	/tmp/wordpress-develop/tests/phpunit/includes \
+	--trust-server-cert \
+	--non-interactive
 
 # Copy a default config file for an apache host
 COPY ./apache_default /etc/apache2/sites-available/000-default.conf
