@@ -100,7 +100,7 @@ export class Traffic extends React.Component {
 					foundSeo && (
 						<SEO
 							{ ...commonProps }
-							configureUrl={ 'https://wordpress.com/settings/traffic/' + this.props.siteRawUrl }
+							configureUrl={ 'https://wordpress.com/settings/traffic/' + this.props.siteRawUrl + '#seo' }
 						/>
 					)
 				}
@@ -108,7 +108,7 @@ export class Traffic extends React.Component {
 					foundAnalytics && (
 						<GoogleAnalytics
 							{ ...commonProps }
-							configureUrl={ 'https://wordpress.com/settings/traffic/' + this.props.siteRawUrl }
+							configureUrl={ 'https://wordpress.com/settings/traffic/' + this.props.siteRawUrl + '#analytics' }
 						/>
 					)
 				}
