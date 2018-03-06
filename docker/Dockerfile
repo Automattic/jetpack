@@ -3,26 +3,25 @@ FROM ubuntu:xenial
 VOLUME ["/var/www"]
 
 # Install required Ubuntu packages for having Apache PHP as a module
-RUN apt-get update && \
-	apt-get install -y \
+RUN apt-get update && apt-get install -y \
 	apache2 \
-	php7.0 \
-	php7.0-cli \
 	libapache2-mod-php7.0 \
 	php-apcu \
 	php-xdebug \
+	php7.0 \
+	php7.0-cli \
 	php7.0-gd \
 	php7.0-json \
 	php7.0-ldap \
 	php7.0-mbstring \
 	php7.0-mysql \
+	php7.0-opcache \
 	php7.0-pgsql \
+	php7.0-soap \
 	php7.0-sqlite3 \
 	php7.0-xml \
 	php7.0-xsl \
-	php7.0-zip \
-	php7.0-soap \
-	php7.0-opcache
+	php7.0-zip
 
 # Install a bunch of other packages as another RUN so we don't have to rebuild
 # that first essential layer every time we change this list for now
@@ -30,13 +29,13 @@ RUN apt-get update && \
 RUN apt-get install -y \
 	composer \
 	curl \
-	mysql-client \
-	vim \
-	nano \
 	less \
-	subversion \
+	mysql-client \
+	nano \
 	ssmtp \
-	sudo
+	subversion \
+	sudo \
+	vim
 
 # Enable mod_rewrite in Apache
 RUN a2enmod rewrite
