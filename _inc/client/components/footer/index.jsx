@@ -145,8 +145,7 @@ export class Footer extends React.Component {
 							onClick={ this.trackVersionClick }
 							href="https://jetpack.com"
 							target="_blank"
-							rel="noopener noreferrer"
-							className="jp-footer__link"
+							rel="noopener noreferrer" className="jp-footer__link"
 							title={ __( 'Jetpack version' ) }
 						>
 							{
@@ -170,8 +169,7 @@ export class Footer extends React.Component {
 					<li className="jp-footer__link-item">
 						<a
 							onClick={ this.trackPrivacyClick }
-							href="https://automattic.com/privacy/"
-							target="_blank"
+							href="#/privacy"
 							rel="noopener noreferrer"
 							title={ __( "Automattic's Privacy Policy" ) }
 							className="jp-footer__link">
