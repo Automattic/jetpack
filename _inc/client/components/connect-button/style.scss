@@ -9,6 +9,10 @@
 	border-color: $green-secondary;
 	color: $white;
 
+	&.dops-button {
+		margin-top: 20px;
+	}
+	
 	&:hover, &:focus {
 		background: $green-secondary;
 		border-color: $green-dark;

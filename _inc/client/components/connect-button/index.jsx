@@ -134,8 +134,6 @@ export class ConnectButton extends React.Component {
 	render() {
 		return (
 			<div>
-				{ this.renderContent() }
-				{ this.props.children }
 				{ ! this.props.isSiteConnected &&
 					<p className="jp-banner__tos-blurb">
 					{ __(
@@ -149,6 +147,8 @@ export class ConnectButton extends React.Component {
 					) }
 					</p>
 				}
+				{ this.renderContent() }
+				{ this.props.children }
 				<JetpackDisconnectDialog
 					show={ this.state.showModal }
 					toggleModal={ this.toggleVisibility }
