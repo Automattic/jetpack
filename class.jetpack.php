@@ -1513,7 +1513,7 @@ class Jetpack {
 		}
 
 		// get available features
-		foreach( self::get_available_modules() as $module_slug ) {
+		foreach ( self::get_available_modules() as $module_slug ) {
 			$module = self::get_module( $module_slug );
 			if ( in_array( 'free', $module['plan_classes'] ) || in_array( $plan['class'], $module['plan_classes'] ) ) {
 				$supports[] = $module_slug;
