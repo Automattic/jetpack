@@ -1,9 +1,11 @@
 #!/bin/bash
 set -e
 
-# This file is the entrypoin for the docker image defined in Dockerfile.
+# This file is run for the Docker image defined in Dockerfile.
 # These commands will be run each time the container is run.
 #
+# If you modify anything here, remember to build the image again by running:
+# yarn docker:build
 
 # Configure PHP
 PHP_ERROR_REPORTING=${PHP_ERROR_REPORTING:-"E_ALL"}
