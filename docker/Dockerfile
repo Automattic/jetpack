@@ -65,6 +65,9 @@ COPY ./apache_default /etc/apache2/sites-available/000-default.conf
 COPY ./php.ini /etc/php/7.0/apache2/conf.d/20-jetpack-wordpress.ini
 COPY ./php.ini /etc/php/7.0/cli/conf.d/20-jetpack-wordpress.ini
 
+# copy single site htaccess to tmp. run.sh will move it to the site's base dir if there's none present.
+COPY ./htaccess /tmp/htaccess
+
 # Copy a default set of settings for ssmtp.
 COPY ./ssmtp.conf /etc/ssmtp/ssmtp.conf
 

@@ -41,6 +41,11 @@ if [ ! -f /var/www/wp-config.php ]; then
     wp --allow-root config set WP_SITEURL "DOCKER_REQUEST_URL" --raw --type=constant
     wp --allow-root config set WP_HOME "DOCKER_REQUEST_URL" --raw --type=constant
 fi
+
+# Copy single site htaccess if none is present
+if [ ! -f /var/www/.htaccess ]; then
+	cp /tmp/htaccess /var/www/.htaccess
+fi
 # Change ownership of /var/www to www-data
 # chown -R www-data:www-data /var/www
 
