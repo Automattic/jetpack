@@ -22,6 +22,8 @@ $ yarn docker:up
 
 Uninstalled WordPress is running in [http://localhost](http://localhost) now. You can proxy to your localhost e.g. with [Ngrok](https://ngrok.com/) to be able to connect Jetpack.
 
+If you want to just quickly install WordPress and activate Jetpack, run `yarn docker:install` while containers are already up.
+
 To debug emails open [http://localhost:1080](http://localhost:1080).
 
 ### Start containers

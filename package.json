@@ -27,6 +27,7 @@
     "docker:down": "docker-compose -f docker/docker-compose.yml down",
     "docker:build": "docker-compose -f docker/docker-compose.yml build",
     "docker:wp": "docker container exec jetpack_wordpress wp --allow-root --path=/var/www/",
+    "docker:install": "yarn docker:wp core install --url=localhost --title='Hello World' --admin_user=wordpress --admin_password=wordpress --admin_email=wordpress@example.com --skip-email && yarn docker:wp plugin activate jetpack",
     "docker:sh": "docker exec -it jetpack_wordpress bash",
     "docker:phpunit": "docker container exec jetpack_wordpress phpunit --configuration=/var/www/wp-content/plugins/jetpack/phpunit.xml.dist",
     "docker:tail": "tail -f docker/logs/php/errors.log",
