@@ -65,15 +65,15 @@ RUN svn co \
 # Copy a default config file for an apache host
 COPY ./apache_default /etc/apache2/sites-available/000-default.conf
 
-# Copy our cmd bash script
-COPY ./run.sh /usr/local/bin/run
-
 # Copy a default set of settings for PHP (php.ini)
 COPY ./php.ini /etc/php/7.0/apache2/conf.d/20-jetpack-wordpress.ini
 COPY ./php.ini /etc/php/7.0/cli/conf.d/20-jetpack-wordpress.ini
 
 # Copy a default set of settings for ssmtp.
 COPY ./ssmtp.conf /etc/ssmtp/ssmtp.conf
+
+# Copy our cmd bash script
+COPY ./run.sh /usr/local/bin/run
 
 # Make our cmd script be executable
 RUN chmod +x /usr/local/bin/run
