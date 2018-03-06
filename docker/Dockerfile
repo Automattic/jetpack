@@ -67,9 +67,8 @@ COPY ./php.ini /etc/php/7.0/cli/conf.d/20-jetpack-wordpress.ini
 # Copy a default set of settings for ssmtp.
 COPY ./ssmtp.conf /etc/ssmtp/ssmtp.conf
 
-# Make our entrypoing script be executable
+# Make our entrypoint script be executable
 RUN chmod +x /usr/local/bin/run
 
 # Run the entrypoint as root
-USER root
 CMD ["/usr/local/bin/run"]
