@@ -68,7 +68,23 @@ yarn docker:tail
 
 ### MySQL database
 
-You can see your database files via local filesystem from `./docker/data/mysql`.
+To connect to your MySQL database from outside the container, use:
+
+- Host: `127.0.0.1`
+- Port: `3306`
+- User: `wordpress`
+- Pass: `wordpress`
+- Database: `wordpress`
+
+You can also see your database files via local filesystem at `./docker/data/mysql`
+
+### Debugging emails
+
+Emails don't leave your WordPress and are caught by [MailDev](http://danfarrelly.nyc/MailDev/) SMTP server container instead.
+
+To debug emails via web-interface, open [http://localhost:1080](http://localhost:1080)
+
+If you want to send emails out from your containers, you must configure external SMTP server at `docker/ssmtp.conf` and rebuild your image.
 
 ### Running unit tests
 
