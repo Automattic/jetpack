@@ -33,8 +33,8 @@ if [ ! -f /var/www/wp-config.php ]; then
 
     # Respecting Dockerfile-forwarded environment variables
     wp --allow-root config set DOCKER_REQUEST_URL "(\$_SERVER['HTTPS'] ? 'https://' : 'http://') . \$_SERVER['HTTP_HOST']" --raw --type=constant
-    wp --allow-root config set WP_SITEURL "\$DOCKER_REQUEST_URL" --raw --type=constant
-    wp --allow-root config set WP_HOME "\$DOCKER_REQUEST_URL" --raw --type=constant
+    wp --allow-root config set WP_SITEURL "DOCKER_REQUEST_URL" --raw --type=constant
+    wp --allow-root config set WP_HOME "DOCKER_REQUEST_URL" --raw --type=constant
 fi
 # Change ownership of /var/www to www-data
 # chown -R www-data:www-data /var/www
