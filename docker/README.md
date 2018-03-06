@@ -36,6 +36,12 @@ Start three containers (WordPress, MySQL and MailDev) defined in `docker-compose
 
 This command will rebuild the WordPress container if you made any changes to `docker-composer.yml`. It won't build the images again on its own if you changed any of the other files like `Dockerfile`, `run.sh` (the entry-point file) or the provisioned files for configuring Apache and PHP. See "rebuilding images".
 
+For running the containers in the background, use:
+
+```sh
+yarn docker:up -- -d
+```
+
 ### Stop containers
 
 ```sh
