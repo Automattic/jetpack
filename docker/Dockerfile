@@ -57,7 +57,7 @@ RUN svn co https://develop.svn.wordpress.org/trunk/tests/phpunit/includes /tmp/w
 # Copy a default config file for an apache host
 COPY ./apache_default /etc/apache2/sites-available/000-default.conf
 
-# Copy our entrypoint bash script
+# Copy our cmd bash script
 COPY ./run.sh /usr/local/bin/run
 
 # Copy a default set of settings for PHP (php.ini)
@@ -67,8 +67,7 @@ COPY ./php.ini /etc/php/7.0/cli/conf.d/20-jetpack-wordpress.ini
 # Copy a default set of settings for ssmtp.
 COPY ./ssmtp.conf /etc/ssmtp/ssmtp.conf
 
-# Make our entrypoint script be executable
+# Make our cmd script be executable
 RUN chmod +x /usr/local/bin/run
 
-# Run the entrypoint as root
 CMD ["/usr/local/bin/run"]
