@@ -13,6 +13,7 @@ import analytics from 'lib/analytics';
  */
 import JetpackDialogue from 'components/jetpack-dialogue';
 import { imagePath } from 'constants/urls';
+import InlineModuleToggle from 'components/module-settings/inline-module-toggle';
 
 class WelcomeProfessional extends Component {
 	constructor( props ) {
@@ -61,6 +62,7 @@ class WelcomeProfessional extends Component {
 						'and in-line ads, and monitor the success of your efforts by integrating with Google Analytics.'
 					) }
 				</p>
+				<InlineModuleToggle module_slug="publicize" />
 				<img src={ imagePath + 'security.svg' } className="jp-welcome__svg" alt={ __( 'Security' ) } />
 				<p>
 					{ __( 'Jetpack Professional gives you everything you need to keep your hard work safe, including ' +
