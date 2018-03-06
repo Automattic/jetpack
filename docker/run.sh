@@ -32,7 +32,10 @@ if [ ! -f /var/www/wp-config.php ]; then
     wp --allow-root config set WP_DEBUG_DISPLAY false --raw --type=constant
 
     # Respecting Dockerfile-forwarded environment variables
-    wp --allow-root config set DOCKER_REQUEST_URL "(\$_SERVER['HTTPS'] ? 'https://' : 'http://') . \$_SERVER['HTTP_HOST']" --raw --type=constant
+    wp --allow-root config set DOCKER_REQUEST_URL \
+		  "( ! empty( \$_SERVER['HTTPS'] ) ? 'https://' : 'http://' ) . ( ! empty( \$_SERVER['HTTP_HOST'] ) ? \$_SERVER['HTTP_HOST'] : 'localhost' )" \
+			--raw \
+			--type=constant
     wp --allow-root config set WP_SITEURL "DOCKER_REQUEST_URL" --raw --type=constant
     wp --allow-root config set WP_HOME "DOCKER_REQUEST_URL" --raw --type=constant
 fi
