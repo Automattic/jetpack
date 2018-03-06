@@ -60,9 +60,14 @@ function jetpack_is_product() {
 }
 
 /**
- * Check if we are on a WooCommerce Shop in order to exclude it from the is_archive check.
+ * Check if we are in a WooCommerce Shop in order to exclude it from the is_archive check.
  */
 function jetpack_is_shop_page() {
+	// Check if WooCommerce is active first.
+	if ( ! class_exists( 'WooCommerce' ) ) {
+		return false;
+	}
+
 	global $wp_query;
 
 	$front_page_id        = get_option( 'page_on_front' );
