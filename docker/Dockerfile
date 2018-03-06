@@ -3,9 +3,15 @@ FROM ubuntu:xenial
 VOLUME ["/var/www"]
 
 # Install required Ubuntu packages for having Apache PHP as a module
+# as well a bunch of other packages
 RUN apt-get update && apt-get install -y \
 	apache2 \
+	composer \
+	curl \
+	less \
 	libapache2-mod-php7.0 \
+	mysql-client \
+	nano \
 	php-apcu \
 	php-xdebug \
 	php7.0 \
@@ -21,21 +27,12 @@ RUN apt-get update && apt-get install -y \
 	php7.0-sqlite3 \
 	php7.0-xml \
 	php7.0-xsl \
-	php7.0-zip
-
-# Install a bunch of other packages as another RUN so we don't have to rebuild
-# that first essential layer every time we change this list for now
-# This may not be needed once we publish an image.
-RUN apt-get install -y \
-	composer \
-	curl \
-	less \
-	mysql-client \
-	nano \
+	php7.0-zip \
 	ssmtp \
 	subversion \
 	sudo \
-	vim
+	vim \
+	&& rm -rf /var/lib/apt/lists/*
 
 # Enable mod_rewrite in Apache
 RUN a2enmod rewrite
