@@ -46,8 +46,6 @@ fi
 if [ ! -f /var/www/.htaccess ]; then
 	cp /tmp/htaccess /var/www/.htaccess
 fi
-# Change ownership of /var/www to www-data
-# chown -R www-data:www-data /var/www
 
 # Run apache in the foreground so the container keeps running
 
