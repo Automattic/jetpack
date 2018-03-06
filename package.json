@@ -30,7 +30,7 @@
     "docker:sh": "docker exec -it jetpack_wordpress bash",
     "docker:phpunit": "docker container exec jetpack_wordpress phpunit --configuration=/var/www/wp-content/plugins/jetpack/phpunit.xml.dist",
     "docker:tail": "tail -f docker/logs/php/errors.log",
-    "docker:clean": "docker-compose -f docker/docker-compose.yml down --rmi all -v && rm -rf docker/wordpress/* docker/wordpress-develop/* docker/logs/* docker/data/mysql/*",
+    "docker:clean": "docker-compose -f docker/docker-compose.yml down --rmi all -v && rm -rf docker/wordpress/* docker/wordpress/.htaccess docker/wordpress-develop/* docker/logs/* docker/data/mysql/*",
     "lint": "eslint --ext .js --ext .jsx ./*.js _inc/client -c .eslintrc",
     "test-client": "NODE_ENV=test NODE_PATH=tests:_inc/client:node_modules/@automattic/dops-components/client tests/runner.js",
     "add-textdomain": "grunt addtextdomain",
