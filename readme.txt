@@ -13,6 +13,7 @@ Hassle-free design, marketing, and security — all in one place.
 
 = Design Services =
 Create and customize your WordPress site from start to finish. Jetpack helps you with:
+
 * Hundreds of professional themes for any kind of site
 * Intuitive and powerful customization tools
 * Unlimited and high-speed image and video content delivery network
@@ -285,6 +286,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Release post: https://wp.me/p1moTy-6Bd
 
 **Bug fixes**
+
 * In Jetpack 5.5 we made some changes that created errors if you were using other plugins that added custom links to the Plugins menu. This is now fixed.
 * We have fixed a problem that did not allow to upload plugins using API requests.
 * Open Graph links in post headers are no longer invalid in some special cases.
@@ -303,6 +305,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Jetpack is now fully compatible with WordPress's [new Gallery Widget](https://make.wordpress.org/core/2017/09/25/introducing-the-gallery-widget/). Your old Gallery widgets powered by Jetpack will switch to the new Widget when you update to WordPress 4.9.
 
 **Enhancements**
+
 * We have improved the performance when loading the Jetpack Settings in the dashboard by optimizing the number of calls made when loading the page.
 * We have updated the plugin to do a better job of cleaning up after itself whenever you decide to remove Jetpack from your site.
 * We made some changes to reduce the number of connection issues that may happen on a site when switching from HTTP to HTTPs.
@@ -332,12 +335,14 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * WordPress.com REST API: improve the response from the API when WordPress' autoupdates are disabled.
 
 **Improved compatibility**
+
 * You can now use Jetpack's contact form and Yoast SEO's Focus keywords on the same page without any issues in the editor.
 * Top Posts Widget: avoid Fatal Errors when the widget is used on a site using WPML, and when a popular post cannot be found by WPML.
 * Sync: add more Custom Post Types from third-party plugins to the list of things we do not synchronize with WordPress.com, to improve sync performance.
 * Sharing: since [Press This is now a plugin and not part of WordPress itself](https://make.wordpress.org/core/2017/11/02/press-this-in-4-9/), we removed the Press This sharing button if you are not using the plugin.
 
 **Bug fixes**
+
 * We now avoid displaying notices to user roles that cannot benefit or act based on the info in the notices.
 * Gravatar Hovercards: avoid PHP Notices when the user info is an object.
 * Infinite Scroll: avoid PHP notices when a site customizes galleries thanks to the `post_gallery` filter.
@@ -367,10 +372,12 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Release post: http://wp.me/p1moTy-67V
 
 **Major Enhancements**
+
 * Multiple improvements to the connection process, to allow more people to use the Jetpack plugin, even on very specific server configurations.
 * Add a new Welcome screen to guide site owners after they have purchased a Jetpack plan.
 
 **Enhancements**
+
 * Add Schema.org markup to the Contact Info Widget.
 * Add a new "Date" field to the Contact Form.
 * Do not show any update notices when in [development mode](http://jetpack.com/support/development-mode).
@@ -388,6 +395,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Improve the display and options offered with the Milestone Widget.
 
 **Bug fixes**
+
 * We fixed layout issues appearing in the admin interface for IE11 users.
 * Comment Form: avoid whitespace sometimes appearing below the form with some themes.
 * Contact Form: avoid errors in the post editor on sites using RTL languages.
@@ -404,10 +412,12 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Release post: http://wp.me/p1moTy-5Xv
 
 **Major Enhancements**
+
 * Full PHP 7.1 compatibility.
 * It's now possible to preview your site within WordPress.com.
 
 **Enhancements**
+
 * The Ads feature now gives you more options and control over the ads displayed on your site.
 * Increased performance in the admin by cutting back on unnecessary requests.
 * Loading comment avatars from Facebook and Twitter through a more secure https.
@@ -424,6 +434,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Removed the Omnisearch feature.
 
 **Bug fixes**
+
 * Fixed compatibility issues with plugins using TinyMCE.
 * Contact Form submission emails have been fixed for sites hosted on SiteGround.
 * Updating WordPress.com themes will no longer have any problems.

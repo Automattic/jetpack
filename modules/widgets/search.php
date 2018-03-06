@@ -64,7 +64,7 @@ class Jetpack_Search_Widget extends WP_Widget {
 			apply_filters( 'jetpack_widget_name', esc_html__( 'Search', 'jetpack' ) ),
 			array(
 				'classname'   => 'jetpack-filters widget_search',
-				'description' => __( 'Displays Jetpack Search box and filters.', 'jetpack' ),
+				'description' => __( 'Replaces the default search with an Elasticsearch-powered search interface and filters.', 'jetpack' ),
 			)
 		);
 

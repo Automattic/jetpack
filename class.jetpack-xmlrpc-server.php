@@ -74,12 +74,14 @@ class Jetpack_XMLRPC_Server {
 		return array(
 			'jetpack.verifyRegistration' => array( $this, 'verify_registration' ),
 			'jetpack.remoteAuthorize' => array( $this, 'remote_authorize' ),
+			'jetpack.remoteProvision' => array( $this, 'remote_provision' ),
 		);
 	}
 
 	function authorize_xmlrpc_methods() {
 		return array(
 			'jetpack.remoteAuthorize' => array( $this, 'remote_authorize' ),
+			'jetpack.remoteProvision' => array( $this, 'remote_provision' ),
 		);
 	}
 
@@ -122,6 +124,53 @@ class Jetpack_XMLRPC_Server {
 			'result' => $result,
 		);
 		return $response;
+	}
+
+	function remote_provision( $request ) {
+		if ( ! isset( $request['access_token'] ) ) {
+			return $this->error( new Jetpack_Error( 'access_token_missing', sprintf( 'The required "%s" parameter is missing.', 'access_token' ), 400 ), 'jpc_remote_provision_fail' );
+		}
+
+		if ( ! isset( $request['local_username'] ) ) {
+			return $this->error( new Jetpack_Error( 'local_username_missing', sprintf( 'The required "%s" parameter is missing.', 'local_username' ), 400 ), 'jpc_remote_provision_fail' );
+		}
+
+		$access_token = $request['access_token'];
+		$local_username = $request['local_username'];
+
+		$user = get_user_by( 'login', $local_username );
+
+		if ( ! $user ) {
+			$user = get_user_by( 'email', $local_username );
+		}
+
+		if ( ! $user ) {
+			return $this->error( new Jetpack_Error( 'user_unknown', 'User not found.', 404 ) );
+		}
+
+		require_once JETPACK__PLUGIN_DIR . '_inc/class.jetpack-provision.php';
+
+		wp_set_current_user( $user->ID );
+
+		// filter allowed parameters
+		$allowed_provision_args = array( 'access_token', 'wpcom_user_id', 'wpcom_user_email', 'local_username', 'plan', 'force_register', 'force_connect', 'onboarding', 'partner_tracking_id' );
+		$args = array_intersect_key(
+			$request,
+			array_flip( $allowed_provision_args )
+		);
+
+		$result = Jetpack_Provision::partner_provision( $access_token, $args );
+
+		if ( is_wp_error( $result ) ) {
+			return $this->error( $result, 'jpc_remote_provision_fail' );
+		}
+
+		// this is to prevent us from returning the access_token secret via a potentially unsecured channel.
+		if ( isset( $result->access_token ) && ! empty( $result->access_token ) ) {
+			unset( $result->access_token );
+		}
+
+		return $result;
 	}
 
 	private function tracks_record_error( $name, $error, $user = null ) {
@@ -212,7 +261,7 @@ class Jetpack_XMLRPC_Server {
 		Jetpack::delete_secrets( $action, $state );
 
 		JetpackTracking::record_user_event( 'jpc_verify_' . $action . '_success', array(), $user );
-		
+
 		return $secrets['secret_2'];
 	}
 
