@@ -4,8 +4,8 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "hash": "c792ddee3fa1662673c723de3cb2f8fd",
-    "content-hash": "67d521f328732f4683de86296f361c4f",
+    "hash": "6935bc5a7a1479a32a117096297f46dc",
+    "content-hash": "20ac065f64d1454528b86409b7242fc1",
     "packages": [
         {
             "name": "automattic/at-pressable-podcasting",
@@ -125,16 +125,16 @@
         },
         {
             "name": "automattic/wc-calypso-bridge",
-            "version": "v0.1.7",
+            "version": "v0.1.8",
             "source": {
                 "type": "git",
                 "url": "https://github.com/Automattic/wc-calypso-bridge.git",
-                "reference": "2fc26def6ae6fe73f17c5a60956d789bb3d04b4d"
+                "reference": "006b10e4dbc93c8f848bc6d655d349abe9ec2107"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/2fc26def6ae6fe73f17c5a60956d789bb3d04b4d",
-                "reference": "2fc26def6ae6fe73f17c5a60956d789bb3d04b4d",
+                "url": "https://api.github.com/repos/Automattic/wc-calypso-bridge/zipball/006b10e4dbc93c8f848bc6d655d349abe9ec2107",
+                "reference": "006b10e4dbc93c8f848bc6d655d349abe9ec2107",
                 "shasum": ""
             },
             "type": "library",
@@ -143,20 +143,20 @@
                     "wc-calypso-bridge.php"
                 ]
             },
-            "time": "2018-02-20 23:32:55"
+            "time": "2018-03-01 15:40:33"
         },
         {
             "name": "woocommerce/wc-api-dev",
-            "version": "v0.9.3",
+            "version": "v0.9.4",
             "source": {
                 "type": "git",
                 "url": "https://github.com/woocommerce/wc-api-dev.git",
-                "reference": "7642a76a1891222da07dd4bc14c48788b425dd19"
+                "reference": "151a3c145329c20f2ed0c0b53d6882e0d17f4215"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/woocommerce/wc-api-dev/zipball/7642a76a1891222da07dd4bc14c48788b425dd19",
-                "reference": "7642a76a1891222da07dd4bc14c48788b425dd19",
+                "url": "https://api.github.com/repos/woocommerce/wc-api-dev/zipball/151a3c145329c20f2ed0c0b53d6882e0d17f4215",
+                "reference": "151a3c145329c20f2ed0c0b53d6882e0d17f4215",
                 "shasum": ""
             },
             "type": "library",
@@ -165,7 +165,7 @@
                     "wc-api-dev.php"
                 ]
             },
-            "time": "2018-01-10 21:45:59"
+            "time": "2018-03-01 20:56:57"
         }
     ],
     "packages-dev": [],
