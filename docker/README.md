@@ -113,7 +113,7 @@ You can run [WP CLI](https://make.wordpress.org/cli/) commands inside WordPress 
 To run e.g. [`cron event list`](https://developer.wordpress.org/cli/commands/cron/event/list/):
 
 ```sh
-yarn docker:cli cron event list
+yarn docker:wp cron event list
 ```
 
 ### Must Use Plugins directory
