@@ -112,6 +112,8 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 				$user->locale = get_user_locale( $user->ID );
 			}
 		}
+		jetpack_require_lib(  'class.jetpack-user-event-tracking' );
+		$user->jetpack_tracking_enabled = Jetpack_User_Event_Tracking::is_enabled( $user->ID );
 
 		return $user;
 	}
@@ -284,6 +286,11 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 	function maybe_save_user_meta( $meta_id, $user_id, $meta_key, $value ) {
 		if ( $meta_key === 'locale' ) {
 			$this->add_flags( $user_id, array( 'locale_changed' => true ) );
+		}
+
+		jetpack_require_lib( 'class.jetpack-user-event-tracking' );
+		if ( $meta_key === Jetpack_User_Event_Tracking::KEY ) {
+			$this->add_flags( $user_id, array( 'tracking_opt_out_changed' => true ) );
 		}
 
 		$user = get_user_by( 'id', $user_id );
