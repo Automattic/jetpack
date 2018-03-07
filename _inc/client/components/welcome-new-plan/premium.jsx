@@ -13,7 +13,9 @@ import analytics from 'lib/analytics';
  */
 import JetpackDialogue from 'components/jetpack-dialogue';
 import { imagePath } from 'constants/urls';
-import InlineModuleToggle from 'components/module-settings/inline-module-toggle';
+import SocialAdsPrompt from './social-ads-prompt';
+import VideoPressPrompt from './videopress-prompt';
+import MonitorAkismetBackupsPrompt from './monitor-akismet-backups-prompt';
 
 class WelcomePremium extends Component {
 	constructor( props ) {
@@ -53,36 +55,9 @@ class WelcomePremium extends Component {
 						'-- all hosted free of ads or watermarks.'
 					) }
 				</p>
-				<img src={ imagePath + 'wordads.svg' } className="jp-welcome__svg" alt={ __( 'Sharing' ) } />
-				<p>
-					{ __( 'Using Jetpack’s powerful sharing tools, you can automatically share your newest posts on social media,' +
-						' or schedule your content to be re-shared at any date or time you choose. And along with growing your ' +
-						'following, you can grow your business with tools like payment buttons and ads.'
-					) }
-				</p>
-				<InlineModuleToggle module_slug="publicize" />
-				<img src={ imagePath + 'wordads.svg' } className="jp-welcome__svg" alt={ __( 'WordAds' ) } />
-				<p>
-					{ __( 'Earn income by displaying high-quality ads on your site. ' +
-						'Jetpack Ads is a one-click feature designed to help you generate income from your WordPress site. ' +
-						'Jetpack Ads is powered by WordAds — the unique ad program from WordPress.com. '
-					) }
-				</p>
-				<InlineModuleToggle module_slug="wordads" />
-				<img src={ imagePath + 'wordads.svg' } className="jp-welcome__svg" alt={ __( 'VideoPress' ) } />
-				<p>
-					{ __( 'VideoPress allows you to upload videos from your computer to be hosted on WordPress.com, ' +
-						'rather than on your host’s servers. You can then insert these on your self-hosted Jetpack site. '
-					) }
-				</p>
-				<InlineModuleToggle module_slug="videopress" />
-				<img src={ imagePath + 'security.svg' } className="jp-welcome__svg" alt={ __( 'Security' ) } />
-				<p>
-					{ __( 'Keeping your hard work safe is important, too. Jetpack Premium gives you brute force' +
-						' login protection, automated spam filtering, and malware scanning. You also get daily backups ' +
-						' with hassle-free restores, just in case you need them.'
-					) }
-				</p>
+				<SocialAdsPrompt />
+				<VideoPressPrompt />
+				<MonitorAkismetBackupsPrompt />
 				<p>
 					{ __( 'Start exploring Jetpack Premium now to see all the benefits of your new plan.' ) }
 				</p>
@@ -93,14 +68,6 @@ class WelcomePremium extends Component {
 	renderBelowContent() {
 		return (
 			<div>
-				<Card
-					href={ '#/writing' }
-					compact
-					className="jp-dialogue-card__below"
-					onClick={ this.clickCtaDismissVideo }
-				>
-					{ __( 'Enable premium video player' ) }
-				</Card>
 				<Card
 					href={ '#/traffic' }
 					compact

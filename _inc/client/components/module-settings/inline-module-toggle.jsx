@@ -20,7 +20,6 @@ class ModuleSettingsComponent extends Component {
 	};
 
 	render() {
-		// TODO: better class name
 		const module = this.props.module( this.props.module_slug );
 		return (
 			<div className="jp-upgrade-notice__enable-module">

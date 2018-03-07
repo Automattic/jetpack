@@ -13,7 +13,9 @@ import analytics from 'lib/analytics';
  */
 import JetpackDialogue from 'components/jetpack-dialogue';
 import { imagePath } from 'constants/urls';
-import InlineModuleToggle from 'components/module-settings/inline-module-toggle';
+import SocialSeoAdsPrompt from './social-seo-ads-prompt';
+import MonitorAkismetBackupsPrompt from './monitor-akismet-backups-prompt';
+import VideoPressPrompt from './videopress-prompt';
 
 class WelcomeProfessional extends Component {
 	constructor( props ) {
@@ -55,21 +57,9 @@ class WelcomeProfessional extends Component {
 						'widgets, or add unlimited videos to your posts and pages -- displayed free of ads or watermarks.'
 					) }
 				</p>
-				<img src={ imagePath + 'wordads.svg' } className="jp-welcome__svg" alt={ __( 'Sharing' ) } />
-				<p>
-					{ __( 'Growing your following is easy with your Professional plan, thanks to content sharing and scheduling,' +
-						' SEO tools, and built-in subscription options. You can monetize your site with a simple payment button ' +
-						'and in-line ads, and monitor the success of your efforts by integrating with Google Analytics.'
-					) }
-				</p>
-				<InlineModuleToggle module_slug="publicize" />
-				<img src={ imagePath + 'security.svg' } className="jp-welcome__svg" alt={ __( 'Security' ) } />
-				<p>
-					{ __( 'Jetpack Professional gives you everything you need to keep your hard work safe, including ' +
-						'on-demand backups and malware scans with one-click restores and issue resolution. Your site will ' +
-						'be fully protected against spam, malicious code, and brute force login attempts.'
-					) }
-				</p>
+				<SocialSeoAdsPrompt />
+				<MonitorAkismetBackupsPrompt />
+				<VideoPressPrompt />
 				<p>
 					{ __( 'Start exploring Jetpack Professional now to see all the benefits of your new plan.' ) }
 				</p>
