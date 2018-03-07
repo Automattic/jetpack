@@ -10,6 +10,7 @@
  * Auto Activate: No
  * Feature: Search
  * Additional Search Queries: search
+ * Plans: business
  */
 
 require_once( dirname( __FILE__ ) . '/search/class.jetpack-search.php' );
