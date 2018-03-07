@@ -15,7 +15,7 @@ jQuery( document ).ready( function( $ ) {
 					for( var i = 0; i < envelope.content.list.length; i++ ) {
 						html += '<li><svg class="gridicon gridicons-checkmark" height="16" width="16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M9 19.414l-6.707-6.707 1.414-1.414L9 16.586 20.293 5.293l1.414 1.414" /></g></svg>' + envelope.content.list[ i ] + '</li>';
 					}
-					html += '</ul>';
+					html += '<li><svg class="gridicon gridicons-checkmark" height="16" width="16" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><g><path d="M9 19.414l-6.707-6.707 1.414-1.414L9 16.586 20.293 5.293l1.414 1.414" /></g></svg><a href="https://jetpack.com/pricing/" target="_blank">And more!</a></li></ul>';
 				}
 				html += '</div>';
 			}
