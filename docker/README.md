@@ -12,17 +12,25 @@ With this directory we provide a hopefully comfortable environment for developin
 
 ## To get started
 
-**All of these commands should be run from the base jetpack directory. Not from the `docker` directory!**
+_**All commands mentioned in this document should be run from the base jetpack directory. Not from the `docker` directory!**_
+
+#### Prerequisites:
+- [Docker](https://www.docker.com/community-edition)
+- [Yarn](https://yarnpkg.com/)
+
+Install prerequisites and run:
 
 ```sh
-$ git clone https://github.com/Automattic/jetpack.git
-$ cd jetpack
-$ yarn docker:up
+git clone https://github.com/Automattic/jetpack.git
+cd jetpack
+yarn docker:up
 ```
 
 Uninstalled WordPress is running in [http://localhost](http://localhost) now. You can proxy to your localhost e.g. with [Ngrok](https://ngrok.com/) to be able to connect Jetpack.
 
 To debug emails open [http://localhost:1080](http://localhost:1080).
+
+WordPress' `WP_SITEURL` and `WP_HOME` constants are configured to be dynamic so you shouldn't need to change these even if you access the site via different domains.
 
 ### Quick install WordPress
 
