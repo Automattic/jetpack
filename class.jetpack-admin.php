@@ -184,7 +184,12 @@ class Jetpack_Admin {
 		if ( Jetpack::is_development_mode() ) {
 			return ! ( $module['requires_connection'] );
 		} else {
-			return Jetpack::is_active();
+			if ( ! Jetpack::is_active() ) {
+				return false;
+			}
+
+			$plan = Jetpack::get_active_plan();
+			return in_array( $module['module'], $plan['supports'] );
 		}
 	}
 

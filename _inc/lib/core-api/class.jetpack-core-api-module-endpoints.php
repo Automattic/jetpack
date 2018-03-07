@@ -67,6 +67,14 @@ class Jetpack_Core_API_Module_Toggle_Endpoint
 			);
 		}
 
+		if ( ! Jetpack::active_plan_supports( $module_slug ) ) {
+			return new WP_Error(
+				'not_supported',
+				esc_html__( 'The requested Jetpack module is not supported by your plan.', 'jetpack' ),
+				array( 'status' => 424 )
+			);
+		}
+
 		if ( Jetpack::activate_module( $module_slug, false, false ) ) {
 			return rest_ensure_response( array(
 				'code' 	  => 'success',

@@ -44,8 +44,8 @@ class JetpackDialogue extends Component {
 		);
 		return (
 			<div className="jp-dialogue-full__container" role="dialog" onClick={ this.maybeDismiss } onKeyDown={ onKeyDownCallback( this.maybeDismiss ) }>
-				<img src={ imagePath + 'stars-full.svg' } width="60" height="60" alt={ __( 'Stars' ) } className="jp-jumpstart-full__svg-stars" />
-				<img src={ imagePath + 'jupiter.svg' } width="50" height="100" alt={ __( 'Jupiter' ) } className="jp-jumpstart-full__svg-jupiter" />
+				<img src={ imagePath + 'stars-full.svg' } width="60" height="60" alt={ __( 'Stars' ) } className="jp-dialogue-full__svg-stars" />
+				<img src={ imagePath + 'jupiter.svg' } width="50" height="100" alt={ __( 'Jupiter' ) } className="jp-dialogue-full__svg-jupiter" />
 
 				<div className={ classes } role="dialog" onClick={ this.clickForeground } onKeyDown={ onKeyDownCallback( this.clickForeground ) }>
 					{ this.props.svg }
