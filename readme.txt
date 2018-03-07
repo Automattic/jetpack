@@ -5,7 +5,7 @@ Stable tag: 5.8
 Requires at least: 4.7
 Tested up to: 4.9
 
-The one plugin you need for stats, related posts, search engine optimization, Elasticsearch-powered search, social sharing, protection, backups, speed, and email list management.
+The ideal plugin for stats, related posts, search engine optimization, social sharing, protection, backups, security, and more.
 
 == Description ==
 
