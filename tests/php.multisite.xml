@@ -14,6 +14,7 @@
             <file>php/test_class.jetpack-client-server.php</file>
             <file>php/test_class.jetpack-xmlrpc-server.php</file>
             <file>php/test_class.jetpack-heartbeat.php</file>
+			<file>tests/php/test_class.jetpack-user-event-tracking.php</file>
         </testsuite>
         <testsuite name="core-api">
             <directory phpVersion="5.6.0" phpVersionOperator=">=" prefix="test_" suffix=".php">tests/php/core-api</directory>
