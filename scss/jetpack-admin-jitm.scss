@@ -325,6 +325,9 @@
 			margin: 6px 0;
 			.gridicon {
 				color: $gray;
+				display: inline;
+				margin-right: 12px;
+				vertical-align: bottom;
 			}
 		}
 	}
