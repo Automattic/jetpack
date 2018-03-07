@@ -316,6 +316,18 @@
 		line-height: 1.5;
 		margin-top: rem( 6px );
 	}
+
+	.banner__list {
+		font-size: 12px;
+		list-style: none;
+		margin: 0;
+		li {
+			margin: 6px 0;
+			.gridicon {
+				color: $gray;
+			}
+		}
+	}
 }
 
 .jitm-banner__action {
