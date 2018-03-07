@@ -60,12 +60,20 @@ if [ ! -f /var/www/.htaccess ]; then
 	cp /tmp/htaccess /var/www/.htaccess
 fi
 
-# If we don't have the wordpress source code, download it
-if [ ! -d /tmp/wordpress-develop/src ]; then
-# Get latest WordPress unit-test helper files
- 	 svn co https://develop.svn.wordpress.org/trunk /tmp/wordpress-develop \
-	 --trust-server-cert \
-	 --non-interactive
+# If we don't have the wordpress test helpers, download them
+if [ ! -d /tmp/wordpress-develop/tests ]; then
+	 # Get latest WordPress unit-test helper files
+	svn co \
+		https://develop.svn.wordpress.org/trunk/tests/phpunit/data \
+		/tmp/wordpress-develop/tests/phpunit/data \
+		--trust-server-cert \
+		--non-interactive
+	svn co \
+		https://develop.svn.wordpress.org/trunk/tests/phpunit/includes \
+		/tmp/wordpress-develop/tests/phpunit/includes \
+		--trust-server-cert \
+		--non-interactive
+
 fi
 
 # Create a wp-tests-config.php if there's none currently
