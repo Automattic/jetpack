@@ -41,6 +41,11 @@ class PlanGrid extends React.Component {
 
 		return (
 			<div className="plan-features">
+				<div className="plans-mobile-notice dops-card">
+					<h2>Your plan</h2>
+					<p>You're currently on the Jetpack [plan name].</p>
+					<a href="https://wordpress.com/plans" className="dops-button">Manage your plan</a> <a href="https://wordpress.com/plans" className="dops-button is-primary">View all Jetpack plans</a>
+				</div>
 				<div className="plan-features__content">
 					<table className={ tableClasses }>
 						<tbody>

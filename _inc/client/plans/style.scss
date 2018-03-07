@@ -9,6 +9,16 @@
 	}
 }
 
+.plans-mobile-notice {
+	@include breakpoint( ">660px" ) {
+		display: none;
+	}
+}
+
+.plans-mobile-notice.dops-card h2 {
+	margin-top: 0;
+}
+
 .jp-landing-plans__header {
 	background: $gray-dark;
 
@@ -303,6 +313,10 @@ $plan-features-sidebar-width: 272px;
 
 	@include breakpoint( ">660px" ) {
 		display: table;
+	}
+
+	@include breakpoint( "<660px" ) {
+		display: none;
 	}
 
 	@include breakpoint( "<1040px" ) {
