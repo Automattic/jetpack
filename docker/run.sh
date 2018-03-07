@@ -21,12 +21,25 @@ cd /var/www/ && [ -f /var/www/xmlrpc.php ] || wp --allow-root core download
 
 # Configure WordPress
 if [ ! -f /var/www/wp-config.php ]; then
-    echo "Creating wp-config.php ..."
-    wp --allow-root config create \
-      --dbhost=$WORDPRESS_DB_HOST \
-      --dbname=wordpress \
-      --dbuser=$WORDPRESS_DB_USER \
-      --dbpass=$WORDPRESS_DB_PASSWORD
+	echo "Creating wp-config.php ..."
+	# Loop until wp cli exits with 0
+	# because if running the containers for the first time,
+	# the mysql container will reject connections until it has set the database data
+	# See "No connections until MySQL init completes" in https://hub.docker.com/_/mysql/
+	times=15
+	i=1
+	while [ "$i" -le "$times" ]; do
+		sleep 3
+		wp --allow-root config create \
+			--dbhost=$WORDPRESS_DB_HOST \
+			--dbname=wordpress \
+			--dbuser=$WORDPRESS_DB_USER \
+			--dbpass=$WORDPRESS_DB_PASSWORD \
+			&& break
+		[ ! $? -eq 0 ] || break;
+		echo "Waiting for creating wp-config.php until mysql is ready to receive connections"
+		(( i++ ))
+	done
 
     echo "Setting other wp-config.php constants..."
     wp --allow-root config set WP_DEBUG true --raw --type=constant
