@@ -47,6 +47,19 @@ if [ ! -f /var/www/.htaccess ]; then
 	cp /tmp/htaccess /var/www/.htaccess
 fi
 
+# If we don't have the wordpress source code, download it
+if [ ! -d /tmp/wordpress-develop/src ]; then
+# Get latest WordPress unit-test helper files
+ 	 svn co https://develop.svn.wordpress.org/trunk /tmp/wordpress-develop \
+	 --trust-server-cert \
+	 --non-interactive
+fi
+
+# Create a wp-tests-config.php if there's none currently
+if [ ! -f /tmp/wordpress-develop/wp-tests-config.php ]; then
+	cp /tmp/wp-tests-config.php /tmp/wordpress-develop/wp-tests-config.php
+fi
+
 # Run apache in the foreground so the container keeps running
 
 echo "Starting Apache in the foreground"
