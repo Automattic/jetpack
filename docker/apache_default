@@ -9,9 +9,9 @@
 	#ServerName www.example.com
 
 	ServerAdmin webmaster@localhost
-	DocumentRoot /var/www
+	DocumentRoot /var/www/html
 
-    <Directory /var/www>
+    <Directory /var/www/html>
         AllowOverride All
         Require all granted
     </Directory>

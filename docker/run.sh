@@ -17,10 +17,10 @@ echo "error_reporting = $PHP_ERROR_REPORTING" >> /etc/php/7.0/apache2/php.ini
 echo "error_reporting = $PHP_ERROR_REPORTING" >> /etc/php/7.0/cli/php.ini
 
 # Download WordPress
-cd /var/www/ && [ -f /var/www/xmlrpc.php ] || wp --allow-root core download
+cd /var/www/html/ && [ -f /var/www/html/xmlrpc.php ] || wp --allow-root core download
 
 # Configure WordPress
-if [ ! -f /var/www/wp-config.php ]; then
+if [ ! -f /var/www/html/wp-config.php ]; then
 	echo "Creating wp-config.php ..."
 	# Loop until wp cli exits with 0
 	# because if running the containers for the first time,
@@ -56,8 +56,8 @@ if [ ! -f /var/www/wp-config.php ]; then
 fi
 
 # Copy single site htaccess if none is present
-if [ ! -f /var/www/.htaccess ]; then
-	cp /tmp/htaccess /var/www/.htaccess
+if [ ! -f /var/www/html/.htaccess ]; then
+	cp /tmp/htaccess /var/www/html/.htaccess
 fi
 
 # If we don't have the wordpress test helpers, download them

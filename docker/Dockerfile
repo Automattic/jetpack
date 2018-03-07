@@ -1,6 +1,6 @@
 FROM ubuntu:xenial
 
-VOLUME ["/var/www"]
+VOLUME ["/var/www/html"]
 
 # Install required Ubuntu packages for having Apache PHP as a module
 # as well a bunch of other packages
