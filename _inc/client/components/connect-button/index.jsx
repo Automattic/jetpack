@@ -69,6 +69,7 @@ export class ConnectButton extends React.Component {
 					<a
 						role="button"
 						tabIndex="0"
+						className="jp-jetpack-unlink__button"
 						onKeyDown={ onKeyDownCallback( this.props.unlinkUser ) }
 						onClick={ this.props.unlinkUser }
 						disabled={ this.props.isUnlinking } >
