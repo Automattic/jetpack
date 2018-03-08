@@ -3,6 +3,7 @@
  */
 import React from 'react';
 import { translate as __ } from 'i18n-calypso';
+import { connect } from 'react-redux';
 
 /**
  * Internal dependencies
@@ -10,15 +11,21 @@ import { translate as __ } from 'i18n-calypso';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import { ModuleToggle } from 'components/module-toggle';
+import { updateSettings } from 'state/settings';
+import { getSettings } from 'state/settings';
 
 class Privacy extends React.Component {
 	static displayName = 'PrivacySettings';
 
 	togglePrivacy = () => {
-		return true;
+		const isTracksEnabled = this.props.getOptionValue( 'disable_tracking' );
+		this.props.toggleTracking( isTracksEnabled );
 	};
 
 	render() {
+		// eslint-disable-next-line
+		console.log( this.props );
+
 		if ( ! this.props.searchTerm && ! this.props.active ) {
 			return null;
 		}
@@ -26,6 +33,7 @@ class Privacy extends React.Component {
 			<div>
 				<SettingsCard
 					{ ...this.props }
+					header={ __( 'Privacy Settings', { context: 'Settings header' } ) }
 					hideButton
 				>
 					<SettingsGroup hasChild support="https://jetpack.com/support/privacy">
@@ -34,7 +42,7 @@ class Privacy extends React.Component {
 							activated={ false }
 							toggling={ false }
 							toggleModule={ this.togglePrivacy }>
-							{ __( 'Disable Tracking' ) }
+							{ __( 'Send usage statistics to help us improve our products.' ) }
 						</ModuleToggle>
 					</SettingsGroup>
 				</SettingsCard>
@@ -43,4 +51,15 @@ class Privacy extends React.Component {
 	}
 }
 
-export default Privacy;
+export default connect(
+	( state ) => {
+		return {
+			settings: getSettings( state ),
+		};
+	},
+	( dispatch ) => ( {
+		toggleTracking: ( isEnabled ) => {
+			return dispatch( updateSettings( { disable_tracking: isEnabled ? false : true } ) );
+		}
+	} )
+)( Privacy );
