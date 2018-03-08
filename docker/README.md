@@ -143,6 +143,23 @@ Connecting to your MySQL database from outside the container, use:
 
 You can also see your database files via local filesystem at `./docker/data/mysql`
 
+## SFTP access
+
+You can access WordPress and Jetpack files via SFTP server container. This makes e.g. testing Jetpack Rewind easier.
+
+- Host: `localhost`
+- Port: `1022`
+- User: `wordpress`
+- Pass: `wordpress`
+- WordPress path: `/var/www/html`
+
+You can tunnel to it using [Ngrok](https://ngrok.com) or other similar service.
+
+Run:
+```sh
+ngrok tcp 1022
+```
+
 ## Must Use Plugins directory
 
 You can add your own PHP code to `./docker/mu-plugins` directory and they will be loaded by WordPress, in alphabetical order, before normal plugins, meaning API hooks added in an mu-plugin apply to all other plugins even if they run hooked-functions in the global namespace. Read more about [must use plugins](https://codex.wordpress.org/Must_Use_Plugins).

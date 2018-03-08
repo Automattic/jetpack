@@ -28,6 +28,21 @@ services:
       - "1080:80"
       - "25:25"
 
+  ## SFTP server running at localhost:1022
+  sftp:
+    container_name: jetpack_sftp
+    image: atmoz/sftp
+    volumes:
+      - ..:/home/wordpress/var/www/html/wp-content/plugins/jetpack
+      ## Kludge for not having docker contain recursive stuff
+      ## You will see on your filesystem that this dir gets created
+      - ./.dumb-directory-for-mapping-docker-directory:/home/wordpress/var/www/html/wp-content/plugins/jetpack/docker
+      - ./mu-plugins:/home/wordpress/var/www/html/wp-content/mu-plugins
+      - ./wordpress:/home/wordpress/var/www/html
+    ports:
+      - "1022:22"
+    command: wordpress:wordpress:1001
+
   ## - The container wordpress is a very basic but custom container with WordPress and all of the tools we need
   ##   for development.
   ## - The container will be named jetpack_wordpress for easy reference when running docker/docker-compose commands
