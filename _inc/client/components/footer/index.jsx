@@ -25,6 +25,14 @@ import {
 import DevCard from 'components/dev-card';
 import onKeyDownCallback from 'utils/onkeydown-callback';
 
+const smoothScroll = () => {
+	const jpContentY = document.getElementById( 'jp-navigation' ).offsetTop;
+	window.scrollTo( 0, window.scrollY - jpContentY / 1.5 );
+	if ( window.scrollY > jpContentY ) {
+		window.requestAnimationFrame( smoothScroll );
+	}
+};
+
 export class Footer extends React.Component {
 	static displayName = 'Footer';
 
@@ -49,6 +57,7 @@ export class Footer extends React.Component {
 	};
 
 	trackPrivacyClick = () => {
+		window.requestAnimationFrame( smoothScroll );
 		analytics.tracks.recordJetpackClick( {
 			target: 'footer_link',
 			link: 'privacy'
