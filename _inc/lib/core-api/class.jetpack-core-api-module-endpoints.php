@@ -951,10 +951,6 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					break;
 
 				case 'show_welcome_for_new_plan':
-					// If option value was the same, consider it done.
-					$updated = get_option( $option ) !== $value ? update_option( $option, (bool) $value ) : true;
-					break;
-
 				case 'disable_tracking':
 					// If option value was the same, consider it done.
 					$updated = get_option( $option ) !== $value ? update_option( $option, (bool) $value ) : true;
