@@ -22,6 +22,11 @@ const trackPrivacyPolicyView = () => analytics.tracks.recordJetpackClick( {
 	feature: 'privacy'
 } );
 
+const trackPrivacyBlogView = () => analytics.tracks.recordJetpackClick( {
+	target: 'privacy-blog',
+	feature: 'privacy'
+} );
+
 class Privacy extends React.Component {
 	static displayName = 'PrivacySettings';
 
@@ -77,13 +82,28 @@ class Privacy extends React.Component {
 								} )
 							}
 						</p>
-						<ModuleToggle
-							compact
-							activated={ getOptionValue( 'disable_tracking' ) }
-							toggling={ isSavingAnyOption( 'disable_tracking' ) }
-							toggleModule={ this.togglePrivacy }>
-							{ __( 'Send usage statistics to help us improve our products.' ) }
-						</ModuleToggle>
+						<p>
+							<ModuleToggle
+								compact
+								activated={ getOptionValue( 'disable_tracking' ) }
+								toggling={ isSavingAnyOption( 'disable_tracking' ) }
+								toggleModule={ this.togglePrivacy }>
+								{ __( 'Send usage statistics to help us improve our products.' ) }
+							</ModuleToggle>
+						</p>
+						<p>
+							{ __(
+								'Visit the {{a}}Privacy blog{{/a}} to learn more about it in Automattic and WordPress.', {
+									components: {
+										a: <ExternalLink
+											href="https://privacy.blog/"
+											onClick={ trackPrivacyBlogView }
+											target="_blank" rel="noopener noreferrer"
+										/>
+									}
+								} )
+							}
+						</p>
 					</SettingsGroup>
 				</SettingsCard>
 			</div>
