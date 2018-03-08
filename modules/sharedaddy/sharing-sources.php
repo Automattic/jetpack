@@ -1269,11 +1269,12 @@ class Share_Custom extends Sharing_Advanced_Source {
 			$tagged = '';
 
 			if ( $tags ) {
+				$tagged_raw = array();
 				foreach ( $tags as $tag ) {
-					$tagged[] = rawurlencode( $tag->name );
+					$tagged_raw[] = rawurlencode( $tag->name );
 				}
 
-				$tagged = implode( ',', $tagged );
+				$tagged = implode( ',', $tagged_raw );
 			}
 
 			$url = str_replace( '%post_tags%', $tagged, $url );
