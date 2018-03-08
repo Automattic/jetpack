@@ -51,7 +51,7 @@ Jetpack is licensed under [GNU General Public License v2 (or later)](./LICENSE.t
 
 ## Monitor Our Activity On This Repository
 
-[![Throughput Graph](https://graphs.waffle.io/automattic/jetpack/throughput.svg)](https://waffle.io/automattic/jetpack/metrics)
+[![Throughput Graph](https://graphs.waffle.io/automattic/jetpack/throughput.svg)](https://waffle.io/Automattic/jetpack/metrics/throughput)
 
 ## Team
 
