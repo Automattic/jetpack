@@ -20,6 +20,7 @@ import {
 import { isDevMode } from 'state/connection';
 import { isFetchingSiteData } from 'state/site';
 import DashItem from 'components/dash-item';
+import ExternalLink from 'components/external-link';
 import isArray from 'lodash/isArray';
 import get from 'lodash/get';
 
@@ -92,16 +93,21 @@ class DashScan extends Component {
 				if ( threats !== 0 ) {
 					return renderCard( {
 						content: [
-							<h3>{
-								__( 'Uh oh, %(number)s threat found.', 'Uh oh, %(number)s threats found.', {
+							<h2 className="jp-dash-item__count is-warning">{ numberFormat( threats ) }</h2>,
+							<p className="jp-dash-item__description">
+								{__( 'Threat found.', 'Threats found.', {
 									count: threats,
 									args: { number: numberFormat( threats ) }
-								} )
-							}</h3>,
+								} )}
+							</p>,
 							<p className="jp-dash-item__description">
-								{__( '{{a}}View details at VaultPress.com{{/a}}', { components: { a: <a href="https://dashboard.vaultpress.com/" /> } } )}
-								<br />
-								{__( '{{a}}Contact Support{{/a}}', { components: { a: <a href="https://jetpack.com/support" /> } } )}
+								{__( '{{ExternalLink}}Contact support for help with this{{/ExternalLink}}', { components: {
+									ExternalLink: <ExternalLink
+										className="dops-button is-primary"
+										href="https://jetpack.com/support"
+										target="_blank" />
+								} } )}
+								{__( '{{a}}Address issues now{{/a}}', { components: { a: <a href="https://dashboard.vaultpress.com/" /> } } )}
 							</p>
 						]
 					} );
