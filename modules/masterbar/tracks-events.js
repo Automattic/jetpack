@@ -137,7 +137,7 @@
 			return;
 		}
 
-		var event = ! e.data && e.originalEvent.data ? e.originalEvent : event;
+		var event = ! e.data && e.originalEvent.data ? e.originalEvent : e;
 		if ( event.origin !== 'https://widgets.wp.com' ) {
 			return;
 		}
