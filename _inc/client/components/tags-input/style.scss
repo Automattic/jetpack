@@ -47,3 +47,7 @@ input[type=text].react-tagsinput-input {
 	border: none;
 	box-shadow: none;
 }
+
+input[type=text].react-tagsinput-input::-ms-clear {
+	display: none;
+}
