@@ -13,7 +13,14 @@ import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-sett
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import { ModuleToggle } from 'components/module-toggle';
+import ExternalLink from 'components/external-link';
 import { updateSettings, getSettings } from 'state/settings';
+import analytics from 'lib/analytics';
+
+const trackPrivacyPolicyView = () => analytics.tracks.recordJetpackClick( {
+	target: 'privacy-policy',
+	feature: 'privacy'
+} );
 
 class Privacy extends React.Component {
 	static displayName = 'PrivacySettings';
@@ -48,6 +55,7 @@ class Privacy extends React.Component {
 		if ( ! searchTerm && ! active ) {
 			return null;
 		}
+
 		return (
 			<div>
 				<SettingsCard
@@ -56,6 +64,19 @@ class Privacy extends React.Component {
 					hideButton
 				>
 					<SettingsGroup hasChild support="https://jetpack.com/support/privacy">
+						<p>
+							{ __(
+								'We are committed to keep your privacy. See our {{a}}privacy policy{{/a}}.', {
+									components: {
+										a: <ExternalLink
+											href="https://automattic.com/privacy/"
+											onClick={ trackPrivacyPolicyView }
+											target="_blank" rel="noopener noreferrer"
+											/>
+									}
+								} )
+							}
+						</p>
 						<ModuleToggle
 							compact
 							activated={ getOptionValue( 'disable_tracking' ) }
