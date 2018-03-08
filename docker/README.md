@@ -202,7 +202,7 @@ You’ll need to install the [php-debug](https://atom.io/packages/php-debug) pac
 
 	2. To map your current Jetpack directory to the docker filesystem path (**Path Maps** to `/var/www/html/wp-content/plugins/jetpack;/local-path-in-your-computer/jetpack`)
 
-		![Screenshot showing "Path Maps" input](https://user-images.githubusercontent.com/746152/37093291-9ee82b7c-21ed-11e8-98bc-a1e72488264b.png)
+		![Screenshot showing "Path Maps" input](https://user-images.githubusercontent.com/746152/37150779-c891a7f4-22b1-11e8-9293-f34679df82f5.png)
 
 1. Make sure you installed the Chrome extension on your browser and configure it to send the IDE Key `php-debug`
 
