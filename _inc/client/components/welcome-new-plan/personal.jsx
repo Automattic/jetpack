@@ -13,7 +13,6 @@ import analytics from 'lib/analytics';
 import JetpackDialogue from 'components/jetpack-dialogue';
 import Button from 'components/button';
 import { imagePath } from 'constants/urls';
-import WordAdsPrompt from './wordads-prompt';
 import MonitorAkismetBackupsPrompt from './monitor-akismet-backups-prompt';
 
 class WelcomePersonal extends Component {
@@ -38,7 +37,6 @@ class WelcomePersonal extends Component {
 						'new widgets.'
 					) }
 				</p>
-				<WordAdsPrompt />
 				<MonitorAkismetBackupsPrompt />
 				<Button
 					className="jp-welcome-new-plan__button"
