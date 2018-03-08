@@ -1,6 +1,11 @@
 .jp-dash-item {
 	.jp-dash-item__content a {
 		font-style: italic;
+
+		&.dops-button {
+			margin: 16px 0 8px;
+			font-style: normal;
+		}
 	}
 	.dops-section-header__card-badge .dops-button {
 		background: none;
@@ -36,6 +41,10 @@
 
 	@include breakpoint( "<660px" ) {
 		font-size: rem( 23px );
+	}
+
+	&.is-warning {
+		color: $alert-red;
 	}
 }
 
