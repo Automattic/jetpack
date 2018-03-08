@@ -166,16 +166,6 @@ export function toggleSetting( state, name ) {
 }
 
 /**
- * Returns the slug of a general setting.
- * @param  {Object}  state Global state tree
- * @param  {String}  name  A setting's name
- * @return {String}       The setting name
- */
-export function getSettingName( state, name ) {
-	return get( state.jetpack.initialState.settingNames, [ name ] );
-}
-
-/**
  * Returns true if there are unsaved settings.
  * @param  {Object}  state Global state tree
  * @return {Boolean}  Whether there are unsaved settings

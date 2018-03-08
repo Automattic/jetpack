@@ -7,7 +7,6 @@
 // Include extra tools that aren't modules, in a filterable way
 $tools = array(
 	'theme-tools/social-links.php',
-	'holiday-snow.php', // Happy Holidays!!!
 	'theme-tools/random-redirect.php',
 	'theme-tools/featured-content.php',
 	'theme-tools/infinite-scroll.php',
