@@ -558,11 +558,11 @@ jQuery( function($) {
 				<?php if ( 0 < count( $services ) ) : ?>
 					<?php list( $publicize_form, $active ) = $this->get_metabox_form_connected( $services ); ?>
 					<span id="publicize-defaults"><strong><?php echo join( '</strong>, <strong>', array_map( 'esc_html', $active ) ); ?></strong></span><br />
-					<a href="#" id="publicize-form-edit"><?php _e( 'Edit Details', 'jetpack' ); ?></a>&nbsp;<a href="<?php echo admin_url( 'options-general.php?page=sharing' ); ?>" target="_blank"><?php _e( 'Settings', 'jetpack' ); ?></a><br />
+					<a href="#" id="publicize-form-edit"><?php _e( 'Edit', 'jetpack' ); ?></a>&nbsp;<a href="<?php echo admin_url( 'options-general.php?page=sharing' ); ?>" target="_blank"><?php _e( 'Settings', 'jetpack' ); ?></a><br />
 				<?php else : ?>
 					<?php $publicize_form = $this->get_metabox_form_disconnected( $available_services ); ?>
 					<strong><?php echo __( 'Not Connected', 'jetpack' ); ?></strong>
-					<a href="#" id="publicize-disconnected-form-show"><?php _e( 'Show', 'jetpack' ); ?></a><br />
+					<a href="#" id="publicize-disconnected-form-show"><?php _e( 'Edit', 'jetpack' ); ?></a><br />
 				<?php endif; ?>
 			</span>
 			<?php
@@ -743,7 +743,7 @@ jQuery( function($) {
 
 			<textarea name="wpas_title" id="wpas-title"<?php disabled( $all_done ); ?>><?php echo $title; ?></textarea>
 
-			<a href="#" class="hide-if-no-js" id="publicize-form-hide"><?php _e( 'Hide', 'jetpack' ); ?></a>
+			<a href="#" class="hide-if-no-js button" id="publicize-form-hide"><?php _e( 'OK', 'jetpack' ); ?></a>
 			<input type="hidden" name="wpas[0]" value="1" />
 
 		</div>
@@ -761,7 +761,7 @@ jQuery( function($) {
 		?><div id="publicize-form" class="hide-if-js">
 			<div id="add-publicize-check" style="display: none;"></div>
 
-			<strong><?php _e( 'Connect to', 'jetpack' ); ?>:</strong>
+			<?php _e( 'Connect to', 'jetpack' ); ?>:
 
 			<ul class="not-connected">
 				<?php foreach ( $available_services as $service_name => $service ) : ?>
@@ -772,7 +772,7 @@ jQuery( function($) {
 				</li>
 				<?php endforeach; ?>
 			</ul>
-			<a href="#" class="hide-if-no-js" id="publicize-disconnected-form-hide"><?php _e( 'Hide', 'jetpack' ); ?></a>
+			<a href="#" class="hide-if-no-js button" id="publicize-disconnected-form-hide"><?php _e( 'OK', 'jetpack' ); ?></a>
 		</div><?php // #publicize-form
 		return ob_get_clean();
 	}
