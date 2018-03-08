@@ -48,7 +48,7 @@ if [ ! -f /var/www/html/wp-config.php ]; then
 
     # Respecting Dockerfile-forwarded environment variables
     # Allow to be reverse-proxied from https
-	wp --allow-root config set "_SERVER['HTTPS']" "isset( \$_SERVER['HTTP_X_FORWARDED_PROTO'] ) && \$_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https' ? 'on' : \$_SERVER['HTTPS']" \
+	wp --allow-root config set "_SERVER['HTTPS']" "isset( \$_SERVER['HTTP_X_FORWARDED_PROTO'] ) && \$_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https' ? 'on' : NULL" \
 			--raw \
 			--type=variable
 	# Allow this installation to run on https or https.
