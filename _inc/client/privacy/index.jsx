@@ -2,31 +2,50 @@
  * External dependencies
  */
 import React from 'react';
+import PropTypes from 'prop-types';
 import { translate as __ } from 'i18n-calypso';
 import { connect } from 'react-redux';
 
 /**
  * Internal dependencies
  */
+import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 import { ModuleToggle } from 'components/module-toggle';
-import { updateSettings } from 'state/settings';
-import { getSettings } from 'state/settings';
+import { updateSettings, getSettings } from 'state/settings';
 
 class Privacy extends React.Component {
 	static displayName = 'PrivacySettings';
 
-	togglePrivacy = () => {
-		const isTracksEnabled = this.props.getOptionValue( 'disable_tracking' );
-		this.props.toggleTracking( isTracksEnabled );
+	static propTypes = {
+		searchTerm: PropTypes.string,
+		active: PropTypes.bool,
+
+		// Connected
+		toggleTracking: PropTypes.func,
+
+		// Provided by moduleSettingsForm
+		getOptionValue: PropTypes.func,
+		isSavingAnyOption: PropTypes.func,
 	};
 
-	render() {
-		// eslint-disable-next-line
-		console.log( this.props );
+	static defaultProps = {
+		searchTerm: '',
+		active: false,
+	};
 
-		if ( ! this.props.searchTerm && ! this.props.active ) {
+	togglePrivacy = () => this.props.toggleTracking( this.props.getOptionValue( 'disable_tracking' ) );
+
+	render() {
+		const {
+			searchTerm,
+			active,
+			getOptionValue,
+			isSavingAnyOption,
+		} = this.props;
+
+		if ( ! searchTerm && ! active ) {
 			return null;
 		}
 		return (
@@ -39,8 +58,8 @@ class Privacy extends React.Component {
 					<SettingsGroup hasChild support="https://jetpack.com/support/privacy">
 						<ModuleToggle
 							compact
-							activated={ false }
-							toggling={ false }
+							activated={ getOptionValue( 'disable_tracking' ) }
+							toggling={ isSavingAnyOption( 'disable_tracking' ) }
 							toggleModule={ this.togglePrivacy }>
 							{ __( 'Send usage statistics to help us improve our products.' ) }
 						</ModuleToggle>
@@ -52,14 +71,10 @@ class Privacy extends React.Component {
 }
 
 export default connect(
-	( state ) => {
-		return {
-			settings: getSettings( state ),
-		};
-	},
-	( dispatch ) => ( {
-		toggleTracking: ( isEnabled ) => {
-			return dispatch( updateSettings( { disable_tracking: isEnabled ? false : true } ) );
-		}
-	} )
-)( Privacy );
+	state => ( {
+		settings: getSettings( state ),
+	} ),
+	{
+		toggleTracking: isEnabled => updateSettings( { disable_tracking: ! isEnabled } ),
+	}
+)( moduleSettingsForm( Privacy ) );
