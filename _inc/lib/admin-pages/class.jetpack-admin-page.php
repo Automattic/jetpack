@@ -1,5 +1,10 @@
 <?php
 
+function add_no_store_header( $headers ) {
+	$headers[ 'Cache-Control' ] .= ', no-store';
+	return 	$headers;
+}
+
 // Shared logic between Jetpack admin pages
 abstract class Jetpack_Admin_Page {
 	// Add page specific actions given the page hook
@@ -41,6 +46,10 @@ abstract class Jetpack_Admin_Page {
 		self::$block_page_rendering_for_idc = (
 			Jetpack::validate_sync_error_idc_option() && ! Jetpack_Options::get_option( 'safe_mode_confirmed' )
 		);
+		if( $_GET[ 'page' ] == 'jetpack' ) {
+			add_filter( 'nocache_headers', 'add_no_store_header' );
+			nocache_headers();
+		}
 	}
 
 	function add_actions() {
