@@ -69,6 +69,7 @@ class Jetpack_Sync_Defaults {
 		'comment_whitelist',
 		'comment_max_links',
 		'moderation_keys',
+		'menu_items',
 		'jetpack_wga',
 		'disabled_likes',
 		'disabled_reblogs',
