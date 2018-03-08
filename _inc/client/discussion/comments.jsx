@@ -19,27 +19,12 @@ import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 
 class CommentsComponent extends React.Component {
-	/**
-	 * If markdown module is inactive and this is toggling markdown for comments on, activate module.
-	 * If markdown for posts is off and this is toggling markdown for comments off, deactivate module.
-	 *
-	 * @param {string} module	the module slug.
-	 * @returns {*}             the updated value
-	 */
-	updateFormStateByMarkdown = module => {
-		if ( !! this.props.getSettingCurrentValue( 'wpcom_publish_posts_with_markdown', module ) ) {
-			return this.props.updateFormStateModuleOption( module, 'wpcom_publish_comments_with_markdown' );
-		}
-		return this.props.updateFormStateModuleOption( module, 'wpcom_publish_comments_with_markdown', true );
-	};
-
 	render() {
 		const foundComments = this.props.isModuleFound( 'comments' ),
 			foundGravatar = this.props.isModuleFound( 'gravatar-hovercards' ),
-			foundMarkdown = this.props.isModuleFound( 'markdown' ),
 			foundCommentLikes = this.props.isModuleFound( 'comment-likes' );
 
-		if ( ! foundComments && ! foundGravatar && ! foundMarkdown && ! foundCommentLikes ) {
+		if ( ! foundComments && ! foundGravatar && ! foundCommentLikes ) {
 			return null;
 		}
 
@@ -49,7 +34,6 @@ class CommentsComponent extends React.Component {
 			isCommentsActive = this.props.getOptionValue( 'comments' ),
 			commentsUnavailableInDevMode = this.props.isUnavailableInDevMode( 'comments' ),
 			gravatar = this.props.getModule( 'gravatar-hovercards' ),
-			markdown = this.props.getModule( 'markdown' ),
 			commentLikesUnavailable = isUnavailableInDevMode( 'comment-likes' ),
 			commentLikesActive = getOptionValue( 'comment-likes' );
 
@@ -111,7 +95,7 @@ class CommentsComponent extends React.Component {
 					)
 				}
 				{
-					( foundGravatar || foundMarkdown || foundCommentLikes ) && (
+					( foundGravatar || foundCommentLikes ) && (
 						<SettingsGroup>
 							{
 								foundGravatar && (
@@ -128,28 +112,6 @@ class CommentsComponent extends React.Component {
 													gravatar.description + ' '
 												}
 												<a href={ gravatar.learn_more_button } target="_blank" rel="noopener noreferrer">
-													{ __( 'Learn more' ) }
-												</a>
-											</span>
-										</ModuleToggle>
-									</FormFieldset>
-								)
-							}
-							{
-								foundMarkdown && (
-									<FormFieldset>
-										<ModuleToggle
-											slug="markdown"
-											compact
-											activated={ !! this.props.getOptionValue( 'wpcom_publish_comments_with_markdown', 'markdown' ) }
-											toggling={ this.props.isSavingAnyOption( [ 'markdown', 'wpcom_publish_comments_with_markdown' ] ) }
-											toggleModule={ this.updateFormStateByMarkdown }
-										>
-											<span className="jp-form-toggle-explanation">
-												{
-													__( 'Enable Markdown use for comments.' ) + ' '
-												}
-												<a href={ markdown.learn_more_button } target="_blank" rel="noopener noreferrer">
 													{ __( 'Learn more' ) }
 												</a>
 											</span>
