@@ -12,8 +12,7 @@ import {
 	fetchSettings,
 	isSettingActivated,
 	updateSetting,
-	isFetchingSettingsList,
-	getSettingName
+	isFetchingSettingsList
 } from 'state/settings';
 import { SettingToggle } from 'components/setting-toggle';
 
@@ -32,13 +31,11 @@ export class Settings extends React.Component {
 	}
 
 	render() {
-		// The snow setting requires special care since the option name has a WP filter applied.
-		const settingSlug = 'snow' === this.props.slug ? this.props.snowSlug : this.props.slug;
 		return (
 			<div>
 				<SettingToggle
-					slug={ settingSlug }
-					activated={ this.props.isSettingActivated( settingSlug ) }
+					slug={ this.props.slug }
+					activated={ this.props.isSettingActivated( this.props.slug ) }
 					toggleSetting={ this.props.toggleSetting }
 					disabled={ this.props.isFetchingSettingsList }
 				/>
@@ -50,7 +47,6 @@ export class Settings extends React.Component {
 export default connect(
 	( state ) => {
 		return {
-			snowSlug: getSettingName( state, 'jetpack_holiday_snow_enabled' ),
 			isSettingActivated: ( setting_name ) => isSettingActivated( state, setting_name ),
 			isFetchingSettingsList: isFetchingSettingsList( state ),
 			settings: fetchSettings( state )

@@ -758,7 +758,7 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		$response = $this->create_and_get_request( 'settings', array( 'show' => array( 'post', 'page' ) ), 'POST' );
 		$this->assertResponseStatus( 200, $response );
-		
+
 		// It should also work correctly with a POST body that is not JSON encoded
 		$response = $this->create_and_get_request( 'settings', array(), 'POST',  array( 'show' => 'post' ) );
 		$this->assertResponseStatus( 400, $response );
@@ -772,7 +772,6 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 	 * Here we test three types of settings:
 	 * - module settings
 	 * - module activation state
-	 * - misc setting (holiday snow)
 	 *
 	 * @since 4.6.0
 	 */
@@ -785,7 +784,6 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		Jetpack::update_active_modules( array( 'carousel' ) );
 		update_option( 'carousel_background_color', 'white' );
-		update_option( 'jetpack_holiday_snow_enabled', 'letitsnow' );
 
 		$response = $this->create_and_get_request( 'settings', array(), 'GET' );
 		$response_data = $response->get_data();
@@ -797,10 +795,6 @@ class WP_Test_Jetpack_REST_API_endpoints extends WP_UnitTestCase {
 
 		$this->assertArrayHasKey( 'carousel', $response_data );
 		$this->assertTrue( $response_data['carousel'] );
-
-		$this->assertArrayHasKey( 'jetpack_holiday_snow_enabled', $response_data );
-		$this->assertTrue( $response_data['jetpack_holiday_snow_enabled'] );
-
 	}
 
 	/**
