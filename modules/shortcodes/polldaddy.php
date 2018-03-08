@@ -544,6 +544,7 @@ CONTAINER;
 					if ( !d.getElementById( j ) ) {
 						var pd = d.createElement( c ), s;
 						pd.id = j;
+						pd.async = true;
 						pd.src = '{$script_url}';
 						s = d.getElementsByTagName( c )[0];
 						s.parentNode.insertBefore( pd, s );
