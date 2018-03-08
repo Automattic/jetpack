@@ -36,3 +36,4 @@ _inc/build/*.css.map
 _inc/build/maps
 .codeclimate.yml
 yarn.lock
+docker
