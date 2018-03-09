@@ -14,7 +14,7 @@ class Jetpack_User_Event_Tracking {
 			$user_tracking = self::default_value();
 		}
 		self::$_cache[ $user_id ] = (bool) $user_tracking;
-		return (bool) $user_tracking();
+		return (bool) $user_tracking;
 	}
 
 	static function is_disabled( $user_id ) {
