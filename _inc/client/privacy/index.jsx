@@ -22,6 +22,11 @@ const trackPrivacyPolicyView = () => analytics.tracks.recordJetpackClick( {
 	feature: 'privacy'
 } );
 
+const trackWhatJetpackSyncView = () => analytics.tracks.recordJetpackClick( {
+	target: 'what-data-jetpack-sync',
+	feature: 'privacy'
+} );
+
 const trackPrivacyBlogView = () => analytics.tracks.recordJetpackClick( {
 	target: 'privacy-blog',
 	feature: 'privacy'
@@ -70,14 +75,24 @@ class Privacy extends React.Component {
 				>
 					<SettingsGroup hasChild support="https://jetpack.com/support/privacy">
 						<p>
+							{
+								__( 'We are committed to your privacy and security. ' )
+							}
+							<br />
 							{ __(
-								'We are committed to keep your privacy. See our {{a}}privacy policy{{/a}}.', {
+								'Read about how Jetpack uses your data in {{pp}}Automattic Privacy Policy{{/pp}} ' +
+								'and {{js}}What Data Does Jetpack Sync{{/js}}?', {
 									components: {
-										a: <ExternalLink
-											href="https://automattic.com/privacy/"
-											onClick={ trackPrivacyPolicyView }
-											target="_blank" rel="noopener noreferrer"
-											/>
+										pp: <ExternalLink
+												href="https://automattic.com/privacy/"
+												onClick={ trackPrivacyPolicyView }
+												target="_blank" rel="noopener noreferrer"
+												/>,
+										js: <ExternalLink
+												href="https://jetpack.com/support/what-data-does-jetpack-sync/"
+												onClick={ trackWhatJetpackSyncView }
+												target="_blank" rel="noopener noreferrer"
+												/>
 									}
 								} )
 							}
@@ -88,12 +103,12 @@ class Privacy extends React.Component {
 								activated={ getOptionValue( 'jetpack_event_tracking' ) }
 								toggling={ isSavingAnyOption( 'jetpack_event_tracking' ) }
 								toggleModule={ this.togglePrivacy }>
-								{ __( 'Send usage statistics to help us improve our products.' ) }
+								{ __( 'Send information to help us improve our products.' ) }
 							</ModuleToggle>
 						</p>
 						<p>
 							{ __(
-								'Visit the {{a}}Privacy blog{{/a}} to learn more about it in Automattic and WordPress.', {
+								'See more WordPress privacy information and resources on {{a}}privacy.blog{{/a}}.', {
 									components: {
 										a: <ExternalLink
 											href="https://privacy.blog/"
