@@ -748,7 +748,7 @@ jQuery( function($) {
 
 			<textarea name="wpas_title" id="wpas-title"<?php disabled( $all_done ); ?>><?php echo $title; ?></textarea>
 
-			<a href="#" class="hide-if-no-js button" id="publicize-form-hide"><?php _e( 'OK', 'jetpack' ); ?></a>
+			<a href="#" class="hide-if-no-js button" id="publicize-form-hide"><?php esc_html_e( 'OK', 'jetpack' ); ?></a>
 			<input type="hidden" name="wpas[0]" value="1" />
 
 		</div>
@@ -777,7 +777,7 @@ jQuery( function($) {
 				</li>
 				<?php endforeach; ?>
 			</ul>
-			<a href="#" class="hide-if-no-js button" id="publicize-disconnected-form-hide"><?php _e( 'OK', 'jetpack' ); ?></a>
+			<a href="#" class="hide-if-no-js button" id="publicize-disconnected-form-hide"><?php esc_html_e( 'OK', 'jetpack' ); ?></a>
 		</div><?php // #publicize-form
 		return ob_get_clean();
 	}
