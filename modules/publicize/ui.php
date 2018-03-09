@@ -554,7 +554,7 @@ jQuery( function($) {
 		?>
 		<div id="publicize" class="misc-pub-section misc-pub-section-last">
 			<span id="publicize-title">
-				<?php esc_html_e( 'Social Sharing:', 'jetpack' ); ?>
+				<?php esc_html_e( 'Publicize:', 'jetpack' ); ?>
 				<?php if ( 0 < count( $services ) ) : ?>
 					<?php list( $publicize_form, $active ) = $this->get_metabox_form_connected( $services ); ?>
 					<span id="publicize-defaults">
