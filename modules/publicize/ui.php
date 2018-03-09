@@ -562,11 +562,11 @@ jQuery( function($) {
 							<strong><?php echo esc_html( $item ); ?></strong>
 						<?php endforeach; ?>
 					</span>
-					<a href="#" id="publicize-form-edit"><?php _e( 'Edit', 'jetpack' ); ?></a>&nbsp;<a href="<?php echo esc_url( admin_url( 'options-general.php?page=sharing' ) ); ?>" target="_blank"><?php _e( 'Settings', 'jetpack' ); ?></a><br />
+					<a href="#" id="publicize-form-edit"><?php esc_html_e( 'Edit', 'jetpack' ); ?></a>&nbsp;<a href="<?php echo esc_url( admin_url( 'options-general.php?page=sharing' ) ); ?>" target="_blank"><?php _e( 'Settings', 'jetpack' ); ?></a><br />
 				<?php else : ?>
 					<?php $publicize_form = $this->get_metabox_form_disconnected( $available_services ); ?>
 					<strong><?php echo __( 'Not Connected', 'jetpack' ); ?></strong>
-					<a href="#" id="publicize-disconnected-form-show"><?php _e( 'Edit', 'jetpack' ); ?></a><br />
+					<a href="#" id="publicize-disconnected-form-show"><?php esc_html_e( 'Edit', 'jetpack' ); ?></a><br />
 				<?php endif; ?>
 			</span>
 			<?php
@@ -655,8 +655,9 @@ jQuery( function($) {
 
 					// If this one has already been publicized to, don't let it happen again
 					$disabled = '';
-					if ( $done )
+					if ( $done ) {
 						$disabled = ' disabled="disabled"';
+					}
 
 					// If this is a global connection and this user doesn't have enough permissions to modify
 					// those connections, don't let them change it
