@@ -28,7 +28,6 @@ export class Discussion extends React.Component {
 		};
 
 		const foundComments = this.props.isModuleFound( 'comments' ),
-			foundMarkdown = this.props.isModuleFound( 'markdown' ),
 			foundGravatar = this.props.isModuleFound( 'gravatar-hovercards' ),
 			foundSubscriptions = this.props.isModuleFound( 'subscriptions' ),
 			foundCommentLikes = this.props.isModuleFound( 'comment-likes' );
@@ -37,7 +36,7 @@ export class Discussion extends React.Component {
 			return null;
 		}
 
-		if ( ! foundComments && ! foundSubscriptions && ! foundMarkdown && ! foundGravatar && ! foundCommentLikes ) {
+		if ( ! foundComments && ! foundSubscriptions && ! foundGravatar && ! foundCommentLikes ) {
 			return null;
 		}
 
