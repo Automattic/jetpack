@@ -23,17 +23,17 @@ class Jetpack_User_Event_Tracking {
 
 	static function disable( $user_id ) {
 		// user opted out
-		self::set( $user_id, 0 );
+		return self::set( $user_id, 0 );
 	}
 
 	static function enable( $user_id ) {
 		// user opted in
-		self::set( $user_id, 1 );
+		return self::set( $user_id, 1 );
 	}
 
 	static private function set( $user_id, $value ) {
 		self::$_cache[ $user_id ] = (bool) $value;
-		update_user_meta( $user_id, self::KEY, $value );
+		return update_user_meta( $user_id, self::KEY, $value );
 	}
 
 	static function default_value() {
