@@ -3,13 +3,13 @@
 class Jetpack_User_Event_Tracking {
 
 	private static $_cache = array();
-	const KEY = 'jetpack_event_tracking';
+	private static $KEY = 'jetpack_event_tracking';
 
 	static function is_enabled( $user_id ) {
 		if ( isset( self::$_cache[ $user_id ] ) ) {
 			return self::$_cache[ $user_id ];
 		}
-		$user_tracking = get_user_meta( $user_id, self::KEY, true );
+		$user_tracking = get_user_meta( $user_id, self::$KEY, true );
 		if ( ! is_numeric( $user_tracking ) ) {
 			$user_tracking = self::default_value();
 		}
@@ -33,7 +33,7 @@ class Jetpack_User_Event_Tracking {
 
 	static private function set( $user_id, $value ) {
 		self::$_cache[ $user_id ] = (bool) $value;
-		return update_user_meta( $user_id, self::KEY, $value );
+		return update_user_meta( $user_id, self::$KEY, $value );
 	}
 
 	static function default_value() {
