@@ -179,7 +179,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 			esc_attr( $product->get_id() ),
 			esc_attr( $product->get_sku() )
 		);
-		$url = str_replace( 'href=', $new_attributes );
+		$url = str_replace( 'href=', $new_attributes, $url );
 		return $url;
 	}
 
