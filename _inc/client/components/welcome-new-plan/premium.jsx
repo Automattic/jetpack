@@ -13,9 +13,9 @@ import analytics from 'lib/analytics';
  */
 import JetpackDialogue from 'components/jetpack-dialogue';
 import { imagePath } from 'constants/urls';
-import SocialAdsPrompt from './social-ads-prompt';
 import VideoPressPrompt from './videopress-prompt';
 import MonitorAkismetBackupsPrompt from './monitor-akismet-backups-prompt';
+import InlineModuleToggle from 'components/module-settings/inline-module-toggle';
 
 class WelcomePremium extends Component {
 	constructor( props ) {
@@ -55,7 +55,15 @@ class WelcomePremium extends Component {
 						'-- all hosted free of ads or watermarks.'
 					) }
 				</p>
-				<SocialAdsPrompt />
+				<img src={ imagePath + 'wordads.svg' } className="jp-welcome__svg" alt={ __( 'Sharing' ) } />
+				<p>
+					{ __( 'Using Jetpack’s powerful sharing tools, you can automatically share your newest posts on social media,' +
+						' or schedule your content to be re-shared at any date or time you choose. And along with growing your ' +
+						'following, you can grow your business with tools like payment buttons and ads.'
+					) }
+				</p>
+				<InlineModuleToggle module_slug="publicize" />
+				<InlineModuleToggle module_slug="wordads" />
 				<VideoPressPrompt />
 				<MonitorAkismetBackupsPrompt />
 				<p>

@@ -15,7 +15,7 @@ class MonitorAkismetBackupsPrompt extends React.Component {
 		return <div>
 			<img src={ imagePath + 'security.svg' } className="jp-welcome__svg" alt={ __( 'Security' ) } />
 			<p>
-				{ __( 'Jetpack Professional gives you everything you need to keep your hard work safe, including ' +
+				{ __( 'Your Jetpack plan gives you everything you need to keep your hard work safe, including ' +
 					'on-demand backups and malware scans with one-click restores and issue resolution. Your site will ' +
 					'be fully protected against spam, malicious code, and brute force login attempts.'
 				) }
