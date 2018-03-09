@@ -25,6 +25,33 @@ function jetpack_subscriptions_configuration_load() {
 	exit;
 }
 
+/**
+ * Cherry picks keys from `$_SERVER` array.
+ *
+ * @since 6.0.0
+ *
+ * @return array An array of server data.
+ */
+function jetpack_subscriptions_cherry_pick_server_data() {
+	$data = array();
+
+	foreach ( $_SERVER as $key => $value ) {
+		if ( ! is_string( $value ) ) {
+			continue;
+		} elseif ( 0 === strpos( $key, 'HTTP_COOKIE' ) ) {
+			continue;
+		}
+
+		if ( 0 === strpos( $key, 'HTTP_' ) ) {
+			$data[ $key ] = $value; // HTTP headers.
+		} elseif ( in_array( $key, array( 'REMOTE_ADDR', 'REQUEST_URI', 'DOCUMENT_URI' ), true ) ) {
+			$data[ $key ] = $value;
+		}
+	}
+
+	return $data;
+}
+
 class Jetpack_Subscriptions {
 	public $jetpack = false;
 
@@ -511,7 +538,7 @@ class Jetpack_Subscriptions {
 													'source'         => 'widget',
 													'widget-in-use'  => is_active_widget( false, false, 'blog_subscription', true ) ? 'yes' : 'no',
 													'comment_status' => '',
-													'server_data'    => $_SERVER,
+													'server_data'    => jetpack_subscriptions_cherry_pick_server_data(),
 												)
 		);
 
@@ -674,7 +701,7 @@ class Jetpack_Subscriptions {
 										'source'         => 'comment-form',
 										'widget-in-use'  => is_active_widget( false, false, 'blog_subscription', true ) ? 'yes' : 'no',
 										'comment_status' => $approved,
-										'server_data'    => $_SERVER,
+										'server_data'    => jetpack_subscriptions_cherry_pick_server_data(),
 									)
 		);
 
