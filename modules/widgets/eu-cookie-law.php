@@ -181,15 +181,24 @@ if ( ! class_exists( 'Jetpack_EU_Cookie_Law_Widget' ) ) {
 				$instance['text'] = $this->text_options[0];
 			}
 
-			if ( isset( $new_instance['custom-policy-url'] ) ) {
+			if ( isset( $new_instance['policy-url'] ) ) {
+				$instance['policy-url'] = 'custom' === $new_instance['policy-url']
+					? 'custom'
+					: 'default';
+			} else {
+				$instance['policy-url'] = $this->policy_url_options[0];
+			}
+
+			if ( 'custom' === $instance['policy-url'] && isset( $new_instance['custom-policy-url'] ) ) {
 				$instance['custom-policy-url'] = esc_url( $new_instance['custom-policy-url'], array( 'http', 'https' ) );
 
 				if ( strlen( $instance['custom-policy-url'] ) < 10 ) {
 					unset( $instance['custom-policy-url'] );
-					$instance['policy-url'] = $this->policy_url_options[0];
+					global $wp_customize;
+					if ( ! isset( $wp_customize ) ) {
+						$instance['policy-url'] = $this->policy_url_options[0];
+					}
 				}
-			} else {
-				$instance['policy-url'] = $this->policy_url_options[0];
 			}
 
 			if ( isset( $new_instance['policy-link-text'] ) ) {
