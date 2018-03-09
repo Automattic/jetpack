@@ -1908,8 +1908,8 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'jp_group'          => 'settings',
 			),
 
-			// Show welcome for newly purchased plan
-			'disable_tracking' => array(
+			// Whether user allows usage statistics.
+			'jetpack_event_tracking' => array(
 				'description'       => 'Disables event tracking.',
 				'type'              => 'boolean',
 				'default'           => 0,

@@ -466,6 +466,11 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					);
 					break;
 
+				case 'jetpack_event_tracking':
+					jetpack_require_lib( 'class.jetpack-user-event-tracking' );
+					$response[ $setting ] = Jetpack_User_Event_Tracking::is_enabled( get_current_user_id() );
+					break;
+
 				default:
 					$response[ $setting ] = Jetpack_Core_Json_Api_Endpoints::cast_value( get_option( $setting ), $settings[ $setting ] );
 					break;
@@ -950,8 +955,14 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					}
 					break;
 
+				case 'jetpack_event_tracking':
+					jetpack_require_lib( 'class.jetpack-user-event-tracking' );
+					$updated = $value
+						? Jetpack_User_Event_Tracking::enable( get_current_user_id() )
+						: Jetpack_User_Event_Tracking::disable( get_current_user_id() );
+					break;
+
 				case 'show_welcome_for_new_plan':
-				case 'disable_tracking':
 					// If option value was the same, consider it done.
 					$updated = get_option( $option ) !== $value ? update_option( $option, (bool) $value ) : true;
 					break;

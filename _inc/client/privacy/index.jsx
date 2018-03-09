@@ -47,7 +47,7 @@ class Privacy extends React.Component {
 		active: false,
 	};
 
-	togglePrivacy = () => this.props.toggleTracking( this.props.getOptionValue( 'disable_tracking' ) );
+	togglePrivacy = () => this.props.toggleTracking( this.props.getOptionValue( 'jetpack_event_tracking' ) );
 
 	render() {
 		const {
@@ -85,8 +85,8 @@ class Privacy extends React.Component {
 						<p>
 							<ModuleToggle
 								compact
-								activated={ getOptionValue( 'disable_tracking' ) }
-								toggling={ isSavingAnyOption( 'disable_tracking' ) }
+								activated={ getOptionValue( 'jetpack_event_tracking' ) }
+								toggling={ isSavingAnyOption( 'jetpack_event_tracking' ) }
 								toggleModule={ this.togglePrivacy }>
 								{ __( 'Send usage statistics to help us improve our products.' ) }
 							</ModuleToggle>
@@ -116,6 +116,6 @@ export default connect(
 		settings: getSettings( state ),
 	} ),
 	{
-		toggleTracking: isEnabled => updateSettings( { disable_tracking: ! isEnabled } ),
+		toggleTracking: isEnabled => updateSettings( { jetpack_event_tracking: ! isEnabled } ),
 	}
 )( moduleSettingsForm( Privacy ) );
