@@ -113,8 +113,9 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 			}
 		}
 		jetpack_require_lib(  'class.jetpack-user-event-tracking' );
-		$user->jetpack_tracking_enabled = Jetpack_User_Event_Tracking::is_enabled( $user->ID );
-
+		if ( Jetpack_User_Event_Tracking::has_value( $user->ID ) ) {
+			$user->jetpack_tracking_enabled = Jetpack_User_Event_Tracking::is_enabled( $user->ID );
+		}
 		return $user;
 	}
 
@@ -289,7 +290,7 @@ class Jetpack_Sync_Module_Users extends Jetpack_Sync_Module {
 		}
 
 		jetpack_require_lib( 'class.jetpack-user-event-tracking' );
-		if ( $meta_key === Jetpack_User_Event_Tracking::KEY ) {
+		if ( $meta_key === Jetpack_User_Event_Tracking::$KEY ) {
 			$this->add_flags( $user_id, array( 'tracking_opt_out_changed' => true ) );
 		}
 
