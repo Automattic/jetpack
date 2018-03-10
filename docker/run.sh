@@ -7,8 +7,11 @@ set -e
 # If you modify anything here, remember to build the image again by running:
 # yarn docker:build
 
+user="${APACHE_RUN_USER:-www-data}"
+group="${APACHE_RUN_GROUP:-www-data}"
+
 # Download WordPress
-cd /var/www/html/ && [ -f /var/www/html/xmlrpc.php ] || wp --allow-root core download
+[ -f /var/www/html/xmlrpc.php ] || wp --allow-root core download
 
 # Configure WordPress
 if [ ! -f /var/www/html/wp-config.php ]; then
