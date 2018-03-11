@@ -48,7 +48,6 @@ class Jetpack_Tiled_Gallery_Grouper {
 
 	public function __construct( $attachments, $shapes = array() ) {
 		$content_width = Jetpack_Tiled_Gallery::get_content_width();
-		$ua_info = new Jetpack_User_Agent_Info();
 
 		$this->overwrite_shapes( $shapes );
 		$this->last_shape = '';
