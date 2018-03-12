@@ -275,15 +275,6 @@ class Jetpack_VideoPress {
 	}
 
 	/**
-	 * Changes the add new menu location, so that VideoPress will be enabled
-	 * when a user clicks that button.
-	 */
-	public function change_add_new_menu_location() {
-		$page = remove_submenu_page( 'upload.php', 'media-new.php' );
-		add_submenu_page( 'upload.php', $page[0], $page[0], 'upload_files', 'upload.php?action=add-new');
-	}
-
-	/**
 	 * Makes sure that all video mimes are added in, as multi site installs can remove them.
 	 *
 	 * @param array $existing_mimes
