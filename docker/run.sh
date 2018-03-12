@@ -45,7 +45,7 @@ if [ ! -f /var/www/html/wp-config.php ]; then
 	wp --allow-root config set "_SERVER['HTTPS']" "isset( \$_SERVER['HTTP_X_FORWARDED_PROTO'] ) && \$_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https' ? 'on' : NULL" \
 			--raw \
 			--type=variable
-	# Allow this installation to run on https or https.
+	# Allow this installation to run on http or https.
     wp --allow-root config set DOCKER_REQUEST_URL \
 		  "( ! empty( \$_SERVER['HTTPS'] ) ? 'https://' : 'http://' ) . ( ! empty( \$_SERVER['HTTP_HOST'] ) ? \$_SERVER['HTTP_HOST'] : 'localhost' )" \
 			--raw \
