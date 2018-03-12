@@ -44,7 +44,7 @@ const concat_list = [
 	'modules/wordads/css/style.css',
 	'modules/widgets/eu-cookie-law/style.css',
 	'modules/widgets/flickr/style.css',
-	'modules/search/css/search-widget-frontend.css'
+	'modules/widgets/search/css/search-widget-frontend.css'
 ];
 
 /**
@@ -69,7 +69,7 @@ const pathModifier = function( file, contents ) {
 };
 
 // Frontend CSS.  Auto-prefix and minimize.
-gulp.task( 'frontendcss', [ 'frontendcss:separate' ], function() {
+gulp.task( 'frontendcss', function() {
 	return gulp.src( concat_list )
 		.pipe( modify( { fileModifier: pathModifier } ) )
 		.pipe( autoprefixer(
@@ -97,7 +97,7 @@ gulp.task( 'frontendcss', [ 'frontendcss:separate' ], function() {
 		} );
 } );
 
-gulp.task( 'frontendcss:separate', function() {
+gulp.task( 'frontendcss:separate', gulp.series( 'frontendcss', function() {
 	return gulp.src( separate_list )
 		.pipe( modify( { fileModifier: pathModifier } ) )
 		.pipe( autoprefixer(
@@ -116,4 +116,4 @@ gulp.task( 'frontendcss:separate', function() {
 		.pipe( gulp.dest( function( file ) {
 			return path.dirname( file.path );
 		} ) );
-} );
+} ) );

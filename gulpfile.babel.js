@@ -1,38 +1,26 @@
 /**
  * External dependencies
  */
-import autoprefixer from 'gulp-autoprefixer';
 import babel from 'gulp-babel';
-import banner from 'gulp-banner';
 import check from 'gulp-check';
-import cleanCSS from 'gulp-clean-css';
 import colors from 'ansi-colors';
-import del from 'del';
 import fs from 'fs';
+import del from 'del';
 import gulp from 'gulp';
 import eslint from 'gulp-eslint';
 import i18n_calypso from 'i18n-calypso/cli';
 import jshint from 'gulp-jshint';
 import json_transform from 'gulp-json-transform';
+import log from 'fancy-log';
 import phplint from 'gulp-phplint';
 import phpunit from 'gulp-phpunit';
-import PluginError from 'plugin-error';
 import po2json from 'gulp-po2json';
 import qunit from 'gulp-qunit';
-import rename from 'gulp-rename';
 import readline from 'readline';
 import request from 'request';
-import rtlcss from 'gulp-rtlcss';
-import sass from 'gulp-sass';
+import tap from 'gulp-tap';
 import { spawn } from 'child_process';
 import Stream from 'stream';
-import sourcemaps from 'gulp-sourcemaps';
-import tap from 'gulp-tap';
-import uglify from 'gulp-uglify';
-import log from 'fancy-log';
-import webpack from 'webpack';
-import gulpif from 'gulp-if';
-import saveLicense from 'uglify-save-license';
 
 /**
  * Internal dependencies
@@ -41,290 +29,15 @@ const meta = require( './package.json' );
 
 import {} from './tools/builder/frontend-css';
 import {} from './tools/builder/admin-css';
-
-function onBuild( done ) {
-	return function( err, stats ) {
-		// Webpack doesn't populate err in case the build fails
-		// @see https://github.com/webpack/webpack/issues/708
-		if ( stats.compilation.errors && stats.compilation.errors.length ) {
-			if ( done ) {
-				done( new PluginError( 'webpack', stats.compilation.errors[ 0 ] ) );
-				return; // Otherwise gulp complains about done called twice
-			}
-		}
-
-		log( 'Building JS…', stats.toString( {
-			colors: true,
-			hash: true,
-			version: false,
-			timings: true,
-			assets: true,
-			chunks: true,
-			chunkModules: false,
-			modules: false,
-			cached: false,
-			reasons: false,
-			source: false,
-			errorDetails: true,
-			children: false
-		} ), '\nJS finished at', Date.now() );
-
-		if ( 'production' === process.env.NODE_ENV ) {
-			log( 'Uglifying JS...' );
-			gulp.src( '_inc/build/admin.js' )
-				.pipe( uglify() )
-				.pipe( gulp.dest( '_inc/build' ) )
-				.on( 'end', function() {
-					log( 'Your JS is now uglified!' );
-				} );
-		}
-
-		const is_prod = 'production' === process.env.NODE_ENV;
-
-		const supportedModules = [
-			'shortcodes',
-			'widgets',
-			'after-the-deadline',
-			'widget-visibility',
-			'custom-css',
-			'publicize',
-			'custom-post-types',
-			'sharedaddy',
-			'contact-form',
-			'photon',
-			'carousel',
-			'related-posts',
-			'tiled-gallery',
-			'likes',
-			'minileven',
-			'infinite-scroll',
-			'masterbar',
-			'videopress',
-			'comment-likes',
-			'lazy-images'
-		];
-
-		// Source any JS for whitelisted modules, which will minimize us shipping much
-		// more JS that we haven't pointed to in PHP yet.
-		// Example output: modules/(shortcodes|widgets)/**/*.js
-		const supportedModulesSource = `modules/@(${ supportedModules.join( '|' ) })/**/*.js`;
-
-		// Uglify other JS from _inc and supported modules
-		const sources = [
-			'_inc/*.js',
-			supportedModulesSource
-		];
-
-		// Don't process minified JS in _inc or modules directories
-		const sourceNegations = [
-			'!_inc/*.min.js',
-			'!modules/**/*.min.js'
-		];
-		gulp.src( Array.concat( sources, sourceNegations ) )
-			.pipe( banner( '/* Do not modify this file directly. It is compiled from other files. */\n' ) )
-			.pipe( gulpif( ! is_prod, sourcemaps.init() ) )
-			.pipe( uglify( {
-				preserveComments: saveLicense
-			} ) )
-			.pipe( rename( { suffix: '.min' } ) )
-			.pipe( gulpif( ! is_prod, sourcemaps.write( 'maps' ) ) ) // Put the maps in _inc/build/maps so that we can easily .svnignore
-			.pipe( gulp.dest( '_inc/build' ) )
-			.on( 'end', function() {
-				log( 'Your other JS is now uglified!' );
-			} );
-
-		doSass( function() {
-			if ( done ) {
-				doStatic( done );
-			} else {
-				doStatic();
-			}
-		} );
-	};
-}
-
-function getWebpackConfig() {
-	return Object.create( require( './webpack.config.js' ) );
-}
-
-function doSass( done ) {
-	if ( arguments.length && typeof arguments[ 0 ] !== 'function' ) {
-		log( 'Sass file ' + arguments[ 0 ].path + ' changed.' );
-	}
-	log( 'Building Dashboard CSS bundle...' );
-	gulp.src( './_inc/client/scss/style.scss' )
-		.pipe( sass( { outputStyle: 'compressed' } ).on( 'error', sass.logError ) )
-		.pipe( banner( '/* Do not modify this file directly.  It is compiled SASS code. */\n' ) )
-		.pipe( autoprefixer( { browsers: [ 'last 2 versions', 'ie >= 8' ] } ) )
-		.pipe( rename( { suffix: '.min' } ) )
-		.pipe( gulp.dest( './_inc/build' ) )
-		.on( 'end', function() {
-			log( 'Dashboard CSS finished.' );
-			doRTL( 'main' );
-		} );
-	log( 'Building dops-components CSS bundle...' );
-	gulp.src( './_inc/build/*dops-style.css' )
-		.pipe( autoprefixer( 'last 2 versions', 'ie >= 8' ) )
-		.pipe( gulp.dest( './_inc/build' ) )
-		.on( 'end', function() {
-			log( 'dops-components CSS finished.' );
-			doRTL( 'dops', done );
-		} );
-}
-
-function doRTL( files, done ) {
-	gulp.src( 'main' === files ? './_inc/build/style.min.css' : './_inc/build/*dops-style.css' )
-		.pipe( rtlcss() )
-		.pipe( rename( { suffix: '.rtl' } ) )
-		.pipe( sourcemaps.init() )
-		.pipe( sourcemaps.write( './' ) )
-		.pipe( gulp.dest( './_inc/build' ) )
-		.on( 'end', function() {
-			log( 'main' === files ? 'Dashboard RTL CSS finished.' : 'DOPS Components RTL CSS finished.' );
-			if ( done && 'function' === typeof done ) {
-				done();
-			}
-		} );
-}
-
-gulp.task( 'sass:build', [ 'react:build' ], doSass );
+import {} from './tools/builder/react';
+import {} from './tools/builder/sass';
 
 gulp.task( 'sass:watch', function() {
-	doSass();
-	gulp.watch( [ './**/*.scss' ], doSass );
+	return gulp.watch( [ './**/*.scss' ], gulp.parallel( 'sass:dashboard', 'sass:dops', 'sass:old' ) );
 } );
-
-gulp.task( 'react:build', function( done ) {
-	const config = getWebpackConfig();
-
-	if ( 'production' !== process.env.NODE_ENV ) {
-		config.plugins.push(
-			new webpack.LoaderOptionsPlugin( {
-				debug: true
-			} )
-		);
-	}
-
-	webpack( config ).run( onBuild( done ) );
-} );
-
-gulp.task( 'react:watch', function() {
-	const config = getWebpackConfig();
-
-	webpack( config ).watch( 100, onBuild() );
-} );
-
-function doStatic( done ) {
-	let path;
-
-	const jsdom = require( 'jsdom' );
-
-	log( 'Building static HTML from built JS…' );
-
-	jsdom.env( '', function( err, window ) {
-		global.window = window;
-		global.document = window.document;
-		global.navigator = window.navigator;
-
-		window.Initial_State = {
-			dismissedNotices: [],
-			connectionStatus: {
-				devMode: {
-					isActive: false
-				}
-			},
-			userData: {
-				currentUser: {
-					permissions: {}
-				}
-			}
-		};
-
-		try {
-			path = __dirname + '/_inc/build/static.js';
-
-			delete require.cache[ path ]; // Making sure NodeJS requires this file every time this is called
-			require( path );
-
-			gulp.src( [ '_inc/build/static*' ] )
-				.pipe( tap( function( file ) {
-					fs.unlinkSync( file.path );
-				} ) )
-				.on( 'end', function() {
-					fs.writeFile( __dirname + '/_inc/build/static.html', window.staticHtml );
-					fs.writeFile( __dirname + '/_inc/build/static-noscript-notice.html', window.noscriptNotice );
-					fs.writeFile( __dirname + '/_inc/build/static-version-notice.html', window.versionNotice );
-					fs.writeFile( __dirname + '/_inc/build/static-ie-notice.html', window.ieNotice );
-
-					if ( done ) {
-						done();
-					}
-				} );
-		} catch ( error ) {
-			log( colors.yellow(
-				'Warning: gulp was unable to update static HTML files.\n\n' +
-				'If this is happening during watch, this warning is OK to dismiss: sometimes webpack fires watch handlers when source code is not yet built.'
-			) );
-		}
-	} );
-}
 
 gulp.task( 'old-styles:watch', function() {
-	gulp.watch( 'scss/**/*.scss', [ 'old-sass' ] );
-} );
-
-/*
-	Sass!
- */
-gulp.task( 'old-sass', function() {
-	return gulp.src( 'scss/**/*.scss' )
-		.pipe( sass( { outputStyle: 'expanded' } ).on( 'error', sass.logError ) )
-		.pipe( banner( '/*!\n' +
-			'* Do not modify this file directly.  It is compiled SASS code.\n' +
-			'*/\n'
-		) )
-		.pipe( autoprefixer() )
-		// Build *.css & sourcemaps
-		.pipe( sourcemaps.init() )
-		.pipe( sourcemaps.write( './' ) )
-		.pipe( rename( { dirname: 'css' } ) )
-		.pipe( gulp.dest( './' ) )
-		// Build *.min.css & sourcemaps
-		.pipe( cleanCSS( { compatibility: 'ie8' } ) )
-		.pipe( rename( { suffix: '.min' } ) )
-		.pipe( gulp.dest( './' ) )
-		.pipe( sourcemaps.write( '.' ) )
-		.on( 'end', function() {
-			log( 'Global admin CSS finished.' );
-		} );
-} );
-
-/*
-    Sass! (RTL)
- */
-gulp.task( 'old-sass:rtl', function() {
-	return gulp.src( 'scss/*.scss' )
-		.pipe( sass( { outputStyle: 'expanded' } ).on( 'error', sass.logError ) )
-		.pipe( banner( '/*!\n' +
-			'* Do not modify this file directly.  It is compiled SASS code.\n' +
-			'*/\n'
-		) )
-		.pipe( autoprefixer() )
-		// Build *-rtl.css & sourcemaps
-		.pipe( rtlcss() )
-		.pipe( rename( { suffix: '-rtl' } ) )
-		.pipe( sourcemaps.init() )
-		.pipe( sourcemaps.write( './' ) )
-		.pipe( rename( { dirname: 'css' } ) )
-		.pipe( gulp.dest( './' ) )
-		// Build *-rtl.min.css
-		.pipe( cleanCSS( { compatibility: 'ie8' } ) )
-		.pipe( rename( { suffix: '.min' } ) )
-		.pipe( gulp.dest( './' ) )
-		// Finished
-		.on( 'end', function() {
-			log( 'Global admin RTL CSS finished.' );
-		} );
+	return gulp.watch( 'scss/**/*.scss', gulp.parallel( 'old-styles' ) );
 } );
 
 /*
@@ -430,7 +143,7 @@ gulp.task( 'languages:get', function( callback ) {
 	} );
 } );
 
-gulp.task( 'languages:build', [ 'languages:get' ], function( done ) {
+gulp.task( 'languages:build', gulp.series( 'languages:get', function( done ) {
 	let terms = [];
 	const instream = fs.createReadStream( './_inc/jetpack-strings.php' );
 	const outstream = new Stream;
@@ -483,7 +196,7 @@ gulp.task( 'languages:build', [ 'languages:get' ], function( done ) {
 			.pipe( gulp.dest( 'languages/json/' ) )
 			.on( 'end', done );
 	} );
-} );
+} ) );
 
 gulp.task( 'php:module-headings', function( callback ) {
 	const process = spawn(
@@ -507,7 +220,7 @@ gulp.task( 'php:module-headings', function( callback ) {
 	} );
 } );
 
-gulp.task( 'languages:cleanup', [ 'languages:build' ], function( done ) {
+gulp.task( 'languages:cleanup', gulp.series( 'languages:build', function( done ) {
 	const language_packs = [];
 
 	request(
@@ -532,7 +245,7 @@ gulp.task( 'languages:cleanup', [ 'languages:build' ], function( done ) {
 			} );
 		}
 	);
-} );
+} ) );
 
 gulp.task( 'languages:extract', function( done ) {
 	const paths = [];
@@ -580,28 +293,28 @@ gulp.task( 'gutenpack:watch', function() {
 	return gulp.watch( [ '**/*/*block.jsx' ], [ 'gutenpack' ] );
 } );
 
+gulp.task(
+	'old-styles',
+	gulp.parallel( 'frontendcss', 'admincss', 'admincss:rtl', 'sass:old' )
+);
+gulp.task( 'jshint', gulp.parallel( 'js:hint' ) );
+gulp.task( 'php', gulp.parallel( 'php:lint', 'php:unit' ) );
+gulp.task( 'checkstrings', gulp.parallel( 'check:DIR' ) );
+
 // Default task
 gulp.task(
 	'default',
-	[ 'react:build', 'old-styles', 'checkstrings', 'php:lint', 'js:hint', 'php:module-headings', 'gutenpack' ]
+	gulp.parallel( 'sass:build', 'old-styles', 'checkstrings', 'php:lint', 'js:hint', 'php:module-headings', 'gutenpack' )
 );
 gulp.task(
 	'watch',
-	[ 'react:watch', 'sass:watch', 'old-styles:watch', 'gutenpack:watch' ]
+	gulp.parallel( 'react:watch', 'sass:watch', 'old-styles:watch', 'gutenpack:watch' )
 );
 
-gulp.task( 'jshint', [ 'js:hint' ] );
-gulp.task( 'php', [ 'php:lint', 'php:unit' ] );
-gulp.task( 'checkstrings', [ 'check:DIR' ] );
-
-gulp.task(
-	'old-styles',
-	[ 'frontendcss', 'admincss', 'admincss:rtl', 'old-sass', 'old-sass:rtl' ]
-);
 gulp.task(
 	'languages',
-	[ 'languages:get', 'languages:build', 'languages:cleanup', 'languages:extract' ]
+	gulp.parallel( 'languages:get', 'languages:build', 'languages:cleanup', 'languages:extract' )
 );
 
 // travis CI tasks.
-gulp.task( 'travis:js', [ 'js:hint', 'js:qunit' ] );
+gulp.task( 'travis:js', gulp.parallel( 'js:hint', 'js:qunit' ) );
