@@ -4558,9 +4558,9 @@ husky@^0.14.3:
     normalize-path "^1.0.0"
     strip-indent "^2.0.0"
 
-"i18n-calypso@github:automattic/i18n-calypso":
-  version "1.9.0"
-  resolved "https://codeload.github.com/automattic/i18n-calypso/tar.gz/a6e9fce235b4759eda4cc48dc0d2acdd7dba1545"
+i18n-calypso@^1.9.1:
+  version "1.9.1"
+  resolved "https://registry.yarnpkg.com/i18n-calypso/-/i18n-calypso-1.9.1.tgz#56eee2a6f4f6b1f6dae421a939c68df400a2234f"
   dependencies:
     async "^1.5.2"
     commander "^2.9.0"
