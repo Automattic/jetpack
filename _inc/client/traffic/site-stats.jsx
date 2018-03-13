@@ -107,6 +107,14 @@ class SiteStatsComponent extends React.Component {
 		} );
 	};
 
+	handleRoleToggleChange = ( role, setting ) => {
+		return () => this.updateOptions( role, setting );
+	}
+
+	handleModuleToggle = ( option_slug ) => {
+		return module_slug => this.props.updateFormStateModuleOption( module_slug, option_slug );
+	}
+
 	render() {
 		const stats = this.props.getModule( 'stats' ),
 			isStatsActive = this.props.getOptionValue( 'stats' ),
@@ -169,7 +177,7 @@ class SiteStatsComponent extends React.Component {
 								disabled={ ! isStatsActive || unavailableInDevMode }
 								activated={ !! this.props.getOptionValue( 'admin_bar' ) }
 								toggling={ this.props.isSavingAnyOption( [ 'stats', 'admin_bar' ] ) }
-								toggleModule={ m => this.props.updateFormStateModuleOption( m, 'admin_bar' ) }
+								toggleModule={ this.handleModuleToggle( 'admin_bar' ) }
 							>
 								<span className="jp-form-toggle-explanation">
 									{
@@ -182,7 +190,7 @@ class SiteStatsComponent extends React.Component {
 								disabled={ ! isStatsActive || unavailableInDevMode }
 								activated={ !! this.props.getOptionValue( 'hide_smile' ) }
 								toggling={ this.props.isSavingAnyOption( [ 'stats', 'hide_smile' ] ) }
-								toggleModule={ m => this.props.updateFormStateModuleOption( m, 'hide_smile' ) }
+								toggleModule={ this.handleModuleToggle( 'hide_smile' ) }
 							>
 								<span className="jp-form-toggle-explanation">
 									{
@@ -203,7 +211,7 @@ class SiteStatsComponent extends React.Component {
 									<CompactFormToggle
 										checked={ this.state[ `count_roles_${ key }` ] }
 										disabled={ ! isStatsActive || unavailableInDevMode || this.props.isSavingAnyOption( [ 'stats', 'count_roles' ] ) }
-										onChange={ () => this.updateOptions( key, 'count_roles' ) }
+										onChange={ this.handleRoleToggleChange( key, 'count_roles' ) }
 										key={ `count_roles-${ key }` }>
 											<span className="jp-form-toggle-explanation">
 												{ siteRoles[ key ].name }
@@ -227,7 +235,7 @@ class SiteStatsComponent extends React.Component {
 										<CompactFormToggle
 											checked={ this.state[ `roles_${ key }` ] }
 											disabled={ ! isStatsActive || unavailableInDevMode || this.props.isSavingAnyOption( [ 'stats', 'roles' ] ) }
-											onChange={ () => this.updateOptions( key, 'roles' ) }
+											onChange={ this.handleRoleToggleChange( key, 'roles' ) }
 											key={ `roles-${ key }` }>
 												<span className="jp-form-toggle-explanation">
 													{ siteRoles[ key ].name }

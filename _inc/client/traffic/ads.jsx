@@ -50,6 +50,10 @@ export const Ads = moduleSettingsForm( class extends React.Component {
 		analytics.tracks.recordJetpackClick( 'view-earnings' );
 	};
 
+	handleChange = setting => {
+		return () => this.updateOptions( setting );
+	};
+
 	render() {
 		const isAdsActive = this.props.getOptionValue( 'wordads' );
 		const unavailableInDevMode = this.props.isUnavailableInDevMode( 'wordads' );
@@ -91,7 +95,7 @@ export const Ads = moduleSettingsForm( class extends React.Component {
 						<CompactFormToggle
 							checked={ this.state.wordads_display_front_page }
 							disabled={ ! isAdsActive || unavailableInDevMode || this.props.isSavingAnyOption( [ 'wordads', 'wordads_display_front_page' ] ) }
-							onChange={ () => this.updateOptions( 'wordads_display_front_page' ) }>
+							onChange={ this.handleChange( 'wordads_display_front_page' ) }>
 							<span className="jp-form-toggle-explanation">
 								{ __( 'Front page' ) }
 							</span>
@@ -99,7 +103,7 @@ export const Ads = moduleSettingsForm( class extends React.Component {
 						<CompactFormToggle
 							checked={ this.state.wordads_display_post }
 							disabled={ ! isAdsActive || unavailableInDevMode || this.props.isSavingAnyOption( [ 'wordads', 'wordads_display_post' ] ) }
-							onChange={ () => this.updateOptions( 'wordads_display_post' ) }>
+							onChange={ this.handleChange( 'wordads_display_post' ) }>
 							<span className="jp-form-toggle-explanation">
 								{ __( 'Posts' ) }
 							</span>
@@ -107,7 +111,7 @@ export const Ads = moduleSettingsForm( class extends React.Component {
 						<CompactFormToggle
 							checked={ this.state.wordads_display_page }
 							disabled={ ! isAdsActive || unavailableInDevMode || this.props.isSavingAnyOption( [ 'wordads', 'wordads_display_page' ] ) }
-							onChange={ () => this.updateOptions( 'wordads_display_page' ) }>
+							onChange={ this.handleChange( 'wordads_display_page' ) }>
 							<span className="jp-form-toggle-explanation">
 								{ __( 'Pages' ) }
 							</span>
@@ -115,7 +119,7 @@ export const Ads = moduleSettingsForm( class extends React.Component {
 						<CompactFormToggle
 							checked={ this.state.wordads_display_archive }
 							disabled={ ! isAdsActive || unavailableInDevMode || this.props.isSavingAnyOption( [ 'wordads', 'wordads_display_archive' ] ) }
-							onChange={ () => this.updateOptions( 'wordads_display_archive' ) }>
+							onChange={ this.handleChange( 'wordads_display_archive' ) }>
 							<span className="jp-form-toggle-explanation">
 								{ __( 'Archives' ) }
 							</span>
@@ -126,7 +130,7 @@ export const Ads = moduleSettingsForm( class extends React.Component {
 						<CompactFormToggle
 							checked={ this.state.enable_header_ad }
 							disabled={ ! isAdsActive || unavailableInDevMode || this.props.isSavingAnyOption( [ 'wordads', 'enable_header_ad' ] ) }
-							onChange={ () => this.updateOptions( 'enable_header_ad' ) }>
+							onChange={ this.handleChange( 'enable_header_ad' ) }>
 							<span className="jp-form-toggle-explanation">
 								{ __( 'Top of each page' ) }
 							</span>
@@ -134,7 +138,7 @@ export const Ads = moduleSettingsForm( class extends React.Component {
 						<CompactFormToggle
 							checked={ this.state.wordads_second_belowpost }
 							disabled={ ! isAdsActive || unavailableInDevMode || this.props.isSavingAnyOption( [ 'wordads', 'wordads_second_belowpost' ] ) }
-							onChange={ () => this.updateOptions( 'wordads_second_belowpost' ) }>
+							onChange={ this.handleChange( 'wordads_second_belowpost' ) }>
 							<span className="jp-form-toggle-explanation">
 								{ __( 'Second ad below post' ) }
 							</span>

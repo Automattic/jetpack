@@ -44,6 +44,14 @@ class RelatedPostsComponent extends React.Component {
 		);
 	};
 
+	handleShowHeadlineToggleChange = () => {
+		this.updateOptions( 'show_headline' );
+	};
+
+	handleShowThumbnailsToggleChange = () => {
+		this.updateOptions( 'show_thumbnails' );
+	};
+
 	render() {
 		const isRelatedPostsActive = this.props.getOptionValue( 'related-posts' ),
 			unavailableInDevMode = this.props.isUnavailableInDevMode( 'related-posts' );
@@ -70,7 +78,7 @@ class RelatedPostsComponent extends React.Component {
 						<CompactFormToggle
 									checked={ this.state.show_headline }
 									disabled={ ! isRelatedPostsActive || unavailableInDevMode || this.props.isSavingAnyOption( [ 'related-posts', 'show_headline' ] ) }
-									onChange={ () => this.updateOptions( 'show_headline' ) }>
+									onChange={ this.handleShowHeadlineToggleChange }>
 									<span className="jp-form-toggle-explanation">
 										{
 											__( 'Show a "Related" header to more clearly separate the related section from posts' )
@@ -80,7 +88,7 @@ class RelatedPostsComponent extends React.Component {
 						<CompactFormToggle
 									checked={ this.state.show_thumbnails }
 									disabled={ ! isRelatedPostsActive || unavailableInDevMode || this.props.isSavingAnyOption( [ 'related-posts', 'show_thumbnails' ] ) }
-									onChange={ () => this.updateOptions( 'show_thumbnails' ) }>
+									onChange={ this.handleShowThumbnailsToggleChange }>
 									<span className="jp-form-toggle-explanation">
 										{
 											__( 'Use a large and visually striking layout' )

@@ -25,6 +25,14 @@ export class Navigation extends React.Component {
 		} );
 	};
 
+	trackDashboardClick = () => {
+		this.trackNavClick( 'dashboard' );
+	};
+
+	trackPlansClick = () => {
+		this.trackNavClick( 'dashboard' );
+	};
+
 	render() {
 		let navTabs;
 		if ( this.props.userCanManageModules ) {
@@ -32,13 +40,13 @@ export class Navigation extends React.Component {
 				<NavTabs selectedText={ this.props.route.name }>
 					<NavItem
 						path="#/dashboard"
-						onClick={ () => this.trackNavClick( 'dashboard' ) }
+						onClick={ this.trackDashboardClick }
 						selected={ ( this.props.route.path === '/dashboard' ) || ( this.props.route.path === '/' ) }>
 						{ __( 'At a Glance', { context: 'Navigation item.' } ) }
 					</NavItem>
 					<NavItem
 						path="#/plans"
-						onClick={ () => this.trackNavClick( 'plans' ) }
+						onClick={ this.trackPlansClick }
 						selected={ this.props.route.path === '/plans' }>
 						{ __( 'Plans', { context: 'Navigation item.' } ) }
 					</NavItem>

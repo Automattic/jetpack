@@ -21,6 +21,10 @@ import {
 class DismissableNotices extends React.Component {
 	static displayName = 'DismissableNotices';
 
+	dismissJetpackActionNotice = () => {
+		this.props.dismissJetpackActionNotice( this.props.jetpackNotices );
+	};
+
 	renderNotices = () => {
 		const notices = this.props.jetpackNotices;
 
@@ -32,7 +36,7 @@ class DismissableNotices extends React.Component {
 				return (
 					<div>
 						<SimpleNotice
-							onDismissClick={ this.props.dismissJetpackActionNotice.bind( null, notices ) }
+							onDismissClick={ this.dismissJetpackActionNotice }
 						>
 							{ __( 'You have successfully disconnected Jetpack' ) }
 							<br />
