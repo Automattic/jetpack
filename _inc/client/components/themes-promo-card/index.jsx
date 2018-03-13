@@ -61,7 +61,7 @@ class ThemesPromoCard extends React.Component {
 						<h3 className="jp-apps-card__header">{ __( 'Introducing Unlimited Themes' ) }</h3>
 						{ __(
 							'{{subhead}}Only with Jetpack Professional{{/subhead}}' +
-							'{{p}}Protect your site and work with Jetpack Personal: daily automated backups, unlimited storage, and expert priority support. Security essentials for every WordPress site starting from $3.50.{{/p}}' +
+							'{{p}}Protect your site and work with Jetpack Professional: daily automated backups, unlimited storage, and expert priority support. Security essentials for every WordPress site starting from $3.50.{{/p}}' +
 							'{{p}}Or go Pro with more than 200 Premium Themes, business class security, unlimited video hosting, monetization, marketing automation, and SEO tools.{{/p}}',
 							{
 								components: {
