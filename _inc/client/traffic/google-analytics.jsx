@@ -13,6 +13,7 @@ import { FEATURE_GOOGLE_ANALYTICS_JETPACK } from 'lib/plans/constants';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import JetpackBanner from 'components/jetpack-banner';
 
 export const GoogleAnalytics = moduleSettingsForm(
 	class extends Component {
@@ -21,6 +22,16 @@ export const GoogleAnalytics = moduleSettingsForm(
 		}
 
 		render() {
+			// If this module has been forced inactive, let the user know
+			if ( 'inactive' === this.props.getModuleOverride( 'google-analytics' ) ) {
+				return (
+					<JetpackBanner
+						title={ __( 'Google Analytics' ) }
+						icon="cog"
+						description={ __( 'Google Analytics has been disabled by an administrator.' ) } />
+				);
+			}
+
 			return (
 				<SettingsCard
 					{ ...this.props }

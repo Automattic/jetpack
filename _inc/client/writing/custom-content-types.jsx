@@ -45,7 +45,9 @@ export class CustomContentTypes extends React.Component {
 			return null;
 		}
 
-		const module = this.props.module( 'custom-content-types' );
+		const module = this.props.module( 'custom-content-types' ),
+			toggleDisabledbyOverride = 'inactive' === this.props.getModuleOverride( 'custom-content-types' );
+
 		return (
 			<SettingsCard
 				{ ...this.props }
@@ -54,7 +56,7 @@ export class CustomContentTypes extends React.Component {
 				<SettingsGroup hasChild module={ module } support={ module.learn_more_button }>
 					<CompactFormToggle
 								checked={ this.state.testimonial }
-								disabled={ this.props.isSavingAnyOption( 'jetpack_testimonial' ) }
+								disabled={ this.props.isSavingAnyOption( 'jetpack_testimonial' ) || toggleDisabledbyOverride }
 								onChange={ () => this.updateCPTs( 'testimonial' ) }>
 						<span className="jp-form-toggle-explanation">
 							{
@@ -77,7 +79,7 @@ export class CustomContentTypes extends React.Component {
 					</FormFieldset>
 					<CompactFormToggle
 								checked={ this.state.portfolio }
-								disabled={ this.props.isSavingAnyOption( 'jetpack_portfolio' ) }
+								disabled={ this.props.isSavingAnyOption( 'jetpack_portfolio' ) || toggleDisabledbyOverride }
 								onChange={ () => this.updateCPTs( 'portfolio' ) }>
 						<span className="jp-form-toggle-explanation">
 							{

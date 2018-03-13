@@ -78,7 +78,7 @@ export const Ads = moduleSettingsForm( class extends React.Component {
 
 					<ModuleToggle
 						slug="wordads"
-						disabled={ unavailableInDevMode }
+						disabled={ unavailableInDevMode || !! this.props.getModuleOverride( 'wordads' ) }
 						activated={ isAdsActive }
 						toggling={ this.props.isSavingAnyOption( 'wordads' ) }
 						toggleModule={ this.props.toggleModuleNow }>

@@ -55,7 +55,7 @@ class RelatedPostsComponent extends React.Component {
 				<SettingsGroup hasChild disableInDevMode module={ this.props.getModule( 'related-posts' ) }>
 					<ModuleToggle
 						slug="related-posts"
-						disabled={ unavailableInDevMode }
+						disabled={ unavailableInDevMode || !! this.props.getModuleOverride( 'related-posts' ) }
 						activated={ isRelatedPostsActive }
 						toggling={ this.props.isSavingAnyOption( 'related-posts' ) }
 						toggleModule={ this.props.toggleModuleNow }

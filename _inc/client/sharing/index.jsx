@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 /**
  * Internal dependencies
  */
-import { getModule } from 'state/modules';
+import { getModule, getModuleOverride } from 'state/modules';
 import { getSettings } from 'state/settings';
 import { isDevMode, isUnavailableInDevMode, isCurrentUserLinked, getConnectUrl } from 'state/connection';
 import { isModuleFound as _isModuleFound } from 'state/search';
@@ -30,6 +30,7 @@ class Sharing extends Component {
 			siteRawUrl: this.props.siteRawUrl,
 			siteAdminUrl: this.props.siteAdminUrl,
 			userCanManageModules: this.props.userCanManageModules,
+			getModuleOverride: this.props.getModuleOverride,
 		};
 
 		const foundPublicize = this.props.isModuleFound( 'publicize' ),
@@ -90,6 +91,7 @@ export default connect(
 			siteRawUrl: getSiteRawUrl( state ),
 			siteAdminUrl: getSiteAdminUrl( state ),
 			userCanManageModules: userCanManageModules( state ),
+			getModuleOverride: module_name => getModuleOverride( state, module_name ),
 		};
 	}
 )( Sharing );

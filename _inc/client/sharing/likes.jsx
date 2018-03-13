@@ -16,7 +16,8 @@ export const Likes = moduleSettingsForm(
 	class extends Component {
 		render() {
 			const unavailableInDevMode = this.props.isUnavailableInDevMode( 'likes' ),
-				isActive = this.props.getOptionValue( 'likes' );
+				isActive = this.props.getOptionValue( 'likes' ),
+				override = this.props.getModuleOverride( 'likes' );
 
 			return (
 				<SettingsCard
@@ -27,7 +28,7 @@ export const Likes = moduleSettingsForm(
 					<SettingsGroup disableInDevMode module={ { module: 'likes' } } support="https://jetpack.com/support/likes/">
 						<ModuleToggle
 							slug="likes"
-							disabled={ unavailableInDevMode }
+							disabled={ unavailableInDevMode || !! override }
 							activated={ isActive }
 							toggling={ this.props.isSavingAnyOption( 'likes' ) }
 							toggleModule={ this.props.toggleModuleNow }>

@@ -64,6 +64,7 @@ class Jetpack_Admin {
 		$active_modules    = Jetpack::get_active_modules();
 		$modules           = array();
 		$jetpack_active = Jetpack::is_active() || Jetpack::is_development_mode();
+		$overrides = Jetpack_Modules_Overrides::instance();
 		foreach ( $available_modules as $module ) {
 			if ( $module_array = Jetpack::get_module( $module ) ) {
 				/**
@@ -91,6 +92,7 @@ class Jetpack_Admin {
 				$module_array['available']         = self::is_module_available( $module_array );
 				$module_array['short_description'] = $short_desc_trunc;
 				$module_array['configure_url']     = Jetpack::module_configuration_url( $module );
+				$module_array['override']          = $overrides->get_module_override( $module );
 
 				ob_start();
 				/**

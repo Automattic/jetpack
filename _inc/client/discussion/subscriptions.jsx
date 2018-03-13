@@ -48,7 +48,8 @@ class SubscriptionsComponent extends React.Component {
 	render() {
 		const subscriptions = this.props.getModule( 'subscriptions' ),
 			isSubscriptionsActive = this.props.getOptionValue( 'subscriptions' ),
-			unavailableInDevMode = this.props.isUnavailableInDevMode( 'subscriptions' );
+			unavailableInDevMode = this.props.isUnavailableInDevMode( 'subscriptions' ),
+			override = this.props.getModule( 'subscriptions' );
 
 		const getSubClickableCard = () => {
 			if ( unavailableInDevMode || ! isSubscriptionsActive ) {
@@ -68,7 +69,7 @@ class SubscriptionsComponent extends React.Component {
 				<SettingsGroup hasChild disableInDevMode module={ subscriptions }>
 					<ModuleToggle
 						slug="subscriptions"
-						disabled={ unavailableInDevMode }
+						disabled={ unavailableInDevMode || !! override }
 						activated={ isSubscriptionsActive }
 						toggling={ this.props.isSavingAnyOption( 'subscriptions' ) }
 						toggleModule={ this.props.toggleModuleNow }>

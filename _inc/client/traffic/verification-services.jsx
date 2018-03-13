@@ -26,6 +26,16 @@ class VerificationServicesComponent extends React.Component {
 	render() {
 		const verification = this.props.getModule( 'verification-tools' );
 
+		// If the module has been forced off via filter, let the user know and don't allow activation.
+		if ( 'inactive' === this.props.getModuleOverride( 'verification-tools' ) ) {
+			return (
+				<JetpackBanner
+					title={ verification.name }
+					icon="cog"
+					description={ __( 'Site verification tools have been disabled by an administrator.' ) } />
+			);
+		}
+
 		// Show one-way activation banner if not active
 		if ( ! this.props.getOptionValue( 'verification-tools' ) ) {
 			return (

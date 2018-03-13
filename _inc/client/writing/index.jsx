@@ -14,7 +14,7 @@ import { getSettings } from 'state/settings';
 import { userCanManageModules } from 'state/initial-state';
 import { isDevMode, isUnavailableInDevMode, isCurrentUserLinked } from 'state/connection';
 import { userCanEditPosts } from 'state/initial-state';
-import { isModuleActivated } from 'state/modules';
+import { isModuleActivated, getModuleOverride } from 'state/modules';
 import { isModuleFound } from 'state/search';
 import { getConnectUrl } from 'state/connection';
 import QuerySite from 'components/data/query-site';
@@ -36,7 +36,8 @@ export class Writing extends React.Component {
 			getModule: this.props.module,
 			isDevMode: this.props.isDevMode,
 			isUnavailableInDevMode: this.props.isUnavailableInDevMode,
-			isLinked: this.props.isLinked
+			isLinked: this.props.isLinked,
+			getModuleOverride: this.props.getModuleOverride
 		};
 
 		const found = [
@@ -117,6 +118,7 @@ export default connect(
 			isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name ),
 			userCanEditPosts: userCanEditPosts( state ),
 			isModuleActivated: module_name => isModuleActivated( state, module_name ),
+			getModuleOverride: module_name => getModuleOverride( state, module_name ),
 			isLinked: isCurrentUserLinked( state ),
 			userCanManageModules: userCanManageModules( state ),
 			isModuleFound: module_name => isModuleFound( state, module_name ),

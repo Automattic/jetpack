@@ -7,7 +7,7 @@ import { connect } from 'react-redux';
 /**
  * Internal dependencies
  */
-import { getModule } from 'state/modules';
+import { getModule, getModuleOverride } from 'state/modules';
 import { getSettings } from 'state/settings';
 import { isDevMode, isUnavailableInDevMode } from 'state/connection';
 import { isModuleFound } from 'state/search';
@@ -31,7 +31,8 @@ export class Traffic extends React.Component {
 			siteRawUrl: this.props.siteRawUrl,
 			getModule: this.props.module,
 			isDevMode: this.props.isDevMode,
-			isUnavailableInDevMode: this.props.isUnavailableInDevMode
+			isUnavailableInDevMode: this.props.isUnavailableInDevMode,
+			getModuleOverride: this.props.getModuleOverride
 		};
 
 		const foundSeo = this.props.isModuleFound( 'seo-tools' ),
@@ -138,6 +139,7 @@ export default connect(
 			settings: getSettings( state ),
 			isDevMode: isDevMode( state ),
 			isUnavailableInDevMode: module_name => isUnavailableInDevMode( state, module_name ),
+			getModuleOverride: module_name => getModuleOverride( state, module_name ),
 			isModuleFound: ( module_name ) => isModuleFound( state, module_name ),
 			lastPostUrl: getLastPostUrl( state )
 		};

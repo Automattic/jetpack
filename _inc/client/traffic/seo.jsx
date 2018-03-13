@@ -13,6 +13,7 @@ import { FEATURE_SEO_TOOLS_JETPACK } from 'lib/plans/constants';
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
+import JetpackBanner from 'components/jetpack-banner';
 
 class SeoComponent extends React.Component {
 	trackConfigureClick = () => {
@@ -20,6 +21,16 @@ class SeoComponent extends React.Component {
 	};
 
 	render() {
+		// If this module has been forced inactive, let the user know
+		if ( 'inactive' === this.props.getModuleOverride( 'seo-tools' ) ) {
+			return (
+				<JetpackBanner
+					title={ __( 'Search engine optimization' ) }
+					icon="cog"
+					description={ __( 'SEO tools have been disabled by an administrator.' ) } />
+			);
+		}
+
 		return (
 			<SettingsCard
 				{ ...this.props }
