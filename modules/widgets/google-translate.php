@@ -88,14 +88,14 @@ class Jetpack_Google_Translate_Widget extends WP_Widget {
 			 *
 			 * @param string $layout layout of the Google Translate Widget.
 			 */
-			$button_layout = apply_filters( 'jetpack_google_translate_widget_layout', 2 );
+			$button_layout = apply_filters( 'jetpack_google_translate_widget_layout', 0 );
 
 			if (
 				! is_int( $button_layout )
 				|| 0 > $button_layout
 				|| 2 < $button_layout
 			) {
-				$button_layout = 2;
+				$button_layout = 0;
 			}
 
 			wp_localize_script(
