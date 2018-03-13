@@ -1,5 +1,10 @@
 version: '3.3'
 
+
+volumes:
+  ## Kludge for not having the ./docker directory bound recursively
+  dockerdirectory:
+
 services:
   ## A default mysql image
   ## We map a local directory (data/mysql) so we can have the mysql data locally
@@ -34,9 +39,7 @@ services:
     image: atmoz/sftp
     volumes:
       - ..:/home/wordpress/var/www/html/wp-content/plugins/jetpack
-      ## Kludge for not having docker contain recursive stuff
-      ## You will see on your filesystem that this dir gets created
-      - ./.dumb-directory-for-mapping-docker-directory:/home/wordpress/var/www/html/wp-content/plugins/jetpack/docker
+      - dockerdirectory:/home/wordpress/var/www/html/wp-content/plugins/jetpack/docker
       - ./mu-plugins:/home/wordpress/var/www/html/wp-content/mu-plugins
       - ./wordpress:/home/wordpress/var/www/html
     ports:
