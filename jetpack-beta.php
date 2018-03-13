@@ -990,6 +990,8 @@ class Jetpack_Beta {
 			! Jetpack_Beta::is_on_stable() &&
 			( Jetpack_Beta::should_update_dev_to_master() || Jetpack_Beta::should_update_dev_version() )
 		) {
+			add_filter( 'upgrader_source_selection', array( 'Jetpack_Beta', 'check_for_main_file' ), 10, 2 );
+
 			// If response is false, don't alter the transient
 			$plugins[] = JETPACK_DEV_PLUGIN_FILE;
 		}
@@ -1077,6 +1079,29 @@ class Jetpack_Beta {
 			wp_mail( $admin_email, $subject, $message );
 
 		}
+	}
+
+	/**
+	 * This checks intends to fix errors in our build server when jetpack
+	 * @param $source
+	 * @param $remote_source
+	 *
+	 * @return WP_Error
+	 */
+	static function check_for_main_file( $source, $remote_source ) {
+		if ( $source === $remote_source . '/jetpack-dev/' ) {
+			if ( ! file_exists( $source. 'jetpack.php' ) ) {
+				return new WP_Error( 'plugin_file_does_not_exist', __( 'Main Plugin File does not exist', 'jetpack-beta' ) );
+			}
+			if ( ! file_exists( $source. '_inc/build/static.html' ) ) {
+				return new WP_Error( 'static_admin_page_does_not_exist', __( 'Static Admin Page File does not exist', 'jetpack-beta' ) );
+			}
+			if ( ! file_exists( $source. '_inc/build/admin.js' ) ) {
+				return new WP_Error( 'admin_page_does_not_exist', __( 'Admin Page File does not exist', 'jetpack-beta' ) );
+			}
+		}
+
+		return $source;
 	}
 }
 
