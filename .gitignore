@@ -3,3 +3,4 @@ svg/output/
 .idea/
 npm-debug.log
 build/
+package-lock.json
