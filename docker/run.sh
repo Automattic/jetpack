@@ -35,23 +35,24 @@ if [ ! -f /var/www/html/wp-config.php ]; then
 		(( i++ ))
 	done
 
-    echo "Setting other wp-config.php constants..."
-    wp --allow-root config set WP_DEBUG true --raw --type=constant
-    wp --allow-root config set WP_DEBUG_LOG true --raw --type=constant
-    wp --allow-root config set WP_DEBUG_DISPLAY false --raw --type=constant
+	echo "Setting other wp-config.php constants..."
+	wp --allow-root config set WP_DEBUG true --raw --type=constant
+	wp --allow-root config set WP_DEBUG_LOG true --raw --type=constant
+	wp --allow-root config set WP_DEBUG_DISPLAY false --raw --type=constant
 
-    # Respecting Dockerfile-forwarded environment variables
-    # Allow to be reverse-proxied from https
+	# Respecting Dockerfile-forwarded environment variables
+	# Allow to be reverse-proxied from https
 	wp --allow-root config set "_SERVER['HTTPS']" "isset( \$_SERVER['HTTP_X_FORWARDED_PROTO'] ) && \$_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https' ? 'on' : NULL" \
-			--raw \
-			--type=variable
+		--raw \
+		--type=variable
+
 	# Allow this installation to run on http or https.
-    wp --allow-root config set DOCKER_REQUEST_URL \
-		  "( ! empty( \$_SERVER['HTTPS'] ) ? 'https://' : 'http://' ) . ( ! empty( \$_SERVER['HTTP_HOST'] ) ? \$_SERVER['HTTP_HOST'] : 'localhost' )" \
-			--raw \
-			--type=constant
-    wp --allow-root config set WP_SITEURL "DOCKER_REQUEST_URL" --raw --type=constant
-    wp --allow-root config set WP_HOME "DOCKER_REQUEST_URL" --raw --type=constant
+	wp --allow-root config set DOCKER_REQUEST_URL \
+		"( ! empty( \$_SERVER['HTTPS'] ) ? 'https://' : 'http://' ) . ( ! empty( \$_SERVER['HTTP_HOST'] ) ? \$_SERVER['HTTP_HOST'] : 'localhost' )" \
+		--raw \
+		--type=constant
+	wp --allow-root config set WP_SITEURL "DOCKER_REQUEST_URL" --raw --type=constant
+	wp --allow-root config set WP_HOME "DOCKER_REQUEST_URL" --raw --type=constant
 fi
 
 # Copy single site htaccess if none is present
@@ -61,7 +62,7 @@ fi
 
 # If we don't have the wordpress test helpers, download them
 if [ ! -d /tmp/wordpress-develop/tests ]; then
-	 # Get latest WordPress unit-test helper files
+	# Get latest WordPress unit-test helper files
 	svn co \
 		https://develop.svn.wordpress.org/trunk/tests/phpunit/data \
 		/tmp/wordpress-develop/tests/phpunit/data \
@@ -72,7 +73,6 @@ if [ ! -d /tmp/wordpress-develop/tests ]; then
 		/tmp/wordpress-develop/tests/phpunit/includes \
 		--trust-server-cert \
 		--non-interactive
-
 fi
 
 # Create a wp-tests-config.php if there's none currently

@@ -30,7 +30,7 @@ function disable_plugin_deletion( $actions, $plugin_file, $plugin_data, $context
 			)
 		)
 	) {
-		unset( $actions['delete'] ) ;
+		unset( $actions['delete'] );
 	}
 	return $actions;
 }
