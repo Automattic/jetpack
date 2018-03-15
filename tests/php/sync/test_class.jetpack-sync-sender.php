@@ -203,7 +203,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->factory->post->create();
 		$this->sender->do_sync();
 
-		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_post_published' );
 
 		$this->assertTrue( $event->timestamp > $beginning_of_test );
 		$this->assertTrue( $event->timestamp < microtime( true ) );
@@ -216,7 +216,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 		$this->factory->post->create();
 		$this->sender->do_sync();
 
-		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_post_published' );
 
 		$this->assertEquals( $user_id, $event->user_id );
 	}
@@ -232,7 +232,7 @@ class WP_Test_Jetpack_Sync_Sender extends WP_Test_Jetpack_Sync_Base {
 
 		$after_sync = microtime( true );
 
-		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
+		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_post_published' );
 
 		$this->assertTrue( $event->sent_timestamp > $beginning_of_test );
 		$this->assertTrue( $event->sent_timestamp > $before_sync );
