@@ -1,26 +1,19 @@
 <?php
 
 class Jetpack_User_Event_Tracking {
-
-	private static $_cache = array();
 	public static $KEY = 'jetpack_event_tracking';
 
 	static function is_enabled( $user_id ) {
-		if ( isset( self::$_cache[ $user_id ] ) ) {
-			return self::$_cache[ $user_id ];
-		}
 		$user_tracking = get_user_meta( $user_id, self::$KEY, true );
 		if ( ! is_numeric( $user_tracking ) ) {
 			$user_tracking = self::default_value();
 		}
-		self::$_cache[ $user_id ] = (bool) $user_tracking;
 		return (bool) $user_tracking;
 	}
 
 	static function has_value( $user_id ) {
 		$user_tracking = get_user_meta( $user_id, self::$KEY, true );
 		if ( is_numeric( $user_tracking ) ) {
-			self::$_cache[ $user_id ] = (bool) $user_tracking;
 			return true;
 		}
 		return false;
@@ -41,7 +34,6 @@ class Jetpack_User_Event_Tracking {
 	}
 
 	static private function set( $user_id, $value ) {
-		self::$_cache[ $user_id ] = (bool) $value;
 		return update_user_meta( $user_id, self::$KEY, $value );
 	}
 
