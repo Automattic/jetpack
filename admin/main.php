@@ -25,7 +25,8 @@
 					</div>
 				</span>
 				<span class="dops-foldable-card__secondary">
-						<?php Jetpack_Beta_Admin::show_toggle_autoupdates(); ?>
+					<?php Jetpack_Beta_Admin::show_toggle_emails(); ?>
+					<?php Jetpack_Beta_Admin::show_toggle_autoupdates(); ?>
 				</span>
 			</div>
 			<div class="dops-foldable-card__content">

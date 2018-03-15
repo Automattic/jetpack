@@ -860,7 +860,6 @@ class Jetpack_Beta {
 			return false;
 		}
 
-
 		$updates = get_site_transient( 'update_plugins' );
 
 		if ( isset( $updates->response, $updates->response[ JETPACK_PLUGIN_FILE ] ) ) {
@@ -890,6 +889,10 @@ class Jetpack_Beta {
 
 	static function is_set_to_autoupdate() {
 		return get_option( 'jp_beta_autoupdate', false );
+	}
+
+	static function is_set_to_email_notifications() {
+		return get_option( 'jp_beta_email_notifications', true );
 	}
 
 	static function clear_autoupdate_cron() {
@@ -1023,7 +1026,7 @@ class Jetpack_Beta {
 			return $errors;
 		}
 
-		if ( $result && ! defined( 'JETPACK_BETA_SKIP_EMAIL' ) ) {
+		if ( $result && ! defined( 'JETPACK_BETA_SKIP_EMAIL' ) && self::is_set_to_email_notifications() ) {
 			$admin_email = get_site_option( 'admin_email' );
 
 			if ( empty( $admin_email ) ) {

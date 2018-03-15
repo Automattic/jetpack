@@ -70,7 +70,6 @@ class Jetpack_Beta_Admin {
 			$section = esc_html( $_GET['section'] );
 
 			Jetpack_Beta::install_and_activate( $branch, $section );
-			wp_safe_redirect( Jetpack_Beta::admin_url() );
 		}
 
 		// Update to the latest version
@@ -79,22 +78,33 @@ class Jetpack_Beta_Admin {
 			$section = esc_html( $_GET['section'] );
 
 			Jetpack_Beta::update_plugin( $branch, $section );
-			wp_safe_redirect( Jetpack_Beta::admin_url() );
 		}
 
 		// Toggle autoupdates
-		if ( wp_verify_nonce( $_GET['_nonce'], 'enable_autoupdates' ) && isset( $_GET['_action'] ) && 'toggle_enable_autoupdates' ==  $_GET['_action'] ) {
-
-			$autoupdate = (bool) get_option( 'jp_beta_autoupdate' );
-
-			update_option( 'jp_beta_autoupdate', ! $autoupdate );
+		if ( self::is_toggle_action( 'autoupdates' ) ) {
+			$autoupdate = (bool) Jetpack_Beta::is_set_to_autoupdate();
+			update_option( 'jp_beta_autoupdate', (int) ! $autoupdate );
 
 			if ( Jetpack_Beta::is_set_to_autoupdate() ) {
 				Jetpack_Beta::maybe_schedule_autoupdate();
 			}
-			wp_safe_redirect( Jetpack_Beta::admin_url() );
 		}
 
+		// Toggle email notifications
+		if ( self::is_toggle_action( 'email_notifications' ) ) {
+			$enable_email_notifications = (bool) Jetpack_Beta::is_set_to_email_notifications();
+			update_option( 'jp_beta_email_notifications', (int) ! $enable_email_notifications );
+		}
+		wp_safe_redirect( Jetpack_Beta::admin_url() );
+	}
+
+	static function is_toggle_action( $option ) {
+		return (
+			isset( $_GET['_nonce'] ) &&
+			wp_verify_nonce( $_GET['_nonce'], 'enable_' . $option ) &&
+			isset( $_GET['_action'] ) &&
+			'toggle_enable_' . $option === $_GET['_action']
+		);
 	}
 
 	static function render_banner() {
@@ -390,17 +400,28 @@ class Jetpack_Beta_Admin {
 
 	static function show_toggle_autoupdates() {
 		$autoupdate = (bool) Jetpack_Beta::is_set_to_autoupdate();
+		self::show_toggle( __( 'Autoupdates', 'jetpack-beta' ), 'autoupdates', $autoupdate );
+	}
 
+	static function show_toggle_emails() {
+		if ( ! Jetpack_Beta::is_set_to_autoupdate() || defined( 'JETPACK_BETA_SKIP_EMAIL' ) ) {
+			return;
+		}
+		$email_notification = (bool) Jetpack_Beta::is_set_to_email_notifications();
+		self::show_toggle( __( 'Email Notifications', 'jetpack-beta' ), 'email_notifications', $email_notification );
+	}
+
+	static function show_toggle( $name, $option, $value ) {
 		$query = array(
 			'page'          => 'jetpack-beta',
-			'_action'       => 'toggle_enable_autoupdates',
-			'_nonce'        => wp_create_nonce( 'enable_autoupdates' ),
+			'_action'       => 'toggle_enable_' . $option,
+			'_nonce'        => wp_create_nonce( 'enable_' . $option ),
 		);
 
 		?>
-		<a href="<?php echo esc_url( Jetpack_Beta::admin_url( '?' . build_query( $query ) ) ); ?>" class="form-toggle__label <?php echo ( $autoupdate ? 'is-active' : '' ); ?>"  >
-			<span class="form-toggle-explanation" ><?php _e( 'Autoupdates', 'jetpack-beta' ); ?></span>
-			<span class="form-toggle__switch"  tabindex="0" ></span>
+		<a href="<?php echo esc_url( Jetpack_Beta::admin_url( '?' . build_query( $query ) ) ); ?>" class="form-toggle__label <?php echo ( $value ? 'is-active' : '' ); ?>"  >
+			<span class="form-toggle-explanation" ><?php esc_html_e( $name ); ?></span>
+			<span class="form-toggle__switch" tabindex="0" ></span>
 			<span class="form-toggle__label-content" >
 			</span>
 		</a>

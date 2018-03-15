@@ -360,6 +360,7 @@ html {
 .form-toggle__label {
     text-decoration: none;
     color: #124964;
+    margin-left: 10px;
 }
 .form-toggle__label:focus {
     -webkit-box-shadow: none;
