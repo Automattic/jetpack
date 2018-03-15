@@ -7,17 +7,11 @@ set -e
 # If you modify anything here, remember to build the image again by running:
 # yarn docker:build
 
-# Configure PHP
-PHP_ERROR_REPORTING=${PHP_ERROR_REPORTING:-"E_ALL"}
-sed -ri 's/^display_errors\s*=\s*Off/display_errors = On/g' /etc/php/7.0/apache2/php.ini
-sed -ri 's/^display_errors\s*=\s*Off/display_errors = On/g' /etc/php/7.0/cli/php.ini
-sed -ri "s/^error_reporting\s*=.*$//g" /etc/php/7.0/apache2/php.ini
-sed -ri "s/^error_reporting\s*=.*$//g" /etc/php/7.0/cli/php.ini
-echo "error_reporting = $PHP_ERROR_REPORTING" >> /etc/php/7.0/apache2/php.ini
-echo "error_reporting = $PHP_ERROR_REPORTING" >> /etc/php/7.0/cli/php.ini
+user="${APACHE_RUN_USER:-www-data}"
+group="${APACHE_RUN_GROUP:-www-data}"
 
 # Download WordPress
-cd /var/www/html/ && [ -f /var/www/html/xmlrpc.php ] || wp --allow-root core download
+[ -f /var/www/html/xmlrpc.php ] || wp --allow-root core download
 
 # Configure WordPress
 if [ ! -f /var/www/html/wp-config.php ]; then
@@ -41,18 +35,24 @@ if [ ! -f /var/www/html/wp-config.php ]; then
 		(( i++ ))
 	done
 
-    echo "Setting other wp-config.php constants..."
-    wp --allow-root config set WP_DEBUG true --raw --type=constant
-    wp --allow-root config set WP_DEBUG_LOG true --raw --type=constant
-    wp --allow-root config set WP_DEBUG_DISPLAY false --raw --type=constant
+	echo "Setting other wp-config.php constants..."
+	wp --allow-root config set WP_DEBUG true --raw --type=constant
+	wp --allow-root config set WP_DEBUG_LOG true --raw --type=constant
+	wp --allow-root config set WP_DEBUG_DISPLAY false --raw --type=constant
 
-    # Respecting Dockerfile-forwarded environment variables
-    wp --allow-root config set DOCKER_REQUEST_URL \
-		  "( ! empty( \$_SERVER['HTTPS'] ) ? 'https://' : 'http://' ) . ( ! empty( \$_SERVER['HTTP_HOST'] ) ? \$_SERVER['HTTP_HOST'] : 'localhost' )" \
-			--raw \
-			--type=constant
-    wp --allow-root config set WP_SITEURL "DOCKER_REQUEST_URL" --raw --type=constant
-    wp --allow-root config set WP_HOME "DOCKER_REQUEST_URL" --raw --type=constant
+	# Respecting Dockerfile-forwarded environment variables
+	# Allow to be reverse-proxied from https
+	wp --allow-root config set "_SERVER['HTTPS']" "isset( \$_SERVER['HTTP_X_FORWARDED_PROTO'] ) && \$_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https' ? 'on' : NULL" \
+		--raw \
+		--type=variable
+
+	# Allow this installation to run on http or https.
+	wp --allow-root config set DOCKER_REQUEST_URL \
+		"( ! empty( \$_SERVER['HTTPS'] ) ? 'https://' : 'http://' ) . ( ! empty( \$_SERVER['HTTP_HOST'] ) ? \$_SERVER['HTTP_HOST'] : 'localhost' )" \
+		--raw \
+		--type=constant
+	wp --allow-root config set WP_SITEURL "DOCKER_REQUEST_URL" --raw --type=constant
+	wp --allow-root config set WP_HOME "DOCKER_REQUEST_URL" --raw --type=constant
 fi
 
 # Copy single site htaccess if none is present
@@ -62,7 +62,7 @@ fi
 
 # If we don't have the wordpress test helpers, download them
 if [ ! -d /tmp/wordpress-develop/tests ]; then
-	 # Get latest WordPress unit-test helper files
+	# Get latest WordPress unit-test helper files
 	svn co \
 		https://develop.svn.wordpress.org/trunk/tests/phpunit/data \
 		/tmp/wordpress-develop/tests/phpunit/data \
@@ -73,7 +73,6 @@ if [ ! -d /tmp/wordpress-develop/tests ]; then
 		/tmp/wordpress-develop/tests/phpunit/includes \
 		--trust-server-cert \
 		--non-interactive
-
 fi
 
 # Create a wp-tests-config.php if there's none currently
