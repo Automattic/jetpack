@@ -43,8 +43,8 @@ class Jetpack_User_Event_Tracking {
 		 *
 		 * @since 6.0.0
 		 *
-		 * @param bool Default to false. (user tracking enabled)
+		 * @param bool Default to true. (user tracking enabled)
 		 */
-		return apply_filters( 'jetpack_event_tracking', true );
+		return apply_filters( 'jetpack_user_event_tracking', true );
 	}
 }

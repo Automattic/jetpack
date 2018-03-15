@@ -29,7 +29,7 @@ class WP_Test_Jetpack_User_Event_Tracking extends WP_UnitTestCase {
 
 	public function test_filter_works_as_expected() {
 		// by default opt out every user
-		add_filter( 'jetpack_user_event_tracking_opt_out', '__return_true' );
+		add_filter( 'jetpack_user_event_tracking', '__return_false' );
 		$user_id = $this->factory->user->create();
 		$this->assertFalse( Jetpack_User_Event_Tracking::is_enabled( $user_id ) );
 	}
