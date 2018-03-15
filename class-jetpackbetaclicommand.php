@@ -30,11 +30,11 @@ if ( defined( 'WP_CLI' ) && WP_CLI ) {
 			if ( 'list' === $args[0] ) {
 				return $this->branches_list();
 			}
-				
-			if ( 'master' === $args[1] ) {
-				return $this->install_jetpack( 'master', 'master' );
-			} elseif ( 'stable' === $args[1] ) {
-				return $this->install_jetpack( 'stable', 'stable' );
+			
+			$branches = array( 'master', 'stable', 'rc' );
+
+			if ( in_array( $args[1], $branches)) {
+				return $this->install_jetpack( $args[1], $args[1] );
 			} else {
 				$branch_name = str_replace( '/', '_', $args[1] ); 
 				$url = Jetpack_Beta::get_install_url( $branch_name, 'pr' );

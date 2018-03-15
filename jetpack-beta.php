@@ -3,7 +3,7 @@
  * Plugin Name: Jetpack Beta Tester
  * Plugin URI: https://jetpack.com/beta/
  * Description: Use the Beta plugin to get a sneak peek at new features and test them on your site.
- * Version: 2.1.1
+ * Version: 2.2.0
  * Author: Automattic
  * Author URI: https://jetpack.com/
  * License: GPLv2 or later
