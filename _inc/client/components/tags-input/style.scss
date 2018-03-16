@@ -1,7 +1,6 @@
 .react-tagsinput {
 	border: 1px solid #e9eff3;
-	padding: rem( 5px );
-	height: rem( 30px );
+	padding: rem( 2.5px );
 }
 
 .react-tagsinput--focused {
@@ -15,8 +14,8 @@
 	color: #fff;
 	display: inline-block;
 	font-size: 13px;
-	padding: rem( 5px );
-	margin-right: rem( 5px );
+	padding: rem( 2px ) rem( 6px ) rem( 3px ) rem( 8px );
+	margin: rem( 2.5px );
 	transition: background-color .2s ease-out;
 
 	&:hover {
@@ -47,4 +46,8 @@ input[type=text].react-tagsinput-input {
 	vertical-align: middle;
 	border: none;
 	box-shadow: none;
+}
+
+input[type=text].react-tagsinput-input::-ms-clear {
+	display: none;
 }
