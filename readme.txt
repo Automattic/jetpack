@@ -104,6 +104,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
+* Removed SEO Tools from Jumpstart
+
 **Improved compatibility**
 
 **Bug fixes**
