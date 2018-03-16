@@ -15,10 +15,19 @@ class Jetpack_Admin {
 	private $jetpack;
 
 	static function init() {
+		if( $_GET['page'] === 'jetpack' ) {
+			add_filter( 'nocache_headers', array( 'Jetpack_Admin', 'add_no_store_header' ), 100 );
+		}
+
 		if ( is_null( self::$instance ) ) {
 			self::$instance = new Jetpack_Admin;
 		}
 		return self::$instance;
+	}
+
+	static function add_no_store_header( $headers ) {
+		$headers['Cache-Control'] .= ', no-store';
+		return $headers;
 	}
 
 	private function __construct() {
