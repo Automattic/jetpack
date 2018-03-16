@@ -92,9 +92,9 @@ class A8C_WPCOM_Masterbar {
 		 *
 		 * @since 5.9.0
 		 *
-		 * @param bool $masterbar_should_logout_from_wpcom False by default.
+		 * @param bool $masterbar_should_logout_from_wpcom True by default.
 		 */
-		$masterbar_should_logout_from_wpcom = apply_filters( 'jetpack_masterbar_should_logout_from_wpcom', false );
+		$masterbar_should_logout_from_wpcom = apply_filters( 'jetpack_masterbar_should_logout_from_wpcom', true );
 		if (
 			isset( $_GET['context'] ) &&
 			'masterbar' === $_GET['context'] &&
