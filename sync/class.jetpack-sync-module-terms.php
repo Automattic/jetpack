@@ -25,7 +25,8 @@ class Jetpack_Sync_Module_Terms extends Jetpack_Sync_Module {
 		if ( $posts_sync_module && $posts_sync_module->is_saving_post( $object_id ) ) {
 			return;
 		}
-		call_user_func_array( $this->callable, func_get_args() );
+		$args = func_get_args();
+		call_user_func_array( $this->callable, $args );
 	}
 
 	private function is_save_post() {
