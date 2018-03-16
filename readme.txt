@@ -104,7 +104,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Enhancements**
 
-* Removed SEO Tools from Jumpstart
+* SEO Tools: Removed SEO Tools from Jumpstart
+* VideoPress: Default to grid view when linking to upload videos
 
 **Improved compatibility**
 
