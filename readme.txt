@@ -112,6 +112,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Bug fixes**
 
 * Admin Page: Fixed Dashboard connection card from showing text that overflows the card.
+* Stats: Fixed column spacing styling issues in WP Dashboard box for Jetpack stats.
 
 = 5.8 =
 
