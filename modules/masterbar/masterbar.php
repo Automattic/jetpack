@@ -45,8 +45,6 @@ class A8C_WPCOM_Masterbar {
 			// override user setting that hides masterbar from site's front.
 			// https://github.com/Automattic/jetpack/issues/7667
 			add_filter( 'show_admin_bar', '__return_true' );
-			// Always sign out from .com from the masterbar
-			add_filter( 'jetpack_masterbar_should_logout_from_wpcom', '__return_true' );
 		}
 
 		$this->user_data = Jetpack::get_connected_user_data( $this->user_id );
