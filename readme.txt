@@ -111,6 +111,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Bug fixes**
 
+* Admin Page: Fixed Dashboard connection card from showing text that overflows the card.
+
 = 5.8 =
 
 * Release date: February 6, 2018
