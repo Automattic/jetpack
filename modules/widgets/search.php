@@ -7,14 +7,14 @@
  * @since      5.0.0
  */
 
-require_once JETPACK__PLUGIN_DIR . 'modules/search/class.jetpack-search-helpers.php';
-
 add_action( 'widgets_init', 'jetpack_search_widget_init' );
 
 function jetpack_search_widget_init() {
 	if ( ! Jetpack::is_active() || ! Jetpack::active_plan_supports( 'search' ) ) {
 		return;
 	}
+
+	require_once JETPACK__PLUGIN_DIR . 'modules/search/class.jetpack-search-helpers.php';
 
 	register_widget( 'Jetpack_Search_Widget' );
 }
