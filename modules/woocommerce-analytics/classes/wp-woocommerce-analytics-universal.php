@@ -316,10 +316,10 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		// if the referring post is not a product OR the product being added is not the same as post
 		// (eg. related product list on single product page) then include a product view event
 		if ( ! wc_get_product( $referer_postid ) || $product_id != $referer_postid ) {
-			$this->capture_event_in_session_data( $product_id, $quantity, 'woocommerceanalytics_product_view', $cart_item_key );
+			$this->capture_event_in_session_data( $product_id, $quantity, 'woocommerceanalytics_product_view' );
 		}
 		// add cart event to the session data
-		$this->capture_event_in_session_data( $product_id, $quantity, 'woocommerceanalytics_add_to_cart', $cart_item_key );
+		$this->capture_event_in_session_data( $product_id, $quantity, 'woocommerceanalytics_add_to_cart' );
 	}
 
 	/**
