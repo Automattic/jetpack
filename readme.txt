@@ -105,6 +105,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Enhancements**
 
 * Admin Page: Removed Javascript patterns previously used in the Admin Page that should improve performance lightly (bind pattern).
+* Admin Page: Moved the button for closing the Jumpstart modal closer to the dialog so it's more visible.
 * SEO Tools: Removed SEO Tools from Jumpstart
 * VideoPress: Default to grid view when linking to upload videos
 
