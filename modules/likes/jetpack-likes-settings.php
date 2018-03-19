@@ -218,7 +218,7 @@ class Jetpack_Likes_Settings {
 		$sitewide_likes_enabled = (bool) $this->is_enabled_sitewide();
 		$post_likes_switched    = (bool) get_post_meta( $post->ID, 'switch_like_status', true );
 
-		return $post_likes_switched xor $sitewide_likes_enabled;
+		return $post_likes_switched || $sitewide_likes_enabled;
 	}
 
 	/**
