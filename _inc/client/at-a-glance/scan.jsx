@@ -6,6 +6,8 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { numberFormat, translate as __ } from 'i18n-calypso';
 import { getPlanClass } from 'lib/plans/constants';
+import get from 'lodash/get';
+import includes from 'lodash/includes';
 
 /**
  * Internal dependencies
@@ -21,7 +23,6 @@ import { isDevMode } from 'state/connection';
 import { isFetchingSiteData } from 'state/site';
 import DashItem from 'components/dash-item';
 import isArray from 'lodash/isArray';
-import get from 'lodash/get';
 
 /**
  * Displays a card for Security Scan based on the props given.
@@ -48,6 +49,7 @@ const renderCard = ( props ) => (
 class DashScan extends Component {
 	static propTypes = {
 		siteRawUrl: PropTypes.string.isRequired,
+		rewindStatus: PropTypes.object,
 
 		// Connected props
 		vaultPressData: PropTypes.any.isRequired,
@@ -60,6 +62,7 @@ class DashScan extends Component {
 
 	static defaultProps = {
 		siteRawUrl: '',
+		rewindStatus: { state: 'unavailable' },
 		vaultPressData: '',
 		scanThreats: 0,
 		sitePlan: '',
@@ -154,11 +157,16 @@ class DashScan extends Component {
 			} );
 		}
 
+		const isRewindActive = includes(
+			[ 'active', 'provisioning', 'awaiting_credentials' ],
+			get( this.props.rewindStatus, [ 'state' ], '' )
+		);
+
 		return (
 			<div className="jp-dash-item__interior">
 				<QueryVaultPressData />
 				{
-					this.props.isRewindActive
+					isRewindActive
 						? (
 							<div className="jp-dash-item__interior">
 								{

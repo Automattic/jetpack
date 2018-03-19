@@ -82,7 +82,7 @@ class AtAGlance extends Component {
 			<DashScan
 				{ ...settingsProps }
 				siteRawUrl={ this.props.siteRawUrl }
-				isRewindActive={ isRewindActive }
+				rewindStatus={ this.props.rewindStatus }
 			/>,
 			<DashBackups
 				{ ...settingsProps }
