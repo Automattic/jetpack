@@ -5,6 +5,7 @@
   "homepage": "http://jetpack.com",
   "author": "Automattic",
   "license": "GPL-2.0-or-later",
+  "private": true,
   "repository": {
     "type": "git",
     "url": "https://github.com/Automattic/jetpack.git"
