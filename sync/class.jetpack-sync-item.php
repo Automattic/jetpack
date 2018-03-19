@@ -10,7 +10,7 @@ class Jetpack_Sync_Item {
 
 	function __construct( $trigger, $object = null ) {
 		$this->trigger = $trigger;
-		if ( !is_null( $object ) ) {
+		if ( ! is_null( $object ) ) {
 			$this->set_object( $object );
 		}
 	}

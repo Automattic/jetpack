@@ -67,7 +67,6 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		if ( $post_ID ) {
 			$this->sync_items[ $post_ID ] = new Jetpack_Sync_Item( 'save_post' );
 		} else {
-			//
 			$this->sync_items[ 'new' ] = new Jetpack_Sync_Item( 'save_post' );
 		}
 		return $post_parent;
@@ -292,30 +291,36 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 	}
 
 	public function save_published( $new_status, $old_status, $post ) {
-
-
 		if ( ! isset( $this->sync_items[ $post->ID ] ) ) {
 			$this->sync_items[ $post->ID ] = new Jetpack_Sync_Item( 'save_post' );
 		}
 		$sync_item = $this->sync_items[ $post->ID ];
-		$just_published = 'publish' === $new_status && 'publish' !== $old_status;
-		$sync_item->add_meta( 'just_published', $just_published );
+		$is_just_published = 'publish' === $new_status && 'publish' !== $old_status;
+		$sync_item->add_meta( 'is_just_published', $is_just_published );
 		$sync_item->add_meta( 'previous_status', $old_status );
 	}
+
+	public function is_revision( $post ) {
+	    return ( wp_is_post_revision( $post ) && $this->is_saving_post( $post->post_parent ) );
+    }
+
+    public function process_revision( $post, $post_ID ) {
+        $post = (array) $post;
+        unset( $post['post_content'] );
+        unset( $post['post_title'] );
+        unset( $post['post_excerpt'] );
+        $sync_item = $this->sync_items[ $post['post_parent'] ];
+        $sync_item->add_meta( 'revision', $post );
+        unset( $this->sync_items[ $post_ID ] );
+    }
 
 	public function wp_insert_post( $post_ID, $post = null, $update = null ) {
 		if ( ! is_numeric( $post_ID ) || is_null( $post ) ) {
 			return;
 		}
 
-		if ( wp_is_post_revision( $post ) && $this->is_saving_post( $post->post_parent ) ) {
-			$post = (array) $post;
-			unset( $post['post_content'] );
-			unset( $post['post_title'] );
-			unset( $post['post_excerpt'] );
-			$sync_item = $this->sync_items[ $post['post_parent']];
-			$sync_item->add_meta( 'revision', $post );
-			unset( $this->sync_items[ $post_ID ] );
+		if ( $this->is_revision( $post ) ) {
+			$this->process_revision( $post, $post_ID );
 			return;
 		}
 
@@ -332,8 +337,8 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 			$sync_item->add_meta( 'previous_status', self::DEFAULT_PREVIOUS_STATE );
 		}
 
-		$sync_item->add_meta('is_auto_save', (bool) Jetpack_Constants::get_constant( 'DOING_AUTOSAVE' ) );
-		$sync_item->add_meta('update', $update );
+		$sync_item->add_meta( 'is_auto_save', (bool) Jetpack_Constants::get_constant( 'DOING_AUTOSAVE' ) );
+		$sync_item->add_meta( 'update', $update );
 
 		$author_user_object = get_user_by( 'id', $post->post_author );
 		if ( $author_user_object ) {
@@ -348,7 +353,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 
 		$sync_item->set_object( $post );
 
-		if ( $sync_item->is_meta_true( 'just_published' ) ) {
+		if ( $sync_item->is_meta_true( 'is_just_published' ) ) {
 			$this->send_published( $sync_item );
 		} else {
 			/**
@@ -359,7 +364,9 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 			 * @param mixed $post WP_POST object
 			 * @param mixed array $extra post data that are added to the post
 			 */
-			do_action( 'jetpack_post_saved', $sync_item->get_payload() );
+			$payload = $sync_item->get_payload();
+			l( $payload );
+			do_action( 'jetpack_post_saved', $payload );
 		}
 
 		unset( $this->sync_items[ $post_ID ] );
