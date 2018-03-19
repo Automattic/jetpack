@@ -31,13 +31,13 @@ yarn docker:up
 
 Non-installed WordPress is running at [http://localhost](http://localhost) now.
 
-You should establish a tunnel to your localhost with Ngrok or similar service to be able to connect Jetpack.
+You should establish a tunnel to your localhost with Ngrok or [other similar service](https://alternativeto.net/software/ngrok/) to be able to connect Jetpack. You cannot connect Jetpack when running WordPress via `http://localhost`.
 
 _You are now ready to login to your new WordPress install and connect Jetpack, congratulations!_
 
 WordPress’ `WP_SITEURL` and `WP_HOME` constants are configured to be dynamic so you shouldn’t need to change these even if you access the site via different domains.
 
-You should follow [Jetpack’s development documentation](../docs/development-environment.md) for installing Jetpack’s dependencies and building files.
+You should follow [Jetpack’s development documentation](../docs/development-environment.md) for installing Jetpack’s dependencies and building files. Docker setup does not build these for you.
 
 ## Working with containers
 
@@ -131,6 +131,21 @@ For example run [`cron event list`](https://developer.wordpress.org/cli/commands
 yarn docker:wp cron event list
 ```
 
+[`shell`](https://developer.wordpress.org/cli/commands/shell/) is a handy wp-cli command you can use like so:
+
+```bash
+yarn docker:wp shell
+```
+
+Shell allows you to evaluate PHP code while having your installed WordPress loaded, so you could do things like:
+
+```
+wp> get_bloginfo( 'name' );
+=> string(6) "WP-CLI"
+```
+
+Note that each `wp shell` session counts as a single request, causing unexpected situations with WP cache. You might want to run [`wp_cache_flush()`](https://developer.wordpress.org/reference/functions/wp_cache_flush/) between requests you expect to get cached by WordPress.
+
 ## MySQL database
 
 Connecting to your MySQL database from outside the container, use:
@@ -145,7 +160,7 @@ You can also see your database files via local filesystem at `./docker/data/mysq
 
 ## SFTP access
 
-You can access WordPress and Jetpack files via SFTP server container. This makes e.g. testing Jetpack Rewind easier.
+You can access WordPress and Jetpack files via SFTP server container.
 
 - Host: `localhost`
 - Port: `1022`
@@ -153,18 +168,62 @@ You can access WordPress and Jetpack files via SFTP server container. This makes
 - Pass: `wordpress`
 - WordPress path: `/var/www/html`
 
-You can tunnel to it using [Ngrok](https://ngrok.com) or other similar service.
+You can tunnel to this container using [Ngrok](https://ngrok.com) or [other similar service](https://alternativeto.net/software/ngrok/).
 
-Run:
-```sh
-ngrok tcp 1022
-```
+Tunnelling makes testing [Jetpack Rewind](https://jetpack.com/support/backups/) possible. Read more from "Using Ngrok with Jetpack" section below.
 
 ## Must Use Plugins directory
 
 You can add your own PHP code to `./docker/mu-plugins` directory and they will be loaded by WordPress, in alphabetical order, before normal plugins, meaning API hooks added in an mu-plugin apply to all other plugins even if they run hooked-functions in the global namespace. Read more about [must use plugins](https://codex.wordpress.org/Must_Use_Plugins).
 
 You can add your custom Jetpack constants (such as `JETPACK__API_BASE`) to a file under this folder.
+
+## Using Ngrok with Jetpack
+
+[Ngrok.com](https://ngrok.com/) free tier gives you one-use random-hash domains for HTTP/HTTPS connections and random ports for other TCP connections. When using their paid plans you can re-use domains, reserve your custom domains and reserve TCP ports.
+
+If you use one-off domains, you'll have to re-install WordPress and re-connect Jetpack each time you close Ngrok (thus losing your randomly assigned domain). That's perfectly fine for quick testing or lightweight development.
+
+You can use [other similar services](https://alternativeto.net/software/ngrok/) as well.
+
+If you're developing Jetpack often with Ngrok, you could create a config file for your setup. See [default configuration file location](https://ngrok.com/docs#default-config-location) from Ngrok Docs or use `-config=your_config_file.yml` argument with `ngrok` to use your configuration file.
+
+In your configuration file, add:
+
+```yml
+authtoken: YOUR_AUTH_TOKEN
+tunnels:
+  jetpack:
+    subdomain: YOUR_PERMANTENT_SUBDOMAIN
+    addr: 80
+    proto: http
+  jetpack-sftp:
+    addr: 1022
+    proto: tcp
+    remote_addr: 0.tcp.ngrok.io:YOUR_RESERVED_PORT
+```
+
+You should reserve above domain and TCP address from [Ngrok Dashboard → Reserved](https://dashboard.ngrok.com/reserved). As of 03/2018 that requires Ngrok Business plan.
+
+For example your reserved domain could be `abcdefgh.ngrok.io` and reserved TCP address `0.tcp.ngrok.io:12345`.
+
+See more configuration options from [Ngrok documentation](https://ngrok.com/docs#tunnel-definitions).
+
+You can now start both tunnels:
+```bash
+ngrok start jetpack jetpack-sftp
+```
+
+### Configuring Jetpack Rewind with Ngrok tunnel
+
+You should now be able to configure [Jetpack Rewind](https://jetpack.com/support/backups/) credentials point to your Docker container:
+
+- Credential Type: `SSH/SFTP`
+- Server Address: `0.tcp.ngrok.io`
+- Port Number: `YOUR_RESERVED_PORT`
+- Server username: `wordpress`
+- Server password: `wordpress`
+- WordPress installation path: `/var/www/html`
 
 ## Debugging
 

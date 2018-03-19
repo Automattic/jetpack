@@ -180,9 +180,10 @@ class WordAds {
 		$themename = esc_js( get_stylesheet() );
 		$pagetype = intval( $this->params->get_page_type_ipw() );
 		$data_tags = ( $this->params->cloudflare ) ? ' data-cfasync="false"' : '';
+		$site_id = $this->params->blog_id;
 		echo <<<HTML
 		<script$data_tags type="text/javascript">
-			var __ATA_PP = { pt: $pagetype, ht: 2, tn: '$themename', amp: false };
+			var __ATA_PP = { pt: $pagetype, ht: 2, tn: '$themename', amp: false, siteid: $site_id };
 			var __ATA = __ATA || {};
 			__ATA.cmd = __ATA.cmd || [];
 			__ATA.criteo = __ATA.criteo || {};
