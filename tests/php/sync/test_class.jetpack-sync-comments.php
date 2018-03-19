@@ -330,7 +330,6 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 
 		$event = $this->server_event_storage->get_most_recent_event( 'unspammed_comment' );
 		$this->assertTrue( $event );
-
 	}
 
 	public function test_post_trashed_comment_handling() {
