@@ -426,10 +426,16 @@ abstract class Publicize_Base {
 		}
 		$view_post_link_html = '';
 		$viewable = is_post_type_viewable( $post_type_object );
-		if( $viewable ) {
+		if ( $viewable ) {
+			$view_text = __( 'View post' );
+
+			if ( $post_type == 'jetpack-portfolio' ) {
+				$view_text = esc_html__( 'View Project', 'jetpack' );
+			}
+
 			$view_post_link_html = sprintf( ' <a href="%1$s">%2$s</a>',
 				esc_url( get_permalink( $post ) ),
-				__( 'View post' )
+				$view_text
 			);
 		}
 
@@ -447,10 +453,16 @@ abstract class Publicize_Base {
 			);
 		}
 
-		$messages[6] = sprintf(
+		$messages['post'][6] = sprintf(
 			_x( 'Post published and publicizing to %1$s. %2$s', 'Published Message: Accounts to publish to, link to view published post', 'jetpack' ),
 			implode(',', $labels ),
 			$view_post_link_html );
+
+		$messages['jetpack-portfolio'][6] = sprintf(
+			_x( 'Project published and publicizing to %1$s. %2$s', 'Published Message: Accounts to publish to, link to view published post', 'jetpack' ),
+			implode(',', $labels ),
+			$view_post_link_html );
+
 		return $messages;
 	}
 
