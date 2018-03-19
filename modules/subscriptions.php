@@ -77,6 +77,8 @@ class Jetpack_Subscriptions {
 		add_action( 'transition_post_status', array( $this, 'maybe_send_subscription_email' ), 10, 3 );
 
 		add_filter( 'jetpack_published_post_flags', array( $this, 'set_post_flags' ), 10, 2 );
+
+		add_filter( 'post_updated_messages', array( $this, 'update_published_message' ), 18, 1 );
 	}
 
 	/**
@@ -158,6 +160,20 @@ class Jetpack_Subscriptions {
 			$set_checkbox = isset( $_POST['_jetpack_dont_email_post_to_subs'] ) ? 1 : 0;
 			update_post_meta( $post->ID, '_jetpack_dont_email_post_to_subs', $set_checkbox );
 		}
+	}
+
+	function update_published_message( $messages ) {
+		global $post;
+		if ( ! $this->should_email_post_to_subscribers( $post ) ) {
+			return $messages;
+		}
+
+		$messages['post'][6] = sprintf(
+				__( 'Post published and sending emails to subscribers. <a href="%1$s">%2$s</a>', 'jetpack' ),
+				esc_url( get_permalink( $post ) ),
+				__( 'View Post' )
+			);
+		return $messages;
 	}
 
 	public function should_email_post_to_subscribers( $post ) {
@@ -297,7 +313,6 @@ class Jetpack_Subscriptions {
 	 */
 	function subscriptions_settings_section() {
 	?>
-
 		<p id="jetpack-subscriptions-settings"><?php _e( 'Change whether your visitors can subscribe to your posts or comments or both.', 'jetpack' ); ?></p>
 
 	<?php

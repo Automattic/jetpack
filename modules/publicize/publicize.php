@@ -458,6 +458,16 @@ abstract class Publicize_Base {
 			implode(',', $labels ),
 			$view_post_link_html );
 
+		if ( $post_type == 'post' && class_exists('Jetpack_Subscriptions' ) ) {
+			$subscription = Jetpack_Subscriptions::init();
+			if ( $subscription->should_email_post_to_subscribers( $post ) ) {
+				$messages['post'][6] = sprintf(
+					_x( 'Post published, sending emails to subscribers and publicizing to %1$s. %2$s', 'Published Message: Accounts to publish to, link to view published post', 'jetpack' ),
+					implode(',', $labels ),
+					$view_post_link_html );
+			}
+		}
+
 		$messages['jetpack-portfolio'][6] = sprintf(
 			_x( 'Project published and publicizing to %1$s. %2$s', 'Published Message: Accounts to publish to, link to view published post', 'jetpack' ),
 			implode(',', $labels ),
