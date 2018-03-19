@@ -64,7 +64,7 @@ class Grunion_Contact_Form_Plugin {
 		 *
 		 * @module contact-form
 		 *
-		 * @since 5.9.0
+		 * @since 6.0.0
 		 *
 		 * @param array $feedback_ids list of feedback post ID
 		 */
@@ -78,7 +78,7 @@ class Grunion_Contact_Form_Plugin {
 		 *
 		 * @module contact-form
 		 *
-		 * @since 5.9.0
+		 * @since 6.0.0
 		 *
 		 * @param array $feedback_ids list of feedback post ID
 		 */
