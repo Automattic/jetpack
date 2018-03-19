@@ -209,6 +209,11 @@ For example your reserved domain could be `abcdefgh.ngrok.io` and reserved TCP a
 
 See more configuration options from [Ngrok documentation](https://ngrok.com/docs#tunnel-definitions).
 
+You can now start both tunnels:
+```bash
+ngrok start jetpack jetpack-sftp
+```
+
 ### Configuring Jetpack Rewind with Ngrok tunnel
 
 You should now be able to configure [Jetpack Rewind](https://jetpack.com/support/backups/) credentials point to your Docker container:
