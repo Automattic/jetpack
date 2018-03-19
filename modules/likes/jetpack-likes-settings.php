@@ -56,7 +56,7 @@ class Jetpack_Likes_Settings {
 		$disabled        = ! $this->is_enabled_sitewide();
 		$switched_status = get_post_meta( $post_id, 'switch_like_status', true );
 
-		if ( $disabled && empty( $switched_status ) || false == $disabled && !empty( $switched_status ) )
+		if ( $disabled && empty( $switched_status ) )
 			$checked = false;
 
 		/**
