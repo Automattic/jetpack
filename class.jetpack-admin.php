@@ -15,7 +15,7 @@ class Jetpack_Admin {
 	private $jetpack;
 
 	static function init() {
-		if( $_GET['page'] === 'jetpack' ) {
+		if( isset( $_GET['page'] ) && $_GET['page'] === 'jetpack' ) {
 			add_filter( 'nocache_headers', array( 'Jetpack_Admin', 'add_no_store_header' ), 100 );
 		}
 
