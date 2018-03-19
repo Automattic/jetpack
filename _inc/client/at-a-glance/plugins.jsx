@@ -40,6 +40,10 @@ class DashPluginUpdates extends Component {
 			);
 		}
 
+		const linkToManagePlugins = {
+			components: { a: <a href={ 'https://wordpress.com/plugins/manage/' + this.props.siteRawUrl } /> }
+		};
+
 		if ( 'updates-available' === pluginUpdates.code ) {
 			return (
 				<DashItem
@@ -67,9 +71,7 @@ class DashPluginUpdates extends Component {
 							} )
 						}
 						{
-							this.props.isDevMode
-								? ''
-								: __( '{{a}}Turn on plugin autoupdates{{/a}}', { components: { a: <a href={ 'https://wordpress.com/plugins/manage/' + this.props.siteRawUrl } /> } } )
+							! this.props.isDevMode && __( '{{a}}Turn on plugin autoupdates{{/a}}', linkToManagePlugins )
 						}
 					</p>
 				</DashItem>
@@ -87,7 +89,7 @@ class DashPluginUpdates extends Component {
 					}
 					{ ' ' }
 					{
-						! this.props.isDevMode && __( '{{a}}Manage your plugins{{/a}}.', { components: { a: <a href={ 'https://wordpress.com/plugins/manage/' + this.props.siteRawUrl } /> } } )
+						! this.props.isDevMode && __( '{{a}}Manage your plugins{{/a}}.', linkToManagePlugins )
 					}
 				</p>
 			</DashItem>
