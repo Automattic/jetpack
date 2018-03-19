@@ -29,7 +29,7 @@ function jetpack_load_widgets() {
 	$widgets_include = apply_filters( 'jetpack_widgets_to_include', $widgets_include );
 
 	foreach( $widgets_include as $include ) {
-		include_once $include;
+		include $include;
 	}
 
 	include_once dirname( __FILE__ ) . '/widgets/migrate-to-core/image-widget.php';
