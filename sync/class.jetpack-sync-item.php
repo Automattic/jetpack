@@ -3,10 +3,10 @@
 
 class Jetpack_Sync_Item {
 
-	private $object;
-	private $sync_items;
-	private $meta_data;
-	private $trigger;
+	private $object; // The object we are syncing, eg a post
+	private $terms; // Terms related to the object, eg categories and tags
+	private $state; // The state of the object, eg `is_just_published`
+	private $trigger; // The action that triggers the sync operation, eg `save_post`
 
 	function __construct( $trigger, $object = null ) {
 		$this->trigger = $trigger;
@@ -15,8 +15,8 @@ class Jetpack_Sync_Item {
 		}
 	}
 
-	function add_sync_item( Jetpack_Sync_Item $sync_item ) {
-		$this->sync_items[] = $sync_item;
+	function add_terms( Jetpack_Sync_Item $terms ) {
+		$this->terms[] = $terms;
 	}
 
 	function set_object( $object ) {
@@ -27,30 +27,30 @@ class Jetpack_Sync_Item {
 		return $this->object;
 	}
 
-	function add_meta( $key, $value = null ) {
-		$this->add( $this->meta_data, $key, $value );
+	function set_state_value( $key, $value = null ) {
+		$this->add( $this->state, $key, $value );
 	}
 
-	function has_meta( $key ) {
-		return isset( $this->meta_data[ $key ] );
+	function state_isset( $key ) {
+		return isset( $this->state[ $key ] );
 	}
 
-	function get_meta() {
-		return $this->meta_data;
+	function get_state() {
+		return $this->state;
 	}
 
-	function set_meta( $meta ) {
-		return $this->meta_data = $meta;
+	function set_state( $state ) {
+		return $this->state = $state;
 	}
 
-	function is_meta_true( $key ) {
-		return (bool) ( $this->has_meta( $key ) && $this->meta_data[ $key ] );
+	function is_state_value_true( $key ) {
+		return (bool) ( $this->state_isset( $key ) && (bool) $this->state[ $key ] );
 	}
 
 	private function add( &$array, $key, $value = null ) {
 		if ( is_array( $key ) ) {
 			$array = array_merge( $key, $array );
-		} else if( is_string( $key ) && ! is_null( $value ) ) {
+		} else if ( is_string( $key ) && ! is_null( $value ) ) {
 			$array[ $key ] = $value;
 		}
 	}
@@ -62,12 +62,12 @@ class Jetpack_Sync_Item {
 
 		$payload = array( 'object' => $this->object );
 
-		if ( ! empty( $this->sync_items ) ) {
-			$payload['sync_items'] = array_map( array( $this, 'get_sub_sync_item_payload' ), $this->sync_items );
+		if ( ! empty( $this->terms ) ) {
+			$payload['terms'] = array_map( array( $this, 'get_sub_sync_item_payload' ), $this->terms );
 		}
 
-		if ( ! empty($this->meta_data ) ) {
-			$payload['meta_data'] = $this->meta_data;
+		if ( ! empty( $this->state ) ) {
+			$payload['state'] = $this->state;
 		}
 
 		return $payload;

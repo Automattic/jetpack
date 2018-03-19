@@ -79,7 +79,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		$sync_item = new Jetpack_Sync_Item( 'set_object_terms',
 			array( $post_id, $terms, $tt_ids, $taxonomy, $append, $old_tt_ids )
 		);
-		$this->sync_items[ $post_id ]->add_sync_item( $sync_item );
+		$this->sync_items[ $post_id ]->add_terms( $sync_item );
 	}
 
 
@@ -296,8 +296,8 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		}
 		$sync_item = $this->sync_items[ $post->ID ];
 		$is_just_published = 'publish' === $new_status && 'publish' !== $old_status;
-		$sync_item->add_meta( 'is_just_published', $is_just_published );
-		$sync_item->add_meta( 'previous_status', $old_status );
+		$sync_item->set_state_value( 'is_just_published', $is_just_published );
+		$sync_item->set_state_value( 'previous_status', $old_status );
 	}
 
 	public function is_revision( $post ) {
@@ -310,7 +310,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
         unset( $post['post_title'] );
         unset( $post['post_excerpt'] );
         $sync_item = $this->sync_items[ $post['post_parent'] ];
-        $sync_item->add_meta( 'revision', $post );
+        $sync_item->set_state_value( 'revision', $post );
         unset( $this->sync_items[ $post_ID ] );
     }
 
@@ -333,16 +333,16 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		}
 		$sync_item = $this->sync_items[ $post_ID ];
 
-		if ( ! $sync_item->has_meta( 'previous_status' ) ) {
-			$sync_item->add_meta( 'previous_status', self::DEFAULT_PREVIOUS_STATE );
+		if ( ! $sync_item->state_isset( 'previous_status' ) ) {
+			$sync_item->set_state_value( 'previous_status', self::DEFAULT_PREVIOUS_STATE );
 		}
 
-		$sync_item->add_meta( 'is_auto_save', (bool) Jetpack_Constants::get_constant( 'DOING_AUTOSAVE' ) );
-		$sync_item->add_meta( 'update', $update );
+		$sync_item->set_state_value( 'is_auto_save', (bool) Jetpack_Constants::get_constant( 'DOING_AUTOSAVE' ) );
+		$sync_item->set_state_value( 'update', $update );
 
 		$author_user_object = get_user_by( 'id', $post->post_author );
 		if ( $author_user_object ) {
-			$sync_item->add_meta( 'author',  array(
+			$sync_item->set_state_value( 'author',  array(
 				'id'              => $post->post_author,
 				'wpcom_user_id'   => get_user_meta( $post->post_author, 'wpcom_user_id', true ),
 				'display_name'    => $author_user_object->display_name,
@@ -353,7 +353,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 
 		$sync_item->set_object( $post );
 
-		if ( $sync_item->is_meta_true( 'is_just_published' ) ) {
+		if ( $sync_item->is_state_value_true( 'is_just_published' ) ) {
 			$this->send_published( $sync_item );
 		} else {
 			/**
@@ -361,12 +361,10 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 			 *
 			 * @since 5.9.0
 			 *
-			 * @param mixed $post WP_POST object
-			 * @param mixed array $extra post data that are added to the post
+			 * @param array Sync Item Payload [ 'object' => post object, 'terms' => related terms, 'state' => additional info about the post ]
 			 */
-			$payload = $sync_item->get_payload();
-			l( $payload );
-			do_action( 'jetpack_post_saved', $payload );
+
+			do_action( 'jetpack_post_saved', $sync_item->get_payload() );
 		}
 
 		unset( $this->sync_items[ $post_ID ] );
@@ -380,15 +378,15 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		}
 
 		/**
-		 * Filter that is used to add to the post flags ( meta data ) when a post gets published
+		 * Filter that is used to add to the post state when a post gets published
 		 *
 		 * @since 4.4.0
 		 *
-		 * @param mixed array post flags that are added to the post
+		 * @param mixed array Post state
 		 * @param mixed $post WP_POST object
 		 */
-		$sync_item_meta = apply_filters( 'jetpack_published_post_flags', $sync_item->get_meta(), $post );
-		$sync_item->set_meta( $sync_item_meta );
+		$sync_item_state = apply_filters( 'jetpack_published_post_flags', $sync_item->get_state(), $post );
+		$sync_item->set_state( $sync_item_state );
 
 		/**
 		 * Action that gets synced when a post type gets published.
