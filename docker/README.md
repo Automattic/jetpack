@@ -186,9 +186,9 @@ If you use one-off domains, you'll have to re-install WordPress and re-connect J
 
 You can use [other similar services](https://alternativeto.net/software/ngrok/) as well.
 
-If you're developing Jetpack often with Ngrok, you could create a config file for your setup. See [default configuration file location](https://ngrok.com/docs#default-config-location) from Ngrok Docs.
+If you're developing Jetpack often with Ngrok, you could create a config file for your setup. See [default configuration file location](https://ngrok.com/docs#default-config-location) from Ngrok Docs or use `-config=your_config_file.yml` argument with `ngrok` to use your configuration file.
 
-In your config file add:
+In your configuration file, add:
 
 ```yml
 authtoken: YOUR_AUTH_TOKEN
