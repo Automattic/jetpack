@@ -69,7 +69,7 @@ class DashPluginUpdates extends Component {
 						{
 							this.props.isDevMode
 								? ''
-								: __( '{{a}}Turn on plugin auto updates{{/a}}', { components: { a: <a href={ 'https://wordpress.com/plugins/manage/' + this.props.siteRawUrl } /> } } )
+								: __( '{{a}}Turn on plugin autoupdates{{/a}}', { components: { a: <a href={ 'https://wordpress.com/plugins/manage/' + this.props.siteRawUrl } /> } } )
 						}
 					</p>
 				</DashItem>
