@@ -554,7 +554,7 @@ class Jetpack_Protect_Module {
 		 * @param bool true Should we fallback to the Math questions when an IP is blocked. Default to true.
 		 */
 		$allow_math_fallback_on_fail = apply_filters( 'jpp_use_captcha_when_blocked', true );
-		if ( ! $allow_math_fallback_on_fail ) {
+		if ( ! $allow_math_fallback_on_fail || Jetpack_Constants::is_true( 'XMLRPC_REQUEST' ) ) {
 			$this->kill_login();
 		}
 		include_once dirname( __FILE__ ) . '/protect/math-fallback.php';

@@ -143,6 +143,23 @@ Connecting to your MySQL database from outside the container, use:
 
 You can also see your database files via local filesystem at `./docker/data/mysql`
 
+## SFTP access
+
+You can access WordPress and Jetpack files via SFTP server container. This makes e.g. testing Jetpack Rewind easier.
+
+- Host: `localhost`
+- Port: `1022`
+- User: `wordpress`
+- Pass: `wordpress`
+- WordPress path: `/var/www/html`
+
+You can tunnel to it using [Ngrok](https://ngrok.com) or other similar service.
+
+Run:
+```sh
+ngrok tcp 1022
+```
+
 ## Must Use Plugins directory
 
 You can add your own PHP code to `./docker/mu-plugins` directory and they will be loaded by WordPress, in alphabetical order, before normal plugins, meaning API hooks added in an mu-plugin apply to all other plugins even if they run hooked-functions in the global namespace. Read more about [must use plugins](https://codex.wordpress.org/Must_Use_Plugins).
@@ -204,15 +221,15 @@ You’ll need to install the [php-debug](https://atom.io/packages/php-debug) pac
 
 		![Screenshot showing "Path Maps" input](https://user-images.githubusercontent.com/746152/37150779-c891a7f4-22b1-11e8-9293-f34679df82f5.png)
 
-1. Make sure you installed the Chrome extension on your browser and configure it to send the IDE Key `php-debug`
+1. Make sure you installed the Chrome extension on your browser and configure it to send the IDE Key `xdebug-atom`
 
 	* In the case of the **Xdebug Helper** extension, you get to set this by right-clicking (secondary click) on the extensions’ icon and clicking **Options**:
 
 		![Screenshot showing Xdebug helper menu](https://user-images.githubusercontent.com/746152/37093557-82b766a6-21ee-11e8-8c0f-93f7ae72b9dc.png)
 
-	* Set the IDE key field to `Other`, enter `php-debug` in the text field, and press Save.
+	* Set the IDE key field to `Other`, enter `xdebug-atom` in the text field, and press Save.
 
-		![Screenshot showing IDE Key](https://user-images.githubusercontent.com/746152/37093603-afb332d4-21ee-11e8-9bdd-599e15e6f225.png)
+		![Screenshot showing IDE Key](https://user-images.githubusercontent.com/746152/37178231-ac46f92e-2300-11e8-88ec-31434a3d8fc7.png)
 
 1. Going back to Atom, proceed to toggle debugging on from the **Package** Menu item:
 

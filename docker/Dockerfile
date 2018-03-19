@@ -68,4 +68,7 @@ COPY ./run.sh /usr/local/bin/run
 # Make our cmd script be executable
 RUN chmod +x /usr/local/bin/run
 
+# Set the working directory for the next commands
+WORKDIR /var/www/html
+
 CMD ["/usr/local/bin/run"]
