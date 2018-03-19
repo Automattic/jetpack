@@ -263,6 +263,9 @@ class WP_Test_Jetpack_Sync_Comments extends WP_Test_Jetpack_Sync_Base {
 
 		$this->sender->do_sync();
 
+		$event = $this->server_event_storage->get_most_recent_event( 'untrashed_comment' );
+		$this->assertTrue( $event );
+
 		$this->assertEquals( 1, $this->server_replica_storage->comment_count( 'approve' ) );
 		$this->assertEquals( 0, $this->server_replica_storage->comment_count( 'trash' ) );
 	}
