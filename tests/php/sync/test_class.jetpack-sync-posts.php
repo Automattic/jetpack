@@ -43,7 +43,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	public function test_add_post_syncs_request_is_auto_save() {
 		//Sync from setup should not be auto save
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_post_saved' );
-		$this->assertFalse( $event->args[0]['meta_data']['is_auto_save'] );
+		$this->assertFalse( $event->args[0]['state']['is_auto_save'] );
 
 		Jetpack_Constants::set_constant( 'DOING_AUTOSAVE', true );
 
@@ -53,7 +53,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		$event = $this->server_event_storage->get_most_recent_event( 'jetpack_post_saved' );
-		$this->assertTrue( $event->args[0]['meta_data']['is_auto_save'] );
+		$this->assertTrue( $event->args[0]['state']['is_auto_save'] );
 	}
 
 	public function test_trash_post_trashes_data() {
@@ -94,7 +94,7 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$insert_event = $this->server_event_storage->get_most_recent_event( 'jetpack_post_saved' );
 
 		$this->assertEquals( 'trash', $insert_event->args[0]['object']->post_status ); //
-		$this->assertEquals( 'publish', $insert_event->args[0]['meta_data']['previous_status'] );
+		$this->assertEquals( 'publish', $insert_event->args[0]['state']['previous_status'] );
 	}
 
 	public function test_delete_post_deletes_data() {
@@ -926,7 +926,7 @@ That was a cool video.';
 		$this->assertEquals( 'post', $event->args[0]['object']->post_type );
 		// We add the author information to this so that we know who the author is
 		// This information is useful when the post gets published via cron.
-		$event_author = $event->args[0]['meta_data']['author'];
+		$event_author = $event->args[0]['state']['author'];
 		$this->assertEquals( $author->display_name, $event_author['display_name'] ); // since 5.4 ?
 		$this->assertEquals( $author->ID, $event_author['id'] ); // since 5.4 ?
 		$this->assertEquals( $author->user_email, $event_author['email'] ); // since 5.4 ?
@@ -960,7 +960,7 @@ That was a cool video.';
 
 		$this->sender->do_sync();
 
-		$post_flags = $this->server_event_storage->get_most_recent_event( 'jetpack_post_published' )->args[0]['meta_data'];
+		$post_flags = $this->server_event_storage->get_most_recent_event( 'jetpack_post_published' )->args[0]['state'];
 
 		$this->assertFalse( $post_flags['send_subscription'] );
 	}
@@ -988,7 +988,7 @@ That was a cool video.';
 		$events = $this->server_event_storage->get_all_events( 'jetpack_post_published' );
 		$this->assertEquals( 1, count( $events ) );
 
-		$post_flags = $events[0]->args[0]['meta_data'];
+		$post_flags = $events[0]->args[0]['state'];
 		$this->assertTrue( $post_flags['send_subscription'] );
 	}
 
@@ -1010,7 +1010,7 @@ That was a cool video.';
 		$events = $this->server_event_storage->get_all_events( 'jetpack_post_published' );
 		$this->assertEquals( 1, count( $events ) );
 
-		$post_flags = $events[0]->args[0]['meta_data'];
+		$post_flags = $events[0]->args[0]['state'];
 		$this->assertFalse( $post_flags['send_subscription'] );
 	}
 
