@@ -85,6 +85,10 @@ class DashPluginUpdates extends Component {
 					{
 						__( 'All plugins are up-to-date. Awesome work!' )
 					}
+					{ ' ' }
+					{
+						! this.props.isDevMode && __( '{{a}}Manage your plugins{{/a}}.', { components: { a: <a href={ 'https://wordpress.com/plugins/manage/' + this.props.siteRawUrl } /> } } )
+					}
 				</p>
 			</DashItem>
 		);
