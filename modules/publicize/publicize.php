@@ -107,6 +107,7 @@ abstract class Publicize_Base {
 		// then check meta and publicize based on that. stage 3 implemented on wpcom
 		add_action( 'transition_post_status', array( $this, 'flag_post_for_publicize' ), 10, 3 );
 		add_action( 'save_post', array( &$this, 'save_meta' ), 20, 2 );
+		add_filter( 'post_updated_messages', array( &$this, 'update_published_message' ), 20, 1 );
 
 		// Connection test callback
 		add_action( 'wp_ajax_test_publicize_conns', array( $this, 'test_publicize_conns' ) );
@@ -177,8 +178,8 @@ abstract class Publicize_Base {
 	/**
 	* Returns a display name for the connection
 	*/
-	function get_display_name( $service_name, $c ) {
-		$cmeta = $this->get_connection_meta( $c );
+	function get_display_name( $service_name, $connecton ) {
+		$cmeta = $this->get_connection_meta( $connecton );
 
 		if ( isset( $cmeta['connection_data']['meta']['display_name'] ) ) {
 			return $cmeta['connection_data']['meta']['display_name'];
@@ -416,6 +417,69 @@ abstract class Publicize_Base {
 		}
 
 		// Next up will be ::publicize_post()
+	}
+
+	public function update_published_message( $messages ) {
+		global $post_type, $post_type_object, $post;
+		if ( ! $this->post_type_is_publicizeable( $post_type ) ) {
+			return $messages;
+		}
+		$view_post_link_html = '';
+		$viewable = is_post_type_viewable( $post_type_object );
+		if( $viewable ) {
+			$view_post_link_html = sprintf( ' <a href="%1$s">%2$s</a>',
+				esc_url( get_permalink( $post ) ),
+				__( 'View post' )
+			);
+		}
+
+		$services = $this->get_publicizing_services( $post->ID );
+		if( empty( $services ) ) {
+			return $messages;
+		}
+
+		$labels = array();
+		foreach( $services as $service ) {
+			$labels[] = sprintf(
+				_x( '%1$s: %2$s', 'Service: Account publicizing to', 'jetpack' ),
+				esc_html( $service['service_name'] ),
+				esc_html(  $service['display_name'] )
+			);
+		}
+
+		$messages[6] = sprintf(
+			_x( 'Post published and publicizing to %1$s. %2$s', 'Published Message: Accounts to publish to, link to view published post', 'jetpack' ),
+			implode(',', $labels ),
+			$view_post_link_html );
+		return $messages;
+	}
+
+	function get_publicizing_services( $post_id ) {
+		$services = array();
+
+		foreach ( (array) $this->get_services( 'connected' ) as $service_name => $connections ) {
+			// services have multiple connections.
+			foreach ( $connections as $connection ) {
+				$unique_id = '';
+				if ( !empty( $connection->unique_id ) )
+					$unique_id = $connection->unique_id;
+				else if ( !empty( $connection['connection_data']['token_id'] ) )
+					$unique_id = $connection['connection_data']['token_id'];
+
+				// Did we skip this connection?
+				if ( get_post_meta( $post_id, $this->POST_SKIP . $unique_id,  true ) ) {
+					continue;
+				}
+
+				$services[] = array(
+					'service_name' => $this->get_service_label( $service_name ),
+					'display_name' => $this->get_display_name( $service_name, $connection )
+				);
+			}
+		}
+
+
+		return $services;
 	}
 
 	/**
