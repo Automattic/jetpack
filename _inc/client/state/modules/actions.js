@@ -3,6 +3,7 @@
  */
 import { createNotice, removeNotice } from 'components/global-notices/state/notices/actions';
 import { translate as __ } from 'i18n-calypso';
+import analytics from 'lib/analytics';
 import forEach from 'lodash/forEach';
 
 /**
@@ -335,5 +336,11 @@ export function maybeReloadAfterAction( newOptionValue ) {
 
 	if ( some( reloadForOptionValues, ( optionValue ) => optionValue in newOptionValue ) ) {
 		window.location.reload();
+	}
+}
+
+export function maybeSetAnalyticsOptOut( newOptionValue ) {
+	if ( 'jetpack_event_tracking' in newOptionValue ) {
+		analytics.tracks.setOptOut( ! newOptionValue.jetpack_event_tracking );
 	}
 }

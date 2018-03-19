@@ -23,7 +23,8 @@ import {
 } from 'state/action-types';
 import {
 	maybeHideNavMenuItem,
-	maybeReloadAfterAction
+	maybeReloadAfterAction,
+	maybeSetAnalyticsOptOut
 } from 'state/modules';
 import restApi from 'rest-api';
 
@@ -78,6 +79,7 @@ export const updateSetting = ( updatedOption ) => {
 				error: error,
 				updatedOption
 			} );
+			maybeSetAnalyticsOptOut( updatedOption );
 		} );
 	};
 };
@@ -143,6 +145,7 @@ export const updateSettings = ( newOptionValues, type = '' ) => {
 			} );
 			maybeHideNavMenuItem( newOptionValues );
 			maybeReloadAfterAction( newOptionValues );
+			maybeSetAnalyticsOptOut( newOptionValues );
 
 			dispatch( removeNotice( 'module-setting-update' ) );
 			dispatch( removeNotice( 'module-setting-update-success' ) );
