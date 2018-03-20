@@ -10,6 +10,7 @@ import SimpleNotice from 'components/notice';
 import NoticeAction from 'components/notice/notice-action';
 import analytics from 'lib/analytics';
 import get from 'lodash/get';
+import includes from 'lodash/includes';
 
 /**
  * Internal dependencies
@@ -212,12 +213,12 @@ class ProStatus extends React.Component {
 				}
 			}
 
-			if ( sitePlan.product_slug ) {
-				if ( ! hasFree ) {
-					if ( active && installed ) {
-						return this.getProActions( 'active' );
-					}
+			if ( sitePlan.product_slug && ! hasFree ) {
+				if ( active && installed ) {
+					return this.getProActions( 'active' );
+				}
 
+				if ( includes( [ 'akismet', 'backups', 'rewind', 'scan' ], feature ) ) {
 					return this.getSetUpButton( feature );
 				}
 			}
