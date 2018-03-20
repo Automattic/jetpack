@@ -843,11 +843,14 @@ class Jetpack_Subscriptions_Widget extends WP_Widget {
 					<p class="error"><?php printf( __( 'The email address has opted out of subscription emails. <br /> You can manage your preferences at <a href="%1$s" title="%2$s" target="_blank">subscribe.wordpress.com</a>', 'jetpack' ),
 							'https://subscribe.wordpress.com/',
 							__( 'Manage your email preferences.', 'jetpack' )
-						); ?>
+                        ); ?></p>
 				<?php break;
 				case 'already' : ?>
-					<p class="error"><?php esc_html_e( 'You have already subscribed to this site. Please check your inbox.', 'jetpack' ); ?></p>
-				<?php break;
+                    <p class="error"><?php printf( __( 'You have already subscribed to this site. Please check your inbox. <br /> You can manage your preferences at <a href="%1$s" title="%2$s" target="_blank">subscribe.wordpress.com</a>', 'jetpack' ),
+							'https://subscribe.wordpress.com/',
+							__( 'Manage your email preferences.', 'jetpack' )
+                        ); ?></p>
+					<?php break;
 				case 'success' : ?>
 					<div class="success"><?php echo wpautop( str_replace( '[total-subscribers]', number_format_i18n( $subscribers_total['value'] ), $success_message ) ); ?></div>
 					<?php break;
