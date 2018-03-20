@@ -77,9 +77,8 @@
 	&.is-compact {
 		padding: rem( 7px );
 		color: darken( $gray, 10% );
-		font-size: rem( 11px );
+		font-size: rem( 12px );
 		line-height: 1;
-		text-transform: uppercase;
 
 		&:disabled {
 			color: lighten( $gray, 30% );
