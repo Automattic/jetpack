@@ -114,6 +114,10 @@ export function userCanDisconnectSite( state ) {
 	return get( state.jetpack.initialState.userData.currentUser.permissions, 'disconnect', false );
 }
 
+export function userCanConnectSite( state ) {
+	return get( state.jetpack.initialState.userData.currentUser.permissions, 'connect', false );
+}
+
 export function userIsMaster( state ) {
 	return get( state.jetpack.initialState.userData.currentUser, 'isMaster', false );
 }
