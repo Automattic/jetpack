@@ -74,7 +74,7 @@ export class DashItem extends Component {
 			};
 
 		if ( '' !== this.props.module ) {
-			toggle = ( includes( [ 'protect', 'photon', 'vaultpress', 'scan', 'backups', 'akismet' ], this.props.module ) && this.props.isDevMode ) ? '' : (
+			toggle = ( includes( [ 'protect', 'photon', 'vaultpress', 'scan', 'backups', 'akismet', 'search' ], this.props.module ) && this.props.isDevMode ) ? '' : (
 				<ModuleToggle
 					slug={ this.props.module }
 					activated={ this.props.getOptionValue( this.props.module ) }
