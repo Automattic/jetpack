@@ -143,10 +143,14 @@ class ProStatus extends React.Component {
 
 	render() {
 		const sitePlan = this.props.sitePlan(),
-			vpData = this.props.getVaultPressData(),
-			pluginSlug = 'scan' === this.props.proFeature || 'backups' === this.props.proFeature || 'vaultpress' === this.props.proFeature
-				? 'vaultpress/vaultpress.php'
-				: 'akismet/akismet.php';
+			vpData = this.props.getVaultPressData();
+		let pluginSlug = '';
+		if ( 'scan' === this.props.proFeature || 'backups' === this.props.proFeature || 'vaultpress' === this.props.proFeature ) {
+			pluginSlug = 'vaultpress/vaultpress.php';
+		}
+		if ( 'akismet' === this.props.proFeature ) {
+			pluginSlug = 'akismet/akismet.php';
+		}
 
 		const hasPersonal = /jetpack_personal*/.test( sitePlan.product_slug ),
 			hasFree = /jetpack_free*/.test( sitePlan.product_slug ),
@@ -211,7 +215,7 @@ class ProStatus extends React.Component {
 				}
 			}
 
-			if ( sitePlan.product_slug ) {
+			if ( sitePlan.product_slug && pluginSlug ) {
 				if ( ! hasFree ) {
 					if ( active && installed ) {
 						return this.getProActions( 'active' );
