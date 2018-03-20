@@ -428,7 +428,7 @@ class Jetpack_Options {
 	 */
 	static function bypass_raw_option( $name ) {
 
-		if ( Jetpack_Constants::get_constant( 'JETPACK_DISABLE_RAW_OPTIONS' ) ) {
+		if ( ( defined( 'IS_WPCOM' ) && IS_WPCOM ) || Jetpack_Constants::get_constant( 'JETPACK_DISABLE_RAW_OPTIONS' ) ) {
 			return true;
 		}
 		/**
