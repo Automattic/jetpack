@@ -171,7 +171,7 @@ class Jetpack_Subscriptions {
 		$messages['post'][6] = sprintf(
 				__( 'Post published and sending emails to subscribers. <a href="%1$s">%2$s</a>', 'jetpack' ),
 				esc_url( get_permalink( $post ) ),
-				__( 'View Post' )
+				__( 'View post' ) // intentinally omitted domain
 			);
 		return $messages;
 	}

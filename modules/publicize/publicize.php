@@ -427,10 +427,10 @@ abstract class Publicize_Base {
 		$view_post_link_html = '';
 		$viewable = is_post_type_viewable( $post_type_object );
 		if ( $viewable ) {
-			$view_text = __( 'View post' );
+			$view_text = __( 'View post' ); // intentinally omitted domain
 
 			if ( $post_type == 'jetpack-portfolio' ) {
-				$view_text = esc_html__( 'View Project', 'jetpack' );
+				$view_text = esc_html__( 'View project', 'jetpack' );
 			}
 
 			$view_post_link_html = sprintf( ' <a href="%1$s">%2$s</a>',
