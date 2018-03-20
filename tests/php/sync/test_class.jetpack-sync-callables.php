@@ -163,7 +163,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		$synced_value = $this->server_replica_storage->get_callable( 'active_modules' );
-		$this->assertEquals(  array( 'stats' ), $synced_value  );
+		$this->assertEquals(  array( 'stats', 'manage' ), $synced_value  );
 
 		$this->server_replica_storage->reset();
 
@@ -171,7 +171,7 @@ class WP_Test_Jetpack_Sync_Functions extends WP_Test_Jetpack_Sync_Base {
 		$this->sender->do_sync();
 
 		$synced_value = $this->server_replica_storage->get_callable( 'active_modules' );
-		$this->assertEquals( array( 'json-api' ), $synced_value );
+		$this->assertEquals( array( 'json-api', 'manage' ), $synced_value );
 	}
 
 	function test_sync_always_sync_changes_to_home_siteurl_right_away() {
