@@ -23,12 +23,7 @@ export const Monitor = moduleSettingsForm(
 		 */
 		state = {
 			monitor_receive_notifications: this.props.getOptionValue( 'monitor_receive_notifications', 'monitor' ),
-			monitor_receive_wp_notifications: this.props.getOptionValue( 'monitor_receive_wp_notifications', 'monitor' ),
 		};
-
-		handleWPNotificationsToggleChange = () => {
-			this.updateOptions( 'monitor_receive_wp_notifications' );
-		}
 
 		handleEmailNotificationsToggleChange = () => {
 			this.updateOptions( 'monitor_receive_notifications' );
@@ -91,19 +86,6 @@ export const Monitor = moduleSettingsForm(
 											),
 										},
 									} ) }
-								</span>
-							</CompactFormToggle>
-							<CompactFormToggle
-								checked={ this.state.monitor_receive_wp_notifications }
-								disabled={
-									! isMonitorActive ||
-										unavailableInDevMode ||
-										this.props.isSavingAnyOption( [ 'monitor', 'monitor_receive_wp_notifications' ] )
-								}
-								onChange={ this.handleWPNotificationsToggleChange }
-							>
-								<span className="jp-form-toggle-explanation">
-									{ __( 'Send notifications via WordPress.com notification' ) }
 								</span>
 							</CompactFormToggle>
 						</FormFieldset>
