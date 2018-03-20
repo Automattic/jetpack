@@ -333,7 +333,7 @@ gulp.task( 'old-sass:rtl', function() {
  */
 gulp.task( 'check:DIR', function() {
 	// __DIR__ is not available in PHP 5.2...
-	return gulp.src( [ '!vendor', '!vendor/**', '*.php', '**/*.php' ] )
+	return gulp.src( [ '!vendor', '!vendor/**', '!docker/**', '*.php', '**/*.php' ] )
 		.pipe( check( '__DIR__' ) )
 		.on( 'error', function( err ) {
 			log( colors.red( err ) );
@@ -344,7 +344,7 @@ gulp.task( 'check:DIR', function() {
 	PHP Lint
  */
 gulp.task( 'php:lint', function() {
-	return gulp.src( [ '!node_modules', '!node_modules/**', '!vendor', '!vendor/**', '*.php', '**/*.php' ] )
+	return gulp.src( [ '!node_modules', '!node_modules/**', '!vendor', '!vendor/**', '!docker/**', '*.php', '**/*.php' ] )
 		.pipe( phplint( '', { skipPassedFiles: true } ) );
 } );
 
