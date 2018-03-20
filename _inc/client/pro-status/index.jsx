@@ -214,15 +214,13 @@ class ProStatus extends React.Component {
 					return this.getProActions( 'invalid_key', 'anti-spam' );
 				}
 			}
-
-			if ( sitePlan.product_slug && pluginSlug ) {
-				if ( ! hasFree ) {
-					if ( active && installed ) {
-						return this.getProActions( 'active' );
-					}
-
-					return this.getSetUpButton( feature );
+			// Show set up or active status only for paid features that depend on a plugin, and only under a pid plan
+			if ( sitePlan.product_slug && pluginSlug && ! hasFree ) {
+				if ( active && installed ) {
+					return this.getProActions( 'active' );
 				}
+
+				return this.getSetUpButton( feature );
 			}
 
 			return '';
