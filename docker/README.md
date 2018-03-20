@@ -214,6 +214,8 @@ You can now start both tunnels:
 ngrok start jetpack jetpack-sftp
 ```
 
+You can inspect traffic between your WordPress/Jetpack container and WordPress.com using [the inspector](https://ngrok.com/docs#inspect).
+
 ### Configuring Jetpack Rewind with Ngrok tunnel
 
 You should now be able to configure [Jetpack Rewind](https://jetpack.com/support/backups/) credentials point to your Docker container:
