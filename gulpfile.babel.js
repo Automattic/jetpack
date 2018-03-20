@@ -344,7 +344,7 @@ gulp.task( 'check:DIR', function() {
 	PHP Lint
  */
 gulp.task( 'php:lint', function() {
-	return gulp.src( [ '!node_modules', '!node_modules/**', '!vendor', '!vendor/**', '*.php', '**/*.php' ] )
+	return gulp.src( [ '!node_modules', '!node_modules/**', '!vendor', '!vendor/**', '!docker/**', '*.php', '**/*.php' ] )
 		.pipe( phplint( '', { skipPassedFiles: true } ) );
 } );
 
