@@ -29,12 +29,12 @@ import {
 	getStatsData,
 	statsSwitchTab,
 	fetchStatsData,
-	getActiveStatsTab as _getActiveStatsTab
+	getActiveStatsTab
 } from 'state/at-a-glance';
 import { getModules } from 'state/modules';
 import { emptyStatsCardDismissed } from 'state/settings';
 
-class DashStats extends Component {
+export class DashStats extends Component {
 	constructor( props ) {
 		super( props );
 		this.state = {
@@ -176,10 +176,10 @@ class DashStats extends Component {
 				);
 			}
 
-			const statsChart = this.statsChart( this.props.activeTab() ),
+			const statsChart = this.statsChart( this.props.activeTab ),
 				chartData = statsChart.chartData,
 				totalViews = statsChart.totalViews,
-				showEmptyStats = chartData.length > 0 && totalViews <= 0 && ! this.props.isEmptyStatsCardDismissed && ! this.state.emptyStatsDismissed;
+				showEmptyStats = totalViews <= 0 && ! this.props.isEmptyStatsCardDismissed && ! this.state.emptyStatsDismissed;
 
 			return (
 				<div className="jp-at-a-glance__stats-container">
@@ -221,7 +221,9 @@ class DashStats extends Component {
 	}
 
 	maybeShowStatsTabs() {
-		if ( ! this.props.isEmptyStatsCardDismissed && ! this.state.emptyStatsDismissed ) {
+		const statsChart = this.statsChart( this.props.activeTab );
+
+		if ( false === statsChart.totalViews && ! this.props.isEmptyStatsCardDismissed && ! this.state.emptyStatsDismissed ) {
 			return false;
 		}
 
@@ -265,7 +267,7 @@ class DashStats extends Component {
 	}
 
 	getClass( view ) {
-		return this.props.activeTab() === view
+		return this.props.activeTab === view
 			? 'jp-at-a-glance__stats-view-link is-current'
 			: 'jp-at-a-glance__stats-view-link';
 	}
@@ -276,7 +278,7 @@ class DashStats extends Component {
 			return null;
 		}
 
-		const range = this.props.activeTab();
+		const range = this.props.activeTab;
 		return (
 			<div>
 				<QueryStatsData range={ range } />
@@ -302,7 +304,7 @@ export default connect(
 	( state ) => {
 		return {
 			moduleList: getModules( state ),
-			activeTab: () => _getActiveStatsTab( state ),
+			activeTab: getActiveStatsTab( state ),
 			isDevMode: isDevMode( state ),
 			isLinked: isCurrentUserLinked( state ),
 			connectUrl: getConnectUrl( state ),
