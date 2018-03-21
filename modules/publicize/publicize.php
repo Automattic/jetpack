@@ -445,16 +445,16 @@ abstract class Publicize_Base {
 		}
 
 		$labels = array();
-		foreach ( $services as $service ) {
+		foreach ( $services as $service => $dispay_names ) {
 			$labels[] = sprintf(
-				_x( '%1$s: %2$s', 'Service name is %1$s, and account name is %2$s.', 'jetpack' ),
-				esc_html( $service['service_name'] ),
-				esc_html( $service['display_name'] ),
+				_x( '%1$s (%2$s)', 'Service name is %1$s, and account name is %2$s.', 'jetpack' ),
+				esc_html( $service ),
+				esc_html( implode( ', ', $dispay_names ) )
 			);
 		}
 
 		$messages['post'][6] = sprintf(
-			_x( 'Post published and publicizing to %1$s. %2$s', 'Published Message: services and account string is %1$s, link to view published post is %2$s', 'jetpack' ),
+			_x( 'Post published and sharing on %1$s. %2$s', 'Published Message: services and account string is %1$s, link to view published post is %2$s', 'jetpack' ),
 			implode( ', ', $labels ),
 			$view_post_link_html );
 
@@ -462,14 +462,14 @@ abstract class Publicize_Base {
 			$subscription = Jetpack_Subscriptions::init();
 			if ( $subscription->should_email_post_to_subscribers( $post ) ) {
 				$messages['post'][6] = sprintf(
-					_x( 'Post published, sending emails to subscribers and publicizing to %1$s. %2$s', 'Published Message: services and account string is %1$s, link to view published post is %2$s', 'jetpack' ),
+					_x( 'Post published, sending emails to subscribers and sharing post on %1$s. %2$s', 'Published Message: services and account string is %1$s, link to view published post is %2$s', 'jetpack' ),
 					implode( ', ', $labels ),
 					$view_post_link_html );
 			}
 		}
 
 		$messages['jetpack-portfolio'][6] = sprintf(
-			_x( 'Project published and publicizing to %1$s. %2$s', 'Published Message: services and account string is %1$s, link to view published post is %2$s', 'jetpack' ),
+			_x( 'Project published and sharing project on %1$s. %2$s', 'Published Message: services and account string is %1$s, link to view published post is %2$s', 'jetpack' ),
 			implode( ', ', $labels ),
 			$view_post_link_html );
 
@@ -492,11 +492,7 @@ abstract class Publicize_Base {
 				if ( get_post_meta( $post_id, $this->POST_SKIP . $unique_id,  true ) ) {
 					continue;
 				}
-
-				$services[] = array(
-					'service_name' => $this->get_service_label( $service_name ),
-					'display_name' => $this->get_display_name( $service_name, $connection ),
-				);
+				$services[ $this->get_service_label( $service_name ) ][] = $this->get_display_name( $service_name, $connection );
 			}
 		}
 
