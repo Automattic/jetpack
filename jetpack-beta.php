@@ -180,6 +180,10 @@ class Jetpack_Beta {
 	public function update_all_plugins( $plugins ) {
 		// WP.com requests away show regular plugin
 		if ( defined( 'REST_API_REQUEST' ) && REST_API_REQUEST ) {
+			//Ensure that Jetpack reports the version it's using on account of the Jetpack Beta plugin to Calypso
+			if ( is_plugin_active( JETPACK_DEV_PLUGIN_FILE ) ) {
+				$plugins[ JETPACK_PLUGIN_FILE ]['Version'] = $plugins[ JETPACK_DEV_PLUGIN_FILE ]['Version'];
+			}
 			unset( $plugins[ JETPACK_DEV_PLUGIN_FILE ] );
 			return $plugins;
 		}
