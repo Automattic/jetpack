@@ -27,16 +27,14 @@ import {
 	getVaultPressScanThreatCount,
 	getVaultPressData,
 	isFetchingVaultPressData,
-	getAkismetData
+	getAkismetData,
+	isAkismetKeyValid,
+	isFetchingAkismetData
 } from 'state/at-a-glance';
 import {
 	getSitePlan,
 	isFetchingSiteData
 } from 'state/site';
-import {
-	isAkismetKeyValid,
-	isFetchingAkismetData
-} from 'state/at-a-glance';
 
 /**
  * Track click on Pro status badge.
@@ -215,7 +213,7 @@ class ProStatus extends React.Component {
 					break;
 			}
 
-			// Show set up or active status only for paid features that depend on a plugin, and only under a pid plan
+			// Show set up or active status only for paid features that depend on a plugin, and only under a paid plan
 			if ( sitePlan.product_slug && pluginSlug && ! hasFree ) {
 				return active && installed
 					? this.getProActions( 'active' )
