@@ -795,7 +795,7 @@ class Jetpack_Display_Posts_Widget extends WP_Widget {
 
 			$target = '';
 			if ( isset( $instance['open_in_new_window'] ) && $instance['open_in_new_window'] == true ) {
-				$target = ' target="_blank"';
+				$target = ' target="_blank" rel="noopener"';
 			}
 			$content .= '<h4><a href="' . esc_url( $single_post['url'] ) . '"' . $target . '>' . esc_html( $post_title ) . '</a></h4>' . "\n";
 			if ( ( $instance['featured_image'] == true ) && ( ! empty ( $single_post['featured_image'] ) ) ) {
