@@ -19,22 +19,17 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 				}
 
 				requests = {
-					// LinkedIn actually gets the share count for both the http and https version automatically -- so we don't need to do extra magic
-					linkedin: [
-						'https://www.linkedin.com/countserv/count/share?format=jsonp&callback=WPCOMSharing.update_linkedin_count&url=' +
-							encodeURIComponent( url )
+					// Pinterest handles share counts for both http and https
+					pinterest: [
+						window.location.protocol +
+						'//api.pinterest.com/v1/urls/count.json?callback=WPCOMSharing.update_pinterest_count&url=' +
+						encodeURIComponent( url )
 					],
 					// Facebook protocol summing has been shown to falsely double counts, so we only request the current URL
 					facebook: [
 						window.location.protocol +
-							'//graph.facebook.com/?callback=WPCOMSharing.update_facebook_count&ids=' +
-							encodeURIComponent( url )
-					],
-					// Facebook protocol summing has been shown to falsely double counts, so we only request the current URL
-					facebook: [
-						window.location.protocol +
-							'//graph.facebook.com/?callback=WPCOMSharing.update_facebook_count&ids=' +
-							encodeURIComponent( url )
+						'//graph.facebook.com/?callback=WPCOMSharing.update_facebook_count&ids=' +
+						encodeURIComponent( url )
 					]
 				};
 
@@ -83,11 +78,6 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 				}
 
 				WPCOMSharing.inject_share_count( 'sharing-facebook-' + WPCOM_sharing_counts[ permalink ], data[ url ].share.share_count );
-			}
-		},
-		update_linkedin_count : function( data ) {
-			if ( 'undefined' !== typeof data.count && ( data.count * 1 ) > 0 ) {
-				WPCOMSharing.inject_share_count( 'sharing-linkedin-' + WPCOM_sharing_counts[ data.url ], data.count );
 			}
 		},
 		update_pinterest_count : function( data ) {
@@ -343,6 +333,10 @@ if ( sharing_js_options && sharing_js_options.counts ) {
 			// Email button
 			$( 'a.share-email', this ).on( 'click', function() {
 				var url = $( this ).attr( 'href' );
+				var currentDomain = window.location.protocol + '//' + window.location.hostname + '/';
+				if ( url.indexOf( currentDomain ) !== 0 ) {
+					return true;
+				}
 
 				if ( $sharing_email.is( ':visible' ) ) {
 					$sharing_email.slideUp( 200 );

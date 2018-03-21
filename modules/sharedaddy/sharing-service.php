@@ -228,7 +228,7 @@ class Sharing_Service {
 		} else {
 			$enabled['visible'] = array();
 		}
-		
+
 		if ( is_array( $enabled['hidden'] ) ) {
 			$enabled['hidden']  = array_unique( $enabled['hidden'] );
 		} else {
