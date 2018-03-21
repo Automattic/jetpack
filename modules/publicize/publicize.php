@@ -107,7 +107,7 @@ abstract class Publicize_Base {
 		// then check meta and publicize based on that. stage 3 implemented on wpcom
 		add_action( 'transition_post_status', array( $this, 'flag_post_for_publicize' ), 10, 3 );
 		add_action( 'save_post', array( &$this, 'save_meta' ), 20, 2 );
-		add_filter( 'post_updated_messages', array( &$this, 'update_published_message' ), 20, 1 );
+		add_filter( 'post_updated_messages', array( $this, 'update_published_message' ), 20, 1 );
 
 		// Connection test callback
 		add_action( 'wp_ajax_test_publicize_conns', array( $this, 'test_publicize_conns' ) );
@@ -427,7 +427,7 @@ abstract class Publicize_Base {
 		$view_post_link_html = '';
 		$viewable = is_post_type_viewable( $post_type_object );
 		if ( $viewable ) {
-			$view_text = __( 'View post' ); // intentinally omitted domain
+			$view_text = __( 'View post' ); // intentionally omitted domain
 
 			if ( 'jetpack-portfolio' == $post_type ) {
 				$view_text = esc_html__( 'View project', 'jetpack' );
@@ -449,13 +449,13 @@ abstract class Publicize_Base {
 			$labels[] = sprintf(
 				_x( '%1$s: %2$s', 'Service name is %1$s, and account name is %2$s.', 'jetpack' ),
 				esc_html( $service['service_name'] ),
-				esc_html(  $service['display_name'] )
+				esc_html( $service['display_name'] ),
 			);
 		}
 
 		$messages['post'][6] = sprintf(
 			_x( 'Post published and publicizing to %1$s. %2$s', 'Published Message: services and account string is %1$s, link to view published post is %2$s', 'jetpack' ),
-			implode(', ', $labels ),
+			implode( ', ', $labels ),
 			$view_post_link_html );
 
 		if ( $post_type == 'post' && class_exists('Jetpack_Subscriptions' ) ) {
@@ -463,14 +463,14 @@ abstract class Publicize_Base {
 			if ( $subscription->should_email_post_to_subscribers( $post ) ) {
 				$messages['post'][6] = sprintf(
 					_x( 'Post published, sending emails to subscribers and publicizing to %1$s. %2$s', 'Published Message: services and account string is %1$s, link to view published post is %2$s', 'jetpack' ),
-					implode(', ', $labels ),
+					implode( ', ', $labels ),
 					$view_post_link_html );
 			}
 		}
 
 		$messages['jetpack-portfolio'][6] = sprintf(
 			_x( 'Project published and publicizing to %1$s. %2$s', 'Published Message: services and account string is %1$s, link to view published post is %2$s', 'jetpack' ),
-			implode(', ', $labels ),
+			implode( ', ', $labels ),
 			$view_post_link_html );
 
 		return $messages;
