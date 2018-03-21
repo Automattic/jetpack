@@ -36,7 +36,7 @@ class Async_Publicize {
 	 * @since 5.9.1
 	 * @var string $PUBLICIZE_BLOCK_META_KEY
 	 */
-	const PUBLICIZE_BLOCK_META_KEY = '_NO_PUBCLICIZE';
+	const PUBLICIZE_BLOCK_META_KEY = '_NO_PUBLICIZE';
 
 	/**
 	 * Cosntructor for Async_Publicize
