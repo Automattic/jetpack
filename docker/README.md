@@ -49,12 +49,24 @@ If you want to just quickly install WordPress and activate Jetpack, spin up the 
 yarn docker:install
 ```
 
-This will give you a single site with user/pass `wordpress`.
+This will give you a single site with user/pass `wordpress`. You will still have to connect Jetpack to WordPress.com manually.
+
+To fill the site with test data, run:
+
+```sh
+yarn docker:fill
+```
 
 To convert installed single site into a multisite, run:
 
 ```sh
 yarn docker:multisite-convert
+```
+
+To remove WordPress installation and start over, run:
+
+```sh
+yarn docker:uninstall
 ```
 
 ### Start containers
