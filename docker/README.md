@@ -307,3 +307,39 @@ You’ll need to install the [php-debug](https://atom.io/packages/php-debug) pac
 1. You should be able to set breakpoints now:
 
 	![Screen animation showing setting a breakpoint](https://user-images.githubusercontent.com/746152/37093212-591fe7d8-21ed-11e8-8352-47839ce58964.gif)
+
+#### Remote debugging with PhpStorm editor
+
+Below are instructions for starting a debug session in PhpStorm that will listen to activity on your Jetpack docker.
+If you prefer a visual aid, here is a quick screen cast.
+
+1. Configure your browser extension to use 'JETPACK' for its session ID.
+
+1. Open your Jetpack project in PHP and chose 'Run -> Edit Configurations' from the main menu.
+
+1. Click the '+' icon, and chose 'PHP Remote Debug' to create a new debug configuration.
+
+1. Name your debug configuration whatever you like.
+
+1. Check the 'Filter debug connection by IDE key', and enter 'JETPACK' for 'IDE Key ( Session ID )'.
+ 
+1. Click the '...' on the 'Server' line to configure your remote server.
+
+1. In the server configuration window, click the '+' icon to creat a new server configuration. Name it whatever you like.
+
+1. In the server configuration window, set your host to the URL you use to run Jetpack locally. ( Eg, localhost, or 0.0.0.0, or example.ngrok.io )
+
+1. In the server configuration window, check the 'Use path mappings' checkbox.
+
+1. In the server configuration window, map the main Jetpack folder to '/var/www/html/wp-content/plugins/jetpack' and map '/docker/wordpress' to '/var/www'
+
+1. In the server configuration window, click 'Apply' then 'Ok'.
+
+1. Back in the main configuration window, click 'Apply' then 'Ok'.
+
+1. You can now start a debug session by clicking 'Run -> Debug' in the main menu
+
+Here is a quick screen cast showing an example debug session.
+
+
+
