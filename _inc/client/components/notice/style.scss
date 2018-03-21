@@ -88,6 +88,10 @@
 }
 
 .dops-notice__text {
+	a.dops-notice__text-no-underline {
+		text-decoration: none;
+	}
+
 	a,
 	a:visited {
 		text-decoration: underline;
