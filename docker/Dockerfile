@@ -47,20 +47,20 @@ RUN curl https://phar.phpunit.de/phpunit-5.7.5.phar -L -o phpunit.phar \
 	&& mv phpunit.phar /usr/local/bin/phpunit
 
 # Copy a default config file for an apache host
-COPY ./apache_default /etc/apache2/sites-available/000-default.conf
+COPY ./configs/apache_default /etc/apache2/sites-available/000-default.conf
 
 # Copy a default set of settings for PHP (php.ini)
-COPY ./php.ini /etc/php/7.0/apache2/conf.d/20-jetpack-wordpress.ini
-COPY ./php.ini /etc/php/7.0/cli/conf.d/20-jetpack-wordpress.ini
+COPY ./configs/php.ini /etc/php/7.0/apache2/conf.d/20-jetpack-wordpress.ini
+COPY ./configs/php.ini /etc/php/7.0/cli/conf.d/20-jetpack-wordpress.ini
 
 # copy single site htaccess to tmp. run.sh will move it to the site's base dir if there's none present.
-COPY ./htaccess /tmp/htaccess
+COPY ./configs/htaccess /tmp/htaccess
 
 # copy wp-tests-config to tmp. run.sh will move it to the WordPress source code base dir if there's none present.
-COPY ./wp-tests-config.php /tmp/wp-tests-config.php
+COPY ./configs/wp-tests-config.php /tmp/wp-tests-config.php
 
 # Copy a default set of settings for ssmtp.
-COPY ./ssmtp.conf /etc/ssmtp/ssmtp.conf
+COPY ./configs/ssmtp.conf /etc/ssmtp/ssmtp.conf
 
 # Copy our cmd bash script
 COPY ./run.sh /usr/local/bin/run
