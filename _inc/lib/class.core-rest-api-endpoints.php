@@ -816,6 +816,62 @@ class Jetpack_Core_Json_Api_Endpoints {
 	}
 
 	/**
+	 * Returns the proper name for Jetpack Holiday Snow setting.
+	 * When the REST route starts, the holiday-snow.php file where jetpack_holiday_snow_option_name() function is defined is not loaded,
+	 * so where using this to replicate it and have the same functionality.
+	 *
+	 * @since 4.4.0
+	 *
+	 * @return string
+	 */
+	public static function holiday_snow_option_name() {
+		/** This filter is documented in modules/holiday-snow.php */
+		return apply_filters( 'jetpack_holiday_snow_option_name', 'jetpack_holiday_snow_enabled' );
+	}
+
+	/**
+	 * Update a single miscellaneous setting for this Jetpack installation, like Holiday Snow.
+	 *
+	 * @since 4.3.0
+	 *
+	 * @param WP_REST_Request $request The request sent to the WP REST API.
+	 *
+	 * @return object Jetpack miscellaneous settings.
+	 */
+	public static function update_setting( $request ) {
+		// Get parameters to update the module.
+		$param = $request->get_params();
+
+		// Exit if no parameters were passed.
+		if ( ! is_array( $param ) ) {
+			return new WP_Error( 'missing_setting', esc_html__( 'Missing setting.', 'jetpack' ), array( 'status' => 404 ) );
+		}
+
+		// Get option name and value.
+		$option = key( $param );
+		$value  = current( $param );
+
+		// Log success or not
+		$updated = false;
+
+		switch ( $option ) {
+			case self::holiday_snow_option_name():
+				$updated = update_option( $option, ( true == (bool) $value ) ? 'letitsnow' : '' );
+				break;
+		}
+
+		if ( $updated ) {
+			return rest_ensure_response( array(
+				'code' 	  => 'success',
+				'message' => esc_html__( 'Setting updated.', 'jetpack' ),
+				'value'   => $value,
+			) );
+		}
+
+		return new WP_Error( 'setting_not_updated', esc_html__( 'The setting was not updated.', 'jetpack' ), array( 'status' => 400 ) );
+	}
+
+	/**
 	 * Unlinks current user from the WordPress.com Servers.
 	 *
 	 * @since 4.3.0
@@ -1833,6 +1889,15 @@ class Jetpack_Core_Json_Api_Endpoints {
 				'default'           => 9,
 				'validate_callback' => __CLASS__ . '::validate_posint',
 				'jp_group'          => 'stats',
+			),
+
+			// Settings - Not a module
+			self::holiday_snow_option_name() => array(
+				'description'       => '',
+				'type'              => 'boolean',
+				'default'           => 0,
+				'validate_callback' => __CLASS__ . '::validate_boolean',
+				'jp_group'          => 'settings',
 			),
 
 			// Akismet - Not a module, but a plugin. The options can be passed and handled differently.
