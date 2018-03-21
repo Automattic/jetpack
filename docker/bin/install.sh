@@ -1,16 +1,17 @@
 #!/bin/bash
 
-cd /var/www/html
-
-if $(wp core is-installed); then
+if $(wp --allow-root core is-installed); then
+	echo
 	echo "WordPress has already been installed. Uninstall it first by running:"
+	echo
 	echo "  yarn docker:uninstall"
+	echo
 	exit 1;
 fi
 
 # Install WP core
-wp core install \
-	--url=${WP_URL:-localhost} \
+wp --allow-root core install \
+	--url=${WP_DOMAIN:-localhost} \
 	--title=${WP_TITLE:-HelloWord} \
 	--admin_user=${WP_ADMIN_USER:-wordpress} \
 	--admin_password=${WP_ADMIN_PASSWORD:-wordpress} \
@@ -19,9 +20,9 @@ wp core install \
 
 # Install Query Monitor plugin
 # https://wordpress.org/plugins/query-monitor/
-wp plugin install query-monitor --activate
+wp --allow-root plugin install query-monitor --activate
 
 # Activate Jetpack
-wp plugin activate jetpack
+wp --allow-root plugin activate jetpack
 
 echo "WordPress installed."
