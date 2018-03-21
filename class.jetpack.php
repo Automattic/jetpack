@@ -2844,11 +2844,6 @@ class Jetpack {
 		 */
 		$active = apply_filters( 'jetpack_active_modules', $active );
 
-		// Manage is an integral part of how Jetpack works. Can't filter this out.
-		if ( ! in_array( 'manage', $active ) ) {
-			$active[] = 'manage';
-		}
-
 		return array_unique( $active );
 	}
 
