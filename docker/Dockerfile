@@ -63,7 +63,7 @@ COPY ./configs/wp-tests-config.php /tmp/wp-tests-config.php
 COPY ./configs/ssmtp.conf /etc/ssmtp/ssmtp.conf
 
 # Copy our cmd bash script
-COPY ./run.sh /usr/local/bin/run
+COPY ./bin/run.sh /usr/local/bin/run
 
 # Make our cmd script be executable
 RUN chmod +x /usr/local/bin/run
