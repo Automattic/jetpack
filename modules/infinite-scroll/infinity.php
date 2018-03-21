@@ -1243,7 +1243,9 @@ class The_Neverending_Home_Page {
 		// Add query filter that checks for posts below the date
 		add_filter( 'posts_where', array( $this, 'query_time_filter' ), 10, 2 );
 
-		$GLOBALS['wp_the_query'] = $GLOBALS['wp_query'] = new WP_Query( $query_args );
+		$GLOBALS['wp_the_query'] = $GLOBALS['wp_query'] = $infinite_scroll_query = new WP_Query();
+
+		$infinite_scroll_query->query( $query_args );
 
 		remove_filter( 'posts_where', array( $this, 'query_time_filter' ), 10, 2 );
 
