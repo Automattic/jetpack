@@ -117,7 +117,7 @@ export class DashStats extends Component {
 				<div className="jp-at-a-glance__stats-chart">
 					<Chart data={ chartData } barClick={ this.barClick } />
 					{
-						chartData.length <= 0 && <Spinner />
+						0 === chartData.length && <Spinner />
 					}
 				</div>
 				<div id="stats-bottom" className="jp-at-a-glance__stats-bottom">
