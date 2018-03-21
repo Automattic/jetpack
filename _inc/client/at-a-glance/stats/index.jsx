@@ -117,7 +117,7 @@ class DashStats extends Component {
 				<div className="jp-at-a-glance__stats-chart">
 					<Chart data={ chartData } barClick={ this.barClick } />
 					{
-						0 < chartData.length ? '' : <Spinner />
+						chartData.length <= 0 && <Spinner />
 					}
 				</div>
 				<div id="stats-bottom" className="jp-at-a-glance__stats-bottom">
@@ -148,7 +148,7 @@ class DashStats extends Component {
 				</p>
 				<Button
 					onClick={ dismissCard }
-					primary={ true }
+					primary
 				>
 					{ __( 'Okay, got it!' ) }
 				</Button>
@@ -160,8 +160,7 @@ class DashStats extends Component {
 		const activateStats = () => this.props.updateOptions( { stats: true } );
 
 		if ( this.props.getOptionValue( 'stats' ) ) {
-			const statsErrors = this.statsErrors();
-			if ( statsErrors ) {
+			if ( this.statsErrors() ) {
 				return (
 					<div className="jp-at-a-glance__stats-inactive">
 						<span>
@@ -184,7 +183,7 @@ class DashStats extends Component {
 
 			return (
 				<div className="jp-at-a-glance__stats-container">
-					{ ! showEmptyStats ? this.renderStatsChart( chartData ) : this.renderEmptyStatsCard() }
+					{ showEmptyStats ? this.renderEmptyStatsCard() : this.renderStatsChart( chartData ) }
 				</div>
 			);
 		}
@@ -206,11 +205,11 @@ class DashStats extends Component {
 					}
 				</div>
 				{
-					this.props.isDevMode ? '' : (
+					! this.props.isDevMode && (
 						<div className="jp-at-a-glance__stats-inactive-button">
 							<Button
 								onClick={ activateStats }
-								primary={ true }
+								primary
 							>
 								{ __( 'Activate Site Stats' ) }
 							</Button>
@@ -222,6 +221,10 @@ class DashStats extends Component {
 	}
 
 	maybeShowStatsTabs() {
+		if ( ! this.props.isEmptyStatsCardDismissed && ! this.state.emptyStatsDismissed ) {
+			return false;
+		}
+
 		const switchToDay = () => {
 				analytics.tracks.recordJetpackClick( { target: 'stats_switch_view', view: 'day' } );
 				this.props.switchView( 'day' );
