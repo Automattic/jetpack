@@ -825,7 +825,7 @@ class The_Neverending_Home_Page {
 			'scripts'          => array(),
 			'styles'           => array(),
 			'google_analytics' => false,
-			'offset'           => self::wp_query()->get( 'paged' ),
+			'offset'           => max( 1, self::wp_query()->get( 'paged' ) ), // Pass through the current page so we can use that to offset the first load.
 			'history'          => array(
 				'host'                 => preg_replace( '#^http(s)?://#i', '', untrailingslashit( esc_url( get_home_url() ) ) ),
 				'path'                 => self::get_request_path(),
