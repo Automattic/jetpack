@@ -134,8 +134,8 @@ abstract class Publicize_Base {
 	/**
 	* Returns an external URL to the connection's profile
 	*/
-	function get_profile_link( $service_name, $c ) {
-		$cmeta = $this->get_connection_meta( $c );
+	function get_profile_link( $service_name, $connection ) {
+		$cmeta = $this->get_connection_meta( $connection );
 
 		if ( isset( $cmeta['connection_data']['meta']['link'] ) ) {
 			if ( 'facebook' == $service_name && 0 === strpos( parse_url( $cmeta['connection_data']['meta']['link'], PHP_URL_PATH ), '/app_scoped_user_id/' ) ) {
@@ -178,8 +178,8 @@ abstract class Publicize_Base {
 	/**
 	* Returns a display name for the connection
 	*/
-	function get_display_name( $service_name, $connecton ) {
-		$cmeta = $this->get_connection_meta( $connecton );
+	function get_display_name( $service_name, $connection ) {
+		$cmeta = $this->get_connection_meta( $connection );
 
 		if ( isset( $cmeta['connection_data']['meta']['display_name'] ) ) {
 			return $cmeta['connection_data']['meta']['display_name'];
@@ -212,8 +212,8 @@ abstract class Publicize_Base {
 		}
 	}
 
-	function show_options_popup( $service_name, $c ) {
-		$cmeta = $this->get_connection_meta( $c );
+	function show_options_popup( $service_name, $connection ) {
+		$cmeta = $this->get_connection_meta( $connection );
 
 		// always show if no selection has been made for facebook
 		if ( 'facebook' == $service_name && empty( $cmeta['connection_data']['meta']['facebook_profile'] ) && empty( $cmeta['connection_data']['meta']['facebook_page'] ) )
@@ -429,7 +429,7 @@ abstract class Publicize_Base {
 		if ( $viewable ) {
 			$view_text = __( 'View post' ); // intentinally omitted domain
 
-			if ( $post_type == 'jetpack-portfolio' ) {
+			if ( 'jetpack-portfolio' == $post_type ) {
 				$view_text = esc_html__( 'View project', 'jetpack' );
 			}
 
@@ -440,37 +440,37 @@ abstract class Publicize_Base {
 		}
 
 		$services = $this->get_publicizing_services( $post->ID );
-		if( empty( $services ) ) {
+		if ( empty( $services ) ) {
 			return $messages;
 		}
 
 		$labels = array();
-		foreach( $services as $service ) {
+		foreach ( $services as $service ) {
 			$labels[] = sprintf(
-				_x( '%1$s: %2$s', 'Service: Account publicizing to', 'jetpack' ),
+				_x( '%1$s: %2$s', 'Service name is %1$s, and account name is %2$s.', 'jetpack' ),
 				esc_html( $service['service_name'] ),
 				esc_html(  $service['display_name'] )
 			);
 		}
 
 		$messages['post'][6] = sprintf(
-			_x( 'Post published and publicizing to %1$s. %2$s', 'Published Message: Accounts to publish to, link to view published post', 'jetpack' ),
-			implode(',', $labels ),
+			_x( 'Post published and publicizing to %1$s. %2$s', 'Published Message: services and account string is %1$s, link to view published post is %2$s', 'jetpack' ),
+			implode(', ', $labels ),
 			$view_post_link_html );
 
 		if ( $post_type == 'post' && class_exists('Jetpack_Subscriptions' ) ) {
 			$subscription = Jetpack_Subscriptions::init();
 			if ( $subscription->should_email_post_to_subscribers( $post ) ) {
 				$messages['post'][6] = sprintf(
-					_x( 'Post published, sending emails to subscribers and publicizing to %1$s. %2$s', 'Published Message: Accounts to publish to, link to view published post', 'jetpack' ),
-					implode(',', $labels ),
+					_x( 'Post published, sending emails to subscribers and publicizing to %1$s. %2$s', 'Published Message: services and account string is %1$s, link to view published post is %2$s', 'jetpack' ),
+					implode(', ', $labels ),
 					$view_post_link_html );
 			}
 		}
 
 		$messages['jetpack-portfolio'][6] = sprintf(
-			_x( 'Project published and publicizing to %1$s. %2$s', 'Published Message: Accounts to publish to, link to view published post', 'jetpack' ),
-			implode(',', $labels ),
+			_x( 'Project published and publicizing to %1$s. %2$s', 'Published Message: services and account string is %1$s, link to view published post is %2$s', 'jetpack' ),
+			implode(', ', $labels ),
 			$view_post_link_html );
 
 		return $messages;
@@ -483,9 +483,9 @@ abstract class Publicize_Base {
 			// services have multiple connections.
 			foreach ( $connections as $connection ) {
 				$unique_id = '';
-				if ( !empty( $connection->unique_id ) )
+				if ( ! empty( $connection->unique_id ) )
 					$unique_id = $connection->unique_id;
-				else if ( !empty( $connection['connection_data']['token_id'] ) )
+				else if ( ! empty( $connection['connection_data']['token_id'] ) )
 					$unique_id = $connection['connection_data']['token_id'];
 
 				// Did we skip this connection?
@@ -495,7 +495,7 @@ abstract class Publicize_Base {
 
 				$services[] = array(
 					'service_name' => $this->get_service_label( $service_name ),
-					'display_name' => $this->get_display_name( $service_name, $connection )
+					'display_name' => $this->get_display_name( $service_name, $connection ),
 				);
 			}
 		}
