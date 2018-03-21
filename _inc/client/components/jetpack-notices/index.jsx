@@ -14,7 +14,11 @@ import NoticesList from 'components/global-notices';
  */
 import JetpackStateNotices from './state-notices';
 import { getSiteConnectionStatus, getSiteDevMode, isStaging, isInIdentityCrisis, isCurrentUserLinked } from 'state/connection';
-import { isDevVersion, userCanManageModules, userIsSubscriber } from 'state/initial-state';
+import {
+	isDevVersion,
+	userCanConnectSite,
+	userIsSubscriber
+} from 'state/initial-state';
 import DismissableNotices from './dismissable';
 import { getConnectUrl as _getConnectUrl } from 'state/connection';
 import JetpackBanner from 'components/jetpack-banner';
@@ -203,7 +207,10 @@ class JetpackNotices extends React.Component {
 					siteConnected={ true === this.props.siteConnectionStatus }
 					isLinked={ this.props.isLinked } />
 				{
-					( ! this.props.siteConnectionStatus && ! this.props.userCanManageModules ) && (
+					(
+						! this.props.siteConnectionStatus &&
+						! this.props.userCanConnectSite
+					) && (
 						<SimpleNotice
 							showDismiss={ false }
 							status="is-warning"
@@ -221,7 +228,7 @@ export default connect(
 		return {
 			connectUrl: _getConnectUrl( state ),
 			siteConnectionStatus: getSiteConnectionStatus( state ),
-			userCanManageModules: userCanManageModules( state ),
+			userCanConnectSite: userCanConnectSite( state ),
 			userIsSubscriber: userIsSubscriber( state ),
 			isLinked: isCurrentUserLinked( state ),
 			isDevVersion: isDevVersion( state ),
