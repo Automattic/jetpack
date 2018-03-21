@@ -13,6 +13,10 @@
 	@include breakpoint( ">660px" ) {
 		display: none;
 	}
+	.dops-button:first-of-type {
+		margin-right: 6px;
+		margin-bottom: 6px;
+	}
 }
 
 .plans-mobile-notice.dops-card h2 {
