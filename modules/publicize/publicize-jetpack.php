@@ -39,6 +39,10 @@ class Publicize extends Publicize_Base {
 		add_filter( 'jetpack_sharing_twitter_via', array( $this, 'get_publicized_twitter_account' ), 10, 2 );
 
 		include_once( JETPACK__PLUGIN_DIR . 'modules/publicize/enhanced-open-graph.php' );
+
+		include_once( JETPACK__PLUGIN_DIR . 'modules/publicize/class-async-publicize.php' );
+		// Extend publicize with support for asynchronous use (publish, and then later publicize)
+		$async_publicizer = new Async_Publicize();
 	}
 
 	function force_user_connection() {
