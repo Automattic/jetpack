@@ -82,6 +82,7 @@ services:
     restart: always
     environment:
       PHP_IDE_CONFIG: "serverName=Test"
+      WP_CLI_CONFIG_PATH: /var/configs/wp-cli.yml
       WORDPRESS_DB_HOST: db:3306
       WORDPRESS_DB_USER: wordpress
       WORDPRESS_DB_PASSWORD: wordpress

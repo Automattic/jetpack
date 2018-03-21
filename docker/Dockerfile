@@ -39,7 +39,8 @@ RUN a2enmod rewrite
 
 # Install wp-cli
 RUN curl -o /usr/local/bin/wp -SL https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli-nightly.phar \
-	&& chmod +x /usr/local/bin/wp
+	&& chmod +x /usr/local/bin/wp \
+	&& echo 'alias wp="wp --allow-root"' >> ~/.bash_aliases
 
 # Install PHPUnit
 RUN curl https://phar.phpunit.de/phpunit-5.7.5.phar -L -o phpunit.phar \
