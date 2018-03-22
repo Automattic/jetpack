@@ -7,7 +7,6 @@ import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import Button from 'components/button';
 import SimpleNotice from 'components/notice';
-import NoticeAction from 'components/notice/notice-action';
 import analytics from 'lib/analytics';
 import get from 'lodash/get';
 
@@ -116,7 +115,7 @@ class ProStatus extends React.Component {
 					message
 				}
 				{
-					action && <NoticeAction onClick={ this.handleClickForTracking( type, feature ) } href={ actionUrl }>{ action }</NoticeAction>
+					action && <a className="dops-notice__text-no-underline" onClick={ this.handleClickForTracking( type, feature ) } href={ actionUrl }>{ action }</a>
 				}
 			</SimpleNotice>
 		);
