@@ -13,24 +13,26 @@
 jQuery( function( $ ) {
 
 	/**
-	 * Publishes post without publicizing it.
+	 * Flags a soon-to-be-published post for no automatic publicizing.
 	 *
-	 * Calls publicize/posts/<post_id>/publish-wo-publicize to
-	 * publish the provided post id without triggering Publicize
-	 * to share the post. Post can later be publicized directly.
+	 * Calls publicize/posts/<post_id>/flag-no-publicize to
+	 * flag a post to NOT be automatically shared via Publicize.
+	 * This is used to decouple publishing and publicizing of a post.
+	 * This should only be called immediately before publishing because
+	 * the flag expires after a timeout.
 	 *
 	 * @since      5.9.1
 	 *
 	 * @fires   ajaxSend
 	 *
-	 * @param {int}   post_id           Post id of post being published
+	 * @param {int}   post_id           Post id of post being flagged
 	 *
 	 * @return None
 	 */
-	publicizeGutenbergPublish = function( post_id ) {
+	flagPostNoPublicize = function( post_id ) {
 		$.ajax({
 			type: 'POST',
-			url: async_publicize_setup.base_url + '/wp-json/publicize/posts/'+ post_id.toString() + '/publish-wo-publicize',
+			url: async_publicize_setup.base_url + '/wp-json/publicize/posts/'+ post_id.toString() + '/flag-no-publicize',
 			dataType: 'json',
 			beforeSend: function ( xhr ) {
 				xhr.setRequestHeader( 'X-WP-Nonce', async_publicize_setup.api_nonce );

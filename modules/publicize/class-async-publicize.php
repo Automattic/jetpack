@@ -31,12 +31,20 @@ class Async_Publicize {
 	protected $publicize;
 
 	/**
-	 * Meta key name to mark publishing posts that should not be publicized.
+	 * Meta key name to flag publishing posts that should not be publicized.
 	 *
 	 * @since 5.9.1
 	 * @var string $PUBLICIZE_BLOCK_META_KEY
 	 */
 	const PUBLICIZE_BLOCK_META_KEY = '_NO_PUBLICIZE';
+
+	/**
+	 * Time out in seconds before PUBLICIZE_BLOCK_META_KEY meta key expires.
+	 *
+	 * @since 5.9.1
+	 * @var int META_KEY_TIMEOUT_SECONDS
+	 */
+	const META_KEY_TIMEOUT_SECONDS = 60 * 5;
 
 	/**
 	 * Cosntructor for Async_Publicize
@@ -47,10 +55,10 @@ class Async_Publicize {
 	 */
 	public function __construct() {
 		add_action( 'rest_api_init', function () {
-			register_rest_route( 'publicize/', '/posts/(?P<post_id>\d+)/publish-wo-publicize', array(
-				'methods'  => 'POST',
-				'callback' => array( $this, 'publish_wo_publicize' ),
-				'post_id'  => array(
+			register_rest_route( 'publicize/', '/posts/(?P<post_id>\d+)/flag-no-publicize', array(
+				'methods'             => 'POST',
+				'callback'            => array( $this, 'flag_post_no_publicize' ),
+				'post_id'             => array(
 					'validate_post_id' => function( $param, $request, $key ) {
 						return is_int( $param );
 					},
@@ -64,8 +72,27 @@ class Async_Publicize {
 		// This filter is documented in publicize-jetpack.php.
 		add_filter( 'publicize_should_publicize_published_post', array( $this, 'can_publicize' ), 1, 2 );
 
+		// Setup callback to do cleanup after the post has actually been published
+		add_action( 'jetpack_published_post', array( $this, 'post_publish_cleanup' ), 10, 2 );
+
 		// Do post edit page specific setup.
 		add_action( 'admin_enqueue_scripts', array( $this, 'post_page_enqueue' ) );
+	}
+
+	/**
+	 * Completes any necessary cleanup after a post is published.
+	 *
+	 * Does cleanup after Jetpack is finished sending post for publish.
+	 * Useful for cleaning up the temporary meta key that blocks publicize.
+	 *
+	 * @since 5.9.1
+	 *
+	 * @param int $post_id ID number of post being published
+	 * @param array $flags {@see class.jetpack-sync-module-posts.php/send_published()}
+	 */
+	public function post_publish_cleanup( $post_id, $flags ) {
+		// Clean post meta since it's purpose has been served.
+		delete_post_meta( $post_id, self::PUBLICIZE_BLOCK_META_KEY );
 	}
 
 	/**
@@ -94,9 +121,9 @@ class Async_Publicize {
 	 * Filter function to block publicize on 'async' published post.
 	 *
 	 * Used as a 'publicize_should_publicize_published_post' filter callback to
-	 * block publicize on posts that have been marked with the
+	 * block publicize on posts that have been flagged with the
 	 * self::PUBLICIZE_BLOCK_META_KEY meta key, which is set
-	 * for posts that have been published via {@see 'publish_wo_publicize()'}.
+	 * for posts that have been published via {@see 'flag_post_no_publicize()'}.
 	 *
 	 * @since 5.9.1
 	 *
@@ -107,27 +134,55 @@ class Async_Publicize {
 	 * @return boolean True if post should be published, false otherwise.
 	 */
 	public function can_publicize( $should_publicize, $post ) {
-
 		// Catch posts that are being published with asynchronous publicization and don't publicize them.
 		if ( metadata_exists( 'post', $post->ID, self::PUBLICIZE_BLOCK_META_KEY ) ) {
-			// Clean post meta since it's purpose has been served.
-			delete_post_meta( $post->ID, self::PUBLICIZE_BLOCK_META_KEY );
+			$meta_status = $this->check_async_meta_status( $post->ID );
 
-			// Don't publicize.
-			return false;
+			if ( 'META_VALID' === $meta_status ) {
+				// Don't publicize since the flag has expired.
+				return false;
+			} else {
+				// Publicize post since the meta key has expired.
+				return true;
+			}
 		} else {
+			// Publicize post since it hasn't been flagged.
 			return true;
 		}
 	}
 
 	/**
+	 * Check if meta key flag for blocking publicize has expired.
+	 *
+	 * Implement the expiration of PUBLICIZE_BLOCK_META_KEY meta key.
+	 * Useful for handling the case where a post is flagged for no publicize
+	 * {@see flag_post_no_publicize()} but the publish operation does not
+	 * occur. Without a timeout, PUBLICIZE_BLOCK_META_KEY will be in effect
+	 * indefinitely, even if the post is later published from classic editor
+	 * or other non-Gutenberg source.
+	 *
+	 * @since 5.9.1
+	 *
+	 * @param int $post_id ID of post being queried.
+	 * @return string Returns 'META_VALID' if not expired, and 'META_EXPIRED' otherwise.
+	 */
+	public function check_async_meta_status( $post_id ) {
+		$time_flagged = get_post_meta( $post_id, self::PUBLICIZE_BLOCK_META_KEY, true );
+
+		if ( is_numeric( $time_flagged ) && ( $time_flagged < time() + self::META_KEY_TIMEOUT_SECONDS ) ) {
+			return 'META_VALID';
+		}
+
+		return 'META_EXPIRED';
+	}
+
+	/**
 	 * REST api callback for publishing a post without publicizing it.
 	 *
-	 * Function exposed as endpoint 'publicize/posts/<post_id>/publish-wo-publicize'.
-	 * Marks a post (using post meta key) so that it is NOT later publicized, and
-	 * then directly publishes the post. This should be called if the caller
-	 * wants to publish a post but not publicize it, so publicize can be later
-	 * completed if desired.
+	 * Function exposed as endpoint 'publicize/posts/<post_id>/flag-no-publicize'.
+	 * Marks a post (using post meta key) so that it is NOT later publicized.
+	 * This should be called if the caller is about to publish a post but does not
+	 * want it automatically publicized.
 	 *
 	 * @since 5.9.1
 	 *
@@ -136,7 +191,7 @@ class Async_Publicize {
 	 * @param WP_REST_Request $request Request instance from REST call.
 	 * @return string|null Result body to return to REST caller
 	 */
-	public function publish_wo_publicize( $request ) {
+	public function flag_post_no_publicize( $request ) {
 		$post_id = $request['post_id'];
 
 		if ( ! current_user_can( 'publish_post', $post_id ) ) {
@@ -162,13 +217,12 @@ class Async_Publicize {
 		 * is introduced so that Publicize knows the post is
 		 * coming from Gutenberg and can ignore the post.
 		 * Meta key checked when 'publicize_should_publicize_published_post'
-		 * filter is triggered {@see can_publicize()}
+		 * filter is triggered {@see can_publicize()}.
+		 * Current server timestamp is recorded so the request will expire.
 		 */
-		update_post_meta( $post_id, self::PUBLICIZE_BLOCK_META_KEY, true );
+		update_post_meta( $post_id, self::PUBLICIZE_BLOCK_META_KEY, time() );
 
-		wp_publish_post( $post_id );
 		return null;
-
 	}
 
 
