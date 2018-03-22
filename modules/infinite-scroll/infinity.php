@@ -217,24 +217,6 @@ class The_Neverending_Home_Page {
 					$settings['type'] = 'click';
 			}
 
-			// posts_per_page defaults to 7 for scroll, posts_per_page option for click
-			if ( false === $settings['posts_per_page'] ) {
-				if ( 'scroll' === $settings['type'] ) {
-					$settings['posts_per_page'] = 7;
-				}
-				else {
-					$settings['posts_per_page'] = (int) get_option( 'posts_per_page' );
-				}
-			}
-
-			// If IS is set to click, and if the site owner changed posts_per_page, let's use that
-			if (
-				'click' == $settings['type']
-				&& ( '10' !== get_option( 'posts_per_page' ) )
-			) {
-				$settings['posts_per_page'] = (int) get_option( 'posts_per_page' );
-			}
-
 			// Force display of the click handler and attendant bits when the type isn't `click`
 			if ( 'click' !== $settings['type'] ) {
 				$settings['click_handle'] = true;
@@ -255,6 +237,32 @@ class The_Neverending_Home_Page {
 
 		/** This filter is already documented in modules/infinite-scroll/infinity.php */
 		return (object) apply_filters( 'infinite_scroll_settings', self::$settings );
+	}
+
+	/**
+	 * Number of posts per page.
+	 *
+	 * @uses self::wp_query, self::get_settings, apply_filters
+	 * @return int
+	 */
+	static function posts_per_page() {
+		$posts_per_page = self::get_settings()->posts_per_page ? self::get_settings()->posts_per_page : self::wp_query()->get( 'posts_per_page' );
+
+		// Take JS query into consideration here
+		if ( true === isset( $_REQUEST['query_args']['posts_per_page'] ) ) {
+			$posts_per_page = $_REQUEST['query_args']['posts_per_page'];
+		}
+
+		/**
+		 * Filter the number of posts per page.
+		 *
+		 * @module infinite-scroll
+		 *
+		 * @since 6.0.0
+		 *
+		 * @param int $posts_per_page The number of posts to display per page.
+		 */
+		return (int) apply_filters( 'infinite_scroll_posts_per_page', $posts_per_page );
 	}
 
 	/**
@@ -315,7 +323,7 @@ class The_Neverending_Home_Page {
 		}
 
 		$entries = (int) self::wp_query()->found_posts;
-		$posts_per_page = self::get_settings()->posts_per_page;
+		$posts_per_page = self::posts_per_page();
 
 		// This is to cope with an issue in certain themes or setups where posts are returned but found_posts is 0.
 		if ( 0 == $entries ) {
@@ -381,7 +389,7 @@ class The_Neverending_Home_Page {
 			echo '<label>' . $notice . '</label>';
 		} else {
 			echo '<label><input name="infinite_scroll" type="checkbox" value="1" ' . checked( 1, '' !== get_option( self::$option_name_enabled ), false ) . ' /> ' . esc_html__( 'Check to load posts as you scroll. Uncheck to show clickable button to load posts', 'jetpack' ) . '</label>';
-			echo '<p class="description">' . esc_html( sprintf( _n( 'Shows %s post on each load.', 'Shows %s posts on each load.', self::get_settings()->posts_per_page, 'jetpack' ), number_format_i18n( self::get_settings()->posts_per_page ) ) ) . '</p>';
+			echo '<p class="description">' . esc_html( sprintf( _n( 'Shows %s post on each load.', 'Shows %s posts on each load.', self::posts_per_page(), 'jetpack' ), number_format_i18n( self::posts_per_page() ) ) ) . '</p>';
 		}
 	}
 
@@ -677,7 +685,7 @@ class The_Neverending_Home_Page {
 	 */
 	function posts_per_page_query( $query ) {
 		if ( ! is_admin() && self::archive_supports_infinity() && $query->is_main_query() )
-			$query->set( 'posts_per_page', self::get_settings()->posts_per_page );
+			$query->set( 'posts_per_page', self::posts_per_page() );
 	}
 
 	/**
@@ -1212,7 +1220,7 @@ class The_Neverending_Home_Page {
 		$query_args = array_merge( self::wp_query()->query_vars, array(
 			'paged'          => $page,
 			'post_status'    => $post_status,
-			'posts_per_page' => self::get_settings()->posts_per_page,
+			'posts_per_page' => self::posts_per_page(),
 			'post__not_in'   => ( array ) $sticky,
 			'order'          => $order
 		) );

@@ -74,7 +74,7 @@ function jetpack_woocommerce_infinite_scroll_settings( $settings ) {
 	if ( ! is_shop() && ! is_product_taxonomy() && ! is_product_category() && ! is_product_tag() ) {
 		return $settings;
 	}
-	$settings['posts_per_page'] = absint( apply_filters( 'loop_shop_per_page', wc_get_default_products_per_row() * wc_get_default_product_rows_per_page() ) );
+
 	return $settings;
 }
 
