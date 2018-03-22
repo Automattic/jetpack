@@ -112,8 +112,6 @@ class The_Neverending_Home_Page {
 							case 'render' :
 								if ( false !== $value && is_callable( $value ) ) {
 									$settings[ $key ] = $value;
-
-									add_action( 'infinite_scroll_render', $value );
 								}
 
 								break;
@@ -1261,27 +1259,42 @@ class The_Neverending_Home_Page {
 
 			$results['type'] = 'success';
 
-			// First, try theme's specified rendering handler, either specified via `add_theme_support` or by hooking to this action directly.
-			ob_start();
 			/**
-			 * Fires when rendering Infinite Scroll posts.
+			 * Gather renderer callbacks. These will be called in order and allow multiple callbacks to be queued. Once content is found, no futher callbacks will run.
 			 *
 			 * @module infinite-scroll
 			 *
-			 * @since 2.0.0
+			 * @since 6.0.0
 			 */
-			do_action( 'infinite_scroll_render' );
-			$results['html'] = ob_get_clean();
+			$callbacks = apply_filters( 'infinite_scroll_render_callbacks', array() );
 
-			// Fall back if a theme doesn't specify a rendering function. Because themes may hook additional functions to the `infinite_scroll_render` action, `has_action()` is ineffective here.
-			if ( empty( $results['html'] ) ) {
-				add_action( 'infinite_scroll_render', array( $this, 'render' ) );
-				rewind_posts();
+			// Append the setting callback e.g. from add theme support.
+			$callbacks[] = self::get_settings()->render;
 
-				ob_start();
-				/** This action is already documented in modules/infinite-scroll/infinity.php */
-				do_action( 'infinite_scroll_render' );
-				$results['html'] = ob_get_clean();
+			// Append fallback callback. That rhymes.
+			$callbacks[] = array( $this, 'render' );
+
+			foreach ( $callbacks as $callback ) {
+				if ( false !== $callback && is_callable( $callback ) ) {
+					rewind_posts();
+					ob_start();
+					add_action( 'infinite_scroll_render', $callback );
+
+					/**
+					 * Fires when rendering Infinite Scroll posts.
+					 *
+					 * @module infinite-scroll
+					 *
+					 * @since 2.0.0
+					 */
+					do_action( 'infinite_scroll_render' );
+
+					$results['html'] = ob_get_clean();
+					remove_action( 'infinite_scroll_render', $callback );
+				}
+				if ( ! empty( $results['html'] ) ) {
+					break;
+				}
 			}
 
 			// If primary and fallback rendering methods fail, prevent further IS rendering attempts. Otherwise, wrap the output if requested.
