@@ -19,7 +19,6 @@ function jetpack_woocommerce_integration() {
 	 */
 	if ( function_exists( 'wc_get_default_products_per_row' ) ) {
 		add_filter( 'infinite_scroll_render_callbacks', 'jetpack_woocommerce_infinite_scroll_render_callback', 10 );
-		add_filter( 'infinite_scroll_settings', 'jetpack_woocommerce_infinite_scroll_settings', 10 );
 		add_action( 'wp_enqueue_scripts', 'jetpack_woocommerce_infinite_scroll_style', 10 );
 	}
 }
@@ -62,20 +61,6 @@ function jetpack_woocommerce_infinite_scroll_render() {
 	}
 
 	woocommerce_product_loop_end();
-}
-
-/**
- * Adjust settings
- *
- * @param [type] $settings
- * @return void
- */
-function jetpack_woocommerce_infinite_scroll_settings( $settings ) {
-	if ( ! is_shop() && ! is_product_taxonomy() && ! is_product_category() && ! is_product_tag() ) {
-		return $settings;
-	}
-
-	return $settings;
 }
 
 /**
