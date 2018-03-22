@@ -20,6 +20,7 @@ function jetpack_woocommerce_integration() {
 	if ( function_exists( 'wc_get_default_products_per_row' ) ) {
 		add_filter( 'infinite_scroll_render_callbacks', 'jetpack_woocommerce_infinite_scroll_render_callback', 10 );
 		add_filter( 'infinite_scroll_settings', 'jetpack_woocommerce_infinite_scroll_settings', 10 );
+		add_action( 'wp_enqueue_scripts', 'jetpack_woocommerce_infinite_scroll_style', 10 );
 	}
 }
 
@@ -75,4 +76,15 @@ function jetpack_woocommerce_infinite_scroll_settings( $settings ) {
 	}
 	$settings['posts_per_page'] = absint( apply_filters( 'loop_shop_per_page', wc_get_default_products_per_row() * wc_get_default_product_rows_per_page() ) );
 	return $settings;
+}
+
+/**
+ * Basic styling when infinite scroll is active only.
+ */
+function jetpack_woocommerce_infinite_scroll_style() {
+	$custom_css = "
+	.infinite-scroll .woocommerce-pagination {
+		display: none;
+	}";
+	wp_add_inline_style( 'woocommerce-layout', $custom_css );
 }
