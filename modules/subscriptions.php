@@ -168,10 +168,15 @@ class Jetpack_Subscriptions {
 			return $messages;
 		}
 
+		$view_post_link_html = sprintf( ' <a href="%1$s">%2$s</a>',
+			esc_url( get_permalink( $post ) ),
+			__( 'View post' ) // intentinally omitted domain
+		);
+
 		$messages['post'][6] = sprintf(
-				__( 'Post published and sending emails to subscribers. <a href="%1$s">%2$s</a>', 'jetpack' ),
-				esc_url( get_permalink( $post ) ),
-				__( 'View post' ) // intentinally omitted domain
+				/* translators: Link to view published post is %1$s */
+				esc_html__( 'Post published and sending emails to subscribers. %1$s', 'jetpack' ),
+				$view_post_link_html
 			);
 		return $messages;
 	}
