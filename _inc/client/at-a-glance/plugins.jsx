@@ -81,7 +81,7 @@ class DashPluginUpdates extends Component {
 			! this.props.isDevMode && (
 				<Card
 					key="manage-plugins"
-					className="jp-dash-item__manage-plugins"
+					className="jp-dash-item__manage-in-wpcom"
 					compact
 					href={ managePluginsUrl }
 				>
