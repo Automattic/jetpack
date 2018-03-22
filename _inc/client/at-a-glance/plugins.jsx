@@ -78,14 +78,16 @@ class DashPluginUpdates extends Component {
 					}
 				</p>
 			</DashItem>,
-			<Card
-				key="manage-plugins"
-				className="jp-dash-item__manage-plugins"
-				compact
-				href={ managePluginsUrl }
-			>
-				{ __( 'Manage your plugins' ) }
-			</Card>
+			! this.props.isDevMode && (
+				<Card
+					key="manage-plugins"
+					className="jp-dash-item__manage-plugins"
+					compact
+					href={ managePluginsUrl }
+				>
+					{ __( 'Manage your plugins' ) }
+				</Card>
+			)
 		];
 	}
 
