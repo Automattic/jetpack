@@ -47,13 +47,41 @@ class Async_Publicize {
 	const META_KEY_TIMEOUT_SECONDS = 60 * 5;
 
 	/**
+	 * Time out in seconds before WPCOM REST calls timeout.
+	 *
+	 * @since 5.9.1
+	 * @var int WPCOM_REST_TIMEOUT
+	 */
+	const WPCOM_REST_TIMEOUT = 90;
+
+	/**
+	 * WPCOM REST API version string.
+	 *
+	 * @since 5.9.1
+	 * @var string API_VERSION
+	 */
+	const API_VERSION = 'v2';
+
+	/**
+	 * Base URL to WPCOM REST API.
+	 *
+	 * @since 5.9.1
+	 * @var string API_BASE_URL
+	 */
+	const API_BASE_URL = 'https://public-api.wordpress.com/wpcom/';
+
+	/**
 	 * Cosntructor for Async_Publicize
 	 *
 	 * Set up hooks to extend legacy Publicize behavior.
 	 *
 	 * @since 5.9.1
+	 *
+	 * @param Publicize $publicize Instance of main module class, used to access helper methods.
 	 */
-	public function __construct() {
+	public function __construct( $publicize ) {
+		$this->publicize = $publicize;
+
 		add_action( 'rest_api_init', function () {
 			register_rest_route( 'publicize/', '/posts/(?P<post_id>\d+)/flag-no-publicize', array(
 				'methods'             => 'POST',
@@ -69,14 +97,99 @@ class Async_Publicize {
 			) );
 		} );
 
+		add_action( 'rest_api_init', function () {
+			register_rest_route( 'publicize/', '/posts/(?P<post_id>\d+)/publicize', array(
+				'methods'             => 'POST',
+				'callback'            => array( $this, 'publicize_post' ),
+				'post_id'             => array(
+					'validate_post_id' => function( $param, $request, $key ) {
+						return is_int( $param );
+					},
+				),
+				'permission_callback' => function () {
+					return current_user_can( 'publish_posts' );
+				},
+			) );
+		} );
+
 		// This filter is documented in publicize-jetpack.php.
 		add_filter( 'publicize_should_publicize_published_post', array( $this, 'can_publicize' ), 1, 2 );
 
-		// Setup callback to do cleanup after the post has actually been published
+		// Setup callback to do cleanup after the post has actually been published.
 		add_action( 'jetpack_published_post', array( $this, 'post_publish_cleanup' ), 10, 2 );
 
 		// Do post edit page specific setup.
 		add_action( 'admin_enqueue_scripts', array( $this, 'post_page_enqueue' ) );
+	}
+
+	/**
+	 * Submits publicize request to WPCOM
+	 *
+	 * Checks authorization, and if appropriate, makes a REST call
+	 * to WPCOM to publicize the post with the provided id. Creating
+	 * a custom endpoint for this from the plugin, allows Publicize
+	 * interaction to be encapsulated here instead of requiring separate
+	 * direct call to WPCOM from client. The REST call can also readily
+	 * use Jetpack's authorization to make the connection.
+	 *
+	 * @since 5.9.1
+	 *
+	 * @param WP_REST_Request $request Request instance from REST call.
+	 * @return string|null Result body to return to REST caller
+	 */
+	public function publicize_post( $request ) {
+		$post_id = $request['post_id'];
+		// Message to be used when sharing to social networks.
+		$message = $request->get_header( 'message' );
+
+		if ( ! $this->can_publicize_post( $post_id ) ) {
+			/*
+			 * This is not necessarily an error. The post was filtered by the plugin
+			 * or some hook that was added in. Just return null.
+			 */
+			return null;
+		}
+
+		// Get global id of blog on WPCOM.
+		$blog_id       = Jetpack_Options::get_option( 'id' );
+		$endpoint_url  = self::API_BASE_URL . self::API_VERSION . '/sites/' . $blog_id . '/posts/' . $post_id . '/publicize';
+		$endpoint_url .= '?message=' . sanitize_text_field( $message );
+
+		$request_args = array(
+			'url'     => $endpoint_url,
+			'method'  => 'POST',
+			'timeout' => self::WPCOM_REST_TIMEOUT,
+			'user_id' => JETPACK_MASTER_USER,
+		);
+
+		$result = Jetpack_Client::remote_request( $request_args );
+
+		// Pass through body of response (contains list of succesful connection post ids).
+		return $result['body'];
+	}
+
+	/**
+	 * Checks if post should be filtered out
+	 *
+	 * Calls back to filter method of main Publicize class
+	 * to disable publicize on the post if necessary.
+	 *
+	 * @since 5.9.1
+	 * @see publicize-jetpack.php/set_post_flags()
+	 *
+	 * @param  int $post_id ID number of post.
+	 * @return boolean True if post can be publicized, false otherwise.
+	 */
+	public function can_publicize_post( $post_id ) {
+		$empty_flags     = array();
+		$post            = get_post( $post_id );
+		$publicize_flags = $this->publicize->set_post_flags( $empty_flags, $post );
+
+		if ( isset( $publicize_flags['publicize_post'] ) && $publicize_flags['publicize_post'] ) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	/**
