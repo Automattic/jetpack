@@ -6,8 +6,6 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
 import noop from 'lodash/noop';
-import isEmpty from 'lodash/isEmpty';
-import get from 'lodash/get';
 
 /**
  * Internal dependencies
@@ -26,7 +24,7 @@ import { isDevMode } from 'state/connection';
 const renderCard = ( props ) => (
 	<DashItem
 		label={ __( 'Search' ) }
-		module='search'
+		module="search"
 		className={ props.className }
 		status={ props.status }
 		isModule={ props.pro_inactive }
@@ -52,24 +50,22 @@ class DashSearch extends Component {
 	};
 
 	render() {
-		const labelName = __( 'Search' ),
-			foundSearch = this.props.isModuleFound( 'search' ),
+		const foundSearch = this.props.isModuleFound( 'search' ),
 			activateSearch = () => this.props.updateOptions( { search: true } );
 
 		if ( this.props.isDevMode ) {
 			return renderCard( {
-				className: "jp-dash-item__is-inactive",
-				status: "no-pro-uninstalled-or-inactive",
+				className: 'jp-dash-item__is-inactive',
+				status: 'no-pro-uninstalled-or-inactive',
 				pro_inactive: true,
 				content: __( 'Unavailable in Dev Mode' )
 			} );
 		}
 
-
 		if ( ! foundSearch ) {
 			return renderCard( {
-				className: "jp-dash-item__is-inactive",
-				status: "no-pro-uninstalled-or-inactive",
+				className: 'jp-dash-item__is-inactive',
+				status: 'no-pro-uninstalled-or-inactive',
 				pro_inactive: true,
 				content: __( 'Give your visitors {{a}}a great search experience{{/a}}.', {
 					components: {
@@ -87,7 +83,7 @@ class DashSearch extends Component {
 			return ( <div className="jp-dash-item">
 				<DashItem
 					label={ __( 'Search' ) }
-					module='search'
+					module="search"
 					className="jp-dash-item__is-active"
 					isModule={ false }
 					pro={ true }
@@ -101,7 +97,7 @@ class DashSearch extends Component {
 		}
 
 		return renderCard( {
-			className: "jp-dash-item__is-inactive",
+			className: 'jp-dash-item__is-inactive',
 			pro_inactive: false,
 			content: __( '{{a}}Activate{{/a}} to replace the WordPress built-in search with an improved search experience.', {
 				components: {
