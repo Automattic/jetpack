@@ -56,26 +56,60 @@ require_once WPCOMSH__PLUGIN_DIR_PATH . '/class.jetpack-plugin-compatibility.php
 
 if ( class_exists( 'Jetpack_Plugin_Compatibility' ) ) {
 	$wpcomsh_incompatible_plugins = array(
-		'advanced-database-cleaner/advanced-db-cleaner.php' => 'advanced-database-cleaner and other WordPress reset plugins delete data necessary to manage your site and are not supported on WordPress.com. advanced-database-cleaner has been deactivated.',
-		'advanced-reset-wp/advanced-reset-wp.php' => 'advanced-reset-wp and other WordPress reset plugins delete data necessary to manage your site and are not supported on WordPress.com. advanced-reset-wp has been deactivated.',
-		'advanced-wp-reset/advanced-wp-reset.php' => 'advanced-wp-reset and other WordPress reset plugins delete data necessary to manage your site and are not supported on WordPress.com. advanced-wp-reset has been deactivated.',
-		'better-wp-security/better-wp-security.php' => 'better-wp-security and similar reset security delete data necessary to manage your site and are not supported on Wordpress.com. better-wp-security has been deactivated.',
-		'bwp-minify/bwp-minify.php' => 'bwp-minify and similar minification plugins delete data necessary to manage your site and are not supported on Wordpress.com. bwp-minify has been deactivated.',
-		'e-mail-broadcasting/e-mail-broadcasting.php' => 'The use of "E-Mail Broadcasting" is not allowed.',
-		'send-email-from-admin/send-email-from-admin.php' => 'The use of "Send Email From Admin" is not allowed.',
-		'file-manager/file-manager.php' => 'file-manager and similar manager plugins delete data necessary to manage your site and are not supported on Wordpress.com. file-manager has been deactivated.',
-		'mailit/mailit.php' => 'The use of "Mail It!" is not allowed.',
-		'nginx-helper/nginx-helper.php' => 'nginx-helper and similar caching plugins delete data necessary to manage your site and are not supported on Wordpress.com. nginx-helper has been deactivated.',
-		'reset-wp/reset-wp.php' => 'reset-wp and other WordPress reset plugins delete data necessary to manage your site and are not supported on WordPress.com. reset-wp has been deactivated.',
-		'w3-total-cache/w3-total-cache.php' => 'w3-total-cache and similar caching plugins delete data necessary to manage your site and are not supported on Wordpress.com. w3-total-cache has been deactivated.',
-		'wordpress-database-reset/wp-reset.php' => 'wordpress-database-reset and other WordPress reset plugins delete data necessary to manage your site and are not supported on WordPress.com. wordpress-database-reset has been deactivated.',
-		'wordpress-reset/wordpress-reset.php' => 'wordpress-reset and similar reset plugins delete data necessary to manage your site and are not supported on Wordpress.com. wordpress-reset has been deactivated.',
-		'wp-clone-by-wp-academy/wp-clone-by-wp-academy.php' => 'wp-clone-by-wp-academy and similar clone plugins delete data necessary to manage your site and are not supported on Wordpress.com. wp-clone-by-wp-academy has been deactivated.',
-		'wp-fastest-cache/wp-fastest-cache.php' => 'wp-fastest-cache and similar reset plugins delete data necessary to manage your site and are not supported on Wordpress.com. wp-fastest-cache has been deactivated.',
-		'wp-reset/wp-reset.php' => 'wp-reset and other WordPress reset plugins delete data necessary to manage your site and are not supported on WordPress.com. wp-reset has been deactivated.',
-		'wp-rocket/wp-rocket.php' => 'wp-rocket and similar caching plugins delete data necessary to manage your site and are not supported on Wordpress.com. wp-rocket has been deactivated.',
-		'wp-super-cache/wp-super-cache.php' => 'wp-super-cache and similar caching plugins delete data necessary to manage your site and are not supported on Wordpress.com. wp-super-cache has been deactivated.',
-		'wpmu-database-reset/wpmu-database-reset.php' => 'wpmu-database-reset and other WordPress reset plugins delete data necessary to manage your site and are not supported on WordPress.com. wp-reset has been deactivated.',
+		// "reset" - break/interfere with provided functionality
+		'advanced-database-cleaner/advanced-db-cleaner.php' => '"advanced-database-cleaner" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
+		'advanced-reset-wp/advanced-reset-wp.php' => '"advanced-reset-wp" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
+		'advanced-wp-reset/advanced-wp-reset.php' => '"advanced-wp-reset" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
+		'better-wp-security/better-wp-security.php' => '"better-wp-security" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
+		'duplicator/duplicator.php' => '"duplicator" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
+		'file-manager-advanced/file_manager_advanced.php' => '"file-manager-advanced" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
+		'file-manager/file-manager.php' => '"file-manager" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
+		'reset-wp/reset-wp.php' => '"reset-wp" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
+		'wordpress-database-reset/wp-reset.php' => '"wordpress-database-reset" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
+		'wordpress-reset/wordpress-reset.php' => '"wordpress-reset" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
+		'wp-clone-by-wp-academy/wpclone.php' => '"wp-clone-by-wp-academy" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
+		'wp-prefix-changer/index.php' => '"wp-prefix-changer" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
+		'wp-reset/wp-reset.php' => '"wp-reset" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
+		'wpmu-database-reset/wpmu-database-reset.php' => '"wpmu-database-reset" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
+		'z-inventory-manager/z-inventory-manager.php' => '"z-inventory-manager" has been deactivated, it deletes data necessary to manage your site and is not supported on WordPress.com.',
+
+		// backup
+		'backup-wd/backup-wd.php' => '"backup-wd" has been deactivated, WordPress.com handles managing your site backups for you.',
+		'backupwordpress/backupwordpress.php' => '"backupwordpress" has been deactivated, WordPress.com handles managing your site backups for you.',
+		'backwpup/backwpup.php' => '"backwpup" has been deactivated, WordPress.com handles managing your site backups for you.',
+		'updraftplus/updraftplus.php' => '"updraftplus" has been deactivated, WordPress.com handles managing your site backups for you.',
+		'wp-db-backup/wp-db-backup.php' => '"wp-db-backup" has been deactivated, WordPress.com handles managing your site backups for you.',
+
+		// caching
+		'quick-cache/quick-cache.php' => '"quick-cache" has been deactivated, WordPress.com automatically handles caching for your site.',
+		'w3-total-cache/w3-total-cache.php' => '"w3-total-cache" has been deactivated, WordPress.com automatically handles caching for your site.',
+		'wp-cache/wp-cache.php' => '"wp-cache" has been deactivated, WordPress.com automatically handles caching for your site.',
+		'wp-fastest-cache/wpFastestCache.php' => '"wp-fastest-cache" has been deactivated, WordPress.com automatically handles caching for your site.',
+		'wp-rocket/wp-rocket.php' => '"wp-rocket" has been deactivated, WordPress.com automatically handles caching for your site.',
+		'wp-super-cache/wp-cache.php' => '"wp-super-cache" has been deactivated, WordPress.com automatically handles caching for your site.',
+
+		// sql heavy
+		'page-visit-counter/page_visit_counter.php' => '"page-visit-counter" has been deactivated, plugins that insert or update the database on page load can cause severe performance issues for your site and are not supported.',
+		'post-views-counter/post-views-counter.php' => '"post-views-counter" has been deactivated, plugins that insert or update the database on page load can cause severe performance issues for your site and are not supported.',
+		'wp-postviews/wp-postviews.php' => '"wp-postviews" has been deactivated, plugins that insert or update the database on page load can cause severe performance issues for your site and are not supported.',
+		'wp-statistics/wp-statistics.php' => '"wp-statistics" has been deactivated, plugins that insert or update the database on page load can cause severe performance issues for your site and are not supported.',
+
+		// security
+		'wordfence/wordfence.php' => '"wordfence" has been deactivated, "security" related plugins may break your site or cause performance issues for your site and are not supported on WordPress.com.',
+
+		// spam
+		'e-mail-broadcasting/e-mail-broadcasting.php' => '"e-mail-broadcasting" has been deactivated, plugins that support sending e-mails in bulk are not supported on WordPress.com.',
+		'mailit/mailit.php' => '"mailit"has been deactivated, plugins that support sending e-mails in bulk are not supported on WordPress.com.',
+		'send-email-from-admin/send-email-from-admin.php' => '"send-email-from-admin" has been deactivated, plugins that support sending e-mails in bulk are not supported on WordPress.com.',
+
+		// cloning/staging
+		'wp-staging/wp-staging.php' => 'wp-staging plugins delete data necessary to manage your site and are not supported on WordPress.com. wp-staging has been deactivated.',
+
+		// misc
+		'automatic-video-posts' => '"automatic-video-posts" is not supported on WordPress.com.',
+		'bwp-minify/bwp-minify.php' => '"bwp-minify" is not supported on WordPress.com.',
+		'nginx-helper/nginx-helper.php' => '"nginx-helper" is not supported on WordPress.com.',
+		'video-importer/video-importer.php' => '"video-importer" is not supported on WordPress.com.'
 	);
 	new Jetpack_Plugin_Compatibility( $wpcomsh_incompatible_plugins );
 }
