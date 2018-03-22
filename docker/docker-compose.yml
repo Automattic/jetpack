@@ -95,7 +95,7 @@ services:
       DB_NAME: ${DB_NAME:-wordpress}
       DB_USER: ${DB_USER:-wordpress}
       DB_PASSWORD: ${DB_PASSWORD:-wordpress}
-      WP_DOMAIN: ${WP_DOMAIN:-wordpress}
+      WP_DOMAIN: ${WP_DOMAIN:-localhost}
       WP_ADMIN_USER: ${WP_ADMIN_USER:-wordpress}
       WP_ADMIN_PASSWORD: ${WP_ADMIN_PASSWORD:-wordpress}
       WP_ADMIN_EMAIL: ${WP_ADMIN_EMAIL:-wordpress@example.com}
