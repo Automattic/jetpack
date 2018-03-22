@@ -36,7 +36,7 @@ class Async_Publicize {
 	 * @since 5.9.1
 	 * @var string $PUBLICIZE_BLOCK_META_KEY
 	 */
-	const PUBLICIZE_BLOCK_META_KEY = '_NO_PUBLICIZE';
+	const PUBLICIZE_BLOCK_META_KEY = '_no_publicize';
 
 	/**
 	 * Time out in seconds before PUBLICIZE_BLOCK_META_KEY meta key expires.
