@@ -42,6 +42,9 @@ const meta = require( './package.json' );
 import {} from './tools/builder/frontend-css';
 import {} from './tools/builder/admin-css';
 
+// These paths should alawys be ignored when watching files
+const alwaysIgnoredPaths = [ '!node_modules/**', '!vendor/**', '!docker/**' ];
+
 function onBuild( done ) {
 	return function( err, stats ) {
 		// Webpack doesn't populate err in case the build fails
@@ -191,7 +194,7 @@ gulp.task( 'sass:build', [ 'react:build' ], doSass );
 
 gulp.task( 'sass:watch', function() {
 	doSass();
-	gulp.watch( [ './**/*.scss' ], doSass );
+	gulp.watch( [ './**/*.scss', ...alwaysIgnoredPaths ], doSass );
 } );
 
 gulp.task( 'react:build', function( done ) {
@@ -333,7 +336,7 @@ gulp.task( 'old-sass:rtl', function() {
  */
 gulp.task( 'check:DIR', function() {
 	// __DIR__ is not available in PHP 5.2...
-	return gulp.src( [ '!vendor', '!vendor/**', '*.php', '**/*.php' ] )
+	return gulp.src( [ '*.php', '**/*.php', ...alwaysIgnoredPaths ] )
 		.pipe( check( '__DIR__' ) )
 		.on( 'error', function( err ) {
 			log( colors.red( err ) );
@@ -344,7 +347,7 @@ gulp.task( 'check:DIR', function() {
 	PHP Lint
  */
 gulp.task( 'php:lint', function() {
-	return gulp.src( [ '!node_modules', '!node_modules/**', '!vendor', '!vendor/**', '*.php', '**/*.php' ] )
+	return gulp.src( [ '*.php', '**/*.php', ...alwaysIgnoredPaths ] )
 		.pipe( phplint( '', { skipPassedFiles: true } ) );
 } );
 
@@ -560,7 +563,7 @@ gulp.task( 'languages:extract', function( done ) {
  * Gutenpack!
  */
 gulp.task( 'gutenpack', function() {
-	return gulp.src( '**/*/*block.jsx' )
+	return gulp.src( [ '**/*/*block.jsx', ...alwaysIgnoredPaths ] )
 		.pipe( babel( {
 			plugins: [
 				[
@@ -577,7 +580,7 @@ gulp.task( 'gutenpack', function() {
 } );
 
 gulp.task( 'gutenpack:watch', function() {
-	return gulp.watch( [ '**/*/*block.jsx' ], [ 'gutenpack' ] );
+	return gulp.watch( [ '**/*/*block.jsx', ...alwaysIgnoredPaths ], [ 'gutenpack' ] );
 } );
 
 // Default task
