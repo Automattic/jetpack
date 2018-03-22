@@ -799,7 +799,7 @@ class The_Neverending_Home_Page {
 
 				if ( isset( $cpt_text ) ) {
 					/* translators: %s is the name of a custom post type */
-					$click_handle_text = sprintf( __( 'Older %s', 'jetpack' ), $cpt_text );
+					$click_handle_text = sprintf( __( 'More %s', 'jetpack' ), $cpt_text );
 					unset( $cpt_text );
 				}
 			}
