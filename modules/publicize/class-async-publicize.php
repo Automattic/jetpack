@@ -200,8 +200,8 @@ class Async_Publicize {
 	 *
 	 * @since 5.9.1
 	 *
-	 * @param int $post_id ID number of post being published
-	 * @param array $flags {@see class.jetpack-sync-module-posts.php/send_published()}
+	 * @param int   $post_id ID number of post being published.
+	 * @param array $flags {@see class.jetpack-sync-module-posts.php/send_published()}.
 	 */
 	public function post_publish_cleanup( $post_id, $flags ) {
 		// Clean post meta since it's purpose has been served.
