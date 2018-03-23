@@ -61,29 +61,6 @@
 	}
 }
 
-// Planet + star svgs for decoration only
-.jp-connect-full__svg-jupiter {
-	position: absolute;
-		right: 0;
-		top: rem( 80px );
-		opacity: .90;
-
-		@include breakpoint(tablet) {
-			display: none;
-		};
-}
-
-.jp-connect-full__svg-stars {
-	position: absolute;
-		left: rem( 100px );
-		top: rem( 100px );
-		opacity: .90;
-
-		@include breakpoint(tablet) {
-			display: none;
-		};
-}
-
 // dismiss
 .jp-connect-full__svg-dismiss {
 	position: absolute;
@@ -99,68 +76,31 @@
 	};
 }
 
-.jp-connect-full__step-header-logos {
-	display: flex;
-	align-items: center;
-	flex-direction: row;
-	justify-content: center;
+.jp-connect-full__step-header {
+	font-family: $gill;
 
-	.jp-connect-full__svg-jetpack,
-	.jp-connect-full__svg-jetpack {
-		fill: $gray;
+	h2 {
+		margin: rem( 14px ) 0 rem( 8px ) 0;
+		font-size: rem( 22px );
+		line-height: 1.25;
+		font-weight: $bold;
+		color: black;
 	}
 
-	.jp-connect-full__svg-sync {
-		fill: $gray-dark;
-		margin: 0 rem( 16px );
+	h3 {
+		color: $gray-text-min;
+		font-size: rem( 16px );
+		font-weight: normal;
 	}
-
-	@include breakpoint(phablet) {
-			padding-top: rem( 32px );
-	};
 }
-
-.jp-connect-full__step-header-title {
-	padding: rem( 16px );
-	font-size: rem( 24px );
-	line-height: 1.25;
-	color: $gray-dark;
-	font-weight: 400;
-}
-
-.jp-connect-full__card {
-	padding: 0;
-	margin: 0 auto;
-	box-shadow: 0 0 0 1px rgba(200, 215, 225, 0.5), 0 1px 2px #e9eff3;
-	background: $white;
-	max-width: rem( 550px );
-}
-
-.jp-connect-full__card-inner {
-	padding: rem( 16px );
-}
-
-.jp-connect-full__card-description {
-	font-size: rem( 14px );
-	color: $gray-dark;
-}
-
-.jp-connect-full__card-footer {
-	background: $gray-light;
-	padding: rem( 16px );
-	box-shadow: 0 0 0 1px rgba(200, 215, 225, 0.5), 0 1px 2px #e9eff3;
-}
-
 .jp-connect-full__tos-blurb {
 	font-size: rem( 11px );
 	margin: 0 auto rem( 16px );
-	max-width: rem( 385px );
-	color: $gray-dark;
-}
-
-.jp-connect-full__tos-a {
-	text-decoration: none;
-	color: $blue-wordpress;
+	color: $gray-text-min;
+	a{
+		text-decoration: none;
+		color: $green-primary;
+	}
 }
 
 .jp-connect-full__button-container {
@@ -173,20 +113,6 @@
 			background: $green-secondary;
 			border-color: $green-dark;
 		}
-	}
-}
-
-.jp-connect-full__help-button {
-	display: inline-block;
-	text-decoration: none;
-	color: $gray;
-	padding: rem( 16px );
-
-	.gridicon {
-		width: rem( 18px );
-		height: rem( 18px );
-		position: relative;
-		top: 4px;
 	}
 }
 
