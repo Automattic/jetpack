@@ -122,6 +122,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Protect: Started blocking XML RPC requests when they get marked as blocked by Protect.
 * SEO Tools: Removed SEO Tools from Jumpstart
 * VideoPress: Default to grid view when linking to upload videos
+* Widgets: Added rel=noopener attribute to links in the Display WordPress Posts widget if set to open in a new window.
 
 
 **Improved compatibility**
