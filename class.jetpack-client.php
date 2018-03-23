@@ -268,20 +268,20 @@ class Jetpack_Client {
 	}
 
 	/**
-	 * Queries the WordPress.com REST API v2 with a user token.
+	 * Queries the WordPress.com REST API with a user token.
 	 *
-	 * @param  string $path    REST API path.
-	 * @param  array  $args    Arguments to {@see WP_Http}. Default is `array()`.
-	 * @param  string $body    Body passed to {@see WP_Http}. Default is `null`.
-	 * @param  string $root    REST API root. Default is `wpcom`.
-	 * @param  string $version REST API version. Default is `2`.
+	 * @param  string $path             REST API path.
+	 * @param  string $version          REST API version. Default is `2`.
+	 * @param  array  $args             Arguments to {@see WP_Http}. Default is `array()`.
+	 * @param  string $body             Body passed to {@see WP_Http}. Default is `null`.
+	 * @param  string $base_api_path    REST API root. Default is `wpcom`.
 	 *
 	 * @return array|WP_Error $response Response data, else {@see WP_Error} on failure.
 	 */
-	public static function wpcom_json_api_request_as_user( $path, $args = array(), $body = null, $root = 'wpcom', $version = '2' ) {
-		$root    = trim( $root, '/' );
-		$version = ltrim( $version, 'v' );
-		$path    = ltrim( $path, '/' );
+	public static function wpcom_json_api_request_as_user( $path, $version = '2', $args = array(), $body = null, $base_api_path = 'wpcom' ) {
+		$base_api_path = trim( $base_api_path, '/' );
+		$version       = ltrim( $version, 'v' );
+		$path          = ltrim( $path, '/' );
 
 		$args = array_intersect_key( $args, array(
 			'headers'     => 'array',
@@ -295,7 +295,7 @@ class Jetpack_Client {
 
 		$args['user_id'] = get_current_user_id();
 		$args['method']  = isset( $args['method'] ) ? strtoupper( $args['method'] ) : 'GET';
-		$args['url']     = sprintf( '%s://%s/%s/v%s/%s', self::protocol(), JETPACK__WPCOM_JSON_API_HOST, $root, $version, $path );
+		$args['url']     = sprintf( '%s://%s/%s/v%s/%s', self::protocol(), JETPACK__WPCOM_JSON_API_HOST, $base_api_path, $version, $path );
 
 		if ( isset( $body ) && ! isset( $args['headers'] ) && in_array( $args['method'], array( 'POST', 'PUT', 'PATCH' ), true ) ) {
 			$args['headers'] = array( 'Content-Type' => 'application/json' );
