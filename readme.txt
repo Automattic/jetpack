@@ -121,6 +121,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Admin Page: Fixed Dashboard connection card from showing text that overflows the card.
 * Admin Page: Fixed directory separator character used when displaying the site URL on the disconnect dialog.
+* Contact Form: Fixed width style of input for Website address.
 * Search: Added default values for the Search widget so it can be added from the Customizer.
 * Stats: Fixed column spacing styling issues in WP Dashboard box for Jetpack stats.
 
