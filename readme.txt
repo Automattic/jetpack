@@ -133,6 +133,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Settings: Fixed overflow/overlap when there are many ignored phrases in spelling options.
 * Settings: Updated SEO/analytics links to avoid unnecessary redirects.
 * Stats: Fixed column spacing styling issues in WP Dashboard box for Jetpack stats.
+* VaultPress: Remove menu item that links nowhere when Rewind is enabled.
 * WooCommerce Analytics: Fixed PHP warning coming from str_replace usage.
 
 = 5.8 =
