@@ -832,7 +832,7 @@ class Jetpack_Connection_Banner {
 	 */
 	function render_connect_prompt_full_screen() {
 		?>
-		<div class="jp-connect-full__container">
+		<div class="jp-connect-full__container"><div class="jp-connect-full__container-card">
 
 			<img
 				src="<?php echo plugins_url( 'images/jetpack-logo-green.svg', JETPACK__PLUGIN_FILE ); ?>"
@@ -861,7 +861,40 @@ class Jetpack_Connection_Banner {
 				</a>
 			</p>
 
-		</div>
+			<p class="jp-connect-full__dismiss-paragraph">
+				<a><?php echo esc_html_x( 'not now', 'a link that closes the modal window that offers to connect Jetpack', 'jetpack' ); ?></a>
+			</p>
+
+			<div class="jp-connect-full__slide">
+				<div class="jp-connect-full__slide-card">
+					<h4><?php esc_html_e( 'Design & Customization', 'jetpack' ); ?></h4>
+					<p><?php
+						esc_html_e(
+							'Design: Choose from hundreds of website theme designs and customize your site further with feature-rich widgets.',
+							'jetpack'
+						);
+					?></p>
+					<p><?php
+						esc_html_e(
+							'Optimize: Upload images and videos directly to our powerful servers that present your media with lightning speed.',
+							'jetpack'
+						);
+					?></p>
+					<p><?php
+						esc_html_e(
+							'Publish: Post on the go from any device using the WordPress apps for iOS, Android, Windows, Linux, and OSX.',
+							'jetpack'
+						);
+					?></p>
+				</div>
+				<div class="jp-connect-full__slide-card illustration">
+					<img
+						src="<?php echo plugins_url( 'images/jetpack-design.svg', JETPACK__PLUGIN_FILE ); ?>"
+						alt="<?php esc_attr_e( 'Design & Customization', 'jetpack' ); ?>"
+					/>
+				</div>
+			</div>
+		</div></div>
 		<?php
 	}
 
