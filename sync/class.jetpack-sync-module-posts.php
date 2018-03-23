@@ -314,6 +314,10 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		$post->permalink = get_permalink( $post->ID );
 		$post->shortlink = wp_get_shortlink( $post->ID );
 
+		if ( function_exists( 'amp_get_permalink' ) ) {
+			$post->amp_permalink = amp_get_permalink( $post->ID );
+		}
+
 		return $post;
 	}
 
