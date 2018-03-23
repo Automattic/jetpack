@@ -114,6 +114,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Google Translate Widget: Made sure the widget is responsive by default.
 * JITM: We now allow specifying that a jitm can be opened in a new window, or the same window.
 * Likes/Sharing: Moved metabox in post editor to the right side for a better fit.
+* Masterbar: Made the Sign Out link in the Master always log you out from WordPress.com.
 * Publicize: Made styling of Publicize more consistent with wp-admin.
 * Protect: Started blocking XML RPC requests when they get marked as blocked by Protect.
 * SEO Tools: Removed SEO Tools from Jumpstart
