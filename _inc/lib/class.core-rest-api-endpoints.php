@@ -876,6 +876,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		} else {
 			$response = Jetpack_Client::wpcom_json_api_request_as_user(
 				'/jetpack-user-tracking',
+				'v2',
 				array(
 					'method'  => 'GET',
 					'headers' => array(
@@ -908,6 +909,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		} else {
 			$response = Jetpack_Client::wpcom_json_api_request_as_user(
 				'/jetpack-user-tracking',
+				'v2',
 				array(
 					'method'  => 'PUT',
 					'headers' => array(
