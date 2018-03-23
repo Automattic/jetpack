@@ -108,6 +108,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Admin Page: Moved the button for closing the Jumpstart modal closer to the dialog so it's more visible.
 * Connect: Removed account creation links from below the Set Up Jetpack buttons.
 * Ads: Added site id to head meta.
+* Likes/Sharing: Moved metabox in post editor to the right side for a better fit.
 * Protect: Started blocking XML RPC requests when they get marked as blocked by Protect.
 * SEO Tools: Removed SEO Tools from Jumpstart
 * VideoPress: Default to grid view when linking to upload videos
