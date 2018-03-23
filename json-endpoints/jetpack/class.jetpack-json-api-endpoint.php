@@ -73,6 +73,7 @@ abstract class Jetpack_JSON_API_Endpoint extends WPCOM_JSON_API_Endpoint {
 			'GET' !== $this->method &&
 			/**
 			 * Filter to disallow JSON API requests to the site.
+			 * Setting to false will not allow you to manage your site remotely from WordPress.com and disallow plugin auto-updates.
 			 *
 			 * @since 6.0.0
 			 *
