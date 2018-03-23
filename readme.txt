@@ -127,6 +127,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Admin Page: Fixed directory separator character used when displaying the site URL on the disconnect dialog.
 * Admin Page: Fixed an issue by which clicking the back button on a page visited after the Admin Page would result in the Admin Page being rendered with cached data.
 * Contact Form: Fixed width style of input for Website address.
+* Masterbar: Fixed a javascript error that would pop up with the Grammarly extension enabled on Chrome macOS.
 * Search: Added default values for the Search widget so it can be added from the Customizer.
 * Settings: Fixed overflow/overlap when there are many ignored phrases in spelling options.
 * Settings: Updated SEO/analytics links to avoid unnecessary redirects.
