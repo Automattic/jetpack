@@ -113,6 +113,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * General: Return error in wp-cli if activating a module that is not supported by the current plan.
 * JITM: We now allow specifying that a jitm can be opened in a new window, or the same window.
 * Likes/Sharing: Moved metabox in post editor to the right side for a better fit.
+* Publicize: Made styling of Publicize more consistent with wp-admin.
 * Protect: Started blocking XML RPC requests when they get marked as blocked by Protect.
 * SEO Tools: Removed SEO Tools from Jumpstart
 * VideoPress: Default to grid view when linking to upload videos
