@@ -911,10 +911,11 @@ class Jetpack_Core_Json_Api_Endpoints {
 				array(
 					'method'  => 'PUT',
 					'headers' => array(
+						'Content-Type'    => 'application/json',
 						'X-Forwarded-For' => Jetpack::current_user_ip( true ),
 					),
 				),
-				$request->get_params()
+				wp_json_encode( $request->get_params() )
 			);
 			if ( ! is_wp_error( $response ) ) {
 				$response = json_decode( wp_remote_retrieve_body( $response ), true );
