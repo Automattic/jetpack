@@ -1,4 +1,4 @@
-<?php 
+<?php
 /**
  * This class wraps a WP_Post and proxies any undefined attributes
  * and methods to the wrapped class. We need to do this because at present
@@ -52,7 +52,7 @@ abstract class SAL_Post {
 	abstract public function is_following();
 	abstract public function get_global_id();
 	abstract public function get_geo();
-	
+
 	public function get_menu_order() {
 		return (int) $this->post->menu_order;
 	}
@@ -123,12 +123,12 @@ abstract class SAL_Post {
 		foreach ( (array) has_meta( $this->post->ID ) as $meta ) {
 			// Don't expose protected fields.
 			$meta_key = $meta['meta_key'];
-			
+
 			$show = !( WPCOM_JSON_API_Metadata::is_internal_only( $meta_key ) )
 				&&
-					( 
-						WPCOM_JSON_API_Metadata::is_public( $meta_key ) 
-					|| 
+					(
+						WPCOM_JSON_API_Metadata::is_public( $meta_key )
+					||
 						current_user_can( 'edit_post_meta', $this->post->ID , $meta_key )
 					);
 
@@ -163,6 +163,12 @@ abstract class SAL_Post {
 				'likes'   => (string) $this->get_post_link( 'likes/' ),
 			),
 		);
+
+		$amp_permalink = get_post_meta( $this->post->ID, '_jetpack_amp_permalink', true );
+
+		if ( ! empty( $amp_permalink ) ) {
+			$meta->links->amp = (string) $amp_permalink;
+		}
 
 		// add autosave link if a more recent autosave exists
 		if ( 'edit' === $this->context ) {
