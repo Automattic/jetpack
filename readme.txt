@@ -106,6 +106,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 * Admin Page: Removed Javascript patterns previously used in the Admin Page that should improve performance lightly (bind pattern).
 * Admin Page: Moved the button for closing the Jumpstart modal closer to the dialog so it's more visible.
+* Admin Page: Updated the "install and activate" link in the Backups card to be a functional link matching the "Set up" button.
 * Connect: Removed account creation links from below the Set Up Jetpack buttons.
 * Ads: Added site id to head meta.
 * Likes/Sharing: Moved metabox in post editor to the right side for a better fit.
