@@ -68,18 +68,22 @@ export const Publicize = moduleSettingsForm(
 					hideButton>
 					{
 						userCanManageModules && (
-							<SettingsGroup disableInDevMode module={ { module: 'publicize' } }
-								support="https://jetpack.com/support/publicize/"
-							>
+							<SettingsGroup
+								disableInDevMode
+								module={ { module: 'publicize' } }
+								support={ {
+									text: __( 'Allows you to automatically share your newest content on social media sites, ' +
+										'including Facebook and Twitter.' ),
+									link: 'https://jetpack.com/support/publicize/',
+								} }
+								>
 								<ModuleToggle
 									slug="publicize"
 									disabled={ unavailableInDevMode }
 									activated={ isActive }
 									toggling={ this.props.isSavingAnyOption( 'publicize' ) }
 									toggleModule={ this.props.toggleModuleNow }>
-									{
-										__( 'Automatically share your posts to social networks' )
-									}
+									{ __( 'Automatically share your posts to social networks' ) }
 								</ModuleToggle>
 							</SettingsGroup>
 						)
