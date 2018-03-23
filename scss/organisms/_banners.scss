@@ -63,6 +63,12 @@
 				left: rem( 8px );
 		}
 
+		h4 {
+			font-size: rem( 24px );
+			font-weight: normal;
+			margin: 1em 0;
+		}
+
 		@include minbreakpoint(tablet) {
 			left: -20px; // fill gap of wp-admin sidebar right margin on large screens
 		};
@@ -87,6 +93,8 @@
 
 .jp-connect-full__step-header {
 	font-family: $gill;
+	max-width: 700px;
+	margin: 0 auto;
 
 	h2 {
 		margin: rem( 14px ) 0 rem( 8px ) 0;
@@ -100,6 +108,10 @@
 		color: $gray-text-min;
 		font-size: rem( 16px );
 		font-weight: normal;
+	}
+
+	&.bottom {
+		margin-top: rem( 80px );
 	}
 }
 .jp-connect-full__tos-blurb {
@@ -143,7 +155,7 @@
 
 .jp-connect-full__slide {
 	max-width: 750px;
-	margin: 0 auto;
+	margin: 2em auto;
 	display: flex;
 	flex-direction: row;
 	justify-content: stretch;
@@ -155,7 +167,8 @@
 
 	.illustration {
 		img {
-			margin: rem( 16px ) auto;
+			width: 75%;
+			margin: 2.5em auto;
 			display: block;
 		}
 	}
