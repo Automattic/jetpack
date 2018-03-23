@@ -111,6 +111,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Connect: Removed account creation links from below the Set Up Jetpack buttons.
 * General: Show correct available status in Jetpack modules list if module is not supported by current plan.
 * General: Return error in wp-cli if activating a module that is not supported by the current plan.
+* Google Translate Widget: Made sure the widget is responsive by default.
 * JITM: We now allow specifying that a jitm can be opened in a new window, or the same window.
 * Likes/Sharing: Moved metabox in post editor to the right side for a better fit.
 * Publicize: Made styling of Publicize more consistent with wp-admin.
