@@ -18,32 +18,13 @@ import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
 
 export const Ads = moduleSettingsForm( class extends React.Component {
-    /**
-	 * Get options for initial state.
-	 *
-	 * @returns {{enable_header_ad: Boolean}}
-	 */
-	state = {
-		enable_header_ad: this.props.getOptionValue( 'enable_header_ad', 'wordads' ),
-		wordads_second_belowpost: this.props.getOptionValue( 'wordads_second_belowpost', 'wordads' ),
-		wordads_display_front_page: this.props.getOptionValue( 'wordads_display_front_page', 'wordads' ),
-		wordads_display_post: this.props.getOptionValue( 'wordads_display_post', 'wordads' ),
-		wordads_display_page: this.props.getOptionValue( 'wordads_display_page', 'wordads' ),
-		wordads_display_archive: this.props.getOptionValue( 'wordads_display_archive', 'wordads' ),
-	};
-
 	/**
 	 * Update state so preview is updated instantly and toggle options.
 	 *
 	 * @param {string} optionName the slug of the option to update
 	 */
 	updateOptions = optionName => {
-		this.setState(
-			{
-				[ optionName ]: ! this.state[ optionName ]
-			},
-			this.props.updateFormStateModuleOption( 'wordads', optionName )
-		);
+		this.props.updateFormStateModuleOption( 'wordads', optionName );
 	};
 
 	trackConfigureClick = () => {
@@ -57,6 +38,12 @@ export const Ads = moduleSettingsForm( class extends React.Component {
 	render() {
 		const isAdsActive = this.props.getOptionValue( 'wordads' );
 		const unavailableInDevMode = this.props.isUnavailableInDevMode( 'wordads' );
+		const enable_header_ad = this.props.getOptionValue( 'enable_header_ad', 'wordads' );
+		const wordads_second_belowpost = this.props.getOptionValue( 'wordads_second_belowpost', 'wordads' );
+		const wordads_display_front_page = this.props.getOptionValue( 'wordads_display_front_page', 'wordads' );
+		const wordads_display_post = this.props.getOptionValue( 'wordads_display_post', 'wordads' );
+		const wordads_display_page = this.props.getOptionValue( 'wordads_display_page', 'wordads' );
+		const wordads_display_archive = this.props.getOptionValue( 'wordads_display_archive', 'wordads' );
 		return (
 			<SettingsCard
 				{ ...this.props }
@@ -93,7 +80,7 @@ export const Ads = moduleSettingsForm( class extends React.Component {
 					<FormFieldset>
 						<FormLegend>{ __( 'Display ads below posts on' ) }</FormLegend>
 						<CompactFormToggle
-							checked={ this.state.wordads_display_front_page }
+							checked={ wordads_display_front_page }
 							disabled={ ! isAdsActive || unavailableInDevMode || this.props.isSavingAnyOption( [ 'wordads', 'wordads_display_front_page' ] ) }
 							onChange={ this.handleChange( 'wordads_display_front_page' ) }>
 							<span className="jp-form-toggle-explanation">
@@ -101,7 +88,7 @@ export const Ads = moduleSettingsForm( class extends React.Component {
 							</span>
 						</CompactFormToggle>
 						<CompactFormToggle
-							checked={ this.state.wordads_display_post }
+							checked={ wordads_display_post }
 							disabled={ ! isAdsActive || unavailableInDevMode || this.props.isSavingAnyOption( [ 'wordads', 'wordads_display_post' ] ) }
 							onChange={ this.handleChange( 'wordads_display_post' ) }>
 							<span className="jp-form-toggle-explanation">
@@ -109,15 +96,15 @@ export const Ads = moduleSettingsForm( class extends React.Component {
 							</span>
 						</CompactFormToggle>
 						<CompactFormToggle
-							checked={ this.state.wordads_display_page }
+							checked={ wordads_display_page }
 							disabled={ ! isAdsActive || unavailableInDevMode || this.props.isSavingAnyOption( [ 'wordads', 'wordads_display_page' ] ) }
-							onChange={ this.handleChange( 'wordads_display_page' ) }>
+										onChange={ this.handleChange( 'wordads_display_page' ) }>
 							<span className="jp-form-toggle-explanation">
 								{ __( 'Pages' ) }
 							</span>
 						</CompactFormToggle>
 						<CompactFormToggle
-							checked={ this.state.wordads_display_archive }
+							checked={ wordads_display_archive }
 							disabled={ ! isAdsActive || unavailableInDevMode || this.props.isSavingAnyOption( [ 'wordads', 'wordads_display_archive' ] ) }
 							onChange={ this.handleChange( 'wordads_display_archive' ) }>
 							<span className="jp-form-toggle-explanation">
@@ -128,7 +115,7 @@ export const Ads = moduleSettingsForm( class extends React.Component {
 					<FormFieldset>
 						<FormLegend>{ __( 'Additional ad placements' ) }</FormLegend>
 						<CompactFormToggle
-							checked={ this.state.enable_header_ad }
+							checked={ enable_header_ad }
 							disabled={ ! isAdsActive || unavailableInDevMode || this.props.isSavingAnyOption( [ 'wordads', 'enable_header_ad' ] ) }
 							onChange={ this.handleChange( 'enable_header_ad' ) }>
 							<span className="jp-form-toggle-explanation">
@@ -136,7 +123,7 @@ export const Ads = moduleSettingsForm( class extends React.Component {
 							</span>
 						</CompactFormToggle>
 						<CompactFormToggle
-							checked={ this.state.wordads_second_belowpost }
+							checked={ wordads_second_belowpost }
 							disabled={ ! isAdsActive || unavailableInDevMode || this.props.isSavingAnyOption( [ 'wordads', 'wordads_second_belowpost' ] ) }
 							onChange={ this.handleChange( 'wordads_second_belowpost' ) }>
 							<span className="jp-form-toggle-explanation">
