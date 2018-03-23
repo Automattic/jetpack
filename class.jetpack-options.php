@@ -569,7 +569,7 @@ class Jetpack_Options {
 	 * @return void
 	 */
 	static function delete_all_known_options() {
-		// Delete all compact options
+		// Delete all compact options!
 		foreach ( (array) self::$grouped_options as $option_name ) {
 			delete_option( $option_name );
 		}
