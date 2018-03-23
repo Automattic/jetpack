@@ -29,10 +29,10 @@ export const SettingsGroup = props => {
 		return <span />;
 	}
 
-	const disableInDevMode = props.disableInDevMode && props.isUnavailableInDevMode( module.module ),
-		support = ! props.support && module && '' !== module.learn_more_button
-			? module.learn_more_button
-			: props.support;
+	const disableInDevMode = props.disableInDevMode && props.isUnavailableInDevMode( module.module );
+	const support = props.support.text && props.support.link
+			? props.support
+			: false;
 	let displayFadeBlock = disableInDevMode;
 
 	if ( ( 'post-by-email' === module.module && ! props.isLinked ) ||
