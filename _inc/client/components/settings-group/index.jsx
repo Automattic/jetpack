@@ -11,6 +11,7 @@ import InfoPopover from 'components/info-popover';
 import ExternalLink from 'components/external-link';
 import includes from 'lodash/includes';
 import noop from 'lodash/noop';
+import isString from 'lodash/isString';
 import analytics from 'lib/analytics';
 
 /**
@@ -70,13 +71,28 @@ export const SettingsGroup = props => {
 								onClick={ trackInfoClick }
 								screenReaderText={ __( 'Learn more' ) }
 							>
-								<ExternalLink
-									onClick={ trackLearnMoreClick }
-									icon={ false }
-									href={ support }
-									target="_blank" rel="noopener noreferrer">
-									{ __( 'Learn more' ) }
-								</ExternalLink>
+								{
+									isString( props.support )
+										? (
+											<ExternalLink
+												onClick={ trackLearnMoreClick }
+												icon={ false }
+												href={ support }
+												target="_blank" rel="noopener noreferrer">
+												{ __( 'Learn more' ) }
+											</ExternalLink>
+										)
+										: [
+											props.support.text + ' ',
+											<ExternalLink
+												onClick={ trackLearnMoreClick }
+												icon={ false }
+												href={ props.support.link }
+												target="_blank" rel="noopener noreferrer">
+												{ __( 'Learn more' ) }
+											</ExternalLink>
+										]
+								}
 							</InfoPopover>
 						</div>
 					)
@@ -90,7 +106,7 @@ export const SettingsGroup = props => {
 };
 
 SettingsGroup.propTypes = {
-	support: PropTypes.string,
+	// support: PropTypes.string,
 	module: PropTypes.object,
 	disableInDevMode: PropTypes.bool.isRequired,
 	isDevMode: PropTypes.bool.isRequired,
