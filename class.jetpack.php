@@ -6686,6 +6686,7 @@ p {
 			'jetpack_lazy_images_skip_image_with_atttributes'        => 'jetpack_lazy_images_skip_image_with_attributes',
 			'jetpack_enable_site_verification'                       => null,
 			'can_display_jetpack_manage_notice'                      => null,
+			'can_display_jetpack_manage_notice'                      => 'jetpack_json_api_requests_enabled',
 		);
 
 		// This is a silly loop depth. Better way?
