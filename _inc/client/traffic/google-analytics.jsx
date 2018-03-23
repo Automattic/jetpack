@@ -27,7 +27,15 @@ export const GoogleAnalytics = moduleSettingsForm(
 					header={ __( 'Google Analytics', { context: 'Settings header' } ) }
 					feature={ FEATURE_GOOGLE_ANALYTICS_JETPACK }
 					hideButton>
-					<SettingsGroup disableInDevMode module={ { module: 'google-analytics' } } support="https://jetpack.com/support/google-analytics/">
+					<SettingsGroup
+						disableInDevMode
+						module={ { module: 'google-analytics' } }
+						support={ {
+							text: __( 'Integrates your WordPress site with Google Analytics, ' +
+								'a platform that offers insights into your traffic, visitors, and conversions.' ),
+							link: 'https://jetpack.com/support/google-analytics/',
+						} }
+						>
 						<p>
 							{ __(
 								'Google Analytics is a free service that complements our {{a}}built-in stats{{/a}} with different insights into your traffic.' +

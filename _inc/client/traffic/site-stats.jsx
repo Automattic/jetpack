@@ -169,7 +169,14 @@ class SiteStatsComponent extends React.Component {
 					clickableHeader={ true }
 					className={ classNames( 'jp-foldable-settings-standalone', { 'jp-foldable-settings-disable': unavailableInDevMode } ) }
 				>
-					<SettingsGroup disableInDevMode module={ stats }>
+					<SettingsGroup
+						disableInDevMode
+						module={ stats }
+						support={ {
+							text: __( 'Displays information on your site activity, including visitors and popular posts or pages.' ),
+							link: 'https://jetpack.com/support/wordpress-com-stats/',
+						} }
+						>
 						<FormFieldset>
 							<ModuleToggle
 								slug="stats"
