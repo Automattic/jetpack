@@ -130,6 +130,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Admin Page: Fixed Dashboard connection card from showing text that overflows the card.
 * Admin Page: Fixed directory separator character used when displaying the site URL on the disconnect dialog.
 * Admin Page: Fixed an issue by which clicking the back button on a page visited after the Admin Page would result in the Admin Page being rendered with cached data.
+* Admin Page: Don't show a Set Up button when searching for modules that are inactive in Jetpack Settings page. The Set Up button is meant for paid features coming from plugins.
 * Connection Banner: Updated style to better fit wide screens.
 * Contact Form: Fixed width style of input for Website address.
 * Masterbar: Fixed a javascript error that would pop up with the Grammarly extension enabled on Chrome macOS.
