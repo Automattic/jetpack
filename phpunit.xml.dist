@@ -13,6 +13,7 @@
 			<file>tests/php/test_class.jetpack-constants.php</file>
 			<file>tests/php/test_class.jetpack-connection-banner.php</file>
 			<file>tests/php/test_class.jetpack-options.php</file>
+			<file>tests/php/test_class.jetpack-user-event-tracking.php</file>
 		</testsuite>
 		<testsuite name="php-lint">
 			<file phpVersion="5.3.0" phpVersionOperator="lte">tests/php/test_php-lint.php</file>

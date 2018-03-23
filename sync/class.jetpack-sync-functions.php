@@ -33,6 +33,11 @@ class Jetpack_Sync_Functions {
 		return array_keys( $shortcode_tags );
 	}
 
+	public static function get_default_user_tracking_value() {
+		jetpack_require_lib(  'class.jetpack-user-event-tracking' );
+		return Jetpack_User_Event_Tracking::default_value();
+	}
+
 	/**
 	 * Removes any callback data since we will not be able to process it on our side anyways.
 	 */
