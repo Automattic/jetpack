@@ -7,7 +7,7 @@
 					</div>
 					<div class="jp-survey-button-container">
 						<p class="submit">
-							<a id="jp-survey-button" class="button-primary" target="_blank" rel="noopener noreferrer" href="https://jetpack.com/survey/?rel=<?php echo esc_html( JETPACK__VERSION ); ?>">
+							<a id="jp-survey-button" class="button-primary" target="_blank" rel="noopener noreferrer" href="https://jetpack.com/survey/?rel=<?php echo esc_attr( JETPACK__VERSION ); ?>">
 								<?php _e( 'Take Survey', 'jetpack' ); ?>
 							</a>
 						</p>
