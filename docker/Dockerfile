@@ -1,38 +1,30 @@
-FROM ubuntu:xenial
+FROM php:7.0-apache
 
 VOLUME ["/var/www/html"]
 
 # Install required Ubuntu packages for having Apache PHP as a module
 # as well a bunch of other packages
-RUN apt-get update && apt-get install -y \
-	apache2 \
-	composer \
+RUN apt-get update && apt-get install -y --no-install-recommends \
 	curl \
 	less \
-	libapache2-mod-php7.0 \
-	mysql-client \
+	#mysql-client \
 	nano \
-	php-apcu \
-	php-xdebug \
-	php7.0 \
-	php7.0-cli \
-	php7.0-gd \
-	php7.0-json \
-	php7.0-ldap \
-	php7.0-mbstring \
-	php7.0-mysql \
-	php7.0-opcache \
-	php7.0-pgsql \
-	php7.0-soap \
-	php7.0-sqlite3 \
-	php7.0-xml \
-	php7.0-xsl \
-	php7.0-zip \
 	ssmtp \
 	subversion \
 	sudo \
 	vim \
-	&& rm -rf /var/lib/apt/lists/*
+	libjpeg-dev \
+	libpng-dev \
+	&& rm -rf /var/lib/apt/lists/* \
+	&& pecl install xdebug \
+	&& docker-php-ext-configure gd --with-png-dir=/usr --with-jpeg-dir=/usr \
+	&& docker-php-ext-install gd mysqli opcache \
+	&& docker-php-ext-enable xdebug
+
+#RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');" && \
+#	php -r "if (hash_file('SHA384', 'composer-setup.php') === 'SIGNATURE') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;" \
+#	&& php composer-setup.php --install-dir=/usr/local/bin --filename=composer \
+#	&& php -r "unlink('composer-setup.php');"
 
 # Enable mod_rewrite in Apache
 RUN a2enmod rewrite
@@ -46,12 +38,8 @@ RUN curl https://phar.phpunit.de/phpunit-5.7.5.phar -L -o phpunit.phar \
 	&& chmod +x phpunit.phar \
 	&& mv phpunit.phar /usr/local/bin/phpunit
 
-# Copy a default config file for an apache host
-COPY ./config/apache_default /etc/apache2/sites-available/000-default.conf
-
 # Copy a default set of settings for PHP (php.ini)
-COPY ./config/php.ini /etc/php/7.0/apache2/conf.d/20-jetpack-wordpress.ini
-COPY ./config/php.ini /etc/php/7.0/cli/conf.d/20-jetpack-wordpress.ini
+COPY ./config/php.ini /usr/local/etc/php/conf.d/jetpack-wordpress.ini
 
 # Copy single site htaccess to tmp. run.sh will move it to the site's base dir if there's none present.
 COPY ./config/htaccess /tmp/htaccess
@@ -69,7 +57,4 @@ COPY ./bin/run.sh /usr/local/bin/run
 # Make our cmd script be executable
 RUN chmod +x /usr/local/bin/run
 
-# Set the working directory for the next commands
-WORKDIR /var/www/html
-
-CMD ["/usr/local/bin/run"]
+#CMD ["/usr/local/bin/run"]
