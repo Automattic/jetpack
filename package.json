@@ -29,7 +29,7 @@
     "docker:build": "docker-compose -f docker/docker-compose.yml build",
     "docker:wp": "docker-compose -f docker/docker-compose.yml exec wordpress wp --allow-root --path=/var/www/html/",
     "docker:install": "yarn -s docker:wp core install --url=localhost --title=Hello --admin_user=wordpress --admin_password=wordpress --admin_email=wordpress@example.com --skip-email && yarn docker:wp plugin activate jetpack",
-    "docker:multisite-convert": "yarn -s docker:wp core multisite-convert && yarn docker:wp config set DOMAIN_CURRENT_SITE 'DOCKER_REQUEST_URL' --raw --type=constant && cp ./docker/htaccess-multi ./docker/wordpress/.htaccess",
+    "docker:multisite-convert": "yarn -s docker:wp core multisite-convert && yarn docker:wp config set DOMAIN_CURRENT_SITE 'DOCKER_REQUEST_URL' --raw --type=constant && cp ./docker/config/htaccess-multi ./docker/wordpress/.htaccess",
     "docker:sh": "docker-compose -f docker/docker-compose.yml exec wordpress bash",
     "docker:phpunit": "docker-compose -f docker/docker-compose.yml exec wordpress phpunit --configuration=/var/www/html/wp-content/plugins/jetpack/phpunit.xml.dist",
     "docker:tail": "docker-compose -f docker/docker-compose.yml exec wordpress bash -c \"tail -f /var/www/html/wp-content/debug.log\"",
