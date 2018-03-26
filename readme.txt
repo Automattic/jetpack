@@ -109,6 +109,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Admin Page: Updated the "install and activate" link in the Backups card to be a functional link matching the "Set up" button.
 * Admin Page: Updated notices style to be more accessible.
 * Admin Page: We now show a link to see all plans on small screens.
+* Admin Page: Introduced a new Privacy admin page linked at the bottom of the Jetpack dashboard.
 * Ads: Added site id to head meta.
 * Connect: Removed account creation links from below the Set Up Jetpack buttons.
 * General: Show correct available status in Jetpack modules list if module is not supported by current plan.
