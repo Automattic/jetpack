@@ -141,6 +141,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Admin Page: Fixed an issue by which clicking the back button on a page visited after the Admin Page would result in the Admin Page being rendered with cached data.
 * Admin Page: Don't show a Set Up button when searching for modules that are inactive in Jetpack Settings page. The Set Up button is meant for paid features coming from plugins.
 * Admin Page: Make it clear when tracking begins in the connetion dialog.
+* Admin Page: Hide the date range tabs when the initial dialog is shown.
 * Connection Banner: Updated style to better fit wide screens.
 * Connection Banner: Added illustration SVGs.
 * Contact Form: Fixed width style of input for Website address.
