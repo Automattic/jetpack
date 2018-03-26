@@ -145,6 +145,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Connection Banner: Updated style to better fit wide screens.
 * Connection Banner: Added illustration SVGs.
 * Contact Form: Fixed width style of input for Website address.
+* Google Analytics: fix PHP notice on search pages.
 * Likes: Made manually enabled likes remain being likeable if Likes are enabled for all posts
 * Masterbar: Fixed a javascript error that would pop up with the Grammarly extension enabled on Chrome macOS.
 * Search: Added default values for the Search widget so it can be added from the Customizer.
