@@ -73,7 +73,7 @@ class Privacy extends React.Component {
 					header={ __( 'Privacy Settings', { context: 'Settings header' } ) }
 					hideButton
 				>
-					<SettingsGroup hasChild support="https://jetpack.com/support/privacy">
+					<SettingsGroup hasChild>
 						<p>
 							{
 								__( 'We are committed to your privacy and security. ' )
