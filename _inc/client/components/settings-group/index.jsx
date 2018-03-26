@@ -67,6 +67,7 @@ export const SettingsGroup = props => {
 					support && (
 						<div className="jp-module-settings__learn-more">
 							<InfoPopover
+								position="left"
 								onClick={ trackInfoClick }
 								screenReaderText={ __( 'Learn more' ) }
 								>
