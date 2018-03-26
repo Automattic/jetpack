@@ -123,7 +123,7 @@ class Jetpack_Core_Json_Api_Endpoints {
 		) );
 
 		// Current user: get or set tracking settings.
-		register_rest_route( 'jetpack/v4', '/tracking-settings', array(
+		register_rest_route( 'jetpack/v4', '/tracking/settings', array(
 			array(
 				'methods'             => WP_REST_Server::READABLE,
 				'callback'            => __CLASS__ . '::get_user_tracking_settings',
