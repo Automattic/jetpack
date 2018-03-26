@@ -72,6 +72,7 @@ export const updateSetting = ( updatedOption ) => {
 				updatedOption,
 				success: success
 			} );
+			maybeSetAnalyticsOptOut( updatedOption );
 		} ).catch( error => {
 			dispatch( {
 				type: JETPACK_SETTING_UPDATE_FAIL,
@@ -79,7 +80,6 @@ export const updateSetting = ( updatedOption ) => {
 				error: error,
 				updatedOption
 			} );
-			maybeSetAnalyticsOptOut( updatedOption );
 		} );
 	};
 };
