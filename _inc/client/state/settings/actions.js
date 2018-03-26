@@ -23,8 +23,7 @@ import {
 } from 'state/action-types';
 import {
 	maybeHideNavMenuItem,
-	maybeReloadAfterAction,
-	maybeSetAnalyticsOptOut
+	maybeReloadAfterAction
 } from 'state/modules';
 import restApi from 'rest-api';
 
@@ -72,7 +71,6 @@ export const updateSetting = ( updatedOption ) => {
 				updatedOption,
 				success: success
 			} );
-			maybeSetAnalyticsOptOut( updatedOption );
 		} ).catch( error => {
 			dispatch( {
 				type: JETPACK_SETTING_UPDATE_FAIL,
@@ -145,7 +143,6 @@ export const updateSettings = ( newOptionValues, type = '' ) => {
 			} );
 			maybeHideNavMenuItem( newOptionValues );
 			maybeReloadAfterAction( newOptionValues );
-			maybeSetAnalyticsOptOut( newOptionValues );
 
 			dispatch( removeNotice( 'module-setting-update' ) );
 			dispatch( removeNotice( 'module-setting-update-success' ) );
