@@ -56,7 +56,10 @@ describe( 'SettingsGroup', () => {
 		];
 
 	let testProps = {
-		learn_more_button: 'https://jetpack.com/support/protect',
+		info: {
+			text: 'Help text about Protect',
+			link: 'https://jetpack.com/support/protect',
+		},
 		isDevMode: false,
 		isSitePublic: true,
 		userCanManageModules: true,
@@ -64,7 +67,7 @@ describe( 'SettingsGroup', () => {
 		isUnavailableInDevMode: () => false
 	};
 
-	const settingsGroup = shallow( <SettingsGroup support={ testProps.learn_more_button } hasChild /> );
+	const settingsGroup = shallow( <SettingsGroup support={ testProps.info } hasChild /> );
 
 	it( 'outputs a special CSS class when it has the hasChild property', () => {
 		expect( settingsGroup.find( 'Card' ).props().className ).to.contain( 'jp-form-has-child' );
@@ -75,11 +78,7 @@ describe( 'SettingsGroup', () => {
 		expect( settingsGroup.find( 'ExternalLink' ).get( 0 ).props.href ).to.be.equal( 'https://jetpack.com/support/protect' );
 	} );
 
-	it( 'if no support link is passed directly, looks for one in the module', () => {
-		expect( shallow( <SettingsGroup module={ testProps } /> ).find( 'InfoPopover' ) ).to.have.length( 1 );
-	} );
-
-	it( 'does not have a learn more icon if there is no link or module are passed', () => {
+	it( 'does not have a learn more icon if no link or module was passed', () => {
 		expect( shallow( <SettingsGroup /> ).find( 'InfoPopover' ) ).to.have.length( 0 );
 	} );
 

@@ -62,7 +62,16 @@ class CommentsComponent extends React.Component {
 			>
 				{
 					foundComments && (
-						<SettingsGroup hasChild disableInDevMode module={ comments }>
+						<SettingsGroup
+							hasChild
+							disableInDevMode
+							module={ comments }
+							support={ {
+								text: __( 'Replaces the standard WordPress comment form with a new comment system ' +
+									'that includes social media login options.' ),
+								link: 'https://jetpack.com/support/comments',
+							} }
+							>
 							<ModuleToggle
 								slug="comments"
 								compact

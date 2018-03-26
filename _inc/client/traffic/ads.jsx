@@ -67,7 +67,10 @@ export const Ads = moduleSettingsForm( class extends React.Component {
 					disableInDevMode
 					hasChild
 					module={ { module: 'wordads' } }
-					support="https://jetpack.com/support/ads/">
+					support={ {
+						text: __( 'Displays high-quality ads on your site that allow you to earn income.' ),
+						link: 'https://jetpack.com/support/ads/',
+					} }>
 					<p>
 						{ __( 'Show ads on the first article on your home page or at the end of every page and post. Place additional ads at the top of your site and to any widget area to increase your earnings.' ) }
 						<br />
