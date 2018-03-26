@@ -112,6 +112,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Admin Page: We now show a link to see all plans on small screens.
 * Admin Page: Introduced a new Privacy admin page linked at the bottom of the Jetpack dashboard.
 * Admin Page: Introduced a Privacy toggle that allows the user to disable event tracking.
+* Admin Page: Settings in Jetpack dashboard now feature contextual help and a link to learn more about it.
 * Ads: Added site id to head meta.
 * Comments: Improved accessibility of comments form by adding title attributes.
 * Connect: Removed account creation links from below the Set Up Jetpack buttons.
