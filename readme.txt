@@ -124,9 +124,9 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Publicize: Made styling of Publicize more consistent with wp-admin.
 * Protect: Started blocking XML RPC requests when they get marked as blocked by Protect.
 * SEO Tools: Removed SEO Tools from Jumpstart
+* Shortcodes: We now load Twitters widget.js over https.
 * VideoPress: Default to grid view when linking to upload videos
 * Widgets: Added rel=noopener attribute to links in the Display WordPress Posts widget if set to open in a new window.
-
 
 **Improved compatibility**
 
