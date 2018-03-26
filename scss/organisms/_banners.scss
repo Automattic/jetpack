@@ -56,11 +56,7 @@
 		.jp-connect-full__container-card {
 			padding: rem( 32px ) rem( 64px );
 			background: white;
-			position: absolute;
-				top: rem( 8px );
-				right: rem( 8px );
-				bottom: 0;
-				left: rem( 8px );
+			margin: 1em;
 		}
 
 		h4 {
