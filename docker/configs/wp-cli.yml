@@ -1,0 +1,3 @@
+# Global defaults
+# https://make.wordpress.org/cli/handbook/config/
+path: /var/www/html/

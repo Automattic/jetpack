@@ -25,11 +25,12 @@ yarn-error.log
 _inc/jetpack-strings.php
 /modules/**/*/block.js
 
-## Things for docker-composer 
+## Things for docker-composer
 /docker/data/mysql/*
 !/docker/data/mysql/.gitkeep
 /docker/logs/*
 !/docker/logs/.gitkeep
+/docker/.env
 
 /docker/wordpress-develop/*
 !/docker/wordpress-develop/.gitkeep

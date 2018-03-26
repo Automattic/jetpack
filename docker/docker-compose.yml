@@ -1,6 +1,5 @@
 version: '3.3'
 
-
 volumes:
   ## Kludge for not having the ./docker directory bound recursively
   dockerdirectory:
@@ -17,11 +16,13 @@ services:
     restart: always
     ports:
       - "3306:3306"
+    env_file:
+      - .env
     environment:
       MYSQL_ROOT_PASSWORD: somewordpress
-      MYSQL_DATABASE: wordpress
-      MYSQL_USER: wordpress
-      MYSQL_PASSWORD: wordpress
+      MYSQL_DATABASE: ${DB_NAME:-wordpress}
+      MYSQL_USER: ${DB_USER:-wordpress}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-wordpress}
 
   ## SMTP Server + Web Interface for viewing and testing emails during development.
   ## http://danfarrelly.nyc/MailDev/
@@ -44,7 +45,10 @@ services:
       - ./wordpress:/home/wordpress/var/www/html
     ports:
       - "1022:22"
-    command: wordpress:wordpress:1001
+    env_file:
+      - default.env
+      - .env
+    command: ${SFTP_USER:-wordpress}:${SFTP_PASSWORD:-wordpress}:1001
 
   ## - The container wordpress is a very basic but custom container with WordPress and all of the tools we need
   ##   for development.
@@ -52,10 +56,13 @@ services:
   ##
   ## Here we map the following:
   ##  - The local root directory (with Jetpack source code) into the container's directory for WordPress plugins
+  ##  - The docker/mu-plugins directory you can put custom code that gets loaded with WordPress
   ##  - The docker/wordpress-develop directory where we'll get WordPress source code with unit tests
   ##  - The docker/wordpress directory so we can have Wordpress source code modifiable from the host file system
   ##  - The docker/logs/apache2 directory so we can access Apache log files directly from the host file system
   ##  - The docker/logs/php directory so we can access PHP log files directly from the host file system
+  ##  - The docker/bin for provisioning scripts
+  ##  - The docker/configs for provisioning configs
   wordpress:
     container_name: jetpack_wordpress
     depends_on:
@@ -73,13 +80,25 @@ services:
       - ./wordpress:/var/www/html
       - ./logs/apache2/:/var/log/apache2
       - ./logs/php:/var/log/php
+      - ./bin:/var/scripts
+      - ./configs:/var/configs
     ports:
       - "80:80"
     restart: always
+    env_file:
+      - default.env
+      - .env
     environment:
       PHP_IDE_CONFIG: "serverName=Test"
-      WORDPRESS_DB_HOST: db:3306
-      WORDPRESS_DB_USER: wordpress
-      WORDPRESS_DB_PASSWORD: wordpress
+      WP_CLI_CONFIG_PATH: /var/configs/wp-cli.yml
+      DB_HOST: db:3306
+      DB_NAME: ${DB_NAME:-wordpress}
+      DB_USER: ${DB_USER:-wordpress}
+      DB_PASSWORD: ${DB_PASSWORD:-wordpress}
+      WP_DOMAIN: ${WP_DOMAIN:-localhost}
+      WP_ADMIN_USER: ${WP_ADMIN_USER:-wordpress}
+      WP_ADMIN_PASSWORD: ${WP_ADMIN_PASSWORD:-wordpress}
+      WP_ADMIN_EMAIL: ${WP_ADMIN_EMAIL:-wordpress@example.com}
+      WP_TITLE: ${WP_TITLE:-HelloWord}
     extra_hosts:
        - "localhost:172.22.0.4"

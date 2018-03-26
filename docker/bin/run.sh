@@ -16,7 +16,7 @@ group="${APACHE_RUN_GROUP:-www-data}"
 # Configure WordPress
 if [ ! -f /var/www/html/wp-config.php ]; then
 	echo "Creating wp-config.php ..."
-	# Loop until wp cli exits with 0
+	# Loop until wp-cli exits with 0
 	# because if running the containers for the first time,
 	# the mysql container will reject connections until it has set the database data
 	# See "No connections until MySQL init completes" in https://hub.docker.com/_/mysql/
@@ -25,10 +25,10 @@ if [ ! -f /var/www/html/wp-config.php ]; then
 	while [ "$i" -le "$times" ]; do
 		sleep 3
 		wp --allow-root config create \
-			--dbhost=$WORDPRESS_DB_HOST \
-			--dbname=wordpress \
-			--dbuser=$WORDPRESS_DB_USER \
-			--dbpass=$WORDPRESS_DB_PASSWORD \
+			--dbhost=${DB_HOST} \
+			--dbname=${DB_NAME} \
+			--dbuser=${DB_USER} \
+			--dbpass=${DB_PASSWORD} \
 			&& break
 		[ ! $? -eq 0 ] || break;
 		echo "Waiting for creating wp-config.php until mysql is ready to receive connections"
@@ -84,3 +84,6 @@ fi
 
 echo "Starting Apache in the foreground"
 apachectl -D FOREGROUND
+
+echo
+echo "Jetpack Docker is now up!"
