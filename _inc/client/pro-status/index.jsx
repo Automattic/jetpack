@@ -207,6 +207,12 @@ class ProStatus extends React.Component {
 					}
 					break;
 
+				case 'search':
+					if ( hasFree || hasPersonal || hasPremium ) {
+						return this.getProActions( 'pro' );
+					}
+					return '';
+
 				case 'akismet':
 					if ( hasFree && ! ( active && installed ) ) {
 						return this.props.isCompact
@@ -214,17 +220,6 @@ class ProStatus extends React.Component {
 							: '';
 					}
 
-			if ( 'search' === feature ) {
-				if ( hasFree || hasPersonal || hasPremium ) {
-					return this.getProActions( 'pro' );
-				}
-				return '';
-			}
-
-			if ( sitePlan.product_slug ) {
-				if ( ! hasFree ) {
-					if ( active && installed ) {
-						return this.getProActions( 'active' );
 					if ( ! this.props.isAkismetKeyValid && ! this.props.fetchingAkismetData && active && installed ) {
 						return this.getProActions( 'invalid_key', 'anti-spam' );
 					}
