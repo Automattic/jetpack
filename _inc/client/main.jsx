@@ -25,7 +25,8 @@ import {
 	getSiteAdminUrl,
 	getApiNonce,
 	getApiRootUrl,
-	userCanManageModules
+	userCanManageModules,
+	userCanConnectSite
 } from 'state/initial-state';
 import { areThereUnsavedSettings, clearUnsavedSettingsFlag, showWelcomeForNewPlan } from 'state/settings';
 import { getSearchTerm } from 'state/search';
@@ -156,7 +157,7 @@ class Main extends React.Component {
 		// Track page views
 		this.props.isSiteConnected && analytics.tracks.recordEvent( 'jetpack_wpa_page_view', { path: route } );
 
-		if ( ! this.props.userCanManageModules ) {
+		if ( ! this.props.userCanManageModules || ! this.props.userCanConnectSite ) {
 			if ( ! this.props.siteConnectionStatus ) {
 				return false;
 			}
@@ -283,6 +284,7 @@ export default connect(
 			tracksUserData: getTracksUserData( state ),
 			areThereUnsavedSettings: areThereUnsavedSettings( state ),
 			userCanManageModules: userCanManageModules( state ),
+			userCanConnectSite: userCanConnectSite( state ),
 			isSiteConnected: isSiteConnected( state ),
 			newPlanActivated: showWelcomeForNewPlan( state ),
 			rewindStatus: getRewindStatus( state ),
