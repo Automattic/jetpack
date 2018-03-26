@@ -82,6 +82,7 @@ function render() {
 					<Route path="/sharing" name={ i18n.translate( 'Sharing', { context: 'Navigation item.' } ) } component={ Main } />
 					<Route path="/wpbody-content" component={ Main } />
 					<Route path="/wp-toolbar" component={ Main } />
+					<Route path="/privacy" component={ Main } />
 					<Route path="*" component={ Main } />
 				</Router>
 			</Provider>
