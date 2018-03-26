@@ -129,3 +129,10 @@ We strongly recommend that you install tools to review your code in your IDE. It
 ## Developing and contributing code to Jetpack from a Windows machine
 
 When working on a Windows machine, you can use [Windows Subsystem for Linux](https://en.wikipedia.org/wiki/Windows_Subsystem_for_Linux). You may, however, run into issues when you want to commit your changes. In this case, and if you use an IDE like PHPStorm, you can follow the recommendations in [this post](https://alex.blog/2018/02/21/guide-to-having-phpstorm-use-windows-subsystem-for-linux-git/) to have PhpStorm Use Windows Subsystem For Linux’s Git.
+
+
+## Developing with docker
+
+We provide a standard installation of WordPress for making Jetpack development easier.
+
+You can read the details in [docker/README.md](../docker/README.md)

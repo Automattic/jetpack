@@ -9,7 +9,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
 
-require_once plugin_basename( 'classes/wp-woocommerce-analytics-utils.php' );
 require_once plugin_basename( 'classes/wp-woocommerce-analytics-universal.php' );
 
 /**

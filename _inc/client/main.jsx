@@ -214,6 +214,7 @@ class Main extends React.Component {
 			case '/discussion':
 			case '/writing':
 			case '/sharing':
+			case '/privacy':
 				navComponent = settingsNav;
 				pageComponent = <SearchableSettings
 					route={ this.props.route }
@@ -309,7 +310,8 @@ window.wpNavMenuClassChange = function() {
 			'#/security',
 			'#/traffic',
 			'#/writing',
-			'#/sharing'
+			'#/sharing',
+			'#/privacy',
 		],
 		dashboardRoutes = [
 			'#/',

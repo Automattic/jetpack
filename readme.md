@@ -51,7 +51,7 @@ Jetpack is licensed under [GNU General Public License v2 (or later)](./LICENSE.t
 
 ## Monitor Our Activity On This Repository
 
-[![Throughput Graph](https://graphs.waffle.io/automattic/jetpack/throughput.svg)](https://waffle.io/automattic/jetpack/metrics)
+[![Throughput Graph](https://graphs.waffle.io/automattic/jetpack/throughput.svg)](https://waffle.io/Automattic/jetpack/metrics/throughput)
 
 ## Team
 
@@ -59,8 +59,8 @@ The Jetpack Pit Crew is comprised of @briancolinger, @dereksmart, @eliorivero, @
 
 Contributions have been and continue to be made by dozens of other Automatticians, like:
 
-@jeffgolenski, @jessefriedman, @richardmuscat, @justinkropp, @aliso, @allendav, @alternatekev, @apeatling, @azaozz, @bazza, @beaulebens, @cfinke, @daniloercoli, @enejb, @eoigal, @ethitter, @gibrown, @hugobaeta, @jasmussen, @jblz, @jkudish, @johnjamesjacoby, @justinshreve, @koke, @kovshenin, @lancewillett, @lezama, @martinremy, @MichaelArestad, @mtias, @mcsf, @mdawaffe, @nickmomrik, @obenland, @pento, @rase-, @roccotripaldi, @skeltoac, @stephdau, @tmoorewp, @Viper007Bond, @xyu and @yoavf.
+@jeffgolenski, @jessefriedman, @richardmuscat, @allendav, @apeatling, @azaozz, @bazza, @beaulebens, @cfinke, @daniloercoli, @enejb, @eoigal, @gibrown, @jasmussen, @jblz, @justinshreve, @koke, @kovshenin, @lancewillett, @lezama, @martinremy, @MichaelArestad, @mtias, @mcsf, @mdawaffe, @nickmomrik, @obenland, @pento, @roccotripaldi, @stephdau, @Viper007Bond, @xyu and @yoavf.
 
-Our _awesome_ happiness engineers are @aheckler, @annezazuu, @bikedorkjon, @cena, @chaselivingston, @codestor4, @csonnek, @danjjohnson, @davoraltman, @drpottex, @gaurav1984, @gregwp, @jamilabreu, @jeherve, @jenhooks, @joendotcom, @kraftbj, @lamdayap, @lschuyler, @macmanx2,  @madhattermattic, @mbhthompson, @NujabesSoul, @ntpixels, @pmciano, @rachelsquirrel, @rcowles, @richardmtl, @seejacobscott, @stefmattana, and @tmmbecker.
+Our _awesome_ happiness engineers are @aheckler, @annezazuu, @bikedorkjon, @cena, @chaselivingston, @codestor4, @csonnek, @danjjohnson, @dericleeyy, @gaurav1984, @gsmumbo, @htdat, @jamilabreu, @jeherve, @jenhooks, @joeboydston, @joendotcom, @kraftbj, @lschuyler, @macmanx2,  @madhattermattic, @mbhthompson, @mzakariya, @NujabesSoul, @ntpixels, @pmciano, @rachelsquirrel, @rcowles, @richardmtl, @sageWebster, @snowmads, @stefmattana, and @tmmbecker.
 
 Interested in working on awesome open-source code all day? [Join us](https://automattic.com/work-with-us/)!

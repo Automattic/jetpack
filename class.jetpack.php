@@ -6529,6 +6529,12 @@ p {
 			'jetpack_is_post_mailable'                               => null,
 			'jetpack_seo_site_host'                                  => null,
 			'jetpack_installed_plugin'                               => 'jetpack_plugin_installed',
+			'jetpack_holiday_snow_option_name'                       => null,
+			'jetpack_holiday_chance_of_snow'                         => null,
+			'jetpack_holiday_snow_js_url'                            => null,
+			'jetpack_is_holiday_snow_season'                         => null,
+			'jetpack_holiday_snow_option_updated'                    => null,
+			'jetpack_holiday_snowing'                                => null,
 		);
 
 		// This is a silly loop depth. Better way?

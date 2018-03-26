@@ -51,6 +51,10 @@ export const SettingsCard = props => {
 		} );
 	};
 
+	const handleClickForTracking = feature => {
+		return () => trackBannerClick( feature );
+	};
+
 	const module = props.module
 			? props.getModule( props.module )
 			: false,
@@ -96,7 +100,7 @@ export const SettingsCard = props => {
 						callToAction={ upgradeLabel }
 						plan={ PLAN_JETPACK_PREMIUM }
 						feature={ feature }
-						onClick={ () => trackBannerClick( feature ) }
+						onClick={ handleClickForTracking( feature ) }
 						href={ 'https://jetpack.com/redirect/?source=settings-video-premium&site=' + siteRawUrl }
 					/>
 				);
@@ -115,7 +119,7 @@ export const SettingsCard = props => {
 						callToAction={ upgradeLabel }
 						plan={ PLAN_JETPACK_PREMIUM }
 						feature={ feature }
-						onClick={ () => trackBannerClick( feature ) }
+						onClick={ handleClickForTracking( feature ) }
 						href={ 'https://jetpack.com/redirect/?source=settings-ads&site=' + siteRawUrl }
 					/>
 				);
@@ -132,7 +136,7 @@ export const SettingsCard = props => {
 							plan={ PLAN_JETPACK_BUSINESS }
 							callToAction={ upgradeLabel }
 							feature={ feature }
-							onClick={ () => trackBannerClick( feature ) }
+							onClick={ handleClickForTracking( feature ) }
 							href={ 'https://jetpack.com/redirect/?source=settings-security-pro&site=' + siteRawUrl }
 						/>
 					);
@@ -144,7 +148,7 @@ export const SettingsCard = props => {
 						title={ __( 'Protect against data loss, malware, and malicious attacks.' ) }
 						plan={ PLAN_JETPACK_PREMIUM }
 						feature={ feature }
-						onClick={ () => trackBannerClick( feature ) }
+						onClick={ handleClickForTracking( feature ) }
 						href={ 'https://jetpack.com/redirect/?source=settings-security-premium&site=' + siteRawUrl }
 					/>
 				);
@@ -159,7 +163,7 @@ export const SettingsCard = props => {
 						title={ __( 'Integrate easily with Google Analytics.' ) }
 						plan={ PLAN_JETPACK_BUSINESS }
 						feature={ feature }
-						onClick={ () => trackBannerClick( feature ) }
+						onClick={ handleClickForTracking( feature ) }
 						href={ 'https://jetpack.com/redirect/?source=settings-ga&site=' + siteRawUrl }
 					/>
 				);
@@ -174,7 +178,7 @@ export const SettingsCard = props => {
 						title={ __( 'Help your content get found and shared with SEO tools.' ) }
 						plan={ PLAN_JETPACK_BUSINESS }
 						feature={ feature }
-						onClick={ () => trackBannerClick( feature ) }
+						onClick={ handleClickForTracking( feature ) }
 						href={ 'https://jetpack.com/redirect/?source=settings-seo&site=' + siteRawUrl }
 					/>
 				);
@@ -190,7 +194,7 @@ export const SettingsCard = props => {
 						title={ __( 'Faster, more relevant and more powerful sitewide search.' ) }
 						plan={ PLAN_JETPACK_BUSINESS }
 						feature={ feature }
-						onClick={ () => trackBannerClick( feature ) }
+						onClick={ handleClickForTracking( feature ) }
 						href={ 'https://jetpack.com/redirect/?source=settings-search&site=' + siteRawUrl }
 					/>
 				);

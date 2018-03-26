@@ -29,12 +29,12 @@ import {
 	getStatsData,
 	statsSwitchTab,
 	fetchStatsData,
-	getActiveStatsTab as _getActiveStatsTab
+	getActiveStatsTab
 } from 'state/at-a-glance';
 import { getModules } from 'state/modules';
 import { emptyStatsCardDismissed } from 'state/settings';
 
-class DashStats extends Component {
+export class DashStats extends Component {
 	constructor( props ) {
 		super( props );
 		this.state = {
@@ -117,7 +117,7 @@ class DashStats extends Component {
 				<div className="jp-at-a-glance__stats-chart">
 					<Chart data={ chartData } barClick={ this.barClick } />
 					{
-						0 < chartData.length ? '' : <Spinner />
+						0 === chartData.length && <Spinner />
 					}
 				</div>
 				<div id="stats-bottom" className="jp-at-a-glance__stats-bottom">
@@ -148,7 +148,7 @@ class DashStats extends Component {
 				</p>
 				<Button
 					onClick={ dismissCard }
-					primary={ true }
+					primary
 				>
 					{ __( 'Okay, got it!' ) }
 				</Button>
@@ -160,8 +160,7 @@ class DashStats extends Component {
 		const activateStats = () => this.props.updateOptions( { stats: true } );
 
 		if ( this.props.getOptionValue( 'stats' ) ) {
-			const statsErrors = this.statsErrors();
-			if ( statsErrors ) {
+			if ( this.statsErrors() ) {
 				return (
 					<div className="jp-at-a-glance__stats-inactive">
 						<span>
@@ -177,14 +176,14 @@ class DashStats extends Component {
 				);
 			}
 
-			const statsChart = this.statsChart( this.props.activeTab() ),
+			const statsChart = this.statsChart( this.props.activeTab ),
 				chartData = statsChart.chartData,
 				totalViews = statsChart.totalViews,
-				showEmptyStats = chartData.length > 0 && totalViews <= 0 && ! this.props.isEmptyStatsCardDismissed && ! this.state.emptyStatsDismissed;
+				showEmptyStats = totalViews <= 0 && ! this.props.isEmptyStatsCardDismissed && ! this.state.emptyStatsDismissed;
 
 			return (
 				<div className="jp-at-a-glance__stats-container">
-					{ ! showEmptyStats ? this.renderStatsChart( chartData ) : this.renderEmptyStatsCard() }
+					{ showEmptyStats ? this.renderEmptyStatsCard() : this.renderStatsChart( chartData ) }
 				</div>
 			);
 		}
@@ -206,11 +205,11 @@ class DashStats extends Component {
 					}
 				</div>
 				{
-					this.props.isDevMode ? '' : (
+					! this.props.isDevMode && (
 						<div className="jp-at-a-glance__stats-inactive-button">
 							<Button
 								onClick={ activateStats }
-								primary={ true }
+								primary
 							>
 								{ __( 'Activate Site Stats' ) }
 							</Button>
@@ -222,6 +221,12 @@ class DashStats extends Component {
 	}
 
 	maybeShowStatsTabs() {
+		const statsChart = this.statsChart( this.props.activeTab );
+
+		if ( false === statsChart.totalViews && ! this.props.isEmptyStatsCardDismissed && ! this.state.emptyStatsDismissed ) {
+			return false;
+		}
+
 		const switchToDay = () => {
 				analytics.tracks.recordJetpackClick( { target: 'stats_switch_view', view: 'day' } );
 				this.props.switchView( 'day' );
@@ -262,7 +267,7 @@ class DashStats extends Component {
 	}
 
 	getClass( view ) {
-		return this.props.activeTab() === view
+		return this.props.activeTab === view
 			? 'jp-at-a-glance__stats-view-link is-current'
 			: 'jp-at-a-glance__stats-view-link';
 	}
@@ -273,7 +278,7 @@ class DashStats extends Component {
 			return null;
 		}
 
-		const range = this.props.activeTab();
+		const range = this.props.activeTab;
 		return (
 			<div>
 				<QueryStatsData range={ range } />
@@ -299,7 +304,7 @@ export default connect(
 	( state ) => {
 		return {
 			moduleList: getModules( state ),
-			activeTab: () => _getActiveStatsTab( state ),
+			activeTab: getActiveStatsTab( state ),
 			isDevMode: isDevMode( state ),
 			isLinked: isCurrentUserLinked( state ),
 			connectUrl: getConnectUrl( state ),

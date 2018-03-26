@@ -5,7 +5,7 @@
 * https://developers.google.com/analytics/devguides/collection/analyticsjs/
 * https://developers.google.com/analytics/devguides/collection/analyticsjs/enhanced-ecommerce
 *
-* @author allendav 
+* @author allendav
 */
 
 /**
@@ -263,7 +263,7 @@ class Jetpack_Google_Analytics_Universal {
 			esc_attr( $product->get_id() ),
 			esc_attr( $product->get_sku() )
 			);
-		$url = str_replace( 'href=', $new_attributes );
+		$url = str_replace( 'href=', $new_attributes, $url );
 		return $url;
 	}
 

@@ -78,32 +78,37 @@ export default class SimpleNotice extends React.Component {
 	};
 
 	render() {
-		const { status, className, isCompact, showDismiss } = this.props;
+		const {
+			children,
+			className,
+			icon,
+			isCompact,
+			onDismissClick,
+			showDismiss = ! isCompact, // by default, show on normal notices, don't show on compact ones
+			status,
+			text,
+			dismissText
+		} = this.props;
 		const classes = classnames( 'dops-notice', status, className, {
 			'is-compact': isCompact,
-			'is-dismissable': showDismiss
+			'is-dismissable': showDismiss,
 		} );
-
-		const { icon, text, children, onDismissClick, dismissText } = this.props;
 
 		return (
 			<div className={ classes }>
-				<Gridicon className="dops-notice__icon" icon={ icon || this.getIcon() } size={ 24 } />
+				<span className="dops-notice__icon-wrapper">
+					<Gridicon className="dops-notice__icon" icon={ icon || this.getIcon() } size={ 24 } />
+				</span>
 				<span className="dops-notice__content">
-					<span className="dops-notice__text">
-						{ text ? text : children }
-					</span>
+					<span className="dops-notice__text">{ text ? text : children }</span>
 				</span>
 				{ text ? children : null }
 				{ showDismiss && (
-					<span
-						role="button"
-						tabIndex="0"
-						onClick={ onDismissClick }
-						onKeyDown={ onKeyDownCallback( onDismissClick ) }
-						className="dops-notice__dismiss">
+					<span role="button" onKeyDown={ onKeyDownCallback( onDismissClick ) } tabIndex="0" className="dops-notice__dismiss" onClick={ onDismissClick }>
 						<Gridicon icon="cross" size={ 24 } />
-						<span className="screen-reader-text">{ dismissText }</span>
+						<span className="dops-notice__screen-reader-text screen-reader-text">
+							{ dismissText }
+						</span>
 					</span>
 				) }
 			</div>

@@ -85,7 +85,7 @@ const SectionNavigation = createReactClass( {
 	render: function() {
 		const demoSections = {};
 
-		forEach( this.props, function( prop, key ) {
+		forEach( this.props, ( prop, key ) => {
 			demoSections[ key ] = [];
 
 			prop.forEach( function( item, index ) {
@@ -100,7 +100,7 @@ const SectionNavigation = createReactClass( {
 					</NavItem>
 				) );
 			}, this );
-		}.bind( this ) );
+		} );
 
 		return (
 			<div className="design-assets__group">

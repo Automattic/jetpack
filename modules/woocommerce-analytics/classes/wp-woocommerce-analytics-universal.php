@@ -25,18 +25,17 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		// loading _wca
 		add_action( 'wp_head', array( $this, 'wp_head_top' ), 1 );
 
+		// add to carts from non-product pages or lists (search, store etc.)
+		add_action( 'wp_head', array( $this, 'loop_session_events' ), 2 );
+
 		// loading s.js
 		add_action( 'wp_head', array( $this, 'wp_head_bottom' ), 999999 );
 
+		// Capture cart events
+		add_action( 'woocommerce_add_to_cart', array( $this, 'capture_add_to_cart' ), 10, 6 );
+
 		// single product page view
-		add_action( 'woocommerce_after_single_product', array( $this, 'product_detail' ) );
-
-		// add to cart on single product page
-		add_action( 'woocommerce_after_add_to_cart_button', array( $this, 'add_to_cart' ) );
-
-		// add to carts from list views (search, store etc.)
-		add_action( 'wp_footer', array( $this, 'loop_add_to_cart' ) );
-
+		add_action( 'woocommerce_after_single_product', array( $this, 'capture_product_view' ) );
 
 		add_action( 'woocommerce_after_cart', array( $this, 'remove_from_cart' ) );
 		add_action( 'woocommerce_after_mini_cart', array( $this, 'remove_from_cart' ) );
@@ -74,60 +73,36 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	}
 
 	/**
-	 * On a product page, add a click event listener to "Add to Cart" button click
-	 */
-	public function add_to_cart() {
-
-		if ( ! is_single() ) {
-			return;
-		}
-
-		$blogid = Jetpack::get_option( 'id' );
-		global $product;
-
-		wc_enqueue_js(
-			"jQuery( '" . esc_js( '.single_add_to_cart_button' ) . "' ).click( function() {
-				_wca.push( {
-					'_en': 'woocommerceanalytics_add_to_cart',
-					'blog_id': " . esc_js( $blogid ) . ",
-					'pi': '" . esc_js( $product->get_id() ) . "',
-					'pn' : '" . esc_js( $product->get_title() ) . "',
-					'pq': jQuery( 'input.qty' ).val() ? jQuery( 'input.qty' ).val() : '1',
-					'ui': '" . esc_js( $this->get_user_id() ) . "',
-				} );
-			} );"
-		);
-	}
-
-	/**
 	 * On product lists or other non-product pages, add an event listener to "Add to Cart" button click
 	 */
-	public function loop_add_to_cart() {
+	public function loop_session_events() {
 		$blogid   = Jetpack::get_option( 'id' );
-		$selector = '.add_to_cart_button:not(.product_type_variable, .product_type_grouped)';
 
-		wc_enqueue_js(
-			"jQuery( '" . esc_js( $selector ) . "' ).click( function() {
-				var productID = jQuery( this ).data( 'product_id' );
-				var productDetails = {
-					'id': productID,
-					'quantity': jQuery( this ).data( 'quantity' ),
-				};
-				_wca.push( {
-					'_en': 'woocommerceanalytics_product_view',
-					'blog_id': '" . esc_js( $blogid ) . "',
-					'pi': productDetails.id,
-					'ui': '" . esc_js( $this->get_user_id() ) . "',
-				} );
-				_wca.push( {
-					'_en': 'woocommerceanalytics_add_to_cart',
-					'blog_id': " . esc_js( $blogid ) . ",
-					'pi': productDetails.id,
-					'pq': productDetails.quantity,
-					'ui': '" . esc_js( $this->get_user_id() ) . "',
-				} );
-			} );"
-		);
+		// check for previous add-to-cart cart events
+		$data = WC()->session->get( 'wca_session_data' );
+		if ( ! empty( $data ) ) {
+			foreach ( $data as $data_instance ) {
+				$product = wc_get_product( $data_instance['product_id'] );
+				if ( ! $product ) {
+					continue;
+				}
+				$product_details = $this->get_product_details( $product );
+				wc_enqueue_js(
+					"_wca.push( {
+							'_en': '" . esc_js( $data_instance['event'] ) . "',
+							'blog_id': '" . esc_js( $blogid ) . "',
+							'pi': '" . esc_js( $data_instance['product_id'] ) . "',
+							'pn': '" . esc_js( $product_details['name'] ) . "',
+							'pc': '" . esc_js( $product_details['category'] ) . "',
+							'pp': '" . esc_js( $product_details['price'] ) . "',
+							'pq': '" . esc_js( $data_instance['quantity'] ) . "',
+							'ui': '" . esc_js( $this->get_user_id() ) . "',
+						} );"
+				);
+			}
+			// clear data
+			WC()->session->set( 'wca_session_data', '' );
+		}
 	}
 
 	/**
@@ -179,7 +154,7 @@ class Jetpack_WooCommerce_Analytics_Universal {
 			esc_attr( $product->get_id() ),
 			esc_attr( $product->get_sku() )
 		);
-		$url = str_replace( 'href=', $new_attributes );
+		$url = str_replace( 'href=', $new_attributes, $url );
 		return $url;
 	}
 
@@ -189,11 +164,11 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	 * @param array $product product
 	 * @return array
 	 */
-	public function get_item_details( $product ) {
+	public function get_product_details( $product ) {
 		return array(
 			'id'       => $product->get_id(),
 			'name'     => $product->get_title(),
-			'category' => Jetpack_WooCommerce_Analytics_Utils::get_product_categories_concatenated( $product ),
+			'category' => $this->get_product_categories_concatenated( $product ),
 			'price'    => $product->get_price(),
 		);
 	}
@@ -201,21 +176,20 @@ class Jetpack_WooCommerce_Analytics_Universal {
 	/**
 	 * Track a product page view
 	 */
-	public function product_detail() {
+	public function capture_product_view() {
 
 		global $product;
 		$blogid = Jetpack::get_option( 'id' );
-
-		$item_details = $this->get_item_details( $product );
+		$product_details = $this->get_product_details( $product );
 
 		wc_enqueue_js(
 			"_wca.push( {
 				'_en': 'woocommerceanalytics_product_view',
 				'blog_id': '" . esc_js( $blogid ) . "',
-				'pi': '" . esc_js( $item_details['id'] ) . "',
-				'pn': '" . esc_js( $item_details['name'] ) . "',
-				'pc': '" . esc_js( $item_details['category'] ) . "',
-				'pp': '" . esc_js( $item_details['price'] ) . "',
+				'pi': '" . esc_js( $product_details['id'] ) . "',
+				'pn': '" . esc_js( $product_details['name'] ) . "',
+				'pc': '" . esc_js( $product_details['category'] ) . "',
+				'pp': '" . esc_js( $product_details['price'] ) . "',
 				'ui': '" . esc_js( $this->get_user_id() ) . "',
 			} );"
 		);
@@ -236,15 +210,19 @@ class Jetpack_WooCommerce_Analytics_Universal {
 			*/
 			$product = apply_filters( 'woocommerce_cart_item_product', $cart_item['data'], $cart_item, $cart_item_key );
 
-			$item_details = $this->get_item_details( $product );
+			if ( ! $product ) {
+				continue;
+			}
+
+			$product_details = $this->get_product_details( $product );
 
 			$universal_commands[] = "_wca.push( {
 				'_en': 'woocommerceanalytics_product_checkout',
 				'blog_id': '" . esc_js( $blogid ) . "',
-				'pi': '" . esc_js( $item_details['id'] ) . "',
-				'pn': '" . esc_js( $item_details['name'] ) . "',
-				'pc': '" . esc_js( $item_details['category'] ) . "',
-				'pp': '" . esc_js( $item_details['price'] ) . "',
+				'pi': '" . esc_js( $product_details['id'] ) . "',
+				'pn': '" . esc_js( $product_details['name'] ) . "',
+				'pc': '" . esc_js( $product_details['category'] ) . "',
+				'pp': '" . esc_js( $product_details['price'] ) . "',
 				'pq': '" . esc_js( $cart_item['quantity'] ) . "',
 				'ui': '" . esc_js( $this->get_user_id() ) . "',
 			} );";
@@ -267,15 +245,15 @@ class Jetpack_WooCommerce_Analytics_Universal {
 		foreach ( $order->get_items() as $order_item_id => $order_item ) {
 			$product = $order->get_product_from_item( $order_item );
 
-			$item_details = $this->get_item_details( $product );
+			$product_details = $this->get_product_details( $product );
 
 			$universal_commands[] = "_wca.push( {
 				'_en': 'woocommerceanalytics_product_purchase',
 				'blog_id': '" . esc_js( $blogid ) . "',
-				'pi': '" . esc_js( $item_details['id'] ) . "',
-				'pn': '" . esc_js( $item_details['name'] ) . "',
-				'pc': '" . esc_js( $item_details['category'] ) . "',
-				'pp': '" . esc_js( $item_details['price'] ) . "',
+				'pi': '" . esc_js( $product_details['id'] ) . "',
+				'pn': '" . esc_js( $product_details['name'] ) . "',
+				'pc': '" . esc_js( $product_details['category'] ) . "',
+				'pp': '" . esc_js( $product_details['price'] ) . "',
 				'pq': '" . esc_js( $order_item->get_quantity() ) . "',
 				'oi': '" . esc_js( $order->get_order_number() ) . "',
 				'ui': '" . esc_js( $this->get_user_id() ) . "',
@@ -323,6 +301,86 @@ class Jetpack_WooCommerce_Analytics_Universal {
 			return $blogid . ":" . $userid;
 		}
 		return 'null';
+	}
+
+	/**
+		* @param $cart_item_key
+		* @param $product_id
+		* @param $quantity
+		* @param $variation_id
+		* @param $variation
+		* @param $cart_item_data
+		*/
+	public function capture_add_to_cart( $cart_item_key, $product_id, $quantity, $variation_id, $variation, $cart_item_data ) {
+		$referer_postid = isset( $_SERVER['HTTP_REFERER'] ) ? url_to_postid( $_SERVER['HTTP_REFERER'] ) : 0;
+		// if the referring post is not a product OR the product being added is not the same as post
+		// (eg. related product list on single product page) then include a product view event
+		if ( ! wc_get_product( $referer_postid ) || $product_id != $referer_postid ) {
+			$this->capture_event_in_session_data( $product_id, $quantity, 'woocommerceanalytics_product_view' );
+		}
+		// add cart event to the session data
+		$this->capture_event_in_session_data( $product_id, $quantity, 'woocommerceanalytics_add_to_cart' );
+	}
+
+	/**
+	 * @param $product_id
+	 * @param $quantity
+	 * @param $event
+	 */
+	public function capture_event_in_session_data( $product_id, $quantity, $event ) {
+
+		$product = wc_get_product( $product_id );
+		if ( ! $product ) {
+			return;
+		}
+
+		$quantity = ( $quantity == 0 ) ? 1 : $quantity;
+
+		// check for existing data
+		$data = WC()->session->get( 'wca_session_data' );
+		if ( empty( $data ) || ! is_array( $data ) ) {
+			$data = array();
+		}
+
+		// extract new event data
+		$new_data = array(
+			'event' => $event,
+			'product_id' => (string) $product_id,
+			'quantity' => (string) $quantity,
+		);
+
+		// append new data
+		$data[] = $new_data;
+
+		WC()->session->set( 'wca_session_data', $data );
+	}
+
+	/**
+	 * Gets product categories or varation attributes as a formatted concatenated string
+	 *
+	 * @param object $product WC_Product.
+	 * @return string
+	 */
+	public function get_product_categories_concatenated( $product ) {
+
+		if ( ! $product ) {
+			return '';
+		}
+
+		$variation_data = $product->is_type( 'variation' ) ? wc_get_product_variation_attributes( $product->get_id() ) : '';
+		if ( is_array( $variation_data ) && ! empty( $variation_data ) ) {
+			$line = wc_get_formatted_variation( $variation_data, true );
+		} else {
+			$out = array();
+			$categories = get_the_terms( $product->get_id(), 'product_cat' );
+			if ( $categories ) {
+				foreach ( $categories as $category ) {
+					$out[] = $category->name;
+				}
+			}
+			$line = join( '/', $out );
+		}
+		return $line;
 	}
 
 }

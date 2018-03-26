@@ -8,6 +8,7 @@ module.exports = function( grunt ) {
 				options: {
 					domainPath: '/languages',
 					exclude: [
+						'docker',
 						'node_modules',
 						'tests',
 						'tools',
@@ -27,6 +28,7 @@ module.exports = function( grunt ) {
 					src: [
 						'*.php',
 						'**/*.php',
+						'!docker/**',
 						'!node_modules/**',
 						'!tests/**',
 						'!tools/**',

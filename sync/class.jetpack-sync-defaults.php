@@ -192,7 +192,8 @@ class Jetpack_Sync_Defaults {
 		'hosting_provider'                 => array( 'Jetpack_Sync_Functions', 'get_hosting_provider' ),
 		'locale'                           => 'get_locale',
 		'site_icon_url'                    => array( 'Jetpack_Sync_Functions', 'site_icon_url' ),
-		'roles'                            =>  array( 'Jetpack_Sync_Functions', 'roles' ),
+		'roles'                            => array( 'Jetpack_Sync_Functions', 'roles' ),
+		'default_user_event_tracking'      => array( 'Jetpack_Sync_functions', 'get_default_user_tracking_value' )
 	);
 
 

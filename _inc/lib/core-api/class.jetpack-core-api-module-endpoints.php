@@ -412,7 +412,6 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 		}
 
 		$settings = Jetpack_Core_Json_Api_Endpoints::get_updateable_data_list( 'settings' );
-		$holiday_snow_option_name = Jetpack_Core_Json_Api_Endpoints::holiday_snow_option_name();
 
 		if ( ! function_exists( 'is_plugin_active' ) ) {
 			require_once ABSPATH . 'wp-admin/includes/plugin.php';
@@ -435,10 +434,6 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 
 					$value = get_option( 'WPLANG' );
 					$response[ $setting ] = empty( $value ) ? 'en_US' : $value;
-					break;
-
-				case $holiday_snow_option_name:
-					$response[ $setting ] = get_option( $holiday_snow_option_name ) === 'letitsnow';
 					break;
 
 				case 'wordpress_api_key':
@@ -469,6 +464,11 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 						'installWooCommerce' => is_plugin_active( 'woocommerce/woocommerce.php' ),
 						'stats' => Jetpack::is_active() && Jetpack::is_module_active( 'stats' ),
 					);
+					break;
+
+				case 'jetpack_event_tracking':
+					jetpack_require_lib( 'class.jetpack-user-event-tracking' );
+					$response[ $setting ] = Jetpack_User_Event_Tracking::is_enabled( get_current_user_id() );
 					break;
 
 				default:
@@ -878,10 +878,6 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 					$updated = $grouped_options_current != $grouped_options ? update_option( 'stats_options', $grouped_options ) : true;
 					break;
 
-				case Jetpack_Core_Json_Api_Endpoints::holiday_snow_option_name():
-					$updated = get_option( $option ) != $value ? update_option( $option, (bool) $value ? 'letitsnow' : '' ) : true;
-					break;
-
 				case 'akismet_show_user_comments_approved':
 
 					// Save Akismet option '1' or '0' like it's done in akismet/class.akismet-admin.php
@@ -957,6 +953,13 @@ class Jetpack_Core_API_Data extends Jetpack_Core_API_XMLRPC_Consumer_Endpoint {
 						$error = sprintf( esc_html__( 'Onboarding failed to process: %s', 'jetpack' ), $result );
 						$updated = false;
 					}
+					break;
+
+				case 'jetpack_event_tracking':
+					jetpack_require_lib( 'class.jetpack-user-event-tracking' );
+					$updated = $value
+						? Jetpack_User_Event_Tracking::enable( get_current_user_id() )
+						: Jetpack_User_Event_Tracking::disable( get_current_user_id() );
 					break;
 
 				case 'show_welcome_for_new_plan':

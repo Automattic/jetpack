@@ -42,7 +42,6 @@ jobs:
           path: ~/wp-e2e-tests/screenshots/
   test:
     <<: *defaults
-    parallelism: 2
     steps:
       - attach_workspace:
           at: ~/wp-e2e-tests
@@ -51,7 +50,7 @@ jobs:
           command: cd ~/wp-e2e-tests && ./scripts/randomize.sh specs
       - run:
           name: Run e2e tests
-          command: cd ~/wp-e2e-tests && ./run.sh -R -j -p -x
+          command: cd ~/wp-e2e-tests && ./run.sh -R -j -x
       - store_test_results:
           path: ~/wp-e2e-tests/reports/
       - store_artifacts:

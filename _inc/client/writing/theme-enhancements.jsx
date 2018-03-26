@@ -103,6 +103,14 @@ class ThemeEnhancements extends React.Component {
 		wp_mobile_app_promos: this.props.getOptionValue( 'wp_mobile_app_promos', 'minileven' )
 	};
 
+	handleInfiniteScrollModeChange = ( key ) => {
+		return () => this.updateInfiniteMode( key );
+	}
+
+	handleMinilevenOptionChange = ( optionName, module ) => {
+		return () => this.updateOptions( optionName, module );
+	}
+
 	render() {
 		const foundInfiniteScroll = this.props.isModuleFound( 'infinite-scroll' ),
 			foundMinileven = this.props.isModuleFound( 'minileven' );
@@ -158,7 +166,7 @@ class ThemeEnhancements extends React.Component {
 														value={ radio.key }
 														checked={ radio.key === this.state.infinite_mode }
 														disabled={ this.props.isSavingAnyOption( [ item.module, radio.key ] ) }
-														onChange={ () => this.updateInfiniteMode( radio.key ) }
+														onChange={ this.handleInfiniteScrollModeChange( radio.key ) }
 													/>
 													<span className="jp-form-toggle-explanation">
 														{
@@ -234,7 +242,7 @@ class ThemeEnhancements extends React.Component {
 													<CompactFormToggle
 														checked={ this.state[ chkbx.key ] }
 														disabled={ ! isItemActive || this.props.isSavingAnyOption( [ item.module, chkbx.key ] ) }
-														onChange={ () => this.updateOptions( chkbx.key, item.module ) }
+														onChange={ this.handleMinilevenOptionChange( chkbx.key, item.module ) }
 														key={ `${ item.module }_${ chkbx.key }` }>
 													<span className="jp-form-toggle-explanation">
 														{
