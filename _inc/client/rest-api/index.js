@@ -70,6 +70,20 @@ function JetpackRestApiClient( root, nonce ) {
 		fetchUserConnectionData: () => getRequest( `${ apiRoot }jetpack/v4/connection/data`, getParams )
 			.then( parseJsonResponse ),
 
+		fetchUserTrackingSettings: () => getRequest( `${ apiRoot }jetpack/v4/tracking/settings`, getParams )
+			.then( checkStatus )
+			.then( parseJsonResponse ),
+
+		updateUserTrackingSettings: ( newSettings ) => postRequest(
+			`${ apiRoot }jetpack/v4/tracking/settings`,
+			postParams,
+			{
+				body: JSON.stringify( newSettings )
+			}
+		)
+			.then( checkStatus )
+			.then( parseJsonResponse ),
+
 		disconnectSite: () => postRequest( `${ apiRoot }jetpack/v4/connection`, postParams, {
 			body: JSON.stringify( { isActive: false } )
 		} )
