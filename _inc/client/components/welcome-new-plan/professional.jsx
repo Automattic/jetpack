@@ -24,6 +24,7 @@ class WelcomeProfessional extends Component {
 		// Preparing event handlers once to avoid calling bind on every render
 		this.clickCtaDismissThemes = this.clickCtaDismiss.bind( this, 'themes' );
 		this.clickCtaDismissAds = this.clickCtaDismiss.bind( this, 'ads' );
+		this.clickCtaDismissSearch = this.clickCtaDismiss.bind( this, 'search' );
 		this.clickCtaDismissSeo = this.clickCtaDismiss.bind( this, 'seo' );
 	}
 
@@ -47,7 +48,7 @@ class WelcomeProfessional extends Component {
 			<div>
 				<p>
 					{ __( 'Thanks for choosing Jetpack Professional. Jetpack is now backing up your content in real-time,' +
-						' scanning for security threats, and granting access to premium themes.'
+						' indexing your content for search, scanning for security threats, and granting access to premium themes.'
 					) }
 				</p>
 				<img src={ imagePath + 'customize-theme.svg' } className="jp-welcome__svg" alt={ __( 'Themes' ) } />
@@ -57,6 +58,10 @@ class WelcomeProfessional extends Component {
 						'widgets, or add unlimited videos to your posts and pages -- displayed free of ads or watermarks.'
 					) }
 				</p>
+				<p>
+					{ __( "Give your visitor's a great search experience by letting them filter and sort fast, relevant search results." ) }
+				</p>
+				<InlineModuleToggle module_slug="search" />
 				<img src={ imagePath + 'wordads.svg' } className="jp-welcome__svg" alt={ __( 'Sharing' ) } />
 				<p>
 					{ __( 'Growing your following is easy with your Professional plan, thanks to content sharing and scheduling,' +
@@ -95,6 +100,14 @@ class WelcomeProfessional extends Component {
 					onClick={ this.clickCtaDismissAds }
 				>
 					{ __( 'Monetize your site with ads' ) }
+				</Card>
+				<Card
+					href={ 'customize.php?autofocus[panel]=widgets' }
+					compact
+					className="jp-dialogue-card__below"
+					onClick={ this.clickCtaDismissSearch }
+				>
+					{ __( 'Add the Search (Jetpack) widget to your sidebar' ) }
 				</Card>
 				<Card
 					href={ '#/traffic' }
