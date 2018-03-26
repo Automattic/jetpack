@@ -10,7 +10,7 @@ class Jetpack_Sync_Item {
 
 	function __construct( $trigger, $object = null ) {
 		$this->trigger = $trigger;
-		if ( ! is_null( $object ) ) {
+		if ( $object ) {
 			$this->set_object( $object );
 		}
 	}
@@ -28,7 +28,11 @@ class Jetpack_Sync_Item {
 	}
 
 	function set_state_value( $key, $value = null ) {
-		$this->add( $this->state, $key, $value );
+		if ( is_array( $key ) ) {
+			$this->state = array_merge( $this->state, $key );
+		} else if ( is_string( $key ) && ! is_null( $value ) ) {
+			$this->state[ $key ] = $value;
+		}
 	}
 
 	function state_isset( $key ) {
@@ -44,15 +48,7 @@ class Jetpack_Sync_Item {
 	}
 
 	function is_state_value_true( $key ) {
-		return (bool) ( $this->state_isset( $key ) && (bool) $this->state[ $key ] );
-	}
-
-	private function add( &$array, $key, $value = null ) {
-		if ( is_array( $key ) ) {
-			$array = array_merge( $key, $array );
-		} else if ( is_string( $key ) && ! is_null( $value ) ) {
-			$array[ $key ] = $value;
-		}
+		return ( $this->state_isset( $key ) && (bool) $this->state[ $key ] );
 	}
 
 	function get_payload() {

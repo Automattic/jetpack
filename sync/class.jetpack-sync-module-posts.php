@@ -314,6 +314,11 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
         unset( $this->sync_items[ $post_ID ] );
     }
 
+    // TODO: Add to parent class
+    public function has_sync_item( $post_id ) {
+		return isset( $this->sync_items[ $post_id ] );
+    }
+
 	public function wp_insert_post( $post_ID, $post = null, $update = null ) {
 		if ( ! is_numeric( $post_ID ) || is_null( $post ) ) {
 			return;
@@ -328,7 +333,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		if ( $post && 'shop_order' === $post->post_type ) {
 			$post = get_post( $post_ID );
 		}
-		if ( ! isset( $this->sync_items[ $post_ID ] ) ) {
+		if ( ! $this->has_sync_item( $post_ID ) ) {
 			$this->sync_items[ $post_ID ] = new Jetpack_Sync_Item( 'save_post' );
 		}
 		$sync_item = $this->sync_items[ $post_ID ];
