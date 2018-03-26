@@ -98,7 +98,7 @@ export const Ads = moduleSettingsForm( class extends React.Component {
 						<CompactFormToggle
 							checked={ wordads_display_page }
 							disabled={ ! isAdsActive || unavailableInDevMode || this.props.isSavingAnyOption( [ 'wordads', 'wordads_display_page' ] ) }
-										onChange={ this.handleChange( 'wordads_display_page' ) }>
+							onChange={ this.handleChange( 'wordads_display_page' ) }>
 							<span className="jp-form-toggle-explanation">
 								{ __( 'Pages' ) }
 							</span>
