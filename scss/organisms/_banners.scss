@@ -60,7 +60,8 @@
 		}
 
 		h4 {
-			font-size: rem( 24px );
+			line-height: 1.25;
+			font-size: rem( 22px );
 			font-weight: normal;
 			margin: 1em 0;
 		}
@@ -88,15 +89,14 @@
 }
 
 .jp-connect-full__step-header {
-	font-family: $gill;
 	max-width: 700px;
 	margin: 0 auto;
+	line-height: 1.25;
 
 	h2 {
 		margin: rem( 14px ) 0 rem( 8px ) 0;
 		font-size: rem( 22px );
-		line-height: 1.25;
-		font-weight: $bold;
+		font-weight: normal;
 		color: black;
 	}
 
@@ -163,9 +163,13 @@
 
 	.illustration {
 		img {
-			width: 75%;
-			margin: 2.5em auto;
+			margin: 2.5em 1em;
 			display: block;
+
+			@include minbreakpoint(phablet) {
+				margin: 2.5em auto;
+				width: 75%;
+			};
 		}
 	}
 }
