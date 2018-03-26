@@ -966,7 +966,7 @@ class Jetpack_Connection_Banner {
 			</p>
 
 			<p class="jp-connect-full__button-container">
-				<a href="" class="dops-button">
+				<a href="https://jetpack.com/contact-support/" class="dops-button">
 					<?php esc_html_e( 'Chat with us', 'jetpack' ); ?>
 				</a>
 				<a href="https://jetpack.com/support" class="dops-button">
