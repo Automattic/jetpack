@@ -147,6 +147,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Stats: Fixed column spacing styling issues in WP Dashboard box for Jetpack stats.
 * VaultPress: Remove menu item that links nowhere when Rewind is enabled.
 * WooCommerce Analytics: Fixed PHP warning coming from str_replace usage.
+* WooCommerce Analytics: Started tracking all possible ways to add a product to a cart.
 
 = 5.8 =
 
