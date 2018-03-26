@@ -174,10 +174,10 @@ class Jetpack_Subscriptions {
 		);
 
 		$messages['post'][6] = sprintf(
-				/* translators: Link to view published post is %1$s */
-				esc_html__( 'Post published and sending emails to subscribers. %1$s', 'jetpack' ),
-				$view_post_link_html
-			);
+				/* translators: Message shown after a post is published */
+				esc_html__( 'Post published and sending emails to subscribers.', 'jetpack' )
+
+			) . $view_post_link_html;
 		return $messages;
 	}
 

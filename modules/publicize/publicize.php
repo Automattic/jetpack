@@ -448,37 +448,34 @@ abstract class Publicize_Base {
 		foreach ( $services as $service => $display_names ) {
 			$labels[] = sprintf(
 				/* translators: Service name is %1$s, and account name is %2$s. */
-				_x( '%1$s (%2$s)', 'Service and account string', 'jetpack' ),
+				__( '%1$s (%2$s)', 'jetpack' ),
 				esc_html( $service ),
 				esc_html( implode( ', ', $display_names ) )
 			);
 		}
 
 		$messages['post'][6] = sprintf(
-			/* translators: Services and account string is %1$s, link to view published post is %2$s */
-			_x( 'Post published and sharing on %1$s. %2$s', 'Post published notice', 'jetpack' ),
-			implode( ', ', $labels ),
-			$view_post_link_html
-		);
+			/* translators: Services and account string is %1$s */
+			esc_html__( 'Post published and sharing on %1$s.', 'jetpack' ),
+			implode( ', ', $labels )
+		) . $view_post_link_html;
 
 		if ( $post_type == 'post' && class_exists('Jetpack_Subscriptions' ) ) {
 			$subscription = Jetpack_Subscriptions::init();
 			if ( $subscription->should_email_post_to_subscribers( $post ) ) {
 				$messages['post'][6] = sprintf(
-					/* translators: Services and account string is %1$s, link to view published post is %2$s */
-               		_x( 'Post published, sending emails to subscribers and sharing post on %1$s. %2$s', 'Post published notice', 'jetpack' ),
-                	implode( ', ', $labels ),
-                	$view_post_link_html
-				);
+					/* translators: Services and account string is %1$s */
+               		esc_html__( 'Post published, sending emails to subscribers and sharing post on %1$s.', 'jetpack' ),
+                	implode( ', ', $labels )
+				). $view_post_link_html;
 			}
 		}
 
 		$messages['jetpack-portfolio'][6] = sprintf(
-			/* translators: Published Message: services and account string is %1$s, link to view published post is %2$s */
-			_x( 'Project published and sharing project on %1$s. %2$s', 'Post published notice', 'jetpack' ),
-			implode( ', ', $labels ),
-			$view_post_link_html
-		);
+			/* translators: Published Message: services and account string is %1$s */
+			esc_html__( 'Project published and sharing project on %1$s.', 'jetpack' ),
+			implode( ', ', $labels )
+		) . $view_post_link_html;
 
 		return $messages;
 	}
