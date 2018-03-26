@@ -25,10 +25,10 @@ if [ ! -f /var/www/html/wp-config.php ]; then
 	while [ "$i" -le "$times" ]; do
 		sleep 3
 		wp --allow-root config create \
-			--dbhost=$WORDPRESS_DB_HOST \
-			--dbname=wordpress \
-			--dbuser=$WORDPRESS_DB_USER \
-			--dbpass=$WORDPRESS_DB_PASSWORD \
+			--dbhost=${DB_HOST} \
+			--dbname=${DB_NAME} \
+			--dbuser=${DB_USER} \
+			--dbpass=${DB_PASSWORD} \
 			&& break
 		[ ! $? -eq 0 ] || break;
 		echo "Waiting for creating wp-config.php until mysql is ready to receive connections"
@@ -84,3 +84,5 @@ fi
 
 echo "Starting Apache in the foreground"
 apachectl -D FOREGROUND
+
+echo "Jetpack Docker is now up! Open http://${WP_DOMAIN}"
