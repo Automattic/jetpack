@@ -113,6 +113,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Admin Page: Introduced a new Privacy admin page linked at the bottom of the Jetpack dashboard.
 * Admin Page: Introduced a Privacy toggle that allows the user to disable event tracking.
 * Ads: Added site id to head meta.
+* Comments: Improved accessibility of comments form by adding title attributes.
 * Connect: Removed account creation links from below the Set Up Jetpack buttons.
 * General: Show correct available status in Jetpack modules list if module is not supported by current plan.
 * General: Return error in wp-cli if activating a module that is not supported by the current plan.
