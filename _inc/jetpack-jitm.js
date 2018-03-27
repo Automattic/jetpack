@@ -10,13 +10,13 @@ jQuery( document ).ready( function( $ ) {
 			html += '<div class="jitm-banner__title">' + envelope.content.message + '</div>';
 			if ( envelope.content.description && envelope.content.description !== '' ) {
 				html += '<div class="jitm-banner__description">' + envelope.content.description;
-				if( envelope.content.list.length > 0 ) {
+				if ( envelope.content.list.length > 0 ) {
 					html += '<ul class="banner__list">';
-					for( var i = 0; i < envelope.content.list.length; i++ ) {
+					for ( var i = 0; i < envelope.content.list.length; i++ ) {
 
 						var text = envelope.content.list[ i ].item;
 
-						if( envelope.content.list[ i ].url ) {
+						if ( envelope.content.list[ i ].url ) {
 							text = '<a href="' + envelope.content.list[ i ].url + '" target="_blank" rel="noopener noreferrer" data-module="' + envelope.feature_class + '" data-jptracks-name="nudge_item_click" data-jptracks-prop="jitm-' + envelope.id + '">' +
 								text + '</a>';
 						}
