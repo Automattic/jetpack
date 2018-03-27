@@ -54,6 +54,11 @@ class Privacy extends React.Component {
 		active: false,
 	};
 
+	togglePrivacy = () => {
+		const current = this.props.tracking.tracks_opt_out;
+		this.props.setTracking( ! current );
+	}
+
 	componentWillMount() {
 		this.props.fetchTracking();
 	}
@@ -63,10 +68,6 @@ class Privacy extends React.Component {
 			searchTerm,
 			active,
 		} = this.props;
-		const isActive = ! this.props.tracking.tracks_opt_out;
-		const doToggle = () => {
-			this.props.setTracking( isActive );
-		};
 
 		if ( ! searchTerm && ! active ) {
 			return null;
@@ -106,9 +107,9 @@ class Privacy extends React.Component {
 						<p>
 							<CompactFormToggle
 								compact
-								checked={ isActive }
-								disabled={ this.props.isFetching }
-								onChange={ doToggle }
+								checked={ ! this.props.tracking.tracks_opt_out }
+								disabled={ this.props.isFetching || this.props.isUpdating() }
+								onChange={ this.togglePrivacy }
 								id="privacy-settings">
 								{ __( 'Send information to help us improve our products.' ) }
 							</CompactFormToggle>
