@@ -202,6 +202,80 @@ Adds rel="noopener" to post links shown by the WordPress Posts widget if the Ope
 * Visit a page on your site that will show the widget.
 * Inspect the links and confirm that the links to the other site posts include the attribute rel="noopener".
 
+#### EU Cookie Law Widget
+
+Fixed an issue where custom URL choice wasn't preserved in Customizer, also fixed selective refresh. Testing instructions:
+
+* add a EU Cookie Law Banner widget and make sure you can choose a Custom URL for the policy
+* make sure selective refresh works fine
+
+### Infinite Scroll
+
+#### Main query detection
+
+We adjusted the order in which the globals wp_the_query and wp_query are set so that is_main_query is accurate when ran on the pre_get_posts hook. This fixes queries from other plugins failing because the Infinite scroll query is not the “main query”.
+
+* Enable Infinite Scroll.
+* Clone WooCommerce from GitHub, switch to the fix/infinite-scroll branch, and import the sample data.
+* Go to the WooCommerce shop page at local.wordpress.test/shop/
+* Scroll to a page loaded via AJAX.
+* Open your browser’s Development Tools. In the Network tab you will find the ?infinity=scrolling AJAX request. Inside query_args you should see the WooCommerce product_visibility taxonomy query, as well as the custom wc_query parameter.
+
+#### JavaScript pagination
+
+We’ve also fixed a JavaScript pagination issue where when viewing the first page, the next page was always page 1 again.
+
+* Enable Infinite Scroll.
+* Clone WooCommerce from GitHub, switch to the fix/infinite-scroll branch, and import the sample data.
+* Go to the WooCommerce shop page at local.wordpress.test/shop/
+* When you scroll it loads page 1 + offset 1 = page 2
+* If you start at local.wordpress.test/shop/page/2 it loads page 1 + offset 2 + page 3.
+
+#### Posts per page changes
+
+The previous system used a fixed number of 7 or the ‘posts per page’ setting in WP Admin. This isn’t suitable for custom post types where they have their own ‘posts per page’ setting or preference.
+
+To make this more robust we pass through the ‘posts per page’ setting from the original query and use this instead. If the theme defines a different posts_per_page value in the add_theme_support declaration, we default to that instead.
+
+* Enable Infinite Scroll
+* Change the number of posts per page in Settings > Reading.
+* The number of posts loaded via AJAX should reflect the updated value.
+* If testing with WooCommerce, the number of products per page can be changed in the Customizer. Customizer > WooCommerce > Product Catalog > Products per row / per page.
+
+##### Improved rendering callbacks
+
+The previous system relied on a setting, and a fallback, for the render callback. One could also use infinite_scroll_render action.
+
+There’s now a filter of registered callbacks which get ran in sequence. If a callback returns nothing, it continues to the next until content is returned. Callbacks registered through theme support are still called, and the final fallback is the default render method in the infinite scroll class.
+
+* Register a new callback:
+
+```add_filter( 'infinite_scroll_render_callbacks', 'register_some_custom_render_callbacks' );
+
+function register_some_custom_render_callbacks( $callbacks ) {
+    $callbacks[] = 'my_post_render_callback';
+    return $callbacks;
+}
+
+function my_post_render_callback() {
+    while ( have_posts() ) : the_post();
+        get_template_part( 'content', get_post_format() );
+    endwhile; // end of the loop.
+}
+```
+
+* Your custom callback should load.
+
+#### WooCommerce compatibility
+
+Using the improved callbacks rendering system, we now include a default renderer for WooCommerce products within infinite scroll.
+
+* Enable Infinite Scroll.
+* Clone WooCommerce from GitHub, switch to the fix/infinite-scroll branch, and import the sample data.
+* Go to the WooCommerce shop page at local.wordpress.test/shop/
+* Scroll to page 2.
+* Layout should be the same as page 1.
+
 ### WooCommerce
 
 Started queueing all add_to_cart events and logging it on the next page. Also preventing duplicate product_view events from product page. Testing instructions:
