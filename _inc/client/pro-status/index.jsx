@@ -97,6 +97,12 @@ class ProStatus extends React.Component {
 				action = __( 'Upgrade', { context: 'Caption for a button to purchase a paid feature.' } );
 				actionUrl = 'https://jetpack.com/redirect/?source=upgrade&site=' + this.props.siteRawUrl;
 				break;
+			case 'pro':
+				type = 'upgrade';
+				status = 'is-warning';
+				action = __( 'Upgrade', { context: 'Caption for a button to purchase a pro plan.' } );
+				actionUrl = 'https://jetpack.com/redirect/?source=plans-business&site=' + this.props.siteRawUrl;
+				break;
 			case 'secure':
 				status = 'is-success';
 				message = __( 'Secure', { context: 'Short message informing user that the site is secure.' } );
@@ -164,6 +170,7 @@ class ProStatus extends React.Component {
 
 		const hasPersonal = /jetpack_personal*/.test( sitePlan.product_slug ),
 			hasFree = /jetpack_free*/.test( sitePlan.product_slug ),
+			hasPremium = /jetpack_premium*/.test( sitePlan.product_slug ),
 			hasBackups = get( vpData, [ 'data', 'features', 'backups' ], false ),
 			hasScan = get( vpData, [ 'data', 'features', 'security' ], false );
 
@@ -199,6 +206,12 @@ class ProStatus extends React.Component {
 						return this.getProActions( 0 === this.props.getScanThreats() ? 'secure' : 'threats', 'scan' );
 					}
 					break;
+
+				case 'search':
+					if ( hasFree || hasPersonal || hasPremium ) {
+						return this.getProActions( 'pro' );
+					}
+					return '';
 
 				case 'akismet':
 					if ( hasFree && ! ( active && installed ) ) {
