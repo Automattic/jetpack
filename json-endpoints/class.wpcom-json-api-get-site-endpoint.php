@@ -144,7 +144,8 @@ class WPCOM_JSON_API_GET_Site_Endpoint extends WPCOM_JSON_API_Endpoint {
 		'is_wpcom_store',
 		'woocommerce_is_active',
 		'frame_nonce',
-		'design_type'
+		'design_type',
+		'wordads'
 	);
 
 	private $site;
