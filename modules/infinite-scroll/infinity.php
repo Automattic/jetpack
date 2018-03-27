@@ -1274,10 +1274,9 @@ class The_Neverending_Home_Page {
 			 *
 			 * @since 6.0.0
 			 */
-			$callbacks = apply_filters( 'infinite_scroll_render_callbacks', array() );
-
-			// Append the setting callback e.g. from add theme support.
-			$callbacks[] = self::get_settings()->render;
+			$callbacks = apply_filters( 'infinite_scroll_render_callbacks', array(
+				self::get_settings()->render, // This is the setting callback e.g. from add theme support.
+			) );
 
 			// Append fallback callback. That rhymes.
 			$callbacks[] = array( $this, 'render' );
