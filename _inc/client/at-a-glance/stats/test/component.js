@@ -50,6 +50,7 @@ describe( 'Dashboard Stats', () => {
 			},
 			day: undefined,
 		},
+		isModuleAvailable: true,
 		isDevMode: false,
 		moduleList: { stats: {} },
 		activeTab: 'day',

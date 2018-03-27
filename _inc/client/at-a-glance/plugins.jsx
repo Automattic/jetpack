@@ -5,7 +5,6 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { translate as __ } from 'i18n-calypso';
-import includes from 'lodash/includes';
 
 /**
  * Internal dependencies
@@ -14,17 +13,23 @@ import Card from 'components/card';
 import DashItem from 'components/dash-item';
 import QueryPluginUpdates from 'components/data/query-plugin-updates';
 import { getPluginUpdates } from 'state/at-a-glance';
-import { getModules } from 'state/modules';
+import { isModuleAvailable } from 'state/modules';
 import { isDevMode } from 'state/connection';
 
 class DashPluginUpdates extends Component {
-
 	static propTypes = {
 		isDevMode: PropTypes.bool.isRequired,
 		siteRawUrl: PropTypes.string.isRequired,
 		siteAdminUrl: PropTypes.string.isRequired,
-		pluginUpdates: PropTypes.any.isRequired
+		pluginUpdates: PropTypes.any.isRequired,
+		isModuleAvailable: PropTypes.bool.isRequired,
 	};
+
+	activateAndRedirect( e ) {
+		e.preventDefault();
+		this.props.activateManage()
+			.then( window.location = 'https://wordpress.com/plugins/manage/' + this.props.siteRawUrl );
+	}
 
 	getContent() {
 		const labelName = __( 'Plugin Updates' );
@@ -92,12 +97,7 @@ class DashPluginUpdates extends Component {
 	}
 
 	render() {
-		const moduleList = Object.keys( this.props.moduleList );
-		if ( ! includes( moduleList, 'manage' ) ) {
-			return null;
-		}
-
-		return (
+		return this.props.isModuleAvailable && (
 			<div>
 				<QueryPluginUpdates />
 				{ this.getContent() }
@@ -110,6 +110,6 @@ export default connect(
 	state => ( {
 		pluginUpdates: getPluginUpdates( state ),
 		isDevMode: isDevMode( state ),
-		moduleList: getModules( state )
+		isModuleAvailable: isModuleAvailable( state, 'manage' ),
 	} )
 )( DashPluginUpdates );

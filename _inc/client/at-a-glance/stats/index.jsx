@@ -13,7 +13,6 @@ import Button from 'components/button';
 import Spinner from 'components/spinner';
 import { numberFormat, moment, translate as __ } from 'i18n-calypso';
 import analytics from 'lib/analytics';
-import includes from 'lodash/includes';
 
 /**
  * Internal dependencies
@@ -31,10 +30,18 @@ import {
 	fetchStatsData,
 	getActiveStatsTab
 } from 'state/at-a-glance';
-import { getModules } from 'state/modules';
+import { isModuleAvailable } from 'state/modules';
 import { emptyStatsCardDismissed } from 'state/settings';
 
 export class DashStats extends Component {
+	static propTypes = {
+		isDevMode: PropTypes.bool.isRequired,
+		siteRawUrl: PropTypes.string.isRequired,
+		siteAdminUrl: PropTypes.string.isRequired,
+		statsData: PropTypes.any.isRequired,
+		isModuleAvailable: PropTypes.bool.isRequired,
+	};
+
 	constructor( props ) {
 		super( props );
 		this.state = {
@@ -273,15 +280,9 @@ export class DashStats extends Component {
 	}
 
 	render() {
-		const moduleList = Object.keys( this.props.moduleList );
-		if ( ! includes( moduleList, 'stats' ) ) {
-			return null;
-		}
-
-		const range = this.props.activeTab;
-		return (
+		return this.props.isModuleAvailable && (
 			<div>
-				<QueryStatsData range={ range } />
+				<QueryStatsData range={ this.props.activeTab } />
 				<DashSectionHeader label={ __( 'Site Stats' ) }>
 					{ this.maybeShowStatsTabs() }
 				</DashSectionHeader>
@@ -293,33 +294,18 @@ export class DashStats extends Component {
 	}
 }
 
-DashStats.propTypes = {
-	isDevMode: PropTypes.bool.isRequired,
-	siteRawUrl: PropTypes.string.isRequired,
-	siteAdminUrl: PropTypes.string.isRequired,
-	statsData: PropTypes.any.isRequired
-};
-
 export default connect(
-	( state ) => {
-		return {
-			moduleList: getModules( state ),
-			activeTab: getActiveStatsTab( state ),
-			isDevMode: isDevMode( state ),
-			isLinked: isCurrentUserLinked( state ),
-			connectUrl: getConnectUrl( state ),
-			statsData: getStatsData( state ) !== 'N/A' ? getStatsData( state ) : getInitialStateStatsData( state ),
-			isEmptyStatsCardDismissed: emptyStatsCardDismissed( state ),
-		};
-	},
-	( dispatch ) => {
-		return {
-			switchView: ( tab ) => {
-				return dispatch( statsSwitchTab( tab ) );
-			},
-			fetchStatsData: ( range ) => {
-				return dispatch( fetchStatsData( range ) );
-			}
-		};
-	}
+	state => ( {
+		isModuleAvailable: isModuleAvailable( state, 'stats' ),
+		activeTab: getActiveStatsTab( state ),
+		isDevMode: isDevMode( state ),
+		isLinked: isCurrentUserLinked( state ),
+		connectUrl: getConnectUrl( state ),
+		statsData: getStatsData( state ) !== 'N/A' ? getStatsData( state ) : getInitialStateStatsData( state ),
+		isEmptyStatsCardDismissed: emptyStatsCardDismissed( state ),
+	} ),
+	dispatch => ( {
+		switchView: tab => dispatch( statsSwitchTab( tab ) ),
+		fetchStatsData: range => dispatch( fetchStatsData( range ) ),
+	} )
 )( DashStats );
