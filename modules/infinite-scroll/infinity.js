@@ -131,7 +131,7 @@ Scroller.prototype.render = function( response ) {
  */
 Scroller.prototype.query = function() {
 	return {
-		page           : this.page,
+		page           : this.page + this.offset, // Load the next page.
 		currentday     : this.currentday,
 		order          : this.order,
 		scripts        : window.infiniteScroll.settings.scripts,
@@ -318,7 +318,7 @@ Scroller.prototype.refresh = function() {
 				}
 
 				// stash the response in the page cache
-				self.pageCache[self.page] = response;
+				self.pageCache[self.page+self.offset] = response;
 
 				// Increment the page number
 				self.page++;
@@ -601,9 +601,6 @@ Scroller.prototype.determineURL = function () {
 	// If a page number could be determined, update the URL
 	// -1 indicates that the original requested URL should be used.
 	if ( 'number' == typeof pageNum ) {
-		if ( pageNum != -1 )
-			pageNum++;
-
 		self.updateURL( pageNum );
 	}
 }
@@ -618,8 +615,7 @@ Scroller.prototype.updateURL = function( page ) {
 		return;
 	}
 	var self = this,
-		offset = self.offset > 0 ? self.offset - 1 : 0,
-		pageSlug = -1 == page ? self.origURL : window.location.protocol + '//' + self.history.host + self.history.path.replace( /%d/, page + offset ) + self.history.parameters;
+		pageSlug = -1 == page ? self.origURL : window.location.protocol + '//' + self.history.host + self.history.path.replace( /%d/, page ) + self.history.parameters;
 
 	if ( window.location.href != pageSlug ) {
 		history.pushState( null, null, pageSlug );
