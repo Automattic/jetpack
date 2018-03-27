@@ -62,14 +62,12 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		// WordPress, Blogger, Livejournal, woo tax rate
 		add_action( 'import_end', array( $this, 'sync_import_end' ) );
 
-		add_action( 'set_object_terms', array( $this, 'set_object_terms' ), 10, 6 );
+		add_action( 'set_object_terms', array( $this, 'set_object_terms' ), 1, 6 );
 	}
 
 	public function wp_insert_post_parent( $post_parent, $post_ID ) {
 		if ( $post_ID ) {
 			$this->set_post_sync_item( $post_ID );
-		} else {
-			$this->set_post_sync_item( 'new' );
 		}
 		return $post_parent;
 	}
@@ -82,9 +80,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 	}
 
 	public function set_object_terms( $post_id, $terms, $tt_ids, $taxonomy, $append, $old_tt_ids ) {
-		if ( ! self::is_saving_post( $post_id ) ) {
-			return;
-		}
+		$this->set_post_sync_item( $post_id );
 		$sync_item = new Jetpack_Sync_Item( 'set_object_terms',
 			array( $post_id, $terms, $tt_ids, $taxonomy, $append, $old_tt_ids )
 		);
@@ -93,7 +89,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 
 
 	public function is_saving_post( $post_ID ) {
-		return isset( $this->sync_items[ $post_ID ], $this->sync_items['new'] );
+		return $this->has_sync_item( $post_ID );
 	}
 
 	// TODO: Add to parent class
