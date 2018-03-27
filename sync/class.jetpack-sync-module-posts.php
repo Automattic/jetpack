@@ -34,8 +34,10 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		// Core < 4.7 doesn't deal with nested wp_insert_post calls very well
 		global $wp_version;
 		$priority = version_compare( $wp_version, '4.7-alpha', '<' ) ? 0 : 11;
-		// `wp_insert_post_parent` happens early on `wp_insert_post`
-		add_filter( 'wp_insert_post_parent', array( $this, 'set_post_sync_item' ), 10, 2 );
+
+		// Our aim is to initialize `sync_items` as early as possible, so that other areas of the code base can know
+		// that we are within a post-saving operation. `wp_insert_post_parent` happens early within the action stack.
+		add_filter( 'wp_insert_post_parent', array( $this, 'wp_insert_post_parent' ), 10, 2 );
 
 		add_action( 'wp_insert_post', array( $this, 'wp_insert_post' ), $priority, 3 );
 		add_action( 'jetpack_post_saved', $callable, 10, 1 );
@@ -63,13 +65,20 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		add_action( 'set_object_terms', array( $this, 'set_object_terms' ), 10, 6 );
 	}
 
-	public function set_post_sync_item( $post_parent, $post_ID ) {
+	public function wp_insert_post_parent( $post_parent, $post_ID ) {
 		if ( $post_ID ) {
-			$this->sync_items[ $post_ID ] = new Jetpack_Sync_Item( 'save_post' );
+			$this->set_post_sync_item( $post_ID );
 		} else {
-			$this->sync_items[ 'new' ] = new Jetpack_Sync_Item( 'save_post' );
+			$this->set_post_sync_item( 'new' );
 		}
 		return $post_parent;
+	}
+
+	public function set_post_sync_item( $post_ID ) {
+		if ( $this->has_sync_item( $post_ID ) ) {
+			return;
+		}
+		$this->sync_items[ $post_ID ] = new Jetpack_Sync_Item( 'save_post' );
 	}
 
 	public function set_object_terms( $post_id, $terms, $tt_ids, $taxonomy, $append, $old_tt_ids ) {
@@ -296,9 +305,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 	}
 
 	public function save_published( $new_status, $old_status, $post ) {
-		if ( ! isset( $this->sync_items[ $post->ID ] ) ) {
-			$this->sync_items[ $post->ID ] = new Jetpack_Sync_Item( 'save_post' );
-		}
+		$this->set_post_sync_item( $post->ID );
 		$sync_item = $this->sync_items[ $post->ID ];
 		$is_just_published = 'publish' === $new_status && 'publish' !== $old_status;
 		$sync_item->set_state_value( 'is_just_published', $is_just_published );
@@ -333,9 +340,8 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		if ( $post && 'shop_order' === $post->post_type ) {
 			$post = get_post( $post_ID );
 		}
-		if ( ! $this->has_sync_item( $post_ID ) ) {
-			$this->sync_items[ $post_ID ] = new Jetpack_Sync_Item( 'save_post' );
-		}
+
+		$this->set_post_sync_item( $post_ID );
 		$sync_item = $this->sync_items[ $post_ID ];
 
 		if ( ! $sync_item->state_isset( 'previous_status' ) ) {
