@@ -137,6 +137,8 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 
 **Improved compatibility**
 
+* bbPress: Markdown support added for bbPress CPTs.
+
 **Bug fixes**
 
 * Admin Page: Fixed Dashboard connection card from showing text that overflows the card.
