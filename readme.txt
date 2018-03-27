@@ -127,6 +127,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Masterbar: Made the Sign Out link in the Master always log you out from WordPress.com.
 * Publicize: Made styling of Publicize more consistent with wp-admin.
 * Protect: Started blocking XML RPC requests when they get marked as blocked by Protect.
+* Search: Made the Search widget available whether or not Extra Sidebar Widgets is enabled.
 * SEO Tools: Removed SEO Tools from Jumpstart
 * Shortcodes: We now load Twitters widget.js over https.
 * Subscriptions: We've made it a better experience if you try to subscribe to a site you are already subscribed to.
