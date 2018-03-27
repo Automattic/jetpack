@@ -129,6 +129,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Protect: Started blocking XML RPC requests when they get marked as blocked by Protect.
 * SEO Tools: Removed SEO Tools from Jumpstart
 * Shortcodes: We now load Twitters widget.js over https.
+* Subscriptions: We've made it a better experience if you try to subscribe to a site you are already subscribed to.
 * Sync: Stopped syncing personal data coming from WooCommerce orders.
 * VideoPress: Default to grid view when linking to upload videos
 * Warm Welcome: Added Search to the features listed on the Warm Welcome dialog for Professional Plan.
