@@ -143,6 +143,7 @@ export default connect(
 	dispatch => {
 		return {
 			setTracking: ( newValue ) => {
+				analytics.tracks.setOptOut( newValue ); // Sets opt-out cookie.
 				dispatch( updateTrackingSettings( { tracks_opt_out: newValue } ) );
 			},
 			fetchTracking: () => dispatch( fetchTrackingSettings() )
