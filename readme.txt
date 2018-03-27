@@ -141,6 +141,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 **Improved compatibility**
 
 * bbPress: Markdown support added for bbPress CPTs.
+* PHP 7.1: Fixed an error coming from one of our json-api endpoints.
 
 **Bug fixes**
 
