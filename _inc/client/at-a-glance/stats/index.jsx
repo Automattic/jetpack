@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import forEach from 'lodash/forEach';
 import get from 'lodash/get';
+import isEmpty from 'lodash/isEmpty';
 import Card from 'components/card';
 import Chart from 'components/chart';
 import { connect } from 'react-redux';
@@ -301,7 +302,7 @@ export default connect(
 		isDevMode: isDevMode( state ),
 		isLinked: isCurrentUserLinked( state ),
 		connectUrl: getConnectUrl( state ),
-		statsData: getStatsData( state ) !== 'N/A' ? getStatsData( state ) : getInitialStateStatsData( state ),
+		statsData: isEmpty( getStatsData( state ) ) ? getInitialStateStatsData( state ) : getStatsData( state ),
 		isEmptyStatsCardDismissed: emptyStatsCardDismissed( state ),
 	} ),
 	dispatch => ( {
