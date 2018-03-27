@@ -20,11 +20,6 @@ services:
     env_file:
       - default.env
       - .env
-    environment:
-      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-wordpress}
-      MYSQL_DATABASE: ${DB_NAME:-wordpress}
-      MYSQL_USER: ${DB_USER:-wordpress}
-      MYSQL_PASSWORD: ${DB_PASSWORD:-wordpress}
 
   ## SMTP Server + Web Interface for viewing and testing emails during development.
   ## http://danfarrelly.nyc/MailDev/
@@ -48,9 +43,8 @@ services:
     ports:
       - "1022:22"
     env_file:
-      - default.env
-      - .env
-    command: ${SFTP_USER:-wordpress}:${SFTP_PASSWORD:-wordpress}:1001
+      - ./default.env
+      - ./.env
 
   ## - The container wordpress is a very basic but custom container with WordPress and all of the tools we need
   ##   for development.
@@ -88,16 +82,5 @@ services:
     env_file:
       - default.env
       - .env
-    environment:
-      PHP_IDE_CONFIG: "serverName=Test"
-      DB_HOST: db:3306
-      DB_NAME: ${DB_NAME:-wordpress}
-      DB_USER: ${DB_USER:-wordpress}
-      DB_PASSWORD: ${DB_PASSWORD:-wordpress}
-      WP_DOMAIN: ${WP_DOMAIN:-localhost}
-      WP_ADMIN_USER: ${WP_ADMIN_USER:-wordpress}
-      WP_ADMIN_PASSWORD: ${WP_ADMIN_PASSWORD:-wordpress}
-      WP_ADMIN_EMAIL: ${WP_ADMIN_EMAIL:-wordpress@example.com}
-      WP_TITLE: ${WP_TITLE:-HelloWord}
     extra_hosts:
        - "localhost:172.22.0.4"
