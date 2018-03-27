@@ -1,221 +1,288 @@
-## 5.9
-
-### Activity Log
-
-We now show a better entry in the Activity Log for a failed login event.
-
-Start with a connected site having  a Professional Plan.
-
-* Log out of the site.
-* Attempt to login with wrong credentials.
-* Visit WordPress.com Activity log for the site.
-* Expect to see a login failed entry with a nice message related to a username instead of just the IP address origin of the failed attempt.
-
-### Custom Content Types
-
-We added support for excerpts to these custom content types.
-
-* Attempt to create either a new Portfolio post or a Testimonial one. 
-* Expect to see the excerpt field shown.
-
-### General
-
-The suppress_filters param passed to get_posts / get_children was updated in several places. Passing this param allows plugins to filter wp query to modify behaviour.
-
-This one's hard to test.
-
-* [Advanced post cache](https://github.com/Automattic/advanced-post-cache) is an example of a plugin providing caching.
-* Out of the box, WP_Query runs a couple of queries and these are uncached. Advanced post cache, used on all WordPress.com sites (even GO VIP), hooks into WP_Query can caches the result of these queries to stop the running on every page load. With this suppress_filtersadvanced post cache doesn't not run. This means queries run unnecessarily and result in high level of traffic to database servers at peak times.
-* Test Jetpack with this plugin enabled and confirm that everything works as expected.
-
-
-### Jetpack Connect
-
-With Jetpack 5.8 we introduced an issue that would appear sometimes when attempting to connect a site after clicking the banner for Jetpack in the WordPress Dashboard.
-
-* Start with a brand new site, with Jetpack active but not connected.
-* Visit the WordPress Dashboard and click the Set up Jetpack button.
-* Expect to be redirected to Calypso. Then click the Back button to get to the WordPress dashboard again.
-* Click the Set Up Jetpack button.
-* Expect to be redirected to Calypso.
-* Expect to **not** see a yellow notice stating that the site is already connected to another account.
-
-### Jetpack Onboarding
-
-_The following features are only enabled in the staging envirronment._
-
-We started allowing saving of a country field for the business address.
-Test with a **brand new site** that's not connected yet:
-
-* Start the onboarding flow for the Jetpack site by going to `/wp-admin/admin.php?page=jetpack&action=onboard&calypso_env=wpcalypso`
-* On the site type step, choose **Business**
-* Skip to the Business Address step.
-* Verify the country field appears properly.
-* Input some data in it, and save the step. 
-* Verify the country saves properly and goes straight to the address widget.
-* Verify a fresh load of this step loads the setting properly.
-
-We also started allowing the enabling of the stats module on this flow. 
-
-Test with a **brand new site** that's not connected yet:
-
-* Start the onboarding flow (`/wp-admin/admin.php?page=jetpack&action=onboard&calypso_env=wpcalypso`)
-* When arriving the Calypso screen, in your console, enter `dispatch( { type: 'JETPACK_ONBOARDING_SETTINGS_REQUEST', siteId: 12345678 } )`, where `12345678` is the ID of your site.
-* Verify the response contains a `stats` field in the `onboarding` option and it's disabled.
-* In your console, enter `dispatch( { type: 'JETPACK_ONBOARDING_SETTINGS_SAVE', siteId: 12345678, settings: { stats: true } } )` , where `12345678` is the ID of your site.
-* Verify you get a `stats not connected` error.
-* Connect the site.
-* In your console, enter `dispatch( { type: 'JETPACK_ONBOARDING_SETTINGS_SAVE', siteId: 12345678, settings: { stats: true } } )` , where `12345678` is the ID of your site.
-* Verify you receive a successful response, and the stats module gets enabled.
-
-
-This flow now deletes the temporary token used for saving settings when the site is connected.
-Test with a **brand new site** that's not connected yet:
-
-* Make sure you are logged into WP.com and the Jetpack site.
-* Start the onboarding flow by going to `/wp-admin/admin.php?page=jetpack&action=onboard&calypso_env=wp-calypso` and get redirected to the site title step in Calypso
-* Visit `/wp-admin/options.php` and verify `jetpack_onboarding` contains the token.
-* Go to https://wordpress.com/jetpack/connect/ and connect the site.
-* Visit `/wp-admin/options.php` again and verify `jetpack_onboarding` is not present in the list of options.
-
-### Lazy images.
-
-We now properly hide settings for Lazy images if the module is filtered out.
-
-* Try to filter out lazy images as a module using this snippet:
-    ```
-    add_filter( 'jetpack_get_available_modules', function( $active ) {
-	    return array_diff_key( $active, array( 'lazy-images' => 'Does not matter' ) );
-    } );
-    ```
-* Make sure you don't see the module at all when you open the Writing tab, or search for something like `lazy`.
-
-
-We now allow images to be ignored by Lazy images if they contain a reserved class name like `skip-lazy` or a custom one you define via the `jetpack_lazy_images_blacklisted_classes` filter.
-
-* Create a post with some images. 
-* Apply the skip-lazy class to one of them.
-* Save the post
-* Visit the post in the frontend.
-* Expect the image to not be loaded in a deferred fashion.
-
+## 6.0
 
 ### Masterbar
 
-* Start by being signed in to WordPress.com.
-* Then, on a connected Jetpack site...
-* Enable the Masterbar from the Jetpack Settings Page.
-* Sign out from the Masterbar.
-* Go back to WordPress.com.
-* Expect to be logged in.
+With the Grammarly extension enabled on Chrome macOS, an error occured before when navigating to a site with the WordPress.com Masterbar module active, logged in as a WordPress.com user. Testing instructions:
 
-Repeat steps on an Atomic site but expect to be logged out from WordPress.com in the end.
+* Navigate to a Jetpack site with the Masterbar module active and there should be no regressions, all Tracks events should fire.
 
-* Start by being signed in to WordPress.com (non-proxied).
-* Then, on an Atomic site...
-* Enable the Masterbar from the Jetpack Settings Page..
-* Sign out from the Masterbar.
-* Go back to WordPress.com.
-* Expect to be logged out.
+A change sets the jetpack_masterbar_should_logout_from_wpcom to be true by default. Testing instructions:
+
+* Activate masterbar
+* Sign out from the site
+* Expect to be signed out from WordPress.com too.
+
+### Admin area
+
+A change forces words to break on long usernames and email addresses in the account connection settings in the dashboard. Try changing your username to a very long one without breaks and make sure it doesn't go out of the box.
+
+Another change removes the wpcom account creation link from below the connection buttons. Go to your jetpack menu in an unconnected site: You should see the top & bottom connect buttons, but the old "no account?" link shouldn't be after them anymore.
+
+One more change updates the "install and activate" link in the Backups card to be a functional link matching the "Set up" button. Testing instructions:
+
+* Set up the site with a paid plan
+* After checkout but before allowing set up to run, return to the site dashboard.
+* You will see the link on "install and activate" now points to the same URL as the "Set up" button.
+* Click the link and verify that the Backups set up is performed correctly.
+
+Some JITMs can be specified to be opened in a new window, or the same window. Testing instructions:
+
+* Get a personal plan
+* View the rewind jitm on the dashboard
+* Clicking the button should open in same window instead of a new window
+
+Plans are no longer hidden on small screens. Testing instructions: View the Plans tab on a screen smaller than 600px wide, you should see the plans table.
+
+#### Warm Welcome 
+
+Search is added to the Professional plan warm welcome. Testing instructions:
+
+* Visit the Jetpack dashboard in wp-admin on a site that has the Professional plan. Check out the updated dialog box.
+* Verify that the new link at the bottom takes you to the Customizer's widget section.
+* Verify that the Tracks event triggers when you click on that new link.
+
+#### Privacy page
+
+6.0 introduces a new page accessible through the Privacy link at the bottom of the Jetpack dashboard. The page features links to the Automattic privacy policy and to the upcoming privacy.blog. The support link goes through what data does Jetpack sync. The page also introduces a toggle so users can opt-out of information tracking that Automattic collects for its own purpose. Try toggling the setting on and off, make sure it gets saved correctly.
+
+#### New caching policy
+
+Before, if you navigated to WordPress.com from the Jetpack dashboard and then came back via back button, you would have gotten the previous state of the app because of browser's cache. Now the no-store cache policy makes sure you don't get a cached version of the dashboard when you click 'back' from wpcom. How to test:
+
+* Activate Jetpack (or if it's already active and you don't want to deactivate, run wp option update show_welcome_for_new_plan true with wp-cli)
+* You should get the Warm Welcome modal (if you used wp-cli, you may need to navigate to the jetpack dashboard or reload the page)
+* Click on the "view more stats in WordPress.com" button.
+* Once you get to wp.com, click on the browser's back button
+* You should be taken back to your jetpack dashboard, and the Warm Welcome modal shouldn't show
+
+#### VaultPress
+
+Issues with VaultPress deactivation when Rewind is active are fixed. The Jetpack menu was previously still showing the VaultPress submenu and clicking it lead to a blank page. Testing instructions:
+
+* Test with a site with Rewind active
+* Activate the VaultPress plugin. It will be automatically deactivated and a notice will show.
+* Ensure that: there's not a VaultPress submenu entry under the Jetpack menu, the notice VaultPress needs your attention! is not visible.
+
+#### Settings
+
+Some plans support different modules. A change declares plan support in the module header, and checks for that support when rendering the "active plan" information. This allows us to easily render inactive rows in the jetpack_modules page and elsewhere, so that users know which modules are truly available. Also some basic checking is added in WP-cli and elsewhere for whether plan activation was successful. Testing instructions:
+
+Another change allows to display a short text and a link in the info popover. Testing instructions:
+
+* verify that on each settings card the text corresponds to the one provided here
+* ensure that the support link is correct
+
+##### On a site with a free plan:
+* Go to /wp-admin/admin.php?page=jetpack_modules
+* Ads, Data Backups, Google Analytics, SEO Tools, Search and VideoPress should be greyed out. Only Data Backups should be clickable, with a Configure link.
+* Go to /settings/traffic/{site_domain} in Calypso
+* Attempt to enable SEO tools using the Enable link next to SEO Tools module is disabled in Jetpack.
+* You should see a message There was a problem saving your changes. Please try again.
+
+##### On a site with a Premium plan
+
+* VideoPress should become available
+
+##### On a site with a Professional plan
+
+* SEO Tools, Google Analytics and Search should become available
+
+#### Contact Forms
+
+Contact Forms now have styles for input[type="url"]. Testing instructions:
+
+* Create a new Post.
+* Click 'Add Contact Form'
+* Confirm 'Website' field is styled like other text fields.
+* Preview the new post, confirm 'Website' field is styled like other text fields.
+
+#### Jumpstart
+
+The close button has been moved into Jumpstart dialog by reusing the same Jetpack Dialogue component. Because of this, the page doesn't have the gap between the top two cards. Testing instructions:
+
+* On a Jetpack site that is already connected
+* Open wp shell and run Jetpack_Options::update_option( 'jumpstart', 'new_connection' )
+* Open /wp-admin/admin.php?page=jetpack#/jumpstart
+* Dialog should have close button inside dialog frame; hitting esc, clicking background, or clicking close button should all close the dialog.
+* Dialog should also work properly with assistive devices/programs like screen readers.
+
+SEO tools are not recommended in Jumpstart screen anymore, neither they are activated. Testing instructions:
+
+* On any connected Jetpack site
+* Run wp jetpack reset (warning, this discards all your settings)
+* Go to /wp-admin/admin.php?page=jetpack#/dashboard
+* Observe Jumpstart screen should not include SEO tools
+* Click to activate Jumpstart
+* Observe that SEO tools should not be enabled
+
+#### Stats area
+
+One change adresses column spacing styling issues in WP Dashboard > JP Site Stats. It adds a slight padding-right to the first column of each block. Make sure these columns look right.
+
+Another hides the date range tabs shown in the Stats in the dasboard when the dialog explaining about the time needed to collect data is shown and it hasn't been yet dismissed. Testing instructions:
+
+* use a new site and connect
+* verify that you see the dialog "Hello there! Your stats have been activated." and that the date range tabs aren't shown
+
+#### Disconnect dialog URL for sites in subfolders
+
+Testing instructions:
+
+* Clear your browser cache.
+* Connect a site that's at least two subdirectories deep; e.g., example.com/wp/personal
+* Then, from the Jetpack Dashboard, click 'Manage site connection' to disconnect it.
+* Instead of :: you should see the correct / separators in the URL.
+
+#### Post editor
+
+Like & Sharing metaboxes are updated to use side context and default priority. Testing instructions:
+
+* Enable Sharing → Sharing Buttons, confirm metabox shows on right side when adding a new Post.
+* Enable Sharing → Like Buttons, confirm metabox shows on right side when adding a new Post.
+* Also test when one or the other is disabled.
+
+Single post edit metaboxes do not have likes forcedly unchecked when Likes are enabled for all posts. Testing instructions:
+
+* Likes module enabled, Settings->Sharing set to likes on a per post basis
+* On a post, check the box to enable likes for that post, save.
+* Confirm likes are visible.
+* Change the setting on Settings->Sharing to enable likes for all posts.
+* View the previously likeable post.
+* Confirm you see the Likes button.
+* Edit the post and see the checkbox remains checked.
+
+Styling of the publish metabox is made more consistent with the wp-admin styles. Testing instructions:
+
+* Enable Publicize, ensure no connected accounts
+* Start a new post
+* Ensure styling looks consistent with other elements of the Publish metabox
+* Click "Edit" next to Social Sharing section
+* Add one or more accounts
+* Start a new post again
+* Ensure styling looks consistent with other elements of the Publish metabox
+
+### Video uploads
+
+#### Default to grid view when uploading videos
+
+When upgrading to Premium or Professional on a site in Dashboard > Plans when you scroll down to the "Video Hosting" panel, and click the button to "Upload Videos Now" you should upload a video straight away.
+
+Testing instructions:
+
+* Activate Pro plan
+* Activate VaultPress
+* Go to plans description page from dashboard
+* Click "Upload Videos" link
+* Link should be /wp-admin/upload.php?mode=grid, and displayed in grid mode
 
 ### Search
 
-We now implicitly activate the Search Module when the Jetpack Search Widget gets added to a sidebar.
+If you go to the customizer and add a new Jetpack Search widget, it should show with default values. Testing instructions:
 
-Start with a site that has a plan that supports Jetpack Search.
+* Open the customizer.
+* Add a fresh Jetpack Search widget without touching the form.
+* Verify that the widget shows up in the preview with the search box.
 
-1. Remove any active search widgets and disable the search module via Settings -> Traffic.
-2. Verify that the widget still shows up in both the admin area and the customizer.
-3. Add the widget to your sidebar.
-4. Load the frontend of your site and verify that the widget shows up and works.
-5. Verify that the search module is now enabled again.
+### Widgets
 
+#### Google Translate
 
-We now link from the Jetpack Search settings card to the proper widgets section in the customizer
+The Google translate widget fixes the layout by defaulting to vertical. Testing instructions:
 
-* Go to Jetpack → Settings → Traffic and enable the Search module. Click on "Add Jetpack Search Widget" and verify that the widgets section of the Customizer opens once it fully loads (it'll take a moment).
+* On a site using the Google Translate Widget, apply the patch.
+* The widget should use the vertical layout with full width selector.
 
-We now move any active Jetpack Search widgets to the inactive list if you disable the search module.
+#### WordPress Posts
 
-1. Add the Jetpack Search widget to your sidebar. Ideally give it a custom title so you can more easily track it.
-2. Disable the search module.
-3. Refresh the page and verify that the search module is still disabled.
-4. Visit the widgets configuration page and make sure that the widget you added in step one is now listed at the top of the inactive widgets list.
+Adds rel="noopener" to post links shown by the WordPress Posts widget if the Open links in new window/tab: setting is active. Testing instructions:
 
-### Tracks events
+* Add a Display WordPress Posts widgets to the sidebar (listed as DisplayWordPress Posts (Jetpack)).
+* Add a WordPress site as Blog URL.
+* Check the box Open links in new window/tab and save the widget.
+* Visit a page on your site that will show the widget.
+* Inspect the links and confirm that the links to the other site posts include the attribute rel="noopener".
 
-We will log events now if the user has already accepted Terms of Service instead of doing it only when Jetpack is connected.
+#### EU Cookie Law Widget
 
-To test:
+Fixed an issue where custom URL choice wasn't preserved in Customizer, also fixed selective refresh. Testing instructions:
 
-* Start with a fresh site 
-* Either add some error logging in `Jetpack_Tracks_Client::record_event()`, or look at the live tracks feed in mc for your username.
-* Click on any of the connection buttons.  The option should have been set.  You can check with `Jetpack_Options::get_option( 'tos_agreed' );`
-* You're looking for the events `jetpack_jpc_register_begin`, `jetpack_jpc_register_success` events specifically.  
-* Make sure that previously connected sites are still sending tracks events. 
-* Delete the plugin. The option should have been cleared along with the other Jetpack options.  
+* add a EU Cookie Law Banner widget and make sure you can choose a Custom URL for the policy
+* make sure selective refresh works fine
 
-### Twitter Cards
+### Infinite Scroll
 
-A new filter jetpack_twitter_image_default was added  to allow themes and plugins to customize twitter:image when no suitable image is found automatically.
+#### Main query detection
 
-To test:
+We adjusted the order in which the globals wp_the_query and wp_query are set so that is_main_query is accurate when ran on the pre_get_posts hook. This fixes queries from other plugins failing because the Infinite scroll query is not the “main query”.
 
-Include this snippet:
+* Enable Infinite Scroll.
+* Clone WooCommerce from GitHub, switch to the fix/infinite-scroll branch, and import the sample data.
+* Go to the WooCommerce shop page at local.wordpress.test/shop/
+* Scroll to a page loaded via AJAX.
+* Open your browser’s Development Tools. In the Network tab you will find the ?infinity=scrolling AJAX request. Inside query_args you should see the WooCommerce product_visibility taxonomy query, as well as the custom wc_query parameter.
 
-    ```
-    function my_twitter_image_default ($url) {
-	    return 'http://asdf.com/89asdf.gif';
-    }
-    add_filter( 'jetpack_twitter_cards_image_default', 'my_twitter_image_default' );
-    ```
-* Fetch your site's home page, and a post page that wouldn't otherwise have a Twitter image set. Verify that they both now include `<meta name="twitter:image" content="http://asdf.com/89asdf.gif" />`.
+#### JavaScript pagination
 
-### Widget Visibility
+We’ve also fixed a JavaScript pagination issue where when viewing the first page, the next page was always page 1 again.
 
-A decodeEntities function was added in widget-conditions.js to handle entity decoding for the minor conditions dropdown.
+* Enable Infinite Scroll.
+* Clone WooCommerce from GitHub, switch to the fix/infinite-scroll branch, and import the sample data.
+* Go to the WooCommerce shop page at local.wordpress.test/shop/
+* When you scroll it loads page 1 + offset 1 = page 2
+* If you start at local.wordpress.test/shop/page/2 it loads page 1 + offset 2 + page 3.
 
-To test:
+#### Posts per page changes
 
-* Check the minor conditions dropdown with a category name that contains an entity (e.g. ampersand) in the widget visibility settings. 
-* Confirm that the category name is encoded properly on the dropdown.
+The previous system used a fixed number of 7 or the ‘posts per page’ setting in WP Admin. This isn’t suitable for custom post types where they have their own ‘posts per page’ setting or preference.
 
-### WooCommerce analytics
+To make this more robust we pass through the ‘posts per page’ setting from the original query and use this instead. If the theme defines a different posts_per_page value in the add_theme_support declaration, we default to that instead.
 
-* Use a test site which is connected with Jetpack and has WooCommerce active
-* As a logged out user, notice a request to  `https://stats.wp.com/s-20180821.js` on public facing pages. The `20180821` is dynamic and will change based on date
-* Notice `https://stats.wp.com/s-20180821.js` is not requested on `wp-admin` pages because this code should not run on admin facing pages. The same for logged in admin users.
-* Back to user facing pages, open the console and see `_wca` global exists and is an object. 
+* Enable Infinite Scroll
+* Change the number of posts per page in Settings > Reading.
+* The number of posts loaded via AJAX should reflect the updated value.
+* If testing with WooCommerce, the number of products per page can be changed in the Customizer. Customizer > WooCommerce > Product Catalog > Products per row / per page.
 
-#### Product Page View
-* Go to a product page
-* See a Network request `t.gif`
+##### Improved rendering callbacks
 
-#### Add to Cart via a list
-* Click "Add to Cart"
-* See a Network request `t.gif`
+The previous system relied on a setting, and a fallback, for the render callback. One could also use infinite_scroll_render action.
 
-#### Add to Cart via a Product Page
-* Go to a product page
-* Enable the Preserve log checkbox at the top of the console to persist the console history between page refreshes or changes.
-* Click "Add to Cart"
-* See a Network request `t.gif`
+There’s now a filter of registered callbacks which get ran in sequence. If a callback returns nothing, it continues to the next until content is returned. Callbacks registered through theme support are still called, and the final fallback is the default render method in the infinite scroll class.
 
-#### Remove from Cart via click on the "X"
-* Add an item to your cart
-* Go to the cart and remove the item by clicking the "X"
-* See a Network request `t.gif`
+* Register a new callback:
 
-#### Remove from Cart via updating the quantity
-* Add an item to your cart
-* Go to the cart and remove the item by changing the quantity to 0
-* Click "Update"
-* See a Network request `t.gif`
+```add_filter( 'infinite_scroll_render_callbacks', 'register_some_custom_render_callbacks' );
 
-#### Order Received
-* "Place Order" on your cart
-* Once the page refreshes, see one event for each item in the order
+function register_some_custom_render_callbacks( $callbacks ) {
+    $callbacks[] = 'my_post_render_callback';
+    return $callbacks;
+}
 
+function my_post_render_callback() {
+    while ( have_posts() ) : the_post();
+        get_template_part( 'content', get_post_format() );
+    endwhile; // end of the loop.
+}
+```
+
+* Your custom callback should load.
+
+#### WooCommerce compatibility
+
+Using the improved callbacks rendering system, we now include a default renderer for WooCommerce products within infinite scroll.
+
+* Enable Infinite Scroll.
+* Clone WooCommerce from GitHub, switch to the fix/infinite-scroll branch, and import the sample data.
+* Go to the WooCommerce shop page at local.wordpress.test/shop/
+* Scroll to page 2.
+* Layout should be the same as page 1.
+
+### WooCommerce
+
+Started queueing all add_to_cart events and logging it on the next page. Also preventing duplicate product_view events from product page. Testing instructions:
+
+* click any add to cart button and look for event to be logged in the next page load
+* add a link to a post or page with href like http://exampleshop.com/?add-to-cart=${product_id}
+* make sure page view and cart event logged in next page load
 
 ### Final Notes
 
