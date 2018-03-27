@@ -150,6 +150,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Admin Page: Hide the date range tabs when the initial dialog is shown.
 * Admin Page: Fixed the positioning of popovers in the Jetpack Settings page.
 * Admin Page: Fixed a bug with the Ads settings toggle.
+* Admin Page: Fixed a display issue for the custom user capability "jetpack_connect".
 * Connection Banner: Updated style to better fit wide screens.
 * Connection Banner: Added illustration SVGs.
 * Contact Form: Fixed width style of input for Website address.
