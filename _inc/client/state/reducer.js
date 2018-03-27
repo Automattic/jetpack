@@ -12,6 +12,7 @@ import { initialState } from 'state/initial-state/reducer';
 import { dashboard } from 'state/at-a-glance/reducer';
 import { reducer as modules } from 'state/modules/reducer';
 import { reducer as connection } from 'state/connection/reducer';
+import { reducer as trackingSettings } from 'state/tracking/reducer';
 import { reducer as jumpstart } from 'state/jumpstart/reducer';
 import { reducer as settings } from 'state/settings/reducer';
 import { reducer as siteData } from 'state/site/reducer';
@@ -26,6 +27,7 @@ const jetpackReducer = combineReducers( {
 	dashboard,
 	modules,
 	connection,
+	trackingSettings,
 	jumpstart,
 	settings,
 	siteData,
