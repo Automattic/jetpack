@@ -4,6 +4,7 @@
 import { combineReducers } from 'redux';
 import get from 'lodash/get';
 import assign from 'lodash/assign';
+import includes from 'lodash/includes';
 
 /**
  * Internal dependencies
@@ -237,4 +238,14 @@ export function getModulesThatRequireConnection( state ) {
  */
 export function isModuleActivated( state, name ) {
 	return get( state.jetpack.modules.items, [ name, 'activated' ], false ) ? true : false;
+}
+
+/**
+ * Returns true if the module is available.
+ * @param  {Object}  state      Global state tree.
+ * @param  {String}  moduleSlug The slug of a module.
+ * @return {Boolean}            Whether a module is available to be displayed in the dashboard.
+ */
+export function isModuleAvailable( state, moduleSlug ) {
+	return includes( Object.keys( state.jetpack.modules.items ), moduleSlug );
 }

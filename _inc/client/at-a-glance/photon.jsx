@@ -6,15 +6,19 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import DashItem from 'components/dash-item';
 import { translate as __ } from 'i18n-calypso';
-import includes from 'lodash/includes';
 
 /**
  * Internal dependencies
  */
-import { getModules } from 'state/modules';
+import { isModuleAvailable } from 'state/modules';
 import { isDevMode } from 'state/connection';
 
 class DashPhoton extends Component {
+	static propTypes = {
+		isDevMode: PropTypes.bool.isRequired,
+		isModuleAvailable: PropTypes.bool.isRequired,
+	};
+
 	getContent() {
 		const labelName = __( 'Image Performance' ),
 			activatePhoton = () => this.props.updateOptions( { photon: true } );
@@ -51,28 +55,13 @@ class DashPhoton extends Component {
 	}
 
 	render() {
-		const moduleList = Object.keys( this.props.moduleList );
-		if ( ! includes( moduleList, 'photon' ) ) {
-			return null;
-		}
-
-		return (
-			<div className="jp-dash-item__interior">
-				{ this.getContent() }
-			</div>
-		);
+		return this.props.isModuleAvailable && this.getContent();
 	}
 }
 
-DashPhoton.propTypes = {
-	isDevMode: PropTypes.bool.isRequired
-};
-
 export default connect(
-	( state ) => {
-		return {
-			isDevMode: isDevMode( state ),
-			moduleList: getModules( state )
-		};
-	}
+	state => ( {
+		isDevMode: isDevMode( state ),
+		isModuleAvailable: isModuleAvailable( state, 'photon' ),
+	} )
 )( DashPhoton );
