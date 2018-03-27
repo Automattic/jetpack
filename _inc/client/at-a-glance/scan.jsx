@@ -102,7 +102,7 @@ class DashScan extends Component {
 							<p className="jp-dash-item__description">
 								{__( '{{ExternalLink}}Contact support for help with this{{/ExternalLink}}', { components: {
 									ExternalLink: <ExternalLink
-										className="dops-button is-primary"
+										className="dops-button is-primary is-compact"
 										href="https://jetpack.com/support"
 										target="_blank" />
 								} } )}
