@@ -132,6 +132,11 @@ const analytics = {
 				path: urlPath
 			} );
 		},
+
+		setOptOut: function( isOptingOut ) {
+			debug( 'Pushing setOptOut: %o', isOptingOut );
+			window._tkq.push( [ 'setOptOut', isOptingOut ] );
+		}
 	},
 
 	// Google Analytics usage and event stat tracking

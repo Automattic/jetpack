@@ -131,6 +131,12 @@ export default connect(
 		settings: getSettings( state ),
 	} ),
 	{
-		toggleTracking: isEnabled => updateSettings( { jetpack_event_tracking: ! isEnabled } ),
+		toggleTracking: ( wasEnabled ) => {
+			const isEnabled = ! wasEnabled; // Reverse toggle.
+
+			analytics.tracks.setOptOut( ! isEnabled ); // Sets opt-out cookie.
+
+			return updateSettings( { jetpack_event_tracking: isEnabled } );
+		},
 	}
 )( moduleSettingsForm( Privacy ) );
