@@ -10,11 +10,13 @@ import { connect } from 'react-redux';
  * Internal dependencies
  */
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
+import CompactFormToggle from 'components/form/form-toggle/compact';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import { ModuleToggle } from 'components/module-toggle';
 import ExternalLink from 'components/external-link';
-import { updateSettings, getSettings } from 'state/settings';
+import { getTrackingSettings, isUpdatingTrackingSettings, isFetchingTrackingSettingsList } from 'state/tracking/reducer';
+import { fetchTrackingSettings, updateTrackingSettings } from 'state/tracking/actions';
+import { getSettings } from 'state/settings';
 import analytics from 'lib/analytics';
 
 const trackPrivacyPolicyView = () => analytics.tracks.recordJetpackClick( {
@@ -52,15 +54,19 @@ class Privacy extends React.Component {
 		active: false,
 	};
 
-	togglePrivacy = () => this.props.toggleTracking( this.props.getOptionValue( 'jetpack_event_tracking' ) );
+	componentWillMount() {
+		this.props.fetchTracking();
+	}
 
 	render() {
 		const {
 			searchTerm,
 			active,
-			getOptionValue,
-			isSavingAnyOption,
 		} = this.props;
+		const isActive = ! this.props.tracking.tracks_opt_out;
+		const doToggle = () => {
+			this.props.setTracking( isActive );
+		};
 
 		if ( ! searchTerm && ! active ) {
 			return null;
@@ -98,13 +104,14 @@ class Privacy extends React.Component {
 							}
 						</p>
 						<p>
-							<ModuleToggle
+							<CompactFormToggle
 								compact
-								activated={ getOptionValue( 'jetpack_event_tracking' ) }
-								toggling={ isSavingAnyOption( 'jetpack_event_tracking' ) }
-								toggleModule={ this.togglePrivacy }>
+								checked={ isActive }
+								disabled={ this.props.isFetching }
+								onChange={ doToggle }
+								id="privacy-settings">
 								{ __( 'Send information to help us improve our products.' ) }
-							</ModuleToggle>
+							</CompactFormToggle>
 						</p>
 						<p>
 							{ __(
@@ -129,8 +136,16 @@ class Privacy extends React.Component {
 export default connect(
 	state => ( {
 		settings: getSettings( state ),
+		tracking: getTrackingSettings( state ),
+		isUpdating: isUpdatingTrackingSettings( state ),
+		isFetching: isFetchingTrackingSettingsList( state )
 	} ),
-	{
-		toggleTracking: isEnabled => updateSettings( { jetpack_event_tracking: ! isEnabled } ),
+	dispatch => {
+		return {
+			setTracking: ( newValue ) => {
+				dispatch( updateTrackingSettings( { tracks_opt_out: newValue } ) );
+			},
+			fetchTracking: () => dispatch( fetchTrackingSettings() )
+		};
 	}
 )( moduleSettingsForm( Privacy ) );
