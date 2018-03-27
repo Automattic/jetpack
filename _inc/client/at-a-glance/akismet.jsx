@@ -23,7 +23,10 @@ class DashAkismet extends Component {
 		siteAdminUrl: PropTypes.string.isRequired,
 
 		// Connected props
-		akismetData: PropTypes.string.isRequired,
+		akismetData: PropTypes.oneOfType( [
+			PropTypes.string,
+			PropTypes.object
+		] ).isRequired,
 		isDevMode: PropTypes.bool.isRequired,
 	};
 
