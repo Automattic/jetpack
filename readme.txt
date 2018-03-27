@@ -131,6 +131,7 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Sync: Stopped syncing personal data coming from WooCommerce orders.
 * VideoPress: Default to grid view when linking to upload videos
 * Warm Welcome: Added Search to the features listed on the Warm Welcome dialog for Professional Plan.
+* Widgets: Added new Social Icons widget and deprecated old Social Media Icons widget.
 * Widgets: Added rel=noopener attribute to links in the Display WordPress Posts widget if set to open in a new window.
 
 
