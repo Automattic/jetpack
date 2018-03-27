@@ -96,8 +96,7 @@ class DashScan extends Component {
 							<h2 className="jp-dash-item__count is-warning">{ numberFormat( threats ) }</h2>,
 							<p className="jp-dash-item__description">
 								{__( 'Threat found. See below for options.', 'Threats found. See below for options.', {
-									count: threats,
-									args: { number: numberFormat( threats ) }
+									count: threats }
 								} )}
 							</p>,
 							<p className="jp-dash-item__description">
