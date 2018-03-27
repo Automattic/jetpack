@@ -14,6 +14,8 @@ import DashItem from 'components/dash-item';
 import Card from 'components/card';
 import { isModuleFound } from 'state/search';
 import { isDevMode } from 'state/connection';
+import { getSitePlan } from 'state/site';
+import { getPlanClass } from 'lib/plans/constants';
 
 /**
  * Displays a card for Search based on the props given.
@@ -50,7 +52,7 @@ class DashSearch extends Component {
 	};
 
 	render() {
-		const foundSearch = this.props.isModuleFound( 'search' ),
+		const hasPro = ( 'is-business-plan' === this.props.planClass ),
 			activateSearch = () => this.props.updateOptions( { search: true } );
 
 		if ( this.props.isDevMode ) {
@@ -62,7 +64,7 @@ class DashSearch extends Component {
 			} );
 		}
 
-		if ( ! foundSearch ) {
+		if ( ! hasPro ) {
 			return renderCard( {
 				className: 'jp-dash-item__is-inactive',
 				status: 'no-pro-uninstalled-or-inactive',
@@ -111,7 +113,8 @@ class DashSearch extends Component {
 export default connect(
 	( state ) => {
 		return {
-			isModuleFound: ( module_name ) => isModuleFound( state, module_name ),
+			foundSearch: isModuleFound( state, 'search' ),
+			planClass: getPlanClass( getSitePlan( state ).product_slug ),
 			isDevMode: isDevMode( state )
 		};
 	}
