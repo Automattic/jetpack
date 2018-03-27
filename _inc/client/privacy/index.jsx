@@ -55,12 +55,12 @@ class Privacy extends React.Component {
 	};
 
 	togglePrivacy = () => {
-		const current = this.props.tracking.tracks_opt_out;
-		this.props.setTracking( ! current );
+		const current = this.props.trackingSettings.tracks_opt_out;
+		this.props.setTrackingSettings( ! current );
 	}
 
 	componentWillMount() {
-		this.props.fetchTracking();
+		this.props.fetchTrackingSettings();
 	}
 
 	render() {
@@ -107,8 +107,8 @@ class Privacy extends React.Component {
 						<p>
 							<CompactFormToggle
 								compact
-								checked={ ! this.props.tracking.tracks_opt_out }
-								disabled={ this.props.isFetching || this.props.isUpdating() }
+								checked={ ! this.props.trackingSettings.tracks_opt_out }
+								disabled={ this.props.isFetchingTrackingSettings || this.props.isUpdatingTrackingSettings }
 								onChange={ this.togglePrivacy }
 								id="privacy-settings">
 								{ __( 'Send information to help us improve our products.' ) }
@@ -137,17 +137,17 @@ class Privacy extends React.Component {
 export default connect(
 	state => ( {
 		settings: getSettings( state ),
-		tracking: getTrackingSettings( state ),
-		isUpdating: isUpdatingTrackingSettings( state ),
-		isFetching: isFetchingTrackingSettingsList( state )
+		trackingSettings: getTrackingSettings( state ),
+		isUpdatingTrackingSettings: isUpdatingTrackingSettings( state ),
+		isFetchingTrackingSettings: isFetchingTrackingSettingsList( state )
 	} ),
 	dispatch => {
 		return {
-			setTracking: ( newValue ) => {
+			setTrackingSettings: ( newValue ) => {
 				analytics.tracks.setOptOut( newValue ); // Sets opt-out cookie.
 				dispatch( updateTrackingSettings( { tracks_opt_out: newValue } ) );
 			},
-			fetchTracking: () => dispatch( fetchTrackingSettings() )
+			fetchTrackingSettings: () => dispatch( fetchTrackingSettings() )
 		};
 	}
 )( moduleSettingsForm( Privacy ) );
