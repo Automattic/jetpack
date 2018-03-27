@@ -440,8 +440,8 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 	}
 
 	function test_sync_post_includes_amp_permalink() {
-		$insert_post_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
-		$post              = $insert_post_event->args[1];
+		$insert_post_event = $this->server_event_storage->get_most_recent_event( 'jetpack_post_saved' );
+		$post              = $insert_post_event->args[0]['object'];
 
 		$this->assertObjectNotHasAttribute( 'amp_permalink', $post );
 
@@ -451,8 +451,8 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 
 		wp_update_post( $this->post );
 		$this->sender->do_sync();
-		$insert_post_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
-		$post              = $insert_post_event->args[1];
+		$insert_post_event = $this->server_event_storage->get_most_recent_event( 'jetpack_post_saved' );
+		$post              = $insert_post_event->args[0]['object'];
 
 		$this->assertObjectHasAttribute( 'amp_permalink', $post );
 		$this->assertEquals( $post->amp_permalink, "http://example.com/?p={$post->ID}&amp" );
