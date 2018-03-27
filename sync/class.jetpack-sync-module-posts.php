@@ -84,7 +84,12 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 
 
 	public function is_saving_post( $post_ID ) {
-		return isset( $this->sync_items[ $post_ID ] );
+		return isset( $this->sync_items[ $post_ID ], $this->sync_items['new'] );
+	}
+
+	// TODO: Add to parent class
+	public function has_sync_item( $post_id ) {
+		return isset( $this->sync_items[ $post_id ] );
 	}
 
 	public function init_full_sync_listeners( $callable ) {
@@ -312,11 +317,6 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
         $sync_item = $this->sync_items[ $post['post_parent'] ];
         $sync_item->set_state_value( 'revision', $post );
         unset( $this->sync_items[ $post_ID ] );
-    }
-
-    // TODO: Add to parent class
-    public function has_sync_item( $post_id ) {
-		return isset( $this->sync_items[ $post_id ] );
     }
 
 	public function wp_insert_post( $post_ID, $post = null, $update = null ) {
