@@ -74,7 +74,7 @@ function jetpack_blog_display_custom_excerpt( $content ) {
  * Display Excerpt instead of Content.
  */
 function jetpack_the_content_to_the_excerpt( $content ) {
-	if ( is_home() || is_archive() ) {
+	if ( ( is_home() || is_archive() ) && ! is_post_type_archive( array( 'jetpack-testimonial', 'jetpack-portfolio', 'product' ) ) ) {
 		if ( post_password_required() ) {
 			$content = sprintf( '<p>%s</p>', esc_html__( 'There is no excerpt because this is a protected post.', 'jetpack' ) );
 		} else {
@@ -88,7 +88,7 @@ function jetpack_the_content_to_the_excerpt( $content ) {
  * Display Content instead of Excerpt.
  */
 function jetpack_the_excerpt_to_the_content( $content ) {
-	if ( is_home() || is_archive() ) {
+	if ( ( is_home() || is_archive() ) && ! is_post_type_archive( array( 'jetpack-testimonial', 'jetpack-portfolio', 'product' ) ) ) {
 		ob_start();
 		the_content( sprintf(
 			wp_kses(
@@ -112,7 +112,7 @@ function jetpack_the_excerpt_to_the_content( $content ) {
  */
 function jetpack_the_content_customizer( $content ) {
 	$class = jetpack_the_content_customizer_class();
-	if ( is_home() || is_archive() ) {
+	if ( ( is_home() || is_archive() ) && ! is_post_type_archive( array( 'jetpack-testimonial', 'jetpack-portfolio', 'product' ) ) ) {
 		if ( post_password_required() ) {
 			$excerpt = sprintf( '<p>%s</p>', esc_html__( 'There is no excerpt because this is a protected post.', 'jetpack' ) );
 		} else {
@@ -130,7 +130,7 @@ function jetpack_the_content_customizer( $content ) {
  * Display both Content and Excerpt instead of Excerpt in the Customizer so live preview can switch between them.
  */
 function jetpack_the_excerpt_customizer( $excerpt ) {
-	if ( is_home() || is_archive() ) {
+	if ( ( is_home() || is_archive() ) && ! is_post_type_archive( array( 'jetpack-testimonial', 'jetpack-portfolio', 'product' ) ) ) {
 		ob_start();
 		the_content( sprintf(
 			wp_kses(
@@ -157,7 +157,7 @@ function jetpack_the_excerpt_customizer( $excerpt ) {
  * Display Content instead of Excerpt in the Customizer when theme uses a 'Mixed' display.
  */
 function jetpack_the_excerpt_mixed_customizer( $content ) {
-	if ( is_home() || is_archive() ) {
+	if ( ( is_home() || is_archive() ) && ! is_post_type_archive( array( 'jetpack-testimonial', 'jetpack-portfolio', 'product' ) ) ) {
 		jetpack_the_content_customizer_class( 'output-the-excerpt' );
 		ob_start();
 		the_content();
