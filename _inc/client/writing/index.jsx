@@ -41,7 +41,6 @@ export class Writing extends React.Component {
 
 		const found = [
 			'masterbar',
-			'markdown',
 			'after-the-deadline',
 			'custom-content-types',
 			'photon',

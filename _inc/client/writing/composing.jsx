@@ -170,20 +170,6 @@ export class Composing extends React.Component {
 		);
 	};
 
-	/**
-	 * If markdown module is inactive and this is toggling markdown for posts on, activate module.
-	 * If markdown for comments is off and this is toggling markdown for posts off, deactivate module.
-	 *
-	 * @param {string} module the slug of the module to update
-	 * @returns {*}           the updated value
-	 */
-	updateFormStateByMarkdown = module => {
-		if ( !! this.props.getSettingCurrentValue( 'wpcom_publish_comments_with_markdown', module ) ) {
-			return this.props.updateFormStateModuleOption( module, 'wpcom_publish_posts_with_markdown' );
-		}
-		return this.props.updateFormStateModuleOption( module, 'wpcom_publish_posts_with_markdown', true );
-	};
-
 	trackOpenCard = () => {
 		analytics.tracks.recordJetpackClick( {
 			target: 'foldable-settings-open',
@@ -192,38 +178,14 @@ export class Composing extends React.Component {
 	};
 
 	render() {
-		const foundAtD = this.props.isModuleFound( 'after-the-deadline' ),
-			foundMarkdown = this.props.isModuleFound( 'markdown' );
+		const foundAtD = this.props.isModuleFound( 'after-the-deadline' );
 
-		if ( ! foundMarkdown && ! foundAtD ) {
+		if ( ! foundAtD ) {
 			return null;
 		}
 
-		const markdown = this.props.module( 'markdown' ),
-			atd = this.props.module( 'after-the-deadline' ),
+		const atd = this.props.module( 'after-the-deadline' ),
 			unavailableInDevMode = this.props.isUnavailableInDevMode( 'after-the-deadline' ),
-			markdownSettings = (
-				<SettingsGroup
-					module={ markdown }
-					support={ {
-						text: __( 'Allows you to compose content with links, lists, and other styles using the Markdown syntax.' ),
-						link: 'https://jetpack.com/support/markdown/',
-					} }
-					>
-					<FormFieldset>
-						<ModuleToggle
-							slug="markdown"
-							activated={ !! this.props.getOptionValue( 'wpcom_publish_posts_with_markdown', 'markdown' ) }
-							toggling={ this.props.isSavingAnyOption( [ 'markdown', 'wpcom_publish_posts_with_markdown' ] ) }
-							disabled={ this.props.isSavingAnyOption( [ 'markdown', 'wpcom_publish_posts_with_markdown' ] ) }
-							toggleModule={ this.updateFormStateByMarkdown }>
-							<span className="jp-form-toggle-explanation">
-								{ markdown.description }
-							</span>
-						</ModuleToggle>
-					</FormFieldset>
-				</SettingsGroup>
-			),
 			atdSettings = (
 				<FoldableCard
 					onOpen={ this.trackOpenCard }
@@ -262,7 +224,6 @@ export class Composing extends React.Component {
 				module="composing"
 				saveDisabled={ this.props.isSavingAnyOption( 'ignored_phrases' ) }
 			>
-				{ foundMarkdown && markdownSettings }
 				{ foundAtD && atdSettings }
 			</SettingsCard>
 		);
