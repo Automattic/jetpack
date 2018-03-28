@@ -104,7 +104,7 @@ export class JetpackDisconnectDialog extends React.Component {
 						icon: 'stats-alt'
 					},
 					{
-						text: __( 'Brute force attack protection and uptime monitoring' ),
+						text: __( 'Brute force attack protection and downtime monitoring' ),
 						icon: 'lock'
 					},
 					{
