@@ -6,7 +6,7 @@
 #### Installation
 
 * Install Tampermonkey or equivalent user script extension.
-* Click https://github.com/Automattic/Jetpack/raw/master/jetpack-live-branches.js
+* Click https://github.com/Automattic/jetpack/raw/master/tools/jetpack-live-branches/jetpack-live-branches.js.
 * Once installed, it should be able to auto-update
 
 #### development
