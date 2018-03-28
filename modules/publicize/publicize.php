@@ -427,7 +427,7 @@ abstract class Publicize_Base {
 		$view_post_link_html = '';
 		$viewable = is_post_type_viewable( $post_type_object );
 		if ( $viewable ) {
-			$view_text = __( 'View post' ); // intentionally omitted domain
+			$view_text = esc_html__( 'View post' ); // intentionally omitted domain
 
 			if ( 'jetpack-portfolio' == $post_type ) {
 				$view_text = esc_html__( 'View project', 'jetpack' );
@@ -448,14 +448,14 @@ abstract class Publicize_Base {
 		foreach ( $services as $service => $display_names ) {
 			$labels[] = sprintf(
 				/* translators: Service name is %1$s, and account name is %2$s. */
-				__( '%1$s (%2$s)', 'jetpack' ),
+				esc_html__( '%1$s (%2$s)', 'jetpack' ),
 				esc_html( $service ),
 				esc_html( implode( ', ', $display_names ) )
 			);
 		}
 
 		$messages['post'][6] = sprintf(
-			/* translators: Services and account string is %1$s */
+			/* translators: %1$s is a comma-separated list of services and accounts. Ex. Facebook (@jetpack), Twitter (@jetpack) */
 			esc_html__( 'Post published and sharing on %1$s.', 'jetpack' ),
 			implode( ', ', $labels )
 		) . $view_post_link_html;
@@ -464,15 +464,15 @@ abstract class Publicize_Base {
 			$subscription = Jetpack_Subscriptions::init();
 			if ( $subscription->should_email_post_to_subscribers( $post ) ) {
 				$messages['post'][6] = sprintf(
-					/* translators: Services and account string is %1$s */
-               		esc_html__( 'Post published, sending emails to subscribers and sharing post on %1$s.', 'jetpack' ),
-                	implode( ', ', $labels )
-				). $view_post_link_html;
+					/* translators: %1$s is a comma-separated list of services and accounts. Ex. Facebook (@jetpack), Twitter (@jetpack) */
+					esc_html__( 'Post published, sending emails to subscribers and sharing post on %1$s.', 'jetpack' ),
+					implode( ', ', $labels )
+				) . $view_post_link_html;
 			}
 		}
 
 		$messages['jetpack-portfolio'][6] = sprintf(
-			/* translators: Published Message: services and account string is %1$s */
+			/* translators: %1$s is a comma-separated list of services and accounts. Ex. Facebook (@jetpack), Twitter (@jetpack) */
 			esc_html__( 'Project published and sharing project on %1$s.', 'jetpack' ),
 			implode( ', ', $labels )
 		) . $view_post_link_html;
@@ -510,7 +510,7 @@ abstract class Publicize_Base {
 	* the publicize_post_types array filter.
 	*
 	* @param string $post_type The post type to check.
-	* $return bool True if the post type can be Publicized.
+	* @return bool True if the post type can be Publicized.
 	*/
 	function post_type_is_publicizeable( $post_type ) {
 		if ( 'post' == $post_type )
