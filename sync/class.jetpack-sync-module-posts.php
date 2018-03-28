@@ -129,6 +129,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 			$this->sync_items[ $post_id ]->add_terms( $sync_item );
 		} else {
 			$this->sync_items[ $post_id ] = $this->sync_items['new'];
+			unset( $this->sync_items['new'] );
 			$this->sync_items[ $post_id ]->add_terms( $sync_item );
 		}
 	}
