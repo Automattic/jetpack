@@ -1025,11 +1025,11 @@ That was a cool video.';
 
 		$events = $this->server_event_storage->get_all_events();
 
-		$this->assertEquals( $events[1]->action, 'jetpack_post_published' );
-		$this->assertEquals( $events[1]->args[0]['object']->post_status, 'jetpack_sync_non_registered_post_type' );
+		$this->assertEquals( $events[0]->action, 'jetpack_post_published' );
+		$this->assertEquals( $events[0]->args[0]['object']->post_status, 'jetpack_sync_non_registered_post_type' );
 
-		$this->assertEquals( $events[2]->action, 'jetpack_post_published' );
-		$this->assertEquals( $events[2]->args[0]['object']->ID, $post_id );
+		$this->assertEquals( $events[1]->action, 'jetpack_post_published' );
+		$this->assertEquals( $events[1]->args[0]['object']->ID, $post_id );
 	}
 
 	public function test_sync_export_content_event() {
