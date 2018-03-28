@@ -30,7 +30,7 @@ class Jetpack_Search_Helpers {
 	 * @return string The search URL.
 	 */
 	static function get_search_url() {
-		$query_args = $_GET;
+		$query_args = stripslashes_deep( $_GET );
 
 		// Handle the case where a permastruct is being used, such as /search/{$query}
 		if ( ! isset( $query_args['s'] ) ) {
