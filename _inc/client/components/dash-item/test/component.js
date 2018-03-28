@@ -205,13 +205,12 @@ describe( 'DashItem', () => {
 
 		const wrapper = shallow( <DashItem { ...monitorProps } /> );
 
-		it( 'shows a button to configure settings in wpcom', () => {
-			expect( wrapper.find( 'Button' ) ).to.have.length( 1 );
+		it( 'displays a toggle for users that can toggle', () => {
+			expect( wrapper.find( 'ModuleToggle' ) ).to.have.length( 1 );
 		} );
 
-		it( 'has a link to Calypso settings', () => {
-			expect( wrapper.find( 'Button' ) ).to.have.length( 1 );
-			expect( wrapper.find( 'Button' ).props().href ).to.contain( 'https://wordpress.com/settings/security/' + monitorProps.siteRawUrl );
+		it( 'the toggle references the module this card belongs to', () => {
+			expect( wrapper.find( 'ModuleToggle' ).props().slug ).to.be.equal( 'monitor' );
 		} );
 
 	} );
