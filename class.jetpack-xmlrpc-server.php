@@ -127,11 +127,33 @@ class Jetpack_XMLRPC_Server {
 	}
 
 	function remote_provision( $request ) {
-		if ( ! isset( $request['local_username'] ) ) {
-			return $this->error( new Jetpack_Error( 'local_username_missing', sprintf( 'The required "%s" parameter is missing.', 'local_username' ), 400 ), 'jpc_remote_provision_fail' );
+		if ( ! isset( $request['nonce'] ) ) {
+			return $this->error(
+				new Jetpack_Error(
+					'nonce_missing',
+					esc_html__( 'The required "nonce" parameter is missing.', 'jetpack' ),
+					400
+				),
+				'jpc_remote_provision_fail'
+			);
 		}
 
-		$access_token = $request['access_token'];
+		$nonce = $request['nonce'];
+		unset( $request['nonce'] );
+
+		// TODO: validate nonce here
+
+		if ( ! isset( $request['local_username'] ) ) {
+			return $this->error(
+				new Jetpack_Error(
+					'local_username_missing',
+					'The required "local_username" parameter is missing.',
+					400
+				),
+				'jpc_remote_provision_fail'
+			);
+		}
+
 		$local_username = $request['local_username'];
 
 		$user = get_user_by( 'login', $local_username );
