@@ -1,0 +1,15 @@
+## Jetpack Live Branches
+
+**jetpack-live-branches.js** is a Tampermonkey script that allows you to preview a site with a given Pull Request changeset.
+
+
+#### Installation
+
+* Install Tampermonkey or equivalent user script extension.
+* Click https://github.com/Automattic/Jetpack/raw/master/jetpack-live-branches.js
+* Once installed, it should be able to auto-update
+
+#### development
+
+1. Make sure you update the version in the **jetpack-live-branches.js** file.
+2. Create a PR in this same repo.
