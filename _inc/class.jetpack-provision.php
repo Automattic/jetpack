@@ -1,13 +1,6 @@
 <?php
 class Jetpack_Provision {
-	static function partner_provision( $access_token, $named_args ) {
-		// first, verify the token
-		$verify_response = self::verify_token( $access_token );
-
-		if ( is_wp_error( $verify_response ) ) {
-			return $verify_response;
-		}
-
+	public static function register_and_build_request_body( $named_args ) {
 		$url_args = array(
 			'home_url' => 'WP_HOME',
 			'site_url' => 'WP_SITEURL',
@@ -20,7 +13,7 @@ class Jetpack_Provision {
 			// Otherwise, fallback to setting the home/siteurl value via the WP_HOME and
 			// WP_SITEURL constants if the constant hasn't already been defined.
 			if ( isset( $named_args[ $url_arg ] ) ) {
-				if ( version_compare( phpversion(), '5.3.0', '>=') ) {
+				if ( version_compare( phpversion(), '5.3.0', '>=' ) ) {
 					add_filter( $url_arg, function( $url ) use ( $url_arg, $named_args ) {
 						return $named_args[ $url_arg ];
 					}, 11 );
@@ -66,7 +59,7 @@ class Jetpack_Provision {
 			wp_set_current_user( $master_user_id );
 		}
 
-		$site_icon = ( function_exists( 'has_site_icon') && has_site_icon() )
+		$site_icon = ( function_exists( 'has_site_icon' ) && has_site_icon() )
 			? get_site_icon_url()
 			: false;
 
@@ -83,8 +76,8 @@ class Jetpack_Provision {
 		}
 
 		$request_body = array(
-			'jp_version'    => JETPACK__VERSION,
-			'redirect_uri'  => $redirect_uri
+			'jp_version'   => JETPACK__VERSION,
+			'redirect_uri' => $redirect_uri,
 		);
 
 		if ( $site_icon ) {
@@ -134,6 +127,22 @@ class Jetpack_Provision {
 
 		if ( isset( $request_body['onboarding'] ) && (bool) $request_body['onboarding'] ) {
 			Jetpack::create_onboarding_token();
+		}
+
+		return $request_body;
+	}
+
+	public static function partner_provision( $access_token, $named_args ) {
+		// First, verify the token.
+		$verify_response = self::verify_token( $access_token );
+
+		if ( is_wp_error( $verify_response ) ) {
+			return $verify_response;
+		}
+
+		$request_body = $this->register_and_build_request_body();
+		if ( is_wp_error( $request_body ) ) {
+			return $request_body;
 		}
 
 		$request = array(

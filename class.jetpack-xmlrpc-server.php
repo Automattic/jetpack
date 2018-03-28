@@ -127,10 +127,6 @@ class Jetpack_XMLRPC_Server {
 	}
 
 	function remote_provision( $request ) {
-		if ( ! isset( $request['access_token'] ) ) {
-			return $this->error( new Jetpack_Error( 'access_token_missing', sprintf( 'The required "%s" parameter is missing.', 'access_token' ), 400 ), 'jpc_remote_provision_fail' );
-		}
-
 		if ( ! isset( $request['local_username'] ) ) {
 			return $this->error( new Jetpack_Error( 'local_username_missing', sprintf( 'The required "%s" parameter is missing.', 'local_username' ), 400 ), 'jpc_remote_provision_fail' );
 		}
@@ -152,22 +148,17 @@ class Jetpack_XMLRPC_Server {
 
 		wp_set_current_user( $user->ID );
 
-		// filter allowed parameters
-		$allowed_provision_args = array( 'access_token', 'wpcom_user_id', 'wpcom_user_email', 'local_username', 'plan', 'force_register', 'force_connect', 'onboarding', 'partner_tracking_id' );
+		// Filter allowed parameters.
+		$allowed_provision_args = array( 'wpcom_user_id', 'wpcom_user_email', 'local_username', 'plan', 'force_register', 'force_connect', 'onboarding', 'partner_tracking_id' );
 		$args = array_intersect_key(
 			$request,
 			array_flip( $allowed_provision_args )
 		);
 
-		$result = Jetpack_Provision::partner_provision( $access_token, $args );
+		$result = Jetpack_Provision::register_and_build_request_body( $args );
 
 		if ( is_wp_error( $result ) ) {
 			return $this->error( $result, 'jpc_remote_provision_fail' );
-		}
-
-		// this is to prevent us from returning the access_token secret via a potentially unsecured channel.
-		if ( isset( $result->access_token ) && ! empty( $result->access_token ) ) {
-			unset( $result->access_token );
 		}
 
 		return $result;
