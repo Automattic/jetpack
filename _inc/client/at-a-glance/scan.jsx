@@ -46,7 +46,7 @@ const renderCard = ( props ) => (
 	</DashItem>
 );
 
-class DashScan extends Component {
+export class DashScan extends Component {
 	static propTypes = {
 		siteRawUrl: PropTypes.string.isRequired,
 		rewindStatus: PropTypes.object,
@@ -157,45 +157,38 @@ class DashScan extends Component {
 			} );
 		}
 
-		const isRewindActive = includes(
-			[ 'active', 'provisioning', 'awaiting_credentials' ],
-			get( this.props.rewindStatus, [ 'state' ], '' )
-		);
+		const rewindStatus = get( this.props.rewindStatus, 'state', '' );
+		const rewindNeedsCredentials = 'awaiting_credentials' === rewindStatus ||
+			( 'unavailable' === get( this.props.rewindStatus, 'state', '' ) &&
+				'vp_can_transfer' === get( this.props.rewindStatus, 'reason', '' ) );
 
 		return (
-			<div className="jp-dash-item__interior">
-				<QueryVaultPressData />
-				{
-					isRewindActive
-						? (
-							<div className="jp-dash-item__interior">
-								{
-									renderCard( {
-										className: 'jp-dash-item__is-active',
-										status: 'is-working',
-										content: __( 'We are making sure your site stays free of security threats.' + ' ' +
-											'You will be notified if we find one.' ),
-										feature: 'rewind',
-									} )
-								}
-							</div>
-						)
-						: this.getVPContent()
-				}
-			</div>
+			includes( [ 'active', 'provisioning', 'awaiting_credentials' ], rewindStatus )
+				? renderCard( {
+					className: rewindNeedsCredentials
+						? 'jp-dash-item__is-awaiting-credentials'
+						: 'jp-dash-item__is-active',
+					status: 'is-working',
+					content: rewindNeedsCredentials
+						? __( 'Security scanning requires access to your site to work properly. ' +
+							'{{a}}Add site credentials{{/a}}.', { components: {
+								a: <a href={ encodeURI( `https://wordpress.com/stats/activity/${ this.props.siteRawUrl }?rewind-redirect=/wp-admin/admin.php?page=jetpack` ) } />
+							} } )
+						: __( 'We are making sure your site stays free of security threats. You will be notified if we find one.' ),
+					feature: 'rewind',
+				} )
+				: <div><QueryVaultPressData />{ this.getVPContent() }</div>
 		);
 	}
 }
 
 export default connect(
-	( state ) => {
-		return {
-			vaultPressData: getVaultPressData( state ),
-			scanThreats: getVaultPressScanThreatCount( state ),
-			sitePlan: getSitePlan( state ),
-			isDevMode: isDevMode( state ),
-			isVaultPressInstalled: isPluginInstalled( state, 'vaultpress/vaultpress.php' ),
-			fetchingSiteData: isFetchingSiteData( state )
-		};
-	}
+	state => ( {
+		vaultPressData: getVaultPressData( state ),
+		scanThreats: getVaultPressScanThreatCount( state ),
+		sitePlan: getSitePlan( state ),
+		isDevMode: isDevMode( state ),
+		isVaultPressInstalled: isPluginInstalled( state, 'vaultpress/vaultpress.php' ),
+		fetchingSiteData: isFetchingSiteData( state )
+	} )
 )( DashScan );
