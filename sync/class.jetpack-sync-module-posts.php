@@ -8,7 +8,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 	private $action_handler;
 	private $import_end = false;
 
-	private $sync_items = array();
+	private $sync_items = array(); // TODO: add to parent class
 
 	const DEFAULT_PREVIOUS_STATE = 'new';
 
@@ -37,7 +37,9 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 
 		// Our aim is to initialize `sync_items` as early as possible, so that other areas of the code base can know
 		// that we are within a post-saving operation. `wp_insert_post_parent` happens early within the action stack.
+		// And we can catch editpost actions early by hooking to `check_admin_referrer`.
 		add_filter( 'wp_insert_post_parent', array( $this, 'wp_insert_post_parent' ), 10, 2 );
+		add_action( 'check_admin_referer', array( $this, 'check_admin_referer' ), 10, 2 );
 
 		add_action( 'wp_insert_post', array( $this, 'wp_insert_post' ), $priority, 3 );
 		add_action( 'jetpack_post_saved', $callable, 10, 1 );
@@ -62,12 +64,48 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		// WordPress, Blogger, Livejournal, woo tax rate
 		add_action( 'import_end', array( $this, 'sync_import_end' ) );
 
-		add_action( 'set_object_terms', array( $this, 'set_object_terms' ), 1, 6 );
+		add_action( 'set_object_terms', array( $this, 'set_object_terms' ), 10, 6 );
+	}
+
+	public function this_is_valid_editpost_action( $result ) {
+		if ( ! $result ) {
+			return false;
+		}
+
+		if ( 'POST' !== $_SERVER['REQUEST_METHOD'] || ! isset( $_POST['action'] ) || ! isset( $_POST['post_ID'] ) ) {
+			return false;
+		}
+
+		if ( 'editpost' !== $_POST['action'] ) {
+			return false;
+		}
+
+		return true;
+	}
+
+	public function get_post_id_from_post_request() {
+		if ( ! isset( $_POST['post_ID' ] ) ) {
+			return null;
+		}
+		return $_POST['post_ID' ];
+	}
+
+	public function check_admin_referer( $action, $result ) {
+		if ( ! $this->this_is_valid_editpost_action( $result )  ) {
+			return;
+		}
+		$post_ID = $this->get_post_id_from_post_request();
+		if ( ! $post_ID ) {
+			return;
+		}
+		$this->set_post_sync_item( $post_ID );
 	}
 
 	public function wp_insert_post_parent( $post_parent, $post_ID ) {
 		if ( $post_ID ) {
 			$this->set_post_sync_item( $post_ID );
+		} else {
+			$this->set_post_sync_item( 'new' );
 		}
 		return $post_parent;
 	}
@@ -80,16 +118,23 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 	}
 
 	public function set_object_terms( $post_id, $terms, $tt_ids, $taxonomy, $append, $old_tt_ids ) {
-		$this->set_post_sync_item( $post_id );
+		if ( ! self::is_saving_post( $post_id ) ) {
+			return;
+		}
 		$sync_item = new Jetpack_Sync_Item( 'set_object_terms',
 			array( $post_id, $terms, $tt_ids, $taxonomy, $append, $old_tt_ids )
 		);
-		$this->sync_items[ $post_id ]->add_terms( $sync_item );
+
+		if ( $this->has_sync_item( $post_id ) ) {
+			$this->sync_items[ $post_id ]->add_terms( $sync_item );
+		} else {
+			$this->sync_items[ $post_id ] = $this->sync_items['new'];
+			$this->sync_items[ $post_id ]->add_terms( $sync_item );
+		}
 	}
 
-
 	public function is_saving_post( $post_ID ) {
-		return $this->has_sync_item( $post_ID );
+		return $this->has_sync_item( $post_ID ) || $this->has_sync_item( 'new' );
 	}
 
 	// TODO: Add to parent class
