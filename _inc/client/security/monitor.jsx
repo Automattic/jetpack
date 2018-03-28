@@ -3,12 +3,12 @@
  */
 import React, { Component } from 'react';
 import { translate as __ } from 'i18n-calypso';
-import CompactFormToggle from 'components/form/form-toggle/compact';
 
 /**
  * Internal dependencies
  */
-import { FormFieldset } from 'components/forms';
+import analytics from 'lib/analytics';
+import Card from 'components/card';
 import { ModuleToggle } from 'components/module-toggle';
 import {
 	ModuleSettingsForm as moduleSettingsForm,
@@ -18,29 +18,8 @@ import SettingsGroup from 'components/settings-group';
 
 export const Monitor = moduleSettingsForm(
 	class extends Component {
-		/**
-		 * Get options for initial state.
-		 */
-		state = {
-			monitor_receive_notifications: this.props.getOptionValue( 'monitor_receive_notifications', 'monitor' ),
-		};
-
-		handleEmailNotificationsToggleChange = () => {
-			this.updateOptions( 'monitor_receive_notifications' );
-		}
-
-		/**
-		 * Update state so toggles are updated.
-		 *
-		 * @param {string} optionName The slug of the option to update
-		 */
-		updateOptions = optionName => {
-			this.setState(
-				{
-					[ optionName ]: ! this.state[ optionName ],
-				},
-				this.props.updateFormStateModuleOption( 'monitor', optionName )
-			);
+		trackConfigureClick = () => {
+			analytics.tracks.recordJetpackClick( 'configure-monitor' );
 		};
 
 		render() {
@@ -51,7 +30,7 @@ export const Monitor = moduleSettingsForm(
 					{ ...this.props }
 					hideButton
 					module="monitor"
-					header={ __( 'Monitor', { context: 'Settings header' } ) }
+					header={ __( 'Downtime Monitoring', { context: 'Settings header' } ) }
 				>
 					<SettingsGroup hasChild disableInDevMode module={ this.props.getModule( 'monitor' ) }>
 						<ModuleToggle
@@ -62,34 +41,20 @@ export const Monitor = moduleSettingsForm(
 							toggleModule={ this.props.toggleModuleNow }
 						>
 							<span className="jp-form-toggle-explanation">
-								{ __( "Monitor your site's uptime" ) }
+								{ __( "Monitor your site's downtime" ) }
 							</span>
 						</ModuleToggle>
-						<FormFieldset>
-							<CompactFormToggle
-								checked={ this.state.monitor_receive_notifications }
-								disabled={
-									! isMonitorActive ||
-										unavailableInDevMode ||
-										this.props.isSavingAnyOption( [ 'monitor', 'monitor_receive_notifications' ] )
-								}
-								onChange={ this.handleEmailNotificationsToggleChange }
-							>
-								<span className="jp-form-toggle-explanation">
-									{ __( 'Send notifications to your {{a}}WordPress.com email address{{/a}}', {
-										components: {
-											a: (
-												<a
-													href="https://wordpress.com/me/account"
-													rel="noopener noreferrer"
-												/>
-											),
-										},
-									} ) }
-								</span>
-							</CompactFormToggle>
-						</FormFieldset>
 					</SettingsGroup>
+					{
+						<Card
+							compact
+							className="jp-settings-card__configure-link"
+							onClick={ this.trackConfigureClick }
+							href={ 'https://wordpress.com/settings/security/' + this.props.siteRawUrl }
+						>
+							{ __( 'Configure your notification settings' ) }
+						</Card>
+					}
 				</SettingsCard>
 			);
 		}
