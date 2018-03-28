@@ -138,16 +138,23 @@ class Jetpack_XMLRPC_Server {
 			);
 		}
 
-		$nonce = $request['nonce'];
+		$nonce = sanitize_key( $request['nonce'] );
 		unset( $request['nonce'] );
 
-		// TODO: validate nonce here
+		$response = Jetpack_Client::_wp_remote_request(
+			Jetpack::fix_url_for_bad_hosts( Jetpack::api_url( 'partner_provision_nonce_check' ) ),
+			array( 'nonce' => $nonce ),
+			true
+		);
 
-		if ( ! isset( $request['local_username'] ) ) {
+		if (
+			200 !== wp_remote_retrieve_response_code( $response ) ||
+			'OK' !== trim( wp_remote_retrieve_body( $response ) )
+		) {
 			return $this->error(
 				new Jetpack_Error(
-					'local_username_missing',
-					'The required "local_username" parameter is missing.',
+					'invalid_nonce',
+					esc_html__( 'There was an issue validating this request.', 'jetpack' ),
 					400
 				),
 				'jpc_remote_provision_fail'
