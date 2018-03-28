@@ -39,14 +39,6 @@ class Async_Publicize {
 	const PUBLICIZE_BLOCK_META_KEY = '_no_publicize';
 
 	/**
-	 * Time out in seconds before PUBLICIZE_BLOCK_META_KEY meta key expires.
-	 *
-	 * @since 5.9.1
-	 * @var int META_KEY_TIMEOUT_SECONDS
-	 */
-	const META_KEY_TIMEOUT_SECONDS = 60 * 5;
-
-	/**
 	 * Time out in seconds before WPCOM REST calls timeout.
 	 *
 	 * @since 5.9.1
@@ -83,21 +75,6 @@ class Async_Publicize {
 		$this->publicize = $publicize;
 
 		add_action( 'rest_api_init', function () {
-			register_rest_route( 'publicize/', '/posts/(?P<post_id>\d+)/flag-no-publicize', array(
-				'methods'             => 'POST',
-				'callback'            => array( $this, 'flag_post_no_publicize' ),
-				'post_id'             => array(
-					'validate_post_id' => function( $param, $request, $key ) {
-						return is_int( $param );
-					},
-				),
-				'permission_callback' => function () {
-					return current_user_can( 'publish_posts' );
-				},
-			) );
-		} );
-
-		add_action( 'rest_api_init', function () {
 			register_rest_route( 'publicize/', '/posts/(?P<post_id>\d+)/publicize', array(
 				'methods'             => 'POST',
 				'callback'            => array( $this, 'publicize_post' ),
@@ -112,7 +89,10 @@ class Async_Publicize {
 			) );
 		} );
 
-		// This filter is documented in publicize-jetpack.php.
+		// Check publishing post and potentially flag it for no publicize.
+		add_filter( 'publish_post', array( $this, 'flag_no_publicize_if_async' ), 10, 2 );
+
+		// Disables the publicize action for flagged posts.
 		add_filter( 'publicize_should_publicize_published_post', array( $this, 'can_publicize' ), 1, 2 );
 
 		// Setup callback to do cleanup after the post has actually been published.
@@ -247,17 +227,9 @@ class Async_Publicize {
 	 * @return boolean True if post should be published, false otherwise.
 	 */
 	public function can_publicize( $should_publicize, $post ) {
-		// Catch posts that are being published with asynchronous publicization and don't publicize them.
 		if ( metadata_exists( 'post', $post->ID, self::PUBLICIZE_BLOCK_META_KEY ) ) {
-			$meta_status = $this->check_async_meta_status( $post->ID );
-
-			if ( 'META_VALID' === $meta_status ) {
-				// Don't publicize since the flag has expired.
-				return false;
-			} else {
-				// Publicize post since the meta key has expired.
-				return true;
-			}
+			// Catch posts that are being published with asynchronous publicization and don't publicize them.
+			return false;
 		} else {
 			// Publicize post since it hasn't been flagged.
 			return true;
@@ -265,77 +237,43 @@ class Async_Publicize {
 	}
 
 	/**
-	 * Check if meta key flag for blocking publicize has expired.
+	 * Marks a post (using post meta key) so that it is not later publicized.
 	 *
-	 * Implement the expiration of PUBLICIZE_BLOCK_META_KEY meta key.
-	 * Useful for handling the case where a post is flagged for no publicize
-	 * {@see flag_post_no_publicize()} but the publish operation does not
-	 * occur. Without a timeout, PUBLICIZE_BLOCK_META_KEY will be in effect
-	 * indefinitely, even if the post is later published from classic editor
-	 * or other non-Gutenberg source.
-	 *
-	 * @since 5.9.1
-	 *
-	 * @param int $post_id ID of post being queried.
-	 * @return string Returns 'META_VALID' if not expired, and 'META_EXPIRED' otherwise.
-	 */
-	public function check_async_meta_status( $post_id ) {
-		$time_flagged = get_post_meta( $post_id, self::PUBLICIZE_BLOCK_META_KEY, true );
-
-		if ( is_numeric( $time_flagged ) && ( $time_flagged < time() + self::META_KEY_TIMEOUT_SECONDS ) ) {
-			return 'META_VALID';
-		}
-
-		return 'META_EXPIRED';
-	}
-
-	/**
-	 * REST api callback for publishing a post without publicizing it.
-	 *
-	 * Function exposed as endpoint 'publicize/posts/<post_id>/flag-no-publicize'.
-	 * Marks a post (using post meta key) so that it is NOT later publicized.
-	 * This should be called if the caller is about to publish a post but does not
-	 * want it automatically publicized.
+	 * Gutenberg user interface publishes a post without
+	 * publicizing it. The user can later (optionally) choose
+	 * to publicize the post after it has already been published.
+	 * To keep backwards compatibility, we check if the post is
+	 * being published from Gutenberg.
 	 *
 	 * @since 5.9.1
 	 *
 	 * @see __construct()
 	 *
-	 * @param WP_REST_Request $request Request instance from REST call.
-	 * @return string|null Result body to return to REST caller
+	 * @param integer $id ID of publishing post.
+	 * @param  WP_Post $post Instance of publishing post.
 	 */
-	public function flag_post_no_publicize( $request ) {
-		$post_id = $request['post_id'];
-
-		if ( ! current_user_can( 'publish_post', $post_id ) ) {
-			return 'Current user cannot publish this post';
+	public function flag_no_publicize_if_async( $id, $post ) {
+		if ( 'PUBLISHED_FROM_GUTENBERG' === $this->get_publish_source() ) {
+			update_post_meta( $id, self::PUBLICIZE_BLOCK_META_KEY, true );
 		}
+	}
 
-		// If post does not exist.
-		if ( get_post_status( $post_id ) === false ) {
-			return 'Post ID does not exist';
-
+	/**
+	 * Checks if the current request is coming form Gutenberg editor.
+	 *
+	 * Checks HTTP header for X-WP-Source == 'Gutenberg' to check if the
+	 * request is coming from the Gutenberg editor.
+	 *
+	 * @since 5.9.1
+	 *
+	 * @return string Value is 'PUBLISHED_FROM_GUTENBERG' or 'PUBLISHED_FROM_OTHER'.
+	 */
+	protected function get_publish_source() {
+		if ( isset( $_SERVER['HTTP_X_WP_SOURCE'] ) && ( 'Gutenberg' === $_SERVER['HTTP_X_WP_SOURCE'] ) ) { // Input var okay.
+			return 'PUBLISHED_FROM_GUTENBERG';
+		} else {
+			return 'PUBLISHED_FROM_OTHER';
 		}
-		if ( get_post_status( $post_id ) === 'publish' ) {
-			return 'Post already published.';
-		}
-
-		/*
-		 * Mark post for NO publicizing upon publish
-		 *
-		 * Gutenberg user interface publishes a post without
-		 * publicizing it. The user can later (optionally) choose to publicize
-		 * the post after it has already been published.
-		 * To keep backwards compatibility, this post meta key
-		 * is introduced so that Publicize knows the post is
-		 * coming from Gutenberg and can ignore the post.
-		 * Meta key checked when 'publicize_should_publicize_published_post'
-		 * filter is triggered {@see can_publicize()}.
-		 * Current server timestamp is recorded so the request will expire.
-		 */
-		update_post_meta( $post_id, self::PUBLICIZE_BLOCK_META_KEY, time() );
-
-		return null;
 	}
 
 
