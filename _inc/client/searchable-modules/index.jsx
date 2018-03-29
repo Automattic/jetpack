@@ -46,7 +46,6 @@ export const SearchableModules = moduleSettingsForm(
 				'enhanced-distribution',
 				'json-api',
 				'latex',
-				'monitor',
 				'notes',
 				'shortcodes',
 				'shortlinks',

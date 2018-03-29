@@ -21,7 +21,7 @@ class DashMonitor extends Component {
 	};
 
 	getContent() {
-		const labelName = __( 'Downtime Monitoring' );
+		const labelName = __( 'Downtime monitoring' );
 		const activateAndTrack = () => {
 			analytics.tracks.recordEvent(
 				'jetpack_wpa_module_toggle',
@@ -55,7 +55,7 @@ class DashMonitor extends Component {
 				<p className="jp-dash-item__description">
 					{
 						this.props.isDevMode ? __( 'Unavailable in Dev Mode.' )
-							: __( '{{a}}Activate Monitor{{/a}} to receive notifications if your site goes down.', {
+							: __( '{{a}}Activate Monitor{{/a}} to receive email notifications if your site goes down.', {
 								components: {
 									a: <a href="javascript:void(0)" onClick={ activateAndTrack } />
 								}
