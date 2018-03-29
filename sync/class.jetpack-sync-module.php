@@ -6,6 +6,8 @@
 abstract class Jetpack_Sync_Module {
 	const ARRAY_CHUNK_SIZE = 10;
 
+	private $callable;
+
 	abstract public function name();
 
 	public function get_object_by_id( $object_type, $id ) {
@@ -107,9 +109,9 @@ abstract class Jetpack_Sync_Module {
 
 		$private_meta_whitelist_sql = "'" . implode( "','", array_map( 'esc_sql', $meta_key_whitelist ) ) . "'";
 
-		return array_map( 
-			array( $this, 'unserialize_meta' ), 
-			$wpdb->get_results( 
+		return array_map(
+			array( $this, 'unserialize_meta' ),
+			$wpdb->get_results(
 				"SELECT $id, meta_key, meta_value, meta_id FROM $table WHERE $id IN ( " . implode( ',', wp_parse_id_list( $ids ) ) . ' )'.
 				" AND meta_key IN ( $private_meta_whitelist_sql ) "
 				, OBJECT )

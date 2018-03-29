@@ -52,7 +52,11 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		add_filter( 'jetpack_sync_before_enqueue_jetpack_post_published', array( $this, 'filter_blacklisted_post_types' ) );
 
 		// listen for meta changes
-		$this->init_listeners_for_meta_type( 'post', $callable, $this );
+		// $this->init_listeners_for_meta_type( 'post', $callable );
+		add_action( 'added_post_meta', array( $this, 'sync_post_meta' ), 10, 4 );
+		add_action( 'updated_post_meta', array( $this, 'sync_post_meta' ), 10, 4 );
+		add_action( 'deleted_post_meta', array( $this, 'sync_post_meta' ), 10, 4 );
+
 		$this->init_meta_whitelist_handler( 'post', array( $this, 'filter_meta' ) );
 
 		add_action( 'export_wp', $callable );
@@ -65,6 +69,8 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		add_action( 'import_end', array( $this, 'sync_import_end' ) );
 
 		add_action( 'set_object_terms', array( $this, 'set_object_terms' ), 10, 6 );
+
+
 	}
 
 	public function this_is_valid_editpost_action( $result ) {
@@ -125,6 +131,24 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 			array( $post_id, $terms, $tt_ids, $taxonomy, $append, $old_tt_ids )
 		);
 
+		$this->add_sync_item( $post_id, $sync_item );
+	}
+
+	public function sync_post_meta( $meta_id, $post_id, $meta_key, $_meta_value ) {
+		if ( ! self::is_saving_post( $post_id ) ) {
+			$args = func_get_args();
+			call_user_func_array( $this->action_handler, $args );
+			return;
+		}
+
+		$sync_item = new Jetpack_Sync_Item( current_action(),
+			array( $meta_id, $post_id, $meta_key, $_meta_value )
+		);
+
+		$this->add_sync_item( $post_id, $sync_item );
+	}
+
+	public function add_sync_item( $post_id, $sync_item ) {
 		if ( $this->has_sync_item( $post_id ) ) {
 			$this->sync_items[ $post_id ]->add_sync_item( $sync_item );
 		} else {

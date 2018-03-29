@@ -143,6 +143,34 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( 'page', $remote_post->post_type );
 	}
 
+	public function test_sync_page_templates() {
+
+		$this->server_event_storage->reset();
+		add_filter( 'theme_page_templates', array( $this, 'add_page_template' ) );
+		$this->post_id         = wp_insert_post( array(
+			'post_type' => 'page',
+			'page_template' => 'fun.php',
+			'post_title' => 'fun page',
+		) );
+		remove_filter( 'theme_page_templates', array( $this, 'add_page_template' ) );
+
+		$this->sender->do_sync();
+
+		$remote_post = $this->server_replica_storage->get_post( $this->post_id );
+		$this->assertEquals( 'fun page', $remote_post->post_title );
+
+		$page_template = $this->server_replica_storage->get_metadata( 'post', $this->post_id, '_wp_page_template', true );
+		$this->assertEquals( $page_template, 'fun.php' );
+
+		$events = $this->server_event_storage->get_all_events();
+		$this->assertEquals( 1, count( $events ), "Number of events is different from 1" );
+	}
+
+	public function add_page_template( $templates ) {
+		$templates['fun.php'] = 'fun';
+		return $templates;
+	}
+
 	public function test_sync_post_status_change() {
 		$remote_post = $this->server_replica_storage->get_post( $this->post->ID );
 		$this->assertEquals( 'draft', $remote_post->post_status );

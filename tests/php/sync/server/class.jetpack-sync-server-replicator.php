@@ -22,6 +22,11 @@ class Jetpack_Sync_Server_Replicator {
 			case 'jetpack_post_saved': // break intentially left blank
 			case 'jetpack_post_published':
 				$this->store->upsert_post( $args[0]['object'], $silent );
+				if ( isset( $args[0]['items'] ) ) {
+					foreach(  $args[0]['items'] as $item ) {
+						self::handle_remote_action( $item['trigger'], $item['object'], $user_id, $silent, $timestamp, $sent_timestamp, $queue_id, $token );
+					}
+				}
 				break;
 			case 'deleted_post':
 				list( $post_id ) = $args;
