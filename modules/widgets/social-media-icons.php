@@ -61,6 +61,11 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 			'wordpress_username'  => '',
 			'twitch_username'     => '',
 			'tumblr_username'     => '',
+			'dribbble_username'   => '',
+			'codepen_username'    => '',
+			'reddit_username'     => '',
+			'foursquare_username' => '',
+			'show_username'       => '',
 		);
 		$this->services = array(
 			'facebook'   => array( 'Facebook', 'https://www.facebook.com/%s/' ),
@@ -76,6 +81,11 @@ class WPCOM_social_media_icons_widget extends WP_Widget {
 			'wordpress'  => array( 'WordPress.org', 'https://profiles.wordpress.org/%s/' ),
 			'twitch'     => array( 'Twitch', 'https://www.twitch.tv/%s/' ),
 			'tumblr'     => array( 'Tumblr', 'https://%s.tumblr.com' ),
+			'dribbble'   => array( 'Dribbble', 'https://dribbble.com/%s/' ),
+			'codepen'    => array( 'Codepen', 'https://codepen.io/%s/' ),
+			'reddit'     => array( 'Reddit', 'https://www.reddit.com/user/%s/' ),
+			'foursquare' => array( 'Foursquare', 'https://foursquare.com/user/%s/' ),
+			'show'       => array( 'Weibo', 'https://weibo.com/%s/' ),
 		);
 		if ( is_active_widget( false, false, $this->id_base ) || is_customize_preview() ) {
 			add_action( 'wp_enqueue_scripts', array( $this, 'enqueue_style' ) );
