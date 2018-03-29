@@ -16,7 +16,7 @@ jobs:
           command: |
                   git clone https://github.com/Automattic/wp-e2e-tests.git
                   cd wp-e2e-tests
-                  git checkout origin/${E2E_BRANCH-master}
+                  git checkout origin/try/jetpack-jurassic-ninja-refresh-take-2
       - restore_cache:
           key: dependency-cache-{{ checksum "wp-e2e-tests/package.json" }}
       - run: cd wp-e2e-tests && npm install
