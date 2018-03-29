@@ -253,12 +253,13 @@ export function isModuleAvailable( state, moduleSlug ) {
 /**
  * Returns the module override for a given module slug.
  *
- * Expected values are false if no override, active if module forced on,
- * or inactive if module forced off.
+ * Expected values are false if no override, 'active' if module forced on,
+ * or 'inactive' if module forced off.
+ *
  * @param {Object} state Global state tree
  * @param {String} name  A module's name
  *
- * @return {Boolean|String} Whether the override, and if so, how.
+ * @return {Boolean|String} Whether the module is overriden, and if so, how.
  */
 export function getModuleOverride( state, name ) {
 	return get( state.jetpack.modules.items, [ name, 'override' ], false );
