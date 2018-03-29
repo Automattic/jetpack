@@ -581,9 +581,12 @@ abstract class SAL_Site {
 	}
 
 	function has_pending_automated_transfer() {
-		require_once( WP_CONTENT_DIR . '/lib/automated-transfer/utils.php' );
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			require_once( WP_CONTENT_DIR . '/lib/automated-transfer/utils.php' );
+			return A8C\Automated_Transfer\Utils\has_site_pending_automated_transfer( $this->blog_id );
+		}
 
-		return A8C\Automated_Transfer\Utils\has_site_pending_automated_transfer( $this->blog_id );
+		return false;
 	}
 
 	function get_roles() {
