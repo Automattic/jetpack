@@ -91,8 +91,10 @@ if ( class_exists( 'Jetpack_Plugin_Compatibility' ) ) {
 
 		// sql heavy
 		'another-wordpress-classifieds-plugin/awpcp.php' => '"another-wordpress-classifieds-plugin" has been deactivated, it is known to cause severe database performance issues and is not supported.',
+		'native-ads-adnow/adnow-widget.php' => '"native-ads-now" has been deactivated, it is known to cause severe database performance issues and is not supported.',
 		'page-visit-counter/page_visit_counter.php' => '"page-visit-counter" has been deactivated, plugins that insert or update the database on page load can cause severe performance issues for your site and are not supported.',
 		'post-views-counter/post-views-counter.php' => '"post-views-counter" has been deactivated, plugins that insert or update the database on page load can cause severe performance issues for your site and are not supported.',
+		'tokenad/token-ad.php' => '"tokenad" has been deactivated, it is known to cause severe database performance issues and is not supported.',
 		'wp-postviews/wp-postviews.php' => '"wp-postviews" has been deactivated, plugins that insert or update the database on page load can cause severe performance issues for your site and are not supported.',
 		'wp-statistics/wp-statistics.php' => '"wp-statistics" has been deactivated, plugins that insert or update the database on page load can cause severe performance issues for your site and are not supported.',
 
