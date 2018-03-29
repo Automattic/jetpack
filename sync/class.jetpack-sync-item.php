@@ -4,7 +4,7 @@
 class Jetpack_Sync_Item {
 
 	private $object; // The object we are syncing, eg a post
-	private $terms; // Terms related to the object, eg categories and tags
+	private $items; // Related sync items that we want to send in the same request, eg categories and tags, post meta, revision
 	private $state; // The state of the object, eg `is_just_published`
 	private $trigger; // The action that triggers the sync operation, eg `save_post`
 
@@ -15,8 +15,8 @@ class Jetpack_Sync_Item {
 		}
 	}
 
-	function add_terms( Jetpack_Sync_Item $terms ) {
-		$this->terms[] = $terms;
+	function add_sync_item( Jetpack_Sync_Item $item ) {
+		$this->items[] = $item;
 	}
 
 	function set_object( $object ) {
@@ -51,18 +51,33 @@ class Jetpack_Sync_Item {
 		return ( $this->state_isset( $key ) && (bool) $this->state[ $key ] );
 	}
 
-	function get_payload() {
+	function get_payload( $include = null ) {
 		if ( empty( $this->object ) ) {
 			return false;
 		}
 
-		$payload = array( 'object' => $this->object );
-
-		if ( ! empty( $this->terms ) ) {
-			$payload['terms'] = array_map( array( $this, 'get_sub_sync_item_payload' ), $this->terms );
+		$default_include = array(
+			'items' => true,
+			'state' => true,
+			'trigger' => false
+		);
+		if ( ! is_array( $include ) ) {
+			$include = $default_include;
+		} else {
+			$include = array_merge( $default_include, $include );
 		}
 
-		if ( ! empty( $this->state ) ) {
+		$payload = array( 'object' => $this->object );
+
+		if ( $include['trigger'] ) {
+			$payload['trigger'] = $this->trigger;
+		}
+
+		if ( ! empty( $this->items ) && $include['items'] ) {
+			$payload['items'] = array_map( array( $this, 'get_sub_sync_item_payload' ), $this->items );
+		}
+
+		if ( ! empty( $this->state ) && $include['state'] ) {
 			$payload['state'] = $this->state;
 		}
 
@@ -70,6 +85,6 @@ class Jetpack_Sync_Item {
 	}
 
 	function get_sub_sync_item_payload( $sync_item ) {
-		return $sync_item->get_payload();
+		return $sync_item->get_payload( array( 'trigger' => true, 'state' => false, 'items' => false ) );
 	}
 }
