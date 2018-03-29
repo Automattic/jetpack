@@ -8,7 +8,6 @@ import { connect } from 'react-redux';
 import SimpleNotice from 'components/notice';
 import { translate as __ } from 'i18n-calypso';
 import Button from 'components/button';
-import includes from 'lodash/includes';
 import analytics from 'lib/analytics';
 
 /**
@@ -26,6 +25,16 @@ import {
 	getSiteAdminUrl,
 	userCanManageModules
 } from 'state/initial-state';
+
+/**
+ * Track clicks on monitor settings
+ *
+ * @returns {undefined}
+ */
+const trackMonitorSettingsClick = () => analytics.tracks.recordJetpackClick( {
+	target: 'monitor-settings',
+	page: 'aag'
+} );
 
 export class DashItem extends Component {
 	static propTypes = {
@@ -45,85 +54,107 @@ export class DashItem extends Component {
 		isModule: true,
 	};
 
-	render() {
-		let toggle, proButton = '';
+	trackPaidBtnClick = () => analytics.tracks.recordJetpackClick( {
+		target: 'paid-button',
+		feature: this.props.module,
+		page: 'aag'
+	} );
 
-		const classes = classNames(
-			this.props.className,
-			'jp-dash-item',
-			this.props.disabled ? 'jp-dash-item__disabled' : ''
-		);
+	getProButton = () => ( this.props.pro && ! this.props.isDevMode && this.props.isModule )
+		? (
+			<Button
+				onClick={ this.trackPaidBtnClick }
+				compact={ true }
+				href="#/plans"
+				>
+				{ __( 'Paid', { context: 'Short label appearing near a paid feature configuration block.' } ) }
+			</Button>
+		)
+		: '';
 
-		const toggleModule = () => this.props.updateOptions( { [ this.props.module ]: ! this.props.getOptionValue( this.props.module ) } ),
-			trackPaidBtnClick = () => {
-				analytics.tracks.recordJetpackClick( {
-					target: 'paid-button',
-					feature: this.props.module,
-					page: 'aag'
-				} );
-			};
+	toggleModule = () => this.props.updateOptions( { [ this.props.module ]: ! this.props.getOptionValue( this.props.module ) } );
 
-		if ( '' !== this.props.module ) {
-			toggle = ( includes( [ 'monitor', 'protect', 'photon', 'vaultpress', 'scan', 'backups', 'akismet', 'search' ], this.props.module ) && this.props.isDevMode ) ? '' : (
-				<ModuleToggle
-					slug={ this.props.module }
-					activated={ this.props.getOptionValue( this.props.module ) }
-					toggling={ this.props.isUpdating( this.props.module ) }
-					toggleModule={ toggleModule }
-					compact={ true }
-				/>
-			);
-
-			if ( 'manage' === this.props.module ) {
-				if ( 'is-warning' === this.props.status ) {
-					toggle = (
-						<a href={ this.props.isDevMode
-							? this.props.siteAdminUrl + 'update-core.php'
-							: 'https://wordpress.com/plugins/manage/' + this.props.siteRawUrl
-						} >
+	getToggle = () => {
+		if ( 'manage' === this.props.module ) {
+			switch ( this.props.status ) {
+				case 'is-warning':
+					return (
+						<a
+							href={ this.props.isDevMode
+								? this.props.siteAdminUrl + 'update-core.php'
+								: 'https://wordpress.com/plugins/manage/' + this.props.siteRawUrl
+							}
+							>
 							<SimpleNotice
 								showDismiss={ false }
 								status={ this.props.status }
 								isCompact={ true }
-							>
+								>
 								{ __( 'Updates needed', { context: 'Short warning message' } ) }
 							</SimpleNotice>
 						</a>
 					);
-				}
-				if ( 'is-working' === this.props.status ) {
-					toggle = <span className="jp-dash-item__active-label">{ __( 'Active' ) }</span>;
-				}
-			}
-
-			if ( 'rewind' === this.props.module ) {
-				toggle = null;
+				case 'is-working':
+					return <span className="jp-dash-item__active-label">{ __( 'Active' ) }</span>;
 			}
 		}
 
-		if ( this.props.pro && ! this.props.isDevMode ) {
-			proButton =
-				<Button
-					onClick={ trackPaidBtnClick }
-					compact={ true }
-					href="#/plans"
-				>
-					{ __( 'Paid', { context: 'Short label appearing near a paid feature configuration block.' } ) }
-				</Button>
-			;
-
-			if ( this.props.isModule ) {
-				toggle = <ProStatus proFeature={ this.props.module } siteAdminUrl={ this.props.siteAdminUrl } />;
-			}
+		if ( this.props.isDevMode || '' === this.props.module ) {
+			return '';
 		}
 
+		switch ( this.props.module ) {
+			case 'protect':
+			case 'photon':
+			case 'search':
+				return (
+					<ModuleToggle
+						slug={ this.props.module }
+						activated={ this.props.getOptionValue( this.props.module ) }
+						toggling={ this.props.isUpdating( this.props.module ) }
+						toggleModule={ this.toggleModule }
+						compact={ true }
+					/>
+				);
+
+			case 'monitor':
+				return this.props.getOptionValue( this.props.module ) && (
+					<Button
+						compact
+						onClick={ trackMonitorSettingsClick }
+						href={ `https://wordpress.com/settings/security/${ this.props.siteRawUrl }` }
+						>
+						{ __( 'Settings' ) }
+					</Button>
+				);
+
+			case 'rewind':
+				if ( 'is-awaiting-credentials' === this.props.status ) {
+					return (
+						<SimpleNotice isCompact showDismiss={ false } status="is-warning">
+							{ __( 'Action needed', { context: 'Short warning message' } ) }
+						</SimpleNotice>
+					);
+				}
+				return <ProStatus proFeature={ this.props.module } siteAdminUrl={ this.props.siteAdminUrl } />;
+
+			default:
+				return this.props.pro && <ProStatus proFeature={ this.props.module } siteAdminUrl={ this.props.siteAdminUrl } />;
+		}
+	};
+
+	render() {
 		return (
-			<div className={ classes }>
+			<div className={ classNames(
+				this.props.className,
+				'jp-dash-item',
+				{ 'jp-dash-item__disabled': this.props.disabled },
+			) }>
 				<SectionHeader
 					label={ this.props.label }
-					cardBadge={ proButton }
-				>
-					{ this.props.userCanToggle ? toggle : '' }
+					cardBadge={ this.getProButton() }
+					>
+					{ this.props.userCanToggle && this.getToggle() }
 				</SectionHeader>
 				<Card className="jp-dash-item__card" href={ this.props.href }>
 					<div className="jp-dash-item__content">

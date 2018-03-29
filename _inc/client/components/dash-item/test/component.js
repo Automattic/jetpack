@@ -13,8 +13,8 @@ import { DashItem } from '../index';
 describe( 'DashItem', () => {
 
 	let testProps = {
-		label: 'Protect',
-		module: 'protect',
+		label: 'Backups',
+		module: 'backups',
 		status: '',
 		statusText: '',
 		disabled: true,
@@ -32,7 +32,7 @@ describe( 'DashItem', () => {
 
 	it( 'has the right label for header', () => {
 		expect( wrapper.find( 'SectionHeader' ) ).to.have.length( 1 );
-		expect( wrapper.find( 'SectionHeader' ).props().label ).to.be.equal( 'Protect' );
+		expect( wrapper.find( 'SectionHeader' ).props().label ).to.be.equal( 'Backups' );
 	} );
 
 	it( 'the card body is built and has its href property correctly set', () => {
@@ -69,7 +69,7 @@ describe( 'DashItem', () => {
 		} );
 
 		it( 'the badge references the module', () => {
-			expect( proStatus.props().proFeature ).to.be.equal( 'protect' );
+			expect( proStatus.props().proFeature ).to.be.equal( 'backups' );
 		} );
 
 		it( 'the admin URL is correct', () => {
@@ -95,6 +95,8 @@ describe( 'DashItem', () => {
 	describe( 'when site is connected, not a PRO module, user can toggle', () => {
 
 		testProps = Object.assign( testProps, {
+			label: 'Protect',
+			module: 'protect',
 			pro: false,
 			userCanToggle: true
 		} );
@@ -114,6 +116,8 @@ describe( 'DashItem', () => {
 	describe( 'when site is connected, not a PRO module, user can not toggle', () => {
 
 		testProps = Object.assign( testProps, {
+			label: 'Protect',
+			module: 'protect',
 			userCanToggle: false
 		} );
 
@@ -213,6 +217,28 @@ describe( 'DashItem', () => {
 			expect( wrapper.find( 'ModuleToggle' ).props().slug ).to.be.equal( 'monitor' );
 		} );
 
+	} );
+
+	describe( 'When this is in the Security scanning', () => {
+		const scanProps = {
+			module: 'scan',
+			label: 'Security Scanning',
+			status: 'is-warning',
+			feature: 'rewind',
+			pro: true,
+			isDevMode: false,
+			userCanToggle: true,
+			siteAdminUrl: 'https://example.org/wp-admin/',
+			siteRawUrl: 'example.org',
+			getOptionValue: () => true,
+			isUpdating: () => false
+		};
+
+		const scanDash = shallow( <DashItem { ...scanProps } /> );
+
+		it( 'show ', () => {
+			expect( scanDash ).to.have.length( 1 );
+		} );
 	} );
 
 } );

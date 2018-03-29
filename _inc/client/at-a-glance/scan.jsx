@@ -165,17 +165,17 @@ export class DashScan extends Component {
 		return (
 			includes( [ 'active', 'provisioning', 'awaiting_credentials' ], rewindStatus )
 				? renderCard( {
+					feature: 'rewind',
+					status: rewindNeedsCredentials ? 'is-awaiting-credentials' : 'is-working',
 					className: rewindNeedsCredentials
 						? 'jp-dash-item__is-awaiting-credentials'
 						: 'jp-dash-item__is-active',
-					status: 'is-working',
 					content: rewindNeedsCredentials
 						? __( 'Security scanning requires access to your site to work properly. ' +
 							'{{a}}Add site credentials{{/a}}.', { components: {
 								a: <a href={ encodeURI( `https://wordpress.com/stats/activity/${ this.props.siteRawUrl }?rewind-redirect=/wp-admin/admin.php?page=jetpack` ) } />
 							} } )
 						: __( 'We are making sure your site stays free of security threats. You will be notified if we find one.' ),
-					feature: 'rewind',
 				} )
 				: <div><QueryVaultPressData />{ this.getVPContent() }</div>
 		);
