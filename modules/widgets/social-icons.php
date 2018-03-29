@@ -8,7 +8,7 @@
  */
 function jetpack_widget_social_icons_load() {
 	if ( ! class_exists( 'Jetpack_Widget_Social_Icons' ) ) {
-		require_once( __DIR__ . '/social-icons/class.php' );
+		require_once( __DIR__ . '/jetpack-social-icons-class.php' );
 		register_widget( 'Jetpack_Widget_Social_Icons' );
 	}
 }
