@@ -58,6 +58,7 @@ class AtAGlance extends Component {
 		};
 		const trackSecurityClick = () => analytics.tracks.recordJetpackClick( 'aag_manage_security_wpcom' );
 		const securityHeader = <DashSectionHeader
+					key="security_header"
 					label={ __( 'Security' ) }
 					settingsPath={ this.props.userCanManageModules ? '#security' : undefined }
 					externalLink={ this.props.isDevMode || ! this.props.userCanManageModules
@@ -112,7 +113,7 @@ class AtAGlance extends Component {
 								cards: securityCards
 							},
 							{
-								header: <DashSectionHeader label={ __( 'Performance' ) } />,
+								header: <DashSectionHeader key="perfromance_header" label={ __( 'Performance' ) } />,
 								cards: [
 									<DashPhoton { ...settingsProps } />,
 									<DashSearch { ...settingsProps } />
