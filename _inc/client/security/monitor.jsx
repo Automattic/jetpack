@@ -30,7 +30,7 @@ export const Monitor = moduleSettingsForm(
 					{ ...this.props }
 					hideButton
 					module="monitor"
-					header={ __( 'Downtime Monitoring', { context: 'Settings header' } ) }
+					header={ __( 'Downtime monitoring', { context: 'Settings header' } ) }
 				>
 					<SettingsGroup hasChild disableInDevMode module={ this.props.getModule( 'monitor' ) }>
 						<ModuleToggle

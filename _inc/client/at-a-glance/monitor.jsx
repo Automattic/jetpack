@@ -21,7 +21,7 @@ class DashMonitor extends Component {
 	};
 
 	getContent() {
-		const labelName = __( 'Downtime Monitoring' );
+		const labelName = __( 'Downtime monitoring' );
 		const activateAndTrack = () => {
 			analytics.tracks.recordEvent(
 				'jetpack_wpa_module_toggle',
