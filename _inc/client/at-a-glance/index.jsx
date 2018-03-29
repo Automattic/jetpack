@@ -36,8 +36,8 @@ import { isDevMode } from 'state/connection';
 const renderPairs = layout => layout.map( item => (
 	[
 		item.header,
-		chunk( item.cards, 2 ).map( ( [ left, right ] ) => (
-			<div className="jp-at-a-glance__item-grid">
+		chunk( item.cards, 2 ).map( ( [ left, right ], i ) => (
+			<div key={ `dash_item_row_${ i }` } className="jp-at-a-glance__item-grid">
 				<div className="jp-at-a-glance__left">{ left }</div>
 				<div className="jp-at-a-glance__right">{ right }</div>
 			</div>
