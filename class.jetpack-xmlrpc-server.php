@@ -126,7 +126,15 @@ class Jetpack_XMLRPC_Server {
 		return $response;
 	}
 
-	function remote_provision( $request ) {
+	/**
+	 * This XML-RPC method is called from the /jpphp/provision endpoint on WPCOM in order to
+	 * register this site so that a plan can be provisioned.
+	 *
+	 * @param array $request An array containing at minimum a nonce key and a local_username key.
+	 *
+	 * @return WP_Error|array
+	 */
+	public function remote_provision( $request ) {
 		if ( empty( $request['nonce'] ) ) {
 			return $this->error(
 				new Jetpack_Error(
@@ -152,7 +160,7 @@ class Jetpack_XMLRPC_Server {
 		$nonce = sanitize_text_field( $request['nonce'] );
 		unset( $request['nonce'] );
 
-		$api_url = Jetpack::fix_url_for_bad_hosts( Jetpack::api_url( 'partner_provision_nonce_check' ) );
+		$api_url  = Jetpack::fix_url_for_bad_hosts( Jetpack::api_url( 'partner_provision_nonce_check' ) );
 		$response = Jetpack_Client::_wp_remote_request(
 			esc_url_raw( add_query_arg( 'nonce', $nonce, $api_url ) ),
 			array( 'method' => 'GET' ),
@@ -190,7 +198,17 @@ class Jetpack_XMLRPC_Server {
 		wp_set_current_user( $user->ID );
 
 		// Filter allowed parameters.
-		$allowed_provision_args = array( 'wpcom_user_id', 'wpcom_user_email', 'local_username', 'plan', 'force_register', 'force_connect', 'onboarding', 'partner_tracking_id' );
+		$allowed_provision_args = array(
+			'wpcom_user_id',
+			'wpcom_user_email',
+			'local_username',
+			'plan',
+			'force_register',
+			'force_connect',
+			'onboarding',
+			'partner_tracking_id',
+		);
+
 		$args = array_intersect_key(
 			$request,
 			array_flip( $allowed_provision_args )
