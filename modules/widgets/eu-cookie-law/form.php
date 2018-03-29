@@ -148,10 +148,10 @@
 			<input
 				class="widefat"
 				name="<?php echo esc_attr( $this->get_field_name( 'custom-policy-url' ) ); ?>"
-				placeholder="<?php echo esc_attr( $instance['default-policy-url'] ); ?>"
+				placeholder="<?php echo esc_url( $instance['default-policy-url'] ); ?>"
 				style="margin-top: .5em;"
 				type="text"
-				value="<?php echo esc_attr( $instance['custom-policy-url'] ); ?>"
+				value="<?php echo esc_url( $instance['custom-policy-url'] ); ?>"
 			/>
 		</li>
 	</ul>

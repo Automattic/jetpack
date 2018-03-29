@@ -442,6 +442,25 @@ class WP_Test_Jetpack_Sync_Post extends WP_Test_Jetpack_Sync_Base {
 		$this->assertEquals( $post->shortlink, wp_get_shortlink( $this->post->ID ) );
 	}
 
+	function test_sync_post_includes_amp_permalink() {
+		$insert_post_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
+		$post              = $insert_post_event->args[1];
+
+		$this->assertObjectNotHasAttribute( 'amp_permalink', $post );
+
+		function amp_get_permalink( $post_id ) {
+			return "http://example.com/?p=$post_id&amp";
+		}
+
+		wp_update_post( $this->post );
+		$this->sender->do_sync();
+		$insert_post_event = $this->server_event_storage->get_most_recent_event( 'jetpack_sync_save_post' );
+		$post              = $insert_post_event->args[1];
+
+		$this->assertObjectHasAttribute( 'amp_permalink', $post );
+		$this->assertEquals( $post->amp_permalink, "http://example.com/?p={$post->ID}&amp" );
+	}
+
 	function test_sync_post_includes_feature_image_meta_when_featured_image_set() {
 		$post_id = $this->factory->post->create();
 		$attachment_id = $this->factory->post->create( array(

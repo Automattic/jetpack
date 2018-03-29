@@ -285,6 +285,10 @@
 	}
 }
 
+.jp-search-config-aag {
+	width: 100%;
+}
+
 .jp-at-a-glance__left {
 	display: flex;
 
@@ -419,4 +423,9 @@
 .jp-connection-settings__modal-more a {
 	color: $blue-wordpress;
 	text-decoration: underline;
+}
+
+.jp-dash-item__manage-in-wpcom {
+	margin-top: 1px;
+	width: 100%;
 }

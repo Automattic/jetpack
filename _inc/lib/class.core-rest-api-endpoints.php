@@ -122,6 +122,23 @@ class Jetpack_Core_Json_Api_Endpoints {
 			'permission_callback' => __CLASS__ . '::get_user_connection_data_permission_callback',
 		) );
 
+		// Current user: get or set tracking settings.
+		register_rest_route( 'jetpack/v4', '/tracking/settings', array(
+			array(
+				'methods'             => WP_REST_Server::READABLE,
+				'callback'            => __CLASS__ . '::get_user_tracking_settings',
+				'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
+			),
+			array(
+				'methods'             => WP_REST_Server::EDITABLE,
+				'callback'            => __CLASS__ . '::update_user_tracking_settings',
+				'permission_callback' => __CLASS__ . '::view_admin_page_permission_check',
+				'args'                => array(
+					'tracks_opt_out' => array( 'type' => 'boolean' ),
+				),
+			),
+		) );
+
 		// Disconnect site from WordPress.com servers
 		register_rest_route( 'jetpack/v4', '/connection', array(
 			'methods' => WP_REST_Server::EDITABLE,
@@ -840,6 +857,74 @@ class Jetpack_Core_Json_Api_Endpoints {
 		}
 
 		return new WP_Error( 'unlink_user_failed', esc_html__( 'Was not able to unlink the user.  Please try again.', 'jetpack' ), array( 'status' => 400 ) );
+	}
+
+	/**
+	 * Gets current user's tracking settings.
+	 *
+	 * @since 6.0.0
+	 *
+	 * @param  WP_REST_Request $request The request sent to the WP REST API.
+	 *
+	 * @return WP_REST_Response|WP_Error Response, else error.
+	 */
+	public static function get_user_tracking_settings( $request ) {
+		if ( ! Jetpack::is_user_connected() ) {
+			$response = array(
+				'tracks_opt_out' => true, // Default to opt-out if not connected to wp.com.
+			);
+		} else {
+			$response = Jetpack_Client::wpcom_json_api_request_as_user(
+				'/jetpack-user-tracking',
+				'v2',
+				array(
+					'method'  => 'GET',
+					'headers' => array(
+						'X-Forwarded-For' => Jetpack::current_user_ip( true ),
+					),
+				)
+			);
+			if ( ! is_wp_error( $response ) ) {
+				$response = json_decode( wp_remote_retrieve_body( $response ), true );
+			}
+		}
+
+		return rest_ensure_response( $response );
+	}
+
+	/**
+	 * Updates current user's tracking settings.
+	 *
+	 * @since 6.0.0
+	 *
+	 * @param  WP_REST_Request $request The request sent to the WP REST API.
+	 *
+	 * @return WP_REST_Response|WP_Error Response, else error.
+	 */
+	public static function update_user_tracking_settings( $request ) {
+		if ( ! Jetpack::is_user_connected() ) {
+			$response = array(
+				'tracks_opt_out' => true, // Default to opt-out if not connected to wp.com.
+			);
+		} else {
+			$response = Jetpack_Client::wpcom_json_api_request_as_user(
+				'/jetpack-user-tracking',
+				'v2',
+				array(
+					'method'  => 'PUT',
+					'headers' => array(
+						'Content-Type'    => 'application/json',
+						'X-Forwarded-For' => Jetpack::current_user_ip( true ),
+					),
+				),
+				wp_json_encode( $request->get_params() )
+			);
+			if ( ! is_wp_error( $response ) ) {
+				$response = json_decode( wp_remote_retrieve_body( $response ), true );
+			}
+		}
+
+		return rest_ensure_response( $response );
 	}
 
 	/**
@@ -1902,15 +1987,6 @@ class Jetpack_Core_Json_Api_Endpoints {
 			// Show welcome for newly purchased plan
 			'show_welcome_for_new_plan' => array(
 				'description'       => '',
-				'type'              => 'boolean',
-				'default'           => 0,
-				'validate_callback' => __CLASS__ . '::validate_boolean',
-				'jp_group'          => 'settings',
-			),
-
-			// Whether user allows usage statistics.
-			'jetpack_event_tracking' => array(
-				'description'       => 'Disables event tracking.',
 				'type'              => 'boolean',
 				'default'           => 0,
 				'validate_callback' => __CLASS__ . '::validate_boolean',

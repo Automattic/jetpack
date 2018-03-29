@@ -22,6 +22,7 @@ import DashAkismet from './akismet';
 import DashBackups from './backups';
 import DashPluginUpdates from './plugins';
 import DashPhoton from './photon';
+import DashSearch from './search';
 import DashConnections from './connections';
 import QuerySitePlugins from 'components/data/query-site-plugins';
 import QuerySite from 'components/data/query-site';
@@ -112,7 +113,10 @@ class AtAGlance extends Component {
 							},
 							{
 								header: <DashSectionHeader label={ __( 'Performance' ) } />,
-								cards: [ <DashPhoton { ...settingsProps } /> ]
+								cards: [
+									<DashPhoton { ...settingsProps } />,
+									<DashSearch { ...settingsProps } />
+								]
 							}
 						] )
 					}

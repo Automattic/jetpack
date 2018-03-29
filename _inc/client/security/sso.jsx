@@ -63,7 +63,15 @@ export const SSO = moduleSettingsForm(
 					module="sso"
 					header={ __( 'WordPress.com log in', { context: 'Settings header' } ) }
 				>
-					<SettingsGroup hasChild disableInDevMode module={ this.props.getModule( 'sso' ) }>
+					<SettingsGroup
+						hasChild
+						disableInDevMode
+						module={ this.props.getModule( 'sso' ) }
+						support={ {
+							text: __( 'Allows registered users to log in to your site with their WordPress.com accounts.' ),
+							link: 'https://jetpack.com/support/sso/',
+						} }
+						>
 						<ModuleToggle
 							slug="sso"
 							disabled={ unavailableInDevMode }

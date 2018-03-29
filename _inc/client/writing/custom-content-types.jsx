@@ -59,7 +59,15 @@ export class CustomContentTypes extends React.Component {
 				{ ...this.props }
 				module="custom-content-types"
 				hideButton>
-				<SettingsGroup hasChild module={ module } support={ module.learn_more_button }>
+				<SettingsGroup
+					hasChild
+					module={ module }
+					support={ {
+						text: __( 'Adds the Testimonial custom post type, allowing you to collect, organize, ' +
+							'and display testimonials on your site.' ),
+						link: 'https://jetpack.com/support/custom-content-types/',
+					} }
+					>
 					<CompactFormToggle
 								checked={ this.state.testimonial }
 								disabled={ this.props.isSavingAnyOption( 'jetpack_testimonial' ) }
@@ -83,6 +91,15 @@ export class CustomContentTypes extends React.Component {
 							}
 						</p>
 					</FormFieldset>
+				</SettingsGroup>
+				<SettingsGroup
+					hasChild
+					module={ module }
+					support={ {
+						text: __( 'Adds the Portfolio custom post type, allowing you to manage and showcase projects on your site.' ),
+						link: 'https://jetpack.com/support/custom-content-types/',
+					} }
+					>
 					<CompactFormToggle
 								checked={ this.state.portfolio }
 								disabled={ this.props.isSavingAnyOption( 'jetpack_portfolio' ) }

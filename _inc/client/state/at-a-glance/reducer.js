@@ -79,7 +79,7 @@ const activeStatsTab = ( state = 'day', action ) => {
 	}
 };
 
-const statsData = ( state = 'N/A', action ) => {
+const statsData = ( state = {}, action ) => {
 	switch ( action.type ) {
 		case STATS_DATA_FETCH_SUCCESS:
 			return assign( {}, state, action.statsData );

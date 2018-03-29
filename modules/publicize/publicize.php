@@ -107,6 +107,7 @@ abstract class Publicize_Base {
 		// then check meta and publicize based on that. stage 3 implemented on wpcom
 		add_action( 'transition_post_status', array( $this, 'flag_post_for_publicize' ), 10, 3 );
 		add_action( 'save_post', array( &$this, 'save_meta' ), 20, 2 );
+		add_filter( 'post_updated_messages', array( $this, 'update_published_message' ), 20, 1 );
 
 		// Connection test callback
 		add_action( 'wp_ajax_test_publicize_conns', array( $this, 'test_publicize_conns' ) );
@@ -133,8 +134,8 @@ abstract class Publicize_Base {
 	/**
 	* Returns an external URL to the connection's profile
 	*/
-	function get_profile_link( $service_name, $c ) {
-		$cmeta = $this->get_connection_meta( $c );
+	function get_profile_link( $service_name, $connection ) {
+		$cmeta = $this->get_connection_meta( $connection );
 
 		if ( isset( $cmeta['connection_data']['meta']['link'] ) ) {
 			if ( 'facebook' == $service_name && 0 === strpos( parse_url( $cmeta['connection_data']['meta']['link'], PHP_URL_PATH ), '/app_scoped_user_id/' ) ) {
@@ -177,8 +178,8 @@ abstract class Publicize_Base {
 	/**
 	* Returns a display name for the connection
 	*/
-	function get_display_name( $service_name, $c ) {
-		$cmeta = $this->get_connection_meta( $c );
+	function get_display_name( $service_name, $connection ) {
+		$cmeta = $this->get_connection_meta( $connection );
 
 		if ( isset( $cmeta['connection_data']['meta']['display_name'] ) ) {
 			return $cmeta['connection_data']['meta']['display_name'];
@@ -211,8 +212,8 @@ abstract class Publicize_Base {
 		}
 	}
 
-	function show_options_popup( $service_name, $c ) {
-		$cmeta = $this->get_connection_meta( $c );
+	function show_options_popup( $service_name, $connection ) {
+		$cmeta = $this->get_connection_meta( $connection );
 
 		// always show if no selection has been made for facebook
 		if ( 'facebook' == $service_name && empty( $cmeta['connection_data']['meta']['facebook_profile'] ) && empty( $cmeta['connection_data']['meta']['facebook_page'] ) )
@@ -418,15 +419,99 @@ abstract class Publicize_Base {
 		// Next up will be ::publicize_post()
 	}
 
+	public function update_published_message( $messages ) {
+		global $post_type, $post_type_object, $post;
+		if ( ! $this->post_type_is_publicizeable( $post_type ) ) {
+			return $messages;
+		}
+		$view_post_link_html = '';
+		$viewable = is_post_type_viewable( $post_type_object );
+		if ( $viewable ) {
+			$view_text = esc_html__( 'View post' ); // intentionally omitted domain
+
+			if ( 'jetpack-portfolio' == $post_type ) {
+				$view_text = esc_html__( 'View project', 'jetpack' );
+			}
+
+			$view_post_link_html = sprintf( ' <a href="%1$s">%2$s</a>',
+				esc_url( get_permalink( $post ) ),
+				$view_text
+			);
+		}
+
+		$services = $this->get_publicizing_services( $post->ID );
+		if ( empty( $services ) ) {
+			return $messages;
+		}
+
+		$labels = array();
+		foreach ( $services as $service => $display_names ) {
+			$labels[] = sprintf(
+				/* translators: Service name is %1$s, and account name is %2$s. */
+				esc_html__( '%1$s (%2$s)', 'jetpack' ),
+				esc_html( $service ),
+				esc_html( implode( ', ', $display_names ) )
+			);
+		}
+
+		$messages['post'][6] = sprintf(
+			/* translators: %1$s is a comma-separated list of services and accounts. Ex. Facebook (@jetpack), Twitter (@jetpack) */
+			esc_html__( 'Post published and sharing on %1$s.', 'jetpack' ),
+			implode( ', ', $labels )
+		) . $view_post_link_html;
+
+		if ( $post_type == 'post' && class_exists('Jetpack_Subscriptions' ) ) {
+			$subscription = Jetpack_Subscriptions::init();
+			if ( $subscription->should_email_post_to_subscribers( $post ) ) {
+				$messages['post'][6] = sprintf(
+					/* translators: %1$s is a comma-separated list of services and accounts. Ex. Facebook (@jetpack), Twitter (@jetpack) */
+					esc_html__( 'Post published, sending emails to subscribers and sharing post on %1$s.', 'jetpack' ),
+					implode( ', ', $labels )
+				) . $view_post_link_html;
+			}
+		}
+
+		$messages['jetpack-portfolio'][6] = sprintf(
+			/* translators: %1$s is a comma-separated list of services and accounts. Ex. Facebook (@jetpack), Twitter (@jetpack) */
+			esc_html__( 'Project published and sharing project on %1$s.', 'jetpack' ),
+			implode( ', ', $labels )
+		) . $view_post_link_html;
+
+		return $messages;
+	}
+
+	function get_publicizing_services( $post_id ) {
+		$services = array();
+
+		foreach ( (array) $this->get_services( 'connected' ) as $service_name => $connections ) {
+			// services have multiple connections.
+			foreach ( $connections as $connection ) {
+				$unique_id = '';
+				if ( ! empty( $connection->unique_id ) )
+					$unique_id = $connection->unique_id;
+				else if ( ! empty( $connection['connection_data']['token_id'] ) )
+					$unique_id = $connection['connection_data']['token_id'];
+
+				// Did we skip this connection?
+				if ( get_post_meta( $post_id, $this->POST_SKIP . $unique_id,  true ) ) {
+					continue;
+				}
+				$services[ $this->get_service_label( $service_name ) ][] = $this->get_display_name( $service_name, $connection );
+			}
+		}
+
+		return $services;
+	}
+
 	/**
-	 * Is a given post type Publicize-able?
-	 *
-	 * Not every CPT lends itself to Publicize-ation.  Allow CPTs to register by adding their CPT via
-	 * the publicize_post_types array filter.
-	 *
-	 * @param string $post_type The post type to check.
-	 * $return bool True if the post type can be Publicized.
-	 */
+	* Is a given post type Publicize-able?
+	*
+	* Not every CPT lends itself to Publicize-ation.  Allow CPTs to register by adding their CPT via
+	* the publicize_post_types array filter.
+	*
+	* @param string $post_type The post type to check.
+	* @return bool True if the post type can be Publicized.
+	*/
 	function post_type_is_publicizeable( $post_type ) {
 		if ( 'post' == $post_type )
 			return true;

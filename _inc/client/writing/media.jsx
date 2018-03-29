@@ -70,7 +70,15 @@ class Media extends React.Component {
 			planClass = getPlanClass( this.props.sitePlan.product_slug );
 
 		const carouselSettings = (
-			<SettingsGroup module={ { module: 'carousel' } } hasChild support={ carousel.learn_more_button }>
+			<SettingsGroup
+				hasChild
+				module={ { module: 'carousel' } }
+				support={ {
+					text: __( 'Replaces the standard WordPress galleries with a ' +
+						'full-screen photo browsing experience, including comments and EXIF metadata.' ),
+					link: 'https://jetpack.com/support/carousel',
+				} }
+				>
 				<ModuleToggle
 					slug="carousel"
 					activated={ isCarouselActive }
@@ -111,22 +119,27 @@ class Media extends React.Component {
 
 		const videoPressSettings = includes( [ 'is-premium-plan', 'is-business-plan' ], planClass ) && (
 			<SettingsGroup
-					hasChild
-					disableInDevMode
-					module={ videoPress }>
-					<ModuleToggle
-						slug="videopress"
-						disabled={ this.props.isUnavailableInDevMode( 'videopress' ) }
-						activated={ this.props.getOptionValue( 'videopress' ) }
-						toggling={ this.props.isSavingAnyOption( 'videopress' ) }
-						toggleModule={ this.props.toggleModuleNow }
-						>
-						<span className="jp-form-toggle-explanation">
-							{
-								videoPress.description
-							}
-						</span>
-					</ModuleToggle>
+				hasChild
+				disableInDevMode
+				module={ videoPress }
+				support={ {
+					text: __( 'Hosts your video files on the global WordPress.com servers.' ),
+					link: 'https://jetpack.com/support/videopress/',
+				} }
+				>
+				<ModuleToggle
+					slug="videopress"
+					disabled={ this.props.isUnavailableInDevMode( 'videopress' ) }
+					activated={ this.props.getOptionValue( 'videopress' ) }
+					toggling={ this.props.isSavingAnyOption( 'videopress' ) }
+					toggleModule={ this.props.toggleModuleNow }
+					>
+					<span className="jp-form-toggle-explanation">
+						{
+							videoPress.description
+						}
+					</span>
+				</ModuleToggle>
 			</SettingsGroup>
 		);
 

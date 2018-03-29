@@ -27,16 +27,6 @@ import {
 	userCanManageModules
 } from 'state/initial-state';
 
-/**
- * Track clicks on monitor settings
- *
- * @returns {undefined}
- */
-const trackMonitorSettingsClick = () => analytics.tracks.recordJetpackClick( {
-	target: 'monitor-settings',
-	page: 'aag'
-} );
-
 export class DashItem extends Component {
 	static propTypes = {
 		label: PropTypes.string,
@@ -74,7 +64,7 @@ export class DashItem extends Component {
 			};
 
 		if ( '' !== this.props.module ) {
-			toggle = ( includes( [ 'protect', 'photon', 'vaultpress', 'scan', 'backups', 'akismet' ], this.props.module ) && this.props.isDevMode ) ? '' : (
+			toggle = ( includes( [ 'monitor', 'protect', 'photon', 'vaultpress', 'scan', 'backups', 'akismet', 'search' ], this.props.module ) && this.props.isDevMode ) ? '' : (
 				<ModuleToggle
 					slug={ this.props.module }
 					activated={ this.props.getOptionValue( this.props.module ) }
@@ -104,19 +94,6 @@ export class DashItem extends Component {
 				if ( 'is-working' === this.props.status ) {
 					toggle = <span className="jp-dash-item__active-label">{ __( 'Active' ) }</span>;
 				}
-			}
-
-			if ( 'monitor' === this.props.module ) {
-				toggle = ! this.props.isDevMode && this.props.getOptionValue( this.props.module ) && (
-					<Button
-						onClick={ trackMonitorSettingsClick }
-						href={ 'https://wordpress.com/settings/security/' + this.props.siteRawUrl }
-						compact>
-						{
-							__( 'Settings' )
-						}
-					</Button>
-				);
 			}
 
 			if ( 'rewind' === this.props.module ) {

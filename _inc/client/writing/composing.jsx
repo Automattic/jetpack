@@ -101,7 +101,16 @@ export class Composing extends React.Component {
 	getAtdSettings = () => {
 		const ignoredPhrases = this.props.getOptionValue( 'ignored_phrases' );
 		return (
-			<SettingsGroup hasChild disableInDevMode module={ this.props.getModule( 'after-the-deadline' ) }>
+			<SettingsGroup
+				hasChild
+				disableInDevMode
+				module={ this.props.getModule( 'after-the-deadline' ) }
+				support={ {
+					text: __( 'Checks your content for correct grammar and spelling, ' +
+						'misused words, and style while you write.' ),
+					link: 'https://jetpack.com/support/spelling-and-grammar/',
+				} }
+				>
 				<FormFieldset>
 					<FormLegend> { __( 'Proofreading' ) } </FormLegend>
 					<span className="jp-form-setting-explanation">
@@ -194,7 +203,13 @@ export class Composing extends React.Component {
 			atd = this.props.module( 'after-the-deadline' ),
 			unavailableInDevMode = this.props.isUnavailableInDevMode( 'after-the-deadline' ),
 			markdownSettings = (
-				<SettingsGroup module={ markdown }>
+				<SettingsGroup
+					module={ markdown }
+					support={ {
+						text: __( 'Allows you to compose content with links, lists, and other styles using the Markdown syntax.' ),
+						link: 'https://jetpack.com/support/markdown/',
+					} }
+					>
 					<FormFieldset>
 						<ModuleToggle
 							slug="markdown"

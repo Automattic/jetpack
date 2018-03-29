@@ -160,8 +160,9 @@ class Jetpack_Search {
 			return;
 		}
 
-		require_once( dirname( __FILE__ ) . '/class.jetpack-search-helpers.php' );
-		require_once( dirname( __FILE__ ) . '/class.jetpack-search-template-tags.php' );
+		require_once dirname( __FILE__ ) . '/class.jetpack-search-helpers.php';
+		require_once dirname( __FILE__ ) . '/class.jetpack-search-template-tags.php';
+		require_once JETPACK__PLUGIN_DIR . 'modules/widgets/search.php';
 
 		$this->init_hooks();
 	}

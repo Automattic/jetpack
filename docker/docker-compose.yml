@@ -82,5 +82,3 @@ services:
     env_file:
       - default.env
       - .env
-    extra_hosts:
-       - "localhost:172.22.0.4"

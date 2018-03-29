@@ -29,10 +29,10 @@ export const SettingsGroup = props => {
 		return <span />;
 	}
 
-	const disableInDevMode = props.disableInDevMode && props.isUnavailableInDevMode( module.module ),
-		support = ! props.support && module && '' !== module.learn_more_button
-			? module.learn_more_button
-			: props.support;
+	const disableInDevMode = props.disableInDevMode && props.isUnavailableInDevMode( module.module );
+	const support = props.support.text && props.support.link
+			? props.support
+			: false;
 	let displayFadeBlock = disableInDevMode;
 
 	if ( ( 'post-by-email' === module.module && ! props.isLinked ) ||
@@ -61,20 +61,23 @@ export const SettingsGroup = props => {
 				'jp-form-settings-disable': disableInDevMode
 			} ) }>
 				{
-					displayFadeBlock && <div className="jp-form-block-fade"></div>
+					displayFadeBlock && <div className="jp-form-block-fade" />
 				}
 				{
 					support && (
 						<div className="jp-module-settings__learn-more">
 							<InfoPopover
+								position="left"
 								onClick={ trackInfoClick }
 								screenReaderText={ __( 'Learn more' ) }
-							>
+								>
+								{ props.support.text + ' ' }
 								<ExternalLink
 									onClick={ trackLearnMoreClick }
 									icon={ false }
-									href={ support }
-									target="_blank" rel="noopener noreferrer">
+									href={ props.support.link }
+									target="_blank" rel="noopener noreferrer"
+									>
 									{ __( 'Learn more' ) }
 								</ExternalLink>
 							</InfoPopover>
@@ -90,7 +93,7 @@ export const SettingsGroup = props => {
 };
 
 SettingsGroup.propTypes = {
-	support: PropTypes.string,
+	support: PropTypes.object,
 	module: PropTypes.object,
 	disableInDevMode: PropTypes.bool.isRequired,
 	isDevMode: PropTypes.bool.isRequired,
@@ -101,7 +104,7 @@ SettingsGroup.propTypes = {
 };
 
 SettingsGroup.defaultProps = {
-	support: '',
+	support: { text: '', link: '' },
 	module: {},
 	disableInDevMode: false,
 	isDevMode: false,

@@ -112,8 +112,6 @@ class The_Neverending_Home_Page {
 							case 'render' :
 								if ( false !== $value && is_callable( $value ) ) {
 									$settings[ $key ] = $value;
-
-									add_action( 'infinite_scroll_render', $value );
 								}
 
 								break;
@@ -219,24 +217,6 @@ class The_Neverending_Home_Page {
 					$settings['type'] = 'click';
 			}
 
-			// posts_per_page defaults to 7 for scroll, posts_per_page option for click
-			if ( false === $settings['posts_per_page'] ) {
-				if ( 'scroll' === $settings['type'] ) {
-					$settings['posts_per_page'] = 7;
-				}
-				else {
-					$settings['posts_per_page'] = (int) get_option( 'posts_per_page' );
-				}
-			}
-
-			// If IS is set to click, and if the site owner changed posts_per_page, let's use that
-			if (
-				'click' == $settings['type']
-				&& ( '10' !== get_option( 'posts_per_page' ) )
-			) {
-				$settings['posts_per_page'] = (int) get_option( 'posts_per_page' );
-			}
-
 			// Force display of the click handler and attendant bits when the type isn't `click`
 			if ( 'click' !== $settings['type'] ) {
 				$settings['click_handle'] = true;
@@ -257,6 +237,32 @@ class The_Neverending_Home_Page {
 
 		/** This filter is already documented in modules/infinite-scroll/infinity.php */
 		return (object) apply_filters( 'infinite_scroll_settings', self::$settings );
+	}
+
+	/**
+	 * Number of posts per page.
+	 *
+	 * @uses self::wp_query, self::get_settings, apply_filters
+	 * @return int
+	 */
+	static function posts_per_page() {
+		$posts_per_page = self::get_settings()->posts_per_page ? self::get_settings()->posts_per_page : self::wp_query()->get( 'posts_per_page' );
+
+		// Take JS query into consideration here
+		if ( true === isset( $_REQUEST['query_args']['posts_per_page'] ) ) {
+			$posts_per_page = $_REQUEST['query_args']['posts_per_page'];
+		}
+
+		/**
+		 * Filter the number of posts per page.
+		 *
+		 * @module infinite-scroll
+		 *
+		 * @since 6.0.0
+		 *
+		 * @param int $posts_per_page The number of posts to display per page.
+		 */
+		return (int) apply_filters( 'infinite_scroll_posts_per_page', $posts_per_page );
 	}
 
 	/**
@@ -317,13 +323,13 @@ class The_Neverending_Home_Page {
 		}
 
 		$entries = (int) self::wp_query()->found_posts;
-		$posts_per_page = self::get_settings()->posts_per_page;
+		$posts_per_page = self::posts_per_page();
 
 		// This is to cope with an issue in certain themes or setups where posts are returned but found_posts is 0.
 		if ( 0 == $entries ) {
 			return (bool) ( count( self::wp_query()->posts ) < $posts_per_page );
 		}
-		$paged = self::wp_query()->get( 'paged' );
+		$paged = max( 1, self::wp_query()->get( 'paged' ) );
 
 		// Are there enough posts for more than the first page?
 		if ( $entries <= $posts_per_page ) {
@@ -383,7 +389,7 @@ class The_Neverending_Home_Page {
 			echo '<label>' . $notice . '</label>';
 		} else {
 			echo '<label><input name="infinite_scroll" type="checkbox" value="1" ' . checked( 1, '' !== get_option( self::$option_name_enabled ), false ) . ' /> ' . esc_html__( 'Check to load posts as you scroll. Uncheck to show clickable button to load posts', 'jetpack' ) . '</label>';
-			echo '<p class="description">' . esc_html( sprintf( _n( 'Shows %s post on each load.', 'Shows %s posts on each load.', self::get_settings()->posts_per_page, 'jetpack' ), number_format_i18n( self::get_settings()->posts_per_page ) ) ) . '</p>';
+			echo '<p class="description">' . esc_html( sprintf( _n( 'Shows %s post on each load.', 'Shows %s posts on each load.', self::posts_per_page(), 'jetpack' ), number_format_i18n( self::posts_per_page() ) ) ) . '</p>';
 		}
 	}
 
@@ -679,7 +685,7 @@ class The_Neverending_Home_Page {
 	 */
 	function posts_per_page_query( $query ) {
 		if ( ! is_admin() && self::archive_supports_infinity() && $query->is_main_query() )
-			$query->set( 'posts_per_page', self::get_settings()->posts_per_page );
+			$query->set( 'posts_per_page', self::posts_per_page() );
 	}
 
 	/**
@@ -801,7 +807,7 @@ class The_Neverending_Home_Page {
 
 				if ( isset( $cpt_text ) ) {
 					/* translators: %s is the name of a custom post type */
-					$click_handle_text = sprintf( __( 'Older %s', 'jetpack' ), $cpt_text );
+					$click_handle_text = sprintf( __( 'More %s', 'jetpack' ), $cpt_text );
 					unset( $cpt_text );
 				}
 			}
@@ -825,7 +831,7 @@ class The_Neverending_Home_Page {
 			'scripts'          => array(),
 			'styles'           => array(),
 			'google_analytics' => false,
-			'offset'           => self::wp_query()->get( 'paged' ),
+			'offset'           => max( 1, self::wp_query()->get( 'paged' ) ), // Pass through the current page so we can use that to offset the first load.
 			'history'          => array(
 				'host'                 => preg_replace( '#^http(s)?://#i', '', untrailingslashit( esc_url( get_home_url() ) ) ),
 				'path'                 => self::get_request_path(),
@@ -1214,7 +1220,7 @@ class The_Neverending_Home_Page {
 		$query_args = array_merge( self::wp_query()->query_vars, array(
 			'paged'          => $page,
 			'post_status'    => $post_status,
-			'posts_per_page' => self::get_settings()->posts_per_page,
+			'posts_per_page' => self::posts_per_page(),
 			'post__not_in'   => ( array ) $sticky,
 			'order'          => $order
 		) );
@@ -1243,7 +1249,9 @@ class The_Neverending_Home_Page {
 		// Add query filter that checks for posts below the date
 		add_filter( 'posts_where', array( $this, 'query_time_filter' ), 10, 2 );
 
-		$GLOBALS['wp_the_query'] = $GLOBALS['wp_query'] = new WP_Query( $query_args );
+		$GLOBALS['wp_the_query'] = $GLOBALS['wp_query'] = $infinite_scroll_query = new WP_Query();
+
+		$infinite_scroll_query->query( $query_args );
 
 		remove_filter( 'posts_where', array( $this, 'query_time_filter' ), 10, 2 );
 
@@ -1259,27 +1267,41 @@ class The_Neverending_Home_Page {
 
 			$results['type'] = 'success';
 
-			// First, try theme's specified rendering handler, either specified via `add_theme_support` or by hooking to this action directly.
-			ob_start();
 			/**
-			 * Fires when rendering Infinite Scroll posts.
+			 * Gather renderer callbacks. These will be called in order and allow multiple callbacks to be queued. Once content is found, no futher callbacks will run.
 			 *
 			 * @module infinite-scroll
 			 *
-			 * @since 2.0.0
+			 * @since 6.0.0
 			 */
-			do_action( 'infinite_scroll_render' );
-			$results['html'] = ob_get_clean();
+			$callbacks = apply_filters( 'infinite_scroll_render_callbacks', array(
+				self::get_settings()->render, // This is the setting callback e.g. from add theme support.
+			) );
 
-			// Fall back if a theme doesn't specify a rendering function. Because themes may hook additional functions to the `infinite_scroll_render` action, `has_action()` is ineffective here.
-			if ( empty( $results['html'] ) ) {
-				add_action( 'infinite_scroll_render', array( $this, 'render' ) );
-				rewind_posts();
+			// Append fallback callback. That rhymes.
+			$callbacks[] = array( $this, 'render' );
 
-				ob_start();
-				/** This action is already documented in modules/infinite-scroll/infinity.php */
-				do_action( 'infinite_scroll_render' );
-				$results['html'] = ob_get_clean();
+			foreach ( $callbacks as $callback ) {
+				if ( false !== $callback && is_callable( $callback ) ) {
+					rewind_posts();
+					ob_start();
+					add_action( 'infinite_scroll_render', $callback );
+
+					/**
+					 * Fires when rendering Infinite Scroll posts.
+					 *
+					 * @module infinite-scroll
+					 *
+					 * @since 2.0.0
+					 */
+					do_action( 'infinite_scroll_render' );
+
+					$results['html'] = ob_get_clean();
+					remove_action( 'infinite_scroll_render', $callback );
+				}
+				if ( ! empty( $results['html'] ) ) {
+					break;
+				}
 			}
 
 			// If primary and fallback rendering methods fail, prevent further IS rendering attempts. Otherwise, wrap the output if requested.

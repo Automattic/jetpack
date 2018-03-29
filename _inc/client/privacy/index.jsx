@@ -10,11 +10,13 @@ import { connect } from 'react-redux';
  * Internal dependencies
  */
 import { ModuleSettingsForm as moduleSettingsForm } from 'components/module-settings/module-settings-form';
+import CompactFormToggle from 'components/form/form-toggle/compact';
 import SettingsCard from 'components/settings-card';
 import SettingsGroup from 'components/settings-group';
-import { ModuleToggle } from 'components/module-toggle';
 import ExternalLink from 'components/external-link';
-import { updateSettings, getSettings } from 'state/settings';
+import { getTrackingSettings, isUpdatingTrackingSettings, isFetchingTrackingSettingsList } from 'state/tracking/reducer';
+import { fetchTrackingSettings, updateTrackingSettings } from 'state/tracking/actions';
+import { getSettings } from 'state/settings';
 import analytics from 'lib/analytics';
 
 const trackPrivacyPolicyView = () => analytics.tracks.recordJetpackClick( {
@@ -52,14 +54,19 @@ class Privacy extends React.Component {
 		active: false,
 	};
 
-	togglePrivacy = () => this.props.toggleTracking( this.props.getOptionValue( 'jetpack_event_tracking' ) );
+	togglePrivacy = () => {
+		const current = this.props.trackingSettings.tracks_opt_out;
+		this.props.setTrackingSettings( ! current );
+	}
+
+	componentWillMount() {
+		this.props.fetchTrackingSettings();
+	}
 
 	render() {
 		const {
 			searchTerm,
 			active,
-			getOptionValue,
-			isSavingAnyOption,
 		} = this.props;
 
 		if ( ! searchTerm && ! active ) {
@@ -73,7 +80,7 @@ class Privacy extends React.Component {
 					header={ __( 'Privacy Settings', { context: 'Settings header' } ) }
 					hideButton
 				>
-					<SettingsGroup hasChild support="https://jetpack.com/support/privacy">
+					<SettingsGroup hasChild>
 						<p>
 							{
 								__( 'We are committed to your privacy and security. ' )
@@ -98,13 +105,14 @@ class Privacy extends React.Component {
 							}
 						</p>
 						<p>
-							<ModuleToggle
+							<CompactFormToggle
 								compact
-								activated={ getOptionValue( 'jetpack_event_tracking' ) }
-								toggling={ isSavingAnyOption( 'jetpack_event_tracking' ) }
-								toggleModule={ this.togglePrivacy }>
+								checked={ ! this.props.trackingSettings.tracks_opt_out }
+								disabled={ this.props.isFetchingTrackingSettings || this.props.isUpdatingTrackingSettings }
+								onChange={ this.togglePrivacy }
+								id="privacy-settings">
 								{ __( 'Send information to help us improve our products.' ) }
-							</ModuleToggle>
+							</CompactFormToggle>
 						</p>
 						<p>
 							{ __(
@@ -129,8 +137,17 @@ class Privacy extends React.Component {
 export default connect(
 	state => ( {
 		settings: getSettings( state ),
+		trackingSettings: getTrackingSettings( state ),
+		isUpdatingTrackingSettings: isUpdatingTrackingSettings( state ),
+		isFetchingTrackingSettings: isFetchingTrackingSettingsList( state )
 	} ),
-	{
-		toggleTracking: isEnabled => updateSettings( { jetpack_event_tracking: ! isEnabled } ),
+	dispatch => {
+		return {
+			setTrackingSettings: ( newValue ) => {
+				analytics.tracks.setOptOut( newValue ); // Sets opt-out cookie.
+				dispatch( updateTrackingSettings( { tracks_opt_out: newValue } ) );
+			},
+			fetchTrackingSettings: () => dispatch( fetchTrackingSettings() )
+		};
 	}
 )( moduleSettingsForm( Privacy ) );

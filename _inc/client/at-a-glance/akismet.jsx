@@ -4,22 +4,42 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import DashItem from 'components/dash-item';
 import { numberFormat, translate as __ } from 'i18n-calypso';
 
 /**
  * Internal dependencies
  */
+import Card from 'components/card';
+import DashItem from 'components/dash-item';
 import QueryAkismetData from 'components/data/query-akismet-data';
 import { getAkismetData } from 'state/at-a-glance';
 import { getSitePlan } from 'state/site';
+import { isDevMode } from 'state/connection';
 
 class DashAkismet extends Component {
+
+	static propTypes = {
+		siteRawUrl: PropTypes.string.isRequired,
+		siteAdminUrl: PropTypes.string.isRequired,
+
+		// Connected props
+		akismetData: PropTypes.oneOfType( [
+			PropTypes.string,
+			PropTypes.object
+		] ).isRequired,
+		isDevMode: PropTypes.bool.isRequired,
+	};
+
+	static defaultProps = {
+		siteRawUrl: '',
+		siteAdminUrl: '',
+		akismetData: 'N/A',
+		isDevMode: '',
+	};
+
 	getContent() {
-		const akismetData = this.props.akismetData,
-			akismetSettingsUrl = this.props.siteAdminUrl + 'admin.php?page=akismet-key-config',
-			labelName = __( 'Spam Protection' ),
-			hasSitePlan = false !== this.props.sitePlan;
+		const akismetData = this.props.akismetData;
+		const labelName = __( 'Spam Protection' );
 
 		if ( akismetData === 'N/A' ) {
 			return (
@@ -34,6 +54,8 @@ class DashAkismet extends Component {
 				</DashItem>
 			);
 		}
+
+		const hasSitePlan = false !== this.props.sitePlan;
 
 		if ( akismetData === 'not_installed' ) {
 			return (
@@ -93,7 +115,7 @@ class DashAkismet extends Component {
 						{
 							__( 'Whoops! Your Akismet key is missing or invalid. {{akismetSettings}}Go to Akismet settings to fix{{/akismetSettings}}.', {
 								components: {
-									akismetSettings: <a href={ akismetSettingsUrl } />
+									akismetSettings: <a href={ `${ this.props.siteAdminUrl }admin.php?page=akismet-key-config` } />
 								}
 							} )
 						}
@@ -102,8 +124,9 @@ class DashAkismet extends Component {
 			);
 		}
 
-		return (
+		return [
 			<DashItem
+				key="comment-moderation"
 				label={ labelName }
 				module="akismet"
 				status="is-working"
@@ -117,8 +140,18 @@ class DashAkismet extends Component {
 						} )
 					}
 				</p>
-			</DashItem>
-		);
+			</DashItem>,
+			! this.props.isDevMode && (
+				<Card
+					key="moderate-comments"
+					className="jp-dash-item__manage-in-wpcom"
+					compact
+					href={ `https://wordpress.com/comments/all/${ this.props.siteRawUrl }` }
+				>
+					{ __( 'Moderate comments' ) }
+				</Card>
+			)
+		];
 	}
 
 	render() {
@@ -131,16 +164,10 @@ class DashAkismet extends Component {
 	}
 }
 
-DashAkismet.propTypes = {
-	siteRawUrl: PropTypes.string.isRequired,
-	siteAdminUrl: PropTypes.string.isRequired
-};
-
 export default connect(
-	( state ) => {
-		return {
-			akismetData: getAkismetData( state ),
-			sitePlan: getSitePlan( state )
-		};
-	}
+	state => ( {
+		akismetData: getAkismetData( state ),
+		sitePlan: getSitePlan( state ),
+		isDevMode: isDevMode( state ),
+	} )
 )( DashAkismet );

@@ -4,19 +4,27 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import DashItem from 'components/dash-item';
 import { translate as __ } from 'i18n-calypso';
-import includes from 'lodash/includes';
 
 /**
  * Internal dependencies
  */
+import Card from 'components/card';
+import DashItem from 'components/dash-item';
 import QueryPluginUpdates from 'components/data/query-plugin-updates';
 import { getPluginUpdates } from 'state/at-a-glance';
-import { getModules } from 'state/modules';
+import { isModuleAvailable } from 'state/modules';
 import { isDevMode } from 'state/connection';
 
 class DashPluginUpdates extends Component {
+	static propTypes = {
+		isDevMode: PropTypes.bool.isRequired,
+		siteRawUrl: PropTypes.string.isRequired,
+		siteAdminUrl: PropTypes.string.isRequired,
+		pluginUpdates: PropTypes.any.isRequired,
+		isModuleAvailable: PropTypes.bool.isRequired,
+	};
+
 	activateAndRedirect( e ) {
 		e.preventDefault();
 		this.props.activateManage()
@@ -26,7 +34,6 @@ class DashPluginUpdates extends Component {
 	getContent() {
 		const labelName = __( 'Plugin Updates' );
 		const pluginUpdates = this.props.pluginUpdates;
-		const manageActive = this.props.getOptionValue( 'manage' );
 
 		if ( 'N/A' === pluginUpdates ) {
 			return (
@@ -40,63 +47,57 @@ class DashPluginUpdates extends Component {
 			);
 		}
 
-		if ( 'updates-available' === pluginUpdates.code ) {
-			return (
-				<DashItem
-					label={ labelName }
-					module="manage"
-					status="is-warning"
-				>
-					<h2 className="jp-dash-item__count">
-						{
-							__( '%(number)s plugin', '%(number)s plugins', {
-								count: pluginUpdates.count,
-								args: {
-									number: pluginUpdates.count
-								}
-							} )
-						}
-					</h2>
-					<p className="jp-dash-item__description">
-						{
-							__( 'Needs updating. ', 'Need updating. ', {
-								count: pluginUpdates.count,
-								args: {
-									number: pluginUpdates.count
-								}
-							} )
-						}
-						{
-							this.props.isDevMode
-								? ''
-								: __( '{{a}}Turn on plugin auto updates{{/a}}', { components: { a: <a href={ 'https://wordpress.com/plugins/manage/' + this.props.siteRawUrl } /> } } )
-						}
-					</p>
-				</DashItem>
-			);
-		}
+		const updatesAvailable = 'updates-available' === pluginUpdates.code;
+		const managePluginsUrl = `https://wordpress.com/plugins/manage/${ this.props.siteRawUrl }`;
+		const workingOrInactive = this.props.getOptionValue( 'manage' ) ? 'is-working' : 'is-inactive';
 
-		return (
+		return [
 			<DashItem
+				key="plugin-updates"
 				label={ labelName }
 				module="manage"
-				status={ manageActive ? 'is-working' : 'is-inactive' } >
+				status={ updatesAvailable ? 'is-warning' : workingOrInactive }
+				>
+				{
+					updatesAvailable && (
+						<h2 className="jp-dash-item__count">
+							{
+								__( '%(number)s plugin', '%(number)s plugins', {
+									count: pluginUpdates.count,
+									args: { number: pluginUpdates.count }
+								} )
+							}
+						</h2>
+					)
+				}
 				<p className="jp-dash-item__description">
 					{
-						__( 'All plugins are up-to-date. Awesome work!' )
+						updatesAvailable
+							? [
+								__( 'Needs updating.', 'Need updating.', { count: pluginUpdates.count } ) + ' ',
+								! this.props.isDevMode && __( '{{a}}Turn on plugin autoupdates{{/a}}', {
+									components: { a: <a href={ managePluginsUrl } /> }
+								} )
+							]
+							: __( 'All plugins are up-to-date. Awesome work!' )
 					}
 				</p>
-			</DashItem>
-		);
+			</DashItem>,
+			! this.props.isDevMode && (
+				<Card
+					key="manage-plugins"
+					className="jp-dash-item__manage-in-wpcom"
+					compact
+					href={ managePluginsUrl }
+				>
+					{ __( 'Manage your plugins' ) }
+				</Card>
+			)
+		];
 	}
 
 	render() {
-		const moduleList = Object.keys( this.props.moduleList );
-		if ( ! includes( moduleList, 'manage' ) ) {
-			return null;
-		}
-
-		return (
+		return this.props.isModuleAvailable && (
 			<div>
 				<QueryPluginUpdates />
 				{ this.getContent() }
@@ -105,19 +106,10 @@ class DashPluginUpdates extends Component {
 	}
 }
 
-DashPluginUpdates.propTypes = {
-	isDevMode: PropTypes.bool.isRequired,
-	siteRawUrl: PropTypes.string.isRequired,
-	siteAdminUrl: PropTypes.string.isRequired,
-	pluginUpdates: PropTypes.any.isRequired
-};
-
 export default connect(
-	( state ) => {
-		return {
-			pluginUpdates: getPluginUpdates( state ),
-			isDevMode: isDevMode( state ),
-			moduleList: getModules( state )
-		};
-	}
+	state => ( {
+		pluginUpdates: getPluginUpdates( state ),
+		isDevMode: isDevMode( state ),
+		isModuleAvailable: isModuleAvailable( state, 'manage' ),
+	} )
 )( DashPluginUpdates );

@@ -49,15 +49,20 @@ export const ShareButtons = moduleSettingsForm(
 					header={ __( 'Sharing buttons', { context: 'Settings header' } ) }
 					module="sharing"
 					hideButton>
-					<SettingsGroup disableInDevMode module={ { module: 'sharing' } } support="https://jetpack.com/support/sharing/">
+					<SettingsGroup
+						disableInDevMode
+						module={ { module: 'sharing' } }
+						support={ {
+							text: __( 'Adds sharing buttons to your content so that visitors can share it on social media sites.' ),
+							link: 'https://jetpack.com/support/sharing/',
+						} }
+						>
 						<ModuleToggle
 							slug="sharedaddy"
 							activated={ isActive }
 							toggling={ this.props.isSavingAnyOption( 'sharedaddy' ) }
 							toggleModule={ this.props.toggleModuleNow }>
-							{
-								__( 'Add sharing buttons to your posts' )
-							}
+								{ __( 'Add sharing buttons to your posts' ) }
 							</ModuleToggle>
 					</SettingsGroup>
 					{
