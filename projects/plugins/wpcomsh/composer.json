@@ -7,7 +7,6 @@
     "automattic/at-pressable-podcasting": "1.0.0",
     "automattic/custom-fonts": "1.0.1",
     "automattic/custom-fonts-typekit": "1.0.3",
-    "automattic/jetpack-social-icons": "~1.0",
     "automattic/text-media-widget-styles": "~1.0",
     "automattic/wc-calypso-bridge": "0.1.9",
     "woocommerce/wc-api-dev": "0.9.5"
@@ -30,11 +29,6 @@
       "type": "vcs",
       "no-api": true,
       "url": "https://github.com/automattic/at-pressable-podcasting.git"
-    },
-    {
-      "type": "vcs",
-      "no-api": true,
-      "url": "https://github.com/Automattic/jetpack-social-icons.git"
     },
     {
       "type": "vcs",
