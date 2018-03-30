@@ -274,7 +274,8 @@ You’ll need to install the [php-debug](https://atom.io/packages/php-debug) pac
 
 1. Configure php-debug:
 
-	1. To listen on all addresses (**Server Address**: `0.0.0.0`) [🖼](https://user-images.githubusercontent.com/746152/37093338-c381757e-21ed-11e8-92cd-5b947a2d35ba.png "Screenshot showing 'Server Address' input")
+	1. To listen on all addresses (**Server Address**: `0.0.0.0`)
+	    ![Screenshot showing "Server Address" input](https://user-images.githubusercontent.com/746152/37093338-c381757e-21ed-11e8-92cd-5b947a2d35ba.png)
 
 	2. To map your current Jetpack directory to the docker filesystem path (**Path Maps** to `/var/www/html/wp-content/plugins/jetpack;/local-path-in-your-computer/jetpack`)
 
@@ -309,21 +310,20 @@ You’ll need to install the [php-debug](https://atom.io/packages/php-debug) pac
 #### Remote debugging with PhpStorm editor
 
 Below are instructions for starting a debug session in PhpStorm that will listen to activity on your Jetpack docker.
-If you prefer a visual aid, here is a quick screen cast.
 
-1. Configure your browser extension to use 'JETPACK' for its session ID.
+1. Configure your browser extension to use 'PHPSTORM' for its session ID.
 
-1. Open your Jetpack project in PHP and chose 'Run -> Edit Configurations' from the main menu.
+1. Open your Jetpack project in PhpStorm and chose 'Run -> Edit Configurations' from the main menu.
 
 1. Click the '+' icon, and chose 'PHP Remote Debug' to create a new debug configuration.
 
 1. Name your debug configuration whatever you like.
 
-1. Check the 'Filter debug connection by IDE key', and enter 'JETPACK' for 'IDE Key ( Session ID )'.
+1. Check the 'Filter debug connection by IDE key', and enter 'PHPSTORM' for 'IDE Key ( Session ID )'.
  
 1. Click the '...' on the 'Server' line to configure your remote server.
 
-1. In the server configuration window, click the '+' icon to creat a new server configuration. Name it whatever you like.
+1. In the server configuration window, click the '+' icon to create a new server configuration. Name it whatever you like.
 
 1. In the server configuration window, set your host to the URL you use to run Jetpack locally. ( Eg, localhost, or 0.0.0.0, or example.ngrok.io )
 
@@ -337,7 +337,6 @@ If you prefer a visual aid, here is a quick screen cast.
 
 1. You can now start a debug session by clicking 'Run -> Debug' in the main menu
 
-Here is a quick screen cast showing an example debug session.
 
 
 
