@@ -74,7 +74,7 @@ class DashPluginUpdates extends Component {
 					{
 						updatesAvailable
 							? [
-								__( 'plugin needs updating.', 'plugins need updating.', { count: pluginUpdates.count } ) + ' ',
+								__( 'Plugin needs updating.', 'Plugins need updating.', { count: pluginUpdates.count } ) + ' ',
 								! this.props.isDevMode && __( '{{a}}Turn on plugin autoupdates{{/a}}', {
 									components: { a: <a href={ managePluginsUrl } /> }
 								} )
