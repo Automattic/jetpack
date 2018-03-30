@@ -40,12 +40,17 @@ jQuery( function( $ ) {
 			type: 'POST',
 			url: async_publicize_setup.base_url + '/wp-json/publicize/posts/' + post_id.toString() + '/publicize',
 			headers: {
-				message: message,
+				message: message
 			},
 			dataType: 'json',
 			beforeSend: function ( xhr ) {
 				xhr.setRequestHeader( 'X-WP-Nonce', async_publicize_setup.api_nonce );
 			}
 		} );
-	}
+	};
+
+
 } );
+
+
+

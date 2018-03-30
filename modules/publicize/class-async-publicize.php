@@ -196,11 +196,30 @@ class Async_Publicize {
 	 *
 	 * @since 5.9.1
 	 *
-	 * @param string $hook_suffix File name of current page.
 	 */
-	public function post_page_enqueue( $hook_suffix ) {
-		if ( ( 'post.php' === $hook_suffix || 'post-new.php' === $hook_suffix ) ) {
-			wp_enqueue_script( 'async_publicize_js', plugins_url( 'assets/async-publicize.js', __FILE__ ), array( 'jquery' ) );
+	public function post_page_enqueue( $hook ) {
+		if ( $this->is_gutenberg_editor_open( $hook ) ) {
+			wp_enqueue_script(
+				'async_publicize_js',
+				plugins_url( 'assets/async-publicize.js', __FILE__ ),
+				array(
+					'jquery',
+					'wp-blocks',
+					'wp-element',
+				)
+			);
+
+			wp_enqueue_script(
+				'async_publicize_panel_js',
+				plugins_url( '_inc/build/modules-publicize-async.js', JETPACK__PLUGIN_FILE ),
+				array(
+					'jquery',
+					'wp-edit-post',
+				),
+				false,
+				true
+			);
+
 			wp_localize_script( 'async_publicize_js', 'async_publicize_setup',
 				array(
 					'api_nonce' => wp_create_nonce( 'wp_rest' ),
@@ -208,6 +227,14 @@ class Async_Publicize {
 				)
 			);
 		}
+	}
+
+
+	function is_gutenberg_editor_open( $hook ) {
+		if( ( $hook == 'post-new.php' || $hook == 'post.php' ) && ! isset( $_GET[ 'classic-editor' ] ) ) {
+			return true;
+		}
+		return false;
 	}
 
 	/**
