@@ -274,9 +274,7 @@ You’ll need to install the [php-debug](https://atom.io/packages/php-debug) pac
 
 1. Configure php-debug:
 
-	1. To listen on all addresses (**Server Address**: `0.0.0.0`)
-
-		![Screenshot showing "Server Address" input](https://user-images.githubusercontent.com/746152/37093338-c381757e-21ed-11e8-92cd-5b947a2d35ba.png)
+	1. To listen on all addresses (**Server Address**: `0.0.0.0`) [🖼](https://user-images.githubusercontent.com/746152/37093338-c381757e-21ed-11e8-92cd-5b947a2d35ba.png "Screenshot showing 'Server Address' input")
 
 	2. To map your current Jetpack directory to the docker filesystem path (**Path Maps** to `/var/www/html/wp-content/plugins/jetpack;/local-path-in-your-computer/jetpack`)
 
