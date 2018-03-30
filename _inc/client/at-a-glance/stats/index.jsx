@@ -29,7 +29,8 @@ import {
 	getStatsData,
 	statsSwitchTab,
 	fetchStatsData,
-	getActiveStatsTab
+	getActiveStatsTab,
+	isFetchingStatsData,
 } from 'state/at-a-glance';
 import { isModuleAvailable } from 'state/modules';
 import { emptyStatsCardDismissed } from 'state/settings';
@@ -41,6 +42,7 @@ export class DashStats extends Component {
 		siteAdminUrl: PropTypes.string.isRequired,
 		statsData: PropTypes.any.isRequired,
 		isModuleAvailable: PropTypes.bool.isRequired,
+		fetchingStatsData: PropTypes.bool.isRequired,
 	};
 
 	constructor( props ) {
@@ -184,6 +186,12 @@ export class DashStats extends Component {
 				);
 			}
 
+			if ( this.props.fetchingStatsData ) {
+				return (
+					<div className="jp-at-a-glance__stats-container-loading" />
+				);
+			}
+
 			const statsChart = this.statsChart( this.props.activeTab ),
 				chartData = statsChart.chartData,
 				totalViews = statsChart.totalViews,
@@ -304,6 +312,7 @@ export default connect(
 		connectUrl: getConnectUrl( state ),
 		statsData: isEmpty( getStatsData( state ) ) ? getInitialStateStatsData( state ) : getStatsData( state ),
 		isEmptyStatsCardDismissed: emptyStatsCardDismissed( state ),
+		fetchingStatsData: isFetchingStatsData( state ),
 	} ),
 	dispatch => ( {
 		switchView: tab => dispatch( statsSwitchTab( tab ) ),
