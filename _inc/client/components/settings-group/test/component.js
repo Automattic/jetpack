@@ -73,13 +73,12 @@ describe( 'SettingsGroup', () => {
 		expect( settingsGroup.find( 'Card' ).props().className ).to.contain( 'jp-form-has-child' );
 	} );
 
-	it( 'the learn more icon has an informational tooltip', () => {
-		expect( settingsGroup.find( 'InfoPopover' ) ).to.have.length( 1 );
-		expect( settingsGroup.find( 'ExternalLink' ).get( 0 ).props.href ).to.be.equal( 'https://jetpack.com/support/protect' );
+	it( 'the support info icon has an informational tooltip', () => {
+		expect( settingsGroup.find( 'SupportInfo' ) ).to.have.length( 1 );
 	} );
 
-	it( 'does not have a learn more icon if no link or module was passed', () => {
-		expect( shallow( <SettingsGroup /> ).find( 'InfoPopover' ) ).to.have.length( 0 );
+	it( 'does not have a support info icon if no link or module was passed', () => {
+		expect( shallow( <SettingsGroup /> ).find( 'SupportInfo' ) ).to.have.length( 0 );
 	} );
 
 	describe( 'has a fading layer', () => {

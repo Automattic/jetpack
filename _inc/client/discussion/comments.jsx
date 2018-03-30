@@ -130,6 +130,11 @@ class CommentsComponent extends React.Component {
 												<a href={ gravatar.learn_more_button } target="_blank" rel="noopener noreferrer">
 													{ __( 'Learn more' ) }
 												</a>
+												<span className="jp-form-toggle-privacy-info">
+													<a href={ gravatar.learn_more_button + '#privacy' } target="_blank" rel="noopener noreferrer">
+														{ __( 'Privacy Information' ) }
+													</a>
+												</span>
 											</span>
 										</ModuleToggle>
 									</FormFieldset>
@@ -152,6 +157,11 @@ class CommentsComponent extends React.Component {
 												<a href={ markdown.learn_more_button } target="_blank" rel="noopener noreferrer">
 													{ __( 'Learn more' ) }
 												</a>
+												<span className="jp-form-toggle-privacy-info">
+													<a href={ markdown.learn_more_button + '#privacy' } target="_blank" rel="noopener noreferrer">
+														{ __( 'Privacy Information' ) }
+													</a>
+												</span>
 											</span>
 										</ModuleToggle>
 									</FormFieldset>
@@ -175,6 +185,11 @@ class CommentsComponent extends React.Component {
 												<a href="https://jetpack.com/support/comment-likes/" target="_blank" rel="noopener noreferrer">
 													{ __( 'Learn more' ) }
 												</a>
+												<span className="jp-form-toggle-privacy-info">
+													<a href="https://jetpack.com/support/comment-likes/#privacy" target="_blank" rel="noopener noreferrer">
+														{ __( 'Privacy Information' ) }
+													</a>
+												</span>
 											</span>
 										</ModuleToggle>
 									</FormFieldset>

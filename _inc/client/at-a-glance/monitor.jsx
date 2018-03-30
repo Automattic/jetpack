@@ -22,6 +22,12 @@ class DashMonitor extends Component {
 
 	getContent() {
 		const labelName = __( 'Downtime monitoring' );
+
+		const support = {
+			text: __( 'Jetpack’s downtime monitor will keep tabs on your site, and alert you the moment that downtime is detected.' ),
+			link: 'https://jetpack.com/support/monitor/',
+		};
+
 		const activateAndTrack = () => {
 			analytics.tracks.recordEvent(
 				'jetpack_wpa_module_toggle',
@@ -39,6 +45,7 @@ class DashMonitor extends Component {
 				<DashItem
 					label={ labelName }
 					module="monitor"
+					support={ support }
 					status="is-working"
 				>
 					<p className="jp-dash-item__description">{ __( 'Jetpack is monitoring your site. If we think your site is down, you will receive an email.' ) }</p>
@@ -50,6 +57,7 @@ class DashMonitor extends Component {
 			<DashItem
 				label={ labelName }
 				module="monitor"
+				support={ support }
 				className="jp-dash-item__is-inactive"
 			>
 				<p className="jp-dash-item__description">

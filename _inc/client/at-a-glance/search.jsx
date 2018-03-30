@@ -27,6 +27,10 @@ const renderCard = ( props ) => (
 	<DashItem
 		label={ __( 'Search' ) }
 		module="search"
+		support={ {
+			text: __( 'Jetpack’s Search module is a powerful replacement for the search capability built into WordPress.' ),
+			link: 'https://jetpack.com/support/search/',
+		} }
 		className={ props.className }
 		status={ props.status }
 		isModule={ props.pro_inactive }
@@ -86,6 +90,10 @@ class DashSearch extends Component {
 				<DashItem
 					label={ __( 'Search' ) }
 					module="search"
+					support={ {
+						text: __( 'Jetpack’s Search module is a powerful replacement for the search capability built into WordPress.' ),
+						link: 'https://jetpack.com/support/search/',
+					} }
 					className="jp-dash-item__is-active"
 					isModule={ false }
 					pro={ true }

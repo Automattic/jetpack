@@ -29,6 +29,10 @@ const renderCard = ( props ) => (
 	<DashItem
 		label={ __( 'Backups' ) }
 		module={ props.feature || 'backups' }
+		support={ {
+			text: __( 'Jetpack Backups allow you to easily restore or download a backup from a specific moment.' ),
+			link: 'https://jetpack.com/support/backups/',
+		} }
 		className={ props.className }
 		status={ props.status }
 		pro={ true }
