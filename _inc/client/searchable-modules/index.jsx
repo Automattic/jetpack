@@ -25,7 +25,7 @@ export const SearchableModules = moduleSettingsForm(
 	class extends Component {
 		handleBannerClick = module => {
 			return () => this.props.updateOptions( { [ module ]: true } );
-		};
+		}
 
 		render() {
 			// Only admins plz
