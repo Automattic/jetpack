@@ -29,11 +29,6 @@ const trackWhatJetpackSyncView = () => analytics.tracks.recordJetpackClick( {
 	feature: 'privacy'
 } );
 
-const trackPrivacyBlogView = () => analytics.tracks.recordJetpackClick( {
-	target: 'privacy-blog',
-	feature: 'privacy'
-} );
-
 class Privacy extends React.Component {
 	static displayName = 'PrivacySettings';
 
@@ -113,19 +108,6 @@ class Privacy extends React.Component {
 								id="privacy-settings">
 								{ __( 'Send information to help us improve our products.' ) }
 							</CompactFormToggle>
-						</p>
-						<p>
-							{ __(
-								'See more WordPress privacy information and resources on {{a}}privacy.blog{{/a}}.', {
-									components: {
-										a: <ExternalLink
-											href="https://automattic.com/privacy/"
-											onClick={ trackPrivacyBlogView }
-											target="_blank" rel="noopener noreferrer"
-										/>
-									}
-								} )
-							}
 						</p>
 					</SettingsGroup>
 				</SettingsCard>
