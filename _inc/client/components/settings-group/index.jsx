@@ -30,9 +30,7 @@ export const SettingsGroup = props => {
 	}
 
 	const disableInDevMode = props.disableInDevMode && props.isUnavailableInDevMode( module.module );
-	const support = props.support.text && props.support.link
-			? props.support
-			: false;
+	const support = props.support.link ? props.support : false;
 	let displayFadeBlock = disableInDevMode;
 
 	if ( ( 'post-by-email' === module.module && ! props.isLinked ) ||
@@ -71,7 +69,7 @@ export const SettingsGroup = props => {
 								onClick={ trackInfoClick }
 								screenReaderText={ __( 'Learn more' ) }
 								>
-								{ props.support.text + ' ' }
+								{ props.support.text && ( props.support.text + ' ' ) }
 								<ExternalLink
 									onClick={ trackLearnMoreClick }
 									icon={ false }
