@@ -68,6 +68,11 @@
 	position: relative;
 }
 
+.jp-at-a-glance__stats-container-loading {
+	height: 4em;
+}
+
+.jp-at-a-glance__stats-container-loading .dops-spinner,
 .jp-at-a-glance__stats-chart .dops-spinner {
 	position: absolute;
 	top: 50%;

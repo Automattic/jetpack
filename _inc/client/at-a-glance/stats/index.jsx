@@ -188,7 +188,11 @@ export class DashStats extends Component {
 
 			if ( this.props.fetchingStatsData ) {
 				return (
-					<div className="jp-at-a-glance__stats-container-loading" />
+					<div className="jp-at-a-glance__stats-container-loading">
+						<div className="jp-at-a-glance__stats-chart">
+							<Spinner />
+						</div>
+					</div>
 				);
 			}
 
