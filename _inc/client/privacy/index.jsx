@@ -119,7 +119,7 @@ class Privacy extends React.Component {
 								'See more WordPress privacy information and resources on {{a}}privacy.blog{{/a}}.', {
 									components: {
 										a: <ExternalLink
-											href="https://privacy.blog/"
+											href="https://automattic.com/privacy/"
 											onClick={ trackPrivacyBlogView }
 											target="_blank" rel="noopener noreferrer"
 										/>
