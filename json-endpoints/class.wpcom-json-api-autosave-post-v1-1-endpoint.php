@@ -58,6 +58,11 @@ class WPCOM_JSON_API_Autosave_Post_v1_1_Endpoint extends WPCOM_JSON_API_Post_v1_
 			return new WP_Error( 'invalid_input', 'Invalid request input', 400 );
 		}
 
+		if ( defined( 'IS_WPCOM' ) && IS_WPCOM ) {
+			// Make sure Custom Post Types, etc. get registered.
+			$this->load_theme_functions();
+		}
+
 		$post = get_post( $post_id );
 
 		if ( ! $post || is_wp_error( $post ) ) {
