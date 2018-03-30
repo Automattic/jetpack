@@ -29,7 +29,6 @@ const renderCard = ( props ) => (
 		module="search"
 		className={ props.className }
 		status={ props.status }
-		isModule={ props.pro_inactive }
 		pro={ true }
 	>
 		<p className="jp-dash-item__description">
@@ -59,7 +58,6 @@ class DashSearch extends Component {
 			return renderCard( {
 				className: 'jp-dash-item__is-inactive',
 				status: 'no-pro-uninstalled-or-inactive',
-				pro_inactive: true,
 				content: __( 'Unavailable in Dev Mode' )
 			} );
 		}
@@ -68,7 +66,6 @@ class DashSearch extends Component {
 			return renderCard( {
 				className: 'jp-dash-item__is-inactive',
 				status: 'no-pro-uninstalled-or-inactive',
-				pro_inactive: true,
 				content: __( 'Give your visitors {{a}}a great search experience{{/a}}.', {
 					components: {
 						a: <a
@@ -87,7 +84,7 @@ class DashSearch extends Component {
 					label={ __( 'Search' ) }
 					module="search"
 					className="jp-dash-item__is-active"
-					isModule={ false }
+					isModule={ true }
 					pro={ true }
 				>
 					<p className="jp-dash-item__description">
@@ -100,7 +97,7 @@ class DashSearch extends Component {
 
 		return renderCard( {
 			className: 'jp-dash-item__is-inactive',
-			pro_inactive: false,
+			status: 'has-pro-can-activate',
 			content: __( '{{a}}Activate{{/a}} to replace the WordPress built-in search with an improved search experience.', {
 				components: {
 					a: <a href="javascript:void(0)" onClick={ activateSearch } />

@@ -74,6 +74,16 @@ export class DashItem extends Component {
 
 	toggleModule = () => this.props.updateOptions( { [ this.props.module ]: ! this.props.getOptionValue( this.props.module ) } );
 
+	getModuleToggle = () => (
+		<ModuleToggle
+			slug={ this.props.module }
+			activated={ this.props.getOptionValue( this.props.module ) }
+			toggling={ this.props.isUpdating( this.props.module ) }
+			toggleModule={ this.toggleModule }
+			compact={ true }
+		/>
+	);
+
 	getToggle = () => {
 		if ( 'manage' === this.props.module ) {
 			switch ( this.props.status ) {
@@ -106,16 +116,12 @@ export class DashItem extends Component {
 		switch ( this.props.module ) {
 			case 'protect':
 			case 'photon':
+				return this.getModuleToggle();
+
 			case 'search':
-				return (
-					<ModuleToggle
-						slug={ this.props.module }
-						activated={ this.props.getOptionValue( this.props.module ) }
-						toggling={ this.props.isUpdating( this.props.module ) }
-						toggleModule={ this.toggleModule }
-						compact={ true }
-					/>
-				);
+				return 'no-pro-uninstalled-or-inactive' === this.props.status
+					? <ProStatus proFeature={ this.props.module } siteAdminUrl={ this.props.siteAdminUrl } />
+					: this.getModuleToggle();
 
 			case 'monitor':
 				return this.props.getOptionValue( this.props.module ) && (
