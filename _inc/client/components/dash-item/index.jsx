@@ -124,15 +124,17 @@ export class DashItem extends Component {
 					: this.getModuleToggle();
 
 			case 'monitor':
-				return this.props.getOptionValue( this.props.module ) && (
-					<Button
-						compact
-						onClick={ trackMonitorSettingsClick }
-						href={ `https://wordpress.com/settings/security/${ this.props.siteRawUrl }` }
-						>
-						{ __( 'Settings' ) }
-					</Button>
-				);
+				return this.props.getOptionValue( this.props.module )
+					? (
+						<Button
+							compact
+							onClick={ trackMonitorSettingsClick }
+							href={ `https://wordpress.com/settings/security/${ this.props.siteRawUrl }` }
+							>
+							{ __( 'Settings' ) }
+						</Button>
+					)
+					: this.getModuleToggle();
 
 			case 'rewind':
 				if ( 'is-awaiting-credentials' === this.props.status ) {

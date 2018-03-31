@@ -203,7 +203,7 @@ describe( 'DashItem', () => {
 			userCanToggle: true,
 			siteAdminUrl: 'https://example.org/wp-admin/',
 			siteRawUrl: 'example.org',
-			getOptionValue: () => true,
+			getOptionValue: () => false,
 			isUpdating: () => false
 		};
 
@@ -215,6 +215,11 @@ describe( 'DashItem', () => {
 
 		it( 'the toggle references the module this card belongs to', () => {
 			expect( wrapper.find( 'ModuleToggle' ).props().slug ).to.be.equal( 'monitor' );
+		} );
+
+		it( "displays a button when it's active", () => {
+			const monitorActive = shallow( <DashItem { ...monitorProps } getOptionValue={ () => true } /> );
+			expect( monitorActive.find( 'Button' ).children().text() ).to.be.equal( 'Settings' );
 		} );
 
 	} );
