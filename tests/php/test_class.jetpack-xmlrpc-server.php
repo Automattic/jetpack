@@ -46,4 +46,91 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 
 		$this->assertEquals( $user_id, $decoded_object->ID );
 	}
+
+	function test_xmlrpc_remote_provision_fails_no_nonce() {
+		$server = new Jetpack_XMLRPC_Server();
+
+		$response = $server->remote_provision( array( 'local_username' => 'nonexistent' ) );
+		$this->assertInstanceOf( 'IXR_Error', $response );
+		$this->assertEquals( 400, $response->code );
+		$this->assertContains( '[nonce_missing]', $response->message );
+	}
+
+	function test_xmlrpc_remote_provision_fails_no_local_username() {
+		$server = new Jetpack_XMLRPC_Server();
+		$response = $server->remote_provision( array( 'nonce' => '12345' ) );
+		$this->assertInstanceOf( 'IXR_Error', $response );
+		$this->assertEquals( 400, $response->code );
+		$this->assertContains( '[local_username_missing]', $response->message );
+	}
+
+	function test_xmlrpc_remote_provision_fails_nonce_validation() {
+		$server = new Jetpack_XMLRPC_Server();
+		$response = $server->remote_provision( array( 'nonce' => '12345', 'local_username' => 'nonexistent' ) );
+		$this->assertInstanceOf( 'IXR_Error', $response );
+		$this->assertEquals( 400, $response->code );
+		$this->assertContains( '[invalid_nonce]', $response->message );
+	}
+
+	function test_xmlrpc_remote_provision_nonce_validation() {
+		$server = new Jetpack_XMLRPC_Server();
+		$filters = array(
+			'__return_ok_status' => array(
+				'code' => 404,
+				'message' => 'user_unknown', // Signifies the nonce was valid.
+			),
+			'__return_invalid_nonce_status' => array(
+				'code' => 400,
+				'message' => 'invalid_nonce',
+			),
+			'__return_nonce_404_status' => array(
+				'code' => 400,
+				'message' => 'invalid_nonce',
+			),
+		);
+
+		foreach ( $filters as $filter => $expected ) {
+			add_filter( 'pre_http_request', array( $this, $filter ) );
+			$response = $server->remote_provision( array( 'nonce' => '12345', 'local_username' => 'nonexistent' ) );
+			remove_filter( 'pre_http_request', array( $this, $filter ) );
+
+			$this->assertInstanceOf( 'IXR_Error', $response );
+			$this->assertEquals( $expected['code'], $response->code );
+			$this->assertContains( sprintf( '[%s]', $expected['message'] ), $response->message );
+		}
+	}
+
+	/*
+	 * Helpers
+	 */
+
+	public function __return_ok_status() {
+		return array(
+			'body' => 'OK',
+			'response' => array(
+				'code'    => 200,
+				'message' => '',
+			)
+		);
+	}
+
+	public function __return_invalid_nonce_status() {
+		return array(
+			'body' => 'FAIL: NOT OK',
+			'response' => array(
+				'code'    => 200,
+				'message' => '',
+			)
+		);
+	}
+
+	public function __return_nonce_404_status() {
+		return array(
+			'body' => '',
+			'response' => array(
+				'code'    => 404,
+				'message' => '',
+			)
+		);
+	}
 }
