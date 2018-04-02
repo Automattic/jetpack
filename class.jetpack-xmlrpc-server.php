@@ -220,10 +220,6 @@ class Jetpack_XMLRPC_Server {
 			return $this->error( $result, 'jpc_remote_provision_fail' );
 		}
 
-		if ( ! empty( $result['secret'] ) ) {
-			unset( $result['secret'] );
-		}
-
 		$result['client_id'] = Jetpack_Options::get_option( 'id' );
 
 		return $result;
