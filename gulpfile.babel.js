@@ -432,7 +432,7 @@ gulp.task( 'languages:get', function( callback ) {
 	} );
 } );
 
-gulp.task( 'languages:build', [ 'languages:get' ], function() {
+gulp.task( 'languages:build', [ 'languages:get' ], function( done ) {
 	const terms = [];
 
 	// Defining global that will be used from jetpack-strings.js
@@ -449,7 +449,7 @@ gulp.task( 'languages:build', [ 'languages:get' ], function() {
 		terms[ context + '\u0004' + term ] = '';
 	};
 
-	return gulp.src( [ '_inc/jetpack-strings.php' ] )
+	gulp.src( [ '_inc/jetpack-strings.php' ] )
 		.pipe( deleteLines( {
 			filters: [ /<\?php/ ]
 		} ) )
@@ -477,6 +477,7 @@ gulp.task( 'languages:build', [ 'languages:get' ], function() {
 				.pipe( gulp.dest( 'languages/json/' ) )
 				.on( 'end', function() {
 					fs.unlinkSync( './_inc/jetpack-strings.js' );
+					done();
 				} );
 		} );
 } );
