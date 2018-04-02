@@ -199,7 +199,8 @@ function JetpackRestApiClient( root, nonce ) {
 
 		fetchStatsData: ( range ) => getRequest( statsDataUrl( range ), getParams )
 			.then( checkStatus )
-			.then( parseJsonResponse ),
+			.then( parseJsonResponse )
+			.then( handleStatsResponseError ),
 
 		getPluginUpdates: () => getRequest( `${ apiRoot }jetpack/v4/updates/plugins`, getParams )
 			.then( checkStatus )
@@ -279,6 +280,16 @@ function JetpackRestApiClient( root, nonce ) {
 			url = url + `?range=${ encodeURIComponent( range ) }`;
 		}
 		return url;
+	}
+
+	function handleStatsResponseError( statsData ) {
+		// If we get a .response property, it means that .com's response is errory.
+		// Probably because the site does not have stats yet.
+		const responseOk =
+			( statsData.general && statsData.general.response === undefined ) ||
+			( statsData.week && statsData.week.response === undefined ) ||
+			( statsData.month && statsData.month.response === undefined );
+		return responseOk ? statsData : {};
 	}
 
 	assign( this, methods );
