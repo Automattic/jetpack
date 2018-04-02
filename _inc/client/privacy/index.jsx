@@ -54,10 +54,30 @@ class Privacy extends React.Component {
 		active: false,
 	};
 
+	isPrivacyFound = () => {
+		if ( this.props.searchTerm ) {
+			return (
+				[
+					__( 'privacy', { context: 'Search term.' } ),
+					__( 'tracks', { context: 'Search term.' } ),
+					__( 'data', { context: 'Search term.' } ),
+					__( 'gdpr', { context: 'Search term.' } ),
+					__( 'tos', { context: 'Search term.' } ),
+					__( 'terms of service', { context: 'Search term.' } ),
+				]
+					.join( ' ' )
+					.toLowerCase()
+					.indexOf( this.props.searchTerm.toLowerCase() ) > -1
+			);
+		}
+
+		return true;
+	};
+
 	togglePrivacy = () => {
 		const current = this.props.trackingSettings.tracks_opt_out;
 		this.props.setTrackingSettings( ! current );
-	}
+	};
 
 	componentWillMount() {
 		this.props.fetchTrackingSettings();
@@ -73,7 +93,7 @@ class Privacy extends React.Component {
 			return null;
 		}
 
-		return (
+		return this.isPrivacyFound() && (
 			<div>
 				<SettingsCard
 					{ ...this.props }
