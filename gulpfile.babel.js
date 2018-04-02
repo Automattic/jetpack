@@ -8,6 +8,7 @@ import check from 'gulp-check';
 import cleanCSS from 'gulp-clean-css';
 import colors from 'ansi-colors';
 import del from 'del';
+import deleteLines from 'gulp-delete-lines';
 import fs from 'fs';
 import gulp from 'gulp';
 import eslint from 'gulp-eslint';
@@ -20,12 +21,10 @@ import PluginError from 'plugin-error';
 import po2json from 'gulp-po2json';
 import qunit from 'gulp-qunit';
 import rename from 'gulp-rename';
-import readline from 'readline';
 import request from 'request';
 import rtlcss from 'gulp-rtlcss';
 import sass from 'gulp-sass';
 import { spawn } from 'child_process';
-import Stream from 'stream';
 import sourcemaps from 'gulp-sourcemaps';
 import tap from 'gulp-tap';
 import uglify from 'gulp-uglify';
@@ -434,58 +433,53 @@ gulp.task( 'languages:get', function( callback ) {
 } );
 
 gulp.task( 'languages:build', [ 'languages:get' ], function( done ) {
-	let terms = [];
-	const instream = fs.createReadStream( './_inc/jetpack-strings.php' );
-	const outstream = new Stream;
-	outstream.readable = true;
-	outstream.writable = true;
+	const terms = [];
 
-	const rl = readline.createInterface( {
-		input: instream,
-		output: outstream,
-		terminal: false
-	} );
+	// Defining global that will be used from jetpack-strings.js
+	global.$jetpack_strings = [];
+	global.array = function() {};
 
-	rl.on( 'line', function( line ) {
-		const brace_index = line.indexOf( '__(' );
+	// Plural gettext call doesn't make a difference for Jed, the singular value is still used as the key.
+	global.__ = global._n = function( term ) {
+		terms[ term ] = '';
+	};
 
-		// Skipping lines that do not call translation functions
-		if ( -1 === brace_index ) {
-			return;
-		}
+	// Context prefixes the term and is separated with a unicode character U+0004
+	global._x = function( term, context ) {
+		terms[ context + '\u0004' + term ] = '';
+	};
 
-		line = line
-			.slice( brace_index + 3, line.lastIndexOf( ')' ) )
-			.replace( /[\b\f\n\r\t]/g, ' ' );
+	gulp.src( [ '_inc/jetpack-strings.php' ] )
+		.pipe( deleteLines( {
+			filters: [ /<\?php/ ]
+		} ) )
+		.pipe( rename( 'jetpack-strings.js' ) )
+		.pipe( gulp.dest( '_inc' ) )
+		.on( 'end', function() {
+			// Requiring the file that will call __, _x and _n
+			require( './_inc/jetpack-strings.js' );
 
-		// Making the line look like a JSON array to parse it as such later
-		line = [ '[', line.trim(), ']' ].join( '' );
+			return gulp.src( [ 'languages/*.po' ] )
+				.pipe( po2json() )
+				.pipe( json_transform( function( data ) {
+					const filtered = {
+						'': data[ '' ]
+					};
 
-		terms.push( line );
-	} ).on( 'close', function() {
-		// Extracting only the first argument to the translation function
-		terms = JSON.parse( '[' + terms.join( ',' ) + ']' ).map( function( term ) {
-			return term[ 0 ];
-		} );
+					Object.keys( data ).forEach( function( term ) {
+						if ( terms.hasOwnProperty( term ) ) {
+							filtered[ term ] = data[ term ];
+						}
+					} );
 
-		gulp.src( [ 'languages/*.po' ] )
-			.pipe( po2json() )
-			.pipe( json_transform( function( data ) {
-				const filtered = {
-					'': data[ '' ]
-				};
-
-				Object.keys( data ).forEach( function( term ) {
-					if ( -1 !== terms.indexOf( term ) ) {
-						filtered[ term ] = data[ term ];
-					}
+					return filtered;
+				} ) )
+				.pipe( gulp.dest( 'languages/json/' ) )
+				.on( 'end', function() {
+					fs.unlinkSync( './_inc/jetpack-strings.js' );
+					done();
 				} );
-
-				return filtered;
-			} ) )
-			.pipe( gulp.dest( 'languages/json/' ) )
-			.on( 'end', done );
-	} );
+		} );
 } );
 
 gulp.task( 'php:module-headings', function( callback ) {

@@ -147,6 +147,7 @@
     "glob": "^7.1.1",
     "grunt": "^0.4.2",
     "grunt-wp-i18n": "~0.4.6",
+    "gulp-delete-lines": "^0.0.7",
     "husky": "^0.14.3",
     "mocha": "^2.4.5",
     "mockery": "^1.4.1",
