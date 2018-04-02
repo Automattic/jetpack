@@ -38,7 +38,7 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		// Our aim is to initialize `sync_items` as early as possible, so that other areas of the code base can know
 		// that we are within a post-saving operation. `wp_insert_post_parent` happens early within the action stack.
 		// And we can catch editpost actions early by hooking to `check_admin_referrer`.
-		add_filter( 'wp_insert_post_parent', array( $this, 'wp_insert_post_parent' ), 10, 2 );
+		add_filter( 'wp_insert_post_parent', array( $this, 'wp_insert_post_parent' ), 10, 3 );
 		add_action( 'check_admin_referer', array( $this, 'check_admin_referer' ), 10, 2 );
 
 		add_action( 'wp_insert_post', array( $this, 'wp_insert_post' ), $priority, 3 );
@@ -107,10 +107,14 @@ class Jetpack_Sync_Module_Posts extends Jetpack_Sync_Module {
 		$this->set_post_sync_item( $post_ID );
 	}
 
-	public function wp_insert_post_parent( $post_parent, $post_ID ) {
+	public function is_attachment( $args ) {
+		return ( isset( $args['post_type'] ) && 'attachment' === $args['post_type'] );
+	}
+
+	public function wp_insert_post_parent( $post_parent, $post_ID, $args ) {
 		if ( $post_ID ) {
 			$this->set_post_sync_item( $post_ID );
-		} else {
+		} else if ( ! $this->is_attachment( $args ) ) {
 			$this->set_post_sync_item( 'new' );
 		}
 		return $post_parent;
