@@ -127,7 +127,7 @@ export class DashStats extends Component {
 				<div className="jp-at-a-glance__stats-chart">
 					<Chart data={ chartData } barClick={ this.barClick } />
 					{
-						0 === chartData.length && <Spinner />
+						( 0 === chartData.length || this.props.fetchingStatsData ) && <Spinner />
 					}
 				</div>
 				<div id="stats-bottom" className="jp-at-a-glance__stats-bottom">
@@ -186,20 +186,10 @@ export class DashStats extends Component {
 				);
 			}
 
-			if ( this.props.fetchingStatsData ) {
-				return (
-					<div className="jp-at-a-glance__stats-container-loading">
-						<div className="jp-at-a-glance__stats-chart">
-							<Spinner />
-						</div>
-					</div>
-				);
-			}
-
 			const statsChart = this.statsChart( this.props.activeTab ),
 				chartData = statsChart.chartData,
 				totalViews = statsChart.totalViews,
-				showEmptyStats = totalViews <= 0 && ! this.props.isEmptyStatsCardDismissed && ! this.state.emptyStatsDismissed;
+				showEmptyStats = totalViews <= 0 && ! this.props.isEmptyStatsCardDismissed && ! this.state.emptyStatsDismissed && ! this.props.fetchingStatsData;
 
 			return (
 				<div className="jp-at-a-glance__stats-container">
