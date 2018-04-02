@@ -432,7 +432,7 @@ gulp.task( 'languages:get', function( callback ) {
 	} );
 } );
 
-gulp.task( 'languages:build', function() {
+gulp.task( 'languages:build', [ 'languages:get' ], function() {
 	const terms = [];
 
 	// Defining global that will be used from jetpack-strings.js
