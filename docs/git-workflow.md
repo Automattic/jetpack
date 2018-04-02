@@ -56,3 +56,24 @@ $ git rebase jetpack/master
 # Then push your changes to your forked version of Jetpack
 $ git push -f origin update/my-changes
 ```
+
+### Keeping your PR up to date if you have commit access to this repo
+
+* Pull Requests usually need to be rebased when:
+
+  1. The PR has conflicts due to some recent changes in Jetpack master.
+  2. Somebody changed code in the unit tests setup or dependencies and thus the PR needs to be updated your PR so we can run automated tests on its code.
+
+Here are the commands that may help you achieve it and have the least amount of problems when keeping your branch's code up to date.
+
+```sh
+$ git checkout update/my-changes
+# Let git know about latest changes from GitHub
+$ git fetch origin
+# Make the latest changes in master be included before our latests changes in this branch.
+$ git rebase origin/master
+
+# Make more changes and commit OR resolve conflicts.
+# Then push your changes to your forked version of Jetpack
+$ git push -f origin update/my-changes
+```
