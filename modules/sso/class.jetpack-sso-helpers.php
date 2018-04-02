@@ -253,7 +253,7 @@ class Jetpack_SSO_Helpers {
 		 *
 		 * @param int YEAR_IN_SECONDS
 		 */
-		return intval( apply_filters( 'jetpack_sso_auth_cookie_expirtation', YEAR_IN_SECONDS ) );
+		return intval( apply_filters( 'jetpack_sso_auth_cookie_expiration', YEAR_IN_SECONDS ) );
 	}
 
 	/**
