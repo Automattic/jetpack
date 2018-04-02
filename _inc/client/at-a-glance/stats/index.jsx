@@ -29,7 +29,8 @@ import {
 	getStatsData,
 	statsSwitchTab,
 	fetchStatsData,
-	getActiveStatsTab
+	getActiveStatsTab,
+	isFetchingStatsData,
 } from 'state/at-a-glance';
 import { isModuleAvailable } from 'state/modules';
 import { emptyStatsCardDismissed } from 'state/settings';
@@ -41,6 +42,7 @@ export class DashStats extends Component {
 		siteAdminUrl: PropTypes.string.isRequired,
 		statsData: PropTypes.any.isRequired,
 		isModuleAvailable: PropTypes.bool.isRequired,
+		fetchingStatsData: PropTypes.bool.isRequired,
 	};
 
 	constructor( props ) {
@@ -125,7 +127,7 @@ export class DashStats extends Component {
 				<div className="jp-at-a-glance__stats-chart">
 					<Chart data={ chartData } barClick={ this.barClick } />
 					{
-						0 === chartData.length && <Spinner />
+						( 0 === chartData.length || this.props.fetchingStatsData ) && <Spinner />
 					}
 				</div>
 				<div id="stats-bottom" className="jp-at-a-glance__stats-bottom">
@@ -187,7 +189,7 @@ export class DashStats extends Component {
 			const statsChart = this.statsChart( this.props.activeTab ),
 				chartData = statsChart.chartData,
 				totalViews = statsChart.totalViews,
-				showEmptyStats = totalViews <= 0 && ! this.props.isEmptyStatsCardDismissed && ! this.state.emptyStatsDismissed;
+				showEmptyStats = totalViews <= 0 && ! this.props.isEmptyStatsCardDismissed && ! this.state.emptyStatsDismissed && ! this.props.fetchingStatsData;
 
 			return (
 				<div className="jp-at-a-glance__stats-container">
@@ -304,6 +306,7 @@ export default connect(
 		connectUrl: getConnectUrl( state ),
 		statsData: isEmpty( getStatsData( state ) ) ? getInitialStateStatsData( state ) : getStatsData( state ),
 		isEmptyStatsCardDismissed: emptyStatsCardDismissed( state ),
+		fetchingStatsData: isFetchingStatsData( state ),
 	} ),
 	dispatch => ( {
 		switchView: tab => dispatch( statsSwitchTab( tab ) ),
