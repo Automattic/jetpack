@@ -4,7 +4,7 @@
 class Jetpack_Sync_Item {
 
 	private $object; // The object we are syncing, eg a post
-	private $items; // Related sync items that we want to send in the same request, eg categories and tags, post meta, revision
+	private $items = array(); // Related sync items that we want to send in the same request, eg categories and tags, post meta, revision
 	private $state; // The state of the object, eg `is_just_published`
 	private $trigger; // The action that triggers the sync operation, eg `save_post`
 
@@ -51,40 +51,22 @@ class Jetpack_Sync_Item {
 		return ( $this->state_isset( $key ) && (bool) $this->state[ $key ] );
 	}
 
-	function get_payload( $include = null ) {
+	function get_payload() {
 		if ( empty( $this->object ) ) {
 			return false;
 		}
 
-		$default_include = array(
-			'items' => true,
-			'state' => true,
-			'trigger' => false
-		);
-		if ( ! is_array( $include ) ) {
-			$include = $default_include;
-		} else {
-			$include = array_merge( $default_include, $include );
-		}
-
 		$payload = array( 'object' => $this->object );
 
-		if ( $include['trigger'] ) {
-			$payload['trigger'] = $this->trigger;
+		foreach ( $this->items as $item ) {
+			$payload['items'][] = $item->get_payload();
 		}
 
-		if ( ! empty( $this->items ) && $include['items'] ) {
-			$payload['items'] = array_map( array( $this, 'get_sub_sync_item_payload' ), $this->items );
-		}
-
-		if ( ! empty( $this->state ) && $include['state'] ) {
+		if ( ! empty( $this->state ) ) {
 			$payload['state'] = $this->state;
 		}
 
 		return $payload;
 	}
 
-	function get_sub_sync_item_payload( $sync_item ) {
-		return $sync_item->get_payload( array( 'trigger' => true, 'state' => false, 'items' => false ) );
-	}
 }
