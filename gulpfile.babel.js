@@ -447,7 +447,10 @@ gulp.task( 'languages:build', [ 'languages:get' ], function( done ) {
 	} );
 
 	rl.on( 'line', function( line ) {
-		const brace_index = line.indexOf( '__(' );
+		// Here we take in account all possible function used for localization (__(), _x(), _n())
+		let brace_index = line.indexOf( '__(' );
+		brace_index = brace_index === -1 ? line.indexOf( '_x(' ) : brace_index;
+		brace_index = brace_index === -1 ? line.indexOf( '_n(' ) : brace_index;
 
 		// Skipping lines that do not call translation functions
 		if ( -1 === brace_index ) {
