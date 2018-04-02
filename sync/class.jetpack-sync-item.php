@@ -56,7 +56,7 @@ class Jetpack_Sync_Item {
 			return false;
 		}
 
-		$payload = array( 'object' => $this->object );
+		$payload = array( 'object' => $this->object, 'trigger' => $this->trigger );
 
 		foreach ( $this->items as $item ) {
 			$payload['items'][] = $item->get_payload();
