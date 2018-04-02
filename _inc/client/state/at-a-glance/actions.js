@@ -41,7 +41,10 @@ export const fetchStatsData = ( range ) => {
 		return restApi.fetchStatsData( range ).then( statsData => {
 			// If we get a .response property, it means that .com's response is errory.
 			// Probably because the site does not have stats yet.
-			const responseOk = statsData.general.response === undefined;
+			const responseOk =
+				( statsData.general && statsData.general.response === undefined ) ||
+				( statsData.week && statsData.week.response === undefined ) ||
+				( statsData.month && statsData.month.response === undefined );
 			dispatch( {
 				type: STATS_DATA_FETCH_SUCCESS,
 				statsData: responseOk ? statsData : {},
