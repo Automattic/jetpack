@@ -6,7 +6,7 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 	function test_xmlrpc_features_available() {
 		$server = new Jetpack_XMLRPC_Server();
 		$response = $server->features_available();
-		
+
 		// trivial assertion
 		$this->assertTrue( in_array( 'publicize', $response ) );
 	}
@@ -30,7 +30,7 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 		$codec = Jetpack_Sync_Sender::get_instance()->get_codec();
 		$decoded_object = $codec->decode( $response );
 
-		$this->assertFalse( $decoded_object );	
+		$this->assertFalse( $decoded_object );
 	}
 
 	function test_xmlrpc_get_sync_object_for_user() {
@@ -47,4 +47,3 @@ class WP_Test_Jetpack_XMLRPC_Server extends WP_UnitTestCase {
 		$this->assertEquals( $user_id, $decoded_object->ID );
 	}
 }
-	
