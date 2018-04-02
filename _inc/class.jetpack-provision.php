@@ -1,5 +1,15 @@
-<?php
-class Jetpack_Provision {
+<?php //phpcs:ignore
+
+class Jetpack_Provision { //phpcs:ignore
+
+	/**
+	 * Responsible for checking pre-conditions, registering site, and returning an array of details
+	 * that can be used to provision a plan for the site.
+	 *
+	 * @param array $named_args The array of arguments.
+	 *
+	 * @return WP_Error|array
+	 */
 	public static function register_and_build_request_body( $named_args ) {
 		$url_args = array(
 			'home_url' => 'WP_HOME',
@@ -14,10 +24,10 @@ class Jetpack_Provision {
 			// WP_SITEURL constants if the constant hasn't already been defined.
 			if ( isset( $named_args[ $url_arg ] ) ) {
 				if ( version_compare( phpversion(), '5.3.0', '>=' ) ) {
-					add_filter( $url_arg, function( $url ) use ( $url_arg, $named_args ) {
+					add_filter( $url_arg, function() use ( $url_arg, $named_args ) {
 						return $named_args[ $url_arg ];
 					}, 11 );
-				} else if ( ! defined( $constant_name ) ) {
+				} elseif ( ! defined( $constant_name ) ) {
 					define( $constant_name, $named_args[ $url_arg ] );
 				}
 			}
@@ -41,7 +51,7 @@ class Jetpack_Provision {
 		$blog_token = Jetpack_Options::get_option( 'blog_token' );
 
 		if ( ! $blog_id || ! $blog_token || ( isset( $named_args['force_register'] ) && intval( $named_args['force_register'] ) ) ) {
-			// this code mostly copied from Jetpack::admin_page_load
+			// This code mostly copied from Jetpack::admin_page_load.
 			Jetpack::maybe_set_version_option();
 			$registered = Jetpack::try_registration();
 			if ( is_wp_error( $registered ) ) {
@@ -54,8 +64,9 @@ class Jetpack_Provision {
 			$blog_token = Jetpack_Options::get_option( 'blog_token' );
 		}
 
-		// if the user isn't specified, but we have a current master user, then set that to current user
-		if ( ! get_current_user_id() && $master_user_id = Jetpack_Options::get_option( 'master_user' ) ) {
+		// If the user isn't specified, but we have a current master user, then set that to current user.
+		$master_user_id = Jetpack_Options::get_option( 'master_user' );
+		if ( ! get_current_user_id() && $master_user_id ) {
 			wp_set_current_user( $master_user_id );
 		}
 
@@ -68,7 +79,10 @@ class Jetpack_Provision {
 		/** This filter is documented in class.jetpack-cli.php */
 		if ( apply_filters( 'jetpack_start_enable_sso', $auto_enable_sso ) ) {
 			$redirect_uri = add_query_arg(
-				array( 'action' => 'jetpack-sso', 'redirect_to' => urlencode( admin_url() ) ),
+				array(
+					'action'      => 'jetpack-sso',
+					'redirect_to' => rawurlencode( admin_url() ),
+				),
 				wp_login_url() // TODO: come back to Jetpack dashboard?
 			);
 		} else {
@@ -87,28 +101,28 @@ class Jetpack_Provision {
 		if ( get_current_user_id() ) {
 			$user = wp_get_current_user();
 
-			// role
-			$role = Jetpack::translate_current_user_to_role();
+			// Role.
+			$role        = Jetpack::translate_current_user_to_role();
 			$signed_role = Jetpack::sign_role( $role );
 
 			$secrets = Jetpack::init()->generate_secrets( 'authorize' );
 
-			// Jetpack auth stuff
+			// Jetpack auth stuff.
 			$request_body['scope']  = $signed_role;
 			$request_body['secret'] = $secrets['secret_1'];
 
-			// User stuff
+			// User stuff.
 			$request_body['user_id']    = $user->ID;
 			$request_body['user_email'] = $user->user_email;
 			$request_body['user_login'] = $user->user_login;
 		}
 
-		// optional additional params
+		// Optional additional params.
 		if ( isset( $named_args['wpcom_user_id'] ) && ! empty( $named_args['wpcom_user_id'] ) ) {
 			$request_body['wpcom_user_id'] = $named_args['wpcom_user_id'];
 		}
 
-		// override email of selected user
+		// Override email of selected user.
 		if ( isset( $named_args['wpcom_user_email'] ) && ! empty( $named_args['wpcom_user_email'] ) ) {
 			$request_body['user_email'] = $named_args['wpcom_user_email'];
 		}
@@ -132,6 +146,14 @@ class Jetpack_Provision {
 		return $request_body;
 	}
 
+	/**
+	 * Given an access token and an array of arguments, will provision a plan for this site.
+	 *
+	 * @param string $access_token The access token from the partner.
+	 * @param array  $named_args   The arguments used for registering the site and then provisioning a plan.
+	 *
+	 * @return WP_Error|array
+	 */
 	public static function partner_provision( $access_token, $named_args ) {
 		// First, verify the token.
 		$verify_response = self::verify_token( $access_token );
@@ -147,21 +169,27 @@ class Jetpack_Provision {
 
 		$request = array(
 			'headers' => array(
-				'Authorization' => "Bearer " . $access_token,
-				'Host'          => defined( 'JETPACK__WPCOM_JSON_API_HOST_HEADER' ) ? JETPACK__WPCOM_JSON_API_HOST_HEADER : 'public-api.wordpress.com',
+				'Authorization' => "Bearer $access_token",
+				'Host'          => defined( 'JETPACK__WPCOM_JSON_API_HOST_HEADER' )
+					? JETPACK__WPCOM_JSON_API_HOST_HEADER
+					: 'public-api.wordpress.com',
 			),
 			'timeout' => 60,
 			'method'  => 'POST',
-			'body'    => json_encode( $request_body )
+			'body'    => wp_json_encode( $request_body ),
 		);
 
 		$blog_id = Jetpack_Options::get_option( 'id' );
-		$url = sprintf( 'https://%s/rest/v1.3/jpphp/%d/partner-provision', self::get_api_host(), $blog_id );
+		$url     = esc_url_raw( sprintf(
+			'https://%s/rest/v1.3/jpphp/%d/partner-provision',
+			self::get_api_host(),
+			$blog_id
+		) );
 		if ( ! empty( $named_args['partner_tracking_id'] ) ) {
 			$url = esc_url_raw( add_query_arg( 'partner_tracking_id', $named_args['partner_tracking_id'], $url ) );
 		}
 
-		// add calypso env if set
+		// Add calypso env if set.
 		if ( getenv( 'CALYPSO_ENV' ) ) {
 			$url = add_query_arg( array( 'calypso_env' => getenv( 'CALYPSO_ENV' ) ), $url );
 		}
@@ -175,19 +203,23 @@ class Jetpack_Provision {
 		$response_code = wp_remote_retrieve_response_code( $result );
 		$body_json     = json_decode( wp_remote_retrieve_body( $result ) );
 
-		if( 200 !== $response_code ) {
+		if ( 200 !== $response_code ) {
 			if ( isset( $body_json->error ) ) {
 				return new WP_Error( $body_json->error, $body_json->message );
 			} else {
-				return new WP_Error( 'server_error', sprintf( __( "Request failed with code %s" ), $response_code ) );
+				return new WP_Error(
+					'server_error',
+					/* translators: %s is an HTTP status code retured from an API request. Ex. – 400 */
+					sprintf( esc_html__( 'Request failed with code %s', 'jetpack' ), $response_code )
+				);
 			}
 		}
 
-		if ( isset( $body_json->access_token ) ) {
-			// check if this matches the existing token before replacing
-			$existing_token = Jetpack_Data::get_access_token( $user->ID );
+		if ( isset( $body_json->access_token ) && is_user_logged_in() ) {
+			// Check if this matches the existing token before replacing.
+			$existing_token = Jetpack_Data::get_access_token( get_current_user_id() );
 			if ( empty( $existing_token ) || $existing_token->secret !== $body_json->access_token ) {
-				self::authorize_user( $user->ID, $body_json->access_token );
+				self::authorize_user( get_current_user_id(), $body_json->access_token );
 			}
 		}
 
