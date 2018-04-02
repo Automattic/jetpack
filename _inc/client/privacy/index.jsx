@@ -58,12 +58,12 @@ class Privacy extends React.Component {
 		if ( this.props.searchTerm ) {
 			return (
 				[
-					__( 'privacy' ),
-					__( 'tracks' ),
-					__( 'data' ),
-					__( 'gdpr' ),
-					__( 'tos' ),
-					__( 'terms of service' ),
+					__( 'privacy', { context: 'Search term.' } ),
+					__( 'tracks', { context: 'Search term.' } ),
+					__( 'data', { context: 'Search term.' } ),
+					__( 'gdpr', { context: 'Search term.' } ),
+					__( 'tos', { context: 'Search term.' } ),
+					__( 'terms of service', { context: 'Search term.' } ),
 				]
 					.join( ' ' )
 					.toLowerCase()
