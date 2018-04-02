@@ -140,7 +140,7 @@ class Jetpack_Provision {
 			return $verify_response;
 		}
 
-		$request_body = $this->register_and_build_request_body();
+		$request_body = self::register_and_build_request_body( $named_args );
 		if ( is_wp_error( $request_body ) ) {
 			return $request_body;
 		}
@@ -155,6 +155,7 @@ class Jetpack_Provision {
 			'body'    => json_encode( $request_body )
 		);
 
+		$blog_id = Jetpack_Options::get_option( 'id' );
 		$url = sprintf( 'https://%s/rest/v1.3/jpphp/%d/partner-provision', self::get_api_host(), $blog_id );
 		if ( ! empty( $named_args['partner_tracking_id'] ) ) {
 			$url = esc_url_raw( add_query_arg( 'partner_tracking_id', $named_args['partner_tracking_id'], $url ) );
