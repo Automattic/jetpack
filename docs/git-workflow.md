@@ -62,7 +62,7 @@ $ git push -f origin update/my-changes
 * Pull Requests usually need to be rebased when:
 
   1. The PR has conflicts due to some recent changes in Jetpack master.
-  2. Somebody changed code in the unit tests setup or dependencies and thus the PR needs to be updated your PR so we can run automated tests on its code.
+  2. Somebody changed code in the unit tests setup or dependencies and thus the PR needs to be updated so we can run automated tests on its code.
 
 Here are the commands that may help you achieve it and have the least amount of problems when keeping your branch's code up to date.
 
