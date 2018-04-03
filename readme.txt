@@ -101,6 +101,9 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Release post: https://wp.me/p1moTy-7xM
 
 **Major Enhancements**
+* Admin Page: Introduced a new Privacy admin page linked at the bottom of the Jetpack dashboard.
+* Admin Page: Introduced a Privacy toggle that allows the user to disable event tracking.
+* Widgets: Added new Social Icons widget and deprecated old Social Media Icons widget.
 
 **Enhancements**
 
@@ -112,13 +115,12 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Admin Page: Updated the "install and activate" link in the Backups card to be a functional link matching the "Set up" button.
 * Admin Page: Updated notices style to be more accessible.
 * Admin Page: We now show a link to see all plans on small screens.
-* Admin Page: Introduced a new Privacy admin page linked at the bottom of the Jetpack dashboard.
-* Admin Page: Introduced a Privacy toggle that allows the user to disable event tracking.
 * Admin Page: Settings in Jetpack dashboard now feature contextual help and a link to learn more about it.
 * Ads: Added site id to head meta.
 * Comments: Improved accessibility of comments form by adding title attributes.
 * Connect: Removed account creation links from below the Set Up Jetpack buttons.
 * General: Show correct available status in Jetpack modules list if module is not supported by current plan.
+* General: Removed holiday snow module.
 * General: Return error in wp-cli if activating a module that is not supported by the current plan.
 * Google Translate Widget: Made sure the widget is responsive by default.
 * JITM: We now allow specifying that a jitm can be opened in a new window, or the same window.
@@ -135,7 +137,6 @@ There are opportunities for developers at all levels to contribute. [Learn more 
 * Sync: Stopped syncing personal data coming from WooCommerce orders.
 * VideoPress: Default to grid view when linking to upload videos
 * Warm Welcome: Added Search to the features listed on the Warm Welcome dialog for Professional Plan.
-* Widgets: Added new Social Icons widget and deprecated old Social Media Icons widget.
 * Widgets: Added rel=noopener attribute to links in the Display WordPress Posts widget if set to open in a new window.
 
 
