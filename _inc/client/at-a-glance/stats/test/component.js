@@ -11,57 +11,64 @@ import { shallow } from 'enzyme';
 import { DashStats } from '../index';
 
 describe( 'Dashboard Stats', () => {
-	const testProps = {
-		siteRawUrl: 'example.org',
-		siteAdminUrl: 'example.org/wp-admin',
-		statsData: {
-			general: {
-				date: '2018-03-21',
-				stats: {
-					visitors_today: 0,
-					visitors_yesterday: 0,
-					visitors: 24,
-					views_today: 0,
-					views_yesterday: 0,
-					views_best_day: '2017-05-18',
-					views_best_day_total: 11,
-					views: 59,
-					comments: 6,
-					posts: 11,
-					followers_blog: 0,
-					followers_comments: 0,
-					comments_per_month: 0,
-					comments_most_active_recent_day: '2016-03-08 20:37:56',
-					comments_most_active_time: '17:00',
-					comments_spam: 0,
-					categories: 3,
-					tags: 0,
-					shares: 0,
-					shares_twitter: 0,
-					'shares_google-plus-1': 0,
-					'shares_custom-1513105119': 0,
-					shares_facebook: 0
+	let wrapper,
+		testProps;
+
+	before( function() {
+		testProps = {
+			siteRawUrl: 'example.org',
+			siteAdminUrl: 'example.org/wp-admin',
+			statsData: {
+				general: {
+					date: '2018-03-21',
+					stats: {
+						visitors_today: 0,
+						visitors_yesterday: 0,
+						visitors: 24,
+						views_today: 0,
+						views_yesterday: 0,
+						views_best_day: '2017-05-18',
+						views_best_day_total: 11,
+						views: 59,
+						comments: 6,
+						posts: 11,
+						followers_blog: 0,
+						followers_comments: 0,
+						comments_per_month: 0,
+						comments_most_active_recent_day: '2016-03-08 20:37:56',
+						comments_most_active_time: '17:00',
+						comments_spam: 0,
+						categories: 3,
+						tags: 0,
+						shares: 0,
+						shares_twitter: 0,
+						'shares_google-plus-1': 0,
+						'shares_custom-1513105119': 0,
+						shares_facebook: 0
+					},
+					visits: {
+						unit: 'day',
+						fields: [ 'period', 'views', 'visitors' ],
+						data: [ [ '2018-02-20', 0, 0 ] ]
+					}
 				},
-				visits: {
-					unit: 'day',
-					fields: [ 'period', 'views', 'visitors' ],
-					data: [ [ '2018-02-20', 0, 0 ] ]
-				}
+				day: undefined,
 			},
-			day: undefined,
-		},
-		isModuleAvailable: true,
-		isDevMode: false,
-		moduleList: { stats: {} },
-		activeTab: 'day',
-		isLinked: true,
-		connectUrl: 'https://wordpress.com/jetpack/connect/',
-		isEmptyStatsCardDismissed: false,
-		getOptionValue: module => 'stats' === module,
-	};
+			isModuleAvailable: true,
+			isDevMode: false,
+			moduleList: { stats: {} },
+			activeTab: 'day',
+			isLinked: true,
+			connectUrl: 'https://wordpress.com/jetpack/connect/',
+			isEmptyStatsCardDismissed: false,
+			getOptionValue: module => 'stats' === module,
+		};
+	} );
 
 	describe( 'Initially', () => {
-		const wrapper = shallow( <DashStats { ...testProps } /> );
+		before( function() {
+			wrapper = shallow( <DashStats { ...testProps } /> );
+		} );
 
 		it( 'renders header and card', () => {
 			expect( wrapper.find( 'DashSectionHeader' ) ).to.have.length( 1 );
@@ -72,13 +79,27 @@ describe( 'Dashboard Stats', () => {
 			expect( wrapper.find( '.jp-at-a-glance__stats-views' ) ).to.have.length( 0 );
 		} );
 
-		it( 'renders the empty stats container', () => {
-			expect( wrapper.find( '.jp-at-a-glance__stats-empty' ) ).to.have.length( 1 );
+		describe( 'when stats are present, but empty', function() {
+			before( function() {
+				testProps.statsData.day = {
+					unit: 'day',
+					fields: [ 'period', 'views', 'visitors' ],
+					// Mock no views for this date
+					data: [ [ '2018-02-20', 0, 0 ] ]
+				};
+				wrapper = shallow( <DashStats { ...testProps } /> );
+			} );
+
+			it( 'renders the empty stats container', () => {
+				expect( wrapper.find( '.jp-at-a-glance__stats-empty' ) ).to.have.length( 1 );
+			} );
 		} );
 	} );
 
 	describe( 'When empty stats card was dismissed', () => {
-		const wrapper = shallow( <DashStats { ...testProps } isEmptyStatsCardDismissed={ true } /> );
+		before( function() {
+			wrapper = shallow( <DashStats { ...testProps } isEmptyStatsCardDismissed={ true } /> );
+		} );
 
 		it( 'renders date range tabs', () => {
 			expect( wrapper.find( '.jp-at-a-glance__stats-views' ) ).to.have.length( 1 );
@@ -86,15 +107,17 @@ describe( 'Dashboard Stats', () => {
 	} );
 
 	describe( 'When there is stats data', () => {
-		testProps.statsData.day = {
-			unit: 'day',
-			fields: [ 'period', 'views', 'visitors' ],
-			// Mock 32 views for this date
-			data: [ [ '2018-02-20', 32, 0 ] ]
-		};
-		const wrapper = shallow(
-			<DashStats { ...testProps } />
-		);
+		before( function() {
+			testProps.statsData.day = {
+				unit: 'day',
+				fields: [ 'period', 'views', 'visitors' ],
+				// Mock 32 views for this date
+				data: [ [ '2018-02-20', 32, 0 ] ]
+			};
+			wrapper = shallow(
+				<DashStats { ...testProps } />
+			);
+		} );
 		it( 'renders some stats', () => {
 			expect( wrapper.find( '.jp-at-a-glance__stats-chart' ) ).to.have.length( 1 );
 		} );
