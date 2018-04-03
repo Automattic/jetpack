@@ -79,7 +79,7 @@ describe( 'Dashboard Stats', () => {
 			expect( wrapper.find( '.jp-at-a-glance__stats-views' ) ).to.have.length( 0 );
 		} );
 
-		describe( 'when stats are still loading', function() {
+		describe( 'when stats are present, but empty', function() {
 			before( function() {
 				testProps.statsData.day = {
 					unit: 'day',
