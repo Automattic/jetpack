@@ -19,37 +19,49 @@ _**All commands mentioned in this document should be run from the base Jetpack d
 - [Docker](https://www.docker.com/community-edition)
 - [NodeJS](https://nodejs.org)
 - [Yarn](https://yarnpkg.com/)
-- [Ngrok](https://ngrok.com) client and account or some other service for creating a local HTTP tunnel. It’s fine to stay on the free pricing tier with Ngrok.
+- Optionally [Ngrok](https://ngrok.com) client and account or some other service for creating a local HTTP tunnel. It’s fine to stay on the free pricing tier with Ngrok.
 
-Install prerequisites and run:
+Install prerequisites and clone the repository:
 
 ```sh
-git clone https://github.com/Automattic/jetpack.git
-cd jetpack
+git clone https://github.com/Automattic/jetpack.git && cd jetpack
+```
+
+Optionally, copy settings file to modify it:
+```sh
+cp defaults.env .env
+```
+
+Anything you put in `.env` overrides values in `default.env`. You should modify all the password fields for security, for example.
+
+Finally, spin up the containers:
+```sh
 yarn docker:up
 ```
 
 Non-installed WordPress is running at [http://localhost](http://localhost) now.
 
-You should establish a tunnel to your localhost with Ngrok or [other similar service](https://alternativeto.net/software/ngrok/) to be able to connect Jetpack. You cannot connect Jetpack when running WordPress via `http://localhost`.
+You should establish a tunnel to your localhost with Ngrok or [other similar service](https://alternativeto.net/software/ngrok/) to be able to connect Jetpack. You cannot connect Jetpack when running WordPress via `http://localhost`. Read more from ["Using Ngrok with Jetpack"](#using-ngrok-with-jetpack) section below.
 
 _You are now ready to login to your new WordPress install and connect Jetpack, congratulations!_
 
-WordPress’ `WP_SITEURL` and `WP_HOME` constants are configured to be dynamic so you shouldn’t need to change these even if you access the site via different domains.
-
 You should follow [Jetpack’s development documentation](../docs/development-environment.md) for installing Jetpack’s dependencies and building files. Docker setup does not build these for you.
+
+## Good to know
+
+WordPress’ `WP_SITEURL` and `WP_HOME` constants are configured to be dynamic in `./docker/wordpress/wp-config.php` so you shouldn’t need to change these even if you access the site via different domains.
 
 ## Working with containers
 
 ### Quick install WordPress
 
-If you want to just quickly install WordPress and activate Jetpack, spin up the containers and then run:
+You can to just quickly install WordPress and activate Jetpack via command line. Ensure you have your domain modified in `.env` file, spin up the containers and then run:
 
 ```sh
 yarn docker:install
 ```
 
-This will give you a single site with user/pass `wordpress`.
+This will give you a single site with user/pass `wordpress` (unless you changed these from `./docker/.env` file). You will still have to connect Jetpack to WordPress.com manually.
 
 To convert installed single site into a multisite, run:
 
@@ -170,7 +182,7 @@ You can access WordPress and Jetpack files via SFTP server container.
 
 You can tunnel to this container using [Ngrok](https://ngrok.com) or [other similar service](https://alternativeto.net/software/ngrok/).
 
-Tunnelling makes testing [Jetpack Rewind](https://jetpack.com/support/backups/) possible. Read more from "Using Ngrok with Jetpack" section below.
+Tunnelling makes testing [Jetpack Rewind](https://jetpack.com/support/backups/) possible. Read more from ["Using Ngrok with Jetpack"](#using-ngrok-with-jetpack) section below.
 
 ## Must Use Plugins directory
 

@@ -55,6 +55,7 @@ COPY ./config/php.ini /etc/php/7.0/cli/conf.d/20-jetpack-wordpress.ini
 
 # Copy single site htaccess to tmp. run.sh will move it to the site's base dir if there's none present.
 COPY ./config/htaccess /tmp/htaccess
+COPY ./config/htaccess-multi /tmp/htaccess-multi
 
 # Copy wp-tests-config to tmp. run.sh will move it to the WordPress source code base dir if there's none present.
 COPY ./config/wp-tests-config.php /tmp/wp-tests-config.php
