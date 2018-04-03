@@ -70,7 +70,6 @@ describe( 'Dashboard Stats', () => {
 			wrapper = shallow( <DashStats { ...testProps } /> );
 		} );
 
-		/*
 		it( 'renders header and card', () => {
 			expect( wrapper.find( 'DashSectionHeader' ) ).to.have.length( 1 );
 			expect( wrapper.find( '.jp-at-a-glance__stats-card' ) ).to.have.length( 1 );
@@ -78,7 +77,7 @@ describe( 'Dashboard Stats', () => {
 
 		it( 'does not render date range tabs', () => {
 			expect( wrapper.find( '.jp-at-a-glance__stats-views' ) ).to.have.length( 0 );
-		} ); */
+		} );
 
 		describe( 'when stats are still loading', function() {
 			before( function() {
@@ -96,7 +95,7 @@ describe( 'Dashboard Stats', () => {
 			} );
 		} );
 	} );
-/*
+
 	describe( 'When empty stats card was dismissed', () => {
 		before( function() {
 			wrapper = shallow( <DashStats { ...testProps } isEmptyStatsCardDismissed={ true } /> );
@@ -125,5 +124,5 @@ describe( 'Dashboard Stats', () => {
 		it( 'and range tabs', () => {
 			expect( wrapper.find( '.jp-at-a-glance__stats-views' ) ).to.have.length( 1 );
 		} );
-	} );*/
+	} );
 } );
